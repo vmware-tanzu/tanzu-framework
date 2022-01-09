@@ -21,7 +21,6 @@ import { ThemeToggleComponent } from './shared/components/theme-toggle/theme-tog
 // Service imports
 import { BrandingService } from './shared/service/branding.service';
 import { WebsocketService } from './shared/service/websocket.service';
-import { VSphereWizardFormService } from './shared/service/vsphere-wizard-form.service';
 
 @NgModule({
     declarations: [

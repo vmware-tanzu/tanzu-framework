@@ -1,0 +1,26 @@
+<div *ngIf="notification?.notificationType && notification?.message"
+    class="alert"
+    role="alert"
+    [ngClass]="{
+        'alert-info': isInfo(),
+        'alert-success': isSuccess(),
+        'alert-warning': isWarning(),
+        'alert-danger': isError()
+    }">
+    <div class="alert-items">
+        <div class="alert-item static">
+            <div class="alert-icon-wrapper">
+                <clr-icon *ngIf="isInfo()" class="alert-icon" shape="info-circle"></clr-icon>
+                <clr-icon *ngIf="isSuccess()" class="alert-icon" shape="check-circle"></clr-icon>
+                <clr-icon *ngIf="isWarning()" class="alert-icon" shape="exclamation-triangle"></clr-icon>
+                <clr-icon *ngIf="isError()" class="alert-icon" shape="exclamation-circle"></clr-icon>
+            </div>
+            <span class="alert-text">
+          {{ notification?.message }}
+      </span>
+        </div>
+    </div>
+    <button (click)="notification = null" type="button" class="close" aria-label="Close">
+        <clr-icon aria-hidden="true" shape="close"></clr-icon>
+    </button>
+</div>

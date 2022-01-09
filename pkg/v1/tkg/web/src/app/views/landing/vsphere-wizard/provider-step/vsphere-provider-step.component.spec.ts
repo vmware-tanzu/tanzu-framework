@@ -1,19 +1,22 @@
+// Angular imports
 import { async, ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { RouterTestingModule } from '@angular/router/testing';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { FormBuilder } from '@angular/forms';
 import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
-
-import { VSphereProviderStepComponent } from './vsphere-provider-step.component';
-import { SharedModule } from 'src/app/shared/shared.module';
-import { ValidationService } from '../../wizard/shared/validation/validation.service';
-import { APIClient } from 'src/app/swagger/api-client.service';
-import { SSLThumbprintModalComponent } from '../../wizard/shared/components/modals/ssl-thumbprint-modal/ssl-thumbprint-modal.component';
+// Third party imports
 import { of } from 'rxjs';
 import { delay } from 'rxjs/operators';
-import Broker from 'src/app/shared/service/broker';
+// App imports
+import { APIClient } from 'src/app/swagger/api-client.service';
+import AppServices from 'src/app/shared/service/appServices';
+import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
 import { Messenger } from 'src/app/shared/service/Messenger';
+import { SharedModule } from 'src/app/shared/shared.module';
+import { SSLThumbprintModalComponent } from '../../wizard/shared/components/modals/ssl-thumbprint-modal/ssl-thumbprint-modal.component';
+import { ValidationService } from '../../wizard/shared/validation/validation.service';
+import { VSphereProviderStepComponent } from './vsphere-provider-step.component';
 
 describe('VSphereProviderStepComponent', () => {
     let component: VSphereProviderStepComponent;
@@ -32,6 +35,7 @@ describe('VSphereProviderStepComponent', () => {
             providers: [
                 ValidationService,
                 FormBuilder,
+                FieldMapUtilities,
                 APIClient
             ],
             schemas: [
@@ -46,7 +50,7 @@ describe('VSphereProviderStepComponent', () => {
     }));
 
     beforeEach(() => {
-        Broker.messenger = new Messenger();
+        AppServices.messenger = new Messenger();
 
         const fb = new FormBuilder();
         fixture = TestBed.createComponent(VSphereProviderStepComponent);

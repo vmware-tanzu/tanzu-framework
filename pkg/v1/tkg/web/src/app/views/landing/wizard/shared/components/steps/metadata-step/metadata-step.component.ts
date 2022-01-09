@@ -1,15 +1,10 @@
-/**
- * Angular Modules
- */
+// Angular imports
 import { Component, OnInit } from '@angular/core';
-import { FormControl } from '@angular/forms';
-
-/**
- * App imports
- */
-import { ValidationService } from '../../../validation/validation.service';
+// App imports
+import { FieldMapUtilities } from '../../../field-mapping/FieldMapUtilities';
+import { MetadataStepMapping } from './metadata-step.fieldmapping';
 import { StepFormDirective } from '../../../step-form/step-form';
-import { VSphereWizardFormService } from 'src/app/shared/service/vsphere-wizard-form.service';
+import { ValidationService } from '../../../validation/validation.service';
 
 @Component({
     selector: 'app-metadata-step',
@@ -19,43 +14,18 @@ import { VSphereWizardFormService } from 'src/app/shared/service/vsphere-wizard-
 export class MetadataStepComponent extends StepFormDirective implements OnInit {
     labels: Map<String, String> = new Map<String, String>();
 
-    constructor(private validationService: ValidationService, private wizardFormService: VSphereWizardFormService) {
+    constructor(private validationService: ValidationService,
+                private fieldMapUtilities: FieldMapUtilities) {
         super();
     }
 
     ngOnInit() {
         super.ngOnInit();
-        this.formGroup.addControl(
-            'clusterLocation',
-            new FormControl('', [
-                this.validationService.isValidLabelOrAnnotation()
-            ])
-        );
-        this.formGroup.addControl(
-            'clusterDescription',
-            new FormControl('', [
-                this.validationService.isValidLabelOrAnnotation()
-            ])
-        );
-        this.formGroup.addControl(
-            'newLabelKey',
-            new FormControl('', [
-                this.validationService.isValidLabelOrAnnotation()
-            ])
-        );
-        this.formGroup.addControl(
-            'newLabelValue',
-            new FormControl('', [
-                this.validationService.isValidLabelOrAnnotation()
-            ])
-        );
-        this.formGroup.addControl(
-            'clusterLabels',
-            new FormControl('', [])
-        );
+        this.fieldMapUtilities.buildForm(this.formGroup, this.formName, MetadataStepMapping);
+        this.initFormWithSavedData();
     }
 
-    setSavedDataAfterLoad() {
+    initFormWithSavedData() {
         const savedLabelsString = this.getSavedValue('clusterLabels', '');
         if (savedLabelsString !== '') {
             const savedLabelsArray = savedLabelsString.split(', ')
@@ -64,7 +34,7 @@ export class MetadataStepComponent extends StepFormDirective implements OnInit {
                 this.labels.set(labelArray[0], labelArray[1]);
             });
         }
-        super.setSavedDataAfterLoad();
+        super.initFormWithSavedData();
     }
 
     addLabel(key: string, value: string) {
@@ -103,5 +73,10 @@ export class MetadataStepComponent extends StepFormDirective implements OnInit {
     getDisabled(): boolean {
         return !(this.formGroup.get('newLabelKey').valid &&
             this.formGroup.get('newLabelValue').valid);
+    }
+
+    dynamicDescription(): string {
+        const clusterLocation = this.getFieldValue('clusterLocation', true);
+        return clusterLocation ? 'Location: ' + clusterLocation : 'Specify metadata for the ' + this.clusterTypeDescriptor + ' cluster';
     }
 }

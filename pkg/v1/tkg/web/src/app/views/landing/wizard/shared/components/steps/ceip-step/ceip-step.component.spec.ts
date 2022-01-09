@@ -1,11 +1,14 @@
+// Angular imports
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { FormBuilder } from '@angular/forms';
-
-import { SharedCeipStepComponent } from './ceip-step.component';
-import Broker from 'src/app/shared/service/broker';
+// App imports
+import AppServices from 'src/app/shared/service/appServices';
+import { FieldMapUtilities } from '../../../field-mapping/FieldMapUtilities';
 import { Messenger } from 'src/app/shared/service/Messenger';
+import { SharedCeipStepComponent } from './ceip-step.component';
+import { ValidationService } from '../../../validation/validation.service';
 
 describe('SharedCeipStepComponent', () => {
     let component: SharedCeipStepComponent;
@@ -17,7 +20,9 @@ describe('SharedCeipStepComponent', () => {
                 ReactiveFormsModule
             ],
             providers: [
-                FormBuilder
+                FormBuilder,
+                FieldMapUtilities,
+                ValidationService
             ],
             schemas: [
                 CUSTOM_ELEMENTS_SCHEMA
@@ -28,7 +33,7 @@ describe('SharedCeipStepComponent', () => {
     }));
 
     beforeEach(() => {
-        Broker.messenger = new Messenger();
+        AppServices.messenger = new Messenger();
         const fb = new FormBuilder();
         fixture = TestBed.createComponent(SharedCeipStepComponent);
         component = fixture.componentInstance;

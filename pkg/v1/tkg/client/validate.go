@@ -26,6 +26,7 @@ import (
 	"github.com/pkg/errors"
 	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
+	netutils "k8s.io/utils/net"
 
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/config"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/aws"
@@ -63,8 +64,8 @@ var (
 
 var trueString = "true"
 
-// VsphereResourceType vsphere resource types
-var VsphereResourceType = []string{constants.ConfigVariableVsphereResourcePool, constants.ConfigVariableVsphereDatastore, constants.ConfigVariableVsphereFolder}
+// VsphereResourceConfigKeys vsphere resource types
+var VsphereResourceConfigKeys = []string{constants.ConfigVariableVsphereDatacenter, constants.ConfigVariableVsphereNetwork, constants.ConfigVariableVsphereResourcePool, constants.ConfigVariableVsphereDatastore, constants.ConfigVariableVsphereFolder}
 
 // CNITypes supported CNI types
 var CNITypes = map[string]bool{"calico": true, "antrea": true, "none": true}
@@ -128,10 +129,7 @@ func (c *TkgClient) DownloadBomFile(tkrName string) error {
 		return err
 	}
 
-	if err := os.WriteFile(filepath.Join(bomDir, "tkr-bom-"+tkrName+".yaml"), bomData, 0o600); err != nil {
-		return err
-	}
-	return nil
+	return os.WriteFile(filepath.Join(bomDir, "tkr-bom-"+tkrName+".yaml"), bomData, 0o600)
 }
 
 // ConfigureAndValidateTkrVersion takes tkrVersion, if empty fetches default tkr & k8s version from config
@@ -574,6 +572,10 @@ func (c *TkgClient) ConfigureAndValidateManagementClusterConfiguration(options *
 		return NewValidationError(ValidationErrorCode, err.Error())
 	}
 
+	if err = c.configureAndValidateCoreDNSIP(); err != nil {
+		return NewValidationError(ValidationErrorCode, err.Error())
+	}
+
 	if err = c.validateServiceCIDRNetmask(); err != nil {
 		return NewValidationError(ValidationErrorCode, err.Error())
 	}
@@ -583,6 +585,10 @@ func (c *TkgClient) ConfigureAndValidateManagementClusterConfiguration(options *
 	}
 
 	if err = c.ConfigureAndValidateNameserverConfiguration(TkgLabelClusterRoleManagement); err != nil {
+		return NewValidationError(ValidationErrorCode, err.Error())
+	}
+
+	if err = c.ConfigureAndValidateNetworkSeparationConfiguration(TkgLabelClusterRoleManagement); err != nil {
 		return NewValidationError(ValidationErrorCode, err.Error())
 	}
 
@@ -658,7 +664,7 @@ func (c *TkgClient) ValidateVsphereControlPlaneEndpointIP(endpointIP string) *Va
 				continue
 			}
 
-			clusters := append(managementClusters, workloadClusters...)
+			clusters := append(managementClusters, workloadClusters...) //nolint:gocritic
 
 			for i := range clusters {
 				if clusters[i].Spec.ControlPlaneEndpoint.Host == endpointIP {
@@ -813,37 +819,72 @@ func (c *TkgClient) ValidateVsphereVipWorkloadCluster(clusterClient clusterclien
 
 // ValidateVsphereResources validates vsphere resource path specified in tkgconfig
 func (c *TkgClient) ValidateVsphereResources(vcClient vc.Client, dcPath string) error {
-	for _, resourceType := range VsphereResourceType {
-		path, err := c.TKGConfigReaderWriter().Get(resourceType)
+	var path, resourceMoid string
+	var err error
+
+	for _, vsphereResourceConfigKey := range VsphereResourceConfigKeys {
+		path, err = c.TKGConfigReaderWriter().Get(vsphereResourceConfigKey)
 		if err != nil {
 			continue
 		}
 
-		switch resourceType {
-		case constants.ConfigVariableVsphereResourcePool:
-			_, err := vcClient.FindResourcePool(context.Background(), path, dcPath)
+		// finder return an error when multiple vsphere resources with the same name are present
+		switch vsphereResourceConfigKey {
+		case constants.ConfigVariableVsphereDatacenter:
+			resourceMoid, err = vcClient.FindDataCenter(context.Background(), dcPath)
 			if err != nil {
-				return errors.Wrapf(err, "invalid %s", resourceType)
+				return errors.Wrapf(err, "invalid %s", vsphereResourceConfigKey)
+			}
+		case constants.ConfigVariableVsphereNetwork:
+			resourceMoid, err = vcClient.FindNetwork(context.Background(), path, dcPath)
+			if err != nil {
+				return errors.Wrapf(err, "invalid %s", vsphereResourceConfigKey)
+			}
+		case constants.ConfigVariableVsphereResourcePool:
+			resourceMoid, err = vcClient.FindResourcePool(context.Background(), path, dcPath)
+			if err != nil {
+				return errors.Wrapf(err, "invalid %s", vsphereResourceConfigKey)
 			}
 		case constants.ConfigVariableVsphereDatastore:
 			if path != "" {
-				_, err := vcClient.FindDatastore(context.Background(), path, dcPath)
+				resourceMoid, err = vcClient.FindDatastore(context.Background(), path, dcPath)
 				if err != nil {
-					return errors.Wrapf(err, "invalid %s", resourceType)
+					return errors.Wrapf(err, "invalid %s", vsphereResourceConfigKey)
 				}
 			}
 		case constants.ConfigVariableVsphereFolder:
-			_, err := vcClient.FindFolder(context.Background(), path, dcPath)
+			resourceMoid, err = vcClient.FindFolder(context.Background(), path, dcPath)
 			if err != nil {
-				return errors.Wrapf(err, "invalid %s", resourceType)
+				return errors.Wrapf(err, "invalid %s", vsphereResourceConfigKey)
 			}
 
 		default:
-			return errors.Errorf("unknown vsphere resource type %s", resourceType)
+			return errors.Errorf("unknown vsphere resource type %s", vsphereResourceConfigKey)
+		}
+
+		err = c.setFullPath(vcClient, vsphereResourceConfigKey, path, resourceMoid)
+		if err != nil {
+			return err
 		}
 	}
 
 	return c.verifyDatastoreOrStoragePolicySet()
+}
+
+func (c *TkgClient) setFullPath(vcClient vc.Client, vsphereResourceConfigKey, path, resourceMoid string) error {
+	if path != "" {
+		resourcePath, _, err := vcClient.GetPath(context.Background(), resourceMoid)
+		if err != nil {
+			return err
+		}
+
+		if resourcePath != path {
+			log.Infof("Setting config variable %q to value %q", vsphereResourceConfigKey, resourcePath)
+			c.TKGConfigReaderWriter().Set(vsphereResourceConfigKey, resourcePath)
+		}
+	}
+
+	return nil
 }
 
 func (c *TkgClient) verifyDatastoreOrStoragePolicySet() error {
@@ -1620,6 +1661,28 @@ func (c *TkgClient) configureAndValidateIPFamilyConfiguration(clusterRole string
 	return nil
 }
 
+func (c *TkgClient) configureAndValidateCoreDNSIP() error {
+	// Core DNS IP is the 10th index of service CIDR subnet
+	// ServiceCIDR must not be empty as it should already been set by configureAndValidateIPFamilyConfiguration if it was omitted
+	serviceCIDR, err := c.TKGConfigReaderWriter().Get(constants.ConfigVariableServiceCIDR)
+	if err != nil {
+		return err
+	}
+
+	svcSubnets, err := netutils.ParseCIDRs(strings.Split(serviceCIDR, ","))
+	if err != nil {
+		return err
+	}
+	dnsIP, err := netutils.GetIndexedIP(svcSubnets[0], 10)
+	if err != nil {
+		return err
+	}
+
+	c.TKGConfigReaderWriter().Set(constants.ConfigVariableCoreDNSIP, dnsIP.String())
+
+	return nil
+}
+
 func (c *TkgClient) validateServiceCIDRNetmask() error {
 	// kube-apiserver requires that the service CIDR be of limited size.
 	// This validation avoids a case where the cluster never comes up when
@@ -1767,6 +1830,38 @@ func getDockerBridgeNetworkCidr() (string, error) {
 	return networkCidr, nil
 }
 
+// ConfigureAndValidateNetworkSeparationConfiguration validates the configuration of network separation
+func (c *TkgClient) ConfigureAndValidateNetworkSeparationConfiguration(clusterRole string) error {
+	if err := c.validateNetworkSeparation(constants.ConfigVariableAviManagementClusterServiceEngineGroup, clusterRole); err != nil {
+		return err
+	}
+	if err := c.validateNetworkSeparation(constants.ConfigVariableAviControlPlaneNetwork, clusterRole); err != nil {
+		return err
+	}
+	if err := c.validateNetworkSeparation(constants.ConfigVariableAviControlPlaneNetworkCidr, clusterRole); err != nil {
+		return err
+	}
+	if err := c.validateNetworkSeparation(constants.ConfigVariableAviManagementClusterControlPlaneVipNetworkName, clusterRole); err != nil {
+		return err
+	}
+	if err := c.validateNetworkSeparation(constants.ConfigVariableAviManagementClusterControlPlaneVipNetworkCidr, clusterRole); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (c *TkgClient) validateNetworkSeparation(networkSeparationConfigVariable, clusterRole string) error {
+	// if not set Get will return an empty string
+	configValue, err := c.TKGConfigReaderWriter().Get(networkSeparationConfigVariable)
+	if err != nil {
+		return nil
+	}
+	if clusterRole == TkgLabelClusterRoleManagement && !c.IsFeatureActivated(config.FeatureFlagManagementClusterNetworkSeparation) {
+		return customNetworkSeparationFeatureFlagError(networkSeparationConfigVariable, configValue, config.FeatureFlagManagementClusterNetworkSeparation)
+	}
+	return nil
+}
+
 // ConfigureAndValidateNameserverConfiguration validates the configuration of the control plane node and workload node nameservers
 func (c *TkgClient) ConfigureAndValidateNameserverConfiguration(clusterRole string) error {
 	err := c.validateNameservers(constants.ConfigVariableControlPlaneNodeNameservers, clusterRole)
@@ -1791,15 +1886,9 @@ func (c *TkgClient) validateNameservers(nameserverConfigVariable, clusterRole st
 	}
 
 	if clusterRole == TkgLabelClusterRoleManagement && !c.IsFeatureActivated(config.FeatureFlagManagementClusterCustomNameservers) {
-		return fmt.Errorf("option %s is set to %q, but custom nameserver support is not enabled (because it is not fully functional). To enable custom nameservers, run the command: tanzu config set %s true",
-			nameserverConfigVariable,
-			nameservers,
-			config.FeatureFlagManagementClusterCustomNameservers)
+		return customNameserverFeatureFlagError(nameserverConfigVariable, nameservers, config.FeatureFlagManagementClusterCustomNameservers)
 	} else if clusterRole == TkgLabelClusterRoleWorkload && !c.IsFeatureActivated(config.FeatureFlagClusterCustomNameservers) {
-		return fmt.Errorf("option %s is set to %q, but custom nameserver support is not enabled (because it is not fully functional). To enable custom nameservers, run the command: tanzu config set %s true",
-			nameserverConfigVariable,
-			nameservers,
-			config.FeatureFlagClusterCustomNameservers)
+		return customNameserverFeatureFlagError(nameserverConfigVariable, nameservers, config.FeatureFlagClusterCustomNameservers)
 	}
 
 	invalidNameservers := []string{}
@@ -1845,4 +1934,18 @@ func (c *TkgClient) checkIPFamilyFeatureFlags(ipFamily, clusterRole string) erro
 
 func dualStackFeatureFlagError(ipFamily, featureFlag string) error {
 	return fmt.Errorf("option TKG_IP_FAMILY is set to %q, but dualstack support is not enabled (because it is under development). To enable dualstack, set %s to \"true\"", ipFamily, featureFlag)
+}
+
+func customNameserverFeatureFlagError(configVariable, nameservers, flagName string) error {
+	return fmt.Errorf("option %s is set to %q, but custom nameserver support is not enabled (because it is not fully functional). To enable custom nameservers, run the command: tanzu config set %s true",
+		configVariable,
+		nameservers,
+		flagName)
+}
+
+func customNetworkSeparationFeatureFlagError(configVariable, value, flagName string) error {
+	return fmt.Errorf("option %s is set to %q, but network separation support is not enabled (because it is not fully functional). To enable network separation, run the command: tanzu config set %s true",
+		configVariable,
+		value,
+		flagName)
 }

@@ -101,6 +101,7 @@ func (l *LocalDiscovery) Manifest() ([]plugin.Discovered, error) {
 
 		dp := DiscoveredFromK8sV1alpha1(&p)
 		dp.Source = l.name
+		dp.DiscoveryType = l.Type()
 		plugins = append(plugins, dp)
 	}
 	return plugins, nil

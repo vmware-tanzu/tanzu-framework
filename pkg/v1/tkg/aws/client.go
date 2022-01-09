@@ -273,9 +273,9 @@ type GenerateBootstrapTemplateInput struct {
 	// BootstrapConfigFile is the path to a CAPA bootstrapv1 configuration file that can be used
 	// to customize IAM policies
 	BootstrapConfigFile string
-	// EnableTanzuMissionControlPermissions if true will add IAM permissions for use by Tanzu Mission Control
-	// to all nodes
-	EnableTanzuMissionControlPermissions bool
+	// DisableTanzuMissionControlPermissions if true will remove IAM permissions for use by Tanzu Mission Control
+	// from all nodes
+	DisableTanzuMissionControlPermissions bool
 }
 
 // GenerateBootstrapTemplate generates a wrapped CAPA bootstrapv1 configuration specification that controls
@@ -290,7 +290,7 @@ func (c *client) GenerateBootstrapTemplate(i GenerateBootstrapTemplateInput) (*b
 		template.Spec = &spec.Spec
 	}
 	setDefaultsBootstrapTemplate(&template)
-	if i.EnableTanzuMissionControlPermissions {
+	if !i.DisableTanzuMissionControlPermissions {
 		ensureTanzuMissionControlPermissions(&template)
 	}
 	return &template, nil
@@ -307,10 +307,18 @@ func ensureTanzuMissionControlPermissionsForRole(statements []iamv1.StatementEnt
 		Effect: iamv1.EffectAllow,
 		Action: iamv1.Actions{
 			"ec2:DescribeKeyPairs",
+			"ec2:DescribeInstanceTypeOfferings",
+			"ec2:DescribeInstanceTypes",
+			"ec2:DescribeAvailabilityZones",
+			"ec2:DescribeSubnets",
+			"ec2:DescribeRouteTables",
+			"ec2:DescribeVpcs",
+			"ec2:DescribeNatGateways",
+			"ec2:DescribeAddresses",
 			"elasticloadbalancing:DescribeLoadBalancers",
 			"servicequotas:ListServiceQuotas",
 			"iam:GetPolicy",
-			"iam:ListAttachedRolePoliices",
+			"iam:ListAttachedRolePolicies",
 			"iam:GetPolicyVersion",
 			"iam:ListRoleTags",
 		},

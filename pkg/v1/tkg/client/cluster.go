@@ -182,13 +182,7 @@ func (c *TkgClient) waitForClusterCreation(regionalClusterClient clusterclient.C
 		return errors.Wrap(err, "unable to wait for cluster nodes to be available")
 	}
 
-	if _, err := c.TKGConfigReaderWriter().Get(constants.ConfigVariableEnableAutoscaler); err == nil {
-		log.Infof("Waiting for cluster autoscaler to be available...")
-		autoscalerDeploymentName := options.ClusterName + "-cluster-autoscaler"
-		if err := regionalClusterClient.WaitForAutoscalerDeployment(autoscalerDeploymentName, options.TargetNamespace); err != nil {
-			log.Warningf("Unable to wait for autoscaler deployment to be ready. reason: %v", err)
-		}
-	}
+	c.WaitForAutoscalerDeployment(regionalClusterClient, options.ClusterName, options.TargetNamespace)
 
 	workloadClusterClient, err := clusterclient.NewClient(workloadClusterKubeconfigPath, kubeContext, clusterclient.Options{OperationTimeout: 15 * time.Minute})
 	if err != nil {
@@ -212,6 +206,35 @@ func (c *TkgClient) waitForClusterCreation(regionalClusterClient clusterclient.C
 	}
 
 	return nil
+}
+
+func (c *TkgClient) getValueForAutoscalerDeploymentConfig() bool {
+	var autoscalerEnabled string
+	var isEnabled bool
+	var err error
+
+	// swallowing the error when the value for config variable 'ENABLE_AUTOSCALER' is not set
+	if autoscalerEnabled, err = c.TKGConfigReaderWriter().Get(constants.ConfigVariableEnableAutoscaler); err != nil {
+		return false
+	}
+
+	if isEnabled, err = strconv.ParseBool(autoscalerEnabled); err != nil {
+		log.Warningf("Unable to parse the value of config variable %q. reason: %v", constants.ConfigVariableEnableAutoscaler, err)
+		return false
+	}
+
+	return isEnabled
+}
+
+// WaitForAutoscalerDeployment waits for autoscaler deployment if enabled
+func (c *TkgClient) WaitForAutoscalerDeployment(regionalClusterClient clusterclient.Client, clusterName, targetNamespace string) {
+	if isEnabled := c.getValueForAutoscalerDeploymentConfig(); isEnabled {
+		log.Warning("Waiting for cluster autoscaler to be available...")
+		autoscalerDeploymentName := clusterName + "-cluster-autoscaler"
+		if err := regionalClusterClient.WaitForAutoscalerDeployment(autoscalerDeploymentName, targetNamespace); err != nil {
+			log.Warningf("Unable to wait for autoscaler deployment to be ready. reason: %v", err)
+		}
+	}
 }
 
 // DoCreateCluster performs steps to create cluster
@@ -539,7 +562,7 @@ func (c *TkgClient) ConfigureAndValidateWorkloadClusterConfiguration(options *Cr
 		// NOTE: Not blocking the workload cluster deployment if the pinniped information is not available on management cluster
 		pinnipedIssuerURL, pinnipedIssuerCAData, err := clusterClient.GetPinnipedIssuerURLAndCA()
 		if err != nil {
-			log.Warningf("Warning: Pinniped configuration not found. Skipping pinniped configuration in workload cluster. Please refer to the documentation to check if you can configure pinniped on workload cluster manually")
+			log.Warningf("Warning: Pinniped configuration not found; Authentication via Pinniped will not be set up in this cluster. If you wish to set up Pinniped after the cluster is created, please refer to the documentation.")
 		} else {
 			c.SetPinnipedConfigForWorkloadCluster(pinnipedIssuerURL, pinnipedIssuerCAData)
 		}
@@ -551,6 +574,10 @@ func (c *TkgClient) ConfigureAndValidateWorkloadClusterConfiguration(options *Cr
 	}
 
 	if err = c.configureAndValidateIPFamilyConfiguration(TkgLabelClusterRoleWorkload); err != nil {
+		return NewValidationError(ValidationErrorCode, err.Error())
+	}
+
+	if err = c.configureAndValidateCoreDNSIP(); err != nil {
 		return NewValidationError(ValidationErrorCode, err.Error())
 	}
 

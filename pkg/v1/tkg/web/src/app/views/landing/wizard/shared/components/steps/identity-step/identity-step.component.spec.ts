@@ -1,15 +1,16 @@
+// Angular imports
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { FormBuilder } from '@angular/forms';
-
+// App imports
+import { APIClient } from '../../../../../../../swagger/api-client.service';
+import AppServices from 'src/app/shared/service/appServices';
+import { FieldMapUtilities } from '../../../field-mapping/FieldMapUtilities';
+import { Messenger } from 'src/app/shared/service/Messenger';
+import { SharedIdentityStepComponent } from './identity-step.component';
 import { SharedModule } from '../../../../../../../shared/shared.module';
 import { ValidationService } from '../../../validation/validation.service';
-import { APIClient } from '../../../../../../../swagger/api-client.service';
-
-import { SharedIdentityStepComponent } from './identity-step.component';
-import Broker from 'src/app/shared/service/broker';
-import { Messenger } from 'src/app/shared/service/Messenger';
 
 describe('IdentityStepComponent', () => {
   let component: SharedIdentityStepComponent;
@@ -24,6 +25,7 @@ describe('IdentityStepComponent', () => {
             providers: [
                 ValidationService,
                 FormBuilder,
+                FieldMapUtilities,
                 APIClient
             ],
             schemas: [
@@ -35,7 +37,7 @@ describe('IdentityStepComponent', () => {
     }));
 
     beforeEach(() => {
-        Broker.messenger = new Messenger();
+        AppServices.messenger = new Messenger();
         const fb = new FormBuilder();
         fixture = TestBed.createComponent(SharedIdentityStepComponent);
         component = fixture.componentInstance;

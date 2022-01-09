@@ -88,7 +88,7 @@ data:
   logLevel: "WARN"
   deleteConfig: "false"
   serviceType:  NodePort
-#@ if data.values.AVI_MANAGEMENT_CLUSTER_SERVICE_ENGINE_GROUP: 
+#@ if data.values.AVI_MANAGEMENT_CLUSTER_SERVICE_ENGINE_GROUP:
   serviceEngineGroupName: #@ data.values.AVI_MANAGEMENT_CLUSTER_SERVICE_ENGINE_GROUP
 #@ else:
   serviceEngineGroupName: #@ data.values.AVI_SERVICE_ENGINE_GROUP

@@ -260,6 +260,8 @@ type Client interface {
 	PatchClusterObjectWithOptionalMetadata(clusterName, clusterNamespace, metadataKey string, metadata map[string]string) (string, error)
 	// PatchClusterObject patches cluster object with specified json patch
 	PatchClusterObject(clusterName, clusterNamespace string, patchJSONString string) error
+	// PatchClusterObject patches cluster object with specified json patch with poll options
+	PatchClusterObjectWithPollOptions(clusterName, clusterNamespace, patchJSONString string, pollOptions *PollOptions) error
 	// DeleteExistingKappController deletes the kapp-controller that already exists in the cluster.
 	DeleteExistingKappController() error
 	// UpdateAWSCNIIngressRules updates the cniIngressRules field for the AWSCluster resource.
@@ -308,6 +310,8 @@ type Client interface {
 	IsClusterRegisteredToTMC() (bool, error)
 	// ListCLIPluginResources lists CLIPlugin resources across all namespaces
 	ListCLIPluginResources() ([]cliv1alpha1.CLIPlugin, error)
+	// VerifyCLIPluginCRD returns true if CRD exists else return false
+	VerifyCLIPluginCRD() (bool, error)
 }
 
 // PollOptions is options for polling
@@ -878,12 +882,16 @@ func (c *client) waitK8sVersionUpdateGeneric(clusterName, namespace, newK8sVersi
 	return c.poller.PollImmediateInfiniteWithGetter(interval, getterFunc)
 }
 
-func (c *client) PatchClusterObject(clusterName, clusterNamespace, patchJSONString string) error {
-	err := c.PatchResource(&capi.Cluster{}, clusterName, clusterNamespace, patchJSONString, types.MergePatchType, nil)
+func (c *client) PatchClusterObjectWithPollOptions(clusterName, clusterNamespace, patchJSONString string, pollOptions *PollOptions) error {
+	err := c.PatchResource(&capi.Cluster{}, clusterName, clusterNamespace, patchJSONString, types.MergePatchType, pollOptions)
 	if err != nil {
 		return errors.Wrap(err, "unable to patch the cluster object")
 	}
 	return nil
+}
+
+func (c *client) PatchClusterObject(clusterName, clusterNamespace, patchJSONString string) error {
+	return c.PatchClusterObjectWithPollOptions(clusterName, clusterNamespace, patchJSONString, nil)
 }
 
 func (c *client) GetClusterStatusInfo(clusterName, namespace string, workloadClusterClient Client) ClusterStatusInfo {
@@ -1010,7 +1018,7 @@ func (c *client) PatchClusterObjectWithTKGVersion(clusterName, namespace, tkgVer
 }
 
 func (c *client) GetManagementClusterTKGVersion(mgmtClusterName, clusterNamespace string) (string, error) {
-	mcObject := &capi.Cluster{}
+	mcObject := &capiv1alpha3.Cluster{}
 	err := c.GetResource(mcObject, mgmtClusterName, clusterNamespace, nil, nil)
 	if err != nil {
 		return "", errors.Wrap(err, "unable to get the cluster object")
@@ -2286,6 +2294,32 @@ func (c *client) IsClusterRegisteredToTMC() (bool, error) {
 	return cqc.Execute() // return (found, err) response
 }
 
+// VerifyCLIPluginCRD returns true if CRD exists else return false
+func (c *client) VerifyCLIPluginCRD() (bool, error) {
+	restconfigClient, err := c.GetRestConfigClient()
+	if err != nil {
+		return false, err
+	}
+	clusterQueryClient, err := capdiscovery.NewClusterQueryClientForConfig(restconfigClient)
+	if err != nil {
+		return false, err
+	}
+
+	// Check if 'cliplugins' CRD is present or not
+	agent := &corev1.ObjectReference{
+		Kind:       "CustomResourceDefinition",
+		Name:       "cliplugins.cli.tanzu.vmware.com",
+		APIVersion: "apiextensions.k8s.io/v1",
+	}
+	var queryObject = capdiscovery.Object("CLIPluginCRDObject", agent)
+
+	// Build query client.
+	cqc := clusterQueryClient.Query(queryObject)
+
+	// Execute returns combined result of all queries.
+	return cqc.Execute() // return (found, err) response
+}
+
 // ListCLIPluginResources lists CLIPlugin resources across all namespaces
 func (c *client) ListCLIPluginResources() ([]cliv1alpha1.CLIPlugin, error) {
 	var cliPlugins cliv1alpha1.CLIPluginList
@@ -2544,14 +2578,14 @@ func (c *crtClientFactory) NewClient(config *rest.Config, options crtclient.Opti
 //go:generate counterfeiter -o ../fakes/clusterclientfactory.go --fake-name ClusterClientFactory . ClusterClientFactory
 
 // ClusterClientFactory a factory for creating cluster clients
-type ClusterClientFactory interface { // nolint
-	NewClient(kubeConfigPath string, context string, options Options) (Client, error)
+type ClusterClientFactory interface {
+	NewClient(kubeConfigPath, context string, options Options) (Client, error)
 }
 
 type clusterClientFactory struct{}
 
 // NewClient creates new clusterclient
-func (c *clusterClientFactory) NewClient(kubeConfigPath string, context string, options Options) (Client, error) { // nolint:gocritic
+func (c *clusterClientFactory) NewClient(kubeConfigPath, context string, options Options) (Client, error) { //nolint:gocritic
 	return NewClient(kubeConfigPath, context, options)
 }
 

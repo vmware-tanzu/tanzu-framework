@@ -67,15 +67,15 @@ func (c *TkgClient) generateAWSBootstrapTemplate() (*bootstrap.Template, error) 
 		return nil, errors.Wrap(err, "failed create AWS client")
 	}
 
-	tmcEnablement := false
+	tmcDisablement := false
 
-	tmcEnablementVar, err := c.TKGConfigReaderWriter().Get(constants.ConfigVariableEnableTMCCloudProviderPermissions)
-	if err == nil && strings.EqualFold(tmcEnablementVar, "true") {
-		tmcEnablement = true
+	tmcDisablementVar, err := c.TKGConfigReaderWriter().Get(constants.ConfigVariableDisableTMCCloudPermissions)
+	if err == nil && strings.EqualFold(tmcDisablementVar, "true") {
+		tmcDisablement = true
 	}
 
 	template, err := awsClient.GenerateBootstrapTemplate(aws.GenerateBootstrapTemplateInput{
-		EnableTanzuMissionControlPermissions: tmcEnablement,
+		DisableTanzuMissionControlPermissions: tmcDisablement,
 	})
 	if err != nil {
 		return nil, err

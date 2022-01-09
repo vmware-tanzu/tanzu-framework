@@ -1,13 +1,16 @@
+// Angular imports
 import { Component, OnInit } from '@angular/core';
-import { FormControl, Validators } from '@angular/forms';
-import { takeUntil, debounceTime, distinctUntilChanged } from 'rxjs/operators';
-
+import { Validators } from '@angular/forms';
+import { distinctUntilChanged, takeUntil } from 'rxjs/operators';
+// App imports
+import AppServices from 'src/app/shared/service/appServices';
+import { AwsVpcStepMapping } from './vpc-step.fieldmapping';
+import { AwsField, VpcType } from "../aws-wizard.constants";
+import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
+import { StepFormDirective } from '../../wizard/shared/step-form/step-form';
 import { TkgEventType } from '../../../../shared/service/Messenger';
 import { ValidationService } from './../../wizard/shared/validation/validation.service';
-import { StepFormDirective } from '../../wizard/shared/step-form/step-form';
 import { Vpc } from '../../../../swagger/models/vpc.model';
-import { AwsWizardFormService } from '../../../../shared/service/aws-wizard-form.service';
-import Broker from 'src/app/shared/service/broker';
 
 @Component({
     selector: 'app-vpc-step',
@@ -15,7 +18,6 @@ import Broker from 'src/app/shared/service/broker';
     styleUrls: ['./vpc-step.component.scss']
 })
 export class VpcStepComponent extends StepFormDirective implements OnInit {
-
     defaultVpcHasChanged: boolean = false;
     existingVpcs: Array<Vpc>;
     loadingExistingVpcs: boolean = false;
@@ -23,85 +25,58 @@ export class VpcStepComponent extends StepFormDirective implements OnInit {
     defaultVpcAddress: string = '10.0.0.0/16';
 
     constructor(private validationService: ValidationService,
-        private awsWizardFormService: AwsWizardFormService) {
+                private fieldMapUtilities: FieldMapUtilities) {
         super();
     }
 
     ngOnInit() {
         super.ngOnInit();
+        this.fieldMapUtilities.buildForm(this.formGroup, this.formName, AwsVpcStepMapping);
 
-        this.formGroup.addControl(
-            'vpcType',
-            new FormControl(
-                'new', [
-                Validators.required
-            ])
-        );
-
-        this.formGroup.addControl(
-            'vpc',
-            new FormControl('', [])
-        );
-
-        this.formGroup.addControl(
-            'existingVpcCidr',
-            new FormControl('', [])
-        );
-
-        this.formGroup.addControl(
-            'existingVpcId',
-            new FormControl('', [])
-        );
-
-        this.formGroup.addControl(
-            'nonInternetFacingVPC',
-            new FormControl(false, [])
-        );
-
-        this.formGroup.get('vpcType').valueChanges
+        this.formGroup.get(AwsField.VPC_TYPE).valueChanges
             .pipe(
                 distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)),
                 takeUntil(this.unsubscribe)
             ).subscribe((val) => {
-                if (val === 'existing') {
-                    Broker.messenger.publish({
+                const existingVpcControl = this.formGroup.get(AwsField.VPC_EXISTING_ID);
+                const existingVpcCidrControl = this.formGroup.get(AwsField.VPC_EXISTING_CIDR);
+                if (val === VpcType.EXISTING) {
+                    AppServices.messenger.publish({
                         type: TkgEventType.AWS_VPC_TYPE_CHANGED,
-                        payload: { vpcType: 'existing' }
+                        payload: { vpcType: VpcType.EXISTING.toString() }
                     });
                     if (this.existingVpcs && this.existingVpcs.length === 1) {
-                        this.formGroup.get('existingVpcId').setValue(this.existingVpcs[0].id);
-                        this.formGroup.get('existingVpcCidr').setValue(this.existingVpcs[0].cidr);
+                        existingVpcControl.setValue(this.existingVpcs[0].id);
+                        existingVpcCidrControl.setValue(this.existingVpcs[0].cidr);
                     }
-                    this.formGroup.get('vpc').clearValidators();
-                    this.formGroup.get('vpc').setValue('');
-                    this.clearFieldSavedData('vpc');
+                    this.formGroup.get(AwsField.VPC_NEW_CIDR).clearValidators();
+                    this.clearControlValue(AwsField.VPC_NEW_CIDR);
+                    this.clearFieldSavedData(AwsField.VPC_NEW_CIDR);
                     this.setExistingVpcValidators();
                 } else {
-                    this.formGroup.get('existingVpcId').setValue('');
-                    this.formGroup.get('existingVpcId').clearValidators();
-                    this.formGroup.get('existingVpcId').updateValueAndValidity();
-                    this.formGroup.get('existingVpcCidr').setValue('');
-                    this.formGroup.get('existingVpcCidr').clearValidators();
-                    this.formGroup.get('existingVpcCidr').updateValueAndValidity();
-                    this.clearFieldSavedData('existingVpcCidr');
-                    this.clearFieldSavedData('existingVpcId');
+                    existingVpcControl.setValue('');
+                    existingVpcControl.clearValidators();
+                    existingVpcControl.updateValueAndValidity();
+                    existingVpcCidrControl.setValue('');
+                    existingVpcCidrControl.clearValidators();
+                    existingVpcCidrControl.updateValueAndValidity();
+                    this.clearFieldSavedData(AwsField.VPC_EXISTING_CIDR);
+                    this.clearFieldSavedData(AwsField.VPC_EXISTING_ID);
                     this.setNewVpcValidators();
-                    Broker.messenger.publish({
+                    AppServices.messenger.publish({
                         type: TkgEventType.AWS_VPC_TYPE_CHANGED,
-                        payload: { vpcType: 'new' }
+                        payload: { vpcType: VpcType.NEW.toString() }
                     });
-
                 }
-            }
-            );
+            });
 
-        const vpcCidrs = ['vpc', 'existingVpcCidr'];
+        const vpcCidrs = [AwsField.VPC_NEW_CIDR, AwsField.VPC_EXISTING_CIDR];
         vpcCidrs.forEach(vpcCidr => {
             this.formGroup.get(vpcCidr).valueChanges.pipe(
                 distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)),
                 takeUntil(this.unsubscribe)
             ).subscribe((cidr) => {
-                Broker.messenger.publish({
+                AppServices.messenger.publish({
                     type: TkgEventType.NETWORK_STEP_GET_NO_PROXY_INFO,
                     payload: { info: (cidr ? cidr + ',' : '') + '169.254.0.0/16' }
                 });
@@ -111,53 +86,47 @@ export class VpcStepComponent extends StepFormDirective implements OnInit {
         /**
          * Whenever aws region selection changes, update AZ subregion
          */
-        Broker.messenger.getSubject(TkgEventType.AWS_REGION_CHANGED)
+        AppServices.messenger.getSubject(TkgEventType.AWS_REGION_CHANGED)
             .pipe(takeUntil(this.unsubscribe))
             .subscribe(event => {
-                if (this.formGroup.get('existingVpcId')) {
+                if (this.formGroup.get(AwsField.VPC_EXISTING_ID)) {
                     this.existingVpcs = [];
-                    this.formGroup.get('existingVpcId').setValue('');
-                    this.formGroup.get('existingVpcCidr').setValue('');
+                    this.clearControlValue(AwsField.VPC_EXISTING_ID);
+                    this.clearControlValue(AwsField.VPC_EXISTING_CIDR);
                 }
             });
 
-        this.awsWizardFormService.getErrorStream(TkgEventType.AWS_GET_EXISTING_VPCS)
-            .pipe(takeUntil(this.unsubscribe))
-            .subscribe(error => {
-                this.errorNotification = error;
-            });
-
-        this.awsWizardFormService.getDataStream(TkgEventType.AWS_GET_EXISTING_VPCS)
-            .pipe(takeUntil(this.unsubscribe))
-            .subscribe((vpcs: Array<Vpc>) => {
-                this.existingVpcs = vpcs;
-                this.loadingExistingVpcs = false;
-            });
+        AppServices.dataServiceRegistrar.stepSubscribe<Vpc>(this, TkgEventType.AWS_GET_EXISTING_VPCS, this.onFetchedVpcs.bind(this));
 
         // init vpc type to new
-        Broker.messenger.publish({
+        AppServices.messenger.publish({
             type: TkgEventType.AWS_VPC_TYPE_CHANGED,
-            payload: { vpcType: 'new' }
+            payload: { vpcType: VpcType.NEW.toString() }
         });
+        this.registerOnValueChange(AwsField.VPC_NON_INTERNET_FACING, this.onNonInternetFacingVPCChange.bind(this));
+        this.initFormWithSavedData();
+    }
 
-        this.registerOnValueChange('nonInternetFacingVPC', this.onNonInternetFacingVPCChange.bind(this));
+    private onFetchedVpcs(vpcs: Array<Vpc>) {
+        this.existingVpcs = vpcs;
+        this.loadingExistingVpcs = false;
     }
 
     onNonInternetFacingVPCChange(checked: boolean) {
-        Broker.messenger.publish({
+        AppServices.messenger.publish({
             type: TkgEventType.AWS_AIRGAPPED_VPC_CHANGE,
             payload: checked === true
         });
     }
 
-    setSavedDataAfterLoad() {
-        if (!this.hasSavedData() || this.getSavedValue('vpc', '') !== '') {
+    initFormWithSavedData() {
+        if (!this.hasSavedData() || this.getSavedValue(AwsField.VPC_NEW_CIDR, '') !== '') {
             this.setNewVpcValidators();
         } else {
-            this.formGroup.get('vpcType').setValue('existing');
+            this.formGroup.get(AwsField.VPC_TYPE).setValue(VpcType.EXISTING);
             this.setExistingVpcValidators();
         }
-        super.setSavedDataAfterLoad();
+        super.initFormWithSavedData();
     }
 
     /**
@@ -168,8 +137,8 @@ export class VpcStepComponent extends StepFormDirective implements OnInit {
     setNewVpcValidators() {
         this.defaultVpcHasChanged = false;
 
-        this.formGroup.get('vpc').setValue(this.getSavedValue('vpc', this.defaultVpcAddress));
-        this.formGroup.get('vpc').setValidators([
+        this.formGroup.get(AwsField.VPC_NEW_CIDR).setValue(this.getSavedValue(AwsField.VPC_NEW_CIDR, this.defaultVpcAddress));
+        this.formGroup.get(AwsField.VPC_NEW_CIDR).setValidators([
             Validators.required,
             this.validationService.noWhitespaceOnEnds(),
             this.validationService.isValidIpNetworkSegment()
@@ -178,8 +147,8 @@ export class VpcStepComponent extends StepFormDirective implements OnInit {
     }
 
     setExistingVpcValidators() {
-        this.formGroup.get('existingVpcId').setValidators([Validators.required]);
-        this.formGroup.get('existingVpcId').updateValueAndValidity();
+        this.formGroup.get(AwsField.VPC_EXISTING_ID).setValidators([Validators.required]);
+        this.formGroup.get(AwsField.VPC_EXISTING_ID).updateValueAndValidity();
     }
 
     /**
@@ -193,18 +162,32 @@ export class VpcStepComponent extends StepFormDirective implements OnInit {
             return vpc.id === existingVpcId;
         });
         if (existingVpc && existingVpc.length > 0) {
-            this.formGroup.get('existingVpcCidr').setValue(existingVpc[0].cidr);
+            this.formGroup.get(AwsField.VPC_EXISTING_CIDR).setValue(existingVpc[0].cidr);
         } else {
-            this.formGroup.get('existingVpcCidr').setValue('');
+            // onlySelf onption changes value for the current control only.
+            this.formGroup.get(AwsField.VPC_EXISTING_CIDR).setValue('', { onlySelf: true});
         }
 
-        Broker.messenger.publish({
+        AppServices.messenger.publish({
             type: TkgEventType.AWS_GET_SUBNETS,
             payload: { vpcId: existingVpcId }
         });
 
-        Broker.messenger.publish(({
+        AppServices.messenger.publish(({
             type: TkgEventType.AWS_VPC_CHANGED
         }));
+    }
+
+    protected dynamicDescription(): string {
+        const vpc = this.getFieldValue('vpc', true);
+        const publicNodeCidr = this.getFieldValue('publicNodeCidr', true);
+        const privateNodeCidr = this.getFieldValue('privateNodeCidr', true);
+        const awsNodeAz = this.getFieldValue('awsNodeAz', true);
+
+        if (vpc && publicNodeCidr && privateNodeCidr && awsNodeAz) {
+            return `VPC CIDR: ${vpc}, Public Node CIDR: ${publicNodeCidr}, ` +
+                `Private Node CIDR: ${privateNodeCidr}, Node AZ: ${awsNodeAz}`;
+        }
+        return 'Specify VPC settings for AWS';
     }
 }

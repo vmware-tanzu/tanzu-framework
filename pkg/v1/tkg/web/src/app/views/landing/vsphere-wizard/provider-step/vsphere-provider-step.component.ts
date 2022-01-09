@@ -1,31 +1,28 @@
-/**
- * Angular Modules
- */
+// Angular imports
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
-import { FormControl, Validators } from '@angular/forms';
-import { ClrLoadingState } from '@clr/angular';
+import { Validators } from '@angular/forms';
+// Third party imports
 import { debounceTime, distinctUntilChanged, finalize, takeUntil } from 'rxjs/operators';
 import * as _ from 'lodash';
-
-/**
- * App imports
- */
-import { APP_ROUTES, Routes } from 'src/app/shared/constants/routes.constants';
-import { APIClient } from 'src/app/swagger/api-client.service';
-import { StepFormDirective } from '../../wizard/shared/step-form/step-form';
-import { VSphereDatacenter } from 'src/app/swagger/models/v-sphere-datacenter.model';
-import { ValidatorEnum } from '../../wizard/shared/constants/validation.constants';
-import { ValidationService } from '../../wizard/shared/validation/validation.service';
-import { TkgEvent, TkgEventType } from 'src/app/shared/service/Messenger';
-import { SSLThumbprintModalComponent } from '../../wizard/shared/components/modals/ssl-thumbprint-modal/ssl-thumbprint-modal.component';
-import { FormMetaDataStore } from '../../wizard/shared/FormMetaDataStore';
-import Broker from 'src/app/shared/service/broker';
-import { EditionData } from 'src/app/shared/service/branding.service';
+import { ClrLoadingState } from '@clr/angular';
+// App imports
 import { AppEdition } from 'src/app/shared/constants/branding.constants';
+import { APIClient } from 'src/app/swagger/api-client.service';
+import { APP_ROUTES, Routes } from 'src/app/shared/constants/routes.constants';
+import AppServices from 'src/app/shared/service/appServices';
+import { EditionData } from 'src/app/shared/service/branding.service';
+import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
+import { FormMetaDataStore } from '../../wizard/shared/FormMetaDataStore';
 import { managementClusterPlugin } from "../../wizard/shared/constants/wizard.constants";
+import { NotificationTypes } from "../../../../shared/components/alert-notification/alert-notification.component";
+import { SSLThumbprintModalComponent } from '../../wizard/shared/components/modals/ssl-thumbprint-modal/ssl-thumbprint-modal.component';
+import { StepFormDirective } from '../../wizard/shared/step-form/step-form';
+import { TkgEvent, TkgEventType } from 'src/app/shared/service/Messenger';
+import { ValidationService } from '../../wizard/shared/validation/validation.service';
+import { VSphereDatacenter } from 'src/app/swagger/models/v-sphere-datacenter.model';
 import { VsphereField } from "../vsphere-wizard.constants";
-import { IpFamilyEnum } from "../../../../shared/constants/app.constants";
+import { VsphereProviderStepFieldMapping } from './vsphere-provider-step.fieldmapping';
 
 declare var sortPaths: any;
 
@@ -47,7 +44,6 @@ export interface VsphereVersioninfo {
 
 export class VSphereProviderStepComponent extends StepFormDirective implements OnInit {
     @ViewChild(SSLThumbprintModalComponent) sslThumbprintModal: SSLThumbprintModalComponent;
-
     fileReader: FileReader;
 
     APP_ROUTES: Routes = APP_ROUTES;
@@ -68,86 +64,38 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
     edition: AppEdition = AppEdition.TCE;
     enableIpv6: boolean = false;
 
+    // As a hack to avoid onChange events where the value really hasn't changed, we track the field values ourselves
+    supervisedFieldValues = new Map<string, string>();
+
     constructor(private validationService: ValidationService,
-        private apiClient: APIClient,
-        private router: Router) {
+                private fieldMapUtilities: FieldMapUtilities,
+                private apiClient: APIClient,
+                private router: Router) {
         super();
 
         this.fileReader = new FileReader();
     }
 
-    ngOnInit() {
-        super.ngOnInit();
-        this.enableIpv6 = Broker.appDataService.isPluginFeatureActivated(managementClusterPlugin, 'vsphereIPv6');
-        this.formGroup.addControl(
-            VsphereField.PROVIDER_IP_FAMILY,
-            new FormControl( IpFamilyEnum.IPv4, [])
-        );
-        this.formGroup.addControl(
-            VsphereField.PROVIDER_VCENTER_ADDRESS,
-            new FormControl('', [
-                Validators.required,
-                this.validationService.isValidIpOrFqdn()
-            ])
-        );
-        this.formGroup.addControl(
-            VsphereField.PROVIDER_USER_NAME,
-            new FormControl('', [
-                Validators.required
-            ])
-        );
-        this.formGroup.addControl(
-            VsphereField.PROVIDER_USER_PASSWORD,
-            new FormControl('', [
-                Validators.required
-            ])
-        );
-        this.formGroup.addControl(
-            VsphereField.PROVIDER_CONNECTION_INSECURE,
-            new FormControl(false, [])
-        );
-        this.formGroup.addControl(
-            VsphereField.PROVIDER_DATA_CENTER,
-            new FormControl('', [
-                Validators.required
-            ])
-        );
-        this.formGroup.addControl(
-            VsphereField.PROVIDER_SSH_KEY,
-            new FormControl('', [
-                Validators.required
-            ])
-        );
-        this.formGroup.addControl(
-            VsphereField.PROVIDER_SSH_KEY_FILE,
-            new FormControl('', [])
-        );
-
-        this.formGroup.addControl(
-            VsphereField.PROVIDER_THUMBPRINT,
-            new FormControl('', [])
-        );
-
-        this.formGroup.setValidators((data: any) => {
-            if (data.controls.datacenter.value) {
-                return null;
-            } else {
-                return { [ValidatorEnum.REQUIRED]: true };
-            }
-        });
-        this.formGroup.get(VsphereField.PROVIDER_DATA_CENTER).disable();
-        this.datacenters = [];
-        this.formGroup.get(VsphereField.PROVIDER_SSH_KEY).disable();
-
+    private customizeForm() {
         SupervisedField.forEach(field => {
             this.formGroup.get(field).valueChanges
                 .pipe(
                     debounceTime(500),
-                    distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)),
+                    distinctUntilChanged(),
                     takeUntil(this.unsubscribe)
                 )
-                .subscribe(() => {
-                    this.disconnect();
+                .subscribe((data) => {
+                    const oldValue = this.supervisedFieldValues.get(field);
+                    const same = data === oldValue;
+                    if (same) {
+                        console.log('IGNORING change event from field ' + field + ' because value is unchanged: ' +
+                        oldValue + '-->' + data);
+                    } else {
+                        this.supervisedFieldValues.set(field, data);
+                        const msg = 'disconnecting due to change event from field ' + field + ' value changed: ' +
+                            oldValue + '-->' + data;
+                        this.disconnect(msg);
+                    }
                 });
         });
 
@@ -155,19 +103,48 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
             this.dcOnChange(data)
         });
 
-        this.formGroup.get(VsphereField.PROVIDER_IP_FAMILY).valueChanges.subscribe(data => {
-            Broker.messenger.publish({
-                type: TkgEventType.IP_FAMILY_CHANGE,
-                payload: data
-            });
-            this.disconnect();
-        });
+        this.formGroup.get(VsphereField.PROVIDER_IP_FAMILY).valueChanges
+            .pipe(
+                distinctUntilChanged((prev, curr) => {
+                    const same = prev === curr;
+                    console.log('field PROVIDER_IP_FAMILY detects ' + !same + ' change from ' + prev + ' to ' + curr);
+                    return same;
+                }),
+                takeUntil(this.unsubscribe)
+            )
+            .subscribe(data => {
+                // In theory, we should only receive this event if the ipFamily actually changed. In practice, we double-check.
+                const same = data === this.ipFamily;
+                if (!same) {
+                    AppServices.messenger.publish({
+                        type: TkgEventType.VSPHERE_IP_FAMILY_CHANGE,
+                        payload: data
+                    });
+                    this.disconnect('disconnecting because field PROVIDER_IP_FAMILY changed value to ' + data);
+                }
+            }
+        );
 
-        Broker.messenger.getSubject(TkgEventType.BRANDING_CHANGED)
+        AppServices.messenger.getSubject(TkgEventType.BRANDING_CHANGED)
             .pipe(takeUntil(this.unsubscribe))
             .subscribe((data: TkgEvent) => {
                 const content: EditionData = data.payload;
                 this.edition = content.edition;
+            });
+
+        AppServices.messenger.getSubject(TkgEventType.CONFIG_FILE_IMPORTED)
+            .pipe(takeUntil(this.unsubscribe))
+            .subscribe((data: TkgEvent) => {
+                this.configFileNotification = {
+                    notificationType: NotificationTypes.SUCCESS,
+                    message: data.payload
+                };
+                // The file import saves the data to local storage, so we reinitialize this step's form from there
+                this.savedMetadata = FormMetaDataStore.getMetaData(this.formName);
+                this.initFormWithSavedData();
+
+                // Clear event so that listeners in other provider workflows do not receive false notifications
+                AppServices.messenger.clearEvent(TkgEventType.CONFIG_FILE_IMPORTED);
             });
 
         this.fileReader.onload = (event) => {
@@ -181,24 +158,44 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
             this.formGroup.get(VsphereField.PROVIDER_SSH_KEY_FILE).setValue('');
         };
         this.registerOnIpFamilyChange(VsphereField.PROVIDER_VCENTER_ADDRESS, [
-                Validators.required,
-                this.validationService.isValidIpOrFqdn()
-            ], [
-                Validators.required,
-                this.validationService.isValidIpv6OrFqdn()
-            ]);
+            Validators.required,
+            this.validationService.isValidIpOrFqdn()
+        ], [
+            Validators.required,
+            this.validationService.isValidIpv6OrFqdn()
+        ]);
     }
-    disconnect() {
-        this.connected = false;
-        this.loadingState = ClrLoadingState.DEFAULT;
-        this.formGroup.get(VsphereField.PROVIDER_DATA_CENTER).setValue('');
+
+    ngOnInit() {
+        super.ngOnInit();
+        this.enableIpv6 = AppServices.appDataService.isPluginFeatureActivated(managementClusterPlugin, 'vsphereIPv6');
+        this.fieldMapUtilities.buildForm(this.formGroup, this.formName, VsphereProviderStepFieldMapping);
+        this.formGroup.get(VsphereField.PROVIDER_DATA_CENTER).disable({ emitEvent: false});
         this.datacenters = [];
-        this.formGroup.get(VsphereField.PROVIDER_DATA_CENTER).disable();
+        this.formGroup.get(VsphereField.PROVIDER_SSH_KEY).disable({ emitEvent: false});
+        this.customizeForm();
+
+        this.initFormWithSavedData();
     }
-    setSavedDataAfterLoad() {
-        super.setSavedDataAfterLoad();
-        // don't fill password field with ****
-        this.formGroup.get(VsphereField.PROVIDER_USER_PASSWORD).setValue('');
+
+    private disconnect(consoleMsg?: string) {
+        if (this.connected) {
+            if (consoleMsg) {
+                console.log(consoleMsg);
+            }
+            this.connected = false;
+            this.loadingState = ClrLoadingState.DEFAULT;
+            this.formGroup.markAsPending(); // a temporary fix to ignore this.formGroup.statusChanges detection
+            this.clearControlValue(VsphereField.PROVIDER_DATA_CENTER);
+            this.datacenters = [];
+            this.formGroup.get(VsphereField.PROVIDER_DATA_CENTER).disable();
+        } else {
+            console.log('already disconnected so ignoring disconnect call (msg:' + consoleMsg + ')');
+        }
+    }
+    initFormWithSavedData() {
+        super.initFormWithSavedData();
+        this.scrubPasswordField(VsphereField.PROVIDER_USER_PASSWORD);
     }
 
     /**
@@ -251,9 +248,15 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
      */
     connectVC() {
         this.loadingState = ClrLoadingState.LOADING;
-        this.vsphereHost = this.formGroup.controls[VsphereField.PROVIDER_VCENTER_ADDRESS].value;
+        this.vsphereHost = this.getFieldValue(VsphereField.PROVIDER_VCENTER_ADDRESS);
 
-        if (this.formGroup.controls[VsphereField.PROVIDER_CONNECTION_INSECURE].value) {
+        // we're recording these values to avoid onChange events where the value hasn't actually changed
+        SupervisedField.forEach(field => {
+            this.supervisedFieldValues.set(field, this.getFieldValue(field));
+        })
+
+        const insecure = this.getFieldValue(VsphereField.PROVIDER_CONNECTION_INSECURE);
+        if (insecure) {
             this.login();
         } else {
             this.verifyThumbprint();
@@ -321,11 +324,11 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
                 this.connected = true;
                 this.vsphereVersion = vsphereVerInfo.version;
                 this.hasPacific = res.hasPacific;
-                Broker.appDataService.setVsphereVersion(vsphereVerInfo.version);
+                AppServices.appDataService.setVsphereVersion(vsphereVerInfo.version);
 
                 if (isCompatible && !(_.startsWith(this.vsphereVersion, '6'))
                     && this.edition !== AppEdition.TCE) {
-                    // for 7 and newer and other potential anomolies, show modal suggesting upgrade
+                    // for 7 and newer and other potential anomalies, show modal suggesting upgrade
                     this.showVSphereWithK8Modal();
                 } else if (!isCompatible) {
                     // route to vsphere not compatible
@@ -333,9 +336,9 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
                 }
                 this.retrieveDatacenters();
 
-                Broker.messenger.publish({
-                    type: TkgEventType.VC_AUTHENTICATED,
-                    payload: this.formGroup.controls[VsphereField.PROVIDER_VCENTER_ADDRESS].value
+                AppServices.messenger.publish({
+                    type: TkgEventType.VSPHERE_VC_AUTHENTICATED,
+                    payload: this.getFieldValue(VsphereField.PROVIDER_VCENTER_ADDRESS)
                 });
 
                 if (this.hasPacific === 'yes') {
@@ -391,13 +394,18 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
      * triggers all subsequent vsphere API discovery calls dependant on datacenter moid
      * @param $event {string} datacenter moid value emitted from select change
      */
-    dcOnChange(datacenter: string) {
-        const dcMoid = this.datacenters.find(dc => dc.name === datacenter)
-            && this.datacenters.find(dc => dc.name === datacenter).moid || "";
-        Broker.messenger.publish({
-            type: TkgEventType.DATACENTER_CHANGED,
-            payload: dcMoid
-        });
+    dcOnChange(nameDatacenter: string) {
+        if (this.datacenters) {
+            let dcMoid = '';
+            const datacenter = this.datacenters.find(dc => dc.name === nameDatacenter);
+            if (datacenter && datacenter.moid) {
+                dcMoid = datacenter.moid;
+            }
+            AppServices.messenger.publish({
+                type: TkgEventType.VSPHERE_DATACENTER_CHANGED,
+                payload: dcMoid
+            });
+        }
     }
 
     /**
@@ -405,9 +413,15 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
      * helper method to get if connect btn should be disabled
      */
     getDisabled(): boolean {
-        return !(this.formGroup.get(VsphereField.PROVIDER_VCENTER_ADDRESS).valid &&
-            this.formGroup.get(VsphereField.PROVIDER_USER_NAME).valid &&
-            this.formGroup.get(VsphereField.PROVIDER_USER_PASSWORD).valid);
+        return !this.controlIsValid(VsphereField.PROVIDER_USER_NAME) ||
+            !this.controlIsValid(VsphereField.PROVIDER_USER_PASSWORD) ||
+            !this.controlIsValid(VsphereField.PROVIDER_VCENTER_ADDRESS);
+    }
+
+    private controlIsValid(controlName: VsphereField): boolean {
+        if (!this.formGroup) { return false; }
+        const control = this.formGroup.get(controlName);
+        return control && control.valid;
     }
 
     /**
@@ -437,5 +451,14 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
             // clear file reader target so user can re-select same file if needed
             event.target.value = '';
         }
+    }
+
+    dynamicDescription(): string {
+        const vcenterIP = this.getFieldValue(VsphereField.PROVIDER_VCENTER_ADDRESS, true);
+        const datacenter = this.getFieldValue(VsphereField.PROVIDER_DATA_CENTER, true);
+        if (vcenterIP && datacenter) {
+            return 'vCenter ' + vcenterIP + ' connected';
+        }
+        return 'Validate the vSphere ' + this.vsphereVersion + 'provider account for Tanzu';
     }
 }

@@ -243,6 +243,113 @@ var _ = Describe("ValidateVSphereVersion", func() {
 	})
 })
 
+var _ = Describe("ValidateVsphereResources", func() {
+	var (
+		vcClient  = &fakes.VCClient{}
+		tkgClient *TkgClient
+		err       error
+
+		dc               = "dc0"
+		dcPath           = "/dc0"
+		network          = "VM Network"
+		networkPath      = "/dc0/network/VM Network"
+		resourcePool     = "cluster0/Resources"
+		resourcePoolPath = "/dc0/host/cluster0/Resources"
+		datastore        = "sharedVmfs-1"
+		datastorePath    = "/dc0/datastore/sharedVmfs-1"
+		folder           = "vm"
+		folderPath       = "/dc0/vm"
+	)
+
+	Context("When multiple datacenters matching the given name are present", func() {
+		BeforeEach(func() {
+			vcClient = &fakes.VCClient{}
+			tkgClient, err = CreateTKGClient(configFile, testingDir, defaultTKGBoMFileForTesting, 2*time.Second)
+
+			vcClient.FindDataCenterReturns("", fmt.Errorf("path '%s' resolves to multiple %ss", dc, "datacenter"))
+			os.Setenv(constants.ConfigVariableVsphereDatacenter, dc)
+
+			err = tkgClient.ValidateVsphereResources(vcClient, dc)
+		})
+
+		It("should return an error", func() {
+			Expect(err).To(HaveOccurred())
+			Expect(err.Error()).Should(ContainSubstring("path 'dc0' resolves to multiple datacenters"))
+		})
+	})
+
+	Context("When no datastores matching the given name are present", func() {
+		BeforeEach(func() {
+			vcClient = &fakes.VCClient{}
+			tkgClient, err = CreateTKGClient(configFile, testingDir, defaultTKGBoMFileForTesting, 2*time.Second)
+
+			vcClient.FindDatastoreReturns("", fmt.Errorf("%s '%s' not found", "datastore", datastore))
+			os.Setenv(constants.ConfigVariableVsphereDatastore, datastore)
+
+			err = tkgClient.ValidateVsphereResources(vcClient, dc)
+		})
+
+		It("should return an error", func() {
+			Expect(err).To(HaveOccurred())
+			Expect(err.Error()).Should(ContainSubstring("datastore 'sharedVmfs-1' not found"))
+		})
+	})
+
+	Context("When vSphere resource names are passed in instead of resource paths", func() {
+		BeforeEach(func() {
+			vcClient = &fakes.VCClient{}
+			tkgClient, err = CreateTKGClient(configFile, testingDir, defaultTKGBoMFileForTesting, 2*time.Second)
+
+			vcClient.FindDataCenterReturns(dc, nil)
+			vcClient.GetPathReturnsOnCall(0, dcPath, nil, nil)
+
+			vcClient.FindNetworkReturns(network, nil)
+			vcClient.GetPathReturnsOnCall(1, networkPath, nil, nil)
+
+			vcClient.FindResourcePoolReturns(resourcePool, nil)
+			vcClient.GetPathReturnsOnCall(2, resourcePoolPath, nil, nil)
+
+			vcClient.FindDatastoreReturns(datastore, nil)
+			vcClient.GetPathReturnsOnCall(3, datastorePath, nil, nil)
+
+			vcClient.FindFolderReturns(folder, nil)
+			vcClient.GetPathReturnsOnCall(4, folderPath, nil, nil)
+
+			os.Setenv(constants.ConfigVariableVsphereDatacenter, dc)
+			os.Setenv(constants.ConfigVariableVsphereNetwork, network)
+			os.Setenv(constants.ConfigVariableVsphereResourcePool, resourcePool)
+			os.Setenv(constants.ConfigVariableVsphereDatastore, datastore)
+			os.Setenv(constants.ConfigVariableVsphereFolder, folder)
+
+			err = tkgClient.ValidateVsphereResources(vcClient, dc)
+		})
+
+		It("should not return an error", func() {
+			Expect(err).ToNot(HaveOccurred())
+
+			actualDcPath, err := tkgClient.TKGConfigReaderWriter().Get(constants.ConfigVariableVsphereDatacenter)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(dcPath).To(Equal(actualDcPath))
+
+			actualDcNetworkPath, err := tkgClient.TKGConfigReaderWriter().Get(constants.ConfigVariableVsphereNetwork)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(networkPath).To(Equal(actualDcNetworkPath))
+
+			actualResourcePoolPath, err := tkgClient.TKGConfigReaderWriter().Get(constants.ConfigVariableVsphereResourcePool)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(resourcePoolPath).To(Equal(actualResourcePoolPath))
+
+			actualDataStorePath, err := tkgClient.TKGConfigReaderWriter().Get(constants.ConfigVariableVsphereDatastore)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(datastorePath).To(Equal(actualDataStorePath))
+
+			actualFolderPath, err := tkgClient.TKGConfigReaderWriter().Get(constants.ConfigVariableVsphereFolder)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(folderPath).To(Equal(actualFolderPath))
+		})
+	})
+})
+
 var _ = Describe("ValidateVSphereControlPlaneEndpointIP", func() {
 	var (
 		tkgClient     *TkgClient

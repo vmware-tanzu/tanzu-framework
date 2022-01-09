@@ -71,6 +71,7 @@ require (
 	github.com/pelletier/go-toml/v2 v2.0.0-beta.3
 	github.com/pkg/errors v0.9.1
 	github.com/rs/xid v1.2.1
+	github.com/sanathkr/go-yaml v0.0.0-20170819195128-ed9d249f429b
 	github.com/satori/go.uuid v1.2.0
 	github.com/sergi/go-diff v1.2.0
 	github.com/skratchdot/open-golang v0.0.0-20200116055534-eef842397966
@@ -105,7 +106,7 @@ require (
 	sigs.k8s.io/cluster-api v1.0.1
 	sigs.k8s.io/cluster-api-provider-aws v1.0.0
 	sigs.k8s.io/cluster-api-provider-azure v1.0.0
-	sigs.k8s.io/cluster-api-provider-vsphere v1.0.1
+	sigs.k8s.io/cluster-api-provider-vsphere v1.0.2
 	sigs.k8s.io/cluster-api/test v1.0.1
 	sigs.k8s.io/controller-runtime v0.10.3
 	sigs.k8s.io/controller-tools v0.7.0

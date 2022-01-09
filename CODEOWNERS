@@ -1,23 +1,26 @@
 * @vmware-tanzu/tanzu-framework-reviewers
 /addons @vmware-tanzu/tanzu-framework-reviewers @vmware-tanzu/tkg-addons-owners
 /addons/pinniped @vmware-tanzu/tanzu-framework-reviewers @vmware-tanzu/tkg-iam-owners
-/cmd/cli @vmware-tanzu/tanzu-framework-reviewers @Anuj2512
+/cmd/cli @vmware-tanzu/tanzu-framework-reviewers
+/cmd/cli/plugin/package @vmware-tanzu/tanzu-framework-reviewers @vmware-tanzu/tkg-addons-owners
+/cmd/cli/plugin/pinniped-auth @vmware-tanzu/tanzu-framework-reviewers @vmware-tanzu/tkg-iam-owners
+/cmd/cli/plugin/secret @vmware-tanzu/tanzu-framework-reviewers @vmware-tanzu/tkg-addons-owners
 /cmd/cli/plugin/tkr @vmware-tanzu/tanzu-framework-reviewers @prkalle
-/pkg/v1/cli @vmware-tanzu/tanzu-framework-reviewers @miclettej @Anuj2512
-/pkg/v1/providers @vmware-tanzu/tanzu-framework-reviewers @vmware-tanzu/tanzu-framework-lcm-reviewers @Anuj2512
+/docs @vmware-tanzu/tanzu-framework-reviewers @vmware-tanzu/tkg-iam-owners @vmware-tanzu/tkg-addons-owners @vmware-tanzu/tanzu-framework-lcm-reviewers @vmware-tanzu/tanzu-framework-docs
+/pkg/v1/auth/tkg @vmware-tanzu/tanzu-framework-reviewers @vmware-tanzu/tkg-iam-owners
+/pkg/v1/cli @vmware-tanzu/tanzu-framework-reviewers
+/pkg/v1/providers @vmware-tanzu/tanzu-framework-reviewers @vmware-tanzu/tanzu-framework-lcm-reviewers @vmware-tanzu/tkg-infra-x
 /pkg/v1/providers/ytt/02_addons/auth @vmware-tanzu/tanzu-framework-reviewers @vmware-tanzu/tkg-iam-owners
 /pkg/v1/providers/ytt/02_addons/avi @vmware-tanzu/tanzu-framework-reviewers @XudongLiuHarold @iXinqi
 /pkg/v1/providers/ytt/03_customizations/02_avi @vmware-tanzu/tanzu-framework-reviewers @XudongLiuHarold @iXinqi
-/pkg/v1/tkr @vmware-tanzu/tanzu-framework-reviewers @prkalle
 /pkg/v1/tkg @vmware-tanzu/tanzu-framework-reviewers @vmware-tanzu/tanzu-framework-lcm-reviewers
-/pkg/v1/tkg/tkgpackagedatamodel @vmware-tanzu/tanzu-framework-reviewers @vmware-tanzu/tkg-addons-owners
 /pkg/v1/tkg/kappclient @vmware-tanzu/tanzu-framework-reviewers @vmware-tanzu/tkg-addons-owners
-/pkg/v1/tkg/tkgpackageclient @vmware-tanzu/tanzu-framework-reviewers @vmware-tanzu/tkg-addons-owners
 /pkg/v1/tkg/test/tkgpackageclient @vmware-tanzu/tanzu-framework-reviewers @vmware-tanzu/tkg-addons-owners
-/cmd/cli/plugin/package @vmware-tanzu/tanzu-framework-reviewers @vmware-tanzu/tkg-addons-owners
-/cmd/cli/plugin/secret @vmware-tanzu/tanzu-framework-reviewers @vmware-tanzu/tkg-addons-owners
-/cmd/cli/plugin/pinniped-auth @vmware-tanzu/tanzu-framework-reviewers @vmware-tanzu/tkg-iam-owners
 /pkg/v1/tkg/tkgconfigpaths @vmware-tanzu/tanzu-framework-reviewers @vmware-tanzu/tanzu-framework-release-team
+/pkg/v1/tkg/tkgpackageclient @vmware-tanzu/tanzu-framework-reviewers @vmware-tanzu/tkg-addons-owners
+/pkg/v1/tkg/tkgpackagedatamodel @vmware-tanzu/tanzu-framework-reviewers @vmware-tanzu/tkg-addons-owners
+/pkg/v1/tkg/web @vmware-tanzu/tanzu-framework-reviewers @vmware-tanzu/tanzu-framework-ui-reviewers
+/pkg/v1/tkr @vmware-tanzu/tanzu-framework-reviewers @prkalle
 # API Machinery related files
 /apis/config @vmware-tanzu/tanzu-framework-reviewers @vmware-tanzu/tanzu-framework-api-machinery-owners
 /apis/run @vmware-tanzu/tanzu-framework-reviewers @vmware-tanzu/tanzu-framework-api-machinery-owners

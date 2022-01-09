@@ -2,27 +2,27 @@ apiVersion: vendir.k14s.io/v1alpha1
 directories:
 - contents:
   - git:
-      commitTitle: 'patch priorityClassName: system-node-critical in CPI  daemonset
-        (#2524)'
-      sha: 9e70164c014c23bc47848a576cde10621bab4677
+      commitTitle: update vsphere-cpi validations to allow dualstack (#2734)...
+      sha: 165340fbaf9d7729c84434471d5a190f6096c492
       tags:
-      - v0.10.0-dev.1-213-g9e70164c
+      - v0.10.0-dev.4-43-g165340fb
     path: .
   path: ytt/vendir/vsphere_cpi/_ytt_lib
 - contents:
   - git:
-      commitTitle: 'fix: change cert-manager.io/v1alpha2 to cert-manager.io/v1 (#2411)...'
-      sha: 4886ea2defd2567eb0a8b2453bb10bf265d2842a
+      commitTitle: Antrea disable UDP tunnel offload (#2723)
+      sha: daa90ee40f373474c7714e72182b7ad784c2ffaf
       tags:
-      - v0.10.0-dev.1-158-g4886ea2d
+      - v0.10.0-dev.4-36-gdaa90ee4
     path: .
   path: ytt/vendir/cni/_ytt_lib
 - contents:
   - git:
-      commitTitle: add kapp-controller 0.30.0 package (#2558)...
-      sha: 87e39a645a0d5c7ee4ae1839b3be6d5208ddd23b
+      commitTitle: Add kapp controller init container to configure core DNS for cluster
+        IP access (#2727)...
+      sha: 1ce18be43347405d3dfbde4ba2cbb0d1e2fa0b41
       tags:
-      - v0.10.0-dev.2-7-g87e39a64
+      - v0.10.0-dev.4-39-g1ce18be4
     path: .
   path: ytt/vendir/kapp-controller/_ytt_lib
 kind: LockConfig

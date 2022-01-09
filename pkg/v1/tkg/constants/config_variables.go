@@ -21,7 +21,7 @@ const (
 	ConfigVariableAWSAccessKeyID     = "AWS_ACCESS_KEY_ID"     //nolint:gosec
 	ConfigVariableAWSSessionToken    = "AWS_SESSION_TOKEN"     //nolint:gosec
 	ConfigVariableAWSProfile         = "AWS_PROFILE"
-	ConfigVariableAWSB64Credentials  = "AWS_B64ENCODED_CREDENTIALS"
+	ConfigVariableAWSB64Credentials  = "AWS_B64ENCODED_CREDENTIALS" //nolint:gosec
 	ConfigVariableAWSVPCID           = "AWS_VPC_ID"
 
 	ConfigVariableAWSPublicNodeCIDR   = "AWS_PUBLIC_NODE_CIDR"
@@ -104,15 +104,15 @@ const (
 	ConfigVariablePinnipedSupervisorIssuerURL          = "SUPERVISOR_ISSUER_URL"
 	ConfigVariablePinnipedSupervisorIssuerCABundleData = "SUPERVISOR_ISSUER_CA_BUNDLE_DATA_B64"
 
-	ConfigVariableClusterRole                       = "TKG_CLUSTER_ROLE"
-	ConfigVariableForceRole                         = "_TKG_CLUSTER_FORCE_ROLE"
-	ConfigVariableProviderType                      = "PROVIDER_TYPE"
-	ConfigVariableTKGVersion                        = "TKG_VERSION"
-	ConfigVariableBuildEdition                      = "BUILD_EDITION"
-	ConfigVariableFilterByAddonType                 = "FILTER_BY_ADDON_TYPE"
-	ConfigVaraibleDisableCRSForAddonType            = "DISABLE_CRS_FOR_ADDON_TYPE"
-	ConfigVariableEnableAutoscaler                  = "ENABLE_AUTOSCALER"
-	ConfigVariableEnableTMCCloudProviderPermissions = "ENABLE_TMC_CLOUD_PROVIDER_PERMISSIONS"
+	ConfigVariableClusterRole                = "TKG_CLUSTER_ROLE"
+	ConfigVariableForceRole                  = "_TKG_CLUSTER_FORCE_ROLE"
+	ConfigVariableProviderType               = "PROVIDER_TYPE"
+	ConfigVariableTKGVersion                 = "TKG_VERSION"
+	ConfigVariableBuildEdition               = "BUILD_EDITION"
+	ConfigVariableFilterByAddonType          = "FILTER_BY_ADDON_TYPE"
+	ConfigVaraibleDisableCRSForAddonType     = "DISABLE_CRS_FOR_ADDON_TYPE"
+	ConfigVariableEnableAutoscaler           = "ENABLE_AUTOSCALER"
+	ConfigVariableDisableTMCCloudPermissions = "DISABLE_TMC_CLOUD_PERMISSIONS"
 
 	ConfigVariableControlPlaneMachineCount = "CONTROL_PLANE_MACHINE_COUNT"
 	ConfigVariableWorkerMachineCount       = "WORKER_MACHINE_COUNT"
@@ -139,6 +139,8 @@ const (
 
 	ConfigVariableClusterCIDR = "CLUSTER_CIDR"
 	ConfigVariableServiceCIDR = "SERVICE_CIDR"
+
+	ConfigVariableCoreDNSIP = "CORE_DNS_IP"
 
 	ConfigVariableIPFamily = "TKG_IP_FAMILY"
 
@@ -182,4 +184,11 @@ const (
 
 	// Windows specific variables
 	ConfigVariableIsWindowsWorkloadCluster = "IS_WINDOWS_WORKLOAD_CLUSTER"
+
+	// AVI specific variables
+	ConfigVariableAviManagementClusterServiceEngineGroup         = "AVI_MANAGEMENT_CLUSTER_SERVICE_ENGINE_GROUP"
+	ConfigVariableAviControlPlaneNetwork                         = "AVI_CONTROL_PLANE_NETWORK"
+	ConfigVariableAviControlPlaneNetworkCidr                     = "AVI_CONTROL_PLANE_NETWORK_CIDR"
+	ConfigVariableAviManagementClusterControlPlaneVipNetworkName = "AVI_MANAGEMENT_CLUSTER_CONTROL_PLANE_VIP_NETWORK_NAME"
+	ConfigVariableAviManagementClusterControlPlaneVipNetworkCidr = "AVI_MANAGEMENT_CLUSTER_CONTROL_PLANE_VIP_NETWORK_CIDR"
 )

@@ -1,14 +1,16 @@
+// Angular imports
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
-import { ReactiveFormsModule } from '@angular/forms';
 import { FormBuilder } from '@angular/forms';
-
+import { ReactiveFormsModule } from '@angular/forms';
+// App imports
+import { APIClient } from '../../../../../../../swagger/api-client.service';
+import AppServices from 'src/app/shared/service/appServices';
+import { FieldMapUtilities } from '../../../field-mapping/FieldMapUtilities';
+import { Messenger } from 'src/app/shared/service/Messenger';
+import { MetadataStepComponent } from './metadata-step.component';
 import { SharedModule } from '../../../../../../../shared/shared.module';
 import { ValidationService } from '../../../validation/validation.service';
-import { APIClient } from '../../../../../../../swagger/api-client.service';
-import { MetadataStepComponent } from './metadata-step.component';
-import Broker from 'src/app/shared/service/broker';
-import { Messenger } from 'src/app/shared/service/Messenger';
 
 describe('MetadataStepComponent', () => {
     let component: MetadataStepComponent;
@@ -23,6 +25,7 @@ describe('MetadataStepComponent', () => {
             providers: [
                 ValidationService,
                 FormBuilder,
+                FieldMapUtilities,
                 APIClient
             ],
             schemas: [
@@ -34,7 +37,7 @@ describe('MetadataStepComponent', () => {
     }));
 
     beforeEach(() => {
-        Broker.messenger = new Messenger();
+        AppServices.messenger = new Messenger();
         const fb = new FormBuilder();
         fixture = TestBed.createComponent(MetadataStepComponent);
         component = fixture.componentInstance;

@@ -4,6 +4,7 @@
 package core
 
 import (
+	"errors"
 	"fmt"
 	"strings"
 
@@ -14,6 +15,7 @@ import (
 	cliv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/buildinfo"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/config"
 )
 
 var yesUpdate bool
@@ -21,7 +23,7 @@ var yesUpdate bool
 func init() {
 	updateCmd.SetUsageFunc(cli.SubCmdUsageFunc)
 	updateCmd.Flags().BoolVarP(&yesUpdate, "yes", "y", false, "force update; skip prompt")
-	updateCmd.Flags().StringSliceVarP(&local, "local", "l", []string{}, "path to local repository")
+	updateCmd.Flags().StringVarP(&local, "local", "l", "", "path to local repository")
 }
 
 var updateCmd = &cobra.Command{
@@ -31,6 +33,10 @@ var updateCmd = &cobra.Command{
 		"group": string(cliv1alpha1.SystemCmdGroup),
 	},
 	RunE: func(cmd *cobra.Command, args []string) error {
+		if config.IsFeatureActivated(config.FeatureContextAwareCLIForPlugins) {
+			return errors.New("CLI self-update is currently not supported. For updating plugins please use the `tanzu plugin sync` command")
+		}
+
 		// clean the catalog cache when updating the cli
 		if err := cli.CleanCatalogCache(); err != nil {
 			log.Debugf("Failed to clean the Plugin descriptors cache %v", err)

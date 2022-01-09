@@ -3,7 +3,7 @@
  */
 import { Directive, Input, TemplateRef, ViewContainerRef, OnInit } from '@angular/core';
 import { BasicSubscriber } from '../abstracts/basic-subscriber';
-import Broker from "../service/broker";
+import AppServices from "../service/appServices";
 
 /**
  * App imports
@@ -82,13 +82,13 @@ export class FeatureToggleDirective extends BasicSubscriber implements OnInit {
         let pluginName, featureName;
         const paramArray = this.featureToggle.split(this.separator);
         if (paramArray.length !== 2) {
-            const errMsg = "Bad parameter encountered in featureToggle directive: " + this.featureToggle +
+            const errMsg = "WARNING: bad parameter encountered in featureToggle directive: " + this.featureToggle +
                 " should contain exactly one separator ('" + this.separator + "')"
             console.log(errMsg);
             return false;
         }
         pluginName = paramArray[0];
         featureName = paramArray[1];
-        return Broker.appDataService.isPluginFeatureActivated(pluginName, featureName);
+        return AppServices.appDataService.isPluginFeatureActivated(pluginName, featureName);
     }
 }

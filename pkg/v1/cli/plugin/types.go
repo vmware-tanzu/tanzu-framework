@@ -43,6 +43,10 @@ type Discovered struct {
 	// discovered.
 	Source string
 
+	// DiscoveryType defines the type of the discovery. Possible values are
+	// oci, local or kubernetes
+	DiscoveryType string
+
 	// Status is the installed/uninstalled status of the plugin.
 	Status string
 }

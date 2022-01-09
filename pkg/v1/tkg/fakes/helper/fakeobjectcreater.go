@@ -27,6 +27,7 @@ import (
 	cabpkv1 "sigs.k8s.io/cluster-api/bootstrap/kubeadm/api/v1beta1"
 	controlplanev1 "sigs.k8s.io/cluster-api/controlplane/kubeadm/api/v1beta1"
 
+	"github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
 	tkgsv1alpha2 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha2"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/clusterclient"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
@@ -576,4 +577,18 @@ func GetFakePinnipedInfo(pinnipedInfo PinnipedInfo) string {
 	}`
 	pinnipedInfoJSON = fmt.Sprintf(pinnipedInfoJSON, string(data))
 	return pinnipedInfoJSON
+}
+
+// NewCLIPlugin returns new NewCLIPlugin object
+func NewCLIPlugin(options TestCLIPluginOption) v1alpha1.CLIPlugin {
+	cliplugin := v1alpha1.CLIPlugin{
+		ObjectMeta: metav1.ObjectMeta{
+			Name: options.Name,
+		},
+		Spec: v1alpha1.CLIPluginSpec{
+			Description:        options.Description,
+			RecommendedVersion: options.RecommendedVersion,
+		},
+	}
+	return cliplugin
 }

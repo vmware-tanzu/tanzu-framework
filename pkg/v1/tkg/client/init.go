@@ -58,7 +58,7 @@ const (
 )
 
 // InitRegionSteps management cluster init step sequence
-var InitRegionSteps []string = []string{
+var InitRegionSteps = []string{
 	StepConfigPrerequisite,
 	StepValidateConfiguration,
 	StepGenerateClusterConfiguration,
@@ -87,9 +87,9 @@ func (c *TkgClient) InitRegionDryRun(options *InitRegionOptions) ([]byte, error)
 func (c *TkgClient) InitRegion(options *InitRegionOptions) error { //nolint:funlen,gocyclo
 	var err error
 	var regionalConfigBytes []byte
-	var isSuccessful bool = false
-	var isStartedRegionalClusterCreation bool = false
-	var isBootstrapClusterCreated bool = false
+	var isSuccessful = false
+	var isStartedRegionalClusterCreation = false
+	var isBootstrapClusterCreated = false
 	var bootstrapClusterName string
 	var regionContext region.RegionContext
 	var filelock *fslock.Lock

@@ -6,6 +6,7 @@ package discovery
 import (
 	"time"
 
+	"github.com/aunum/log"
 	"github.com/pkg/errors"
 
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/common"
@@ -56,15 +57,30 @@ func (k *KubernetesDiscovery) Name() string {
 	return k.name
 }
 
-// Manifest returns the manifest for a local repository.
+// Manifest returns the manifest for a kubernetes repository.
 func (k *KubernetesDiscovery) Manifest() ([]plugin.Discovered, error) {
-	plugins := make([]plugin.Discovered, 0)
-
 	// Create cluster client
 	clusterClientOptions := clusterclient.Options{GetClientInterval: 2 * time.Second, GetClientTimeout: 5 * time.Second}
 	clusterClient, err := clusterclient.NewClient(k.kubeconfigPath, k.kubecontext, clusterClientOptions)
 	if err != nil {
 		return nil, err
+	}
+
+	return k.GetDiscoveredPlugins(clusterClient)
+}
+
+// GetDiscoveredPlugins returns the list of discovered plugin from a kubernetes cluster
+func (k *KubernetesDiscovery) GetDiscoveredPlugins(clusterClient clusterclient.Client) ([]plugin.Discovered, error) {
+	plugins := make([]plugin.Discovered, 0)
+
+	exists, err := clusterClient.VerifyCLIPluginCRD()
+	if !exists || err != nil {
+		logMsg := "Skipping context-aware plugin discovery because CLIPlugin CRD not present on the logged in cluster. "
+		if err != nil {
+			logMsg += err.Error()
+		}
+		log.Debug(logMsg)
+		return nil, nil
 	}
 
 	// get all cliplugins resources available on the cluster
@@ -77,6 +93,7 @@ func (k *KubernetesDiscovery) Manifest() ([]plugin.Discovered, error) {
 	for i := range cliplugins {
 		dp := DiscoveredFromK8sV1alpha1(&cliplugins[i])
 		dp.Source = k.name
+		dp.DiscoveryType = k.Type()
 		plugins = append(plugins, dp)
 	}
 

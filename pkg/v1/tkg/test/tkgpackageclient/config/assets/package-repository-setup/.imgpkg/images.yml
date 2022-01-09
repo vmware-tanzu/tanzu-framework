@@ -1,0 +1,7 @@
+---
+apiVersion: imgpkg.carvel.dev/v1alpha1
+images:
+- annotations:
+    kbld.carvel.dev/id: registry-svc.registry.svc.cluster.local:443/secret-test/test-bundle
+  image: registry-svc.registry.svc.cluster.local:443/secret-test/test-bundle@sha256:85bce2a964b9d5f0379d4437496982270890de54b8b11889b674b9faa2aae33f
+kind: ImagesLock

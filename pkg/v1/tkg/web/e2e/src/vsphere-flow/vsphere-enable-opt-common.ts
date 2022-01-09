@@ -33,7 +33,6 @@ export class EnableOptionsCommon extends WizardCommon {
             })
 
             it('"VERIFY" button should be enabled', () => {
-                console.log(`${PARAMS.CONTROLLER_HOST}:${PARAMS.DEFAULT_NSX_USER}:${PARAMS.DEFAULT_NSX_PASSWORD}`);
                 nsxSettings.getControllerHost().sendKeys(PARAMS.CONTROLLER_HOST);
                 nsxSettings.getNsxUserName().sendKeys(PARAMS.DEFAULT_NSX_USER);
                 nsxSettings.getNsxPassword().sendKeys(PARAMS.DEFAULT_NSX_PASSWORD + " ");

@@ -1,18 +1,31 @@
-import { Component, OnInit, ElementRef } from '@angular/core';
-import { Router } from '@angular/router';
+// Angular imports
+import { Component, ElementRef, OnInit } from '@angular/core';
 import { FormBuilder } from '@angular/forms';
+import { Router } from '@angular/router';
 import { Title } from '@angular/platform-browser';
+// Third party imports
+import { Observable } from 'rxjs';
+// App imports
 import { APIClient } from 'src/app/swagger';
-
-import { AzureWizardFormService } from 'src/app/shared/service/azure-wizard-form.service';
-import { WizardBaseDirective } from '../wizard/shared/wizard-base/wizard-base';
-import { Observable, EMPTY, throwError, of } from 'rxjs';
-import { CliGenerator, CliFields } from '../wizard/shared/utils/cli-generator';
-import { AzureRegionalClusterParams } from 'src/app/swagger/models';
-import { AzureAccountParamsKeys } from './provider-step/azure-provider-step.component';
+import AppServices from '../../../shared/service/appServices';
+import { AzureForm } from './azure-wizard.constants';
+import {
+    AzureInstanceType,
+    AzureRegionalClusterParams,
+    AzureResourceGroup,
+    AzureVirtualMachine,
+    AzureVirtualNetwork
+} from 'src/app/swagger/models';
+import { AzureAccountParamsKeys, AzureProviderStepComponent } from './provider-step/azure-provider-step.component';
+import { AzureOsImageStepComponent } from './os-image-step/azure-os-image-step.component';
+import { CliFields, CliGenerator } from '../wizard/shared/utils/cli-generator';
+import { EXISTING, VnetStepComponent } from './vnet-step/vnet-step.component';
+import { FormDataForHTML, FormUtility } from '../wizard/shared/components/steps/form-utility';
 import { FormMetaDataService } from 'src/app/shared/service/form-meta-data.service';
-import { EXISTING } from './vnet-step/vnet-step.component';
-import Broker from 'src/app/shared/service/broker';
+import { ImportParams, ImportService } from "../../../shared/service/import.service";
+import { NodeSettingStepComponent } from './node-setting-step/node-setting-step.component';
+import { TkgEventType } from '../../../shared/service/Messenger';
+import { WizardBaseDirective } from '../wizard/shared/wizard-base/wizard-base';
 
 @Component({
     selector: 'app-azure-wizard',
@@ -20,99 +33,38 @@ import Broker from 'src/app/shared/service/broker';
     styleUrls: ['./azure-wizard.component.scss']
 })
 export class AzureWizardComponent extends WizardBaseDirective implements OnInit {
-
-    // The region user selected
     region: string;
 
     constructor(
         router: Router,
-        public wizardFormService: AzureWizardFormService,
-        private formBuilder: FormBuilder,
+        private importService: ImportService,
+        formBuilder: FormBuilder,
         private apiClient: APIClient,
         titleService: Title,
         formMetaDataService: FormMetaDataService,
         el: ElementRef) {
 
-        super(router, el, formMetaDataService, titleService);
+        super(router, el, formMetaDataService, titleService, formBuilder);
+    }
 
-        this.form = this.formBuilder.group({
-            azureProviderForm: this.formBuilder.group({
-            }),
-            vnetForm: this.formBuilder.group({
-            }),
-            azureNodeSettingForm: this.formBuilder.group({
-            }),
-            workerazureNodeSettingForm: this.formBuilder.group({
-            }),
-            metadataForm: this.formBuilder.group({
-            }),
-            networkForm: this.formBuilder.group({
-            }),
-            identityForm: this.formBuilder.group({
-            }),
-            osImageForm: this.formBuilder.group({
-            }),
-            ceipOptInForm: this.formBuilder.group({
-            })
-        });
+    protected supplyStepData(): FormDataForHTML[] {
+        return [
+            this.AzureProviderForm,
+            this.AzureVnetForm,
+            this.AzureNodeSettingForm,
+            this.MetadataForm,
+            this.AzureNetworkForm,
+            this.IdentityForm,
+            this.AzureOsImageForm,
+            this.CeipForm,
+        ];
     }
 
     ngOnInit() {
         super.ngOnInit();
-
         this.titleService.setTitle(this.title + ' Azure');
-    }
-
-    getStepDescription(stepName: string): string {
-        if (stepName === 'azureProviderForm') {
-            const tenant = this.getFieldValue('azureProviderForm', 'tenantId');
-            return tenant ? `Azure tenant: ${tenant}` : 'Validate the Azure provider credentials for Tanzu';
-        } else if (stepName === 'vnetForm') {
-            const vnetCidrBlock = this.getFieldValue(stepName, "vnetCidrBlock");
-            if (vnetCidrBlock) {
-                return `Subnet: ${vnetCidrBlock}`;
-            }
-            return "Specify a Azure VNET CIDR";
-        } else if (stepName === 'azureNodeSettingForm') {
-            const controlPlaneSetting = this.getFieldValue(stepName, "controlPlaneSetting");
-            if (controlPlaneSetting) {
-                return `Control plane type: ${controlPlaneSetting}`;
-            }
-            return `Specifying the resources backing the ${this.clusterTypeDescriptor} cluster`;
-        } else if (stepName === 'metadataForm') {
-            const location = this.getFieldValue(stepName, "clusterLocation");
-            if (location) {
-                return `Location: ${location}`;
-            }
-            return `Specify metadata for the ${this.clusterTypeDescriptor} cluster`;
-        } else if (stepName === 'networkForm') {
-            const serviceCidr = this.getFieldValue(stepName, "clusterServiceCidr");
-            const podCidr = this.getFieldValue(stepName, "clusterPodCidr");
-            if (serviceCidr && podCidr) {
-                return `Cluster service CIDR: ${serviceCidr} Cluster POD CIDR: ${podCidr}`;
-            }
-            return "Specify how TKG networking is provided and global network settings";
-        } else if (stepName === 'ceipOptInForm') {
-            return "Join the CEIP program for TKG";
-        } else if (stepName === 'identity') {
-            if (this.getFieldValue('identityForm', 'identityType') === 'oidc' &&
-                this.getFieldValue('identityForm', 'issuerURL')) {
-                return 'OIDC configured: ' + this.getFieldValue('identityForm', 'issuerURL')
-            } else if (this.getFieldValue('identityForm', 'identityType') === 'ldap' &&
-                this.getFieldValue('identityForm', 'endpointIp')) {
-                return 'LDAP configured: ' + this.getFieldValue('identityForm', 'endpointIp') + ':' +
-                this.getFieldValue('identityForm', 'endpointPort');
-            } else {
-                return 'Specify identity management'
-            }
-        } else if (stepName === 'osImage') {
-            if (this.getFieldValue('osImageForm', 'osImage') && this.getFieldValue('osImageForm', 'osImage').name) {
-                return 'OS Image: ' + this.getFieldValue('osImageForm', 'osImage').name;
-            } else {
-                return 'Specify the OS Image';
-            }
-        }
-        return `Step ${stepName} is not supported yet`;
+        this.registerServices();
+        this.subscribeToServices();
     }
 
     getPayload(): any {
@@ -120,67 +72,115 @@ export class AzureWizardComponent extends WizardBaseDirective implements OnInit 
 
         payload.azureAccountParams = {};
         AzureAccountParamsKeys.forEach(key => {
-            payload.azureAccountParams[key] = this.getFieldValue("azureProviderForm", key);
+            payload.azureAccountParams[key] = this.getFieldValue(AzureForm.PROVIDER, key);
         });
 
         const mappings = [
-            ["location", "azureProviderForm", "region"],
-            ["sshPublicKey", "azureProviderForm", "sshPublicKey"],
+            ["location", AzureForm.PROVIDER, "region"],
+            ["sshPublicKey", AzureForm.PROVIDER, "sshPublicKey"],
         ];
 
         mappings.forEach(attr => payload[attr[0]] = this.getFieldValue(attr[1], attr[2]));
 
         payload.controlPlaneMachineType = this.getControlPlaneNodeType("azure");
         payload.controlPlaneFlavor = this.getControlPlaneFlavor("azure");
-        payload.workerMachineType = Broker.appDataService.isModeClusterStandalone() ? payload.controlPlaneMachineType :
-            this.getFieldValue('azureNodeSettingForm', 'workerNodeInstanceType');
-        payload.machineHealthCheckEnabled = this.getBooleanFieldValue("azureNodeSettingForm", "machineHealthChecksEnabled");
+        payload.workerMachineType = AppServices.appDataService.isModeClusterStandalone() ? payload.controlPlaneMachineType :
+            this.getFieldValue(AzureForm.NODESETTING, 'workerNodeInstanceType');
+        payload.machineHealthCheckEnabled = this.getBooleanFieldValue(AzureForm.NODESETTING, "machineHealthChecksEnabled");
 
-        const resourceGroupOption = this.getFieldValue("azureProviderForm", "resourceGroupOption");
-        let resourceGroupField = "resourceGroupCustom";
-        if (resourceGroupOption === "existing") {
-            resourceGroupField = "resourceGroupExisting";
-        }
-        payload.resourceGroup = this.getFieldValue("azureProviderForm", resourceGroupField);
+        const resourceGroupOption = this.getFieldValue(AzureForm.PROVIDER, "resourceGroupOption");
+        const resourceGroupField = resourceGroupOption === 'existing' ? 'resourceGroupExisting' : 'resourceGroupCustom';
+        payload.resourceGroup = this.getFieldValue(AzureForm.PROVIDER, resourceGroupField);
         payload.clusterName = this.getMCName();
 
         // Retrieve vnet info
-        payload.vnetResourceGroup = this.getFieldValue("vnetForm", "resourceGroup");
+        payload.vnetResourceGroup = this.getFieldValue(AzureForm.VNET, 'vnetResourceGroup');
 
-        const vnetOption = this.getFieldValue("vnetForm", "vnetOption");
+        const vnetOption = this.getFieldValue(AzureForm.VNET, "vnetOption");
         let vnetAttrs = [       // For new vnet
-            ["vnetName", "vnetForm", "vnetNameCustom"],
-            ["vnetCidr", "vnetForm", "vnetCidrBlock"],
-            ["controlPlaneSubnet", "vnetForm", "controlPlaneSubnetNew"],
-            ["controlPlaneSubnetCidr", "vnetForm", "controlPlaneSubnetCidrNew"],
-            ["workerNodeSubnet", "vnetForm", "workerNodeSubnetNew"],
-            ["workerNodeSubnetCidr", "vnetForm", "workerNodeSubnetCidrNew"],
+            ["vnetName", AzureForm.VNET, "vnetNameCustom"],
+            ["vnetCidr", AzureForm.VNET, "vnetCidrBlock"],
+            ["controlPlaneSubnet", AzureForm.VNET, "controlPlaneSubnetNew"],
+            ["controlPlaneSubnetCidr", AzureForm.VNET, "controlPlaneSubnetCidrNew"],
+            ["workerNodeSubnet", AzureForm.VNET, "workerNodeSubnetNew"],
+            ["workerNodeSubnetCidr", AzureForm.VNET, "workerNodeSubnetCidrNew"],
         ];
 
         if (vnetOption === EXISTING) {        // for existing vnet
             vnetAttrs = [
-                ["vnetName", "vnetForm", "vnetNameExisting"],
-                ["vnetCidr", "vnetForm", "vnetCidrBlock"],
-                ["controlPlaneSubnet", "vnetForm", "controlPlaneSubnet"],
-                ["controlPlaneSubnetCidr", "vnetForm", "controlPlaneSubnetCidr"],
-                ["workerNodeSubnet", "vnetForm", "workerNodeSubnet"],
+                ["vnetName", AzureForm.VNET, "vnetNameExisting"],
+                ["vnetCidr", AzureForm.VNET, "vnetCidrBlock"],
+                ["controlPlaneSubnet", AzureForm.VNET, "controlPlaneSubnet"],
+                ["controlPlaneSubnetCidr", AzureForm.VNET, "controlPlaneSubnetCidr"],
+                ["workerNodeSubnet", AzureForm.VNET, "workerNodeSubnet"],
             ];
         }
         vnetAttrs.forEach(attr => payload[attr[0]] = this.getFieldValue(attr[1], attr[2]));
 
-        payload.enableAuditLogging = this.getBooleanFieldValue("azureNodeSettingForm", "enableAuditLogging");
+        payload.enableAuditLogging = this.getBooleanFieldValue(AzureForm.NODESETTING, "enableAuditLogging");
 
         this.initPayloadWithCommons(payload);
 
         // private Azure cluster support
-        payload.isPrivateCluster = this.getBooleanFieldValue("vnetForm", "privateAzureCluster");
+        payload.isPrivateCluster = this.getBooleanFieldValue(AzureForm.VNET, "privateAzureCluster");
 
         payload.frontendPrivateIp = "";
         if (payload.isPrivateCluster) {
-            payload.frontendPrivateIp = this.getFieldValue("vnetForm", "privateIP");
+            payload.frontendPrivateIp = this.getFieldValue(AzureForm.VNET, "privateIP");
         }
 
         return payload;
+    }
+
+    setFromPayload(payload: AzureRegionalClusterParams) {
+        if (payload !== undefined) {
+            if (payload.azureAccountParams !== undefined) {
+                for (const accountFieldName of Object.keys(payload.azureAccountParams)) {
+                    // we treat azureCloud differently because it's a listbox selection where the label != key
+                    if (accountFieldName !== 'azureCloud') {
+                        this.saveFormField(AzureForm.PROVIDER, accountFieldName, payload.azureAccountParams[accountFieldName]);
+                    }
+                }
+                this.saveFormListbox(AzureForm.PROVIDER, 'azureCloud', payload.azureAccountParams['azureCloud']);
+            }
+            this.saveFormField(AzureForm.PROVIDER, "sshPublicKey", payload["sshPublicKey"]);
+            this.saveFormListbox(AzureForm.PROVIDER, "region", payload["location"]);
+
+            this.saveControlPlaneFlavor('azure', payload.controlPlaneFlavor);
+            this.saveControlPlaneNodeType('azure', payload.controlPlaneFlavor, payload.controlPlaneMachineType);
+
+            if (!AppServices.appDataService.isModeClusterStandalone()) {
+                this.saveFormField(AzureForm.NODESETTING, 'workerNodeInstanceType', payload.workerMachineType);
+            }
+            this.saveFormField(AzureForm.NODESETTING, "machineHealthChecksEnabled", payload.machineHealthCheckEnabled);
+
+            // Since we cannot tell if the resource group is custom or existing, we load it into the custom field.
+            // When the resource groups are retrieved, we have code that will detect if the resource group is existing.
+            // See azure-provider-step.component.ts's handleIfSavedCustomResourceGroupIsNowExisting()
+            this.saveFormField(AzureForm.PROVIDER, 'resourceGroupCustom', payload.resourceGroup);
+
+            this.saveMCName(payload.clusterName);
+
+            // We canot tell if the vnet is custom or existing, so we load it into the custom field.
+            // When the vnet resource groups are retrieved, we have code that will detect if the vnet is existing.
+            // See vnet-step.component.ts's handleIfSavedVnetCustomNameIsNowExisting()
+            const vnetAttrs = [
+                ['vnetResourceGroup', 'vnetResourceGroup'],
+                ["vnetName", "vnetNameCustom"],
+                ["vnetCidr", "vnetCidrBlock"],
+                ["controlPlaneSubnet", "controlPlaneSubnetNew"],
+                ["controlPlaneSubnetCidr", "controlPlaneSubnetCidrNew"],
+                ["workerNodeSubnet", "workerNodeSubnetNew"],
+                ["workerNodeSubnetCidr", "workerNodeSubnetCidrNew"],
+            ];
+            vnetAttrs.forEach(attr => payload[attr[0]] = this.saveFormField(AzureForm.VNET, attr[1], payload[attr[0]]));
+            this.saveFormField(AzureForm.VNET, 'privateAzureCluster', payload.isPrivateCluster);
+            if (payload.isPrivateCluster) {
+                this.saveFormField(AzureForm.VNET, 'privateIP', payload.frontendPrivateIp);
+            }
+            this.saveFormField(AzureForm.NODESETTING, 'enableAuditLogging', payload.enableAuditLogging);
+            this.saveCommonFieldsFromPayload(payload);
+        }
     }
 
     /**
@@ -194,7 +194,11 @@ export class AzureWizardComponent extends WizardBaseDirective implements OnInit 
      * Return management/standalone cluster name
      */
     getMCName() {
-        return this.getFieldValue("azureNodeSettingForm", "managementClusterName");
+        return this.getFieldValue(AzureForm.NODESETTING, "managementClusterName");
+    }
+
+    saveMCName(clusterName: string) {
+        this.saveFormField(AzureForm.NODESETTING, "managementClusterName", clusterName);
     }
 
     /**
@@ -213,21 +217,21 @@ export class AzureWizardComponent extends WizardBaseDirective implements OnInit 
 
     getCliEnvVariables() {
         let envVariableString = '';
-        const resourceGroupOption = this.getFieldValue('azureProviderForm', 'resourceGroupOption')
+        const resourceGroupOption = this.getFieldValue(AzureForm.PROVIDER, 'resourceGroupOption')
         const azureResourceGroup = resourceGroupOption === 'existing' ? 'resourceGroupExisting' : 'resourceGroupCustom';
-        const vnetOption = this.getFieldValue('vnetForm', 'vnetOption');
+        const vnetOption = this.getFieldValue(AzureForm.VNET, 'vnetOption');
         const azureVnetName = vnetOption === 'existing' ? 'vnetNameExisting' : 'vnetNameCustom';
         const azureControlPlaneSubnetName = vnetOption === 'existing' ? 'controlPlaneSubnet' : 'controlPlaneSubnetNew';
         const azureNodeSubnetName = vnetOption === 'existing' ? 'workerNodeSubnet' : 'workerNodeSubnetNew';
         const fieldsMapping = {
-            AZURE_RESOURCE_GROUP: ['azureProviderForm', azureResourceGroup],
-            AZURE_VNET_RESOURCE_GROUP: ['vnetForm', 'resourceGroup'],
-            AZURE_VNET_NAME: ['vnetForm', azureVnetName],
-            AZURE_VNET_CIDR: ['vnetForm', 'vnetCidrBlock'],
-            AZURE_CONTROL_PLANE_SUBNET_NAME: ['vnetForm', azureControlPlaneSubnetName],
-            AZURE_CONTROL_PLANE_SUBNET_CIDR: ['vnetForm', 'controlPlaneSubnetCidrNew'],
-            AZURE_NODE_SUBNET_NAME: ['vnetForm', azureNodeSubnetName],
-            AZURE_NODE_SUBNET_CIDR: ['vnetForm', 'workerNodeSubnetCidrNew']
+            AZURE_RESOURCE_GROUP: [AzureForm.PROVIDER, azureResourceGroup],
+            AZURE_VNET_RESOURCE_GROUP: [AzureForm.VNET, 'vnetResourceGroup'],
+            AZURE_VNET_NAME: [AzureForm.VNET, azureVnetName],
+            AZURE_VNET_CIDR: [AzureForm.VNET, 'vnetCidrBlock'],
+            AZURE_CONTROL_PLANE_SUBNET_NAME: [AzureForm.VNET, azureControlPlaneSubnetName],
+            AZURE_CONTROL_PLANE_SUBNET_CIDR: [AzureForm.VNET, 'controlPlaneSubnetCidrNew'],
+            AZURE_NODE_SUBNET_NAME: [AzureForm.VNET, azureNodeSubnetName],
+            AZURE_NODE_SUBNET_CIDR: [AzureForm.VNET, 'workerNodeSubnetCidrNew']
         }
         let fields = [];
         if (vnetOption === 'existing') {
@@ -251,11 +255,12 @@ export class AzureWizardComponent extends WizardBaseDirective implements OnInit 
             ];
         }
         fields.forEach(field => {
-            const temp =  fieldsMapping[field];
+            const temp = fieldsMapping[field];
             envVariableString += `${field}="${this.getFieldValue(temp[0], temp[1])}" `;
         });
         return envVariableString;
     }
+
     applyTkgConfig() {
         return this.apiClient.applyTKGConfigForAzure({ params: this.getPayload() });
     }
@@ -270,5 +275,110 @@ export class AzureWizardComponent extends WizardBaseDirective implements OnInit 
     getAdditionalNoProxyInfo() {
         const vnetCidr = this.getFieldValue('vpcForm', 'vnetCidrBlock');
         return (vnetCidr ? vnetCidr + ',' : '')  + '169.254.0.0/16,168.63.129.16';
+    }
+
+    // HTML convenience methods
+    //
+    get AzureProviderForm(): FormDataForHTML {
+        return { name: AzureForm.PROVIDER, title: 'IaaS Provider', description: 'Validate the Azure provider credentials for Tanzu',
+        i18n: {title: 'IaaS provder step name', description: 'IaaS provder step description'},
+        clazz: AzureProviderStepComponent};
+    }
+    get AzureVnetForm(): FormDataForHTML {
+        return { name: AzureForm.VNET, title: 'Azure VNET Settings', description: 'Specify an Azure VNET CIDR',
+            i18n: {title: 'vnet step name', description: 'vnet step description'},
+        clazz: VnetStepComponent};
+    }
+    get AzureNodeSettingForm(): FormDataForHTML {
+        return { name: AzureForm.NODESETTING, title: FormUtility.titleCase(this.clusterTypeDescriptor) + ' Cluster Settings',
+            description: `Specifying the resources backing the ${this.clusterTypeDescriptor} cluster`,
+            i18n: {title: 'node setting step name', description: 'node setting step description'},
+        clazz: NodeSettingStepComponent};
+    }
+    get AzureOsImageForm(): FormDataForHTML {
+        return this.getOsImageForm(AzureOsImageStepComponent);
+    }
+    get AzureNetworkForm(): FormDataForHTML {
+        return FormUtility.formOverrideDescription(this.NetworkForm, 'Specify an Azure VNET CIDR');
+    }
+    //
+    // HTML convenience methods
+
+    // returns TRUE if the file contents appear to be a valid config file for Azure
+    // returns FALSE if the file is empty or does not appear to be valid. Note that in the FALSE
+    // case we also alert the user.
+    importFileValidate(nameFile: string, fileContents: string): boolean {
+        if (fileContents.includes('AZURE_')) {
+            return true;
+        }
+        alert(nameFile + ' is not a valid Azure configuration file!');
+        return false;
+    }
+
+    importFileRetrieveClusterParams(fileContents: string): Observable<AzureRegionalClusterParams> {
+        return this.apiClient.importTKGConfigForAzure( { params: { filecontents: fileContents } } );
+    }
+
+    importFileProcessClusterParams(nameFile: string, azureClusterParams: AzureRegionalClusterParams) {
+        this.setFromPayload(azureClusterParams);
+        this.resetToFirstStep();
+        this.importService.publishImportSuccess(nameFile);
+    }
+
+    // returns TRUE if user (a) will not lose data on import, or (b) confirms it's OK
+    onImportButtonClick() {
+        let result = true;
+        if (!this.isOnFirstStep()) {
+            result = confirm('Importing will overwrite any data you have entered. Proceed with import?');
+        }
+        return result;
+    }
+
+    onImportFileSelected(event) {
+        const params: ImportParams<AzureRegionalClusterParams> = {
+            file: event.target.files[0],
+            validator: this.importFileValidate,
+            backend: this.importFileRetrieveClusterParams.bind(this),
+            onSuccess: this.importFileProcessClusterParams.bind(this),
+            onFailure: this.importService.publishImportFailure
+        }
+        this.importService.import(params);
+
+        // clear file reader target so user can re-select same file if needed
+        event.target.value = '';
+    }
+
+    private subscribeToServices() {
+        AppServices.messenger.getSubject(TkgEventType.AZURE_REGION_CHANGED)
+            .subscribe(event => {
+                const region = event.payload;
+                if (this.region) {
+                    AppServices.dataServiceRegistrar.trigger([
+                        TkgEventType.AZURE_GET_RESOURCE_GROUPS,
+                        TkgEventType.AZURE_GET_INSTANCE_TYPES
+                    ], { location: region });
+                    AppServices.dataServiceRegistrar.trigger([TkgEventType.AZURE_GET_OS_IMAGES]);
+                } else {
+                    AppServices.dataServiceRegistrar.clear<AzureResourceGroup>(TkgEventType.AZURE_GET_RESOURCE_GROUPS);
+                    AppServices.dataServiceRegistrar.clear<AzureInstanceType>(TkgEventType.AZURE_GET_INSTANCE_TYPES);
+                    AppServices.dataServiceRegistrar.clear<AzureVirtualMachine>(TkgEventType.AZURE_GET_OS_IMAGES);
+                }
+            });
+    }
+
+    private registerServices() {
+        const wizard = this;
+        AppServices.dataServiceRegistrar.register<AzureResourceGroup>(TkgEventType.AZURE_GET_RESOURCE_GROUPS,
+            (payload: {location: string}) => { return wizard.apiClient.getAzureResourceGroups(payload); },
+            "Failed to retrieve resource groups for the particular region." );
+        AppServices.dataServiceRegistrar.register<AzureInstanceType>(TkgEventType.AZURE_GET_INSTANCE_TYPES,
+            (payload: {location: string}) => { return wizard.apiClient.getAzureInstanceTypes(payload); },
+            "Failed to retrieve Azure VM sizes" );
+        AppServices.dataServiceRegistrar.register<AzureVirtualMachine>(TkgEventType.AZURE_GET_OS_IMAGES,
+            () => { return wizard.apiClient.getAzureOSImages(); },
+            "Failed to retrieve list of OS images from the specified Azure Server." );
+        AppServices.dataServiceRegistrar.register<AzureVirtualNetwork>(TkgEventType.AZURE_GET_VNETS,
+            (payload: {resourceGroupName: string, location: string}) => { return wizard.apiClient.getAzureVnets(payload)},
+            "Failed to retrieve list of VNETs from the specified Azure Server." );
     }
 }

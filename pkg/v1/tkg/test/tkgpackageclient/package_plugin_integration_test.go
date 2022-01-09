@@ -4,14 +4,25 @@
 package tkgpackageclient_test
 
 import (
+	"context"
 	"encoding/json"
 	"flag"
 	"fmt"
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 	"time"
+
+	"github.com/pkg/errors"
+
+	corev1 "k8s.io/api/core/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/util/wait"
+	"k8s.io/client-go/util/retry"
+
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/test/framework/exec"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -32,9 +43,9 @@ type PackagePluginConfig struct {
 	PackageName               string `json:"package-name"`
 	PackageVersion            string `json:"package-version"`
 	PackageVersionUpdate      string `json:"package-version-update"`
-	RegistryServer            string `json:"registry-server"`
-	RegistryUsername          string `json:"registry-username"`
-	RegistryPassword          string `json:"registry-password"`
+	PrivateRegistryServer     string `json:"private-registry-server"`
+	PrivateRegistryUsername   string `json:"private-registry-username"`
+	PrivateRegistryPassword   string `json:"private-registry-password"`
 	RepositoryName            string `json:"repository-name"`
 	RepositoryURL             string `json:"repository-url"`
 	RepositoryURLNoTag        string `json:"repository-url-no-tag"`
@@ -91,17 +102,17 @@ var (
 	pollTimeout                 = 10 * time.Minute
 	testImgPullSecretName       = "test-secret"
 	testNamespace               = "test-ns"
-	testRegistry                = "projects-stg.registry.vmware.com"
-	testRegistryUsername        = "robot$tkgprivate+tkgprivate"
-	testRegistryPassword        = "JUBFa3AW5SD6S6CBchFH7yNFIaF3LbVL"
+	privateTestRegistry         = "registry-svc.registry.svc.cluster.local:443"
+	privateTestRegistryUsername = "testuser"
+	privateTestRegistryPassword = "testpassword"
 	testRepoName                = "carvel-test"
 	testRepoURL                 = "projects-stg.registry.vmware.com/tkg/test-packages/test-repo:v1.0.0"
 	testRepoURLNoTag            = "projects-stg.registry.vmware.com/tkg/test-packages/test-repo"
-	testRepoURLPrivate          = "projects-stg.registry.vmware.com/tkgprivate/example-pkg-repo@sha256:a80e9b512b9eff76ab638cce50a3c4541a12673d9b698103314f32c93f1deb61"
-	testRepoURLPrivateNoTag     = "projects-stg.registry.vmware.com/tkgprivate/example-pkg-repo"
+	testRepoURLPrivate          = "registry-svc.registry.svc.cluster.local:443/secret-test/test-repo@sha256:e07483e2140fa427d9875aee9055d72efc49a732f3a3fb2c9651d9f39159315a"
+	testRepoURLPrivateNoTag     = "registry-svc.registry.svc.cluster.local:443/secret-test/test-repo"
 	testRepoOriginalTag         = "v1.0.0"
 	testRepoLatestTag           = "v1.1.0"
-	testRepoPrivateTag          = "sha256:a80e9b512b9eff76ab638cce50a3c4541a12673d9b698103314f32c93f1deb61"
+	testRepoPrivateTag          = "sha256:e07483e2140fa427d9875aee9055d72efc49a732f3a3fb2c9651d9f39159315a"
 	testPkgInstallName          = "test-pkg"
 	testPkgName                 = "pkg.test.carvel.dev"
 	testPkgVersion              = "2.0.0"
@@ -217,16 +228,16 @@ var _ = Describe("Package plugin integration test", func() {
 			config.Namespace = testNamespace
 		}
 
-		if config.RegistryServer == "" {
-			config.RegistryServer = testRegistry
+		if config.PrivateRegistryServer == "" {
+			config.PrivateRegistryServer = privateTestRegistry
 		}
 
-		if config.RegistryUsername == "" {
-			config.RegistryUsername = testRegistryUsername
+		if config.PrivateRegistryUsername == "" {
+			config.PrivateRegistryUsername = privateTestRegistryUsername
 		}
 
-		if config.RegistryPassword == "" {
-			config.RegistryPassword = testRegistryPassword
+		if config.PrivateRegistryPassword == "" {
+			config.PrivateRegistryPassword = privateTestRegistryPassword
 		}
 
 		if config.RepositoryName == "" {
@@ -349,6 +360,7 @@ var _ = Describe("Package plugin integration test", func() {
 		})
 		It("should pass all checks on management cluster", func() {
 			cleanup()
+			setUpPrivateRegistry(config.KubeConfigPathMC, config.ClusterNameMC)
 			testHelper()
 			log.Info("Successfully finished package plugin integration tests on management cluster")
 		})
@@ -361,6 +373,7 @@ var _ = Describe("Package plugin integration test", func() {
 		})
 		It("should pass all checks on workload cluster", func() {
 			cleanup()
+			setUpPrivateRegistry(config.KubeConfigPathWLC, config.ClusterNameWLC)
 			testHelper()
 			log.Info("Successfully finished package plugin integration tests on workload cluster")
 		})
@@ -379,65 +392,177 @@ func cleanup() {
 	By("cleanup previous secret installation")
 	resultImgPullSecret = secretPlugin.DeleteRegistrySecret(&imgPullSecretOptions)
 	if resultImgPullSecret.Stderr != nil {
-		Expect(resultImgPullSecret.Stderr.String()).ShouldNot(ContainSubstring(fmt.Sprintf(tkgpackagedatamodel.SecretGenAPINotAvailable, tkgpackagedatamodel.SecretGenGVR)))
+		Expect(resultImgPullSecret.Stderr.String()).ShouldNot(ContainSubstring(fmt.Sprintf(tkgpackagedatamodel.SecretGenAPINotAvailable, tkgpackagedatamodel.SecretGenAPIName, tkgpackagedatamodel.SecretGenAPIVersion)))
 	}
 	Expect(resultImgPullSecret.Error).ToNot(HaveOccurred())
 }
 
+func setUpPrivateRegistry(kubeconfigPath, clusterName string) {
+	By("set up private registry in cluster")
+	kubeCtx := clusterName + "-admin@" + clusterName
+	registryNamespace := "registry"
+
+	command := exec.NewCommand(
+		exec.WithCommand("kubectl"),
+		exec.WithArgs("patch", "configmap", "kapp-controller-config", "-n", "tkg-system", "--type", "merge", "-p", fmt.Sprintf("{\"data\":{\"dangerousSkipTLSVerify\":\"registry-svc.%s.svc.cluster.local\"}}", registryNamespace), "--context", kubeCtx, "--kubeconfig", kubeconfigPath),
+		exec.WithStdout(GinkgoWriter),
+	)
+	err := command.RunAndRedirectOutput(context.Background())
+	Expect(err).ToNot(HaveOccurred())
+
+	command = exec.NewCommand(
+		exec.WithCommand("kubectl"),
+		exec.WithArgs("apply", "-f", "config/assets/registry-namespace.yml", "--context", kubeCtx, "--kubeconfig", kubeconfigPath),
+		exec.WithStdout(GinkgoWriter),
+	)
+	err = command.RunAndRedirectOutput(context.Background())
+	Expect(err).ToNot(HaveOccurred())
+
+	command = exec.NewCommand(
+		exec.WithCommand("kubectl"),
+		exec.WithArgs("apply", "-f", "config/assets/registry-contents.yml", "--context", kubeCtx, "--kubeconfig", kubeconfigPath),
+		exec.WithStdout(GinkgoWriter),
+	)
+	err = command.RunAndRedirectOutput(context.Background())
+	Expect(err).ToNot(HaveOccurred())
+
+	command = exec.NewCommand(
+		exec.WithCommand("kubectl"),
+		exec.WithArgs("apply", "-f", "config/assets/htpasswd-auth.yml", "--context", kubeCtx, "--kubeconfig", kubeconfigPath),
+		exec.WithStdout(GinkgoWriter),
+	)
+	err = command.RunAndRedirectOutput(context.Background())
+	Expect(err).ToNot(HaveOccurred())
+
+	command = exec.NewCommand(
+		exec.WithCommand("kubectl"),
+		exec.WithArgs("apply", "-f", "config/assets/certs-for-skip-tls.yml", "--context", kubeCtx, "--kubeconfig", kubeconfigPath),
+		exec.WithStdout(GinkgoWriter),
+	)
+	err = command.RunAndRedirectOutput(context.Background())
+	Expect(err).ToNot(HaveOccurred())
+
+	command = exec.NewCommand(
+		exec.WithCommand("kubectl"),
+		exec.WithArgs("apply", "-f", "config/assets/registry.yml", "--context", kubeCtx, "--kubeconfig", kubeconfigPath),
+		exec.WithStdout(GinkgoWriter),
+	)
+	err = command.RunAndRedirectOutput(context.Background())
+	Expect(err).ToNot(HaveOccurred())
+
+	By("restart kapp-controller pod to pick up configmap changes")
+	proxy := framework.NewClusterProxy(clusterName, kubeconfigPath, kubeCtx)
+	clientSet := proxy.GetClientSet()
+
+	var podList *corev1.PodList
+	kappNamespace := "tkg-system"
+	podList, err = clientSet.CoreV1().Pods(kappNamespace).List(context.Background(), metav1.ListOptions{})
+	Expect(err).ToNot(HaveOccurred())
+
+	for i := range podList.Items {
+		pod := &podList.Items[i]
+		if strings.Contains(pod.Name, "kapp-controller") {
+			err = clientSet.CoreV1().Pods(pod.Namespace).Delete(context.Background(), pod.Name, metav1.DeleteOptions{})
+			Expect(err).ToNot(HaveOccurred())
+		}
+	}
+
+	By("make sure package API is available after kapp-controller restart")
+	backOff := wait.Backoff{
+		Steps:    4,
+		Duration: 15 * time.Second,
+		Factor:   1.0,
+		Jitter:   0.1,
+	}
+
+	err = retry.OnError(
+		backOff,
+		func(err error) bool {
+			return err != nil
+		},
+		func() error {
+			result = packagePlugin.ListRepository(&repoOptions)
+			if result.Error != nil {
+				return result.Error
+			}
+			return nil
+		})
+	Expect(err).ToNot(HaveOccurred())
+
+	By("make sure registry pod is running")
+	err = retry.OnError(
+		backOff,
+		func(err error) bool {
+			return err != nil
+		},
+		func() error {
+			podList, err := clientSet.CoreV1().Pods(registryNamespace).List(context.Background(), metav1.ListOptions{})
+			if err != nil {
+				return err
+			}
+
+			for _, pod := range podList.Items {
+				if pod.Status.Phase != corev1.PodRunning {
+					return errors.New("registry pod is not running")
+				}
+			}
+			return nil
+		})
+	Expect(err).ToNot(HaveOccurred())
+}
+
 func testHelper() {
-	/*
-		TODO: Fix tests for secret registry plugin
-		By("trying to update package repository with a private URL")
-		repoOptions.RepositoryURL = config.RepositoryURLPrivate
-		repoOptions.CreateRepository = true
-		repoOptions.PollTimeout = 20 * time.Second
-		result = packagePlugin.UpdateRepository(&repoOptions)
-		Expect(result.Error).To(HaveOccurred())
 
-		By("add registry secret")
-		imgPullSecretOptions.Username = testRegistryUsername
-		imgPullSecretOptions.PasswordInput = testRegistryPassword
-		imgPullSecretOptions.Server = testRegistry
-		resultImgPullSecret = secretPlugin.AddRegistrySecret(&imgPullSecretOptions)
-		Expect(resultImgPullSecret.Error).ToNot(HaveOccurred())
+	By("trying to update package repository with a private URL")
+	repoOptions.RepositoryURL = config.RepositoryURLPrivate
+	repoOptions.CreateRepository = true
+	repoOptions.PollTimeout = 30 * time.Second
+	result = packagePlugin.UpdateRepository(&repoOptions)
+	Expect(result.Error).To(HaveOccurred())
 
-		By("update registry secret to export the secret from default namespace to all namespaces")
-		t := true
-		imgPullSecretOptions.Export = tkgpackagedatamodel.TypeBoolPtr{ExportToAllNamespaces: &t}
-		resultImgPullSecret = secretPlugin.UpdateRegistrySecret(&imgPullSecretOptions)
-		Expect(resultImgPullSecret.Error).ToNot(HaveOccurred())
+	By("add registry secret")
+	imgPullSecretOptions.Username = privateTestRegistryUsername
+	imgPullSecretOptions.PasswordInput = privateTestRegistryPassword
+	imgPullSecretOptions.Server = privateTestRegistry
+	resultImgPullSecret = secretPlugin.AddRegistrySecret(&imgPullSecretOptions)
+	Expect(resultImgPullSecret.Error).ToNot(HaveOccurred())
 
-		By("list registry secret")
-		resultImgPullSecret = secretPlugin.ListRegistrySecret(&imgPullSecretOptions)
-		Expect(resultImgPullSecret.Error).ToNot(HaveOccurred())
-		err = json.Unmarshal(resultImgPullSecret.Stdout.Bytes(), &imgPullSecretOutput)
-		Expect(err).ToNot(HaveOccurred())
-		Expect(len(imgPullSecretOutput)).To(BeNumerically(">=", 1))
+	By("update registry secret to export the secret from default namespace to all namespaces")
+	t := true
+	imgPullSecretOptions.Export = tkgpackagedatamodel.TypeBoolPtr{ExportToAllNamespaces: &t}
+	resultImgPullSecret = secretPlugin.UpdateRegistrySecret(&imgPullSecretOptions)
+	Expect(resultImgPullSecret.Error).ToNot(HaveOccurred())
 
-		By("wait for the private package repository reconciliation")
-		repoOptions.RepositoryURL = config.RepositoryURLPrivate
-		repoOptions.CreateRepository = true
-		repoOptions.PollInterval = pollInterval
-		repoOptions.PollTimeout = pollTimeout
-		result = packagePlugin.CheckRepositoryAvailable(&repoOptions)
-		Expect(result.Error).ToNot(HaveOccurred())
+	By("list registry secret")
+	resultImgPullSecret = secretPlugin.ListRegistrySecret(&imgPullSecretOptions)
+	Expect(resultImgPullSecret.Error).ToNot(HaveOccurred())
+	err = json.Unmarshal(resultImgPullSecret.Stdout.Bytes(), &imgPullSecretOutput)
+	Expect(err).ToNot(HaveOccurred())
+	Expect(len(imgPullSecretOutput)).To(BeNumerically(">=", 1))
 
-		By("list package repository")
-		repoOptions.AllNamespaces = true
-		result = packagePlugin.ListRepository(&repoOptions)
-		Expect(result.Error).ToNot(HaveOccurred())
-		err = json.Unmarshal(result.Stdout.Bytes(), &repoOutput)
-		Expect(err).ToNot(HaveOccurred())
+	By("wait for the private package repository reconciliation")
+	repoOptions.RepositoryURL = config.RepositoryURLPrivate
+	repoOptions.CreateRepository = true
+	repoOptions.PollInterval = pollInterval
+	repoOptions.PollTimeout = pollTimeout
+	result = packagePlugin.CheckRepositoryAvailable(&repoOptions)
+	Expect(result.Error).ToNot(HaveOccurred())
 
-		By("get package repository")
-		repoOutput = []repositoryOutput{{Namespace: testNamespace}}
-		result = packagePlugin.GetRepository(&repoOptions)
-		Expect(result.Error).ToNot(HaveOccurred())
-		err = json.Unmarshal(result.Stdout.Bytes(), &repoOutput)
-		Expect(err).ToNot(HaveOccurred())
-		Expect(len(repoOutput)).To(BeNumerically("==", 1))
-		Expect(repoOutput[0]).To(Equal(expectedRepoOutputPrivate))
-	*/
+	By("list package repository")
+	repoOptions.AllNamespaces = true
+	result = packagePlugin.ListRepository(&repoOptions)
+	Expect(result.Error).ToNot(HaveOccurred())
+	err = json.Unmarshal(result.Stdout.Bytes(), &repoOutput)
+	Expect(err).ToNot(HaveOccurred())
+
+	By("get package repository")
+	repoOutput = []repositoryOutput{{Namespace: testNamespace}}
+	result = packagePlugin.GetRepository(&repoOptions)
+	Expect(result.Error).ToNot(HaveOccurred())
+	err = json.Unmarshal(result.Stdout.Bytes(), &repoOutput)
+	Expect(err).ToNot(HaveOccurred())
+	Expect(len(repoOutput)).To(BeNumerically("==", 1))
+	Expect(repoOutput[0]).To(Equal(expectedRepoOutputPrivate))
 
 	By("update package repository with a new URL without tag")
 	repoOptions.RepositoryURL = config.RepositoryURLNoTag

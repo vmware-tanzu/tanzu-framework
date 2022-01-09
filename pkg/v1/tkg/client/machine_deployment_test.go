@@ -39,7 +39,7 @@ var _ = Describe("GetMachineDeployments", func() {
 		replicas              int32
 		tkc                   tkgsv1alpha2.TanzuKubernetesCluster
 		gotTkc                *tkgsv1alpha2.TanzuKubernetesCluster
-		testClusterName       string = "my-cluster"
+		testClusterName       = "my-cluster"
 	)
 
 	BeforeEach(func() {
@@ -185,7 +185,7 @@ var _ = Describe("DeleteMachineDeployments", func() {
 		tkgClient               *TkgClient
 		deleteDeploymentOptions DeleteMachineDeploymentOptions
 		tkc                     tkgsv1alpha2.TanzuKubernetesCluster
-		testClusterName         string = "my-cluster"
+		testClusterName         = "my-cluster"
 	)
 
 	BeforeEach(func() {
@@ -1224,6 +1224,20 @@ var _ = Describe("Machine Deployment", func() {
 						Template: v1beta1.KubeadmConfigTemplateResource{
 							Spec: v1beta1.KubeadmConfigSpec{
 								JoinConfiguration: &joinConfig,
+								Files: []v1beta1.File{
+									{
+										Path: "/etc/kubernetes/azure.json",
+										ContentFrom: &v1beta1.FileSource{
+											Secret: v1beta1.SecretFileSource{
+												Name: "md-0-azure-secret",
+											},
+										},
+									},
+									{
+										Path:        "/not/azure",
+										ContentFrom: nil,
+									},
+								},
 							},
 						},
 					},
@@ -1607,6 +1621,7 @@ var _ = Describe("Machine Deployment", func() {
 						Expect(kct.ResourceVersion).To(Equal(""))
 						Expect(kct.Name).To(Equal("test-cluster-np-2-kct"))
 						Expect(kct.Spec.Template.Spec.JoinConfiguration.NodeRegistration.KubeletExtraArgs["node-labels"]).To(Equal("key1=value1,key2=value2"))
+						Expect(kct.Spec.Template.Spec.Files[0].ContentFrom.Secret.Name).To(Equal("test-cluster-np-2-mt-azure-json"))
 
 						obj, _, _, _ = clusterClient.CreateResourceArgsForCall(1)
 						mt := obj.(*azure.AzureMachineTemplate)

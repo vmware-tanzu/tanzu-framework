@@ -1,11 +1,14 @@
+// Angular imports
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
-import Broker from 'src/app/shared/service/broker';
+// App imports
+import { APIClient } from 'src/app/swagger/api-client.service';
+import AppServices from 'src/app/shared/service/appServices';
+import { FieldMapUtilities } from '../../../field-mapping/FieldMapUtilities';
 import { Messenger } from 'src/app/shared/service/Messenger';
 import { SharedModule } from 'src/app/shared/shared.module';
-import { APIClient } from 'src/app/swagger/api-client.service';
-import { ValidationService } from '../../../validation/validation.service';
 import { SharedNetworkStepComponent } from "./network-step.component";
+import { ValidationService } from '../../../validation/validation.service';
 
 describe('networkStepComponent', () => {
     let component: SharedNetworkStepComponent;
@@ -20,6 +23,7 @@ describe('networkStepComponent', () => {
             providers: [
                 ValidationService,
                 FormBuilder,
+                FieldMapUtilities,
                 APIClient
             ],
             schemas: [
@@ -29,7 +33,7 @@ describe('networkStepComponent', () => {
         }).compileComponents();
     }));
     beforeEach(() => {
-        Broker.messenger = new Messenger();
+        AppServices.messenger = new Messenger();
         const fb = new FormBuilder();
         fixture = TestBed.createComponent(SharedNetworkStepComponent);
         component = fixture.componentInstance;

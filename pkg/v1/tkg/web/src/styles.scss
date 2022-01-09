@@ -1,37 +1,142 @@
 /* You can add global styles to this file, and also import other style files */
-@import './sass/mixins/logo-base.scss';
+@use './sass/mixins/logo-base';
+@use './sass/properties';
 
+//////////////////////////////////////
+// Display helpers
+//////////////////////////////////////
+
+.no-gutters {
+    padding: 0 !important;
+}
+
+.no-wrap {
+    white-space: nowrap;
+}
+
+.hide {
+    max-height: 0px;
+    overflow: hidden;
+    visibility: hidden;
+}
+
+.display-none {
+    display: none;
+}
+
+.inline {
+    display: inline;
+}
+
+.max-width {
+    width: 100%;
+}
+
+//////////////////////////////////////
+// Positioning helpers
+//////////////////////////////////////
+
+.align-left {
+    text-align: left;
+}
+
+.align-right {
+    text-align: right;
+}
+
+.mt-20 {
+    margin-top: 20px;
+}
+
+.mt-30 {
+    margin-top: 30px;
+}
+
+.mt-40 {
+    margin-top: 40px;
+}
+
+.mb-20 {
+    margin-bottom: 20px;
+}
+
+.mb-10 {
+    margin-bottom: 10px;
+}
+
+.pl-5 {
+    padding-left: 5px;
+}
+
+.pr-5 {
+    padding-right: 5px;
+}
+
+.offset-top-1 {
+    position: relative;
+    top: -1px;
+}
+
+.offset-top-2 {
+    position: relative;
+    top: -2px;
+}
+
+.offset-top-4 {
+    position: relative;
+    top: -4px;
+}
+
+.export-btn {
+    float: right;
+}
+
+.import-btn {
+    float: right;
+}
+
+.file-input {
+    display: none;
+}
+
+//////////////////////////////////////
 // Dark theme overrides
+//////////////////////////////////////
+
 body.dark {
     .header {
-        background-color: #485a6a;
+        background-color: properties.$header-background-dark-theme;
+    }
+
+    // add theme-override class to labels which require color override
+    label.theme-override {
+        color: properties.$label-color-dark-theme !important;
     }
 
     button.clr-accordion-header-button {
-        color: #fff;
+        color: white;
     }
 
     .clr-error {
         .clr-subtext {
-            color: #F76B64;
+            color: properties.$form-error-text-dark-theme;
         }
     }
 }
 
-// Branding logos
+//////////////////////////////////////
+// Branding
+//////////////////////////////////////
+
 .tanzu-logo {
-    @include logo-container('./assets/images/tanzu-logo.svg');
-    top: -2px;
-    position: relative;
+    @include logo-base.logo-container('./assets/images/tanzu-logo.svg');
     margin-right: 6px;
     width: 36px;
     height: 36px;
 }
 
 .tce-logo {
-    @include logo-container('./assets/images/tce-logo.svg');
-    top: -2px;
-    position: relative;
+    @include logo-base.logo-container('./assets/images/tce-logo.svg');
     margin-right: 6px;
     width: 36px;
     height: 36px;
@@ -48,16 +153,18 @@ body.dark {
     background-repeat: no-repeat;
 }
 
-.no-gutters {
-    padding: 0 !important;
-}
+//////////////////////////////////////
+// Contextual help
+//////////////////////////////////////
 
-// contextual help
 clr-icon.contextual-help {
     cursor: pointer;
 }
 
-// wizard fixes
+//////////////////////////////////////
+// Clarity overrides and helpers
+//////////////////////////////////////
+
 .btn-connect {
     margin-top: 20px;
 }
@@ -71,7 +178,7 @@ clr-icon.contextual-help {
 .clr-accordion {
     margin-bottom: 0;
 
-    // tooltip icon fixes
+    // tooltip icon overrides
     .title, label {
         clr-tooltip {
             clr-icon {
@@ -144,141 +251,70 @@ clr-control-error.clr-subtext {
     opacity: 0.7;
 }
 
-.hide {
-    max-height: 0px;
-    overflow: hidden;
-    visibility: hidden;
-}
-
-.display-none {
-    display: none;
-}
-
-.no-wrap {
-    white-space: nowrap;
-}
-
-.brand-logo {
-    background-size: contain;
-    background-repeat: no-repeat;
-    display: inline-block;
-    vertical-align: middle;
-    width: 36px;
-    height: 36px;
-    margin-bottom: 6px;
-    margin-right: 4px;
-}
-.inline {
-    display: inline;
-}
-
 //////////////////////////////////////
 // Generic logo icons
 //////////////////////////////////////
 
 .logo-16 {
-    @include logo-container($logo_blue);
-    @include logo-sizer(16, 16);
+    @include logo-base.logo-container(properties.$logo_blue);
+    @include logo-base.logo-sizer(16, 16);
 }
 
 .logo-24 {
-    @include logo-container($logo_blue);
-    @include logo-sizer(24, 24);
+    @include logo-base.logo-container(properties.$logo_blue);
+    @include logo-base.logo-sizer(24, 24);
 }
 
 .logo-30 {
-    @include logo-container($logo_blue);
-    @include logo-sizer(30, 30);
+    @include logo-base.logo-container(properties.$logo_blue);
+    @include logo-base.logo-sizer(30, 30);
 }
 
 .logo-100 {
-    @include logo-container($logo_blue);
-    @include logo-sizer(100, 100);
+    @include logo-base.logo-container(properties.$logo_blue);
+    @include logo-base.logo-sizer(100, 100);
 }
 
 //////////////////////////////////////
-// Other logo icons
+// Provider logo icons
 //////////////////////////////////////
+
 .vsphere-icon-30 {
-    @include logo-container($logo-vsphere);
-    @include logo-sizer(30, 30);
+    @include logo-base.logo-container(properties.$logo-vsphere);
+    @include logo-base.logo-sizer(30, 30);
 }
 
 .vsphere-icon-48 {
-    @include logo-container($logo-vsphere);
-    @include logo-sizer(48, 48);
+    @include logo-base.logo-container(properties.$logo-vsphere);
+    @include logo-base.logo-sizer(48, 48);
 }
 
 .aws-ec2-icon-30 {
-    @include logo-container($logo-aws-ec2);
-    @include logo-sizer(30, 30);
+    @include logo-base.logo-container(properties.$logo-aws-ec2);
+    @include logo-base.logo-sizer(30, 30);
 }
 
 .aws-ec2-icon-48 {
-    @include logo-container($logo-aws-ec2);
-    @include logo-sizer(48, 48);
+    @include logo-base.logo-container(properties.$logo-aws-ec2);
+    @include logo-base.logo-sizer(48, 48);
 }
 
 .ms-azure-icon-30 {
-    @include logo-container($logo-ms-azure);
-    @include logo-sizer(30, 30);
+    @include logo-base.logo-container(properties.$logo-ms-azure);
+    @include logo-base.logo-sizer(30, 30);
 }
 
 .ms-azure-icon-48 {
-    @include logo-container($logo-ms-azure);
-    @include logo-sizer(48, 48);
+    @include logo-base.logo-container(properties.$logo-ms-azure);
+    @include logo-base.logo-sizer(48, 48);
 }
 
 .docker-icon-30 {
-    @include logo-container($logo-docker);
-    @include logo-sizer(30, 30);
+    @include logo-base.logo-container(properties.$logo-docker);
+    @include logo-base.logo-sizer(30, 30);
 }
 
 .docker-icon-48 {
-    @include logo-container($logo-docker);
-    @include logo-sizer(48, 48);
-}
-
-//////////////////////////////////////
-// Common or shared styles
-//////////////////////////////////////
-
-.align-left {
-    text-align: left;
-}
-
-.align-right {
-    text-align: right;
-}
-
-.mt-20 {
-     margin-top: 20px;
-}
-
-.mt-30 {
-    margin-top: 30px;
-}
-
-.mt-40 {
-    margin-top: 40px;
-}
-
-.mb-20 {
-    margin-bottom: 20px;
-}
-
-.mb-10 {
-    margin-bottom: 10px;
-}
-
-.pl-5 {
-    padding-left: 5px;
-}
-
-.pr-5 {
-    padding-right: 5px;
-}
-
-.export-btn {
-    float: right;
+    @include logo-base.logo-container(properties.$logo-docker);
+    @include logo-base.logo-sizer(48, 48);
 }

@@ -177,7 +177,7 @@ func (p *YTTProcessor) Process(rawArtifact []byte, variablesClient func(string) 
 		if convertable {
 			dataValues = append(dataValues, fmt.Sprintf("%s=%s", vName, vValue))
 		} else {
-			dataValues = append(dataValues, fmt.Sprintf("%s=\"%s\"", vName, vValue))
+			dataValues = append(dataValues, fmt.Sprintf("%s=%q", vName, vValue))
 		}
 	}
 	dvf := template.DataValuesFlags{

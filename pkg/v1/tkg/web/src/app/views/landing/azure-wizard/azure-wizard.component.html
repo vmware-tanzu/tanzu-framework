@@ -9,148 +9,21 @@
                 keyboardListener
             ></clr-icon>
             <h2 i18n="wizard title" id="azure-title" aria-level="1">
-                <div class="ms-azure-icon-30"></div>
-                Deploy {{ clusterTypeDescriptor | titlecase }} Cluster on Azure
+                <div class="ms-azure-icon-30 offset-top-4"></div>
+                Deploy {{ clusterTypeDescriptorTitleCase }} Cluster on Azure
             </h2>
+            <ng-container *featureToggle="'management-cluster.import'">
+                <input type="file" class="file-input"
+                       (change)="onImportFileSelected($event)" #fileUpload>
+                <button class="btn btn-outline import-btn" (click)="onImportButtonClick() && fileUpload.click()"
+                        i18n="import configuration button">
+                    Import Configuration
+                </button>
+            </ng-container>
         </div>
     </div>
     <app-shared-delete-data-popup></app-shared-delete-data-popup>
-    <form clrStepper #wizard [formGroup]="form">
-        <clr-stepper-panel formGroupName="azureProviderForm" removeAriaLabelledBy>
-            <clr-step-title i18n="IaaS provder step name">
-                IaaS Provider
-            </clr-step-title>
-            <clr-step-description i18n="IaaS provder step description">
-                {{ getStepDescription('azureProviderForm') }}
-            </clr-step-description>
-            <ng-container *ngIf="steps[0]">
-                <app-azure-provider-step [formGroup]="form.controls.azureProviderForm" formName="azureProviderForm">
-                </app-azure-provider-step>
-            </ng-container>
-            <clr-step-content *clrIfExpanded>
-                <app-step-controller (nextStep)="onNextStep()"></app-step-controller>
-            </clr-step-content>
-        </clr-stepper-panel>
-
-        <clr-stepper-panel formGroupName="vnetForm" removeAriaLabelledBy>
-            <clr-step-title i18n="vnet step name">
-                Azure VNET Settings
-            </clr-step-title>
-            <clr-step-description i18n="vnet step description">
-                {{ getStepDescription('vnetForm') }}
-            </clr-step-description>
-            <ng-container *ngIf="steps[1]">
-                <app-vnet-step [formGroup]="form.controls.vnetForm" formName="vnetForm">
-                </app-vnet-step>
-            </ng-container>
-            <clr-step-content *clrIfExpanded>
-                <app-step-controller (nextStep)="onNextStep()"></app-step-controller>
-            </clr-step-content>
-        </clr-stepper-panel>
-
-        <clr-stepper-panel formGroupName="azureNodeSettingForm" removeAriaLabelledBy>
-            <clr-step-title i18n="node setting step name">
-                {{ clusterTypeDescriptor | titlecase }} Cluster Settings
-            </clr-step-title>
-            <clr-step-description i18n="node setting step description">
-                {{ getStepDescription('azureNodeSettingForm') }}
-            </clr-step-description>
-            <ng-container *ngIf="steps[2]">
-                <app-node-setting-step [formGroup]="form.controls.azureNodeSettingForm" formName="azureNodeSettingForm">
-                </app-node-setting-step>
-            </ng-container>
-            <clr-step-content *clrIfExpanded>
-                <app-step-controller (nextStep)="onNextStep()"></app-step-controller>
-            </clr-step-content>
-        </clr-stepper-panel>
-
-        <clr-stepper-panel formGroupName="metadataForm" removeAriaLabelledBy>
-            <clr-step-title i18n="Azure metadata step name">
-                Metadata
-            </clr-step-title>
-            <clr-step-description i18n="Azure metadata step description">
-                {{ getStepDescription('metadataForm') }}
-            </clr-step-description>
-            <ng-container *ngIf="steps[3]">
-                <app-metadata-step [formGroup]="form.controls.metadataForm" formName="metadataForm">
-                </app-metadata-step>
-            </ng-container>
-            <clr-step-content *clrIfExpanded>
-                <app-step-controller (nextStep)="onNextStep()"></app-step-controller>
-            </clr-step-content>
-        </clr-stepper-panel>
-
-        <clr-stepper-panel formGroupName="networkForm" removeAriaLabelledBy>
-            <clr-step-title i18n="Kubernetes network step name">
-                Kubernetes Network
-            </clr-step-title>
-            <clr-step-description i18n="Kubernetes network step description">
-                {{ getStepDescription('networkForm') }}
-            </clr-step-description>
-            <ng-container *ngIf="steps[4]">
-                <app-shared-network-step [formGroup]="form.controls.networkForm" formName="networkForm">
-                </app-shared-network-step>
-            </ng-container>
-            <clr-step-content *clrIfExpanded>
-                <app-step-controller (nextStep)="onNextStep()"></app-step-controller>
-            </clr-step-content>
-        </clr-stepper-panel>
-
-        <clr-stepper-panel formGroupName="identityForm" removeAriaLabelledBy>
-            <clr-step-title i18n="identity step title">
-                Identity Management
-            </clr-step-title>
-            <clr-step-description i18n="identity step description">
-                {{ getStepDescription('identity') }}
-            </clr-step-description>
-            <ng-container *ngIf="steps[5]">
-                <app-shared-identity-step
-                        [formGroup]="form.controls.identityForm"
-                        formName="identity">
-                </app-shared-identity-step>
-            </ng-container>
-            <clr-step-content *clrIfExpanded>
-                <app-step-controller (nextStep)="onNextStep()"></app-step-controller>
-            </clr-step-content>
-        </clr-stepper-panel>
-
-        <clr-stepper-panel formGroupName="osImageForm">
-            <clr-step-title i18n="OS Image">
-                OS Image
-            </clr-step-title>
-            <clr-step-description i18n="OS Imagedescription">
-                {{ getStepDescription('osImage') }}
-            </clr-step-description>
-            <ng-container *ngIf="steps[6]">
-                <app-os-image-step [formGroup]="form.controls.osImageForm"
-                    formName="osimages" [wizardFormService]="wizardFormService" type="AZURE"
-                    osImageTooltipContent="Select a base OS image that you have already imported
-                    into your Azure account. If no compatible OS image is present, import one into
-                    Azure and click the Refresh button">
-                </app-os-image-step>
-            </ng-container>
-            <clr-step-content *clrIfExpanded>
-                <app-step-controller (nextStep)="onNextStep()"></app-step-controller>
-            </clr-step-content>
-        </clr-stepper-panel>
-
-        <clr-stepper-panel formGroupName="ceipOptInForm" removeAriaLabelledBy *ngIf="edition === 'tkg'">
-            <clr-step-title i18n="Azure CEIP program agreement">
-                CEIP Agreement
-            </clr-step-title>
-            <clr-step-description i18n="Azure CEIP step description">
-                {{ getStepDescription('ceipOptInForm') }}
-            </clr-step-description>
-            <ng-container *ngIf="steps[7]">
-                <app-shared-ceip-step [formGroup]="form.controls.ceipOptInForm" formName="ceipOptInForm">
-                </app-shared-ceip-step>
-            </ng-container>
-            <clr-step-content *clrIfExpanded>
-                <app-step-controller (nextStep)="onNextStep()"></app-step-controller>
-            </clr-step-content>
-        </clr-stepper-panel>
-
-    </form>
+    <app-step-wrapper-set [wizard]="registrar"></app-step-wrapper-set>
     <button class="btn btn-primary mt-20" [disabled]="!getWizardValidity()" (click)="reviewConfiguration(true)">
         REVIEW CONFIGURATION
     </button>
@@ -162,7 +35,7 @@
     <div class="clr-row mt-20">
         <div class="clr-col-12 btn-container">
             <button class="btn btn-primary deploy-btn" [disabled]="disableDeployButton" (click)="deploy()">
-                Deploy {{ clusterTypeDescriptor | titlecase }} Cluster
+                Deploy {{ clusterTypeDescriptorTitleCase }} Cluster
             </button>
             <button class="btn btn-outline edit-btn" (click)="reviewConfiguration(false)"
                 i18n="return to wizard for edit button">

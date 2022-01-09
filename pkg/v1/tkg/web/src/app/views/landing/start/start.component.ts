@@ -2,18 +2,16 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { Title } from '@angular/platform-browser';
-
 // Third party imports
 import { Observable } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-
 // App imports
 import { APP_ROUTES, Routes } from '../../../shared/constants/routes.constants';
+import AppServices from 'src/app/shared/service/appServices';
+import { BasicSubscriber } from 'src/app/shared/abstracts/basic-subscriber';
+import { BrandingObj, EditionData } from '../../../shared/service/branding.service';
 import { PROVIDERS, Providers } from '../../../shared/constants/app.constants';
 import { TkgEvent, TkgEventType } from 'src/app/shared/service/Messenger';
-import { BrandingObj, EditionData } from '../../../shared/service/branding.service';
-import { BasicSubscriber } from 'src/app/shared/abstracts/basic-subscriber';
-import Broker from 'src/app/shared/service/broker';
 
 @Component({
     selector: 'tkg-kickstart-ui-start',
@@ -33,14 +31,14 @@ export class StartComponent extends BasicSubscriber implements OnInit {
     constructor(private router: Router,
                 private titleService: Title) {
         super();
-        this.provider = Broker.appDataService.getProviderType();
+        this.provider = AppServices.appDataService.getProviderType();
     }
 
     ngOnInit() {
         /**
          * Whenever branding data changes, load content in landing page
          */
-        Broker.messenger.getSubject(TkgEventType.BRANDING_CHANGED)
+        AppServices.messenger.getSubject(TkgEventType.BRANDING_CHANGED)
             .pipe(takeUntil(this.unsubscribe))
             .subscribe((data: TkgEvent) => {
                 const content: EditionData = data.payload;
@@ -59,7 +57,7 @@ export class StartComponent extends BasicSubscriber implements OnInit {
      */
     navigateToWizard(provider: string): void {
         this.loading = true;
-        Broker.appDataService.setProviderType(provider);
+        AppServices.appDataService.setProviderType(provider);
         let wizard;
         switch (provider) {
             case PROVIDERS.VSPHERE: {

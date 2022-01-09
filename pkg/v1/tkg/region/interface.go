@@ -13,7 +13,7 @@ const (
 )
 
 // RegionContext holds the region context
-type RegionContext struct { //nolint:golint
+type RegionContext struct {
 	ClusterName      string           `yaml:"name" json:"name"`
 	ContextName      string           `yaml:"context" json:"context"`
 	SourceFilePath   string           `yaml:"file" json:"file"`

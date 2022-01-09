@@ -18,40 +18,42 @@ Following are the combinations supported for CLI
 
 #### Recommended method to install plugins (with API-driven plugin discovery activated)
 
-API driven plugin discovery feature is available with [v0.11.0](https://github.com/vmware-tanzu/tanzu-framework/releases/tag/v0.11.0) release as default method to install the plugins. Learn more about this feature in the [design docs](../design/context-aware-plugin-discovery-design.md).
+With [v0.14.0](https://github.com/vmware-tanzu/tanzu-framework/releases/tag/v0.14.0) release, the artifacts are better categorized and published to allow users to download and configure per recommended and alternate methods.
+
+The API driven plugin discovery feature is enabled as default method to install the plugins. So, most users will just need to install the Tanzu CLI binary. The plugins can be installed and configured with `tanzu plugin sync` command. Learn more about this feature in the [design docs](../design/context-aware-plugin-discovery-design.md).
 
 ##### macOS/Linux
 
-- Download the latest [release](https://github.com/vmware-tanzu/tanzu-framework/releases/latest)
+- Download the latest tanzu-cli tarball from [release](https://github.com/vmware-tanzu/tanzu-framework/releases/latest) page (`tanzu-cli-darwin-amd64.tar.gz` or `tanzu-cli-linux-amd64.tar.gz`)
 
 - Extract the downloaded tar file
 
   - for macOS:
 
     ```sh
-    mkdir tanzu && tar -zxvf tanzu-framework-darwin-amd64.tar.gz -C tanzu
+    mkdir tanzu && tar -zxvf tanzu-cli-darwin-amd64.tar.gz -C tanzu
     ```
 
   - for Linux:
 
     ```sh
-    mkdir tanzu && tar -zxvf tanzu-framework-linux-amd64.tar.gz -C tanzu
+    mkdir tanzu && tar -zxvf tanzu-cli-linux-amd64.tar.gz -C tanzu
     ```
 
 - Install the `tanzu` CLI
 
-  Note: Replace `v0.11.0` with the version you've downloaded.
+  Note: Replace `v0.14.0` with the version you've downloaded.
 
   - for macOS:
 
     ```sh
-    install tanzu/cli/core/v0.11.0/tanzu-core-darwin_amd64 /usr/local/bin/tanzu
+    install tanzu/v0.14.0/tanzu-core-darwin_amd64 /usr/local/bin/tanzu
     ```
 
   - for Linux:
 
     ```sh
-    sudo install tanzu/cli/core/v0.11.0/tanzu-core-linux_amd64 /usr/local/bin/tanzu
+    sudo install tanzu/v0.14.0/tanzu-core-linux_amd64 /usr/local/bin/tanzu
     ```
 
 - Install the available plugins
@@ -68,12 +70,12 @@ API driven plugin discovery feature is available with [v0.11.0](https://github.c
 
 ##### Windows
 
-- Download the latest [release](https://github.com/vmware-tanzu/tanzu-framework/releases/latest)
+- Download the latest `tanzu-cli-windows-amd64.zip` from [release](https://github.com/vmware-tanzu/tanzu-framework/releases/latest) page
 
 - Open PowerShell as an administrator, change to the download directory and run:
 
   ```sh
-  Expand-Archive tanzu-framework-windows-amd64.zip -DestinationPath tanzu
+  Expand-Archive tanzu-cli-windows-amd64.zip -DestinationPath tanzu
   cd .\tanzu\
   ```
 
@@ -84,7 +86,7 @@ API driven plugin discovery feature is available with [v0.11.0](https://github.c
   ```sh
   SET TANZU_CLI_DIR=%ProgramFiles%\tanzu
   mkdir "%TANZU_CLI_DIR%"
-  copy /B /Y cli\core\v0.11.0\tanzu-core-windows_amd64.exe "%TANZU_CLI_DIR%\tanzu.exe"
+  copy /B /Y v0.11.0\tanzu-core-windows_amd64.exe "%TANZU_CLI_DIR%\tanzu.exe"
   set PATH=%PATH%;%TANZU_CLI_DIR%
   SET PLUGIN_DIR=%LocalAppData%\tanzu-cli
   mkdir %PLUGIN_DIR%
@@ -132,12 +134,12 @@ Users can still install the plugins using the legacy method by deactivating the 
 
 - Save following in `install.bat` in current directory and run `install.bat`
 
-  Note: Replace `v0.11.0` (line number 3) with the version you've downloaded.
+  Note: Replace `v0.14.0` (line number 3) with the version you've downloaded.
 
   ```sh
   SET TANZU_CLI_DIR=%ProgramFiles%\tanzu
   mkdir "%TANZU_CLI_DIR%"
-  copy /B /Y cli\core\v0.11.0\tanzu-core-windows_amd64.exe "%TANZU_CLI_DIR%\tanzu.exe"
+  copy /B /Y cli\core\v0.14.0\tanzu-core-windows_amd64.exe "%TANZU_CLI_DIR%\tanzu.exe"
   set PATH=%PATH%;%TANZU_CLI_DIR%
   SET PLUGIN_DIR=%LocalAppData%\tanzu-cli
   mkdir %PLUGIN_DIR%

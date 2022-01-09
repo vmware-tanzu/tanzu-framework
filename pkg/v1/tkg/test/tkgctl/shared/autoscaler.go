@@ -1,7 +1,7 @@
 // Copyright 2021 VMware, Inc. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-// nolint:typecheck,goconst,gocritic,golint,stylecheck,nolintlint
+// nolint:typecheck,goconst,gocritic,stylecheck,nolintlint
 package shared
 
 import (
@@ -58,7 +58,6 @@ func E2EAutoscalerSpec(context context.Context, inputGetter func() E2EAutoscaler
 	})
 
 	It("autoscaler should scale up/down the workers", func() {
-		Skip("Skipping autoscaler tests")
 		By(fmt.Sprintf("Creating a workload cluster %q", clusterName))
 		options := framework.CreateClusterOptions{
 			ClusterName:          clusterName,

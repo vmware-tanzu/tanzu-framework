@@ -10,7 +10,6 @@ type RegistrySecretOptions struct {
 	PasswordStdin         bool
 	SkipPrompt            bool
 	Export                TypeBoolPtr
-	KubeConfig            string
 	Namespace             string
 	Password              string
 	PasswordEnvVar        string

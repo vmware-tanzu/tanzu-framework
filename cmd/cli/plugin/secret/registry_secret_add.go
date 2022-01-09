@@ -6,7 +6,6 @@ package main
 import (
 	"context"
 	"fmt"
-	"io/ioutil"
 	"os"
 
 	"github.com/pkg/errors"
@@ -66,12 +65,12 @@ func registrySecretAdd(cmd *cobra.Command, args []string) error {
 	}
 	registrySecretOp.Password = password
 
-	pkgClient, err := tkgpackageclient.NewTKGPackageClient(registrySecretOp.KubeConfig)
+	pkgClient, err := tkgpackageclient.NewTKGPackageClient(kubeConfig)
 	if err != nil {
 		return err
 	}
 
-	kc, err := kappclient.NewKappClient(registrySecretOp.KubeConfig)
+	kc, err := kappclient.NewKappClient(kubeConfig)
 	if err != nil {
 		return err
 	}
@@ -170,7 +169,7 @@ func extractPassword() (string, error) {
 			return "", errors.New(errInvalidPasswordFlags)
 		}
 		isPasswordSet = true
-		b, err := ioutil.ReadFile(registrySecretOp.PasswordFile)
+		b, err := os.ReadFile(registrySecretOp.PasswordFile)
 		if err != nil {
 			return "", errors.Wrap(err, fmt.Sprintf("failed to read from the password file '%s'", registrySecretOp.PasswordFile))
 		}

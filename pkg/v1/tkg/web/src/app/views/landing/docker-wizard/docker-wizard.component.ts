@@ -10,6 +10,12 @@ import { APIClient } from 'src/app/swagger';
 import { ConfigFileInfo, DockerRegionalClusterParams } from 'src/app/swagger/models';
 import { CliFields, CliGenerator } from '../wizard/shared/utils/cli-generator';
 import { WizardBaseDirective } from '../wizard/shared/wizard-base/wizard-base';
+import { ImportParams, ImportService } from "../../../shared/service/import.service";
+import { WizardStep } from '../wizard/shared/constants/wizard.constants';
+import { FormDataForHTML, FormUtility } from '../wizard/shared/components/steps/form-utility';
+import { WizardForm } from '../wizard/shared/constants/wizard.constants';
+import { NodeSettingStepComponent } from './node-setting-step/node-setting-step.component';
+import { DaemonValidationStepComponent } from './daemon-validation-step/daemon-validation-step.component';
 
 @Component({
     selector: 'app-docker-wizard',
@@ -22,12 +28,20 @@ export class DockerWizardComponent extends WizardBaseDirective implements OnInit
         router: Router,
         el: ElementRef,
         formMetaDataService: FormMetaDataService,
-        private formBuilder: FormBuilder,
+        private importService: ImportService,
+        formBuilder: FormBuilder,
         titleService: Title,
         private apiClient: APIClient
     ) {
-        super(router, el, formMetaDataService, titleService);
-        this.buildForm();
+        super(router, el, formMetaDataService, titleService, formBuilder);
+    }
+
+    protected supplyStepData(): FormDataForHTML[] {
+        return [
+            this.DockerDaemonForm,
+            this.NetworkForm,
+            this.DockerNodeSettingForm
+        ];
     }
 
     ngOnInit(): void {
@@ -39,27 +53,15 @@ export class DockerWizardComponent extends WizardBaseDirective implements OnInit
         this.titleService.setTitle(this.title + ' Docker');
     }
 
-    buildForm() {
-        this.form = this.formBuilder.group({
-            dockerDaemonForm: this.formBuilder.group({
-            }),
-            networkForm: this.formBuilder.group({
-            }),
-            dockerNodeSettingForm: this.formBuilder.group({
-            })
-        });
-    }
+    setFromPayload(payload: DockerRegionalClusterParams) {
+        this.setFieldValue('networkForm', 'networkName', payload.networking.networkName);
+        this.setFieldValue('networkForm', 'clusterServiceCidr',  payload.networking.clusterServiceCIDR);
+        this.setFieldValue('networkForm', 'clusterPodCidr',  payload.networking.clusterPodCIDR);
+        this.setFieldValue('networkForm', 'cniType',  payload.networking.cniType);
 
-    getStepDescription(stepName: string): string {
-        if (stepName === 'network') {
-            if (this.getFieldValue('networkForm', 'clusterPodCidr')) {
-                return 'Cluster Pod CIDR: ' + this.getFieldValue('networkForm', 'clusterPodCidr');
-            } else {
-                return 'Specify the cluster Pod CIDR';
-            }
-        } else if (stepName === 'nodeSetting') {
-            return 'Optional: Specify the management cluster name'
-        }
+        this.setFieldValue('dockerNodeSettingForm', 'clusterName', payload.clusterName);
+
+        this.saveProxyFieldsFromPayload(payload);
     }
 
     getPayload() {
@@ -149,5 +151,85 @@ export class DockerWizardComponent extends WizardBaseDirective implements OnInit
 
     createRegionalCluster(payload: any): Observable<any> {
         return this.apiClient.createDockerRegionalCluster(payload);
+    }
+
+    // HTML convenience methods
+    //
+    get NetworkForm(): FormDataForHTML {
+        return FormUtility.formOverrideDescription(super.NetworkForm, this.NetworkFormDescription);
+    }
+    get DockerNodeSettingForm(): FormDataForHTML {
+        const title = FormUtility.titleCase(this.clusterTypeDescriptor) + ' Cluster Settings';
+        return { name: 'dockerNodeSettings', title: title, description: 'Optional: Specify the management cluster name',
+            i18n: {title: 'node setting step name', description: 'node setting step description'},
+        clazz: NodeSettingStepComponent};
+    }
+    get DockerDaemonForm(): FormDataForHTML {
+        return { name: 'dockerDaemonForm', title: 'Docker Prerequisites',
+            description: 'Validate the local Docker daemon, allocated CPUs and Total Memory',
+            i18n: {title: 'docker prerequisite step name', description: 'Docker prerequisite step description'},
+        clazz: DaemonValidationStepComponent};
+    }
+    // OVERRIDES
+    // We override the parent class describeStep() because we have an instance where we're using a COMMON component,
+    // but we want to describe it in Docker-specific ways
+    describeStep(stepName, staticDescription: string): string {
+        if (stepName === WizardForm.NETWORK) {
+            return this.NetworkFormDescription;
+        }
+        return super.describeStep(stepName, staticDescription);
+    }
+
+    private get NetworkFormDescription(): string {
+        if (this.getFieldValue('networkForm', 'clusterPodCidr')) {
+            return 'Cluster Pod CIDR: ' + this.getFieldValue('networkForm', 'clusterPodCidr');
+        }
+        return 'Specify the cluster Pod CIDR';
+    }
+    //
+    // HTML convenience methods
+
+    // returns TRUE if the file contents appear to be a valid config file for Docker
+    // returns FALSE if the file is empty or does not appear to be valid. Note that in the FALSE
+    // case we also alert the user.
+    importFileValidate(nameFile: string, fileContents: string): boolean {
+        if (fileContents.includes('INFRASTRUCTURE_PROVIDER: docker')) {
+            return true;
+        }
+        alert(nameFile + ' is not a valid docker configuration file!');
+        return false;
+    }
+
+    importFileRetrieveClusterParams(fileContents: string): Observable<DockerRegionalClusterParams> {
+        return this.apiClient.importTKGConfigForVsphere( { params: { filecontents: fileContents } } );
+    }
+
+    importFileProcessClusterParams(nameFile: string, dockerClusterParams: DockerRegionalClusterParams) {
+        this.setFromPayload(dockerClusterParams);
+        this.resetToFirstStep();
+        this.importService.publishImportSuccess(nameFile);
+    }
+
+    // returns TRUE if user (a) will not lose data on import, or (b) confirms it's OK
+    onImportButtonClick() {
+        let result = true;
+        if (!this.isOnFirstStep()) {
+            result = confirm('Importing will overwrite any data you have entered. Proceed with import?');
+        }
+        return result;
+    }
+
+    onImportFileSelected(event) {
+        const params: ImportParams<DockerRegionalClusterParams> = {
+            file: event.target.files[0],
+            validator: this.importFileValidate,
+            backend: this.importFileRetrieveClusterParams.bind(this),
+            onSuccess: this.importFileProcessClusterParams.bind(this),
+            onFailure: this.importService.publishImportFailure
+        }
+        this.importService.import(params);
+
+        // clear file reader target so user can re-select same file if needed
+        event.target.value = '';
     }
 }

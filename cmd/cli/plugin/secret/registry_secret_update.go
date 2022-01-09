@@ -70,7 +70,7 @@ func registrySecretUpdate(cmd *cobra.Command, args []string) error {
 		log.Info("\n")
 	}
 
-	pkgClient, err := tkgpackageclient.NewTKGPackageClient(registrySecretOp.KubeConfig)
+	pkgClient, err := tkgpackageclient.NewTKGPackageClient(kubeConfig)
 	if err != nil {
 		return err
 	}

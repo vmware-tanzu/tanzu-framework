@@ -266,13 +266,13 @@ type ProxyConfiguration struct {
 	// Example: http://<user>:<pwd>@<ip>:<port>
 	//
 	// +optional
-	HttpProxy *string `json:"httpProxy,omitempty"` //nolint:golint,stylecheck
+	HttpProxy *string `json:"httpProxy,omitempty"` //nolint:revive,stylecheck
 
 	// HttpsProxy specifies a proxy URL to use for creating HTTPS connections outside the cluster.
 	// Example: http://<user>:<pwd>@<ip>:<port>
 	//
 	// +optional
-	HttpsProxy *string `json:"httpsProxy,omitempty"` //nolint:golint,stylecheck
+	HttpsProxy *string `json:"httpsProxy,omitempty"` //nolint:revive,stylecheck
 
 	// NoProxy specifies a list of destination domain names, domains, IP addresses or other network CIDRs to exclude proxying.
 	// Example: [localhost, 127.0.0.1, 10.10.10.0/24]

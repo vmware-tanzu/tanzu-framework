@@ -36,7 +36,7 @@ func repositoryGet(cmd *cobra.Command, args []string) error {
 		return errors.New("incorrect number of input parameters. Usage: tanzu package repository get REPOSITORY_NAME [FLAGS]")
 	}
 
-	pkgClient, err := tkgpackageclient.NewTKGPackageClient(repoOp.KubeConfig)
+	pkgClient, err := tkgpackageclient.NewTKGPackageClient(kubeConfig)
 	if err != nil {
 		return err
 	}

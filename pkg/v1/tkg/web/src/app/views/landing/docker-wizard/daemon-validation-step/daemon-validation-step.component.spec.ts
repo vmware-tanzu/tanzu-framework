@@ -7,6 +7,7 @@ import { APIClient } from 'src/app/swagger/api-client.service';
 import { ValidationService } from '../../wizard/shared/validation/validation.service';
 
 import { DaemonValidationStepComponent } from './daemon-validation-step.component';
+import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
 
 describe('DaemonValidationStepComponent', () => {
     let component: DaemonValidationStepComponent;
@@ -25,6 +26,7 @@ describe('DaemonValidationStepComponent', () => {
             declarations: [ DaemonValidationStepComponent ],
             providers: [
                 APIClient,
+                FieldMapUtilities,
                 ValidationService
             ]
         })

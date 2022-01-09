@@ -117,7 +117,7 @@ func getClusterObjectsMapForPacific(clusterClient clusterclient.Client, listOpti
 }
 
 func getClusterWorkerCountForPacific(clusterInfo *clusterObjectsForPacific) string {
-	var desiredReplicasCount int32 = 0
+	var desiredReplicasCount int32
 	nodePools := clusterInfo.cluster.Spec.Topology.NodePools
 	for idx := range nodePools {
 		if nodePools[idx].Replicas != nil {
@@ -125,7 +125,7 @@ func getClusterWorkerCountForPacific(clusterInfo *clusterObjectsForPacific) stri
 		}
 	}
 
-	var readyReplicasCount int32 = 0
+	var readyReplicasCount int32
 	for idx := range clusterInfo.mds {
 		readyReplicasCount += clusterInfo.mds[idx].Status.ReadyReplicas
 	}
@@ -247,10 +247,10 @@ func getClusterWorkerCount(clusterInfo *clusterObjects) string {
 }
 
 func getClusterReplicas(mds []capi.MachineDeployment) (int32, int32, int32, int32) {
-	var readyReplicas int32 = 0
-	var specReplicas int32 = 0
-	var replicas int32 = 0
-	var updatedReplicas int32 = 0
+	var readyReplicas int32
+	var specReplicas int32
+	var replicas int32
+	var updatedReplicas int32
 	for i := range mds {
 		readyReplicas += mds[i].Status.ReadyReplicas
 		replicas += mds[i].Status.Replicas

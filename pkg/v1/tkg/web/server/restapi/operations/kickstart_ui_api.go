@@ -99,9 +99,6 @@ func NewKickstartUIAPI(spec *loads.Document) *KickstartUIAPI {
 		AwsGetAWSCredentialProfilesHandler: aws.GetAWSCredentialProfilesHandlerFunc(func(params aws.GetAWSCredentialProfilesParams) middleware.Responder {
 			return middleware.NotImplemented("operation AwsGetAWSCredentialProfiles has not yet been implemented")
 		}),
-		AwsGetAWSEndpointHandler: aws.GetAWSEndpointHandlerFunc(func(params aws.GetAWSEndpointParams) middleware.Responder {
-			return middleware.NotImplemented("operation AwsGetAWSEndpoint has not yet been implemented")
-		}),
 		AwsGetAWSNodeTypesHandler: aws.GetAWSNodeTypesHandlerFunc(func(params aws.GetAWSNodeTypesParams) middleware.Responder {
 			return middleware.NotImplemented("operation AwsGetAWSNodeTypes has not yet been implemented")
 		}),
@@ -185,6 +182,18 @@ func NewKickstartUIAPI(spec *loads.Document) *KickstartUIAPI {
 		}),
 		VsphereGetVsphereThumbprintHandler: vsphere.GetVsphereThumbprintHandlerFunc(func(params vsphere.GetVsphereThumbprintParams) middleware.Responder {
 			return middleware.NotImplemented("operation VsphereGetVsphereThumbprint has not yet been implemented")
+		}),
+		AwsImportTKGConfigForAWSHandler: aws.ImportTKGConfigForAWSHandlerFunc(func(params aws.ImportTKGConfigForAWSParams) middleware.Responder {
+			return middleware.NotImplemented("operation AwsImportTKGConfigForAWS has not yet been implemented")
+		}),
+		AzureImportTKGConfigForAzureHandler: azure.ImportTKGConfigForAzureHandlerFunc(func(params azure.ImportTKGConfigForAzureParams) middleware.Responder {
+			return middleware.NotImplemented("operation AzureImportTKGConfigForAzure has not yet been implemented")
+		}),
+		DockerImportTKGConfigForDockerHandler: docker.ImportTKGConfigForDockerHandlerFunc(func(params docker.ImportTKGConfigForDockerParams) middleware.Responder {
+			return middleware.NotImplemented("operation DockerImportTKGConfigForDocker has not yet been implemented")
+		}),
+		VsphereImportTKGConfigForVsphereHandler: vsphere.ImportTKGConfigForVsphereHandlerFunc(func(params vsphere.ImportTKGConfigForVsphereParams) middleware.Responder {
+			return middleware.NotImplemented("operation VsphereImportTKGConfigForVsphere has not yet been implemented")
 		}),
 		AwsSetAWSEndpointHandler: aws.SetAWSEndpointHandlerFunc(func(params aws.SetAWSEndpointParams) middleware.Responder {
 			return middleware.NotImplemented("operation AwsSetAWSEndpoint has not yet been implemented")
@@ -278,8 +287,6 @@ type KickstartUIAPI struct {
 	AwsGetAWSAvailabilityZonesHandler aws.GetAWSAvailabilityZonesHandler
 	// AwsGetAWSCredentialProfilesHandler sets the operation handler for the get a w s credential profiles operation
 	AwsGetAWSCredentialProfilesHandler aws.GetAWSCredentialProfilesHandler
-	// AwsGetAWSEndpointHandler sets the operation handler for the get a w s endpoint operation
-	AwsGetAWSEndpointHandler aws.GetAWSEndpointHandler
 	// AwsGetAWSNodeTypesHandler sets the operation handler for the get a w s node types operation
 	AwsGetAWSNodeTypesHandler aws.GetAWSNodeTypesHandler
 	// AwsGetAWSOSImagesHandler sets the operation handler for the get a w s o s images operation
@@ -336,6 +343,14 @@ type KickstartUIAPI struct {
 	VsphereGetVSphereResourcePoolsHandler vsphere.GetVSphereResourcePoolsHandler
 	// VsphereGetVsphereThumbprintHandler sets the operation handler for the get vsphere thumbprint operation
 	VsphereGetVsphereThumbprintHandler vsphere.GetVsphereThumbprintHandler
+	// AwsImportTKGConfigForAWSHandler sets the operation handler for the import t k g config for a w s operation
+	AwsImportTKGConfigForAWSHandler aws.ImportTKGConfigForAWSHandler
+	// AzureImportTKGConfigForAzureHandler sets the operation handler for the import t k g config for azure operation
+	AzureImportTKGConfigForAzureHandler azure.ImportTKGConfigForAzureHandler
+	// DockerImportTKGConfigForDockerHandler sets the operation handler for the import t k g config for docker operation
+	DockerImportTKGConfigForDockerHandler docker.ImportTKGConfigForDockerHandler
+	// VsphereImportTKGConfigForVsphereHandler sets the operation handler for the import t k g config for vsphere operation
+	VsphereImportTKGConfigForVsphereHandler vsphere.ImportTKGConfigForVsphereHandler
 	// AwsSetAWSEndpointHandler sets the operation handler for the set a w s endpoint operation
 	AwsSetAWSEndpointHandler aws.SetAWSEndpointHandler
 	// AzureSetAzureEndpointHandler sets the operation handler for the set azure endpoint operation
@@ -485,10 +500,6 @@ func (o *KickstartUIAPI) Validate() error {
 		unregistered = append(unregistered, "aws.GetAWSCredentialProfilesHandler")
 	}
 
-	if o.AwsGetAWSEndpointHandler == nil {
-		unregistered = append(unregistered, "aws.GetAWSEndpointHandler")
-	}
-
 	if o.AwsGetAWSNodeTypesHandler == nil {
 		unregistered = append(unregistered, "aws.GetAWSNodeTypesHandler")
 	}
@@ -599,6 +610,22 @@ func (o *KickstartUIAPI) Validate() error {
 
 	if o.VsphereGetVsphereThumbprintHandler == nil {
 		unregistered = append(unregistered, "vsphere.GetVsphereThumbprintHandler")
+	}
+
+	if o.AwsImportTKGConfigForAWSHandler == nil {
+		unregistered = append(unregistered, "aws.ImportTKGConfigForAWSHandler")
+	}
+
+	if o.AzureImportTKGConfigForAzureHandler == nil {
+		unregistered = append(unregistered, "azure.ImportTKGConfigForAzureHandler")
+	}
+
+	if o.DockerImportTKGConfigForDockerHandler == nil {
+		unregistered = append(unregistered, "docker.ImportTKGConfigForDockerHandler")
+	}
+
+	if o.VsphereImportTKGConfigForVsphereHandler == nil {
+		unregistered = append(unregistered, "vsphere.ImportTKGConfigForVsphereHandler")
 	}
 
 	if o.AwsSetAWSEndpointHandler == nil {
@@ -823,11 +850,6 @@ func (o *KickstartUIAPI) initHandlerCache() {
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
-	o.handlers["GET"]["/api/providers/aws"] = aws.NewGetAWSEndpoint(o.context, o.AwsGetAWSEndpointHandler)
-
-	if o.handlers["GET"] == nil {
-		o.handlers["GET"] = make(map[string]http.Handler)
-	}
 	o.handlers["GET"]["/api/providers/aws/nodetypes"] = aws.NewGetAWSNodeTypes(o.context, o.AwsGetAWSNodeTypesHandler)
 
 	if o.handlers["GET"] == nil {
@@ -964,6 +986,26 @@ func (o *KickstartUIAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/api/providers/vsphere/thumbprint"] = vsphere.NewGetVsphereThumbprint(o.context, o.VsphereGetVsphereThumbprintHandler)
+
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
+	o.handlers["POST"]["/api/providers/aws/config/import"] = aws.NewImportTKGConfigForAWS(o.context, o.AwsImportTKGConfigForAWSHandler)
+
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
+	o.handlers["POST"]["/api/providers/azure/config/import"] = azure.NewImportTKGConfigForAzure(o.context, o.AzureImportTKGConfigForAzureHandler)
+
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
+	o.handlers["POST"]["/api/providers/docker/config/import"] = docker.NewImportTKGConfigForDocker(o.context, o.DockerImportTKGConfigForDockerHandler)
+
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
+	o.handlers["POST"]["/api/providers/vsphere/config/import"] = vsphere.NewImportTKGConfigForVsphere(o.context, o.VsphereImportTKGConfigForVsphereHandler)
 
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)

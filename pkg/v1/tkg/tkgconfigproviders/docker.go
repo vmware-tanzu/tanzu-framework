@@ -93,3 +93,38 @@ func (c *client) NewDockerConfig(params *models.DockerRegionalClusterParams) (*D
 
 	return res, nil
 }
+
+// CreateDockerParams generates a Params object from a DockerConfig, used for importing configuration files
+func (c *client) CreateDockerParams(dockerConfig *DockerConfig) (params *models.DockerRegionalClusterParams, err error) {
+	ceipOptIn := dockerConfig.CeipParticipation == trueConst
+
+	params = &models.DockerRegionalClusterParams{
+		Annotations:               configStringToMap(dockerConfig.ClusterAnnotations),
+		ClusterName:               dockerConfig.ClusterName,
+		Networking:                createDockerNetworkingConfig(dockerConfig),
+		CeipOptIn:                 &ceipOptIn,
+		ControlPlaneFlavor:        "",
+		IdentityManagement:        createIdentityManagementConfig(dockerConfig),
+		KubernetesVersion:         "",
+		Labels:                    configStringToMap(dockerConfig.ClusterLabels),
+		MachineHealthCheckEnabled: dockerConfig.MachineHealthCheckEnabled == trueConst,
+		NumOfWorkerNodes:          "",
+	}
+
+	return params, nil
+}
+
+// createDockerNetworkingConfig() creates a TKGNetwork from a docker config. Note that we need a special method here,
+// because the other providers have a Networking object that they use within their xxxConfig object,
+// but Docker just has the fields at the DockerConfig level
+func createDockerNetworkingConfig(conf *DockerConfig) *models.TKGNetwork {
+	return &models.TKGNetwork{
+		ClusterDNSName:         "",
+		ClusterNodeCIDR:        "",
+		ClusterPodCIDR:         conf.ClusterCIDR,
+		ClusterServiceCIDR:     conf.ServiceCIDR,
+		CniType:                "",
+		HTTPProxyConfiguration: createHTTPProxyConfig(conf),
+		NetworkName:            "",
+	}
+}

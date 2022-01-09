@@ -159,11 +159,19 @@ spec:
       name: #@ "{}-control-plane".format(data.values.CLUSTER_NAME)
   kubeadmConfigSpec:
     initConfiguration:
-      #@ if data.values.CLUSTER_API_SERVER_PORT:  
+      #@ if data.values.CLUSTER_API_SERVER_PORT:
       #@overlay/match missing_ok=True
       localAPIEndpoint:
         advertiseAddress: '0.0.0.0'
         bindPort: #@ data.values.CLUSTER_API_SERVER_PORT
+      #@ end
+    joinConfiguration:
+      #@ if data.values.CLUSTER_API_SERVER_PORT:
+      #@overlay/match missing_ok=True
+      controlPlane:
+        localAPIEndpoint:
+          advertiseAddress: '0.0.0.0'
+          bindPort: #@ data.values.CLUSTER_API_SERVER_PORT
       #@ end
     #@ if data.values.AZURE_ENABLE_PRIVATE_CLUSTER:
     #@overlay/match missing_ok=True
