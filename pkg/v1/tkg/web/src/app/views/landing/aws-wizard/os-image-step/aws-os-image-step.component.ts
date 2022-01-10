@@ -4,7 +4,7 @@ import { Component, OnInit } from '@angular/core';
 import { AWSVirtualMachine } from '../../../../swagger/models';
 import AppServices from '../../../../shared/service/appServices';
 import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
-import { OsImageProviderInputs, SharedOsImageStepComponent } from '../../wizard/shared/components/steps/os-image-step/os-image-step.component';
+import { OsImageProviderInputs, SharedOsImageStepDirective } from '../../wizard/shared/components/steps/os-image-step/os-image-step.component';
 import { TkgEventType } from '../../../../shared/service/Messenger';
 
 @Component({
@@ -12,7 +12,7 @@ import { TkgEventType } from '../../../../shared/service/Messenger';
     templateUrl: '../../wizard/shared/components/steps/os-image-step/os-image-step.component.html',
     styleUrls: ['../../wizard/shared/components/steps/os-image-step/os-image-step.component.scss']
 })
-export class AwsOsImageStepComponent extends SharedOsImageStepComponent<AWSVirtualMachine> implements OnInit {
+export class AwsOsImageStepComponent extends SharedOsImageStepDirective<AWSVirtualMachine> implements OnInit {
     // aws globals
     region: string;
 

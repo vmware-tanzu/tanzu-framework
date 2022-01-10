@@ -24,7 +24,7 @@ export interface OsImageProviderInputs {
     noImageAlertMessage?: string,
 }
 @Directive()
-export abstract class SharedOsImageStepComponent<IMAGE extends OsImage> extends StepFormDirective implements OnInit {
+export abstract class SharedOsImageStepDirective<IMAGE extends OsImage> extends StepFormDirective implements OnInit {
     // used by HTML as well as locally
     public providerInputs: OsImageProviderInputs;
 
