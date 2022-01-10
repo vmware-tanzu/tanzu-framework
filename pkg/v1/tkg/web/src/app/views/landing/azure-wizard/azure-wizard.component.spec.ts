@@ -127,39 +127,6 @@ describe('AzureWizardComponent', () => {
             description = component.stepDescription[component.AzureNodeSettingForm.name];
             expect(description).toBe('Control plane type: dev');
         });
-        it('meta data form', () => {
-            const stepInstance = TestBed.createComponent(MetadataStepComponent).componentInstance;
-            stepInstance.setClusterTypeDescriptor('management');
-            component.registerStep(WizardForm.METADATA, stepInstance);
-            stepInstance.formGroup.addControl('clusterLocation', new FormControl(''));
-
-            let description = component.stepDescription[WizardForm.METADATA];
-            expect(description).toBe('Specify metadata for the management cluster');
-
-            component.form.get(WizardForm.METADATA).get('clusterLocation').setValue('testLocation');
-            description = component.stepDescription[WizardForm.METADATA];
-            expect(description).toBe('Location: testLocation');
-        });
-        it('network form', () => {
-            const stepInstance = TestBed.createComponent(SharedNetworkStepComponent).componentInstance;
-            component.registerStep(WizardForm.NETWORK, stepInstance);
-            stepInstance.formGroup.addControl('clusterServiceCidr', new FormControl(''));
-            stepInstance.formGroup.addControl('clusterPodCidr', new FormControl(''));
-
-            let description = component.stepDescription[WizardForm.NETWORK];
-            expect(description).toBe('Specify how TKG networking is provided and global network settings');
-
-            const networkForm = component.form.get(WizardForm.NETWORK);
-            expect(networkForm).toBeTruthy('Unable to find network form (' + WizardForm.NETWORK + ') in wizard');
-            networkForm.get('clusterServiceCidr').setValue('1.1.1.1/23');
-            networkForm.get('clusterPodCidr').setValue('2.2.2.2/23');
-            description = component.stepDescription[WizardForm.NETWORK];
-            expect(description).toBe('Cluster service CIDR: 1.1.1.1/23 Cluster POD CIDR: 2.2.2.2/23');
-        });
-        it('ceip opt in form', () => {
-            const description = component.stepDescription[component.CeipForm.name];
-            expect(description).toBe('Join the CEIP program for TKG');
-        });
     });
 
     it('should generate cli', () => {

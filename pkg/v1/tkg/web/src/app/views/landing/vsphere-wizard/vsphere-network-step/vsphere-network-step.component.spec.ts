@@ -57,7 +57,7 @@ describe('NodeSettingStepComponent', () => {
         fixture.detectChanges();
     });
 
-    fit('should announce description change', () => {
+    it('should announce description change', () => {
         const msgSpy = spyOn(AppServices.messenger, 'publish').and.callThrough();
         component.ngOnInit();
         const networkNameControl = component.formGroup.get('networkName');

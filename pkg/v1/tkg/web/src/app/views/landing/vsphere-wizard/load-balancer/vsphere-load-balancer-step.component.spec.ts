@@ -58,7 +58,7 @@ describe('VsphereLoadBalancerStepComponent', () => {
         fixture.detectChanges();
     });
 
-    fit('should announce description change', () => {
+    it('should announce description change', () => {
         const msgSpy = spyOn(AppServices.messenger, 'publish').and.callThrough();
         component.ngOnInit();
         const controllerHostControl = component.formGroup.get('controllerHost');

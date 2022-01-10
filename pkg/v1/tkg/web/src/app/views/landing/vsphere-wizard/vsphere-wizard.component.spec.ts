@@ -88,7 +88,7 @@ describe('VSphereWizardComponent', () => {
         expect(apiSpy).toHaveBeenCalled();
     });
 
-    fit('should register services', () => {
+    it('should register services', () => {
         const apiSpy = spyOn(AppServices.dataServiceRegistrar, 'register').and.callThrough();
         component.ngOnInit();
         expect(apiSpy).toHaveBeenCalledWith(TkgEventType.VSPHERE_GET_COMPUTE_RESOURCE, jasmine.anything(), jasmine.anything());
