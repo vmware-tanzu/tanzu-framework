@@ -220,11 +220,6 @@ func renderTable(ow *outputwriter) {
 	table.SetColWidth(colWidth)
 	table.SetTablePadding("\t\t")
 	table.SetHeader(ow.keys)
-	colors := []tablewriter.Colors{}
-	for range ow.keys {
-		colors = append(colors, []int{tablewriter.Bold})
-	}
-	table.SetHeaderColor(colors...)
 	table.AppendBulk(ow.values)
 	table.Render()
 }
