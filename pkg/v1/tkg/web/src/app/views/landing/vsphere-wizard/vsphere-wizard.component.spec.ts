@@ -10,7 +10,7 @@ import { APIClient } from '../../../swagger/api-client.service';
 import { ClusterType } from "../wizard/shared/constants/wizard.constants";
 import { FieldMapUtilities } from '../wizard/shared/field-mapping/FieldMapUtilities';
 import { FormMetaDataStore } from '../wizard/shared/FormMetaDataStore';
-import { Messenger } from 'src/app/shared/service/Messenger';
+import { Messenger, TkgEventType } from 'src/app/shared/service/Messenger';
 import { SharedModule } from '../../../shared/shared.module';
 import { ValidationService } from '../wizard/shared/validation/validation.service';
 import { VSphereProviderStepComponent } from './provider-step/vsphere-provider-step.component';
@@ -81,30 +81,21 @@ describe('VSphereWizardComponent', () => {
         expect(component['getWizardValidity']()).toBeFalsy();
     });
 
-    it('VsphereProviderFormDescription should return correct static description when wizard is not filled', () => {
-        const description = component.stepDescription['vsphereProviderForm'];
-        expect(description).toBe('Validate the vSphere provider account for Tanzu');
-    });
-
-    it('VsphereProviderFormDescription should return correct dynamic summary for wizard input', () => {
-        const fb = new FormBuilder();
-        component.form.controls['vsphereProviderForm'] = fb.group({
-            vcenterAddress: new FormControl('vcAddr'),
-            datacenter: new FormControl('dc'),
-        });
-        component.clusterTypeDescriptor = 'management';
-        const providerStep = TestBed.createComponent(VSphereProviderStepComponent).componentInstance;
-        providerStep.setClusterTypeDescriptor('management');
-        component.registerStep('vsphereProviderForm', providerStep);
-
-        const description = component.stepDescription['vsphereProviderForm'];
-        expect(description).toBe('vCenter vcAddr connected');
-    });
-
     it('should call create vsphere api when deploying', () => {
         const apiSpy = spyOn(component['apiClient'], 'createVSphereRegionalCluster').and.callThrough();
         component.providerType = 'vsphere';
         component.deploy();
         expect(apiSpy).toHaveBeenCalled();
+    });
+
+    fit('should register services', () => {
+        const apiSpy = spyOn(AppServices.dataServiceRegistrar, 'register').and.callThrough();
+        component.ngOnInit();
+        expect(apiSpy).toHaveBeenCalledWith(TkgEventType.VSPHERE_GET_COMPUTE_RESOURCE, jasmine.anything(), jasmine.anything());
+        expect(apiSpy).toHaveBeenCalledWith(TkgEventType.VSPHERE_GET_DATA_STORES, jasmine.anything(), jasmine.anything());
+        expect(apiSpy).toHaveBeenCalledWith(TkgEventType.VSPHERE_GET_OS_IMAGES, jasmine.anything(), jasmine.anything());
+        expect(apiSpy).toHaveBeenCalledWith(TkgEventType.VSPHERE_GET_RESOURCE_POOLS, jasmine.anything(), jasmine.anything());
+        expect(apiSpy).toHaveBeenCalledWith(TkgEventType.VSPHERE_GET_VM_FOLDERS, jasmine.anything(), jasmine.anything());
+        expect(apiSpy).toHaveBeenCalledWith(TkgEventType.VSPHERE_GET_VM_NETWORKS, jasmine.anything(), jasmine.anything());
     });
 });
