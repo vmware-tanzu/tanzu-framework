@@ -1,6 +1,10 @@
 ---
 extends: relaxed
 
+ignore: |
+  */pkg/v1/tkg/web/node_modules/
+  */pkg/v1/providers/provider-bundle
+
 rules:
   line-length: disable
   trailing-spaces: enable
