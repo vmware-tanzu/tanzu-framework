@@ -1,18 +1,19 @@
 // Angular imports
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { By } from '@angular/platform-browser';
 // App imports
 import { APIClient } from '../../../../swagger/api-client.service';
 import AppServices from 'src/app/shared/service/appServices';
 import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
-import { NodeSettingStepComponent } from './node-setting-step.component';
+import { NodeSettingStepComponent, NodeType } from './node-setting-step.component';
 import { Messenger, TkgEventType } from 'src/app/shared/service/Messenger';
 import { SharedModule } from '../../../../shared/shared.module';
 import { ValidationService } from '../../wizard/shared/validation/validation.service';
 import { DataServiceRegistrarTestExtension } from '../../../../testing/data-service-registrar.testextension';
 import { AWSSubnet } from '../../../../swagger/models';
+import { AwsField, AwsForm } from '../aws-wizard.constants';
 
 describe('NodeSettingStepComponent', () => {
     let component: NodeSettingStepComponent;
@@ -44,11 +45,9 @@ describe('NodeSettingStepComponent', () => {
     beforeEach(() => {
         AppServices.messenger = new Messenger();
         AppServices.dataServiceRegistrar = new DataServiceRegistrarTestExtension();
-        const fb = new FormBuilder();
         fixture = TestBed.createComponent(NodeSettingStepComponent);
         component = fixture.componentInstance;
-        component.formGroup = fb.group({
-        });
+        component.setInputs('SquashWizard', AwsForm.NODESETTING, new FormBuilder().group({}));
 
         fixture.detectChanges();
     });
@@ -176,7 +175,7 @@ describe('NodeSettingStepComponent', () => {
             isPublic: false
         }];
 
-        component.filterSubnets('awsNodeAz1', 'us-west-a');
+        component.filterSubnetsByAZ('awsNodeAz1', 'us-west-a');
         expect(component.filteredAzs['awsNodeAz1']).toEqual({
             publicSubnets: [{
                 availabilityZoneId: 'us-west-a',
@@ -293,5 +292,45 @@ describe('NodeSettingStepComponent', () => {
         expect(component.publicSubnets).toEqual([{cidr: '100.63.0.0/14', isPublic:  true}]);
         expect(component.privateSubnets).toEqual([{cidr: '100.64.0.0/14', isPublic:  false}]);
         expect(spySavedSubnet).toHaveBeenCalled();
+    });
+
+    it('should announce description change', () => {
+        const msgSpy = spyOn(AppServices.messenger, 'publish').and.callThrough();
+
+        component.ngOnInit();
+        component.nodeType = '';
+        const description = component.dynamicDescription();
+        expect(description).toEqual('Specify the resources backing the  cluster');
+
+        component.setClusterTypeDescriptor('CARAMEL');
+        expect(msgSpy).toHaveBeenCalledWith({
+            type: TkgEventType.STEP_DESCRIPTION_CHANGE,
+            payload: {
+                wizard: 'SquashWizard',
+                step: AwsForm.NODESETTING,
+                description: 'Specify the resources backing the CARAMEL cluster',
+            }
+        });
+
+        const controlPlaneSettingControl = component.formGroup.controls[AwsField.NODESETTING_CONTROL_PLANE_SETTING];
+        controlPlaneSettingControl.setValue(NodeType.DEV);
+        expect(msgSpy).toHaveBeenCalledWith({
+            type: TkgEventType.STEP_DESCRIPTION_CHANGE,
+            payload: {
+                wizard: 'SquashWizard',
+                step: AwsForm.NODESETTING,
+                description: 'Development cluster selected: 1 node control plane',
+            }
+        });
+
+        controlPlaneSettingControl.setValue(NodeType.PROD);
+        expect(msgSpy).toHaveBeenCalledWith({
+            type: TkgEventType.STEP_DESCRIPTION_CHANGE,
+            payload: {
+                wizard: 'SquashWizard',
+                step: AwsForm.NODESETTING,
+                description: 'Production cluster selected: 3 node control plane',
+            }
+        });
     });
 });

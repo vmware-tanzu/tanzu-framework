@@ -5,11 +5,12 @@ import { APIClient } from 'src/app/swagger';
 import AppServices from '../../../../shared/service/appServices';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
-import { Messenger } from 'src/app/shared/service/Messenger';
-import { ReactiveFormsModule, FormBuilder } from '@angular/forms';
+import { Messenger, TkgEventType } from 'src/app/shared/service/Messenger';
+import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { SharedModule } from 'src/app/shared/shared.module';
 import { ValidationService } from '../../wizard/shared/validation/validation.service';
 import { VpcStepComponent } from './vpc-step.component';
+import { AwsField, AwsForm, VpcType } from '../aws-wizard.constants';
 
 describe('VpcComponent', () => {
     let component: VpcStepComponent;
@@ -37,11 +38,9 @@ describe('VpcComponent', () => {
 
     beforeEach(() => {
         AppServices.messenger = new Messenger();
-        const fb = new FormBuilder();
         fixture = TestBed.createComponent(VpcStepComponent);
         component = fixture.componentInstance;
-        component.formGroup = fb.group({
-        });
+        component.setInputs('PickleWizard', AwsForm.VPC, new FormBuilder().group({}));
         fixture.detectChanges();
     });
 
@@ -79,4 +78,40 @@ describe('VpcComponent', () => {
         component.existingVpcOnChange('vpc-1');
         expect(component.formGroup.get('existingVpcCidr').value).toBe('100.64.0.0/13');
     }));
+
+    it('should announce description change', () => {
+        const msgSpy = spyOn(AppServices.messenger, 'publish').and.callThrough();
+        component.ngOnInit();
+
+        const description = component.dynamicDescription();
+        expect(description).toEqual('Specify VPC settings for AWS');
+
+        const vpcTypeControl = component.formGroup.controls[AwsField.VPC_TYPE];
+        const vpcExistingCidrControl = component.formGroup.controls[AwsField.VPC_EXISTING_CIDR];
+        const vpcExistingIdControl = component.formGroup.controls[AwsField.VPC_EXISTING_ID];
+        const vpcNewCidrControl = component.formGroup.controls[AwsField.VPC_NEW_CIDR];
+
+        vpcTypeControl.setValue(VpcType.NEW);
+        vpcNewCidrControl.setValue('1.2.1.2/12');
+        expect(msgSpy).toHaveBeenCalledWith({
+            type: TkgEventType.STEP_DESCRIPTION_CHANGE,
+            payload: {
+                wizard: 'PickleWizard',
+                step: AwsForm.VPC,
+                description: 'VPC: (new) CIDR: 1.2.1.2/12',
+            }
+        });
+
+        vpcTypeControl.setValue(VpcType.EXISTING);
+        vpcExistingCidrControl.setValue('3.4.3.4/24');
+        vpcExistingIdControl.setValue('someVpc');
+        expect(msgSpy).toHaveBeenCalledWith({
+            type: TkgEventType.STEP_DESCRIPTION_CHANGE,
+            payload: {
+                wizard: 'PickleWizard',
+                step: AwsForm.VPC,
+                description: 'VPC: someVpc CIDR: 3.4.3.4/24',
+            }
+        });
+    });
 });

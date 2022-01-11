@@ -23,13 +23,12 @@ import { SharedCeipStepComponent } from '../components/steps/ceip-step/ceip-step
 import { SharedIdentityStepComponent } from '../components/steps/identity-step/identity-step.component';
 import { SharedNetworkStepComponent } from '../components/steps/network-step/network-step.component';
 import { StepFormDirective } from '../step-form/step-form';
-import { TkgEvent, TkgEventType } from './../../../../../shared/service/Messenger';
+import { StepDescriptionChangePayload, TkgEvent, TkgEventType } from './../../../../../shared/service/Messenger';
 
 // This interface describes a wizard that can register a step component
 export interface WizardStepRegistrar {
     registerStep: (nameStep: string, stepComponent: StepFormDirective) => void,
-    describeStep: (nameStep, staticDescription: string) => string,
-    displayStep:  (nameStep: string) => boolean
+    stepDescription: Map<string, string>,
 }
 
 @Directive()
@@ -49,15 +48,16 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Wiz
 
     title: string;
     edition: string;
-    clusterTypeDescriptor: string;
+    clusterTypeDescriptor: string = '';
 
-    steps = [true, false, false, false, false, false, false, false, false, false, false];
-    stepComponents: Map<string, StepFormDirective>;
-    stepData: FormDataForHTML[];
+    stepDescription: Map<string, string> = new Map<string, string>();   // Field that fulfill WizardStepRegistrar
+    stepData: FormDataForHTML[];    // needs to be public for step-wrapper-set to use
+    private currentStep: string;
+    private visitedLastStep: boolean;
 
     review = false;
 
-    constructor(
+    protected constructor(
         protected router: Router,
         protected el: ElementRef,
         protected formMetaDataService: FormMetaDataService,
@@ -69,21 +69,35 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Wiz
 
     // This is the method by which the child class gives this class the data for the steps.
     protected abstract supplyStepData(): FormDataForHTML[];
+    // This is the method by which the child class gives this class the wizard name; this is used to identify which wizard a step belongs to
+    protected abstract supplyWizardName(): string;
 
     ngOnInit() {
         this.form = this.formBuilder.group({});
-        this.stepComponents = new Map<string, StepFormDirective>();
         // loop through stepData definitions and add a new form control for each step and we'll have the step formGroup objects built
         // even before the step components are instantiated (and Clarity will be happy, since it wants to process formGroup directives
         // before the step components are instantiated)
         this.stepData = this.supplyStepData();
-        if (!this.stepData) {
+        if (!this.stepData || this.stepData.length === 0) {
             console.error('wizard did not supply step data to base class');
         } else {
             for (const daStepData of this.stepData) {
                 this.form.controls[daStepData.name] = this.formBuilder.group({});
+                this.stepDescription[daStepData.name] = daStepData.description;
             }
+            this.currentStep = this.stepData[0].name;
         }
+
+        // set step description (if it's a step description for this wizard)
+        AppServices.messenger.getSubject(TkgEventType.STEP_DESCRIPTION_CHANGE)
+            .pipe(takeUntil(this.unsubscribe))
+            .subscribe((data: TkgEvent) => {
+                const stepDescriptionPayload = data.payload as StepDescriptionChangePayload;
+                if (this.supplyWizardName() === stepDescriptionPayload.wizard) {
+                    // we use setTimeout to avoid a possible ExpressionChangedAfterItHasBeenCheckedError
+                    setTimeout(() => { this.stepDescription[stepDescriptionPayload.step] = stepDescriptionPayload.description; }, 0);
+                }
+            });
 
         // set branding and cluster type on branding change for base wizard components
         AppServices.messenger.getSubject(TkgEventType.BRANDING_CHANGED)
@@ -101,7 +115,7 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Wiz
     }
 
     ngAfterViewInit(): void {
-        this.getStepMetadata();
+        this.storeStepMetadata();
     }
 
     watchFieldsChange() {
@@ -136,11 +150,11 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Wiz
     /**
      * Collect step meta data (title, description etc.) for all steps
      */
-    getStepMetadata() {
+    private storeStepMetadata() {
         let wizard = this.el.nativeElement;
         wizard = wizard.querySelector('form[clrstepper]');
         if (!wizard) {
-            console.error('in getStepMetadata(), unable to find \'form[clrstepper]\' ; this is likely caused by a failure to instantiate' +
+            console.error('in storeStepMetadata(), unable to find \'form[clrstepper]\'; this is likely caused by a failure to instantiate' +
                 ' step-wrapper components while setting up a test case. If this occurs outside of a test case, something fundamental is' +
                 ' wrong.');
             return;
@@ -160,7 +174,6 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Wiz
             stepMetadataList.push(stepMetadata);
         }));
         FormMetaDataStore.setStepList(stepMetadataList);
-
     }
 
     /**
@@ -246,12 +259,7 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Wiz
     }
 
     getWizardValidity(): boolean {
-        if (!FormMetaDataStore.getStepList()) {
-            return false;
-        }
-        const totalSteps = FormMetaDataStore.getStepList().length;
-        const stepsVisited = this.steps.filter(step => step).length;
-        return stepsVisited > totalSteps && this.form.status === 'VALID';
+        return this.visitedLastStep && this.form.status === 'VALID';
     }
 
     getClusterType(): ClusterType {
@@ -266,23 +274,13 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Wiz
     abstract setFromPayload(payload: any);
 
     isOnFirstStep() {
-        // we're on the first step if we haven't reached the second step
-        return !this.steps[1];
+        return this.currentStep === this.firstStep;
     }
 
     resetToFirstStep() {
         if (!this.isOnFirstStep()) {
-            let activeStep;
-            // Reset our steps array which tracks where we are
-            this.steps[0] = true;
-            // NOTE: we start at the second element
-            for (let i = 1; i < this.steps.length; i++) {
-                if (this.steps[i]) {
-                    activeStep = i;
-                    this.steps[i] = false;
-                    break;
-                }
-            }
+            this.currentStep = this.firstStep;
+            this.visitedLastStep = false;
             this.wizard['stepperService'].resetPanels();
             this.wizard['stepperService']['accordion'].openFirstPanel();
         }
@@ -334,13 +332,14 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Wiz
      * and therefore it reuses its previous component and form states.
      */
     onNextStep() {
-        for (let i = 0; i < this.steps.length; i++) {
-            if (!this.steps[i]) {
-                this.steps[i] = true;
-                break;
-            }
+        const indexCurrentStep = this.stepData.findIndex(stepData => stepData.name === this.currentStep );
+        if (indexCurrentStep < this.numSteps - 1) { // not on last step
+            this.currentStep = this.stepData[indexCurrentStep + 1].name;
         }
-        this.getStepMetadata();
+        if (this.currentStep === this.lastStep) {
+            this.visitedLastStep = true;
+        }
+        this.storeStepMetadata();
     }
 
     /**
@@ -552,26 +551,8 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Wiz
     // Methods that fulfill WizardStepRegistrar
     //
     registerStep(stepName: string, stepComponent: StepFormDirective) {
-        // create a formGroup for this step, record it internally and set it in the step
-        stepComponent.setInputs(stepName, this.form.controls[stepName] as FormGroup);
-        // record this step component internally
-        this.stepComponents[stepName] = stepComponent;
-    }
-
-    // If the component has registered, returns the component's dynamic description (if it has one).
-    // If the component has not yet registered, returns the static description (passed in)
-    describeStep(stepName, staticDescription: string): string {
-        const stepComponent = this.stepComponents[stepName];
-        if (!stepComponent) {
-            return staticDescription;
-        }
-        const dynamicDescription = stepComponent.dynamicDescription();
-        return dynamicDescription ? dynamicDescription : staticDescription;
-    }
-
-    displayStep(stepName: string): boolean {
-        const stepIndex = this.getStepIndex(stepName);
-        return stepIndex >= 0 && this.steps[stepIndex];
+        // set the wizard name, stepName and formGroup (already created for this step) into the component
+        stepComponent.setInputs(this.supplyWizardName(), stepName, this.form.controls[stepName] as FormGroup);
     }
     //
     // Methods that fulfill WizardStepRegistrar
@@ -723,7 +704,7 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Wiz
         clazz: SharedCeipStepComponent };
     }
     get IdentityForm(): FormDataForHTML {
-        return { name: WizardForm.IDENTITY, title: 'Identity Management', description: 'Specify identity management',
+        return { name: WizardForm.IDENTITY, title: 'Identity Management', description: SharedIdentityStepComponent.description,
             i18n: { title: 'identity step title', description: 'identity step description' },
         clazz: SharedIdentityStepComponent };
     }
@@ -735,7 +716,7 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Wiz
     }
     get NetworkForm(): FormDataForHTML {
         return { name: WizardForm.NETWORK, title: 'Kubernetes Network',
-            description: 'Specify how TKG networking is provided and global network settings',
+            description: SharedNetworkStepComponent.description,
             i18n: { title: 'Kubernetes network step name', description: 'Kubernetes network step description' },
         clazz: SharedNetworkStepComponent };
     }
@@ -753,16 +734,16 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Wiz
     //
     // HTML convenience methods
 
-    protected getStepIndex(stepName: string): number {
-        let result = -1;
-        this.stepData.forEach((data, index) => {
-            if (data.name === stepName) {
-                result = index;
-            }
-        });
-        if (result === -1) {
-            console.error('unable to find step named ' + stepName + ' in the wizard\'s array of step data');
-        }
-        return result;
+    // convenience methods to keep code clean
+    get lastStep() {
+        return this.numSteps > 0 ? this.stepData[this.numSteps - 1].name : '';
+    }
+
+    get firstStep() {
+        return this.numSteps > 0 ? this.stepData[0].name : '';
+    }
+
+    get numSteps() {
+        return this.stepData ? this.stepData.length : 0;
     }
 }

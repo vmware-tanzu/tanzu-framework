@@ -65,7 +65,7 @@ const PRIVATE_SUBNET = [
 ];
 const VPC_SUBNETS = [...PUBLIC_SUBNETS, ...PRIVATE_SUBNET];
 
-enum NodeType {
+export enum NodeType {
     DEV = 'dev',
     PROD = 'prod'
 }
@@ -142,6 +142,7 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
     }
 
     private customizeForm() {
+        this.registerStepDescriptionTriggers({clusterTypeDescriptor: true, fields: ['controlPlaneSetting']});
         AppServices.messenger.getSubject(TkgEventType.AWS_AIRGAPPED_VPC_CHANGE).subscribe(event => {
             this.airgappedVPC = event.payload;
             if (this.airgappedVPC) { // public subnet IDs shouldn't be provided
@@ -196,7 +197,7 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
 
         AzRelatedFieldsArray.forEach(azRelatedFields => {
            this.registerOnValueChange(azRelatedFields.az, (newlySelectedAz) => {
-               this.filterSubnets(azRelatedFields.az, newlySelectedAz);
+               this.filterSubnetsByAZ(azRelatedFields.az, newlySelectedAz);
                this.setSubnetFieldsWithOnlyOneOption(azRelatedFields.az);
                this.updateWorkerNodeInstanceTypes(azRelatedFields.az, newlySelectedAz, azRelatedFields.workerNodeInstanceType);
            });
@@ -209,6 +210,7 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
                 this.setControlPlaneToProd();
             }
             this.updateVpcSubnets();
+            this.triggerStepDescriptionChange();
         });
     }
 
@@ -226,7 +228,7 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
     private onFetchedSubnets(subnets: Array<AWSSubnet>) {
         this.publicSubnets = subnets.filter(obj => { return obj.isPublic });
         this.privateSubnets = subnets.filter(obj => { return !obj.isPublic });
-        AZS.forEach(az => { this.filterSubnets(az, this.getFieldValue(az)); });
+        AZS.forEach(az => { this.filterSubnetsByAZ(az, this.getFieldValue(az)); });
         this.setSubnetFieldsFromSavedValues();
     }
 
@@ -416,20 +418,20 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
     }
 
     /**
-     * @method filterSubnets
+     * @method filterSubnetsByAZ
      * helper method that filters larger lists of public and private subnets and returns filtered
      * lists based on match of availability zone name
      * @param $event
      */
-    filterSubnets(azControlName, az): void {
+    filterSubnetsByAZ(azControlName, az): void {
         if (this.vpcType === vpcType.EXISTING && azControlName !== '' && az !== '') {
-            this.filteredAzs[azControlName].publicSubnets = this.publicSubnets.filter(obj => {
-                return obj.availabilityZoneName === az;
-            });
-            this.filteredAzs[azControlName].privateSubnets = this.privateSubnets.filter(obj => {
-                return obj.availabilityZoneName === az;
-            });
+            this.filteredAzs[azControlName].publicSubnets = this.filterSubnetArrayByAZ(az, this.publicSubnets);
+            this.filteredAzs[azControlName].privateSubnets = this.filterSubnetArrayByAZ(az, this.privateSubnets);
         }
+    }
+
+    private filterSubnetArrayByAZ(az: string, subnets: AWSSubnet[]): AWSSubnet[] {
+        return (!subnets) ? [] : subnets.filter(subnet => { return subnet.availabilityZoneName === az; });
     }
 
     private setSubnetFieldsWithOnlyOneOption(azControlName) {
@@ -564,15 +566,14 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
         }
     }
 
-    protected dynamicDescription(): string {
-        const ctlPlaneFlavor = this.getFieldValue('controlPlaneSetting', true);
-        if (ctlPlaneFlavor) {
+    dynamicDescription(): string {
+        if (this.nodeType) {
             let mode = 'Development cluster selected: 1 node control plane';
-            if (ctlPlaneFlavor === 'prod') {
+            if (this.nodeType === 'prod') {
                 mode = 'Production cluster selected: 3 node control plane';
             }
             return mode;
         }
-        return `Specify the resources backing the ${this.clusterTypeDescriptor} cluster`;
+        return 'Specify the resources backing the ' + this.clusterTypeDescriptor + ' cluster';
     }
 }

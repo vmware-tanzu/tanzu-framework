@@ -1,21 +1,21 @@
+// Angular imports
 import { Component, ElementRef, OnInit } from '@angular/core';
 import { FormBuilder } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Title } from '@angular/platform-browser';
-
+// Third party imports
 import { Observable } from 'rxjs';
-
-import { FormMetaDataService } from 'src/app/shared/service/form-meta-data.service';
+// App imports
 import { APIClient } from 'src/app/swagger';
 import { ConfigFileInfo, DockerRegionalClusterParams } from 'src/app/swagger/models';
 import { CliFields, CliGenerator } from '../wizard/shared/utils/cli-generator';
-import { WizardBaseDirective } from '../wizard/shared/wizard-base/wizard-base';
-import { ImportParams, ImportService } from "../../../shared/service/import.service";
-import { WizardStep } from '../wizard/shared/constants/wizard.constants';
-import { FormDataForHTML, FormUtility } from '../wizard/shared/components/steps/form-utility';
-import { WizardForm } from '../wizard/shared/constants/wizard.constants';
-import { NodeSettingStepComponent } from './node-setting-step/node-setting-step.component';
 import { DaemonValidationStepComponent } from './daemon-validation-step/daemon-validation-step.component';
+import { DockerNetworkStepComponent } from './network-step/docker-network-step.component';
+import { FormDataForHTML, FormUtility } from '../wizard/shared/components/steps/form-utility';
+import { FormMetaDataService } from 'src/app/shared/service/form-meta-data.service';
+import { ImportParams, ImportService } from "../../../shared/service/import.service";
+import { NodeSettingStepComponent } from './node-setting-step/node-setting-step.component';
+import { WizardBaseDirective } from '../wizard/shared/wizard-base/wizard-base';
 
 @Component({
     selector: 'app-docker-wizard',
@@ -36,10 +36,14 @@ export class DockerWizardComponent extends WizardBaseDirective implements OnInit
         super(router, el, formMetaDataService, titleService, formBuilder);
     }
 
+    protected supplyWizardName(): string {
+        return 'Docker Wizard';
+    }
+
     protected supplyStepData(): FormDataForHTML[] {
         return [
             this.DockerDaemonForm,
-            this.NetworkForm,
+            this.DockerNetworkForm,
             this.DockerNodeSettingForm
         ];
     }
@@ -50,7 +54,7 @@ export class DockerWizardComponent extends WizardBaseDirective implements OnInit
         // To avoid re-open issue for the first step.
         this.form.markAsDirty();
 
-        this.titleService.setTitle(this.title + ' Docker');
+        this.titleService.setTitle(this.title ? this.title + ' Docker' : 'Docker');
     }
 
     setFromPayload(payload: DockerRegionalClusterParams) {
@@ -153,15 +157,16 @@ export class DockerWizardComponent extends WizardBaseDirective implements OnInit
         return this.apiClient.createDockerRegionalCluster(payload);
     }
 
-    // HTML convenience methods
+    // FormDataForHTML methods
     //
-    get NetworkForm(): FormDataForHTML {
-        return FormUtility.formOverrideDescription(super.NetworkForm, this.NetworkFormDescription);
+    get DockerNetworkForm(): FormDataForHTML {
+        return FormUtility.formWithOverrides(super.NetworkForm,
+            { description: DockerNetworkStepComponent.description, clazz: DockerNetworkStepComponent });
     }
     get DockerNodeSettingForm(): FormDataForHTML {
         const title = FormUtility.titleCase(this.clusterTypeDescriptor) + ' Cluster Settings';
         return { name: 'dockerNodeSettings', title: title, description: 'Optional: Specify the management cluster name',
-            i18n: {title: 'node setting step name', description: 'node setting step description'},
+            i18n: { title: 'node setting step name', description: 'node setting step description' },
         clazz: NodeSettingStepComponent};
     }
     get DockerDaemonForm(): FormDataForHTML {
@@ -170,24 +175,6 @@ export class DockerWizardComponent extends WizardBaseDirective implements OnInit
             i18n: {title: 'docker prerequisite step name', description: 'Docker prerequisite step description'},
         clazz: DaemonValidationStepComponent};
     }
-    // OVERRIDES
-    // We override the parent class describeStep() because we have an instance where we're using a COMMON component,
-    // but we want to describe it in Docker-specific ways
-    describeStep(stepName, staticDescription: string): string {
-        if (stepName === WizardForm.NETWORK) {
-            return this.NetworkFormDescription;
-        }
-        return super.describeStep(stepName, staticDescription);
-    }
-
-    private get NetworkFormDescription(): string {
-        if (this.getFieldValue('networkForm', 'clusterPodCidr')) {
-            return 'Cluster Pod CIDR: ' + this.getFieldValue('networkForm', 'clusterPodCidr');
-        }
-        return 'Specify the cluster Pod CIDR';
-    }
-    //
-    // HTML convenience methods
 
     // returns TRUE if the file contents appear to be a valid config file for Docker
     // returns FALSE if the file is empty or does not appear to be valid. Note that in the FALSE

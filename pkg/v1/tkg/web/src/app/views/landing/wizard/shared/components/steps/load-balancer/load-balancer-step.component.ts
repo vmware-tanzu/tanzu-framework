@@ -21,14 +21,6 @@ export const KUBE_VIP = 'Kube-vip';
 export const NSX_ADVANCED_LOAD_BALANCER = "NSX Advanced Load Balancer";
 
 const SupervisedFields = ['controllerHost', 'username', 'password', 'controllerCert'];
-const HA_REQUIRED_FIELDS = [
-    'controllerHost',
-    'username',
-    'password',
-    'controllerCert',
-    'managementClusterNetworkName',
-    'managementClusterNetworkCIDR'
-]
 
 @Component({
     selector: 'app-load-balancer-step',
@@ -50,7 +42,7 @@ export class SharedLoadBalancerStepComponent extends StepFormDirective implement
     vipNetworks: Array<AviVipNetwork> = [];
     selectedNetworkName: string;
     selectedManagementClusterNetworkName: string;
-    currentControlPlaneEndpoingProvider: string;
+    loadBalancerLabel = 'Load Balancer Settings';
 
     constructor(private validationService: ValidationService,
                 private apiClient: APIClient,
@@ -58,7 +50,7 @@ export class SharedLoadBalancerStepComponent extends StepFormDirective implement
         super();
     }
 
-    private customizeForm() {
+    protected customizeForm() {
         SupervisedFields.forEach(field => {
             this.formGroup.get(field).valueChanges
                 .pipe(
@@ -91,16 +83,6 @@ export class SharedLoadBalancerStepComponent extends StepFormDirective implement
         this.registerOnValueChange("networkName", this.onSelectVipNetwork.bind(this));
         this.registerOnValueChange("networkCIDR", this.onSelectVipCIDR.bind(this));
         this.registerOnValueChange("managementClusterNetworkName", this.onSelectManagementNetwork.bind(this));
-
-        AppServices.messenger.getSubject(TkgEventType.VSPHERE_CONTROL_PLANE_ENDPOINT_PROVIDER_CHANGED)
-            .subscribe(({ payload }) => {
-                this.currentControlPlaneEndpoingProvider = payload;
-                if (this.currentControlPlaneEndpoingProvider === NSX_ADVANCED_LOAD_BALANCER) {
-                    HA_REQUIRED_FIELDS.forEach(fieldName => this.resurrectField(fieldName, [Validators.required]));
-                } else {
-                    HA_REQUIRED_FIELDS.forEach(fieldName => this.disarmField(fieldName, true));
-                }
-            });
         this.registerOnIpFamilyChange('networkCIDR', [], []);
         this.registerOnIpFamilyChange('managementClusterNetworkCIDR', [
             this.validationService.isValidIpNetworkSegment()], [

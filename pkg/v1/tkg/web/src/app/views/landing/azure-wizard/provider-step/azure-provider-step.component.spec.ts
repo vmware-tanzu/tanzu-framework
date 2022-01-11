@@ -1,11 +1,10 @@
 // Angular imports
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
-import { ReactiveFormsModule } from '@angular/forms';
-import { FormBuilder } from '@angular/forms';
+import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 // Third party imports
-import { of, throwError, Observable } from 'rxjs';
+import { Observable, of, throwError } from 'rxjs';
 // App imports
 import AppServices from '../../../../shared/service/appServices';
 import { AzureProviderStepComponent } from './azure-provider-step.component';
@@ -16,6 +15,7 @@ import { SharedModule } from '../../../../shared/shared.module';
 import { ValidationService } from '../../wizard/shared/validation/validation.service';
 import { DataServiceRegistrarTestExtension } from '../../../../testing/data-service-registrar.testextension';
 import { AzureResourceGroup } from '../../../../swagger/models';
+import { AzureForm } from '../azure-wizard.constants';
 
 describe('AzureProviderStepComponent', () => {
     let component: AzureProviderStepComponent;
@@ -48,12 +48,10 @@ describe('AzureProviderStepComponent', () => {
         AppServices.dataServiceRegistrar = new DataServiceRegistrarTestExtension();
         apiService = TestBed.inject(APIClient);
 
-        const fb = new FormBuilder();
         fixture = TestBed.createComponent(AzureProviderStepComponent);
         component = fixture.componentInstance;
-        component.formGroup = fb.group({
-            tenantId: ['']
-        });
+        component.setInputs('CarrotWizard', AzureForm.PROVIDER, new FormBuilder().group({}));
+        component.ngOnInit();
         fixture.detectChanges();
     });
 
@@ -119,7 +117,7 @@ describe('AzureProviderStepComponent', () => {
     it('should verify credentials', () => {
         spyOn(apiService, 'setAzureEndpoint').and.returnValues(new Observable(subscriber => {
             subscriber.next();
-          }));
+        }));
         const regions = spyOn(component, 'getRegions').and.stub();
         component.verifyCredentials();
         expect(component.errorNotification).toBe('');
@@ -128,7 +126,7 @@ describe('AzureProviderStepComponent', () => {
     });
 
     it('should show error message if credential can not be verified', () => {
-        spyOn(apiService, 'setAzureEndpoint').and.returnValue(throwError({error : {message: 'oops!'}}));
+        spyOn(apiService, 'setAzureEndpoint').and.returnValue(throwError({error: {message: 'oops!'}}));
         component.verifyCredentials();
         expect(component.errorNotification).toBe('oops!');
         expect(component.validCredentials).toBeFalsy();
@@ -152,4 +150,23 @@ describe('AzureProviderStepComponent', () => {
             payload: ''
         });
     });
-})
+
+    it('should announce description change', () => {
+        const msgSpy = spyOn(AppServices.messenger, 'publish').and.callThrough();
+        const tenantControl = component.formGroup.get('tenantId');
+        tenantControl.setValue('');
+
+        const description = component.dynamicDescription();
+        expect(description).toEqual('Validate the Azure provider credentials for Tanzu');
+
+        tenantControl.setValue('RIDDLER');
+        expect(msgSpy).toHaveBeenCalledWith({
+            type: TkgEventType.STEP_DESCRIPTION_CHANGE,
+            payload: {
+                wizard: 'CarrotWizard',
+                step: AzureForm.PROVIDER,
+                description: 'Azure tenant: RIDDLER',
+            }
+        });
+    })
+});

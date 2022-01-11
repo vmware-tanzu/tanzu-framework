@@ -33,6 +33,7 @@ import { VSphereProviderStepComponent } from './provider-step/vsphere-provider-s
 import { VsphereRegionalClusterParams } from 'src/app/swagger/models/vsphere-regional-cluster-params.model';
 import { WizardBaseDirective } from '../wizard/shared/wizard-base/wizard-base';
 import { WizardForm, WizardStep } from '../wizard/shared/constants/wizard.constants';
+import { VsphereLoadBalancerStepComponent } from './load-balancer/vsphere-load-balancer-step.component';
 
 @Component({
     selector: 'app-wizard',
@@ -66,6 +67,10 @@ export class VSphereWizardComponent extends WizardBaseDirective implements OnIni
         });
     }
 
+    protected supplyWizardName(): string {
+        return 'vSphere Wizard';
+    }
+
     protected supplyStepData(): FormDataForHTML[] {
         return [
             this.VsphereProviderForm,
@@ -83,7 +88,7 @@ export class VSphereWizardComponent extends WizardBaseDirective implements OnIni
     ngOnInit() {
         super.ngOnInit();
 
-        this.titleService.setTitle(this.title + ' vSphere');
+        this.titleService.setTitle(this.title ? this.title + ' vSphere' : 'vSphere');
         this.registerServices();
         this.subscribeToServices();
     }
@@ -255,59 +260,22 @@ export class VSphereWizardComponent extends WizardBaseDirective implements OnIni
         }
     }
 
-    // HTML convenience methods
-    //
-    // OVERRIDES
-    // We override the parent class describeStep() because we have two instances where we're using a COMMON component,
-    // but we want to describe it in vSphere-specific ways
-    describeStep(stepName, staticDescription: string): string {
-        if (stepName === 'loadBalancerForm') {
-            return this.LoadBalancerFormDescription;
-        }
-        if (stepName === WizardForm.NETWORK) {
-            return this.NetworkFormDescription;
-        }
-        return super.describeStep(stepName, staticDescription);
-    }
-
-    private get NetworkFormDescription(): string {
-        // NOTE: even though this is a common wizard form, vSphere has a different way of describing it
-        // because vSphere allows for the user to select a network name
-        const networkName = this.getFieldValue(WizardForm.NETWORK, 'networkName');
-        if (networkName) {
-            return 'Network: ' + networkName;
-        }
-        return 'Specify how Tanzu Kubernetes Grid networking is provided and any global network settings';
-    }
-
-    private get LoadBalancerFormDescription(): string {
-        // NOTE: even though this is a common wizard form, vSphere has a different way of describing it
-        const controllerHost = this.getFieldValue('loadBalancerForm', 'controllerHost');
-        if (controllerHost) {
-            return 'Controller: ' + controllerHost;
-        }
-        const endpointProvider = this.getFieldValue("vsphereNodeSettingForm", "controlPlaneEndpointProvider");
-        if (endpointProvider === KUBE_VIP) {
-            return 'Optionally specify VMware NSX Advanced Load Balancer settings';
-        }
-        return 'Specify VMware NSX Advanced Load Balancer settings';
-    }
-
     // vSphere-specific forms
     get VsphereLoadBalancerForm(): FormDataForHTML {
         return { name: WizardForm.LOADBALANCER, title: 'VMware NSX Advanced Load Balancer',
-            description: 'Specify VMware NSX Advanced Load Balancer settings',
+            description: VsphereLoadBalancerStepComponent.description,
             i18n: { title: 'load balancer step name', description: 'load balancer step description' },
-        clazz: SharedLoadBalancerStepComponent };
-    }
-    get VsphereNetworkForm(): FormDataForHTML {
-        return FormUtility.formOverrideClazz(super.NetworkForm, VsphereNetworkStepComponent);
+        clazz: VsphereLoadBalancerStepComponent };
     }
     get VsphereNodeSettingForm(): FormDataForHTML {
         return { name: 'vsphereNodeSettingForm', title: FormUtility.titleCase(this.clusterTypeDescriptor) + ' Cluster Settings',
             description: `Specify the resources backing the ${this.clusterTypeDescriptor} cluster`,
             i18n: { title: 'node setting step name', description: 'node setting step description' },
         clazz: NodeSettingStepComponent };
+    }
+    get VsphereNetworkForm(): FormDataForHTML {
+        return  FormUtility.formWithOverrides(super.NetworkForm,
+            { clazz: VsphereNetworkStepComponent, description: VsphereNetworkStepComponent.description});
     }
     get VsphereProviderForm(): FormDataForHTML {
         return { name: 'vsphereProviderForm', title: 'IaaS Provider',
@@ -324,8 +292,7 @@ export class VSphereWizardComponent extends WizardBaseDirective implements OnIni
     get VsphereOsImageForm(): FormDataForHTML {
         return this.getOsImageForm(VsphereOsImageStepComponent);
     }
-    //
-    // HTML convenience methods
+
     // returns TRUE if the file contents appear to be a valid config file for vSphere
     // returns FALSE if the file is empty or does not appear to be valid. Note that in the FALSE
     // case we also alert the user.

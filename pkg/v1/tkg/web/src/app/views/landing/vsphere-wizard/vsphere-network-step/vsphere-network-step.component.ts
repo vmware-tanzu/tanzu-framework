@@ -18,6 +18,8 @@ declare var sortPaths: any;
     styleUrls: ['../../wizard/shared/components/steps/network-step/network-step.component.scss'],
 })
 export class VsphereNetworkStepComponent extends SharedNetworkStepComponent {
+    static description = 'Specify how Tanzu Kubernetes Grid networking is provided and any global network settings';
+
     constructor(protected validationService: ValidationService,
                 protected fieldMapUtilities: FieldMapUtilities) {
         super(validationService, fieldMapUtilities);
@@ -78,5 +80,28 @@ export class VsphereNetworkStepComponent extends SharedNetworkStepComponent {
                 { onlySelf: true } // avoid step error message when networkName is empty
             );
         }
+    }
+
+    protected supplyFieldsAffectingStepDescription(): string[] {
+        return ['networkName'];
+    }
+
+    dynamicDescription(): string {
+        // NOTE: even though this is a common wizard form, vSphere has a different way of describing it
+        // because vSphere allows for the user to select a network name
+        const networkName = this.getFieldValue('networkName');
+        let result = '';
+        if (networkName) {
+            result = 'Network: ' + networkName + ' ';
+        }
+        const serviceCidr = this.getFieldValue('clusterServiceCidr', true);
+        if (serviceCidr) {
+            result +=  'Cluster Service CIDR: ' + serviceCidr + ' ';
+        }
+        const podCidr = this.getFieldValue('clusterPodCidr', true);
+        if (podCidr) {
+            result +=  'Cluster Pod CIDR: ' + podCidr;
+        }
+        return result ? result.trim() : VsphereNetworkStepComponent.description;
     }
 }

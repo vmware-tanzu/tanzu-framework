@@ -22,6 +22,11 @@ export class MetadataStepComponent extends StepFormDirective implements OnInit {
     ngOnInit() {
         super.ngOnInit();
         this.fieldMapUtilities.buildForm(this.formGroup, this.formName, MetadataStepMapping);
+        this.registerStepDescriptionTriggers({
+            fields: ['clusterLocation'],
+            clusterTypeDescriptor: true,
+        })
+
         this.initFormWithSavedData();
     }
 

@@ -13,8 +13,13 @@ import { FormMetaData, FormMetaDataStore } from '../FormMetaDataStore';
 import { FormUtility } from '../components/steps/form-utility';
 import { IpFamilyEnum } from 'src/app/shared/constants/app.constants';
 import { Notification, NotificationTypes } from 'src/app/shared/components/alert-notification/alert-notification.component';
-import { TkgEvent, TkgEventType } from 'src/app/shared/service/Messenger';
+import { StepDescriptionChangePayload, TkgEvent, TkgEventType } from 'src/app/shared/service/Messenger';
 import { ValidatorEnum } from './../constants/validation.constants';
+
+export interface StepDescriptionTriggers {
+    clusterTypeDescriptor?: boolean,
+    fields?: string[],
+}
 
 const INIT_FIELD_DELAY = 50;            // ms
 /**
@@ -24,6 +29,7 @@ const INIT_FIELD_DELAY = 50;            // ms
  */
 @Directive()
 export abstract class StepFormDirective extends BasicSubscriber implements OnInit {
+    wizardName: string;
     formName;
     formGroup: FormGroup;
     savedMetadata: { [fieldName: string]: FormMetaData };
@@ -32,21 +38,24 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
     validatorEnum = ValidatorEnum;
     errorNotification: string = '';
     configFileNotification: Notification;
-    clusterTypeDescriptor: string;
+    private clusterTypeDescription: string = '';
     modeClusterStandalone: boolean;
     ipFamily: IpFamilyEnum = IpFamilyEnum.IPv4;
+
+    clusterTypeDescriptorUsedInDescription: boolean;
 
     private delayedFieldQueue = [];
 
     // This method is expected to be overridden by any step that provides a dynamic description of itself
-    // (dynamic meaning depending on user-entered data)
-    protected dynamicDescription(): string {
+    // (dynamic meaning depending on user-entered data). It is public to make it available for testing.
+    dynamicDescription(): string {
         return null;
     }
 
-    setInputs(formName: string, formGroup: FormGroup) {
+    setInputs(wizardName, formName: string, formGroup: FormGroup) {
         this.formName = formName;
         this.formGroup = formGroup;
+        this.wizardName = wizardName;
     }
 
     ngOnInit(): void {
@@ -60,7 +69,7 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
             .subscribe((data: TkgEvent) => {
                 const content: EditionData = data.payload;
                 this.edition = content.edition;
-                this.clusterTypeDescriptor = data.payload.clusterTypeDescriptor;
+                this.setClusterTypeDescriptor(data.payload.clusterTypeDescriptor);
             });
         this.modeClusterStandalone = AppServices.appDataService.isModeClusterStandalone();
 
@@ -328,6 +337,22 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
         return !(arr && arr.length > 0);
     }
 
+    // subclasses can ask us to make sure a StepDescriptionChange is triggered on various occasions
+    protected registerStepDescriptionTriggers(triggers: StepDescriptionTriggers) {
+        if (triggers.fields) {
+            this.registerFieldsAffectingStepDescription(triggers.fields);
+        }
+        this.clusterTypeDescriptorUsedInDescription = triggers.clusterTypeDescriptor;
+    }
+
+    private registerFieldsAffectingStepDescription(fields: string[]) {
+        fields.forEach(field => {
+            this.registerOnValueChange(field, () => {
+                this.triggerStepDescriptionChange();
+            });
+        })
+    }
+
     /**
      * Registers a callback when a field value changes.
      * This method does more than the "onchange" event handler
@@ -400,7 +425,33 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
     //
     // HTML convenience methods
 
-    // This method is designed to expose the protected unsubscribe field to allow its use in subscribing to pipes
+    protected triggerStepDescriptionChange() {
+        const descriptionChangePayload: StepDescriptionChangePayload = {
+            wizard: this.wizardName,
+            step: this.formName,
+            description: this.dynamicDescription(),
+        }
+        AppServices.messenger.publish({
+            type: TkgEventType.STEP_DESCRIPTION_CHANGE,
+            payload: descriptionChangePayload,
+        });
+    }
+
+    // NOTE: this method is public to facilitate testing, otherwise it would be private
+    public setClusterTypeDescriptor(descriptor: string) {
+        if (this.clusterTypeDescription !== descriptor) {
+            this.clusterTypeDescription = descriptor;
+            if (this.clusterTypeDescriptorUsedInDescription) {
+                this.triggerStepDescriptionChange();
+            }
+        }
+    }
+
+    get clusterTypeDescriptor() {
+        return this.clusterTypeDescription;
+    }
+
+    // This method is designed to expose the protected unsubscribe field (from our base class) to allow its use in subscribing to pipes
     get unsubscribeOnDestroy(): Subject<void> {
         return this.unsubscribe;
     }

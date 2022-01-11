@@ -3,9 +3,9 @@
         <clr-stepper-panel formGroupName="{{thisStepData.name}}" removeAriaLabelledBy>
             <clr-step-title i18n="{{thisStepData.i18n.title}}">{{ thisStepData.title }}</clr-step-title>
             <clr-step-description i18n="{{thisStepData.i18n.description}}">
-                {{ wizard.describeStep(thisStepData.name, thisStepData.description) }}
+                {{ wizard.stepDescription[thisStepData.name] }}
             </clr-step-description>
-            <ng-container *ngIf="wizard.displayStep(thisStepData.name)">
+            <ng-container>
                 <app-step-wrapper [registrar]="wizard" [formName]="thisStepData.name" [clazz]="thisStepData.clazz">
                 </app-step-wrapper>
             </ng-container>

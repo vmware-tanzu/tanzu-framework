@@ -65,6 +65,10 @@ export class AwsWizardComponent extends WizardBaseDirective implements OnInit {
         super(router, el, formMetaDataService, titleService, formBuilder);
     }
 
+    protected supplyWizardName(): string {
+        return 'AWS Wizard';
+    }
+
     protected supplyStepData(): FormDataForHTML[] {
         return [
             this.AwsProviderForm,
@@ -332,7 +336,7 @@ export class AwsWizardComponent extends WizardBaseDirective implements OnInit {
         return this.getOsImageForm(AwsOsImageStepComponent);
     }
     get AwsNetworkForm(): FormDataForHTML {
-        return FormUtility.formOverrideDescription(this.NetworkForm, 'Specify the cluster Pod CIDR');
+        return FormUtility.formWithOverrides(this.NetworkForm, {description: 'Specify the cluster Pod CIDR'});
     }
     //
     // HTML convenience methods

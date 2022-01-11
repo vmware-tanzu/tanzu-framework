@@ -47,6 +47,10 @@ export class AzureWizardComponent extends WizardBaseDirective implements OnInit 
         super(router, el, formMetaDataService, titleService, formBuilder);
     }
 
+    protected supplyWizardName(): string {
+        return 'Azure Wizard';
+    }
+
     protected supplyStepData(): FormDataForHTML[] {
         return [
             this.AzureProviderForm,
@@ -299,7 +303,7 @@ export class AzureWizardComponent extends WizardBaseDirective implements OnInit 
         return this.getOsImageForm(AzureOsImageStepComponent);
     }
     get AzureNetworkForm(): FormDataForHTML {
-        return FormUtility.formOverrideDescription(this.NetworkForm, 'Specify an Azure VNET CIDR');
+        return FormUtility.formWithOverrides(this.NetworkForm, {description: 'Specify an Azure VNET CIDR'});
     }
     //
     // HTML convenience methods

@@ -49,7 +49,15 @@ export enum TkgEventType {
     // APP
     BRANDING_CHANGED,
     CONFIG_FILE_IMPORTED,
-    CONFIG_FILE_IMPORT_ERROR
+    CONFIG_FILE_IMPORT_ERROR,
+    STEP_DESCRIPTION_CHANGE,
+}
+
+// The payload structure expected on a STEP_NAME_CHANGE event
+export interface StepDescriptionChangePayload {
+    wizard: string,
+    step: string,
+    description: string,
 }
 
 /**

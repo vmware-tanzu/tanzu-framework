@@ -90,6 +90,8 @@ export class AzureProviderStepComponent extends StepFormDirective implements OnI
             return this.formGroup.valid && this.validCredentials;
         }
 
+        this.registerStepDescriptionTriggers({fields: ['tenantId']});
+
         this.formGroup.valueChanges
             .pipe(
                 debounceTime(200),
@@ -377,7 +379,7 @@ export class AzureProviderStepComponent extends StepFormDirective implements OnI
     private resourceGroupContains(resourceGroupName: string) {
         return this.resourceGroups.find( resourceGroup => { return resourceGroup.name === resourceGroupName; });
     }
-    protected dynamicDescription(): string {
+    dynamicDescription(): string {
         const tenant = this.getFieldValue('tenantId', true);
         return tenant ? `Azure tenant: ${tenant}` : 'Validate the Azure provider credentials for Tanzu';
     }
