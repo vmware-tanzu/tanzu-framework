@@ -41,7 +41,7 @@ describe('MetadataStepComponent', () => {
         AppServices.messenger = new Messenger();
         fixture = TestBed.createComponent(MetadataStepComponent);
         component = fixture.componentInstance;
-        component.setInputs('BozoWizard', WizardForm.NETWORK, new FormBuilder().group({}));
+        component.setInputs('BozoWizard', WizardForm.METADATA, new FormBuilder().group({}));
         component.ngOnInit();
 
         fixture.detectChanges();

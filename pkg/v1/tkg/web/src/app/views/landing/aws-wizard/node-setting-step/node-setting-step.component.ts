@@ -567,14 +567,13 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
     }
 
     dynamicDescription(): string {
-        const ctlPlaneFlavor = this.getFieldValue(AwsField.NODESETTING_CONTROL_PLANE_SETTING, true);
-        if (ctlPlaneFlavor) {
+        if (this.nodeType) {
             let mode = 'Development cluster selected: 1 node control plane';
-            if (ctlPlaneFlavor === 'prod') {
+            if (this.nodeType === 'prod') {
                 mode = 'Production cluster selected: 3 node control plane';
             }
             return mode;
         }
-        return 'Specify the resources backing the ' + this.clusterTypeDescriptor + 'cluster';
+        return 'Specify the resources backing the ' + this.clusterTypeDescriptor + ' cluster';
     }
 }

@@ -85,50 +85,6 @@ describe('AzureWizardComponent', () => {
         fixture.detectChanges();
     });
 
-    describe('step description', () => {
-        it('should create', () => {
-            expect(component).toBeTruthy();
-        });
-
-        it('azure provider form', () => {
-            const stepInstance = TestBed.createComponent(AzureProviderStepComponent).componentInstance;
-            component.registerStep(AzureForm.PROVIDER, stepInstance);
-            stepInstance.formGroup.addControl('tenantId', new FormControl(''));
-
-            let description = component.stepDescription[AzureForm.PROVIDER];
-            expect(description).toBe('Validate the Azure provider credentials for Tanzu');
-
-            component.form.get(AzureForm.PROVIDER).get('tenantId').setValue('testId');
-            description = component.stepDescription[AzureForm.PROVIDER];
-            expect(description).toBe('Azure tenant: testId');
-        });
-        it('vnet form', () => {
-            const stepInstance = TestBed.createComponent(VnetStepComponent).componentInstance;
-            component.registerStep(component.AzureVnetForm.name, stepInstance);
-            stepInstance.formGroup.addControl('vnetCidrBlock', new FormControl(''));
-
-            let description = component.stepDescription[component.AzureVnetForm.name];
-            expect(description).toBe('Specify an Azure VNET CIDR');
-
-            component.form.get(AzureForm.VNET).get('vnetCidrBlock').setValue('1.1.1.1/24');
-            description = component.stepDescription[component.AzureVnetForm.name];
-            expect(description).toBe('Subnet: 1.1.1.1/24');
-        });
-        it('node setting form', () => {
-            const stepInstance = TestBed.createComponent(NodeSettingStepComponent).componentInstance;
-            stepInstance.setClusterTypeDescriptor('management');
-            component.registerStep(component.AzureNodeSettingForm.name, stepInstance);
-            stepInstance.formGroup.addControl('controlPlaneSetting', new FormControl(''));
-
-            let description = component.stepDescription[component.AzureNodeSettingForm.name];
-            expect(description).toBe('Specifying the resources backing the management cluster');
-
-            component.form.get(AzureForm.NODESETTING).get('controlPlaneSetting').setValue('dev');
-            description = component.stepDescription[component.AzureNodeSettingForm.name];
-            expect(description).toBe('Control plane type: dev');
-        });
-    });
-
     it('should generate cli', () => {
         const path = '/testPath/xyz.yaml';
         expect(component.getCli(path)).toBe(`tanzu management-cluster create --file ${path} -v 6`);

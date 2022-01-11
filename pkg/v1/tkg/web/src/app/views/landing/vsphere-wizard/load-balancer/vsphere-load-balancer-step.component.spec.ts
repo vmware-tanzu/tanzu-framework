@@ -15,6 +15,7 @@ import { ValidationService } from '../../wizard/shared/validation/validation.ser
 import { VSphereDatastore, VSphereFolder, VSphereResourcePool } from '../../../../swagger/models';
 import { VsphereLoadBalancerStepComponent } from './vsphere-load-balancer-step.component';
 import { WizardForm } from '../../wizard/shared/constants/wizard.constants';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 describe('VsphereLoadBalancerStepComponent', () => {
     let component: VsphereLoadBalancerStepComponent;
@@ -24,7 +25,8 @@ describe('VsphereLoadBalancerStepComponent', () => {
         TestBed.configureTestingModule({
             imports: [
                 ReactiveFormsModule,
-                SharedModule
+                SharedModule,
+                BrowserAnimationsModule
             ],
             providers: [
                 ValidationService,
