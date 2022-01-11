@@ -3,7 +3,7 @@ import { Component, OnInit } from '@angular/core';
 // App imports
 import { AzureVirtualMachine } from '../../../../swagger/models';
 import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
-import { OsImageProviderInputs, SharedOsImageStepComponent } from '../../wizard/shared/components/steps/os-image-step/os-image-step.component';
+import { OsImageProviderInputs, SharedOsImageStepDirective } from '../../wizard/shared/components/steps/os-image-step/os-image-step.component';
 import { TkgEventType } from '../../../../shared/service/Messenger';
 
 @Component({
@@ -11,7 +11,7 @@ import { TkgEventType } from '../../../../shared/service/Messenger';
     templateUrl: '../../wizard/shared/components/steps/os-image-step/os-image-step.component.html',
     styleUrls: ['../../wizard/shared/components/steps/os-image-step/os-image-step.component.scss']
 })
-export class AzureOsImageStepComponent extends SharedOsImageStepComponent<AzureVirtualMachine> {
+export class AzureOsImageStepComponent extends SharedOsImageStepDirective<AzureVirtualMachine> {
     constructor(protected fieldMapUtilities: FieldMapUtilities) {
         super(fieldMapUtilities);
     }

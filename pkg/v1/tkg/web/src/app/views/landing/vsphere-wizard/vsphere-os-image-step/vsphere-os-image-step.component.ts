@@ -2,7 +2,7 @@
 import { Component, OnInit } from '@angular/core';
 // App imports
 import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
-import { OsImageProviderInputs, SharedOsImageStepComponent } from '../../wizard/shared/components/steps/os-image-step/os-image-step.component';
+import { OsImageProviderInputs, SharedOsImageStepDirective } from '../../wizard/shared/components/steps/os-image-step/os-image-step.component';
 import { TkgEventType } from '../../../../shared/service/Messenger';
 import { VSphereVirtualMachine } from '../../../../swagger/models';
 
@@ -11,7 +11,7 @@ import { VSphereVirtualMachine } from '../../../../swagger/models';
     templateUrl: '../../wizard/shared/components/steps/os-image-step/os-image-step.component.html',
     styleUrls: ['../../wizard/shared/components/steps/os-image-step/os-image-step.component.scss']
 })
-export class VsphereOsImageStepComponent extends SharedOsImageStepComponent<VSphereVirtualMachine> {
+export class VsphereOsImageStepComponent extends SharedOsImageStepDirective<VSphereVirtualMachine> {
     private tkrVersionString: string;
 
     constructor(protected fieldMapUtilities: FieldMapUtilities) {
