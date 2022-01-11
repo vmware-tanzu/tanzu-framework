@@ -327,6 +327,7 @@ func (c *TkgClient) setProxyConfiguration(clusterClusterClient clusterclient.Cli
 
 	if httpProxy := configmap.Data["httpProxy"]; httpProxy != "" {
 		c.TKGConfigReaderWriter().Set(constants.TKGHTTPProxy, httpProxy)
+		c.TKGConfigReaderWriter().Set(constants.TKGHTTPProxyEnabled, trueString)
 	}
 
 	if httpsProxy := configmap.Data["httpsProxy"]; httpsProxy != "" {
