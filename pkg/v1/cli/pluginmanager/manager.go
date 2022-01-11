@@ -16,6 +16,8 @@ import (
 	"github.com/pkg/errors"
 	"go.uber.org/multierr"
 	"golang.org/x/mod/semver"
+	"gopkg.in/yaml.v2"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	kerrors "k8s.io/apimachinery/pkg/util/errors"
 
 	cliv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
@@ -32,6 +34,10 @@ import (
 const (
 	// exe is an executable file extension
 	exe = ".exe"
+	// ManifestFileName is the file name for the manifest.
+	ManifestFileName = "manifest.yaml"
+	// PluginFileName is the file name for the plugin descriptor.
+	PluginFileName = "plugin.yaml"
 )
 
 var execCommand = exec.Command
@@ -152,7 +158,7 @@ func AvailablePlugins(serverName string) ([]plugin.Discovered, error) {
 func AvailablePluginsFromLocalSource(localPath string) ([]plugin.Discovered, error) {
 	localStandalonePlugins, err := DiscoverPluginsFromLocalSource(localPath)
 	if err != nil {
-		log.Warningf("unable to discover standalone plugins from local source, %v", err.Error())
+		log.Warningf("Unable to discover standalone plugins from local source, %v", err.Error())
 	}
 	return availablePlugins("", []plugin.Discovered{}, localStandalonePlugins)
 }
@@ -491,7 +497,7 @@ func InstallPluginsFromLocalSource(pluginName, version, localPath string) error 
 
 	plugins, err := DiscoverPluginsFromLocalSource(localPath)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "unable to discover plugins")
 	}
 
 	found := false
@@ -522,6 +528,23 @@ func DiscoverPluginsFromLocalSource(localPath string) ([]plugin.Discovered, erro
 		return nil, nil
 	}
 
+	plugins, err := discoverPluginsFromLocalSource(localPath)
+	// If no error then return the discovered plugins
+	if err == nil {
+		return plugins, nil
+	}
+
+	// Check if the manifest.yaml file exists to see if the directory is legacy structure or not
+	if _, err2 := os.Stat(filepath.Join(localPath, ManifestFileName)); errors.Is(err2, os.ErrNotExist) {
+		return nil, err
+	}
+
+	// As manifest.yaml file exists it assumes in this case the directory is in
+	// the legacy structure, and attempt to process it as such
+	return discoverPluginsFromLocalSourceWithLegacyDirectoryStructure(localPath)
+}
+
+func discoverPluginsFromLocalSource(localPath string) ([]plugin.Discovered, error) {
 	// Set default local plugin distro to localpath while installing the plugin
 	// from local source. This is done to allow CLI to know the basepath incase the
 	// relative path is provided as part of CLIPlugin definition for local discovery
@@ -555,7 +578,6 @@ func DiscoverPluginsFromLocalSource(localPath string) ([]plugin.Discovered, erro
 		plugins[i].Status = common.PluginStatusNotInstalled
 		plugins[i].DiscoveryType = common.DiscoveryTypeLocal
 	}
-
 	return plugins, nil
 }
 
@@ -565,4 +587,115 @@ func Clean() error {
 		return errors.Errorf("Failed to clean the catalog cache %v", err)
 	}
 	return os.RemoveAll(common.DefaultPluginRoot)
+}
+
+// getCLIPluginResourceWithLocalDistroFromPluginDescriptor return cliv1alpha1.CLIPlugin resource from the plugin descriptor
+// Note: This function generates cliv1alpha1.CLIPlugin which contains only single local distribution type artifact for
+// OS-ARCH where user is running the cli
+// This function is only used to create CLIPlugin resource for local plugin installation with legacy directory structure
+func getCLIPluginResourceWithLocalDistroFromPluginDescriptor(pd *cliv1alpha1.PluginDescriptor, pluginBinaryPath string) cliv1alpha1.CLIPlugin {
+	return cliv1alpha1.CLIPlugin{
+		ObjectMeta: metav1.ObjectMeta{
+			Name: pd.Name,
+		},
+		Spec: cliv1alpha1.CLIPluginSpec{
+			Description:        pd.Description,
+			RecommendedVersion: pd.Version,
+			Artifacts: map[string]cliv1alpha1.ArtifactList{
+				pd.Version: []cliv1alpha1.Artifact{
+					{
+						URI:  pluginBinaryPath,
+						Type: common.DistributionTypeLocal,
+						OS:   runtime.GOOS,
+						Arch: runtime.GOARCH,
+					},
+				},
+			},
+		},
+	}
+}
+
+// discoverPluginsFromLocalSourceWithLegacyDirectoryStructure returns the available plugins
+// that are discovered from the provided local path
+func discoverPluginsFromLocalSourceWithLegacyDirectoryStructure(localPath string) ([]plugin.Discovered, error) {
+	if localPath == "" {
+		return nil, nil
+	}
+
+	// Get the plugin manifest object from manifest.yaml file
+	manifest, err := getPluginManifestResource(filepath.Join(localPath, ManifestFileName))
+	if err != nil {
+		return nil, err
+	}
+
+	var discoveredPlugins []plugin.Discovered
+
+	// Create plugin.Discovered object for all locally available plugin
+	for _, p := range manifest.Plugins {
+		if p.Name == cli.CoreName {
+			continue
+		}
+
+		// Get the plugin descriptor from the plugin.yaml file
+		pd, err := getPluginDescriptorResource(filepath.Join(localPath, p.Name, PluginFileName))
+		if err != nil {
+			return nil, fmt.Errorf("could not unmarshal plugin.yaml: %v", err)
+		}
+
+		absLocalPath, err := filepath.Abs(localPath)
+		if err != nil {
+			return nil, err
+		}
+		// With legacy configuration directory structure creating the pluginBinary path from plugin descriptor
+		// Sample path: cli/<plugin-name>/<plugin-version>/tanzu-<plugin-name>-<os>_<arch>
+		// 				cli/login/v0.14.0/tanzu-login-darwin_amd64
+		// As mentioned above, we expect the binary for user's OS-ARCH is present and hence creating path accordingly
+		pluginBinaryPath := filepath.Join(absLocalPath, p.Name, pd.Version, fmt.Sprintf("tanzu-%s-%s_%s", p.Name, runtime.GOOS, runtime.GOARCH))
+		// Check if the pluginBinary file exists or not
+		if _, err := os.Stat(pluginBinaryPath); errors.Is(err, os.ErrNotExist) {
+			return nil, errors.Wrapf(err, "unable to find plugin binary for %q", p.Name)
+		}
+
+		p := getCLIPluginResourceWithLocalDistroFromPluginDescriptor(pd, pluginBinaryPath)
+
+		// Create plugin.Discovered resource from CLIPlugin resource
+		dp := discovery.DiscoveredFromK8sV1alpha1(&p)
+		dp.DiscoveryType = common.DiscoveryTypeLocal
+		dp.Scope = common.PluginScopeStandalone
+		dp.Status = common.PluginStatusNotInstalled
+
+		discoveredPlugins = append(discoveredPlugins, dp)
+	}
+
+	return discoveredPlugins, nil
+}
+
+// getPluginManifestResource returns cli.Manifest resource by reading manifest file
+func getPluginManifestResource(manifestFilePath string) (*cli.Manifest, error) {
+	b, err := os.ReadFile(manifestFilePath)
+	if err != nil {
+		return nil, fmt.Errorf("could not find %s file: %v", filepath.Base(manifestFilePath), err)
+	}
+
+	var manifest cli.Manifest
+	err = yaml.Unmarshal(b, &manifest)
+	if err != nil {
+		return nil, fmt.Errorf("could not unmarshal %s: %v", filepath.Base(manifestFilePath), err)
+	}
+	return &manifest, nil
+}
+
+// getPluginDescriptorResource returns cliv1alpha1.PluginDescriptor resource by reading plugin file
+func getPluginDescriptorResource(pluginFilePath string) (*cliv1alpha1.PluginDescriptor, error) {
+	b, err := os.ReadFile(pluginFilePath)
+	if err != nil {
+		return nil, fmt.Errorf("could not find %s file: %v", filepath.Base(pluginFilePath), err)
+	}
+
+	var pd cliv1alpha1.PluginDescriptor
+	err = yaml.Unmarshal(b, &pd)
+	if err != nil {
+		return nil, fmt.Errorf("could not unmarshal %s: %v", filepath.Base(pluginFilePath), err)
+	}
+	return &pd, nil
 }

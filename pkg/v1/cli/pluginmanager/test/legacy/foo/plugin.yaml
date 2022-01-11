@@ -1,0 +1,4 @@
+name: foo
+description: Foo plugin
+version: v0.12.0
+buildSHA: dummysha
