@@ -90,9 +90,18 @@ export class VsphereNetworkStepComponent extends SharedNetworkStepComponent {
         // NOTE: even though this is a common wizard form, vSphere has a different way of describing it
         // because vSphere allows for the user to select a network name
         const networkName = this.getFieldValue('networkName');
+        let result = '';
         if (networkName) {
-            return 'Network: ' + networkName;
+            result = 'Network: ' + networkName + ' ';
         }
-        return VsphereNetworkStepComponent.description;
+        const serviceCidr = this.getFieldValue('clusterServiceCidr', true);
+        if (serviceCidr) {
+            result +=  'Cluster Service CIDR: ' + serviceCidr + ' ';
+        }
+        const podCidr = this.getFieldValue('clusterPodCidr', true);
+        if (podCidr) {
+            result +=  'Cluster Pod CIDR: ' + podCidr;
+        }
+        return result ? result.trim() : VsphereNetworkStepComponent.description;
     }
 }

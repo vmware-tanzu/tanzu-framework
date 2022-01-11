@@ -61,7 +61,11 @@ describe('NodeSettingStepComponent', () => {
         const msgSpy = spyOn(AppServices.messenger, 'publish').and.callThrough();
         component.ngOnInit();
         const networkNameControl = component.formGroup.get('networkName');
+        const serviceCidrControl = component.formGroup.controls['clusterServiceCidr'];
+        const podCidrControl = component.formGroup.controls['clusterPodCidr'];
 
+        podCidrControl.setValue('');
+        serviceCidrControl.setValue('');
         expect(component.dynamicDescription()).toEqual(VsphereNetworkStepComponent.description);
 
         networkNameControl.setValue('CHOCMINT');
@@ -73,5 +77,26 @@ describe('NodeSettingStepComponent', () => {
                 description: 'Network: CHOCMINT',
             }
         });
+
+        podCidrControl.setValue('1.2.3.4/12');
+        expect(msgSpy).toHaveBeenCalledWith({
+            type: TkgEventType.STEP_DESCRIPTION_CHANGE,
+            payload: {
+                wizard: 'BozoWizard',
+                step: WizardForm.NETWORK,
+                description: 'Network: CHOCMINT Cluster Pod CIDR: 1.2.3.4/12'
+            }
+        });
+
+        serviceCidrControl.setValue('5.6.7.8/16');
+        expect(msgSpy).toHaveBeenCalledWith({
+            type: TkgEventType.STEP_DESCRIPTION_CHANGE,
+            payload: {
+                wizard: 'BozoWizard',
+                step: WizardForm.NETWORK,
+                description: 'Network: CHOCMINT Cluster Service CIDR: 5.6.7.8/16 Cluster Pod CIDR: 1.2.3.4/12'
+            }
+        });
+
     });
 });
