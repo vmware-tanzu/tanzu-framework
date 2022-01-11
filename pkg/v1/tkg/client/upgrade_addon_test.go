@@ -4,7 +4,6 @@
 package client_test
 
 import (
-	"testing"
 	"time"
 
 	. "github.com/onsi/ginkgo"
@@ -21,7 +20,6 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/clusterclient"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/fakes"
-	fakehelper "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/fakes/helper"
 )
 
 var _ = Describe("Unit tests for addons upgrade", func() {
@@ -274,103 +272,165 @@ var _ = Describe("Unit tests for addons upgrade", func() {
 	})
 })
 
-// Test_RetrieveProxySettings tests a previous regression where the proxy settings
+// Test RetrieveProxySettings tests a previous regression where the proxy settings
 // for a workload cluster was being incorrectly inherited from the management cluster.
 // Specifically, this test validates retreiving proxy settings for a workload cluster
 // with different settings from the management cluster.
-func Test_RetrieveProxySettings(t *testing.T) {
-	RegisterTestingT(t)
-	g := NewWithT(t)
+var _ = Describe("Test RetrieveProxySettings", func() {
+	var (
+		err                   error
+		regionalClusterClient *fakes.ClusterClient
+		workloadClusterClient *fakes.ClusterClient
+		tkgClient             *TkgClient
+	)
 
-	tkgClient, err := CreateTKGClient("../fakes/config/config2.yaml", fakehelper.CreateTempTestingDirectory(), "../fakes/config/bom/tkg-bom-v1.3.1.yaml", 2*time.Millisecond)
-	g.Expect(err).To(BeNil())
-
-	regionalClusterClient := &fakes.ClusterClient{}
-	regionalClusterClient.ListResourcesCalls(func(clusterList interface{}, options ...client.ListOption) error {
-		if clusterList, ok := clusterList.(*capiv1alpha3.ClusterList); ok {
-			clusterList.Items = []capiv1alpha3.Cluster{
-				{
-					ObjectMeta: metav1.ObjectMeta{
-						Name:      "regional-cluster-2",
-						Namespace: constants.DefaultNamespace,
+	BeforeEach(func() {
+		regionalClusterClient = &fakes.ClusterClient{}
+		workloadClusterClient = &fakes.ClusterClient{}
+		tkgClient, err = CreateTKGClient("../fakes/config/config2.yaml", testingDir, "../fakes/config/bom/tkg-bom-v1.3.1.yaml", 2*time.Millisecond)
+		regionalClusterClient.ListResourcesCalls(func(clusterList interface{}, options ...client.ListOption) error {
+			if clusterList, ok := clusterList.(*capiv1alpha3.ClusterList); ok {
+				clusterList.Items = []capiv1alpha3.Cluster{
+					{
+						ObjectMeta: metav1.ObjectMeta{
+							Name:      "regional-cluster-2",
+							Namespace: constants.DefaultNamespace,
+						},
 					},
-				},
-				{
-					ObjectMeta: metav1.ObjectMeta{
-						Name:      "workload-cluster",
-						Namespace: constants.DefaultNamespace,
+					{
+						ObjectMeta: metav1.ObjectMeta{
+							Name:      "workload-cluster",
+							Namespace: constants.DefaultNamespace,
+						},
 					},
-				},
+				}
+				return nil
 			}
 			return nil
-		}
-		return nil
+		})
 	})
 
-	regionalClusterClient.GetResourceStub = func(obj interface{}, name string, namespace string, verifyFunc clusterclient.PostVerifyrFunc, pollOptions *clusterclient.PollOptions) error {
-		if name == constants.KappControllerConfigMapName {
-			cm := &corev1.ConfigMap{
-				ObjectMeta: metav1.ObjectMeta{
-					Name:      constants.KappControllerConfigMapName,
-					Namespace: constants.KappControllerNamespace,
-				},
-				Data: map[string]string{
-					"httpProxy":  "http://10.0.0.1:8080",
-					"httpsProxy": "http://10.0.0.1:8080",
-					"noProxy":    "127.0.0.1,foo.com",
-				},
-			}
-			cm.DeepCopyInto(obj.(*corev1.ConfigMap))
-		}
+	var _ = Describe("RetrieveProxySettings For Management Cluster", func() {
+		JustBeforeEach(func() {
+			err = tkgClient.RetrieveRegionalClusterConfiguration(regionalClusterClient)
+		})
 
-		return nil
-	}
+		Context("When proxy configuration is returned from kapp controller configmap", func() {
+			BeforeEach(func() {
+				regionalClusterClient.GetResourceStub = func(obj interface{}, name string, namespace string, verifyFunc clusterclient.PostVerifyrFunc, pollOptions *clusterclient.PollOptions) error {
+					if name == constants.KappControllerConfigMapName {
+						cm := &corev1.ConfigMap{
+							ObjectMeta: metav1.ObjectMeta{
+								Name:      constants.KappControllerConfigMapName,
+								Namespace: constants.KappControllerNamespace,
+							},
+							Data: map[string]string{
+								"httpProxy":  "http://10.0.0.1:8080",
+								"httpsProxy": "http://10.0.0.1:8080",
+								"noProxy":    "127.0.0.1,foo.com",
+							},
+						}
+						cm.DeepCopyInto(obj.(*corev1.ConfigMap))
+					}
 
-	workloadClusterClient := &fakes.ClusterClient{}
-	workloadClusterClient.GetResourceStub = func(obj interface{}, name string, namespace string, verifyFunc clusterclient.PostVerifyrFunc, pollOptions *clusterclient.PollOptions) error {
-		if name == constants.KappControllerConfigMapName {
-			cm := &corev1.ConfigMap{
-				ObjectMeta: metav1.ObjectMeta{
-					Name:      constants.KappControllerConfigMapName,
-					Namespace: constants.KappControllerNamespace,
-				},
-				Data: map[string]string{
-					"httpProxy":  "http://10.0.0.1:8081",
-					"httpsProxy": "http://10.0.0.1:8081",
-					"noProxy":    "127.0.0.1,bar.com",
-				},
-			}
-			cm.DeepCopyInto(obj.(*corev1.ConfigMap))
-		}
+					return nil
+				}
+			})
+			It("should not return an error and proxy configuration should be configured", func() {
+				Expect(err).To(BeNil())
 
-		return nil
-	}
+				httpProxy, err := tkgClient.TKGConfigReaderWriter().Get(constants.TKGHTTPProxy)
+				Expect(httpProxy).To(Equal("http://10.0.0.1:8080"))
+				Expect(err).To(BeNil())
+				httpsProxy, err := tkgClient.TKGConfigReaderWriter().Get(constants.TKGHTTPSProxy)
+				Expect(httpsProxy).To(Equal("http://10.0.0.1:8080"))
+				Expect(err).To(BeNil())
+				noProxy, err := tkgClient.TKGConfigReaderWriter().Get(constants.TKGNoProxy)
+				Expect(noProxy).To(Equal("127.0.0.1,foo.com"))
+				Expect(err).To(BeNil())
+				proxyEnabled, err := tkgClient.TKGConfigReaderWriter().Get(constants.TKGHTTPProxyEnabled)
+				Expect(proxyEnabled).To(Equal("true"))
+				Expect(err).To(BeNil())
+			})
+		})
+	})
 
-	// validate retrieving management cluster settings
-	err = tkgClient.RetrieveRegionalClusterConfiguration(regionalClusterClient)
-	g.Expect(err).To(BeNil())
+	var _ = Describe("RetrieveProxySettings For Workload Cluster", func() {
+		JustBeforeEach(func() {
+			err = tkgClient.RetrieveWorkloadClusterConfiguration(regionalClusterClient, workloadClusterClient, "workload-cluster", constants.DefaultNamespace)
+		})
 
-	httpProxy, err := tkgClient.TKGConfigReaderWriter().Get(constants.TKGHTTPProxy)
-	g.Expect(httpProxy).To(Equal("http://10.0.0.1:8080"))
-	g.Expect(err).To(BeNil())
-	httpsProxy, err := tkgClient.TKGConfigReaderWriter().Get(constants.TKGHTTPSProxy)
-	g.Expect(httpsProxy).To(Equal("http://10.0.0.1:8080"))
-	g.Expect(err).To(BeNil())
-	noProxy, err := tkgClient.TKGConfigReaderWriter().Get(constants.TKGNoProxy)
-	g.Expect(noProxy).To(Equal("127.0.0.1,foo.com"))
-	g.Expect(err).To(BeNil())
+		Context("When proxy configuration is returned from kapp controller configmap", func() {
+			BeforeEach(func() {
+				workloadClusterClient.GetResourceStub = func(obj interface{}, name string, namespace string, verifyFunc clusterclient.PostVerifyrFunc, pollOptions *clusterclient.PollOptions) error {
+					if name == constants.KappControllerConfigMapName {
+						cm := &corev1.ConfigMap{
+							ObjectMeta: metav1.ObjectMeta{
+								Name:      constants.KappControllerConfigMapName,
+								Namespace: constants.KappControllerNamespace,
+							},
+							Data: map[string]string{
+								"httpProxy":  "http://10.0.0.1:8081",
+								"httpsProxy": "http://10.0.0.1:8081",
+								"noProxy":    "127.0.0.1,bar.com",
+							},
+						}
+						cm.DeepCopyInto(obj.(*corev1.ConfigMap))
+					}
 
-	// validate retrieving workload cluster settings
-	err = tkgClient.RetrieveWorkloadClusterConfiguration(regionalClusterClient, workloadClusterClient, "workload-cluster", constants.DefaultNamespace)
-	g.Expect(err).To(BeNil())
+					return nil
+				}
+			})
+			It("should not return an error and proxy configuration should be configured", func() {
+				Expect(err).To(BeNil())
 
-	httpProxy, err = tkgClient.TKGConfigReaderWriter().Get(constants.TKGHTTPProxy)
-	g.Expect(httpProxy).To(Equal("http://10.0.0.1:8081"))
-	g.Expect(err).To(BeNil())
-	httpsProxy, err = tkgClient.TKGConfigReaderWriter().Get(constants.TKGHTTPSProxy)
-	g.Expect(httpsProxy).To(Equal("http://10.0.0.1:8081"))
-	g.Expect(err).To(BeNil())
-	noProxy, err = tkgClient.TKGConfigReaderWriter().Get(constants.TKGNoProxy)
-	g.Expect(noProxy).To(Equal("127.0.0.1,bar.com"))
-	g.Expect(err).To(BeNil())
-}
+				httpProxy, err := tkgClient.TKGConfigReaderWriter().Get(constants.TKGHTTPProxy)
+				Expect(httpProxy).To(Equal("http://10.0.0.1:8081"))
+				Expect(err).To(BeNil())
+				httpsProxy, err := tkgClient.TKGConfigReaderWriter().Get(constants.TKGHTTPSProxy)
+				Expect(httpsProxy).To(Equal("http://10.0.0.1:8081"))
+				Expect(err).To(BeNil())
+				noProxy, err := tkgClient.TKGConfigReaderWriter().Get(constants.TKGNoProxy)
+				Expect(noProxy).To(Equal("127.0.0.1,bar.com"))
+				Expect(err).To(BeNil())
+				proxyEnabled, err := tkgClient.TKGConfigReaderWriter().Get(constants.TKGHTTPProxyEnabled)
+				Expect(proxyEnabled).To(Equal("true"))
+				Expect(err).To(BeNil())
+			})
+		})
+
+		Context("When proxy configuration is not returned from kapp controller configmap", func() {
+			BeforeEach(func() {
+				workloadClusterClient.GetResourceStub = func(obj interface{}, name string, namespace string, verifyFunc clusterclient.PostVerifyrFunc, pollOptions *clusterclient.PollOptions) error {
+					if name == constants.KappControllerConfigMapName {
+						cm := &corev1.ConfigMap{
+							ObjectMeta: metav1.ObjectMeta{
+								Name:      constants.KappControllerConfigMapName,
+								Namespace: constants.KappControllerNamespace,
+							},
+							Data: map[string]string{},
+						}
+						cm.DeepCopyInto(obj.(*corev1.ConfigMap))
+					}
+
+					return nil
+				}
+			})
+			It("should not return an error and proxy configuration should be empty", func() {
+				Expect(err).To(BeNil())
+
+				httpProxy, err := tkgClient.TKGConfigReaderWriter().Get(constants.TKGHTTPProxy)
+				Expect(httpProxy).To(Equal(""))
+				Expect(err).To(BeNil())
+				httpsProxy, err := tkgClient.TKGConfigReaderWriter().Get(constants.TKGHTTPSProxy)
+				Expect(httpsProxy).To(Equal(""))
+				Expect(err).To(BeNil())
+				noProxy, err := tkgClient.TKGConfigReaderWriter().Get(constants.TKGNoProxy)
+				Expect(noProxy).To(Equal(""))
+				Expect(err).To(BeNil())
+				proxyEnabled, _ := tkgClient.TKGConfigReaderWriter().Get(constants.TKGHTTPProxyEnabled)
+				Expect(proxyEnabled).NotTo(Equal("true"))
+			})
+		})
+	})
+})
