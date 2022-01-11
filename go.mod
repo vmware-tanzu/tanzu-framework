@@ -3,7 +3,6 @@ module github.com/vmware-tanzu/tanzu-framework
 go 1.17
 
 replace (
-	github.com/briandowns/spinner => github.com/alonyb/spinner v1.12.7
 	github.com/googleapis/gnostic => github.com/googleapis/gnostic v0.5.5 // indirect
 	github.com/k14s/kbld => github.com/anujc25/carvel-kbld v0.31.0-update-vendir
 	sigs.k8s.io/cluster-api => sigs.k8s.io/cluster-api v1.0.1
@@ -26,7 +25,7 @@ require (
 	github.com/avinetworks/sdk v0.0.0-20201123134013-c157ef55b6f7
 	github.com/aws/aws-sdk-go v1.40.56
 	github.com/awslabs/goformation/v4 v4.19.5
-	github.com/briandowns/spinner v1.16.0
+	github.com/briandowns/spinner v1.18.0
 	github.com/cppforlife/go-cli-ui v0.0.0-20200716203538-1e47f820817f
 	github.com/docker/docker v20.10.9+incompatible
 	github.com/elazarl/go-bindata-assetfs v1.0.1
@@ -64,6 +63,7 @@ require (
 	github.com/k14s/ytt v0.32.1-0.20210511155130-214258be2519
 	github.com/lithammer/dedent v1.1.0
 	github.com/logrusorgru/aurora v2.0.3+incompatible
+	github.com/mattn/go-isatty v0.0.14
 	github.com/olekukonko/tablewriter v0.0.4
 	github.com/onsi/ginkgo v1.16.5
 	github.com/onsi/gomega v1.16.0
@@ -186,7 +186,6 @@ require (
 	github.com/magiconair/properties v1.8.5 // indirect
 	github.com/mailru/easyjson v0.7.6 // indirect
 	github.com/mattn/go-colorable v0.1.12 // indirect
-	github.com/mattn/go-isatty v0.0.14 // indirect
 	github.com/mattn/go-runewidth v0.0.13 // indirect
 	github.com/matttproud/golang_protobuf_extensions v1.0.2-0.20181231171920-c182affec369 // indirect
 	github.com/mgutz/ansi v0.0.0-20170206155736-9520e82c474b // indirect

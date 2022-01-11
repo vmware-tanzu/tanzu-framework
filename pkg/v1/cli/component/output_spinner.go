@@ -6,9 +6,11 @@ package component
 import (
 	"fmt"
 	"io"
+	"os"
 	"time"
 
 	"github.com/briandowns/spinner"
+	"github.com/mattn/go-isatty"
 )
 
 // OutputWriterSpinner is OutputWriter augmented with a spinner.
@@ -38,7 +40,10 @@ func NewOutputWriterWithSpinner(output io.Writer, outputFormat, spinnerText stri
 			return nil, err
 		}
 		ows.spinner.Suffix = fmt.Sprintf(" %s", spinnerText)
-		if startSpinner {
+
+		// Start the spinner only if attached to terminal
+		attachedToTerminal := isatty.IsTerminal(os.Stdout.Fd()) || isatty.IsCygwinTerminal(os.Stdout.Fd())
+		if startSpinner && attachedToTerminal {
 			ows.spinner.Start()
 		}
 	}
