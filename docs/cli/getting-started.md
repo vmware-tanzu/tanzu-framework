@@ -178,7 +178,7 @@ If you want the very latest, you can also build and install tanzu CLI, and its p
 
 ### Prerequisites
 
-- [go](https://golang.org/dl/) version 1.16
+- [go](https://golang.org/dl/) version 1.17
 
 - Clone Tanzu Framework and run the below command to build and install CLI and
   plugins locally for your platform.
