@@ -7,13 +7,13 @@ import { By } from '@angular/platform-browser';
 import { APIClient } from '../../../../swagger/api-client.service';
 import AppServices from 'src/app/shared/service/appServices';
 import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
-import { NodeSettingStepComponent } from './node-setting-step.component';
+import { NodeSettingStepComponent, NodeType } from './node-setting-step.component';
 import { Messenger, TkgEventType } from 'src/app/shared/service/Messenger';
 import { SharedModule } from '../../../../shared/shared.module';
 import { ValidationService } from '../../wizard/shared/validation/validation.service';
 import { DataServiceRegistrarTestExtension } from '../../../../testing/data-service-registrar.testextension';
 import { AWSSubnet } from '../../../../swagger/models';
-import { AwsForm } from '../aws-wizard.constants';
+import { AwsField, AwsForm } from '../aws-wizard.constants';
 
 describe('NodeSettingStepComponent', () => {
     let component: NodeSettingStepComponent;
@@ -299,7 +299,7 @@ describe('NodeSettingStepComponent', () => {
 
         component.ngOnInit();
         component.nodeType = '';
-        let description = component.dynamicDescription();
+        const description = component.dynamicDescription();
         expect(description).toEqual('Specify the resources backing the  cluster');
 
         component.setClusterTypeDescriptor('CARAMEL');
@@ -312,12 +312,25 @@ describe('NodeSettingStepComponent', () => {
             }
         });
 
-        component.nodeType = 'dev';
-        description = component.dynamicDescription();
-        expect(description).toEqual('Development cluster selected: 1 node control plane');
+        const controlPlaneSettingControl = component.formGroup.controls[AwsField.NODESETTING_CONTROL_PLANE_SETTING];
+        controlPlaneSettingControl.setValue(NodeType.DEV);
+        expect(msgSpy).toHaveBeenCalledWith({
+            type: TkgEventType.STEP_DESCRIPTION_CHANGE,
+            payload: {
+                wizard: 'SquashWizard',
+                step: AwsForm.NODESETTING,
+                description: 'Development cluster selected: 1 node control plane',
+            }
+        });
 
-        component.nodeType = 'prod';
-        description = component.dynamicDescription();
-        expect(description).toEqual('Production cluster selected: 3 node control plane');
+        controlPlaneSettingControl.setValue(NodeType.PROD);
+        expect(msgSpy).toHaveBeenCalledWith({
+            type: TkgEventType.STEP_DESCRIPTION_CHANGE,
+            payload: {
+                wizard: 'SquashWizard',
+                step: AwsForm.NODESETTING,
+                description: 'Production cluster selected: 3 node control plane',
+            }
+        });
     });
 });

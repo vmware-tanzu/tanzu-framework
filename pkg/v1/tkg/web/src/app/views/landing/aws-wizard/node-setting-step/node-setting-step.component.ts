@@ -65,7 +65,7 @@ const PRIVATE_SUBNET = [
 ];
 const VPC_SUBNETS = [...PUBLIC_SUBNETS, ...PRIVATE_SUBNET];
 
-enum NodeType {
+export enum NodeType {
     DEV = 'dev',
     PROD = 'prod'
 }
