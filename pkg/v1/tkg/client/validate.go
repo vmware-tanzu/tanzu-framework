@@ -440,6 +440,7 @@ func (c *TkgClient) ConfigureAndValidateVSphereTemplate(vcClient vc.Client, tkrV
 	c.TKGConfigReaderWriter().Set(constants.ConfigVariableOSName, vsphereVM.DistroName)
 	c.TKGConfigReaderWriter().Set(constants.ConfigVariableOSVersion, vsphereVM.DistroVersion)
 	c.TKGConfigReaderWriter().Set(constants.ConfigVariableOSArch, vsphereVM.DistroArch)
+	c.TKGConfigReaderWriter().Set(constants.ConfigVariableVsphereTemplateMoid, vsphereVM.Moid)
 	return nil
 }
 

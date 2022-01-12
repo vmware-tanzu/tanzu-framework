@@ -27,6 +27,8 @@ spec:
 ---
 apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
 kind: VSphereMachineTemplate
+annotations:
+  vmTemplateMoid: #@ data.values.VSPHERE_TEMPLATE_MOID
 metadata:
   name: #@ "{}-md-1".format(data.values.CLUSTER_NAME)
 spec:
@@ -62,6 +64,8 @@ spec:
 ---
 apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
 kind: VSphereMachineTemplate
+annotations:
+  vmTemplateMoid: #@ data.values.VSPHERE_TEMPLATE_MOID
 metadata:
   name: #@ "{}-md-2".format(data.values.CLUSTER_NAME)
 spec:
