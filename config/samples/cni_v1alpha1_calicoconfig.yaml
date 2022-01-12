@@ -1,0 +1,10 @@
+apiVersion: cni.tanzu.vmware.com/v1alpha1
+kind: CalicoConfig
+metadata:
+  name: calicoconfig-sample
+spec:
+  Namespace: "kube-system"
+  InfraProvider: vsphere
+  IpFamily: ipv4
+  ClusterCIDR: "192.168.0.0/16,fd00:100:96::/48"
+  VethMTU: 0
