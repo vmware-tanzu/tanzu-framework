@@ -4,16 +4,18 @@
 ---
 vsphereCPI:
   tlsThumbprint: ""
-  server: null
-  datacenter: null
-  username: null
-  password: null
+  server: ""
+  datacenter: ""
+  username: ""
+  password: ""
   region: null
   zone: null
   insecureFlag: False
   ipFamily: null
   vmInternalNetwork: null
   vmExternalNetwork: null
+  vmExcludeInternalNetworkSubnetCidr: null
+  vmExcludeExternalNetworkSubnetCidr: null
   cloudProviderExtraArgs:
     tls-cipher-suites: TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
   nsxt:
@@ -25,7 +27,9 @@ vsphereCPI:
     password: ""
     host: null
     insecureFlag: "false"
+    insecure: false
     remoteAuth: "false"
+    remoteAuthEnabled: false
     vmcAccessToken: ""
     vmcAuthHost: ""
     clientCertKeyData: ""
