@@ -82,7 +82,6 @@ describe('AzureProviderStepComponent', () => {
             clientSecret: "",
             subscriptionId: "azure-subscription-12342-asdf3"
         }));
-        component.savedMetadata = null;
         component.initAzureCredentials();
         expect(component.formGroup.controls['tenantId'].value).toBe('azure-tenant1');
     });

@@ -9,7 +9,6 @@ import { APP_ROUTES, Routes } from '../../../shared/constants/routes.constants';
 import AppServices from 'src/app/shared/service/appServices';
 import { BasicSubscriber } from '../../../shared/abstracts/basic-subscriber';
 import { EditionData } from '../../../shared/service/branding.service';
-import { FormMetaDataStore } from '../wizard/shared/FormMetaDataStore';
 import { TanzuEvent, TanzuEventType } from "../../../shared/service/Messenger";
 import { WebsocketService } from '../../../shared/service/websocket.service';
 
@@ -138,7 +137,7 @@ export class DeployProgressComponent extends BasicSubscriber implements OnInit {
             if (this.curStatus.status === 'successful') {
                 this.curStatus.finishedCount = this.curStatus.totalCount;
                 this.currentPhaseIdx = this.phases.length;
-                FormMetaDataStore.deleteAllSavedData();
+                // SHIMON TODO: we WERE deleting all saved data here; should we? FormMetaDataStore.deleteAllSavedData();
             } else if (this.curStatus.status !== 'failed') {
                 this.curStatus.finishedCount = Math.max(0, data.data.totalPhases.indexOf(this.curStatus.curPhase));
             }

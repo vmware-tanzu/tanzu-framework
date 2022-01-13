@@ -13,7 +13,6 @@ import { CliFields, CliGenerator } from '../wizard/shared/utils/cli-generator';
 import { ClusterPlan, WizardForm, WizardStep } from '../wizard/shared/constants/wizard.constants';
 import { ExportService } from '../../../shared/service/export.service';
 import { FormDataForHTML, FormUtility } from '../wizard/shared/components/steps/form-utility';
-import { FormMetaDataService } from 'src/app/shared/service/form-meta-data.service';
 import { ImportParams, ImportService } from "../../../shared/service/import.service";
 import { KUBE_VIP, NSX_ADVANCED_LOAD_BALANCER } from './../wizard/shared/components/steps/load-balancer/load-balancer-step.component';
 import { LoadBalancerField } from '../wizard/shared/components/steps/load-balancer/load-balancer-step.fieldmapping';
@@ -30,6 +29,7 @@ import {
     VSphereVirtualMachine
 } from '../../../swagger/models';
 import { VsphereField, VsphereForm } from './vsphere-wizard.constants';
+import { VsphereLoadBalancerStepComponent } from './load-balancer/vsphere-load-balancer-step.component';
 import { VsphereLoadBalancerStepComponent } from './load-balancer/vsphere-load-balancer-step.component';
 import { VsphereNetworkStepComponent } from './vsphere-network-step/vsphere-network-step.component';
 import { VsphereOsImageStepComponent } from './vsphere-os-image-step/vsphere-os-image-step.component';
@@ -57,11 +57,10 @@ export class VSphereWizardComponent extends WizardBaseDirective implements OnIni
         private exportService: ExportService,
         private importService: ImportService,
         formBuilder: FormBuilder,
-        formMetaDataService: FormMetaDataService,
         titleService: Title,
         el: ElementRef) {
 
-        super(router, el, formMetaDataService, titleService, formBuilder);
+        super(router, el, titleService, formBuilder);
 
         this.provider = AppServices.appDataService.getProviderType();
         this.tkrVersion = AppServices.appDataService.getTkrVersion();
@@ -165,15 +164,18 @@ export class VSphereWizardComponent extends WizardBaseDirective implements OnIni
             ['folder', VsphereForm.RESOURCE, VsphereField.RESOURCE_VMFOLDER],
             ['resourcePool', VsphereForm.RESOURCE, VsphereField.RESOURCE_POOL]
         ];
-        mappings.forEach(attr => this.saveFormField(attr[1], attr[2], payload[attr[0]]));
+        mappings.forEach(attr => this.storeFieldString(attr[1], attr[2], payload[attr[0]]));
 
-        this.saveControlPlaneFlavor('vsphere', payload.controlPlaneFlavor);
-        this.saveControlPlaneNodeType('vsphere', payload.controlPlaneFlavor, payload.controlPlaneNodeType);
+        this.storeFieldString(VsphereForm.PROVIDER, VsphereField.NODESETTING_CONTROL_PLANE_SETTING, payload.controlPlaneFlavor);
+        const instanceTypeField = payload.controlPlaneFlavor === 'prod' ? VsphereField.NODESETTING_INSTANCE_TYPE_PROD
+            : VsphereField.NODESETTING_INSTANCE_TYPE_DEV;
+        this.storeFieldString(VsphereForm.PROVIDER, instanceTypeField, payload.controlPlaneNodeType);
 
-        this.saveFormField(VsphereForm.NODESETTING, VsphereField.NODESETTING_ENABLE_AUDIT_LOGGING, payload.enableAuditLogging);
-        this.saveFormField(VsphereForm.NODESETTING, VsphereField.NODESETTING_MACHINE_HEALTH_CHECKS_ENABLED,
+        this.storeFieldBoolean(VsphereForm.NODESETTING, VsphereField.NODESETTING_ENABLE_AUDIT_LOGGING, payload.enableAuditLogging);
+        this.storeFieldBoolean(VsphereForm.NODESETTING, VsphereField.NODESETTING_MACHINE_HEALTH_CHECKS_ENABLED,
             payload.machineHealthCheckEnabled);
-        this.saveFormListbox(VsphereForm.NODESETTING, VsphereField.NODESETTING_WORKER_NODE_INSTANCE_TYPE, payload.workerNodeType);
+        // SHIMON TODO: verify that worker node type display == value
+        this.storeFieldString(VsphereForm.NODESETTING, VsphereField.NODESETTING_WORKER_NODE_INSTANCE_TYPE, payload.workerNodeType);
 
         if (payload.vsphereCredentials !== undefined) {
             const vsphereCredentialsMappings = [
@@ -181,14 +183,14 @@ export class VSphereWizardComponent extends WizardBaseDirective implements OnIni
                 ['username', VsphereForm.PROVIDER, VsphereField.PROVIDER_USER_NAME],
                 ['thumbprint', VsphereForm.PROVIDER, VsphereField.PROVIDER_THUMBPRINT]
             ];
-            vsphereCredentialsMappings.forEach(attr => this.saveFormField(attr[1], attr[2], payload.vsphereCredentials[attr[0]]));
+            vsphereCredentialsMappings.forEach(attr => this.storeFieldString(attr[1], attr[2], payload.vsphereCredentials[attr[0]]));
             const decodedPassword = AppServices.appDataService.decodeBase64(payload.vsphereCredentials['password']);
-            this.saveFormField(VsphereForm.PROVIDER, VsphereField.PROVIDER_USER_PASSWORD, decodedPassword);
+            this.storeFieldString(VsphereForm.PROVIDER, VsphereField.PROVIDER_USER_PASSWORD, decodedPassword);
         }
 
         if (payload.aviConfig !== undefined) {
             const endpointProvider = payload.aviConfig['controlPlaneHaProvider'] ? NSX_ADVANCED_LOAD_BALANCER : KUBE_VIP;
-            this.saveFormField(VsphereForm.NODESETTING, VsphereField.NODESETTING_CONTROL_PLANE_ENDPOINT_PROVIDER, endpointProvider);
+            this.storeFieldString(VsphereForm.NODESETTING, VsphereField.NODESETTING_CONTROL_PLANE_ENDPOINT_PROVIDER, endpointProvider);
             // Set (or clear) the network name (based on whether it's different from the aviConfig value
             const managementClusterVipNetworkName = payload.aviConfig['managementClusterVipNetworkName'];
             let uiMcNetworkName = '';
@@ -196,14 +198,14 @@ export class VSphereWizardComponent extends WizardBaseDirective implements OnIni
                 uiMcNetworkName = payload.aviConfig['managementClusterVipNetworkName'];
             }
 
-            this.saveFormField(WizardForm.LOADBALANCER, LoadBalancerField.MANAGEMENT_CLUSTER_NETWORK_NAME, uiMcNetworkName);
+            this.storeFieldString(WizardForm.LOADBALANCER, LoadBalancerField.MANAGEMENT_CLUSTER_NETWORK_NAME, uiMcNetworkName);
             // Set (or clear) the CIDR setting (based on whether it's different from the aviConfig value
             const managementClusterNetworkCIDR = payload.aviConfig['managementClusterVipNetworkCidr'];
             let uiMcCidr = '';
             if (managementClusterNetworkCIDR !== payload.aviConfig.network.cidr) {
                 uiMcCidr = managementClusterNetworkCIDR;
             }
-            this.saveFormField(WizardForm.LOADBALANCER, LoadBalancerField.MANAGEMENT_CLUSTER_NETWORK_CIDR, uiMcCidr)
+            this.storeFieldString(WizardForm.LOADBALANCER, LoadBalancerField.MANAGEMENT_CLUSTER_NETWORK_CIDR, uiMcCidr)
         }
 
         this.saveCommonFieldsFromPayload(payload);
@@ -326,10 +328,10 @@ export class VSphereWizardComponent extends WizardBaseDirective implements OnIni
         return this.apiClient.importTKGConfigForVsphere( { params: { filecontents: fileContents } } );
     }
 
-    importFileProcessClusterParams(nameFile: string, vsphereClusterParams: VsphereRegionalClusterParams) {
+    importFileProcessClusterParams(event: TanzuEventType, nameFile: string, vsphereClusterParams: VsphereRegionalClusterParams) {
         this.setFromPayload(vsphereClusterParams);
         this.resetToFirstStep();
-        this.importService.publishImportSuccess(TanzuEventType.VSPHERE_CONFIG_FILE_IMPORTED, nameFile);
+        this.importService.publishImportSuccess(event, nameFile);
     }
 
     // returns TRUE if user (a) will not lose data on import, or (b) confirms it's OK

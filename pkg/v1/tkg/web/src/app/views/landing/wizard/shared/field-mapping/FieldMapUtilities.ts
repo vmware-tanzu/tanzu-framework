@@ -1,13 +1,13 @@
-import { FieldMapping, StepMapping } from './FieldMapping';
+// Angular imports
 import { FormControl, FormGroup, ValidatorFn, Validators } from '@angular/forms';
-import { ValidationService } from '../validation/validation.service';
-import { FormMetaDataStore } from '../FormMetaDataStore';
-import { FormUtils } from '../utils/form-utils';
 import { Injectable } from '@angular/core';
-import Broker from '../../../../../shared/service/broker';
+// App imports
+import AppServices from '../../../../../shared/service/appServices';
+import { FieldMapping, StepMapping } from './FieldMapping';
+import { ValidationService } from '../validation/validation.service';
+import { FormUtils } from '../utils/form-utils';
 import { managementClusterPlugin } from '../constants/wizard.constants';
 import { UserDataIdentifier } from '../../../../../shared/service/user-data.service';
-import AppServices from '../../../../../shared/service/appServices';
 
 @Injectable()
 export class FieldMapUtilities {

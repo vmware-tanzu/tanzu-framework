@@ -9,8 +9,8 @@ export const VsphereNodeSettingStandaloneStepMapping: StepMapping = {
             label: 'CONTROL PLANE ENDPOINT' },
         { name: VsphereField.NODESETTING_CONTROL_PLANE_ENDPOINT_PROVIDER, required: true, label: 'CONTROL PLANE ENDPOINT PROVIDER' },
         { name: VsphereField.NODESETTING_CONTROL_PLANE_SETTING, required: true, primaryTrigger: true },
-        { name: VsphereField.NODESETTING_INSTANCE_TYPE_DEV, required: true, label: 'DEVELOPMENT INSTANCE TYPE', requiresBackendData: true },
-        { name: VsphereField.NODESETTING_INSTANCE_TYPE_PROD, required: true, label: 'PRODUCTION INSTANCE TYPE', requiresBackendData: true },
+        { name: VsphereField.NODESETTING_INSTANCE_TYPE_DEV, required: true, label: 'DEVELOPMENT INSTANCE TYPE' },
+        { name: VsphereField.NODESETTING_INSTANCE_TYPE_PROD, required: true, label: 'PRODUCTION INSTANCE TYPE' },
         { name: VsphereField.NODESETTING_MACHINE_HEALTH_CHECKS_ENABLED, isBoolean: true, label: 'MACHINE HEALTH CHECKS' },
         { name: VsphereField.NODESETTING_ENABLE_AUDIT_LOGGING, isBoolean: true, label: 'ENABLE AUDIT LOGGING' },
     ]

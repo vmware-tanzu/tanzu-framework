@@ -5,8 +5,6 @@ import { FormGroup, Validators } from '@angular/forms';
 import { distinctUntilChanged, takeUntil } from 'rxjs/operators';
 // App imports
 import AppServices from '../../../../../../../shared/service/appServices';
-import { FieldMapUtilities } from '../../../field-mapping/FieldMapUtilities';
-import { FormMetaDataStore, FormMetaData } from '../../../FormMetaDataStore';
 import { IAAS_DEFAULT_CIDRS, IpFamilyEnum } from '../../../../../../../shared/constants/app.constants';
 import { managementClusterPlugin } from "../../../constants/wizard.constants";
 import { NetworkField, NetworkIpv4StepMapping, NetworkIpv6StepMapping } from './network-step.fieldmapping';
@@ -14,7 +12,6 @@ import { StepFormDirective } from '../../../step-form/step-form';
 import { StepMapping } from '../../../field-mapping/FieldMapping';
 import { TanzuEventType } from 'src/app/shared/service/Messenger';
 import { ValidationService } from '../../../validation/validation.service';
-import { VSphereNetwork } from 'src/app/swagger/models/v-sphere-network.model';
 
 @Component({
     selector: 'app-shared-network-step',
@@ -85,12 +82,7 @@ export class SharedNetworkStepComponent extends StepFormDirective implements OnI
         this.listenToEvents();
         this.subscribeToServices();
 
-        const cniTypeData = {
-            label: 'CNI PROVIDER',
-            displayValue: this.cniType,
-        } as FormMetaData;
-        FormMetaDataStore.saveMetaDataEntry(this.formName, NetworkField.CNI_TYPE, cniTypeData);
-        // TODO: guessing we don't need this line (due to initFormWithSavedData() below)
+        // SHIMON TODO: guessing we don't need to set the value here (due to initFormWithSavedData() below)
         this.formGroup.get(NetworkField.CNI_TYPE).setValue(this.cniType, { onlySelf: true });
         this.initFormWithSavedData();
     }

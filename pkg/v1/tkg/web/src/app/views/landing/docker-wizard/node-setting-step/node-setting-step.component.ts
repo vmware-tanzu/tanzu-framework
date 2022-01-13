@@ -1,15 +1,10 @@
 // Angular imports
 import { Component, OnInit } from '@angular/core';
 import { StepFormDirective } from '../../wizard/shared/step-form/step-form';
-// Third party imports
-import { takeUntil } from "rxjs/operators";
 // App imports
 import AppServices from "../../../../shared/service/appServices";
 import { DockerNodeSettingStepMapping } from './node-setting-step.fieldmapping';
-import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
-import { FormMetaDataStore } from "../../wizard/shared/FormMetaDataStore";
-import { NotificationTypes } from "../../../../shared/components/alert-notification/alert-notification.component";
-import { TanzuEvent, TanzuEventType } from "../../../../shared/service/Messenger";
+import { TanzuEventType } from "../../../../shared/service/Messenger";
 
 @Component({
     selector: 'app-node-setting-step',
@@ -20,8 +15,8 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
     clusterNameInstruction: string;
 
     private customizeForm() {
-        this.registerDefaultFileImportedHandler(TkgEventType.DOCKER_CONFIG_FILE_IMPORTED, this.supplyStepMapping());
-        this.registerDefaultFileImportErrorHandler(TkgEventType.DOCKER_CONFIG_FILE_IMPORT_ERROR);
+        this.registerDefaultFileImportedHandler(TanzuEventType.DOCKER_CONFIG_FILE_IMPORTED, this.supplyStepMapping());
+        this.registerDefaultFileImportErrorHandler(TanzuEventType.DOCKER_CONFIG_FILE_IMPORT_ERROR);
     }
 
     private supplyStepMapping() {
@@ -41,8 +36,8 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
         AppServices.fieldMapUtilities.buildForm(this.formGroup, this.wizardName, this.formName, this.supplyStepMapping());
         this.htmlFieldLabels = AppServices.fieldMapUtilities.getFieldLabelMap(this.supplyStepMapping());
         this.storeDefaultLabels(this.supplyStepMapping());
-        this.registerDefaultFileImportedHandler(TkgEventType.DOCKER_CONFIG_FILE_IMPORTED, this.supplyStepMapping());
-        this.registerDefaultFileImportErrorHandler(TkgEventType.DOCKER_CONFIG_FILE_IMPORT_ERROR);
+        this.registerDefaultFileImportedHandler(TanzuEventType.DOCKER_CONFIG_FILE_IMPORTED, this.supplyStepMapping());
+        this.registerDefaultFileImportErrorHandler(TanzuEventType.DOCKER_CONFIG_FILE_IMPORT_ERROR);
 
         if (AppServices.appDataService.isClusterNameRequired()) {
             this.clusterNameInstruction = 'Specify a name for the ' + this.clusterTypeDescriptor + ' cluster.';

@@ -8,7 +8,7 @@ import { Observable } from 'rxjs';
 // App imports
 import { APIClient } from 'src/app/swagger';
 import AppServices from '../../../shared/service/appServices';
-import { AzureField, AzureForm, ResourceGroupOption, VnetOptionType } from './azure-wizard.constants';
+import { AzureClouds, AzureField, AzureForm, ResourceGroupOption, VnetOptionType } from './azure-wizard.constants';
 import {
     AzureInstanceType,
     AzureRegionalClusterParams,
@@ -22,7 +22,6 @@ import { CliFields, CliGenerator } from '../wizard/shared/utils/cli-generator';
 import { VnetStepComponent } from './vnet-step/vnet-step.component';
 import { ExportService } from '../../../shared/service/export.service';
 import { FormDataForHTML, FormUtility } from '../wizard/shared/components/steps/form-utility';
-import { FormMetaDataService } from 'src/app/shared/service/form-meta-data.service';
 import { ImportParams, ImportService } from "../../../shared/service/import.service";
 import { NodeSettingStepComponent } from './node-setting-step/node-setting-step.component';
 import { TanzuEventType } from '../../../shared/service/Messenger';
@@ -43,10 +42,9 @@ export class AzureWizardComponent extends WizardBaseDirective implements OnInit 
         formBuilder: FormBuilder,
         private apiClient: APIClient,
         titleService: Title,
-        formMetaDataService: FormMetaDataService,
         el: ElementRef) {
 
-        super(router, el, formMetaDataService, titleService, formBuilder);
+        super(router, el, titleService, formBuilder);
     }
 
     protected supplyWizardName(): string {
@@ -88,8 +86,11 @@ export class AzureWizardComponent extends WizardBaseDirective implements OnInit 
 
         mappings.forEach(attr => payload[attr[0]] = this.getFieldValue(attr[1], attr[2]));
 
-        payload.controlPlaneMachineType = this.getControlPlaneNodeType("azure");
-        payload.controlPlaneFlavor = this.getControlPlaneFlavor("azure");
+        payload.controlPlaneFlavor = this.getFieldValue(AzureForm.NODESETTING, AzureField.NODESETTING_CONTROL_PLANE_SETTING);
+        const nodeTypeField = payload.controlPlaneFlavor === 'prod' ? AzureField.NODESETTING_INSTANCE_TYPE_PROD
+            : AzureField.NODESETTING_INSTANCE_TYPE_DEV;
+        payload.controlPlaneMachineType = this.getFieldValue(AzureForm.NODESETTING, nodeTypeField);
+
         payload.workerMachineType = AppServices.appDataService.isModeClusterStandalone() ? payload.controlPlaneMachineType :
             this.getFieldValue(AzureForm.NODESETTING, AzureField.NODESETTING_WORKERTYPE);
         payload.machineHealthCheckEnabled =
@@ -146,27 +147,31 @@ export class AzureWizardComponent extends WizardBaseDirective implements OnInit 
                 for (const accountFieldName of Object.keys(payload.azureAccountParams)) {
                     // we treat azureCloud differently because it's a listbox selection where the label != key
                     if (accountFieldName !== 'azureCloud') {
-                        this.saveFormField(AzureForm.PROVIDER, accountFieldName, payload.azureAccountParams[accountFieldName]);
+                        this.storeFieldString(AzureForm.PROVIDER, accountFieldName, payload.azureAccountParams[accountFieldName]);
                     }
                 }
-                this.saveFormListbox(AzureForm.PROVIDER, AzureField.PROVIDER_AZURECLOUD, payload.azureAccountParams['azureCloud']);
+                const azureCloudValue = payload.azureAccountParams['azureCloud'];
+                const azureCloudDisplay = azureCloudValue ? AzureClouds.find(cloud => cloud.name === azureCloudValue).displayName : '';
+                this.storeFieldString(AzureForm.PROVIDER, AzureField.PROVIDER_AZURECLOUD, azureCloudValue, azureCloudDisplay);
             }
-            this.saveFormField(AzureForm.PROVIDER, AzureField.PROVIDER_SSHPUBLICKEY, payload["sshPublicKey"]);
-            this.saveFormListbox(AzureForm.PROVIDER, AzureField.PROVIDER_REGION, payload["location"]);
+            this.storeFieldString(AzureForm.PROVIDER, AzureField.PROVIDER_SSHPUBLICKEY, payload["sshPublicKey"]);
+            // SHIMON TODO: verify the region value == display
+            this.storeFieldString(AzureForm.PROVIDER, AzureField.PROVIDER_REGION, payload["location"]);
 
-            this.saveControlPlaneFlavor('azure', payload.controlPlaneFlavor);
-            this.saveControlPlaneNodeType('azure', payload.controlPlaneFlavor, payload.controlPlaneMachineType);
+            this.storeFieldString(AzureForm.NODESETTING, AzureField.NODESETTING_CONTROL_PLANE_SETTING, payload.controlPlaneFlavor);
+            const instanceTypeField = payload.controlPlaneFlavor === 'prod' ? AzureField.NODESETTING_INSTANCE_TYPE_PROD
+                : AzureField.NODESETTING_INSTANCE_TYPE_DEV;
+            this.storeFieldString(AzureForm.NODESETTING, instanceTypeField, payload.controlPlaneMachineType);
 
             if (!AppServices.appDataService.isModeClusterStandalone()) {
-                this.saveFormField(AzureForm.NODESETTING, AzureField.NODESETTING_WORKERTYPE, payload.workerMachineType);
+                this.storeFieldString(AzureForm.NODESETTING, AzureField.NODESETTING_WORKERTYPE, payload.workerMachineType);
             }
-            this.saveFormField(AzureForm.NODESETTING, AzureField.NODESETTING_MACHINE_HEALTH_CHECKS_ENABLED,
-                payload.machineHealthCheckEnabled);
+            this.storeFieldBoolean(AzureForm.NODESETTING, AzureField.NODESETTING_MACHINE_HEALTH_CHECKS_ENABLED, payload.machineHealthCheckEnabled);
 
             // Since we cannot tell if the resource group is custom or existing, we load it into the custom field.
             // When the resource groups are retrieved, we have code that will detect if the resource group is existing.
             // See azure-provider-step.component.ts's handleIfSavedCustomResourceGroupIsNowExisting()
-            this.saveFormField(AzureForm.PROVIDER, AzureField.PROVIDER_RESOURCEGROUPCUSTOM, payload.resourceGroup);
+            this.storeFieldString(AzureForm.PROVIDER, AzureField.PROVIDER_RESOURCEGROUPCUSTOM, payload.resourceGroup);
 
             this.saveMCName(payload.clusterName);
 
@@ -182,12 +187,12 @@ export class AzureWizardComponent extends WizardBaseDirective implements OnInit 
                 ["workerNodeSubnet", AzureField.VNET_WORKER_NEWSUBNET_NAME],
                 ["workerNodeSubnetCidr", AzureField.VNET_WORKER_NEWSUBNET_CIDR],
             ];
-            vnetAttrs.forEach(attr => payload[attr[0]] = this.saveFormField(AzureForm.VNET, attr[1], payload[attr[0]]));
-            this.saveFormField(AzureForm.VNET, AzureField.VNET_PRIVATE_CLUSTER, payload.isPrivateCluster);
+            vnetAttrs.forEach(attr => payload[attr[0]] = this.storeFieldString(AzureForm.VNET, attr[1], payload[attr[0]]));
+            this.storeFieldBoolean(AzureForm.VNET, AzureField.VNET_PRIVATE_CLUSTER, payload.isPrivateCluster);
             if (payload.isPrivateCluster) {
-                this.saveFormField(AzureForm.VNET, AzureField.VNET_PRIVATE_IP, payload.frontendPrivateIp);
+                this.storeFieldString(AzureForm.VNET, AzureField.VNET_PRIVATE_IP, payload.frontendPrivateIp);
             }
-            this.saveFormField(AzureForm.NODESETTING, AzureField.NODESETTING_ENABLE_AUDIT_LOGGING, payload.enableAuditLogging);
+            this.storeFieldBoolean(AzureForm.NODESETTING, AzureField.NODESETTING_ENABLE_AUDIT_LOGGING, payload.enableAuditLogging);
             this.saveCommonFieldsFromPayload(payload);
 
             AppServices.userDataService.updateWizardTimestamp(this.wizardName);
@@ -209,7 +214,7 @@ export class AzureWizardComponent extends WizardBaseDirective implements OnInit 
     }
 
     saveMCName(clusterName: string) {
-        this.saveFormField(AzureForm.NODESETTING, AzureField.NODESETTING_MANAGEMENT_CLUSTER_NAME, clusterName);
+        this.storeFieldString(AzureForm.NODESETTING, AzureField.NODESETTING_MANAGEMENT_CLUSTER_NAME, clusterName);
     }
 
     /**
@@ -336,10 +341,10 @@ export class AzureWizardComponent extends WizardBaseDirective implements OnInit 
         return this.apiClient.importTKGConfigForAzure( { params: { filecontents: fileContents } } );
     }
 
-    importFileProcessClusterParams(nameFile: string, azureClusterParams: AzureRegionalClusterParams) {
+    importFileProcessClusterParams(event: TanzuEventType, nameFile: string, azureClusterParams: AzureRegionalClusterParams) {
         this.setFromPayload(azureClusterParams);
         this.resetToFirstStep();
-        this.importService.publishImportSuccess(TanzuEventType.AZURE_CONFIG_FILE_IMPORTED, nameFile);
+        this.importService.publishImportSuccess(event, nameFile);
     }
 
     // returns TRUE if user (a) will not lose data on import, or (b) confirms it's OK
@@ -353,8 +358,8 @@ export class AzureWizardComponent extends WizardBaseDirective implements OnInit 
 
     onImportFileSelected(event) {
         const params: ImportParams<AzureRegionalClusterParams> = {
-            eventSuccess: TkgEventType.AZURE_CONFIG_FILE_IMPORTED,
-            eventFailure: TkgEventType.AZURE_CONFIG_FILE_IMPORT_ERROR,
+            eventSuccess: TanzuEventType.AZURE_CONFIG_FILE_IMPORTED,
+            eventFailure: TanzuEventType.AZURE_CONFIG_FILE_IMPORT_ERROR,
             file: event.target.files[0],
             validator: this.importFileValidate,
             backend: this.importFileRetrieveClusterParams.bind(this),

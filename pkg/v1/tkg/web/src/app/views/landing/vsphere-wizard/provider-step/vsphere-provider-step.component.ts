@@ -12,10 +12,7 @@ import { APIClient } from 'src/app/swagger/api-client.service';
 import { APP_ROUTES, Routes } from 'src/app/shared/constants/routes.constants';
 import AppServices from 'src/app/shared/service/appServices';
 import { EditionData } from 'src/app/shared/service/branding.service';
-import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
-import { FormMetaDataStore } from '../../wizard/shared/FormMetaDataStore';
 import { managementClusterPlugin } from "../../wizard/shared/constants/wizard.constants";
-import { NotificationTypes } from "../../../../shared/components/alert-notification/alert-notification.component";
 import { SSLThumbprintModalComponent } from '../../wizard/shared/components/modals/ssl-thumbprint-modal/ssl-thumbprint-modal.component';
 import { StepFormDirective } from '../../wizard/shared/step-form/step-form';
 import { TanzuEvent, TanzuEventType } from 'src/app/shared/service/Messenger';
@@ -265,10 +262,6 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
                     } else {
                         this.thumbprint = thumbprint;
                         this.formGroup.controls[VsphereField.PROVIDER_THUMBPRINT].setValue(thumbprint);
-                        FormMetaDataStore.saveMetaDataEntry(this.formName, VsphereField.PROVIDER_THUMBPRINT, {
-                            label: 'SSL THUMBPRINT',
-                            displayValue: thumbprint
-                        });
                         this.sslThumbprintModal.open();
                     }
                 },

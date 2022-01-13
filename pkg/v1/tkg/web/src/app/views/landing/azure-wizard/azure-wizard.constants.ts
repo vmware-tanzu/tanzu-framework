@@ -10,6 +10,16 @@ export enum AzureCloud {
     PUBLIC = 'AzurePublicCloud',
     GOVT = 'AzureUSGovernmentCloud',
 }
+export const AzureClouds = [
+    {
+        name: AzureCloud.PUBLIC,
+        displayName: 'Public Cloud'
+    },
+    {
+        name: AzureCloud.GOVT,
+        displayName: 'US Government Cloud'
+    }
+];
 export enum AzureForm {
     PROVIDER = 'azureProviderForm',
     NODESETTING = 'azureNodeSettingForm',

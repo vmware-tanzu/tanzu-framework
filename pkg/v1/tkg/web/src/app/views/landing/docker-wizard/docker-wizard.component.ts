@@ -14,7 +14,6 @@ import { DaemonValidationStepComponent } from './daemon-validation-step/daemon-v
 import { DockerNetworkStepComponent } from './network-step/docker-network-step.component';
 import { FormDataForHTML, FormUtility } from '../wizard/shared/components/steps/form-utility';
 import { ExportService } from "../../../shared/service/export.service";
-import { FormMetaDataService } from 'src/app/shared/service/form-meta-data.service';
 import { ImportParams, ImportService } from "../../../shared/service/import.service";
 import { NetworkField } from '../wizard/shared/components/steps/network-step/network-step.fieldmapping';
 import { NodeSettingStepComponent } from './node-setting-step/node-setting-step.component';
@@ -32,14 +31,13 @@ export class DockerWizardComponent extends WizardBaseDirective implements OnInit
     constructor(
         router: Router,
         el: ElementRef,
-        formMetaDataService: FormMetaDataService,
         private exportService: ExportService,
         private importService: ImportService,
         formBuilder: FormBuilder,
         titleService: Title,
         private apiClient: APIClient
     ) {
-        super(router, el, formMetaDataService, titleService, formBuilder);
+        super(router, el, titleService, formBuilder);
     }
 
     protected supplyWizardName(): string {
@@ -71,7 +69,7 @@ export class DockerWizardComponent extends WizardBaseDirective implements OnInit
 
         this.setFieldValue('dockerNodeSettingForm', 'clusterName', payload.clusterName);
 
-        this.saveProxyFieldsFromPayload(payload);
+        this.storeProxyFieldsFromPayload(payload);
 
         AppServices.userDataService.updateWizardTimestamp(this.wizardName);
     }
@@ -207,10 +205,10 @@ export class DockerWizardComponent extends WizardBaseDirective implements OnInit
         return this.apiClient.importTKGConfigForVsphere( { params: { filecontents: fileContents } } );
     }
 
-    importFileProcessClusterParams(nameFile: string, dockerClusterParams: DockerRegionalClusterParams) {
+    importFileProcessClusterParams(event: TkgEventType, nameFile: string, dockerClusterParams: DockerRegionalClusterParams) {
         this.setFromPayload(dockerClusterParams);
         this.resetToFirstStep();
-        this.importService.publishImportSuccess(TkgEventType.DOCKER_CONFIG_FILE_IMPORTED, nameFile);
+        this.importService.publishImportSuccess(event, nameFile);
     }
 
     // returns TRUE if user (a) will not lose data on import, or (b) confirms it's OK

@@ -7,7 +7,7 @@ import { debounceTime, distinctUntilChanged, finalize, takeUntil } from 'rxjs/op
 // App imports
 import { APIClient } from '../../../../swagger/api-client.service';
 import AppServices from '../../../../shared/service/appServices';
-import { AzureCloud, AzureField, ResourceGroupOption } from '../azure-wizard.constants';
+import { AzureCloud, AzureClouds, AzureField, ResourceGroupOption } from '../azure-wizard.constants';
 import { AzureProviderStepMapping } from './azure-provider-step.fieldmapping';
 import { AzureResourceGroup } from './../../../../swagger/models/azure-resource-group.model';
 import { StepFormDirective } from '../../wizard/shared/step-form/step-form';
@@ -31,16 +31,7 @@ export class AzureProviderStepComponent extends StepFormDirective implements OnI
     resourceGroupOption = ResourceGroupOption.EXISTING;
 
     regions = [];
-    azureClouds = [
-        {
-            name: AzureCloud.PUBLIC,
-            displayName: 'Public Cloud'
-        },
-        {
-            name: AzureCloud.GOVT,
-            displayName: 'US Government Cloud'
-        }
-    ];
+    azureClouds = AzureClouds;
     resourceGroups = [];
     validCredentials = false;
 

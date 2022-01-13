@@ -12,7 +12,6 @@ import { AWSNodeAz } from '../../../../swagger/models/aws-node-az.model';
 import { AWSSubnet } from '../../../../swagger/models/aws-subnet.model';
 import { AzRelatedFieldsArray } from '../aws-wizard.component';
 import { ClusterPlan } from '../../wizard/shared/constants/wizard.constants';
-import { FormMetaDataStore } from '../../wizard/shared/FormMetaDataStore';
 import { StepFormDirective } from '../../wizard/shared/step-form/step-form';
 import { StepMapping } from '../../wizard/shared/field-mapping/FieldMapping';
 import { TanzuEventType } from '../../../../shared/service/Messenger';
@@ -267,11 +266,13 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
 
         setTimeout(_ => {
             this.displayForm = true;
-            const existingVpcId = FormMetaDataStore.getMetaDataItem(AwsForm.VPC, 'existingVpcId');
-            if (existingVpcId && existingVpcId.displayValue) {
+            // SHIMON TODO: I'm not sure we need to go get these right here, since existingVpcId should be a trigger field
+            const identifier = { wizard: this.wizardName, step: AwsForm.VPC, field: 'existingVpcId' };
+            const existingVpcId = AppServices.userDataService.retrieve(identifier);
+            if (existingVpcId && existingVpcId.value) {
                 AppServices.messenger.publish({
                     type: TanzuEventType.AWS_GET_SUBNETS,
-                    payload: { vpcId: existingVpcId.displayValue }
+                    payload: { vpcId: existingVpcId.value }
                 });
             }
         });

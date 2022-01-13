@@ -11,7 +11,6 @@ import { LandingComponent } from './landing.component';
 import { LandingRoutingModule } from './landing-routing.module';
 import { StartComponent } from './start/start.component';
 import { ClusterClassInfoComponent } from './wizard/shared/components/widgets/cluster-class-info/cluster-class-info.component';
-import { ConfirmComponent } from './confirm/confirm.component';
 import { ConfirmationComponent } from './confirm/confirmation.component';
 import { DeployProgressComponent } from './deploy-progress/deploy-progress.component';
 import { WcpRedirectComponent } from './wcp-redirect/wcp-redirect.component';
@@ -24,8 +23,6 @@ import { ErrorNotificationComponent } from "../../shared/components/error-notifi
 @NgModule({
     declarations: [
         AlertNotificationComponent,
-        ConfirmComponent,
-        ClusterClassInfoComponent,
         ConfirmationComponent,
         DeployProgressComponent,
         ErrorNotificationComponent,

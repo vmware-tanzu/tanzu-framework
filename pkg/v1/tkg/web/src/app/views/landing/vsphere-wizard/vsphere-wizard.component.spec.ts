@@ -7,15 +7,12 @@ import { RouterTestingModule } from '@angular/router/testing';
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 // App imports
 import { APIClient } from '../../../swagger/api-client.service';
+import AppServices from '../../../shared/service/appServices';
 import { ClusterType } from "../wizard/shared/constants/wizard.constants";
-import { FieldMapUtilities } from '../wizard/shared/field-mapping/FieldMapUtilities';
-import { FormMetaDataStore } from '../wizard/shared/FormMetaDataStore';
 import { Messenger, TanzuEventType } from 'src/app/shared/service/Messenger';
 import { SharedModule } from '../../../shared/shared.module';
 import { ValidationService } from '../wizard/shared/validation/validation.service';
-import { VSphereProviderStepComponent } from './provider-step/vsphere-provider-step.component';
 import { VSphereWizardComponent } from './vsphere-wizard.component';
-import AppServices from '../../../shared/service/appServices';
 
 describe('VSphereWizardComponent', () => {
     let component: VSphereWizardComponent;

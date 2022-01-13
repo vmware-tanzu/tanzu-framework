@@ -41,6 +41,11 @@ export class UserDataService {
         this.storeWizardEntry(wizardEntry);
     }
 
+    storeMap(identifier: UserDataIdentifier, map: Map<string, string>) {
+        const display = this.mapToString(map);
+        this.store(identifier, { display, value: JSON.stringify(map) });
+    }
+
     storeFromMapping(wizard, step: string, stepMapping: StepMapping, formGroup: FormGroup) {
         stepMapping.fieldMappings.forEach( fieldMapping => {
             if (this.shouldAutoSave(fieldMapping)) {

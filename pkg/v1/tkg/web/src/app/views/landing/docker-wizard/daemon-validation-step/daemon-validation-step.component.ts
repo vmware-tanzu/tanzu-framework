@@ -7,7 +7,6 @@ import { APIClient } from 'src/app/swagger';
 import AppServices from "../../../../shared/service/appServices";
 import { DaemonStepMapping } from './daemon-validation-step.fieldmapping';
 import { DockerDaemonStatus } from 'src/app/swagger/models';
-import { FormMetaDataStore } from '../../wizard/shared/FormMetaDataStore';
 import { NotificationTypes } from "../../../../shared/components/alert-notification/alert-notification.component";
 import { StepFormDirective } from '../../wizard/shared/step-form/step-form';
 import { TanzuEvent, TanzuEventType } from '../../../../shared/service/Messenger';
@@ -60,13 +59,6 @@ export class DaemonValidationStepComponent extends StepFormDirective implements 
                 this.connected = !!data.status;
                 this.connecting = false;
                 this.resurrectField('isConnected', this.validationService.isTrue(), 'true', { emitEvent: false });
-                FormMetaDataStore.saveMetaDataEntry(
-                    this.formName,
-                    'dockerDeamonValidation',
-                    {
-                        label: 'DOCKER DAEMON CONNECTED',
-                        displayValue: 'yes'
-                    });
             }, (err) => {
                 this.connected = false;
                 this.connecting = false;

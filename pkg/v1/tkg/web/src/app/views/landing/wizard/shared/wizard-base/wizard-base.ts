@@ -17,8 +17,6 @@ import { ClusterType, IdentityManagementType, WizardForm } from "../constants/wi
 import { ConfigFileInfo } from '../../../../../swagger/models/config-file-info.model';
 import { EditionData } from '../../../../../shared/service/branding.service';
 import { FormDataForHTML, FormUtility } from '../components/steps/form-utility';
-import { FormMetaDataStore } from '../FormMetaDataStore';
-import { FormMetaDataService } from 'src/app/shared/service/form-meta-data.service';
 import { IdentityField } from '../components/steps/identity-step/identity-step.fieldmapping';
 import { LoadBalancerField } from '../components/steps/load-balancer/load-balancer-step.fieldmapping';
 import { MetadataField } from '../components/steps/metadata-step/metadata-step.fieldmapping';
@@ -40,7 +38,7 @@ export interface WizardStepRegistrar {
 }
 
 @Directive()
-export abstract class WizardBaseDirective extends BasicSubscriber implements WizardStepRegistrar, AfterViewInit, OnInit {
+export abstract class WizardBaseDirective extends BasicSubscriber implements WizardStepRegistrar, OnInit {
     APP_ROUTES: Routes = APP_ROUTES;
     PROVIDERS: Providers = PROVIDERS;
 
@@ -68,7 +66,6 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Wiz
     protected constructor(
         protected router: Router,
         protected el: ElementRef,
-        protected formMetaDataService: FormMetaDataService,
         protected titleService: Title,
         protected formBuilder: FormBuilder
     ) {
@@ -122,106 +119,6 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Wiz
                 this.clusterTypeDescriptor = data.payload.clusterTypeDescriptor;
                 this.title = data.payload.branding.title;
             }, this.unsubscribe);
-
-        this.watchFieldsChange();
-
-        FormMetaDataStore.resetStepList();
-        FormMetaDataStore.resetFormList();
-    }
-
-    ngAfterViewInit(): void {
-        this.storeStepMetadata();
-    }
-
-    watchFieldsChange() {
-        const formNames = Object.keys(this.form.controls);
-        formNames.forEach((formName) => {
-            this.form.controls[formName].valueChanges.pipe(debounceTime(200)).subscribe(() => {
-                if (this.isFormComplete(formName)) {
-                    const stepForm = this.el.nativeElement.querySelector(`clr-stepper-panel[formgroupname=${formName}]`);
-                    this.formMetaDataService.saveFormMetadata(formName, stepForm);
-                }
-            });
-        });
-    }
-
-    // isFormComplete() is designed to indicate that a form's fields have been validated and are ready to be saved to local storage.
-    // However, this method is misleading, because the wizard framework we're using does not take into account deactivated controls,
-    // which may be necessary for full form completion.
-    // For example, some controls are deactivated until the user enters credentials and we connect to a provider's server (the deactivation
-    // prevents premature messages about required fields). After the connect, these controls are populated with values and activated; the
-    // user is required to select a value, and once activated, the form validation will insist on a value before reporting VALID.
-    // However, before the control is activated (and therefore part of the validation) the form may be validated and
-    // the status will return 'VALID', even when the control has no value yet. The form is not yet fully completed,
-    // and the values likely should not be stored in local storage, but right now we report the form is complete
-    // and we do save the values we have.
-    // Rather than change the isFormComplete() return value to reflect reality (by taking into account deactivated controls), we have
-    // introduced a 'save-requires-value' attribute for these deactivated controls, so that at least their blank value will not be saved
-    // to local storage (potentially overwriting a real value we want to keep, for use when the control is activated).
-    private isFormComplete(formName: string): boolean {
-        return this.form.controls[formName].status === 'VALID';
-    }
-
-    /**
-     * Collect step meta data (title, description etc.) for all steps
-     */
-    private storeStepMetadata() {
-        let wizard = this.el.nativeElement;
-        wizard = wizard.querySelector('form[clrstepper]');
-        if (!wizard) {
-            console.error('in storeStepMetadata(), unable to find \'form[clrstepper]\'; this is likely caused by a failure to instantiate' +
-                ' step-wrapper components while setting up a test case. If this occurs outside of a test case, something fundamental is' +
-                ' wrong.');
-            return;
-        }
-        const panels: any[] = Array.from(wizard.querySelectorAll('clr-stepper-panel'));
-        const stepMetadataList = [];
-        panels.forEach((panel => {
-            const stepMetadata = {};
-            const title = panel.querySelector('clr-step-title');
-            if (title) {
-                stepMetadata['title'] = title.innerText;
-            }
-            const description = panel.querySelector('clr-step-description');
-            if (description) {
-                stepMetadata['description'] = description.innerText;
-            }
-            stepMetadataList.push(stepMetadata);
-        }));
-        FormMetaDataStore.setStepList(stepMetadataList);
-    }
-
-    /**
-     * @method getControlPlaneType
-     * helper method to return value of dev instance type or prod instance type
-     * depending on what type of control plane is selected
-     * @param controlPlaneType {string} the control plane type (dev/prod)
-     * @returns {any}
-     */
-    getControlPlaneNodeType(provider: string) {
-        const controlPlaneType = this.getControlPlaneFlavor(provider);
-        if (controlPlaneType === 'dev') {
-            return this.getFieldValue(`${provider}NodeSettingForm`, 'devInstanceType');
-        } else if (controlPlaneType === 'prod') {
-            return this.getFieldValue(`${provider}NodeSettingForm`, 'prodInstanceType');
-        } else {
-            return null;
-        }
-    }
-
-    // Note: provider should be one of [aws,vsphere]; controlPlaneFlavor should be one of [dev, prod]
-    saveControlPlaneNodeType(provider: string, controlPlaneFlavor: string, nodeType: string) {
-        if (provider != null && controlPlaneFlavor != null) {
-            this.saveFormField(`${provider}NodeSettingForm`, `${controlPlaneFlavor}InstanceType`, nodeType);
-        }
-    }
-
-    getControlPlaneFlavor(provider: string) {
-        return this.getFieldValue(`${provider}NodeSettingForm`, 'controlPlaneSetting');
-    }
-
-    saveControlPlaneFlavor(provider: string, flavor: string) {
-        this.saveFormField(`${provider}NodeSettingForm`, 'controlPlaneSetting', flavor);
     }
 
     /**
@@ -340,7 +237,6 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Wiz
             const indexCompletedStep = this.stepData.findIndex(stepData => stepData.name === stepCompleted);
             this.setCurrentStep(this.stepData[indexCompletedStep + 1].name);
         }
-        this.storeStepMetadata();   // SHIMON: old way
         this.broadcastStepComplete(this.supplyWizardName(), stepCompleted);
         // TODO: we need to know that the last step has actually completed its recording of the data
         // NOTE: we do onWizardComplete EVERY time the user completes ANY step, if they have previously completed the wizard
@@ -568,21 +464,25 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Wiz
     //
     // Methods that fulfill WizardStepRegistrar
 
-    // saveFormField() is a convenience method to avoid lengthy code lines
-    saveFormField(formName, fieldName, value) {
-        this.formMetaDataService.saveFormFieldData(formName, fieldName, value);
+    // storeFieldString() is a convenience method to avoid lengthy code lines
+    storeFieldString(step, field, value: string, displayString?: string) {
+        const identifier = { wizard: this.supplyWizardName(), step, field };
+        const display = displayString ? displayString : value;
+        AppServices.userDataService.store(identifier, { value, display });
     }
 
-    // saveFormListbox is a convenience method to avoid lengthy code lines
-    saveFormListbox(formName, listboxName, key) {
-        this.formMetaDataService.saveFormListboxData(formName, listboxName, key);
+    storeFieldBoolean(step, field: string, booleanValue: boolean) {
+        const identifier = { wizard: this.supplyWizardName(), step, field };
+        const display = booleanValue ? 'yes' : 'no';
+        const value = String(booleanValue);
+        AppServices.userDataService.store(identifier, { value, display });
     }
 
-    saveProxyFieldsFromPayload(payload: any) {
+    storeProxyFieldsFromPayload(payload: any) {
         if (payload.networking !== undefined && payload.networking.httpProxyConfiguration !== undefined) {
             const proxyConfig = payload.networking.httpProxyConfiguration;
             const hasProxySettings = proxyConfig.enabled;
-            this.saveFormField(WizardForm.NETWORK, NetworkField.PROXY_SETTINGS, hasProxySettings);
+            this.storeFieldString(WizardForm.NETWORK, NetworkField.PROXY_SETTINGS, hasProxySettings);
             if (hasProxySettings) {
                 let proxySettingsMap = [
                     ['HTTPProxyURL', WizardForm.NETWORK, NetworkField.HTTP_PROXY_URL],
@@ -592,11 +492,11 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Wiz
                 ];
                 // when HTTP matches HTTPS, we check the "matches" UI box and clear the HTTPS fields
                 const httpMatchesHttps = this.httpMatchesHttpsSettings(proxyConfig);
-                this.saveFormField(WizardForm.NETWORK, NetworkField.HTTPS_IS_SAME_AS_HTTP, httpMatchesHttps);
+                this.storeFieldBoolean(WizardForm.NETWORK, NetworkField.HTTPS_IS_SAME_AS_HTTP, httpMatchesHttps);
                 if (httpMatchesHttps) {
-                    this.saveFormField(WizardForm.NETWORK, NetworkField.HTTPS_PROXY_URL, '');
-                    this.saveFormField(WizardForm.NETWORK, NetworkField.HTTPS_PROXY_USERNAME, '');
-                    this.saveFormField(WizardForm.NETWORK, NetworkField.HTTPS_PROXY_PASSWORD, '');
+                    this.storeFieldString(WizardForm.NETWORK, NetworkField.HTTPS_PROXY_URL, '');
+                    this.storeFieldString(WizardForm.NETWORK, NetworkField.HTTPS_PROXY_USERNAME, '');
+                    this.storeFieldString(WizardForm.NETWORK, NetworkField.HTTPS_PROXY_PASSWORD, '');
                 } else {
                     proxySettingsMap = [
                         ...proxySettingsMap,
@@ -606,7 +506,7 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Wiz
                     ];
                 }
                 proxySettingsMap.forEach(attr => {
-                    this.saveFormField(attr[1], attr[2], proxyConfig[attr[0]]);
+                    this.storeFieldString(attr[1], attr[2], proxyConfig[attr[0]]);
                 });
             }
         }
@@ -619,17 +519,17 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Wiz
     saveCommonFieldsFromPayload(payload: any) {
         if (payload.networking !== undefined ) {
             // Networking - general
-            this.saveFormField(WizardForm.NETWORK, NetworkField.NETWORK_NAME, payload.networking.networkName);
-            this.saveFormField(WizardForm.NETWORK, NetworkField.CLUSTER_SERVICE_CIDR, payload.networking.clusterServiceCIDR);
-            this.saveFormField(WizardForm.NETWORK, NetworkField.CLUSTER_POD_CIDR, payload.networking.clusterPodCIDR);
-            this.saveFormField(WizardForm.NETWORK, NetworkField.CNI_TYPE, payload.networking.cniType);
+            this.storeFieldString(WizardForm.NETWORK, NetworkField.NETWORK_NAME, payload.networking.networkName);
+            this.storeFieldString(WizardForm.NETWORK, NetworkField.CLUSTER_SERVICE_CIDR, payload.networking.clusterServiceCIDR);
+            this.storeFieldString(WizardForm.NETWORK, NetworkField.CLUSTER_POD_CIDR, payload.networking.clusterPodCIDR);
+            this.storeFieldString(WizardForm.NETWORK, NetworkField.CNI_TYPE, payload.networking.cniType);
         }
 
         // Proxy settings
-        this.saveProxyFieldsFromPayload(payload);
+        this.storeProxyFieldsFromPayload(payload);
 
         // Other fields
-        this.saveFormField(WizardForm.CEIP, CeipField.OPTIN, payload.ceipOptIn);
+        this.storeFieldString(WizardForm.CEIP, CeipField.OPTIN, payload.ceipOptIn);
         if (payload.labels !== undefined) {
             // we construct a label value that mimics how the meta-data step constructs the saved label value
             // when the user creates it label by label
@@ -639,71 +539,71 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Wiz
                 labelArray[labelArray.length] = key + ":" + value;
             });
             const labelValueToSave = labelArray.join(', ');
-            this.saveFormField(WizardForm.METADATA, MetadataField.CLUSTER_LABELS, labelValueToSave);
+            this.storeFieldString(WizardForm.METADATA, MetadataField.CLUSTER_LABELS, labelValueToSave);
         }
-        this.saveFormField(WizardForm.OSIMAGE, OsImageField.IMAGE, payload.os);
+        this.storeFieldString(WizardForm.OSIMAGE, OsImageField.IMAGE, payload.os);
         if (payload.annotations !== undefined) {
-            this.saveFormField(WizardForm.METADATA, MetadataField.CLUSTER_DESCRIPTION, payload.annotations.description);
-            this.saveFormField(WizardForm.METADATA, MetadataField.CLUSTER_LOCATION, payload.annotations.location);
+            this.storeFieldString(WizardForm.METADATA, MetadataField.CLUSTER_DESCRIPTION, payload.annotations.description);
+            this.storeFieldString(WizardForm.METADATA, MetadataField.CLUSTER_LOCATION, payload.annotations.location);
         }
 
         // Identity Management form
         if (payload.identityManagement !== undefined) {
             const idmType = payload.identityManagement.idm_type === 'none' ? '' : payload.identityManagement.idm_type;
-            this.saveFormField(WizardForm.IDENTITY, IdentityField.IDENTITY_TYPE, idmType);
+            this.storeFieldString(WizardForm.IDENTITY, IdentityField.IDENTITY_TYPE, idmType);
             if (idmType === IdentityManagementType.OIDC) {
-                this.saveFormField(WizardForm.IDENTITY, IdentityField.ISSUER_URL, payload.identityManagement.oidc_provider_url);
-                this.saveFormField(WizardForm.IDENTITY, IdentityField.CLIENT_ID, payload.identityManagement.oidc_client_id);
-                this.saveFormField(WizardForm.IDENTITY, IdentityField.CLIENT_SECRET, payload.identityManagement.oidc_client_secret);
-                this.saveFormField(WizardForm.IDENTITY, IdentityField.SCOPES, payload.identityManagement.oidc_scope);
-                this.saveFormField(WizardForm.IDENTITY, IdentityField.OIDC_USERNAME_CLAIM,
+                this.storeFieldString(WizardForm.IDENTITY, IdentityField.ISSUER_URL, payload.identityManagement.oidc_provider_url);
+                this.storeFieldString(WizardForm.IDENTITY, IdentityField.CLIENT_ID, payload.identityManagement.oidc_client_id);
+                this.storeFieldString(WizardForm.IDENTITY, IdentityField.CLIENT_SECRET, payload.identityManagement.oidc_client_secret);
+                this.storeFieldString(WizardForm.IDENTITY, IdentityField.SCOPES, payload.identityManagement.oidc_scope);
+                this.storeFieldString(WizardForm.IDENTITY, IdentityField.OIDC_USERNAME_CLAIM,
                     payload.identityManagement.oidc_claim_mappings.username);
-                this.saveFormField(WizardForm.IDENTITY, IdentityField.OIDC_GROUPS_CLAIM,
+                this.storeFieldString(WizardForm.IDENTITY, IdentityField.OIDC_GROUPS_CLAIM,
                     payload.identityManagement.oidc_claim_mappings.groups);
             } else if (idmType === IdentityManagementType.LDAP) {
                 if (payload.id.ldap_url !== undefined) {
                     // separate the IP address from the port in the LDAP URL
                     const ldapUrlPieces = payload.id.ldap_url.split(':');
-                    this.saveFormField(WizardForm.IDENTITY, IdentityField.ENDPOINT_IP, ldapUrlPieces[0]);
+                    this.storeFieldString(WizardForm.IDENTITY, IdentityField.ENDPOINT_IP, ldapUrlPieces[0]);
                     if (ldapUrlPieces.length() > 1) {
-                        this.saveFormField(WizardForm.IDENTITY, IdentityField.ENDPOINT_PORT, ldapUrlPieces[1]);
+                        this.storeFieldString(WizardForm.IDENTITY, IdentityField.ENDPOINT_PORT, ldapUrlPieces[1]);
                     }
                 }
-                this.saveFormField(WizardForm.IDENTITY, IdentityField.BIND_DN, payload.identityManagement.ldap_bind_dn);
-                this.saveFormField(WizardForm.IDENTITY, IdentityField.BIND_PW, payload.identityManagement.ldap_bind_password);
-                this.saveFormField(WizardForm.IDENTITY, IdentityField.USER_SEARCH_BASE_DN,
+                this.storeFieldString(WizardForm.IDENTITY, IdentityField.BIND_DN, payload.identityManagement.ldap_bind_dn);
+                this.storeFieldString(WizardForm.IDENTITY, IdentityField.BIND_PW, payload.identityManagement.ldap_bind_password);
+                this.storeFieldString(WizardForm.IDENTITY, IdentityField.USER_SEARCH_BASE_DN,
                     payload.identityManagement.ldap_user_search_base_dn);
-                this.saveFormField(WizardForm.IDENTITY, IdentityField.USER_SEARCH_FILTER,
+                this.storeFieldString(WizardForm.IDENTITY, IdentityField.USER_SEARCH_FILTER,
                     payload.identityManagement.ldap_user_search_filter);
-                this.saveFormField(WizardForm.IDENTITY, IdentityField.USER_SEARCH_USERNAME,
+                this.storeFieldString(WizardForm.IDENTITY, IdentityField.USER_SEARCH_USERNAME,
                     payload.identityManagement.ldap_user_search_username);
-                this.saveFormField(WizardForm.IDENTITY, IdentityField.USER_SEARCH_USERNAME,
+                this.storeFieldString(WizardForm.IDENTITY, IdentityField.USER_SEARCH_USERNAME,
                     payload.identityManagement.ldap_user_search_name_attr);
-                this.saveFormField(WizardForm.IDENTITY, IdentityField.GROUP_SEARCH_BASE_DN,
+                this.storeFieldString(WizardForm.IDENTITY, IdentityField.GROUP_SEARCH_BASE_DN,
                     payload.identityManagement.ldap_group_search_base_dn);
-                this.saveFormField(WizardForm.IDENTITY, IdentityField.GROUP_SEARCH_FILTER,
+                this.storeFieldString(WizardForm.IDENTITY, IdentityField.GROUP_SEARCH_FILTER,
                     payload.identityManagement.ldap_group_search_filter);
-                this.saveFormField(WizardForm.IDENTITY, IdentityField.GROUP_SEARCH_USER_ATTR,
+                this.storeFieldString(WizardForm.IDENTITY, IdentityField.GROUP_SEARCH_USER_ATTR,
                     payload.identityManagement.ldap_group_search_user_attr);
-                this.saveFormField(WizardForm.IDENTITY, IdentityField.GROUP_SEARCH_GROUP_ATTR,
+                this.storeFieldString(WizardForm.IDENTITY, IdentityField.GROUP_SEARCH_GROUP_ATTR,
                     payload.identityManagement.ldap_group_search_group_attr);
-                this.saveFormField(WizardForm.IDENTITY, IdentityField.GROUP_SEARCH_NAME_ATTR,
+                this.storeFieldString(WizardForm.IDENTITY, IdentityField.GROUP_SEARCH_NAME_ATTR,
                     payload.identityManagement.ldap_group_search_name_attr);
-                this.saveFormField(WizardForm.IDENTITY, IdentityField.LDAP_ROOT_CA, payload.identityManagement.ldap_root_ca);
+                this.storeFieldString(WizardForm.IDENTITY, IdentityField.LDAP_ROOT_CA, payload.identityManagement.ldap_root_ca);
             }
         }
 
         if (payload.aviConfig !== undefined) {
             // Load Balancer form
-            this.saveFormField(WizardForm.LOADBALANCER, LoadBalancerField.CONTROLLER_HOST, payload.aviConfig.controller);
-            this.saveFormField(WizardForm.LOADBALANCER, LoadBalancerField.USERNAME, payload.aviConfig.username);
-            this.saveFormField(WizardForm.LOADBALANCER, LoadBalancerField.PASSWORD, payload.aviConfig.password);
-            this.saveFormField(WizardForm.LOADBALANCER, LoadBalancerField.CLOUD_NAME, payload.aviConfig.cloud);
-            this.saveFormField(WizardForm.LOADBALANCER, LoadBalancerField.SERVICE_ENGINE_GROUP_NAME, payload.aviConfig.service_engine);
-            this.saveFormField(WizardForm.LOADBALANCER, LoadBalancerField.CONTROLLER_CERT, payload.aviConfig.ca_cert);
-            this.saveFormField(WizardForm.LOADBALANCER, LoadBalancerField.NETWORK_NAME, payload.aviConfig.network.name);
-            this.saveFormField(WizardForm.LOADBALANCER, LoadBalancerField.NETWORK_CIDR, payload.aviConfig.network.cidr);
-            this.saveFormField(WizardForm.LOADBALANCER, LoadBalancerField.CLUSTER_LABELS, this.objToStrMap(payload.aviConfig.labels));
+            this.storeFieldString(WizardForm.LOADBALANCER, LoadBalancerField.CONTROLLER_HOST, payload.aviConfig.controller);
+            this.storeFieldString(WizardForm.LOADBALANCER, LoadBalancerField.USERNAME, payload.aviConfig.username);
+            this.storeFieldString(WizardForm.LOADBALANCER, LoadBalancerField.PASSWORD, payload.aviConfig.password);
+            this.storeFieldString(WizardForm.LOADBALANCER, LoadBalancerField.CLOUD_NAME, payload.aviConfig.cloud);
+            this.storeFieldString(WizardForm.LOADBALANCER, LoadBalancerField.SERVICE_ENGINE_GROUP_NAME, payload.aviConfig.service_engine);
+            this.storeFieldString(WizardForm.LOADBALANCER, LoadBalancerField.CONTROLLER_CERT, payload.aviConfig.ca_cert);
+            this.storeFieldString(WizardForm.LOADBALANCER, LoadBalancerField.NETWORK_NAME, payload.aviConfig.network.name);
+            this.storeFieldString(WizardForm.LOADBALANCER, LoadBalancerField.NETWORK_CIDR, payload.aviConfig.network.cidr);
+            this.storeMap(WizardForm.LOADBALANCER, LoadBalancerField.CLUSTER_LABELS, this.objToStrMap(payload.aviConfig.labels));
         }
     }
 
@@ -805,5 +705,10 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Wiz
 
     protected onWizardComplete() {
         this.storeWizardStepDescriptions();
+    }
+
+    protected storeMap(step: string, field: string, map: Map<string, string>) {
+        const identifier = { wizard: this.supplyWizardName(), step, field };
+        AppServices.userDataService.storeMap(identifier, map);
     }
 }

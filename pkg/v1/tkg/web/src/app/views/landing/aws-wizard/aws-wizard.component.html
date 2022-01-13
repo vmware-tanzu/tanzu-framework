@@ -34,7 +34,7 @@
 </div>
 
 <ng-container *ngIf="review">
-    <tkg-kickstart-ui-confirm></tkg-kickstart-ui-confirm>
+    <app-confirmation [wizard]="wizardName"></app-confirmation>
     <app-error-notification [errorNotification]="errorNotification"></app-error-notification>
     <div class="clr-row mt-20">
         <div class="clr-col-12 btn-container">

@@ -8,9 +8,6 @@ import { APIClient } from '../../../../swagger/api-client.service';
 import AppServices from '../../../../shared/service/appServices';
 import { AwsField, CredentialType } from "../aws-wizard.constants";
 import { AwsProviderStepMapping } from './aws-provider-step.fieldmapping';
-import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
-import { FormMetaDataStore } from "../../wizard/shared/FormMetaDataStore";
-import { NotificationTypes } from "../../../../shared/components/alert-notification/alert-notification.component";
 import { StepFormDirective } from '../../wizard/shared/step-form/step-form';
 import { TanzuEvent, TanzuEventType } from '../../../../shared/service/Messenger';
 
@@ -108,8 +105,8 @@ export class AwsProviderStepComponent extends StepFormDirective implements OnIni
         this.authTypeValue = this.getSavedValue(AwsField.PROVIDER_AUTH_TYPE, CredentialType.PROFILE);
         this.setControlValueSafely(AwsField.PROVIDER_AUTH_TYPE, this.authTypeValue);
 
-        this.registerDefaultFileImportedHandler(TkgEventType.AWS_CONFIG_FILE_IMPORTED, AwsProviderStepMapping);
-        this.registerDefaultFileImportErrorHandler(TkgEventType.AWS_CONFIG_FILE_IMPORT_ERROR);
+        this.registerDefaultFileImportedHandler(TanzuEventType.AWS_CONFIG_FILE_IMPORTED, AwsProviderStepMapping);
+        this.registerDefaultFileImportErrorHandler(TanzuEventType.AWS_CONFIG_FILE_IMPORT_ERROR);
 
         this.initFormWithSavedData();
     }

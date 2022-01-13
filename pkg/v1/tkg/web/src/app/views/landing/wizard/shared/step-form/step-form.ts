@@ -9,7 +9,6 @@ import { AppEdition } from 'src/app/shared/constants/branding.constants';
 import AppServices from 'src/app/shared/service/appServices';
 import { BasicSubscriber } from 'src/app/shared/abstracts/basic-subscriber';
 import { EditionData } from 'src/app/shared/service/branding.service';
-import { FormMetaData, FormMetaDataStore } from '../FormMetaDataStore';
 import { FormUtility } from '../components/steps/form-utility';
 import { IpFamilyEnum } from 'src/app/shared/constants/app.constants';
 import { Notification, NotificationTypes } from 'src/app/shared/components/alert-notification/alert-notification.component';
@@ -34,7 +33,6 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
     wizardName: string;
     formName;
     formGroup: FormGroup;
-    savedMetadata: { [fieldName: string]: FormMetaData };
 
     edition: AppEdition = AppEdition.TCE;
     validatorEnum = ValidatorEnum;
@@ -77,9 +75,7 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
 
     ngOnInit(): void {
         this.getFormName();
-        this.savedMetadata = FormMetaDataStore.getMetaData(this.formName);  // SHIMON: old way
-        FormMetaDataStore.updateFormList(this.formName);                    // SHIMON: old way
-        this.subscribeToStepCompletedEvents();                              // new way
+        this.subscribeToStepCompletedEvents();
 
         // set branding and cluster type on branding change for base wizard components
         AppServices.messenger.subscribe<EditionData>(TanzuEventType.BRANDING_CHANGED, data => {
@@ -137,13 +133,6 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
         return result;
     }
 
-    private getOldRawSavedValue(fieldName: string) {    // old way
-        const savedValue = this.savedMetadata && this.savedMetadata[fieldName] && this.savedMetadata[fieldName].displayValue;
-        const savedKey = this.savedMetadata && this.savedMetadata[fieldName] && this.savedMetadata[fieldName].key;
-        const result = (savedKey) ? savedKey : savedValue;
-        return result;
-    }
-
     getRawSavedValue(fieldName: string) {
         const identifier = this.createUserDataIdentifier(fieldName);    // new way
         const entry = AppServices.userDataService.retrieve(identifier);
@@ -167,14 +156,7 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
     }
 
     hasSavedData() {
-        const hasDataOldWay = this.savedMetadata != null;   // old way
-        const hasData = AppServices.userDataService.hasStoredStepData(this.wizardName, this.formName); // new way
-
-        // comparison
-        if (hasData !== hasDataOldWay) {
-            console.warn('For step ' + this.formName + ' hasSavedData: old way=' + hasDataOldWay + ' new way=' + hasData);
-        }
-        return hasData
+        return AppServices.userDataService.hasStoredStepData(this.wizardName, this.formName);
     }
 
     // This method could be protected, since it's primarily intended for subclasses,
@@ -284,18 +266,10 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
     }
 
     protected clearFieldSavedData(fieldName: string) {
-        FormMetaDataStore.deleteMetaDataEntry(this.formName, fieldName);           // old way
-        AppServices.userDataService.clear(this.createUserDataIdentifier(fieldName));    // new way
+        AppServices.userDataService.clear(this.createUserDataIdentifier(fieldName));
     }
 
     protected saveFieldData(fieldName: string, value: string) {
-        // old way
-        FormMetaDataStore.saveMetaDataEntry(this.formName, fieldName, {
-            label: '',
-            displayValue: value,
-            key: value
-        });
-        // new way
         AppServices.userDataService.store(this.createUserDataIdentifier(fieldName), {
             display: value,
             value
@@ -316,7 +290,7 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
         return field;
     }
 
-    disarmField(fieldName: string, clearSavedData: boolean, options?: {
+    disarmField(fieldName: string, clearSavedData?: boolean, options?: {
         onlySelf?: boolean;
         emitEvent?: boolean;
     }) {
@@ -339,7 +313,9 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
         if (field) {
             field.setValidators(validators);
             field.updateValueAndValidity(options);
-            field.setValue(value || null, options);
+            if (value !== undefined) {
+                field.setValue(value || null, options);
+            }
         }
     }
 

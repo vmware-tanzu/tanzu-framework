@@ -77,25 +77,7 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
         // TODO: can some of these subscriptions be moved to customizeForm()?
         setTimeout(_ => {
             this.displayForm = true;
-            this.formGroup.get(VsphereField.NODESETTING_CONTROL_PLANE_SETTING).valueChanges.subscribe(data => {
-                if (data === InstanceType.DEV) {
-                    this.nodeType = InstanceType.DEV;
-                    this.formGroup.get(VsphereField.NODESETTING_INSTANCE_TYPE_DEV).setValidators([
-                        Validators.required
-                    ]);
-                    this.formGroup.controls[VsphereField.NODESETTING_INSTANCE_TYPE_PROD].clearValidators();
-                    this.formGroup.controls[VsphereField.NODESETTING_INSTANCE_TYPE_PROD].setValue('');
-                } else if (data === InstanceType.PROD) {
-                    this.nodeType = InstanceType.PROD;
-                    this.formGroup.controls[VsphereField.NODESETTING_INSTANCE_TYPE_PROD].setValidators([
-                        Validators.required
-                    ]);
-                    this.formGroup.get(VsphereField.NODESETTING_INSTANCE_TYPE_DEV).clearValidators();
-                    this.formGroup.controls[VsphereField.NODESETTING_INSTANCE_TYPE_DEV].setValue('');
-                }
-                this.formGroup.get(VsphereField.NODESETTING_INSTANCE_TYPE_DEV).updateValueAndValidity();
-                this.formGroup.controls[VsphereField.NODESETTING_INSTANCE_TYPE_PROD].updateValueAndValidity();
-            });
+            this.registerOnValueChange(VsphereField.NODESETTING_CONTROL_PLANE_SETTING, this.onControlPlaneSettingChange.bind(this));
 
             this.formGroup.get(VsphereField.NODESETTING_INSTANCE_TYPE_DEV).valueChanges.subscribe(data => {
                 if (!this.modeClusterStandalone && data) {
@@ -127,11 +109,39 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
         this.initFormWithSavedData();
     }
 
+    private onControlPlaneSettingChange(data) {
+        if (data === InstanceType.DEV) {
+            this.onDevCardClicked();
+        } else if (data === InstanceType.PROD) {
+            this.onProdCardClicked();
+        }
+    }
+
     // findNodeTypeByNameOrId accommodates the fact that when we save the node type in local storage, we may either be saving the
     // name only (ie the display value - the 'old' method), or we may have saved the key (ie the node type id - the 'new' method).
     // Whichever value was saved, they are all unique, so we check if the saved value matches the name OR the id.
     private findNodeTypeByNameOrId(nameOrId: string): NodeType {
         return this.nodeTypes.find(n => n.name === nameOrId || n.id === nameOrId);
+    }
+
+    private onDevCardClicked() {
+        this.nodeType = InstanceType.DEV;
+        this.resurrectFieldWithSavedValue(VsphereField.NODESETTING_INSTANCE_TYPE_DEV, [Validators.required]);
+        const devInstanceType = this.getFieldValue(VsphereField.NODESETTING_INSTANCE_TYPE_DEV);
+        // If there's no worker instance type, set it to the DEV value
+        if (!this.modeClusterStandalone && devInstanceType && !this.getFieldValue(VsphereField.NODESETTING_WORKER_NODE_INSTANCE_TYPE)) {
+            this.setControlValueSafely(VsphereField.NODESETTING_WORKER_NODE_INSTANCE_TYPE, devInstanceType);
+        }
+        this.disarmField(VsphereField.NODESETTING_INSTANCE_TYPE_PROD);
+    }
+
+    private onProdCardClicked() {
+        this.nodeType = InstanceType.PROD;
+        this.resurrectFieldWithSavedValue(VsphereField.NODESETTING_INSTANCE_TYPE_PROD, [Validators.required]);
+        if (!this.modeClusterStandalone) {
+            this.resurrectFieldWithSavedValue(VsphereField.NODESETTING_WORKER_NODE_INSTANCE_TYPE, [Validators.required]);
+        }
+        this.disarmField(VsphereField.NODESETTING_INSTANCE_TYPE_DEV);
     }
 
     initFormWithSavedData() {

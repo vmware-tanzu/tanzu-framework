@@ -9,7 +9,7 @@ export const VsphereProviderStepFieldMapping: StepMapping = {
         { name: VsphereField.PROVIDER_IP_FAMILY, defaultValue: IpFamilyEnum.IPv4, featureFlag: 'vsphereIPv6', label: 'IP FAMILY' },
         { name: VsphereField.PROVIDER_SSH_KEY, required: true, label: 'SSH PUBLIC KEY' },
         { name: VsphereField.PROVIDER_SSH_KEY_FILE, doNotAutoSave: true },
-        { name: VsphereField.PROVIDER_THUMBPRINT },
+        { name: VsphereField.PROVIDER_THUMBPRINT, label: 'SSL THUMBPRINT' },
         { name: VsphereField.PROVIDER_USER_NAME, required: true, label: 'USERNAME' },
         { name: VsphereField.PROVIDER_USER_PASSWORD, required: true, mask: true, label: 'PASSWORD' },
         { name: VsphereField.PROVIDER_VCENTER_ADDRESS, required: true, label: 'VCENTER SERVER' },

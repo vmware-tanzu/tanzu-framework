@@ -9,8 +9,6 @@ import { AzureField, AzureForm, VnetOptionType } from '../azure-wizard.constants
 import { AzureResourceGroup } from 'src/app/swagger/models';
 import { AzureVnetStandaloneStepMapping, AzureVnetStepMapping } from './vnet-step.fieldmapping';
 import { AzureVirtualNetwork } from './../../../../swagger/models/azure-virtual-network.model';
-import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
-import { FormMetaDataStore } from '../../wizard/shared/FormMetaDataStore'
 import { StepFormDirective } from '../../wizard/shared/step-form/step-form';
 import { StepMapping } from '../../wizard/shared/field-mapping/FieldMapping';
 import { TanzuEventType } from 'src/app/shared/service/Messenger';
@@ -176,8 +174,9 @@ export class VnetStepComponent extends StepFormDirective implements OnInit {
     }
 
     initFormWithSavedData() {
-        const customResourceGroup1 = FormMetaDataStore.getMetaDataItem(AzureForm.PROVIDER, AzureField.PROVIDER_RESOURCEGROUPCUSTOM);
-        this.customResourceGroup = customResourceGroup1 ? customResourceGroup1.displayValue : '';
+        const identifier = { wizard: this.wizardName, step: AzureForm.PROVIDER, field: AzureField.PROVIDER_RESOURCEGROUPCUSTOM };
+        const customResourceGroupEntry = AppServices.userDataService.retrieve(identifier);
+        this.customResourceGroup = customResourceGroupEntry && customResourceGroupEntry.value ? customResourceGroupEntry.value : '';
 
         this.setControlWithSavedValue(AzureField.VNET_PRIVATE_CLUSTER, false);
 
