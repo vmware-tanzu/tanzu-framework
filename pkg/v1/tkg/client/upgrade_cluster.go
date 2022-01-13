@@ -32,7 +32,6 @@ import (
 const (
 	upgradePatchInterval = 30 * time.Second
 	upgradePatchTimeout  = 5 * time.Minute
-	vmTemplateMoidKey    = "vmTemplateMoid"
 )
 
 // UpgradeClusterOptions upgrade cluster options
@@ -71,7 +70,6 @@ type componentInfo struct {
 	KCPInfrastructureTemplateNamespace string
 	MDInfastructureTemplates           map[string]mdInfastructureTemplateInfo
 	VSphereVMTemplateName              string
-	VSphereVMTemplateMOID              string
 	AwsAMIID                           string
 	CAPDImageName                      string
 	CAPDImageRepo                      string
@@ -948,8 +946,8 @@ func isNewVSphereTemplateRequired(machineTemplate *capvv1beta1.VSphereMachineTem
 	if actualK8sVersion == nil || *actualK8sVersion != clusterUpgradeConfig.UpgradeComponentInfo.KubernetesVersion {
 		return true
 	}
-	// If vm moid given is not the same as we already have in VSphereMachineTemplate
-	if machineTemplate.Annotations[vmTemplateMoidKey] != clusterUpgradeConfig.UpgradeComponentInfo.VSphereVMTemplateMOID {
+	// If vm template given is the same as we already have in VSphereMachineTemplate
+	if machineTemplate.Spec.Template.Spec.Template != clusterUpgradeConfig.UpgradeComponentInfo.VSphereVMTemplateName {
 		return true
 	}
 	return false
@@ -978,8 +976,6 @@ func (c *TkgClient) createVSphereControlPlaneMachineTemplate(regionalClusterClie
 	vsphereMachineTemplateForUpgrade.Namespace = clusterUpgradeConfig.UpgradeComponentInfo.KCPInfrastructureTemplateNamespace
 	vsphereMachineTemplateForUpgrade.Spec = actualVsphereMachineTemplate.DeepCopy().Spec
 	vsphereMachineTemplateForUpgrade.Spec.Template.Spec.Template = clusterUpgradeConfig.UpgradeComponentInfo.VSphereVMTemplateName
-	vsphereMachineTemplateForUpgrade.Annotations = map[string]string{}
-	vsphereMachineTemplateForUpgrade.Annotations[vmTemplateMoidKey] = clusterUpgradeConfig.UpgradeComponentInfo.VSphereVMTemplateMOID
 
 	err = regionalClusterClient.CreateResource(vsphereMachineTemplateForUpgrade, vsphereMachineTemplateForUpgrade.Name, vsphereMachineTemplateForUpgrade.Namespace)
 	if err != nil {
@@ -1020,8 +1016,6 @@ func (c *TkgClient) createVSphereMachineDeploymentMachineTemplateForWorkers(regi
 		vsphereMachineTemplateForUpgrade.Namespace = clusterUpgradeConfig.UpgradeComponentInfo.MDInfastructureTemplates[clusterUpgradeConfig.MDObjects[i].Name].MDInfrastructureTemplateNamespace
 		vsphereMachineTemplateForUpgrade.Spec = actualVsphereMachineTemplate.DeepCopy().Spec
 		vsphereMachineTemplateForUpgrade.Spec.Template.Spec.Template = clusterUpgradeConfig.UpgradeComponentInfo.VSphereVMTemplateName
-		vsphereMachineTemplateForUpgrade.Annotations = map[string]string{}
-		vsphereMachineTemplateForUpgrade.Annotations[vmTemplateMoidKey] = clusterUpgradeConfig.UpgradeComponentInfo.VSphereVMTemplateMOID
 
 		// create template for each machine deployment object
 		err = regionalClusterClient.CreateResource(vsphereMachineTemplateForUpgrade, vsphereMachineTemplateForUpgrade.Name, vsphereMachineTemplateForUpgrade.Namespace)
@@ -1058,7 +1052,6 @@ func (c *TkgClient) createVsphereInfrastructureTemplateForUpgrade(regionalCluste
 	}
 
 	clusterUpgradeConfig.UpgradeComponentInfo.VSphereVMTemplateName = vSphereVM.Name
-	clusterUpgradeConfig.UpgradeComponentInfo.VSphereVMTemplateMOID = vSphereVM.Moid
 
 	if err := c.createVSphereControlPlaneMachineTemplate(regionalClusterClient, kcp, clusterUpgradeConfig); err != nil {
 		return err

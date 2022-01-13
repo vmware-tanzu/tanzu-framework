@@ -129,8 +129,6 @@ spec:
 ---
 apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
 kind: VSphereMachineTemplate
-annotations:
-  vmTemplateMoid: #@ data.values.VSPHERE_TEMPLATE_MOID
 metadata:
   name: #@ "{}-control-plane".format(data.values.CLUSTER_NAME)
 spec:
@@ -168,8 +166,6 @@ spec:
 ---
 apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
 kind: VSphereMachineTemplate
-annotations:
-  vmTemplateMoid: #@ data.values.VSPHERE_TEMPLATE_MOID
 metadata:
   name: #@ "{}-worker".format(data.values.CLUSTER_NAME)
 spec:
