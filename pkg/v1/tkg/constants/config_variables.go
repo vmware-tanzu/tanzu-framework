@@ -48,7 +48,6 @@ const (
 	ConfigVariableVsphereTLSThumbprint        = "VSPHERE_TLS_THUMBPRINT"
 	ConfigVariableVsphereSSHAuthorizedKey     = "VSPHERE_SSH_AUTHORIZED_KEY"
 	ConfigVariableVsphereTemplate             = "VSPHERE_TEMPLATE"
-	ConfigVariableVsphereTemplateMoid         = "VSPHERE_TEMPLATE_MOID"
 	ConfigVariableVsphereDatacenter           = "VSPHERE_DATACENTER"
 	ConfigVariableVsphereResourcePool         = "VSPHERE_RESOURCE_POOL"
 	ConfigVariableVsphereStoragePolicyID      = "VSPHERE_STORAGE_POLICY_ID"

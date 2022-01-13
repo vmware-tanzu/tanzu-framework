@@ -40,8 +40,6 @@ spec:
 ---
 apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
 kind: VSphereMachineTemplate
-annotations:
-  vmTemplateMoid: '${ VSPHERE_TEMPLATE_MOID }'
 metadata:
   name: '${ CLUSTER_NAME }-control-plane'
   namespace: '${ NAMESPACE }'
@@ -66,8 +64,6 @@ spec:
 ---
 apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
 kind: VSphereMachineTemplate
-annotations:
-  vmTemplateMoid: '${ VSPHERE_TEMPLATE_MOID }'
 metadata:
   name: '${ CLUSTER_NAME }-worker'
   namespace: '${ NAMESPACE }'
