@@ -80,6 +80,11 @@ func runUpgradeRegion(server *v1alpha1.Server) error {
 		return err
 	}
 
+	edition, err := config.GetEdition()
+	if err != nil {
+		return err
+	}
+
 	options := tkgctl.UpgradeRegionOptions{
 		ClusterName:         server.Name,
 		VSphereTemplateName: ur.vSphereTemplateName,
@@ -88,7 +93,7 @@ func runUpgradeRegion(server *v1alpha1.Server) error {
 		OSName:              ur.osName,
 		OSVersion:           ur.osVersion,
 		OSArch:              ur.osArch,
-		Edition:             BuildEdition,
+		Edition:             edition,
 	}
 
 	err = tkgClient.UpgradeRegion(options)

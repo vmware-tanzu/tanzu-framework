@@ -105,8 +105,10 @@ func init() {
 
 	// commercial Tanzu editions turn CEIP on by default.
 	// community edition turns it off
+
+	edition, _ := config.GetEdition()
 	defaultCeip := DefaultCEIPSetting
-	if BuildEdition == TCEBuildEditionName {
+	if edition == TCEBuildEditionName {
 		defaultCeip = DefaultCEIPTCESetting
 	}
 	createCmd.Flags().StringVarP(&iro.ceipOptIn, "ceip-participation", "", defaultCeip, "Specify if this management cluster should participate in VMware CEIP. (See [*])")
@@ -153,6 +155,11 @@ func runInit() error {
 		return err
 	}
 
+	edition, err := config.GetEdition()
+	if err != nil {
+		return err
+	}
+
 	options := tkgctl.InitRegionOptions{
 		ClusterConfigFile:           iro.clusterConfigFile,
 		Plan:                        iro.plan,
@@ -178,7 +185,7 @@ func runInit() error {
 		VsphereControlPlaneEndpoint: iro.vsphereControlPlaneEndpoint,
 		SkipPrompt:                  iro.unattended,
 		Timeout:                     iro.timeout,
-		Edition:                     BuildEdition,
+		Edition:                     edition,
 		GenerateOnly:                iro.dryRun,
 	}
 
