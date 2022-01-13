@@ -242,18 +242,6 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Wiz
         this.review = review;
     }
 
-    exportConfiguration() {
-        this.retrieveExportFile().pipe(take(1)).subscribe(
-            ((data) => {
-                const blob = new Blob([data], {type: "text/plain;charset=utf-8"});
-                FileSaver.saveAs(blob, 'config.yaml');
-            }),
-            ((err) => {
-                this.displayError('Error encountered while creating export file: ' + err.toString());
-            })
-        )
-    }
-
     displayError(errorMessage) {
         this.errorNotification = errorMessage;
     }

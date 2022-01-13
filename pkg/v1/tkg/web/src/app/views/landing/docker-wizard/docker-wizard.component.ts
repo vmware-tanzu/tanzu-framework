@@ -12,6 +12,7 @@ import { CliFields, CliGenerator } from '../wizard/shared/utils/cli-generator';
 import { DaemonValidationStepComponent } from './daemon-validation-step/daemon-validation-step.component';
 import { DockerNetworkStepComponent } from './network-step/docker-network-step.component';
 import { FormDataForHTML, FormUtility } from '../wizard/shared/components/steps/form-utility';
+import { ExportService } from "../../../shared/service/export.service";
 import { FormMetaDataService } from 'src/app/shared/service/form-meta-data.service';
 import { ImportParams, ImportService } from "../../../shared/service/import.service";
 import { NodeSettingStepComponent } from './node-setting-step/node-setting-step.component';
@@ -28,6 +29,7 @@ export class DockerWizardComponent extends WizardBaseDirective implements OnInit
         router: Router,
         el: ElementRef,
         formMetaDataService: FormMetaDataService,
+        private exportService: ExportService,
         private importService: ImportService,
         formBuilder: FormBuilder,
         titleService: Title,
@@ -140,6 +142,14 @@ export class DockerWizardComponent extends WizardBaseDirective implements OnInit
      */
     retrieveExportFile() {
         return this.apiClient.exportTKGConfigForDocker({ params: this.getPayload() });
+    }
+
+    exportConfiguration() {
+        const wizard = this;    // capture 'this' outside the context of the closure below
+        this.exportService.export(
+            this.retrieveExportFile(),
+            (failureMessage) => { wizard.displayError(failureMessage); }
+        );
     }
 
     getCli(configPath: string): string {

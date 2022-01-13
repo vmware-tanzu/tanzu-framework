@@ -10,6 +10,7 @@ import { APIClient } from '../../../swagger/api-client.service';
 import { APP_ROUTES, Routes } from '../../../shared/constants/routes.constants';
 import AppServices from "../../../shared/service/appServices";
 import { CliFields, CliGenerator } from '../wizard/shared/utils/cli-generator';
+import { ExportService } from '../../../shared/service/export.service';
 import { FormDataForHTML, FormUtility } from '../wizard/shared/components/steps/form-utility';
 import { FormMetaDataService } from 'src/app/shared/service/form-meta-data.service';
 import { ImportParams, ImportService } from "../../../shared/service/import.service";
@@ -52,6 +53,7 @@ export class VSphereWizardComponent extends WizardBaseDirective implements OnIni
     constructor(
         private apiClient: APIClient,
         router: Router,
+        private exportService: ExportService,
         private importService: ImportService,
         formBuilder: FormBuilder,
         formMetaDataService: FormMetaDataService,
@@ -241,6 +243,14 @@ export class VSphereWizardComponent extends WizardBaseDirective implements OnIni
      */
     retrieveExportFile() {
         return this.apiClient.exportTKGConfigForVsphere({ params: this.getPayload() });
+    }
+
+    exportConfiguration() {
+        const wizard = this;    // capture 'this' outside the context of the closure below
+        this.exportService.export(
+            this.retrieveExportFile(),
+            (failureMessage) => { wizard.displayError(failureMessage); }
+        );
     }
 
     /**
