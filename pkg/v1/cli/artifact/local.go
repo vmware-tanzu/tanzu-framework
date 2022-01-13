@@ -12,7 +12,12 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/common"
 )
 
-// LocalArtifact defines local artifact path
+const (
+	uriSchemeLocal = "file"
+)
+
+// LocalArtifact defines local artifact path.
+// Sample URI: file://home/user/workspace/tanzu-framework/artifacts/darwin/amd64/cli/login/v0.10.0-dev/tanzu-login-darwin_amd64
 type LocalArtifact struct {
 	// Path is path to local binary artifact
 	// if path is not an absolute path search under

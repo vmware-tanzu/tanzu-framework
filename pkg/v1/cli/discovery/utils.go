@@ -4,6 +4,10 @@
 package discovery
 
 import (
+	"sort"
+
+	"github.com/Masterminds/semver"
+
 	configv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/config/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/common"
 )
@@ -69,4 +73,21 @@ func compareRESTDiscoverySources(ds1, ds2 configv1alpha1.PluginDiscovery) bool {
 		ds1.REST.Name == ds2.REST.Name &&
 		ds1.REST.BasePath == ds2.REST.BasePath &&
 		ds1.REST.Endpoint == ds2.REST.Endpoint
+}
+
+// SortVersions sorts the supported version strings in semver 2.0 order.
+func SortVersions(vStrArr []string) error {
+	vArr := make([]*semver.Version, len(vStrArr))
+	for i, vStr := range vStrArr {
+		v, err := semver.NewVersion(vStr)
+		if err != nil {
+			return err
+		}
+		vArr[i] = v
+	}
+	sort.Sort(semver.Collection(vArr))
+	for i, v := range vArr {
+		vStrArr[i] = v.Original()
+	}
+	return nil
 }

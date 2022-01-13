@@ -492,7 +492,7 @@ test: generate fmt vet manifests build-cli-mocks ## Run tests
 
 .PHONY: test-cli
 test-cli: build-cli-mocks ## Run tests
-	$(GO) test ./...
+	$(GO) test ./pkg/v1/cli/... ./pkg/v1/auth/... ./pkg/v1/builder/... ./pkg/v1/config/... ./pkg/v1/encoding/... ./pkg/v1/grpc/...
 
 fmt: tools ## Run goimports
 	$(GOIMPORTS) -w -local github.com/vmware-tanzu ./
