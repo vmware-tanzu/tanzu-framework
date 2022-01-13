@@ -5,6 +5,11 @@
 // from different sources
 package artifact
 
+import (
+	"net/url"
+	"path/filepath"
+)
+
 // Artifact is an interface to download a single plugin binary.
 type Artifact interface {
 	// Fetch the binary for a plugin version.
@@ -12,7 +17,20 @@ type Artifact interface {
 }
 
 // NewURIArtifact creates new artifacts based on the URI
-func NewURIArtifact(uri string) Artifact {
-	// TODO: Support other artifact types
-	return NewLocalArtifact(uri)
+func NewURIArtifact(uri string) (Artifact, error) {
+	u, err := url.Parse(uri)
+	if err != nil {
+		return nil, err
+	}
+
+	switch u.Scheme {
+	case uriSchemeHTTP, uriSchemeHTTPS:
+		return NewHTTPArtifact(uri), nil
+	case uriSchemeLocal:
+		return NewLocalArtifact(filepath.Join(u.Host, u.Path)), nil
+	default:
+		// The URI could point to a relative path without specifying any scheme
+		// as prefix. Hence, defaulting to local artifact.
+		return NewLocalArtifact(uri), nil
+	}
 }

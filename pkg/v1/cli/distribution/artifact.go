@@ -69,7 +69,11 @@ func (aMap Artifacts) Fetch(version, os, arch string) ([]byte, error) {
 		return artifact.NewOCIArtifact(a.Image).Fetch()
 	}
 	if a.URI != "" {
-		return artifact.NewURIArtifact(a.URI).Fetch()
+		u, err := artifact.NewURIArtifact(a.URI)
+		if err != nil {
+			return nil, err
+		}
+		return u.Fetch()
 	}
 
 	return nil, errors.Errorf("invalid artifact for version:%s, os:%s, "+
