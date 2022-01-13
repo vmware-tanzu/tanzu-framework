@@ -15,6 +15,7 @@ import { BasicSubscriber } from 'src/app/shared/abstracts/basic-subscriber';
 import { CeipField } from '../components/steps/ceip-step/ceip-step.fieldmapping';
 import { ClusterType, IdentityManagementType, WizardForm } from "../constants/wizard.constants";
 import { ConfigFileInfo } from '../../../../../swagger/models/config-file-info.model';
+import { EditionData } from '../../../../../shared/service/branding.service';
 import { FormDataForHTML, FormUtility } from '../components/steps/form-utility';
 import { FormMetaDataStore } from '../FormMetaDataStore';
 import { FormMetaDataService } from 'src/app/shared/service/form-meta-data.service';
@@ -107,24 +108,20 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Wiz
         }
 
         // set step description (if it's a step description for this wizard)
-        AppServices.messenger.getSubject(TanzuEventType.STEP_DESCRIPTION_CHANGE)
-            .pipe(takeUntil(this.unsubscribe))
-            .subscribe((data: TanzuEvent) => {
+        AppServices.messenger.subscribe<StepDescriptionChangePayload>(TanzuEventType.STEP_DESCRIPTION_CHANGE, data => {
                 const stepDescriptionPayload = data.payload as StepDescriptionChangePayload;
                 if (this.supplyWizardName() === stepDescriptionPayload.wizard) {
                     // we use setTimeout to avoid a possible ExpressionChangedAfterItHasBeenCheckedError
                     setTimeout(() => { this.stepDescription[stepDescriptionPayload.step] = stepDescriptionPayload.description; }, 0);
                 }
-            });
+            }, this.unsubscribe);
 
         // set branding and cluster type on branding change for base wizard components
-        AppServices.messenger.getSubject(TanzuEventType.BRANDING_CHANGED)
-            .pipe(takeUntil(this.unsubscribe))
-            .subscribe((data: TanzuEvent) => {
+        AppServices.messenger.subscribe<EditionData>(TanzuEventType.BRANDING_CHANGED, data => {
                 this.edition = data.payload.edition;
                 this.clusterTypeDescriptor = data.payload.clusterTypeDescriptor;
                 this.title = data.payload.branding.title;
-            });
+            }, this.unsubscribe);
 
         this.watchFieldsChange();
 
@@ -783,7 +780,7 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Wiz
             wizard: wizardName,
             step: stepCompletedName,
         }
-        AppServices.messenger.publish( { type: TkgEventType.STEP_COMPLETED, payload } );
+        AppServices.messenger.publish<StepCompletedPayload>( { type: TanzuEventType.STEP_COMPLETED, payload } );
     }
 
     private defaultDisplayOrder(stepData: FormDataForHTML[]): string[] {

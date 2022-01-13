@@ -1,14 +1,17 @@
+// Angular imports
 import { Component, OnInit } from '@angular/core';
+// Third party imports
 import { takeUntil } from 'rxjs/operators';
+// App imports
 import { APIClient } from 'src/app/swagger';
+import AppServices from "../../../../shared/service/appServices";
+import { DaemonStepMapping } from './daemon-validation-step.fieldmapping';
 import { DockerDaemonStatus } from 'src/app/swagger/models';
 import { FormMetaDataStore } from '../../wizard/shared/FormMetaDataStore';
-import { StepFormDirective } from '../../wizard/shared/step-form/step-form';
-import { ValidationService } from '../../wizard/shared/validation/validation.service';
-import AppServices from "../../../../shared/service/appServices";
-import { TanzuEvent, TanzuEventType } from "../../../../shared/service/Messenger";
 import { NotificationTypes } from "../../../../shared/components/alert-notification/alert-notification.component";
-import { DaemonStepMapping } from './daemon-validation-step.fieldmapping';
+import { StepFormDirective } from '../../wizard/shared/step-form/step-form';
+import { TanzuEvent, TanzuEventType } from '../../../../shared/service/Messenger';
+import { ValidationService } from '../../wizard/shared/validation/validation.service';
 
 @Component({
     selector: 'app-daemon-validation-step',
@@ -27,7 +30,8 @@ export class DaemonValidationStepComponent extends StepFormDirective implements 
     }
 
     private customizeForm() {
-        this.registerDefaultFileImportedHandler(DaemonStepMapping);
+        this.registerDefaultFileImportedHandler(TanzuEventType.DOCKER_CONFIG_FILE_IMPORTED, DaemonStepMapping);
+        this.registerDefaultFileImportErrorHandler(TanzuEventType.DOCKER_CONFIG_FILE_IMPORT_ERROR);
     }
 
     ngOnInit(): void {

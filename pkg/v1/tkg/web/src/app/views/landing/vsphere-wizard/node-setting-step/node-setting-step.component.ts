@@ -69,7 +69,8 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
         AppServices.fieldMapUtilities.buildForm(this.formGroup, this.wizardName, this.formName, this.supplyStepMapping());
         this.htmlFieldLabels = AppServices.fieldMapUtilities.getFieldLabelMap(this.supplyStepMapping());
         this.storeDefaultLabels(this.supplyStepMapping());
-        this.registerDefaultFileImportedHandler(this.supplyStepMapping());
+        this.registerDefaultFileImportedHandler(TkgEventType.VSPHERE_CONFIG_FILE_IMPORTED, this.supplyStepMapping());
+        this.registerDefaultFileImportErrorHandler(TkgEventType.VSPHERE_CONFIG_FILE_IMPORT_ERROR);
 
         this.customizeForm();
 

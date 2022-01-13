@@ -146,8 +146,8 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
     }
 
     private customizeForm() {
-        this.registerStepDescriptionTriggers({clusterTypeDescriptor: true, fields: [AwsField.NODESETTING_CONTROL_PLANE_SETTING]});
-        AppServices.messenger.getSubject(TanzuEventType.AWS_AIRGAPPED_VPC_CHANGE).subscribe(event => {
+        this.registerStepDescriptionTriggers({clusterTypeDescriptor: true, fields: ['controlPlaneSetting']});
+        AppServices.messenger.subscribe(TanzuEventType.AWS_AIRGAPPED_VPC_CHANGE, event => {
             this.airgappedVPC = event.payload;
             if (this.airgappedVPC) { // public subnet IDs shouldn't be provided
                 PUBLIC_SUBNETS.forEach(f => {
@@ -165,9 +165,7 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
         /**
          * Whenever aws region selection changes, update AZ subregion
          */
-        AppServices.messenger.getSubject(TanzuEventType.AWS_REGION_CHANGED)
-            .pipe(takeUntil(this.unsubscribe))
-            .subscribe(event => {
+        AppServices.messenger.subscribe(TanzuEventType.AWS_REGION_CHANGED, event => {
                 if (this.formGroup.get(AwsField.NODESETTING_AZ_1)) {
                     this.publicSubnets = [];
                     this.privateSubnets = [];
@@ -176,10 +174,9 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
                     this.clearAzs();
                     this.clearSubnets();
                 }
-            });
+            }, this.unsubscribe);
 
-        AppServices.messenger.getSubject(TanzuEventType.AWS_VPC_TYPE_CHANGED)
-            .subscribe(event => {
+        AppServices.messenger.subscribe(TanzuEventType.AWS_VPC_TYPE_CHANGED, event => {
                 this.vpcType = event.payload.vpcType;
                 if (this.vpcType !== vpcType.EXISTING) {
                     this.clearSubnets();
@@ -193,8 +190,7 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
                 );
             });
 
-        AppServices.messenger.getSubject(TanzuEventType.AWS_VPC_CHANGED)
-            .subscribe(event => {
+        AppServices.messenger.subscribe(TanzuEventType.AWS_VPC_CHANGED, () => {
                 this.clearAzs();
                 this.clearSubnets();
             });
@@ -266,7 +262,8 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
         this.setClusterNameInstruction();
         this.subscribeToServices();
         this.customizeForm();
-        this.registerDefaultFileImportedHandler(this.supplyStepMapping());
+        this.registerDefaultFileImportedHandler(TanzuEventType.AWS_CONFIG_FILE_IMPORTED, this.supplyStepMapping());
+        this.registerDefaultFileImportErrorHandler(TanzuEventType.AWS_CONFIG_FILE_IMPORT_ERROR);
 
         setTimeout(_ => {
             this.displayForm = true;

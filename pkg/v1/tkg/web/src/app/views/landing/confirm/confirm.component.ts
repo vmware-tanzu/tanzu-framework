@@ -1,12 +1,11 @@
 // Angular imports
 import { Component, OnInit, Input } from '@angular/core';
 import { Router } from '@angular/router';
-// Third party imports
-import { takeUntil } from "rxjs/operators";
 // App imports
 import { APP_ROUTES, Routes } from '../../../shared/constants/routes.constants';
 import AppServices from '../../../shared/service/appServices';
 import { BasicSubscriber } from "../../../shared/abstracts/basic-subscriber";
+import { EditionData } from '../../../shared/service/branding.service';
 import { FormMetaDataStore, FormMetaData, StepMetaData } from './../wizard/shared/FormMetaDataStore';
 import { TanzuEvent, TanzuEventType } from "../../../shared/service/Messenger";
 
@@ -33,11 +32,9 @@ export class ConfirmComponent extends BasicSubscriber implements OnInit {
     }
 
     ngOnInit() {
-        AppServices.messenger.getSubject(TanzuEventType.BRANDING_CHANGED)
-            .pipe(takeUntil(this.unsubscribe))
-            .subscribe((data: TanzuEvent) => {
+        AppServices.messenger.subscribe<EditionData>(TanzuEventType.BRANDING_CHANGED, (data) => {
                 this.pageTitle = data.payload.branding.title;
-            });
+            }, this.unsubscribe);
 
         this.stepMetaDataList = FormMetaDataStore.getStepList();
         this.steps = FormMetaDataStore.getFormList();

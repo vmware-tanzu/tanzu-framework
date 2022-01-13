@@ -20,7 +20,8 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
     clusterNameInstruction: string;
 
     private customizeForm() {
-        this.registerDefaultFileImportedHandler(this.supplyStepMapping());
+        this.registerDefaultFileImportedHandler(TkgEventType.DOCKER_CONFIG_FILE_IMPORTED, this.supplyStepMapping());
+        this.registerDefaultFileImportErrorHandler(TkgEventType.DOCKER_CONFIG_FILE_IMPORT_ERROR);
     }
 
     private supplyStepMapping() {
@@ -40,7 +41,8 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
         AppServices.fieldMapUtilities.buildForm(this.formGroup, this.wizardName, this.formName, this.supplyStepMapping());
         this.htmlFieldLabels = AppServices.fieldMapUtilities.getFieldLabelMap(this.supplyStepMapping());
         this.storeDefaultLabels(this.supplyStepMapping());
-        this.registerDefaultFileImportedHandler(this.supplyStepMapping());
+        this.registerDefaultFileImportedHandler(TkgEventType.DOCKER_CONFIG_FILE_IMPORTED, this.supplyStepMapping());
+        this.registerDefaultFileImportErrorHandler(TkgEventType.DOCKER_CONFIG_FILE_IMPORT_ERROR);
 
         if (AppServices.appDataService.isClusterNameRequired()) {
             this.clusterNameInstruction = 'Specify a name for the ' + this.clusterTypeDescriptor + ' cluster.';

@@ -167,12 +167,10 @@ export class SharedNetworkStepComponent extends StepFormDirective implements OnI
             this.triggerStepDescriptionChange();
         });
 
-        AppServices.messenger.getSubject(TanzuEventType.NETWORK_STEP_GET_NO_PROXY_INFO)
-            .pipe(takeUntil(this.unsubscribe))
-            .subscribe(event => {
+        AppServices.messenger.subscribe<{ info: string }>(TanzuEventType.NETWORK_STEP_GET_NO_PROXY_INFO, event => {
                 this.additionalNoProxyInfo = event.payload.info;
                 this.generateFullNoProxy();
-            });
+            }, this.unsubscribe);
     }
 
     // onNoProxyChange() is protected to allow subclasses to override

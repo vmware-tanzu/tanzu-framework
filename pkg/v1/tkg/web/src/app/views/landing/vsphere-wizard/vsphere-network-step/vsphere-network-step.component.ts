@@ -1,11 +1,8 @@
 // Angular imports
 import { Component } from '@angular/core';
 import { Validators } from '@angular/forms';
-// Third party imports
-import { takeUntil } from 'rxjs/operators';
 // App imports
 import AppServices from '../../../../shared/service/appServices';
-import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
 import { NetworkField } from '../../wizard/shared/components/steps/network-step/network-step.fieldmapping';
 import { SharedNetworkStepComponent } from '../../wizard/shared/components/steps/network-step/network-step.component';
 import { StepMapping } from '../../wizard/shared/field-mapping/FieldMapping';
@@ -32,16 +29,10 @@ export class VsphereNetworkStepComponent extends SharedNetworkStepComponent {
 
     listenToEvents() {
         super.listenToEvents();
-        AppServices.messenger.getSubject(TanzuEventType.VSPHERE_VC_AUTHENTICATED)
-            .pipe(takeUntil(this.unsubscribe))
-            .subscribe((data) => {
-                this.infraServiceAddress = data.payload;
-            });
-        AppServices.messenger.getSubject(TanzuEventType.VSPHERE_DATACENTER_CHANGED)
-            .pipe(takeUntil(this.unsubscribe))
-            .subscribe(event => {
-                this.clearControlValue(VsphereField.NETWORK_NAME);
-            });
+        AppServices.messenger.subscribe(TanzuEventType.VSPHERE_VC_AUTHENTICATED,
+                data => { this.infraServiceAddress = data.payload; }, this.unsubscribe);
+        AppServices.messenger.subscribe(TanzuEventType.VSPHERE_DATACENTER_CHANGED,
+                () => { this.clearControlValue(VsphereField.NETWORK_NAME); }, this.unsubscribe);
     }
 
     protected subscribeToServices() {

@@ -5,14 +5,16 @@ import {Observable} from "rxjs";
 import {take} from "rxjs/operators";
 // App imports
 import AppServices from "./appServices";
-import {TanzuEventType} from "./Messenger";
+import { TanzuEventType } from "./Messenger";
 
 export interface ImportParams<ClusterParamsType> {
+    eventSuccess: TanzuEventType,
+    eventFailure: TanzuEventType,
     file: File,
     validator: (nameFile: string, contents: string) => boolean,
     backend: (contents: string ) => Observable<ClusterParamsType>,
-    onSuccess: (nameFile: string, payload: ClusterParamsType) => void,
-    onFailure: (nameFile: string, err: any) => void
+    onSuccess: (event: TanzuEventType, nameFile: string, payload: ClusterParamsType) => void,
+    onFailure: (event: TanzuEventType, nameFile: string, err: any) => void
 }
 @Injectable({
     providedIn: 'root'
@@ -35,26 +37,26 @@ export class ImportService {
 
         params.backend(contents).pipe(take(1)).subscribe(
             ((payload) => {
-                params.onSuccess(params.file.name, payload);
+                params.onSuccess(params.eventSuccess, params.file.name, payload);
             }),
             ((err) => {
-                params.onFailure(params.file.name, err);
+                params.onFailure(params.eventFailure, params.file.name, err);
             })
         );
     }
 
     // convenience method for wizards handling an import failure
-    publishImportFailure(nameFile: string, err: any) {
+    publishImportFailure(event: TanzuEventType, nameFile: string, err: any) {
         AppServices.messenger.publish({
-            type: TanzuEventType.CONFIG_FILE_IMPORTED,
+            type: event,
             payload: 'Error encountered while importing file ' + nameFile + ': ' + err.toString()
         });
     }
 
     // convenience method for wizards handling an import success
-    publishImportSuccess(nameFile: string) {
+    publishImportSuccess(event: TanzuEventType, nameFile: string) {
         AppServices.messenger.publish({
-            type: TanzuEventType.CONFIG_FILE_IMPORTED,
+            type: event,
             payload: 'Data imported from file ' + nameFile,
         });
     }

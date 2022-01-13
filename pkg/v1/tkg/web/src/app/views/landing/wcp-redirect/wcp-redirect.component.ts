@@ -1,8 +1,6 @@
 // Angular imports
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-// Third Party Imports
-import { takeUntil } from 'rxjs/operators';
 // App Imports
 import { APP_ROUTES, Routes } from '../../../shared/constants/routes.constants';
 import AppServices from 'src/app/shared/service/appServices';
@@ -28,11 +26,8 @@ export class WcpRedirectComponent extends StepFormDirective implements OnInit {
     protected storeUserData() {}
 
     ngOnInit() {
-        AppServices.messenger.getSubject(TanzuEventType.VSPHERE_VC_AUTHENTICATED)
-            .pipe(takeUntil(this.unsubscribe))
-            .subscribe((data) => {
-                this.vcHost = data.payload;
-            });
+        AppServices.messenger.subscribe<string>(TanzuEventType.VSPHERE_VC_AUTHENTICATED, data => { this.vcHost = data.payload; },
+            this.unsubscribe);
     }
 
     /**

@@ -109,17 +109,10 @@ export class VnetStepComponent extends StepFormDirective implements OnInit {
         /**
          * Whenever Azure region selection changes...
          */
-        AppServices.messenger.getSubject(TanzuEventType.AZURE_REGION_CHANGED)
-            .pipe(takeUntil(this.unsubscribe))
-            .subscribe(event => {
-                this.onRegionChange(event.payload);
-            });
-
-        AppServices.messenger.getSubject(TanzuEventType.AZURE_RESOURCEGROUP_CHANGED)
-            .pipe(takeUntil(this.unsubscribe))
-            .subscribe(event => {
-                this.customResourceGroup = event.payload;
-            });
+        AppServices.messenger.subscribe(TanzuEventType.AZURE_REGION_CHANGED,
+                event => { this.onRegionChange(event.payload); }, this.unsubscribe);
+        AppServices.messenger.subscribe(TanzuEventType.AZURE_RESOURCEGROUP_CHANGED,
+                event => { this.customResourceGroup = event.payload; }, this.unsubscribe);
 
         this.registerOnValueChange(AzureField.VNET_PRIVATE_CLUSTER, this.onCreatePrivateAzureCluster.bind(this));
         this.registerOnValueChange(AzureField.VNET_CONTROLPLANE_NEWSUBNET_CIDR, this.onControlPlaneSubnetCidrNewChange.bind(this));
@@ -131,7 +124,8 @@ export class VnetStepComponent extends StepFormDirective implements OnInit {
         super.ngOnInit();
         AppServices.fieldMapUtilities.buildForm(this.formGroup, this.wizardName, this.formName, this.supplyStepMapping());
         this.storeDefaultLabels(this.supplyStepMapping());
-        this.registerDefaultFileImportedHandler(this.supplyStepMapping());
+        this.registerDefaultFileImportedHandler(TanzuEventType.AZURE_CONFIG_FILE_IMPORTED, this.supplyStepMapping());
+        this.registerDefaultFileImportErrorHandler(TanzuEventType.AZURE_CONFIG_FILE_IMPORT_ERROR);
 
         this.subscribeToServices();
         this.customizeForm();

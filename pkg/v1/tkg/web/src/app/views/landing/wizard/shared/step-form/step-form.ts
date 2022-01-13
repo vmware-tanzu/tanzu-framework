@@ -17,7 +17,6 @@ import { StepCompletedPayload, StepDescriptionChangePayload, TanzuEvent, TanzuEv
 import { StepMapping } from '../field-mapping/FieldMapping';
 import { UserDataIdentifier } from '../../../../../shared/service/user-data.service';
 import { ValidatorEnum } from './../constants/validation.constants';
-import { FieldMapUtilities } from '../field-mapping/FieldMapUtilities';
 
 export interface StepDescriptionTriggers {
     clusterTypeDescriptor?: boolean,
@@ -66,6 +65,16 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
         this.wizardName = wizardName;
     }
 
+    protected registerDefaultFileImportErrorHandler(eventFailure: TanzuEventType) {
+        AppServices.messenger.subscribe(eventFailure, data => {
+            // Capture the import file error message
+            this.configFileNotification = {
+                notificationType: NotificationTypes.ERROR,
+                message: data.payload
+            };
+        });
+    }
+
     ngOnInit(): void {
         this.getFormName();
         this.savedMetadata = FormMetaDataStore.getMetaData(this.formName);  // SHIMON: old way
@@ -73,27 +82,11 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
         this.subscribeToStepCompletedEvents();                              // new way
 
         // set branding and cluster type on branding change for base wizard components
-        AppServices.messenger.getSubject(TanzuEventType.BRANDING_CHANGED)
-            .pipe(takeUntil(this.unsubscribe))
-            .subscribe((data: TanzuEvent) => {
-                const content: EditionData = data.payload;
-                this.edition = content.edition;
+        AppServices.messenger.subscribe<EditionData>(TanzuEventType.BRANDING_CHANGED, data => {
+                this.edition = data.payload.edition;
                 this.setClusterTypeDescriptor(data.payload.clusterTypeDescriptor);
-            });
+            }, this.unsubscribe);
         this.modeClusterStandalone = AppServices.appDataService.isModeClusterStandalone();
-
-        AppServices.messenger.getSubject(TanzuEventType.CONFIG_FILE_IMPORT_ERROR)
-            .pipe(takeUntil(this.unsubscribe))
-            .subscribe((data: TanzuEvent) => {
-                // Capture the import file error message
-                this.configFileNotification = {
-                    notificationType: NotificationTypes.ERROR,
-                    message: data.payload
-                };
-
-                // Clear event so that listeners in other provider workflows do not receive false notifications
-                AppServices.messenger.clearEvent(TanzuEventType.CONFIG_FILE_IMPORT_ERROR)
-            });
     }
 
     /**
@@ -403,9 +396,7 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
     }
 
     registerOnIpFamilyChange(fieldName: string, ipv4Validators: ValidatorFn[], ipv6Validators: ValidatorFn[], cb?: () => void) {
-        AppServices.messenger.getSubject(TanzuEventType.VSPHERE_IP_FAMILY_CHANGE)
-            .pipe(takeUntil(this.unsubscribe))
-            .subscribe((data: TanzuEvent) => {
+        AppServices.messenger.subscribe<IpFamilyEnum>(TanzuEventType.VSPHERE_IP_FAMILY_CHANGE, data => {
                 if (data.payload === IpFamilyEnum.IPv4) {
                     this.resurrectField(
                         fieldName,
@@ -425,7 +416,7 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
                 if (cb) {
                     cb();
                 }
-            });
+            }, this.unsubscribe);
     }
 
     protected setControlValueSafely(controlName: string, value: any, options?: {
@@ -485,9 +476,8 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
     }
 
     private subscribeToStepCompletedEvents() {
-        AppServices.messenger.getSubject(TkgEventType.STEP_COMPLETED).subscribe(event => {
-            const stepCompletedPayload: StepCompletedPayload = event.payload;
-            if (stepCompletedPayload.wizard === this.wizardName && stepCompletedPayload.step === this.formName) {
+        AppServices.messenger.subscribe<StepCompletedPayload>(TanzuEventType.STEP_COMPLETED, event => {
+            if (event.payload.wizard === this.wizardName && event.payload.step === this.formName) {
                 this.onStepCompleted();
             }
         });
@@ -535,21 +525,15 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
         return this.unsubscribe;
     }
 
-    protected registerDefaultFileImportedHandler(stepMapping: StepMapping,
+    protected registerDefaultFileImportedHandler(eventSuccess: TanzuEventType, stepMapping: StepMapping,
                                                  objectRetrievalMap?: Map<string, (string) => any>) {
-        AppServices.messenger.getSubject(TanzuEventType.CONFIG_FILE_IMPORTED)
-            .pipe(takeUntil(this.unsubscribe))
-            .subscribe((data: TanzuEvent) => {
+        AppServices.messenger.subscribe<string>(eventSuccess, data => {
                 this.configFileNotification = {
                     notificationType: NotificationTypes.SUCCESS,
                     message: data.payload
                 };
                 // The file import saves the data to local storage, so we reinitialize this step's form from there
                 AppServices.fieldMapUtilities.restoreForm(this.wizardName, this.formName, this.formGroup, stepMapping, objectRetrievalMap);
-
-                // TODO: unclear if clearing this event might prevent other steps from receiving it when they SHOULD!
-                // Clear event so that listeners in other provider workflows do not receive false notifications
-                AppServices.messenger.clearEvent(TanzuEventType.CONFIG_FILE_IMPORTED);
             });
     }
 }

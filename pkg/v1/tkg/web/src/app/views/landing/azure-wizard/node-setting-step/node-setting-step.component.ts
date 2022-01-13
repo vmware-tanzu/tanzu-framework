@@ -96,8 +96,9 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
         AppServices.fieldMapUtilities.buildForm(this.formGroup, this.wizardName, this.formName, this.supplyStepMapping());
         this.storeDefaultLabels(this.supplyStepMapping());
         this.subscribeToServices();
-        this.registerStepDescriptionTriggers({ clusterTypeDescriptor: true, fields: [AzureField.NODESETTING_CONTROL_PLANE_SETTING]});
-        this.registerDefaultFileImportedHandler(this.supplyStepMapping());
+        this.registerStepDescriptionTriggers({ clusterTypeDescriptor: true, fields: ['controlPlaneSetting']});
+        this.registerDefaultFileImportedHandler(TanzuEventType.AZURE_CONFIG_FILE_IMPORTED, this.supplyStepMapping());
+        this.registerDefaultFileImportErrorHandler(TanzuEventType.AZURE_CONFIG_FILE_IMPORT_ERROR);
         this.listenOnChangeClusterPlan();
         this.initFormWithSavedData();
     }

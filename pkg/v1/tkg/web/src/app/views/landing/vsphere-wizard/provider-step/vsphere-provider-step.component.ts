@@ -125,15 +125,10 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
                 }
             );
         }
+        AppServices.messenger.subscribe<EditionData>(TanzuEventType.BRANDING_CHANGED, data => { this.edition = data.payload.edition; });
 
-        AppServices.messenger.getSubject(TanzuEventType.BRANDING_CHANGED)
-            .pipe(takeUntil(this.unsubscribe))
-            .subscribe((data: TanzuEvent) => {
-                const content: EditionData = data.payload;
-                this.edition = content.edition;
-            });
-
-        this.registerDefaultFileImportedHandler(VsphereProviderStepFieldMapping);
+        this.registerDefaultFileImportedHandler(TanzuEventType.VSPHERE_CONFIG_FILE_IMPORTED, VsphereProviderStepFieldMapping);
+        this.registerDefaultFileImportErrorHandler(TanzuEventType.VSPHERE_CONFIG_FILE_IMPORT_ERROR);
 
         this.fileReader.onload = (event) => {
             try {

@@ -22,6 +22,7 @@ import { AwsField, AwsForm, VpcType } from "./aws-wizard.constants";
 import { AwsOsImageStepComponent } from './os-image-step/aws-os-image-step.component';
 import { BASTION_HOST_DISABLED, BASTION_HOST_ENABLED, NodeSettingStepComponent } from './node-setting-step/node-setting-step.component';
 import { CliFields, CliGenerator } from '../wizard/shared/utils/cli-generator';
+import { ClusterType } from '../wizard/shared/constants/wizard.constants';
 import { ExportService } from '../../../shared/service/export.service';
 import { FormDataForHTML, FormUtility } from '../wizard/shared/components/steps/form-utility';
 import { FormMetaDataService } from 'src/app/shared/service/form-meta-data.service';
@@ -31,7 +32,6 @@ import { TanzuEventType } from '../../../shared/service/Messenger';
 import { Utils } from '../../../shared/utils';
 import { VpcStepComponent } from './vpc-step/vpc-step.component';
 import { WizardBaseDirective } from '../wizard/shared/wizard-base/wizard-base';
-import { ClusterType } from '../wizard/shared/constants/wizard.constants';
 
 export interface AzRelatedFields {
     az: string,
@@ -292,7 +292,7 @@ export class AwsWizardComponent extends WizardBaseDirective implements OnInit {
     importFileProcessClusterParams(nameFile: string, awsClusterParams: AWSRegionalClusterParams) {
         this.setFromPayload(awsClusterParams);
         this.resetToFirstStep();
-        this.importService.publishImportSuccess(nameFile);
+        this.importService.publishImportSuccess(TanzuEventType.AWS_CONFIG_FILE_IMPORTED, nameFile);
     }
 
     // returns TRUE if user (a) will not lose data on import, or (b) confirms it's OK
@@ -306,6 +306,8 @@ export class AwsWizardComponent extends WizardBaseDirective implements OnInit {
 
     onImportFileSelected(event) {
         const params: ImportParams<AWSRegionalClusterParams> = {
+            eventSuccess: TanzuEventType.AZURE_CONFIG_FILE_IMPORTED,
+            eventFailure: TanzuEventType.AZURE_CONFIG_FILE_IMPORT_ERROR,
             file: event.target.files[0],
             validator: this.importFileValidate,
             backend: this.importFileRetrieveClusterParams.bind(this),
@@ -346,10 +348,9 @@ export class AwsWizardComponent extends WizardBaseDirective implements OnInit {
     // HTML convenience methods
 
     private subscribeToServices() {
-        AppServices.messenger.getSubject(TanzuEventType.AWS_REGION_CHANGED)
-            .subscribe(event => {
+        AppServices.messenger.subscribe(TanzuEventType.AWS_REGION_CHANGED, event => {
                 const region = event.payload;
-                AppServices.dataServiceRegistrar.trigger([TanzuEventType.AWS_GET_OS_IMAGES], {region: region});
+                AppServices.dataServiceRegistrar.trigger([TanzuEventType.AWS_GET_OS_IMAGES], { region });
                 // NOTE: even though the VPC and AZ endpoints don't take the region as a payload, they DO return different data
                 // if the user logs in to AWS using a different region. Therefore, we re-fetch that data if the region changes.
                 AppServices.dataServiceRegistrar.trigger([TanzuEventType.AWS_GET_EXISTING_VPCS, TanzuEventType.AWS_GET_AVAILABILITY_ZONES]);

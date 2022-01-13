@@ -2,7 +2,6 @@
 import { Component, OnInit } from '@angular/core';
 // App imports
 import { AzureVirtualMachine } from '../../../../swagger/models';
-import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
 import { OsImageProviderInputs, SharedOsImageStepDirective } from '../../wizard/shared/components/steps/os-image-step/os-image-step.component';
 import { TanzuEventType } from '../../../../shared/service/Messenger';
 
@@ -20,5 +19,13 @@ export class AzureOsImageStepComponent extends SharedOsImageStepDirective<AzureV
                 'into your Azure account. If no compatible OS image is present, import one into ' +
                 'Azure and click the Refresh button',
         };
+    }
+
+    protected supplyImportFileSuccessEvent(): TkgEventType {
+        return TkgEventType.AZURE_CONFIG_FILE_IMPORTED;
+    }
+
+    protected supplyImportFileFailureEvent(): TkgEventType {
+        return TkgEventType.AZURE_CONFIG_FILE_IMPORT_ERROR;
     }
 }

@@ -49,8 +49,7 @@ export class VsphereLoadBalancerStepComponent extends SharedLoadBalancerStepComp
 
     protected customizeForm() {
         super.customizeForm();
-        AppServices.messenger.getSubject(TanzuEventType.VSPHERE_CONTROL_PLANE_ENDPOINT_PROVIDER_CHANGED)
-            .subscribe(({ payload }) => {
+        AppServices.messenger.subscribe<string>(TanzuEventType.VSPHERE_CONTROL_PLANE_ENDPOINT_PROVIDER_CHANGED, ({ payload }) => {
                 this.onControlPlaneEndpointProviderChange(payload);
             });
     }

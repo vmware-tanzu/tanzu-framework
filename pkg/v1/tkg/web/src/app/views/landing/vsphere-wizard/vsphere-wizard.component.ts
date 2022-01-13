@@ -1,5 +1,5 @@
 // Angular imports
-import { Component, OnInit, ElementRef } from '@angular/core';
+import { Component, ElementRef, OnInit } from '@angular/core';
 import { FormBuilder } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Title } from '@angular/platform-browser';
@@ -15,7 +15,7 @@ import { ExportService } from '../../../shared/service/export.service';
 import { FormDataForHTML, FormUtility } from '../wizard/shared/components/steps/form-utility';
 import { FormMetaDataService } from 'src/app/shared/service/form-meta-data.service';
 import { ImportParams, ImportService } from "../../../shared/service/import.service";
-import { KUBE_VIP, NSX_ADVANCED_LOAD_BALANCER, SharedLoadBalancerStepComponent } from './../wizard/shared/components/steps/load-balancer/load-balancer-step.component';
+import { KUBE_VIP, NSX_ADVANCED_LOAD_BALANCER } from './../wizard/shared/components/steps/load-balancer/load-balancer-step.component';
 import { LoadBalancerField } from '../wizard/shared/components/steps/load-balancer/load-balancer-step.fieldmapping';
 import { NodeSettingStepComponent } from './node-setting-step/node-setting-step.component';
 import { PROVIDERS, Providers } from '../../../shared/constants/app.constants';
@@ -329,7 +329,7 @@ export class VSphereWizardComponent extends WizardBaseDirective implements OnIni
     importFileProcessClusterParams(nameFile: string, vsphereClusterParams: VsphereRegionalClusterParams) {
         this.setFromPayload(vsphereClusterParams);
         this.resetToFirstStep();
-        this.importService.publishImportSuccess(nameFile);
+        this.importService.publishImportSuccess(TanzuEventType.VSPHERE_CONFIG_FILE_IMPORTED, nameFile);
     }
 
     // returns TRUE if user (a) will not lose data on import, or (b) confirms it's OK
@@ -343,6 +343,8 @@ export class VSphereWizardComponent extends WizardBaseDirective implements OnIni
 
     onImportFileSelected(event) {
         const params: ImportParams<VsphereRegionalClusterParams> = {
+            eventSuccess: TanzuEventType.VSPHERE_CONFIG_FILE_IMPORTED,
+            eventFailure: TanzuEventType.VSPHERE_CONFIG_FILE_IMPORT_ERROR,
             file: event.target.files[0],
             validator: this.importFileValidate,
             backend: this.importFileRetrieveClusterParams.bind(this),
@@ -356,17 +358,15 @@ export class VSphereWizardComponent extends WizardBaseDirective implements OnIni
     }
 
     private subscribeToServices() {
-        AppServices.messenger.getSubject(TanzuEventType.VSPHERE_DATACENTER_CHANGED)
-            .subscribe(event => {
-                const datacenterMoid = event.payload;
-                AppServices.dataServiceRegistrar.trigger( [
-                    TanzuEventType.VSPHERE_GET_RESOURCE_POOLS,
-                    TanzuEventType.VSPHERE_GET_COMPUTE_RESOURCE,
-                    TanzuEventType.VSPHERE_GET_VM_NETWORKS,
-                    TanzuEventType.VSPHERE_GET_DATA_STORES,
-                    TanzuEventType.VSPHERE_GET_VM_FOLDERS,
-                    TanzuEventType.VSPHERE_GET_OS_IMAGES
-                ], {dc: datacenterMoid});
+        AppServices.messenger.subscribe<string>(TanzuEventType.VSPHERE_DATACENTER_CHANGED, event => {
+            AppServices.dataServiceRegistrar.trigger( [
+                TanzuEventType.VSPHERE_GET_RESOURCE_POOLS,
+                TanzuEventType.VSPHERE_GET_COMPUTE_RESOURCE,
+                TanzuEventType.VSPHERE_GET_VM_NETWORKS,
+                TanzuEventType.VSPHERE_GET_DATA_STORES,
+                TanzuEventType.VSPHERE_GET_VM_FOLDERS,
+                TanzuEventType.VSPHERE_GET_OS_IMAGES
+                ], { dc: event.payload });
             });
     }
 

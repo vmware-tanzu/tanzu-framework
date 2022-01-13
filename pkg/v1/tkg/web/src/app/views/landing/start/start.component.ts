@@ -4,7 +4,6 @@ import { Router } from '@angular/router';
 import { Title } from '@angular/platform-browser';
 // Third party imports
 import { Observable } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
 // App imports
 import { APP_ROUTES, Routes } from '../../../shared/constants/routes.constants';
 import AppServices from 'src/app/shared/service/appServices';
@@ -38,16 +37,14 @@ export class StartComponent extends BasicSubscriber implements OnInit {
         /**
          * Whenever branding data changes, load content in landing page
          */
-        AppServices.messenger.getSubject(TanzuEventType.BRANDING_CHANGED)
-            .pipe(takeUntil(this.unsubscribe))
-            .subscribe((data: TanzuEvent) => {
+        AppServices.messenger.subscribe(TanzuEventType.BRANDING_CHANGED, data => {
                 const content: EditionData = data.payload;
                 const title = content.branding.title;
                 this.edition = content.edition;
                 this.clusterTypeDescriptor = content.clusterTypeDescriptor;
                 this.landingPageContent = content.branding.landingPage;
                 this.titleService.setTitle(title);
-            });
+            }, this.unsubscribe);
     }
 
     /**

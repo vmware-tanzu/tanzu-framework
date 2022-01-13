@@ -60,8 +60,7 @@ export default class DataServiceRegistrar {
             dataStream: new ReplaySubject<OBJ[]>(),
         };
         // we subscribe to the messenger to ensure that whenever the target event is broadcast, we go fetch the data
-        AppServices.messenger.getSubject(eventType)
-            .subscribe((event) => this.fetchData<OBJ>(eventType, event.payload ? event.payload : {}));
+        AppServices.messenger.subscribe(eventType, (event) => this.fetchData<OBJ>(eventType, event.payload ? event.payload : {}));
     }
 
     // subscribe() is called by those consuming data services. This is typically a step that relies on whatever data

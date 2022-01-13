@@ -22,4 +22,12 @@ export class AwsOsImageStepComponent extends SharedOsImageStepDirective<AWSVirtu
                 'AWS and click the Refresh button'
         };
     }
+
+    protected supplyImportFileSuccessEvent(): TkgEventType {
+        return TkgEventType.AWS_CONFIG_FILE_IMPORTED;
+    }
+
+    protected supplyImportFileFailureEvent(): TkgEventType {
+        return TkgEventType.AWS_CONFIG_FILE_IMPORT_ERROR;
+    }
 }

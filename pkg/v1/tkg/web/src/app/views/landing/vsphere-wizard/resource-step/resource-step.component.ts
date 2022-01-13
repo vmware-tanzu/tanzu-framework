@@ -1,11 +1,8 @@
 // Angular imports
 import { Component, OnInit } from '@angular/core';
 import { Validators } from '@angular/forms';
-// Third party imports
-import { takeUntil } from 'rxjs/operators';
 // App imports
 import AppServices from '../../../../shared/service/appServices';
-import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
 import { StepFormDirective } from '../../wizard/shared/step-form/step-form';
 import { TanzuEventType } from '../../../../shared/service/Messenger';
 import { ValidationService } from '../../wizard/shared/validation/validation.service';
@@ -62,16 +59,14 @@ export class ResourceStepComponent extends StepFormDirective implements OnInit {
         this.storeDefaultLabels(VsphereResourceStepMapping);
         this.registerStepDescriptionTriggers({ clusterTypeDescriptor: true,
             fields: [VsphereField.RESOURCE_DATASTORE, VsphereField.RESOURCE_POOL, VsphereField.RESOURCE_VMFOLDER]});
-        this.registerDefaultFileImportedHandler(VsphereResourceStepMapping);
+        this.registerDefaultFileImportedHandler(TanzuEventType.VSPHERE_CONFIG_FILE_IMPORTED, VsphereResourceStepMapping);
+        this.registerDefaultFileImportErrorHandler(TanzuEventType.VSPHERE_CONFIG_FILE_IMPORT_ERROR);
 
         /**
          * Whenever data center selection changes, reset the relevant fields
         */
-        AppServices.messenger.getSubject(TanzuEventType.VSPHERE_DATACENTER_CHANGED)
-            .pipe(takeUntil(this.unsubscribe))
-            .subscribe(event => {
-                this.resetFieldsUponDCChange();
-            });
+        AppServices.messenger.subscribe(TanzuEventType.VSPHERE_DATACENTER_CHANGED, event => { this.resetFieldsUponDCChange(); },
+            this.unsubscribe);
 
         this.initFormWithSavedData();
         this.subscribeToServices();

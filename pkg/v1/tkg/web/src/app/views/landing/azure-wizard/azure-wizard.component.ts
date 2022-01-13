@@ -339,7 +339,7 @@ export class AzureWizardComponent extends WizardBaseDirective implements OnInit 
     importFileProcessClusterParams(nameFile: string, azureClusterParams: AzureRegionalClusterParams) {
         this.setFromPayload(azureClusterParams);
         this.resetToFirstStep();
-        this.importService.publishImportSuccess(nameFile);
+        this.importService.publishImportSuccess(TanzuEventType.AZURE_CONFIG_FILE_IMPORTED, nameFile);
     }
 
     // returns TRUE if user (a) will not lose data on import, or (b) confirms it's OK
@@ -353,6 +353,8 @@ export class AzureWizardComponent extends WizardBaseDirective implements OnInit 
 
     onImportFileSelected(event) {
         const params: ImportParams<AzureRegionalClusterParams> = {
+            eventSuccess: TkgEventType.AZURE_CONFIG_FILE_IMPORTED,
+            eventFailure: TkgEventType.AZURE_CONFIG_FILE_IMPORT_ERROR,
             file: event.target.files[0],
             validator: this.importFileValidate,
             backend: this.importFileRetrieveClusterParams.bind(this),
@@ -366,8 +368,7 @@ export class AzureWizardComponent extends WizardBaseDirective implements OnInit 
     }
 
     private subscribeToServices() {
-        AppServices.messenger.getSubject(TanzuEventType.AZURE_REGION_CHANGED)
-            .subscribe(event => {
+        AppServices.messenger.subscribe(TanzuEventType.AZURE_REGION_CHANGED, event => {
                 const region = event.payload;
                 if (this.region) {
                     AppServices.dataServiceRegistrar.trigger([

@@ -1,20 +1,17 @@
 // Angular imports
 import { Component, OnInit } from '@angular/core';
-
 // Third party imports
-import {
-    BehaviorSubject
-} from 'rxjs';
+import { BehaviorSubject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { LogMessage as NgxLogMessage } from 'ngx-log-monitor';
-
 // App imports
 import { APP_ROUTES, Routes } from '../../../shared/constants/routes.constants';
 import AppServices from 'src/app/shared/service/appServices';
 import { BasicSubscriber } from '../../../shared/abstracts/basic-subscriber';
-import { WebsocketService } from '../../../shared/service/websocket.service';
+import { EditionData } from '../../../shared/service/branding.service';
 import { FormMetaDataStore } from '../wizard/shared/FormMetaDataStore';
 import { TanzuEvent, TanzuEventType } from "../../../shared/service/Messenger";
+import { WebsocketService } from '../../../shared/service/websocket.service';
 
 @Component({
     selector: 'tkg-kickstart-ui-deploy-progress',
@@ -43,22 +40,16 @@ export class DeployProgressComponent extends BasicSubscriber implements OnInit {
 
     constructor(private websocketService: WebsocketService) {
         super();
-        AppServices.messenger.getSubject(TanzuEventType.CLI_CHANGED)
-            .pipe(takeUntil(this.unsubscribe))
-            .subscribe(event => {
-                this.cli = event.payload;
-            });
+        AppServices.messenger.subscribe(TanzuEventType.CLI_CHANGED, event => { this.cli = event.payload; }, this.unsubscribe);
     }
 
     ngOnInit(): void {
         this.initWebSocket();
 
-        AppServices.messenger.getSubject(TanzuEventType.BRANDING_CHANGED)
-            .pipe(takeUntil(this.unsubscribe))
-            .subscribe((data: TanzuEvent) => {
+        AppServices.messenger.subscribe<EditionData>(TanzuEventType.BRANDING_CHANGED, data => {
                 this.pageTitle = data.payload.branding.title;
                 this.clusterTypeDescriptor = data.payload.clusterTypeDescriptor;
-            });
+            }, this.unsubscribe);
 
         AppServices.appDataService.getProviderType()
             .pipe(takeUntil(this.unsubscribe))

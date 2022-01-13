@@ -70,7 +70,8 @@ export class VpcStepComponent extends StepFormDirective implements OnInit {
         AppServices.fieldMapUtilities.buildForm(this.formGroup, this.wizardName, this.formName, AwsVpcStepMapping);
         this.htmlFieldLabels = AppServices.fieldMapUtilities.getFieldLabelMap(AwsVpcStepMapping);
         this.storeDefaultLabels(AwsVpcStepMapping);
-        this.registerDefaultFileImportedHandler(AwsVpcStepMapping);
+        this.registerDefaultFileImportedHandler(TanzuEventType.AWS_CONFIG_FILE_IMPORTED, AwsVpcStepMapping);
+        this.registerDefaultFileImportErrorHandler(TanzuEventType.AWS_CONFIG_FILE_IMPORT_ERROR);
 
         // NOTE: we don't call this.registerFieldsAffectingStepDescription() with any fields, because all the relevant fields
         // already trigger a step description change event in their own onChange handlers
@@ -91,13 +92,11 @@ export class VpcStepComponent extends StepFormDirective implements OnInit {
         /**
          * Whenever aws region selection changes, update AZ subregion
          */
-        AppServices.messenger.getSubject(TanzuEventType.AWS_REGION_CHANGED)
-            .pipe(takeUntil(this.unsubscribe))
-            .subscribe(event => {
+        AppServices.messenger.subscribe(TanzuEventType.AWS_REGION_CHANGED, () => {
                 this.existingVpcs = [];
                 this.clearControlValue(AwsField.VPC_EXISTING_ID);
                 this.clearControlValue(AwsField.VPC_EXISTING_CIDR);
-            });
+            }, this.unsubscribe);
 
         AppServices.dataServiceRegistrar.stepSubscribe<Vpc>(this, TanzuEventType.AWS_GET_EXISTING_VPCS, this.onFetchedVpcs.bind(this));
 

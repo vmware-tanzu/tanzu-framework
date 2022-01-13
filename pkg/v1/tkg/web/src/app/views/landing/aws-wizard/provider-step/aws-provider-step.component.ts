@@ -108,7 +108,8 @@ export class AwsProviderStepComponent extends StepFormDirective implements OnIni
         this.authTypeValue = this.getSavedValue(AwsField.PROVIDER_AUTH_TYPE, CredentialType.PROFILE);
         this.setControlValueSafely(AwsField.PROVIDER_AUTH_TYPE, this.authTypeValue);
 
-        this.registerDefaultFileImportedHandler(AwsProviderStepMapping);
+        this.registerDefaultFileImportedHandler(TkgEventType.AWS_CONFIG_FILE_IMPORTED, AwsProviderStepMapping);
+        this.registerDefaultFileImportErrorHandler(TkgEventType.AWS_CONFIG_FILE_IMPORT_ERROR);
 
         this.initFormWithSavedData();
     }

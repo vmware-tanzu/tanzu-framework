@@ -1,7 +1,5 @@
 // Angular imports
 import { Component, OnInit } from '@angular/core';
-// Third party imports
-import { takeUntil } from 'rxjs/operators';
 // App imports
 import AppServices from '../../service/appServices';
 import { BasicSubscriber } from 'src/app/shared/abstracts/basic-subscriber';
@@ -18,11 +16,7 @@ export class PreviewConfigComponent extends BasicSubscriber implements OnInit {
 
     constructor() {
         super();
-        AppServices.messenger.getSubject(TanzuEventType.CLI_CHANGED)
-            .pipe(takeUntil(this.unsubscribe))
-            .subscribe(event => {
-                this.cli = event.payload;
-            });
+        AppServices.messenger.subscribe<string>(TanzuEventType.CLI_CHANGED, event => { this.cli = event.payload; }, this.unsubscribe);
     }
 
     ngOnInit() {
