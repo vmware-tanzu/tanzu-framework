@@ -659,7 +659,10 @@ func discoverPluginsFromLocalSourceWithLegacyDirectoryStructure(localPath string
 		p := getCLIPluginResourceWithLocalDistroFromPluginDescriptor(pd, pluginBinaryPath)
 
 		// Create plugin.Discovered resource from CLIPlugin resource
-		dp := discovery.DiscoveredFromK8sV1alpha1(&p)
+		dp, err := discovery.DiscoveredFromK8sV1alpha1(&p)
+		if err != nil {
+			return nil, err
+		}
 		dp.DiscoveryType = common.DiscoveryTypeLocal
 		dp.Scope = common.PluginScopeStandalone
 		dp.Status = common.PluginStatusNotInstalled
