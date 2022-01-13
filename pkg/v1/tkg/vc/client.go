@@ -299,18 +299,6 @@ func (c *DefaultClient) GetPath(ctx context.Context, moid string) (string, []*mo
 			return "", objects, err
 		}
 		path = append([]string{name}, path...)
-
-		if ref.Type == TypeDvpg {
-			var portgroup mo.DistributedVirtualPortgroup
-			err = commonProps.Properties(ctx, ref, []string{"config"}, &portgroup)
-			if err != nil {
-				return "", objects, err
-			}
-
-			moid = portgroup.Config.DistributedVirtualSwitch.Value
-			continue
-		}
-
 		err = commonProps.Properties(ctx, ref, []string{"parent"}, managedEntity)
 		if err != nil {
 			return "", objects, err
@@ -419,6 +407,25 @@ func GetDuplicateNetworks(networks []*models.VSphereNetwork) map[string]bool {
 	return dupNetworks
 }
 
+/*
+			There could be different networks with the same name due to name relaxation introduced by NSX. We will need
+			to provide a way to uniquely identify duplicate networks.
+
+			Here are a list of scenarios which could result in multiple networks.
+			1. Virtual port groups created on NSX could be created with the same name as a network created on vSphere.
+			2. There could be port groups with the same name in a Distributed virtual switch or across multiple Distributed virtual switches.
+
+			Algorithm to convert the duplicate network names to something with which a network could be uniquely identified
+		    ===============================================================================================================
+			1. List all networks using the govmomi APIs
+			2. Identify all the duplicate networks (networks with the same inventory path)
+			3. If a duplicate network is found
+				i. Check if the network is of type 'PortGroup'. If it is of type port group, append the name of virtual switch to the network name.
+	               Once the network path is modified to include the name of the virtual switch, use the 'findNetwork' API to see if duplicates exist even after including the name of the Virtual Switch.
+				   If duplicate still exists, replace the network name with its MOID.
+				ii. If not 'PortGroup', replace the network name with MOID.
+*/
+
 // GetNetworks gets list of network for the given datacenter
 func (c *DefaultClient) GetNetworks(ctx context.Context, datacenterMOID string) ([]*models.VSphereNetwork, error) {
 	results := []*models.VSphereNetwork{}
@@ -444,7 +451,7 @@ func (c *DefaultClient) GetNetworks(ctx context.Context, datacenterMOID string) 
 	}
 
 	for i := range networks {
-		managedObject := models.VSphereNetwork{Moid: networks[i].Reference().Type + ":" + networks[i].Reference().Value}
+		managedObject := models.VSphereNetwork{Moid: networks[i].Reference().Value}
 		path, _, err := c.GetPath(ctx, networks[i].Reference().Value)
 		if err != nil {
 			managedObject.Name = networks[i].Name
@@ -460,12 +467,77 @@ func (c *DefaultClient) GetNetworks(ctx context.Context, datacenterMOID string) 
 	duplNetworks := GetDuplicateNetworks(results)
 	for i := range results {
 		if duplNetworks[results[i].Name] {
-			results[i].DisplayName = results[i].Name + "(" + results[i].Moid + ")"
-			results[i].Name = results[i].Moid
+			ref, commonProps, _, err := c.populateGoVCVars(results[i].Moid)
+			if err != nil {
+				changeNetworkNameToMoid(results[i])
+				continue
+			}
+
+			if ref.Type == TypeDvpg {
+				// get network path with the name of virtual switch included
+				name, err := c.getNetworkNameWithVirtualSwitch(ctx, results[i].Name, ref, commonProps)
+				if err != nil {
+					changeNetworkNameToMoid(results[i])
+					continue
+				}
+
+				// check if duplicate networks exist with the same path
+				_, err = c.FindNetwork(ctx, name, "")
+				if _, ok := err.(*find.MultipleFoundError); ok {
+					// if duplicate networks with the same path are found
+					changeNetworkNameToMoid(results[i])
+				} else {
+					results[i].Name = name
+					results[i].DisplayName = name
+				}
+			} else {
+				changeNetworkNameToMoid(results[i])
+			}
 		}
 	}
-
 	return results, nil
+}
+
+func (c *DefaultClient) getNetworkNameWithVirtualSwitch(ctx context.Context, networkName string, portGroupRef types.ManagedObjectReference, portGroupCommonProps object.Common) (string, error) {
+	var portGroup mo.DistributedVirtualPortgroup
+	err := portGroupCommonProps.Properties(ctx, portGroupRef, []string{"config"}, &portGroup)
+	if err != nil {
+		return "", err
+	}
+
+	dvpgName, err := portGroupCommonProps.ObjectName(ctx)
+	if err != nil {
+		return "", err
+	}
+
+	dvsName, err := c.getVirtualSwitchName(ctx, &portGroup)
+	if err != nil {
+		return "", err
+	}
+
+	lastIndex := strings.LastIndex(networkName, "/")
+	networkName = networkName[0:lastIndex] + "/" + dvsName + "/" + dvpgName
+
+	return networkName, nil
+}
+
+func (c *DefaultClient) getVirtualSwitchName(ctx context.Context, portGroup *mo.DistributedVirtualPortgroup) (string, error) {
+	_, dvsCommonProps, _, err := c.populateGoVCVars(portGroup.Config.DistributedVirtualSwitch.Value)
+	if err != nil {
+		return "", err
+	}
+
+	dvsName, err := dvsCommonProps.ObjectName(ctx)
+	if err != nil {
+		return "", err
+	}
+
+	return dvsName, nil
+}
+
+func changeNetworkNameToMoid(network *models.VSphereNetwork) {
+	network.DisplayName = network.Name + "(" + network.Moid + ")"
+	network.Name = network.Moid
 }
 
 // GetResourcePools gets resourcepools for the given datacenter

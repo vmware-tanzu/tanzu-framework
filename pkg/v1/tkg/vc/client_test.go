@@ -343,23 +343,23 @@ var _ = Describe("VC Client", func() {
 			desiredResult  = []*models.VSphereNetwork{
 				{
 					DisplayName: "/DC0/network/VM Network",
-					Moid:        "Network:network-7",
+					Moid:        "network-7",
 					Name:        "/DC0/network/VM Network",
 				},
 				{
-					DisplayName: "DVS0-DVUplinks-9",
-					Moid:        "DistributedVirtualPortgroup:dvportgroup-11",
-					Name:        "DVS0-DVUplinks-9",
+					DisplayName: "/DC0/network/DVS0-DVUplinks-9",
+					Moid:        "dvportgroup-11",
+					Name:        "/DC0/network/DVS0-DVUplinks-9",
 				},
 				{
-					DisplayName: "DC0_DVPG0",
-					Moid:        "DistributedVirtualPortgroup:dvportgroup-13",
-					Name:        "DC0_DVPG0",
+					DisplayName: "/DC0/network/DC0_DVPG0",
+					Moid:        "dvportgroup-13",
+					Name:        "/DC0/network/DC0_DVPG0",
 				},
 				{
-					DisplayName: "DC0_DVPG1",
-					Moid:        "DistributedVirtualPortgroup:dvportgroup-15",
-					Name:        "DC0_DVPG1",
+					DisplayName: "/DC0/network/DC0_DVPG1",
+					Moid:        "dvportgroup-15",
+					Name:        "/DC0/network/DC0_DVPG1",
 				},
 			}
 		)
