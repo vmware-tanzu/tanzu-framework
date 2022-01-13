@@ -137,12 +137,12 @@ func TestConfigIncorrectConfigLiteral(t *testing.T) {
 func TestConfigEnv(t *testing.T) {
 	cfg := &configv1alpha1.ClientConfig{}
 	value := "baarr"
-	err := setConfiguration(cfg, "env.any-plugin.foo", value)
+	err := setConfiguration(cfg, "env.any-plugin", value)
 	if err != nil {
 		t.Errorf("Unexpected error returned for any-plugin env path argument: %s", err.Error())
 	}
 
-	if cfg.ClientOptions.Env["any-plugin"]["foo"] != value {
+	if cfg.ClientOptions.Env["any-plugin"] != value {
 		t.Error("cfg.ClientOptions.Features[\"any-plugin\"][\"foo\"] was not assigned the value \"" + value + "\"")
 	}
 }
