@@ -21,6 +21,8 @@ import (
 )
 
 const (
+	testcaseInstallFoo               = "install-foo"
+	testcaseInstallBar               = "install-bar"
 	testcaseInstallManagementCluster = "install-management-cluster"
 	testcaseInstallLogin             = "install-login"
 	testcaseInstallCluster           = "install-cluster"
@@ -458,6 +460,12 @@ func TestHelperProcess(t *testing.T) {
 	case testcaseInstallManagementCluster:
 		out := `{"name":"management-cluster","description":"Management cluster operations","version":"v0.2.0","buildSHA":"c2dbd15","digest":"","group":"System","docURL":"","completionType":0,"aliases":["lo","logins"],"installationPath":"","discovery":"","scope":"","status":""}`
 		fmt.Fprint(os.Stdout, out)
+	case testcaseInstallFoo:
+		out := `{"name":"foo","description":"Foo plugin","version":"v0.12.0","buildSHA":"c2dbd15","digest":"","group":"System","docURL":"","completionType":0,"installationPath":"","discovery":"","scope":"","status":""}`
+		fmt.Fprint(os.Stdout, out)
+	case testcaseInstallBar:
+		out := `{"name":"bar","description":"Bar plugin","version":"v0.10.0","buildSHA":"c2dbd15","digest":"","group":"System","docURL":"","completionType":0,"installationPath":"","discovery":"","scope":"","status":""}`
+		fmt.Fprint(os.Stdout, out)
 	case testcaseInstallNotexists:
 		out := ``
 		fmt.Fprint(os.Stdout, out)
@@ -493,4 +501,47 @@ func setupLocalDistoForTesting() func() {
 	return func() {
 		os.RemoveAll(tmpDir)
 	}
+}
+
+func Test_DiscoverPluginsFromLocalSourceWithLegacyDirectoryStructure(t *testing.T) {
+	assert := assert.New(t)
+
+	// When passing directory structure where manifest.yaml file is missing
+	_, err := discoverPluginsFromLocalSourceWithLegacyDirectoryStructure(filepath.Join("test", "local"))
+	assert.NotNil(err)
+	assert.Contains(err.Error(), "could not find manifest.yaml file")
+
+	// When passing legacy directory structure which contains manifest.yaml file
+	discoveredPlugins, err := discoverPluginsFromLocalSourceWithLegacyDirectoryStructure(filepath.Join("test", "legacy"))
+	assert.Nil(err)
+	assert.Equal(2, len(discoveredPlugins))
+
+	assert.Equal("foo", discoveredPlugins[0].Name)
+	assert.Equal("Foo plugin", discoveredPlugins[0].Description)
+	assert.Equal("v0.12.0", discoveredPlugins[0].RecommendedVersion)
+	assert.Equal(common.PluginScopeStandalone, discoveredPlugins[0].Scope)
+
+	assert.Equal("bar", discoveredPlugins[1].Name)
+	assert.Equal("Bar plugin", discoveredPlugins[1].Description)
+	assert.Equal("v0.10.0", discoveredPlugins[1].RecommendedVersion)
+	assert.Equal(common.PluginScopeStandalone, discoveredPlugins[1].Scope)
+}
+
+func Test_InstallPluginsFromLocalSourceWithLegacyDirectoryStructure(t *testing.T) {
+	assert := assert.New(t)
+
+	execCommand = fakeExecCommand
+	defer func() { execCommand = exec.Command }()
+
+	// Using generic InstallPluginsFromLocalSource to test the legacy directory install
+	// When passing legacy directory structure which contains manifest.yaml file
+	err := InstallPluginsFromLocalSource("all", "", filepath.Join("test", "legacy"))
+	assert.Nil(err)
+
+	// Verify installed plugin
+	installedServerPlugins, installedStandalonePlugins, err := InstalledPlugins("")
+	assert.Nil(err)
+	assert.Equal(0, len(installedServerPlugins))
+	assert.Equal(2, len(installedStandalonePlugins))
+	assert.ElementsMatch([]string{"bar", "foo"}, []string{installedStandalonePlugins[0].Name, installedStandalonePlugins[1].Name})
 }
