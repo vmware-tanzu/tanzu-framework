@@ -56,4 +56,13 @@ func Test_CreateDiscoveryFromV1alpha1(t *testing.T) {
 	assert.Nil(err)
 	assert.Equal(common.DiscoveryTypeKubernetes, discovery.Type())
 	assert.Equal("fake-k8s", discovery.Name())
+
+	// When REST discovery is provided
+	pd = v1alpha1.PluginDiscovery{
+		REST: &v1alpha1.GenericRESTDiscovery{Name: "fake-rest"},
+	}
+	discovery, err = CreateDiscoveryFromV1alpha1(pd)
+	assert.Nil(err)
+	assert.Equal(common.DiscoveryTypeREST, discovery.Type())
+	assert.Equal("fake-rest", discovery.Name())
 }

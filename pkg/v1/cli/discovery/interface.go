@@ -41,6 +41,8 @@ func CreateDiscoveryFromV1alpha1(pd v1alpha1.PluginDiscovery) (Discovery, error)
 		return NewLocalDiscovery(pd.Local.Name, pd.Local.Path), nil
 	case pd.Kubernetes != nil:
 		return NewKubernetesDiscovery(pd.Kubernetes.Name, pd.Kubernetes.Path, pd.Kubernetes.Context), nil
+	case pd.REST != nil:
+		return NewRESTDiscovery(pd.REST.Name, pd.REST.Endpoint, pd.REST.BasePath), nil
 	}
 	return nil, errors.New("unknown plugin discovery source")
 }
