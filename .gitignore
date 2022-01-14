@@ -1,4 +1,3 @@
-
 # Binaries for programs and plugins
 *.exe
 *.exe~
@@ -47,3 +46,5 @@ providers.tar.gz
 # Build artifacts related to packages
 /build
 /packages/package-values-sha256.yaml
+
+.vscode
