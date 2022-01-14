@@ -14,11 +14,13 @@ import (
 	. "github.com/onsi/gomega"
 	"github.com/pkg/errors"
 	corev1 "k8s.io/api/core/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/version"
 	"k8s.io/client-go/discovery"
 	fakediscovery "k8s.io/client-go/discovery/fake"
 	fakeclientset "k8s.io/client-go/kubernetes/fake"
 	capav1beta1 "sigs.k8s.io/cluster-api-provider-aws/api/v1beta1"
+	capvv1beta1 "sigs.k8s.io/cluster-api-provider-vsphere/api/v1beta1"
 	capi "sigs.k8s.io/cluster-api/api/v1beta1"
 	capibootstrapkubeadmv1beta1 "sigs.k8s.io/cluster-api/bootstrap/kubeadm/api/v1beta1"
 	capikubeadmv1beta1 "sigs.k8s.io/cluster-api/controlplane/kubeadm/api/v1beta1"
@@ -118,7 +120,9 @@ var _ = Describe("Unit tests for upgrade cluster", func() {
 		tkgClient, err = CreateTKGClient("../fakes/config/config.yaml", testingDir, "../fakes/config/bom/tkg-bom-v1.3.1.yaml", 2*time.Millisecond)
 
 		vcClient = &fakes.VCClient{}
-		vcClient.GetAndValidateVirtualMachineTemplateReturns(&types.VSphereVirtualMachine{}, nil)
+		vcClient.GetAndValidateVirtualMachineTemplateReturns(&types.VSphereVirtualMachine{
+			Moid: "vm-1",
+		}, nil)
 		regionalClusterClient.GetVCClientAndDataCenterReturns(vcClient, "", nil)
 		Expect(err).NotTo(HaveOccurred())
 
@@ -283,6 +287,43 @@ var _ = Describe("Unit tests for upgrade cluster", func() {
 					Expect(err).To(HaveOccurred())
 					Expect(err.Error()).To(ContainSubstring("unable to create VSphereMachineTemplate for upgrade with name"))
 					Expect(err.Error()).To(ContainSubstring("fake-error-create-resource"))
+
+					i, _, _, _ := regionalClusterClient.CreateResourceArgsForCall(0)
+					template := i.(*capvv1beta1.VSphereMachineTemplate)
+					Expect(template.Annotations["vmTemplateMoid"]).To(Equal("vm-1"))
+				})
+			})
+			Context("template upgrade is not required", func() {
+				BeforeEach(func() {
+					dummyKcp := getDummyKCP(constants.VSphereMachineTemplate)
+					dummyKcp.Spec.Version = newK8sVersion
+					regionalClusterClient.GetKCPObjectForClusterReturns(dummyKcp, nil)
+					dummyMd := getDummyMD()
+					dummyMd[0].Spec.Template.Spec.Version = &newK8sVersion
+					regionalClusterClient.GetMDObjectForClusterReturns(dummyMd, nil)
+					callIndex := 0
+					regionalClusterClient.GetResourceStub = func(i interface{}, s1, s2 string, pvf clusterclient.PostVerifyrFunc, po *clusterclient.PollOptions) error {
+						if callIndex == 0 {
+							cluster := i.(*capi.Cluster)
+							*cluster = capi.Cluster{}
+						}
+						if callIndex == 1 || callIndex == 2 {
+							mt := i.(*capvv1beta1.VSphereMachineTemplate)
+							*mt = capvv1beta1.VSphereMachineTemplate{
+								ObjectMeta: metav1.ObjectMeta{
+									Annotations: map[string]string{
+										"vmTemplateMoid": "vm-1",
+									},
+								},
+							}
+						}
+						callIndex++
+						return nil
+					}
+				})
+				It("should not create a new KubeadmConfigTemplate", func() {
+					Expect(err).NotTo(HaveOccurred())
+					Expect(regionalClusterClient.CreateResourceCallCount()).To(Equal(0))
 				})
 			})
 		})
