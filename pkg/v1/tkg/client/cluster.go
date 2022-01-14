@@ -720,8 +720,7 @@ func (c *TkgClient) ValidateManagementClusterVersionWithCLI(regionalClusterClien
 	}
 
 	if curMCSemVersion.Major() != defaultTKGSemVersion.Major() ||
-		curMCSemVersion.Minor() != defaultTKGSemVersion.Minor() ||
-		curMCSemVersion.Patch() != defaultTKGSemVersion.Patch() {
+		curMCSemVersion.Minor() != defaultTKGSemVersion.Minor() {
 		return errors.Errorf("version mismatch between management cluster and cli version. Please upgrade your management cluster to the latest to continue")
 	}
 
