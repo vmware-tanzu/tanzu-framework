@@ -14,4 +14,7 @@ type Registry interface {
 	GetFile(imageWithTag string, filename string) ([]byte, error)
 	// GetFiles get all the files content bundled in the given image:tag.
 	GetFiles(imageWithTag string) (map[string][]byte, error)
+	// DownloadBundle downloads OCI bundle similar to `imgpkg pull -b` command
+	// It is recommended to use this function when downloading imgpkg bundle
+	DownloadBundle(imageName, outputDir string) error
 }
