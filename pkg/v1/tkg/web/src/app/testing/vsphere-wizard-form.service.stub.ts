@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, ReplaySubject } from 'rxjs';
-import { APIClient } from '../swagger/api-client.service';
+import { APIClient } from 'tanzu-ui-api-lib';
 
 export class VSphereWizardFormServiceStub {
     getPayload() {

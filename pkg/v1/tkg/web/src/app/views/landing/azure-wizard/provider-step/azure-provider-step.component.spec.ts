@@ -4,18 +4,19 @@ import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { FormBuilder } from '@angular/forms';
 import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
-// Third party imports
+
+// Library imports
 import { of, throwError, Observable } from 'rxjs';
+import { APIClient, AzureResourceGroup } from 'tanzu-ui-api-lib';
+
 // App imports
 import AppServices from '../../../../shared/service/appServices';
 import { AzureProviderStepComponent } from './azure-provider-step.component';
-import { APIClient } from '../../../../swagger/api-client.service';
 import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
 import { Messenger, TkgEventType } from 'src/app/shared/service/Messenger';
 import { SharedModule } from '../../../../shared/shared.module';
 import { ValidationService } from '../../wizard/shared/validation/validation.service';
 import { DataServiceRegistrarTestExtension } from '../../../../testing/data-service-registrar.testextension';
-import { AzureResourceGroup } from '../../../../swagger/models';
 
 describe('AzureProviderStepComponent', () => {
     let component: AzureProviderStepComponent;

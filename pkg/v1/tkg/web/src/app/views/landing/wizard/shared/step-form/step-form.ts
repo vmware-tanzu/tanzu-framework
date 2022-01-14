@@ -1,7 +1,7 @@
 // Angular imports
 import { Directive, OnInit } from '@angular/core';
 import { AbstractControl, FormGroup, ValidatorFn } from '@angular/forms';
-// Third party imports
+// Library imports
 import { distinctUntilChanged, takeUntil } from 'rxjs/operators';
 import { Subject } from 'rxjs';
 // App imports

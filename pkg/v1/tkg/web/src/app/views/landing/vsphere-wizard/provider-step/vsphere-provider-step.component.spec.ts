@@ -5,11 +5,13 @@ import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { FormBuilder } from '@angular/forms';
 import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
-// Third party imports
+
+// Library imports
 import { of } from 'rxjs';
 import { delay } from 'rxjs/operators';
+import { APIClient } from 'tanzu-ui-api-lib';
+
 // App imports
-import { APIClient } from 'src/app/swagger/api-client.service';
 import AppServices from 'src/app/shared/service/appServices';
 import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
 import { Messenger } from 'src/app/shared/service/Messenger';

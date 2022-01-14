@@ -1,10 +1,13 @@
 // Angular imports
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { By } from '@angular/platform-browser';
+
+// Library imports
+import { APIClient, AWSSubnet } from 'tanzu-ui-api-lib';
+
 // App imports
-import { APIClient } from '../../../../swagger/api-client.service';
 import AppServices from 'src/app/shared/service/appServices';
 import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
 import { NodeSettingStepComponent } from './node-setting-step.component';
@@ -12,7 +15,6 @@ import { Messenger, TkgEventType } from 'src/app/shared/service/Messenger';
 import { SharedModule } from '../../../../shared/shared.module';
 import { ValidationService } from '../../wizard/shared/validation/validation.service';
 import { DataServiceRegistrarTestExtension } from '../../../../testing/data-service-registrar.testextension';
-import { AWSSubnet } from '../../../../swagger/models';
 
 describe('NodeSettingStepComponent', () => {
     let component: NodeSettingStepComponent;

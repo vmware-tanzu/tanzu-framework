@@ -1,7 +1,7 @@
 // Angular imports
 import { Component, OnInit, Input } from '@angular/core';
 import { Router } from '@angular/router';
-// Third party imports
+// Library imports
 import { takeUntil } from "rxjs/operators";
 // App imports
 import { APP_ROUTES, Routes } from '../../../shared/constants/routes.constants';

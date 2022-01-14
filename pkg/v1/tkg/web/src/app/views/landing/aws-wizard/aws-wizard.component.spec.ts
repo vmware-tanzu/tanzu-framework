@@ -5,8 +5,11 @@ import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { FormBuilder } from '@angular/forms';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterTestingModule } from '@angular/router/testing';
+
+// Library imports
+import { APIClient } from 'tanzu-ui-api-lib';
+
 // App imports
-import { APIClient } from '../../../swagger/api-client.service';
 import AppServices from 'src/app/shared/service/appServices';
 import { AwsForm } from './aws-wizard.constants';
 import { AwsWizardComponent } from './aws-wizard.component';

@@ -2,6 +2,10 @@
 import { Component, OnInit } from '@angular/core';
 import { Validators } from '@angular/forms';
 import { distinctUntilChanged, takeUntil } from 'rxjs/operators';
+
+// Library imports
+import { Vpc } from 'tanzu-ui-api-lib';
+
 // App imports
 import AppServices from 'src/app/shared/service/appServices';
 import { AwsVpcStepMapping } from './vpc-step.fieldmapping';
@@ -10,7 +14,6 @@ import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUti
 import { StepFormDirective } from '../../wizard/shared/step-form/step-form';
 import { TkgEventType } from '../../../../shared/service/Messenger';
 import { ValidationService } from './../../wizard/shared/validation/validation.service';
-import { Vpc } from '../../../../swagger/models/vpc.model';
 
 @Component({
     selector: 'app-vpc-step',

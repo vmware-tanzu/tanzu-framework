@@ -1,13 +1,15 @@
+// Angular modules
 import { Component, ElementRef, OnInit } from '@angular/core';
 import { FormBuilder } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Title } from '@angular/platform-browser';
 
+// Library imports
+import { APIClient, ConfigFileInfo, DockerRegionalClusterParams } from 'tanzu-ui-api-lib';
 import { Observable } from 'rxjs';
 
+// App imports
 import { FormMetaDataService } from 'src/app/shared/service/form-meta-data.service';
-import { APIClient } from 'src/app/swagger';
-import { ConfigFileInfo, DockerRegionalClusterParams } from 'src/app/swagger/models';
 import { CliFields, CliGenerator } from '../wizard/shared/utils/cli-generator';
 import { WizardBaseDirective } from '../wizard/shared/wizard-base/wizard-base';
 import { ImportParams, ImportService } from "../../../shared/service/import.service";

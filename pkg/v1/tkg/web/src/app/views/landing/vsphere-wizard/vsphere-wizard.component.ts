@@ -3,10 +3,20 @@ import { Component, OnInit, ElementRef } from '@angular/core';
 import { FormBuilder } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Title } from '@angular/platform-browser';
-// Third party imports
+
+// Library imports
 import { Observable } from 'rxjs';
+import { APIClient,
+    VSphereDatastore,
+    VSphereFolder,
+    VSphereManagementObject,
+    VSphereNetwork,
+    VsphereRegionalClusterParams,
+    VSphereResourcePool,
+    VSphereVirtualMachine
+} from 'tanzu-ui-api-lib';
+
 // App imports
-import { APIClient } from '../../../swagger/api-client.service';
 import { APP_ROUTES, Routes } from '../../../shared/constants/routes.constants';
 import AppServices from "../../../shared/service/appServices";
 import { CliFields, CliGenerator } from '../wizard/shared/utils/cli-generator';
@@ -19,18 +29,9 @@ import { PROVIDERS, Providers } from '../../../shared/constants/app.constants';
 import { ResourceStepComponent } from './resource-step/resource-step.component';
 import { TkgEventType } from '../../../shared/service/Messenger';
 import { VsphereField } from './vsphere-wizard.constants';
-import {
-    VSphereDatastore,
-    VSphereFolder,
-    VSphereManagementObject,
-    VSphereNetwork,
-    VSphereResourcePool,
-    VSphereVirtualMachine
-} from '../../../swagger/models';
 import { VsphereNetworkStepComponent } from './vsphere-network-step/vsphere-network-step.component';
 import { VsphereOsImageStepComponent } from './vsphere-os-image-step/vsphere-os-image-step.component';
 import { VSphereProviderStepComponent } from './provider-step/vsphere-provider-step.component';
-import { VsphereRegionalClusterParams } from 'src/app/swagger/models/vsphere-regional-cluster-params.model';
 import { WizardBaseDirective } from '../wizard/shared/wizard-base/wizard-base';
 import { WizardForm, WizardStep } from '../wizard/shared/constants/wizard.constants';
 

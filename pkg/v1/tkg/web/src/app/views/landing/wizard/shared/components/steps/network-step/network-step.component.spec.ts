@@ -1,8 +1,11 @@
 // Angular imports
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
+
+// Library imports
+import { APIClient } from 'tanzu-ui-api-lib';
+
 // App imports
-import { APIClient } from 'src/app/swagger/api-client.service';
 import AppServices from 'src/app/shared/service/appServices';
 import { FieldMapUtilities } from '../../../field-mapping/FieldMapUtilities';
 import { Messenger } from 'src/app/shared/service/Messenger';

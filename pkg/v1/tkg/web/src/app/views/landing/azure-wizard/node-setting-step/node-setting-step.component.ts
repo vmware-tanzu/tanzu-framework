@@ -1,8 +1,9 @@
 // Angular imports
 import { Component, OnInit } from '@angular/core';
 import { Validators } from '@angular/forms';
+
 // App imports
-import { AzureInstanceType } from 'src/app/swagger/models';
+import { AzureInstanceType } from 'tanzu-ui-api-lib';
 import { AzureNodeSettingStandaloneStepMapping, AzureNodeSettingStepMapping } from './node-setting-step.fieldmapping';
 import AppServices from '../../../../shared/service/appServices';
 import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';

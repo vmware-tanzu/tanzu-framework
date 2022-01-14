@@ -2,7 +2,7 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
-// Third party modules
+// Library modules
 import { LogMonitorModule } from 'ngx-log-monitor';
 
 // App imports

@@ -1,19 +1,22 @@
 // Angular imports
 import { Component, OnInit } from '@angular/core';
 import { Validators } from '@angular/forms';
-// Third party imports
+
+// Library imports
+import { ClrLoadingState } from '@clr/angular';
 import { debounceTime, distinctUntilChanged, finalize, takeUntil } from 'rxjs/operators';
+import { APIClient,
+    AviCloud,
+    AviServiceEngineGroup,
+    AviVipNetwork
+} from 'tanzu-ui-api-lib';
+
 // App imports
-import { APIClient } from "../../../../../../../swagger";
 import AppServices from 'src/app/shared/service/appServices';
-import { AviCloud } from "src/app/swagger/models/avi-cloud.model";
-import { AviServiceEngineGroup } from "src/app/swagger/models/avi-service-engine-group.model";
-import { AviVipNetwork } from './../../../../../../../swagger/models/avi-vip-network.model';
-import { ClrLoadingState } from "@clr/angular";
 import { FieldMapUtilities } from '../../../field-mapping/FieldMapUtilities';
 import { IpFamilyEnum } from 'src/app/shared/constants/app.constants';
 import { LoadBalancerStepMapping } from './load-balancer-step.fieldmapping';
-import { StepFormDirective } from "../../../step-form/step-form";
+import { StepFormDirective } from '../../../step-form/step-form';
 import { TkgEventType } from 'src/app/shared/service/Messenger';
 import { ValidationService } from "../../../validation/validation.service";
 

@@ -7,7 +7,7 @@ import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { HttpClientModule } from '@angular/common/http';
 
 /**
- * Third party imports
+ * Library imports
  */
 import { ClarityModule } from "@clr/angular";
 

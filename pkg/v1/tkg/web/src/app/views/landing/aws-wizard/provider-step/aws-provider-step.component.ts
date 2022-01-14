@@ -1,10 +1,12 @@
 // Angular imports
 import {Component, OnInit} from '@angular/core';
-// Third party imports
+
+// Library imports
 import {catchError, debounceTime, distinctUntilChanged, takeUntil} from 'rxjs/operators';
 import {forkJoin, of} from 'rxjs';
+import { APIClient } from 'tanzu-ui-api-lib';
+
 // App imports
-import { APIClient } from '../../../../swagger/api-client.service';
 import AppServices from '../../../../shared/service/appServices';
 import { AwsField, CredentialType } from "../aws-wizard.constants";
 import { AwsProviderStepMapping } from './aws-provider-step.fieldmapping';

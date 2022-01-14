@@ -1,4 +1,4 @@
-// Third party imports
+// Library imports
 import { takeUntil } from 'rxjs/operators';
 
 // App imports

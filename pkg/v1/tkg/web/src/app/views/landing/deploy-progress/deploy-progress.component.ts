@@ -1,7 +1,7 @@
 // Angular imports
 import { Component, OnInit } from '@angular/core';
 
-// Third party imports
+// Library imports
 import {
     BehaviorSubject
 } from 'rxjs';

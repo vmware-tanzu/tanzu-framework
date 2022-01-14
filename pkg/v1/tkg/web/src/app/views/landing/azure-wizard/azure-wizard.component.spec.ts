@@ -1,7 +1,10 @@
 // Angular imports
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+
+// Library imports
+import { APIClient } from 'tanzu-ui-api-lib';
+
 // App imports
-import { APIClient } from 'src/app/swagger';
 import AppServices from '../../../shared/service/appServices';
 import { AzureForm } from './azure-wizard.constants';
 import { AzureProviderStepComponent } from './provider-step/azure-provider-step.component';

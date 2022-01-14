@@ -1,7 +1,7 @@
 // Angular imports
 import { Component, OnInit } from '@angular/core';
 import { StepFormDirective } from '../../wizard/shared/step-form/step-form';
-// Third party imports
+// Library imports
 import { takeUntil } from "rxjs/operators";
 // App imports
 import AppServices from "../../../../shared/service/appServices";

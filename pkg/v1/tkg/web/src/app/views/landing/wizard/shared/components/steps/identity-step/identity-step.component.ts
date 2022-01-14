@@ -1,11 +1,14 @@
-import { LdapParams } from './../../../../../../../swagger/models/ldap-params.model';
+// Angular modules
 import { Component, OnInit } from '@angular/core';
-import { FormControl, Validators } from '@angular/forms';
+
+// Library imports
 import { distinctUntilChanged, takeUntil, tap } from 'rxjs/operators';
-import { APIClient } from 'src/app/swagger';
+import { APIClient, LdapParams, LdapTestResult } from 'tanzu-ui-api-lib';
+
+// App imports
+import { FormControl, Validators } from '@angular/forms';
 import { StepFormDirective } from '../../../step-form/step-form';
 import { ValidationService } from '../../../validation/validation.service';
-import { LdapTestResult } from 'src/app/swagger/models';
 import { IpFamilyEnum } from 'src/app/shared/constants/app.constants';
 import { FieldMapUtilities } from '../../../field-mapping/FieldMapUtilities';
 import { IdentityStepMapping } from './identity-step.fieldmapping';

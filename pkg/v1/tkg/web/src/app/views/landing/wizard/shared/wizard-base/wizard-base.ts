@@ -3,17 +3,19 @@ import { OnInit, ElementRef, AfterViewInit, ViewChild, Directive, Type } from '@
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Title } from '@angular/platform-browser';
-// Third party imports
+
+// Library imports
 import { ClrStepper } from '@clr/angular';
 import { debounceTime, take, takeUntil } from 'rxjs/operators';
 import FileSaver from 'file-saver';
 import { Observable } from 'rxjs';
+import { ConfigFileInfo } from 'tanzu-ui-api-lib';
+
 // App imports
 import { APP_ROUTES, Routes } from 'src/app/shared/constants/routes.constants';
 import AppServices from '../../../../../shared/service/appServices';
 import { BasicSubscriber } from 'src/app/shared/abstracts/basic-subscriber';
-import { ClusterType, WizardForm } from "../constants/wizard.constants";
-import { ConfigFileInfo } from '../../../../../swagger/models/config-file-info.model';
+import { ClusterType, WizardForm } from '../constants/wizard.constants';
 import { FormDataForHTML, FormUtility } from '../components/steps/form-utility';
 import { FormMetaDataStore } from '../FormMetaDataStore';
 import { FormMetaDataService } from 'src/app/shared/service/form-meta-data.service';
