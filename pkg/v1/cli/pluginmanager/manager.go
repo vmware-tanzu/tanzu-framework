@@ -384,6 +384,12 @@ func GetRecommendedVersionOfPlugin(serverName, pluginName string) (string, error
 func installOrUpgradePlugin(serverName string, p *plugin.Discovered, version string) error {
 	log.Infof("Installing plugin '%v:%v'", p.Name, version)
 
+	// verify plugin before installation
+	err := verifyPlugin(p)
+	if err != nil {
+		return errors.Wrapf(err, "%q plugin verification failed", p.Name)
+	}
+
 	b, err := p.Distribution.Fetch(version, runtime.GOOS, runtime.GOARCH)
 	if err != nil {
 		return err
@@ -701,4 +707,32 @@ func getPluginDescriptorResource(pluginFilePath string) (*cliv1alpha1.PluginDesc
 		return nil, fmt.Errorf("could not unmarshal %s: %v", filepath.Base(pluginFilePath), err)
 	}
 	return &pd, nil
+}
+
+// verifyPlugin verifies the plugin source is allowed to be used
+// and returns error if the verification fails
+// Currently this function only focuses on the verification of the OCI registry
+// based plugin artifacts by verifying the registry source
+func verifyPlugin(p *plugin.Discovered) error {
+	artifactInfo, err := p.Distribution.DescribeArtifact(p.RecommendedVersion, runtime.GOOS, runtime.GOARCH)
+	if err != nil {
+		return err
+	}
+	if artifactInfo.Image != "" {
+		return verifyRegistry(artifactInfo.Image)
+	}
+	return nil
+}
+
+// verifyRegistry verifies the authenticity of the registry from where cli is
+// trying to download the plugins by comparing it with the list of trusted registries
+func verifyRegistry(image string) error {
+	trustedRegistries := config.GetTrustedRegistries()
+	for _, tr := range trustedRegistries {
+		// Verify fullname of the registry has trusted registry fullname as the prefix
+		if tr != "" && strings.HasPrefix(image, tr) {
+			return nil
+		}
+	}
+	return errors.Errorf("untrusted registry detected with image %q. Allowed registries are %v", image, trustedRegistries)
 }
