@@ -21,19 +21,25 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	types2 "k8s.io/apimachinery/pkg/types"
+	kerrors "k8s.io/apimachinery/pkg/util/errors"
 	clusterv1 "sigs.k8s.io/cluster-api/api/v1beta1"
 	"sigs.k8s.io/cluster-api/util/conditions"
 	ctrl "sigs.k8s.io/controller-runtime"
+	"sigs.k8s.io/controller-runtime/pkg/builder"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 	"sigs.k8s.io/controller-runtime/pkg/event"
+	"sigs.k8s.io/controller-runtime/pkg/handler"
 	"sigs.k8s.io/controller-runtime/pkg/predicate"
+	"sigs.k8s.io/controller-runtime/pkg/reconcile"
+	"sigs.k8s.io/controller-runtime/pkg/source"
 
 	runv1 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkr/pkg/constants"
 	mgrcontext "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkr/pkg/context"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkr/pkg/registry"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkr/pkg/types"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/util/patchset"
 )
 
 // TanzuKubernetesReleaseReconciler reconciles a TanzuKubernetesRelease object
@@ -50,53 +56,62 @@ type reconciler struct {
 }
 
 // Reconcile performs the reconciliation step
-func (r *reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	ctxCancel, cancel := context.WithCancel(ctx)
-	defer cancel()
+func (r *reconciler) Reconcile(ctx context.Context, req ctrl.Request) (result reconcile.Result, retErr error) {
+	ps := patchset.New(r.client)
+	defer func() {
+		// apply patches unless an error is being returned
+		if retErr != nil {
+			return
+		}
+		if err := ps.Apply(ctx); err != nil {
+			if err = kerrors.FilterOut(err, apierrors.IsConflict); err == nil {
+				// retry if someone updated an object we wanted to patch
+				result = ctrl.Result{Requeue: true}
+			}
+			retErr = errors.Wrap(err, "applying patches to TKRs")
+		}
+	}()
 
 	configMap := &corev1.ConfigMap{}
-	if err := r.client.Get(ctxCancel, types2.NamespacedName{Namespace: req.Namespace, Name: req.Name}, configMap); err != nil {
+	if err := r.client.Get(ctx, types2.NamespacedName{Namespace: req.Namespace, Name: req.Name}, configMap); err != nil {
 		if apierrors.IsNotFound(err) {
 			return ctrl.Result{}, nil // do nothing if the ConfigMap does not exist
 		}
 		return ctrl.Result{}, err
 	}
+	r.log.Info("reconciling CM", "ns", req.Namespace, "name", req.Name)
 	if configMap.Name == constants.BOMMetadataConfigMapName {
-		if err := r.updateConditions(ctxCancel); err != nil {
-			if apierrors.IsConflict(errors.Cause(err)) {
-				return ctrl.Result{Requeue: true}, nil
-			}
-			return ctrl.Result{}, err
-		}
-		return ctrl.Result{}, nil
+		return ctrl.Result{}, r.updateConditions(ctx, ps)
 	}
 
+	return ctrl.Result{}, r.reconcileConfigMap(ctx, configMap)
+}
+
+func (r *reconciler) reconcileConfigMap(ctx context.Context, configMap *corev1.ConfigMap) error {
 	tkr, err := tkrFromConfigMap(configMap)
 	if err != nil {
 		r.log.Error(err, "Could not create TKR from ConfigMap", "ConfigMap", configMap.Name)
-		return ctrl.Result{}, nil // no need to retry: if the ConfigMap changes, we'll get called
+		return nil // no need to retry: if the ConfigMap changes, we'll get called
 	}
 	if tkr == nil {
-		return ctrl.Result{}, nil // no need to retry: no TKR in this ConfigMap
+		return nil // no need to retry: no TKR in this ConfigMap
 	}
 
-	if err := r.client.Create(ctxCancel, tkr); err != nil {
-		if apierrors.IsAlreadyExists(err) {
-			return ctrl.Result{}, nil // the TKR already exists, we're done.
+	existingTKR := &runv1.TanzuKubernetesRelease{}
+	if err := r.client.Get(ctx, client.ObjectKey{Name: tkr.Name}, existingTKR); err != nil {
+		if apierrors.IsNotFound(err) {
+			if err := r.client.Create(ctx, tkr); err != nil {
+				if apierrors.IsAlreadyExists(err) {
+					return nil // the TKR already exists, we're done.
+				}
+				return errors.Wrapf(err, "could not create TKR: ConfigMap.name='%s'", configMap.Name)
+			}
+			return nil
 		}
-		return ctrl.Result{}, errors.Wrapf(err, "could not create TKR: ConfigMap.name='%s'", configMap.Name)
-	}
-	if err := r.client.Status().Update(ctxCancel, tkr); err != nil {
-		return ctrl.Result{}, err
+		return errors.Wrapf(err, "could not get TKR: ConfigMap.name='%s'", configMap.Name)
 	}
 
-	if err := r.updateConditions(ctxCancel); err != nil {
-		if apierrors.IsConflict(errors.Cause(err)) {
-			return ctrl.Result{Requeue: true}, nil
-		}
-		return ctrl.Result{}, err
-	}
-	return ctrl.Result{}, nil
+	return nil
 }
 
 func tkrFromConfigMap(configMap *corev1.ConfigMap) (*runv1.TanzuKubernetesRelease, error) {
@@ -118,10 +133,14 @@ func tkrFromConfigMap(configMap *corev1.ConfigMap) (*runv1.TanzuKubernetesReleas
 	return &newTkr, nil
 }
 
-func (r *reconciler) updateConditions(ctx context.Context) error {
+func (r *reconciler) updateConditions(ctx context.Context, ps *patchset.PatchSet) error {
 	tkrList := &runv1.TanzuKubernetesReleaseList{}
 	if err := r.client.List(ctx, tkrList); err != nil {
 		return errors.Wrap(err, "could not list TKRs")
+	}
+
+	for i := range tkrList.Items {
+		ps.Add(&tkrList.Items[i])
 	}
 
 	if err := r.UpdateTKRCompatibleCondition(ctx, tkrList.Items); err != nil {
@@ -129,12 +148,6 @@ func (r *reconciler) updateConditions(ctx context.Context) error {
 	}
 
 	r.UpdateTKRUpdatesAvailableCondition(tkrList.Items)
-
-	for i := range tkrList.Items {
-		if err := r.client.Status().Update(ctx, &tkrList.Items[i]); err != nil {
-			return errors.Wrapf(err, "failed to update status sub resource for TKR %s", tkrList.Items[i].ObjectMeta.Name)
-		}
-	}
 
 	return nil
 }
@@ -146,12 +159,38 @@ func AddToManager(ctx *mgrcontext.ControllerManagerContext, mgr ctrl.Manager) er
 		return err
 	}
 	return ctrl.NewControllerManagedBy(mgr).
-		For(&corev1.ConfigMap{}). // we're watching ConfigMaps and producing TKRs
-		Named("tkr-source-controller").
-		WithEventFilter(eventFilter(func(eventMeta metav1.Object) bool {
+		For(&corev1.ConfigMap{}, builder.WithPredicates(eventFilter(func(eventMeta metav1.Object) bool {
 			return eventMeta.GetNamespace() == constants.TKRNamespace && eventMeta.GetName() != constants.TKRControllerLeaderElectionCM
-		})).
+		}))). // we're watching ConfigMaps and producing TKRs
+		Watches(&source.Kind{Type: &runv1.TanzuKubernetesRelease{}}, handler.EnqueueRequestsFromMapFunc(watchTKRs)).
+		Watches(&source.Kind{Type: &clusterv1.Cluster{}}, handler.EnqueueRequestsFromMapFunc(watchMgmtCluster)).
+		Named("tkr-source-controller").
 		Complete(r)
+}
+
+// watchTKRs returns reconcile.Request for bom-metadata ConfigMap reacting to TKR updates,
+// which should affect TKR Compatible and UpdatesAvailable conditions.
+func watchTKRs(client.Object) []reconcile.Request {
+	return []reconcile.Request{{NamespacedName: client.ObjectKey{
+		Namespace: constants.TKRNamespace,
+		Name:      constants.BOMMetadataConfigMapName,
+	}}}
+}
+
+// watchMgmtCluster returns reconcile.Request for bom-metadata ConfigMap reacting to mgmt Cluster updates,
+// which should affect TKR Compatible and UpdatesAvailable conditions.
+func watchMgmtCluster(o client.Object) []reconcile.Request {
+	labels := o.GetLabels()
+	if labels == nil {
+		return nil
+	}
+	if _, exists := labels[constants.ManagememtClusterRoleLabel]; exists {
+		return []reconcile.Request{{NamespacedName: client.ObjectKey{
+			Namespace: constants.TKRNamespace,
+			Name:      constants.BOMMetadataConfigMapName,
+		}}}
+	}
+	return nil
 }
 
 func eventFilter(p func(eventMeta metav1.Object) bool) *predicate.Funcs {
