@@ -3,7 +3,7 @@
 
 # Build from publicly reachable source by default, but allow people to re-build images on
 # top of their own trusted images.
-ARG BUILDER_BASE_IMAGE=mirror.gcr.io/library/golang:1.17
+ARG BUILDER_BASE_IMAGE=golang:1.17
 
 # Build the manager binary
 FROM $BUILDER_BASE_IMAGE as builder

@@ -738,7 +738,7 @@ clean-registry: ## Stops and removes local docker registry
 
 .PHONY: local-registry
 local-registry: clean-registry ## Starts up a local docker registry
-	docker run -d -p 5000:5000 --name registry mirror.gcr.io/library/registry:2
+	docker run -d -p 5000:5000 --name registry registry:2
 
 .PHONY: trivy-scan
 trivy-scan: ## Trivy scan images used in packages
