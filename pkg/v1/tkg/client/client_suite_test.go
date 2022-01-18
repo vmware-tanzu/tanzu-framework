@@ -250,14 +250,19 @@ var _ = Describe("ValidateVsphereResources", func() {
 		err       error
 
 		dc               = "dc0"
+		dcMoid           = "dcMoid"
 		dcPath           = "/dc0"
 		network          = "VM Network"
+		networkMoid      = "networkMoid"
 		networkPath      = "/dc0/network/VM Network"
 		resourcePool     = "cluster0/Resources"
+		resourcePoolMoid = "resourcePoolMoid"
 		resourcePoolPath = "/dc0/host/cluster0/Resources"
 		datastore        = "sharedVmfs-1"
+		datastoreMoid    = "datastoreMoid"
 		datastorePath    = "/dc0/datastore/sharedVmfs-1"
 		folder           = "vm"
+		folderMoid       = "folderMoid"
 		folderPath       = "/dc0/vm"
 	)
 
@@ -300,19 +305,19 @@ var _ = Describe("ValidateVsphereResources", func() {
 			vcClient = &fakes.VCClient{}
 			tkgClient, err = CreateTKGClient(configFile, testingDir, defaultTKGBoMFileForTesting, 2*time.Second)
 
-			vcClient.FindDataCenterReturns(dc, nil)
+			vcClient.FindDataCenterReturns(dcMoid, nil)
 			vcClient.GetPathReturnsOnCall(0, dcPath, nil, nil)
 
-			vcClient.FindNetworkReturns(network, nil)
+			vcClient.FindNetworkReturns(networkMoid, nil)
 			vcClient.GetPathReturnsOnCall(1, networkPath, nil, nil)
 
-			vcClient.FindResourcePoolReturns(resourcePool, nil)
+			vcClient.FindResourcePoolReturns(resourcePoolMoid, nil)
 			vcClient.GetPathReturnsOnCall(2, resourcePoolPath, nil, nil)
 
-			vcClient.FindDatastoreReturns(datastore, nil)
+			vcClient.FindDatastoreReturns(datastoreMoid, nil)
 			vcClient.GetPathReturnsOnCall(3, datastorePath, nil, nil)
 
-			vcClient.FindFolderReturns(folder, nil)
+			vcClient.FindFolderReturns(folderMoid, nil)
 			vcClient.GetPathReturnsOnCall(4, folderPath, nil, nil)
 
 			os.Setenv(constants.ConfigVariableVsphereDatacenter, dc)
