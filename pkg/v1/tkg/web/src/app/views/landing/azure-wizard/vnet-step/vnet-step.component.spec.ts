@@ -1,8 +1,7 @@
 // Angular imports
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
-import { ReactiveFormsModule } from '@angular/forms';
-import { FormBuilder } from '@angular/forms';
+import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 
 // Library imports
 import { APIClient } from 'tanzu-ui-api-lib';
@@ -10,10 +9,11 @@ import { APIClient } from 'tanzu-ui-api-lib';
 // App imports
 import AppServices from 'src/app/shared/service/appServices';
 import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
-import { Messenger } from 'src/app/shared/service/Messenger';
+import { Messenger, TkgEventType } from 'src/app/shared/service/Messenger';
 import { SharedModule } from '../../../../shared/shared.module';
 import { ValidationService } from '../../wizard/shared/validation/validation.service';
 import { VnetStepComponent } from './vnet-step.component';
+import { AzureField, AzureForm } from '../azure-wizard.constants';
 
 describe('VnetStepComponent', () => {
     let component: VnetStepComponent;
@@ -42,11 +42,9 @@ describe('VnetStepComponent', () => {
     beforeEach(() => {
         AppServices.messenger = new Messenger();
 
-        const fb = new FormBuilder();
         fixture = TestBed.createComponent(VnetStepComponent);
         component = fixture.componentInstance;
-        component.formGroup = fb.group({
-        });
+        component.setInputs('ZuchiniWizard', AzureForm.VNET,  new FormBuilder().group({}));
 
         fixture.detectChanges();
     });
@@ -54,4 +52,23 @@ describe('VnetStepComponent', () => {
     it('should create', () => {
         expect(component).toBeTruthy();
     });
-})
+
+    it('should announce description change', () => {
+        const msgSpy = spyOn(AppServices.messenger, 'publish').and.callThrough();
+        component.ngOnInit();
+
+        const staticDescription = component.dynamicDescription();
+        expect(staticDescription).toEqual('Specify an Azure VNET CIDR')
+
+        const customCidrControl = component.formGroup.get(AzureField.VNET_CUSTOM_CIDR);
+        customCidrControl.setValue('4.3.2.1/12');
+        expect(msgSpy).toHaveBeenCalledWith({
+            type: TkgEventType.STEP_DESCRIPTION_CHANGE,
+            payload: {
+                wizard: 'ZuchiniWizard',
+                step: AzureForm.VNET,
+                description: 'Subnet: 4.3.2.1/12',
+            }
+        });
+    });
+});

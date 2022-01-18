@@ -327,12 +327,12 @@ func TestConfigFeaturesDefaultsAdded(t *testing.T) {
 		},
 	}
 
-	added := addMissingDefaultFeatureFlags(cfg, defaultFeatureFlags)
-	require.True(t, added, "addMissingDefaultFeatureFlags should have added missing default values")
-	require.Equal(t, cfg.ClientOptions.Features["existing"]["truthy"], "false", "addMissingDefaultFeatureFlags should have left existing FALSE value for truthy")
-	require.Equal(t, cfg.ClientOptions.Features["existing"]["falsey"], "true", "addMissingDefaultFeatureFlags should have left existing TRUE value for falsey")
-	require.Equal(t, cfg.ClientOptions.Features["global"]["truthy"], "true", "addMissingDefaultFeatureFlags should have added global TRUE value for truthy")
-	require.Equal(t, cfg.ClientOptions.Features["global"]["falsey"], "false", "addMissingDefaultFeatureFlags should have added global FALSE value for falsey")
+	added := addDefaultFeatureFlagsIfMissing(cfg, defaultFeatureFlags)
+	require.True(t, added, "addDefaultFeatureFlagsIfMissing should have added missing default values")
+	require.Equal(t, cfg.ClientOptions.Features["existing"]["truthy"], "false", "addDefaultFeatureFlagsIfMissing should have left existing FALSE value for truthy")
+	require.Equal(t, cfg.ClientOptions.Features["existing"]["falsey"], "true", "addDefaultFeatureFlagsIfMissing should have left existing TRUE value for falsey")
+	require.Equal(t, cfg.ClientOptions.Features["global"]["truthy"], "true", "addDefaultFeatureFlagsIfMissing should have added global TRUE value for truthy")
+	require.Equal(t, cfg.ClientOptions.Features["global"]["falsey"], "false", "addDefaultFeatureFlagsIfMissing should have added global FALSE value for falsey")
 }
 
 func TestConfigFeaturesDefaultsNoneAdded(t *testing.T) {
@@ -357,10 +357,43 @@ func TestConfigFeaturesDefaultsNoneAdded(t *testing.T) {
 		},
 	}
 
-	added := addMissingDefaultFeatureFlags(cfg, defaultFeatureFlags)
-	require.False(t, added, "addMissingDefaultFeatureFlags should NOT have added any default values")
-	require.Equal(t, cfg.ClientOptions.Features["existing"]["truthy"], "false", "addMissingDefaultFeatureFlags should have left existing FALSE value for truthy")
-	require.Equal(t, cfg.ClientOptions.Features["existing"]["falsey"], "true", "addMissingDefaultFeatureFlags should have left existing TRUE value for falsey")
+	added := addDefaultFeatureFlagsIfMissing(cfg, defaultFeatureFlags)
+	require.False(t, added, "addDefaultFeatureFlagsIfMissing should NOT have added any default values")
+	require.Equal(t, cfg.ClientOptions.Features["existing"]["truthy"], "false", "addDefaultFeatureFlagsIfMissing should have left existing FALSE value for truthy")
+	require.Equal(t, cfg.ClientOptions.Features["existing"]["falsey"], "true", "addDefaultFeatureFlagsIfMissing should have left existing TRUE value for falsey")
+}
+
+func TestConfigFeaturesDefaultEditionAdded(t *testing.T) {
+	cfg := &configv1alpha1.ClientConfig{
+		ClientOptions: &configv1alpha1.ClientOptions{
+			CLI: &configv1alpha1.CLIOptions{
+				Repositories:            DefaultRepositories,
+				UnstableVersionSelector: DefaultVersionSelector,
+			},
+		},
+	}
+
+	added := addDefaultEditionIfMissing(cfg)
+	require.True(t, added, "addDefaultEditionIfMissing should have returned true (having added missing default edition value)")
+	errMsg := "addDefaultEditionIfMissing should have added default edition (" + configv1alpha1.EditionStandard + ") instead of " + cfg.ClientOptions.CLI.Edition
+	require.Equal(t, cfg.ClientOptions.CLI.Edition, configv1alpha1.EditionSelector(configv1alpha1.EditionStandard), errMsg)
+}
+
+func TestConfigFeaturesDefaultEditionNotAdded(t *testing.T) {
+	cfg := &configv1alpha1.ClientConfig{
+		ClientOptions: &configv1alpha1.ClientOptions{
+			CLI: &configv1alpha1.CLIOptions{
+				Repositories:            DefaultRepositories,
+				UnstableVersionSelector: DefaultVersionSelector,
+				Edition:                 "tce",
+			},
+		},
+	}
+
+	added := addDefaultEditionIfMissing(cfg)
+	require.False(t, added, "addDefaultEditionIfMissing should have returned false (without adding default edition value)")
+	errMsg := "addDefaultEditionIfMissing should have left existing edition value intact instead of replacing with [" + cfg.ClientOptions.CLI.Edition + "]"
+	require.Equal(t, cfg.ClientOptions.CLI.Edition, configv1alpha1.EditionSelector(configv1alpha1.EditionCommunity), errMsg)
 }
 
 func TestConfigPopulateDefaultStandaloneDiscovery(t *testing.T) {

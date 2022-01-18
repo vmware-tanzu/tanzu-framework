@@ -440,6 +440,7 @@ func (c *TkgClient) ConfigureAndValidateVSphereTemplate(vcClient vc.Client, tkrV
 	c.TKGConfigReaderWriter().Set(constants.ConfigVariableOSName, vsphereVM.DistroName)
 	c.TKGConfigReaderWriter().Set(constants.ConfigVariableOSVersion, vsphereVM.DistroVersion)
 	c.TKGConfigReaderWriter().Set(constants.ConfigVariableOSArch, vsphereVM.DistroArch)
+	c.TKGConfigReaderWriter().Set(constants.ConfigVariableVsphereTemplateMoid, vsphereVM.Moid)
 	return nil
 }
 
@@ -541,7 +542,7 @@ func (c *TkgClient) ConfigureAndValidateManagementClusterConfiguration(options *
 	// BUILD_EDITION is the Tanzu Edition, the plugin should be built for. Its value is supposed be constructed from
 	// cmd/cli/plugin/managementcluster/create.go. So empty value at this point is not expected.
 	if options.Edition == "" {
-		return NewValidationError(ValidationErrorCode, "required config variable 'BUILD_EDITION' is not set")
+		return NewValidationError(ValidationErrorCode, "required config variable 'edition' is not set")
 	}
 	c.SetBuildEdition(options.Edition)
 
@@ -871,8 +872,9 @@ func (c *TkgClient) ValidateVsphereResources(vcClient vc.Client, dcPath string) 
 	return c.verifyDatastoreOrStoragePolicySet()
 }
 
+// set full inventory path if the config variable value is not already an absolute path string or if it is not MOID
 func (c *TkgClient) setFullPath(vcClient vc.Client, vsphereResourceConfigKey, path, resourceMoid string) error {
-	if path != "" {
+	if path != "" && !strings.HasPrefix(path, "/") && !strings.Contains(path, resourceMoid) {
 		resourcePath, _, err := vcClient.GetPath(context.Background(), resourceMoid)
 		if err != nil {
 			return err

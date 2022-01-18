@@ -259,6 +259,13 @@ $ tanzu app create NAME
 Creating app NAME in namespace NAMESPACE as user USERNAME
 ```
 
+or
+
+```txt
+$ tanzu app create NAME
+Creating app NAME using context KUBECONFIG-CONTEXT-NAME
+```
+
 ### Progress reporting
 
 For long running processes, don't go for a long period without output to the user. Outputting something like ’Processing…’, or a spinner can go a long way towards reassuring the user that their command went through.

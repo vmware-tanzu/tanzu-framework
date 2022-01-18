@@ -552,7 +552,7 @@ func (c *TkgClient) ConfigureAndValidateWorkloadClusterConfiguration(options *Cr
 	// BUILD_EDITION is the Tanzu Edition, the plugin should be built for. Its value is supposed be constructed from
 	// cmd/cli/plugin/managementcluster/create.go. So empty value at this point is not expected.
 	if options.Edition == "" {
-		return NewValidationError(ValidationErrorCode, "required config variable 'BUILD_EDITION' is not set")
+		return NewValidationError(ValidationErrorCode, "required config variable 'edition' is not set")
 	}
 	c.SetBuildEdition(options.Edition)
 	c.SetTKGClusterRole(options.ClusterType)
@@ -720,8 +720,7 @@ func (c *TkgClient) ValidateManagementClusterVersionWithCLI(regionalClusterClien
 	}
 
 	if curMCSemVersion.Major() != defaultTKGSemVersion.Major() ||
-		curMCSemVersion.Minor() != defaultTKGSemVersion.Minor() ||
-		curMCSemVersion.Patch() != defaultTKGSemVersion.Patch() {
+		curMCSemVersion.Minor() != defaultTKGSemVersion.Minor() {
 		return errors.Errorf("version mismatch between management cluster and cli version. Please upgrade your management cluster to the latest to continue")
 	}
 

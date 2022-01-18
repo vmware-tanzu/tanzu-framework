@@ -5,6 +5,7 @@ import { Router } from '@angular/router';
 import { takeUntil } from 'rxjs/operators';
 // App imports
 import { APP_ROUTES } from '../../constants/routes.constants';
+import { AppEdition } from "../../constants/branding.constants";
 import AppServices from "../../service/appServices";
 import { BasicSubscriber } from "../../abstracts/basic-subscriber";
 import { EditionData } from "../../service/branding.service";
@@ -34,7 +35,7 @@ export class HeaderBarComponent extends BasicSubscriber implements OnInit {
             .subscribe((data: TkgEvent) => {
                 const content: EditionData = data.payload;
                 this.edition = content.edition;
-                this.docsUrl = (this.edition === 'tkg') ? 'https://docs.vmware.com/en/VMware-Tanzu-Kubernetes-Grid/index.html' :
+                this.docsUrl = (this.edition === AppEdition.TKG) ? 'https://docs.vmware.com/en/VMware-Tanzu-Kubernetes-Grid/index.html' :
                     'http://tanzucommunityedition.io/docs';
             });
     }

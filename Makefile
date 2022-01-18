@@ -90,7 +90,6 @@ OCI_REGISTRY ?= projects.registry.vmware.com/tanzu_framework
 
 .DEFAULT_GOAL:=help
 
-LD_FLAGS += -X 'main.BuildEdition=$(BUILD_EDITION)'
 LD_FLAGS += -X 'github.com/vmware-tanzu/tanzu-framework/pkg/v1/buildinfo.IsOfficialBuild=$(IS_OFFICIAL_BUILD)'
 
 ifneq ($(strip $(TANZU_CORE_BUCKET)),)
@@ -493,7 +492,7 @@ test: generate fmt vet manifests build-cli-mocks ## Run tests
 
 .PHONY: test-cli
 test-cli: build-cli-mocks ## Run tests
-	$(GO) test ./...
+	$(GO) test ./pkg/v1/cli/... ./pkg/v1/auth/... ./pkg/v1/builder/... ./pkg/v1/config/... ./pkg/v1/encoding/... ./pkg/v1/grpc/...
 
 fmt: tools ## Run goimports
 	$(GOIMPORTS) -w -local github.com/vmware-tanzu ./
@@ -739,7 +738,7 @@ clean-registry: ## Stops and removes local docker registry
 
 .PHONY: local-registry
 local-registry: clean-registry ## Starts up a local docker registry
-	docker run -d -p 5000:5000 --name registry mirror.gcr.io/library/registry:2
+	docker run -d -p 5000:5000 --name registry registry:2
 
 .PHONY: trivy-scan
 trivy-scan: ## Trivy scan images used in packages

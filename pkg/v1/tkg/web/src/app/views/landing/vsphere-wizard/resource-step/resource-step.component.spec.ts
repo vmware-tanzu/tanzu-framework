@@ -18,6 +18,7 @@ import { ResourcePool, ResourceStepComponent } from './resource-step.component';
 import { SharedModule } from '../../../../shared/shared.module';
 import { ValidationService } from '../../wizard/shared/validation/validation.service';
 import { DataServiceRegistrarTestExtension } from '../../../../testing/data-service-registrar.testextension';
+import { VsphereField } from '../vsphere-wizard.constants';
 
 describe('ResourceStepComponent', () => {
     let component: ResourceStepComponent;
@@ -53,10 +54,10 @@ describe('ResourceStepComponent', () => {
         dataServiceRegistrar.simulateRegistration<VSphereFolder>(TkgEventType.VSPHERE_GET_VM_FOLDERS);
 
         TestBed.inject(ValidationService);
-        const fb = new FormBuilder();
         fixture = TestBed.createComponent(ResourceStepComponent);
         component = fixture.componentInstance;
-        component.formGroup = fb.group({});
+        component.setInputs('BozoWizard', 'resourceForm', new FormBuilder().group({}));
+        component.setClusterTypeDescriptor('VANILLA');
 
         fixture.detectChanges();
     });
@@ -102,5 +103,27 @@ describe('ResourceStepComponent', () => {
         const msgSpy = spyOn(AppServices.messenger, 'publish').and.callThrough();
         component.retrieveVMFolders();
         expect(msgSpy).toHaveBeenCalled();
+    });
+
+    it('should announce description change', () => {
+        const msgSpy = spyOn(AppServices.messenger, 'publish').and.callThrough();
+        component.ngOnInit();
+        const vmFolderControl = component.formGroup.get(VsphereField.RESOURCE_VMFOLDER);
+        const datastoreControl = component.formGroup.get(VsphereField.RESOURCE_DATASTORE);
+        const resourcePoolControl = component.formGroup.get(VsphereField.RESOURCE_POOL);
+
+        expect(component.dynamicDescription()).toEqual('Specify the resources for this VANILLA cluster');
+
+        vmFolderControl.setValue('VMFOLDER');
+        datastoreControl.setValue('DATASTORE');
+        resourcePoolControl.setValue('RESOURCE');
+        expect(msgSpy).toHaveBeenCalledWith({
+            type: TkgEventType.STEP_DESCRIPTION_CHANGE,
+            payload: {
+                wizard: 'BozoWizard',
+                step: 'resourceForm',
+                description: 'Resource Pool: RESOURCE, VM Folder: VMFOLDER, Datastore: DATASTORE',
+            }
+        });
     });
 });

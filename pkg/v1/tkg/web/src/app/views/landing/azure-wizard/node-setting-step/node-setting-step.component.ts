@@ -20,7 +20,7 @@ import { ValidationService } from '../../wizard/shared/validation/validation.ser
 export class NodeSettingStepComponent extends StepFormDirective implements OnInit {
 
     nodeTypes: AzureInstanceType[] = [];
-    nodeType: string;
+    nodeType: string;   // 'prod' or 'dev'
     currentRegion = "US-WEST";
     displayForm = false;
 
@@ -94,6 +94,7 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
         super.ngOnInit();
         this.fieldMapUtilities.buildForm(this.formGroup, this.formName, this.supplyStepMapping());
         this.subscribeToServices();
+        this.registerStepDescriptionTriggers({ clusterTypeDescriptor: true, fields: ['controlPlaneSetting']});
         this.toggleValidations();
         this.initFormWithSavedData();
     }
@@ -117,11 +118,10 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
         return this.formGroup.controls['controlPlaneSetting'].value;
     }
 
-    protected dynamicDescription(): string {
-        const controlPlaneSetting = this.getFieldValue("controlPlaneSetting", true);
-        if (controlPlaneSetting) {
-            return `Control plane type: ${controlPlaneSetting}`;
+    dynamicDescription(): string {
+        if (this.nodeType) {
+            return 'Control plane type: ' + this.nodeType;
         }
-        return `Specifying the resources backing the ${this.clusterTypeDescriptor} cluster`;
+        return 'Specify the resources backing the ' + this.clusterTypeDescriptor + ' cluster';
     }
 }

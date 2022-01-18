@@ -74,7 +74,7 @@ var getConfigCmd = &cobra.Command{
 
 var setConfigCmd = &cobra.Command{
 	Use:   "set <path> <value>",
-	Short: "Set config values at the given path. path values: [unstable-versions, features.global.<feature>, features.<plugin>.<feature>, env.<variable>]",
+	Short: "Set config values at the given path. path values: [unstable-versions, cli.edition, features.global.<feature>, features.<plugin>.<feature>, env.<variable>]",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		if len(args) < 2 {
 			return errors.Errorf("both path and value are required")
@@ -100,8 +100,12 @@ var setConfigCmd = &cobra.Command{
 func setConfiguration(cfg *configv1alpha1.ClientConfig, pathParam, value string) error {
 	// special cases:
 	// backward compatibility
-	if pathParam == "unstable-versions" {
+	if pathParam == "unstable-versions" || pathParam == "cli.unstable-versions" {
 		return setUnstableVersions(cfg, value)
+	}
+
+	if pathParam == "cli.edition" {
+		return setEdition(cfg, value)
 	}
 
 	// parse the param
@@ -170,6 +174,19 @@ func setUnstableVersions(cfg *configv1alpha1.ClientConfig, value string) error {
 		cfg.SetUnstableVersionSelector(optionKey)
 	default:
 		return fmt.Errorf("unknown unstable-versions setting: %s; should be one of [all, none, alpha, experimental]", optionKey)
+	}
+	return nil
+}
+
+func setEdition(cfg *configv1alpha1.ClientConfig, edition string) error {
+	editionOption := configv1alpha1.EditionSelector(edition)
+
+	switch editionOption {
+	case configv1alpha1.EditionCommunity,
+		configv1alpha1.EditionStandard:
+		cfg.SetEditionSelector(editionOption)
+	default:
+		return fmt.Errorf("unknown edition: %s; should be one of [%s, %s]", editionOption, configv1alpha1.EditionStandard, configv1alpha1.EditionCommunity)
 	}
 	return nil
 }

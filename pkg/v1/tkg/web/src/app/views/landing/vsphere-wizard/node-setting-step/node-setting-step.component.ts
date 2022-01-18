@@ -46,6 +46,7 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
     }
 
     private customizeForm() {
+        this.registerStepDescriptionTriggers({ clusterTypeDescriptor: true, fields: ['controlPlaneSetting']});
         this.registerOnValueChange(VsphereField.NODESETTING_CONTROL_PLANE_ENDPOINT_PROVIDER,
             this.onControlPlaneEndpoingProviderChange.bind(this));
         this.registerOnIpFamilyChange(VsphereField.NODESETTING_CONTROL_PLANE_ENDPOINT_IP, [

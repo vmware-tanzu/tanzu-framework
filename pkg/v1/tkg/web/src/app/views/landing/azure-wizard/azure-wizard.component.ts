@@ -21,6 +21,7 @@ import { AzureAccountParamsKeys, AzureProviderStepComponent } from './provider-s
 import { AzureOsImageStepComponent } from './os-image-step/azure-os-image-step.component';
 import { CliFields, CliGenerator } from '../wizard/shared/utils/cli-generator';
 import { EXISTING, VnetStepComponent } from './vnet-step/vnet-step.component';
+import { ExportService } from '../../../shared/service/export.service';
 import { FormDataForHTML, FormUtility } from '../wizard/shared/components/steps/form-utility';
 import { FormMetaDataService } from 'src/app/shared/service/form-meta-data.service';
 import { ImportParams, ImportService } from "../../../shared/service/import.service";
@@ -39,6 +40,7 @@ export class AzureWizardComponent extends WizardBaseDirective implements OnInit 
     constructor(
         router: Router,
         private importService: ImportService,
+        private exportService: ExportService,
         formBuilder: FormBuilder,
         private apiClient: APIClient,
         titleService: Title,
@@ -46,6 +48,10 @@ export class AzureWizardComponent extends WizardBaseDirective implements OnInit 
         el: ElementRef) {
 
         super(router, el, formMetaDataService, titleService, formBuilder);
+    }
+
+    protected supplyWizardName(): string {
+        return 'Azure Wizard';
     }
 
     protected supplyStepData(): FormDataForHTML[] {
@@ -273,6 +279,14 @@ export class AzureWizardComponent extends WizardBaseDirective implements OnInit 
         return this.apiClient.exportTKGConfigForAzure({ params: this.getPayload() });
     }
 
+    exportConfiguration() {
+        const wizard = this;    // capture 'this' outside the context of the closure below
+        this.exportService.export(
+            this.retrieveExportFile(),
+            (failureMessage) => { wizard.displayError(failureMessage); }
+        );
+    }
+
     getAdditionalNoProxyInfo() {
         const vnetCidr = this.getFieldValue('vpcForm', 'vnetCidrBlock');
         return (vnetCidr ? vnetCidr + ',' : '')  + '169.254.0.0/16,168.63.129.16';
@@ -300,7 +314,7 @@ export class AzureWizardComponent extends WizardBaseDirective implements OnInit 
         return this.getOsImageForm(AzureOsImageStepComponent);
     }
     get AzureNetworkForm(): FormDataForHTML {
-        return FormUtility.formOverrideDescription(this.NetworkForm, 'Specify an Azure VNET CIDR');
+        return FormUtility.formWithOverrides(this.NetworkForm, {description: 'Specify an Azure VNET CIDR'});
     }
     //
     // HTML convenience methods

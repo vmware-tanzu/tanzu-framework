@@ -122,8 +122,10 @@ describe('AwsProviderStepComponent', () => {
     }));
 
     it("should show an error when connect button clicked and endpoint throws error", async(() => {
-        mockedApiService.setAWSEndpoint.and.returnValue(throwError({ status: 400,
-            error: {message: 'failed to set aws endpoint' }}));
+        mockedApiService.setAWSEndpoint.and.returnValue(throwError({
+            status: 400,
+            error: {message: 'failed to set aws endpoint'}
+        }));
 
         component.ngOnInit();
         component.setFieldValue(AwsField.PROVIDER_PROFILE_NAME, 'profile2');
@@ -133,7 +135,7 @@ describe('AwsProviderStepComponent', () => {
         component.setFieldValue(AwsField.PROVIDER_REGION, 'region1');
         expect(component.errorNotification).toBeFalsy();
 
-        fixture.whenStable().then( () => {
+        fixture.whenStable().then(() => {
             fixture.detectChanges();    // this is necessary to pick up the field changes above and thereby activate the connect btn
             const connectBtn = fixture.debugElement.query(By.css("button.btn-primary"));
             expect(connectBtn.nativeElement.disabled).toBeFalsy('connect button is unexpectedly deactivated');
@@ -145,4 +147,6 @@ describe('AwsProviderStepComponent', () => {
             });
         });
     }));
-})
+
+    // NOTE: there is no test for changing the step description because this step only has a static step description.
+});

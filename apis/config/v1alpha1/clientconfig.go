@@ -24,7 +24,13 @@ const (
 const (
 	// FeatureCli allows a feature to be set at the CLI level (globally) rather than for a single plugin
 	FeatureCli string = "cli"
+	// Edition value (in config) affects branding and cluster creation
+	EditionStandard  = "tkg"
+	EditionCommunity = "tce"
 )
+
+// EditionSelector allows selecting edition versions based on config file
+type EditionSelector string
 
 // VersionSelectorLevel allows selecting plugin versions based on semver properties
 type VersionSelectorLevel string
@@ -118,4 +124,22 @@ func (c *ClientConfig) SplitFeaturePath(featurePath string) (string, string, err
 		return "", "", errors.New("unsupported feature config path parameter [" + featuresLiteral + "] (was expecting 'features.<plugin>.<feature>')")
 	}
 	return plugin, flag, nil
+}
+
+// SetEditionSelector indicates the edition of tanzu to be run
+// EditionStandard is the default, EditionCommunity is also available.
+// These values affect branding and cluster creation
+func (c *ClientConfig) SetEditionSelector(edition EditionSelector) {
+	if c.ClientOptions == nil {
+		c.ClientOptions = &ClientOptions{}
+	}
+	if c.ClientOptions.CLI == nil {
+		c.ClientOptions.CLI = &CLIOptions{}
+	}
+	switch edition {
+	case EditionCommunity, EditionStandard:
+		c.ClientOptions.CLI.Edition = edition
+		return
+	}
+	c.ClientOptions.CLI.UnstableVersionSelector = EditionStandard
 }

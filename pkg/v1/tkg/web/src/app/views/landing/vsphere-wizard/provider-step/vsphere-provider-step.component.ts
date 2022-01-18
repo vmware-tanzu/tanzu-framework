@@ -54,7 +54,7 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
     loadingState: ClrLoadingState = ClrLoadingState.DEFAULT;
     vSphereWithK8ModalOpen: boolean = false;
     datacenters: Array<VSphereDatacenter>;
-    vsphereVersion: string;
+    vsphereVersion: string = '';
     vsphereHost: string;
     hasPacific: string;
 
@@ -190,6 +190,7 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
             this.clearControlValue(VsphereField.PROVIDER_DATA_CENTER);
             this.datacenters = [];
             this.formGroup.get(VsphereField.PROVIDER_DATA_CENTER).disable();
+            this.triggerStepDescriptionChange();
         } else {
             console.log('already disconnected so ignoring disconnect call (msg:' + consoleMsg + ')');
         }
@@ -317,52 +318,56 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
             finalize(() => this.loadingState = ClrLoadingState.DEFAULT),
             takeUntil(this.unsubscribe))
         .subscribe(
-            (res) => {
-                const vsphereVerInfo: VsphereVersioninfo = this.getParsedVsphereVer(res.version);
-                const isCompatible: boolean = this.checkVsphereCompatible(vsphereVerInfo);
-
-                this.errorNotification = '';
-                this.connected = true;
-                this.vsphereVersion = vsphereVerInfo.version;
-                this.hasPacific = res.hasPacific;
-                AppServices.appDataService.setVsphereVersion(vsphereVerInfo.version);
-
-                if (isCompatible && !(_.startsWith(this.vsphereVersion, '6'))
-                    && this.edition !== AppEdition.TCE) {
-                    // for 7 and newer and other potential anomalies, show modal suggesting upgrade
-                    this.showVSphereWithK8Modal();
-                } else if (!isCompatible) {
-                    // route to vsphere not compatible
-                    this.router.navigate([this.APP_ROUTES.INCOMPATIBLE]);
-                }
-                this.retrieveDatacenters();
-
-                AppServices.messenger.publish({
-                    type: TkgEventType.VSPHERE_VC_AUTHENTICATED,
-                    payload: this.getFieldValue(VsphereField.PROVIDER_VCENTER_ADDRESS)
-                });
-
-                if (this.hasPacific === 'yes') {
-                    this.vSphereModalTitle = `vSphere ${this.vsphereVersion} with Tanzu Detected`;
-                    this.vSphereModalBody = `You have connected to a vSphere ${this.vsphereVersion} with Tanzu
-                        environment that includes an integrated Tanzu Kubernetes Grid Service which turns a
-                        vSphere cluster into a platform for running Kubernetes workloads in dedicated resource
-                        pools. Configuring Tanzu Kubernetes Grid Service is done through the vSphere HTML5 Client.`;
-                } else {
-                    this.vSphereModalTitle = `vSphere ${this.vsphereVersion} Environment Detected`;
-                    this.vSphereModalBody = `You have connected to a vSphere ${this.vsphereVersion} environment
-                        which does not have vSphere with Tanzu enabled. vSphere with Tanzu includes an
-                        integrated Tanzu Kubernetes Grid Service which turns a vSphere cluster into a platform
-                        for running Kubernetes workloads in dedicated resource pools. Configuring Tanzu Kubernetes
-                        Grid Service is done through the vSphere HTML5 Client.`;
-                }
-            },
+            this.onLoginSuccess.bind(this),
             (err) => {
-                const error = err.error.message || err.message || JSON.stringify(err);
-                this.errorNotification =
-                    `Failed to connect to the specified vCenter Server. ${error}`;
+                const errMsg = err.error ? err.error.message : null;
+                const error = errMsg || err.message || JSON.stringify(err);
+                this.errorNotification = `Failed to connect to the specified vCenter Server. ${error}`;
             }
         );
+    }
+
+    // TODO: this method is public so that tests can trigger it, but an extending class would be better
+    onLoginSuccess(res) {
+        const vsphereVerInfo: VsphereVersioninfo = this.getParsedVsphereVer(res.version);
+        const isCompatible: boolean = this.checkVsphereCompatible(vsphereVerInfo);
+
+        this.errorNotification = '';
+        this.connected = true;
+        this.vsphereVersion = vsphereVerInfo.version;
+        this.hasPacific = res.hasPacific;
+        AppServices.appDataService.setVsphereVersion(vsphereVerInfo.version);
+        this.triggerStepDescriptionChange();
+
+        if (isCompatible && !(_.startsWith(this.vsphereVersion, '6'))
+        && this.edition !== AppEdition.TCE) {
+            // for 7 and newer and other potential anomalies, show modal suggesting upgrade
+            this.showVSphereWithK8Modal();
+        } else if (!isCompatible) {
+            // route to vsphere not compatible
+            this.router.navigate([this.APP_ROUTES.INCOMPATIBLE]);
+        }
+        this.retrieveDatacenters();
+
+        AppServices.messenger.publish({
+            type: TkgEventType.VSPHERE_VC_AUTHENTICATED,
+            payload: this.getFieldValue(VsphereField.PROVIDER_VCENTER_ADDRESS)
+        });
+
+        if (this.hasPacific === 'yes') {
+            this.vSphereModalTitle = `vSphere ${this.vsphereVersion} with Tanzu Detected`;
+            this.vSphereModalBody = `You have connected to a vSphere ${this.vsphereVersion} with Tanzu
+                                environment that includes an integrated Tanzu Kubernetes Grid Service which turns a
+                                vSphere cluster into a platform for running Kubernetes workloads in dedicated resource
+                                pools. Configuring Tanzu Kubernetes Grid Service is done through the vSphere HTML5 Client.`;
+        } else {
+            this.vSphereModalTitle = `vSphere ${this.vsphereVersion} Environment Detected`;
+            this.vSphereModalBody = `You have connected to a vSphere ${this.vsphereVersion} environment
+                                which does not have vSphere with Tanzu enabled. vSphere with Tanzu includes an
+                                integrated Tanzu Kubernetes Grid Service which turns a vSphere cluster into a platform
+                                for running Kubernetes workloads in dedicated resource pools. Configuring Tanzu Kubernetes
+                                Grid Service is done through the vSphere HTML5 Client.`;
+        }
     }
 
     /**
@@ -460,6 +465,7 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
         if (vcenterIP && datacenter) {
             return 'vCenter ' + vcenterIP + ' connected';
         }
-        return 'Validate the vSphere ' + this.vsphereVersion + 'provider account for Tanzu';
+        const version = this.vsphereVersion ? this.vsphereVersion + ' ' : '';
+        return 'Validate the vSphere ' + version + 'provider account for Tanzu';
     }
 }

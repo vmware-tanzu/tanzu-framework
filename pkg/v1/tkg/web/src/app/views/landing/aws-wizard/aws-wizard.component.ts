@@ -23,6 +23,7 @@ import { AwsField, AwsForm, AwsStep } from "./aws-wizard.constants";
 import { AwsOsImageStepComponent } from './os-image-step/aws-os-image-step.component';
 import { BASTION_HOST_DISABLED, BASTION_HOST_ENABLED, NodeSettingStepComponent } from './node-setting-step/node-setting-step.component';
 import { CliFields, CliGenerator } from '../wizard/shared/utils/cli-generator';
+import { ExportService } from '../../../shared/service/export.service';
 import { FormDataForHTML, FormUtility } from '../wizard/shared/components/steps/form-utility';
 import { FormMetaDataService } from 'src/app/shared/service/form-meta-data.service';
 import { ImportParams, ImportService } from '../../../shared/service/import.service';
@@ -57,6 +58,7 @@ export class AwsWizardComponent extends WizardBaseDirective implements OnInit {
     constructor(
         router: Router,
         formBuilder: FormBuilder,
+        private exportService: ExportService,
         private importService: ImportService,
         private apiClient: APIClient,
         formMetaDataService: FormMetaDataService,
@@ -64,6 +66,10 @@ export class AwsWizardComponent extends WizardBaseDirective implements OnInit {
         el: ElementRef) {
 
         super(router, el, formMetaDataService, titleService, formBuilder);
+    }
+
+    protected supplyWizardName(): string {
+        return 'AWS Wizard';
     }
 
     protected supplyStepData(): FormDataForHTML[] {
@@ -333,7 +339,7 @@ export class AwsWizardComponent extends WizardBaseDirective implements OnInit {
         return this.getOsImageForm(AwsOsImageStepComponent);
     }
     get AwsNetworkForm(): FormDataForHTML {
-        return FormUtility.formOverrideDescription(this.NetworkForm, 'Specify the cluster Pod CIDR');
+        return FormUtility.formWithOverrides(this.NetworkForm, {description: 'Specify the cluster Pod CIDR'});
     }
     //
     // HTML convenience methods
@@ -366,5 +372,12 @@ export class AwsWizardComponent extends WizardBaseDirective implements OnInit {
         AppServices.dataServiceRegistrar.register<AWSVirtualMachine>(TkgEventType.AWS_GET_OS_IMAGES,
             (payload: {region: string}) => { return wizard.apiClient.getAWSOSImages(payload); },
             "Failed to retrieve list of OS images from the specified AWS Server." );
+    }
+    exportConfiguration() {
+        const wizard = this;    // capture 'this' outside the context of the closure below
+        this.exportService.export(
+            this.retrieveExportFile(),
+            (failureMessage) => { wizard.displayError(failureMessage); }
+        );
     }
 }

@@ -8,10 +8,11 @@ import { APIClient } from 'tanzu-ui-api-lib';
 // App imports
 import AppServices from 'src/app/shared/service/appServices';
 import { FieldMapUtilities } from '../../../field-mapping/FieldMapUtilities';
-import { Messenger } from 'src/app/shared/service/Messenger';
+import { Messenger, TkgEventType } from 'src/app/shared/service/Messenger';
 import { SharedModule } from 'src/app/shared/shared.module';
 import { SharedNetworkStepComponent } from "./network-step.component";
 import { ValidationService } from '../../../validation/validation.service';
+import { WizardForm } from '../../../constants/wizard.constants';
 
 describe('networkStepComponent', () => {
     let component: SharedNetworkStepComponent;
@@ -37,12 +38,10 @@ describe('networkStepComponent', () => {
     }));
     beforeEach(() => {
         AppServices.messenger = new Messenger();
-        const fb = new FormBuilder();
         fixture = TestBed.createComponent(SharedNetworkStepComponent);
         component = fixture.componentInstance;
-        component.formGroup = fb.group({
-            noProxy: ''
-        });
+        component.setInputs('BozoWizard', WizardForm.NETWORK, new FormBuilder().group({}));
+        component.ngOnInit();
         fixture.detectChanges();
     });
 
@@ -95,6 +94,35 @@ describe('networkStepComponent', () => {
             expect(component.fullNoProxy).toBe('noproxy.yourdomain.com,192.168.0.0/24,10.0.0.0/16,169.254.0.0/16,' +
             '100.64.0.0/13,100.96.0.0/11,localhost,127.0.0.1,.svc,.svc.cluster.local');
         });
+    });
 
+    it('should announce description change', () => {
+        const msgSpy = spyOn(AppServices.messenger, 'publish').and.callThrough();
+        const serviceCidrControl = component.formGroup.controls['clusterServiceCidr'];
+        const podCidrControl = component.formGroup.controls['clusterPodCidr'];
+
+        serviceCidrControl.setValue('');
+        podCidrControl.setValue('');
+        expect(component.dynamicDescription()).toEqual(SharedNetworkStepComponent.description);
+
+        podCidrControl.setValue('1.2.3.4/12');
+        expect(msgSpy).toHaveBeenCalledWith({
+            type: TkgEventType.STEP_DESCRIPTION_CHANGE,
+            payload: {
+                wizard: 'BozoWizard',
+                step: WizardForm.NETWORK,
+                description: 'Cluster Pod CIDR: 1.2.3.4/12'
+            }
+        });
+
+        serviceCidrControl.setValue('5.6.7.8/16');
+        expect(msgSpy).toHaveBeenCalledWith({
+            type: TkgEventType.STEP_DESCRIPTION_CHANGE,
+            payload: {
+                wizard: 'BozoWizard',
+                step: WizardForm.NETWORK,
+                description: 'Cluster Service CIDR: 5.6.7.8/16 Cluster Pod CIDR: 1.2.3.4/12'
+            }
+        });
     });
 });

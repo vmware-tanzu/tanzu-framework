@@ -9,7 +9,6 @@ import (
 
 	"github.com/vmware-tanzu/tanzu-framework/apis/config/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/config"
-	featuresclient "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/features"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/web/server/models"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/web/server/restapi/operations/edition"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/web/server/restapi/operations/features"
@@ -39,15 +38,9 @@ func convertFeatureMap(featureMap v1alpha1.FeatureMap) models.FeatureMap {
 
 // GetTanzuEdition returns the Tanzu edition
 func (app *App) GetTanzuEdition(params edition.GetTanzuEditionParams) middleware.Responder {
-	featuresClient, err := featuresclient.New(app.AppConfig.TKGConfigDir, "")
+	result, err := config.GetEdition()
 	if err != nil {
-		return edition.NewGetTanzuEditionInternalServerError().WithPayload(Err(errors.Wrap(err, "unable to get feature flags client")))
+		return edition.NewGetTanzuEditionInternalServerError().WithPayload(Err(errors.Wrap(err, "unable to get configuration to determine edition")))
 	}
-
-	tanzuEdition, err := featuresClient.GetFeatureFlag("edition")
-	if err != nil {
-		return edition.NewGetTanzuEditionInternalServerError().WithPayload(Err(errors.Wrap(err, "unable to get tanzu edition")))
-	}
-
-	return edition.NewGetTanzuEditionOK().WithPayload(tanzuEdition)
+	return edition.NewGetTanzuEditionOK().WithPayload(result)
 }

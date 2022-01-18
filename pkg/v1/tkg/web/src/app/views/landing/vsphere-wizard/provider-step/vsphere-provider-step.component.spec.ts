@@ -1,10 +1,9 @@
 // Angular imports
 import { async, ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
-import { RouterTestingModule } from '@angular/router/testing';
-import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
-import { ReactiveFormsModule } from '@angular/forms';
-import { FormBuilder } from '@angular/forms';
 import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
+import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
+import { RouterTestingModule } from '@angular/router/testing';
 
 // Library imports
 import { of } from 'rxjs';
@@ -14,11 +13,12 @@ import { APIClient } from 'tanzu-ui-api-lib';
 // App imports
 import AppServices from 'src/app/shared/service/appServices';
 import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
-import { Messenger } from 'src/app/shared/service/Messenger';
+import { Messenger, TkgEventType } from 'src/app/shared/service/Messenger';
 import { SharedModule } from 'src/app/shared/shared.module';
 import { SSLThumbprintModalComponent } from '../../wizard/shared/components/modals/ssl-thumbprint-modal/ssl-thumbprint-modal.component';
 import { ValidationService } from '../../wizard/shared/validation/validation.service';
 import { VSphereProviderStepComponent } from './vsphere-provider-step.component';
+import { VsphereField } from '../vsphere-wizard.constants';
 
 describe('VSphereProviderStepComponent', () => {
     let component: VSphereProviderStepComponent;
@@ -54,11 +54,9 @@ describe('VSphereProviderStepComponent', () => {
     beforeEach(() => {
         AppServices.messenger = new Messenger();
 
-        const fb = new FormBuilder();
         fixture = TestBed.createComponent(VSphereProviderStepComponent);
         component = fixture.componentInstance;
-        component.formGroup = fb.group({
-        });
+        component.setInputs('BozoWizard', 'vsphereProviderForm', new FormBuilder().group({}));
 
         fixture.detectChanges();
     });
@@ -89,5 +87,29 @@ describe('VSphereProviderStepComponent', () => {
     it('should set vsphere modal open when show method is triggered', () => {
         component.showVSphereWithK8Modal();
         expect(component.vSphereWithK8ModalOpen).toBeTruthy();
+    });
+
+    it('should announce description change', () => {
+        const msgSpy = spyOn(AppServices.messenger, 'publish').and.callThrough();
+        component.ngOnInit();
+        const vcenterIPControl = component.formGroup.get(VsphereField.PROVIDER_VCENTER_ADDRESS);
+        const datacenterControl = component.formGroup.get(VsphereField.PROVIDER_DATA_CENTER);
+
+        expect(component.dynamicDescription()).toEqual('Validate the vSphere provider account for Tanzu');
+
+        component.vsphereVersion = 'CLOWNVERSION';
+        expect(component.dynamicDescription()).toEqual('Validate the vSphere CLOWNVERSION provider account for Tanzu');
+
+        vcenterIPControl.setValue('1.2.1.2');
+        datacenterControl.setValue('DATACENTER');
+        component.onLoginSuccess({});
+        expect(msgSpy).toHaveBeenCalledWith({
+            type: TkgEventType.STEP_DESCRIPTION_CHANGE,
+            payload: {
+                wizard: 'BozoWizard',
+                step: 'vsphereProviderForm',
+                description: 'vCenter 1.2.1.2 connected',
+            }
+        });
     });
 });
