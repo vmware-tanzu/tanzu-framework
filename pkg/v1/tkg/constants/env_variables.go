@@ -15,3 +15,7 @@ const (
 const (
 	SuppressProvidersUpdate = "SUPPRESS_PROVIDERS_UPDATE"
 )
+
+const (
+	AllowedRegistries = "ALLOWED_REGISTRY"
+)
