@@ -872,8 +872,9 @@ func (c *TkgClient) ValidateVsphereResources(vcClient vc.Client, dcPath string) 
 	return c.verifyDatastoreOrStoragePolicySet()
 }
 
+// set full inventory path if the config variable value is not already an absolute path string or if it is not MOID
 func (c *TkgClient) setFullPath(vcClient vc.Client, vsphereResourceConfigKey, path, resourceMoid string) error {
-	if path != "" {
+	if path != "" && !strings.HasPrefix(path, "/") && !strings.Contains(path, resourceMoid) {
 		resourcePath, _, err := vcClient.GetPath(context.Background(), resourceMoid)
 		if err != nil {
 			return err
