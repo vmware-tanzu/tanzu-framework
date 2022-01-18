@@ -451,7 +451,7 @@ func (c *DefaultClient) GetNetworks(ctx context.Context, datacenterMOID string) 
 	}
 
 	for i := range networks {
-		managedObject := models.VSphereNetwork{Moid: networks[i].Reference().Value}
+		managedObject := models.VSphereNetwork{Moid: networks[i].Reference().Type + ":" + networks[i].Reference().Value}
 		path, _, err := c.GetPath(ctx, networks[i].Reference().Value)
 		if err != nil {
 			managedObject.Name = networks[i].Name
@@ -467,7 +467,7 @@ func (c *DefaultClient) GetNetworks(ctx context.Context, datacenterMOID string) 
 	duplNetworks := GetDuplicateNetworks(results)
 	for i := range results {
 		if duplNetworks[results[i].Name] {
-			ref, commonProps, _, err := c.populateGoVCVars(results[i].Moid)
+			ref, commonProps, _, err := c.populateGoVCVars(strings.Split(results[i].Moid, ":")[1])
 			if err != nil {
 				changeNetworkNameToMoid(results[i])
 				continue
