@@ -1,6 +1,7 @@
-// Copyright YEAR VMware, Inc. All Rights Reserved.
+// Copyright 2022 VMware, Inc. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
+// Package controllers implements k8s controller functionality for calico.
 package controllers
 
 import (
@@ -30,10 +31,7 @@ type CalicoConfigReconciler struct {
 // the CalicoConfig object against the actual cluster state, and then
 // perform operations to make the cluster state reflect the state specified by
 // the user.
-//
-// For more details, check Reconcile and its Result here:
-// - https://pkg.go.dev/sigs.k8s.io/controller-runtime@v0.6.4/pkg/reconcile
-func (r *CalicoConfigReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
+func (r *CalicoConfigReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	_ = context.Background()
 	_ = r.Log.WithValues("calicoconfig", req.NamespacedName)
 

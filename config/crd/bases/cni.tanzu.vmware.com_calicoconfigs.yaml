@@ -36,10 +36,18 @@ spec:
           spec:
             description: CalicoConfigSpec defines the desired state of CalicoConfig
             properties:
-              clusterCIDR:
-                description: The CIDR pool used to assign IP addresses to the pods
-                  in the cluster
-                type: string
+              calico:
+                properties:
+                  config:
+                    properties:
+                      vethMTU:
+                        default: 0
+                        description: Maximum transmission unit setting
+                        format: int64
+                        minimum: 0
+                        type: integer
+                    type: object
+                type: object
               infraProvider:
                 description: Infrastructure provider in use
                 enum:
@@ -61,12 +69,6 @@ spec:
                 default: kube-system
                 description: The namespace in which calico is deployed
                 type: string
-              vethMTU:
-                default: 0
-                description: Maximum transmission unit setting
-                format: int64
-                minimum: 0
-                type: integer
             required:
             - infraProvider
             type: object
