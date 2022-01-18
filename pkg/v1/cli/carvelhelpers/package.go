@@ -15,7 +15,7 @@ import (
 // Downloads package to temporary directory and processes the package by
 // implementing equivalent functionality as the command: `ytt -f <path> | kbld -f -`
 func ProcessCarvelPackage(image string) ([]byte, error) {
-	configDir, err := ReadImageAndSaveFilesToTempDir(image)
+	configDir, err := DownloadImageBundleAndSaveFilesToTempDir(image)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get resource files from discovery")
 	}

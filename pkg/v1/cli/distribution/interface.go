@@ -14,4 +14,7 @@ type Distribution interface {
 
 	// GetDigest returns the SHA256 hash of the binary for a plugin version.
 	GetDigest(version, os, arch string) (string, error)
+
+	// DescribeArtifact returns the artifact resource based plugin metadata
+	DescribeArtifact(version, os, arch string) (Artifact, error)
 }

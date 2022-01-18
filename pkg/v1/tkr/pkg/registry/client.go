@@ -5,16 +5,20 @@ package registry
 
 import (
 	"archive/tar"
+	"bytes"
 	"io"
 
+	"github.com/cppforlife/go-cli-ui/ui"
 	regname "github.com/google/go-containerregistry/pkg/name"
 	regv1 "github.com/google/go-containerregistry/pkg/v1"
 	"github.com/google/go-containerregistry/pkg/v1/remote"
+	"github.com/k14s/imgpkg/pkg/imgpkg/cmd"
 	ctlimg "github.com/k14s/imgpkg/pkg/imgpkg/registry"
 	"github.com/pkg/errors"
 )
 
 type registry struct {
+	opts     *ctlimg.Opts
 	registry ctlimg.Registry
 }
 
@@ -26,6 +30,7 @@ func New(opts *ctlimg.Opts) (Registry, error) {
 	}
 
 	return &registry{
+		opts:     opts,
 		registry: reg,
 	}, nil
 }
@@ -159,4 +164,36 @@ func getAllFilesContentFromImage(image regv1.Image) (map[string][]byte, error) {
 	}
 
 	return nil, errors.New("cannot find file from the image")
+}
+
+// DownloadBundle downloads OCI bundle similar to `imgpkg pull -b` command
+// It is recommended to use this function when downloading imgpkg bundle because
+// - During the air-gapped script, these plugin discovery packages are copied to a
+//   private registry with the `imgpkg copy` command
+// - Downloading files directly from OCI image similar to `GetFiles` doesn't work
+//   because it doesn't update the `ImageLock` file when we download the package from
+//   different registry. And returns original ImageLock file. and as ImageLock file
+//   is pointing to original registry instead of private registry, image references
+//    does not point to the correct location
+
+func (r *registry) DownloadBundle(imageName, outputDir string) error {
+	// Creating a dummy writer to capture the logs
+	// currently this logs are not displayed or used directly
+	var outputBuf, errorBuf bytes.Buffer
+	writerUI := ui.NewWriterUI(&outputBuf, &errorBuf, nil)
+
+	pullOptions := cmd.NewPullOptions(writerUI)
+	pullOptions.OutputPath = outputDir
+	pullOptions.BundleFlags = cmd.BundleFlags{Bundle: imageName}
+
+	if r.opts != nil {
+		pullOptions.RegistryFlags = cmd.RegistryFlags{
+			CACertPaths: r.opts.CACertPaths,
+			VerifyCerts: r.opts.VerifyCerts,
+			Insecure:    r.opts.Insecure,
+			Anon:        r.opts.Anon,
+		}
+	}
+
+	return pullOptions.Run()
 }
