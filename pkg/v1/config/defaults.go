@@ -93,3 +93,28 @@ func GetDefaultStandaloneDiscoveryLocalPath() string {
 	}
 	return DefaultStandaloneDiscoveryLocalPath
 }
+
+// GetTrustedRegistries returns the list of trusted registries that can be used for
+// downloading the CLIPlugins
+func GetTrustedRegistries() []string {
+	trustedRegistries := []string{}
+
+	// Add default registry to trusted registries
+	if DefaultStandaloneDiscoveryRepository != "" {
+		trustedRegistries = append(trustedRegistries, DefaultStandaloneDiscoveryRepository)
+	}
+
+	// If custom image repository is defined add it to the list of trusted registries
+	if customImageRepo := os.Getenv(constants.ConfigVariableCustomImageRepository); customImageRepo != "" {
+		trustedRegistries = append(trustedRegistries, customImageRepo)
+	}
+
+	// If ALLOWED_REGISTRY environment variable is specified, allow those registries as well
+	if allowedRegistry := os.Getenv(constants.AllowedRegistries); allowedRegistry != "" {
+		for _, r := range strings.Split(allowedRegistry, ",") {
+			trustedRegistries = append(trustedRegistries, strings.TrimSpace(r))
+		}
+	}
+
+	return trustedRegistries
+}

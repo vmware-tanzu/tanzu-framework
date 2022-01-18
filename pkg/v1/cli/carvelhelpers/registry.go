@@ -5,7 +5,6 @@ package carvelhelpers
 
 import (
 	"os"
-	"path/filepath"
 	"runtime"
 	"strings"
 
@@ -15,7 +14,6 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/clientconfighelpers"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfigpaths"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/utils"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkr/pkg/registry"
 )
 
@@ -30,26 +28,19 @@ func GetFilesMapFromImage(imageWithTag string) (map[string][]byte, error) {
 	return reg.GetFiles(imageWithTag)
 }
 
-// ReadImageAndSaveFilesToTempDir reads OCI image and saves file to temp dir
+// DownloadImageBundleAndSaveFilesToTempDir reads OCI image and saves file to temp dir
 // returns temp configuration dir with downloaded imgpkg bundle
-func ReadImageAndSaveFilesToTempDir(imageWithTag string) (string, error) {
-	filesMap, err := GetFilesMapFromImage(imageWithTag)
+func DownloadImageBundleAndSaveFilesToTempDir(imageWithTag string) (string, error) {
+	reg, err := newRegistry()
 	if err != nil {
-		return "", errors.Wrap(err, "failed to get resource files from discovery")
+		return "", errors.Wrapf(err, "unable to initialize registry")
 	}
-
 	tmpDir, err := os.MkdirTemp("", "oci_image")
 	if err != nil {
 		return "", errors.Wrap(err, "error creating temporary directory")
 	}
-
-	for filename, fileData := range filesMap {
-		err = utils.SaveFile(filepath.Join(tmpDir, filename), fileData)
-		if err != nil {
-			return "", errors.Wrap(err, "error while saving file")
-		}
-	}
-	return tmpDir, nil
+	err = reg.DownloadBundle(imageWithTag, tmpDir)
+	return tmpDir, err
 }
 
 // newRegistry returns a new registry object by also
