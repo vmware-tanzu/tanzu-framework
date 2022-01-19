@@ -13,10 +13,11 @@ import (
 	. "github.com/onsi/gomega"
 	"github.com/pkg/errors"
 	corev1 "k8s.io/api/core/v1"
-	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/util/uuid"
 	clientgoscheme "k8s.io/client-go/kubernetes/scheme"
+	clusterv1 "sigs.k8s.io/cluster-api/api/v1alpha3"
 	capi "sigs.k8s.io/cluster-api/api/v1beta1"
 	"sigs.k8s.io/cluster-api/util/conditions"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -82,7 +83,7 @@ var _ = Describe("SyncRelease", func() {
 	JustBeforeEach(func() {
 		scheme = runtime.NewScheme()
 		addToScheme(scheme)
-		fakeClient = fake.NewClientBuilder().WithScheme(scheme).WithRuntimeObjects(objects...).Build()
+		fakeClient = uidSetter{fake.NewClientBuilder().WithScheme(scheme).WithRuntimeObjects(objects...).Build()}
 		r = reconciler{
 			ctx:      context.Background(),
 			client:   fakeClient,
@@ -175,7 +176,7 @@ var _ = Describe("UpdateTKRCompatibleCondition", func() {
 	JustBeforeEach(func() {
 		scheme = runtime.NewScheme()
 		addToScheme(scheme)
-		fakeClient = fake.NewClientBuilder().WithScheme(scheme).WithRuntimeObjects(objects...).Build()
+		fakeClient = uidSetter{fake.NewClientBuilder().WithScheme(scheme).WithRuntimeObjects(objects...).Build()}
 		r = reconciler{
 			ctx:      context.Background(),
 			client:   fakeClient,
@@ -297,7 +298,7 @@ var _ = Describe("initialReconcile", func() {
 	BeforeEach(func() {
 		scheme = runtime.NewScheme()
 		addToScheme(scheme)
-		fakeClient = fake.NewClientBuilder().WithScheme(scheme).WithRuntimeObjects(objects...).Build()
+		fakeClient = uidSetter{fake.NewClientBuilder().WithScheme(scheme).WithRuntimeObjects(objects...).Build()}
 		retries = 3
 		ctx, cancel = context.WithCancel(context.Background())
 		go func() {
@@ -350,7 +351,7 @@ var _ = Describe("initialReconcile", func() {
 			fakeRegistry.GetFileReturnsOnCall(3, bomContent193, nil)
 			mgmtcluster := newManagementCluster(map[string]string{constants.ManagememtClusterRoleLabel: ""}, map[string]string{constants.TKGVersionKey: "v1.1"})
 			objects = []runtime.Object{mgmtcluster}
-			fakeClient = fake.NewClientBuilder().WithScheme(scheme).WithRuntimeObjects(objects...).Build()
+			fakeClient = uidSetter{fake.NewClientBuilder().WithScheme(scheme).WithRuntimeObjects(objects...).Build()}
 		})
 
 		It("should retrieve what can be retrieved and create appropriate ConfigMaps", func() {
@@ -405,7 +406,7 @@ var _ = Describe("initialReconcile", func() {
 
 			mgmtcluster := newManagementCluster(map[string]string{constants.ManagememtClusterRoleLabel: ""}, map[string]string{constants.TKGVersionKey: "v1.1"})
 			objects = []runtime.Object{mgmtcluster}
-			fakeClient = fake.NewClientBuilder().WithScheme(scheme).WithRuntimeObjects(objects...).Build()
+			fakeClient = uidSetter{fake.NewClientBuilder().WithScheme(scheme).WithRuntimeObjects(objects...).Build()}
 		})
 
 		It("should create the metadata ConfigMap and all BOM ConfigMaps", func() {
@@ -458,6 +459,31 @@ func (c clientErrOnCreate) Create(ctx context.Context, obj client.Object, opts .
 	return c.Client.Create(ctx, obj, opts...)
 }
 
+var _ = Describe("watchMgmtCluster()", func() {
+	When("receiving an event for a workload Cluster", func() {
+		It("should NOT emit a request", func() {
+			Expect(watchMgmtCluster(&clusterv1.Cluster{})).To(HaveLen(0))
+			Expect(watchMgmtCluster(&clusterv1.Cluster{ObjectMeta: metav1.ObjectMeta{
+				Labels: map[string]string{},
+			}})).To(HaveLen(0))
+		})
+	})
+
+	When("receiving an event for a management Cluster", func() {
+		It("should emit a request", func() {
+			cluster := &clusterv1.Cluster{
+				ObjectMeta: metav1.ObjectMeta{
+					Labels: map[string]string{constants.ManagememtClusterRoleLabel: ""},
+				},
+			}
+			requests := watchMgmtCluster(cluster)
+			Expect(requests).To(HaveLen(1))
+			Expect(requests[0].Namespace).To(Equal(constants.TKRNamespace))
+			Expect(requests[0].Name).To(Equal(constants.BOMMetadataConfigMapName))
+		})
+	})
+})
+
 var _ = Describe("r.Reconcile()", func() {
 	var (
 		fakeRegistry *fakes.Registry
@@ -483,22 +509,24 @@ var _ = Describe("r.Reconcile()", func() {
 
 	When("new BOM ConfigMaps are added", func() {
 		var (
-			cm1, cm2 *corev1.ConfigMap
-			err      error
+			cm1, cm2, cmMeta *corev1.ConfigMap
+			err              error
 		)
 
 		BeforeEach(func() {
-			cm1 = newConfigMap(version11713, map[string]string{constants.BomConfigMapTKRLabel: version11713}, map[string]string{constants.BomConfigMapImageTagAnnotation: "bom-v1.17.13+vmware.1"}, bomContent17)
+			cm1 = newConfigMap(version11810, map[string]string{constants.BomConfigMapTKRLabel: version11810}, map[string]string{constants.BomConfigMapImageTagAnnotation: "bom-v1.18.10+vmware.1"}, bomContent18)
 			cm2 = newConfigMap(version1193, map[string]string{constants.BomConfigMapTKRLabel: version1193}, map[string]string{constants.BomConfigMapImageTagAnnotation: "bom-v1.19.3+vmware.1"}, bomContent193)
-			tkr1, _ := NewTkrFromBom(version11713, bomContent17)
+			tkr1 := existingTkrFromBom(version11810, bomContent18)
 			mgmtCluster := newManagementCluster(map[string]string{constants.ManagememtClusterRoleLabel: ""}, map[string]string{constants.TKGVersionKey: "v1.1"})
-			cmMeta := newMetadataConfigMap(metadataContent)
+			cmMeta = newMetadataConfigMap(metadataContent)
 
 			objects = []runtime.Object{mgmtCluster, cmMeta, cm1, cm2, &tkr1}
 		})
 
 		It("should create the corresponding TKRs", func() {
 			_, err = r.Reconcile(r.ctx, req(cm2))
+			Expect(err).ToNot(HaveOccurred())
+			_, err = r.Reconcile(r.ctx, req(cmMeta))
 			Expect(err).ToNot(HaveOccurred())
 
 			tkrList := &runv1.TanzuKubernetesReleaseList{}
@@ -531,7 +559,7 @@ var _ = Describe("r.Reconcile()", func() {
 		BeforeEach(func() {
 			cm1 = newConfigMap(version11713, map[string]string{constants.BomConfigMapTKRLabel: version11713}, map[string]string{constants.BomConfigMapImageTagAnnotation: "bom-v1.17.13+vmware.1"}, bomContent17)
 			cm2 = newConfigMap(version1193, map[string]string{constants.BomConfigMapTKRLabel: version1193}, map[string]string{constants.BomConfigMapImageTagAnnotation: "bom-v1.19.3+vmware.1"}, bomContent193)
-			tkr1, _ := NewTkrFromBom(version11713, bomContent17)
+			tkr1 := existingTkrFromBom(version11713, bomContent17)
 			mgmtCluster := newManagementCluster(map[string]string{constants.ManagememtClusterRoleLabel: ""}, map[string]string{constants.TKGVersionKey: "v1.1"})
 			cmMeta := newMetadataConfigMap(metadataContent)
 
@@ -586,7 +614,8 @@ var _ = Describe("r.Reconcile()", func() {
 
 		BeforeEach(func() {
 			cm1 = newConfigMap(version11713, map[string]string{constants.BomConfigMapTKRLabel: version11713}, map[string]string{constants.BomConfigMapImageTagAnnotation: "bom-v1.17.13+vmware.1"}, bomContent17)
-			tkr1, _ := NewTkrFromBom(version11713, bomContent17)
+			tkr1 := existingTkrFromBom(version11713, bomContent17)
+			conditions.MarkFalse(&tkr1, runv1.ConditionCompatible, "", capi.ConditionSeverityInfo, "")
 			mgmtCluster := newManagementCluster(map[string]string{constants.ManagememtClusterRoleLabel: ""}, map[string]string{constants.TKGVersionKey: "v1.1"})
 			cmMeta = newMetadataConfigMap(metadataContent)
 
@@ -601,6 +630,7 @@ var _ = Describe("r.Reconcile()", func() {
 				tkrList := &runv1.TanzuKubernetesReleaseList{}
 				Expect(r.client.List(r.ctx, tkrList)).To(Succeed())
 				Expect(tkrList.Items).To(HaveLen(1))
+				Expect(conditions.IsTrue(&tkrList.Items[0], runv1.ConditionCompatible)).To(BeTrue())
 			})
 		})
 
@@ -628,7 +658,7 @@ var _ = Describe("r.Reconcile()", func() {
 		BeforeEach(func() {
 			cm1 = newConfigMap(version11713, map[string]string{constants.BomConfigMapTKRLabel: version11713}, map[string]string{constants.BomConfigMapImageTagAnnotation: "bom-v1.17.13+vmware.1"}, bomContent17)
 			cm2 = newConfigMap(version1193, map[string]string{constants.BomConfigMapTKRLabel: version1193}, map[string]string{constants.BomConfigMapImageTagAnnotation: "bom-v1.19.3+vmware.1"}, bomContent193)
-			tkr1, _ := NewTkrFromBom(version11713, bomContent17)
+			tkr1 := existingTkrFromBom(version11713, bomContent17)
 			mgmtCluster := newManagementCluster(map[string]string{constants.ManagememtClusterRoleLabel: ""}, map[string]string{constants.TKGVersionKey: "v1.1"})
 
 			objects = []runtime.Object{mgmtCluster, cm1, cm2, &tkr1}
@@ -636,8 +666,7 @@ var _ = Describe("r.Reconcile()", func() {
 
 		It("should still create the TKRs, but with default status conditions", func() {
 			_, err = r.Reconcile(r.ctx, req(cm2))
-			Expect(err).To(HaveOccurred())
-			Expect(apierrors.IsNotFound(errors.Cause(err))).To(BeTrue())
+			Expect(err).ToNot(HaveOccurred())
 
 			tkrList := &runv1.TanzuKubernetesReleaseList{}
 			Expect(r.client.List(r.ctx, tkrList)).To(Succeed())
@@ -674,16 +703,13 @@ func req(o metav1.Object) ctrl.Request {
 	return ctrl.Request{NamespacedName: client.ObjectKey{Namespace: o.GetNamespace(), Name: o.GetName()}}
 }
 
-func getConditionStatusAndMessage(conditions []capi.Condition, conditionType capi.ConditionType) (status corev1.ConditionStatus, msg string) {
+func getConditionStatusAndMessage(conditions []capi.Condition, conditionType capi.ConditionType) (corev1.ConditionStatus, string) {
 	for _, condition := range conditions {
 		if condition.Type == conditionType {
-			status = condition.Status
-			msg = condition.Message
-			return
+			return condition.Status, condition.Message
 		}
 	}
-	status = corev1.ConditionStatus("")
-	return
+	return "", ""
 }
 
 func newConfigMap(name string, labels, annotations map[string]string, content []byte) *corev1.ConfigMap {
@@ -717,4 +743,21 @@ func newManagementCluster(labels, annotations map[string]string) *capi.Cluster {
 			Annotations: annotations,
 		},
 	}
+}
+
+// uidSetter emulates real clusters' behavior of setting UIDs on objects being created
+type uidSetter struct {
+	client.Client
+}
+
+func (u uidSetter) Create(ctx context.Context, obj client.Object, opts ...client.CreateOption) error {
+	obj.(metav1.Object).SetUID(uuid.NewUUID())
+	return u.Client.Create(ctx, obj, opts...)
+}
+
+// existingTkrFromBom produces a fake pre-existing TKR accessible via a fake client.
+func existingTkrFromBom(tkrName string, bomContent []byte) runv1.TanzuKubernetesRelease {
+	tkr, _ := NewTkrFromBom(tkrName, bomContent)
+	tkr.UID = uuid.NewUUID()
+	return tkr
 }
