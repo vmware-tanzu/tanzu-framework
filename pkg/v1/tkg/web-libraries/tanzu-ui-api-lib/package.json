@@ -3,9 +3,11 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
+    "build-tanzu-ui-api-lib": "cd projects/tanzu-ui-api-lib && npm run build-library",
+    "link-tanzu-ui-api-lib": "cd ./dist/tanzu-ui-api-lib && npm link",
     "start": "ng serve",
     "build": "ng build",
-    "build:all": "(npm ci); (cd projects/tanzu-ui-api-lib && npm run build-library); (npm run build);",
+    "build:all": "(npm ci); (npm run build-tanzu-ui-api-lib); (npm run build && npm run link-tanzu-ui-api-lib)",
     "watch": "ng build --watch --configuration development",
     "test": "ng test"
   },

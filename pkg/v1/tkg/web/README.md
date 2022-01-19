@@ -20,11 +20,11 @@ If an alternate NPM registry is required to obtain the node dependencies, it sho
 - prior to running the make target, with `npm config set registry <register-url>`, or
 - providing the URL in the CUSTOM_NPM_REGISTRY environment variable.
 
-If running UI locally without executing Makefile script, execute `npm install` from tkg-cli/web folder prior to starting or compiling UI.
+If running UI locally without executing Makefile script, execute `npm ci` from tkg-cli/web folder prior to starting or compiling UI.
 
 ## UI served on local Angular CLI server
 
-Prerequisite - node modules have been install via `make ui-build` or `npm install` in '/tkg-cli/web' directory
+Prerequisite - node modules have been install via `make ui-build` or `npm ci` in '/tkg-cli/web' directory
 
 Run `npm run start` from /tkg-cli/web folder. Navigate to `http://localhost:4200/` in a browser. The app will automatically reload if you change any of the source files.
 
@@ -45,9 +45,16 @@ The ui will be served at [http://127.0.0.1:8080](http://127.0.0.1:8080)
 
 ## Build
 
-Prerequisite - node modules have been install via `make ui-build` or `npm install` in '/tkg-cli/web' directory
+Prerequisite - node modules have been install via `make ui-build` or `npm ci` in '/tkg-cli/web' directory
 
 Run `npm run build:prod` to build the project. The build artifacts will be stored in the '/dist' directory.
+
+## Tanzu UI API Library
+
+A standalone Angular library has been introduced which now includes all swagger auto-generated models and HTTP methods. 
+The location of these models and HTTP methods have been moved from the Tanzu Kickstart UI Angular project into the `tanzu-ui-api-lib`.
+
+See [README.md](../web-libraries/tanzu-ui-api-lib/README.md) for information on modifying and building this library.
 
 ## Running unit tests
 
@@ -61,6 +68,3 @@ Run `make pull-ci` prior to creating a pull request to run all github CI tests (
 
 Run `ng e2e` to execute the end-to-end tests via [Protractor](http://www.protractortest.org/).
 
-## Further help
-
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI README](https://github.com/angular/angular-cli/blob/master/README.md).

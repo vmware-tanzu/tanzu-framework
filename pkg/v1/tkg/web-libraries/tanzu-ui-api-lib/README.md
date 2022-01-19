@@ -2,26 +2,38 @@
 
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 12.2.13.
 
-## Development server
+TanzuUiApiLib includes all swagger generated models and HTTP methods which are auto-generated from `tanzu-framework/pkg/v1/tkg/web/api/spec.yaml`
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The app will automatically reload if you change any of the source files.
+This library is not yet published to an NPM registry, so consumption of the library is done through symlinks. See documentation on building below.
 
-## Code scaffolding
+## Development Notes
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+Any additions to the spec.yaml swagger contract which need to be reflected in the UI require that TanzuUiApiLib is regenerated with these changes.
 
-## Build
+### Building TanzuUiApiLib
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
+There are several NPM scripts that are available for building this library and creating the symlink to consume the library. For a quickstart 
+experience, the suggested NPM script to run is `npm run build:all` in `tanzu-framework/pkg/v1/tkg/web-libraries/tanzu-ui-api-lib/package.json`. 
+This NPM script will build all necessary artifacts and complete one half of the symlink process by linking the `/dist` folder of `tanzu-ui-api-lib`. 
 
-## Running unit tests
+### Consumption
 
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
+Consumption of this library in the Tanzu Kickstart UI requires completion of the symlink process, which is done for you in the 
+`tanzu-framework/pkg/v1/tkg/web/package.json` build and run scripts (see `npm link tanzu-ui-api-lib`).
 
-## Running end-to-end tests
+### Versioning
 
-Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To use this command, you need to first add a package that implements end-to-end testing capabilities.
+Versioning of this library is set in `tanzu-framework/pkg/v1/tkg/web-libraries/tanzu-ui-api-lib/package.json`. 
+It is recommended that you bump the minor version of the library any time that the swagger contract `spec.yaml` is modified which 
+results in regenerating this library.
 
-## Further help
+## Build Scripts
 
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.io/cli) page.
+Several scripts exist in this project's package.json file, and these are the few that are most relevant to a developer:
+
+`build-tanzu-ui-api-lib` Generates the swagger models and HTTP methods from `spec.yaml`; executed by `build:all`.
+
+`link-tanzu-ui-api-lib` Generates symlink within TanzuUiApiLib; executed by `build:all`. `npm link` must still be run on 
+consuming application to complete symlink.
+
+`build:all` Installs dependencies, builds the project and generates symlink. The build artifacts will be stored in the `dist/` directory.
