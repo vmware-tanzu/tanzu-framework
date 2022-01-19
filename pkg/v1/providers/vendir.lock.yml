@@ -18,11 +18,10 @@ directories:
   path: ytt/vendir/cni/_ytt_lib
 - contents:
   - git:
-      commitTitle: Add kapp controller init container to configure core DNS for cluster
-        IP access (#2727)...
-      sha: 1ce18be43347405d3dfbde4ba2cbb0d1e2fa0b41
+      commitTitle: Declare hostNetwork field for kapp-controller to boolean type (#2856)...
+      sha: 156885fae706ffade4fa82f763f30afb347de0f4
       tags:
-      - v0.10.0-dev.4-39-g1ce18be4
+      - v0.10.0-dev.4-93-g156885fa
     path: .
   path: ytt/vendir/kapp-controller/_ytt_lib
 kind: LockConfig
