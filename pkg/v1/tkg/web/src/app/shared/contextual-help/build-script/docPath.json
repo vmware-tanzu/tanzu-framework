@@ -1,0 +1,8 @@
+[
+    {
+        "source": "https://raw.githubusercontent.com/vmware-tanzu/community-edition/main/docs/site/content/docs/latest/aws-intro.md",
+        "destination": "/src/contextualHelpDocs/tce/",
+        "topicTitle": "AWS steps",
+        "topicIds":["demo"]
+    }
+]
