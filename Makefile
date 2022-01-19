@@ -500,14 +500,12 @@ fmt: tools ## Run goimports
 vet: ## Run go vet
 	$(GO) vet ./...
 
-check: misspell lint 
+lint: tools go-lint doc-lint misspell yamllint ## Run linting and misspell checks
+	# Check licenses in shell scripts and Makefiles
+	hack/check-license.sh
 
 misspell:
 	hack/check/misspell.sh
-
-lint: tools go-lint doc-lint yamllint ## Run linting checks
-	# Check licenses in shell scripts and Makefile
-	hack/check-license.sh
 
 yamllint:
 	hack/check/check-yaml.sh
