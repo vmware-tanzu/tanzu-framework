@@ -1024,7 +1024,7 @@ func (c *client) GetManagementClusterTKGVersion(mgmtClusterName, clusterNamespac
 		return "", errors.Wrap(err, "unable to get the cluster object")
 	}
 	version, exists := mcObject.Annotations[TKGVersionKey]
-	// if TKGVersionKey does not exists in annotation of the management cluster object
+	// if TKGVersionKey does not exist in annotation of the management cluster object
 	// assume this is v1.0.0 management cluster as TKGVERSION was not patched for
 	// v1.0.x release
 	if !exists {
