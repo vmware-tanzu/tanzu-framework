@@ -522,9 +522,9 @@ var _ = Describe("r.Reconcile()", func() {
 		)
 
 		BeforeEach(func() {
-			cm1 = newConfigMap(version11713, map[string]string{constants.BomConfigMapTKRLabel: version11713}, map[string]string{constants.BomConfigMapImageTagAnnotation: "bom-v1.17.13+vmware.1"}, bomContent17)
+			cm1 = newConfigMap(version11810, map[string]string{constants.BomConfigMapTKRLabel: version11810}, map[string]string{constants.BomConfigMapImageTagAnnotation: "bom-v1.18.10+vmware.1"}, bomContent18)
 			cm2 = newConfigMap(version1193, map[string]string{constants.BomConfigMapTKRLabel: version1193}, map[string]string{constants.BomConfigMapImageTagAnnotation: "bom-v1.19.3+vmware.1"}, bomContent193)
-			tkr1 := existingTkrFromBom(version11713, bomContent17)
+			tkr1 := existingTkrFromBom(version11810, bomContent18)
 			mgmtCluster := newManagementCluster(map[string]string{constants.ManagememtClusterRoleLabel: ""}, map[string]string{constants.TKGVersionKey: "v1.1"})
 			cmMeta = newMetadataConfigMap(metadataContent)
 

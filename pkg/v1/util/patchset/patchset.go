@@ -60,7 +60,6 @@ func (ps PatchSet) Apply(ctx context.Context) error {
 			}
 			errs = append(errs, err)
 		}
-
 	}
 	return kerrors.NewAggregate(errs)
 }
