@@ -685,7 +685,7 @@ var _ = Describe("ValidateAWSConfig", func() {
 		})
 	})
 
-	Context("When kubernetes version does not exists in any bom file", func() {
+	Context("When kubernetes version does not exist in any bom file", func() {
 		BeforeEach(func() {
 			tkgConfigPath = configFile4
 			tkrVersion = "v1.10.0+vmware.1-tkg.1"
@@ -695,7 +695,7 @@ var _ = Describe("ValidateAWSConfig", func() {
 		})
 	})
 
-	Context("When bom file exists for k8s version but region does not exists", func() {
+	Context("When bom file exists for k8s version but region does not exist", func() {
 		BeforeEach(func() {
 			bomFile = defaultTKGBoMFileForTesting
 			tkgConfigPath = configFile4

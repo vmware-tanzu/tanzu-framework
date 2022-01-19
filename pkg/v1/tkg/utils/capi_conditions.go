@@ -23,7 +23,7 @@ type Getter interface {
 	GetConditions() clusterv1alpha3.Conditions
 }
 
-// Get returns the condition with the given type, if the condition does not exists,
+// Get returns the condition with the given type, if the condition does not exist,
 // it returns nil.
 func Get(from Getter, t clusterv1alpha3.ConditionType) *clusterv1alpha3.Condition {
 	conditions := from.GetConditions()

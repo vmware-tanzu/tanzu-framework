@@ -680,7 +680,7 @@ var _ = Describe("VC Client", func() {
 			})
 		})
 
-		Context("When provided template does not exists", func() {
+		Context("When provided template does not exist", func() {
 			BeforeEach(func() {
 				vmTemplate = "fake-template"
 				ovaVersions = []string{"v1.16.0+vmware.1-ova-latest"}
