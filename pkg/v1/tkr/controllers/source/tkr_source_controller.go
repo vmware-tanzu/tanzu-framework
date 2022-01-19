@@ -133,7 +133,7 @@ func tkrFromConfigMap(configMap *corev1.ConfigMap) (*runv1.TanzuKubernetesReleas
 	return &newTkr, nil
 }
 
-func (r *reconciler) updateConditions(ctx context.Context, ps *patchset.PatchSet) error {
+func (r *reconciler) updateConditions(ctx context.Context, ps patchset.PatchSet) error {
 	tkrList := &runv1.TanzuKubernetesReleaseList{}
 	if err := r.client.List(ctx, tkrList); err != nil {
 		return errors.Wrap(err, "could not list TKRs")

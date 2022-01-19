@@ -1,6 +1,7 @@
 // Copyright (c) 2022 VMware, Inc. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
+// Package patchset provides the patchSet utility type.
 package patchset
 
 import (
@@ -13,14 +14,27 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
-func New(c client.Client) *PatchSet {
-	return &PatchSet{
+// PatchSet is used to snapshot multiple objects and then patch them all at once.
+type PatchSet interface {
+	// Add an object (which is a pointer to a struct) to the PatchSet. The object's snapshot is taken.
+	// Now, any changes made to the object will result in a patch being produced and applied at during Apply call.
+	Add(client.Object)
+
+	// Objects returns all objects that have been added to the PatchSet.
+	Objects() map[types.UID]client.Object
+
+	// Apply calculates patches to all added objects and applies them all at once.
+	Apply(context.Context) error
+}
+
+func New(c client.Client) PatchSet {
+	return &patchSet{
 		client:   c,
 		patchers: map[types.UID]*patcher{},
 	}
 }
 
-type PatchSet struct {
+type patchSet struct {
 	client   client.Client
 	patchers map[types.UID]*patcher
 }
@@ -30,7 +44,7 @@ type patcher struct {
 	helper *patch.Helper
 }
 
-func (ps *PatchSet) Add(obj client.Object) {
+func (ps *patchSet) Add(obj client.Object) {
 	uid := obj.GetUID()
 	if _, exists := ps.patchers[uid]; exists {
 		return
@@ -43,7 +57,7 @@ func (ps *PatchSet) Add(obj client.Object) {
 	}
 }
 
-func (ps PatchSet) Objects() map[types.UID]client.Object {
+func (ps patchSet) Objects() map[types.UID]client.Object {
 	result := make(map[types.UID]client.Object, len(ps.patchers))
 	for k, v := range ps.patchers {
 		result[k] = v.obj
@@ -51,7 +65,7 @@ func (ps PatchSet) Objects() map[types.UID]client.Object {
 	return result
 }
 
-func (ps PatchSet) Apply(ctx context.Context) error {
+func (ps patchSet) Apply(ctx context.Context) error {
 	errs := make([]error, 0, len(ps.patchers))
 	for _, patcher := range ps.patchers {
 		if err := patcher.helper.Patch(ctx, patcher.obj); err != nil {

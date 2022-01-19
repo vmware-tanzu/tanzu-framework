@@ -45,7 +45,7 @@ var _ = Describe("Patchset", func() {
 
 		c       client.Client
 		objects []client.Object
-		ps      *PatchSet
+		ps      PatchSet
 		tkrs    []*runv1.TanzuKubernetesRelease
 	)
 
@@ -99,7 +99,7 @@ var _ = Describe("Patchset", func() {
 				tkr.Labels = labels.Set{"newLabel" + tkr.Name: ""}
 			}
 			Expect(ps.Apply(context.Background())).To(Succeed())
-			Expect(ps.client.(*countingPatcher).count).To(Equal(len(changedTKRs)))
+			Expect(ps.(*patchSet).client.(*countingPatcher).count).To(Equal(len(changedTKRs)))
 		})
 	})
 
