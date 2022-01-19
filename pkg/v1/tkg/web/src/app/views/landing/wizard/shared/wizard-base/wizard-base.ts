@@ -24,6 +24,7 @@ import { SharedIdentityStepComponent } from '../components/steps/identity-step/i
 import { SharedNetworkStepComponent } from '../components/steps/network-step/network-step.component';
 import { StepFormDirective } from '../step-form/step-form';
 import { StepDescriptionChangePayload, TkgEvent, TkgEventType } from './../../../../../shared/service/Messenger';
+import { StepWrapperSetComponent } from '../step-wrapper/step-wrapper-set.component';
 
 // This interface describes a wizard that can register a step component
 export interface WizardStepRegistrar {
@@ -36,8 +37,8 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Wiz
     APP_ROUTES: Routes = APP_ROUTES;
     PROVIDERS: Providers = PROVIDERS;
 
-    @ViewChild('wizard', { read: ClrStepper, static: true })
-    wizard: ClrStepper;
+    @ViewChild(StepWrapperSetComponent)
+    stepWrapperSet: StepWrapperSetComponent;
 
     form: FormGroup;
     errorNotification: string;
@@ -269,8 +270,7 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Wiz
         if (!this.isOnFirstStep()) {
             this.currentStep = this.firstStep;
             this.visitedLastStep = false;
-            this.wizard['stepperService'].resetPanels();
-            this.wizard['stepperService']['accordion'].openFirstPanel();
+            this.stepWrapperSet.restartWizard();
         }
     }
 
