@@ -9,7 +9,7 @@ import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { APIClient } from 'tanzu-ui-api-lib';
 
 // App imports
-import { ClusterType } from "../wizard/shared/constants/wizard.constants";
+import { ClusterType } from '../wizard/shared/constants/wizard.constants';
 import { FieldMapUtilities } from '../wizard/shared/field-mapping/FieldMapUtilities';
 import { FormMetaDataStore } from '../wizard/shared/FormMetaDataStore';
 import { Messenger, TkgEventType } from 'src/app/shared/service/Messenger';

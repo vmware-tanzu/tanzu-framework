@@ -1,7 +1,7 @@
 // Angular imports
 import { Component, OnInit } from '@angular/core';
 import { Validators } from '@angular/forms';
-import { ClrLoadingState } from "@clr/angular";
+import { ClrLoadingState } from '@clr/angular';
 
 // Library imports
 import { debounceTime, distinctUntilChanged, finalize, takeUntil } from 'rxjs/operators';
@@ -12,8 +12,8 @@ import AppServices from '../../../../shared/service/appServices';
 import { AzureCloud, AzureField, ResourceGroupOption } from '../azure-wizard.constants';
 import { AzureProviderStepMapping } from './azure-provider-step.fieldmapping';
 import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
-import { FormMetaDataStore } from "../../wizard/shared/FormMetaDataStore";
-import { NotificationTypes } from "../../../../shared/components/alert-notification/alert-notification.component";
+import { FormMetaDataStore } from '../../wizard/shared/FormMetaDataStore';
+import { NotificationTypes } from '../../../../shared/components/alert-notification/alert-notification.component';
 import { StepFormDirective } from '../../wizard/shared/step-form/step-form';
 import { TkgEvent, TkgEventType } from '../../../../shared/service/Messenger';
 import { ValidationService } from '../../wizard/shared/validation/validation.service';

@@ -18,7 +18,7 @@ import { IpFamilyEnum } from 'src/app/shared/constants/app.constants';
 import { LoadBalancerStepMapping } from './load-balancer-step.fieldmapping';
 import { StepFormDirective } from '../../../step-form/step-form';
 import { TkgEventType } from 'src/app/shared/service/Messenger';
-import { ValidationService } from "../../../validation/validation.service";
+import { ValidationService } from '../../../validation/validation.service';
 
 export const KUBE_VIP = 'Kube-vip';
 export const NSX_ADVANCED_LOAD_BALANCER = "NSX Advanced Load Balancer";

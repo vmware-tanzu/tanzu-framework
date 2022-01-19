@@ -4,12 +4,12 @@ import { StepFormDirective } from '../../wizard/shared/step-form/step-form';
 // Library imports
 import { takeUntil } from "rxjs/operators";
 // App imports
-import AppServices from "../../../../shared/service/appServices";
+import AppServices from '../../../../shared/service/appServices';
 import { DockerNodeSettingStepMapping } from './node-setting-step.fieldmapping';
 import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
-import { FormMetaDataStore } from "../../wizard/shared/FormMetaDataStore";
-import { NotificationTypes } from "../../../../shared/components/alert-notification/alert-notification.component";
-import { TkgEvent, TkgEventType } from "../../../../shared/service/Messenger";
+import { FormMetaDataStore } from '../../wizard/shared/FormMetaDataStore';
+import { NotificationTypes } from '../../../../shared/components/alert-notification/alert-notification.component';
+import { TkgEvent, TkgEventType } from '../../../../shared/service/Messenger';
 
 @Component({
     selector: 'app-node-setting-step',

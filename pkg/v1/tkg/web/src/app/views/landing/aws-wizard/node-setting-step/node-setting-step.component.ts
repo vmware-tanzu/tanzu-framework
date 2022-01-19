@@ -6,7 +6,7 @@ import { takeUntil } from 'rxjs/operators';
 import { APIClient, AWSNodeAz, AWSSubnet } from 'tanzu-ui-api-lib';
 import { AppEdition } from 'src/app/shared/constants/branding.constants';
 import AppServices from '../../../../shared/service/appServices';
-import { AwsField, AwsForm } from "../aws-wizard.constants";
+import { AwsField, AwsForm } from '../aws-wizard.constants';
 import { AwsNodeSettingStepMapping } from './node-setting-step.fieldmapping';
 import { AzRelatedFieldsArray } from '../aws-wizard.component';
 import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';

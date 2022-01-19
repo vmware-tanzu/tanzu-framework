@@ -9,7 +9,7 @@ import { Vpc } from 'tanzu-ui-api-lib';
 // App imports
 import AppServices from 'src/app/shared/service/appServices';
 import { AwsVpcStepMapping } from './vpc-step.fieldmapping';
-import { AwsField, VpcType } from "../aws-wizard.constants";
+import { AwsField, VpcType } from '../aws-wizard.constants';
 import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
 import { StepFormDirective } from '../../wizard/shared/step-form/step-form';
 import { TkgEventType } from '../../../../shared/service/Messenger';

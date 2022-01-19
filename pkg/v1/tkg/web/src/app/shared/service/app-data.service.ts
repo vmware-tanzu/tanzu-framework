@@ -1,7 +1,7 @@
 // Angular imports
 import { Injectable } from '@angular/core';
 
-// Library party imports
+// Library imports
 import { BehaviorSubject } from 'rxjs';
 import { Features } from 'tanzu-ui-api-lib';
 

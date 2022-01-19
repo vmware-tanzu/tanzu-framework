@@ -17,7 +17,7 @@ import { IncompatibleComponent } from './incompatible/incompatible.component';
 import { SharedModule } from '../../shared/shared.module';
 import { PreviewConfigComponent } from '../../shared/components/preview-config/preview-config.component';
 import { VmwCopyToClipboardButtonComponent } from '../../shared/components/copy-to-clipboard-button/copy-to-clipboard-button.component';
-import { ErrorNotificationComponent } from "../../shared/components/error-notification/error-notification.component";
+import { ErrorNotificationComponent } from '../../shared/components/error-notification/error-notification.component';
 
 @NgModule({
     declarations: [

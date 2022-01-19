@@ -12,7 +12,7 @@ import { APIClient } from 'tanzu-ui-api-lib';
 import AppServices from 'src/app/shared/service/appServices';
 import { AwsForm } from './aws-wizard.constants';
 import { AwsWizardComponent } from './aws-wizard.component';
-import { ClusterType, WizardForm } from "../wizard/shared/constants/wizard.constants";
+import { ClusterType, WizardForm } from '../wizard/shared/constants/wizard.constants';
 import { FieldMapUtilities } from '../wizard/shared/field-mapping/FieldMapUtilities';
 import { Messenger } from 'src/app/shared/service/Messenger';
 import { MetadataStepComponent } from '../wizard/shared/components/steps/metadata-step/metadata-step.component';

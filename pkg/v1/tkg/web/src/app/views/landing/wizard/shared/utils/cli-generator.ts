@@ -1,4 +1,4 @@
-import { ClusterType } from "../constants/wizard.constants";
+import { ClusterType } from '../constants/wizard.constants';
 
 export interface CliFields {
     configPath: string;

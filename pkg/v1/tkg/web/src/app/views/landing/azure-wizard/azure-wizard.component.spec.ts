@@ -10,7 +10,7 @@ import { AzureForm } from './azure-wizard.constants';
 import { AzureProviderStepComponent } from './provider-step/azure-provider-step.component';
 import { AzureWizardComponent } from './azure-wizard.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { ClusterType, WizardForm } from "../wizard/shared/constants/wizard.constants";
+import { ClusterType, WizardForm } from '../wizard/shared/constants/wizard.constants';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { FieldMapUtilities } from '../wizard/shared/field-mapping/FieldMapUtilities';
 import { FormBuilder, FormControl, ReactiveFormsModule } from '@angular/forms';

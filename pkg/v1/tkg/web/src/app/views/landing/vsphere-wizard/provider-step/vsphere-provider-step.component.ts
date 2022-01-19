@@ -16,13 +16,13 @@ import AppServices from 'src/app/shared/service/appServices';
 import { EditionData } from 'src/app/shared/service/branding.service';
 import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
 import { FormMetaDataStore } from '../../wizard/shared/FormMetaDataStore';
-import { managementClusterPlugin } from "../../wizard/shared/constants/wizard.constants";
-import { NotificationTypes } from "../../../../shared/components/alert-notification/alert-notification.component";
+import { managementClusterPlugin } from '../../wizard/shared/constants/wizard.constants';
+import { NotificationTypes } from '../../../../shared/components/alert-notification/alert-notification.component';
 import { SSLThumbprintModalComponent } from '../../wizard/shared/components/modals/ssl-thumbprint-modal/ssl-thumbprint-modal.component';
 import { StepFormDirective } from '../../wizard/shared/step-form/step-form';
 import { TkgEvent, TkgEventType } from 'src/app/shared/service/Messenger';
 import { ValidationService } from '../../wizard/shared/validation/validation.service';
-import { VsphereField } from "../vsphere-wizard.constants";
+import { VsphereField } from '../vsphere-wizard.constants';
 import { VsphereProviderStepFieldMapping } from './vsphere-provider-step.fieldmapping';
 
 declare var sortPaths: any;

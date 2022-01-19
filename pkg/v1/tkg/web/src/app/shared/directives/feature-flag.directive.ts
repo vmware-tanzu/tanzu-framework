@@ -3,7 +3,7 @@
  */
 import { Directive, Input, TemplateRef, ViewContainerRef, OnInit } from '@angular/core';
 import { BasicSubscriber } from '../abstracts/basic-subscriber';
-import AppServices from "../service/appServices";
+import AppServices from '../service/appServices';
 
 /**
  * App imports
