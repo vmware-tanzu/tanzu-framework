@@ -13,11 +13,13 @@ const saveFile = (filePathDest, content) => {
             console.error(err);
         }
     });
-};
+}
+
 const convertFile = (data) => {
     const converter = new showdown.Converter();
     return converter.makeHtml(data); 
 }
+
 const convertLocalFile = (filePathSrc, filePathDest) => {
     fs.readFile(CWD + filePathSrc, 'utf8', (err, data) => {
         if (err) {
@@ -45,6 +47,7 @@ const convertLocalFiles = (pathInfo) => {
         });
     });
 }
+
 const getDestination = (pathInfo, fromLocal) => {
     const src = pathInfo.source;
     const dest = pathInfo.destination;
@@ -67,15 +70,18 @@ const getDestination = (pathInfo, fromLocal) => {
     }
     return ''; // save all files in src directory to destination directory. 
 }
+
 const isLocalPath = (arg) => {
     return arg.indexOf('http') === -1;
 }
+
 const generateMetaData = (title, tabs) => {
     return`<!--
 topicTitle: ${title}
 topicIds: [${tabs.join(', ')}]
 -->`;
 }
+
 const generateHTMLFromMD = () => {
     pathData.forEach(({
         source,
