@@ -6,7 +6,7 @@ package tkgpackageclient
 import (
 	"context"
 	"fmt"
-	"io/ioutil"
+	"os"
 	"path/filepath"
 
 	"github.com/pkg/errors"
@@ -19,25 +19,31 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgpackagedatamodel"
 )
 
-func (p *pkgClient) UpdatePackage(o *tkgpackagedatamodel.PackageOptions, progress *tkgpackagedatamodel.PackageProgress) {
+func (p *pkgClient) UpdatePackage(o *tkgpackagedatamodel.PackageOptions, progress *tkgpackagedatamodel.PackageProgress, operationType tkgpackagedatamodel.OperationType) {
 	var (
-		pkgInstall    *kappipkg.PackageInstall
-		err           error
-		secretCreated bool
+		pkgInstall                      *kappipkg.PackageInstall
+		pkgInstallToUpdate              *kappipkg.PackageInstall
+		pkgPluginResourceCreationStatus tkgpackagedatamodel.PkgPluginResourceCreationStatus
+		err                             error
+		changed                         bool
 	)
 
 	defer func() {
-		progressCleanup(err, progress)
+		if err != nil {
+			progress.Err <- err
+		}
+		if operationType == tkgpackagedatamodel.OperationTypeUpdate {
+			close(progress.ProgressMsg)
+			close(progress.Done)
+		}
 	}()
 
 	progress.ProgressMsg <- fmt.Sprintf("Getting package install for '%s'", o.PkgInstallName)
-	pkgInstall, err = p.kappClient.GetPackageInstall(o.PkgInstallName, o.Namespace)
-	if err != nil {
-		if k8serror.IsNotFound(err) {
-			err = nil
-		} else {
+	if pkgInstall, err = p.kappClient.GetPackageInstall(o.PkgInstallName, o.Namespace); err != nil {
+		if !k8serror.IsNotFound(err) {
 			return
 		}
+		err = nil
 	}
 
 	if pkgInstall == nil {
@@ -45,45 +51,30 @@ func (p *pkgClient) UpdatePackage(o *tkgpackagedatamodel.PackageOptions, progres
 			err = &tkgpackagedatamodel.PackagePluginNonCriticalError{Reason: tkgpackagedatamodel.ErrPackageNotInstalled}
 			return
 		}
-		if o.PackageName == "" {
-			err = errors.New("package-name is required when install flag is declared")
-			return
-		}
 		progress.ProgressMsg <- fmt.Sprintf("Installing package '%s'", o.PkgInstallName)
 		p.InstallPackage(o, progress, tkgpackagedatamodel.OperationTypeUpdate)
 		return
 	}
 
-	pkgInstallToUpdate := pkgInstall.DeepCopy()
-	if o.Version != pkgInstallToUpdate.Status.Version {
-		if pkgInstallToUpdate.Spec.PackageRef == nil || pkgInstallToUpdate.Spec.PackageRef.VersionSelection == nil {
-			err = errors.New(fmt.Sprintf("failed to update package '%s'", o.PkgInstallName))
-			return
-		}
-		progress.ProgressMsg <- fmt.Sprintf("Getting package metadata for '%s'", pkgInstallToUpdate.Spec.PackageRef.RefName)
-		o.PackageName = pkgInstallToUpdate.Spec.PackageRef.RefName
-		if _, _, err = p.GetPackage(o); err != nil {
-			return
-		}
-		pkgInstallToUpdate.Spec.PackageRef.VersionSelection.Constraints = o.Version
+	if pkgInstallToUpdate, changed, err = p.preparePackageInstallForUpdate(o, pkgInstall); err != nil {
+		return
 	}
 
-	if o.ValuesFile != "" {
-		if secretCreated, err = p.updateValuesFile(o, pkgInstallToUpdate, progress.ProgressMsg); err != nil {
-			return
-		}
+	progress.ProgressMsg <- fmt.Sprintf("Getting package metadata for '%s'", pkgInstallToUpdate.Spec.PackageRef.RefName)
+	if _, _, err = p.GetPackage(o); err != nil {
+		return
+	}
 
-		pkgInstallToUpdate.Spec.Values = []kappipkg.PackageInstallValues{
-			{
-				SecretRef: &kappipkg.PackageInstallValuesSecretRef{
-					Name: fmt.Sprintf(tkgpackagedatamodel.SecretName, o.PkgInstallName, o.Namespace),
-				},
-			},
-		}
+	if pkgPluginResourceCreationStatus.IsSecretCreated, err = p.createOrUpdateValuesSecret(o, pkgInstallToUpdate, progress.ProgressMsg); err != nil {
+		return
+	}
+
+	if o.ValuesFile == "" && !changed {
+		return
 	}
 
 	progress.ProgressMsg <- fmt.Sprintf("Updating package install for '%s'", o.PkgInstallName)
-	if err = p.kappClient.UpdatePackageInstall(pkgInstallToUpdate, secretCreated); err != nil {
+	if err = p.kappClient.UpdatePackageInstall(pkgInstallToUpdate, &pkgPluginResourceCreationStatus); err != nil {
 		err = errors.Wrap(err, fmt.Sprintf("failed to update package '%s'", o.PkgInstallName))
 		return
 	}
@@ -95,12 +86,53 @@ func (p *pkgClient) UpdatePackage(o *tkgpackagedatamodel.PackageOptions, progres
 	}
 }
 
-// updateValuesFile either creates or updates the values secret depending on whether the corresponding annotation exist or not
-func (p *pkgClient) updateValuesFile(o *tkgpackagedatamodel.PackageOptions, pkgInstallToUpdate *kappipkg.PackageInstall, progress chan string) (bool, error) {
+func (p *pkgClient) preparePackageInstallForUpdate(o *tkgpackagedatamodel.PackageOptions, pkgInstall *kappipkg.PackageInstall) (*kappipkg.PackageInstall, bool, error) {
+	var changed bool
+
+	if err := p.validateValuesFile(o); err != nil {
+		return nil, false, err
+	}
+
+	pkgInstallToUpdate := pkgInstall.DeepCopy()
+
+	if pkgInstallToUpdate.Spec.PackageRef == nil || pkgInstallToUpdate.Spec.PackageRef.VersionSelection == nil {
+		err := fmt.Errorf("failed to update package '%s' as no existing package reference/version was found in the package install", o.PkgInstallName)
+		return nil, false, err
+	}
+
+	// If o.PackageName is provided by the user (via --package-name flag), verify that the package name in PackageInstall matches it.
+	// This will prevent the users from accidentally overwriting an installed package with another package content due to choosing a pre-existing name for the package isntall.
+	// Otherwise if o.PackageName is not provided, fill it from the installed package spec, as the validation logic in GetPackage() needs this field to be set.
+	if o.PackageName != "" && pkgInstallToUpdate.Spec.PackageRef.RefName != o.PackageName {
+		err := fmt.Errorf("installed package '%s' is already associated with package '%s'", o.PkgInstallName, pkgInstallToUpdate.Spec.PackageRef.RefName)
+		return nil, false, err
+	}
+	o.PackageName = pkgInstallToUpdate.Spec.PackageRef.RefName
+
+	// If o.Version is provided by the user (via --version flag), set the version in PackageInstall to this version
+	// Otherwise if o.Version is not provided, fill it from the installed package spec, as the validation logic in GetPackage() needs this field to be set.
+	if o.Version != "" {
+		if pkgInstallToUpdate.Spec.PackageRef.VersionSelection.Constraints != o.Version {
+			changed = true
+			pkgInstallToUpdate.Spec.PackageRef.VersionSelection.Constraints = o.Version
+		}
+	} else {
+		o.Version = pkgInstallToUpdate.Spec.PackageRef.VersionSelection.Constraints
+	}
+
+	return pkgInstallToUpdate, changed, nil
+}
+
+// createOrUpdateValuesSecret either creates or updates the values secret depending on whether the corresponding annotation exists or not
+func (p *pkgClient) createOrUpdateValuesSecret(o *tkgpackagedatamodel.PackageOptions, pkgInstallToUpdate *kappipkg.PackageInstall, progress chan string) (bool, error) {
 	var (
 		secretCreated bool
 		err           error
 	)
+
+	if o.ValuesFile == "" {
+		return false, nil
+	}
 
 	o.SecretName = fmt.Sprintf(tkgpackagedatamodel.SecretName, o.PkgInstallName, o.Namespace)
 
@@ -112,9 +144,13 @@ func (p *pkgClient) updateValuesFile(o *tkgpackagedatamodel.PackageOptions, pkgI
 		}
 	} else {
 		progress <- fmt.Sprintf("Creating secret '%s'", o.SecretName)
-		if secretCreated, err = p.createDataValuesSecret(o); err != nil {
+		if secretCreated, err = p.createOrUpdateDataValuesSecret(o); err != nil {
 			return secretCreated, errors.Wrap(err, "failed to create secret based on values file")
 		}
+	}
+
+	pkgInstallToUpdate.Spec.Values = []kappipkg.PackageInstallValues{
+		{SecretRef: &kappipkg.PackageInstallValuesSecretRef{Name: o.SecretName}},
 	}
 
 	return secretCreated, nil
@@ -125,7 +161,7 @@ func (p *pkgClient) updateDataValuesSecret(o *tkgpackagedatamodel.PackageOptions
 	var err error
 	dataValues := make(map[string][]byte)
 
-	if dataValues[filepath.Base(o.ValuesFile)], err = ioutil.ReadFile(o.ValuesFile); err != nil {
+	if dataValues[filepath.Base(o.ValuesFile)], err = os.ReadFile(o.ValuesFile); err != nil {
 		return errors.Wrap(err, fmt.Sprintf("failed to read from data values file '%s'", o.ValuesFile))
 	}
 	secret = &corev1.Secret{

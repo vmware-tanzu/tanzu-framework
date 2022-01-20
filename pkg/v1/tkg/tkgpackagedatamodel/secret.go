@@ -3,25 +3,24 @@
 
 package tkgpackagedatamodel
 
-// ImagePullSecretOptions includes fields for image pull secret operations
-type ImagePullSecretOptions struct {
+// RegistrySecretOptions includes fields for registry image pull secret operations
+type RegistrySecretOptions struct {
 	AllNamespaces         bool
 	ExportToAllNamespaces bool
 	PasswordStdin         bool
 	SkipPrompt            bool
 	Export                TypeBoolPtr
-	KubeConfig            string
 	Namespace             string
 	Password              string
 	PasswordEnvVar        string
 	PasswordFile          string
 	PasswordInput         string
-	Registry              string
+	Server                string
 	SecretName            string
 	Username              string
 }
 
-// NewImagePullSecretOptions instantiates ImagePullSecretOptions
-func NewImagePullSecretOptions() *ImagePullSecretOptions {
-	return &ImagePullSecretOptions{}
+// NewRegistrySecretOptions instantiates RegistrySecretOptions
+func NewRegistrySecretOptions() *RegistrySecretOptions {
+	return &RegistrySecretOptions{}
 }

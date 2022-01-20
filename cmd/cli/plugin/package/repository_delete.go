@@ -22,7 +22,8 @@ var repositoryDeleteCmd = &cobra.Command{
 	Example: `
     # Delete a repository in specified namespace 	
     tanzu package repository delete repo --namespace test-ns`,
-	RunE: repositoryDelete,
+	RunE:         repositoryDelete,
+	SilenceUsage: true,
 }
 
 func init() {
@@ -41,8 +42,6 @@ func repositoryDelete(cmd *cobra.Command, args []string) error {
 		return errors.New("incorrect number of input parameters. Usage: tanzu package repository delete REPO_NAME [FLAGS]")
 	}
 
-	cmd.SilenceUsage = true
-
 	if !repoOp.SkipPrompt {
 		if err := cli.AskForConfirmation(fmt.Sprintf("Deleting package repository '%s' in namespace '%s'. Are you sure?",
 			repoOp.RepositoryName, repoOp.Namespace)); err != nil {
@@ -50,7 +49,7 @@ func repositoryDelete(cmd *cobra.Command, args []string) error {
 		}
 	}
 
-	pkgClient, err := tkgpackageclient.NewTKGPackageClient(repoOp.KubeConfig)
+	pkgClient, err := tkgpackageclient.NewTKGPackageClient(kubeConfig)
 	if err != nil {
 		return err
 	}
@@ -66,12 +65,12 @@ func repositoryDelete(cmd *cobra.Command, args []string) error {
 	initialMsg := fmt.Sprintf("Deleting package repository '%s'", repoOp.RepositoryName)
 	if err := DisplayProgress(initialMsg, pp); err != nil {
 		if err.Error() == tkgpackagedatamodel.ErrRepoNotExists {
-			log.Warningf("\npackage repository '%s' does not exist in namespace '%s'", repoOp.RepositoryName, repoOp.Namespace)
+			log.Warningf("package repository '%s' does not exist in namespace '%s'", repoOp.RepositoryName, repoOp.Namespace)
 			return nil
 		}
 		return err
 	}
 
-	log.Infof("\n Deleted package repository '%s' from namespace '%s'", repoOp.RepositoryName, repoOp.Namespace)
+	log.Infof("Deleted package repository '%s' from namespace '%s'", repoOp.RepositoryName, repoOp.Namespace)
 	return nil
 }

@@ -25,6 +25,11 @@ NAMESPACE:
 #! Supported infrastructure provider values are 'vsphere', 'aws', 'azure'
 #! INFRASTRUCTURE_PROVIDER is required while creating management cluster
 INFRASTRUCTURE_PROVIDER:
+#! API Server Port number to be configured for the cluster.
+#! if not provided default 6443 would be used.
+#! if AVI load balancer is used for vSphere provider, VSPHERE_CONTROL_PLANE_ENDPOINT_PORT would
+#! be used instead
+CLUSTER_API_SERVER_PORT:
 
 #! Instance size configuration
 #! Instance size options available for vSphere are as follows:
@@ -50,9 +55,6 @@ ENABLE_CEIP_PARTICIPATION:
 DEPLOY_TKG_ON_VSPHERE7:
 #! Enable TKGS on vSphere 7.0 without prompt
 ENABLE_TKGS_ON_VSPHERE7:
-#! URL to download the yml which has configuration related to resources to be deployed on the
-#! management cluster for it to register with Tanzu Mission Control
-TMC_REGISTRATION_URL:
 
 #! BUILD_EDITION is the Tanzu Edition, the plugin should be built for.
 #! Valid values for BUILD_EDITION are 'tce' and 'tkg'.
@@ -90,6 +92,7 @@ VSPHERE_NETWORK: VM Network
 #! necessary except to disambiguate among 2 or more applicable VM templates.
 VSPHERE_TEMPLATE:
 
+VSPHERE_TEMPLATE_MOID:
 
 #! WINDOWS PARAMETERS
 #! The name of the VM Windows template to be used to create a specific version of
@@ -104,10 +107,14 @@ VSPHERE_SSH_AUTHORIZED_KEY:
 VSPHERE_USERNAME:
 VSPHERE_PASSWORD:
 
-#! The content of zone and region infomation is used to deploy CPI and CSI in a
+#! The content of zone and region information is used to deploy CPI and CSI in a
 #! vSphere environment that includes multiple data centers or host clusters.
 VSPHERE_REGION:
 VSPHERE_ZONE:
+
+VSPHERE_AZ_0:
+VSPHERE_AZ_1:
+VSPHERE_AZ_2:
 
 #! FQDN or IP address to vCenter
 VSPHERE_SERVER:
@@ -164,6 +171,9 @@ NSXT_SECRET_NAMESPACE: "kube-system"
 #! For list of supported regions, see TKG documentation.
 #! If you have already set an environment variable for the region, you must unset it.
 AWS_REGION:
+#! AWS_LOAD_BALANCER_SCHEME_INTERNAL will mean that the Kubernetes API Server Load Balancer will not be accessible and routed over the
+#! internet.
+AWS_LOAD_BALANCER_SCHEME_INTERNAL: false
 #! AZ has to be contained in the AWS region
 AWS_NODE_AZ: ""
 #! set these if you want 3 control plane nodes. The below
@@ -257,6 +267,14 @@ WORKER_STORAGE_CLASS:
 #! Specifies the name of the VirtualMachineClass that describes the virtual
 #! hardware settings to be used each worker node in the pool
 WORKER_VM_CLASS:
+#! Specifies the name of the first node pool
+NODE_POOL_0_NAME: "workers"
+#! Specifies the labels to be applied on first node pool. It should be of the
+#! format "key1=value1,key2=value2"
+NODE_POOL_0_LABELS:
+#! Specifies the taints string to be applied on first node pool. It should be of the
+#! format "key1=value1:effect1,key2=value2:effect2"
+NODE_POOL_0_TAINTS:
 
 
 
@@ -285,16 +303,15 @@ AZURE_SSH_PUBLIC_KEY_B64:
 #! Azure virtual machine size
 AZURE_CONTROL_PLANE_MACHINE_TYPE: "Standard_D2s_v3"
 AZURE_NODE_MACHINE_TYPE: "Standard_D2s_v3"
-#! Accelerated networking turned off by default until
-#! https://launchpad.net/~timg-tpi/+archive/ubuntu/mlx-tunnel-offload-lp1921769 is addressed
-AZURE_ENABLE_ACCELERATED_NETWORKING: false
+#! Accelerated Networking is enabled by default on all supported Azure VMs with 4 or more CPU.
+AZURE_ENABLE_ACCELERATED_NETWORKING: true
 
 #! resource-group-name that already exists in your Azure account.
 #! AZURE_RESOURCE_GROUP and AZURE_VNET_RESOURCE_GROUP are the same by default.
 
 #! Must be unique to each cluster.
 AZURE_RESOURCE_GROUP: ""
-#! If unset the value of AZURE_RESOURCE_GROUP will be used as the resoure group
+#! If unset the value of AZURE_RESOURCE_GROUP will be used as the resource group
 #! for the VNET
 AZURE_VNET_RESOURCE_GROUP: ""
 
@@ -332,6 +349,13 @@ AZURE_NODE_DATA_DISK_SIZE_GIB: 256
 #! A Private cluster will have an Azure internal load balancer load balancing traffic inside the VNet to the control plane nodes.
 AZURE_ENABLE_PRIVATE_CLUSTER: false
 AZURE_FRONTEND_PRIVATE_IP: "10.0.0.100"
+AZURE_ENABLE_CONTROL_PLANE_OUTBOUND_LB: false
+AZURE_ENABLE_NODE_OUTBOUND_LB: false
+AZURE_CONTROL_PLANE_OUTBOUND_LB_FRONTEND_IP_COUNT: 1
+AZURE_NODE_OUTBOUND_LB_FRONTEND_IP_COUNT: 1
+#! specifies the number of minutes to keep a TCP connection open for the outbound rule
+#! https://docs.microsoft.com/en-us/azure/load-balancer/load-balancer-tcp-reset#configurable-tcp-idle-timeout
+AZURE_NODE_OUTBOUND_LB_IDLE_TIMEOUT_IN_MINUTES: 4
 
 #! Azure VM Image Config values
 #! Azure image ID
@@ -394,12 +418,23 @@ TKG_CUSTOM_IMAGE_REPOSITORY_SKIP_TLS_VERIFY: false
 TKG_CUSTOM_IMAGE_REPOSITORY_CA_CERTIFICATE: ""
 
 #! PROXY configuration
+#! If `TKG_PROXY_CA_CERT` is specified it gets used instead of
+#! `TKG_CUSTOM_IMAGE_REPOSITORY_CA_CERTIFICATE` while communicating
+#! with the registry
 TKG_HTTP_PROXY: ""
 TKG_HTTPS_PROXY: ""
 TKG_NO_PROXY: ""
+TKG_PROXY_CA_CERT: ""
 
 #! IP Family setting
 TKG_IP_FAMILY:
+
+#! Configure cloud provider permissions for TMC enablement. Only affects AWS at present.
+DISABLE_TMC_CLOUD_PERMISSIONS: false
+
+#! Node Nameservers (currently only supports the vSphere provider)
+CONTROL_PLANE_NODE_NAMESERVERS:
+WORKER_NODE_NAMESERVERS:
 
 #! Audit Logging settings
 ENABLE_AUDIT_LOGGING: false
@@ -461,6 +496,11 @@ DOCKER_MACHINE_TEMPLATE_IMAGE:
 #! If "none" is specified, pinniped services will not be deployed on the cluster
 IDENTITY_MANAGEMENT_TYPE: "none"
 
+#! ---------------------------------------------------------------------
+#! SecretGen Controller configuration
+#! ---------------------------------------------------------------------
+SECRETGEN_CONTROLLER_ENABLE: true
+
 #! Settings for Pinniped OIDC
 CERT_DURATION: 2160h
 CERT_RENEW_BEFORE: 360h
@@ -513,10 +553,30 @@ AVI_USERNAME: ""
 AVI_PASSWORD: ""
 AVI_CLOUD_NAME:
 AVI_SERVICE_ENGINE_GROUP:
+
+#! WARNING: service engine group separation support is not enabled (because it is under development).
+#! To use a different service engine group in the management cluster, set AVI_MANAGEMENT_CLUSTER_SERVICE_ENGINE_GROUP variable to the management cluster service engine group
+AVI_MANAGEMENT_CLUSTER_SERVICE_ENGINE_GROUP:
 AVI_DATA_NETWORK:
 AVI_DATA_NETWORK_CIDR:
+
+#! WARNING: workload cluster network separation support is not enabled (because it is under development).
+#! To use a different control plane network in the workload cluster:
+#! set AVI_CONTROL_PLANE_NETWORK variable to name of the control plane network in the workload cluster
+#! set AVI_CONTROL_PLANE_NETWORK_CIDR variable to cidr of the control plane network in the workload cluster
+AVI_CONTROL_PLANE_NETWORK:
+AVI_CONTROL_PLANE_NETWORK_CIDR:
+
 AVI_MANAGEMENT_CLUSTER_VIP_NETWORK_NAME:
 AVI_MANAGEMENT_CLUSTER_VIP_NETWORK_CIDR:
+
+#! WARNING: management cluster network separation support is not enabled (because it is under development).
+#! To use a different control plane network in the management cluster:
+#! set AVI_MANAGEMENT_CLUSTER_CONTROL_PLANE_VIP_NETWORK_NAME variable to name of the control plane network in the management cluster
+#! set AVI_MANAGEMENT_CLUSTER_CONTROL_PLANE_VIP_NETWORK_CIDR variable to cidr of the control plane network in the management cluster
+AVI_MANAGEMENT_CLUSTER_CONTROL_PLANE_VIP_NETWORK_NAME:
+AVI_MANAGEMENT_CLUSTER_CONTROL_PLANE_VIP_NETWORK_CIDR:
+
 AVI_CA_DATA_B64: ""
 AVI_LABELS: ""
 
@@ -538,7 +598,7 @@ ANTREA_ENDPOINTSLICE: false
 ANTREA_POLICY: true
 ANTREA_NODEPORTLOCAL: false
 ANTREA_TRACEFLOW: true
-
+ANTREA_DISABLE_UDP_TUNNEL_OFFLOAD: false
 
 
 #! ---------------------------------------------------------------------
@@ -559,6 +619,9 @@ AWS_AMI_ID:
 TKR_DISCOVER_FREQUENCY: 600
 #! vSphere version
 VSPHERE_VERSION:
+#! CORE_DNS_IP is the IP of core DNS service, supports both IPv4 and IPv6
+#! It is the 10th index of SERVICE_CIDR subnet
+CORE_DNS_IP:
 
 
 #! ---------------------------------------------------------------------

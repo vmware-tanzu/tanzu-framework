@@ -1,56 +1,222 @@
-# Tanzu CLI Getting Started
+# Tanzu Command Line Interface (CLI) Getting Started
 
-A simple set of instructions to set up and use the Tanzu CLI.
+A simple set of instructions to set up and use the `tanzu` CLI and plugins.
 
-## Installation
+## CLI binary and plugins installation
+
+### Supported Platforms
+
+Following are the combinations supported for CLI
+
+| OS      | Architecture |
+| :-----: | :----------: |
+| Linux   |    amd64     |
+| macOS   |    amd64     |
+| Windows |    amd64     |
 
 ### Install the latest release of Tanzu CLI
 
-`linux-amd64`,`windows-amd64`, and `darwin-amd64` are the OS-ARCHITECTURE
-combinations we support now.
+#### Recommended method to install plugins (with API-driven plugin discovery activated)
 
-If you want to install the latest release of the Tanzu CLI, you can run the below commands:
+With [v0.14.0](https://github.com/vmware-tanzu/tanzu-framework/releases/tag/v0.14.0) release, the artifacts are better categorized and published to allow users to download and configure per recommended and alternate methods.
 
-#### MacOS/Linux
+The API driven plugin discovery feature is enabled as default method to install the plugins. So, most users will just need to install the Tanzu CLI binary. The plugins can be installed and configured with `tanzu plugin sync` command. Learn more about this feature in the [design docs](../design/context-aware-plugin-discovery-design.md).
 
-```shell
-export ARCH=$(case $(uname -m) in x86_64) echo -n amd64 ;; aarch64) echo -n arm64 ;; esac)
-export OS=$(uname | awk '{print tolower($0)}')
+##### macOS/Linux
 
-curl -o tanzu https://storage.googleapis.com/tanzu-cli/artifacts/core/latest/tanzu-core-${OS}_${ARCH} && \
-    mv tanzu /usr/local/bin/tanzu && \
-    chmod +x /usr/local/bin/tanzu
-```
+- Download the latest tanzu-cli tarball from [release](https://github.com/vmware-tanzu/tanzu-framework/releases/latest) page (`tanzu-cli-darwin-amd64.tar.gz` or `tanzu-cli-linux-amd64.tar.gz`)
+
+- Extract the downloaded tar file
+
+  - for macOS:
+
+    ```sh
+    mkdir tanzu && tar -zxvf tanzu-cli-darwin-amd64.tar.gz -C tanzu
+    ```
+
+  - for Linux:
+
+    ```sh
+    mkdir tanzu && tar -zxvf tanzu-cli-linux-amd64.tar.gz -C tanzu
+    ```
+
+- Install the `tanzu` CLI
+
+  Note: Replace `v0.14.0` with the version you've downloaded.
+
+  - for macOS:
+
+    ```sh
+    install tanzu/v0.14.0/tanzu-core-darwin_amd64 /usr/local/bin/tanzu
+    ```
+
+  - for Linux:
+
+    ```sh
+    sudo install tanzu/v0.14.0/tanzu-core-linux_amd64 /usr/local/bin/tanzu
+    ```
+
+- Install the available plugins
+
+  ```sh
+  tanzu plugin sync
+  ```
+
+- Verify installed plugins
+
+  ```sh
+  tanzu plugin list
+  ```
+
+##### Windows
+
+- Download the latest `tanzu-cli-windows-amd64.zip` from [release](https://github.com/vmware-tanzu/tanzu-framework/releases/latest) page
+
+- Open PowerShell as an administrator, change to the download directory and run:
+
+  ```sh
+  Expand-Archive tanzu-cli-windows-amd64.zip -DestinationPath tanzu
+  cd .\tanzu\
+  ```
+
+- Save following in `install.bat` in current directory and run `install.bat`
+
+  Note: Replace `v0.11.0` (line number 3) with the version you've downloaded.
+
+  ```sh
+  SET TANZU_CLI_DIR=%ProgramFiles%\tanzu
+  mkdir "%TANZU_CLI_DIR%"
+  copy /B /Y v0.11.0\tanzu-core-windows_amd64.exe "%TANZU_CLI_DIR%\tanzu.exe"
+  set PATH=%PATH%;%TANZU_CLI_DIR%
+  SET PLUGIN_DIR=%LocalAppData%\tanzu-cli
+  mkdir %PLUGIN_DIR%
+  SET TANZU_CACHE_DIR=%LocalAppData%\.cache\tanzu
+  rmdir /Q /S %TANZU_CACHE_DIR%
+  tanzu plugin sync
+  tanzu plugin list
+  ```
+
+- Add `Program Files\tanzu` to your PATH.
+
+#### Legacy method to install plugins (with API-driven plugin discovery deactivated)
+
+Users can still install the plugins using the legacy method by deactivating the `context-aware-cli-for-plugins` feature.
+
+<details><summary>Installation steps</summary>
+
+#### macOS/Linux
+
+- Deactivate API-driven plugin discovery
+
+  ```sh
+  tanzu config set features.global.context-aware-cli-for-plugins false
+  ```
+
+- If you have a previous version of tanzu CLI already installed and the config file ~/.config/tanzu/config.yaml is present, run this command to make sure the default plugin repo points to the right path.
+
+  ```sh
+  tanzu plugin repo update -b tanzu-cli-framework core
+  ```
+
+- Install the downloaded plugins
+
+  ```sh
+  tanzu plugin install --local tanzu/cli all
+  ```
+
+- Verify the installed plugins
+
+  ```sh
+  tanzu plugin list
+  ```
 
 #### Windows
 
-#### AMD64
+- Save following in `install.bat` in current directory and run `install.bat`
 
-Windows executable can be found at
-[https://storage.googleapis.com/tanzu-cli/artifacts/core/latest/tanzu-core-windows_amd64.exe](https://storage.googleapis.com/tanzu-cli/artifacts/core/latest/tanzu-core-windows_amd64.exe)
+  Note: Replace `v0.14.0` (line number 3) with the version you've downloaded.
 
-### Build and install the CLI and plugins locally
+  ```sh
+  SET TANZU_CLI_DIR=%ProgramFiles%\tanzu
+  mkdir "%TANZU_CLI_DIR%"
+  copy /B /Y cli\core\v0.14.0\tanzu-core-windows_amd64.exe "%TANZU_CLI_DIR%\tanzu.exe"
+  set PATH=%PATH%;%TANZU_CLI_DIR%
+  SET PLUGIN_DIR=%LocalAppData%\tanzu-cli
+  mkdir %PLUGIN_DIR%
+  SET TANZU_CACHE_DIR=%LocalAppData%\.cache\tanzu
+  rmdir /Q /S %TANZU_CACHE_DIR%
 
-#### Prerequisites
+  tanzu config set features.global.context-aware-cli-for-plugins false
+  tanzu plugin repo update -b tanzu-cli-framework core
+  tanzu plugin install --local cli all
 
-* [go](https://golang.org/dl/) version 1.16
+  tanzu plugin list
+  ```
 
-Clone Tanzu Framework and run the below command to build and install CLI and
-plugins locally for your platform.
+- Add `Program Files\tanzu` to your PATH.
+
+</details>
+
+## Delete a selected plugin
+
+If you want to delete a given plugin (one use case is when a plugin has become obsolete), you can run the following command:
 
 ```sh
-TANZU_CLI_NO_INIT=true make build-install-cli-local
+tanzu plugin delete <PLUGIN_NAME>
 ```
 
-If you additionaly want to build and install CLI and plugins for all platforms, run:
+With `v0.11.0` release, the plugin `imagepullsecret` is deprecated and renamed `secret`. The new plugin `secret` will be installed following
+the instructions listed above. Remove the installed deprecated plugin if it exists using:
 
 ```sh
-TANZU_CLI_NO_INIT=true make build-install-cli-all
+tanzu plugin delete imagepullsecret
 ```
 
-The CLI currently contains a default distribution which is the default set of plugins that should be installed on
-initialization. Initialization of the distributions can be prevented by setting the env var `TANZU_CLI_NO_INIT=true`.
-Check out this [doc](../cli/plugin_implementation_guide.md#Distributions) to learn more about distributions in Tanzu CLI
+## Build the CLI and plugins from source
+
+If you want the very latest, you can also build and install tanzu CLI, and its plugins, from source.
+
+### Prerequisites
+
+- [go](https://golang.org/dl/) version 1.17
+
+- Clone Tanzu Framework and run the below command to build and install CLI and
+  plugins locally for your platform.
+
+  ```sh
+  make build-install-cli-local
+  ```
+
+- When the build is done, the tanzu CLI binary and the plugins will be produced locally in the `artifacts` directory.
+  The CLI binary will be in a directory similar to the following:
+
+  ```bash
+  ./artifacts/<OS>/<ARCH>/cli/core/<version>/tanzu-core-<os_arch>
+  ```
+
+- For instance, the following is a build for MacOS:
+
+  ```bash
+  ./artifacts/darwin/amd64/cli/core/latest/tanzu-core-darwin_amd64
+  ```
+
+- If you additionally want to build and install CLI and plugins for all platforms, run:
+
+  ```sh
+  make build-install-cli-all
+  ```
+
+The CLI has 2 different types of plugins.
+
+  1. Standalone plugins: independent of the CLI context
+  2. Context(server) scoped plugins: scoped to one or more contexts
+
+When building the CLI locally and installing plugins with `make build-install-cli-local` or `make build-install-cli-all`, the `local` file-system based standalone plugin discovery and distribution is used. While building locally all plugins are treated as standalone plugins. The type of discovery which gets used is determined by `DISCOVERY_TYPE` variable that configures `pkg/v1/config.DefaultStandaloneDiscoveryType` variable while building the Tanzu CLI. Please check `build-cli-%` target under the [Makefile](./Makefile)
+
+However, for official release, which uses OCI image based plugin discovery and distribution, `cluster` and `kubernetes-release` are context scoped plugins whereas `login`, `management-cluster`, `package` and `secret` are considered standalone plugins. Users can run `tanzu plugin list` command to check the plugin's scope and discovery information.
+All admin plugins like `builder`, `test` etc. are also considered standalone plugins.
+
+More details about this can be found in [context-aware plugin discovery](docs/design/context-aware-plugin-discovery-design.md) design document.
 
 ## Usage
 

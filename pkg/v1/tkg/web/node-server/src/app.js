@@ -8,7 +8,7 @@
 //
 
 const express = require('express');
-const session = require('express-session');
+const rateLimit = require("express-rate-limit");
 
 const busboy = require('connect-busboy');
 const path = require('path');
@@ -16,7 +16,6 @@ const paths = require('./conf/paths');
 const mkdirp = require('mkdirp');
 const morgan = require('morgan');
 const makeRfs = require('rotating-file-stream');
-const cookieParser = require('cookie-parser');
 const appConfig = require(paths.src.appConfig);
 const libUtil = require(paths.src.util);
 const winston = require('winston');
@@ -28,6 +27,15 @@ const bodyParser = require(paths.src.bodyParser);
 // Create and configure the app server
 //
 let app = express();
+
+app.use(
+    rateLimit({
+        windowMs: 1000, // 1 second duration
+        max: 20,
+        message: "You exceeded 20 requests per second; to increase the allowed requests/sec, modify rateLimit in app.js",
+        headers: true
+    })
+);
 
 winston.verbose('Mounting route to handle server error state');
 app.use((req, res, next) => {

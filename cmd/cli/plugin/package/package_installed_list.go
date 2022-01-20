@@ -20,7 +20,8 @@ var packageInstalledListCmd = &cobra.Command{
 	
     # List installed packages from specified namespace	
     tanzu package installed list --namespace test-ns`,
-	RunE: packageInstalledList,
+	RunE:         packageInstalledList,
+	SilenceUsage: true,
 }
 
 func init() {
@@ -31,9 +32,7 @@ func init() {
 }
 
 func packageInstalledList(cmd *cobra.Command, args []string) error {
-	cmd.SilenceUsage = true
-
-	kc, err := kappclient.NewKappClient(packageInstalledOp.KubeConfig)
+	kc, err := kappclient.NewKappClient(kubeConfig)
 	if err != nil {
 		return err
 	}

@@ -147,6 +147,11 @@ func createCluster(clusterName string, server *v1alpha1.Server) error {
 		}
 	}
 
+	edition, err := config.GetEdition()
+	if err != nil {
+		return err
+	}
+
 	ccOptions := tkgctl.CreateClusterOptions{
 		ClusterConfigFile:           cc.clusterConfigFile,
 		TkrVersion:                  tkrVersion,
@@ -165,7 +170,7 @@ func createCluster(clusterName string, server *v1alpha1.Server) error {
 		VsphereControlPlaneEndpoint: cc.vsphereControlPlaneEndpoint,
 		SkipPrompt:                  cc.unattended,
 		Timeout:                     cc.timeout,
-		Edition:                     BuildEdition,
+		Edition:                     edition,
 	}
 
 	return tkgctlClient.CreateCluster(ccOptions)

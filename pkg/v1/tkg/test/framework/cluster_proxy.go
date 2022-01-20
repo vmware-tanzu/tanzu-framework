@@ -7,7 +7,7 @@ package framework
 import (
 	"context"
 
-	. "github.com/onsi/gomega" // nolint:golint,stylecheck
+	. "github.com/onsi/gomega" // nolint:stylecheck
 
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -88,7 +88,7 @@ func (p *ClusterProxy) GetScheme() *runtime.Scheme {
 // GetClusterNodes gets the cluster Nodes
 func (p *ClusterProxy) GetClusterNodes() []corev1.Node {
 	clientSet := p.GetClientSet()
-	nodeList, err := clientSet.CoreV1().Nodes().List(metav1.ListOptions{})
+	nodeList, err := clientSet.CoreV1().Nodes().List(context.Background(), metav1.ListOptions{})
 	Expect(err).ToNot(HaveOccurred())
 	return nodeList.Items
 }

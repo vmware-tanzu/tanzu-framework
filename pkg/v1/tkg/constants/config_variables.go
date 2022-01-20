@@ -5,19 +5,23 @@ package constants
 
 // Configuration variable name constants
 const (
-	ConfigVariableDefaultBomFile                     = "TKG_DEFAULT_BOM"
-	ConfigVariableCustomImageRepository              = "TKG_CUSTOM_IMAGE_REPOSITORY"
-	ConfigVariableDevImageRepository                 = "TKG_DEV_IMAGE_REPOSITORY"
-	ConfigVariableCompatibilityCustomImagePath       = "TKG_CUSTOM_COMPATIBILITY_IMAGE_PATH"
-	ConfigVariableCustomImageRepositorySkipTLSVerify = "TKG_CUSTOM_IMAGE_REPOSITORY_SKIP_TLS_VERIFY"
-	ConfigVariableCustomImageRepositoryCaCertificate = "TKG_CUSTOM_IMAGE_REPOSITORY_CA_CERTIFICATE"
+	ConfigVariableDefaultBomFile                      = "TKG_DEFAULT_BOM"
+	ConfigVariableCustomImageRepository               = "TKG_CUSTOM_IMAGE_REPOSITORY"
+	ConfigVariableDevImageRepository                  = "TKG_DEV_IMAGE_REPOSITORY"
+	ConfigVariableCompatibilityCustomImagePath        = "TKG_CUSTOM_COMPATIBILITY_IMAGE_PATH"
+	ConfigVariableCustomImageRepositorySkipTLSVerify  = "TKG_CUSTOM_IMAGE_REPOSITORY_SKIP_TLS_VERIFY"
+	ConfigVariableCustomImageRepositoryCaCertificate  = "TKG_CUSTOM_IMAGE_REPOSITORY_CA_CERTIFICATE"
+	ConfigVariableDefaultStandaloneDiscoveryImagePath = "TKG_DEFAULT_STANDALONE_DISCOVERY_IMAGE_PATH"
+	ConfigVariableDefaultStandaloneDiscoveryImageTag  = "TKG_DEFAULT_STANDALONE_DISCOVERY_IMAGE_TAG"
+	ConfigVariableDefaultStandaloneDiscoveryType      = "TKG_DEFAULT_STANDALONE_DISCOVERY_TYPE"
+	ConfigVariableDefaultStandaloneDiscoveryLocalPath = "TKG_DEFAULT_STANDALONE_DISCOVERY_LOCAL_PATH"
 
 	ConfigVariableAWSRegion          = "AWS_REGION"
 	ConfigVariableAWSSecretAccessKey = "AWS_SECRET_ACCESS_KEY" //nolint:gosec
 	ConfigVariableAWSAccessKeyID     = "AWS_ACCESS_KEY_ID"     //nolint:gosec
 	ConfigVariableAWSSessionToken    = "AWS_SESSION_TOKEN"     //nolint:gosec
 	ConfigVariableAWSProfile         = "AWS_PROFILE"
-	ConfigVariableAWSB64Credentials  = "AWS_B64ENCODED_CREDENTIALS"
+	ConfigVariableAWSB64Credentials  = "AWS_B64ENCODED_CREDENTIALS" //nolint:gosec
 	ConfigVariableAWSVPCID           = "AWS_VPC_ID"
 
 	ConfigVariableAWSPublicNodeCIDR   = "AWS_PUBLIC_NODE_CIDR"
@@ -44,6 +48,7 @@ const (
 	ConfigVariableVsphereTLSThumbprint        = "VSPHERE_TLS_THUMBPRINT"
 	ConfigVariableVsphereSSHAuthorizedKey     = "VSPHERE_SSH_AUTHORIZED_KEY"
 	ConfigVariableVsphereTemplate             = "VSPHERE_TEMPLATE"
+	ConfigVariableVsphereTemplateMoid         = "VSPHERE_TEMPLATE_MOID"
 	ConfigVariableVsphereDatacenter           = "VSPHERE_DATACENTER"
 	ConfigVariableVsphereResourcePool         = "VSPHERE_RESOURCE_POOL"
 	ConfigVariableVsphereStoragePolicyID      = "VSPHERE_STORAGE_POLICY_ID"
@@ -100,14 +105,15 @@ const (
 	ConfigVariablePinnipedSupervisorIssuerURL          = "SUPERVISOR_ISSUER_URL"
 	ConfigVariablePinnipedSupervisorIssuerCABundleData = "SUPERVISOR_ISSUER_CA_BUNDLE_DATA_B64"
 
-	ConfigVariableClusterRole            = "TKG_CLUSTER_ROLE"
-	ConfigVariableForceRole              = "_TKG_CLUSTER_FORCE_ROLE"
-	ConfigVariableProviderType           = "PROVIDER_TYPE"
-	ConfigVariableTKGVersion             = "TKG_VERSION"
-	ConfigVariableBuildEdition           = "BUILD_EDITION"
-	ConfigVariableFilterByAddonType      = "FILTER_BY_ADDON_TYPE"
-	ConfigVaraibleDisableCRSForAddonType = "DISABLE_CRS_FOR_ADDON_TYPE"
-	ConfigVariableEnableAutoscaler       = "ENABLE_AUTOSCALER"
+	ConfigVariableClusterRole                = "TKG_CLUSTER_ROLE"
+	ConfigVariableForceRole                  = "_TKG_CLUSTER_FORCE_ROLE"
+	ConfigVariableProviderType               = "PROVIDER_TYPE"
+	ConfigVariableTKGVersion                 = "TKG_VERSION"
+	ConfigVariableBuildEdition               = "BUILD_EDITION"
+	ConfigVariableFilterByAddonType          = "FILTER_BY_ADDON_TYPE"
+	ConfigVaraibleDisableCRSForAddonType     = "DISABLE_CRS_FOR_ADDON_TYPE"
+	ConfigVariableEnableAutoscaler           = "ENABLE_AUTOSCALER"
+	ConfigVariableDisableTMCCloudPermissions = "DISABLE_TMC_CLOUD_PERMISSIONS"
 
 	ConfigVariableControlPlaneMachineCount = "CONTROL_PLANE_MACHINE_COUNT"
 	ConfigVariableWorkerMachineCount       = "WORKER_MACHINE_COUNT"
@@ -126,6 +132,7 @@ const (
 	TKGHTTPSProxy       = "TKG_HTTPS_PROXY"
 	TKGHTTPProxyEnabled = "TKG_HTTP_PROXY_ENABLED"
 	TKGNoProxy          = "TKG_NO_PROXY"
+	TKGProxyCACert      = "TKG_PROXY_CA_CERT"
 
 	ConfigVariableOSName    = "OS_NAME"
 	ConfigVariableOSVersion = "OS_VERSION"
@@ -134,7 +141,12 @@ const (
 	ConfigVariableClusterCIDR = "CLUSTER_CIDR"
 	ConfigVariableServiceCIDR = "SERVICE_CIDR"
 
+	ConfigVariableCoreDNSIP = "CORE_DNS_IP"
+
 	ConfigVariableIPFamily = "TKG_IP_FAMILY"
+
+	ConfigVariableControlPlaneNodeNameservers = "CONTROL_PLANE_NODE_NAMESERVERS"
+	ConfigVariableWorkerNodeNameservers       = "WORKER_NODE_NAMESERVERS"
 
 	// Below config variables are added based on init and create command flags
 
@@ -147,7 +159,6 @@ const (
 	ConfigVariableEnableCEIPParticipation = "ENABLE_CEIP_PARTICIPATION"
 	ConfigVariableDeployTKGOnVsphere7     = "DEPLOY_TKG_ON_VSPHERE7"
 	ConfigVariableEnableTKGSonVsphere7    = "ENABLE_TKGS_ON_VSPHERE7"
-	ConfigVariableTMCRegistrationURL      = "TMC_REGISTRATION_URL"
 	ConfigVariableSize                    = "SIZE"
 	ConfigVariableControlPlaneSize        = "CONTROLPLANE_SIZE"
 	ConfigVariableWorkerSize              = "WORKER_SIZE"
@@ -174,4 +185,11 @@ const (
 
 	// Windows specific variables
 	ConfigVariableIsWindowsWorkloadCluster = "IS_WINDOWS_WORKLOAD_CLUSTER"
+
+	// AVI specific variables
+	ConfigVariableAviManagementClusterServiceEngineGroup         = "AVI_MANAGEMENT_CLUSTER_SERVICE_ENGINE_GROUP"
+	ConfigVariableAviControlPlaneNetwork                         = "AVI_CONTROL_PLANE_NETWORK"
+	ConfigVariableAviControlPlaneNetworkCidr                     = "AVI_CONTROL_PLANE_NETWORK_CIDR"
+	ConfigVariableAviManagementClusterControlPlaneVipNetworkName = "AVI_MANAGEMENT_CLUSTER_CONTROL_PLANE_VIP_NETWORK_NAME"
+	ConfigVariableAviManagementClusterControlPlaneVipNetworkCidr = "AVI_MANAGEMENT_CLUSTER_CONTROL_PLANE_VIP_NETWORK_CIDR"
 )

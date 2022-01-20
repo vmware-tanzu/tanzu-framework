@@ -16,7 +16,7 @@ import (
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 
 	"github.com/pkg/errors"
-	capi "sigs.k8s.io/cluster-api/api/v1alpha3"
+	capi "sigs.k8s.io/cluster-api/api/v1beta1"
 	clusterctlv1 "sigs.k8s.io/cluster-api/cmd/clusterctl/api/v1alpha3"
 	crtclient "sigs.k8s.io/controller-runtime/pkg/client"
 
@@ -38,15 +38,15 @@ const (
 
 You need to delete these clusters first before deleting the management cluster.
 
-Alternatively, you can use the -f/--force flag to force the deletion of the management cluster but doing so will orphan the above-mentioned clusters and leave them unmanaged.`
+Alternatively, you can use the --force flag to force the deletion of the management cluster but doing so will orphan the above-mentioned clusters and leave them unmanaged.`
 )
 
 // DeleteRegion delete management cluster
 func (c *TkgClient) DeleteRegion(options DeleteRegionOptions) error { //nolint:funlen,gocyclo
 	var err error
-	var isSuccessful bool = false
-	var isStartedRegionalClusterDeletion bool = false
-	var isCleanupClusterCreated bool = false
+	var isSuccessful = false
+	var isStartedRegionalClusterDeletion = false
+	var isCleanupClusterCreated = false
 	var cleanupClusterName string
 	var cleanupClusterKubeconfigPath string
 
@@ -266,10 +266,7 @@ func (c *TkgClient) deleteCluster(kubeconfig, clusterName, clusterNamespace stri
 	clusterObject.Name = clusterName
 	clusterObject.Namespace = clusterNamespace
 
-	if err := clusterClient.DeleteResource(clusterObject); err != nil {
-		return err
-	}
-	return nil
+	return clusterClient.DeleteResource(clusterObject)
 }
 
 func (c *TkgClient) waitForClusterDeletion(kubeconfig, clusterName, clusterNamespace string) error {
@@ -375,17 +372,6 @@ func (c *TkgClient) getInitOptionsFromExistingCluster(regionalClusterClient clus
 	} else {
 		for targetNamespace := range installedProviderNamespaces {
 			initOptions.Namespace = targetNamespace
-		}
-	}
-
-	// Check if installed Provider's watchedNamespace is same or not, if same means cluster
-	// was deployment with --watching-namespace parameter, else all providers are watching
-	// objects in all namespaces
-	if len(installedProviderWatchingNamespaces) != 1 {
-		initOptions.WatchingNamespace = ""
-	} else {
-		for watchingNamespace := range installedProviderWatchingNamespaces {
-			initOptions.WatchingNamespace = watchingNamespace
 		}
 	}
 

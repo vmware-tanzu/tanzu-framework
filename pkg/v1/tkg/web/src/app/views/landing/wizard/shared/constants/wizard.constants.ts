@@ -4,21 +4,44 @@ export interface NodeType {
     name: string;
 }
 
-export const vSphereNodeTypes: Array<NodeType> = [
-    {
-        id: 'small',
-        name: 'small (cpu: 2, ram: 4 GB, disk: 20 GB)'
-    },
-    {
-        id: 'medium',
-        name: 'medium (cpu: 2, ram: 8 GB, disk: 40 GB)'
-    },
-    {
-        id: 'large',
-        name: 'large (cpu: 4, ram: 16 GB, disk: 40 GB)'
-    },
-    {
-        id: 'extra-large',
-        name: 'extra-large (cpu: 8, ram: 32 GB, disk: 80 GB)'
-    }
-];
+export const managementClusterPlugin = 'management-cluster';
+
+export enum FeatureFlags {
+    STANDALONE_CLUSTER = 'standalone-cluster-mode',
+    CLUSTER_NAME_REQUIRED = 'cluster-name-required',
+}
+
+// ClusterType enum are data values sent to the backend to specify the cluster type
+export enum ClusterType {
+    Management = 'management',
+    Standalone = 'standalone',
+}
+
+export enum IdentityManagementType {
+    LDAP = 'ldap',
+    NONE = 'none',
+    OIDC = 'oidc',
+}
+
+export enum WizardStep {
+    IDENTITY = 'identity',
+    METADATA= 'metadata',
+    NETWORK = 'network',
+    OSIMAGE = 'osimage',
+}
+
+export enum WizardForm {
+    CEIP = 'ceipOptInForm',
+    IDENTITY = 'identityForm',
+    LOADBALANCER = 'loadBalancerForm',
+    METADATA= 'metadataForm',
+    NETWORK = 'networkForm',
+    OSIMAGE = 'osImageForm',
+}
+
+export enum IdentityField {
+    TYPE = 'identityType',
+    ISSUER_URL = 'issuerURL',
+    LDAP_ENDPOINT_IP = 'endpointIp',
+    LDAP_ENDPOINT_PORT = 'endpointPort',
+}

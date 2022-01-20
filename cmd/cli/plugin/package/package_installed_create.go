@@ -10,10 +10,11 @@ import (
 )
 
 var packageInstalledCreateCmd = &cobra.Command{
-	Use:   "create INSTALLED_PACKAGE_NAME --package-name PACKAGE_NAME --version VERSION",
-	Short: "Install a package",
-	Args:  cobra.ExactArgs(1),
-	RunE:  packageInstall,
+	Use:          "create INSTALLED_PACKAGE_NAME --package-name PACKAGE_NAME --version VERSION",
+	Short:        "Install a package",
+	Args:         cobra.ExactArgs(1),
+	RunE:         packageInstall,
+	SilenceUsage: true,
 }
 
 func init() {
@@ -26,7 +27,6 @@ func init() {
 	packageInstalledCreateCmd.Flags().BoolVarP(&packageInstallOp.Wait, "wait", "", true, "Wait for the package reconciliation to complete, optional")
 	packageInstalledCreateCmd.Flags().DurationVarP(&packageInstallOp.PollInterval, "poll-interval", "", tkgpackagedatamodel.DefaultPollInterval, "Time interval between subsequent polls of package reconciliation status, optional")
 	packageInstalledCreateCmd.Flags().DurationVarP(&packageInstallOp.PollTimeout, "poll-timeout", "", tkgpackagedatamodel.DefaultPollTimeout, "Timeout value for polls of package reconciliation status, optional")
-	packageInstalledCreateCmd.PersistentFlags().StringVarP(&packageInstallOp.KubeConfig, "kubeconfig", "", "", "The path to the kubeconfig file, optional")
 	packageInstalledCreateCmd.MarkFlagRequired("package-name") //nolint
 	packageInstalledCreateCmd.MarkFlagRequired("version")      //nolint
 	packageInstalledCmd.AddCommand(packageInstalledCreateCmd)

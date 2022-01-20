@@ -33,13 +33,15 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
-	capav1alpha3 "sigs.k8s.io/cluster-api-provider-aws/api/v1alpha3"
-	capzv1alpha3 "sigs.k8s.io/cluster-api-provider-azure/api/v1alpha3"
-	capvv1alpha3 "sigs.k8s.io/cluster-api-provider-vsphere/api/v1alpha3"
-	capi "sigs.k8s.io/cluster-api/api/v1alpha3"
-	controlplanev1 "sigs.k8s.io/cluster-api/controlplane/kubeadm/api/v1alpha3"
+	capav1beta1 "sigs.k8s.io/cluster-api-provider-aws/api/v1beta1"
+	capzv1beta1 "sigs.k8s.io/cluster-api-provider-azure/api/v1beta1"
+	capvv1beta1 "sigs.k8s.io/cluster-api-provider-vsphere/api/v1beta1"
+	capiv1alpha3 "sigs.k8s.io/cluster-api/api/v1alpha3"
+	capi "sigs.k8s.io/cluster-api/api/v1beta1"
+	controlplanev1 "sigs.k8s.io/cluster-api/controlplane/kubeadm/api/v1beta1"
 
-	runv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha1"
+	tkgsv1alpha2 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha2"
+
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/fakes"
 	fakehelper "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/fakes/helper"
 )
@@ -66,13 +68,14 @@ var scheme = runtime.NewScheme()
 
 func init() {
 	_ = capi.AddToScheme(scheme)
+	_ = capiv1alpha3.AddToScheme(scheme)
 	_ = corev1.AddToScheme(scheme)
 	_ = appsv1.AddToScheme(scheme)
 	_ = controlplanev1.AddToScheme(scheme)
-	_ = runv1alpha1.AddToScheme(scheme)
-	_ = capav1alpha3.AddToScheme(scheme)
-	_ = capzv1alpha3.AddToScheme(scheme)
-	_ = capvv1alpha3.AddToScheme(scheme)
+	_ = tkgsv1alpha2.AddToScheme(scheme)
+	_ = capav1beta1.AddToScheme(scheme)
+	_ = capzv1beta1.AddToScheme(scheme)
+	_ = capvv1beta1.AddToScheme(scheme)
 }
 
 var _ = Describe("CheckInfrastructureVersion", func() {
@@ -236,6 +239,118 @@ var _ = Describe("ValidateVSphereVersion", func() {
 		})
 		It("should not return an error", func() {
 			Expect(err).ToNot(HaveOccurred())
+		})
+	})
+})
+
+var _ = Describe("ValidateVsphereResources", func() {
+	var (
+		vcClient  = &fakes.VCClient{}
+		tkgClient *TkgClient
+		err       error
+
+		dc               = "dc0"
+		dcMoid           = "dcMoid"
+		dcPath           = "/dc0"
+		network          = "VM Network"
+		networkMoid      = "networkMoid"
+		networkPath      = "/dc0/network/VM Network"
+		resourcePool     = "cluster0/Resources"
+		resourcePoolMoid = "resourcePoolMoid"
+		resourcePoolPath = "/dc0/host/cluster0/Resources"
+		datastore        = "sharedVmfs-1"
+		datastoreMoid    = "datastoreMoid"
+		datastorePath    = "/dc0/datastore/sharedVmfs-1"
+		folder           = "vm"
+		folderMoid       = "folderMoid"
+		folderPath       = "/dc0/vm"
+	)
+
+	Context("When multiple datacenters matching the given name are present", func() {
+		BeforeEach(func() {
+			vcClient = &fakes.VCClient{}
+			tkgClient, err = CreateTKGClient(configFile, testingDir, defaultTKGBoMFileForTesting, 2*time.Second)
+
+			vcClient.FindDataCenterReturns("", fmt.Errorf("path '%s' resolves to multiple %ss", dc, "datacenter"))
+			os.Setenv(constants.ConfigVariableVsphereDatacenter, dc)
+
+			err = tkgClient.ValidateVsphereResources(vcClient, dc)
+		})
+
+		It("should return an error", func() {
+			Expect(err).To(HaveOccurred())
+			Expect(err.Error()).Should(ContainSubstring("path 'dc0' resolves to multiple datacenters"))
+		})
+	})
+
+	Context("When no datastores matching the given name are present", func() {
+		BeforeEach(func() {
+			vcClient = &fakes.VCClient{}
+			tkgClient, err = CreateTKGClient(configFile, testingDir, defaultTKGBoMFileForTesting, 2*time.Second)
+
+			vcClient.FindDatastoreReturns("", fmt.Errorf("%s '%s' not found", "datastore", datastore))
+			os.Setenv(constants.ConfigVariableVsphereDatastore, datastore)
+
+			err = tkgClient.ValidateVsphereResources(vcClient, dc)
+		})
+
+		It("should return an error", func() {
+			Expect(err).To(HaveOccurred())
+			Expect(err.Error()).Should(ContainSubstring("datastore 'sharedVmfs-1' not found"))
+		})
+	})
+
+	Context("When vSphere resource names are passed in instead of resource paths", func() {
+		BeforeEach(func() {
+			vcClient = &fakes.VCClient{}
+			tkgClient, err = CreateTKGClient(configFile, testingDir, defaultTKGBoMFileForTesting, 2*time.Second)
+
+			vcClient.FindDataCenterReturns(dcMoid, nil)
+			vcClient.GetPathReturnsOnCall(0, dcPath, nil, nil)
+
+			vcClient.FindNetworkReturns(networkMoid, nil)
+			vcClient.GetPathReturnsOnCall(1, networkPath, nil, nil)
+
+			vcClient.FindResourcePoolReturns(resourcePoolMoid, nil)
+			vcClient.GetPathReturnsOnCall(2, resourcePoolPath, nil, nil)
+
+			vcClient.FindDatastoreReturns(datastoreMoid, nil)
+			vcClient.GetPathReturnsOnCall(3, datastorePath, nil, nil)
+
+			vcClient.FindFolderReturns(folderMoid, nil)
+			vcClient.GetPathReturnsOnCall(4, folderPath, nil, nil)
+
+			os.Setenv(constants.ConfigVariableVsphereDatacenter, dc)
+			os.Setenv(constants.ConfigVariableVsphereNetwork, network)
+			os.Setenv(constants.ConfigVariableVsphereResourcePool, resourcePool)
+			os.Setenv(constants.ConfigVariableVsphereDatastore, datastore)
+			os.Setenv(constants.ConfigVariableVsphereFolder, folder)
+
+			err = tkgClient.ValidateVsphereResources(vcClient, dc)
+		})
+
+		It("should not return an error", func() {
+			Expect(err).ToNot(HaveOccurred())
+
+			actualDcPath, err := tkgClient.TKGConfigReaderWriter().Get(constants.ConfigVariableVsphereDatacenter)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(dcPath).To(Equal(actualDcPath))
+
+			actualDcNetworkPath, err := tkgClient.TKGConfigReaderWriter().Get(constants.ConfigVariableVsphereNetwork)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(networkPath).To(Equal(actualDcNetworkPath))
+
+			actualResourcePoolPath, err := tkgClient.TKGConfigReaderWriter().Get(constants.ConfigVariableVsphereResourcePool)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(resourcePoolPath).To(Equal(actualResourcePoolPath))
+
+			actualDataStorePath, err := tkgClient.TKGConfigReaderWriter().Get(constants.ConfigVariableVsphereDatastore)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(datastorePath).To(Equal(actualDataStorePath))
+
+			actualFolderPath, err := tkgClient.TKGConfigReaderWriter().Get(constants.ConfigVariableVsphereFolder)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(folderPath).To(Equal(actualFolderPath))
 		})
 	})
 })
@@ -444,11 +559,9 @@ var _ = Describe("OverrideAzureNodeSizeWithOptions", func() {
 		nodeSizeOptions NodeSizeOptions
 	)
 
-	BeforeEach(func() {
-		os.Setenv(constants.ConfigVariableAzureLocation, "eastus")
-	})
-
 	JustBeforeEach(func() {
+		os.Setenv(constants.ConfigVariableAzureLocation, "eastus")
+
 		tkgClient, err = CreateTKGClient(tkgConfigPath, testingDir, defaultTKGBoMFileForTesting, 2*time.Second)
 		Expect(err).ToNot(HaveOccurred())
 		mediumInstanceType := models.AzureInstanceType{
@@ -457,7 +570,7 @@ var _ = Describe("OverrideAzureNodeSizeWithOptions", func() {
 		instanceTypes := []*models.AzureInstanceType{&mediumInstanceType}
 
 		mockAzureClient = azure.NewMockClient(ctrl)
-		mockAzureClient.EXPECT().GetAzureInstanceTypesForRegion(context.Background(), "eastus").Return(instanceTypes, nil).Times(1)
+		mockAzureClient.EXPECT().GetAzureInstanceTypesForRegion(context.Background(), "eastus").Return(instanceTypes, nil).MaxTimes(1)
 		err = tkgClient.OverrideAzureNodeSizeWithOptions(mockAzureClient, nodeSizeOptions, false)
 	})
 
@@ -572,7 +685,7 @@ var _ = Describe("ValidateAWSConfig", func() {
 		})
 	})
 
-	Context("When kubernetes version does not exists in any bom file", func() {
+	Context("When kubernetes version does not exist in any bom file", func() {
 		BeforeEach(func() {
 			tkgConfigPath = configFile4
 			tkrVersion = "v1.10.0+vmware.1-tkg.1"
@@ -582,7 +695,7 @@ var _ = Describe("ValidateAWSConfig", func() {
 		})
 	})
 
-	Context("When bom file exists for k8s version but region does not exists", func() {
+	Context("When bom file exists for k8s version but region does not exist", func() {
 		BeforeEach(func() {
 			bomFile = defaultTKGBoMFileForTesting
 			tkgConfigPath = configFile4
@@ -1367,7 +1480,7 @@ var _ = Describe("DistributeMachineDeploymentWorkers", func() {
 	JustBeforeEach(func() {
 		tkgClient, err = CreateTKGClient(tkgConfigPath, testingDir, defaultTKGBoMFileForTesting, 2*time.Second)
 		Expect(err).NotTo(HaveOccurred())
-		workerCounts, err = tkgClient.DistributeMachineDeploymentWorkers(workerMachineCount, isProdConfig, isManagementCluster, infraProviderName)
+		workerCounts, err = tkgClient.DistributeMachineDeploymentWorkers(workerMachineCount, isProdConfig, isManagementCluster, infraProviderName, false)
 	})
 
 	Context("when not aws and azure", func() {
@@ -1377,11 +1490,11 @@ var _ = Describe("DistributeMachineDeploymentWorkers", func() {
 			isManagementCluster = false
 			infraProviderName = constants.InfrastructureProviderVSphere
 		})
-		It("should put all workers in first MD", func() {
+		It("should distribute evenly", func() {
 			Expect(err).To(Not(HaveOccurred()))
-			Expect(workerCounts[0]).To(Equal(3))
-			Expect(workerCounts[1]).To(Equal(0))
-			Expect(workerCounts[2]).To(Equal(0))
+			Expect(workerCounts[0]).To(Equal(1))
+			Expect(workerCounts[1]).To(Equal(1))
+			Expect(workerCounts[2]).To(Equal(1))
 		})
 	})
 

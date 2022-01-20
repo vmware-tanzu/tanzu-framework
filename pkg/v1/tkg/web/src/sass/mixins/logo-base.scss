@@ -1,6 +1,6 @@
-@import '../properties.scss';
+@use '../properties';
 
-@mixin logo-container($logo: $logo_blue) {
+@mixin logo-container($logo: properties.$logo_blue) {
     background: url($logo);
     background-size: contain;
     background-repeat: no-repeat;

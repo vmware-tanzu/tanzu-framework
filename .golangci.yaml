@@ -34,18 +34,6 @@ linters-settings:
     min-complexity: 15
   goimports:
     local-prefixes: github.com/vmware-tanzu
-  golint:
-    min-confidence: 0.3
-  gomnd:
-    settings:
-      mnd:
-        checks:
-        - argument
-        - case
-        - condition
-        - return
-        ignored-functions: log.*,utils.GenerateRandomID*
-        ignored-files: addon_handlers.go
   govet:
     check-shadowing: true
     settings:
@@ -80,18 +68,16 @@ linters:
     - gocyclo
     - goheader
     - goimports
-    - golint
-    - gomnd
     - goprintffuncname
     - gosec
     - gosimple
     - govet
     - ineffassign
-    - maligned
     - misspell
     - nakedret
     - noctx
     - nolintlint
+    - revive
     - rowserrcheck
     - staticcheck
     - structcheck
@@ -117,7 +103,6 @@ linters:
   # - nestif
   # - prealloc
   # - testpackage
-  # - revive
   # - scopelint
   # - wsl
 
@@ -136,7 +121,6 @@ issues:
         - goimports
     - path: _test\.go
       linters:
-        - gomnd
         - dupl
         - gocritic
 
@@ -150,8 +134,16 @@ issues:
         - nolintlint
       text: "is unused for linter staticcheck"
 
+    - linters:
+        - revive
+      text: "that stutters"
+
+    - path: zz_.*\.go
+      linters:
+        - revive
+      text: "it will be inferred from"
+
   include:
-    - EXC0002 # disable excluding of issues about missing comments on exported symbols from golint
     - EXC0011 # disable excluding of issues about missing package comments from stylecheck
 
   # Show all errors for all linters. Setting these to 0 disables limiting error reporting.

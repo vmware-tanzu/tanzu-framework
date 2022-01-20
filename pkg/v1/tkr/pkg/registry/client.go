@@ -5,27 +5,32 @@ package registry
 
 import (
 	"archive/tar"
-	"fmt"
+	"bytes"
 	"io"
 
+	"github.com/cppforlife/go-cli-ui/ui"
 	regname "github.com/google/go-containerregistry/pkg/name"
 	regv1 "github.com/google/go-containerregistry/pkg/v1"
-	ctlimg "github.com/k14s/imgpkg/pkg/imgpkg/image"
+	"github.com/google/go-containerregistry/pkg/v1/remote"
+	"github.com/k14s/imgpkg/pkg/imgpkg/cmd"
+	ctlimg "github.com/k14s/imgpkg/pkg/imgpkg/registry"
 	"github.com/pkg/errors"
 )
 
 type registry struct {
+	opts     *ctlimg.Opts
 	registry ctlimg.Registry
 }
 
 // New instantiates a new Registry
-func New(opts *ctlimg.RegistryOpts) (Registry, error) {
+func New(opts *ctlimg.Opts) (Registry, error) {
 	reg, err := ctlimg.NewRegistry(*opts)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to initialze registry client")
 	}
 
 	return &registry{
+		opts:     opts,
 		registry: reg,
 	}, nil
 }
@@ -42,24 +47,22 @@ func (r *registry) ListImageTags(imageName string) ([]string, error) {
 
 // GetFile gets the file content bundled in the given image:tag.
 // If filename is empty, it will get the first file.
-func (r *registry) GetFile(image, tag, filename string) ([]byte, error) {
-	ref, err := regname.ParseReference(fmt.Sprintf("%s:%s", image, tag), regname.WeakValidation)
+func (r *registry) GetFile(imageWithTag, filename string) ([]byte, error) {
+	ref, err := regname.ParseReference(imageWithTag, regname.WeakValidation)
 	if err != nil {
 		return nil, err
 	}
-	imgs, err := ctlimg.NewImages(ref, r.registry).Images()
+	d, err := remote.Get(ref)
 	if err != nil {
 		return nil, errors.Wrap(err, "Collecting images")
 	}
-	if len(imgs) == 0 {
-		return nil, errors.New("expected to find at least one image, but found none")
+
+	img, err := d.Image()
+	if err != nil {
+		return nil, err
 	}
 
-	if len(imgs) > 1 {
-		fmt.Println("Found multiple images, extracting first")
-	}
-
-	return getFileContentFromImage(imgs[0], filename)
+	return getFileContentFromImage(img, filename)
 }
 
 func getFileContentFromImage(image regv1.Image, filename string) ([]byte, error) {
@@ -116,24 +119,21 @@ func getFileFromLayer(stream io.Reader, files map[string][]byte) error {
 }
 
 // GetFiles get all the files content bundled in the given image:tag.
-func (r *registry) GetFiles(image, tag string) (map[string][]byte, error) {
-	ref, err := regname.ParseReference(fmt.Sprintf("%s:%s", image, tag), regname.WeakValidation)
+func (r *registry) GetFiles(imageWithTag string) (map[string][]byte, error) {
+	ref, err := regname.ParseReference(imageWithTag, regname.WeakValidation)
 	if err != nil {
 		return nil, err
 	}
-	imgs, err := ctlimg.NewImages(ref, r.registry).Images()
+	d, err := remote.Get(ref)
 	if err != nil {
 		return nil, errors.Wrap(err, "Collecting images")
 	}
-	if len(imgs) == 0 {
-		return nil, errors.New("expected to find at least one image, but found none")
+	img, err := d.Image()
+	if err != nil {
+		return nil, err
 	}
 
-	if len(imgs) > 1 {
-		fmt.Println("Found multiple images, extracting first")
-	}
-
-	return getAllFilesContentFromImage(imgs[0])
+	return getAllFilesContentFromImage(img)
 }
 
 func getAllFilesContentFromImage(image regv1.Image) (map[string][]byte, error) {
@@ -164,4 +164,36 @@ func getAllFilesContentFromImage(image regv1.Image) (map[string][]byte, error) {
 	}
 
 	return nil, errors.New("cannot find file from the image")
+}
+
+// DownloadBundle downloads OCI bundle similar to `imgpkg pull -b` command
+// It is recommended to use this function when downloading imgpkg bundle because
+// - During the air-gapped script, these plugin discovery packages are copied to a
+//   private registry with the `imgpkg copy` command
+// - Downloading files directly from OCI image similar to `GetFiles` doesn't work
+//   because it doesn't update the `ImageLock` file when we download the package from
+//   different registry. And returns original ImageLock file. and as ImageLock file
+//   is pointing to original registry instead of private registry, image references
+//    does not point to the correct location
+
+func (r *registry) DownloadBundle(imageName, outputDir string) error {
+	// Creating a dummy writer to capture the logs
+	// currently this logs are not displayed or used directly
+	var outputBuf, errorBuf bytes.Buffer
+	writerUI := ui.NewWriterUI(&outputBuf, &errorBuf, nil)
+
+	pullOptions := cmd.NewPullOptions(writerUI)
+	pullOptions.OutputPath = outputDir
+	pullOptions.BundleFlags = cmd.BundleFlags{Bundle: imageName}
+
+	if r.opts != nil {
+		pullOptions.RegistryFlags = cmd.RegistryFlags{
+			CACertPaths: r.opts.CACertPaths,
+			VerifyCerts: r.opts.VerifyCerts,
+			Insecure:    r.opts.Insecure,
+			Anon:        r.opts.Anon,
+		}
+	}
+
+	return pullOptions.Run()
 }

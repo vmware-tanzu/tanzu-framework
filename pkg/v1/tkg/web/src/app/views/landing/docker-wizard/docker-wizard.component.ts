@@ -1,14 +1,21 @@
+// Angular imports
 import { Component, ElementRef, OnInit } from '@angular/core';
 import { FormBuilder } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Title } from '@angular/platform-browser';
-
+// Third party imports
 import { Observable } from 'rxjs';
-
-import { FormMetaDataService } from 'src/app/shared/service/form-meta-data.service';
+// App imports
 import { APIClient } from 'src/app/swagger';
 import { ConfigFileInfo, DockerRegionalClusterParams } from 'src/app/swagger/models';
 import { CliFields, CliGenerator } from '../wizard/shared/utils/cli-generator';
+import { DaemonValidationStepComponent } from './daemon-validation-step/daemon-validation-step.component';
+import { DockerNetworkStepComponent } from './network-step/docker-network-step.component';
+import { FormDataForHTML, FormUtility } from '../wizard/shared/components/steps/form-utility';
+import { ExportService } from "../../../shared/service/export.service";
+import { FormMetaDataService } from 'src/app/shared/service/form-meta-data.service';
+import { ImportParams, ImportService } from "../../../shared/service/import.service";
+import { NodeSettingStepComponent } from './node-setting-step/node-setting-step.component';
 import { WizardBaseDirective } from '../wizard/shared/wizard-base/wizard-base';
 
 @Component({
@@ -22,12 +29,25 @@ export class DockerWizardComponent extends WizardBaseDirective implements OnInit
         router: Router,
         el: ElementRef,
         formMetaDataService: FormMetaDataService,
-        private formBuilder: FormBuilder,
+        private exportService: ExportService,
+        private importService: ImportService,
+        formBuilder: FormBuilder,
         titleService: Title,
         private apiClient: APIClient
     ) {
-        super(router, el, formMetaDataService, titleService);
-        this.buildForm();
+        super(router, el, formMetaDataService, titleService, formBuilder);
+    }
+
+    protected supplyWizardName(): string {
+        return 'Docker Wizard';
+    }
+
+    protected supplyStepData(): FormDataForHTML[] {
+        return [
+            this.DockerDaemonForm,
+            this.DockerNetworkForm,
+            this.DockerNodeSettingForm
+        ];
     }
 
     ngOnInit(): void {
@@ -36,45 +56,18 @@ export class DockerWizardComponent extends WizardBaseDirective implements OnInit
         // To avoid re-open issue for the first step.
         this.form.markAsDirty();
 
-        this.titleService.setTitle(this.title + ' Docker');
+        this.titleService.setTitle(this.title ? this.title + ' Docker' : 'Docker');
     }
 
-    buildForm() {
-        this.form = this.formBuilder.group({
-            dockerDaemonForm: this.formBuilder.group({
-            }),
-            networkForm: this.formBuilder.group({
-            }),
-            dockerNodeSettingForm: this.formBuilder.group({
-            })
-            // identityForm: this.formBuilder.group({
-            // })
-        });
-    }
+    setFromPayload(payload: DockerRegionalClusterParams) {
+        this.setFieldValue('networkForm', 'networkName', payload.networking.networkName);
+        this.setFieldValue('networkForm', 'clusterServiceCidr',  payload.networking.clusterServiceCIDR);
+        this.setFieldValue('networkForm', 'clusterPodCidr',  payload.networking.clusterPodCIDR);
+        this.setFieldValue('networkForm', 'cniType',  payload.networking.cniType);
 
-    getStepDescription(stepName: string): string {
-        if (stepName === 'network') {
-            if (this.getFieldValue('networkForm', 'clusterPodCidr')) {
-                return 'Cluster Pod CIDR: ' + this.getFieldValue('networkForm', 'clusterPodCidr');
-            } else {
-                return 'Specify the cluster Pod CIDR';
-            }
-        } else if (stepName === 'nodeSetting') {
-            return 'Optional: Specify the management cluster name'
-        }
+        this.setFieldValue('dockerNodeSettingForm', 'clusterName', payload.clusterName);
 
-        // else if (stepName === 'identity') {
-        //     if (this.getFieldValue('identityForm', 'identityType') === 'oidc' &&
-        //         this.getFieldValue('identityForm', 'issuerURL')) {
-        //         return 'OIDC configured: ' + this.getFieldValue('identityForm', 'issuerURL')
-        //     } else if (this.getFieldValue('identityForm', 'identityType') === 'ldap' &&
-        //         this.getFieldValue('identityForm', 'endpointIp')) {
-        //         return 'LDAP configured: ' + this.getFieldValue('identityForm', 'endpointIp') + ':' +
-        //         this.getFieldValue('identityForm', 'endpointPort');
-        //     } else {
-        //         return 'Specify identity management'
-        //     }
-        // }
+        this.saveProxyFieldsFromPayload(payload);
     }
 
     getPayload() {
@@ -126,49 +119,9 @@ export class DockerWizardComponent extends WizardBaseDirective implements OnInit
             });
         }
 
-        // let ldap_url = '';
-        // if (this.getFieldValue('identityForm', 'endpointIp')) {
-        //     ldap_url = this.getFieldValue('identityForm', 'endpointIp') +
-        //         ':' + this.getFieldValue('identityForm', 'endpointPort');
-        // }
-
         payload.identityManagement = {
-            // 'idm_type': this.getFieldValue('identityForm', 'identityType') || 'none'
             'idm_type': 'none'
         }
-
-        // if (this.getFieldValue('identityForm', 'identityType') === 'oidc') {
-        //     payload.identityManagement = Object.assign({
-        //             'oidc_provider_name': '',
-        //             'oidc_provider_url': this.getFieldValue('identityForm', 'issuerURL'),
-        //             'oidc_client_id': this.getFieldValue('identityForm', 'clientId'),
-        //             'oidc_client_secret': this.getFieldValue('identityForm', 'clientSecret'),
-        //             'oidc_scope': this.getFieldValue('identityForm', 'scopes'),
-        //             'oidc_claim_mappings': {
-        //                 'username': this.getFieldValue('identityForm', 'oidcUsernameClaim'),
-        //                 'groups': this.getFieldValue('identityForm', 'oidcGroupsClaim')
-        //             }
-        //
-        //         }
-        //         , payload.identityManagement);
-        // } else if (this.getFieldValue('identityForm', 'identityType') === 'ldap') {
-        //     payload.identityManagement = Object.assign({
-        //             'ldap_url': ldap_url,
-        //             'ldap_bind_dn': this.getFieldValue('identityForm', 'bindDN'),
-        //             'ldap_bind_password': this.getFieldValue('identityForm', 'bindPW'),
-        //             'ldap_user_search_base_dn': this.getFieldValue('identityForm', 'userSearchBaseDN'),
-        //             'ldap_user_search_filter': this.getFieldValue('identityForm', 'userSearchFilter'),
-        //             'ldap_user_search_username': this.getFieldValue('identityForm', 'userSearchUsername'),
-        //             'ldap_user_search_name_attr': this.getFieldValue('identityForm', 'userSearchUsername'),
-        //             'ldap_group_search_base_dn': this.getFieldValue('identityForm', 'groupSearchBaseDN'),
-        //             'ldap_group_search_filter': this.getFieldValue('identityForm', 'groupSearchFilter'),
-        //             'ldap_group_search_user_attr': this.getFieldValue('identityForm', 'groupSearchUserAttr'),
-        //             'ldap_group_search_group_attr': this.getFieldValue('identityForm', 'groupSearchGroupAttr'),
-        //             'ldap_group_search_name_attr': this.getFieldValue('identityForm', 'groupSearchNameAttr'),
-        //             'ldap_root_ca': this.getFieldValue('identityForm', 'ldapRootCAData')
-        //         }
-        //         , payload.identityManagement);
-        // }
 
         return payload;
     }
@@ -184,17 +137,96 @@ export class DockerWizardComponent extends WizardBaseDirective implements OnInit
         return this.getFieldValue('dockerNodeSettingForm', 'clusterName');
     }
 
+    /**
+     * Retrieve the config file from the backend and return as a string
+     */
+    retrieveExportFile() {
+        return this.apiClient.exportTKGConfigForDocker({ params: this.getPayload() });
+    }
+
+    exportConfiguration() {
+        const wizard = this;    // capture 'this' outside the context of the closure below
+        this.exportService.export(
+            this.retrieveExportFile(),
+            (failureMessage) => { wizard.displayError(failureMessage); }
+        );
+    }
+
     getCli(configPath: string): string {
         const cliG = new CliGenerator();
         const cliParams: CliFields = {
             configPath: configPath,
-            clusterType: this.clusterType,
-            clusterName: this.getMCName()
+            clusterType: this.getClusterType(),
+            clusterName: this.getMCName(),
+            extendCliCmds: []
         };
         return cliG.getCli(cliParams);
     }
 
     createRegionalCluster(payload: any): Observable<any> {
         return this.apiClient.createDockerRegionalCluster(payload);
+    }
+
+    // FormDataForHTML methods
+    //
+    get DockerNetworkForm(): FormDataForHTML {
+        return FormUtility.formWithOverrides(super.NetworkForm,
+            { description: DockerNetworkStepComponent.description, clazz: DockerNetworkStepComponent });
+    }
+    get DockerNodeSettingForm(): FormDataForHTML {
+        const title = FormUtility.titleCase(this.clusterTypeDescriptor) + ' Cluster Settings';
+        return { name: 'dockerNodeSettings', title: title, description: 'Optional: Specify the management cluster name',
+            i18n: { title: 'node setting step name', description: 'node setting step description' },
+        clazz: NodeSettingStepComponent};
+    }
+    get DockerDaemonForm(): FormDataForHTML {
+        return { name: 'dockerDaemonForm', title: 'Docker Prerequisites',
+            description: 'Validate the local Docker daemon, allocated CPUs and Total Memory',
+            i18n: {title: 'docker prerequisite step name', description: 'Docker prerequisite step description'},
+        clazz: DaemonValidationStepComponent};
+    }
+
+    // returns TRUE if the file contents appear to be a valid config file for Docker
+    // returns FALSE if the file is empty or does not appear to be valid. Note that in the FALSE
+    // case we also alert the user.
+    importFileValidate(nameFile: string, fileContents: string): boolean {
+        if (fileContents.includes('INFRASTRUCTURE_PROVIDER: docker')) {
+            return true;
+        }
+        alert(nameFile + ' is not a valid docker configuration file!');
+        return false;
+    }
+
+    importFileRetrieveClusterParams(fileContents: string): Observable<DockerRegionalClusterParams> {
+        return this.apiClient.importTKGConfigForVsphere( { params: { filecontents: fileContents } } );
+    }
+
+    importFileProcessClusterParams(nameFile: string, dockerClusterParams: DockerRegionalClusterParams) {
+        this.setFromPayload(dockerClusterParams);
+        this.resetToFirstStep();
+        this.importService.publishImportSuccess(nameFile);
+    }
+
+    // returns TRUE if user (a) will not lose data on import, or (b) confirms it's OK
+    onImportButtonClick() {
+        let result = true;
+        if (!this.isOnFirstStep()) {
+            result = confirm('Importing will overwrite any data you have entered. Proceed with import?');
+        }
+        return result;
+    }
+
+    onImportFileSelected(event) {
+        const params: ImportParams<DockerRegionalClusterParams> = {
+            file: event.target.files[0],
+            validator: this.importFileValidate,
+            backend: this.importFileRetrieveClusterParams.bind(this),
+            onSuccess: this.importFileProcessClusterParams.bind(this),
+            onFailure: this.importService.publishImportFailure
+        }
+        this.importService.import(params);
+
+        // clear file reader target so user can re-select same file if needed
+        event.target.value = '';
     }
 }

@@ -5,6 +5,8 @@
 package aws
 
 import (
+	"sigs.k8s.io/cluster-api-provider-aws/cmd/clusterawsadm/cloudformation/bootstrap"
+
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/web/server/models"
 )
 
@@ -20,6 +22,8 @@ type Client interface {
 	GetSubnetGatewayAssociations(vpcID string) (map[string]bool, error)
 	ListSubnets(vpcID string) ([]*models.AWSSubnet, error)
 	CreateCloudFormationStack() error
+	CreateCloudFormationStackWithTemplate(template *bootstrap.Template) error
+	GenerateBootstrapTemplate(i GenerateBootstrapTemplateInput) (*bootstrap.Template, error)
 	ListInstanceTypes(optionalAZName string) ([]string, error)
 	ListCloudFormationStacks() ([]string, error)
 }

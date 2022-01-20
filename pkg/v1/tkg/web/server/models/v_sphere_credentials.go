@@ -18,6 +18,9 @@ type VSphereCredentials struct {
 	// host
 	Host string `json:"host,omitempty"`
 
+	// insecure
+	Insecure *bool `json:"insecure,omitempty"`
+
 	// password
 	Password string `json:"password,omitempty"`
 

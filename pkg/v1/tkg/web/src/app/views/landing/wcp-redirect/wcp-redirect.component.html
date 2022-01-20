@@ -10,7 +10,7 @@
             aria-label="back"
             (click)="navigate(APP_ROUTES.LANDING)"></clr-icon>
         <h2 i18n="wizard title">
-            <div class="vsphere-icon-30"></div>
+            <div class="vsphere-icon-30 offset-top-2"></div>
             vSphere with Tanzu Environment Detected
         </h2>
     </div>
@@ -33,7 +33,7 @@
     </button>
 </p>
 <p>
-    Deploying a non-integrated Tanzu Kubernetes Grid {{ clusterType }} cluster on vSphere 7 requires a subscription
+    Deploying a non-integrated Tanzu Kubernetes Grid {{ clusterTypeDescriptor }} cluster on vSphere 7 requires a subscription
     to Tanzu Kubernetes Grid Plus.
 </p>
 <div>
@@ -48,7 +48,7 @@
         class="btn btn-primary" style="width: 600px; max-width: 600px;"
         (click)="relaunchVsphereWizard()"
         [disabled]="hasTkgPlus === false">
-    Deploy non-integrated Tanzu Kubernetes Grid {{ clusterType | titlecase }} Cluster
+    Deploy non-integrated Tanzu Kubernetes Grid {{ clusterTypeDescriptorTitleCase }} Cluster
 </button>
 <p>
     Not sure of the difference between TKG multicloud and TKG Service? Learn more

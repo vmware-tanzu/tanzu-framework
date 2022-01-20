@@ -14,7 +14,7 @@ const (
 	// PacificClusterKind vsphere-pacific provider work load cluster kind
 	PacificClusterKind              = "TanzuKubernetesCluster"
 	PacificClusterListKind          = "TanzuKubernetesClusterList"
-	DefaultPacificClusterAPIVersion = "run.tanzu.vmware.com/v1alpha1"
+	DefaultPacificClusterAPIVersion = "run.tanzu.vmware.com/v1alpha2"
 
 	CronJobKind    = "CronJob"
 	CeipNamespace  = "tkg-system-telemetry"
@@ -44,15 +44,17 @@ const (
 	KappControllerNamespace     = "tkg-system"
 	KappControllerConfigMapName = "kapp-controller-config"
 
-	AddonsManagerDeploymentName  = "tanzu-addons-controller-manager"
-	KappControllerDeploymentName = "kapp-controller"
-	TkrControllerDeploymentName  = "tkr-controller-manager"
-	KappControllerPackageName    = "kapp-controller"
+	AddonsManagerDeploymentName      = "tanzu-addons-controller-manager"
+	KappControllerDeploymentName     = "kapp-controller"
+	TkrControllerDeploymentName      = "tkr-controller-manager"
+	KappControllerPackageName        = "kapp-controller"
+	CoreManagementPluginsPackageName = "tanzu-core-management-plugins"
 
-	AkoStatefulSetName  = "ako"
-	AkoAddonName        = "load-balancer-and-ingress-service"
-	AkoNamespace        = "avi-system"
-	AkoCleanupCondition = "ako.vmware.com/ObjectDeletionInProgress"
+	AkoStatefulSetName       = "ako"
+	AkoAddonName             = "load-balancer-and-ingress-service"
+	AkoNamespace             = "avi-system"
+	AkoCleanUpAnnotationKey  = "AviObjectDeletionStatus"
+	AkoCleanUpFinishedStatus = "Done"
 
 	ServiceDNSSuffix             = ".svc"
 	ServiceDNSClusterLocalSuffix = ".svc.cluster.local"

@@ -18,7 +18,7 @@ import (
 	"strings"
 	"time"
 
-	capvv1alpha3 "sigs.k8s.io/cluster-api-provider-vsphere/api/v1alpha3"
+	capvv1beta1 "sigs.k8s.io/cluster-api-provider-vsphere/api/v1beta1"
 	clusterctlclient "sigs.k8s.io/cluster-api/cmd/clusterctl/client"
 
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/region"
@@ -26,7 +26,9 @@ import (
 	"github.com/pkg/errors"
 	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
+	netutils "k8s.io/utils/net"
 
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/config"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/aws"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/azure"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/clusterclient"
@@ -62,8 +64,8 @@ var (
 
 var trueString = "true"
 
-// VsphereResourceType vsphere resource types
-var VsphereResourceType = []string{constants.ConfigVariableVsphereResourcePool, constants.ConfigVariableVsphereDatastore, constants.ConfigVariableVsphereFolder}
+// VsphereResourceConfigKeys vsphere resource types
+var VsphereResourceConfigKeys = []string{constants.ConfigVariableVsphereDatacenter, constants.ConfigVariableVsphereNetwork, constants.ConfigVariableVsphereResourcePool, constants.ConfigVariableVsphereDatastore, constants.ConfigVariableVsphereFolder}
 
 // CNITypes supported CNI types
 var CNITypes = map[string]bool{"calico": true, "antrea": true, "none": true}
@@ -127,10 +129,7 @@ func (c *TkgClient) DownloadBomFile(tkrName string) error {
 		return err
 	}
 
-	if err := os.WriteFile(filepath.Join(bomDir, "tkr-bom-"+tkrName+".yaml"), bomData, 0o600); err != nil {
-		return err
-	}
-	return nil
+	return os.WriteFile(filepath.Join(bomDir, "tkr-bom-"+tkrName+".yaml"), bomData, 0o600)
 }
 
 // ConfigureAndValidateTkrVersion takes tkrVersion, if empty fetches default tkr & k8s version from config
@@ -262,7 +261,7 @@ func (c *TkgClient) ConfigureAndValidateAzureConfig(tkrVersion string, nodeSizes
 		return err
 	}
 
-	workerCounts, err := c.DistributeMachineDeploymentWorkers(workerMachineCount, isProdConfig, isManagementCluster, "azure")
+	workerCounts, err := c.DistributeMachineDeploymentWorkers(workerMachineCount, isProdConfig, isManagementCluster, "azure", false)
 	if err != nil {
 		return errors.Wrapf(err, "failed to distribute machine deployments")
 	}
@@ -333,7 +332,7 @@ func (c *TkgClient) ConfigureAndValidateAwsConfig(tkrVersion string, skipValidat
 	if workerMachineCount < 0 {
 		return errors.Errorf("invalid WorkerMachineCount. Please use a number greater or equal than 0")
 	}
-	workerCounts, err := c.DistributeMachineDeploymentWorkers(workerMachineCount, isProdConfig, isManagementCluster, "aws")
+	workerCounts, err := c.DistributeMachineDeploymentWorkers(workerMachineCount, isProdConfig, isManagementCluster, "aws", false)
 	if err != nil {
 		return errors.Wrapf(err, "failed to distribute machine deployments")
 	}
@@ -441,6 +440,7 @@ func (c *TkgClient) ConfigureAndValidateVSphereTemplate(vcClient vc.Client, tkrV
 	c.TKGConfigReaderWriter().Set(constants.ConfigVariableOSName, vsphereVM.DistroName)
 	c.TKGConfigReaderWriter().Set(constants.ConfigVariableOSVersion, vsphereVM.DistroVersion)
 	c.TKGConfigReaderWriter().Set(constants.ConfigVariableOSArch, vsphereVM.DistroArch)
+	c.TKGConfigReaderWriter().Set(constants.ConfigVariableVsphereTemplateMoid, vsphereVM.Moid)
 	return nil
 }
 
@@ -513,7 +513,7 @@ func (c *TkgClient) GetVSphereEndpoint(clusterClient clusterclient.Client) (vc.C
 func (c *TkgClient) ConfigureAndValidateManagementClusterConfiguration(options *InitRegionOptions, skipValidation bool) *ValidationError { // nolint:gocyclo,funlen
 	var err error
 	if options.ClusterName != "" {
-		if err := checkClusterNameFormat(options.ClusterName); err != nil {
+		if err := CheckClusterNameFormat(options.ClusterName, options.InfrastructureProvider); err != nil {
 			return NewValidationError(ValidationErrorCode, err.Error())
 		}
 	}
@@ -542,7 +542,7 @@ func (c *TkgClient) ConfigureAndValidateManagementClusterConfiguration(options *
 	// BUILD_EDITION is the Tanzu Edition, the plugin should be built for. Its value is supposed be constructed from
 	// cmd/cli/plugin/managementcluster/create.go. So empty value at this point is not expected.
 	if options.Edition == "" {
-		return NewValidationError(ValidationErrorCode, "required config variable 'BUILD_EDITION' is not set")
+		return NewValidationError(ValidationErrorCode, "required config variable 'edition' is not set")
 	}
 	c.SetBuildEdition(options.Edition)
 
@@ -569,7 +569,15 @@ func (c *TkgClient) ConfigureAndValidateManagementClusterConfiguration(options *
 		return NewValidationError(ValidationErrorCode, err.Error())
 	}
 
-	if err = c.configureAndValidateIPFamilyConfiguration(); err != nil {
+	if err = c.configureAndValidateIPFamilyConfiguration(TkgLabelClusterRoleManagement); err != nil {
+		return NewValidationError(ValidationErrorCode, err.Error())
+	}
+
+	if err = c.configureAndValidateCoreDNSIP(); err != nil {
+		return NewValidationError(ValidationErrorCode, err.Error())
+	}
+
+	if err = c.validateServiceCIDRNetmask(); err != nil {
 		return NewValidationError(ValidationErrorCode, err.Error())
 	}
 
@@ -577,8 +585,17 @@ func (c *TkgClient) ConfigureAndValidateManagementClusterConfiguration(options *
 		return NewValidationError(ValidationErrorCode, err.Error())
 	}
 
+	if err = c.ConfigureAndValidateNameserverConfiguration(TkgLabelClusterRoleManagement); err != nil {
+		return NewValidationError(ValidationErrorCode, err.Error())
+	}
+
+	if err = c.ConfigureAndValidateNetworkSeparationConfiguration(TkgLabelClusterRoleManagement); err != nil {
+		return NewValidationError(ValidationErrorCode, err.Error())
+	}
+
 	isProdPlan := options.Plan == constants.PlanProd
 	_, workerMachineCount := c.getMachineCountForMC(options.Plan)
+
 	switch name {
 	case AWSProviderName:
 		err = c.ConfigureAndValidateAWSConfig(tkrVersion, options.NodeSizeOptions, skipValidation, isProdPlan, int64(workerMachineCount), nil, true)
@@ -648,7 +665,7 @@ func (c *TkgClient) ValidateVsphereControlPlaneEndpointIP(endpointIP string) *Va
 				continue
 			}
 
-			clusters := append(managementClusters, workloadClusters...)
+			clusters := append(managementClusters, workloadClusters...) //nolint:gocritic
 
 			for i := range clusters {
 				if clusters[i].Spec.ControlPlaneEndpoint.Host == endpointIP {
@@ -677,8 +694,8 @@ func (c *TkgClient) getRegionClient(regionContext region.RegionContext) (cluster
 	return client, nil
 }
 
-func getVsphereMachineTemplate(client clusterclient.Client, clusterName string) (*capvv1alpha3.VSphereMachineTemplate, error) {
-	vsphereMachineTemplate := &capvv1alpha3.VSphereMachineTemplate{}
+func getVsphereMachineTemplate(client clusterclient.Client, clusterName string) (*capvv1beta1.VSphereMachineTemplate, error) {
+	vsphereMachineTemplate := &capvv1beta1.VSphereMachineTemplate{}
 	nameSpace, err := client.GetCurrentNamespace()
 	if err != nil {
 		return nil, err
@@ -689,7 +706,7 @@ func getVsphereMachineTemplate(client clusterclient.Client, clusterName string) 
 		log.V(4).Infof("Error getting KCP Object")
 		return nil, err
 	}
-	if err := client.GetResource(vsphereMachineTemplate, kcp.Spec.InfrastructureTemplate.Name, "tkg-system", nil, nil); err != nil {
+	if err := client.GetResource(vsphereMachineTemplate, kcp.Spec.MachineTemplate.InfrastructureRef.Name, "tkg-system", nil, nil); err != nil {
 		return nil, err
 	}
 	return vsphereMachineTemplate, nil
@@ -803,37 +820,73 @@ func (c *TkgClient) ValidateVsphereVipWorkloadCluster(clusterClient clusterclien
 
 // ValidateVsphereResources validates vsphere resource path specified in tkgconfig
 func (c *TkgClient) ValidateVsphereResources(vcClient vc.Client, dcPath string) error {
-	for _, resourceType := range VsphereResourceType {
-		path, err := c.TKGConfigReaderWriter().Get(resourceType)
+	var path, resourceMoid string
+	var err error
+
+	for _, vsphereResourceConfigKey := range VsphereResourceConfigKeys {
+		path, err = c.TKGConfigReaderWriter().Get(vsphereResourceConfigKey)
 		if err != nil {
 			continue
 		}
 
-		switch resourceType {
-		case constants.ConfigVariableVsphereResourcePool:
-			_, err := vcClient.FindResourcePool(context.Background(), path, dcPath)
+		// finder return an error when multiple vsphere resources with the same name are present
+		switch vsphereResourceConfigKey {
+		case constants.ConfigVariableVsphereDatacenter:
+			resourceMoid, err = vcClient.FindDataCenter(context.Background(), dcPath)
 			if err != nil {
-				return errors.Wrapf(err, "invalid %s", resourceType)
+				return errors.Wrapf(err, "invalid %s", vsphereResourceConfigKey)
+			}
+		case constants.ConfigVariableVsphereNetwork:
+			resourceMoid, err = vcClient.FindNetwork(context.Background(), path, dcPath)
+			if err != nil {
+				return errors.Wrapf(err, "invalid %s", vsphereResourceConfigKey)
+			}
+		case constants.ConfigVariableVsphereResourcePool:
+			resourceMoid, err = vcClient.FindResourcePool(context.Background(), path, dcPath)
+			if err != nil {
+				return errors.Wrapf(err, "invalid %s", vsphereResourceConfigKey)
 			}
 		case constants.ConfigVariableVsphereDatastore:
 			if path != "" {
-				_, err := vcClient.FindDatastore(context.Background(), path, dcPath)
+				resourceMoid, err = vcClient.FindDatastore(context.Background(), path, dcPath)
 				if err != nil {
-					return errors.Wrapf(err, "invalid %s", resourceType)
+					return errors.Wrapf(err, "invalid %s", vsphereResourceConfigKey)
 				}
 			}
 		case constants.ConfigVariableVsphereFolder:
-			_, err := vcClient.FindFolder(context.Background(), path, dcPath)
+			resourceMoid, err = vcClient.FindFolder(context.Background(), path, dcPath)
 			if err != nil {
-				return errors.Wrapf(err, "invalid %s", resourceType)
+				return errors.Wrapf(err, "invalid %s", vsphereResourceConfigKey)
 			}
 
 		default:
-			return errors.Errorf("unknown vsphere resource type %s", resourceType)
+			return errors.Errorf("unknown vsphere resource type %s", vsphereResourceConfigKey)
+		}
+
+		err = c.setFullPath(vcClient, vsphereResourceConfigKey, path, resourceMoid)
+		if err != nil {
+			return err
 		}
 	}
 
 	return c.verifyDatastoreOrStoragePolicySet()
+}
+
+// set full inventory path if the config variable value is not already an absolute path string or if it is not MOID
+func (c *TkgClient) setFullPath(vcClient vc.Client, vsphereResourceConfigKey, path, resourceMoid string) error {
+	if path != "" && !strings.HasPrefix(path, "/") && !strings.Contains(path, resourceMoid) {
+		resourcePath, _, err := vcClient.GetPath(context.Background(), resourceMoid)
+		if err != nil {
+			return err
+		}
+
+		if resourcePath != path {
+			log.Infof("Setting config variable %q to value %q", vsphereResourceConfigKey, resourcePath)
+			c.TKGConfigReaderWriter().Set(vsphereResourceConfigKey, resourcePath)
+		}
+	}
+
+	return nil
 }
 
 func (c *TkgClient) verifyDatastoreOrStoragePolicySet() error {
@@ -1339,9 +1392,9 @@ func (c *TkgClient) ConfigureAndValidateCNIType(cniType string) error {
 }
 
 // DistributeMachineDeploymentWorkers distributes machine deployment for worker nodes
-func (c *TkgClient) DistributeMachineDeploymentWorkers(workerMachineCount int64, isProdConfig, isManagementCluster bool, infraProviderName string) ([]int, error) { // nolint:gocyclo
+func (c *TkgClient) DistributeMachineDeploymentWorkers(workerMachineCount int64, isProdConfig, isManagementCluster bool, infraProviderName string, isWindowsWorkloadCluster bool) ([]int, error) { // nolint:gocyclo
 	workerCounts := make([]int, 3)
-	if infraProviderName != "aws" && infraProviderName != "azure" {
+	if infraProviderName == DockerProviderName || isWindowsWorkloadCluster {
 		workerCounts[0] = int(workerMachineCount)
 		return workerCounts, nil
 	}
@@ -1422,12 +1475,30 @@ func (c *TkgClient) EncodeAWSCredentialsAndGetClient(clusterClient clusterclient
 	return awsClient, nil
 }
 
+// ValidatePacificVersionWithCLI validate Pacific TKC API version with cli version
+func (c *TkgClient) ValidatePacificVersionWithCLI(regionalClusterClient clusterclient.Client) error {
+	tkcAPIVersion, err := regionalClusterClient.GetPacificTKCAPIVersion()
+	if err != nil {
+		return errors.Wrap(err, "error determining the Tanzu Kubernetes Cluster API version")
+	}
+	if tkcAPIVersion != constants.DefaultPacificClusterAPIVersion {
+		return errors.Errorf("Only %q Tanzu Kubernetes Cluster API version is supported by current version of Tanzu CLI. Please upgrade 'Tanzu Kubernetes Cluster service for vSphere' to latest version if you are using older version",
+			constants.DefaultPacificClusterAPIVersion)
+	}
+	return nil
+}
+
 // ConfigureAndValidateHTTPProxyConfiguration configures and validates http proxy configuration
 func (c *TkgClient) ConfigureAndValidateHTTPProxyConfiguration(infrastructureName string) error {
 	c.SetDefaultProxySettings()
 	proxyEnabled, err := c.TKGConfigReaderWriter().Get(constants.TKGHTTPProxyEnabled)
 	if err != nil || proxyEnabled != trueString {
-		return nil
+		httpProxy, err2 := c.TKGConfigReaderWriter().Get(constants.TKGHTTPProxy)
+		if httpProxy == "" || err2 != nil {
+			return nil
+		}
+		// httpProxy and httpsProxy are presents, check if the TKGHTTPProxyEnabled
+		return errors.Wrapf(err, "cannot get %s", constants.TKGHTTPProxyEnabled)
 	}
 
 	httpProxy, err := c.TKGConfigReaderWriter().Get(constants.TKGHTTPProxy)
@@ -1536,23 +1607,38 @@ func (c *TkgClient) configureVsphereCredentialsFromCluster(clusterClient cluster
 	return nil
 }
 
-func checkClusterNameFormat(clusterName string) error {
-	matched, err := regexp.MatchString("^[a-z][a-z0-9-.]{0,44}[a-z0-9]$", clusterName)
+// CheckClusterNameFormat ensures that the cluster name is valid for the given provider
+func CheckClusterNameFormat(clusterName, infrastructureProvider string) error {
+	var clusterNameRegex string
+	if infrastructureProvider == AzureProviderName {
+		// Azure limitation
+		clusterNameRegex = "^[a-z][a-z0-9-.]{0,42}[a-z0-9]$"
+	} else {
+		// k8s resource name DNS limitation
+		clusterNameRegex = "^[a-z0-9][a-z0-9-.]{0,61}[a-z0-9]$"
+	}
+	matched, err := regexp.MatchString(clusterNameRegex, clusterName)
 	if err != nil {
 		return errors.Wrap(err, "failed to validate cluster name")
 	}
 	if !matched {
-		return errors.New("cluster name doesn't match regex ^[a-z][a-z0-9-.]{0,44}[a-z0-9]$, can contain only lowercase alphanumeric characters, '.' and '-', must start/end with an alphanumeric character")
+		return errors.Errorf("cluster name doesn't match regex %s, can contain only lowercase alphanumeric characters, '.' and '-'", clusterNameRegex)
 	}
+
 	return nil
 }
 
-func (c *TkgClient) configureAndValidateIPFamilyConfiguration() error {
+func (c *TkgClient) configureAndValidateIPFamilyConfiguration(clusterRole string) error {
 	// ignoring error because IPFamily is an optional configuration
 	// if not set Get will return an empty string
 	ipFamily, _ := c.TKGConfigReaderWriter().Get(constants.ConfigVariableIPFamily)
 	if ipFamily == "" {
 		ipFamily = constants.IPv4Family
+	}
+
+	err := c.checkIPFamilyFeatureFlags(ipFamily, clusterRole)
+	if err != nil {
+		return err
 	}
 
 	serviceCIDRs, _ := c.TKGConfigReaderWriter().Get(constants.ConfigVariableServiceCIDR)
@@ -1573,6 +1659,51 @@ func (c *TkgClient) configureAndValidateIPFamilyConfiguration() error {
 	}
 	if err := c.validateIPHostnameForIPFamily(constants.TKGHTTPSProxy, ipFamily); err != nil {
 		return err
+	}
+	return nil
+}
+
+func (c *TkgClient) configureAndValidateCoreDNSIP() error {
+	// Core DNS IP is the 10th index of service CIDR subnet
+	// ServiceCIDR must not be empty as it should already been set by configureAndValidateIPFamilyConfiguration if it was omitted
+	serviceCIDR, err := c.TKGConfigReaderWriter().Get(constants.ConfigVariableServiceCIDR)
+	if err != nil {
+		return err
+	}
+
+	svcSubnets, err := netutils.ParseCIDRs(strings.Split(serviceCIDR, ","))
+	if err != nil {
+		return err
+	}
+	dnsIP, err := netutils.GetIndexedIP(svcSubnets[0], 10)
+	if err != nil {
+		return err
+	}
+
+	c.TKGConfigReaderWriter().Set(constants.ConfigVariableCoreDNSIP, dnsIP.String())
+
+	return nil
+}
+
+func (c *TkgClient) validateServiceCIDRNetmask() error {
+	// kube-apiserver requires that the service CIDR be of limited size.
+	// This validation avoids a case where the cluster never comes up when
+	// the CIDR is too large.
+	// https://github.com/kubernetes/kubernetes/blob/3c87c43ceff6122637c8d8070601f7271026360e/cmd/kube-apiserver/app/options/validation.go#L52
+	configVariableName := constants.ConfigVariableServiceCIDR
+	serviceCIDRs, _ := c.TKGConfigReaderWriter().Get(configVariableName)
+	cidrSlice := strings.Split(serviceCIDRs, ",")
+	for _, cidrString := range cidrSlice {
+		_, cidr, err := net.ParseCIDR(cidrString)
+		if err != nil {
+			// This should never happen since CIDRs were already validated before
+			return errors.Errorf("invalid %s \"%s\"", configVariableName, serviceCIDRs)
+		}
+		maxCIDRBits := 20
+		var ones, bits = cidr.Mask.Size()
+		if bits-ones > maxCIDRBits {
+			return errors.Errorf("invalid %s \"%s\", expected netmask to be \"/%d\" or greater", configVariableName, cidrString, bits-maxCIDRBits)
+		}
 	}
 	return nil
 }
@@ -1699,4 +1830,124 @@ func getDockerBridgeNetworkCidr() (string, error) {
 	networkCidr = strings.Trim(networkCidr, "'")
 
 	return networkCidr, nil
+}
+
+// ConfigureAndValidateNetworkSeparationConfiguration validates the configuration of network separation
+func (c *TkgClient) ConfigureAndValidateNetworkSeparationConfiguration(clusterRole string) error {
+	if err := c.validateNetworkSeparation(constants.ConfigVariableAviManagementClusterServiceEngineGroup, clusterRole); err != nil {
+		return err
+	}
+	if err := c.validateNetworkSeparation(constants.ConfigVariableAviControlPlaneNetwork, clusterRole); err != nil {
+		return err
+	}
+	if err := c.validateNetworkSeparation(constants.ConfigVariableAviControlPlaneNetworkCidr, clusterRole); err != nil {
+		return err
+	}
+	if err := c.validateNetworkSeparation(constants.ConfigVariableAviManagementClusterControlPlaneVipNetworkName, clusterRole); err != nil {
+		return err
+	}
+	if err := c.validateNetworkSeparation(constants.ConfigVariableAviManagementClusterControlPlaneVipNetworkCidr, clusterRole); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (c *TkgClient) validateNetworkSeparation(networkSeparationConfigVariable, clusterRole string) error {
+	// if not set Get will return an empty string
+	configValue, err := c.TKGConfigReaderWriter().Get(networkSeparationConfigVariable)
+	if err != nil {
+		return nil
+	}
+	if clusterRole == TkgLabelClusterRoleManagement && !c.IsFeatureActivated(config.FeatureFlagManagementClusterNetworkSeparation) {
+		return customNetworkSeparationFeatureFlagError(networkSeparationConfigVariable, configValue, config.FeatureFlagManagementClusterNetworkSeparation)
+	}
+	return nil
+}
+
+// ConfigureAndValidateNameserverConfiguration validates the configuration of the control plane node and workload node nameservers
+func (c *TkgClient) ConfigureAndValidateNameserverConfiguration(clusterRole string) error {
+	err := c.validateNameservers(constants.ConfigVariableControlPlaneNodeNameservers, clusterRole)
+	if err != nil {
+		return err
+	}
+
+	return c.validateNameservers(constants.ConfigVariableWorkerNodeNameservers, clusterRole)
+}
+
+func (c *TkgClient) validateNameservers(nameserverConfigVariable, clusterRole string) error {
+	// ignoring error because IPFamily is an optional configuration
+	// if not set Get will return an empty string
+	ipFamily, _ := c.TKGConfigReaderWriter().Get(constants.ConfigVariableIPFamily)
+	if ipFamily == "" {
+		ipFamily = constants.IPv4Family
+	}
+
+	nameservers, err := c.TKGConfigReaderWriter().Get(nameserverConfigVariable)
+	if err != nil {
+		return nil
+	}
+
+	if clusterRole == TkgLabelClusterRoleManagement && !c.IsFeatureActivated(config.FeatureFlagManagementClusterCustomNameservers) {
+		return customNameserverFeatureFlagError(nameserverConfigVariable, nameservers, config.FeatureFlagManagementClusterCustomNameservers)
+	} else if clusterRole == TkgLabelClusterRoleWorkload && !c.IsFeatureActivated(config.FeatureFlagClusterCustomNameservers) {
+		return customNameserverFeatureFlagError(nameserverConfigVariable, nameservers, config.FeatureFlagClusterCustomNameservers)
+	}
+
+	invalidNameservers := []string{}
+	for _, nameserver := range strings.Split(nameservers, ",") {
+		nameserver = strings.TrimSpace(nameserver)
+		ip := net.ParseIP(nameserver)
+		if ip == nil ||
+			ipFamily == constants.IPv4Family && ip.To4() == nil ||
+			ipFamily == constants.IPv6Family && ip.To4() != nil {
+			invalidNameservers = append(invalidNameservers, nameserver)
+		}
+	}
+
+	if len(invalidNameservers) > 0 {
+		return fmt.Errorf("invalid %s %q, expected to be IP addresses that match TKG_IP_FAMILY %q", nameserverConfigVariable, strings.Join(invalidNameservers, ","), ipFamily)
+	}
+	return nil
+}
+
+func (c *TkgClient) checkIPFamilyFeatureFlags(ipFamily, clusterRole string) error {
+	if clusterRole == TkgLabelClusterRoleManagement {
+		dualIPv4PrimaryEnabled := c.IsFeatureActivated(config.FeatureFlagManagementClusterDualStackIPv4Primary)
+		if !dualIPv4PrimaryEnabled && ipFamily == constants.DualStackPrimaryIPv4Family {
+			return dualStackFeatureFlagError(ipFamily, config.FeatureFlagManagementClusterDualStackIPv4Primary)
+		}
+		dualIPv6PrimaryEnabled := c.IsFeatureActivated(config.FeatureFlagManagementClusterDualStackIPv6Primary)
+		if !dualIPv6PrimaryEnabled && ipFamily == constants.DualStackPrimaryIPv6Family {
+			return dualStackFeatureFlagError(ipFamily, config.FeatureFlagManagementClusterDualStackIPv6Primary)
+		}
+	} else {
+		dualIPv4PrimaryEnabled := c.IsFeatureActivated(config.FeatureFlagClusterDualStackIPv4Primary)
+		if !dualIPv4PrimaryEnabled && ipFamily == constants.DualStackPrimaryIPv4Family {
+			return dualStackFeatureFlagError(ipFamily, config.FeatureFlagClusterDualStackIPv4Primary)
+		}
+		dualIPv6PrimaryEnabled := c.IsFeatureActivated(config.FeatureFlagClusterDualStackIPv6Primary)
+		if !dualIPv6PrimaryEnabled && ipFamily == constants.DualStackPrimaryIPv6Family {
+			return dualStackFeatureFlagError(ipFamily, config.FeatureFlagClusterDualStackIPv6Primary)
+		}
+	}
+
+	return nil
+}
+
+func dualStackFeatureFlagError(ipFamily, featureFlag string) error {
+	return fmt.Errorf("option TKG_IP_FAMILY is set to %q, but dualstack support is not enabled (because it is under development). To enable dualstack, set %s to \"true\"", ipFamily, featureFlag)
+}
+
+func customNameserverFeatureFlagError(configVariable, nameservers, flagName string) error {
+	return fmt.Errorf("option %s is set to %q, but custom nameserver support is not enabled (because it is not fully functional). To enable custom nameservers, run the command: tanzu config set %s true",
+		configVariable,
+		nameservers,
+		flagName)
+}
+
+func customNetworkSeparationFeatureFlagError(configVariable, value, flagName string) error {
+	return fmt.Errorf("option %s is set to %q, but network separation support is not enabled (because it is not fully functional). To enable network separation, run the command: tanzu config set %s true",
+		configVariable,
+		value,
+		flagName)
 }

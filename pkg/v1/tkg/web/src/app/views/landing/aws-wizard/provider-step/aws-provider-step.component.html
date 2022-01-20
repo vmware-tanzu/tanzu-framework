@@ -1,6 +1,6 @@
 <form [formGroup]="formGroup">
     <app-step-form-notification [errorNotification]="errorNotification"></app-step-form-notification>
-
+    <app-alert-notification [notification]="configFileNotification"></app-alert-notification>
     <div class="clr-row">
         <div class="clr-col-8">
             <clr-radio-container clrInline>
@@ -42,7 +42,7 @@
             </clr-radio-container>
         </div>
     </div>
-    <ng-container *ngIf="authTypeValue==='oneTimeCredentials'">
+    <ng-container *ngIf="!isAuthTypeProfile()">
         <p>
             Enter AWS account credentials directly in the Access Key ID and Secret Access Key fields for your
             Amazon Web Services account. Optionally specify an AWS session token in Session Token if your AWS account is
@@ -115,13 +115,14 @@
         </div>
     </ng-container>
 
-    <ng-container *ngIf="authTypeValue==='credentialProfile'">
+    <ng-container *ngIf="isAuthTypeProfile()">
         <p>
             Select an already existing AWS credential profile. If you select a profile, the access keys and session token
             information configured for your profile are temporarily passed to the installer without displaying actual values
             in the UI.
             <br/><br/>
             Credential profiles can be <a href="https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-quickstart.html#cli-configure-quickstart-profiles" target="_blank">configured using the AWS CLI</a>.
+            These profiles are loaded automatically following the <a target="_blank" href="https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-quickstart.html#cli-configure-quickstart-precedence">AWS CLI precedence rules</a>.
         </p>
         <div class="clr-row">
             <div class="clr-col-4">
@@ -132,12 +133,12 @@
                             <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                             <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
                                 <span>
-                                    AWS Credential Profiles <a target="_blank" href="https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-quickstart.html#cli-configure-quickstart-precedence">are loaded automatically following the AWS CLI precedence rules.</a>.
+                                    Select an existing AWS credential profile. These profiles contain your AWS access key information.
                                 </span>
                             </clr-tooltip-content>
                         </clr-tooltip>
                     </label>
-                    <select clrSelect name="profileName" formControlName="profileName">
+                    <select clrSelect name="profileName" formControlName="profileName" save-requires-value="true">
                         <option aria-label="blank" title="blank"></option>
                         <option *ngFor="let profile of profileNames" [value]="profile">{{profile}}</option>
                     </select>
@@ -157,7 +158,7 @@
                             <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                             <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
                             <span>
-                                Select an AWS region for your {{ clusterType }} cluster.
+                                Select an AWS region for your {{ clusterTypeDescriptor }} cluster.
                             </span>
                             </clr-tooltip-content>
                         </clr-tooltip>
@@ -178,7 +179,7 @@
 
     <div class="clr-row">
         <div class="clr-col-4" aria-live="assertive">
-            <button [disabled]="isConnectDisabled() || validCredentials" (click)="verifyCredentails()"
+            <button [disabled]="isConnectDisabled() || validCredentials" (click)="verifyCredentials()"
                 i18n="connect btn" class="btn btn-primary btn-connect">
                 {{ validCredentials ? "CONNECTED" : "CONNECT" }}
             </button>

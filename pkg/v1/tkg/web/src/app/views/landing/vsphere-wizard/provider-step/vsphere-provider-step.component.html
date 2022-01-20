@@ -28,7 +28,28 @@
             <clr-icon aria-hidden="true" shape="close"></clr-icon>
         </button>
     </div>
-    <h4 aria-level="2">vSphere {{ vsphereVersion }}</h4>
+    <clr-radio-container clrInline *ngIf="enableIpv6">
+        <label>
+            Select the IP family to use for this cluster
+            <clr-tooltip>
+                <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
+                <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
+                    <span>
+                        This choice dictates the required IP format for addresses and CIDRs in the rest of the installer.
+                    </span>
+                </clr-tooltip-content>
+            </clr-tooltip>
+        </label>
+        <clr-radio-wrapper>
+          <input type="radio" clrRadio name="ipFamily" required value="ipv4" formControlName="ipFamily" />
+          <label>IPv4</label>
+        </clr-radio-wrapper>
+        <clr-radio-wrapper>
+          <input type="radio" clrRadio name="ipFamily" required value="ipv6" formControlName="ipFamily" />
+          <label>IPv6</label>
+        </clr-radio-wrapper>
+    </clr-radio-container>
+    <app-alert-notification [notification]="configFileNotification"></app-alert-notification>
     <div class="clr-row">
         <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
             <clr-input-container [attr.data-step-metadata]="formName">
@@ -80,9 +101,28 @@
                 </clr-control-error>
             </clr-password-container>
         </div>
+        <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
+            <clr-checkbox-container [attr.data-step-metadata]="formName">
+                <label i18n="vsphere insecure connection label" clr-control-label data-full="VSPHERE INSECURE CONNECTION">
+                    SSL THUMBPRINT VERIFICATION
+                    <clr-tooltip>
+                        <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
+                        <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
+                            <span>
+                                Skip SSL thumbprint verification when deploying clusters to your vSphere environment.
+                            </span>
+                        </clr-tooltip-content>
+                    </clr-tooltip>
+                </label>
+                <clr-checkbox-wrapper>
+                    <input type="checkbox" value="false" clrCheckbox name="insecure" formControlName="insecure" role="checkbox" aria-label="Disable SSL Thumbprint Verification"/>
+                    <label>Disable Verification</label>
+                </clr-checkbox-wrapper>
+            </clr-checkbox-container>
+        </div>
     </div>
 
-    <div class="clr-row">
+    <div class="clr-row mt-20">
         <div class="clr-col-12 clr-col-sm-4" aria-live="assertive">
             <button [clrLoading]="loadingState" [disabled]="getDisabled() || connected" (click)="connectVC()" i18n="connect btn"
                 class="btn btn-primary btn-connect">
@@ -100,12 +140,12 @@
                         <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
                             <span>
                                 Name of the datacenter in vCenter Server in which to place the
-                                {{ clusterType }} cluster.
+                                {{ clusterTypeDescriptor }} cluster.
                             </span>
                         </clr-tooltip-content>
                     </clr-tooltip>
                 </label>
-                <select clrSelect name="datacenter" formControlName="datacenter">
+                <select clrSelect name="datacenter" formControlName="datacenter" save-requires-value="true">
                     <option aria-label="blank" title="blank"></option>
                     <ng-container *ngFor="let datacenter of datacenters">
                         <option [value]="datacenter.name">
@@ -127,7 +167,7 @@
                         <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
                             <span>
                                 The contents of an 4096-bit SSH-2 RSA public key from a key pair
-                                that you have created. Allows SSH to the {{ clusterType }} cluster nodes as user capv.
+                                that you have created. Allows SSH to the {{ clusterTypeDescriptor }} cluster nodes as user capv.
                             </span>
                         </clr-tooltip-content>
                     </clr-tooltip>
@@ -160,7 +200,7 @@
 <!-- vSphere 7.0 Modal -->
 <clr-modal [(clrModalOpen)]="vSphereWithK8ModalOpen" [clrModalSize]="'xl'">
     <h3 class="modal-title" i18n="vsphere without kubernetes notification title">
-        <div class="vsphere-icon-30"></div>{{ vSphereModalTitle }}
+        <div class="vsphere-icon-30 offset-top-2"></div>{{ vSphereModalTitle }}
     </h3>
     <div class="modal-body">
         <p i18n="vsphere with k8s detected page content">
@@ -182,7 +222,7 @@
             <button
                     class="btn btn-primary btn-width-350"
                     (click)="vSphereWithK8ModalOpen = false">
-                Deploy TKG {{ clusterType | titlecase }} Cluster
+                Deploy TKG {{ clusterTypeDescriptorTitleCase }} Cluster
             </button>
         </p>
         <p>

@@ -34,6 +34,10 @@ type Server struct {
 
 	// ManagementClusterOpts if the server is a management cluster.
 	ManagementClusterOpts *ManagementClusterServer `json:"managementClusterOpts,omitempty" yaml:"managementClusterOpts"`
+
+	// DiscoverySources determines from where to discover plugins
+	// associated with this server
+	DiscoverySources []PluginDiscovery `json:"discoverySources,omitempty" yaml:"discoverySources"`
 }
 
 // ManagementClusterServer is the configuration for a management cluster kubeconfig.
@@ -87,15 +91,105 @@ type GlobalServerAuth struct {
 // ClientOptions are the client specific options.
 type ClientOptions struct {
 	// CLI options specific to the CLI.
-	CLI *CLIOptions `json:"cli,omitempty" yaml:"cli"`
+	CLI      *CLIOptions           `json:"cli,omitempty" yaml:"cli"`
+	Features map[string]FeatureMap `json:"features,omitempty" yaml:"features"`
+	Env      map[string]string     `json:"env,omitempty" yaml:"env"`
 }
+
+// FeatureMap is simply a hash table, but needs an explicit type to be an object in another hash map (cf ClientOptions.Features)
+type FeatureMap map[string]string
+
+// EnvMap is simply a hash table, but needs an explicit type to be an object in another hash map (cf ClientOptions.Env)
+type EnvMap map[string]string
 
 // CLIOptions are options for the CLI.
 type CLIOptions struct {
 	// Repositories are the plugin repositories.
 	Repositories []PluginRepository `json:"repositories,omitempty" yaml:"repositories"`
+	// DiscoverySources determines from where to discover stand-alone plugins
+	DiscoverySources []PluginDiscovery `json:"discoverySources,omitempty" yaml:"discoverySources"`
 	// UnstableVersionSelector determined which version tags are allowed
 	UnstableVersionSelector VersionSelectorLevel `json:"unstableVersionSelector,omitempty" yaml:"unstableVersionSelector"`
+	// Edition
+	Edition EditionSelector `json:"edition,omitempty" yaml:"edition"`
+}
+
+// PluginDiscovery contains a specific distribution mechanism. Only one of the
+// configs must be set.
+type PluginDiscovery struct {
+	// GCPStorage is set if the plugins are to be discovered via Google Cloud Storage.
+	GCP *GCPDiscovery `json:"gcp,omitempty"`
+	// OCIDiscovery is set if the plugins are to be discovered via an OCI Image Registry.
+	OCI *OCIDiscovery `json:"oci,omitempty"`
+	// GenericRESTDiscovery is set if the plugins are to be discovered via a REST API endpoint.
+	REST *GenericRESTDiscovery `json:"rest,omitempty"`
+	// KubernetesDiscovery is set if the plugins are to be discovered via the Kubernetes API server.
+	Kubernetes *KubernetesDiscovery `json:"k8s,omitempty"`
+	// LocalDiscovery is set if the plugins are to be discovered via Local Manifest fast.
+	Local *LocalDiscovery `json:"local,omitempty"`
+}
+
+// GCPDiscovery provides a plugin discovery mechanism via a Google Cloud Storage
+// bucket with a manifest.yaml file.
+type GCPDiscovery struct {
+	// Name is a name of the discovery
+	Name string `json:"name"`
+	// Bucket is a Google Cloud Storage bucket.
+	// E.g., tanzu-cli
+	Bucket string `json:"bucket"`
+	// BasePath is a URI path that is prefixed to the object name/path.
+	// E.g., plugins/cluster
+	ManifestPath string `json:"manifestPath"`
+}
+
+// OCIDiscovery provides a plugin discovery mechanism via a OCI Image Registry
+type OCIDiscovery struct {
+	// Name is a name of the discovery
+	Name string `json:"name"`
+	// Image is an OCI compliant image. Which include DNS-compatible registry name,
+	// a valid URI path(MAY contain zero or more ‘/’) and a valid tag.
+	// E.g., harbor.my-domain.local/tanzu-cli/plugins-manifest:latest
+	// Contains a directory containing YAML files, each of which contains single
+	// CLIPlugin API resource.
+	Image string `json:"image"`
+}
+
+// GenericRESTDiscovery provides a plugin discovery mechanism via any REST API
+// endpoint. The fully qualified list URL is constructed as
+// `https://{Endpoint}/{BasePath}` and the get plugin URL is constructed as .
+// `https://{Endpoint}/{BasePath}/{Plugin}`.
+type GenericRESTDiscovery struct {
+	// Name is a name of the discovery
+	Name string `json:"name"`
+	// Endpoint is the REST API server endpoint.
+	// E.g., api.my-domain.local
+	Endpoint string `json:"endpoint"`
+	// BasePath is the base URL path of the plugin discovery API.
+	// E.g., /v1alpha1/cli/plugins
+	BasePath string `json:"basePath"`
+}
+
+// KubernetesDiscovery provides a plugin discovery mechanism via the Kubernetes API server.
+type KubernetesDiscovery struct {
+	// Name is a name of the discovery
+	Name string `json:"name"`
+	// Path to the kubeconfig.
+	Path string `json:"path"`
+	// The context to use (if required), defaults to current.
+	Context string `json:"context"`
+	// Version of the CLIPlugins API to query.
+	// E.g., v1alpha1
+	Version string `json:"version"`
+}
+
+// LocalDiscovery is a artifact discovery endpoint utilizing a local host OS.
+type LocalDiscovery struct {
+	// Name is a name of the discovery
+	Name string `json:"name"`
+	// Path is a local path pointing to directory
+	// containing YAML files, each of which contains single
+	// CLIPlugin API resource.
+	Path string `json:"path"`
 }
 
 // PluginRepository is a CLI plugin repository

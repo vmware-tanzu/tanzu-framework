@@ -23,9 +23,10 @@ type PinnipedConfigMapInfo struct {
 	Kind    string `json:"kind" yaml:"kind"`
 	Version string `json:"apiVersion" yaml:"apiVersion"`
 	Data    struct {
-		ClusterName    string `json:"cluster_name" yaml:"cluster_name"`
-		Issuer         string `json:"issuer" yaml:"issuer"`
-		IssuerCABundle string `json:"issuer_ca_bundle_data" yaml:"issuer_ca_bundle_data"`
+		ClusterName              string `json:"cluster_name" yaml:"cluster_name"`
+		Issuer                   string `json:"issuer" yaml:"issuer"`
+		IssuerCABundle           string `json:"issuer_ca_bundle_data" yaml:"issuer_ca_bundle_data"`
+		ConciergeIsClusterScoped bool   `json:"concierge_is_cluster_scoped,string" yaml:"concierge_is_cluster_scoped"`
 	}
 }
 
@@ -95,7 +96,7 @@ func GetClusterInfoFromCluster(clusterAPIServerURL string) (*clientcmdapi.Cluste
 	clusterAPIServerURL = strings.TrimRight(clusterAPIServerURL, " /")
 	clusterInfoURL := clusterAPIServerURL + "/api/v1/namespaces/kube-public/configmaps/cluster-info"
 	//nolint:noctx
-	req, _ := http.NewRequest("GET", clusterInfoURL, nil)
+	req, _ := http.NewRequest("GET", clusterInfoURL, http.NoBody)
 	// To get the cluster ca certificate first time, we need to use skip verify the server certificate,
 	// all the later communications to cluster would be using CA after this call
 	clusterClient := &http.Client{
@@ -151,7 +152,7 @@ func GetPinnipedInfoFromCluster(clusterInfo *clientcmdapi.Cluster) (*PinnipedCon
 	endpoint := strings.TrimRight(clusterInfo.Server, " /")
 	pinnipedInfoURL := endpoint + "/api/v1/namespaces/kube-public/configmaps/pinniped-info"
 	//nolint:noctx
-	req, _ := http.NewRequest("GET", pinnipedInfoURL, nil)
+	req, _ := http.NewRequest("GET", pinnipedInfoURL, http.NoBody)
 	pool := x509.NewCertPool()
 	pool.AppendCertsFromPEM(clusterInfo.CertificateAuthorityData)
 	clusterClient := &http.Client{
@@ -172,6 +173,9 @@ func GetPinnipedInfoFromCluster(clusterInfo *clientcmdapi.Cluster) (*PinnipedCon
 	defer response.Body.Close()
 
 	if response.StatusCode != http.StatusOK {
+		if response.StatusCode == http.StatusNotFound {
+			return nil, nil
+		}
 		return nil, errors.New("failed to get pinniped-info from the cluster")
 	}
 
@@ -183,7 +187,7 @@ func GetPinnipedInfoFromCluster(clusterInfo *clientcmdapi.Cluster) (*PinnipedCon
 	var pinnipedConfigMapInfo PinnipedConfigMapInfo
 	err = json.Unmarshal(responseBody, &pinnipedConfigMapInfo)
 	if err != nil {
-		return nil, errors.Wrap(err, "error parsing http response body ")
+		return nil, errors.Wrap(err, "error parsing http response body")
 	}
 
 	return &pinnipedConfigMapInfo, nil

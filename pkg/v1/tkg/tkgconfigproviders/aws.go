@@ -36,26 +36,29 @@ type AWSConfig struct {
 	B64EncodedCredentials string `yaml:"AWS_B64ENCODED_CREDENTIALS,omitempty"`
 	BastionHostEnabled    string `yaml:"BASTION_HOST_ENABLED"`
 	CeipParticipation     string `yaml:"ENABLE_CEIP_PARTICIPATION,omitempty"`
+	ClusterAnnotations    string `yaml:"CLUSTER_ANNOTATIONS,omitempty"`
 	ClusterCidr           string `yaml:"CLUSTER_CIDR"`
 	ClusterHTTPProxy      string `yaml:"TKG_HTTP_PROXY,omitempty"`
 	ClusterHTTPSProxy     string `yaml:"TKG_HTTPS_PROXY,omitempty"`
+	ClusterLabels         string `yaml:"CLUSTER_LABELS,omitempty"`
 	ClusterName           string `yaml:"CLUSTER_NAME,omitempty"`
 	ClusterNoProxy        string `yaml:"TKG_NO_PROXY,omitempty"`
 	ClusterPlan           string `yaml:"CLUSTER_PLAN,omitempty"`
 	ControlPlaneNodeType  string `yaml:"CONTROL_PLANE_MACHINE_TYPE,omitempty"`
 	// ControlPlaneOSDiskSizeGiB is the size of the root volume of the control plane instances of a cluster
-	ControlPlaneOSDiskSizeGiB string `yaml:"AWS_CONTROL_PLANE_OS_DISK_SIZE_GIB,omitempty"`
-	CredentialProfile         string `yaml:"AWS_PROFILE,omitempty"`
-	EnableAuditLogging        string `yaml:"ENABLE_AUDIT_LOGGING"`
-	HTTPProxyEnabled          string `yaml:"TKG_HTTP_PROXY_ENABLED"`
-	InfrastructureProvider    string `yaml:"INFRASTRUCTURE_PROVIDER,omitempty"`
-	MachineHealthCheckEnabled string `yaml:"ENABLE_MHC"`
-	Node2Az                   string `yaml:"AWS_NODE_AZ_1"`
-	Node3Az                   string `yaml:"AWS_NODE_AZ_2"`
-	NodeAz                    string `yaml:"AWS_NODE_AZ"`
-	NodeMachineType           string `yaml:"NODE_MACHINE_TYPE,omitempty"`
-	NodeMachineType1          string `yaml:"NODE_MACHINE_TYPE_1,omitempty"`
-	NodeMachineType2          string `yaml:"NODE_MACHINE_TYPE_2,omitempty"`
+	ControlPlaneOSDiskSizeGiB  string `yaml:"AWS_CONTROL_PLANE_OS_DISK_SIZE_GIB,omitempty"`
+	CredentialProfile          string `yaml:"AWS_PROFILE,omitempty"`
+	EnableAuditLogging         string `yaml:"ENABLE_AUDIT_LOGGING"`
+	HTTPProxyEnabled           string `yaml:"TKG_HTTP_PROXY_ENABLED"`
+	InfrastructureProvider     string `yaml:"INFRASTRUCTURE_PROVIDER,omitempty"`
+	LoadBalancerSchemeInternal string `yaml:"AWS_LOAD_BALANCER_SCHEME_INTERNAL,omitempty"`
+	MachineHealthCheckEnabled  string `yaml:"ENABLE_MHC"`
+	Node2Az                    string `yaml:"AWS_NODE_AZ_1"`
+	Node3Az                    string `yaml:"AWS_NODE_AZ_2"`
+	NodeAz                     string `yaml:"AWS_NODE_AZ"`
+	NodeMachineType            string `yaml:"NODE_MACHINE_TYPE,omitempty"`
+	NodeMachineType1           string `yaml:"NODE_MACHINE_TYPE_1,omitempty"`
+	NodeMachineType2           string `yaml:"NODE_MACHINE_TYPE_2,omitempty"`
 	// NodeOSDiskSizeGiB is the size of the root volume of the node instances of a cluster
 	NodeOSDiskSizeGiB      string                    `yaml:"AWS_NODE_OS_DISK_SIZE_GIB,omitempty"`
 	PrivateNode2Cidr       string                    `yaml:"AWS_PRIVATE_NODE_CIDR_1"`
@@ -69,7 +72,6 @@ type AWSConfig struct {
 	ServiceCidr            string                    `yaml:"SERVICE_CIDR"`
 	SessionToken           string                    `yaml:"AWS_SESSION_TOKEN,omitempty"`
 	SSHKeyName             string                    `yaml:"AWS_SSH_KEY_NAME"`
-	TmcRegistrationURL     string                    `yaml:"TMC_REGISTRATION_URL,omitempty"`
 	VPCCidr                string                    `yaml:"AWS_VPC_CIDR"`
 	IdentityReference      AWSIdentityReference      `yaml:",inline"`
 	SecurityGroupOverrides AWSSecurityGroupOverrides `yaml:",inline"`
@@ -143,9 +145,10 @@ func (c *client) NewAWSConfig(params *models.AWSRegionalClusterParams, encodedCr
 
 	res := &AWSConfig{
 		ClusterName:            params.ClusterName,
+		ClusterLabels:          mapToConfigString(params.Labels),
+		ClusterAnnotations:     mapToConfigString(params.Annotations),
 		InfrastructureProvider: constants.InfrastructureProviderAWS,
 		ClusterPlan:            params.ControlPlaneFlavor,
-		TmcRegistrationURL:     params.TmcRegistrationURL,
 		Region:                 params.AwsAccountParams.Region,
 		B64EncodedCredentials:  encodedCredentials,
 		ControlPlaneNodeType:   params.ControlPlaneNodeType,
@@ -157,6 +160,10 @@ func (c *client) NewAWSConfig(params *models.AWSRegionalClusterParams, encodedCr
 		ClusterCidr:            params.Networking.ClusterPodCIDR,
 		ServiceCidr:            params.Networking.ClusterServiceCIDR,
 		HTTPProxyEnabled:       falseConst,
+	}
+
+	if params.LoadbalancerSchemeInternal {
+		res.LoadBalancerSchemeInternal = strconv.FormatBool(params.LoadbalancerSchemeInternal)
 	}
 
 	if params.CeipOptIn != nil {
@@ -345,4 +352,91 @@ func appendSubnets(paramsVpc *models.AWSVpc, highAvailability bool) ([]*newSubne
 	}
 
 	return newSubnets, nil
+}
+
+// CreateAWSParams generates a Params object from an AWSConfig, used for importing configuration files
+func (c *client) CreateAWSParams(res *AWSConfig) (params *models.AWSRegionalClusterParams, err error) {
+	ceipOptIn := res.CeipParticipation == trueConst
+	bomConfiguration, err := c.tkgBomClient.GetDefaultTkrBOMConfiguration()
+
+	if err != nil {
+		return nil, err
+	}
+
+	params = &models.AWSRegionalClusterParams{
+		Annotations: configStringToMap(res.ClusterAnnotations),
+		AwsAccountParams: &models.AWSAccountParams{
+			AccessKeyID:     res.AccessKeyID,
+			ProfileName:     res.CredentialProfile,
+			Region:          res.Region,
+			SecretAccessKey: res.SecretAcessKey,
+			SessionToken:    res.SessionToken,
+		},
+		BastionHostEnabled:   res.BastionHostEnabled == trueConst,
+		CeipOptIn:            &ceipOptIn,
+		ClusterName:          res.ClusterName,
+		ControlPlaneFlavor:   res.ClusterPlan,
+		ControlPlaneNodeType: res.ControlPlaneNodeType,
+		//CreateCloudFormationStack: false,
+		EnableAuditLogging: res.EnableAuditLogging == trueConst,
+		IdentityManagement: createIdentityManagementConfig(res),
+		//KubernetesVersion:         "",
+		Labels:                    configStringToMap(res.ClusterLabels),
+		MachineHealthCheckEnabled: res.MachineHealthCheckEnabled == trueConst,
+		Networking:                createNetworkingConfig(res),
+		NumOfWorkerNode:           0,
+		Os: &models.AWSVirtualMachine{
+			Name: getOsName(bomConfiguration, res),
+			OsInfo: &models.OSInfo{
+				Arch:    res.OsInfo.Arch,
+				Name:    res.OsInfo.Name,
+				Version: res.OsInfo.Version,
+			},
+		},
+		SSHKeyName:     res.SSHKeyName,
+		Vpc:            createVpc(res),
+		WorkerNodeType: "",
+	}
+
+	if params.CeipOptIn != nil {
+		res.CeipParticipation = strconv.FormatBool(*params.CeipOptIn)
+	}
+
+	return params, nil
+}
+
+func createAwsNodeAz(workerNodeType, privateSubnetID, publicSubnetID string) *models.AWSNodeAz {
+	if workerNodeType == "" {
+		return nil
+	}
+	return &models.AWSNodeAz{
+		PrivateSubnetID: privateSubnetID,
+		PublicSubnetID:  publicSubnetID,
+		WorkerNodeType:  workerNodeType,
+	}
+}
+
+func createVpc(awsConfig *AWSConfig) *models.AWSVpc {
+	azs := []*models.AWSNodeAz{
+		createAwsNodeAz(awsConfig.NodeMachineType, awsConfig.AWSPrivateSubnetID, awsConfig.AWSPublicSubnetID),
+		createAwsNodeAz(awsConfig.NodeMachineType1, awsConfig.AWSPrivateSubnetID2, awsConfig.AWSPublicSubnetID2),
+		createAwsNodeAz(awsConfig.NodeMachineType2, awsConfig.AWSPrivateSubnetID3, awsConfig.AWSPublicSubnetID3),
+	}
+
+	return &models.AWSVpc{
+		Azs:   azs,
+		Cidr:  "",
+		VpcID: "",
+	}
+}
+
+func getOsName(bomConfiguration *tkgconfigbom.BOMConfiguration, awsConfig *AWSConfig) string {
+	if amis, ok := bomConfiguration.AMI[awsConfig.Region]; ok {
+		for _, ami := range amis {
+			if ami.ID == awsConfig.AMIID {
+				return ami.OSInfo.Name
+			}
+		}
+	}
+	return ""
 }

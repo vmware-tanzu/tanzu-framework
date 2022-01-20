@@ -5,7 +5,6 @@ package tkgpackagedatamodel
 
 // PackageAvailableOptions includes fields for package available
 type PackageAvailableOptions struct {
-	KubeConfig    string
 	Namespace     string
 	PackageName   string
 	AllNamespaces bool

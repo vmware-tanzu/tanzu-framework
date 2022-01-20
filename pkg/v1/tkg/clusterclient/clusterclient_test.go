@@ -1,10 +1,12 @@
 // Copyright 2021 VMware, Inc. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
+//nolint:gosec
 package clusterclient_test
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"os"
 	rt "runtime"
@@ -23,7 +25,6 @@ import (
 	rbacv1 "k8s.io/api/rbac/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/types"
@@ -32,12 +33,15 @@ import (
 	restclient "k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/utils/pointer"
-	capav1alpha3 "sigs.k8s.io/cluster-api-provider-aws/api/v1alpha3"
-	capi "sigs.k8s.io/cluster-api/api/v1alpha3"
-	controlplanev1 "sigs.k8s.io/cluster-api/controlplane/kubeadm/api/v1alpha3"
+	capav1beta1 "sigs.k8s.io/cluster-api-provider-aws/api/v1beta1"
+	capiv1alpha3 "sigs.k8s.io/cluster-api/api/v1alpha3"
+	capi "sigs.k8s.io/cluster-api/api/v1beta1"
+	controlplanev1 "sigs.k8s.io/cluster-api/controlplane/kubeadm/api/v1beta1"
 	crtclient "sigs.k8s.io/controller-runtime/pkg/client"
-	"sigs.k8s.io/controller-runtime/pkg/client/fake" //nolint:staticcheck
+	"sigs.k8s.io/controller-runtime/pkg/client/fake" //nolint:staticcheck,nolintlint
 	"sigs.k8s.io/yaml"
+
+	tkgsv1alpha2 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha2"
 
 	runv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha1"
 	. "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/clusterclient"
@@ -70,20 +74,21 @@ var imageRepository = "registry.tkg.vmware.new"
 
 func init() {
 	_ = capi.AddToScheme(scheme)
-	_ = capav1alpha3.AddToScheme(scheme)
+	_ = capiv1alpha3.AddToScheme(scheme)
+	_ = capav1beta1.AddToScheme(scheme)
 	_ = corev1.AddToScheme(scheme)
 	_ = controlplanev1.AddToScheme(scheme)
 	_ = appsv1.AddToScheme(scheme)
 	_ = rbacv1.AddToScheme(scheme)
+	_ = tkgsv1alpha2.AddToScheme(scheme)
 }
 
 var testingDir string
 
 const (
-	fakeTKR1Name  = "fakeTKR1"
-	fakeTKR2Name  = "fakeTKR2"
-	statusRunning = "running"
-	osWindows     = "windows"
+	fakeTKR1Name = "fakeTKR1"
+	fakeTKR2Name = "fakeTKR2"
+	osWindows    = "windows"
 )
 
 const cpiCreds = `#@data/values
@@ -124,11 +129,15 @@ var _ = Describe("Cluster Client", func() {
 		currentKubeCtx         string
 		clusterClientOptions   Options
 
-		tkcPhase       string
-		mdReplicas     Replicas
-		kcpReplicas    Replicas
-		machineObjects []capi.Machine
+		mdReplicas         Replicas
+		kcpReplicas        Replicas
+		machineObjects     []capi.Machine
+		v1a3machineObjects []capiv1alpha3.Machine
+		tkcConditions      []capiv1alpha3.Condition
 	)
+
+	// Mock the sleep implementation for unit tests
+	Sleep = func(d time.Duration) {}
 
 	BeforeSuite(createTempDirectory)
 	AfterSuite(deleteTempDirectory)
@@ -348,7 +357,7 @@ var _ = Describe("Cluster Client", func() {
 			clstClient, err = NewClient(kubeConfigPath, "", clusterClientOptions)
 			Expect(err).NotTo(HaveOccurred())
 			kcpReplicas = Replicas{SpecReplica: 3, Replicas: 3, ReadyReplicas: 3, UpdatedReplicas: 3}
-			clientset.ListCalls(func(ctx context.Context, o runtime.Object, opts ...crtclient.ListOption) error {
+			clientset.ListCalls(func(ctx context.Context, o crtclient.ObjectList, opts ...crtclient.ListOption) error {
 				switch o := o.(type) {
 				case *capi.MachineList:
 				case *capi.MachineDeploymentList:
@@ -373,7 +382,7 @@ var _ = Describe("Cluster Client", func() {
 
 		Context("When secret data does not contain value field", func() {
 			JustBeforeEach(func() {
-				clientset.GetCalls(func(ctx context.Context, namespace types.NamespacedName, secret runtime.Object) error {
+				clientset.GetCalls(func(ctx context.Context, namespace types.NamespacedName, secret crtclient.Object) error {
 					data := map[string][]byte{
 						"fake-key": []byte("fake-secret-data"),
 					}
@@ -390,7 +399,7 @@ var _ = Describe("Cluster Client", func() {
 
 		Context("When secret data does contain value field", func() {
 			JustBeforeEach(func() {
-				clientset.GetCalls(func(ctx context.Context, namespace types.NamespacedName, secret runtime.Object) error {
+				clientset.GetCalls(func(ctx context.Context, namespace types.NamespacedName, secret crtclient.Object) error {
 					data := map[string][]byte{
 						"value": []byte("fake-secret-data"),
 					}
@@ -417,7 +426,7 @@ var _ = Describe("Cluster Client", func() {
 			kcpReplicas = Replicas{SpecReplica: 3, Replicas: 3, ReadyReplicas: 3, UpdatedReplicas: 3}
 			mdReplicas = Replicas{SpecReplica: 3, Replicas: 3, ReadyReplicas: 3, UpdatedReplicas: 3}
 
-			clientset.ListCalls(func(ctx context.Context, o runtime.Object, opts ...crtclient.ListOption) error {
+			clientset.ListCalls(func(ctx context.Context, o crtclient.ObjectList, opts ...crtclient.ListOption) error {
 				switch o := o.(type) {
 				case *capi.MachineList:
 					o.Items = append(o.Items, machineObjects...)
@@ -443,7 +452,7 @@ var _ = Describe("Cluster Client", func() {
 		})
 		Context("When cluster object is present but the infrastructure is not yet provisioned", func() {
 			JustBeforeEach(func() {
-				clientset.GetCalls(func(ctx context.Context, namespace types.NamespacedName, cluster runtime.Object) error {
+				clientset.GetCalls(func(ctx context.Context, namespace types.NamespacedName, cluster crtclient.Object) error {
 					conditions := capi.Conditions{}
 					conditions = append(conditions, capi.Condition{
 						Type:   capi.InfrastructureReadyCondition,
@@ -466,7 +475,7 @@ var _ = Describe("Cluster Client", func() {
 		})
 		Context("When cluster object is present but the cluster control plane is not yet initialized", func() {
 			JustBeforeEach(func() {
-				clientset.GetCalls(func(ctx context.Context, namespace types.NamespacedName, cluster runtime.Object) error {
+				clientset.GetCalls(func(ctx context.Context, namespace types.NamespacedName, cluster crtclient.Object) error {
 					conditions := capi.Conditions{}
 					conditions = append(conditions, capi.Condition{
 						Type:   capi.InfrastructureReadyCondition,
@@ -493,7 +502,7 @@ var _ = Describe("Cluster Client", func() {
 		})
 		Context("When cluster object and machine objects are present and provisioned", func() {
 			JustBeforeEach(func() {
-				clientset.GetCalls(func(ctx context.Context, namespace types.NamespacedName, cluster runtime.Object) error {
+				clientset.GetCalls(func(ctx context.Context, namespace types.NamespacedName, cluster crtclient.Object) error {
 					conditions := capi.Conditions{}
 					conditions = append(conditions, capi.Condition{
 						Type:   capi.InfrastructureReadyCondition,
@@ -533,7 +542,7 @@ var _ = Describe("Cluster Client", func() {
 		})
 		Context("When cluster object is present but the infrastructure is not yet provisioned", func() {
 			JustBeforeEach(func() {
-				clientset.GetCalls(func(ctx context.Context, namespace types.NamespacedName, cluster runtime.Object) error {
+				clientset.GetCalls(func(ctx context.Context, namespace types.NamespacedName, cluster crtclient.Object) error {
 					conditions := capi.Conditions{}
 					conditions = append(conditions, capi.Condition{
 						Type:   capi.InfrastructureReadyCondition,
@@ -551,7 +560,7 @@ var _ = Describe("Cluster Client", func() {
 		})
 		Context("When cluster object is present but the cluster control plane is not yet initialized", func() {
 			JustBeforeEach(func() {
-				clientset.GetCalls(func(ctx context.Context, namespace types.NamespacedName, cluster runtime.Object) error {
+				clientset.GetCalls(func(ctx context.Context, namespace types.NamespacedName, cluster crtclient.Object) error {
 					conditions := capi.Conditions{}
 					conditions = append(conditions, capi.Condition{
 						Type:   capi.InfrastructureReadyCondition,
@@ -573,9 +582,9 @@ var _ = Describe("Cluster Client", func() {
 			})
 		})
 
-		Context("When MachineDeployment object is present but not yet with all the expected replicas", func() {
+		Context("When KCP object is present but not yet with all the expected replicas", func() {
 			JustBeforeEach(func() {
-				clientset.GetCalls(func(ctx context.Context, namespace types.NamespacedName, cluster runtime.Object) error {
+				clientset.GetCalls(func(ctx context.Context, namespace types.NamespacedName, cluster crtclient.Object) error {
 					conditions := capi.Conditions{}
 					conditions = append(conditions, capi.Condition{
 						Type:   capi.InfrastructureReadyCondition,
@@ -588,7 +597,81 @@ var _ = Describe("Cluster Client", func() {
 					cluster.(*capi.Cluster).Status.Conditions = conditions
 					return nil
 				})
-				clientset.ListCalls(func(ctx context.Context, o runtime.Object, options ...crtclient.ListOption) error {
+				clientset.ListCalls(func(ctx context.Context, o crtclient.ObjectList, options ...crtclient.ListOption) error {
+					switch o := o.(type) {
+					case *capi.MachineList:
+					case *capi.MachineDeploymentList:
+					case *controlplanev1.KubeadmControlPlaneList:
+						o.Items = append(o.Items, controlplanev1.KubeadmControlPlane{
+							ObjectMeta: metav1.ObjectMeta{Name: "control-plane-0"},
+							Spec:       controlplanev1.KubeadmControlPlaneSpec{Replicas: pointer.Int32Ptr(1)},
+						})
+					default:
+						return errors.New("invalid object type")
+					}
+					return nil
+				})
+				err = clstClient.WaitForClusterReady("fake-clusterName", "fake-namespace", true)
+			})
+			It("should return an error", func() {
+				Expect(err).To(HaveOccurred())
+				Expect(err.Error()).To(ContainSubstring("control-plane is still creating replicas, DesiredReplicas=1 Replicas=0 ReadyReplicas=0 UpdatedReplicas=0"))
+			})
+		})
+
+		Context("When KCP object is present and all the expected replicas are available", func() {
+			JustBeforeEach(func() {
+				clientset.GetCalls(func(ctx context.Context, namespace types.NamespacedName, cluster crtclient.Object) error {
+					conditions := capi.Conditions{}
+					conditions = append(conditions, capi.Condition{
+						Type:   capi.InfrastructureReadyCondition,
+						Status: corev1.ConditionTrue,
+					})
+					conditions = append(conditions, capi.Condition{
+						Type:   capi.ControlPlaneReadyCondition,
+						Status: corev1.ConditionTrue,
+					})
+					cluster.(*capi.Cluster).Status.Conditions = conditions
+					return nil
+				})
+				clientset.ListCalls(func(ctx context.Context, o crtclient.ObjectList, options ...crtclient.ListOption) error {
+					switch o := o.(type) {
+					case *capi.MachineList:
+					case *capi.MachineDeploymentList:
+					case *controlplanev1.KubeadmControlPlaneList:
+						o.Items = append(o.Items, controlplanev1.KubeadmControlPlane{
+							ObjectMeta: metav1.ObjectMeta{Name: "control-plane-0"},
+							Spec:       controlplanev1.KubeadmControlPlaneSpec{Replicas: pointer.Int32Ptr(1)},
+							Status:     controlplanev1.KubeadmControlPlaneStatus{ReadyReplicas: 1},
+						})
+					default:
+						return errors.New("invalid object type")
+					}
+					return nil
+				})
+				err = clstClient.WaitForClusterReady("fake-clusterName", "fake-namespace", true)
+			})
+			It("should return an error", func() {
+				Expect(err).NotTo(HaveOccurred())
+			})
+		})
+
+		Context("When MachineDeployment object is present but not yet with all the expected replicas", func() {
+			JustBeforeEach(func() {
+				clientset.GetCalls(func(ctx context.Context, namespace types.NamespacedName, cluster crtclient.Object) error {
+					conditions := capi.Conditions{}
+					conditions = append(conditions, capi.Condition{
+						Type:   capi.InfrastructureReadyCondition,
+						Status: corev1.ConditionTrue,
+					})
+					conditions = append(conditions, capi.Condition{
+						Type:   capi.ControlPlaneReadyCondition,
+						Status: corev1.ConditionTrue,
+					})
+					cluster.(*capi.Cluster).Status.Conditions = conditions
+					return nil
+				})
+				clientset.ListCalls(func(ctx context.Context, o crtclient.ObjectList, options ...crtclient.ListOption) error {
 					switch o := o.(type) {
 					case *capi.MachineList:
 					case *capi.MachineDeploymentList:
@@ -611,7 +694,7 @@ var _ = Describe("Cluster Client", func() {
 		})
 		Context("When machine object is present but not yet with NodeRef", func() {
 			JustBeforeEach(func() {
-				clientset.GetCalls(func(ctx context.Context, namespace types.NamespacedName, cluster runtime.Object) error {
+				clientset.GetCalls(func(ctx context.Context, namespace types.NamespacedName, cluster crtclient.Object) error {
 					conditions := capi.Conditions{}
 					conditions = append(conditions, capi.Condition{
 						Type:   capi.InfrastructureReadyCondition,
@@ -624,7 +707,7 @@ var _ = Describe("Cluster Client", func() {
 					cluster.(*capi.Cluster).Status.Conditions = conditions
 					return nil
 				})
-				clientset.ListCalls(func(ctx context.Context, o runtime.Object, options ...crtclient.ListOption) error {
+				clientset.ListCalls(func(ctx context.Context, o crtclient.ObjectList, options ...crtclient.ListOption) error {
 					switch o := o.(type) {
 					case *controlplanev1.KubeadmControlPlaneList:
 						o.Items = append(o.Items, controlplanev1.KubeadmControlPlane{
@@ -656,7 +739,7 @@ var _ = Describe("Cluster Client", func() {
 		})
 		Context("When cluster object, MachineDeployment object, KubeadmControlPlane object and machine objects are present and provisioned", func() {
 			JustBeforeEach(func() {
-				clientset.GetCalls(func(ctx context.Context, namespace types.NamespacedName, cluster runtime.Object) error {
+				clientset.GetCalls(func(ctx context.Context, namespace types.NamespacedName, cluster crtclient.Object) error {
 					conditions := capi.Conditions{}
 					conditions = append(conditions, capi.Condition{
 						Type:   capi.InfrastructureReadyCondition,
@@ -669,7 +752,7 @@ var _ = Describe("Cluster Client", func() {
 					cluster.(*capi.Cluster).Status.Conditions = conditions
 					return nil
 				})
-				clientset.ListCalls(func(ctx context.Context, o runtime.Object, options ...crtclient.ListOption) error {
+				clientset.ListCalls(func(ctx context.Context, o crtclient.ObjectList, options ...crtclient.ListOption) error {
 					switch o := o.(type) {
 					case *capi.MachineList:
 						o.Items = append(o.Items, capi.Machine{
@@ -722,7 +805,7 @@ var _ = Describe("Cluster Client", func() {
 		})
 		Context("When cluster object is still present", func() {
 			JustBeforeEach(func() {
-				clientset.GetCalls(func(ctx context.Context, namespace types.NamespacedName, cluster runtime.Object) error {
+				clientset.GetCalls(func(ctx context.Context, namespace types.NamespacedName, cluster crtclient.Object) error {
 					return nil
 				})
 				err = clstClient.WaitForClusterDeletion("fake-clusterName", "fake-namespace")
@@ -734,7 +817,7 @@ var _ = Describe("Cluster Client", func() {
 		})
 		Context("When cluster object is deleted", func() {
 			JustBeforeEach(func() {
-				clientset.GetCalls(func(ctx context.Context, namespace types.NamespacedName, cluster runtime.Object) error {
+				clientset.GetCalls(func(ctx context.Context, namespace types.NamespacedName, cluster crtclient.Object) error {
 					return apierrors.NewNotFound(schema.GroupResource{Group: cluster.GetObjectKind().GroupVersionKind().Group, Resource: ""}, "not found")
 				})
 				err = clstClient.WaitForClusterDeletion("fake-clusterName", "fake-namespace")
@@ -812,7 +895,59 @@ var _ = Describe("Cluster Client", func() {
 			})
 		})
 	})
+	Describe("ScalePacificClusterControlPlane", func() {
+		var controlPlaneCount int32 = 1
+		var clusterName = "fake-cluster-name"
+		var namespace = "fake-namespace"
+		BeforeEach(func() {
+			reInitialize()
+			kubeConfigPath := getConfigFilePath("config1.yaml")
+			clstClient, err = NewClient(kubeConfigPath, "", clusterClientOptions)
+			Expect(err).NotTo(HaveOccurred())
+		})
+		JustBeforeEach(func() {
+			err = clstClient.ScalePacificClusterControlPlane(clusterName, namespace, controlPlaneCount)
+		})
+		Context("When getting Pacific cluster object fails", func() {
+			BeforeEach(func() {
+				clientset.GetReturns(errors.New("fake-error-while-get"))
+			})
 
+			It("should return an error", func() {
+				Expect(err).To(HaveOccurred())
+				Expect(err.Error()).To(ContainSubstring(fmt.Sprintf(`failed to get TKC object in namespace: '%s'`, namespace)))
+			})
+		})
+		Context("When clientset Patch return error", func() {
+			BeforeEach(func() {
+				clientset.GetReturns(nil)
+				clientset.PatchReturns(errors.New("fake-error-while-patch"))
+			})
+			It("should return an error", func() {
+				Expect(err).To(HaveOccurred())
+				Expect(err.Error()).To(ContainSubstring("unable to patch the cluster controlPlane count"))
+			})
+		})
+		Context("When clientset Get is successful but Patch return error", func() {
+			var gotPatch string
+			BeforeEach(func() {
+				controlPlaneCount = 5
+				clientset.GetReturns(nil)
+				clientset.PatchCalls(func(ctx context.Context, cluster crtclient.Object, patch crtclient.Patch, patchoptions ...crtclient.PatchOption) error {
+					patchBytes, err := patch.Data(cluster)
+					Expect(err).NotTo(HaveOccurred())
+					gotPatch = string(patchBytes)
+					return nil
+				})
+			})
+			It("should return not an error", func() {
+				Expect(err).ToNot(HaveOccurred())
+				payloadFormatStr := `[{"op":"replace","path":"/spec/topology/controlPlane/replicas","value":%d}]`
+				payloadBytes := fmt.Sprintf(payloadFormatStr, controlPlaneCount)
+				Expect(gotPatch).To(Equal(payloadBytes))
+			})
+		})
+	})
 	Describe("DeactivateTanzuKubernetesReleases", func() {
 		BeforeEach(func() {
 			reInitialize()
@@ -988,7 +1123,7 @@ var _ = Describe("Cluster Client", func() {
 		Context("When clientset Get api return error", func() {
 			JustBeforeEach(func() {
 				clientset.GetReturns(errors.New("fake-error"))
-				err = clstClient.WaitForPacificCluster("fake-clusterName", "fake-namespace", "fake-version")
+				err = clstClient.WaitForPacificCluster("fake-clusterName", "fake-namespace")
 			})
 			It("should return an error", func() {
 				Expect(err).To(HaveOccurred())
@@ -998,15 +1133,18 @@ var _ = Describe("Cluster Client", func() {
 		})
 		Context("When ManagedCluster(pacific cluster) object is present but is not yet provisioned", func() {
 			JustBeforeEach(func() {
-				phaseMap := make(map[string]string)
-				phaseMap["phase"] = "creating"
-				fakeObj := getDummyPacificManagedClusterObj(phaseMap)
-				clientset.GetCalls(func(ctx context.Context, namespace types.NamespacedName, cluster runtime.Object) error {
-					clusterObj := cluster.(*unstructured.Unstructured)
-					*clusterObj = fakeObj
+				clientset.GetCalls(func(ctx context.Context, namespace types.NamespacedName, cluster crtclient.Object) error {
+					conditions := capiv1alpha3.Conditions{}
+					conditions = append(conditions, capiv1alpha3.Condition{
+						Type:    capiv1alpha3.ReadyCondition,
+						Status:  corev1.ConditionFalse,
+						Reason:  "fake-reason",
+						Message: "fake-message",
+					})
+					cluster.(*tkgsv1alpha2.TanzuKubernetesCluster).Status.Conditions = conditions
 					return nil
 				})
-				err = clstClient.WaitForPacificCluster("fake-clusterName", "fake-namespace", "fake-version")
+				err = clstClient.WaitForPacificCluster("fake-clusterName", "fake-namespace")
 			})
 			It("should return an error", func() {
 				Expect(err).To(HaveOccurred())
@@ -1015,18 +1153,80 @@ var _ = Describe("Cluster Client", func() {
 		})
 		Context("When ManagedCluster(pacific cluster) object is present and is running", func() {
 			JustBeforeEach(func() {
-				phaseMap := make(map[string]string)
-				phaseMap["phase"] = statusRunning
-				fakeObj := getDummyPacificManagedClusterObj(phaseMap)
-				clientset.GetCalls(func(ctx context.Context, namespace types.NamespacedName, cluster runtime.Object) error {
-					clusterObj := cluster.(*unstructured.Unstructured)
-					*clusterObj = fakeObj
+				clientset.GetCalls(func(ctx context.Context, namespace types.NamespacedName, cluster crtclient.Object) error {
+					conditions := capiv1alpha3.Conditions{}
+					conditions = append(conditions, capiv1alpha3.Condition{
+						Type:   capiv1alpha3.ReadyCondition,
+						Status: corev1.ConditionTrue,
+					})
+					cluster.(*tkgsv1alpha2.TanzuKubernetesCluster).Status.Conditions = conditions
 					return nil
 				})
-				err = clstClient.WaitForPacificCluster("fake-clusterName", "fake-namespace", "fake-version")
+				err = clstClient.WaitForPacificCluster("fake-clusterName", "fake-namespace")
 			})
 			It("should not return an error", func() {
 				Expect(err).NotTo(HaveOccurred())
+			})
+		})
+	})
+
+	Describe("Patch kubernetes version for Pacific Cluster", func() {
+		BeforeEach(func() {
+			reInitialize()
+			kubeConfigPath := getConfigFilePath("config1.yaml")
+			clstClient, err = NewClient(kubeConfigPath, "", clusterClientOptions)
+			Expect(err).NotTo(HaveOccurred())
+		})
+		Context("When clientset Get api to get ManagedCluster(pacific cluster) object return error", func() {
+			JustBeforeEach(func() {
+				clientset.GetReturns(errors.New("fake-error"))
+				err = clstClient.PatchK8SVersionToPacificCluster("fake-clusterName", "fake-namespace", "fake-kubernetes-version")
+			})
+			It("should return an error", func() {
+				Expect(err).To(HaveOccurred())
+				Expect(err.Error()).To(ContainSubstring("failed to get"))
+				Expect(err.Error()).To(ContainSubstring("fake-error"))
+			})
+		})
+		Context("When clientset Patch api return error", func() {
+			JustBeforeEach(func() {
+				clientset.GetCalls(func(ctx context.Context, namespace types.NamespacedName, cluster crtclient.Object) error {
+					tkc := getDummyPacificCluster()
+					*(cluster.(*tkgsv1alpha2.TanzuKubernetesCluster)) = tkc
+					return nil
+				})
+				clientset.PatchReturns(errors.New("fake-patch-error"))
+				err = clstClient.PatchK8SVersionToPacificCluster("fake-clusterName", "fake-namespace", "fake-kubernetes-version")
+			})
+			It("should return an error", func() {
+				Expect(err).To(HaveOccurred())
+				Expect(err.Error()).To(ContainSubstring("unable to patch the k8s version for tkc object"))
+			})
+		})
+		Context("When clientset Patch api return success", func() {
+			var gotPatch string
+			JustBeforeEach(func() {
+				clientset.GetCalls(func(ctx context.Context, namespace types.NamespacedName, cluster crtclient.Object) error {
+					tkc := getDummyPacificCluster()
+					*(cluster.(*tkgsv1alpha2.TanzuKubernetesCluster)) = tkc
+					return nil
+				})
+				clientset.PatchCalls(func(ctx context.Context, cluster crtclient.Object, patch crtclient.Patch, patchoptions ...crtclient.PatchOption) error {
+					patchBytes, err := patch.Data(cluster)
+					Expect(err).NotTo(HaveOccurred())
+					gotPatch = string(patchBytes)
+					return nil
+				})
+				err = clstClient.PatchK8SVersionToPacificCluster("fake-clusterName", "fake-namespace", "1.22.10---vmware.1-tkg.1.abc")
+			})
+			It("should not return an error", func() {
+				Expect(err).ToNot(HaveOccurred())
+				controlPlaneJSONPatchString := `{"op":"replace","path":"/spec/topology/controlPlane/tkr/reference/name","value":"v1.22.10---vmware.1-tkg.1.abc"}`
+				nodePool0JSONPatchString := `{"op":"replace","path":"/spec/topology/nodePools/0/tkr/reference/name","value":"v1.22.10---vmware.1-tkg.1.abc"}`
+				nodePool1JSONPatchString := `{"op":"replace","path":"/spec/topology/nodePools/1/tkr/reference/name","value":"v1.22.10---vmware.1-tkg.1.abc"}`
+				Expect(gotPatch).To(ContainSubstring(controlPlaneJSONPatchString))
+				Expect(gotPatch).To(ContainSubstring(nodePool0JSONPatchString))
+				Expect(gotPatch).To(ContainSubstring(nodePool1JSONPatchString))
 			})
 		})
 	})
@@ -1045,7 +1245,7 @@ var _ = Describe("Cluster Client", func() {
 			mdReplicas = Replicas{SpecReplica: 3, Replicas: 3, ReadyReplicas: 3, UpdatedReplicas: 3}
 		})
 		JustBeforeEach(func() {
-			clientset.ListCalls(func(ctx context.Context, o runtime.Object, opts ...crtclient.ListOption) error {
+			clientset.ListCalls(func(ctx context.Context, o crtclient.ObjectList, opts ...crtclient.ListOption) error {
 				switch o := o.(type) {
 				case *capi.MachineList:
 				case *capi.MachineDeploymentList:
@@ -1062,7 +1262,7 @@ var _ = Describe("Cluster Client", func() {
 
 		Context("When ControlPlaneReady condition is not true", func() {
 			BeforeEach(func() {
-				clientset.GetCalls(func(ctx context.Context, namespace types.NamespacedName, cluster runtime.Object) error {
+				clientset.GetCalls(func(ctx context.Context, namespace types.NamespacedName, cluster crtclient.Object) error {
 					conditions := capi.Conditions{}
 					conditions = append(conditions, capi.Condition{
 						Type:    capi.ControlPlaneReadyCondition,
@@ -1082,7 +1282,7 @@ var _ = Describe("Cluster Client", func() {
 
 		Context("When failure happens while waiting for CP nodes k8s version update", func() {
 			BeforeEach(func() {
-				clientset.GetCalls(func(ctx context.Context, namespace types.NamespacedName, cluster runtime.Object) error {
+				clientset.GetCalls(func(ctx context.Context, namespace types.NamespacedName, cluster crtclient.Object) error {
 					conditions := capi.Conditions{}
 					conditions = append(conditions, capi.Condition{
 						Type:     capi.ReadyCondition,
@@ -1104,7 +1304,7 @@ var _ = Describe("Cluster Client", func() {
 		Context("When discovery client's server version api return error", func() {
 			BeforeEach(func() {
 				discoveryClient.ServerVersionReturns(nil, errors.New("fake-error-while-getting-k8s-server-version"))
-				clientset.GetCalls(func(ctx context.Context, namespace types.NamespacedName, cluster runtime.Object) error {
+				clientset.GetCalls(func(ctx context.Context, namespace types.NamespacedName, cluster crtclient.Object) error {
 					conditions := capi.Conditions{}
 					conditions = append(conditions, capi.Condition{
 						Type:   capi.ControlPlaneReadyCondition,
@@ -1123,7 +1323,7 @@ var _ = Describe("Cluster Client", func() {
 			BeforeEach(func() {
 				version := version.Info{GitVersion: "fake-wrong-version"}
 				discoveryClient.ServerVersionReturns(&version, nil)
-				clientset.GetCalls(func(ctx context.Context, namespace types.NamespacedName, cluster runtime.Object) error {
+				clientset.GetCalls(func(ctx context.Context, namespace types.NamespacedName, cluster crtclient.Object) error {
 					conditions := capi.Conditions{}
 					conditions = append(conditions, capi.Condition{
 						Type:   capi.ControlPlaneReadyCondition,
@@ -1142,7 +1342,7 @@ var _ = Describe("Cluster Client", func() {
 			BeforeEach(func() {
 				version := version.Info{GitVersion: "fake-version"}
 				discoveryClient.ServerVersionReturns(&version, nil)
-				clientset.GetCalls(func(ctx context.Context, namespace types.NamespacedName, cluster runtime.Object) error {
+				clientset.GetCalls(func(ctx context.Context, namespace types.NamespacedName, cluster crtclient.Object) error {
 					conditions := capi.Conditions{}
 					conditions = append(conditions, capi.Condition{
 						Type:   capi.ControlPlaneReadyCondition,
@@ -1173,7 +1373,7 @@ var _ = Describe("Cluster Client", func() {
 			machineObjects = []capi.Machine{}
 		})
 		JustBeforeEach(func() {
-			clientset.ListCalls(func(ctx context.Context, o runtime.Object, opts ...crtclient.ListOption) error {
+			clientset.ListCalls(func(ctx context.Context, o crtclient.ObjectList, opts ...crtclient.ListOption) error {
 				switch o := o.(type) {
 				case *capi.MachineList:
 					o.Items = append(o.Items, machineObjects...)
@@ -1269,62 +1469,65 @@ var _ = Describe("Cluster Client", func() {
 			clstClient, err = NewClient(kubeConfigPath, "", clusterClientOptions)
 			Expect(err).NotTo(HaveOccurred())
 
-			machineObjects = []capi.Machine{}
+			v1a3machineObjects = []capiv1alpha3.Machine{}
 		})
 		JustBeforeEach(func() {
-			clientset.ListCalls(func(ctx context.Context, o runtime.Object, opts ...crtclient.ListOption) error {
+			clientset.ListCalls(func(ctx context.Context, o crtclient.ObjectList, opts ...crtclient.ListOption) error {
 				switch o := o.(type) {
-				case *capi.MachineList:
-					o.Items = append(o.Items, machineObjects...)
+				case *capiv1alpha3.MachineList:
+					o.Items = append(o.Items, v1a3machineObjects...)
 				default:
 					return errors.New("invalid object type")
 				}
 				return nil
 			})
-			phaseMap := make(map[string]string)
-			phaseMap["phase"] = tkcPhase
-			fakeObj := getDummyPacificManagedClusterObj(phaseMap)
-			clientset.GetCalls(func(ctx context.Context, namespace types.NamespacedName, cluster runtime.Object) error {
-				clusterObj := cluster.(*unstructured.Unstructured)
-				*clusterObj = fakeObj
+			clientset.GetCalls(func(ctx context.Context, namespace types.NamespacedName, cluster crtclient.Object) error {
+
+				cluster.(*tkgsv1alpha2.TanzuKubernetesCluster).Status.Conditions = tkcConditions
 				return nil
 			})
-			err = clstClient.WaitForPacificClusterK8sVersionUpdate("fake-cluster-name", "fake-cluster-namespace", "fake-api-version", "fake-new-version-xyz.1.bba948a")
+			err = clstClient.WaitForPacificClusterK8sVersionUpdate("fake-cluster-name", "fake-cluster-namespace", "fake-new-version-xyz.1.bba948a")
 		})
 
-		Context("When cluster status is 'updateFailed", func() {
+		Context("When cluster 'Ready` condition was 'False' and severity was set to 'Error' ", func() {
 			BeforeEach(func() {
-				tkcPhase = "updateFailed"
+				tkcConditions = capiv1alpha3.Conditions{}
+				tkcConditions = append(tkcConditions, capiv1alpha3.Condition{
+					Type:     capiv1alpha3.ReadyCondition,
+					Status:   corev1.ConditionFalse,
+					Severity: capiv1alpha3.ConditionSeverityError,
+				})
 			})
 			It("should return an update failed error", func() {
 				Expect(err).To(HaveOccurred())
 				Expect(err.Error()).To(ContainSubstring("cluster kubernetes version update failed"))
 			})
 		})
-		Context("When cluster status is 'deleting", func() {
+
+		Context("When cluster 'Ready` condition was 'False' and severity was set to 'Warning'", func() {
 			BeforeEach(func() {
-				tkcPhase = "deleting"
-			})
-			It("should return an update failed error", func() {
-				Expect(err).To(HaveOccurred())
-				Expect(err.Error()).To(ContainSubstring("cluster kubernetes version update failed"))
-			})
-		})
-		Context("When cluster status is 'updating", func() {
-			BeforeEach(func() {
-				tkcPhase = "updating"
+				tkcConditions = capiv1alpha3.Conditions{}
+				tkcConditions = append(tkcConditions, capiv1alpha3.Condition{
+					Type:     capiv1alpha3.ReadyCondition,
+					Status:   corev1.ConditionFalse,
+					Severity: capiv1alpha3.ConditionSeverityWarning,
+				})
 			})
 			It("should return an update in progress error", func() {
 				Expect(err).To(HaveOccurred())
 				Expect(err.Error()).To(ContainSubstring("cluster kubernetes version is still being upgraded"))
 			})
 		})
-		Context("When cluster status is 'running", func() {
+		Context("When cluster 'Ready` condition was 'True'", func() {
 			Context("When some worker machine objects has old k8s version", func() {
 				BeforeEach(func() {
-					tkcPhase = statusRunning
-					machineObjects = append(machineObjects, getDummyMachine("fake-machine-1", "fake-new-version", false))
-					machineObjects = append(machineObjects, getDummyMachine("fake-machine-2", "fake-old-version", false))
+					tkcConditions = capiv1alpha3.Conditions{}
+					tkcConditions = append(tkcConditions, capiv1alpha3.Condition{
+						Type:   capiv1alpha3.ReadyCondition,
+						Status: corev1.ConditionTrue,
+					})
+					v1a3machineObjects = append(v1a3machineObjects, getv1alpha3DummyMachine("fake-machine-1", "fake-new-version", false))
+					v1a3machineObjects = append(v1a3machineObjects, getv1alpha3DummyMachine("fake-machine-2", "fake-old-version", false))
 				})
 				It("should not return error", func() {
 					Expect(err).To(HaveOccurred())
@@ -1333,9 +1536,13 @@ var _ = Describe("Cluster Client", func() {
 			})
 			Context("When all worker machine objects has new k8s version", func() {
 				BeforeEach(func() {
-					tkcPhase = statusRunning
-					machineObjects = append(machineObjects, getDummyMachine("fake-machine-1", "fake-new-version", false))
-					machineObjects = append(machineObjects, getDummyMachine("fake-machine-1", "fake-new-version", false))
+					tkcConditions = capiv1alpha3.Conditions{}
+					tkcConditions = append(tkcConditions, capiv1alpha3.Condition{
+						Type:   capiv1alpha3.ReadyCondition,
+						Status: corev1.ConditionTrue,
+					})
+					v1a3machineObjects = append(v1a3machineObjects, getv1alpha3DummyMachine("fake-machine-1", "fake-new-version", false))
+					v1a3machineObjects = append(v1a3machineObjects, getv1alpha3DummyMachine("fake-machine-1", "fake-new-version", false))
 				})
 				It("should not return error", func() {
 					Expect(err).ToNot(HaveOccurred())
@@ -1408,7 +1615,7 @@ var _ = Describe("Cluster Client", func() {
 
 		JustBeforeEach(func() {
 			reInitialize()
-			fakeClientSet = fake.NewFakeClientWithScheme(scheme, fakehelper.NewDaemonSet(kubeProxyDSCreateOption))
+			fakeClientSet = fake.NewClientBuilder().WithScheme(scheme).WithRuntimeObjects(fakehelper.NewDaemonSet(kubeProxyDSCreateOption)).Build()
 			crtClientFactory.NewClientReturns(fakeClientSet, nil)
 			clusterClientOptions = NewOptions(poller, crtClientFactory, discoveryClientFactory, nil)
 
@@ -1473,7 +1680,7 @@ var _ = Describe("Cluster Client", func() {
 
 		Context("When Cluster API Provider AWS isn't present", func() {
 			BeforeEach(func() {
-				fakeClientSet = fake.NewFakeClientWithScheme(scheme)
+				fakeClientSet = fake.NewClientBuilder().WithScheme(scheme).Build()
 				crtClientFactory.NewClientReturns(fakeClientSet, nil)
 				clusterClientOptions = NewOptions(poller, crtClientFactory, discoveryClientFactory, nil)
 
@@ -1488,9 +1695,9 @@ var _ = Describe("Cluster Client", func() {
 
 		Context("When Cluster API Provider AWS is present", func() {
 			BeforeEach(func() {
-				fakeClientSet = fake.NewFakeClientWithScheme(scheme,
+				fakeClientSet = fake.NewClientBuilder().WithScheme(scheme).WithRuntimeObjects(
 					fakehelper.NewClusterAPIAWSControllerComponents()...,
-				)
+				).Build()
 				crtClientFactory.NewClientReturns(fakeClientSet, nil)
 				clusterClientOptions = NewOptions(poller, crtClientFactory, discoveryClientFactory, nil)
 
@@ -1549,7 +1756,7 @@ var _ = Describe("Cluster Client", func() {
 			reInitialize()
 			kubeadmconfigMap, err = getKubeadmConfigConfigMap("kubeadm-config1.yaml")
 			Expect(err).NotTo(HaveOccurred())
-			fakeClientSet = fake.NewFakeClientWithScheme(scheme, kubeadmconfigMap)
+			fakeClientSet = fake.NewClientBuilder().WithScheme(scheme).WithRuntimeObjects(kubeadmconfigMap).Build()
 			crtClientFactory.NewClientReturns(fakeClientSet, nil)
 			clusterClientOptions = NewOptions(poller, crtClientFactory, discoveryClientFactory, nil)
 
@@ -1670,7 +1877,7 @@ var _ = Describe("Cluster Client", func() {
 			It("should not return an error", func() {
 				clientset.GetReturns(nil)
 				clientset.PatchReturns(nil)
-				clientset.GetCalls(func(ctx context.Context, name types.NamespacedName, secret runtime.Object) error {
+				clientset.GetCalls(func(ctx context.Context, name types.NamespacedName, secret crtclient.Object) error {
 					data := map[string][]byte{
 						"username": []byte(username),
 						"password": []byte(password),
@@ -1686,7 +1893,7 @@ var _ = Describe("Cluster Client", func() {
 			It("should not return an error when secret not present", func() {
 				clientset.GetReturns(nil)
 				clientset.PatchReturns(nil)
-				clientset.GetCalls(func(ctx context.Context, name types.NamespacedName, secret runtime.Object) error {
+				clientset.GetCalls(func(ctx context.Context, name types.NamespacedName, secret crtclient.Object) error {
 					return apierrors.NewNotFound(schema.GroupResource{Group: "", Resource: "Secret"}, "not found")
 				})
 
@@ -1697,7 +1904,7 @@ var _ = Describe("Cluster Client", func() {
 			It("should return an error when clientset patch returns an error", func() {
 				clientset.GetReturns(nil)
 				clientset.PatchReturns(nil)
-				clientset.GetCalls(func(ctx context.Context, name types.NamespacedName, secret runtime.Object) error {
+				clientset.GetCalls(func(ctx context.Context, name types.NamespacedName, secret crtclient.Object) error {
 					return errors.New("dummy")
 				})
 
@@ -1710,7 +1917,7 @@ var _ = Describe("Cluster Client", func() {
 			It("should not return an error", func() {
 				clientset.GetReturns(nil)
 				clientset.PatchReturns(nil)
-				clientset.GetCalls(func(ctx context.Context, name types.NamespacedName, secret runtime.Object) error {
+				clientset.GetCalls(func(ctx context.Context, name types.NamespacedName, secret crtclient.Object) error {
 					data := map[string][]byte{
 						"values.yaml": []byte(cpiCreds),
 					}
@@ -1725,7 +1932,7 @@ var _ = Describe("Cluster Client", func() {
 			It("should return an error if clientset patch returns error", func() {
 				clientset.GetReturns(nil)
 				clientset.PatchReturns(errors.New("dummy"))
-				clientset.GetCalls(func(ctx context.Context, name types.NamespacedName, secret runtime.Object) error {
+				clientset.GetCalls(func(ctx context.Context, name types.NamespacedName, secret crtclient.Object) error {
 					data := map[string][]byte{
 						"values.yaml": []byte(cpiCreds),
 					}
@@ -1747,7 +1954,7 @@ var _ = Describe("Cluster Client", func() {
 					"credentials.yaml": []byte(creds),
 				}
 
-				clientset.ListCalls(func(ctx context.Context, o runtime.Object, option ...crtclient.ListOption) error {
+				clientset.ListCalls(func(ctx context.Context, o crtclient.ObjectList, option ...crtclient.ListOption) error {
 					switch o := o.(type) {
 					case *corev1.SecretList:
 						o.Items = append(o.Items, getDummySecret("capv-manager-bootstrap-credentials", secretData, map[string]string{}))
@@ -1767,7 +1974,7 @@ var _ = Describe("Cluster Client", func() {
 					"credentials.yaml": []byte(creds),
 				}
 
-				clientset.ListCalls(func(ctx context.Context, o runtime.Object, option ...crtclient.ListOption) error {
+				clientset.ListCalls(func(ctx context.Context, o crtclient.ObjectList, option ...crtclient.ListOption) error {
 					switch o := o.(type) {
 					case *corev1.SecretList:
 						o.Items = append(o.Items, getDummySecret("capv-manager-bootstrap-credentials", secretData, map[string]string{}))
@@ -1784,7 +1991,7 @@ var _ = Describe("Cluster Client", func() {
 					clientset.GetReturns(nil)
 					clientset.PatchReturns(nil)
 
-					clientset.GetCalls(func(ctx context.Context, name types.NamespacedName, secret runtime.Object) error {
+					clientset.GetCalls(func(ctx context.Context, name types.NamespacedName, secret crtclient.Object) error {
 						data := map[string][]byte{
 							"values.yaml": []byte(csiCreds),
 						}
@@ -1799,7 +2006,7 @@ var _ = Describe("Cluster Client", func() {
 					clientset.GetReturns(nil)
 					clientset.PatchReturns(errors.New("dummy"))
 
-					clientset.GetCalls(func(ctx context.Context, name types.NamespacedName, secret runtime.Object) error {
+					clientset.GetCalls(func(ctx context.Context, name types.NamespacedName, secret crtclient.Object) error {
 						data := map[string][]byte{
 							"values.yaml": []byte(csiCreds),
 						}
@@ -1831,12 +2038,12 @@ var _ = Describe("Cluster Client", func() {
 
 		JustBeforeEach(func() {
 			if initClientWithKappDeployment {
-				fakeClientSet = fake.NewFakeClientWithScheme(scheme,
+				fakeClientSet = fake.NewClientBuilder().WithScheme(scheme).WithRuntimeObjects(
 					fakehelper.NewDeployment(kappControllerDpCreateOption),
 					fakehelper.NewClusterRoleBinding(kappControllerClusterRoleBindingCreateOption),
 					fakehelper.NewClusterRole(kappControllerClusterRoleCreateOption),
 					fakehelper.NewServiceAccount(kappControllerServiceAccountCreateOption),
-				)
+				).Build()
 				crtClientFactory.NewClientReturns(fakeClientSet, nil)
 			}
 			clusterClientOptions = NewOptions(poller, crtClientFactory, discoveryClientFactory, nil)
@@ -1950,13 +2157,13 @@ var _ = Describe("Cluster Client", func() {
 		BeforeEach(func() {
 			reInitialize()
 
-			fakeClientSet = fake.NewFakeClientWithScheme(scheme,
+			fakeClientSet = fake.NewClientBuilder().WithScheme(scheme).WithRuntimeObjects(
 				fakehelper.NewAWSCluster(fakehelper.TestAWSClusterOptions{
 					Name:      "fake-clusterName",
 					Namespace: "fake-namespace",
 					Region:    "us-east-1",
 				}),
-			)
+			).Build()
 			crtClientFactory.NewClientReturns(fakeClientSet, nil)
 
 			clusterClientOptions = NewOptions(poller, crtClientFactory, discoveryClientFactory, nil)
@@ -1970,15 +2177,15 @@ var _ = Describe("Cluster Client", func() {
 				err = clstClient.UpdateAWSCNIIngressRules("fake-clusterName", "fake-namespace")
 				Expect(err).NotTo(HaveOccurred())
 
-				awsCluster := &capav1alpha3.AWSCluster{}
+				awsCluster := &capav1beta1.AWSCluster{}
 				err = clstClient.GetResource(awsCluster, "fake-clusterName", "fake-namespace", nil, nil)
 				Expect(err).NotTo(HaveOccurred())
 
 				ingressRules := awsCluster.Spec.NetworkSpec.CNI.CNIIngressRules
-				expectedIngressRules := capav1alpha3.CNIIngressRules{
+				expectedIngressRules := capav1beta1.CNIIngressRules{
 					{
 						Description: "kapp-controller",
-						Protocol:    capav1alpha3.SecurityGroupProtocolTCP,
+						Protocol:    capav1beta1.SecurityGroupProtocolTCP,
 						FromPort:    DefaultKappControllerHostPort,
 						ToPort:      DefaultKappControllerHostPort,
 					},
@@ -1989,15 +2196,15 @@ var _ = Describe("Cluster Client", func() {
 
 		Context("When there are existing CNI Ingress Rules", func() {
 			JustBeforeEach(func() {
-				awsCluster := &capav1alpha3.AWSCluster{}
+				awsCluster := &capav1beta1.AWSCluster{}
 				err = clstClient.GetResource(awsCluster, "fake-clusterName", "fake-namespace", nil, nil)
 				Expect(err).NotTo(HaveOccurred())
 
-				awsCluster.Spec.NetworkSpec.CNI = &capav1alpha3.CNISpec{
-					CNIIngressRules: capav1alpha3.CNIIngressRules{
+				awsCluster.Spec.NetworkSpec.CNI = &capav1beta1.CNISpec{
+					CNIIngressRules: capav1beta1.CNIIngressRules{
 						{
 							Description: "antrea-controller",
-							Protocol:    capav1alpha3.SecurityGroupProtocolTCP,
+							Protocol:    capav1beta1.SecurityGroupProtocolTCP,
 							FromPort:    10349,
 							ToPort:      10349,
 						},
@@ -2011,21 +2218,21 @@ var _ = Describe("Cluster Client", func() {
 				err = clstClient.UpdateAWSCNIIngressRules("fake-clusterName", "fake-namespace")
 				Expect(err).NotTo(HaveOccurred())
 
-				awsCluster := &capav1alpha3.AWSCluster{}
+				awsCluster := &capav1beta1.AWSCluster{}
 				err = clstClient.GetResource(awsCluster, "fake-clusterName", "fake-namespace", nil, nil)
 				Expect(err).NotTo(HaveOccurred())
 
 				ingressRules := awsCluster.Spec.NetworkSpec.CNI.CNIIngressRules
-				expectedIngressRules := capav1alpha3.CNIIngressRules{
+				expectedIngressRules := capav1beta1.CNIIngressRules{
 					{
 						Description: "antrea-controller",
-						Protocol:    capav1alpha3.SecurityGroupProtocolTCP,
+						Protocol:    capav1beta1.SecurityGroupProtocolTCP,
 						FromPort:    10349,
 						ToPort:      10349,
 					},
 					{
 						Description: "kapp-controller",
-						Protocol:    capav1alpha3.SecurityGroupProtocolTCP,
+						Protocol:    capav1beta1.SecurityGroupProtocolTCP,
 						FromPort:    DefaultKappControllerHostPort,
 						ToPort:      DefaultKappControllerHostPort,
 					},
@@ -2036,15 +2243,15 @@ var _ = Describe("Cluster Client", func() {
 
 		Context("When kapp-controller CNI Ingress Rules already exist", func() {
 			JustBeforeEach(func() {
-				awsCluster := &capav1alpha3.AWSCluster{}
+				awsCluster := &capav1beta1.AWSCluster{}
 				err = clstClient.GetResource(awsCluster, "fake-clusterName", "fake-namespace", nil, nil)
 				Expect(err).NotTo(HaveOccurred())
 
-				awsCluster.Spec.NetworkSpec.CNI = &capav1alpha3.CNISpec{
-					CNIIngressRules: capav1alpha3.CNIIngressRules{
+				awsCluster.Spec.NetworkSpec.CNI = &capav1beta1.CNISpec{
+					CNIIngressRules: capav1beta1.CNIIngressRules{
 						{
 							Description: "kapp-controller",
-							Protocol:    capav1alpha3.SecurityGroupProtocolTCP,
+							Protocol:    capav1beta1.SecurityGroupProtocolTCP,
 							FromPort:    DefaultKappControllerHostPort,
 							ToPort:      DefaultKappControllerHostPort,
 						},
@@ -2058,15 +2265,15 @@ var _ = Describe("Cluster Client", func() {
 				err = clstClient.UpdateAWSCNIIngressRules("fake-clusterName", "fake-namespace")
 				Expect(err).NotTo(HaveOccurred())
 
-				awsCluster := &capav1alpha3.AWSCluster{}
+				awsCluster := &capav1beta1.AWSCluster{}
 				err = clstClient.GetResource(awsCluster, "fake-clusterName", "fake-namespace", nil, nil)
 				Expect(err).NotTo(HaveOccurred())
 
 				ingressRules := awsCluster.Spec.NetworkSpec.CNI.CNIIngressRules
-				expectedIngressRules := capav1alpha3.CNIIngressRules{
+				expectedIngressRules := capav1beta1.CNIIngressRules{
 					{
 						Description: "kapp-controller",
-						Protocol:    capav1alpha3.SecurityGroupProtocolTCP,
+						Protocol:    capav1beta1.SecurityGroupProtocolTCP,
 						FromPort:    DefaultKappControllerHostPort,
 						ToPort:      DefaultKappControllerHostPort,
 					},
@@ -2091,7 +2298,7 @@ var _ = Describe("Cluster Client", func() {
 		})
 		JustBeforeEach(func() {
 			fdoObj := getDummyPinnipedInfoConfigMap(configMapData)
-			clientset.GetCalls(func(ctx context.Context, namespace types.NamespacedName, o runtime.Object) error {
+			clientset.GetCalls(func(ctx context.Context, namespace types.NamespacedName, o crtclient.Object) error {
 				switch o := o.(type) {
 				case *corev1.ConfigMap:
 					*o = fdoObj
@@ -2145,7 +2352,7 @@ var _ = Describe("Cluster Client", func() {
 			Expect(err).NotTo(HaveOccurred())
 		})
 		JustBeforeEach(func() {
-			clientset.ListCalls(func(ctx context.Context, o runtime.Object, options ...crtclient.ListOption) error {
+			clientset.ListCalls(func(ctx context.Context, o crtclient.ObjectList, options ...crtclient.ListOption) error {
 				switch o := o.(type) {
 				case *runv1alpha1.TanzuKubernetesReleaseList:
 					o.Items = tkrsToBeReturned
@@ -2225,14 +2432,6 @@ func copyFile(sourceFile, destFile string) {
 	_ = os.WriteFile(destFile, input, constants.ConfigFilePermissions)
 }
 
-func getDummyPacificManagedClusterObj(phaseobj interface{}) unstructured.Unstructured {
-	fakeObj := unstructured.Unstructured{}
-	objectMap := make(map[string]interface{})
-	objectMap["status"] = phaseobj
-	fakeObj.Object = objectMap
-	return fakeObj
-}
-
 func getDummyPinnipedInfoConfigMap(configMapData map[string]string) corev1.ConfigMap {
 	fakeConfigMap := corev1.ConfigMap{}
 	fakeConfigMap.Data = configMapData
@@ -2250,7 +2449,7 @@ func getDummyKCP(specReplica, replicas, readyReplicas, updatedReplicas int32) co
 	kcp.Status.Replicas = replicas
 	kcp.Status.ReadyReplicas = readyReplicas
 	kcp.Status.UpdatedReplicas = updatedReplicas
-	kcp.Spec.InfrastructureTemplate.Kind = infrastructureTemplateKind
+	kcp.Spec.MachineTemplate.InfrastructureRef.Kind = infrastructureTemplateKind
 	return kcp
 }
 
@@ -2287,9 +2486,63 @@ func getDummyMachine(name, currentK8sVersion string, isCP bool) capi.Machine {
 	return machine
 }
 
+func getv1alpha3DummyMachine(name, currentK8sVersion string, isCP bool) capiv1alpha3.Machine { //nolint:unparam
+	// TODO: Add test cases where isCP is true, currently there are no such tests
+	machine := capiv1alpha3.Machine{}
+	machine.Name = name
+	machine.Namespace = fakeMdNameSpace
+	machine.Spec.Version = &currentK8sVersion
+	machine.Labels = map[string]string{}
+	if isCP {
+		machine.Labels["cluster.x-k8s.io/control-plane"] = ""
+	}
+	return machine
+}
+
 func getKubeadmConfigConfigMap(filename string) (*corev1.ConfigMap, error) {
 	configMapBytes := getConfigMapFileData(filename)
 	configMap := &corev1.ConfigMap{}
 	err := yaml.Unmarshal(configMapBytes, configMap)
 	return configMap, err
+}
+
+func getDummyPacificCluster() tkgsv1alpha2.TanzuKubernetesCluster {
+	var controlPlaneReplicas int32 = 1
+	var nodepoolReplicase int32 = 2
+	controlPlane := tkgsv1alpha2.TopologySettings{
+		Replicas: &controlPlaneReplicas,
+		TKR: tkgsv1alpha2.TKRReference{
+			Reference: &corev1.ObjectReference{
+				Name: "dummy-tkr",
+			},
+		},
+	}
+	nodepools := []tkgsv1alpha2.NodePool{
+		{Name: "nodepool-1",
+			TopologySettings: tkgsv1alpha2.TopologySettings{
+				Replicas: &nodepoolReplicase,
+				TKR: tkgsv1alpha2.TKRReference{
+					Reference: &corev1.ObjectReference{
+						Name: "dummy-tkr",
+					},
+				},
+			},
+		},
+		{Name: "nodepool-2",
+			TopologySettings: tkgsv1alpha2.TopologySettings{
+				Replicas: &nodepoolReplicase,
+				TKR: tkgsv1alpha2.TKRReference{
+					Reference: &corev1.ObjectReference{
+						Name: "dummy-tkr",
+					},
+				},
+			},
+		},
+	}
+
+	tkc := tkgsv1alpha2.TanzuKubernetesCluster{}
+	tkc.ClusterName = "DummyTKC"
+	tkc.Spec.Topology.ControlPlane = controlPlane
+	tkc.Spec.Topology.NodePools = nodepools
+	return tkc
 }

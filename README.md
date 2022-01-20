@@ -1,5 +1,7 @@
 # Tanzu Framework
 
+[![Go Reference](https://pkg.go.dev/badge/github.com/vmware-tanzu/tanzu-framework.svg)](https://pkg.go.dev/github.com/vmware-tanzu/tanzu-framework)
+
 ## Overview
 
 Tanzu Framework provides a set of building blocks to build atop of the [Tanzu](https://tanzu.vmware.com/tanzu) platform, which includes the following:
@@ -8,7 +10,7 @@ Tanzu Framework provides a set of building blocks to build atop of the [Tanzu](h
 * **CLI Machinery:** For extending the command line experience
 * **Packages:** For consistent delivery of core and optional components
 
-Framework leverages [Carvel](https://carvel.dev/) packaging and plugins to provide users with a much stronger, more integrated experience than than the loose coupling and stand-alone commands of the previous generation of tools.
+Framework leverages [Carvel](https://carvel.dev/) packaging and plugins to provide users with a much stronger, more integrated experience than the loose coupling and stand-alone commands of the previous generation of tools.
 
 ## Documentation
 
@@ -16,7 +18,7 @@ The [documentation](docs) provides a getting started guide and information about
 
 ## Getting Started
 
-The best way to get started with the Tanzu is by using the CLI.  Please see our getting started with the CLI [guide](docs/cli/getting-started.md) for more details.
+The best way to get started with Tanzu Framework is by using the CLI. Please see our getting started with the CLI [guide](docs/cli/getting-started.md) for more details.
 
 ## Contributing
 
@@ -30,4 +32,4 @@ Thanks for taking the time to join our community and start contributing! We welc
 
 ## Roadmap
 
-Check out Framework projects [Roadmap](ROADMAP.md), and consider contributing!
+Check out Framework's project [Roadmap](ROADMAP.md) and consider contributing!

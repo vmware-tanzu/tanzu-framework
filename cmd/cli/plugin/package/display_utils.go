@@ -32,7 +32,7 @@ func DisplayProgress(initialMsg string, pp *tkgpackagedatamodel.PackageProgress)
 		return err
 	}
 
-	writeProgress := func(s *spinner.Spinner, msg string) error {
+	writeProgressToSpinner := func(s *spinner.Spinner, msg string) error {
 		s.Stop()
 		if s, err = newSpinner(); err != nil {
 			return err
@@ -45,7 +45,6 @@ func DisplayProgress(initialMsg string, pp *tkgpackagedatamodel.PackageProgress)
 
 	s.Suffix = fmt.Sprintf(" %s", initialMsg)
 	s.Start()
-
 	defer func() {
 		s.Stop()
 	}()
@@ -56,7 +55,7 @@ func DisplayProgress(initialMsg string, pp *tkgpackagedatamodel.PackageProgress)
 			return err
 		case msg := <-pp.ProgressMsg:
 			if msg != currMsg {
-				if err := writeProgress(s, msg); err != nil {
+				if err := writeProgressToSpinner(s, msg); err != nil {
 					return err
 				}
 				currMsg = msg
@@ -66,7 +65,7 @@ func DisplayProgress(initialMsg string, pp *tkgpackagedatamodel.PackageProgress)
 				if msg == currMsg {
 					continue
 				}
-				if err := writeProgress(s, msg); err != nil {
+				if err := writeProgressToSpinner(s, msg); err != nil {
 					return err
 				}
 				currMsg = msg

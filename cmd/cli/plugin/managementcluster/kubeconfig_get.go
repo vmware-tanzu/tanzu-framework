@@ -65,19 +65,19 @@ func getClusterKubeconfig(server *v1alpha1.Server) error {
 		return err
 	}
 
-	if getKCOptions.adminKubeconfig {
-		return getAdminKubeconfig(tkgctlClient, server)
-	}
-	return getPinnipedKubeconfig(tkgctlClient)
-}
-
-func getAdminKubeconfig(tkgctlClient tkgctl.TKGClient, server *v1alpha1.Server) error {
 	mcClustername, err := tkgutils.GetClusterNameFromKubeconfigAndContext(server.ManagementClusterOpts.Path,
 		server.ManagementClusterOpts.Context)
 	if err != nil {
 		return errors.Wrap(err, "failed to get management cluster name from kubeconfig")
 	}
 
+	if getKCOptions.adminKubeconfig {
+		return getAdminKubeconfig(tkgctlClient, mcClustername)
+	}
+	return getPinnipedKubeconfig(tkgctlClient, mcClustername)
+}
+
+func getAdminKubeconfig(tkgctlClient tkgctl.TKGClient, mcClustername string) error {
 	getClusterCredentialsOptions := tkgctl.GetWorkloadClusterCredentialsOptions{
 		ClusterName: mcClustername,
 		Namespace:   TKGSystemNamespace,
@@ -86,8 +86,10 @@ func getAdminKubeconfig(tkgctlClient tkgctl.TKGClient, server *v1alpha1.Server) 
 	return tkgctlClient.GetCredentials(getClusterCredentialsOptions)
 }
 
-func getPinnipedKubeconfig(tkgctlClient tkgctl.TKGClient) error {
+func getPinnipedKubeconfig(tkgctlClient tkgctl.TKGClient, mcClustername string) error {
 	getClusterPinnipedInfoOptions := tkgctl.GetClusterPinnipedInfoOptions{
+		ClusterName:         mcClustername,
+		Namespace:           TKGSystemNamespace,
 		IsManagementCluster: true,
 	}
 

@@ -6,6 +6,7 @@ package cmd
 import (
 	"github.com/spf13/cobra"
 
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/config"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/log"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgctl"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/utils"
@@ -82,6 +83,7 @@ func runGenerateClusterConfig(name string, options *createClusterOptions) error 
 }
 
 func buildCreateClusterOption(name, tkrVersion string, options *createClusterOptions) tkgctl.CreateClusterOptions {
+	edition, _ := config.GetEdition()
 	return tkgctl.CreateClusterOptions{
 		ClusterConfigFile:           options.clusterConfigFile,
 		ClusterName:                 name,
@@ -100,5 +102,6 @@ func buildCreateClusterOption(name, tkrVersion string, options *createClusterOpt
 		VsphereControlPlaneEndpoint: options.vsphereControlPlaneEndpoint,
 		SkipPrompt:                  options.unattended || skipPrompt,
 		Timeout:                     options.timeout,
+		Edition:                     edition,
 	}
 }

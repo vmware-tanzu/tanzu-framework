@@ -1,25 +1,24 @@
 <form [formGroup]="formGroup">
-    <div *ngIf="osImages?.length == 0" class="alert alert-warning" role="alert">
+    <div *ngIf="osImages?.length == 0 && providerInputs.noImageAlertMessage" class="alert alert-warning" role="alert">
         <div class="alert-items">
             <div class="alert-item static">
                 <div class="alert-icon-wrapper">
                     <clr-icon class="alert-icon" shape="exclamation-triangle"></clr-icon>
                 </div>
                 <span class="alert-text" i18n="os image k8s version notification">
-                    {{ noImageAlertMessage }}
+                    {{ providerInputs.noImageAlertMessage }}
                 </span>
             </div>
         </div>
     </div>
-    <div *ngIf="nonTemplateAlert && enableNonTemplateAlert" class="alert alert-warning" role="alert">
+    <div *ngIf="displayNonTemplateAlert && providerInputs.nonTemplateAlertMessage" class="alert alert-warning" role="alert">
         <div class="alert-items">
             <div class="alert-item static">
                 <div class="alert-icon-wrapper">
                     <clr-icon class="alert-icon" shape="exclamation-triangle"></clr-icon>
                 </div>
                 <span class="alert-text" i18n="os image k8s version notification">
-                    Your selected OS image must be converted to a VM template. You may click the refresh icon to reload
-                    the OS image list once this has been done.
+                    {{ providerInputs.nonTemplateAlertMessage }}
                 </span>
             </div>
         </div>
@@ -50,7 +49,7 @@
                 <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                 <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
                     <span>
-                        {{ osImageTooltipContent }}
+                        {{ providerInputs.osImageTooltipContent }}
                     </span>
                 </clr-tooltip-content>
             </clr-tooltip>

@@ -13,7 +13,7 @@ import (
 	"net/url"
 	"time"
 
-	certmanagerv1beta1 "github.com/jetstack/cert-manager/pkg/apis/certmanager/v1beta1"
+	certmanagerv1 "github.com/jetstack/cert-manager/pkg/apis/certmanager/v1"
 	"go.uber.org/zap"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
@@ -30,17 +30,17 @@ func IsIP(host string) bool {
 }
 
 // RemoveDefaultTLSPort removes the port value from fullURL if it is the default 443.
-func RemoveDefaultTLSPort(fullURL string) string {
+func RemoveDefaultTLSPort(fullURL string) (string, error) {
 	var err error
 	var parsedURL *url.URL
 	if parsedURL, err = url.Parse(fullURL); err != nil {
 		zap.S().Error(err)
-		return fullURL
+		return "", fmt.Errorf("cannot parse url: %w", err)
 	}
 	if parsedURL.Port() == "443" {
-		return fmt.Sprintf("%s://%s", parsedURL.Scheme, parsedURL.Hostname())
+		return fmt.Sprintf("%s://%s", parsedURL.Scheme, parsedURL.Hostname()), nil
 	}
-	return fullURL
+	return fullURL, nil
 }
 
 // RandomHex returns a random hexadecimal number of n length.
@@ -53,7 +53,7 @@ func RandomHex(n int) (string, error) {
 }
 
 // GetSecretFromCert extracts the secret for the certificate.
-func GetSecretFromCert(ctx context.Context, client kubernetes.Interface, cert *certmanagerv1beta1.Certificate) (*corev1.Secret, error) {
+func GetSecretFromCert(ctx context.Context, client kubernetes.Interface, cert *certmanagerv1.Certificate) (*corev1.Secret, error) {
 	// get secret from cert
 	var secret *corev1.Secret
 	secretNamespace := cert.Namespace

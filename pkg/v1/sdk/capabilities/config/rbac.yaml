@@ -32,38 +32,10 @@ rules:
       - patch
       - update
   - apiGroups:
-      - run.tanzu.vmware.com
-    resources:
-      - tanzukubernetesreleases
-      - tanzukubernetesreleases/status
-    verbs:
-      - get
-      - list
-      - watch
-  - apiGroups:
-      - run.tanzu.vmware.com
-    resources:
-      - tanzukubernetesclusters
-      - tanzukubernetesclusters/status
-    verbs:
-      - get
-      - list
-      - watch
-  - apiGroups:
-      - clusterctl.cluster.x-k8s.io
-    resources:
-      - providers
-      - providers/status
-    verbs:
-      - get
-      - list
-      - watch
-  - apiGroups:
       - ""
     resources:
-      - configmaps
-      - namespaces
-      - nodes
+      - serviceaccounts
+      - secrets
     verbs:
       - get
       - list
@@ -81,3 +53,11 @@ subjects:
   - kind: ServiceAccount
     name: tanzu-capabilities-manager-sa
     namespace: tkg-system
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  labels:
+    app: tanzu-capabilities-manager
+  name: tanzu-capabilities-manager-default-sa
+  namespace: tkg-system

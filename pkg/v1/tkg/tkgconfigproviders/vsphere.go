@@ -12,6 +12,7 @@ import (
 	"strings"
 
 	"github.com/pkg/errors"
+	"github.com/sanathkr/go-yaml"
 
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/web/server/models"
@@ -37,15 +38,18 @@ func init() {
 // VSphereConfig is the tkg config file for vsphere
 type VSphereConfig struct {
 	ClusterName            string `yaml:"CLUSTER_NAME,omitempty"`
+	ClusterLabels          string `yaml:"CLUSTER_LABELS,omitempty"`
+	ClusterAnnotations     string `yaml:"CLUSTER_ANNOTATIONS,omitempty"`
 	InfrastructureProvider string `yaml:"INFRASTRUCTURE_PROVIDER,omitempty"`
 	ClusterPlan            string `yaml:"CLUSTER_PLAN,omitempty"`
 	CeipParticipation      string `yaml:"ENABLE_CEIP_PARTICIPATION,omitempty"`
-	TmcRegistrationURL     string `yaml:"TMC_REGISTRATION_URL,omitempty"`
 
 	K8sVersion                         string `yaml:"KUBERNETES_VERSION,omitempty"`
+	IPFamily                           string `yaml:"TKG_IP_FAMILY,omitempty"`
 	Server                             string `yaml:"VSPHERE_SERVER,omitempty"`
 	Username                           string `yaml:"VSPHERE_USERNAME,omitempty"`
 	Password                           string `yaml:"VSPHERE_PASSWORD,omitempty"`
+	VSphereInsecure                    string `yaml:"VSPHERE_INSECURE,omitempty"`
 	Datacenter                         string `yaml:"VSPHERE_DATACENTER,omitempty"`
 	Datastore                          string `yaml:"VSPHERE_DATASTORE,omitempty"`
 	Network                            string `yaml:"VSPHERE_NETWORK,omitempty"`
@@ -93,13 +97,15 @@ func (c *client) NewVSphereConfig(params *models.VsphereRegionalClusterParams) (
 		ClusterName:            params.ClusterName,
 		InfrastructureProvider: constants.InfrastructureProviderVSphere,
 		ClusterPlan:            params.ControlPlaneFlavor,
-		TmcRegistrationURL:     params.TmcRegistrationURL,
+		ClusterLabels:          mapToConfigString(params.Labels),
+		ClusterAnnotations:     mapToConfigString(params.Annotations),
 
 		Datacenter:           params.Datacenter,
 		Datastore:            params.Datastore,
 		Folder:               params.Folder,
 		SSHKey:               params.SSHKey,
 		ControlPlaneEndpoint: params.ControlPlaneEndpoint,
+		IPFamily:             params.IPFamily,
 		HTTPProxyEnabled:     falseConst,
 	}
 	if params.Os != nil {
@@ -152,6 +158,10 @@ func (c *client) NewVSphereConfig(params *models.VsphereRegionalClusterParams) (
 		res.Username = params.VsphereCredentials.Username
 		res.Password = params.VsphereCredentials.Password
 		res.VSphereTLSThumbprint = params.VsphereCredentials.Thumbprint
+		res.VSphereInsecure = falseConst
+		if params.VsphereCredentials.Insecure != nil && *params.VsphereCredentials.Insecure {
+			res.VSphereInsecure = trueConst
+		}
 	}
 
 	if params.Networking != nil {
@@ -220,6 +230,79 @@ func (c *client) NewVSphereConfig(params *models.VsphereRegionalClusterParams) (
 	return res, nil
 }
 
+// CreateVSphereParams generates a Params object from a VSphereConfig, used for importing configuration files
+func (c *client) CreateVSphereParams(vConfig *VSphereConfig) (params *models.VsphereRegionalClusterParams, err error) {
+	boolCeiptOptIn, _ := strconv.ParseBool(vConfig.CeipParticipation)
+
+	params = &models.VsphereRegionalClusterParams{
+		Annotations:               configStringToMap(vConfig.ClusterAnnotations),
+		AviConfig:                 nil,
+		CeipOptIn:                 &boolCeiptOptIn,
+		ClusterName:               vConfig.ClusterName,
+		ControlPlaneEndpoint:      vConfig.ControlPlaneEndpoint,
+		ControlPlaneFlavor:        vConfig.ClusterPlan,
+		ControlPlaneNodeType:      "",
+		Datacenter:                vConfig.Datacenter,
+		Datastore:                 vConfig.Datastore,
+		EnableAuditLogging:        vConfig.EnableAuditLogging == trueConst,
+		Folder:                    vConfig.Folder,
+		IdentityManagement:        createIdentityManagementConfig(vConfig),
+		IPFamily:                  vConfig.IPFamily,
+		KubernetesVersion:         "",
+		Labels:                    configStringToMap(vConfig.ClusterLabels),
+		MachineHealthCheckEnabled: vConfig.MachineHealthCheckEnabled == trueConst,
+		Networking:                createNetworkingConfig(vConfig),
+		NumOfWorkerNode:           0,
+		Os:                        nil,
+		ResourcePool:              vConfig.ResourcePool,
+		SSHKey:                    vConfig.SSHKey,
+		VsphereCredentials:        nil,
+		WorkerNodeType:            "",
+	}
+
+	if vConfig.OsInfo.Name != "" {
+		params.Os = &models.VSphereVirtualMachine{
+			// TODO: how to invert this? It appears to be written to the reader-writer but not available in the config for the inverse operation
+			// c.tkgConfigReaderWriter.Set(constants.ConfigVariableVsphereTemplate, params.Os.Name)
+			Name: "",
+			OsInfo: &models.OSInfo{
+				Name:    vConfig.OsInfo.Name,
+				Version: vConfig.OsInfo.Version,
+				Arch:    vConfig.OsInfo.Arch,
+			},
+		}
+	}
+
+	params.VsphereCredentials = &models.VSphereCredentials{
+		Host:       vConfig.Server,
+		Username:   vConfig.Username,
+		Password:   vConfig.Password,
+		Thumbprint: vConfig.VSphereTLSThumbprint,
+	}
+	params.ControlPlaneNodeType, _ = findVsphereNodeType(vConfig.ControlPlaneCPUs, vConfig.ControlPlaneMemory, vConfig.ControlPlaneDiskGIB)
+
+	if vConfig.AviEnable == trueConst {
+		cacert, _ := base64.StdEncoding.DecodeString(vConfig.AviCAData)
+		params.AviConfig = &models.AviConfig{
+			CaCert:                          string(cacert),
+			Cloud:                           vConfig.AviCloudName,
+			ControlPlaneHaProvider:          vConfig.AviControlPlaneEndpointProvider == trueConst,
+			Controller:                      vConfig.AviController,
+			Labels:                          yamlStringToMap(vConfig.AviLabels),
+			ManagementClusterVipNetworkCidr: vConfig.AviManagementClusterVipNetworkCidr,
+			ManagementClusterVipNetworkName: vConfig.AviManagementClusterVipNetworkName,
+			Network: &models.AviNetworkParams{
+				Cidr: vConfig.AviDataNetworkCIDR,
+				Name: vConfig.AviDataNetwork,
+			},
+			Password:      vConfig.AviPassword,
+			ServiceEngine: vConfig.AviServiceEngine,
+			Username:      vConfig.AviUsername,
+		}
+	}
+	return params, nil
+}
+
 // GetVsphereNodeSizeOptions returns the list of vSphere node size options
 func GetVsphereNodeSizeOptions() string {
 	nodeTypes := []string{}
@@ -265,6 +348,25 @@ func mapToYamlStr(m map[string]string) string {
 		metadataStr += fmt.Sprintf("'%s': '%s'\n", key, value)
 	}
 	return metadataStr
+}
+
+func yamlStringToMap(yamlString string) map[string]string {
+	result := make(map[string]string)
+	if len(yamlString) > 0 {
+		_ = yaml.Unmarshal([]byte(yamlString), result)
+	}
+	return result
+}
+
+func findVsphereNodeType(cpus, memory, disk string) (string, error) {
+	for label, nodeType := range NodeTypes {
+		if nodeType.Cpus == cpus && nodeType.Memory == memory && nodeType.Disk == disk {
+			return label, nil
+		}
+	}
+	errMsg := "unable to find node type for cpus=" + cpus + " memory=" + memory + " disk=" + disk
+	fmt.Println("ERROR: " + errMsg)
+	return "", errors.New(errMsg)
 }
 
 func isAviEnabled(params *models.VsphereRegionalClusterParams) bool {

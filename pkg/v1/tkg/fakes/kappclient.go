@@ -12,15 +12,15 @@ import (
 	v1alpha1b "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apiserver/apis/datapackaging/v1alpha1"
 	v1alpha1c "github.com/vmware-tanzu/carvel-secretgen-controller/pkg/apis/secretgen2/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/kappclient"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgpackagedatamodel"
 )
 
 type KappClient struct {
-	CreatePackageInstallStub        func(*v1alpha1.PackageInstall, bool, bool) error
+	CreatePackageInstallStub        func(*v1alpha1.PackageInstall, *tkgpackagedatamodel.PkgPluginResourceCreationStatus) error
 	createPackageInstallMutex       sync.RWMutex
 	createPackageInstallArgsForCall []struct {
 		arg1 *v1alpha1.PackageInstall
-		arg2 bool
-		arg3 bool
+		arg2 *tkgpackagedatamodel.PkgPluginResourceCreationStatus
 	}
 	createPackageInstallReturns struct {
 		result1 error
@@ -130,6 +130,20 @@ type KappClient struct {
 		result1 *v1alpha1.PackageRepository
 		result2 error
 	}
+	GetSecretExportStub        func(string, string) (*v1alpha1c.SecretExport, error)
+	getSecretExportMutex       sync.RWMutex
+	getSecretExportArgsForCall []struct {
+		arg1 string
+		arg2 string
+	}
+	getSecretExportReturns struct {
+		result1 *v1alpha1c.SecretExport
+		result2 error
+	}
+	getSecretExportReturnsOnCall map[int]struct {
+		result1 *v1alpha1c.SecretExport
+		result2 error
+	}
 	GetSecretValueStub        func(string, string) ([]byte, error)
 	getSecretValueMutex       sync.RWMutex
 	getSecretValueArgsForCall []struct {
@@ -142,19 +156,6 @@ type KappClient struct {
 	}
 	getSecretValueReturnsOnCall map[int]struct {
 		result1 []byte
-		result2 error
-	}
-	ListImagePullSecretsStub        func(string) (*v1.SecretList, error)
-	listImagePullSecretsMutex       sync.RWMutex
-	listImagePullSecretsArgsForCall []struct {
-		arg1 string
-	}
-	listImagePullSecretsReturns struct {
-		result1 *v1.SecretList
-		result2 error
-	}
-	listImagePullSecretsReturnsOnCall map[int]struct {
-		result1 *v1.SecretList
 		result2 error
 	}
 	ListPackageInstallsStub        func(string) (*v1alpha1.PackageInstallList, error)
@@ -210,6 +211,19 @@ type KappClient struct {
 		result1 *v1alpha1b.PackageList
 		result2 error
 	}
+	ListRegistrySecretsStub        func(string) (*v1.SecretList, error)
+	listRegistrySecretsMutex       sync.RWMutex
+	listRegistrySecretsArgsForCall []struct {
+		arg1 string
+	}
+	listRegistrySecretsReturns struct {
+		result1 *v1.SecretList
+		result2 error
+	}
+	listRegistrySecretsReturnsOnCall map[int]struct {
+		result1 *v1.SecretList
+		result2 error
+	}
 	ListSecretExportsStub        func(string) (*v1alpha1c.SecretExportList, error)
 	listSecretExportsMutex       sync.RWMutex
 	listSecretExportsArgsForCall []struct {
@@ -223,11 +237,11 @@ type KappClient struct {
 		result1 *v1alpha1c.SecretExportList
 		result2 error
 	}
-	UpdatePackageInstallStub        func(*v1alpha1.PackageInstall, bool) error
+	UpdatePackageInstallStub        func(*v1alpha1.PackageInstall, *tkgpackagedatamodel.PkgPluginResourceCreationStatus) error
 	updatePackageInstallMutex       sync.RWMutex
 	updatePackageInstallArgsForCall []struct {
 		arg1 *v1alpha1.PackageInstall
-		arg2 bool
+		arg2 *tkgpackagedatamodel.PkgPluginResourceCreationStatus
 	}
 	updatePackageInstallReturns struct {
 		result1 error
@@ -250,20 +264,19 @@ type KappClient struct {
 	invocationsMutex sync.RWMutex
 }
 
-func (fake *KappClient) CreatePackageInstall(arg1 *v1alpha1.PackageInstall, arg2 bool, arg3 bool) error {
+func (fake *KappClient) CreatePackageInstall(arg1 *v1alpha1.PackageInstall, arg2 *tkgpackagedatamodel.PkgPluginResourceCreationStatus) error {
 	fake.createPackageInstallMutex.Lock()
 	ret, specificReturn := fake.createPackageInstallReturnsOnCall[len(fake.createPackageInstallArgsForCall)]
 	fake.createPackageInstallArgsForCall = append(fake.createPackageInstallArgsForCall, struct {
 		arg1 *v1alpha1.PackageInstall
-		arg2 bool
-		arg3 bool
-	}{arg1, arg2, arg3})
+		arg2 *tkgpackagedatamodel.PkgPluginResourceCreationStatus
+	}{arg1, arg2})
 	stub := fake.CreatePackageInstallStub
 	fakeReturns := fake.createPackageInstallReturns
-	fake.recordInvocation("CreatePackageInstall", []interface{}{arg1, arg2, arg3})
+	fake.recordInvocation("CreatePackageInstall", []interface{}{arg1, arg2})
 	fake.createPackageInstallMutex.Unlock()
 	if stub != nil {
-		return stub(arg1, arg2, arg3)
+		return stub(arg1, arg2)
 	}
 	if specificReturn {
 		return ret.result1
@@ -277,17 +290,17 @@ func (fake *KappClient) CreatePackageInstallCallCount() int {
 	return len(fake.createPackageInstallArgsForCall)
 }
 
-func (fake *KappClient) CreatePackageInstallCalls(stub func(*v1alpha1.PackageInstall, bool, bool) error) {
+func (fake *KappClient) CreatePackageInstallCalls(stub func(*v1alpha1.PackageInstall, *tkgpackagedatamodel.PkgPluginResourceCreationStatus) error) {
 	fake.createPackageInstallMutex.Lock()
 	defer fake.createPackageInstallMutex.Unlock()
 	fake.CreatePackageInstallStub = stub
 }
 
-func (fake *KappClient) CreatePackageInstallArgsForCall(i int) (*v1alpha1.PackageInstall, bool, bool) {
+func (fake *KappClient) CreatePackageInstallArgsForCall(i int) (*v1alpha1.PackageInstall, *tkgpackagedatamodel.PkgPluginResourceCreationStatus) {
 	fake.createPackageInstallMutex.RLock()
 	defer fake.createPackageInstallMutex.RUnlock()
 	argsForCall := fake.createPackageInstallArgsForCall[i]
-	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3
+	return argsForCall.arg1, argsForCall.arg2
 }
 
 func (fake *KappClient) CreatePackageInstallReturns(result1 error) {
@@ -813,6 +826,71 @@ func (fake *KappClient) GetPackageRepositoryReturnsOnCall(i int, result1 *v1alph
 	}{result1, result2}
 }
 
+func (fake *KappClient) GetSecretExport(arg1 string, arg2 string) (*v1alpha1c.SecretExport, error) {
+	fake.getSecretExportMutex.Lock()
+	ret, specificReturn := fake.getSecretExportReturnsOnCall[len(fake.getSecretExportArgsForCall)]
+	fake.getSecretExportArgsForCall = append(fake.getSecretExportArgsForCall, struct {
+		arg1 string
+		arg2 string
+	}{arg1, arg2})
+	stub := fake.GetSecretExportStub
+	fakeReturns := fake.getSecretExportReturns
+	fake.recordInvocation("GetSecretExport", []interface{}{arg1, arg2})
+	fake.getSecretExportMutex.Unlock()
+	if stub != nil {
+		return stub(arg1, arg2)
+	}
+	if specificReturn {
+		return ret.result1, ret.result2
+	}
+	return fakeReturns.result1, fakeReturns.result2
+}
+
+func (fake *KappClient) GetSecretExportCallCount() int {
+	fake.getSecretExportMutex.RLock()
+	defer fake.getSecretExportMutex.RUnlock()
+	return len(fake.getSecretExportArgsForCall)
+}
+
+func (fake *KappClient) GetSecretExportCalls(stub func(string, string) (*v1alpha1c.SecretExport, error)) {
+	fake.getSecretExportMutex.Lock()
+	defer fake.getSecretExportMutex.Unlock()
+	fake.GetSecretExportStub = stub
+}
+
+func (fake *KappClient) GetSecretExportArgsForCall(i int) (string, string) {
+	fake.getSecretExportMutex.RLock()
+	defer fake.getSecretExportMutex.RUnlock()
+	argsForCall := fake.getSecretExportArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2
+}
+
+func (fake *KappClient) GetSecretExportReturns(result1 *v1alpha1c.SecretExport, result2 error) {
+	fake.getSecretExportMutex.Lock()
+	defer fake.getSecretExportMutex.Unlock()
+	fake.GetSecretExportStub = nil
+	fake.getSecretExportReturns = struct {
+		result1 *v1alpha1c.SecretExport
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *KappClient) GetSecretExportReturnsOnCall(i int, result1 *v1alpha1c.SecretExport, result2 error) {
+	fake.getSecretExportMutex.Lock()
+	defer fake.getSecretExportMutex.Unlock()
+	fake.GetSecretExportStub = nil
+	if fake.getSecretExportReturnsOnCall == nil {
+		fake.getSecretExportReturnsOnCall = make(map[int]struct {
+			result1 *v1alpha1c.SecretExport
+			result2 error
+		})
+	}
+	fake.getSecretExportReturnsOnCall[i] = struct {
+		result1 *v1alpha1c.SecretExport
+		result2 error
+	}{result1, result2}
+}
+
 func (fake *KappClient) GetSecretValue(arg1 string, arg2 string) ([]byte, error) {
 	fake.getSecretValueMutex.Lock()
 	ret, specificReturn := fake.getSecretValueReturnsOnCall[len(fake.getSecretValueArgsForCall)]
@@ -874,70 +952,6 @@ func (fake *KappClient) GetSecretValueReturnsOnCall(i int, result1 []byte, resul
 	}
 	fake.getSecretValueReturnsOnCall[i] = struct {
 		result1 []byte
-		result2 error
-	}{result1, result2}
-}
-
-func (fake *KappClient) ListImagePullSecrets(arg1 string) (*v1.SecretList, error) {
-	fake.listImagePullSecretsMutex.Lock()
-	ret, specificReturn := fake.listImagePullSecretsReturnsOnCall[len(fake.listImagePullSecretsArgsForCall)]
-	fake.listImagePullSecretsArgsForCall = append(fake.listImagePullSecretsArgsForCall, struct {
-		arg1 string
-	}{arg1})
-	stub := fake.ListImagePullSecretsStub
-	fakeReturns := fake.listImagePullSecretsReturns
-	fake.recordInvocation("ListImagePullSecrets", []interface{}{arg1})
-	fake.listImagePullSecretsMutex.Unlock()
-	if stub != nil {
-		return stub(arg1)
-	}
-	if specificReturn {
-		return ret.result1, ret.result2
-	}
-	return fakeReturns.result1, fakeReturns.result2
-}
-
-func (fake *KappClient) ListImagePullSecretsCallCount() int {
-	fake.listImagePullSecretsMutex.RLock()
-	defer fake.listImagePullSecretsMutex.RUnlock()
-	return len(fake.listImagePullSecretsArgsForCall)
-}
-
-func (fake *KappClient) ListImagePullSecretsCalls(stub func(string) (*v1.SecretList, error)) {
-	fake.listImagePullSecretsMutex.Lock()
-	defer fake.listImagePullSecretsMutex.Unlock()
-	fake.ListImagePullSecretsStub = stub
-}
-
-func (fake *KappClient) ListImagePullSecretsArgsForCall(i int) string {
-	fake.listImagePullSecretsMutex.RLock()
-	defer fake.listImagePullSecretsMutex.RUnlock()
-	argsForCall := fake.listImagePullSecretsArgsForCall[i]
-	return argsForCall.arg1
-}
-
-func (fake *KappClient) ListImagePullSecretsReturns(result1 *v1.SecretList, result2 error) {
-	fake.listImagePullSecretsMutex.Lock()
-	defer fake.listImagePullSecretsMutex.Unlock()
-	fake.ListImagePullSecretsStub = nil
-	fake.listImagePullSecretsReturns = struct {
-		result1 *v1.SecretList
-		result2 error
-	}{result1, result2}
-}
-
-func (fake *KappClient) ListImagePullSecretsReturnsOnCall(i int, result1 *v1.SecretList, result2 error) {
-	fake.listImagePullSecretsMutex.Lock()
-	defer fake.listImagePullSecretsMutex.Unlock()
-	fake.ListImagePullSecretsStub = nil
-	if fake.listImagePullSecretsReturnsOnCall == nil {
-		fake.listImagePullSecretsReturnsOnCall = make(map[int]struct {
-			result1 *v1.SecretList
-			result2 error
-		})
-	}
-	fake.listImagePullSecretsReturnsOnCall[i] = struct {
-		result1 *v1.SecretList
 		result2 error
 	}{result1, result2}
 }
@@ -1199,6 +1213,70 @@ func (fake *KappClient) ListPackagesReturnsOnCall(i int, result1 *v1alpha1b.Pack
 	}{result1, result2}
 }
 
+func (fake *KappClient) ListRegistrySecrets(arg1 string) (*v1.SecretList, error) {
+	fake.listRegistrySecretsMutex.Lock()
+	ret, specificReturn := fake.listRegistrySecretsReturnsOnCall[len(fake.listRegistrySecretsArgsForCall)]
+	fake.listRegistrySecretsArgsForCall = append(fake.listRegistrySecretsArgsForCall, struct {
+		arg1 string
+	}{arg1})
+	stub := fake.ListRegistrySecretsStub
+	fakeReturns := fake.listRegistrySecretsReturns
+	fake.recordInvocation("ListRegistrySecrets", []interface{}{arg1})
+	fake.listRegistrySecretsMutex.Unlock()
+	if stub != nil {
+		return stub(arg1)
+	}
+	if specificReturn {
+		return ret.result1, ret.result2
+	}
+	return fakeReturns.result1, fakeReturns.result2
+}
+
+func (fake *KappClient) ListRegistrySecretsCallCount() int {
+	fake.listRegistrySecretsMutex.RLock()
+	defer fake.listRegistrySecretsMutex.RUnlock()
+	return len(fake.listRegistrySecretsArgsForCall)
+}
+
+func (fake *KappClient) ListRegistrySecretsCalls(stub func(string) (*v1.SecretList, error)) {
+	fake.listRegistrySecretsMutex.Lock()
+	defer fake.listRegistrySecretsMutex.Unlock()
+	fake.ListRegistrySecretsStub = stub
+}
+
+func (fake *KappClient) ListRegistrySecretsArgsForCall(i int) string {
+	fake.listRegistrySecretsMutex.RLock()
+	defer fake.listRegistrySecretsMutex.RUnlock()
+	argsForCall := fake.listRegistrySecretsArgsForCall[i]
+	return argsForCall.arg1
+}
+
+func (fake *KappClient) ListRegistrySecretsReturns(result1 *v1.SecretList, result2 error) {
+	fake.listRegistrySecretsMutex.Lock()
+	defer fake.listRegistrySecretsMutex.Unlock()
+	fake.ListRegistrySecretsStub = nil
+	fake.listRegistrySecretsReturns = struct {
+		result1 *v1.SecretList
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *KappClient) ListRegistrySecretsReturnsOnCall(i int, result1 *v1.SecretList, result2 error) {
+	fake.listRegistrySecretsMutex.Lock()
+	defer fake.listRegistrySecretsMutex.Unlock()
+	fake.ListRegistrySecretsStub = nil
+	if fake.listRegistrySecretsReturnsOnCall == nil {
+		fake.listRegistrySecretsReturnsOnCall = make(map[int]struct {
+			result1 *v1.SecretList
+			result2 error
+		})
+	}
+	fake.listRegistrySecretsReturnsOnCall[i] = struct {
+		result1 *v1.SecretList
+		result2 error
+	}{result1, result2}
+}
+
 func (fake *KappClient) ListSecretExports(arg1 string) (*v1alpha1c.SecretExportList, error) {
 	fake.listSecretExportsMutex.Lock()
 	ret, specificReturn := fake.listSecretExportsReturnsOnCall[len(fake.listSecretExportsArgsForCall)]
@@ -1263,12 +1341,12 @@ func (fake *KappClient) ListSecretExportsReturnsOnCall(i int, result1 *v1alpha1c
 	}{result1, result2}
 }
 
-func (fake *KappClient) UpdatePackageInstall(arg1 *v1alpha1.PackageInstall, arg2 bool) error {
+func (fake *KappClient) UpdatePackageInstall(arg1 *v1alpha1.PackageInstall, arg2 *tkgpackagedatamodel.PkgPluginResourceCreationStatus) error {
 	fake.updatePackageInstallMutex.Lock()
 	ret, specificReturn := fake.updatePackageInstallReturnsOnCall[len(fake.updatePackageInstallArgsForCall)]
 	fake.updatePackageInstallArgsForCall = append(fake.updatePackageInstallArgsForCall, struct {
 		arg1 *v1alpha1.PackageInstall
-		arg2 bool
+		arg2 *tkgpackagedatamodel.PkgPluginResourceCreationStatus
 	}{arg1, arg2})
 	stub := fake.UpdatePackageInstallStub
 	fakeReturns := fake.updatePackageInstallReturns
@@ -1289,13 +1367,13 @@ func (fake *KappClient) UpdatePackageInstallCallCount() int {
 	return len(fake.updatePackageInstallArgsForCall)
 }
 
-func (fake *KappClient) UpdatePackageInstallCalls(stub func(*v1alpha1.PackageInstall, bool) error) {
+func (fake *KappClient) UpdatePackageInstallCalls(stub func(*v1alpha1.PackageInstall, *tkgpackagedatamodel.PkgPluginResourceCreationStatus) error) {
 	fake.updatePackageInstallMutex.Lock()
 	defer fake.updatePackageInstallMutex.Unlock()
 	fake.UpdatePackageInstallStub = stub
 }
 
-func (fake *KappClient) UpdatePackageInstallArgsForCall(i int) (*v1alpha1.PackageInstall, bool) {
+func (fake *KappClient) UpdatePackageInstallArgsForCall(i int) (*v1alpha1.PackageInstall, *tkgpackagedatamodel.PkgPluginResourceCreationStatus) {
 	fake.updatePackageInstallMutex.RLock()
 	defer fake.updatePackageInstallMutex.RUnlock()
 	argsForCall := fake.updatePackageInstallArgsForCall[i]
@@ -1407,10 +1485,10 @@ func (fake *KappClient) Invocations() map[string][][]interface{} {
 	defer fake.getPackageMetadataByNameMutex.RUnlock()
 	fake.getPackageRepositoryMutex.RLock()
 	defer fake.getPackageRepositoryMutex.RUnlock()
+	fake.getSecretExportMutex.RLock()
+	defer fake.getSecretExportMutex.RUnlock()
 	fake.getSecretValueMutex.RLock()
 	defer fake.getSecretValueMutex.RUnlock()
-	fake.listImagePullSecretsMutex.RLock()
-	defer fake.listImagePullSecretsMutex.RUnlock()
 	fake.listPackageInstallsMutex.RLock()
 	defer fake.listPackageInstallsMutex.RUnlock()
 	fake.listPackageMetadataMutex.RLock()
@@ -1419,6 +1497,8 @@ func (fake *KappClient) Invocations() map[string][][]interface{} {
 	defer fake.listPackageRepositoriesMutex.RUnlock()
 	fake.listPackagesMutex.RLock()
 	defer fake.listPackagesMutex.RUnlock()
+	fake.listRegistrySecretsMutex.RLock()
+	defer fake.listRegistrySecretsMutex.RUnlock()
 	fake.listSecretExportsMutex.RLock()
 	defer fake.listSecretExportsMutex.RUnlock()
 	fake.updatePackageInstallMutex.RLock()

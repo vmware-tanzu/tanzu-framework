@@ -1,14 +1,16 @@
+// Angular imports
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
-import { ReactiveFormsModule } from '@angular/forms';
-import { FormBuilder } from '@angular/forms';
-
-import { SharedModule } from '../../../../shared/shared.module';
-import { VnetStepComponent } from './vnet-step.component';
+import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
+// App imports
 import { APIClient } from '../../../../swagger/api-client.service';
+import AppServices from 'src/app/shared/service/appServices';
+import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
+import { Messenger, TkgEventType } from 'src/app/shared/service/Messenger';
+import { SharedModule } from '../../../../shared/shared.module';
 import { ValidationService } from '../../wizard/shared/validation/validation.service';
-import Broker from 'src/app/shared/service/broker';
-import { Messenger } from 'src/app/shared/service/Messenger';
+import { VnetStepComponent } from './vnet-step.component';
+import { AzureField, AzureForm } from '../azure-wizard.constants';
 
 describe('VnetStepComponent', () => {
     let component: VnetStepComponent;
@@ -23,6 +25,7 @@ describe('VnetStepComponent', () => {
             providers: [
                 ValidationService,
                 FormBuilder,
+                FieldMapUtilities,
                 APIClient
             ],
             schemas: [
@@ -34,13 +37,11 @@ describe('VnetStepComponent', () => {
     }));
 
     beforeEach(() => {
-        Broker.messenger = new Messenger();
+        AppServices.messenger = new Messenger();
 
-        const fb = new FormBuilder();
         fixture = TestBed.createComponent(VnetStepComponent);
         component = fixture.componentInstance;
-        component.formGroup = fb.group({
-        });
+        component.setInputs('ZuchiniWizard', AzureForm.VNET,  new FormBuilder().group({}));
 
         fixture.detectChanges();
     });
@@ -48,4 +49,23 @@ describe('VnetStepComponent', () => {
     it('should create', () => {
         expect(component).toBeTruthy();
     });
-})
+
+    it('should announce description change', () => {
+        const msgSpy = spyOn(AppServices.messenger, 'publish').and.callThrough();
+        component.ngOnInit();
+
+        const staticDescription = component.dynamicDescription();
+        expect(staticDescription).toEqual('Specify an Azure VNET CIDR')
+
+        const customCidrControl = component.formGroup.get(AzureField.VNET_CUSTOM_CIDR);
+        customCidrControl.setValue('4.3.2.1/12');
+        expect(msgSpy).toHaveBeenCalledWith({
+            type: TkgEventType.STEP_DESCRIPTION_CHANGE,
+            payload: {
+                wizard: 'ZuchiniWizard',
+                step: AzureForm.VNET,
+                description: 'Subnet: 4.3.2.1/12',
+            }
+        });
+    });
+});

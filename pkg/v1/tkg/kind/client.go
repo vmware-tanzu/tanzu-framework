@@ -17,6 +17,7 @@ import (
 	"sigs.k8s.io/kind/pkg/cluster"
 	"sigs.k8s.io/kind/pkg/errors"
 
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/clientconfighelpers"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/log"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfigbom"
@@ -78,14 +79,14 @@ type Client interface {
 //go:generate counterfeiter -o ../fakes/kindprovider.go --fake-name KindProvider . KindClusterProvider
 
 // KindClusterProvider is interface for creating/deleting kind cluster
-type KindClusterProvider interface { //nolint:golint
+type KindClusterProvider interface {
 	Create(name string, options ...cluster.CreateOption) error
 	Delete(name, explicitKubeconfigPath string) error
 	KubeConfig(name string, internal bool) (string, error)
 }
 
 // KindClusterOptions carries options to configure kind cluster
-type KindClusterOptions struct { //nolint:golint
+type KindClusterOptions struct {
 	Provider         KindClusterProvider
 	ClusterName      string
 	NodeImage        string
@@ -96,7 +97,7 @@ type KindClusterOptions struct { //nolint:golint
 }
 
 // KindClusterProxy return the Proxy used for operating kubernetes-in-docker clusters
-type KindClusterProxy struct { //nolint:golint
+type KindClusterProxy struct {
 	options    *KindClusterOptions
 	caCertPath string
 }
@@ -132,24 +133,8 @@ func (k *KindClusterProxy) CreateKindCluster() (string, error) {
 	log.V(3).Infof("Creating kind cluster: %s", k.options.ClusterName)
 
 	// setup proxy envvars for kind clusrer if being configured in TKG
-	if proxyEnabled, err := k.options.Readerwriter.Get(constants.TKGHTTPProxyEnabled); err == nil && proxyEnabled == "true" {
-		httpProxy, err := k.options.Readerwriter.Get(constants.TKGHTTPProxy)
-		if err != nil {
-			return "", errors.Wrapf(err, "failed to get %s", constants.TKGHTTPProxy)
-		}
-		httpsProxy, err := k.options.Readerwriter.Get(constants.TKGHTTPSProxy)
-		if err != nil {
-			return "", errors.Wrapf(err, "failed to get %s", constants.TKGHTTPSProxy)
-		}
-		noProxy, err := k.options.Readerwriter.Get(constants.TKGNoProxy)
-		if err != nil {
-			return "", errors.Wrapf(err, "failed to get %s", constants.TKGNoProxy)
-		}
-		noProxyList := strings.Split(noProxy, ",")
-		os.Setenv("HTTP_PROXY", httpProxy)
-		os.Setenv("HTTPS_PROXY", httpsProxy)
-		os.Setenv("NO_PROXY", strings.Join(append(noProxyList, fmt.Sprintf("%s-control-plane", k.options.ClusterName)), ","))
-	}
+	k.setupProxyConfigurationForKindCluster()
+
 	// create kind cluster with kind provider interface
 	if err := k.options.Provider.Create(
 		k.options.ClusterName,
@@ -240,8 +225,6 @@ func (k *KindClusterProxy) GetKindNodeImageAndConfig() (string, *kindv1.Cluster,
 }
 
 // Return the containerdConfigPatches field for kind Cluster object
-// if TKG_CUSTOM_IMAGE_REPOSITORY_SKIP_TLS_VERIFY or TKG_CUSTOM_IMAGE_REPOSITORY_CA_CERTIFICATE
-// is set for the custom docker registry.
 func (k *KindClusterProxy) getKindRegistryConfig() (string, error) {
 	tkgconfigClient := tkgconfigbom.New(k.options.TKGConfigDir, k.options.Readerwriter)
 
@@ -311,8 +294,7 @@ func (k *KindClusterProxy) getDockerRegistryCACertFilePath() (string, error) {
 	if k.caCertPath != "" {
 		return k.caCertPath, nil
 	}
-	tkgconfigClient := tkgconfigbom.New(k.options.TKGConfigDir, k.options.Readerwriter)
-	customRepositoryCaCert, err := tkgconfigClient.GetCustomRepositoryCaCertificate()
+	customRepositoryCaCert, err := clientconfighelpers.GetCustomRepositoryCaCertificateForClient(k.options.Readerwriter)
 	if err != nil {
 		return "", err
 	}
@@ -352,20 +334,30 @@ type criRegistryTLSConfig struct {
 // set the podSubnet and serviceSubnet fields
 // if TKG_IP_FAMILY is set then set the ipFamily field
 func (k *KindClusterProxy) getKindNetworkingConfig() kindv1.Networking {
-	ipFamily, _ := k.getIPFamily()
+	ipFamily, err := k.options.Readerwriter.Get(constants.ConfigVariableIPFamily)
+	if err != nil {
+		// ignore this error as TKG_IP_FAMILY is optional
+		ipFamily = ""
+	}
 	podSubnet, err := k.options.Readerwriter.Get(constants.ConfigVariableClusterCIDR)
 	if err != nil {
-		if ipFamily == constants.IPv6Family {
+		switch ipFamily {
+		case constants.DualStackPrimaryIPv4Family:
+			podSubnet = constants.DefaultDualStackPrimaryIPv4ClusterCIDR
+		case constants.IPv6Family:
 			podSubnet = constants.DefaultIPv6ClusterCIDR
-		} else {
+		default:
 			podSubnet = constants.DefaultIPv4ClusterCIDR
 		}
 	}
 	serviceSubnet, err := k.options.Readerwriter.Get(constants.ConfigVariableServiceCIDR)
 	if err != nil {
-		if ipFamily == constants.IPv6Family {
+		switch ipFamily {
+		case constants.DualStackPrimaryIPv4Family:
+			serviceSubnet = constants.DefaultDualStackPrimaryIPv4ServiceCIDR
+		case constants.IPv6Family:
 			serviceSubnet = constants.DefaultIPv6ServiceCIDR
-		} else {
+		default:
 			serviceSubnet = constants.DefaultIPv4ServiceCIDR
 		}
 	}
@@ -373,24 +365,75 @@ func (k *KindClusterProxy) getKindNetworkingConfig() kindv1.Networking {
 	networkConfig := kindv1.Networking{
 		PodSubnet:     podSubnet,
 		ServiceSubnet: serviceSubnet,
-		IPFamily:      ipFamily,
+		IPFamily:      k.getKindIPFamily(),
 	}
 
 	return networkConfig
 }
 
 // if TKG_IP_FAMILY is set then set the networking field
-func (k *KindClusterProxy) getIPFamily() (kindv1.ClusterIPFamily, error) {
+func (k *KindClusterProxy) getKindIPFamily() kindv1.ClusterIPFamily {
 	ipFamily, err := k.options.Readerwriter.Get(constants.ConfigVariableIPFamily)
 	if err != nil {
 		// ignore this error as TKG_IP_FAMILY is optional
 		ipFamily = ""
 	}
-	normalisedIPFamily := kindv1.ClusterIPFamily(strings.ToLower(ipFamily))
-	switch normalisedIPFamily {
-	case kindv1.IPv4Family, kindv1.IPv6Family, kindv1.DualStackFamily, kindv1.ClusterIPFamily(""):
-		return normalisedIPFamily, nil
+
+	switch strings.ToLower(ipFamily) {
+	case constants.IPv4Family:
+		return kindv1.IPv4Family
+	case constants.IPv6Family:
+		return kindv1.IPv6Family
+	case constants.DualStackPrimaryIPv4Family:
+		return kindv1.DualStackFamily
 	default:
-		return "", fmt.Errorf("TKG_IP_FAMILY should be one of %s, %s, %s, got %s", kindv1.IPv4Family, kindv1.IPv6Family, kindv1.DualStackFamily, normalisedIPFamily)
+		return ""
+	}
+}
+
+// setupProxyConfigurationForKindCluster sets up proxy configuration for kind cluster
+//
+// This function takes HTTP_PROXY, HTTPS_PROXY, NO_PROXY variable into consideration as well.
+// The precedence of the configuration variable is as below:
+// 1. HTTP_PROXY , HTTPS_PROXY , NO_PROXY
+// 2. TKG_HTTP_PROXY , TKG_HTTPS_PROXY , TKG_NO_PROXY
+//
+// Meaning if User has provided env variable for HTTP_PROXY that will have higher precedence than
+// TKG_HTTP_PROXY when using it with kind cluster.
+//
+// This will allow user to configure different proxy configuration for kind cluster than the
+// proxy configuration needed for management/workload cluster deployment
+func (k *KindClusterProxy) setupProxyConfigurationForKindCluster() {
+	var httpProxy, httpsProxy, noProxy, tkgHTTPProxy, tkgHTTPSProxy, tkgNoProxy string
+
+	httpProxy, _ = k.options.Readerwriter.Get(constants.HTTPProxy)
+	httpsProxy, _ = k.options.Readerwriter.Get(constants.HTTPSProxy)
+	noProxy, _ = k.options.Readerwriter.Get(constants.NoProxy)
+
+	if proxyEnabled, err := k.options.Readerwriter.Get(constants.TKGHTTPProxyEnabled); err == nil && proxyEnabled == "true" {
+		tkgHTTPProxy, _ = k.options.Readerwriter.Get(constants.TKGHTTPProxy)
+		tkgHTTPSProxy, _ = k.options.Readerwriter.Get(constants.TKGHTTPSProxy)
+		tkgNoProxy, _ = k.options.Readerwriter.Get(constants.TKGNoProxy)
+	}
+
+	if httpProxy == "" && tkgHTTPProxy != "" {
+		httpProxy = tkgHTTPProxy
+	}
+	if httpsProxy == "" && tkgHTTPSProxy != "" {
+		httpsProxy = tkgHTTPSProxy
+	}
+	if noProxy == "" && tkgNoProxy != "" {
+		noProxy = tkgNoProxy
+	}
+
+	if httpProxy != "" {
+		os.Setenv(constants.HTTPProxy, httpProxy)
+	}
+	if httpsProxy != "" {
+		os.Setenv(constants.HTTPSProxy, httpsProxy)
+	}
+	if noProxy != "" {
+		noProxyList := strings.Split(noProxy, ",")
+		os.Setenv(constants.NoProxy, strings.Join(append(noProxyList, fmt.Sprintf("%s-control-plane", k.options.ClusterName)), ","))
 	}
 }

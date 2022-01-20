@@ -76,24 +76,6 @@ var _ = Describe("Unit tests for upgrade management cluster", func() {
 					Expect(err.Error()).To(ContainSubstring("fake ListResourceError"))
 				})
 			})
-			Context("When getting upgrade information fails due to parsing management group failure", func() {
-				BeforeEach(func() {
-					regionalClusterClient.ListResourcesCalls(func(providers interface{}, options ...crtclient.ListOption) error {
-						installedProviders, _ := providers.(*clusterctlv1.ProviderList)
-						installedProviders.Items = []clusterctlv1.Provider{
-							//{ObjectMeta: metav1.ObjectMeta{Namespace: "capi-system", Name: "cluster-api"}, Type: "CoreProvider", Version: "v0.3.3", ProviderName: "cluster-api"},
-							{ObjectMeta: metav1.ObjectMeta{Namespace: "capi-kubeadm-bootstrap-system", Name: "bootstrap-kubeadm"}, Type: "BootstrapProvider", Version: "v0.3.3", ProviderName: "kubeadm"},
-							{ObjectMeta: metav1.ObjectMeta{Namespace: "capi-kubeadm-control-plane-system", Name: "control-plane-kubeadm"}, Type: "ControlPlaneProvider", Version: "v0.3.3", ProviderName: "kubeadm"},
-							{ObjectMeta: metav1.ObjectMeta{Namespace: "capv-system", Name: "infrastructure-vsphere"}, Type: "InfrastructureProvider", Version: "v0.6.3", ProviderName: "vsphere"},
-						}
-						return nil
-					})
-				})
-				It("should return an error", func() {
-					Expect(err).To(HaveOccurred())
-					Expect(err.Error()).To(ContainSubstring("failed to find core provider from the current providers"))
-				})
-			})
 
 			Context("When current providers versions are up to date", func() {
 				BeforeEach(func() {
@@ -152,7 +134,6 @@ var _ = Describe("Unit tests for upgrade management cluster", func() {
 					})
 				})
 				It("should still apply the providers version upgrade to the same versions", func() {
-					Expect(applyUpgradeOptionsRecvd.ManagementGroup).Should(Equal("capi-system/cluster-api"))
 					Expect(applyUpgradeOptionsRecvd.CoreProvider).Should(Equal("capi-system/cluster-api:v0.3.11"))
 					Expect(applyUpgradeOptionsRecvd.BootstrapProviders[0]).Should(Equal("capi-kubeadm-bootstrap-system/kubeadm:v0.3.11"))
 					Expect(applyUpgradeOptionsRecvd.ControlPlaneProviders[0]).Should(Equal("capi-kubeadm-control-plane-system/kubeadm:v0.3.11"))
@@ -180,7 +161,6 @@ var _ = Describe("Unit tests for upgrade management cluster", func() {
 					})
 				})
 				It("should apply the providers version upgrade only for the outdated providers to the latest versions", func() {
-					Expect(applyUpgradeOptionsRecvd.ManagementGroup).Should(Equal("capi-system/cluster-api"))
 					Expect(applyUpgradeOptionsRecvd.CoreProvider).Should(Equal("capi-system/cluster-api:v0.3.11"))
 					Expect(len(applyUpgradeOptionsRecvd.BootstrapProviders)).Should(Equal(0))
 					Expect(len(applyUpgradeOptionsRecvd.ControlPlaneProviders)).Should(Equal(0))
@@ -208,13 +188,64 @@ var _ = Describe("Unit tests for upgrade management cluster", func() {
 					})
 				})
 				It("should upgrade providers to the latest versions successfully", func() {
-					Expect(applyUpgradeOptionsRecvd.ManagementGroup).Should(Equal("capi-system/cluster-api"))
 					Expect(applyUpgradeOptionsRecvd.CoreProvider).Should(Equal("capi-system/cluster-api:v0.3.11"))
 					Expect(applyUpgradeOptionsRecvd.BootstrapProviders[0]).Should(Equal("capi-kubeadm-bootstrap-system/kubeadm:v0.3.11"))
 					Expect(applyUpgradeOptionsRecvd.ControlPlaneProviders[0]).Should(Equal("capi-kubeadm-control-plane-system/kubeadm:v0.3.11"))
 					Expect(applyUpgradeOptionsRecvd.InfrastructureProviders[0]).Should(Equal("capv-system/vsphere:v0.7.1"))
 					Expect(providerUpgradeClient.ApplyUpgradeCallCount()).Should(Equal(1))
 					Expect(err).NotTo(HaveOccurred())
+				})
+			})
+		})
+
+		Context("When validating compatibility before management cluster upgrade", func() {
+			JustBeforeEach(func() {
+				err = tkgClient.ValidateManagementClusterUpgradeVersionCompatibility(&upgradeClusterOptions, regionalClusterClient)
+			})
+			Context("When getting management cluster TKG version fails", func() {
+				BeforeEach(func() {
+					regionalClusterClient.GetManagementClusterTKGVersionReturns("", errors.New("fake GetManagementClusterTKGVersion error"))
+				})
+				It("should return an error", func() {
+					Expect(err).To(HaveOccurred())
+					errString := `unable to get tkg version of management cluster "fake-cluster-name" in namespace "fake-namespace": fake GetManagementClusterTKGVersion error`
+					Expect(err.Error()).To(ContainSubstring(errString))
+				})
+			})
+			Context("When the management cluster TKG version is invalid ", func() {
+				BeforeEach(func() {
+					regionalClusterClient.GetManagementClusterTKGVersionReturns("InvalidTKGSemanticVersion", nil)
+				})
+				It("should return an error", func() {
+					Expect(err).To(HaveOccurred())
+					Expect(err.Error()).To(ContainSubstring("unable to parse management cluster version InvalidTKGSemanticVersion"))
+				})
+			})
+			Context("When TKG version user trying to upgrade has different major version", func() {
+				BeforeEach(func() {
+					regionalClusterClient.GetManagementClusterTKGVersionReturns("v2.0.0-rc.1", nil)
+				})
+				It("should return an error", func() {
+					Expect(err).To(HaveOccurred())
+					Expect(err.Error()).To(ContainSubstring("major version mismatch detected"))
+				})
+			})
+			Context("When management cluster current TKG version greater than TKG version user trying to upgrade", func() {
+				BeforeEach(func() {
+					regionalClusterClient.GetManagementClusterTKGVersionReturns("v1.2.2-rc.1", nil)
+				})
+				It("should return an error", func() {
+					Expect(err).To(HaveOccurred())
+					Expect(err.Error()).To(ContainSubstring("TKG version downgrade is not supported"))
+				})
+			})
+			Context("When upgrading the TKG version (skipping a minor version) with skipPrompt set to true", func() {
+				BeforeEach(func() {
+					upgradeClusterOptions.SkipPrompt = true
+					regionalClusterClient.GetManagementClusterTKGVersionReturns("v1.0.2-rc.1", nil)
+				})
+				It("should not return an error", func() {
+					Expect(err).ToNot(HaveOccurred())
 				})
 			})
 		})

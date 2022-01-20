@@ -6,8 +6,8 @@ const elasticlunr = require('elasticlunr');
 const docsPath = 'src/contextualHelpDocs';
 
 const lunrIndex = elasticlunr(function() {
-    this.addField('tags');
-    this.setRef('title');
+    this.addField('topicIds');
+    this.setRef('topicTitle');
     this.saveDocument(true);
 });
 

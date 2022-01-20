@@ -4,10 +4,7 @@
 include ../../../common.mk
 
 IMG ?= tkr-controller-manager:latest
-CRD_OPTIONS ?= "crd:trivialVersions=true"
-
-# ssh private key file name
-SSH_PRIVATE_KEY ?= .private_ssh_key
+CRD_OPTIONS ?= "crd"
 
 all: manager
 
@@ -64,4 +61,4 @@ fakes: ## Generate fake files for go unit tests
 
 .PHONY: docker-build
 docker-build:
-	cd ../../../ && docker build -t $(IMG) -f pkg/v1/tkr/Dockerfile --build-arg LD_FLAGS="$(LD_FLAGS)" --build-arg SSH_PRIVATE_KEY=$(SSH_PRIVATE_KEY) .
+	cd ../../../ && docker build -t $(IMG) -f pkg/v1/tkr/Dockerfile --build-arg LD_FLAGS="$(LD_FLAGS)" .

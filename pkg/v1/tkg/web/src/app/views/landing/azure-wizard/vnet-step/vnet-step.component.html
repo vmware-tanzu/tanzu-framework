@@ -9,20 +9,20 @@
             <clr-radio-container clrInline>
                 <clr-radio-wrapper>
                     <input type="radio" clrRadio formControlName="vnetOption" required
-                        value="CUSTOM" />
-                    <label>Create a new VNET on Azure</label>
-                </clr-radio-wrapper>
-                <clr-radio-wrapper>
-                    <input type="radio" clrRadio formControlName="vnetOption" required
-                        value="EXISTING" />
+                           value="EXISTING" />
                     <label>Select an existing VNET</label>
                 </clr-radio-wrapper>
                 <clr-control-error>Must select an option for entering the VNET!</clr-control-error>
+                <clr-radio-wrapper>
+                    <input type="radio" clrRadio formControlName="vnetOption" required
+                        value="CUSTOM" />
+                    <label>Create a new VNET on Azure</label>
+                </clr-radio-wrapper>
             </clr-radio-container>
         </div>
     </div>
 
-    <div *ngIf="showOption === 'CUSTOM'">
+    <div *ngIf="showVnetFieldsOption === 'CUSTOM'">
         <div class="clr-row">
             <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
                 <clr-select-container [attr.data-step-metadata]="formName">
@@ -37,10 +37,10 @@
                             </clr-tooltip-content>
                         </clr-tooltip>
                     </label>
-                    <select clrSelect name="resourceGroup" formControlName="resourceGroup">
+                    <select clrSelect name="vnetResourceGroup" formControlName="vnetResourceGroup">
                         <option aria-label="blank" title="blank"></option>
                         <option *ngIf="customResourceGroup !== ''" [value]="customResourceGroup">{{customResourceGroup}}</option>
-                        <option *ngFor="let rg of resourceGroups" [value]="rg.name">{{ rg.name }}
+                        <option *ngFor="let rg of vnetResourceGroups" [value]="rg.name">{{ rg.name }}
                         </option>
                     </select>
                     <!-- Add a empty helper to avoid accessibility aria-describeby issue -->
@@ -58,7 +58,7 @@
                             <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                             <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
                                 <span>
-                                    The name of the new VNET to be created upon deployment of your {{ clusterType }} cluster.
+                                    The name of the new VNET to be created upon deployment of your {{ clusterTypeDescriptor }} cluster.
                                 </span>
                             </clr-tooltip-content>
                         </clr-tooltip>
@@ -105,7 +105,7 @@
                             <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                             <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
                                 <span>
-                                    A name for the subnet assigned to the {{ clusterType }} cluster control plane node.
+                                    A name for the subnet assigned to the {{ clusterTypeDescriptor }} cluster control plane node.
                                 </span>
                             </clr-tooltip-content>
                         </clr-tooltip>
@@ -126,7 +126,7 @@
                             <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                             <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
                                 <span>
-                                    A subnet for the {{ clusterType }} cluster control plane node. This subnet
+                                    A subnet for the {{ clusterTypeDescriptor }} cluster control plane node. This subnet
                                     should belong to your VNET CIDR. Default value is {{defaultControlPlaneCidr}}.
                                 </span>
                             </clr-tooltip-content>
@@ -144,7 +144,7 @@
                 </clr-input-container>
             </div>
         </div>
-        <div class="clr-row" *ngIf="clusterType !== 'standalone'">
+        <div class="clr-row" *featureToggle="'!management-cluster.standalone-cluster-mode'">
             <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
                 <clr-input-container [attr.data-step-metadata]="formName">
                     <label i18n="azure worker node subnet label" clr-control-label>
@@ -153,7 +153,7 @@
                             <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                             <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
                                 <span>
-                                    A name for the subnet assigned to the {{ clusterType }} cluster worker nodes.
+                                    A name for the subnet assigned to the {{ clusterTypeDescriptor }} cluster worker nodes.
                                 </span>
                             </clr-tooltip-content>
                         </clr-tooltip>
@@ -174,7 +174,7 @@
                             <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                             <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
                                 <span>
-                                    A subnet for the {{ clusterType }} cluster worker nodes. This subnet
+                                    A subnet for the {{ clusterTypeDescriptor }} cluster worker nodes. This subnet
                                     should belong to your VNET CIDR. Default value is {{defaultWorkerNodeCidr}}.
                                 </span>
                             </clr-tooltip-content>
@@ -194,7 +194,7 @@
         </div>
     </div>
 
-    <div *ngIf="showOption === 'EXISTING'" class="clr-row">
+    <div *ngIf="showVnetFieldsOption === 'EXISTING'" class="clr-row">
         <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
             <clr-select-container [attr.data-step-metadata]="formName">
                 <label i18n="azure resourceg group label">
@@ -208,9 +208,9 @@
                         </clr-tooltip-content>
                     </clr-tooltip>
                 </label>
-                <select clrSelect name="resourceGroup" formControlName="resourceGroup">
+                <select clrSelect name="vnetResourceGroup" formControlName="vnetResourceGroup">
                     <option aria-label="blank" title="blank"></option>
-                    <option *ngFor="let rg of resourceGroups" [value]="rg.name">{{ rg.name }}
+                    <option *ngFor="let rg of vnetResourceGroups" [value]="rg.name">{{ rg.name }}
                     </option>
                 </select>
                 <!-- Add a empty helper to avoid accessibility aria-describeby issue -->
@@ -247,7 +247,7 @@
         </div>
     </div>
 
-    <div *ngIf="showOption === 'EXISTING'" class="clr-row">
+    <div *ngIf="showVnetFieldsOption === 'EXISTING'" class="clr-row">
         <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
             <clr-select-container [attr.data-step-metadata]="formName">
                 <label i18n="azure control plane subnet label">
@@ -266,6 +266,9 @@
                     <option *ngFor="let cps of controlPlaneSubnets" [value]="cps.name">{{ cps.name }}
                     </option>
                 </select>
+                <!-- Add a hidden control to hold the associated subnet CIDR -->
+                <input class="hidden" name="controlPlaneSubnetCidr" formControlName="controlPlaneSubnetCidr" />
+
                 <!-- Add a empty helper to avoid accessibility aria-describeby issue -->
                 <clr-control-helper></clr-control-helper>
                 <clr-control-error i18n="azure resource group required msg" *clrIfError="validatorEnum.REQUIRED">
@@ -273,7 +276,7 @@
                 </clr-control-error>
             </clr-select-container>
         </div>
-        <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4" *ngIf="clusterType !== 'standalone'">
+        <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4" *featureToggle="'!management-cluster.standalone-cluster-mode'">
             <clr-select-container [attr.data-step-metadata]="formName">
                 <label i18n="azure worker node subnet label">
                     WORKER NODE SUBNET
@@ -332,7 +335,7 @@
                             When using an api server load balancer of type Internal, the default private IP address associated with that load
                             balancer will be 10.0.0.100. If also specifying a custom virtual network, make sure you provide a private IP address
                             that is in the range of your control plane subnet and not in use.
-                            <span *ngIf="cidrHolder[showOption]">Must be a valid IP within subnet {{cidrHolder[showOption]}}</span>
+                            <span *ngIf="cidrForPrivateCluster[showVnetFieldsOption]">Must be a valid IP within subnet {{cidrForPrivateCluster[showVnetFieldsOption]}}</span>
                         </clr-tooltip-content>
                     </clr-tooltip>
                 </label>

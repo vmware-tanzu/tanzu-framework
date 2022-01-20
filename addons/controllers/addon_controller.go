@@ -6,22 +6,19 @@ package controllers
 import (
 	"context"
 	"fmt"
-	"os"
 	"time"
 
 	"github.com/go-logr/logr"
 	corev1 "k8s.io/api/core/v1"
-	"k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	kerrors "k8s.io/apimachinery/pkg/util/errors"
 	"k8s.io/apimachinery/pkg/util/sets"
-	"k8s.io/apimachinery/pkg/util/wait"
 	"k8s.io/utils/pointer"
-	clusterapiv1alpha3 "sigs.k8s.io/cluster-api/api/v1alpha3"
-	controlplanev1alpha3 "sigs.k8s.io/cluster-api/controlplane/kubeadm/api/v1alpha3"
+	clusterapiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
+	controlplanev1beta1 "sigs.k8s.io/cluster-api/controlplane/kubeadm/api/v1beta1"
 	clusterapiutil "sigs.k8s.io/cluster-api/util"
 	clusterapipatchutil "sigs.k8s.io/cluster-api/util/patch"
 	clusterApiPredicates "sigs.k8s.io/cluster-api/util/predicates"
@@ -35,8 +32,6 @@ import (
 
 	kappctrl "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/kappctrl/v1alpha1"
 	kapppkg "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/packaging/v1alpha1"
-	kappdatapkg "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apiserver/apis/datapackaging/v1alpha1"
-
 	addonconfig "github.com/vmware-tanzu/tanzu-framework/addons/pkg/config"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
 	addontypes "github.com/vmware-tanzu/tanzu-framework/addons/pkg/types"
@@ -62,7 +57,7 @@ type AddonReconciler struct {
 // SetupWithManager performs the setup actions for an add on controller, using the passed in mgr.
 func (r *AddonReconciler) SetupWithManager(ctx context.Context, mgr ctrl.Manager, options controller.Options) error {
 	addonController, err := ctrl.NewControllerManagedBy(mgr).
-		For(&clusterapiv1alpha3.Cluster{}).
+		For(&clusterapiv1beta1.Cluster{}).
 		Watches(
 			&source.Kind{Type: &corev1.Secret{}},
 			handler.EnqueueRequestsFromMapFunc(r.AddonSecretToClusters),
@@ -85,7 +80,7 @@ func (r *AddonReconciler) SetupWithManager(ctx context.Context, mgr ctrl.Manager
 			),
 		).
 		Watches(
-			&source.Kind{Type: &controlplanev1alpha3.KubeadmControlPlane{}},
+			&source.Kind{Type: &controlplanev1beta1.KubeadmControlPlane{}},
 			handler.EnqueueRequestsFromMapFunc(r.KubeadmControlPlaneToClusters),
 			builder.WithPredicates(
 				addonpredicates.KubeadmControlPlane(r.Log),
@@ -111,7 +106,7 @@ func (r *AddonReconciler) Reconcile(ctx context.Context, req ctrl.Request) (_ ct
 	log.Info("Reconciling cluster")
 
 	// get cluster object
-	cluster := &clusterapiv1alpha3.Cluster{}
+	cluster := &clusterapiv1beta1.Cluster{}
 	if err := r.Client.Get(ctx, req.NamespacedName, cluster); err != nil {
 		if apierrors.IsNotFound(err) {
 			log.Info("Cluster not found")
@@ -142,79 +137,11 @@ func (r *AddonReconciler) Reconcile(ctx context.Context, req ctrl.Request) (_ ct
 	return result, nil
 }
 
-// WaitForCRDs checks if CRDs are available by polling for resources that addon controller depends on.
-func (r *AddonReconciler) WaitForCRDs(mgr ctrl.Manager) error {
-	// add all the CRDs the controller is watching and is dependent on
-	var crds = map[schema.GroupVersion]*sets.String{}
-	// cluster-api
-	clusterapiv1alpha3Resources := sets.NewString("clusters", "kubeadmcontrolplanes")
-	crds[runtanzuv1alpha1.GroupVersion] = &clusterapiv1alpha3Resources
-
-	// tkr
-	runtanzuv1alpha1Resources := sets.NewString("tanzukubernetesreleases")
-	crds[runtanzuv1alpha1.GroupVersion] = &runtanzuv1alpha1Resources
-
-	// kapp-controller APIs
-	kappctrlv1alpha1Resources := sets.NewString("apps")
-	crds[kappctrl.SchemeGroupVersion] = &kappctrlv1alpha1Resources
-
-	kapppkgv1alpha1Resources := sets.NewString("packageinstalls", "packagerepositories")
-	crds[kapppkg.SchemeGroupVersion] = &kapppkgv1alpha1Resources
-
-	kappdatapkgv1alpha1Resources := sets.NewString("packagemetadatas", "packages")
-	crds[kappdatapkg.SchemeGroupVersion] = &kappdatapkgv1alpha1Resources
-
-	addonPod := &corev1.Pod{ObjectMeta: metav1.ObjectMeta{Name: os.Getenv("POD_NAME"), Namespace: os.Getenv("POD_NAMESPACE")}}
-
-	poller := func() (done bool, err error) {
-		// Create new clientset for every invocation to avoid caching of resources
-		cs, err := clientset.NewForConfig(mgr.GetConfig())
-		if err != nil {
-			return false, err
-		}
-
-		allFound := true
-		for gv, resources := range crds {
-			// All resources found, do nothing
-			if resources.Len() == 0 {
-				delete(crds, gv)
-				continue
-			}
-
-			// Get the Resources for this GroupVersion
-			groupVersion := gv.String()
-			resourceList, err := cs.Discovery().ServerResourcesForGroupVersion(groupVersion)
-			if err != nil {
-				r.Log.Error(err, "error retrieving GroupVersion", "GroupVersion", groupVersion)
-				mgr.GetEventRecorderFor(constants.AddonControllerName).Eventf(addonPod, corev1.EventTypeWarning,
-					"Polling for GroupVersion", "The GroupVersion '%s' is not available yet", groupVersion)
-				return false, nil
-			}
-
-			// Remove each found resource from the resources set that we are waiting for
-			for i := 0; i < len(resourceList.APIResources); i++ {
-				resources.Delete(resourceList.APIResources[i].Name)
-			}
-
-			// Still waiting on some resources in this group version
-			if resources.Len() != 0 {
-				allFound = false
-				r.Log.Info("resources are not available yet", "api-resources", resources, "GroupVersion", groupVersion)
-				mgr.GetEventRecorderFor(constants.AddonControllerName).Eventf(addonPod, corev1.EventTypeWarning,
-					"Polling for api-resources", "The api-resources '%s' in GroupVersion '%s' are not available yet", resources, groupVersion)
-			}
-		}
-		return allFound, nil
-	}
-
-	return wait.PollImmediate(constants.CRDWaitPollInterval, constants.CRDWaitPollTimeout, poller)
-}
-
 // reconcileDelete deletes the addon secrets that belong to the cluster
 func (r *AddonReconciler) reconcileDelete(
 	ctx context.Context,
 	log logr.Logger,
-	cluster *clusterapiv1alpha3.Cluster) (ctrl.Result, error) {
+	cluster *clusterapiv1beta1.Cluster) (ctrl.Result, error) {
 
 	log.Info("Reconciling cluster deletion")
 
@@ -296,7 +223,7 @@ func (r *AddonReconciler) reconcileDelete(
 func (r *AddonReconciler) reconcileNormal(
 	ctx context.Context,
 	log logr.Logger,
-	cluster *clusterapiv1alpha3.Cluster) (ctrl.Result, error) {
+	cluster *clusterapiv1beta1.Cluster) (ctrl.Result, error) {
 
 	// Get addon secrets for the cluster
 	addonSecrets, err := util.GetAddonSecretsForCluster(ctx, r.Client, cluster)
@@ -366,7 +293,7 @@ func (r *AddonReconciler) reconcileNormal(
 func (r *AddonReconciler) reconcileAddonSecret(
 	ctx context.Context,
 	log logr.Logger,
-	cluster *clusterapiv1alpha3.Cluster,
+	cluster *clusterapiv1beta1.Cluster,
 	clusterClient client.Client,
 	addonSecret *corev1.Secret,
 	imageRepository string,
@@ -463,7 +390,7 @@ func (r *AddonReconciler) reconcileAddonSecretNormal(
 	ctx context.Context,
 	log logr.Logger,
 	addonName string,
-	cluster *clusterapiv1alpha3.Cluster,
+	cluster *clusterapiv1beta1.Cluster,
 	clusterClient client.Client,
 	addonSecret *corev1.Secret,
 	patchAddonSecret *bool,
@@ -532,7 +459,7 @@ func (r *AddonReconciler) removeFinalizerFromAddonSecret(
 // returns true if finalizer or owner reference is added
 func (r *AddonReconciler) addMetadataToAddonSecret(
 	log logr.Logger,
-	cluster *clusterapiv1alpha3.Cluster,
+	cluster *clusterapiv1beta1.Cluster,
 	addonSecret *corev1.Secret) bool {
 
 	var patchAddonSecret bool
@@ -548,7 +475,7 @@ func (r *AddonReconciler) addMetadataToAddonSecret(
 
 	// add owner reference to addon secret
 	ownerReference := metav1.OwnerReference{
-		APIVersion:         clusterapiv1alpha3.GroupVersion.String(),
+		APIVersion:         clusterapiv1beta1.GroupVersion.String(),
 		Kind:               "Cluster",
 		Name:               cluster.Name,
 		UID:                cluster.UID,
@@ -603,4 +530,28 @@ func (r *AddonReconciler) GetAddonKappResourceReconciler(
 		return &PackageReconciler{ctx: ctx, log: log, clusterClient: clusterClient, Config: r.Config}, nil
 	}
 	return nil, fmt.Errorf("invalid reconciler type: %s", reconcilerType)
+}
+
+// GetExternalCRDs returns all external custom resources that addon controller depends on
+func GetExternalCRDs() map[schema.GroupVersion]*sets.String {
+	var crds = map[schema.GroupVersion]*sets.String{}
+	// cluster-api
+	clusterapiv1alpha3Resources := sets.NewString("clusters")
+	crds[clusterapiv1beta1.GroupVersion] = &clusterapiv1alpha3Resources
+
+	controlplanev1alpha3Resources := sets.NewString("kubeadmcontrolplanes")
+	crds[controlplanev1beta1.GroupVersion] = &controlplanev1alpha3Resources
+
+	// tkr
+	runtanzuv1alpha1Resources := sets.NewString("tanzukubernetesreleases")
+	crds[runtanzuv1alpha1.GroupVersion] = &runtanzuv1alpha1Resources
+
+	// kapp-controller APIs
+	kappctrlv1alpha1Resources := sets.NewString("apps")
+	crds[kappctrl.SchemeGroupVersion] = &kappctrlv1alpha1Resources
+
+	kapppkgv1alpha1Resources := sets.NewString("packageinstalls", "packagerepositories")
+	crds[kapppkg.SchemeGroupVersion] = &kapppkgv1alpha1Resources
+
+	return crds
 }

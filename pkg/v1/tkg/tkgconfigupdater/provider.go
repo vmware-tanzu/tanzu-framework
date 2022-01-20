@@ -4,16 +4,16 @@
 package tkgconfigupdater
 
 import (
-	"encoding/base64"
 	"os"
 	"path/filepath"
 	"regexp"
 	"strings"
 
-	ctlimg "github.com/k14s/imgpkg/pkg/imgpkg/image"
+	ctlimg "github.com/k14s/imgpkg/pkg/imgpkg/registry"
 	"github.com/pkg/errors"
 	yaml "gopkg.in/yaml.v3"
 
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/clientconfighelpers"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfigpaths"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkr/pkg/registry"
@@ -25,8 +25,14 @@ type provider struct {
 	ProviderType string `yaml:"type"`
 }
 
+type certManager struct {
+	URL     string `yaml:"url"`
+	Version string `yaml:"version"`
+}
+
 type providers struct {
-	Providers []provider `yaml:"providers"`
+	Providers   []provider  `yaml:"providers"`
+	CertManager certManager `yaml:"cert-manager"`
 }
 
 func (c *client) defaultProviders() (providers, error) {
@@ -46,19 +52,64 @@ func (c *client) defaultProviders() (providers, error) {
 		return providers{}, errors.Wrapf(err, "Unable to unmarshall provider config")
 	}
 	for i := range providersConfig.Providers {
-		path := filepath.Join(tkgDir, providersConfig.Providers[i].URL)
-		if strings.Contains(path, "\\") {
-			// convert windows backslash style paths 'c:\foo\....' to file:// urls
-			path = "file:///" + filepath.ToSlash(path)
-		}
-
-		providersConfig.Providers[i].URL = path
+		providersConfig.Providers[i].URL = getFilePath(tkgDir, providersConfig.Providers[i].URL)
 	}
+	providersConfig.CertManager.URL = getFilePath(tkgDir, providersConfig.CertManager.URL)
+
 	return providersConfig, nil
 }
 
+func getFilePath(tkgDir, url string) string {
+	path := filepath.Join(tkgDir, url)
+	if strings.Contains(path, "\\") {
+		// convert windows backslash style paths 'c:\foo\....' to file:// urls
+		path = "file:///" + filepath.ToSlash(path)
+	}
+	return path
+}
+
+func ensureCertManagerInConfig(defaultProviders providers, tkgConfigNode *yaml.Node) error {
+	certManagerIndex := GetNodeIndex(tkgConfigNode.Content[0].Content, constants.CertManagerConfigKey)
+	if certManagerIndex == -1 {
+		tkgConfigNode.Content[0].Content = append(tkgConfigNode.Content[0].Content, createSequenceNode(constants.CertManagerConfigKey)...)
+		certManagerIndex = GetNodeIndex(tkgConfigNode.Content[0].Content, constants.CertManagerConfigKey)
+	}
+
+	certManagerNode := yaml.Node{}
+	if err := copyData(defaultProviders.CertManager, &certManagerNode); err != nil {
+		return errors.Wrap(err, "unable to get cert-manager")
+	}
+
+	tkgConfigNode.Content[0].Content[certManagerIndex] = certManagerNode.Content[0]
+	return nil
+}
+
+func copyData(from, to interface{}) error {
+	bytes, err := yaml.Marshal(from)
+	if err != nil {
+		return err
+	}
+
+	if err := yaml.Unmarshal(bytes, to); err != nil {
+		return err
+	}
+	return nil
+}
+
+func ensureProvidersWhenKeyAbsent(defaultProviders providers, tkgConfigNode *yaml.Node) error {
+	tkgConfigNode.Content[0].Content = append(tkgConfigNode.Content[0].Content, createSequenceNode(constants.ProvidersConfigKey)...)
+	providerIndex := GetNodeIndex(tkgConfigNode.Content[0].Content, constants.ProvidersConfigKey)
+
+	providerListNode := yaml.Node{}
+	if err := copyData(defaultProviders.Providers, &providerListNode); err != nil {
+		return errors.Wrap(err, "unable to get a list of default providers")
+	}
+	tkgConfigNode.Content[0].Content[providerIndex] = providerListNode.Content[0]
+	return nil
+}
+
 // EnsureProvidersInConfig ensures the providers section in tkgconfig exists and it is synchronized with the latest providers
-func (c *client) EnsureProvidersInConfig(needUpdate bool, tkgConfigNode *yaml.Node) error { //nolint:gocyclo
+func (c *client) EnsureProvidersInConfig(needUpdate bool, tkgConfigNode *yaml.Node) error {
 	providerIndex := GetNodeIndex(tkgConfigNode.Content[0].Content, constants.ProvidersConfigKey)
 	if providerIndex != -1 && !needUpdate {
 		return nil
@@ -68,33 +119,18 @@ func (c *client) EnsureProvidersInConfig(needUpdate bool, tkgConfigNode *yaml.No
 		return errors.Wrap(err, "unable to get a list of default providers")
 	}
 
-	if providerIndex == -1 {
-		tkgConfigNode.Content[0].Content = append(tkgConfigNode.Content[0].Content, createSequenceNode(constants.ProvidersConfigKey)...)
-		providerIndex = GetNodeIndex(tkgConfigNode.Content[0].Content, constants.ProvidersConfigKey)
-
-		defaultProvidersBytes, err := yaml.Marshal(defaultProviders.Providers)
-		if err != nil {
-			return errors.Wrap(err, "unable to get a list of default providers")
-		}
-		providerListNode := yaml.Node{}
-		err = yaml.Unmarshal(defaultProvidersBytes, &providerListNode)
-		if err != nil {
-			return errors.Wrap(err, "unable to get a list of default providers")
-		}
-
-		tkgConfigNode.Content[0].Content[providerIndex] = providerListNode.Content[0]
-		return nil
-	}
-
-	userTKGConfigBytes, err := yaml.Marshal(tkgConfigNode)
+	err = ensureCertManagerInConfig(defaultProviders, tkgConfigNode)
 	if err != nil {
 		return err
+	}
+
+	if providerIndex == -1 {
+		return ensureProvidersWhenKeyAbsent(defaultProviders, tkgConfigNode)
 	}
 
 	userProviders := providers{}
-	err = yaml.Unmarshal(userTKGConfigBytes, &userProviders)
-	if err != nil {
-		return err
+	if err := copyData(tkgConfigNode, &userProviders); err != nil {
+		return errors.Wrap(err, "unable to get a list of default providers")
 	}
 
 	for _, dp := range defaultProviders.Providers {
@@ -111,14 +147,9 @@ func (c *client) EnsureProvidersInConfig(needUpdate bool, tkgConfigNode *yaml.No
 		}
 	}
 
-	updatedProviderListBytes, err := yaml.Marshal(userProviders.Providers)
-	if err != nil {
-		return err
-	}
 	updatedproviderListNode := yaml.Node{}
-	err = yaml.Unmarshal(updatedProviderListBytes, &updatedproviderListNode)
-	if err != nil {
-		return err
+	if err := copyData(userProviders.Providers, &updatedproviderListNode); err != nil {
+		return errors.Wrap(err, "unable to get a list of default providers")
 	}
 	tkgConfigNode.Content[0].Content[providerIndex] = updatedproviderListNode.Content[0]
 
@@ -207,22 +238,18 @@ func (c *client) InitProvidersRegistry() (registry.Registry, error) {
 		verifyCerts = false
 	}
 
-	registryOpts := ctlimg.RegistryOpts{
+	registryOpts := ctlimg.Opts{
 		VerifyCerts: verifyCerts,
 		Anon:        true,
 	}
 
-	customImageRepoCACertEnv, err := c.tkgConfigReaderWriter.Get(constants.ConfigVariableCustomImageRepositoryCaCertificate)
-	if err == nil && customImageRepoCACertEnv != "" {
+	caCertBytes, err := clientconfighelpers.GetCustomRepositoryCaCertificateForClient(c.tkgConfigReaderWriter)
+	if err == nil && len(caCertBytes) != 0 {
 		filePath, err := tkgconfigpaths.GetRegistryCertFile()
 		if err != nil {
 			return nil, err
 		}
-		decoded, err := base64.StdEncoding.DecodeString(customImageRepoCACertEnv)
-		if err != nil {
-			return nil, errors.Wrap(err, "unable to decode the base64-encoded custom registry CA certificate string")
-		}
-		err = os.WriteFile(filePath, decoded, 0644)
+		err = os.WriteFile(filePath, caCertBytes, 0644)
 		if err != nil {
 			return nil, errors.Wrapf(err, "failed to write the custom image registry CA cert to file '%s'", filePath)
 		}

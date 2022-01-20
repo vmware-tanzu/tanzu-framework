@@ -85,7 +85,7 @@ Note: Updating `VSphereMachineTemplate.Spec.Template.Spec.Template` or `AWSMachi
 
 * copy the existing `InfrastructureMachineTemplate`
 * update the template name (new template names: {CLUSTER_NAME}-{KUBERNETES_VERSION}, replace ./+ with – in kubernetes version)
-* update the relavent image information in the new `InfrastructureMachineTemplate`.
+* update the relevant image information in the new `InfrastructureMachineTemplate`.
 * create new `InfrastructureMachineTemplate` by applying the template the the cluster
 
 #### For VSphereMachineTemplate

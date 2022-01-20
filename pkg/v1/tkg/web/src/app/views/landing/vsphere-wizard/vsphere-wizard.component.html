@@ -9,192 +9,22 @@
                 keyboardListener
             ></clr-icon>
             <h2 i18n="wizard title" aria-level="1">
-                <div class="vsphere-icon-30"></div>
-                Deploy {{ clusterType | titlecase }} Cluster on vSphere
+                <div class="vsphere-icon-30 offset-top-2"></div>
+                Deploy {{ clusterTypeDescriptorTitleCase }} Cluster on vSphere
             </h2>
+            <ng-container *featureToggle="'management-cluster.import'">
+                <input type="file" class="file-input"
+                       (change)="onImportFileSelected($event)" #fileUpload>
+                <button class="btn btn-outline import-btn" (click)="onImportButtonClick() && fileUpload.click()"
+                        i18n="import configuration button">
+                    Import Configuration
+                </button>
+            </ng-container>
         </div>
     </div>
     <app-shared-delete-data-popup></app-shared-delete-data-popup>
-    <form clrStepper #wizard [formGroup]="form">
-        <clr-stepper-panel formGroupName="vsphereProviderForm" removeAriaLabelledBy>
-            <clr-step-title i18n="IaaS provider step name">
-                IaaS Provider
-            </clr-step-title>
-            <clr-step-description i18n="IaaS provider step description">
-                {{ getStepDescription('provider') }}
-            </clr-step-description>
-            <ng-container *ngIf="steps[0] && show">
-                <app-vsphere-provider-step [formGroup]="form.controls.vsphereProviderForm" formName="vsphereProvider">
-                </app-vsphere-provider-step>
-            </ng-container>
-            <clr-step-content *clrIfExpanded>
-                <app-step-controller (nextStep)="onNextStep()"></app-step-controller>
-            </clr-step-content>
-        </clr-stepper-panel>
 
-        <clr-stepper-panel formGroupName="vsphereNodeSettingForm" removeAriaLabelledBy>
-            <clr-step-title i18n="node setting step name">
-                {{ clusterType | titlecase }} Cluster Settings
-            </clr-step-title>
-            <clr-step-description i18n="node setting step description">
-                {{ getStepDescription('nodeSetting') }}
-            </clr-step-description>
-            <ng-container *ngIf="steps[1]">
-                <app-node-setting-step [formGroup]="form.controls.vsphereNodeSettingForm" [providerType]="(provider | async)"
-                    formName="nodeSettings">
-                </app-node-setting-step>
-            </ng-container>
-            <clr-step-content *clrIfExpanded>
-                <app-step-controller (nextStep)="onNextStep()"></app-step-controller>
-            </clr-step-content>
-        </clr-stepper-panel>
-
-        <clr-stepper-panel formGroupName="loadBalancerForm" removeAriaLabelledBy>
-            <clr-step-title i18n="load balancer step name">
-                VMware NSX Advanced Load Balancer
-            </clr-step-title>
-            <clr-step-description i18n="load balancer step description">
-                {{ getStepDescription('loadBalancer') }}
-            </clr-step-description>
-            <ng-container *ngIf="steps[2]">
-                <app-load-balancer-step [formGroup]="form.controls.loadBalancerForm" formName="loadBalancer">
-                </app-load-balancer-step>
-            </ng-container>
-            <clr-step-content *clrIfExpanded>
-                <app-step-controller (nextStep)="onNextStep()"></app-step-controller>
-            </clr-step-content>
-        </clr-stepper-panel>
-
-        <clr-stepper-panel formGroupName="metadataForm" removeAriaLabelledBy>
-            <clr-step-title i18n="metadata step name">
-                Metadata
-            </clr-step-title>
-            <clr-step-description i18n="metadata step description">
-                {{ getStepDescription('metadata') }}
-            </clr-step-description>
-            <ng-container *ngIf="steps[3]">
-                <app-metadata-step [formGroup]="form.controls.metadataForm" formName="metadata">
-                </app-metadata-step>
-            </ng-container>
-            <clr-step-content *clrIfExpanded>
-                <app-step-controller (nextStep)="onNextStep()"></app-step-controller>
-            </clr-step-content>
-        </clr-stepper-panel>
-
-        <clr-stepper-panel formGroupName="resourceForm" removeAriaLabelledBy>
-            <clr-step-title i18n="Resource step name">
-                Resources
-            </clr-step-title>
-            <clr-step-description i18n="Resource step description">
-                {{ getStepDescription('resource') }}
-            </clr-step-description>
-            <ng-container *ngIf="steps[4]">
-                <app-resource-step [formGroup]="form.controls.resourceForm" formName="resources">
-                </app-resource-step>
-            </ng-container>
-            <clr-step-content *clrIfExpanded>
-                <app-step-controller (nextStep)="onNextStep()"></app-step-controller>
-            </clr-step-content>
-        </clr-stepper-panel>
-
-        <clr-stepper-panel formGroupName="networkForm" removeAriaLabelledBy>
-            <clr-step-title i18n="Kubernetes network step name">
-                Kubernetes Network
-            </clr-step-title>
-            <clr-step-description i18n="Kubernetes network step description">
-                {{ getStepDescription('network') }}
-            </clr-step-description>
-            <ng-container *ngIf="steps[5]">
-                <app-shared-network-step [formGroup]="form.controls.networkForm" enableNetworkName="true"
-                    formName="network">
-                </app-shared-network-step>
-            </ng-container>
-            <clr-step-content *clrIfExpanded>
-                <app-step-controller (nextStep)="onNextStep()"></app-step-controller>
-            </clr-step-content>
-        </clr-stepper-panel>
-
-        <clr-stepper-panel formGroupName="identityForm" removeAriaLabelledBy>
-            <clr-step-title i18n="identity step title">
-                Identity Management
-            </clr-step-title>
-            <clr-step-description i18n="identity step description">
-                {{ getStepDescription('identity') }}
-            </clr-step-description>
-            <ng-container *ngIf="steps[6]">
-                <app-shared-identity-step
-                        [formGroup]="form.controls.identityForm"
-                        formName="identity">
-                </app-shared-identity-step>
-            </ng-container>
-            <clr-step-content *clrIfExpanded>
-                <app-step-controller (nextStep)="onNextStep()"></app-step-controller>
-            </clr-step-content>
-        </clr-stepper-panel>
-
-        <clr-stepper-panel formGroupName="osImageForm" removeAriaLabelledBy>
-            <clr-step-title i18n="OS Image">
-                OS Image
-            </clr-step-title>
-            <clr-step-description i18n="OS Imagedescription">
-                {{ getStepDescription('osImage') }}
-            </clr-step-description>
-            <ng-container *ngIf="steps[7]">
-                <app-os-image-step [formGroup]="form.controls.osImageForm"
-                    formName="osimages" [wizardFormService]="wizardFormService" type="VSPHERE"
-                    [noImageAlertMessage]="'Your ' + clusterType + ' cluster will be deployed with Tanzu Kubernetes release (TKr) ' + (tkrVersion | async) + '.
-                                    We are unable to detect a VM template that belongs to this Tanzu Kubernetes release. You must install
-                                    a VM template that belongs to Tanzu Kubernetes release ' +  (tkrVersion | async) + ' to continue with deployment of
-                                    the ' + clusterType + ' cluster. You may click the refresh icon to reload the OS image list once the
-                                    appropriate VM template has been installed.'"
-                    osImageTooltipContent="Select a VM template for a base OS image that you have already imported
-                                    into vSphere. If no compatible template is present, import one into
-                                    vSphere and click the Refresh button."
-                    enableNonTemplateAlert=true
-                    >
-                </app-os-image-step>
-            </ng-container>
-            <clr-step-content *clrIfExpanded>
-                <app-step-controller (nextStep)="onNextStep()"></app-step-controller>
-            </clr-step-content>
-        </clr-stepper-panel>
-
-        <clr-stepper-panel formGroupName="registerTmcForm" removeAriaLabelledBy *ngIf="edition !== 'tce-standalone'">
-            <clr-step-title i18n="register tmc step title">
-                Register TMC
-            </clr-step-title>
-            <clr-step-description i18n="register tmc step description">
-                Optionally Register with Tanzu Mission Control
-            </clr-step-description>
-            <ng-container *ngIf="steps[8]">
-                <app-shared-register-tmc-step
-                        [formGroup]="form.controls.registerTmcForm"
-                        formName="registerTmc">
-                </app-shared-register-tmc-step>
-            </ng-container>
-            <clr-step-content *clrIfExpanded>
-                <app-step-controller (nextStep)="onNextStep()"></app-step-controller>
-            </clr-step-content>
-        </clr-stepper-panel>
-
-        <clr-stepper-panel formGroupName="ceipOptInForm" removeAriaLabelledBy *ngIf="edition === 'tkg'">
-            <clr-step-title i18n="ceip agreement step title">
-                CEIP Agreement
-            </clr-step-title>
-            <clr-step-description i18n="ceip agreement step description">
-                Join the CEIP Program for TKG
-            </clr-step-description>
-            <ng-container *ngIf="steps[9]">
-                <app-shared-ceip-step
-                    [formGroup]="form.controls.ceipOptInForm"
-                    formName="ceipOptIn">
-                </app-shared-ceip-step>
-            </ng-container>
-            <clr-step-content *clrIfExpanded>
-                <app-step-controller (nextStep)="onNextStep()"></app-step-controller>
-            </clr-step-content>
-        </clr-stepper-panel>
-    </form>
+    <app-step-wrapper-set [wizard]="registrar"></app-step-wrapper-set>
 
     <button class="btn btn-primary mt-20" [disabled]="!getWizardValidity()" (click)="reviewConfiguration(true)"
         i18n="review cluster configuration btn">
@@ -203,17 +33,24 @@
 </div>
 
 <ng-container *ngIf="review">
-    <tkg-kickstart-ui-confirm [errorNotification]="errorNotification"></tkg-kickstart-ui-confirm>
+    <tkg-kickstart-ui-confirm></tkg-kickstart-ui-confirm>
+    <app-error-notification [errorNotification]="errorNotification"></app-error-notification>
     <div class="clr-row mt-20">
         <div class="clr-col-12 btn-container">
+            <button class="btn btn-primary deploy-btn" [disabled]="disableDeployButton" (click)="deploy()"
+                    i18n="deploy cluster configuration btn">
+                Deploy {{ clusterTypeDescriptorTitleCase }} Cluster
+            </button>
             <button class="btn btn-outline edit-btn" (click)="reviewConfiguration(false)"
                 i18n="return to wizard for edit button">
                 Edit Configuration
             </button>
-            <button class="btn btn-primary deploy-btn" [disabled]="disableDeployButton" (click)="deploy()"
-                i18n="deploy cluster configuration btn">
-                Deploy {{ clusterType | titlecase }} Cluster
-            </button>
+            <ng-container *featureToggle="'management-cluster.export-from-confirm'">
+                <button class="btn btn-link export-btn" (click)="exportConfiguration()"
+                        i18n="export configuration button">
+                    Export Configuration
+                </button>
+            </ng-container>
         </div>
     </div>
 </ng-container>

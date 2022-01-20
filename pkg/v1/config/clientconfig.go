@@ -8,12 +8,68 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strconv"
 
 	"github.com/aunum/log"
 	"github.com/pkg/errors"
 	"k8s.io/apimachinery/pkg/runtime/serializer/json"
 
 	configv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/config/v1alpha1"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/common"
+)
+
+// This block is for global feature constants, to allow them to be used more broadly
+const (
+	// FeatureContextAwareCLIForPlugins determines whether to use legacy way of discovering plugins or
+	// to use the new context-aware Plugin API based plugin discovery mechanism
+	// Users can set this featureflag so that we can have context-aware plugin discovery be opt-in for now.
+	FeatureContextAwareCLIForPlugins = "features.global.context-aware-cli-for-plugins"
+	// DualStack feature flags determine whether it is permitted to create
+	// clusters with a dualstack TKG_IP_FAMILY.  There are separate flags for
+	// each primary, "ipv4,ipv6" vs "ipv6,ipv4", and flags for management vs
+	// workload cluster plugins.
+	FeatureFlagManagementClusterDualStackIPv4Primary = "features.management-cluster.dual-stack-ipv4-primary"
+	FeatureFlagManagementClusterDualStackIPv6Primary = "features.management-cluster.dual-stack-ipv6-primary"
+	FeatureFlagClusterDualStackIPv4Primary           = "features.cluster.dual-stack-ipv4-primary"
+	FeatureFlagClusterDualStackIPv6Primary           = "features.cluster.dual-stack-ipv6-primary"
+	// Custom Nameserver feature flags determine whether it is permitted to
+	// provide the CONTROL_PLANE_NODE_NAMESERVERS and WORKER_NODE_NAMESERVERS
+	// when creating a cluster.
+	FeatureFlagManagementClusterCustomNameservers = "features.management-cluster.custom-nameservers"
+	FeatureFlagClusterCustomNameservers           = "features.cluster.custom-nameservers"
+	// Network Separation feature flags determine whether it is permitted to
+	// provide the AVI_MANAGEMENT_CLUSTER_SERVICE_ENGINE_GROUP, AVI_CONTROL_PLANE_NETWORK, AVI_CONTROL_PLANE_NETWORK_CIDR,
+	// AVI_MANAGEMENT_CLUSTER_CONTROL_PLANE_VIP_NETWORK_NAME and AVI_MANAGEMENT_CLUSTER_CONTROL_PLANE_VIP_NETWORK_CIDR
+	// when creating a cluster.
+	FeatureFlagManagementClusterNetworkSeparation = "features.management-cluster.network-separation-beta"
+)
+
+// DefaultCliFeatureFlags is used to populate an initially empty config file with default values for feature flags.
+// The keys MUST be in the format "features.<plugin>.<feature>" or initialization
+// will fail. Note that "global" is a special value for <plugin> to be used for CLI-wide features.
+//
+// If a developer expects that their feature will be ready to release, they should create an entry here with a true
+// value.
+// If a developer has a beta feature they want to expose, but leave turned off by default, they should create
+// an entry here with a false value. WE HIGHLY RECOMMEND the use of a SEPARATE flag for beta use; one that ends in "-beta".
+// Thus, if you plan to eventually release a feature with a flag named "features.cluster.foo-bar", you should consider
+// releasing the beta version with "features.cluster.foo-bar-beta". This will make it much easier when it comes time for
+// mainstreaming the feature (with a default true value) under the flag name "features.cluster.foo-bar", as there will be
+// no conflict with previous installs (that have a false value for the entry "features.cluster.foo-bar-beta").
+var (
+	DefaultCliFeatureFlags = map[string]bool{
+		FeatureContextAwareCLIForPlugins:                      common.ContextAwareDiscoveryEnabled(),
+		"features.management-cluster.import":                  false,
+		"features.management-cluster.export-from-confirm":     true,
+		"features.management-cluster.standalone-cluster-mode": false,
+		FeatureFlagManagementClusterDualStackIPv4Primary:      false,
+		FeatureFlagManagementClusterDualStackIPv6Primary:      false,
+		FeatureFlagClusterDualStackIPv4Primary:                false,
+		FeatureFlagClusterDualStackIPv6Primary:                false,
+		FeatureFlagManagementClusterCustomNameservers:         false,
+		FeatureFlagClusterCustomNameservers:                   false,
+		FeatureFlagManagementClusterNetworkSeparation:         false,
+	}
 )
 
 const (
@@ -91,14 +147,57 @@ func NewClientConfig() (*configv1alpha1.ClientConfig, error) {
 			CLI: &configv1alpha1.CLIOptions{
 				Repositories:            DefaultRepositories,
 				UnstableVersionSelector: DefaultVersionSelector,
+				Edition:                 DefaultEdition,
 			},
 		},
 	}
+
+	_ = populateDefaultStandaloneDiscovery(c)
+
 	err := StoreClientConfig(c)
 	if err != nil {
 		return nil, err
 	}
+
+	err = populateDefaultCliFeatureValues(c, DefaultCliFeatureFlags)
+	if err != nil {
+		return nil, err
+	}
 	return c, nil
+}
+
+func populateDefaultCliFeatureValues(c *configv1alpha1.ClientConfig, defaultCliFeatureFlags map[string]bool) error {
+	for featureName, flagValue := range defaultCliFeatureFlags {
+		plugin, flag, err := c.SplitFeaturePath(featureName)
+		if err != nil {
+			return err
+		}
+		addFeatureFlag(c, plugin, flag, flagValue)
+	}
+	return nil
+}
+
+func addFeatureFlag(c *configv1alpha1.ClientConfig, plugin, flag string, flagValue bool) {
+	if c.ClientOptions == nil {
+		c.ClientOptions = &configv1alpha1.ClientOptions{}
+	}
+	if c.ClientOptions.Features == nil {
+		c.ClientOptions.Features = make(map[string]configv1alpha1.FeatureMap)
+	}
+	if c.ClientOptions.Features[plugin] == nil {
+		c.ClientOptions.Features[plugin] = make(map[string]string)
+	}
+	c.ClientOptions.Features[plugin][flag] = strconv.FormatBool(flagValue)
+}
+
+func addEdition(c *configv1alpha1.ClientConfig, edition configv1alpha1.EditionSelector) {
+	if c.ClientOptions == nil {
+		c.ClientOptions = &configv1alpha1.ClientOptions{}
+	}
+	if c.ClientOptions.CLI == nil {
+		c.ClientOptions.CLI = &configv1alpha1.CLIOptions{}
+	}
+	c.ClientOptions.CLI.Edition = edition
 }
 
 // ClientConfigNotExistError is thrown when a tanzu config cannot be found.
@@ -170,7 +269,47 @@ func GetClientConfig() (cfg *configv1alpha1.ClientConfig, err error) {
 	if err != nil {
 		return nil, errors.Wrap(err, "could not decode config file")
 	}
+
+	addedDefaultDiscovery := populateDefaultStandaloneDiscovery(&c)
+	addedFeatureFlags := addDefaultFeatureFlagsIfMissing(&c, DefaultCliFeatureFlags)
+	addedEdition := addDefaultEditionIfMissing(&c)
+
+	if addedFeatureFlags || addedDefaultDiscovery || addedEdition {
+		_ = StoreClientConfig(&c)
+	}
+
 	return &c, nil
+}
+
+// addDefaultEditionIfMissing returns true if the default edition was added to the configuration (because there was no edition)
+func addDefaultEditionIfMissing(config *configv1alpha1.ClientConfig) bool {
+	if config.ClientOptions == nil || config.ClientOptions.CLI == nil || config.ClientOptions.CLI.Edition == "" {
+		addEdition(config, DefaultEdition)
+		return true
+	}
+	return false
+}
+
+// addDefaultFeatureFlagsIfMissing augments the given configuration object with any default feature flags that do not already have a value
+// and returns TRUE if any were added (so the config can be written out to disk, if the caller wants to)
+func addDefaultFeatureFlagsIfMissing(config *configv1alpha1.ClientConfig, defaultFeatureFlags map[string]bool) bool {
+	added := false
+
+	for featurePath, activated := range defaultFeatureFlags {
+		plugin, feature, err := config.SplitFeaturePath(featurePath)
+		if err == nil && !containsFeatureFlag(config, plugin, feature) {
+			addFeatureFlag(config, plugin, feature, activated)
+			added = true
+		}
+	}
+
+	return added
+}
+
+// containsFeatureFlag returns true if the features section in the configuration object contains any value for the plugin.feature combination
+func containsFeatureFlag(config *configv1alpha1.ClientConfig, plugin, feature string) bool {
+	return config.ClientOptions != nil && config.ClientOptions.Features != nil && config.ClientOptions.Features[plugin] != nil &&
+		config.ClientOptions.Features[plugin][feature] != ""
 }
 
 // storeConfigToLegacyDir stores configuration to legacy dir and logs warning in case of errors.
@@ -398,4 +537,84 @@ func EndpointFromServer(s *configv1alpha1.Server) (endpoint string, err error) {
 	default:
 		return endpoint, fmt.Errorf("unknown server type %q", s.Type)
 	}
+}
+
+// IsFeatureActivated returns true if the given feature is activated
+// User can set this CLI feature flag using `tanzu config set features.global.<feature> true`
+func IsFeatureActivated(feature string) bool {
+	cfg, err := GetClientConfig()
+	if err != nil {
+		return false
+	}
+	status, err := cfg.IsConfigFeatureActivated(feature)
+	if err != nil {
+		return false
+	}
+	return status
+}
+
+// GetDiscoverySources returns all discovery sources
+// Includes standalone discovery sources and if server is available
+// it also includes context based discovery sources as well
+func GetDiscoverySources(serverName string) []configv1alpha1.PluginDiscovery {
+	server, err := GetServer(serverName)
+	if err != nil {
+		log.Warningf("unknown server '%s', Unable to get server based discovery sources: %s", serverName, err.Error())
+		return []configv1alpha1.PluginDiscovery{}
+	}
+
+	discoverySources := server.DiscoverySources
+	// If current server type is management-cluster, then add
+	// the default kubernetes discovery endpoint pointing to the
+	// management-cluster kubeconfig
+	if server.Type == configv1alpha1.ManagementClusterServerType {
+		defaultClusterK8sDiscovery := configv1alpha1.PluginDiscovery{
+			Kubernetes: &configv1alpha1.KubernetesDiscovery{
+				Name:    fmt.Sprintf("default-%s", serverName),
+				Path:    server.ManagementClusterOpts.Path,
+				Context: server.ManagementClusterOpts.Context,
+			},
+		}
+		discoverySources = append(discoverySources, defaultClusterK8sDiscovery)
+	}
+	return discoverySources
+}
+
+// GetEnvConfigurations returns a map of configured environment variables
+// to values as part of tanzu configuration file
+// it returns nil if configuration is not yet defined
+func GetEnvConfigurations() map[string]string {
+	cfg, err := GetClientConfig()
+	if err != nil {
+		return nil
+	}
+	return cfg.GetEnvConfigurations()
+}
+
+// ConfigureEnvVariables reads and configures provided environment variables
+// as part of tanzu configuration file
+func ConfigureEnvVariables() {
+	envMap := GetEnvConfigurations()
+	if envMap == nil {
+		return
+	}
+	for variable, value := range envMap {
+		// If environment variable is not already set
+		// set the environment variable
+		if os.Getenv(variable) == "" {
+			os.Setenv(variable, value)
+		}
+	}
+}
+
+// GetEdition returns the edition from the local configuration file
+func GetEdition() (string, error) {
+	cfg, err := GetClientConfig()
+	if err != nil {
+		return "", err
+	}
+	if cfg != nil && cfg.ClientOptions != nil && cfg.ClientOptions.CLI != nil {
+		return string(cfg.ClientOptions.CLI.Edition), nil
+	}
+	return "", nil
 }

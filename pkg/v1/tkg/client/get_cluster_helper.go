@@ -10,10 +10,12 @@ import (
 	"time"
 
 	"github.com/pkg/errors"
-	"github.com/yalp/jsonpath"
-	capi "sigs.k8s.io/cluster-api/api/v1alpha3"
-	controlplanev1 "sigs.k8s.io/cluster-api/controlplane/kubeadm/api/v1alpha3"
+	capiv1alpha3 "sigs.k8s.io/cluster-api/api/v1alpha3"
+	capi "sigs.k8s.io/cluster-api/api/v1beta1"
+	controlplanev1 "sigs.k8s.io/cluster-api/controlplane/kubeadm/api/v1beta1"
 	crtclient "sigs.k8s.io/controller-runtime/pkg/client"
+
+	tkgsv1alpha2 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha2"
 
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/clusterclient"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/log"
@@ -32,9 +34,9 @@ type clusterObjects struct {
 }
 
 type clusterObjectsForPacific struct {
-	cluster  interface{}
-	md       capi.MachineDeployment
-	machines []capi.Machine
+	cluster  tkgsv1alpha2.TanzuKubernetesCluster
+	mds      []capiv1alpha3.MachineDeployment
+	machines []capiv1alpha3.Machine
 }
 
 // ################### Helpers for Pacific ##################
@@ -42,27 +44,35 @@ type clusterObjectsForPacific struct {
 func getRunningCPMachineCountForPacific(clusterInfo *clusterObjectsForPacific) int {
 	cpMachineCount := 0
 	for i := range clusterInfo.machines {
-		if _, labelExists := clusterInfo.machines[i].GetLabels()[capi.MachineControlPlaneLabelName]; labelExists && strings.EqualFold(clusterInfo.machines[i].Status.Phase, "running") {
+		if _, labelExists := clusterInfo.machines[i].GetLabels()[capiv1alpha3.MachineControlPlaneLabelName]; labelExists && strings.EqualFold(clusterInfo.machines[i].Status.Phase, "running") {
 			cpMachineCount++
 		}
 	}
 	return cpMachineCount
 }
 
-func getClusterObjectsMapForPacific(clusterClient clusterclient.Client, apiVersion string, listOptions *crtclient.ListOptions) (map[string]*clusterObjectsForPacific, error) {
-	var tkcObjList []interface{}
-	tkcObjList, err := clusterClient.ListPacificClusterObjects(apiVersion, listOptions)
+func getClusterControlPlaneCountForPacific(clusterInfo *clusterObjectsForPacific) string {
+	if clusterInfo.cluster.Spec.Topology.ControlPlane.Replicas == nil {
+		return ""
+	}
+	cpReplicas := fmt.Sprintf("%v/%v", getRunningCPMachineCountForPacific(clusterInfo), *clusterInfo.cluster.Spec.Topology.ControlPlane.Replicas)
+	return cpReplicas
+}
+
+func getClusterObjectsMapForPacific(clusterClient clusterclient.Client, listOptions *crtclient.ListOptions) (map[string]*clusterObjectsForPacific, error) {
+	var tkcObjList tkgsv1alpha2.TanzuKubernetesClusterList
+	err := clusterClient.ListResources(&tkcObjList, listOptions)
 	if err != nil {
 		return nil, errors.Wrap(err, "unable to get list of clusters")
 	}
 
-	var mdList capi.MachineDeploymentList
+	var mdList capiv1alpha3.MachineDeploymentList
 	err = clusterClient.ListResources(&mdList, listOptions)
 	if err != nil {
 		return nil, errors.Wrap(err, "unable to get list of MachineDeployment objects")
 	}
 
-	var machineList capi.MachineList
+	var machineList capiv1alpha3.MachineList
 	err = clusterClient.ListResources(&machineList, listOptions)
 	if err != nil {
 		return nil, errors.Wrap(err, "unable to get list of Machine objects")
@@ -70,16 +80,10 @@ func getClusterObjectsMapForPacific(clusterClient clusterclient.Client, apiVersi
 
 	clusterInfoMap := make(map[string]*clusterObjectsForPacific)
 
-	for _, cl := range tkcObjList {
+	for idx := range tkcObjList.Items {
+		cl := tkcObjList.Items[idx]
 		clusterObjectCombined := clusterObjectsForPacific{cluster: cl}
-		name, errName := jsonpath.Read(cl, "$.metadata.name")
-		namespace, errNamespace := jsonpath.Read(cl, "$.metadata.namespace")
-		if errName != nil || errNamespace != nil {
-			continue
-		}
-		clusterName := name.(string)
-		clusterNamespace := namespace.(string)
-		key := clusterName + "-" + clusterNamespace
+		key := cl.Name + "-" + cl.Namespace
 		clusterInfoMap[key] = &clusterObjectCombined
 	}
 
@@ -93,7 +97,7 @@ func getClusterObjectsMapForPacific(clusterClient clusterclient.Client, apiVersi
 		if !clusterExists {
 			continue
 		}
-		clusterObjectCombined.md = mdList.Items[i]
+		clusterObjectCombined.mds = append(clusterObjectCombined.mds, mdList.Items[i])
 	}
 
 	for i := range machineList.Items {
@@ -110,6 +114,30 @@ func getClusterObjectsMapForPacific(clusterClient clusterclient.Client, apiVersi
 	}
 
 	return clusterInfoMap, nil
+}
+
+func getClusterWorkerCountForPacific(clusterInfo *clusterObjectsForPacific) string {
+	var desiredReplicasCount int32
+	nodePools := clusterInfo.cluster.Spec.Topology.NodePools
+	for idx := range nodePools {
+		if nodePools[idx].Replicas != nil {
+			desiredReplicasCount += *nodePools[idx].Replicas
+		}
+	}
+
+	var readyReplicasCount int32
+	for idx := range clusterInfo.mds {
+		readyReplicasCount += clusterInfo.mds[idx].Status.ReadyReplicas
+	}
+	return fmt.Sprintf("%v/%v", readyReplicasCount, desiredReplicasCount)
+}
+
+func getClusterPlanForPacific(clusterInfo *clusterObjectsForPacific) string {
+	plan, exists := clusterInfo.cluster.GetAnnotations()[TKGPlanAnnotation]
+	if !exists {
+		return ""
+	}
+	return plan
 }
 
 // ################### Helpers for Non-Pacific cluster info ##################
@@ -219,10 +247,10 @@ func getClusterWorkerCount(clusterInfo *clusterObjects) string {
 }
 
 func getClusterReplicas(mds []capi.MachineDeployment) (int32, int32, int32, int32) {
-	var readyReplicas int32 = 0
-	var specReplicas int32 = 0
-	var replicas int32 = 0
-	var updatedReplicas int32 = 0
+	var readyReplicas int32
+	var specReplicas int32
+	var replicas int32
+	var updatedReplicas int32
 	for i := range mds {
 		readyReplicas += mds[i].Status.ReadyReplicas
 		replicas += mds[i].Status.Replicas
@@ -262,7 +290,7 @@ func getClusterStatus(clusterInfo *clusterObjects) TKGClusterPhase {
 	readyReplicas, specReplicas, replicas, updatedReplicas := getClusterReplicas(clusterInfo.mds)
 
 	creationCompleteCondition := clusterInfo.cluster.Status.InfrastructureReady &&
-		clusterInfo.cluster.Status.ControlPlaneInitialized &&
+		clusterInfo.cluster.Status.ControlPlaneReady &&
 		clusterInfo.kcp.Status.ReadyReplicas > 0 &&
 		readyReplicas > 0
 

@@ -1,5 +1,6 @@
 import { FormControl, FormGroup } from '@angular/forms';
 import { Component, Input, OnInit } from '@angular/core';
+import { FormUtils } from '../../../utils/form-utils';
 
 @Component({
     selector: 'app-audit-logging',
@@ -14,7 +15,8 @@ export class AuditLoggingComponent implements OnInit {
     constructor() { }
 
     ngOnInit(): void {
-        this.formGroup.addControl(
+        FormUtils.addControl(
+            this.formGroup,
             'enableAuditLogging',
             new FormControl(false, [])
         );

@@ -142,6 +142,7 @@ kind: Capability
 metadata:
   name: tkg-capabilities
 spec:
+  serviceAccountName: my-service-account
   queries:
     - name: "tanzu-cluster-with-feature-gating"
       groupVersionResources:
@@ -163,6 +164,10 @@ spec:
             name: "vmware-system-nsx"
             apiVersion: "v1"
 ```
+
+To execute the queries with the above CR, a serviceAccountName needs to be specified to give capabilities controller
+enough privileges to query for resources. Refer to [Security model](#security-model) to understand how a ServiceAccount
+is used to query for resources.
 
 The capabilities controller:
 
@@ -195,4 +200,97 @@ status:
     objects:
     - found: false
       name: nsx-namespace
+```
+
+### Security Model
+
+Capabilities controller container runs with a service account that has access to all service accounts and secrets in the
+cluster. This service account is not used for querying resources. If a user is querying for objects, then each
+Capabilities CR must specify a service account to allow the Capabilities CR owner to query for only resources they have
+access to. This avoids the problem of privilege escalation by not relying on the shared service account to query for
+resources. The additional benefit of users specifying the service account is they can query for more resources than
+what the shared service account has access to. But, if the user is querying for the existence of a GVR, then
+service account name is not needed as part of the spec as the Capabilities controller uses a default service account
+(`tanzu-capabilities-manager-default-sa`) which doesn't have any permissions to access cluster resources to execute
+those queries.
+
+**Ex 1:**
+
+If you as a user want to query for a particular resource, for example a pod named `nginx` in `foo` namespace, create a
+Role, RoleBinding and add the ServiceAccount as a subject in the RoleBinding and specify the ServiceAccount in the
+Capability CR.
+
+Create RBAC rules:
+
+```yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: my-sa
+  namespace: default
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  namespace: foo
+  name: pod-reader
+rules:
+  - apiGroups: [""]
+    resources: ["pods"]
+    verbs: ["get", "watch", "list"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: my-role-binding
+  namespace: foo
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: pod-reader
+subjects:
+  - kind: ServiceAccount
+    name: my-sa
+    namespace: default
+```
+
+Create a Capability CR in the same namespace as the ServiceAccount(in this case `default` namespace).
+
+```yaml
+apiVersion: run.tanzu.vmware.com/v1alpha1
+kind: Capability
+metadata:
+  name: nginx-capability
+spec:
+  serviceAccountName: my-sa
+  queries:
+    - name: "Query for nginx pod"
+      objects:
+        - name: "query nginx"
+          objectReference:
+            kind: "Pod"
+            name: "nginx"
+            apiVersion: "v1"
+            namespace: "foo"
+```
+
+**Ex 2:**
+
+If you are just querying to check the existence of a GVR, lets say FeatureGate API, then you need not specify the
+service account name in the Capability CR.
+
+```yaml
+apiVersion: run.tanzu.vmware.com/v1alpha1
+kind: Capability
+metadata:
+  name: tkg-capabilities
+spec:
+  queries:
+    - name: "tanzu-cluster-with-feature-gating"
+      groupVersionResources:
+        - name: "featuregate-resource"
+          group: "config.tanzu.vmware.com"
+          versions:
+            - v1alpha1
+          resource: "featuregates"
 ```

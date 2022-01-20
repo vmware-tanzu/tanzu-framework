@@ -95,36 +95,36 @@ func (a *Client) CreateVSphereRegionalCluster(params *CreateVSphereRegionalClust
 }
 
 /*
-GenerateTKGConfigForVsphere generates t k g configuration file for v sphere
+ExportTKGConfigForVsphere generates t k g configuration file for v sphere
 */
-func (a *Client) GenerateTKGConfigForVsphere(params *GenerateTKGConfigForVsphereParams) (*GenerateTKGConfigForVsphereOK, error) {
+func (a *Client) ExportTKGConfigForVsphere(params *ExportTKGConfigForVsphereParams) (*ExportTKGConfigForVsphereOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewGenerateTKGConfigForVsphereParams()
+		params = NewExportTKGConfigForVsphereParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "generateTKGConfigForVsphere",
+		ID:                 "exportTKGConfigForVsphere",
 		Method:             "POST",
-		PathPattern:        "/api/providers/vsphere/generate",
+		PathPattern:        "/api/providers/vsphere/config/export",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &GenerateTKGConfigForVsphereReader{formats: a.formats},
+		Reader:             &ExportTKGConfigForVsphereReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*GenerateTKGConfigForVsphereOK)
+	success, ok := result.(*ExportTKGConfigForVsphereOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
 	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
-	msg := fmt.Sprintf("unexpected success response for generateTKGConfigForVsphere: API contract not enforced by server. Client expected to get an error, but got: %T", result)
+	msg := fmt.Sprintf("unexpected success response for exportTKGConfigForVsphere: API contract not enforced by server. Client expected to get an error, but got: %T", result)
 	panic(msg)
 }
 
@@ -431,6 +431,40 @@ func (a *Client) GetVsphereThumbprint(params *GetVsphereThumbprintParams) (*GetV
 	// unexpected success response
 	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
 	msg := fmt.Sprintf("unexpected success response for getVsphereThumbprint: API contract not enforced by server. Client expected to get an error, but got: %T", result)
+	panic(msg)
+}
+
+/*
+ImportTKGConfigForVsphere generates t k g configuration object for v sphere
+*/
+func (a *Client) ImportTKGConfigForVsphere(params *ImportTKGConfigForVsphereParams) (*ImportTKGConfigForVsphereOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewImportTKGConfigForVsphereParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "importTKGConfigForVsphere",
+		Method:             "POST",
+		PathPattern:        "/api/providers/vsphere/config/import",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &ImportTKGConfigForVsphereReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*ImportTKGConfigForVsphereOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
+	msg := fmt.Sprintf("unexpected success response for importTKGConfigForVsphere: API contract not enforced by server. Client expected to get an error, but got: %T", result)
 	panic(msg)
 }
 

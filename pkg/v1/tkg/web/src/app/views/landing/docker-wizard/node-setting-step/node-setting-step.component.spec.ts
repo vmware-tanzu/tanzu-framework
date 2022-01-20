@@ -4,6 +4,7 @@ import { SharedModule } from 'src/app/shared/shared.module';
 import { ValidationService } from '../../wizard/shared/validation/validation.service';
 
 import { NodeSettingStepComponent } from './node-setting-step.component';
+import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
 
 describe('NodeSettingStepComponent', () => {
     let component: NodeSettingStepComponent;
@@ -18,7 +19,8 @@ describe('NodeSettingStepComponent', () => {
             ],
             providers: [
                 ValidationService,
-                FormBuilder
+                FormBuilder,
+                FieldMapUtilities,
             ]
         })
         .compileComponents();

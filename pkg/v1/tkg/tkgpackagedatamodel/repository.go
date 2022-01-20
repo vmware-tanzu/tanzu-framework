@@ -7,7 +7,6 @@ import "time"
 
 // RepositoryOptions includes fields for repository operations
 type RepositoryOptions struct {
-	KubeConfig       string
 	Namespace        string
 	RepositoryName   string
 	RepositoryURL    string

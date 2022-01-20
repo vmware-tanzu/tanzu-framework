@@ -1,5 +1,7 @@
-import { ReplaySubject } from 'rxjs';
+// Angular imports
 import { Injectable } from '@angular/core';
+// Third party imports
+import { ReplaySubject } from 'rxjs';
 
 /**
  * Types of Event being supported by this broker
@@ -7,16 +9,17 @@ import { Injectable } from '@angular/core';
 
 export enum TkgEventType {
     // vSphere events
-    VC_AUTHENTICATED,
+    VSPHERE_VC_AUTHENTICATED,
     DATACENTER_RESET,
-    DATACENTER_CHANGED,
-    GET_RESOURCE_POOLS,
-    GET_COMPUTE_RESOURCE,
-    GET_VM_NETWORKS,
-    GET_DATA_STORES,
-    GET_VM_FOLDERS,
+    VSPHERE_DATACENTER_CHANGED,
+    VSPHERE_GET_RESOURCE_POOLS,
+    VSPHERE_GET_COMPUTE_RESOURCE,
+    VSPHERE_GET_VM_NETWORKS,
+    VSPHERE_GET_DATA_STORES,
+    VSPHERE_GET_VM_FOLDERS,
     VSPHERE_GET_OS_IMAGES,
-    CONTROL_PLANE_ENDPOINT_PROVIDER_CHANGED,
+    VSPHERE_CONTROL_PLANE_ENDPOINT_PROVIDER_CHANGED,
+    VSPHERE_IP_FAMILY_CHANGE,
 
     // AWS events
     AWS_REGION_CHANGED,
@@ -26,7 +29,6 @@ export enum TkgEventType {
     AWS_GET_AVAILABILITY_ZONES,
     AWS_GET_SUBNETS,
     AWS_GET_NODE_TYPES,
-    AWS_GET_NO_PROXY_INFO,
     AWS_GET_OS_IMAGES,
     AWS_AIRGAPPED_VPC_CHANGE,
 
@@ -38,11 +40,24 @@ export enum TkgEventType {
     AZURE_GET_INSTANCE_TYPES,
     AZURE_GET_OS_IMAGES,
 
+    // Common provider events
+    NETWORK_STEP_GET_NO_PROXY_INFO,
+
     // CLI
     CLI_CHANGED,
 
     // APP
-    BRANDING_CHANGED
+    BRANDING_CHANGED,
+    CONFIG_FILE_IMPORTED,
+    CONFIG_FILE_IMPORT_ERROR,
+    STEP_DESCRIPTION_CHANGE,
+}
+
+// The payload structure expected on a STEP_NAME_CHANGE event
+export interface StepDescriptionChangePayload {
+    wizard: string,
+    step: string,
+    description: string,
 }
 
 /**
@@ -70,8 +85,11 @@ export interface TkgEvent {
      * @param eventType event type to get the subject for
      */
     getSubject(eventType: TkgEventType) {
-        const subject = this.subjects.get(eventType) || new ReplaySubject<TkgEvent>(1);
-        this.subjects.set(eventType, subject);
+        let subject = this.subjects.get(eventType);
+        if (!subject) {
+            subject = new ReplaySubject<TkgEvent>(1);
+            this.subjects.set(eventType, subject);
+        }
         return subject;
     }
 
@@ -82,5 +100,23 @@ export interface TkgEvent {
     publish(event: TkgEvent) {
         const subject = this.getSubject(event.type);
         subject.next(event);
+    }
+
+    /**
+     * Clears specified event from the Messenger event map. Once this is done
+     * subscribers will no longer receive this event until the event is re-dispatched.
+     * @param eventType the event to delete from the Messenger buffer
+     */
+    clearEvent(eventType: TkgEventType) {
+        this.subjects.delete(eventType);
+    }
+
+    /**
+     * Reset/Clear the Messenger ReplaySubject event map in the rare use cases where
+     * we want to force ALL events to be purged from the buffer.
+     * This should be used only when necessary.
+     */
+    reset() {
+        this.subjects = new Map<TkgEventType, ReplaySubject<TkgEvent>>();
     }
 }

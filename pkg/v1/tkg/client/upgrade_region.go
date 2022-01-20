@@ -47,9 +47,6 @@ type ApplyProvidersUpgradeOptions struct {
 	// Kubeconfig file to use for accessing the management cluster. If empty, default discovery rules apply.
 	Kubeconfig clusterctl.Kubeconfig
 
-	// ManagementGroup that should be upgraded (e.g. capi-system/cluster-api).
-	ManagementGroup string
-
 	// Contract defines the API Version of Cluster API (contract e.g. v1alpha3) the management group should upgrade to.
 	// When upgrading by contract, the latest versions available will be used for all the providers; if you want
 	// a more granular control on upgrade, use CoreProvider, BootstrapProviders, ControlPlaneProviders, InfrastructureProviders.
@@ -70,8 +67,7 @@ type ApplyProvidersUpgradeOptions struct {
 }
 
 type providersUpgradeInfo struct {
-	providers       []clusterctlv1.Provider
-	managementGroup string
+	providers []clusterctlv1.Provider
 }
 
 // UpgradeManagementCluster upgrades management clusters providers and k8s version
@@ -83,7 +79,7 @@ type providersUpgradeInfo struct {
 // 	d) Call the clusterctl ApplyUpgrade() to upgrade providers
 //  e) Wait for providers to be up and running
 // 2. call the UpgradeCluster() for upgrading the k8s version of the Management cluster
-func (c *TkgClient) UpgradeManagementCluster(options *UpgradeClusterOptions) error { //nolint:gocyclo
+func (c *TkgClient) UpgradeManagementCluster(options *UpgradeClusterOptions) error {
 	contexts, err := c.GetRegionContexts(options.ClusterName)
 	if err != nil || len(contexts) == 0 {
 		return errors.Errorf("management cluster %s not found", options.ClusterName)
@@ -109,6 +105,7 @@ func (c *TkgClient) UpgradeManagementCluster(options *UpgradeClusterOptions) err
 	}
 
 	// Validate the compatibility before upgrading management cluster
+	log.Infof("Validating the compatibility before management cluster upgrade")
 	err = c.validateCompatibilityBeforeManagementClusterUpgrade(options, regionalClusterClient)
 	if err != nil {
 		return err
@@ -128,9 +125,8 @@ func (c *TkgClient) UpgradeManagementCluster(options *UpgradeClusterOptions) err
 	// TODO: Currently tkg doesn't support TargetNamespace and WatchingNamespace as it's not supporting multi-tenency of providers
 	// If we support it in future we need to make these namespaces as command line options and use here
 	waitOptions := waitForProvidersOptions{
-		Kubeconfig:        options.Kubeconfig,
-		TargetNamespace:   "",
-		WatchingNamespace: "",
+		Kubeconfig:      options.Kubeconfig,
+		TargetNamespace: "",
 	}
 	err = c.WaitForProviders(regionalClusterClient, waitOptions)
 	if err != nil {
@@ -147,27 +143,6 @@ func (c *TkgClient) UpgradeManagementCluster(options *UpgradeClusterOptions) err
 	err = regionalClusterClient.PatchClusterObjectWithTKGVersion(options.ClusterName, options.Namespace, c.tkgBomClient.GetCurrentTKGVersion())
 	if err != nil {
 		return err
-	}
-
-	// Upgrade/Add certain addons to the old clusters during upgrade
-	// This is done after we patch the management cluster object with new TKG version
-	// so, while generating cluster template with new tkg and k8s version, it does not
-	// throw version incompatibility validation error.
-	if !options.SkipAddonUpgrade {
-		err = c.upgradeAddons(regionalClusterClient, regionalClusterClient, options.ClusterName, options.Namespace, true, options.Edition)
-		if err != nil {
-			return err
-		}
-	}
-
-	log.Info("Waiting for additional components to be up and running...")
-	if err := c.WaitForAddonsDeployments(regionalClusterClient); err != nil {
-		return err
-	}
-
-	log.Info("Waiting for packages to be up and running...")
-	if err := c.WaitForPackages(regionalClusterClient, regionalClusterClient, options.ClusterName, options.Namespace); err != nil {
-		log.Warningf("Warning: Management cluster is upgraded successfully, but some packages are failing. %v", err)
 	}
 
 	return nil
@@ -260,8 +235,8 @@ func (c *TkgClient) DoProvidersUpgrade(regionalClusterClient clusterclient.Clien
 // GenerateProvidersUpgradeOptions generates provider upgrade options
 func (c *TkgClient) GenerateProvidersUpgradeOptions(pUpgradeInfo *providersUpgradeInfo) (*ApplyProvidersUpgradeOptions, error) {
 	puo := &ApplyProvidersUpgradeOptions{}
+	puo.Contract = "v1beta1"
 
-	puo.ManagementGroup = pUpgradeInfo.managementGroup
 	for i := range pUpgradeInfo.providers {
 		instanceVersion := pUpgradeInfo.providers[i].Namespace + "/" + pUpgradeInfo.providers[i].ProviderName + ":" + pUpgradeInfo.providers[i].Version
 		switch clusterctlv1.ProviderType(pUpgradeInfo.providers[i].Type) {
@@ -290,12 +265,6 @@ func (c *TkgClient) getProvidersUpgradeInfo(regionalClusterClient clusterclient.
 	err := regionalClusterClient.ListResources(installedProviders, &crtclient.ListOptions{})
 	if err != nil {
 		return nil, errors.Wrap(err, "cannot get installed provider config")
-	}
-
-	// get the management group
-	pUpgradeInfo.managementGroup, err = parseManagementGroup(installedProviders)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to parse the management group")
 	}
 
 	// get the providers Info with the version updated with the upgrade version obtained from BOM file map
@@ -329,16 +298,6 @@ func (c *TkgClient) getProvidersUpgradeInfo(regionalClusterClient clusterclient.
 	}
 
 	return pUpgradeInfo, nil
-}
-
-func parseManagementGroup(installedProviders *clusterctlv1.ProviderList) (string, error) {
-	for i := range installedProviders.Items {
-		if clusterctlv1.ProviderType(installedProviders.Items[i].Type) == clusterctlv1.CoreProviderType {
-			mgmtGroupName := installedProviders.Items[i].InstanceName()
-			return mgmtGroupName, nil
-		}
-	}
-	return "", errors.New("failed to find core provider from the current providers")
 }
 
 // WaitForAddonsDeployments wait for addons deployments
@@ -380,7 +339,7 @@ func (c *TkgClient) WaitForAddonsDeployments(clusterClient clusterclient.Client)
 }
 
 // WaitForPackages wait for packages to be up and running
-func (c *TkgClient) WaitForPackages(regionalClusterClient, currentClusterClient clusterclient.Client, clusterName, namespace string) error {
+func (c *TkgClient) WaitForPackages(regionalClusterClient, currentClusterClient clusterclient.Client, clusterName, namespace string, isRegionalCluster bool) error {
 	// Adding kapp-controller package to the exclude list
 	// For management cluster, kapp-controller is deployed using CRS and addon secret does not exist
 	// For workload cluster, kapp-controller is deployed by addons manager. Even though the
@@ -398,6 +357,12 @@ func (c *TkgClient) WaitForPackages(regionalClusterClient, currentClusterClient 
 	// From the addons secret get the names of package installs for each addon secret
 	// This is determined from the "tkg.tanzu.vmware.com/addon-name" label on the secret
 	packageInstallNames := []string{}
+
+	// Add tanzu-core-management-plugins packages to the list of packages to wait for management-cluster
+	if isRegionalCluster {
+		packageInstallNames = append(packageInstallNames, constants.CoreManagementPluginsPackageName)
+	}
+
 	for i := range secretList.Items {
 		if secretList.Items[i].Type == constants.AddonSecretType {
 			if cn, exists := secretList.Items[i].Labels[constants.ClusterNameLabel]; exists && cn == clusterName {
@@ -452,7 +417,67 @@ func (c *TkgClient) getPackageInstallTimeoutFromConfig() time.Duration {
 }
 
 func (c *TkgClient) validateCompatibilityBeforeManagementClusterUpgrade(options *UpgradeClusterOptions, regionalClusterClient clusterclient.Client) error {
+	err := c.ValidateManagementClusterUpgradeVersionCompatibility(options, regionalClusterClient)
+	if err != nil {
+		return errors.Wrap(err, "upgrade version compatibility validation failed")
+	}
 	return c.validateCompatibilityWithTMC(regionalClusterClient, options.SkipPrompt)
+}
+
+// ValidateManagementClusterUpgradeVersionCompatibility validates the upgrade version compatibility for a management cluster
+func (c *TkgClient) ValidateManagementClusterUpgradeVersionCompatibility(options *UpgradeClusterOptions, regionalClusterClient clusterclient.Client) error {
+	mgmtClusterSemVersion, currentTKGSemVersion, err := c.getManagementClusterAndCurrentTKGSemVersions(options, regionalClusterClient)
+	if err != nil {
+		return err
+	}
+	log.V(9).Infof("Management cluster SemVersion is %q and current TKG SemVersion(to be upgraded to) is %q",
+		mgmtClusterSemVersion.String(), currentTKGSemVersion.String())
+
+	// TODO: Update this condition when TKG major version is changed
+	if mgmtClusterSemVersion.Major() != currentTKGSemVersion.Major() {
+		return errors.Errorf("major version mismatch detected")
+	}
+	warningMsg := ""
+	minorGap := int(currentTKGSemVersion.Minor()) - int(mgmtClusterSemVersion.Minor())
+	if minorGap < 0 || (minorGap == 0 && currentTKGSemVersion.Patch() < mgmtClusterSemVersion.Patch()) {
+		return errors.Errorf("TKG version downgrade is not supported")
+	} else if minorGap > 1 {
+		warningMsg = "Upgrade skipping minor version is detected and is not recommended. It could leave cluster unmanageable"
+	}
+	if warningMsg != "" {
+		if !options.SkipPrompt {
+			log.Warning(warningMsg)
+			if err := cli.AskForConfirmation("Do you want to continue with the upgrade?"); err != nil {
+				return err
+			}
+		} else {
+			log.Infof("Warning: %v", warningMsg)
+		}
+	}
+	return nil
+}
+
+func (c *TkgClient) getManagementClusterAndCurrentTKGSemVersions(options *UpgradeClusterOptions,
+	regionalClusterClient clusterclient.Client) (mcSemversion, currentTKGSemVersion *version.Version, err error) {
+
+	namespace := options.Namespace
+	if namespace == "" {
+		namespace = TKGsystemNamespace
+	}
+	mgmtClusterTkgVersion, err := regionalClusterClient.GetManagementClusterTKGVersion(options.ClusterName, namespace)
+	if err != nil {
+		return mcSemversion, currentTKGSemVersion, errors.Wrapf(err, "unable to get tkg version of management cluster %q in namespace %q", options.ClusterName, options.Namespace)
+	}
+	mcSemversion, err = version.ParseSemantic(mgmtClusterTkgVersion)
+	if err != nil {
+		return mcSemversion, currentTKGSemVersion, errors.Wrapf(err, "unable to parse management cluster version %s", mgmtClusterTkgVersion)
+	}
+	currentTKGVersion := c.tkgBomClient.GetCurrentTKGVersion()
+	currentTKGSemVersion, err = version.ParseSemantic(currentTKGVersion)
+	if err != nil {
+		return mcSemversion, currentTKGSemVersion, errors.Wrapf(err, "unable to parse management cluster version %s", currentTKGVersion)
+	}
+	return
 }
 
 // validateCompatibilityWithTMC validate compatibility of new TKG version with TMC if management cluster is registered with TMC

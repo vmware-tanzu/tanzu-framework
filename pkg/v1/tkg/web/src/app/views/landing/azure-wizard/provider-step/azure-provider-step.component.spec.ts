@@ -1,23 +1,26 @@
+// Angular imports
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
-import { ReactiveFormsModule } from '@angular/forms';
-import { FormBuilder } from '@angular/forms';
+import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
-
-import { SharedModule } from '../../../../shared/shared.module';
+// Third party imports
+import { Observable, of, throwError } from 'rxjs';
+// App imports
+import AppServices from '../../../../shared/service/appServices';
 import { AzureProviderStepComponent } from './azure-provider-step.component';
 import { APIClient } from '../../../../swagger/api-client.service';
-import { ValidationService } from '../../wizard/shared/validation/validation.service';
-import { of, throwError, Observable } from 'rxjs';
-import { AzureWizardFormService } from 'src/app/shared/service/azure-wizard-form.service';
+import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
 import { Messenger, TkgEventType } from 'src/app/shared/service/Messenger';
-import Broker from 'src/app/shared/service/broker';
+import { SharedModule } from '../../../../shared/shared.module';
+import { ValidationService } from '../../wizard/shared/validation/validation.service';
+import { DataServiceRegistrarTestExtension } from '../../../../testing/data-service-registrar.testextension';
+import { AzureResourceGroup } from '../../../../swagger/models';
+import { AzureForm } from '../azure-wizard.constants';
 
 describe('AzureProviderStepComponent', () => {
     let component: AzureProviderStepComponent;
     let fixture: ComponentFixture<AzureProviderStepComponent>;
     let apiService: APIClient;
-    let wizardFormService: AzureWizardFormService;
 
     beforeEach(async(() => {
         TestBed.configureTestingModule({
@@ -28,8 +31,8 @@ describe('AzureProviderStepComponent', () => {
             ],
             providers: [
                 ValidationService,
-                AzureWizardFormService,
                 FormBuilder,
+                FieldMapUtilities,
                 APIClient
             ],
             schemas: [
@@ -41,16 +44,14 @@ describe('AzureProviderStepComponent', () => {
     }));
 
     beforeEach(() => {
-        Broker.messenger = new Messenger();
-        wizardFormService = TestBed.inject(AzureWizardFormService);
+        AppServices.messenger = new Messenger();
+        AppServices.dataServiceRegistrar = new DataServiceRegistrarTestExtension();
         apiService = TestBed.inject(APIClient);
 
-        const fb = new FormBuilder();
         fixture = TestBed.createComponent(AzureProviderStepComponent);
         component = fixture.componentInstance;
-        component.formGroup = fb.group({
-            tenantId: ['']
-        });
+        component.setInputs('CarrotWizard', AzureForm.PROVIDER, new FormBuilder().group({}));
+        component.ngOnInit();
         fixture.detectChanges();
     });
 
@@ -59,18 +60,21 @@ describe('AzureProviderStepComponent', () => {
     });
 
     it('should setup AZURE_GET_RESOURCE_GROUPS event handler', () => {
-        component.ngOnInit();
-        wizardFormService.publishError(TkgEventType.AZURE_GET_RESOURCE_GROUPS, 'test error');
-        expect(component.errorNotification).toBe('Failed to retrieve resource groups for the particular region. test error');
+        const dataServiceRegistrar = AppServices.dataServiceRegistrar as DataServiceRegistrarTestExtension;
+        // The wizard is expected to have registered this event
+        dataServiceRegistrar.simulateRegistration<AzureResourceGroup>(TkgEventType.AZURE_GET_RESOURCE_GROUPS);
 
-        const resourceGrouop = [
+        component.ngOnInit();
+        dataServiceRegistrar.simulateError(TkgEventType.AZURE_GET_RESOURCE_GROUPS, 'test error');
+        expect(component.errorNotification).toBe('test error');
+
+        const resourceGroup = [
             {id: 1, location: 'us-west', name: 'resource-group1'},
             {id: 2, location: 'us-east', name: 'resource-group2'},
             {id: 3, location: 'us-south', name: 'resource-group3'}
         ];
-        wizardFormService.publishData(TkgEventType.AZURE_GET_RESOURCE_GROUPS, resourceGrouop);
-        expect(component.resourceGroupSelection).toBeNull();
-        expect(component.resourceGroups).toEqual(resourceGrouop);
+        dataServiceRegistrar.simulateData(TkgEventType.AZURE_GET_RESOURCE_GROUPS, resourceGroup);
+        expect(component.resourceGroups).toEqual(resourceGroup);
     });
 
     it('should init azure credentials', () => {
@@ -113,17 +117,17 @@ describe('AzureProviderStepComponent', () => {
     it('should verify credentials', () => {
         spyOn(apiService, 'setAzureEndpoint').and.returnValues(new Observable(subscriber => {
             subscriber.next();
-          }));
+        }));
         const regions = spyOn(component, 'getRegions').and.stub();
-        component.verifyCredentails();
+        component.verifyCredentials();
         expect(component.errorNotification).toBe('');
         expect(component.validCredentials).toBeTruthy();
         expect(regions).toHaveBeenCalled();
     });
 
     it('should show error message if credential can not be verified', () => {
-        spyOn(apiService, 'setAzureEndpoint').and.returnValue(throwError({error : {message: 'oops!'}}));
-        component.verifyCredentails();
+        spyOn(apiService, 'setAzureEndpoint').and.returnValue(throwError({error: {message: 'oops!'}}));
+        component.verifyCredentials();
         expect(component.errorNotification).toBe('oops!');
         expect(component.validCredentials).toBeFalsy();
         expect(component.regions).toEqual([]);
@@ -131,14 +135,14 @@ describe('AzureProviderStepComponent', () => {
     });
 
     it('should show different resource based on option', () => {
-        component.show('existing');
+        component.showResourceGroupExisting();
         expect(component.formGroup.get('resourceGroupCustom').value).toBe('');
-        component.show('custom');
+        component.showResourceGroupCustom();
         expect(component.formGroup.get('resourceGroupExisting').value).toBe('');
     });
 
     it('should handle resource group name change', () => {
-        const messengerSpy = spyOn(Broker.messenger, 'publish').and.callThrough();
+        const messengerSpy = spyOn(AppServices.messenger, 'publish').and.callThrough();
         component.onResourceGroupNameChange();
         expect(messengerSpy).toHaveBeenCalled();
         expect(messengerSpy).toHaveBeenCalledWith({
@@ -147,84 +151,22 @@ describe('AzureProviderStepComponent', () => {
         });
     });
 
-    // it("should be enabled", async(() => {
-    //     mockedApiService.getAWSEndpoint.and.returnValue(of({
-    //         accessKeyID: "mykeyId",
-    //         region: "US-WEST",
-    //         secretAccessKey: "myKey",
-    //         sshKeyName: "myKeyName"
-    //     }));
+    it('should announce description change', () => {
+        const msgSpy = spyOn(AppServices.messenger, 'publish').and.callThrough();
+        const tenantControl = component.formGroup.get('tenantId');
+        tenantControl.setValue('');
 
-    //     component.ngOnInit();
-    //     fixture.whenStable().then(
-    //         () => {
-    //             fixture.detectChanges();
-    //             const connectBtn = fixture.debugElement.query(By.css("button.btn-primary"));
-    //             expect(connectBtn.nativeElement.disabled).toBeFalsy();
-    //         }
-    //     );
-    // }));
+        const description = component.dynamicDescription();
+        expect(description).toEqual('Validate the Azure provider credentials for Tanzu');
 
-    // it("should be disabled", async(() => {
-    //     mockedApiService.getAWSEndpoint.and.returnValue(of({
-    //         accessKeyID: "mykeyId",
-    //         region: "US-WEST",
-    //         secretAccessKey: "myKey",
-    //     }));
-
-    //     component.ngOnInit();
-    //     fixture.whenStable().then(
-    //         () => {
-    //             fixture.detectChanges();
-    //             const connectBtn = fixture.debugElement.query(By.css("button.btn-primary"));
-    //             expect(connectBtn.nativeElement.disabled).toBeTruthy();
-    //         }
-    //     );
-    // }));
-
-    // it("should be successful when clicked", async(() => {
-    //     mockedApiService.getAWSEndpoint.and.returnValue(of({
-    //         accessKeyID: "mykeyId",
-    //         region: "US-WEST",
-    //         secretAccessKey: "myKey",
-    //         sshKeyName: "myKeyName"
-    //     }));
-    //     mockedApiService.setAWSEndpoint.and.returnValue(empty());
-
-    //     const connectBtn = fixture.debugElement.query(By.css("button.btn-primary"));
-
-    //     connectBtn.nativeElement.click();
-    //     fixture.whenStable().then(
-    //         () => {
-    //             fixture.detectChanges();
-    //             const globalError = fixture.debugElement.query(By.css("app-step-form-notification"));
-    //             expect(globalError.nativeElement.innerText).toBe("");
-    //         }
-    //     );
-    // }));
-
-    // it("should show an error when clicked", async(() => {
-    //     mockedApiService.getAWSEndpoint.and.returnValue(of({
-    //         accessKeyID: "mykeyId",
-    //         region: "US-WEST",
-    //         secretAccessKey: "myKey",
-    //         sshKeyName: "myKeyName"
-    //     }));
-    //     mockedApiService.setAWSEndpoint.and.returnValue(throwError({ status: 400,
-    //         error: {message: 'failed to set aws endpoint' }}));
-
-    //     component.ngOnInit();
-    //     expect(component.errorNotification).toBeFalsy();
-
-    //     const connectBtn = fixture.debugElement.query(By.css("button.btn-primary"));
-    //     connectBtn.nativeElement.click();
-    //     fixture.whenStable().then(
-    //         () => {
-    //             fixture.detectChanges();
-    //             expect(component.errorNotification).not.toBeFalsy();
-    //             expect(component.validCredentials).toBeFalsy();
-    //         }
-    //     );
-    // }));
-
-})
+        tenantControl.setValue('RIDDLER');
+        expect(msgSpy).toHaveBeenCalledWith({
+            type: TkgEventType.STEP_DESCRIPTION_CHANGE,
+            payload: {
+                wizard: 'CarrotWizard',
+                step: AzureForm.PROVIDER,
+                description: 'Azure tenant: RIDDLER',
+            }
+        });
+    })
+});

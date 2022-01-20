@@ -14,7 +14,7 @@ import (
 	clusterctlclient "sigs.k8s.io/cluster-api/cmd/clusterctl/client"
 	"sigs.k8s.io/cluster-api/cmd/clusterctl/client/cluster"
 	"sigs.k8s.io/cluster-api/cmd/clusterctl/client/repository"
-	addonsv1 "sigs.k8s.io/cluster-api/exp/addons/api/v1alpha3"
+	addonsv1 "sigs.k8s.io/cluster-api/exp/addons/api/v1beta1"
 
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/clusterclient"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
@@ -35,7 +35,7 @@ const (
 	// DockerProviderName docker provider name
 	DockerProviderName = "docker"
 
-	defaultPacificProviderVersion = "v1.0.0"
+	defaultPacificProviderVersion = "v1.1.0"
 )
 
 const (
@@ -63,7 +63,7 @@ var TKGSupportedClusterOptions string
 
 // CreateCluster create workload cluster
 func (c *TkgClient) CreateCluster(options *CreateClusterOptions, waitForCluster bool) error { //nolint:gocyclo,funlen
-	if err := checkClusterNameFormat(options.ClusterName); err != nil {
+	if err := CheckClusterNameFormat(options.ClusterName, options.ProviderRepositorySource.InfrastructureProvider); err != nil {
 		return NewValidationError(ValidationErrorCode, err.Error())
 	}
 	log.Info("Validating configuration...")
@@ -98,6 +98,10 @@ func (c *TkgClient) CreateCluster(options *CreateClusterOptions, waitForCluster 
 		return errors.Wrap(err, "error determining Tanzu Kubernetes Cluster service for vSphere management cluster ")
 	}
 	if isPacific {
+		err := c.ValidatePacificVersionWithCLI(regionalClusterClient)
+		if err != nil {
+			return err
+		}
 		return c.createPacificCluster(options, waitForCluster)
 	}
 
@@ -126,7 +130,7 @@ func (c *TkgClient) CreateCluster(options *CreateClusterOptions, waitForCluster 
 	if err != nil {
 		return err
 	}
-	bytes, err = c.getClusterConfiguration(&options.ClusterConfigOptions, isManagementCluster, infraProviderName)
+	bytes, err = c.getClusterConfiguration(&options.ClusterConfigOptions, isManagementCluster, infraProviderName, options.IsWindowsWorkloadCluster)
 	if err != nil {
 		return errors.Wrap(err, "unable to get cluster configuration")
 	}
@@ -178,13 +182,7 @@ func (c *TkgClient) waitForClusterCreation(regionalClusterClient clusterclient.C
 		return errors.Wrap(err, "unable to wait for cluster nodes to be available")
 	}
 
-	if _, err := c.TKGConfigReaderWriter().Get(constants.ConfigVariableEnableAutoscaler); err == nil {
-		log.Infof("Waiting for cluster autoscaler to be available...")
-		autoscalerDeploymentName := options.ClusterName + "-cluster-autoscaler"
-		if err := regionalClusterClient.WaitForAutoscalerDeployment(autoscalerDeploymentName, options.TargetNamespace); err != nil {
-			log.Warningf("Unable to wait for autoscaler deployment to be ready. reason: %v", err)
-		}
-	}
+	c.WaitForAutoscalerDeployment(regionalClusterClient, options.ClusterName, options.TargetNamespace)
 
 	workloadClusterClient, err := clusterclient.NewClient(workloadClusterKubeconfigPath, kubeContext, clusterclient.Options{OperationTimeout: 15 * time.Minute})
 	if err != nil {
@@ -203,11 +201,40 @@ func (c *TkgClient) waitForClusterCreation(regionalClusterClient clusterclient.C
 	}
 
 	log.Info("Waiting for packages to be up and running...")
-	if err := c.WaitForPackages(regionalClusterClient, workloadClusterClient, options.ClusterName, options.TargetNamespace); err != nil {
+	if err := c.WaitForPackages(regionalClusterClient, workloadClusterClient, options.ClusterName, options.TargetNamespace, false); err != nil {
 		log.Warningf("Warning: Cluster is created successfully, but some packages are failing. %v", err)
 	}
 
 	return nil
+}
+
+func (c *TkgClient) getValueForAutoscalerDeploymentConfig() bool {
+	var autoscalerEnabled string
+	var isEnabled bool
+	var err error
+
+	// swallowing the error when the value for config variable 'ENABLE_AUTOSCALER' is not set
+	if autoscalerEnabled, err = c.TKGConfigReaderWriter().Get(constants.ConfigVariableEnableAutoscaler); err != nil {
+		return false
+	}
+
+	if isEnabled, err = strconv.ParseBool(autoscalerEnabled); err != nil {
+		log.Warningf("Unable to parse the value of config variable %q. reason: %v", constants.ConfigVariableEnableAutoscaler, err)
+		return false
+	}
+
+	return isEnabled
+}
+
+// WaitForAutoscalerDeployment waits for autoscaler deployment if enabled
+func (c *TkgClient) WaitForAutoscalerDeployment(regionalClusterClient clusterclient.Client, clusterName, targetNamespace string) {
+	if isEnabled := c.getValueForAutoscalerDeploymentConfig(); isEnabled {
+		log.Warning("Waiting for cluster autoscaler to be available...")
+		autoscalerDeploymentName := clusterName + "-cluster-autoscaler"
+		if err := regionalClusterClient.WaitForAutoscalerDeployment(autoscalerDeploymentName, targetNamespace); err != nil {
+			log.Warningf("Unable to wait for autoscaler deployment to be ready. reason: %v", err)
+		}
+	}
 }
 
 // DoCreateCluster performs steps to create cluster
@@ -365,7 +392,7 @@ func (c *TkgClient) createPacificCluster(options *CreateClusterOptions, waitForC
 
 	log.V(3).Infof("Waiting for the Tanzu Kubernetes Cluster service for vSphere workload cluster\n")
 
-	if err := clusterClient.WaitForPacificCluster(clusterName, namespace, ""); err != nil {
+	if err := clusterClient.WaitForPacificCluster(clusterName, namespace); err != nil {
 		return errors.Wrap(err, "failed waiting for workload cluster")
 	}
 	return nil
@@ -383,7 +410,7 @@ func (c *TkgClient) getPacificClusterConfiguration(options *CreateClusterOptions
 	}
 
 	if providerVersion == "" {
-		// TODO: should be changed once we get APIs from Pacific to determine the version, for now using "1.0.0"
+		// TODO: should be changed once we get APIs from Pacific to determine the version, for now using "1.1.0"
 		providerVersion = defaultPacificProviderVersion
 	}
 
@@ -392,6 +419,11 @@ func (c *TkgClient) getPacificClusterConfiguration(options *CreateClusterOptions
 	c.SetProviderType(name)
 	c.SetTKGClusterRole(WorkloadCluster)
 	c.SetTKGVersion()
+	tkrName := utils.GetTkrNameFromTkrVersion(options.TKRVersion)
+	if !strings.HasPrefix(tkrName, "v") {
+		tkrName = "v" + tkrName
+	}
+	c.TKGConfigReaderWriter().Set(constants.ConfigVariableTkrName, tkrName)
 	err = c.ConfigureAndValidateCNIType(options.CniType)
 	if err != nil {
 		return nil, errors.Wrap(err, "unable to validate CNI")
@@ -520,7 +552,7 @@ func (c *TkgClient) ConfigureAndValidateWorkloadClusterConfiguration(options *Cr
 	// BUILD_EDITION is the Tanzu Edition, the plugin should be built for. Its value is supposed be constructed from
 	// cmd/cli/plugin/managementcluster/create.go. So empty value at this point is not expected.
 	if options.Edition == "" {
-		return NewValidationError(ValidationErrorCode, "required config variable 'BUILD_EDITION' is not set")
+		return NewValidationError(ValidationErrorCode, "required config variable 'edition' is not set")
 	}
 	c.SetBuildEdition(options.Edition)
 	c.SetTKGClusterRole(options.ClusterType)
@@ -530,7 +562,7 @@ func (c *TkgClient) ConfigureAndValidateWorkloadClusterConfiguration(options *Cr
 		// NOTE: Not blocking the workload cluster deployment if the pinniped information is not available on management cluster
 		pinnipedIssuerURL, pinnipedIssuerCAData, err := clusterClient.GetPinnipedIssuerURLAndCA()
 		if err != nil {
-			log.Warningf("Warning: Pinniped configuration not found. Skipping pinniped configuration in workload cluster. Please refer to the documentation to check if you can configure pinniped on workload cluster manually")
+			log.Warningf("Warning: Pinniped configuration not found; Authentication via Pinniped will not be set up in this cluster. If you wish to set up Pinniped after the cluster is created, please refer to the documentation.")
 		} else {
 			c.SetPinnipedConfigForWorkloadCluster(pinnipedIssuerURL, pinnipedIssuerCAData)
 		}
@@ -541,7 +573,15 @@ func (c *TkgClient) ConfigureAndValidateWorkloadClusterConfiguration(options *Cr
 		return NewValidationError(ValidationErrorCode, errors.Wrap(err, "unable to validate CNI type").Error())
 	}
 
-	if err = c.configureAndValidateIPFamilyConfiguration(); err != nil {
+	if err = c.configureAndValidateIPFamilyConfiguration(TkgLabelClusterRoleWorkload); err != nil {
+		return NewValidationError(ValidationErrorCode, err.Error())
+	}
+
+	if err = c.configureAndValidateCoreDNSIP(); err != nil {
+		return NewValidationError(ValidationErrorCode, err.Error())
+	}
+
+	if err = c.ConfigureAndValidateNameserverConfiguration(TkgLabelClusterRoleWorkload); err != nil {
 		return NewValidationError(ValidationErrorCode, err.Error())
 	}
 
@@ -680,8 +720,7 @@ func (c *TkgClient) ValidateManagementClusterVersionWithCLI(regionalClusterClien
 	}
 
 	if curMCSemVersion.Major() != defaultTKGSemVersion.Major() ||
-		curMCSemVersion.Minor() != defaultTKGSemVersion.Minor() ||
-		curMCSemVersion.Patch() != defaultTKGSemVersion.Patch() {
+		curMCSemVersion.Minor() != defaultTKGSemVersion.Minor() {
 		return errors.Errorf("version mismatch between management cluster and cli version. Please upgrade your management cluster to the latest to continue")
 	}
 

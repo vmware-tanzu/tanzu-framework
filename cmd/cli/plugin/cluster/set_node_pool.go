@@ -17,8 +17,9 @@ import (
 )
 
 type clusterSetNodePoolCmdOptions struct {
-	FilePath  string
-	Namespace string
+	FilePath              string
+	Namespace             string
+	BaseMachineDeployment string
 }
 
 var setNodePoolOptions clusterSetNodePoolCmdOptions
@@ -26,12 +27,14 @@ var setNodePoolOptions clusterSetNodePoolCmdOptions
 var clusterSetNodePoolCmd = &cobra.Command{
 	Use:   "set CLUSTER_NAME",
 	Short: "Set node pool for cluster",
+	Args:  cobra.ExactArgs(1),
 	RunE:  runSetNodePool,
 }
 
 func init() {
 	clusterSetNodePoolCmd.Flags().StringVarP(&setNodePoolOptions.FilePath, "file", "f", "", "The file describing the node pool (required)")
 	clusterSetNodePoolCmd.Flags().StringVar(&setNodePoolOptions.Namespace, "namespace", "default", "The namespace the cluster is found in.")
+	clusterSetNodePoolCmd.Flags().StringVar(&setNodePoolOptions.BaseMachineDeployment, "base-machine-deployment", "", "The machine deployment to use as a base for creating a new node pool (ignored for TKGs)")
 	_ = clusterSetNodePoolCmd.MarkFlagRequired("file")
 	clusterNodePoolCmd.AddCommand(clusterSetNodePoolCmd)
 }
@@ -58,12 +61,13 @@ func SetNodePool(server *v1alpha1.Server, clusterName string) error {
 	var nodePool client.NodePool
 	var fileContent []byte
 	if fileContent, err = os.ReadFile(setNodePoolOptions.FilePath); err != nil {
-		return errors.New(fmt.Sprintf("Unable to read file %s", setNodePoolOptions.FilePath))
+		return fmt.Errorf("unable to read file %s", setNodePoolOptions.FilePath)
 	}
 
 	if err = yaml.Unmarshal(fileContent, &nodePool); err != nil {
 		return errors.Wrap(err, "Could not parse file contents")
 	}
+	nodePool.BaseMachineDeployment = setNodePoolOptions.BaseMachineDeployment
 
 	options := client.SetMachineDeploymentOptions{
 		ClusterName: clusterName,

@@ -6,6 +6,7 @@ import { CommonModule } from '@angular/common';
 import { LogMonitorModule } from 'ngx-log-monitor';
 
 // App imports
+import { AlertNotificationComponent } from '../../shared/components/alert-notification/alert-notification.component';
 import { LandingComponent } from './landing.component';
 import { LandingRoutingModule } from './landing-routing.module';
 import { StartComponent } from './start/start.component';
@@ -16,16 +17,20 @@ import { IncompatibleComponent } from './incompatible/incompatible.component';
 import { SharedModule } from '../../shared/shared.module';
 import { PreviewConfigComponent } from '../../shared/components/preview-config/preview-config.component';
 import { VmwCopyToClipboardButtonComponent } from '../../shared/components/copy-to-clipboard-button/copy-to-clipboard-button.component';
+import { ErrorNotificationComponent } from "../../shared/components/error-notification/error-notification.component";
+
 @NgModule({
     declarations: [
-        LandingComponent,
-        StartComponent,
+        AlertNotificationComponent,
         ConfirmComponent,
         DeployProgressComponent,
-        WcpRedirectComponent,
+        ErrorNotificationComponent,
         IncompatibleComponent,
+        LandingComponent,
+        PreviewConfigComponent,
+        StartComponent,
         VmwCopyToClipboardButtonComponent,
-        PreviewConfigComponent
+        WcpRedirectComponent
     ],
     imports: [
         CommonModule,
@@ -34,7 +39,9 @@ import { VmwCopyToClipboardButtonComponent } from '../../shared/components/copy-
         SharedModule
     ],
     exports: [
+        AlertNotificationComponent,
         ConfirmComponent,
+        ErrorNotificationComponent
     ]
 })
 

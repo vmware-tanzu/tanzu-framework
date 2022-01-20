@@ -13,8 +13,7 @@ else
 GOBIN=$(shell go env GOBIN)
 endif
 
-PRIVATE_REPOS=github.com/vmware-tanzu/tanzu-framework
-GO := GOPRIVATE=${PRIVATE_REPOS} go
+GO := go
 
 NUL = /dev/null
 ifeq ($(GOHOSTOS),windows)
@@ -39,3 +38,17 @@ LD_FLAGS = -s -w
 LD_FLAGS += -X 'github.com/vmware-tanzu/tanzu-framework/pkg/v1/buildinfo.Date=$(BUILD_DATE)'
 LD_FLAGS += -X 'github.com/vmware-tanzu/tanzu-framework/pkg/v1/buildinfo.SHA=$(BUILD_SHA)'
 LD_FLAGS += -X 'github.com/vmware-tanzu/tanzu-framework/pkg/v1/buildinfo.Version=$(BUILD_VERSION)'
+
+# Add supported OS-ARCHITECTURE combinations here
+ENVS ?= linux-amd64 windows-amd64 darwin-amd64
+STANDALONE_PLUGINS ?= login management-cluster package pinniped-auth secret
+CONTEXTAWARE_PLUGINS ?= cluster kubernetes-release feature
+ADMIN_PLUGINS ?= builder codegen test
+PLUGINS ?= $(STANDALONE_PLUGINS) $(CONTEXTAWARE_PLUGINS)
+
+# Hosts running SELinux need :z added to volume mounts
+SELINUX_ENABLED := $(shell cat /sys/fs/selinux/enforce 2> /dev/null || echo 0)
+
+ifeq ($(SELINUX_ENABLED),1)
+  DOCKER_VOL_OPTS?=:z
+endif

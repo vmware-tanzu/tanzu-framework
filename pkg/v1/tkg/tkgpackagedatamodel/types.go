@@ -6,8 +6,6 @@ package tkgpackagedatamodel
 
 import (
 	"fmt"
-
-	"github.com/pkg/errors"
 )
 
 // PackagePluginNonCriticalError is used for non critical package plugin errors which should be treated more like warnings
@@ -24,12 +22,27 @@ const (
 	ResourceTypePackageRepository
 )
 
+func (r ResourceType) String() string {
+	switch r {
+	case ResourceTypePackageInstall:
+		return "PackageInstall"
+	case ResourceTypePackageRepository:
+		return "PackageRepository"
+	}
+	return ""
+}
+
 type OperationType int
 
 const (
 	OperationTypeInstall OperationType = iota
 	OperationTypeUpdate
 )
+
+type PkgPluginResourceCreationStatus struct {
+	IsServiceAccountCreated bool
+	IsSecretCreated         bool
+}
 
 // TypeBoolPtr satisfies Value interface defined in "https://github.com/spf13/pflag/blob/master/flag.go"
 type TypeBoolPtr struct {
@@ -50,7 +63,7 @@ func (v *TypeBoolPtr) Set(val string) error {
 	} else if val == "false" || val == "False" {
 		v.ExportToAllNamespaces = &f
 	} else if val != "" {
-		return errors.New(fmt.Sprintf("invalid argument '%s'", val))
+		return fmt.Errorf("invalid argument '%s'", val)
 	}
 
 	return nil

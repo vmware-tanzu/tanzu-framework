@@ -51,7 +51,6 @@ type Client interface {
 	GetCurrentTKGVersion() string
 	GetCustomRepository() (string, error)
 	IsCustomRepositorySkipTLSVerify() bool
-	GetCustomRepositoryCaCertificate() ([]byte, error)
 	GetAutoscalerImageForK8sVersion(k8sVersion string) (string, error)
 	// Downloads the default BOM files from the registry
 	DownloadDefaultBOMFilesFromRegistry(registry.Registry) error

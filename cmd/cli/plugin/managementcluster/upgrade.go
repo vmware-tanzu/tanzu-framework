@@ -8,7 +8,10 @@ import (
 
 	"github.com/spf13/cobra"
 
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/pluginmanager"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/config"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/log"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgctl"
 
 	"github.com/vmware-tanzu/tanzu-framework/apis/config/v1alpha1"
@@ -77,6 +80,11 @@ func runUpgradeRegion(server *v1alpha1.Server) error {
 		return err
 	}
 
+	edition, err := config.GetEdition()
+	if err != nil {
+		return err
+	}
+
 	options := tkgctl.UpgradeRegionOptions{
 		ClusterName:         server.Name,
 		VSphereTemplateName: ur.vSphereTemplateName,
@@ -85,7 +93,21 @@ func runUpgradeRegion(server *v1alpha1.Server) error {
 		OSName:              ur.osName,
 		OSVersion:           ur.osVersion,
 		OSArch:              ur.osArch,
-		Edition:             BuildEdition,
+		Edition:             edition,
 	}
-	return tkgClient.UpgradeRegion(options)
+
+	err = tkgClient.UpgradeRegion(options)
+	if err != nil {
+		return err
+	}
+
+	// Sync plugins if management-cluster upgrade is successful
+	if config.IsFeatureActivated(config.FeatureContextAwareCLIForPlugins) {
+		err = pluginmanager.SyncPlugins(server.Name)
+		if err != nil {
+			log.Warningf("unable to sync plugins after management cluster upgrade. Please run `tanzu plugin sync` command manually to install/update plugins")
+		}
+	}
+
+	return nil
 }

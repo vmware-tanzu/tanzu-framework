@@ -27,7 +27,6 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/web/server/restapi/operations/features"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/web/server/restapi/operations/ldap"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/web/server/restapi/operations/provider"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/web/server/restapi/operations/tmc"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/web/server/restapi/operations/ui"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/web/server/restapi/operations/vsphere"
 )
@@ -82,26 +81,23 @@ func NewKickstartUIAPI(spec *loads.Document) *KickstartUIAPI {
 		VsphereCreateVSphereRegionalClusterHandler: vsphere.CreateVSphereRegionalClusterHandlerFunc(func(params vsphere.CreateVSphereRegionalClusterParams) middleware.Responder {
 			return middleware.NotImplemented("operation VsphereCreateVSphereRegionalCluster has not yet been implemented")
 		}),
-		AwsGenerateTKGConfigForAWSHandler: aws.GenerateTKGConfigForAWSHandlerFunc(func(params aws.GenerateTKGConfigForAWSParams) middleware.Responder {
-			return middleware.NotImplemented("operation AwsGenerateTKGConfigForAWS has not yet been implemented")
+		AwsExportTKGConfigForAWSHandler: aws.ExportTKGConfigForAWSHandlerFunc(func(params aws.ExportTKGConfigForAWSParams) middleware.Responder {
+			return middleware.NotImplemented("operation AwsExportTKGConfigForAWS has not yet been implemented")
 		}),
-		AzureGenerateTKGConfigForAzureHandler: azure.GenerateTKGConfigForAzureHandlerFunc(func(params azure.GenerateTKGConfigForAzureParams) middleware.Responder {
-			return middleware.NotImplemented("operation AzureGenerateTKGConfigForAzure has not yet been implemented")
+		AzureExportTKGConfigForAzureHandler: azure.ExportTKGConfigForAzureHandlerFunc(func(params azure.ExportTKGConfigForAzureParams) middleware.Responder {
+			return middleware.NotImplemented("operation AzureExportTKGConfigForAzure has not yet been implemented")
 		}),
-		DockerGenerateTKGConfigForDockerHandler: docker.GenerateTKGConfigForDockerHandlerFunc(func(params docker.GenerateTKGConfigForDockerParams) middleware.Responder {
-			return middleware.NotImplemented("operation DockerGenerateTKGConfigForDocker has not yet been implemented")
+		DockerExportTKGConfigForDockerHandler: docker.ExportTKGConfigForDockerHandlerFunc(func(params docker.ExportTKGConfigForDockerParams) middleware.Responder {
+			return middleware.NotImplemented("operation DockerExportTKGConfigForDocker has not yet been implemented")
 		}),
-		VsphereGenerateTKGConfigForVsphereHandler: vsphere.GenerateTKGConfigForVsphereHandlerFunc(func(params vsphere.GenerateTKGConfigForVsphereParams) middleware.Responder {
-			return middleware.NotImplemented("operation VsphereGenerateTKGConfigForVsphere has not yet been implemented")
+		VsphereExportTKGConfigForVsphereHandler: vsphere.ExportTKGConfigForVsphereHandlerFunc(func(params vsphere.ExportTKGConfigForVsphereParams) middleware.Responder {
+			return middleware.NotImplemented("operation VsphereExportTKGConfigForVsphere has not yet been implemented")
 		}),
 		AwsGetAWSAvailabilityZonesHandler: aws.GetAWSAvailabilityZonesHandlerFunc(func(params aws.GetAWSAvailabilityZonesParams) middleware.Responder {
 			return middleware.NotImplemented("operation AwsGetAWSAvailabilityZones has not yet been implemented")
 		}),
 		AwsGetAWSCredentialProfilesHandler: aws.GetAWSCredentialProfilesHandlerFunc(func(params aws.GetAWSCredentialProfilesParams) middleware.Responder {
 			return middleware.NotImplemented("operation AwsGetAWSCredentialProfiles has not yet been implemented")
-		}),
-		AwsGetAWSEndpointHandler: aws.GetAWSEndpointHandlerFunc(func(params aws.GetAWSEndpointParams) middleware.Responder {
-			return middleware.NotImplemented("operation AwsGetAWSEndpoint has not yet been implemented")
 		}),
 		AwsGetAWSNodeTypesHandler: aws.GetAWSNodeTypesHandlerFunc(func(params aws.GetAWSNodeTypesParams) middleware.Responder {
 			return middleware.NotImplemented("operation AwsGetAWSNodeTypes has not yet been implemented")
@@ -187,8 +183,17 @@ func NewKickstartUIAPI(spec *loads.Document) *KickstartUIAPI {
 		VsphereGetVsphereThumbprintHandler: vsphere.GetVsphereThumbprintHandlerFunc(func(params vsphere.GetVsphereThumbprintParams) middleware.Responder {
 			return middleware.NotImplemented("operation VsphereGetVsphereThumbprint has not yet been implemented")
 		}),
-		TmcRetrieveTMCInstallYmlHandler: tmc.RetrieveTMCInstallYmlHandlerFunc(func(params tmc.RetrieveTMCInstallYmlParams) middleware.Responder {
-			return middleware.NotImplemented("operation TmcRetrieveTMCInstallYml has not yet been implemented")
+		AwsImportTKGConfigForAWSHandler: aws.ImportTKGConfigForAWSHandlerFunc(func(params aws.ImportTKGConfigForAWSParams) middleware.Responder {
+			return middleware.NotImplemented("operation AwsImportTKGConfigForAWS has not yet been implemented")
+		}),
+		AzureImportTKGConfigForAzureHandler: azure.ImportTKGConfigForAzureHandlerFunc(func(params azure.ImportTKGConfigForAzureParams) middleware.Responder {
+			return middleware.NotImplemented("operation AzureImportTKGConfigForAzure has not yet been implemented")
+		}),
+		DockerImportTKGConfigForDockerHandler: docker.ImportTKGConfigForDockerHandlerFunc(func(params docker.ImportTKGConfigForDockerParams) middleware.Responder {
+			return middleware.NotImplemented("operation DockerImportTKGConfigForDocker has not yet been implemented")
+		}),
+		VsphereImportTKGConfigForVsphereHandler: vsphere.ImportTKGConfigForVsphereHandlerFunc(func(params vsphere.ImportTKGConfigForVsphereParams) middleware.Responder {
+			return middleware.NotImplemented("operation VsphereImportTKGConfigForVsphere has not yet been implemented")
 		}),
 		AwsSetAWSEndpointHandler: aws.SetAWSEndpointHandlerFunc(func(params aws.SetAWSEndpointParams) middleware.Responder {
 			return middleware.NotImplemented("operation AwsSetAWSEndpoint has not yet been implemented")
@@ -270,20 +275,18 @@ type KickstartUIAPI struct {
 	DockerCreateDockerRegionalClusterHandler docker.CreateDockerRegionalClusterHandler
 	// VsphereCreateVSphereRegionalClusterHandler sets the operation handler for the create v sphere regional cluster operation
 	VsphereCreateVSphereRegionalClusterHandler vsphere.CreateVSphereRegionalClusterHandler
-	// AwsGenerateTKGConfigForAWSHandler sets the operation handler for the generate t k g config for a w s operation
-	AwsGenerateTKGConfigForAWSHandler aws.GenerateTKGConfigForAWSHandler
-	// AzureGenerateTKGConfigForAzureHandler sets the operation handler for the generate t k g config for azure operation
-	AzureGenerateTKGConfigForAzureHandler azure.GenerateTKGConfigForAzureHandler
-	// DockerGenerateTKGConfigForDockerHandler sets the operation handler for the generate t k g config for docker operation
-	DockerGenerateTKGConfigForDockerHandler docker.GenerateTKGConfigForDockerHandler
-	// VsphereGenerateTKGConfigForVsphereHandler sets the operation handler for the generate t k g config for vsphere operation
-	VsphereGenerateTKGConfigForVsphereHandler vsphere.GenerateTKGConfigForVsphereHandler
+	// AwsExportTKGConfigForAWSHandler sets the operation handler for the export t k g config for a w s operation
+	AwsExportTKGConfigForAWSHandler aws.ExportTKGConfigForAWSHandler
+	// AzureExportTKGConfigForAzureHandler sets the operation handler for the export t k g config for azure operation
+	AzureExportTKGConfigForAzureHandler azure.ExportTKGConfigForAzureHandler
+	// DockerExportTKGConfigForDockerHandler sets the operation handler for the export t k g config for docker operation
+	DockerExportTKGConfigForDockerHandler docker.ExportTKGConfigForDockerHandler
+	// VsphereExportTKGConfigForVsphereHandler sets the operation handler for the export t k g config for vsphere operation
+	VsphereExportTKGConfigForVsphereHandler vsphere.ExportTKGConfigForVsphereHandler
 	// AwsGetAWSAvailabilityZonesHandler sets the operation handler for the get a w s availability zones operation
 	AwsGetAWSAvailabilityZonesHandler aws.GetAWSAvailabilityZonesHandler
 	// AwsGetAWSCredentialProfilesHandler sets the operation handler for the get a w s credential profiles operation
 	AwsGetAWSCredentialProfilesHandler aws.GetAWSCredentialProfilesHandler
-	// AwsGetAWSEndpointHandler sets the operation handler for the get a w s endpoint operation
-	AwsGetAWSEndpointHandler aws.GetAWSEndpointHandler
 	// AwsGetAWSNodeTypesHandler sets the operation handler for the get a w s node types operation
 	AwsGetAWSNodeTypesHandler aws.GetAWSNodeTypesHandler
 	// AwsGetAWSOSImagesHandler sets the operation handler for the get a w s o s images operation
@@ -340,8 +343,14 @@ type KickstartUIAPI struct {
 	VsphereGetVSphereResourcePoolsHandler vsphere.GetVSphereResourcePoolsHandler
 	// VsphereGetVsphereThumbprintHandler sets the operation handler for the get vsphere thumbprint operation
 	VsphereGetVsphereThumbprintHandler vsphere.GetVsphereThumbprintHandler
-	// TmcRetrieveTMCInstallYmlHandler sets the operation handler for the retrieve t m c install yml operation
-	TmcRetrieveTMCInstallYmlHandler tmc.RetrieveTMCInstallYmlHandler
+	// AwsImportTKGConfigForAWSHandler sets the operation handler for the import t k g config for a w s operation
+	AwsImportTKGConfigForAWSHandler aws.ImportTKGConfigForAWSHandler
+	// AzureImportTKGConfigForAzureHandler sets the operation handler for the import t k g config for azure operation
+	AzureImportTKGConfigForAzureHandler azure.ImportTKGConfigForAzureHandler
+	// DockerImportTKGConfigForDockerHandler sets the operation handler for the import t k g config for docker operation
+	DockerImportTKGConfigForDockerHandler docker.ImportTKGConfigForDockerHandler
+	// VsphereImportTKGConfigForVsphereHandler sets the operation handler for the import t k g config for vsphere operation
+	VsphereImportTKGConfigForVsphereHandler vsphere.ImportTKGConfigForVsphereHandler
 	// AwsSetAWSEndpointHandler sets the operation handler for the set a w s endpoint operation
 	AwsSetAWSEndpointHandler aws.SetAWSEndpointHandler
 	// AzureSetAzureEndpointHandler sets the operation handler for the set azure endpoint operation
@@ -467,20 +476,20 @@ func (o *KickstartUIAPI) Validate() error {
 		unregistered = append(unregistered, "vsphere.CreateVSphereRegionalClusterHandler")
 	}
 
-	if o.AwsGenerateTKGConfigForAWSHandler == nil {
-		unregistered = append(unregistered, "aws.GenerateTKGConfigForAWSHandler")
+	if o.AwsExportTKGConfigForAWSHandler == nil {
+		unregistered = append(unregistered, "aws.ExportTKGConfigForAWSHandler")
 	}
 
-	if o.AzureGenerateTKGConfigForAzureHandler == nil {
-		unregistered = append(unregistered, "azure.GenerateTKGConfigForAzureHandler")
+	if o.AzureExportTKGConfigForAzureHandler == nil {
+		unregistered = append(unregistered, "azure.ExportTKGConfigForAzureHandler")
 	}
 
-	if o.DockerGenerateTKGConfigForDockerHandler == nil {
-		unregistered = append(unregistered, "docker.GenerateTKGConfigForDockerHandler")
+	if o.DockerExportTKGConfigForDockerHandler == nil {
+		unregistered = append(unregistered, "docker.ExportTKGConfigForDockerHandler")
 	}
 
-	if o.VsphereGenerateTKGConfigForVsphereHandler == nil {
-		unregistered = append(unregistered, "vsphere.GenerateTKGConfigForVsphereHandler")
+	if o.VsphereExportTKGConfigForVsphereHandler == nil {
+		unregistered = append(unregistered, "vsphere.ExportTKGConfigForVsphereHandler")
 	}
 
 	if o.AwsGetAWSAvailabilityZonesHandler == nil {
@@ -489,10 +498,6 @@ func (o *KickstartUIAPI) Validate() error {
 
 	if o.AwsGetAWSCredentialProfilesHandler == nil {
 		unregistered = append(unregistered, "aws.GetAWSCredentialProfilesHandler")
-	}
-
-	if o.AwsGetAWSEndpointHandler == nil {
-		unregistered = append(unregistered, "aws.GetAWSEndpointHandler")
 	}
 
 	if o.AwsGetAWSNodeTypesHandler == nil {
@@ -607,8 +612,20 @@ func (o *KickstartUIAPI) Validate() error {
 		unregistered = append(unregistered, "vsphere.GetVsphereThumbprintHandler")
 	}
 
-	if o.TmcRetrieveTMCInstallYmlHandler == nil {
-		unregistered = append(unregistered, "tmc.RetrieveTMCInstallYmlHandler")
+	if o.AwsImportTKGConfigForAWSHandler == nil {
+		unregistered = append(unregistered, "aws.ImportTKGConfigForAWSHandler")
+	}
+
+	if o.AzureImportTKGConfigForAzureHandler == nil {
+		unregistered = append(unregistered, "azure.ImportTKGConfigForAzureHandler")
+	}
+
+	if o.DockerImportTKGConfigForDockerHandler == nil {
+		unregistered = append(unregistered, "docker.ImportTKGConfigForDockerHandler")
+	}
+
+	if o.VsphereImportTKGConfigForVsphereHandler == nil {
+		unregistered = append(unregistered, "vsphere.ImportTKGConfigForVsphereHandler")
 	}
 
 	if o.AwsSetAWSEndpointHandler == nil {
@@ -803,22 +820,22 @@ func (o *KickstartUIAPI) initHandlerCache() {
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
-	o.handlers["POST"]["/api/providers/aws/generate"] = aws.NewGenerateTKGConfigForAWS(o.context, o.AwsGenerateTKGConfigForAWSHandler)
+	o.handlers["POST"]["/api/providers/aws/config/export"] = aws.NewExportTKGConfigForAWS(o.context, o.AwsExportTKGConfigForAWSHandler)
 
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
-	o.handlers["POST"]["/api/providers/azure/generate"] = azure.NewGenerateTKGConfigForAzure(o.context, o.AzureGenerateTKGConfigForAzureHandler)
+	o.handlers["POST"]["/api/providers/azure/config/export"] = azure.NewExportTKGConfigForAzure(o.context, o.AzureExportTKGConfigForAzureHandler)
 
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
-	o.handlers["POST"]["/api/providers/docker/generate"] = docker.NewGenerateTKGConfigForDocker(o.context, o.DockerGenerateTKGConfigForDockerHandler)
+	o.handlers["POST"]["/api/providers/docker/config/export"] = docker.NewExportTKGConfigForDocker(o.context, o.DockerExportTKGConfigForDockerHandler)
 
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
-	o.handlers["POST"]["/api/providers/vsphere/generate"] = vsphere.NewGenerateTKGConfigForVsphere(o.context, o.VsphereGenerateTKGConfigForVsphereHandler)
+	o.handlers["POST"]["/api/providers/vsphere/config/export"] = vsphere.NewExportTKGConfigForVsphere(o.context, o.VsphereExportTKGConfigForVsphereHandler)
 
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
@@ -829,11 +846,6 @@ func (o *KickstartUIAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/api/providers/aws/profiles"] = aws.NewGetAWSCredentialProfiles(o.context, o.AwsGetAWSCredentialProfilesHandler)
-
-	if o.handlers["GET"] == nil {
-		o.handlers["GET"] = make(map[string]http.Handler)
-	}
-	o.handlers["GET"]["/api/providers/aws"] = aws.NewGetAWSEndpoint(o.context, o.AwsGetAWSEndpointHandler)
 
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
@@ -975,10 +987,25 @@ func (o *KickstartUIAPI) initHandlerCache() {
 	}
 	o.handlers["GET"]["/api/providers/vsphere/thumbprint"] = vsphere.NewGetVsphereThumbprint(o.context, o.VsphereGetVsphereThumbprintHandler)
 
-	if o.handlers["GET"] == nil {
-		o.handlers["GET"] = make(map[string]http.Handler)
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
 	}
-	o.handlers["GET"]["/api/integration/tmc"] = tmc.NewRetrieveTMCInstallYml(o.context, o.TmcRetrieveTMCInstallYmlHandler)
+	o.handlers["POST"]["/api/providers/aws/config/import"] = aws.NewImportTKGConfigForAWS(o.context, o.AwsImportTKGConfigForAWSHandler)
+
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
+	o.handlers["POST"]["/api/providers/azure/config/import"] = azure.NewImportTKGConfigForAzure(o.context, o.AzureImportTKGConfigForAzureHandler)
+
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
+	o.handlers["POST"]["/api/providers/docker/config/import"] = docker.NewImportTKGConfigForDocker(o.context, o.DockerImportTKGConfigForDockerHandler)
+
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
+	o.handlers["POST"]["/api/providers/vsphere/config/import"] = vsphere.NewImportTKGConfigForVsphere(o.context, o.VsphereImportTKGConfigForVsphereHandler)
 
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)

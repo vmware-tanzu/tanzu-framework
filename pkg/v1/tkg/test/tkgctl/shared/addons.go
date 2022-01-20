@@ -1,7 +1,7 @@
 // Copyright 2021 VMware, Inc. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-// nolint:typecheck,goconst,gocritic,golint,stylecheck,nolintlint
+// nolint:typecheck,goconst,gocritic,stylecheck,nolintlint
 package shared
 
 import (
@@ -142,10 +142,10 @@ func waitForCertificateToBeReady(ctx context.Context, clusterName string, certNa
 }
 
 func verifyCertManagerPodsRunning(clusterName string, namespace string) {
-	context := clusterName + "-admin@" + clusterName
-	proxy := framework.NewClusterProxy(clusterName, "", context)
+	ctx := clusterName + "-admin@" + clusterName
+	proxy := framework.NewClusterProxy(clusterName, "", ctx)
 	clientSet := proxy.GetClientSet()
-	podList, err := clientSet.CoreV1().Pods(namespace).List(metav1.ListOptions{})
+	podList, err := clientSet.CoreV1().Pods(namespace).List(context.Background(), metav1.ListOptions{})
 	Expect(err).ToNot(HaveOccurred())
 
 	for _, pod := range podList.Items {
@@ -177,7 +177,7 @@ func verifyClusterMetadata(input VerifyClusterMetadataInput) { //nolint:unused
 }
 
 func getConfigMapData(clientSet *kubernetes.Clientset, name string, namespace string, keyName string) []byte { //nolint:unused
-	configMap, err := clientSet.CoreV1().ConfigMaps(namespace).Get(name, metav1.GetOptions{})
+	configMap, err := clientSet.CoreV1().ConfigMaps(namespace).Get(context.Background(), name, metav1.GetOptions{})
 	Expect(err).ToNot(HaveOccurred())
 
 	val, ok := configMap.Data[keyName]

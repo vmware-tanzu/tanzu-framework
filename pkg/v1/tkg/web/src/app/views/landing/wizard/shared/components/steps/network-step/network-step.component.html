@@ -17,12 +17,13 @@
     <h4 i18n="network step title" class="inline" aria-level="2">
         Kubernetes Network Settings
     </h4>
+    <!-- Only Vsphere enables the network name -->
     <span aria-live="assertive" *ngIf="enableNetworkName">
         <button class="btn-refresh reset"
                 role="button"
                 aria-label="refresh network"
                 tabindex="0"
-                (click)="loadVSphereNetworks()">
+                (click)="loadNetworks()">
                 <clr-icon
                     *ngIf="!loadingNetworks"
                     shape="refresh"
@@ -44,28 +45,30 @@
                     [attr.data-step-metadata]="formName"
                     data-name="networkName"
                     data-label="network name">
-                <clr-datalist-container>
-                    <label i18n="network label" class="clr-col-lg-12 clr-col-12">
+                <clr-select-container [attr.data-step-metadata]="formName">
+                    <label i18n="network label">
                         NETWORK NAME
                         <clr-tooltip>
                             <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                             <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
-                        <span>
-                            Select a vSphere network to use as the Kubernetes service network.
-                        </span>
+                                <span>
+                                    Select a vSphere network to use as the Kubernetes service network.
+                                </span>
                             </clr-tooltip-content>
                         </clr-tooltip>
                     </label>
-                    <input clrDatalistInput name="networkName" formControlName="networkName" />
-                    <datalist id="networkName">
-                        <option *ngFor="let vmNetwork of vmNetworks" [value]="vmNetwork?.name"></option>
-                    </datalist>
+                    <select clrSelect name="networkName" formControlName="networkName">
+                        <option aria-label="blank" title="blank"></option>
+                        <ng-container *ngFor="let vmNetwork of vmNetworks">
+                            <option [value]="vmNetwork.name">
+                                {{vmNetwork.displayName}}
+                            </option>
+                        </ng-container>
+                    </select>
                     <!-- Add a empty helper to avoid accessibility aria-describeby issue -->
                     <clr-control-helper></clr-control-helper>
-                </clr-datalist-container>
-                <clr-control-error *ngIf="showFormError('networkName')">
-                    Selecting a VM network is required
-                </clr-control-error>
+                    <clr-control-error>Selecting a VM network is required</clr-control-error>
+                </clr-select-container>
             </div>
         </div>
         <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4" *ngIf="cniType == 'antrea'">
@@ -156,7 +159,7 @@
                             <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                             <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
                                 <span>
-                                    HTTP proxy URL to be configured globally in the {{ clusterType }} cluster for accessing infrastructure
+                                    HTTP proxy URL to be configured globally in the {{ clusterTypeDescriptor }} cluster for accessing infrastructure
                                     deployed behind the proxy.
                                 </span>
                             </clr-tooltip-content>
@@ -215,7 +218,7 @@
                             <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                             <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
                                 <span>
-                                    HTTPS proxy URL to be configured globally in the {{ clusterType }} cluster for accessing infrastructure
+                                    HTTPS proxy URL to be configured globally in the {{ clusterTypeDescriptor }} cluster for accessing infrastructure
                                     deployed behind the proxy.
                                 </span>
                             </clr-tooltip-content>
@@ -256,9 +259,9 @@
             </div>
         </div>
         <div class="clr-row">
-            <div class="clr-col-4">
-                <clr-input-container [attr.data-step-metadata]="formName" class="word-break">
-                    <label i18n="no proxy label" clr-control-label>
+            <div class="clr-col-11 clr-col-lg-8 clr-col-xl-5">
+                <clr-input-container [attr.data-step-metadata]="formName">
+                    <label i18n="no proxy label" clr-control-label class="max-width">
                         NO PROXY (OPTIONAL)
                         <clr-tooltip>
                             <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
@@ -275,8 +278,22 @@
                             </clr-tooltip-content>
                         </clr-tooltip>
                     </label>
-                    <input clrInput name="noProxy" formControlName="noProxy" placeholder="" />
-                    <clr-control-helper *ngIf="fullNoProxy">
+                    <label>
+                        <div class="alert alert-warning alert-sm" role="alert" *ngIf="!hideNoProxyWarning">
+                            <div class="alert-items">
+                                <div class="alert-item static">
+                                    <div class="alert-icon-wrapper">
+                                        <clr-icon class="alert-icon" shape="exclamation-triangle"></clr-icon>
+                                    </div>
+                                    <div class="alert-text">
+                                        If the infra service endpoint is removed, infra service will go through a proxy
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </label>
+                    <input clrInput name="noProxy" formControlName="noProxy" placeholder="" class="max-width noproxy-field"/>
+                    <clr-control-helper *ngIf="fullNoProxy" class="helper-container">
                         <div class="title">FULL NO PROXY LIST</div>
                         {{fullNoProxy}}
                     </clr-control-helper>

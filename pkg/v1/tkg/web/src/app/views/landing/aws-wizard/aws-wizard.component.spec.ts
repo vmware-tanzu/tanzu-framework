@@ -1,14 +1,23 @@
+// Angular imports
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
-import { ReactiveFormsModule } from '@angular/forms';
-import { FormBuilder } from '@angular/forms';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { RouterTestingModule } from '@angular/router/testing';
+// App imports
 import { APIClient } from '../../../swagger/api-client.service';
+import AppServices from 'src/app/shared/service/appServices';
+import { AwsForm } from './aws-wizard.constants';
 import { AwsWizardComponent } from './aws-wizard.component';
-import { SharedModule } from '../../../shared/shared.module';
-import Broker from 'src/app/shared/service/broker';
+import { ClusterType, WizardForm } from "../wizard/shared/constants/wizard.constants";
+import { FieldMapUtilities } from '../wizard/shared/field-mapping/FieldMapUtilities';
 import { Messenger } from 'src/app/shared/service/Messenger';
+import { MetadataStepComponent } from '../wizard/shared/components/steps/metadata-step/metadata-step.component';
+import { NodeSettingStepComponent } from './node-setting-step/node-setting-step.component';
+import { SharedModule } from '../../../shared/shared.module';
+import { SharedNetworkStepComponent } from '../wizard/shared/components/steps/network-step/network-step.component';
+import { ValidationService } from '../wizard/shared/validation/validation.service';
+import { VpcStepComponent } from './vpc-step/vpc-step.component';
 
 describe('AwsWizardComponent', () => {
     let component: AwsWizardComponent;
@@ -25,7 +34,9 @@ describe('AwsWizardComponent', () => {
             ],
             providers: [
                 APIClient,
-                FormBuilder
+                FormBuilder,
+                FieldMapUtilities,
+                ValidationService
             ],
             schemas: [
                 CUSTOM_ELEMENTS_SCHEMA
@@ -36,7 +47,7 @@ describe('AwsWizardComponent', () => {
     }));
 
     beforeEach(() => {
-        Broker.messenger = new Messenger();
+        AppServices.messenger = new Messenger();
         const fb = new FormBuilder();
         fixture = TestBed.createComponent(AwsWizardComponent);
         component = fixture.componentInstance;
@@ -86,11 +97,10 @@ describe('AwsWizardComponent', () => {
                 ceipOptIn: [true]
             }),
             osImageForm: fb.group({
-            }),
-            registerTmcForm: fb.group({
             })
         });
-        component.clusterType = 'management';
+        component.clusterTypeDescriptor = '' + ClusterType.Management;
+        component.title = 'Tanzu';
         fixture.detectChanges();
     });
 
@@ -102,45 +112,12 @@ describe('AwsWizardComponent', () => {
         expect(component).toBeTruthy();
     });
 
-    describe('should return correct description', () => {
-        it('is for provider step', () => {
-            expect(component.getStepDescription('provider')).toBe('Validate the AWS provider account for Tanzu');
-        });
-
-        it('is for vpc step', () => {
-            expect(component.getStepDescription('vpc')).toBe('Specify VPC settings for AWS');
-
-            component.form.get('vpcForm').get('vpc').setValue('10.0.0.0/16');
-            component.form.get('vpcForm').get('publicNodeCidr').setValue('1.1.1.1/23');
-            component.form.get('vpcForm').get('privateNodeCidr').setValue('2.2.2.2/23');
-            component.form.get('vpcForm').get('awsNodeAz').setValue('awsNodeAz1');
-            expect(component.getStepDescription('vpc')).toBe('VPC CIDR: 10.0.0.0/16, Public Node CIDR: 1.1.1.1/23, ' +
-                'Private Node CIDR: 2.2.2.2/23, Node AZ: awsNodeAz1');
-        });
-
-        it('is for nodeSetting step', () => {
-            expect(component.getStepDescription('nodeSetting')).toBe('Specify the resources backing the management cluster');
-            component.form.get('awsNodeSettingForm').get('controlPlaneSetting').setValue('prod');
-            expect(component.getStepDescription('nodeSetting')).toBe('Production cluster selected: 3 node control plane');
-            component.form.get('awsNodeSettingForm').get('controlPlaneSetting').setValue('dev');
-            expect(component.getStepDescription('nodeSetting')).toBe('Development cluster selected: 1 node control plane');
-        });
-
-        it('is for network step', () => {
-            expect(component.getStepDescription('network')).toBe('Specify the cluster Pod CIDR');
-            component.form.get('networkForm').get('clusterPodCidr').setValue('10.10.10.10/23');
-            expect(component.getStepDescription('network')).toBe('Cluster Pod CIDR: 10.10.10.10/23');
-        });
-
-        it('is for metadata step', () => {
-            expect(component.getStepDescription('metadata')).toBe('Specify metadata for the management cluster');
-            component.form.get('metadataForm').get('clusterLocation').setValue('us-west');
-            expect(component.getStepDescription('metadata')).toBe('Location: us-west');
-        });
-    });
-
     it('should return management cluster name', () => {
-        component.form.get('awsNodeSettingForm').get('clusterName').setValue('mylocalTestName');
+        const stepInstance = TestBed.createComponent(NodeSettingStepComponent).componentInstance;
+        component.registerStep(AwsForm.NODESETTING, stepInstance);
+        stepInstance.formGroup.addControl('clusterName', new FormControl(''));
+
+        component.form.get(AwsForm.NODESETTING).get('clusterName').setValue('mylocalTestName');
         expect(component.getMCName()).toBe('mylocalTestName');
     });
 
@@ -153,27 +130,31 @@ describe('AwsWizardComponent', () => {
             ['awsProviderForm', 'secretAccessKey', 'My-AWS-Secret-Access-Key'],
             ['vpcForm', 'vpc', '10.0.0.0/16'],
             ['vpcForm', 'vpcType', 'new'],
-            ['awsNodeSettingForm', 'awsNodeAz1', 'us-west-a'],
-            ['awsNodeSettingForm', 'bastionHostEnabled', 'yes'],
-            ['awsNodeSettingForm', 'controlPlaneSetting', 'dev'],
-            ['awsNodeSettingForm', 'devInstanceType', 't3.medium'],
-            ['awsNodeSettingForm', 'sshKeyName', 'default'],
-            // ['awsNodeSettingForm', 'machineHealthChecksEnabled', true],
-            ['awsNodeSettingForm', 'workerNodeInstanceType1', 't3.small'],
-            ['metadataForm', 'clusterDescription', 'DescriptionEXAMPLE'],
-            // ['metadataForm', 'clusterLabels', clusterLabels],
-            ['metadataForm', 'clusterLocation', 'mylocation1'],
+            [AwsForm.NODESETTING, 'awsNodeAz1', 'us-west-a'],
+            [AwsForm.NODESETTING, 'bastionHostEnabled', 'yes'],
+            [AwsForm.NODESETTING, 'controlPlaneSetting', 'dev'],
+            [AwsForm.NODESETTING, 'devInstanceType', 't3.medium'],
+            [AwsForm.NODESETTING, 'sshKeyName', 'default'],
+            [AwsForm.NODESETTING, 'workerNodeInstanceType1', 't3.small'],
+            [AwsForm.NODESETTING, 'createCloudFormation', true],
+            [AwsForm.NODESETTING, 'machineHealthChecksEnabled', true],
+            [WizardForm.METADATA, 'clusterDescription', 'DescriptionEXAMPLE'],
+            [WizardForm.METADATA, 'clusterLabels', clusterLabels],
+            [WizardForm.METADATA, 'clusterLocation', 'mylocation1'],
             ['networkForm', 'clusterPodCidr', '100.96.0.0/11'],
             ['networkForm', 'clusterServiceCidr', '100.64.0.0/13'],
             ['networkForm', 'cniType', 'antrea'],
-            // ['ceipOptInForm', 'ceipOptIn', true]
+            ['ceipOptInForm', 'ceipOptIn', true]
         ];
-        mappings.forEach(attr => component.form.get(attr[0]).get(attr[1]).setValue(attr[2]));
+        mappings.forEach(mapping => {
+            const formName = mapping[0] as string;
+            const fieldName = mapping[1] as string;
+            const desiredValue = mapping[2];
 
-        component.form.get('awsNodeSettingForm').get('createCloudFormation').setValue(true);
-        component.form.get('awsNodeSettingForm').get('machineHealthChecksEnabled').setValue(true);
-        component.form.get('ceipOptInForm').get('ceipOptIn').setValue(true);
-        component.form.get('metadataForm').get('clusterLabels').setValue(clusterLabels);
+            const formGroup = component.form.get(formName) as FormGroup;
+            expect(formGroup).toBeTruthy();
+            formGroup.addControl(fieldName, new FormControl(desiredValue));
+        });
 
         const payload = component.getPayload();
         expect(payload.awsAccountParams).toEqual({
@@ -211,7 +192,12 @@ describe('AwsWizardComponent', () => {
 
     it('should generate cli', () => {
         const path = '/testPath/xyz.yaml';
-        expect(component.getCli(path)).toBe(`tanzu management-cluster create --file ${path} -v 6`);
+        const payload = component.getPayload();
+        if (payload.createCloudFormationStack) {
+            expect(component.getCli(path)).toBe(`tanzu management-cluster permissions aws set && tanzu management-cluster create --file ${path} -v 6`);
+        } else {
+            expect(component.getCli(path)).toBe(`tanzu management-cluster create --file ${path} -v 6`);
+        }
     });
 
     it('should call api to create aws regional cluster', () => {

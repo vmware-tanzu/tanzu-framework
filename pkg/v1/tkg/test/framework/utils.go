@@ -14,7 +14,7 @@ import (
 	"gopkg.in/yaml.v2"
 	"sigs.k8s.io/cluster-api/util"
 
-	. "github.com/onsi/ginkgo" // nolint:golint,stylecheck
+	. "github.com/onsi/ginkgo" // nolint:stylecheck
 )
 
 // CreateClusterOptions represent options to create a TKG cluster

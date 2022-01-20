@@ -1,15 +1,25 @@
-import { Input, OnInit, Directive, Self, Optional } from '@angular/core';
-import { FormGroup, ValidatorFn } from '@angular/forms';
-
-import { ValidatorEnum } from './../constants/validation.constants';
-import { BasicSubscriber } from 'src/app/shared/abstracts/basic-subscriber';
-import { FormMetaDataStore, FormMetaData } from '../FormMetaDataStore';
-import { TkgEvent, TkgEventType } from 'src/app/shared/service/Messenger';
-import Broker from 'src/app/shared/service/broker';
-
+// Angular imports
+import { Directive, OnInit } from '@angular/core';
+import { AbstractControl, FormGroup, ValidatorFn } from '@angular/forms';
+// Third party imports
 import { distinctUntilChanged, takeUntil } from 'rxjs/operators';
+import { Subject } from 'rxjs';
+// App imports
 import { AppEdition } from 'src/app/shared/constants/branding.constants';
+import AppServices from 'src/app/shared/service/appServices';
+import { BasicSubscriber } from 'src/app/shared/abstracts/basic-subscriber';
 import { EditionData } from 'src/app/shared/service/branding.service';
+import { FormMetaData, FormMetaDataStore } from '../FormMetaDataStore';
+import { FormUtility } from '../components/steps/form-utility';
+import { IpFamilyEnum } from 'src/app/shared/constants/app.constants';
+import { Notification, NotificationTypes } from 'src/app/shared/components/alert-notification/alert-notification.component';
+import { StepDescriptionChangePayload, TkgEvent, TkgEventType } from 'src/app/shared/service/Messenger';
+import { ValidatorEnum } from './../constants/validation.constants';
+
+export interface StepDescriptionTriggers {
+    clusterTypeDescriptor?: boolean,
+    fields?: string[],
+}
 
 const INIT_FIELD_DELAY = 50;            // ms
 /**
@@ -19,38 +29,61 @@ const INIT_FIELD_DELAY = 50;            // ms
  */
 @Directive()
 export abstract class StepFormDirective extends BasicSubscriber implements OnInit {
-
-    @Input() formName;
-    @Input() formGroup: FormGroup;
-    @Input() savedMetadata: { [fieldName: string]: FormMetaData };
+    wizardName: string;
+    formName;
+    formGroup: FormGroup;
+    savedMetadata: { [fieldName: string]: FormMetaData };
 
     edition: AppEdition = AppEdition.TCE;
     validatorEnum = ValidatorEnum;
-    errorNotification: string;
-    clusterType: string;
+    errorNotification: string = '';
+    configFileNotification: Notification;
+    private clusterTypeDescription: string = '';
+    modeClusterStandalone: boolean;
+    ipFamily: IpFamilyEnum = IpFamilyEnum.IPv4;
+
+    clusterTypeDescriptorUsedInDescription: boolean;
 
     private delayedFieldQueue = [];
 
-    constructor() {
-        super();
+    // This method is expected to be overridden by any step that provides a dynamic description of itself
+    // (dynamic meaning depending on user-entered data). It is public to make it available for testing.
+    dynamicDescription(): string {
+        return null;
+    }
+
+    setInputs(wizardName, formName: string, formGroup: FormGroup) {
+        this.formName = formName;
+        this.formGroup = formGroup;
+        this.wizardName = wizardName;
     }
 
     ngOnInit(): void {
         this.getFormName();
-        this.savedMetadata = FormMetaDataStore.getMetaData(this.formName)
+        this.savedMetadata = FormMetaDataStore.getMetaData(this.formName);
         FormMetaDataStore.updateFormList(this.formName);
-        // waits 10 milliseconds so that other setTimeout calls finish first
-        setTimeout(_ => {
-            this.setSavedDataAfterLoad();
-        }, 10);
 
         // set branding and cluster type on branding change for base wizard components
-        Broker.messenger.getSubject(TkgEventType.BRANDING_CHANGED)
+        AppServices.messenger.getSubject(TkgEventType.BRANDING_CHANGED)
             .pipe(takeUntil(this.unsubscribe))
             .subscribe((data: TkgEvent) => {
                 const content: EditionData = data.payload;
                 this.edition = content.edition;
-                this.clusterType = data.payload.clusterType;
+                this.setClusterTypeDescriptor(data.payload.clusterTypeDescriptor);
+            });
+        this.modeClusterStandalone = AppServices.appDataService.isModeClusterStandalone();
+
+        AppServices.messenger.getSubject(TkgEventType.CONFIG_FILE_IMPORT_ERROR)
+            .pipe(takeUntil(this.unsubscribe))
+            .subscribe((data: TkgEvent) => {
+                // Capture the import file error message
+                this.configFileNotification = {
+                    notificationType: NotificationTypes.ERROR,
+                    message: data.payload
+                };
+
+                // Clear event so that listeners in other provider workflows do not receive false notifications
+                AppServices.messenger.clearEvent(TkgEventType.CONFIG_FILE_IMPORT_ERROR)
             });
     }
 
@@ -68,19 +101,79 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
         }
     }
 
+    // This method could be protected, since it's primarily intended for subclasses,
+    // but since it's helpful for tests to be able to use it, we make it public
+    getFieldValue(fieldName: string, suppressWarnings?: boolean): any {
+        if (!this.formGroup) {
+            if (!suppressWarnings) {
+                console.error('getFieldValue(' + fieldName + ') called without a formGroup set');
+            }
+            return;
+        }
+        if (!this.formGroup.controls[fieldName]) {
+            if (!suppressWarnings) {
+                console.error('getFieldValue(' + fieldName + ') called but no control by that name');
+            }
+            return;
+        }
+        return this.formGroup.controls[fieldName].value;
+    }
+
     /**
      * Safely looks up the saved value of a control in savedMetadata
-     * @param key the key of the control in savedMetadata
+     * @param fieldName the name of the control in savedMetadata
      * @param defaultValue the default value if there is no saved value
      */
-    getSavedValue(key: string, defaultValue: any) {
-        const ret = (this.savedMetadata && this.savedMetadata[key]
-            && this.savedMetadata[key].displayValue) ? this.savedMetadata[key].displayValue : defaultValue;
-        return (typeof defaultValue === "boolean") ? ret === "yes" : ret
+    getSavedValue(fieldName: string, defaultValue: any) {
+        const value = this.getRawSavedValue(fieldName);
+        const result = (value) ? value : defaultValue;
+
+        const shouldReturnBooleanValue = typeof defaultValue === "boolean";
+        if (shouldReturnBooleanValue) {
+            const booleanResult = result === "yes" || result === true;
+            return booleanResult;
+        }
+        return result;
+    }
+
+    getRawSavedValue(fieldName: string) {
+        const savedValue = this.savedMetadata && this.savedMetadata[fieldName] && this.savedMetadata[fieldName].displayValue;
+        const savedKey = this.savedMetadata && this.savedMetadata[fieldName] && this.savedMetadata[fieldName].key;
+        const result = (savedKey) ? savedKey : savedValue;
+        return result;
+    }
+
+    /**
+     * Safely looks up the saved key of a control in savedMetadata; this will only have been set for listboxes
+     * that have a different key from the displayed label
+     * @param fieldName the name of the control in savedMetadata
+     */
+    getSavedKey(fieldName: string): string {
+        const savedKey = this.savedMetadata && this.savedMetadata[fieldName] && this.savedMetadata[fieldName].key;
+        return savedKey;
     }
 
     hasSavedData() {
         return this.savedMetadata != null
+    }
+
+    // This method could be protected, since it's primarily intended for subclasses,
+    // but since it's helpful for tests to be able to use it, we make it public
+    setFieldValue(fieldName: string, value: any): void {
+        const control = this.getControl(fieldName);
+        if (control === undefined || control === null) {
+            console.log('WARNING: setFieldValue() could not find field ' + fieldName + ' to set value to ' + value);
+        } else {
+            control.setValue(value);
+        }
+    }
+
+    protected getControl(fieldName: string): AbstractControl {
+        const control = this.formGroup.get(fieldName);
+        if (control === undefined || control === null) {
+            console.log('WARNING: getControl() could not find field ' + fieldName);
+        }
+        return control;
     }
 
     /**
@@ -88,10 +181,15 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
      * until certain conditions to be satisfied, it automatically add this field
      * to a queue and periodically checks the readiness.
      */
-    protected initFieldWithSavedValue(fieldName: string): void {
+    protected initFieldWithSavedData(fieldName: string): void {
         if (this.isFieldReadyForInitWithSavedValue(fieldName)) {
             const control = this.formGroup.get(fieldName);
-            control.setValue(this.getSavedValue(fieldName, control.value));
+            const savedKey = this.getSavedKey(fieldName);
+            const savedValue = this.getSavedValue(fieldName, control.value);
+            // if a key was saved (for a listbox), we use the key when setting the value of the control (ie the listbox)
+            const valueForSettingControl = (savedKey) ? savedKey : savedValue;
+
+            control.setValue(valueForSettingControl, {  emitEvent: false });
             let index;
             if (index = this.delayedFieldQueue.indexOf(fieldName) >= 0) {
                 this.delayedFieldQueue.splice(index, 1);
@@ -103,12 +201,38 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
         }
     }
 
+    // scrubPasswordField() should be called AFTER the password field was set from saved data
+    protected scrubPasswordField(fieldName: string): void {
+        // ensure that the actual field value is not a series of asterisks (****), which is the displayValue kept in local storage
+        const passwordControl = this.formGroup.get(fieldName);
+        if (passwordControl === undefined || passwordControl === null) {
+            console.log('WARNING: scrubPasswordField() is unable to find the field ' + fieldName);
+        } else if (this.passwordContainsOnlyAsterisks(passwordControl.value)) {
+            passwordControl.setValue('', {onlySelf: true, emitEvent: false});
+        }
+        // if there is a real password in local storage (say, from import)
+        // we erase it from local storage (presuming the caller has already used the value to set the field in the form)
+        this.clearFieldSavedData(fieldName);
+    }
+
+    private passwordContainsOnlyAsterisks(password: string): boolean {
+        if (password === undefined || password === '') {
+            return false;
+        }
+        for (let x = 0; x < password.length; x++) {
+            if (password.charAt(x) !== '*') {
+                return false;
+            }
+        }
+        return true;
+    }
+
     /**
      * Start the process of initializing the fields as soon as they become ready.
      */
     protected startProcessDelayedFieldInit() {
         if (this.delayedFieldQueue && this.delayedFieldQueue.length > 0) {
-            this.delayedFieldQueue.forEach(fieldName => this.initFieldWithSavedValue(fieldName));
+            this.delayedFieldQueue.forEach(fieldName => this.initFieldWithSavedData(fieldName));
         }
         if (this.delayedFieldQueue && this.delayedFieldQueue.length > 0) {
             setTimeout(this.startProcessDelayedFieldInit.bind(this), INIT_FIELD_DELAY);
@@ -130,44 +254,74 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
     /**
      * Inits form fields with saved data if any;
      */
-    setSavedDataAfterLoad() {
+    initFormWithSavedData() {
         if (this.hasSavedData()) {
-            for (const [key, control] of Object.entries(this.formGroup.controls)) {
-                if (this.getSavedValue(key, '') !== '') {
-                    // control.setValue(this.getSavedValue(key, control.value));
-                    this.initFieldWithSavedValue(key);
-                }
+            for (const [controlName, control] of Object.entries(this.formGroup.controls)) {
+                this.initFieldWithSavedData(controlName);
             }
         }
-
         this.startProcessDelayedFieldInit();
     }
 
-    clearFieldSavedData(fieldName: string) {
+    protected clearFieldSavedData(fieldName: string) {
         FormMetaDataStore.deleteMetaDataEntry(this.formName, fieldName);
     }
 
-    disarmField(fieldName: string, clearSavedData: boolean) {
-        if (fieldName && this.formGroup.controls[fieldName]) {
-            this.formGroup.controls[fieldName].clearValidators();
-            this.formGroup.controls[fieldName].setValue('');
-            this.formGroup.controls[fieldName].updateValueAndValidity();
+    // TODO: this method saves the value as both the display value and the key, but that's sloppy
+    protected saveFieldData(fieldName: string, value: string) {
+        FormMetaDataStore.saveMetaDataEntry(this.formName, fieldName, {
+            label: '',
+            displayValue: value,
+            key: value
+        })
+    }
+
+    private findField(fieldName: string, methodName: string): AbstractControl {
+        if (!fieldName) {
+            console.warn(`${methodName}(): called with empty fieldName`);
+            return null;
+        }
+
+        const field = this.formGroup.controls[fieldName];
+        if (!field) {
+            console.warn(`${methodName}(): unable to find field with name ${fieldName}`);
+            return null;
+        }
+        return field;
+    }
+
+    disarmField(fieldName: string, clearSavedData: boolean, options?: {
+        onlySelf?: boolean;
+        emitEvent?: boolean;
+    }) {
+        const field = this.findField(fieldName, 'disarmField');
+        if (field) {
+            field.clearValidators();
+            field.setValue('', options);
+            field.updateValueAndValidity(options);
             if (clearSavedData) {
                 this.clearFieldSavedData(fieldName);
             }
-        } else {
-            console.warn(`disarmField(): Unable to find field with name ${fieldName}`);
         }
     }
 
-    resurrectField(fieldName: string, validators: ValidatorFn[], value?: string) {
-        if (fieldName && this.formGroup.controls[fieldName]) {
-            this.formGroup.controls[fieldName].setValidators(validators);
-            this.formGroup.controls[fieldName].updateValueAndValidity();
-            this.formGroup.controls[fieldName].setValue(value || null);
-        } else {
-            console.warn(`resurrectField(): Unable to find field with name ${fieldName}`);
+    resurrectField(fieldName: string, validators: ValidatorFn[], value?: string, options?: {
+        onlySelf?: boolean;
+        emitEvent?: boolean;
+    }) {
+        const field = this.findField(fieldName, 'resurrectField');
+        if (field) {
+            field.setValidators(validators);
+            field.updateValueAndValidity(options);
+            field.setValue(value || null, options);
         }
+    }
+
+    resurrectFieldWithSavedValue(fieldName: string, validators: ValidatorFn[], defaultValue?: string, options?: {
+        onlySelf?: boolean;
+        emitEvent?: boolean;
+    }) {
+        this.resurrectField(fieldName, validators, this.getSavedValue(fieldName, defaultValue), options);
     }
 
     showFormError(formControlname) {
@@ -183,19 +337,122 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
         return !(arr && arr.length > 0);
     }
 
+    // subclasses can ask us to make sure a StepDescriptionChange is triggered on various occasions
+    protected registerStepDescriptionTriggers(triggers: StepDescriptionTriggers) {
+        if (triggers.fields) {
+            this.registerFieldsAffectingStepDescription(triggers.fields);
+        }
+        this.clusterTypeDescriptorUsedInDescription = triggers.clusterTypeDescriptor;
+    }
+
+    private registerFieldsAffectingStepDescription(fields: string[]) {
+        fields.forEach(field => {
+            this.registerOnValueChange(field, () => {
+                this.triggerStepDescriptionChange();
+            });
+        })
+    }
+
     /**
      * Registers a callback when a field value changes.
      * This method does more than the "onchange" event handler
      * in that onchange only captures changes through the UI, while
      * this method registers handler for all value change event including
-     * the one changed programatically.
+     * the one changed programmatically.
      * @param fieldName the field whose value to be monitored
      * @param callback the function to be called when a value changes.
      */
     registerOnValueChange(fieldName: string, callback: (newValue: any) => void) {
-        this.formGroup.get(fieldName).valueChanges.pipe(
+        this.getControl(fieldName).valueChanges.pipe(
             distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)),
             takeUntil(this.unsubscribe)
         ).subscribe(newValue => callback(newValue));
+    }
+
+    registerOnIpFamilyChange(fieldName: string, ipv4Validators: ValidatorFn[], ipv6Validators: ValidatorFn[], cb?: () => void) {
+        AppServices.messenger.getSubject(TkgEventType.VSPHERE_IP_FAMILY_CHANGE)
+            .pipe(takeUntil(this.unsubscribe))
+            .subscribe((data: TkgEvent) => {
+                if (data.payload === IpFamilyEnum.IPv4) {
+                    this.resurrectField(
+                        fieldName,
+                        ipv4Validators,
+                        this.formGroup.get(fieldName).value,
+                        {emitEvent: false, onlySelf: true}
+                    );
+                } else {
+                    this.resurrectField(
+                        fieldName,
+                        ipv6Validators,
+                        this.formGroup.get(fieldName).value,
+                        {emitEvent: false, onlySelf: true}
+                    );
+                }
+                this.ipFamily = data.payload;
+                if (cb) {
+                    cb();
+                }
+            });
+    }
+
+    protected setControlValueSafely(controlName: string, value: any, options?: {
+        onlySelf?: boolean,
+        emitEvent?: boolean
+    }) {
+        const control = this.formGroup.get(controlName);
+        if (control) {
+            control.setValue(value, options);
+        }
+    }
+
+    protected clearControlValue(controlName: string) {
+        this.setControlValueSafely(controlName, '' , { onlySelf: true, emitEvent: false});
+    }
+
+    protected setControlWithSavedValue(controlName: string, defaultValue?: any, options?: {
+        onlySelf?: boolean,
+        emitEvent?: boolean
+    }) {
+        const defaultToUse = (defaultValue === undefined || defaultValue === null) ? '' : defaultValue;
+        this.setControlValueSafely(controlName, this.getSavedValue(controlName, defaultToUse), options);
+    }
+
+    // HTML convenience methods
+    //
+    get clusterTypeDescriptorTitleCase() {
+        return FormUtility.titleCase(this.clusterTypeDescriptor);
+    }
+    //
+    // HTML convenience methods
+
+    protected triggerStepDescriptionChange() {
+        const descriptionChangePayload: StepDescriptionChangePayload = {
+            wizard: this.wizardName,
+            step: this.formName,
+            description: this.dynamicDescription(),
+        }
+        AppServices.messenger.publish({
+            type: TkgEventType.STEP_DESCRIPTION_CHANGE,
+            payload: descriptionChangePayload,
+        });
+    }
+
+    // NOTE: this method is public to facilitate testing, otherwise it would be private
+    public setClusterTypeDescriptor(descriptor: string) {
+        if (this.clusterTypeDescription !== descriptor) {
+            this.clusterTypeDescription = descriptor;
+            if (this.clusterTypeDescriptorUsedInDescription) {
+                this.triggerStepDescriptionChange();
+            }
+        }
+    }
+
+    get clusterTypeDescriptor() {
+        return this.clusterTypeDescription;
+    }
+
+    // This method is designed to expose the protected unsubscribe field (from our base class) to allow its use in subscribing to pipes
+    get unsubscribeOnDestroy(): Subject<void> {
+        return this.unsubscribe;
     }
 }

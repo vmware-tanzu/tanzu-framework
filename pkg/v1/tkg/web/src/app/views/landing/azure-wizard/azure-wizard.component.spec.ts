@@ -1,15 +1,24 @@
+// Angular imports
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
-
-import { AzureWizardComponent } from './azure-wizard.component';
-import { RouterTestingModule } from '@angular/router/testing';
-import { ReactiveFormsModule, FormBuilder } from '@angular/forms';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { SharedModule } from 'src/app/shared/shared.module';
+// App imports
 import { APIClient } from 'src/app/swagger';
+import AppServices from '../../../shared/service/appServices';
+import { AzureForm } from './azure-wizard.constants';
+import { AzureProviderStepComponent } from './provider-step/azure-provider-step.component';
+import { AzureWizardComponent } from './azure-wizard.component';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { ClusterType, WizardForm } from "../wizard/shared/constants/wizard.constants";
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
-import { AzureWizardFormService } from 'src/app/shared/service/azure-wizard-form.service';
-import Broker from 'src/app/shared/service/broker';
+import { FieldMapUtilities } from '../wizard/shared/field-mapping/FieldMapUtilities';
+import { FormBuilder, FormControl, ReactiveFormsModule } from '@angular/forms';
 import { Messenger } from 'src/app/shared/service/Messenger';
+import { MetadataStepComponent } from '../wizard/shared/components/steps/metadata-step/metadata-step.component';
+import { NodeSettingStepComponent } from './node-setting-step/node-setting-step.component';
+import { RouterTestingModule } from '@angular/router/testing';
+import { SharedModule } from 'src/app/shared/shared.module';
+import { SharedNetworkStepComponent } from '../wizard/shared/components/steps/network-step/network-step.component';
+import { ValidationService } from '../wizard/shared/validation/validation.service';
+import { VnetStepComponent } from './vnet-step/vnet-step.component';
 
 describe('AzureWizardComponent', () => {
     let component: AzureWizardComponent;
@@ -27,7 +36,8 @@ describe('AzureWizardComponent', () => {
             providers: [
                 APIClient,
                 FormBuilder,
-                AzureWizardFormService
+                FieldMapUtilities,
+                ValidationService
             ],
             schemas: [
                 CUSTOM_ELEMENTS_SCHEMA
@@ -39,7 +49,7 @@ describe('AzureWizardComponent', () => {
     }));
 
     beforeEach(() => {
-        Broker.messenger = new Messenger();
+        AppServices.messenger = new Messenger();
         const fb = new FormBuilder();
         fixture = TestBed.createComponent(AzureWizardComponent);
         component = fixture.componentInstance;
@@ -53,13 +63,8 @@ describe('AzureWizardComponent', () => {
             azureNodeSettingForm: fb.group({
                 controlPlaneSetting: ['']
             }),
-            workerazureNodeSettingForm: fb.group({
-            }),
             metadataForm: fb.group({
                 clusterLocation: ['']
-            }),
-            registerTmcForm: fb.group({
-                tmcRegUrl: ['']
             }),
             networkForm: fb.group({
                 clusterServiceCidr: [''],
@@ -76,71 +81,8 @@ describe('AzureWizardComponent', () => {
             osImageForm: fb.group({
             })
         });
-        component.clusterType = 'management';
+        component.clusterTypeDescriptor = '' + ClusterType.Management;
         fixture.detectChanges();
-    });
-
-    describe('step description', () => {
-        it('should create', () => {
-            expect(component).toBeTruthy();
-        });
-
-        it('azure provider form', () => {
-            const formName = 'azureProviderForm';
-            expect(component.getStepDescription(formName))
-                .toBe('Validate the Azure provider credentials for Tanzu');
-            component.form.get(formName).get('tenantId').setValue('testId');
-            expect(component.getStepDescription(formName))
-                .toBe('Azure tenant: testId');
-        });
-        it('vnet form', () => {
-            const formName = 'vnetForm';
-            expect(component.getStepDescription(formName))
-                .toBe('Specify a Azure VNET CIDR');
-            component.form.get(formName).get('vnetCidrBlock').setValue('1.1.1.1/24');
-            expect(component.getStepDescription(formName))
-                .toBe('Subnet: 1.1.1.1/24');
-        });
-        it('node setting form', () => {
-            const formName = 'azureNodeSettingForm';
-            expect(component.getStepDescription(formName))
-                .toBe('Specifying the resources backing the management cluster');
-            component.form.get(formName).get('controlPlaneSetting').setValue('dev');
-            expect(component.getStepDescription(formName))
-                .toBe('Control plane type: dev');
-        });
-        it('meta data form', () => {
-            const formName = 'metadataForm';
-            expect(component.getStepDescription(formName))
-                .toBe('Specify metadata for the management cluster');
-            component.form.get(formName).get('clusterLocation').setValue('testLocation');
-            expect(component.getStepDescription(formName))
-                .toBe('Location: testLocation');
-        });
-        it('network form', () => {
-            const formName = 'networkForm';
-            expect(component.getStepDescription(formName))
-                .toBe('Specify how TKG networking is provided and global network settings');
-            component.form.get(formName).get('clusterServiceCidr').setValue('1.1.1.1/23');
-            component.form.get(formName).get('clusterPodCidr').setValue('2.2.2.2/23');
-            expect(component.getStepDescription(formName))
-                .toBe('Cluster service CIDR: 1.1.1.1/23 Cluster POD CIDR: 2.2.2.2/23');
-        });
-        it('register tmc form', () => {
-            const formName = 'registerTmcFrom';
-            expect(component.getStepDescription(formName))
-                .toBe('Optional: register Tanzu Mission Control');
-        });
-        it('ceip opt in form', () => {
-            const formName = 'ceipOptInForm';
-            expect(component.getStepDescription(formName))
-                .toBe('Join the CEIP program for TKG');
-        });
-        it('invalid form', () => {
-            const formName = 'invalidForm';
-            expect(component.getStepDescription(formName))
-                .toBe(`Step ${formName} is not supported yet`);
-        })
     });
 
     it('should generate cli', () => {
@@ -148,13 +90,13 @@ describe('AzureWizardComponent', () => {
         expect(component.getCli(path)).toBe(`tanzu management-cluster create --file ${path} -v 6`);
     });
 
-    it('should call api to create aws regional cluster', () => {
+    it('should call api to create azure regional cluster', () => {
         const apiSpy = spyOn(component['apiClient'], 'createAzureRegionalCluster').and.callThrough();
         component.createRegionalCluster({});
         expect(apiSpy).toHaveBeenCalled();
     });
 
-    it('should apply TKG config for aws', () => {
+    it('should apply TKG config for azure', () => {
         const apiSpy = spyOn(component['apiClient'], 'applyTKGConfigForAzure').and.callThrough();
         component.applyTkgConfig();
         expect(apiSpy).toHaveBeenCalled();

@@ -36,9 +36,6 @@ type PackageValuesSchemaParser struct {
 
 // NewValuesSchemaParser instantiate a new PackageValuesSchemaParser
 func NewValuesSchemaParser(valuesSchema kapppkg.ValuesSchema) (*PackageValuesSchemaParser, error) {
-	if len(valuesSchema.OpenAPIv3.Raw) == 0 {
-		return nil, fmt.Errorf("data value schema is empty")
-	}
 	loader := openapi3.NewLoader()
 	doc, loadErr := loader.LoadFromData(valuesSchema.OpenAPIv3.Raw)
 	if loadErr != nil {
@@ -66,6 +63,8 @@ func (parser *PackageValuesSchemaParser) ParseProperties() ([]DataValueProperty,
 func (parser *PackageValuesSchemaParser) walkOnValueSchemaProperties(docMap map[string]interface{}) error {
 	var properties interface{}
 	var exist bool
+	// Base case one: if current level does not have properties field, we do not need to go deeper to look for
+	// the nested properties.
 	if properties, exist = docMap["properties"]; !exist && len(parser.fieldPath) > 0 {
 		parser.DataValueProperties = append(parser.DataValueProperties, DataValueProperty{
 			Key:         strings.Join(parser.fieldPath, "."),
@@ -92,6 +91,18 @@ func (parser *PackageValuesSchemaParser) walkOnValueSchemaProperties(docMap map[
 		errMsg := fmt.Sprintf("unable to parse the value schema, the value of key named 'properties' has unsupported"+
 			" type %v. Expected types are: [map[string]interface{}, json.RawMessage]", t)
 		return fmt.Errorf(errMsg)
+	}
+
+	// Base case two: if current level does have properties field but that interface is an empty map, we do not need to
+	// look for nested properties.
+	if len(propertiesMap) == 0 {
+		parser.DataValueProperties = append(parser.DataValueProperties, DataValueProperty{
+			Key:         strings.Join(parser.fieldPath, "."),
+			Type:        docMap["type"],
+			Description: docMap["description"],
+			Default:     docMap["default"],
+		})
+		return nil
 	}
 
 	// Recursively look into nested map entries in order to load details of properties

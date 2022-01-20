@@ -12,10 +12,19 @@ $logo-aws-ec2: 'assets/images/aws-ec2.svg';
 $logo-ms-azure: 'assets/images/ms-azure.svg';
 $logo-docker: 'assets/images/docker.svg';
 
-$bg-color-light: #fafafa;
-$bg-color-dark: #1b2a32;
-
 $small: '576px';
 $medium: '768px';
 $large: '992px';
 $extra-large: '1200px';
+
+$bg-color-light: #fafafa;
+$bg-color-dark: #1b2a32;
+
+// light theme overrides
+$label-color-light-theme: #454545;
+
+// dark theme overrides
+$header-background-dark-theme: #485a6a;
+$label-color-dark-theme: #acbac3;
+$form-error-text-dark-theme: #F76B64;
+

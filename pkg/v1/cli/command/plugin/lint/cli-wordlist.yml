@@ -1,6 +1,6 @@
 ---
 nouns:
-  - account 
+  - account
   - admin-kubeconfig
   - alpha
   - app
@@ -29,6 +29,7 @@ nouns:
   - provisioner
   - repo
   - repository
+  - source
   - wordlist
   - workspace
 verbs:
@@ -130,8 +131,8 @@ command-flags:
   - target-namespace
   - timeout
   - tkr
-  - tmc-registration-url
   - ui
+  - uri
   - url
   - use-existing-bootstrap-cluster
   - use-existing-cleanup-cluster

@@ -2,26 +2,27 @@ apiVersion: vendir.k14s.io/v1alpha1
 directories:
 - contents:
   - git:
-      commitTitle: Add package templates Antrea 0.13.3 (#953)...
-      sha: df9a9cdea9886f1f5cc2856994739539cd5c5663
+      commitTitle: update vsphere-cpi validations to allow dualstack (#2734)...
+      sha: 165340fbaf9d7729c84434471d5a190f6096c492
       tags:
-      - v0.6.0-57-gdf9a9cd
+      - v0.10.0-dev.4-43-g165340fb
     path: .
   path: ytt/vendir/vsphere_cpi/_ytt_lib
 - contents:
   - git:
-      commitTitle: remove antrean configmap kapp versioned annotation (#1008)...
-      sha: 0c8cf14639f151cc0268da53d133e1f6c0d836a9
+      commitTitle: Antrea disable UDP tunnel offload (#2723)
+      sha: daa90ee40f373474c7714e72182b7ad784c2ffaf
       tags:
-      - v0.6.0-65-g0c8cf14
+      - v0.10.0-dev.4-36-gdaa90ee4
     path: .
   path: ytt/vendir/cni/_ytt_lib
 - contents:
   - git:
-      commitTitle: Changes for adding kapp controller in tce => release 0.23.0 (#1300)...
-      sha: d78628afa044bab34e492830530ee4fdf20f40f2
+      commitTitle: Add kapp controller init container to configure core DNS for cluster
+        IP access (#2727)...
+      sha: 1ce18be43347405d3dfbde4ba2cbb0d1e2fa0b41
       tags:
-      - v0.7.0-dev.4-5-gd78628a
+      - v0.10.0-dev.4-39-g1ce18be4
     path: .
   path: ytt/vendir/kapp-controller/_ytt_lib
 kind: LockConfig

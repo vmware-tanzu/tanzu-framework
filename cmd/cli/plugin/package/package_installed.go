@@ -12,12 +12,9 @@ import (
 var packageInstalledOp = tkgpackagedatamodel.NewPackageOptions()
 
 var packageInstalledCmd = &cobra.Command{
-	Use:       "installed",
-	ValidArgs: []string{"list", "create", "delete", "update", "get"},
-	Short:     "Manage installed packages",
-	Args:      cobra.RangeArgs(1, 2),
-}
-
-func init() {
-	packageInstalledCmd.PersistentFlags().StringVarP(&packageInstalledOp.KubeConfig, "kubeconfig", "", "", "The path to the kubeconfig file, optional")
+	Use:               "installed",
+	ValidArgs:         []string{"list", "create", "delete", "update", "get"},
+	Short:             "Manage installed packages",
+	Args:              cobra.RangeArgs(1, 2),
+	PersistentPreRunE: packagingAvailabilityCheck,
 }

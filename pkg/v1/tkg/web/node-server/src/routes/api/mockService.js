@@ -59,7 +59,19 @@ router.get(`${ENDPOINT}/features`, (req, res) => {
     winston.info('Mock TKG UI GET FEATURES API');
     res.status(200);
     res.json({
-        "tmcRegistration": "enabled"
+        "global": {
+            "dual-stack": "true",
+            "ceip": "true"
+        },
+        "management-cluster": {
+            "encrypt-credentials": "true",
+            "export-from-confirm": "true",
+            "import": "true",
+            "vsphereIPv6": "true"
+        },
+        "cluster": {
+            "validateXyz": "true"
+        }
     });
 });
 
@@ -191,7 +203,8 @@ router.get(`${ENDPOINT}/avi/vipnetworks`, (req, res) => {
  */
 router.post(`${ENDPOINT}/providers/vsphere`, (req, res) => {
     winston.info('Mock TKG UI CONNECT VC API');
-    if ((req.body.host === 'vsphere.local') &&
+    if ((req.body.host === 'vsphere.local' || req.body.host === '1.1.1.1'
+        || req.body.host === '2001:0db8:85a3:0000:0000:8a2e:0370:7334') &&
         (req.body.username === 'admin' || req.body.username === 'administrator') &&
         (req.body.password === 'password')) {
         res.status(200);
@@ -215,34 +228,41 @@ router.get(`${ENDPOINT}/providers/vsphere/networks`, (req, res) => {
     let vcNetworksResponse = [
         {
             name: 'Network 1',
-            id: 'network-1'
+            id: 'network-1',
+            displayName: 'Network 1'
         },
         {
             name: 'Network 2',
-            id: 'network-2'
+            id: 'network-2',
+            displayName: 'Network 2'
         },
         {
             name: 'Network 3',
-            id: 'network-3'
+            id: 'network-3',
+            displayName: 'Network 3'
         },
         {
             name: 'Network 4',
-            id: 'network-4'
+            id: 'network-4',
+            displayName: 'Network 4'
         },
         {
             name: 'Network 5',
-            id: 'network-5'
+            id: 'network-5',
+            displayName: 'Network 5'
         },
         {
             name: 'Network 6',
-            id: 'network-6'
+            id: 'network-6',
+            displayName: 'Network 6'
         }
     ];
 
     if (mockvcNetworkRequestCounter > 0) {
         vcNetworksResponse.push({
             name: 'Network 3',
-            id: 'network-3'
+            id: 'network-3',
+            displayName: 'Network 3'
         });
     }
 
@@ -443,7 +463,7 @@ router.get(`${ENDPOINT}/providers/vsphere/resourcepools`, (req, res) => {
  * Mock route for getting VC os images
  */
 router.get(`${ENDPOINT}/providers/vsphere/osimages`, (req, res) => {
-    winston.info('Mock TKG UI FETCH DATACENTERS');
+    winston.info('Mock TKG UI FETCH DATACENTERS (#' + mockOsImageRequestCounter + ')');
     let osImageResponse = [];
     if (mockOsImageRequestCounter > 0) {
         osImageResponse.push({
@@ -474,6 +494,63 @@ router.get(`${ENDPOINT}/providers/vsphere/osimages`, (req, res) => {
     res.status(200);
     res.json(osImageResponse);
 });
+
+router.post(`${ENDPOINT}/providers/vsphere/config/import`, (req, res) => {
+    winston.info('Mock TKG UI IMPORT VC API');
+    res.status(200);
+    res.json({
+        "annotations": {
+            "description": "foo-description",
+            "location": "bar-location"
+        },
+        "ceipOptIn": true,
+        "controlPlaneEndpoint": "10.92.12.54",
+        "controlPlaneFlavor": "dev",
+        "controlPlaneNodeType": "medium",
+        "datacenter": "/SDDC-Datacenter/test/dc-2",
+        "datastore": "Datastore 4",
+        "folder": "Folder 4",
+        "identityManagement": {
+            "oidc_provider_name": "",
+            "oidc_provider_url": "https://1.2.3.4",
+            "oidc_client_id": "client-id",
+            "oidc_client_secret": "client-secret",
+            "oidc_scope": "scopes",
+            "oidc_claim_mappings": {
+                "username": "username-claim",
+                "groups": "groups-claim"
+            },
+            "idm_type": "oidc"
+        },
+        "ipFamily": "ipv4",
+        "labels": {
+            "foo": "bar",
+            "foo2": "bar2"
+        },
+        "machineHealthCheckEnabled": true,
+        "networking": {"clusterPodCIDR": "100.96.0.0/11", "clusterServiceCIDR": "100.64.0.0/13", "networkName": "Network 3"},
+        "os": {"isTemplate": null, "name": "GeeIDunno", "osInfo": {"arch": "amd64", "name": "photon", "version": "3"}},
+        "resourcePool": "Host-2",
+        "ssh_key": "F8:DB:B3:6E:34:C6:0C:4D:15:8E:58:56:94:3D:32:4D:B6:85:BB:65",
+        "workerNodeType": "medium",
+        "vsphereCredentials": {
+            "host": "vsphere.local",
+            "password": "",
+            "thumbprint": "F8:DB:B3:6E:34:C6:0C:4D:15:8E:58:56:94:3D:32:4D:B6:85:BB:65",
+            "username": "admin"
+        }
+    });
+});
+
+/**
+ * Mock route for getting config file
+ */
+router.post(`${ENDPOINT}/providers/vsphere/config/export`, (req, res) => {
+    winston.info('Mock TKG UI export config');
+    res.status(200);    res.status(200);
+    res.json("Pretend this is a beautiful config file");
+});
+
 
 /*** AWS releated APIs ***/
 
@@ -686,6 +763,99 @@ router.post(`${ENDPOINT}/providers/aws/tkgconfig`, (req, res) => {
     });
 });
 
+/**
+ * Mock route for getting config file
+ */
+router.post(`${ENDPOINT}/providers/aws/config/export`, (req, res) => {
+    winston.info('Mock TKG UI export config');
+    res.status(200);    res.status(200);
+    res.json("Pretend this is a beautiful config file");
+});
+
+router.post(`${ENDPOINT}/providers/aws/config/import`, (req, res) => {
+    winston.info('Mock TKG UI import config');
+    res.status(200);
+    res.json({
+        "awsAccountParams": {
+          "profileName": "profile1",
+          "sessionToken": "",
+          "region": "US-WEST",
+          "accessKeyID": "",
+          "secretAccessKey": ""
+        },
+        "loadbalancerSchemeInternal": false,
+        "sshKeyName": "default",
+        "createCloudFormationStack": true,
+        "clusterName": "",
+        "controlPlaneNodeType": "i3.xlarge",
+        "controlPlaneFlavor": "prod",
+        "bastionHostEnabled": true,
+        "machineHealthCheckEnabled": true,
+        "vpc": {
+          "cidr": "10.0.0.0/16",
+          "vpcID": "",
+          "azs": [
+            {
+              "name": "us-west-a",
+              "workerNodeType": "t3.small",
+              "publicNodeCidr": "",
+              "privateNodeCidr": "",
+              "publicSubnetID": "",
+              "privateSubnetID": ""
+            },
+            {
+              "name": "us-west-b",
+              "workerNodeType": "t3.xlarge",
+              "publicNodeCidr": "",
+              "privateNodeCidr": "",
+              "publicSubnetID": "",
+              "privateSubnetID": ""
+            },
+            {
+              "name": "us-west-c",
+              "workerNodeType": "m5a.2xlarge",
+              "publicNodeCidr": "",
+              "privateNodeCidr": "",
+              "publicSubnetID": "",
+              "privateSubnetID": ""
+            }
+          ]
+        },
+        "enableAuditLogging": false,
+        "networking": {
+          "networkName": "",
+          "clusterDNSName": "",
+          "clusterNodeCIDR": "",
+          "clusterServiceCIDR": "100.64.0.0/13",
+          "clusterPodCIDR": "100.96.0.0/11",
+          "cniType": "antrea"
+        },
+        "ceipOptIn": true,
+        "labels": {},
+        "os": "1: Object",
+        "annotations": {
+          "description": "",
+          "location": ""
+        },
+        "identityManagement": {
+          "idm_type": "none"
+        },
+        "aviConfig": {
+          "controller": "",
+          "username": "",
+          "password": "",
+          "cloud": "",
+          "service_engine": "",
+          "ca_cert": "",
+          "network": {
+            "name": "",
+            "cidr": ""
+          },
+          "labels": {}
+        }
+      });
+});
+
 /*** Azure related mock services ***/
 
 /**
@@ -750,6 +920,97 @@ router.get(`${ENDPOINT}/providers/azure/resourcegroups`, (req, res) => {
         res.status(400);
         res.json({ message: "Missing resource group 'region'" });
     }
+});
+
+/**
+ * Mock route for importing config file
+ */
+router.post(`${ENDPOINT}/providers/azure/config/import`, (req, res) => {
+    winston.info('Mock TKG UI import config');
+    res.status(200);    res.status(200);
+    res.json({
+        'azureAccountParams': {
+            'tenantId': 'tenant-id',
+            'clientId': 'client-id',
+            'clientSecret': 'client-secret',
+            'subscriptionId': 'subscription-id',
+            'azureCloud': 'AzurePublicCloud'
+        },
+        'location': 'centralus',
+        'sshPublicKey': 'ssh-pub-key',
+        'controlPlaneMachineType': 'Standard_B2ms',
+        'controlPlaneFlavor': 'dev',
+        'workerMachineType': 'Standard_B2ms',
+        'machineHealthCheckEnabled': true,
+        'resourceGroup': 'resource-group3',
+        'clusterName': 'poofta',
+        'vnetResourceGroup': 'resource-group3',
+        'vnetName': 'vnet2',
+        'vnetCidr': '',
+        'controlPlaneSubnet': 'subnet3',
+        'workerNodeSubnet': '',
+        'enableAuditLogging': true,
+        "networking":{
+            "networkName":"network-name",
+            "clusterDNSName":"",
+            "clusterNodeCIDR":"",
+            "clusterServiceCIDR":"100.64.0.0/13",
+            "clusterPodCIDR":"100.96.0.0/11",
+            "cniType":"antrea",
+            "httpProxyConfiguration":{
+                "enabled":true,
+                "HTTPProxyURL":"http://proxy-foo",
+                "HTTPProxyUsername":"proxy-user-bar",
+                "HTTPProxyPassword":"proxy-password-bar",
+                "noProxy":"no-proxy",
+                "HTTPSProxyURL":"http://proxy-foo",
+                "HTTPSProxyUsername":"proxy-user-bar",
+                "HTTPSProxyPassword":"proxy-password-bar"
+            }
+        },
+        'ceipOptIn': false,
+        'labels': {
+            "foo":"bar",
+            "goo":"gar"
+        },
+        'os': {
+            'name': 'Ubuntu-20.04-amd64 (2021.04.13)',
+            'osInfo': {
+                'arch': 'amd64',
+                'name': 'ubuntu',
+                'version': '20.04'
+            }
+        },
+        'annotations': {
+            'description': 'optional-description-foo',
+            'location': ''
+        },
+        "identityManagement": {
+            "idm_type": "none",
+            "ldap_group_search_name_attr": "cn",
+            "ldap_group_search_user_attr": "DN",
+            "ldap_user_search_username": "userPrincipalName",
+            "oidc_claim_mappings": {
+                "groups": "group-claim",
+                "username": "username-claim"
+            }
+        },
+        'aviConfig': {
+            'controller': '',
+            'username': '',
+            'password': '',
+            'cloud': '',
+            'service_engine': '',
+            'ca_cert': '',
+            'network': {
+                'name': '',
+                'cidr': ''
+            },
+            'labels': {}
+        },
+        'isPrivateCluster': true,
+        'frontendPrivateIp': '10.3.0.0'
+    });
 });
 
 /**
@@ -920,6 +1181,15 @@ router.post(`${ENDPOINT}/providers/azure/tkgconfig`, (req, res) => {
     });
 });
 
+/**
+ * Mock route for getting config file
+ */
+router.post(`${ENDPOINT}/providers/azure/config/export`, (req, res) => {
+    winston.info('Mock TKG UI export config');
+    res.status(200);    res.status(200);
+    res.json("Pretend this is a beautiful config file");
+});
+
 /*********************************   VSPHERE   **********************************/
 
 /**
@@ -1000,6 +1270,43 @@ router.get(`${ENDPOINT}/providers/vsphere/compute`, (req, res) => {
         }
     ]);
 });
+/**
+ * Import config
+ */
+router.post(`${ENDPOINT}/providers/vsphere/config/import`, (req, res) => {
+    winston.info('Mock TKG UI IMPORT');
+    res.status(200);
+    res.json(
+        {
+            "ceipOptIn": true,
+            "controlPlaneEndpoint": "10.92.12.54",
+            "controlPlaneFlavor": "dev",
+            "controlPlaneNodeType": "medium",
+            "datacenter": "/dc0",
+            "datastore": "/dc0/datastore/local-1",
+            "folder": "/dc0/vm",
+            "identityManagement": {
+                "idm_type": "none",
+                "ldap_group_search_name_attr": "cn",
+                "ldap_group_search_user_attr": "DN",
+                "ldap_user_search_username": "userPrincipalName",
+                "oidc_claim_mappings": {"groups": "", "username": ""}
+            },
+            "ipFamily": "ipv4",
+            "machineHealthCheckEnabled": true,
+            "networking": {"clusterPodCIDR": "100.96.0.0/11", "clusterServiceCIDR": "100.64.0.0/13", "networkName": "/dc0/network/VM Network"},
+            "os": {"isTemplate": null, "name": "GeeIDunno", "osInfo": {"arch": "amd64", "name": "photon", "version": "3"}},
+            "resourcePool": "/dc0/host/cluster0/Resources",
+            "ssh_key": "F8:DB:B3:6E:34:C6:0C:4D:15:8E:58:56:94:3D:32:4D:B6:85:BB:65",
+            "vsphereCredentials": {
+                "host": "10.92.13.72",
+                "password": "<encoded:QWRtaW4hMjM=>",
+                "thumbprint": "F8:DB:B3:6E:34:C6:0C:4D:15:8E:58:56:94:3D:32:4D:B6:85:BB:65",
+                "username": "administrator@vsphere.local"
+            }
+        }
+    );
+});
 
 /*********************************   DOCKER   **********************************/
 
@@ -1032,6 +1339,85 @@ router.post(`${ENDPOINT}/providers/docker/tkgconfig`, (req, res) => {
     res.json({
         path: "/path/to/config"
     });
+});
+
+/**
+ * Mock route for getting config file
+ */
+router.post(`${ENDPOINT}/providers/docker/config/export`, (req, res) => {
+    winston.info('Mock TKG UI export config');
+    res.status(200);    res.status(200);
+    res.json("CLUSTER_CIDR: 100.96.0.0/11\n" +
+        "CLUSTER_NAME: foobar-cluster\n" +
+        "CLUSTER_PLAN: dev\n" +
+        "ENABLE_MHC: \"false\"\n" +
+        "IDENTITY_MANAGEMENT_TYPE: none\n" +
+        "INFRASTRUCTURE_PROVIDER: docker\n" +
+        "LDAP_BIND_DN: \"\"\n" +
+        "LDAP_BIND_PASSWORD: \"\"\n" +
+        "LDAP_GROUP_SEARCH_BASE_DN: \"\"\n" +
+        "LDAP_GROUP_SEARCH_FILTER: \"\"\n" +
+        "LDAP_GROUP_SEARCH_GROUP_ATTRIBUTE: \"\"\n" +
+        "LDAP_GROUP_SEARCH_NAME_ATTRIBUTE: cn\n" +
+        "LDAP_GROUP_SEARCH_USER_ATTRIBUTE: DN\n" +
+        "LDAP_HOST: \"\"\n" +
+        "LDAP_ROOT_CA_DATA_B64: \"\"\n" +
+        "LDAP_USER_SEARCH_BASE_DN: \"\"\n" +
+        "LDAP_USER_SEARCH_FILTER: \"\"\n" +
+        "LDAP_USER_SEARCH_NAME_ATTRIBUTE: \"\"\n" +
+        "LDAP_USER_SEARCH_USERNAME: userPrincipalName\n" +
+        "OIDC_IDENTITY_PROVIDER_CLIENT_ID: \"\"\n" +
+        "OIDC_IDENTITY_PROVIDER_CLIENT_SECRET: \"\"\n" +
+        "OIDC_IDENTITY_PROVIDER_GROUPS_CLAIM: \"\"\n" +
+        "OIDC_IDENTITY_PROVIDER_ISSUER_URL: \"\"\n" +
+        "OIDC_IDENTITY_PROVIDER_NAME: \"\"\n" +
+        "OIDC_IDENTITY_PROVIDER_SCOPES: \"\"\n" +
+        "OIDC_IDENTITY_PROVIDER_USERNAME_CLAIM: \"\"\n" +
+        "OS_ARCH: \"\"\n" +
+        "OS_NAME: \"\"\n" +
+        "OS_VERSION: \"\"\n" +
+        "SERVICE_CIDR: 100.64.0.0/13\n" +
+        "TKG_HTTP_PROXY: http://us3rname:passw0rd@foo/bar/path/\n" +
+        "TKG_HTTP_PROXY_ENABLED: \"true\"\n" +
+        "TKG_HTTPS_PROXY: http://namie:passwordie@foo/bar/another/path/\n" +
+        "TKG_NO_PROXY: not-even-a-proxy");
+});
+/**
+ * Import config
+ */
+router.post(`${ENDPOINT}/providers/docker/config/import`, (req, res) => {
+    winston.info('Mock TKG UI IMPORT');
+    res.status(200);
+    res.json(
+        {
+            "ceipOptIn": false,
+            "clusterName": "stand-alonie",
+            "identityManagement": {
+                "idm_type": "none",
+                "ldap_group_search_name_attr": "cn",
+                "ldap_group_search_user_attr": "DN",
+                "ldap_user_search_username": "userPrincipalName",
+                "oidc_claim_mappings": {
+                    "groups": "group-claim",
+                    "username": "username-claim"
+                }
+            },
+            "networking": {
+                "clusterPodCIDR": "100.96.0.0/11",
+                "clusterServiceCIDR": "100.64.0.0/13",
+                "httpProxyConfiguration": {
+                    "HTTPProxyPassword": "foo-password",
+                    "HTTPProxyURL": "httpproxyurl/",
+                    "HTTPProxyUsername": "foo-username",
+                    "HTTPSProxyPassword": "bar-password",
+                    "HTTPSProxyURL": "httpsproxyish/path/foo",
+                    "HTTPSProxyUsername": "bar-username",
+                    "enabled": true,
+                    "noProxy": "nyet-proxy"
+                }
+            }
+        }
+    );
 });
 
 /**

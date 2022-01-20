@@ -14,10 +14,11 @@ import (
 // DockerConfig is the tkg config file for docker provider
 type DockerConfig struct {
 	ClusterName               string `yaml:"CLUSTER_NAME,omitempty"`
+	ClusterLabels             string `yaml:"CLUSTER_LABELS,omitempty"`
+	ClusterAnnotations        string `yaml:"CLUSTER_ANNOTATIONS,omitempty"`
 	InfrastructureProvider    string `yaml:"INFRASTRUCTURE_PROVIDER,omitempty"`
 	ClusterPlan               string `yaml:"CLUSTER_PLAN,omitempty"`
 	CeipParticipation         string `yaml:"ENABLE_CEIP_PARTICIPATION,omitempty"`
-	TmcRegistrationURL        string `yaml:"TMC_REGISTRATION_URL,omitempty"`
 	MachineHealthCheckEnabled string `yaml:"ENABLE_MHC,omitempty"`
 	ServiceCIDR               string `yaml:"SERVICE_CIDR,omitempty"`
 	ClusterCIDR               string `yaml:"CLUSTER_CIDR,omitempty"`
@@ -33,9 +34,10 @@ func (c *client) NewDockerConfig(params *models.DockerRegionalClusterParams) (*D
 	var err error
 	res := &DockerConfig{
 		ClusterName:            params.ClusterName,
+		ClusterLabels:          mapToConfigString(params.Labels),
+		ClusterAnnotations:     mapToConfigString(params.Annotations),
 		InfrastructureProvider: constants.InfrastructureProviderDocker,
-		ClusterPlan:            params.ControlPlaneFlavor,
-		TmcRegistrationURL:     params.TmcRegistrationURL,
+		ClusterPlan:            constants.PlanDev,
 		ClusterCIDR:            params.Networking.ClusterPodCIDR,
 		ServiceCIDR:            params.Networking.ClusterServiceCIDR,
 		HTTPProxyEnabled:       falseConst,
@@ -90,4 +92,39 @@ func (c *client) NewDockerConfig(params *models.DockerRegionalClusterParams) (*D
 	}
 
 	return res, nil
+}
+
+// CreateDockerParams generates a Params object from a DockerConfig, used for importing configuration files
+func (c *client) CreateDockerParams(dockerConfig *DockerConfig) (params *models.DockerRegionalClusterParams, err error) {
+	ceipOptIn := dockerConfig.CeipParticipation == trueConst
+
+	params = &models.DockerRegionalClusterParams{
+		Annotations:               configStringToMap(dockerConfig.ClusterAnnotations),
+		ClusterName:               dockerConfig.ClusterName,
+		Networking:                createDockerNetworkingConfig(dockerConfig),
+		CeipOptIn:                 &ceipOptIn,
+		ControlPlaneFlavor:        "",
+		IdentityManagement:        createIdentityManagementConfig(dockerConfig),
+		KubernetesVersion:         "",
+		Labels:                    configStringToMap(dockerConfig.ClusterLabels),
+		MachineHealthCheckEnabled: dockerConfig.MachineHealthCheckEnabled == trueConst,
+		NumOfWorkerNodes:          "",
+	}
+
+	return params, nil
+}
+
+// createDockerNetworkingConfig() creates a TKGNetwork from a docker config. Note that we need a special method here,
+// because the other providers have a Networking object that they use within their xxxConfig object,
+// but Docker just has the fields at the DockerConfig level
+func createDockerNetworkingConfig(conf *DockerConfig) *models.TKGNetwork {
+	return &models.TKGNetwork{
+		ClusterDNSName:         "",
+		ClusterNodeCIDR:        "",
+		ClusterPodCIDR:         conf.ClusterCIDR,
+		ClusterServiceCIDR:     conf.ServiceCIDR,
+		CniType:                "",
+		HTTPProxyConfiguration: createHTTPProxyConfig(conf),
+		NetworkName:            "",
+	}
 }

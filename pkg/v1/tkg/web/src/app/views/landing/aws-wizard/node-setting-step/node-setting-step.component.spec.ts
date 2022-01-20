@@ -1,14 +1,19 @@
+// Angular imports
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { By } from '@angular/platform-browser';
-
-import { SharedModule } from '../../../../shared/shared.module';
-import { NodeSettingStepComponent } from './node-setting-step.component';
+// App imports
 import { APIClient } from '../../../../swagger/api-client.service';
-import { ValidationService } from '../../wizard/shared/validation/validation.service';
+import AppServices from 'src/app/shared/service/appServices';
+import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
+import { NodeSettingStepComponent, NodeType } from './node-setting-step.component';
 import { Messenger, TkgEventType } from 'src/app/shared/service/Messenger';
-import Broker from 'src/app/shared/service/broker';
+import { SharedModule } from '../../../../shared/shared.module';
+import { ValidationService } from '../../wizard/shared/validation/validation.service';
+import { DataServiceRegistrarTestExtension } from '../../../../testing/data-service-registrar.testextension';
+import { AWSSubnet } from '../../../../swagger/models';
+import { AwsField, AwsForm } from '../aws-wizard.constants';
 
 describe('NodeSettingStepComponent', () => {
     let component: NodeSettingStepComponent;
@@ -26,6 +31,7 @@ describe('NodeSettingStepComponent', () => {
             providers: [
                 ValidationService,
                 FormBuilder,
+                FieldMapUtilities,
                 APIClient
             ],
             schemas: [
@@ -37,12 +43,11 @@ describe('NodeSettingStepComponent', () => {
     }));
 
     beforeEach(() => {
-        Broker.messenger = new Messenger();
-        const fb = new FormBuilder();
+        AppServices.messenger = new Messenger();
+        AppServices.dataServiceRegistrar = new DataServiceRegistrarTestExtension();
         fixture = TestBed.createComponent(NodeSettingStepComponent);
         component = fixture.componentInstance;
-        component.formGroup = fb.group({
-        });
+        component.setInputs('SquashWizard', AwsForm.NODESETTING, new FormBuilder().group({}));
 
         fixture.detectChanges();
     });
@@ -170,7 +175,7 @@ describe('NodeSettingStepComponent', () => {
             isPublic: false
         }];
 
-        component.filterSubnets('awsNodeAz1', 'us-west-a');
+        component.filterSubnetsByAZ('awsNodeAz1', 'us-west-a');
         expect(component.filteredAzs['awsNodeAz1']).toEqual({
             publicSubnets: [{
                 availabilityZoneId: 'us-west-a',
@@ -229,7 +234,7 @@ describe('NodeSettingStepComponent', () => {
         component.formGroup.get('vpcPublicSubnet3').setValue('100.63.0.0/14');
         component.formGroup.get('vpcPrivateSubnet3').setValue('100.63.0.0/14');
 
-        Broker.messenger.publish({ type: TkgEventType.AWS_REGION_CHANGED});
+        AppServices.messenger.publish({ type: TkgEventType.AWS_REGION_CHANGED});
         expect(component.publicSubnets).toEqual([]);
         expect(component.privateSubnets).toEqual([]);
         expect(component.filteredAzs).toEqual({
@@ -258,7 +263,7 @@ describe('NodeSettingStepComponent', () => {
         vpcSubnets.forEach(vpcSubnet => spySubnets.push(spyOn(component.formGroup.get(vpcSubnet), 'setValidators').and.callThrough()));
         const spyAzs = spyOn(component, 'clearAzs').and.callThrough();
 
-        Broker.messenger.publish({ type: TkgEventType.AWS_VPC_TYPE_CHANGED, payload: { vpcType: 'existing'}});
+        AppServices.messenger.publish({ type: TkgEventType.AWS_VPC_TYPE_CHANGED, payload: { vpcType: 'existing'}});
 
         spySubnets.forEach(subnet => expect(subnet).toHaveBeenCalledTimes(1));
         expect(spyAzs).toHaveBeenCalled();
@@ -267,19 +272,65 @@ describe('NodeSettingStepComponent', () => {
     it('should handle aws vpc change', () => {
         const spyAzs = spyOn(component, 'clearAzs').and.callThrough();
         const spySubnets = spyOn(component, 'clearSubnets').and.callThrough();
-        Broker.messenger.publish({ type: TkgEventType.AWS_VPC_CHANGED});
+        AppServices.messenger.publish({ type: TkgEventType.AWS_VPC_CHANGED});
         expect(spyAzs).toHaveBeenCalled();
         expect(spySubnets).toHaveBeenCalled();
     });
 
     it('should handle AWS_GET_SUBNETS event', () => {
-        const spySavedSubnet = spyOn(component, 'setSavedSubnets').and.callThrough();
-        component.awsWizardFormService.publishData(TkgEventType.AWS_GET_SUBNETS, [
+        const dataServiceRegistrar = AppServices.dataServiceRegistrar as DataServiceRegistrarTestExtension;
+        // we expect wizard to have registered this event
+        dataServiceRegistrar.simulateRegistration<AWSSubnet>(TkgEventType.AWS_GET_SUBNETS);
+
+        component.ngOnInit();
+
+        const spySavedSubnet = spyOn(component, 'setSubnetFieldsFromSavedValues').and.callThrough();
+        dataServiceRegistrar.simulateData(TkgEventType.AWS_GET_SUBNETS, [
             {cidr: '100.63.0.0/14', isPublic:  true},
-            {cidr: '100.63.0.0/14', isPublic:  false}
+            {cidr: '100.64.0.0/14', isPublic:  false}
         ]);
         expect(component.publicSubnets).toEqual([{cidr: '100.63.0.0/14', isPublic:  true}]);
-        expect(component.privateSubnets).toEqual([{cidr: '100.63.0.0/14', isPublic:  false}]);
+        expect(component.privateSubnets).toEqual([{cidr: '100.64.0.0/14', isPublic:  false}]);
         expect(spySavedSubnet).toHaveBeenCalled();
+    });
+
+    it('should announce description change', () => {
+        const msgSpy = spyOn(AppServices.messenger, 'publish').and.callThrough();
+
+        component.ngOnInit();
+        component.nodeType = '';
+        const description = component.dynamicDescription();
+        expect(description).toEqual('Specify the resources backing the  cluster');
+
+        component.setClusterTypeDescriptor('CARAMEL');
+        expect(msgSpy).toHaveBeenCalledWith({
+            type: TkgEventType.STEP_DESCRIPTION_CHANGE,
+            payload: {
+                wizard: 'SquashWizard',
+                step: AwsForm.NODESETTING,
+                description: 'Specify the resources backing the CARAMEL cluster',
+            }
+        });
+
+        const controlPlaneSettingControl = component.formGroup.controls[AwsField.NODESETTING_CONTROL_PLANE_SETTING];
+        controlPlaneSettingControl.setValue(NodeType.DEV);
+        expect(msgSpy).toHaveBeenCalledWith({
+            type: TkgEventType.STEP_DESCRIPTION_CHANGE,
+            payload: {
+                wizard: 'SquashWizard',
+                step: AwsForm.NODESETTING,
+                description: 'Development cluster selected: 1 node control plane',
+            }
+        });
+
+        controlPlaneSettingControl.setValue(NodeType.PROD);
+        expect(msgSpy).toHaveBeenCalledWith({
+            type: TkgEventType.STEP_DESCRIPTION_CHANGE,
+            payload: {
+                wizard: 'SquashWizard',
+                step: AwsForm.NODESETTING,
+                description: 'Production cluster selected: 3 node control plane',
+            }
+        });
     });
 });

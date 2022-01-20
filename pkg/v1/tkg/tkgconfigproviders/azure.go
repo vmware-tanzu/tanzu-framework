@@ -14,10 +14,11 @@ import (
 // AzureConfig is the tkg config for Azure
 type AzureConfig struct {
 	ClusterName               string `yaml:"CLUSTER_NAME,omitempty"`
+	ClusterLabels             string `yaml:"CLUSTER_LABELS,omitempty"`
+	ClusterAnnotations        string `yaml:"CLUSTER_ANNOTATIONS,omitempty"`
 	InfrastructureProvider    string `yaml:"INFRASTRUCTURE_PROVIDER,omitempty"`
 	ClusterPlan               string `yaml:"CLUSTER_PLAN,omitempty"`
 	CeipParticipation         string `yaml:"ENABLE_CEIP_PARTICIPATION,omitempty"`
-	TmcRegistrationURL        string `yaml:"TMC_REGISTRATION_URL,omitempty"`
 	Region                    string `yaml:"AZURE_LOCATION,omitempty"`
 	SubscriptionID            string `yaml:"AZURE_SUBSCRIPTION_ID,omitempty"`
 	TenantID                  string `yaml:"AZURE_TENANT_ID,omitempty"`
@@ -55,9 +56,10 @@ func (c *client) NewAzureConfig(params *models.AzureRegionalClusterParams) (*Azu
 	var err error
 	res := &AzureConfig{
 		ClusterName:             params.ClusterName,
+		ClusterLabels:           mapToConfigString(params.Labels),
+		ClusterAnnotations:      mapToConfigString(params.Annotations),
 		InfrastructureProvider:  constants.InfrastructureProviderAzure,
 		ClusterPlan:             params.ControlPlaneFlavor,
-		TmcRegistrationURL:      params.TmcRegistrationURL,
 		Region:                  params.Location,
 		SubscriptionID:          params.AzureAccountParams.SubscriptionID,
 		TenantID:                params.AzureAccountParams.TenantID,
@@ -147,4 +149,60 @@ func (c *client) NewAzureConfig(params *models.AzureRegionalClusterParams) (*Azu
 	}
 
 	return res, nil
+}
+
+// CreateAzureParams generates a Params object from an AzureConfig, used for importing configuration files
+func (c *client) CreateAzureParams(azureConfig *AzureConfig) (params *models.AzureRegionalClusterParams, err error) {
+	ceipOptIn := azureConfig.CeipParticipation == trueConst
+	sshKey, err := base64.StdEncoding.DecodeString(azureConfig.SSHKeyB64)
+	if err != nil {
+		return nil, err
+	}
+
+	return &models.AzureRegionalClusterParams{
+		Annotations: configStringToMap(azureConfig.ClusterAnnotations),
+		AzureAccountParams: &models.AzureAccountParams{
+			AzureCloud:     "",
+			ClientID:       azureConfig.ClientID,
+			ClientSecret:   azureConfig.ClientSecret,
+			SubscriptionID: azureConfig.SubscriptionID,
+			TenantID:       azureConfig.TenantID,
+		},
+		CeipOptIn:               &ceipOptIn,
+		ClusterName:             azureConfig.ClusterName,
+		ControlPlaneFlavor:      azureConfig.ClusterPlan,
+		ControlPlaneMachineType: azureConfig.ControlPlaneMachineType,
+		ControlPlaneSubnet:      azureConfig.ControlPlaneSubnet,
+		ControlPlaneSubnetCidr:  azureConfig.ControlPlaneSubnetCIDR,
+		EnableAuditLogging:      azureConfig.EnableAuditLogging == trueConst,
+		FrontendPrivateIP:       azureConfig.FrontendPrivateIP,
+		IdentityManagement:      createIdentityManagementConfig(azureConfig),
+		IsPrivateCluster:        azureConfig.EnablePrivateCluster == trueConst,
+		//KubernetesVersion:         "",
+		Labels:                    configStringToMap(azureConfig.ClusterLabels),
+		Location:                  azureConfig.Region,
+		MachineHealthCheckEnabled: azureConfig.MachineHealthCheckEnabled == trueConst,
+		Networking:                createNetworkingConfig(azureConfig),
+		NumOfWorkerNodes:          "",
+		Os:                        createOsInfo(azureConfig),
+		ResourceGroup:             azureConfig.ResourceGroup,
+		SSHPublicKey:              string(sshKey),
+		VnetCidr:                  azureConfig.VNetCIDR,
+		VnetName:                  azureConfig.VNetName,
+		VnetResourceGroup:         azureConfig.VNetResourceGroup,
+		WorkerMachineType:         azureConfig.NodeMachineType,
+		WorkerNodeSubnet:          azureConfig.WorkerNodeSubnet,
+		WorkerNodeSubnetCidr:      azureConfig.WorkerNodeSubnetCIDR,
+	}, nil
+}
+
+func createOsInfo(azureConfig *AzureConfig) *models.AzureVirtualMachine {
+	return &models.AzureVirtualMachine{
+		Name: "",
+		OsInfo: &models.OSInfo{
+			Arch:    azureConfig.OsInfo.Arch,
+			Name:    azureConfig.OsInfo.Name,
+			Version: azureConfig.OsInfo.Version,
+		},
+	}
 }

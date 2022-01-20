@@ -10,6 +10,7 @@ import (
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/pkg/errors"
 
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/config"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/client"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/clientcreator"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/clusterclient"
@@ -21,6 +22,8 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/web/server/restapi/operations/azure"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/web/server/restapi/operations/docker"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/web/server/restapi/operations/vsphere"
+
+	configv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/config/v1alpha1"
 )
 
 // infrastructure name constants
@@ -35,12 +38,12 @@ const sleepTimeForLogsPropogation = 2 * time.Second
 
 // CreateVSphereRegionalCluster creates vSphere management cluster
 func (app *App) CreateVSphereRegionalCluster(params vsphere.CreateVSphereRegionalClusterParams) middleware.Responder {
-	config, err := tkgconfigproviders.New(app.AppConfig.TKGConfigDir, app.TKGConfigReaderWriter).NewVSphereConfig(params.Params)
+	vsphereConfig, err := tkgconfigproviders.New(app.AppConfig.TKGConfigDir, app.TKGConfigReaderWriter).NewVSphereConfig(params.Params)
 	if err != nil {
 		return vsphere.NewCreateVSphereRegionalClusterInternalServerError().WithPayload(Err(err))
 	}
 
-	err = tkgconfigupdater.SaveConfig(app.getFilePathForSavingConfig(), app.TKGConfigReaderWriter, config)
+	err = tkgconfigupdater.SaveConfig(app.getFilePathForSavingConfig(), app.TKGConfigReaderWriter, vsphereConfig)
 	if err != nil {
 		return vsphere.NewCreateVSphereRegionalClusterInternalServerError().WithPayload(Err(err))
 	}
@@ -49,6 +52,7 @@ func (app *App) CreateVSphereRegionalCluster(params vsphere.CreateVSphereRegiona
 	if err != nil {
 		return vsphere.NewCreateVSphereRegionalClusterInternalServerError().WithPayload(Err(err))
 	}
+
 	c, err := client.New(client.Options{
 		ClusterCtlClient:         allClients.ClusterCtlClient,
 		ReaderWriterConfigClient: allClients.ConfigClient,
@@ -61,6 +65,7 @@ func (app *App) CreateVSphereRegionalCluster(params vsphere.CreateVSphereRegiona
 		TKGConfigUpdater:         allClients.TKGConfigUpdaterClient,
 		TKGPathsClient:           allClients.TKGConfigPathsClient,
 		ClusterClientFactory:     clusterclient.NewClusterClientFactory(),
+		FeatureFlagClient:        getFeatureFlagClient(),
 	})
 	if err != nil {
 		return vsphere.NewCreateVSphereRegionalClusterInternalServerError().WithPayload(Err(err))
@@ -68,7 +73,6 @@ func (app *App) CreateVSphereRegionalCluster(params vsphere.CreateVSphereRegiona
 	app.InitOptions.InfrastructureProvider = InfrastructureProviderVSphere
 	app.InitOptions.ClusterName = params.Params.ClusterName
 	app.InitOptions.Plan = params.Params.ControlPlaneFlavor
-	app.InitOptions.TmcRegistrationURL = params.Params.TmcRegistrationURL
 	app.InitOptions.Annotations = params.Params.Annotations
 	app.InitOptions.Labels = params.Params.Labels
 	app.InitOptions.CeipOptIn = *params.Params.CeipOptIn
@@ -108,12 +112,12 @@ func (app *App) CreateAWSRegionalCluster(params aws.CreateAWSRegionalClusterPara
 		return aws.NewCreateAWSRegionalClusterInternalServerError().WithPayload(Err(err))
 	}
 
-	config, err := tkgconfigproviders.New(app.AppConfig.TKGConfigDir, app.TKGConfigReaderWriter).NewAWSConfig(params.Params, encodedCreds)
+	awsConfig, err := tkgconfigproviders.New(app.AppConfig.TKGConfigDir, app.TKGConfigReaderWriter).NewAWSConfig(params.Params, encodedCreds)
 	if err != nil {
 		return aws.NewCreateAWSRegionalClusterInternalServerError().WithPayload(Err(err))
 	}
 
-	err = tkgconfigupdater.SaveConfig(app.getFilePathForSavingConfig(), app.TKGConfigReaderWriter, config)
+	err = tkgconfigupdater.SaveConfig(app.getFilePathForSavingConfig(), app.TKGConfigReaderWriter, awsConfig)
 	if err != nil {
 		return aws.NewCreateAWSRegionalClusterInternalServerError().WithPayload(Err(err))
 	}
@@ -122,6 +126,7 @@ func (app *App) CreateAWSRegionalCluster(params aws.CreateAWSRegionalClusterPara
 	if err != nil {
 		return aws.NewCreateAWSRegionalClusterInternalServerError().WithPayload(Err(err))
 	}
+
 	c, err := client.New(client.Options{
 		ClusterCtlClient:         allClients.ClusterCtlClient,
 		ReaderWriterConfigClient: allClients.ConfigClient,
@@ -134,6 +139,7 @@ func (app *App) CreateAWSRegionalCluster(params aws.CreateAWSRegionalClusterPara
 		TKGConfigUpdater:         allClients.TKGConfigUpdaterClient,
 		TKGPathsClient:           allClients.TKGConfigPathsClient,
 		ClusterClientFactory:     clusterclient.NewClusterClientFactory(),
+		FeatureFlagClient:        getFeatureFlagClient(),
 	})
 	if err != nil {
 		return aws.NewCreateAWSRegionalClusterInternalServerError().WithPayload(Err(err))
@@ -142,7 +148,6 @@ func (app *App) CreateAWSRegionalCluster(params aws.CreateAWSRegionalClusterPara
 	app.InitOptions.InfrastructureProvider = InfrastructureProviderAWS
 	app.InitOptions.ClusterName = params.Params.ClusterName
 	app.InitOptions.Plan = params.Params.ControlPlaneFlavor
-	app.InitOptions.TmcRegistrationURL = params.Params.TmcRegistrationURL
 	app.InitOptions.CeipOptIn = *params.Params.CeipOptIn
 	app.InitOptions.CniType = params.Params.Networking.CniType
 	app.InitOptions.Annotations = params.Params.Annotations
@@ -184,12 +189,12 @@ func (app *App) CreateAzureRegionalCluster(params azure.CreateAzureRegionalClust
 		return azure.NewCreateAzureRegionalClusterInternalServerError().WithPayload(Err(errors.New("azure client is not initialized properly")))
 	}
 
-	config, err := tkgconfigproviders.New(app.AppConfig.TKGConfigDir, app.TKGConfigReaderWriter).NewAzureConfig(params.Params)
+	azureConfig, err := tkgconfigproviders.New(app.AppConfig.TKGConfigDir, app.TKGConfigReaderWriter).NewAzureConfig(params.Params)
 	if err != nil {
 		return azure.NewCreateAzureRegionalClusterInternalServerError().WithPayload(Err(err))
 	}
 
-	err = tkgconfigupdater.SaveConfig(app.getFilePathForSavingConfig(), app.TKGConfigReaderWriter, config)
+	err = tkgconfigupdater.SaveConfig(app.getFilePathForSavingConfig(), app.TKGConfigReaderWriter, azureConfig)
 	if err != nil {
 		return azure.NewCreateAzureRegionalClusterInternalServerError().WithPayload(Err(err))
 	}
@@ -198,6 +203,7 @@ func (app *App) CreateAzureRegionalCluster(params azure.CreateAzureRegionalClust
 	if err != nil {
 		return azure.NewCreateAzureRegionalClusterInternalServerError().WithPayload(Err(err))
 	}
+
 	c, err := client.New(client.Options{
 		ClusterCtlClient:         allClients.ClusterCtlClient,
 		ReaderWriterConfigClient: allClients.ConfigClient,
@@ -210,6 +216,7 @@ func (app *App) CreateAzureRegionalCluster(params azure.CreateAzureRegionalClust
 		TKGConfigUpdater:         allClients.TKGConfigUpdaterClient,
 		TKGPathsClient:           allClients.TKGConfigPathsClient,
 		ClusterClientFactory:     clusterclient.NewClusterClientFactory(),
+		FeatureFlagClient:        getFeatureFlagClient(),
 	})
 	if err != nil {
 		return azure.NewCreateAzureRegionalClusterInternalServerError().WithPayload(Err(err))
@@ -250,7 +257,6 @@ func (app *App) CreateAzureRegionalCluster(params azure.CreateAzureRegionalClust
 	app.InitOptions.InfrastructureProvider = InfrastructureProviderAzure
 	app.InitOptions.ClusterName = params.Params.ClusterName
 	app.InitOptions.Plan = params.Params.ControlPlaneFlavor
-	app.InitOptions.TmcRegistrationURL = params.Params.TmcRegistrationURL
 	app.InitOptions.Annotations = params.Params.Annotations
 	app.InitOptions.Labels = params.Params.Labels
 	app.InitOptions.CeipOptIn = *params.Params.CeipOptIn
@@ -279,12 +285,12 @@ func (app *App) CreateAzureRegionalCluster(params azure.CreateAzureRegionalClust
 
 // CreateDockerRegionalCluster creates docker management cluster
 func (app *App) CreateDockerRegionalCluster(params docker.CreateDockerRegionalClusterParams) middleware.Responder {
-	config, err := tkgconfigproviders.New(app.AppConfig.TKGConfigDir, app.TKGConfigReaderWriter).NewDockerConfig(params.Params)
+	dockerConfig, err := tkgconfigproviders.New(app.AppConfig.TKGConfigDir, app.TKGConfigReaderWriter).NewDockerConfig(params.Params)
 	if err != nil {
 		return docker.NewCreateDockerRegionalClusterInternalServerError().WithPayload(Err(err))
 	}
 
-	err = tkgconfigupdater.SaveConfig(app.getFilePathForSavingConfig(), app.TKGConfigReaderWriter, config)
+	err = tkgconfigupdater.SaveConfig(app.getFilePathForSavingConfig(), app.TKGConfigReaderWriter, dockerConfig)
 	if err != nil {
 		return docker.NewCreateDockerRegionalClusterInternalServerError().WithPayload(Err(err))
 	}
@@ -293,6 +299,7 @@ func (app *App) CreateDockerRegionalCluster(params docker.CreateDockerRegionalCl
 	if err != nil {
 		return docker.NewCreateDockerRegionalClusterInternalServerError().WithPayload(Err(err))
 	}
+
 	c, err := client.New(client.Options{
 		ClusterCtlClient:         allClients.ClusterCtlClient,
 		ReaderWriterConfigClient: allClients.ConfigClient,
@@ -305,6 +312,7 @@ func (app *App) CreateDockerRegionalCluster(params docker.CreateDockerRegionalCl
 		TKGConfigUpdater:         allClients.TKGConfigUpdaterClient,
 		TKGPathsClient:           allClients.TKGConfigPathsClient,
 		ClusterClientFactory:     clusterclient.NewClusterClientFactory(),
+		FeatureFlagClient:        getFeatureFlagClient(),
 	})
 	if err != nil {
 		return docker.NewCreateDockerRegionalClusterInternalServerError().WithPayload(Err(err))
@@ -313,7 +321,6 @@ func (app *App) CreateDockerRegionalCluster(params docker.CreateDockerRegionalCl
 	app.InitOptions.InfrastructureProvider = InfrastructureProviderDocker
 	app.InitOptions.ClusterName = params.Params.ClusterName
 	app.InitOptions.Plan = "dev"
-	app.InitOptions.TmcRegistrationURL = params.Params.TmcRegistrationURL
 	app.InitOptions.Annotations = params.Params.Annotations
 	app.InitOptions.Labels = params.Params.Labels
 	app.InitOptions.ClusterConfigFile = app.getFilePathForSavingConfig()
@@ -339,4 +346,12 @@ func (app *App) CreateDockerRegionalCluster(params docker.CreateDockerRegionalCl
 	}()
 
 	return docker.NewCreateDockerRegionalClusterOK().WithPayload("started creating regional cluster")
+}
+
+func getFeatureFlagClient() client.FeatureFlagClient {
+	featureFlagClient, err := config.GetClientConfig()
+	if err != nil {
+		featureFlagClient = &configv1alpha1.ClientConfig{}
+	}
+	return featureFlagClient
 }

@@ -16,7 +16,7 @@
     </div>
 
     <h4 i18n="load balancer settings">
-        {{ currentControlPlaneEndpoingProvider === "Manual" ? "Optional" : "" }} VMware NSX Advanced Load Balancer Settings
+        {{ loadBalancerLabel }}
     </h4>
 
     <div class="clr-row">
@@ -152,7 +152,7 @@
         </div>
     </div>
 
-    <div class="clr-row" *ngIf="clusterType !== 'standalone'">
+    <div class="clr-row" *featureToggle="'!management-cluster.standalone-cluster-mode'">
         <div class="clr-col-12 clr-col-sm-6 clr-col-lg-6">
             <clr-datalist-container> [attr.data-step-metadata]="formName">
                 <label i18n="network name label" class="clr-col-lg-12 clr-col-12" [class.label-disabled]="!connected">
@@ -204,10 +204,10 @@
                     <clr-tooltip>
                         <clr-icon clrTooltipTrigger shape="info-circle" size="22"></clr-icon>
                         <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
-                            <span *ngIf="clusterType == 'standalone'">
-                                Choose a {{ clusterType | titlecase }} Cluster VIP Network Name.
+                            <span *featureToggle="'management-cluster.standalone-cluster-mode'">
+                                Choose a {{ clusterTypeDescriptorTitleCase }} Cluster VIP Network Name.
                             </span>
-                            <span *ngIf="clusterType == 'management'">
+                            <span *featureToggle="'!management-cluster.standalone-cluster-mode'">
                                 Choose a VIP network name for management cluster and workload clusters' control plane.
                             </span>
                         </clr-tooltip-content>
@@ -217,8 +217,8 @@
             <datalist id="managementClusterNetworkNameList">
                 <option *ngFor="let mcnn of vipNetworksPerCloud" [value]="mcnn.name">{{mcnn.name}}</option>
             </datalist>
-            <clr-control-error *ngIf="clusterType == 'standalone'">Selecting a {{ clusterType | titlecase }} Cluster VIP Network Name is required</clr-control-error>
-            <clr-control-error *ngIf="clusterType == 'management'">Selecting a Management VIP Network Name is required</clr-control-error>
+            <clr-control-error *featureToggle="'management-cluster.standalone-cluster-mode'">Selecting a Standalone Cluster VIP Network Name is required</clr-control-error>
+            <clr-control-error *featureToggle="'!management-cluster.standalone-cluster-mode'">Selecting a Management VIP Network Name is required</clr-control-error>
             </clr-datalist-container>
         </div>
 
@@ -230,10 +230,10 @@
                     <clr-tooltip>
                         <clr-icon clrTooltipTrigger shape="info-circle" size="22"></clr-icon>
                         <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
-                            <span *ngIf="clusterType == 'standalone'">
-                                Select a {{ clusterType | titlecase }} Cluster VIP Network CIDR.
+                            <span *featureToggle="'management-cluster.standalone-cluster-mode'">
+                                Select a {{ clusterTypeDescriptorTitleCase }} Cluster VIP Network CIDR.
                             </span>
-                            <span *ngIf="clusterType == 'management'">
+                            <span *featureToggle="'!management-cluster.standalone-cluster-mode'">
                                 Select a VIP network CIDR for management cluster and workload clusters' control plane.
                             </span>
                         </clr-tooltip-content>
@@ -245,8 +245,8 @@
                 <option aria-label="blank" title="blank"></option>
                 <option *ngFor="let mcnc of subnetsPerManagementNetwork" [value]="mcnc.subnet">{{mcnc.subnet}}</option>
             </datalist>
-                <clr-control-error *ngIf="clusterType == 'standalone'">Selecting a {{ clusterType | titlecase }} Cluster VIP Network CIDR is required</clr-control-error>
-                <clr-control-error *ngIf="clusterType == 'management'">Selecting a Management VIP Network CIDR is required</clr-control-error>
+                <clr-control-error *featureToggle="'management-cluster.standalone-cluster-mode'">Selecting a Standalone Cluster VIP Network CIDR is required</clr-control-error>
+                <clr-control-error *featureToggle="'!management-cluster.standalone-cluster-mode'">Selecting a Management VIP Network CIDR is required</clr-control-error>
             </clr-datalist-container>
         </div>
     </div>

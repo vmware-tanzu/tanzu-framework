@@ -95,7 +95,7 @@ func (w *writer) SetVerbosity(verbosity int32) {
 // logVerbosity is used to decide which message to write for different output types
 // logType used to decide should write to stdout or stderr
 func (w *writer) Write(header, msg []byte, logEnabled bool, logVerbosity int32, logType string) (n int, err error) {
-	fullMsg := append(header, msg...)
+	fullMsg := append(header, msg...) //nolint:gocritic
 
 	// write to logfile, channel only if verbosityLevel is <= default VerbosityLevel
 	if logVerbosity <= defaultVerbosity {

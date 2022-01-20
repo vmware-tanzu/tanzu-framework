@@ -20,9 +20,3 @@ cmd/plugin/<plugin>/test: Plugins are required to have a test command defined
 
 `make build`: builds your plugin artifacts
 `make lint`: run the golangci linter on your plugin code
-
-## Private Repos
-Until the repository is open sourced, you will have to set PRIVATE_REPOS for gomodules to work properly.
-```
-export PRIVATE_REPOS="github.com/vmware-tanzu/tanzu-framework"
-```

@@ -4,6 +4,8 @@ package fakes
 import (
 	"sync"
 
+	"sigs.k8s.io/cluster-api-provider-aws/cmd/clusterawsadm/cloudformation/bootstrap"
+
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/aws"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/web/server/models"
 )
@@ -19,6 +21,17 @@ type AWSClient struct {
 	createCloudFormationStackReturnsOnCall map[int]struct {
 		result1 error
 	}
+	CreateCloudFormationStackWithTemplateStub        func(*bootstrap.Template) error
+	createCloudFormationStackWithTemplateMutex       sync.RWMutex
+	createCloudFormationStackWithTemplateArgsForCall []struct {
+		arg1 *bootstrap.Template
+	}
+	createCloudFormationStackWithTemplateReturns struct {
+		result1 error
+	}
+	createCloudFormationStackWithTemplateReturnsOnCall map[int]struct {
+		result1 error
+	}
 	EncodeCredentialsStub        func() (string, error)
 	encodeCredentialsMutex       sync.RWMutex
 	encodeCredentialsArgsForCall []struct {
@@ -29,6 +42,19 @@ type AWSClient struct {
 	}
 	encodeCredentialsReturnsOnCall map[int]struct {
 		result1 string
+		result2 error
+	}
+	GenerateBootstrapTemplateStub        func(aws.GenerateBootstrapTemplateInput) (*bootstrap.Template, error)
+	generateBootstrapTemplateMutex       sync.RWMutex
+	generateBootstrapTemplateArgsForCall []struct {
+		arg1 aws.GenerateBootstrapTemplateInput
+	}
+	generateBootstrapTemplateReturns struct {
+		result1 *bootstrap.Template
+		result2 error
+	}
+	generateBootstrapTemplateReturnsOnCall map[int]struct {
+		result1 *bootstrap.Template
 		result2 error
 	}
 	GetSubnetGatewayAssociationsStub        func(string) (map[string]bool, error)
@@ -137,15 +163,16 @@ func (fake *AWSClient) CreateCloudFormationStack() error {
 	ret, specificReturn := fake.createCloudFormationStackReturnsOnCall[len(fake.createCloudFormationStackArgsForCall)]
 	fake.createCloudFormationStackArgsForCall = append(fake.createCloudFormationStackArgsForCall, struct {
 	}{})
+	stub := fake.CreateCloudFormationStackStub
+	fakeReturns := fake.createCloudFormationStackReturns
 	fake.recordInvocation("CreateCloudFormationStack", []interface{}{})
 	fake.createCloudFormationStackMutex.Unlock()
-	if fake.CreateCloudFormationStackStub != nil {
-		return fake.CreateCloudFormationStackStub()
+	if stub != nil {
+		return stub()
 	}
 	if specificReturn {
 		return ret.result1
 	}
-	fakeReturns := fake.createCloudFormationStackReturns
 	return fakeReturns.result1
 }
 
@@ -184,20 +211,82 @@ func (fake *AWSClient) CreateCloudFormationStackReturnsOnCall(i int, result1 err
 	}{result1}
 }
 
+func (fake *AWSClient) CreateCloudFormationStackWithTemplate(arg1 *bootstrap.Template) error {
+	fake.createCloudFormationStackWithTemplateMutex.Lock()
+	ret, specificReturn := fake.createCloudFormationStackWithTemplateReturnsOnCall[len(fake.createCloudFormationStackWithTemplateArgsForCall)]
+	fake.createCloudFormationStackWithTemplateArgsForCall = append(fake.createCloudFormationStackWithTemplateArgsForCall, struct {
+		arg1 *bootstrap.Template
+	}{arg1})
+	stub := fake.CreateCloudFormationStackWithTemplateStub
+	fakeReturns := fake.createCloudFormationStackWithTemplateReturns
+	fake.recordInvocation("CreateCloudFormationStackWithTemplate", []interface{}{arg1})
+	fake.createCloudFormationStackWithTemplateMutex.Unlock()
+	if stub != nil {
+		return stub(arg1)
+	}
+	if specificReturn {
+		return ret.result1
+	}
+	return fakeReturns.result1
+}
+
+func (fake *AWSClient) CreateCloudFormationStackWithTemplateCallCount() int {
+	fake.createCloudFormationStackWithTemplateMutex.RLock()
+	defer fake.createCloudFormationStackWithTemplateMutex.RUnlock()
+	return len(fake.createCloudFormationStackWithTemplateArgsForCall)
+}
+
+func (fake *AWSClient) CreateCloudFormationStackWithTemplateCalls(stub func(*bootstrap.Template) error) {
+	fake.createCloudFormationStackWithTemplateMutex.Lock()
+	defer fake.createCloudFormationStackWithTemplateMutex.Unlock()
+	fake.CreateCloudFormationStackWithTemplateStub = stub
+}
+
+func (fake *AWSClient) CreateCloudFormationStackWithTemplateArgsForCall(i int) *bootstrap.Template {
+	fake.createCloudFormationStackWithTemplateMutex.RLock()
+	defer fake.createCloudFormationStackWithTemplateMutex.RUnlock()
+	argsForCall := fake.createCloudFormationStackWithTemplateArgsForCall[i]
+	return argsForCall.arg1
+}
+
+func (fake *AWSClient) CreateCloudFormationStackWithTemplateReturns(result1 error) {
+	fake.createCloudFormationStackWithTemplateMutex.Lock()
+	defer fake.createCloudFormationStackWithTemplateMutex.Unlock()
+	fake.CreateCloudFormationStackWithTemplateStub = nil
+	fake.createCloudFormationStackWithTemplateReturns = struct {
+		result1 error
+	}{result1}
+}
+
+func (fake *AWSClient) CreateCloudFormationStackWithTemplateReturnsOnCall(i int, result1 error) {
+	fake.createCloudFormationStackWithTemplateMutex.Lock()
+	defer fake.createCloudFormationStackWithTemplateMutex.Unlock()
+	fake.CreateCloudFormationStackWithTemplateStub = nil
+	if fake.createCloudFormationStackWithTemplateReturnsOnCall == nil {
+		fake.createCloudFormationStackWithTemplateReturnsOnCall = make(map[int]struct {
+			result1 error
+		})
+	}
+	fake.createCloudFormationStackWithTemplateReturnsOnCall[i] = struct {
+		result1 error
+	}{result1}
+}
+
 func (fake *AWSClient) EncodeCredentials() (string, error) {
 	fake.encodeCredentialsMutex.Lock()
 	ret, specificReturn := fake.encodeCredentialsReturnsOnCall[len(fake.encodeCredentialsArgsForCall)]
 	fake.encodeCredentialsArgsForCall = append(fake.encodeCredentialsArgsForCall, struct {
 	}{})
+	stub := fake.EncodeCredentialsStub
+	fakeReturns := fake.encodeCredentialsReturns
 	fake.recordInvocation("EncodeCredentials", []interface{}{})
 	fake.encodeCredentialsMutex.Unlock()
-	if fake.EncodeCredentialsStub != nil {
-		return fake.EncodeCredentialsStub()
+	if stub != nil {
+		return stub()
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
-	fakeReturns := fake.encodeCredentialsReturns
 	return fakeReturns.result1, fakeReturns.result2
 }
 
@@ -239,21 +328,86 @@ func (fake *AWSClient) EncodeCredentialsReturnsOnCall(i int, result1 string, res
 	}{result1, result2}
 }
 
+func (fake *AWSClient) GenerateBootstrapTemplate(arg1 aws.GenerateBootstrapTemplateInput) (*bootstrap.Template, error) {
+	fake.generateBootstrapTemplateMutex.Lock()
+	ret, specificReturn := fake.generateBootstrapTemplateReturnsOnCall[len(fake.generateBootstrapTemplateArgsForCall)]
+	fake.generateBootstrapTemplateArgsForCall = append(fake.generateBootstrapTemplateArgsForCall, struct {
+		arg1 aws.GenerateBootstrapTemplateInput
+	}{arg1})
+	stub := fake.GenerateBootstrapTemplateStub
+	fakeReturns := fake.generateBootstrapTemplateReturns
+	fake.recordInvocation("GenerateBootstrapTemplate", []interface{}{arg1})
+	fake.generateBootstrapTemplateMutex.Unlock()
+	if stub != nil {
+		return stub(arg1)
+	}
+	if specificReturn {
+		return ret.result1, ret.result2
+	}
+	return fakeReturns.result1, fakeReturns.result2
+}
+
+func (fake *AWSClient) GenerateBootstrapTemplateCallCount() int {
+	fake.generateBootstrapTemplateMutex.RLock()
+	defer fake.generateBootstrapTemplateMutex.RUnlock()
+	return len(fake.generateBootstrapTemplateArgsForCall)
+}
+
+func (fake *AWSClient) GenerateBootstrapTemplateCalls(stub func(aws.GenerateBootstrapTemplateInput) (*bootstrap.Template, error)) {
+	fake.generateBootstrapTemplateMutex.Lock()
+	defer fake.generateBootstrapTemplateMutex.Unlock()
+	fake.GenerateBootstrapTemplateStub = stub
+}
+
+func (fake *AWSClient) GenerateBootstrapTemplateArgsForCall(i int) aws.GenerateBootstrapTemplateInput {
+	fake.generateBootstrapTemplateMutex.RLock()
+	defer fake.generateBootstrapTemplateMutex.RUnlock()
+	argsForCall := fake.generateBootstrapTemplateArgsForCall[i]
+	return argsForCall.arg1
+}
+
+func (fake *AWSClient) GenerateBootstrapTemplateReturns(result1 *bootstrap.Template, result2 error) {
+	fake.generateBootstrapTemplateMutex.Lock()
+	defer fake.generateBootstrapTemplateMutex.Unlock()
+	fake.GenerateBootstrapTemplateStub = nil
+	fake.generateBootstrapTemplateReturns = struct {
+		result1 *bootstrap.Template
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *AWSClient) GenerateBootstrapTemplateReturnsOnCall(i int, result1 *bootstrap.Template, result2 error) {
+	fake.generateBootstrapTemplateMutex.Lock()
+	defer fake.generateBootstrapTemplateMutex.Unlock()
+	fake.GenerateBootstrapTemplateStub = nil
+	if fake.generateBootstrapTemplateReturnsOnCall == nil {
+		fake.generateBootstrapTemplateReturnsOnCall = make(map[int]struct {
+			result1 *bootstrap.Template
+			result2 error
+		})
+	}
+	fake.generateBootstrapTemplateReturnsOnCall[i] = struct {
+		result1 *bootstrap.Template
+		result2 error
+	}{result1, result2}
+}
+
 func (fake *AWSClient) GetSubnetGatewayAssociations(arg1 string) (map[string]bool, error) {
 	fake.getSubnetGatewayAssociationsMutex.Lock()
 	ret, specificReturn := fake.getSubnetGatewayAssociationsReturnsOnCall[len(fake.getSubnetGatewayAssociationsArgsForCall)]
 	fake.getSubnetGatewayAssociationsArgsForCall = append(fake.getSubnetGatewayAssociationsArgsForCall, struct {
 		arg1 string
 	}{arg1})
+	stub := fake.GetSubnetGatewayAssociationsStub
+	fakeReturns := fake.getSubnetGatewayAssociationsReturns
 	fake.recordInvocation("GetSubnetGatewayAssociations", []interface{}{arg1})
 	fake.getSubnetGatewayAssociationsMutex.Unlock()
-	if fake.GetSubnetGatewayAssociationsStub != nil {
-		return fake.GetSubnetGatewayAssociationsStub(arg1)
+	if stub != nil {
+		return stub(arg1)
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
-	fakeReturns := fake.getSubnetGatewayAssociationsReturns
 	return fakeReturns.result1, fakeReturns.result2
 }
 
@@ -307,15 +461,16 @@ func (fake *AWSClient) ListAvailabilityZones() ([]*models.AWSAvailabilityZone, e
 	ret, specificReturn := fake.listAvailabilityZonesReturnsOnCall[len(fake.listAvailabilityZonesArgsForCall)]
 	fake.listAvailabilityZonesArgsForCall = append(fake.listAvailabilityZonesArgsForCall, struct {
 	}{})
+	stub := fake.ListAvailabilityZonesStub
+	fakeReturns := fake.listAvailabilityZonesReturns
 	fake.recordInvocation("ListAvailabilityZones", []interface{}{})
 	fake.listAvailabilityZonesMutex.Unlock()
-	if fake.ListAvailabilityZonesStub != nil {
-		return fake.ListAvailabilityZonesStub()
+	if stub != nil {
+		return stub()
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
-	fakeReturns := fake.listAvailabilityZonesReturns
 	return fakeReturns.result1, fakeReturns.result2
 }
 
@@ -362,15 +517,16 @@ func (fake *AWSClient) ListCloudFormationStacks() ([]string, error) {
 	ret, specificReturn := fake.listCloudFormationStacksReturnsOnCall[len(fake.listCloudFormationStacksArgsForCall)]
 	fake.listCloudFormationStacksArgsForCall = append(fake.listCloudFormationStacksArgsForCall, struct {
 	}{})
+	stub := fake.ListCloudFormationStacksStub
+	fakeReturns := fake.listCloudFormationStacksReturns
 	fake.recordInvocation("ListCloudFormationStacks", []interface{}{})
 	fake.listCloudFormationStacksMutex.Unlock()
-	if fake.ListCloudFormationStacksStub != nil {
-		return fake.ListCloudFormationStacksStub()
+	if stub != nil {
+		return stub()
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
-	fakeReturns := fake.listCloudFormationStacksReturns
 	return fakeReturns.result1, fakeReturns.result2
 }
 
@@ -418,15 +574,16 @@ func (fake *AWSClient) ListInstanceTypes(arg1 string) ([]string, error) {
 	fake.listInstanceTypesArgsForCall = append(fake.listInstanceTypesArgsForCall, struct {
 		arg1 string
 	}{arg1})
+	stub := fake.ListInstanceTypesStub
+	fakeReturns := fake.listInstanceTypesReturns
 	fake.recordInvocation("ListInstanceTypes", []interface{}{arg1})
 	fake.listInstanceTypesMutex.Unlock()
-	if fake.ListInstanceTypesStub != nil {
-		return fake.ListInstanceTypesStub(arg1)
+	if stub != nil {
+		return stub(arg1)
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
-	fakeReturns := fake.listInstanceTypesReturns
 	return fakeReturns.result1, fakeReturns.result2
 }
 
@@ -480,15 +637,16 @@ func (fake *AWSClient) ListRegionsByUser() ([]string, error) {
 	ret, specificReturn := fake.listRegionsByUserReturnsOnCall[len(fake.listRegionsByUserArgsForCall)]
 	fake.listRegionsByUserArgsForCall = append(fake.listRegionsByUserArgsForCall, struct {
 	}{})
+	stub := fake.ListRegionsByUserStub
+	fakeReturns := fake.listRegionsByUserReturns
 	fake.recordInvocation("ListRegionsByUser", []interface{}{})
 	fake.listRegionsByUserMutex.Unlock()
-	if fake.ListRegionsByUserStub != nil {
-		return fake.ListRegionsByUserStub()
+	if stub != nil {
+		return stub()
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
-	fakeReturns := fake.listRegionsByUserReturns
 	return fakeReturns.result1, fakeReturns.result2
 }
 
@@ -536,15 +694,16 @@ func (fake *AWSClient) ListSubnets(arg1 string) ([]*models.AWSSubnet, error) {
 	fake.listSubnetsArgsForCall = append(fake.listSubnetsArgsForCall, struct {
 		arg1 string
 	}{arg1})
+	stub := fake.ListSubnetsStub
+	fakeReturns := fake.listSubnetsReturns
 	fake.recordInvocation("ListSubnets", []interface{}{arg1})
 	fake.listSubnetsMutex.Unlock()
-	if fake.ListSubnetsStub != nil {
-		return fake.ListSubnetsStub(arg1)
+	if stub != nil {
+		return stub(arg1)
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
-	fakeReturns := fake.listSubnetsReturns
 	return fakeReturns.result1, fakeReturns.result2
 }
 
@@ -598,15 +757,16 @@ func (fake *AWSClient) ListVPCs() ([]*models.Vpc, error) {
 	ret, specificReturn := fake.listVPCsReturnsOnCall[len(fake.listVPCsArgsForCall)]
 	fake.listVPCsArgsForCall = append(fake.listVPCsArgsForCall, struct {
 	}{})
+	stub := fake.ListVPCsStub
+	fakeReturns := fake.listVPCsReturns
 	fake.recordInvocation("ListVPCs", []interface{}{})
 	fake.listVPCsMutex.Unlock()
-	if fake.ListVPCsStub != nil {
-		return fake.ListVPCsStub()
+	if stub != nil {
+		return stub()
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
-	fakeReturns := fake.listVPCsReturns
 	return fakeReturns.result1, fakeReturns.result2
 }
 
@@ -653,15 +813,16 @@ func (fake *AWSClient) VerifyAccount() error {
 	ret, specificReturn := fake.verifyAccountReturnsOnCall[len(fake.verifyAccountArgsForCall)]
 	fake.verifyAccountArgsForCall = append(fake.verifyAccountArgsForCall, struct {
 	}{})
+	stub := fake.VerifyAccountStub
+	fakeReturns := fake.verifyAccountReturns
 	fake.recordInvocation("VerifyAccount", []interface{}{})
 	fake.verifyAccountMutex.Unlock()
-	if fake.VerifyAccountStub != nil {
-		return fake.VerifyAccountStub()
+	if stub != nil {
+		return stub()
 	}
 	if specificReturn {
 		return ret.result1
 	}
-	fakeReturns := fake.verifyAccountReturns
 	return fakeReturns.result1
 }
 
@@ -705,8 +866,12 @@ func (fake *AWSClient) Invocations() map[string][][]interface{} {
 	defer fake.invocationsMutex.RUnlock()
 	fake.createCloudFormationStackMutex.RLock()
 	defer fake.createCloudFormationStackMutex.RUnlock()
+	fake.createCloudFormationStackWithTemplateMutex.RLock()
+	defer fake.createCloudFormationStackWithTemplateMutex.RUnlock()
 	fake.encodeCredentialsMutex.RLock()
 	defer fake.encodeCredentialsMutex.RUnlock()
+	fake.generateBootstrapTemplateMutex.RLock()
+	defer fake.generateBootstrapTemplateMutex.RUnlock()
 	fake.getSubnetGatewayAssociationsMutex.RLock()
 	defer fake.getSubnetGatewayAssociationsMutex.RUnlock()
 	fake.listAvailabilityZonesMutex.RLock()

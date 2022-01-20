@@ -1,0 +1,16 @@
+---
+extends: relaxed
+
+ignore: |
+  */pkg/v1/tkg/web/node_modules/
+  */pkg/v1/providers/provider-bundle
+
+rules:
+  line-length: disable
+  trailing-spaces: enable
+  new-line-at-end-of-file: enable
+  indentation: disable
+  key-duplicates: disable
+  empty-lines: disable
+  colons: disable
+  commas: disable

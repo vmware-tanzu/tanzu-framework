@@ -24,9 +24,6 @@ export PATH := $(abspath $(BIN_DIR)):$(PATH)
 # Binaries
 MANAGER       := $(BIN_DIR)/manager
 
-# ssh private key file name
-SSH_PRIVATE_KEY ?= .private_ssh_key
-
 .PHONY: all
 all: test manager ## Tests and builds the binaries
 
@@ -45,6 +42,7 @@ help: ## Display this help
 test: fmt vet ## Run Tests
 	$(MAKE) kubebuilder -C ${ROOT_DIR}$(TOOLS_DIR)
 	KUBEBUILDER_ASSETS=${ROOT_DIR}$(KUBEBUILDER_BIN_DIR) go test ./... -coverprofile cover.out -v 2
+	$(MAKE) test -C pinniped/post-deploy
 
 .PHONY: test-verbose
 test-verbose: ## Verbose tests with streaming output for debugging
@@ -88,8 +86,7 @@ run: fmt vet ## Run locally
 
 .PHONY: docker-build
 docker-build: ## Build the docker image
-	@[ -f ../$(SSH_PRIVATE_KEY) ] || { echo "an SSH key file named $(SSH_PRIVATE_KEY) must exist and have read access to github.com" 1>&2; exit 1; }
-	cd .. && docker build -t $(IMG) -f addons/Dockerfile --build-arg LD_FLAGS="$(LD_FLAGS)" --build-arg SSH_PRIVATE_KEY=$(SSH_PRIVATE_KEY) .
+	cd .. && docker build -t $(IMG) -f addons/Dockerfile --build-arg LD_FLAGS="$(LD_FLAGS)" .
 
 .PHONY: docker-push
 docker-push: ## Push the docker image
@@ -98,14 +95,6 @@ docker-push: ## Push the docker image
 .PHONY: docker-remove
 docker-remove: ## Remove the docker image
 	docker rmi $(IMG) 2>/dev/null || true
-
-## --------------------------------------
-## Development - git
-## --------------------------------------
-
-.PHONY:	git-config
-git-config: ## Configure gitlab access
-	git config --global url.git@github.com:.insteadof https://github.com/
 
 ## --------------------------------------
 ## Clean

@@ -5,10 +5,12 @@ package main
 
 import (
 	"fmt"
+	"io"
 	"strings"
 
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
+
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/component"
@@ -30,8 +32,9 @@ var packageAvailableGetCmd = &cobra.Command{
 
     # Get openAPI schema of a package with specified version
     tanzu package available get contour.tanzu.vmware.com/1.15.1-tkg.1-vmware1 --namespace test-ns --values-schema`,
-	RunE:    packageAvailableGet,
-	PreRunE: validatePackage,
+	RunE:         packageAvailableGet,
+	PreRunE:      validatePackage,
+	SilenceUsage: true,
 }
 
 func init() {
@@ -56,7 +59,7 @@ func validatePackage(cmd *cobra.Command, args []string) error {
 }
 
 func packageAvailableGet(cmd *cobra.Command, args []string) error {
-	kc, kcErr := kappclient.NewKappClient(packageAvailableOp.KubeConfig)
+	kc, kcErr := kappclient.NewKappClient(kubeConfig)
 	if kcErr != nil {
 		return kcErr
 	}
@@ -65,7 +68,7 @@ func packageAvailableGet(cmd *cobra.Command, args []string) error {
 	}
 
 	if packageAvailableOp.ValuesSchema {
-		if err := getValuesSchema(cmd, args, kc); err != nil {
+		if err := getValuesSchemaForPackage(packageAvailableOp.Namespace, pkgName, pkgVersion, kc, cmd.OutOrStdout()); err != nil {
 			return err
 		}
 		return nil
@@ -112,25 +115,30 @@ func packageAvailableGet(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
-func getValuesSchema(cmd *cobra.Command, args []string, kc kappclient.Client) error {
-	if pkgVersion == "" {
-		return errors.New("version is required when values-schema flag is declared. Please specify <PACKAGE-NAME>/<VERSION>")
+func getValuesSchemaForPackage(namespace, name, version string, kc kappclient.Client, writer io.Writer) error {
+	if version == "" {
+		return errors.New("version is required when --values-schema flag is declared. Please specify <PACKAGE-NAME>/<VERSION>")
 	}
-	pkg, pkgGetErr := kc.GetPackage(fmt.Sprintf("%s.%s", pkgName, pkgVersion), packageAvailableOp.Namespace)
+	pkg, pkgGetErr := kc.GetPackage(fmt.Sprintf("%s.%s", name, version), namespace)
 	if pkgGetErr != nil {
 		if apierrors.IsNotFound(pkgGetErr) {
-			return errors.Errorf("package '%s/%s' does not exist in the '%s' namespace", pkgName, pkgVersion, packageAvailableOp.Namespace)
+			return errors.Errorf("package '%s/%s' does not exist in the '%s' namespace", name, version, namespace)
 		}
 		return pkgGetErr
 	}
 
-	t, err := component.NewOutputWriterWithSpinner(cmd.OutOrStdout(), outputFormat,
-		fmt.Sprintf("Retrieving package details for %s...", args[0]), true)
+	t, err := component.NewOutputWriterWithSpinner(writer, outputFormat,
+		fmt.Sprintf("Retrieving package details for %s/%s...", name, version), true)
 	if err != nil {
 		return err
 	}
 
 	var parseErr error
+	if len(pkg.Spec.ValuesSchema.OpenAPIv3.Raw) == 0 {
+		t.StopSpinner()
+		log.Warningf("package '%s/%s' does not have any user configurable values in the '%s' namespace", pkgName, pkgVersion, packageAvailableOp.Namespace)
+		return nil
+	}
 	dataValuesSchemaParser, parseErr := tkgpackageclient.NewValuesSchemaParser(pkg.Spec.ValuesSchema)
 	if parseErr != nil {
 		return parseErr

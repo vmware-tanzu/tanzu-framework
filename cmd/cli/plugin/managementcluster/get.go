@@ -4,6 +4,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"sort"
@@ -15,9 +16,9 @@ import (
 	"github.com/spf13/cobra"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/util/duration"
-	clusterv1 "sigs.k8s.io/cluster-api/api/v1alpha3"
+	clusterv1 "sigs.k8s.io/cluster-api/api/v1beta1"
 	clusterctltree "sigs.k8s.io/cluster-api/cmd/clusterctl/client/tree"
-	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/log"
@@ -108,6 +109,15 @@ func getClusterDetails(currServ *v1alpha1.Server) error {
 		return err
 	}
 
+	isPacific, err := tkgClient.IsPacificRegionalCluster()
+	if err != nil {
+		return errors.New("error determining 'Tanzu Kubernetes Cluster service for vSphere' management cluster")
+	}
+
+	if isPacific {
+		return errors.New("detected 'Tanzu Kubernetes service for vSphere'. Currently this operation is not supported for 'Tanzu Kubernetes service for vSphere'")
+	}
+
 	// Output the Status
 	describeClusterOptions := tkgctl.DescribeTKGClustersOptions{
 		ClusterName:         currServ.Name,
@@ -122,13 +132,13 @@ func getClusterDetails(currServ *v1alpha1.Server) error {
 		return err
 	}
 
-	t := component.NewOutputWriter(cmdOutput, "table", "NAME", "NAMESPACE", "STATUS", "CONTROLPLANE", "WORKERS", "KUBERNETES", "ROLES")
+	t := component.NewOutputWriter(cmdOutput, "table", "NAME", "NAMESPACE", "STATUS", "CONTROLPLANE", "WORKERS", "KUBERNETES", "ROLES", "PLAN")
 	cl := results.ClusterInfo
 	clusterRoles := "<none>"
 	if len(cl.Roles) != 0 {
 		clusterRoles = strings.Join(cl.Roles, ",")
 	}
-	t.AddRow(cl.Name, cl.Namespace, cl.Status, cl.ControlPlaneCount, cl.WorkerCount, cl.K8sVersion, clusterRoles)
+	t.AddRow(cl.Name, cl.Namespace, cl.Status, cl.ControlPlaneCount, cl.WorkerCount, cl.K8sVersion, clusterRoles, cl.Plan)
 
 	t.Render()
 	log.Infof("\n\nDetails:\n\n")
@@ -164,7 +174,7 @@ var (
 )
 
 // treeView prints object hierarchy to out stream.
-func treeView(objs *clusterctltree.ObjectTree, obj controllerutil.Object) {
+func treeView(objs *clusterctltree.ObjectTree, obj client.Object) {
 	tbl := uitable.New()
 	tbl.Separator = separator
 	tbl.AddRow("NAME", "READY", "SEVERITY", "REASON", "SINCE", "MESSAGE")
@@ -215,7 +225,7 @@ func getCond(c *clusterv1.Condition) conditions {
 	return v
 }
 
-func treeViewInner(prefix string, tbl *uitable.Table, objs *clusterctltree.ObjectTree, obj controllerutil.Object) {
+func treeViewInner(prefix string, tbl *uitable.Table, objs *clusterctltree.ObjectTree, obj client.Object) {
 	v := conditions{}
 	v.readyColor = gray
 
@@ -291,7 +301,7 @@ func treeViewInner(prefix string, tbl *uitable.Table, objs *clusterctltree.Objec
 	}
 }
 
-func getName(obj controllerutil.Object) string {
+func getName(obj client.Object) string {
 	if clusterctltree.IsGroupObject(obj) {
 		items := strings.Split(clusterctltree.GetGroupItems(obj), clusterctltree.GroupItemsSeparator)
 		return fmt.Sprintf("%d Machines...", len(items))

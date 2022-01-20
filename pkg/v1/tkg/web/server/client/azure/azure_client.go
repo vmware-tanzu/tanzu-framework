@@ -163,36 +163,36 @@ func (a *Client) CreateAzureVirtualNetwork(params *CreateAzureVirtualNetworkPara
 }
 
 /*
-GenerateTKGConfigForAzure generates t k g configuration file for azure
+ExportTKGConfigForAzure generates t k g configuration file for azure
 */
-func (a *Client) GenerateTKGConfigForAzure(params *GenerateTKGConfigForAzureParams) (*GenerateTKGConfigForAzureOK, error) {
+func (a *Client) ExportTKGConfigForAzure(params *ExportTKGConfigForAzureParams) (*ExportTKGConfigForAzureOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewGenerateTKGConfigForAzureParams()
+		params = NewExportTKGConfigForAzureParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "generateTKGConfigForAzure",
+		ID:                 "exportTKGConfigForAzure",
 		Method:             "POST",
-		PathPattern:        "/api/providers/azure/generate",
+		PathPattern:        "/api/providers/azure/config/export",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &GenerateTKGConfigForAzureReader{formats: a.formats},
+		Reader:             &ExportTKGConfigForAzureReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*GenerateTKGConfigForAzureOK)
+	success, ok := result.(*ExportTKGConfigForAzureOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
 	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
-	msg := fmt.Sprintf("unexpected success response for generateTKGConfigForAzure: API contract not enforced by server. Client expected to get an error, but got: %T", result)
+	msg := fmt.Sprintf("unexpected success response for exportTKGConfigForAzure: API contract not enforced by server. Client expected to get an error, but got: %T", result)
 	panic(msg)
 }
 
@@ -397,6 +397,40 @@ func (a *Client) GetAzureVnets(params *GetAzureVnetsParams) (*GetAzureVnetsOK, e
 	// unexpected success response
 	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
 	msg := fmt.Sprintf("unexpected success response for getAzureVnets: API contract not enforced by server. Client expected to get an error, but got: %T", result)
+	panic(msg)
+}
+
+/*
+ImportTKGConfigForAzure generates t k g configuration object for azure
+*/
+func (a *Client) ImportTKGConfigForAzure(params *ImportTKGConfigForAzureParams) (*ImportTKGConfigForAzureOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewImportTKGConfigForAzureParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "importTKGConfigForAzure",
+		Method:             "POST",
+		PathPattern:        "/api/providers/azure/config/import",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &ImportTKGConfigForAzureReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*ImportTKGConfigForAzureOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
+	msg := fmt.Sprintf("unexpected success response for importTKGConfigForAzure: API contract not enforced by server. Client expected to get an error, but got: %T", result)
 	panic(msg)
 }
 

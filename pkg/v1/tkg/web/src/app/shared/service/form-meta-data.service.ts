@@ -11,49 +11,55 @@ export class FormMetaDataService {
     /**
      * Save the form meta data so as to produce the confirmation page with
      */
-    saveFormMetadata(formName: string, container: any) {
-        if (container) {
-            const fields = Array.from(container.querySelectorAll('[data-step-metadata]'));
-            fields.forEach((f: any) => {
-                this.getFormMetadata(formName, f);
+    saveFormMetadata(formName: string, domForm: any) {
+        if (domForm) {
+            const fields = Array.from(domForm.querySelectorAll('[data-step-metadata]'));
+            fields.forEach((domField: any) => {
+                this.saveDataFromDomField(formName, domField);
             })
         }
     }
 
     /**
-     * Extract the meta data for one particular form field by analyzing the
+     * Extract and save the meta data for one particular form field by analyzing the
      * native DOM tree.
-     *
-     * TODO: supports addtional form control types for a complete framework.
      */
-    getFormMetadata(formName: string, container: any) {
+    private saveDataFromDomField(formName: string, domField: any) {
+        const label = this.extractLabelFromDomField(domField);
+        const controlName = this.extractControlNameFromDomField(domField);
+        const saveRequiresValue = this.extractSaveRequiresValueFromDomField(domField);
+        const displayValue = this.extractDisplayValueFromDomField(domField);
+        const key = this.extractKeyFromDomField(domField);
 
-        // First handle the case where label or value are hard-coded in the container node
-        let label = container.getAttribute("data-label");
-        let displayValue = container.getAttribute("data-value");
-        let controlName = container.getAttribute("data-name");
-
-        if (!label) {
-            let labelEl = container.querySelector("label");
-            if (labelEl) {
-                labelEl = labelEl.cloneNode(true);
-                // strip tooltip from label content if found
-                const labelRemoveContent = labelEl.querySelector("clr-tooltip");
-                if (labelRemoveContent) {
-                    labelEl.removeChild(labelRemoveContent);
-                }
-                label = labelEl.getAttribute("data-full") || labelEl.innerHTML || "";
-            }
+        if (this.shouldSaveValue(displayValue, saveRequiresValue)) {
+            FormMetaDataStore.saveMetaDataEntry(formName, controlName, {
+                label,
+                displayValue,
+                key
+            });
         }
+    }
 
-        label = label && label.toLocaleUpperCase();
+    private shouldSaveValue(displayValue: string, saveRequiresValue: boolean) {
+        // either the domField should have a value, or it's ok to save without a value
+        return displayValue !== '' || !saveRequiresValue;
+    }
 
+    // extractKeyFromDomField() returns the selected listbox key (if the control is a listbox); blank string otherwise.
+    private extractKeyFromDomField(domField: any): string {
+        const controlEl = domField.querySelector("[formcontrolname]");
+        if (controlEl && controlEl.tagName === "SELECT" && controlEl.value !== undefined && controlEl.value !== 'undefined') {
+            return controlEl.value;
+        }
+        return '';
+    }
+
+    private extractDisplayValueFromDomField(domField: any) {
+        let displayValue = domField.getAttribute("data-value");
         // First handle the case of value in container node
         if (!displayValue) {
-            const controlEl = container.querySelector("[formcontrolname]");
+            const controlEl = domField.querySelector("[formcontrolname]");
             if (controlEl) {
-                controlName = controlEl.getAttribute("formcontrolname");
-
                 /**
                  * Get control display text: this may be different from
                  * control value in cases of "select", "checkbox" and "rodio"
@@ -98,10 +104,67 @@ export class FormMetaDataService {
                 }
             }
         }
+        return displayValue;
+    }
 
+    private extractLabelFromDomField(domField: any) {
+        // First handle the case where label or value are hard-coded in the container node
+        let label = domField.getAttribute("data-label");
+        if (!label) {
+            let labelEl = domField.querySelector("label");
+            if (labelEl) {
+                labelEl = labelEl.cloneNode(true);
+                // strip tooltip from label content if found
+                const labelRemoveContent = labelEl.querySelector("clr-tooltip");
+                if (labelRemoveContent) {
+                    labelEl.removeChild(labelRemoveContent);
+                }
+                label = labelEl.getAttribute("data-full") || labelEl.innerHTML || "";
+            }
+        }
+        return label && label.toLocaleUpperCase();
+    }
+
+    private extractControlNameFromDomField(domField: any) {
+        let controlName = domField.getAttribute("data-name");
+        // First handle the case of value in container node
+        if (!domField.getAttribute("data-value")) {
+            const controlEl = domField.querySelector("[formcontrolname]");
+            if (controlEl) {
+                controlName = controlEl.getAttribute("formcontrolname");
+            }
+        }
+        return controlName;
+    }
+
+    private extractSaveRequiresValueFromDomField(domField: any) {
+        let saveRequiresValue = domField.getAttribute("save-requires-value") === 'true';
+        // First handle the case of value in container node
+        if (!domField.getAttribute("data-value")) {
+            const controlEl = domField.querySelector("[formcontrolname]");
+            if (controlEl) {
+                saveRequiresValue = controlEl.getAttribute("save-requires-value") === 'true';
+            }
+        }
+        return saveRequiresValue;
+    }
+
+    /**
+     * saveFormFieldData saves the data value for one particular form field
+     * Note that at this time it destroys the LABEL value entirely, trusting that
+     * when the confirmation page is displayed, the label will be made available
+     */
+    saveFormFieldData(formName, controlName, value) {
         FormMetaDataStore.saveMetaDataEntry(formName, controlName, {
-            label,
-            displayValue
-        });
+            label: '',
+            displayValue: value
+        })
+    }
+
+    saveFormListboxData(formName, listboxName, key) {
+        FormMetaDataStore.saveMetaDataEntry(formName, listboxName, {
+            label: '',
+            key: key
+        })
     }
 }
