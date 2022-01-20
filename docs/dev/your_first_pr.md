@@ -9,7 +9,7 @@ Your new idea starts with a new GitHub issue. You'll link your pull request to
 your issue once you're ready to submit it. This will help us appropriately
 prioritize the release into which your PR should get merged into.
 
-[Click here](https://github.com/vmware-tanzu/tanzu-framework/issues/new) to
+[Click here](https://github.com/vmware-tanzu/tanzu-framework/issues/new/choose) to
 open your first issue.
 
 ## Getting the Code
@@ -19,7 +19,7 @@ Now that you've created your issue, your next step is to fork the repo.
 Your pull request will merge your fork into our repository.
 
 Click on the "Fork" button at the top right of the page to fork
-Tanzu Framework into your Github account.
+Tanzu Framework into your GitHub account.
 
 ✅ **NOTE**: You'll need your terminal for the steps below.
 
@@ -32,7 +32,7 @@ Before doing anything, go ahead and clone your fork with `git clone`.
 ### Download and install Golang and GVM
 
 Tanzu Kubernetes Grid is written in [Golang](https://golang.org), or Go
-for short. While it is currently built against Go v1.1.7, this might change
+for short. While it is currently built against Go v${VERSION} this might change
 in the future.
 
 Golang Version Manager, or [GVM](https://github.com/moovweb/gvm), is a tool
@@ -96,10 +96,10 @@ for various TKG components.
 
 ### Ginkgo and Gomega
 
-TKG uses [Ginkgo](https://onsi.github.io/ginkgo/) to create tests in
+Tanzu Framework uses [Ginkgo](https://onsi.github.io/ginkgo/) to create tests in
 [Gherkin](https://cucumber.io/docs/gherkin/) syntax. Gherkin is a syntax
 used for enabling [behavior-driven development](https://en.wikipedia.org/wiki/Behavior-driven_development).
-Matchers are Ginkgo are provided by [Gomega](https://onsi.github.io/gomega).
+Matchers in Ginkgo are provided by [Gomega](https://onsi.github.io/gomega).
 
 The test for most code in this repository is located inside of the `_test`
 version of the file from which it originated. For instance, if I wanted to
