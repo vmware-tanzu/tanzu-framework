@@ -61,6 +61,7 @@ export class VsphereLoadBalancerStepComponent extends SharedLoadBalancerStepComp
         } else {
             HA_REQUIRED_FIELDS.forEach(fieldName => this.disarmField(fieldName, true));
         }
+        this.errorNotification = '';
         this.setLoadBalancerLabel(newProvider);
         this.triggerStepDescriptionChange();
     }

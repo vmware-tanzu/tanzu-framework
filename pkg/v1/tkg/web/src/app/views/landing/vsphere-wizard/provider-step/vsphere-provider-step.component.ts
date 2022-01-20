@@ -124,7 +124,11 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
         }
         AppServices.messenger.subscribe<EditionData>(TanzuEventType.BRANDING_CHANGED, data => { this.edition = data.payload.edition; });
 
-        this.registerDefaultFileImportedHandler(TanzuEventType.VSPHERE_CONFIG_FILE_IMPORTED, VsphereProviderStepFieldMapping);
+        // handle file import:
+        AppServices.messenger.subscribe<string>(TanzuEventType.VSPHERE_CONFIG_FILE_IMPORTED, data => {
+            this.defaultFileImportedHandler(VsphereProviderStepFieldMapping)(data);
+            this.disconnect('Disconnecting due to file import');
+        });
         this.registerDefaultFileImportErrorHandler(TanzuEventType.VSPHERE_CONFIG_FILE_IMPORT_ERROR);
 
         this.fileReader.onload = (event) => {

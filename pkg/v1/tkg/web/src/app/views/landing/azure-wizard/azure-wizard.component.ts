@@ -193,6 +193,9 @@ export class AzureWizardComponent extends WizardBaseDirective implements OnInit 
                 this.storeFieldString(AzureForm.VNET, AzureField.VNET_PRIVATE_IP, payload.frontendPrivateIp);
             }
             this.storeFieldBoolean(AzureForm.NODESETTING, AzureField.NODESETTING_ENABLE_AUDIT_LOGGING, payload.enableAuditLogging);
+
+            this.storeFieldString(WizardForm.OSIMAGE, WizardField.OSIMAGE, payload.os.name);
+
             this.saveCommonFieldsFromPayload(payload);
 
             AppServices.userDataService.updateWizardTimestamp(this.wizardName);
@@ -373,13 +376,12 @@ export class AzureWizardComponent extends WizardBaseDirective implements OnInit 
     }
 
     private subscribeToServices() {
-        AppServices.messenger.subscribe(TanzuEventType.AZURE_REGION_CHANGED, event => {
-                const region = event.payload;
-                if (this.region) {
+        AppServices.messenger.subscribe<string>(TanzuEventType.AZURE_REGION_CHANGED, event => {
+            if (this.region) {
                     AppServices.dataServiceRegistrar.trigger([
                         TanzuEventType.AZURE_GET_RESOURCE_GROUPS,
                         TanzuEventType.AZURE_GET_INSTANCE_TYPES
-                    ], { location: region });
+                    ], { location: event.payload });
                     AppServices.dataServiceRegistrar.trigger([TanzuEventType.AZURE_GET_OS_IMAGES]);
                 } else {
                     AppServices.dataServiceRegistrar.clear<AzureResourceGroup>(TanzuEventType.AZURE_GET_RESOURCE_GROUPS);

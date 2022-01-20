@@ -28,7 +28,7 @@ import { SharedCeipStepComponent } from '../components/steps/ceip-step/ceip-step
 import { SharedIdentityStepComponent } from '../components/steps/identity-step/identity-step.component';
 import { SharedNetworkStepComponent } from '../components/steps/network-step/network-step.component';
 import { StepFormDirective } from '../step-form/step-form';
-import { StepDescriptionChangePayload, TanzuEvent, TanzuEventType } from './../../../../../shared/service/Messenger';
+import { StepCompletedPayload, StepDescriptionChangePayload, TanzuEvent, TanzuEventType } from './../../../../../shared/service/Messenger';
 import { StepWrapperSetComponent } from '../step-wrapper/step-wrapper-set.component';
 
 // This interface describes a wizard that can register a step component
@@ -331,7 +331,7 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Wiz
      */
     objToStrMap(obj: any): Map<string, string> {
         const result = new Map<string, string>();
-        if (obj !== null) {
+        if (obj) {
             Object.keys(obj).forEach(key => {
                 result[key] = obj[key];
             })
@@ -541,7 +541,7 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Wiz
             const labelValueToSave = labelArray.join(', ');
             this.storeFieldString(WizardForm.METADATA, MetadataField.CLUSTER_LABELS, labelValueToSave);
         }
-        this.storeFieldString(WizardForm.OSIMAGE, OsImageField.IMAGE, payload.os);
+
         if (payload.annotations !== undefined) {
             this.storeFieldString(WizardForm.METADATA, MetadataField.CLUSTER_DESCRIPTION, payload.annotations.description);
             this.storeFieldString(WizardForm.METADATA, MetadataField.CLUSTER_LOCATION, payload.annotations.location);

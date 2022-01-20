@@ -95,7 +95,7 @@ export interface TanzuEvent<PAYLOAD> {
  export class Messenger {
     subjects = new Map<TanzuEventType, ReplaySubject<TanzuEvent<any>>>();
 
-    subscribe<PAYLOAD>(eventType: TanzuEventType, onNext: (event) => void, unsubscriber?: Subject<void>) {
+    subscribe<PAYLOAD>(eventType: TanzuEventType, onNext: (event: TanzuEvent<PAYLOAD>) => void, unsubscriber?: Subject<void>) {
         if (unsubscriber) {
             this.getSubject<PAYLOAD>(eventType)
                 .pipe(takeUntil(unsubscriber))

@@ -25,5 +25,4 @@ export const VsphereNodeSettingStepMapping: StepMapping = {
 // About VsphereNodeSettingStandaloneStep:
 // The first thing the user is expected to do is select DEV or PROD as NODESETTING_CONTROL_PLANE_SETTING, which
 // will cascade into activating/deactivating other fields based on its value. Therefore, NODESETTING_CONTROL_PLANE_SETTING is set as a
-// primaryTrigger and many other fields on the form are set doNotAutoRestore or requiresBackendData because their values depend either on
-// the DEV/PROD setting and/or on backend data events.
+// primaryTrigger.

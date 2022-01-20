@@ -64,7 +64,7 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
     }
 
     protected registerDefaultFileImportErrorHandler(eventFailure: TanzuEventType) {
-        AppServices.messenger.subscribe(eventFailure, data => {
+        AppServices.messenger.subscribe<string>(eventFailure, data => {
             // Capture the import file error message
             this.configFileNotification = {
                 notificationType: NotificationTypes.ERROR,
@@ -503,13 +503,20 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
 
     protected registerDefaultFileImportedHandler(eventSuccess: TanzuEventType, stepMapping: StepMapping,
                                                  objectRetrievalMap?: Map<string, (string) => any>) {
-        AppServices.messenger.subscribe<string>(eventSuccess, data => {
-                this.configFileNotification = {
-                    notificationType: NotificationTypes.SUCCESS,
-                    message: data.payload
-                };
-                // The file import saves the data to local storage, so we reinitialize this step's form from there
-                AppServices.fieldMapUtilities.restoreForm(this.wizardName, this.formName, this.formGroup, stepMapping, objectRetrievalMap);
-            });
+        AppServices.messenger.subscribe<string>(eventSuccess, this.defaultFileImportedHandler(stepMapping, objectRetrievalMap));
+    }
+
+    // This is a convenience method for child classes that want to register a callback based on this behavior PLUS something of their own
+    protected defaultFileImportedHandler(stepMapping: StepMapping, objectRetrievalMap?: Map<string, (string) => any>)
+        : (event: TanzuEvent<any>) => void {
+        const step = this;
+        return data => {
+            this.configFileNotification = {
+                notificationType: NotificationTypes.SUCCESS,
+                message: data.payload
+            };
+            // The file import saves the data to local storage, so we reinitialize this step's form from there
+            AppServices.fieldMapUtilities.restoreForm(step.wizardName, step.formName, step.formGroup, stepMapping, objectRetrievalMap);
+        }
     }
 }

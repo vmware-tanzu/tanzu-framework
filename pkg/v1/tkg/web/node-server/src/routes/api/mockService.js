@@ -503,6 +503,12 @@ router.post(`${ENDPOINT}/providers/vsphere/config/import`, (req, res) => {
             "description": "foo-description",
             "location": "bar-location"
         },
+        "aviConfig": {
+           "controlPlaneHaProvider" : "NSX Advanced Load Balancer",
+            "network": {
+               "name": "bozo-network"
+            }
+        },
         "ceipOptIn": true,
         "controlPlaneEndpoint": "10.92.12.54",
         "controlPlaneFlavor": "dev",
@@ -529,8 +535,8 @@ router.post(`${ENDPOINT}/providers/vsphere/config/import`, (req, res) => {
         },
         "machineHealthCheckEnabled": true,
         "networking": {"clusterPodCIDR": "100.96.0.0/11", "clusterServiceCIDR": "100.64.0.0/13", "networkName": "Network 3"},
-        "os": {"isTemplate": null, "name": "GeeIDunno", "osInfo": {"arch": "amd64", "name": "photon", "version": "3"}},
-        "resourcePool": "Host-2",
+        "os": {"isTemplate": false, "name": "Ubuntu Custom", "moid": "vm-3", "osInfo": {"arch": "amd64", "name": "photon", "version": "3"}},
+        "resourcePool": "/cluster1-path/Resources/respool-1-path/sub-host-1-path",
         "ssh_key": "F8:DB:B3:6E:34:C6:0C:4D:15:8E:58:56:94:3D:32:4D:B6:85:BB:65",
         "workerNodeType": "medium",
         "vsphereCredentials": {

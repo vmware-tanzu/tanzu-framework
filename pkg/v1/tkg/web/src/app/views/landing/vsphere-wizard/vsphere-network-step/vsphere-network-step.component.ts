@@ -29,7 +29,7 @@ export class VsphereNetworkStepComponent extends SharedNetworkStepComponent {
 
     listenToEvents() {
         super.listenToEvents();
-        AppServices.messenger.subscribe(TanzuEventType.VSPHERE_VC_AUTHENTICATED,
+        AppServices.messenger.subscribe<string>(TanzuEventType.VSPHERE_VC_AUTHENTICATED,
                 data => { this.infraServiceAddress = data.payload; }, this.unsubscribe);
         AppServices.messenger.subscribe(TanzuEventType.VSPHERE_DATACENTER_CHANGED,
                 () => { this.clearControlValue(VsphereField.NETWORK_NAME); }, this.unsubscribe);
@@ -41,12 +41,20 @@ export class VsphereNetworkStepComponent extends SharedNetworkStepComponent {
     }
 
     private onFetchedVmNetworks(networks: Array<VSphereNetwork>) {
-        this.vmNetworks = sortPaths(networks, function (item) { return item.name; }, '/');
+        this.vmNetworks = sortPaths(networks, function (network) { return network.name; }, '/');
         this.loadingNetworks = false;
-        this.resurrectField(VsphereField.NETWORK_NAME,
-            [Validators.required], networks.length === 1 ? networks[0].name : '',
-            { onlySelf: true } // only for current form control
-        );
+        let chosenNetwork;
+        if (networks) {
+            if (networks.length === 1) {
+                chosenNetwork = networks[0];
+            } else {
+                const savedNetworkEntry = AppServices.userDataService.retrieve(this.createUserDataIdentifier(VsphereField.NETWORK_NAME));
+                if (savedNetworkEntry && savedNetworkEntry.value) {
+                    chosenNetwork = networks.find(network => network.name === savedNetworkEntry.value);
+                }
+            }
+        }
+        this.resurrectField('networkName', [Validators.required], chosenNetwork, { onlySelf: true } );
     }
 
     protected onNoProxyChange(value: string) {
@@ -107,19 +115,22 @@ export class VsphereNetworkStepComponent extends SharedNetworkStepComponent {
     dynamicDescription(): string {
         // NOTE: even though this is a common wizard form, vSphere has a different way of describing it
         // because vSphere allows for the user to select a network name
-        const networkName = this.getFieldValue(VsphereField.NETWORK_NAME);
+        const network = this.getFieldValue(VsphereField.NETWORK_NAME);
         let result = '';
-        if (networkName) {
-            result = 'Network: ' + networkName + ' ';
+        if (network) {
+            result = 'Network: ' + network.name + ', ';
         }
         const serviceCidr = this.getFieldValue(NetworkField.CLUSTER_SERVICE_CIDR, true);
         if (serviceCidr) {
-            result +=  'Cluster Service CIDR: ' + serviceCidr + ' ';
+            result +=  'Cluster Service CIDR: ' + serviceCidr + ', ';
         }
         const podCidr = this.getFieldValue(NetworkField.CLUSTER_POD_CIDR, true);
         if (podCidr) {
             result +=  'Cluster Pod CIDR: ' + podCidr;
         }
-        return result ? result.trim() : VsphereNetworkStepComponent.description;
+        if (result.endsWith(', ')) {
+            result = result.slice(0, -2);
+        }
+        return result ? result : VsphereNetworkStepComponent.description;
     }
 }

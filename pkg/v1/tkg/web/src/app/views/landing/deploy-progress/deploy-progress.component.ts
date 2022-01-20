@@ -39,7 +39,7 @@ export class DeployProgressComponent extends BasicSubscriber implements OnInit {
 
     constructor(private websocketService: WebsocketService) {
         super();
-        AppServices.messenger.subscribe(TanzuEventType.CLI_CHANGED, event => { this.cli = event.payload; }, this.unsubscribe);
+        AppServices.messenger.subscribe<string>(TanzuEventType.CLI_CHANGED, event => { this.cli = event.payload; }, this.unsubscribe);
     }
 
     ngOnInit(): void {

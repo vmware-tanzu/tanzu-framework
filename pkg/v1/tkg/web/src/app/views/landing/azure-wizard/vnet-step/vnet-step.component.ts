@@ -107,9 +107,9 @@ export class VnetStepComponent extends StepFormDirective implements OnInit {
         /**
          * Whenever Azure region selection changes...
          */
-        AppServices.messenger.subscribe(TanzuEventType.AZURE_REGION_CHANGED,
+        AppServices.messenger.subscribe<string>(TanzuEventType.AZURE_REGION_CHANGED,
                 event => { this.onRegionChange(event.payload); }, this.unsubscribe);
-        AppServices.messenger.subscribe(TanzuEventType.AZURE_RESOURCEGROUP_CHANGED,
+        AppServices.messenger.subscribe<string>(TanzuEventType.AZURE_RESOURCEGROUP_CHANGED,
                 event => { this.customResourceGroup = event.payload; }, this.unsubscribe);
 
         this.registerOnValueChange(AzureField.VNET_PRIVATE_CLUSTER, this.onCreatePrivateAzureCluster.bind(this));

@@ -20,6 +20,7 @@ import { NodeSettingStepComponent } from './node-setting-step/node-setting-step.
 import { PROVIDERS, Providers } from '../../../shared/constants/app.constants';
 import { ResourceStepComponent } from './resource-step/resource-step.component';
 import { TanzuEventType } from '../../../shared/service/Messenger';
+import { VsphereField, VsphereForm, VsphereNodeTypes } from './vsphere-wizard.constants';
 import {
     VSphereDatastore,
     VSphereFolder,
@@ -28,8 +29,6 @@ import {
     VSphereResourcePool,
     VSphereVirtualMachine
 } from '../../../swagger/models';
-import { VsphereField, VsphereForm } from './vsphere-wizard.constants';
-import { VsphereLoadBalancerStepComponent } from './load-balancer/vsphere-load-balancer-step.component';
 import { VsphereLoadBalancerStepComponent } from './load-balancer/vsphere-load-balancer-step.component';
 import { VsphereNetworkStepComponent } from './vsphere-network-step/vsphere-network-step.component';
 import { VsphereOsImageStepComponent } from './vsphere-os-image-step/vsphere-os-image-step.component';
@@ -166,16 +165,28 @@ export class VSphereWizardComponent extends WizardBaseDirective implements OnIni
         ];
         mappings.forEach(attr => this.storeFieldString(attr[1], attr[2], payload[attr[0]]));
 
-        this.storeFieldString(VsphereForm.PROVIDER, VsphereField.NODESETTING_CONTROL_PLANE_SETTING, payload.controlPlaneFlavor);
-        const instanceTypeField = payload.controlPlaneFlavor === 'prod' ? VsphereField.NODESETTING_INSTANCE_TYPE_PROD
-            : VsphereField.NODESETTING_INSTANCE_TYPE_DEV;
-        this.storeFieldString(VsphereForm.PROVIDER, instanceTypeField, payload.controlPlaneNodeType);
+        this.storeFieldString(VsphereForm.NODESETTING, VsphereField.NODESETTING_CONTROL_PLANE_SETTING, payload.controlPlaneFlavor);
+        if (payload.controlPlaneNodeType) {
+            const instanceTypeField = payload.controlPlaneFlavor === 'prod' ? VsphereField.NODESETTING_INSTANCE_TYPE_PROD
+                : VsphereField.NODESETTING_INSTANCE_TYPE_DEV;
+            const vSphereNode = this.getVSphereNode(payload.controlPlaneNodeType);
+            if (vSphereNode) {
+                this.storeFieldString('vsphereNodeSettingForm', instanceTypeField, vSphereNode.id, vSphereNode.name);
+            }
+        }
 
         this.storeFieldBoolean(VsphereForm.NODESETTING, VsphereField.NODESETTING_ENABLE_AUDIT_LOGGING, payload.enableAuditLogging);
         this.storeFieldBoolean(VsphereForm.NODESETTING, VsphereField.NODESETTING_MACHINE_HEALTH_CHECKS_ENABLED,
             payload.machineHealthCheckEnabled);
-        // SHIMON TODO: verify that worker node type display == value
-        this.storeFieldString(VsphereForm.NODESETTING, VsphereField.NODESETTING_WORKER_NODE_INSTANCE_TYPE, payload.workerNodeType);
+
+        const workerNodeType = payload.workerNodeType;
+        if (workerNodeType) {
+            const vSphereNode = this.getVSphereNode(workerNodeType);
+            if (vSphereNode) {
+                this.storeFieldString(VsphereForm.NODESETTING, VsphereField.NODESETTING_WORKER_NODE_INSTANCE_TYPE, vSphereNode.id,
+                    vSphereNode.name);
+            }
+        }
 
         if (payload.vsphereCredentials !== undefined) {
             const vsphereCredentialsMappings = [
@@ -208,8 +219,14 @@ export class VSphereWizardComponent extends WizardBaseDirective implements OnIni
             this.storeFieldString(WizardForm.LOADBALANCER, LoadBalancerField.MANAGEMENT_CLUSTER_NETWORK_CIDR, uiMcCidr)
         }
 
+        this.storeFieldString('osImageForm', 'osImage', payload.os.moid, payload.os.name);
+
         this.saveCommonFieldsFromPayload(payload);
         AppServices.userDataService.updateWizardTimestamp(this.wizardName);
+    }
+
+    private getVSphereNode(workerNodeType: string) {
+        return VsphereNodeTypes.find(node => node.id === workerNodeType);
     }
 
     /**

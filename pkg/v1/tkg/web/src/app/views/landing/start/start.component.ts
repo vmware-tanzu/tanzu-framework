@@ -37,13 +37,11 @@ export class StartComponent extends BasicSubscriber implements OnInit {
         /**
          * Whenever branding data changes, load content in landing page
          */
-        AppServices.messenger.subscribe(TanzuEventType.BRANDING_CHANGED, data => {
-                const content: EditionData = data.payload;
-                const title = content.branding.title;
-                this.edition = content.edition;
-                this.clusterTypeDescriptor = content.clusterTypeDescriptor;
-                this.landingPageContent = content.branding.landingPage;
-                this.titleService.setTitle(title);
+        AppServices.messenger.subscribe<EditionData>(TanzuEventType.BRANDING_CHANGED, data => {
+            this.edition = data.payload.edition;
+            this.clusterTypeDescriptor = data.payload.clusterTypeDescriptor;
+            this.landingPageContent = data.payload.branding.landingPage;
+            this.titleService.setTitle(data.payload.branding.title);
             }, this.unsubscribe);
     }
 

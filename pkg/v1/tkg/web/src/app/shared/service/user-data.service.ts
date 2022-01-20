@@ -231,7 +231,7 @@ export class UserDataService {
             this.storeMapField(identifier, formGroup);
         } else if (fieldMapping.backingObject) {
             this.storeBackingObjectField(identifier, formGroup, fieldMapping.backingObject)
-        } else {
+        } else if (!fieldMapping.doNotCreate) {
             this.storeInputField(identifier, formGroup);
         }
     }

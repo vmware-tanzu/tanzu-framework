@@ -152,6 +152,8 @@ export class AwsWizardComponent extends WizardBaseDirective implements OnInit {
             this.storeFieldBoolean(AwsForm.NODESETTING, AwsField.NODESETTING_ENABLE_AUDIT_LOGGING, payload.enableAuditLogging);
             this.storeVpcFields(payload.vpc);
 
+            this.storeFieldString('osImageForm', 'osImage', payload.os.name);
+
             this.saveCommonFieldsFromPayload(payload);
             AppServices.userDataService.updateWizardTimestamp(this.wizardName);
         }
