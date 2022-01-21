@@ -7,9 +7,6 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-// EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!
-// NOTE: json tags are required.  Any new fields you add must have json tags for the fields to be serialized.
-
 // SecretGenControllerConfigSpec defines the desired state of SecretGenControllerConfig
 type SecretGenControllerConfigSpec struct {
 	// The namespace in which to deploy secretgen-controller

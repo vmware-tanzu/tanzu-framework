@@ -1,0 +1,16 @@
+---
+apiVersion: cluster.x-k8s.io/v1beta1
+kind: Cluster
+metadata:
+  name: test-cluster-1
+  namespace: default
+---
+apiVersion: addons.tanzu.vmware.com/v1alpha1
+kind: SecretGenControllerConfig
+metadata:
+  name: test-cluster-1
+  namespace: default
+spec:
+  namespace: test-ns
+  createNamespace: false
+

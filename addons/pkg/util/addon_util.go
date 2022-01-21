@@ -70,6 +70,11 @@ func GenerateAppSecretNameFromAddonSecret(addonSecret *corev1.Secret) string {
 	return fmt.Sprintf("%s-data-values", GenerateAppNameFromAddonSecret(addonSecret))
 }
 
+// GenerateDataValueSecretNameFromAddonAndClusterNames generates data value secret name from addon names
+func GenerateDataValueSecretNameFromAddonNames(clusterName, addonName string) string {
+	return fmt.Sprintf("%s-%s-data-values", clusterName, addonName)
+}
+
 // GenerateAppNamespaceFromAddonSecret generates app namespace from addons secret
 func GenerateAppNamespaceFromAddonSecret(addonSecret *corev1.Secret, defaultAddonNamespace string) string {
 	remoteApp := IsRemoteApp(addonSecret)
