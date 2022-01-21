@@ -1,0 +1,7 @@
+/*
+ * Public API Surface of tanzu-ui-api-lib
+ * Exports swagger generated APIClient and modules, and swagger generated models
+ */
+export * from './lib/swagger/index';
+export * from './lib/swagger/models/index';
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoicHVibGljLWFwaS5qcyIsInNvdXJjZVJvb3QiOiIiLCJzb3VyY2VzIjpbIi4uLy4uLy4uL3Byb2plY3RzL3Rhbnp1LXVpLWFwaS1saWIvc3JjL3B1YmxpYy1hcGkudHMiXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6IkFBQUE7OztHQUdHO0FBQ0gsY0FBYyxxQkFBcUIsQ0FBQztBQUNwQyxjQUFjLDRCQUE0QixDQUFDIiwic291cmNlc0NvbnRlbnQiOlsiLypcbiAqIFB1YmxpYyBBUEkgU3VyZmFjZSBvZiB0YW56dS11aS1hcGktbGliXG4gKiBFeHBvcnRzIHN3YWdnZXIgZ2VuZXJhdGVkIEFQSUNsaWVudCBhbmQgbW9kdWxlcywgYW5kIHN3YWdnZXIgZ2VuZXJhdGVkIG1vZGVsc1xuICovXG5leHBvcnQgKiBmcm9tICcuL2xpYi9zd2FnZ2VyL2luZGV4JztcbmV4cG9ydCAqIGZyb20gJy4vbGliL3N3YWdnZXIvbW9kZWxzL2luZGV4JztcbiJdfQ==

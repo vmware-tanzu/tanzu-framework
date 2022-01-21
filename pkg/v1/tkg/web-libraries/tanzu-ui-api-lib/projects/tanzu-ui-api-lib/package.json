@@ -1,6 +1,6 @@
 {
   "name": "tanzu-ui-api-lib",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "scripts": {
     "generate-api-client": "rimraf ./src/lib/swagger/ && api-client-generator -s ../../../../web/api/spec.yaml -o ./src/lib/swagger/",
     "build-library": "npm ci && npm run generate-api-client"

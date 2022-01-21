@@ -6,7 +6,7 @@
     "clean": "rimraf ./dist",
     "lint": "ng lint",
     "build-ui-api-lib": "cd ../web-libraries/tanzu-ui-api-lib && npm run build:all",
-    "link-local-libraries": "npm link tanzu-ui-api-lib",
+    "link-local-libraries": "(cd ../web-libraries/tanzu-ui-api-lib/dist/tanzu-ui-api-lib && npm link); (npm link tanzu-ui-api-lib);",
     "start": "npm run link-local-libraries && ng lint && npm run build-index && ng serve",
     "build": "npm run link-local-libraries && ng lint && ng build",
     "build:prod": "npm run clean && npm run link-local-libraries && ng build --configuration production",
