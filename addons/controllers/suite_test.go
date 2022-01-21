@@ -6,9 +6,7 @@ package controllers
 import (
 	"context"
 	"os"
-	"os/exec"
 	"path/filepath"
-	"strings"
 	"testing"
 
 	. "github.com/onsi/ginkgo"
@@ -33,9 +31,12 @@ import (
 
 	kappctrl "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/kappctrl/v1alpha1"
 	pkgiv1alpha1 "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/packaging/v1alpha1"
+	calico "github.com/vmware-tanzu/tanzu-framework/addons/controllers/calico"
 	addonconfig "github.com/vmware-tanzu/tanzu-framework/addons/pkg/config"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/crdwait"
+	testutil "github.com/vmware-tanzu/tanzu-framework/addons/testutil"
+	cniv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cni/v1alpha1"
 	runtanzuv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha1"
 )
 
@@ -70,7 +71,13 @@ var _ = BeforeSuite(func(done Done) {
 		CleanUpAfterUse: true},
 		ErrorIfCRDPathMissing: true,
 	}
-	externalCRDPaths, err := getExternalCRDPaths()
+
+	externalDeps := map[string][]string{
+		"sigs.k8s.io/cluster-api": {"config/crd/bases",
+			"controlplane/kubeadm/config/crd/bases"},
+		"github.com/vmware-tanzu/carvel-kapp-controller": {"config/crds.yml"},
+	}
+	externalCRDPaths, err := testutil.GetExternalCRDPaths(externalDeps)
 	Expect(err).NotTo(HaveOccurred())
 	Expect(externalCRDPaths).ToNot(BeEmpty())
 	testEnv.CRDDirectoryPaths = externalCRDPaths
@@ -97,6 +104,9 @@ var _ = BeforeSuite(func(done Done) {
 	Expect(err).NotTo(HaveOccurred())
 
 	err = pkgiv1alpha1.AddToScheme(scheme)
+	Expect(err).NotTo(HaveOccurred())
+
+	err = cniv1alpha1.AddToScheme(scheme)
 	Expect(err).NotTo(HaveOccurred())
 
 	k8sClient, err = client.New(cfg, client.Options{Scheme: scheme})
@@ -157,6 +167,12 @@ var _ = BeforeSuite(func(done Done) {
 		},
 	}).SetupWithManager(ctx, mgr, controller.Options{MaxConcurrentReconciles: 1})).To(Succeed())
 
+	Expect((&calico.CalicoConfigReconciler{
+		Client: mgr.GetClient(),
+		Log:    setupLog,
+		Scheme: mgr.GetScheme(),
+	}).SetupWithManager(ctx, mgr, controller.Options{MaxConcurrentReconciles: 1})).To(Succeed())
+
 	// pre-create namespace
 	ns := &corev1.Namespace{ObjectMeta: metav1.ObjectMeta{Name: "tkr-system"}}
 	Expect(k8sClient.Create(context.TODO(), ns)).To(Succeed())
@@ -175,31 +191,3 @@ var _ = AfterSuite(func() {
 	err := testEnv.Stop()
 	Expect(err).ToNot(HaveOccurred())
 })
-
-// get paths for external CRDs by introspecting versions of the go dependencies
-func getExternalCRDPaths() ([]string, error) {
-	externalDeps := map[string][]string{
-		"sigs.k8s.io/cluster-api": {"config/crd/bases",
-			"controlplane/kubeadm/config/crd/bases"},
-		"github.com/vmware-tanzu/carvel-kapp-controller": {"config/crds.yml"},
-	}
-
-	var crdPaths []string
-	gopath, err := exec.Command("go", "env", "GOPATH").Output()
-	if err != nil {
-		return crdPaths, err
-	}
-	for dep, crdDirs := range externalDeps {
-		depPath, err := exec.Command("go", "list", "-m", "-f", "{{ .Path }}@{{ .Version }}", dep).Output()
-		if err != nil {
-			return crdPaths, err
-		}
-		for _, crdDir := range crdDirs {
-			crdPaths = append(crdPaths, filepath.Join(strings.TrimSuffix(string(gopath), "\n"),
-				"pkg", "mod", strings.TrimSuffix(string(depPath), "\n"), crdDir))
-		}
-	}
-
-	logf.Log.Info("external CRD paths", "crdPaths", crdPaths)
-	return crdPaths, nil
-}

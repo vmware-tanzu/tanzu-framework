@@ -9,6 +9,9 @@ import "time"
 const (
 	/* Addon constants section */
 
+	// CalicoAddonName is name of the Calico addon
+	CalicoAddonName = "calico"
+
 	// TKGBomNamespace is the TKG add on BOM namespace.
 	TKGBomNamespace = "tkr-system"
 
@@ -32,6 +35,9 @@ const (
 
 	// TKGDataValueFormatString is required annotations for YTT data value file
 	TKGDataValueFormatString = "#@data/values\n#@overlay/match-child-defaults missing_ok=True\n---\n"
+
+	// TKGDataValueFileName is the default name of YTT data value file
+	TKGDataValueFileName = "values.yaml"
 
 	// TKGCorePackageRepositoryComponentName is the name of component that includes the package and repository images
 	TKGCorePackageRepositoryComponentName = "tkg-core-packages"
