@@ -7,11 +7,12 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/config"
+
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/client-go/rest"
 	"sigs.k8s.io/controller-runtime/pkg/client"
-	k8sconfig "sigs.k8s.io/controller-runtime/pkg/client/config"
 
 	configv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/config/v1alpha1"
 )
@@ -62,9 +63,10 @@ func getFeatureGateClient() (client.Client, error) {
 		return nil, err
 	}
 
-	if restConfig, err = k8sconfig.GetConfig(); err != nil {
+	if restConfig, err = config.GetCurrentClusterConfig(); err != nil {
 		return nil, err
 	}
+
 	crClient, err := client.New(restConfig, client.Options{Scheme: scheme})
 	if err != nil {
 		return nil, fmt.Errorf("unable to create cluster client: %w", err)
