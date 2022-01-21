@@ -8,6 +8,9 @@ import (
 	"fmt"
 	"strconv"
 
+	"github.com/go-logr/logr"
+	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
+
 	"gopkg.in/yaml.v2"
 	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
@@ -222,4 +225,42 @@ func IsPackageInstallPresent(ctx context.Context,
 	}
 
 	return true, nil
+}
+
+// AddFinalizerToCRD adds finalizer to the config CRD if not present and
+// returns true if finalizer is added
+func AddFinalizerToCRD(
+	log logr.Logger,
+	addonName string,
+	configCRD client.Object) bool {
+
+	var patchAddonSecret bool
+
+	// add finalizer to addon secret
+	if !controllerutil.ContainsFinalizer(configCRD, addontypes.AddonFinalizer) {
+		log.Info("Adding finalizer to addon secret", constants.AddonNameLogKey, addonName)
+		controllerutil.AddFinalizer(configCRD, addontypes.AddonFinalizer)
+		patchAddonSecret = true
+	}
+
+	return patchAddonSecret
+}
+
+// RemoveFinalizerFromCRD removes finalizer from the config CRD if not present and
+// returns true if finalizer is removed
+func RemoveFinalizerFromCRD(
+	log logr.Logger,
+	addonName string,
+	configCRD client.Object) bool {
+
+	var patchAddonSecret bool
+
+	// add finalizer to addon secret
+	if !controllerutil.ContainsFinalizer(configCRD, addontypes.AddonFinalizer) {
+		log.Info("Removing finalizer to addon secret", constants.AddonNameLogKey, addonName)
+		controllerutil.RemoveFinalizer(configCRD, addontypes.AddonFinalizer)
+		patchAddonSecret = true
+	}
+
+	return patchAddonSecret
 }

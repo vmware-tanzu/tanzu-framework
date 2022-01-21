@@ -9,6 +9,8 @@ import (
 	"strings"
 	"time"
 
+	"k8s.io/apimachinery/pkg/api/errors"
+
 	"sigs.k8s.io/cluster-api/util/secret"
 
 	addonsv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/addons/v1alpha1"
@@ -52,7 +54,7 @@ var _ = Describe("SecretGenControllerConfig Reconciler", func() {
 		f, err := os.Open(clusterResourceFilePath)
 		Expect(err).ToNot(HaveOccurred())
 		defer f.Close()
-		Expect(testutil.DeleteResources(f, cfg, dynamicClient, true)).To(Succeed())
+		testutil.DeleteResources(f, cfg, dynamicClient, true)
 
 		By("Deleting kubeconfig for cluster")
 		key := client.ObjectKey{
@@ -112,6 +114,44 @@ var _ = Describe("SecretGenControllerConfig Reconciler", func() {
 				secretData := string(secret.Data["values.yaml"])
 				Expect(strings.Contains(secretData, "namespace: test-ns")).Should(BeTrue())
 				return true
+			}, waitTimeout, pollingInterval).Should(BeTrue())
+
+		})
+
+		It("Should reconcile SecretGenControllerConfig deletion in management cluster", func() {
+
+			key := client.ObjectKey{
+				Namespace: "default",
+				Name:      "test-cluster-1",
+			}
+
+			Eventually(func() bool {
+				config := &addonsv1alpha1.SecretGenControllerConfig{}
+				err := k8sClient.Get(ctx, key, config)
+				if err != nil {
+					if errors.IsNotFound(err) {
+						return true
+					}
+					return false
+				}
+				err = k8sClient.Delete(ctx, config)
+				if err != nil {
+					return false
+				}
+				return true
+			}, waitTimeout, pollingInterval).Should(BeTrue())
+
+			Eventually(func() bool {
+				secretKey := client.ObjectKey{
+					Namespace: "default",
+					Name:      fmt.Sprintf("%s-secretgen-controller-data-values", clusterName),
+				}
+				secret := &v1.Secret{}
+				err := k8sClient.Get(ctx, secretKey, secret)
+				if err != nil && errors.IsNotFound(err) {
+					return true
+				}
+				return false
 			}, waitTimeout, pollingInterval).Should(BeTrue())
 
 		})

@@ -7,6 +7,10 @@ import (
 	"context"
 	"fmt"
 
+	"k8s.io/utils/pointer"
+
+	clusterapipatchutil "sigs.k8s.io/cluster-api/util/patch"
+
 	clusterapiutil "sigs.k8s.io/cluster-api/util"
 
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
@@ -77,10 +81,9 @@ func (r *SecretGenControllerConfigReconciler) Reconcile(ctx context.Context, req
 		return ctrl.Result{}, err
 	}
 
-	// create data values secret
-	if err := r.ReconcileSecretGenControllerDataValuesSecretNormal(ctx, log, remoteClient, secretGenConfig); err != nil {
-		log.Error(err, "unable to create data value secret for secret-gen-controller")
-		return ctrl.Result{}, err
+	if retResult, err := r.ReconcileSecretGenControllerConfig(ctx, log, cluster, remoteClient, secretGenConfig); err != nil {
+		log.Error(err, "unable to reconcile SecretGenControllerConfig")
+		return retResult, err
 	}
 
 	return ctrl.Result{}, nil
@@ -93,12 +96,80 @@ func (r *SecretGenControllerConfigReconciler) SetupWithManager(ctx context.Conte
 		Complete(r)
 }
 
-// ReconcileAddonDataValuesSecretNormal reconciles addons data values secrets
-func (r *SecretGenControllerConfigReconciler) ReconcileSecretGenControllerDataValuesSecretNormal(
+// ReconcileSecretGenControllerConfigNormal reconciles SecretGenControllerConfig data values secrets
+func (r *SecretGenControllerConfigReconciler) ReconcileSecretGenControllerConfig(
 	ctx context.Context,
 	log logr.Logger,
+	cluster *clusterapiv1beta1.Cluster,
 	clusterClient client.Client,
-	secretGenConfig *addonsv1alpha1.SecretGenControllerConfig) error {
+	secretGenConfig *addonsv1alpha1.SecretGenControllerConfig) (_ ctrl.Result, retErr error) {
+
+	var (
+		patchCRD bool
+	)
+
+	patchHelper, err := clusterapipatchutil.NewHelper(secretGenConfig, r.Client)
+	if err != nil {
+		return ctrl.Result{}, err
+	}
+	// Patch SecretGenControllerConfig before returning the function
+	defer func() {
+		// patchCRD will be true if finalizer or ownerrefence is added
+		if patchCRD {
+			log.Info("Patching SecretGenControllerConfig")
+
+			if err := patchHelper.Patch(ctx, secretGenConfig.DeepCopy()); err != nil {
+				log.Error(err, "Error patching SecretGenControllerConfig")
+				retErr = err
+			}
+		}
+	}()
+
+	// If SecretGenControllerConfig is marked for deletion then delete the data value secret
+	if !secretGenConfig.GetDeletionTimestamp().IsZero() {
+		err := r.ReconcileSecretGenControllerConfigDelete(ctx, log, clusterClient, secretGenConfig, &patchCRD)
+		if err != nil {
+			log.Error(err, "Error reconciling SecretGenControllerConfig delete")
+			return ctrl.Result{}, err
+		}
+		return ctrl.Result{}, nil
+	}
+
+	if err := r.ReconcileSecretGenControllerConfigNormal(ctx, log, cluster, clusterClient, secretGenConfig, &patchCRD); err != nil {
+		log.Error(err, "Error reconciling SecretGenControllerConfig to create data value secret")
+		return ctrl.Result{}, err
+	}
+
+	return ctrl.Result{}, nil
+}
+
+// ReconcileSecretGenControllerConfigNormal reconciles SecretGenControllerConfig data values secret
+func (r *SecretGenControllerConfigReconciler) ReconcileSecretGenControllerConfigNormal(
+	ctx context.Context,
+	log logr.Logger,
+	cluster *clusterapiv1beta1.Cluster,
+	clusterClient client.Client,
+	secretGenConfig *addonsv1alpha1.SecretGenControllerConfig,
+	patchCRD *bool) (retErr error) {
+
+	// Add finalizer to addon secret
+	*patchCRD = util.AddFinalizerToCRD(log, constants.SecretGenControllerAddonName, secretGenConfig)
+
+	// add owner reference to addon secret
+	ownerReference := metav1.OwnerReference{
+		APIVersion:         clusterapiv1beta1.GroupVersion.String(),
+		Kind:               "Cluster",
+		Name:               cluster.Name,
+		UID:                cluster.UID,
+		Controller:         pointer.BoolPtr(true),
+		BlockOwnerDeletion: pointer.BoolPtr(true),
+	}
+
+	if !clusterapiutil.HasOwnerRef(secretGenConfig.OwnerReferences, ownerReference) {
+		log.Info("Adding owner reference to SecretGenControllerConfig")
+		secretGenConfig.OwnerReferences = clusterapiutil.EnsureOwnerRef(secretGenConfig.OwnerReferences, ownerReference)
+		*patchCRD = true
+	}
 
 	addonDataValuesSecret := &corev1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
@@ -132,6 +203,36 @@ func (r *SecretGenControllerConfigReconciler) ReconcileSecretGenControllerDataVa
 	}
 
 	log.Info(fmt.Sprintf("Resource %s data values secret %s", constants.SecretGenControllerAddonName, result))
+
+	return nil
+}
+
+// ReconcileSecretGenControllerConfigDelete reconciles SecretGenControllerConfig deletion
+func (r *SecretGenControllerConfigReconciler) ReconcileSecretGenControllerConfigDelete(
+	ctx context.Context,
+	log logr.Logger,
+	clusterClient client.Client,
+	secretGenConfig *addonsv1alpha1.SecretGenControllerConfig,
+	patchCRD *bool) (retErr error) {
+
+	// delete data value secret
+	addonDataValuesSecret := &corev1.Secret{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      util.GenerateDataValueSecretNameFromAddonNames(secretGenConfig.Name, constants.SecretGenControllerAddonName),
+			Namespace: secretGenConfig.Namespace,
+		},
+	}
+	if err := clusterClient.Delete(ctx, addonDataValuesSecret); err != nil {
+		if apierrors.IsNotFound(err) {
+			log.Info("SecretGenControllerConfig data values secret not found")
+			return nil
+		}
+		log.Error(err, "Error deleting SecretGenControllerConfig data values secret")
+		return err
+	}
+
+	// Remove finalizer from addon secret
+	*patchCRD = util.RemoveFinalizerFromCRD(log, constants.SecretGenControllerAddonName, secretGenConfig)
 
 	return nil
 }
