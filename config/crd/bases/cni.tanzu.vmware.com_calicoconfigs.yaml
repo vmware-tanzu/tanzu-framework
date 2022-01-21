@@ -42,7 +42,8 @@ spec:
                     properties:
                       vethMTU:
                         default: 0
-                        description: Maximum transmission unit setting
+                        description: Maximum transmission unit setting "0" as default
+                          means MTU will be auto detected
                         format: int64
                         minimum: 0
                         type: integer
