@@ -10,9 +10,10 @@ import (
 
 // OSInfo describes the "OS" part of the OSImage, defined by the Operating System's name, version and CPU architecture.
 type OSInfo struct {
-	Name    string `yaml:"name"`
-	Version string `yaml:"version"`
-	Arch    string `yaml:"arch"`
+	Type    string `json:"type"`
+	Name    string `json:"name"`
+	Version string `json:"version"`
+	Arch    string `json:"arch"`
 }
 
 // MachineImageInfo describes the "Image" part of the OSImage, defined by the image type.
