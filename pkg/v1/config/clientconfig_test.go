@@ -9,7 +9,7 @@ import (
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
-	uuid "github.com/satori/go.uuid"
+	uuid "github.com/google/uuid"
 	"github.com/stretchr/testify/require"
 	"github.com/tj/assert"
 
@@ -23,7 +23,7 @@ func cleanupDir(dir string) {
 }
 
 func randString() string {
-	return uuid.NewV4().String()[:5]
+	return uuid.NewString()[:5]
 }
 
 func TestClientConfig(t *testing.T) {
