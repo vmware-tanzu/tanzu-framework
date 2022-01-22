@@ -15,7 +15,7 @@ import (
 	"time"
 
 	"github.com/aunum/log"
-	uuid "github.com/satori/go.uuid"
+	uuid "github.com/gofrs/uuid"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"gopkg.in/yaml.v2"
@@ -229,7 +229,7 @@ const NamePrefix = "cli-test"
 
 // GenerateName returns a name for a cli test.
 func GenerateName() string {
-	testName := fmt.Sprintf("%s-%s", NamePrefix, uuid.NewV4().String()[:8])
+	testName := fmt.Sprintf("%s-%s", NamePrefix, uuid.Must(uuid.NewV4()).String()[:8])
 	return testName
 }
 
