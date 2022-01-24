@@ -1,4 +1,4 @@
-<form [formGroup]="formGroup" *ngIf="displayForm">
+<form [formGroup]="formGroup">
     <div *ngIf="errorNotification" class="alert alert-danger" role="alert">
         <div class="alert-items">
             <div class="alert-item static">
@@ -40,7 +40,7 @@
                             data-name="devInstanceType"
                             data-label="dev instance type">
                         <div class="clr-col-lg-5 clr-col-12">
-                            <label i18n="instance type label" data-full="Development instance type">
+                            <label i18n="instance type label">
                                 INSTANCE TYPE
                                 <clr-tooltip>
                                     <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
@@ -93,7 +93,7 @@
                             data-name="prodInstanceType"
                             data-label="prod instance type">
                         <div class="clr-col-lg-5 clr-col-12">
-                            <label i18n="instance type label" data-full="Production instance type">
+                            <label i18n="instance type label">
                                 INSTANCE TYPE
                                 <clr-tooltip>
                                     <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
@@ -185,7 +185,7 @@
     <div class="clr-row">
         <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
             <clr-checkbox-container [attr.data-step-metadata]="formName">
-                <label i18n="cluster enable machine health check" clr-control-label data-full="ENABLE MACHINE HEALTH CHECKS">
+                <label i18n="cluster enable machine health check" clr-control-label>
                     {{htmlFieldLabels['machineHealthChecksEnabled']}}
                     <clr-tooltip>
                         <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
@@ -205,7 +205,7 @@
 
         <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
             <clr-checkbox-container [attr.data-step-metadata]="formName">
-                <label i18n="cluster BASTION HOST ENABLED" clr-control-label data-full="ENABLE BASTION HOST">
+                <label i18n="cluster BASTION HOST ENABLED" clr-control-label>
                     {{htmlFieldLabels['bastionHostEnabled']}}
                     <clr-tooltip>
                         <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
@@ -232,7 +232,7 @@
     <div class="clr-row">
         <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
             <clr-checkbox-container [attr.data-step-metadata]="formName">
-                <label i18n="cluster AWS CLOUDFORMATION STACK" clr-control-label data-full="AUTOMATE CREATION OF AWS CLOUDFORMATION STACK">
+                <label i18n="cluster AWS CLOUDFORMATION STACK" clr-control-label>
                     {{htmlFieldLabels['createCloudFormation']}}
                     <clr-tooltip>
                         <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
@@ -249,7 +249,7 @@
                 </label>
                 <clr-checkbox-wrapper>
                     <input type="checkbox" clrCheckbox name="createCloudFormation" formControlName="createCloudFormation" role="checkbox" aria-label="Create Cloud Formation"/>
-                    <label clr-control-label data-full="CREATE CLOUDFORMATION STACK">
+                    <label clr-control-label>
                         Automate creation of AWS CloudFormation Stack
                     </label>
                 </clr-checkbox-wrapper>

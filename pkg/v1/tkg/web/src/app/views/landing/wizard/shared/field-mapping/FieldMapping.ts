@@ -15,9 +15,9 @@ export interface FieldMapping {
 
     backingObject?: BackingObjectMap,   // data for using backing object (see notes)
     defaultValue?: any,             // default value to initialize with
-    doNotAutoSave?: boolean,        // do not save this field when saving the entire mapping
+    doNotAutoSave?: boolean,        // do not save this field when saving the entire mapping (field may be "manually" saved by step)
     doNotAutoRestore?: boolean,     // do not auto-restore the stored value to this field (field is usually set by change event)
-    doNotCreate?: boolean,          // do not create this control when building the form; it is a value simply displayed to the user
+    displayOnly?: boolean,          // do not auto-build/store/restore this control; value is "manually" stored and displayed to the user
     featureFlag?: string,           // a feature flag that needs to be true in order to create this field
     isBoolean?: boolean,            // does the field have a boolean value?
     isMap?: boolean,                // is the value of this field a Map<string, string>?

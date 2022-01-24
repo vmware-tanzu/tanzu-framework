@@ -155,7 +155,6 @@ export class AzureWizardComponent extends WizardBaseDirective implements OnInit 
                 this.storeFieldString(AzureForm.PROVIDER, AzureField.PROVIDER_AZURECLOUD, azureCloudValue, azureCloudDisplay);
             }
             this.storeFieldString(AzureForm.PROVIDER, AzureField.PROVIDER_SSHPUBLICKEY, payload["sshPublicKey"]);
-            // SHIMON TODO: verify the region value == display
             this.storeFieldString(AzureForm.PROVIDER, AzureField.PROVIDER_REGION, payload["location"]);
 
             this.storeFieldString(AzureForm.NODESETTING, AzureField.NODESETTING_CONTROL_PLANE_SETTING, payload.controlPlaneFlavor);

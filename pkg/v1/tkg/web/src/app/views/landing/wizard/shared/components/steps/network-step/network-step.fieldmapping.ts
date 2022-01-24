@@ -31,7 +31,7 @@ const BasicNetworkFieldMappings: FieldMapping[] = [
     { name: NetworkField.HTTPS_PROXY_USERNAME, label: 'HTTPS PROXY USERNAME (OPTIONAL)' },
     { name: NetworkField.HTTPS_PROXY_PASSWORD, mask: true, label: 'HTTPS PROXY PASSWORD (OPTIONAL)' },
     { name: NetworkField.NO_PROXY, label: 'NO PROXY (OPTIONAL)' },
-    { name: NetworkField.FULL_PROXY_LIST, label: 'FULL NO PROXY LIST', doNotCreate: true},
+    { name: NetworkField.FULL_PROXY_LIST, label: 'FULL NO PROXY LIST', displayOnly: true},
 ];
 
 export const NetworkIpv4StepMapping: StepMapping = {

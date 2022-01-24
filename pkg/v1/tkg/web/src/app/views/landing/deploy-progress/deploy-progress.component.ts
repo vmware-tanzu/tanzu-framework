@@ -137,7 +137,6 @@ export class DeployProgressComponent extends BasicSubscriber implements OnInit {
             if (this.curStatus.status === 'successful') {
                 this.curStatus.finishedCount = this.curStatus.totalCount;
                 this.currentPhaseIdx = this.phases.length;
-                // SHIMON TODO: we WERE deleting all saved data here; should we? FormMetaDataStore.deleteAllSavedData();
             } else if (this.curStatus.status !== 'failed') {
                 this.curStatus.finishedCount = Math.max(0, data.data.totalPhases.indexOf(this.curStatus.curPhase));
             }

@@ -138,7 +138,7 @@
                             </clr-tooltip-content>
                         </clr-tooltip>
                     </label>
-                    <select clrSelect name="profileName" formControlName="profileName" save-requires-value="true">
+                    <select clrSelect name="profileName" formControlName="profileName">
                         <option aria-label="blank" title="blank"></option>
                         <option *ngFor="let profile of profileNames" [value]="profile">{{profile}}</option>
                     </select>

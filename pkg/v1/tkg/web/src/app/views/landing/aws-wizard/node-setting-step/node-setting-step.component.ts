@@ -105,8 +105,6 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
         }
     };
 
-    displayForm = false;
-
     config = {
         displayKey: 'description',
         search: true,
@@ -264,18 +262,6 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
         this.registerDefaultFileImportedHandler(TanzuEventType.AWS_CONFIG_FILE_IMPORTED, this.supplyStepMapping());
         this.registerDefaultFileImportErrorHandler(TanzuEventType.AWS_CONFIG_FILE_IMPORT_ERROR);
 
-        setTimeout(_ => {
-            this.displayForm = true;
-            // SHIMON TODO: I'm not sure we need to go get these right here, since existingVpcId should be a trigger field
-            const identifier = { wizard: this.wizardName, step: AwsForm.VPC, field: 'existingVpcId' };
-            const existingVpcId = AppServices.userDataService.retrieve(identifier);
-            if (existingVpcId && existingVpcId.value) {
-                AppServices.messenger.publish({
-                    type: TanzuEventType.AWS_GET_SUBNETS,
-                    payload: { vpcId: existingVpcId.value }
-                });
-            }
-        });
         this.initFormWithSavedData();
     }
 

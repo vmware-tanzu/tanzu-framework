@@ -82,8 +82,6 @@ export class SharedNetworkStepComponent extends StepFormDirective implements OnI
         this.listenToEvents();
         this.subscribeToServices();
 
-        // SHIMON TODO: guessing we don't need to set the value here (due to initFormWithSavedData() below)
-        this.formGroup.get(NetworkField.CNI_TYPE).setValue(this.cniType, { onlySelf: true });
         this.initFormWithSavedData();
     }
 

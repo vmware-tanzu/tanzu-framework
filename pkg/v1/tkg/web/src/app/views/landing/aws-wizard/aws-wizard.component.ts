@@ -109,8 +109,7 @@ export class AwsWizardComponent extends WizardBaseDirective implements OnInit {
         const nodeTypeField = payload.controlPlaneFlavor === ClusterPlan.PROD ? AwsField.NODESETTING_INSTANCE_TYPE_PROD
             : AwsField.NODESETTING_INSTANCE_TYPE_DEV;
         payload.controlPlaneNodeType = this.getFieldValue(AwsForm.NODESETTING, nodeTypeField);
-        const bastionHostEnabled = this.getFieldValue(AwsForm.NODESETTING, AwsField.NODESETTING_BASTION_HOST_ENABLED);
-        payload.bastionHostEnabled = bastionHostEnabled === BASTION_HOST_ENABLED;
+        payload.bastionHostEnabled = this.getBooleanFieldValue(AwsForm.NODESETTING, AwsField.NODESETTING_BASTION_HOST_ENABLED);
         const machineHealthChecksEnabled = this.getFieldValue(AwsForm.NODESETTING, AwsField.NODESETTING_MACHINE_HEALTH_CHECKS_ENABLED);
         payload.machineHealthCheckEnabled = (machineHealthChecksEnabled === true);
         payload.vpc = {
@@ -144,9 +143,7 @@ export class AwsWizardComponent extends WizardBaseDirective implements OnInit {
             } else if (payload.controlPlaneFlavor === InstanceType.PROD) {
                 this.storeFieldString(AwsForm.NODESETTING, AwsField.NODESETTING_INSTANCE_TYPE_PROD, payload.controlPlaneNodeType);
             }
-            const bastionHost = payload.bastionHostEnabled ? BASTION_HOST_ENABLED : BASTION_HOST_DISABLED;
-            this.storeFieldString(AwsForm.NODESETTING, AwsField.NODESETTING_BASTION_HOST_ENABLED, bastionHost);
-            this.storeFieldBoolean(AwsForm.NODESETTING, AwsField.NODESETTING_MACHINE_HEALTH_CHECKS_ENABLED, payload.machineHealthCheckEnabled);
+            this.storeFieldBoolean(AwsForm.NODESETTING, AwsField.NODESETTING_BASTION_HOST_ENABLED, payload.bastionHostEnabled);            this.storeFieldBoolean(AwsForm.NODESETTING, AwsField.NODESETTING_MACHINE_HEALTH_CHECKS_ENABLED, payload.machineHealthCheckEnabled);
             this.storeFieldString(AwsForm.VPC, AwsField.VPC_EXISTING_ID, (payload.vpc) ? payload.vpc.vpcID : '');
             this.storeFieldBoolean(AwsForm.VPC, AwsField.VPC_NON_INTERNET_FACING, payload.loadbalancerSchemeInternal)
             this.storeFieldBoolean(AwsForm.NODESETTING, AwsField.NODESETTING_ENABLE_AUDIT_LOGGING, payload.enableAuditLogging);

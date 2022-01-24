@@ -55,7 +55,7 @@
                             </clr-tooltip-content>
                         </clr-tooltip>
                     </label>
-                    <input clrDatalistInput name="vmFolder" formControlName="vmFolder" save-requires-value="true" />
+                    <input clrDatalistInput name="vmFolder" formControlName="vmFolder" />
                     <datalist id="vmFolder">
                         <option *ngFor="let folder of vmFolders" [value]="folder?.name"></option>
                     </datalist>
@@ -86,7 +86,7 @@
                             </clr-tooltip-content>
                         </clr-tooltip>
                     </label>
-                    <input clrDatalistInput name="datastore" formControlName="datastore" save-requires-value="true" />
+                    <input clrDatalistInput name="datastore" formControlName="datastore" />
                     <datalist id="datastore">
                         <option *ngFor="let datastore of datastores" [value]="datastore?.name"></option>
                     </datalist>
@@ -117,7 +117,7 @@
     </div>
     <div class="clr-row">
         <div class="clr-col-12">
-            <app-tree-select [attr.data-step-metadata]="formName" data-name="resourcePool" save-requires-value="true"
+            <app-tree-select [attr.data-step-metadata]="formName" data-name="resourcePool"
                 data-label="resource pool" [attr.data-value]="resourcePoolValue" [data]="treeData"
                 [selectedHandler]="handleOnClick"></app-tree-select>
             <clr-control-error *ngIf="showFormError('resourcePool')" >Selecting a resource is required</clr-control-error>

@@ -40,7 +40,7 @@ export class FieldMapUtilities {
     buildForm(formGroup: FormGroup, wizard, step: string, stepMapping: StepMapping,
               objectRetrievalMap?: Map<string, (string) => any>) {
         stepMapping.fieldMappings.forEach(fieldMapping => {
-            if (this.shouldCreateField(fieldMapping)) {
+            if (this.shouldBuildField(fieldMapping)) {
                 const retriever = fieldMapping.backingObject && objectRetrievalMap ? objectRetrievalMap[fieldMapping.name] : null;
                 this.buildFormField(formGroup, wizard, step, fieldMapping, retriever);
             }
@@ -148,8 +148,8 @@ export class FieldMapUtilities {
             this.passesFeatureFlagFilter(fieldMapping);
     }
 
-    private shouldCreateField(fieldMapping: FieldMapping) {
-        return this.passesFeatureFlagFilter(fieldMapping) && !fieldMapping.doNotCreate;
+    private shouldBuildField(fieldMapping: FieldMapping) {
+        return this.passesFeatureFlagFilter(fieldMapping) && !fieldMapping.displayOnly;
     }
 
     private passesFeatureFlagFilter(fieldMapping: FieldMapping): boolean {

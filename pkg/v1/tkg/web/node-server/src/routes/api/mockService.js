@@ -67,7 +67,8 @@ router.get(`${ENDPOINT}/features`, (req, res) => {
             "encrypt-credentials": "true",
             "export-from-confirm": "true",
             "import": "true",
-            "vsphereIPv6": "true"
+            "vsphereIPv6": "true",
+            "standalone-cluster-mode": "false",
         },
         "cluster": {
             "validateXyz": "true"

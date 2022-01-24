@@ -108,7 +108,7 @@ export class UserDataService {
         return this.ensureWizardEntry(wizard);
     }
 
-    // SHIMON: currently issue where "delete" isn't recognized as a method?!
+    // TODO: SHIMON: currently issue where "delete" isn't recognized as a method?!
     delete(identifier: UserDataIdentifier) {
         const wizardEntry = this.getWizardEntry(identifier.wizard);
         if (wizardEntry && wizardEntry.steps[identifier.step]) {
@@ -231,13 +231,14 @@ export class UserDataService {
             this.storeMapField(identifier, formGroup);
         } else if (fieldMapping.backingObject) {
             this.storeBackingObjectField(identifier, formGroup, fieldMapping.backingObject)
-        } else if (!fieldMapping.doNotCreate) {
+        } else {
             this.storeInputField(identifier, formGroup);
         }
     }
 
     private shouldAutoSave(fieldMapping: FieldMapping) {
-        return !fieldMapping.doNotAutoSave && (!fieldMapping.featureFlag || this.isFeatureEnabled(fieldMapping.featureFlag))
+        return !fieldMapping.doNotAutoSave && !fieldMapping.displayOnly &&
+            (!fieldMapping.featureFlag || this.isFeatureEnabled(fieldMapping.featureFlag))
     }
 
     private isFeatureEnabled(featureFlag: string): boolean {

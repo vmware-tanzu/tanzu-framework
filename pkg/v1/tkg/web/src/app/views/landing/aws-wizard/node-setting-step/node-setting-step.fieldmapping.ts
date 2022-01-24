@@ -7,7 +7,7 @@ export const AwsNodeSettingStepMapping: StepMapping = {
         { name: AwsField.NODESETTING_AZ_1, required: true, label: 'AVAILABILITY ZONE 1', requiresBackendData: true },
         { name: AwsField.NODESETTING_AZ_2, required: true, label: 'AVAILABILITY ZONE 2', requiresBackendData: true },
         { name: AwsField.NODESETTING_AZ_3, required: true, label: 'AVAILABILITY ZONE 3', requiresBackendData: true },
-        { name: AwsField.NODESETTING_BASTION_HOST_ENABLED, defaultValue: 'yes', label: 'ENABLE BASTION HOST' },
+        { name: AwsField.NODESETTING_BASTION_HOST_ENABLED, isBoolean: true, defaultValue: true, label: 'ENABLE BASTION HOST' },
         { name: AwsField.NODESETTING_CLUSTER_NAME, validators: [SimpleValidator.IS_VALID_CLUSTER_NAME], label: 'CLUSTER NAME' },
         { name: AwsField.NODESETTING_CONTROL_PLANE_SETTING, required: true, primaryTrigger: true },
         { name: AwsField.NODESETTING_CREATE_CLOUD_FORMATION, isBoolean: true, defaultValue: true,
