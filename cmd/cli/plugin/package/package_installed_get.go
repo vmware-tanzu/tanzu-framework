@@ -29,7 +29,7 @@ var packageInstalledGetCmd = &cobra.Command{
 }
 
 func init() {
-	packageInstalledGetCmd.Flags().StringVarP(&packageInstalledOp.Namespace, "namespace", "n", "default", "Namespace for installed package CR, optional")
+	packageInstalledGetCmd.Flags().StringVarP(&packageInstalledOp.Namespace, "namespace", "n", defaultString, "Namespace for installed package CR, optional")
 	packageInstalledGetCmd.Flags().StringVarP(&packageInstalledOp.ValuesFile, "values-file", "f", "", "The path to the configuration values file, optional")
 	packageInstalledGetCmd.Flags().StringVarP(&outputFormat, "output", "o", "", "Output format (yaml|json|table), optional")
 	packageInstalledCmd.AddCommand(packageInstalledGetCmd)
@@ -43,6 +43,8 @@ func packageInstalledGet(cmd *cobra.Command, args []string) error {
 
 	pkgName = args[0]
 	packageInstalledOp.PkgInstallName = pkgName
+	packageInstalledOp.Namespace = getNamespaceFromKubeconfig(packageInstalledOp.Namespace)
+
 	t, err := component.NewOutputWriterWithSpinner(cmd.OutOrStdout(), getOutputFormat(),
 		fmt.Sprintf("Retrieving installation details for %s...", pkgName), true)
 	if err != nil {

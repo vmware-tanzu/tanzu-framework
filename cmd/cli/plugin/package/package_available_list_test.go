@@ -23,7 +23,7 @@ var _ = Describe("PackageAvailableList", func() {
 		var (
 			incorrectVersion = "incorrect-version-format"
 			pkgName          = "cert-manager.tanzu.vmware.com"
-			pkgNamespace     = "default"
+			pkgNamespace     = defaultString
 		)
 
 		BeforeEach(func() {

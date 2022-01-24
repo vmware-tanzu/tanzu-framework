@@ -8,6 +8,7 @@ import (
 
 	"github.com/aunum/log"
 	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
+	"k8s.io/client-go/tools/clientcmd"
 
 	cliv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/command/plugin"
@@ -22,6 +23,8 @@ var descriptor = cliv1alpha1.PluginDescriptor{
 	Description: "Tanzu package management",
 	Group:       cliv1alpha1.RunCmdGroup,
 }
+
+const defaultString = "default"
 
 var logLevel int32
 var outputFormat string
@@ -75,4 +78,22 @@ func isPackagingAPIAvailable(kubeCfgPath string) (bool, error) {
 	apiGroup4 := capdiscovery.Group("packageInstallAPIQuery", tkgpackagedatamodel.PackagingAPIName).WithVersions(tkgpackagedatamodel.PackagingAPIVersion).WithResource("packageinstalls")
 
 	return clusterQueryClient.Query(apiGroup1, apiGroup2, apiGroup3, apiGroup4).Execute()
+}
+
+func getNamespaceFromKubeconfig(originalValue string) string {
+	if originalValue != defaultString {
+		return originalValue
+	}
+	loadingRules := clientcmd.NewDefaultClientConfigLoadingRules()
+	loadingRules.ExplicitPath = kubeConfig
+	configOverrides := &clientcmd.ConfigOverrides{}
+	kubeConfig := clientcmd.NewNonInteractiveDeferredLoadingClientConfig(loadingRules, configOverrides)
+	namespace, _, err := kubeConfig.Namespace()
+	if err != nil {
+		log.Error("Failed to read a valid context namespace from the available kubeconfig. Using 'default' value for namespace.")
+	}
+	if err != nil || namespace == "" {
+		return defaultString
+	}
+	return namespace
 }

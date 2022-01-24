@@ -26,7 +26,7 @@ var packageInstalledDeleteCmd = &cobra.Command{
 }
 
 func init() {
-	packageInstalledDeleteCmd.Flags().StringVarP(&packageInstalledOp.Namespace, "namespace", "n", "default", "Target namespace from which the package should be deleted, optional")
+	packageInstalledDeleteCmd.Flags().StringVarP(&packageInstalledOp.Namespace, "namespace", "n", defaultString, "Target namespace from which the package should be deleted, optional")
 	packageInstalledDeleteCmd.Flags().DurationVarP(&packageInstalledOp.PollInterval, "poll-interval", "", tkgpackagedatamodel.DefaultPollInterval, "Time interval between subsequent polls of package deletion status, optional")
 	packageInstalledDeleteCmd.Flags().DurationVarP(&packageInstalledOp.PollTimeout, "poll-timeout", "", tkgpackagedatamodel.DefaultPollTimeout, "Timeout value for polls of package deletion status, optional")
 	packageInstalledDeleteCmd.Flags().BoolVarP(&packageInstalledOp.SkipPrompt, "yes", "y", false, "Delete installed package without asking for confirmation, optional")
@@ -35,6 +35,8 @@ func init() {
 
 func packageUninstall(cmd *cobra.Command, args []string) error {
 	packageInstalledOp.PkgInstallName = args[0]
+
+	packageInstalledOp.Namespace = getNamespaceFromKubeconfig(packageInstalledOp.Namespace)
 
 	if !packageInstalledOp.SkipPrompt {
 		if err := cli.AskForConfirmation(fmt.Sprintf("Deleting installed package '%s' in namespace '%s'. Are you sure?",

@@ -26,7 +26,7 @@ var packageInstalledListCmd = &cobra.Command{
 
 func init() {
 	packageInstalledListCmd.Flags().BoolVarP(&packageInstalledOp.AllNamespaces, "all-namespaces", "A", false, "If present, list packages across all namespaces, optional")
-	packageInstalledListCmd.Flags().StringVarP(&packageInstalledOp.Namespace, "namespace", "n", "default", "Namespace for installed package CR, optional")
+	packageInstalledListCmd.Flags().StringVarP(&packageInstalledOp.Namespace, "namespace", "n", defaultString, "Namespace for installed package CR, optional")
 	packageInstalledListCmd.Flags().StringVarP(&outputFormat, "output", "o", "", "Output format (yaml|json|table), optional")
 	packageInstalledCmd.AddCommand(packageInstalledListCmd)
 }
@@ -39,6 +39,8 @@ func packageInstalledList(cmd *cobra.Command, args []string) error {
 	if packageInstalledOp.AllNamespaces {
 		packageInstalledOp.Namespace = ""
 	}
+	packageInstalledOp.Namespace = getNamespaceFromKubeconfig(packageInstalledOp.Namespace)
+
 	t, err := component.NewOutputWriterWithSpinner(cmd.OutOrStdout(), outputFormat,
 		"Retrieving installed packages...", true)
 	if err != nil {

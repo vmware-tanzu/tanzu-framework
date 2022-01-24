@@ -138,7 +138,7 @@ type: object
 var _ = Describe("PackageAvailableGet", func() {
 	var (
 		kappClient   *fakes.KappClient
-		pkgNamespace = "default"
+		pkgNamespace = defaultString
 		pkgName      = "external-dns.tanzu.vmware.com"
 		pkgVersion   = "1.2.1+vmware.1-tkg.2-zshippable"
 	)

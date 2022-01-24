@@ -27,7 +27,7 @@ func init() {
 	packageInstalledUpdateCmd.Flags().StringVarP(&packageInstalledOp.ValuesFile, "values-file", "f", "", "The path to the configuration values file, optional")
 	packageInstalledUpdateCmd.Flags().BoolVarP(&packageInstalledOp.Install, "install", "", false, "Install package if the installed package does not exist, optional")
 	packageInstalledUpdateCmd.Flags().StringVarP(&packageInstalledOp.PackageName, "package-name", "p", "", "The public name for the package, optional")
-	packageInstalledUpdateCmd.Flags().StringVarP(&packageInstalledOp.Namespace, "namespace", "n", "default", "The namespace to locate the installed package which needs to be updated")
+	packageInstalledUpdateCmd.Flags().StringVarP(&packageInstalledOp.Namespace, "namespace", "n", defaultString, "The namespace to locate the installed package which needs to be updated")
 	packageInstalledUpdateCmd.Flags().BoolVarP(&packageInstalledOp.Wait, "wait", "", true, "Wait for the package reconciliation to complete, optional. To disable wait, specify --wait=false")
 	packageInstalledUpdateCmd.Flags().DurationVarP(&packageInstalledOp.PollInterval, "poll-interval", "", tkgpackagedatamodel.DefaultPollInterval, "Time interval between subsequent polls of package reconciliation status, optional")
 	packageInstalledUpdateCmd.Flags().DurationVarP(&packageInstalledOp.PollTimeout, "poll-timeout", "", tkgpackagedatamodel.DefaultPollTimeout, "Timeout value for polls of package reconciliation status, optional")
@@ -36,6 +36,7 @@ func init() {
 
 func packageUpdate(cmd *cobra.Command, args []string) error {
 	packageInstalledOp.PkgInstallName = args[0]
+	packageInstalledOp.Namespace = getNamespaceFromKubeconfig(packageInstalledOp.Namespace)
 
 	if packageInstalledOp.Version == "" && packageInstalledOp.ValuesFile == "" {
 		return errors.New("please provide --version and/or --values-file for updating the installed package")

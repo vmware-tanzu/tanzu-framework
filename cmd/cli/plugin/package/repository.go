@@ -21,5 +21,5 @@ var repositoryCmd = &cobra.Command{
 }
 
 func init() {
-	repositoryCmd.PersistentFlags().StringVarP(&repoOp.Namespace, "namespace", "n", "default", "Namespace for repository command, optional")
+	repositoryCmd.PersistentFlags().StringVarP(&repoOp.Namespace, "namespace", "n", defaultString, "Namespace for repository command, optional")
 }

@@ -74,6 +74,7 @@ func packageAvailableGet(cmd *cobra.Command, args []string) error {
 	if packageAvailableOp.AllNamespaces {
 		packageAvailableOp.Namespace = ""
 	}
+	packageAvailableOp.Namespace = getNamespaceFromKubeconfig(packageAvailableOp.Namespace)
 
 	if packageAvailableOp.GenerateDefaultValuesFile || packageAvailableOp.ValuesSchema {
 		if pkgVersion == "" {
