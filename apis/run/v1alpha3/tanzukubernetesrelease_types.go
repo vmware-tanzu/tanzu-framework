@@ -73,7 +73,6 @@ type TanzuKubernetesReleaseStatus struct {
 //
 // +kubebuilder:object:root=true
 // +kubebuilder:resource:path=tanzukubernetesreleases,scope=Cluster,shortName=tkr
-// +kubebuilder:storageversion
 // +kubebuilder:subresource:status
 // +kubebuilder:printcolumn:name="Version",type=string,JSONPath=.spec.version
 // +kubebuilder:printcolumn:name="Compatible",type=string,JSONPath=.status.conditions[?(@.type=='Compatible')].status
