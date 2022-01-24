@@ -20,7 +20,7 @@ import {
 import { AWSAccountParamsKeys, AwsProviderStepComponent } from './provider-step/aws-provider-step.component';
 import { AwsField, AwsForm, VpcType } from "./aws-wizard.constants";
 import { AwsOsImageStepComponent } from './os-image-step/aws-os-image-step.component';
-import { BASTION_HOST_DISABLED, BASTION_HOST_ENABLED, NodeSettingStepComponent } from './node-setting-step/node-setting-step.component';
+import { NodeSettingStepComponent } from './node-setting-step/node-setting-step.component';
 import { CliFields, CliGenerator } from '../wizard/shared/utils/cli-generator';
 import { ClusterPlan, ClusterType } from '../wizard/shared/constants/wizard.constants';
 import { ExportService } from '../../../shared/service/export.service';

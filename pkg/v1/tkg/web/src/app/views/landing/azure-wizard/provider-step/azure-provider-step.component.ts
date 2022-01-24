@@ -96,8 +96,18 @@ export class AzureProviderStepComponent extends StepFormDirective implements OnI
     }
 
     private onFileImported(data: any) {
-        this.defaultFileImportedHandler(AzureProviderStepMapping)(data);
+        // We have two customizations when a file is imported:
+        // (1) for the PROVIDER_AZURECLOUD field, we use the stored value to find the AzureCloud object in the AzureClouds array.
+        // To do that, we create an object retriever map that associates the field with the retriever.
+        const objectRetrievalMap = new Map<string, (string) => any>([[AzureField.PROVIDER_AZURECLOUD, this.findAzureCloudByName]]);
+        // Then we run the default file import handler, passing in our step mapping and the retriever map
+        this.defaultFileImportedHandler(AzureProviderStepMapping, objectRetrievalMap)(data);
+        // (2) after the storing of the imported data, we invalidate the credentials to ensure the user has to connect (perhaps again)
         this.setValidCredentials(false);
+    }
+
+    private findAzureCloudByName(cloudName: string) {
+        return AzureClouds.find(azureCloud => azureCloud.name === cloudName);
     }
 
     /**
@@ -156,8 +166,8 @@ export class AzureProviderStepComponent extends StepFormDirective implements OnI
             this.initFieldWithSavedData(AzureField.PROVIDER_SSHPUBLICKEY);
         }
         this.scrubPasswordField(AzureField.PROVIDER_CLIENTSECRET);
-        if (this.getFieldValue(AzureField.PROVIDER_AZURECLOUD) === '') {
-            this.setFieldValue(AzureField.PROVIDER_AZURECLOUD, AzureCloud.PUBLIC);
+        if (!this.getFieldValue(AzureField.PROVIDER_AZURECLOUD)) {
+            this.setFieldValue(AzureField.PROVIDER_AZURECLOUD, AzureClouds[0]);
         }
     }
 
@@ -177,6 +187,8 @@ export class AzureProviderStepComponent extends StepFormDirective implements OnI
         ].forEach( accountField => {
             this.initFieldWithSavedData(accountField);
         });
+        AppServices.userDataService.restoreField(this.createUserDataIdentifier(AzureField.PROVIDER_AZURECLOUD), this.formGroup,
+            {onlySelf: true}, storedCloudValue => {AzureClouds.find(azureCloud => azureCloud.name === storedCloudValue)});
         this.initFieldWithSavedData(AzureField.PROVIDER_SSHPUBLICKEY);
 
         // AzureField.PROVIDER_CLIENTSECRET causes us to break
@@ -184,7 +196,7 @@ export class AzureProviderStepComponent extends StepFormDirective implements OnI
         this.scrubPasswordField(AzureField.PROVIDER_CLIENTSECRET);
 
         if (this.getFieldValue(AzureField.PROVIDER_AZURECLOUD) === '') {
-            this.setFieldValue(AzureField.PROVIDER_AZURECLOUD, AzureCloud.PUBLIC);
+            this.setFieldValue(AzureField.PROVIDER_AZURECLOUD, AzureClouds[0]);
         }
     }
 
@@ -357,13 +369,6 @@ export class AzureProviderStepComponent extends StepFormDirective implements OnI
 
     protected storeUserData() {
         this.storeUserDataFromMapping(AzureProviderStepMapping);
-        // SHIMON TODO: change the AzureCloud listbox to have a backing OBJECT so we can get the display and value from that object
-        // (automatically, instead of having to special-code it here)
-        const identifier = this.createUserDataIdentifier(AzureField.PROVIDER_AZURECLOUD);
-        const value = this.getFieldValue(AzureField.PROVIDER_AZURECLOUD);
-        const display = this.azureClouds.find(cloud => cloud.name === value).displayName;
-        AppServices.userDataService.store(identifier, {display, value});
-
         this.storeDefaultDisplayOrder(AzureProviderStepMapping);
     }
 }

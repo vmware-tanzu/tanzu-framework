@@ -89,9 +89,7 @@ export class VnetStepComponent extends StepFormDirective implements OnInit {
             .pipe(
                 distinctUntilChanged((prev, curr) => prev === curr),
                 takeUntil(this.unsubscribe)
-            ).subscribe(newValue => {
-                this.onVnetChange(newValue);
-            });
+            ).subscribe(this.onVnetChange.bind(this));
 
         this.formGroup.get(AzureField.VNET_CUSTOM_CIDR).valueChanges
             .pipe(
@@ -107,10 +105,11 @@ export class VnetStepComponent extends StepFormDirective implements OnInit {
         /**
          * Whenever Azure region selection changes...
          */
+        const step = this;
         AppServices.messenger.subscribe<string>(TanzuEventType.AZURE_REGION_CHANGED,
-                event => { this.onRegionChange(event.payload); }, this.unsubscribe);
+                event => { step.onRegionChange(event.payload); }, step.unsubscribe);
         AppServices.messenger.subscribe<string>(TanzuEventType.AZURE_RESOURCEGROUP_CHANGED,
-                event => { this.customResourceGroup = event.payload; }, this.unsubscribe);
+                event => { step.customResourceGroup = event.payload; }, step.unsubscribe);
 
         this.registerOnValueChange(AzureField.VNET_PRIVATE_CLUSTER, this.onCreatePrivateAzureCluster.bind(this));
         this.registerOnValueChange(AzureField.VNET_CONTROLPLANE_NEWSUBNET_CIDR, this.onControlPlaneSubnetCidrNewChange.bind(this));

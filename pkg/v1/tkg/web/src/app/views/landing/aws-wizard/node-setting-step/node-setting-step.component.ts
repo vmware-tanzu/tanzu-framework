@@ -38,8 +38,6 @@ export interface FilteredAzs {
     }
 }
 
-export const BASTION_HOST_ENABLED = 'yes';
-export const BASTION_HOST_DISABLED = 'no';
 const swap = (arr, index1, index2) => { [arr[index1], arr[index2]] = [arr[index2], arr[index1]] }
 
 const AZS = [

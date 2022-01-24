@@ -116,7 +116,7 @@
                             </clr-tooltip>
                         </label>
                         <select clrSelect name="azureCloud" formControlName="azureCloud">
-                            <option *ngFor="let ac of azureClouds" [value]="ac.name">{{ ac.displayName }}</option>
+                            <option *ngFor="let ac of azureClouds" [ngValue]="ac">{{ ac.displayName }}</option>
                         </select>
                         <clr-control-error i18n="azureCloud required msg" *clrIfError="validatorEnum.REQUIRED">
                             Azure Environment is required

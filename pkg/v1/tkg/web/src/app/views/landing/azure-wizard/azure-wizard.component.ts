@@ -151,8 +151,10 @@ export class AzureWizardComponent extends WizardBaseDirective implements OnInit 
                     }
                 }
                 const azureCloudValue = payload.azureAccountParams['azureCloud'];
-                const azureCloudDisplay = azureCloudValue ? AzureClouds.find(cloud => cloud.name === azureCloudValue).displayName : '';
-                this.storeFieldString(AzureForm.PROVIDER, AzureField.PROVIDER_AZURECLOUD, azureCloudValue, azureCloudDisplay);
+                const azureCloud = azureCloudValue ? AzureClouds.find(cloud => cloud.name === azureCloudValue) : undefined;
+                if (azureCloud) {
+                    this.storeFieldString(AzureForm.PROVIDER, AzureField.PROVIDER_AZURECLOUD, azureCloud.name, azureCloud.displayName);
+                }
             }
             this.storeFieldString(AzureForm.PROVIDER, AzureField.PROVIDER_SSHPUBLICKEY, payload["sshPublicKey"]);
             this.storeFieldString(AzureForm.PROVIDER, AzureField.PROVIDER_REGION, payload["location"]);
@@ -174,7 +176,7 @@ export class AzureWizardComponent extends WizardBaseDirective implements OnInit 
 
             this.saveMCName(payload.clusterName);
 
-            // We canot tell if the vnet is custom or existing, so we load it into the custom field.
+            // We cannot tell if the vnet is custom or existing, so we load it into the custom field.
             // When the vnet resource groups are retrieved, we have code that will detect if the vnet is existing.
             // See vnet-step.component.ts's handleIfSavedVnetCustomNameIsNowExisting()
             const vnetAttrs = [

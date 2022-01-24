@@ -16,7 +16,8 @@ export class PreviewConfigComponent extends BasicSubscriber implements OnInit {
 
     constructor() {
         super();
-        AppServices.messenger.subscribe<string>(TanzuEventType.CLI_CHANGED, event => { this.cli = event.payload; }, this.unsubscribe);
+        const step = this;
+        AppServices.messenger.subscribe<string>(TanzuEventType.CLI_CHANGED, event => { step.cli = event.payload; }, this.unsubscribe);
     }
 
     ngOnInit() {
