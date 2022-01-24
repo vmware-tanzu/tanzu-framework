@@ -103,8 +103,6 @@ func (r *AddonReconciler) SetupWithManager(ctx context.Context, mgr ctrl.Manager
 func (r *AddonReconciler) Reconcile(ctx context.Context, req ctrl.Request) (_ ctrl.Result, reterr error) {
 	log := r.Log.WithValues(constants.ClusterNamespaceLogKey, req.Namespace, constants.ClusterNameLogKey, req.Name)
 
-	log.Info("Reconciling cluster")
-
 	// get cluster object
 	cluster := &clusterapiv1beta1.Cluster{}
 	if err := r.Client.Get(ctx, req.NamespacedName, cluster); err != nil {
@@ -116,6 +114,14 @@ func (r *AddonReconciler) Reconcile(ctx context.Context, req ctrl.Request) (_ ct
 		log.Error(err, "unable to fetch cluster")
 		return ctrl.Result{}, err
 	}
+
+	tkrName := util.GetTKRNameForCluster(ctx, r.Client, cluster)
+	if tkrName == "" {
+		log.Info("cluster does not have an associated TKR")
+		return ctrl.Result{}, nil
+	}
+
+	log.Info("Reconciling cluster")
 
 	// if deletion timestamp is set, handle cluster deletion
 	if !cluster.GetDeletionTimestamp().IsZero() {

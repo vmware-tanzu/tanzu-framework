@@ -7,6 +7,10 @@ import (
 	"context"
 	"time"
 
+	"github.com/go-logr/logr"
+	clusterapiutil "sigs.k8s.io/cluster-api/util"
+	ctrl "sigs.k8s.io/controller-runtime"
+
 	"k8s.io/apimachinery/pkg/runtime"
 	capiremote "sigs.k8s.io/cluster-api/controllers/remote"
 	"sigs.k8s.io/controller-runtime/pkg/client/apiutil"
@@ -160,4 +164,20 @@ func GetClusterKubeconfigSecretDetails(cluster *clusterv1beta1.Cluster) *Cluster
 		Namespace: cluster.Namespace,
 		Key:       clusterapisecretutil.KubeconfigDataName,
 	}
+}
+
+// ClustersToRequests returns a list of Requests for clusters
+func ClustersToRequests(clusters []*clusterv1beta1.Cluster, log logr.Logger) []ctrl.Request {
+	var requests []ctrl.Request
+
+	for _, cluster := range clusters {
+		log.V(4).Info("Adding cluster for reconciliation",
+			constants.ClusterNamespaceLogKey, cluster.Namespace, constants.ClusterNameLogKey, cluster.Name)
+
+		requests = append(requests, ctrl.Request{
+			NamespacedName: clusterapiutil.ObjectKey(cluster),
+		})
+	}
+
+	return requests
 }

@@ -30,6 +30,7 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/crdwait"
 	runtanzuv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha1"
+	runtanzuv1alpha3 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/buildinfo"
 )
 
@@ -48,6 +49,7 @@ func init() {
 	_ = runtanzuv1alpha1.AddToScheme(scheme)
 	_ = clusterapiv1beta1.AddToScheme(scheme)
 	_ = controlplanev1beta1.AddToScheme(scheme)
+	_ = runtanzuv1alpha3.AddToScheme(scheme)
 
 	// +kubebuilder:scaffold:scheme
 }
@@ -111,7 +113,6 @@ func main() {
 		setupLog.Error(err, "unable to wait for CRDs")
 		os.Exit(1)
 	}
-
 	mgr, err := ctrl.NewManager(ctrl.GetConfigOrDie(), ctrl.Options{
 		Scheme:                 scheme,
 		MetricsBindAddress:     metricsAddr,
@@ -145,7 +146,6 @@ func main() {
 		setupLog.Error(err, "unable to create controller", "controller", "Addon")
 		os.Exit(1)
 	}
-
 	setupChecks(mgr)
 	setupLog.Info("starting manager")
 	if err := mgr.Start(ctx); err != nil {
