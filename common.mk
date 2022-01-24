@@ -41,8 +41,8 @@ LD_FLAGS += -X 'github.com/vmware-tanzu/tanzu-framework/pkg/v1/buildinfo.Version
 
 # Add supported OS-ARCHITECTURE combinations here
 ENVS ?= linux-amd64 windows-amd64 darwin-amd64
-STANDALONE_PLUGINS ?= login management-cluster package pinniped-auth secret
-CONTEXTAWARE_PLUGINS ?= cluster kubernetes-release feature
+STANDALONE_PLUGINS ?= login management-cluster package pinniped-auth secret feature
+CONTEXTAWARE_PLUGINS ?= cluster kubernetes-release
 ADMIN_PLUGINS ?= builder codegen test
 PLUGINS ?= $(STANDALONE_PLUGINS) $(CONTEXTAWARE_PLUGINS)
 
