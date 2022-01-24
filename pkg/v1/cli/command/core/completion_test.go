@@ -73,7 +73,8 @@ func Test_runCompletion_Bash(t *testing.T) {
 	}
 
 	// Check for a snippet of the bash completion output
-	if !strings.Contains(out.String(), "if [[ -z \"${BASH_VERSION}\" || \"${BASH_VERSINFO[0]}\" -gt 3 ]]; then") {
+	// TODO make this test less brittle
+	if !strings.Contains(out.String(), "if [[ -z \"${BASH_VERSION:-}\" || \"${BASH_VERSINFO[0]:-}\" -gt 3 ]]; then") {
 		t.Errorf("Unexpected error returned for invalid shell argument: %s", out.String())
 	}
 }

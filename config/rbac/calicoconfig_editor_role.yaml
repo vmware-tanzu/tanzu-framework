@@ -1,0 +1,24 @@
+# permissions for end users to edit calicoconfigs.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: calicoconfig-editor-role
+rules:
+- apiGroups:
+  - cni.tanzu.vmware.com
+  resources:
+  - calicoconfigs
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - cni.tanzu.vmware.com
+  resources:
+  - calicoconfigs/status
+  verbs:
+  - get

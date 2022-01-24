@@ -11,7 +11,7 @@
                     <clr-icon shape="window-close" size="20"></clr-icon>
                 </span>
                 <div *ngFor="let htmlContentIndex of htmlContentIndexArray">
-                    <p class="sub-title" (click)='showContent(htmlContentIndex)' tabindex="0" keyboardListener>{{htmlContentIndex.title}}</p>
+                    <p class="sub-title" (click)='showContent(htmlContentIndex)' tabindex="0" keyboardListener>{{htmlContentIndex.topicTitle}}</p>
                 </div>
             </div>
         </div>
@@ -23,7 +23,7 @@
                         <clr-icon shape="window-close" size="20"></clr-icon>
                     </span>
                 </div>
-                <span class="title">{{htmlContentIndex.title}}</span>
+                <span class="title">{{htmlContentIndex.topicTitle}}</span>
                 <div [innerHTML]="htmlContentIndex.htmlContent"></div>
             </div>
         </div>

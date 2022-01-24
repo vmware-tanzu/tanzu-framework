@@ -14,7 +14,6 @@ import { TkgEvent, TkgEventType } from '../../../../shared/service/Messenger';
 import { NotificationTypes } from '../../../../shared/components/alert-notification/alert-notification.component';
 import { DaemonStepMapping } from './daemon-validation-step.fieldmapping';
 import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
-import { StepMapping } from '../../wizard/shared/field-mapping/FieldMapping';
 
 @Component({
     selector: 'app-daemon-validation-step',

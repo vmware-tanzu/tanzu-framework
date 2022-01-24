@@ -116,7 +116,7 @@ func Test_deleteDiscoverySource(t *testing.T) {
 		},
 	}
 
-	// When discovery source does not exists
+	// When discovery source does not exist
 	_, err := deleteDiscoverySource(discoverySources, "source-does-not-exists")
 	assert.NotNil(err)
 	assert.Contains(err.Error(), "discovery source \"source-does-not-exists\" does not exist")

@@ -8,6 +8,18 @@ import (
 )
 
 type Registry struct {
+	DownloadBundleStub        func(string, string) error
+	downloadBundleMutex       sync.RWMutex
+	downloadBundleArgsForCall []struct {
+		arg1 string
+		arg2 string
+	}
+	downloadBundleReturns struct {
+		result1 error
+	}
+	downloadBundleReturnsOnCall map[int]struct {
+		result1 error
+	}
 	GetFileStub        func(string, string) ([]byte, error)
 	getFileMutex       sync.RWMutex
 	getFileArgsForCall []struct {
@@ -50,6 +62,68 @@ type Registry struct {
 	}
 	invocations      map[string][][]interface{}
 	invocationsMutex sync.RWMutex
+}
+
+func (fake *Registry) DownloadBundle(arg1 string, arg2 string) error {
+	fake.downloadBundleMutex.Lock()
+	ret, specificReturn := fake.downloadBundleReturnsOnCall[len(fake.downloadBundleArgsForCall)]
+	fake.downloadBundleArgsForCall = append(fake.downloadBundleArgsForCall, struct {
+		arg1 string
+		arg2 string
+	}{arg1, arg2})
+	stub := fake.DownloadBundleStub
+	fakeReturns := fake.downloadBundleReturns
+	fake.recordInvocation("DownloadBundle", []interface{}{arg1, arg2})
+	fake.downloadBundleMutex.Unlock()
+	if stub != nil {
+		return stub(arg1, arg2)
+	}
+	if specificReturn {
+		return ret.result1
+	}
+	return fakeReturns.result1
+}
+
+func (fake *Registry) DownloadBundleCallCount() int {
+	fake.downloadBundleMutex.RLock()
+	defer fake.downloadBundleMutex.RUnlock()
+	return len(fake.downloadBundleArgsForCall)
+}
+
+func (fake *Registry) DownloadBundleCalls(stub func(string, string) error) {
+	fake.downloadBundleMutex.Lock()
+	defer fake.downloadBundleMutex.Unlock()
+	fake.DownloadBundleStub = stub
+}
+
+func (fake *Registry) DownloadBundleArgsForCall(i int) (string, string) {
+	fake.downloadBundleMutex.RLock()
+	defer fake.downloadBundleMutex.RUnlock()
+	argsForCall := fake.downloadBundleArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2
+}
+
+func (fake *Registry) DownloadBundleReturns(result1 error) {
+	fake.downloadBundleMutex.Lock()
+	defer fake.downloadBundleMutex.Unlock()
+	fake.DownloadBundleStub = nil
+	fake.downloadBundleReturns = struct {
+		result1 error
+	}{result1}
+}
+
+func (fake *Registry) DownloadBundleReturnsOnCall(i int, result1 error) {
+	fake.downloadBundleMutex.Lock()
+	defer fake.downloadBundleMutex.Unlock()
+	fake.DownloadBundleStub = nil
+	if fake.downloadBundleReturnsOnCall == nil {
+		fake.downloadBundleReturnsOnCall = make(map[int]struct {
+			result1 error
+		})
+	}
+	fake.downloadBundleReturnsOnCall[i] = struct {
+		result1 error
+	}{result1}
 }
 
 func (fake *Registry) GetFile(arg1 string, arg2 string) ([]byte, error) {
@@ -248,6 +322,8 @@ func (fake *Registry) ListImageTagsReturnsOnCall(i int, result1 []string, result
 func (fake *Registry) Invocations() map[string][][]interface{} {
 	fake.invocationsMutex.RLock()
 	defer fake.invocationsMutex.RUnlock()
+	fake.downloadBundleMutex.RLock()
+	defer fake.downloadBundleMutex.RUnlock()
 	fake.getFileMutex.RLock()
 	defer fake.getFileMutex.RUnlock()
 	fake.getFilesMutex.RLock()
