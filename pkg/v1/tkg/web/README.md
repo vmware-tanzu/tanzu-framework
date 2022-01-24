@@ -51,10 +51,10 @@ Run `npm run build:prod` to build the project. The build artifacts will be store
 
 ## Tanzu UI API Library
 
-A standalone Angular library has been introduced which now includes all swagger auto-generated models and HTTP methods. 
+A standalone Angular library has been introduced which now includes all swagger auto-generated models and HTTP methods.
 The location of these models and HTTP methods have been moved from the Tanzu Kickstart UI Angular project into the `tanzu-ui-api-lib`.
 
-Building the Tanzu UI API Library is not a requirement unless you have made updates to the swagger contract `spec.yaml`. 
+Building the Tanzu UI API Library is not a requirement unless you have made updates to the swagger contract `spec.yaml`.
 The symlink used for consuming this library will be created when running any of the build scripts mentioned above.
 
 See [README.md](../web-libraries/tanzu-ui-api-lib/README.md) for information on updating and building this library.
@@ -70,4 +70,3 @@ Run `make pull-ci` prior to creating a pull request to run all github CI tests (
 ## Running end-to-end tests
 
 Run `ng e2e` to execute the end-to-end tests via [Protractor](http://www.protractortest.org/).
-
