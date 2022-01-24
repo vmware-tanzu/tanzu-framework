@@ -97,14 +97,6 @@ spec:
                         description: Flag to enable/disable SNAT for the egress traffic
                           from a Pod to the external network
                         type: boolean
-                      serviceCIDR:
-                        default: 10.96.0.0/12
-                        description: ClusterIP CIDR range for IPv4 Services
-                        type: string
-                      serviceCIDRv6:
-                        default: ""
-                        description: ClusterIP CIDR range for IPv6 Services
-                        type: string
                       tlsCipherSuites:
                         default: TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,TLS_RSA_WITH_AES_256_GCM_SHA384
                         description: List of allowed cipher suites. If omitted, the

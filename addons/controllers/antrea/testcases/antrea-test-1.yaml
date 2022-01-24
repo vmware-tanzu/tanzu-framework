@@ -14,8 +14,6 @@ spec:
   infraProvider: vsphere
   antrea:
     config:
-      serviceCIDR: 10.96.0.0/12
-      serviceCIDRv6: ""
       trafficEncapMode: encap
       noSNAT: false
       disableUdpTunnelOffload: false

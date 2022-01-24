@@ -23,16 +23,6 @@ type Antrea struct {
 }
 
 type Config struct {
-	// ClusterIP CIDR range for IPv4 Services
-	// +kubebuilder:validation:Optional
-	// +kubebuilder:default:="10.96.0.0/12"
-	ServiceCIDR string `json:"serviceCIDR,omitempty"`
-
-	// ClusterIP CIDR range for IPv6 Services
-	// +kubebuilder:validation:Optional
-	// +kubebuilder:default:=""
-	ServiceCIDRv6 string `json:"serviceCIDRv6,omitempty"`
-
 	// The traffic encapsulation mode. One of the following options => encap, noEncap, hybrid, networkPolicyOnly
 	// +kubebuilder:validation:Optional
 	// +kubebuilder:validation:Enum="encap";"noEncap";"hybrid";"networkPolicyOnly"
