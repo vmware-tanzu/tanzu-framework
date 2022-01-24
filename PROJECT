@@ -29,4 +29,7 @@ resources:
 - group: run
   kind: TanzuClusterBootstrapTemplate
   version: v1alpha3
+- group: addons
+  kind: AntreaConfig
+  version: v1alpha1
 version: "2"

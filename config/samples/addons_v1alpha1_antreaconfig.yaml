@@ -1,0 +1,6 @@
+apiVersion: addons.tanzu.vmware.com/v1alpha1
+kind: AntreaConfig
+metadata:
+  name: antreaconfig-sample
+spec:
+  # TODO(user): Add fields here

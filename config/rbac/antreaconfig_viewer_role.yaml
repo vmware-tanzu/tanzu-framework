@@ -1,0 +1,20 @@
+# permissions for end users to view antreaconfigs.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: antreaconfig-viewer-role
+rules:
+- apiGroups:
+  - addons.tanzu.vmware.com
+  resources:
+  - antreaconfigs
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - addons.tanzu.vmware.com
+  resources:
+  - antreaconfigs/status
+  verbs:
+  - get
