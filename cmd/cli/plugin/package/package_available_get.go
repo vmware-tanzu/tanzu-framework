@@ -6,14 +6,17 @@ package main
 import (
 	"fmt"
 	"io"
+	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
-
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 
+	kapppkg "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apiserver/apis/datapackaging/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/component"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/openapischema"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/kappclient"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/log"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgpackageclient"
@@ -31,7 +34,10 @@ var packageAvailableGetCmd = &cobra.Command{
     tanzu package available get contour.tanzu.vmware.com/1.15.1-tkg.1-vmware1 --namespace test-ns
 
     # Get openAPI schema of a package with specified version
-    tanzu package available get contour.tanzu.vmware.com/1.15.1-tkg.1-vmware1 --namespace test-ns --values-schema`,
+    tanzu package available get contour.tanzu.vmware.com/1.15.1-tkg.1-vmware1 --namespace test-ns --values-schema
+    
+    # Create default values.yaml for a package with specified version based on its openAPI schema
+    tanzu package available get contour.tanzu.vmware.com/1.15.1-tkg.1-vmware1 --namespace test-ns --generate-default-values-file`,
 	RunE:         packageAvailableGet,
 	PreRunE:      validatePackage,
 	SilenceUsage: true,
@@ -39,6 +45,7 @@ var packageAvailableGetCmd = &cobra.Command{
 
 func init() {
 	packageAvailableGetCmd.Flags().BoolVarP(&packageAvailableOp.ValuesSchema, "values-schema", "", false, "Values schema of the package, optional")
+	packageAvailableGetCmd.Flags().BoolVarP(&packageAvailableOp.GenerateDefaultValuesFile, "generate-default-values-file", "", false, "Generate default values from schema of the package, optional")
 	packageAvailableCmd.AddCommand(packageAvailableGetCmd)
 }
 
@@ -67,13 +74,17 @@ func packageAvailableGet(cmd *cobra.Command, args []string) error {
 		packageAvailableOp.Namespace = ""
 	}
 
+	if packageAvailableOp.GenerateDefaultValuesFile || packageAvailableOp.ValuesSchema {
+		if pkgVersion == "" {
+			return errors.New("version is required when --generate-default-values-file or --values-schema flag is true. Please specify <PACKAGE-NAME>/<VERSION>")
+		}
+	}
 	if packageAvailableOp.ValuesSchema {
 		if err := getValuesSchemaForPackage(packageAvailableOp.Namespace, pkgName, pkgVersion, kc, cmd.OutOrStdout()); err != nil {
 			return err
 		}
 		return nil
 	}
-
 	t, err := component.NewOutputWriterWithSpinner(cmd.OutOrStdout(), getOutputFormat(),
 		fmt.Sprintf("Retrieving package details for %s...", args[0]), true)
 	if err != nil {
@@ -89,9 +100,10 @@ func packageAvailableGet(cmd *cobra.Command, args []string) error {
 		}
 		return err
 	}
+	var pkg *kapppkg.Package
 
 	if pkgVersion != "" {
-		pkg, err := kc.GetPackage(fmt.Sprintf("%s.%s", pkgName, pkgVersion), packageAvailableOp.Namespace)
+		pkg, err = kc.GetPackage(fmt.Sprintf("%s.%s", pkgName, pkgVersion), packageAvailableOp.Namespace)
 		if err != nil {
 			if apierrors.IsNotFound(err) {
 				return errors.Errorf("package '%s/%s' does not exist in the '%s' namespace", pkgName, pkgVersion, packageAvailableOp.Namespace)
@@ -112,13 +124,14 @@ func packageAvailableGet(cmd *cobra.Command, args []string) error {
 
 		t.RenderWithSpinner()
 	}
+
+	if packageAvailableOp.GenerateDefaultValuesFile {
+		return generateDefaultValuesForPackage(pkg)
+	}
 	return nil
 }
 
 func getValuesSchemaForPackage(namespace, name, version string, kc kappclient.Client, writer io.Writer) error {
-	if version == "" {
-		return errors.New("version is required when --values-schema flag is declared. Please specify <PACKAGE-NAME>/<VERSION>")
-	}
 	pkg, pkgGetErr := kc.GetPackage(fmt.Sprintf("%s.%s", name, version), namespace)
 	if pkgGetErr != nil {
 		if apierrors.IsNotFound(pkgGetErr) {
@@ -154,5 +167,52 @@ func getValuesSchemaForPackage(namespace, name, version string, kc kappclient.Cl
 	}
 	t.RenderWithSpinner()
 
+	return nil
+}
+
+func generateDefaultValuesForPackage(pkg *kapppkg.Package, valuesFile ...*os.File) error {
+	if pkg == nil {
+		// should not happen
+		return errors.New("pkg is nil")
+	}
+
+	if len(pkg.Spec.ValuesSchema.OpenAPIv3.Raw) == 0 {
+		log.Warningf("package '%s/%s' does not have any user configurable values in the '%s' namespace", pkgName, pkgVersion, packageAvailableOp.Namespace)
+		return nil
+	}
+
+	fileNamePrefix := ""
+	pkgNameTokens := strings.Split(pkgName, ".")
+	if len(pkgNameTokens) >= 1 {
+		fileNamePrefix = fmt.Sprintf("%s-", pkgNameTokens[0])
+	}
+	valuesFileName := fmt.Sprintf("%sdefault-values.yaml", fileNamePrefix)
+	var valuesFileToUse *os.File
+
+	if len(valuesFile) > 0 && valuesFile[0] != nil {
+		// caller is responsible for closing file
+		valuesFileToUse = valuesFile[0]
+	} else {
+		cwd, err := os.Getwd()
+		if err != nil {
+			return err
+		}
+		valuesFileToUse, err = os.Create(filepath.Join(cwd, valuesFileName))
+		if err != nil {
+			return err
+		}
+		defer valuesFileToUse.Close()
+	}
+
+	defaultValues, err := openapischema.SchemaDefault(pkg.Spec.ValuesSchema.OpenAPIv3.Raw)
+
+	if err != nil {
+		return err
+	}
+	_, err = valuesFileToUse.Write(defaultValues)
+	if err != nil {
+		return err
+	}
+	log.Infof("\nCreated default values file at %s", valuesFileToUse.Name())
 	return nil
 }
