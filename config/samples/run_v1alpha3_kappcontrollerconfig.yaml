@@ -1,0 +1,6 @@
+apiVersion: run.tanzu.vmware.com/v1alpha3
+kind: KappControllerConfig
+metadata:
+  name: kappcontrollerconfig-sample
+spec:
+  # TODO(user): Add fields here
