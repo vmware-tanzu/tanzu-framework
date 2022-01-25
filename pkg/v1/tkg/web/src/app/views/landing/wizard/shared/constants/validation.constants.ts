@@ -82,13 +82,16 @@ export enum ValidatorEnum {
     IP_RANGE_MIN = 'min ip count in ip range',
 
     // AZ step enums
-    AVAILABILITY_ZONE_UNIQUE = "availability zone unique",
-    VALID_RESOURCE_GROUP_NAME = "valid resource group name",
-    UNIQUE_RESOURCE_GROUP_NAME = "unique resource group name",
-    HTTP_OR_HTTPS = "http or https",
+    AVAILABILITY_ZONE_UNIQUE = 'availability zone unique',
+    VALID_RESOURCE_GROUP_NAME = 'valid resource group name',
+    UNIQUE_RESOURCE_GROUP_NAME = 'unique resource group name',
+    HTTP_OR_HTTPS = 'http or https',
 
     // Cluster name
-    VALID_CLUSTER_NAME = "cluster name valid"
+    VALID_CLUSTER_NAME = 'cluster name valid',
+
+    // Metadata label
+    LABEL_UNIQUE = 'label unique'
 }
 
 // SimpleValidator identifies validators available from the Validation service
