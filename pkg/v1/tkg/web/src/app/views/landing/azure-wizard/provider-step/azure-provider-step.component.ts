@@ -90,7 +90,7 @@ export class AzureProviderStepComponent extends StepFormDirective implements OnI
             return this.formGroup.valid && this.validCredentials;
         }
 
-        this.registerStepDescriptionTriggers({fields: ['tenantId']});
+        this.registerStepDescriptionTriggers({fields: [AzureField.PROVIDER_TENANT]});
 
         this.formGroup.valueChanges
             .pipe(
@@ -195,7 +195,6 @@ export class AzureProviderStepComponent extends StepFormDirective implements OnI
     }
 
     initFormWithImportedData() {
-        console.log('azure-provider-step.initFormWithSavedDataCOPY()');
         // Initializations not needed the first time the form is loaded, but
         // required to re-initialize after form has been used
         this.validCredentials = false;
@@ -380,7 +379,10 @@ export class AzureProviderStepComponent extends StepFormDirective implements OnI
         return this.resourceGroups.find( resourceGroup => { return resourceGroup.name === resourceGroupName; });
     }
     dynamicDescription(): string {
-        const tenant = this.getFieldValue('tenantId', true);
-        return tenant ? `Azure tenant: ${tenant}` : 'Validate the Azure provider credentials for Tanzu';
+        const tenant = this.getFieldValue(AzureField.PROVIDER_TENANT, true);
+        if (tenant) {
+            return 'Azure tenant: ' + tenant;
+        }
+        return 'Validate the Azure provider credentials for Tanzu';
     }
 }

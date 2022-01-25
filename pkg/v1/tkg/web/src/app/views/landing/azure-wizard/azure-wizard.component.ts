@@ -8,7 +8,7 @@ import { Observable } from 'rxjs';
 // App imports
 import { APIClient } from 'src/app/swagger';
 import AppServices from '../../../shared/service/appServices';
-import { AzureForm } from './azure-wizard.constants';
+import { AzureField, AzureForm, ResourceGroupOption, VnetOptionType } from './azure-wizard.constants';
 import {
     AzureInstanceType,
     AzureRegionalClusterParams,
@@ -19,7 +19,7 @@ import {
 import { AzureAccountParamsKeys, AzureProviderStepComponent } from './provider-step/azure-provider-step.component';
 import { AzureOsImageStepComponent } from './os-image-step/azure-os-image-step.component';
 import { CliFields, CliGenerator } from '../wizard/shared/utils/cli-generator';
-import { EXISTING, VnetStepComponent } from './vnet-step/vnet-step.component';
+import { VnetStepComponent } from './vnet-step/vnet-step.component';
 import { ExportService } from '../../../shared/service/export.service';
 import { FormDataForHTML, FormUtility } from '../wizard/shared/components/steps/form-utility';
 import { FormMetaDataService } from 'src/app/shared/service/form-meta-data.service';
@@ -82,8 +82,8 @@ export class AzureWizardComponent extends WizardBaseDirective implements OnInit 
         });
 
         const mappings = [
-            ["location", AzureForm.PROVIDER, "region"],
-            ["sshPublicKey", AzureForm.PROVIDER, "sshPublicKey"],
+            ["location", AzureForm.PROVIDER, AzureField.PROVIDER_REGION],
+            ["sshPublicKey", AzureForm.PROVIDER, AzureField.PROVIDER_SSHPUBLICKEY],
         ];
 
         mappings.forEach(attr => payload[attr[0]] = this.getFieldValue(attr[1], attr[2]));
@@ -91,10 +91,11 @@ export class AzureWizardComponent extends WizardBaseDirective implements OnInit 
         payload.controlPlaneMachineType = this.getControlPlaneNodeType("azure");
         payload.controlPlaneFlavor = this.getControlPlaneFlavor("azure");
         payload.workerMachineType = AppServices.appDataService.isModeClusterStandalone() ? payload.controlPlaneMachineType :
-            this.getFieldValue(AzureForm.NODESETTING, 'workerNodeInstanceType');
-        payload.machineHealthCheckEnabled = this.getBooleanFieldValue(AzureForm.NODESETTING, "machineHealthChecksEnabled");
+            this.getFieldValue(AzureForm.NODESETTING, AzureField.NODESETTING_WORKERTYPE);
+        payload.machineHealthCheckEnabled =
+            this.getBooleanFieldValue(AzureForm.NODESETTING, AzureField.NODESETTING_MACHINE_HEALTH_CHECKS_ENABLED);
 
-        const resourceGroupOption = this.getFieldValue(AzureForm.PROVIDER, "resourceGroupOption");
+        const resourceGroupOption = this.getFieldValue(AzureForm.PROVIDER, AzureField.PROVIDER_RESOURCEGROUPOPTION);
         const resourceGroupField = resourceGroupOption === 'existing' ? 'resourceGroupExisting' : 'resourceGroupCustom';
         payload.resourceGroup = this.getFieldValue(AzureForm.PROVIDER, resourceGroupField);
         payload.clusterName = this.getMCName();
@@ -112,7 +113,7 @@ export class AzureWizardComponent extends WizardBaseDirective implements OnInit 
             ["workerNodeSubnetCidr", AzureForm.VNET, "workerNodeSubnetCidrNew"],
         ];
 
-        if (vnetOption === EXISTING) {        // for existing vnet
+        if (vnetOption === VnetOptionType.EXISTING) {        // for existing vnet
             vnetAttrs = [
                 ["vnetName", AzureForm.VNET, "vnetNameExisting"],
                 ["vnetCidr", AzureForm.VNET, "vnetCidrBlock"],
@@ -223,24 +224,27 @@ export class AzureWizardComponent extends WizardBaseDirective implements OnInit 
 
     getCliEnvVariables() {
         let envVariableString = '';
-        const resourceGroupOption = this.getFieldValue(AzureForm.PROVIDER, 'resourceGroupOption')
-        const azureResourceGroup = resourceGroupOption === 'existing' ? 'resourceGroupExisting' : 'resourceGroupCustom';
-        const vnetOption = this.getFieldValue(AzureForm.VNET, 'vnetOption');
-        const azureVnetName = vnetOption === 'existing' ? 'vnetNameExisting' : 'vnetNameCustom';
-        const azureControlPlaneSubnetName = vnetOption === 'existing' ? 'controlPlaneSubnet' : 'controlPlaneSubnetNew';
-        const azureNodeSubnetName = vnetOption === 'existing' ? 'workerNodeSubnet' : 'workerNodeSubnetNew';
+        const resourceGroupOption = this.getFieldValue(AzureForm.PROVIDER, AzureField.PROVIDER_RESOURCEGROUPOPTION);
+        const azureResourceGroup = resourceGroupOption === ResourceGroupOption.EXISTING ? AzureField.PROVIDER_RESOURCEGROUPEXISTING :
+            AzureField.PROVIDER_RESOURCEGROUPCUSTOM;
+        const vnetOption = this.getFieldValue(AzureForm.VNET, AzureField.VNET_EXISTING_OR_CUSTOM);
+        const azureVnetName = vnetOption === VnetOptionType.EXISTING ? AzureField.VNET_EXISTING_NAME : AzureField.VNET_CUSTOM_NAME;
+        const azureControlPlaneSubnetName = vnetOption === VnetOptionType.EXISTING ? AzureField.VNET_CONTROLPLANE_SUBNET_NAME :
+            AzureField.VNET_CONTROLPLANE_NEWSUBNET_NAME;
+        const azureNodeSubnetName = vnetOption === VnetOptionType.EXISTING ? AzureField.VNET_WORKER_SUBNET_NAME :
+            AzureField.VNET_WORKER_NEWSUBNET_NAME;
         const fieldsMapping = {
             AZURE_RESOURCE_GROUP: [AzureForm.PROVIDER, azureResourceGroup],
-            AZURE_VNET_RESOURCE_GROUP: [AzureForm.VNET, 'vnetResourceGroup'],
+            AZURE_VNET_RESOURCE_GROUP: [AzureForm.VNET, AzureField.VNET_RESOURCE_GROUP],
             AZURE_VNET_NAME: [AzureForm.VNET, azureVnetName],
-            AZURE_VNET_CIDR: [AzureForm.VNET, 'vnetCidrBlock'],
+            AZURE_VNET_CIDR: [AzureForm.VNET, AzureField.VNET_CUSTOM_CIDR],
             AZURE_CONTROL_PLANE_SUBNET_NAME: [AzureForm.VNET, azureControlPlaneSubnetName],
-            AZURE_CONTROL_PLANE_SUBNET_CIDR: [AzureForm.VNET, 'controlPlaneSubnetCidrNew'],
+            AZURE_CONTROL_PLANE_SUBNET_CIDR: [AzureForm.VNET, AzureField.VNET_CONTROLPLANE_NEWSUBNET_CIDR],
             AZURE_NODE_SUBNET_NAME: [AzureForm.VNET, azureNodeSubnetName],
-            AZURE_NODE_SUBNET_CIDR: [AzureForm.VNET, 'workerNodeSubnetCidrNew']
+            AZURE_NODE_SUBNET_CIDR: [AzureForm.VNET, AzureField.VNET_WORKER_NEWSUBNET_CIDR]
         }
         let fields = [];
-        if (vnetOption === 'existing') {
+        if (vnetOption === VnetOptionType.EXISTING) {
             fields = [
                 'AZURE_RESOURCE_GROUP',
                 'AZURE_VNET_RESOURCE_GROUP',

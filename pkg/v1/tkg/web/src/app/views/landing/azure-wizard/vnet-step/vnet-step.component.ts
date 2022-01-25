@@ -5,7 +5,7 @@ import { Validators } from '@angular/forms';
 import { distinctUntilChanged, takeUntil } from 'rxjs/operators';
 // App imports
 import AppServices from 'src/app/shared/service/appServices';
-import { AzureField } from '../azure-wizard.constants';
+import { AzureField, AzureForm, VnetOptionType } from '../azure-wizard.constants';
 import { AzureResourceGroup } from 'src/app/swagger/models';
 import { AzureVnetStandaloneStepMapping, AzureVnetStepMapping } from './vnet-step.fieldmapping';
 import { AzureVirtualNetwork } from './../../../../swagger/models/azure-virtual-network.model';
@@ -16,9 +16,6 @@ import { StepMapping } from '../../wizard/shared/field-mapping/FieldMapping';
 import { TanzuEventType } from 'src/app/shared/service/Messenger';
 import { ValidationService } from './../../wizard/shared/validation/validation.service';
 
-const CUSTOM = "CUSTOM";
-export const EXISTING = "EXISTING";
-
 @Component({
     selector: 'app-vnet-step',
     templateUrl: './vnet-step.component.html',
@@ -26,7 +23,7 @@ export const EXISTING = "EXISTING";
 })
 export class VnetStepComponent extends StepFormDirective implements OnInit {
     region = '';    // Current region selected
-    showVnetFieldsOption = EXISTING;
+    showVnetFieldsOption: string = VnetOptionType.EXISTING;
     customResourceGroup = null;
 
     // An object maps vnet to subsets; data retrieved from backend
@@ -160,11 +157,11 @@ export class VnetStepComponent extends StepFormDirective implements OnInit {
         const cidrOfSelectedControlPlaneSubnet = (subnetEntry) ? subnetEntry.cidr : '';
 
         this.setControlValueSafely(AzureField.VNET_CONTROLPLANE_SUBNET_CIDR, cidrOfSelectedControlPlaneSubnet);
-        this.cidrForPrivateCluster[EXISTING] = cidrOfSelectedControlPlaneSubnet;
+        this.cidrForPrivateCluster[VnetOptionType.EXISTING] = cidrOfSelectedControlPlaneSubnet;
     }
 
     onControlPlaneSubnetCidrNewChange(value: string) {
-        this.cidrForPrivateCluster[CUSTOM] = value;
+        this.cidrForPrivateCluster[VnetOptionType.CUSTOM] = value;
     }
 
     onCreatePrivateAzureCluster(createPrivateCluster: boolean) {
@@ -183,7 +180,7 @@ export class VnetStepComponent extends StepFormDirective implements OnInit {
     }
 
     initFormWithSavedData() {
-        const customResourceGroup1 = FormMetaDataStore.getMetaDataItem("providerForm", "resourceGroupCustom");
+        const customResourceGroup1 = FormMetaDataStore.getMetaDataItem(AzureForm.PROVIDER, AzureField.PROVIDER_RESOURCEGROUPCUSTOM);
         this.customResourceGroup = customResourceGroup1 ? customResourceGroup1.displayValue : '';
 
         this.setControlWithSavedValue(AzureField.VNET_PRIVATE_CLUSTER, false);
@@ -194,7 +191,7 @@ export class VnetStepComponent extends StepFormDirective implements OnInit {
         // into the existing slot. Note that we do this before deciding whether to show the custom or existing options
         this.modifySavedValuesIfVnetCustomNameIsNowExisting();
         const savedVnetCustom = this.getSavedValue(AzureField.VNET_CUSTOM_NAME, '');
-        const optionValue = savedVnetCustom !== '' ? CUSTOM : EXISTING;
+        const optionValue = savedVnetCustom !== '' ? VnetOptionType.CUSTOM : VnetOptionType.EXISTING;
         // NOTE: setting the EXISTING_OR_CUSTOM value will trigger the display to update
         this.setControlWithSavedValue(AzureField.VNET_EXISTING_OR_CUSTOM, optionValue);
     }
@@ -259,14 +256,14 @@ export class VnetStepComponent extends StepFormDirective implements OnInit {
 
     private onExistingOrCustomOptionChange(option: string, clearSavedData = false) {
         this.showVnetFieldsOption = option;
-        if (option === EXISTING) {
+        if (option === VnetOptionType.EXISTING) {
             this.initVnetFieldsExisting(clearSavedData);
             if (this.vnetResourceGroups.length === 1) {
                 this.setControlValueSafely(AzureField.VNET_RESOURCE_GROUP, this.vnetResourceGroups[0].name);
             } else {
                 this.setControlWithSavedValue(AzureField.VNET_RESOURCE_GROUP);
             }
-        } else if (option === CUSTOM) {
+        } else if (option === VnetOptionType.CUSTOM) {
             this.showVnetFieldsCustom(clearSavedData);
         }
         this.onCreatePrivateAzureCluster(this.createPrivateCluster);

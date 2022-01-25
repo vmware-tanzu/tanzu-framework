@@ -18,7 +18,7 @@ import {
     Vpc
 } from 'src/app/swagger/models';
 import { AWSAccountParamsKeys, AwsProviderStepComponent } from './provider-step/aws-provider-step.component';
-import { AwsField, AwsForm, AwsStep } from "./aws-wizard.constants";
+import { AwsField, AwsForm, VpcType } from "./aws-wizard.constants";
 import { AwsOsImageStepComponent } from './os-image-step/aws-os-image-step.component';
 import { BASTION_HOST_DISABLED, BASTION_HOST_ENABLED, NodeSettingStepComponent } from './node-setting-step/node-setting-step.component';
 import { CliFields, CliGenerator } from '../wizard/shared/utils/cli-generator';
@@ -31,6 +31,7 @@ import { TanzuEventType } from '../../../shared/service/Messenger';
 import { Utils } from '../../../shared/utils';
 import { VpcStepComponent } from './vpc-step/vpc-step.component';
 import { WizardBaseDirective } from '../wizard/shared/wizard-base/wizard-base';
+import { ClusterType } from '../wizard/shared/constants/wizard.constants';
 
 export interface AzRelatedFields {
     az: string,
@@ -102,25 +103,25 @@ export class AwsWizardComponent extends WizardBaseDirective implements OnInit {
         AWSAccountParamsKeys.forEach(key => {
             payload.awsAccountParams[key] = this.getFieldValue(AwsForm.PROVIDER, key);
         });
-        payload.loadbalancerSchemeInternal = this.getBooleanFieldValue(AwsForm.VPC, 'nonInternetFacingVPC');
-        payload.sshKeyName = this.getFieldValue(AwsForm.NODESETTING, 'sshKeyName');
-        payload.createCloudFormationStack = this.getFieldValue(AwsForm.NODESETTING, 'createCloudFormation') || false;
-        payload.clusterName = this.getFieldValue(AwsForm.NODESETTING, 'clusterName');
+        payload.loadbalancerSchemeInternal = this.getBooleanFieldValue(AwsForm.VPC, AwsField.VPC_NON_INTERNET_FACING);
+        payload.sshKeyName = this.getFieldValue(AwsForm.NODESETTING, AwsField.NODESETTING_SSH_KEY_NAME);
+        payload.createCloudFormationStack = this.getFieldValue(AwsForm.NODESETTING, AwsField.NODESETTING_CREATE_CLOUD_FORMATION) || false;
+        payload.clusterName = this.getFieldValue(AwsForm.NODESETTING, AwsField.NODESETTING_CLUSTER_NAME);
         payload.controlPlaneNodeType = this.getControlPlaneNodeType('aws');
         payload.controlPlaneFlavor = this.getControlPlaneFlavor('aws');
-        const bastionHostEnabled = this.getFieldValue(AwsForm.NODESETTING, 'bastionHostEnabled');
+        const bastionHostEnabled = this.getFieldValue(AwsForm.NODESETTING, AwsField.NODESETTING_BASTION_HOST_ENABLED);
         payload.bastionHostEnabled = bastionHostEnabled === BASTION_HOST_ENABLED;
-        const machineHealthChecksEnabled = this.getFieldValue(AwsForm.NODESETTING, 'machineHealthChecksEnabled');
+        const machineHealthChecksEnabled = this.getFieldValue(AwsForm.NODESETTING, AwsField.NODESETTING_MACHINE_HEALTH_CHECKS_ENABLED);
         payload.machineHealthCheckEnabled = (machineHealthChecksEnabled === true);
         payload.vpc = {
-            cidr: (this.getFieldValue(AwsForm.VPC, 'vpcType') === 'existing') ?
-                this.getFieldValue(AwsForm.VPC, 'existingVpcCidr') :
-                this.getFieldValue(AwsForm.VPC, 'vpc'),
-            vpcID: this.getFieldValue(AwsForm.VPC, 'existingVpcId'),
+            cidr: (this.getFieldValue(AwsForm.VPC, AwsField.VPC_TYPE) === VpcType.EXISTING) ?
+                this.getFieldValue(AwsForm.VPC, AwsField.VPC_EXISTING_CIDR) :
+                this.getFieldValue(AwsForm.VPC, AwsField.VPC_NEW_CIDR),
+            vpcID: this.getFieldValue(AwsForm.VPC, AwsField.VPC_EXISTING_CIDR),
             azs: this.getAwsNodeAzs(payload)
         };
 
-        payload.enableAuditLogging = this.getBooleanFieldValue("awsNodeSettingForm", "enableAuditLogging");
+        payload.enableAuditLogging = this.getBooleanFieldValue(AwsForm.NODESETTING, AwsField.NODESETTING_ENABLE_AUDIT_LOGGING);
         this.initPayloadWithCommons(payload);
 
         return payload;
@@ -133,9 +134,9 @@ export class AwsWizardComponent extends WizardBaseDirective implements OnInit {
                     this.saveFormField(AwsForm.PROVIDER, key, payload.awsAccountParams[key]);
                 }
             }
-            this.saveFormField(AwsForm.NODESETTING, 'sshKeyName', payload.sshKeyName);
-            this.saveFormField(AwsForm.NODESETTING, 'createCloudFormation', payload.createCloudFormationStack);
-            this.saveFormField(AwsForm.NODESETTING, 'clusterName', payload.clusterName);
+            this.saveFormField(AwsForm.NODESETTING, AwsField.NODESETTING_SSH_KEY_NAME, payload.sshKeyName);
+            this.saveFormField(AwsForm.NODESETTING, AwsField.NODESETTING_CREATE_CLOUD_FORMATION, payload.createCloudFormationStack);
+            this.saveFormField(AwsForm.NODESETTING, AwsField.NODESETTING_CLUSTER_NAME, payload.clusterName);
 
             this.saveFormField(AwsForm.NODESETTING, AwsField.NODESETTING_CONTROL_PLANE_SETTING, payload.controlPlaneFlavor);
             if (payload.controlPlaneFlavor === InstanceType.DEV) {
@@ -144,11 +145,11 @@ export class AwsWizardComponent extends WizardBaseDirective implements OnInit {
                 this.saveFormField(AwsForm.NODESETTING, AwsField.NODESETTING_INSTANCE_TYPE_PROD, payload.controlPlaneNodeType);
             }
             const bastionHost = payload.bastionHostEnabled ? BASTION_HOST_ENABLED : BASTION_HOST_DISABLED;
-            this.saveFormField(AwsForm.NODESETTING, 'bastionHostEnabled', bastionHost);
-            this.saveFormField(AwsForm.NODESETTING, 'machineHealthChecksEnabled', payload.machineHealthCheckEnabled);
-            this.saveFormField(AwsForm.VPC, 'existingVpcId', (payload.vpc) ? payload.vpc.vpcID : '');
-            this.saveFormField(AwsForm.VPC, 'nonInternetFacingVPC', payload.loadbalancerSchemeInternal)
-            this.saveFormField(AwsForm.NODESETTING, "enableAuditLogging", payload.enableAuditLogging);
+            this.saveFormField(AwsForm.NODESETTING, AwsField.NODESETTING_BASTION_HOST_ENABLED, bastionHost);
+            this.saveFormField(AwsForm.NODESETTING, AwsField.NODESETTING_MACHINE_HEALTH_CHECKS_ENABLED, payload.machineHealthCheckEnabled);
+            this.saveFormField(AwsForm.VPC, AwsField.VPC_EXISTING_ID, (payload.vpc) ? payload.vpc.vpcID : '');
+            this.saveFormField(AwsForm.VPC, AwsField.VPC_NON_INTERNET_FACING, payload.loadbalancerSchemeInternal)
+            this.saveFormField(AwsForm.NODESETTING, AwsField.NODESETTING_ENABLE_AUDIT_LOGGING, payload.enableAuditLogging);
             this.saveVpcFields(payload.vpc);
 
             this.saveCommonFieldsFromPayload(payload);
@@ -158,14 +159,14 @@ export class AwsWizardComponent extends WizardBaseDirective implements OnInit {
     private saveVpcFields(vpc: AWSVpc) {
         if (vpc) {
             if (vpc.vpcID) {
-                this.saveFormField(AwsForm.VPC, 'vpcType', 'existing');
-                this.saveFormField(AwsForm.VPC, 'existingVpcCidr', vpc.cidr);
-                this.saveFormField(AwsForm.VPC, 'publicNodeCidr', '');
-                this.saveFormField(AwsForm.VPC, 'privateNodeCidr', '');
-                this.saveFormField(AwsForm.VPC, 'existingVpcId', vpc.vpcID);
+                this.saveFormField(AwsForm.VPC, AwsField.VPC_TYPE, VpcType.EXISTING);
+                this.saveFormField(AwsForm.VPC, AwsField.VPC_EXISTING_CIDR, vpc.cidr);
+                this.saveFormField(AwsForm.VPC, AwsField.VPC_PUBLIC_NODE_CIDR, '');
+                this.saveFormField(AwsForm.VPC, AwsField.VPC_PRIVATE_NODE_CIDR, '');
+                this.saveFormField(AwsForm.VPC, AwsField.VPC_EXISTING_ID, vpc.vpcID);
             } else {
-                this.saveFormField(AwsForm.VPC, 'vpcType', 'new');
-                this.saveFormField(AwsForm.VPC, 'vpc', vpc.cidr);
+                this.saveFormField(AwsForm.VPC, AwsField.VPC_TYPE, VpcType.NEW);
+                this.saveFormField(AwsForm.VPC, AwsField.VPC_NEW_CIDR, vpc.cidr);
             }
             this.saveVpcAzs(vpc);
         }
@@ -195,13 +196,13 @@ export class AwsWizardComponent extends WizardBaseDirective implements OnInit {
             name: this.getFieldValue(AwsForm.NODESETTING, azFields.az),
             workerNodeType: AppServices.appDataService.isModeClusterStandalone() ? standaloneControlPlaneNodeType :
                 this.getFieldValue(AwsForm.NODESETTING, azFields.workerNodeInstanceType),
-            publicNodeCidr: (this.getFieldValue(AwsForm.VPC, 'vpcType') === 'new') ?
-                this.getFieldValue(AwsForm.VPC, 'publicNodeCidr') : '',
-            privateNodeCidr: (this.getFieldValue(AwsForm.VPC, 'vpcType') === 'new') ?
-                this.getFieldValue(AwsForm.VPC, 'privateNodeCidr') : '',
-            publicSubnetID: (this.getFieldValue(AwsForm.VPC, 'vpcType') === 'existing') ?
+            publicNodeCidr: (this.getFieldValue(AwsForm.VPC, AwsField.VPC_TYPE) === VpcType.NEW) ?
+                this.getFieldValue(AwsForm.VPC, AwsField.VPC_PUBLIC_NODE_CIDR) : '',
+            privateNodeCidr: (this.getFieldValue(AwsForm.VPC, AwsField.VPC_TYPE) === VpcType.NEW) ?
+                this.getFieldValue(AwsForm.VPC, AwsField.VPC_PRIVATE_NODE_CIDR) : '',
+            publicSubnetID: (this.getFieldValue(AwsForm.VPC, AwsField.VPC_TYPE) === VpcType.EXISTING) ?
                 this.getFieldValue(AwsForm.NODESETTING, azFields.vpcPublicSubnet) : '',
-            privateSubnetID: (this.getFieldValue(AwsForm.VPC, 'vpcType') === 'existing') ?
+            privateSubnetID: (this.getFieldValue(AwsForm.VPC, AwsField.VPC_TYPE) === VpcType.EXISTING) ?
                 this.getFieldValue(AwsForm.NODESETTING, azFields.vpcPrivateSubnet) : ''
         }
     }
@@ -229,7 +230,7 @@ export class AwsWizardComponent extends WizardBaseDirective implements OnInit {
      * Return management/standalone cluster name
      */
     getMCName() {
-        return this.getFieldValue(AwsForm.NODESETTING, 'clusterName');
+        return this.getFieldValue(AwsForm.NODESETTING, AwsField.NODESETTING_CLUSTER_NAME);
     }
 
     /**
@@ -239,8 +240,8 @@ export class AwsWizardComponent extends WizardBaseDirective implements OnInit {
      * @returns the array includes cli command object like {isPrefixOfCreateCmd: true, cmdStr: "tanzu ..."}
      */
     getExtendCliCmds(): Array<{ isPrefixOfCreateCmd: boolean, cmdStr: string }> {
-        if (this.getFieldValue(AwsForm.NODESETTING, 'createCloudFormation')) {
-            const clusterPrefix = (this.getClusterType()) ? this.getClusterType() : 'management';
+        if (this.getFieldValue(AwsForm.NODESETTING, AwsField.NODESETTING_CREATE_CLOUD_FORMATION)) {
+            const clusterPrefix = (this.getClusterType()) ? this.getClusterType() : ClusterType.Management;
             const command = `tanzu ${clusterPrefix}-cluster permissions aws set`;
             return [{ isPrefixOfCreateCmd: true, cmdStr: command }]
         }

@@ -32,6 +32,7 @@ export enum AwsField {
     NODESETTING_CLUSTER_NAME = 'clusterName',
     NODESETTING_CONTROL_PLANE_SETTING = 'controlPlaneSetting',
     NODESETTING_CREATE_CLOUD_FORMATION = 'createCloudFormation',
+    NODESETTING_ENABLE_AUDIT_LOGGING = 'enableAuditLogging',
     NODESETTING_INSTANCE_TYPE_DEV = 'devInstanceType',
     NODESETTING_INSTANCE_TYPE_PROD = 'prodInstanceType',
     NODESETTING_MACHINE_HEALTH_CHECKS_ENABLED = 'machineHealthChecksEnabled',
@@ -57,5 +58,7 @@ export enum AwsField {
     VPC_EXISTING_CIDR = 'existingVpcCidr',
     VPC_NEW_CIDR = 'vpc',
     VPC_NON_INTERNET_FACING = 'nonInternetFacingVPC',
+    VPC_PRIVATE_NODE_CIDR = 'privateNodeCidr',
+    VPC_PUBLIC_NODE_CIDR = 'publicNodeCidr',
     VPC_TYPE = 'vpcType'
 }

@@ -8,7 +8,7 @@ export const AzureNodeSettingStandaloneStepMapping: StepMapping = {
         { name: AzureField.NODESETTING_INSTANCE_TYPE_DEV, required: true },
         { name: AzureField.NODESETTING_INSTANCE_TYPE_PROD, required: true },
         { name: AzureField.NODESETTING_MACHINE_HEALTH_CHECKS_ENABLED },
-        { name: AzureField.NODESETTING_MANAMGEMENT_CLUSTER_NAME, validators: [SimpleValidator.IS_VALID_CLUSTER_NAME] },
+        { name: AzureField.NODESETTING_MANAGEMENT_CLUSTER_NAME, validators: [SimpleValidator.IS_VALID_CLUSTER_NAME] },
     ]
 };
 export const AzureNodeSettingStepMapping: StepMapping = {

@@ -11,6 +11,11 @@ export enum FeatureFlags {
     CLUSTER_NAME_REQUIRED = 'cluster-name-required',
 }
 
+export enum ClusterPlan {
+    DEV = 'dev',
+    PROD = 'prod',
+}
+
 // ClusterType enum are data values sent to the backend to specify the cluster type
 export enum ClusterType {
     Management = 'management',

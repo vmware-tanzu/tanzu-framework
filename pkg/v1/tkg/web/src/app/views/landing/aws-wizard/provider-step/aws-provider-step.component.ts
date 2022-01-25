@@ -1,8 +1,8 @@
 // Angular imports
-import {Component, OnInit} from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 // Third party imports
-import {catchError, debounceTime, distinctUntilChanged, takeUntil} from 'rxjs/operators';
-import {forkJoin, of} from 'rxjs';
+import { catchError, debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
+import { forkJoin, of } from 'rxjs';
 // App imports
 import { APIClient } from '../../../../swagger/api-client.service';
 import AppServices from '../../../../shared/service/appServices';
@@ -34,7 +34,6 @@ export class AwsProviderStepComponent extends StepFormDirective implements OnIni
     regions = [];
     profileNames: Array<string> = [];
     validCredentials: boolean = false;
-    isProfileChoosen: boolean = false;
 
     constructor(private fieldMapUtilities: FieldMapUtilities, private apiClient: APIClient) {
         super();
@@ -254,7 +253,6 @@ export class AwsProviderStepComponent extends StepFormDirective implements OnIni
 
     // For use in HTML
     isAuthTypeProfile() {
-        const result = this.authTypeValue === CredentialType.PROFILE;
-        return result;
+        return this.authTypeValue === CredentialType.PROFILE;
     }
 }

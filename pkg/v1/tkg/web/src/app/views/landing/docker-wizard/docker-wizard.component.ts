@@ -17,6 +17,7 @@ import { FormMetaDataService } from 'src/app/shared/service/form-meta-data.servi
 import { ImportParams, ImportService } from "../../../shared/service/import.service";
 import { NodeSettingStepComponent } from './node-setting-step/node-setting-step.component';
 import { WizardBaseDirective } from '../wizard/shared/wizard-base/wizard-base';
+import { WizardForm } from '../wizard/shared/constants/wizard.constants';
 
 @Component({
     selector: 'app-docker-wizard',
@@ -60,10 +61,10 @@ export class DockerWizardComponent extends WizardBaseDirective implements OnInit
     }
 
     setFromPayload(payload: DockerRegionalClusterParams) {
-        this.setFieldValue('networkForm', 'networkName', payload.networking.networkName);
-        this.setFieldValue('networkForm', 'clusterServiceCidr',  payload.networking.clusterServiceCIDR);
-        this.setFieldValue('networkForm', 'clusterPodCidr',  payload.networking.clusterPodCIDR);
-        this.setFieldValue('networkForm', 'cniType',  payload.networking.cniType);
+        this.setFieldValue(WizardForm.NETWORK, 'networkName', payload.networking.networkName);
+        this.setFieldValue(WizardForm.NETWORK, 'clusterServiceCidr',  payload.networking.clusterServiceCIDR);
+        this.setFieldValue(WizardForm.NETWORK, 'clusterPodCidr',  payload.networking.clusterPodCIDR);
+        this.setFieldValue(WizardForm.NETWORK, 'cniType',  payload.networking.cniType);
 
         this.setFieldValue('dockerNodeSettingForm', 'clusterName', payload.clusterName);
 
@@ -74,37 +75,37 @@ export class DockerWizardComponent extends WizardBaseDirective implements OnInit
         const payload: DockerRegionalClusterParams = {}
 
         payload.networking = {
-            networkName: this.getFieldValue('networkForm', 'networkName'),
+            networkName: this.getFieldValue(WizardForm.NETWORK, 'networkName'),
             clusterDNSName: '',
             clusterNodeCIDR: '',
-            clusterServiceCIDR: this.getFieldValue('networkForm', 'clusterServiceCidr'),
-            clusterPodCIDR: this.getFieldValue('networkForm', 'clusterPodCidr'),
-            cniType: this.getFieldValue('networkForm', 'cniType')
+            clusterServiceCIDR: this.getFieldValue(WizardForm.NETWORK, 'clusterServiceCidr'),
+            clusterPodCIDR: this.getFieldValue(WizardForm.NETWORK, 'clusterPodCidr'),
+            cniType: this.getFieldValue(WizardForm.NETWORK, 'cniType')
         };
 
         payload.clusterName = this.getFieldValue('dockerNodeSettingForm', 'clusterName');
 
-        if (this.getFieldValue('networkForm', 'proxySettings')) {
+        if (this.getFieldValue(WizardForm.NETWORK, 'proxySettings')) {
             let proxySettingsMap = null;
             proxySettingsMap = [
-                ['HTTPProxyURL', 'networkForm', 'httpProxyUrl'],
-                ['HTTPProxyUsername', 'networkForm', 'httpProxyUsername'],
-                ['HTTPProxyPassword', 'networkForm', 'httpProxyPassword'],
-                ['noProxy', 'networkForm', 'noProxy']
+                ['HTTPProxyURL', WizardForm.NETWORK, 'httpProxyUrl'],
+                ['HTTPProxyUsername', WizardForm.NETWORK, 'httpProxyUsername'],
+                ['HTTPProxyPassword', WizardForm.NETWORK, 'httpProxyPassword'],
+                ['noProxy', WizardForm.NETWORK, 'noProxy']
             ];
-            if (this.getFieldValue('networkForm', 'isSameAsHttp')) {
+            if (this.getFieldValue(WizardForm.NETWORK, 'isSameAsHttp')) {
                 proxySettingsMap = [
                     ...proxySettingsMap,
-                    ['HTTPSProxyURL', 'networkForm', 'httpProxyUrl'],
-                    ['HTTPSProxyUsername', 'networkForm', 'httpProxyUsername'],
-                    ['HTTPSProxyPassword', 'networkForm', 'httpProxyPassword']
+                    ['HTTPSProxyURL', WizardForm.NETWORK, 'httpProxyUrl'],
+                    ['HTTPSProxyUsername', WizardForm.NETWORK, 'httpProxyUsername'],
+                    ['HTTPSProxyPassword', WizardForm.NETWORK, 'httpProxyPassword']
                 ];
             } else {
                 proxySettingsMap = [
                     ...proxySettingsMap,
-                    ['HTTPSProxyURL', 'networkForm', 'httpsProxyUrl'],
-                    ['HTTPSProxyUsername', 'networkForm', 'httpsProxyUsername'],
-                    ['HTTPSProxyPassword', 'networkForm', 'httpsProxyPassword']
+                    ['HTTPSProxyURL', WizardForm.NETWORK, 'httpsProxyUrl'],
+                    ['HTTPSProxyUsername', WizardForm.NETWORK, 'httpsProxyUsername'],
+                    ['HTTPSProxyPassword', WizardForm.NETWORK, 'httpsProxyPassword']
                 ];
             }
             payload.networking.httpProxyConfiguration = {

@@ -6,14 +6,15 @@ import { By } from '@angular/platform-browser';
 // App imports
 import { APIClient } from '../../../../swagger/api-client.service';
 import AppServices from 'src/app/shared/service/appServices';
+import { AwsField, AwsForm } from '../aws-wizard.constants';
+import { AWSSubnet } from '../../../../swagger/models';
+import { ClusterPlan } from '../../wizard/shared/constants/wizard.constants';
+import { DataServiceRegistrarTestExtension } from '../../../../testing/data-service-registrar.testextension';
 import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
-import { NodeSettingStepComponent, NodeType } from './node-setting-step.component';
+import { NodeSettingStepComponent } from './node-setting-step.component';
 import { Messenger, TanzuEventType } from 'src/app/shared/service/Messenger';
 import { SharedModule } from '../../../../shared/shared.module';
 import { ValidationService } from '../../wizard/shared/validation/validation.service';
-import { DataServiceRegistrarTestExtension } from '../../../../testing/data-service-registrar.testextension';
-import { AWSSubnet } from '../../../../swagger/models';
-import { AwsField, AwsForm } from '../aws-wizard.constants';
 
 describe('NodeSettingStepComponent', () => {
     let component: NodeSettingStepComponent;
@@ -298,7 +299,7 @@ describe('NodeSettingStepComponent', () => {
         const msgSpy = spyOn(AppServices.messenger, 'publish').and.callThrough();
 
         component.ngOnInit();
-        component.nodeType = '';
+        component.clusterPlan = '';
         const description = component.dynamicDescription();
         expect(description).toEqual('Specify the resources backing the  cluster');
 
@@ -313,7 +314,7 @@ describe('NodeSettingStepComponent', () => {
         });
 
         const controlPlaneSettingControl = component.formGroup.controls[AwsField.NODESETTING_CONTROL_PLANE_SETTING];
-        controlPlaneSettingControl.setValue(NodeType.DEV);
+        controlPlaneSettingControl.setValue(ClusterPlan.DEV);
         expect(msgSpy).toHaveBeenCalledWith({
             type: TanzuEventType.STEP_DESCRIPTION_CHANGE,
             payload: {
@@ -323,7 +324,7 @@ describe('NodeSettingStepComponent', () => {
             }
         });
 
-        controlPlaneSettingControl.setValue(NodeType.PROD);
+        controlPlaneSettingControl.setValue(ClusterPlan.PROD);
         expect(msgSpy).toHaveBeenCalledWith({
             type: TanzuEventType.STEP_DESCRIPTION_CHANGE,
             payload: {
