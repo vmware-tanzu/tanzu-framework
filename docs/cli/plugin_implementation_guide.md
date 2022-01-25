@@ -137,7 +137,7 @@ To install the builder plugin use `tanzu plugin install builder`
 
 `tanzu builder init <repo-name>` will create a new plugin repository.
 
-`tanzu builder cli add-plugin <plugin-name>` will add a new cli plugin.
+`cd <repo-name> && tanzu builder cli add-plugin <plugin-name>` will add a `main` package for the new plugin.
 
 CLI plugins have to instantiate a [Plugin descriptor](https://github.com/vmware-tanzu/tanzu-framework/blob/main/apis/cli/v1alpha1/catalog_types.go#L69)
 for creating a new plugin, which then bootstraps the plugin with some [sub-commands](https://github.com/vmware-tanzu/tanzu-framework/tree/main/pkg/v1/cli/command/plugin).
@@ -147,14 +147,36 @@ to a public repository. It is useful to leverage a local repo when developing.
 
 #### Building a Plugin
 
-The Tanzu CLI itself is responsible for building plugins. You can build and install your new plugin for the current host OS with the provided make targets:
+The Tanzu CLI itself is responsible for building plugins. You can build and install your new plugin for the current host OS with the provided make targets as follows:
+
+1. Initialize go module.
+
+```shell
+make init
+```
+
+1. Create an initial commit.
+
+```shell
+git add -A
+git commit -m "Initialize plugin repository"
+```
+
+1. Add your plugin name to `PLUGINS` variable in the `Makefile`.
+
+```shell
+# Add list of plugins separated by space
+PLUGINS ?= "<PLUGIN_NAME>"
+```
+
+1. Build the plugin.
 
 ```sh
 make build-install-local
 ```
 
-This will build plugin artifacts under `./artifacts`. And generates plugin publishing directory `{HOSTOS}/{HOSTARCH}` under `./artifacts/published`.
-Using `make build-install-local` installs the plugins for the user but it internally invokes following command to install the plugins
+This will build plugin artifacts under `./artifacts` and generates plugin publishing directory `{HOSTOS}/{HOSTARCH}` under `./artifacts/published`.
+Using `make build-install-local` installs the plugins for the user, but it internally invokes following command to install the plugins.
 
 ```sh
 tanzu plugin install <plugin-name> --local ./artifacts/published/${HOSTOS}-${HOSTARCH}
