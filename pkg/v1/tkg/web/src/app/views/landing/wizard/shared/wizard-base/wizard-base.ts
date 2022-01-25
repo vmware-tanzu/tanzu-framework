@@ -9,7 +9,7 @@ import { ClrStepper } from '@clr/angular';
 import { debounceTime, take, takeUntil } from 'rxjs/operators';
 import FileSaver from 'file-saver';
 import { Observable } from 'rxjs';
-import { ConfigFileInfo } from 'tanzu-ui-api-lib';
+import { ConfigFileInfo } from 'tanzu-mgmt-plugin-api-lib';
 
 // App imports
 import { APP_ROUTES, Routes } from 'src/app/shared/constants/routes.constants';

@@ -3,8 +3,8 @@ import { Component } from '@angular/core';
 import { takeUntil } from 'rxjs/operators';
 
 // App imports
-import { APIClient } from 'tanzu-ui-api-lib';
-import { Features, ProviderInfo } from 'tanzu-ui-api-lib';
+import { APIClient } from 'tanzu-mgmt-plugin-api-lib';
+import { Features, ProviderInfo } from 'tanzu-mgmt-plugin-api-lib';
 import { BasicSubscriber } from './shared/abstracts/basic-subscriber';
 import { BrandingService } from './shared/service/branding.service';
 import AppServices from "./shared/service/appServices";

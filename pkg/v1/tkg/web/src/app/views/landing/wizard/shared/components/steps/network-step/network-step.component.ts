@@ -4,7 +4,7 @@ import { FormGroup, Validators } from '@angular/forms';
 
 // Library imports
 import { distinctUntilChanged, takeUntil } from 'rxjs/operators';
-import { VSphereNetwork } from 'tanzu-ui-api-lib';
+import { VSphereNetwork } from 'tanzu-mgmt-plugin-api-lib';
 
 // App imports
 import AppServices from '../../../../../../../shared/service/appServices';

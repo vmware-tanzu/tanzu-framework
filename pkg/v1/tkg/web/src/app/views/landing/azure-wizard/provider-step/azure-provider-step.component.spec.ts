@@ -6,7 +6,7 @@ import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 
 // Library imports
 import { of, throwError, Observable } from 'rxjs';
-import { APIClient, AzureResourceGroup } from 'tanzu-ui-api-lib';
+import { APIClient, AzureResourceGroup } from 'tanzu-mgmt-plugin-api-lib';
 
 // App imports
 import AppServices from '../../../../shared/service/appServices';

@@ -5,7 +5,7 @@ import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 
 // Library imports
-import { APIClient } from 'tanzu-ui-api-lib';
+import { APIClient } from 'tanzu-mgmt-plugin-api-lib';
 
 // App imports
 import AppServices from 'src/app/shared/service/appServices';

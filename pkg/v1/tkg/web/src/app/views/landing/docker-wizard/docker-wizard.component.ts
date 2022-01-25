@@ -5,7 +5,7 @@ import { Router } from '@angular/router';
 import { Title } from '@angular/platform-browser';
 
 // Library imports
-import { APIClient, ConfigFileInfo, DockerRegionalClusterParams } from 'tanzu-ui-api-lib';
+import { APIClient, ConfigFileInfo, DockerRegionalClusterParams } from 'tanzu-mgmt-plugin-api-lib';
 import { Observable } from 'rxjs';
 
 // App imports

@@ -8,7 +8,7 @@ import { RouterTestingModule } from '@angular/router/testing';
 // Library imports
 import { of } from 'rxjs';
 import { delay } from 'rxjs/operators';
-import { APIClient } from 'tanzu-ui-api-lib';
+import { APIClient } from 'tanzu-mgmt-plugin-api-lib';
 
 // App imports
 import AppServices from 'src/app/shared/service/appServices';

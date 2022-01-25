@@ -4,7 +4,7 @@ import { RouterTestingModule } from '@angular/router/testing';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 
 // Library imports
-import { APIClient } from 'tanzu-ui-api-lib';
+import { APIClient } from 'tanzu-mgmt-plugin-api-lib';
 
 // App imports
 import { ConfirmComponent } from './confirm.component';

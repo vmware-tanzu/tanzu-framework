@@ -5,7 +5,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterTestingModule } from '@angular/router/testing';
 
 // Library imports
-import { APIClient, DockerDaemonStatus } from 'tanzu-ui-api-lib';
+import { APIClient, DockerDaemonStatus } from 'tanzu-mgmt-plugin-api-lib';
 
 // App imports
 import { SharedModule } from 'src/app/shared/shared.module';

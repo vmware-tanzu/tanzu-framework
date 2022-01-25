@@ -3,7 +3,7 @@ import { ReactiveFormsModule, FormBuilder } from '@angular/forms';
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
 // Library imports
-import { APIClient } from 'tanzu-ui-api-lib';
+import { APIClient } from 'tanzu-mgmt-plugin-api-lib';
 
 // App imports
 import AppServices from '../../../../shared/service/appServices';

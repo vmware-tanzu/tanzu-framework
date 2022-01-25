@@ -1,0 +1,39 @@
+{
+  "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
+  "version": 1,
+  "newProjectRoot": "projects",
+  "projects": {
+    "tanzu-mgmt-plugin-api-lib": {
+      "projectType": "library",
+      "root": "projects/tanzu-mgmt-plugin-api-lib",
+      "sourceRoot": "projects/tanzu-mgmt-plugin-api-lib/src",
+      "prefix": "lib",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-angular:ng-packagr",
+          "options": {
+            "project": "projects/tanzu-mgmt-plugin-api-lib/ng-package.json"
+          },
+          "configurations": {
+            "production": {
+              "tsConfig": "projects/tanzu-mgmt-plugin-api-lib/tsconfig.lib.prod.json"
+            },
+            "development": {
+              "tsConfig": "projects/tanzu-mgmt-plugin-api-lib/tsconfig.lib.json"
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "main": "projects/tanzu-mgmt-plugin-api-lib/src/test.ts",
+            "tsConfig": "projects/tanzu-mgmt-plugin-api-lib/tsconfig.spec.json",
+            "karmaConfig": "projects/tanzu-mgmt-plugin-api-lib/karma.conf.js"
+          }
+        }
+      }
+    }
+  },
+  "defaultProject": "tanzu-mgmt-plugin-api-lib"
+}

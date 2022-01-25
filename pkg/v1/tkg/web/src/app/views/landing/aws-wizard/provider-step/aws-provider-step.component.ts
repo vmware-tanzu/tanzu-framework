@@ -4,7 +4,7 @@ import {Component, OnInit} from '@angular/core';
 // Library imports
 import {catchError, debounceTime, distinctUntilChanged, takeUntil} from 'rxjs/operators';
 import {forkJoin, of} from 'rxjs';
-import { APIClient } from 'tanzu-ui-api-lib';
+import { APIClient } from 'tanzu-mgmt-plugin-api-lib';
 
 // App imports
 import AppServices from '../../../../shared/service/appServices';
