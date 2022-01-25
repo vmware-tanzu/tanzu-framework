@@ -721,7 +721,11 @@ func verifyPlugin(p *plugin.Discovered) error {
 	if artifactInfo.Image != "" {
 		return verifyRegistry(artifactInfo.Image)
 	}
-	return nil
+	if artifactInfo.URI != "" {
+		// TODO implement verification
+		return errors.Errorf("untrusted uri detected %q", artifactInfo.URI)
+	}
+	return errors.Errorf("unable to verify plugin %q of unknown source", p.Name)
 }
 
 // verifyRegistry verifies the authenticity of the registry from where cli is
