@@ -9,20 +9,14 @@ import (
 
 // AntreaConfigSpec defines the desired state of AntreaConfig
 type AntreaConfigSpec struct {
-	// The cloud provider in use. One of the following options => aws, azure, vsphere, docker
-	// +kubebuilder:validation:Required
-	// +kubebuilder:validation:Enum="aws";"azure";"vsphere";"docker"
-	// +kubebuilder:default:=vsphere
-	InfraProvider string `json:"infraProvider"`
-
 	Antrea Antrea `json:"antrea,omitempty"`
 }
 
 type Antrea struct {
-	Config Config `json:"config,omitempty"`
+	AntConfig AntConfig `json:"config,omitempty"`
 }
 
-type Config struct {
+type AntConfig struct {
 	// The traffic encapsulation mode. One of the following options => encap, noEncap, hybrid, networkPolicyOnly
 	// +kubebuilder:validation:Optional
 	// +kubebuilder:validation:Enum="encap";"noEncap";"hybrid";"networkPolicyOnly"

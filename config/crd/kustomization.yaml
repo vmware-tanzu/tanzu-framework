@@ -8,7 +8,7 @@ resources:
 - bases/run.tanzu.vmware.com_capabilities.yaml
 - bases/config.tanzu.vmware.com_featuregates.yaml
 - bases/cni.tanzu.vmware.com_calicoconfigs.yaml
-- bases/addons.tanzu.vmware.com_antreaconfigs.yaml
+- bases/cni.tanzu.vmware.com_antreaconfigs.yaml
 # +kubebuilder:scaffold:crdkustomizeresource
 
 patchesStrategicMerge:

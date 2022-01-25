@@ -9,11 +9,13 @@ import (
 	"strings"
 	"time"
 
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/log"
+
 	"k8s.io/apimachinery/pkg/api/errors"
 
 	"sigs.k8s.io/cluster-api/util/secret"
 
-	addonsv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/addons/v1alpha1"
+	cniv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cni/v1alpha1"
 
 	clusterapiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
 
@@ -66,7 +68,7 @@ var _ = Describe("AntreaConfig Reconciler", func() {
 		Expect(k8sClient.Delete(ctx, s)).To(Succeed())
 	})
 
-	Context("reconcile AntreaConfig for management cluster", func() {
+	Context("Reconcile AntreaConfig for management cluster", func() {
 
 		BeforeEach(func() {
 			clusterName = "test-cluster-1"
@@ -90,18 +92,19 @@ var _ = Describe("AntreaConfig Reconciler", func() {
 			}, waitTimeout, pollingInterval).Should(BeTrue())
 
 			Eventually(func() bool {
-				config := &addonsv1alpha1.AntreaConfig{}
+				config := &cniv1alpha1.AntreaConfig{}
 				err := k8sClient.Get(ctx, key, config)
 				if err != nil {
+					log.Error(err, "Failed getting config")
+					time.Sleep(1)
 					return false
 				}
 
 				// Possible to add more checks here
-				Expect(config.Spec.InfraProvider).Should(Equal("vsphere"))
-				Expect(config.Spec.Antrea.Config.TrafficEncapMode).Should(Equal("encap"))
-				Expect(config.Spec.Antrea.Config.FeatureGates.AntreaTraceflow).Should(Equal(false))
-				Expect(config.Spec.Antrea.Config.FeatureGates.AntreaPolicy).Should(Equal(true))
-				Expect(config.Spec.Antrea.Config.FeatureGates.FlowExporter).Should(Equal(false))
+				Expect(config.Spec.Antrea.AntConfig.TrafficEncapMode).Should(Equal("encap"))
+				Expect(config.Spec.Antrea.AntConfig.FeatureGates.AntreaTraceflow).Should(Equal(false))
+				Expect(config.Spec.Antrea.AntConfig.FeatureGates.AntreaPolicy).Should(Equal(true))
+				Expect(config.Spec.Antrea.AntConfig.FeatureGates.FlowExporter).Should(Equal(false))
 
 				return true
 			}, waitTimeout, pollingInterval).Should(BeTrue())
@@ -114,6 +117,7 @@ var _ = Describe("AntreaConfig Reconciler", func() {
 				secret := &v1.Secret{}
 				err := k8sClient.Get(ctx, secretKey, secret)
 				if err != nil {
+
 					return false
 				}
 				Expect(secret.Type).Should(Equal(v1.SecretTypeOpaque))
@@ -132,7 +136,7 @@ var _ = Describe("AntreaConfig Reconciler", func() {
 			}
 
 			Eventually(func() bool {
-				config := &addonsv1alpha1.AntreaConfig{}
+				config := &cniv1alpha1.AntreaConfig{}
 				err := k8sClient.Get(ctx, key, config)
 				if err != nil {
 					if errors.IsNotFound(err) {

@@ -5,7 +5,7 @@ metadata:
   name: test-cluster-1
   namespace: default
 ---
-apiVersion: addons.tanzu.vmware.com/v1alpha1
+apiVersion: cni.tanzu.vmware.com/v1alpha1
 kind: AntreaConfig
 metadata:
   name: test-cluster-1

@@ -6,9 +6,9 @@ metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.7.0
   creationTimestamp: null
-  name: antreaconfigs.addons.tanzu.vmware.com
+  name: antreaconfigs.cni.tanzu.vmware.com
 spec:
-  group: addons.tanzu.vmware.com
+  group: cni.tanzu.vmware.com
   names:
     kind: AntreaConfig
     listKind: AntreaConfigList
@@ -114,18 +114,6 @@ spec:
                         type: string
                     type: object
                 type: object
-              infraProvider:
-                default: vsphere
-                description: The cloud provider in use. One of the following options
-                  => aws, azure, vsphere, docker
-                enum:
-                - aws
-                - azure
-                - vsphere
-                - docker
-                type: string
-            required:
-            - infraProvider
             type: object
           status:
             description: AntreaConfigStatus defines the observed state of AntreaConfig

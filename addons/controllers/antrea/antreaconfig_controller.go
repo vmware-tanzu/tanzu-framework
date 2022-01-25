@@ -29,7 +29,7 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
-	addonsv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/addons/v1alpha1"
+	cniv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cni/v1alpha1"
 )
 
 // AntreaConfigReconciler reconciles a AntreaConfig object
@@ -54,7 +54,7 @@ func (r *AntreaConfigReconciler) Reconcile(ctx context.Context, req ctrl.Request
 	log := r.Log.WithValues("antreaconfig", req.NamespacedName)
 
 	// get antrea config object
-	antreaConfig := &addonsv1alpha1.AntreaConfig{}
+	antreaConfig := &cniv1alpha1.AntreaConfig{}
 	if err := r.Client.Get(ctx, req.NamespacedName, antreaConfig); err != nil {
 		log.Error(err, "unable to fetch AntreaConfig")
 		return ctrl.Result{}, err
@@ -90,7 +90,7 @@ func (r *AntreaConfigReconciler) Reconcile(ctx context.Context, req ctrl.Request
 // SetupWithManager sets up the controller with the Manager.
 func (r *AntreaConfigReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
-		For(&addonsv1alpha1.AntreaConfig{}).
+		For(&cniv1alpha1.AntreaConfig{}).
 		Complete(r)
 }
 
@@ -100,7 +100,7 @@ func (r *AntreaConfigReconciler) ReconcileAntreaConfig(
 	log logr.Logger,
 	cluster *clusterapiv1beta1.Cluster,
 	clusterClient client.Client,
-	antreaConfig *addonsv1alpha1.AntreaConfig) (_ ctrl.Result, retErr error) {
+	antreaConfig *cniv1alpha1.AntreaConfig) (_ ctrl.Result, retErr error) {
 
 	var (
 		patchCRD bool
@@ -147,7 +147,7 @@ func (r *AntreaConfigReconciler) ReconcileAntreaConfigNormal(
 	log logr.Logger,
 	cluster *clusterapiv1beta1.Cluster,
 	clusterClient client.Client,
-	antreaConfig *addonsv1alpha1.AntreaConfig,
+	antreaConfig *cniv1alpha1.AntreaConfig,
 	patchCRD *bool) (retErr error) {
 
 	// Add finalizer to addon secret
@@ -209,7 +209,7 @@ func (r *AntreaConfigReconciler) ReconcileAntreaConfigDelete(
 	ctx context.Context,
 	log logr.Logger,
 	clusterClient client.Client,
-	antreaConfig *addonsv1alpha1.AntreaConfig,
+	antreaConfig *cniv1alpha1.AntreaConfig,
 	patchCRD *bool) (retErr error) {
 
 	// delete data value secret
