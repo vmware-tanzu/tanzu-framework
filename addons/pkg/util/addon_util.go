@@ -86,6 +86,11 @@ func GenerateAppNamespaceFromAddonSecret(addonSecret *corev1.Secret, defaultAddo
 	return defaultAddonNamespace
 }
 
+// GenerateDataValueSecretNameFromAddonAndClusterNames generates data value secret name from addon names
+func GenerateDataValueSecretNameFromAddonNames(clusterName, addonName string) string {
+	return fmt.Sprintf("%s-%s-data-values", clusterName, addonName)
+}
+
 // GetClientFromAddonSecret gets appropriate cluster client given addon secret
 func GetClientFromAddonSecret(addonSecret *corev1.Secret, localClient, remoteClient client.Client) client.Client {
 	var clusterClient client.Client

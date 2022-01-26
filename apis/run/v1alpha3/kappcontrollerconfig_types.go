@@ -1,4 +1,4 @@
-// Copyright YEAR VMware, Inc. All Rights Reserved.
+// Copyright 2022 VMware, Inc. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
 package v1alpha3
@@ -61,10 +61,10 @@ type KappDeployment struct {
 	// +kubebuilder:default:=10350
 	ApiPort int `json:"apiPort,omitempty"`
 
-	// Address for metrics server"
+	// Address for metrics server
 	// +kubebuilder:validation:Optional
 	// +kubebuilder:default:=:8080
-	MetricsBindAddress int `json:"metricsBindAddress,omitempty"`
+	MetricsBindAddress string `json:"metricsBindAddress,omitempty"`
 }
 
 type KappConfig struct {
@@ -91,8 +91,14 @@ type KappConfig struct {
 
 // KappControllerConfigStatus defines the observed state of KappControllerConfig
 type KappControllerConfigStatus struct {
-	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
-	// Important: Run "make" to regenerate code after modifying this file
+	// Reference to the data value secret created by controller
+	SecretRef SecretRef `json:"secretRef,omitempty"`
+}
+
+type SecretRef struct {
+	// Name of the data value secret created by controller
+	// +kubebuilder:validation:Optional
+	Name string `json:"name,omitempty"`
 }
 
 //+kubebuilder:object:root=true
