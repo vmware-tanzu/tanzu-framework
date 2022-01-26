@@ -2,6 +2,9 @@ module github.com/vmware-tanzu/tanzu-framework
 
 go 1.17
 
+// Legacy tags before v0.1.0 was created
+retract [v1.4.0-pre-alpha-1, v1.4.0-pre-alpha-2]
+
 replace (
 	github.com/googleapis/gnostic => github.com/googleapis/gnostic v0.5.5 // indirect
 	github.com/k14s/kbld => github.com/anujc25/carvel-kbld v0.31.0-update-vendir
