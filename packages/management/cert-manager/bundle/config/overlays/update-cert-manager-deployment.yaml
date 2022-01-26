@@ -1,0 +1,11 @@
+#@ load("@ytt:overlay", "overlay")
+#@ load("@ytt:data", "data")
+
+#! TKG specific overlay so that cert-manager remains upgradeable from 1.3
+
+#@overlay/match by=overlay.subset({"kind": "Deployment", "metadata": {"namespace": data.values.namespace }}), expects=3
+---
+metadata:
+  #@overlay/match missing_ok=True
+  annotations:
+    kapp.k14s.io/disable-default-label-scoping-rules: ""

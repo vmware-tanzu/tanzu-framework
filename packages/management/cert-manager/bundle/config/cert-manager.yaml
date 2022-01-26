@@ -1,0 +1,15 @@
+#! Load ytt libs
+#@ load("@ytt:library", "library")
+#@ load("@ytt:template", "template")
+#@ load("@ytt:data", "data")
+
+#! export vendored cert-manager bundle as a var
+#@ cert_manager_lib = library.get("bundle/config")
+
+#! define a map for values to be passed to vendored cert-manager lib
+#@ def cert_manager_values():
+namespace: #@ data.values.namespace
+#@ end
+
+#! render yaml from vendored lib with data values
+--- #@ template.replace(cert_manager_lib.with_data_values(cert_manager_values()).eval())

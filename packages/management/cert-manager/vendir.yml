@@ -1,0 +1,47 @@
+apiVersion: vendir.k14s.io/v1alpha1
+kind: Config
+minimumRequiredVersion: 0.12.0
+directories:
+  - path: config/_ytt_lib
+    contents:
+      - path: .
+        git:
+          url: git@github.com:vmware-tanzu/community-edition.git
+          ref: 94e03c406c1659e844deb1790517c647cc6ebc2a
+        newRootPath: addons/packages/cert-manager/1.5.3
+        includePaths:
+          - addons/packages/cert-manager/1.5.3/bundle/config/**/*
+
+apiVersion: vendir.k14s.io/v1alpha1
+kind: Config
+minimumRequiredVersion: 0.12.0
+directories:
+  - path: bundle/config/_ytt_lib
+    contents:
+      - path: .
+        git:
+          url: git@github.com:vmware-tanzu/community-edition.git
+          ref: 94e03c406c1659e844deb1790517c647cc6ebc2a
+        newRootPath: addons/packages/cert-manager/1.5.3
+        includePaths:
+          - addons/packages/cert-manager/1.5.3/bundle/config/**/*
+
+  - path: package.yaml
+    contents:
+      - path: .
+        git:
+          url: git@github.com:vmware-tanzu/community-edition.git
+          ref: 94e03c406c1659e844deb1790517c647cc6ebc2a
+        newRootPath: addons/packages/cert-manager/1.5.3/package.yaml
+        includePaths:
+          - addons/packages/cert-manager/1.5.3/package.yaml
+
+  - path: metadata.yaml
+    contents:
+      - path: .
+        git:
+          url: git@github.com:vmware-tanzu/community-edition.git
+          ref: d6a411201a3a34f7f2a04d3f62998a7900cc6b81
+        newRootPath: addons/packages/cert-manager/metadata.yaml
+        includePaths:
+          - addons/packages/cert-manager/metadata.yaml

@@ -1,0 +1,27 @@
+apiVersion: vendir.k14s.io/v1alpha1
+directories:
+- contents:
+  - git:
+      commitTitle: 'Update cert-manager packages #1728 (#1844)...'
+      sha: 94e03c406c1659e844deb1790517c647cc6ebc2a
+      tags:
+      - v0.9.0-rc.1-23-g94e03c40
+    path: .
+  path: bundle/config/_ytt_lib
+- contents:
+  - git:
+      commitTitle: 'Update cert-manager packages #1728 (#1844)...'
+      sha: 94e03c406c1659e844deb1790517c647cc6ebc2a
+      tags:
+      - v0.9.0-rc.1-23-g94e03c40
+    path: .
+  path: package.yaml
+- contents:
+  - git:
+      commitTitle: Add package metadata for cert-manager (#1104)...
+      sha: d6a411201a3a34f7f2a04d3f62998a7900cc6b81
+      tags:
+      - v0.6.0-141-gd6a41120
+    path: .
+  path: metadata.yaml
+kind: LockConfig
