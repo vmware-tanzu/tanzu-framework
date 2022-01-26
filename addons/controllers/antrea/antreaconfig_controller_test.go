@@ -9,7 +9,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/log"
+	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
 
 	"k8s.io/apimachinery/pkg/api/errors"
 
@@ -95,8 +95,6 @@ var _ = Describe("AntreaConfig Reconciler", func() {
 				config := &cniv1alpha1.AntreaConfig{}
 				err := k8sClient.Get(ctx, key, config)
 				if err != nil {
-					log.Error(err, "Failed getting config")
-					time.Sleep(1)
 					return false
 				}
 
@@ -154,7 +152,7 @@ var _ = Describe("AntreaConfig Reconciler", func() {
 			Eventually(func() bool {
 				secretKey := client.ObjectKey{
 					Namespace: "default",
-					Name:      fmt.Sprintf("%s-antrea-data-values", clusterName),
+					Name:      fmt.Sprintf("%s-%s-data-values", clusterName, constants.AntreaAddonName),
 				}
 				secret := &v1.Secret{}
 				err := k8sClient.Get(ctx, secretKey, secret)

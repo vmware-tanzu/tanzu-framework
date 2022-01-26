@@ -90,7 +90,16 @@ type AntreaFeatureGates struct {
 }
 
 // AntreaConfigStatus defines the observed state of AntreaConfig
-type AntreaConfigStatus struct{}
+type AntreaConfigStatus struct {
+	// Reference to the data value secret created by controller
+	SecretRef AntreaSecretRef `json:"secretRef,omitempty"`
+}
+
+type AntreaSecretRef struct {
+	// Name of the data value secret created by controller
+	// +kubebuilder:validation:Optional
+	Name string `json:"name,omitempty"`
+}
 
 //+kubebuilder:object:root=true
 //+kubebuilder:subresource:status

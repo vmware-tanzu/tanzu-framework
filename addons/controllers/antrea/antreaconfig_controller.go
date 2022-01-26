@@ -11,8 +11,7 @@ import (
 
 	clusterapiutil "sigs.k8s.io/cluster-api/util"
 
-	"github.com/ghodss/yaml"
-
+	yaml "gopkg.in/yaml.v3"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/utils/pointer"
@@ -50,7 +49,6 @@ type AntreaConfigReconciler struct {
 // the user.
 
 func (r *AntreaConfigReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	_ = context.Background()
 	log := r.Log.WithValues("antreaconfig", req.NamespacedName)
 
 	// get antrea config object
@@ -60,9 +58,19 @@ func (r *AntreaConfigReconciler) Reconcile(ctx context.Context, req ctrl.Request
 		return ctrl.Result{}, err
 	}
 
-	// verify that the cluster related to config is present
+	// get the parent cluster name from owner reference
+	// if the owner reference doesn't exist, use the same name as config CRD
+	clusterNamespacedName := req.NamespacedName
 	cluster := &clusterapiv1beta1.Cluster{}
-	if err := r.Client.Get(ctx, req.NamespacedName, cluster); err != nil {
+	for _, owner := range antreaConfig.OwnerReferences {
+		if owner.Kind == cluster.Kind {
+			clusterNamespacedName.Name = owner.Name
+			break
+		}
+	}
+
+	// verify that the cluster related to config is present
+	if err := r.Client.Get(ctx, clusterNamespacedName, cluster); err != nil {
 		if apierrors.IsNotFound(err) {
 			log.Info("Cluster not found")
 			return ctrl.Result{}, nil
@@ -72,14 +80,7 @@ func (r *AntreaConfigReconciler) Reconcile(ctx context.Context, req ctrl.Request
 		return ctrl.Result{}, err
 	}
 
-	// Get client for the cluster that on which we want to deploy the data value secret for Antrea
-	remoteClient, err := util.GetClusterClient(ctx, r.Client, r.Scheme, clusterapiutil.ObjectKey(cluster))
-	if err != nil {
-		log.Error(err, "Error getting remote cluster client")
-		return ctrl.Result{}, err
-	}
-
-	if retResult, err := r.ReconcileAntreaConfig(ctx, log, cluster, remoteClient, antreaConfig); err != nil {
+	if retResult, err := r.ReconcileAntreaConfig(ctx, log, cluster, antreaConfig); err != nil {
 		log.Error(err, "unable to reconcile AntreaConfig")
 		return retResult, err
 	}
@@ -99,12 +100,8 @@ func (r *AntreaConfigReconciler) ReconcileAntreaConfig(
 	ctx context.Context,
 	log logr.Logger,
 	cluster *clusterapiv1beta1.Cluster,
-	clusterClient client.Client,
 	antreaConfig *cniv1alpha1.AntreaConfig) (_ ctrl.Result, retErr error) {
-
-	var (
-		patchCRD bool
-	)
+	var patchCRD bool
 
 	patchHelper, err := clusterapipatchutil.NewHelper(antreaConfig, r.Client)
 	if err != nil {
@@ -112,7 +109,7 @@ func (r *AntreaConfigReconciler) ReconcileAntreaConfig(
 	}
 	// Patch AntreaConfig before returning the function
 	defer func() {
-		// patchCRD will be true if finalizer or owner reference is added
+		// patchCRD will be true if finalizer or owner reference is added or deleted
 		if patchCRD {
 			log.Info("Patching AntreaConfig")
 
@@ -125,7 +122,7 @@ func (r *AntreaConfigReconciler) ReconcileAntreaConfig(
 
 	// If AntreaConfig is marked for deletion then delete the data value secret
 	if !antreaConfig.GetDeletionTimestamp().IsZero() {
-		err := r.ReconcileAntreaConfigDelete(ctx, log, clusterClient, antreaConfig, &patchCRD)
+		err := r.ReconcileAntreaConfigDelete(ctx, log, cluster, antreaConfig, &patchCRD)
 		if err != nil {
 			log.Error(err, "Error reconciling AntreaConfig delete")
 			return ctrl.Result{}, err
@@ -133,7 +130,7 @@ func (r *AntreaConfigReconciler) ReconcileAntreaConfig(
 		return ctrl.Result{}, nil
 	}
 
-	if err := r.ReconcileAntreaConfigNormal(ctx, log, cluster, clusterClient, antreaConfig, &patchCRD); err != nil {
+	if err := r.ReconcileAntreaConfigNormal(ctx, log, cluster, antreaConfig, &patchCRD); err != nil {
 		log.Error(err, "Error reconciling AntreaConfig to create data value secret")
 		return ctrl.Result{}, err
 	}
@@ -146,14 +143,13 @@ func (r *AntreaConfigReconciler) ReconcileAntreaConfigNormal(
 	ctx context.Context,
 	log logr.Logger,
 	cluster *clusterapiv1beta1.Cluster,
-	clusterClient client.Client,
 	antreaConfig *cniv1alpha1.AntreaConfig,
 	patchCRD *bool) (retErr error) {
 
 	// Add finalizer to addon secret
 	*patchCRD = util.AddFinalizerToCRD(log, constants.AntreaAddonName, antreaConfig)
 
-	// add owner reference to addon secret
+	// add owner reference to antreaConfig
 	ownerReference := metav1.OwnerReference{
 		APIVersion:         clusterapiv1beta1.GroupVersion.String(),
 		Kind:               "Cluster",
@@ -169,33 +165,56 @@ func (r *AntreaConfigReconciler) ReconcileAntreaConfigNormal(
 		*patchCRD = true
 	}
 
-	addonDataValuesSecret := &corev1.Secret{
+	if err := r.ReconcileAntreaConfigDataValue(ctx, log, cluster, antreaConfig); err != nil {
+		log.Error(err, "Error creating antreaConfig data value secret")
+		return err
+	}
+
+	// update status.secretRef
+	antreaConfig.Status.SecretRef.Name = util.GenerateDataValueSecretNameFromAddonAndClusterNames(cluster.Name, constants.AntreaAddonName)
+	*patchCRD = true
+
+	return nil
+}
+
+// ReconcileAntreaConfigDataValue reconciles AntreaConfig data values secret
+func (r *AntreaConfigReconciler) ReconcileAntreaConfigDataValue(
+	ctx context.Context,
+	log logr.Logger,
+	cluster *clusterapiv1beta1.Cluster,
+	antreaConfig *cniv1alpha1.AntreaConfig) (retErr error) {
+
+	antreaDataValuesSecret := &corev1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      util.GenerateDataValueSecretNameFromAddonAndClusterNames(antreaConfig.Name, constants.AntreaAddonName),
 			Namespace: antreaConfig.Namespace,
 		},
 	}
 
-	addonDataValuesSecretMutateFn := func() error {
-		addonDataValuesSecret.Type = corev1.SecretTypeOpaque
-		addonDataValuesSecret.Data = map[string][]byte{}
+	antreaDataValuesSecretMutateFn := func() error {
+		antreaDataValuesSecret.Type = corev1.SecretTypeOpaque
+		antreaDataValuesSecret.Data = map[string][]byte{}
 
 		// marshall the yaml contents
-		yamlBytes, err := yaml.Marshal(antreaConfig.Spec)
+		antreaConfigYaml, err := mapAntreaConfigSpec(cluster, antreaConfig)
 		if err != nil {
-			log.Error(err, "Error marshalling antreaConfigSpec to Yaml")
+			return err
+		}
+
+		yamlBytes, err := yaml.Marshal(antreaConfigYaml)
+		if err != nil {
 			return err
 		}
 
 		dataValueBytes := append([]byte(constants.TKGDataValueFormatString), yamlBytes...)
-		addonDataValuesSecret.Data[constants.DataValueFileName] = dataValueBytes
+		antreaDataValuesSecret.Data[constants.TKGDataValueFileName] = dataValueBytes
 
 		return nil
 	}
 
-	result, err := controllerutil.CreateOrPatch(ctx, clusterClient, addonDataValuesSecret, addonDataValuesSecretMutateFn)
+	result, err := controllerutil.CreateOrPatch(ctx, r.Client, antreaDataValuesSecret, antreaDataValuesSecretMutateFn)
 	if err != nil {
-		log.Error(err, "Error creating or patching addon data values secret")
+		log.Error(err, "Error creating or patching antrea data values secret")
 		return err
 	}
 
@@ -208,7 +227,7 @@ func (r *AntreaConfigReconciler) ReconcileAntreaConfigNormal(
 func (r *AntreaConfigReconciler) ReconcileAntreaConfigDelete(
 	ctx context.Context,
 	log logr.Logger,
-	clusterClient client.Client,
+	cluster *clusterapiv1beta1.Cluster,
 	antreaConfig *cniv1alpha1.AntreaConfig,
 	patchCRD *bool) (retErr error) {
 
@@ -219,7 +238,7 @@ func (r *AntreaConfigReconciler) ReconcileAntreaConfigDelete(
 			Namespace: antreaConfig.Namespace,
 		},
 	}
-	if err := clusterClient.Delete(ctx, addonDataValuesSecret); err != nil {
+	if err := r.Client.Delete(ctx, addonDataValuesSecret); err != nil {
 		if apierrors.IsNotFound(err) {
 			log.Info("AntreaConfig data values secret not found")
 			return nil
