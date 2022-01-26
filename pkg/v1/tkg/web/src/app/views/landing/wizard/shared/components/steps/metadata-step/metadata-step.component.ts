@@ -5,7 +5,7 @@ import { distinctUntilChanged, takeUntil } from 'rxjs/operators';
 
 // App imports
 import { FieldMapUtilities } from '../../../field-mapping/FieldMapUtilities';
-import { MetadataStepMapping } from './metadata-step.fieldmapping';
+import { MetadataField, MetadataStepMapping } from './metadata-step.fieldmapping';
 import { StepFormDirective } from '../../../step-form/step-form';
 import { ValidationService } from '../../../validation/validation.service';
 import { FormUtils } from '../../../utils/form-utils';
@@ -33,7 +33,7 @@ export class MetadataStepComponent extends StepFormDirective implements OnInit {
         super.ngOnInit();
         this.fieldMapUtilities.buildForm(this.formGroup, this.formName, MetadataStepMapping);
         this.registerStepDescriptionTriggers({
-            fields: ['clusterLocation'],
+            fields: [MetadataField.CLUSTER_LOCATION],
             clusterTypeDescriptor: true,
         })
 
@@ -44,7 +44,7 @@ export class MetadataStepComponent extends StepFormDirective implements OnInit {
     }
 
     initFormWithSavedData() {
-        const savedLabelsString = this.getSavedValue('clusterLabels', '');
+        const savedLabelsString = this.getSavedValue(MetadataField.CLUSTER_LABELS, '');
         if (savedLabelsString !== '') {
             const savedLabelsArray = savedLabelsString.split(', ')
             savedLabelsArray.map(label => {
@@ -133,11 +133,11 @@ export class MetadataStepComponent extends StepFormDirective implements OnInit {
         this.formGroup.removeControl(this.labels.get(key));
         this.labels.delete(key);
         this.keySet.delete(key);
-        this.formGroup.get('clusterLabels').setValue(this.labels);
+        this.formGroup.get(MetadataField.CLUSTER_LABELS).setValue(this.labels);
     }
 
     /**
-     * Get the current value of 'clusterLabels'
+     * Get the current value of MetadataField.CLUSTER_LABELS
      */
     get clusterLabelsValue() {
         let labelStr = '';
@@ -152,7 +152,7 @@ export class MetadataStepComponent extends StepFormDirective implements OnInit {
     }
 
     dynamicDescription(): string {
-        const clusterLocation = this.getFieldValue('clusterLocation', true);
+        const clusterLocation = this.getFieldValue(MetadataField.CLUSTER_LOCATION, true);
         return clusterLocation ? 'Location: ' + clusterLocation : 'Specify metadata for the ' + this.clusterTypeDescriptor + ' cluster';
     }
 }

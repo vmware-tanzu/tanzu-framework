@@ -5,14 +5,13 @@ import { Validators } from '@angular/forms';
 import { debounceTime, distinctUntilChanged, finalize, takeUntil } from 'rxjs/operators';
 // App imports
 import { APIClient } from "../../../../../../../swagger";
-import AppServices from 'src/app/shared/service/appServices';
 import { AviCloud } from "src/app/swagger/models/avi-cloud.model";
 import { AviServiceEngineGroup } from "src/app/swagger/models/avi-service-engine-group.model";
 import { AviVipNetwork } from './../../../../../../../swagger/models/avi-vip-network.model';
 import { ClrLoadingState } from "@clr/angular";
 import { FieldMapUtilities } from '../../../field-mapping/FieldMapUtilities';
 import { IpFamilyEnum } from 'src/app/shared/constants/app.constants';
-import { LoadBalancerStepMapping } from './load-balancer-step.fieldmapping';
+import { LoadBalancerField, LoadBalancerStepMapping } from './load-balancer-step.fieldmapping';
 import { StepFormDirective } from "../../../step-form/step-form";
 import { TanzuEventType } from 'src/app/shared/service/Messenger';
 import { ValidationService } from "../../../validation/validation.service";
@@ -20,7 +19,12 @@ import { ValidationService } from "../../../validation/validation.service";
 export const KUBE_VIP = 'Kube-vip';
 export const NSX_ADVANCED_LOAD_BALANCER = "NSX Advanced Load Balancer";
 
-const SupervisedFields = ['controllerHost', 'username', 'password', 'controllerCert'];
+const SupervisedFields = [
+    LoadBalancerField.CONTROLLER_HOST,
+    LoadBalancerField.USERNAME,
+    LoadBalancerField.PASSWORD,
+    LoadBalancerField.CONTROLLER_CERT
+];
 
 @Component({
     selector: 'app-load-balancer-step',
@@ -60,19 +64,19 @@ export class SharedLoadBalancerStepComponent extends StepFormDirective implement
                 )
                 .subscribe(() => {
                     this.connected = false;
-                    this.disarmField('cloudName', true);
+                    this.disarmField(LoadBalancerField.CLOUD_NAME, true);
                     this.clouds = [];
-                    this.disarmField('serviceEngineGroupName', true);
+                    this.disarmField(LoadBalancerField.SERVICE_ENGINE_GROUP_NAME, true);
                     this.serviceEngineGroups = [];
-                    this.disarmField('networkCIDR', true);
-                    this.disarmField('managementClusterNetworkCIDR', true);
+                    this.disarmField(LoadBalancerField.NETWORK_CIDR, true);
+                    this.disarmField(LoadBalancerField.MANAGEMENT_CLUSTER_NETWORK_CIDR, true);
 
                     // If connection cleared, toggle validators OFF
                     this.toggleValidators(false);
                 });
         });
 
-        this.formGroup.get('cloudName').valueChanges.pipe(
+        this.formGroup.get(LoadBalancerField.CLOUD_NAME).valueChanges.pipe(
             distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)),
             takeUntil(this.unsubscribe)
         ).subscribe((cloud) => {
@@ -82,9 +86,9 @@ export class SharedLoadBalancerStepComponent extends StepFormDirective implement
 
         this.registerOnValueChange("networkName", this.onSelectVipNetwork.bind(this));
         this.registerOnValueChange("networkCIDR", this.onSelectVipCIDR.bind(this));
-        this.registerOnValueChange("managementClusterNetworkName", this.onSelectManagementNetwork.bind(this));
-        this.registerOnIpFamilyChange('networkCIDR', [], []);
-        this.registerOnIpFamilyChange('managementClusterNetworkCIDR', [
+        this.registerOnValueChange(LoadBalancerField.MANAGEMENT_CLUSTER_NETWORK_NAME, this.onSelectManagementNetwork.bind(this));
+        this.registerOnIpFamilyChange(LoadBalancerField.NETWORK_CIDR, [], []);
+        this.registerOnIpFamilyChange(LoadBalancerField.MANAGEMENT_CLUSTER_NETWORK_CIDR, [
             this.validationService.isValidIpNetworkSegment()], [
             this.validationService.isValidIpv6NetworkSegment()
         ]);
@@ -111,16 +115,16 @@ export class SharedLoadBalancerStepComponent extends StepFormDirective implement
     }
 
     initFormWithSavedData() {
-        const fieldControllerHost = this.formGroup.get('controllerHost');
+        const fieldControllerHost = this.formGroup.get(LoadBalancerField.CONTROLLER_HOST);
         if (fieldControllerHost) {
-            fieldControllerHost.setValue(this.getSavedValue('controllerHost', ''));
+            fieldControllerHost.setValue(this.getSavedValue(LoadBalancerField.CONTROLLER_HOST, ''));
         }
-        const fieldUserName = this.formGroup.get('username');
+        const fieldUserName = this.formGroup.get(LoadBalancerField.USERNAME);
         if (fieldUserName) {
-            fieldUserName.setValue(this.getSavedValue('username', ''));
+            fieldUserName.setValue(this.getSavedValue(LoadBalancerField.USERNAME, ''));
         }
 
-        const savedLabelsString = this.getSavedValue('clusterLabels', '');
+        const savedLabelsString = this.getSavedValue(LoadBalancerField.CLUSTER_LABELS, '');
         if (savedLabelsString !== '') {
             const savedLabelsArray = savedLabelsString.split(', ')
             savedLabelsArray.map(label => {
@@ -130,7 +134,7 @@ export class SharedLoadBalancerStepComponent extends StepFormDirective implement
         }
 
         // clear password from saved data
-        const fieldPassword = this.formGroup.get('password');
+        const fieldPassword = this.formGroup.get(LoadBalancerField.PASSWORD);
         if (fieldPassword) {
             fieldPassword.setValue('');
         }
@@ -148,11 +152,11 @@ export class SharedLoadBalancerStepComponent extends StepFormDirective implement
 
         this.apiClient.verifyAccount({
             credentials: {
-                username: this.formGroup.controls['username'].value,
-                password: this.formGroup.controls['password'].value,
-                host: this.formGroup.controls['controllerHost'].value,
-                tenant: this.formGroup.controls['username'].value,
-                CAData: this.formGroup.controls['controllerCert'].value
+                username: this.formGroup.controls[LoadBalancerField.USERNAME].value,
+                password: this.formGroup.controls[LoadBalancerField.PASSWORD].value,
+                host: this.formGroup.controls[LoadBalancerField.CONTROLLER_HOST].value,
+                tenant: this.formGroup.controls[LoadBalancerField.USERNAME].value,
+                CAData: this.formGroup.controls[LoadBalancerField.CONTROLLER_CERT].value
             }
         })
             .pipe(
@@ -272,13 +276,13 @@ export class SharedLoadBalancerStepComponent extends StepFormDirective implement
      */
     onSelectVipNetwork(networkName: string): void {
         this.selectedNetworkName = networkName;
-        if (!this.formGroup.get("managementClusterNetworkName").value) { }
-        this.formGroup.get("managementClusterNetworkName").setValue(networkName)
+        if (!this.formGroup.get(LoadBalancerField.MANAGEMENT_CLUSTER_NETWORK_NAME).value) { }
+        this.formGroup.get(LoadBalancerField.MANAGEMENT_CLUSTER_NETWORK_NAME).setValue(networkName)
     }
 
     onSelectVipCIDR(cidr: string): void {
-        if (!this.formGroup.get("managementClusterNetworkCIDR").value) {
-                this.formGroup.get("managementClusterNetworkCIDR").setValue(cidr);
+        if (!this.formGroup.get(LoadBalancerField.MANAGEMENT_CLUSTER_NETWORK_CIDR).value) {
+                this.formGroup.get(LoadBalancerField.MANAGEMENT_CLUSTER_NETWORK_CIDR).setValue(cidr);
         }
     }
 
@@ -293,26 +297,26 @@ export class SharedLoadBalancerStepComponent extends StepFormDirective implement
      */
     toggleValidators(validate: boolean) {
         if (validate === true) {
-            this.resurrectField('cloudName', [Validators.required],
-                this.getSavedValue('cloudName', ''));
-            this.resurrectField('serviceEngineGroupName', [Validators.required],
-                this.getSavedValue('serviceEngineGroupName', ''));
+            this.resurrectField(LoadBalancerField.CLOUD_NAME, [Validators.required],
+                this.getSavedValue(LoadBalancerField.CLOUD_NAME, ''));
+            this.resurrectField(LoadBalancerField.SERVICE_ENGINE_GROUP_NAME, [Validators.required],
+                this.getSavedValue(LoadBalancerField.SERVICE_ENGINE_GROUP_NAME, ''));
             if (!this.modeClusterStandalone) {
-                this.resurrectField('networkName', [Validators.required],
-                    this.getSavedValue('networkName', ''));
-                this.resurrectField('networkCIDR', [
+                this.resurrectField(LoadBalancerField.NETWORK_NAME, [Validators.required],
+                    this.getSavedValue(LoadBalancerField.NETWORK_NAME, ''));
+                this.resurrectField(LoadBalancerField.NETWORK_CIDR, [
                     Validators.required,
                     this.validationService.noWhitespaceOnEnds(),
                     this.ipFamily === IpFamilyEnum.IPv4 ?
                         this.validationService.isValidIpNetworkSegment() : this.validationService.isValidIpv6NetworkSegment()
-                ], this.getSavedValue('networkCIDR', ''));
+                ], this.getSavedValue(LoadBalancerField.NETWORK_CIDR, ''));
             }
         } else {
-            this.disarmField('cloudName', true);
-            this.disarmField('serviceEngineGroupName', true);
+            this.disarmField(LoadBalancerField.CLOUD_NAME, true);
+            this.disarmField(LoadBalancerField.SERVICE_ENGINE_GROUP_NAME, true);
             if (!this.modeClusterStandalone) {
-                this.disarmField('networkName', true);
-                this.disarmField('networkCIDR', true);
+                this.disarmField(LoadBalancerField.NETWORK_NAME, true);
+                this.disarmField(LoadBalancerField.NETWORK_CIDR, true);
             }
         }
     }
@@ -336,9 +340,9 @@ export class SharedLoadBalancerStepComponent extends StepFormDirective implement
             this.errorNotification = `Key and value for Labels are required.`;
         } else if (!this.labels.has(key)) {
             this.labels.set(key, value);
-            this.formGroup.get('clusterLabels').setValue(this.labels);
-            this.formGroup.controls['newLabelKey'].setValue('');
-            this.formGroup.controls['newLabelValue'].setValue('');
+            this.formGroup.get(LoadBalancerField.CLUSTER_LABELS).setValue(this.labels);
+            this.formGroup.controls[LoadBalancerField.NEW_LABEL_KEY].setValue('');
+            this.formGroup.controls[LoadBalancerField.NEW_LABEL_VALUE].setValue('');
         } else {
             this.errorNotification = `A Label with the same key already exists.`;
         }
@@ -349,11 +353,11 @@ export class SharedLoadBalancerStepComponent extends StepFormDirective implement
      */
     deleteLabel(key: string) {
         this.labels.delete(key);
-        this.formGroup.get('clusterLabels').setValue(this.labels);
+        this.formGroup.get(LoadBalancerField.CLUSTER_LABELS).setValue(this.labels);
     }
 
     /**
-     * Get the current value of 'clusterLabels'
+     * Get the current value of LoadBalancerField.CLUSTER_LABELS
      */
     get clusterLabelsValue() {
         let labelsStr: string = '';
@@ -368,8 +372,8 @@ export class SharedLoadBalancerStepComponent extends StepFormDirective implement
      * helper method to get if label add btn should be disabled
      */
     getLabelDisabled(): boolean {
-        return !(this.formGroup.get('newLabelKey').valid &&
-            this.formGroup.get('newLabelValue').valid);
+        return !(this.formGroup.get(LoadBalancerField.NEW_LABEL_KEY).valid &&
+            this.formGroup.get(LoadBalancerField.NEW_LABEL_VALUE).valid);
     }
 
     /**

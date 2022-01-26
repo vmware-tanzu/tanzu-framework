@@ -8,6 +8,7 @@ import AppServices from '../../../../shared/service/appServices';
 import { Messenger, TanzuEventType } from '../../../../shared/service/Messenger';
 import { DataServiceRegistrarTestExtension } from '../../../../testing/data-service-registrar.testextension';
 import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
+import { NetworkField } from '../../wizard/shared/components/steps/network-step/network-step.fieldmapping';
 import { ResourcePool } from '../resource-step/resource-step.component';
 import { SharedModule } from '../../../../shared/shared.module';
 import { ValidationService } from '../../wizard/shared/validation/validation.service';
@@ -60,9 +61,9 @@ describe('NodeSettingStepComponent', () => {
     it('should announce description change', () => {
         const msgSpy = spyOn(AppServices.messenger, 'publish').and.callThrough();
         component.ngOnInit();
-        const networkNameControl = component.formGroup.get('networkName');
-        const serviceCidrControl = component.formGroup.controls['clusterServiceCidr'];
-        const podCidrControl = component.formGroup.controls['clusterPodCidr'];
+        const networkNameControl = component.formGroup.get(NetworkField.NETWORK_NAME);
+        const serviceCidrControl = component.formGroup.controls[NetworkField.CLUSTER_SERVICE_CIDR];
+        const podCidrControl = component.formGroup.controls[NetworkField.CLUSTER_POD_CIDR];
 
         podCidrControl.setValue('');
         serviceCidrControl.setValue('');

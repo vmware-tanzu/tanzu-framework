@@ -319,7 +319,7 @@ export class AwsWizardComponent extends WizardBaseDirective implements OnInit {
     // HTML convenience methods
     //
     get AwsProviderForm(): FormDataForHTML {
-        return {name: 'awsProviderForm', title: 'IaaS Provider',
+        return {name: AwsForm.PROVIDER, title: 'IaaS Provider',
             description: 'Validate the AWS provider account for ' + this.title,
             i18n: {title: 'IaaS provder step name', description: 'IaaS provder step description'},
         clazz: AwsProviderStepComponent};
@@ -331,7 +331,7 @@ export class AwsWizardComponent extends WizardBaseDirective implements OnInit {
         clazz: NodeSettingStepComponent};
     }
     get AwsVpcForm(): FormDataForHTML {
-        return {name: 'vpcForm', title: 'VPC for AWS', description: 'Specify VPC settings for AWS',
+        return {name: AwsForm.VPC, title: 'VPC for AWS', description: 'Specify VPC settings for AWS',
         i18n: {title: 'vpc step name', description: 'vpc step description'},
         clazz: VpcStepComponent};
     }

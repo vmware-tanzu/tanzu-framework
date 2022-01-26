@@ -12,12 +12,18 @@ import { Observable } from 'rxjs';
 import { APP_ROUTES, Routes } from 'src/app/shared/constants/routes.constants';
 import AppServices from '../../../../../shared/service/appServices';
 import { BasicSubscriber } from 'src/app/shared/abstracts/basic-subscriber';
-import { ClusterType, WizardForm } from "../constants/wizard.constants";
+import { CeipField } from '../components/steps/ceip-step/ceip-step.fieldmapping';
+import { ClusterType, IdentityManagementType, WizardForm } from "../constants/wizard.constants";
 import { ConfigFileInfo } from '../../../../../swagger/models/config-file-info.model';
 import { FormDataForHTML, FormUtility } from '../components/steps/form-utility';
 import { FormMetaDataStore } from '../FormMetaDataStore';
 import { FormMetaDataService } from 'src/app/shared/service/form-meta-data.service';
+import { IdentityField } from '../components/steps/identity-step/identity-step.fieldmapping';
+import { LoadBalancerField } from '../components/steps/load-balancer/load-balancer-step.fieldmapping';
+import { MetadataField } from '../components/steps/metadata-step/metadata-step.fieldmapping';
 import { MetadataStepComponent } from '../components/steps/metadata-step/metadata-step.component';
+import { NetworkField } from '../components/steps/network-step/network-step.fieldmapping';
+import { OsImageField } from '../components/steps/os-image-step/os-image-step.fieldmapping';
 import { Providers, PROVIDERS } from 'src/app/shared/constants/app.constants';
 import { SharedCeipStepComponent } from '../components/steps/ceip-step/ceip-step.component';
 import { SharedIdentityStepComponent } from '../components/steps/identity-step/identity-step.component';
@@ -426,35 +432,35 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Wiz
      */
     initPayloadWithCommons(payload: any) {
         payload.networking = {
-            networkName: this.getFieldValue('networkForm', 'networkName'),
+            networkName: this.getFieldValue(WizardForm.NETWORK, NetworkField.NETWORK_NAME),
             clusterDNSName: '',
             clusterNodeCIDR: '',
-            clusterServiceCIDR: this.getFieldValue('networkForm', 'clusterServiceCidr'),
-            clusterPodCIDR: this.getFieldValue('networkForm', 'clusterPodCidr'),
-            cniType: this.getFieldValue('networkForm', 'cniType')
+            clusterServiceCIDR: this.getFieldValue(WizardForm.NETWORK, NetworkField.CLUSTER_SERVICE_CIDR),
+            clusterPodCIDR: this.getFieldValue(WizardForm.NETWORK, NetworkField.CLUSTER_POD_CIDR),
+            cniType: this.getFieldValue(WizardForm.NETWORK, NetworkField.CNI_TYPE)
         };
 
-        if (this.getFieldValue('networkForm', 'proxySettings')) {
+        if (this.getFieldValue(WizardForm.NETWORK, NetworkField.PROXY_SETTINGS)) {
             let proxySettingsMap = null;
             proxySettingsMap = [
-                ['HTTPProxyURL', 'networkForm', 'httpProxyUrl'],
-                ['HTTPProxyUsername', 'networkForm', 'httpProxyUsername'],
-                ['HTTPProxyPassword', 'networkForm', 'httpProxyPassword'],
-                ['noProxy', 'networkForm', 'noProxy']
+                ['HTTPProxyURL', WizardForm.NETWORK, NetworkField.HTTP_PROXY_URL],
+                ['HTTPProxyUsername', WizardForm.NETWORK, NetworkField.HTTP_PROXY_USERNAME],
+                ['HTTPProxyPassword', WizardForm.NETWORK, NetworkField.HTTP_PROXY_PASSWORD],
+                ['noProxy', WizardForm.NETWORK, NetworkField.NO_PROXY]
             ];
-            if (this.getFieldValue('networkForm', 'isSameAsHttp')) {
+            if (this.getFieldValue(WizardForm.NETWORK, NetworkField.HTTPS_IS_SAME_AS_HTTP)) {
                 proxySettingsMap = [
                     ...proxySettingsMap,
-                    ['HTTPSProxyURL', 'networkForm', 'httpProxyUrl'],
-                    ['HTTPSProxyUsername', 'networkForm', 'httpProxyUsername'],
-                    ['HTTPSProxyPassword', 'networkForm', 'httpProxyPassword']
+                    ['HTTPSProxyURL', WizardForm.NETWORK, NetworkField.HTTP_PROXY_URL],
+                    ['HTTPSProxyUsername', WizardForm.NETWORK, NetworkField.HTTP_PROXY_USERNAME],
+                    ['HTTPSProxyPassword', WizardForm.NETWORK, NetworkField.HTTP_PROXY_PASSWORD]
                 ];
             } else {
                 proxySettingsMap = [
                     ...proxySettingsMap,
-                    ['HTTPSProxyURL', 'networkForm', 'httpsProxyUrl'],
-                    ['HTTPSProxyUsername', 'networkForm', 'httpsProxyUsername'],
-                    ['HTTPSProxyPassword', 'networkForm', 'httpsProxyPassword']
+                    ['HTTPSProxyURL', WizardForm.NETWORK, NetworkField.HTTPS_PROXY_URL],
+                    ['HTTPSProxyUsername', WizardForm.NETWORK, NetworkField.HTTPS_PROXY_USERNAME],
+                    ['HTTPSProxyPassword', WizardForm.NETWORK, NetworkField.HTTPS_PROXY_PASSWORD]
                 ];
             }
             payload.networking.httpProxyConfiguration = {
@@ -469,69 +475,69 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Wiz
             });
         }
 
-        payload.ceipOptIn = this.getBooleanFieldValue('ceipOptInForm', 'ceipOptIn');
-        payload.labels = this.strMapToObj(this.getFieldValue(WizardForm.METADATA, 'clusterLabels'));
-        payload.os = this.getFieldValue(WizardForm.OSIMAGE, 'osImage');
+        payload.ceipOptIn = this.getBooleanFieldValue(WizardForm.CEIP, CeipField.OPTIN);
+        payload.labels = this.strMapToObj(this.getFieldValue(WizardForm.METADATA, MetadataField.CLUSTER_LABELS));
+        payload.os = this.getFieldValue(WizardForm.OSIMAGE, OsImageField.IMAGE);
         payload.annotations = {
-            'description': this.getFieldValue(WizardForm.METADATA, 'clusterDescription'),
-            'location': this.getFieldValue(WizardForm.METADATA, 'clusterLocation')
+            'description': this.getFieldValue(WizardForm.METADATA, MetadataField.CLUSTER_DESCRIPTION),
+            'location': this.getFieldValue(WizardForm.METADATA, MetadataField.CLUSTER_LOCATION)
         };
 
         let ldap_url = '';
-        if (this.getFieldValue(WizardForm.IDENTITY, 'endpointIp')) {
-            ldap_url = this.getFieldValue(WizardForm.IDENTITY, 'endpointIp') +
-                ':' + this.getFieldValue(WizardForm.IDENTITY, 'endpointPort');
+        if (this.getFieldValue(WizardForm.IDENTITY, IdentityField.ENDPOINT_IP)) {
+            ldap_url = this.getFieldValue(WizardForm.IDENTITY, IdentityField.ENDPOINT_IP) +
+                ':' + this.getFieldValue(WizardForm.IDENTITY, IdentityField.ENDPOINT_PORT);
         }
 
         payload.identityManagement = {
-            'idm_type': this.getFieldValue(WizardForm.IDENTITY, 'identityType') || 'none'
+            'idm_type': this.getFieldValue(WizardForm.IDENTITY, IdentityField.IDENTITY_TYPE) || 'none'
         }
 
-        if (this.getFieldValue(WizardForm.IDENTITY, 'identityType') === 'oidc') {
+        if (this.getFieldValue(WizardForm.IDENTITY, IdentityField.IDENTITY_TYPE) === IdentityManagementType.OIDC) {
             payload.identityManagement = Object.assign({
                     'oidc_provider_name': '',
-                    'oidc_provider_url': this.getFieldValue(WizardForm.IDENTITY, 'issuerURL'),
-                    'oidc_client_id': this.getFieldValue(WizardForm.IDENTITY, 'clientId'),
-                    'oidc_client_secret': this.getFieldValue(WizardForm.IDENTITY, 'clientSecret'),
-                    'oidc_scope': this.getFieldValue(WizardForm.IDENTITY, 'scopes'),
+                    'oidc_provider_url': this.getFieldValue(WizardForm.IDENTITY, IdentityField.ISSUER_URL),
+                    'oidc_client_id': this.getFieldValue(WizardForm.IDENTITY, IdentityField.CLIENT_ID),
+                    'oidc_client_secret': this.getFieldValue(WizardForm.IDENTITY, IdentityField.CLIENT_SECRET),
+                    'oidc_scope': this.getFieldValue(WizardForm.IDENTITY, IdentityField.SCOPES),
                     'oidc_claim_mappings': {
-                        'username': this.getFieldValue(WizardForm.IDENTITY, 'oidcUsernameClaim'),
-                        'groups': this.getFieldValue(WizardForm.IDENTITY, 'oidcGroupsClaim')
+                        'username': this.getFieldValue(WizardForm.IDENTITY, IdentityField.OIDC_USERNAME_CLAIM),
+                        'groups': this.getFieldValue(WizardForm.IDENTITY, IdentityField.OIDC_GROUPS_CLAIM)
                     }
 
                 }
                 , payload.identityManagement);
-        } else if (this.getFieldValue(WizardForm.IDENTITY, 'identityType') === 'ldap') {
+        } else if (this.getFieldValue(WizardForm.IDENTITY, IdentityField.IDENTITY_TYPE) === IdentityManagementType.LDAP) {
             payload.identityManagement = Object.assign({
                     'ldap_url': ldap_url,
-                    'ldap_bind_dn': this.getFieldValue(WizardForm.IDENTITY, 'bindDN'),
-                    'ldap_bind_password': this.getFieldValue(WizardForm.IDENTITY, 'bindPW'),
-                    'ldap_user_search_base_dn': this.getFieldValue(WizardForm.IDENTITY, 'userSearchBaseDN'),
-                    'ldap_user_search_filter': this.getFieldValue(WizardForm.IDENTITY, 'userSearchFilter'),
-                    'ldap_user_search_username': this.getFieldValue(WizardForm.IDENTITY, 'userSearchUsername'),
-                    'ldap_user_search_name_attr': this.getFieldValue(WizardForm.IDENTITY, 'userSearchUsername'),
-                    'ldap_group_search_base_dn': this.getFieldValue(WizardForm.IDENTITY, 'groupSearchBaseDN'),
-                    'ldap_group_search_filter': this.getFieldValue(WizardForm.IDENTITY, 'groupSearchFilter'),
-                    'ldap_group_search_user_attr': this.getFieldValue(WizardForm.IDENTITY, 'groupSearchUserAttr'),
-                    'ldap_group_search_group_attr': this.getFieldValue(WizardForm.IDENTITY, 'groupSearchGroupAttr'),
-                    'ldap_group_search_name_attr': this.getFieldValue(WizardForm.IDENTITY, 'groupSearchNameAttr'),
-                    'ldap_root_ca': this.getFieldValue(WizardForm.IDENTITY, 'ldapRootCAData')
+                    'ldap_bind_dn': this.getFieldValue(WizardForm.IDENTITY, IdentityField.BIND_DN),
+                    'ldap_bind_password': this.getFieldValue(WizardForm.IDENTITY, IdentityField.BIND_PW),
+                    'ldap_user_search_base_dn': this.getFieldValue(WizardForm.IDENTITY, IdentityField.USER_SEARCH_BASE_DN),
+                    'ldap_user_search_filter': this.getFieldValue(WizardForm.IDENTITY, IdentityField.USER_SEARCH_FILTER),
+                    'ldap_user_search_username': this.getFieldValue(WizardForm.IDENTITY, IdentityField.USER_SEARCH_USERNAME),
+                    'ldap_user_search_name_attr': this.getFieldValue(WizardForm.IDENTITY, IdentityField.USER_SEARCH_USERNAME),
+                    'ldap_group_search_base_dn': this.getFieldValue(WizardForm.IDENTITY, IdentityField.GROUP_SEARCH_BASE_DN),
+                    'ldap_group_search_filter': this.getFieldValue(WizardForm.IDENTITY, IdentityField.GROUP_SEARCH_FILTER),
+                    'ldap_group_search_user_attr': this.getFieldValue(WizardForm.IDENTITY, IdentityField.GROUP_SEARCH_USER_ATTR),
+                    'ldap_group_search_group_attr': this.getFieldValue(WizardForm.IDENTITY, IdentityField.GROUP_SEARCH_GROUP_ATTR),
+                    'ldap_group_search_name_attr': this.getFieldValue(WizardForm.IDENTITY, IdentityField.GROUP_SEARCH_NAME_ATTR),
+                    'ldap_root_ca': this.getFieldValue(WizardForm.IDENTITY, IdentityField.LDAP_ROOT_CA)
                 }
                 , payload.identityManagement);
         }
 
         payload.aviConfig = {
-            'controller': this.getFieldValue('loadBalancerForm', 'controllerHost'),
-            'username': this.getFieldValue('loadBalancerForm', 'username'),
-            'password': this.getFieldValue('loadBalancerForm', 'password'),
-            'cloud': this.getFieldValue('loadBalancerForm', 'cloudName'),
-            'service_engine': this.getFieldValue('loadBalancerForm', 'serviceEngineGroupName'),
-            'ca_cert': this.getFieldValue('loadBalancerForm', 'controllerCert'),
+            'controller': this.getFieldValue(WizardForm.LOADBALANCER, LoadBalancerField.CONTROLLER_HOST),
+            'username': this.getFieldValue(WizardForm.LOADBALANCER, LoadBalancerField.USERNAME),
+            'password': this.getFieldValue(WizardForm.LOADBALANCER, LoadBalancerField.PASSWORD),
+            'cloud': this.getFieldValue(WizardForm.LOADBALANCER, LoadBalancerField.CLOUD_NAME),
+            'service_engine': this.getFieldValue(WizardForm.LOADBALANCER, LoadBalancerField.SERVICE_ENGINE_GROUP_NAME),
+            'ca_cert': this.getFieldValue(WizardForm.LOADBALANCER, LoadBalancerField.CONTROLLER_CERT),
             'network': {
-                'name': this.getFieldValue('loadBalancerForm', 'networkName'),
-                'cidr': this.getFieldValue('loadBalancerForm', 'networkCIDR')
+                'name': this.getFieldValue(WizardForm.LOADBALANCER, LoadBalancerField.NETWORK_NAME),
+                'cidr': this.getFieldValue(WizardForm.LOADBALANCER, LoadBalancerField.NETWORK_CIDR)
             },
-            'labels': this.strMapToObj(this.getFieldValue('loadBalancerForm', 'clusterLabels'))
+            'labels': this.strMapToObj(this.getFieldValue(WizardForm.LOADBALANCER, LoadBalancerField.CLUSTER_LABELS))
         }
         return payload;
     }
@@ -559,27 +565,27 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Wiz
         if (payload.networking !== undefined && payload.networking.httpProxyConfiguration !== undefined) {
             const proxyConfig = payload.networking.httpProxyConfiguration;
             const hasProxySettings = proxyConfig.enabled;
-            this.saveFormField('networkForm', 'proxySettings', hasProxySettings);
+            this.saveFormField(WizardForm.NETWORK, NetworkField.PROXY_SETTINGS, hasProxySettings);
             if (hasProxySettings) {
                 let proxySettingsMap = [
-                    ['HTTPProxyURL', 'networkForm', 'httpProxyUrl'],
-                    ['HTTPProxyUsername', 'networkForm', 'httpProxyUsername'],
-                    ['HTTPProxyPassword', 'networkForm', 'httpProxyPassword'],
-                    ['noProxy', 'networkForm', 'noProxy']
+                    ['HTTPProxyURL', WizardForm.NETWORK, NetworkField.HTTP_PROXY_URL],
+                    ['HTTPProxyUsername', WizardForm.NETWORK, NetworkField.HTTP_PROXY_USERNAME],
+                    ['HTTPProxyPassword', WizardForm.NETWORK, NetworkField.HTTP_PROXY_PASSWORD],
+                    ['noProxy', WizardForm.NETWORK, NetworkField.NO_PROXY]
                 ];
                 // when HTTP matches HTTPS, we check the "matches" UI box and clear the HTTPS fields
                 const httpMatchesHttps = this.httpMatchesHttpsSettings(proxyConfig);
-                this.saveFormField('networkForm', 'isSameAsHttp', httpMatchesHttps);
+                this.saveFormField(WizardForm.NETWORK, NetworkField.HTTPS_IS_SAME_AS_HTTP, httpMatchesHttps);
                 if (httpMatchesHttps) {
-                    this.saveFormField('networkForm', 'httpsProxyUrl', '');
-                    this.saveFormField('networkForm', 'httpsProxyUsername', '');
-                    this.saveFormField('networkForm', 'httpsProxyPassword', '');
+                    this.saveFormField(WizardForm.NETWORK, NetworkField.HTTPS_PROXY_URL, '');
+                    this.saveFormField(WizardForm.NETWORK, NetworkField.HTTPS_PROXY_USERNAME, '');
+                    this.saveFormField(WizardForm.NETWORK, NetworkField.HTTPS_PROXY_PASSWORD, '');
                 } else {
                     proxySettingsMap = [
                         ...proxySettingsMap,
-                        ['HTTPSProxyURL', 'networkForm', 'httpsProxyUrl'],
-                        ['HTTPSProxyUsername', 'networkForm', 'httpsProxyUsername'],
-                        ['HTTPSProxyPassword', 'networkForm', 'httpsProxyPassword']
+                        ['HTTPSProxyURL', WizardForm.NETWORK, NetworkField.HTTPS_PROXY_URL],
+                        ['HTTPSProxyUsername', WizardForm.NETWORK, NetworkField.HTTPS_PROXY_USERNAME],
+                        ['HTTPSProxyPassword', WizardForm.NETWORK, NetworkField.HTTPS_PROXY_PASSWORD]
                     ];
                 }
                 proxySettingsMap.forEach(attr => {
@@ -596,18 +602,17 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Wiz
     saveCommonFieldsFromPayload(payload: any) {
         if (payload.networking !== undefined ) {
             // Networking - general
-            this.saveFormField('networkForm', 'networkName', payload.networking.networkName);
-            this.saveFormField('networkForm', 'clusterServiceCidr', payload.networking.clusterServiceCIDR);
-            this.saveFormField('networkForm', 'clusterPodCidr', payload.networking.clusterPodCIDR);
-            this.saveFormField('networkForm', 'cniType', payload.networking.cniType);
+            this.saveFormField(WizardForm.NETWORK, NetworkField.NETWORK_NAME, payload.networking.networkName);
+            this.saveFormField(WizardForm.NETWORK, NetworkField.CLUSTER_SERVICE_CIDR, payload.networking.clusterServiceCIDR);
+            this.saveFormField(WizardForm.NETWORK, NetworkField.CLUSTER_POD_CIDR, payload.networking.clusterPodCIDR);
+            this.saveFormField(WizardForm.NETWORK, NetworkField.CNI_TYPE, payload.networking.cniType);
         }
 
         // Proxy settings
         this.saveProxyFieldsFromPayload(payload);
 
         // Other fields
-        this.saveFormField('ceipOptInForm', 'ceipOptIn', payload.ceipOptIn);
-        this.saveFormField('registerTmcForm', 'tmcRegUrl', payload.tmc_registration_url);
+        this.saveFormField(WizardForm.CEIP, CeipField.OPTIN, payload.ceipOptIn);
         if (payload.labels !== undefined) {
             // we construct a label value that mimics how the meta-data step constructs the saved label value
             // when the user creates it label by label
@@ -617,60 +622,71 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Wiz
                 labelArray[labelArray.length] = key + ":" + value;
             });
             const labelValueToSave = labelArray.join(', ');
-            this.saveFormField('metadataForm', 'clusterLabels', labelValueToSave);
+            this.saveFormField(WizardForm.METADATA, MetadataField.CLUSTER_LABELS, labelValueToSave);
         }
-        this.saveFormField('osImageForm', 'osImage', payload.os);
+        this.saveFormField(WizardForm.OSIMAGE, OsImageField.IMAGE, payload.os);
         if (payload.annotations !== undefined) {
-            this.saveFormField('metadataForm', 'clusterDescription', payload.annotations.description);
-            this.saveFormField('metadataForm', 'clusterLocation', payload.annotations.location);
+            this.saveFormField(WizardForm.METADATA, MetadataField.CLUSTER_DESCRIPTION, payload.annotations.description);
+            this.saveFormField(WizardForm.METADATA, MetadataField.CLUSTER_LOCATION, payload.annotations.location);
         }
 
         // Identity Management form
         if (payload.identityManagement !== undefined) {
             const idmType = payload.identityManagement.idm_type === 'none' ? '' : payload.identityManagement.idm_type;
-            this.saveFormField('identityForm', 'identityType', idmType);
-            if (idmType === 'oidc') {
-                this.saveFormField('identityForm', 'issuerURL', payload.identityManagement.oidc_provider_url);
-                this.saveFormField('identityForm', 'clientId', payload.identityManagement.oidc_client_id);
-                this.saveFormField('identityForm', 'clientSecret', payload.identityManagement.oidc_client_secret);
-                this.saveFormField('identityForm', 'scopes', payload.identityManagement.oidc_scope);
-                this.saveFormField('identityForm', 'oidcUsernameClaim', payload.identityManagement.oidc_claim_mappings.username);
-                this.saveFormField('identityForm', 'oidcGroupsClaim', payload.identityManagement.oidc_claim_mappings.groups);
-            } else if (idmType === 'ldap') {
+            this.saveFormField(WizardForm.IDENTITY, IdentityField.IDENTITY_TYPE, idmType);
+            if (idmType === IdentityManagementType.OIDC) {
+                this.saveFormField(WizardForm.IDENTITY, IdentityField.ISSUER_URL, payload.identityManagement.oidc_provider_url);
+                this.saveFormField(WizardForm.IDENTITY, IdentityField.CLIENT_ID, payload.identityManagement.oidc_client_id);
+                this.saveFormField(WizardForm.IDENTITY, IdentityField.CLIENT_SECRET, payload.identityManagement.oidc_client_secret);
+                this.saveFormField(WizardForm.IDENTITY, IdentityField.SCOPES, payload.identityManagement.oidc_scope);
+                this.saveFormField(WizardForm.IDENTITY, IdentityField.OIDC_USERNAME_CLAIM,
+                    payload.identityManagement.oidc_claim_mappings.username);
+                this.saveFormField(WizardForm.IDENTITY, IdentityField.OIDC_GROUPS_CLAIM,
+                    payload.identityManagement.oidc_claim_mappings.groups);
+            } else if (idmType === IdentityManagementType.LDAP) {
                 if (payload.id.ldap_url !== undefined) {
                     // separate the IP address from the port in the LDAP URL
                     const ldapUrlPieces = payload.id.ldap_url.split(':');
-                    this.saveFormField('identityForm', 'endpointIp', ldapUrlPieces[0]);
+                    this.saveFormField(WizardForm.IDENTITY, IdentityField.ENDPOINT_IP, ldapUrlPieces[0]);
                     if (ldapUrlPieces.length() > 1) {
-                        this.saveFormField('identityForm', 'endpointPort', ldapUrlPieces[1]);
+                        this.saveFormField(WizardForm.IDENTITY, IdentityField.ENDPOINT_PORT, ldapUrlPieces[1]);
                     }
                 }
-                this.saveFormField('identityForm', 'bindDN', payload.identityManagement.ldap_bind_dn);
-                this.saveFormField('identityForm', 'bindPW', payload.identityManagement.ldap_bind_password);
-                this.saveFormField('identityForm', 'userSearchBaseDN', payload.identityManagement.ldap_user_search_base_dn);
-                this.saveFormField('identityForm', 'userSearchFilter', payload.identityManagement.ldap_user_search_filter);
-                this.saveFormField('identityForm', 'userSearchUsername', payload.identityManagement.ldap_user_search_username);
-                this.saveFormField('identityForm', 'userSearchUsername', payload.identityManagement.ldap_user_search_name_attr);
-                this.saveFormField('identityForm', 'groupSearchBaseDN', payload.identityManagement.ldap_group_search_base_dn);
-                this.saveFormField('identityForm', 'groupSearchFilter', payload.identityManagement.ldap_group_search_filter);
-                this.saveFormField('identityForm', 'groupSearchUserAttr', payload.identityManagement.ldap_group_search_user_attr);
-                this.saveFormField('identityForm', 'groupSearchGroupAttr', payload.identityManagement.ldap_group_search_group_attr);
-                this.saveFormField('identityForm', 'groupSearchNameAttr', payload.identityManagement.ldap_group_search_name_attr);
-                this.saveFormField('identityForm', 'ldapRootCAData', payload.identityManagement.ldap_root_ca);
+                this.saveFormField(WizardForm.IDENTITY, IdentityField.BIND_DN, payload.identityManagement.ldap_bind_dn);
+                this.saveFormField(WizardForm.IDENTITY, IdentityField.BIND_PW, payload.identityManagement.ldap_bind_password);
+                this.saveFormField(WizardForm.IDENTITY, IdentityField.USER_SEARCH_BASE_DN,
+                    payload.identityManagement.ldap_user_search_base_dn);
+                this.saveFormField(WizardForm.IDENTITY, IdentityField.USER_SEARCH_FILTER,
+                    payload.identityManagement.ldap_user_search_filter);
+                this.saveFormField(WizardForm.IDENTITY, IdentityField.USER_SEARCH_USERNAME,
+                    payload.identityManagement.ldap_user_search_username);
+                this.saveFormField(WizardForm.IDENTITY, IdentityField.USER_SEARCH_USERNAME,
+                    payload.identityManagement.ldap_user_search_name_attr);
+                this.saveFormField(WizardForm.IDENTITY, IdentityField.GROUP_SEARCH_BASE_DN,
+                    payload.identityManagement.ldap_group_search_base_dn);
+                this.saveFormField(WizardForm.IDENTITY, IdentityField.GROUP_SEARCH_FILTER,
+                    payload.identityManagement.ldap_group_search_filter);
+                this.saveFormField(WizardForm.IDENTITY, IdentityField.GROUP_SEARCH_USER_ATTR,
+                    payload.identityManagement.ldap_group_search_user_attr);
+                this.saveFormField(WizardForm.IDENTITY, IdentityField.GROUP_SEARCH_GROUP_ATTR,
+                    payload.identityManagement.ldap_group_search_group_attr);
+                this.saveFormField(WizardForm.IDENTITY, IdentityField.GROUP_SEARCH_NAME_ATTR,
+                    payload.identityManagement.ldap_group_search_name_attr);
+                this.saveFormField(WizardForm.IDENTITY, IdentityField.LDAP_ROOT_CA, payload.identityManagement.ldap_root_ca);
             }
         }
 
         if (payload.aviConfig !== undefined) {
             // Load Balancer form
-            this.saveFormField('loadBalancerForm', 'controllerHost', payload.aviConfig.controller);
-            this.saveFormField('loadBalancerForm', 'username', payload.aviConfig.username);
-            this.saveFormField('loadBalancerForm', 'password', payload.aviConfig.password);
-            this.saveFormField('loadBalancerForm', 'cloudName', payload.aviConfig.cloud);
-            this.saveFormField('loadBalancerForm', 'serviceEngineGroupName', payload.aviConfig.service_engine);
-            this.saveFormField('loadBalancerForm', 'controllerCert', payload.aviConfig.ca_cert);
-            this.saveFormField('loadBalancerForm', 'networkName', payload.aviConfig.network.name);
-            this.saveFormField('loadBalancerForm', 'networkCIDR', payload.aviConfig.network.cidr);
-            this.saveFormField('loadBalancerForm', 'clusterLabels', this.objToStrMap(payload.aviConfig.labels));
+            this.saveFormField(WizardForm.LOADBALANCER, LoadBalancerField.CONTROLLER_HOST, payload.aviConfig.controller);
+            this.saveFormField(WizardForm.LOADBALANCER, LoadBalancerField.USERNAME, payload.aviConfig.username);
+            this.saveFormField(WizardForm.LOADBALANCER, LoadBalancerField.PASSWORD, payload.aviConfig.password);
+            this.saveFormField(WizardForm.LOADBALANCER, LoadBalancerField.CLOUD_NAME, payload.aviConfig.cloud);
+            this.saveFormField(WizardForm.LOADBALANCER, LoadBalancerField.SERVICE_ENGINE_GROUP_NAME, payload.aviConfig.service_engine);
+            this.saveFormField(WizardForm.LOADBALANCER, LoadBalancerField.CONTROLLER_CERT, payload.aviConfig.ca_cert);
+            this.saveFormField(WizardForm.LOADBALANCER, LoadBalancerField.NETWORK_NAME, payload.aviConfig.network.name);
+            this.saveFormField(WizardForm.LOADBALANCER, LoadBalancerField.NETWORK_CIDR, payload.aviConfig.network.cidr);
+            this.saveFormField(WizardForm.LOADBALANCER, LoadBalancerField.CLUSTER_LABELS, this.objToStrMap(payload.aviConfig.labels));
         }
     }
 

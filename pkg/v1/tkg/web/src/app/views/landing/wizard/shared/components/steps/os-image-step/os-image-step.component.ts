@@ -2,7 +2,7 @@
 import AppServices from '../../../../../../../shared/service/appServices';
 import { FieldMapUtilities } from '../../../field-mapping/FieldMapUtilities';
 import { Observable } from 'rxjs/internal/Observable';
-import { OsImageStepMapping } from './os-image-step.fieldmapping';
+import { OsImageField, OsImageStepMapping } from './os-image-step.fieldmapping';
 import { StepFormDirective } from '../../../step-form/step-form';
 import { TanzuEventType } from 'src/app/shared/service/Messenger';
 import { Directive, OnInit } from '@angular/core';
@@ -54,9 +54,9 @@ export abstract class SharedOsImageStepDirective<IMAGE extends OsImage> extends 
         this.osImages = images;
         this.loadingOsTemplate = false;
         if (this.osImages.length === 1) {
-            this.setControlValueSafely('osImage', images[0]);
+            this.setControlValueSafely(OsImageField.IMAGE, images[0]);
         } else {
-            this.setControlWithSavedValue('osImage', '');
+            this.setControlWithSavedValue(OsImageField.IMAGE, '');
         }
     }
 
@@ -64,7 +64,7 @@ export abstract class SharedOsImageStepDirective<IMAGE extends OsImage> extends 
         super.ngOnInit();
         this.fieldMapUtilities.buildForm(this.formGroup, this.formName, OsImageStepMapping);
         this.providerInputs = this.supplyProviderInputs();
-        this.registerStepDescriptionTriggers({fields: ['osImage']});
+        this.registerStepDescriptionTriggers({fields: [OsImageField.IMAGE]});
         this.subscribeToProviderEvent();
         this.initFormWithSavedData();
     }
@@ -87,12 +87,12 @@ export abstract class SharedOsImageStepDirective<IMAGE extends OsImage> extends 
      * helper method to determine if osImage.isTemplate is true or false; if false show warning
      */
     onOptionsSelected() {
-        this.displayNonTemplateAlert = !this.formGroup.value['osImage'].isTemplate;
+        this.displayNonTemplateAlert = !this.formGroup.value[OsImageField.IMAGE].isTemplate;
     }
 
     dynamicDescription(): string {
-        if (this.getFieldValue('osImage', true) && this.getFieldValue('osImage').name) {
-            return 'OS Image: ' + this.getFieldValue('osImage').name;
+        if (this.getFieldValue(OsImageField.IMAGE, true) && this.getFieldValue(OsImageField.IMAGE).name) {
+            return 'OS Image: ' + this.getFieldValue(OsImageField.IMAGE).name;
         }
         return SharedOsImageStepDirective.description;
     }

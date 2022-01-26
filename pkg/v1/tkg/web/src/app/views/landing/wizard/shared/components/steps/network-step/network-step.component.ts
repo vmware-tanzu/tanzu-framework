@@ -9,7 +9,7 @@ import { FieldMapUtilities } from '../../../field-mapping/FieldMapUtilities';
 import { FormMetaDataStore, FormMetaData } from '../../../FormMetaDataStore';
 import { IAAS_DEFAULT_CIDRS, IpFamilyEnum } from '../../../../../../../shared/constants/app.constants';
 import { managementClusterPlugin } from "../../../constants/wizard.constants";
-import { NetworkIpv4StepMapping, NetworkIpv6StepMapping } from './network-step.fieldmapping';
+import { NetworkField, NetworkIpv4StepMapping, NetworkIpv6StepMapping } from './network-step.fieldmapping';
 import { StepFormDirective } from '../../../step-form/step-form';
 import { StepMapping } from '../../../field-mapping/FieldMapping';
 import { TanzuEventType } from 'src/app/shared/service/Messenger';
@@ -47,16 +47,16 @@ export class SharedNetworkStepComponent extends StepFormDirective implements OnI
 
     // This method may be overridden by subclasses that describe this step using different fields
     protected supplyFieldsAffectingStepDescription(): string[] {
-        return ['clusterServiceCidr', 'clusterPodCidr'];
+        return [NetworkField.CLUSTER_SERVICE_CIDR, NetworkField.CLUSTER_POD_CIDR];
     }
 
     private customizeForm() {
         if (!this.enableNetworkName) {
-            this.clearFieldSavedData('networkName');
-            this.formGroup.removeControl('networkName');
+            this.clearFieldSavedData(NetworkField.NETWORK_NAME);
+            this.formGroup.removeControl(NetworkField.NETWORK_NAME);
         }
 
-        const cidrs = ['clusterServiceCidr', 'clusterPodCidr'];
+        const cidrs = [NetworkField.CLUSTER_SERVICE_CIDR, NetworkField.CLUSTER_POD_CIDR];
         cidrs.forEach(cidr => {
             this.registerOnIpFamilyChange(cidr, [
                 this.validationService.isValidIpNetworkSegment()], [
@@ -80,9 +80,9 @@ export class SharedNetworkStepComponent extends StepFormDirective implements OnI
             label: 'CNI PROVIDER',
             displayValue: this.cniType,
         } as FormMetaData;
-        FormMetaDataStore.saveMetaDataEntry(this.formName, 'cniType', cniTypeData);
+        FormMetaDataStore.saveMetaDataEntry(this.formName, NetworkField.CNI_TYPE, cniTypeData);
         // TODO: guessing we don't need this line (due to initFormWithSavedData() below)
-        this.formGroup.get('cniType').setValue(this.cniType, { onlySelf: true });
+        this.formGroup.get(NetworkField.CNI_TYPE).setValue(this.cniType, { onlySelf: true });
         this.initFormWithSavedData();
     }
 
@@ -95,15 +95,15 @@ export class SharedNetworkStepComponent extends StepFormDirective implements OnI
         }
 
         if (this.cniType === 'none') {
-            ['clusterServiceCidr', 'clusterPodCidr'].forEach( field => this.disarmField(field, false));
+            [NetworkField.CLUSTER_SERVICE_CIDR, NetworkField.CLUSTER_POD_CIDR].forEach( field => this.disarmField(field, false));
         } else {
             if (this.cniType === 'calico') {
-                this.disarmField('clusterServiceCidr', false);
+                this.disarmField(NetworkField.CLUSTER_SERVICE_CIDR, false);
             }
             this.setCidrs();
 
             if (this.enableNetworkName) {
-                this.resurrectField('networkName', [
+                this.resurrectField(NetworkField.NETWORK_NAME, [
                     Validators.required
                 ], '', { onlySelf: true }); // only for current form control
             }
@@ -111,22 +111,22 @@ export class SharedNetworkStepComponent extends StepFormDirective implements OnI
     }
     setCidrs = () => {
         if (this.cniType === 'antrea') {
-            this.resurrectField('clusterServiceCidr', [
+            this.resurrectField(NetworkField.CLUSTER_SERVICE_CIDR, [
                 Validators.required,
                 this.validationService.noWhitespaceOnEnds(),
                 this.ipFamily === IpFamilyEnum.IPv4 ?
                     this.validationService.isValidIpNetworkSegment() : this.validationService.isValidIpv6NetworkSegment(),
-                this.validationService.isIpUnique([this.formGroup.get('clusterPodCidr')])
+                this.validationService.isIpUnique([this.formGroup.get(NetworkField.CLUSTER_POD_CIDR)])
             ], this.ipFamily === IpFamilyEnum.IPv4 ?
                 IAAS_DEFAULT_CIDRS.CLUSTER_SVC_CIDR : IAAS_DEFAULT_CIDRS.CLUSTER_SVC_IPV6_CIDR, { onlySelf: true });
         }
 
-        this.resurrectField('clusterPodCidr', [
+        this.resurrectField(NetworkField.CLUSTER_POD_CIDR, [
             Validators.required,
             this.validationService.noWhitespaceOnEnds(),
             this.ipFamily === IpFamilyEnum.IPv4 ?
                 this.validationService.isValidIpNetworkSegment() : this.validationService.isValidIpv6NetworkSegment(),
-            this.validationService.isIpUnique([this.formGroup.get('clusterServiceCidr')])
+            this.validationService.isIpUnique([this.formGroup.get(NetworkField.CLUSTER_SERVICE_CIDR)])
         ], this.ipFamily === IpFamilyEnum.IPv4 ?
             IAAS_DEFAULT_CIDRS.CLUSTER_POD_CIDR : IAAS_DEFAULT_CIDRS.CLUSTER_POD_IPV6_CIDR, { onlySelf: true });
     }
@@ -137,7 +137,7 @@ export class SharedNetworkStepComponent extends StepFormDirective implements OnI
     }
 
     private listenToCidrEvents() {
-        const cidrFields = ['clusterServiceCidr', 'clusterPodCidr'];
+        const cidrFields = [NetworkField.CLUSTER_SERVICE_CIDR, NetworkField.CLUSTER_POD_CIDR];
         cidrFields.forEach((field) => {
             this.formGroup.get(field).valueChanges.pipe(
                 distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)),
@@ -179,13 +179,13 @@ export class SharedNetworkStepComponent extends StepFormDirective implements OnI
     }
 
     generateFullNoProxy() {
-        const noProxy = this.formGroup.get('noProxy');
+        const noProxy = this.formGroup.get(NetworkField.NO_PROXY);
         if (noProxy && !noProxy.value) {
             this.fullNoProxy = '';
             return;
         }
-        const clusterServiceCidr = this.formGroup.get('clusterServiceCidr');
-        const clusterPodCidr = this.formGroup.get('clusterPodCidr');
+        const clusterServiceCidr = this.formGroup.get(NetworkField.CLUSTER_SERVICE_CIDR);
+        const clusterPodCidr = this.formGroup.get(NetworkField.CLUSTER_POD_CIDR);
 
         const noProxyList = [
             ...noProxy.value.split(','),
@@ -203,43 +203,43 @@ export class SharedNetworkStepComponent extends StepFormDirective implements OnI
 
     toggleProxySetting(fromSavedData?: boolean) {
         const proxySettingFields = [
-            'httpProxyUrl',
-            'httpProxyUsername',
-            'httpProxyPassword',
-            'isSameAsHttp',
-            'httpsProxyUrl',
-            'httpsProxyUsername',
-            'httpsProxyPassword',
-            'noProxy'
+            NetworkField.HTTP_PROXY_URL,
+            NetworkField.HTTP_PROXY_USERNAME,
+            NetworkField.HTTP_PROXY_PASSWORD,
+            NetworkField.HTTPS_IS_SAME_AS_HTTP,
+            NetworkField.HTTPS_PROXY_URL,
+            NetworkField.HTTPS_PROXY_USERNAME,
+            NetworkField.HTTPS_PROXY_PASSWORD,
+            NetworkField.NO_PROXY
         ];
 
         if (!fromSavedData) {
             this.formGroup.markAsPending();
         }
 
-        if (this.formGroup.value['proxySettings']) {
-            this.resurrectField('httpProxyUrl', [
+        if (this.formGroup.value[NetworkField.PROXY_SETTINGS]) {
+            this.resurrectField(NetworkField.HTTP_PROXY_URL, [
                 Validators.required,
                 this.validationService.isHttpOrHttps()
-            ], this.formGroup.value['httpProxyUrl'],
+            ], this.formGroup.value[NetworkField.HTTP_PROXY_URL],
                 { onlySelf: true }
             );
-            this.resurrectField('noProxy', [],
-                this.formGroup.value['noProxy'] || this.infraServiceAddress,
+            this.resurrectField(NetworkField.NO_PROXY, [],
+                this.formGroup.value[NetworkField.NO_PROXY] || this.infraServiceAddress,
                 { onlySelf: true }
             );
-            if (!this.formGroup.value['isSameAsHttp']) {
-                this.resurrectField('httpsProxyUrl', [
+            if (!this.formGroup.value[NetworkField.HTTPS_IS_SAME_AS_HTTP]) {
+                this.resurrectField(NetworkField.HTTPS_PROXY_URL, [
                     Validators.required,
                     this.validationService.isHttpOrHttps()
-                ], this.formGroup.value['httpsProxyUrl'],
+                ], this.formGroup.value[NetworkField.HTTPS_PROXY_URL],
                     { onlySelf: true }
                 );
             } else {
                 const httpsFields = [
-                    'httpsProxyUrl',
-                    'httpsProxyUsername',
-                    'httpsProxyPassword',
+                    NetworkField.HTTPS_PROXY_URL,
+                    NetworkField.HTTPS_PROXY_USERNAME,
+                    NetworkField.HTTPS_PROXY_PASSWORD,
                 ];
                 httpsFields.forEach((field) => {
                     this.disarmField(field, true);
@@ -267,13 +267,13 @@ export class SharedNetworkStepComponent extends StepFormDirective implements OnI
         // reset validations for httpProxyUrl and httpsProxyUrl when
         // the data is loaded from localstorage.
         this.toggleProxySetting(true);
-        this.scrubPasswordField('httpProxyPassword');
-        this.scrubPasswordField('httpsProxyPassword');
+        this.scrubPasswordField(NetworkField.HTTP_PROXY_PASSWORD);
+        this.scrubPasswordField(NetworkField.HTTPS_PROXY_PASSWORD);
     }
 
     dynamicDescription(): string {
-        const serviceCidr = this.getFieldValue('clusterServiceCidr', true);
-        const podCidr = this.getFieldValue('clusterPodCidr', true);
+        const serviceCidr = this.getFieldValue(NetworkField.CLUSTER_SERVICE_CIDR, true);
+        const podCidr = this.getFieldValue(NetworkField.CLUSTER_POD_CIDR, true);
         if (serviceCidr && podCidr) {
             return `Cluster Service CIDR: ${serviceCidr} Cluster Pod CIDR: ${podCidr}`;
         }

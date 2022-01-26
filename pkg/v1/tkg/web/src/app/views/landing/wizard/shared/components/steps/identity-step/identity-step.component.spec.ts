@@ -6,11 +6,12 @@ import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { APIClient } from '../../../../../../../swagger/api-client.service';
 import AppServices from 'src/app/shared/service/appServices';
 import { FieldMapUtilities } from '../../../field-mapping/FieldMapUtilities';
+import { IdentityField } from './identity-step.fieldmapping';
+import { IdentityManagementType, WizardForm } from '../../../constants/wizard.constants';
 import { Messenger, TanzuEventType } from 'src/app/shared/service/Messenger';
 import { SharedIdentityStepComponent } from './identity-step.component';
 import { SharedModule } from '../../../../../../../shared/shared.module';
 import { ValidationService } from '../../../validation/validation.service';
-import { IdentityManagementType, WizardForm } from '../../../constants/wizard.constants';
 
 describe('IdentityStepComponent', () => {
   let component: SharedIdentityStepComponent;
@@ -53,8 +54,8 @@ describe('IdentityStepComponent', () => {
     fixture.whenStable().then(() => {
       spyOn(component, 'unsetAllValidators').and.callThrough();
       spyOn(component, 'setLDAPValidators').and.callThrough();
-      component.formGroup.get('identityType').setValue('ldap');
-      expect(component.identityTypeValue).toEqual('ldap');
+      component.formGroup.get(IdentityField.IDENTITY_TYPE).setValue(IdentityManagementType.LDAP);
+      expect(component.identityTypeValue).toEqual(IdentityManagementType.LDAP);
       expect(component.unsetAllValidators).toHaveBeenCalled();
       expect(component.setLDAPValidators).toHaveBeenCalled();
     });
@@ -62,11 +63,11 @@ describe('IdentityStepComponent', () => {
 
   it('should switch back to oidc', () => {
     fixture.whenStable().then(() => {
-      component.formGroup.get('identityType').setValue('ldap');
+      component.formGroup.get(IdentityField.IDENTITY_TYPE).setValue(IdentityManagementType.LDAP);
       spyOn(component, 'unsetAllValidators').and.callThrough();
       spyOn(component, 'setOIDCValidators').and.callThrough();
-      component.formGroup.get('identityType').setValue('oidc');
-      expect(component.identityTypeValue).toEqual('oidc');
+      component.formGroup.get(IdentityField.IDENTITY_TYPE).setValue(IdentityManagementType.OIDC);
+      expect(component.identityTypeValue).toEqual(IdentityManagementType.OIDC);
       expect(component.unsetAllValidators).toHaveBeenCalled();
       expect(component.setOIDCValidators).toHaveBeenCalled();
     });
@@ -75,10 +76,10 @@ describe('IdentityStepComponent', () => {
     it('should announce description change', () => {
         const msgSpy = spyOn(AppServices.messenger, 'publish').and.callThrough();
         component.ngOnInit();
-        const identityTypeControl = component.formGroup.get('identityType');
-        const oidcIssuerControl = component.formGroup.get('issuerURL');
-        const ldapEndpointIpControl = component.formGroup.get('endpointIp');
-        const ldapEndpointPortControl = component.formGroup.get('endpointPort');
+        const identityTypeControl = component.formGroup.get(IdentityField.IDENTITY_TYPE);
+        const oidcIssuerControl = component.formGroup.get(IdentityField.ISSUER_URL);
+        const ldapEndpointIpControl = component.formGroup.get(IdentityField.ENDPOINT_IP);
+        const ldapEndpointPortControl = component.formGroup.get(IdentityField.ENDPOINT_PORT);
 
         expect(component.dynamicDescription()).toEqual(SharedIdentityStepComponent.description);
 

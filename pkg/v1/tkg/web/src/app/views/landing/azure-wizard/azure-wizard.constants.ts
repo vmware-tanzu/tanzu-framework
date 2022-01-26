@@ -13,11 +13,6 @@ export enum AzureCloud {
 export enum AzureForm {
     PROVIDER = 'azureProviderForm',
     NODESETTING = 'azureNodeSettingForm',
-    METADATA = 'metadataForm',
-    NETWORK = 'networkForm',
-    CEIP = 'ceipOptInForm',
-    IDENTITY = 'identityForm',
-    OSIMAGE = 'osImageForm',
     VNET = 'vnetForm'
 }
 export enum AzureField {

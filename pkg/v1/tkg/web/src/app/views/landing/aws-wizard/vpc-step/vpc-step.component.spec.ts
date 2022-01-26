@@ -53,18 +53,18 @@ describe('VpcComponent', () => {
     });
 
     it("should be invalid when VPC CIDR is 192.168.1.1", async(() => {
-        component.formGroup.get('vpcType').setValue("new");
+        component.formGroup.get(AwsField.VPC_TYPE).setValue(VpcType.NEW);
         fixture.detectChanges();
         component.setNewVpcValidators();
-        component.formGroup.get('vpc').setValue("192.168.1.1");
+        component.formGroup.get(AwsField.VPC_NEW_CIDR).setValue("192.168.1.1");
         expect(component.formGroup.valid).toBeFalsy();
     }));
 
     it("should be invalid when VPC CIDR is 192.168.1.0/32", async(() => {
-        component.formGroup.get('vpcType').setValue("new");
+        component.formGroup.get(AwsField.VPC_TYPE).setValue(VpcType.NEW);
         fixture.detectChanges();
         component.setNewVpcValidators();
-        component.formGroup.get('vpc').setValue("192.168.1.0/32");
+        component.formGroup.get(AwsField.VPC_NEW_CIDR).setValue("192.168.1.0/32");
         expect(component.formGroup.valid).toBeFalsy();
     }));
 
@@ -73,7 +73,7 @@ describe('VpcComponent', () => {
             id: 'vpc-1',
             cidr: '100.64.0.0/13'
         }];
-        component.formGroup.get('vpcType').setValue("existing");
+        component.formGroup.get(AwsField.VPC_TYPE).setValue(VpcType.EXISTING);
         fixture.detectChanges();
         component.existingVpcOnChange('vpc-1');
         expect(component.formGroup.get('existingVpcCidr').value).toBe('100.64.0.0/13');

@@ -6,16 +6,16 @@ import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 // Third party imports
 import { Observable, of, throwError } from 'rxjs';
 // App imports
-import AppServices from '../../../../shared/service/appServices';
-import { AzureProviderStepComponent } from './azure-provider-step.component';
 import { APIClient } from '../../../../swagger/api-client.service';
+import AppServices from '../../../../shared/service/appServices';
+import { AzureField, AzureForm } from '../azure-wizard.constants';
+import { AzureProviderStepComponent } from './azure-provider-step.component';
+import { AzureResourceGroup } from '../../../../swagger/models';
+import { DataServiceRegistrarTestExtension } from '../../../../testing/data-service-registrar.testextension';
 import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
 import { Messenger, TanzuEventType } from 'src/app/shared/service/Messenger';
 import { SharedModule } from '../../../../shared/shared.module';
 import { ValidationService } from '../../wizard/shared/validation/validation.service';
-import { DataServiceRegistrarTestExtension } from '../../../../testing/data-service-registrar.testextension';
-import { AzureResourceGroup } from '../../../../swagger/models';
-import { AzureForm } from '../azure-wizard.constants';
 
 describe('AzureProviderStepComponent', () => {
     let component: AzureProviderStepComponent;
@@ -136,9 +136,9 @@ describe('AzureProviderStepComponent', () => {
 
     it('should show different resource based on option', () => {
         component.showResourceGroupExisting();
-        expect(component.formGroup.get('resourceGroupCustom').value).toBe('');
+        expect(component.formGroup.get(AzureField.PROVIDER_RESOURCEGROUPCUSTOM).value).toBe('');
         component.showResourceGroupCustom();
-        expect(component.formGroup.get('resourceGroupExisting').value).toBe('');
+        expect(component.formGroup.get(AzureField.PROVIDER_RESOURCEGROUPEXISTING).value).toBe('');
     });
 
     it('should handle resource group name change', () => {

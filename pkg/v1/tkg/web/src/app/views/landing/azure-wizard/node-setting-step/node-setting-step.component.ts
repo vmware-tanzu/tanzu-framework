@@ -63,7 +63,7 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
                     }
                 });
             } else {
-                console.log('WARNING: azure-wizard.node-setting-step.listenOnChangeClusterPlan() unable to find controlPlaneSettingControl!');
+                console.log('WARNING: azure-wizard.node-setting-step.listenOnChangeClusterPlan() cannot find controlPlaneSettingControl!');
             }
         });
     }

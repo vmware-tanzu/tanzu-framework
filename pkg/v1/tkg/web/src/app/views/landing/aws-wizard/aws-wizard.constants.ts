@@ -2,28 +2,18 @@ export enum CredentialType {
     ONETIME = 'oneTimeCredentials',
     PROFILE = 'credentialProfile'
 }
+
 export enum VpcType {
     EXISTING = 'existing',
     NEW = 'new'
 }
-export enum AwsStep {
-    PROVIDER = 'provider',
-    VPC = 'vpc',
-    NODESETTING = 'nodeSetting',
-    NETWORK = 'network',
-    METADATA = 'metadata',
-    IDENTITY = 'identity',
-    OSIMAGE = 'osImage'
-}
+
 export enum AwsForm {
     PROVIDER = 'awsProviderForm',
     VPC = 'vpcForm',
     NODESETTING = 'awsNodeSettingForm',
-    NETWORK = 'networkForm',
-    METADATA = 'metadataForm',
-    IDENTITY = 'identityForm',
-    OSIMAGE = 'osImageForm'
 }
+
 export enum AwsField {
     NODESETTING_AZ_1 = 'awsNodeAz1',
     NODESETTING_AZ_2 = 'awsNodeAz2',

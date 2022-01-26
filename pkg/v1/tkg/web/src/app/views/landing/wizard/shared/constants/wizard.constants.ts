@@ -43,10 +43,3 @@ export enum WizardForm {
     NETWORK = 'networkForm',
     OSIMAGE = 'osImageForm',
 }
-
-export enum IdentityField {
-    TYPE = 'identityType',
-    ISSUER_URL = 'issuerURL',
-    LDAP_ENDPOINT_IP = 'endpointIp',
-    LDAP_ENDPOINT_PORT = 'endpointPort',
-}
