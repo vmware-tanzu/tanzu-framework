@@ -1,0 +1,22 @@
+#@data/values
+
+#@overlay/match-child-defaults missing_ok=True
+---
+
+#! User configurable values for tkg-clusterclass-aws
+
+#! TODO(vui) cleanup default values
+
+ENABLE_MHC: true
+ENABLE_MHC_WORKER_NODE: true
+ENABLE_MHC_CONTROL_PLANE: true
+MHC_UNKNOWN_STATUS_TIMEOUT: 5m
+MHC_FALSE_STATUS_TIMEOUT: 12m
+NODE_STARTUP_TIMEOUT: 20m
+AWS_SSH_KEY_NAME: ""
+AWS_REGION: "us-west-2"
+BASTION_HOST_ENABLED: true
+CONTROL_PLANE_MACHINE_TYPE: "t3.large"
+NODE_MACHINE_TYPE: m5.large
+AWS_CONTROL_PLANE_OS_DISK_SIZE_GIB: 80
+AWS_NODE_OS_DISK_SIZE_GIB: 80

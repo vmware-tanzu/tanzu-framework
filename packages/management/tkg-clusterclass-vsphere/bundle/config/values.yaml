@@ -1,0 +1,15 @@
+#@data/values
+
+#@overlay/match-child-defaults missing_ok=True
+---
+
+#! User configurable values for tkg-clusterclass-vsphere
+
+NAMESPACE: ""
+ENABLE_MHC: ""
+ENABLE_MHC_CONTROL_PLANE: ""
+ENABLE_MHC_WORKER_NODE: ""
+MHC_FALSE_STATUS_TIMEOUT: ""
+MHC_UNKNOWN_STATUS_TIMEOUT: ""
+NODE_STARTUP_TIMEOUT: ""
+IS_WINDOWS_WORKLOAD_CLUSTER: ""
