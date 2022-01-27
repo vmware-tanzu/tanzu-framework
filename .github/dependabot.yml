@@ -1,0 +1,53 @@
+# Dependabot config for go mod version upgrades
+
+version: 2
+updates:
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "daily"
+
+  - package-ecosystem: "gomod"
+    directory: "addons/"
+    schedule:
+      interval: "daily"
+
+  - package-ecosystem: "gomod"
+    directory: "addons/pinniped/post-deploy/"
+    schedule:
+      interval: "daily"
+
+  - package-ecosystem: "gomod"
+    directory: "/"
+    schedule:
+      interval: "daily"
+
+  - package-ecosystem: "gomod"
+    directory: "hack/packages/kbld-image-replace/"
+    schedule:
+      interval: "daily"
+
+  - package-ecosystem: "gomod"
+    directory: "hack/tools/"
+    schedule:
+      interval: "daily"
+
+  - package-ecosystem: "gomod"
+    directory: "pkg/v1/providers/tests/"
+    schedule:
+      interval: "daily"
+
+  - package-ecosystem: "npm"
+    directory: "pkg/v1/tkg/web/e2e/"
+    schedule:
+      interval: "daily"
+
+  - package-ecosystem: "npm"
+    directory: "pkg/v1/tkg/web/node-server/"
+    schedule:
+      interval: "daily"
+
+  - package-ecosystem: "npm"
+    directory: "pkg/v1/tkg/web/"
+    schedule:
+      interval: "daily"
