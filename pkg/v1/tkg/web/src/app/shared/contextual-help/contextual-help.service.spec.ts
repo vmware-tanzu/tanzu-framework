@@ -1,13 +1,13 @@
 import { TestBed } from '@angular/core/testing';
 
-import { ContexutalHelpService } from './contexutal-help.service';
+import { ContextualHelpService } from './contextual-help.service';
 
 describe('ContexutalHelpService', () => {
-  let service: ContexutalHelpService;
+  let service: ContextualHelpService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({});
-    service = TestBed.inject(ContexutalHelpService);
+    service = TestBed.inject(ContextualHelpService);
   });
 
   it('should be created', () => {

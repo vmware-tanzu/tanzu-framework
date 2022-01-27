@@ -1,0 +1,88 @@
+
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.7.0
+  creationTimestamp: null
+  name: calicoconfigs.cni.tanzu.vmware.com
+spec:
+  group: cni.tanzu.vmware.com
+  names:
+    kind: CalicoConfig
+    listKind: CalicoConfigList
+    plural: calicoconfigs
+    singular: calicoconfig
+  scope: Namespaced
+  versions:
+  - name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        description: CalicoConfig is the Schema for the calicoconfigs API
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation
+              of an object. Servers should convert recognized schemas to the latest
+              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this
+              object represents. Servers may infer this from the endpoint the client
+              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: CalicoConfigSpec defines the desired state of CalicoConfig
+            properties:
+              calico:
+                properties:
+                  config:
+                    properties:
+                      vethMTU:
+                        default: 0
+                        description: Maximum transmission unit setting
+                        format: int64
+                        minimum: 0
+                        type: integer
+                    type: object
+                type: object
+              infraProvider:
+                description: Infrastructure provider in use
+                enum:
+                - aws
+                - azure
+                - vsphere
+                - docker
+                type: string
+              ipFamily:
+                default: ipv4
+                description: The IP family calico should be configured with
+                enum:
+                - ipv4
+                - ipv6
+                - ipv4,ipv6
+                - ipv6,ipv4
+                type: string
+              namespace:
+                default: kube-system
+                description: The namespace in which calico is deployed
+                type: string
+            required:
+            - infraProvider
+            type: object
+          status:
+            description: CalicoConfigStatus defines the observed state of CalicoConfig
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
+status:
+  acceptedNames:
+    kind: ""
+    plural: ""
+  conditions: []
+  storedVersions: []

@@ -1,0 +1,6 @@
+install_cert_manager: true
+install_flux: true
+install_tekton: true
+ootb_supply_chain_testing_scanning:
+  dummyProperty-1: dummyDefault
+profile: full

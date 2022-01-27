@@ -342,7 +342,10 @@ func (k *KindClusterProxy) getKindNetworkingConfig() kindv1.Networking {
 	podSubnet, err := k.options.Readerwriter.Get(constants.ConfigVariableClusterCIDR)
 	if err != nil {
 		switch ipFamily {
-		case constants.DualStackPrimaryIPv4Family:
+		// We expect the IPv4,IPv6 order for the CIDR in both cases for KinD until
+		// we bump to a version of the kind library that includes a fix for this issue:
+		// https://github.com/kubernetes-sigs/kind/issues/2484
+		case constants.DualStackPrimaryIPv4Family, constants.DualStackPrimaryIPv6Family:
 			podSubnet = constants.DefaultDualStackPrimaryIPv4ClusterCIDR
 		case constants.IPv6Family:
 			podSubnet = constants.DefaultIPv6ClusterCIDR
@@ -353,7 +356,10 @@ func (k *KindClusterProxy) getKindNetworkingConfig() kindv1.Networking {
 	serviceSubnet, err := k.options.Readerwriter.Get(constants.ConfigVariableServiceCIDR)
 	if err != nil {
 		switch ipFamily {
-		case constants.DualStackPrimaryIPv4Family:
+		// We expect the IPv4,IPv6 order for the CIDR in both cases for KinD until
+		// we bump to a version of the kind library that includes a fix for this issue:
+		// https://github.com/kubernetes-sigs/kind/issues/2484
+		case constants.DualStackPrimaryIPv4Family, constants.DualStackPrimaryIPv6Family:
 			serviceSubnet = constants.DefaultDualStackPrimaryIPv4ServiceCIDR
 		case constants.IPv6Family:
 			serviceSubnet = constants.DefaultIPv6ServiceCIDR
@@ -384,7 +390,7 @@ func (k *KindClusterProxy) getKindIPFamily() kindv1.ClusterIPFamily {
 		return kindv1.IPv4Family
 	case constants.IPv6Family:
 		return kindv1.IPv6Family
-	case constants.DualStackPrimaryIPv4Family:
+	case constants.DualStackPrimaryIPv4Family, constants.DualStackPrimaryIPv6Family:
 		return kindv1.DualStackFamily
 	default:
 		return ""

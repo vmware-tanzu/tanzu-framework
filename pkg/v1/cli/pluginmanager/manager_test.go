@@ -17,6 +17,7 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/common"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/plugin"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/config"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/log"
 )
 
@@ -544,4 +545,71 @@ func Test_InstallPluginsFromLocalSourceWithLegacyDirectoryStructure(t *testing.T
 	assert.Equal(0, len(installedServerPlugins))
 	assert.Equal(2, len(installedStandalonePlugins))
 	assert.ElementsMatch([]string{"bar", "foo"}, []string{installedStandalonePlugins[0].Name, installedStandalonePlugins[1].Name})
+}
+
+func Test_VerifyRegistry(t *testing.T) {
+	assert := assert.New(t)
+
+	var err error
+
+	testImage := "fake.repo.com/image:v1.0.0"
+	err = configureAndTestVerifyRegistry(testImage, "", "", "")
+	assert.NotNil(err)
+
+	err = configureAndTestVerifyRegistry(testImage, "fake.repo.com", "", "")
+	assert.Nil(err)
+	err = configureAndTestVerifyRegistry(testImage, "fake.repo.com/image", "", "")
+	assert.Nil(err)
+	err = configureAndTestVerifyRegistry(testImage, "fake.repo.com/foo", "", "")
+	assert.NotNil(err)
+
+	err = configureAndTestVerifyRegistry(testImage, "", "fake.repo.com", "")
+	assert.Nil(err)
+	err = configureAndTestVerifyRegistry(testImage, "", "fake.repo.com/image", "")
+	assert.Nil(err)
+	err = configureAndTestVerifyRegistry(testImage, "", "fake.repo.com/foo", "")
+	assert.NotNil(err)
+
+	err = configureAndTestVerifyRegistry(testImage, "", "", "fake.repo.com")
+	assert.Nil(err)
+	err = configureAndTestVerifyRegistry(testImage, "", "", "fake.repo.com/image")
+	assert.Nil(err)
+	err = configureAndTestVerifyRegistry(testImage, "", "", "fake.repo.com/foo")
+	assert.NotNil(err)
+
+	err = configureAndTestVerifyRegistry(testImage, "fake.repo.com", "", "fake.repo.com/foo")
+	assert.Nil(err)
+	err = configureAndTestVerifyRegistry(testImage, "", "fake.repo.com", "fake.repo.com/foo")
+	assert.Nil(err)
+	err = configureAndTestVerifyRegistry(testImage, "fake.repo.com", "fake.repo.com", "fake.repo.com/foo")
+	assert.Nil(err)
+
+	err = configureAndTestVerifyRegistry(testImage, "fake.repo.com.private.com", "", "")
+	assert.NotNil(err)
+	err = configureAndTestVerifyRegistry(testImage, "private.fake.repo.com", "", "")
+	assert.NotNil(err)
+	err = configureAndTestVerifyRegistry(testImage, "fake.repo.com/image/foo", "", "")
+	assert.NotNil(err)
+
+	err = configureAndTestVerifyRegistry(testImage, "", "", "fake.repo.com.private.com,private.fake.repo.com")
+	assert.NotNil(err)
+	err = configureAndTestVerifyRegistry(testImage, "", "", "fake.repo.com,private.fake.repo.com")
+	assert.Nil(err)
+	err = configureAndTestVerifyRegistry(testImage, "", "", "private.fake.repo.com,fake.repo.com")
+	assert.Nil(err)
+	err = configureAndTestVerifyRegistry(testImage, "", "", "fake.repo.com/image,fake.repo.com")
+	assert.Nil(err)
+}
+
+func configureAndTestVerifyRegistry(testImage, defaultRegistry, customImageRepository, allowedRegistries string) error { //nolint:unparam
+	config.DefaultStandaloneDiscoveryRepository = defaultRegistry
+	os.Setenv(constants.ConfigVariableCustomImageRepository, customImageRepository)
+	os.Setenv(constants.AllowedRegistries, allowedRegistries)
+
+	err := verifyRegistry(testImage)
+
+	config.DefaultStandaloneDiscoveryRepository = ""
+	os.Setenv(constants.ConfigVariableCustomImageRepository, "")
+	os.Setenv(constants.AllowedRegistries, "")
+	return err
 }

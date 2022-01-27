@@ -346,15 +346,15 @@ func (c *TkgClient) getMachineCountForMC(plan string) (int, int) {
 		if cpc%2 == 1 {
 			controlPlaneMachineCount = cpc
 		} else {
-			log.Info("Using default value for CONTROL_PLANE_MACHINE_COUNT= %d. Reason: Provided value is an even number", controlPlaneMachineCount)
+			log.Infof("Using default value for CONTROL_PLANE_MACHINE_COUNT = %d. Reason: Provided value is an even number", controlPlaneMachineCount)
 		}
 	} else {
-		log.Info("Using default value for CONTROL_PLANE_MACHINE_COUNT= %d. Reason: %s", controlPlaneMachineCount, err.Error())
+		log.Infof("Using default value for CONTROL_PLANE_MACHINE_COUNT = %d. Reason: %s", controlPlaneMachineCount, err.Error())
 	}
 	if wc, err := tkgconfighelper.GetIntegerVariableFromConfig(constants.ConfigVariableWorkerMachineCount, c.TKGConfigReaderWriter()); err == nil {
 		workerMachineCount = wc
 	} else {
-		log.Info("Using default value for WORKER_MACHINE_COUNT= %d. Reason: %s", workerMachineCount, err.Error())
+		log.Infof("Using default value for WORKER_MACHINE_COUNT = %d. Reason: %s", workerMachineCount, err.Error())
 	}
 
 	return controlPlaneMachineCount, workerMachineCount

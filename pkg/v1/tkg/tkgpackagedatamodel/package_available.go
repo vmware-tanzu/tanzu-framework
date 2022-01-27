@@ -5,10 +5,11 @@ package tkgpackagedatamodel
 
 // PackageAvailableOptions includes fields for package available
 type PackageAvailableOptions struct {
-	Namespace     string
-	PackageName   string
-	AllNamespaces bool
-	ValuesSchema  bool
+	Namespace                 string
+	PackageName               string
+	AllNamespaces             bool
+	ValuesSchema              bool
+	GenerateDefaultValuesFile bool
 }
 
 // NewPackageAvailableOptions instantiates PackageAvailableOptions

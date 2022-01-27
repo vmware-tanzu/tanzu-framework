@@ -20,4 +20,7 @@ resources:
 - group: config
   kind: FeatureGate
   version: v1alpha1
+- group: cni
+  kind: CalicoConfig
+  version: v1alpha1
 version: "2"

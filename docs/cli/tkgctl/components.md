@@ -47,7 +47,7 @@ reference:
   * creating and/or updating TKG settings file at `$HOME/.config/tanzu/tkg/config.yaml`
     * adding/updating provider map based on user's file system path
     * adding/updating images map based on BoM file's image repository or based on `TKG_CUSTOM_IMAGE_REPOSITORY` config variable
-  * creating default(empty) cluster-config.yaml if it does not exists at `$HOME/.config/tanzu/tkg/cluster-config.yaml`
+  * creating default(empty) cluster-config.yaml if it does not exist at `$HOME/.config/tanzu/tkg/cluster-config.yaml`
 
 ## [tkgconfigpaths](/pkg/v1/tkg/tkgconfigpaths)
 

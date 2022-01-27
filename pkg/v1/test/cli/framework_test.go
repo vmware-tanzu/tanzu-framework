@@ -22,7 +22,7 @@ func TestCleanCommand(t *testing.T) {
 			res:     []string{"cluster", "create"},
 		},
 		{
-			name:    "cli name does not exists",
+			name:    "cli name does not exist",
 			command: "cluster create",
 			res:     []string{"cluster", "create"},
 		},

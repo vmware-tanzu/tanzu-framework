@@ -81,6 +81,7 @@ spec:
   #@overlay/match missing_ok=True
   additionalTags: #@ get_custom_tags()
   #@ end
+  azureEnvironment: #@ data.values.AZURE_ENVIRONMENT
   location: #@ data.values.AZURE_LOCATION
   networkSpec:
     vnet:

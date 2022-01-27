@@ -347,19 +347,19 @@ var _ = Describe("VC Client", func() {
 					Name:        "/DC0/network/VM Network",
 				},
 				{
-					DisplayName: "DVS0-DVUplinks-9",
+					DisplayName: "/DC0/network/DVS0-DVUplinks-9",
 					Moid:        "DistributedVirtualPortgroup:dvportgroup-11",
-					Name:        "DVS0-DVUplinks-9",
+					Name:        "/DC0/network/DVS0-DVUplinks-9",
 				},
 				{
-					DisplayName: "DC0_DVPG0",
+					DisplayName: "/DC0/network/DC0_DVPG0",
 					Moid:        "DistributedVirtualPortgroup:dvportgroup-13",
-					Name:        "DC0_DVPG0",
+					Name:        "/DC0/network/DC0_DVPG0",
 				},
 				{
-					DisplayName: "DC0_DVPG1",
+					DisplayName: "/DC0/network/DC0_DVPG1",
 					Moid:        "DistributedVirtualPortgroup:dvportgroup-15",
-					Name:        "DC0_DVPG1",
+					Name:        "/DC0/network/DC0_DVPG1",
 				},
 			}
 		)
@@ -680,7 +680,7 @@ var _ = Describe("VC Client", func() {
 			})
 		})
 
-		Context("When provided template does not exists", func() {
+		Context("When provided template does not exist", func() {
 			BeforeEach(func() {
 				vmTemplate = "fake-template"
 				ovaVersions = []string{"v1.16.0+vmware.1-ova-latest"}

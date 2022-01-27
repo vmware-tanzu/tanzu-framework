@@ -17,7 +17,6 @@ pinniped/
 
 # providers/clustergen-related files
 provider-bundle
-testdata
 providers.zip
 providers.tar.gz
 
