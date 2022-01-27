@@ -8,7 +8,7 @@ import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 
 // Library imports
 import { of, empty, throwError, Observable } from 'rxjs';
-import { APIClient } from 'tanzu-mgmt-plugin-api-lib';
+import { APIClient } from 'tanzu-management-cluster-api';
 
 // App imports
 import AppServices from 'src/app/shared/service/appServices';

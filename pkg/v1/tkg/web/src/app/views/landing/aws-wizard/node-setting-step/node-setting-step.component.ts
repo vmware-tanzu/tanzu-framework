@@ -3,7 +3,7 @@ import { Component, OnInit } from '@angular/core';
 import { Validators } from '@angular/forms';
 import { takeUntil } from 'rxjs/operators';
 // App imports
-import { APIClient, AWSNodeAz, AWSSubnet } from 'tanzu-mgmt-plugin-api-lib';
+import { APIClient, AWSNodeAz, AWSSubnet } from 'tanzu-management-cluster-api';
 import { AppEdition } from 'src/app/shared/constants/branding.constants';
 import AppServices from '../../../../shared/service/appServices';
 import { AwsField, AwsForm } from '../aws-wizard.constants';

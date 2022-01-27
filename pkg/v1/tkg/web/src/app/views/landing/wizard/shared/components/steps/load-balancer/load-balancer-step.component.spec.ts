@@ -6,7 +6,7 @@ import { FormBuilder } from '@angular/forms';
 import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 
 // Library imports
-import { APIClient } from 'tanzu-mgmt-plugin-api-lib';
+import { APIClient } from 'tanzu-management-cluster-api';
 
 // App imports
 import AppServices from 'src/app/shared/service/appServices';

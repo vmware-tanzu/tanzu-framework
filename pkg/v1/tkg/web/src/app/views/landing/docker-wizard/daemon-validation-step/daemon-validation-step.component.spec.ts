@@ -5,7 +5,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterTestingModule } from '@angular/router/testing';
 
 // Library imports
-import { APIClient } from 'tanzu-mgmt-plugin-api-lib';
+import { APIClient } from 'tanzu-management-cluster-api';
 
 // App imports
 import { SharedModule } from 'src/app/shared/shared.module';

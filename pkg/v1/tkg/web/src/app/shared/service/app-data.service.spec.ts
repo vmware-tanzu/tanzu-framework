@@ -2,7 +2,7 @@ import { TestBed, async } from '@angular/core/testing';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { HttpClientModule } from '@angular/common/http';
 
-import { APIClient } from 'tanzu-mgmt-plugin-api-lib';
+import { APIClient } from 'tanzu-management-cluster-api';
 import { AppDataService } from 'src/app/shared/service/app-data.service';
 
 describe('AppDataService', () => {

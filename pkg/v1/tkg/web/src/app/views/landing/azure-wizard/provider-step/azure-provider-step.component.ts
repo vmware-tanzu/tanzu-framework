@@ -5,7 +5,7 @@ import { ClrLoadingState } from '@clr/angular';
 
 // Library imports
 import { debounceTime, distinctUntilChanged, finalize, takeUntil } from 'rxjs/operators';
-import { APIClient, AzureResourceGroup } from 'tanzu-mgmt-plugin-api-lib';
+import { APIClient, AzureResourceGroup } from 'tanzu-management-cluster-api';
 
 // App imports
 import AppServices from '../../../../shared/service/appServices';

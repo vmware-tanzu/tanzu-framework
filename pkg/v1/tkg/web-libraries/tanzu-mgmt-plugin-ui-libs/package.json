@@ -3,11 +3,11 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
-    "build-tanzu-mgmt-plugin-api-lib": "cd projects/tanzu-mgmt-plugin-api-lib && npm run build-library",
-    "link-tanzu-mgmt-plugin-api-lib": "cd ./dist/tanzu-mgmt-plugin-api-lib && npm link",
+    "build-tanzu-management-cluster-api": "cd projects/tanzu-management-cluster-api && npm run build-library",
+    "link-tanzu-management-cluster-api": "cd ./dist/tanzu-management-cluster-api && npm link",
     "start": "ng serve",
     "build": "ng build",
-    "build:all": "(npm ci); (npm run build-tanzu-mgmt-plugin-api-lib); (npm run build && npm run link-tanzu-mgmt-plugin-api-lib)",
+    "build:all": "(npm ci); (npm run build-tanzu-management-cluster-api); (npm run build && npm run link-tanzu-management-cluster-api)",
     "watch": "ng build --watch --configuration development",
     "test": "ng test"
   },

@@ -12,7 +12,7 @@ import { APIClient,
     AzureResourceGroup,
     AzureVirtualMachine,
     AzureVirtualNetwork
-} from 'tanzu-mgmt-plugin-api-lib';
+} from 'tanzu-management-cluster-api';
 
 // App imports
 import AppServices from '../../../shared/service/appServices';

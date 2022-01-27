@@ -1649,7 +1649,7 @@ i0.ɵɵngDeclareClassMetadata({ minVersion: "12.0.0", version: "12.2.15", ngImpo
 /* tslint:disable */
 
 /*
- * Public API Surface of tanzu-mgmt-plugin-api-lib
+ * Public API Surface of tanzu-management-cluster-api
  * Exports swagger generated APIClient and modules, and swagger generated models
  */
 
@@ -1658,4 +1658,4 @@ i0.ɵɵngDeclareClassMetadata({ minVersion: "12.0.0", version: "12.2.15", ngImpo
  */
 
 export { APIClient, APIClientModule, GuardedAPIClient };
-//# sourceMappingURL=tanzu-mgmt-plugin-api-lib.js.map
+//# sourceMappingURL=tanzu-management-cluster-api.js.map

@@ -6,7 +6,7 @@ import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule } from '@angul
 import { RouterTestingModule } from '@angular/router/testing';
 
 // Library imports
-import { APIClient } from 'tanzu-mgmt-plugin-api-lib';
+import { APIClient } from 'tanzu-management-cluster-api';
 
 // App imports
 import AppServices from 'src/app/shared/service/appServices';

@@ -2,7 +2,7 @@
 import { Component, OnInit } from '@angular/core';
 
 // Library imports
-import { APIClient, DockerDaemonStatus } from 'tanzu-mgmt-plugin-api-lib';
+import { APIClient, DockerDaemonStatus } from 'tanzu-management-cluster-api';
 import { takeUntil } from 'rxjs/operators';
 
 // App imports

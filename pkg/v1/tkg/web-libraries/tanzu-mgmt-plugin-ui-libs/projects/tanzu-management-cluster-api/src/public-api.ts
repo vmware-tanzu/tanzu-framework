@@ -1,5 +1,5 @@
 /*
- * Public API Surface of tanzu-mgmt-plugin-api-lib
+ * Public API Surface of tanzu-management-cluster-api
  * Exports swagger generated APIClient and modules, and swagger generated models
  */
 export * from './lib/swagger/index';

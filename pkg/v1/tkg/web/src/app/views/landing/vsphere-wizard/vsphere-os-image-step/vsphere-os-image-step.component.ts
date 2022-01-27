@@ -2,7 +2,7 @@
 import { Component, OnInit } from '@angular/core';
 
 // Library imports
-import { VSphereVirtualMachine } from 'tanzu-mgmt-plugin-api-lib';
+import { VSphereVirtualMachine } from 'tanzu-management-cluster-api';
 
 // App imports
 import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';

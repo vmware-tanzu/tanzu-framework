@@ -14,7 +14,7 @@ import { APIClient,
     VsphereRegionalClusterParams,
     VSphereResourcePool,
     VSphereVirtualMachine
-} from 'tanzu-mgmt-plugin-api-lib';
+} from 'tanzu-management-cluster-api';
 
 // App imports
 import { APP_ROUTES, Routes } from '../../../shared/constants/routes.constants';

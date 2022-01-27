@@ -42,5 +42,6 @@ testem.log
 # System Files
 .DS_Store
 Thumbs.db
-/projects/tanzu-mgmt-plugin-api-lib/node_modules/
-/projects/tanzu-mgmt-plugin-api-lib/src/lib/swagger/
+/projects/tanzu-management-cluster-api/node_modules/
+/projects/tanzu-management-cluster-api/src/lib/swagger/
+/dist/tanzu-management-cluster-api/esm2015/

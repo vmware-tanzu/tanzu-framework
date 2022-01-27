@@ -4,7 +4,7 @@ import { Validators } from '@angular/forms';
 
 // Library imports
 import { distinctUntilChanged, takeUntil, tap } from 'rxjs/operators';
-import { APIClient, LdapParams, LdapTestResult } from 'tanzu-mgmt-plugin-api-lib';
+import { APIClient, LdapParams, LdapTestResult } from 'tanzu-management-cluster-api';
 
 // App imports
 

@@ -7,7 +7,7 @@ import { Validators } from '@angular/forms';
 import { debounceTime, distinctUntilChanged, finalize, takeUntil } from 'rxjs/operators';
 import * as _ from 'lodash';
 import { ClrLoadingState } from '@clr/angular';
-import { APIClient, VSphereDatacenter } from 'tanzu-mgmt-plugin-api-lib';
+import { APIClient, VSphereDatacenter } from 'tanzu-management-cluster-api';
 
 // App imports
 import { AppEdition } from 'src/app/shared/constants/branding.constants';
