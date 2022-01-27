@@ -98,11 +98,13 @@ var _ = Describe("AntreaConfig Reconciler", func() {
 					return false
 				}
 
-				// Possible to add more checks here
+				// TODO: Possible to add more checks here
 				Expect(config.Spec.Antrea.AntConfig.TrafficEncapMode).Should(Equal("encap"))
 				Expect(config.Spec.Antrea.AntConfig.FeatureGates.AntreaTraceflow).Should(Equal(false))
 				Expect(config.Spec.Antrea.AntConfig.FeatureGates.AntreaPolicy).Should(Equal(true))
 				Expect(config.Spec.Antrea.AntConfig.FeatureGates.FlowExporter).Should(Equal(false))
+
+				// TODO: Check infraProvider, ServiceCIDR and ServiceCIDRv6 values
 
 				return true
 			}, waitTimeout, pollingInterval).Should(BeTrue())
@@ -126,6 +128,7 @@ var _ = Describe("AntreaConfig Reconciler", func() {
 
 		})
 
+		// TODO: Check status.secretRef after reconciliation
 		It("Should reconcile AntreaConfig deletion in management cluster", func() {
 
 			key := client.ObjectKey{

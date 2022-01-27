@@ -122,3 +122,22 @@ const (
 	// AntreaAddonName is the name of Antrea Addon Controller
 	AntreaAddonName = "antrea"
 )
+
+// infrastructure provider name constants
+const (
+	InfrastructureProviderVSphere = "vsphere"
+	InfrastructureProviderAWS     = "aws"
+	InfrastructureProviderAzure   = "azure"
+	InfrastructureProviderDocker  = "docker"
+)
+
+const (
+	// InfrastructureRefVSphere is the vSphere infrastructure
+	InfrastructureRefVSphere = "VSphereCluster"
+	// InfrastructureRefAWS is the AWS infrastructure
+	InfrastructureRefAWS = "AWSCluster"
+	// InfrastructureRefAzure is the Azure infrastructure
+	InfrastructureRefAzure = "AzureCluster"
+	// InfrastructureRefDocker is the docker infrastructure
+	InfrastructureRefDocker = "DockerCluster"
+)

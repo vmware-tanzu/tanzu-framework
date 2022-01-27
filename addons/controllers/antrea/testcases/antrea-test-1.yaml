@@ -1,9 +1,15 @@
 ---
-apiVersion: cluster.x-k8s.io/v1beta1
+apiVersion: cluster.x-k8s.io/v1alpha3
 kind: Cluster
 metadata:
   name: test-cluster-1
   namespace: default
+spec:
+  clusterNetwork:
+    pods:
+      cidrBlocks: [ "192.168.0.0/16" ]
+    services:
+      cidrBlocks: [ "192.168.0.0/16" ]
 ---
 apiVersion: cni.tanzu.vmware.com/v1alpha1
 kind: AntreaConfig
@@ -11,7 +17,6 @@ metadata:
   name: test-cluster-1
   namespace: default
 spec:
-  infraProvider: vsphere
   antrea:
     config:
       trafficEncapMode: encap

@@ -3,25 +3,11 @@ package controllers
 import (
 	"github.com/pkg/errors"
 
+	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/util"
+
 	clusterapiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
 
 	cniv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cni/v1alpha1"
-)
-
-// infrastructure provider name constants
-const (
-	InfrastructureProviderVSphere = "vsphere"
-	InfrastructureProviderAWS     = "aws"
-	InfrastructureProviderAzure   = "azure"
-)
-
-const (
-	// InfrastructureRefVSphere is the vSphere infrastructure
-	InfrastructureRefVSphere = "VSphereCluster"
-	// InfrastructureRefAWS is the AWS infrastructure
-	InfrastructureRefAWS = "AWSCluster"
-	// InfrastructureRefAzure is the Azure infrastructure
-	InfrastructureRefAzure = "AzureCluster"
 )
 
 // AntreaConfigSpec defines the desired state of AntreaConfig
@@ -71,41 +57,11 @@ type antreaFeatureGates struct {
 	NetworkPolicyStats bool `yaml:"NetworkPolicyStats,omitempty"`
 }
 
-func getServiceCIDR(cluster *clusterapiv1beta1.Cluster) (string, error) {
-	var serviceCIDR string
-	if cluster.Spec.ClusterNetwork != nil && cluster.Spec.ClusterNetwork.Services != nil && len(cluster.Spec.ClusterNetwork.Services.CIDRBlocks) > 0 {
-		serviceCIDR = cluster.Spec.ClusterNetwork.Services.CIDRBlocks[0]
-	} else {
-		return "", errors.New("Unable to get cluster serviceCIDR")
-	}
-
-	return serviceCIDR, nil
-}
-
-func getInfraProvider(cluster *clusterapiv1beta1.Cluster) (string, error) {
-	var infraProvider string
-
-	infraProvider = cluster.Spec.InfrastructureRef.Kind
-
-	switch infraProvider {
-	case InfrastructureRefVSphere:
-		infraProvider = InfrastructureProviderVSphere
-	case InfrastructureRefAWS:
-		infraProvider = InfrastructureProviderAWS
-	case InfrastructureRefAzure:
-		infraProvider = InfrastructureProviderAzure
-	default:
-		infraProvider = InfrastructureProviderVSphere
-	}
-
-	return infraProvider, nil
-}
-
 func mapAntreaConfigSpec(cluster *clusterapiv1beta1.Cluster, config *cniv1alpha1.AntreaConfig) (*antreaConfigSpec, error) {
 	configSpec := &antreaConfigSpec{}
 
 	// Derive InfraProvider from the cluster
-	infraProvider, err := getInfraProvider(cluster)
+	infraProvider, err := util.GetInfraProvider(cluster)
 	if err != nil {
 		return nil, errors.Wrap(err, "Unable to get InfraProvider")
 	}
@@ -118,7 +74,7 @@ func mapAntreaConfigSpec(cluster *clusterapiv1beta1.Cluster, config *cniv1alpha1
 	We can find dual-stack or not from TKG_IP_FAMILY
 	*/
 	// Derive ServiceCIDR from the cluster
-	serviceCIDR, err := getServiceCIDR(cluster)
+	serviceCIDR, err := util.GetServiceCIDR(cluster)
 	if err != nil {
 		return nil, errors.Wrap(err, "Unable to get serviceCIDR")
 	}

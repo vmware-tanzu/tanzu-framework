@@ -12,6 +12,7 @@ import (
 	"strings"
 
 	"github.com/go-logr/logr"
+	"github.com/pkg/errors"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 
 	"gopkg.in/yaml.v2"
@@ -292,4 +293,41 @@ func GetExternalCRDPaths(externalDeps map[string][]string) ([]string, error) {
 
 	logf.Log.Info("external CRD paths", "crdPaths", crdPaths)
 	return crdPaths, nil
+}
+
+func GetServiceCIDR(cluster *clusterapiv1beta1.Cluster) (string, error) {
+	var serviceCIDR string
+	if cluster.Spec.ClusterNetwork != nil && cluster.Spec.ClusterNetwork.Services != nil && len(cluster.Spec.ClusterNetwork.Services.CIDRBlocks) > 0 {
+		serviceCIDR = cluster.Spec.ClusterNetwork.Services.CIDRBlocks[0]
+	} else {
+		return "", errors.New("Unable to get cluster serviceCIDR")
+	}
+
+	return serviceCIDR, nil
+}
+
+func GetInfraProvider(cluster *clusterapiv1beta1.Cluster) (string, error) {
+	var infraProvider string
+
+	if cluster.Spec.InfrastructureRef != nil {
+
+		infraProvider = cluster.Spec.InfrastructureRef.Kind
+
+		switch infraProvider {
+		case constants.InfrastructureRefVSphere:
+			infraProvider = constants.InfrastructureProviderVSphere
+		case constants.InfrastructureRefAWS:
+			infraProvider = constants.InfrastructureProviderAWS
+		case constants.InfrastructureRefAzure:
+			infraProvider = constants.InfrastructureProviderAzure
+		case constants.InfrastructureRefDocker:
+			infraProvider = constants.InfrastructureProviderDocker
+		default:
+			infraProvider = constants.InfrastructureProviderVSphere
+		}
+	} else {
+		return "", errors.New("Unable to get infraProvider")
+	}
+
+	return infraProvider, nil
 }
