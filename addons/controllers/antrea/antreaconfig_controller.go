@@ -122,6 +122,7 @@ func (r *AntreaConfigReconciler) ReconcileAntreaConfig(
 
 	// If AntreaConfig is marked for deletion then delete the data value secret
 	if !antreaConfig.GetDeletionTimestamp().IsZero() {
+		log.Info("Deleting antreaConfig")
 		err := r.ReconcileAntreaConfigDelete(ctx, log, cluster, antreaConfig, &patchCRD)
 		if err != nil {
 			log.Error(err, "Error reconciling AntreaConfig delete")
@@ -152,7 +153,7 @@ func (r *AntreaConfigReconciler) ReconcileAntreaConfigNormal(
 	// add owner reference to antreaConfig
 	ownerReference := metav1.OwnerReference{
 		APIVersion:         clusterapiv1beta1.GroupVersion.String(),
-		Kind:               "Cluster",
+		Kind:               cluster.Kind,
 		Name:               cluster.Name,
 		UID:                cluster.UID,
 		Controller:         pointer.BoolPtr(true),

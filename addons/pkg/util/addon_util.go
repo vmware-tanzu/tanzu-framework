@@ -6,6 +6,7 @@ package util
 import (
 	"context"
 	"fmt"
+	"net"
 	"os/exec"
 	"path/filepath"
 	"strconv"
@@ -295,15 +296,35 @@ func GetExternalCRDPaths(externalDeps map[string][]string) ([]string, error) {
 	return crdPaths, nil
 }
 
-func GetServiceCIDR(cluster *clusterapiv1beta1.Cluster) (string, error) {
-	var serviceCIDR string
+// This function returns the Service CIDR blocks for both IPv4 and IPv6 family
+// Parse Service CIDRBlocks obtained from the cluster and return the respective blocks for IPv4 and IPv6 family
+// Return "" if we don't find the CIDRBlocks for an IP family
+func GetServiceCIDRs(cluster *clusterapiv1beta1.Cluster) (string, string, error) {
+	var serviceCIDRs []string
+	serviceCIDR, serviceCIDRv6 := "", ""
 	if cluster.Spec.ClusterNetwork != nil && cluster.Spec.ClusterNetwork.Services != nil && len(cluster.Spec.ClusterNetwork.Services.CIDRBlocks) > 0 {
-		serviceCIDR = cluster.Spec.ClusterNetwork.Services.CIDRBlocks[0]
+		serviceCIDRs = cluster.Spec.ClusterNetwork.Services.CIDRBlocks
+		if len(serviceCIDRs) > 2 {
+			return "", "", errors.New("too many CIDRs specified")
+		}
+
+		for _, cidr := range serviceCIDRs {
+			ip, _, err := net.ParseCIDR(cidr)
+			if err != nil {
+				return "", "", errors.Errorf("could not parse CIDR: %s", err)
+			}
+			if ip.To4() != nil {
+				serviceCIDR = cidr
+			} else {
+				serviceCIDRv6 = cidr
+			}
+		}
+
 	} else {
-		return "", errors.New("Unable to get cluster serviceCIDR")
+		return "", "", errors.New("Unable to get service CIDRBlocks from cluster")
 	}
 
-	return serviceCIDR, nil
+	return serviceCIDR, serviceCIDRv6, nil
 }
 
 func GetInfraProvider(cluster *clusterapiv1beta1.Cluster) (string, error) {

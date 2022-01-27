@@ -68,17 +68,13 @@ func mapAntreaConfigSpec(cluster *clusterapiv1beta1.Cluster, config *cniv1alpha1
 
 	configSpec.InfraProvider = infraProvider
 
-	/*  TODO:
-	If it is dual-stack, then we need to set serviceCIDR and serviceCIDRv6
-	Else we only need to set serviceCIDR
-	We can find dual-stack or not from TKG_IP_FAMILY
-	*/
-	// Derive ServiceCIDR from the cluster
-	serviceCIDR, err := util.GetServiceCIDR(cluster)
+	// Derive ServiceCIDRs from the cluster
+	serviceCIDR, serviceCIDRv6, err := util.GetServiceCIDRs(cluster)
 	if err != nil {
 		return nil, errors.Wrap(err, "Unable to get serviceCIDR")
 	}
 	configSpec.Antrea.AntConfig.ServiceCIDR = serviceCIDR
+	configSpec.Antrea.AntConfig.ServiceCIDR = serviceCIDRv6
 	configSpec.Antrea.AntConfig.TrafficEncapMode = config.Spec.Antrea.AntConfig.TrafficEncapMode
 	configSpec.Antrea.AntConfig.NoSNAT = config.Spec.Antrea.AntConfig.NoSNAT
 	configSpec.Antrea.AntConfig.DisableUdpTunnelOffload = config.Spec.Antrea.AntConfig.DisableUdpTunnelOffload

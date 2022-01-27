@@ -1,5 +1,5 @@
 ---
-apiVersion: cluster.x-k8s.io/v1alpha3
+apiVersion: cluster.x-k8s.io/v1beta1
 kind: Cluster
 metadata:
   name: test-cluster-1
@@ -9,7 +9,9 @@ spec:
     pods:
       cidrBlocks: [ "192.168.0.0/16" ]
     services:
-      cidrBlocks: [ "192.168.0.0/16" ]
+      cidrBlocks: [ "192.168.0.0/16","fd00:100:96::/48" ]
+  infrastructureRef:
+    kind: ""
 ---
 apiVersion: cni.tanzu.vmware.com/v1alpha1
 kind: AntreaConfig

@@ -9,6 +9,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/util"
+
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
 
 	"k8s.io/apimachinery/pkg/api/errors"
@@ -98,14 +100,37 @@ var _ = Describe("AntreaConfig Reconciler", func() {
 					return false
 				}
 
+				// Check owner reference
+				if len(config.Finalizers) == 0 || len(config.OwnerReferences) == 0 {
+					return false
+				}
+				Expect(len(config.Finalizers)).Should(Equal(1))
+				Expect(len(config.OwnerReferences)).Should(Equal(1))
+				Expect(config.OwnerReferences[0].Name).Should(Equal("test-cluster-1"))
+
 				// TODO: Possible to add more checks here
 				Expect(config.Spec.Antrea.AntConfig.TrafficEncapMode).Should(Equal("encap"))
 				Expect(config.Spec.Antrea.AntConfig.FeatureGates.AntreaTraceflow).Should(Equal(false))
 				Expect(config.Spec.Antrea.AntConfig.FeatureGates.AntreaPolicy).Should(Equal(true))
 				Expect(config.Spec.Antrea.AntConfig.FeatureGates.FlowExporter).Should(Equal(false))
 
-				// TODO: Check infraProvider, ServiceCIDR and ServiceCIDRv6 values
+				return true
+			}, waitTimeout, pollingInterval).Should(BeTrue())
 
+			Eventually(func() bool {
+				cluster := &clusterapiv1beta1.Cluster{}
+				err := k8sClient.Get(ctx, key, cluster)
+				if err != nil {
+					return false
+				}
+
+				serviceCIDR, serviceCIDRv6, err := util.GetServiceCIDRs(cluster)
+				if err != nil {
+					return false
+				}
+				// Check ServiceCIDR and ServiceCIDRv6 values
+				Expect(serviceCIDR).Should(Equal("192.168.0.0/16"))
+				Expect(serviceCIDRv6).Should(Equal("fd00:100:96::/48"))
 				return true
 			}, waitTimeout, pollingInterval).Should(BeTrue())
 
