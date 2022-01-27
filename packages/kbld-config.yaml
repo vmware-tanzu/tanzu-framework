@@ -7,6 +7,9 @@ overrides:
   #! capabilities
   - image: capabilities-controller-manager:latest
     newImage: ""
+  #! tkr-infra-machine-webhook
+  - image: tkr-infra-machine-webhook:latest
+    newImage: ""
   #! Core-Management-Plugins images
   #! tanzu-cliplugins linux-amd64
   - image: tanzu-cli-plugins/cluster-linux-amd64:latest
