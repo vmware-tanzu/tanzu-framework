@@ -33,3 +33,4 @@ spec:
             apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
             kind: DockerMachineTemplate
             name: tkg-docker-worker-template
+#! TODO Add other resources
