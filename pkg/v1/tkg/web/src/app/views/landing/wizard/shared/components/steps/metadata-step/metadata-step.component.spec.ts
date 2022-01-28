@@ -41,7 +41,9 @@ describe('MetadataStepComponent', () => {
         AppServices.messenger = new Messenger();
         fixture = TestBed.createComponent(MetadataStepComponent);
         component = fixture.componentInstance;
-        component.setInputs('BozoWizard', WizardForm.METADATA, new FormBuilder().group({}));
+        // NOTE: using Azure file import events just for testing
+        component.setStepRegistrantData({ wizard: 'BozoWizard', step: WizardForm.METADATA, formGroup: new FormBuilder().group({}),
+            eventFileImported: TkgEventType.AZURE_CONFIG_FILE_IMPORTED, eventFileImportError: TkgEventType.AZURE_CONFIG_FILE_IMPORT_ERROR});
         component.ngOnInit();
 
         fixture.detectChanges();

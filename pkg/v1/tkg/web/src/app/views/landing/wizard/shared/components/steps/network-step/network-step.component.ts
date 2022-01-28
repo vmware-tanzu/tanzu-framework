@@ -81,8 +81,6 @@ export class SharedNetworkStepComponent extends StepFormDirective implements OnI
         this.customizeForm();
         this.listenToEvents();
         this.subscribeToServices();
-
-        this.initFormWithSavedData();
     }
 
     setValidators() {
@@ -263,15 +261,6 @@ export class SharedNetworkStepComponent extends StepFormDirective implements OnI
     resetFieldsUponDCChange() {
         const fieldsToReset = ['networkName'];
         fieldsToReset.forEach(f => this.formGroup.get(f) && this.formGroup.get(f).setValue('', { onlySelf: true }));
-    }
-
-    initFormWithSavedData() {
-        super.initFormWithSavedData();
-        // reset validations for httpProxyUrl and httpsProxyUrl when
-        // the data is loaded from localstorage.
-        this.toggleProxySetting(true);
-        this.scrubPasswordField(NetworkField.HTTP_PROXY_PASSWORD);
-        this.scrubPasswordField(NetworkField.HTTPS_PROXY_PASSWORD);
     }
 
     dynamicDescription(): string {

@@ -41,7 +41,8 @@ describe('VnetStepComponent', () => {
 
         fixture = TestBed.createComponent(VnetStepComponent);
         component = fixture.componentInstance;
-        component.setInputs('ZuchiniWizard', AzureForm.VNET,  new FormBuilder().group({}));
+        component.setStepRegistrantData({ wizard: 'ZuchiniWizard', step: AzureForm.VNET, formGroup: new FormBuilder().group({}),
+            eventFileImported: TkgEventType.AZURE_CONFIG_FILE_IMPORTED, eventFileImportError: TkgEventType.AZURE_CONFIG_FILE_IMPORT_ERROR});
 
         const dataServiceRegistrar = new DataServiceRegistrarTestExtension();
         AppServices.dataServiceRegistrar = dataServiceRegistrar;

@@ -261,9 +261,9 @@ router.get(`${ENDPOINT}/providers/vsphere/networks`, (req, res) => {
 
     if (mockvcNetworkRequestCounter > 0) {
         vcNetworksResponse.push({
-            name: 'Network 3',
-            id: 'network-3',
-            displayName: 'Network 3'
+            name: 'Network 7',
+            id: 'network-7',
+            displayName: 'Network 7'
         });
     }
 

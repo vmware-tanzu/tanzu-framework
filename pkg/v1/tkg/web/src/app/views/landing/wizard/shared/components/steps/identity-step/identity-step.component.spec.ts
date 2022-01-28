@@ -5,6 +5,7 @@ import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 // App imports
 import { APIClient } from '../../../../../../../swagger/api-client.service';
 import AppServices from 'src/app/shared/service/appServices';
+import { AzureForm } from '../../../../../azure-wizard/azure-wizard.constants';
 import { FieldMapUtilities } from '../../../field-mapping/FieldMapUtilities';
 import { IdentityField } from './identity-step.fieldmapping';
 import { IdentityManagementType, WizardForm } from '../../../constants/wizard.constants';
@@ -40,8 +41,9 @@ describe('IdentityStepComponent', () => {
         AppServices.messenger = new Messenger();
         fixture = TestBed.createComponent(SharedIdentityStepComponent);
         component = fixture.componentInstance;
-        component.setInputs('BozoWizard', WizardForm.IDENTITY, new FormBuilder().group({}));
-
+        // NOTE: using Azure file import stuff just to test
+        component.setStepRegistrantData({ wizard: 'BozoWizard', step: WizardForm.IDENTITY, formGroup: new FormBuilder().group({}),
+            eventFileImported: TanzuEventType.AZURE_CONFIG_FILE_IMPORTED, eventFileImportError: TanzuEventType.AZURE_CONFIG_FILE_IMPORT_ERROR});
         fixture.detectChanges();
     });
 

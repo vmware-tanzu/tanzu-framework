@@ -91,8 +91,8 @@ export class AzureProviderStepComponent extends StepFormDirective implements OnI
         });
 
         // handle file import
-        AppServices.messenger.subscribe<string>(TkgEventType.AZURE_CONFIG_FILE_IMPORTED, this.onFileImported.bind(this));
-        this.registerDefaultFileImportErrorHandler(TkgEventType.AZURE_CONFIG_FILE_IMPORT_ERROR);
+        AppServices.messenger.subscribe<string>(this.eventFileImported, this.onFileImported.bind(this));
+        this.registerDefaultFileImportErrorHandler(this.eventFileImportError);
     }
 
     private onFileImported(data: any) {

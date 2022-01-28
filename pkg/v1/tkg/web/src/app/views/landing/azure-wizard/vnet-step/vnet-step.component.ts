@@ -121,8 +121,8 @@ export class VnetStepComponent extends StepFormDirective implements OnInit {
         super.ngOnInit();
         AppServices.fieldMapUtilities.buildForm(this.formGroup, this.wizardName, this.formName, this.supplyStepMapping());
         this.storeDefaultLabels(this.supplyStepMapping());
-        this.registerDefaultFileImportedHandler(TanzuEventType.AZURE_CONFIG_FILE_IMPORTED, this.supplyStepMapping());
-        this.registerDefaultFileImportErrorHandler(TanzuEventType.AZURE_CONFIG_FILE_IMPORT_ERROR);
+        this.registerDefaultFileImportedHandler(this.eventFileImported, this.supplyStepMapping());
+        this.registerDefaultFileImportErrorHandler(this.eventFileImportError);
 
         this.subscribeToServices();
         this.customizeForm();

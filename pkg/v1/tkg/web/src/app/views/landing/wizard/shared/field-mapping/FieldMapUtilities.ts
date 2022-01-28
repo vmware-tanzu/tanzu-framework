@@ -47,11 +47,28 @@ export class FieldMapUtilities {
         });
     }
 
+    private getFieldBackingObjectRetriever(step, field: string, objectRetrievalMap?: Map<string, (string) => any>): (string) => any {
+        if (!objectRetrievalMap) {
+            console.error('FieldMapUtilities.getFieldBackingObjectRetriever() encountered field "' + field + '" of step "' + step +
+                '" which is using a backingObject, but had no objectRetrievalMap to get the backing object');
+            return null;
+        }
+        const retriever = objectRetrievalMap[field];
+        if (!retriever) {
+            console.error('FieldMapUtilities.getFieldBackingObjectRetriever() encountered field "' + field + '" of step "' + step +
+                '" which is using a backingObject, but had no retriever in the objectRetrievalMap to get the backing object');
+        }
+        return retriever;
+    }
+
     restoreForm(wizard, step: string, formGroup: FormGroup, stepMapping: StepMapping,
                 objectRetrievalMap?: Map<string, (string) => any> ) {
         this.getFieldsToRestore(stepMapping).forEach(field => {
             const fieldMapping = this.getFieldMapping(field, stepMapping);
-            const retriever = (fieldMapping.backingObject && objectRetrievalMap) ? objectRetrievalMap[field] : null;
+            let retriever = null;
+            if (fieldMapping.backingObject) {
+                retriever = this.getFieldBackingObjectRetriever(step, field, objectRetrievalMap);
+            }
             AppServices.userDataService.restoreField({wizard, step, field}, formGroup, {emitEvent: false}, retriever);
         });
         // Note: we set the values on the primary trigger fields AFTER all the "regular" fields are restored because the

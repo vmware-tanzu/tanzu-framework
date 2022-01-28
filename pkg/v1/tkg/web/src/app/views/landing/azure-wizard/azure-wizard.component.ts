@@ -47,6 +47,14 @@ export class AzureWizardComponent extends WizardBaseDirective implements OnInit 
         super(router, el, titleService, formBuilder);
     }
 
+    protected supplyFileImportedEvent(): TkgEventType {
+        return TkgEventType.AZURE_CONFIG_FILE_IMPORTED;
+    }
+
+    protected supplyFileImportErrorEvent(): TkgEventType {
+        return TkgEventType.AZURE_CONFIG_FILE_IMPORT_ERROR;
+    }
+
     protected supplyWizardName(): string {
         return 'AzureWizard';
     }
@@ -362,8 +370,8 @@ export class AzureWizardComponent extends WizardBaseDirective implements OnInit 
 
     onImportFileSelected(event) {
         const params: ImportParams<AzureRegionalClusterParams> = {
-            eventSuccess: TanzuEventType.AZURE_CONFIG_FILE_IMPORTED,
-            eventFailure: TanzuEventType.AZURE_CONFIG_FILE_IMPORT_ERROR,
+            eventSuccess: this.supplyFileImportedEvent(),
+            eventFailure: this.supplyFileImportErrorEvent(),
             file: event.target.files[0],
             validator: this.importFileValidate,
             backend: this.importFileRetrieveClusterParams.bind(this),

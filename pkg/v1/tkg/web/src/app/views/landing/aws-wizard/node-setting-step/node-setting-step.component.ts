@@ -257,8 +257,8 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
         this.setClusterNameInstruction();
         this.subscribeToServices();
         this.customizeForm();
-        this.registerDefaultFileImportedHandler(TanzuEventType.AWS_CONFIG_FILE_IMPORTED, this.supplyStepMapping());
-        this.registerDefaultFileImportErrorHandler(TanzuEventType.AWS_CONFIG_FILE_IMPORT_ERROR);
+        this.registerDefaultFileImportedHandler(this.eventFileImported, this.supplyStepMapping());
+        this.registerDefaultFileImportErrorHandler(this.eventFileImportError);
 
         this.initFormWithSavedData();
     }

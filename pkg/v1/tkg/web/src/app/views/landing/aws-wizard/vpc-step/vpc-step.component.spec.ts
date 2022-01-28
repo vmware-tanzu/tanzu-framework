@@ -39,7 +39,8 @@ describe('VpcComponent', () => {
         AppServices.messenger = new Messenger();
         fixture = TestBed.createComponent(VpcStepComponent);
         component = fixture.componentInstance;
-        component.setInputs('PickleWizard', AwsForm.VPC, new FormBuilder().group({}));
+        component.setStepRegistrantData({ wizard: 'PickleWizard', step: AwsForm.VPC, formGroup: new FormBuilder().group({}),
+            eventFileImported: TkgEventType.AWS_CONFIG_FILE_IMPORTED, eventFileImportError: TkgEventType.AWS_CONFIG_FILE_IMPORT_ERROR});
         fixture.detectChanges();
     });
 

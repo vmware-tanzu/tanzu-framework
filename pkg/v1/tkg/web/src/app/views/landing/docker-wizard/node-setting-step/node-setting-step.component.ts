@@ -14,11 +14,6 @@ import { TanzuEventType } from "../../../../shared/service/Messenger";
 export class NodeSettingStepComponent extends StepFormDirective implements OnInit {
     clusterNameInstruction: string;
 
-    private customizeForm() {
-        this.registerDefaultFileImportedHandler(TanzuEventType.DOCKER_CONFIG_FILE_IMPORTED, this.supplyStepMapping());
-        this.registerDefaultFileImportErrorHandler(TanzuEventType.DOCKER_CONFIG_FILE_IMPORT_ERROR);
-    }
-
     private supplyStepMapping() {
         const mapping = DockerNodeSettingStepMapping;
         // dynamically modify the cluster name label based on the type descriptor and whether the cluster name is required
@@ -36,8 +31,8 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
         AppServices.fieldMapUtilities.buildForm(this.formGroup, this.wizardName, this.formName, this.supplyStepMapping());
         this.htmlFieldLabels = AppServices.fieldMapUtilities.getFieldLabelMap(this.supplyStepMapping());
         this.storeDefaultLabels(this.supplyStepMapping());
-        this.registerDefaultFileImportedHandler(TanzuEventType.DOCKER_CONFIG_FILE_IMPORTED, this.supplyStepMapping());
-        this.registerDefaultFileImportErrorHandler(TanzuEventType.DOCKER_CONFIG_FILE_IMPORT_ERROR);
+        this.registerDefaultFileImportedHandler(this.eventFileImported, this.supplyStepMapping());
+        this.registerDefaultFileImportErrorHandler(this.eventFileImportError);
 
         if (AppServices.appDataService.isClusterNameRequired()) {
             this.clusterNameInstruction = 'Specify a name for the ' + this.clusterTypeDescriptor + ' cluster.';
@@ -45,7 +40,6 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
             this.clusterNameInstruction = 'Optionally specify a name for the ' + this.clusterTypeDescriptor + ' cluster. ' +
                 'If left blank, the installer names the cluster automatically.';
         }
-        this.customizeForm();
         this.initFormWithSavedData();
     }
 

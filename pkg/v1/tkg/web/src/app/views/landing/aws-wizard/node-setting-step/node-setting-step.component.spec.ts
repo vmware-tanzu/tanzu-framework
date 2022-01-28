@@ -48,7 +48,8 @@ describe('NodeSettingStepComponent', () => {
         AppServices.dataServiceRegistrar = new DataServiceRegistrarTestExtension();
         fixture = TestBed.createComponent(NodeSettingStepComponent);
         component = fixture.componentInstance;
-        component.setInputs('SquashWizard', AwsForm.NODESETTING, new FormBuilder().group({}));
+        component.setStepRegistrantData({ wizard: 'SquashWizard', step: AwsForm.NODESETTING, formGroup: new FormBuilder().group({}),
+            eventFileImported: TkgEventType.AWS_CONFIG_FILE_IMPORTED, eventFileImportError: TkgEventType.AWS_CONFIG_FILE_IMPORT_ERROR});
 
         fixture.detectChanges();
     });

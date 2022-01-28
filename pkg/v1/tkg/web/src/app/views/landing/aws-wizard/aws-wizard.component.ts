@@ -66,6 +66,14 @@ export class AwsWizardComponent extends WizardBaseDirective implements OnInit {
         super(router, el, titleService, formBuilder);
     }
 
+    protected supplyFileImportedEvent(): TanzuEventType {
+        return TanzuEventType.AWS_CONFIG_FILE_IMPORTED;
+    }
+
+    protected supplyFileImportErrorEvent(): TanzuEventType {
+        return TanzuEventType.AWS_CONFIG_FILE_IMPORT_ERROR;
+    }
+
     protected supplyWizardName(): string {
         return 'AWSWizard';
     }
@@ -305,8 +313,8 @@ export class AwsWizardComponent extends WizardBaseDirective implements OnInit {
 
     onImportFileSelected(event) {
         const params: ImportParams<AWSRegionalClusterParams> = {
-            eventSuccess: TanzuEventType.AZURE_CONFIG_FILE_IMPORTED,
-            eventFailure: TanzuEventType.AZURE_CONFIG_FILE_IMPORT_ERROR,
+            eventSuccess: this.supplyFileImportedEvent(),
+            eventFailure: this.supplyFileImportErrorEvent(),
             file: event.target.files[0],
             validator: this.importFileValidate,
             backend: this.importFileRetrieveClusterParams.bind(this),

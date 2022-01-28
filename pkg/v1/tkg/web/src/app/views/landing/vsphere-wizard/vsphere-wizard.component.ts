@@ -68,6 +68,14 @@ export class VSphereWizardComponent extends WizardBaseDirective implements OnIni
         });
     }
 
+    protected supplyFileImportedEvent(): TkgEventType {
+        return TkgEventType.VSPHERE_CONFIG_FILE_IMPORTED;
+    }
+
+    protected supplyFileImportErrorEvent(): TkgEventType {
+        return TkgEventType.VSPHERE_CONFIG_FILE_IMPORT_ERROR;
+    }
+
     protected supplyWizardName(): string {
         return 'vSphereWizard';
     }
@@ -362,8 +370,8 @@ export class VSphereWizardComponent extends WizardBaseDirective implements OnIni
 
     onImportFileSelected(event) {
         const params: ImportParams<VsphereRegionalClusterParams> = {
-            eventSuccess: TanzuEventType.VSPHERE_CONFIG_FILE_IMPORTED,
-            eventFailure: TanzuEventType.VSPHERE_CONFIG_FILE_IMPORT_ERROR,
+            eventSuccess: this.supplyFileImportedEvent(),
+            eventFailure: this.supplyFileImportErrorEvent(),
             file: event.target.files[0],
             validator: this.importFileValidate,
             backend: this.importFileRetrieveClusterParams.bind(this),

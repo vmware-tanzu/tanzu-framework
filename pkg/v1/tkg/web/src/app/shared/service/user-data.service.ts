@@ -167,20 +167,25 @@ export class UserDataService {
     // and fieldValue for the value. If instead the caller has a simple listbox with strings backing it, call saveInputField instead
     private storeBackingObjectField(identifier: UserDataIdentifier, formGroup: FormGroup, backingObjectMap: BackingObjectMap): boolean {
         const selectedObj = this.getFormObject(identifier, formGroup);
-        if (selectedObj) {
-            this.validateBackingObjectType(identifier, backingObjectMap.type, selectedObj);
-        }
+        let display = '';
+        let value = '';
         // Note: selectedObj === null is a legitimate case: the user hasn't selected an object yet
-        const display = selectedObj ? selectedObj[backingObjectMap.displayField] : '';
-        const value = selectedObj ? selectedObj[backingObjectMap.valueField] : '';
+        if (selectedObj) {
+            display = selectedObj[backingObjectMap.displayField];
+            value = selectedObj[backingObjectMap.valueField];
+            if (!value) {
+                // we are only concerned with validating the backing object type if there is an object but we can't get a value from it
+                this.validateBackingObjectType(identifier, backingObjectMap.type, selectedObj);
+            }
+        }
         this.store(identifier, { display, value });
         return true;
     }
 
     private validateBackingObjectType(identifier: UserDataIdentifier, expectedType: string, value: any) {
         if (expectedType && value && expectedType !== typeof value) {
-            console.warn('storing backing object for ' + JSON.stringify(identifier) + ' encountered object of type ' +
-            typeof value + ' but was expecting object of type: ' + expectedType);
+            console.warn('storing backing object for ' + JSON.stringify(identifier) + ' encountered object of type "' +
+            typeof value + '" but was expecting object of type "' + expectedType + '". Full object: ' + JSON.stringify(value));
         }
     }
 

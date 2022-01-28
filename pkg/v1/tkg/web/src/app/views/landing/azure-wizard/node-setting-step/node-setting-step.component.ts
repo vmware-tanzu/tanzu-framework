@@ -97,8 +97,8 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
         this.storeDefaultLabels(this.supplyStepMapping());
         this.subscribeToServices();
         this.registerStepDescriptionTriggers({ clusterTypeDescriptor: true, fields: ['controlPlaneSetting']});
-        this.registerDefaultFileImportedHandler(TanzuEventType.AZURE_CONFIG_FILE_IMPORTED, this.supplyStepMapping());
-        this.registerDefaultFileImportErrorHandler(TanzuEventType.AZURE_CONFIG_FILE_IMPORT_ERROR);
+        this.registerDefaultFileImportedHandler(this.eventFileImported, this.supplyStepMapping());
+        this.registerDefaultFileImportErrorHandler(this.eventFileImportError);
         this.listenOnChangeClusterPlan();
         this.initFormWithSavedData();
     }

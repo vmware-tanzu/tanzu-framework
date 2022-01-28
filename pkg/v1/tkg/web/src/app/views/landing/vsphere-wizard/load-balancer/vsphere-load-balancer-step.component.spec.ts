@@ -55,7 +55,9 @@ describe('VsphereLoadBalancerStepComponent', () => {
 
         fixture = TestBed.createComponent(VsphereLoadBalancerStepComponent);
         component = fixture.componentInstance;
-        component.setInputs('BozoWizard', WizardForm.LOADBALANCER, new FormBuilder().group({}));
+        component.setStepRegistrantData({ wizard: 'BozoWizard', step: WizardForm.LOADBALANCER, formGroup: new FormBuilder().group({}),
+            eventFileImported: TkgEventType.VSPHERE_CONFIG_FILE_IMPORTED,
+            eventFileImportError: TkgEventType.VSPHERE_CONFIG_FILE_IMPORT_ERROR});
 
         fixture.detectChanges();
     });

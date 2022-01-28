@@ -38,7 +38,9 @@ describe('NodeSettingStepComponent', () => {
 
         fixture = TestBed.createComponent(NodeSettingStepComponent);
         component = fixture.componentInstance;
-        component.setInputs('BozoWizard', 'vsphereNodeSettingForm', new FormBuilder().group({}));
+        component.setStepRegistrantData({ wizard: 'BozoWizard', step: 'vsphereNodeSettingForm', formGroup: new FormBuilder().group({}),
+            eventFileImported: TkgEventType.VSPHERE_CONFIG_FILE_IMPORTED,
+            eventFileImportError: TkgEventType.VSPHERE_CONFIG_FILE_IMPORT_ERROR});
 
         fixture.detectChanges();
     });

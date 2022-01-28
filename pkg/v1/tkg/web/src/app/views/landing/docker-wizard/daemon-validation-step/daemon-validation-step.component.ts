@@ -29,8 +29,8 @@ export class DaemonValidationStepComponent extends StepFormDirective implements 
     }
 
     private customizeForm() {
-        this.registerDefaultFileImportedHandler(TanzuEventType.DOCKER_CONFIG_FILE_IMPORTED, DaemonStepMapping);
-        this.registerDefaultFileImportErrorHandler(TanzuEventType.DOCKER_CONFIG_FILE_IMPORT_ERROR);
+        this.registerDefaultFileImportedHandler(this.eventFileImported, DaemonStepMapping);
+        this.registerDefaultFileImportErrorHandler(this.eventFileImportError);
     }
 
     ngOnInit(): void {

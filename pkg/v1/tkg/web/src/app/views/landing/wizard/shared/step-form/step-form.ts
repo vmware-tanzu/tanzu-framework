@@ -14,6 +14,7 @@ import { IpFamilyEnum } from 'src/app/shared/constants/app.constants';
 import { Notification, NotificationTypes } from 'src/app/shared/components/alert-notification/alert-notification.component';
 import { StepCompletedPayload, StepDescriptionChangePayload, TanzuEvent, TanzuEventType } from 'src/app/shared/service/Messenger';
 import { StepMapping } from '../field-mapping/FieldMapping';
+import { StepRegistrantData } from '../wizard-base/wizard-base';
 import { UserDataIdentifier } from '../../../../../shared/service/user-data.service';
 import { ValidatorEnum } from './../constants/validation.constants';
 
@@ -48,6 +49,8 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
     htmlFieldLabels: Map<string, string>;
 
     private delayedFieldQueue = [];
+    protected eventFileImported: TkgEventType;
+    protected eventFileImportError: TkgEventType;
 
     protected abstract storeUserData();
 
@@ -57,10 +60,12 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
         return null;
     }
 
-    setInputs(wizardName, formName: string, formGroup: FormGroup) {
-        this.formName = formName;
-        this.formGroup = formGroup;
-        this.wizardName = wizardName;
+    setStepRegistrantData(stepRegistrantData: StepRegistrantData) {
+        this.formName = stepRegistrantData.step;
+        this.formGroup = stepRegistrantData.formGroup;
+        this.wizardName = stepRegistrantData.wizard;
+        this.eventFileImported = stepRegistrantData.eventFileImported;
+        this.eventFileImportError = stepRegistrantData.eventFileImportError;
     }
 
     protected registerDefaultFileImportErrorHandler(eventFailure: TanzuEventType) {

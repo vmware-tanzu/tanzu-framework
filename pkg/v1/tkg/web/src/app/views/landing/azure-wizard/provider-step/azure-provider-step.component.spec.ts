@@ -48,7 +48,8 @@ describe('AzureProviderStepComponent', () => {
 
         fixture = TestBed.createComponent(AzureProviderStepComponent);
         component = fixture.componentInstance;
-        component.setInputs('CarrotWizard', AzureForm.PROVIDER, new FormBuilder().group({}));
+        component.setStepRegistrantData({ wizard: 'CarrotWizard', step: AzureForm.PROVIDER, formGroup: new FormBuilder().group({}),
+        eventFileImported: TkgEventType.AZURE_CONFIG_FILE_IMPORTED, eventFileImportError: TkgEventType.AZURE_CONFIG_FILE_IMPORT_ERROR});
         component.ngOnInit();
         fixture.detectChanges();
     });

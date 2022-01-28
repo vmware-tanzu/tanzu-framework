@@ -70,8 +70,8 @@ export class VpcStepComponent extends StepFormDirective implements OnInit {
         AppServices.fieldMapUtilities.buildForm(this.formGroup, this.wizardName, this.formName, AwsVpcStepMapping);
         this.htmlFieldLabels = AppServices.fieldMapUtilities.getFieldLabelMap(AwsVpcStepMapping);
         this.storeDefaultLabels(AwsVpcStepMapping);
-        this.registerDefaultFileImportedHandler(TanzuEventType.AWS_CONFIG_FILE_IMPORTED, AwsVpcStepMapping);
-        this.registerDefaultFileImportErrorHandler(TanzuEventType.AWS_CONFIG_FILE_IMPORT_ERROR);
+        this.registerDefaultFileImportedHandler(this.eventFileImported, AwsVpcStepMapping);
+        this.registerDefaultFileImportErrorHandler(this.eventFileImportError);
 
         // NOTE: we don't call this.registerFieldsAffectingStepDescription() with any fields, because all the relevant fields
         // already trigger a step description change event in their own onChange handlers

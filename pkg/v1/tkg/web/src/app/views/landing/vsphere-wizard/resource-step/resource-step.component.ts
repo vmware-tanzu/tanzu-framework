@@ -59,8 +59,8 @@ export class ResourceStepComponent extends StepFormDirective implements OnInit {
         this.storeDefaultLabels(VsphereResourceStepMapping);
         this.registerStepDescriptionTriggers({ clusterTypeDescriptor: true,
             fields: [VsphereField.RESOURCE_DATASTORE, VsphereField.RESOURCE_POOL, VsphereField.RESOURCE_VMFOLDER]});
-        this.registerDefaultFileImportedHandler(TanzuEventType.VSPHERE_CONFIG_FILE_IMPORTED, VsphereResourceStepMapping);
-        this.registerDefaultFileImportErrorHandler(TanzuEventType.VSPHERE_CONFIG_FILE_IMPORT_ERROR);
+        this.registerDefaultFileImportedHandler(this.eventFileImported, VsphereResourceStepMapping);
+        this.registerDefaultFileImportErrorHandler(this.eventFileImportError);
 
         /**
          * Whenever data center selection changes, reset the relevant fields
