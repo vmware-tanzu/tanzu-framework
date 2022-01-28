@@ -128,6 +128,15 @@ var _ = Describe("AntreaConfig Reconciler", func() {
 				if err != nil {
 					return false
 				}
+
+				infraProvider, err := util.GetInfraProvider(cluster)
+				if err != nil {
+					return false
+				}
+
+				// Check infraProvider values
+				Expect(infraProvider).Should(Equal("docker"))
+
 				// Check ServiceCIDR and ServiceCIDRv6 values
 				Expect(serviceCIDR).Should(Equal("192.168.0.0/16"))
 				Expect(serviceCIDRv6).Should(Equal("fd00:100:96::/48"))

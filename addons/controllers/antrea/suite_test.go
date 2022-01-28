@@ -71,6 +71,8 @@ var _ = BeforeSuite(func(done Done) {
 	Expect(externalCRDPaths).ToNot(BeEmpty())
 	testEnv.CRDDirectoryPaths = externalCRDPaths
 	testEnv.CRDDirectoryPaths = append(testEnv.CRDDirectoryPaths, filepath.Join("..", "..", "..", "config", "crd", "bases"))
+	testEnv.CRDDirectoryPaths = append(testEnv.CRDDirectoryPaths, filepath.Join(".", "testcases", "infrastructure_dockercluster.yaml"))
+
 	testEnv.ErrorIfCRDPathMissing = true
 
 	cfg, err = testEnv.Start()
