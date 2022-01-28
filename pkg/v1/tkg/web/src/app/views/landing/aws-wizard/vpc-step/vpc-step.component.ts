@@ -107,7 +107,7 @@ export class VpcStepComponent extends StepFormDirective implements OnInit {
         });
         this.registerOnValueChange(AwsField.VPC_NON_INTERNET_FACING, this.onNonInternetFacingVPCChange.bind(this));
         this.registerOnValueChange(AwsField.VPC_EXISTING_ID, this.onChangeExistingVpc.bind(this));
-        this.initFormWithSavedData();
+        this.chooseInitialVpcType();
     }
 
     private onFetchedVpcs(vpcs: Array<Vpc>) {
@@ -122,14 +122,13 @@ export class VpcStepComponent extends StepFormDirective implements OnInit {
         });
     }
 
-    initFormWithSavedData() {
+    chooseInitialVpcType() {
         if (!this.hasSavedData() || this.getSavedValue(AwsField.VPC_NEW_CIDR, '') !== '') {
             this.setNewVpcValidators();
         } else {
             this.formGroup.get(AwsField.VPC_TYPE).setValue(VpcType.EXISTING);
             this.setExistingVpcValidators();
         }
-        super.initFormWithSavedData();
     }
 
     /**

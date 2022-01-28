@@ -140,7 +140,7 @@ export class VnetStepComponent extends StepFormDirective implements OnInit {
             this.vnetFieldsNew.push(AzureField.VNET_WORKER_NEWSUBNET_NAME, AzureField.VNET_WORKER_NEWSUBNET_CIDR);
         }
 
-        this.initFormWithSavedData();
+        this.handleSavedCustomVnetName();
     }
 
     onControlPlaneSubnetChange(name: string) {
@@ -172,13 +172,7 @@ export class VnetStepComponent extends StepFormDirective implements OnInit {
         }
     }
 
-    initFormWithSavedData() {
-        const identifier = { wizard: this.wizardName, step: AzureForm.PROVIDER, field: AzureField.PROVIDER_RESOURCEGROUPCUSTOM };
-        const customResourceGroupEntry = AppServices.userDataService.retrieve(identifier);
-        this.customResourceGroup = customResourceGroupEntry && customResourceGroupEntry.value ? customResourceGroupEntry.value : '';
-
-        this.setControlWithSavedValue(AzureField.VNET_PRIVATE_CLUSTER, false);
-
+    private handleSavedCustomVnetName() {
         // if the user did an import, then we expect there may be a custom vnet value to be stored in AzureField.VNET_CUSTOM_NAME slot.
         // however, since that custom vnet may have been created and now be an existing vnet,
         // we need to call a special method to handle that situation, which moves the saved name from the custom slot

@@ -90,7 +90,6 @@ export abstract class SharedOsImageStepDirective<IMAGE extends OsImage> extends 
         this.providerInputs = this.supplyProviderInputs();
         this.registerStepDescriptionTriggers({fields: [OsImageField.IMAGE]});
         this.subscribeToProviderEvent();
-        this.initFormWithSavedData();
     }
 
     /**

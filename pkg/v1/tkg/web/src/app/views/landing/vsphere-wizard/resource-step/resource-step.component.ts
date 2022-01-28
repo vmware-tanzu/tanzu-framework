@@ -68,24 +68,7 @@ export class ResourceStepComponent extends StepFormDirective implements OnInit {
         AppServices.messenger.subscribe(TanzuEventType.VSPHERE_DATACENTER_CHANGED, event => { this.resetFieldsUponDCChange(); },
             this.unsubscribe);
 
-        this.initFormWithSavedData();
         this.subscribeToServices();
-    }
-
-    initFormWithSavedData() {
-        // overwritten to avoid setting resource pool because it causes ng-valid console errors
-        const resourcePoolFields: string[] = [
-            VsphereField.RESOURCE_POOL,
-            VsphereField.RESOURCE_DATASTORE,
-            VsphereField.RESOURCE_VMFOLDER
-        ];
-        if (this.hasSavedData()) {
-            for (const [key, control] of Object.entries(this.formGroup.controls)) {
-                if (!resourcePoolFields.includes(key)) {
-                    control.setValue(this.getSavedValue(key, control.value));
-                }
-            }
-        }
     }
 
     loadResourceOptions() {

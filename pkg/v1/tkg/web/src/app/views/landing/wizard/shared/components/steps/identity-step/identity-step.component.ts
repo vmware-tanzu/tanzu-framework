@@ -13,6 +13,7 @@ import { LdapParams } from './../../../../../../../swagger/models/ldap-params.mo
 import { LdapTestResult } from 'src/app/swagger/models';
 import { StepFormDirective } from '../../../step-form/step-form';
 import { ValidationService } from '../../../validation/validation.service';
+import { VsphereResourceStepMapping } from '../../../../../vsphere-wizard/resource-step/resource-step.fieldmapping';
 
 const CONNECT = "CONNECT";
 const BIND = "BIND";
@@ -133,12 +134,10 @@ export class SharedIdentityStepComponent extends StepFormDirective implements On
         AppServices.fieldMapUtilities.buildForm(this.formGroup, this.wizardName, this.formName, IdentityStepMapping);
         this.htmlFieldLabels = AppServices.fieldMapUtilities.getFieldLabelMap(IdentityStepMapping);
         this.storeDefaultLabels(IdentityStepMapping);
+        this.registerDefaultFileImportedHandler(this.eventFileImported, IdentityStepMapping);
+        this.registerDefaultFileImportErrorHandler(this.eventFileImportError);
 
         this.customizeForm();
-
-        this.initFormWithSavedData();
-        this.identityTypeValue = this.getSavedValue(IdentityField.IDENTITY_TYPE, IdentityManagementType.OIDC);
-        this.setControlValueSafely(IdentityField.IDENTITY_TYPE, this.identityTypeValue, { emitEvent: false });
     }
 
     setOIDCValidators() {
@@ -215,15 +214,6 @@ export class SharedIdentityStepComponent extends StepFormDirective implements On
         const identityType = this.formGroup.value[IdentityField.IDM_SETTINGS] ? IdentityManagementType.OIDC : IdentityManagementType.NONE;
         // onlySelf option will update the changes for the current control only
         this.setControlValueSafely(IdentityField.IDENTITY_TYPE, identityType, { onlySelf: true });
-    }
-
-    initFormWithSavedData() {
-        super.initFormWithSavedData();
-        this.scrubPasswordField(IdentityField.CLIENT_SECRET);
-
-        if (!this.formGroup.value[IdentityField.IDM_SETTINGS]) {
-            this.setControlValueSafely(IdentityField.IDENTITY_TYPE, IdentityManagementType.NONE);
-        }
     }
 
     /**

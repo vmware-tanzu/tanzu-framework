@@ -235,18 +235,6 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
     }
 
     /**
-     * Start the process of initializing the fields as soon as they become ready.
-     */
-    protected startProcessDelayedFieldInit() {
-        if (this.delayedFieldQueue && this.delayedFieldQueue.length > 0) {
-            this.delayedFieldQueue.forEach(fieldName => this.initFieldWithSavedData(fieldName));
-        }
-        if (this.delayedFieldQueue && this.delayedFieldQueue.length > 0) {
-            setTimeout(this.startProcessDelayedFieldInit.bind(this), INIT_FIELD_DELAY);
-        }
-    }
-
-    /**
      * Checks if a field is ready to be initialized with saved data.
      * All fields are ready by default.
      * Sub classes should override this method in order to control
@@ -256,18 +244,6 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
      */
     protected isFieldReadyForInitWithSavedValue(fieldName: string): boolean {
         return true;
-    }
-
-    /**
-     * Inits form fields with saved data if any;
-     */
-    initFormWithSavedData() {
-        if (this.hasSavedData()) {
-            for (const [controlName, control] of Object.entries(this.formGroup.controls)) {
-                this.initFieldWithSavedData(controlName);
-            }
-        }
-        this.startProcessDelayedFieldInit();
     }
 
     protected clearFieldSavedData(fieldName: string) {

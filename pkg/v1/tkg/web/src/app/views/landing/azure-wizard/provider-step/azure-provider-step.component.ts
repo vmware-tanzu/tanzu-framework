@@ -129,7 +129,6 @@ export class AzureProviderStepComponent extends StepFormDirective implements OnI
 
         this.initAzureCredentials();
         this.showResourceGroupExisting();
-        this.initFormWithSavedData();
     }
 
     private initResourceGroupFromSavedData() {
@@ -151,23 +150,6 @@ export class AzureProviderStepComponent extends StepFormDirective implements OnI
             this.showResourceGroup(ResourceGroupOption.EXISTING);
         } else {
             this.showResourceGroup(this.resourceGroupOption);
-        }
-    }
-
-    initFormWithSavedData() {
-        // rather than call our parent class' initFormWithSavedData() which would initialize ALL the fields on this form,
-        // we only want to initialize the credential fields (and ssh key) and then have the user connect to the server,
-        // which will populate our data arrays. We need to connect to the server before being able to set
-        // other fields (e.g. to pick a region, the listbox must be populated from the data array).
-        if (this.hasSavedData()) {
-            AzureAccountParamsKeys.forEach( accountField => {
-                this.initFieldWithSavedData(accountField);
-            });
-            this.initFieldWithSavedData(AzureField.PROVIDER_SSHPUBLICKEY);
-        }
-        this.scrubPasswordField(AzureField.PROVIDER_CLIENTSECRET);
-        if (!this.getFieldValue(AzureField.PROVIDER_AZURECLOUD)) {
-            this.setFieldValue(AzureField.PROVIDER_AZURECLOUD, AzureClouds[0]);
         }
     }
 

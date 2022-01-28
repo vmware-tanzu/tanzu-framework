@@ -100,19 +100,15 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
         this.registerDefaultFileImportedHandler(this.eventFileImported, this.supplyStepMapping());
         this.registerDefaultFileImportErrorHandler(this.eventFileImportError);
         this.listenOnChangeClusterPlan();
-        this.initFormWithSavedData();
+
+        this.chooseInitialClusterPlan();
     }
 
-    initFormWithSavedData() {
+    chooseInitialClusterPlan() {
         const isProdClusterPlan = this.getSavedValue(AzureField.NODESETTING_INSTANCE_TYPE_DEV, '') === '';
         this.cardClick(isProdClusterPlan ? ClusterPlan.PROD : ClusterPlan.DEV);
-
-        super.initFormWithSavedData();
-        // because it's in its own component, the enable audit logging field does not get initialized in the above call to
-        // super.initFormWithSavedData()
-        setTimeout( () => {
-            this.setControlWithSavedValue(AzureField.NODESETTING_ENABLE_AUDIT_LOGGING, false);
-        })
+        // TODO: are these validations (below) already going to be set based on the card click?
+        isProdClusterPlan ? this.setProdCardValidations() : this.setDevCardValidations()
     }
 
     cardClick(envType: string) {

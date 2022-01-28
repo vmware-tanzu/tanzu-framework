@@ -73,18 +73,6 @@ export class VsphereNetworkStepComponent extends SharedNetworkStepComponent {
         });
     }
 
-    initFormWithSavedData() {
-        super.initFormWithSavedData();
-        const fieldNetworkName = this.formGroup.get(VsphereField.NETWORK_NAME);
-        if (fieldNetworkName) {
-            const savedNetworkName = this.getSavedValue(VsphereField.NETWORK_NAME, '');
-            fieldNetworkName.setValue(
-                this.vmNetworks.length === 1 ? this.vmNetworks[0].name : savedNetworkName,
-                { onlySelf: true } // avoid step error message when networkName is empty
-            );
-        }
-    }
-
     protected supplyFieldsAffectingStepDescription(): string[] {
         const fields = super.supplyFieldsAffectingStepDescription();
         fields.push(VsphereField.NETWORK_NAME);

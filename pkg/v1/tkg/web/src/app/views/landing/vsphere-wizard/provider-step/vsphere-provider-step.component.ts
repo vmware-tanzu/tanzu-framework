@@ -161,8 +161,6 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
         this.datacenters = [];
         this.formGroup.get(VsphereField.PROVIDER_SSH_KEY).disable({ emitEvent: false});
         this.customizeForm();
-
-        this.initFormWithSavedData();
     }
 
     private disconnect(consoleMsg?: string) {
@@ -180,10 +178,6 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
         } else {
             console.log('already disconnected so ignoring disconnect call (msg:' + consoleMsg + ')');
         }
-    }
-    initFormWithSavedData() {
-        super.initFormWithSavedData();
-        this.scrubPasswordField(VsphereField.PROVIDER_USER_PASSWORD);
     }
 
     /**

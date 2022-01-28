@@ -40,7 +40,6 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
             this.clusterNameInstruction = 'Optionally specify a name for the ' + this.clusterTypeDescriptor + ' cluster. ' +
                 'If left blank, the installer names the cluster automatically.';
         }
-        this.initFormWithSavedData();
     }
 
     protected storeUserData() {

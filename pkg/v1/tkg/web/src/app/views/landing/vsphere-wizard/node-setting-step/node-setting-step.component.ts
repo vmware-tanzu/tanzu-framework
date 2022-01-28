@@ -106,7 +106,7 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
             });
         });
 
-        this.initFormWithSavedData();
+        this.chooseInitialClusterPlan();
     }
 
     private onControlPlaneSettingChange(data) {
@@ -144,19 +144,13 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
         this.disarmField(VsphereField.NODESETTING_INSTANCE_TYPE_DEV);
     }
 
-    initFormWithSavedData() {
+    chooseInitialClusterPlan() {
         if (this.hasSavedData()) {
             // Is the configuration using a DEV or a PROD instance type? We check the saved value of the DEV node instance to determine
             // if the user was in DEV node instance mode
             const savedDevInstanceType = this.getSavedValue(VsphereField.NODESETTING_INSTANCE_TYPE_DEV, '');
             const managementClusterType = savedDevInstanceType !== '' ? InstanceType.DEV : InstanceType.PROD;
             this.cardClick(managementClusterType);
-            super.initFormWithSavedData();
-            // because it's in its own component, the enable audit logging field does not get initialized in the above call to
-            // super.initFormWithSavedData()
-            setTimeout( () => {
-                this.setControlWithSavedValue(VsphereField.NODESETTING_ENABLE_AUDIT_LOGGING, false);
-            })
 
             if (managementClusterType === InstanceType.DEV) {
                 // set the node type ID by finding it by the node type name OR the id

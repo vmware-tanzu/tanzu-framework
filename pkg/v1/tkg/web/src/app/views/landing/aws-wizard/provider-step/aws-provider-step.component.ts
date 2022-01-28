@@ -109,7 +109,7 @@ export class AwsProviderStepComponent extends StepFormDirective implements OnIni
         AppServices.messenger.subscribe<string>(this.eventFileImported, this.onFileImported.bind(this));
         this.registerDefaultFileImportErrorHandler(this.eventFileImportError);
 
-        this.initFormWithSavedData();
+        this.chooseInitialAuthType();
     }
 
     private onFileImported(data) {
@@ -175,21 +175,12 @@ export class AwsProviderStepComponent extends StepFormDirective implements OnIni
         }
     }
 
-    initFormWithSavedData() {
-        super.initFormWithSavedData();
-
+    chooseInitialAuthType() {
         // Use the presence of a saved secret access key to set the access type.
         // (Which is to say: assume CredentialType.PROFILE unless there is a saved secret access key.)
         // NOTE: if there is a real saved access key (from import) we erase it immediately after using it here
         const savedSecretAccessKey = this.getRawSavedValue(AwsField.PROVIDER_SECRET_ACCESS_KEY);
         this.authTypeValue = (savedSecretAccessKey) ? CredentialType.ONETIME : CredentialType.PROFILE;
-
-        this.scrubPasswordField(AwsField.PROVIDER_ACCESS_KEY);
-        this.scrubPasswordField(AwsField.PROVIDER_SECRET_ACCESS_KEY);
-
-        // Initializations not needed the first time the form is loaded, but
-        // required to re-initialize after form has been used
-        this.setValidCredentials(false);
     }
 
     /**

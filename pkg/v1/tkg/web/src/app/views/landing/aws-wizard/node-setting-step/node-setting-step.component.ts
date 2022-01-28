@@ -260,7 +260,7 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
         this.registerDefaultFileImportedHandler(this.eventFileImported, this.supplyStepMapping());
         this.registerDefaultFileImportErrorHandler(this.eventFileImportError);
 
-        this.initFormWithSavedData();
+        this.chooseInitialClusterPlan();
     }
 
     private setClusterNameInstruction() {
@@ -341,7 +341,7 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
         return AZS.filter((field, index, arr) => { return field !== targetAz });
     }
 
-    initFormWithSavedData() {
+    chooseInitialClusterPlan() {
         const devInstanceType = this.getSavedValue(AwsField.NODESETTING_INSTANCE_TYPE_DEV, '');
         const isProdInstanceType = devInstanceType === '';
         this.cardClick(isProdInstanceType ? ClusterPlan.PROD : ClusterPlan.DEV);

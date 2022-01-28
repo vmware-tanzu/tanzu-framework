@@ -108,10 +108,11 @@ export class SharedLoadBalancerStepComponent extends StepFormDirective implement
         AppServices.fieldMapUtilities.buildForm(this.formGroup, this.wizardName, this.formName, this.supplyStepMapping());
         this.htmlFieldLabels = AppServices.fieldMapUtilities.getFieldLabelMap(this.supplyStepMapping());
         this.storeDefaultLabels(this.supplyStepMapping());
+        this.registerDefaultFileImportedHandler(this.eventFileImported, this.supplyStepMapping());
+        this.registerDefaultFileImportErrorHandler(this.eventFileImportError);
 
         this.customizeForm();
-
-        this.initFormWithSavedData();
+        this.initializeClusterLabels();
     }
 
     isFieldReadyForInitWithSavedValue(fieldName: string): boolean {
@@ -121,16 +122,7 @@ export class SharedLoadBalancerStepComponent extends StepFormDirective implement
         return true;
     }
 
-    initFormWithSavedData() {
-        const fieldControllerHost = this.formGroup.get(LoadBalancerField.CONTROLLER_HOST);
-        if (fieldControllerHost) {
-            fieldControllerHost.setValue(this.getSavedValue(LoadBalancerField.CONTROLLER_HOST, ''));
-        }
-        const fieldUserName = this.formGroup.get(LoadBalancerField.USERNAME);
-        if (fieldUserName) {
-            fieldUserName.setValue(this.getSavedValue(LoadBalancerField.USERNAME, ''));
-        }
-
+    initializeClusterLabels() {
         const savedLabelsString = this.getSavedValue(LoadBalancerField.CLUSTER_LABELS, '');
         if (savedLabelsString !== '') {
             const savedLabelsArray = savedLabelsString.split(', ')
@@ -139,14 +131,6 @@ export class SharedLoadBalancerStepComponent extends StepFormDirective implement
                 this.labels.set(labelArray[0], labelArray[1]);
             });
         }
-
-        // clear password from saved data
-        const fieldPassword = this.formGroup.get(LoadBalancerField.PASSWORD);
-        if (fieldPassword) {
-            fieldPassword.setValue('');
-        }
-
-        this.startProcessDelayedFieldInit();    // init those fields with saved value when they become ready
     }
 
     /**

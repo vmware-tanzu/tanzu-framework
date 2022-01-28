@@ -8,6 +8,7 @@ import AppServices from '../../../../../../../shared/service/appServices';
 import { FormUtils } from '../../../utils/form-utils';
 import { MetadataField, MetadataStepMapping } from './metadata-step.fieldmapping';
 import { StepFormDirective } from '../../../step-form/step-form';
+import { ValidationService } from '../../../validation/validation.service';
 
 const LABEL_KEY_NAME = 'newLabelKey';
 const LABEL_VALUE_NAME = 'newLabelValue';
@@ -23,6 +24,9 @@ export class MetadataStepComponent extends StepFormDirective implements OnInit {
     savedKeySet: Set<string> = new Set();
     labelCounter: number = 0;
 
+    constructor(private validationService: ValidationService) {
+        super();
+    }
     ngOnInit() {
         super.ngOnInit();
         AppServices.fieldMapUtilities.buildForm(this.formGroup, this.wizardName, this.formName, MetadataStepMapping);
@@ -32,14 +36,16 @@ export class MetadataStepComponent extends StepFormDirective implements OnInit {
             fields: [MetadataField.CLUSTER_LOCATION],
             clusterTypeDescriptor: true,
         })
+        this.registerDefaultFileImportedHandler(this.eventFileImported, MetadataStepMapping);
+        this.registerDefaultFileImportErrorHandler(this.eventFileImportError);
+        this.setClusterLabelsFromSavedValue();
 
-        this.initFormWithSavedData();
         if (this.labels.size === 0) {
             this.addLabel();
         }
     }
 
-    initFormWithSavedData() {
+    setClusterLabelsFromSavedValue() {
         const savedLabelsString = this.getSavedValue(MetadataField.CLUSTER_LABELS, '');
         if (savedLabelsString !== '') {
             const savedLabelsArray = savedLabelsString.split(', ')
@@ -49,7 +55,6 @@ export class MetadataStepComponent extends StepFormDirective implements OnInit {
                 this.savedKeySet.add(LABEL_KEY_NAME + this.labelCounter);
             });
         }
-        super.initFormWithSavedData();
     }
 
     addLabel(key?: string, value?: string) {
@@ -129,7 +134,6 @@ export class MetadataStepComponent extends StepFormDirective implements OnInit {
         this.formGroup.removeControl(this.labels.get(key));
         this.labels.delete(key);
         this.keySet.delete(key);
-        this.formGroup.get(MetadataField.CLUSTER_LABELS).setValue(this.labels);
     }
 
     /**
