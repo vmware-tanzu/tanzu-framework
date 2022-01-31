@@ -7,7 +7,6 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-// EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!
 // NOTE: json tags are required.  Any new fields you add must have json tags for the fields to be serialized.
 
 // KappControllerConfigSpec defines the desired state of KappControllerConfig
@@ -44,7 +43,6 @@ type KappDeployment struct {
 
 	// The priority value that various system components use to find the priority of the kapp-controller pod
 	// +kubebuilder:validation:Optional
-	// +kubebuilder:default:=tanzu-package-repo-global
 	PriorityClassName string `json:"priorityClassName,omitempty"`
 
 	// Concurrency of kapp-controller deployment
@@ -59,7 +57,7 @@ type KappDeployment struct {
 	// Bind port for kapp-controller API
 	// +kubebuilder:validation:Optional
 	// +kubebuilder:default:=10350
-	ApiPort int `json:"apiPort,omitempty"`
+	APIPort int `json:"apiPort,omitempty"`
 
 	// Address for metrics server
 	// +kubebuilder:validation:Optional
@@ -74,11 +72,11 @@ type KappConfig struct {
 
 	// The url/ip of a proxy for kapp controller to use when making network requests
 	// +kubebuilder:validation:Optional
-	HttpProxy string `json:"httpProxy,omitempty"`
+	HTTPProxy string `json:"httpProxy,omitempty"`
 
 	// The url/ip of a TLS capable proxy for kapp-controller to use when making network requests
 	// +kubebuilder:validation:Optional
-	HttpsProxy string `json:"httpsProxy,omitempty"`
+	HTTPSProxy string `json:"httpsProxy,omitempty"`
 
 	// A comma delimited list of domain names which kapp-controller should bypass the proxy for when making requests
 	// +kubebuilder:validation:Optional
@@ -91,14 +89,9 @@ type KappConfig struct {
 
 // KappControllerConfigStatus defines the observed state of KappControllerConfig
 type KappControllerConfigStatus struct {
-	// Reference to the data value secret created by controller
-	SecretRef SecretRef `json:"secretRef,omitempty"`
-}
-
-type SecretRef struct {
 	// Name of the data value secret created by controller
 	// +kubebuilder:validation:Optional
-	Name string `json:"name,omitempty"`
+	SecretRef string `json:"secretRef,omitempty"`
 }
 
 //+kubebuilder:object:root=true

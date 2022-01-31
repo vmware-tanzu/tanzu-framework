@@ -52,11 +52,13 @@ func (r *KappControllerConfigReconciler) Reconcile(ctx context.Context, req ctrl
 	kappControllerConfig := &runv1alpha3.KappControllerConfig{}
 	if err := r.Client.Get(ctx, req.NamespacedName, kappControllerConfig); err != nil {
 		log.Error(err, "unable to fetch kappControllerConfig")
-		return ctrl.Result{}, err
+		return ctrl.Result{}, nil
 	}
+	// Deepcopy to prevent client-go cache conflict
+	kappControllerConfig = kappControllerConfig.DeepCopy()
 
 	// get the parent cluster name from owner reference
-	// if the owner reference doesn't exist, use the same name as config CRD
+	// if the owner reference doesn't exist, use the same name as config CR
 	clusterNamespacedName := req.NamespacedName
 	cluster := &clusterapiv1beta1.Cluster{}
 	for _, owner := range kappControllerConfig.OwnerReferences {
@@ -69,15 +71,15 @@ func (r *KappControllerConfigReconciler) Reconcile(ctx context.Context, req ctrl
 	// verify that the cluster related to config is present
 	if err := r.Client.Get(ctx, clusterNamespacedName, cluster); err != nil {
 		if apierrors.IsNotFound(err) {
-			log.Info("Cluster not found")
+			log.Info(fmt.Sprintf("Cluster %s/%s not found", clusterNamespacedName.Namespace, clusterNamespacedName.Name))
 			return ctrl.Result{}, nil
 		}
 
-		log.Error(err, "unable to fetch cluster")
+		log.Error(err, fmt.Sprintf("unable to fetch cluster %s/%s", clusterNamespacedName.Namespace, clusterNamespacedName.Name))
 		return ctrl.Result{}, err
 	}
 
-	if retResult, err := r.ReconcileKappControllerConfig(ctx, log, cluster, kappControllerConfig); err != nil {
+	if retResult, err := r.ReconcileKappControllerConfig(ctx, kappControllerConfig, cluster, log); err != nil {
 		log.Error(err, "unable to reconcile kappControllerConfig")
 		return retResult, err
 	}
@@ -93,12 +95,12 @@ func (r *KappControllerConfigReconciler) SetupWithManager(ctx context.Context, m
 		Complete(r)
 }
 
-// ReconcileKappControllerConfig reconciles KappControllerConfig CRD
+// ReconcileKappControllerConfig reconciles KappControllerConfig CR
 func (r *KappControllerConfigReconciler) ReconcileKappControllerConfig(
 	ctx context.Context,
-	log logr.Logger,
+	kappControllerConfig *runv1alpha3.KappControllerConfig,
 	cluster *clusterapiv1beta1.Cluster,
-	kappControllerConfig *runv1alpha3.KappControllerConfig) (_ ctrl.Result, retErr error) {
+	log logr.Logger) (_ ctrl.Result, retErr error) {
 
 	var (
 		patchConfig bool
@@ -114,7 +116,7 @@ func (r *KappControllerConfigReconciler) ReconcileKappControllerConfig(
 		if patchConfig {
 			log.Info("Patching kappControllerConfig")
 
-			if err := patchHelper.Patch(ctx, kappControllerConfig.DeepCopy()); err != nil {
+			if err := patchHelper.Patch(ctx, kappControllerConfig); err != nil {
 				log.Error(err, "Error patching kappControllerConfig")
 				retErr = err
 			}
@@ -124,7 +126,7 @@ func (r *KappControllerConfigReconciler) ReconcileKappControllerConfig(
 	// If KappControllerConfig is marked for deletion then delete the data value secret
 	if !kappControllerConfig.GetDeletionTimestamp().IsZero() {
 		log.Info("Deleting kappControllerConfig")
-		err := r.ReconcileKappControllerConfigDelete(ctx, log, cluster, kappControllerConfig, &patchConfig)
+		err := r.ReconcileKappControllerConfigDelete(ctx, kappControllerConfig, log, &patchConfig)
 		if err != nil {
 			log.Error(err, "Error reconciling kappControllerConfig delete")
 			return ctrl.Result{}, err
@@ -132,24 +134,26 @@ func (r *KappControllerConfigReconciler) ReconcileKappControllerConfig(
 		return ctrl.Result{}, nil
 	}
 
-	if err := r.ReconcileKappControllerConfigNormal(ctx, log, cluster, kappControllerConfig, &patchConfig); err != nil {
+	if err := r.ReconcileKappControllerConfigNormal(ctx, kappControllerConfig, cluster, log, &patchConfig); err != nil {
 		log.Error(err, "Error reconciling kappControllerConfig")
 		return ctrl.Result{}, err
 	}
 
+	log.Info("Successfully reconciled kappControllerConfig")
+
 	return ctrl.Result{}, nil
 }
 
-// ReconcileKappControllerConfigNormal reconciles KappControllerConfig CRD
+// ReconcileKappControllerConfigNormal reconciles KappControllerConfig CR
 func (r *KappControllerConfigReconciler) ReconcileKappControllerConfigNormal(
 	ctx context.Context,
-	log logr.Logger,
-	cluster *clusterapiv1beta1.Cluster,
 	kappControllerConfig *runv1alpha3.KappControllerConfig,
+	cluster *clusterapiv1beta1.Cluster,
+	log logr.Logger,
 	patchConfig *bool) (retErr error) {
 
 	// Add finalizer to kappControllerConfig
-	*patchConfig = util.AddFinalizerToCRD(log, KappControllerAddonName, kappControllerConfig)
+	*patchConfig = util.AddFinalizerToCR(log, KappControllerAddonName, kappControllerConfig)
 
 	// add owner reference to kappControllerConfig
 	ownerReference := metav1.OwnerReference{
@@ -157,7 +161,7 @@ func (r *KappControllerConfigReconciler) ReconcileKappControllerConfigNormal(
 		Kind:               cluster.Kind,
 		Name:               cluster.Name,
 		UID:                cluster.UID,
-		BlockOwnerDeletion: pointer.BoolPtr(true),
+		BlockOwnerDeletion: pointer.BoolPtr(false),
 	}
 
 	if !clusterapiutil.HasOwnerRef(kappControllerConfig.OwnerReferences, ownerReference) {
@@ -166,15 +170,15 @@ func (r *KappControllerConfigReconciler) ReconcileKappControllerConfigNormal(
 		*patchConfig = true
 	}
 
-	if err := r.ReconcileKappControllerConfigDataValue(ctx, log, cluster, kappControllerConfig); err != nil {
+	if err := r.ReconcileKappControllerConfigDataValue(ctx, kappControllerConfig, cluster, log); err != nil {
 		log.Error(err, "Error creating kappControllerConfig data value secret")
 		return err
 	}
 
 	// update status.secretRef
-	dataValueSecretName := util.GenerateDataValueSecretNameFromAddonNames(cluster.Name, KappControllerAddonName)
-	if kappControllerConfig.Status.SecretRef.Name != dataValueSecretName {
-		kappControllerConfig.Status.SecretRef.Name = dataValueSecretName
+	dataValueSecretName := util.GenerateDataValueSecretNameFromAddonNames(kappControllerConfig.Name, KappControllerAddonName)
+	if kappControllerConfig.Status.SecretRef != dataValueSecretName {
+		kappControllerConfig.Status.SecretRef = dataValueSecretName
 		*patchConfig = true
 	}
 
@@ -184,13 +188,13 @@ func (r *KappControllerConfigReconciler) ReconcileKappControllerConfigNormal(
 // ReconcileKappControllerConfigDataValue reconciles KappControllerConfig data values secret
 func (r *KappControllerConfigReconciler) ReconcileKappControllerConfigDataValue(
 	ctx context.Context,
-	log logr.Logger,
+	kappControllerConfig *runv1alpha3.KappControllerConfig,
 	cluster *clusterapiv1beta1.Cluster,
-	kappControllerConfig *runv1alpha3.KappControllerConfig) (retErr error) {
+	log logr.Logger) (retErr error) {
 
 	dataValuesSecret := &corev1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      util.GenerateDataValueSecretNameFromAddonNames(cluster.Name, KappControllerAddonName),
+			Name:      util.GenerateDataValueSecretNameFromAddonNames(kappControllerConfig.Name, KappControllerAddonName),
 			Namespace: cluster.Namespace,
 		},
 	}
@@ -230,15 +234,14 @@ func (r *KappControllerConfigReconciler) ReconcileKappControllerConfigDataValue(
 // ReconcileKappControllerConfigDelete reconciles kappControllerConfig deletion
 func (r *KappControllerConfigReconciler) ReconcileKappControllerConfigDelete(
 	ctx context.Context,
-	log logr.Logger,
-	cluster *clusterapiv1beta1.Cluster,
 	kappControllerConfig *runv1alpha3.KappControllerConfig,
+	log logr.Logger,
 	patchConfig *bool) (retErr error) {
 
 	// delete data value secret
 	addonDataValuesSecret := &corev1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      util.GenerateDataValueSecretNameFromAddonNames(cluster.Name, KappControllerAddonName),
+			Name:      util.GenerateDataValueSecretNameFromAddonNames(kappControllerConfig.Name, KappControllerAddonName),
 			Namespace: kappControllerConfig.Namespace,
 		},
 	}
@@ -252,7 +255,7 @@ func (r *KappControllerConfigReconciler) ReconcileKappControllerConfigDelete(
 	}
 
 	// Remove finalizer from addon secret
-	*patchConfig = util.RemoveFinalizerFromCRD(log, KappControllerAddonName, kappControllerConfig)
+	*patchConfig = util.RemoveFinalizerFromCR(log, KappControllerAddonName, kappControllerConfig)
 
 	return nil
 }

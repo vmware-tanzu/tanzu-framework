@@ -39,7 +39,7 @@ type kappDeployment struct {
 
 	Tolerations []map[string]string `yaml:"tolerations,omitempty"`
 
-	ApiPort int `yaml:"apiPort,omitempty"`
+	APIPort int `yaml:"apiPort,omitempty"`
 
 	MetricsBindAddress string `yaml:"metricsBindAddress,omitempty"`
 }
@@ -47,9 +47,9 @@ type kappDeployment struct {
 type kappConfig struct {
 	CaCerts string `yaml:"caCerts,omitempty"`
 
-	HttpProxy string `yaml:"httpProxy,omitempty"`
+	HTTPProxy string `yaml:"httpProxy,omitempty"`
 
-	HttpsProxy string `yaml:"httpsProxy,omitempty"`
+	HTTPSProxy string `yaml:"httpsProxy,omitempty"`
 
 	NoProxy string `yaml:"noProxy,omitempty"`
 
@@ -77,7 +77,6 @@ func getCoreDNSIP(cluster *clusterapiv1beta1.Cluster) (string, error) {
 }
 
 func mapKappControllerConfigSpec(cluster *clusterapiv1beta1.Cluster, config *runv1alpha3.KappControllerConfig) (*kappControllerConfigSpec, error) {
-	//TODO: Whether switch to use `github.com/fatih/structs` similar to what is done in https://github.com/vmware-tanzu/tanzu-framework/pull/1555/files
 	configSpec := &kappControllerConfigSpec{}
 
 	configSpec.Namespace = config.Spec.Namespace
@@ -99,13 +98,13 @@ func mapKappControllerConfigSpec(cluster *clusterapiv1beta1.Cluster, config *run
 	configSpec.KappController.Deployment.PriorityClassName = config.Spec.KappController.Deployment.PriorityClassName
 	configSpec.KappController.Deployment.Concurrency = config.Spec.KappController.Deployment.Concurrency
 	configSpec.KappController.Deployment.Tolerations = config.Spec.KappController.Deployment.Tolerations
-	configSpec.KappController.Deployment.ApiPort = config.Spec.KappController.Deployment.ApiPort
+	configSpec.KappController.Deployment.APIPort = config.Spec.KappController.Deployment.APIPort
 	configSpec.KappController.Deployment.MetricsBindAddress = config.Spec.KappController.Deployment.MetricsBindAddress
 
 	// Config
 	configSpec.KappController.Config.CaCerts = config.Spec.KappController.Config.CaCerts
-	configSpec.KappController.Config.HttpProxy = config.Spec.KappController.Config.HttpProxy
-	configSpec.KappController.Config.HttpsProxy = config.Spec.KappController.Config.HttpsProxy
+	configSpec.KappController.Config.HTTPProxy = config.Spec.KappController.Config.HTTPProxy
+	configSpec.KappController.Config.HTTPSProxy = config.Spec.KappController.Config.HTTPSProxy
 	configSpec.KappController.Config.NoProxy = config.Spec.KappController.Config.NoProxy
 	configSpec.KappController.Config.DangerousSkipTLSVerify = config.Spec.KappController.Config.DangerousSkipTLSVerify
 

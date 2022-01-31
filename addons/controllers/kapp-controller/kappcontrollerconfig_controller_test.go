@@ -29,7 +29,7 @@ const (
 
 var _ = Describe("KappControllerConfig Reconciler", func() {
 	var (
-		clusterName             string
+		configCRName            string
 		clusterResourceFilePath string
 	)
 
@@ -53,7 +53,7 @@ var _ = Describe("KappControllerConfig Reconciler", func() {
 	Context("reconcile KappControllerConfig for management cluster", func() {
 
 		BeforeEach(func() {
-			clusterName = "test-cluster-1"
+			configCRName = "test-cluster-1"
 			clusterResourceFilePath = "testdata/test-1.yaml"
 		})
 
@@ -94,7 +94,7 @@ var _ = Describe("KappControllerConfig Reconciler", func() {
 				Expect(config.Spec.KappController.Deployment.Concurrency).Should(Equal(4))
 				Expect(config.Spec.KappController.Deployment.HostNetwork).Should(Equal(true))
 				Expect(config.Spec.KappController.Deployment.PriorityClassName).Should(Equal("system-cluster-critical"))
-				Expect(config.Spec.KappController.Deployment.ApiPort).Should(Equal(10100))
+				Expect(config.Spec.KappController.Deployment.APIPort).Should(Equal(10100))
 				Expect(config.Spec.KappController.Deployment.MetricsBindAddress).Should(Equal("0"))
 				Expect(config.Spec.KappController.Deployment.Tolerations).ShouldNot(BeNil())
 
@@ -104,7 +104,7 @@ var _ = Describe("KappControllerConfig Reconciler", func() {
 			Eventually(func() bool {
 				secretKey := client.ObjectKey{
 					Namespace: "default",
-					Name:      util.GenerateDataValueSecretNameFromAddonNames(clusterName, KappControllerAddonName),
+					Name:      util.GenerateDataValueSecretNameFromAddonNames(configCRName, KappControllerAddonName),
 				}
 				secret := &v1.Secret{}
 				err := k8sClient.Get(ctx, secretKey, secret)
@@ -137,7 +137,7 @@ var _ = Describe("KappControllerConfig Reconciler", func() {
 				if err != nil {
 					return false
 				}
-				Expect(config.Status.SecretRef.Name).Should(Equal(util.GenerateDataValueSecretNameFromAddonNames(clusterName, KappControllerAddonName)))
+				Expect(config.Status.SecretRef).Should(Equal(util.GenerateDataValueSecretNameFromAddonNames(configCRName, KappControllerAddonName)))
 				return true
 			}, waitTimeout, pollingInterval).Should(BeTrue())
 
@@ -176,7 +176,7 @@ var _ = Describe("KappControllerConfig Reconciler", func() {
 			Eventually(func() bool {
 				secretKey := client.ObjectKey{
 					Namespace: "default",
-					Name:      util.GenerateDataValueSecretNameFromAddonNames(clusterName, KappControllerAddonName),
+					Name:      util.GenerateDataValueSecretNameFromAddonNames(configCRName, KappControllerAddonName),
 				}
 				secret := &v1.Secret{}
 				err := k8sClient.Get(ctx, secretKey, secret)
