@@ -15,7 +15,6 @@ import (
 	. "github.com/onsi/gomega"
 
 	v1 "k8s.io/api/core/v1"
-	"k8s.io/apimachinery/pkg/api/errors"
 
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/util"
 	"github.com/vmware-tanzu/tanzu-framework/addons/testutil"
@@ -61,7 +60,7 @@ var _ = Describe("KappControllerConfig Reconciler", func() {
 
 			key := client.ObjectKey{
 				Namespace: "default",
-				Name:      "test-cluster-1",
+				Name:      configCRName,
 			}
 
 			cluster := &clusterapiv1beta1.Cluster{}
@@ -80,10 +79,9 @@ var _ = Describe("KappControllerConfig Reconciler", func() {
 					return false
 				}
 				// check owner reference
-				if len(config.Finalizers) == 0 || len(config.OwnerReferences) == 0 {
+				if len(config.OwnerReferences) == 0 {
 					return false
 				}
-				Expect(len(config.Finalizers)).Should(Equal(1))
 				Expect(len(config.OwnerReferences)).Should(Equal(1))
 				Expect(config.OwnerReferences[0].Name).Should(Equal("test-cluster-1"))
 
@@ -143,50 +141,6 @@ var _ = Describe("KappControllerConfig Reconciler", func() {
 
 		})
 
-		It("Should reconcile KappControllerConfig deletion in management cluster", func() {
-
-			key := client.ObjectKey{
-				Namespace: "default",
-				Name:      "test-cluster-1",
-			}
-
-			Eventually(func() bool {
-				config := &runv1alpha3.KappControllerConfig{}
-				err := k8sClient.Get(ctx, key, config)
-				if err != nil {
-					if errors.IsNotFound(err) {
-						return true
-					}
-					return false
-				}
-
-				// Wait until the finalizer is added
-				if len(config.Finalizers) == 0 || len(config.OwnerReferences) == 0 {
-					return false
-				}
-
-				// Delete kappControllerConfig
-				err = k8sClient.Delete(ctx, config)
-				if err != nil {
-					return false
-				}
-				return true
-			}, waitTimeout, pollingInterval).Should(BeTrue())
-
-			Eventually(func() bool {
-				secretKey := client.ObjectKey{
-					Namespace: "default",
-					Name:      util.GenerateDataValueSecretNameFromAddonNames(configCRName, KappControllerAddonName),
-				}
-				secret := &v1.Secret{}
-				err := k8sClient.Get(ctx, secretKey, secret)
-				if err != nil && errors.IsNotFound(err) {
-					return true
-				}
-				return false
-			}, waitTimeout, pollingInterval).Should(BeTrue())
-
-		})
 	})
 
 })

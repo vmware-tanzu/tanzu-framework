@@ -51,7 +51,7 @@ func (r *KappControllerConfigReconciler) Reconcile(ctx context.Context, req ctrl
 	// get kapp-controller config object
 	kappControllerConfig := &runv1alpha3.KappControllerConfig{}
 	if err := r.Client.Get(ctx, req.NamespacedName, kappControllerConfig); err != nil {
-		log.Error(err, "unable to fetch kappControllerConfig")
+		log.Error(err, "Unable to fetch kappControllerConfig")
 		return ctrl.Result{}, nil
 	}
 	// Deepcopy to prevent client-go cache conflict
@@ -123,17 +123,6 @@ func (r *KappControllerConfigReconciler) ReconcileKappControllerConfig(
 		}
 	}()
 
-	// If KappControllerConfig is marked for deletion then delete the data value secret
-	if !kappControllerConfig.GetDeletionTimestamp().IsZero() {
-		log.Info("Deleting kappControllerConfig")
-		err := r.ReconcileKappControllerConfigDelete(ctx, kappControllerConfig, log, &patchConfig)
-		if err != nil {
-			log.Error(err, "Error reconciling kappControllerConfig delete")
-			return ctrl.Result{}, err
-		}
-		return ctrl.Result{}, nil
-	}
-
 	if err := r.ReconcileKappControllerConfigNormal(ctx, kappControllerConfig, cluster, log, &patchConfig); err != nil {
 		log.Error(err, "Error reconciling kappControllerConfig")
 		return ctrl.Result{}, err
@@ -151,9 +140,6 @@ func (r *KappControllerConfigReconciler) ReconcileKappControllerConfigNormal(
 	cluster *clusterapiv1beta1.Cluster,
 	log logr.Logger,
 	patchConfig *bool) (retErr error) {
-
-	// Add finalizer to kappControllerConfig
-	*patchConfig = util.AddFinalizerToCR(log, KappControllerAddonName, kappControllerConfig)
 
 	// add owner reference to kappControllerConfig
 	ownerReference := metav1.OwnerReference{
@@ -227,35 +213,6 @@ func (r *KappControllerConfigReconciler) ReconcileKappControllerConfigDataValue(
 	}
 
 	log.Info(fmt.Sprintf("Resource %s data values secret %s", KappControllerAddonName, result))
-
-	return nil
-}
-
-// ReconcileKappControllerConfigDelete reconciles kappControllerConfig deletion
-func (r *KappControllerConfigReconciler) ReconcileKappControllerConfigDelete(
-	ctx context.Context,
-	kappControllerConfig *runv1alpha3.KappControllerConfig,
-	log logr.Logger,
-	patchConfig *bool) (retErr error) {
-
-	// delete data value secret
-	addonDataValuesSecret := &corev1.Secret{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:      util.GenerateDataValueSecretNameFromAddonNames(kappControllerConfig.Name, KappControllerAddonName),
-			Namespace: kappControllerConfig.Namespace,
-		},
-	}
-	if err := r.Client.Delete(ctx, addonDataValuesSecret); err != nil {
-		if apierrors.IsNotFound(err) {
-			log.Info("kappControllerConfig data values secret not found")
-			return nil
-		}
-		log.Error(err, "Error deleting kappControllerConfig data values secret")
-		return err
-	}
-
-	// Remove finalizer from addon secret
-	*patchConfig = util.RemoveFinalizerFromCR(log, KappControllerAddonName, kappControllerConfig)
 
 	return nil
 }
