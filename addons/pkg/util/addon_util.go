@@ -7,27 +7,22 @@ import (
 	"context"
 	"fmt"
 	"net"
-	"os/exec"
-	"path/filepath"
 	"strconv"
-	"strings"
 
 	"github.com/go-logr/logr"
 	"github.com/pkg/errors"
-	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
-
 	"gopkg.in/yaml.v2"
 	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	clusterapiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
-	logf "sigs.k8s.io/controller-runtime/pkg/log"
+	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 
 	kappctrl "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/kappctrl/v1alpha1"
 	pkgiv1alpha1 "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/packaging/v1alpha1"
-
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
 	addontypes "github.com/vmware-tanzu/tanzu-framework/addons/pkg/types"
+	infraconstants "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
 	bomtypes "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkr/pkg/types"
 )
 
@@ -236,69 +231,49 @@ func IsPackageInstallPresent(ctx context.Context,
 	return true, nil
 }
 
-// AddFinalizerToCRD adds finalizer to the config CRD if not present and
+// AddFinalizerToCR adds finalizer to the config CR if not present and
 // returns true if finalizer is added
-func AddFinalizerToCRD(
+func AddFinalizerToCR(
 	log logr.Logger,
 	addonName string,
-	configCRD client.Object) bool {
+	configCR client.Object) bool {
 
 	var patchAddonSecret bool
 
 	// add finalizer to addon secret
-	if !controllerutil.ContainsFinalizer(configCRD, addontypes.AddonFinalizer) {
+	if !controllerutil.ContainsFinalizer(configCR, addontypes.AddonFinalizer) {
 		log.Info("Adding finalizer to addon secret", constants.AddonNameLogKey, addonName)
-		controllerutil.AddFinalizer(configCRD, addontypes.AddonFinalizer)
+		controllerutil.AddFinalizer(configCR, addontypes.AddonFinalizer)
 		patchAddonSecret = true
 	}
 
 	return patchAddonSecret
 }
 
-// RemoveFinalizerFromCRD removes finalizer from the config CRD if not present and
+// RemoveFinalizerFromCR removes finalizer from the config CR if not present and
 // returns true if finalizer is removed
-func RemoveFinalizerFromCRD(
+func RemoveFinalizerFromCR(
 	log logr.Logger,
 	addonName string,
-	configCRD client.Object) bool {
+	configCR client.Object) bool {
 
 	var patchAddonSecret bool
 
 	// add finalizer to addon secret
-	if !controllerutil.ContainsFinalizer(configCRD, addontypes.AddonFinalizer) {
+	if !controllerutil.ContainsFinalizer(configCR, addontypes.AddonFinalizer) {
 		log.Info("Removing finalizer to addon secret", constants.AddonNameLogKey, addonName)
-		controllerutil.RemoveFinalizer(configCRD, addontypes.AddonFinalizer)
+		controllerutil.RemoveFinalizer(configCR, addontypes.AddonFinalizer)
 		patchAddonSecret = true
 	}
 
 	return patchAddonSecret
-}
-
-// get paths for external CRDs by introspecting versions of the go dependencies
-func GetExternalCRDPaths(externalDeps map[string][]string) ([]string, error) {
-	var crdPaths []string
-	gopath, err := exec.Command("go", "env", "GOPATH").Output()
-	if err != nil {
-		return crdPaths, err
-	}
-	for dep, crdDirs := range externalDeps {
-		depPath, err := exec.Command("go", "list", "-m", "-f", "{{ .Path }}@{{ .Version }}", dep).Output()
-		if err != nil {
-			return crdPaths, err
-		}
-		for _, crdDir := range crdDirs {
-			crdPaths = append(crdPaths, filepath.Join(strings.TrimSuffix(string(gopath), "\n"),
-				"pkg", "mod", strings.TrimSuffix(string(depPath), "\n"), crdDir))
-		}
-	}
-
-	logf.Log.Info("external CRD paths", "crdPaths", crdPaths)
-	return crdPaths, nil
 }
 
 // This function returns the Service CIDR blocks for both IPv4 and IPv6 family
-// Parse Service CIDRBlocks obtained from the cluster and return the respective blocks for IPv4 and IPv6 family
-// Return "" if we don't find the CIDRBlocks for an IP family
+// Parse Service CIDRBlocks obtained from the cluster and return the following from the function:
+// <IPv4 CIDRs, IPv6 CIDRs, error>
+// The first two return parameters should be used only if the function returns error as nil.
+// Also, note that when no error is returned, IPv4 and/or IPv6 CIDRs may still be empty depending on the cluster Service CIDR Blocks
 func GetServiceCIDRs(cluster *clusterapiv1beta1.Cluster) (string, string, error) {
 	var serviceCIDRs []string
 	serviceCIDR, serviceCIDRv6 := "", ""
@@ -316,10 +291,12 @@ func GetServiceCIDRs(cluster *clusterapiv1beta1.Cluster) (string, string, error)
 			if ip.To4() != nil {
 				serviceCIDR = cidr
 			} else {
+				if ip.To16() == nil {
+					return "", "", errors.New("Unknown IP type in Service CIDR")
+				}
 				serviceCIDRv6 = cidr
 			}
 		}
-
 	} else {
 		return "", "", errors.New("Unable to get service CIDRBlocks from cluster")
 	}
@@ -331,24 +308,19 @@ func GetInfraProvider(cluster *clusterapiv1beta1.Cluster) (string, error) {
 	var infraProvider string
 
 	if cluster.Spec.InfrastructureRef != nil {
-
 		infraProvider = cluster.Spec.InfrastructureRef.Kind
-
 		switch infraProvider {
-		case constants.InfrastructureRefVSphere:
-			infraProvider = constants.InfrastructureProviderVSphere
-		case constants.InfrastructureRefAWS:
-			infraProvider = constants.InfrastructureProviderAWS
-		case constants.InfrastructureRefAzure:
-			infraProvider = constants.InfrastructureProviderAzure
-		case constants.InfrastructureRefDocker:
-			infraProvider = constants.InfrastructureProviderDocker
-		default:
-			infraProvider = constants.InfrastructureProviderVSphere
+		case infraconstants.InfrastructureRefVSphere:
+			return infraconstants.InfrastructureProviderVSphere, nil
+		case infraconstants.InfrastructureRefAWS:
+			return infraconstants.InfrastructureProviderAWS, nil
+		case infraconstants.InfrastructureRefAzure:
+			return infraconstants.InfrastructureProviderAzure, nil
+		case infraconstants.InfrastructureRefDocker:
+			return infraconstants.InfrastructureProviderDocker, nil
 		}
-	} else {
-		return "", errors.New("Unable to get infraProvider")
 	}
 
-	return infraProvider, nil
+	return "", errors.New("unknown error in getting infraProvider")
+
 }

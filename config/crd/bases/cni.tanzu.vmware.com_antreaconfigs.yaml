@@ -120,12 +120,10 @@ spec:
             properties:
               secretRef:
                 description: Reference to the data value secret created by controller
-                properties:
-                  name:
-                    description: Name of the data value secret created by controller
-                    type: string
-                type: object
+                type: string
             type: object
+        required:
+        - spec
         type: object
     served: true
     storage: true

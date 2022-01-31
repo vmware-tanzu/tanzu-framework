@@ -92,6 +92,8 @@ const (
 	InfrastructureRefAWS = "AWSCluster"
 	// InfrastructureRefAzure is the Azure infrastructure
 	InfrastructureRefAzure = "AzureCluster"
+	// InfrastructureRefDocker is the docker infrastructure
+	InfrastructureRefDocker = "DockerCluster"
 )
 
 // networking constants

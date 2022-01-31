@@ -1,4 +1,4 @@
-// Copyright YEAR VMware, Inc. All Rights Reserved.
+// Copyright 2022 VMware, Inc. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
 package v1alpha1
@@ -31,7 +31,7 @@ type AntConfig struct {
 	// Disable UDP tunnel offload feature on default NIC
 	// +kubebuilder:validation:Optional
 	// +kubebuilder:default:=false
-	DisableUdpTunnelOffload bool `json:"disableUdpTunnelOffload,omitempty"`
+	DisableUDPTunnelOffload bool `json:"disableUdpTunnelOffload,omitempty"`
 
 	// Default MTU to use for the host gateway interface and the network interface of each Pod. If omitted, antrea-agent will discover the MTU of the Node's primary interface
 	// +kubebuilder:validation:Optional
@@ -41,9 +41,10 @@ type AntConfig struct {
 	// List of allowed cipher suites. If omitted, the default Go Cipher Suites will be used
 	// +kubebuilder:validation:Optional
 	// +kubebuilder:default:="TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,TLS_RSA_WITH_AES_256_GCM_SHA384"
-	TlsCipherSuites string `json:"tlsCipherSuites,omitempty"`
+	TLSCipherSuites string `json:"tlsCipherSuites,omitempty"`
 
 	// FeatureGates is a map of feature names to flags that enable or disable experimental features
+	// +kubebuilder:validation:Optional
 	FeatureGates AntreaFeatureGates `json:"featureGates,omitempty"`
 }
 
@@ -92,13 +93,8 @@ type AntreaFeatureGates struct {
 // AntreaConfigStatus defines the observed state of AntreaConfig
 type AntreaConfigStatus struct {
 	// Reference to the data value secret created by controller
-	SecretRef AntreaSecretRef `json:"secretRef,omitempty"`
-}
-
-type AntreaSecretRef struct {
-	// Name of the data value secret created by controller
 	// +kubebuilder:validation:Optional
-	Name string `json:"name,omitempty"`
+	SecretRef string `json:"secretRef,omitempty"`
 }
 
 //+kubebuilder:object:root=true
@@ -109,7 +105,7 @@ type AntreaConfig struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
-	Spec   AntreaConfigSpec   `json:"spec,omitempty"`
+	Spec   AntreaConfigSpec   `json:"spec"`
 	Status AntreaConfigStatus `json:"status,omitempty"`
 }
 

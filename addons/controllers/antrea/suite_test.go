@@ -8,8 +8,6 @@ import (
 	"path/filepath"
 	"testing"
 
-	cniv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cni/v1alpha1"
-
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	corev1 "k8s.io/api/core/v1"
@@ -22,13 +20,15 @@ import (
 	controlplanev1beta1 "sigs.k8s.io/cluster-api/controlplane/kubeadm/api/v1beta1"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+	"sigs.k8s.io/controller-runtime/pkg/controller"
 	"sigs.k8s.io/controller-runtime/pkg/envtest"
 	"sigs.k8s.io/controller-runtime/pkg/envtest/printer"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
 
-	addonutil "github.com/vmware-tanzu/tanzu-framework/addons/pkg/util"
+	"github.com/vmware-tanzu/tanzu-framework/addons/testutil"
+	cniv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cni/v1alpha1"
 )
 
 // These tests use Ginkgo (BDD-style Go testing framework). Refer to
@@ -66,7 +66,7 @@ var _ = BeforeSuite(func(done Done) {
 		"sigs.k8s.io/cluster-api": {"config/crd/bases",
 			"controlplane/kubeadm/config/crd/bases"},
 	}
-	externalCRDPaths, err := addonutil.GetExternalCRDPaths(externalDeps)
+	externalCRDPaths, err := testutil.GetExternalCRDPaths(externalDeps)
 	Expect(err).NotTo(HaveOccurred())
 	Expect(externalCRDPaths).ToNot(BeEmpty())
 	testEnv.CRDDirectoryPaths = externalCRDPaths
@@ -116,7 +116,7 @@ var _ = BeforeSuite(func(done Done) {
 		Client: mgr.GetClient(),
 		Log:    setupLog,
 		Scheme: mgr.GetScheme(),
-	}).SetupWithManager(mgr)).To(Succeed())
+	}).SetupWithManager(ctx, mgr, controller.Options{MaxConcurrentReconciles: 1})).To(Succeed())
 
 	// pre-create namespace
 	ns := &corev1.Namespace{ObjectMeta: metav1.ObjectMeta{Name: "tkr-system"}}

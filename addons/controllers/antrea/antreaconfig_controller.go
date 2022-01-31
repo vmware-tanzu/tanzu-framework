@@ -1,4 +1,4 @@
-// Copyright YEAR VMware, Inc. All Rights Reserved.
+// Copyright 2022 VMware, Inc. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
 package controllers
@@ -7,27 +7,23 @@ import (
 	"context"
 	"fmt"
 
-	clusterapipatchutil "sigs.k8s.io/cluster-api/util/patch"
-
-	clusterapiutil "sigs.k8s.io/cluster-api/util"
-
+	"github.com/go-logr/logr"
 	yaml "gopkg.in/yaml.v3"
 	corev1 "k8s.io/api/core/v1"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/utils/pointer"
+	clusterapiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
+	clusterapiutil "sigs.k8s.io/cluster-api/util"
+	clusterapipatchutil "sigs.k8s.io/cluster-api/util/patch"
+	ctrl "sigs.k8s.io/controller-runtime"
+	"sigs.k8s.io/controller-runtime/pkg/client"
+	"sigs.k8s.io/controller-runtime/pkg/controller"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/util"
-
-	apierrors "k8s.io/apimachinery/pkg/api/errors"
-	clusterapiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
-
-	"github.com/go-logr/logr"
-	"k8s.io/apimachinery/pkg/runtime"
-	ctrl "sigs.k8s.io/controller-runtime"
-	"sigs.k8s.io/controller-runtime/pkg/client"
-
 	cniv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cni/v1alpha1"
 )
 
@@ -38,8 +34,8 @@ type AntreaConfigReconciler struct {
 	Scheme *runtime.Scheme
 }
 
-//+kubebuilder:rbac:groups=addons.tanzu.vmware.com,resources=antreaconfigs,verbs=get;list;watch;create;update;patch;delete
-//+kubebuilder:rbac:groups=addons.tanzu.vmware.com,resources=antreaconfigs/status,verbs=get;update;patch
+// +kubebuilder:rbac:groups=addons.tanzu.vmware.com,resources=antreaconfigs,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups=addons.tanzu.vmware.com,resources=antreaconfigs/status,verbs=get;update;patch
 
 // Reconcile is part of the main kubernetes reconciliation loop which aims to
 // move the current state of the cluster closer to the desired state.
@@ -51,12 +47,20 @@ type AntreaConfigReconciler struct {
 func (r *AntreaConfigReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	log := r.Log.WithValues("antreaconfig", req.NamespacedName)
 
-	// get antrea config object
+	r.Log.Info("Start reconciliation")
+
+	// fetch AntreaConfig resource, ignore not-found errors
 	antreaConfig := &cniv1alpha1.AntreaConfig{}
 	if err := r.Client.Get(ctx, req.NamespacedName, antreaConfig); err != nil {
-		log.Error(err, "unable to fetch AntreaConfig")
+		if apierrors.IsNotFound(err) {
+			r.Log.Info(fmt.Sprintf("AntreaConfig resource '%v' not found", req.NamespacedName))
+			return ctrl.Result{}, nil
+		}
 		return ctrl.Result{}, err
 	}
+
+	// deep copy AntreaConfig to avoid issues if in the future other controllers where interacting with the same copy
+	antreaConfig = antreaConfig.DeepCopy()
 
 	// get the parent cluster name from owner reference
 	// if the owner reference doesn't exist, use the same name as config CRD
@@ -72,15 +76,15 @@ func (r *AntreaConfigReconciler) Reconcile(ctx context.Context, req ctrl.Request
 	// verify that the cluster related to config is present
 	if err := r.Client.Get(ctx, clusterNamespacedName, cluster); err != nil {
 		if apierrors.IsNotFound(err) {
-			log.Info("Cluster not found")
+			log.Info(fmt.Sprintf("Cluster '%s'not found in '%s'", clusterNamespacedName.Name, clusterNamespacedName.Namespace))
 			return ctrl.Result{}, nil
 		}
 
-		log.Error(err, "unable to fetch cluster")
+		log.Error(err, fmt.Sprintf("unable to fetch cluster '%s' in '%s'", clusterNamespacedName.Name, clusterNamespacedName.Namespace))
 		return ctrl.Result{}, err
 	}
 
-	if retResult, err := r.ReconcileAntreaConfig(ctx, log, cluster, antreaConfig); err != nil {
+	if retResult, err := r.ReconcileAntreaConfig(ctx, antreaConfig, cluster, log); err != nil {
 		log.Error(err, "unable to reconcile AntreaConfig")
 		return retResult, err
 	}
@@ -89,7 +93,7 @@ func (r *AntreaConfigReconciler) Reconcile(ctx context.Context, req ctrl.Request
 }
 
 // SetupWithManager sets up the controller with the Manager.
-func (r *AntreaConfigReconciler) SetupWithManager(mgr ctrl.Manager) error {
+func (r *AntreaConfigReconciler) SetupWithManager(ctx context.Context, mgr ctrl.Manager, options controller.Options) error {
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&cniv1alpha1.AntreaConfig{}).
 		Complete(r)
@@ -98,10 +102,10 @@ func (r *AntreaConfigReconciler) SetupWithManager(mgr ctrl.Manager) error {
 // ReconcileAntreaConfigNormal reconciles AntreaConfig data values secrets
 func (r *AntreaConfigReconciler) ReconcileAntreaConfig(
 	ctx context.Context,
-	log logr.Logger,
+	antreaConfig *cniv1alpha1.AntreaConfig,
 	cluster *clusterapiv1beta1.Cluster,
-	antreaConfig *cniv1alpha1.AntreaConfig) (_ ctrl.Result, retErr error) {
-	var patchCRD bool
+	log logr.Logger) (_ ctrl.Result, retErr error) {
+	var patchConfig bool
 
 	patchHelper, err := clusterapipatchutil.NewHelper(antreaConfig, r.Client)
 	if err != nil {
@@ -109,11 +113,11 @@ func (r *AntreaConfigReconciler) ReconcileAntreaConfig(
 	}
 	// Patch AntreaConfig before returning the function
 	defer func() {
-		// patchCRD will be true if finalizer or owner reference is added or deleted
-		if patchCRD {
+		// patchConfig will be true if finalizer or owner reference is added or deleted
+		if patchConfig {
 			log.Info("Patching AntreaConfig")
 
-			if err := patchHelper.Patch(ctx, antreaConfig.DeepCopy()); err != nil {
+			if err := patchHelper.Patch(ctx, antreaConfig); err != nil {
 				log.Error(err, "Error patching AntreaConfig")
 				retErr = err
 			}
@@ -123,7 +127,7 @@ func (r *AntreaConfigReconciler) ReconcileAntreaConfig(
 	// If AntreaConfig is marked for deletion then delete the data value secret
 	if !antreaConfig.GetDeletionTimestamp().IsZero() {
 		log.Info("Deleting antreaConfig")
-		err := r.ReconcileAntreaConfigDelete(ctx, log, cluster, antreaConfig, &patchCRD)
+		err := r.ReconcileAntreaConfigDelete(ctx, antreaConfig, log, &patchConfig)
 		if err != nil {
 			log.Error(err, "Error reconciling AntreaConfig delete")
 			return ctrl.Result{}, err
@@ -131,24 +135,25 @@ func (r *AntreaConfigReconciler) ReconcileAntreaConfig(
 		return ctrl.Result{}, nil
 	}
 
-	if err := r.ReconcileAntreaConfigNormal(ctx, log, cluster, antreaConfig, &patchCRD); err != nil {
+	if err := r.ReconcileAntreaConfigNormal(ctx, antreaConfig, cluster, log, &patchConfig); err != nil {
 		log.Error(err, "Error reconciling AntreaConfig to create data value secret")
 		return ctrl.Result{}, err
 	}
 
+	log.Info("AntreaConfig successfully reconciled")
 	return ctrl.Result{}, nil
 }
 
 // ReconcileAntreaConfigNormal reconciles AntreaConfig data values secret
 func (r *AntreaConfigReconciler) ReconcileAntreaConfigNormal(
 	ctx context.Context,
-	log logr.Logger,
-	cluster *clusterapiv1beta1.Cluster,
 	antreaConfig *cniv1alpha1.AntreaConfig,
-	patchCRD *bool) (retErr error) {
+	cluster *clusterapiv1beta1.Cluster,
+	log logr.Logger,
+	patchConfig *bool) (retErr error) {
 
 	// Add finalizer to addon secret
-	*patchCRD = util.AddFinalizerToCRD(log, constants.AntreaAddonName, antreaConfig)
+	*patchConfig = util.AddFinalizerToCR(log, constants.AntreaAddonName, antreaConfig)
 
 	// add owner reference to antreaConfig
 	ownerReference := metav1.OwnerReference{
@@ -163,17 +168,17 @@ func (r *AntreaConfigReconciler) ReconcileAntreaConfigNormal(
 	if !clusterapiutil.HasOwnerRef(antreaConfig.OwnerReferences, ownerReference) {
 		log.Info("Adding owner reference to AntreaConfig")
 		antreaConfig.OwnerReferences = clusterapiutil.EnsureOwnerRef(antreaConfig.OwnerReferences, ownerReference)
-		*patchCRD = true
+		*patchConfig = true
 	}
 
-	if err := r.ReconcileAntreaConfigDataValue(ctx, log, cluster, antreaConfig); err != nil {
+	if err := r.ReconcileAntreaConfigDataValue(ctx, antreaConfig, cluster, log); err != nil {
 		log.Error(err, "Error creating antreaConfig data value secret")
 		return err
 	}
 
 	// update status.secretRef
-	antreaConfig.Status.SecretRef.Name = util.GenerateDataValueSecretNameFromAddonAndClusterNames(cluster.Name, constants.AntreaAddonName)
-	*patchCRD = true
+	antreaConfig.Status.SecretRef = util.GenerateDataValueSecretNameFromAddonAndClusterNames(cluster.Name, constants.AntreaAddonName)
+	*patchConfig = true
 
 	return nil
 }
@@ -181,9 +186,9 @@ func (r *AntreaConfigReconciler) ReconcileAntreaConfigNormal(
 // ReconcileAntreaConfigDataValue reconciles AntreaConfig data values secret
 func (r *AntreaConfigReconciler) ReconcileAntreaConfigDataValue(
 	ctx context.Context,
-	log logr.Logger,
+	antreaConfig *cniv1alpha1.AntreaConfig,
 	cluster *clusterapiv1beta1.Cluster,
-	antreaConfig *cniv1alpha1.AntreaConfig) (retErr error) {
+	log logr.Logger) (retErr error) {
 
 	antreaDataValuesSecret := &corev1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
@@ -227,10 +232,9 @@ func (r *AntreaConfigReconciler) ReconcileAntreaConfigDataValue(
 // ReconcileAntreaConfigDelete reconciles AntreaConfig deletion
 func (r *AntreaConfigReconciler) ReconcileAntreaConfigDelete(
 	ctx context.Context,
-	log logr.Logger,
-	cluster *clusterapiv1beta1.Cluster,
 	antreaConfig *cniv1alpha1.AntreaConfig,
-	patchCRD *bool) (retErr error) {
+	log logr.Logger,
+	patchConfig *bool) (retErr error) {
 
 	// delete data value secret
 	addonDataValuesSecret := &corev1.Secret{
@@ -249,7 +253,7 @@ func (r *AntreaConfigReconciler) ReconcileAntreaConfigDelete(
 	}
 
 	// Remove finalizer from addon secret
-	*patchCRD = util.RemoveFinalizerFromCRD(log, constants.AntreaAddonName, antreaConfig)
+	*patchConfig = util.RemoveFinalizerFromCR(log, constants.AntreaAddonName, antreaConfig)
 
 	return nil
 }

@@ -80,10 +80,14 @@ var _ = BeforeSuite(func(done Done) {
 		"github.com/vmware-tanzu/carvel-kapp-controller": {"config/crds.yml"},
 	}
 <<<<<<< HEAD
+<<<<<<< HEAD
 	externalCRDPaths, err := testutil.GetExternalCRDPaths(externalDeps)
 =======
 	externalCRDPaths, err := addonutil.GetExternalCRDPaths(externalDeps)
 >>>>>>> ff519055 (Create AntreaConfig API and controller)
+=======
+	externalCRDPaths, err := testutil.GetExternalCRDPaths(externalDeps)
+>>>>>>> 195b3340 (Fixing one set of review comments)
 	Expect(err).NotTo(HaveOccurred())
 	Expect(externalCRDPaths).ToNot(BeEmpty())
 	testEnv.CRDDirectoryPaths = externalCRDPaths
