@@ -6,7 +6,6 @@ package controllers
 import (
 	"os"
 	"strings"
-	"time"
 
 	clusterapiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -16,19 +15,16 @@ import (
 
 	v1 "k8s.io/api/core/v1"
 
+	kappcontroller "github.com/vmware-tanzu/tanzu-framework/addons/controllers/kapp-controller"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/util"
 	"github.com/vmware-tanzu/tanzu-framework/addons/testutil"
 	runv1alpha3 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
 )
 
-const (
-	waitTimeout     = time.Second * 15
-	pollingInterval = time.Second * 2
-)
-
 var _ = Describe("KappControllerConfig Reconciler", func() {
 	var (
-		configCRName            string
+		kappConfigCRName        string
+		clusterName             string
 		clusterResourceFilePath string
 	)
 
@@ -42,34 +38,32 @@ var _ = Describe("KappControllerConfig Reconciler", func() {
 	})
 
 	AfterEach(func() {
-		By("Deletingcluster and KappControllerConfig")
+		By("Deleting cluster and KappControllerConfig")
 		f, err := os.Open(clusterResourceFilePath)
 		Expect(err).ToNot(HaveOccurred())
 		defer f.Close()
-		testutil.DeleteResources(f, cfg, dynamicClient, true)
+		Expect(testutil.DeleteResources(f, cfg, dynamicClient, true)).To(Succeed())
 	})
 
 	Context("reconcile KappControllerConfig for management cluster", func() {
 
 		BeforeEach(func() {
-			configCRName = "test-cluster-1"
-			clusterResourceFilePath = "testdata/test-1.yaml"
+			kappConfigCRName = "test-kapp-controller-1"
+			clusterName = "test-kapp-controller-1"
+			clusterResourceFilePath = "testdata/test-kapp-controller-1.yaml"
 		})
 
 		It("Should reconcile KappControllerConfig and create data value secret on management cluster", func() {
 
 			key := client.ObjectKey{
 				Namespace: "default",
-				Name:      configCRName,
+				Name:      clusterName,
 			}
 
 			cluster := &clusterapiv1beta1.Cluster{}
 			Eventually(func() bool {
 				err := k8sClient.Get(ctx, key, cluster)
-				if err != nil {
-					return false
-				}
-				return true
+				return err == nil
 			}, waitTimeout, pollingInterval).Should(BeTrue())
 
 			Eventually(func() bool {
@@ -83,7 +77,7 @@ var _ = Describe("KappControllerConfig Reconciler", func() {
 					return false
 				}
 				Expect(len(config.OwnerReferences)).Should(Equal(1))
-				Expect(config.OwnerReferences[0].Name).Should(Equal("test-cluster-1"))
+				Expect(config.OwnerReferences[0].Name).Should(Equal(clusterName))
 
 				// check spec values
 				Expect(config.Spec.Namespace).Should(Equal("test-ns"))
@@ -102,7 +96,7 @@ var _ = Describe("KappControllerConfig Reconciler", func() {
 			Eventually(func() bool {
 				secretKey := client.ObjectKey{
 					Namespace: "default",
-					Name:      util.GenerateDataValueSecretNameFromAddonNames(configCRName, KappControllerAddonName),
+					Name:      util.GenerateDataValueSecretNameFromAddonNames(kappConfigCRName, kappcontroller.KappControllerAddonName),
 				}
 				secret := &v1.Secret{}
 				err := k8sClient.Get(ctx, secretKey, secret)
@@ -135,7 +129,7 @@ var _ = Describe("KappControllerConfig Reconciler", func() {
 				if err != nil {
 					return false
 				}
-				Expect(config.Status.SecretRef).Should(Equal(util.GenerateDataValueSecretNameFromAddonNames(configCRName, KappControllerAddonName)))
+				Expect(config.Status.SecretRef).Should(Equal(util.GenerateDataValueSecretNameFromAddonNames(kappConfigCRName, kappcontroller.KappControllerAddonName)))
 				return true
 			}, waitTimeout, pollingInterval).Should(BeTrue())
 

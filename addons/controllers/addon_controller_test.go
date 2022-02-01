@@ -6,7 +6,6 @@ package controllers
 import (
 	"os"
 	"strings"
-	"time"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -21,19 +20,6 @@ import (
 
 	kappctrl "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/kappctrl/v1alpha1"
 	pkgiv1alpha1 "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/packaging/v1alpha1"
-)
-
-const (
-	waitTimeout             = time.Second * 90
-	pollingInterval         = time.Second * 2
-	appSyncPeriod           = 5 * time.Minute
-	appWaitTimeout          = 30 * time.Second
-	addonNamespace          = "tkg-system"
-	addonServiceAccount     = "tkg-addons-app-sa"
-	addonClusterRole        = "tkg-addons-app-cluster-role"
-	addonClusterRoleBinding = "tkg-addons-app-cluster-role-binding"
-	addonImagePullPolicy    = "IfNotPresent"
-	corePackageRepoName     = "core"
 )
 
 var _ = Describe("Addon Reconciler", func() {
