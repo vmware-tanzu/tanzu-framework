@@ -150,9 +150,9 @@ NSXT_PASSWORD: ""
 #! NSX-T host
 NSXT_MANAGER_HOST: ""
 #! set this to true if NSX-T uses self-signed cert
-NSXT_ALLOW_UNVERIFIED_SSL: "false"
+NSXT_ALLOW_UNVERIFIED_SSL: false
 #! set this to true if NSX-T uses remote authentication (authentication done through the vIDM)
-NSXT_REMOTE_AUTH: "false"
+NSXT_REMOTE_AUTH: false
 NSXT_VMC_ACCESS_TOKEN: ""
 NSXT_VMC_AUTH_HOST: ""
 NSXT_CLIENT_CERT_KEY_DATA: ""
