@@ -37,7 +37,6 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/crdwait"
 	testutil "github.com/vmware-tanzu/tanzu-framework/addons/testutil"
 	cniv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cni/v1alpha1"
-	addonutil "github.com/vmware-tanzu/tanzu-framework/addons/pkg/util"
 	runtanzuv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha1"
 	runtanzuv1alpha3 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
 )
@@ -79,15 +78,7 @@ var _ = BeforeSuite(func(done Done) {
 			"controlplane/kubeadm/config/crd/bases"},
 		"github.com/vmware-tanzu/carvel-kapp-controller": {"config/crds.yml"},
 	}
-<<<<<<< HEAD
-<<<<<<< HEAD
 	externalCRDPaths, err := testutil.GetExternalCRDPaths(externalDeps)
-=======
-	externalCRDPaths, err := addonutil.GetExternalCRDPaths(externalDeps)
->>>>>>> ff519055 (Create AntreaConfig API and controller)
-=======
-	externalCRDPaths, err := testutil.GetExternalCRDPaths(externalDeps)
->>>>>>> 195b3340 (Fixing one set of review comments)
 	Expect(err).NotTo(HaveOccurred())
 	Expect(externalCRDPaths).ToNot(BeEmpty())
 	testEnv.CRDDirectoryPaths = externalCRDPaths

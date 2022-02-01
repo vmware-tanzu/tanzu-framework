@@ -13,7 +13,6 @@ import (
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
-	"k8s.io/utils/pointer"
 	clusterapiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
 	clusterapiutil "sigs.k8s.io/cluster-api/util"
 	clusterapipatchutil "sigs.k8s.io/cluster-api/util/patch"
@@ -96,6 +95,7 @@ func (r *AntreaConfigReconciler) Reconcile(ctx context.Context, req ctrl.Request
 func (r *AntreaConfigReconciler) SetupWithManager(ctx context.Context, mgr ctrl.Manager, options controller.Options) error {
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&cniv1alpha1.AntreaConfig{}).
+		WithOptions(options).
 		Complete(r)
 }
 
@@ -124,14 +124,8 @@ func (r *AntreaConfigReconciler) ReconcileAntreaConfig(
 		}
 	}()
 
-	// If AntreaConfig is marked for deletion then delete the data value secret
+	// If AntreaConfig is marked for deletion, then no reconciliation is needed
 	if !antreaConfig.GetDeletionTimestamp().IsZero() {
-		log.Info("Deleting antreaConfig")
-		err := r.ReconcileAntreaConfigDelete(ctx, antreaConfig, log, &patchConfig)
-		if err != nil {
-			log.Error(err, "Error reconciling AntreaConfig delete")
-			return ctrl.Result{}, err
-		}
 		return ctrl.Result{}, nil
 	}
 
@@ -140,7 +134,7 @@ func (r *AntreaConfigReconciler) ReconcileAntreaConfig(
 		return ctrl.Result{}, err
 	}
 
-	log.Info("AntreaConfig successfully reconciled")
+	log.Info("Successfully reconciled AntreaConfig")
 	return ctrl.Result{}, nil
 }
 
@@ -157,12 +151,10 @@ func (r *AntreaConfigReconciler) ReconcileAntreaConfigNormal(
 
 	// add owner reference to antreaConfig
 	ownerReference := metav1.OwnerReference{
-		APIVersion:         clusterapiv1beta1.GroupVersion.String(),
-		Kind:               cluster.Kind,
-		Name:               cluster.Name,
-		UID:                cluster.UID,
-		Controller:         pointer.BoolPtr(true),
-		BlockOwnerDeletion: pointer.BoolPtr(true),
+		APIVersion: clusterapiv1beta1.GroupVersion.String(),
+		Kind:       cluster.Kind,
+		Name:       cluster.Name,
+		UID:        cluster.UID,
 	}
 
 	if !clusterapiutil.HasOwnerRef(antreaConfig.OwnerReferences, ownerReference) {
@@ -177,8 +169,11 @@ func (r *AntreaConfigReconciler) ReconcileAntreaConfigNormal(
 	}
 
 	// update status.secretRef
-	antreaConfig.Status.SecretRef = util.GenerateDataValueSecretNameFromAddonAndClusterNames(cluster.Name, constants.AntreaAddonName)
-	*patchConfig = true
+	dataValueSecretName := util.GenerateDataValueSecretNameFromAddonAndClusterNames(cluster.Name, constants.AntreaAddonName)
+	if antreaConfig.Status.SecretRef != dataValueSecretName {
+		antreaConfig.Status.SecretRef = dataValueSecretName
+		*patchConfig = true
+	}
 
 	return nil
 }
@@ -225,35 +220,6 @@ func (r *AntreaConfigReconciler) ReconcileAntreaConfigDataValue(
 	}
 
 	log.Info(fmt.Sprintf("Resource %s data values secret %s", constants.AntreaAddonName, result))
-
-	return nil
-}
-
-// ReconcileAntreaConfigDelete reconciles AntreaConfig deletion
-func (r *AntreaConfigReconciler) ReconcileAntreaConfigDelete(
-	ctx context.Context,
-	antreaConfig *cniv1alpha1.AntreaConfig,
-	log logr.Logger,
-	patchConfig *bool) (retErr error) {
-
-	// delete data value secret
-	addonDataValuesSecret := &corev1.Secret{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:      util.GenerateDataValueSecretNameFromAddonAndClusterNames(antreaConfig.Name, constants.AntreaAddonName),
-			Namespace: antreaConfig.Namespace,
-		},
-	}
-	if err := r.Client.Delete(ctx, addonDataValuesSecret); err != nil {
-		if apierrors.IsNotFound(err) {
-			log.Info("AntreaConfig data values secret not found")
-			return nil
-		}
-		log.Error(err, "Error deleting AntreaConfig data values secret")
-		return err
-	}
-
-	// Remove finalizer from addon secret
-	*patchConfig = util.RemoveFinalizerFromCR(log, constants.AntreaAddonName, antreaConfig)
 
 	return nil
 }
