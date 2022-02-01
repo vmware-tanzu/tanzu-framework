@@ -153,7 +153,7 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
     ngOnInit() {
         super.ngOnInit();
         this.enableIpv6 = AppServices.appDataService.isPluginFeatureActivated(managementClusterPlugin, 'vsphereIPv6');
-        AppServices.fieldMapUtilities.buildForm(this.formGroup, this.wizardName, this.formName, VsphereProviderStepFieldMapping);
+        AppServices.userDataFormService.buildForm(this.formGroup, this.wizardName, this.formName, VsphereProviderStepFieldMapping);
         this.htmlFieldLabels = AppServices.fieldMapUtilities.getFieldLabelMap(VsphereProviderStepFieldMapping);
         this.storeDefaultLabels(VsphereProviderStepFieldMapping);
 

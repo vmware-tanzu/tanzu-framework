@@ -25,7 +25,7 @@
     <div *ngIf="showVnetFieldsOption === 'CUSTOM'">
         <div class="clr-row">
             <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
-                <clr-select-container [attr.data-step-metadata]="formName">
+                <clr-select-container>
                     <label i18n="azure region label">
                         RESOURCE GROUP
                         <clr-tooltip>
@@ -51,7 +51,7 @@
                 </clr-select-container>
             </div>
             <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
-                <clr-input-container [attr.data-step-metadata]="formName">
+                <clr-input-container>
                     <label i18n="azure vnet name label" clr-control-label>
                         VNET NAME
                         <clr-tooltip>
@@ -72,7 +72,7 @@
                 </clr-input-container>
             </div>
             <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
-                <clr-input-container [attr.data-step-metadata]="formName">
+                <clr-input-container>
                     <label i18n="azure region label">
                         VNET CIDR BLOCK
                         <clr-tooltip>
@@ -98,7 +98,7 @@
         </div>
         <div class="clr-row">
             <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
-                <clr-input-container [attr.data-step-metadata]="formName">
+                <clr-input-container>
                     <label i18n="azure control plane subnet label" clr-control-label>
                         CONTROL PLANE SUBNET NAME
                         <clr-tooltip>
@@ -119,7 +119,7 @@
                 </clr-input-container>
             </div>
             <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
-                <clr-input-container [attr.data-step-metadata]="formName">
+                <clr-input-container>
                     <label i18n="azure control plane cidr label" clr-control-label>
                         CONTROL PLANE SUBNET CIDR
                         <clr-tooltip>
@@ -146,7 +146,7 @@
         </div>
         <div class="clr-row" *featureToggle="'!management-cluster.standalone-cluster-mode'">
             <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
-                <clr-input-container [attr.data-step-metadata]="formName">
+                <clr-input-container>
                     <label i18n="azure worker node subnet label" clr-control-label>
                         WORKER NODE SUBNET NAME
                         <clr-tooltip>
@@ -167,7 +167,7 @@
                 </clr-input-container>
             </div>
             <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
-                <clr-input-container [attr.data-step-metadata]="formName">
+                <clr-input-container>
                     <label i18n="azure worker node cidr label" clr-control-label>
                         WORKER NODE SUBNET CIDR
                         <clr-tooltip>
@@ -196,7 +196,7 @@
 
     <div *ngIf="showVnetFieldsOption === 'EXISTING'" class="clr-row">
         <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
-            <clr-select-container [attr.data-step-metadata]="formName">
+            <clr-select-container>
                 <label i18n="azure resourceg group label">
                     RESOURCE GROUP
                     <clr-tooltip>
@@ -221,7 +221,7 @@
             </clr-select-container>
         </div>
         <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
-            <clr-select-container [attr.data-step-metadata]="formName">
+            <clr-select-container>
                 <label i18n="azure vnet name label">
                     VNET NAME
                     <clr-tooltip>
@@ -249,7 +249,7 @@
 
     <div *ngIf="showVnetFieldsOption === 'EXISTING'" class="clr-row">
         <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
-            <clr-select-container [attr.data-step-metadata]="formName">
+            <clr-select-container>
                 <label i18n="azure control plane subnet label">
                     CONTROL PLANE SUBNET
                     <clr-tooltip>
@@ -277,7 +277,7 @@
             </clr-select-container>
         </div>
         <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4" *featureToggle="'!management-cluster.standalone-cluster-mode'">
-            <clr-select-container [attr.data-step-metadata]="formName">
+            <clr-select-container>
                 <label i18n="azure worker node subnet label">
                     WORKER NODE SUBNET
                     <clr-tooltip>
@@ -305,7 +305,7 @@
 
     <div class="clr-row">
         <div class="clr-col-4">
-            <clr-checkbox-container [attr.data-step-metadata]="formName">
+            <clr-checkbox-container>
                 <clr-checkbox-wrapper>
                     <input type="checkbox" clrCheckbox name="privateAzureCluster"
                         formControlName="privateAzureCluster" />
@@ -326,7 +326,7 @@
     </div>
     <div class="clr-row">
         <div *ngIf="createPrivateCluster" class="clr-col-6">
-            <clr-input-container [attr.data-step-metadata]="formName">
+            <clr-input-container>
                 <label class="hidden" i18n="load balancer template label">
                     PRIVATE IP
                     <clr-tooltip>

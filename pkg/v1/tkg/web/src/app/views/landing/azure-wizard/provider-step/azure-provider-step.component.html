@@ -16,7 +16,7 @@
     <app-alert-notification [notification]="configFileNotification"></app-alert-notification>
     <div class="clr-row">
         <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
-            <clr-input-container [attr.data-step-metadata]="formName">
+            <clr-input-container>
                 <label i18n="azure tanent id label" clr-control-label>
                     TENANT ID
                     <clr-tooltip>
@@ -37,7 +37,7 @@
             </clr-input-container>
         </div>
         <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
-            <clr-input-container [attr.data-step-metadata]="formName">
+            <clr-input-container>
                 <label i18n="azure client id label" clr-control-label>
                     CLIENT ID
                     <clr-tooltip>
@@ -58,7 +58,7 @@
             </clr-input-container>
         </div>
         <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
-            <clr-password-container [attr.data-step-metadata]="formName">
+            <clr-password-container>
                 <label i18n="azure client secret label" clr-control-label>
                     CLIENT SECRET
                     <clr-tooltip>
@@ -81,7 +81,7 @@
     </div>
     <div class="clr-row">
         <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
-            <clr-input-container [attr.data-step-metadata]="formName">
+            <clr-input-container>
                 <label i18n="azure subscription id label" clr-control-label>
                     SUBSCRIPTION ID
                     <clr-tooltip>
@@ -102,7 +102,7 @@
             </clr-input-container>
         </div>
                 <div class="clr-col-4 region-container">
-                    <clr-select-container [attr.data-step-metadata]="formName">
+                    <clr-select-container>
                         <label i18n="azure environment label">
                             AZURE ENVIRONMENT
                             <clr-tooltip>
@@ -139,7 +139,7 @@
 
     <div class="clr-row">
         <div class="clr-col-6 region-container">
-            <clr-select-container [attr.data-step-metadata]="formName">
+            <clr-select-container>
                 <label i18n="azure region label">
                     REGION
                     <clr-tooltip>
@@ -168,7 +168,7 @@
     </div>
     <div class="clr-row">
         <div class="clr-col-12 clr-col-lg-8">
-            <clr-textarea-container [attr.data-step-metadata]="formName" >
+            <clr-textarea-container >
                 <label for="ssh_key" class="clr-control-label">
                     SSH PUBLIC KEY
                     <clr-tooltip>
@@ -220,7 +220,7 @@
 
     <div *ngIf="resourceGroupOption === 'existing'" class="clr-row">
         <div class="clr-col-12">
-            <clr-select-container [attr.data-step-metadata]="formName">
+            <clr-select-container>
                 <label i18n="azure resource group name label" clr-control-label>
                     EXISTING RESOURCE GROUP
                     <clr-tooltip>
@@ -249,7 +249,7 @@
 
     <div *ngIf="resourceGroupOption === 'custom'" class="clr-row">
         <div class="clr-col-12">
-            <clr-input-container [attr.data-step-metadata]="formName">
+            <clr-input-container>
                 <label i18n="azure resource group name label" clr-control-label>
                     RESOURCE GROUP NAME
                     <clr-tooltip>

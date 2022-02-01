@@ -52,7 +52,7 @@
     <app-alert-notification [notification]="configFileNotification"></app-alert-notification>
     <div class="clr-row">
         <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
-            <clr-input-container [attr.data-step-metadata]="formName">
+            <clr-input-container>
                 <label i18n="vcenter server addr label" clr-control-label aria-describedby="tooltip-vcenter-server">
                     {{htmlFieldLabels['vcenterAddress']}}
                     <clr-tooltip>
@@ -76,7 +76,7 @@
             </clr-input-container>
         </div>
         <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
-            <clr-input-container [attr.data-step-metadata]="formName">
+            <clr-input-container>
                 <label i18n="username label" clr-control-label>
                     {{htmlFieldLabels['username']}}
                 </label>
@@ -89,7 +89,7 @@
             </clr-input-container>
         </div>
         <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
-            <clr-password-container [attr.data-step-metadata]="formName">
+            <clr-password-container>
                 <label i18n="password label" clr-control-label>
                     {{htmlFieldLabels['password']}}
                 </label>
@@ -102,7 +102,7 @@
             </clr-password-container>
         </div>
         <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
-            <clr-checkbox-container [attr.data-step-metadata]="formName">
+            <clr-checkbox-container>
                 <label i18n="vsphere insecure connection label" clr-control-label>
                     SSL THUMBPRINT VERIFICATION
                     <clr-tooltip>
@@ -132,7 +132,7 @@
     </div>
     <div class="clr-row">
         <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
-            <clr-select-container [attr.data-step-metadata]="formName">
+            <clr-select-container>
                 <label i18n="datacenter label">
                     {{htmlFieldLabels['datacenter']}}
                     <clr-tooltip>
@@ -159,7 +159,7 @@
             </clr-select-container>
         </div>
         <div class="clr-col-12 clr-col-sm-6 clr-col-lg-8">
-            <div class="clr-form-control" [attr.data-step-metadata]="formName">
+            <div class="clr-form-control">
                 <label for="ssh_key" class="clr-control-label" [class.label-disabled]="!connected" >
                     {{htmlFieldLabels['ssh_key']}}
                     <clr-tooltip>

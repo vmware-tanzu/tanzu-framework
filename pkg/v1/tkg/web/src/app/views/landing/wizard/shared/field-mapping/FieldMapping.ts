@@ -7,7 +7,6 @@ export interface StepMapping {
 export interface BackingObjectMap {
     displayField: string,   // the field of the backing object used for the display
     valueField: string,     // the field of the backing object used for the value
-    type?: string,          // the type of the backing object; if provided generates a sanity check on the backing object type
 }
 
 export interface FieldMapping {
@@ -27,6 +26,8 @@ export interface FieldMapping {
     primaryTrigger?: boolean,       // do NOT set value on INIT, but immediately AFTER onChange events are subscribed to
     required?: boolean,             // should a Validator.REQUIRED validator be added to the validator list?
     requiresBackendData?: boolean,  // this field requires backend data, so do not initialize but let backend data handler initialize
+    hasNoDomControl?: boolean,      // this field does not populate a DOM control, so (a) it needs a retriever to get a value, and
+                                    // (b) it needs a restorer to restore the value
     validators?: SimpleValidator[], // validators used by Clarity framework
 }
 // NOTES on FieldMapping:

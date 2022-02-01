@@ -131,7 +131,7 @@ export class SharedIdentityStepComponent extends StepFormDirective implements On
 
     ngOnInit(): void {
         super.ngOnInit();
-        AppServices.fieldMapUtilities.buildForm(this.formGroup, this.wizardName, this.formName, IdentityStepMapping);
+        AppServices.userDataFormService.buildForm(this.formGroup, this.wizardName, this.formName, IdentityStepMapping);
         this.htmlFieldLabels = AppServices.fieldMapUtilities.getFieldLabelMap(IdentityStepMapping);
         this.storeDefaultLabels(IdentityStepMapping);
         this.registerDefaultFileImportedHandler(this.eventFileImported, IdentityStepMapping);

@@ -59,7 +59,7 @@
         </p>
         <div class="clr-row">
             <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
-                <clr-password-container [attr.data-step-metadata]="formName">
+                <clr-password-container>
                     <label i18n="aws access key id label" clr-control-label>
                         {{htmlFieldLabels['accessKeyID']}}
                         <clr-tooltip>
@@ -77,7 +77,7 @@
                 </clr-password-container>
             </div>
             <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
-                <clr-password-container [attr.data-step-metadata]="formName">
+                <clr-password-container>
                     <label i18n="aws secret access key label" clr-control-label>
                         {{htmlFieldLabels['secretAccessKey']}}
                         <clr-tooltip>
@@ -95,7 +95,7 @@
                 </clr-password-container>
             </div>
             <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
-                <clr-input-container [attr.data-step-metadata]="formName">
+                <clr-input-container>
                     <label i18n="aws session token label" clr-control-label>
                         {{htmlFieldLabels['sessionToken']}}
                         <clr-tooltip>
@@ -126,7 +126,7 @@
         </p>
         <div class="clr-row">
             <div class="clr-col-4">
-                <clr-select-container [attr.data-step-metadata]="formName">
+                <clr-select-container>
                     <label i18n="aws credential profile label">
                         {{htmlFieldLabels['profileName']}}
                         <clr-tooltip>
@@ -151,7 +151,7 @@
 
         <div class="clr-row">
             <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
-                <clr-select-container [attr.data-step-metadata]="formName">
+                <clr-select-container>
                     <label i18n="aws region label">
                         {{htmlFieldLabels['region']}}
                         <clr-tooltip>

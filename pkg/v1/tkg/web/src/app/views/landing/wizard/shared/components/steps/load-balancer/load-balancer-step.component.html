@@ -21,7 +21,7 @@
 
     <div class="clr-row">
         <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
-            <clr-input-container [attr.data-step-metadata]="formName">
+            <clr-input-container>
                 <label i18n="controller host label" clr-control-label>
                     {{htmlFieldLabels['controllerHost']}}
                     <clr-tooltip>
@@ -46,7 +46,7 @@
         </div>
 
         <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
-            <clr-input-container [attr.data-step-metadata]="formName">
+            <clr-input-container>
                 <label i18n="username label" clr-control-label>
                     {{htmlFieldLabels['username']}}
                 </label>
@@ -60,7 +60,7 @@
         </div>
 
         <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
-            <clr-password-container [attr.data-step-metadata]="formName">
+            <clr-password-container>
                 <label i18n="password label" clr-control-label>
                     {{htmlFieldLabels['password']}}
                 </label>
@@ -76,7 +76,7 @@
 
     <div class="clr-row">
         <div class="clr-col-6">
-            <clr-textarea-container> [attr.data-step-metadata]="formName">
+            <clr-textarea-container>>
                 <label for="controllerCert" class="clr-control-label">
                     {{htmlFieldLabels['controllerCert']}}
                     <clr-tooltip>
@@ -107,7 +107,7 @@
 
     <div class="clr-row">
         <div class="clr-col-12 clr-col-sm-6 clr-col-lg-6">
-            <clr-datalist-container [attr.data-step-metadata]="formName">
+            <clr-datalist-container>
                 <label i18n="cloud name label" class="clr-col-lg-12 clr-col-12" [class.label-disabled]="!connected">
                     {{htmlFieldLabels['cloudName']}}
                     <clr-tooltip>
@@ -129,7 +129,7 @@
             </clr-datalist-container>
         </div>
         <div class="clr-col-12 clr-col-sm-6 clr-col-lg-6">
-            <clr-datalist-container [attr.data-step-metadata]="formName">
+            <clr-datalist-container>
                 <label i18n="service engine group name label" class="clr-col-lg-12 clr-col-12" [class.label-disabled]="!connected">
                     {{htmlFieldLabels['serviceEngineGroupName']}}
                     <clr-tooltip>
@@ -154,7 +154,7 @@
 
     <div class="clr-row" *featureToggle="'!management-cluster.standalone-cluster-mode'">
         <div class="clr-col-12 clr-col-sm-6 clr-col-lg-6">
-            <clr-datalist-container> [attr.data-step-metadata]="formName">
+            <clr-datalist-container>>
                 <label i18n="network name label" class="clr-col-lg-12 clr-col-12" [class.label-disabled]="!connected">
                     {{htmlFieldLabels['networkName']}}
                     <clr-tooltip>
@@ -175,7 +175,7 @@
         </div>
 
         <div class="clr-col-12 clr-col-sm-6 clr-col-lg-6">
-            <clr-datalist-container [attr.data-step-metadata]="formName">
+            <clr-datalist-container>
                 <label i18n="network CIDR label" class="clr-col-lg-12 clr-col-12" [class.label-disabled]="!connected">
                     {{htmlFieldLabels['networkCIDR']}}
                     <clr-tooltip>
@@ -198,7 +198,7 @@
 
     <div class="clr-row">
         <div class="clr-col-6">
-            <clr-datalist-container [attr.data-step-metadata]="formName" [class.label-disabled]="!connected">
+            <clr-datalist-container [class.label-disabled]="!connected">
                 <label i18n="Cluster Network Name label" class="clr-col-lg-12 clr-col-12">
                     {{htmlFieldLabels['managementClusterNetworkName']}}
                     <clr-tooltip>
@@ -223,7 +223,7 @@
         </div>
 
         <div class="clr-col-6">
-            <clr-datalist-container [attr.data-step-metadata]="formName">
+            <clr-datalist-container>
                 <label i18n="Cluster Network CIDR label" class="clr-col-lg-12 clr-col-12"
                     [class.label-disabled]="!connected">
                     {{htmlFieldLabels['managementClusterNetworkCIDR']}}
@@ -253,8 +253,7 @@
 
     <div class="clr-row">
         <div class="clr-col-12">
-            <clr-input-container [attr.data-step-metadata]="formName" data-name="clusterLabels" data-label="labels"
-                [attr.data-value]="clusterLabelsValue">
+            <clr-input-container>
                 <label i18n="labels label" clr-control-label [class.label-disabled]="!connected">
                     {{htmlFieldLabels['clusterLabels']}}
                     <clr-tooltip>

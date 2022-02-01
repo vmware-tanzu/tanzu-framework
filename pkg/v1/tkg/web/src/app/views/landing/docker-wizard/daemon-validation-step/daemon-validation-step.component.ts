@@ -35,7 +35,7 @@ export class DaemonValidationStepComponent extends StepFormDirective implements 
 
     ngOnInit(): void {
         super.ngOnInit();
-        AppServices.fieldMapUtilities.buildForm(this.formGroup, this.wizardName, this.formName, DaemonStepMapping);
+        AppServices.userDataFormService.buildForm(this.formGroup, this.wizardName, this.formName, DaemonStepMapping);
         this.htmlFieldLabels = AppServices.fieldMapUtilities.getFieldLabelMap(DaemonStepMapping);
         this.storeDefaultLabels(DaemonStepMapping);
 

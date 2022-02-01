@@ -27,22 +27,42 @@ export class MetadataStepComponent extends StepFormDirective implements OnInit {
     constructor(private validationService: ValidationService) {
         super();
     }
+
     ngOnInit() {
         super.ngOnInit();
-        AppServices.fieldMapUtilities.buildForm(this.formGroup, this.wizardName, this.formName, MetadataStepMapping);
+        AppServices.userDataFormService.buildForm(this.formGroup, this.wizardName, this.formName, MetadataStepMapping, null,
+            this.getCustomRestorerMap());
         this.htmlFieldLabels = AppServices.fieldMapUtilities.getFieldLabelMap(MetadataStepMapping);
         this.storeDefaultLabels(MetadataStepMapping);
         this.registerStepDescriptionTriggers({
             fields: [MetadataField.CLUSTER_LOCATION],
             clusterTypeDescriptor: true,
         })
-        this.registerDefaultFileImportedHandler(this.eventFileImported, MetadataStepMapping);
+        this.registerDefaultFileImportedHandler(this.eventFileImported, MetadataStepMapping, null,
+            this.getCustomRestorerMap());
         this.registerDefaultFileImportErrorHandler(this.eventFileImportError);
         this.setClusterLabelsFromSavedValue();
 
         if (this.labels.size === 0) {
             this.addLabel();
         }
+    }
+
+    // returns a map that associates the field 'clusterLabels' with a closure that restores our map of cluster labels
+    private getCustomRestorerMap(): Map<string, (data: any) => void> {
+        return new Map<string, (data: any) => void>([['clusterLabels', this.setLabels.bind(this)]]);
+    }
+
+    private setLabels(data: Map<string, string>)  {
+        return this.labels = data;
+    }
+
+    private getCustomRetrievalMap(): Map<string, (key: any) => any> {
+        return new Map<string, (data: any) => void>([['clusterLabels', this.getClusterLabels.bind(this)]]);
+    }
+
+    private getClusterLabels(): Map<string, string> {
+        return this.labels;
     }
 
     setClusterLabelsFromSavedValue() {
@@ -157,11 +177,7 @@ export class MetadataStepComponent extends StepFormDirective implements OnInit {
     }
 
     protected storeUserData() {
-        this.storeUserDataFromMapping(MetadataStepMapping);
-        // clusterLabels field does not actually hold the value of the labels map that we keep in this step, so we save it separately
-        const identifier = this.createUserDataIdentifier('clusterLabels');
-        AppServices.userDataService.store(identifier, { display: this.clusterLabelsValue, value: this.clusterLabelsValue})
-
+        this.storeUserDataFromMapping(MetadataStepMapping, this.getCustomRetrievalMap());
         this.storeDefaultDisplayOrder(MetadataStepMapping);
     }
 }

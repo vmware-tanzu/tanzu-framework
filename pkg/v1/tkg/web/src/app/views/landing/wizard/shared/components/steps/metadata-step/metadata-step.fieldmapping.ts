@@ -9,7 +9,7 @@ export enum MetadataField {
 
 export const MetadataStepMapping: StepMapping = {
     fieldMappings: [
-        { name: MetadataField.CLUSTER_LABELS, doNotAutoSave: true, label: 'LABELS (OPTIONAL)', isMap: true },
+        { name: MetadataField.CLUSTER_LABELS, hasNoDomControl: true, isMap: true, label: 'LABELS (OPTIONAL)', isMap: true },
         { name: MetadataField.CLUSTER_DESCRIPTION, validators: [SimpleValidator.IS_VALID_LABEL_OR_ANNOTATION], label: 'DESCRIPTION (OPTIONAL)' },
         { name: MetadataField.CLUSTER_LOCATION, validators: [SimpleValidator.IS_VALID_LABEL_OR_ANNOTATION], label: 'LOCATION (OPTIONAL)' },
     ]

@@ -1,5 +1,3 @@
-// Angular imports
-import { AbstractControl, FormGroup } from '@angular/forms';
 // App imports
 import AppServices from './appServices';
 import { BackingObjectMap, FieldMapping, StepMapping } from '../../views/landing/wizard/shared/field-mapping/FieldMapping';
@@ -7,13 +5,13 @@ import { managementClusterPlugin } from '../../views/landing/wizard/shared/const
 import { PersistentStore } from '../../views/landing/wizard/shared/PersistentStore';
 
 export interface UserDataEntry {
-    display: string,   // what the user should see if this is displayed on a page
-    value: string,     // actual value
+    display: string,    // what the user should see if this is displayed on a page
+    value: any,         // actual value
 }
 export interface UserDataIdentifier {
-    wizard: string,         // name of the wizard that the data is from
-    step: string,           // name of the step that the data is from
-    field: string,          // name of field that the data is from
+    wizard: string,     // name of the wizard that the data is from
+    step: string,       // name of the step that the data is from
+    field: string,      // name of field that the data is from
 }
 // UserDataWizard should only be used by the confirmation page; all steps should use convenience methods
 export interface UserDataWizard {
@@ -35,42 +33,37 @@ const DATA_CONSIDERED_OLD_AFTER_MINUTES = 30;
 
 export class UserDataService {
     static readonly MASK = '********';
+
     store(identifier: UserDataIdentifier, data: UserDataEntry) {
         const wizardEntry = this.ensureUserDataIdentifier(identifier);
         this.setUserDataEntry(wizardEntry, identifier, data);
         this.storeWizardEntry(wizardEntry);
     }
 
+    // storeBackingObject expects to encounter an OBJECT backing the listbox and will use fieldDisplay of that object for the display
+    // and fieldValue for the value. If instead the caller has a simple listbox with strings backing it, call saveInputField instead
+    storeBackingObject(identifier: UserDataIdentifier, backingObject: any, backingObjectMap: BackingObjectMap): boolean {
+        let display = '';
+        let value = '';
+        // Note: selectedObj === null is a legitimate case: the user hasn't selected an object yet
+        if (backingObject) {
+            display = backingObject[backingObjectMap.displayField];
+            value = backingObject[backingObjectMap.valueField];
+        }
+        this.store(identifier, { display, value });
+        return true;
+    }
+
+    storeBoolean(identifier: UserDataIdentifier, value: boolean): boolean {
+        this.store(identifier, { display: value ? 'yes' : 'no', value });
+        return true;
+    }
+
     storeMap(identifier: UserDataIdentifier, map: Map<string, string>) {
-        const display = this.mapToString(map);
-        this.store(identifier, { display, value: JSON.stringify(map) });
-    }
-
-    storeFromMapping(wizard, step: string, stepMapping: StepMapping, formGroup: FormGroup) {
-        stepMapping.fieldMappings.forEach( fieldMapping => {
-            if (this.shouldAutoSave(fieldMapping)) {
-                this.storeFromFieldMapping(wizard, step, fieldMapping, formGroup);
-            }
-        });
-        this.updateWizardTimestamp(wizard);
-    }
-
-    storeWizardDisplayOrder(wizard: string, displayOrder: string[]) {
-        const wizardEntry = this.ensureWizardEntry(wizard);
-        wizardEntry.displayOrder = displayOrder;
-        this.storeWizardEntry(wizardEntry);
-    }
-
-    storeWizardTitles(wizard: string, titles: Map<string, string>) {
-        const wizardEntry = this.ensureWizardEntry(wizard);
-        wizardEntry.titles = titles;
-        this.storeWizardEntry(wizardEntry);
-    }
-
-    storeWizardDescriptions(wizard: string, descriptions: Map<string, string>) {
-        const wizardEntry = this.ensureWizardEntry(wizard);
-        wizardEntry.descriptions = descriptions;
-        this.storeWizardEntry(wizardEntry);
+        const display = this.mapToDisplayString(map);
+        // TODO: find a way to store the map directly: const value = map;
+        const value = display;
+        this.store(identifier, { display, value });
     }
 
     storeStepDisplayOrder(wizard, step: string, displayOrder: string[]) {
@@ -87,23 +80,62 @@ export class UserDataService {
         this.storeWizardEntry(wizardEntry);
     }
 
-    restoreField(identifier: UserDataIdentifier, formGroup: FormGroup, options?: { onlySelf?: boolean, emitEvent?: boolean },
-                 retriever?: (string) => any) {
-        const storedEntry = AppServices.userDataService.retrieve(identifier);
-        const control = formGroup.get(identifier.field);
-        if (control && storedEntry) {
-            const value = (retriever && storedEntry.value) ? retriever(storedEntry.value) : storedEntry.value;
-            control.setValue(value, options);
-            if (storedEntry.value && retriever && !value) {
-                console.warn('Trying to restore field ' + identifier.field + ' with stored value ' + storedEntry.value +
-                    ', but retriever does not return a value');
-            }
-        }
-        if (!control) {
-            console.warn('Trying to restore field ' + identifier.field + ', but cannot locate field in formGroup');
-        }
+    storeWizardDescriptions(wizard: string, descriptions: Map<string, string>) {
+        const wizardEntry = this.ensureWizardEntry(wizard);
+        wizardEntry.descriptions = descriptions;
+        this.storeWizardEntry(wizardEntry);
     }
 
+    storeWizardDisplayOrder(wizard: string, displayOrder: string[]) {
+        const wizardEntry = this.ensureWizardEntry(wizard);
+        wizardEntry.displayOrder = displayOrder;
+        this.storeWizardEntry(wizardEntry);
+    }
+
+    storeWizardTitles(wizard: string, titles: Map<string, string>) {
+        const wizardEntry = this.ensureWizardEntry(wizard);
+        wizardEntry.titles = titles;
+        this.storeWizardEntry(wizardEntry);
+    }
+
+    retrieve(identifier: UserDataIdentifier): UserDataEntry {
+        const wizardEntry: UserDataWizard = this.getWizardEntry(identifier.wizard);
+        if (!wizardEntry || !wizardEntry.steps || !wizardEntry.steps[identifier.step] || !wizardEntry.steps[identifier.step].fields) {
+            return null;
+        }
+        return wizardEntry.steps[identifier.step].fields[identifier.field];
+    }
+
+    retrieveMap(identifier: UserDataIdentifier): Map<string, string> {
+        const storedEntry = this.retrieve(identifier);
+        if (!storedEntry || !storedEntry.value) {
+            return new Map<string, string>();
+        }
+        return this.stringToMap(storedEntry.value);
+    }
+
+    retrieveStoredValue(wizard, step: string, fieldMapping: FieldMapping, retriever: (string) => any): any {
+        const identifier = {wizard, step, field: fieldMapping.name};
+        if (fieldMapping.isMap) {
+            return this.retrieveMap(identifier);
+        }
+        const storedEntry = this.retrieve(identifier);
+        if (!storedEntry) {
+            return undefined;
+        }
+
+        if (fieldMapping.backingObject) {
+            if (!retriever) {
+                console.error('Trying to restore field ' + fieldMapping.name + ' but no object retriever provided');
+                return undefined;
+            }
+            return retriever(storedEntry.value);
+        }
+
+        return storedEntry.value;
+    }
+
+    // retrieveWizardEntry() is generally an INTERNAL method, but available to the confirmation page
     retrieveWizardEntry(wizard: string) {
         return this.ensureWizardEntry(wizard);
     }
@@ -130,24 +162,6 @@ export class UserDataService {
         }
     }
 
-    retrieve(identifier: UserDataIdentifier): UserDataEntry {
-        const wizardEntry: UserDataWizard = this.getWizardEntry(identifier.wizard);
-        if (!wizardEntry || !wizardEntry.steps || !wizardEntry.steps[identifier.step] || !wizardEntry.steps[identifier.step].fields) {
-            return null;
-        }
-        return wizardEntry.steps[identifier.step].fields[identifier.field];
-    }
-
-    // convenience methods
-    storeInputField(identifier: UserDataIdentifier, formGroup: FormGroup): boolean {
-        const control = this.getFormControl(identifier, formGroup);
-        if (!control) {
-            return false;
-        }
-        this.store(identifier, { display: control.value, value: control.value });
-        return true;
-    }
-
     hasStoredData(identifier: UserDataIdentifier): boolean {
         const userDataEntry = this.retrieve(identifier);
         // NOTE: we want a value of 'false' to return TRUE (that there IS a value)
@@ -163,39 +177,13 @@ export class UserDataService {
         return stepEntry !== undefined && stepEntry !== null;
     }
 
-    // storeBackingObjectField expects to encounter an OBJECT backing the listbox and will use fieldDisplay of that object for the display
-    // and fieldValue for the value. If instead the caller has a simple listbox with strings backing it, call saveInputField instead
-    private storeBackingObjectField(identifier: UserDataIdentifier, formGroup: FormGroup, backingObjectMap: BackingObjectMap): boolean {
-        const selectedObj = this.getFormObject(identifier, formGroup);
-        let display = '';
-        let value = '';
-        // Note: selectedObj === null is a legitimate case: the user hasn't selected an object yet
-        if (selectedObj) {
-            display = selectedObj[backingObjectMap.displayField];
-            value = selectedObj[backingObjectMap.valueField];
-            if (!value) {
-                // we are only concerned with validating the backing object type if there is an object but we can't get a value from it
-                this.validateBackingObjectType(identifier, backingObjectMap.type, selectedObj);
-            }
-        }
-        this.store(identifier, { display, value });
-        return true;
-    }
-
-    private validateBackingObjectType(identifier: UserDataIdentifier, expectedType: string, value: any) {
-        if (expectedType && value && expectedType !== typeof value) {
-            console.warn('storing backing object for ' + JSON.stringify(identifier) + ' encountered object of type "' +
-            typeof value + '" but was expecting object of type "' + expectedType + '". Full object: ' + JSON.stringify(value));
-        }
-    }
-
-    storeBooleanField(identifier: UserDataIdentifier, formGroup: FormGroup): boolean {
-        const control = this.getFormControl(identifier, formGroup);
-        if (!control) {
-            return false;
-        }
-        this.store(identifier, { display: control.value ? 'yes' : 'no', value: control.value });
-        return true;
+    // The ONLY times this method should be called outside this class:
+    // (1) the user explicitly says to "restore" their old data, meaning we should consider it current again, and
+    // (2) the user imports a data file
+    updateWizardTimestamp(wizard: string) {
+        const wizardEntry = this.ensureWizardEntry(wizard);
+        wizardEntry.lastUpdate = Date.now();
+        this.storeWizardEntry(wizardEntry);
     }
 
     isWizardDataOld(wizard: string): boolean {
@@ -212,64 +200,17 @@ export class UserDataService {
         return minAgoSaved > DATA_CONSIDERED_OLD_AFTER_MINUTES;
     }
 
-    // The ONLY times this method should be called outside this class:
-    // (1) the user explicitly says to "restore" their old data, meaning we should consider it current again, and
-    // (2) the user imports a data file
-    updateWizardTimestamp(wizard: string) {
-        const wizardEntry = this.ensureWizardEntry(wizard);
-        wizardEntry.lastUpdate = Date.now();
-        this.storeWizardEntry(wizardEntry);
-    }
-
     // This internal convenience method is meant to isolate the access to the internal structure
     private setUserDataEntry(wizardEntry: UserDataWizard, identifier: UserDataIdentifier, data: UserDataEntry) {
         wizardEntry.steps[identifier.step].fields[identifier.field] = data;
-    }
-
-    private storeFromFieldMapping(wizard, step: string, fieldMapping: FieldMapping, formGroup: FormGroup) {
-        const identifier: UserDataIdentifier = { wizard, step, field: fieldMapping.name };
-        if (fieldMapping.isBoolean) {
-            this.storeBooleanField(identifier, formGroup);
-        } else if (fieldMapping.mask) {
-            this.storeMaskField(identifier, formGroup);
-        } else if (fieldMapping.isMap) {
-            this.storeMapField(identifier, formGroup);
-        } else if (fieldMapping.backingObject) {
-            this.storeBackingObjectField(identifier, formGroup, fieldMapping.backingObject)
-        } else {
-            this.storeInputField(identifier, formGroup);
-        }
-    }
-
-    private shouldAutoSave(fieldMapping: FieldMapping) {
-        return !fieldMapping.doNotAutoSave && !fieldMapping.displayOnly &&
-            (!fieldMapping.featureFlag || this.isFeatureEnabled(fieldMapping.featureFlag))
     }
 
     private isFeatureEnabled(featureFlag: string): boolean {
         return AppServices.appDataService.isPluginFeatureActivated(managementClusterPlugin, featureFlag);
     }
 
-    private storeMaskField(identifier: UserDataIdentifier, formGroup: FormGroup): boolean {
-        const control = this.getFormControl(identifier, formGroup);
-        if (!control) {
-            return false;
-        }
-        this.store(identifier, { display: control.value ? UserDataService.MASK : '', value: '' });
-        return true;
-    }
-
-    private storeMapField(identifier: UserDataIdentifier, formGroup: FormGroup): boolean {
-        const control = this.getFormControl(identifier, formGroup);
-        if (!control) {
-            return false;
-        }
-        const display = this.mapToString(control.value);
-        this.store(identifier, { display, value: control.value });
-        return true;
-    }
-
-    private mapToString(map: Map<string, string>): string {
+    // string format is "key:value, key2:value2, key3:value3"; for display purposes only
+    private mapToDisplayString(map: Map<string, string>): string {
         let labelsStr: string = '';
         map.forEach((value: string, key: string) => {
             labelsStr += key + ':' + value + ', '
@@ -277,17 +218,16 @@ export class UserDataService {
         return labelsStr.slice(0, -2);  // chop off the last ', '
     }
 
-    private getFormObject(identifier: UserDataIdentifier, formGroup: FormGroup) {
-        return formGroup.value[identifier.field];
-    }
-
-    private getFormControl(identifier: UserDataIdentifier, formGroup: FormGroup): AbstractControl {
-        const control = formGroup.controls[identifier.field];
-        if (!control) {
-            console.error('UserDataService.saveSimpleFormField was passed a form group that did not have field ' + identifier.field +
-                '. identifier=' + JSON.stringify(identifier));
+    private stringToMap(source: string): Map<string, string> {
+        const result = new Map<string, string>();
+        if (source) {
+            const keyValuePairs = source.split(', ')
+            keyValuePairs.map(label => {
+                const keyAndValue = label.split(':');
+                result.set(keyAndValue[0], keyAndValue[1]);
+            });
         }
-        return control;
+        return result;
     }
 
     private getWizardEntry(wizard: string): UserDataWizard {
@@ -302,6 +242,7 @@ export class UserDataService {
         }
         return wizardEntry;
     }
+
     private ensureStepEntry(wizardEntry, step: string): UserDataWizard {
         // if the step entry isn't there, create it
         if (!wizardEntry.steps[step]) {

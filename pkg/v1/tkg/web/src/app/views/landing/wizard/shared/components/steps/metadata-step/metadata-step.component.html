@@ -21,7 +21,7 @@
 
     <div class="clr-row">
         <div class="clr-col-12">
-            <clr-input-container [attr.data-step-metadata]="formName">
+            <clr-input-container>
                 <label i18n="cluster location label" clr-control-label>
                     {{htmlFieldLabels['clusterLocation']}}
                     <clr-tooltip>
@@ -51,7 +51,7 @@
     </div>
     <div class="clr-row">
         <div class="clr-col-12 clr-col-md-12">
-            <div class="clr-form-control" [attr.data-step-metadata]="formName">
+            <div class="clr-form-control">
                 <label i18n="cluster description label" class="clr-control-label">
                     {{htmlFieldLabels['clusterDescription']}}
                     <clr-tooltip>
@@ -79,7 +79,7 @@
     </div>
     <div class="clr-row">
         <div class="clr-col-12">
-            <clr-input-container [attr.data-step-metadata]="formName" data-name="clusterLabels" data-label="labels" [attr.data-value]="clusterLabelsValue">
+            <clr-input-container>
                 <label i18n="labels label" clr-control-label>
                     {{htmlFieldLabels['clusterLabels']}}
                     <clr-tooltip>

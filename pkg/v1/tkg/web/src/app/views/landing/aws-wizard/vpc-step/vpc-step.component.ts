@@ -67,7 +67,7 @@ export class VpcStepComponent extends StepFormDirective implements OnInit {
     }
     ngOnInit() {
         super.ngOnInit();
-        AppServices.fieldMapUtilities.buildForm(this.formGroup, this.wizardName, this.formName, AwsVpcStepMapping);
+        AppServices.userDataFormService.buildForm(this.formGroup, this.wizardName, this.formName, AwsVpcStepMapping);
         this.htmlFieldLabels = AppServices.fieldMapUtilities.getFieldLabelMap(AwsVpcStepMapping);
         this.storeDefaultLabels(AwsVpcStepMapping);
         this.registerDefaultFileImportedHandler(this.eventFileImported, AwsVpcStepMapping);

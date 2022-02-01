@@ -33,12 +33,7 @@
                     </p>
                 </div>
                 <div class="card-footer">
-                    <div
-                            class="clr-row"
-                            [attr.data-step-metadata]="formName"
-                            [attr.data-value]="devInstanceTypeValue"
-                            data-name="devInstanceType"
-                            data-label="dev instance type">
+                    <div class="clr-row">
                         <div class="clr-col-lg-5 clr-col-12">
                             <label i18n="instance type label">
                                 INSTANCE TYPE
@@ -86,12 +81,7 @@
                     </p>
                 </div>
                 <div class="card-footer">
-                    <div
-                            class="clr-row"
-                            [attr.data-step-metadata]="formName"
-                            [attr.data-value]="prodInstanceTypeValue"
-                            data-name="prodInstanceType"
-                            data-label="prod instance type">
+                    <div class="clr-row">
                         <div class="clr-col-lg-5 clr-col-12">
                             <label i18n="instance type label">
                                 INSTANCE TYPE
@@ -129,7 +119,7 @@
 
     <div class="clr-row">
         <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
-            <clr-input-container [attr.data-step-metadata]="formName">
+            <clr-input-container>
                 <label i18n="cluster name label" clr-control-label>
                     {{htmlFieldLabels['clusterName']}}
                     <clr-tooltip>
@@ -158,7 +148,7 @@
         </div>
 
         <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
-            <clr-input-container [attr.data-step-metadata]="formName">
+            <clr-input-container>
                 <label i18n="EC2 key pair label" clr-control-label>
                     {{htmlFieldLabels['sshKeyName']}}
                     <clr-tooltip>
@@ -184,7 +174,7 @@
 
     <div class="clr-row">
         <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
-            <clr-checkbox-container [attr.data-step-metadata]="formName">
+            <clr-checkbox-container>
                 <label i18n="cluster enable machine health check" clr-control-label>
                     {{htmlFieldLabels['machineHealthChecksEnabled']}}
                     <clr-tooltip>
@@ -204,7 +194,7 @@
         </div>
 
         <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
-            <clr-checkbox-container [attr.data-step-metadata]="formName">
+            <clr-checkbox-container>
                 <label i18n="cluster BASTION HOST ENABLED" clr-control-label>
                     {{htmlFieldLabels['bastionHostEnabled']}}
                     <clr-tooltip>
@@ -231,7 +221,7 @@
 
     <div class="clr-row">
         <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
-            <clr-checkbox-container [attr.data-step-metadata]="formName">
+            <clr-checkbox-container>
                 <label i18n="cluster AWS CLOUDFORMATION STACK" clr-control-label>
                     {{htmlFieldLabels['createCloudFormation']}}
                     <clr-tooltip>
@@ -260,7 +250,7 @@
     <!-- AZ 1 -->
     <div class="clr-row">
         <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
-            <clr-select-container [attr.data-step-metadata]="formName">
+            <clr-select-container>
                 <label i18n="existing vpc label">
                     {{htmlFieldLabels['awsNodeAz1']}}
                     <clr-tooltip>
@@ -299,7 +289,7 @@
         </div>
         <ng-container *ngIf="isVpcTypeExisting">
             <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
-                <clr-select-container [attr.data-step-metadata]="formName">
+                <clr-select-container>
                     <label i18n="existing vpc label">
                         {{htmlFieldLabels['vpcPublicSubnet1']}}
                         <clr-tooltip>
@@ -329,7 +319,7 @@
                 </clr-select-container>
             </div>
             <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
-                <clr-select-container [attr.data-step-metadata]="formName">
+                <clr-select-container>
                     <label i18n="existing vpc label">
                         {{htmlFieldLabels['vpcPrivateSubnet1']}}
                         <clr-tooltip>
@@ -361,47 +351,41 @@
             <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4"></div>
         </ng-container>
         <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4" *featureToggle="'!management-cluster.standalone-cluster-mode'">
-            <div
-                [attr.data-step-metadata]="formName"
-                [attr.data-value]="workerNodeInstanceType1Value"
-                data-name="workerNodeInstanceType1"
-                data-label="worker node instance type 1">
-                <clr-datalist-container>
-                    <label i18n="worker node instance type label" class="clr-col-12 clr-col-md-12">
-                        {{htmlFieldLabels['workerNodeInstanceType1']}}
-                        <clr-tooltip>
-                            <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
-                            <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
-                                <span>
-                                    Choose the configuration for worker nodes for this AZ.
-                                </span>
-                            </clr-tooltip-content>
-                        </clr-tooltip>
-                    </label>
-                    <input clrDatalistInput
-                           name="workerNodeInstanceType1"
-                           formControlName="workerNodeInstanceType1"
-                           role="listbox"
-                           aria-label="worker node instance type for az1"
-                           autocomplete="off"
-                           [attr.disabled]="azNodeTypes.awsNodeAz1.length ? null : 'disabled'"/>
-                    <datalist id="workerNodeInstanceType1">
-                        <option *ngFor="let nodeType of azNodeTypes.awsNodeAz1" [value]="nodeType"></option>
-                    </datalist>
-                    <!-- Add a empty helper to avoid accessibility aria-describeby issue -->
-                    <clr-control-helper></clr-control-helper>
-                </clr-datalist-container>
-                <clr-control-error *ngIf="showFormError('workerNodeInstanceType1')">
-                    Selecting worker node instance type is required for this AZ
-                </clr-control-error>
-            </div>
+            <clr-datalist-container>
+                <label i18n="worker node instance type label" class="clr-col-12 clr-col-md-12">
+                    {{htmlFieldLabels['workerNodeInstanceType1']}}
+                    <clr-tooltip>
+                        <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
+                        <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
+                            <span>
+                                Choose the configuration for worker nodes for this AZ.
+                            </span>
+                        </clr-tooltip-content>
+                    </clr-tooltip>
+                </label>
+                <input clrDatalistInput
+                       name="workerNodeInstanceType1"
+                       formControlName="workerNodeInstanceType1"
+                       role="listbox"
+                       aria-label="worker node instance type for az1"
+                       autocomplete="off"
+                       [attr.disabled]="azNodeTypes.awsNodeAz1.length ? null : 'disabled'"/>
+                <datalist id="workerNodeInstanceType1">
+                    <option *ngFor="let nodeType of azNodeTypes.awsNodeAz1" [value]="nodeType"></option>
+                </datalist>
+                <!-- Add a empty helper to avoid accessibility aria-describeby issue -->
+                <clr-control-helper></clr-control-helper>
+            </clr-datalist-container>
+            <clr-control-error *ngIf="showFormError('workerNodeInstanceType1')">
+                Selecting worker node instance type is required for this AZ
+            </clr-control-error>
         </div>
     </div>
 
     <!-- AZ 2 -->
     <div class="clr-row" *ngIf="isClusterPlanProd">
         <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
-            <clr-select-container [attr.data-step-metadata]="formName">
+            <clr-select-container>
                 <label i18n="existing vpc label">
                     {{htmlFieldLabels['awsNodeAz2']}}
                     <clr-tooltip>
@@ -440,7 +424,7 @@
         </div>
         <ng-container *ngIf="isClusterPlanProd && isVpcTypeExisting">
             <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4" >
-                <clr-select-container [attr.data-step-metadata]="formName">
+                <clr-select-container>
                     <label i18n="existing vpc label">
                         {{htmlFieldLabels['vpcPublicSubnet2']}}
                         <clr-tooltip>
@@ -470,7 +454,7 @@
                 </clr-select-container>
             </div>
             <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
-                <clr-select-container [attr.data-step-metadata]="formName">
+                <clr-select-container>
                     <label i18n="existing vpc label">
                         {{htmlFieldLabels['vpcPrivateSubnet2']}}
                         <clr-tooltip>
@@ -502,47 +486,41 @@
             <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4"></div>
         </ng-container>
         <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4" *featureToggle="'!management-cluster.standalone-cluster-mode'">
-            <div
-                [attr.data-step-metadata]="formName"
-                [attr.data-value]="workerNodeInstanceType2Value"
-                data-name="workerNodeInstanceType2"
-                data-label="worker node instance type 2">
-                <clr-datalist-container>
-                    <label i18n="worker node instance type label" class="clr-col-12 clr-col-md-12">
-                        {{htmlFieldLabels['workerNodeInstanceType2']}}
-                        <clr-tooltip>
-                            <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
-                            <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
-                            <span>
-                                Choose the configuration for worker nodes for this AZ.
-                            </span>
-                            </clr-tooltip-content>
-                        </clr-tooltip>
-                    </label>
-                    <input clrDatalistInput
-                           name="workerNodeInstanceType2"
-                           formControlName="workerNodeInstanceType2"
-                           role="listbox"
-                           aria-label="worker node instance type for az2"
-                           autocomplete="off"
-                           [attr.disabled]="azNodeTypes.awsNodeAz2.length ? null : 'disabled'"/>
-                    <datalist id="workerNodeInstanceType2">
-                        <option *ngFor="let nodeType of azNodeTypes.awsNodeAz2" [value]="nodeType"></option>
-                    </datalist>
-                    <!-- Add a empty helper to avoid accessibility aria-describeby issue -->
-                    <clr-control-helper></clr-control-helper>
-                </clr-datalist-container>
-                <clr-control-error *ngIf="showFormError('workerNodeInstanceType2')">
-                    Selecting worker node instance type is required for this AZ
-                </clr-control-error>
-            </div>
+            <clr-datalist-container>
+                <label i18n="worker node instance type label" class="clr-col-12 clr-col-md-12">
+                    {{htmlFieldLabels['workerNodeInstanceType2']}}
+                    <clr-tooltip>
+                        <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
+                        <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
+                        <span>
+                            Choose the configuration for worker nodes for this AZ.
+                        </span>
+                        </clr-tooltip-content>
+                    </clr-tooltip>
+                </label>
+                <input clrDatalistInput
+                       name="workerNodeInstanceType2"
+                       formControlName="workerNodeInstanceType2"
+                       role="listbox"
+                       aria-label="worker node instance type for az2"
+                       autocomplete="off"
+                       [attr.disabled]="azNodeTypes.awsNodeAz2.length ? null : 'disabled'"/>
+                <datalist id="workerNodeInstanceType2">
+                    <option *ngFor="let nodeType of azNodeTypes.awsNodeAz2" [value]="nodeType"></option>
+                </datalist>
+                <!-- Add a empty helper to avoid accessibility aria-describeby issue -->
+                <clr-control-helper></clr-control-helper>
+            </clr-datalist-container>
+            <clr-control-error *ngIf="showFormError('workerNodeInstanceType2')">
+                Selecting worker node instance type is required for this AZ
+            </clr-control-error>
         </div>
     </div>
 
     <!-- AZ 3 -->
     <div class="clr-row" *ngIf="isClusterPlanProd">
         <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
-            <clr-select-container [attr.data-step-metadata]="formName">
+            <clr-select-container>
                 <label i18n="existing vpc label">
                     {{htmlFieldLabels['awsNodeAz3']}}
                     <clr-tooltip>
@@ -581,7 +559,7 @@
         </div>
         <ng-container *ngIf="isClusterPlanProd && isVpcTypeExisting">
             <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
-                <clr-select-container [attr.data-step-metadata]="formName">
+                <clr-select-container>
                     <label i18n="existing vpc label">
                         {{htmlFieldLabels['vpcPublicSubnet3']}}
                         <clr-tooltip>
@@ -611,7 +589,7 @@
                 </clr-select-container>
             </div>
             <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
-                <clr-select-container [attr.data-step-metadata]="formName">
+                <clr-select-container>
                     <label i18n="existing vpc label">
                         {{htmlFieldLabels['vpcPrivateSubnet3']}}
                         <clr-tooltip>
@@ -643,40 +621,34 @@
             <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4"></div>
         </ng-container>
         <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4" *featureToggle="'!management-cluster.standalone-cluster-mode'">
-            <div
-                [attr.data-step-metadata]="formName"
-                [attr.data-value]="workerNodeInstanceType3Value"
-                data-name="workerNodeInstanceType3"
-                data-label="worker node instance type 3">
-                <clr-datalist-container>
-                    <label i18n="worker node instance type label" class="clr-col-12 clr-col-md-12">
-                        {{htmlFieldLabels['workerNodeInstanceType3']}}
-                        <clr-tooltip>
-                            <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
-                            <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
-                            <span>
-                                Choose the configuration for worker nodes for this AZ.
-                            </span>
-                            </clr-tooltip-content>
-                        </clr-tooltip>
-                    </label>
-                    <input clrDatalistInput
-                           name="workerNodeInstanceType3"
-                           formControlName="workerNodeInstanceType3"
-                           role="listbox"
-                           aria-label="worker node instance type for az3"
-                           autocomplete="off"
-                           [attr.disabled]="azNodeTypes.awsNodeAz3.length ? null : 'disabled'"/>
-                    <datalist id="workerNodeInstanceType3">
-                        <option *ngFor="let nodeType of azNodeTypes.awsNodeAz3" [value]="nodeType"></option>
-                    </datalist>
-                    <!-- Add a empty helper to avoid accessibility aria-describeby issue -->
-                    <clr-control-helper></clr-control-helper>
-                </clr-datalist-container>
-                <clr-control-error *ngIf="showFormError('workerNodeInstanceType3')">
-                    Selecting worker node instance type is required for this AZ
-                </clr-control-error>
-            </div>
+            <clr-datalist-container>
+                <label i18n="worker node instance type label" class="clr-col-12 clr-col-md-12">
+                    {{htmlFieldLabels['workerNodeInstanceType3']}}
+                    <clr-tooltip>
+                        <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
+                        <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
+                        <span>
+                            Choose the configuration for worker nodes for this AZ.
+                        </span>
+                        </clr-tooltip-content>
+                    </clr-tooltip>
+                </label>
+                <input clrDatalistInput
+                       name="workerNodeInstanceType3"
+                       formControlName="workerNodeInstanceType3"
+                       role="listbox"
+                       aria-label="worker node instance type for az3"
+                       autocomplete="off"
+                       [attr.disabled]="azNodeTypes.awsNodeAz3.length ? null : 'disabled'"/>
+                <datalist id="workerNodeInstanceType3">
+                    <option *ngFor="let nodeType of azNodeTypes.awsNodeAz3" [value]="nodeType"></option>
+                </datalist>
+                <!-- Add a empty helper to avoid accessibility aria-describeby issue -->
+                <clr-control-helper></clr-control-helper>
+            </clr-datalist-container>
+            <clr-control-error *ngIf="showFormError('workerNodeInstanceType3')">
+                Selecting worker node instance type is required for this AZ
+            </clr-control-error>
         </div>
     </div>
 </form>

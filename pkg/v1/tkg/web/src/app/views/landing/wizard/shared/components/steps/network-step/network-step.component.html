@@ -41,38 +41,33 @@
     </h5>
     <div class="clr-row">
         <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4" *ngIf="enableNetworkName">
-            <div
-                    [attr.data-step-metadata]="formName"
-                    data-name="networkName"
-                    data-label="network name">
-                <clr-select-container [attr.data-step-metadata]="formName">
-                    <label i18n="network label">
-                        {{htmlFieldLabels['networkName']}}
-                        <clr-tooltip>
-                            <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
-                            <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
-                                <span>
-                                    {{ networkNameInstruction }}
-                                </span>
-                            </clr-tooltip-content>
-                        </clr-tooltip>
-                    </label>
-                    <select clrSelect name="networkName" formControlName="networkName">
-                        <option aria-label="blank" title="blank"></option>
-                        <ng-container *ngFor="let network of networks">
-                            <option [ngValue]="network">
-                                {{network.displayName}}
-                            </option>
-                        </ng-container>
-                    </select>
-                    <!-- Add a empty helper to avoid accessibility aria-describeby issue -->
-                    <clr-control-helper></clr-control-helper>
-                    <clr-control-error>Selecting a VM network is required</clr-control-error>
-                </clr-select-container>
-            </div>
+            <clr-select-container>
+                <label i18n="network label">
+                    {{htmlFieldLabels['networkName']}}
+                    <clr-tooltip>
+                        <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
+                        <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
+                            <span>
+                                {{ networkNameInstruction }}
+                            </span>
+                        </clr-tooltip-content>
+                    </clr-tooltip>
+                </label>
+                <select clrSelect name="networkName" formControlName="networkName">
+                    <option aria-label="blank" title="blank"></option>
+                    <ng-container *ngFor="let network of networks">
+                        <option [ngValue]="network">
+                            {{network.displayName}}
+                        </option>
+                    </ng-container>
+                </select>
+                <!-- Add a empty helper to avoid accessibility aria-describeby issue -->
+                <clr-control-helper></clr-control-helper>
+                <clr-control-error>Selecting a VM network is required</clr-control-error>
+            </clr-select-container>
         </div>
         <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4" *ngIf="cniType == 'antrea'">
-            <clr-input-container [attr.data-step-metadata]="formName">
+            <clr-input-container>
                 <label i18n="cluster service cidr label" clr-control-label>
                     {{htmlFieldLabels['clusterServiceCidr']}}
                     <clr-tooltip>
@@ -100,7 +95,7 @@
             </clr-input-container>
         </div>
         <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4" *ngIf="cniType == 'antrea' || cniType == 'calico'">
-            <clr-input-container [attr.data-step-metadata]="formName">
+            <clr-input-container>
                 <label i18n="cluster pod cidr label" clr-control-label>
                     {{htmlFieldLabels['clusterPodCidr']}}
                     <clr-tooltip>
@@ -130,7 +125,7 @@
     </h4>
     <div class="clr-row">
         <div class="clr-col-12">
-            <clr-toggle-container [attr.data-step-metadata]="formName">
+            <clr-toggle-container>
                 <clr-toggle-wrapper>
                     <input
                         type="checkbox"
@@ -152,7 +147,7 @@
     <ng-container *ngIf="formGroup.value['proxySettings']">
         <div class="clr-row">
             <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
-                <clr-input-container [attr.data-step-metadata]="formName">
+                <clr-input-container>
                     <label i18n="http proxy url label" clr-control-label>
                         {{htmlFieldLabels['httpProxyUrl']}}
                         <clr-tooltip>
@@ -179,7 +174,7 @@
         </div>
         <div class="clr-row">
             <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
-                <clr-input-container [attr.data-step-metadata]="formName">
+                <clr-input-container>
                     <label i18n="http proxy username label" clr-control-label>
                         {{htmlFieldLabels['httpProxyUsername']}}
                     </label>
@@ -189,7 +184,7 @@
                 </clr-input-container>
             </div>
             <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
-                <clr-password-container [attr.data-step-metadata]="formName">
+                <clr-password-container>
                     <label i18n="http proxy password label" clr-control-label>
                         {{htmlFieldLabels['httpProxyPassword']}}
                     </label>
@@ -201,7 +196,7 @@
         </div>
         <div class="clr-row">
             <div class="clr-col-12">
-                <div class="checkbox-wrapper" [attr.data-step-metadata]="formName">
+                <div class="checkbox-wrapper">
                     <clr-checkbox-wrapper>
                         <input type="checkbox" clrCheckbox name="isSameAsHttp" formControlName="isSameAsHttp" (change)="toggleProxySetting()"/>
                         <label>Use same configuration for https proxy</label>
@@ -211,7 +206,7 @@
         </div>
         <div class="clr-row" *ngIf="!formGroup.value.isSameAsHttp">
             <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
-                <clr-input-container [attr.data-step-metadata]="formName">
+                <clr-input-container>
                     <label i18n="http proxy url label" clr-control-label>
                         {{htmlFieldLabels['httpsProxyUrl']}}
                         <clr-tooltip>
@@ -238,7 +233,7 @@
         </div>
         <div class="clr-row" *ngIf="!formGroup.value.isSameAsHttp">
             <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
-                <clr-input-container [attr.data-step-metadata]="formName">
+                <clr-input-container>
                     <label i18n="https proxy username label" clr-control-label>
                         {{htmlFieldLabels['httpsProxyUsername']}}
                     </label>
@@ -248,7 +243,7 @@
                 </clr-input-container>
             </div>
             <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
-                <clr-password-container [attr.data-step-metadata]="formName">
+                <clr-password-container>
                     <label i18n="https proxy password label" clr-control-label>
                         {{htmlFieldLabels['httpsProxyPassword']}}
                     </label>
@@ -260,7 +255,7 @@
         </div>
         <div class="clr-row">
             <div class="clr-col-11 clr-col-lg-8 clr-col-xl-5">
-                <clr-input-container [attr.data-step-metadata]="formName">
+                <clr-input-container>
                     <label i18n="no proxy label" clr-control-label class="max-width">
                         {{htmlFieldLabels['noProxy']}}
                         <clr-tooltip>

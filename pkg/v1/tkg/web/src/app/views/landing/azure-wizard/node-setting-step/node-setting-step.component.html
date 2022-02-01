@@ -17,7 +17,7 @@
                     </p>
                 </div>
                 <div class="card-footer">
-                    <div class="clr-row" [attr.data-step-metadata]="formName">
+                    <div class="clr-row">
                         <div class="clr-col-lg-5 clr-col-12">
                             <label i18n="instance type label">
                                 INSTANCE TYPE
@@ -64,7 +64,7 @@
                     </p>
                 </div>
                 <div class="card-footer">
-                    <div class="clr-row" [attr.data-step-metadata]="formName">
+                    <div class="clr-row">
                         <div class="clr-col-lg-5 clr-col-12">
                             <label i18n="instance type label">
                                 INSTANCE TYPE
@@ -101,7 +101,7 @@
 
     <div class="clr-row">
         <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
-            <clr-input-container [attr.data-step-metadata]="formName">
+            <clr-input-container>
                 <label i18n="cluster name label" clr-control-label>
                     {{ clusterTypeDescriptor | uppercase }} CLUSTER NAME {{edition === 'tkg' ? '(OPTIONAL)' : ''}}
                     <clr-tooltip>
@@ -134,7 +134,7 @@
             </clr-input-container>
         </div>
         <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4" *ngIf="!modeClusterStandalone">
-            <clr-select-container [attr.data-step-metadata]="formName">
+            <clr-select-container>
                 <label i18n="azure worker node instance label">
                     WORKER NODE INSTANCE TYPE
                     <clr-tooltip>
@@ -158,7 +158,7 @@
             </clr-select-container>
         </div>
         <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
-            <clr-checkbox-container [attr.data-step-metadata]="formName">
+            <clr-checkbox-container>
                 <label i18n="cluster enable machine health check" clr-control-label>
                     MACHINE HEALTH CHECKS
                     <clr-tooltip>

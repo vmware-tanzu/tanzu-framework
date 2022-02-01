@@ -37,66 +37,54 @@
     </span>
     <div class="clr-row">
         <div class="clr-col-6">
-            <div
-                    [attr.data-step-metadata]="formName"
-                    [attr.data-value]="vmFolderValue"
-                    data-name="vmFolder"
-                    data-label="VM folder" class="datalist-container">
-                <clr-datalist-container>
-                    <label i18n="vm folder label" class="clr-col-lg-12 clr-col-12">
-                        VM FOLDER
-                        <clr-tooltip>
-                            <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
-                            <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
-                        <span>
-                            Select an existing VM folder in which to place the {{ clusterTypeDescriptor }}
-                            cluster VMs.
-                        </span>
-                            </clr-tooltip-content>
-                        </clr-tooltip>
-                    </label>
-                    <input clrDatalistInput name="vmFolder" formControlName="vmFolder" />
-                    <datalist id="vmFolder">
-                        <option *ngFor="let folder of vmFolders" [value]="folder?.name"></option>
-                    </datalist>
-                    <!-- Add a empty helper to avoid accessibility aria-describeby issue -->
-                    <clr-control-helper></clr-control-helper>
-                </clr-datalist-container>
-                <clr-control-error *ngIf="showFormError('vmFolder')">
-                    Selecting a VM folder is required
-                </clr-control-error>
-            </div>
+           <clr-datalist-container>
+                <label i18n="vm folder label" class="clr-col-lg-12 clr-col-12">
+                    VM FOLDER
+                    <clr-tooltip>
+                        <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
+                        <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
+                    <span>
+                        Select an existing VM folder in which to place the {{ clusterTypeDescriptor }}
+                        cluster VMs.
+                    </span>
+                        </clr-tooltip-content>
+                    </clr-tooltip>
+                </label>
+                <input clrDatalistInput name="vmFolder" formControlName="vmFolder" />
+                <datalist id="vmFolder">
+                    <option *ngFor="let folder of vmFolders" [value]="folder?.name"></option>
+                </datalist>
+                <!-- Add a empty helper to avoid accessibility aria-describeby issue -->
+                <clr-control-helper></clr-control-helper>
+            </clr-datalist-container>
+            <clr-control-error *ngIf="showFormError('vmFolder')">
+                Selecting a VM folder is required
+            </clr-control-error>
         </div>
 
         <div class="clr-col-6">
-            <div
-                    [attr.data-step-metadata]="formName"
-                    [attr.data-value]="datastoreValue"
-                    data-name="datastore"
-                    data-label="datastore" class="datalist-container">
-                <clr-datalist-container>
-                    <label i18n="datastore label" class="clr-col-lg-12 clr-col-12">
-                        DATASTORE
-                        <clr-tooltip>
-                            <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
-                            <clr-tooltip-content clrPosition="top-left" clrSize="lg" *clrIfOpen>
-                        <span>
-                            Select a vSphere datastore for the {{ clusterTypeDescriptor }} cluster to use.
-                        </span>
-                            </clr-tooltip-content>
-                        </clr-tooltip>
-                    </label>
-                    <input clrDatalistInput name="datastore" formControlName="datastore" />
-                    <datalist id="datastore">
-                        <option *ngFor="let datastore of datastores" [value]="datastore?.name"></option>
-                    </datalist>
-                        <!-- Add an empty helper to avoid accessibility aria-describeby issue -->
-                    <clr-control-helper></clr-control-helper>
-                </clr-datalist-container>
-                <clr-control-error *ngIf="showFormError('datastore')">
-                    Selecting a datastore is required
-                </clr-control-error>
-            </div>
+            <clr-datalist-container>
+                <label i18n="datastore label" class="clr-col-lg-12 clr-col-12">
+                    DATASTORE
+                    <clr-tooltip>
+                        <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
+                        <clr-tooltip-content clrPosition="top-left" clrSize="lg" *clrIfOpen>
+                    <span>
+                        Select a vSphere datastore for the {{ clusterTypeDescriptor }} cluster to use.
+                    </span>
+                        </clr-tooltip-content>
+                    </clr-tooltip>
+                </label>
+                <input clrDatalistInput name="datastore" formControlName="datastore" />
+                <datalist id="datastore">
+                    <option *ngFor="let datastore of datastores" [value]="datastore?.name"></option>
+                </datalist>
+                    <!-- Add an empty helper to avoid accessibility aria-describeby issue -->
+                <clr-control-helper></clr-control-helper>
+            </clr-datalist-container>
+            <clr-control-error *ngIf="showFormError('datastore')">
+                Selecting a datastore is required
+            </clr-control-error>
         </div>
     </div>
 
@@ -117,9 +105,7 @@
     </div>
     <div class="clr-row">
         <div class="clr-col-12">
-            <app-tree-select [attr.data-step-metadata]="formName" data-name="resourcePool"
-                data-label="resource pool" [attr.data-value]="resourcePoolValue" [data]="treeData"
-                [selectedHandler]="handleOnClick"></app-tree-select>
+            <app-tree-select [data]="treeData" [selectedHandler]="handleOnClick"></app-tree-select>
             <clr-control-error *ngIf="showFormError('resourcePool')" >Selecting a resource is required</clr-control-error>
         </div>
     </div>

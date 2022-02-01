@@ -121,7 +121,7 @@ export class AzureProviderStepComponent extends StepFormDirective implements OnI
     ngOnInit() {
         super.ngOnInit();
 
-        AppServices.fieldMapUtilities.buildForm(this.formGroup, this.wizardName, this.formName, AzureProviderStepMapping);
+        AppServices.userDataFormService.buildForm(this.formGroup, this.wizardName, this.formName, AzureProviderStepMapping);
         this.storeDefaultLabels(AzureProviderStepMapping);
 
         this.customizeForm();
@@ -169,7 +169,7 @@ export class AzureProviderStepComponent extends StepFormDirective implements OnI
         ].forEach( accountField => {
             this.initFieldWithSavedData(accountField);
         });
-        AppServices.userDataService.restoreField(this.createUserDataIdentifier(AzureField.PROVIDER_AZURECLOUD), this.formGroup,
+        AppServices.userDataFormService.restoreField(this.createUserDataIdentifier(AzureField.PROVIDER_AZURECLOUD), this.formGroup,
             {onlySelf: true}, storedCloudValue => {AzureClouds.find(azureCloud => azureCloud.name === storedCloudValue)});
         this.initFieldWithSavedData(AzureField.PROVIDER_SSHPUBLICKEY);
 

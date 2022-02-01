@@ -60,7 +60,7 @@ export abstract class SharedOsImageStepDirective<IMAGE extends OsImage> extends 
         if (this.osImages.length === 1) {
             this.setControlValueSafely(OsImageField.IMAGE, images[0]);
         } else {
-            AppServices.userDataService.restoreField(this.createUserDataIdentifier(OsImageField.IMAGE), this.formGroup,
+            AppServices.userDataFormService.restoreField(this.createUserDataIdentifier(OsImageField.IMAGE), this.formGroup,
                 {}, this.getImageFromStoredValue.bind(this));
         }
     }
@@ -79,7 +79,7 @@ export abstract class SharedOsImageStepDirective<IMAGE extends OsImage> extends 
         super.ngOnInit();
         // The objectRetrievalMap associates a field with a closure that can return an object based on a key
         // By sending the objectRetrievalMap to buildForm(), we allow buildForm to "call us back" to get the osImage using the saved key
-        AppServices.fieldMapUtilities.buildForm(this.formGroup, this.wizardName, this.formName, this.supplyStepMapping(),
+        AppServices.userDataFormService.buildForm(this.formGroup, this.wizardName, this.formName, this.supplyStepMapping(),
             this.getObjectRetrievalMap());
         this.htmlFieldLabels = AppServices.fieldMapUtilities.getFieldLabelMap(this.supplyStepMapping());
         this.storeDefaultLabels(this.supplyStepMapping());

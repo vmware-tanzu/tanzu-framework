@@ -15,7 +15,7 @@ export class SharedCeipStepComponent extends StepFormDirective implements OnInit
 
     ngOnInit() {
         super.ngOnInit();
-        AppServices.fieldMapUtilities.buildForm(this.formGroup, this.wizardName, this.formName, CeipStepMapping);
+        AppServices.userDataFormService.buildForm(this.formGroup, this.wizardName, this.formName, CeipStepMapping);
         this.htmlFieldLabels = AppServices.fieldMapUtilities.getFieldLabelMap(CeipStepMapping);
         this.storeDefaultLabels(CeipStepMapping);
         this.registerDefaultFileImportedHandler(this.eventFileImported, VsphereResourceStepMapping);

@@ -34,7 +34,7 @@
                     </p>
                 </div>
                 <div class="card-footer">
-                    <div class="clr-row" [attr.data-step-metadata]="formName">
+                    <div class="clr-row">
                         <div class="clr-col-xl-4 clr-col-sm-12 clr-col-12 no-wrap">
                             <label i18n="instance type label">
                                 INSTANCE TYPE
@@ -84,7 +84,7 @@
                     </p>
                 </div>
                 <div class="card-footer">
-                    <div class="clr-row" [attr.data-step-metadata]="formName">
+                    <div class="clr-row">
                         <div class="clr-col-xl-4 clr-col-sm-12 clr-col-12 no-wrap">
                             <label i18n="instance type label">
                                 INSTANCE TYPE
@@ -123,7 +123,7 @@
 
     <div class="clr-row">
         <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
-            <clr-input-container [attr.data-step-metadata]="formName">
+            <clr-input-container>
                 <label i18n="cluster name label" clr-control-label>
                     {{htmlFieldLabels['clusterName']}}
                     <clr-tooltip>
@@ -156,7 +156,7 @@
             </clr-input-container>
         </div>
         <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
-            <clr-checkbox-container [attr.data-step-metadata]="formName">
+            <clr-checkbox-container>
                 <label i18n="cluster enable machine health check" clr-control-label>
                     MACHINE HEALTH CHECKS
                     <clr-tooltip>
@@ -181,7 +181,7 @@
 
     <div class="clr-row">
         <div class="clr-col-4">
-            <clr-select-container [attr.data-step-metadata]="formName">
+            <clr-select-container>
                 <label i18n="Control Plane Endpoint Provider label" clr-control-label>
                     CONTROL PLANE ENDPOINT PROVIDER
                     <clr-tooltip>
@@ -205,7 +205,7 @@
         </div>
 
         <div class="clr-col-4">
-            <clr-input-container [attr.data-step-metadata]="formName">
+            <clr-input-container>
                 <label class="hidden" i18n="load balancer template label">
                     CONTROL PLANE ENDPOINT {{controlPlaneEndpointOptional}}
                     <clr-tooltip>
@@ -239,7 +239,7 @@
 
     <div class="clr-row">
         <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4" *featureToggle="'!management-cluster.standalone-cluster-mode'">
-            <clr-select-container class="ha-template" [attr.data-step-metadata]="formName">
+            <clr-select-container class="ha-template">
                 <label class="hidden" i18n="worker node instance type label">
                     WORKER NODE INSTANCE TYPE
                     <clr-tooltip>

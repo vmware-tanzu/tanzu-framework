@@ -19,7 +19,7 @@ export class DockerNetworkStepComponent extends SharedNetworkStepComponent {
 
     protected storeUserData() {
         const identifier = this.createUserDataIdentifier('clusterPodCidr');
-        AppServices.userDataService.storeInputField(identifier, this.formGroup);
+        AppServices.userDataFormService.storeInputField(identifier, this.formGroup);
         this.storeDisplayOrder(['clusterPodCidr']);
     }
 }

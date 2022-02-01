@@ -24,7 +24,7 @@
 
     <div class="clr-row" *ngIf="formGroup.value.vpcType == 'new'">
         <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
-            <clr-input-container [attr.data-step-metadata]="formName">
+            <clr-input-container>
                 <label i18n="aws vpc cidr label" clr-control-label>
                     {{htmlFieldLabels['vpc']}}
                     <clr-tooltip>
@@ -50,7 +50,7 @@
     </div>
     <div class="clr-row" *ngIf="formGroup.value.vpcType == 'existing'">
         <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
-            <clr-select-container [attr.data-step-metadata]="formName">
+            <clr-select-container>
                 <label i18n="existing vpc label">
                     {{htmlFieldLabels['existingVpcId']}}
                     <clr-tooltip>
@@ -76,7 +76,7 @@
             </clr-select-container>
         </div>
         <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
-            <clr-input-container [attr.data-step-metadata]="formName">
+            <clr-input-container>
                 <label i18n="existing vpc cidr" clr-control-label>
                     {{htmlFieldLabels['existingVpcCidr']}}
                     <clr-tooltip>
@@ -98,7 +98,7 @@
 
     <div class="clr-row" *ngIf="formGroup.value.vpcType == 'existing'">
         <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
-            <clr-checkbox-container [attr.data-step-metadata]="formName">
+            <clr-checkbox-container>
                 <clr-checkbox-wrapper>
                     <input type="checkbox" clrCheckbox name="nonInternetFacingVPC"
                         formControlName="nonInternetFacingVPC" role="checkbox"

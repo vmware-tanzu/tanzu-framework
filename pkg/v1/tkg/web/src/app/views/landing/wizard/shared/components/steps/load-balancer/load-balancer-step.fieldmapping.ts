@@ -30,7 +30,7 @@ export const LoadBalancerStepMapping: StepMapping = {
         { name: LoadBalancerField.MANAGEMENT_CLUSTER_NETWORK_CIDR, validators: [SimpleValidator.IS_VALID_IP_NETWORK_SEGMENT],
             label: 'MANAGEMENT VIP NETWORK CIDR' },
         { name: LoadBalancerField.CONTROLLER_CERT, doNotAutoSave: true, label: 'CONTROLLER CERTIFICATE AUTHORITY' },
-        { name: LoadBalancerField.CLUSTER_LABELS, doNotAutoSave: true, label: 'CLUSTER LABELS (OPTIONAL)' },
+        { name: LoadBalancerField.CLUSTER_LABELS, hasNoDomControl: true, isMap: true, label: 'CLUSTER LABELS (OPTIONAL)' },
         { name: LoadBalancerField.NEW_LABEL_KEY, validators: [SimpleValidator.IS_VALID_LABEL_OR_ANNOTATION], neverStore: true },
         { name: LoadBalancerField.NEW_LABEL_VALUE, validators: [SimpleValidator.IS_VALID_LABEL_OR_ANNOTATION], neverStore: true },
     ]

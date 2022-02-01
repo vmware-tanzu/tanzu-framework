@@ -449,8 +449,9 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
         return { wizard: this.wizardName, step: this.formName, field};
     }
 
-    protected storeUserDataFromMapping(stepMapping: StepMapping) {
-        AppServices.userDataService.storeFromMapping(this.wizardName, this.formName, stepMapping, this.formGroup);
+    protected storeUserDataFromMapping(stepMapping: StepMapping, objectRetrievalMap?: Map<string, (key: any) => any>) {
+        AppServices.userDataFormService.storeFromMapping(this.wizardName, this.formName, stepMapping, this.formGroup,
+            objectRetrievalMap);
     }
 
     protected storeDefaultDisplayOrder(stepMapping: StepMapping) {
@@ -483,12 +484,14 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
     }
 
     protected registerDefaultFileImportedHandler(eventSuccess: TanzuEventType, stepMapping: StepMapping,
-                                                 objectRetrievalMap?: Map<string, (string) => any>) {
-        AppServices.messenger.subscribe<string>(eventSuccess, this.defaultFileImportedHandler(stepMapping, objectRetrievalMap));
+        objectRetrievalMap?: Map<string, (string) => any>, customRestorerMap?: Map<string, (any) => void>) {
+        AppServices.messenger.subscribe<string>(eventSuccess,
+            this.defaultFileImportedHandler(stepMapping, objectRetrievalMap, customRestorerMap));
     }
 
     // This is a convenience method for child classes that want to register a callback based on this behavior PLUS something of their own
-    protected defaultFileImportedHandler(stepMapping: StepMapping, objectRetrievalMap?: Map<string, (string) => any>)
+    protected defaultFileImportedHandler(stepMapping: StepMapping, objectRetrievalMap?: Map<string, (string) => any>,
+                                         customRestorerMap?: Map<string, (any) => void>)
         : (event: TanzuEvent<any>) => void {
         const step = this;
         return data => {
@@ -497,7 +500,8 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
                 message: data.payload
             };
             // The file import saves the data to local storage, so we reinitialize this step's form from there
-            AppServices.fieldMapUtilities.restoreForm(step.wizardName, step.formName, step.formGroup, stepMapping, objectRetrievalMap);
+            AppServices.userDataFormService.restoreForm(step.wizardName, step.formName, step.formGroup, stepMapping, objectRetrievalMap,
+                customRestorerMap);
         }
     }
 }

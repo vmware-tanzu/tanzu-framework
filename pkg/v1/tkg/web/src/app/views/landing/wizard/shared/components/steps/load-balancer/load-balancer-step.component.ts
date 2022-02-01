@@ -41,7 +41,7 @@ export class SharedLoadBalancerStepComponent extends StepFormDirective implement
     selectedCloudName: string;
     serviceEngineGroups: Array<AviServiceEngineGroup>;
     serviceEngineGroupsFiltered: Array<AviServiceEngineGroup>;
-    labels: Map<String, String> = new Map<String, String>();
+    labels: Map<string, string> = new Map<string, string>();
     vipNetworks: Array<AviVipNetwork> = [];
     selectedNetworkName: string;
     selectedManagementClusterNetworkName: string;
@@ -105,14 +105,33 @@ export class SharedLoadBalancerStepComponent extends StepFormDirective implement
 
     ngOnInit() {
         super.ngOnInit();
-        AppServices.fieldMapUtilities.buildForm(this.formGroup, this.wizardName, this.formName, this.supplyStepMapping());
+        AppServices.userDataFormService.buildForm(this.formGroup, this.wizardName, this.formName, this.supplyStepMapping(), null,
+            this.getCustomRestorerMap());
         this.htmlFieldLabels = AppServices.fieldMapUtilities.getFieldLabelMap(this.supplyStepMapping());
         this.storeDefaultLabels(this.supplyStepMapping());
-        this.registerDefaultFileImportedHandler(this.eventFileImported, this.supplyStepMapping());
+        this.registerDefaultFileImportedHandler(this.eventFileImported, this.supplyStepMapping(), null,
+            this.getCustomRestorerMap());
         this.registerDefaultFileImportErrorHandler(this.eventFileImportError);
 
         this.customizeForm();
         this.initializeClusterLabels();
+    }
+
+    // returns a map that associates the field 'clusterLabels' with a closure that restores our map of cluster labels
+    private getCustomRestorerMap(): Map<string, (data: any) => void> {
+        return new Map<string, (data: any) => void>([['clusterLabels', this.setClusterLabels.bind(this)]]);
+    }
+
+    private setClusterLabels(data: Map<string, string>)  {
+        return this.labels = data;
+    }
+
+    private getCustomRetrievalMap(): Map<string, (key: any) => any> {
+        return new Map<string, (data: any) => void>([['clusterLabels', this.getClusterLabels.bind(this)]]);
+    }
+
+    private getClusterLabels(): Map<string, string> {
+        return this.labels;
     }
 
     isFieldReadyForInitWithSavedValue(fieldName: string): boolean {
@@ -348,17 +367,6 @@ export class SharedLoadBalancerStepComponent extends StepFormDirective implement
     }
 
     /**
-     * Get the current value of LoadBalancerField.CLUSTER_LABELS
-     */
-    get clusterLabelsValue() {
-        let labelsStr: string = '';
-        this.labels.forEach((value: string, key: string) => {
-            labelsStr += key + ':' + value + ', '
-        });
-        return labelsStr.slice(0, -2);
-    }
-
-    /**
      * @method getLabelDisabled
      * helper method to get if label add btn should be disabled
      */
@@ -404,11 +412,7 @@ export class SharedLoadBalancerStepComponent extends StepFormDirective implement
     }
 
     protected storeUserData() {
-        this.storeUserDataFromMapping(LoadBalancerStepMapping);
-        // clusterLabels field does not actually hold the value of the labels map that we keep in this step, so we save it separately
-        const identifier = this.createUserDataIdentifier('clusterLabels');
-        AppServices.userDataService.store(identifier, { display: this.clusterLabelsValue, value: this.clusterLabelsValue})
-
+        this.storeUserDataFromMapping(LoadBalancerStepMapping, this.getCustomRetrievalMap());
         this.storeDefaultDisplayOrder(LoadBalancerStepMapping);
     }
 }
