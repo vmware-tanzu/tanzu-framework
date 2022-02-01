@@ -33,6 +33,7 @@ var (
 	configPathIPv4                        = "../fakes/config/config_ipv4.yaml"
 	configPathIPv4IPv6                    = "../fakes/config/config_ipv4_ipv6.yaml"
 	configPathIPv6IPv4                    = "../fakes/config/config_ipv6_ipv4.yaml"
+	configPathIPv6IPv4WithCIDRS           = "../fakes/config/config_ipv6_ipv4_with_cidrs.yaml"
 	configPathCIDR                        = "../fakes/config/config_cluster_service_cidr.yaml"
 	registryHostname                      = "registry.mydomain.com"
 )
@@ -240,7 +241,9 @@ var _ = Describe("Kind Client", func() {
 		})
 	})
 
-	Context("When TKG_IP_FAMILY is ipv6,ipv4", func() {
+	Context("When TKG_IP_FAMILY is ipv6,ipv4 and config vars are unset", func() {
+		// This context should never happen, the initRegion code will always
+		// ensure there's a default value set if the user has not provided one.
 		BeforeEach(func() {
 			setupTestingFiles(configPathIPv6IPv4, testingDir, defaultBoMFileForTesting)
 			kindClient = buildKindClient()
@@ -252,11 +255,27 @@ var _ = Describe("Kind Client", func() {
 			Expect(kindConfig.Networking.IPFamily).To(Equal(kindv1.DualStackFamily))
 		})
 
-		Context("When CLUSTER_CIDR and SERVICE_CIDR are not set", func() {
-			It("generates a config with default pod and service subnet", func() {
-				Expect(kindConfig.Networking.PodSubnet).To(Equal("100.96.0.0/11,fd00:100:96::/48"))
-				Expect(kindConfig.Networking.ServiceSubnet).To(Equal("100.64.0.0/13,fd00:100:64::/108"))
-			})
+		It("generates a config with default pod and service subnet", func() {
+			Expect(kindConfig.Networking.PodSubnet).To(Equal("100.96.0.0/11,fd00:100:96::/48"))
+			Expect(kindConfig.Networking.ServiceSubnet).To(Equal("100.64.0.0/13,fd00:100:64::/108"))
+		})
+	})
+
+	Context("When TKG_IP_FAMILY is ipv6,ipv4 and SERVICE_CIDR and CLUSTER_CIDR are set", func() {
+		BeforeEach(func() {
+			setupTestingFiles(configPathIPv6IPv4WithCIDRS, testingDir, defaultBoMFileForTesting)
+			kindClient = buildKindClient()
+			_, kindConfig, err = kindClient.GetKindNodeImageAndConfig()
+			Expect(err).NotTo(HaveOccurred())
+		})
+
+		It("generates a config with ipfamily set to dual", func() {
+			Expect(kindConfig.Networking.IPFamily).To(Equal(kindv1.DualStackFamily))
+		})
+
+		It("generates a config with default pod and service subnet in ipv4,ipv6 order because Kind's dualstack family is ipv4,ipv6", func() {
+			Expect(kindConfig.Networking.PodSubnet).To(Equal("100.96.0.0/11,fd00:100:96::/48"))
+			Expect(kindConfig.Networking.ServiceSubnet).To(Equal("1.2.3.4/16,fd00::/48"))
 		})
 	})
 
