@@ -1,6 +1,7 @@
 // Copyright 2022 VMware, Inc. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
+// Package controllers implements k8s controller functionality for antrea.
 package controllers
 
 import (
@@ -99,12 +100,13 @@ func (r *AntreaConfigReconciler) SetupWithManager(ctx context.Context, mgr ctrl.
 		Complete(r)
 }
 
-// ReconcileAntreaConfigNormal reconciles AntreaConfig data values secrets
+// ReconcileAntreaConfig reconciles AntreaConfig CR
 func (r *AntreaConfigReconciler) ReconcileAntreaConfig(
 	ctx context.Context,
 	antreaConfig *cniv1alpha1.AntreaConfig,
 	cluster *clusterapiv1beta1.Cluster,
 	log logr.Logger) (_ ctrl.Result, retErr error) {
+
 	var patchConfig bool
 
 	patchHelper, err := clusterapipatchutil.NewHelper(antreaConfig, r.Client)
@@ -138,7 +140,7 @@ func (r *AntreaConfigReconciler) ReconcileAntreaConfig(
 	return ctrl.Result{}, nil
 }
 
-// ReconcileAntreaConfigNormal reconciles AntreaConfig data values secret
+// ReconcileAntreaConfigNormal reconciles AntreaConfig by creating/patching data values secret
 func (r *AntreaConfigReconciler) ReconcileAntreaConfigNormal(
 	ctx context.Context,
 	antreaConfig *cniv1alpha1.AntreaConfig,

@@ -269,7 +269,7 @@ func RemoveFinalizerFromCR(
 	return patchAddonSecret
 }
 
-// This function returns the Service CIDR blocks for both IPv4 and IPv6 family
+// GetServiceCIDRs returns the Service CIDR blocks for both IPv4 and IPv6 family
 // Parse Service CIDRBlocks obtained from the cluster and return the following from the function:
 // <IPv4 CIDRs, IPv6 CIDRs, error>
 // The first two return parameters should be used only if the function returns error as nil.
@@ -304,6 +304,7 @@ func GetServiceCIDRs(cluster *clusterapiv1beta1.Cluster) (string, string, error)
 	return serviceCIDR, serviceCIDRv6, nil
 }
 
+// GetInfraProvider get infrastructure kind from cluster spec
 func GetInfraProvider(cluster *clusterapiv1beta1.Cluster) (string, error) {
 	var infraProvider string
 
@@ -322,5 +323,4 @@ func GetInfraProvider(cluster *clusterapiv1beta1.Cluster) (string, error) {
 	}
 
 	return "", errors.New("unknown error in getting infraProvider")
-
 }

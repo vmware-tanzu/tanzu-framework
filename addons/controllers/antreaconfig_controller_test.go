@@ -40,13 +40,13 @@ var _ = Describe("AntreaConfig Reconciler", func() {
 		f, err := os.Open(clusterResourceFilePath)
 		Expect(err).ToNot(HaveOccurred())
 		defer f.Close()
-		testutil.DeleteResources(f, cfg, dynamicClient, true)
+		Expect(testutil.DeleteResources(f, cfg, dynamicClient, true)).To(Succeed())
 	})
 
 	Context("Reconcile AntreaConfig for management cluster", func() {
 
 		BeforeEach(func() {
-			configCRName = "test-cluster-1"
+			configCRName = "test-cluster-4"
 			clusterResourceFilePath = "testdata/antrea-test-1.yaml"
 		})
 
@@ -54,16 +54,13 @@ var _ = Describe("AntreaConfig Reconciler", func() {
 
 			key := client.ObjectKey{
 				Namespace: "default",
-				Name:      "test-cluster-1",
+				Name:      configCRName,
 			}
 
 			cluster := &clusterapiv1beta1.Cluster{}
 			Eventually(func() bool {
 				err := k8sClient.Get(ctx, key, cluster)
-				if err != nil {
-					return false
-				}
-				return true
+				return err == nil
 			}, waitTimeout, pollingInterval).Should(BeTrue())
 
 			config := &cniv1alpha1.AntreaConfig{}
@@ -79,7 +76,7 @@ var _ = Describe("AntreaConfig Reconciler", func() {
 				}
 				Expect(len(config.Finalizers)).Should(Equal(1))
 				Expect(len(config.OwnerReferences)).Should(Equal(1))
-				Expect(config.OwnerReferences[0].Name).Should(Equal("test-cluster-1"))
+				Expect(config.OwnerReferences[0].Name).Should(Equal(configCRName))
 
 				// TODO: Possible to add more checks here
 				Expect(config.Spec.Antrea.AntConfig.TrafficEncapMode).Should(Equal("encap"))

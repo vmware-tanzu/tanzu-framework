@@ -2,7 +2,7 @@
 apiVersion: cluster.x-k8s.io/v1beta1
 kind: Cluster
 metadata:
-  name: test-cluster-1
+  name: test-cluster-4
   namespace: default
 spec:
   clusterNetwork:
@@ -18,12 +18,12 @@ spec:
 apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
 kind: DockerCluster
 metadata:
-  name: test-cluster-1
+  name: test-cluster-4
 ---
 apiVersion: cni.tanzu.vmware.com/v1alpha1
 kind: AntreaConfig
 metadata:
-  name: test-cluster-1
+  name: test-cluster-4
   namespace: default
 spec:
   antrea:
@@ -42,3 +42,4 @@ spec:
         NodePortLocal: false
         AntreaTraceflow: false
         NetworkPolicyStats: false
+
