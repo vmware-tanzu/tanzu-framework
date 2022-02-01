@@ -9,14 +9,12 @@ import (
 	"net"
 	"strconv"
 
-	"github.com/go-logr/logr"
 	"github.com/pkg/errors"
 	"gopkg.in/yaml.v2"
 	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	clusterapiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
-	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 
 	kappctrl "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/kappctrl/v1alpha1"
 	pkgiv1alpha1 "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/packaging/v1alpha1"
@@ -229,44 +227,6 @@ func IsPackageInstallPresent(ctx context.Context,
 	}
 
 	return true, nil
-}
-
-// AddFinalizerToCR adds finalizer to the config CR if not present and
-// returns true if finalizer is added
-func AddFinalizerToCR(
-	log logr.Logger,
-	addonName string,
-	configCR client.Object) bool {
-
-	var patchAddonSecret bool
-
-	// add finalizer to addon secret
-	if !controllerutil.ContainsFinalizer(configCR, addontypes.AddonFinalizer) {
-		log.Info("Adding finalizer to addon secret", constants.AddonNameLogKey, addonName)
-		controllerutil.AddFinalizer(configCR, addontypes.AddonFinalizer)
-		patchAddonSecret = true
-	}
-
-	return patchAddonSecret
-}
-
-// RemoveFinalizerFromCR removes finalizer from the config CR if not present and
-// returns true if finalizer is removed
-func RemoveFinalizerFromCR(
-	log logr.Logger,
-	addonName string,
-	configCR client.Object) bool {
-
-	var patchAddonSecret bool
-
-	// add finalizer to addon secret
-	if !controllerutil.ContainsFinalizer(configCR, addontypes.AddonFinalizer) {
-		log.Info("Removing finalizer to addon secret", constants.AddonNameLogKey, addonName)
-		controllerutil.RemoveFinalizer(configCR, addontypes.AddonFinalizer)
-		patchAddonSecret = true
-	}
-
-	return patchAddonSecret
 }
 
 // GetServiceCIDRs returns the Service CIDR blocks for both IPv4 and IPv6 family

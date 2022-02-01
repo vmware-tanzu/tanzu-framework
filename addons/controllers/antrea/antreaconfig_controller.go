@@ -107,23 +107,18 @@ func (r *AntreaConfigReconciler) ReconcileAntreaConfig(
 	cluster *clusterapiv1beta1.Cluster,
 	log logr.Logger) (_ ctrl.Result, retErr error) {
 
-	var patchConfig bool
-
 	patchHelper, err := clusterapipatchutil.NewHelper(antreaConfig, r.Client)
 	if err != nil {
 		return ctrl.Result{}, err
 	}
 	// Patch AntreaConfig before returning the function
 	defer func() {
-		// patchConfig will be true if finalizer or owner reference is added or deleted
-		if patchConfig {
-			log.Info("Patching AntreaConfig")
-
-			if err := patchHelper.Patch(ctx, antreaConfig); err != nil {
-				log.Error(err, "Error patching AntreaConfig")
-				retErr = err
-			}
+		log.Info("Patching AntreaConfig")
+		if err := patchHelper.Patch(ctx, antreaConfig); err != nil {
+			log.Error(err, "Error patching AntreaConfig")
+			retErr = err
 		}
+		log.Info("Successfully patched AntreaConfig")
 	}()
 
 	// If AntreaConfig is marked for deletion, then no reconciliation is needed
@@ -131,7 +126,7 @@ func (r *AntreaConfigReconciler) ReconcileAntreaConfig(
 		return ctrl.Result{}, nil
 	}
 
-	if err := r.ReconcileAntreaConfigNormal(ctx, antreaConfig, cluster, log, &patchConfig); err != nil {
+	if err := r.ReconcileAntreaConfigNormal(ctx, antreaConfig, cluster, log); err != nil {
 		log.Error(err, "Error reconciling AntreaConfig to create data value secret")
 		return ctrl.Result{}, err
 	}
@@ -145,11 +140,7 @@ func (r *AntreaConfigReconciler) ReconcileAntreaConfigNormal(
 	ctx context.Context,
 	antreaConfig *cniv1alpha1.AntreaConfig,
 	cluster *clusterapiv1beta1.Cluster,
-	log logr.Logger,
-	patchConfig *bool) (retErr error) {
-
-	// Add finalizer to addon secret
-	*patchConfig = util.AddFinalizerToCR(log, constants.AntreaAddonName, antreaConfig)
+	log logr.Logger) (retErr error) {
 
 	// add owner reference to antreaConfig
 	ownerReference := metav1.OwnerReference{
@@ -162,7 +153,6 @@ func (r *AntreaConfigReconciler) ReconcileAntreaConfigNormal(
 	if !clusterapiutil.HasOwnerRef(antreaConfig.OwnerReferences, ownerReference) {
 		log.Info("Adding owner reference to AntreaConfig")
 		antreaConfig.OwnerReferences = clusterapiutil.EnsureOwnerRef(antreaConfig.OwnerReferences, ownerReference)
-		*patchConfig = true
 	}
 
 	if err := r.ReconcileAntreaConfigDataValue(ctx, antreaConfig, cluster, log); err != nil {
@@ -174,7 +164,6 @@ func (r *AntreaConfigReconciler) ReconcileAntreaConfigNormal(
 	dataValueSecretName := util.GenerateDataValueSecretNameFromAddonAndClusterNames(cluster.Name, constants.AntreaAddonName)
 	if antreaConfig.Status.SecretRef != dataValueSecretName {
 		antreaConfig.Status.SecretRef = dataValueSecretName
-		*patchConfig = true
 	}
 
 	return nil
@@ -187,6 +176,7 @@ func (r *AntreaConfigReconciler) ReconcileAntreaConfigDataValue(
 	cluster *clusterapiv1beta1.Cluster,
 	log logr.Logger) (retErr error) {
 
+	// prepare data values secret for AntreaConfig
 	antreaDataValuesSecret := &corev1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      util.GenerateDataValueSecretNameFromAddonAndClusterNames(antreaConfig.Name, constants.AntreaAddonName),
@@ -206,6 +196,7 @@ func (r *AntreaConfigReconciler) ReconcileAntreaConfigDataValue(
 
 		yamlBytes, err := yaml.Marshal(antreaConfigYaml)
 		if err != nil {
+			log.Error(err, "Error marshaling AntreaConfig to Yaml")
 			return err
 		}
 

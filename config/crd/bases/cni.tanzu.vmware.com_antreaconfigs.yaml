@@ -16,7 +16,31 @@ spec:
     singular: antreaconfig
   scope: Namespaced
   versions:
-  - name: v1alpha1
+  - additionalPrinterColumns:
+    - description: The traffic encapsulation mode. One of the following options =>
+        encap, noEncap, hybrid, networkPolicyOnly
+      jsonPath: .spec.antrea.config.trafficEncapMode
+      name: TrafficEncapMode
+      type: string
+    - description: Default MTU to use for the host gateway interface and the network
+        interface of each Pod. If omitted, antrea-agent will discover the MTU of the
+        Node's primary interface
+      jsonPath: .spec.antrea.config.defaultMTU
+      name: DefaultMTU
+      type: string
+    - description: Flag to enable/disable antrea proxy
+      jsonPath: .spec.antrea.config.featureGates.AntreaProxy
+      name: AntreaProxy
+      type: string
+    - description: Flag to enable/disable antrea policy
+      jsonPath: .spec.antrea.config.featureGates.AntreaPolicy
+      name: AntreaPolicy
+      type: string
+    - description: Name of the antrea data values secret
+      jsonPath: .status.secretRef
+      name: SecretRef
+      type: string
+    name: v1alpha1
     schema:
       openAPIV3Schema:
         description: AntreaConfig is the Schema for the antreaconfigs API

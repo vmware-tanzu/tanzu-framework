@@ -18,10 +18,10 @@ type antreaConfigSpec struct {
 }
 
 type antrea struct {
-	AntConfig antConfig `yaml:"config,omitempty"`
+	AntreaConfigDataValue antreaConfigDataValue `yaml:"config,omitempty"`
 }
 
-type antConfig struct {
+type antreaConfigDataValue struct {
 	ServiceCIDR             string             `yaml:"serviceCIDR,omitempty"`
 	ServiceCIDRv6           string             `yaml:"serviceCIDRv6,omitempty"`
 	TrafficEncapMode        string             `yaml:"trafficEncapMode,omitempty"`
@@ -61,24 +61,24 @@ func mapAntreaConfigSpec(cluster *clusterapiv1beta1.Cluster, config *cniv1alpha1
 	}
 
 	// Note: ServiceCIDR and ServiceCIDRv6 are automatically ignored when AntreaProxy is enabled
-	configSpec.Antrea.AntConfig.ServiceCIDR = serviceCIDR
-	configSpec.Antrea.AntConfig.ServiceCIDRv6 = serviceCIDRv6
+	configSpec.Antrea.AntreaConfigDataValue.ServiceCIDR = serviceCIDR
+	configSpec.Antrea.AntreaConfigDataValue.ServiceCIDRv6 = serviceCIDRv6
 
-	configSpec.Antrea.AntConfig.TrafficEncapMode = config.Spec.Antrea.AntConfig.TrafficEncapMode
-	configSpec.Antrea.AntConfig.NoSNAT = config.Spec.Antrea.AntConfig.NoSNAT
-	configSpec.Antrea.AntConfig.DisableUDPTunnelOffload = config.Spec.Antrea.AntConfig.DisableUDPTunnelOffload
-	configSpec.Antrea.AntConfig.DefaultMTU = config.Spec.Antrea.AntConfig.DefaultMTU
-	configSpec.Antrea.AntConfig.TLSCipherSuites = config.Spec.Antrea.AntConfig.TLSCipherSuites
+	configSpec.Antrea.AntreaConfigDataValue.TrafficEncapMode = config.Spec.Antrea.AntreaConfigDataValue.TrafficEncapMode
+	configSpec.Antrea.AntreaConfigDataValue.NoSNAT = config.Spec.Antrea.AntreaConfigDataValue.NoSNAT
+	configSpec.Antrea.AntreaConfigDataValue.DisableUDPTunnelOffload = config.Spec.Antrea.AntreaConfigDataValue.DisableUDPTunnelOffload
+	configSpec.Antrea.AntreaConfigDataValue.DefaultMTU = config.Spec.Antrea.AntreaConfigDataValue.DefaultMTU
+	configSpec.Antrea.AntreaConfigDataValue.TLSCipherSuites = config.Spec.Antrea.AntreaConfigDataValue.TLSCipherSuites
 
 	// FeatureGates
-	configSpec.Antrea.AntConfig.FeatureGates.AntreaProxy = config.Spec.Antrea.AntConfig.FeatureGates.AntreaProxy
-	configSpec.Antrea.AntConfig.FeatureGates.EndpointSlice = config.Spec.Antrea.AntConfig.FeatureGates.EndpointSlice
-	configSpec.Antrea.AntConfig.FeatureGates.AntreaPolicy = config.Spec.Antrea.AntConfig.FeatureGates.AntreaPolicy
-	configSpec.Antrea.AntConfig.FeatureGates.FlowExporter = config.Spec.Antrea.AntConfig.FeatureGates.FlowExporter
-	configSpec.Antrea.AntConfig.FeatureGates.Egress = config.Spec.Antrea.AntConfig.FeatureGates.Egress
-	configSpec.Antrea.AntConfig.FeatureGates.NodePortLocal = config.Spec.Antrea.AntConfig.FeatureGates.NodePortLocal
-	configSpec.Antrea.AntConfig.FeatureGates.AntreaTraceflow = config.Spec.Antrea.AntConfig.FeatureGates.AntreaTraceflow
-	configSpec.Antrea.AntConfig.FeatureGates.NetworkPolicyStats = config.Spec.Antrea.AntConfig.FeatureGates.NetworkPolicyStats
+	configSpec.Antrea.AntreaConfigDataValue.FeatureGates.AntreaProxy = config.Spec.Antrea.AntreaConfigDataValue.FeatureGates.AntreaProxy
+	configSpec.Antrea.AntreaConfigDataValue.FeatureGates.EndpointSlice = config.Spec.Antrea.AntreaConfigDataValue.FeatureGates.EndpointSlice
+	configSpec.Antrea.AntreaConfigDataValue.FeatureGates.AntreaPolicy = config.Spec.Antrea.AntreaConfigDataValue.FeatureGates.AntreaPolicy
+	configSpec.Antrea.AntreaConfigDataValue.FeatureGates.FlowExporter = config.Spec.Antrea.AntreaConfigDataValue.FeatureGates.FlowExporter
+	configSpec.Antrea.AntreaConfigDataValue.FeatureGates.Egress = config.Spec.Antrea.AntreaConfigDataValue.FeatureGates.Egress
+	configSpec.Antrea.AntreaConfigDataValue.FeatureGates.NodePortLocal = config.Spec.Antrea.AntreaConfigDataValue.FeatureGates.NodePortLocal
+	configSpec.Antrea.AntreaConfigDataValue.FeatureGates.AntreaTraceflow = config.Spec.Antrea.AntreaConfigDataValue.FeatureGates.AntreaTraceflow
+	configSpec.Antrea.AntreaConfigDataValue.FeatureGates.NetworkPolicyStats = config.Spec.Antrea.AntreaConfigDataValue.FeatureGates.NetworkPolicyStats
 
 	return configSpec, nil
 }

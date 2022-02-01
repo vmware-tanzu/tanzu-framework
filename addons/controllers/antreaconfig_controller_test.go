@@ -74,15 +74,14 @@ var _ = Describe("AntreaConfig Reconciler", func() {
 				if len(config.OwnerReferences) == 0 {
 					return false
 				}
-				Expect(len(config.Finalizers)).Should(Equal(1))
+
 				Expect(len(config.OwnerReferences)).Should(Equal(1))
 				Expect(config.OwnerReferences[0].Name).Should(Equal(configCRName))
 
-				// TODO: Possible to add more checks here
-				Expect(config.Spec.Antrea.AntConfig.TrafficEncapMode).Should(Equal("encap"))
-				Expect(config.Spec.Antrea.AntConfig.FeatureGates.AntreaTraceflow).Should(Equal(false))
-				Expect(config.Spec.Antrea.AntConfig.FeatureGates.AntreaPolicy).Should(Equal(true))
-				Expect(config.Spec.Antrea.AntConfig.FeatureGates.FlowExporter).Should(Equal(false))
+				Expect(config.Spec.Antrea.AntreaConfigDataValue.TrafficEncapMode).Should(Equal("encap"))
+				Expect(config.Spec.Antrea.AntreaConfigDataValue.FeatureGates.AntreaTraceflow).Should(Equal(false))
+				Expect(config.Spec.Antrea.AntreaConfigDataValue.FeatureGates.AntreaPolicy).Should(Equal(true))
+				Expect(config.Spec.Antrea.AntreaConfigDataValue.FeatureGates.FlowExporter).Should(Equal(false))
 
 				return true
 			}, waitTimeout, pollingInterval).Should(BeTrue())
@@ -121,12 +120,22 @@ var _ = Describe("AntreaConfig Reconciler", func() {
 				secret := &v1.Secret{}
 				err := k8sClient.Get(ctx, secretKey, secret)
 				if err != nil {
-
 					return false
 				}
 				Expect(secret.Type).Should(Equal(v1.SecretTypeOpaque))
+
+				// check data value secret contents
 				secretData := string(secret.Data["values.yaml"])
+
+				Expect(strings.Contains(secretData, "serviceCIDR: 192.168.0.0/16")).Should(BeTrue())
+				Expect(strings.Contains(secretData, "serviceCIDRv6: fd00:100:96::/48")).Should(BeTrue())
+				Expect(strings.Contains(secretData, "infraProvider: docker")).Should(BeTrue())
+
+				Expect(strings.Contains(secretData, "trafficEncapMode: encap")).Should(BeTrue())
+				Expect(strings.Contains(secretData, "tlsCipherSuites: TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,TLS_RSA_WITH_AES_256_GCM_SHA384")).Should(BeTrue())
+				Expect(strings.Contains(secretData, "AntreaProxy: true")).Should(BeTrue())
 				Expect(strings.Contains(secretData, "AntreaPolicy: true")).Should(BeTrue())
+
 				return true
 			}, waitTimeout, pollingInterval).Should(BeTrue())
 

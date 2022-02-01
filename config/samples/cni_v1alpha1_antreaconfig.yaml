@@ -3,4 +3,19 @@ kind: AntreaConfig
 metadata:
   name: antreaconfig-sample
 spec:
-  # TODO(user): Add fields here
+  antrea:
+    config:
+      trafficEncapMode: encap
+      noSNAT: false
+      disableUdpTunnelOffload: false
+      defaultMTU: ""
+      tlsCipherSuites: TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,TLS_RSA_WITH_AES_256_GCM_SHA384
+      featureGates:
+        AntreaProxy: true
+        EndpointSlice: false
+        AntreaPolicy: true
+        FlowExporter: false
+        Egress: false
+        NodePortLocal: false
+        AntreaTraceflow: true
+        NetworkPolicyStats: false

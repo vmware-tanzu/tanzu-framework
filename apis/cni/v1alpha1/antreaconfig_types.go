@@ -13,10 +13,10 @@ type AntreaConfigSpec struct {
 }
 
 type Antrea struct {
-	AntConfig AntConfig `json:"config,omitempty"`
+	AntreaConfigDataValue AntreaConfigDataValue `json:"config,omitempty"`
 }
 
-type AntConfig struct {
+type AntreaConfigDataValue struct {
 	// The traffic encapsulation mode. One of the following options => encap, noEncap, hybrid, networkPolicyOnly
 	// +kubebuilder:validation:Optional
 	// +kubebuilder:validation:Enum="encap";"noEncap";"hybrid";"networkPolicyOnly"
@@ -97,8 +97,13 @@ type AntreaConfigStatus struct {
 	SecretRef string `json:"secretRef,omitempty"`
 }
 
-//+kubebuilder:object:root=true
-//+kubebuilder:subresource:status
+// +kubebuilder:object:root=true
+// +kubebuilder:subresource:status
+// +kubebuilder:printcolumn:name="TrafficEncapMode",type="string",JSONPath=".spec.antrea.config.trafficEncapMode",description="The traffic encapsulation mode. One of the following options => encap, noEncap, hybrid, networkPolicyOnly"
+// +kubebuilder:printcolumn:name="DefaultMTU",type="string",JSONPath=".spec.antrea.config.defaultMTU",description="Default MTU to use for the host gateway interface and the network interface of each Pod. If omitted, antrea-agent will discover the MTU of the Node's primary interface"
+// +kubebuilder:printcolumn:name="AntreaProxy",type="string",JSONPath=".spec.antrea.config.featureGates.AntreaProxy",description="Flag to enable/disable antrea proxy"
+// +kubebuilder:printcolumn:name="AntreaPolicy",type="string",JSONPath=".spec.antrea.config.featureGates.AntreaPolicy",description="Flag to enable/disable antrea policy"
+// +kubebuilder:printcolumn:name="SecretRef",type="string",JSONPath=".status.secretRef",description="Name of the antrea data values secret"
 
 // AntreaConfig is the Schema for the antreaconfigs API
 type AntreaConfig struct {
@@ -109,7 +114,7 @@ type AntreaConfig struct {
 	Status AntreaConfigStatus `json:"status,omitempty"`
 }
 
-//+kubebuilder:object:root=true
+// +kubebuilder:object:root=true
 
 // AntreaConfigList contains a list of AntreaConfig
 type AntreaConfigList struct {
