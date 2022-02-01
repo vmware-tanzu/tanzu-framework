@@ -24,7 +24,8 @@ var (
 
 var discoverySourceCmd = &cobra.Command{
 	Use:   "source",
-	Short: "Manage plugin discovery sources. Discovery source provides metadata about the list of available plugins, their supported versions and how to download them.",
+	Short: "Manage plugin discovery sources",
+	Long:  "Manage plugin discovery sources. Discovery source provides metadata about the list of available plugins, their supported versions and how to download them.",
 }
 
 func init() {
