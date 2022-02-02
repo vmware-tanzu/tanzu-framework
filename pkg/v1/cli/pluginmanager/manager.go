@@ -657,6 +657,9 @@ func discoverPluginsFromLocalSourceWithLegacyDirectoryStructure(localPath string
 		// 				cli/login/v0.14.0/tanzu-login-darwin_amd64
 		// As mentioned above, we expect the binary for user's OS-ARCH is present and hence creating path accordingly
 		pluginBinaryPath := filepath.Join(absLocalPath, p.Name, pd.Version, fmt.Sprintf("tanzu-%s-%s_%s", p.Name, runtime.GOOS, runtime.GOARCH))
+		if common.BuildArch().IsWindows() {
+			pluginBinaryPath += exe
+		}
 		// Check if the pluginBinary file exists or not
 		if _, err := os.Stat(pluginBinaryPath); errors.Is(err, os.ErrNotExist) {
 			return nil, errors.Wrapf(err, "unable to find plugin binary for %q", p.Name)
