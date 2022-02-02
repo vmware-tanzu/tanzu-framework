@@ -7,7 +7,6 @@ import (
 	"strings"
 
 	"github.com/pkg/errors"
-
 	netutils "k8s.io/utils/net"
 	clusterapiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
 
@@ -16,46 +15,32 @@ import (
 
 // kappControllerConfigSpec defines the desired state of KappControllerConfig
 type kappControllerConfigSpec struct {
-	Namespace string `yaml:"namespace,omitempty"`
-
+	Namespace      string         `yaml:"namespace,omitempty"`
 	KappController kappController `yaml:"kappController,omitempty"`
 }
 
 type kappController struct {
-	CreateNamespace bool `yaml:"createNamespace,omitempty"`
-
-	GlobalNamespace string `yaml:"globalNamespace,omitempty"`
-
-	Deployment kappDeployment `yaml:"deployment,omitempty"`
-
-	Config kappConfig `yaml:"config,omitempty"`
+	CreateNamespace bool           `yaml:"createNamespace,omitempty"`
+	GlobalNamespace string         `yaml:"globalNamespace,omitempty"`
+	Deployment      kappDeployment `yaml:"deployment,omitempty"`
+	Config          kappConfig     `yaml:"config,omitempty"`
 }
 
 type kappDeployment struct {
-	CoreDNSIP string `yaml:"coreDNSIP,omitempty"`
-
-	HostNetwork bool `yaml:"hostNetwork,omitempty"`
-
-	PriorityClassName string `yaml:"priorityClassName,omitempty"`
-
-	Concurrency int `yaml:"concurrency,omitempty"`
-
-	Tolerations []map[string]string `yaml:"tolerations,omitempty"`
-
-	APIPort int `yaml:"apiPort,omitempty"`
-
-	MetricsBindAddress string `yaml:"metricsBindAddress,omitempty"`
+	CoreDNSIP          string              `yaml:"coreDNSIP,omitempty"`
+	HostNetwork        bool                `yaml:"hostNetwork,omitempty"`
+	PriorityClassName  string              `yaml:"priorityClassName,omitempty"`
+	Concurrency        int                 `yaml:"concurrency,omitempty"`
+	Tolerations        []map[string]string `yaml:"tolerations,omitempty"`
+	APIPort            int                 `yaml:"apiPort,omitempty"`
+	MetricsBindAddress string              `yaml:"metricsBindAddress,omitempty"`
 }
 
 type kappConfig struct {
-	CaCerts string `yaml:"caCerts,omitempty"`
-
-	HTTPProxy string `yaml:"httpProxy,omitempty"`
-
-	HTTPSProxy string `yaml:"httpsProxy,omitempty"`
-
-	NoProxy string `yaml:"noProxy,omitempty"`
-
+	CaCerts                string `yaml:"caCerts,omitempty"`
+	HTTPProxy              string `yaml:"httpProxy,omitempty"`
+	HTTPSProxy             string `yaml:"httpsProxy,omitempty"`
+	NoProxy                string `yaml:"noProxy,omitempty"`
 	DangerousSkipTLSVerify string `yaml:"dangerousSkipTLSVerify,omitempty"`
 }
 
@@ -105,6 +90,7 @@ func mapKappControllerConfigSpec(cluster *clusterapiv1beta1.Cluster, config *run
 	configSpec.KappController.Deployment.MetricsBindAddress = config.Spec.KappController.Deployment.MetricsBindAddress
 
 	// Config
+	// TODO: consolidate proxy settings as derived fields https://github.com/vmware-tanzu/tanzu-framework/issues/1586
 	configSpec.KappController.Config.CaCerts = config.Spec.KappController.Config.CaCerts
 	configSpec.KappController.Config.HTTPProxy = config.Spec.KappController.Config.HTTPProxy
 	configSpec.KappController.Config.HTTPSProxy = config.Spec.KappController.Config.HTTPSProxy

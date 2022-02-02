@@ -93,19 +93,30 @@ spec:
                         description: Concurrency of kapp-controller deployment
                         type: integer
                       hostNetwork:
-                        default: false
+                        default: true
                         description: Whether to enable host networking for kapp-controller
                           deployment
                         type: boolean
                       metricsBindAddress:
-                        default: :8080
+                        default: "0"
                         description: Address for metrics server
                         type: string
                       priorityClassName:
+                        default: system-cluster-critical
                         description: The priority value that various system components
                           use to find the priority of the kapp-controller pod
                         type: string
                       tolerations:
+                        default:
+                        - key: CriticalAddonsOnly
+                          operator: Exists
+                        - effect: NoSchedule
+                          key: node-role.kubernetes.io/master
+                        - effect: NoSchedule
+                          key: node.kubernetes.io/not-ready
+                        - effect: NoSchedule
+                          key: node.cloudprovider.kubernetes.io/uninitialized
+                          value: "true"
                         description: kapp-controller deployment tolerations
                         items:
                           additionalProperties:

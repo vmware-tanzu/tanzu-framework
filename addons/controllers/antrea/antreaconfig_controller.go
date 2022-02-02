@@ -162,9 +162,7 @@ func (r *AntreaConfigReconciler) ReconcileAntreaConfigNormal(
 
 	// update status.secretRef
 	dataValueSecretName := util.GenerateDataValueSecretName(cluster.Name, constants.AntreaAddonName)
-	if antreaConfig.Status.SecretRef != dataValueSecretName {
-		antreaConfig.Status.SecretRef = dataValueSecretName
-	}
+	antreaConfig.Status.SecretRef = dataValueSecretName
 
 	return nil
 }
@@ -194,14 +192,13 @@ func (r *AntreaConfigReconciler) ReconcileAntreaConfigDataValue(
 			return err
 		}
 
-		yamlBytes, err := yaml.Marshal(antreaConfigYaml)
+		dataValueYamlBytes, err := yaml.Marshal(antreaConfigYaml)
 		if err != nil {
 			log.Error(err, "Error marshaling AntreaConfig to Yaml")
 			return err
 		}
 
-		dataValueBytes := append([]byte(constants.TKGDataValueFormatString), yamlBytes...)
-		antreaDataValuesSecret.Data[constants.TKGDataValueFileName] = dataValueBytes
+		antreaDataValuesSecret.Data[constants.TKGDataValueFileName] = dataValueYamlBytes
 
 		return nil
 	}

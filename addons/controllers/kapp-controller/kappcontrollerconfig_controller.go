@@ -8,24 +8,20 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/go-logr/logr"
 	"gopkg.in/yaml.v2"
-	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
-
 	corev1 "k8s.io/api/core/v1"
-
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/utils/pointer"
-
 	clusterapiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
 	clusterapiutil "sigs.k8s.io/cluster-api/util"
 	clusterapipatchutil "sigs.k8s.io/cluster-api/util/patch"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller"
-
-	"github.com/go-logr/logr"
+	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/util"
@@ -103,28 +99,21 @@ func (r *KappControllerConfigReconciler) ReconcileKappControllerConfig(
 	cluster *clusterapiv1beta1.Cluster,
 	log logr.Logger) (_ ctrl.Result, retErr error) {
 
-	var (
-		patchConfig bool
-	)
-
 	patchHelper, err := clusterapipatchutil.NewHelper(kappControllerConfig, r.Client)
 	if err != nil {
 		return ctrl.Result{}, err
 	}
 	// Patch KappControllerConfig before returning the function
 	defer func() {
-		// patchConfig will be true if ownerrefence or secretRef is added or deleted
-		if patchConfig {
-			log.Info("Patching kappControllerConfig")
+		log.Info("Patching kappControllerConfig")
 
-			if err := patchHelper.Patch(ctx, kappControllerConfig); err != nil {
-				log.Error(err, "Error patching kappControllerConfig")
-				retErr = err
-			}
+		if err := patchHelper.Patch(ctx, kappControllerConfig); err != nil {
+			log.Error(err, "Error patching kappControllerConfig")
+			retErr = err
 		}
 	}()
 
-	if err := r.ReconcileKappControllerConfigNormal(ctx, kappControllerConfig, cluster, log, &patchConfig); err != nil {
+	if err := r.ReconcileKappControllerConfigNormal(ctx, kappControllerConfig, cluster, log); err != nil {
 		log.Error(err, "Error reconciling kappControllerConfig")
 		return ctrl.Result{}, err
 	}
@@ -139,8 +128,7 @@ func (r *KappControllerConfigReconciler) ReconcileKappControllerConfigNormal(
 	ctx context.Context,
 	kappControllerConfig *runv1alpha3.KappControllerConfig,
 	cluster *clusterapiv1beta1.Cluster,
-	log logr.Logger,
-	patchConfig *bool) (retErr error) {
+	log logr.Logger) (retErr error) {
 
 	// add owner reference to kappControllerConfig
 	ownerReference := metav1.OwnerReference{
@@ -154,7 +142,6 @@ func (r *KappControllerConfigReconciler) ReconcileKappControllerConfigNormal(
 	if !clusterapiutil.HasOwnerRef(kappControllerConfig.OwnerReferences, ownerReference) {
 		log.Info("Adding owner reference to kappControllerConfig")
 		kappControllerConfig.OwnerReferences = clusterapiutil.EnsureOwnerRef(kappControllerConfig.OwnerReferences, ownerReference)
-		*patchConfig = true
 	}
 
 	if err := r.ReconcileKappControllerConfigDataValue(ctx, kappControllerConfig, cluster, log); err != nil {
@@ -164,10 +151,7 @@ func (r *KappControllerConfigReconciler) ReconcileKappControllerConfigNormal(
 
 	// update status.secretRef
 	dataValueSecretName := util.GenerateDataValueSecretName(kappControllerConfig.Name, KappControllerAddonName)
-	if kappControllerConfig.Status.SecretRef != dataValueSecretName {
-		kappControllerConfig.Status.SecretRef = dataValueSecretName
-		*patchConfig = true
-	}
+	kappControllerConfig.Status.SecretRef = dataValueSecretName
 
 	return nil
 }
@@ -196,13 +180,12 @@ func (r *KappControllerConfigReconciler) ReconcileKappControllerConfigDataValue(
 			return err
 		}
 
-		yamlBytes, err := yaml.Marshal(kappConfig)
+		dataValueYamlBytes, err := yaml.Marshal(kappConfig)
 		if err != nil {
 			return err
 		}
 
-		dataValueBytes := append([]byte(constants.TKGDataValueFormatString), yamlBytes...)
-		dataValuesSecret.Data[constants.TKGDataValueFileName] = dataValueBytes
+		dataValuesSecret.Data[constants.TKGDataValueFileName] = dataValueYamlBytes
 
 		return nil
 	}

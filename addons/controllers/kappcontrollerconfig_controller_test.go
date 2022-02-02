@@ -7,13 +7,11 @@ import (
 	"os"
 	"strings"
 
-	clusterapiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
-	"sigs.k8s.io/controller-runtime/pkg/client"
-
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-
 	v1 "k8s.io/api/core/v1"
+	clusterapiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	kappcontroller "github.com/vmware-tanzu/tanzu-framework/addons/controllers/kapp-controller"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/util"
