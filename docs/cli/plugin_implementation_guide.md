@@ -182,6 +182,9 @@ Using `make build-install-local` installs the plugins for the user, but it inter
 tanzu plugin install <plugin-name> --local ./artifacts/published/${HOSTOS}-${HOSTARCH}
 ```
 
+If your plugin talks to a Tanzu cluster, a helper function `GetCurrentClusterConfig` defined in
+[config](../../pkg/v1/config) package can be used to get the logged in Tanzu cluster's config.
+
 Plugins are installed into `$XDG_DATA_HOME`, [read more](https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html)
 
 The CLI can be updated to the latest version of all plugins using:
