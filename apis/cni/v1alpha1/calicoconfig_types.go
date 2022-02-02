@@ -11,49 +11,45 @@ import (
 type CalicoConfigSpec struct {
 
 	// The namespace in which calico is deployed
-	// +kubebuilder:validation:Optional
-	// +kubebuilder:default:=kube-system
+	//+ kubebuilder:validation:Optional
+	//+kubebuilder:default:=kube-system
 	Namespace string `json:"namespace,omitempty"`
-
-	// Infrastructure provider in use
-	// +kubebuilder:validation:Required
-	// +kubebuilder:validation:Enum="aws";"azure";"vsphere";"docker"
-	InfraProvider string `json:"infraProvider"`
-
-	// The IP family calico should be configured with
-	// +kubebuilder:validation:Optional
-	// +kubebuilder:validation:Enum="ipv4";"ipv6";"ipv4,ipv6";"ipv6,ipv4"
-	// +kubebuilder:default:=ipv4
-	IPFamily string `json:"ipFamily,omitempty"`
 
 	Calico Calico `json:"calico,omitempty"`
 }
 
 type Calico struct {
-	Config Config `json:"config,omitempty"`
+	Config CalicoConfigDataValue `json:"config,omitempty"`
 }
 
-type Config struct {
-	// Maximum transmission unit setting
-	// +kubebuilder:validation:Optional
-	// +kubebuilder:validation:Minimum=0
-	// +kubebuilder:default:=0
-	// "0" as default means MTU will be auto detected
+type CalicoConfigDataValue struct {
+	// Maximum transmission unit setting. "0" as default means MTU will be auto detected
+	//+ kubebuilder:validation:Optional
+	//+kubebuilder:validation:Minimum=0
+	//+kubebuilder:default:=0
 	VethMTU int64 `json:"vethMTU,omitempty"`
 }
 
 // CalicoConfigStatus defines the observed state of CalicoConfig
-type CalicoConfigStatus struct{}
+type CalicoConfigStatus struct {
+	// Name of the data value secret created by calico controller
+	//+ kubebuilder:validation:Optional
+	SecretRef string `json:"secretRef,omitempty"`
+}
 
 //+kubebuilder:object:root=true
 //+kubebuilder:subresource:status
+//+kubebuilder:resource:path=calicoconfigs,scope=Namespaced
+//+kubebuilder:printcolumn:name="Namespace",type="string",JSONPath=".spec.cni.namespace",description="The namespace in which calico is deployed"
+//+kubebuilder:printcolumn:name="VethMTU",type="string",JSONPath=".spec.cni.calico.config.vethMTU",description="Maximum transmission unit setting. '0' as default means MTU will be auto detected"
+//+kubebuilder:printcolumn:name="SecretRef",type="string",JSONPath=".status.secretRef",description="Name of the Calico data values secret"
 
 // CalicoConfig is the Schema for the calicoconfigs API
 type CalicoConfig struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
-	Spec   CalicoConfigSpec   `json:"spec,omitempty"`
+	Spec   CalicoConfigSpec   `json:"spec"`
 	Status CalicoConfigStatus `json:"status,omitempty"`
 }
 
