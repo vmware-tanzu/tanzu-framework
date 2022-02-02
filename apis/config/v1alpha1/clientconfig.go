@@ -6,8 +6,14 @@ package v1alpha1
 import (
 	"errors"
 	"fmt"
+	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
+
+	"github.com/aunum/log"
+
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfigpaths"
 )
 
 const (
@@ -19,6 +25,12 @@ const (
 	ExperimentalUnstableVersions VersionSelectorLevel = "experimental"
 	// NoUnstableVersions allows no unstable plugin versions, format major.minor.patch only
 	NoUnstableVersions VersionSelectorLevel = "none"
+	// DefaultTCEBomRepo is OCI repository containing the BOM for TCE
+	DefaultTCEBomRepo = "projects.registry.vmware.com/tce"
+	// DefaultTKGBomRepo is OCI repository containing the BOM for TKG
+	DefaultTKGBomRepo = "projects.registry.vmware.com/tkg"
+	// DefaultCompatibilityPath the path (project) of the compatibility file
+	DefaultCompatibilityPath = "tkg-compatibility"
 )
 
 const (
@@ -142,4 +154,56 @@ func (c *ClientConfig) SetEditionSelector(edition EditionSelector) {
 		return
 	}
 	c.ClientOptions.CLI.UnstableVersionSelector = EditionStandard
+}
+
+// SetCompatibilityFile changes the compatibility file for the edition.
+func (c *ClientConfig) SetCompatibilityFile(edition EditionSelector) error {
+	// TODO(joshrosso): do something with error
+	configPath, err := getTKGConfigDir()
+	if err != nil {
+		return err
+	}
+	path, err := tkgconfigpaths.New(configPath).GetTKGCompatibilityConfigPath()
+	if err != nil {
+		return err
+	}
+
+	// best effort attempt to remove, do not throw error on failure
+	log.Infof("Edition changed. Clearing compatibility file at %s", path)
+	_ = os.Remove(path)
+
+	if c.ClientOptions == nil {
+		c.ClientOptions = &ClientOptions{}
+	}
+	if c.ClientOptions.CLI == nil {
+		c.ClientOptions.CLI = &CLIOptions{}
+	}
+
+	switch edition {
+	case EditionCommunity:
+		c.ClientOptions.CLI.BOMRepo = DefaultTCEBomRepo
+		c.ClientOptions.CLI.CompatibilityFilePath = DefaultCompatibilityPath
+	case EditionStandard:
+		c.ClientOptions.CLI.BOMRepo = DefaultTKGBomRepo
+		c.ClientOptions.CLI.CompatibilityFilePath = DefaultCompatibilityPath
+	}
+
+	return nil
+}
+
+func getTKGConfigDir() (string, error) {
+	tanzuConfigDir, err := localDirPath(".config/tanzu")
+	if err != nil {
+		return "", err
+	}
+	return filepath.Join(tanzuConfigDir, "tkg"), nil
+}
+
+func localDirPath(dirname string) (path string, err error) {
+	home, err := os.UserHomeDir()
+	if err != nil {
+		return path, err
+	}
+	path = filepath.Join(home, dirname)
+	return
 }

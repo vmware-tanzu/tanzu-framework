@@ -58,6 +58,9 @@ endif
 CUSTOM_NPM_REGISTRY ?= $(shell git config tkg.npmregistry)
 
 # TKG Compatibility Image repo and  path related configuration
+# These set the defaults after a fresh install in ~/.config/tanzu/config.yaml
+# Users can change these values by running commands like:
+# tanzu config set cli.edition tce
 ifndef TKG_DEFAULT_IMAGE_REPOSITORY
 TKG_DEFAULT_IMAGE_REPOSITORY = "projects-stg.registry.vmware.com/tkg"
 endif

@@ -182,9 +182,14 @@ func setEdition(cfg *configv1alpha1.ClientConfig, edition string) error {
 	editionOption := configv1alpha1.EditionSelector(edition)
 
 	switch editionOption {
-	case configv1alpha1.EditionCommunity,
-		configv1alpha1.EditionStandard:
+	case configv1alpha1.EditionCommunity, configv1alpha1.EditionStandard:
 		cfg.SetEditionSelector(editionOption)
+		// when community edition is set, configure the compatibility file to use
+		// community edition's.
+		err := cfg.SetCompatibilityFile(editionOption)
+		if err != nil {
+			return err
+		}
 	default:
 		return fmt.Errorf("unknown edition: %s; should be one of [%s, %s]", editionOption, configv1alpha1.EditionStandard, configv1alpha1.EditionCommunity)
 	}
