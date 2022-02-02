@@ -38,6 +38,7 @@ import (
 	testutil "github.com/vmware-tanzu/tanzu-framework/addons/testutil"
 	cniv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cni/v1alpha1"
 	runtanzuv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha1"
+	runtanzuv1alpha3 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
 )
 
 // These tests use Ginkgo (BDD-style Go testing framework). Refer to
@@ -81,7 +82,8 @@ var _ = BeforeSuite(func(done Done) {
 	Expect(err).NotTo(HaveOccurred())
 	Expect(externalCRDPaths).ToNot(BeEmpty())
 	testEnv.CRDDirectoryPaths = externalCRDPaths
-	testEnv.CRDDirectoryPaths = append(testEnv.CRDDirectoryPaths, filepath.Join("..", "..", "config", "crd", "bases"))
+	testEnv.CRDDirectoryPaths = append(testEnv.CRDDirectoryPaths,
+		filepath.Join("..", "..", "config", "crd", "bases"), filepath.Join("testdata"))
 	testEnv.ErrorIfCRDPathMissing = true
 
 	cfg, err = testEnv.Start()
@@ -113,9 +115,8 @@ var _ = BeforeSuite(func(done Done) {
 	Expect(err).ToNot(HaveOccurred())
 	Expect(k8sClient).ToNot(BeNil())
 
-	//clientset, err := kubernetes.NewForConfig(cfg)
-	//Expect(err).ToNot(HaveOccurred())
-	//Expect(clientset).ToNot(BeNil())
+	err = runtanzuv1alpha3.AddToScheme(scheme)
+	Expect(err).NotTo(HaveOccurred())
 
 	dynamicClient, err = dynamic.NewForConfig(cfg)
 	Expect(err).ToNot(HaveOccurred())
@@ -173,8 +174,17 @@ var _ = BeforeSuite(func(done Done) {
 		Scheme: mgr.GetScheme(),
 	}).SetupWithManager(ctx, mgr, controller.Options{MaxConcurrentReconciles: 1})).To(Succeed())
 
+	tanzuBootstrapReconciler := NewtanzuClusterBootstrapReconciler(mgr.GetClient(),
+		ctrl.Log.WithName("controllers").WithName("TanzuClusterBootstrap"),
+		mgr.GetScheme(),
+	)
+	Expect(tanzuBootstrapReconciler.SetupWithManager(ctx, mgr, controller.Options{MaxConcurrentReconciles: 1})).To(Succeed())
+
 	// pre-create namespace
 	ns := &corev1.Namespace{ObjectMeta: metav1.ObjectMeta{Name: "tkr-system"}}
+	Expect(k8sClient.Create(context.TODO(), ns)).To(Succeed())
+
+	ns = &corev1.Namespace{ObjectMeta: metav1.ObjectMeta{Name: "tkg-system"}}
 	Expect(k8sClient.Create(context.TODO(), ns)).To(Succeed())
 
 	go func() {

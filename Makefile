@@ -482,7 +482,7 @@ test: generate fmt vet manifests build-cli-mocks ## Run tests
 
 	## Test the YTT cluster templates
 	echo "Changing into the provider test directory to verify ytt cluster templates..."
-	cd ./pkg/v1/providers/tests/unit && PATH=$(abspath hack/tools/bin):"$(PATH)" $(GO) test -v -timeout 30s ./
+	cd ./pkg/v1/providers/tests/unit && PATH=$(abspath hack/tools/bin):"$(PATH)" $(GO) test -v -timeout 90s ./
 	echo "... ytt cluster template verification complete!"
 
 	PATH=$(abspath hack/tools/bin):"$(PATH)" $(GO) test -coverprofile cover.out -v `go list ./... | grep -v github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/test`

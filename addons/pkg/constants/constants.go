@@ -103,4 +103,16 @@ const (
 
 	// CRDWaitPollTimeout is poll timeout for checking server resources
 	CRDWaitPollTimeout = time.Minute * 10
+
+	// TanzuClusterBootstrapNameLogKey is the log key for "TanzuClusterBootstrap"
+	TanzuClusterBootstrapNameLogKey = "tanzuclusterbootstrap-name"
+
+	// TKGSystemNS is the TKG system namespace.
+	TKGSystemNS = "tkg-system"
+
+	// DiscoveryCacheInvalidateInterval is the interval for invalidating cache
+	DiscoveryCacheInvalidateInterval = time.Minute * 10
+
+	// ClusterKind is the Kind for cluster-api Cluster object
+	ClusterKind = "cluster"
 )

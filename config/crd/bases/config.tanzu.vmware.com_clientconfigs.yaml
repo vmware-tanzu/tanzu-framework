@@ -140,6 +140,9 @@ spec:
                           type: object
                       type: object
                     type: array
+                  edition:
+                    description: Edition
+                    type: string
                   repositories:
                     description: Repositories are the plugin repositories.
                     items:

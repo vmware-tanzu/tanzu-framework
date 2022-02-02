@@ -23,4 +23,10 @@ resources:
 - group: cni
   kind: CalicoConfig
   version: v1alpha1
+- group: run
+  kind: TanzuClusterBootstrap
+  version: v1alpha3
+- group: run
+  kind: TanzuClusterBootstrapTemplate
+  version: v1alpha3
 version: "2"
