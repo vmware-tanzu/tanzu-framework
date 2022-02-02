@@ -349,7 +349,6 @@ func (c *TkgClient) upgradeAddonPreNodeUpgrade(regionalClusterClient clusterclie
 	// tanzu-addons-manager and tkr-controller only runs in management cluster
 	if isRegionalCluster {
 		addonsToBeUpgraded = append(addonsToBeUpgraded,
-			"addons-management/tanzu-addons-manager",
 			"tkr/tkr-controller",
 			"addons-management/core-package-repo",
 			"capabilities/capabilities-controller",

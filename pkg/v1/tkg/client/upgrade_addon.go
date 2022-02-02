@@ -182,11 +182,6 @@ func (c *TkgClient) DoUpgradeAddon(regionalClusterClient clusterclient.Client, /
 			clusterClient = currentClusterClient
 		case "addons-management/kapp-controller":
 			crsDisabledAddon = true
-		case "addons-management/tanzu-addons-manager":
-			if !options.IsRegionalCluster {
-				return errors.Errorf("upgrade of '%s' component is only supported on management cluster", addonName)
-			}
-			crsDisabledAddon = true
 		case "addons-management/core-package-repo":
 			if !options.IsRegionalCluster {
 				return errors.Errorf("upgrade of '%s' component is only supported on management cluster", addonName)

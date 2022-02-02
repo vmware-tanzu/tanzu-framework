@@ -9,6 +9,6 @@ metadata:
   #@overlay/match missing_ok=True
   annotations:
     ext.packaging.carvel.dev/ytt-data-values-overlays: "tanzu-addons-manager-data-values"
-    tkg.tanzu.vmware.com/addon-type: "addons-management/tanzu-addons-manager"
+    tkg.tanzu.vmware.com/addon-type: "packages/management-package"
 
 #@ end
