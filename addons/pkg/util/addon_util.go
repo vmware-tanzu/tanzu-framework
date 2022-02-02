@@ -14,12 +14,12 @@ import (
 	clusterapiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
+	kappctrl "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/kappctrl/v1alpha1"
+	pkgiv1alpha1 "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/packaging/v1alpha1"
+
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
 	addontypes "github.com/vmware-tanzu/tanzu-framework/addons/pkg/types"
 	bomtypes "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkr/pkg/types"
-
-	kappctrl "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/kappctrl/v1alpha1"
-	pkgiv1alpha1 "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/packaging/v1alpha1"
 )
 
 // GetAddonSecretsForCluster gets the addon secrets belonging to the cluster
@@ -68,6 +68,11 @@ func GenerateAppNameFromAddonSecret(addonSecret *corev1.Secret) string {
 // GenerateAppSecretNameFromAddonSecret generates app secret name from addon secret
 func GenerateAppSecretNameFromAddonSecret(addonSecret *corev1.Secret) string {
 	return fmt.Sprintf("%s-data-values", GenerateAppNameFromAddonSecret(addonSecret))
+}
+
+// GenerateDataValueSecretName generates data value secret name from the cluster and the package name
+func GenerateDataValueSecretName(clusterName, pkgName string) string {
+	return fmt.Sprintf("%s-%s-data-values", clusterName, pkgName)
 }
 
 // GenerateAppNamespaceFromAddonSecret generates app namespace from addons secret

@@ -3,7 +3,7 @@
  */
 import { Injectable } from '@angular/core';
 import XRegExp from 'xregexp';
-import { AbstractControl, ValidationErrors } from '@angular/forms';
+import { AbstractControl, FormGroup, ValidationErrors } from '@angular/forms';
 import { Netmask } from 'netmask';
 import isIp from 'is-ip';
 
@@ -785,6 +785,18 @@ export class ValidationService {
             const ctrlValue: boolean = control.value;
             if (ctrlValue === true) {
                  return { [ValidatorEnum.TRUE]: true };
+            }
+            return null;
+        }
+    }
+
+    isUniqueLabel(formGroup: FormGroup, keys: Set<string>, name: string): any {
+        return (control: AbstractControl) => {
+            const ctrlValue: string = control.value;
+            for (const key of keys) {
+                if (ctrlValue !== '' && ctrlValue === formGroup.value[key] && key !== name) {
+                    return { [ValidatorEnum.LABEL_UNIQUE]: true}
+                }
             }
             return null;
         }

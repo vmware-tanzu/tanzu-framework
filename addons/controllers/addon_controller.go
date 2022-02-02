@@ -321,7 +321,7 @@ func (r *AddonReconciler) reconcileAddonSecret(
 
 	// Patch addon secret before returning the function
 	defer func() {
-		// patchAddonSecret will be true if finalizer or ownerrefence is added
+		// patchAddonSecret will be true if finalizer or ownerrefence is added/removed
 		if patchAddonSecret {
 			log.Info("Patching addon secret", constants.AddonNameLogKey, addonName)
 
@@ -447,7 +447,7 @@ func (r *AddonReconciler) removeFinalizerFromAddonSecret(
 
 	// remove finalizer from addon secret
 	if controllerutil.ContainsFinalizer(addonSecret, addontypes.AddonFinalizer) {
-		log.Info("Removing finalizer to addon secret", constants.AddonNameLogKey, addonName)
+		log.Info("Removing finalizer from addon secret", constants.AddonNameLogKey, addonName)
 		controllerutil.RemoveFinalizer(addonSecret, addontypes.AddonFinalizer)
 		return true, false, nil
 	}
