@@ -16,7 +16,22 @@ spec:
     singular: kappcontrollerconfig
   scope: Namespaced
   versions:
-  - name: v1alpha3
+  - additionalPrinterColumns:
+    - description: The namespace in which kapp-controller is deployed
+      jsonPath: .spec.namespace
+      name: Namespace
+      type: string
+    - description: The namespace value used for global packaging resources. Any Package
+        and PackageMetadata CRs within that namespace will be included in all other
+        namespaces on the cluster, without duplicating them
+      jsonPath: .spec.kappController.globalNamespace
+      name: GlobalNamespace
+      type: string
+    - description: Name of the kapp-controller data values secret
+      jsonPath: .status.secretName
+      name: SecretName
+      type: string
+    name: v1alpha3
     schema:
       openAPIV3Schema:
         description: KappControllerConfig is the Schema for the kappcontrollerconfigs
@@ -108,7 +123,7 @@ spec:
                 type: object
               namespace:
                 default: kube-system
-                description: The namespace in which calico is deployed
+                description: The namespace in which kapp-controller is deployed
                 type: string
             type: object
           status:
@@ -119,6 +134,8 @@ spec:
                 description: Name of the data value secret created by controller
                 type: string
             type: object
+        required:
+        - spec
         type: object
     served: true
     storage: true

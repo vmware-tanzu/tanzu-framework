@@ -24,7 +24,6 @@ import (
 var _ = Describe("KappControllerConfig Reconciler", func() {
 	var (
 		kappConfigCRName        string
-		clusterName             string
 		clusterResourceFilePath string
 	)
 
@@ -49,7 +48,6 @@ var _ = Describe("KappControllerConfig Reconciler", func() {
 
 		BeforeEach(func() {
 			kappConfigCRName = "test-kapp-controller-1"
-			clusterName = "test-kapp-controller-1"
 			clusterResourceFilePath = "testdata/test-kapp-controller-1.yaml"
 		})
 
@@ -57,7 +55,7 @@ var _ = Describe("KappControllerConfig Reconciler", func() {
 
 			key := client.ObjectKey{
 				Namespace: "default",
-				Name:      clusterName,
+				Name:      kappConfigCRName,
 			}
 
 			cluster := &clusterapiv1beta1.Cluster{}
@@ -77,7 +75,7 @@ var _ = Describe("KappControllerConfig Reconciler", func() {
 					return false
 				}
 				Expect(len(config.OwnerReferences)).Should(Equal(1))
-				Expect(config.OwnerReferences[0].Name).Should(Equal(clusterName))
+				Expect(config.OwnerReferences[0].Name).Should(Equal(kappConfigCRName))
 
 				// check spec values
 				Expect(config.Spec.Namespace).Should(Equal("test-ns"))
@@ -96,7 +94,7 @@ var _ = Describe("KappControllerConfig Reconciler", func() {
 			Eventually(func() bool {
 				secretKey := client.ObjectKey{
 					Namespace: "default",
-					Name:      util.GenerateDataValueSecretNameFromAddonNames(kappConfigCRName, kappcontroller.KappControllerAddonName),
+					Name:      util.GenerateDataValueSecretName(kappConfigCRName, kappcontroller.KappControllerAddonName),
 				}
 				secret := &v1.Secret{}
 				err := k8sClient.Get(ctx, secretKey, secret)
@@ -129,7 +127,7 @@ var _ = Describe("KappControllerConfig Reconciler", func() {
 				if err != nil {
 					return false
 				}
-				Expect(config.Status.SecretRef).Should(Equal(util.GenerateDataValueSecretNameFromAddonNames(kappConfigCRName, kappcontroller.KappControllerAddonName)))
+				Expect(config.Status.SecretRef).Should(Equal(util.GenerateDataValueSecretName(kappConfigCRName, kappcontroller.KappControllerAddonName)))
 				return true
 			}, waitTimeout, pollingInterval).Should(BeTrue())
 

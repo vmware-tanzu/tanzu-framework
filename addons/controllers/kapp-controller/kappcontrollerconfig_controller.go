@@ -113,7 +113,7 @@ func (r *KappControllerConfigReconciler) ReconcileKappControllerConfig(
 	}
 	// Patch KappControllerConfig before returning the function
 	defer func() {
-		// patchConfig will be true if finalizer, ownerrefence or secretRef is added or deleted
+		// patchConfig will be true if ownerrefence or secretRef is added or deleted
 		if patchConfig {
 			log.Info("Patching kappControllerConfig")
 
@@ -163,7 +163,7 @@ func (r *KappControllerConfigReconciler) ReconcileKappControllerConfigNormal(
 	}
 
 	// update status.secretRef
-	dataValueSecretName := util.GenerateDataValueSecretNameFromAddonNames(kappControllerConfig.Name, KappControllerAddonName)
+	dataValueSecretName := util.GenerateDataValueSecretName(kappControllerConfig.Name, KappControllerAddonName)
 	if kappControllerConfig.Status.SecretRef != dataValueSecretName {
 		kappControllerConfig.Status.SecretRef = dataValueSecretName
 		*patchConfig = true
@@ -181,7 +181,7 @@ func (r *KappControllerConfigReconciler) ReconcileKappControllerConfigDataValue(
 
 	dataValuesSecret := &corev1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      util.GenerateDataValueSecretNameFromAddonNames(kappControllerConfig.Name, KappControllerAddonName),
+			Name:      util.GenerateDataValueSecretName(kappControllerConfig.Name, KappControllerAddonName),
 			Namespace: cluster.Namespace,
 		},
 	}

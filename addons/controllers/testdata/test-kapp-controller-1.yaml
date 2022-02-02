@@ -1,7 +1,23 @@
+---
+apiVersion: cluster.x-k8s.io/v1beta1
+kind: Cluster
+metadata:
+  name: test-kapp-controller-1
+  namespace: default
+spec:
+  clusterNetwork:
+    pods:
+      cidrBlocks:
+        - 100.96.0.0/11
+    services:
+      cidrBlocks:
+        - 100.64.0.0/13
+---
 apiVersion: run.tanzu.vmware.com/v1alpha3
 kind: KappControllerConfig
 metadata:
-  name: kappcontrollerconfig-sample
+  name: test-kapp-controller-1
+  namespace: default
 spec:
   namespace: test-ns
   kappController:

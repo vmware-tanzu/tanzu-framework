@@ -86,8 +86,8 @@ func GenerateAppNamespaceFromAddonSecret(addonSecret *corev1.Secret, defaultAddo
 	return defaultAddonNamespace
 }
 
-// GenerateDataValueSecretNameFromAddonNames generates data value secret name from addon names
-func GenerateDataValueSecretNameFromAddonNames(clusterName, addonName string) string {
+// GenerateDataValueSecretName generates data value secret name from addon and cluster names
+func GenerateDataValueSecretName(clusterName, addonName string) string {
 	return fmt.Sprintf("%s-%s-data-values", clusterName, addonName)
 }
 

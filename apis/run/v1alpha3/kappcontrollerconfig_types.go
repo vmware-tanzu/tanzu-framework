@@ -11,7 +11,7 @@ import (
 
 // KappControllerConfigSpec defines the desired state of KappControllerConfig
 type KappControllerConfigSpec struct {
-	// The namespace in which calico is deployed
+	// The namespace in which kapp-controller is deployed
 	// +kubebuilder:validation:Optional
 	// +kubebuilder:default:=kube-system
 	Namespace string `json:"namespace,omitempty"`
@@ -96,13 +96,16 @@ type KappControllerConfigStatus struct {
 
 //+kubebuilder:object:root=true
 //+kubebuilder:subresource:status
+// +kubebuilder:printcolumn:name="Namespace",type="string",JSONPath=".spec.namespace",description="The namespace in which kapp-controller is deployed"
+// +kubebuilder:printcolumn:name="GlobalNamespace",type="string",JSONPath=".spec.kappController.globalNamespace",description="The namespace value used for global packaging resources. Any Package and PackageMetadata CRs within that namespace will be included in all other namespaces on the cluster, without duplicating them"
+// +kubebuilder:printcolumn:name="SecretName",type="string",JSONPath=".status.secretName",description="Name of the kapp-controller data values secret"
 
 // KappControllerConfig is the Schema for the kappcontrollerconfigs API
 type KappControllerConfig struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
-	Spec   KappControllerConfigSpec   `json:"spec,omitempty"`
+	Spec   KappControllerConfigSpec   `json:"spec"`
 	Status KappControllerConfigStatus `json:"status,omitempty"`
 }
 
