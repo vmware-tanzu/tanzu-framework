@@ -115,9 +115,6 @@ const (
 
 	// ClusterKind is the Kind for cluster-api Cluster object
 	ClusterKind = "cluster"
-	
-	// DataValueFileName is the name of data value file
-	TKGDataValueFileName = "values.yaml"
 
 	// AntreaAddonName is the name of Antrea Addon Controller
 	AntreaAddonName = "antrea"
