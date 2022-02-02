@@ -174,6 +174,12 @@ var _ = BeforeSuite(func(done Done) {
 		Scheme: mgr.GetScheme(),
 	}).SetupWithManager(ctx, mgr, controller.Options{MaxConcurrentReconciles: 1})).To(Succeed())
 
+	Expect((&antrea.AntreaConfigReconciler{
+		Client: mgr.GetClient(),
+		Log:    setupLog,
+		Scheme: mgr.GetScheme(),
+	}).SetupWithManager(ctx, mgr, controller.Options{MaxConcurrentReconciles: 1})).To(Succeed())
+
 	tanzuBootstrapReconciler := NewtanzuClusterBootstrapReconciler(mgr.GetClient(),
 		ctrl.Log.WithName("controllers").WithName("TanzuClusterBootstrap"),
 		mgr.GetScheme(),

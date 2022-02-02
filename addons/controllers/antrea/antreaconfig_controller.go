@@ -161,7 +161,7 @@ func (r *AntreaConfigReconciler) ReconcileAntreaConfigNormal(
 	}
 
 	// update status.secretRef
-	dataValueSecretName := util.GenerateDataValueSecretNameFromAddonAndClusterNames(cluster.Name, constants.AntreaAddonName)
+	dataValueSecretName := util.GenerateDataValueSecretName(cluster.Name, constants.AntreaAddonName)
 	if antreaConfig.Status.SecretRef != dataValueSecretName {
 		antreaConfig.Status.SecretRef = dataValueSecretName
 	}
@@ -179,7 +179,7 @@ func (r *AntreaConfigReconciler) ReconcileAntreaConfigDataValue(
 	// prepare data values secret for AntreaConfig
 	antreaDataValuesSecret := &corev1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      util.GenerateDataValueSecretNameFromAddonAndClusterNames(antreaConfig.Name, constants.AntreaAddonName),
+			Name:      util.GenerateDataValueSecretName(antreaConfig.Name, constants.AntreaAddonName),
 			Namespace: antreaConfig.Namespace,
 		},
 	}

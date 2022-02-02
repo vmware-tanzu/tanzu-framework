@@ -115,7 +115,7 @@ var _ = Describe("AntreaConfig Reconciler", func() {
 			Eventually(func() bool {
 				secretKey := client.ObjectKey{
 					Namespace: "default",
-					Name:      util.GenerateDataValueSecretNameFromAddonAndClusterNames(configCRName, constants.AntreaAddonName),
+					Name:      util.GenerateDataValueSecretName(configCRName, constants.AntreaAddonName),
 				}
 				secret := &v1.Secret{}
 				err := k8sClient.Get(ctx, secretKey, secret)
@@ -146,7 +146,7 @@ var _ = Describe("AntreaConfig Reconciler", func() {
 				if err != nil {
 					return false
 				}
-				Expect(config.Status.SecretRef).Should(Equal(util.GenerateDataValueSecretNameFromAddonAndClusterNames(configCRName, constants.AntreaAddonName)))
+				Expect(config.Status.SecretRef).Should(Equal(util.GenerateDataValueSecretName(configCRName, constants.AntreaAddonName)))
 				return true
 			}, waitTimeout, pollingInterval).Should(BeTrue())
 

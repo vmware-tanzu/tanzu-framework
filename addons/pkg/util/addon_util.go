@@ -75,9 +75,6 @@ func GenerateAppSecretNameFromAddonSecret(addonSecret *corev1.Secret) string {
 // GenerateDataValueSecretName generates data value secret name from the cluster and the package name
 func GenerateDataValueSecretName(clusterName, pkgName string) string {
 	return fmt.Sprintf("%s-%s-data-values", clusterName, pkgName)
-// GenerateDataValueSecretNameFromAddonAndClusterNames generates data value secret name from addon names
-func GenerateDataValueSecretNameFromAddonAndClusterNames(clusterName, addonName string) string {
-	return fmt.Sprintf("%s-%s-data-values", clusterName, addonName)
 }
 
 // GenerateAppNamespaceFromAddonSecret generates app namespace from addons secret
