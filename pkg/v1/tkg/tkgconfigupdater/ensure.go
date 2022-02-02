@@ -14,6 +14,7 @@ import (
 	"github.com/pkg/errors"
 	"gopkg.in/yaml.v3"
 
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/config"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/log"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfigbom"
@@ -138,7 +139,10 @@ func (c *client) EnsureTKGCompatibilityFile(forceUpdate bool) error {
 		return errors.Wrap(err, "failed to initialize the BOM registry to download default TKG compatibility file ")
 	}
 
-	err = c.tkgBomClient.DownloadTKGCompatibilityFileFromRegistry(bomRegistry)
+	repo, _ := config.GetDefaultRepo()
+	path, _ := config.GetCompatibilityFilePath()
+
+	err = c.tkgBomClient.DownloadTKGCompatibilityFileFromRegistry(repo, path, bomRegistry)
 	if err != nil {
 		return errors.Wrap(err, "failed to download TKG compatibility file from the registry")
 	}
@@ -195,7 +199,9 @@ func (c *client) EnsureBOMFiles(forceUpdate bool) error {
 		return errors.Wrap(err, "failed to initialize the BOM registry to download default bom files ")
 	}
 
-	err = c.tkgBomClient.DownloadDefaultBOMFilesFromRegistry(bomRegistry)
+	repo, _ := config.GetDefaultRepo()
+
+	err = c.tkgBomClient.DownloadDefaultBOMFilesFromRegistry(repo, bomRegistry)
 	if err != nil {
 		return errors.Wrap(err, "failed to download default bom files from the registry")
 	}

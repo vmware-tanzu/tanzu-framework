@@ -112,6 +112,12 @@ type CLIOptions struct {
 	UnstableVersionSelector VersionSelectorLevel `json:"unstableVersionSelector,omitempty" yaml:"unstableVersionSelector"`
 	// Edition
 	Edition EditionSelector `json:"edition,omitempty" yaml:"edition"`
+	// BOMRepo is the root repository URL used to resolve the compatibiilty file
+	// and bill of materials. An example URL is projects.registry.vmware.com/tkg.
+	BOMRepo string `json:"bomRepo,omitempty" yaml:"bomRepo"`
+	// CompatibilityFilePath is the path, from the BOM repo, to download and access the compatibility file.
+	// the compatibility file is used for resolving the bill of materials for creating clusters.
+	CompatibilityFilePath string `json:"compatibilityFilePath,omitempty" yaml:"compatibilityFilePath"`
 }
 
 // PluginDiscovery contains a specific distribution mechanism. Only one of the
