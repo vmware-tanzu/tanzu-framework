@@ -156,7 +156,6 @@ As TKG v1.3 introduces new components and controllers running on the cluster its
 Below are the things deployed additionally during cluster upgrade:
 
 * "addons-management/kapp-controller" (management-cluster, workload-cluster)
-* "addons-management/tanzu-addons-manager" (management-cluster only)
 * "tkr/tkr-controller" (management-cluster only)
 
 Note: Below are the things that DOES NOT get upgraded during TKG cluster upgrade command.

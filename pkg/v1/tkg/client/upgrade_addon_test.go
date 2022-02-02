@@ -179,7 +179,7 @@ var _ = Describe("Unit tests for addons upgrade", func() {
 
 		Context("When upgrading all addons", func() {
 			BeforeEach(func() {
-				addonsToBeUpgraded = []string{"metadata/tkg", "addons-management/kapp-controller", "addons-management/tanzu-addons-manager", "tkr/tkr-controller"}
+				addonsToBeUpgraded = []string{"metadata/tkg", "addons-management/kapp-controller", "tkr/tkr-controller"}
 				clusterTemplateError = nil
 				currentClusterClient.ApplyReturns(nil)
 				regionalClusterClient.ApplyReturns(nil)
