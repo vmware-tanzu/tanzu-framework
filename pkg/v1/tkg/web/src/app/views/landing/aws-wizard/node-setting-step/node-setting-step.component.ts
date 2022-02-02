@@ -17,6 +17,7 @@ import { StepFormDirective } from '../../wizard/shared/step-form/step-form';
 import { StepMapping } from '../../wizard/shared/field-mapping/FieldMapping';
 import { TkgEventType } from '../../../../shared/service/Messenger';
 import { ValidationService } from '../../wizard/shared/validation/validation.service';
+import { filterInstanceTypes } from '../../wizard/shared/utils/filter-instance-types';
 
 export interface AzNodeTypes {
     awsNodeAz1: Array<string>,
@@ -64,6 +65,24 @@ const PRIVATE_SUBNET = [
     AwsField.NODESETTING_VPC_PRIVATE_SUBNET_3,
 ];
 const VPC_SUBNETS = [...PUBLIC_SUBNETS, ...PRIVATE_SUBNET];
+
+const instanceTypeFilterExp = '^.*(?=(m6g|t4g|a1|c7g|c6g|c6gn|r6g|x2gd|g5g|im4gn|is4gn)\\.).*$';
+// specifies instance types to exclude
+/**
+ * const instanceTypeFilterExp = [
+    'm6g.',
+    't4g.',
+    'a1.',
+    'c7g.',
+    'c6g.',
+    'c6gn.',
+    'r6g.',
+    'x2gd.',
+    'g5g.',
+    'im4gn.',
+    'is4gn.'
+];
+ */
 
 export enum NodeType {
     DEV = 'dev',
@@ -477,7 +496,9 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
                 .pipe(takeUntil(this.unsubscribe))
                 .subscribe(
                     ((nodeTypes) => {
-                        this.azNodeTypes[azField] = nodeTypes;
+                        // this.azNodeTypes[azField] = nodeTypes;
+
+                        this.azNodeTypes[azField] = filterInstanceTypes(nodeTypes, instanceTypeFilterExp, true) ;
                         if (nodeTypes.length === 1) {
                             this.setControlValueSafely(workerNodeField, nodeTypes[0]);
                         }
