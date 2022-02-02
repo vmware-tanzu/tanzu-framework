@@ -205,10 +205,6 @@ export class UserDataService {
         wizardEntry.steps[identifier.step].fields[identifier.field] = data;
     }
 
-    private isFeatureEnabled(featureFlag: string): boolean {
-        return AppServices.appDataService.isPluginFeatureActivated(managementClusterPlugin, featureFlag);
-    }
-
     // string format is "key:value, key2:value2, key3:value3"; for display purposes only
     private mapToDisplayString(map: Map<string, string>): string {
         let labelsStr: string = '';
