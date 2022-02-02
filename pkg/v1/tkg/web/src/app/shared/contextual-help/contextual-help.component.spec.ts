@@ -42,8 +42,8 @@ describe('ContextualHelpComponent', () => {
     it('should show detail for a topic', () => {
         const mockData = {
             htmlContent: '<p>hello world</p>',
-            tags: ['step1'],
-            title: 'docker step 1'
+            topicIds: ['step1'],
+            topicTitle: 'docker step 1'
         };
         component.showContent(mockData);
         expect(component.isTopicView).toBeFalse();
