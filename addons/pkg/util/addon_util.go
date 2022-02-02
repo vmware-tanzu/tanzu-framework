@@ -277,7 +277,7 @@ func GetInfraProvider(cluster *clusterapiv1beta1.Cluster) (string, error) {
 			return infraconstants.InfrastructureProviderAWS, nil
 		case infraconstants.InfrastructureRefAzure:
 			return infraconstants.InfrastructureProviderAzure, nil
-		case infraconstants.InfrastructureRefDocker:
+		case constants.InfrastructureRefDocker:
 			return infraconstants.InfrastructureProviderDocker, nil
 		}
 	}

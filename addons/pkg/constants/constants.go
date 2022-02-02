@@ -121,4 +121,7 @@ const (
 
 	// AntreaAddonName is the name of Antrea Addon Controller
 	AntreaAddonName = "antrea"
+
+	// InfrastructureRefDocker is the docker infrastructure
+	InfrastructureRefDocker = "DockerCluster"
 )
