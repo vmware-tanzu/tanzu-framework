@@ -403,7 +403,7 @@
                             <clr-tooltip>
                                 <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                                 <clr-tooltip-content clrPosition="top-left" clrSize="lg" *clrIfOpen>
-                                    <span>The LDAP attribute that contains the username used in Kubernetes. In AD environments
+                                    <span>The LDAP attribute that contains the username used in Kubernetes; can only be searched by CN. In AD environments
                                         this is generally sAMAccountName.</span>
                                 </clr-tooltip-content>
                             </clr-tooltip>
@@ -477,12 +477,12 @@
                             <clr-tooltip>
                                 <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                                 <clr-tooltip-content clrPosition="top-left" clrSize="lg" *clrIfOpen>
-                                    <span>The LDAP attribute that Kubernetes will see as part of your groups (e.g., cn).</span>
+                                    <span>The LDAP attribute that Kubernetes will see as part of your groups (e.g., ou); can only be searched by OU.</span>
                                 </clr-tooltip-content>
                             </clr-tooltip>
                         </label>
                         <input clrInput
-                               placeholder="cn"
+                               placeholder="ou"
                                formControlName="groupSearchNameAttr"
                                name="groupSearchNameAttr"/>
                         <!-- Add a empty helper to avoid accessibility aria-describeby issue -->
