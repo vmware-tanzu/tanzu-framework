@@ -60,8 +60,9 @@ export abstract class SharedOsImageStepDirective<IMAGE extends OsImage> extends 
         if (this.osImages.length === 1) {
             this.setControlValueSafely(OsImageField.IMAGE, images[0]);
         } else {
-            AppServices.userDataFormService.restoreField(this.createUserDataIdentifier(OsImageField.IMAGE), this.formGroup,
-                {}, this.getImageFromStoredValue.bind(this));
+            const fieldMapping = AppServices.fieldMapUtilities.getFieldMapping(WizardField.OSIMAGE, this.supplyStepMapping());
+            AppServices.userDataFormService.restoreField(this.createUserDataIdentifier(fieldMapping.name), fieldMapping,
+                this.formGroup, {}, this.getImageFromStoredValue.bind(this));
         }
     }
 

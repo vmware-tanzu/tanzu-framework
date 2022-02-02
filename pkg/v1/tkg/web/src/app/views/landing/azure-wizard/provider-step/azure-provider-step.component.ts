@@ -169,8 +169,11 @@ export class AzureProviderStepComponent extends StepFormDirective implements OnI
         ].forEach( accountField => {
             this.initFieldWithSavedData(accountField);
         });
-        AppServices.userDataFormService.restoreField(this.createUserDataIdentifier(AzureField.PROVIDER_AZURECLOUD), this.formGroup,
-            {onlySelf: true}, storedCloudValue => {AzureClouds.find(azureCloud => azureCloud.name === storedCloudValue)});
+        const fieldMapping = AppServices.fieldMapUtilities.getFieldMapping(AzureField.PROVIDER_AZURECLOUD, AzureProviderStepMapping);
+        AppServices.userDataFormService.restoreField(this.createUserDataIdentifier(AzureField.PROVIDER_AZURECLOUD), fieldMapping,
+            this.formGroup, {onlySelf: true},
+            storedCloudValue => { return AzureClouds.find(azureCloud => azureCloud.name === storedCloudValue); }
+        );
         this.initFieldWithSavedData(AzureField.PROVIDER_SSHPUBLICKEY);
 
         // AzureField.PROVIDER_CLIENTSECRET causes us to break

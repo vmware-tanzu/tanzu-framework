@@ -179,7 +179,8 @@ export class AwsProviderStepComponent extends StepFormDirective implements OnIni
         // Use the presence of a saved secret access key to set the access type.
         // (Which is to say: assume CredentialType.PROFILE unless there is a saved secret access key.)
         // NOTE: if there is a real saved access key (from import) we erase it immediately after using it here
-        const savedSecretAccessKey = this.getRawSavedValue(AwsField.PROVIDER_SECRET_ACCESS_KEY);
+        const fieldMapping = AppServices.fieldMapUtilities.getFieldMapping(AwsField.PROVIDER_SECRET_ACCESS_KEY, AwsProviderStepMapping);
+        const savedSecretAccessKey = AppServices.userDataService.retrieveStoredValue(this.wizardName, this.formName, fieldMapping);
         this.authTypeValue = (savedSecretAccessKey) ? CredentialType.ONETIME : CredentialType.PROFILE;
     }
 

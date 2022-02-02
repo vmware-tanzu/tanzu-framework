@@ -138,14 +138,6 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
         return result;
     }
 
-    getRawSavedValue(fieldName: string) {
-        const identifier = this.createUserDataIdentifier(fieldName);    // new way
-        const entry = AppServices.userDataService.retrieve(identifier);
-        const value = entry ? entry.value : null;
-
-        return value;
-    }
-
     /**
      * Safely looks up the saved key of a control in savedMetadata; this will only have been set for listboxes
      * that have a different key from the displayed label

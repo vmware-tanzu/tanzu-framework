@@ -90,7 +90,13 @@ export class UserDataFormService {
             const retriever = this.getFieldBackingObjectRetrieverIfNec(fieldMapping, objectRetrievalMap);
             const restorer = this.getFieldCustomRestorerIfNec(fieldMapping, customRestorerMap);
             const identifier = { wizard, step, field: fieldMapping.name };
-            this.restoreField(identifier, formGroup, {}, retriever, restorer);
+            this.restoreField(identifier, fieldMapping, formGroup, {}, retriever, restorer);
+
+            // Re-store the masked field value, so that if there WAS a value for this masked field in local storage,
+            // it will be erased
+            if (fieldMapping.mask) {
+                this.storeMaskField(identifier, formGroup);
+            }
         });
         // Note: we set the values on the primary trigger fields AFTER all the "regular" fields are restored because the
         // handler for the trigger field change may make use the values of the other fields
@@ -98,7 +104,7 @@ export class UserDataFormService {
             const retriever = this.getFieldBackingObjectRetrieverIfNec(fieldMapping, objectRetrievalMap);
             const restorer = this.getFieldCustomRestorerIfNec(fieldMapping, customRestorerMap);
             const identifier = { wizard, step, field: fieldMapping.name };
-            this.restoreField(identifier, formGroup, {}, retriever, restorer);
+            this.restoreField(identifier, fieldMapping, formGroup, {}, retriever, restorer);
         })
     }
 
@@ -166,14 +172,14 @@ export class UserDataFormService {
         return restorer;
     }
 
-    restoreField(identifier: UserDataIdentifier, formGroup: FormGroup, options?: { onlySelf?: boolean, emitEvent?: boolean },
-                 retriever?: (string) => any, restorer?: (any) => void) {
-        const storedEntry = AppServices.userDataService.retrieve(identifier);
-        if (!storedEntry || storedEntry.value === undefined || storedEntry.value === null) {
+    restoreField(identifier: UserDataIdentifier, fieldMapping: FieldMapping, formGroup: FormGroup,
+                 options?: { onlySelf?: boolean; emitEvent?: boolean }, retriever?: (string) => any, restorer?: (any) => void) {
+        const storedValue = AppServices.userDataService.retrieveStoredValue(identifier.wizard, identifier.step, fieldMapping, retriever);
+        if (!storedValue === undefined || storedValue === null) {
             return;
         }
         if (restorer) {
-            restorer(storedEntry.value);
+            restorer(storedValue);
             return;
         }
         const control = formGroup.get(identifier.field);
@@ -181,9 +187,9 @@ export class UserDataFormService {
             console.error('restoreField() is unable to find control for field "' + identifier.field + '"');
             return;
         }
-        const value = retriever ? retriever(storedEntry.value) : storedEntry.value;
+        const value = retriever ? retriever(storedValue) : storedValue;
         if (retriever && !value) {
-            console.warn('Trying to restore field ' + identifier.field + ' with stored value ' + storedEntry.value +
+            console.warn('Trying to restore field ' + identifier.field + ' with stored value ' + storedValue +
                 ', but retriever does not return a value');
         }
         control.setValue(value, options);

@@ -542,7 +542,7 @@ router.post(`${ENDPOINT}/providers/vsphere/config/import`, (req, res) => {
         "workerNodeType": "medium",
         "vsphereCredentials": {
             "host": "vsphere.local",
-            "password": "",
+            "password": "<encoded:cGFzc3dvcmQ=>",
             "thumbprint": "F8:DB:B3:6E:34:C6:0C:4D:15:8E:58:56:94:3D:32:4D:B6:85:BB:65",
             "username": "admin"
         }

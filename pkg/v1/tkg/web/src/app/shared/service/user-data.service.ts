@@ -1,7 +1,5 @@
 // App imports
-import AppServices from './appServices';
 import { BackingObjectMap, FieldMapping, StepMapping } from '../../views/landing/wizard/shared/field-mapping/FieldMapping';
-import { managementClusterPlugin } from '../../views/landing/wizard/shared/constants/wizard.constants';
 import { PersistentStore } from '../../views/landing/wizard/shared/PersistentStore';
 
 export interface UserDataEntry {
@@ -114,7 +112,7 @@ export class UserDataService {
         return this.stringToMap(storedEntry.value);
     }
 
-    retrieveStoredValue(wizard, step: string, fieldMapping: FieldMapping, retriever: (string) => any): any {
+    retrieveStoredValue(wizard, step: string, fieldMapping: FieldMapping, retriever?: (string) => any): any {
         const identifier = {wizard, step, field: fieldMapping.name};
         if (fieldMapping.isMap) {
             return this.retrieveMap(identifier);

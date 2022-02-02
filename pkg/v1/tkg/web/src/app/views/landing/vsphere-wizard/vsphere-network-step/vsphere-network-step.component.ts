@@ -48,13 +48,13 @@ export class VsphereNetworkStepComponent extends SharedNetworkStepComponent {
             if (networks.length === 1) {
                 chosenNetwork = networks[0];
             } else {
-                const savedNetworkEntry = AppServices.userDataService.retrieve(this.createUserDataIdentifier(VsphereField.NETWORK_NAME));
-                if (savedNetworkEntry && savedNetworkEntry.value) {
-                    chosenNetwork = networks.find(network => network.name === savedNetworkEntry.value);
-                }
+                const fieldMapping = AppServices.fieldMapUtilities.getFieldMapping(VsphereField.NETWORK_NAME, this.supplyStepMapping());
+                chosenNetwork = AppServices.userDataService.retrieveStoredValue(this.wizardName, this.formName, fieldMapping, network => {
+                    return networks.find(networkName => network.name === networkName);
+                });
             }
         }
-        this.resurrectField('networkName', [Validators.required], chosenNetwork, { onlySelf: true } );
+        this.resurrectField(VsphereField.NETWORK_NAME, [Validators.required], chosenNetwork, { onlySelf: true } );
     }
 
     protected onNoProxyChange(value: string) {
