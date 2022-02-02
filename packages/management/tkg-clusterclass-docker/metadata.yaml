@@ -1,0 +1,14 @@
+apiVersion: data.packaging.carvel.dev/v1alpha1
+kind: PackageMetadata
+metadata:
+  name: tkg-clusterclass-docker.tanzu.vmware.com
+  namespace: default
+spec:
+  displayName: "tkg-clusterclass-docker"
+  longDescription: "ClusterClass for Docker defines the default set of Docker ClusterClass resources for Tanzu"
+  shortDescription: "Defines the Docker ClusterClass resources for Tanzu"
+  providerName: VMware
+  maintainers:
+    - name: ""
+  categories:
+    - "clusterclass"

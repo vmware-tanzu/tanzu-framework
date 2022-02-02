@@ -1,0 +1,14 @@
+apiVersion: data.packaging.carvel.dev/v1alpha1
+kind: PackageMetadata
+metadata:
+  name: tkg-clusterclass.tanzu.vmware.com
+  namespace: tkg-clusterclass
+spec:
+  displayName: "tkg-clusterclass"
+  longDescription: "Defines the default set of ClusterClass resources for Tanzu"
+  shortDescription: "Defines the ClusterClass resources for Tanzu"
+  providerName: VMware
+  maintainers:
+    - name: ""
+  categories:
+    - "clusterclass"

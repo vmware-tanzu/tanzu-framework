@@ -1,0 +1,14 @@
+apiVersion: data.packaging.carvel.dev/v1alpha1
+kind: PackageMetadata
+metadata:
+  name: tkg.tanzu.vmware.com
+  namespace: tkg
+spec:
+  displayName: "tkg"
+  longDescription: "TKG composite package deploys all management component to the kubernetes cluster to convert cluster into TKG management cluster"
+  shortDescription: "TKG composite package to deploy all management component"
+  providerName: VMware
+  maintainers:
+    - name: ""
+  categories:
+    - ""
