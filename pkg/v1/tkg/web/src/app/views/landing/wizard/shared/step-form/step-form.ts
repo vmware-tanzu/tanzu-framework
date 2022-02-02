@@ -294,7 +294,7 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
         if (field) {
             field.setValidators(validators);
             field.updateValueAndValidity(options);
-            if (value !== undefined) {
+            if (value !== undefined && field.value !== value) {
                 field.setValue(value || null, options);
             }
         }

@@ -61,16 +61,20 @@ export class SharedLoadBalancerStepComponent extends StepFormDirective implement
                     takeUntil(this.unsubscribe)
                 )
                 .subscribe(() => {
-                    this.connected = false;
-                    this.disarmField(LoadBalancerField.CLOUD_NAME, true);
-                    this.clouds = [];
-                    this.disarmField(LoadBalancerField.SERVICE_ENGINE_GROUP_NAME, true);
-                    this.serviceEngineGroups = [];
-                    this.disarmField(LoadBalancerField.NETWORK_CIDR, true);
-                    this.disarmField(LoadBalancerField.MANAGEMENT_CLUSTER_NETWORK_CIDR, true);
+                    if (this.connected) {
+                        this.connected = false;
+                        this.disarmField(LoadBalancerField.CLOUD_NAME, true);
+                        this.clouds = [];
+                        this.disarmField(LoadBalancerField.SERVICE_ENGINE_GROUP_NAME, true);
+                        this.serviceEngineGroups = [];
+                        this.disarmField(LoadBalancerField.NETWORK_CIDR, true);
+                        this.disarmField(LoadBalancerField.MANAGEMENT_CLUSTER_NETWORK_CIDR, true);
 
-                    // If connection cleared, toggle validators OFF
-                    this.toggleValidators(false);
+                        // If connection cleared, toggle validators OFF
+                        this.toggleValidators(false);
+
+                        console.log('load balance connection => FALSE due to field "' + field + '" getting new value=' + newValue);
+                    }
                 });
         });
 
@@ -268,11 +272,8 @@ export class SharedLoadBalancerStepComponent extends StepFormDirective implement
     onSelectCloud(cloudName: string) {
         this.serviceEngineGroupsFiltered = [];
 
-        if (cloudName) {
-            this.selectedCloud = this.clouds.find((cloud: AviCloud) => {
-                return cloud.name === cloudName;
-            });
-
+        if (cloudName && this.clouds) {
+            this.selectedCloud = this.clouds.find((cloud: AviCloud) => { return cloud.name === cloudName; });
             if (this.selectedCloud) {
                 this.serviceEngineGroupsFiltered = this.serviceEngineGroups.filter((group: AviServiceEngineGroup) => {
                     return group.location.includes(this.selectedCloud.uuid);
