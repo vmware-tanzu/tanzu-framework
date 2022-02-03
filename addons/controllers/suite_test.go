@@ -8,6 +8,7 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
+	"time"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -33,6 +34,7 @@ import (
 	pkgiv1alpha1 "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/packaging/v1alpha1"
 	antrea "github.com/vmware-tanzu/tanzu-framework/addons/controllers/antrea"
 	calico "github.com/vmware-tanzu/tanzu-framework/addons/controllers/calico"
+	kappcontroller "github.com/vmware-tanzu/tanzu-framework/addons/controllers/kapp-controller"
 	addonconfig "github.com/vmware-tanzu/tanzu-framework/addons/pkg/config"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/crdwait"
@@ -44,6 +46,19 @@ import (
 
 // These tests use Ginkgo (BDD-style Go testing framework). Refer to
 // http://onsi.github.io/ginkgo/ to learn more about Ginkgo.
+
+const (
+	waitTimeout             = time.Second * 90
+	pollingInterval         = time.Second * 2
+	appSyncPeriod           = 5 * time.Minute
+	appWaitTimeout          = 30 * time.Second
+	addonNamespace          = "tkg-system"
+	addonServiceAccount     = "tkg-addons-app-sa"
+	addonClusterRole        = "tkg-addons-app-cluster-role"
+	addonClusterRoleBinding = "tkg-addons-app-cluster-role-binding"
+	addonImagePullPolicy    = "IfNotPresent"
+	corePackageRepoName     = "core"
+)
 
 var (
 	cfg           *rest.Config
@@ -92,6 +107,9 @@ var _ = BeforeSuite(func(done Done) {
 	Expect(cfg).ToNot(BeNil())
 
 	err = runtanzuv1alpha1.AddToScheme(scheme)
+	Expect(err).NotTo(HaveOccurred())
+
+	err = runtanzuv1alpha3.AddToScheme(scheme)
 	Expect(err).NotTo(HaveOccurred())
 
 	err = clientgoscheme.AddToScheme(scheme)
@@ -176,6 +194,12 @@ var _ = BeforeSuite(func(done Done) {
 	}).SetupWithManager(ctx, mgr, controller.Options{MaxConcurrentReconciles: 1})).To(Succeed())
 
 	Expect((&antrea.AntreaConfigReconciler{
+		Client: mgr.GetClient(),
+		Log:    setupLog,
+		Scheme: mgr.GetScheme(),
+	}).SetupWithManager(ctx, mgr, controller.Options{MaxConcurrentReconciles: 1})).To(Succeed())
+
+	Expect((&kappcontroller.KappControllerConfigReconciler{
 		Client: mgr.GetClient(),
 		Log:    setupLog,
 		Scheme: mgr.GetScheme(),

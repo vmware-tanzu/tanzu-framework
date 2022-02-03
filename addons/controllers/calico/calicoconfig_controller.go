@@ -159,9 +159,8 @@ func (r *CalicoConfigReconciler) ReconcileCalicoConfigNormal(
 	}
 
 	// add the name of the data values secret in the CalicoConfig Status field
-	if calicoConfig.Status.SecretRef != secretNamespacedName.Name {
-		calicoConfig.Status.SecretRef = secretNamespacedName.Name
-	}
+	calicoConfig.Status.SecretRef = secretNamespacedName.Name
+
 	return nil
 }
 
@@ -193,13 +192,12 @@ func (r *CalicoConfigReconciler) ReconcileCalicoDataValuesSecret(
 			return err
 		}
 
-		yamlBytes, err := yaml.Marshal(calicoConfigYaml)
+		dataValueYamlBytes, err := yaml.Marshal(calicoConfigYaml)
 		if err != nil {
 			r.Log.Error(err, "Error marshaling CalicoConfig to Yaml")
 			return err
 		}
-		dataValueBytes := append([]byte(constants.TKGDataValueFormatString), yamlBytes...)
-		calicoDataValuesSecret.Data[constants.TKGDataValueFileName] = dataValueBytes
+		calicoDataValuesSecret.Data[constants.TKGDataValueFileName] = dataValueYamlBytes
 		return nil
 	}
 
