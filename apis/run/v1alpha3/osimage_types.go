@@ -4,6 +4,8 @@
 package v1alpha3
 
 import (
+	"encoding/json"
+
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	clusterv1 "sigs.k8s.io/cluster-api/api/v1beta1"
 )
@@ -17,6 +19,7 @@ type OSInfo struct {
 }
 
 // MachineImageInfo describes the "Image" part of the OSImage, defined by the image type.
+// +kubebuilder:object:generate=false
 type MachineImageInfo struct {
 	// Type of the OSImage, roughly corresponding to the infrastructure provider (vSphere can serve both ova and vmop).
 	// Some of currently known types are: "ami", "azure", "docker", "ova", "vmop".
@@ -24,7 +27,30 @@ type MachineImageInfo struct {
 
 	// Ref is a key-value map identifying the image within the infrastructure provider. This is the data
 	// to be injected into the infra-Machine objects (like AWSMachine) on creation.
-	Ref map[string]string `json:"ref"`
+	// +kubebuilder:validation:Schemaless
+	// +kubebuilder:validation:Type=object
+	// +kubebuilder:pruning:PreserveUnknownFields
+	Ref map[string]interface{} `json:"ref"`
+}
+
+// DeepCopyInto is a deepcopy function, copying the receiver, writing into out. in must be non-nil.
+func (in *MachineImageInfo) DeepCopyInto(out *MachineImageInfo) {
+	*out = *in
+	if in.Ref != nil {
+		out.Ref = make(map[string]interface{}, len(in.Ref))
+		refBytes, _ := json.Marshal(in.Ref)    // ignoring error: the original data is a JSON object
+		_ = json.Unmarshal(refBytes, &out.Ref) // ignoring error: the original data is a JSON object
+	}
+}
+
+// DeepCopy is a deepcopy function, copying the receiver, creating a new MachineImageInfo.
+func (in *MachineImageInfo) DeepCopy() *MachineImageInfo {
+	if in == nil {
+		return nil
+	}
+	out := new(MachineImageInfo)
+	in.DeepCopyInto(out)
+	return out
 }
 
 // OSImageSpec defines the desired state of OSImage
