@@ -6,3 +6,5 @@ cluster:
   version: VERSION
 kubernetesrelease:
   version: VERSION
+feature:
+  version: VERSION
