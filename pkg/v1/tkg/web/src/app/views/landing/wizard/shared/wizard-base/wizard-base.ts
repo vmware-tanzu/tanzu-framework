@@ -16,6 +16,7 @@ import { CeipField } from '../components/steps/ceip-step/ceip-step.fieldmapping'
 import { ClusterType, IdentityManagementType, WizardForm } from "../constants/wizard.constants";
 import { ConfigFileInfo } from '../../../../../swagger/models/config-file-info.model';
 import { EditionData } from '../../../../../shared/service/branding.service';
+import { FieldMapping } from '../field-mapping/FieldMapping';
 import { FormDataForHTML, FormUtility } from '../components/steps/form-utility';
 import { IdentityField } from '../components/steps/identity-step/identity-step.fieldmapping';
 import { LoadBalancerField } from '../components/steps/load-balancer/load-balancer-step.fieldmapping';
@@ -346,7 +347,7 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Wiz
         const result = new Map<string, string>();
         if (obj) {
             Object.keys(obj).forEach(key => {
-                result[key] = obj[key];
+                result.set(key, obj[key]);
             })
         }
         return result;
@@ -402,7 +403,12 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Wiz
         }
 
         payload.ceipOptIn = this.getBooleanFieldValue(WizardForm.CEIP, CeipField.OPTIN);
-        payload.labels = this.strMapToObj(this.getFieldValue(WizardForm.METADATA, MetadataField.CLUSTER_LABELS));
+        // TODO: for labels, we are reaching into storage to get the value, whereas all the other data come from fields
+        // It would be better for ALL the fields to use a FieldMapping to retrieve the data
+        const labelFieldMapping: FieldMapping = {name: MetadataField.CLUSTER_LABELS, isMap: true};
+        let labelsMap = AppServices.userDataService.retrieveStoredValue(this.supplyWizardName(), WizardForm.METADATA, labelFieldMapping);
+        payload.labels = this.strMapToObj(labelsMap);
+
         payload.os = this.getFieldValue(WizardForm.OSIMAGE, OsImageField.IMAGE);
         payload.annotations = {
             'description': this.getFieldValue(WizardForm.METADATA, MetadataField.CLUSTER_DESCRIPTION),
@@ -452,6 +458,9 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Wiz
                 , payload.identityManagement);
         }
 
+        // TODO: for clusterLabels, we are reaching into storage to get the value, whereas all the other data come from fields
+        // It would be better for ALL the fields to use a FieldMapping to retrieve the data
+        labelsMap = AppServices.userDataService.retrieveStoredValue(this.supplyWizardName(), 'loadBalancerForm', labelFieldMapping);
         payload.aviConfig = {
             'controller': this.getFieldValue(WizardForm.LOADBALANCER, LoadBalancerField.CONTROLLER_HOST),
             'username': this.getFieldValue(WizardForm.LOADBALANCER, LoadBalancerField.USERNAME),
@@ -463,7 +472,7 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Wiz
                 'name': this.getFieldValue(WizardForm.LOADBALANCER, LoadBalancerField.NETWORK_NAME),
                 'cidr': this.getFieldValue(WizardForm.LOADBALANCER, LoadBalancerField.NETWORK_CIDR)
             },
-            'labels': this.strMapToObj(this.getFieldValue(WizardForm.LOADBALANCER, LoadBalancerField.CLUSTER_LABELS))
+            'labels': this.strMapToObj(labelsMap),
         }
         return payload;
     }

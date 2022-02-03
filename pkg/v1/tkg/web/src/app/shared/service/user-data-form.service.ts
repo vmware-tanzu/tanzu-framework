@@ -175,24 +175,20 @@ export class UserDataFormService {
     restoreField(identifier: UserDataIdentifier, fieldMapping: FieldMapping, formGroup: FormGroup,
                  options?: { onlySelf?: boolean; emitEvent?: boolean }, retriever?: (string) => any, restorer?: (any) => void) {
         const storedValue = AppServices.userDataService.retrieveStoredValue(identifier.wizard, identifier.step, fieldMapping, retriever);
-        if (!storedValue === undefined || storedValue === null) {
+        if (!storedValue === undefined || storedValue === null || fieldMapping.displayOnly) {
             return;
         }
         if (restorer) {
             restorer(storedValue);
             return;
         }
+
         const control = formGroup.get(identifier.field);
         if (!control) {
-            console.error('restoreField() is unable to find control for field "' + identifier.field + '"');
+            console.error('restoreField(): no control: "' + identifier.wizard + '.' + identifier.step + '.' + identifier.field + '"');
             return;
         }
-        const value = retriever ? retriever(storedValue) : storedValue;
-        if (retriever && !value) {
-            console.warn('Trying to restore field ' + identifier.field + ' with stored value ' + JSON.stringify(storedValue) +
-                ', but retriever does not return a value');
-        }
-        control.setValue(value, options);
+        control.setValue(storedValue, options);
     }
 
     // storeBackingObject expects to encounter an OBJECT backing the listbox and will use fieldDisplay of that object for the display

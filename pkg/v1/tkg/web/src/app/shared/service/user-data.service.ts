@@ -206,9 +206,7 @@ export class UserDataService {
     // string format is "key:value, key2:value2, key3:value3"; for display purposes only
     private mapToDisplayString(map: Map<string, string>): string {
         let labelsStr: string = '';
-        map.forEach((value: string, key: string) => {
-            labelsStr += key + ':' + value + ', '
-        });
+        map.forEach((value, key) => labelsStr += key + ':' + value + ', ');
         return labelsStr.slice(0, -2);  // chop off the last ', '
     }
 

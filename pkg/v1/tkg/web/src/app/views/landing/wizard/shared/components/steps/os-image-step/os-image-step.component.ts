@@ -32,7 +32,7 @@ export abstract class SharedOsImageStepDirective<IMAGE extends OsImage> extends 
     // used by HTML as well as locally
     public providerInputs: OsImageProviderInputs;
 
-    osImages: Array<IMAGE>;
+    osImages: Array<IMAGE> = [];
     loadingOsTemplate: boolean = false;
     displayNonTemplateAlert: boolean = false;
     // TODO: It's questionable whether tkrVersion should be in this class, since it's only used for vSphere
@@ -55,7 +55,7 @@ export abstract class SharedOsImageStepDirective<IMAGE extends OsImage> extends 
     }
 
     private onOsImageEvent(images: Array<IMAGE>) {
-        this.osImages = images;
+        this.osImages = images ? images : [];
         this.loadingOsTemplate = false;
         if (this.osImages.length === 1) {
             this.setControlValueSafely(OsImageField.IMAGE, images[0]);
@@ -72,7 +72,7 @@ export abstract class SharedOsImageStepDirective<IMAGE extends OsImage> extends 
 
     private getObjectRetrievalMap(): Map<string, (string) => any> {
         const objectRetrievalMap = new Map<string, (string) => any>();
-        objectRetrievalMap['osImage'] = this.getImageFromStoredValue.bind(this);
+        objectRetrievalMap.set('osImage', this.getImageFromStoredValue.bind(this));
         return objectRetrievalMap;
     }
 

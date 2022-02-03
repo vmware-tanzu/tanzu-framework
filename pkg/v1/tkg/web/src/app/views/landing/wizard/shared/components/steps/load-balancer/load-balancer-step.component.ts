@@ -113,7 +113,7 @@ export class SharedLoadBalancerStepComponent extends StepFormDirective implement
             this.getCustomRestorerMap());
         this.htmlFieldLabels = AppServices.fieldMapUtilities.getFieldLabelMap(this.supplyStepMapping());
         this.storeDefaultLabels(this.supplyStepMapping());
-        this.registerDefaultFileImportedHandler(this.eventFileImported, this.supplyStepMapping(), null,
+        this.registerDefaultFileImportedHandler(this.eventFileImported, this.supplyStepMapping(), this.getCustomRetrievalMap(),
             this.getCustomRestorerMap());
         this.registerDefaultFileImportErrorHandler(this.eventFileImportError);
 

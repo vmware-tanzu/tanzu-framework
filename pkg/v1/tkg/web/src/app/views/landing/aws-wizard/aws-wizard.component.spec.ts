@@ -121,8 +121,6 @@ describe('AwsWizardComponent', () => {
     });
 
     it('should create API payload', () => {
-        const clusterLabels = new Map();
-        clusterLabels.set('key1', 'value1');
         const mappings = [
             [AwsForm.PROVIDER, AwsField.PROVIDER_ACCESS_KEY, 'aws-access-key-id-12345'],
             [AwsForm.PROVIDER, AwsField.PROVIDER_REGION, 'US-WEST'],
@@ -138,7 +136,6 @@ describe('AwsWizardComponent', () => {
             [AwsForm.NODESETTING, AwsField.NODESETTING_CREATE_CLOUD_FORMATION, true],
             [AwsForm.NODESETTING, AwsField.NODESETTING_MACHINE_HEALTH_CHECKS_ENABLED, true],
             [WizardForm.METADATA, MetadataField.CLUSTER_DESCRIPTION, 'DescriptionEXAMPLE'],
-            [WizardForm.METADATA, MetadataField.CLUSTER_LABELS, clusterLabels],
             [WizardForm.METADATA, MetadataField.CLUSTER_LOCATION, 'mylocation1'],
             [WizardForm.NETWORK, NetworkField.CLUSTER_POD_CIDR, '100.96.0.0/11'],
             [WizardForm.NETWORK, NetworkField.CLUSTER_SERVICE_CIDR, '100.64.0.0/13'],
@@ -154,6 +151,10 @@ describe('AwsWizardComponent', () => {
             expect(formGroup).toBeTruthy();
             formGroup.addControl(fieldName, new FormControl(desiredValue));
         });
+        // NOTE: because cluster labels are pulled from storage (not a DOM control) we have to put the test values in storage
+        const clusterLabels = new Map<string, string>([['key1', 'value1']]);
+        const identifier = { wizard: component.wizardName, step: WizardForm.METADATA, field: 'clusterLabels'};
+        AppServices.userDataService.storeMap(identifier, clusterLabels);
 
         const payload = component.getPayload();
         expect(payload.awsAccountParams).toEqual({

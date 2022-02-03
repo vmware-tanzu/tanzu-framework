@@ -77,7 +77,7 @@ export class SharedNetworkStepComponent extends StepFormDirective implements OnI
         AppServices.userDataFormService.buildForm(this.formGroup, this.wizardName, this.formName, this.supplyStepMapping());
         this.htmlFieldLabels = AppServices.fieldMapUtilities.getFieldLabelMap(this.supplyStepMapping());
         this.storeDefaultLabels(this.supplyStepMapping());
-        this.registerDefaultFileImportedHandler(this.eventFileImported, this.supplyStepMapping());
+        this.registerDefaultFileImportedHandler(this.eventFileImported, this.supplyStepMapping(), this.supplyObjectRetrievalMap());
         this.registerDefaultFileImportErrorHandler(this.eventFileImportError);
 
         this.customizeForm();
@@ -100,14 +100,19 @@ export class SharedNetworkStepComponent extends StepFormDirective implements OnI
                 this.disarmField(NetworkField.CLUSTER_SERVICE_CIDR, false);
             }
             this.setCidrs();
-
             if (this.enableNetworkName) {
-                this.resurrectFieldWithStoredValue(NetworkField.NETWORK_NAME, this.supplyStepMapping(), [
-                    Validators.required
-                ], '', { onlySelf: true }); // only for current form control
+                this.setNetworkNameValidator();
             }
         }
     }
+
+    private setNetworkNameValidator() {
+        const control = this.formGroup.controls['networkName'];
+        if (control) {
+            control.setValidators([Validators.required]);
+        }
+    }
+
     setCidrs = () => {
         if (this.cniType === 'antrea') {
             this.resurrectField(NetworkField.CLUSTER_SERVICE_CIDR, [
@@ -303,5 +308,9 @@ export class SharedNetworkStepComponent extends StepFormDirective implements OnI
     }
     get networks(): { displayName?: string }[] {
         return this.supplyNetworks();
+    }
+
+    protected supplyObjectRetrievalMap() {
+        return undefined;
     }
 }

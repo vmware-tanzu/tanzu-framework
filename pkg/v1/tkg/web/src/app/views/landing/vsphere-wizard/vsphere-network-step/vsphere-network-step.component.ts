@@ -100,6 +100,12 @@ export class VsphereNetworkStepComponent extends SharedNetworkStepComponent {
         return { fieldMappings };
     }
 
+    protected supplyObjectRetrievalMap(): Map<string, (networkName: string) => VSphereNetwork> {
+        // we return a map that links the networkName field to a closure that will retrieve a network object given the network name
+        return new Map<string, (networkName: string) => VSphereNetwork>([['networkName',
+            (networkName) => this.vmNetworks.find(network => network.moid === networkName || network.name === networkName)]]);
+    }
+
     dynamicDescription(): string {
         // NOTE: even though this is a common wizard form, vSphere has a different way of describing it
         // because vSphere allows for the user to select a network name

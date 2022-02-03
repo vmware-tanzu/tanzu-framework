@@ -508,7 +508,11 @@ router.post(`${ENDPOINT}/providers/vsphere/config/import`, (req, res) => {
            "controlPlaneHaProvider" : "NSX Advanced Load Balancer",
             "network": {
                "name": "bozo-network"
-            }
+            },
+            "labels": {
+                "foo1": "one",
+                "foo2": "two"
+            },
         },
         "ceipOptIn": true,
         "controlPlaneEndpoint": "10.92.12.54",

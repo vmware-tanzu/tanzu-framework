@@ -37,7 +37,7 @@ export class MetadataStepComponent extends StepFormDirective implements OnInit {
             fields: [MetadataField.CLUSTER_LOCATION],
             clusterTypeDescriptor: true,
         })
-        this.registerDefaultFileImportedHandler(this.eventFileImported, MetadataStepMapping, null,
+        this.registerDefaultFileImportedHandler(this.eventFileImported, MetadataStepMapping, this.getCustomRetrievalMap(),
             this.getCustomRestorerMap());
         this.registerDefaultFileImportErrorHandler(this.eventFileImportError);
 
