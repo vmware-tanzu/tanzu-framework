@@ -88,7 +88,7 @@ export class ResourceStepComponent extends StepFormDirective implements OnInit {
         if (this.hasSavedData()) {
             for (const [key, control] of Object.entries(this.formGroup.controls)) {
                 if (fieldsToReset.includes(key)) {
-                    const savedValue = this.getSavedValue(key, control.value);
+                    const savedValue = this.getStoredValue(key, VsphereResourceStepMapping, control.value);
                     control.setValue(savedValue);
                 }
             }
@@ -153,7 +153,7 @@ export class ResourceStepComponent extends StepFormDirective implements OnInit {
             }
             resource.label = resource.name;
         });
-        const selectResourcePool = this.getSavedValue(VsphereField.RESOURCE_POOL, '');
+        const selectResourcePool = this.getStoredValue(VsphereField.RESOURCE_POOL, VsphereResourceStepMapping, '');
         this.constructTree(resourceTree, nodeMap, selectResourcePool);
         this.treeData = this.removeDatacenter(resourceTree);
     }
@@ -267,7 +267,8 @@ export class ResourceStepComponent extends StepFormDirective implements OnInit {
             data = [];
         }
         this.vmFolders = this.sortVsphereResources(data);
-        const selectValue = (data.length === 1) ? data[0].name : this.getSavedValue(VsphereField.RESOURCE_VMFOLDER, '');
+        const storedVmFolder = this.getStoredValue(VsphereField.RESOURCE_VMFOLDER, VsphereResourceStepMapping, '');
+        const selectValue = (data.length === 1) ? data[0].name : storedVmFolder;
         const validators = [Validators.required,
             this.validationService.isValidNameInList(data.map(vmFolder => vmFolder.name))];
         this.resurrectField(VsphereField.RESOURCE_VMFOLDER, validators, selectValue);
@@ -280,7 +281,7 @@ export class ResourceStepComponent extends StepFormDirective implements OnInit {
         }
         this.datastores = this.sortVsphereResources(data);
         const selectValue = (data.length === 1) ? data[0].name :
-            this.getSavedValue(VsphereField.RESOURCE_DATASTORE, '');
+            this.getStoredValue(VsphereField.RESOURCE_DATASTORE, VsphereResourceStepMapping, '');
         const validators = [Validators.required,
             this.validationService.isValidNameInList(data.map(vmFolder => vmFolder.name))];
         this.resurrectField(VsphereField.RESOURCE_DATASTORE, validators, selectValue);

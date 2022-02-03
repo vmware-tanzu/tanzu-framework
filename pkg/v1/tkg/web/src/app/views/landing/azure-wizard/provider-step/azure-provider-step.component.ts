@@ -134,8 +134,8 @@ export class AzureProviderStepComponent extends StepFormDirective implements OnI
     private initResourceGroupFromSavedData() {
         // if the user did an import, then we expect the value to be stored in AzureField.PROVIDER_RESOURCEGROUPCUSTOM
         // we'll check and see if that value is now existing
-        let savedGroupExisting = this.getSavedValue(AzureField.PROVIDER_RESOURCEGROUPEXISTING, '');
-        let savedGroupCustom = this.getSavedValue(AzureField.PROVIDER_RESOURCEGROUPCUSTOM, '');
+        let savedGroupExisting = this.getStoredValue(AzureField.PROVIDER_RESOURCEGROUPEXISTING, AzureProviderStepMapping, '');
+        let savedGroupCustom = this.getStoredValue(AzureField.PROVIDER_RESOURCEGROUPCUSTOM, AzureProviderStepMapping, '');
 
         if (this.handleIfSavedCustomResourceGroupIsNowExisting(savedGroupCustom)) {
             savedGroupExisting = savedGroupCustom;
@@ -150,38 +150,6 @@ export class AzureProviderStepComponent extends StepFormDirective implements OnI
             this.showResourceGroup(ResourceGroupOption.EXISTING);
         } else {
             this.showResourceGroup(this.resourceGroupOption);
-        }
-    }
-
-    initFormWithImportedData() {
-        // Initializations not needed the first time the form is loaded, but
-        // required to re-initialize after form has been used
-        this.validCredentials = false;
-        this.regions = [];
-        this.resourceGroups = [];
-        this.resourceGroupCreationState = 'create';
-        this.resourceGroupOption = ResourceGroupOption.EXISTING;
-
-        [   AzureField.PROVIDER_TENANT,
-            AzureField.PROVIDER_CLIENT,
-            AzureField.PROVIDER_SUBSCRIPTION,
-            AzureField.PROVIDER_AZURECLOUD
-        ].forEach( accountField => {
-            this.initFieldWithSavedData(accountField);
-        });
-        const fieldMapping = AppServices.fieldMapUtilities.getFieldMapping(AzureField.PROVIDER_AZURECLOUD, AzureProviderStepMapping);
-        AppServices.userDataFormService.restoreField(this.createUserDataIdentifier(AzureField.PROVIDER_AZURECLOUD), fieldMapping,
-            this.formGroup, {onlySelf: true},
-            storedCloudValue => { return AzureClouds.find(azureCloud => azureCloud.name === storedCloudValue); }
-        );
-        this.initFieldWithSavedData(AzureField.PROVIDER_SSHPUBLICKEY);
-
-        // AzureField.PROVIDER_CLIENTSECRET causes us to break
-        // this.initFieldWithSavedData(AzureField.PROVIDER_CLIENTSECRET);
-        this.scrubPasswordField(AzureField.PROVIDER_CLIENTSECRET);
-
-        if (this.getFieldValue(AzureField.PROVIDER_AZURECLOUD) === '') {
-            this.setFieldValue(AzureField.PROVIDER_AZURECLOUD, AzureClouds[0]);
         }
     }
 
@@ -218,7 +186,8 @@ export class AzureProviderStepComponent extends StepFormDirective implements OnI
             .subscribe(
                 regions => {
                     this.regions = regions.sort((regionA, regionB) => regionA.name.localeCompare(regionB.name));
-                    const selectedRegion = this.regions.length === 1 ? this.regions[0].name : this.getSavedValue(AzureField.PROVIDER_REGION, '');
+                    const savedRegion = this.getStoredValue(AzureField.PROVIDER_REGION, AzureProviderStepMapping, '');
+                    const selectedRegion = this.regions.length === 1 ? this.regions[0].name : savedRegion;
                     // setting the region value will trigger other data calls to the back end for resource groups, osimages, etc
                     this.setControlValueSafely(AzureField.PROVIDER_REGION, selectedRegion);
                 },

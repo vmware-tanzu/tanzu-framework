@@ -41,7 +41,7 @@ export class VpcStepComponent extends StepFormDirective implements OnInit {
                     existingVpcControl.setValue(this.existingVpcs[0].id);
                     existingVpcCidrControl.setValue(this.existingVpcs[0].cidr);
                 } else {
-                    this.setControlWithSavedValue(AwsField.VPC_EXISTING_ID);
+                    this.setFieldWithStoredValue(AwsField.VPC_EXISTING_ID, AwsVpcStepMapping);
                 }
             }
             this.formGroup.get(AwsField.VPC_NEW_CIDR).clearValidators();
@@ -123,7 +123,7 @@ export class VpcStepComponent extends StepFormDirective implements OnInit {
     }
 
     chooseInitialVpcType() {
-        if (!this.hasSavedData() || this.getSavedValue(AwsField.VPC_NEW_CIDR, '') !== '') {
+        if (!this.hasSavedData() || this.getStoredValue(AwsField.VPC_NEW_CIDR, AwsVpcStepMapping)) {
             this.setNewVpcValidators();
         } else {
             this.formGroup.get(AwsField.VPC_TYPE).setValue(VpcType.EXISTING);
@@ -139,13 +139,12 @@ export class VpcStepComponent extends StepFormDirective implements OnInit {
     setNewVpcValidators() {
         this.defaultVpcHasChanged = false;
 
-        this.formGroup.get(AwsField.VPC_NEW_CIDR).setValue(this.getSavedValue(AwsField.VPC_NEW_CIDR, this.defaultVpcAddress));
+        this.setFieldWithStoredValue(AwsField.VPC_NEW_CIDR, AwsVpcStepMapping, this.defaultVpcAddress);
         this.formGroup.get(AwsField.VPC_NEW_CIDR).setValidators([
             Validators.required,
             this.validationService.noWhitespaceOnEnds(),
             this.validationService.isValidIpNetworkSegment()
         ]);
-
     }
 
     setExistingVpcValidators() {

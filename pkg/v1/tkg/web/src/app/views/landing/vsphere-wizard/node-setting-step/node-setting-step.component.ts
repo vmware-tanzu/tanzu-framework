@@ -126,7 +126,7 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
 
     private onDevCardClicked() {
         this.nodeType = InstanceType.DEV;
-        this.resurrectFieldWithSavedValue(VsphereField.NODESETTING_INSTANCE_TYPE_DEV, [Validators.required]);
+        this.resurrectFieldWithStoredValue(VsphereField.NODESETTING_INSTANCE_TYPE_DEV, this.supplyStepMapping(), [Validators.required]);
         const devInstanceType = this.getFieldValue(VsphereField.NODESETTING_INSTANCE_TYPE_DEV);
         // If there's no worker instance type, set it to the DEV value
         if (!this.modeClusterStandalone && devInstanceType && !this.getFieldValue(VsphereField.NODESETTING_WORKER_NODE_INSTANCE_TYPE)) {
@@ -137,9 +137,10 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
 
     private onProdCardClicked() {
         this.nodeType = InstanceType.PROD;
-        this.resurrectFieldWithSavedValue(VsphereField.NODESETTING_INSTANCE_TYPE_PROD, [Validators.required]);
+        this.resurrectFieldWithStoredValue(VsphereField.NODESETTING_INSTANCE_TYPE_PROD, this.supplyStepMapping(), [Validators.required]);
         if (!this.modeClusterStandalone) {
-            this.resurrectFieldWithSavedValue(VsphereField.NODESETTING_WORKER_NODE_INSTANCE_TYPE, [Validators.required]);
+            this.resurrectFieldWithStoredValue(VsphereField.NODESETTING_WORKER_NODE_INSTANCE_TYPE, this.supplyStepMapping(),
+                [Validators.required]);
         }
         this.disarmField(VsphereField.NODESETTING_INSTANCE_TYPE_DEV);
     }
@@ -148,13 +149,13 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
         if (this.hasSavedData()) {
             // Is the configuration using a DEV or a PROD instance type? We check the saved value of the DEV node instance to determine
             // if the user was in DEV node instance mode
-            const savedDevInstanceType = this.getSavedValue(VsphereField.NODESETTING_INSTANCE_TYPE_DEV, '');
+            const savedDevInstanceType = this.getStoredValue(VsphereField.NODESETTING_INSTANCE_TYPE_DEV, this.supplyStepMapping(), '');
             const managementClusterType = savedDevInstanceType !== '' ? InstanceType.DEV : InstanceType.PROD;
             this.cardClick(managementClusterType);
 
             if (managementClusterType === InstanceType.DEV) {
                 // set the node type ID by finding it by the node type name OR the id
-                const savedNameOrId = this.getSavedValue(VsphereField.NODESETTING_INSTANCE_TYPE_DEV, '');
+                const savedNameOrId = this.getStoredValue(VsphereField.NODESETTING_INSTANCE_TYPE_DEV, this.supplyStepMapping(), '');
                 const savedNodeType = this.findNodeTypeByNameOrId(savedNameOrId);
                 if (savedNodeType) {
                     this.setControlValueSafely(VsphereField.NODESETTING_INSTANCE_TYPE_DEV, savedNodeType.id);
@@ -162,7 +163,7 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
                 this.disarmField(VsphereField.NODESETTING_INSTANCE_TYPE_PROD, true);
             } else {
                 // set the node type ID by finding it by the node type name OR the id
-                const savedNameOrId = this.getSavedValue(VsphereField.NODESETTING_INSTANCE_TYPE_PROD, '');
+                const savedNameOrId = this.getStoredValue(VsphereField.NODESETTING_INSTANCE_TYPE_PROD, this.supplyStepMapping(), '');
                 const savedNodeType = this.findNodeTypeByNameOrId(savedNameOrId);
                 if (savedNodeType) {
                     this.setControlValueSafely(VsphereField.NODESETTING_INSTANCE_TYPE_PROD, savedNodeType.id);
@@ -170,7 +171,8 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
                 this.disarmField(VsphereField.NODESETTING_INSTANCE_TYPE_DEV, true);
             }
             if (!this.modeClusterStandalone) {
-                const savedWorkerNodeNameOrId = this.getSavedValue(VsphereField.NODESETTING_WORKER_NODE_INSTANCE_TYPE, '');
+                const savedWorkerNodeNameOrId = this.getStoredValue(VsphereField.NODESETTING_WORKER_NODE_INSTANCE_TYPE,
+                    this.supplyStepMapping(), '');
                 const savedWorkerNodeType = this.findNodeTypeByNameOrId(savedWorkerNodeNameOrId);
                 const valueToUse = savedWorkerNodeType ? savedWorkerNodeType.id : '';
                 this.setControlValueSafely(VsphereField.NODESETTING_WORKER_NODE_INSTANCE_TYPE, valueToUse);
@@ -189,7 +191,7 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
             this.ipFamily === IpFamilyEnum.IPv4 ? this.validationService.isValidIpOrFqdn() : this.validationService.isValidIpv6OrFqdn()
         ] : [
             this.ipFamily === IpFamilyEnum.IPv4 ? this.validationService.isValidIpOrFqdn() : this.validationService.isValidIpv6OrFqdn()
-        ], this.getSavedValue(VsphereField.NODESETTING_CONTROL_PLANE_ENDPOINT_IP, ''));
+        ], this.getStoredValue(VsphereField.NODESETTING_CONTROL_PLANE_ENDPOINT_IP, this.supplyStepMapping(), ''));
 
         this.controlPlaneEndpointOptional = (provider === KUBE_VIP ? '' : '(OPTIONAL)');
     }

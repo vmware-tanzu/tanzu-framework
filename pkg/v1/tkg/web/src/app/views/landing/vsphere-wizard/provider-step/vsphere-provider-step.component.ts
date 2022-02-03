@@ -357,7 +357,8 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
                 this.datacenters = sortPaths(res, function (item) { return item.name; }, '/');
                 this.formGroup.get(VsphereField.PROVIDER_DATA_CENTER).enable();
                 this.formGroup.get(VsphereField.PROVIDER_SSH_KEY).enable();
-                this.formGroup.get(VsphereField.PROVIDER_DATA_CENTER).setValue(this.getSavedValue(VsphereField.PROVIDER_DATA_CENTER, ''));
+                const storedDataCenter = this.getStoredValue(VsphereField.PROVIDER_DATA_CENTER, VsphereProviderStepFieldMapping, '');
+                this.formGroup.get(VsphereField.PROVIDER_DATA_CENTER).setValue(storedDataCenter);
                 if (this.datacenters.length === 1) {
                     this.formGroup.get(VsphereField.PROVIDER_DATA_CENTER).setValue(this.datacenters[0].name);
                 }

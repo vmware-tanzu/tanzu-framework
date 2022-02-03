@@ -148,12 +148,12 @@ export class SharedIdentityStepComponent extends StepFormDirective implements On
                 this.validationService.isValidIpOrFqdnWithHttpsProtocol() : this.validationService.isValidIpv6OrFqdnWithHttpsProtocol(),
             this.validationService.isStringWithoutUrlFragment(),
             this.validationService.isStringWithoutQueryParams(),
-        ], this.getSavedValue(IdentityField.ISSUER_URL, ''));
+        ], this.getStoredValue(IdentityField.ISSUER_URL, ''));
 
         this.resurrectField(IdentityField.CLIENT_ID, [
             Validators.required,
             this.validationService.noWhitespaceOnEnds()
-        ], this.getSavedValue(IdentityField.CLIENT_ID, ''));
+        ], this.getStoredValue(IdentityField.CLIENT_ID, IdentityStepMapping, ''));
 
         this.resurrectField(IdentityField.CLIENT_SECRET, [
             Validators.required,
@@ -164,21 +164,21 @@ export class SharedIdentityStepComponent extends StepFormDirective implements On
             Validators.required,
             this.validationService.noWhitespaceOnEnds(),
             this.validationService.isCommaSeperatedList()
-        ], this.getSavedValue(IdentityField.SCOPES, ''));
+        ], this.getStoredValue(IdentityField.SCOPES, IdentityStepMapping, ''));
 
         this.resurrectField(IdentityField.OIDC_GROUPS_CLAIM, [
             Validators.required
-        ], this.getSavedValue(IdentityField.OIDC_GROUPS_CLAIM, ''));
+        ], this.getStoredValue(IdentityField.OIDC_GROUPS_CLAIM, IdentityStepMapping, ''));
 
         this.resurrectField(IdentityField.OIDC_USERNAME_CLAIM, [
             Validators.required
-        ], this.getSavedValue(IdentityField.OIDC_USERNAME_CLAIM, ''));
+        ], this.getStoredValue(IdentityField.OIDC_USERNAME_CLAIM, IdentityStepMapping, ''));
     }
 
     setLDAPValidators() {
         this.resurrectField(IdentityField.ENDPOINT_IP, [
             Validators.required
-        ], this.getSavedValue(IdentityField.ENDPOINT_IP, ''));
+        ], this.getStoredValue(IdentityField.ENDPOINT_IP, IdentityStepMapping, ''));
 
         this.resurrectField(IdentityField.ENDPOINT_PORT, [
             Validators.required,
@@ -186,24 +186,24 @@ export class SharedIdentityStepComponent extends StepFormDirective implements On
             this.ipFamily === IpFamilyEnum.IPv4 ?
                 this.validationService.isValidLdap(this.formGroup.get(IdentityField.ENDPOINT_IP)) :
                 this.validationService.isValidIpv6Ldap(this.formGroup.get(IdentityField.ENDPOINT_IP))
-        ], this.getSavedValue(IdentityField.ENDPOINT_PORT, ''));
+        ], this.getStoredValue(IdentityField.ENDPOINT_PORT, IdentityStepMapping, ''));
 
         this.resurrectField(IdentityField.BIND_PW, [], '');
 
         this.resurrectField(IdentityField.USER_SEARCH_FILTER, [
             Validators.required
-        ], this.getSavedValue(IdentityField.USER_SEARCH_FILTER, ''));
+        ], this.getStoredValue(IdentityField.USER_SEARCH_FILTER, IdentityStepMapping, ''));
 
         this.resurrectField(IdentityField.USER_SEARCH_USERNAME, [
             Validators.required
-        ], this.getSavedValue(IdentityField.USER_SEARCH_USERNAME, ''));
+        ], this.getStoredValue(IdentityField.USER_SEARCH_USERNAME, IdentityStepMapping, ''));
 
         this.resurrectField(IdentityField.GROUP_SEARCH_FILTER, [
             Validators.required
-        ], this.getSavedValue(IdentityField.GROUP_SEARCH_FILTER, ''));
+        ], this.getStoredValue(IdentityField.GROUP_SEARCH_FILTER, IdentityStepMapping, ''));
 
         ldapNonValidatedFields.forEach(field => this.resurrectField(
-            field, [], this.getSavedValue(field, '')));
+            field, [], this.getStoredValue(field, IdentityStepMapping, '')));
     }
 
     unsetAllValidators() {

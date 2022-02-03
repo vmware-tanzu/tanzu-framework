@@ -57,7 +57,7 @@ export class MetadataStepComponent extends StepFormDirective implements OnInit {
     }
 
     private getCustomRetrievalMap(): Map<string, (key: any) => any> {
-        return new Map<string, (data: any) => void>([['clusterLabels', this.getClusterLabels.bind(this)]]);
+        return new Map<string, (data: any) => void>([[MetadataField.CLUSTER_LABELS, this.getClusterLabels.bind(this)]]);
     }
 
     private getClusterLabels(): Map<string, string> {
@@ -65,7 +65,7 @@ export class MetadataStepComponent extends StepFormDirective implements OnInit {
     }
 
     setClusterLabelsFromSavedValue() {
-        const savedLabelsString = this.getSavedValue(MetadataField.CLUSTER_LABELS, '');
+        const savedLabelsString = this.getStoredValue(MetadataField.CLUSTER_LABELS, MetadataStepMapping, '');
         if (savedLabelsString !== '') {
             const savedLabelsArray = savedLabelsString.split(', ')
             savedLabelsArray.map(label => {

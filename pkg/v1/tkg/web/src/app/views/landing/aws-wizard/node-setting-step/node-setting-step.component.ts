@@ -276,7 +276,7 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
         this.clusterPlan = ClusterPlan.PROD;
 
         this.disarmField(AwsField.NODESETTING_INSTANCE_TYPE_DEV, true);
-        this.resurrectFieldWithSavedValue(AwsField.NODESETTING_INSTANCE_TYPE_PROD,
+        this.resurrectFieldWithStoredValue(AwsField.NODESETTING_INSTANCE_TYPE_PROD, this.supplyStepMapping(),
             [Validators.required, this.validationService.isValidNameInList(this.nodeTypes)],
             this.nodeTypes.length === 1 ? this.nodeTypes[0] : this.formGroup.get(AwsField.NODESETTING_INSTANCE_TYPE_PROD).value,
             { onlySelf: true }
@@ -291,13 +291,13 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
                     this.getControl(otherAZs[0]),
                     this.getControl(otherAZs[1]) ])
             ]);
-            this.setControlWithSavedValue(thisAZ);
+            this.setFieldWithStoredValue(thisAZ, this.supplyStepMapping());
         }
         if (!this.modeClusterStandalone) {
             WORKER_NODE_INSTANCE_TYPES.forEach((field, index) => {
                 // only populated the worker node instance type if the associated AZ has a value
                 if (this.getFieldValue(AZS[index])) {
-                    this.resurrectFieldWithSavedValue(field.toString(), [Validators.required]);
+                    this.resurrectFieldWithStoredValue(field.toString(), this.supplyStepMapping(), [Validators.required]);
                 } else {
                     this.resurrectField(field.toString(), [Validators.required]);
                 }
@@ -318,20 +318,20 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
         if (this.nodeAzs && this.nodeAzs.length === 1) {
             this.setControlValueSafely(AwsField.NODESETTING_AZ_1, this.nodeAzs[0].name);
         } else {
-            this.setControlWithSavedValue(AwsField.NODESETTING_AZ_1);
+            this.setFieldWithStoredValue(AwsField.NODESETTING_AZ_1, this.supplyStepMapping());
         }
         if (!this.modeClusterStandalone) {
             const hasAz = this.getFieldValue(AwsField.NODESETTING_AZ_1);
             // only set the worker node instance type if the AZ has a value
             if (hasAz) {
-                this.resurrectFieldWithSavedValue(AwsField.NODESETTING_WORKERTYPE_1, [Validators.required],
+                this.resurrectFieldWithStoredValue(AwsField.NODESETTING_WORKERTYPE_1, this.supplyStepMapping(), [Validators.required],
                     this.azNodeTypes.awsNodeAz1.length === 1 ? this.azNodeTypes.awsNodeAz1[0] : '');
             } else {
                 this.resurrectField(AwsField.NODESETTING_WORKERTYPE_1, [Validators.required],
                     this.azNodeTypes.awsNodeAz1.length === 1 ? this.azNodeTypes.awsNodeAz1[0] : '');
             }
         }
-        this.resurrectFieldWithSavedValue(AwsField.NODESETTING_INSTANCE_TYPE_DEV,
+        this.resurrectFieldWithStoredValue(AwsField.NODESETTING_INSTANCE_TYPE_DEV, this.supplyStepMapping(),
             [Validators.required, this.validationService.isValidNameInList(this.nodeTypes)],
             this.nodeTypes.length === 1 ? this.nodeTypes[0] : this.formGroup.get(AwsField.NODESETTING_INSTANCE_TYPE_DEV).value);
     }
@@ -342,7 +342,7 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
     }
 
     chooseInitialClusterPlan() {
-        const devInstanceType = this.getSavedValue(AwsField.NODESETTING_INSTANCE_TYPE_DEV, '');
+        const devInstanceType = this.getStoredValue(AwsField.NODESETTING_INSTANCE_TYPE_DEV, this.supplyStepMapping());
         const isProdInstanceType = devInstanceType === '';
         this.cardClick(isProdInstanceType ? ClusterPlan.PROD : ClusterPlan.DEV);
         // NOTE: by clicking the right card, the stored values will be used to populate the rest of the fields
@@ -502,7 +502,7 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
 
     // Given an array of subnet objects, find the one corresponding to the saved value of the given field
     private findSubnetFromSavedValue(subnetField: AwsField, subnets: AWSSubnet[]) {
-        const savedValue = this.getSavedValue(subnetField, '');
+        const savedValue = this.getStoredValue(subnetField, this.supplyStepMapping());
         // note that the saved value could either be the CIDR or the ID, so we find a match for either
         return subnets.find(x => { return x.cidr === savedValue || x.id === savedValue; });
     }
@@ -532,7 +532,7 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
                 AwsField.NODESETTING_VPC_PUBLIC_SUBNET_2,
                 AwsField.NODESETTING_VPC_PUBLIC_SUBNET_3
             ].forEach(field => {
-                this.resurrectFieldWithSavedValue(field.toString(), [Validators.required]);
+                this.resurrectFieldWithStoredValue(field.toString(), this.supplyStepMapping(), [Validators.required]);
             });
         } else if (this.isClusterPlanDev) {
             // in DEV deployments, only one subnet is used
@@ -540,7 +540,7 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
                 AwsField.NODESETTING_VPC_PRIVATE_SUBNET_1,
                 AwsField.NODESETTING_VPC_PUBLIC_SUBNET_1,
             ].forEach(field => {
-                this.resurrectFieldWithSavedValue(field.toString(), [Validators.required]);
+                this.resurrectFieldWithStoredValue(field.toString(), this.supplyStepMapping(), [Validators.required]);
             });
             [
                 AwsField.NODESETTING_VPC_PRIVATE_SUBNET_2,

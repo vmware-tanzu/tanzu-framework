@@ -23,7 +23,6 @@ export interface StepDescriptionTriggers {
     fields?: string[],
 }
 
-const INIT_FIELD_DELAY = 50;            // ms
 /**
  * Abstract class that's available for stepper component to extend.
  * It captures the common logic that should happen to most if not all
@@ -122,34 +121,13 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
         return this.formGroup.controls[fieldName].value;
     }
 
-    /**
-     * Safely looks up the saved value of a control in savedMetadata
-     * @param fieldName the name of the control in savedMetadata
-     * @param defaultValue the default value if there is no saved value
-     */
-    getSavedValue(fieldName: string, defaultValue: any) {
-        const identifier = this.createUserDataIdentifier(fieldName);
-        const entry = AppServices.userDataService.retrieve(identifier);
-        let result = defaultValue;
-        if (entry !== null && entry !== undefined) {
-            result = entry.value;
+    getStoredValue(fieldName: string, stepMapping: StepMapping, defaultValue?: any, retriever?: (string) => any ) {
+        const fieldMapping = AppServices.fieldMapUtilities.getFieldMapping(fieldName, stepMapping);
+        const result = AppServices.userDataService.retrieveStoredValue(this.wizardName, this.formName, fieldMapping, retriever);
+        if (result === undefined || result === null) {
+            return defaultValue;
         }
-
         return result;
-    }
-
-    /**
-     * Safely looks up the saved key of a control in savedMetadata; this will only have been set for listboxes
-     * that have a different key from the displayed label
-     * @param fieldName the name of the control in savedMetadata
-     */
-    getSavedKey(fieldName: string): string {
-        // NOTE: in new way, we don't need this getSavedKey method at all
-        const identifier = this.createUserDataIdentifier(fieldName);
-        const entry = AppServices.userDataService.retrieve(identifier);
-        const savedKey = entry ? entry.value : null;
-
-        return savedKey;
     }
 
     hasSavedData() {
@@ -173,69 +151,6 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
             console.log('WARNING: getControl() could not find field ' + fieldName);
         }
         return control;
-    }
-
-    /**
-     * Init the field with the saved value. If the initialization has to wait
-     * until certain conditions to be satisfied, it automatically add this field
-     * to a queue and periodically checks the readiness.
-     */
-    protected initFieldWithSavedData(fieldName: string): void {
-        if (this.isFieldReadyForInitWithSavedValue(fieldName)) {
-            const control = this.formGroup.get(fieldName);
-            const savedKey = this.getSavedKey(fieldName);
-            const savedValue = this.getSavedValue(fieldName, control.value);
-            // if a key was saved (for a listbox), we use the key when setting the value of the control (ie the listbox)
-            const valueForSettingControl = (savedKey) ? savedKey : savedValue;
-
-            control.setValue(valueForSettingControl, {  emitEvent: false });
-            let index;
-            if (index = this.delayedFieldQueue.indexOf(fieldName) >= 0) {
-                this.delayedFieldQueue.splice(index, 1);
-            }
-        } else {
-            if (this.delayedFieldQueue.indexOf(fieldName) < 0) {
-                this.delayedFieldQueue.push(fieldName);
-            }
-        }
-    }
-
-    // scrubPasswordField() should be called AFTER the password field was set from saved data
-    protected scrubPasswordField(fieldName: string): void {
-        // ensure that the actual field value is not a series of asterisks (****), which is the displayValue kept in local storage
-        const passwordControl = this.formGroup.get(fieldName);
-        if (passwordControl === undefined || passwordControl === null) {
-            console.log('WARNING: scrubPasswordField() is unable to find the field ' + fieldName);
-        } else if (this.passwordContainsOnlyAsterisks(passwordControl.value)) {
-            passwordControl.setValue('', {onlySelf: true, emitEvent: false});
-        }
-        // if there is a real password in local storage (say, from import)
-        // we erase it from local storage (presuming the caller has already used the value to set the field in the form)
-        this.clearFieldSavedData(fieldName);
-    }
-
-    private passwordContainsOnlyAsterisks(password: string): boolean {
-        if (password === undefined || password === '') {
-            return false;
-        }
-        for (let x = 0; x < password.length; x++) {
-            if (password.charAt(x) !== '*') {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    /**
-     * Checks if a field is ready to be initialized with saved data.
-     * All fields are ready by default.
-     * Sub classes should override this method in order to control
-     * the process.
-     * @param fieldName the field to be initialized
-     * @returns true for fields
-     */
-    protected isFieldReadyForInitWithSavedValue(fieldName: string): boolean {
-        return true;
     }
 
     protected clearFieldSavedData(fieldName: string) {
@@ -292,11 +207,12 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
         }
     }
 
-    resurrectFieldWithSavedValue(fieldName: string, validators: ValidatorFn[], defaultValue?: string, options?: {
+    resurrectFieldWithStoredValue(fieldName: string, stepMapping: StepMapping, validators: ValidatorFn[], defaultValue?: string, options?: {
         onlySelf?: boolean;
         emitEvent?: boolean;
-    }) {
-        this.resurrectField(fieldName, validators, this.getSavedValue(fieldName, defaultValue), options);
+    }, retriever?: (string) => any) {
+        const value = this.getStoredValue(fieldName, stepMapping, defaultValue, retriever);
+        this.resurrectField(fieldName, validators, value, options);
     }
 
     showFormError(formControlname) {
@@ -382,12 +298,12 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
         this.setControlValueSafely(controlName, '' , { onlySelf: true, emitEvent: false});
     }
 
-    protected setControlWithSavedValue(controlName: string, defaultValue?: any, options?: {
-        onlySelf?: boolean,
-        emitEvent?: boolean
-    }) {
-        const defaultToUse = (defaultValue === undefined || defaultValue === null) ? '' : defaultValue;
-        this.setControlValueSafely(controlName, this.getSavedValue(controlName, defaultToUse), options);
+    protected setFieldWithStoredValue(field: string, stepMapping: StepMapping, defaultValue?: any,
+                                      options?: { onlySelf?: boolean; emitEvent?: boolean }) {
+        const fieldMapping = AppServices.fieldMapUtilities.getFieldMapping(field, stepMapping);
+        const storedValue = AppServices.userDataService.retrieveStoredValue(this.wizardName, this.formName, fieldMapping);
+        const value = storedValue === null || storedValue === undefined ? defaultValue : storedValue;
+        this.setControlValueSafely(field, value, options);
     }
 
     // HTML convenience methods

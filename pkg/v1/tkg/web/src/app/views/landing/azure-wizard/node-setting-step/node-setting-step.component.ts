@@ -105,9 +105,8 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
     }
 
     chooseInitialClusterPlan() {
-        const isProdClusterPlan = this.getSavedValue(AzureField.NODESETTING_INSTANCE_TYPE_DEV, '') === '';
+        const isProdClusterPlan = !this.getStoredValue(AzureField.NODESETTING_INSTANCE_TYPE_DEV, this.supplyStepMapping());
         this.cardClick(isProdClusterPlan ? ClusterPlan.PROD : ClusterPlan.DEV);
-        // TODO: are these validations (below) already going to be set based on the card click?
         isProdClusterPlan ? this.setProdCardValidations() : this.setDevCardValidations()
     }
 

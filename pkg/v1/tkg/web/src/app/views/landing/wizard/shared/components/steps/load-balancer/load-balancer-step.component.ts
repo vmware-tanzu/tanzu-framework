@@ -146,7 +146,7 @@ export class SharedLoadBalancerStepComponent extends StepFormDirective implement
     }
 
     initializeClusterLabels() {
-        const savedLabelsString = this.getSavedValue(LoadBalancerField.CLUSTER_LABELS, '');
+        const savedLabelsString = this.getStoredValue(LoadBalancerField.CLUSTER_LABELS, this.supplyStepMapping(), '');
         if (savedLabelsString !== '') {
             const savedLabelsArray = savedLabelsString.split(', ')
             savedLabelsArray.map(label => {
@@ -309,18 +309,18 @@ export class SharedLoadBalancerStepComponent extends StepFormDirective implement
     toggleValidators(validate: boolean) {
         if (validate === true) {
             this.resurrectField(LoadBalancerField.CLOUD_NAME, [Validators.required],
-                this.getSavedValue(LoadBalancerField.CLOUD_NAME, ''));
+                this.getStoredValue(LoadBalancerField.CLOUD_NAME, this.supplyStepMapping(), ''));
             this.resurrectField(LoadBalancerField.SERVICE_ENGINE_GROUP_NAME, [Validators.required],
-                this.getSavedValue(LoadBalancerField.SERVICE_ENGINE_GROUP_NAME, ''));
+                this.getStoredValue(LoadBalancerField.SERVICE_ENGINE_GROUP_NAME, this.supplyStepMapping(), ''));
             if (!this.modeClusterStandalone) {
                 this.resurrectField(LoadBalancerField.NETWORK_NAME, [Validators.required],
-                    this.getSavedValue(LoadBalancerField.NETWORK_NAME, ''));
+                    this.getStoredValue(LoadBalancerField.NETWORK_NAME, this.supplyStepMapping(), ''));
                 this.resurrectField(LoadBalancerField.NETWORK_CIDR, [
                     Validators.required,
                     this.validationService.noWhitespaceOnEnds(),
                     this.ipFamily === IpFamilyEnum.IPv4 ?
                         this.validationService.isValidIpNetworkSegment() : this.validationService.isValidIpv6NetworkSegment()
-                ], this.getSavedValue(LoadBalancerField.NETWORK_CIDR, ''));
+                ], this.getStoredValue(LoadBalancerField.NETWORK_CIDR, this.supplyStepMapping(), ''));
             }
         } else {
             this.disarmField(LoadBalancerField.CLOUD_NAME, true);

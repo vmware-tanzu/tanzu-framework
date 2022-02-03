@@ -96,7 +96,7 @@ export class UserDataService {
         this.storeWizardEntry(wizardEntry);
     }
 
-    retrieve(identifier: UserDataIdentifier): UserDataEntry {
+    private retrieve(identifier: UserDataIdentifier): UserDataEntry {
         const wizardEntry: UserDataWizard = this.getWizardEntry(identifier.wizard);
         if (!wizardEntry || !wizardEntry.steps || !wizardEntry.steps[identifier.step] || !wizardEntry.steps[identifier.step].fields) {
             return null;
@@ -104,7 +104,7 @@ export class UserDataService {
         return wizardEntry.steps[identifier.step].fields[identifier.field];
     }
 
-    retrieveMap(identifier: UserDataIdentifier): Map<string, string> {
+   private retrieveMap(identifier: UserDataIdentifier): Map<string, string> {
         const storedEntry = this.retrieve(identifier);
         if (!storedEntry || !storedEntry.value) {
             return new Map<string, string>();

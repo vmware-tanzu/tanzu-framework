@@ -102,7 +102,7 @@ export class SharedNetworkStepComponent extends StepFormDirective implements OnI
             this.setCidrs();
 
             if (this.enableNetworkName) {
-                this.resurrectFieldWithSavedValue(NetworkField.NETWORK_NAME, [
+                this.resurrectFieldWithStoredValue(NetworkField.NETWORK_NAME, this.supplyStepMapping(), [
                     Validators.required
                 ], '', { onlySelf: true }); // only for current form control
             }
