@@ -332,7 +332,6 @@ export class SharedLoadBalancerStepComponent extends StepFormDirective implement
             this.errorNotification = `Key and value for Labels are required.`;
         } else if (!this.labels.has(key)) {
             this.labels.set(key, value);
-            this.formGroup.get(LoadBalancerField.CLUSTER_LABELS).setValue(this.labels);
             this.formGroup.controls[LoadBalancerField.NEW_LABEL_KEY].setValue('');
             this.formGroup.controls[LoadBalancerField.NEW_LABEL_VALUE].setValue('');
         } else {
@@ -345,7 +344,6 @@ export class SharedLoadBalancerStepComponent extends StepFormDirective implement
      */
     deleteLabel(key: string) {
         this.labels.delete(key);
-        this.formGroup.get(LoadBalancerField.CLUSTER_LABELS).setValue(this.labels);
     }
 
     /**

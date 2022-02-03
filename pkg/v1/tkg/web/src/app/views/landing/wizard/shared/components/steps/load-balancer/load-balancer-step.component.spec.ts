@@ -64,13 +64,14 @@ describe('SharedLoadBalancerStepComponent', () => {
     it('should add new label', () => {
         component.addLabel("somekey", "someval");
         component.addLabel("somekey2", "someval2");
-        expect(component.clusterLabelsValue).toEqual("somekey:someval, somekey2:someval2");
+        expect(component.labels.get("somekey")).toEqual("someval");
+        expect(component.labels.get("somekey2")).toEqual("someval2");
     });
 
     it('should delete existing label', () => {
         component.addLabel("akey", "avalue");
-        expect(component.clusterLabelsValue).toEqual('akey:avalue');
+        expect(component.labels.get("akey")).toEqual('avalue');
         component.deleteLabel("akey");
-        expect(component.clusterLabelsValue).toEqual('');
+        expect(component.labels.get("akey")).toBeFalsy();
     });
 });

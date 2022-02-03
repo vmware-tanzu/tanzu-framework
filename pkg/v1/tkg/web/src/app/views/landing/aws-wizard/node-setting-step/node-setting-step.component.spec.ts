@@ -260,14 +260,20 @@ describe('NodeSettingStepComponent', () => {
     it('should handle aws vpc type change', () => {
         component.formGroup.get(AwsField.NODESETTING_VPC_PUBLIC_SUBNET_1).setValue('100.63.0.0/14');
         component.formGroup.get(AwsField.NODESETTING_VPC_PRIVATE_SUBNET_1).setValue('100.54.0.0/14');
+        component.ngOnInit();
 
+        component.formGroup.get(AwsField.NODESETTING_CONTROL_PLANE_SETTING).setValue('prod');
         const spySubnets = [];
-        vpcSubnets.forEach(vpcSubnet => spySubnets.push(spyOn(component.formGroup.get(vpcSubnet), 'setValidators').and.callThrough()));
+        vpcSubnets.forEach(vpcSubnet => {
+            spySubnets.push(spyOn(component.formGroup.get(vpcSubnet), 'setValidators').and.callThrough());
+        });
         const spyAzs = spyOn(component, 'clearAzs').and.callThrough();
 
         AppServices.messenger.publish({ type: TanzuEventType.AWS_VPC_TYPE_CHANGED, payload: { vpcType: 'existing'}});
 
-        spySubnets.forEach(subnet => expect(subnet).toHaveBeenCalledTimes(1));
+        spySubnets.forEach((subnet, index) => {
+            expect(subnet).toHaveBeenCalled();
+        });
         expect(spyAzs).toHaveBeenCalled();
     });
 
