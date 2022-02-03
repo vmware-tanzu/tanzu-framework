@@ -67,12 +67,11 @@ spec:
                 description: Image specifies the "Image" part of the OSImage.
                 properties:
                   ref:
-                    additionalProperties:
-                      type: string
                     description: Ref is a key-value map identifying the image within
                       the infrastructure provider. This is the data to be injected
                       into the infra-Machine objects (like AWSMachine) on creation.
                     type: object
+                    x-kubernetes-preserve-unknown-fields: true
                   type:
                     description: 'Type of the OSImage, roughly corresponding to the
                       infrastructure provider (vSphere can serve both ova and vmop).
