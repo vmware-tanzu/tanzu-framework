@@ -475,7 +475,7 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
                 .pipe(takeUntil(this.unsubscribe))
                 .subscribe(
                     ((nodeTypes) => {
-                        this.azNodeTypes[azField] = nodeTypes;
+                        this.azNodeTypes[azField] = nodeTypes?.sort();
                         if (nodeTypes.length === 1) {
                             this.setControlValueSafely(workerNodeField, nodeTypes[0]);
                         }

@@ -14,7 +14,7 @@ var GoMod = Target{
 // BuildVersion target
 var BuildVersion = Target{
 	Filepath: "BUILD_VERSION",
-	Template: `0.0.1`,
+	Template: `v0.0.1`,
 }
 
 // GitIgnore target

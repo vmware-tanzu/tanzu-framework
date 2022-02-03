@@ -17,7 +17,20 @@ IMAGE_TAG="${VERSION//+/_}"
 FULL_IMAGE_NAME="${REPO_NAME}/${IMAGE_NAME}:${IMAGE_TAG}"
 FULL_IMAGE_TAR_NAME="${IMAGE_NAME}-${IMAGE_TAG}"
 
-docker build -t "${FULL_IMAGE_NAME}" -f "${ROOT_DIR}"/Dockerfile .
+# Build from publicly reachable source by default, but allow people to re-build images on
+# top of their own trusted images.
+BUILDER_BASE_IMAGE="${BUILDER_BASE_IMAGE:-}"
+if [[ -z "${BUILDER_BASE_IMAGE}" ]];
+then
+  docker build \
+    -t "${FULL_IMAGE_NAME}" \
+    -f "${ROOT_DIR}"/Dockerfile .
+else
+  docker build \
+    --build-arg BUILDER_BASE_IMAGE="${BUILDER_BASE_IMAGE}" \
+    -t "${FULL_IMAGE_NAME}" \
+    -f "${ROOT_DIR}"/Dockerfile .
+fi
 
 mkdir -p "${ROOT_DIR}"/artifacts/images
 cd "${ROOT_DIR}"/artifacts/images

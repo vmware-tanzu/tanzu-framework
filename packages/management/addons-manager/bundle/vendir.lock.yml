@@ -1,0 +1,11 @@
+apiVersion: vendir.k14s.io/v1alpha1
+directories:
+- contents:
+  - manual: {}
+    path: addons-manager.yaml
+  path: config/upstream
+- contents:
+  - manual: {}
+    path: overlay-addons-manager.yaml
+  path: config/overlays
+kind: LockConfig

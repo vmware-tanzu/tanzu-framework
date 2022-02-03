@@ -9,6 +9,9 @@ import "time"
 const (
 	/* Addon constants section */
 
+	// CalicoAddonName is name of the Calico addon
+	CalicoAddonName = "calico"
+
 	// TKGBomNamespace is the TKG add on BOM namespace.
 	TKGBomNamespace = "tkr-system"
 
@@ -32,6 +35,9 @@ const (
 
 	// TKGDataValueFormatString is required annotations for YTT data value file
 	TKGDataValueFormatString = "#@data/values\n#@overlay/match-child-defaults missing_ok=True\n---\n"
+
+	// TKGDataValueFileName is the default name of YTT data value file
+	TKGDataValueFileName = "values.yaml"
 
 	// TKGCorePackageRepositoryComponentName is the name of component that includes the package and repository images
 	TKGCorePackageRepositoryComponentName = "tkg-core-packages"
@@ -97,4 +103,22 @@ const (
 
 	// CRDWaitPollTimeout is poll timeout for checking server resources
 	CRDWaitPollTimeout = time.Minute * 10
+
+	// TanzuClusterBootstrapNameLogKey is the log key for "TanzuClusterBootstrap"
+	TanzuClusterBootstrapNameLogKey = "tanzuclusterbootstrap-name"
+
+	// TKGSystemNS is the TKG system namespace.
+	TKGSystemNS = "tkg-system"
+
+	// DiscoveryCacheInvalidateInterval is the interval for invalidating cache
+	DiscoveryCacheInvalidateInterval = time.Minute * 10
+
+	// ClusterKind is the Kind for cluster-api Cluster object
+	ClusterKind = "cluster"
+
+	// AntreaAddonName is the name of Antrea Addon Controller
+	AntreaAddonName = "antrea"
+
+	// InfrastructureRefDocker is the docker infrastructure
+	InfrastructureRefDocker = "DockerCluster"
 )

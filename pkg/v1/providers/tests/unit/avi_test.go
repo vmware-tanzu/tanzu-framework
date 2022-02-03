@@ -301,6 +301,51 @@ var _ = Describe("AKO-operator Ytt Templating", func() {
 					NoAVIRelatedObjects(output)
 				})
 			})
+
+			Context("network separation feature", func() {
+				getAVIK8sConfig := func(v yttValues) string {
+					output, err := ytt.RenderYTTTemplate(ytt.CommandOptions{}, paths, v.toReader())
+					Expect(err).NotTo(HaveOccurred())
+					cm, err := matchers.FindDocsMatchingYAMLPath(output, map[string]string{
+						"$.kind":          "ConfigMap",
+						"$.metadata.name": "avi-k8s-config",
+					})
+					Expect(err).NotTo(HaveOccurred())
+					Expect(cm).To(HaveLen(1))
+					return cm[0]
+				}
+
+				BeforeEach(func() {
+					value.Set("AVI_DATA_NETWORK", "data-network")
+					value.Set("AVI_DATA_NETWORK_CIDR", "10.0.1.0/24")
+				})
+
+				It("render data network as vip network", func() {
+					Expect(getAVIK8sConfig(value)).To(ContainSubstring("[{\"cidr\":\"10.0.1.0/24\",\"networkName\":\"data-network\"}]"))
+				})
+
+				When("mc vip is provided", func() {
+					BeforeEach(func() {
+						value.Set("AVI_MANAGEMENT_CLUSTER_VIP_NETWORK_NAME", "mc-network")
+						value.Set("AVI_MANAGEMENT_CLUSTER_VIP_NETWORK_CIDR", "10.0.2.0/24")
+					})
+
+					It("render mc network as vip network", func() {
+						Expect(getAVIK8sConfig(value)).To(ContainSubstring("[{\"cidr\":\"10.0.2.0/24\",\"networkName\":\"mc-network\"}]"))
+					})
+
+					When("mc control plane vip is provided", func() {
+						BeforeEach(func() {
+							value.Set("AVI_MANAGEMENT_CLUSTER_CONTROL_PLANE_VIP_NETWORK_NAME", "mc-control-plane-network")
+							value.Set("AVI_MANAGEMENT_CLUSTER_CONTROL_PLANE_VIP_NETWORK_CIDR", "10.0.3.0/24")
+						})
+
+						It("render mc control plane as vip network", func() {
+							Expect(getAVIK8sConfig(value)).To(ContainSubstring("[{\"cidr\":\"10.0.3.0/24\",\"networkName\":\"mc-control-plane-network\"}]"))
+						})
+					})
+				})
+			})
 		})
 
 		When("disable avi", func() {

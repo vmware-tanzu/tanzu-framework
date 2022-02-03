@@ -56,7 +56,7 @@ Use "tanzu package repository [command] --help" for more information about a com
 
 1. Create a management cluster using latest tanzu cli
 
-1. Use package commands to:
+2. Use package commands to:
    * add a repository
    * list a repository
    * get a repository status
@@ -75,14 +75,14 @@ Use "tanzu package repository [command] --help" for more information about a com
 
    Here is an example workflow
 
-1. Add a repository
+3. Add a repository
 
    ```sh
    >>> tanzu package repository add standard-repo --url projects-stg.registry.vmware.com/tkg/test-packages/standard-repo:v1.0.0 -n test-ns --create-namespace
    Added package repository 'standard-repo'
    ```
 
-1. Get repository status
+4. Get repository status
 
    ```sh
    >>> tanzu package repository get standard-repo -n test-ns
@@ -93,14 +93,14 @@ Use "tanzu package repository [command] --help" for more information about a com
    REASON:
    ```
 
-1. Update a repository
+5. Update a repository
 
    ```sh
    >>> tanzu package repository update standard-repo --url projects-stg.registry.vmware.com/tkg/test-packages/standard-repo:v1.0.0 -n test-ns
    Updated package repository 'standard-repo' in namespace 'test-ns'
    ```
 
-1. List the repository
+6. List the repository
 
    ```sh
    >>> tanzu package repository list -A
@@ -109,7 +109,7 @@ Use "tanzu package repository [command] --help" for more information about a com
    repo           projects-stg.registry.vmware.com/tkg/test-packages/test-repo:v1.0.0      Reconcile succeeded           test-ns
    ```
 
-1. Get information of a package
+7. Get information of a package
 
    Example 1: Get detailed information of a package
 
@@ -146,7 +146,53 @@ Use "tanzu package repository [command] --help" for more information about a com
     namespace                   external-dns  string   The namespace in which to deploy ExternalDNS.
    ```
 
-1. Install a package
+   Example 3: Generate default values.yaml for a package
+
+   ```sh
+   >>> tanzu package available get contour.tanzu.vmware.com/1.18.2+vmware.1-tkg.1-rc.1 --generate-default-values-file
+    NAME:                             contour.tanzu.vmware.com
+    VERSION:                          1.18.2+vmware.1-tkg.1-rc.1
+    RELEASED-AT:                      2021-10-04 17:00:00 -0700 PDT
+    DISPLAY-NAME:                     contour
+    SHORT-DESCRIPTION:                An ingress controller
+    PACKAGE-PROVIDER:                 VMware
+    MINIMUM-CAPACITY-REQUIREMENTS:    Varies significantly based on number of Services, Ingresses/HTTPProxies, etc. A starting point is 128MB RAM and 0.5 CPU for each Contour and Envoy pod, but this can and should be tuned based on observed usage.
+    LONG-DESCRIPTION:                 An Envoy-based ingress controller that supports dynamic configuration updates and multi-team ingress delegation. See https://projectcontour.io for more information.
+    MAINTAINERS:                      [{Steve Kriss} {Steve Sloka} {Nick Young} {Sunjay Bhatia} {Nicholas Seemiller}]
+    RELEASE-NOTES:                    contour 1.18.2 https://github.com/projectcontour/contour/releases/tag/v1.18.2
+    LICENSE:                          [VMware’s End User License Agreement (Underlying OSS license: Apache License 2.0)]
+    SUPPORT:                          Support provided by VMware for deployment on TKG 1.4+ clusters. Best-effort support for deployment on any conformant Kubernetes cluster. Contact support by opening a support request via VMware Cloud Services or my.vmware.com.
+    CATEGORY:                         [ingress]
+
+    Created default values file at /home/contour-default-values.yaml
+   ```
+
+   contour-default-values.yaml
+
+   ```yaml
+    certificates:
+      duration: 8760h
+      renewBefore: 360h
+    contour:
+      logLevel: info
+      replicas: 2
+      useProxyProtocol: false
+    envoy:
+      hostNetwork: false
+      hostPorts:
+        enable: true
+        http: 80
+        https: 443
+      logLevel: info
+      service:
+        aws:
+          LBType: classic
+        externalTrafficPolicy: Cluster
+      terminationGracePeriodSeconds: 300
+    namespace: tanzu-system-ingress  
+   ```
+
+8. Install a package
 
    Example 1: Install the specified version for package name "fluent-bit.tkg-standard.tanzu.vmware", while providing the values.yaml file and without waiting for package reconciliation to complete
 
@@ -188,7 +234,7 @@ Use "tanzu package repository [command] --help" for more information about a com
      Added installed package 'contour-pkg' in namespace 'test-ns'
     ```
 
-1. Get information of an installed package
+9. Get information of an installed package
 
    Example 1: Get information of an installed package
 
@@ -217,125 +263,125 @@ Use "tanzu package repository [command] --help" for more information about a com
            Match    *
    ```
 
-1. Update a package
+10. Update a package
 
-   Example 1: Update a package with different version
+    Example 1: Update a package with different version
 
-   ```sh
-   >>> tanzu package installed update mypkg --version 3.0.0-rc.1 --namespace test-ns
-   | Updating package 'mypkg'
-   / Getting package install for 'mypkg'
-   - Getting package metadata for 'pkg.test.carvel.dev'
+    ```sh
+    >>> tanzu package installed update mypkg --version 3.0.0-rc.1 --namespace test-ns
+    | Updating package 'mypkg'
+    / Getting package install for 'mypkg'
+    - Getting package metadata for 'pkg.test.carvel.dev'
 
-   Updated package install 'mypkg' in namespace 'test-ns'
-   ```
+    Updated package install 'mypkg' in namespace 'test-ns'
+    ```
 
-   Example 2: Update a package which is not installed
+    Example 2: Update a package which is not installed
 
-   ```sh
-   >>> tanzu package installed update fluent-bit --package-name fluent-bit.tanzu.vmware.com --version 1.7.5+vmware.1-tkg.1 --namespace test-ns --install
-   / Getting package install for 'fluent-bit'
+    ```sh
+    >>> tanzu package installed update fluent-bit --package-name fluent-bit.tanzu.vmware.com --version 1.7.5+vmware.1-tkg.1 --namespace test-ns --install
+    / Getting package install for 'fluent-bit'
 
-   - Getting package metadata for fluent-bit.tanzu.vmware.com
-   \ Creating service account 'fluent-bit-test-ns-sa'
+    - Getting package metadata for fluent-bit.tanzu.vmware.com
+    \ Creating service account 'fluent-bit-test-ns-sa'
 
-   | Creating cluster role binding 'fluent-bit-test-ns-cluster-rolebinding'
-   - Creating package resource
-   \ Package install status: Reconciling
+    | Creating cluster role binding 'fluent-bit-test-ns-cluster-rolebinding'
+    - Creating package resource
+    \ Package install status: Reconciling
 
-   Updated package install 'fluent-bit' in namespace 'test-ns'
-   ```
+    Updated package install 'fluent-bit' in namespace 'test-ns'
+    ```
 
-   Example 3: Update an installed package with providing values.yaml file
+    Example 3: Update an installed package with providing values.yaml file
 
-   ```sh
-   >>> tanzu package installed update fluent-bit --version 1.7.5+vmware.1-tkg.1 --namespace test-ns --values-file values.yaml
-   | Updating package 'fluent-bit'
-   | Getting package install for 'fluent-bit'
-   / Updating secret 'fluent-bit-test-ns-values'
+    ```sh
+    >>> tanzu package installed update fluent-bit --version 1.7.5+vmware.1-tkg.1 --namespace test-ns --values-file values.yaml
+    | Updating package 'fluent-bit'
+    | Getting package install for 'fluent-bit'
+    / Updating secret 'fluent-bit-test-ns-values'
 
-   Updated package install 'fluent-bit' in namespace 'test-ns'
-   ```
+    Updated package install 'fluent-bit' in namespace 'test-ns'
+    ```
 
-   An example values.yaml is as follows:
+    An example values.yaml is as follows:
 
-   ```yaml
-   fluent_bit:
-      config:
-        outputs: |
-          [OUTPUT]
-            Name     stdout
-            Match    /
-   ```
+    ```yaml
+    fluent_bit:
+       config:
+         outputs: |
+           [OUTPUT]
+             Name     stdout
+             Match    /
+    ```
 
-1. Uninstall a package
+11. Uninstall a package
 
-   ```sh
-   >>> tanzu package installed delete contour-pkg --namespace test-ns
-   | Uninstalling package 'contour-pkg' from namespace 'test-ns'
-   - Getting package install for 'contour-pkg'
-   - Deleting package install 'contour-pkg' from namespace 'test-ns'
-   | Package uninstall status: Deleting
-   / Deleting service account 'contour-pkg-test-ns-sa'
-
-
-   Uninstalled package 'contour-pkg' from namespace 'test-ns'
-   ```
-
-1. List the packages
-
-   ```sh
-   #List installed packages in the default namespace
-   >>> tanzu package installed list
-   NAME  DISPLAY-NAME  SHORT-DESCRIPTION
-
-   #List installed packages across all namespaces
-   >>> tanzu package installed list -A
-   - Retrieving installed packages...
-     NAME         PACKAGE-NAME              PACKAGE-VERSION        STATUS               NAMESPACE
-     contour-pkg  contour.tanzu.vmware.com  1.15.1+vmware.1-tkg.1  Reconcile succeeded  test-ns
-     mypkg        pkg.test.carvel.dev       2.0.0                  Reconcile succeeded  test-ns
+    ```sh
+    >>> tanzu package installed delete contour-pkg --namespace test-ns
+    | Uninstalling package 'contour-pkg' from namespace 'test-ns'
+    - Getting package install for 'contour-pkg'
+    - Deleting package install 'contour-pkg' from namespace 'test-ns'
+    | Package uninstall status: Deleting
+    / Deleting service account 'contour-pkg-test-ns-sa'
 
 
-   #List installed packages in user provided namespace
-   >>> tanzu package installed list --namespace test-ns
-   / Retrieving installed packages...
-     NAME         PACKAGE-NAME              PACKAGE-VERSION        STATUS
-     contour-pkg  contour.tanzu.vmware.com  1.15.1+vmware.1-tkg.1  Reconcile succeeded
-     mypkg        pkg.test.carvel.dev       2.0.0                  Reconcile succeeded
+    Uninstalled package 'contour-pkg' from namespace 'test-ns'
+    ```
 
-   #List all available package CRs in default namespace
-   >>> tanzu package available list
-   / Retrieving available packages...
-     NAME  DISPLAY-NAME  SHORT-DESCRIPTION
+12. List the packages
 
-   #List all available package CRs across all namespace
-   >>> tanzu package available list -A
-   | Retrieving available packages...
-     NAME                           DISPLAY-NAME          SHORT-DESCRIPTION                                                                    NAMESPACE
-     harbor.tanzu.vmware.com        harbor                This package provides cloud native container registry service.                       test-ns
-     pkg.test.carvel.dev            Test Package in repo  Package used for testing                                                             test-ns
-     prometheus.tanzu.vmware.com    prometheus            This package provides an open-source systems monitoring and alerting toolkit         test-ns
-     external-dns.tanzu.vmware.com  external-dns          This package provides DNS synchronization functionality.                             test-ns
-     fluent-bit.tanzu.vmware.com    fluent-bit            This package provides log shipping functionality.                                    test-ns
-     grafana.tanzu.vmware.com       grafana               This package allows you to visualize and analyze metrics data                        test-ns
-     multus-cni.tanzu.vmware.com    multus-cni            This package provides ability for attaching multiple network interfaces to the pod.  test-ns
-     cert-manager.tanzu.vmware.com  cert-manager          This package provides certificate management functionality.                          test-ns
-     contour.tanzu.vmware.com       contour               This package provides ingress functionality.                                         test-ns
+    ```sh
+    #List installed packages in the default namespace
+    >>> tanzu package installed list
+    NAME  DISPLAY-NAME  SHORT-DESCRIPTION
 
-   #List all available packages for package name
-   >>> tanzu package available list contour.tanzu.vmware.com -A
-   / Retrieving package versions for contour.tanzu.vmware.com...
-   NAME                      VERSION                RELEASED-AT  NAMESPACE
-   contour.tanzu.vmware.com  1.15.1+vmware.1-tkg.1               test-ns
-   ```
+    #List installed packages across all namespaces
+    >>> tanzu package installed list -A
+    - Retrieving installed packages...
+      NAME         PACKAGE-NAME              PACKAGE-VERSION        STATUS               NAMESPACE
+      contour-pkg  contour.tanzu.vmware.com  1.15.1+vmware.1-tkg.1  Reconcile succeeded  test-ns
+      mypkg        pkg.test.carvel.dev       2.0.0                  Reconcile succeeded  test-ns
 
-1. Delete the repository
 
-   ```sh
-   >>> tanzu package repository delete standard-repo --namespace test-ns
-   Deleted package repository 'standard-repo' in namespace 'test-ns''
-   ```
+    #List installed packages in user provided namespace
+    >>> tanzu package installed list --namespace test-ns
+    / Retrieving installed packages...
+      NAME         PACKAGE-NAME              PACKAGE-VERSION        STATUS
+      contour-pkg  contour.tanzu.vmware.com  1.15.1+vmware.1-tkg.1  Reconcile succeeded
+      mypkg        pkg.test.carvel.dev       2.0.0                  Reconcile succeeded
+
+    #List all available package CRs in default namespace
+    >>> tanzu package available list
+    / Retrieving available packages...
+      NAME  DISPLAY-NAME  SHORT-DESCRIPTION
+
+    #List all available package CRs across all namespace
+    >>> tanzu package available list -A
+    | Retrieving available packages...
+      NAME                           DISPLAY-NAME          SHORT-DESCRIPTION                                                                    NAMESPACE
+      harbor.tanzu.vmware.com        harbor                This package provides cloud native container registry service.                       test-ns
+      pkg.test.carvel.dev            Test Package in repo  Package used for testing                                                             test-ns
+      prometheus.tanzu.vmware.com    prometheus            This package provides an open-source systems monitoring and alerting toolkit         test-ns
+      external-dns.tanzu.vmware.com  external-dns          This package provides DNS synchronization functionality.                             test-ns
+      fluent-bit.tanzu.vmware.com    fluent-bit            This package provides log shipping functionality.                                    test-ns
+      grafana.tanzu.vmware.com       grafana               This package allows you to visualize and analyze metrics data                        test-ns
+      multus-cni.tanzu.vmware.com    multus-cni            This package provides ability for attaching multiple network interfaces to the pod.  test-ns
+      cert-manager.tanzu.vmware.com  cert-manager          This package provides certificate management functionality.                          test-ns
+      contour.tanzu.vmware.com       contour               This package provides ingress functionality.                                         test-ns
+
+    #List all available packages for package name
+    >>> tanzu package available list contour.tanzu.vmware.com -A
+    / Retrieving package versions for contour.tanzu.vmware.com...
+    NAME                      VERSION                RELEASED-AT  NAMESPACE
+    contour.tanzu.vmware.com  1.15.1+vmware.1-tkg.1               test-ns
+    ```
+
+13. Delete the repository
+
+    ```sh
+    >>> tanzu package repository delete standard-repo --namespace test-ns
+    Deleted package repository 'standard-repo' in namespace 'test-ns''
+    ```
 
 All the above commands are equipped with --kubeconfig flag to perform the package and repository operations on the desired cluster.
 

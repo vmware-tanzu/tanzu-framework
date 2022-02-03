@@ -59,7 +59,7 @@ describe('MetadataStepComponent', () => {
     it('should delete existing label', () => {
         component.addLabel("akey", "avalue");
         expect(component.clusterLabelsValue).toEqual('akey:avalue');
-        component.deleteLabel("akey");
+        component.deleteLabel("newLabelKey2");
         expect(component.clusterLabelsValue).toEqual('');
     });
 
