@@ -40,11 +40,12 @@ export class MetadataStepComponent extends StepFormDirective implements OnInit {
         this.registerDefaultFileImportedHandler(this.eventFileImported, MetadataStepMapping, null,
             this.getCustomRestorerMap());
         this.registerDefaultFileImportErrorHandler(this.eventFileImportError);
-        this.setClusterLabelsFromSavedValue();
 
-        if (this.labels.size === 0) {
-            this.addLabel();
+        // initialize label controls
+        for (let [key, value] of this.labels) {
+            this.addLabel(key, value);
         }
+        this.addLabel();
     }
 
     // returns a map that associates the field 'clusterLabels' with a closure that restores our map of cluster labels
@@ -64,45 +65,39 @@ export class MetadataStepComponent extends StepFormDirective implements OnInit {
         return this.labels;
     }
 
-    setClusterLabelsFromSavedValue() {
-        const savedLabelsString = this.getStoredValue(MetadataField.CLUSTER_LABELS, MetadataStepMapping, '');
-        if (savedLabelsString !== '') {
-            const savedLabelsArray = savedLabelsString.split(', ')
-            savedLabelsArray.map(label => {
-                const labelArray = label.split(':');
-                this.addLabel(labelArray[0], labelArray[1]);
-                this.savedKeySet.add(LABEL_KEY_NAME + this.labelCounter);
-            });
-        }
+    addLabel(key?: string, value?: string) {
+        // SHIMON TODO: breaks test by not adding the this.labels
+        this.labelCounter++;
+        this.addLabelControls(this.labelCounter, key, value);
     }
 
-    addLabel(key?: string, value?: string) {
-        this.labelCounter++;
-        this.labels.set(LABEL_KEY_NAME + this.labelCounter, LABEL_VALUE_NAME + this.labelCounter);
-        this.keySet.add(LABEL_KEY_NAME + this.labelCounter);
+    private addLabelControls(i: number, key, value: string) {
+        const keyField = this.keyFieldName(this.labelCounter);
+        const valueField = this.valueFieldName(this.labelCounter);
+        this.keySet.add(keyField);
         FormUtils.addControl(
             this.formGroup,
-            LABEL_KEY_NAME + this.labelCounter,
+            keyField,
             new FormControl(key || '', [
                 this.validationService.isValidLabelOrAnnotation(),
                 this.validationService.isUniqueLabel(
                     this.formGroup,
                     this.keySet,
-                    LABEL_KEY_NAME + this.labelCounter)
+                    keyField)
             ])
         );
 
         FormUtils.addControl(
             this.formGroup,
-            LABEL_VALUE_NAME + this.labelCounter,
+            valueField,
             new FormControl(value || '', [
                 this.validationService.isValidLabelOrAnnotation()
             ])
         );
         // Label value depends on Label key. e.g.: if label key is not empty, then label value is required
-        this.onChangeWithDependentField(LABEL_KEY_NAME + this.labelCounter, LABEL_VALUE_NAME + this.labelCounter);
+        this.onChangeWithDependentField(keyField, valueField);
         // Label key depends on Label value. e.g.: if label value is not empty, then label key is required
-        this.onChangeWithDependentField(LABEL_VALUE_NAME + this.labelCounter, LABEL_KEY_NAME + this.labelCounter);
+        this.onChangeWithDependentField(valueField, keyField);
         this.validateAllLabels();
     }
 
@@ -132,17 +127,19 @@ export class MetadataStepComponent extends StepFormDirective implements OnInit {
 
         // The setTimeout wrapper ensures that validation logic will run after a new label field is added.
         setTimeout(_ => {
-            for (const [labelKey, labelVal] of this.labels) {
-                const key = this.formGroup.get(labelKey);
-                const val = this.formGroup.get(labelVal);
-                if (key) {
-                    if (this.savedKeySet.has(labelKey)) {
-                        key.markAsTouched();
+            for (let i = 1; i <= this.labelCounter; i++) {
+                const keyFieldName = this.keyFieldName(i);
+                const keyControl = this.formGroup.get(keyFieldName);
+                const valueFieldName = this.valueFieldName(i);
+                const valueControl = this.formGroup.get(valueFieldName);
+                if (keyControl) {
+                    if (this.savedKeySet.has(keyFieldName)) {
+                        keyControl.markAsTouched();
                     }
-                    key.updateValueAndValidity();
+                    keyControl.updateValueAndValidity();
                 }
-                if (val) {
-                    val.updateValueAndValidity();
+                if (valueControl) {
+                    valueControl.updateValueAndValidity();
                 }
             }
         });
@@ -155,21 +152,6 @@ export class MetadataStepComponent extends StepFormDirective implements OnInit {
         this.keySet.delete(key);
     }
 
-    /**
-     * Get the current value of MetadataField.CLUSTER_LABELS
-     */
-    get clusterLabelsValue() {
-        let labelStr = '';
-        for (const [labelKey, labelVal] of this.labels) {
-            const key = this.formGroup.get(labelKey).value;
-            const val = this.formGroup.get(labelVal).value;
-            if (key && val) {
-                labelStr += key + ':' + val + ', '
-            }
-        }
-        return labelStr.slice(0, -2);
-    }
-
     dynamicDescription(): string {
         const clusterLocation = this.getFieldValue(MetadataField.CLUSTER_LOCATION, true);
         return clusterLocation ? 'Location: ' + clusterLocation : 'Specify metadata for the ' + this.clusterTypeDescriptor + ' cluster';
@@ -178,5 +160,15 @@ export class MetadataStepComponent extends StepFormDirective implements OnInit {
     protected storeUserData() {
         this.storeUserDataFromMapping(MetadataStepMapping, this.getCustomRetrievalMap());
         this.storeDefaultDisplayOrder(MetadataStepMapping);
+    }
+
+    // should be a 1-based index
+    keyFieldName(i: number): string {
+        return LABEL_KEY_NAME + i;
+    }
+
+    // should be a 1-based index
+    valueFieldName(i: number): string {
+        return LABEL_VALUE_NAME + i;
     }
 }

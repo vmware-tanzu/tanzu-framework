@@ -98,9 +98,9 @@
         <div class="clr-col-12">
             <div *ngIf="labels?.size; then hasLabels"></div>
             <ng-template #hasLabels>
-                <div class="clr-row label-container" *ngFor="let label of labels | keyvalue">
+                <div class="clr-row label-container" *ngFor="let label of labels | keyvalue; index as x">
                     <clr-input-container class="label-input">
-                        <input clrInput formControlName="{{label.key}}" placeholder="key" aria-label="label key"/>
+                        <input clrInput formControlName="{{keyFieldName(x + 1)}}" placeholder="key" aria-label="label key"/>
                         <!-- Add a empty helper to avoid accessibility aria-describeby issue -->
                         <clr-control-helper></clr-control-helper>
                         <clr-control-error i18n="cluster label valid msg" *clrIfError="validatorEnum.VALID_CLUSTER_NAME" class="err-label">
@@ -122,7 +122,7 @@
                     </clr-input-container>
                     <span class="label-input">:</span>
                     <clr-input-container class="label-input">
-                        <input clrInput formControlName="{{label.value}}" placeholder="value" aria-label="label value"/>
+                        <input clrInput formControlName="{{valueFieldName(x + 1)}}" placeholder="value" aria-label="label value"/>
                         <!-- Add a empty helper to avoid accessibility aria-describeby issue -->
                         <clr-control-helper></clr-control-helper>
                         <clr-control-error i18n="cluster label valid msg" *clrIfError="validatorEnum.VALID_CLUSTER_NAME" class="err-label">
