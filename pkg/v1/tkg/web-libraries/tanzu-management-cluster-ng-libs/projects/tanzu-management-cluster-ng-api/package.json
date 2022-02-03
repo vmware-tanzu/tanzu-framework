@@ -1,5 +1,5 @@
 {
-  "name": "tanzu-management-cluster-api",
+  "name": "tanzu-management-cluster-ng-api",
   "version": "0.1.0",
   "scripts": {
     "generate-api-client": "rimraf ./src/lib/swagger/ && api-client-generator -s ../../../../web/api/spec.yaml -o ./src/lib/swagger/",

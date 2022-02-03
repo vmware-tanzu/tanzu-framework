@@ -1,7 +1,7 @@
 (function (global, factory) {
     typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('@angular/core'), require('@angular/common/http'), require('rxjs'), require('rxjs/operators')) :
-    typeof define === 'function' && define.amd ? define('tanzu-management-cluster-api', ['exports', '@angular/core', '@angular/common/http', 'rxjs', 'rxjs/operators'], factory) :
-    (global = typeof globalThis !== 'undefined' ? globalThis : global || self, factory(global["tanzu-management-cluster-api"] = {}, global.ng.core, global.ng.common.http, global.rxjs, global.rxjs.operators));
+    typeof define === 'function' && define.amd ? define('tanzu-management-cluster-ng-api', ['exports', '@angular/core', '@angular/common/http', 'rxjs', 'rxjs/operators'], factory) :
+    (global = typeof globalThis !== 'undefined' ? globalThis : global || self, factory(global["tanzu-management-cluster-ng-api"] = {}, global.ng.core, global.ng.common.http, global.rxjs, global.rxjs.operators));
 })(this, (function (exports, i0, i1, rxjs, operators) { 'use strict';
 
     function _interopNamespace(e) {
@@ -1992,7 +1992,7 @@
             }] });
 
     /*
-     * Public API Surface of tanzu-management-cluster-api
+     * Public API Surface of tanzu-management-cluster-ng-api
      * Exports swagger generated APIClient and modules, and swagger generated models
      */
 
@@ -2007,4 +2007,4 @@
     Object.defineProperty(exports, '__esModule', { value: true });
 
 }));
-//# sourceMappingURL=tanzu-management-cluster-api.umd.js.map
+//# sourceMappingURL=tanzu-management-cluster-ng-api.umd.js.map

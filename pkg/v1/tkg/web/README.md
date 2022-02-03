@@ -57,7 +57,7 @@ The location of these models and HTTP methods have been moved from the Tanzu Kic
 Building the Tanzu UI API Library is not a requirement unless you have made updates to the swagger contract `spec.yaml`.
 The symlink used for consuming this library will be created when running any of the build scripts mentioned above.
 
-See [README.md](../web-libraries/tanzu-mgmt-plugin-ui-libs/README.md) for information on updating and building this library.
+See [README.md](../web-libraries/tanzu-management-cluster-ng-libs/README.md) for information on updating and building this library.
 
 ## Running unit tests
 

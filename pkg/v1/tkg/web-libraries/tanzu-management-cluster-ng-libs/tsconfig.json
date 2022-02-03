@@ -17,9 +17,9 @@
     "target": "es2017",
     "module": "es2020",
     "paths": {
-      "tanzu-management-cluster-api": [
-        "dist/tanzu-management-cluster-api/tanzu-management-cluster-api",
-        "dist/tanzu-management-cluster-api"
+      "tanzu-management-cluster-ng-api": [
+        "dist/tanzu-management-cluster-ng-api/tanzu-management-cluster-ng-api",
+        "dist/tanzu-management-cluster-ng-api"
       ]
     },
     "lib": [

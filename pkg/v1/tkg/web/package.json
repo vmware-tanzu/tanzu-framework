@@ -1,11 +1,11 @@
 {
   "name": "tkg-kickstart-ui",
-  "private": "true",
+  "private": "true",s
   "scripts": {
     "ng": "ng",
     "clean": "rimraf ./dist",
     "lint": "ng lint",
-    "link-local-libraries": "(cd ../web-libraries/tanzu-mgmt-plugin-ui-libs/dist/tanzu-management-cluster-api && npm link); (npm link tanzu-management-cluster-api);",
+    "link-local-libraries": "(cd ../web-libraries/tanzu-management-cluster-ng-libs/dist/tanzu-management-cluster-api && npm link); (npm link tanzu-management-cluster-api);",
     "start": "npm run link-local-libraries && ng lint && npm run build-index && ng serve",
     "build": "npm run link-local-libraries && ng lint && ng build",
     "build:prod": "npm run clean && npm run link-local-libraries && ng build --configuration production",

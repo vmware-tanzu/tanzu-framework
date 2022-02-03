@@ -1,6 +1,6 @@
 {
   "$schema": "../../node_modules/ng-packagr/ng-package.schema.json",
-  "dest": "../../dist/tanzu-management-cluster-api",
+  "dest": "../../dist/tanzu-management-cluster-ng-api",
   "lib": {
     "entryFile": "src/public-api.ts"
   }

@@ -1,13 +1,13 @@
 {
-  "name": "tanzu-mgmt-plugin-ui-libs",
+  "name": "tanzu-management-cluster-ng-libs",
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
-    "build-tanzu-management-cluster-api": "cd projects/tanzu-management-cluster-api && npm run build-library",
-    "link-tanzu-management-cluster-api": "cd ./dist/tanzu-management-cluster-api && npm link",
+    "build-tanzu-management-cluster-ng-api": "cd projects/tanzu-management-cluster-ng-api && npm run build-library",
+    "link-tanzu-management-cluster-ng-api": "cd ./dist/tanzu-management-cluster-ng-api && npm link",
     "start": "ng serve",
     "build": "ng build",
-    "build:all": "(npm ci); (npm run build-tanzu-management-cluster-api); (npm run build && npm run link-tanzu-management-cluster-api)",
+    "build:all": "(npm ci); (npm run build-tanzu-management-cluster-ng-api); (npm run build && npm run link-tanzu-management-cluster-ng-api)",
     "watch": "ng build --watch --configuration development",
     "test": "ng test"
   },
