@@ -52,14 +52,18 @@ describe('MetadataStepComponent', () => {
     it('should add new label', () => {
         component.addLabel("somekey", "someval");
         component.addLabel("somekey2", "someval2");
-        expect(component.clusterLabelsValue).toEqual("somekey:someval, somekey2:someval2");
+        const labels = component.getClusterLabels();
+        expect(labels.get("somekey")).toEqual("someval");
+        expect(labels.get("somekey2")).toEqual("someval2");
     });
 
     it('should delete existing label', () => {
         component.addLabel("akey", "avalue");
-        expect(component.clusterLabelsValue).toEqual('akey:avalue');
+        let labels = component.getClusterLabels();
+        expect(labels.get("akey")).toEqual("avalue");
         component.deleteLabel("newLabelKey2");
-        expect(component.clusterLabelsValue).toEqual('');
+        labels = component.getClusterLabels();
+        expect(labels.get("newLabelKey2")).toBeFalsy();
     });
 
     it('should announce description change', () => {
