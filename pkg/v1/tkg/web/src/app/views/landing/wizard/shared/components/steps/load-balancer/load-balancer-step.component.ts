@@ -118,7 +118,6 @@ export class SharedLoadBalancerStepComponent extends StepFormDirective implement
         this.registerDefaultFileImportErrorHandler(this.eventFileImportError);
 
         this.customizeForm();
-        this.initializeClusterLabels();
     }
 
     // returns a map that associates the field 'clusterLabels' with a closure that restores our map of cluster labels
@@ -136,24 +135,6 @@ export class SharedLoadBalancerStepComponent extends StepFormDirective implement
 
     private getClusterLabels(): Map<string, string> {
         return this.labels;
-    }
-
-    isFieldReadyForInitWithSavedValue(fieldName: string): boolean {
-        if (fieldName === "cloudName") {
-            return !this.isEmptyArray(this.serviceEngineGroups) && !this.isEmptyArray(this.vipNetworks);
-        }
-        return true;
-    }
-
-    initializeClusterLabels() {
-        const savedLabelsString = this.getStoredValue(LoadBalancerField.CLUSTER_LABELS, this.supplyStepMapping(), '');
-        if (savedLabelsString !== '') {
-            const savedLabelsArray = savedLabelsString.split(', ')
-            savedLabelsArray.map(label => {
-                const labelArray = label.split(':');
-                this.labels.set(labelArray[0], labelArray[1]);
-            });
-        }
     }
 
     /**

@@ -189,7 +189,7 @@ export class UserDataFormService {
         }
         const value = retriever ? retriever(storedValue) : storedValue;
         if (retriever && !value) {
-            console.warn('Trying to restore field ' + identifier.field + ' with stored value ' + storedValue +
+            console.warn('Trying to restore field ' + identifier.field + ' with stored value ' + JSON.stringify(storedValue) +
                 ', but retriever does not return a value');
         }
         control.setValue(value, options);
