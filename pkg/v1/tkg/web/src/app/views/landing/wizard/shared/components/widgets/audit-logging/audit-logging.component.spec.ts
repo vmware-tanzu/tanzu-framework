@@ -4,7 +4,7 @@ import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 
 // Library imports
-import { APIClient } from 'tanzu-management-cluster-api';
+import { APIClient } from 'tanzu-management-cluster-ng-api';
 
 // App imports
 import { SharedModule } from 'src/app/shared/shared.module';

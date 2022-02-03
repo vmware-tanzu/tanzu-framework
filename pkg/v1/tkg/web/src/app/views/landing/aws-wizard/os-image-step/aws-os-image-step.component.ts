@@ -2,7 +2,7 @@
 import { Component, OnInit } from '@angular/core';
 
 // Library imports
-import { AWSVirtualMachine } from 'tanzu-management-cluster-api';
+import { AWSVirtualMachine } from 'tanzu-management-cluster-ng-api';
 
 // App imports
 import AppServices from '../../../../shared/service/appServices';

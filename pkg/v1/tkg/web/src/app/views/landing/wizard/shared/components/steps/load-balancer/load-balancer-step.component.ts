@@ -9,7 +9,7 @@ import { APIClient,
     AviCloud,
     AviServiceEngineGroup,
     AviVipNetwork
-} from 'tanzu-management-cluster-api';
+} from 'tanzu-management-cluster-ng-api';
 
 // App imports
 import AppServices from 'src/app/shared/service/appServices';

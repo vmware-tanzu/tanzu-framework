@@ -5,7 +5,7 @@ import { RouterTestingModule } from '@angular/router/testing';
 import { HttpClientModule } from '@angular/common/http';
 
 // App imports
-import { APIClient } from 'tanzu-management-cluster-api';
+import { APIClient } from 'tanzu-management-cluster-ng-api';
 import { AppComponent } from './app.component';
 import { ThemeToggleComponent } from './shared/components/theme-toggle/theme-toggle.component';
 import { BrandingService } from './shared/service/branding.service';

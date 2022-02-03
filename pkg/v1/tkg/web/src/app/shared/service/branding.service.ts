@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { finalize } from 'rxjs/operators'
 
 // Application imports
-import { APIClient } from 'tanzu-management-cluster-api';
+import { APIClient } from 'tanzu-management-cluster-ng-api';
 import { TkgEventType } from 'src/app/shared/service/Messenger';
 import { AppEdition, brandingDefault, brandingStandalone, brandingTce } from '../constants/branding.constants';
 import AppServices from './appServices';

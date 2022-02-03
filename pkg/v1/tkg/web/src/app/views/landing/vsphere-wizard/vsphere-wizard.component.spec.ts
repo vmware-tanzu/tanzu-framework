@@ -6,7 +6,7 @@ import { RouterTestingModule } from '@angular/router/testing';
 
 // Library imports
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
-import { APIClient } from 'tanzu-management-cluster-api';
+import { APIClient } from 'tanzu-management-cluster-ng-api';
 
 // App imports
 import { ClusterType } from '../wizard/shared/constants/wizard.constants';

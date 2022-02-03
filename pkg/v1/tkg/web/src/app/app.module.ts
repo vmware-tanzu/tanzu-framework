@@ -9,7 +9,7 @@ import { LogMonitorModule } from 'ngx-log-monitor';
 import { CodemirrorModule } from '@ctrl/ngx-codemirror';
 
 // Module imports
-import { APIClientModule } from 'tanzu-management-cluster-api';
+import { APIClientModule } from 'tanzu-management-cluster-ng-api';
 import { AppRoutingModule } from './app-routing.module';
 import { SharedModule } from './shared/shared.module';
 

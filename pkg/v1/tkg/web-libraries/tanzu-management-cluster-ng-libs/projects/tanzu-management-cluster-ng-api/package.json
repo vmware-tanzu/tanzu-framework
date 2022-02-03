@@ -1,9 +1,10 @@
 {
   "name": "tanzu-management-cluster-ng-api",
-  "version": "0.1.0",
+  "version": "1.0.0",
+  "description": "A collection of Angular models and HTTP methods used for Tanzu management cluster creation",
   "scripts": {
     "generate-api-client": "rimraf ./src/lib/swagger/ && api-client-generator -s ../../../../web/api/spec.yaml -o ./src/lib/swagger/",
-    "build-library": "npm ci && npm run generate-api-client"
+    "build-library": "npm ci && npm run generate-api-client && ng build"
   },
   "peerDependencies": {
     "@angular/common": "^12.2.0",

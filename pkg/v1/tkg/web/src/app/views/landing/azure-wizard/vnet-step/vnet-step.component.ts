@@ -4,7 +4,7 @@ import { Validators } from '@angular/forms';
 
 // Library imports
 import { distinctUntilChanged, takeUntil } from 'rxjs/operators';
-import { AzureResourceGroup, AzureVirtualNetwork } from 'tanzu-management-cluster-api';
+import { AzureResourceGroup, AzureVirtualNetwork } from 'tanzu-management-cluster-ng-api';
 
 // App imports
 import AppServices from 'src/app/shared/service/appServices';

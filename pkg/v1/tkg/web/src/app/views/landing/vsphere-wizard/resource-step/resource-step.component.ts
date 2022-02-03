@@ -4,7 +4,7 @@ import { Validators } from '@angular/forms';
 
 // Library imports
 import { takeUntil } from 'rxjs/operators';
-import { VSphereDatastore, VSphereFolder, VSphereResourcePool } from 'tanzu-management-cluster-api';
+import { VSphereDatastore, VSphereFolder, VSphereResourcePool } from 'tanzu-management-cluster-ng-api';
 
 // App imports
 import AppServices from '../../../../shared/service/appServices';

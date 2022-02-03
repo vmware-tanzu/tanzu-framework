@@ -14,7 +14,7 @@ import { APIClient,
     AWSVirtualMachine,
     AWSVpc,
     Vpc
-} from 'tanzu-management-cluster-api';
+} from 'tanzu-management-cluster-ng-api';
 
 // App imports
 import AppServices from '../../../shared/service/appServices';

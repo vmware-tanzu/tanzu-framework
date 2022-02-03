@@ -4,7 +4,7 @@ import { Validators } from '@angular/forms';
 import { distinctUntilChanged, takeUntil } from 'rxjs/operators';
 
 // Library imports
-import { Vpc } from 'tanzu-management-cluster-api';
+import { Vpc } from 'tanzu-management-cluster-ng-api';
 
 // App imports
 import AppServices from 'src/app/shared/service/appServices';

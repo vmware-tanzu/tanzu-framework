@@ -5,7 +5,7 @@ import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { By } from '@angular/platform-browser';
 
 // Library imports
-import { APIClient, AWSSubnet } from 'tanzu-management-cluster-api';
+import { APIClient, AWSSubnet } from 'tanzu-management-cluster-ng-api';
 
 // App imports
 import AppServices from 'src/app/shared/service/appServices';

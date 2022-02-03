@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 
 // Library imports
 import { BehaviorSubject } from 'rxjs';
-import { Features } from 'tanzu-management-cluster-api';
+import { Features } from 'tanzu-management-cluster-ng-api';
 
 // App imports
 import { FeatureFlags, managementClusterPlugin } from '../../views/landing/wizard/shared/constants/wizard.constants';

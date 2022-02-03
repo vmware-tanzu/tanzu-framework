@@ -2,7 +2,7 @@
 import { Component } from '@angular/core';
 
 // Library imports
-import { AzureVirtualMachine } from 'tanzu-management-cluster-api';
+import { AzureVirtualMachine } from 'tanzu-management-cluster-ng-api';
 
 // App imports
 import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
