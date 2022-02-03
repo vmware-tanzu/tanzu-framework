@@ -115,4 +115,10 @@ const (
 
 	// ClusterKind is the Kind for cluster-api Cluster object
 	ClusterKind = "cluster"
+
+	// AntreaAddonName is the name of Antrea Addon Controller
+	AntreaAddonName = "antrea"
+
+	// InfrastructureRefDocker is the docker infrastructure
+	InfrastructureRefDocker = "DockerCluster"
 )

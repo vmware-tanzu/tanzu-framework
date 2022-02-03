@@ -146,6 +146,7 @@ func main() {
 		setupLog.Error(err, "unable to create controller", "controller", "Addon")
 		os.Exit(1)
 	}
+
 	setupChecks(mgr)
 	setupLog.Info("starting manager")
 	if err := mgr.Start(ctx); err != nil {

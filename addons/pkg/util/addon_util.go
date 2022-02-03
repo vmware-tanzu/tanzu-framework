@@ -6,8 +6,10 @@ package util
 import (
 	"context"
 	"fmt"
+	"net"
 	"strconv"
 
+	"github.com/pkg/errors"
 	"gopkg.in/yaml.v2"
 	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
@@ -16,9 +18,9 @@ import (
 
 	kappctrl "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/kappctrl/v1alpha1"
 	pkgiv1alpha1 "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/packaging/v1alpha1"
-
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
 	addontypes "github.com/vmware-tanzu/tanzu-framework/addons/pkg/types"
+	infraconstants "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
 	bomtypes "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkr/pkg/types"
 )
 
@@ -222,4 +224,60 @@ func IsPackageInstallPresent(ctx context.Context,
 	}
 
 	return true, nil
+}
+
+// GetServiceCIDRs returns the Service CIDR blocks for both IPv4 and IPv6 family
+// Parse Service CIDRBlocks obtained from the cluster and return the following from the function:
+// <IPv4 CIDRs, IPv6 CIDRs, error>
+// The first two return parameters should be used only if the function returns error as nil.
+// Also, note that when no error is returned, IPv4 and/or IPv6 CIDRs may still be empty depending on the cluster Service CIDR Blocks
+func GetServiceCIDRs(cluster *clusterapiv1beta1.Cluster) (string, string, error) {
+	var serviceCIDRs []string
+	serviceCIDR, serviceCIDRv6 := "", ""
+	if cluster.Spec.ClusterNetwork != nil && cluster.Spec.ClusterNetwork.Services != nil && len(cluster.Spec.ClusterNetwork.Services.CIDRBlocks) > 0 {
+		serviceCIDRs = cluster.Spec.ClusterNetwork.Services.CIDRBlocks
+		if len(serviceCIDRs) > 2 {
+			return "", "", errors.New("too many CIDRs specified")
+		}
+
+		for _, cidr := range serviceCIDRs {
+			ip, _, err := net.ParseCIDR(cidr)
+			if err != nil {
+				return "", "", errors.Errorf("could not parse CIDR: %s", err)
+			}
+			if ip.To4() != nil {
+				serviceCIDR = cidr
+			} else {
+				if ip.To16() == nil {
+					return "", "", errors.New("Unknown IP type in Service CIDR")
+				}
+				serviceCIDRv6 = cidr
+			}
+		}
+	} else {
+		return "", "", errors.New("Unable to get service CIDRBlocks from cluster")
+	}
+
+	return serviceCIDR, serviceCIDRv6, nil
+}
+
+// GetInfraProvider get infrastructure kind from cluster spec
+func GetInfraProvider(cluster *clusterapiv1beta1.Cluster) (string, error) {
+	var infraProvider string
+
+	if cluster.Spec.InfrastructureRef != nil {
+		infraProvider = cluster.Spec.InfrastructureRef.Kind
+		switch infraProvider {
+		case infraconstants.InfrastructureRefVSphere:
+			return infraconstants.InfrastructureProviderVSphere, nil
+		case infraconstants.InfrastructureRefAWS:
+			return infraconstants.InfrastructureProviderAWS, nil
+		case infraconstants.InfrastructureRefAzure:
+			return infraconstants.InfrastructureProviderAzure, nil
+		case constants.InfrastructureRefDocker:
+			return infraconstants.InfrastructureProviderDocker, nil
+		}
+	}
+
+	return "", errors.New("unknown error in getting infraProvider")
 }

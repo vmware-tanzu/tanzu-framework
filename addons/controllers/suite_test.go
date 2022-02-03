@@ -31,6 +31,7 @@ import (
 
 	kappctrl "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/kappctrl/v1alpha1"
 	pkgiv1alpha1 "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/packaging/v1alpha1"
+	antrea "github.com/vmware-tanzu/tanzu-framework/addons/controllers/antrea"
 	calico "github.com/vmware-tanzu/tanzu-framework/addons/controllers/calico"
 	addonconfig "github.com/vmware-tanzu/tanzu-framework/addons/pkg/config"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
@@ -52,7 +53,7 @@ var (
 	scheme        = runtime.NewScheme()
 	dynamicClient dynamic.Interface
 	cancel        context.CancelFunc
-	//clientset     *kubernetes.Clientset
+	// clientset     *kubernetes.Clientset
 )
 
 func TestAddonController(t *testing.T) {
@@ -169,6 +170,12 @@ var _ = BeforeSuite(func(done Done) {
 	}).SetupWithManager(ctx, mgr, controller.Options{MaxConcurrentReconciles: 1})).To(Succeed())
 
 	Expect((&calico.CalicoConfigReconciler{
+		Client: mgr.GetClient(),
+		Log:    setupLog,
+		Scheme: mgr.GetScheme(),
+	}).SetupWithManager(ctx, mgr, controller.Options{MaxConcurrentReconciles: 1})).To(Succeed())
+
+	Expect((&antrea.AntreaConfigReconciler{
 		Client: mgr.GetClient(),
 		Log:    setupLog,
 		Scheme: mgr.GetScheme(),
