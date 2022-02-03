@@ -76,7 +76,19 @@ var _ = Describe("TanzuClusterBootstrap Reconciler", func() {
 				}
 				return false
 			}, waitTimeout, pollingInterval).Should(BeTrue())
-			Expect(tanzuClusterBootstrap.Status.ResolvedTKR == "v1.22.3").To(BeTrue())
+
+			// Verify ResolvedTKR
+			Eventually(func() bool {
+				err := k8sClient.Get(ctx, client.ObjectKeyFromObject(cluster), tanzuClusterBootstrap)
+				if err != nil {
+					return false
+				}
+				if tanzuClusterBootstrap.Status.ResolvedTKR == "v1.22.3" {
+					return true
+				}
+
+				return false
+			}, waitTimeout, pollingInterval).Should(BeTrue())
 
 			var gvr schema.GroupVersionResource
 			var object *unstructured.Unstructured
