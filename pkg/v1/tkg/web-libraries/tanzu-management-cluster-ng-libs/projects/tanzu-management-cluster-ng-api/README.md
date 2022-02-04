@@ -4,7 +4,7 @@ This project was generated with [Angular CLI](https://github.com/angular/angular
 
 tanzu-management-cluster-ng-api includes all swagger generated models and Angular HTTP methods which are auto-generated from `tanzu-framework/pkg/v1/tkg/web/api/spec.yaml`.
 
-This library serves as an interface for REST APIs which exist in the Tanzu CLI Management Cluster plugin. 
+This library serves as an interface for REST APIs which exist in the Tanzu CLI Management Cluster plugin.
 
 ## Development Notes
 
@@ -16,7 +16,7 @@ Two npm scripts found in `./package.json` are required for generating this libra
 
 `build-library` - installs all project dependencies and then runs `generate-api-client` and `ng-build`.
 
-`generate-api-client` - references `tanzu-framework/pkg/v1/tkg/web/api/spec.yaml` to generate all typescript models 
+`generate-api-client` - references `tanzu-framework/pkg/v1/tkg/web/api/spec.yaml` to generate all typescript models
 and api client interfaces in `./lib/swagger`.
 
 ## Build Scripts
