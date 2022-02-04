@@ -12,7 +12,7 @@ var labels string
 
 var setCeipCmd = &cobra.Command{
 	Use:   "set OPT_IN_BOOL",
-	Short: "Set the opt-in preference for CEIP of the current management cluster",
+	Short: "Set the opt-in preference for CEIP",
 	Long:  "Set the opt-in preference for CEIP of the current management cluster",
 	Args:  cobra.ExactArgs(1),
 	RunE:  runSetCeip,

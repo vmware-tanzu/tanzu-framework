@@ -24,7 +24,8 @@ var (
 
 var discoverySourceCmd = &cobra.Command{
 	Use:   "source",
-	Short: "Manage plugin discovery sources. Discovery source provides metadata about the list of available plugins, their supported versions and how to download them.",
+	Short: "Manage plugin discovery sources",
+	Long:  "Manage plugin discovery sources. Discovery source provides metadata about the list of available plugins, their supported versions and how to download them.",
 }
 
 func init() {
@@ -87,7 +88,8 @@ func outputFromDiscoverySources(discoverySources []configv1alpha1.PluginDiscover
 
 var addDiscoverySourceCmd = &cobra.Command{
 	Use:   "add",
-	Short: "Add a discovery source. Supported discovery types are: oci, local",
+	Short: "Add a discovery source",
+	Long:  "Add a discovery source. Supported discovery types are: oci, local",
 	Example: `
     # Add a local discovery source. If URI is relative path,
     # $HOME/.config/tanzu-plugins will be considered based path

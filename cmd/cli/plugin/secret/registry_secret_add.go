@@ -28,7 +28,8 @@ const errEmptyValue = "the value for %s flag should not be empty"
 
 var registrySecretAddCmd = &cobra.Command{
 	Use:   "add SECRET_NAME --server REGISTRY_SERVER --username USERNAME --password PASSWORD",
-	Short: "Creates a v1/Secret resource of type kubernetes.io/dockerconfigjson. In case of specifying the --export-to-all-namespaces flag, a SecretExport resource will also get created",
+	Short: "Creates a v1/Secret resource",
+	Long:  "Creates a v1/Secret resource of type kubernetes.io/dockerconfigjson. In case of specifying the --export-to-all-namespaces flag, a SecretExport resource will also get created.",
 	Example: `
     # Add a registry secret
     tanzu secret registry add test-secret --server projects-stg.registry.vmware.com --username test-user --password-file test-file

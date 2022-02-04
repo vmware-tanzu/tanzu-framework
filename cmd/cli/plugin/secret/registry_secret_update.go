@@ -17,7 +17,8 @@ import (
 
 var registrySecretUpdateCmd = &cobra.Command{
 	Use:   "update SECRET_NAME --username USERNAME --password PASSWORD",
-	Short: "Updates the v1/Secret resource of type kubernetes.io/dockerconfigjson. In case of specifying the --export-to-all-namespaces flag, the SecretExport resource will also get updated. Otherwise, there will be no changes in the SecretExport resource",
+	Short: "Updates the v1/Secret resource",
+	Long:  "Updates the v1/Secret resource of type kubernetes.io/dockerconfigjson. In case of specifying the --export-to-all-namespaces flag, the SecretExport resource will also get updated. Otherwise, there will be no changes in the SecretExport resource.",
 	Example: `
     # Update a registry secret. There will be no changes in the associated SecretExport resource
     tanzu registry secret update test-secret --username test-user --password-file test-file

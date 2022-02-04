@@ -9,8 +9,8 @@ import (
 
 var configCmd = &cobra.Command{
 	Use:   "config",
-	Short: "Generate Cluster API provider configuration and cluster plans for creating Tanzu Kubernetes clusters",
-	Long:  `Generate Cluster API provider configuration and cluster plans for creating Tanzu Kubernetes clusters`,
+	Short: "Generate Cluster API provider configuration",
+	Long:  "Generate Cluster API provider configuration and cluster plans for creating Tanzu Kubernetes clusters",
 }
 
 func init() {
