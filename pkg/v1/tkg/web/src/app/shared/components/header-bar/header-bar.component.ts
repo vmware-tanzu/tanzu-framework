@@ -1,15 +1,17 @@
 // Angular imports
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-// Third party imports
-import { takeUntil } from "rxjs/operators";
+
+// Library imports
+import { takeUntil } from 'rxjs/operators';
+
 // App imports
 import { APP_ROUTES } from '../../constants/routes.constants';
-import { AppEdition } from "../../constants/branding.constants";
-import AppServices from "../../service/appServices";
-import { BasicSubscriber } from "../../abstracts/basic-subscriber";
-import { EditionData } from "../../service/branding.service";
-import { TkgEvent, TkgEventType } from "../../service/Messenger";
+import { AppEdition } from '../../constants/branding.constants';
+import AppServices from '../../service/appServices';
+import { BasicSubscriber } from '../../abstracts/basic-subscriber';
+import { EditionData } from '../../service/branding.service';
+import { TkgEvent, TkgEventType } from '../../service/Messenger';
 
 /**
  * @class HeaderBarComponent
@@ -49,6 +51,6 @@ export class HeaderBarComponent extends BasicSubscriber implements OnInit {
     }
 
     navigateToDocs() {
-        window.open(this.docsUrl, "_blank");
+        window.open(this.docsUrl, '_blank');
     }
 }

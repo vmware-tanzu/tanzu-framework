@@ -3,19 +3,20 @@ import { Component, ElementRef, OnInit } from '@angular/core';
 import { FormBuilder } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Title } from '@angular/platform-browser';
-// Third party imports
+
+// Library imports
 import { Observable } from 'rxjs';
-// App imports
-import { APIClient } from 'src/app/swagger';
-import AppServices from '../../../shared/service/appServices';
-import { AzureForm } from './azure-wizard.constants';
-import {
+import { APIClient,
     AzureInstanceType,
     AzureRegionalClusterParams,
     AzureResourceGroup,
     AzureVirtualMachine,
     AzureVirtualNetwork
-} from 'src/app/swagger/models';
+} from 'tanzu-management-cluster-ng-api';
+
+// App imports
+import AppServices from '../../../shared/service/appServices';
+import { AzureForm } from './azure-wizard.constants';
 import { AzureAccountParamsKeys, AzureProviderStepComponent } from './provider-step/azure-provider-step.component';
 import { AzureOsImageStepComponent } from './os-image-step/azure-os-image-step.component';
 import { CliFields, CliGenerator } from '../wizard/shared/utils/cli-generator';
@@ -23,7 +24,7 @@ import { EXISTING, VnetStepComponent } from './vnet-step/vnet-step.component';
 import { ExportService } from '../../../shared/service/export.service';
 import { FormDataForHTML, FormUtility } from '../wizard/shared/components/steps/form-utility';
 import { FormMetaDataService } from 'src/app/shared/service/form-meta-data.service';
-import { ImportParams, ImportService } from "../../../shared/service/import.service";
+import { ImportParams, ImportService } from '../../../shared/service/import.service';
 import { NodeSettingStepComponent } from './node-setting-step/node-setting-step.component';
 import { TkgEventType } from '../../../shared/service/Messenger';
 import { WizardBaseDirective } from '../wizard/shared/wizard-base/wizard-base';

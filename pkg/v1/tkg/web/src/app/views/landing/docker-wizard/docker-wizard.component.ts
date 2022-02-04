@@ -1,20 +1,21 @@
-// Angular imports
+// Angular modules
 import { Component, ElementRef, OnInit } from '@angular/core';
 import { FormBuilder } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Title } from '@angular/platform-browser';
-// Third party imports
+
+// Library imports
+import { APIClient, ConfigFileInfo, DockerRegionalClusterParams } from 'tanzu-management-cluster-ng-api';
 import { Observable } from 'rxjs';
+
 // App imports
-import { APIClient } from 'src/app/swagger';
-import { ConfigFileInfo, DockerRegionalClusterParams } from 'src/app/swagger/models';
+import { FormMetaDataService } from 'src/app/shared/service/form-meta-data.service';
 import { CliFields, CliGenerator } from '../wizard/shared/utils/cli-generator';
 import { DaemonValidationStepComponent } from './daemon-validation-step/daemon-validation-step.component';
 import { DockerNetworkStepComponent } from './network-step/docker-network-step.component';
 import { FormDataForHTML, FormUtility } from '../wizard/shared/components/steps/form-utility';
-import { ExportService } from "../../../shared/service/export.service";
-import { FormMetaDataService } from 'src/app/shared/service/form-meta-data.service';
-import { ImportParams, ImportService } from "../../../shared/service/import.service";
+import { ExportService } from '../../../shared/service/export.service';
+import { ImportParams, ImportService } from '../../../shared/service/import.service';
 import { NodeSettingStepComponent } from './node-setting-step/node-setting-step.component';
 import { WizardBaseDirective } from '../wizard/shared/wizard-base/wizard-base';
 

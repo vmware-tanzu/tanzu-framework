@@ -1,15 +1,17 @@
 // Angular imports
 import { Component } from '@angular/core';
 import { Validators } from '@angular/forms';
-// Third party imports
+
+// Library imports
 import { takeUntil } from 'rxjs/operators';
+import { VSphereNetwork } from 'tanzu-management-cluster-ng-api';
+
 // App imports
 import AppServices from '../../../../shared/service/appServices';
 import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
 import { SharedNetworkStepComponent } from '../../wizard/shared/components/steps/network-step/network-step.component';
 import { TkgEventType } from '../../../../shared/service/Messenger';
 import { ValidationService } from '../../wizard/shared/validation/validation.service';
-import { VSphereNetwork } from '../../../../swagger/models';
 
 declare var sortPaths: any;
 @Component({

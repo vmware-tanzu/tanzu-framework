@@ -1,14 +1,15 @@
 // Angular imports
 import { Component, OnInit } from '@angular/core';
 import { Validators } from '@angular/forms';
-// Third party imports
+
+// Library imports
 import { distinctUntilChanged, takeUntil } from 'rxjs/operators';
+import { AzureResourceGroup, AzureVirtualNetwork } from 'tanzu-management-cluster-ng-api';
+
 // App imports
 import AppServices from 'src/app/shared/service/appServices';
 import { AzureField } from '../azure-wizard.constants';
-import { AzureResourceGroup } from 'src/app/swagger/models';
 import { AzureVnetStandaloneStepMapping, AzureVnetStepMapping } from './vnet-step.fieldmapping';
-import { AzureVirtualNetwork } from './../../../../swagger/models/azure-virtual-network.model';
 import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
 import { FormMetaDataStore } from '../../wizard/shared/FormMetaDataStore'
 import { StepFormDirective } from '../../wizard/shared/step-form/step-form';

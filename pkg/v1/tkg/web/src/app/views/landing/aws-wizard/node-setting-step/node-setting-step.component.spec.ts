@@ -3,8 +3,11 @@ import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { By } from '@angular/platform-browser';
+
+// Library imports
+import { APIClient, AWSSubnet } from 'tanzu-management-cluster-ng-api';
+
 // App imports
-import { APIClient } from '../../../../swagger/api-client.service';
 import AppServices from 'src/app/shared/service/appServices';
 import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
 import { NodeSettingStepComponent, NodeType } from './node-setting-step.component';
@@ -12,7 +15,6 @@ import { Messenger, TkgEventType } from 'src/app/shared/service/Messenger';
 import { SharedModule } from '../../../../shared/shared.module';
 import { ValidationService } from '../../wizard/shared/validation/validation.service';
 import { DataServiceRegistrarTestExtension } from '../../../../testing/data-service-registrar.testextension';
-import { AWSSubnet } from '../../../../swagger/models';
 import { AwsField, AwsForm } from '../aws-wizard.constants';
 
 describe('NodeSettingStepComponent', () => {

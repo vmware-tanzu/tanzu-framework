@@ -1,7 +1,10 @@
 // Angular imports
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
+
+// Library imports
+import { AzureVirtualMachine } from 'tanzu-management-cluster-ng-api';
+
 // App imports
-import { AzureVirtualMachine } from '../../../../swagger/models';
 import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
 import { OsImageProviderInputs, SharedOsImageStepDirective } from '../../wizard/shared/components/steps/os-image-step/os-image-step.component';
 import { TkgEventType } from '../../../../shared/service/Messenger';

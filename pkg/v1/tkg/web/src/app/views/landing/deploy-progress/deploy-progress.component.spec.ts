@@ -6,8 +6,8 @@ import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 // App imports
 import { DeployProgressComponent } from './deploy-progress.component';
 import { AppDataService } from 'src/app/shared/service/app-data.service';
-import { ClusterType } from "../wizard/shared/constants/wizard.constants";
-import AppServices from "../../../shared/service/appServices";
+import { ClusterType } from '../wizard/shared/constants/wizard.constants';
+import AppServices from '../../../shared/service/appServices';
 
 describe('DeployProgressComponent', () => {
     let fixture: ComponentFixture<DeployProgressComponent>;

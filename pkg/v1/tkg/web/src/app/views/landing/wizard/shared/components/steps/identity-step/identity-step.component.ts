@@ -1,16 +1,17 @@
-// Angular imports
+// Angular modules
 import { Component, OnInit } from '@angular/core';
 import { Validators } from '@angular/forms';
-// Third party imports
+
+// Library imports
 import { distinctUntilChanged, takeUntil, tap } from 'rxjs/operators';
+import { APIClient, LdapParams, LdapTestResult } from 'tanzu-management-cluster-ng-api';
+
 // App imports
-import { APIClient } from 'src/app/swagger';
+
+import { IpFamilyEnum } from 'src/app/shared/constants/app.constants';
 import { FieldMapUtilities } from '../../../field-mapping/FieldMapUtilities';
 import { IdentityManagementType } from '../../../constants/wizard.constants';
 import { IdentityStepMapping } from './identity-step.fieldmapping';
-import { IpFamilyEnum } from 'src/app/shared/constants/app.constants';
-import { LdapParams } from './../../../../../../../swagger/models/ldap-params.model';
-import { LdapTestResult } from 'src/app/swagger/models';
 import { StepFormDirective } from '../../../step-form/step-form';
 import { ValidationService } from '../../../validation/validation.service';
 

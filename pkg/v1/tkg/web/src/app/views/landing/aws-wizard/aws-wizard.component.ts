@@ -3,12 +3,10 @@ import { Component, ElementRef, OnInit } from '@angular/core';
 import { FormBuilder } from '@angular/forms';
 import { Title } from '@angular/platform-browser';
 import { Router } from '@angular/router';
-// Third party imports
+
+// Library imports
 import { Observable } from 'rxjs';
-// App imports
-import { APIClient } from 'src/app/swagger';
-import AppServices from "../../../shared/service/appServices";
-import {
+import { APIClient,
     AWSAvailabilityZone,
     AWSNodeAz,
     AWSRegionalClusterParams,
@@ -16,7 +14,10 @@ import {
     AWSVirtualMachine,
     AWSVpc,
     Vpc
-} from 'src/app/swagger/models';
+} from 'tanzu-management-cluster-ng-api';
+
+// App imports
+import AppServices from '../../../shared/service/appServices';
 import { AWSAccountParamsKeys, AwsProviderStepComponent } from './provider-step/aws-provider-step.component';
 import { AwsField, AwsForm, AwsStep } from "./aws-wizard.constants";
 import { AwsOsImageStepComponent } from './os-image-step/aws-os-image-step.component';
@@ -25,7 +26,7 @@ import { CliFields, CliGenerator } from '../wizard/shared/utils/cli-generator';
 import { ExportService } from '../../../shared/service/export.service';
 import { FormDataForHTML, FormUtility } from '../wizard/shared/components/steps/form-utility';
 import { FormMetaDataService } from 'src/app/shared/service/form-meta-data.service';
-import { ImportParams, ImportService } from "../../../shared/service/import.service";
+import { ImportParams, ImportService } from '../../../shared/service/import.service';
 import { InstanceType } from '../../../shared/constants/app.constants';
 import { TkgEventType } from '../../../shared/service/Messenger';
 import { Utils } from '../../../shared/utils';

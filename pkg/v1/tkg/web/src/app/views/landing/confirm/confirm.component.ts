@@ -1,14 +1,16 @@
 // Angular imports
 import { Component, OnInit, Input } from '@angular/core';
 import { Router } from '@angular/router';
-// Third party imports
-import { takeUntil } from "rxjs/operators";
+
+// Library imports
+import { takeUntil } from 'rxjs/operators';
+
 // App imports
 import { APP_ROUTES, Routes } from '../../../shared/constants/routes.constants';
 import AppServices from '../../../shared/service/appServices';
-import { BasicSubscriber } from "../../../shared/abstracts/basic-subscriber";
+import { BasicSubscriber } from '../../../shared/abstracts/basic-subscriber';
 import { FormMetaDataStore, FormMetaData, StepMetaData } from './../wizard/shared/FormMetaDataStore';
-import { TkgEvent, TkgEventType } from "../../../shared/service/Messenger";
+import { TkgEvent, TkgEventType } from '../../../shared/service/Messenger';
 
 @Component({
     selector: 'tkg-kickstart-ui-confirm',

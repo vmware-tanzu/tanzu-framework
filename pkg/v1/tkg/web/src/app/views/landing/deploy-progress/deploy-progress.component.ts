@@ -1,7 +1,7 @@
 // Angular imports
 import { Component, OnInit } from '@angular/core';
 
-// Third party imports
+// Library imports
 import {
     BehaviorSubject
 } from 'rxjs';
@@ -14,7 +14,7 @@ import AppServices from 'src/app/shared/service/appServices';
 import { BasicSubscriber } from '../../../shared/abstracts/basic-subscriber';
 import { WebsocketService } from '../../../shared/service/websocket.service';
 import { FormMetaDataStore } from '../wizard/shared/FormMetaDataStore';
-import { TkgEvent, TkgEventType } from "../../../shared/service/Messenger";
+import { TkgEvent, TkgEventType } from '../../../shared/service/Messenger';
 
 @Component({
     selector: 'tkg-kickstart-ui-deploy-progress',

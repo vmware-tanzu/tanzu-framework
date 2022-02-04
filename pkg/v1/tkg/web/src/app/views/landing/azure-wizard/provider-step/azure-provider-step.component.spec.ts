@@ -3,18 +3,19 @@ import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
-// Third party imports
-import { Observable, of, throwError } from 'rxjs';
+
+// Library imports
+import { of, throwError, Observable } from 'rxjs';
+import { APIClient, AzureResourceGroup } from 'tanzu-management-cluster-ng-api';
+
 // App imports
 import AppServices from '../../../../shared/service/appServices';
 import { AzureProviderStepComponent } from './azure-provider-step.component';
-import { APIClient } from '../../../../swagger/api-client.service';
 import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
 import { Messenger, TkgEventType } from 'src/app/shared/service/Messenger';
 import { SharedModule } from '../../../../shared/shared.module';
 import { ValidationService } from '../../wizard/shared/validation/validation.service';
 import { DataServiceRegistrarTestExtension } from '../../../../testing/data-service-registrar.testextension';
-import { AzureResourceGroup } from '../../../../swagger/models';
 import { AzureForm } from '../azure-wizard.constants';
 
 describe('AzureProviderStepComponent', () => {

@@ -1,0 +1,39 @@
+{
+  "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
+  "version": 1,
+  "newProjectRoot": "projects",
+  "projects": {
+    "tanzu-management-cluster-ng-api": {
+      "projectType": "library",
+      "root": "projects/tanzu-management-cluster-ng-api",
+      "sourceRoot": "projects/tanzu-management-cluster-ng-api/src",
+      "prefix": "lib",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-angular:ng-packagr",
+          "options": {
+            "project": "projects/tanzu-management-cluster-ng-api/ng-package.json"
+          },
+          "configurations": {
+            "production": {
+              "tsConfig": "projects/tanzu-management-cluster-ng-api/tsconfig.lib.prod.json"
+            },
+            "development": {
+              "tsConfig": "projects/tanzu-management-cluster-ng-api/tsconfig.lib.json"
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "main": "projects/tanzu-management-cluster-ng-api/src/test.ts",
+            "tsConfig": "projects/tanzu-management-cluster-ng-api/tsconfig.spec.json",
+            "karmaConfig": "projects/tanzu-management-cluster-ng-api/karma.conf.js"
+          }
+        }
+      }
+    }
+  },
+  "defaultProject": "tanzu-management-cluster-ng-api"
+}

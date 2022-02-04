@@ -2,26 +2,27 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { Validators } from '@angular/forms';
-// Third party imports
+
+// Library imports
 import { debounceTime, distinctUntilChanged, finalize, takeUntil } from 'rxjs/operators';
 import * as _ from 'lodash';
 import { ClrLoadingState } from '@clr/angular';
+import { APIClient, VSphereDatacenter } from 'tanzu-management-cluster-ng-api';
+
 // App imports
 import { AppEdition } from 'src/app/shared/constants/branding.constants';
-import { APIClient } from 'src/app/swagger/api-client.service';
 import { APP_ROUTES, Routes } from 'src/app/shared/constants/routes.constants';
 import AppServices from 'src/app/shared/service/appServices';
 import { EditionData } from 'src/app/shared/service/branding.service';
 import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
 import { FormMetaDataStore } from '../../wizard/shared/FormMetaDataStore';
-import { managementClusterPlugin } from "../../wizard/shared/constants/wizard.constants";
-import { NotificationTypes } from "../../../../shared/components/alert-notification/alert-notification.component";
+import { managementClusterPlugin } from '../../wizard/shared/constants/wizard.constants';
+import { NotificationTypes } from '../../../../shared/components/alert-notification/alert-notification.component';
 import { SSLThumbprintModalComponent } from '../../wizard/shared/components/modals/ssl-thumbprint-modal/ssl-thumbprint-modal.component';
 import { StepFormDirective } from '../../wizard/shared/step-form/step-form';
 import { TkgEvent, TkgEventType } from 'src/app/shared/service/Messenger';
 import { ValidationService } from '../../wizard/shared/validation/validation.service';
-import { VSphereDatacenter } from 'src/app/swagger/models/v-sphere-datacenter.model';
-import { VsphereField } from "../vsphere-wizard.constants";
+import { VsphereField } from '../vsphere-wizard.constants';
 import { VsphereProviderStepFieldMapping } from './vsphere-provider-step.fieldmapping';
 
 declare var sortPaths: any;

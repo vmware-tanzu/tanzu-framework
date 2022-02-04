@@ -1,7 +1,11 @@
 // Angular imports
 import { Injectable } from '@angular/core';
+
+// Library imports
 import { BehaviorSubject } from 'rxjs';
-import { Features } from "../../swagger/models";
+import { Features } from 'tanzu-management-cluster-ng-api';
+
+// App imports
 import { FeatureFlags, managementClusterPlugin } from '../../views/landing/wizard/shared/constants/wizard.constants';
 
 @Injectable({

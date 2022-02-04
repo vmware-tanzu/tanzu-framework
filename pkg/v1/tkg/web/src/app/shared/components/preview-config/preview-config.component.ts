@@ -1,6 +1,6 @@
 // Angular imports
 import { Component, OnInit } from '@angular/core';
-// Third party imports
+// Library imports
 import { takeUntil } from 'rxjs/operators';
 // App imports
 import AppServices from '../../service/appServices';

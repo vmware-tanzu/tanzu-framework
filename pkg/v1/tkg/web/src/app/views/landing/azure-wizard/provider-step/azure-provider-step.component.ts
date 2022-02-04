@@ -1,18 +1,19 @@
 // Angular imports
 import { Component, OnInit } from '@angular/core';
 import { Validators } from '@angular/forms';
-import { ClrLoadingState } from "@clr/angular";
-// Third party imports
+import { ClrLoadingState } from '@clr/angular';
+
+// Library imports
 import { debounceTime, distinctUntilChanged, finalize, takeUntil } from 'rxjs/operators';
+import { APIClient, AzureResourceGroup } from 'tanzu-management-cluster-ng-api';
+
 // App imports
-import { APIClient } from '../../../../swagger/api-client.service';
 import AppServices from '../../../../shared/service/appServices';
 import { AzureCloud, AzureField, ResourceGroupOption } from '../azure-wizard.constants';
 import { AzureProviderStepMapping } from './azure-provider-step.fieldmapping';
-import { AzureResourceGroup } from './../../../../swagger/models/azure-resource-group.model';
 import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
-import { FormMetaDataStore } from "../../wizard/shared/FormMetaDataStore";
-import { NotificationTypes } from "../../../../shared/components/alert-notification/alert-notification.component";
+import { FormMetaDataStore } from '../../wizard/shared/FormMetaDataStore';
+import { NotificationTypes } from '../../../../shared/components/alert-notification/alert-notification.component';
 import { StepFormDirective } from '../../wizard/shared/step-form/step-form';
 import { TkgEvent, TkgEventType } from '../../../../shared/service/Messenger';
 import { ValidationService } from '../../wizard/shared/validation/validation.service';

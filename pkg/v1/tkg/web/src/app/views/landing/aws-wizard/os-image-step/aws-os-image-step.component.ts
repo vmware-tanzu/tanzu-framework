@@ -1,7 +1,10 @@
 // Angular imports
 import { Component, OnInit } from '@angular/core';
+
+// Library imports
+import { AWSVirtualMachine } from 'tanzu-management-cluster-ng-api';
+
 // App imports
-import { AWSVirtualMachine } from '../../../../swagger/models';
 import AppServices from '../../../../shared/service/appServices';
 import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
 import { OsImageProviderInputs, SharedOsImageStepDirective } from '../../wizard/shared/components/steps/os-image-step/os-image-step.component';

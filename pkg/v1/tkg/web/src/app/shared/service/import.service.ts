@@ -1,6 +1,6 @@
 // Angular imports
 import {Injectable} from "@angular/core";
-// Third party imports
+// Library imports
 import {Observable} from "rxjs";
 import {take} from "rxjs/operators";
 // App imports

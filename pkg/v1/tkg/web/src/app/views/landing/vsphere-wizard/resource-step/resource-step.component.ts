@@ -1,18 +1,18 @@
 // Angular imports
 import { Component, OnInit } from '@angular/core';
 import { Validators } from '@angular/forms';
-// Third party imports
+
+// Library imports
 import { takeUntil } from 'rxjs/operators';
+import { VSphereDatastore, VSphereFolder, VSphereResourcePool } from 'tanzu-management-cluster-ng-api';
+
 // App imports
 import AppServices from '../../../../shared/service/appServices';
 import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
 import { StepFormDirective } from '../../wizard/shared/step-form/step-form';
 import { TkgEventType } from '../../../../shared/service/Messenger';
 import { ValidationService } from '../../wizard/shared/validation/validation.service';
-import { VSphereDatastore } from '../../../../swagger/models/v-sphere-datastore.model';
-import { VsphereField } from "../vsphere-wizard.constants";
-import { VSphereFolder } from '../../../../swagger/models/v-sphere-folder.model';
-import { VSphereResourcePool } from '../../../../swagger/models';
+import { VsphereField } from '../vsphere-wizard.constants';
 import { VsphereResourceStepMapping } from './resource-step.fieldmapping';
 
 declare var sortPaths: any;

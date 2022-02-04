@@ -3,13 +3,11 @@ import { Component, OnInit } from '@angular/core';
 import { Validators } from '@angular/forms';
 import { takeUntil } from 'rxjs/operators';
 // App imports
-import { APIClient } from '../../../../swagger/api-client.service';
+import { APIClient, AWSNodeAz, AWSSubnet } from 'tanzu-management-cluster-ng-api';
 import { AppEdition } from 'src/app/shared/constants/branding.constants';
 import AppServices from '../../../../shared/service/appServices';
-import { AwsField, AwsForm } from "../aws-wizard.constants";
+import { AwsField, AwsForm } from '../aws-wizard.constants';
 import { AwsNodeSettingStepMapping } from './node-setting-step.fieldmapping';
-import { AWSNodeAz } from '../../../../swagger/models/aws-node-az.model';
-import { AWSSubnet } from '../../../../swagger/models/aws-subnet.model';
 import { AzRelatedFieldsArray } from '../aws-wizard.component';
 import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
 import { FormMetaDataStore } from '../../wizard/shared/FormMetaDataStore';

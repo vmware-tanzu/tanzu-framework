@@ -2,11 +2,14 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
+
+// Library imports
+import { APIClient } from 'tanzu-management-cluster-ng-api';
+
 // App imports
-import { APIClient } from 'src/app/swagger/api-client.service';
 import AppServices from '../../../../../../../shared/service/appServices';
 import { FieldMapUtilities } from '../../../field-mapping/FieldMapUtilities';
-import { Messenger, TkgEventType } from 'src/app/shared/service/Messenger';
+import { Messenger } from 'src/app/shared/service/Messenger';
 import { SharedModule } from 'src/app/shared/shared.module';
 import { SharedOsImageStepDirective } from './os-image-step.component';
 import { ValidationService } from '../../../validation/validation.service';

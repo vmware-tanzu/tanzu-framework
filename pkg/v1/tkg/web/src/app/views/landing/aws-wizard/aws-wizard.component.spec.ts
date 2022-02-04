@@ -4,12 +4,15 @@ import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { RouterTestingModule } from '@angular/router/testing';
+
+// Library imports
+import { APIClient } from 'tanzu-management-cluster-ng-api';
+
 // App imports
-import { APIClient } from '../../../swagger/api-client.service';
 import AppServices from 'src/app/shared/service/appServices';
 import { AwsForm } from './aws-wizard.constants';
 import { AwsWizardComponent } from './aws-wizard.component';
-import { ClusterType, WizardForm } from "../wizard/shared/constants/wizard.constants";
+import { ClusterType, WizardForm } from '../wizard/shared/constants/wizard.constants';
 import { FieldMapUtilities } from '../wizard/shared/field-mapping/FieldMapUtilities';
 import { Messenger } from 'src/app/shared/service/Messenger';
 import { MetadataStepComponent } from '../wizard/shared/components/steps/metadata-step/metadata-step.component';

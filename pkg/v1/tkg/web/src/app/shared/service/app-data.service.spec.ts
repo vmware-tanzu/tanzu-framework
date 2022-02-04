@@ -2,8 +2,8 @@ import { TestBed, async } from '@angular/core/testing';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { HttpClientModule } from '@angular/common/http';
 
+import { APIClient } from 'tanzu-management-cluster-ng-api';
 import { AppDataService } from 'src/app/shared/service/app-data.service';
-import { APIClient } from '../../swagger/api-client.service';
 
 describe('AppDataService', () => {
     let service: AppDataService;

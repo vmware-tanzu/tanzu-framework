@@ -4,11 +4,13 @@ import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { RouterTestingModule } from '@angular/router/testing';
-// Third party imports
+
+// Library imports
 import { of } from 'rxjs';
 import { delay } from 'rxjs/operators';
+import { APIClient } from 'tanzu-management-cluster-ng-api';
+
 // App imports
-import { APIClient } from 'src/app/swagger/api-client.service';
 import AppServices from 'src/app/shared/service/appServices';
 import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
 import { Messenger, TkgEventType } from 'src/app/shared/service/Messenger';

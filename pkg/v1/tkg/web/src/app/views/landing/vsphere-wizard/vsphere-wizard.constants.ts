@@ -1,4 +1,4 @@
-import {NodeType} from "../wizard/shared/constants/wizard.constants";
+import {NodeType} from '../wizard/shared/constants/wizard.constants';
 
 export const VsphereNodeTypes: Array<NodeType> = [
     {

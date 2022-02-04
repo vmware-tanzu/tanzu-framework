@@ -3,11 +3,10 @@ import { Component } from '@angular/core';
 import { takeUntil } from 'rxjs/operators';
 
 // App imports
+import { APIClient } from 'tanzu-management-cluster-ng-api';
+import { Features, ProviderInfo } from 'tanzu-management-cluster-ng-api';
 import { BasicSubscriber } from './shared/abstracts/basic-subscriber';
-import { APIClient } from './swagger/api-client.service';
-import { ProviderInfo } from './swagger/models/provider-info.model';
 import { BrandingService } from './shared/service/branding.service';
-import { Features } from "./swagger/models";
 import AppServices from "./shared/service/appServices";
 
 @Component({

@@ -1,20 +1,22 @@
 // Angular imports
 import { Component, Input, OnInit } from '@angular/core';
 import { FormGroup, Validators } from '@angular/forms';
-// Third party imports
+
+// Library imports
 import { distinctUntilChanged, takeUntil } from 'rxjs/operators';
+import { VSphereNetwork } from 'tanzu-management-cluster-ng-api';
+
 // App imports
 import AppServices from '../../../../../../../shared/service/appServices';
 import { FieldMapUtilities } from '../../../field-mapping/FieldMapUtilities';
 import { FormMetaDataStore, FormMetaData } from '../../../FormMetaDataStore';
 import { IAAS_DEFAULT_CIDRS, IpFamilyEnum } from '../../../../../../../shared/constants/app.constants';
-import { managementClusterPlugin } from "../../../constants/wizard.constants";
+import { managementClusterPlugin } from '../../../constants/wizard.constants';
 import { NetworkIpv4StepMapping, NetworkIpv6StepMapping } from './network-step.fieldmapping';
 import { StepFormDirective } from '../../../step-form/step-form';
 import { StepMapping } from '../../../field-mapping/FieldMapping';
 import { TkgEventType } from 'src/app/shared/service/Messenger';
 import { ValidationService } from '../../../validation/validation.service';
-import { VSphereNetwork } from 'src/app/swagger/models/v-sphere-network.model';
 
 declare var sortPaths: any;
 @Component({

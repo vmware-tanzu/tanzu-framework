@@ -3,11 +3,13 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, FormControl } from '@angular/forms';
 import { RouterTestingModule } from '@angular/router/testing';
-// Third party imports
+
+// Library imports
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { APIClient } from 'tanzu-management-cluster-ng-api';
+
 // App imports
-import { APIClient } from '../../../swagger/api-client.service';
-import { ClusterType } from "../wizard/shared/constants/wizard.constants";
+import { ClusterType } from '../wizard/shared/constants/wizard.constants';
 import { FieldMapUtilities } from '../wizard/shared/field-mapping/FieldMapUtilities';
 import { FormMetaDataStore } from '../wizard/shared/FormMetaDataStore';
 import { Messenger, TkgEventType } from 'src/app/shared/service/Messenger';

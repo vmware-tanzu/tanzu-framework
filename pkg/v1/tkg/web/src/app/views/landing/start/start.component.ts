@@ -2,7 +2,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { Title } from '@angular/platform-browser';
-// Third party imports
+// Library imports
 import { Observable } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 // App imports

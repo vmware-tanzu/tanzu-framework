@@ -1,10 +1,13 @@
 // Angular imports
 import { Component, OnInit } from '@angular/core';
+
+// Library imports
+import { VSphereVirtualMachine } from 'tanzu-management-cluster-ng-api';
+
 // App imports
 import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
 import { OsImageProviderInputs, SharedOsImageStepDirective } from '../../wizard/shared/components/steps/os-image-step/os-image-step.component';
 import { TkgEventType } from '../../../../shared/service/Messenger';
-import { VSphereVirtualMachine } from '../../../../swagger/models';
 
 @Component({
     selector: 'app-vsphere-os-image-step',

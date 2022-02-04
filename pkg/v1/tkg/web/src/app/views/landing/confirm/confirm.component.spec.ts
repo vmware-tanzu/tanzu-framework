@@ -3,9 +3,11 @@ import { TestBed, async, ComponentFixture } from '@angular/core/testing';
 import { RouterTestingModule } from '@angular/router/testing';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 
+// Library imports
+import { APIClient } from 'tanzu-management-cluster-ng-api';
+
 // App imports
 import { ConfirmComponent } from './confirm.component';
-import { APIClient } from '../../../swagger/api-client.service';
 import { SharedModule } from './../../../shared/shared.module';
 import { VmwCopyToClipboardButtonComponent } from '../../../shared/components/copy-to-clipboard-button/copy-to-clipboard-button.component';
 import { PreviewConfigComponent } from '../../../shared/components/preview-config/preview-config.component';

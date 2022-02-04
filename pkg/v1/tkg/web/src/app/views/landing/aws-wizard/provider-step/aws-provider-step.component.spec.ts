@@ -5,10 +5,12 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { FormBuilder } from '@angular/forms';
 import { By } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
-// Third party imports
+
+// Library imports
 import { of, empty, throwError, Observable } from 'rxjs';
+import { APIClient } from 'tanzu-management-cluster-ng-api';
+
 // App imports
-import { APIClient } from '../../../../swagger/api-client.service';
 import AppServices from 'src/app/shared/service/appServices';
 import { AwsField } from '../aws-wizard.constants';
 import { AwsProviderStepComponent } from './aws-provider-step.component';
