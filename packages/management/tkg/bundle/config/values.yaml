@@ -2,3 +2,8 @@
 ---
 
 #! User configurable values for tkg.
+
+metadata:
+  infraProvider: ""
+
+configvalues:

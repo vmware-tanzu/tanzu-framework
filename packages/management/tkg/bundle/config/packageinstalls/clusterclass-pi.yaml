@@ -1,0 +1,34 @@
+#@ load("@ytt:overlay", "overlay")
+#@ load("@ytt:yaml", "yaml")
+#@ load("@ytt:data", "data")
+
+---
+apiVersion: packaging.carvel.dev/v1alpha1
+kind: PackageInstall
+metadata:
+  name: tkg-clusterclass
+  namespace: tkg-system
+  annotations:
+    kapp.k14s.io/change-rule.0: "upsert after upserting v1/sa-tkg-pkg"
+    kapp.k14s.io/change-rule.1: "delete before deleting v1/sa-tkg-pkg"
+spec:
+  serviceAccountName: tanzu-tkg-package-sa
+  packageRef:
+    refName: tkg-clusterclass.tanzu.vmware.com
+    versionSelection:
+      prereleases: {}
+  values:
+  - secretRef:
+      name: tkg-clusterclass-values
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: tkg-clusterclass-values
+  namespace: tkg-system
+  annotations:
+    kapp.k14s.io/change-rule.0: "upsert after upserting v1/sa-tkg-pkg"
+    kapp.k14s.io/change-rule.1: "delete before deleting v1/sa-tkg-pkg"
+type: Opaque
+stringData:
+  values.yaml: #@ yaml.encode(data.values)
