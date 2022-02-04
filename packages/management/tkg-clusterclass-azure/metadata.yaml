@@ -1,0 +1,14 @@
+apiVersion: data.packaging.carvel.dev/v1alpha1
+kind: PackageMetadata
+metadata:
+  name: tkg-clusterclass-azure.tanzu.vmware.com
+  namespace: tkg-clusterclass-azure
+spec:
+  displayName: "tkg-clusterclass-azure"
+  longDescription: "ClusterClass for Azure defines the default set of Azure ClusterClass resources for Tanzu"
+  shortDescription: "Defines the Azure ClusterClass resources for Tanzu"
+  providerName: VMware
+  maintainers:
+    - name: ""
+  categories:
+    - "clusterclass"

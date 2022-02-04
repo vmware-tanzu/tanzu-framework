@@ -44,6 +44,55 @@ managementPackageRepository:
       version: latest
       #! Gets replaced with imgpkg sha256 at build, this should be name:version
       sha256: "addons-manager:latest"
+    - name: tkg
+      displayName: tkg
+      #! Relative path to package bundle
+      path: packages/management/tkg
+      domain: tanzu.vmware.com
+      version: latest
+      #! Gets replaced with imgpkg sha256 at build, this should be name:version
+      sha256: "tkg:latest"
+    - name: tkg-clusterclass
+      displayName: tkg-clusterclass
+      #! Relative path to package bundle
+      path: packages/management/tkg-clusterclass
+      domain: tanzu.vmware.com
+      version: latest
+      #! Gets replaced with imgpkg sha256 at build, this should be name:version
+      sha256: "tkg-clusterclass:latest"
+    - name: tkg-clusterclass-docker
+      displayName: tkg-clusterclass-docker
+      #! Relative path to package bundle
+      path: packages/management/tkg-clusterclass-docker
+      domain: tanzu.vmware.com
+      version: latest
+      #! Gets replaced with imgpkg sha256 at build, this should be name:version
+      sha256: "tkg-clusterclass-docker:latest"
+    - name: tkg-clusterclass-azure
+      displayName: tkg-clusterclass-azure
+      #! Relative path to package bundle
+      path: packages/management/tkg-clusterclass-azure
+      domain: tanzu.vmware.com
+      version: latest
+      #! Gets replaced with imgpkg sha256 at build, this should be name:version
+      sha256: "tkg-clusterclass-azure:latest"
+    - name: tkg-clusterclass-vsphere
+      displayName: tkg-clusterclass-vsphere
+      #! Relative path to package bundle
+      path: packages/management/tkg-clusterclass-vsphere
+      domain: tanzu.vmware.com
+      version: latest
+      #! Gets replaced with imgpkg sha256 at build, this should be name:version
+      sha256: "tkg-clusterclass-vsphere:latest"
+    - name: tkg-clusterclass-aws
+      displayName: tkg-clusterclass-aws
+      #! Relative path to package bundle
+      path: packages/management/tkg-clusterclass-aws
+      domain: tanzu.vmware.com
+      version: latest
+      #! Gets replaced with imgpkg sha256 at build, this should be name:version
+      sha256: "tkg-clusterclass-aws:latest"
+
 
 standalonePackageRepository:
   #! This gets overwritten by build
