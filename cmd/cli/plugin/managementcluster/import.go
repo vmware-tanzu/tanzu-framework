@@ -11,7 +11,6 @@ import (
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 	kerrors "k8s.io/apimachinery/pkg/util/errors"
-	"sigs.k8s.io/cluster-api/cmd/clusterctl/cmd"
 
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/region"
@@ -27,10 +26,8 @@ var importOption = &importOptions{}
 // TODO: add integration tests
 var importCmd = &cobra.Command{
 	Use:   "import",
-	Short: "Import Tanzu Kubernetes Grid management clusters from TKG settings file",
-	Long: cmd.LongDesc(`
-			Import Tanzu Kubernetes Grid management cluster from TKG settings file
-		`),
+	Short: "Import Tanzu Kubernetes Grid management clusters",
+	Long:  "Import Tanzu Kubernetes Grid management cluster from TKG settings file",
 
 	Example: `
     # Import management cluster config from default config file	

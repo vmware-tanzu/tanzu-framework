@@ -14,7 +14,7 @@ var (
 
 var setCeipCmd = &cobra.Command{
 	Use:     "ceip-participation OPT_IN_BOOL",
-	Short:   "Set the opt-in preference for CEIP of the current management cluster",
+	Short:   "Set the opt-in preference for CEIP",
 	Long:    "Set the opt-in preference for CEIP of the current management cluster",
 	Aliases: []string{"ceip", "ceip-participations"},
 	Args:    cobra.ExactArgs(1),

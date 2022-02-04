@@ -25,7 +25,7 @@ var getMHCCP = &getMachineHealthCheckCPOptions{}
 
 var getMachineHealthCheckCPCmd = &cobra.Command{
 	Use:   "get CLUSTER_NAME",
-	Short: "Get a MachineHealthCheck object of the control plane of a cluster",
+	Short: "Get a MachineHealthCheck object",
 	Long:  "Get a MachineHealthCheck object of the control plane for the given cluster",
 	Args:  cobra.ExactArgs(1),
 	RunE:  getMachineHealthCheckCP,

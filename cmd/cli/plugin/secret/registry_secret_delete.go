@@ -17,7 +17,8 @@ import (
 
 var registrySecretDeleteCmd = &cobra.Command{
 	Use:   "delete SECRET_NAME",
-	Short: "Deletes v1/Secret resource of type kubernetes.io/dockerconfigjson and the associated SecretExport from the cluster",
+	Short: "Deletes a v1/Secret resource",
+	Long:  "Deletes a v1/Secret resource of type kubernetes.io/dockerconfigjson and the associated SecretExport from the cluster",
 	Example: `
     # Delete a registry secret
     tanzu registry secret delete test-secret`,
