@@ -403,7 +403,7 @@
                             <clr-tooltip>
                                 <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                                 <clr-tooltip-content clrPosition="top-left" clrSize="lg" *clrIfOpen>
-                                    <span>The LDAP attribute that contains the username used in Kubernetes; can only be searched by CN. In AD environments
+                                    <span>The LDAP attribute that contains the username used in Kubernetes. In AD environments
                                         this is generally sAMAccountName.</span>
                                 </clr-tooltip-content>
                             </clr-tooltip>
@@ -477,12 +477,12 @@
                             <clr-tooltip>
                                 <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                                 <clr-tooltip-content clrPosition="top-left" clrSize="lg" *clrIfOpen>
-                                    <span>The LDAP attribute that Kubernetes will see as part of your groups (e.g., ou); can only be searched by OU.</span>
+                                    <span>The LDAP attribute that Kubernetes will see as part of your groups (e.g., cn).</span>
                                 </clr-tooltip-content>
                             </clr-tooltip>
                         </label>
                         <input clrInput
-                               placeholder="ou"
+                               placeholder="cn"
                                formControlName="groupSearchNameAttr"
                                name="groupSearchNameAttr"/>
                         <!-- Add a empty helper to avoid accessibility aria-describeby issue -->
@@ -594,11 +594,11 @@
                                             <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22">
                                             </clr-icon>
                                             <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
-                                                <span>A user name used to test LDAP user search functionality.</span>
+                                                <span>Enter the CN attribute for the user to test LDAP user search functionality.</span>
                                             </clr-tooltip-content>
                                         </clr-tooltip>
                                     </label>
-                                    <input clrInput formControlName="testUserName" placeholder="userid" name="testUserName" />
+                                    <input clrInput formControlName="testUserName" placeholder="User's CN attribute" name="testUserName" />
                                     <clr-control-helper></clr-control-helper>
                                 </clr-input-container>
                             </div>
@@ -610,11 +610,11 @@
                                             <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22">
                                             </clr-icon>
                                             <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
-                                                <span>A group name used to test LDAP group search functionality</span>
+                                                <span>Enter the OU attribute for the group to test LDAP group search functionality.</span>
                                             </clr-tooltip-content>
                                         </clr-tooltip>
                                     </label>
-                                    <input clrInput formControlName="testGroupName" placeholder="people" name="testGroupName" />
+                                    <input clrInput formControlName="testGroupName" placeholder="Group's OU attribute" name="testGroupName" />
                                     <clr-control-helper></clr-control-helper>
                                 </clr-input-container>
                             </div>π
