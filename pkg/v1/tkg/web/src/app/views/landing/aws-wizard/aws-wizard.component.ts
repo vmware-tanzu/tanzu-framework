@@ -27,7 +27,7 @@ import { FormDataForHTML, FormUtility } from '../wizard/shared/components/steps/
 import { FormMetaDataService } from 'src/app/shared/service/form-meta-data.service';
 import { ImportParams, ImportService } from "../../../shared/service/import.service";
 import { InstanceType } from '../../../shared/constants/app.constants';
-import { TkgEventType } from '../../../shared/service/Messenger';
+import { TanzuEventType } from '../../../shared/service/Messenger';
 import { Utils } from '../../../shared/utils';
 import { VpcStepComponent } from './vpc-step/vpc-step.component';
 import { WizardBaseDirective } from '../wizard/shared/wizard-base/wizard-base';
@@ -344,31 +344,31 @@ export class AwsWizardComponent extends WizardBaseDirective implements OnInit {
     // HTML convenience methods
 
     private subscribeToServices() {
-        AppServices.messenger.getSubject(TkgEventType.AWS_REGION_CHANGED)
+        AppServices.messenger.getSubject(TanzuEventType.AWS_REGION_CHANGED)
             .subscribe(event => {
                 const region = event.payload;
-                AppServices.dataServiceRegistrar.trigger([TkgEventType.AWS_GET_OS_IMAGES], {region: region});
+                AppServices.dataServiceRegistrar.trigger([TanzuEventType.AWS_GET_OS_IMAGES], {region: region});
                 // NOTE: even though the VPC and AZ endpoints don't take the region as a payload, they DO return different data
                 // if the user logs in to AWS using a different region. Therefore, we re-fetch that data if the region changes.
-                AppServices.dataServiceRegistrar.trigger([TkgEventType.AWS_GET_EXISTING_VPCS, TkgEventType.AWS_GET_AVAILABILITY_ZONES]);
+                AppServices.dataServiceRegistrar.trigger([TanzuEventType.AWS_GET_EXISTING_VPCS, TanzuEventType.AWS_GET_AVAILABILITY_ZONES]);
             });
     }
 
     private registerServices() {
         const wizard = this;
-        AppServices.dataServiceRegistrar.register<Vpc>(TkgEventType.AWS_GET_EXISTING_VPCS,
+        AppServices.dataServiceRegistrar.register<Vpc>(TanzuEventType.AWS_GET_EXISTING_VPCS,
             () => { return wizard.apiClient.getVPCs() },
             "Failed to retrieve list of existing VPCs from the specified AWS Account." );
-        AppServices.dataServiceRegistrar.register<AWSAvailabilityZone>(TkgEventType.AWS_GET_AVAILABILITY_ZONES,
+        AppServices.dataServiceRegistrar.register<AWSAvailabilityZone>(TanzuEventType.AWS_GET_AVAILABILITY_ZONES,
             () => { return wizard.apiClient.getAWSAvailabilityZones(); },
             "Failed to retrieve list of availability zones from the specified AWS Account." );
-        AppServices.dataServiceRegistrar.register<AWSSubnet>(TkgEventType.AWS_GET_SUBNETS,
+        AppServices.dataServiceRegistrar.register<AWSSubnet>(TanzuEventType.AWS_GET_SUBNETS,
             (payload: { vpcId: string }) => {return wizard.apiClient.getAWSSubnets(payload)},
             "Failed to retrieve list of VPC subnets from the specified AWS Account." );
-        AppServices.dataServiceRegistrar.register<string>(TkgEventType.AWS_GET_NODE_TYPES,
+        AppServices.dataServiceRegistrar.register<string>(TanzuEventType.AWS_GET_NODE_TYPES,
             (payload: {az?: string}) => { return wizard.apiClient.getAWSNodeTypes(payload); },
             "Failed to retrieve list of node types from the specified AWS Account." );
-        AppServices.dataServiceRegistrar.register<AWSVirtualMachine>(TkgEventType.AWS_GET_OS_IMAGES,
+        AppServices.dataServiceRegistrar.register<AWSVirtualMachine>(TanzuEventType.AWS_GET_OS_IMAGES,
             (payload: {region: string}) => { return wizard.apiClient.getAWSOSImages(payload); },
             "Failed to retrieve list of OS images from the specified AWS Server." );
     }

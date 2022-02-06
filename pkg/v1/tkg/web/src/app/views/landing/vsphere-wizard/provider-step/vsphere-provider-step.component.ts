@@ -18,7 +18,7 @@ import { managementClusterPlugin } from "../../wizard/shared/constants/wizard.co
 import { NotificationTypes } from "../../../../shared/components/alert-notification/alert-notification.component";
 import { SSLThumbprintModalComponent } from '../../wizard/shared/components/modals/ssl-thumbprint-modal/ssl-thumbprint-modal.component';
 import { StepFormDirective } from '../../wizard/shared/step-form/step-form';
-import { TkgEvent, TkgEventType } from 'src/app/shared/service/Messenger';
+import { TanzuEvent, TanzuEventType } from 'src/app/shared/service/Messenger';
 import { ValidationService } from '../../wizard/shared/validation/validation.service';
 import { VSphereDatacenter } from 'src/app/swagger/models/v-sphere-datacenter.model';
 import { VsphereField } from "../vsphere-wizard.constants";
@@ -117,7 +117,7 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
                 const same = data === this.ipFamily;
                 if (!same) {
                     AppServices.messenger.publish({
-                        type: TkgEventType.VSPHERE_IP_FAMILY_CHANGE,
+                        type: TanzuEventType.VSPHERE_IP_FAMILY_CHANGE,
                         payload: data
                     });
                     this.disconnect('disconnecting because field PROVIDER_IP_FAMILY changed value to ' + data);
@@ -125,16 +125,16 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
             }
         );
 
-        AppServices.messenger.getSubject(TkgEventType.BRANDING_CHANGED)
+        AppServices.messenger.getSubject(TanzuEventType.BRANDING_CHANGED)
             .pipe(takeUntil(this.unsubscribe))
-            .subscribe((data: TkgEvent) => {
+            .subscribe((data: TanzuEvent) => {
                 const content: EditionData = data.payload;
                 this.edition = content.edition;
             });
 
-        AppServices.messenger.getSubject(TkgEventType.CONFIG_FILE_IMPORTED)
+        AppServices.messenger.getSubject(TanzuEventType.CONFIG_FILE_IMPORTED)
             .pipe(takeUntil(this.unsubscribe))
-            .subscribe((data: TkgEvent) => {
+            .subscribe((data: TanzuEvent) => {
                 this.configFileNotification = {
                     notificationType: NotificationTypes.SUCCESS,
                     message: data.payload
@@ -144,7 +144,7 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
                 this.initFormWithSavedData();
 
                 // Clear event so that listeners in other provider workflows do not receive false notifications
-                AppServices.messenger.clearEvent(TkgEventType.CONFIG_FILE_IMPORTED);
+                AppServices.messenger.clearEvent(TanzuEventType.CONFIG_FILE_IMPORTED);
             });
 
         this.fileReader.onload = (event) => {
@@ -349,7 +349,7 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
         this.retrieveDatacenters();
 
         AppServices.messenger.publish({
-            type: TkgEventType.VSPHERE_VC_AUTHENTICATED,
+            type: TanzuEventType.VSPHERE_VC_AUTHENTICATED,
             payload: this.getFieldValue(VsphereField.PROVIDER_VCENTER_ADDRESS)
         });
 
@@ -407,7 +407,7 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
                 dcMoid = datacenter.moid;
             }
             AppServices.messenger.publish({
-                type: TkgEventType.VSPHERE_DATACENTER_CHANGED,
+                type: TanzuEventType.VSPHERE_DATACENTER_CHANGED,
                 payload: dcMoid
             });
         }

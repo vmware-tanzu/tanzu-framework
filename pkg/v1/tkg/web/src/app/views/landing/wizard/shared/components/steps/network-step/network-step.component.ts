@@ -12,7 +12,7 @@ import { managementClusterPlugin } from "../../../constants/wizard.constants";
 import { NetworkIpv4StepMapping, NetworkIpv6StepMapping } from './network-step.fieldmapping';
 import { StepFormDirective } from '../../../step-form/step-form';
 import { StepMapping } from '../../../field-mapping/FieldMapping';
-import { TkgEventType } from 'src/app/shared/service/Messenger';
+import { TanzuEventType } from 'src/app/shared/service/Messenger';
 import { ValidationService } from '../../../validation/validation.service';
 import { VSphereNetwork } from 'src/app/swagger/models/v-sphere-network.model';
 
@@ -158,7 +158,7 @@ export class SharedNetworkStepComponent extends StepFormDirective implements OnI
             this.triggerStepDescriptionChange();
         });
 
-        AppServices.messenger.getSubject(TkgEventType.NETWORK_STEP_GET_NO_PROXY_INFO)
+        AppServices.messenger.getSubject(TanzuEventType.NETWORK_STEP_GET_NO_PROXY_INFO)
             .pipe(takeUntil(this.unsubscribe))
             .subscribe(event => {
                 this.additionalNoProxyInfo = event.payload.info;

@@ -7,7 +7,7 @@ import { takeUntil } from 'rxjs/operators';
 import AppServices from '../../../../shared/service/appServices';
 import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
 import { SharedNetworkStepComponent } from '../../wizard/shared/components/steps/network-step/network-step.component';
-import { TkgEventType } from '../../../../shared/service/Messenger';
+import { TanzuEventType } from '../../../../shared/service/Messenger';
 import { ValidationService } from '../../wizard/shared/validation/validation.service';
 import { VSphereNetwork } from '../../../../swagger/models';
 
@@ -28,12 +28,12 @@ export class VsphereNetworkStepComponent extends SharedNetworkStepComponent {
 
     listenToEvents() {
         super.listenToEvents();
-        AppServices.messenger.getSubject(TkgEventType.VSPHERE_VC_AUTHENTICATED)
+        AppServices.messenger.getSubject(TanzuEventType.VSPHERE_VC_AUTHENTICATED)
             .pipe(takeUntil(this.unsubscribe))
             .subscribe((data) => {
                 this.infraServiceAddress = data.payload;
             });
-        AppServices.messenger.getSubject(TkgEventType.VSPHERE_DATACENTER_CHANGED)
+        AppServices.messenger.getSubject(TanzuEventType.VSPHERE_DATACENTER_CHANGED)
             .pipe(takeUntil(this.unsubscribe))
             .subscribe(event => {
                 this.clearControlValue('networkName');
@@ -41,7 +41,7 @@ export class VsphereNetworkStepComponent extends SharedNetworkStepComponent {
     }
 
     protected subscribeToServices() {
-        AppServices.dataServiceRegistrar.stepSubscribe<VSphereNetwork>(this, TkgEventType.VSPHERE_GET_VM_NETWORKS,
+        AppServices.dataServiceRegistrar.stepSubscribe<VSphereNetwork>(this, TanzuEventType.VSPHERE_GET_VM_NETWORKS,
             this.onFetchedVmNetworks.bind(this));
     }
 
@@ -66,7 +66,7 @@ export class VsphereNetworkStepComponent extends SharedNetworkStepComponent {
     loadNetworks() {
         this.loadingNetworks = true;
         AppServices.messenger.publish({
-            type: TkgEventType.VSPHERE_GET_VM_NETWORKS
+            type: TanzuEventType.VSPHERE_GET_VM_NETWORKS
         });
     }
 

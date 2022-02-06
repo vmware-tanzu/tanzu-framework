@@ -11,7 +11,7 @@ import { delay } from 'rxjs/operators';
 import { APIClient } from 'src/app/swagger/api-client.service';
 import AppServices from 'src/app/shared/service/appServices';
 import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
-import { Messenger, TkgEventType } from 'src/app/shared/service/Messenger';
+import { Messenger, TanzuEventType } from 'src/app/shared/service/Messenger';
 import { SharedModule } from 'src/app/shared/shared.module';
 import { SSLThumbprintModalComponent } from '../../wizard/shared/components/modals/ssl-thumbprint-modal/ssl-thumbprint-modal.component';
 import { ValidationService } from '../../wizard/shared/validation/validation.service';
@@ -102,7 +102,7 @@ describe('VSphereProviderStepComponent', () => {
         datacenterControl.setValue('DATACENTER');
         component.onLoginSuccess({});
         expect(msgSpy).toHaveBeenCalledWith({
-            type: TkgEventType.STEP_DESCRIPTION_CHANGE,
+            type: TanzuEventType.STEP_DESCRIPTION_CHANGE,
             payload: {
                 wizard: 'BozoWizard',
                 step: 'vsphereProviderForm',

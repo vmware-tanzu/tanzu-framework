@@ -9,7 +9,7 @@ import { AppEdition } from "../../constants/branding.constants";
 import AppServices from "../../service/appServices";
 import { BasicSubscriber } from "../../abstracts/basic-subscriber";
 import { EditionData } from "../../service/branding.service";
-import { TkgEvent, TkgEventType } from "../../service/Messenger";
+import { TanzuEvent, TanzuEventType } from "../../service/Messenger";
 
 /**
  * @class HeaderBarComponent
@@ -30,9 +30,9 @@ export class HeaderBarComponent extends BasicSubscriber implements OnInit {
     }
 
     ngOnInit() {
-        AppServices.messenger.getSubject(TkgEventType.BRANDING_CHANGED)
+        AppServices.messenger.getSubject(TanzuEventType.BRANDING_CHANGED)
             .pipe(takeUntil(this.unsubscribe))
-            .subscribe((data: TkgEvent) => {
+            .subscribe((data: TanzuEvent) => {
                 const content: EditionData = data.payload;
                 this.edition = content.edition;
                 this.docsUrl = (this.edition === AppEdition.TKG) ? 'https://docs.vmware.com/en/VMware-Tanzu-Kubernetes-Grid/index.html' :

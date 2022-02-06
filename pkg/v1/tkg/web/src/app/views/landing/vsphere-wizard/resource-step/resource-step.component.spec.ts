@@ -5,7 +5,7 @@ import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { APIClient } from '../../../../swagger/api-client.service';
 import AppServices from 'src/app/shared/service/appServices';
 import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
-import { Messenger, TkgEventType } from 'src/app/shared/service/Messenger';
+import { Messenger, TanzuEventType } from 'src/app/shared/service/Messenger';
 import { ResourcePool, ResourceStepComponent } from './resource-step.component';
 import { SharedModule } from '../../../../shared/shared.module';
 import { ValidationService } from '../../wizard/shared/validation/validation.service';
@@ -41,10 +41,10 @@ describe('ResourceStepComponent', () => {
         const dataServiceRegistrar = new DataServiceRegistrarTestExtension();
         AppServices.dataServiceRegistrar = dataServiceRegistrar;
         // we expect the wizard to have registered for these events:
-        dataServiceRegistrar.simulateRegistration<VSphereResourcePool>(TkgEventType.VSPHERE_GET_RESOURCE_POOLS);
-        dataServiceRegistrar.simulateRegistration<ResourcePool>(TkgEventType.VSPHERE_GET_COMPUTE_RESOURCE);
-        dataServiceRegistrar.simulateRegistration<VSphereDatastore>(TkgEventType.VSPHERE_GET_DATA_STORES);
-        dataServiceRegistrar.simulateRegistration<VSphereFolder>(TkgEventType.VSPHERE_GET_VM_FOLDERS);
+        dataServiceRegistrar.simulateRegistration<VSphereResourcePool>(TanzuEventType.VSPHERE_GET_RESOURCE_POOLS);
+        dataServiceRegistrar.simulateRegistration<ResourcePool>(TanzuEventType.VSPHERE_GET_COMPUTE_RESOURCE);
+        dataServiceRegistrar.simulateRegistration<VSphereDatastore>(TanzuEventType.VSPHERE_GET_DATA_STORES);
+        dataServiceRegistrar.simulateRegistration<VSphereFolder>(TanzuEventType.VSPHERE_GET_VM_FOLDERS);
 
         TestBed.inject(ValidationService);
         fixture = TestBed.createComponent(ResourceStepComponent);
@@ -111,7 +111,7 @@ describe('ResourceStepComponent', () => {
         datastoreControl.setValue('DATASTORE');
         resourcePoolControl.setValue('RESOURCE');
         expect(msgSpy).toHaveBeenCalledWith({
-            type: TkgEventType.STEP_DESCRIPTION_CHANGE,
+            type: TanzuEventType.STEP_DESCRIPTION_CHANGE,
             payload: {
                 wizard: 'BozoWizard',
                 step: 'resourceForm',

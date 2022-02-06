@@ -18,7 +18,7 @@ import { KUBE_VIP, NSX_ADVANCED_LOAD_BALANCER, SharedLoadBalancerStepComponent }
 import { NodeSettingStepComponent } from './node-setting-step/node-setting-step.component';
 import { PROVIDERS, Providers } from '../../../shared/constants/app.constants';
 import { ResourceStepComponent } from './resource-step/resource-step.component';
-import { TkgEventType } from '../../../shared/service/Messenger';
+import { TanzuEventType } from '../../../shared/service/Messenger';
 import { VsphereField } from './vsphere-wizard.constants';
 import {
     VSphereDatastore,
@@ -348,43 +348,43 @@ export class VSphereWizardComponent extends WizardBaseDirective implements OnIni
     }
 
     private subscribeToServices() {
-        AppServices.messenger.getSubject(TkgEventType.VSPHERE_DATACENTER_CHANGED)
+        AppServices.messenger.getSubject(TanzuEventType.VSPHERE_DATACENTER_CHANGED)
             .subscribe(event => {
                 const datacenterMoid = event.payload;
                 AppServices.dataServiceRegistrar.trigger( [
-                    TkgEventType.VSPHERE_GET_RESOURCE_POOLS,
-                    TkgEventType.VSPHERE_GET_COMPUTE_RESOURCE,
-                    TkgEventType.VSPHERE_GET_VM_NETWORKS,
-                    TkgEventType.VSPHERE_GET_DATA_STORES,
-                    TkgEventType.VSPHERE_GET_VM_FOLDERS,
-                    TkgEventType.VSPHERE_GET_OS_IMAGES
+                    TanzuEventType.VSPHERE_GET_RESOURCE_POOLS,
+                    TanzuEventType.VSPHERE_GET_COMPUTE_RESOURCE,
+                    TanzuEventType.VSPHERE_GET_VM_NETWORKS,
+                    TanzuEventType.VSPHERE_GET_DATA_STORES,
+                    TanzuEventType.VSPHERE_GET_VM_FOLDERS,
+                    TanzuEventType.VSPHERE_GET_OS_IMAGES
                 ], {dc: datacenterMoid});
             });
     }
 
     private registerServices() {
         const wizard = this;
-        AppServices.dataServiceRegistrar.register<VSphereResourcePool>(TkgEventType.VSPHERE_GET_RESOURCE_POOLS,
+        AppServices.dataServiceRegistrar.register<VSphereResourcePool>(TanzuEventType.VSPHERE_GET_RESOURCE_POOLS,
             (payload: { dc: string }) => { return wizard.apiClient.getVSphereResourcePools(payload) },
             "Failed to retrieve list of resource pools from the specified vCenter Server."
             );
-        AppServices.dataServiceRegistrar.register<VSphereManagementObject>(TkgEventType.VSPHERE_GET_COMPUTE_RESOURCE,
+        AppServices.dataServiceRegistrar.register<VSphereManagementObject>(TanzuEventType.VSPHERE_GET_COMPUTE_RESOURCE,
             (payload: { dc: string }) => { return wizard.apiClient.getVSphereComputeResources(payload) },
             "Failed to retrieve list of compute resources from the specified datacenter."
         );
-        AppServices.dataServiceRegistrar.register<VSphereNetwork>(TkgEventType.VSPHERE_GET_VM_NETWORKS,
+        AppServices.dataServiceRegistrar.register<VSphereNetwork>(TanzuEventType.VSPHERE_GET_VM_NETWORKS,
             (payload: { dc: string }) => { return wizard.apiClient.getVSphereNetworks(payload) },
             "Failed to retrieve list of VM networks from the specified vCenter Server."
         );
-        AppServices.dataServiceRegistrar.register<VSphereDatastore>(TkgEventType.VSPHERE_GET_DATA_STORES,
+        AppServices.dataServiceRegistrar.register<VSphereDatastore>(TanzuEventType.VSPHERE_GET_DATA_STORES,
             (payload: { dc: string }) => { return wizard.apiClient.getVSphereDatastores(payload) },
             "Failed to retrieve list of datastores from the specified vCenter Server."
         );
-        AppServices.dataServiceRegistrar.register<VSphereFolder>(TkgEventType.VSPHERE_GET_VM_FOLDERS,
+        AppServices.dataServiceRegistrar.register<VSphereFolder>(TanzuEventType.VSPHERE_GET_VM_FOLDERS,
             (payload: { dc: string }) => { return wizard.apiClient.getVSphereFolders(payload) },
             "Failed to retrieve list of vm folders from the specified vCenter Server."
         );
-        AppServices.dataServiceRegistrar.register<VSphereVirtualMachine>(TkgEventType.VSPHERE_GET_OS_IMAGES,
+        AppServices.dataServiceRegistrar.register<VSphereVirtualMachine>(TanzuEventType.VSPHERE_GET_OS_IMAGES,
             (payload: { dc: string }) => { return wizard.apiClient.getVSphereOSImages(payload) },
             "Failed to retrieve list of OS images from the specified vCenter Server."
         );

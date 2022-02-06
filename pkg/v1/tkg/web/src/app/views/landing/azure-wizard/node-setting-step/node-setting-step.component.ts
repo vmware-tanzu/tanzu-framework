@@ -8,7 +8,7 @@ import AppServices from '../../../../shared/service/appServices';
 import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
 import { StepFormDirective } from '../../wizard/shared/step-form/step-form';
 import { StepMapping } from '../../wizard/shared/field-mapping/FieldMapping';
-import { TkgEventType } from '../../../../shared/service/Messenger';
+import { TanzuEventType } from '../../../../shared/service/Messenger';
 import { ValidationService } from '../../wizard/shared/validation/validation.service';
 
 @Component({
@@ -24,7 +24,7 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
     displayForm = false;
 
     constructor(private validationService: ValidationService,
-                private fieldMapUtilities: FieldMapUtilities) {
+        private fieldMapUtilities: FieldMapUtilities) {
         super();
         this.nodeTypes = [];
     }
@@ -37,7 +37,8 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
     }
 
     private subscribeToServices() {
-        AppServices.dataServiceRegistrar.stepSubscribe(this, TkgEventType.AZURE_GET_INSTANCE_TYPES, this.onFetchedInstanceTypes.bind(this))
+        AppServices.dataServiceRegistrar.stepSubscribe(this,
+            TanzuEventType.AZURE_GET_INSTANCE_TYPES, this.onFetchedInstanceTypes.bind(this))
     }
 
     private onFetchedInstanceTypes(instanceTypes: AzureInstanceType[]) {
@@ -93,7 +94,7 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
         super.ngOnInit();
         this.fieldMapUtilities.buildForm(this.formGroup, this.formName, this.supplyStepMapping());
         this.subscribeToServices();
-        this.registerStepDescriptionTriggers({ clusterTypeDescriptor: true, fields: ['controlPlaneSetting']});
+        this.registerStepDescriptionTriggers({ clusterTypeDescriptor: true, fields: ['controlPlaneSetting'] });
         this.toggleValidations();
         this.initFormWithSavedData();
     }
@@ -104,7 +105,7 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
         super.initFormWithSavedData();
         // because it's in its own component, the enable audit logging field does not get initialized in the above call to
         // super.initFormWithSavedData()
-        setTimeout( () => {
+        setTimeout(() => {
             this.setControlWithSavedValue('enableAuditLogging', false);
         })
     }

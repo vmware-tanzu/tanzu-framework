@@ -7,7 +7,7 @@ import { ReplaySubject } from 'rxjs';
  * Types of Event being supported by this broker
  */
 
-export enum TkgEventType {
+export enum TanzuEventType {
     // vSphere events
     VSPHERE_VC_AUTHENTICATED,
     DATACENTER_RESET,
@@ -63,8 +63,8 @@ export interface StepDescriptionChangePayload {
 /**
  * Event type definition
  */
-export interface TkgEvent {
-    type: TkgEventType,
+export interface TanzuEvent {
+    type: TanzuEventType,
     payload?: any;
 }
 
@@ -77,17 +77,17 @@ export interface TkgEvent {
 @Injectable({
     providedIn: 'root'
 })
- export class Messenger {
-    subjects = new Map<TkgEventType, ReplaySubject<TkgEvent>>();
+export class Messenger {
+    subjects = new Map<TanzuEventType, ReplaySubject<TanzuEvent>>();
 
     /**
      * Return the subject based on event type
      * @param eventType event type to get the subject for
      */
-    getSubject(eventType: TkgEventType) {
+    getSubject(eventType: TanzuEventType) {
         let subject = this.subjects.get(eventType);
         if (!subject) {
-            subject = new ReplaySubject<TkgEvent>(1);
+            subject = new ReplaySubject<TanzuEvent>(1);
             this.subjects.set(eventType, subject);
         }
         return subject;
@@ -97,7 +97,7 @@ export interface TkgEvent {
      * Publish an event to all its subscribers
      * @param event the Event to be published
      */
-    publish(event: TkgEvent) {
+    publish(event: TanzuEvent) {
         const subject = this.getSubject(event.type);
         subject.next(event);
     }
@@ -107,7 +107,7 @@ export interface TkgEvent {
      * subscribers will no longer receive this event until the event is re-dispatched.
      * @param eventType the event to delete from the Messenger buffer
      */
-    clearEvent(eventType: TkgEventType) {
+    clearEvent(eventType: TanzuEventType) {
         this.subjects.delete(eventType);
     }
 
@@ -117,6 +117,6 @@ export interface TkgEvent {
      * This should be used only when necessary.
      */
     reset() {
-        this.subjects = new Map<TkgEventType, ReplaySubject<TkgEvent>>();
+        this.subjects = new Map<TanzuEventType, ReplaySubject<TanzuEvent>>();
     }
 }

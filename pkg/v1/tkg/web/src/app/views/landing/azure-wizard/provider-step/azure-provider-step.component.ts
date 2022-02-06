@@ -14,7 +14,7 @@ import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUti
 import { FormMetaDataStore } from "../../wizard/shared/FormMetaDataStore";
 import { NotificationTypes } from "../../../../shared/components/alert-notification/alert-notification.component";
 import { StepFormDirective } from '../../wizard/shared/step-form/step-form';
-import { TkgEvent, TkgEventType } from '../../../../shared/service/Messenger';
+import { TanzuEvent, TanzuEventType } from '../../../../shared/service/Messenger';
 import { ValidationService } from '../../wizard/shared/validation/validation.service';
 
 enum ProviderField {
@@ -72,7 +72,7 @@ export class AzureProviderStepComponent extends StepFormDirective implements OnI
     }
 
     private subscribeToServices() {
-        AppServices.dataServiceRegistrar.stepSubscribe(this, TkgEventType.AZURE_GET_RESOURCE_GROUPS,
+        AppServices.dataServiceRegistrar.stepSubscribe(this, TanzuEventType.AZURE_GET_RESOURCE_GROUPS,
             this.onFetchedResourceGroups.bind(this));
     }
 
@@ -119,9 +119,9 @@ export class AzureProviderStepComponent extends StepFormDirective implements OnI
             this.onRegionChange(val)
         });
 
-        AppServices.messenger.getSubject(TkgEventType.CONFIG_FILE_IMPORTED)
+        AppServices.messenger.getSubject(TanzuEventType.CONFIG_FILE_IMPORTED)
             .pipe(takeUntil(this.unsubscribe))
-            .subscribe((data: TkgEvent) => {
+            .subscribe((data: TanzuEvent) => {
                 this.configFileNotification = {
                     notificationType: NotificationTypes.SUCCESS,
                     message: data.payload
@@ -131,7 +131,7 @@ export class AzureProviderStepComponent extends StepFormDirective implements OnI
                 this.initFormWithImportedData();
 
                 // Clear event so that listeners in other provider workflows do not receive false notifications
-                AppServices.messenger.clearEvent(TkgEventType.CONFIG_FILE_IMPORTED);
+                AppServices.messenger.clearEvent(TanzuEventType.CONFIG_FILE_IMPORTED);
             });
     }
 
@@ -348,7 +348,7 @@ export class AzureProviderStepComponent extends StepFormDirective implements OnI
     onRegionChange(val) {
         console.log('azure-provider-step.onRegionChange() detects region change to ' + val + '; publishing AZURE_REGION_CHANGED');
         AppServices.messenger.publish({
-            type: TkgEventType.AZURE_REGION_CHANGED,
+            type: TanzuEventType.AZURE_REGION_CHANGED,
             payload: val
         });
     }
@@ -358,7 +358,7 @@ export class AzureProviderStepComponent extends StepFormDirective implements OnI
      */
     onResourceGroupNameChange() {
         AppServices.messenger.publish({
-            type: TkgEventType.AZURE_RESOURCEGROUP_CHANGED,
+            type: TanzuEventType.AZURE_RESOURCEGROUP_CHANGED,
             payload: this.formGroup.get(AzureField.PROVIDER_RESOURCEGROUPCUSTOM).value
         });
     }

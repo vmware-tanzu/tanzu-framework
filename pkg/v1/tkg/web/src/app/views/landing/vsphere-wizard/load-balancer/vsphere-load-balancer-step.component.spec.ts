@@ -8,7 +8,7 @@ import AppServices from '../../../../shared/service/appServices';
 import { DataServiceRegistrarTestExtension } from '../../../../testing/data-service-registrar.testextension';
 import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
 import { KUBE_VIP } from '../../wizard/shared/components/steps/load-balancer/load-balancer-step.component';
-import { Messenger, TkgEventType } from '../../../../shared/service/Messenger';
+import { Messenger, TanzuEventType } from '../../../../shared/service/Messenger';
 import { ResourcePool } from '../resource-step/resource-step.component';
 import { SharedModule } from '../../../../shared/shared.module';
 import { ValidationService } from '../../wizard/shared/validation/validation.service';
@@ -47,11 +47,11 @@ describe('VsphereLoadBalancerStepComponent', () => {
         const dataServiceRegistrar = new DataServiceRegistrarTestExtension();
         AppServices.dataServiceRegistrar = dataServiceRegistrar;
         // we expect the wizard to have registered for these events:
-        dataServiceRegistrar.simulateRegistration<VSphereResourcePool>(TkgEventType.VSPHERE_GET_RESOURCE_POOLS);
-        dataServiceRegistrar.simulateRegistration<ResourcePool>(TkgEventType.VSPHERE_GET_COMPUTE_RESOURCE);
-        dataServiceRegistrar.simulateRegistration<VSphereDatastore>(TkgEventType.VSPHERE_GET_DATA_STORES);
-        dataServiceRegistrar.simulateRegistration<VSphereFolder>(TkgEventType.VSPHERE_GET_VM_FOLDERS);
-        dataServiceRegistrar.simulateRegistration<VSphereFolder>(TkgEventType.VSPHERE_GET_VM_NETWORKS);
+        dataServiceRegistrar.simulateRegistration<VSphereResourcePool>(TanzuEventType.VSPHERE_GET_RESOURCE_POOLS);
+        dataServiceRegistrar.simulateRegistration<ResourcePool>(TanzuEventType.VSPHERE_GET_COMPUTE_RESOURCE);
+        dataServiceRegistrar.simulateRegistration<VSphereDatastore>(TanzuEventType.VSPHERE_GET_DATA_STORES);
+        dataServiceRegistrar.simulateRegistration<VSphereFolder>(TanzuEventType.VSPHERE_GET_VM_FOLDERS);
+        dataServiceRegistrar.simulateRegistration<VSphereFolder>(TanzuEventType.VSPHERE_GET_VM_NETWORKS);
 
         fixture = TestBed.createComponent(VsphereLoadBalancerStepComponent);
         component = fixture.componentInstance;
@@ -68,11 +68,11 @@ describe('VsphereLoadBalancerStepComponent', () => {
         expect(component.dynamicDescription()).toEqual(VsphereLoadBalancerStepComponent.description);
 
         AppServices.messenger.publish({
-            type: TkgEventType.VSPHERE_CONTROL_PLANE_ENDPOINT_PROVIDER_CHANGED,
+            type: TanzuEventType.VSPHERE_CONTROL_PLANE_ENDPOINT_PROVIDER_CHANGED,
             payload: KUBE_VIP
         });
         expect(msgSpy).toHaveBeenCalledWith({
-            type: TkgEventType.STEP_DESCRIPTION_CHANGE,
+            type: TanzuEventType.STEP_DESCRIPTION_CHANGE,
             payload: {
                 wizard: 'BozoWizard',
                 step: WizardForm.LOADBALANCER,
@@ -82,7 +82,7 @@ describe('VsphereLoadBalancerStepComponent', () => {
 
         controllerHostControl.setValue('JAMOCA');
         expect(msgSpy).toHaveBeenCalledWith({
-            type: TkgEventType.STEP_DESCRIPTION_CHANGE,
+            type: TanzuEventType.STEP_DESCRIPTION_CHANGE,
             payload: {
                 wizard: 'BozoWizard',
                 step: WizardForm.LOADBALANCER,

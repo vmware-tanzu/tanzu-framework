@@ -7,7 +7,7 @@ import { takeUntil } from 'rxjs/operators';
 import { APP_ROUTES, Routes } from '../../../shared/constants/routes.constants';
 import AppServices from 'src/app/shared/service/appServices';
 import { StepFormDirective } from '../wizard/shared/step-form/step-form';
-import { TkgEventType } from '../../../shared/service/Messenger';
+import { TanzuEventType } from '../../../shared/service/Messenger';
 
 @Component({
     selector: 'tkg-kickstart-ui-wcp-redirect',
@@ -25,7 +25,7 @@ export class WcpRedirectComponent extends StepFormDirective implements OnInit {
     }
 
     ngOnInit() {
-        AppServices.messenger.getSubject(TkgEventType.VSPHERE_VC_AUTHENTICATED)
+        AppServices.messenger.getSubject(TanzuEventType.VSPHERE_VC_AUTHENTICATED)
             .pipe(takeUntil(this.unsubscribe))
             .subscribe((data) => {
                 this.vcHost = data.payload;

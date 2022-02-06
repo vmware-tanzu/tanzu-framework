@@ -4,7 +4,7 @@ import { FieldMapUtilities } from '../../../field-mapping/FieldMapUtilities';
 import { Observable } from 'rxjs/internal/Observable';
 import { OsImageStepMapping } from './os-image-step.fieldmapping';
 import { StepFormDirective } from '../../../step-form/step-form';
-import { TkgEventType } from 'src/app/shared/service/Messenger';
+import { TanzuEventType } from 'src/app/shared/service/Messenger';
 import { Directive, OnInit } from '@angular/core';
 
 // The intention of this class is to provide the common plumbing for the osImage step that many providers need.
@@ -18,7 +18,7 @@ export interface OsImage {
     name?: string
 }
 export interface OsImageProviderInputs {
-    event: TkgEventType,
+    event: TanzuEventType,
     osImageTooltipContent: string,
     nonTemplateAlertMessage?: string,
     noImageAlertMessage?: string,

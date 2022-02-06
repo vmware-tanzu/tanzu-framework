@@ -8,7 +8,7 @@ import {
     NSX_ADVANCED_LOAD_BALANCER,
     SharedLoadBalancerStepComponent
 } from '../../wizard/shared/components/steps/load-balancer/load-balancer-step.component';
-import { TkgEventType } from '../../../../shared/service/Messenger';
+import { TanzuEventType } from '../../../../shared/service/Messenger';
 
 const HA_REQUIRED_FIELDS = [
     'controllerHost',
@@ -48,7 +48,7 @@ export class VsphereLoadBalancerStepComponent extends SharedLoadBalancerStepComp
 
     protected customizeForm() {
         super.customizeForm();
-        AppServices.messenger.getSubject(TkgEventType.VSPHERE_CONTROL_PLANE_ENDPOINT_PROVIDER_CHANGED)
+        AppServices.messenger.getSubject(TanzuEventType.VSPHERE_CONTROL_PLANE_ENDPOINT_PROVIDER_CHANGED)
             .subscribe(({ payload }) => {
                 this.onControlPlaneEndpointProviderChange(payload);
             });

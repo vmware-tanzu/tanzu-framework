@@ -2,7 +2,7 @@
 import { takeUntil } from 'rxjs/operators';
 
 // App imports
-import { TkgEventType } from './Messenger';
+import { TanzuEventType } from './Messenger';
 import AppServices from './appServices';
 import { Observable, ReplaySubject } from 'rxjs';
 import { StepFormDirective } from '../../views/landing/wizard/shared/step-form/step-form';
@@ -30,15 +30,15 @@ interface DataServiceRegistrarEntry<OBJ> {
 }
 
 export default class DataServiceRegistrar {
-    private entries: Map<TkgEventType, DataServiceRegistrarEntry<any>> = new Map<TkgEventType, DataServiceRegistrarEntry<any>>();
+    private entries: Map<TanzuEventType, DataServiceRegistrarEntry<any>> = new Map<TanzuEventType, DataServiceRegistrarEntry<any>>();
 
     // convenience wrapper to publish triggering events
-    trigger(eventTypes: TkgEventType[], payload?: any) {
+    trigger(eventTypes: TanzuEventType[], payload?: any) {
         eventTypes.forEach(eventType => { AppServices.messenger.publish({type: eventType, payload: payload}) });
     }
 
     // broadcast an empty array on the data stream to clear previous values
-    clear<OBJ>(eventType: TkgEventType) {
+    clear<OBJ>(eventType: TanzuEventType) {
         const serviceBrokerEntry: DataServiceRegistrarEntry<OBJ> = this.getEntry<OBJ>(eventType);
         if (serviceBrokerEntry) {
             serviceBrokerEntry.dataStream.next([]);
@@ -48,9 +48,9 @@ export default class DataServiceRegistrar {
     // register() is called by those providing services. This is typically done by wizards setting up how
     // to respond to data-request events, i.e. linking data-request events to API calls to the backend.
     // If the event has already been registered, the request will be ignored (with a console warning)
-    register<OBJ>(eventType: TkgEventType, fetcher: (data: any) => Observable<OBJ[]>, staticError?: string) {
+    register<OBJ>(eventType: TanzuEventType, fetcher: (data: any) => Observable<OBJ[]>, staticError?: string) {
         if (this.entries[eventType]) {
-            console.warn('service broker ignores duplicate registration of event ' + TkgEventType[eventType]);
+            console.warn('service broker ignores duplicate registration of event ' + TanzuEventType[eventType]);
             return;
         }
         this.entries[eventType] = {
@@ -66,7 +66,7 @@ export default class DataServiceRegistrar {
 
     // subscribe() is called by those consuming data services. This is typically a step that relies on whatever data
     // is returned from the backend (for example, giving the user a choice of networks, regions, datacenters, etc)
-    subscribe<OBJ>(eventType: TkgEventType, onDataReceived: (data: OBJ[]) => void, onError: (error: string) => void): boolean {
+    subscribe<OBJ>(eventType: TanzuEventType, onDataReceived: (data: OBJ[]) => void, onError: (error: string) => void): boolean {
         const serviceBrokerEntry: DataServiceRegistrarEntry<OBJ> = this.getEntry<OBJ>(eventType);
         if (!serviceBrokerEntry) {
             console.warn('DataServiceRegistrar ignored attempt to subscribe to unregistered event: ' + eventType);
@@ -102,7 +102,7 @@ export default class DataServiceRegistrar {
 
     // convenience method to allow steps to register with a default error handler (namely, setting their errorNotification field),
     // as well as unsubscribing to the data stream with the ngOnDestroy event
-    stepSubscribe<OBJ>(step: StepFormDirective, eventType: TkgEventType,
+    stepSubscribe<OBJ>(step: StepFormDirective, eventType: TanzuEventType,
                        onDataReceived: (data: OBJ[]) => void, onError?: (error: string) => void): boolean {
         const serviceBrokerEntry: DataServiceRegistrarEntry<OBJ> = this.getEntry<OBJ>(eventType);
         if (!serviceBrokerEntry) {
@@ -121,7 +121,7 @@ export default class DataServiceRegistrar {
     }
 
     // getEntry is protected so that the test extension subclass can access it
-    protected getEntry<OBJ>(eventType: TkgEventType): DataServiceRegistrarEntry<OBJ> {
+    protected getEntry<OBJ>(eventType: TanzuEventType): DataServiceRegistrarEntry<OBJ> {
         const result = this.entries[eventType];
         if (result) {
             return result;
@@ -130,7 +130,7 @@ export default class DataServiceRegistrar {
         return null;
     }
 
-    private fetchData<OBJ>(eventType: TkgEventType, fetcherPayload: any) {
+    private fetchData<OBJ>(eventType: TanzuEventType, fetcherPayload: any) {
         const entry = this.getEntry<OBJ>(eventType);
         entry.fetcher(fetcherPayload).subscribe(
             (data => {

@@ -23,7 +23,7 @@ import { SharedCeipStepComponent } from '../components/steps/ceip-step/ceip-step
 import { SharedIdentityStepComponent } from '../components/steps/identity-step/identity-step.component';
 import { SharedNetworkStepComponent } from '../components/steps/network-step/network-step.component';
 import { StepFormDirective } from '../step-form/step-form';
-import { StepDescriptionChangePayload, TkgEvent, TkgEventType } from './../../../../../shared/service/Messenger';
+import { StepDescriptionChangePayload, TanzuEvent, TanzuEventType } from './../../../../../shared/service/Messenger';
 import { StepWrapperSetComponent } from '../step-wrapper/step-wrapper-set.component';
 
 // This interface describes a wizard that can register a step component
@@ -90,9 +90,9 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Wiz
         }
 
         // set step description (if it's a step description for this wizard)
-        AppServices.messenger.getSubject(TkgEventType.STEP_DESCRIPTION_CHANGE)
+        AppServices.messenger.getSubject(TanzuEventType.STEP_DESCRIPTION_CHANGE)
             .pipe(takeUntil(this.unsubscribe))
-            .subscribe((data: TkgEvent) => {
+            .subscribe((data: TanzuEvent) => {
                 const stepDescriptionPayload = data.payload as StepDescriptionChangePayload;
                 if (this.supplyWizardName() === stepDescriptionPayload.wizard) {
                     // we use setTimeout to avoid a possible ExpressionChangedAfterItHasBeenCheckedError
@@ -101,9 +101,9 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Wiz
             });
 
         // set branding and cluster type on branding change for base wizard components
-        AppServices.messenger.getSubject(TkgEventType.BRANDING_CHANGED)
+        AppServices.messenger.getSubject(TanzuEventType.BRANDING_CHANGED)
             .pipe(takeUntil(this.unsubscribe))
-            .subscribe((data: TkgEvent) => {
+            .subscribe((data: TanzuEvent) => {
                 this.edition = data.payload.edition;
                 this.clusterTypeDescriptor = data.payload.clusterTypeDescriptor;
                 this.title = data.payload.branding.title;
@@ -375,7 +375,7 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Wiz
     updateCli(configPath: string) {
         const cli = this.getCli(configPath);
         AppServices.messenger.publish({
-            type: TkgEventType.CLI_CHANGED,
+            type: TanzuEventType.CLI_CHANGED,
             payload: cli
         });
     }
