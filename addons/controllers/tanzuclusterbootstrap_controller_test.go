@@ -113,6 +113,7 @@ var _ = Describe("TanzuClusterBootstrap Reconciler", func() {
 
 				var foundClusterOwnerRef bool
 				var foundTanzuClusterBootstrapOwnerRef bool
+				var foundLabels bool
 				for _, ownerRef := range object.GetOwnerReferences() {
 					if ownerRef.UID == cluster.UID {
 						foundClusterOwnerRef = true
@@ -121,8 +122,13 @@ var _ = Describe("TanzuClusterBootstrap Reconciler", func() {
 						foundTanzuClusterBootstrapOwnerRef = true
 					}
 				}
+				providerLabels := object.GetLabels()
+				if providerLabels["tkg.tanzu.vmware.com/cluster-name"] == clusterName &&
+					providerLabels["tkg.tanzu.vmware.com/package-name"] == fooPackage.RefName {
+					foundLabels = true
+				}
 
-				if foundClusterOwnerRef && foundTanzuClusterBootstrapOwnerRef {
+				if foundClusterOwnerRef && foundTanzuClusterBootstrapOwnerRef && foundLabels {
 					return true
 				}
 				return false
