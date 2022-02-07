@@ -5,7 +5,7 @@ import { AWSVirtualMachine } from '../../../../swagger/models';
 import AppServices from '../../../../shared/service/appServices';
 import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
 import { OsImageProviderInputs, SharedOsImageStepDirective } from '../../wizard/shared/components/steps/os-image-step/os-image-step.component';
-import { TkgEventType } from '../../../../shared/service/Messenger';
+import { TanzuEventType } from '../../../../shared/service/Messenger';
 
 @Component({
     selector: 'app-aws-os-image-step',
@@ -23,7 +23,7 @@ export class AwsOsImageStepComponent extends SharedOsImageStepDirective<AWSVirtu
     ngOnInit() {
         super.ngOnInit();
 
-        AppServices.messenger.getSubject(TkgEventType.AWS_REGION_CHANGED)
+        AppServices.messenger.getSubject(TanzuEventType.AWS_REGION_CHANGED)
             .subscribe(event => {
                 this.region = event.payload;
             });
@@ -31,7 +31,7 @@ export class AwsOsImageStepComponent extends SharedOsImageStepDirective<AWSVirtu
 
     protected supplyProviderInputs(): OsImageProviderInputs {
         return {
-            event: TkgEventType.AWS_GET_OS_IMAGES,
+            event: TanzuEventType.AWS_GET_OS_IMAGES,
             osImageTooltipContent: 'Select a base OS image that you have already imported ' +
                 'into your AWS account. If no compatible OS image is present, import one into ' +
                 'AWS and click the Refresh button'

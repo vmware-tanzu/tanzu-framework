@@ -8,7 +8,7 @@ import { AwsVpcStepMapping } from './vpc-step.fieldmapping';
 import { AwsField, VpcType } from "../aws-wizard.constants";
 import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
 import { StepFormDirective } from '../../wizard/shared/step-form/step-form';
-import { TkgEventType } from '../../../../shared/service/Messenger';
+import { TanzuEventType } from '../../../../shared/service/Messenger';
 import { ValidationService } from './../../wizard/shared/validation/validation.service';
 import { Vpc } from '../../../../swagger/models/vpc.model';
 
@@ -34,7 +34,7 @@ export class VpcStepComponent extends StepFormDirective implements OnInit {
         const existingVpcCidrControl = this.formGroup.get(AwsField.VPC_EXISTING_CIDR);
         if (newVpcType === VpcType.EXISTING) {
             AppServices.messenger.publish({
-                type: TkgEventType.AWS_VPC_TYPE_CHANGED,
+                type: TanzuEventType.AWS_VPC_TYPE_CHANGED,
                 payload: { vpcType: VpcType.EXISTING.toString() }
             });
             if (this.existingVpcs && this.existingVpcs.length === 1) {
@@ -56,7 +56,7 @@ export class VpcStepComponent extends StepFormDirective implements OnInit {
             this.clearFieldSavedData(AwsField.VPC_EXISTING_ID);
             this.setNewVpcValidators();
             AppServices.messenger.publish({
-                type: TkgEventType.AWS_VPC_TYPE_CHANGED,
+                type: TanzuEventType.AWS_VPC_TYPE_CHANGED,
                 payload: { vpcType: VpcType.NEW.toString() }
             });
         }
@@ -75,7 +75,7 @@ export class VpcStepComponent extends StepFormDirective implements OnInit {
         cidrFields.forEach(cidrField => {
             this.registerOnValueChange(cidrField, (cidr) => {
                 AppServices.messenger.publish({
-                    type: TkgEventType.NETWORK_STEP_GET_NO_PROXY_INFO,
+                    type: TanzuEventType.NETWORK_STEP_GET_NO_PROXY_INFO,
                     payload: { info: (cidr ? cidr + ',' : '') + '169.254.0.0/16' }
                 });
                 this.triggerStepDescriptionChange();
@@ -85,7 +85,7 @@ export class VpcStepComponent extends StepFormDirective implements OnInit {
         /**
          * Whenever aws region selection changes, update AZ subregion
          */
-        AppServices.messenger.getSubject(TkgEventType.AWS_REGION_CHANGED)
+        AppServices.messenger.getSubject(TanzuEventType.AWS_REGION_CHANGED)
             .pipe(takeUntil(this.unsubscribe))
             .subscribe(event => {
                 if (this.formGroup.get(AwsField.VPC_EXISTING_ID)) {
@@ -95,11 +95,11 @@ export class VpcStepComponent extends StepFormDirective implements OnInit {
                 }
             });
 
-        AppServices.dataServiceRegistrar.stepSubscribe<Vpc>(this, TkgEventType.AWS_GET_EXISTING_VPCS, this.onFetchedVpcs.bind(this));
+        AppServices.dataServiceRegistrar.stepSubscribe<Vpc>(this, TanzuEventType.AWS_GET_EXISTING_VPCS, this.onFetchedVpcs.bind(this));
 
         // init vpc type to new
         AppServices.messenger.publish({
-            type: TkgEventType.AWS_VPC_TYPE_CHANGED,
+            type: TanzuEventType.AWS_VPC_TYPE_CHANGED,
             payload: { vpcType: VpcType.NEW.toString() }
         });
         this.registerOnValueChange(AwsField.VPC_NON_INTERNET_FACING, this.onNonInternetFacingVPCChange.bind(this));
@@ -113,7 +113,7 @@ export class VpcStepComponent extends StepFormDirective implements OnInit {
 
     onNonInternetFacingVPCChange(checked: boolean) {
         AppServices.messenger.publish({
-            type: TkgEventType.AWS_AIRGAPPED_VPC_CHANGE,
+            type: TanzuEventType.AWS_AIRGAPPED_VPC_CHANGE,
             payload: checked === true
         });
     }
@@ -168,12 +168,12 @@ export class VpcStepComponent extends StepFormDirective implements OnInit {
         }
 
         AppServices.messenger.publish({
-            type: TkgEventType.AWS_GET_SUBNETS,
+            type: TanzuEventType.AWS_GET_SUBNETS,
             payload: { vpcId: existingVpcId }
         });
 
         AppServices.messenger.publish(({
-            type: TkgEventType.AWS_VPC_CHANGED
+            type: TanzuEventType.AWS_VPC_CHANGED
         }));
     }
 

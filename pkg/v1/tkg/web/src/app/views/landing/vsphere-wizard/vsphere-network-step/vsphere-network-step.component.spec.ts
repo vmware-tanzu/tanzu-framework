@@ -5,7 +5,7 @@ import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 // App imports
 import { APIClient } from '../../../../swagger';
 import AppServices from '../../../../shared/service/appServices';
-import { Messenger, TkgEventType } from '../../../../shared/service/Messenger';
+import { Messenger, TanzuEventType } from '../../../../shared/service/Messenger';
 import { DataServiceRegistrarTestExtension } from '../../../../testing/data-service-registrar.testextension';
 import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
 import { ResourcePool } from '../resource-step/resource-step.component';
@@ -44,11 +44,11 @@ describe('NodeSettingStepComponent', () => {
         const dataServiceRegistrar = new DataServiceRegistrarTestExtension();
         AppServices.dataServiceRegistrar = dataServiceRegistrar;
         // we expect the wizard to have registered for these events:
-        dataServiceRegistrar.simulateRegistration<VSphereResourcePool>(TkgEventType.VSPHERE_GET_RESOURCE_POOLS);
-        dataServiceRegistrar.simulateRegistration<ResourcePool>(TkgEventType.VSPHERE_GET_COMPUTE_RESOURCE);
-        dataServiceRegistrar.simulateRegistration<VSphereDatastore>(TkgEventType.VSPHERE_GET_DATA_STORES);
-        dataServiceRegistrar.simulateRegistration<VSphereFolder>(TkgEventType.VSPHERE_GET_VM_FOLDERS);
-        dataServiceRegistrar.simulateRegistration<VSphereFolder>(TkgEventType.VSPHERE_GET_VM_NETWORKS);
+        dataServiceRegistrar.simulateRegistration<VSphereResourcePool>(TanzuEventType.VSPHERE_GET_RESOURCE_POOLS);
+        dataServiceRegistrar.simulateRegistration<ResourcePool>(TanzuEventType.VSPHERE_GET_COMPUTE_RESOURCE);
+        dataServiceRegistrar.simulateRegistration<VSphereDatastore>(TanzuEventType.VSPHERE_GET_DATA_STORES);
+        dataServiceRegistrar.simulateRegistration<VSphereFolder>(TanzuEventType.VSPHERE_GET_VM_FOLDERS);
+        dataServiceRegistrar.simulateRegistration<VSphereFolder>(TanzuEventType.VSPHERE_GET_VM_NETWORKS);
 
         fixture = TestBed.createComponent(VsphereNetworkStepComponent);
         component = fixture.componentInstance;
@@ -70,7 +70,7 @@ describe('NodeSettingStepComponent', () => {
 
         networkNameControl.setValue('CHOCMINT');
         expect(msgSpy).toHaveBeenCalledWith({
-            type: TkgEventType.STEP_DESCRIPTION_CHANGE,
+            type: TanzuEventType.STEP_DESCRIPTION_CHANGE,
             payload: {
                 wizard: 'BozoWizard',
                 step: WizardForm.NETWORK,
@@ -80,7 +80,7 @@ describe('NodeSettingStepComponent', () => {
 
         podCidrControl.setValue('1.2.3.4/12');
         expect(msgSpy).toHaveBeenCalledWith({
-            type: TkgEventType.STEP_DESCRIPTION_CHANGE,
+            type: TanzuEventType.STEP_DESCRIPTION_CHANGE,
             payload: {
                 wizard: 'BozoWizard',
                 step: WizardForm.NETWORK,
@@ -90,7 +90,7 @@ describe('NodeSettingStepComponent', () => {
 
         serviceCidrControl.setValue('5.6.7.8/16');
         expect(msgSpy).toHaveBeenCalledWith({
-            type: TkgEventType.STEP_DESCRIPTION_CHANGE,
+            type: TanzuEventType.STEP_DESCRIPTION_CHANGE,
             payload: {
                 wizard: 'BozoWizard',
                 step: WizardForm.NETWORK,

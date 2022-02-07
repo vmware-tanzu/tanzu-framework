@@ -25,7 +25,7 @@ import { FormDataForHTML, FormUtility } from '../wizard/shared/components/steps/
 import { FormMetaDataService } from 'src/app/shared/service/form-meta-data.service';
 import { ImportParams, ImportService } from "../../../shared/service/import.service";
 import { NodeSettingStepComponent } from './node-setting-step/node-setting-step.component';
-import { TkgEventType } from '../../../shared/service/Messenger';
+import { TanzuEventType } from '../../../shared/service/Messenger';
 import { WizardBaseDirective } from '../wizard/shared/wizard-base/wizard-base';
 
 @Component({
@@ -363,35 +363,35 @@ export class AzureWizardComponent extends WizardBaseDirective implements OnInit 
     }
 
     private subscribeToServices() {
-        AppServices.messenger.getSubject(TkgEventType.AZURE_REGION_CHANGED)
+        AppServices.messenger.getSubject(TanzuEventType.AZURE_REGION_CHANGED)
             .subscribe(event => {
                 const region = event.payload;
                 if (this.region) {
                     AppServices.dataServiceRegistrar.trigger([
-                        TkgEventType.AZURE_GET_RESOURCE_GROUPS,
-                        TkgEventType.AZURE_GET_INSTANCE_TYPES
+                        TanzuEventType.AZURE_GET_RESOURCE_GROUPS,
+                        TanzuEventType.AZURE_GET_INSTANCE_TYPES
                     ], { location: region });
-                    AppServices.dataServiceRegistrar.trigger([TkgEventType.AZURE_GET_OS_IMAGES]);
+                    AppServices.dataServiceRegistrar.trigger([TanzuEventType.AZURE_GET_OS_IMAGES]);
                 } else {
-                    AppServices.dataServiceRegistrar.clear<AzureResourceGroup>(TkgEventType.AZURE_GET_RESOURCE_GROUPS);
-                    AppServices.dataServiceRegistrar.clear<AzureInstanceType>(TkgEventType.AZURE_GET_INSTANCE_TYPES);
-                    AppServices.dataServiceRegistrar.clear<AzureVirtualMachine>(TkgEventType.AZURE_GET_OS_IMAGES);
+                    AppServices.dataServiceRegistrar.clear<AzureResourceGroup>(TanzuEventType.AZURE_GET_RESOURCE_GROUPS);
+                    AppServices.dataServiceRegistrar.clear<AzureInstanceType>(TanzuEventType.AZURE_GET_INSTANCE_TYPES);
+                    AppServices.dataServiceRegistrar.clear<AzureVirtualMachine>(TanzuEventType.AZURE_GET_OS_IMAGES);
                 }
             });
     }
 
     private registerServices() {
         const wizard = this;
-        AppServices.dataServiceRegistrar.register<AzureResourceGroup>(TkgEventType.AZURE_GET_RESOURCE_GROUPS,
+        AppServices.dataServiceRegistrar.register<AzureResourceGroup>(TanzuEventType.AZURE_GET_RESOURCE_GROUPS,
             (payload: {location: string}) => { return wizard.apiClient.getAzureResourceGroups(payload); },
             "Failed to retrieve resource groups for the particular region." );
-        AppServices.dataServiceRegistrar.register<AzureInstanceType>(TkgEventType.AZURE_GET_INSTANCE_TYPES,
+        AppServices.dataServiceRegistrar.register<AzureInstanceType>(TanzuEventType.AZURE_GET_INSTANCE_TYPES,
             (payload: {location: string}) => { return wizard.apiClient.getAzureInstanceTypes(payload); },
             "Failed to retrieve Azure VM sizes" );
-        AppServices.dataServiceRegistrar.register<AzureVirtualMachine>(TkgEventType.AZURE_GET_OS_IMAGES,
+        AppServices.dataServiceRegistrar.register<AzureVirtualMachine>(TanzuEventType.AZURE_GET_OS_IMAGES,
             () => { return wizard.apiClient.getAzureOSImages(); },
             "Failed to retrieve list of OS images from the specified Azure Server." );
-        AppServices.dataServiceRegistrar.register<AzureVirtualNetwork>(TkgEventType.AZURE_GET_VNETS,
+        AppServices.dataServiceRegistrar.register<AzureVirtualNetwork>(TanzuEventType.AZURE_GET_VNETS,
             (payload: {resourceGroupName: string, location: string}) => { return wizard.apiClient.getAzureVnets(payload)},
             "Failed to retrieve list of VNETs from the specified Azure Server." );
     }

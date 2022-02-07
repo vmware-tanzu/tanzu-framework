@@ -8,7 +8,7 @@ import AppServices from '../../../../shared/service/appServices';
 import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
 import { StepFormDirective } from '../../wizard/shared/step-form/step-form';
 import { StepMapping } from '../../wizard/shared/field-mapping/FieldMapping';
-import { TkgEventType } from '../../../../shared/service/Messenger';
+import { TanzuEventType } from '../../../../shared/service/Messenger';
 import { ValidationService } from '../../wizard/shared/validation/validation.service';
 
 @Component({
@@ -37,7 +37,8 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
     }
 
     private subscribeToServices() {
-        AppServices.dataServiceRegistrar.stepSubscribe(this, TkgEventType.AZURE_GET_INSTANCE_TYPES, this.onFetchedInstanceTypes.bind(this))
+        AppServices.dataServiceRegistrar.stepSubscribe(this,
+            TanzuEventType.AZURE_GET_INSTANCE_TYPES, this.onFetchedInstanceTypes.bind(this))
     }
 
     private onFetchedInstanceTypes(instanceTypes: AzureInstanceType[]) {

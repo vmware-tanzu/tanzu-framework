@@ -10,7 +10,7 @@ import AppServices from '../../../../shared/service/appServices';
 import { AzureProviderStepComponent } from './azure-provider-step.component';
 import { APIClient } from '../../../../swagger/api-client.service';
 import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
-import { Messenger, TkgEventType } from 'src/app/shared/service/Messenger';
+import { Messenger, TanzuEventType } from 'src/app/shared/service/Messenger';
 import { SharedModule } from '../../../../shared/shared.module';
 import { ValidationService } from '../../wizard/shared/validation/validation.service';
 import { DataServiceRegistrarTestExtension } from '../../../../testing/data-service-registrar.testextension';
@@ -62,10 +62,10 @@ describe('AzureProviderStepComponent', () => {
     it('should setup AZURE_GET_RESOURCE_GROUPS event handler', () => {
         const dataServiceRegistrar = AppServices.dataServiceRegistrar as DataServiceRegistrarTestExtension;
         // The wizard is expected to have registered this event
-        dataServiceRegistrar.simulateRegistration<AzureResourceGroup>(TkgEventType.AZURE_GET_RESOURCE_GROUPS);
+        dataServiceRegistrar.simulateRegistration<AzureResourceGroup>(TanzuEventType.AZURE_GET_RESOURCE_GROUPS);
 
         component.ngOnInit();
-        dataServiceRegistrar.simulateError(TkgEventType.AZURE_GET_RESOURCE_GROUPS, 'test error');
+        dataServiceRegistrar.simulateError(TanzuEventType.AZURE_GET_RESOURCE_GROUPS, 'test error');
         expect(component.errorNotification).toBe('test error');
 
         const resourceGroup = [
@@ -73,7 +73,7 @@ describe('AzureProviderStepComponent', () => {
             {id: 2, location: 'us-east', name: 'resource-group2'},
             {id: 3, location: 'us-south', name: 'resource-group3'}
         ];
-        dataServiceRegistrar.simulateData(TkgEventType.AZURE_GET_RESOURCE_GROUPS, resourceGroup);
+        dataServiceRegistrar.simulateData(TanzuEventType.AZURE_GET_RESOURCE_GROUPS, resourceGroup);
         expect(component.resourceGroups).toEqual(resourceGroup);
     });
 
@@ -146,7 +146,7 @@ describe('AzureProviderStepComponent', () => {
         component.onResourceGroupNameChange();
         expect(messengerSpy).toHaveBeenCalled();
         expect(messengerSpy).toHaveBeenCalledWith({
-            type: TkgEventType.AZURE_RESOURCEGROUP_CHANGED,
+            type: TanzuEventType.AZURE_RESOURCEGROUP_CHANGED,
             payload: ''
         });
     });
@@ -161,7 +161,7 @@ describe('AzureProviderStepComponent', () => {
 
         tenantControl.setValue('RIDDLER');
         expect(msgSpy).toHaveBeenCalledWith({
-            type: TkgEventType.STEP_DESCRIPTION_CHANGE,
+            type: TanzuEventType.STEP_DESCRIPTION_CHANGE,
             payload: {
                 wizard: 'CarrotWizard',
                 step: AzureForm.PROVIDER,

@@ -7,7 +7,7 @@ import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { APIClient } from '../../../../swagger/api-client.service';
 import AppServices from 'src/app/shared/service/appServices';
 import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
-import { Messenger, TkgEventType } from 'src/app/shared/service/Messenger';
+import { Messenger, TanzuEventType } from 'src/app/shared/service/Messenger';
 import { NodeSettingStepComponent } from './node-setting-step.component';
 import { ValidationService } from '../../wizard/shared/validation/validation.service';
 
@@ -64,7 +64,7 @@ describe('NodeSettingStepComponent', () => {
 
         component.setClusterTypeDescriptor('VANILLA');
         expect(msgSpy).toHaveBeenCalledWith({
-            type: TkgEventType.STEP_DESCRIPTION_CHANGE,
+            type: TanzuEventType.STEP_DESCRIPTION_CHANGE,
             payload: {
                 wizard: 'BozoWizard',
                 step: 'vsphereNodeSettingForm',
@@ -74,7 +74,7 @@ describe('NodeSettingStepComponent', () => {
 
         controlPlaneSettingControl.setValue('dev');
         expect(msgSpy).toHaveBeenCalledWith({
-            type: TkgEventType.STEP_DESCRIPTION_CHANGE,
+            type: TanzuEventType.STEP_DESCRIPTION_CHANGE,
             payload: {
                 wizard: 'BozoWizard',
                 step: 'vsphereNodeSettingForm',
@@ -84,7 +84,7 @@ describe('NodeSettingStepComponent', () => {
 
         controlPlaneSettingControl.setValue('prod');
         expect(msgSpy).toHaveBeenCalledWith({
-            type: TkgEventType.STEP_DESCRIPTION_CHANGE,
+            type: TanzuEventType.STEP_DESCRIPTION_CHANGE,
             payload: {
                 wizard: 'BozoWizard',
                 step: 'vsphereNodeSettingForm',
