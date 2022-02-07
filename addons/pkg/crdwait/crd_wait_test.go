@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"time"
 
-	tlog "github.com/go-logr/logr/testing"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	corev1 "k8s.io/api/core/v1"
@@ -20,6 +19,7 @@ import (
 	clientgoscheme "k8s.io/client-go/kubernetes/scheme"
 	"k8s.io/client-go/testing"
 	"k8s.io/client-go/tools/record"
+	"k8s.io/klog/v2/klogr"
 	clusterapiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
 	controlplanev1beta1 "sigs.k8s.io/cluster-api/controlplane/kubeadm/api/v1beta1"
 
@@ -44,12 +44,11 @@ var _ = Describe("WaitForCRDs", func() {
 		}}
 
 	BeforeEach(func() {
-
 		fakeClientSet = fake.NewSimpleClientset(pod)
 		crdWaiter = CRDWaiter{
 			Ctx:         ctx,
 			ClientSetFn: getFakeClientSet,
-			Logger:      tlog.TestLogger{},
+			Logger:      klogr.New(),
 			Scheme:      scheme,
 		}
 		fakeRecorder = record.NewFakeRecorder(50)
