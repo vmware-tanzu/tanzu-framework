@@ -1,0 +1,28 @@
+#@ load("@ytt:data", "data")
+#@ load("@ytt:overlay", "overlay")
+
+---
+apiVersion: cli.tanzu.vmware.com/v1alpha1
+kind: CLIPlugin
+metadata:
+  creationTimestamp: null
+  name: codegen
+spec:
+  artifacts:
+    #@yaml/text-templated-strings
+    (@= data.values.codegen.version @):
+    - arch: amd64
+      image: tanzu-cli-plugins/codegen-darwin-amd64:latest
+      os: darwin
+      type: oci
+    - arch: amd64
+      image: tanzu-cli-plugins/codegen-linux-amd64:latest
+      os: linux
+      type: oci
+    - arch: amd64
+      image: tanzu-cli-plugins/codegen-windows-amd64:latest
+      os: windows
+      type: oci
+  description: Tanzu code generation tool
+  optional: false
+  recommendedVersion: #@ data.values.codegen.version

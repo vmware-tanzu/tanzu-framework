@@ -57,3 +57,25 @@ overrides:
     newImage: ""
   - image: tanzu-cli-plugins/secret-windows-amd64:latest
     newImage: ""
+  #! Admin-Plugins images
+  #! tanzu-cliplugins linux-amd64
+  - image: tanzu-cli-plugins/test-linux-amd64:latest
+    newImage: ""
+  - image: tanzu-cli-plugins/builder-linux-amd64:latest
+    newImage: ""
+  - image: tanzu-cli-plugins/codegen-linux-amd64:latest
+    newImage: ""
+  #! tanzu-cliplugins darwin-amd64
+  - image: tanzu-cli-plugins/test-darwin-amd64:latest
+    newImage: ""
+  - image: tanzu-cli-plugins/builder-darwin-amd64:latest
+    newImage: ""
+  - image: tanzu-cli-plugins/codegen-darwin-amd64:latest
+    newImage: ""
+  #! tanzu-cliplugins windows-amd64
+  - image: tanzu-cli-plugins/test-windows-amd64:latest
+    newImage: ""
+  - image: tanzu-cli-plugins/builder-windows-amd64:latest
+    newImage: ""
+  - image: tanzu-cli-plugins/codegen-windows-amd64:latest
+    newImage: ""
