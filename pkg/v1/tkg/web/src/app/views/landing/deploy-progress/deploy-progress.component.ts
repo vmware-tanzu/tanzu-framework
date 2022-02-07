@@ -14,7 +14,7 @@ import AppServices from 'src/app/shared/service/appServices';
 import { BasicSubscriber } from '../../../shared/abstracts/basic-subscriber';
 import { WebsocketService } from '../../../shared/service/websocket.service';
 import { FormMetaDataStore } from '../wizard/shared/FormMetaDataStore';
-import { TkgEvent, TkgEventType } from "../../../shared/service/Messenger";
+import { TanzuEvent, TanzuEventType } from "../../../shared/service/Messenger";
 
 @Component({
     selector: 'tkg-kickstart-ui-deploy-progress',
@@ -43,7 +43,7 @@ export class DeployProgressComponent extends BasicSubscriber implements OnInit {
 
     constructor(private websocketService: WebsocketService) {
         super();
-        AppServices.messenger.getSubject(TkgEventType.CLI_CHANGED)
+        AppServices.messenger.getSubject(TanzuEventType.CLI_CHANGED)
             .pipe(takeUntil(this.unsubscribe))
             .subscribe(event => {
                 this.cli = event.payload;
@@ -53,9 +53,9 @@ export class DeployProgressComponent extends BasicSubscriber implements OnInit {
     ngOnInit(): void {
         this.initWebSocket();
 
-        AppServices.messenger.getSubject(TkgEventType.BRANDING_CHANGED)
+        AppServices.messenger.getSubject(TanzuEventType.BRANDING_CHANGED)
             .pipe(takeUntil(this.unsubscribe))
-            .subscribe((data: TkgEvent) => {
+            .subscribe((data: TanzuEvent) => {
                 this.pageTitle = data.payload.branding.title;
                 this.clusterTypeDescriptor = data.payload.clusterTypeDescriptor;
             });

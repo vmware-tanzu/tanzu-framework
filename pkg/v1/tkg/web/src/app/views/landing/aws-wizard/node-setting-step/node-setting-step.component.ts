@@ -15,7 +15,7 @@ import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUti
 import { FormMetaDataStore } from '../../wizard/shared/FormMetaDataStore';
 import { StepFormDirective } from '../../wizard/shared/step-form/step-form';
 import { StepMapping } from '../../wizard/shared/field-mapping/FieldMapping';
-import { TkgEventType } from '../../../../shared/service/Messenger';
+import { TanzuEventType } from '../../../../shared/service/Messenger';
 import { ValidationService } from '../../wizard/shared/validation/validation.service';
 
 export interface AzNodeTypes {
@@ -143,7 +143,7 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
 
     private customizeForm() {
         this.registerStepDescriptionTriggers({clusterTypeDescriptor: true, fields: ['controlPlaneSetting']});
-        AppServices.messenger.getSubject(TkgEventType.AWS_AIRGAPPED_VPC_CHANGE).subscribe(event => {
+        AppServices.messenger.getSubject(TanzuEventType.AWS_AIRGAPPED_VPC_CHANGE).subscribe(event => {
             this.airgappedVPC = event.payload;
             if (this.airgappedVPC) { // public subnet IDs shouldn't be provided
                 PUBLIC_SUBNETS.forEach(f => {
@@ -161,7 +161,7 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
         /**
          * Whenever aws region selection changes, update AZ subregion
          */
-        AppServices.messenger.getSubject(TkgEventType.AWS_REGION_CHANGED)
+        AppServices.messenger.getSubject(TanzuEventType.AWS_REGION_CHANGED)
             .pipe(takeUntil(this.unsubscribe))
             .subscribe(event => {
                 if (this.formGroup.get(AwsField.NODESETTING_AZ_1)) {
@@ -174,7 +174,7 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
                 }
             });
 
-        AppServices.messenger.getSubject(TkgEventType.AWS_VPC_TYPE_CHANGED)
+        AppServices.messenger.getSubject(TanzuEventType.AWS_VPC_TYPE_CHANGED)
             .subscribe(event => {
                 this.vpcType = event.payload.vpcType;
                 if (this.vpcType !== vpcType.EXISTING) {
@@ -189,7 +189,7 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
                 );
             });
 
-        AppServices.messenger.getSubject(TkgEventType.AWS_VPC_CHANGED)
+        AppServices.messenger.getSubject(TanzuEventType.AWS_VPC_CHANGED)
             .subscribe(event => {
                 this.clearAzs();
                 this.clearSubnets();
@@ -215,9 +215,9 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
     }
 
     private subscribeToServices() {
-        AppServices.dataServiceRegistrar.stepSubscribe<AWSSubnet>(this, TkgEventType.AWS_GET_SUBNETS, this.onFetchedSubnets.bind(this));
-        AppServices.dataServiceRegistrar.stepSubscribe<string>(this, TkgEventType.AWS_GET_NODE_TYPES, this.onFetchedNodeTypes.bind(this));
-        AppServices.dataServiceRegistrar.stepSubscribe<AWSNodeAz>(this, TkgEventType.AWS_GET_AVAILABILITY_ZONES,
+        AppServices.dataServiceRegistrar.stepSubscribe<AWSSubnet>(this, TanzuEventType.AWS_GET_SUBNETS, this.onFetchedSubnets.bind(this));
+        AppServices.dataServiceRegistrar.stepSubscribe<string>(this, TanzuEventType.AWS_GET_NODE_TYPES, this.onFetchedNodeTypes.bind(this));
+        AppServices.dataServiceRegistrar.stepSubscribe<AWSNodeAz>(this, TanzuEventType.AWS_GET_AVAILABILITY_ZONES,
             this.onFetchedAzs.bind(this));
     }
 
@@ -265,7 +265,7 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
             const existingVpcId = FormMetaDataStore.getMetaDataItem(AwsForm.VPC, 'existingVpcId');
             if (existingVpcId && existingVpcId.displayValue) {
                 AppServices.messenger.publish({
-                    type: TkgEventType.AWS_GET_SUBNETS,
+                    type: TanzuEventType.AWS_GET_SUBNETS,
                     payload: { vpcId: existingVpcId.displayValue }
                 });
             }

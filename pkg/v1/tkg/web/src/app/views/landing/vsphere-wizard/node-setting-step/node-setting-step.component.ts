@@ -9,7 +9,7 @@ import { KUBE_VIP, NSX_ADVANCED_LOAD_BALANCER } from '../../wizard/shared/compon
 import { NodeType } from '../../wizard/shared/constants/wizard.constants';
 import { StepFormDirective } from '../../wizard/shared/step-form/step-form';
 import { StepMapping } from '../../wizard/shared/field-mapping/FieldMapping';
-import { TkgEventType } from 'src/app/shared/service/Messenger';
+import { TanzuEventType } from 'src/app/shared/service/Messenger';
 import { ValidationService } from '../../wizard/shared/validation/validation.service';
 import { VsphereField, VsphereNodeTypes } from '../vsphere-wizard.constants';
 import { VsphereNodeSettingStepMapping, VsphereNodeSettingStandaloneStepMapping } from './node-setting-step.fieldmapping';
@@ -164,7 +164,7 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
     onControlPlaneEndpoingProviderChange(provider: string): void {
         this.currentControlPlaneEndpoingProvider = provider;
         AppServices.messenger.publish({
-            type: TkgEventType.VSPHERE_CONTROL_PLANE_ENDPOINT_PROVIDER_CHANGED,
+            type: TanzuEventType.VSPHERE_CONTROL_PLANE_ENDPOINT_PROVIDER_CHANGED,
             payload: provider
         });
         this.resurrectField(VsphereField.NODESETTING_CONTROL_PLANE_ENDPOINT_IP, (provider === KUBE_VIP) ? [

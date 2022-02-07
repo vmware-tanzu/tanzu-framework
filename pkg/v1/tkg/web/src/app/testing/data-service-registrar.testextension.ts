@@ -1,28 +1,28 @@
 import DataServiceRegistrar from '../shared/service/data-service-registrar';
-import { TkgEventType } from '../shared/service/Messenger';
+import { TanzuEventType } from '../shared/service/Messenger';
 import { Observable } from 'rxjs';
 
 export class DataServiceRegistrarTestExtension extends DataServiceRegistrar {
-    public hasEntry(eventType: TkgEventType): boolean {
+    public hasEntry(eventType: TanzuEventType): boolean {
         const eventEntry = this.getEntry(eventType);
         return eventEntry !== null && eventEntry !== undefined;
     }
 
-    public simulateError(eventType: TkgEventType, errMsg: string) {
+    public simulateError(eventType: TanzuEventType, errMsg: string) {
         if (!this.hasEntry(eventType)) {
             console.log('No event registration found for ' + eventType);
         }
         this.getEntry(eventType).errorStream.next(errMsg);
     }
 
-    public simulateData(eventType: TkgEventType, data: any) {
+    public simulateData(eventType: TanzuEventType, data: any) {
         if (!this.hasEntry(eventType)) {
             console.log('No event registration found for ' + eventType);
         }
         this.getEntry(eventType).dataStream.next(data);
     }
 
-    public simulateRegistration<OBJ>(eventType: TkgEventType) {
+    public simulateRegistration<OBJ>(eventType: TanzuEventType) {
         this.register<OBJ>(eventType, () => new Observable<OBJ[]>());
     }
 }

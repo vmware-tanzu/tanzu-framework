@@ -5,7 +5,7 @@ import {Observable} from "rxjs";
 import {take} from "rxjs/operators";
 // App imports
 import AppServices from "./appServices";
-import {TkgEventType} from "./Messenger";
+import {TanzuEventType} from "./Messenger";
 
 export interface ImportParams<ClusterParamsType> {
     file: File,
@@ -46,7 +46,7 @@ export class ImportService {
     // convenience method for wizards handling an import failure
     publishImportFailure(nameFile: string, err: any) {
         AppServices.messenger.publish({
-            type: TkgEventType.CONFIG_FILE_IMPORTED,
+            type: TanzuEventType.CONFIG_FILE_IMPORTED,
             payload: 'Error encountered while importing file ' + nameFile + ': ' + err.toString()
         });
     }
@@ -54,7 +54,7 @@ export class ImportService {
     // convenience method for wizards handling an import success
     publishImportSuccess(nameFile: string) {
         AppServices.messenger.publish({
-            type: TkgEventType.CONFIG_FILE_IMPORTED,
+            type: TanzuEventType.CONFIG_FILE_IMPORTED,
             payload: 'Data imported from file ' + nameFile,
         });
     }

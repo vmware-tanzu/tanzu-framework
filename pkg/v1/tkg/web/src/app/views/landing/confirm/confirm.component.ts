@@ -8,7 +8,7 @@ import { APP_ROUTES, Routes } from '../../../shared/constants/routes.constants';
 import AppServices from '../../../shared/service/appServices';
 import { BasicSubscriber } from "../../../shared/abstracts/basic-subscriber";
 import { FormMetaDataStore, FormMetaData, StepMetaData } from './../wizard/shared/FormMetaDataStore';
-import { TkgEvent, TkgEventType } from "../../../shared/service/Messenger";
+import { TanzuEvent, TanzuEventType } from "../../../shared/service/Messenger";
 
 @Component({
     selector: 'tkg-kickstart-ui-confirm',
@@ -33,9 +33,9 @@ export class ConfirmComponent extends BasicSubscriber implements OnInit {
     }
 
     ngOnInit() {
-        AppServices.messenger.getSubject(TkgEventType.BRANDING_CHANGED)
+        AppServices.messenger.getSubject(TanzuEventType.BRANDING_CHANGED)
             .pipe(takeUntil(this.unsubscribe))
-            .subscribe((data: TkgEvent) => {
+            .subscribe((data: TanzuEvent) => {
                 this.pageTitle = data.payload.branding.title;
             });
 

@@ -7,7 +7,7 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { APIClient } from '../../../../../../../swagger/api-client.service';
 import AppServices from 'src/app/shared/service/appServices';
 import { FieldMapUtilities } from '../../../field-mapping/FieldMapUtilities';
-import { Messenger, TkgEventType } from 'src/app/shared/service/Messenger';
+import { Messenger, TanzuEventType } from 'src/app/shared/service/Messenger';
 import { MetadataStepComponent } from './metadata-step.component';
 import { SharedModule } from '../../../../../../../shared/shared.module';
 import { ValidationService } from '../../../validation/validation.service';
@@ -66,7 +66,7 @@ describe('MetadataStepComponent', () => {
 
         component.setClusterTypeDescriptor('CLOWN');
         expect(msgSpy).toHaveBeenCalledWith({
-            type: TkgEventType.STEP_DESCRIPTION_CHANGE,
+            type: TanzuEventType.STEP_DESCRIPTION_CHANGE,
             payload: {
                 wizard: 'BozoWizard',
                 step: WizardForm.METADATA,
@@ -76,7 +76,7 @@ describe('MetadataStepComponent', () => {
 
         locationControl.setValue('UZBEKISTAN');
         expect(msgSpy).toHaveBeenCalledWith({
-            type: TkgEventType.STEP_DESCRIPTION_CHANGE,
+            type: TanzuEventType.STEP_DESCRIPTION_CHANGE,
             payload: {
                 wizard: 'BozoWizard',
                 step: WizardForm.METADATA,

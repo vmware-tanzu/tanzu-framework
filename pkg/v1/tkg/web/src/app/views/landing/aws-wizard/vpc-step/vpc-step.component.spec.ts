@@ -5,7 +5,7 @@ import { APIClient } from 'src/app/swagger';
 import AppServices from '../../../../shared/service/appServices';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
-import { Messenger, TkgEventType } from 'src/app/shared/service/Messenger';
+import { Messenger, TanzuEventType } from 'src/app/shared/service/Messenger';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { SharedModule } from 'src/app/shared/shared.module';
 import { ValidationService } from '../../wizard/shared/validation/validation.service';
@@ -94,7 +94,7 @@ describe('VpcComponent', () => {
         vpcTypeControl.setValue(VpcType.NEW);
         vpcNewCidrControl.setValue('1.2.1.2/12');
         expect(msgSpy).toHaveBeenCalledWith({
-            type: TkgEventType.STEP_DESCRIPTION_CHANGE,
+            type: TanzuEventType.STEP_DESCRIPTION_CHANGE,
             payload: {
                 wizard: 'PickleWizard',
                 step: AwsForm.VPC,
@@ -106,7 +106,7 @@ describe('VpcComponent', () => {
         vpcExistingCidrControl.setValue('3.4.3.4/24');
         vpcExistingIdControl.setValue('someVpc');
         expect(msgSpy).toHaveBeenCalledWith({
-            type: TkgEventType.STEP_DESCRIPTION_CHANGE,
+            type: TanzuEventType.STEP_DESCRIPTION_CHANGE,
             payload: {
                 wizard: 'PickleWizard',
                 step: AwsForm.VPC,

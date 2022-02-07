@@ -13,7 +13,7 @@ import { FormMetaData, FormMetaDataStore } from '../FormMetaDataStore';
 import { FormUtility } from '../components/steps/form-utility';
 import { IpFamilyEnum } from 'src/app/shared/constants/app.constants';
 import { Notification, NotificationTypes } from 'src/app/shared/components/alert-notification/alert-notification.component';
-import { StepDescriptionChangePayload, TkgEvent, TkgEventType } from 'src/app/shared/service/Messenger';
+import { StepDescriptionChangePayload, TanzuEvent, TanzuEventType } from 'src/app/shared/service/Messenger';
 import { ValidatorEnum } from './../constants/validation.constants';
 
 export interface StepDescriptionTriggers {
@@ -64,18 +64,18 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
         FormMetaDataStore.updateFormList(this.formName);
 
         // set branding and cluster type on branding change for base wizard components
-        AppServices.messenger.getSubject(TkgEventType.BRANDING_CHANGED)
+        AppServices.messenger.getSubject(TanzuEventType.BRANDING_CHANGED)
             .pipe(takeUntil(this.unsubscribe))
-            .subscribe((data: TkgEvent) => {
+            .subscribe((data: TanzuEvent) => {
                 const content: EditionData = data.payload;
                 this.edition = content.edition;
                 this.setClusterTypeDescriptor(data.payload.clusterTypeDescriptor);
             });
         this.modeClusterStandalone = AppServices.appDataService.isModeClusterStandalone();
 
-        AppServices.messenger.getSubject(TkgEventType.CONFIG_FILE_IMPORT_ERROR)
+        AppServices.messenger.getSubject(TanzuEventType.CONFIG_FILE_IMPORT_ERROR)
             .pipe(takeUntil(this.unsubscribe))
-            .subscribe((data: TkgEvent) => {
+            .subscribe((data: TanzuEvent) => {
                 // Capture the import file error message
                 this.configFileNotification = {
                     notificationType: NotificationTypes.ERROR,
@@ -83,7 +83,7 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
                 };
 
                 // Clear event so that listeners in other provider workflows do not receive false notifications
-                AppServices.messenger.clearEvent(TkgEventType.CONFIG_FILE_IMPORT_ERROR)
+                AppServices.messenger.clearEvent(TanzuEventType.CONFIG_FILE_IMPORT_ERROR)
             });
     }
 
@@ -370,9 +370,9 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
     }
 
     registerOnIpFamilyChange(fieldName: string, ipv4Validators: ValidatorFn[], ipv6Validators: ValidatorFn[], cb?: () => void) {
-        AppServices.messenger.getSubject(TkgEventType.VSPHERE_IP_FAMILY_CHANGE)
+        AppServices.messenger.getSubject(TanzuEventType.VSPHERE_IP_FAMILY_CHANGE)
             .pipe(takeUntil(this.unsubscribe))
-            .subscribe((data: TkgEvent) => {
+            .subscribe((data: TanzuEvent) => {
                 if (data.payload === IpFamilyEnum.IPv4) {
                     this.resurrectField(
                         fieldName,
@@ -432,7 +432,7 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
             description: this.dynamicDescription(),
         }
         AppServices.messenger.publish({
-            type: TkgEventType.STEP_DESCRIPTION_CHANGE,
+            type: TanzuEventType.STEP_DESCRIPTION_CHANGE,
             payload: descriptionChangePayload,
         });
     }

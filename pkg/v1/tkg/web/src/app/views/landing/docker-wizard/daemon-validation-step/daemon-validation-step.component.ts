@@ -7,7 +7,7 @@ import { FormMetaDataStore } from '../../wizard/shared/FormMetaDataStore';
 import { StepFormDirective } from '../../wizard/shared/step-form/step-form';
 import { ValidationService } from '../../wizard/shared/validation/validation.service';
 import AppServices from "../../../../shared/service/appServices";
-import { TkgEvent, TkgEventType } from "../../../../shared/service/Messenger";
+import { TanzuEvent, TanzuEventType } from "../../../../shared/service/Messenger";
 import { NotificationTypes } from "../../../../shared/components/alert-notification/alert-notification.component";
 import { DaemonStepMapping } from './daemon-validation-step.fieldmapping';
 import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
@@ -30,9 +30,9 @@ export class DaemonValidationStepComponent extends StepFormDirective implements 
     }
 
     private customizeForm() {
-        AppServices.messenger.getSubject(TkgEventType.CONFIG_FILE_IMPORTED)
+        AppServices.messenger.getSubject(TanzuEventType.CONFIG_FILE_IMPORTED)
             .pipe(takeUntil(this.unsubscribe))
-            .subscribe((data: TkgEvent) => {
+            .subscribe((data: TanzuEvent) => {
                 this.configFileNotification = {
                     notificationType: NotificationTypes.SUCCESS,
                     message: data.payload
@@ -42,7 +42,7 @@ export class DaemonValidationStepComponent extends StepFormDirective implements 
                 this.initFormWithSavedData();
 
                 // Clear event so that listeners in other provider workflows do not receive false notifications
-                AppServices.messenger.clearEvent(TkgEventType.CONFIG_FILE_IMPORTED);
+                AppServices.messenger.clearEvent(TanzuEventType.CONFIG_FILE_IMPORTED);
             });
     }
 

@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { finalize } from 'rxjs/operators'
 
 // Application imports
-import { TkgEventType } from 'src/app/shared/service/Messenger';
+import { TanzuEventType } from 'src/app/shared/service/Messenger';
 import { APIClient } from 'src/app/swagger';
 import {AppEdition, brandingDefault, brandingStandalone, brandingTce} from '../constants/branding.constants';
 import AppServices from './appServices';
@@ -73,7 +73,7 @@ export class BrandingService {
         }
 
         AppServices.messenger.publish({
-            type: TkgEventType.BRANDING_CHANGED,
+            type: TanzuEventType.BRANDING_CHANGED,
             payload: brandingPayload
         });
     }

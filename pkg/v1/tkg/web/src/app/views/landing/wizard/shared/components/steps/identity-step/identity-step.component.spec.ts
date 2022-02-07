@@ -6,7 +6,7 @@ import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { APIClient } from '../../../../../../../swagger/api-client.service';
 import AppServices from 'src/app/shared/service/appServices';
 import { FieldMapUtilities } from '../../../field-mapping/FieldMapUtilities';
-import { Messenger, TkgEventType } from 'src/app/shared/service/Messenger';
+import { Messenger, TanzuEventType } from 'src/app/shared/service/Messenger';
 import { SharedIdentityStepComponent } from './identity-step.component';
 import { SharedModule } from '../../../../../../../shared/shared.module';
 import { ValidationService } from '../../../validation/validation.service';
@@ -86,7 +86,7 @@ describe('IdentityStepComponent', () => {
         identityTypeControl.setValue(IdentityManagementType.OIDC);
         oidcIssuerControl.setValue('https://1.2.3.4');
         expect(msgSpy).toHaveBeenCalledWith({
-            type: TkgEventType.STEP_DESCRIPTION_CHANGE,
+            type: TanzuEventType.STEP_DESCRIPTION_CHANGE,
             payload: {
                 wizard: 'BozoWizard',
                 step: WizardForm.IDENTITY,
@@ -99,7 +99,7 @@ describe('IdentityStepComponent', () => {
         ldapEndpointIpControl.setValue('https://5.6.7.8');
         ldapEndpointPortControl.setValue('');
         expect(msgSpy).toHaveBeenCalledWith({
-            type: TkgEventType.STEP_DESCRIPTION_CHANGE,
+            type: TanzuEventType.STEP_DESCRIPTION_CHANGE,
             payload: {
                 wizard: 'BozoWizard',
                 step: WizardForm.IDENTITY,
@@ -112,7 +112,7 @@ describe('IdentityStepComponent', () => {
         ldapEndpointIpControl.setValue('https://9.8.7.6');
         ldapEndpointPortControl.setValue('123');
         expect(msgSpy).toHaveBeenCalledWith({
-            type: TkgEventType.STEP_DESCRIPTION_CHANGE,
+            type: TanzuEventType.STEP_DESCRIPTION_CHANGE,
             payload: {
                 wizard: 'BozoWizard',
                 step: WizardForm.IDENTITY,
