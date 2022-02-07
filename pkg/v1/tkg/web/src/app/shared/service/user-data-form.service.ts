@@ -175,7 +175,7 @@ export class UserDataFormService {
     restoreField(identifier: UserDataIdentifier, fieldMapping: FieldMapping, formGroup: FormGroup,
                  options?: { onlySelf?: boolean; emitEvent?: boolean }, retriever?: (string) => any, restorer?: (any) => void) {
         const storedValue = AppServices.userDataService.retrieveStoredValue(identifier.wizard, identifier.step, fieldMapping, retriever);
-        if (!storedValue === undefined || storedValue === null || fieldMapping.displayOnly) {
+        if (storedValue === undefined || storedValue === null || fieldMapping.displayOnly) {
             return;
         }
         if (restorer) {

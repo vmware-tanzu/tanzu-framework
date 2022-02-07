@@ -101,9 +101,13 @@ export class VsphereNetworkStepComponent extends SharedNetworkStepComponent {
     }
 
     protected supplyObjectRetrievalMap(): Map<string, (networkName: string) => VSphereNetwork> {
+        const step = this;
         // we return a map that links the networkName field to a closure that will retrieve a network object given the network name
         return new Map<string, (networkName: string) => VSphereNetwork>([['networkName',
-            (networkName) => this.vmNetworks.find(network => network.moid === networkName || network.name === networkName)]]);
+            (networkName) => {
+            console.log('SHIMON SEZ: vmNetworks.length=' + this.vmNetworks.length + '; networkName=' + networkName);
+            return step.vmNetworks.find(network => network.moid === networkName || network.name === networkName);
+        }]]);
     }
 
     dynamicDescription(): string {
