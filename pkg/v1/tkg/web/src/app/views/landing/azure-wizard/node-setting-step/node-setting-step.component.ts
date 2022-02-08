@@ -10,6 +10,8 @@ import { StepFormDirective } from '../../wizard/shared/step-form/step-form';
 import { StepMapping } from '../../wizard/shared/field-mapping/FieldMapping';
 import { TanzuEventType } from '../../../../shared/service/Messenger';
 import { ValidationService } from '../../wizard/shared/validation/validation.service';
+import { ClusterPlan } from '../../wizard/shared/constants/wizard.constants';
+import { AzureField } from '../azure-wizard.constants';
 
 @Component({
     selector: 'app-node-setting-step',
@@ -19,8 +21,8 @@ import { ValidationService } from '../../wizard/shared/validation/validation.ser
 export class NodeSettingStepComponent extends StepFormDirective implements OnInit {
 
     nodeTypes: AzureInstanceType[] = [];
-    nodeType: string;   // 'prod' or 'dev'
-    currentRegion = "US-WEST";
+    clusterPlan: string;
+    currentRegion = 'US-WEST';
     displayForm = false;
 
     constructor(private validationService: ValidationService,
@@ -31,7 +33,7 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
 
     private supplyStepMapping(): StepMapping {
         const fieldMappings = this.modeClusterStandalone ? AzureNodeSettingStandaloneStepMapping : AzureNodeSettingStepMapping;
-        FieldMapUtilities.getFieldMapping('managementClusterName', fieldMappings).required =
+        FieldMapUtilities.getFieldMapping(AzureField.NODESETTING_MANAGEMENT_CLUSTER_NAME, fieldMappings).required =
             AppServices.appDataService.isClusterNameRequired();
         return fieldMappings;
     }
@@ -44,46 +46,46 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
     private onFetchedInstanceTypes(instanceTypes: AzureInstanceType[]) {
         this.nodeTypes = instanceTypes.sort();
         if (!this.modeClusterStandalone && this.nodeTypes.length === 1) {
-            this.formGroup.get('workerNodeInstanceType').setValue(this.nodeTypes[0].name);
+            this.formGroup.get(AzureField.NODESETTING_WORKERTYPE).setValue(this.nodeTypes[0].name);
         }
     }
 
-    toggleValidations() {
+    listenOnChangeClusterPlan() {
         setTimeout(_ => {
             this.displayForm = true;
-            const controlPlaneSettingControl = this.formGroup.get('controlPlaneSetting');
+            const controlPlaneSettingControl = this.formGroup.get(AzureField.NODESETTING_CONTROL_PLANE_SETTING);
             if (controlPlaneSettingControl) {
                 controlPlaneSettingControl.valueChanges.subscribe(data => {
-                    if (data === 'dev') {
+                    if (data === ClusterPlan.DEV) {
                         this.setDevCardValidations();
-                    } else if (data === 'prod') {
+                    } else if (data === ClusterPlan.PROD) {
                         this.setProdCardValidations();
                     }
                 });
             } else {
-                console.log('WARNING: azure-wizard.node-setting-step.toggleValidations() unable to find controlPlaneSettingControl!');
+                console.log('WARNING: azure-wizard.node-setting-step.listenOnChangeClusterPlan() cannot find controlPlaneSettingControl!');
             }
         });
     }
 
     setDevCardValidations() {
-        this.nodeType = 'dev';
+        this.clusterPlan = ClusterPlan.DEV;
         this.formGroup.markAsPending();
         this.resurrectField(
-            'devInstanceType',
+            AzureField.NODESETTING_INSTANCE_TYPE_DEV,
             [Validators.required],
             this.nodeTypes.length === 1 ? this.nodeTypes[0].name : '',
             { onlySelf: true, emitEvent: false }
         );
-        this.disarmField('prodInstanceType', true);
+        this.disarmField(AzureField.NODESETTING_INSTANCE_TYPE_PROD, true);
     }
 
     setProdCardValidations() {
-        this.nodeType = 'prod';
-        this.disarmField('devInstanceType', true);
+        this.clusterPlan = ClusterPlan.PROD;
+        this.disarmField(AzureField.NODESETTING_INSTANCE_TYPE_DEV, true);
         this.formGroup.markAsPending();
         this.resurrectField(
-            'prodInstanceType',
+            AzureField.NODESETTING_INSTANCE_TYPE_PROD,
             [Validators.required],
             this.nodeTypes.length === 1 ? this.nodeTypes[0].name : '',
             { onlySelf: true, emitEvent: false }
@@ -94,33 +96,34 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
         super.ngOnInit();
         this.fieldMapUtilities.buildForm(this.formGroup, this.formName, this.supplyStepMapping());
         this.subscribeToServices();
-        this.registerStepDescriptionTriggers({ clusterTypeDescriptor: true, fields: ['controlPlaneSetting']});
-        this.toggleValidations();
+        this.registerStepDescriptionTriggers({ clusterTypeDescriptor: true, fields: [AzureField.NODESETTING_CONTROL_PLANE_SETTING]});
+        this.listenOnChangeClusterPlan();
         this.initFormWithSavedData();
     }
 
     initFormWithSavedData() {
-        this.cardClick(this.getSavedValue('devInstanceType', '') === '' ? 'prod' : 'dev');
-        this.getSavedValue('devInstanceType', '') === '' ? this.setProdCardValidations() : this.setDevCardValidations()
+        const isProdClusterPlan = this.getSavedValue(AzureField.NODESETTING_INSTANCE_TYPE_DEV, '') === '';
+        this.cardClick(isProdClusterPlan ? ClusterPlan.PROD : ClusterPlan.DEV);
+
         super.initFormWithSavedData();
         // because it's in its own component, the enable audit logging field does not get initialized in the above call to
         // super.initFormWithSavedData()
         setTimeout( () => {
-            this.setControlWithSavedValue('enableAuditLogging', false);
+            this.setControlWithSavedValue(AzureField.NODESETTING_ENABLE_AUDIT_LOGGING, false);
         })
     }
 
     cardClick(envType: string) {
-        this.setControlValueSafely('controlPlaneSetting', envType);
+        this.setControlValueSafely(AzureField.NODESETTING_CONTROL_PLANE_SETTING, envType);
     }
 
     getEnvType(): string {
-        return this.formGroup.controls['controlPlaneSetting'].value;
+        return this.formGroup.controls[AzureField.NODESETTING_CONTROL_PLANE_SETTING].value;
     }
 
     dynamicDescription(): string {
-        if (this.nodeType) {
-            return 'Control plane type: ' + this.nodeType;
+        if (this.clusterPlan) {
+            return 'Control plane type: ' + this.clusterPlan;
         }
         return 'Specify the resources backing the ' + this.clusterTypeDescriptor + ' cluster';
     }

@@ -3,10 +3,10 @@ import { Component, Input, OnInit } from '@angular/core';
 import { Validators } from '@angular/forms';
 // App imports
 import AppServices from 'src/app/shared/service/appServices';
+import { ClusterPlan, NodeType } from '../../wizard/shared/constants/wizard.constants';
 import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
 import { InstanceType, IpFamilyEnum, PROVIDERS, Providers } from '../../../../shared/constants/app.constants';
 import { KUBE_VIP, NSX_ADVANCED_LOAD_BALANCER } from '../../wizard/shared/components/steps/load-balancer/load-balancer-step.component';
-import { NodeType } from '../../wizard/shared/constants/wizard.constants';
 import { StepFormDirective } from '../../wizard/shared/step-form/step-form';
 import { StepMapping } from '../../wizard/shared/field-mapping/FieldMapping';
 import { TanzuEventType } from 'src/app/shared/service/Messenger';
@@ -46,7 +46,7 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
     }
 
     private customizeForm() {
-        this.registerStepDescriptionTriggers({ clusterTypeDescriptor: true, fields: ['controlPlaneSetting']});
+        this.registerStepDescriptionTriggers({ clusterTypeDescriptor: true, fields: [VsphereField.NODESETTING_CONTROL_PLANE_SETTING]});
         this.registerOnValueChange(VsphereField.NODESETTING_CONTROL_PLANE_ENDPOINT_PROVIDER,
             this.onControlPlaneEndpoingProviderChange.bind(this));
         this.registerOnIpFamilyChange(VsphereField.NODESETTING_CONTROL_PLANE_ENDPOINT_IP, [
@@ -134,7 +134,7 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
             // because it's in its own component, the enable audit logging field does not get initialized in the above call to
             // super.initFormWithSavedData()
             setTimeout( () => {
-                this.setControlWithSavedValue('enableAuditLogging', false);
+                this.setControlWithSavedValue(VsphereField.NODESETTING_ENABLE_AUDIT_LOGGING, false);
             })
 
             if (managementClusterType === InstanceType.DEV) {
@@ -192,17 +192,15 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
             console.log('getEnvType() unable to return env type because no controlPlaneSetting control was found!');
             return '';
         }
-        return this.formGroup.controls['controlPlaneSetting'].value;
+        return this.formGroup.controls[VsphereField.NODESETTING_CONTROL_PLANE_SETTING].value;
     }
 
     dynamicDescription(): string {
-        const ctlPlaneFlavor = this.getFieldValue('controlPlaneSetting', true);
-        if (ctlPlaneFlavor) {
-            let mode = 'Development cluster selected: 1 node control plane';
-            if (ctlPlaneFlavor === 'prod') {
-                mode = 'Production cluster selected: 3 node control plane';
-            }
-            return mode;
+        const ctlPlaneFlavor = this.getFieldValue(VsphereField.NODESETTING_CONTROL_PLANE_SETTING, true);
+        if (ctlPlaneFlavor === ClusterPlan.PROD) {
+            return 'Production cluster selected: 3 node control plane';
+        } else if (ctlPlaneFlavor === ClusterPlan.DEV) {
+            return 'Development cluster selected: 1 node control plane';
         }
         return `Specify the resources backing the ${this.clusterTypeDescriptor} cluster`;
     }

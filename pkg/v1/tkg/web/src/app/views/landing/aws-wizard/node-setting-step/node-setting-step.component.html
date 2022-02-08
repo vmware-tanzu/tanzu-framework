@@ -301,7 +301,7 @@
                 </clr-control-error>
             </clr-select-container>
         </div>
-        <ng-container *ngIf="vpcType === 'existing'">
+        <ng-container *ngIf="isVpcTypeExisting">
             <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
                 <clr-select-container [attr.data-step-metadata]="formName">
                     <label i18n="existing vpc label">
@@ -403,7 +403,7 @@
     </div>
 
     <!-- AZ 2 -->
-    <div class="clr-row" *ngIf="nodeType === 'prod'">
+    <div class="clr-row" *ngIf="isClusterPlanProd">
         <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
             <clr-select-container [attr.data-step-metadata]="formName">
                 <label i18n="existing vpc label">
@@ -442,7 +442,7 @@
                 </clr-control-error>
             </clr-select-container>
         </div>
-        <ng-container *ngIf="nodeType === 'prod' && vpcType === 'existing'">
+        <ng-container *ngIf="isClusterPlanProd && isVpcTypeExisting">
             <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4" >
                 <clr-select-container [attr.data-step-metadata]="formName">
                     <label i18n="existing vpc label">
@@ -544,7 +544,7 @@
     </div>
 
     <!-- AZ 3 -->
-    <div class="clr-row" *ngIf="nodeType === 'prod'">
+    <div class="clr-row" *ngIf="isClusterPlanProd">
         <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
             <clr-select-container [attr.data-step-metadata]="formName">
                 <label i18n="existing vpc label">
@@ -583,7 +583,7 @@
                 </clr-control-error>
             </clr-select-container>
         </div>
-        <ng-container *ngIf="nodeType === 'prod' && vpcType === 'existing'">
+        <ng-container *ngIf="isClusterPlanProd && isVpcTypeExisting">
             <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
                 <clr-select-container [attr.data-step-metadata]="formName">
                     <label i18n="existing vpc label">

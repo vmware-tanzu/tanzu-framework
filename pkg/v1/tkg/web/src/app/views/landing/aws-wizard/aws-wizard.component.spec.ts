@@ -7,17 +7,17 @@ import { RouterTestingModule } from '@angular/router/testing';
 // App imports
 import { APIClient } from '../../../swagger/api-client.service';
 import AppServices from 'src/app/shared/service/appServices';
-import { AwsForm } from './aws-wizard.constants';
+import { AwsField, AwsForm, VpcType } from './aws-wizard.constants';
 import { AwsWizardComponent } from './aws-wizard.component';
+import { CeipField } from '../wizard/shared/components/steps/ceip-step/ceip-step.fieldmapping';
 import { ClusterType, WizardForm } from "../wizard/shared/constants/wizard.constants";
 import { FieldMapUtilities } from '../wizard/shared/field-mapping/FieldMapUtilities';
 import { Messenger } from 'src/app/shared/service/Messenger';
-import { MetadataStepComponent } from '../wizard/shared/components/steps/metadata-step/metadata-step.component';
+import { MetadataField } from '../wizard/shared/components/steps/metadata-step/metadata-step.fieldmapping';
+import { NetworkField } from '../wizard/shared/components/steps/network-step/network-step.fieldmapping';
 import { NodeSettingStepComponent } from './node-setting-step/node-setting-step.component';
 import { SharedModule } from '../../../shared/shared.module';
-import { SharedNetworkStepComponent } from '../wizard/shared/components/steps/network-step/network-step.component';
 import { ValidationService } from '../wizard/shared/validation/validation.service';
-import { VpcStepComponent } from './vpc-step/vpc-step.component';
 
 describe('AwsWizardComponent', () => {
     let component: AwsWizardComponent;
@@ -125,26 +125,26 @@ describe('AwsWizardComponent', () => {
         const clusterLabels = new Map();
         clusterLabels.set('key1', 'value1');
         const mappings = [
-            ['awsProviderForm', 'accessKeyID', 'aws-access-key-id-12345'],
-            ['awsProviderForm', 'region', 'US-WEST'],
-            ['awsProviderForm', 'secretAccessKey', 'My-AWS-Secret-Access-Key'],
-            ['vpcForm', 'vpc', '10.0.0.0/16'],
-            ['vpcForm', 'vpcType', 'new'],
-            [AwsForm.NODESETTING, 'awsNodeAz1', 'us-west-a'],
-            [AwsForm.NODESETTING, 'bastionHostEnabled', 'yes'],
-            [AwsForm.NODESETTING, 'controlPlaneSetting', 'dev'],
-            [AwsForm.NODESETTING, 'devInstanceType', 't3.medium'],
-            [AwsForm.NODESETTING, 'sshKeyName', 'default'],
-            [AwsForm.NODESETTING, 'workerNodeInstanceType1', 't3.small'],
-            [AwsForm.NODESETTING, 'createCloudFormation', true],
-            [AwsForm.NODESETTING, 'machineHealthChecksEnabled', true],
-            [WizardForm.METADATA, 'clusterDescription', 'DescriptionEXAMPLE'],
-            [WizardForm.METADATA, 'clusterLabels', clusterLabels],
-            [WizardForm.METADATA, 'clusterLocation', 'mylocation1'],
-            ['networkForm', 'clusterPodCidr', '100.96.0.0/11'],
-            ['networkForm', 'clusterServiceCidr', '100.64.0.0/13'],
-            ['networkForm', 'cniType', 'antrea'],
-            ['ceipOptInForm', 'ceipOptIn', true]
+            [AwsForm.PROVIDER, AwsField.PROVIDER_ACCESS_KEY, 'aws-access-key-id-12345'],
+            [AwsForm.PROVIDER, AwsField.PROVIDER_REGION, 'US-WEST'],
+            [AwsForm.PROVIDER, AwsField.PROVIDER_SECRET_ACCESS_KEY, 'My-AWS-Secret-Access-Key'],
+            [AwsForm.VPC, AwsField.VPC_NEW_CIDR, '10.0.0.0/16'],
+            [AwsForm.VPC, AwsField.VPC_TYPE, VpcType.NEW],
+            [AwsForm.NODESETTING, AwsField.NODESETTING_AZ_1, 'us-west-a'],
+            [AwsForm.NODESETTING, AwsField.NODESETTING_BASTION_HOST_ENABLED, 'yes'],
+            [AwsForm.NODESETTING, AwsField.NODESETTING_CONTROL_PLANE_SETTING, 'dev'],
+            [AwsForm.NODESETTING, AwsField.NODESETTING_INSTANCE_TYPE_DEV, 't3.medium'],
+            [AwsForm.NODESETTING, AwsField.NODESETTING_SSH_KEY_NAME, 'default'],
+            [AwsForm.NODESETTING, AwsField.NODESETTING_WORKERTYPE_1, 't3.small'],
+            [AwsForm.NODESETTING, AwsField.NODESETTING_CREATE_CLOUD_FORMATION, true],
+            [AwsForm.NODESETTING, AwsField.NODESETTING_MACHINE_HEALTH_CHECKS_ENABLED, true],
+            [WizardForm.METADATA, MetadataField.CLUSTER_DESCRIPTION, 'DescriptionEXAMPLE'],
+            [WizardForm.METADATA, MetadataField.CLUSTER_LABELS, clusterLabels],
+            [WizardForm.METADATA, MetadataField.CLUSTER_LOCATION, 'mylocation1'],
+            [WizardForm.NETWORK, NetworkField.CLUSTER_POD_CIDR, '100.96.0.0/11'],
+            [WizardForm.NETWORK, NetworkField.CLUSTER_SERVICE_CIDR, '100.64.0.0/13'],
+            [WizardForm.NETWORK, NetworkField.CNI_TYPE, 'antrea'],
+            [WizardForm.CEIP, CeipField.OPTIN, true]
         ];
         mappings.forEach(mapping => {
             const formName = mapping[0] as string;

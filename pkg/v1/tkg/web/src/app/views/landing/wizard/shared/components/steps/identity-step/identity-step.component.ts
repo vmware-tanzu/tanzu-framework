@@ -6,8 +6,8 @@ import { distinctUntilChanged, takeUntil, tap } from 'rxjs/operators';
 // App imports
 import { APIClient } from 'src/app/swagger';
 import { FieldMapUtilities } from '../../../field-mapping/FieldMapUtilities';
+import { IdentityField, IdentityStepMapping } from './identity-step.fieldmapping';
 import { IdentityManagementType } from '../../../constants/wizard.constants';
-import { IdentityStepMapping } from './identity-step.fieldmapping';
 import { IpFamilyEnum } from 'src/app/shared/constants/app.constants';
 import { LdapParams } from './../../../../../../../swagger/models/ldap-params.model';
 import { LdapTestResult } from 'src/app/swagger/models';
@@ -32,33 +32,33 @@ const ERROR = "error";
 const PROCESSING = "processing";
 
 const oidcFields: Array<string> = [
-    'issuerURL',
-    'clientId',
-    'clientSecret',
-    'scopes',
-    'oidcUsernameClaim',
-    'oidcGroupsClaim'
+    IdentityField.ISSUER_URL,
+    IdentityField.CLIENT_ID,
+    IdentityField.CLIENT_SECRET,
+    IdentityField.SCOPES,
+    IdentityField.OIDC_GROUPS_CLAIM,
+    IdentityField.OIDC_USERNAME_CLAIM
 ];
 
 const ldapValidatedFields: Array<string> = [
-    'endpointIp',
-    'endpointPort',
-    'bindPW',
-    'groupSearchFilter',
-    'userSearchFilter',
-    'userSearchUsername'
+    IdentityField.ENDPOINT_IP,
+    IdentityField.ENDPOINT_PORT,
+    IdentityField.BIND_PW,
+    IdentityField.GROUP_SEARCH_FILTER,
+    IdentityField.USER_SEARCH_FILTER,
+    IdentityField.USER_SEARCH_USERNAME
 ];
 
 const ldapNonValidatedFields: Array<string> = [
-    'bindDN',
-    'userSearchBaseDN',
-    'groupSearchBaseDN',
-    'groupSearchUserAttr',
-    'groupSearchGroupAttr',
-    'groupSearchNameAttr',
-    'ldapRootCAData',
-    'testUserName',
-    'testGroupName'
+    IdentityField.BIND_DN,
+    IdentityField.USER_SEARCH_BASE_DN,
+    IdentityField.GROUP_SEARCH_BASE_DN,
+    IdentityField.GROUP_SEARCH_USER_ATTR,
+    IdentityField.GROUP_SEARCH_GROUP_ATTR,
+    IdentityField.GROUP_SEARCH_NAME_ATTR,
+    IdentityField.LDAP_ROOT_CA,
+    IdentityField.TEST_USER_NAME,
+    IdentityField.TEST_GROUP_NAME
 ];
 
 const LDAP_PARAMS = {
@@ -102,14 +102,14 @@ export class SharedIdentityStepComponent extends StepFormDirective implements On
     }
 
     private customizeForm() {
-        this.registerOnIpFamilyChange('issuerURL', [], [], () => {
+        this.registerOnIpFamilyChange(IdentityField.ISSUER_URL, [], [], () => {
             if (this.identityTypeValue === IdentityManagementType.OIDC) {
                 this.setOIDCValidators();
             } else if (this.identityTypeValue === IdentityManagementType.LDAP) {
                 this.setLDAPValidators();
             }
         });
-        this.formGroup.get('identityType').valueChanges.pipe(
+        this.formGroup.get(IdentityField.IDENTITY_TYPE).valueChanges.pipe(
             distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)),
             takeUntil(this.unsubscribe)
         ).subscribe(data => {
@@ -118,15 +118,15 @@ export class SharedIdentityStepComponent extends StepFormDirective implements On
             this.formGroup.markAsPending();
             if (this.identityTypeValue === IdentityManagementType.OIDC) {
                 this.setOIDCValidators();
-                this.setControlValueSafely('clientSecret', '');
+                this.setControlValueSafely(IdentityField.CLIENT_SECRET, '');
             } else if (this.identityTypeValue === IdentityManagementType.LDAP) {
                 this.setLDAPValidators();
             } else {
-                this.disarmField('identityType', true);
+                this.disarmField(IdentityField.IDENTITY_TYPE, true);
             }
             this.triggerStepDescriptionChange();
         });
-        this.registerStepDescriptionTriggers({fields: ['endpointIp', 'endpointPort',  'issuerURL']});
+        this.registerStepDescriptionTriggers({fields: [IdentityField.ENDPOINT_IP, IdentityField.ENDPOINT_PORT,  IdentityField.ISSUER_URL]});
     }
 
     ngOnInit(): void {
@@ -135,71 +135,71 @@ export class SharedIdentityStepComponent extends StepFormDirective implements On
         this.customizeForm();
 
         this.initFormWithSavedData();
-        this.identityTypeValue = this.getSavedValue('identityType', IdentityManagementType.OIDC);
-        this.setControlValueSafely('identityType', this.identityTypeValue, { emitEvent: false });
+        this.identityTypeValue = this.getSavedValue(IdentityField.IDENTITY_TYPE, IdentityManagementType.OIDC);
+        this.setControlValueSafely(IdentityField.IDENTITY_TYPE, this.identityTypeValue, { emitEvent: false });
     }
 
     setOIDCValidators() {
-        this.resurrectField('issuerURL', [
+        this.resurrectField(IdentityField.ISSUER_URL, [
             Validators.required,
             this.validationService.noWhitespaceOnEnds(),
             this.ipFamily === IpFamilyEnum.IPv4 ?
                 this.validationService.isValidIpOrFqdnWithHttpsProtocol() : this.validationService.isValidIpv6OrFqdnWithHttpsProtocol(),
             this.validationService.isStringWithoutUrlFragment(),
             this.validationService.isStringWithoutQueryParams(),
-        ], this.getSavedValue('issuerURL', ''));
+        ], this.getSavedValue(IdentityField.ISSUER_URL, ''));
 
-        this.resurrectField('clientId', [
+        this.resurrectField(IdentityField.CLIENT_ID, [
             Validators.required,
             this.validationService.noWhitespaceOnEnds()
-        ], this.getSavedValue('clientId', ''));
+        ], this.getSavedValue(IdentityField.CLIENT_ID, ''));
 
-        this.resurrectField('clientSecret', [
+        this.resurrectField(IdentityField.CLIENT_SECRET, [
             Validators.required,
             this.validationService.noWhitespaceOnEnds()
         ], '');
 
-        this.resurrectField('scopes', [
+        this.resurrectField(IdentityField.SCOPES, [
             Validators.required,
             this.validationService.noWhitespaceOnEnds(),
             this.validationService.isCommaSeperatedList()
-        ], this.getSavedValue('scopes', ''));
+        ], this.getSavedValue(IdentityField.SCOPES, ''));
 
-        this.resurrectField('oidcUsernameClaim', [
+        this.resurrectField(IdentityField.OIDC_GROUPS_CLAIM, [
             Validators.required
-        ], this.getSavedValue('oidcUsernameClaim', ''));
+        ], this.getSavedValue(IdentityField.OIDC_GROUPS_CLAIM, ''));
 
-        this.resurrectField('oidcGroupsClaim', [
+        this.resurrectField(IdentityField.OIDC_USERNAME_CLAIM, [
             Validators.required
-        ], this.getSavedValue('oidcGroupsClaim', ''));
+        ], this.getSavedValue(IdentityField.OIDC_USERNAME_CLAIM, ''));
     }
 
     setLDAPValidators() {
-        this.resurrectField('endpointIp', [
+        this.resurrectField(IdentityField.ENDPOINT_IP, [
             Validators.required
-        ], this.getSavedValue('endpointIp', ''));
+        ], this.getSavedValue(IdentityField.ENDPOINT_IP, ''));
 
-        this.resurrectField('endpointPort', [
+        this.resurrectField(IdentityField.ENDPOINT_PORT, [
             Validators.required,
             this.validationService.noWhitespaceOnEnds(),
             this.ipFamily === IpFamilyEnum.IPv4 ?
-                this.validationService.isValidLdap(this.formGroup.get('endpointIp')) :
-                this.validationService.isValidIpv6Ldap(this.formGroup.get('endpointIp'))
-        ], this.getSavedValue('endpointPort', ''));
+                this.validationService.isValidLdap(this.formGroup.get(IdentityField.ENDPOINT_IP)) :
+                this.validationService.isValidIpv6Ldap(this.formGroup.get(IdentityField.ENDPOINT_IP))
+        ], this.getSavedValue(IdentityField.ENDPOINT_PORT, ''));
 
-        this.resurrectField('bindPW', [], '');
+        this.resurrectField(IdentityField.BIND_PW, [], '');
 
-        this.resurrectField('userSearchFilter', [
+        this.resurrectField(IdentityField.USER_SEARCH_FILTER, [
             Validators.required
-        ], this.getSavedValue('userSearchFilter', ''));
+        ], this.getSavedValue(IdentityField.USER_SEARCH_FILTER, ''));
 
-        this.resurrectField('userSearchUsername', [
+        this.resurrectField(IdentityField.USER_SEARCH_USERNAME, [
             Validators.required
-        ], this.getSavedValue('userSearchUsername', ''));
+        ], this.getSavedValue(IdentityField.USER_SEARCH_USERNAME, ''));
 
-        this.resurrectField('groupSearchFilter', [
+        this.resurrectField(IdentityField.GROUP_SEARCH_FILTER, [
             Validators.required
-        ], this.getSavedValue('groupSearchFilter', ''));
+        ], this.getSavedValue(IdentityField.GROUP_SEARCH_FILTER, ''));
 
         ldapNonValidatedFields.forEach(field => this.resurrectField(
             field, [], this.getSavedValue(field, '')));
@@ -210,17 +210,17 @@ export class SharedIdentityStepComponent extends StepFormDirective implements On
     }
 
     toggleIdmSetting() {
-        const identityType = this.formGroup.value['idmSettings'] ? IdentityManagementType.OIDC : IdentityManagementType.NONE;
+        const identityType = this.formGroup.value[IdentityField.IDM_SETTINGS] ? IdentityManagementType.OIDC : IdentityManagementType.NONE;
         // onlySelf option will update the changes for the current control only
-        this.setControlValueSafely('identityType', identityType, { onlySelf: true });
+        this.setControlValueSafely(IdentityField.IDENTITY_TYPE, identityType, { onlySelf: true });
     }
 
     initFormWithSavedData() {
         super.initFormWithSavedData();
-        this.scrubPasswordField('clientSecret');
+        this.scrubPasswordField(IdentityField.CLIENT_SECRET);
 
-        if (!this.formGroup.value['idmSettings']) {
-            this.setControlValueSafely('identityType', IdentityManagementType.NONE);
+        if (!this.formGroup.value[IdentityField.IDM_SETTINGS]) {
+            this.setControlValueSafely(IdentityField.IDENTITY_TYPE, IdentityManagementType.NONE);
         }
     }
 
@@ -228,8 +228,8 @@ export class SharedIdentityStepComponent extends StepFormDirective implements On
      * @method ldapEndpointInputValidity return true if ldap endpoint inputs are valid
      */
     ldapEndpointInputValidity(): boolean {
-        return this.formGroup.get('endpointIp').valid &&
-            this.formGroup.get('endpointPort').valid;
+        return this.formGroup.get(IdentityField.ENDPOINT_IP).valid &&
+            this.formGroup.get(IdentityField.ENDPOINT_PORT).valid;
     }
 
     resetTimelineState() {
@@ -249,7 +249,8 @@ export class SharedIdentityStepComponent extends StepFormDirective implements On
                 console.log("Unable to find field: " + v);
             }
         });
-        ldapParams.ldap_url = "ldaps://" + this.formGroup.get('endpointIp').value + ':' + this.formGroup.get('endpointPort').value;
+        ldapParams.ldap_url = "ldaps://" + this.formGroup.get(IdentityField.ENDPOINT_IP).value + ':' +
+            this.formGroup.get(IdentityField.ENDPOINT_PORT).value;
 
         return ldapParams;
     }
@@ -329,10 +330,10 @@ export class SharedIdentityStepComponent extends StepFormDirective implements On
     }
 
     dynamicDescription(): string {
-        const identityType = this.getFieldValue('identityType', true);
-        const ldapEndpointIp = this.getFieldValue('endpointIp', true);
-        const ldapEndpointPort = this.getFieldValue('endpointPort', true);
-        const oidcIssuer = this.getFieldValue('issuerURL', true);
+        const identityType = this.getFieldValue(IdentityField.IDENTITY_TYPE, true);
+        const ldapEndpointIp = this.getFieldValue(IdentityField.ENDPOINT_IP, true);
+        const ldapEndpointPort = this.getFieldValue(IdentityField.ENDPOINT_PORT, true);
+        const oidcIssuer = this.getFieldValue(IdentityField.ISSUER_URL, true);
 
         if (identityType === IdentityManagementType.OIDC && oidcIssuer) {
             return 'OIDC configured: ' + oidcIssuer;

@@ -7,6 +7,7 @@ import { APIClient } from 'src/app/swagger/api-client.service';
 import AppServices from '../../../../../../../shared/service/appServices';
 import { FieldMapUtilities } from '../../../field-mapping/FieldMapUtilities';
 import { Messenger, TanzuEventType } from 'src/app/shared/service/Messenger';
+import { OsImageField } from './os-image-step.fieldmapping';
 import { SharedModule } from 'src/app/shared/shared.module';
 import { SharedOsImageStepDirective } from './os-image-step.component';
 import { ValidationService } from '../../../validation/validation.service';
@@ -53,14 +54,14 @@ describe('VsphereOsImageStepComponent', () => {
     it('should retrieve os image when function invoked', () => {
         const msgSpy = spyOn(AppServices.messenger, 'publish').and.callThrough();
         component.retrieveOsImages();
-        expect(component.formGroup.get('osImage').value).toBeFalsy();
+        expect(component.formGroup.get(OsImageField.IMAGE).value).toBeFalsy();
         expect(msgSpy).toHaveBeenCalled();
     });
 
     it('should announce description change', () => {
         const msgSpy = spyOn(AppServices.messenger, 'publish').and.callThrough();
         component.ngOnInit();
-        const osImageControl = component.formGroup.get('osImage');
+        const osImageControl = component.formGroup.get(OsImageField.IMAGE);
 
         osImageControl.setValue({});
         expect(component.dynamicDescription()).toEqual(SharedOsImageStepDirective.description);

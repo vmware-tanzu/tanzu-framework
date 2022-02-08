@@ -6,21 +6,23 @@ import { By } from '@angular/platform-browser';
 // App imports
 import { APIClient } from '../../../../swagger/api-client.service';
 import AppServices from 'src/app/shared/service/appServices';
+import { AwsField, AwsForm } from '../aws-wizard.constants';
+import { AWSSubnet } from '../../../../swagger/models';
+import { ClusterPlan } from '../../wizard/shared/constants/wizard.constants';
+import { DataServiceRegistrarTestExtension } from '../../../../testing/data-service-registrar.testextension';
 import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
-import { NodeSettingStepComponent, NodeType } from './node-setting-step.component';
+import { NodeSettingStepComponent } from './node-setting-step.component';
 import { Messenger, TanzuEventType } from 'src/app/shared/service/Messenger';
 import { SharedModule } from '../../../../shared/shared.module';
 import { ValidationService } from '../../wizard/shared/validation/validation.service';
-import { DataServiceRegistrarTestExtension } from '../../../../testing/data-service-registrar.testextension';
-import { AWSSubnet } from '../../../../swagger/models';
-import { AwsField, AwsForm } from '../aws-wizard.constants';
 
 describe('NodeSettingStepComponent', () => {
     let component: NodeSettingStepComponent;
     let fixture: ComponentFixture<NodeSettingStepComponent>;
-    const vpcSubnets = ['vpcPublicSubnet1', 'vpcPrivateSubnet1', 'vpcPublicSubnet2',
-        'vpcPrivateSubnet2', 'vpcPublicSubnet3', 'vpcPrivateSubnet3'];
-    const azs = ['awsNodeAz1', 'awsNodeAz2', 'awsNodeAz3'];
+    const vpcSubnets = [AwsField.NODESETTING_VPC_PUBLIC_SUBNET_1, AwsField.NODESETTING_VPC_PRIVATE_SUBNET_1,
+        AwsField.NODESETTING_VPC_PUBLIC_SUBNET_2, AwsField.NODESETTING_VPC_PRIVATE_SUBNET_2,
+        AwsField.NODESETTING_VPC_PUBLIC_SUBNET_3, AwsField.NODESETTING_VPC_PRIVATE_SUBNET_3];
+    const azs = [AwsField.NODESETTING_AZ_1, AwsField.NODESETTING_AZ_2, AwsField.NODESETTING_AZ_3];
 
     beforeEach(async(() => {
         TestBed.configureTestingModule({
@@ -99,7 +101,7 @@ describe('NodeSettingStepComponent', () => {
 
     it('should return worker node instance type', () => {
         component.formGroup.get("workerNodeInstanceType1").setValue('t3.small');
-        expect(component.formGroup.get('workerNodeInstanceType1').value).toBe('t3.small');
+        expect(component.formGroup.get(AwsField.NODESETTING_WORKERTYPE_1).value).toBe('t3.small');
     });
 
     it('should return environment type', () => {
@@ -108,20 +110,20 @@ describe('NodeSettingStepComponent', () => {
     });
 
     it('should clear availability zone', () => {
-        component.formGroup.get('awsNodeAz1').setValue('us-west-a');
-        component.formGroup.get('awsNodeAz2').setValue('us-west-b');
-        component.formGroup.get('awsNodeAz3').setValue('us-west-c');
+        component.formGroup.get(AwsField.NODESETTING_AZ_1).setValue('us-west-a');
+        component.formGroup.get(AwsField.NODESETTING_AZ_2).setValue('us-west-b');
+        component.formGroup.get(AwsField.NODESETTING_AZ_3).setValue('us-west-c');
         component.clearAzs();
         azs.forEach(az => expect(component.formGroup.get(az).value).toBe(''));
     });
 
     it('should clear subsets', () => {
-        component.formGroup.get('vpcPublicSubnet1').setValue('100.63.0.0/14');
-        component.formGroup.get('vpcPrivateSubnet1').setValue('100.54.0.0/14');
-        component.formGroup.get('vpcPublicSubnet2').setValue('100.63.0.0/14');
-        component.formGroup.get('vpcPrivateSubnet2').setValue('100.54.0.0/14');
-        component.formGroup.get('vpcPublicSubnet3').setValue('100.63.0.0/14');
-        component.formGroup.get('vpcPrivateSubnet3').setValue('100.63.0.0/14');
+        component.formGroup.get(AwsField.NODESETTING_VPC_PUBLIC_SUBNET_1).setValue('100.63.0.0/14');
+        component.formGroup.get(AwsField.NODESETTING_VPC_PRIVATE_SUBNET_1).setValue('100.54.0.0/14');
+        component.formGroup.get(AwsField.NODESETTING_VPC_PUBLIC_SUBNET_2).setValue('100.63.0.0/14');
+        component.formGroup.get(AwsField.NODESETTING_VPC_PRIVATE_SUBNET_2).setValue('100.54.0.0/14');
+        component.formGroup.get(AwsField.NODESETTING_VPC_PUBLIC_SUBNET_3).setValue('100.63.0.0/14');
+        component.formGroup.get(AwsField.NODESETTING_VPC_PRIVATE_SUBNET_3).setValue('100.63.0.0/14');
         component.clearSubnets();
         vpcSubnets.forEach(subnet => expect(component.formGroup.get(subnet).value).toBe(''));
     });
@@ -175,8 +177,8 @@ describe('NodeSettingStepComponent', () => {
             isPublic: false
         }];
 
-        component.filterSubnetsByAZ('awsNodeAz1', 'us-west-a');
-        expect(component.filteredAzs['awsNodeAz1']).toEqual({
+        component.filterSubnetsByAZ(AwsField.NODESETTING_AZ_1, 'us-west-a');
+        expect(component.filteredAzs[AwsField.NODESETTING_AZ_1]).toEqual({
             publicSubnets: [{
                 availabilityZoneId: 'us-west-a',
                 availabilityZoneName: 'us-west-a',
@@ -223,16 +225,16 @@ describe('NodeSettingStepComponent', () => {
                 privateSubnets: [{cidr: '100.63.0.0/14', isPublic: false}]
             }
         }
-        component.formGroup.get('awsNodeAz1').setValue('us-west-a');
-        component.formGroup.get('awsNodeAz2').setValue('us-west-b');
-        component.formGroup.get('awsNodeAz3').setValue('us-west-c');
+        component.formGroup.get(AwsField.NODESETTING_AZ_1).setValue('us-west-a');
+        component.formGroup.get(AwsField.NODESETTING_AZ_2).setValue('us-west-b');
+        component.formGroup.get(AwsField.NODESETTING_AZ_3).setValue('us-west-c');
 
-        component.formGroup.get('vpcPublicSubnet1').setValue('100.63.0.0/14');
-        component.formGroup.get('vpcPrivateSubnet1').setValue('100.54.0.0/14');
-        component.formGroup.get('vpcPublicSubnet2').setValue('100.63.0.0/14');
-        component.formGroup.get('vpcPrivateSubnet2').setValue('100.54.0.0/14');
-        component.formGroup.get('vpcPublicSubnet3').setValue('100.63.0.0/14');
-        component.formGroup.get('vpcPrivateSubnet3').setValue('100.63.0.0/14');
+        component.formGroup.get(AwsField.NODESETTING_VPC_PUBLIC_SUBNET_1).setValue('100.63.0.0/14');
+        component.formGroup.get(AwsField.NODESETTING_VPC_PRIVATE_SUBNET_1).setValue('100.54.0.0/14');
+        component.formGroup.get(AwsField.NODESETTING_VPC_PUBLIC_SUBNET_2).setValue('100.63.0.0/14');
+        component.formGroup.get(AwsField.NODESETTING_VPC_PRIVATE_SUBNET_2).setValue('100.54.0.0/14');
+        component.formGroup.get(AwsField.NODESETTING_VPC_PUBLIC_SUBNET_3).setValue('100.63.0.0/14');
+        component.formGroup.get(AwsField.NODESETTING_VPC_PRIVATE_SUBNET_3).setValue('100.63.0.0/14');
 
         AppServices.messenger.publish({ type: TanzuEventType.AWS_REGION_CHANGED});
         expect(component.publicSubnets).toEqual([]);
@@ -256,8 +258,8 @@ describe('NodeSettingStepComponent', () => {
     });
 
     it('should handle aws vpc type change', () => {
-        component.formGroup.get('vpcPublicSubnet1').setValue('100.63.0.0/14');
-        component.formGroup.get('vpcPrivateSubnet1').setValue('100.54.0.0/14');
+        component.formGroup.get(AwsField.NODESETTING_VPC_PUBLIC_SUBNET_1).setValue('100.63.0.0/14');
+        component.formGroup.get(AwsField.NODESETTING_VPC_PRIVATE_SUBNET_1).setValue('100.54.0.0/14');
 
         const spySubnets = [];
         vpcSubnets.forEach(vpcSubnet => spySubnets.push(spyOn(component.formGroup.get(vpcSubnet), 'setValidators').and.callThrough()));
@@ -298,7 +300,7 @@ describe('NodeSettingStepComponent', () => {
         const msgSpy = spyOn(AppServices.messenger, 'publish').and.callThrough();
 
         component.ngOnInit();
-        component.nodeType = '';
+        component.clusterPlan = '';
         const description = component.dynamicDescription();
         expect(description).toEqual('Specify the resources backing the  cluster');
 
@@ -313,7 +315,7 @@ describe('NodeSettingStepComponent', () => {
         });
 
         const controlPlaneSettingControl = component.formGroup.controls[AwsField.NODESETTING_CONTROL_PLANE_SETTING];
-        controlPlaneSettingControl.setValue(NodeType.DEV);
+        controlPlaneSettingControl.setValue(ClusterPlan.DEV);
         expect(msgSpy).toHaveBeenCalledWith({
             type: TanzuEventType.STEP_DESCRIPTION_CHANGE,
             payload: {
@@ -323,7 +325,7 @@ describe('NodeSettingStepComponent', () => {
             }
         });
 
-        controlPlaneSettingControl.setValue(NodeType.PROD);
+        controlPlaneSettingControl.setValue(ClusterPlan.PROD);
         expect(msgSpy).toHaveBeenCalledWith({
             type: TanzuEventType.STEP_DESCRIPTION_CHANGE,
             payload: {

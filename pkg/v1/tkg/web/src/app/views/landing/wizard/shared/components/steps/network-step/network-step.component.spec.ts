@@ -6,6 +6,7 @@ import { APIClient } from 'src/app/swagger/api-client.service';
 import AppServices from 'src/app/shared/service/appServices';
 import { FieldMapUtilities } from '../../../field-mapping/FieldMapUtilities';
 import { Messenger, TanzuEventType } from 'src/app/shared/service/Messenger';
+import { NetworkField } from './network-step.fieldmapping';
 import { SharedModule } from 'src/app/shared/shared.module';
 import { SharedNetworkStepComponent } from "./network-step.component";
 import { ValidationService } from '../../../validation/validation.service';
@@ -95,8 +96,8 @@ describe('networkStepComponent', () => {
 
     it('should announce description change', () => {
         const msgSpy = spyOn(AppServices.messenger, 'publish').and.callThrough();
-        const serviceCidrControl = component.formGroup.controls['clusterServiceCidr'];
-        const podCidrControl = component.formGroup.controls['clusterPodCidr'];
+        const serviceCidrControl = component.formGroup.controls[NetworkField.CLUSTER_SERVICE_CIDR];
+        const podCidrControl = component.formGroup.controls[NetworkField.CLUSTER_POD_CIDR];
 
         serviceCidrControl.setValue('');
         podCidrControl.setValue('');

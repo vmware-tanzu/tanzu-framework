@@ -2,6 +2,10 @@ export enum ResourceGroupOption {
     EXISTING = 'existing',
     CUSTOM = 'custom',
 }
+export enum VnetOptionType {
+    EXISTING = 'existing',
+    CUSTOM = 'custom',
+}
 export enum AzureCloud {
     PUBLIC = 'AzurePublicCloud',
     GOVT = 'AzureUSGovernmentCloud',
@@ -9,19 +13,15 @@ export enum AzureCloud {
 export enum AzureForm {
     PROVIDER = 'azureProviderForm',
     NODESETTING = 'azureNodeSettingForm',
-    METADATA = 'metadataForm',
-    NETWORK = 'networkForm',
-    CEIP = 'ceipOptInForm',
-    IDENTITY = 'identityForm',
-    OSIMAGE = 'osImageForm',
     VNET = 'vnetForm'
 }
 export enum AzureField {
     NODESETTING_CONTROL_PLANE_SETTING = 'controlPlaneSetting',
+    NODESETTING_ENABLE_AUDIT_LOGGING = 'enableAuditLogging',
     NODESETTING_INSTANCE_TYPE_DEV = 'devInstanceType',
     NODESETTING_INSTANCE_TYPE_PROD = 'prodInstanceType',
     NODESETTING_MACHINE_HEALTH_CHECKS_ENABLED = 'machineHealthChecksEnabled',
-    NODESETTING_MANAMGEMENT_CLUSTER_NAME = 'managementClusterName',
+    NODESETTING_MANAGEMENT_CLUSTER_NAME = 'managementClusterName',
     NODESETTING_WORKERTYPE = 'workerNodeInstanceType',
 
 /*

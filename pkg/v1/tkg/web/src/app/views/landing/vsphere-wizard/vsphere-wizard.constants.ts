@@ -20,6 +20,8 @@ export const VsphereNodeTypes: Array<NodeType> = [
 ];
 
 export enum VsphereField {
+    NETWORK_NAME = 'networkName',
+
     NODESETTING_CLUSTER_NAME = 'clusterName',
     NODESETTING_CONTROL_PLANE_ENDPOINT_IP = 'controlPlaneEndpointIP',
     NODESETTING_CONTROL_PLANE_ENDPOINT_PROVIDER = 'controlPlaneEndpointProvider',
@@ -43,4 +45,10 @@ export enum VsphereField {
     RESOURCE_DATASTORE = 'datastore',
     RESOURCE_POOL = 'resourcePool',
     RESOURCE_VMFOLDER = 'vmFolder',
+}
+
+export enum VsphereForm {
+    NODESETTING = 'vsphereNodeSettingForm',
+    PROVIDER = 'vsphereProviderForm',
+    RESOURCE = 'resourceForm',
 }

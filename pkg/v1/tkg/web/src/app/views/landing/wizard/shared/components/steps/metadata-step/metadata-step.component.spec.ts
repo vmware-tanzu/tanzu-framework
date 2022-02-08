@@ -12,6 +12,7 @@ import { MetadataStepComponent } from './metadata-step.component';
 import { SharedModule } from '../../../../../../../shared/shared.module';
 import { ValidationService } from '../../../validation/validation.service';
 import { WizardForm } from '../../../constants/wizard.constants';
+import { MetadataField } from './metadata-step.fieldmapping';
 
 describe('MetadataStepComponent', () => {
     let component: MetadataStepComponent;
@@ -62,7 +63,7 @@ describe('MetadataStepComponent', () => {
 
     it('should announce description change', () => {
         const msgSpy = spyOn(AppServices.messenger, 'publish').and.callThrough();
-        const locationControl = component.formGroup.controls['clusterLocation'];
+        const locationControl = component.formGroup.controls[MetadataField.CLUSTER_LOCATION];
 
         component.setClusterTypeDescriptor('CLOWN');
         expect(msgSpy).toHaveBeenCalledWith({

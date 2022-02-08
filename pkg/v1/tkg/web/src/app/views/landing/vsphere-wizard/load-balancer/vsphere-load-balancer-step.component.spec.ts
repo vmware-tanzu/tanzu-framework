@@ -63,7 +63,7 @@ describe('VsphereLoadBalancerStepComponent', () => {
     it('should announce description change', () => {
         const msgSpy = spyOn(AppServices.messenger, 'publish').and.callThrough();
         component.ngOnInit();
-        const controllerHostControl = component.formGroup.get('controllerHost');
+        const controllerHostControl = component.formGroup.get(LoadBalancerField.CONTROLLER_HOST);
 
         expect(component.dynamicDescription()).toEqual(VsphereLoadBalancerStepComponent.description);
 

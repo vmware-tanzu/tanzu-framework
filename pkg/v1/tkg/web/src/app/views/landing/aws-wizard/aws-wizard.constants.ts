@@ -2,28 +2,18 @@ export enum CredentialType {
     ONETIME = 'oneTimeCredentials',
     PROFILE = 'credentialProfile'
 }
+
 export enum VpcType {
     EXISTING = 'existing',
     NEW = 'new'
 }
-export enum AwsStep {
-    PROVIDER = 'provider',
-    VPC = 'vpc',
-    NODESETTING = 'nodeSetting',
-    NETWORK = 'network',
-    METADATA = 'metadata',
-    IDENTITY = 'identity',
-    OSIMAGE = 'osImage'
-}
+
 export enum AwsForm {
     PROVIDER = 'awsProviderForm',
     VPC = 'vpcForm',
     NODESETTING = 'awsNodeSettingForm',
-    NETWORK = 'networkForm',
-    METADATA = 'metadataForm',
-    IDENTITY = 'identityForm',
-    OSIMAGE = 'osImageForm'
 }
+
 export enum AwsField {
     NODESETTING_AZ_1 = 'awsNodeAz1',
     NODESETTING_AZ_2 = 'awsNodeAz2',
@@ -32,6 +22,7 @@ export enum AwsField {
     NODESETTING_CLUSTER_NAME = 'clusterName',
     NODESETTING_CONTROL_PLANE_SETTING = 'controlPlaneSetting',
     NODESETTING_CREATE_CLOUD_FORMATION = 'createCloudFormation',
+    NODESETTING_ENABLE_AUDIT_LOGGING = 'enableAuditLogging',
     NODESETTING_INSTANCE_TYPE_DEV = 'devInstanceType',
     NODESETTING_INSTANCE_TYPE_PROD = 'prodInstanceType',
     NODESETTING_MACHINE_HEALTH_CHECKS_ENABLED = 'machineHealthChecksEnabled',
@@ -57,5 +48,7 @@ export enum AwsField {
     VPC_EXISTING_CIDR = 'existingVpcCidr',
     VPC_NEW_CIDR = 'vpc',
     VPC_NON_INTERNET_FACING = 'nonInternetFacingVPC',
+    VPC_PRIVATE_NODE_CIDR = 'privateNodeCidr',
+    VPC_PUBLIC_NODE_CIDR = 'publicNodeCidr',
     VPC_TYPE = 'vpcType'
 }
