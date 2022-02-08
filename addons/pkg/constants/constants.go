@@ -113,9 +113,6 @@ const (
 	// DiscoveryCacheInvalidateInterval is the interval for invalidating cache
 	DiscoveryCacheInvalidateInterval = time.Minute * 10
 
-	// PackageNameLabel is the label on the cloned objects namely Secrets and Providers by "TanzuClusterBootstrap" Reconciler to indicate the package name
-	PackageNameLabel = "tkg.tanzu.vmware.com/package-name"
-
 	// ClusterKind is the Kind for cluster-api Cluster object
 	ClusterKind = "cluster"
 

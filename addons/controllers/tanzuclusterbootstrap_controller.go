@@ -359,7 +359,7 @@ func (r *TanzuClusterBootstrapReconciler) cloneSecretsAndProviders(cluster *clus
 		if pkg == nil {
 			continue
 		}
-		secret, provider, err := r.updateValues(cluster, bootstrap, pkg.ValuesFrom, templateNS, pkg.RefName, log)
+		secret, provider, err := r.updateValues(cluster, bootstrap, pkg, templateNS, log)
 		if err != nil {
 			return nil, nil, err
 		}
@@ -376,21 +376,21 @@ func (r *TanzuClusterBootstrapReconciler) cloneSecretsAndProviders(cluster *clus
 
 // updateValues updates secretRef and/or providerRef
 func (r *TanzuClusterBootstrapReconciler) updateValues(cluster *clusterapiv1beta1.Cluster, bootstrap *runtanzuv1alpha3.TanzuClusterBootstrap,
-	valuesFrom *runtanzuv1alpha3.ValuesFrom, templateNS string, packageRefName string, log logr.Logger) (*corev1.Secret, *unstructured.Unstructured, error) {
+	pkg *runtanzuv1alpha3.TanzuClusterBootstrapPackage, templateNS string, log logr.Logger) (*corev1.Secret, *unstructured.Unstructured, error) {
 
-	if valuesFrom == nil {
+	if pkg.ValuesFrom == nil {
 		return nil, nil, nil
 	}
-	if valuesFrom.SecretRef != "" {
-		secret, err := r.updateValuesFromSecret(cluster, bootstrap, valuesFrom, templateNS, packageRefName, log)
+	if pkg.ValuesFrom.SecretRef != "" {
+		secret, err := r.updateValuesFromSecret(cluster, bootstrap, pkg, templateNS, log)
 		if err != nil {
 			return nil, nil, err
 		}
 		return secret, nil, nil
 	}
 
-	if valuesFrom.ProviderRef != nil {
-		provider, err := r.updateValuesFromProvider(cluster, bootstrap, valuesFrom, templateNS, packageRefName, log)
+	if pkg.ValuesFrom.ProviderRef != nil {
+		provider, err := r.updateValuesFromProvider(cluster, bootstrap, pkg, templateNS, log)
 		if err != nil {
 			return nil, nil, err
 		}
@@ -480,12 +480,12 @@ func (r *TanzuClusterBootstrapReconciler) periodicGVRCachesClean() {
 
 // updateValuesFromSecret updates secretRef in valuesFrom
 func (r *TanzuClusterBootstrapReconciler) updateValuesFromSecret(cluster *clusterapiv1beta1.Cluster, bootstrap *runtanzuv1alpha3.TanzuClusterBootstrap,
-	valuesFrom *runtanzuv1alpha3.ValuesFrom, templateNS string, packageRefName string, log logr.Logger) (*corev1.Secret, error) {
+	pkg *runtanzuv1alpha3.TanzuClusterBootstrapPackage, templateNS string, log logr.Logger) (*corev1.Secret, error) {
 
 	var newSecret *corev1.Secret
-	if valuesFrom.SecretRef != "" {
+	if pkg.ValuesFrom.SecretRef != "" {
 		secret := &corev1.Secret{}
-		key := client.ObjectKey{Namespace: templateNS, Name: valuesFrom.SecretRef}
+		key := client.ObjectKey{Namespace: templateNS, Name: pkg.ValuesFrom.SecretRef}
 		if err := r.Get(r.context, key, secret); err != nil {
 			log.Error(err, "unable to fetch secret", "objectkey", key)
 			return nil, err
@@ -500,16 +500,20 @@ func (r *TanzuClusterBootstrapReconciler) updateValuesFromSecret(cluster *cluste
 			},
 		}
 		// Add cluster and package labels to cloned secrets
-		newSecret.Labels = map[string]string{
-			constants.PackageNameLabel:  packageRefName,
-			addontypes.ClusterNameLabel: cluster.Name,
+
+		if newSecret.Labels == nil {
+			newSecret.Labels = map[string]string{}
 		}
-		newSecret.Name = fmt.Sprintf("%s-%s-package", cluster.Name, packageShortName(packageRefName))
+
+		newSecret.Labels[addontypes.PackageNameLabel] = pkg.RefName
+		newSecret.Labels[addontypes.ClusterNameLabel] = cluster.Name
+
+		newSecret.Name = fmt.Sprintf("%s-%s-package", cluster.Name, packageShortName(pkg.RefName))
 		newSecret.Namespace = bootstrap.Namespace
 		if err := r.Create(r.context, newSecret); err != nil {
 			return nil, err
 		}
-		valuesFrom.SecretRef = newSecret.Name
+		pkg.ValuesFrom.SecretRef = newSecret.Name
 	}
 
 	return newSecret, nil
@@ -517,9 +521,10 @@ func (r *TanzuClusterBootstrapReconciler) updateValuesFromSecret(cluster *cluste
 
 // updateValuesFromProvider updates providerRef in valuesFrom
 func (r *TanzuClusterBootstrapReconciler) updateValuesFromProvider(cluster *clusterapiv1beta1.Cluster, bootstrap *runtanzuv1alpha3.TanzuClusterBootstrap,
-	valuesFrom *runtanzuv1alpha3.ValuesFrom, templateNS string, packageRefName string, log logr.Logger) (*unstructured.Unstructured, error) {
+	pkg *runtanzuv1alpha3.TanzuClusterBootstrapPackage, templateNS string, log logr.Logger) (*unstructured.Unstructured, error) {
 
 	var newProvider *unstructured.Unstructured
+	valuesFrom := pkg.ValuesFrom
 	if valuesFrom.ProviderRef != nil {
 		gvr, err := r.getGVR(schema.GroupKind{Group: *valuesFrom.ProviderRef.APIGroup, Kind: valuesFrom.ProviderRef.Kind})
 		if err != nil {
@@ -542,11 +547,18 @@ func (r *TanzuClusterBootstrapReconciler) updateValuesFromProvider(cluster *clus
 			},
 		})
 		// Add cluster and package labels to cloned providers
-		newProvider.SetLabels(map[string]string{
-			constants.PackageNameLabel:  packageRefName,
-			addontypes.ClusterNameLabel: cluster.Name,
-		})
-		newProvider.SetName(fmt.Sprintf("%s-%s-package", cluster.Name, packageShortName(packageRefName)))
+		providerLabels := newProvider.GetLabels()
+		if providerLabels == nil {
+			newProvider.SetLabels(map[string]string{
+				addontypes.PackageNameLabel: pkg.RefName,
+				addontypes.ClusterNameLabel: cluster.Name,
+			})
+		} else {
+			providerLabels[addontypes.PackageNameLabel] = pkg.RefName
+			providerLabels[addontypes.ClusterNameLabel] = cluster.Name
+		}
+
+		newProvider.SetName(fmt.Sprintf("%s-%s-package", cluster.Name, packageShortName(pkg.RefName)))
 		log.Info("cloning provider", "provider", newProvider)
 		newProvider, err = r.dynamicClient.Resource(*gvr).Namespace(bootstrap.Namespace).Create(r.context, newProvider, metav1.CreateOptions{})
 		if err != nil {

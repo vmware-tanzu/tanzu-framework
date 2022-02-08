@@ -14,6 +14,9 @@ const (
 	// ClusterNameLabel is the label on the Secret to indicate the cluster on which addon is to be installed
 	ClusterNameLabel = "tkg.tanzu.vmware.com/cluster-name"
 
+	// PackageNameLabel is the label on the cloned objects namely Secrets and Providers by "TanzuClusterBootstrap" Reconciler to indicate the package name
+	PackageNameLabel = "tkg.tanzu.vmware.com/package-name"
+
 	// YttMarkerAnnotation is the key for an annotation that indicates that data secret has Ytt markers
 	YttMarkerAnnotation = "ext.packaging.carvel.dev/ytt-data-values-overlays"
 

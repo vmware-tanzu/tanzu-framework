@@ -17,6 +17,7 @@ import (
 	"sigs.k8s.io/cluster-api/util/secret"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
+	addontypes "github.com/vmware-tanzu/tanzu-framework/addons/pkg/types"
 	"github.com/vmware-tanzu/tanzu-framework/addons/testutil"
 	runtanzuv1alpha3 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
 )
@@ -123,8 +124,8 @@ var _ = Describe("TanzuClusterBootstrap Reconciler", func() {
 					}
 				}
 				providerLabels := object.GetLabels()
-				if providerLabels["tkg.tanzu.vmware.com/cluster-name"] == clusterName &&
-					providerLabels["tkg.tanzu.vmware.com/package-name"] == fooPackage.RefName {
+				if providerLabels[addontypes.ClusterNameLabel] == clusterName &&
+					providerLabels[addontypes.PackageNameLabel] == fooPackage.RefName {
 					foundLabels = true
 				}
 
