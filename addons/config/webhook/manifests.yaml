@@ -1,0 +1,91 @@
+
+---
+apiVersion: admissionregistration.k8s.io/v1beta1
+kind: MutatingWebhookConfiguration
+metadata:
+  creationTimestamp: null
+  name: mutating-webhook-configuration
+webhooks:
+- clientConfig:
+    #placeholder for cabundle. To be modifed by patch or programatically.
+    caBundle: Cg==
+    service:
+      name: webhook-service
+      namespace: system
+      path: /mutate-cni-tanzu-vmware-com-v1alpha1-calicoconfig
+  failurePolicy: Fail
+  name: mcalicoconfig.kb.io
+  rules:
+  - apiGroups:
+    - cni.tanzu.vmware.com
+    apiVersions:
+    - v1alpha1
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - calicoconfigs
+- clientConfig:
+    #placeholder for cabundle. To be modifed by patch or programatically.
+    caBundle: Cg==
+    service:
+      name: webhook-service
+      namespace: system
+      path: /mutate-cni-tanzu-vmware-com-v1alpha1-antreaconfig
+  failurePolicy: Fail
+  name: mantreaconfig.kb.io
+  rules:
+    - apiGroups:
+        - cni.tanzu.vmware.com
+      apiVersions:
+        - v1alpha1
+      operations:
+        - CREATE
+        - UPDATE
+      resources:
+        - antreaconfigs
+---
+apiVersion: admissionregistration.k8s.io/v1beta1
+kind: ValidatingWebhookConfiguration
+metadata:
+  creationTimestamp: null
+  name: validating-webhook-configuration
+webhooks:
+- clientConfig:
+    #placeholder for cabundle. To be modifed by patch or programatically.
+    caBundle: Cg==
+    service:
+      name: webhook-service
+      namespace: system
+      path: /validate-cni-tanzu-vmware-com-v1alpha1-calicoconfig
+  failurePolicy: Fail
+  name: vcalicoconfig.kb.io
+  rules:
+  - apiGroups:
+    - cni.tanzu.vmware.com
+    apiVersions:
+    - v1alpha1
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - calicoconfigs
+- clientConfig:
+    #placeholder for cabundle. To be modifed by patch or programatically.
+    caBundle: Cg==
+    service:
+      name: webhook-service
+      namespace: system
+      path: /validate-cni-tanzu-vmware-com-v1alpha1-antreaconfig
+  failurePolicy: Fail
+  name: vantreaconfig.kb.io
+  rules:
+    - apiGroups:
+        - cni.tanzu.vmware.com
+      apiVersions:
+        - v1alpha1
+      operations:
+        - CREATE
+        - UPDATE
+      resources:
+        - antreaconfigs
