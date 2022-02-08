@@ -68,12 +68,12 @@ export class VSphereWizardComponent extends WizardBaseDirective implements OnIni
         });
     }
 
-    protected supplyFileImportedEvent(): TkgEventType {
-        return TkgEventType.VSPHERE_CONFIG_FILE_IMPORTED;
+    protected supplyFileImportedEvent(): TanzuEventType {
+        return TanzuEventType.VSPHERE_CONFIG_FILE_IMPORTED;
     }
 
-    protected supplyFileImportErrorEvent(): TkgEventType {
-        return TkgEventType.VSPHERE_CONFIG_FILE_IMPORT_ERROR;
+    protected supplyFileImportErrorEvent(): TanzuEventType {
+        return TanzuEventType.VSPHERE_CONFIG_FILE_IMPORT_ERROR;
     }
 
     protected supplyWizardName(): string {

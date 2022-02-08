@@ -72,8 +72,6 @@ export class SharedLoadBalancerStepComponent extends StepFormDirective implement
 
                         // If connection cleared, toggle validators OFF
                         this.toggleValidators(false);
-
-                        console.log('load balance connection => FALSE due to field "' + field + '" getting new value=' + newValue);
                     }
                 });
         });

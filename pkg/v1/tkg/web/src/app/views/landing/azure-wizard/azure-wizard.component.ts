@@ -26,6 +26,8 @@ import { ImportParams, ImportService } from "../../../shared/service/import.serv
 import { NodeSettingStepComponent } from './node-setting-step/node-setting-step.component';
 import { TanzuEventType } from '../../../shared/service/Messenger';
 import { WizardBaseDirective } from '../wizard/shared/wizard-base/wizard-base';
+import { WizardForm } from '../wizard/shared/constants/wizard.constants';
+import { OsImageField } from '../wizard/shared/components/steps/os-image-step/os-image-step.fieldmapping';
 
 @Component({
     selector: 'app-azure-wizard',
@@ -47,12 +49,12 @@ export class AzureWizardComponent extends WizardBaseDirective implements OnInit 
         super(router, el, titleService, formBuilder);
     }
 
-    protected supplyFileImportedEvent(): TkgEventType {
-        return TkgEventType.AZURE_CONFIG_FILE_IMPORTED;
+    protected supplyFileImportedEvent(): TanzuEventType {
+        return TanzuEventType.AZURE_CONFIG_FILE_IMPORTED;
     }
 
-    protected supplyFileImportErrorEvent(): TkgEventType {
-        return TkgEventType.AZURE_CONFIG_FILE_IMPORT_ERROR;
+    protected supplyFileImportErrorEvent(): TanzuEventType {
+        return TanzuEventType.AZURE_CONFIG_FILE_IMPORT_ERROR;
     }
 
     protected supplyWizardName(): string {
@@ -175,7 +177,8 @@ export class AzureWizardComponent extends WizardBaseDirective implements OnInit 
             if (!AppServices.appDataService.isModeClusterStandalone()) {
                 this.storeFieldString(AzureForm.NODESETTING, AzureField.NODESETTING_WORKERTYPE, payload.workerMachineType);
             }
-            this.storeFieldBoolean(AzureForm.NODESETTING, AzureField.NODESETTING_MACHINE_HEALTH_CHECKS_ENABLED, payload.machineHealthCheckEnabled);
+            this.storeFieldBoolean(AzureForm.NODESETTING, AzureField.NODESETTING_MACHINE_HEALTH_CHECKS_ENABLED,
+                payload.machineHealthCheckEnabled);
 
             // Since we cannot tell if the resource group is custom or existing, we load it into the custom field.
             // When the resource groups are retrieved, we have code that will detect if the resource group is existing.
@@ -203,7 +206,7 @@ export class AzureWizardComponent extends WizardBaseDirective implements OnInit 
             }
             this.storeFieldBoolean(AzureForm.NODESETTING, AzureField.NODESETTING_ENABLE_AUDIT_LOGGING, payload.enableAuditLogging);
 
-            this.storeFieldString(WizardForm.OSIMAGE, WizardField.OSIMAGE, payload.os.name);
+            this.storeFieldString(WizardForm.OSIMAGE, OsImageField.IMAGE, payload.os.name);
 
             this.saveCommonFieldsFromPayload(payload);
 

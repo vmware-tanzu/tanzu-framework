@@ -43,7 +43,8 @@ describe('IdentityStepComponent', () => {
         component = fixture.componentInstance;
         // NOTE: using Azure file import stuff just to test
         component.setStepRegistrantData({ wizard: 'BozoWizard', step: WizardForm.IDENTITY, formGroup: new FormBuilder().group({}),
-            eventFileImported: TanzuEventType.AZURE_CONFIG_FILE_IMPORTED, eventFileImportError: TanzuEventType.AZURE_CONFIG_FILE_IMPORT_ERROR});
+            eventFileImported: TanzuEventType.AZURE_CONFIG_FILE_IMPORTED,
+            eventFileImportError: TanzuEventType.AZURE_CONFIG_FILE_IMPORT_ERROR});
         fixture.detectChanges();
     });
 

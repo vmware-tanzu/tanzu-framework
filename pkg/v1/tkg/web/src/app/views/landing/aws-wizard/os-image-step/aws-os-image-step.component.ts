@@ -23,11 +23,11 @@ export class AwsOsImageStepComponent extends SharedOsImageStepDirective<AWSVirtu
         };
     }
 
-    protected supplyImportFileSuccessEvent(): TkgEventType {
-        return TkgEventType.AWS_CONFIG_FILE_IMPORTED;
+    protected supplyImportFileSuccessEvent(): TanzuEventType {
+        return TanzuEventType.AWS_CONFIG_FILE_IMPORTED;
     }
 
-    protected supplyImportFileFailureEvent(): TkgEventType {
-        return TkgEventType.AWS_CONFIG_FILE_IMPORT_ERROR;
+    protected supplyImportFileFailureEvent(): TanzuEventType {
+        return TanzuEventType.AWS_CONFIG_FILE_IMPORT_ERROR;
     }
 }

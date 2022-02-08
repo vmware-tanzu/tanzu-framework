@@ -43,8 +43,8 @@ export interface StepRegistrantData {
     wizard: string,                     // the name of the wizard that is using this step
     step: string,                       // the name the wizard has for this step
     formGroup: FormGroup,               // the FormGroup the wizard has created for the step to use for all its field controls
-    eventFileImported: TkgEventType,    // the event the wizard broadcasts when the user has successfully imported a config file
-    eventFileImportError: TkgEventType, // the event the wizard broadcasts when an error occurs during file import
+    eventFileImported: TanzuEventType,    // the event the wizard broadcasts when the user has successfully imported a config file
+    eventFileImportError: TanzuEventType, // the event the wizard broadcasts when an error occurs during file import
 }
 
 @Directive()
@@ -83,9 +83,9 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Wiz
     }
 
     // supplyFileImportedEvent() allows the child class to give this class the event to broadcast on successful file import
-    protected abstract supplyFileImportedEvent(): TkgEventType;
+    protected abstract supplyFileImportedEvent(): TanzuEventType;
     // supplyFileImportErrorEvent() allows the child class to give this class the event to broadcast on file import error
-    protected abstract supplyFileImportErrorEvent(): TkgEventType;
+    protected abstract supplyFileImportErrorEvent(): TanzuEventType;
     // supplyStepData() allows the child class gives this class the data for the steps.
     protected abstract supplyStepData(): FormDataForHTML[];
     // supplyWizardName() allows the child class gives this class the wizard name; this is used to identify which wizard a step belongs to

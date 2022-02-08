@@ -2,10 +2,10 @@
 import { takeUntil } from 'rxjs/operators';
 
 // App imports
-import { TanzuEventType } from './Messenger';
 import AppServices from './appServices';
 import { Observable, ReplaySubject } from 'rxjs';
 import { StepFormDirective } from '../../views/landing/wizard/shared/step-form/step-form';
+import { TanzuEventType } from './Messenger';
 
 // The intention of this class is to allow:
 // REGISTER of a TanzuEventType with a "fetcher" that will get data from the backend when that event is broadcast. This is typically
@@ -105,7 +105,7 @@ export default class DataServiceRegistrar {
                        onDataReceived: (data: OBJ[]) => void, onError?: (error: string) => void): boolean {
         const serviceBrokerEntry: DataServiceRegistrarEntry<OBJ> = this.getEntry<OBJ>(eventType);
         if (!serviceBrokerEntry) {
-            console.error('Event ' + TkgEventType[eventType] + ' was not registered with the service broker before ' + step.formName +
+            console.error('Event ' + TanzuEventType[eventType] + ' was not registered with the service broker before ' + step.formName +
                 ' tried to subscribe to it.');
             return false;
         }
@@ -125,7 +125,7 @@ export default class DataServiceRegistrar {
         if (result) {
             return result;
         }
-        console.error('DataServiceRegistrar tried to get entry for event ' + TkgEventType[eventType] + ' but no such event has been' +
+        console.error('DataServiceRegistrar tried to get entry for event ' + TanzuEventType[eventType] + ' but no such event has been' +
         ' registered');
         return null;
     }

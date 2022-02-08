@@ -148,7 +148,7 @@ export class SharedIdentityStepComponent extends StepFormDirective implements On
                 this.validationService.isValidIpOrFqdnWithHttpsProtocol() : this.validationService.isValidIpv6OrFqdnWithHttpsProtocol(),
             this.validationService.isStringWithoutUrlFragment(),
             this.validationService.isStringWithoutQueryParams(),
-        ], this.getStoredValue(IdentityField.ISSUER_URL, ''));
+        ], this.getStoredValue(IdentityField.ISSUER_URL, IdentityStepMapping, ''));
 
         this.resurrectField(IdentityField.CLIENT_ID, [
             Validators.required,

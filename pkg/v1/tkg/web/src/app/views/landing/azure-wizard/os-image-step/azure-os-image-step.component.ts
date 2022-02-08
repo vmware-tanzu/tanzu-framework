@@ -21,11 +21,11 @@ export class AzureOsImageStepComponent extends SharedOsImageStepDirective<AzureV
         };
     }
 
-    protected supplyImportFileSuccessEvent(): TkgEventType {
-        return TkgEventType.AZURE_CONFIG_FILE_IMPORTED;
+    protected supplyImportFileSuccessEvent(): TanzuEventType {
+        return TanzuEventType.AZURE_CONFIG_FILE_IMPORTED;
     }
 
-    protected supplyImportFileFailureEvent(): TkgEventType {
-        return TkgEventType.AZURE_CONFIG_FILE_IMPORT_ERROR;
+    protected supplyImportFileFailureEvent(): TanzuEventType {
+        return TanzuEventType.AZURE_CONFIG_FILE_IMPORT_ERROR;
     }
 }

@@ -177,7 +177,7 @@ export class VnetStepComponent extends StepFormDirective implements OnInit {
         // into the existing slot. Note that we do this before deciding whether to show the custom or existing options
         this.modifySavedValuesIfVnetCustomNameIsNowExisting();
         const savedVnetCustom = this.getStoredValue(AzureField.VNET_CUSTOM_NAME, this.supplyStepMapping(), '');
-        const optionValue = savedVnetCustom !== '' ? CUSTOM : EXISTING;
+        const optionValue = savedVnetCustom !== '' ? VnetOptionType.CUSTOM : VnetOptionType.EXISTING;
         // NOTE: setting the EXISTING_OR_CUSTOM value will trigger the display to update
         this.setFieldWithStoredValue(AzureField.VNET_EXISTING_OR_CUSTOM, this.supplyStepMapping(), optionValue);
     }

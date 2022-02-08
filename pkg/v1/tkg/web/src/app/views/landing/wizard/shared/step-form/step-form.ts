@@ -48,8 +48,8 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
     htmlFieldLabels: Map<string, string>;
 
     private delayedFieldQueue = [];
-    protected eventFileImported: TkgEventType;
-    protected eventFileImportError: TkgEventType;
+    protected eventFileImported: TanzuEventType;
+    protected eventFileImportError: TanzuEventType;
 
     protected abstract storeUserData();
 

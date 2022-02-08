@@ -46,8 +46,8 @@ export abstract class SharedOsImageStepDirective<IMAGE extends OsImage> extends 
     // This method allows child classes to supply the inputs (rather than having them passed as part of an HTML component tag).
     // This allows this step to follow the same pattern as all the other steps, which only take formGroup and formName as inputs.
     protected abstract supplyProviderInputs(): OsImageProviderInputs;
-    protected abstract supplyImportFileSuccessEvent(): TkgEventType;
-    protected abstract supplyImportFileFailureEvent(): TkgEventType;
+    protected abstract supplyImportFileSuccessEvent(): TanzuEventType;
+    protected abstract supplyImportFileFailureEvent(): TanzuEventType;
 
     private subscribeToProviderEvent() {
         // we register a handler for when our event receives data, namely that we'll populate our array of osImages
@@ -60,7 +60,7 @@ export abstract class SharedOsImageStepDirective<IMAGE extends OsImage> extends 
         if (this.osImages.length === 1) {
             this.setControlValueSafely(OsImageField.IMAGE, images[0]);
         } else {
-            const fieldMapping = AppServices.fieldMapUtilities.getFieldMapping(WizardField.OSIMAGE, this.supplyStepMapping());
+            const fieldMapping = AppServices.fieldMapUtilities.getFieldMapping(OsImageField.IMAGE, this.supplyStepMapping());
             AppServices.userDataFormService.restoreField(this.createUserDataIdentifier(fieldMapping.name), fieldMapping,
                 this.formGroup, {}, this.getImageFromStoredValue.bind(this));
         }

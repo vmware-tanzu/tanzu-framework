@@ -17,7 +17,7 @@ import { ExportService } from "../../../shared/service/export.service";
 import { ImportParams, ImportService } from "../../../shared/service/import.service";
 import { NetworkField } from '../wizard/shared/components/steps/network-step/network-step.fieldmapping';
 import { NodeSettingStepComponent } from './node-setting-step/node-setting-step.component';
-import { TkgEventType } from '../../../shared/service/Messenger';
+import { TanzuEventType } from '../../../shared/service/Messenger';
 import { WizardBaseDirective } from '../wizard/shared/wizard-base/wizard-base';
 import { WizardForm } from '../wizard/shared/constants/wizard.constants';
 
@@ -40,12 +40,12 @@ export class DockerWizardComponent extends WizardBaseDirective implements OnInit
         super(router, el, titleService, formBuilder);
     }
 
-    protected supplyFileImportedEvent(): TkgEventType {
-        return TkgEventType.DOCKER_CONFIG_FILE_IMPORTED;
+    protected supplyFileImportedEvent(): TanzuEventType {
+        return TanzuEventType.DOCKER_CONFIG_FILE_IMPORTED;
     }
 
-    protected supplyFileImportErrorEvent(): TkgEventType {
-        return TkgEventType.DOCKER_CONFIG_FILE_IMPORT_ERROR;
+    protected supplyFileImportErrorEvent(): TanzuEventType {
+        return TanzuEventType.DOCKER_CONFIG_FILE_IMPORT_ERROR;
     }
 
     protected supplyWizardName(): string {
@@ -213,7 +213,7 @@ export class DockerWizardComponent extends WizardBaseDirective implements OnInit
         return this.apiClient.importTKGConfigForVsphere( { params: { filecontents: fileContents } } );
     }
 
-    importFileProcessClusterParams(event: TkgEventType, nameFile: string, dockerClusterParams: DockerRegionalClusterParams) {
+    importFileProcessClusterParams(event: TanzuEventType, nameFile: string, dockerClusterParams: DockerRegionalClusterParams) {
         this.setFromPayload(dockerClusterParams);
         this.resetToFirstStep();
         this.importService.publishImportSuccess(event, nameFile);
