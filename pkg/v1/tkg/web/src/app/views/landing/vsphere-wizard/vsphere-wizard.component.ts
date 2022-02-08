@@ -21,7 +21,6 @@ import { NodeSettingStepComponent } from './node-setting-step/node-setting-step.
 import { PROVIDERS, Providers } from '../../../shared/constants/app.constants';
 import { ResourceStepComponent } from './resource-step/resource-step.component';
 import { TanzuEventType } from '../../../shared/service/Messenger';
-import { VsphereField } from './vsphere-wizard.constants';
 import {
     VSphereDatastore,
     VSphereFolder,
