@@ -17,6 +17,7 @@ import (
 	"sigs.k8s.io/cluster-api/util/secret"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
+	addontypes "github.com/vmware-tanzu/tanzu-framework/addons/pkg/types"
 	"github.com/vmware-tanzu/tanzu-framework/addons/testutil"
 	runtanzuv1alpha3 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
 )
@@ -113,6 +114,7 @@ var _ = Describe("TanzuClusterBootstrap Reconciler", func() {
 
 				var foundClusterOwnerRef bool
 				var foundTanzuClusterBootstrapOwnerRef bool
+				var foundLabels bool
 				for _, ownerRef := range object.GetOwnerReferences() {
 					if ownerRef.UID == cluster.UID {
 						foundClusterOwnerRef = true
@@ -121,8 +123,13 @@ var _ = Describe("TanzuClusterBootstrap Reconciler", func() {
 						foundTanzuClusterBootstrapOwnerRef = true
 					}
 				}
+				providerLabels := object.GetLabels()
+				if providerLabels[addontypes.ClusterNameLabel] == clusterName &&
+					providerLabels[addontypes.PackageNameLabel] == fooPackage.RefName {
+					foundLabels = true
+				}
 
-				if foundClusterOwnerRef && foundTanzuClusterBootstrapOwnerRef {
+				if foundClusterOwnerRef && foundTanzuClusterBootstrapOwnerRef && foundLabels {
 					return true
 				}
 				return false
