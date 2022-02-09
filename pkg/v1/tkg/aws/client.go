@@ -432,7 +432,6 @@ func isSupportedInstance(instanceInfo *ec2.InstanceTypeInfo) bool {
 
 // isSupportedCPUArchitecture checks if the node includes unsupported CPU architecture
 func isSupportedCPUArchitecture(instanceInfo *ec2.InstanceTypeInfo) bool {
-
 	// SupportedArchitectures []*string is a list of CPU architectures which are supported in the instance type
 	// if arm64 is present then exclude this instance type
 	for _, cpu := range instanceInfo.ProcessorInfo.SupportedArchitectures {
