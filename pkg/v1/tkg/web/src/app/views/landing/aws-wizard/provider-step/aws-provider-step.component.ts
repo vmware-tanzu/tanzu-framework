@@ -1,8 +1,8 @@
 // Angular imports
-import {Component, OnInit} from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 // Third party imports
-import {catchError, debounceTime, distinctUntilChanged, takeUntil} from 'rxjs/operators';
-import {forkJoin, of} from 'rxjs';
+import { catchError, debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
+import { forkJoin, of } from 'rxjs';
 // App imports
 import { APIClient } from '../../../../swagger/api-client.service';
 import AppServices from '../../../../shared/service/appServices';
@@ -12,7 +12,7 @@ import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUti
 import { FormMetaDataStore } from "../../wizard/shared/FormMetaDataStore";
 import { NotificationTypes } from "../../../../shared/components/alert-notification/alert-notification.component";
 import { StepFormDirective } from '../../wizard/shared/step-form/step-form';
-import { TkgEvent, TkgEventType } from '../../../../shared/service/Messenger';
+import { TanzuEvent, TanzuEventType } from '../../../../shared/service/Messenger';
 
 export const AWSAccountParamsKeys = [
     AwsField.PROVIDER_PROFILE_NAME,
@@ -34,7 +34,6 @@ export class AwsProviderStepComponent extends StepFormDirective implements OnIni
     regions = [];
     profileNames: Array<string> = [];
     validCredentials: boolean = false;
-    isProfileChoosen: boolean = false;
 
     constructor(private fieldMapUtilities: FieldMapUtilities, private apiClient: APIClient) {
         super();
@@ -55,9 +54,9 @@ export class AwsProviderStepComponent extends StepFormDirective implements OnIni
 
         if (valid === true) {
             AppServices.dataServiceRegistrar.trigger( [
-                TkgEventType.AWS_GET_EXISTING_VPCS,
-                TkgEventType.AWS_GET_AVAILABILITY_ZONES,
-                TkgEventType.AWS_GET_NODE_TYPES
+                TanzuEventType.AWS_GET_EXISTING_VPCS,
+                TanzuEventType.AWS_GET_AVAILABILITY_ZONES,
+                TanzuEventType.AWS_GET_NODE_TYPES
             ]);
         }
     }
@@ -109,9 +108,9 @@ export class AwsProviderStepComponent extends StepFormDirective implements OnIni
         this.authTypeValue = this.getSavedValue(AwsField.PROVIDER_AUTH_TYPE, CredentialType.PROFILE);
         this.setControlValueSafely(AwsField.PROVIDER_AUTH_TYPE, this.authTypeValue, { emitEvent: false });
 
-        AppServices.messenger.getSubject(TkgEventType.CONFIG_FILE_IMPORTED)
+        AppServices.messenger.getSubject(TanzuEventType.CONFIG_FILE_IMPORTED)
             .pipe(takeUntil(this.unsubscribe))
-            .subscribe((data: TkgEvent) => {
+            .subscribe((data: TanzuEvent) => {
                 this.configFileNotification = {
                     notificationType: NotificationTypes.SUCCESS,
                     message: data.payload
@@ -121,7 +120,7 @@ export class AwsProviderStepComponent extends StepFormDirective implements OnIni
                 this.initFormWithSavedData();
 
                 // Clear event so that listeners in other provider workflows do not receive false notifications
-                AppServices.messenger.clearEvent(TkgEventType.CONFIG_FILE_IMPORTED);
+                AppServices.messenger.clearEvent(TanzuEventType.CONFIG_FILE_IMPORTED);
             });
 
         this.initFormWithSavedData();
@@ -222,11 +221,11 @@ export class AwsProviderStepComponent extends StepFormDirective implements OnIni
                     this.errorNotification = '';
                     // Announce that we have a (valid) region
                     AppServices.messenger.publish({
-                        type: TkgEventType.AWS_REGION_CHANGED,
+                        type: TanzuEventType.AWS_REGION_CHANGED,
                         payload: this.getFieldValue(AwsField.PROVIDER_REGION)
                     });
                     AppServices.messenger.publish({
-                        type: TkgEventType.AWS_GET_OS_IMAGES,
+                        type: TanzuEventType.AWS_GET_OS_IMAGES,
                         payload: {
                             region: this.getFieldValue(AwsField.PROVIDER_REGION)
                         }
@@ -254,7 +253,6 @@ export class AwsProviderStepComponent extends StepFormDirective implements OnIni
 
     // For use in HTML
     isAuthTypeProfile() {
-        const result = this.authTypeValue === CredentialType.PROFILE;
-        return result;
+        return this.authTypeValue === CredentialType.PROFILE;
     }
 }

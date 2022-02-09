@@ -3,7 +3,7 @@ import { Component, OnInit } from '@angular/core';
 // App imports
 import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
 import { OsImageProviderInputs, SharedOsImageStepDirective } from '../../wizard/shared/components/steps/os-image-step/os-image-step.component';
-import { TkgEventType } from '../../../../shared/service/Messenger';
+import { TanzuEventType } from '../../../../shared/service/Messenger';
 import { VSphereVirtualMachine } from '../../../../swagger/models';
 
 @Component({
@@ -33,7 +33,7 @@ export class VsphereOsImageStepComponent extends SharedOsImageStepDirective<VSph
         const nonTemplateAlertMessage = 'Your selected OS image must be converted to a VM template. ' +
             'You may click the refresh icon to reload the OS image list once this has been done.'
         return {
-            event: TkgEventType.VSPHERE_GET_OS_IMAGES,
+            event: TanzuEventType.VSPHERE_GET_OS_IMAGES,
             noImageAlertMessage: noImageAlertMessage,
             osImageTooltipContent: osImageTooltipContent,
             nonTemplateAlertMessage: nonTemplateAlertMessage,

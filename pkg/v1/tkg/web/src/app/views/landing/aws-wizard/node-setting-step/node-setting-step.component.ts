@@ -6,16 +6,17 @@ import { takeUntil } from 'rxjs/operators';
 import { APIClient } from '../../../../swagger/api-client.service';
 import { AppEdition } from 'src/app/shared/constants/branding.constants';
 import AppServices from '../../../../shared/service/appServices';
-import { AwsField, AwsForm } from "../aws-wizard.constants";
+import { AwsField, AwsForm, VpcType } from "../aws-wizard.constants";
 import { AwsNodeSettingStepMapping } from './node-setting-step.fieldmapping';
 import { AWSNodeAz } from '../../../../swagger/models/aws-node-az.model';
 import { AWSSubnet } from '../../../../swagger/models/aws-subnet.model';
 import { AzRelatedFieldsArray } from '../aws-wizard.component';
+import { ClusterPlan } from '../../wizard/shared/constants/wizard.constants';
 import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
 import { FormMetaDataStore } from '../../wizard/shared/FormMetaDataStore';
 import { StepFormDirective } from '../../wizard/shared/step-form/step-form';
 import { StepMapping } from '../../wizard/shared/field-mapping/FieldMapping';
-import { TkgEventType } from '../../../../shared/service/Messenger';
+import { TanzuEventType } from '../../../../shared/service/Messenger';
 import { ValidationService } from '../../wizard/shared/validation/validation.service';
 
 export interface AzNodeTypes {
@@ -65,11 +66,6 @@ const PRIVATE_SUBNET = [
 ];
 const VPC_SUBNETS = [...PUBLIC_SUBNETS, ...PRIVATE_SUBNET];
 
-export enum NodeType {
-    DEV = 'dev',
-    PROD = 'prod'
-}
-
 enum vpcType {
     EXISTING = 'existing'
 }
@@ -84,7 +80,7 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
     APP_EDITION: any = AppEdition;
 
     nodeTypes: Array<string> = [];
-    nodeType: string;
+    clusterPlan: string;
     vpcType: string;
     nodeAzs: Array<AWSNodeAz>;
     azNodeTypes: AzNodeTypes = {
@@ -142,8 +138,8 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
     }
 
     private customizeForm() {
-        this.registerStepDescriptionTriggers({clusterTypeDescriptor: true, fields: ['controlPlaneSetting']});
-        AppServices.messenger.getSubject(TkgEventType.AWS_AIRGAPPED_VPC_CHANGE).subscribe(event => {
+        this.registerStepDescriptionTriggers({clusterTypeDescriptor: true, fields: [AwsField.NODESETTING_CONTROL_PLANE_SETTING]});
+        AppServices.messenger.getSubject(TanzuEventType.AWS_AIRGAPPED_VPC_CHANGE).subscribe(event => {
             this.airgappedVPC = event.payload;
             if (this.airgappedVPC) { // public subnet IDs shouldn't be provided
                 PUBLIC_SUBNETS.forEach(f => {
@@ -161,7 +157,7 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
         /**
          * Whenever aws region selection changes, update AZ subregion
          */
-        AppServices.messenger.getSubject(TkgEventType.AWS_REGION_CHANGED)
+        AppServices.messenger.getSubject(TanzuEventType.AWS_REGION_CHANGED)
             .pipe(takeUntil(this.unsubscribe))
             .subscribe(event => {
                 if (this.formGroup.get(AwsField.NODESETTING_AZ_1)) {
@@ -174,7 +170,7 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
                 }
             });
 
-        AppServices.messenger.getSubject(TkgEventType.AWS_VPC_TYPE_CHANGED)
+        AppServices.messenger.getSubject(TanzuEventType.AWS_VPC_TYPE_CHANGED)
             .subscribe(event => {
                 this.vpcType = event.payload.vpcType;
                 if (this.vpcType !== vpcType.EXISTING) {
@@ -189,7 +185,7 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
                 );
             });
 
-        AppServices.messenger.getSubject(TkgEventType.AWS_VPC_CHANGED)
+        AppServices.messenger.getSubject(TanzuEventType.AWS_VPC_CHANGED)
             .subscribe(event => {
                 this.clearAzs();
                 this.clearSubnets();
@@ -204,9 +200,9 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
         });
 
         this.registerOnValueChange(AwsField.NODESETTING_CONTROL_PLANE_SETTING, data => {
-            if (data === NodeType.DEV) {
+            if (data === ClusterPlan.DEV) {
                 this.setControlPlaneToDev();
-            } else if (data === NodeType.PROD) {
+            } else if (data === ClusterPlan.PROD) {
                 this.setControlPlaneToProd();
             }
             this.updateVpcSubnets();
@@ -215,9 +211,9 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
     }
 
     private subscribeToServices() {
-        AppServices.dataServiceRegistrar.stepSubscribe<AWSSubnet>(this, TkgEventType.AWS_GET_SUBNETS, this.onFetchedSubnets.bind(this));
-        AppServices.dataServiceRegistrar.stepSubscribe<string>(this, TkgEventType.AWS_GET_NODE_TYPES, this.onFetchedNodeTypes.bind(this));
-        AppServices.dataServiceRegistrar.stepSubscribe<AWSNodeAz>(this, TkgEventType.AWS_GET_AVAILABILITY_ZONES,
+        AppServices.dataServiceRegistrar.stepSubscribe<AWSSubnet>(this, TanzuEventType.AWS_GET_SUBNETS, this.onFetchedSubnets.bind(this));
+        AppServices.dataServiceRegistrar.stepSubscribe<string>(this, TanzuEventType.AWS_GET_NODE_TYPES, this.onFetchedNodeTypes.bind(this));
+        AppServices.dataServiceRegistrar.stepSubscribe<AWSNodeAz>(this, TanzuEventType.AWS_GET_AVAILABILITY_ZONES,
             this.onFetchedAzs.bind(this));
     }
 
@@ -239,7 +235,7 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
         // the corresponding validation should be updated as well. e.g. the users came to the node-settings
         // step before the api responses. Then an empty array will be passed to the validation isValidNameInList.
         // It will cause the selected option to be invalid all the time.
-        if (this.nodeType === NodeType.DEV) {
+        if (this.isClusterPlanDev) {
             const devInstanceType = this.nodeTypes.length === 1 ? this.nodeTypes[0] :
                 this.formGroup.get(AwsField.NODESETTING_INSTANCE_TYPE_DEV).value;
             this.resurrectField(AwsField.NODESETTING_INSTANCE_TYPE_DEV,
@@ -265,7 +261,7 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
             const existingVpcId = FormMetaDataStore.getMetaDataItem(AwsForm.VPC, 'existingVpcId');
             if (existingVpcId && existingVpcId.displayValue) {
                 AppServices.messenger.publish({
-                    type: TkgEventType.AWS_GET_SUBNETS,
+                    type: TanzuEventType.AWS_GET_SUBNETS,
                     payload: { vpcId: existingVpcId.displayValue }
                 });
             }
@@ -274,7 +270,7 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
     }
 
     private setControlPlaneToProd() {
-        this.nodeType = NodeType.PROD;
+        this.clusterPlan = ClusterPlan.PROD;
 
         this.disarmField(AwsField.NODESETTING_INSTANCE_TYPE_DEV, true);
         this.resurrectFieldWithSavedValue(AwsField.NODESETTING_INSTANCE_TYPE_PROD,
@@ -300,7 +296,7 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
     }
 
     private setControlPlaneToDev() {
-        this.nodeType = NodeType.DEV;
+        this.clusterPlan = ClusterPlan.DEV;
         const prodFields = [
             AwsField.NODESETTING_AZ_2,
             AwsField.NODESETTING_AZ_3,
@@ -332,7 +328,7 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
         const devInstanceType = this.getSavedValue(AwsField.NODESETTING_INSTANCE_TYPE_DEV, '');
         const prodInstanceType = this.getSavedValue(AwsField.NODESETTING_INSTANCE_TYPE_PROD, '');
         const isProdInstanceType = devInstanceType === '';
-        this.cardClick(isProdInstanceType ? NodeType.PROD : NodeType.DEV);
+        this.cardClick(isProdInstanceType ? ClusterPlan.PROD : ClusterPlan.DEV);
         super.initFormWithSavedData();
         // because it's in its own component, the enable audit logging field does not get initialized in the above call to
         // super.initFormWithSavedData()
@@ -477,9 +473,7 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
                 .pipe(takeUntil(this.unsubscribe))
                 .subscribe(
                     ((nodeTypes) => {
-                        // this.azNodeTypes[azField] = nodeTypes;
-
-                        this.azNodeTypes[azField] = nodeTypes;
+                        this.azNodeTypes[azField] = nodeTypes?.sort();
                         if (nodeTypes.length === 1) {
                             this.setControlValueSafely(workerNodeField, nodeTypes[0]);
                         }
@@ -527,7 +521,7 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
             return;
         }
 
-        if (this.nodeType === NodeType.PROD) {
+        if (this.isClusterPlanProd) {
             // in PROD deployments, all three subnets are used
             [
                 AwsField.NODESETTING_VPC_PRIVATE_SUBNET_1,
@@ -539,7 +533,7 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
             ].forEach(field => {
                 this.resurrectFieldWithSavedValue(field.toString(), [Validators.required]);
             });
-        } else if (this.nodeType === NodeType.DEV) {
+        } else if (this.isClusterPlanDev) {
             // in DEV deployments, only one subnet is used
             [
                 AwsField.NODESETTING_VPC_PRIVATE_SUBNET_1,
@@ -569,13 +563,24 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
     }
 
     dynamicDescription(): string {
-        if (this.nodeType) {
-            let mode = 'Development cluster selected: 1 node control plane';
-            if (this.nodeType === 'prod') {
-                mode = 'Production cluster selected: 3 node control plane';
-            }
-            return mode;
+        if (this.isClusterPlanProd) {
+            return 'Production cluster selected: 3 node control plane';
+        }
+        if (this.isClusterPlanDev) {
+            return 'Development cluster selected: 1 node control plane';
         }
         return 'Specify the resources backing the ' + this.clusterTypeDescriptor + ' cluster';
+    }
+
+    get isClusterPlanProd(): boolean {
+        return this.clusterPlan === ClusterPlan.PROD;
+    }
+
+    get isClusterPlanDev(): boolean {
+        return this.clusterPlan === ClusterPlan.DEV;
+    }
+
+    get isVpcTypeExisting(): boolean {
+        return this.vpcType === VpcType.EXISTING;
     }
 }

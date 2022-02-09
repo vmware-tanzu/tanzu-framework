@@ -5,7 +5,7 @@ import { takeUntil } from 'rxjs/operators';
 // App imports
 import AppServices from '../../service/appServices';
 import { BasicSubscriber } from 'src/app/shared/abstracts/basic-subscriber';
-import { TkgEventType } from '../../service/Messenger';
+import { TanzuEventType } from '../../service/Messenger';
 
 @Component({
     selector: 'app-preview-config',
@@ -18,7 +18,7 @@ export class PreviewConfigComponent extends BasicSubscriber implements OnInit {
 
     constructor() {
         super();
-        AppServices.messenger.getSubject(TkgEventType.CLI_CHANGED)
+        AppServices.messenger.getSubject(TanzuEventType.CLI_CHANGED)
             .pipe(takeUntil(this.unsubscribe))
             .subscribe(event => {
                 this.cli = event.payload;

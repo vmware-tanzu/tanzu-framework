@@ -16,6 +16,10 @@ import (
 
 	configv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/config/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/common"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfigpaths"
+
+	"k8s.io/client-go/rest"
+	"k8s.io/client-go/tools/clientcmd"
 )
 
 // This block is for global feature constants, to allow them to be used more broadly
@@ -205,6 +209,26 @@ func addEdition(c *configv1alpha1.ClientConfig, edition configv1alpha1.EditionSe
 	c.ClientOptions.CLI.Edition = edition
 }
 
+func addCompatabilityFile(c *configv1alpha1.ClientConfig, compatibilityFilePath string) {
+	if c.ClientOptions == nil {
+		c.ClientOptions = &configv1alpha1.ClientOptions{}
+	}
+	if c.ClientOptions.CLI == nil {
+		c.ClientOptions.CLI = &configv1alpha1.CLIOptions{}
+	}
+	c.ClientOptions.CLI.CompatibilityFilePath = compatibilityFilePath
+}
+
+func addBomRepo(c *configv1alpha1.ClientConfig, repo string) {
+	if c.ClientOptions == nil {
+		c.ClientOptions = &configv1alpha1.ClientOptions{}
+	}
+	if c.ClientOptions.CLI == nil {
+		c.ClientOptions.CLI = &configv1alpha1.CLIOptions{}
+	}
+	c.ClientOptions.CLI.BOMRepo = repo
+}
+
 // ClientConfigNotExistError is thrown when a tanzu config cannot be found.
 type ClientConfigNotExistError struct {
 	s string
@@ -278,12 +302,32 @@ func GetClientConfig() (cfg *configv1alpha1.ClientConfig, err error) {
 	addedDefaultDiscovery := populateDefaultStandaloneDiscovery(&c)
 	addedFeatureFlags := addDefaultFeatureFlagsIfMissing(&c, DefaultCliFeatureFlags)
 	addedEdition := addDefaultEditionIfMissing(&c)
+	addedBomRepo := addBomRepoIfMissing(&c)
+	addedCompatabilityFile := addCompatibilityFileIfMissing(&c)
 
-	if addedFeatureFlags || addedDefaultDiscovery || addedEdition {
+	if addedFeatureFlags || addedDefaultDiscovery || addedEdition || addedCompatabilityFile || addedBomRepo {
 		_ = StoreClientConfig(&c)
 	}
 
 	return &c, nil
+}
+
+// addCompatibilityFileIfMissing adds the compatibility file to the client configuration to ensure it can be downloaded
+func addCompatibilityFileIfMissing(config *configv1alpha1.ClientConfig) bool {
+	if config.ClientOptions == nil || config.ClientOptions.CLI == nil || config.ClientOptions.CLI.CompatibilityFilePath == "" {
+		addCompatabilityFile(config, tkgconfigpaths.TKGDefaultCompatibilityImagePath)
+		return true
+	}
+	return false
+}
+
+// addBomRepoIfMissing adds the bomRepository to the client configuration if it is not already present
+func addBomRepoIfMissing(config *configv1alpha1.ClientConfig) bool {
+	if config.ClientOptions == nil || config.ClientOptions.CLI == nil || config.ClientOptions.CLI.BOMRepo == "" {
+		addBomRepo(config, tkgconfigpaths.TKGDefaultImageRepo)
+		return true
+	}
+	return false
 }
 
 // addDefaultEditionIfMissing returns true if the default edition was added to the configuration (because there was no edition)
@@ -518,7 +562,7 @@ func SetCurrentServer(name string) error {
 	return nil
 }
 
-// GetCurrentServer sets the current server.
+// GetCurrentServer gets the current server.
 func GetCurrentServer() (s *configv1alpha1.Server, err error) {
 	cfg, err := GetClientConfig()
 	if err != nil {
@@ -622,4 +666,76 @@ func GetEdition() (string, error) {
 		return string(cfg.ClientOptions.CLI.Edition), nil
 	}
 	return "", nil
+}
+
+// GetCurrentClusterConfig gets the config of current logged in cluster
+func GetCurrentClusterConfig() (*rest.Config, error) {
+	server, err := GetCurrentServer()
+	if err != nil {
+		return nil, err
+	}
+	restConfig, err := getRestConfigWithContext(server.ManagementClusterOpts.Context, server.ManagementClusterOpts.Path)
+	if err != nil {
+		return nil, fmt.Errorf("couldn't get rest config: %w", err)
+	}
+	return restConfig, nil
+}
+
+// getRestConfigWithContext returns config using the passed context
+func getRestConfigWithContext(context, kubeconfigPath string) (*rest.Config, error) {
+	return clientcmd.NewNonInteractiveDeferredLoadingClientConfig(
+		&clientcmd.ClientConfigLoadingRules{ExplicitPath: kubeconfigPath},
+		&clientcmd.ConfigOverrides{
+			CurrentContext: context,
+		}).ClientConfig()
+}
+
+// GetDefaultRepo returns the bomRepo set in the client configuration. If it
+// cannot be resolved, the default repo set at build time is returned along
+// with an error describing why the bomRepo could not be resolved from the
+// client configuration.
+func GetDefaultRepo() (string, error) {
+	defaultRepo := tkgconfigpaths.TKGDefaultImageRepo
+	cfg, err := GetClientConfig()
+	if err != nil {
+		return defaultRepo, err
+	}
+	if cfg == nil {
+		return defaultRepo, fmt.Errorf("client configuration is empty")
+	}
+	if cfg.ClientOptions == nil {
+		return defaultRepo, fmt.Errorf("client options missing from client configuration")
+	}
+	if cfg.ClientOptions.CLI == nil {
+		return defaultRepo, fmt.Errorf("CLI settings are missing from client options in client configuration")
+	}
+	if cfg.ClientOptions.CLI.BOMRepo == "" {
+		return defaultRepo, fmt.Errorf("bom repo is missing from CLI settings in the client configuration")
+	}
+	return cfg.ClientOptions.CLI.BOMRepo, nil
+}
+
+// GetCompatibilityFilePath returns the compatibilityPath set in the client
+// configuration. If it cannot be resolved, the default path set at build time
+// is returned along with an error describing why the path could not be
+// resolved from the client configuration.
+func GetCompatibilityFilePath() (string, error) {
+	defaultCompatImagePath := tkgconfigpaths.TKGDefaultCompatibilityImagePath
+	cfg, err := GetClientConfig()
+	if err != nil {
+		return defaultCompatImagePath, err
+	}
+	if cfg == nil {
+		return defaultCompatImagePath, fmt.Errorf("client configuration is empty")
+	}
+	if cfg.ClientOptions == nil {
+		return defaultCompatImagePath, fmt.Errorf("client options missing from client configuration")
+	}
+	if cfg.ClientOptions.CLI == nil {
+		return defaultCompatImagePath, fmt.Errorf("CLI settings are missing from client options in client configuration")
+	}
+	if cfg.ClientOptions.CLI.CompatibilityFilePath == "" {
+		return defaultCompatImagePath, fmt.Errorf("compatibility file is missing from CLI settings in the client configuration")
+	}
+	return cfg.ClientOptions.CLI.CompatibilityFilePath, nil
 }

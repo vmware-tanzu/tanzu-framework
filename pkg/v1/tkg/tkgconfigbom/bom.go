@@ -376,19 +376,21 @@ var errorDownloadingDefaultBOMFiles = `failed to download the BOM file from imag
 If this is an internet-restricted environment please refer to the documentation to set TKG_CUSTOM_IMAGE_REPOSITORY and related configuration variables in %s 
 `
 
-func (c *client) DownloadDefaultBOMFilesFromRegistry(bomRegistry registry.Registry) error { //nolint:gocyclo
-	bomImageRepo := tkgconfigpaths.TKGDefaultImageRepo
-
+// DownloadDefaultBOMFilesFromRegistry retrieves the bill of materials (BOM)
+// from the target registry. It receives a bomRepo which specifies where to
+// retrieve the bom comes from.
+func (c *client) DownloadDefaultBOMFilesFromRegistry(bomRepo string, bomRegistry registry.Registry) error { //nolint:gocyclo
+	// if a custom repo was set (e.g. via environment variable) override the bomRepo passed to this function.
 	customRepository, err := c.tkgConfigReaderWriter.Get(constants.ConfigVariableCustomImageRepository)
 	if err == nil && customRepository != "" {
-		bomImageRepo = customRepository
+		bomRepo = customRepository
 	}
 
 	bomImagePath, tkgBOMImageTag, err := c.getDefaultBOMFileImagePathAndTagFromCompatabilityFile()
 	if err != nil {
 		return errors.Wrap(err, "unable to get the default BOM file ImagePath and Image Tag from the TKG Compatibility file")
 	}
-	tkgBOMImagePath := bomImageRepo + "/" + bomImagePath
+	tkgBOMImagePath := bomRepo + "/" + bomImagePath
 
 	tkgconfigpath, err := c.tkgConfigPathsClient.GetTKGConfigPath()
 	if err != nil {
@@ -451,22 +453,26 @@ var errorDownloadingTKGCompatibilityFile = `failed to download the TKG Compatibi
 If this is an internet-restricted environment please refer to the documentation to set TKG_CUSTOM_IMAGE_REPOSITORY and related configuration variables in %s 
 `
 
-func (c *client) DownloadTKGCompatibilityFileFromRegistry(bomRegistry registry.Registry) error {
-	compatibilityImageRepo := tkgconfigpaths.TKGDefaultImageRepo
-
+// DownloadTKGCompatibilityFileFromRegistry resolves the compatibility file
+// from an OCI registry. The compatibility files correlates a plugin (e.g.
+// management-cluster) version to a compatibility file. Compatibility files
+// contain references to the corresponding Bill of Materials (BOM) that is used
+// when creating clusters.
+func (c *client) DownloadTKGCompatibilityFileFromRegistry(repo, resource string, bomClient registry.Registry) error {
+	// if a custom repository or image path is set (e.g. via environment variable, override what was passed into this method
 	customRepository, err := c.tkgConfigReaderWriter.Get(constants.ConfigVariableCustomImageRepository)
 	if err == nil && customRepository != "" {
-		compatibilityImageRepo = customRepository
+		repo = customRepository
 	}
-
-	tkgCompatibilityImagePath := compatibilityImageRepo + "/" + tkgconfigpaths.TKGDefaultCompatibilityImagePath
 	customTKGCompatibilityImagePath, err := c.tkgConfigReaderWriter.Get(constants.ConfigVariableCompatibilityCustomImagePath)
 	if err == nil && customTKGCompatibilityImagePath != "" {
-		tkgCompatibilityImagePath = compatibilityImageRepo + "/" + customTKGCompatibilityImagePath
+		resource = customTKGCompatibilityImagePath
 	}
 
+	// begin download of compatibility file
+	tkgCompatibilityImagePath := fmt.Sprintf("%s/%s", repo, resource)
 	log.Infof("Downloading TKG compatibility file from '%s'", tkgCompatibilityImagePath)
-	tags, err := bomRegistry.ListImageTags(tkgCompatibilityImagePath)
+	tags, err := bomClient.ListImageTags(tkgCompatibilityImagePath)
 	if err != nil || len(tags) == 0 {
 		return errors.Wrap(err, "failed to list TKG compatibility image tags")
 	}
@@ -491,7 +497,7 @@ func (c *client) DownloadTKGCompatibilityFileFromRegistry(bomRegistry registry.R
 		return err
 	}
 
-	tkgCompatibilityContent, err := bomRegistry.GetFile(fmt.Sprintf("%s:%s", tkgCompatibilityImagePath, tagName), "")
+	tkgCompatibilityContent, err := bomClient.GetFile(fmt.Sprintf("%s:%s", tkgCompatibilityImagePath, tagName), "")
 	if err != nil {
 		return errors.Errorf(errorDownloadingTKGCompatibilityFile, fmt.Sprintf("%s:%s", tkgCompatibilityImagePath, tagName), err, tkgconfigpath)
 	}

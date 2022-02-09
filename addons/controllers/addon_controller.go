@@ -103,8 +103,6 @@ func (r *AddonReconciler) SetupWithManager(ctx context.Context, mgr ctrl.Manager
 func (r *AddonReconciler) Reconcile(ctx context.Context, req ctrl.Request) (_ ctrl.Result, reterr error) {
 	log := r.Log.WithValues(constants.ClusterNamespaceLogKey, req.Namespace, constants.ClusterNameLogKey, req.Name)
 
-	log.Info("Reconciling cluster")
-
 	// get cluster object
 	cluster := &clusterapiv1beta1.Cluster{}
 	if err := r.Client.Get(ctx, req.NamespacedName, cluster); err != nil {
@@ -116,6 +114,14 @@ func (r *AddonReconciler) Reconcile(ctx context.Context, req ctrl.Request) (_ ct
 		log.Error(err, "unable to fetch cluster")
 		return ctrl.Result{}, err
 	}
+
+	tkrName := util.GetTKRNameForCluster(ctx, r.Client, cluster)
+	if tkrName == "" {
+		log.Info("cluster does not have an associated TKR")
+		return ctrl.Result{}, nil
+	}
+
+	log.Info("Reconciling cluster")
 
 	// if deletion timestamp is set, handle cluster deletion
 	if !cluster.GetDeletionTimestamp().IsZero() {
@@ -321,7 +327,7 @@ func (r *AddonReconciler) reconcileAddonSecret(
 
 	// Patch addon secret before returning the function
 	defer func() {
-		// patchAddonSecret will be true if finalizer or ownerrefence is added
+		// patchAddonSecret will be true if finalizer or ownerrefence is added/removed
 		if patchAddonSecret {
 			log.Info("Patching addon secret", constants.AddonNameLogKey, addonName)
 
@@ -447,7 +453,7 @@ func (r *AddonReconciler) removeFinalizerFromAddonSecret(
 
 	// remove finalizer from addon secret
 	if controllerutil.ContainsFinalizer(addonSecret, addontypes.AddonFinalizer) {
-		log.Info("Removing finalizer to addon secret", constants.AddonNameLogKey, addonName)
+		log.Info("Removing finalizer from addon secret", constants.AddonNameLogKey, addonName)
 		controllerutil.RemoveFinalizer(addonSecret, addontypes.AddonFinalizer)
 		return true, false, nil
 	}

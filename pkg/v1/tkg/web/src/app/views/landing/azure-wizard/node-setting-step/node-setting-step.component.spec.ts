@@ -7,7 +7,7 @@ import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { APIClient } from '../../../../swagger/api-client.service';
 import AppServices from 'src/app/shared/service/appServices';
 import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
-import { Messenger, TkgEventType } from 'src/app/shared/service/Messenger';
+import { Messenger, TanzuEventType } from 'src/app/shared/service/Messenger';
 import { NodeSettingStepComponent } from './node-setting-step.component';
 import { SharedModule } from '../../../../shared/shared.module';
 import { ValidationService } from '../../wizard/shared/validation/validation.service';
@@ -81,14 +81,14 @@ describe('NodeSettingStepComponent', () => {
     it('should announce description change', () => {
         const msgSpy = spyOn(AppServices.messenger, 'publish').and.callThrough();
         component.ngOnInit();
-        component.nodeType = '';
+        component.clusterPlan = '';
 
         const staticDescription = component.dynamicDescription();
         expect(staticDescription).toEqual('Specify the resources backing the  cluster');
 
         component.setClusterTypeDescriptor('FUDGE');
         expect(msgSpy).toHaveBeenCalledWith({
-            type: TkgEventType.STEP_DESCRIPTION_CHANGE,
+            type: TanzuEventType.STEP_DESCRIPTION_CHANGE,
             payload: {
                 wizard: 'EggplantWizard',
                 step: AzureForm.NODESETTING,
@@ -99,7 +99,7 @@ describe('NodeSettingStepComponent', () => {
         const planeSettingControl = component.formGroup.get('controlPlaneSetting');
         planeSettingControl.setValue('prod');
         expect(msgSpy).toHaveBeenCalledWith({
-            type: TkgEventType.STEP_DESCRIPTION_CHANGE,
+            type: TanzuEventType.STEP_DESCRIPTION_CHANGE,
             payload: {
                 wizard: 'EggplantWizard',
                 step: AzureForm.NODESETTING,

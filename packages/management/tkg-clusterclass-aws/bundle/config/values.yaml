@@ -1,0 +1,6 @@
+#@data/values
+
+#@overlay/match-child-defaults missing_ok=True
+---
+
+#! User configurable values for tkg-clusterclass-aws

@@ -53,9 +53,9 @@ type Client interface {
 	IsCustomRepositorySkipTLSVerify() bool
 	GetAutoscalerImageForK8sVersion(k8sVersion string) (string, error)
 	// Downloads the default BOM files from the registry
-	DownloadDefaultBOMFilesFromRegistry(registry.Registry) error
+	DownloadDefaultBOMFilesFromRegistry(bomRepo string, bomRegistry registry.Registry) error
 	// Downloads the TKG Compatibility file from the registry
-	DownloadTKGCompatibilityFileFromRegistry(registry.Registry) error
+	DownloadTKGCompatibilityFileFromRegistry(repo string, resource string, bomRegistry registry.Registry) error
 	// Initializes the registry for downloading the bom files
 	InitBOMRegistry() (registry.Registry, error)
 	// GetDefaultTKRVersion return default TKr version from default TKG BOM file

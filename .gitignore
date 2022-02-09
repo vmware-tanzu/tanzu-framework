@@ -1,3 +1,13 @@
+# NOTE: do not add IDE, editor, or OS-specific patterns here.
+# Individuals should add these to their global gitignore.
+#
+# Example:
+# git config --global core.excludesfile ~/.gitignore
+#
+# cat ~/.gitignore
+#   .idea
+#   .vscode
+#   *~
 
 # Binaries for programs and plugins
 *.exe
@@ -33,16 +43,7 @@ providers.tar.gz
 
 !vendor/**/zz_generated.*
 
-# editor and IDE paraphernalia
-.idea
-*.iml
-*.swp
-*.swo
-*~
-
-# Mac OS files
-.DS_Store
-
 # Build artifacts related to packages
 /build
 /packages/package-values-sha256.yaml
+/packages/**/.imgpkg

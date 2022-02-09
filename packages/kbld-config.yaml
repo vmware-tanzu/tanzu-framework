@@ -35,6 +35,8 @@ overrides:
     newImage: ""
   - image: tanzu-cli-plugins/secret-linux-amd64:latest
     newImage: ""
+  - image: tanzu-cli-plugins/feature-linux-amd64:latest
+    newImage: ""
   #! tanzu-cliplugins darwin-amd64
   - image: tanzu-cli-plugins/login-darwin-amd64:latest
     newImage: ""
@@ -46,6 +48,8 @@ overrides:
     newImage: ""
   - image: tanzu-cli-plugins/secret-darwin-amd64:latest
     newImage: ""
+  - image: tanzu-cli-plugins/feature-darwin-amd64:latest
+    newImage: ""
   #! tanzu-cliplugins windows-amd64
   - image: tanzu-cli-plugins/login-windows-amd64:latest
     newImage: ""
@@ -56,4 +60,6 @@ overrides:
   - image: tanzu-cli-plugins/pinniped-auth-windows-amd64:latest
     newImage: ""
   - image: tanzu-cli-plugins/secret-windows-amd64:latest
+    newImage: ""
+  - image: tanzu-cli-plugins/feature-windows-amd64:latest
     newImage: ""

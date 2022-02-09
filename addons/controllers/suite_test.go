@@ -6,10 +6,9 @@ package controllers
 import (
 	"context"
 	"os"
-	"os/exec"
 	"path/filepath"
-	"strings"
 	"testing"
+	"time"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -33,14 +32,33 @@ import (
 
 	kappctrl "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/kappctrl/v1alpha1"
 	pkgiv1alpha1 "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/packaging/v1alpha1"
+	antrea "github.com/vmware-tanzu/tanzu-framework/addons/controllers/antrea"
+	calico "github.com/vmware-tanzu/tanzu-framework/addons/controllers/calico"
+	kappcontroller "github.com/vmware-tanzu/tanzu-framework/addons/controllers/kapp-controller"
 	addonconfig "github.com/vmware-tanzu/tanzu-framework/addons/pkg/config"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/crdwait"
+	testutil "github.com/vmware-tanzu/tanzu-framework/addons/testutil"
+	cniv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cni/v1alpha1"
 	runtanzuv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha1"
+	runtanzuv1alpha3 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
 )
 
 // These tests use Ginkgo (BDD-style Go testing framework). Refer to
 // http://onsi.github.io/ginkgo/ to learn more about Ginkgo.
+
+const (
+	waitTimeout             = time.Second * 90
+	pollingInterval         = time.Second * 2
+	appSyncPeriod           = 5 * time.Minute
+	appWaitTimeout          = 30 * time.Second
+	addonNamespace          = "tkg-system"
+	addonServiceAccount     = "tkg-addons-app-sa"
+	addonClusterRole        = "tkg-addons-app-cluster-role"
+	addonClusterRoleBinding = "tkg-addons-app-cluster-role-binding"
+	addonImagePullPolicy    = "IfNotPresent"
+	corePackageRepoName     = "core"
+)
 
 var (
 	cfg           *rest.Config
@@ -50,7 +68,7 @@ var (
 	scheme        = runtime.NewScheme()
 	dynamicClient dynamic.Interface
 	cancel        context.CancelFunc
-	//clientset     *kubernetes.Clientset
+	// clientset     *kubernetes.Clientset
 )
 
 func TestAddonController(t *testing.T) {
@@ -70,11 +88,18 @@ var _ = BeforeSuite(func(done Done) {
 		CleanUpAfterUse: true},
 		ErrorIfCRDPathMissing: true,
 	}
-	externalCRDPaths, err := getExternalCRDPaths()
+
+	externalDeps := map[string][]string{
+		"sigs.k8s.io/cluster-api": {"config/crd/bases",
+			"controlplane/kubeadm/config/crd/bases"},
+		"github.com/vmware-tanzu/carvel-kapp-controller": {"config/crds.yml"},
+	}
+	externalCRDPaths, err := testutil.GetExternalCRDPaths(externalDeps)
 	Expect(err).NotTo(HaveOccurred())
 	Expect(externalCRDPaths).ToNot(BeEmpty())
 	testEnv.CRDDirectoryPaths = externalCRDPaths
-	testEnv.CRDDirectoryPaths = append(testEnv.CRDDirectoryPaths, filepath.Join("..", "..", "config", "crd", "bases"))
+	testEnv.CRDDirectoryPaths = append(testEnv.CRDDirectoryPaths,
+		filepath.Join("..", "..", "config", "crd", "bases"), filepath.Join("testdata"))
 	testEnv.ErrorIfCRDPathMissing = true
 
 	cfg, err = testEnv.Start()
@@ -82,6 +107,9 @@ var _ = BeforeSuite(func(done Done) {
 	Expect(cfg).ToNot(BeNil())
 
 	err = runtanzuv1alpha1.AddToScheme(scheme)
+	Expect(err).NotTo(HaveOccurred())
+
+	err = runtanzuv1alpha3.AddToScheme(scheme)
 	Expect(err).NotTo(HaveOccurred())
 
 	err = clientgoscheme.AddToScheme(scheme)
@@ -99,13 +127,15 @@ var _ = BeforeSuite(func(done Done) {
 	err = pkgiv1alpha1.AddToScheme(scheme)
 	Expect(err).NotTo(HaveOccurred())
 
+	err = cniv1alpha1.AddToScheme(scheme)
+	Expect(err).NotTo(HaveOccurred())
+
 	k8sClient, err = client.New(cfg, client.Options{Scheme: scheme})
 	Expect(err).ToNot(HaveOccurred())
 	Expect(k8sClient).ToNot(BeNil())
 
-	//clientset, err := kubernetes.NewForConfig(cfg)
-	//Expect(err).ToNot(HaveOccurred())
-	//Expect(clientset).ToNot(BeNil())
+	err = runtanzuv1alpha3.AddToScheme(scheme)
+	Expect(err).NotTo(HaveOccurred())
 
 	dynamicClient, err = dynamic.NewForConfig(cfg)
 	Expect(err).ToNot(HaveOccurred())
@@ -157,8 +187,35 @@ var _ = BeforeSuite(func(done Done) {
 		},
 	}).SetupWithManager(ctx, mgr, controller.Options{MaxConcurrentReconciles: 1})).To(Succeed())
 
+	Expect((&calico.CalicoConfigReconciler{
+		Client: mgr.GetClient(),
+		Log:    setupLog,
+		Scheme: mgr.GetScheme(),
+	}).SetupWithManager(ctx, mgr, controller.Options{MaxConcurrentReconciles: 1})).To(Succeed())
+
+	Expect((&antrea.AntreaConfigReconciler{
+		Client: mgr.GetClient(),
+		Log:    setupLog,
+		Scheme: mgr.GetScheme(),
+	}).SetupWithManager(ctx, mgr, controller.Options{MaxConcurrentReconciles: 1})).To(Succeed())
+
+	Expect((&kappcontroller.KappControllerConfigReconciler{
+		Client: mgr.GetClient(),
+		Log:    setupLog,
+		Scheme: mgr.GetScheme(),
+	}).SetupWithManager(ctx, mgr, controller.Options{MaxConcurrentReconciles: 1})).To(Succeed())
+
+	tanzuBootstrapReconciler := NewtanzuClusterBootstrapReconciler(mgr.GetClient(),
+		ctrl.Log.WithName("controllers").WithName("TanzuClusterBootstrap"),
+		mgr.GetScheme(),
+	)
+	Expect(tanzuBootstrapReconciler.SetupWithManager(ctx, mgr, controller.Options{MaxConcurrentReconciles: 1})).To(Succeed())
+
 	// pre-create namespace
 	ns := &corev1.Namespace{ObjectMeta: metav1.ObjectMeta{Name: "tkr-system"}}
+	Expect(k8sClient.Create(context.TODO(), ns)).To(Succeed())
+
+	ns = &corev1.Namespace{ObjectMeta: metav1.ObjectMeta{Name: "tkg-system"}}
 	Expect(k8sClient.Create(context.TODO(), ns)).To(Succeed())
 
 	go func() {
@@ -175,31 +232,3 @@ var _ = AfterSuite(func() {
 	err := testEnv.Stop()
 	Expect(err).ToNot(HaveOccurred())
 })
-
-// get paths for external CRDs by introspecting versions of the go dependencies
-func getExternalCRDPaths() ([]string, error) {
-	externalDeps := map[string][]string{
-		"sigs.k8s.io/cluster-api": {"config/crd/bases",
-			"controlplane/kubeadm/config/crd/bases"},
-		"github.com/vmware-tanzu/carvel-kapp-controller": {"config/crds.yml"},
-	}
-
-	var crdPaths []string
-	gopath, err := exec.Command("go", "env", "GOPATH").Output()
-	if err != nil {
-		return crdPaths, err
-	}
-	for dep, crdDirs := range externalDeps {
-		depPath, err := exec.Command("go", "list", "-m", "-f", "{{ .Path }}@{{ .Version }}", dep).Output()
-		if err != nil {
-			return crdPaths, err
-		}
-		for _, crdDir := range crdDirs {
-			crdPaths = append(crdPaths, filepath.Join(strings.TrimSuffix(string(gopath), "\n"),
-				"pkg", "mod", strings.TrimSuffix(string(depPath), "\n"), crdDir))
-		}
-	}
-
-	logf.Log.Info("external CRD paths", "crdPaths", crdPaths)
-	return crdPaths, nil
-}

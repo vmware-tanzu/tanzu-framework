@@ -5,7 +5,7 @@ import { APIClient } from 'src/app/swagger';
 import AppServices from '../../../../shared/service/appServices';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
-import { Messenger, TkgEventType } from 'src/app/shared/service/Messenger';
+import { Messenger, TanzuEventType } from 'src/app/shared/service/Messenger';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { SharedModule } from 'src/app/shared/shared.module';
 import { ValidationService } from '../../wizard/shared/validation/validation.service';
@@ -53,18 +53,18 @@ describe('VpcComponent', () => {
     });
 
     it("should be invalid when VPC CIDR is 192.168.1.1", async(() => {
-        component.formGroup.get('vpcType').setValue("new");
+        component.formGroup.get(AwsField.VPC_TYPE).setValue(VpcType.NEW);
         fixture.detectChanges();
         component.setNewVpcValidators();
-        component.formGroup.get('vpc').setValue("192.168.1.1");
+        component.formGroup.get(AwsField.VPC_NEW_CIDR).setValue("192.168.1.1");
         expect(component.formGroup.valid).toBeFalsy();
     }));
 
     it("should be invalid when VPC CIDR is 192.168.1.0/32", async(() => {
-        component.formGroup.get('vpcType').setValue("new");
+        component.formGroup.get(AwsField.VPC_TYPE).setValue(VpcType.NEW);
         fixture.detectChanges();
         component.setNewVpcValidators();
-        component.formGroup.get('vpc').setValue("192.168.1.0/32");
+        component.formGroup.get(AwsField.VPC_NEW_CIDR).setValue("192.168.1.0/32");
         expect(component.formGroup.valid).toBeFalsy();
     }));
 
@@ -73,7 +73,7 @@ describe('VpcComponent', () => {
             id: 'vpc-1',
             cidr: '100.64.0.0/13'
         }];
-        component.formGroup.get('vpcType').setValue("existing");
+        component.formGroup.get(AwsField.VPC_TYPE).setValue(VpcType.EXISTING);
         fixture.detectChanges();
         component.existingVpcOnChange('vpc-1');
         expect(component.formGroup.get('existingVpcCidr').value).toBe('100.64.0.0/13');
@@ -94,7 +94,7 @@ describe('VpcComponent', () => {
         vpcTypeControl.setValue(VpcType.NEW);
         vpcNewCidrControl.setValue('1.2.1.2/12');
         expect(msgSpy).toHaveBeenCalledWith({
-            type: TkgEventType.STEP_DESCRIPTION_CHANGE,
+            type: TanzuEventType.STEP_DESCRIPTION_CHANGE,
             payload: {
                 wizard: 'PickleWizard',
                 step: AwsForm.VPC,
@@ -106,7 +106,7 @@ describe('VpcComponent', () => {
         vpcExistingCidrControl.setValue('3.4.3.4/24');
         vpcExistingIdControl.setValue('someVpc');
         expect(msgSpy).toHaveBeenCalledWith({
-            type: TkgEventType.STEP_DESCRIPTION_CHANGE,
+            type: TanzuEventType.STEP_DESCRIPTION_CHANGE,
             payload: {
                 wizard: 'PickleWizard',
                 step: AwsForm.VPC,

@@ -16,7 +16,21 @@ spec:
     singular: calicoconfig
   scope: Namespaced
   versions:
-  - name: v1alpha1
+  - additionalPrinterColumns:
+    - description: The namespace in which calico is deployed
+      jsonPath: .spec.cni.namespace
+      name: Namespace
+      type: string
+    - description: Maximum transmission unit setting. '0' as default means MTU will
+        be auto detected
+      jsonPath: .spec.cni.calico.config.vethMTU
+      name: VethMTU
+      type: string
+    - description: Name of the Calico data values secret
+      jsonPath: .status.secretRef
+      name: SecretRef
+      type: string
+    name: v1alpha1
     schema:
       openAPIV3Schema:
         description: CalicoConfig is the Schema for the calicoconfigs API
@@ -42,39 +56,27 @@ spec:
                     properties:
                       vethMTU:
                         default: 0
-                        description: Maximum transmission unit setting
+                        description: Maximum transmission unit setting. "0" as default
+                          means MTU will be auto detected
                         format: int64
                         minimum: 0
                         type: integer
                     type: object
                 type: object
-              infraProvider:
-                description: Infrastructure provider in use
-                enum:
-                - aws
-                - azure
-                - vsphere
-                - docker
-                type: string
-              ipFamily:
-                default: ipv4
-                description: The IP family calico should be configured with
-                enum:
-                - ipv4
-                - ipv6
-                - ipv4,ipv6
-                - ipv6,ipv4
-                type: string
               namespace:
                 default: kube-system
                 description: The namespace in which calico is deployed
                 type: string
-            required:
-            - infraProvider
             type: object
           status:
             description: CalicoConfigStatus defines the observed state of CalicoConfig
+            properties:
+              secretRef:
+                description: Name of the data value secret created by calico controller
+                type: string
             type: object
+        required:
+        - spec
         type: object
     served: true
     storage: true

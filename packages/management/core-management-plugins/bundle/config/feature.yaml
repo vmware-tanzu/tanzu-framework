@@ -1,0 +1,29 @@
+#@ load("@ytt:data", "data")
+#@ load("@ytt:overlay", "overlay")
+
+---
+apiVersion: cli.tanzu.vmware.com/v1alpha1
+kind: CLIPlugin
+metadata:
+  name: feature
+  annotations:
+    kapp.k14s.io/change-rule: "upsert after upserting cliplugins.cli.tanzu.vmware.com/crd"
+spec:
+  artifacts:
+    #@yaml/text-templated-strings
+    (@= data.values.feature.version @):
+      - arch: amd64
+        image: tanzu-cli-plugins/feature-darwin-amd64:latest
+        os: darwin
+        type: oci
+      - arch: amd64
+        image: tanzu-cli-plugins/feature-linux-amd64:latest
+        os: linux
+        type: oci
+      - arch: amd64
+        image: tanzu-cli-plugins/feature-windows-amd64:latest
+        os: windows
+        type: oci
+  description: Operate on features and featuregates
+  optional: false
+  recommendedVersion: #@ data.values.feature.version

@@ -1,0 +1,24 @@
+# permissions for end users to edit antreaconfigs.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: antreaconfig-editor-role
+rules:
+- apiGroups:
+  - addons.tanzu.vmware.com
+  resources:
+  - antreaconfigs
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - addons.tanzu.vmware.com
+  resources:
+  - antreaconfigs/status
+  verbs:
+  - get

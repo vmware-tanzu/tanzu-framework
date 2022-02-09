@@ -10,7 +10,7 @@ import { APIClient } from '../../../swagger/api-client.service';
 import { ClusterType } from "../wizard/shared/constants/wizard.constants";
 import { FieldMapUtilities } from '../wizard/shared/field-mapping/FieldMapUtilities';
 import { FormMetaDataStore } from '../wizard/shared/FormMetaDataStore';
-import { Messenger, TkgEventType } from 'src/app/shared/service/Messenger';
+import { Messenger, TanzuEventType } from 'src/app/shared/service/Messenger';
 import { SharedModule } from '../../../shared/shared.module';
 import { ValidationService } from '../wizard/shared/validation/validation.service';
 import { VSphereProviderStepComponent } from './provider-step/vsphere-provider-step.component';
@@ -91,11 +91,11 @@ describe('VSphereWizardComponent', () => {
     it('should register services', () => {
         const apiSpy = spyOn(AppServices.dataServiceRegistrar, 'register').and.callThrough();
         component.ngOnInit();
-        expect(apiSpy).toHaveBeenCalledWith(TkgEventType.VSPHERE_GET_COMPUTE_RESOURCE, jasmine.anything(), jasmine.anything());
-        expect(apiSpy).toHaveBeenCalledWith(TkgEventType.VSPHERE_GET_DATA_STORES, jasmine.anything(), jasmine.anything());
-        expect(apiSpy).toHaveBeenCalledWith(TkgEventType.VSPHERE_GET_OS_IMAGES, jasmine.anything(), jasmine.anything());
-        expect(apiSpy).toHaveBeenCalledWith(TkgEventType.VSPHERE_GET_RESOURCE_POOLS, jasmine.anything(), jasmine.anything());
-        expect(apiSpy).toHaveBeenCalledWith(TkgEventType.VSPHERE_GET_VM_FOLDERS, jasmine.anything(), jasmine.anything());
-        expect(apiSpy).toHaveBeenCalledWith(TkgEventType.VSPHERE_GET_VM_NETWORKS, jasmine.anything(), jasmine.anything());
+        expect(apiSpy).toHaveBeenCalledWith(TanzuEventType.VSPHERE_GET_COMPUTE_RESOURCE, jasmine.anything(), jasmine.anything());
+        expect(apiSpy).toHaveBeenCalledWith(TanzuEventType.VSPHERE_GET_DATA_STORES, jasmine.anything(), jasmine.anything());
+        expect(apiSpy).toHaveBeenCalledWith(TanzuEventType.VSPHERE_GET_OS_IMAGES, jasmine.anything(), jasmine.anything());
+        expect(apiSpy).toHaveBeenCalledWith(TanzuEventType.VSPHERE_GET_RESOURCE_POOLS, jasmine.anything(), jasmine.anything());
+        expect(apiSpy).toHaveBeenCalledWith(TanzuEventType.VSPHERE_GET_VM_FOLDERS, jasmine.anything(), jasmine.anything());
+        expect(apiSpy).toHaveBeenCalledWith(TanzuEventType.VSPHERE_GET_VM_NETWORKS, jasmine.anything(), jasmine.anything());
     });
 });

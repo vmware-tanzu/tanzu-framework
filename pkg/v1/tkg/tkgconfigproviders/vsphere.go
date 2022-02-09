@@ -24,7 +24,7 @@ type nodeType struct {
 	Disk   string
 }
 
-// NodeTypes defines a struct of nodeType map
+// NodeTypes defines a struct of clusterPlan map
 var NodeTypes map[string]nodeType
 
 func init() {

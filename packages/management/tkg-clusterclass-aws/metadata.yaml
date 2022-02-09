@@ -1,0 +1,14 @@
+apiVersion: data.packaging.carvel.dev/v1alpha1
+kind: PackageMetadata
+metadata:
+  name: tkg-clusterclass-aws.tanzu.vmware.com
+  namespace: tkg-clusterclass-aws
+spec:
+  displayName: "tkg-clusterclass-aws"
+  longDescription: "ClusterClass for AWS defines the default set of AWS ClusterClass resources for Tanzu"
+  shortDescription: "Defines the AWS ClusterClass resources for Tanzu"
+  providerName: VMware
+  maintainers:
+    - name: ""
+  categories:
+    - "clusterclass"

@@ -1,0 +1,9 @@
+#@data/values
+---
+
+#! User configurable values for tkg-clusterclass.
+
+metadata:
+  infraProvider: ""
+
+configvalues:

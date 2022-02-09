@@ -1,0 +1,24 @@
+# permissions for end users to edit kappcontrollerconfigs.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: kappcontrollerconfig-editor-role
+rules:
+- apiGroups:
+  - run.tanzu.vmware.com
+  resources:
+  - kappcontrollerconfigs
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - run.tanzu.vmware.com
+  resources:
+  - kappcontrollerconfigs/status
+  verbs:
+  - get

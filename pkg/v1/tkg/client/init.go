@@ -34,10 +34,11 @@ const (
 )
 
 const (
-	statusRunning       = "running"
-	statusFailed        = "failed"
-	statusSuccessful    = "successful"
-	vsphereVersionError = "the minimum vSphere version supported by Tanzu Kubernetes Grid is vSphere 6.7u3, please upgrade vSphere and try again"
+	editionAnnotationKey = "edition"
+	statusRunning        = "running"
+	statusFailed         = "failed"
+	statusSuccessful     = "successful"
+	vsphereVersionError  = "the minimum vSphere version supported by Tanzu Kubernetes Grid is vSphere 6.7u3, please upgrade vSphere and try again"
 )
 
 // management cluster init step constants
@@ -351,6 +352,12 @@ func (c *TkgClient) PatchClusterInitOperations(regionalClusterClient clusterclie
 	err := regionalClusterClient.PatchClusterObjectWithTKGVersion(options.ClusterName, targetClusterNamespace, c.tkgBomClient.GetCurrentTKGVersion())
 	if err != nil {
 		return errors.Wrap(err, "unable to patch TKG Version")
+	}
+
+	// Patch management cluster with the edition used to bootstrap it (e.g. tce or community-edition)
+	_, err = regionalClusterClient.PatchClusterObjectWithOptionalMetadata(options.ClusterName, targetClusterNamespace, "annotations", map[string]string{editionAnnotationKey: options.Edition})
+	if err != nil {
+		return errors.Wrap(err, "unable to patch edition under annotations")
 	}
 
 	// Patch management cluster with the provided optional metadata

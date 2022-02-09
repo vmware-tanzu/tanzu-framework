@@ -1,0 +1,69 @@
+#@ load("@ytt:overlay", "overlay")
+#@ load("@ytt:yaml", "yaml")
+#@ load("@ytt:data", "data")
+
+#@ def get_clusterclass_name():
+
+#@ if data.values.metadata.infraProvider == "aws":
+#@   return "tkg-clusterclass-aws"
+#@ end
+#@ if data.values.metadata.infraProvider == "docker":
+#@   return "tkg-clusterclass-docker"
+#@ end
+#@ if data.values.metadata.infraProvider == "azure":
+#@   return "tkg-clusterclass-azure"
+#@ end
+#@ if data.values.metadata.infraProvider == "vsphere":
+#@   return "tkg-clusterclass-vsphere"
+#@ end
+
+#@ end
+
+#@ def get_clusterclass_package_name():
+
+#@ if data.values.metadata.infraProvider == "aws":
+#@   return "tkg-clusterclass-aws.tanzu.vmware.com"
+#@ end
+#@ if data.values.metadata.infraProvider == "docker":
+#@   return "tkg-clusterclass-docker.tanzu.vmware.com"
+#@ end
+#@ if data.values.metadata.infraProvider == "azure":
+#@   return "tkg-clusterclass-azure.tanzu.vmware.com"
+#@ end
+#@ if data.values.metadata.infraProvider == "vsphere":
+#@   return "tkg-clusterclass-vsphere.tanzu.vmware.com"
+#@ end
+
+#@ end
+
+---
+apiVersion: packaging.carvel.dev/v1alpha1
+kind: PackageInstall
+metadata:
+  name: #@ get_clusterclass_name()
+  namespace: tkg-system
+  annotations:
+    kapp.k14s.io/change-rule.0: "upsert after upserting v1/sa-tkg-clusterclass-pkg"
+    kapp.k14s.io/change-rule.1: "delete before deleting v1/sa-tkg-clusterclass-pkg"
+spec:
+  serviceAccountName: tanzu-infra-clusterclass-package-sa
+  packageRef:
+    refName: #@ get_clusterclass_package_name()
+    versionSelection:
+      prereleases: {}
+  values:
+  - secretRef:
+      name: tkg-clusterclass-infra-values
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: tkg-clusterclass-infra-values
+  namespace: tkg-system
+  annotations:
+    kapp.k14s.io/change-rule.0: "upsert after upserting v1/sa-tkg-clusterclass-pkg"
+    kapp.k14s.io/change-rule.1: "delete before deleting v1/sa-tkg-clusterclass-pkg"
+type: Opaque
+stringData:
+  values.yaml: #@ yaml.encode(data.values.configvalues)

@@ -5,7 +5,7 @@ import { Validators } from '@angular/forms';
 import { distinctUntilChanged, takeUntil } from 'rxjs/operators';
 // App imports
 import AppServices from 'src/app/shared/service/appServices';
-import { AzureField } from '../azure-wizard.constants';
+import { AzureField, AzureForm, VnetOptionType } from '../azure-wizard.constants';
 import { AzureResourceGroup } from 'src/app/swagger/models';
 import { AzureVnetStandaloneStepMapping, AzureVnetStepMapping } from './vnet-step.fieldmapping';
 import { AzureVirtualNetwork } from './../../../../swagger/models/azure-virtual-network.model';
@@ -13,11 +13,8 @@ import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUti
 import { FormMetaDataStore } from '../../wizard/shared/FormMetaDataStore'
 import { StepFormDirective } from '../../wizard/shared/step-form/step-form';
 import { StepMapping } from '../../wizard/shared/field-mapping/FieldMapping';
-import { TkgEventType } from 'src/app/shared/service/Messenger';
+import { TanzuEventType } from 'src/app/shared/service/Messenger';
 import { ValidationService } from './../../wizard/shared/validation/validation.service';
-
-const CUSTOM = "CUSTOM";
-export const EXISTING = "EXISTING";
 
 @Component({
     selector: 'app-vnet-step',
@@ -26,7 +23,7 @@ export const EXISTING = "EXISTING";
 })
 export class VnetStepComponent extends StepFormDirective implements OnInit {
     region = '';    // Current region selected
-    showVnetFieldsOption = EXISTING;
+    showVnetFieldsOption: string = VnetOptionType.EXISTING;
     customResourceGroup = null;
 
     // An object maps vnet to subsets; data retrieved from backend
@@ -65,8 +62,8 @@ export class VnetStepComponent extends StepFormDirective implements OnInit {
      * Create the initial form
      */
     private subscribeToServices() {
-        AppServices.dataServiceRegistrar.stepSubscribe(this, TkgEventType.AZURE_GET_VNETS, this.setVnets.bind(this))
-        AppServices.dataServiceRegistrar.stepSubscribe(this, TkgEventType.AZURE_GET_RESOURCE_GROUPS,
+        AppServices.dataServiceRegistrar.stepSubscribe(this, TanzuEventType.AZURE_GET_VNETS, this.setVnets.bind(this))
+        AppServices.dataServiceRegistrar.stepSubscribe(this, TanzuEventType.AZURE_GET_RESOURCE_GROUPS,
             this.onFetchedResourceGroups.bind(this));
     }
 
@@ -105,7 +102,7 @@ export class VnetStepComponent extends StepFormDirective implements OnInit {
                 takeUntil(this.unsubscribe)
             ).subscribe((cidr) => {
                 AppServices.messenger.publish({
-                    type: TkgEventType.NETWORK_STEP_GET_NO_PROXY_INFO,
+                    type: TanzuEventType.NETWORK_STEP_GET_NO_PROXY_INFO,
                     payload: { info: (cidr ? cidr + ',' : '') + '169.254.0.0/16,168.63.129.16' }
                 });
                 this.triggerStepDescriptionChange();
@@ -113,13 +110,13 @@ export class VnetStepComponent extends StepFormDirective implements OnInit {
         /**
          * Whenever Azure region selection changes...
          */
-        AppServices.messenger.getSubject(TkgEventType.AZURE_REGION_CHANGED)
+        AppServices.messenger.getSubject(TanzuEventType.AZURE_REGION_CHANGED)
             .pipe(takeUntil(this.unsubscribe))
             .subscribe(event => {
                 this.onRegionChange(event.payload);
             });
 
-        AppServices.messenger.getSubject(TkgEventType.AZURE_RESOURCEGROUP_CHANGED)
+        AppServices.messenger.getSubject(TanzuEventType.AZURE_RESOURCEGROUP_CHANGED)
             .pipe(takeUntil(this.unsubscribe))
             .subscribe(event => {
                 this.customResourceGroup = event.payload;
@@ -160,11 +157,11 @@ export class VnetStepComponent extends StepFormDirective implements OnInit {
         const cidrOfSelectedControlPlaneSubnet = (subnetEntry) ? subnetEntry.cidr : '';
 
         this.setControlValueSafely(AzureField.VNET_CONTROLPLANE_SUBNET_CIDR, cidrOfSelectedControlPlaneSubnet);
-        this.cidrForPrivateCluster[EXISTING] = cidrOfSelectedControlPlaneSubnet;
+        this.cidrForPrivateCluster[VnetOptionType.EXISTING] = cidrOfSelectedControlPlaneSubnet;
     }
 
     onControlPlaneSubnetCidrNewChange(value: string) {
-        this.cidrForPrivateCluster[CUSTOM] = value;
+        this.cidrForPrivateCluster[VnetOptionType.CUSTOM] = value;
     }
 
     onCreatePrivateAzureCluster(createPrivateCluster: boolean) {
@@ -183,7 +180,7 @@ export class VnetStepComponent extends StepFormDirective implements OnInit {
     }
 
     initFormWithSavedData() {
-        const customResourceGroup1 = FormMetaDataStore.getMetaDataItem("providerForm", "resourceGroupCustom");
+        const customResourceGroup1 = FormMetaDataStore.getMetaDataItem(AzureForm.PROVIDER, AzureField.PROVIDER_RESOURCEGROUPCUSTOM);
         this.customResourceGroup = customResourceGroup1 ? customResourceGroup1.displayValue : '';
 
         this.setControlWithSavedValue(AzureField.VNET_PRIVATE_CLUSTER, false);
@@ -194,7 +191,7 @@ export class VnetStepComponent extends StepFormDirective implements OnInit {
         // into the existing slot. Note that we do this before deciding whether to show the custom or existing options
         this.modifySavedValuesIfVnetCustomNameIsNowExisting();
         const savedVnetCustom = this.getSavedValue(AzureField.VNET_CUSTOM_NAME, '');
-        const optionValue = savedVnetCustom !== '' ? CUSTOM : EXISTING;
+        const optionValue = savedVnetCustom !== '' ? VnetOptionType.CUSTOM : VnetOptionType.EXISTING;
         // NOTE: setting the EXISTING_OR_CUSTOM value will trigger the display to update
         this.setControlWithSavedValue(AzureField.VNET_EXISTING_OR_CUSTOM, optionValue);
     }
@@ -206,7 +203,7 @@ export class VnetStepComponent extends StepFormDirective implements OnInit {
 
     onResourceGroupChange(resourceGroupName) {
         if (resourceGroupName && resourceGroupName !== this.customResourceGroup) {
-            AppServices.dataServiceRegistrar.trigger([TkgEventType.AZURE_GET_VNETS], { resourceGroupName, location: this.region })
+            AppServices.dataServiceRegistrar.trigger([TanzuEventType.AZURE_GET_VNETS], { resourceGroupName, location: this.region })
         }
     }
 
@@ -259,14 +256,14 @@ export class VnetStepComponent extends StepFormDirective implements OnInit {
 
     private onExistingOrCustomOptionChange(option: string, clearSavedData = false) {
         this.showVnetFieldsOption = option;
-        if (option === EXISTING) {
+        if (option === VnetOptionType.EXISTING) {
             this.initVnetFieldsExisting(clearSavedData);
             if (this.vnetResourceGroups.length === 1) {
                 this.setControlValueSafely(AzureField.VNET_RESOURCE_GROUP, this.vnetResourceGroups[0].name);
             } else {
                 this.setControlWithSavedValue(AzureField.VNET_RESOURCE_GROUP);
             }
-        } else if (option === CUSTOM) {
+        } else if (option === VnetOptionType.CUSTOM) {
             this.showVnetFieldsCustom(clearSavedData);
         }
         this.onCreatePrivateAzureCluster(this.createPrivateCluster);
@@ -317,7 +314,7 @@ export class VnetStepComponent extends StepFormDirective implements OnInit {
             });
         }
         AppServices.messenger.publish({
-            type: TkgEventType.NETWORK_STEP_GET_NO_PROXY_INFO,
+            type: TanzuEventType.NETWORK_STEP_GET_NO_PROXY_INFO,
             payload: {info: '169.254.0.0/16,168.63.129.16'}
         });
 

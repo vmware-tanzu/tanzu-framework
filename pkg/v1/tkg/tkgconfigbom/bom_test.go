@@ -100,7 +100,7 @@ var (
 					fakeRegistry.GetFileReturns(nil, errors.New("fake GetFile error for TKG BOM file"))
 				})
 				It("returns an error", func() {
-					err := bomClient.DownloadDefaultBOMFilesFromRegistry(fakeRegistry)
+					err := bomClient.DownloadDefaultBOMFilesFromRegistry("", fakeRegistry)
 					Expect(err).To(HaveOccurred())
 					Expect(err.Error()).To(ContainSubstring("failed to download the BOM file from image name"))
 					Expect(err.Error()).To(ContainSubstring("fake GetFile error for TKG BOM file"))
@@ -115,7 +115,7 @@ var (
 					fakeRegistry.GetFileReturnsOnCall(1, nil, errors.New("fake GetFile error for TKr BOM file"))
 				})
 				It("should return an error", func() {
-					err := bomClient.DownloadDefaultBOMFilesFromRegistry(fakeRegistry)
+					err := bomClient.DownloadDefaultBOMFilesFromRegistry("", fakeRegistry)
 					Expect(err).To(HaveOccurred())
 					Expect(err.Error()).To(ContainSubstring("failed to download the BOM file from image name"))
 					Expect(err.Error()).To(ContainSubstring("fake GetFile error for TKr BOM file"))
@@ -131,7 +131,7 @@ var (
 					fakeRegistry.GetFileReturnsOnCall(1, tkrdata, nil)
 				})
 				It("should return success", func() {
-					err := bomClient.DownloadDefaultBOMFilesFromRegistry(fakeRegistry)
+					err := bomClient.DownloadDefaultBOMFilesFromRegistry("", fakeRegistry)
 					Expect(err).ToNot(HaveOccurred())
 				})
 			})
@@ -157,7 +157,7 @@ var (
 					fakeRegistry.ListImageTagsReturns(nil, errors.New("fake ListImageTags error for TKG Compatibility Image"))
 				})
 				It("returns an error", func() {
-					err := bomClient.DownloadTKGCompatibilityFileFromRegistry(fakeRegistry)
+					err := bomClient.DownloadTKGCompatibilityFileFromRegistry("", "", fakeRegistry)
 					Expect(err).To(HaveOccurred())
 					Expect(err.Error()).To(ContainSubstring("failed to list TKG compatibility image tags"))
 					Expect(err.Error()).To(ContainSubstring("fake ListImageTags error for TKG Compatibility Image"))
@@ -173,7 +173,7 @@ var (
 					// })
 				})
 				It("should return an error", func() {
-					err := bomClient.DownloadTKGCompatibilityFileFromRegistry(fakeRegistry)
+					err := bomClient.DownloadTKGCompatibilityFileFromRegistry("", "", fakeRegistry)
 					Expect(err).To(HaveOccurred())
 					Expect(err.Error()).To(ContainSubstring("failed to get valid image tags for TKG compatibility image"))
 
@@ -189,7 +189,7 @@ var (
 					})
 				})
 				It("should return an error", func() {
-					err := bomClient.DownloadTKGCompatibilityFileFromRegistry(fakeRegistry)
+					err := bomClient.DownloadTKGCompatibilityFileFromRegistry("", "", fakeRegistry)
 					Expect(err).To(HaveOccurred())
 					Expect(err.Error()).To(ContainSubstring("failed to download the TKG Compatibility file from image name"))
 					Expect(err.Error()).To(ContainSubstring("fake GetFile error for TKG Compatibility file"))
@@ -203,7 +203,7 @@ var (
 					fakeRegistry.GetFileReturns([]byte(testTKGCompatabilityFileContent), nil)
 				})
 				It("should return success", func() {
-					err := bomClient.DownloadTKGCompatibilityFileFromRegistry(fakeRegistry)
+					err := bomClient.DownloadTKGCompatibilityFileFromRegistry("", "", fakeRegistry)
 					Expect(err).ToNot(HaveOccurred())
 				})
 			})

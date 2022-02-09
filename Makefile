@@ -58,6 +58,9 @@ endif
 CUSTOM_NPM_REGISTRY ?= $(shell git config tkg.npmregistry)
 
 # TKG Compatibility Image repo and  path related configuration
+# These set the defaults after a fresh install in ~/.config/tanzu/config.yaml
+# Users can change these values by running commands like:
+# tanzu config set cli.edition tce
 ifndef TKG_DEFAULT_IMAGE_REPOSITORY
 TKG_DEFAULT_IMAGE_REPOSITORY = "projects-stg.registry.vmware.com/tkg"
 endif
@@ -482,7 +485,7 @@ test: generate fmt vet manifests build-cli-mocks ## Run tests
 
 	## Test the YTT cluster templates
 	echo "Changing into the provider test directory to verify ytt cluster templates..."
-	cd ./pkg/v1/providers/tests/unit && PATH=$(abspath hack/tools/bin):"$(PATH)" $(GO) test -v -timeout 30s ./
+	cd ./pkg/v1/providers/tests/unit && PATH=$(abspath hack/tools/bin):"$(PATH)" $(GO) test -v -timeout 90s ./
 	echo "... ytt cluster template verification complete!"
 
 	PATH=$(abspath hack/tools/bin):"$(PATH)" $(GO) test -coverprofile cover.out -v `go list ./... | grep -v github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/test`
@@ -751,3 +754,6 @@ management-package-vendir-sync: ## Performs a `vendir sync` for each management 
 		$(TOOLS_BIN_DIR)/vendir sync >> /dev/null;\
 		popd;\
 	done
+	
+.PHONY: package-push-bundles-repo ## Performs build and publishes packages and repo bundles
+package-push-bundles-repo: package-bundles push-package-bundles package-repo-bundle push-package-repo-bundles

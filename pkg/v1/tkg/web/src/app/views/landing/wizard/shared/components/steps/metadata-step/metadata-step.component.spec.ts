@@ -7,11 +7,12 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { APIClient } from '../../../../../../../swagger/api-client.service';
 import AppServices from 'src/app/shared/service/appServices';
 import { FieldMapUtilities } from '../../../field-mapping/FieldMapUtilities';
-import { Messenger, TkgEventType } from 'src/app/shared/service/Messenger';
+import { Messenger, TanzuEventType } from 'src/app/shared/service/Messenger';
 import { MetadataStepComponent } from './metadata-step.component';
 import { SharedModule } from '../../../../../../../shared/shared.module';
 import { ValidationService } from '../../../validation/validation.service';
 import { WizardForm } from '../../../constants/wizard.constants';
+import { MetadataField } from './metadata-step.fieldmapping';
 
 describe('MetadataStepComponent', () => {
     let component: MetadataStepComponent;
@@ -56,17 +57,17 @@ describe('MetadataStepComponent', () => {
     it('should delete existing label', () => {
         component.addLabel("akey", "avalue");
         expect(component.clusterLabelsValue).toEqual('akey:avalue');
-        component.deleteLabel("akey");
+        component.deleteLabel("newLabelKey2");
         expect(component.clusterLabelsValue).toEqual('');
     });
 
     it('should announce description change', () => {
         const msgSpy = spyOn(AppServices.messenger, 'publish').and.callThrough();
-        const locationControl = component.formGroup.controls['clusterLocation'];
+        const locationControl = component.formGroup.controls[MetadataField.CLUSTER_LOCATION];
 
         component.setClusterTypeDescriptor('CLOWN');
         expect(msgSpy).toHaveBeenCalledWith({
-            type: TkgEventType.STEP_DESCRIPTION_CHANGE,
+            type: TanzuEventType.STEP_DESCRIPTION_CHANGE,
             payload: {
                 wizard: 'BozoWizard',
                 step: WizardForm.METADATA,
@@ -76,7 +77,7 @@ describe('MetadataStepComponent', () => {
 
         locationControl.setValue('UZBEKISTAN');
         expect(msgSpy).toHaveBeenCalledWith({
-            type: TkgEventType.STEP_DESCRIPTION_CHANGE,
+            type: TanzuEventType.STEP_DESCRIPTION_CHANGE,
             payload: {
                 wizard: 'BozoWizard',
                 step: WizardForm.METADATA,
