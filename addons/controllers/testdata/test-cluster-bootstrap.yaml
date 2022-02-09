@@ -22,7 +22,7 @@ metadata:
     tanzuKubernetesRelease: v1.22.3
 ---
 apiVersion: run.tanzu.vmware.com/v1alpha3
-kind: TanzuClusterBootstrapTemplate
+kind: ClusterBootstrapTemplate
 metadata:
   name: v1.22.3
   namespace: tkg-system

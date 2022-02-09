@@ -18,7 +18,7 @@ import (
 )
 
 // TKRToClusters returns a list of Requests with Cluster ObjectKey for
-func (r *TanzuClusterBootstrapReconciler) TKRToClusters(o client.Object) []ctrl.Request {
+func (r *ClusterBootstrapReconciler) TKRToClusters(o client.Object) []ctrl.Request {
 	tkr, ok := o.(*runtanzuv1alpha3.TanzuKubernetesRelease)
 	if !ok {
 		r.Log.Error(errors.New("invalid type"),
@@ -46,18 +46,18 @@ func (r *TanzuClusterBootstrapReconciler) TKRToClusters(o client.Object) []ctrl.
 	return util.ClustersToRequests(clusters, log)
 }
 
-func (r *TanzuClusterBootstrapReconciler) TanzuClusterBootstrapToClusters(o client.Object) []ctrl.Request {
-	bootstrap, ok := o.(*runtanzuv1alpha3.TanzuClusterBootstrap)
+func (r *ClusterBootstrapReconciler) ClusterBootstrapToClusters(o client.Object) []ctrl.Request {
+	bootstrap, ok := o.(*runtanzuv1alpha3.ClusterBootstrap)
 	if !ok {
 		r.Log.Error(errors.New("invalid type"),
-			"Expected to receive TanzuClusterBootstrap resource",
+			"Expected to receive ClusterBootstrap resource",
 			"actualType", fmt.Sprintf("%T", o))
 		return nil
 	}
 
-	log := r.Log.WithValues(constants.TanzuClusterBootstrapNameLogKey, bootstrap.Name)
+	log := r.Log.WithValues(constants.ClusterBootstrapNameLogKey, bootstrap.Name)
 
-	log.V(4).Info("Mapping TanzuClusterBootstrap to cluster")
+	log.V(4).Info("Mapping ClusterBootstrap to cluster")
 
 	cluster := &clusterv1beta1.Cluster{}
 
@@ -70,13 +70,13 @@ func (r *TanzuClusterBootstrapReconciler) TanzuClusterBootstrapToClusters(o clie
 	}
 
 	if err := r.Client.Get(r.context, client.ObjectKey{Namespace: bootstrap.Namespace, Name: clusterName}, cluster); err != nil {
-		log.Error(err, "Error getting cluster using TanzuClusterBootstrap")
+		log.Error(err, "Error getting cluster using ClusterBootstrap")
 		return nil
 	}
 	return []ctrl.Request{{NamespacedName: client.ObjectKeyFromObject(cluster)}}
 }
 
-func (r *TanzuClusterBootstrapReconciler) ProviderToClusters(o client.Object) []ctrl.Request {
+func (r *ClusterBootstrapReconciler) ProviderToClusters(o client.Object) []ctrl.Request {
 	if o == nil {
 		return nil
 	}

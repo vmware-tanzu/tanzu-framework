@@ -13,6 +13,8 @@ spec:
     kind: AntreaConfig
     listKind: AntreaConfigList
     plural: antreaconfigs
+    shortNames:
+    - antreaconf
     singular: antreaconfig
   scope: Namespaced
   versions:
