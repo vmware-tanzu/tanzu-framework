@@ -8,6 +8,7 @@ import (
 
 	yttui "github.com/k14s/ytt/pkg/cmd/ui"
 	"github.com/k14s/ytt/pkg/files"
+	"github.com/k14s/ytt/pkg/schema"
 	"github.com/k14s/ytt/pkg/workspace"
 )
 
@@ -24,11 +25,11 @@ func ProcessYTTPackage(configDir string) ([]byte, error) {
 	libExecFact := workspace.NewLibraryExecutionFactory(&NoopUI{}, workspace.TemplateLoaderOpts{})
 	loader := libExecFact.New(libCtx)
 
-	valuesDoc, libraryValueDoc, err := loader.Values([]*workspace.DataValues{})
+	valuesDoc, libraryValueDoc, err := loader.Values([]*workspace.DataValues{}, schema.NewNullSchema())
 	if err != nil {
 		return nil, err
 	}
-	result, err := loader.Eval(valuesDoc, libraryValueDoc)
+	result, err := loader.Eval(valuesDoc, libraryValueDoc, []*schema.DocumentSchemaEnvelope{})
 	if err != nil {
 		return nil, err
 	}
