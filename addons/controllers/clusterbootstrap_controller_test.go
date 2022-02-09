@@ -22,7 +22,7 @@ import (
 	runtanzuv1alpha3 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
 )
 
-var _ = Describe("TanzuClusterBootstrap Reconciler", func() {
+var _ = Describe("ClusterBootstrap Reconciler", func() {
 	var (
 		clusterName             string
 		clusterResourceFilePath string
@@ -51,14 +51,14 @@ var _ = Describe("TanzuClusterBootstrap Reconciler", func() {
 		Expect(k8sClient.Delete(ctx, s)).To(Succeed())
 	})
 
-	Context("reconciletanzuClusterBootstrapNormal", func() {
+	Context("reconcileClusterBootstrapNormal", func() {
 
 		BeforeEach(func() {
 			clusterName = "test-cluster-tcbt"
-			clusterResourceFilePath = "testdata/test-cluster-cluster-bootstrap.yaml"
+			clusterResourceFilePath = "testdata/test-cluster-bootstrap.yaml"
 		})
 
-		It("Should create clone TanzuClusterBootstrapTemplate and its related objects for the cluster and create package secret for foobar.example.com.1.17.2", func() {
+		It("Should create clone ClusterBootstrapTemplate and its related objects for the cluster and create package secret for foobar.example.com.1.17.2", func() {
 			cluster := &clusterapiv1beta1.Cluster{}
 			Expect(k8sClient.Get(ctx, client.ObjectKey{Namespace: "default", Name: clusterName}, cluster)).To(Succeed())
 
@@ -94,7 +94,7 @@ var _ = Describe("TanzuClusterBootstrap Reconciler", func() {
 			var gvr schema.GroupVersionResource
 			var object *unstructured.Unstructured
 
-			// Verify providerRef exists and also the cloned provider object with ownerReferences to cluster and  TanzuClusterBootstrap
+			// Verify providerRef exists and also the cloned provider object with ownerReferences to cluster and ClusterBootstrap
 			Eventually(func() bool {
 				Expect(len(clusterBootstrap.Spec.AdditionalPackages) > 0).To(BeTrue())
 
@@ -113,14 +113,14 @@ var _ = Describe("TanzuClusterBootstrap Reconciler", func() {
 				Expect(err).ToNot(HaveOccurred())
 
 				var foundClusterOwnerRef bool
-				var foundTanzuClusterBootstrapOwnerRef bool
+				var foundClusterBootstrapOwnerRef bool
 				var foundLabels bool
 				for _, ownerRef := range object.GetOwnerReferences() {
 					if ownerRef.UID == cluster.UID {
 						foundClusterOwnerRef = true
 					}
 					if ownerRef.UID == clusterBootstrap.UID {
-						foundTanzuClusterBootstrapOwnerRef = true
+						foundClusterBootstrapOwnerRef = true
 					}
 				}
 				providerLabels := object.GetLabels()
@@ -129,7 +129,7 @@ var _ = Describe("TanzuClusterBootstrap Reconciler", func() {
 					foundLabels = true
 				}
 
-				if foundClusterOwnerRef && foundTanzuClusterBootstrapOwnerRef && foundLabels {
+				if foundClusterOwnerRef && foundClusterBootstrapOwnerRef && foundLabels {
 					return true
 				}
 				return false

@@ -148,7 +148,7 @@ func (r *ClusterBootstrapReconciler) Reconcile(ctx context.Context, req ctrl.Req
 	return r.reconcileNormal(cluster, log)
 }
 
-// reconcileNormal reconciles the TanzuBootstrapCluster object
+// reconcileNormal reconciles the ClusterBootstrap object
 func (r *ClusterBootstrapReconciler) reconcileNormal(cluster *clusterapiv1beta1.Cluster, log logr.Logger) (ctrl.Result, error) {
 	// get or clone or patch from template
 	clusterBootstrap, err := r.createOrPatchclusterBootstrapFromTemplate(cluster, log)

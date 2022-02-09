@@ -50,7 +50,7 @@ func (r *ClusterBootstrapReconciler) ClusterBootstrapToClusters(o client.Object)
 	bootstrap, ok := o.(*runtanzuv1alpha3.ClusterBootstrap)
 	if !ok {
 		r.Log.Error(errors.New("invalid type"),
-			"Expected to receive TanzuClusterBootstrap resource",
+			"Expected to receive ClusterBootstrap resource",
 			"actualType", fmt.Sprintf("%T", o))
 		return nil
 	}

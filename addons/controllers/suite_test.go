@@ -206,7 +206,7 @@ var _ = BeforeSuite(func(done Done) {
 	}).SetupWithManager(ctx, mgr, controller.Options{MaxConcurrentReconciles: 1})).To(Succeed())
 
 	bootstrapReconciler := NewClusterBootstrapReconciler(mgr.GetClient(),
-		ctrl.Log.WithName("controllers").WithName("TanzuClusterBootstrap"),
+		ctrl.Log.WithName("controllers").WithName("ClusterBootstrap"),
 		mgr.GetScheme(),
 	)
 	Expect(bootstrapReconciler.SetupWithManager(ctx, mgr, controller.Options{MaxConcurrentReconciles: 1})).To(Succeed())
