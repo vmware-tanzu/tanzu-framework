@@ -124,3 +124,12 @@ func GetRegistryTrustedCACertFileForWindows() (string, error) {
 	}
 	return path.Join(home, constants.TKGRegistryTrustedRootCAFileForWindows), nil
 }
+
+// GetConfigDefaultsFilePath returns config_default.yaml file path under TKG directory
+func (c *client) GetConfigDefaultsFilePath() (string, error) {
+	tkgDir, err := c.GetTKGProvidersDirectory()
+	if err != nil {
+		return "", err
+	}
+	return filepath.Join(tkgDir, constants.TKGConfigDefaultFileName), nil
+}

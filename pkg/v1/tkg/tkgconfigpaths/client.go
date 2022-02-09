@@ -46,4 +46,7 @@ type Client interface {
 
 	// GetTKGCompatibilityConfigPath returns TKG compatibility file path
 	GetTKGCompatibilityConfigPath() (string, error)
+
+	// GetConfigDefaultsFilePath returns config_default.yaml file path under TKG directory
+	GetConfigDefaultsFilePath() (string, error)
 }

@@ -207,6 +207,18 @@ type TKGConfigBomClient struct {
 		result1 string
 		result2 error
 	}
+	GetManagementPackageRepositoryImageStub        func() (string, error)
+	getManagementPackageRepositoryImageMutex       sync.RWMutex
+	getManagementPackageRepositoryImageArgsForCall []struct {
+	}
+	getManagementPackageRepositoryImageReturns struct {
+		result1 string
+		result2 error
+	}
+	getManagementPackageRepositoryImageReturnsOnCall map[int]struct {
+		result1 string
+		result2 error
+	}
 	InitBOMRegistryStub        func() (registry.Registry, error)
 	initBOMRegistryMutex       sync.RWMutex
 	initBOMRegistryArgsForCall []struct {
@@ -1169,6 +1181,62 @@ func (fake *TKGConfigBomClient) GetK8sVersionFromTkrVersionReturnsOnCall(i int, 
 	}{result1, result2}
 }
 
+func (fake *TKGConfigBomClient) GetManagementPackageRepositoryImage() (string, error) {
+	fake.getManagementPackageRepositoryImageMutex.Lock()
+	ret, specificReturn := fake.getManagementPackageRepositoryImageReturnsOnCall[len(fake.getManagementPackageRepositoryImageArgsForCall)]
+	fake.getManagementPackageRepositoryImageArgsForCall = append(fake.getManagementPackageRepositoryImageArgsForCall, struct {
+	}{})
+	stub := fake.GetManagementPackageRepositoryImageStub
+	fakeReturns := fake.getManagementPackageRepositoryImageReturns
+	fake.recordInvocation("GetManagementPackageRepositoryImage", []interface{}{})
+	fake.getManagementPackageRepositoryImageMutex.Unlock()
+	if stub != nil {
+		return stub()
+	}
+	if specificReturn {
+		return ret.result1, ret.result2
+	}
+	return fakeReturns.result1, fakeReturns.result2
+}
+
+func (fake *TKGConfigBomClient) GetManagementPackageRepositoryImageCallCount() int {
+	fake.getManagementPackageRepositoryImageMutex.RLock()
+	defer fake.getManagementPackageRepositoryImageMutex.RUnlock()
+	return len(fake.getManagementPackageRepositoryImageArgsForCall)
+}
+
+func (fake *TKGConfigBomClient) GetManagementPackageRepositoryImageCalls(stub func() (string, error)) {
+	fake.getManagementPackageRepositoryImageMutex.Lock()
+	defer fake.getManagementPackageRepositoryImageMutex.Unlock()
+	fake.GetManagementPackageRepositoryImageStub = stub
+}
+
+func (fake *TKGConfigBomClient) GetManagementPackageRepositoryImageReturns(result1 string, result2 error) {
+	fake.getManagementPackageRepositoryImageMutex.Lock()
+	defer fake.getManagementPackageRepositoryImageMutex.Unlock()
+	fake.GetManagementPackageRepositoryImageStub = nil
+	fake.getManagementPackageRepositoryImageReturns = struct {
+		result1 string
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *TKGConfigBomClient) GetManagementPackageRepositoryImageReturnsOnCall(i int, result1 string, result2 error) {
+	fake.getManagementPackageRepositoryImageMutex.Lock()
+	defer fake.getManagementPackageRepositoryImageMutex.Unlock()
+	fake.GetManagementPackageRepositoryImageStub = nil
+	if fake.getManagementPackageRepositoryImageReturnsOnCall == nil {
+		fake.getManagementPackageRepositoryImageReturnsOnCall = make(map[int]struct {
+			result1 string
+			result2 error
+		})
+	}
+	fake.getManagementPackageRepositoryImageReturnsOnCall[i] = struct {
+		result1 string
+		result2 error
+	}{result1, result2}
+}
+
 func (fake *TKGConfigBomClient) InitBOMRegistry() (registry.Registry, error) {
 	fake.initBOMRegistryMutex.Lock()
 	ret, specificReturn := fake.initBOMRegistryReturnsOnCall[len(fake.initBOMRegistryArgsForCall)]
@@ -1313,6 +1381,8 @@ func (fake *TKGConfigBomClient) Invocations() map[string][][]interface{} {
 	defer fake.getDefaultTkrBOMConfigurationMutex.RUnlock()
 	fake.getK8sVersionFromTkrVersionMutex.RLock()
 	defer fake.getK8sVersionFromTkrVersionMutex.RUnlock()
+	fake.getManagementPackageRepositoryImageMutex.RLock()
+	defer fake.getManagementPackageRepositoryImageMutex.RUnlock()
 	fake.initBOMRegistryMutex.RLock()
 	defer fake.initBOMRegistryMutex.RUnlock()
 	fake.isCustomRepositorySkipTLSVerifyMutex.RLock()

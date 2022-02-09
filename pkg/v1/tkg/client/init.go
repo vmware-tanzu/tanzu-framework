@@ -18,6 +18,7 @@ import (
 	clusterctl "sigs.k8s.io/cluster-api/cmd/clusterctl/client"
 	crtclient "sigs.k8s.io/controller-runtime/pkg/client"
 
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/config"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/clusterclient"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/kind"
@@ -201,6 +202,13 @@ func (c *TkgClient) InitRegion(options *InitRegionOptions) error { //nolint:funl
 		return errors.Wrap(err, "unable to initialize providers")
 	}
 
+	// If clusterclass feature flag is enabled then deploy management components
+	if config.IsFeatureActivated(config.FeatureFlagPackageBasedLCM) {
+		if err = c.InstallManagementComponents(bootstrapClusterKubeconfigPath, ""); err != nil {
+			return errors.Wrap(err, "unable to install management components to bootstrap cluster")
+		}
+	}
+
 	isStartedRegionalClusterCreation = true
 
 	targetClusterNamespace := defaultTkgNamespace
@@ -271,6 +279,13 @@ func (c *TkgClient) InitRegion(options *InitRegionOptions) error { //nolint:funl
 
 	if err := regionalClusterClient.PatchClusterAPIAWSControllersToUseEC2Credentials(); err != nil {
 		return err
+	}
+
+	// If clusterclass feature flag is enabled then deploy management components to the cluster
+	if config.IsFeatureActivated(config.FeatureFlagPackageBasedLCM) {
+		if err = c.InstallManagementComponents(regionalClusterKubeconfigPath, kubeContext); err != nil {
+			return errors.Wrap(err, "unable to install management components to management cluster")
+		}
 	}
 
 	log.Info("Waiting for the management cluster to get ready for move...")
