@@ -19,13 +19,15 @@ import (
 	awscreds "sigs.k8s.io/cluster-api-provider-aws/cmd/clusterawsadm/credentials"
 	iamv1 "sigs.k8s.io/cluster-api-provider-aws/iam/api/v1beta1"
 
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/config"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/web/server/models"
 )
 
 const (
-	defaultControlPlaneMinMemoryInGB = 8
-	defaultControlPlaneMinCPU        = 2
-	tanzuMissionControlPoliciesSID   = "tmccloudvmwarecom"
+	defaultNodeMinMemoryInGB       = 8
+	defaultNodeMinCPU              = 2
+	cpuArm64                       = "arm64"
+	tanzuMissionControlPoliciesSID = "tmccloudvmwarecom"
 )
 
 type client struct {
@@ -372,8 +374,9 @@ func (c *client) ListInstanceTypes(optionalAZName string) ([]string, error) {
 		if err != nil {
 			return nil, err
 		}
-		filteredInstances := filterInstanceType(candidates)
-		diffInstancesPerAz := getSetDifference(instances, filteredInstances)
+		// filter and build a list of unsupported instance types
+		unsupportedInstances := getUnsupportedInstanceTypes(candidates)
+		diffInstancesPerAz := getSetDifference(instances, unsupportedInstances)
 
 		return diffInstancesPerAz, nil
 	}
@@ -383,8 +386,8 @@ func (c *client) ListInstanceTypes(optionalAZName string) ([]string, error) {
 		return nil, err
 	}
 
-	// here we filter the unsupported instance types
-	filteredInstances := filterInstanceType(candidates)
+	// filter and build a list of unsupported instance types
+	unsupportedInstances := getUnsupportedInstanceTypes(candidates)
 	var res []string
 	for i, az := range azs.AvailabilityZones {
 		filters := []*ec2.Filter{
@@ -398,7 +401,7 @@ func (c *client) ListInstanceTypes(optionalAZName string) ([]string, error) {
 		instances, err := getInstanceTypeOffering(svc, filter)
 
 		// Do the set difference operation to filter out the unsupported instances
-		diffInstancesPerAz := getSetDifference(instances, filteredInstances)
+		diffInstancesPerAz := getSetDifference(instances, unsupportedInstances)
 		if err != nil {
 			return nil, err
 		}
@@ -412,10 +415,32 @@ func (c *client) ListInstanceTypes(optionalAZName string) ([]string, error) {
 	return res, nil
 }
 
-// meetsNodeMininumRequirements checks if the node meet the minimum requirements of the controlplane node
-func meetsNodeMininumRequirements(instanceInfo *ec2.InstanceTypeInfo) bool {
-	return ((*instanceInfo.MemoryInfo.SizeInMiB / 1024) >= defaultControlPlaneMinMemoryInGB) &&
-		(*instanceInfo.VCpuInfo.DefaultVCpus >= defaultControlPlaneMinCPU)
+// meetsNodeMinimumRequirements checks if the instance type meets the minimum requirements of the target node
+func meetsNodeMinimumRequirements(instanceInfo *ec2.InstanceTypeInfo) bool {
+	return ((*instanceInfo.MemoryInfo.SizeInMiB / 1024) >= defaultNodeMinMemoryInGB) &&
+		(*instanceInfo.VCpuInfo.DefaultVCpus >= defaultNodeMinCPU)
+}
+
+// isSupportedInstance checks feature flag to determine if CPU supported architecture filters should be applied
+func isSupportedInstance(instanceInfo *ec2.InstanceTypeInfo) bool {
+	if config.IsFeatureActivated(config.FeatureFlagAwsInstanceTypesExcludeArm) {
+		// feature flag is active; apply filtering
+		return isSupportedCpuArchitecture(instanceInfo)
+	}
+	return true
+}
+
+// isSupportedCpuArchitecture checks if the node includes unsupported CPU architecture
+func isSupportedCpuArchitecture(instanceInfo *ec2.InstanceTypeInfo) bool {
+
+	// SupportedArchitectures []*string is a list of CPU architectures which are supported in the instance type
+	// if arm64 is present then exclude this instance type
+	for _, cpu := range instanceInfo.ProcessorInfo.SupportedArchitectures {
+		if *cpu == cpuArm64 {
+			return false
+		}
+	}
+	return true
 }
 
 func getInstanceTypes(svc *ec2.EC2) ([]*ec2.InstanceTypeInfo, error) {
@@ -475,12 +500,13 @@ func getSetDifference(a, b []string) (diff []string) {
 	return diff
 }
 
-func filterInstanceType(ss []*ec2.InstanceTypeInfo) (ret []string) {
-	for _, s := range ss {
-		// using control-plane node requirements as the criteria to filter the unsupported instance type
-		controlPlaneTest := meetsNodeMininumRequirements(s)
-		if !controlPlaneTest {
-			ret = append(ret, aws.StringValue(s.InstanceType))
+// getUnsupportedInstanceTypes generates list of unsupported instance types
+func getUnsupportedInstanceTypes(instanceTypes []*ec2.InstanceTypeInfo) (ret []string) {
+	for _, instanceTypeObj := range instanceTypes {
+		// using node requirements as the criteria to filter the unsupported instance type
+		supportedInstanceType := meetsNodeMinimumRequirements(instanceTypeObj) && isSupportedInstance(instanceTypeObj)
+		if !supportedInstanceType {
+			ret = append(ret, aws.StringValue(instanceTypeObj.InstanceType))
 		}
 	}
 	return
