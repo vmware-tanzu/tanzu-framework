@@ -23,6 +23,7 @@ import (
 	kapppkg "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apiserver/apis/datapackaging/v1alpha1"
 	secretgenctrl "github.com/vmware-tanzu/carvel-secretgen-controller/pkg/apis/secretgen2/v1alpha1"
 
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgpackagedatamodel"
 )
 
@@ -65,6 +66,11 @@ func NewKappClient(kubeCfgPath string) (Client, error) {
 	if restConfig, err = GetKubeConfig(kubeCfgPath); err != nil {
 		return nil, err
 	}
+
+	// As there are many registered resources in the cluster, set the values for the maximum number of
+	// queries per second and the maximum burst for throttle to a high value to avoid throttling of messages
+	restConfig.QPS = constants.DefaultQPS
+	restConfig.Burst = constants.DefaultBurst
 
 	mapper, err := apiutil.NewDynamicRESTMapper(restConfig, apiutil.WithLazyDiscovery)
 	if err != nil {

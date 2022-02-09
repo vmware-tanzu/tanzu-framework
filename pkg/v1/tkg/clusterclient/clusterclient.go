@@ -2501,6 +2501,10 @@ func getK8sClients(kubeConfigBytes []byte, crtClientFactory CrtClientFactory, di
 	if err != nil {
 		return nil, errors.Errorf("Unable to set up rest config due to : %v", err)
 	}
+	// As there are many registered resources in the cluster, set the values for the maximum number of
+	// queries per second and the maximum burst for throttle to a high value to avoid throttling of messages
+	restConfig.QPS = constants.DefaultQPS
+	restConfig.Burst = constants.DefaultBurst
 	mapper, err := apiutil.NewDynamicRESTMapper(restConfig, apiutil.WithLazyDiscovery)
 	if err != nil {
 		return nil, errors.Errorf("Unable to set up rest mapper due to : %v", err)
