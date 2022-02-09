@@ -55,22 +55,22 @@ var _ = Describe("TanzuClusterBootstrap Reconciler", func() {
 
 		BeforeEach(func() {
 			clusterName = "test-cluster-tcbt"
-			clusterResourceFilePath = "testdata/test-cluster-tanzu-cluster-bootstrap.yaml"
+			clusterResourceFilePath = "testdata/test-cluster-cluster-bootstrap.yaml"
 		})
 
 		It("Should create clone TanzuClusterBootstrapTemplate and its related objects for the cluster and create package secret for foobar.example.com.1.17.2", func() {
 			cluster := &clusterapiv1beta1.Cluster{}
 			Expect(k8sClient.Get(ctx, client.ObjectKey{Namespace: "default", Name: clusterName}, cluster)).To(Succeed())
 
-			tanzuClusterBootstrap := &runtanzuv1alpha3.TanzuClusterBootstrap{}
+			clusterBootstrap := &runtanzuv1alpha3.ClusterBootstrap{}
 
 			// Verify ownerReference for cluster in cloned object
 			Eventually(func() bool {
-				err := k8sClient.Get(ctx, client.ObjectKeyFromObject(cluster), tanzuClusterBootstrap)
+				err := k8sClient.Get(ctx, client.ObjectKeyFromObject(cluster), clusterBootstrap)
 				if err != nil {
 					return false
 				}
-				for _, ownerRef := range tanzuClusterBootstrap.OwnerReferences {
+				for _, ownerRef := range clusterBootstrap.OwnerReferences {
 					if ownerRef.UID == cluster.UID {
 						return true
 					}
@@ -80,11 +80,11 @@ var _ = Describe("TanzuClusterBootstrap Reconciler", func() {
 
 			// Verify ResolvedTKR
 			Eventually(func() bool {
-				err := k8sClient.Get(ctx, client.ObjectKeyFromObject(cluster), tanzuClusterBootstrap)
+				err := k8sClient.Get(ctx, client.ObjectKeyFromObject(cluster), clusterBootstrap)
 				if err != nil {
 					return false
 				}
-				if tanzuClusterBootstrap.Status.ResolvedTKR == "v1.22.3" {
+				if clusterBootstrap.Status.ResolvedTKR == "v1.22.3" {
 					return true
 				}
 
@@ -96,9 +96,9 @@ var _ = Describe("TanzuClusterBootstrap Reconciler", func() {
 
 			// Verify providerRef exists and also the cloned provider object with ownerReferences to cluster and  TanzuClusterBootstrap
 			Eventually(func() bool {
-				Expect(len(tanzuClusterBootstrap.Spec.AdditionalPackages) > 0).To(BeTrue())
+				Expect(len(clusterBootstrap.Spec.AdditionalPackages) > 0).To(BeTrue())
 
-				fooPackage := tanzuClusterBootstrap.Spec.AdditionalPackages[0]
+				fooPackage := clusterBootstrap.Spec.AdditionalPackages[0]
 				Expect(fooPackage.RefName == "foobar.example.com.1.17.2").To(BeTrue())
 				Expect(*fooPackage.ValuesFrom.ProviderRef.APIGroup == "run.tanzu.vmware.com").To(BeTrue())
 				Expect(fooPackage.ValuesFrom.ProviderRef.Kind == "FooBar").To(BeTrue())
@@ -119,7 +119,7 @@ var _ = Describe("TanzuClusterBootstrap Reconciler", func() {
 					if ownerRef.UID == cluster.UID {
 						foundClusterOwnerRef = true
 					}
-					if ownerRef.UID == tanzuClusterBootstrap.UID {
+					if ownerRef.UID == clusterBootstrap.UID {
 						foundTanzuClusterBootstrapOwnerRef = true
 					}
 				}

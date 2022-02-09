@@ -205,11 +205,11 @@ var _ = BeforeSuite(func(done Done) {
 		Scheme: mgr.GetScheme(),
 	}).SetupWithManager(ctx, mgr, controller.Options{MaxConcurrentReconciles: 1})).To(Succeed())
 
-	tanzuBootstrapReconciler := NewtanzuClusterBootstrapReconciler(mgr.GetClient(),
+	bootstrapReconciler := NewClusterBootstrapReconciler(mgr.GetClient(),
 		ctrl.Log.WithName("controllers").WithName("TanzuClusterBootstrap"),
 		mgr.GetScheme(),
 	)
-	Expect(tanzuBootstrapReconciler.SetupWithManager(ctx, mgr, controller.Options{MaxConcurrentReconciles: 1})).To(Succeed())
+	Expect(bootstrapReconciler.SetupWithManager(ctx, mgr, controller.Options{MaxConcurrentReconciles: 1})).To(Succeed())
 
 	// pre-create namespace
 	ns := &corev1.Namespace{ObjectMeta: metav1.ObjectMeta{Name: "tkr-system"}}

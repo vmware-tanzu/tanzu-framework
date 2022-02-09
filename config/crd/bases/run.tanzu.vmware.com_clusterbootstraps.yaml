@@ -6,16 +6,16 @@ metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.7.0
   creationTimestamp: null
-  name: tanzuclusterbootstraptemplates.run.tanzu.vmware.com
+  name: clusterbootstraps.run.tanzu.vmware.com
 spec:
   group: run.tanzu.vmware.com
   names:
-    kind: TanzuClusterBootstrapTemplate
-    listKind: TanzuClusterBootstrapTemplateList
-    plural: tanzuclusterbootstraptemplates
+    kind: ClusterBootstrap
+    listKind: ClusterBootstrapList
+    plural: clusterbootstraps
     shortNames:
-    - tcbt
-    singular: tanzuclusterbootstraptemplate
+    - cb
+    singular: clusterbootstrap
   scope: Namespaced
   versions:
   - additionalPrinterColumns:
@@ -40,11 +40,14 @@ spec:
       name: Additional Packages
       priority: 10
       type: string
+    - description: Resolved TKR name
+      jsonPath: .status.resolvedTKR
+      name: Resolved_TKR
+      type: string
     name: v1alpha3
     schema:
       openAPIV3Schema:
-        description: TanzuClusterBootstrapTemplate is the Schema for the tanzuclusterbootstraptemplates
-          API
+        description: ClusterBootstrap is the Schema for the ClusterBootstraps API
         properties:
           apiVersion:
             description: 'APIVersion defines the versioned schema of this representation
@@ -59,8 +62,8 @@ spec:
           metadata:
             type: object
           spec:
-            description: TanzuClusterBootstrapTemplateSpec defines the desired state
-              of TanzuClusterBootstrapTemplate
+            description: ClusterBootstrapTemplateSpec defines the desired state of
+              ClusterBootstrapTemplate
             properties:
               additionalPackages:
                 items:
@@ -242,12 +245,19 @@ spec:
                 - refName
                 type: object
             type: object
+          status:
+            description: ClusterBootstrapStatus defines the observed state of ClusterBootstrap
+            properties:
+              resolvedTKR:
+                type: string
+            type: object
         required:
         - spec
         type: object
     served: true
     storage: true
-    subresources: {}
+    subresources:
+      status: {}
 status:
   acceptedNames:
     kind: ""

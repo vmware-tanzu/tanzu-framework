@@ -7,14 +7,14 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-// TanzuClusterBootstrapStatus defines the observed state of TanzuClusterBootstrap
-type TanzuClusterBootstrapStatus struct {
+// ClusterBootstrapStatus defines the observed state of ClusterBootstrap
+type ClusterBootstrapStatus struct {
 	ResolvedTKR string `json:"resolvedTKR,omitempty"`
 }
 
 // +kubebuilder:object:root=true
 // +kubebuilder:subresource:status
-// +kubebuilder:resource:path=tanzuclusterbootstraps,shortName=tcb,scope=Namespaced
+// +kubebuilder:resource:path=clusterbootstraps,shortName=cb,scope=Namespaced
 // +kubebuilder:printcolumn:name="CNI",type="string",JSONPath=".spec.cni.refName",description="CNI package name and version"
 // +kubebuilder:printcolumn:name="CSI",type="string",JSONPath=".spec.csi.refName",description="CSI package name and version"
 // +kubebuilder:printcolumn:name="CPI",type="string",JSONPath=".spec.cpi.refName",description="CPI package name and version"
@@ -22,24 +22,24 @@ type TanzuClusterBootstrapStatus struct {
 // +kubebuilder:printcolumn:name="Additional Packages",type="string",JSONPath=".spec.additionalPackages[*].refName",description="Additional packages",priority=10
 // +kubebuilder:printcolumn:name="Resolved_TKR",type="string",JSONPath=".status.resolvedTKR",description="Resolved TKR name"
 
-// TanzuClusterBootstrap is the Schema for the tanzuclusterbootstraps API
-type TanzuClusterBootstrap struct {
+// ClusterBootstrap is the Schema for the ClusterBootstraps API
+type ClusterBootstrap struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
-	Spec   *TanzuClusterBootstrapTemplateSpec `json:"spec"`
-	Status TanzuClusterBootstrapStatus        `json:"status,omitempty"`
+	Spec   *ClusterBootstrapTemplateSpec `json:"spec"`
+	Status ClusterBootstrapStatus        `json:"status,omitempty"`
 }
 
 //+kubebuilder:object:root=true
 
-// TanzuClusterBootstrapList contains a list of TanzuClusterBootstrap
-type TanzuClusterBootstrapList struct {
+// ClusterBootstrapList contains a list of ClusterBootstrap
+type ClusterBootstrapList struct {
 	metav1.TypeMeta `json:",inline"`
 	metav1.ListMeta `json:"metadata,omitempty"`
-	Items           []TanzuClusterBootstrap `json:"items"`
+	Items           []ClusterBootstrap `json:"items"`
 }
 
 func init() {
-	SchemeBuilder.Register(&TanzuClusterBootstrap{}, &TanzuClusterBootstrapList{})
+	SchemeBuilder.Register(&ClusterBootstrap{}, &ClusterBootstrapList{})
 }
