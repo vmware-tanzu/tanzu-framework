@@ -49,12 +49,16 @@ export class VsphereNetworkStepComponent extends SharedNetworkStepComponent {
                 chosenNetwork = networks[0];
             } else {
                 const fieldMapping = AppServices.fieldMapUtilities.getFieldMapping(VsphereField.NETWORK_NAME, this.supplyStepMapping());
-                chosenNetwork = AppServices.userDataService.retrieveStoredValue(this.wizardName, this.formName, fieldMapping, network => {
-                    return networks.find(networkName => network.name === networkName);
-                });
+                chosenNetwork = AppServices.userDataService.retrieveStoredValue(this.wizardName, this.formName, fieldMapping,
+                    this.networkFromName.bind(this));
             }
         }
         this.resurrectField(VsphereField.NETWORK_NAME, [Validators.required], chosenNetwork, { onlySelf: true } );
+    }
+
+    // given a network name, returns the VSphereNetwork associated with that name. Note: method assumes this.vmNetworks is always valid
+    private networkFromName(networkName: string): VSphereNetwork {
+        return this.vmNetworks.find(network => network.name === networkName);
     }
 
     protected onNoProxyChange(value: string) {
