@@ -425,13 +425,13 @@ func meetsNodeMinimumRequirements(instanceInfo *ec2.InstanceTypeInfo) bool {
 func isSupportedInstance(instanceInfo *ec2.InstanceTypeInfo) bool {
 	if config.IsFeatureActivated(config.FeatureFlagAwsInstanceTypesExcludeArm) {
 		// feature flag is active; apply filtering
-		return isSupportedCpuArchitecture(instanceInfo)
+		return isSupportedCPUArchitecture(instanceInfo)
 	}
 	return true
 }
 
-// isSupportedCpuArchitecture checks if the node includes unsupported CPU architecture
-func isSupportedCpuArchitecture(instanceInfo *ec2.InstanceTypeInfo) bool {
+// isSupportedCPUArchitecture checks if the node includes unsupported CPU architecture
+func isSupportedCPUArchitecture(instanceInfo *ec2.InstanceTypeInfo) bool {
 
 	// SupportedArchitectures []*string is a list of CPU architectures which are supported in the instance type
 	// if arm64 is present then exclude this instance type
