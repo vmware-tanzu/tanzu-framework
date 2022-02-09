@@ -14,10 +14,32 @@ import (
 	kappipkg "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/packaging/v1alpha1"
 	versions "github.com/vmware-tanzu/carvel-vendir/pkg/vendir/versions/v1alpha1"
 
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/log"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgpackagedatamodel"
 )
 
 func (p *pkgClient) UpdateRepository(o *tkgpackagedatamodel.RepositoryOptions, progress *tkgpackagedatamodel.PackageProgress, operationType tkgpackagedatamodel.OperationType) {
+	p.updateRepository(o, progress, operationType)
+}
+
+func (p *pkgClient) UpdateRepositorySync(o *tkgpackagedatamodel.RepositoryOptions, operationType tkgpackagedatamodel.OperationType) error {
+	pp := newPackageProgress()
+
+	go p.updateRepository(o, pp, operationType)
+
+	initialMsg := fmt.Sprintf("Updating package repository '%s'", o.RepositoryName)
+	if err := DisplayProgress(initialMsg, pp); err != nil {
+		if err.Error() == tkgpackagedatamodel.ErrRepoNotExists {
+			log.Warningf("package repository '%s' does not exist in namespace '%s'", o.RepositoryName, o.Namespace)
+			return nil
+		}
+		return err
+	}
+	log.Infof("Updated package repository '%s' in namespace '%s'", o.RepositoryName, o.Namespace)
+	return nil
+}
+
+func (p *pkgClient) updateRepository(o *tkgpackagedatamodel.RepositoryOptions, progress *tkgpackagedatamodel.PackageProgress, operationType tkgpackagedatamodel.OperationType) {
 	var (
 		existingRepository *kappipkg.PackageRepository
 		err                error

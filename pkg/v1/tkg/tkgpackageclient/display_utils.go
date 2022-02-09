@@ -1,7 +1,7 @@
 // Copyright 2021 VMware, Inc. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-package main
+package tkgpackageclient
 
 import (
 	"fmt"
@@ -87,5 +87,13 @@ func DisplayProgress(initialMsg string, pp *tkgpackagedatamodel.PackageProgress)
 			}
 			return nil
 		}
+	}
+}
+
+func newPackageProgress() *tkgpackagedatamodel.PackageProgress {
+	return &tkgpackagedatamodel.PackageProgress{
+		ProgressMsg: make(chan string, 10),
+		Err:         make(chan error),
+		Done:        make(chan struct{}),
 	}
 }

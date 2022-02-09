@@ -21,11 +21,34 @@ import (
 	kappctrl "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/kappctrl/v1alpha1"
 	kappipkg "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/packaging/v1alpha1"
 
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/log"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgpackagedatamodel"
 )
 
 // UninstallPackage uninstalls the PackageInstall and its associated resources from the cluster
 func (p *pkgClient) UninstallPackage(o *tkgpackagedatamodel.PackageOptions, progress *tkgpackagedatamodel.PackageProgress) {
+	p.uninstallPackage(o, progress)
+}
+
+// UninstallPackage uninstalls the PackageInstall and its associated resources from the cluster and returns error if any
+func (p *pkgClient) UninstallPackageSync(o *tkgpackagedatamodel.PackageOptions) error {
+	pp := newPackageProgress()
+
+	go p.UninstallPackage(o, pp)
+
+	initialMsg := fmt.Sprintf("Uninstalling package '%s' from namespace '%s'", o.PkgInstallName, o.Namespace)
+	if err := DisplayProgress(initialMsg, pp); err != nil {
+		if err.Error() == tkgpackagedatamodel.ErrPackageNotInstalled {
+			log.Warningf("package '%s' is not installed in namespace '%s'.", o.PkgInstallName, o.Namespace)
+			return nil
+		}
+		return err
+	}
+	log.Infof("%s", fmt.Sprintf("Uninstalled package '%s' from namespace '%s'", o.PkgInstallName, o.Namespace))
+	return nil
+}
+
+func (p *pkgClient) uninstallPackage(o *tkgpackagedatamodel.PackageOptions, progress *tkgpackagedatamodel.PackageProgress) {
 	var (
 		pkgInstall *kappipkg.PackageInstall
 		err        error

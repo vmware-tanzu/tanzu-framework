@@ -16,10 +16,33 @@ import (
 
 	kappipkg "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/packaging/v1alpha1"
 
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/log"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgpackagedatamodel"
 )
 
 func (p *pkgClient) UpdatePackage(o *tkgpackagedatamodel.PackageOptions, progress *tkgpackagedatamodel.PackageProgress, operationType tkgpackagedatamodel.OperationType) {
+	p.updatePackage(o, progress, operationType)
+}
+
+// UpdatePackageSync installs/updates the package and returns an error if any
+func (p *pkgClient) UpdatePackageSync(o *tkgpackagedatamodel.PackageOptions, operationType tkgpackagedatamodel.OperationType) error {
+	pp := newPackageProgress()
+
+	go p.updatePackage(o, pp, operationType)
+
+	initialMsg := fmt.Sprintf("Updating installed package '%s'", o.PkgInstallName)
+	if err := DisplayProgress(initialMsg, pp); err != nil {
+		if err.Error() == tkgpackagedatamodel.ErrPackageNotInstalled {
+			log.Warningf("package '%s' is not among the list of installed packages in namespace '%s'", o.PkgInstallName, o.Namespace)
+			return nil
+		}
+		return err
+	}
+	log.Infof("%s", fmt.Sprintf("Updated installed package '%s' in namespace '%s'", o.PkgInstallName, o.Namespace))
+	return nil
+}
+
+func (p *pkgClient) updatePackage(o *tkgpackagedatamodel.PackageOptions, progress *tkgpackagedatamodel.PackageProgress, operationType tkgpackagedatamodel.OperationType) {
 	var (
 		pkgInstall                      *kappipkg.PackageInstall
 		pkgInstallToUpdate              *kappipkg.PackageInstall
