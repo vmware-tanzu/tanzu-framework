@@ -9,7 +9,6 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/log"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgpackageclient"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgpackagedatamodel"
 )
@@ -49,22 +48,5 @@ func packageUninstall(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	pp := &tkgpackagedatamodel.PackageProgress{
-		ProgressMsg: make(chan string, 10),
-		Err:         make(chan error),
-		Done:        make(chan struct{}),
-	}
-	go pkgClient.UninstallPackage(packageInstalledOp, pp)
-
-	initialMsg := fmt.Sprintf("Uninstalling package '%s' from namespace '%s'", packageInstalledOp.PkgInstallName, packageInstalledOp.Namespace)
-	if err := DisplayProgress(initialMsg, pp); err != nil {
-		if err.Error() == tkgpackagedatamodel.ErrPackageNotInstalled {
-			log.Warningf("package '%s' is not installed in namespace '%s'.", packageInstalledOp.PkgInstallName, packageInstalledOp.Namespace)
-			return nil
-		}
-		return err
-	}
-
-	log.Infof("%s", fmt.Sprintf("Uninstalled package '%s' from namespace '%s'", packageInstalledOp.PkgInstallName, packageInstalledOp.Namespace))
-	return nil
+	return pkgClient.UninstallPackageSync(packageInstalledOp)
 }

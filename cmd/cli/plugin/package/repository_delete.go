@@ -10,7 +10,6 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/log"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgpackageclient"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgpackagedatamodel"
 )
@@ -54,23 +53,5 @@ func repositoryDelete(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	pp := &tkgpackagedatamodel.PackageProgress{
-		ProgressMsg: make(chan string, 10),
-		Err:         make(chan error),
-		Done:        make(chan struct{}),
-	}
-
-	go pkgClient.DeleteRepository(repoOp, pp)
-
-	initialMsg := fmt.Sprintf("Deleting package repository '%s'", repoOp.RepositoryName)
-	if err := DisplayProgress(initialMsg, pp); err != nil {
-		if err.Error() == tkgpackagedatamodel.ErrRepoNotExists {
-			log.Warningf("package repository '%s' does not exist in namespace '%s'", repoOp.RepositoryName, repoOp.Namespace)
-			return nil
-		}
-		return err
-	}
-
-	log.Infof("Deleted package repository '%s' from namespace '%s'", repoOp.RepositoryName, repoOp.Namespace)
-	return nil
+	return pkgClient.DeleteRepositorySync(repoOp)
 }
