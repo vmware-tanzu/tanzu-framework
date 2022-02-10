@@ -98,6 +98,7 @@ type KappControllerConfigStatus struct {
 
 //+kubebuilder:object:root=true
 //+kubebuilder:subresource:status
+//+kubebuilder:resource:path=kappcontrollerconfigs,shortName=kappconf,scope=Namespaced
 //+kubebuilder:printcolumn:name="Namespace",type="string",JSONPath=".spec.namespace",description="The namespace in which kapp-controller is deployed"
 //+kubebuilder:printcolumn:name="GlobalNamespace",type="string",JSONPath=".spec.kappController.globalNamespace",description="The namespace value used for global packaging resources. Any Package and PackageMetadata CRs within that namespace will be included in all other namespaces on the cluster, without duplicating them"
 //+kubebuilder:printcolumn:name="SecretName",type="string",JSONPath=".status.secretName",description="Name of the kapp-controller data values secret"

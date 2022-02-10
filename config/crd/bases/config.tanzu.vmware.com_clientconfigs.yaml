@@ -32,6 +32,17 @@ spec:
               cli:
                 description: CLI options specific to the CLI.
                 properties:
+                  bomRepo:
+                    description: BOMRepo is the root repository URL used to resolve
+                      the compatibiilty file and bill of materials. An example URL
+                      is projects.registry.vmware.com/tkg.
+                    type: string
+                  compatibilityFilePath:
+                    description: CompatibilityFilePath is the path, from the BOM repo,
+                      to download and access the compatibility file. the compatibility
+                      file is used for resolving the bill of materials for creating
+                      clusters.
+                    type: string
                   discoverySources:
                     description: DiscoverySources determines from where to discover
                       stand-alone plugins

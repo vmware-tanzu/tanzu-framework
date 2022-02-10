@@ -4,11 +4,8 @@
 package main
 
 import (
-	"fmt"
-
 	"github.com/spf13/cobra"
 
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/log"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgpackageclient"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgpackagedatamodel"
 )
@@ -34,7 +31,7 @@ func init() {
 	repositoryCmd.AddCommand(repositoryAddCmd)
 }
 
-func repositoryAdd(_ *cobra.Command, args []string) error { //nolint
+func repositoryAdd(_ *cobra.Command, args []string) error {
 	repoOp.RepositoryName = args[0]
 
 	pkgClient, err := tkgpackageclient.NewTKGPackageClient(kubeConfig)
@@ -42,22 +39,5 @@ func repositoryAdd(_ *cobra.Command, args []string) error { //nolint
 		return err
 	}
 
-	pp := &tkgpackagedatamodel.PackageProgress{
-		ProgressMsg: make(chan string, 10),
-		Err:         make(chan error),
-		Done:        make(chan struct{}),
-	}
-	go pkgClient.AddRepository(repoOp, pp, tkgpackagedatamodel.OperationTypeInstall)
-
-	initialMsg := fmt.Sprintf("Adding package repository '%s'", repoOp.RepositoryName)
-	if err := DisplayProgress(initialMsg, pp); err != nil {
-		if err.Error() == tkgpackagedatamodel.ErrRepoAlreadyExists {
-			log.Infof("Updated package repository '%s' in namespace '%s'", repoOp.RepositoryName, repoOp.Namespace)
-			return nil
-		}
-		return err
-	}
-
-	log.Infof("Added package repository '%s' in namespace '%s'", repoOp.RepositoryName, repoOp.Namespace)
-	return nil
+	return pkgClient.AddRepositorySync(repoOp, tkgpackagedatamodel.OperationTypeInstall)
 }

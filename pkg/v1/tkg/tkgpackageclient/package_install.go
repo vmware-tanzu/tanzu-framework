@@ -32,6 +32,30 @@ const (
 
 // InstallPackage installs the PackageInstall and its associated resources in the cluster
 func (p *pkgClient) InstallPackage(o *tkgpackagedatamodel.PackageOptions, progress *tkgpackagedatamodel.PackageProgress, operationType tkgpackagedatamodel.OperationType) {
+	p.installPackage(o, progress, operationType)
+}
+
+// InstallPackageSync installs the PackageInstall and its associated resources in the cluster and returns an error if any
+func (p *pkgClient) InstallPackageSync(o *tkgpackagedatamodel.PackageOptions, operationType tkgpackagedatamodel.OperationType) error {
+	pp := newPackageProgress()
+
+	go p.installPackage(o, pp, operationType)
+
+	initialMsg := fmt.Sprintf("Installing package '%s'", o.PackageName)
+	if err := DisplayProgress(initialMsg, pp); err != nil {
+		if err.Error() == tkgpackagedatamodel.ErrPackageAlreadyExists {
+			log.Infof("Updated installed package '%s'", o.PkgInstallName)
+			return nil
+		}
+		return err
+	}
+
+	log.Infof("\n %s", fmt.Sprintf("Added installed package '%s'",
+		o.PkgInstallName))
+	return nil
+}
+
+func (p *pkgClient) installPackage(o *tkgpackagedatamodel.PackageOptions, progress *tkgpackagedatamodel.PackageProgress, operationType tkgpackagedatamodel.OperationType) {
 	var (
 		pkgInstall                      *kappipkg.PackageInstall
 		pkgPluginResourceCreationStatus *tkgpackagedatamodel.PkgPluginResourceCreationStatus

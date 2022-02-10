@@ -613,3 +613,30 @@ func configureAndTestVerifyRegistry(testImage, defaultRegistry, customImageRepos
 	os.Setenv(constants.AllowedRegistries, "")
 	return err
 }
+
+func TestVerifyArtifactLocation(t *testing.T) {
+	tcs := []struct {
+		name   string
+		uri    string
+		errStr string
+	}{
+		{
+			name: "trusted location",
+			uri:  "https://storage.googleapis.com/tanzu-cli-advanced-plugins/artifacts/latest/tanzu-foo-darwin-amd64",
+		},
+		{
+			name:   "untrusted location",
+			uri:    "https://storage.googleapis.com/tanzu-cli-advanced-plugins-artifacts/latest/tanzu-foo-darwin-amd64",
+			errStr: "untrusted artifact location detected with URI \"https://storage.googleapis.com/tanzu-cli-advanced-plugins-artifacts/latest/tanzu-foo-darwin-amd64\". Allowed locations are [https://storage.googleapis.com/tanzu-cli-advanced-plugins/]",
+		},
+	}
+
+	for _, tc := range tcs {
+		t.Run(tc.name, func(t *testing.T) {
+			err := verifyArtifactLocation(tc.uri)
+			if tc.errStr != "" {
+				assert.EqualError(t, err, tc.errStr)
+			}
+		})
+	}
+}

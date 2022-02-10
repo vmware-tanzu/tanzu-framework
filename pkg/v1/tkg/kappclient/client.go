@@ -23,6 +23,7 @@ import (
 	kapppkg "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apiserver/apis/datapackaging/v1alpha1"
 	secretgenctrl "github.com/vmware-tanzu/carvel-secretgen-controller/pkg/apis/secretgen2/v1alpha1"
 
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgpackagedatamodel"
 )
 
@@ -37,6 +38,10 @@ func (c *client) GetClient() crtclient.Client {
 
 // NewKappClient returns a new kapp client
 func NewKappClient(kubeCfgPath string) (Client, error) {
+	return NewKappClientForContext(kubeCfgPath, "")
+}
+
+func NewKappClientForContext(kubeCfgPath, kubeContext string) (Client, error) {
 	var (
 		restConfig *rest.Config
 		err        error
@@ -62,9 +67,14 @@ func NewKappClient(kubeCfgPath string) (Client, error) {
 		return nil, err
 	}
 
-	if restConfig, err = GetKubeConfig(kubeCfgPath); err != nil {
+	if restConfig, err = GetKubeConfigForContext(kubeCfgPath, kubeContext); err != nil {
 		return nil, err
 	}
+
+	// As there are many registered resources in the cluster, set the values for the maximum number of
+	// queries per second and the maximum burst for throttle to a high value to avoid throttling of messages
+	restConfig.QPS = constants.DefaultQPS
+	restConfig.Burst = constants.DefaultBurst
 
 	mapper, err := apiutil.NewDynamicRESTMapper(restConfig, apiutil.WithLazyDiscovery)
 	if err != nil {
@@ -79,6 +89,11 @@ func NewKappClient(kubeCfgPath string) (Client, error) {
 
 // GetKubeConfig gets kubeconfig from the provided kubeconfig path. Otherwise, it gets the kubeconfig from "$HOME/.kube/config" if existing
 func GetKubeConfig(kubeCfgPath string) (*rest.Config, error) {
+	return GetKubeConfigForContext(kubeCfgPath, "")
+}
+
+// GetKubeConfigForContext gets kubeconfig from the provided kubeconfig path. Otherwise, it gets the kubeconfig from "$HOME/.kube/config" if existing
+func GetKubeConfigForContext(kubeCfgPath, kubeContext string) (*rest.Config, error) {
 	var (
 		restConfig *rest.Config
 		err        error
@@ -92,6 +107,9 @@ func GetKubeConfig(kubeCfgPath string) (*rest.Config, error) {
 		config, err := clientcmd.LoadFromFile(kubeCfgPath)
 		if err != nil {
 			return nil, errors.Wrapf(err, "failed to load kubeconfig from %s", kubeCfgPath)
+		}
+		if kubeContext != "" {
+			config.CurrentContext = kubeContext
 		}
 		rawConfig, err := clientcmd.Write(*config)
 		if err != nil {

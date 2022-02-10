@@ -99,6 +99,7 @@ type AntreaConfigStatus struct {
 
 // +kubebuilder:object:root=true
 // +kubebuilder:subresource:status
+// +kubebuilder:resource:path=antreaconfigs,shortName=antreaconf,scope=Namespaced
 // +kubebuilder:printcolumn:name="TrafficEncapMode",type="string",JSONPath=".spec.antrea.config.trafficEncapMode",description="The traffic encapsulation mode. One of the following options => encap, noEncap, hybrid, networkPolicyOnly"
 // +kubebuilder:printcolumn:name="DefaultMTU",type="string",JSONPath=".spec.antrea.config.defaultMTU",description="Default MTU to use for the host gateway interface and the network interface of each Pod. If omitted, antrea-agent will discover the MTU of the Node's primary interface"
 // +kubebuilder:printcolumn:name="AntreaProxy",type="string",JSONPath=".spec.antrea.config.featureGates.AntreaProxy",description="Flag to enable/disable antrea proxy"

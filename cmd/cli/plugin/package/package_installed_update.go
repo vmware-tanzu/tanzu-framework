@@ -4,12 +4,9 @@
 package main
 
 import (
-	"fmt"
-
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/log"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgpackageclient"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgpackagedatamodel"
 )
@@ -58,22 +55,5 @@ func packageUpdate(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	pp := &tkgpackagedatamodel.PackageProgress{
-		ProgressMsg: make(chan string, 10),
-		Err:         make(chan error),
-		Done:        make(chan struct{}),
-	}
-	go pkgClient.UpdatePackage(packageInstalledOp, pp, tkgpackagedatamodel.OperationTypeUpdate)
-
-	initialMsg := fmt.Sprintf("Updating installed package '%s'", packageInstalledOp.PkgInstallName)
-	if err := DisplayProgress(initialMsg, pp); err != nil {
-		if err.Error() == tkgpackagedatamodel.ErrPackageNotInstalled {
-			log.Warningf("package '%s' is not among the list of installed packages in namespace '%s'. Consider using the --install flag to install the package", packageInstalledOp.PkgInstallName, packageInstalledOp.Namespace)
-			return nil
-		}
-		return err
-	}
-
-	log.Infof("%s", fmt.Sprintf("Updated installed package '%s' in namespace '%s'", packageInstalledOp.PkgInstallName, packageInstalledOp.Namespace))
-	return nil
+	return pkgClient.UpdatePackageSync(packageInstalledOp, tkgpackagedatamodel.OperationTypeUpdate)
 }

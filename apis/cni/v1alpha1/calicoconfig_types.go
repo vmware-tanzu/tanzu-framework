@@ -39,7 +39,7 @@ type CalicoConfigStatus struct {
 
 //+kubebuilder:object:root=true
 //+kubebuilder:subresource:status
-//+kubebuilder:resource:path=calicoconfigs,scope=Namespaced
+//+kubebuilder:resource:path=calicoconfigs,shortName=calicoconf,scope=Namespaced
 //+kubebuilder:printcolumn:name="Namespace",type="string",JSONPath=".spec.cni.namespace",description="The namespace in which calico is deployed"
 //+kubebuilder:printcolumn:name="VethMTU",type="string",JSONPath=".spec.cni.calico.config.vethMTU",description="Maximum transmission unit setting. '0' as default means MTU will be auto detected"
 //+kubebuilder:printcolumn:name="SecretRef",type="string",JSONPath=".status.secretRef",description="Name of the Calico data values secret"
