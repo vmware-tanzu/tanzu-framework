@@ -112,7 +112,7 @@ export class UserDataService {
         return this.stringToMap(storedEntry.value);
     }
 
-    retrieveStoredValue(wizard, step: string, fieldMapping: FieldMapping, retriever?: (string) => any): any {
+    retrieveStoredValue(wizard, step: string, fieldMapping: FieldMapping): any {
         const identifier = {wizard, step, field: fieldMapping.name};
         if (fieldMapping.isMap) {
             return this.retrieveMap(identifier);
@@ -123,11 +123,11 @@ export class UserDataService {
         }
 
         if (fieldMapping.backingObject) {
-            if (!retriever) {
+            if (!fieldMapping.retriever) {
                 console.error('Trying to restore field ' + fieldMapping.name + ' but no object retriever provided');
                 return undefined;
             }
-            return retriever(storedEntry.value);
+            return fieldMapping.retriever(storedEntry.value);
         }
 
         return storedEntry.value;

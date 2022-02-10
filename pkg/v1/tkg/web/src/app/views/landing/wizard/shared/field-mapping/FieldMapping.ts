@@ -14,10 +14,12 @@ export interface FieldMapping {
 
     backingObject?: BackingObjectMap,   // data for using backing object (see notes)
     defaultValue?: any,             // default value to initialize with
-    doNotAutoSave?: boolean,        // do not save this field when saving the entire mapping (field may be "manually" saved by step)
-    doNotAutoRestore?: boolean,     // do not auto-restore the stored value to this field (field is usually set by change event)
     displayOnly?: boolean,          // do not auto-build/store/restore this control; value is "manually" stored and displayed to the user
+    doNotAutoRestore?: boolean,     // do not auto-restore the stored value to this field (field is usually set by change event)
+    doNotAutoSave?: boolean,        // do not save this field when saving the entire mapping (field may be "manually" saved by step)
     featureFlag?: string,           // a feature flag that needs to be true in order to create this field
+    hasNoDomControl?: boolean,      // this field does not populate a DOM control, so (a) it needs a retriever to get a value, and
+                                    // (b) it needs a restorer to restore the value
     isBoolean?: boolean,            // does the field have a boolean value?
     isMap?: boolean,                // is the value of this field a Map<string, string>?
     label?: string,                 // label used when displaying this field, in HTML or in confirmation page (empty if not displayed)
@@ -26,8 +28,8 @@ export interface FieldMapping {
     primaryTrigger?: boolean,       // do NOT set value on INIT, but immediately AFTER onChange events are subscribed to
     required?: boolean,             // should a Validator.REQUIRED validator be added to the validator list?
     requiresBackendData?: boolean,  // this field requires backend data, so do not initialize but let backend data handler initialize
-    hasNoDomControl?: boolean,      // this field does not populate a DOM control, so (a) it needs a retriever to get a value, and
-                                    // (b) it needs a restorer to restore the value
+    restorer?: (value: any) => void,// given a saved value (or a retrieved object) this closure will store it. Used esp w/hasNoDomControl
+    retriever?: (value: any) => any,// given a saved value, this closure will retrieve a backing object.
     validators?: SimpleValidator[], // validators used by Clarity framework
 }
 // NOTES on FieldMapping:
@@ -50,3 +52,11 @@ export interface FieldMapping {
 //    display and value strings from that object. Note that the user needs to supply extra parameters when using methods that store or
 //    restore the field's value (like buildForm(), restoreForm() or restoreField()).
 //    The optional TYPE field lets the framework warn to the console if the field's value is of a different type than the mapping expects.
+// restorer:
+//    For fields that are stored in the COMPONENT (rather than in the DOM hierarchy), the framework needs to be supplied a closure that
+//    will take the value (or retrieved object) and store it in the component (where it "lives"). Most fields store their value (or
+//    backing object) in the DOM, so they have no need for a "restorer"; the field is expected to have the name "name", and is retrievable
+//    from a formGroup passed in to a framework method
+// retriever:
+//    For fields that use a JavaScript OBJECT (not a string or a Map<string, string>), when the retrieves the saved value, it needs a way
+//    to retrieve the full object using the stored value (which is a string). This "retriever" closure provides that retrieval mechanism.

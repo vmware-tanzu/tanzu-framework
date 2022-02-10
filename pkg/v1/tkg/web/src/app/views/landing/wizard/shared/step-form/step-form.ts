@@ -121,9 +121,9 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
         return this.formGroup.controls[fieldName].value;
     }
 
-    getStoredValue(fieldName: string, stepMapping: StepMapping, defaultValue?: any, retriever?: (string) => any ) {
+    getStoredValue(fieldName: string, stepMapping: StepMapping, defaultValue?: any) {
         const fieldMapping = AppServices.fieldMapUtilities.getFieldMapping(fieldName, stepMapping);
-        const result = AppServices.userDataService.retrieveStoredValue(this.wizardName, this.formName, fieldMapping, retriever);
+        const result = AppServices.userDataService.retrieveStoredValue(this.wizardName, this.formName, fieldMapping);
         if (result === undefined || result === null) {
             return defaultValue;
         }
@@ -210,8 +210,8 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
     resurrectFieldWithStoredValue(fieldName: string, stepMapping: StepMapping, validators: ValidatorFn[], defaultValue?: string, options?: {
         onlySelf?: boolean;
         emitEvent?: boolean;
-    }, retriever?: (string) => any) {
-        const value = this.getStoredValue(fieldName, stepMapping, defaultValue, retriever);
+    }) {
+        const value = this.getStoredValue(fieldName, stepMapping, defaultValue);
         this.resurrectField(fieldName, validators, value, options);
     }
 
@@ -357,9 +357,8 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
         return { wizard: this.wizardName, step: this.formName, field};
     }
 
-    protected storeUserDataFromMapping(stepMapping: StepMapping, objectRetrievalMap?: Map<string, (key: any) => any>) {
-        AppServices.userDataFormService.storeFromMapping(this.wizardName, this.formName, stepMapping, this.formGroup,
-            objectRetrievalMap);
+    protected storeUserDataFromMapping(stepMapping: StepMapping) {
+        AppServices.userDataFormService.storeFromMapping(this.wizardName, this.formName, stepMapping, this.formGroup);
     }
 
     protected storeDefaultDisplayOrder(stepMapping: StepMapping) {
@@ -391,15 +390,13 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
         return this.unsubscribe;
     }
 
-    protected registerDefaultFileImportedHandler(eventSuccess: TanzuEventType, stepMapping: StepMapping,
-        objectRetrievalMap?: Map<string, (string) => any>, customRestorerMap?: Map<string, (any) => void>) {
+    protected registerDefaultFileImportedHandler(eventSuccess: TanzuEventType, stepMapping: StepMapping) {
         AppServices.messenger.subscribe<string>(eventSuccess,
-            this.defaultFileImportedHandler(stepMapping, objectRetrievalMap, customRestorerMap));
+            this.defaultFileImportedHandler(stepMapping));
     }
 
     // This is a convenience method for child classes that want to register a callback based on this behavior PLUS something of their own
-    protected defaultFileImportedHandler(stepMapping: StepMapping, objectRetrievalMap?: Map<string, (string) => any>,
-                                         customRestorerMap?: Map<string, (any) => void>)
+    protected defaultFileImportedHandler(stepMapping: StepMapping)
         : (event: TanzuEvent<any>) => void {
         const step = this;
         return data => {
@@ -408,8 +405,7 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
                 message: data.payload
             };
             // The file import saves the data to local storage, so we reinitialize this step's form from there
-            AppServices.userDataFormService.restoreForm(step.wizardName, step.formName, step.formGroup, stepMapping, objectRetrievalMap,
-                customRestorerMap);
+            AppServices.userDataFormService.restoreForm(step.wizardName, step.formName, step.formGroup, stepMapping);
         }
     }
 }

@@ -49,7 +49,7 @@ describe('NodeSettingStepComponent', () => {
         fixture = TestBed.createComponent(NodeSettingStepComponent);
         component = fixture.componentInstance;
         component.setStepRegistrantData({ wizard: 'SquashWizard', step: AwsForm.NODESETTING, formGroup: new FormBuilder().group({}),
-            eventFileImported: TkgEventType.AWS_CONFIG_FILE_IMPORTED, eventFileImportError: TkgEventType.AWS_CONFIG_FILE_IMPORT_ERROR});
+            eventFileImported: TanzuEventType.AWS_CONFIG_FILE_IMPORTED, eventFileImportError: TanzuEventType.AWS_CONFIG_FILE_IMPORT_ERROR});
 
         fixture.detectChanges();
     });

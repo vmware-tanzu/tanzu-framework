@@ -5,22 +5,19 @@ import { UserDataIdentifier, UserDataService } from './user-data.service';
 import { FormUtils } from '../../views/landing/wizard/shared/utils/form-utils';
 
 export class UserDataFormService {
-    storeFromMapping(wizard, step: string, stepMapping: StepMapping, formGroup: FormGroup,
-                     objectRetrievalMap?: Map<string, (key: any) => any>) {
+    storeFromMapping(wizard, step: string, stepMapping: StepMapping, formGroup: FormGroup) {
         stepMapping.fieldMappings.forEach( fieldMapping => {
             if (AppServices.fieldMapUtilities.shouldAutoSave(fieldMapping)) {
-                const retriever = this.getFieldBackingObjectRetrieverIfNec(fieldMapping, objectRetrievalMap)
-                this.storeFromFieldMapping(wizard, step, fieldMapping, formGroup, retriever);
+                this.storeFromFieldMapping(wizard, step, fieldMapping, formGroup);
             }
         });
         AppServices.userDataService.updateWizardTimestamp(wizard);
     }
 
-    private storeFromFieldMapping(wizard, step: string, fieldMapping: FieldMapping, formGroup: FormGroup,
-                                  retriever?: (key: any) => any) {
+    private storeFromFieldMapping(wizard, step: string, fieldMapping: FieldMapping, formGroup: FormGroup) {
         const identifier: UserDataIdentifier = { wizard, step, field: fieldMapping.name };
         if (fieldMapping.hasNoDomControl) {
-            this.storeFieldWithNoDomControl(wizard, step, fieldMapping, retriever);
+            this.storeFieldWithNoDomControl(wizard, step, fieldMapping);
         } else if (fieldMapping.isBoolean) {
             this.storeBooleanField(identifier, formGroup);
         } else if (fieldMapping.mask) {
@@ -34,11 +31,12 @@ export class UserDataFormService {
         }
     }
 
-    private storeFieldWithNoDomControl(wizard, step: string, fieldMapping: FieldMapping, retriever: (key: any) => any) {
-        if (!retriever) {
+    private storeFieldWithNoDomControl(wizard, step: string, fieldMapping: FieldMapping) {
+        if (!fieldMapping.retriever) {
+            console.error('field ' + fieldMapping.name + ' has no DOM control, but no retriever provided');
             return;
         }
-        const value = retriever(null);
+        const value = fieldMapping.retriever(null);
         const identifier = { wizard, step, field: fieldMapping.name };
         if (fieldMapping.isBoolean) {
             AppServices.userDataService.storeBoolean(identifier, value);
@@ -68,29 +66,25 @@ export class UserDataFormService {
         return true;
     }
 
-    buildForm(formGroup: FormGroup, wizard, step: string, stepMapping: StepMapping,
-              objectRetrievalMap?: Map<string, (string) => any>, customRestorerMap?: Map<string, (any) => void>) {
+    buildForm(formGroup: FormGroup, wizard, step: string, stepMapping: StepMapping) {
         stepMapping.fieldMappings.forEach(fieldMapping => {
             if (this.shouldBuildField(fieldMapping)) {
-                const retriever = fieldMapping.backingObject && objectRetrievalMap ? objectRetrievalMap[fieldMapping.name] : null;
-                this.buildFormField(formGroup, wizard, step, fieldMapping, retriever);
+                this.buildFormField(formGroup, wizard, step, fieldMapping);
             } else if (fieldMapping.hasNoDomControl) {
-                const restorer = this.getFieldCustomRestorer(fieldMapping, customRestorerMap);
-                if (restorer) {
-                    const value = AppServices.userDataService.retrieveStoredValue(wizard, step, fieldMapping, null);
-                    restorer(value);
+                if (fieldMapping.restorer) {
+                    const value = AppServices.userDataService.retrieveStoredValue(wizard, step, fieldMapping);
+                    fieldMapping.restorer(value);
+                } else {
+                    console.log('field ' + fieldMapping.name + ' has no DOM control, but no restorer was provided');
                 }
             }
         });
     }
 
-    restoreForm(wizard, step: string, formGroup: FormGroup, stepMapping: StepMapping,
-                objectRetrievalMap?: Map<string, (string) => any>, customRestorerMap?: Map<string, (any) => void> ) {
+    restoreForm(wizard, step: string, formGroup: FormGroup, stepMapping: StepMapping) {
         AppServices.fieldMapUtilities.getFieldMappingsToRestore(stepMapping).forEach(fieldMapping => {
-            const retriever = this.getFieldBackingObjectRetrieverIfNec(fieldMapping, objectRetrievalMap);
-            const restorer = this.getFieldCustomRestorerIfNec(fieldMapping, customRestorerMap);
             const identifier = { wizard, step, field: fieldMapping.name };
-            this.restoreField(identifier, fieldMapping, formGroup, {}, retriever, restorer);
+            this.restoreField(identifier, fieldMapping, formGroup);
 
             // Re-store the masked field value, so that if there WAS a value for this masked field in local storage,
             // it will be erased
@@ -101,16 +95,14 @@ export class UserDataFormService {
         // Note: we set the values on the primary trigger fields AFTER all the "regular" fields are restored because the
         // handler for the trigger field change may make use the values of the other fields
         AppServices.fieldMapUtilities.getPrimaryTriggerMappingsToRestore(stepMapping).forEach(fieldMapping => {
-            const retriever = this.getFieldBackingObjectRetrieverIfNec(fieldMapping, objectRetrievalMap);
-            const restorer = this.getFieldCustomRestorerIfNec(fieldMapping, customRestorerMap);
             const identifier = { wizard, step, field: fieldMapping.name };
-            this.restoreField(identifier, fieldMapping, formGroup, {}, retriever, restorer);
+            this.restoreField(identifier, fieldMapping, formGroup);
         })
     }
 
-    private buildFormField(formGroup: FormGroup, wizard, step: string, fieldMapping: FieldMapping, retriever?: (string) => any) {
+    private buildFormField(formGroup: FormGroup, wizard, step: string, fieldMapping: FieldMapping) {
         AppServices.fieldMapUtilities.validateFieldMapping(step, fieldMapping);
-        const initialValue = AppServices.fieldMapUtilities.getInitialValue(wizard, step, fieldMapping, retriever);
+        const initialValue = AppServices.fieldMapUtilities.getInitialValue(wizard, step, fieldMapping);
         const validators = AppServices.fieldMapUtilities.getValidatorArray(fieldMapping);
         FormUtils.addControl(
             formGroup,
@@ -124,68 +116,20 @@ export class UserDataFormService {
             AppServices.fieldMapUtilities.passesFeatureFlagFilter(fieldMapping);
     }
 
-    private getFieldBackingObjectRetrieverIfNec(fieldMapping: FieldMapping,
-                                                objectRetrievalMap?: Map<string, (string) => any>): (string) => any {
-        let retriever: (string) => any = null;
-        if (fieldMapping.backingObject || fieldMapping.hasNoDomControl) {
-            retriever = this.getFieldBackingObjectRetriever(fieldMapping, objectRetrievalMap);
-        }
-        return retriever;
-    }
-
-    private getFieldBackingObjectRetriever(fieldMapping: FieldMapping,
-                                                objectRetrievalMap?: Map<string, (string) => any>): (string) => any {
-        let retriever: (string) => any = null;
-        if (!objectRetrievalMap) {
-            console.error('getFieldBackingObjectRetriever() encountered field "' + fieldMapping.name +
-                '" which is using a backingObject, but had no objectRetrievalMap to get the backing object');
-            return null;
-        }
-        retriever = objectRetrievalMap.get(fieldMapping.name);
-        if (!retriever) {
-            console.error('getFieldBackingObjectRetriever() encountered field "' + fieldMapping.name +
-                '" which is using a backingObject, but had no retriever in the objectRetrievalMap');
-        }
-        return retriever;
-    }
-
-    private getFieldCustomRestorerIfNec(fieldMapping: FieldMapping, customRestorerMap: Map<string, (any) => void>): (any) => void {
-        let restorer: (any) => void = null;
-
-        if (fieldMapping.hasNoDomControl) {
-            restorer = this.getFieldCustomRestorer(fieldMapping, customRestorerMap);
-        }
-        return restorer;
-    }
-
-    private getFieldCustomRestorer(fieldMapping: FieldMapping, customRestorerMap: Map<string, (any) => void>): (any) => void {
-        if (!customRestorerMap) {
-            console.error('getFieldCustomRestorer() encountered field "' + fieldMapping.name +
-                '" which is using a custom restorer, but had no customRestorerMap to get the restorer');
-            return null;
-        }
-        const restorer = customRestorerMap.get(fieldMapping.name);
-        if (!restorer) {
-            console.error('getFieldCustomRestorer() encountered field "' + fieldMapping.name +
-                '" which is using a custom restorer, but had no restorer in the customRestorerMap');
-        }
-        return restorer;
-    }
-
     restoreField(identifier: UserDataIdentifier, fieldMapping: FieldMapping, formGroup: FormGroup,
-                 options?: { onlySelf?: boolean; emitEvent?: boolean }, retriever?: (string) => any, restorer?: (any) => void) {
-        const storedValue = AppServices.userDataService.retrieveStoredValue(identifier.wizard, identifier.step, fieldMapping, retriever);
+                 options?: { onlySelf?: boolean; emitEvent?: boolean }) {
+        const storedValue = AppServices.userDataService.retrieveStoredValue(identifier.wizard, identifier.step, fieldMapping);
         if (storedValue === undefined || storedValue === null || fieldMapping.displayOnly) {
             return;
         }
-        if (restorer) {
-            restorer(storedValue);
+        if (fieldMapping.restorer) {
+            fieldMapping.restorer(storedValue);
             return;
         }
 
         const control = formGroup.get(identifier.field);
         if (!control) {
-            console.error('restoreField(): no control: "' + identifier.wizard + '.' + identifier.step + '.' + identifier.field + '"');
+            console.error('restoreField(): no DOM control: "' + identifier.wizard + '.' + identifier.step + '.' + identifier.field + '"');
             return;
         }
         control.setValue(storedValue, options);
@@ -228,5 +172,4 @@ export class UserDataFormService {
         }
         return control;
     }
-
 }

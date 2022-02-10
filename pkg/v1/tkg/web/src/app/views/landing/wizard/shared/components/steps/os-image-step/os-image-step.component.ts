@@ -37,6 +37,7 @@ export abstract class SharedOsImageStepDirective<IMAGE extends OsImage> extends 
     displayNonTemplateAlert: boolean = false;
     // TODO: It's questionable whether tkrVersion should be in this class, since it's only used for vSphere
     tkrVersion: Observable<string>;
+    private stepMapping: StepMapping;
 
     constructor() {
         super();
@@ -60,9 +61,8 @@ export abstract class SharedOsImageStepDirective<IMAGE extends OsImage> extends 
         if (this.osImages.length === 1) {
             this.setControlValueSafely(OsImageField.IMAGE, images[0]);
         } else {
-            const fieldMapping = AppServices.fieldMapUtilities.getFieldMapping(OsImageField.IMAGE, this.supplyStepMapping());
-            AppServices.userDataFormService.restoreField(this.createUserDataIdentifier(fieldMapping.name), fieldMapping,
-                this.formGroup, {}, this.getImageFromStoredValue.bind(this));
+            const fieldMapping = AppServices.fieldMapUtilities.getFieldMapping(OsImageField.IMAGE, this.stepMapping);
+            AppServices.userDataFormService.restoreField(this.createUserDataIdentifier(fieldMapping.name), fieldMapping, this.formGroup);
         }
     }
 
@@ -70,22 +70,14 @@ export abstract class SharedOsImageStepDirective<IMAGE extends OsImage> extends 
         return this.osImages ? this.osImages.find(image => image.name === osImageValue) : null;
     }
 
-    private getObjectRetrievalMap(): Map<string, (string) => any> {
-        const objectRetrievalMap = new Map<string, (string) => any>();
-        objectRetrievalMap.set('osImage', this.getImageFromStoredValue.bind(this));
-        return objectRetrievalMap;
-    }
-
     ngOnInit() {
         super.ngOnInit();
-        // The objectRetrievalMap associates a field with a closure that can return an object based on a key
-        // By sending the objectRetrievalMap to buildForm(), we allow buildForm to "call us back" to get the osImage using the saved key
-        AppServices.userDataFormService.buildForm(this.formGroup, this.wizardName, this.formName, this.supplyStepMapping(),
-            this.getObjectRetrievalMap());
-        this.htmlFieldLabels = AppServices.fieldMapUtilities.getFieldLabelMap(this.supplyStepMapping());
-        this.storeDefaultLabels(this.supplyStepMapping());
-        this.registerDefaultFileImportedHandler(this.supplyImportFileSuccessEvent(), this.supplyStepMapping(),
-            this.getObjectRetrievalMap());
+        this.stepMapping = this.createStepMapping();
+
+        AppServices.userDataFormService.buildForm(this.formGroup, this.wizardName, this.formName, this.stepMapping);
+        this.htmlFieldLabels = AppServices.fieldMapUtilities.getFieldLabelMap(this.stepMapping);
+        this.storeDefaultLabels(this.stepMapping);
+        this.registerDefaultFileImportedHandler(this.supplyImportFileSuccessEvent(), this.stepMapping);
         this.registerDefaultFileImportErrorHandler(this.supplyImportFileFailureEvent());
 
         this.providerInputs = this.supplyProviderInputs();
@@ -122,11 +114,20 @@ export abstract class SharedOsImageStepDirective<IMAGE extends OsImage> extends 
     }
 
     protected storeUserData() {
-        this.storeUserDataFromMapping(this.supplyStepMapping());
-        this.storeDefaultDisplayOrder(this.supplyStepMapping());
+        this.storeUserDataFromMapping(this.stepMapping);
+        this.storeDefaultDisplayOrder(this.stepMapping);
     }
 
     protected supplyStepMapping(): StepMapping {
         return OsImageStepMapping;
+    }
+
+    private createStepMapping(): StepMapping {
+        const result = this.supplyStepMapping();
+        const osImageFieldMapping = AppServices.fieldMapUtilities.getFieldMapping(OsImageField.IMAGE, result);
+        // The retriever is a closure that can return an object based on the key
+        // By setting the retriever in the field mapping, we allow buildForm to "call us back" to get the osImage using the saved key
+        osImageFieldMapping.retriever = this.getImageFromStoredValue.bind(this);
+        return result;
     }
 }

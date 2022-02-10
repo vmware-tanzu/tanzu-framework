@@ -8,6 +8,7 @@ import { FormUtils } from '../../../utils/form-utils';
 import { MetadataField, MetadataStepMapping } from './metadata-step.fieldmapping';
 import { StepFormDirective } from '../../../step-form/step-form';
 import { ValidationService } from '../../../validation/validation.service';
+import { StepMapping } from '../../../field-mapping/FieldMapping';
 
 const LABEL_KEY_NAME = 'newLabelKey';
 const LABEL_VALUE_NAME = 'newLabelValue';
@@ -22,6 +23,7 @@ export class MetadataStepComponent extends StepFormDirective implements OnInit {
     keySet: Set<string> = new Set();
     savedKeySet: Set<string> = new Set();
     labelCounter: number = 0;
+    private stepMapping: StepMapping;
 
     constructor(private validationService: ValidationService) {
         super();
@@ -29,16 +31,14 @@ export class MetadataStepComponent extends StepFormDirective implements OnInit {
 
     ngOnInit() {
         super.ngOnInit();
-        AppServices.userDataFormService.buildForm(this.formGroup, this.wizardName, this.formName, MetadataStepMapping, null,
-            this.getCustomRestorerMap());
-        this.htmlFieldLabels = AppServices.fieldMapUtilities.getFieldLabelMap(MetadataStepMapping);
-        this.storeDefaultLabels(MetadataStepMapping);
+        AppServices.userDataFormService.buildForm(this.formGroup, this.wizardName, this.formName, this.supplyStepMapping());
+        this.htmlFieldLabels = AppServices.fieldMapUtilities.getFieldLabelMap(this.supplyStepMapping());
+        this.storeDefaultLabels(this.supplyStepMapping());
         this.registerStepDescriptionTriggers({
             fields: [MetadataField.CLUSTER_LOCATION],
             clusterTypeDescriptor: true,
         })
-        this.registerDefaultFileImportedHandler(this.eventFileImported, MetadataStepMapping, this.getCustomRetrievalMap(),
-            this.getCustomRestorerMap());
+        this.registerDefaultFileImportedHandler(this.eventFileImported, this.supplyStepMapping());
         this.registerDefaultFileImportErrorHandler(this.eventFileImportError);
 
         // initialize label controls
@@ -47,13 +47,23 @@ export class MetadataStepComponent extends StepFormDirective implements OnInit {
         }
     }
 
-    // returns a map that associates the field 'clusterLabels' with a closure that restores our map of cluster labels
-    private getCustomRestorerMap(): Map<string, (data: any) => void> {
-        return new Map<string, (data: any) => void>([['clusterLabels', this.setLabels.bind(this)]]);
+    private supplyStepMapping(): StepMapping {
+        if (!this.stepMapping) {
+            this.stepMapping = this.createStepMapping();
+        }
+        return this.stepMapping;
+    }
+
+    private createStepMapping() {
+        const result = MetadataStepMapping;
+        const clusterFieldMapping = AppServices.fieldMapUtilities.getFieldMapping(MetadataField.CLUSTER_LABELS, result);
+        clusterFieldMapping.retriever = this.getClusterLabels.bind(this);
+        clusterFieldMapping.restorer = this.setClusterLabels.bind(this);
+        return result;
     }
 
     // TODO: the 'labels' field now holds a keyField => valueField mapping, so when receiving the data, we build new controls to hold data
-    private setLabels(data: Map<string, string>)  {
+    private setClusterLabels(data: Map<string, string>)  {
         this.clearLabels();
         // ADD new ones
         for (const [key, value] of data) {
@@ -74,10 +84,6 @@ export class MetadataStepComponent extends StepFormDirective implements OnInit {
         this.labels = new Map<string, string>();
         this.keySet = new Set();
         this.labelCounter = 0;
-    }
-
-    private getCustomRetrievalMap(): Map<string, (key: any) => any> {
-        return new Map<string, (data: any) => void>([[MetadataField.CLUSTER_LABELS, this.getClusterLabels.bind(this)]]);
     }
 
     // TODO: the 'labels' field holds a keyField => valueField mapping, so when returning the data, we build a new map from field data
@@ -178,7 +184,7 @@ export class MetadataStepComponent extends StepFormDirective implements OnInit {
     }
 
     protected storeUserData() {
-        this.storeUserDataFromMapping(MetadataStepMapping, this.getCustomRetrievalMap());
-        this.storeDefaultDisplayOrder(MetadataStepMapping);
+        this.storeUserDataFromMapping(this.supplyStepMapping());
+        this.storeDefaultDisplayOrder(this.supplyStepMapping());
     }
 }

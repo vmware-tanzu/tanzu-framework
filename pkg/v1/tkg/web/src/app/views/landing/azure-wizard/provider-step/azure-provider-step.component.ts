@@ -7,12 +7,13 @@ import { debounceTime, distinctUntilChanged, finalize, takeUntil } from 'rxjs/op
 // App imports
 import { APIClient } from '../../../../swagger/api-client.service';
 import AppServices from '../../../../shared/service/appServices';
-import { AzureCloud, AzureClouds, AzureField, ResourceGroupOption } from '../azure-wizard.constants';
+import { AzureClouds, AzureField, ResourceGroupOption } from '../azure-wizard.constants';
 import { AzureProviderStepMapping } from './azure-provider-step.fieldmapping';
 import { AzureResourceGroup } from './../../../../swagger/models/azure-resource-group.model';
 import { StepFormDirective } from '../../wizard/shared/step-form/step-form';
 import { TanzuEvent, TanzuEventType } from '../../../../shared/service/Messenger';
 import { ValidationService } from '../../wizard/shared/validation/validation.service';
+import { StepMapping } from '../../wizard/shared/field-mapping/FieldMapping';
 
 // NOTE: the keys of AzureAccountParamsKeys values are used by backend endpoints, so don't change them
 export const AzureAccountParamsKeys = [AzureField.PROVIDER_TENANT, AzureField.PROVIDER_CLIENT,
@@ -36,6 +37,8 @@ export class AzureProviderStepComponent extends StepFormDirective implements OnI
     validCredentials = false;
 
     resourceGroupCreationState = 'create';
+
+    private stepMapping: StepMapping;
 
     constructor(private apiClient: APIClient,
                 private validationService: ValidationService) {
@@ -96,13 +99,9 @@ export class AzureProviderStepComponent extends StepFormDirective implements OnI
     }
 
     private onFileImported(data: any) {
-        // We have two customizations when a file is imported:
-        // (1) for the PROVIDER_AZURECLOUD field, we use the stored value to find the AzureCloud object in the AzureClouds array.
-        // To do that, we create an object retriever map that associates the field with the retriever.
-        const objectRetrievalMap = new Map<string, (string) => any>([[AzureField.PROVIDER_AZURECLOUD, this.findAzureCloudByName]]);
-        // Then we run the default file import handler, passing in our step mapping and the retriever map
-        this.defaultFileImportedHandler(AzureProviderStepMapping, objectRetrievalMap)(data);
-        // (2) after the storing of the imported data, we invalidate the credentials to ensure the user has to connect (perhaps again)
+        this.defaultFileImportedHandler(this.stepMapping)(data);
+        // After the storing of the imported data, we invalidate the credentials to ensure the user has to connect (perhaps again).
+        // In theory this would not be necessary since changing the values of the credential fields should also cause this to happen.
         this.setValidCredentials(false);
     }
 
@@ -121,8 +120,9 @@ export class AzureProviderStepComponent extends StepFormDirective implements OnI
     ngOnInit() {
         super.ngOnInit();
 
-        AppServices.userDataFormService.buildForm(this.formGroup, this.wizardName, this.formName, AzureProviderStepMapping);
-        this.storeDefaultLabels(AzureProviderStepMapping);
+        this.stepMapping = this.createStepMapping();
+        AppServices.userDataFormService.buildForm(this.formGroup, this.wizardName, this.formName, this.stepMapping);
+        this.storeDefaultLabels(this.stepMapping);
 
         this.customizeForm();
         this.subscribeToServices();
@@ -134,8 +134,8 @@ export class AzureProviderStepComponent extends StepFormDirective implements OnI
     private initResourceGroupFromSavedData() {
         // if the user did an import, then we expect the value to be stored in AzureField.PROVIDER_RESOURCEGROUPCUSTOM
         // we'll check and see if that value is now existing
-        let savedGroupExisting = this.getStoredValue(AzureField.PROVIDER_RESOURCEGROUPEXISTING, AzureProviderStepMapping, '');
-        let savedGroupCustom = this.getStoredValue(AzureField.PROVIDER_RESOURCEGROUPCUSTOM, AzureProviderStepMapping, '');
+        let savedGroupExisting = this.getStoredValue(AzureField.PROVIDER_RESOURCEGROUPEXISTING, this.stepMapping, '');
+        let savedGroupCustom = this.getStoredValue(AzureField.PROVIDER_RESOURCEGROUPCUSTOM, this.stepMapping, '');
 
         if (this.handleIfSavedCustomResourceGroupIsNowExisting(savedGroupCustom)) {
             savedGroupExisting = savedGroupCustom;
@@ -186,7 +186,7 @@ export class AzureProviderStepComponent extends StepFormDirective implements OnI
             .subscribe(
                 regions => {
                     this.regions = regions.sort((regionA, regionB) => regionA.name.localeCompare(regionB.name));
-                    const savedRegion = this.getStoredValue(AzureField.PROVIDER_REGION, AzureProviderStepMapping, '');
+                    const savedRegion = this.getStoredValue(AzureField.PROVIDER_REGION, this.stepMapping, '');
                     const selectedRegion = this.regions.length === 1 ? this.regions[0].name : savedRegion;
                     // setting the region value will trigger other data calls to the back end for resource groups, osimages, etc
                     this.setControlValueSafely(AzureField.PROVIDER_REGION, selectedRegion);
@@ -322,7 +322,14 @@ export class AzureProviderStepComponent extends StepFormDirective implements OnI
     }
 
     protected storeUserData() {
-        this.storeUserDataFromMapping(AzureProviderStepMapping);
-        this.storeDefaultDisplayOrder(AzureProviderStepMapping);
+        this.storeUserDataFromMapping(this.stepMapping);
+        this.storeDefaultDisplayOrder(this.stepMapping);
+    }
+
+    private createStepMapping(): StepMapping {
+        const result = AzureProviderStepMapping;
+        const cloudFieldMapping = AppServices.fieldMapUtilities.getFieldMapping(AzureField.PROVIDER_AZURECLOUD, result);
+        cloudFieldMapping.retriever = this.findAzureCloudByName.bind(this);
+        return result;
     }
 }

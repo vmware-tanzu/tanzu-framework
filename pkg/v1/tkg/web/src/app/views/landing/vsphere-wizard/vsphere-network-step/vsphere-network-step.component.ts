@@ -22,6 +22,7 @@ export class VsphereNetworkStepComponent extends SharedNetworkStepComponent {
     static description = 'Specify how Tanzu Kubernetes Grid networking is provided and any global network settings';
 
     vmNetworks: VSphereNetwork[] = [];
+    private stepMapping: StepMapping;
 
     constructor(protected validationService: ValidationService) {
         super(validationService);
@@ -42,23 +43,19 @@ export class VsphereNetworkStepComponent extends SharedNetworkStepComponent {
 
     private onFetchedVmNetworks(networks: Array<VSphereNetwork>) {
         this.vmNetworks = sortPaths(networks, function (network) { return network.name; }, '/');
+        if (!this.vmNetworks) {
+            this.vmNetworks = [];
+        }
         this.loadingNetworks = false;
-        let chosenNetwork;
-        if (networks) {
-            if (networks.length === 1) {
-                chosenNetwork = networks[0];
+        if (this.vmNetworks.length > 0) {
+            if (this.vmNetworks.length === 1) {
+                this.getControl(VsphereField.NETWORK_NAME).setValue(this.vmNetworks[0]);
             } else {
-                const fieldMapping = AppServices.fieldMapUtilities.getFieldMapping(VsphereField.NETWORK_NAME, this.supplyStepMapping());
-                chosenNetwork = AppServices.userDataService.retrieveStoredValue(this.wizardName, this.formName, fieldMapping,
-                    this.networkFromName.bind(this));
+                const identifier = this.createUserDataIdentifier(VsphereField.NETWORK_NAME);
+                const fieldMapping = AppServices.fieldMapUtilities.getFieldMapping(VsphereField.NETWORK_NAME, this.stepMapping);
+                AppServices.userDataFormService.restoreField(identifier, fieldMapping, this.formGroup);
             }
         }
-        this.resurrectField(VsphereField.NETWORK_NAME, [Validators.required], chosenNetwork, { onlySelf: true } );
-    }
-
-    // given a network name, returns the VSphereNetwork associated with that name. Note: method assumes this.vmNetworks is always valid
-    private networkFromName(networkName: string): VSphereNetwork {
-        return this.vmNetworks.find(network => network.name === networkName);
     }
 
     protected onNoProxyChange(value: string) {
@@ -100,18 +97,24 @@ export class VsphereNetworkStepComponent extends SharedNetworkStepComponent {
     }
 
     protected supplyStepMapping(): StepMapping {
-        const fieldMappings = [...VsphereNetworkFieldMappings, ...super.supplyStepMapping().fieldMappings];
-        return { fieldMappings };
+        if (!this.stepMapping) {
+            this.stepMapping = this.createStepMapping();
+        }
+        return this.stepMapping;
     }
 
-    protected supplyObjectRetrievalMap(): Map<string, (networkName: string) => VSphereNetwork> {
-        const step = this;
-        // we return a map that links the networkName field to a closure that will retrieve a network object given the network name
-        return new Map<string, (networkName: string) => VSphereNetwork>([['networkName',
-            (networkName) => {
-            console.log('SHIMON SEZ: vmNetworks.length=' + this.vmNetworks.length + '; networkName=' + networkName);
-            return step.vmNetworks.find(network => network.moid === networkName || network.name === networkName);
-        }]]);
+    private createStepMapping(): StepMapping {
+        const fieldMappings = [...VsphereNetworkFieldMappings, ...super.supplyStepMapping().fieldMappings];
+        const result: StepMapping = { fieldMappings };
+        // we have a field that uses a backing object, so we need to assign a retriever; see FieldMapping.ts for details.
+        const networkFieldMapping = AppServices.fieldMapUtilities.getFieldMapping(VsphereField.NETWORK_NAME, this.stepMapping);
+        networkFieldMapping.retriever = this.networkFromName.bind(this);
+        return result;
+    }
+
+    // given a network name, returns the VSphereNetwork associated with that name. Note: method assumes this.vmNetworks is always valid
+    private networkFromName(networkName: string): VSphereNetwork {
+        return this.vmNetworks.find(network => network.name === networkName);
     }
 
     dynamicDescription(): string {

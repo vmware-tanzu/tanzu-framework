@@ -16,6 +16,7 @@ import { VSphereDatastore, VSphereFolder, VSphereResourcePool } from '../../../.
 import { VsphereLoadBalancerStepComponent } from './vsphere-load-balancer-step.component';
 import { WizardForm } from '../../wizard/shared/constants/wizard.constants';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { LoadBalancerField } from '../../wizard/shared/components/steps/load-balancer/load-balancer-step.fieldmapping';
 
 describe('VsphereLoadBalancerStepComponent', () => {
     let component: VsphereLoadBalancerStepComponent;

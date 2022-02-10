@@ -47,10 +47,10 @@ export class FieldMapUtilities {
     // the default value (if the mapping provided one), or the blank value (based on whether the field is boolean).
     // Note that if the field is backed by an object (rather than a simple string), a retriever should be passed that can retrieve
     // the object based on the saved value (which is presumably a unique identifier of the object)
-    getInitialValue(wizard, step: string, fieldMapping: FieldMapping, retriever?: (string) => any) {
+    getInitialValue(wizard, step: string, fieldMapping: FieldMapping) {
         const blankValue = fieldMapping.isBoolean ? false : '';
         if (this.shouldInitializeWithStoredValue(fieldMapping)) {
-            const storedValue = AppServices.userDataService.retrieveStoredValue(wizard, step, fieldMapping, retriever);
+            const storedValue = AppServices.userDataService.retrieveStoredValue(wizard, step, fieldMapping);
             // note: a storedValue of FALSE should be returned, so be careful with the following "if" test
             if (storedValue !== null && storedValue !== undefined) {
                 return storedValue;
@@ -114,6 +114,7 @@ export class FieldMapUtilities {
             result = false;
             console.error('invalid field mapping for ' + formName + '.' + fieldMapping.name + ': field cannot be required AND boolean');
         }
+        // TODO: add validation that backingObjectMap requires a retriever, and hasNoDomControl requires retriever and restorer
         return result;
     }
 

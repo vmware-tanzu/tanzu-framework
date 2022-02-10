@@ -14,7 +14,6 @@ import { IpFamilyEnum } from 'src/app/shared/constants/app.constants';
 import { LoadBalancerField, LoadBalancerStepMapping } from './load-balancer-step.fieldmapping';
 import { StepFormDirective } from "../../../step-form/step-form";
 import { StepMapping } from '../../../field-mapping/FieldMapping';
-import { TanzuEventType } from 'src/app/shared/service/Messenger';
 import { ValidationService } from "../../../validation/validation.service";
 
 export const KUBE_VIP = 'Kube-vip';
@@ -46,6 +45,8 @@ export class SharedLoadBalancerStepComponent extends StepFormDirective implement
     selectedNetworkName: string;
     selectedManagementClusterNetworkName: string;
     loadBalancerLabel = 'Load Balancer Settings';
+
+    private stepMapping: StepMapping;
 
     constructor(private validationService: ValidationService,
                 private apiClient: APIClient) {
@@ -95,6 +96,13 @@ export class SharedLoadBalancerStepComponent extends StepFormDirective implement
     }
 
     private supplyStepMapping(): StepMapping {
+        if (!this.stepMapping) {
+            this.stepMapping = this.createStepMapping();
+        }
+        return this.stepMapping;
+    }
+
+    private createStepMapping(): StepMapping {
         const result = LoadBalancerStepMapping;
         const managementClusterNetworkNameMapping = AppServices.fieldMapUtilities.getFieldMapping('managementClusterNetworkName', result);
         const managementClusterNetworkCidrMapping = AppServices.fieldMapUtilities.getFieldMapping('managementClusterNetworkCIDR', result);
@@ -102,33 +110,25 @@ export class SharedLoadBalancerStepComponent extends StepFormDirective implement
             managementClusterNetworkNameMapping.label = 'STANDALONE CLUSTER VIP NETWORK NAME';
             managementClusterNetworkCidrMapping.label = 'STANDALONE CLUSTER VIP NETWORK CIDR';
         }
+        const clusterFieldMapping = AppServices.fieldMapUtilities.getFieldMapping(LoadBalancerField.CLUSTER_LABELS, result);
+        clusterFieldMapping.retriever = this.getClusterLabels.bind(this);
+        clusterFieldMapping.restorer = this.setClusterLabels.bind(this);
         return result;
     }
 
     ngOnInit() {
         super.ngOnInit();
-        AppServices.userDataFormService.buildForm(this.formGroup, this.wizardName, this.formName, this.supplyStepMapping(), null,
-            this.getCustomRestorerMap());
+        AppServices.userDataFormService.buildForm(this.formGroup, this.wizardName, this.formName, this.supplyStepMapping());
         this.htmlFieldLabels = AppServices.fieldMapUtilities.getFieldLabelMap(this.supplyStepMapping());
         this.storeDefaultLabels(this.supplyStepMapping());
-        this.registerDefaultFileImportedHandler(this.eventFileImported, this.supplyStepMapping(), this.getCustomRetrievalMap(),
-            this.getCustomRestorerMap());
+        this.registerDefaultFileImportedHandler(this.eventFileImported, this.supplyStepMapping());
         this.registerDefaultFileImportErrorHandler(this.eventFileImportError);
 
         this.customizeForm();
     }
 
-    // returns a map that associates the field 'clusterLabels' with a closure that restores our map of cluster labels
-    private getCustomRestorerMap(): Map<string, (data: any) => void> {
-        return new Map<string, (data: any) => void>([['clusterLabels', this.setClusterLabels.bind(this)]]);
-    }
-
     private setClusterLabels(data: Map<string, string>)  {
         return this.labels = data;
-    }
-
-    private getCustomRetrievalMap(): Map<string, (key: any) => any> {
-        return new Map<string, (data: any) => void>([['clusterLabels', this.getClusterLabels.bind(this)]]);
     }
 
     private getClusterLabels(): Map<string, string> {
@@ -390,7 +390,7 @@ export class SharedLoadBalancerStepComponent extends StepFormDirective implement
     }
 
     protected storeUserData() {
-        this.storeUserDataFromMapping(LoadBalancerStepMapping, this.getCustomRetrievalMap());
-        this.storeDefaultDisplayOrder(LoadBalancerStepMapping);
+        this.storeUserDataFromMapping(this.supplyStepMapping());
+        this.storeDefaultDisplayOrder(this.supplyStepMapping());
     }
 }

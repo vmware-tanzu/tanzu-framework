@@ -42,13 +42,13 @@ describe('VnetStepComponent', () => {
         fixture = TestBed.createComponent(VnetStepComponent);
         component = fixture.componentInstance;
         component.setStepRegistrantData({ wizard: 'ZuchiniWizard', step: AzureForm.VNET, formGroup: new FormBuilder().group({}),
-            eventFileImported: TkgEventType.AZURE_CONFIG_FILE_IMPORTED, eventFileImportError: TkgEventType.AZURE_CONFIG_FILE_IMPORT_ERROR});
+            eventFileImported: TanzuEventType.AZURE_CONFIG_FILE_IMPORTED, eventFileImportError: TanzuEventType.AZURE_CONFIG_FILE_IMPORT_ERROR});
 
         const dataServiceRegistrar = new DataServiceRegistrarTestExtension();
         AppServices.dataServiceRegistrar = dataServiceRegistrar;
         // we expect the wizard to have registered for these events:
-        dataServiceRegistrar.simulateRegistration<VSphereResourcePool>(TkgEventType.AZURE_GET_RESOURCE_GROUPS);
-        dataServiceRegistrar.simulateRegistration<VSphereResourcePool>(TkgEventType.AZURE_GET_VNETS);
+        dataServiceRegistrar.simulateRegistration<VSphereResourcePool>(TanzuEventType.AZURE_GET_RESOURCE_GROUPS);
+        dataServiceRegistrar.simulateRegistration<VSphereResourcePool>(TanzuEventType.AZURE_GET_VNETS);
 
         fixture.detectChanges();
     });
