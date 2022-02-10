@@ -107,7 +107,7 @@ export class VsphereNetworkStepComponent extends SharedNetworkStepComponent {
         const fieldMappings = [...VsphereNetworkFieldMappings, ...super.supplyStepMapping().fieldMappings];
         const result: StepMapping = { fieldMappings };
         // we have a field that uses a backing object, so we need to assign a retriever; see FieldMapping.ts for details.
-        const networkFieldMapping = AppServices.fieldMapUtilities.getFieldMapping(VsphereField.NETWORK_NAME, this.stepMapping);
+        const networkFieldMapping = AppServices.fieldMapUtilities.getFieldMapping(VsphereField.NETWORK_NAME, result);
         networkFieldMapping.retriever = this.networkFromName.bind(this);
         return result;
     }

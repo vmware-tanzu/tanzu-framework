@@ -42,7 +42,8 @@ describe('VsphereOsImageStepComponent', () => {
         component = fixture.componentInstance;
         // NOTE: using Azure file import events just for testing
         component.setStepRegistrantData({ wizard: 'BozoWizard', step: WizardForm.OSIMAGE, formGroup: new FormBuilder().group({}),
-            eventFileImported: TanzuEventType.AZURE_CONFIG_FILE_IMPORTED, eventFileImportError: TanzuEventType.AZURE_CONFIG_FILE_IMPORT_ERROR});
+            eventFileImported: TanzuEventType.AZURE_CONFIG_FILE_IMPORTED,
+            eventFileImportError: TanzuEventType.AZURE_CONFIG_FILE_IMPORT_ERROR});
 
         fixture.detectChanges();
     });

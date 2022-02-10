@@ -10,27 +10,27 @@ export interface BackingObjectMap {
 }
 
 export interface FieldMapping {
-    name: string,                   // name of field
+    name: string,                    // name of field
 
     backingObject?: BackingObjectMap,   // data for using backing object (see notes)
-    defaultValue?: any,             // default value to initialize with
-    displayOnly?: boolean,          // do not auto-build/store/restore this control; value is "manually" stored and displayed to the user
-    doNotAutoRestore?: boolean,     // do not auto-restore the stored value to this field (field is usually set by change event)
-    doNotAutoSave?: boolean,        // do not save this field when saving the entire mapping (field may be "manually" saved by step)
-    featureFlag?: string,           // a feature flag that needs to be true in order to create this field
-    hasNoDomControl?: boolean,      // this field does not populate a DOM control, so (a) it needs a retriever to get a value, and
-                                    // (b) it needs a restorer to restore the value
-    isBoolean?: boolean,            // does the field have a boolean value?
-    isMap?: boolean,                // is the value of this field a Map<string, string>?
-    label?: string,                 // label used when displaying this field, in HTML or in confirmation page (empty if not displayed)
-    mask?: boolean,                 // when saving this field, should a masked value be saved instead (for password-like fields)
-    neverStore?: boolean,           // used for temp fields like user input for adding key-value pairs
-    primaryTrigger?: boolean,       // do NOT set value on INIT, but immediately AFTER onChange events are subscribed to
-    required?: boolean,             // should a Validator.REQUIRED validator be added to the validator list?
-    requiresBackendData?: boolean,  // this field requires backend data, so do not initialize but let backend data handler initialize
-    restorer?: (value: any) => void,// given a saved value (or a retrieved object) this closure will store it. Used esp w/hasNoDomControl
-    retriever?: (value: any) => any,// given a saved value, this closure will retrieve a backing object.
-    validators?: SimpleValidator[], // validators used by Clarity framework
+    defaultValue?: any,              // default value to initialize with
+    displayOnly?: boolean,           // do not auto-build/store/restore this control; value is "manually" stored and displayed to the user
+    doNotAutoRestore?: boolean,      // do not auto-restore the stored value to this field (field is usually set by change event)
+    doNotAutoSave?: boolean,         // do not save this field when saving the entire mapping (field may be "manually" saved by step)
+    featureFlag?: string,            // a feature flag that needs to be true in order to create this field
+    hasNoDomControl?: boolean,       // this field does not populate a DOM control, so (a) it needs a retriever to get a value, and
+                                     // (b) it needs a restorer to restore the value
+    isBoolean?: boolean,             // does the field have a boolean value?
+    isMap?: boolean,                 // is the value of this field a Map<string, string>?
+    label?: string,                  // label used when displaying this field, in HTML or in confirmation page (empty if not displayed)
+    mask?: boolean,                  // when saving this field, should a masked value be saved instead (for password-like fields)
+    neverStore?: boolean,            // used for temp fields like user input for adding key-value pairs
+    primaryTrigger?: boolean,        // do NOT set value on INIT, but immediately AFTER onChange events are subscribed to
+    required?: boolean,              // should a Validator.REQUIRED validator be added to the validator list?
+    requiresBackendData?: boolean,   // this field requires backend data, so do not initialize but let backend data handler initialize
+    restorer?: (value: any) => void, // given a saved value (or a retrieved object) this closure will store it. Used esp w/hasNoDomControl
+    retriever?: (value: any) => any, // given a saved value, this closure will retrieve a backing object.
+    validators?: SimpleValidator[],  // validators used by Clarity framework
 }
 // NOTES on FieldMapping:
 // requiresBackendData:
