@@ -687,6 +687,9 @@ router.get(`${ENDPOINT}/providers/aws/nodetypes`, (req, res) => {
         'm5.xlarge',
         'm5a.2xlarge',
         'm5a.4xlarge',
+        'c6gn.small',
+        'c6gn.medium',
+        'c6gn.large',
         'r4.8xlarge',
         'i3.xlarge',
         't3.small',
@@ -698,7 +701,10 @@ router.get(`${ENDPOINT}/providers/aws/nodetypes`, (req, res) => {
         'm5a.2xlarge',
         'm5a.4xlarge',
         'r4.8xlarge',
-        'i3.xlarge'
+        'i3.xlarge',
+        't4g.small',
+        't4g.medium',
+        't4g.large'
     ]);
 });
 
