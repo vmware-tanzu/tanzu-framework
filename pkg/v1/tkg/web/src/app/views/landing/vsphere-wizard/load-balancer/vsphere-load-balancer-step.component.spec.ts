@@ -1,5 +1,6 @@
 // Angular imports
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 // App imports
@@ -8,6 +9,7 @@ import AppServices from '../../../../shared/service/appServices';
 import { DataServiceRegistrarTestExtension } from '../../../../testing/data-service-registrar.testextension';
 import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
 import { KUBE_VIP } from '../../wizard/shared/components/steps/load-balancer/load-balancer-step.component';
+import { LoadBalancerField } from '../../wizard/shared/components/steps/load-balancer/load-balancer-step.fieldmapping';
 import { Messenger, TanzuEventType } from '../../../../shared/service/Messenger';
 import { ResourcePool } from '../resource-step/resource-step.component';
 import { SharedModule } from '../../../../shared/shared.module';
@@ -15,8 +17,6 @@ import { ValidationService } from '../../wizard/shared/validation/validation.ser
 import { VSphereDatastore, VSphereFolder, VSphereResourcePool } from '../../../../swagger/models';
 import { VsphereLoadBalancerStepComponent } from './vsphere-load-balancer-step.component';
 import { WizardForm } from '../../wizard/shared/constants/wizard.constants';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { LoadBalancerField } from '../../wizard/shared/components/steps/load-balancer/load-balancer-step.fieldmapping';
 
 describe('VsphereLoadBalancerStepComponent', () => {
     let component: VsphereLoadBalancerStepComponent;

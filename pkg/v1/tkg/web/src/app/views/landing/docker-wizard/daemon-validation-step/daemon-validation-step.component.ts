@@ -7,9 +7,7 @@ import { APIClient } from 'src/app/swagger';
 import AppServices from "../../../../shared/service/appServices";
 import { DaemonStepMapping } from './daemon-validation-step.fieldmapping';
 import { DockerDaemonStatus } from 'src/app/swagger/models';
-import { NotificationTypes } from "../../../../shared/components/alert-notification/alert-notification.component";
 import { StepFormDirective } from '../../wizard/shared/step-form/step-form';
-import { TanzuEvent, TanzuEventType } from '../../../../shared/service/Messenger';
 import { ValidationService } from '../../wizard/shared/validation/validation.service';
 
 @Component({

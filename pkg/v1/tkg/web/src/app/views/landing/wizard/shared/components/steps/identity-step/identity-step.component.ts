@@ -13,7 +13,6 @@ import { LdapParams } from './../../../../../../../swagger/models/ldap-params.mo
 import { LdapTestResult } from 'src/app/swagger/models';
 import { StepFormDirective } from '../../../step-form/step-form';
 import { ValidationService } from '../../../validation/validation.service';
-import { VsphereResourceStepMapping } from '../../../../../vsphere-wizard/resource-step/resource-step.fieldmapping';
 
 const CONNECT = "CONNECT";
 const BIND = "BIND";

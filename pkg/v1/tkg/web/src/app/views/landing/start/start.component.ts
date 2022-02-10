@@ -10,7 +10,7 @@ import AppServices from 'src/app/shared/service/appServices';
 import { BasicSubscriber } from 'src/app/shared/abstracts/basic-subscriber';
 import { BrandingObj, EditionData } from '../../../shared/service/branding.service';
 import { PROVIDERS, Providers } from '../../../shared/constants/app.constants';
-import { TanzuEvent, TanzuEventType } from 'src/app/shared/service/Messenger';
+import { TanzuEventType } from 'src/app/shared/service/Messenger';
 
 @Component({
     selector: 'tkg-kickstart-ui-start',

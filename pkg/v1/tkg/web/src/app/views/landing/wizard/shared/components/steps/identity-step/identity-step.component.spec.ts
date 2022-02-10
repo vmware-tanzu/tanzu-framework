@@ -5,8 +5,6 @@ import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 // App imports
 import { APIClient } from '../../../../../../../swagger/api-client.service';
 import AppServices from 'src/app/shared/service/appServices';
-import { AzureForm } from '../../../../../azure-wizard/azure-wizard.constants';
-import { FieldMapUtilities } from '../../../field-mapping/FieldMapUtilities';
 import { IdentityField } from './identity-step.fieldmapping';
 import { IdentityManagementType, WizardForm } from '../../../constants/wizard.constants';
 import { Messenger, TanzuEventType } from 'src/app/shared/service/Messenger';

@@ -47,7 +47,6 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
     // This map is made available to HTML pages to display labels before fields
     htmlFieldLabels: Map<string, string>;
 
-    private delayedFieldQueue = [];
     protected eventFileImported: TanzuEventType;
     protected eventFileImportError: TanzuEventType;
 
