@@ -3,7 +3,7 @@
  */
 import { Injectable } from '@angular/core';
 import XRegExp from 'xregexp';
-import { AbstractControl, FormGroup, ValidationErrors } from '@angular/forms';
+import { AbstractControl, FormArray, FormGroup, ValidationErrors } from '@angular/forms';
 import { Netmask } from 'netmask';
 import isIp from 'is-ip';
 
@@ -23,29 +23,29 @@ export class ValidationService {
 
     constructor() {
         this.simpleValidatorMap = new Map<SimpleValidator, (control: AbstractControl) => any>([
-            [ SimpleValidator.IS_COMMA_SEPARATED_LIST, this.isCommaSeperatedList() ],
-            [ SimpleValidator.IS_HTTP_OR_HTTPS, this.isHttpOrHttps() ],
-            [ SimpleValidator.IS_NUMBER_POSITIVE, this.isNumberGreaterThanZero() ],
-            [ SimpleValidator.IS_NUMERIC_ONLY, this.isNumericOnly() ],
-            [ SimpleValidator.IS_STRING_WITHOUT_QUERY_PARAMS, this.isStringWithoutQueryParams() ],
-            [ SimpleValidator.IS_STRING_WITHOUT_URL_FRAGMENT, this.isStringWithoutUrlFragment() ],
-            [ SimpleValidator.IS_TRUE, this.isTrue() ],
-            [ SimpleValidator.IS_VALID_CLUSTER_NAME, this.isValidClusterName() ],
-            [ SimpleValidator.IS_VALID_FQDN, this.isValidFqdn() ],
-            [ SimpleValidator.IS_VALID_FQDN_OR_IP, this.isValidIpOrFqdn() ],
-            [ SimpleValidator.IS_VALID_FQDN_OR_IP_HTTPS, this.isValidIpOrFqdnWithHttpsProtocol() ],
-            [ SimpleValidator.IS_VALID_FQDN_OR_IP_LIST, this.isCommaSeparatedIpsOrFqdn() ],
-            [ SimpleValidator.IS_VALID_FQDN_OR_IPV6, this.isValidIpv6OrFqdn() ],
-            [ SimpleValidator.IS_VALID_FQDN_OR_IPV6_HTTPS, this.isValidIpv6OrFqdnWithHttpsProtocol() ],
-            [ SimpleValidator.IS_VALID_IP, this.isValidIp() ],
-            [ SimpleValidator.IS_VALID_IP_LIST, this.isValidIps() ],
-            [ SimpleValidator.IS_VALID_IP_NETWORK_SEGMENT, this.isValidIpNetworkSegment() ],
-            [ SimpleValidator.IS_VALID_IPV6_NETWORK_SEGMENT, this.isValidIpv6NetworkSegment() ],
-            [ SimpleValidator.IS_VALID_LABEL_OR_ANNOTATION, this.isValidLabelOrAnnotation() ],
-            [ SimpleValidator.IS_VALID_PORT, this.isValidPort() ],
-            [ SimpleValidator.IS_VALID_RESOURCE_GROUP_NAME, this.isValidResourceGroupName() ],
-            [ SimpleValidator.NO_WHITE_SPACE, this.noWhitespaceOnEnds() ],
-            [ SimpleValidator.NO_TRAILING_SLASH, this.noTrailingSlash() ],
+            [SimpleValidator.IS_COMMA_SEPARATED_LIST, this.isCommaSeperatedList()],
+            [SimpleValidator.IS_HTTP_OR_HTTPS, this.isHttpOrHttps()],
+            [SimpleValidator.IS_NUMBER_POSITIVE, this.isNumberGreaterThanZero()],
+            [SimpleValidator.IS_NUMERIC_ONLY, this.isNumericOnly()],
+            [SimpleValidator.IS_STRING_WITHOUT_QUERY_PARAMS, this.isStringWithoutQueryParams()],
+            [SimpleValidator.IS_STRING_WITHOUT_URL_FRAGMENT, this.isStringWithoutUrlFragment()],
+            [SimpleValidator.IS_TRUE, this.isTrue()],
+            [SimpleValidator.IS_VALID_CLUSTER_NAME, this.isValidClusterName()],
+            [SimpleValidator.IS_VALID_FQDN, this.isValidFqdn()],
+            [SimpleValidator.IS_VALID_FQDN_OR_IP, this.isValidIpOrFqdn()],
+            [SimpleValidator.IS_VALID_FQDN_OR_IP_HTTPS, this.isValidIpOrFqdnWithHttpsProtocol()],
+            [SimpleValidator.IS_VALID_FQDN_OR_IP_LIST, this.isCommaSeparatedIpsOrFqdn()],
+            [SimpleValidator.IS_VALID_FQDN_OR_IPV6, this.isValidIpv6OrFqdn()],
+            [SimpleValidator.IS_VALID_FQDN_OR_IPV6_HTTPS, this.isValidIpv6OrFqdnWithHttpsProtocol()],
+            [SimpleValidator.IS_VALID_IP, this.isValidIp()],
+            [SimpleValidator.IS_VALID_IP_LIST, this.isValidIps()],
+            [SimpleValidator.IS_VALID_IP_NETWORK_SEGMENT, this.isValidIpNetworkSegment()],
+            [SimpleValidator.IS_VALID_IPV6_NETWORK_SEGMENT, this.isValidIpv6NetworkSegment()],
+            [SimpleValidator.IS_VALID_LABEL_OR_ANNOTATION, this.isValidLabelOrAnnotation()],
+            [SimpleValidator.IS_VALID_PORT, this.isValidPort()],
+            [SimpleValidator.IS_VALID_RESOURCE_GROUP_NAME, this.isValidResourceGroupName()],
+            [SimpleValidator.NO_WHITE_SPACE, this.noWhitespaceOnEnds()],
+            [SimpleValidator.NO_TRAILING_SLASH, this.noTrailingSlash()],
         ]);
     }
 
@@ -156,7 +156,7 @@ export class ValidationService {
     /**
      * @method isValidIpOrFqdn validator to check if input is valid IP or FQDN
      */
-     isValidIpv6OrFqdn(): any {
+    isValidIpv6OrFqdn(): any {
         return (control: AbstractControl) => {
             const ctrlValue: string = control.value;
             if (ctrlValue) {
@@ -192,11 +192,11 @@ export class ValidationService {
         }
     }
 
-     /**
-     * @method isValidIpv6OrFqdnWithHttpsProtocol validator to check if input is valid IP or FQDN
-     * with protocol prefix
-     */
-      isValidIpv6OrFqdnWithHttpsProtocol(): any {
+    /**
+    * @method isValidIpv6OrFqdnWithHttpsProtocol validator to check if input is valid IP or FQDN
+    * with protocol prefix
+    */
+    isValidIpv6OrFqdnWithHttpsProtocol(): any {
         return (control: AbstractControl) => {
             const ctrlValue: string = control.value;
             if (ctrlValue) {
@@ -531,7 +531,7 @@ export class ValidationService {
      * @method isValidIpv6NetworkSegment
      * xxxx:xxxx:xxxx:xxxx:xxxx:xxxx:xxxx:xxxx/xxx
      */
-     isValidIpv6NetworkSegment(): any {
+    isValidIpv6NetworkSegment(): any {
         return (control: AbstractControl) => {
             const ctrlValue: string = control.value;
             if (ctrlValue) {
@@ -751,7 +751,7 @@ export class ValidationService {
      *
      * @param {AbstractControl} ipCtrl
      */
-     isValidIpv6Ldap(ipCtrl: AbstractControl): any {
+    isValidIpv6Ldap(ipCtrl: AbstractControl): any {
         return (control: AbstractControl) => {
             const inputVal = ipCtrl.value;
             if (inputVal) {
@@ -784,18 +784,25 @@ export class ValidationService {
         return (control: AbstractControl) => {
             const ctrlValue: boolean = control.value;
             if (ctrlValue === true) {
-                 return { [ValidatorEnum.TRUE]: true };
+                return { [ValidatorEnum.TRUE]: true };
             }
             return null;
         }
     }
 
-    isUniqueLabel(formGroup: FormGroup, keys: Set<string>, name: string): any {
+    isUniqueLabel(labelArray: FormArray): any {
         return (control: AbstractControl) => {
-            const ctrlValue: string = control.value;
-            for (const key of keys) {
-                if (ctrlValue !== '' && ctrlValue === formGroup.value[key] && key !== name) {
-                    return { [ValidatorEnum.LABEL_UNIQUE]: true}
+            const currentLabelKey: string = control.value;
+            let keyOccurrences = 0;
+            if (currentLabelKey !== '' && labelArray) {
+                for (const label of labelArray.controls) {
+                    const labelKey = label.get('key').value;
+                    if (currentLabelKey !== '' && currentLabelKey === labelKey) {
+                        keyOccurrences++;
+                    }
+                    if (keyOccurrences > 1) {
+                        return { [ValidatorEnum.LABEL_UNIQUE]: true }
+                    }
                 }
             }
             return null;
