@@ -29,7 +29,7 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
     displayForm = false;
 
     controlPlaneEndpointProviders = [KUBE_VIP, NSX_ADVANCED_LOAD_BALANCER];
-    currentControlPlaneEndpoingProvider = KUBE_VIP;
+    currentControlPlaneEndpointProvider = KUBE_VIP;
     controlPlaneEndpointOptional = "";
 
     constructor(private validationService: ValidationService) {
@@ -54,7 +54,7 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
     private customizeForm() {
         this.registerStepDescriptionTriggers({ clusterTypeDescriptor: true, fields: [VsphereField.NODESETTING_CONTROL_PLANE_SETTING]});
         this.registerOnValueChange(VsphereField.NODESETTING_CONTROL_PLANE_ENDPOINT_PROVIDER,
-            this.onControlPlaneEndpoingProviderChange.bind(this));
+            this.onControlPlaneEndpointProviderChange.bind(this));
         this.registerOnIpFamilyChange(VsphereField.NODESETTING_CONTROL_PLANE_ENDPOINT_IP, [
             Validators.required,
             this.validationService.isValidIpOrFqdn()
@@ -180,8 +180,8 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
         }
     }
 
-    onControlPlaneEndpoingProviderChange(provider: string): void {
-        this.currentControlPlaneEndpoingProvider = provider;
+    onControlPlaneEndpointProviderChange(provider: string): void {
+        this.currentControlPlaneEndpointProvider = provider;
         AppServices.messenger.publish({
             type: TanzuEventType.VSPHERE_CONTROL_PLANE_ENDPOINT_PROVIDER_CHANGED,
             payload: provider

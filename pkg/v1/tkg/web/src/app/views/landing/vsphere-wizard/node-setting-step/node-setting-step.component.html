@@ -211,12 +211,12 @@
                     <clr-tooltip>
                         <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                         <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
-                            <span *ngIf="currentControlPlaneEndpoingProvider === 'Kube-vip'">
+                            <span *ngIf="currentControlPlaneEndpointProvider === 'Kube-vip'">
                                 This IP address or FQDN is used by the Kube-vip (https://kube-vip.io/) pod that runs in
                                 the control plane nodes.
                                 Kube-vip provides load balancing services for the Cluster API server.
                             </span>
-                            <span *ngIf="currentControlPlaneEndpoingProvider === 'NSX Advanced Load Balancer'">
+                            <span *ngIf="currentControlPlaneEndpointProvider === 'NSX Advanced Load Balancer'">
                                 This IP or FQDN is used by NSX Advanced Load Balancer as cluster control plane endpoint.
                                 It is optional. When you specify it, it has to be from AVI controller static IP Pool.
                             </span>
