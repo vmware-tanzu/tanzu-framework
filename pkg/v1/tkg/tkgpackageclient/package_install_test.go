@@ -1,7 +1,7 @@
 // Copyright 2021 VMware, Inc. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-package tkgpackageclient
+package tkgpackageclient_test
 
 import (
 	"fmt"
@@ -11,6 +11,8 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/pkg/errors"
+
+	. "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgpackageclient"
 
 	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
@@ -80,7 +82,7 @@ var (
 
 var _ = Describe("Install Package", func() {
 	var (
-		ctl     *pkgClient
+		ctl     TKGPackageClient
 		crtCtl  *fakes.CRTClusterClient
 		kappCtl *fakes.KappClient
 		err     error
@@ -103,7 +105,8 @@ var _ = Describe("Install Package", func() {
 			Err:         make(chan error),
 			Done:        make(chan struct{}),
 		}
-		ctl = &pkgClient{kappClient: kappCtl}
+		ctl, err = NewTKGPackageClientWithKappClient(kappCtl)
+		Expect(err).NotTo(HaveOccurred())
 		go ctl.InstallPackage(&options, progress, tkgpackagedatamodel.OperationTypeInstall)
 		err = testReceive(progress)
 	})

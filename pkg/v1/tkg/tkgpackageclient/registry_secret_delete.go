@@ -18,21 +18,21 @@ import (
 
 // DeleteRegistrySecret deletes a registry secret from the cluster
 func (p *pkgClient) DeleteRegistrySecret(o *tkgpackagedatamodel.RegistrySecretOptions) (bool, error) {
-	secretExport = &secretgenctrl.SecretExport{
+	SecretExport = &secretgenctrl.SecretExport{
 		TypeMeta:   metav1.TypeMeta{Kind: tkgpackagedatamodel.KindSecretExport, APIVersion: secretgenctrl.SchemeGroupVersion.String()},
 		ObjectMeta: metav1.ObjectMeta{Name: o.SecretName, Namespace: o.Namespace},
 	}
-	if err := p.kappClient.GetClient().Delete(context.Background(), secretExport); err != nil {
+	if err := p.kappClient.GetClient().Delete(context.Background(), SecretExport); err != nil {
 		if !apierrors.IsNotFound(err) {
 			return true, errors.Wrap(err, "failed to delete SecretExport resource")
 		}
 	}
 
-	secret = &corev1.Secret{
+	Secret = &corev1.Secret{
 		TypeMeta:   metav1.TypeMeta{Kind: tkgpackagedatamodel.KindSecret, APIVersion: corev1.SchemeGroupVersion.String()},
 		ObjectMeta: metav1.ObjectMeta{Name: o.SecretName, Namespace: o.Namespace},
 	}
-	if err := p.kappClient.GetClient().Delete(context.Background(), secret); err != nil {
+	if err := p.kappClient.GetClient().Delete(context.Background(), Secret); err != nil {
 		if !apierrors.IsNotFound(err) {
 			return true, errors.Wrap(err, "failed to delete Secret resource")
 		}
