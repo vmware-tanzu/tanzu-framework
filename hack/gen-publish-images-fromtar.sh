@@ -8,6 +8,7 @@ TANZU_BOM_DIR=${HOME}/.config/tanzu/tkg/bom
 INSTALL_INSTRUCTIONS='See https://github.com/mikefarah/yq#install for installation instructions'
 TKG_CUSTOM_IMAGE_REPOSITORY=${TKG_CUSTOM_IMAGE_REPOSITORY:-''}
 TKG_IMAGE_REPO=${TKG_IMAGE_REPO:-''}
+TKG_BOM_IMAGE_TAG=${TKG_BOM_IMAGE_TAG:-''}
 
 
 echodual() {
@@ -66,7 +67,7 @@ actualImageRepository="$TKG_IMAGE_REPO"
 list=$(imgpkg  tag  list -i "${actualImageRepository}"/tkg-bom)
 for imageTag in ${list}; do
   tanzucliversion=$(tanzu version | head -n 1 | cut -c10-15)
-  if [[ ${imageTag} == ${tanzucliversion}* ]]; then
+  if [[ ${imageTag} == ${tanzucliversion}* ]] || [[ ${imageTag} == ${TKG_BOM_IMAGE_TAG} ]]; then
     TKG_BOM_FILE="tkg-bom-${imageTag//_/+}.yaml"
     imgpkg pull --image "${actualImageRepository}/tkg-bom:${imageTag}" --output "tmp" > /dev/null 2>&1
     echodual "Processing TKG BOM file ${TKG_BOM_FILE}"
@@ -84,10 +85,6 @@ for imageTag in ${list}; do
     comp=`echo $comp | sed -e 's/^[[:space:]]*//' | sed 's/,*$//g'`
     get_comp_images="yq e '.components[\"${comp}\"][]  | select(has(\"images\"))|.images[] | .imagePath + \":\" + .tag' "\"tmp/\"$TKG_BOM_FILE""
 
-    flags="-i"
-    if [ $comp = "tkg-standard-packages" ]; then
-      flags="-b"
-    fi
     eval $get_comp_images | while read -r image; do        
         image2=$(echo "$image" | tr ':' '-' | tr '/' '-')
         image3=$(echo "$image" | cut -f1 -d":")
@@ -125,10 +122,6 @@ for imageTag in ${list}; do
     comp=`echo $comp | sed -e 's/^[[:space:]]*//' | sed 's/,*$//g'`
     get_comp_images="yq e '.components[\"${comp}\"][]  | select(has(\"images\"))|.images[] | .imagePath + \":\" + .tag' "\"tmp/\"$TKR_BOM_FILE""
 
-    flags="-i"
-    if [ $comp = "tkg-core-packages" ]; then
-      flags="-b"
-    fi
     eval $get_comp_images | while read -r image; do
         image2=$(echo "$image" | cut -f1 -d":")
         actualImage=${TKG_CUSTOM_IMAGE_REPOSITORY}/${image2}
