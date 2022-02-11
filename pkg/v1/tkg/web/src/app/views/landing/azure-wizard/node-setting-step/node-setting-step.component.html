@@ -20,7 +20,7 @@
                     <div class="clr-row">
                         <div class="clr-col-lg-5 clr-col-12">
                             <label i18n="instance type label">
-                                INSTANCE TYPE
+                                {{htmlFieldLabels['devInstanceType']}}
                                 <clr-tooltip>
                                     <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                                     <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
@@ -67,7 +67,7 @@
                     <div class="clr-row">
                         <div class="clr-col-lg-5 clr-col-12">
                             <label i18n="instance type label">
-                                INSTANCE TYPE
+                                {{htmlFieldLabels['prodInstanceType']}}
                                 <clr-tooltip>
                                     <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                                     <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
@@ -103,16 +103,12 @@
         <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
             <clr-input-container>
                 <label i18n="cluster name label" clr-control-label>
-                    {{ clusterTypeDescriptor | uppercase }} CLUSTER NAME {{edition === 'tkg' ? '(OPTIONAL)' : ''}}
+                    {{htmlFieldLabels['managementClusterName']}}
                     <clr-tooltip>
                         <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                         <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
                             <span>
-                                {{  edition === 'tkg'?
-                                    'Optionally specify a name for the ' + clusterTypeDescriptor + ' cluster. If left blank,' +
-                                    'the installer names the cluster automatically.' :
-                                    'Specify a name for the ' + clusterTypeDescriptor + ' cluster.'
-                                }}
+                                {{ clusterNameInstruction }}
                             </span>
                         </clr-tooltip-content>
                     </clr-tooltip>
@@ -136,7 +132,7 @@
         <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4" *ngIf="!modeClusterStandalone">
             <clr-select-container>
                 <label i18n="azure worker node instance label">
-                    WORKER NODE INSTANCE TYPE
+                    {{htmlFieldLabels['workerNodeInstanceType']}}
                     <clr-tooltip>
                         <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                         <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
@@ -160,7 +156,7 @@
         <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
             <clr-checkbox-container>
                 <label i18n="cluster enable machine health check" clr-control-label>
-                    MACHINE HEALTH CHECKS
+                    {{htmlFieldLabels['machineHealthChecksEnabled']}}
                     <clr-tooltip>
                         <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                         <clr-tooltip-content clrPosition="top-left" clrSize="lg" *clrIfOpen>

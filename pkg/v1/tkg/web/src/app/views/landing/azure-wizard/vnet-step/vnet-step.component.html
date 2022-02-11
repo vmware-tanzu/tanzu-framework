@@ -9,25 +9,25 @@
             <clr-radio-container clrInline>
                 <clr-radio-wrapper>
                     <input type="radio" clrRadio formControlName="vnetOption" required
-                           value="EXISTING" />
+                           value="{{vnetOptionExisting}}" />
                     <label>Select an existing VNET</label>
                 </clr-radio-wrapper>
                 <clr-control-error>Must select an option for entering the VNET!</clr-control-error>
                 <clr-radio-wrapper>
                     <input type="radio" clrRadio formControlName="vnetOption" required
-                        value="CUSTOM" />
+                        value="{{vnetOptionCustom}}" />
                     <label>Create a new VNET on Azure</label>
                 </clr-radio-wrapper>
             </clr-radio-container>
         </div>
     </div>
 
-    <div *ngIf="showVnetFieldsOption === 'CUSTOM'">
+    <div *ngIf="showVnetFieldsOption === vnetOptionCustom">
         <div class="clr-row">
             <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
                 <clr-select-container>
                     <label i18n="azure region label">
-                        RESOURCE GROUP
+                        {{htmlFieldLabels['vnetResourceGroup']}}
                         <clr-tooltip>
                             <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                             <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
@@ -53,7 +53,7 @@
             <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
                 <clr-input-container>
                     <label i18n="azure vnet name label" clr-control-label>
-                        VNET NAME
+                        {{htmlFieldLabels['vnetNameCustom']}}
                         <clr-tooltip>
                             <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                             <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
@@ -74,7 +74,7 @@
             <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
                 <clr-input-container>
                     <label i18n="azure region label">
-                        VNET CIDR BLOCK
+                        {{htmlFieldLabels['vnetCidrBlock']}}
                         <clr-tooltip>
                             <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                             <clr-tooltip-content clrPosition="top-left" clrSize="lg" *clrIfOpen>
@@ -100,7 +100,7 @@
             <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
                 <clr-input-container>
                     <label i18n="azure control plane subnet label" clr-control-label>
-                        CONTROL PLANE SUBNET NAME
+                        {{htmlFieldLabels['controlPlaneSubnetNew']}}
                         <clr-tooltip>
                             <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                             <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
@@ -121,7 +121,7 @@
             <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
                 <clr-input-container>
                     <label i18n="azure control plane cidr label" clr-control-label>
-                        CONTROL PLANE SUBNET CIDR
+                        {{htmlFieldLabels['controlPlaneSubnetCidrNew']}}
                         <clr-tooltip>
                             <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                             <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
@@ -148,7 +148,7 @@
             <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
                 <clr-input-container>
                     <label i18n="azure worker node subnet label" clr-control-label>
-                        WORKER NODE SUBNET NAME
+                        {{htmlFieldLabels['workerNodeSubnetNew']}}
                         <clr-tooltip>
                             <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                             <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
@@ -169,7 +169,7 @@
             <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
                 <clr-input-container>
                     <label i18n="azure worker node cidr label" clr-control-label>
-                        WORKER NODE SUBNET CIDR
+                        {{htmlFieldLabels['workerNodeSubnetCidrNew']}}
                         <clr-tooltip>
                             <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                             <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
@@ -194,11 +194,11 @@
         </div>
     </div>
 
-    <div *ngIf="showVnetFieldsOption === 'EXISTING'" class="clr-row">
+    <div *ngIf="showVnetFieldsOption === vnetOptionExisting" class="clr-row">
         <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
             <clr-select-container>
                 <label i18n="azure resourceg group label">
-                    RESOURCE GROUP
+                    {{htmlFieldLabels['vnetResourceGroup']}}
                     <clr-tooltip>
                         <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                         <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
@@ -223,7 +223,7 @@
         <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
             <clr-select-container>
                 <label i18n="azure vnet name label">
-                    VNET NAME
+                    {{htmlFieldLabels['vnetNameExisting']}}
                     <clr-tooltip>
                         <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                         <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
@@ -247,11 +247,11 @@
         </div>
     </div>
 
-    <div *ngIf="showVnetFieldsOption === 'EXISTING'" class="clr-row">
+    <div *ngIf="showVnetFieldsOption === vnetOptionExisting" class="clr-row">
         <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
             <clr-select-container>
                 <label i18n="azure control plane subnet label">
-                    CONTROL PLANE SUBNET
+                    {{htmlFieldLabels['controlPlaneSubnet']}}
                     <clr-tooltip>
                         <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                         <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
@@ -279,7 +279,7 @@
         <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4" *featureToggle="'!management-cluster.standalone-cluster-mode'">
             <clr-select-container>
                 <label i18n="azure worker node subnet label">
-                    WORKER NODE SUBNET
+                    {{htmlFieldLabels['workerNodeSubnet']}}
                     <clr-tooltip>
                         <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                         <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
@@ -310,7 +310,7 @@
                     <input type="checkbox" clrCheckbox name="privateAzureCluster"
                         formControlName="privateAzureCluster" />
                     <label i18n="Azure whether it is going to be a private cluster label">
-                        PRIVATE AZURE CLUSTER
+                        {{htmlFieldLabels['privateAzureCluster']}}
                         <clr-tooltip>
                             <clr-icon clrTooltipTrigger shape="info-circle" size="22"></clr-icon>
                             <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
@@ -328,7 +328,7 @@
         <div *ngIf="createPrivateCluster" class="clr-col-6">
             <clr-input-container>
                 <label class="hidden" i18n="load balancer template label">
-                    PRIVATE IP
+                    {{htmlFieldLabels['privateIP']}}
                     <clr-tooltip>
                         <clr-icon clrTooltipTrigger shape="info-circle" size="22"></clr-icon>
                         <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
@@ -353,5 +353,4 @@
             </clr-input-container>
         </div>
     </div>
-
 </form>

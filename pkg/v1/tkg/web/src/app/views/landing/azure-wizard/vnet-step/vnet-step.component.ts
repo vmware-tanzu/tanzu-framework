@@ -120,6 +120,7 @@ export class VnetStepComponent extends StepFormDirective implements OnInit {
     ngOnInit() {
         super.ngOnInit();
         AppServices.userDataFormService.buildForm(this.formGroup, this.wizardName, this.formName, this.supplyStepMapping());
+        this.htmlFieldLabels = AppServices.fieldMapUtilities.getFieldLabelMap(this.supplyStepMapping());
         this.storeDefaultLabels(this.supplyStepMapping());
         this.registerDefaultFileImportedHandler(this.eventFileImported, this.supplyStepMapping());
         this.registerDefaultFileImportErrorHandler(this.eventFileImportError);
@@ -327,5 +328,13 @@ export class VnetStepComponent extends StepFormDirective implements OnInit {
     protected storeUserData() {
         this.storeUserDataFromMapping(this.supplyStepMapping());
         this.storeDefaultDisplayOrder(this.supplyStepMapping());
+    }
+
+    get vnetOptionExisting(): string {
+        return VnetOptionType.EXISTING;
+    }
+
+    get vnetOptionCustom(): string {
+        return VnetOptionType.CUSTOM;
     }
 }

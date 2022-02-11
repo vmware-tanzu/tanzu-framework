@@ -5,17 +5,18 @@ import { SimpleValidator } from '../../wizard/shared/constants/validation.consta
 export const AzureNodeSettingStandaloneStepMapping: StepMapping = {
     fieldMappings: [
         { name: AzureField.NODESETTING_CONTROL_PLANE_SETTING, required: true, primaryTrigger: true },
-        { name: AzureField.NODESETTING_INSTANCE_TYPE_DEV, required: true },
-        { name: AzureField.NODESETTING_INSTANCE_TYPE_PROD, required: true },
-        { name: AzureField.NODESETTING_MACHINE_HEALTH_CHECKS_ENABLED, isBoolean: true },
+        { name: AzureField.NODESETTING_INSTANCE_TYPE_DEV, required: true, label: 'INSTANCE TYPE' },
+        { name: AzureField.NODESETTING_INSTANCE_TYPE_PROD, required: true, label: 'INSTANCE TYPE' },
+        { name: AzureField.NODESETTING_MACHINE_HEALTH_CHECKS_ENABLED, isBoolean: true, label: 'MACHINE HEALTH CHECKS' },
         { name: AzureField.NODESETTING_ENABLE_AUDIT_LOGGING, isBoolean: true, label: 'ENABLE AUDIT LOGGING' },
-        { name: AzureField.NODESETTING_MANAGEMENT_CLUSTER_NAME, validators: [SimpleValidator.IS_VALID_CLUSTER_NAME] },
+        { name: AzureField.NODESETTING_MANAGEMENT_CLUSTER_NAME, label: 'CLUSTER NAME',
+            validators: [SimpleValidator.IS_VALID_CLUSTER_NAME] },
     ]
 };
 export const AzureNodeSettingStepMapping: StepMapping = {
     fieldMappings: [
         ...AzureNodeSettingStandaloneStepMapping.fieldMappings,
-        { name: AzureField.NODESETTING_WORKERTYPE, required: true },
+        { name: AzureField.NODESETTING_WORKERTYPE, required: true, label: 'WORKER NODE INSTANCE TYPE' },
     ]
 }
 // About AzureNodeSettingStandaloneStep:

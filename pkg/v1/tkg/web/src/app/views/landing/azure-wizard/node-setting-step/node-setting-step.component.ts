@@ -24,6 +24,7 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
     clusterPlan: string;
     currentRegion = 'US-WEST';
     displayForm = false;
+    clusterNameInstruction: string;
 
     constructor(private validationService: ValidationService) {
         super();
@@ -34,6 +35,14 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
         const fieldMappings = this.modeClusterStandalone ? AzureNodeSettingStandaloneStepMapping : AzureNodeSettingStepMapping;
         AppServices.fieldMapUtilities.getFieldMapping(AzureField.NODESETTING_MANAGEMENT_CLUSTER_NAME, fieldMappings).required =
             AppServices.appDataService.isClusterNameRequired();
+        // dynamically modify the cluster name label based on the type descriptor and whether the cluster name is required
+        const clusterNameMapping = AppServices.fieldMapUtilities.getFieldMapping(AzureField.NODESETTING_MANAGEMENT_CLUSTER_NAME,
+            fieldMappings);
+        let clusterNameLabel = this.clusterTypeDescriptor.toUpperCase() + ' CLUSTER NAME';
+        if (!AppServices.appDataService.isClusterNameRequired()) {
+            clusterNameLabel += ' (OPTIONAL)';
+        }
+        clusterNameMapping.label = clusterNameLabel;
         return fieldMappings;
     }
 
@@ -96,6 +105,7 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
         AppServices.userDataFormService.buildForm(this.formGroup, this.wizardName, this.formName, this.supplyStepMapping());
         this.htmlFieldLabels = AppServices.fieldMapUtilities.getFieldLabelMap(this.supplyStepMapping());
         this.storeDefaultLabels(this.supplyStepMapping());
+        this.setClusterNameInstruction();
         this.subscribeToServices();
         this.registerStepDescriptionTriggers({ clusterTypeDescriptor: true, fields: ['controlPlaneSetting']});
         this.registerDefaultFileImportedHandler(this.eventFileImported, this.supplyStepMapping());
@@ -129,5 +139,14 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
     protected storeUserData() {
         this.storeUserDataFromMapping(this.supplyStepMapping());
         this.storeDefaultDisplayOrder(this.supplyStepMapping());
+    }
+
+    private setClusterNameInstruction() {
+        if (AppServices.appDataService.isClusterNameRequired()) {
+            this.clusterNameInstruction = 'Specify a name for the ' + this.clusterTypeDescriptor + ' cluster.';
+        } else {
+            this.clusterNameInstruction = 'Optionally specify a name for the ' + this.clusterTypeDescriptor + ' cluster. ' +
+                'If left blank, the installer names the cluster automatically.';
+        }
     }
 }
