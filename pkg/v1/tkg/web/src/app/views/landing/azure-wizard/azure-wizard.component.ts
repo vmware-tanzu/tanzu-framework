@@ -35,8 +35,6 @@ import { OsImageField } from '../wizard/shared/components/steps/os-image-step/os
     styleUrls: ['./azure-wizard.component.scss']
 })
 export class AzureWizardComponent extends WizardBaseDirective implements OnInit {
-    region: string;
-
     constructor(
         router: Router,
         private importService: ImportService,
@@ -389,18 +387,19 @@ export class AzureWizardComponent extends WizardBaseDirective implements OnInit 
 
     private subscribeToServices() {
         AppServices.messenger.subscribe<string>(TanzuEventType.AZURE_REGION_CHANGED, event => {
-            if (this.region) {
-                    AppServices.dataServiceRegistrar.trigger([
-                        TanzuEventType.AZURE_GET_RESOURCE_GROUPS,
-                        TanzuEventType.AZURE_GET_INSTANCE_TYPES
-                    ], { location: event.payload });
-                    AppServices.dataServiceRegistrar.trigger([TanzuEventType.AZURE_GET_OS_IMAGES]);
-                } else {
-                    AppServices.dataServiceRegistrar.clear<AzureResourceGroup>(TanzuEventType.AZURE_GET_RESOURCE_GROUPS);
-                    AppServices.dataServiceRegistrar.clear<AzureInstanceType>(TanzuEventType.AZURE_GET_INSTANCE_TYPES);
-                    AppServices.dataServiceRegistrar.clear<AzureVirtualMachine>(TanzuEventType.AZURE_GET_OS_IMAGES);
-                }
-            });
+            const region = event.payload;
+            if (region) {
+                AppServices.dataServiceRegistrar.trigger([
+                    TanzuEventType.AZURE_GET_RESOURCE_GROUPS,
+                    TanzuEventType.AZURE_GET_INSTANCE_TYPES
+                ], { location: region });
+                AppServices.dataServiceRegistrar.trigger([TanzuEventType.AZURE_GET_OS_IMAGES]);
+            } else {
+                AppServices.dataServiceRegistrar.clear<AzureResourceGroup>(TanzuEventType.AZURE_GET_RESOURCE_GROUPS);
+                AppServices.dataServiceRegistrar.clear<AzureInstanceType>(TanzuEventType.AZURE_GET_INSTANCE_TYPES);
+                AppServices.dataServiceRegistrar.clear<AzureVirtualMachine>(TanzuEventType.AZURE_GET_OS_IMAGES);
+            }
+        });
     }
 
     private registerServices() {

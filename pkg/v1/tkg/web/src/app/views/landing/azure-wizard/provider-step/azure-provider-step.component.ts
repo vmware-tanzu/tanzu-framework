@@ -122,6 +122,7 @@ export class AzureProviderStepComponent extends StepFormDirective implements OnI
 
         this.stepMapping = this.createStepMapping();
         AppServices.userDataFormService.buildForm(this.formGroup, this.wizardName, this.formName, this.stepMapping);
+        this.htmlFieldLabels = AppServices.fieldMapUtilities.getFieldLabelMap(this.stepMapping);
         this.storeDefaultLabels(this.stepMapping);
 
         this.customizeForm();

@@ -18,7 +18,7 @@
         <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
             <clr-input-container>
                 <label i18n="azure tanent id label" clr-control-label>
-                    TENANT ID
+                    {{htmlFieldLabels['tenantId']}}
                     <clr-tooltip>
                         <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                         <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
@@ -39,7 +39,7 @@
         <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
             <clr-input-container>
                 <label i18n="azure client id label" clr-control-label>
-                    CLIENT ID
+                    {{htmlFieldLabels['clientId']}}
                     <clr-tooltip>
                         <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                         <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
@@ -60,7 +60,7 @@
         <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
             <clr-password-container>
                 <label i18n="azure client secret label" clr-control-label>
-                    CLIENT SECRET
+                    {{htmlFieldLabels['clientSecret']}}
                     <clr-tooltip>
                         <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                         <clr-tooltip-content clrPosition="top-left" clrSize="lg" *clrIfOpen>
@@ -83,7 +83,7 @@
         <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
             <clr-input-container>
                 <label i18n="azure subscription id label" clr-control-label>
-                    SUBSCRIPTION ID
+                    {{htmlFieldLabels['subscriptionId']}}
                     <clr-tooltip>
                         <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                         <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
@@ -104,7 +104,7 @@
                 <div class="clr-col-4 region-container">
                     <clr-select-container>
                         <label i18n="azure environment label">
-                            AZURE ENVIRONMENT
+                            {{htmlFieldLabels['azureCloud']}}
                             <clr-tooltip>
                                 <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                                 <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
@@ -141,7 +141,7 @@
         <div class="clr-col-6 region-container">
             <clr-select-container>
                 <label i18n="azure region label">
-                    REGION
+                    {{htmlFieldLabels['region']}}
                     <clr-tooltip>
                         <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                         <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
@@ -170,7 +170,7 @@
         <div class="clr-col-12 clr-col-lg-8">
             <clr-textarea-container >
                 <label for="ssh_key" class="clr-control-label">
-                    SSH PUBLIC KEY
+                    {{htmlFieldLabels['sshPublicKey']}}
                     <clr-tooltip>
                         <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                         <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
@@ -194,7 +194,7 @@
     <div class="clr-row">
         <clr-radio-container clrInline>
             <label>
-                RESOURCE GROUP
+                {{htmlFieldLabels['resourceGroupOption']}}
                 <clr-tooltip>
                     <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                     <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
@@ -222,7 +222,7 @@
         <div class="clr-col-12">
             <clr-select-container>
                 <label i18n="azure resource group name label" clr-control-label>
-                    EXISTING RESOURCE GROUP
+                    {{htmlFieldLabels['resourceGroupExisting']}}
                     <clr-tooltip>
                         <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                         <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
@@ -251,7 +251,7 @@
         <div class="clr-col-12">
             <clr-input-container>
                 <label i18n="azure resource group name label" clr-control-label>
-                    RESOURCE GROUP NAME
+                    {{htmlFieldLabels['resourceGroupCustom']}}
                     <clr-tooltip>
                         <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                         <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>

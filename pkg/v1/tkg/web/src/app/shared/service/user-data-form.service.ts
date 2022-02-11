@@ -109,6 +109,11 @@ export class UserDataFormService {
             fieldMapping.name,
             new FormControl(initialValue, validators)
         );
+        // TODO: figure out why we cannot seem to set the initialValue using the above code: new FormControl(initialValue, validators),
+        // but putting it into a setTimeout closure seems to "fix" the problem
+        setTimeout(() => {
+            formGroup.controls[fieldMapping.name].setValue(initialValue);
+        });
     }
 
     private shouldBuildField(fieldMapping: FieldMapping) {
