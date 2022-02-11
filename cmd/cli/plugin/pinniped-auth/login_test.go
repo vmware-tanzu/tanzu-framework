@@ -301,10 +301,10 @@ func TestGetPinnipedCLICmd(t *testing.T) {
 			wantBinary:          pinnipedv044Binary,
 		},
 		{
-			name:                "0.12.0 cli",
+			name:                "0.12.1 cli",
 			loginOptions:        &loginOIDCOptions{conciergeIsClusterScoped: true},
-			wantPinnipedVersion: "v0.12.0",
-			wantBinary:          pinnipedv0120Binary,
+			wantPinnipedVersion: "v0.12.1",
+			wantBinary:          pinnipedv0121Binary,
 		},
 	}
 	for _, test := range tests {
@@ -363,8 +363,8 @@ func TestGetPinnipedCLICmdMultipleUsage(t *testing.T) {
 		},
 		{
 			loginOptions:        &loginOIDCOptions{conciergeIsClusterScoped: true},
-			wantPinnipedVersion: "v0.12.0",
-			wantBinary:          pinnipedv0120Binary,
+			wantPinnipedVersion: "v0.12.1",
+			wantBinary:          pinnipedv0121Binary,
 		},
 	}
 	for _, step := range steps {
