@@ -121,4 +121,7 @@ const (
 
 	// InfrastructureRefDocker is the docker infrastructure
 	InfrastructureRefDocker = "DockerCluster"
+
+	// KappControllerAddonName is the addon name of Kapp Controller
+	KappControllerAddonName = "kapp-controller"
 )

@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"net"
 	"strconv"
+	"strings"
 
 	"github.com/pkg/errors"
 	"gopkg.in/yaml.v2"
@@ -65,6 +66,35 @@ func GenerateAppNameFromAddonSecret(addonSecret *corev1.Secret) string {
 		return fmt.Sprintf("%s-%s", clusterName, addonName)
 	}
 	return addonName
+}
+
+// GeneratePackageInstallName is the util function to generate the PackageInstall CR name in a consistent manner.
+// clusterName is the name of cluster within which all resources associated with this PackageInstall CR is installed.
+// It does not necessarily
+// mean the PackageInstall CR will be installed in that cluster. I.e., the kapp-controller PackageInstall CR is installed
+// in the management cluster but is named after "<workload-cluster-name>-kapp-controller". It indicates that this kapp-controller
+// PackageInstall is for reconciling resources in a cluster named "<workload-cluster-name>".
+// addonName is the short name of a Tanzu addon with which the PackageInstall CR is associated.
+func GeneratePackageInstallName(clusterName, addonName string) string {
+	return fmt.Sprintf("%s-%s", clusterName, addonName)
+}
+
+func GetPackageShortName(refName string) string {
+	if refName != "" {
+		refParts := strings.Split(refName, ".")
+		if len(refParts) > 0 {
+			return refParts[0]
+		}
+	}
+	return refName
+}
+
+// ParseStringForLabel parse the package ref name to make it valid for K8S object labels.
+// A package ref name could contain some characters that are not allowed as a label value. The regex
+// used for validation is (([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])?
+func ParseStringForLabel(refName string) string {
+	// Replace + sign with ---
+	return strings.ReplaceAll(refName, "+", "---")
 }
 
 // GenerateAppSecretNameFromAddonSecret generates app secret name from addon secret

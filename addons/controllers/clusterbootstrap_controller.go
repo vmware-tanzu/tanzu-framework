@@ -7,11 +7,17 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"strings"
 	"time"
 
 	"github.com/go-logr/logr"
+
+	kapppkgiv1alpha1 "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/packaging/v1alpha1"
+	kapppkgv1alpha1 "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apiserver/apis/datapackaging/v1alpha1"
+	versions "github.com/vmware-tanzu/carvel-vendir/pkg/vendir/versions/v1alpha1"
+	addonconfig "github.com/vmware-tanzu/tanzu-framework/addons/pkg/config"
+
 	corev1 "k8s.io/api/core/v1"
+	rbacv1 "k8s.io/api/rbac/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
@@ -47,6 +53,7 @@ type ClusterBootstrapReconciler struct {
 	client.Client
 	Log     logr.Logger
 	Scheme  *runtime.Scheme
+	Config  *addonconfig.Config
 	context context.Context
 
 	// internal properties
@@ -61,11 +68,12 @@ type ClusterBootstrapReconciler struct {
 }
 
 // NewClusterBootstrapReconciler returns a reconciler for ClusterBootstrap
-func NewClusterBootstrapReconciler(c client.Client, log logr.Logger, scheme *runtime.Scheme) *ClusterBootstrapReconciler {
+func NewClusterBootstrapReconciler(c client.Client, log logr.Logger, scheme *runtime.Scheme, config *addonconfig.Config) *ClusterBootstrapReconciler {
 	return &ClusterBootstrapReconciler{
 		Client: c,
 		Log:    log,
 		Scheme: scheme,
+		Config: config,
 	}
 }
 
@@ -151,7 +159,7 @@ func (r *ClusterBootstrapReconciler) Reconcile(ctx context.Context, req ctrl.Req
 // reconcileNormal reconciles the ClusterBootstrap object
 func (r *ClusterBootstrapReconciler) reconcileNormal(cluster *clusterapiv1beta1.Cluster, log logr.Logger) (ctrl.Result, error) {
 	// get or clone or patch from template
-	clusterBootstrap, err := r.createOrPatchclusterBootstrapFromTemplate(cluster, log)
+	clusterBootstrap, err := r.createOrPatchClusterBootstrapFromTemplate(cluster, log)
 	if err != nil {
 		return ctrl.Result{}, err
 	}
@@ -164,21 +172,55 @@ func (r *ClusterBootstrapReconciler) reconcileNormal(cluster *clusterapiv1beta1.
 		log.Error(err, "Error getting remote cluster client")
 		return ctrl.Result{}, err
 	}
-	// TODO handle kapp as a remote packageinstall from mgmt cluster
-	// handle cni, cpi, csi
-	// https://github.com/vmware-tanzu/tanzu-framework/issues/1587
 
-	// handle additionalPackages
-	for _, additionalPkg := range clusterBootstrap.Spec.AdditionalPackages {
-		// TODO packageinstall (rbac, serviceaccount, package, packageinstall)
-		// https://github.com/vmware-tanzu/tanzu-framework/issues/1589
-		secret, err := r.createOrPatchPackageInstallSecret(cluster, additionalPkg, remoteClient, clusterBootstrap.Namespace, log)
-		if err != nil {
-			log.Error(err, "failed to createOrPatchPackageInstallSecret")
+	// Create a PackageInstall CR under the cluster namespace for deploying the kapp-controller on the remote cluster.
+	// We need kapp-controller to be deployed prior to CNI, CPI, CSI.
+	if err := r.createOrPatchKappPackageInstall(clusterBootstrap, cluster); err != nil {
+		// Return error if kapp-controller fails to be deployed, let reconciler try again
+		return ctrl.Result{}, err
+	}
+
+	// Create the ServiceAccount on remote cluster, so it could be referenced in PackageInstall CR for kapp-controller
+	// reconciliation.
+	if _, err := r.createOrPatchAddonServiceAccountOnRemote(cluster, remoteClient); err != nil {
+		return ctrl.Result{}, err
+	}
+
+	// Create the ClusterRole on remote cluster, and bind it to the ServiceAccount created in above. kapp-controller
+	// reconciliation needs privileges.
+	if err := r.createOrPatchAddonRoleOnRemote(cluster, remoteClient); err != nil {
+		return ctrl.Result{}, err
+	}
+
+	// Create or patch the resources for CNI, CPI, CSI to be running on the remote cluster.
+	// Those resources include Package CR, data value Secret, PackageInstall CR.
+	var corePackages []*runtanzuv1alpha3.ClusterBootstrapPackage
+	corePackages = append(corePackages, clusterBootstrap.Spec.CNI, clusterBootstrap.Spec.CPI, clusterBootstrap.Spec.CSI)
+	for _, corePackage := range corePackages {
+		// The following nil check is redundant, we do not expect CNI, CPI, CSI to be nil and webhook should handle
+		// the validations against those fields. Having this nil check is mainly to allow local envtest could run when
+		// any above component is missing.
+		if corePackage == nil {
+			continue
+		}
+		// There are different ways to have all the resources created or patched on remote cluster. Current solution is
+		// to handle packages in sequence order. I.e., Create all resources for CNI first, and then CPI, CSI. It is also
+		// possible to create all resources in a different order or in parallel. We will consider to use goroutines to create
+		// all resources in parallel on remote cluster if there is performance issue from sequential ordering.
+		if err := r.createOrPatchAddonResourcesOnRemote(cluster, corePackage, remoteClient); err != nil {
+			// For core packages, we require all their creation or patching to succeed, so if error happens against any of the
+			// package, we return error and let the reconciler retry again.
+			log.Error(err, fmt.Sprintf("unable to create or patch all the required resources for %s on cluster: %s/%s",
+				corePackage.RefName, cluster.Namespace, cluster.Name))
 			return ctrl.Result{}, err
 		}
-		if secret != nil {
-			log.Info("created secret for package in cluster", "secret", secret)
+	}
+
+	// Create or patch the resources for additionalPackages
+	for _, additionalPkg := range clusterBootstrap.Spec.AdditionalPackages {
+		if err := r.createOrPatchAddonResourcesOnRemote(cluster, additionalPkg, remoteClient); err != nil {
+			// Logging has been handled in createOrPatchAddonResourcesOnRemote()
+			return ctrl.Result{}, err
 		}
 		// set watches on provider objects in additional packages if not already set
 		if additionalPkg.ValuesFrom.ProviderRef != nil {
@@ -191,9 +233,9 @@ func (r *ClusterBootstrapReconciler) reconcileNormal(cluster *clusterapiv1beta1.
 	return ctrl.Result{}, nil
 }
 
-// createOrPatchclusterBootstrapFromTemplate will get, clone or update a ClusterBootstrap associated with a cluster
-// all linked secret refs and object refs are cloned into the same namespace as clusterBootstrap
-func (r *ClusterBootstrapReconciler) createOrPatchclusterBootstrapFromTemplate(cluster *clusterapiv1beta1.Cluster,
+// createOrPatchTanzuClusterBootstrapFromTemplate will get, clone or update a TanzuClusterBootstrap associated with a cluster
+// all linked secret refs and object refs are cloned into the same namespace as TanzuClusterBootstrap
+func (r *ClusterBootstrapReconciler) createOrPatchClusterBootstrapFromTemplate(cluster *clusterapiv1beta1.Cluster,
 	log logr.Logger) (*runtanzuv1alpha3.ClusterBootstrap, error) {
 
 	tkrName := util.GetTKRNameForCluster(r.context, r.Client, cluster)
@@ -203,7 +245,7 @@ func (r *ClusterBootstrapReconciler) createOrPatchclusterBootstrapFromTemplate(c
 	}
 
 	clusterBootstrapTemplate := &runtanzuv1alpha3.ClusterBootstrapTemplate{}
-	key := client.ObjectKey{Namespace: constants.TKGSystemNS, Name: tkrName}
+	key := client.ObjectKey{Namespace: r.Config.AddonNamespace, Name: tkrName}
 	if err := r.Client.Get(r.context, key, clusterBootstrapTemplate); err != nil {
 		log.Error(err, "unable to fetch ClusterBootstrapTemplate", "objectkey", key)
 		return nil, err
@@ -278,14 +320,270 @@ func (r *ClusterBootstrapReconciler) createOrPatchclusterBootstrapFromTemplate(c
 	return nil, errors.New("should not happen")
 }
 
+// createOrPatchKappPackageInstall contains the logic that create/update PackageInstall CR for kapp-controller on
+// mgmt cluster. The kapp-controller runs on mgmt cluster reconciles the PackageInstall CR and creates kapp-controller resources
+// on remote workload cluster. This is required for a workload cluster and its corresponding package installations to be functional.
+func (r *ClusterBootstrapReconciler) createOrPatchKappPackageInstall(clusterBootstrap *runtanzuv1alpha3.ClusterBootstrap, cluster *clusterapiv1beta1.Cluster) error {
+	pkgi := &kapppkgiv1alpha1.PackageInstall{
+		ObjectMeta: metav1.ObjectMeta{
+			// The legacy addons controller uses <cluster name>-<addon name> convention for naming the PackageInstall CR.
+			// https://github.com/vmware-tanzu/tanzu-framework/blob/main/addons/controllers/package_reconciler.go#L195.
+			// util.GeneratePackageInstallName() follows the same pattern.
+			Name: util.GeneratePackageInstallName(cluster.Name, util.GetPackageShortName(clusterBootstrap.Spec.Kapp.RefName)),
+			// kapp-controller PackageInstall CR is installed under the same namespace as tanzuClusterBootstrap. The namespace
+			// is also the same as where the cluster belongs.
+			Namespace: clusterBootstrap.Namespace,
+		},
+	}
+
+	pkgiMutateFn := func() error {
+		// TODO: Followup on the following fields, only add them if needed.
+		// https://github.com/vmware-tanzu/tanzu-framework/issues/1677
+		// if ipkg.ObjectMeta.Annotations == nil {
+		//	 ipkg.ObjectMeta.Annotations = make(map[string]string)
+		// }
+		// ipkg.ObjectMeta.Annotations[addontypes.YttMarkerAnnotation] = ""
+		// ipkg.Spec.SyncPeriod = &metav1.Duration{Duration: r.Config.AppSyncPeriod}
+		// ipkg.Spec.ServiceAccountName = r.Config.AddonServiceAccount
+		pkgi.Spec.PackageRef = &kapppkgiv1alpha1.PackageRef{
+			RefName: clusterBootstrap.Spec.Kapp.RefName,
+			VersionSelection: &versions.VersionSelectionSemver{
+				Prereleases: &versions.VersionSelectionSemverPrereleases{},
+			},
+		}
+		pkgi.Spec.Values = []kapppkgiv1alpha1.PackageInstallValues{
+			{SecretRef: &kapppkgiv1alpha1.PackageInstallValuesSecretRef{
+				// The secret name could also be fetched from kappConfig.Spec.Status.SecretRef. However, the naming convention
+				// of that field is the same as the follow. To simplify the implementation and reduce the call to r.Client.Get()
+				// on kappConfig CR, use the util function to construct the secret name.
+				// TODO: Follow up with reviewer to see if this is feasible
+				Name: util.GenerateDataValueSecretName(cluster.Name, constants.KappControllerAddonName)},
+			},
+		}
+
+		return nil
+	}
+
+	_, err := controllerutil.CreateOrPatch(r.context, r.Client, pkgi, pkgiMutateFn)
+	if err != nil {
+		r.Log.Error(err, fmt.Sprintf("unable to create or patch %s PackageInstall resource for cluster: %s",
+			constants.KappControllerAddonName, cluster.Name))
+		return err
+	}
+
+	return nil
+}
+
+// createOrPatchPackageOnRemote creates the Package CR on remote cluster. In order to install a package on remote cluster
+// the Package CR needs to be present.
+// createOrPatchPackageOnRemote returns a tuple: (<remote-package>, <error>)
+func (r *ClusterBootstrapReconciler) createOrPatchPackageOnRemote(cluster *clusterapiv1beta1.Cluster,
+	cbPkg *runtanzuv1alpha3.ClusterBootstrapPackage, clusterClient client.Client) (*kapppkgv1alpha1.Package, error) {
+
+	var err error
+	// Create or patch Package CR on remote cluster
+	localPackage := &kapppkgv1alpha1.Package{}
+	key := client.ObjectKey{Namespace: cluster.Namespace, Name: cbPkg.RefName}
+	if err = r.Client.Get(r.context, key, localPackage); err != nil {
+		// If there is an error to get the Carvel Package CR from local cluster, nothing needs to be created/cloned on remote.
+		// Let the reconciler try again.
+		r.Log.Error(err, fmt.Sprintf("unable to get package %s, nothing needs to be created on cluster %s/%s",
+			key.String(), cluster.Namespace, cluster.Name))
+		return nil, err
+	}
+	remotePackage := &kapppkgv1alpha1.Package{}
+	remotePackage.SetName(localPackage.Name)
+	// The Package CR on remote cluster needs to be under tkg-system namespace
+	remotePackage.SetNamespace(r.Config.AddonNamespace)
+	_, err = controllerutil.CreateOrPatch(r.context, clusterClient, remotePackage, func() error {
+		remotePackage.Spec = *localPackage.Spec.DeepCopy()
+		// TODO: Follow up to see if we need to preserve all the other fields, like annotations
+		// https://github.com/vmware-tanzu/tanzu-framework/issues/1678
+		return nil
+	})
+	if err != nil {
+		r.Log.Error(err, fmt.Sprintf("unable to create or patch Package resource %s/%s on cluster: %s/%s",
+			remotePackage.Namespace, remotePackage.Name, cluster.Namespace, cluster.Name))
+		return nil, err
+	}
+	return remotePackage, nil
+}
+
+// createOrPatchPackageInstallOnRemote creates or patches PackageInstall CR on remote cluster. The kapp-controller
+// running on remote cluster will reconcile it and deploy resources.
+func (r *ClusterBootstrapReconciler) createOrPatchPackageInstallOnRemote(cluster *clusterapiv1beta1.Cluster,
+	cbPkg *runtanzuv1alpha3.ClusterBootstrapPackage, clusterClient client.Client) (*kapppkgiv1alpha1.PackageInstall, error) {
+
+	// Create PackageInstall CRs on the remote workload cluster, kapp-controller will take care of reconciling them
+	remotePkgi := &kapppkgiv1alpha1.PackageInstall{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      util.GeneratePackageInstallName(cluster.Name, util.GetPackageShortName(cbPkg.RefName)),
+			Namespace: r.Config.AddonNamespace,
+		},
+	}
+	remotePackageName := cbPkg.RefName
+	_, err := controllerutil.CreateOrPatch(r.context, clusterClient, remotePkgi, func() error {
+		remotePkgi.Spec.ServiceAccountName = r.Config.AddonServiceAccount
+		remotePkgi.Spec.PackageRef = &kapppkgiv1alpha1.PackageRef{
+			RefName: remotePackageName,
+			VersionSelection: &versions.VersionSelectionSemver{
+				Prereleases: &versions.VersionSelectionSemverPrereleases{},
+			},
+		}
+		remotePkgi.Spec.Values = []kapppkgiv1alpha1.PackageInstallValues{
+			{SecretRef: &kapppkgiv1alpha1.PackageInstallValuesSecretRef{
+				Name: remotePackageName},
+			},
+		}
+		return nil
+	})
+	if err != nil {
+		r.Log.Error(err, fmt.Sprintf("unable to create or patch PackageInstall resource %s/%s on cluster: %s/%s",
+			remotePkgi.Namespace, remotePkgi.Name, cluster.Namespace, cluster.Name))
+		return nil, err
+	}
+
+	return remotePkgi, nil
+}
+
+// createOrPatchAddonServiceAccountOnRemote creates or patches the addon ServiceAccount on remote cluster.
+// The ServiceAccount will be referenced by the PackageInstall CR, so that kapp-controller on remote cluster could consume
+// for PackageInstall reconciliation.
+func (r *ClusterBootstrapReconciler) createOrPatchAddonServiceAccountOnRemote(cluster *clusterapiv1beta1.Cluster, clusterClient client.Client) (*corev1.ServiceAccount, error) {
+	serviceAccount := &corev1.ServiceAccount{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      r.Config.AddonServiceAccount,
+			Namespace: r.Config.AddonNamespace,
+		},
+	}
+
+	r.Log.Info(fmt.Sprintf("creating or patching ServiceAccount %s/%s on cluster %s/%s",
+		serviceAccount.Namespace, serviceAccount.Name, cluster.Namespace, cluster.Name))
+
+	_, err := controllerutil.CreateOrPatch(r.context, clusterClient, serviceAccount, nil)
+	if err != nil {
+		if apierrors.IsAlreadyExists(err) {
+			// If the error is IsAlreadyExists, we ignore and return nil
+			return nil, nil
+		}
+		r.Log.Error(err, fmt.Sprintf("unable to create or patch ServiceAccount %s/%s on cluster %s/%s",
+			serviceAccount.Namespace, serviceAccount.Name, cluster.Namespace, cluster.Name))
+		return nil, err
+	}
+
+	return serviceAccount, nil
+}
+
+// createOrPatchAddonRoleOnRemote creates or patches the ClusterRole, ClusterRoleBinding on remote cluster.
+// The ClusterRole is bound to the ServiceAccount which is referenced by PackageInstall CR, so that kapp-controller on remote
+// cluster could have privileges to lifecycle manage package resources.
+func (r *ClusterBootstrapReconciler) createOrPatchAddonRoleOnRemote(cluster *clusterapiv1beta1.Cluster, clusterClient client.Client) error {
+	addonRole := &rbacv1.ClusterRole{
+		ObjectMeta: metav1.ObjectMeta{
+			Name: r.Config.AddonClusterRole,
+		},
+	}
+
+	if _, err := controllerutil.CreateOrPatch(r.context, clusterClient, addonRole, func() error {
+		addonRole.Rules = []rbacv1.PolicyRule{
+			{
+				APIGroups: []string{"*"},
+				Verbs:     []string{"*"},
+				Resources: []string{"*"},
+			},
+		}
+		return nil
+	}); err != nil {
+		if !apierrors.IsAlreadyExists(err) {
+			r.Log.Error(err,
+				fmt.Sprintf("unable to create or patch ClusterRole %s/%s on cluster %s/%s",
+					addonRole.Namespace, addonRole.Name, cluster.Namespace, cluster.Name))
+			return err
+		}
+		r.Log.Info(fmt.Sprintf("ClusterRole %s already exists on cluster %s/%s. Nothing to create or patch.", addonRole.Name, cluster.Namespace, cluster.Name))
+	}
+
+	r.Log.Info(fmt.Sprintf("created or patched ClusterRole %s/%s on cluster %s/%s",
+		addonRole.Namespace, addonRole.Name, cluster.Namespace, cluster.Name))
+
+	addonRoleBinding := &rbacv1.ClusterRoleBinding{
+		ObjectMeta: metav1.ObjectMeta{
+			Name: r.Config.AddonClusterRoleBinding,
+		},
+	}
+	if _, err := controllerutil.CreateOrPatch(r.context, clusterClient, addonRoleBinding, func() error {
+		addonRoleBinding.Subjects = []rbacv1.Subject{
+			{
+				Kind:      "ServiceAccount",
+				Name:      r.Config.AddonServiceAccount,
+				Namespace: r.Config.AddonNamespace,
+			},
+		}
+		addonRoleBinding.RoleRef = rbacv1.RoleRef{
+			APIGroup: "rbac.authorization.k8s.io",
+			Kind:     "ClusterRole",
+			Name:     r.Config.AddonClusterRole,
+		}
+		return nil
+	}); err != nil {
+		if !apierrors.IsAlreadyExists(err) {
+			r.Log.Error(err, fmt.Sprintf("unable to create or patch ClusterRoleBinding %s/%s on cluster %s/%s",
+				addonRoleBinding.Namespace, addonRoleBinding.Name, cluster.Namespace, cluster.ClusterName))
+			return err
+		}
+		r.Log.Info(fmt.Sprintf("ClusterRoleBinding %s/%s already exists on cluster %s/%s. Nothing to create or patch.",
+			addonRoleBinding.Namespace, addonRole.Name, cluster.Namespace, cluster.Name))
+	}
+
+	return nil
+}
+
+func (r *ClusterBootstrapReconciler) createOrPatchAddonResourcesOnRemote(cluster *clusterapiv1beta1.Cluster,
+	cbPkg *runtanzuv1alpha3.ClusterBootstrapPackage, clusterClient client.Client) error {
+
+	remotePackage, err := r.createOrPatchPackageOnRemote(cluster, cbPkg, clusterClient)
+	if err != nil {
+		return err
+	}
+	r.Log.Info(fmt.Sprintf("created the Package CR %s on cluster %s/%s", remotePackage.Name, cluster.Namespace,
+		cluster.Name))
+
+	// Create or patch the data value secret on remote cluster. The data value secret has been generated by each
+	// addon config controller on local cluster.
+	remoteSecret, err := r.createOrPatchPackageInstallSecretOnRemote(cluster, cbPkg, clusterClient, r.Log)
+	// We expect there is NO error to create or patch the secret used for PackageInstall in a cluster.
+	if err != nil {
+		// Logging has been handled by createOrPatchPackageInstallSecret() already
+		return err
+	}
+	if remoteSecret == nil {
+		// The nil secret happens when tcbPkg.ValuesFrom is a ProviderRef and no data value secret for that provider is found
+		// on local cluster. This error occurs when handling additionalPackages. But it does not hurt to check nil here,
+		// and return error which let the reconciler handles the retry.
+		// The detailed logging has been handled by createOrPatchPackageInstallSecret().
+		return fmt.Errorf("unable to create or patch the data value secret on cluster: %s/%s", cluster.Namespace, cluster.Name)
+	}
+	r.Log.Info(fmt.Sprintf("created secret for package %s on cluster %s/%s", remotePackage.Name, cluster.Namespace,
+		cluster.Name))
+
+	pkgi, err := r.createOrPatchPackageInstallOnRemote(cluster, cbPkg, clusterClient)
+	if err != nil {
+		return err
+	}
+	r.Log.Info(fmt.Sprintf("created the PackageInstall CR %s/%s on cluster %s/%s",
+		pkgi.Namespace, pkgi.Name, cluster.Namespace, cluster.Name))
+
+	return nil
+}
+
 // createOrPatchPackageInstallSecret creates or patches or the secret used for PackageInstall in a cluster
-func (r *ClusterBootstrapReconciler) createOrPatchPackageInstallSecret(cluster *clusterapiv1beta1.Cluster,
-	pkg *runtanzuv1alpha3.ClusterBootstrapPackage, clusterClient client.Client, namespace string, log logr.Logger) (*corev1.Secret, error) {
+func (r *ClusterBootstrapReconciler) createOrPatchPackageInstallSecretOnRemote(cluster *clusterapiv1beta1.Cluster,
+	pkg *runtanzuv1alpha3.ClusterBootstrapPackage, clusterClient client.Client, log logr.Logger) (*corev1.Secret, error) {
 
 	secret := &corev1.Secret{}
 
 	if pkg.ValuesFrom.SecretRef != "" {
-		key := client.ObjectKey{Namespace: namespace, Name: pkg.ValuesFrom.SecretRef}
+		key := client.ObjectKey{Namespace: cluster.Namespace, Name: pkg.ValuesFrom.SecretRef}
 		if err := r.Get(r.context, key, secret); err != nil {
 			log.Error(err, "unable to fetch secret", "objectkey", key)
 			return nil, err
@@ -298,7 +596,7 @@ func (r *ClusterBootstrapReconciler) createOrPatchPackageInstallSecret(cluster *
 			log.Error(err, "failed to getGVR")
 			return nil, err
 		}
-		provider, err := r.dynamicClient.Resource(*gvr).Namespace(namespace).Get(r.context, pkg.ValuesFrom.ProviderRef.Name, metav1.GetOptions{}, "status")
+		provider, err := r.dynamicClient.Resource(*gvr).Namespace(cluster.Namespace).Get(r.context, pkg.ValuesFrom.ProviderRef.Name, metav1.GetOptions{}, "status")
 
 		if err != nil {
 			log.Error(err, "unable to fetch provider", "provider", pkg.ValuesFrom.ProviderRef, "gvr", gvr)
@@ -313,7 +611,7 @@ func (r *ClusterBootstrapReconciler) createOrPatchPackageInstallSecret(cluster *
 			log.Info("provider status does not have secretRef", "provider", provider)
 			return nil, nil
 		}
-		key := client.ObjectKey{Namespace: namespace, Name: secretName}
+		key := client.ObjectKey{Namespace: cluster.Namespace, Name: secretName}
 		if err := r.Get(r.context, key, secret); err != nil {
 			log.Error(err, "unable to fetch secret", "objectkey", key)
 			return nil, err
@@ -321,8 +619,9 @@ func (r *ClusterBootstrapReconciler) createOrPatchPackageInstallSecret(cluster *
 	}
 
 	dataValuesSecret := &corev1.Secret{}
-	dataValuesSecret.Name = fmt.Sprintf("%s-%s-data-values", cluster.Name, packageShortName(pkg.RefName))
-	dataValuesSecret.Namespace = constants.TKGSystemNS
+	dataValuesSecret.Name = util.GenerateDataValueSecretName(cluster.Name, util.GetPackageShortName(pkg.RefName))
+	// The secret will be created or patched under tkg-system namespace on remote cluster
+	dataValuesSecret.Namespace = r.Config.AddonNamespace
 	dataValuesSecret.Type = corev1.SecretTypeOpaque
 
 	dataValuesSecretMutateFn := func() error {
@@ -426,16 +725,6 @@ func (r *ClusterBootstrapReconciler) ensureOwnerRef(ownerRef *metav1.OwnerRefere
 	return nil
 }
 
-func packageShortName(refName string) string {
-	if refName != "" {
-		refParts := strings.Split(refName, ".")
-		if len(refParts) > 0 {
-			return refParts[0]
-		}
-	}
-	return refName
-}
-
 // getGVR returns a GroupVersionResource for a GroupKind
 func (r *ClusterBootstrapReconciler) getGVR(gk schema.GroupKind) (*schema.GroupVersionResource, error) {
 	if gvr, ok := r.providerGVR[gk]; ok {
@@ -505,10 +794,10 @@ func (r *ClusterBootstrapReconciler) updateValuesFromSecret(cluster *clusterapiv
 			newSecret.Labels = map[string]string{}
 		}
 
-		newSecret.Labels[addontypes.PackageNameLabel] = pkg.RefName
+		newSecret.Labels[addontypes.PackageNameLabel] = util.ParseStringForLabel(pkg.RefName)
 		newSecret.Labels[addontypes.ClusterNameLabel] = cluster.Name
 
-		newSecret.Name = fmt.Sprintf("%s-%s-package", cluster.Name, packageShortName(pkg.RefName))
+		newSecret.Name = fmt.Sprintf("%s-%s-package", cluster.Name, util.GetPackageShortName(pkg.RefName))
 		newSecret.Namespace = bootstrap.Namespace
 		if err := r.Create(r.context, newSecret); err != nil {
 			return nil, err
@@ -533,7 +822,7 @@ func (r *ClusterBootstrapReconciler) updateValuesFromProvider(cluster *clusterap
 		}
 		provider, err := r.dynamicClient.Resource(*gvr).Namespace(templateNS).Get(r.context, valuesFrom.ProviderRef.Name, metav1.GetOptions{})
 		if err != nil {
-			log.Error(err, "unable to fetch provider", "provider", valuesFrom.ProviderRef, "gvr", gvr)
+			log.Error(err, fmt.Sprintf("unable to fetch provider %s/%s", templateNS, valuesFrom.ProviderRef.Name), "gvr", gvr)
 			return nil, err
 		}
 		newProvider = provider.DeepCopy()
@@ -550,19 +839,23 @@ func (r *ClusterBootstrapReconciler) updateValuesFromProvider(cluster *clusterap
 		providerLabels := newProvider.GetLabels()
 		if providerLabels == nil {
 			newProvider.SetLabels(map[string]string{
-				addontypes.PackageNameLabel: pkg.RefName,
+				// A package refName could contain characters that K8S does not like as a label value.
+				// For example, kapp-controller.tanzu.vmware.com.0.30.0+vmware.1-tkg.1 is a
+				// valid package refName, but it contains "+" that K8S complains. We parse the refName by replacing
+				// + to ---.
+				addontypes.PackageNameLabel: util.ParseStringForLabel(pkg.RefName),
 				addontypes.ClusterNameLabel: cluster.Name,
 			})
 		} else {
-			providerLabels[addontypes.PackageNameLabel] = pkg.RefName
+			providerLabels[addontypes.PackageNameLabel] = util.ParseStringForLabel(pkg.RefName)
 			providerLabels[addontypes.ClusterNameLabel] = cluster.Name
 		}
 
-		newProvider.SetName(fmt.Sprintf("%s-%s-package", cluster.Name, packageShortName(pkg.RefName)))
+		newProvider.SetName(fmt.Sprintf("%s-%s-package", cluster.Name, util.GetPackageShortName(pkg.RefName)))
 		log.Info("cloning provider", "provider", newProvider)
 		newProvider, err = r.dynamicClient.Resource(*gvr).Namespace(bootstrap.Namespace).Create(r.context, newProvider, metav1.CreateOptions{})
 		if err != nil {
-			log.Error(err, "unable to clone provider", "provider", newProvider, "gvr", gvr)
+			log.Error(err, "unable to clone provider", "gvr", gvr)
 			return nil, err
 		}
 
