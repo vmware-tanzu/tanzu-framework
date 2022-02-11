@@ -505,10 +505,10 @@ go.mongodb.org/mongo-driver v1.1.2/go.mod h1:u7ryQJ+DOzQmeO7zB6MHyr8jkEQvC8vH7qL
 go.opencensus.io v0.21.0/go.mod h1:mSImk1erAIZhrmZN+AvHh14ztQfjbGwt4TtuofqLduU=
 go.opencensus.io v0.22.0/go.mod h1:+kGneAE2xo2IficOXnaByMWTGM9T73dGwxeWcUqIpI8=
 go.opencensus.io v0.22.2/go.mod h1:yxeiOL68Rb0Xd1ddK5vPZ/oVn4vY4Ynel7k9FzqtOIw=
-go.pinniped.dev/generated/1.19/apis v0.0.0-20210916124603-454b792afbd9 h1:QRWloEe3ReCrcObhuO7JOAAHXfrrsViw0os7bicHILs=
-go.pinniped.dev/generated/1.19/apis v0.0.0-20210916124603-454b792afbd9/go.mod h1:6k9XxeFCS9jagDqsAuuCKvUt+bGjKa9iQNGsPQgZ5pk=
-go.pinniped.dev/generated/1.19/client v0.0.0-20210916124603-454b792afbd9 h1:5ZnyWRgEqBlD55EWhs/152MGBIB8lK8il4BmcXqn5NM=
-go.pinniped.dev/generated/1.19/client v0.0.0-20210916124603-454b792afbd9/go.mod h1:q9BNnPW/8dWKIGe7+syOLTkBlYQraAYdykzEouPXXEw=
+go.pinniped.dev/generated/1.19/apis v0.0.0-20220209183828-4d6a2af89419 h1:PnXcwF9YUfxZtmq3cJ/fPLLXE1rItHegDfBgWwL6GvI=
+go.pinniped.dev/generated/1.19/apis v0.0.0-20220209183828-4d6a2af89419/go.mod h1:6k9XxeFCS9jagDqsAuuCKvUt+bGjKa9iQNGsPQgZ5pk=
+go.pinniped.dev/generated/1.19/client v0.0.0-20220209183828-4d6a2af89419 h1:jgxR1K0DRAk1vwf2igKuH0vXVG11KBdAdvWF9AxEmI0=
+go.pinniped.dev/generated/1.19/client v0.0.0-20220209183828-4d6a2af89419/go.mod h1:q9BNnPW/8dWKIGe7+syOLTkBlYQraAYdykzEouPXXEw=
 go.uber.org/atomic v1.3.2/go.mod h1:gD2HeocX3+yG+ygLZcrzQJaqmWj9AIm7n08wl/qW/PE=
 go.uber.org/atomic v1.4.0/go.mod h1:gD2HeocX3+yG+ygLZcrzQJaqmWj9AIm7n08wl/qW/PE=
 go.uber.org/atomic v1.6.0 h1:Ezj3JGmsOnG1MoRWQkPBsKLe9DwWD9QeXzTRzzldNVk=
