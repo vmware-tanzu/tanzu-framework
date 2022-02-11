@@ -5,6 +5,7 @@
 package pluginmanager
 
 import (
+	"crypto/sha256"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -385,15 +386,25 @@ func GetRecommendedVersionOfPlugin(serverName, pluginName string) (string, error
 func installOrUpgradePlugin(serverName string, p *plugin.Discovered, version string) error {
 	log.Infof("Installing plugin '%v:%v'", p.Name, version)
 
-	// verify plugin before installation
+	// verify plugin before download
 	err := verifyPluginPreDownload(p)
 	if err != nil {
-		return errors.Wrapf(err, "%q plugin verification failed", p.Name)
+		return errors.Wrapf(err, "%q plugin pre-download verification failed", p.Name)
 	}
 
 	b, err := p.Distribution.Fetch(version, runtime.GOOS, runtime.GOARCH)
 	if err != nil {
 		return err
+	}
+
+	// verify plugin after download but before installation
+	d, err := p.Distribution.GetDigest(version, runtime.GOOS, runtime.GOARCH)
+	if err != nil {
+		return err
+	}
+	err = verifyPluginPostDownload(p, d, b)
+	if err != nil {
+		return errors.Wrapf(err, "%q plugin post-download verification failed", p.Name)
 	}
 
 	pluginName := p.Name
@@ -765,4 +776,22 @@ func verifyArtifactLocation(uri string) error {
 		}
 		return errors.Errorf("untrusted artifact location detected with URI %q. Allowed locations are %v", uri, trustedLocations)
 	}
+}
+
+// verifyPluginPostDownload compares the source digest of the plugin against the
+// SHA256 hash of the downloaded binary to ensure that the binary was not altered
+// during transit.
+func verifyPluginPostDownload(p *plugin.Discovered, srcDigest string, b []byte) error {
+	if srcDigest == "" {
+		// Skip if the Distribution repo does not have the source digest.
+		return nil
+	}
+
+	d := sha256.Sum256(b)
+	actDigest := fmt.Sprintf("%x", d)
+	if actDigest != srcDigest {
+		return errors.Errorf("plugin %q has been corrupted during download. source digest: %s, actual digest: %s", p.Name, srcDigest, actDigest)
+	}
+
+	return nil
 }
