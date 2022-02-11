@@ -29,14 +29,16 @@ import (
 	addonconfig "github.com/vmware-tanzu/tanzu-framework/addons/pkg/config"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/crdwait"
+	"github.com/vmware-tanzu/tanzu-framework/addons/webhook"
 	runtanzuv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha1"
 	runtanzuv1alpha3 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/buildinfo"
 )
 
 var (
-	scheme   = runtime.NewScheme()
-	setupLog = ctrl.Log.WithName("setup")
+	scheme     = runtime.NewScheme()
+	setupLog   = ctrl.Log.WithName("setup")
+	webhooktls *webhook.TLSCredentials
 )
 
 func init() {
@@ -95,6 +97,16 @@ func main() {
 	setupLog.Info("Version", "version", buildinfo.Version, "buildDate", buildinfo.Date, "sha", buildinfo.SHA)
 
 	ctx := ctrl.SetupSignalHandler()
+
+	webhooktls = &webhook.TLSCredentials{
+		CAName:       "self.signed.cert",
+		Organization: "tanzu.vmware",
+		Hostname:     "hostname",
+		DnsNames:     []string{"webhook-service", "webhook-service.default", "webhook-service.default.svc"},
+		ValidFrom:    time.Now(),
+		MaxAge:       time.Hour * 24 * 365,
+	}
+	webhooktls.ServerRSAKeyPEM()
 
 	crdwaiter := crdwait.CRDWaiter{
 		Ctx: ctx,
