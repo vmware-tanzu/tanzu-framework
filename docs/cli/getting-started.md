@@ -23,6 +23,7 @@ With [v0.14.0](https://github.com/vmware-tanzu/tanzu-framework/releases/tag/v0.1
 The API driven plugin discovery feature is enabled as default method to install the plugins. So, most users will just need to install the Tanzu CLI binary. The plugins can be installed and configured with `tanzu plugin sync` command. Learn more about this feature in the [design docs](../design/context-aware-plugin-discovery-design.md).
 
 ##### macOS/Linux
+###### Option 1: Manual download CLI binary from Github Releases
 
 - Download the latest tanzu-cli tarball from [release](https://github.com/vmware-tanzu/tanzu-framework/releases/latest) page (`tanzu-cli-darwin-amd64.tar.gz` or `tanzu-cli-linux-amd64.tar.gz`)
 
@@ -67,7 +68,17 @@ The API driven plugin discovery feature is enabled as default method to install 
   ```sh
   tanzu plugin list
   ```
+###### Option 2: Using install script
+You may download and install a release using the provided remote script piped into bash.
 
+```shell
+curl -H "Accept: application/vnd.github.v3.raw" \
+    -L https://api.github.com/repos/vmware-tanzu/tanzu-framework/contents/hack/fetch-install-tf.sh | \
+    bash -s 
+```
+- This script requires `curl`,`grep`,`tr` and `jq` in order to work.
+- The release will be downloaded to a temporary directory and then installation will proceed using the downloaded `tanzu` CLI binary.
+- _Note_: A GitHub personal access token may be provided to the script as the `GITHUB_TOKEN` environment variable. This bypasses GitHub API rate limiting but is not required. Follow the [GitHub documentation](https://docs.github.com/en/github/authenticating-to-github/keeping-your-account-and-data-secure/creating-a-personal-access-token) to acquire and use a personal access token.
 ##### Windows
 
 - Download the latest `tanzu-cli-windows-amd64.zip` from [release](https://github.com/vmware-tanzu/tanzu-framework/releases/latest) page
