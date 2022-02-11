@@ -18,6 +18,9 @@ const (
 	// TKRLabel is the TKR label.
 	TKRLabel = "tanzuKubernetesRelease"
 
+	// TKRLabelClassyClusters is the TKR label for the clusters created using cluster-class
+	TKRLabelClassyClusters = "run.tanzu.vmware.com/tkr"
+
 	// TKGBomContent is the TKG BOM content.
 	TKGBomContent = "bomContent"
 

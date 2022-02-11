@@ -88,6 +88,7 @@ func (r *AddonReconciler) SetupWithManager(ctx context.Context, mgr ctrl.Manager
 		).
 		WithOptions(options).
 		WithEventFilter(clusterApiPredicates.ResourceNotPaused(r.Log)).
+		WithEventFilter(addonpredicates.ClusterHasLabel(constants.TKRLabel, r.Log)).
 		Build(r)
 	if err != nil {
 		r.Log.Error(err, "Error creating an addon controller")
@@ -115,10 +116,11 @@ func (r *AddonReconciler) Reconcile(ctx context.Context, req ctrl.Request) (_ ct
 		return ctrl.Result{}, err
 	}
 
-	tkrName := util.GetTKRNameForCluster(ctx, r.Client, cluster)
-	if tkrName == "" {
-		log.Info("cluster does not have an associated TKR")
-		return ctrl.Result{}, nil
+	tkrName := cluster.Labels[constants.TKRLabel]
+	tkr, err := util.GetTKRByName(ctx, r.Client, tkrName)
+	if err != nil || tkr == nil {
+		log.Error(err, "unable to fetch TKR object", "name", tkrName)
+		return ctrl.Result{}, err
 	}
 
 	log.Info("Reconciling cluster")

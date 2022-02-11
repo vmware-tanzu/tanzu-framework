@@ -19,7 +19,7 @@ metadata:
   namespace: default
   labels:
     tkg.tanzu.vmware.com/cluster-name: test-cluster-tcbt
-    tanzuKubernetesRelease: v1.22.3
+    run.tanzu.vmware.com/tkr: v1.22.3
 ---
 apiVersion: run.tanzu.vmware.com/v1alpha3
 kind: ClusterBootstrapTemplate

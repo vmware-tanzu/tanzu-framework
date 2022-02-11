@@ -4,7 +4,11 @@
 package predicates
 
 import (
+	"strings"
+
 	"github.com/go-logr/logr"
+	clusterapiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/event"
 	"sigs.k8s.io/controller-runtime/pkg/predicate"
 )
@@ -17,4 +21,39 @@ func TKR(log logr.Logger) predicate.Funcs {
 		DeleteFunc:  func(e event.DeleteEvent) bool { return false },
 		GenericFunc: func(e event.GenericEvent) bool { return true },
 	}
+}
+
+// ClusterHasLabel checks if the cluster has the given label
+func ClusterHasLabel(label string, logger logr.Logger) predicate.Funcs {
+	return predicate.Funcs{
+		UpdateFunc: func(e event.UpdateEvent) bool {
+			return processIfClusterHasLabel(label, e.ObjectNew, logger.WithValues("predicate", "updateEvent"))
+		},
+		CreateFunc: func(e event.CreateEvent) bool {
+			return processIfClusterHasLabel(label, e.Object, logger.WithValues("predicate", "createEvent"))
+		},
+		DeleteFunc: func(e event.DeleteEvent) bool {
+			return processIfClusterHasLabel(label, e.Object, logger.WithValues("predicate", "deleteEvent"))
+		},
+		GenericFunc: func(e event.GenericEvent) bool {
+			return processIfClusterHasLabel(label, e.Object, logger.WithValues("predicate", "genericEvent"))
+		},
+	}
+}
+
+func processIfClusterHasLabel(label string, obj client.Object, logger logr.Logger) bool {
+	kind := obj.GetObjectKind().GroupVersionKind().Kind
+	cluster := &clusterapiv1beta1.Cluster{}
+
+	if kind == "" || kind != cluster.Kind {
+		return true
+	}
+
+	if _, ok := obj.GetLabels()[label]; ok {
+		return true
+	}
+
+	log := logger.WithValues("namespace", obj.GetNamespace(), strings.ToLower(kind), obj.GetName())
+	log.V(6).Info("Cluster resource does not have label", "label", label)
+	return false
 }
