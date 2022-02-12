@@ -1,0 +1,6 @@
+artifacts/
+artifacts-admin/
+hack/
+packages/
+docs/
+test/
