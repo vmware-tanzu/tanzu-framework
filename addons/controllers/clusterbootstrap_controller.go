@@ -9,13 +9,6 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/go-logr/logr"
-
-	kapppkgiv1alpha1 "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/packaging/v1alpha1"
-	kapppkgv1alpha1 "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apiserver/apis/datapackaging/v1alpha1"
-	versions "github.com/vmware-tanzu/carvel-vendir/pkg/vendir/versions/v1alpha1"
-	addonconfig "github.com/vmware-tanzu/tanzu-framework/addons/pkg/config"
-
 	corev1 "k8s.io/api/core/v1"
 	rbacv1 "k8s.io/api/rbac/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
@@ -41,6 +34,12 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/predicate"
 	"sigs.k8s.io/controller-runtime/pkg/source"
 
+	"github.com/go-logr/logr"
+
+	kapppkgiv1alpha1 "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/packaging/v1alpha1"
+	kapppkgv1alpha1 "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apiserver/apis/datapackaging/v1alpha1"
+	versions "github.com/vmware-tanzu/carvel-vendir/pkg/vendir/versions/v1alpha1"
+	addonconfig "github.com/vmware-tanzu/tanzu-framework/addons/pkg/config"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
 	addontypes "github.com/vmware-tanzu/tanzu-framework/addons/pkg/types"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/util"
@@ -852,14 +851,24 @@ func (r *ClusterBootstrapReconciler) updateValuesFromProvider(cluster *clusterap
 		}
 
 		newProvider.SetName(fmt.Sprintf("%s-%s-package", cluster.Name, util.GetPackageShortName(pkg.RefName)))
-		log.Info("cloning provider", "provider", newProvider)
+		log.Info(fmt.Sprintf("cloning provider %s/%s to namespace %s", newProvider.GetNamespace(), newProvider.GetName(), bootstrap.Namespace), "gvr", gvr)
 		newProvider, err = r.dynamicClient.Resource(*gvr).Namespace(bootstrap.Namespace).Create(r.context, newProvider, metav1.CreateOptions{})
 		if err != nil {
+			// There are possibilities that current reconciliation loop fails due to various reasons, and during next reconciliation
+			// loop, it is possible that the provider resource has been created. In this case, we want to run update/patch.
+			if apierrors.IsAlreadyExists(err) {
+				newProvider, err = r.dynamicClient.Resource(*gvr).Namespace(bootstrap.Namespace).Update(r.context, newProvider, metav1.UpdateOptions{})
+				if err != nil {
+					log.Info(fmt.Sprintf("updated provider %s/%s in namespace %s", newProvider.GetNamespace(), newProvider.GetName(), bootstrap.Namespace), "gvr", gvr)
+					return newProvider, nil
+				}
+			}
 			log.Error(err, "unable to clone provider", "gvr", gvr)
 			return nil, err
 		}
 
 		valuesFrom.ProviderRef.Name = newProvider.GetName()
+		log.Info(fmt.Sprintf("cloned provider %s/%s to namespace %s", newProvider.GetNamespace(), newProvider.GetName(), bootstrap.Namespace), "gvr", gvr)
 	}
 
 	return newProvider, nil
