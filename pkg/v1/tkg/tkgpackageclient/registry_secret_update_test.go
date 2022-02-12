@@ -1,7 +1,7 @@
 // Copyright 2021 VMware, Inc. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-package tkgpackageclient
+package tkgpackageclient_test
 
 import (
 	"encoding/json"
@@ -16,15 +16,16 @@ import (
 	"k8s.io/apimachinery/pkg/runtime/schema"
 
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/fakes"
+	. "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgpackageclient"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgpackagedatamodel"
 )
 
 var _ = Describe("Update Secret", func() {
 	type invalidDockerCfgJSON struct {
-		Auths map[string]dockerConfigEntry `json:"invalid-key" datapolicy:"token"`
+		Auths map[string]DockerConfigEntry `json:"invalid-key" datapolicy:"token"`
 	}
 	var (
-		ctl              *pkgClient
+		ctl              TKGPackageClient
 		crtCtl           *fakes.CRTClusterClient
 		kappCtl          *fakes.KappClient
 		err              error
@@ -40,14 +41,15 @@ var _ = Describe("Update Secret", func() {
 			Server:     testServer,
 		}
 		options                         = opts
-		testDockerCfgInvalid            = invalidDockerCfgJSON{Auths: map[string]dockerConfigEntry{testServer: {Username: "test_user", Password: "test_password"}}}
-		testDockerCfgMultipleRegistries = DockerConfigJSON{Auths: map[string]dockerConfigEntry{testServer: {Username: "test_user", Password: "test_password"}, "us-west-docker.pkg.dev": {Username: "test_user", Password: "test_password"}}}
-		testDockerCfgNoUsername         = DockerConfigJSON{Auths: map[string]dockerConfigEntry{testServer: {Password: "test_password"}}}
-		testDockerCfgNoPassword         = DockerConfigJSON{Auths: map[string]dockerConfigEntry{testServer: {Username: "test_user"}}}
+		testDockerCfgInvalid            = invalidDockerCfgJSON{Auths: map[string]DockerConfigEntry{testServer: {Username: "test_user", Password: "test_password"}}}
+		testDockerCfgMultipleRegistries = DockerConfigJSON{Auths: map[string]DockerConfigEntry{testServer: {Username: "test_user", Password: "test_password"}, "us-west-docker.pkg.dev": {Username: "test_user", Password: "test_password"}}}
+		testDockerCfgNoUsername         = DockerConfigJSON{Auths: map[string]DockerConfigEntry{testServer: {Password: "test_password"}}}
+		testDockerCfgNoPassword         = DockerConfigJSON{Auths: map[string]DockerConfigEntry{testServer: {Username: "test_user"}}}
 	)
 
 	JustBeforeEach(func() {
-		ctl = &pkgClient{kappClient: kappCtl}
+		ctl, err = NewTKGPackageClientWithKappClient(kappCtl)
+		Expect(err).NotTo(HaveOccurred())
 		err = ctl.UpdateRegistrySecret(&options)
 	})
 
@@ -84,7 +86,7 @@ var _ = Describe("Update Secret", func() {
 			kappCtl = &fakes.KappClient{}
 			crtCtl = &fakes.CRTClusterClient{}
 			kappCtl.GetClientReturns(crtCtl)
-			secret = testSecret
+			Secret = testSecret
 			crtCtl.GetReturnsOnCall(0, nil)
 			dockerCfgContent, err = json.Marshal(testDockerCfgInvalid)
 			Expect(err).NotTo(HaveOccurred())
@@ -102,7 +104,7 @@ var _ = Describe("Update Secret", func() {
 			kappCtl = &fakes.KappClient{}
 			crtCtl = &fakes.CRTClusterClient{}
 			kappCtl.GetClientReturns(crtCtl)
-			secret = testSecret
+			Secret = testSecret
 			crtCtl.GetReturnsOnCall(0, nil)
 			dockerCfgContent, err = json.Marshal(testDockerCfgMultipleRegistries)
 			Expect(err).NotTo(HaveOccurred())
@@ -121,7 +123,7 @@ var _ = Describe("Update Secret", func() {
 			crtCtl = &fakes.CRTClusterClient{}
 			kappCtl.GetClientReturns(crtCtl)
 			options.Server = "new-server"
-			secret = testSecret
+			Secret = testSecret
 			crtCtl.GetReturnsOnCall(0, nil)
 			dockerCfgContent, err = json.Marshal(testDockerCfgNoUsername)
 			Expect(err).NotTo(HaveOccurred())
@@ -140,7 +142,7 @@ var _ = Describe("Update Secret", func() {
 			crtCtl = &fakes.CRTClusterClient{}
 			kappCtl.GetClientReturns(crtCtl)
 			options.Username = ""
-			secret = testSecret
+			Secret = testSecret
 			crtCtl.GetReturnsOnCall(0, nil)
 			dockerCfgContent, err = json.Marshal(testDockerCfgNoUsername)
 			Expect(err).NotTo(HaveOccurred())
@@ -158,7 +160,7 @@ var _ = Describe("Update Secret", func() {
 			kappCtl = &fakes.KappClient{}
 			crtCtl = &fakes.CRTClusterClient{}
 			kappCtl.GetClientReturns(crtCtl)
-			secret = testSecret
+			Secret = testSecret
 			crtCtl.GetReturnsOnCall(0, nil)
 			dockerCfgContent, err = json.Marshal(testDockerCfgNoPassword)
 			Expect(err).NotTo(HaveOccurred())
@@ -176,7 +178,7 @@ var _ = Describe("Update Secret", func() {
 			kappCtl = &fakes.KappClient{}
 			crtCtl = &fakes.CRTClusterClient{}
 			kappCtl.GetClientReturns(crtCtl)
-			secret = testSecret
+			Secret = testSecret
 			crtCtl.GetReturnsOnCall(0, nil)
 			dockerCfgContent, err = json.Marshal(testDockerConfig)
 			Expect(err).NotTo(HaveOccurred())
@@ -195,7 +197,7 @@ var _ = Describe("Update Secret", func() {
 			kappCtl = &fakes.KappClient{}
 			crtCtl = &fakes.CRTClusterClient{}
 			kappCtl.GetClientReturns(crtCtl)
-			secret = testSecret
+			Secret = testSecret
 			crtCtl.GetReturnsOnCall(0, nil)
 			dockerCfgContent, err = json.Marshal(testDockerConfig)
 			Expect(err).NotTo(HaveOccurred())
@@ -215,7 +217,7 @@ var _ = Describe("Update Secret", func() {
 			kappCtl = &fakes.KappClient{}
 			crtCtl = &fakes.CRTClusterClient{}
 			kappCtl.GetClientReturns(crtCtl)
-			secret = testSecret
+			Secret = testSecret
 			crtCtl.GetReturnsOnCall(0, nil)
 			dockerCfgContent, err = json.Marshal(testDockerConfig)
 			Expect(err).NotTo(HaveOccurred())
@@ -236,7 +238,7 @@ var _ = Describe("Update Secret", func() {
 			kappCtl = &fakes.KappClient{}
 			crtCtl = &fakes.CRTClusterClient{}
 			kappCtl.GetClientReturns(crtCtl)
-			secret = testSecret
+			Secret = testSecret
 			crtCtl.GetReturnsOnCall(0, nil)
 			dockerCfgContent, err = json.Marshal(testDockerConfig)
 			Expect(err).NotTo(HaveOccurred())
@@ -256,7 +258,7 @@ var _ = Describe("Update Secret", func() {
 			kappCtl = &fakes.KappClient{}
 			crtCtl = &fakes.CRTClusterClient{}
 			kappCtl.GetClientReturns(crtCtl)
-			secret = testSecret
+			Secret = testSecret
 			crtCtl.GetReturnsOnCall(0, nil)
 			dockerCfgContent, err = json.Marshal(testDockerConfig)
 			Expect(err).NotTo(HaveOccurred())
@@ -277,7 +279,7 @@ var _ = Describe("Update Secret", func() {
 			kappCtl = &fakes.KappClient{}
 			crtCtl = &fakes.CRTClusterClient{}
 			kappCtl.GetClientReturns(crtCtl)
-			secret = testSecret
+			Secret = testSecret
 			crtCtl.GetReturnsOnCall(0, nil)
 			dockerCfgContent, err = json.Marshal(testDockerConfig)
 			Expect(err).NotTo(HaveOccurred())
@@ -298,7 +300,7 @@ var _ = Describe("Update Secret", func() {
 			kappCtl = &fakes.KappClient{}
 			crtCtl = &fakes.CRTClusterClient{}
 			kappCtl.GetClientReturns(crtCtl)
-			secret = testSecret
+			Secret = testSecret
 			crtCtl.GetReturnsOnCall(0, nil)
 			dockerCfgContent, err = json.Marshal(testDockerConfig)
 			Expect(err).NotTo(HaveOccurred())
@@ -319,7 +321,7 @@ var _ = Describe("Update Secret", func() {
 			kappCtl = &fakes.KappClient{}
 			crtCtl = &fakes.CRTClusterClient{}
 			kappCtl.GetClientReturns(crtCtl)
-			secret = testSecret
+			Secret = testSecret
 			crtCtl.GetReturnsOnCall(0, nil)
 			dockerCfgContent, err = json.Marshal(testDockerConfig)
 			Expect(err).NotTo(HaveOccurred())
@@ -339,7 +341,7 @@ var _ = Describe("Update Secret", func() {
 			kappCtl = &fakes.KappClient{}
 			crtCtl = &fakes.CRTClusterClient{}
 			kappCtl.GetClientReturns(crtCtl)
-			secret = testSecret
+			Secret = testSecret
 			crtCtl.GetReturnsOnCall(0, nil)
 			dockerCfgContent, err = json.Marshal(testDockerConfig)
 			Expect(err).NotTo(HaveOccurred())

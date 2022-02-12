@@ -29,6 +29,7 @@ const (
 	TKGConfigFileName               = "config.yaml"
 	TKGDefaultClusterConfigFileName = "cluster-config.yaml"
 	TKGCompatibilityFileName        = "tkg-compatibility.yaml"
+	TKGConfigDefaultFileName        = "config_default.yaml"
 
 	TKGClusterConfigFileDirForUI           = "clusterconfigs"
 	TKGRegistryCertFile                    = "registry_certs"

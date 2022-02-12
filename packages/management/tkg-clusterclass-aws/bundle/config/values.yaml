@@ -4,3 +4,5 @@
 ---
 
 #! User configurable values for tkg-clusterclass-aws
+
+AWS_REGION: ""

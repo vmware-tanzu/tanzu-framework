@@ -20,31 +20,31 @@ import (
 // Note: datapolicy is seemingly used for log sanitization: https://github.com/kubernetes/enhancements/blob/master/keps/sig-security/1933-secret-logging-static-analysis/README.md
 // TODO: change to use k8s types after upgrading the K8s version
 type DockerConfigJSON struct {
-	Auths map[string]dockerConfigEntry `json:"auths" datapolicy:"token"`
+	Auths map[string]DockerConfigEntry `json:"auths" datapolicy:"token"`
 }
 
-type dockerConfigEntry struct {
+type DockerConfigEntry struct {
 	Username string `json:"username,omitempty"`
 	Password string `json:"password,omitempty" datapolicy:"password"`
 }
 
 // AddRegistrySecret adds a registry secret to the cluster
 func (p *pkgClient) AddRegistrySecret(o *tkgpackagedatamodel.RegistrySecretOptions) error {
-	dockerCfg := DockerConfigJSON{Auths: map[string]dockerConfigEntry{o.Server: {Username: o.Username, Password: o.Password}}}
+	dockerCfg := DockerConfigJSON{Auths: map[string]DockerConfigEntry{o.Server: {Username: o.Username, Password: o.Password}}}
 	dockerCfgContent, err := json.Marshal(dockerCfg)
 	if err != nil {
 		return err
 	}
 
-	secret = p.newSecret(o.SecretName, o.Namespace, corev1.SecretTypeDockerConfigJson)
-	secret.Data[corev1.DockerConfigJsonKey] = dockerCfgContent
-	if err := p.kappClient.GetClient().Create(context.Background(), secret); err != nil {
+	Secret = p.newSecret(o.SecretName, o.Namespace, corev1.SecretTypeDockerConfigJson)
+	Secret.Data[corev1.DockerConfigJsonKey] = dockerCfgContent
+	if err := p.kappClient.GetClient().Create(context.Background(), Secret); err != nil {
 		return errors.Wrap(err, "failed to create Secret resource")
 	}
 
 	if o.ExportToAllNamespaces {
-		secretExport = p.newSecretExport(o.SecretName, o.Namespace)
-		if err := p.kappClient.GetClient().Create(context.Background(), secretExport); err != nil {
+		SecretExport = p.newSecretExport(o.SecretName, o.Namespace)
+		if err := p.kappClient.GetClient().Create(context.Background(), SecretExport); err != nil {
 			return errors.Wrap(err, "failed to create SecretExport resource")
 		}
 	}

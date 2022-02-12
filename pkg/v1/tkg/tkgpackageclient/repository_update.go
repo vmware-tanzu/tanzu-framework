@@ -73,7 +73,7 @@ func (p *pkgClient) updateRepository(o *tkgpackagedatamodel.RepositoryOptions, p
 			return
 		}
 
-		_, tag, err = parseRegistryImageURL(o.RepositoryURL)
+		_, tag, err = ParseRegistryImageURL(o.RepositoryURL)
 		if err != nil {
 			err = errors.Wrap(err, "failed to parse OCI registry URL")
 			return

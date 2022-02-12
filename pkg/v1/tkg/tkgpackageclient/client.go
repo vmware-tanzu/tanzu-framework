@@ -27,3 +27,9 @@ func NewTKGPackageClientForContext(kubeconfigPath, kubeContext string) (TKGPacka
 
 	return client, nil
 }
+
+func NewTKGPackageClientWithKappClient(kappClient kappclient.Client) (TKGPackageClient, error) {
+	return &pkgClient{
+		kappClient: kappClient,
+	}, nil
+}
