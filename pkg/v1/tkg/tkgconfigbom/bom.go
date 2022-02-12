@@ -379,7 +379,7 @@ If this is an internet-restricted environment please refer to the documentation 
 // DownloadDefaultBOMFilesFromRegistry retrieves the bill of materials (BOM)
 // from the target registry. It receives a bomRepo which specifies where to
 // retrieve the bom comes from.
-func (c *client) DownloadDefaultBOMFilesFromRegistry(bomRepo string, bomRegistry registry.Registry) error { //nolint:gocyclo
+func (c *client) DownloadDefaultBOMFilesFromRegistry(bomRepo string, bomRegistry registry.Registry) error {
 	// if a custom repo was set (e.g. via environment variable) override the bomRepo passed to this function.
 	customRepository, err := c.tkgConfigReaderWriter.Get(constants.ConfigVariableCustomImageRepository)
 	if err == nil && customRepository != "" {
@@ -390,7 +390,7 @@ func (c *client) DownloadDefaultBOMFilesFromRegistry(bomRepo string, bomRegistry
 	if err != nil {
 		return errors.Wrap(err, "unable to get the default BOM file ImagePath and Image Tag from the TKG Compatibility file")
 	}
-	tkgBOMImagePath := bomRepo + "/" + bomImagePath
+	tkgBOMImagePath := fmt.Sprintf("%s/%s", bomRepo, bomImagePath)
 
 	tkgconfigpath, err := c.tkgConfigPathsClient.GetTKGConfigPath()
 	if err != nil {
@@ -420,24 +420,16 @@ func (c *client) DownloadDefaultBOMFilesFromRegistry(bomRepo string, bomRegistry
 
 	tkrBOMTagName := GetTKRBOMImageTagNameFromTKRVersion(bomConfiguration.Default.TKRVersion)
 
-	if bomConfiguration.ImageConfig == nil || bomConfiguration.ImageConfig.ImageRepository == "" {
-		return errors.New("failed to read ImageConfig from the BOM file downloaded from the registry")
-	}
-
-	tkrBOMImageRepo := bomConfiguration.ImageConfig.ImageRepository
-	if customRepository != "" {
-		tkrBOMImageRepo = customRepository
-	}
-
 	if bomConfiguration.TKRBOM == nil || bomConfiguration.TKRBOM.ImagePath == "" {
 		return errors.New("failed to read TKr BOM ImagePath for from the BOM file downloaded from the registry")
 	}
-	defaultTKRImagePath := tkrBOMImageRepo + "/" + bomConfiguration.TKRBOM.ImagePath
 
-	log.Infof("Downloading the TKr Bill of Materials (BOM) file from '%s'", fmt.Sprintf("%s:%s", defaultTKRImagePath, tkrBOMTagName))
-	tkrBOMContent, err := bomRegistry.GetFile(fmt.Sprintf("%s:%s", defaultTKRImagePath, tkrBOMTagName), "")
+	tkrBOMImagePath := fmt.Sprintf("%s/%s", bomRepo, bomConfiguration.TKRBOM.ImagePath)
+
+	log.Infof("Downloading the TKr Bill of Materials (BOM) file from '%s'", fmt.Sprintf("%s:%s", tkrBOMImagePath, tkrBOMTagName))
+	tkrBOMContent, err := bomRegistry.GetFile(fmt.Sprintf("%s:%s", tkrBOMImagePath, tkrBOMTagName), "")
 	if err != nil {
-		return errors.Errorf(errorDownloadingDefaultBOMFiles, fmt.Sprintf("%s:%s", defaultTKRImagePath, tkrBOMTagName), err, tkgconfigpath)
+		return errors.Errorf(errorDownloadingDefaultBOMFiles, fmt.Sprintf("%s:%s", tkrBOMImagePath, tkrBOMTagName), err, tkgconfigpath)
 	}
 
 	tkrBOMFileName := fmt.Sprintf("tkr-bom-%s.yaml", bomConfiguration.Default.TKRVersion)

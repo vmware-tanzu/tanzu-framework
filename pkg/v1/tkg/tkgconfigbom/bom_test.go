@@ -135,6 +135,28 @@ var (
 					Expect(err).ToNot(HaveOccurred())
 				})
 			})
+			Context("when downloading the TKG BOM file and TKr BOM file from custom repository is success ", func() {
+				BeforeEach(func() {
+					os.Setenv("TKG_CUSTOM_IMAGE_REPOSITORY", "fake-custom.registry.vmware.com/tkg")
+					tkgdata, err := os.ReadFile("../fakes/config/bom/tkg-bom-v1.3.1.yaml")
+					Expect(err).ToNot(HaveOccurred())
+					tkrdata, err := os.ReadFile("../fakes/config/bom/tkg-bom-v1.3.1.yaml")
+					Expect(err).ToNot(HaveOccurred())
+					fakeRegistry.GetFileReturnsOnCall(0, tkgdata, nil)
+					fakeRegistry.GetFileReturnsOnCall(1, tkrdata, nil)
+				})
+				AfterEach(func() {
+					os.Unsetenv("TKG_CUSTOM_IMAGE_REPOSITORY")
+				})
+				It("should return success and the registry url path for the TKG BOM and TKr BOM files should use custom repository", func() {
+					err := bomClient.DownloadDefaultBOMFilesFromRegistry("projects-stg.registry.vmware.com/tkg", fakeRegistry)
+					Expect(err).ToNot(HaveOccurred())
+					tkgBOMImagepath, _ := fakeRegistry.GetFileArgsForCall(0)
+					tkrBOMImagepath, _ := fakeRegistry.GetFileArgsForCall(1)
+					Expect(tkgBOMImagepath).To(HavePrefix("fake-custom.registry.vmware.com/tkg/tkg-bom"))
+					Expect(tkrBOMImagepath).To(HavePrefix("fake-custom.registry.vmware.com/tkg/tkr-bom"))
+				})
+			})
 		})
 		Describe("Downloading the TKG Compatibility file from registry", func() {
 			BeforeEach(func() {
