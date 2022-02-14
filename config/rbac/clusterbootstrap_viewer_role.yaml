@@ -1,0 +1,20 @@
+# permissions for end users to view clusterbootstraps.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: clusterbootstrap-viewer-role
+rules:
+- apiGroups:
+  - run.tanzu.vmware.com
+  resources:
+  - clusterbootstraps
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - run.tanzu.vmware.com
+  resources:
+  - clusterbootstraps/status
+  verbs:
+  - get
