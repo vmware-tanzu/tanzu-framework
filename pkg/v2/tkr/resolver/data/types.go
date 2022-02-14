@@ -7,7 +7,7 @@ package data
 import (
 	"k8s.io/apimachinery/pkg/labels"
 
-	"github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
+	runv1 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
 )
 
 // Query sets constraints for resolution of TKRs. Its structure reflects Cluster API cluster topology.
@@ -56,13 +56,13 @@ type OSImageResult struct {
 }
 
 // TKRs is a set of TanzuKubernetesRelease objects implemented as a map tkr.Name -> tkr.
-type TKRs map[string]*v1alpha3.TanzuKubernetesRelease
+type TKRs map[string]*runv1.TanzuKubernetesRelease
 
 // OSImages is a set of OSImage objects implemented as a map osImage.Name -> osImage.
-type OSImages map[string]*v1alpha3.OSImage
+type OSImages map[string]*runv1.OSImage
 
 // Filter returns a subset of TKRs satisfying the predicate f.
-func (tkrs TKRs) Filter(f func(tkr *v1alpha3.TanzuKubernetesRelease) bool) TKRs {
+func (tkrs TKRs) Filter(f func(tkr *runv1.TanzuKubernetesRelease) bool) TKRs {
 	result := make(TKRs, len(tkrs))
 	for name, tkr := range tkrs {
 		if f(tkr) {
@@ -73,7 +73,7 @@ func (tkrs TKRs) Filter(f func(tkr *v1alpha3.TanzuKubernetesRelease) bool) TKRs 
 }
 
 // Filter returns a subset of OSImages satisfying the predicate f.
-func (osImages OSImages) Filter(f func(osImage *v1alpha3.OSImage) bool) OSImages {
+func (osImages OSImages) Filter(f func(osImage *runv1.OSImage) bool) OSImages {
 	result := make(OSImages, len(osImages))
 	for name, osImage := range osImages {
 		if f(osImage) {

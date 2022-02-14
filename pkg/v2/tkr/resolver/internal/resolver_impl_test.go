@@ -17,7 +17,7 @@ import (
 	clusterv1 "sigs.k8s.io/cluster-api/api/v1beta1"
 	"sigs.k8s.io/cluster-api/util/conditions"
 
-	"github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
+	runv1 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v2/tkr/resolver/data"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v2/tkr/util/version"
 )
@@ -38,26 +38,26 @@ const (
 var k8sVersions = []string{k8s1_20_1, k8s1_20_2, k8s1_21_1, k8s1_21_3, k8s1_22_0}
 
 var (
-	osUbuntu = v1alpha3.OSInfo{
+	osUbuntu = runv1.OSInfo{
 		Type:    "linux",
 		Name:    "ubuntu",
 		Version: "20.04",
 		Arch:    "amd64",
 	}
-	osAmazon = v1alpha3.OSInfo{
+	osAmazon = runv1.OSInfo{
 		Type:    "linux",
 		Name:    "amazon",
 		Version: "2",
 		Arch:    "amd64",
 	}
-	osPhoton = v1alpha3.OSInfo{
+	osPhoton = runv1.OSInfo{
 		Type:    "linux",
 		Name:    "photon",
 		Version: "3",
 		Arch:    "amd64",
 	}
 )
-var osInfos = []v1alpha3.OSInfo{osUbuntu, osAmazon, osPhoton}
+var osInfos = []runv1.OSInfo{osUbuntu, osAmazon, osPhoton}
 
 var regionPrefixes = []string{"us", "ap", "eu", "sa"}
 var regionDirections = []string{"central", "north", "south", "west", "east"}
@@ -220,9 +220,9 @@ func assertOSImageQueryExpectations(normalized, initial data.OSImageQuery) {
 	Expect(normalized.K8sVersionPrefix).To(Equal(initial.K8sVersionPrefix))
 	for _, selector := range []labels.Selector{normalized.TKRSelector, normalized.OSImageSelector} {
 		Expect(selector.Matches(labels.Set{version.Label(initial.K8sVersionPrefix): ""})).To(BeTrue())
-		Expect(selector.Matches(labels.Set{v1alpha3.LabelIncompatible: ""})).To(BeFalse())
-		Expect(selector.Matches(labels.Set{v1alpha3.LabelDeactivated: ""})).To(BeFalse())
-		Expect(selector.Matches(labels.Set{v1alpha3.LabelInvalid: ""})).To(BeFalse())
+		Expect(selector.Matches(labels.Set{runv1.LabelIncompatible: ""})).To(BeFalse())
+		Expect(selector.Matches(labels.Set{runv1.LabelDeactivated: ""})).To(BeFalse())
+		Expect(selector.Matches(labels.Set{runv1.LabelInvalid: ""})).To(BeFalse())
 	}
 }
 
@@ -327,19 +327,19 @@ func genOSImages(numOSImages int) data.OSImages {
 	return result
 }
 
-func genOSImage() *v1alpha3.OSImage {
+func genOSImage() *runv1.OSImage {
 	k8sVersion := k8sVersions[rand.Intn(len(k8sVersions))]
 	os := osInfos[rand.Intn(len(osInfos))]
 	image := genAMIInfo()
 
-	return &v1alpha3.OSImage{
+	return &runv1.OSImage{
 		ObjectMeta: metav1.ObjectMeta{Name: genOSImageName(k8sVersion, os, image)},
-		Spec: v1alpha3.OSImageSpec{
+		Spec: runv1.OSImageSpec{
 			KubernetesVersion: k8sVersion,
 			OS:                os,
 			Image:             image,
 		},
-		Status: v1alpha3.OSImageStatus{
+		Status: runv1.OSImageStatus{
 			Conditions: genConditions(),
 		},
 	}
@@ -347,7 +347,7 @@ func genOSImage() *v1alpha3.OSImage {
 
 func genConditions() []clusterv1.Condition {
 	var result []clusterv1.Condition
-	for _, condType := range []clusterv1.ConditionType{v1alpha3.ConditionCompatible, v1alpha3.ConditionValid} {
+	for _, condType := range []clusterv1.ConditionType{runv1.ConditionCompatible, runv1.ConditionValid} {
 		if cond := genFalseCondition(condType); cond != nil {
 			result = append(result, *cond)
 		}
@@ -362,8 +362,8 @@ func genFalseCondition(condType clusterv1.ConditionType) *clusterv1.Condition {
 	return nil
 }
 
-func genAMIInfo() v1alpha3.MachineImageInfo {
-	return v1alpha3.MachineImageInfo{
+func genAMIInfo() runv1.MachineImageInfo {
+	return runv1.MachineImageInfo{
 		Type: "ami",
 		Ref: map[string]interface{}{
 			"id":     rand.String(10),
@@ -379,7 +379,7 @@ func genRegion() string {
 	return fmt.Sprintf("%s-%s-%v", regionPrefixes[rand.Intn(len(regionPrefixes))], regionDirections[rand.Intn(len(regionDirections))], rand.Intn(3))
 }
 
-func genOSImageName(k8sVersion string, os v1alpha3.OSInfo, image v1alpha3.MachineImageInfo) string {
+func genOSImageName(k8sVersion string, os runv1.OSInfo, image runv1.MachineImageInfo) string {
 	return fmt.Sprintf("%s-%s-%s-%s-%s", version.Label(k8sVersion), image.Type, os.Name, os.Version, rand.String(5))
 }
 
@@ -405,21 +405,21 @@ func genTKRs(numTKRs int, osImagesByK8sVersion map[string]data.OSImages) data.TK
 	return result
 }
 
-func genTKR(osImagesByK8sVersion map[string]data.OSImages) *v1alpha3.TanzuKubernetesRelease {
+func genTKR(osImagesByK8sVersion map[string]data.OSImages) *runv1.TanzuKubernetesRelease {
 	k8sVersion := chooseK8sVersion(osImagesByK8sVersion)
 	tkrSuffix := fmt.Sprintf("-tkg.%v", rand.Intn(3)+1)
 
 	v := k8sVersion + tkrSuffix
 
-	return &v1alpha3.TanzuKubernetesRelease{
+	return &runv1.TanzuKubernetesRelease{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:   version.Label(v),
 			Labels: labels.Set{},
 		},
-		Spec: v1alpha3.TanzuKubernetesReleaseSpec{
+		Spec: runv1.TanzuKubernetesReleaseSpec{
 			Version:  v,
 			OSImages: osImageRefs(randSubsetOfOSImages(osImagesByK8sVersion[k8sVersion])),
-			Kubernetes: v1alpha3.KubernetesSpec{
+			Kubernetes: runv1.KubernetesSpec{
 				Version: k8sVersion,
 			},
 		},

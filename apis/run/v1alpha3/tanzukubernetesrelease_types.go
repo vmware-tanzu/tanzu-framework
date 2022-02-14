@@ -16,13 +16,6 @@ const (
 	LabelIncompatible = "incompatible"
 	LabelDeactivated  = "deactivated"
 	LabelInvalid      = "invalid"
-
-	LabelImageType = "image-type"
-
-	LabelOSType    = "os-type"
-	LabelOSName    = "os-name"
-	LabelOSVersion = "os-version"
-	LabelOSArch    = "os-arch"
 )
 
 // TanzuKubernetesReleaseSpec defines the desired state of TanzuKubernetesRelease

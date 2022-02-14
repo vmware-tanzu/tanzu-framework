@@ -12,7 +12,7 @@ import (
 	"k8s.io/apimachinery/pkg/selection"
 	"sigs.k8s.io/cluster-api/util/conditions"
 
-	"github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
+	runv1 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v2/tkr/resolver/data"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v2/tkr/util/version"
 )
@@ -77,13 +77,13 @@ func (cache *cache) add(objects []interface{}) {
 
 func (cache *cache) addObject(object interface{}) {
 	switch object := object.(type) {
-	case *v1alpha3.TanzuKubernetesRelease:
+	case *runv1.TanzuKubernetesRelease:
 		if !object.DeletionTimestamp.IsZero() {
 			cache.removeTKR(object)
 			return
 		}
 		cache.addTKR(object)
-	case *v1alpha3.OSImage:
+	case *runv1.OSImage:
 		if !object.DeletionTimestamp.IsZero() {
 			cache.removeOSImage(object)
 			return
@@ -92,7 +92,7 @@ func (cache *cache) addObject(object interface{}) {
 	}
 }
 
-func (cache *cache) removeTKR(tkr *v1alpha3.TanzuKubernetesRelease) {
+func (cache *cache) removeTKR(tkr *runv1.TanzuKubernetesRelease) {
 	delete(cache.tkrs, tkr.Name)
 	if osImages, exists := cache.osImagesShippedByTKR[tkr.Name]; exists {
 		for osImageName := range osImages {
@@ -103,7 +103,7 @@ func (cache *cache) removeTKR(tkr *v1alpha3.TanzuKubernetesRelease) {
 	}
 }
 
-func (cache *cache) removeOSImage(osImage *v1alpha3.OSImage) {
+func (cache *cache) removeOSImage(osImage *runv1.OSImage) {
 	delete(cache.osImages, osImage.Name)
 	if tkrs, exists := cache.tkrsShippingOSImage[osImage.Name]; exists {
 		for tkrName := range tkrs {
@@ -116,7 +116,7 @@ func (cache *cache) removeOSImage(osImage *v1alpha3.OSImage) {
 
 // populate cache.tkrsShippingOSImage and cache.osImagesShippedByTKR
 // Pre-reqs: tkr is NEVER nil
-func (cache *cache) addTKR(tkr *v1alpha3.TanzuKubernetesRelease) {
+func (cache *cache) addTKR(tkr *runv1.TanzuKubernetesRelease) {
 	cache.augmentTKR(tkr)
 
 	cache.tkrs[tkr.Name] = tkr
@@ -128,11 +128,11 @@ func (cache *cache) addTKR(tkr *v1alpha3.TanzuKubernetesRelease) {
 // augmentTKR:
 // - sets missing version-prefix labels
 // - sets/removes incompatible, invalid labels based on status conditions
-func (cache *cache) augmentTKR(tkr *v1alpha3.TanzuKubernetesRelease) {
+func (cache *cache) augmentTKR(tkr *runv1.TanzuKubernetesRelease) {
 	tkr.Labels = labels.Merge(tkr.Labels, version.Prefixes(version.Label(tkr.Spec.Version)))
 
-	ensureLabel(tkr.Labels, v1alpha3.LabelIncompatible, conditions.IsFalse(tkr, v1alpha3.ConditionCompatible))
-	ensureLabel(tkr.Labels, v1alpha3.LabelInvalid, conditions.IsFalse(tkr, v1alpha3.ConditionValid))
+	ensureLabel(tkr.Labels, runv1.LabelIncompatible, conditions.IsFalse(tkr, runv1.ConditionCompatible))
+	ensureLabel(tkr.Labels, runv1.LabelInvalid, conditions.IsFalse(tkr, runv1.ConditionValid))
 }
 
 func ensureLabel(ls labels.Set, label string, shouldSet bool) {
@@ -143,7 +143,7 @@ func ensureLabel(ls labels.Set, label string, shouldSet bool) {
 	ls[label] = ""
 }
 
-func (cache *cache) shippedOSImages(tkr *v1alpha3.TanzuKubernetesRelease) data.OSImages {
+func (cache *cache) shippedOSImages(tkr *runv1.TanzuKubernetesRelease) data.OSImages {
 	osImages := make(data.OSImages, len(tkr.Spec.OSImages))
 	for _, osImageRef := range tkr.Spec.OSImages {
 		osImages[osImageRef.Name] = cache.osImages[osImageRef.Name] // nil if OSImage hasn't been added yet
@@ -152,7 +152,7 @@ func (cache *cache) shippedOSImages(tkr *v1alpha3.TanzuKubernetesRelease) data.O
 }
 
 // Pre-reqs: tkr is NEVER nil
-func (cache *cache) addToTKRsShippingOSImage(osImages data.OSImages, tkr *v1alpha3.TanzuKubernetesRelease) {
+func (cache *cache) addToTKRsShippingOSImage(osImages data.OSImages, tkr *runv1.TanzuKubernetesRelease) {
 	for osImageName := range osImages { // we only need name, value MAY be nil (but we still want the name)
 		shippingTKRs, exists := cache.tkrsShippingOSImage[osImageName]
 		if !exists {
@@ -165,7 +165,7 @@ func (cache *cache) addToTKRsShippingOSImage(osImages data.OSImages, tkr *v1alph
 
 // populate cache.tkrsShippingOSImage and cache.osImagesShippedByTKR
 // Pre-reqs: osImage is NEVER nil
-func (cache *cache) addOSImage(osImage *v1alpha3.OSImage) {
+func (cache *cache) addOSImage(osImage *runv1.OSImage) {
 	cache.augmentOSImage(osImage)
 
 	cache.osImages[osImage.Name] = osImage
@@ -184,21 +184,21 @@ func (cache *cache) addOSImage(osImage *v1alpha3.OSImage) {
 // - sets image-type label
 // - set <image-type>-<ref-field> labels
 // - sets/removes incompatible, invalid labels based on status conditions
-func (cache *cache) augmentOSImage(osImage *v1alpha3.OSImage) {
+func (cache *cache) augmentOSImage(osImage *runv1.OSImage) {
 	osImage.Labels = labels.Merge(osImage.Labels, version.Prefixes(version.Label(osImage.Spec.KubernetesVersion)))
 
-	osImage.Labels[v1alpha3.LabelOSType] = osImage.Spec.OS.Type
-	osImage.Labels[v1alpha3.LabelOSName] = osImage.Spec.OS.Name
-	osImage.Labels[v1alpha3.LabelOSVersion] = osImage.Spec.OS.Version
-	osImage.Labels[v1alpha3.LabelOSArch] = osImage.Spec.OS.Arch
+	osImage.Labels[runv1.LabelOSType] = osImage.Spec.OS.Type
+	osImage.Labels[runv1.LabelOSName] = osImage.Spec.OS.Name
+	osImage.Labels[runv1.LabelOSVersion] = osImage.Spec.OS.Version
+	osImage.Labels[runv1.LabelOSArch] = osImage.Spec.OS.Arch
 
 	imageType := osImage.Spec.Image.Type
-	osImage.Labels[v1alpha3.LabelImageType] = imageType
+	osImage.Labels[runv1.LabelImageType] = imageType
 
 	setRefLabels(osImage.Labels, imageType, osImage.Spec.Image.Ref)
 
-	ensureLabel(osImage.Labels, v1alpha3.LabelIncompatible, conditions.IsFalse(osImage, v1alpha3.ConditionCompatible))
-	ensureLabel(osImage.Labels, v1alpha3.LabelInvalid, conditions.IsFalse(osImage, v1alpha3.ConditionValid))
+	ensureLabel(osImage.Labels, runv1.LabelIncompatible, conditions.IsFalse(osImage, runv1.ConditionCompatible))
+	ensureLabel(osImage.Labels, runv1.LabelInvalid, conditions.IsFalse(osImage, runv1.ConditionValid))
 }
 
 func setRefLabels(ls labels.Set, prefix string, ref map[string]interface{}) {
@@ -213,7 +213,7 @@ func setRefLabels(ls labels.Set, prefix string, ref map[string]interface{}) {
 }
 
 // Pre-reqs: osImage is NEVER nil
-func (cache *cache) addToOSImagesShippedByTKR(tkrs data.TKRs, osImage *v1alpha3.OSImage) {
+func (cache *cache) addToOSImagesShippedByTKR(tkrs data.TKRs, osImage *runv1.OSImage) {
 	for tkrName := range tkrs {
 		cache.osImagesShippedByTKR[tkrName][osImage.Name] = osImage // cache.osImagesShippedByTKR[tkrName] is NEVER nil
 	}
@@ -231,7 +231,7 @@ func normalize(query data.Query) data.Query {
 }
 
 func normalizeOSImageQuery(osImageQuery data.OSImageQuery) data.OSImageQuery {
-	unwantedLabels := []string{v1alpha3.LabelIncompatible, v1alpha3.LabelDeactivated, v1alpha3.LabelInvalid}
+	unwantedLabels := []string{runv1.LabelIncompatible, runv1.LabelDeactivated, runv1.LabelInvalid}
 
 	tkrSelector := addLabelNotExistsReq(osImageQuery.TKRSelector, unwantedLabels...)
 	osImageSelector := addLabelNotExistsReq(osImageQuery.OSImageSelector, unwantedLabels...)
@@ -283,7 +283,7 @@ func (cache *cache) filterOSImageDetails(osImageQuery data.OSImageQuery) osImage
 }
 
 func (cache *cache) consideredTKRs(query data.OSImageQuery) data.TKRs {
-	return cache.tkrs.Filter(func(tkr *v1alpha3.TanzuKubernetesRelease) bool {
+	return cache.tkrs.Filter(func(tkr *runv1.TanzuKubernetesRelease) bool {
 		return query.TKRSelector.Matches(labels.Set(tkr.Labels))
 	})
 }
@@ -292,7 +292,7 @@ func (cache *cache) consideredTKRs(query data.OSImageQuery) data.TKRs {
 func (cache *cache) filterOSImagesByTKR(query data.OSImageQuery, consideredTKRs data.TKRs) map[string]data.OSImages {
 	result := make(map[string]data.OSImages, len(consideredTKRs))
 	for tkrName := range consideredTKRs {
-		osImages := cache.osImagesShippedByTKR[tkrName].Filter(func(osImage *v1alpha3.OSImage) bool {
+		osImages := cache.osImagesShippedByTKR[tkrName].Filter(func(osImage *runv1.OSImage) bool {
 			return query.OSImageSelector.Matches(labels.Set(osImage.Labels))
 		})
 		if len(osImages) > 0 {
@@ -303,7 +303,7 @@ func (cache *cache) filterOSImagesByTKR(query data.OSImageQuery, consideredTKRs 
 }
 
 func (cache *cache) filterTKRs(osImagesByTKR map[string]data.OSImages, tkrs data.TKRs) data.TKRs {
-	return tkrs.Filter(func(tkr *v1alpha3.TanzuKubernetesRelease) bool {
+	return tkrs.Filter(func(tkr *runv1.TanzuKubernetesRelease) bool {
 		_, exists := osImagesByTKR[tkr.Name]
 		return exists
 	})
