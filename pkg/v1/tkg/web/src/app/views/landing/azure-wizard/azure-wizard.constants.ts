@@ -32,7 +32,7 @@ export enum AzureField {
     NODESETTING_INSTANCE_TYPE_DEV = 'devInstanceType',
     NODESETTING_INSTANCE_TYPE_PROD = 'prodInstanceType',
     NODESETTING_MACHINE_HEALTH_CHECKS_ENABLED = 'machineHealthChecksEnabled',
-    NODESETTING_MANAGEMENT_CLUSTER_NAME = 'managementClusterName',
+    NODESETTING_MANAGEMENT_CLUSTER_NAME = 'clusterName',
     NODESETTING_WORKERTYPE = 'workerNodeInstanceType',
 
 /*

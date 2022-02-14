@@ -1,5 +1,5 @@
 // Angular imports
-import { FormControl, FormGroup, ValidatorFn, Validators } from '@angular/forms';
+import { ValidatorFn, Validators } from '@angular/forms';
 import { Injectable } from '@angular/core';
 // App imports
 import AppServices from '../../../../../shared/service/appServices';
@@ -32,6 +32,10 @@ export class FieldMapUtilities {
     }
 
     getFieldMapping(field: string, stepMapping: StepMapping): FieldMapping {
+        if (!stepMapping.fieldMappings) {
+            console.error('trying to getFieldMapping for field ' + field + ', but stepMapping has no fieldMappings');
+            return null;
+        }
         return stepMapping.fieldMappings.find(fieldMapping => fieldMapping.name === field);
     }
 
@@ -109,13 +113,24 @@ export class FieldMapUtilities {
     }
 
     validateFieldMapping(formName: string, fieldMapping: FieldMapping): boolean {
-        let result = true;
         if (fieldMapping.isBoolean && fieldMapping.required) {
-            result = false;
-            console.error('invalid field mapping for ' + formName + '.' + fieldMapping.name + ': field cannot be required AND boolean');
+            return this.consoleInvalidFieldMapping(formName, fieldMapping.name, 'field cannot be required AND boolean');
         }
-        // TODO: add validation that backingObjectMap requires a retriever, and hasNoDomControl requires retriever and restorer
-        return result;
+        if (fieldMapping.backingObject && !fieldMapping.retriever) {
+            return this.consoleInvalidFieldMapping(formName, fieldMapping.name, 'backingObject requires retriever');
+        }
+        if (fieldMapping.hasNoDomControl && !fieldMapping.retriever) {
+            return this.consoleInvalidFieldMapping(formName, fieldMapping.name, 'hasNoDomControl requires retriever');
+        }
+        if (fieldMapping.hasNoDomControl && !fieldMapping.restorer) {
+            return this.consoleInvalidFieldMapping(formName, fieldMapping.name, 'hasNoDomControl requires restorer');
+        }
+        return true;
+    }
+
+    private consoleInvalidFieldMapping(formName, fieldName, message: string): boolean {
+        console.error('invalid field mapping for ' + formName + '.' + fieldName + ': ' + message);
+        return false;
     }
 
     private isFeatureEnabled(featureFlag: string): boolean {

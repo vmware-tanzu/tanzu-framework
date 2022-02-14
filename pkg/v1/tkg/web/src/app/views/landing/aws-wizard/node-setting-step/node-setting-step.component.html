@@ -21,7 +21,7 @@
 
     <div class="clr-row fix-zindex-100">
         <div class="clr-col-lg-6 clr-col-12">
-            <a class="card clickable" [ngClass]="{'card-selected': getEnvType()==='dev'}" (click)="cardClick('dev')" role="none">
+            <a class="card clickable" [ngClass]="{'card-selected': isClusterPlanDev}" (click)="cardClickDev()" role="none">
                 <div class="card-block">
                     <clr-icon class="card-icon" shape="computer" size="72">
                     </clr-icon>
@@ -69,7 +69,7 @@
         </div>
 
         <div class="clr-col-lg-6 clr-col-12">
-            <a class="card clickable" [ngClass]="{'card-selected': getEnvType()==='prod'}" (click)="cardClick('prod')" role="none">
+            <a class="card clickable" [ngClass]="{'card-selected': isClusterPlanProd}" (click)="cardClickProd()" role="none">
                 <div class="card-block">
                     <clr-icon class="card-icon" shape="building" size="72">
                     </clr-icon>
@@ -353,7 +353,7 @@
         <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4" *featureToggle="'!management-cluster.standalone-cluster-mode'">
             <clr-datalist-container>
                 <label i18n="worker node instance type label" class="clr-col-12 clr-col-md-12">
-                    {{htmlFieldLabels['workerNodeInstanceType1']}}
+                    {{htmlFieldLabels['workerNodeInstanceType']}}
                     <clr-tooltip>
                         <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                         <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
@@ -364,19 +364,19 @@
                     </clr-tooltip>
                 </label>
                 <input clrDatalistInput
-                       name="workerNodeInstanceType1"
-                       formControlName="workerNodeInstanceType1"
+                       name="workerNodeInstanceType"
+                       formControlName="workerNodeInstanceType"
                        role="listbox"
                        aria-label="worker node instance type for az1"
                        autocomplete="off"
                        [attr.disabled]="azNodeTypes.awsNodeAz1.length ? null : 'disabled'"/>
-                <datalist id="workerNodeInstanceType1">
+                <datalist id="workerNodeInstanceType">
                     <option *ngFor="let nodeType of azNodeTypes.awsNodeAz1" [value]="nodeType"></option>
                 </datalist>
                 <!-- Add a empty helper to avoid accessibility aria-describeby issue -->
                 <clr-control-helper></clr-control-helper>
             </clr-datalist-container>
-            <clr-control-error *ngIf="showFormError('workerNodeInstanceType1')">
+            <clr-control-error *ngIf="showFormError('workerNodeInstanceType')">
                 Selecting worker node instance type is required for this AZ
             </clr-control-error>
         </div>

@@ -18,6 +18,7 @@ import { NetworkField } from '../wizard/shared/components/steps/network-step/net
 import { NodeSettingStepComponent } from './node-setting-step/node-setting-step.component';
 import { SharedModule } from '../../../shared/shared.module';
 import { ValidationService } from '../wizard/shared/validation/validation.service';
+import { NodeSettingField } from '../wizard/shared/components/steps/node-setting-step/node-setting-step.fieldmapping';
 
 describe('AwsWizardComponent', () => {
     let component: AwsWizardComponent;
@@ -72,7 +73,7 @@ describe('AwsWizardComponent', () => {
                 devInstanceType: [''],
                 machineHealthChecksEnabled: [false],
                 createCloudFormation: [false],
-                workerNodeInstanceType1: [''],
+                workerNodeInstanceType: [''],
                 workerNodeInstanceType2: [''],
                 workerNodeInstanceType3: [''],
                 clusterName: [''],
@@ -132,7 +133,7 @@ describe('AwsWizardComponent', () => {
             [AwsForm.NODESETTING, AwsField.NODESETTING_CONTROL_PLANE_SETTING, 'dev'],
             [AwsForm.NODESETTING, AwsField.NODESETTING_INSTANCE_TYPE_DEV, 't3.medium'],
             [AwsForm.NODESETTING, AwsField.NODESETTING_SSH_KEY_NAME, 'default'],
-            [AwsForm.NODESETTING, AwsField.NODESETTING_WORKERTYPE_1, 't3.small'],
+            [AwsForm.NODESETTING, NodeSettingField.WORKER_NODE_INSTANCE_TYPE, 't3.small'],
             [AwsForm.NODESETTING, AwsField.NODESETTING_CREATE_CLOUD_FORMATION, true],
             [AwsForm.NODESETTING, AwsField.NODESETTING_MACHINE_HEALTH_CHECKS_ENABLED, true],
             [WizardForm.METADATA, MetadataField.CLUSTER_DESCRIPTION, 'DescriptionEXAMPLE'],

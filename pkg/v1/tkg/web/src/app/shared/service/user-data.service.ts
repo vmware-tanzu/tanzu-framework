@@ -113,6 +113,10 @@ export class UserDataService {
     }
 
     retrieveStoredValue(wizard, step: string, fieldMapping: FieldMapping): any {
+        if (!fieldMapping) {
+            console.error('trying to retrieveStoredValue for ' + wizard + '.' + step + ' but fieldMapping undefined');
+            return null;
+        }
         const identifier = {wizard, step, field: fieldMapping.name};
         if (fieldMapping.isMap) {
             return this.retrieveMap(identifier);

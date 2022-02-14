@@ -31,6 +31,7 @@ import { TanzuEventType } from '../../../shared/service/Messenger';
 import { Utils } from '../../../shared/utils';
 import { VpcStepComponent } from './vpc-step/vpc-step.component';
 import { WizardBaseDirective } from '../wizard/shared/wizard-base/wizard-base';
+import { NodeSettingField } from '../wizard/shared/components/steps/node-setting-step/node-setting-step.fieldmapping';
 
 export interface AzRelatedFields {
     az: string,
@@ -41,9 +42,9 @@ export interface AzRelatedFields {
 
 export const AzRelatedFieldsArray: AzRelatedFields[] = [
     { az: AwsField.NODESETTING_AZ_1, vpcPrivateSubnet: AwsField.NODESETTING_VPC_PRIVATE_SUBNET_1,
-        vpcPublicSubnet: AwsField.NODESETTING_VPC_PUBLIC_SUBNET_1, workerNodeInstanceType: AwsField.NODESETTING_WORKERTYPE_1 },
+        vpcPublicSubnet: AwsField.NODESETTING_VPC_PUBLIC_SUBNET_1, workerNodeInstanceType: NodeSettingField.WORKER_NODE_INSTANCE_TYPE },
     { az: AwsField.NODESETTING_AZ_2, vpcPrivateSubnet: AwsField.NODESETTING_VPC_PRIVATE_SUBNET_2,
-        vpcPublicSubnet: AwsField.NODESETTING_VPC_PUBLIC_SUBNET_1, workerNodeInstanceType: AwsField.NODESETTING_WORKERTYPE_1 },
+        vpcPublicSubnet: AwsField.NODESETTING_VPC_PUBLIC_SUBNET_2, workerNodeInstanceType: AwsField.NODESETTING_WORKERTYPE_2 },
     { az: AwsField.NODESETTING_AZ_3, vpcPrivateSubnet: AwsField.NODESETTING_VPC_PRIVATE_SUBNET_3,
         vpcPublicSubnet: AwsField.NODESETTING_VPC_PUBLIC_SUBNET_3, workerNodeInstanceType: AwsField.NODESETTING_WORKERTYPE_3 },
 ];

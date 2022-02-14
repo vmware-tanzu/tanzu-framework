@@ -99,16 +99,6 @@ describe('NodeSettingStepComponent', () => {
         expect(component.prodInstanceTypeValue).toBe('t3.small');
     });
 
-    it('should return worker node instance type', () => {
-        component.formGroup.get("workerNodeInstanceType1").setValue('t3.small');
-        expect(component.formGroup.get(AwsField.NODESETTING_WORKERTYPE_1).value).toBe('t3.small');
-    });
-
-    it('should return environment type', () => {
-        component.formGroup.get("controlPlaneSetting").setValue('dev');
-        expect(component.getEnvType()).toBe('dev');
-    });
-
     it('should clear availability zone', () => {
         component.formGroup.get(AwsField.NODESETTING_AZ_1).setValue('us-west-a');
         component.formGroup.get(AwsField.NODESETTING_AZ_2).setValue('us-west-b');

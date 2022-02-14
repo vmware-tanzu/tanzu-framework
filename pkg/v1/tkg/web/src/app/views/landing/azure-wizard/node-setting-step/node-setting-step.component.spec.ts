@@ -11,7 +11,7 @@ import { Messenger, TanzuEventType } from 'src/app/shared/service/Messenger';
 import { NodeSettingStepComponent } from './node-setting-step.component';
 import { SharedModule } from '../../../../shared/shared.module';
 import { ValidationService } from '../../wizard/shared/validation/validation.service';
-import { AzureForm } from '../azure-wizard.constants';
+import { AzureField, AzureForm } from '../azure-wizard.constants';
 
 describe('NodeSettingStepComponent', () => {
     let component: NodeSettingStepComponent;
@@ -55,9 +55,9 @@ describe('NodeSettingStepComponent', () => {
 
     it('should be invalid when cluster name has leading/trailing spaces', () => {
         fixture.whenStable().then(() => {
-            component.formGroup.get('managementClusterName').setValue(" test");
+            component.formGroup.get(AzureField.NODESETTING_MANAGEMENT_CLUSTER_NAME).setValue(" test");
             expect(component.formGroup.valid).toBeFalsy();
-            component.formGroup.get('managementClusterName').setValue("test   ");
+            component.formGroup.get(AzureField.NODESETTING_MANAGEMENT_CLUSTER_NAME).setValue("test   ");
             expect(component.formGroup.valid).toBeFalsy();
         });
     });

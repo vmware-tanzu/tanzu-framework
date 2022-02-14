@@ -1,4 +1,4 @@
-<form [formGroup]="formGroup" *ngIf="displayForm">
+<form [formGroup]="formGroup">
     <div *ngIf="errorNotification" class="alert alert-danger" role="alert">
         <div class="alert-items">
             <div class="alert-item static">
@@ -21,7 +21,7 @@
 
     <div class="clr-row">
         <div class="clr-col-lg-6 clr-col-12">
-            <a class="card clickable" [ngClass]="{'card-selected': getEnvType()==='dev'}" (click)="cardClick('dev')"
+            <a class="card clickable" [ngClass]="{'card-selected': isClusterPlanDev}" (click)="cardClickDev()"
                 role="none">
                 <div class="card-block">
                     <clr-icon class="card-icon" shape="computer" size="72">
@@ -71,7 +71,7 @@
         </div>
 
         <div class="clr-col-lg-6 clr-col-12">
-            <a class="card clickable" [ngClass]="{'card-selected': getEnvType()==='prod'}" (click)="cardClick('prod')"
+            <a class="card clickable" [ngClass]="{'card-selected': isClusterPlanProd}" (click)="cardClickProd()"
                 role="none">
                 <div class="card-block">
                     <clr-icon class="card-icon" shape="building" size="72">

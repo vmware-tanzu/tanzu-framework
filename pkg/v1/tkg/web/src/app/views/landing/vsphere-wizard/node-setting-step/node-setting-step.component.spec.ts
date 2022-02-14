@@ -52,7 +52,7 @@ describe('NodeSettingStepComponent', () => {
 
     it('should get correct env value', () => {
         component.cardClick('prod');
-        expect(component.getEnvType()).toEqual('prod');
+        expect(component.isClusterPlanProd).toBeTrue();
     });
 
     it('should announce description change', () => {

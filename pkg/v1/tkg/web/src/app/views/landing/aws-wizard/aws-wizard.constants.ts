@@ -33,7 +33,7 @@ export enum AwsField {
     NODESETTING_VPC_PRIVATE_SUBNET_1 = 'vpcPrivateSubnet1',
     NODESETTING_VPC_PRIVATE_SUBNET_2 = 'vpcPrivateSubnet2',
     NODESETTING_VPC_PRIVATE_SUBNET_3 = 'vpcPrivateSubnet3',
-    NODESETTING_WORKERTYPE_1 = 'workerNodeInstanceType1',
+    // NOTE: worker type 1 uses NodeSettingField.WORKER_NODE_INSTANCE_TYPE from the shared component
     NODESETTING_WORKERTYPE_2 = 'workerNodeInstanceType2',
     NODESETTING_WORKERTYPE_3 = 'workerNodeInstanceType3',
 
