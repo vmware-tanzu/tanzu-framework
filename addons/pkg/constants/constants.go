@@ -126,6 +126,12 @@ const (
 
 	// InfrastructureRefDocker is the docker infrastructure
 	InfrastructureRefDocker = "DockerCluster"
+
+	// SecretNameLogKey is the log key for Secrets
+	SecretNameLogKey = "secret-name"
+
+	// ClusterBootstrapManagedSecret is the name for the secrets that are managed by ClusterBootstrapController
+	ClusterBootstrapManagedSecret = "clusterbootstrap-secret"
 )
 
 // ClusterKind is the Kind for cluster-api Cluster object

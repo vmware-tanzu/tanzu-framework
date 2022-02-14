@@ -98,6 +98,13 @@ func (r *ClusterBootstrapReconciler) SetupWithManager(ctx context.Context, mgr c
 				predicates.TKR(r.Log),
 			),
 		).
+		Watches(
+			&source.Kind{Type: &corev1.Secret{}},
+			handler.EnqueueRequestsFromMapFunc(r.SecretsToClusters),
+			builder.WithPredicates(
+				predicates.TKR(r.Log),
+			),
+		).
 		WithOptions(options).
 		WithEventFilter(clusterApiPredicates.ResourceNotPaused(r.Log)).
 		WithEventFilter(predicates.ClusterHasLabel(constants.TKRLabelClassyClusters, r.Log)).
@@ -342,6 +349,25 @@ func (r *ClusterBootstrapReconciler) createOrPatchPackageInstallSecret(cluster *
 		}
 	}
 
+	// Add cluster and package labels to secrets if not already present
+	// This helps us to track the secrets in the watch and trigger Reconcile requests when
+	// these secrets are updated
+	updateLabels := false
+	if secret.Labels == nil {
+		secret.Labels = map[string]string{}
+		updateLabels = true
+	} else if secret.Labels[addontypes.PackageNameLabel] != pkg.RefName ||
+		secret.Labels[addontypes.ClusterNameLabel] != cluster.Name {
+		updateLabels = true
+	}
+	if updateLabels {
+		secret.Labels[addontypes.PackageNameLabel] = pkg.RefName
+		secret.Labels[addontypes.ClusterNameLabel] = cluster.Name
+		r.Update(r.context, secret)
+		log.Info("Updated secrets with package and cluster labels to watch for changes")
+	}
+
+	// Now prepare the dataValuesSecret to send to target cluster
 	dataValuesSecret := &corev1.Secret{}
 	dataValuesSecret.Name = fmt.Sprintf("%s-%s-data-values", cluster.Name, packageShortName(pkg.RefName))
 	dataValuesSecret.Namespace = constants.TKGSystemNS
@@ -513,6 +539,7 @@ func (r *ClusterBootstrapReconciler) updateValuesFromSecret(cluster *clusterapiv
 			return nil, err
 		}
 		newSecret = secret.DeepCopy()
+		newSecret.ObjectMeta.Reset()
 		newSecret.OwnerReferences = []metav1.OwnerReference{
 			{
 				APIVersion: clusterapiv1beta1.GroupVersion.String(),
@@ -521,14 +548,17 @@ func (r *ClusterBootstrapReconciler) updateValuesFromSecret(cluster *clusterapiv
 				UID:        cluster.UID,
 			},
 		}
-		// Add cluster and package labels to cloned secrets
 
+		// Add cluster and package labels to cloned secrets
 		if newSecret.Labels == nil {
 			newSecret.Labels = map[string]string{}
 		}
 
 		newSecret.Labels[types.PackageNameLabel] = pkg.RefName
 		newSecret.Labels[types.ClusterNameLabel] = cluster.Name
+
+		// Set secret.Type to ClusterBootstrapManagedSecret to enable us to Watch these secrets
+		newSecret.Type = constants.ClusterBootstrapManagedSecret
 
 		newSecret.Name = fmt.Sprintf("%s-%s-package", cluster.Name, packageShortName(pkg.RefName))
 		newSecret.Namespace = bootstrap.Namespace
