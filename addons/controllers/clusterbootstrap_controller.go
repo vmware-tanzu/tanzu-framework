@@ -52,7 +52,7 @@ type ClusterBootstrapReconciler struct {
 	client.Client
 	Log     logr.Logger
 	Scheme  *runtime.Scheme
-	Config  *addonconfig.Config
+	Config  *addonconfig.ClusterBootstrapControllerConfig
 	context context.Context
 
 	// internal properties
@@ -67,7 +67,7 @@ type ClusterBootstrapReconciler struct {
 }
 
 // NewClusterBootstrapReconciler returns a reconciler for ClusterBootstrap
-func NewClusterBootstrapReconciler(c client.Client, log logr.Logger, scheme *runtime.Scheme, config *addonconfig.Config) *ClusterBootstrapReconciler {
+func NewClusterBootstrapReconciler(c client.Client, log logr.Logger, scheme *runtime.Scheme, config *addonconfig.ClusterBootstrapControllerConfig) *ClusterBootstrapReconciler {
 	return &ClusterBootstrapReconciler{
 		Client: c,
 		Log:    log,
@@ -244,7 +244,7 @@ func (r *ClusterBootstrapReconciler) createOrPatchClusterBootstrapFromTemplate(c
 	}
 
 	clusterBootstrapTemplate := &runtanzuv1alpha3.ClusterBootstrapTemplate{}
-	key := client.ObjectKey{Namespace: r.Config.AddonNamespace, Name: tkrName}
+	key := client.ObjectKey{Namespace: r.Config.BootstrapSystemNamespace, Name: tkrName}
 	if err := r.Client.Get(r.context, key, clusterBootstrapTemplate); err != nil {
 		log.Error(err, "unable to fetch ClusterBootstrapTemplate", "objectkey", key)
 		return nil, err
@@ -393,7 +393,7 @@ func (r *ClusterBootstrapReconciler) createOrPatchPackageOnRemote(cluster *clust
 	remotePackage := &kapppkgv1alpha1.Package{}
 	remotePackage.SetName(localPackage.Name)
 	// The Package CR on remote cluster needs to be under tkg-system namespace
-	remotePackage.SetNamespace(r.Config.AddonNamespace)
+	remotePackage.SetNamespace(r.Config.BootstrapSystemNamespace)
 	_, err = controllerutil.CreateOrPatch(r.context, clusterClient, remotePackage, func() error {
 		remotePackage.Spec = *localPackage.Spec.DeepCopy()
 		// TODO: Follow up to see if we need to preserve all the other fields, like annotations
@@ -417,12 +417,12 @@ func (r *ClusterBootstrapReconciler) createOrPatchPackageInstallOnRemote(cluster
 	remotePkgi := &kapppkgiv1alpha1.PackageInstall{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      util.GeneratePackageInstallName(cluster.Name, util.GetPackageShortName(cbPkg.RefName)),
-			Namespace: r.Config.AddonNamespace,
+			Namespace: r.Config.BootstrapSystemNamespace,
 		},
 	}
 	remotePackageName := cbPkg.RefName
 	_, err := controllerutil.CreateOrPatch(r.context, clusterClient, remotePkgi, func() error {
-		remotePkgi.Spec.ServiceAccountName = r.Config.AddonServiceAccount
+		remotePkgi.Spec.ServiceAccountName = r.Config.PkgiServiceAccount
 		remotePkgi.Spec.PackageRef = &kapppkgiv1alpha1.PackageRef{
 			RefName: remotePackageName,
 			VersionSelection: &versions.VersionSelectionSemver{
@@ -451,8 +451,8 @@ func (r *ClusterBootstrapReconciler) createOrPatchPackageInstallOnRemote(cluster
 func (r *ClusterBootstrapReconciler) createOrPatchAddonServiceAccountOnRemote(cluster *clusterapiv1beta1.Cluster, clusterClient client.Client) (*corev1.ServiceAccount, error) {
 	serviceAccount := &corev1.ServiceAccount{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      r.Config.AddonServiceAccount,
-			Namespace: r.Config.AddonNamespace,
+			Name:      r.Config.PkgiServiceAccount,
+			Namespace: r.Config.BootstrapSystemNamespace,
 		},
 	}
 
@@ -479,7 +479,7 @@ func (r *ClusterBootstrapReconciler) createOrPatchAddonServiceAccountOnRemote(cl
 func (r *ClusterBootstrapReconciler) createOrPatchAddonRoleOnRemote(cluster *clusterapiv1beta1.Cluster, clusterClient client.Client) error {
 	addonRole := &rbacv1.ClusterRole{
 		ObjectMeta: metav1.ObjectMeta{
-			Name: r.Config.AddonClusterRole,
+			Name: r.Config.PkgiClusterRole,
 		},
 	}
 
@@ -507,21 +507,21 @@ func (r *ClusterBootstrapReconciler) createOrPatchAddonRoleOnRemote(cluster *clu
 
 	addonRoleBinding := &rbacv1.ClusterRoleBinding{
 		ObjectMeta: metav1.ObjectMeta{
-			Name: r.Config.AddonClusterRoleBinding,
+			Name: r.Config.PkgiClusterRoleBinding,
 		},
 	}
 	if _, err := controllerutil.CreateOrPatch(r.context, clusterClient, addonRoleBinding, func() error {
 		addonRoleBinding.Subjects = []rbacv1.Subject{
 			{
 				Kind:      "ServiceAccount",
-				Name:      r.Config.AddonServiceAccount,
-				Namespace: r.Config.AddonNamespace,
+				Name:      r.Config.PkgiServiceAccount,
+				Namespace: r.Config.BootstrapSystemNamespace,
 			},
 		}
 		addonRoleBinding.RoleRef = rbacv1.RoleRef{
 			APIGroup: "rbac.authorization.k8s.io",
 			Kind:     "ClusterRole",
-			Name:     r.Config.AddonClusterRole,
+			Name:     r.Config.PkgiClusterRole,
 		}
 		return nil
 	}); err != nil {
@@ -617,10 +617,12 @@ func (r *ClusterBootstrapReconciler) createOrPatchPackageInstallSecretOnRemote(c
 		}
 	}
 
+	// TODO: Handle inline valueFrom. https://github.com/vmware-tanzu/tanzu-framework/issues/1694
+
 	dataValuesSecret := &corev1.Secret{}
 	dataValuesSecret.Name = util.GenerateDataValueSecretName(cluster.Name, util.GetPackageShortName(pkg.RefName))
 	// The secret will be created or patched under tkg-system namespace on remote cluster
-	dataValuesSecret.Namespace = r.Config.AddonNamespace
+	dataValuesSecret.Namespace = r.Config.BootstrapSystemNamespace
 	dataValuesSecret.Type = corev1.SecretTypeOpaque
 
 	dataValuesSecretMutateFn := func() error {
