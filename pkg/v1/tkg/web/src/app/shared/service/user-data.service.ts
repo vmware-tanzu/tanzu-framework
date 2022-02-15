@@ -164,6 +164,10 @@ export class UserDataService {
         }
     }
 
+    fieldsWithStoredData(wizard, step: string, fields: string[]): string[] {
+        return fields.filter(field => this.hasStoredData({wizard, step, field}));
+    }
+
     hasStoredData(identifier: UserDataIdentifier): boolean {
         const userDataEntry = this.retrieve(identifier);
         // NOTE: we want a value of 'false' to return TRUE (that there IS a value)

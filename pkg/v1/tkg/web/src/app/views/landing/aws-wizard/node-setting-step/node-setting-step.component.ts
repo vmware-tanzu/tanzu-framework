@@ -7,7 +7,7 @@ import { APIClient } from '../../../../swagger/api-client.service';
 import { AppEdition } from 'src/app/shared/constants/branding.constants';
 import AppServices from '../../../../shared/service/appServices';
 import { AwsField, VpcType } from "../aws-wizard.constants";
-import { AwsNodeSettingStepMapping } from './node-setting-step.fieldmapping';
+import { AwsFieldDisplayOrder, AwsNodeSettingStepMapping } from './node-setting-step.fieldmapping';
 import { AWSNodeAz } from '../../../../swagger/models/aws-node-az.model';
 import { AWSSubnet } from '../../../../swagger/models/aws-subnet.model';
 import { AzRelatedFieldsArray } from '../aws-wizard.component';
@@ -475,5 +475,12 @@ export class NodeSettingStepComponent extends NodeSettingStepDirective<string> i
 
     protected getDisplayFromNodeInstance(nodeInstance: string): string {
         return nodeInstance;
+    }
+
+    // We override the default behavior of displaying the fields in the order they occur in the StepMapping.
+    // This is because we inherit some fields from the shared NodeSettingStep, and just appending AWS added fields results
+    // in a jumbled order.
+    protected getFieldDisplayOrder(): string[] {
+        return AppServices.userDataService.fieldsWithStoredData(this.wizardName, this.formName, AwsFieldDisplayOrder);
     }
 }

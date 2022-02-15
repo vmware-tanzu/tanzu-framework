@@ -210,8 +210,14 @@ export abstract class NodeSettingStepDirective<NODEINSTANCE> extends StepFormDir
         return this.clusterPlan === ClusterPlan.DEV;
     }
 
+    // Extending classes should have no reason to override this method.
     protected storeUserData() {
         this.storeUserDataFromMapping(this.supplyStepMapping());
-        this.storeDefaultDisplayOrder(this.supplyStepMapping());
+        this.storeDisplayOrder(this.getFieldDisplayOrder());
+    }
+
+    // Extending classes may want to change the display order of the fields
+    protected getFieldDisplayOrder() {
+        return this.defaultDisplayOrder(this.supplyStepMapping());
     }
 }
