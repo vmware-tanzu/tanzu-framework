@@ -82,6 +82,7 @@ type ClusterBootstrapConfig struct {
 
 // SetupWithManager performs the setup actions for an ClusterBootstrap controller, using the passed in mgr.
 func (r *ClusterBootstrapReconciler) SetupWithManager(ctx context.Context, mgr ctrl.Manager, options controller.Options) error {
+	// nolint:dupl
 	ctrlr, err := ctrl.NewControllerManagedBy(mgr).
 		For(&clusterapiv1beta1.Cluster{}).
 		Watches(
@@ -350,20 +351,13 @@ func (r *ClusterBootstrapReconciler) createOrPatchPackageInstallSecret(cluster *
 	}
 
 	// Add cluster and package labels to secrets if not already present
-	// This helps us to track the secrets in the watch and trigger Reconcile requests when
-	// these secrets are updated
-	updateLabels := false
-	if secret.Labels == nil {
-		secret.Labels = map[string]string{}
-		updateLabels = true
-	} else if secret.Labels[addontypes.PackageNameLabel] != pkg.RefName ||
-		secret.Labels[addontypes.ClusterNameLabel] != cluster.Name {
-		updateLabels = true
-	}
-	if updateLabels {
-		secret.Labels[addontypes.PackageNameLabel] = pkg.RefName
-		secret.Labels[addontypes.ClusterNameLabel] = cluster.Name
-		r.Update(r.context, secret)
+	// This helps us to track the secrets in the watch and trigger Reconcile requests when these secrets are updated
+	patchedSecret := *secret.DeepCopy()
+	if patchSecretWithLabels(&patchedSecret, pkg.RefName, cluster.Name) {
+		if err := r.Patch(r.context, &patchedSecret, client.MergeFrom(secret)); err != nil {
+			log.Error(err, "unable to update secret labels for ", "secret", secret.Name)
+			return nil, err
+		}
 		log.Info("Updated secrets with package and cluster labels to watch for changes")
 	}
 
@@ -387,6 +381,24 @@ func (r *ClusterBootstrapReconciler) createOrPatchPackageInstallSecret(cluster *
 		return nil, err
 	}
 	return dataValuesSecret, nil
+}
+
+// patchSecretWithLabels updates the secret by adding package and cluster labels
+// Return true if a patch was required, false if the labels were already present
+func patchSecretWithLabels(secret *corev1.Secret, pkgName, clusterName string) bool {
+	updateLabels := false
+	if secret.Labels == nil {
+		secret.Labels = map[string]string{}
+		updateLabels = true
+	} else if secret.Labels[addontypes.PackageNameLabel] != pkgName ||
+		secret.Labels[addontypes.ClusterNameLabel] != clusterName {
+		updateLabels = true
+	}
+	if updateLabels {
+		secret.Labels[addontypes.PackageNameLabel] = pkgName
+		secret.Labels[addontypes.ClusterNameLabel] = clusterName
+	}
+	return updateLabels
 }
 
 // cloneSecretsAndProviders clones linked secrets and providers into the same namespace as clusterBootstrap
