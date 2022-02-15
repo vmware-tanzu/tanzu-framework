@@ -17,8 +17,11 @@ type Resolver interface {
 
 // Cache holds TKRs and OSImages to be used by the Resolver.
 type Cache interface {
-	// Add TanzuKubernetesRelease or OSImage to the resolver cache.
-	Add(...interface{})
+	// Add TanzuKubernetesRelease or OSImage objects to the resolver cache.
+	Add(objects ...interface{})
+
+	// Remove TanzuKubernetesRelease or OSImage objects from the resolver cache.
+	Remove(objects ...interface{})
 }
 
 // CachingResolver combines Resolver and Cache (for convenience).

@@ -38,6 +38,11 @@ func (r *Resolver) Add(objects ...interface{}) {
 	r.cache.add(objects)
 }
 
+// Remove TKRs and OSImages from the Resolver cache.
+func (r *Resolver) Remove(objects ...interface{}) {
+	r.cache.remove(objects)
+}
+
 func (r *Resolver) Resolve(query data.Query) data.Result {
 	query = normalize(query)
 
@@ -75,6 +80,15 @@ func (cache *cache) add(objects []interface{}) {
 	}
 }
 
+func (cache *cache) remove(objects []interface{}) {
+	cache.mutex.Lock()
+	defer cache.mutex.Unlock()
+
+	for _, object := range objects {
+		cache.removeObject(object)
+	}
+}
+
 func (cache *cache) addObject(object interface{}) {
 	switch object := object.(type) {
 	case *runv1.TanzuKubernetesRelease:
@@ -89,6 +103,15 @@ func (cache *cache) addObject(object interface{}) {
 			return
 		}
 		cache.addOSImage(object)
+	}
+}
+
+func (cache *cache) removeObject(object interface{}) {
+	switch object := object.(type) {
+	case *runv1.TanzuKubernetesRelease:
+		cache.removeTKR(object)
+	case *runv1.OSImage:
+		cache.removeOSImage(object)
 	}
 }
 

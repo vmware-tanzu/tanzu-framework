@@ -66,7 +66,7 @@ const numOSImages = 50
 const numTKRs = 10
 const maxMDs = 5
 
-var _ = Describe("Add()", func() {
+var _ = Describe("Cache implementation", func() {
 	var (
 		osImages data.OSImages
 		tkrs     data.TKRs
@@ -102,59 +102,100 @@ var _ = Describe("Add()", func() {
 		r.Add(someOtherObject)
 	})
 
-	It("should not matter if OSImages or TKRs are added first", func() {
-		r1 := NewResolver()
-		for _, osImage := range osImages {
-			r1.Add(osImage)
-		}
-		for _, tkr := range tkrs {
-			r1.Add(tkr)
-		}
-		r1.Add(someOtherObject)
-
-		Expect(r1.cache.tkrs).To(Equal(r.cache.tkrs))
-		Expect(r1.cache.osImages).To(Equal(r.cache.osImages))
-		Expect(r1.cache.osImagesShippedByTKR).To(Equal(r.cache.osImagesShippedByTKR))
-		Expect(r1.cache.tkrsShippingOSImage).To(Equal(r.cache.tkrsShippingOSImage))
-	})
-
-	It("should add TKRs and OSImages to the cache", func() {
-		for tkrName, tkr := range tkrs {
-			Expect(r.cache.tkrs).To(HaveKeyWithValue(tkrName, tkr))
-			Expect(r.cache.osImagesShippedByTKR).To(HaveKey(tkrName))
-			shippedOSImages := r.cache.osImagesShippedByTKR[tkrName]
-			Expect(shippedOSImages).ToNot(BeNil())
-
-			for _, osImageRef := range tkr.Spec.OSImages {
-				osImageName := osImageRef.Name
-				osImage := r.cache.osImages[osImageName]
-				Expect(osImageName).ToNot(BeEmpty())
-				Expect(osImage).ToNot(BeNil())
-
-				Expect(shippedOSImages).To(HaveKeyWithValue(osImageName, osImage))
-				Expect(r.cache.tkrsShippingOSImage[osImageName]).To(HaveKeyWithValue(tkrName, tkr))
+	Context("Add()", func() {
+		It("should not matter if OSImages or TKRs are added first", func() {
+			r1 := NewResolver()
+			for _, osImage := range osImages {
+				r1.Add(osImage)
 			}
-		}
-		for osImageName, osImage := range osImages {
-			Expect(r.cache.osImages).To(HaveKeyWithValue(osImageName, osImage))
-			Expect(r.cache.tkrsShippingOSImage).To(HaveKey(osImageName))
-			shippingTKRs := r.cache.tkrsShippingOSImage[osImageName]
-			Expect(shippingTKRs).ToNot(BeNil())
-
-			for tkrName, tkr := range shippingTKRs {
-				Expect(tkrName).ToNot(BeEmpty())
-				Expect(tkr).ToNot(BeNil())
-				Expect(tkr).To(Equal(r.cache.tkrs[tkrName]))
-				Expect(r.cache.osImagesShippedByTKR[tkrName]).To(HaveKeyWithValue(osImageName, osImage))
+			for _, tkr := range tkrs {
+				r1.Add(tkr)
 			}
-		}
+			r1.Add(someOtherObject)
+
+			Expect(r1.cache.tkrs).To(Equal(r.cache.tkrs))
+			Expect(r1.cache.osImages).To(Equal(r.cache.osImages))
+			Expect(r1.cache.osImagesShippedByTKR).To(Equal(r.cache.osImagesShippedByTKR))
+			Expect(r1.cache.tkrsShippingOSImage).To(Equal(r.cache.tkrsShippingOSImage))
+		})
+
+		It("should add TKRs and OSImages to the cache", func() {
+			for tkrName, tkr := range tkrs {
+				Expect(r.cache.tkrs).To(HaveKeyWithValue(tkrName, tkr))
+				Expect(r.cache.osImagesShippedByTKR).To(HaveKey(tkrName))
+				shippedOSImages := r.cache.osImagesShippedByTKR[tkrName]
+				Expect(shippedOSImages).ToNot(BeNil())
+
+				for _, osImageRef := range tkr.Spec.OSImages {
+					osImageName := osImageRef.Name
+					osImage := r.cache.osImages[osImageName]
+					Expect(osImageName).ToNot(BeEmpty())
+					Expect(osImage).ToNot(BeNil())
+
+					Expect(shippedOSImages).To(HaveKeyWithValue(osImageName, osImage))
+					Expect(r.cache.tkrsShippingOSImage[osImageName]).To(HaveKeyWithValue(tkrName, tkr))
+				}
+			}
+			for osImageName, osImage := range osImages {
+				Expect(r.cache.osImages).To(HaveKeyWithValue(osImageName, osImage))
+				Expect(r.cache.tkrsShippingOSImage).To(HaveKey(osImageName))
+				shippingTKRs := r.cache.tkrsShippingOSImage[osImageName]
+				Expect(shippingTKRs).ToNot(BeNil())
+
+				for tkrName, tkr := range shippingTKRs {
+					Expect(tkrName).ToNot(BeEmpty())
+					Expect(tkr).ToNot(BeNil())
+					Expect(tkr).To(Equal(r.cache.tkrs[tkrName]))
+					Expect(r.cache.osImagesShippedByTKR[tkrName]).To(HaveKeyWithValue(osImageName, osImage))
+				}
+			}
+		})
+
+		It("should not add other things to the cache", func() {
+			Expect(r.cache.tkrs).ToNot(ContainElement(someOtherObject))
+		})
+
+		When("adding objects with DeletionTimestamp set", func() {
+			var (
+				tkrSubset     data.TKRs
+				osImageSubset data.OSImages
+			)
+
+			BeforeEach(func() {
+				tkrSubset = randSubsetOfTKRs(tkrs)
+				osImageSubset = randSubsetOfOSImages(osImages)
+
+				for _, tkr := range tkrSubset {
+					Expect(r.cache.tkrs).To(HaveKeyWithValue(tkr.Name, tkr))
+				}
+				for _, osImage := range osImageSubset {
+					Expect(r.cache.osImages).To(HaveKeyWithValue(osImage.Name, osImage))
+				}
+			})
+
+			It("should remove them from the cache", func() {
+				for _, tkr := range tkrSubset {
+					tkr.DeletionTimestamp = &metav1.Time{Time: time.Now()}
+					r.Add(tkr)
+				}
+				for _, osImage := range osImageSubset {
+					osImage.DeletionTimestamp = &metav1.Time{Time: time.Now()}
+					r.Add(osImage)
+				}
+
+				for _, tkr := range tkrSubset {
+					Expect(r.cache.tkrs).ToNot(HaveKey(tkr.Name))
+					Expect(r.cache.osImagesShippedByTKR).ToNot(HaveKey(tkr.Name))
+				}
+				for _, osImage := range osImageSubset {
+					Expect(r.cache.osImages).ToNot(HaveKey(osImage.Name))
+					Expect(r.cache.tkrsShippingOSImage).ToNot(HaveKey(osImage.Name))
+				}
+			})
+		})
 	})
 
-	It("should not add other things to the cache", func() {
-		Expect(r.cache.tkrs).ToNot(ContainElement(someOtherObject))
-	})
-
-	When("adding objects with DeletionTimestamp set", func() {
+	Context("Remove()", func() {
 		var (
 			tkrSubset     data.TKRs
 			osImageSubset data.OSImages
@@ -174,12 +215,10 @@ var _ = Describe("Add()", func() {
 
 		It("should remove them from the cache", func() {
 			for _, tkr := range tkrSubset {
-				tkr.DeletionTimestamp = &metav1.Time{Time: time.Now()}
-				r.Add(tkr)
+				r.Remove(tkr)
 			}
 			for _, osImage := range osImageSubset {
-				osImage.DeletionTimestamp = &metav1.Time{Time: time.Now()}
-				r.Add(osImage)
+				r.Remove(osImage)
 			}
 
 			for _, tkr := range tkrSubset {
@@ -192,6 +231,7 @@ var _ = Describe("Add()", func() {
 			}
 		})
 	})
+
 })
 
 var _ = Describe("normalize(query)", func() {
