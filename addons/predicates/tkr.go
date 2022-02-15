@@ -4,6 +4,7 @@
 package predicates
 
 import (
+	"reflect"
 	"strings"
 
 	"github.com/go-logr/logr"
@@ -41,16 +42,21 @@ func ClusterHasLabel(label string, logger logr.Logger) predicate.Funcs {
 	}
 }
 
+// processIfClusterHasLabel determines if the input object is a cluster with a non-empty
+// value for the specified label. For other input object types, it returns true
 func processIfClusterHasLabel(label string, obj client.Object, logger logr.Logger) bool {
 	kind := obj.GetObjectKind().GroupVersionKind().Kind
-	cluster := &clusterapiv1beta1.Cluster{}
+	clusterKind := reflect.TypeOf(clusterapiv1beta1.Cluster{}).Name()
 
-	if kind == "" || kind != cluster.Kind {
+	if kind != clusterKind {
 		return true
 	}
 
-	if _, ok := obj.GetLabels()[label]; ok {
-		return true
+	labels := obj.GetLabels()
+	if labels != nil {
+		if l, ok := labels[label]; ok && l != "" {
+			return true
+		}
 	}
 
 	log := logger.WithValues("namespace", obj.GetNamespace(), strings.ToLower(kind), obj.GetName())
