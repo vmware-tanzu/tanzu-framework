@@ -6,12 +6,13 @@ import AppServices from 'src/app/shared/service/appServices';
 import { NodeType } from '../../wizard/shared/constants/wizard.constants';
 import { IpFamilyEnum, PROVIDERS, Providers } from '../../../../shared/constants/app.constants';
 import { KUBE_VIP, NSX_ADVANCED_LOAD_BALANCER } from '../../wizard/shared/components/steps/load-balancer/load-balancer-step.component';
+import { NodeSettingStepDirective } from '../../wizard/shared/components/steps/node-setting-step/node-setting-step.component';
+import { NodeSettingField } from '../../wizard/shared/components/steps/node-setting-step/node-setting-step.fieldmapping';
 import { StepMapping } from '../../wizard/shared/field-mapping/FieldMapping';
 import { TanzuEventType } from 'src/app/shared/service/Messenger';
 import { ValidationService } from '../../wizard/shared/validation/validation.service';
 import { VsphereField, VsphereNodeTypes } from '../vsphere-wizard.constants';
 import { VsphereNodeSettingFieldMappings } from './node-setting-step.fieldmapping';
-import { NodeSettingStepDirective } from '../../wizard/shared/components/steps/node-setting-step/node-setting-step.component';
 
 @Component({
     selector: 'app-node-setting-step',
@@ -29,9 +30,11 @@ export class NodeSettingStepComponent extends NodeSettingStepDirective<NodeType>
     }
 
     protected createStepMapping(): StepMapping {
-        const commonStepMapping = super.createStepMapping();
-        // We take the inherited field mappings and add our specific vSphere field mappings
-        return { fieldMappings: [...commonStepMapping.fieldMappings, ...VsphereNodeSettingFieldMappings] };
+        const result = AppServices.fieldMapUtilities.cloneStepMapping(super.createStepMapping());
+        // We take the inherited field mappings and insert our specific vSphere field mappings
+        AppServices.fieldMapUtilities.insertFieldMappingsAfter(result, NodeSettingField.WORKER_NODE_INSTANCE_TYPE,
+            VsphereNodeSettingFieldMappings);
+        return result;
     }
 
     protected listenToEvents() {

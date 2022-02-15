@@ -113,6 +113,9 @@ export class VpcStepComponent extends StepFormDirective implements OnInit {
     private onFetchedVpcs(vpcs: Array<Vpc>) {
         this.existingVpcs = vpcs;
         this.loadingExistingVpcs = false;
+        if (this.formGroup.get(AwsField.VPC_TYPE).value === VpcType.EXISTING) {
+            this.setExistingVpcValidators();
+        }
     }
 
     onNonInternetFacingVPCChange(checked: boolean) {
@@ -148,8 +151,10 @@ export class VpcStepComponent extends StepFormDirective implements OnInit {
     }
 
     setExistingVpcValidators() {
-        this.formGroup.get(AwsField.VPC_EXISTING_ID).setValidators([Validators.required]);
-        this.formGroup.get(AwsField.VPC_EXISTING_ID).updateValueAndValidity();
+        if (this.existingVpcs.length > 0) {
+            this.formGroup.get(AwsField.VPC_EXISTING_ID).setValidators([Validators.required]);
+            this.formGroup.get(AwsField.VPC_EXISTING_ID).updateValueAndValidity();
+        }
     }
 
     /**

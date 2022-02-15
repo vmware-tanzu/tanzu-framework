@@ -14,6 +14,7 @@ export interface FieldMapping {
 
     backingObject?: BackingObjectMap,   // data for using backing object (see notes)
     defaultValue?: any,              // default value to initialize with
+    deactivated?: boolean,           // set true if field is not used, as with worker instance type when in standalone mode
     displayOnly?: boolean,           // do not auto-build/store/restore this control; value is "manually" stored and displayed to the user
     doNotAutoRestore?: boolean,      // do not auto-restore the stored value to this field (field is usually set by change event)
     doNotAutoSave?: boolean,         // do not save this field when saving the entire mapping (field may be "manually" saved by step)

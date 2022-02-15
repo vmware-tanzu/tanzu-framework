@@ -6,14 +6,40 @@ import AppServices from '../../../../../shared/service/appServices';
 import { FieldMapping, StepMapping } from './FieldMapping';
 import { managementClusterPlugin } from '../constants/wizard.constants';
 import { ValidationService } from '../validation/validation.service';
+import { Cloneable } from '../utils/cloneable';
+import { VsphereForm } from '../../../vsphere-wizard/vsphere-wizard.constants';
 
 @Injectable()
 export class FieldMapUtilities {
     constructor(private validationService: ValidationService) {}
 
+    cloneStepMapping(stepMapping: StepMapping): StepMapping {
+        return Cloneable.deepCopy<StepMapping>(stepMapping);
+    }
+
+    // inserts the given field mappings into stepMapping.fieldMappings after the given field; returns false if field not found
+    // However, if field is empty (null, undefined or blank) mappings are inserted at beginning
+    insertFieldMappingsAfter(stepMapping: StepMapping, field: string, mappings: FieldMapping[]): boolean {
+        let index = -1;
+
+        if (field && field.length) {
+            index = stepMapping.fieldMappings.findIndex(fieldMapping => fieldMapping.name === field);
+            if (index < 0) {
+                console.error('insertFieldMappingsAfter() is unable to find field ' + field + ' in provided stepMapping object');
+                return false;
+            }
+        }
+        // Note: we increment index before inserting because we're inserting AFTER
+        mappings.forEach(newFieldMapping => stepMapping.fieldMappings.splice(++index, 0, newFieldMapping));
+    }
+
+    getActiveFieldMappings(stepMapping: StepMapping): FieldMapping[] {
+        return stepMapping.fieldMappings.filter(fieldMapping => !fieldMapping.deactivated);
+    }
+
     // getLabeledFieldsWithStoredData() is called to determine what fields to display on confirmation page
     getLabeledFieldsWithStoredData(wizard, step: string, stepMapping: StepMapping): string[] {
-        const result = stepMapping.fieldMappings
+        const result = this.getActiveFieldMappings(stepMapping)
             .filter(fieldMapping => fieldMapping.label)
             .filter(fieldMapping => AppServices.userDataService.hasStoredData({wizard, step, field: fieldMapping.name}))
             .reduce<string[]>((accumulator, fieldMapping) => {
@@ -24,7 +50,8 @@ export class FieldMapUtilities {
 
     // returns a Map of fieldName => labels; the map is offered to HTML pages so they can use the labels, and for confirmation page
     getFieldLabelMap(stepMapping: StepMapping): Map<string, string> {
-        return stepMapping.fieldMappings.filter(fieldMapping => fieldMapping.label)
+        return this.getActiveFieldMappings(stepMapping)
+            .filter(fieldMapping => fieldMapping.label)
             .reduce<Map<string, string>>((accumulator, fieldMapping) => {
                 accumulator[fieldMapping.name] = fieldMapping.label;
                 return accumulator;
@@ -40,11 +67,11 @@ export class FieldMapUtilities {
     }
 
     getFieldMappingsToRestore(stepMapping: StepMapping): FieldMapping[] {
-        return stepMapping.fieldMappings.filter(fieldMapping => this.shouldRestoreWithStoredValue(fieldMapping));
+        return this.getActiveFieldMappings(stepMapping).filter(fieldMapping => this.shouldRestoreWithStoredValue(fieldMapping));
     }
 
     getPrimaryTriggerMappingsToRestore(stepMapping: StepMapping): FieldMapping[] {
-        return stepMapping.fieldMappings.filter(fieldMapping => fieldMapping.primaryTrigger);
+        return this.getActiveFieldMappings(stepMapping).filter(fieldMapping => fieldMapping.primaryTrigger);
     }
 
     // The control's initial value should be: the savedValue if there is one (and the mapping said to use it), or
@@ -64,7 +91,7 @@ export class FieldMapUtilities {
     }
 
     shouldAutoSave(fieldMapping: FieldMapping) {
-        return !fieldMapping.doNotAutoSave && !fieldMapping.displayOnly && !fieldMapping.neverStore &&
+        return !fieldMapping.deactivated && !fieldMapping.doNotAutoSave && !fieldMapping.displayOnly && !fieldMapping.neverStore &&
             (!fieldMapping.featureFlag || this.isFeatureEnabled(fieldMapping.featureFlag))
     }
 
@@ -76,8 +103,8 @@ export class FieldMapUtilities {
     // the backend-data-arrived event is then responsible for setting the field's value
     // See FieldMapping.ts for a lengthier explanation of the meaning (and expected usage) of these attributes
     private shouldInitializeWithStoredValue(fieldMapping: FieldMapping): boolean {
-        return !fieldMapping.primaryTrigger && !fieldMapping.doNotAutoRestore && !fieldMapping.requiresBackendData &&
-            !fieldMapping.neverStore;
+        return !fieldMapping.deactivated && !fieldMapping.primaryTrigger && !fieldMapping.doNotAutoRestore &&
+            !fieldMapping.requiresBackendData && !fieldMapping.neverStore;
     }
 
     // This is used primarily in the case where a file was imported and a step wants to use the data to populate the relevant fields
@@ -88,7 +115,7 @@ export class FieldMapUtilities {
     // the primaryTrigger field uses any of the other fields' values,
     // (4) the field is not used due to a feature flag
     private shouldRestoreWithStoredValue(fieldMapping: FieldMapping): boolean {
-        return !fieldMapping.doNotAutoRestore && !fieldMapping.neverStore && !fieldMapping.primaryTrigger &&
+        return !fieldMapping.deactivated && !fieldMapping.doNotAutoRestore && !fieldMapping.neverStore && !fieldMapping.primaryTrigger &&
             this.passesFeatureFlagFilter(fieldMapping);
     }
 
@@ -113,6 +140,9 @@ export class FieldMapUtilities {
     }
 
     validateFieldMapping(formName: string, fieldMapping: FieldMapping): boolean {
+        if (fieldMapping.deactivated) {
+            return true;
+        }
         if (fieldMapping.isBoolean && fieldMapping.required) {
             return this.consoleInvalidFieldMapping(formName, fieldMapping.name, 'field cannot be required AND boolean');
         }

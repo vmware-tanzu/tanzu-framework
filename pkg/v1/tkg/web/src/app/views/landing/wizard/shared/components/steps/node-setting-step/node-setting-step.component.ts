@@ -3,7 +3,7 @@ import { Directive, OnInit } from '@angular/core';
 import { ClusterPlan } from '../../../constants/wizard.constants';
 import { StepMapping } from '../../../field-mapping/FieldMapping';
 import AppServices from '../../../../../../../shared/service/appServices';
-import { NodeSettingField, NodeSettingStandaloneStepMapping, NodeSettingStepMapping } from './node-setting-step.fieldmapping';
+import { NodeSettingField, NodeSettingStepMapping } from './node-setting-step.fieldmapping';
 import { Validators } from '@angular/forms';
 import { ValidationService } from '../../../validation/validation.service';
 
@@ -120,7 +120,7 @@ export abstract class NodeSettingStepDirective<NODEINSTANCE> extends StepFormDir
             valueToUse = this.getKeyFromNodeInstance(this.nodeTypes[0]);
         } else {
             const existingValue = this.formGroup.get(NodeSettingField.INSTANCE_TYPE_PROD).value;
-            valueToUse = this.getStoredValue(NodeSettingField.INSTANCE_TYPE_PROD, existingValue);
+            valueToUse = this.getStoredValue(NodeSettingField.INSTANCE_TYPE_PROD, this.supplyStepMapping(), existingValue);
         }
         this.resurrectFieldWithStoredValue(NodeSettingField.INSTANCE_TYPE_PROD, this.supplyStepMapping(),
             [Validators.required], valueToUse);
@@ -128,9 +128,11 @@ export abstract class NodeSettingStepDirective<NODEINSTANCE> extends StepFormDir
     }
 
     private createDefaultStepMapping(): StepMapping {
-        // SHIMON TODO: clone NodeSettingStepMapping
-        const stepMapping = AppServices.appDataService.isModeClusterStandalone() ? NodeSettingStandaloneStepMapping
-            : NodeSettingStepMapping;
+        const stepMapping = AppServices.fieldMapUtilities.cloneStepMapping(NodeSettingStepMapping);
+        // if we're in standalone mode, deactivate the worker node instance field mapping (because it isn't used)
+        const workerInstanceMapping =
+            AppServices.fieldMapUtilities.getFieldMapping(NodeSettingField.WORKER_NODE_INSTANCE_TYPE, stepMapping);
+        workerInstanceMapping.deactivated = AppServices.appDataService.isModeClusterStandalone();
         // dynamically modify the cluster field mapping
         const clusterNameMapping = AppServices.fieldMapUtilities.getFieldMapping(NodeSettingField.CLUSTER_NAME, stepMapping);
         clusterNameMapping.label = this.createClusterNameLabel();

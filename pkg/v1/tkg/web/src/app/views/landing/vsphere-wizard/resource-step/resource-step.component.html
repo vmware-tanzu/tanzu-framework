@@ -39,7 +39,7 @@
         <div class="clr-col-6">
            <clr-datalist-container>
                 <label i18n="vm folder label" class="clr-col-lg-12 clr-col-12">
-                    VM FOLDER
+                    {{htmlFieldLabels['vmFolder']}}
                     <clr-tooltip>
                         <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                         <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
@@ -65,7 +65,7 @@
         <div class="clr-col-6">
             <clr-datalist-container>
                 <label i18n="datastore label" class="clr-col-lg-12 clr-col-12">
-                    DATASTORE
+                    {{htmlFieldLabels['datastore']}}
                     <clr-tooltip>
                         <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                         <clr-tooltip-content clrPosition="top-left" clrSize="lg" *clrIfOpen>
@@ -91,7 +91,7 @@
     <div class="clr-row">
         <clr-input-container>
             <label i18n="resource tree label">
-                CLUSTERS, HOSTS, AND RESOURCE POOLS
+                {{htmlFieldLabels['resourcePool']}}
                 <clr-tooltip>
                     <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                     <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>

@@ -6,7 +6,7 @@ import { FormUtils } from '../../views/landing/wizard/shared/utils/form-utils';
 
 export class UserDataFormService {
     storeFromMapping(wizard, step: string, stepMapping: StepMapping, formGroup: FormGroup) {
-        stepMapping.fieldMappings.forEach( fieldMapping => {
+        AppServices.fieldMapUtilities.getActiveFieldMappings(stepMapping).forEach( fieldMapping => {
             if (AppServices.fieldMapUtilities.shouldAutoSave(fieldMapping)) {
                 this.storeFromFieldMapping(wizard, step, fieldMapping, formGroup);
             }
@@ -67,7 +67,7 @@ export class UserDataFormService {
     }
 
     buildForm(formGroup: FormGroup, wizard, step: string, stepMapping: StepMapping) {
-        stepMapping.fieldMappings.forEach(fieldMapping => {
+        AppServices.fieldMapUtilities.getActiveFieldMappings(stepMapping).forEach(fieldMapping => {
             if (this.shouldBuildField(fieldMapping)) {
                 this.buildFormField(formGroup, wizard, step, fieldMapping);
             } else if (fieldMapping.hasNoDomControl) {
