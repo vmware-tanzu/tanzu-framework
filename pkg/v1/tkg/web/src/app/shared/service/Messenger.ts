@@ -60,6 +60,7 @@ export enum TanzuEventType {
     // APP
     BRANDING_CHANGED,
     STEP_COMPLETED,
+    STEP_STARTED,
     STEP_DESCRIPTION_CHANGE,
 }
 
@@ -71,6 +72,11 @@ export interface StepDescriptionChangePayload {
 }
 // The payload structure expected on a STEP_COMPLETED event
 export interface StepCompletedPayload {
+    wizard: string,
+    step: string,
+}
+// The payload structure expected on a STEP_STARTED event
+export interface StepStartedPayload {
     wizard: string,
     step: string,
 }

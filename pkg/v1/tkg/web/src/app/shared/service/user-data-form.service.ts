@@ -121,7 +121,7 @@ export class UserDataFormService {
             AppServices.fieldMapUtilities.passesFeatureFlagFilter(fieldMapping);
     }
 
-    restoreField(identifier: UserDataIdentifier, fieldMapping: FieldMapping, formGroup: FormGroup, values?: string[],
+    restoreField(identifier: UserDataIdentifier, fieldMapping: FieldMapping, formGroup: FormGroup, values?: any[],
                  options?: { onlySelf?: boolean; emitEvent?: boolean }) {
         let valueToUse;
         if (values && values.length === 1) {
@@ -146,7 +146,11 @@ export class UserDataFormService {
             console.error('restoreField(): no DOM control: "' + identifier.wizard + '.' + identifier.step + '.' + identifier.field + '"');
             return;
         }
-        control.setValue(valueToUse, options);
+
+        // This setTimeout() is a hack to avoid timing issues in the DOM
+        setTimeout(() => {
+            control.setValue(valueToUse, options);
+        });
     }
 
     // storeBackingObject expects to encounter an OBJECT backing the listbox and will use fieldDisplay of that object for the display

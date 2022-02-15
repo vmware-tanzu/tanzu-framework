@@ -21,6 +21,8 @@ export class VpcStepComponent extends StepFormDirective implements OnInit {
     defaultVpcHasChanged: boolean = false;
     existingVpcs: Array<Vpc> = [];
     loadingExistingVpcs: boolean = false;
+    private curVpcType;
+    private curVpcId;
 
     defaultVpcAddress: string = '10.0.0.0/16';
 
@@ -28,21 +30,34 @@ export class VpcStepComponent extends StepFormDirective implements OnInit {
         super();
     }
 
+    private newVpcTypeIsChangedValue(newVpcType: VpcType): boolean {
+        // we want to avoid detecting a change if the new VPC type is '' and the old is undefined
+        if (!newVpcType && !this.curVpcType) {
+            return false;
+        }
+        return newVpcType !== this.curVpcType;
+    }
+
+    private newVpcIdIsChangedValue(newVpcId: string): boolean {
+        // we want to avoid detecting a change if the new VPC id is '' and the old is undefined
+        if (!newVpcId && !this.curVpcId) {
+            return false;
+        }
+        return newVpcId !== this.curVpcId;
+    }
+
     private onVpcTypeChange(newVpcType: VpcType) {
+        if (!this.newVpcTypeIsChangedValue(newVpcType)) {
+            return;
+        }
+        this.curVpcType = newVpcType;
+
         const existingVpcControl = this.formGroup.get(AwsField.VPC_EXISTING_ID);
         const existingVpcCidrControl = this.formGroup.get(AwsField.VPC_EXISTING_CIDR);
         if (newVpcType === VpcType.EXISTING) {
-            AppServices.messenger.publish({
-                type: TanzuEventType.AWS_VPC_TYPE_CHANGED,
-                payload: { vpcType: VpcType.EXISTING.toString() }
-            });
             if (this.existingVpcs) {
-                if (this.existingVpcs.length === 1) {
-                    existingVpcControl.setValue(this.existingVpcs[0].id);
-                    existingVpcCidrControl.setValue(this.existingVpcs[0].cidr);
-                } else {
-                    this.setFieldWithStoredValue(AwsField.VPC_EXISTING_ID, AwsVpcStepMapping);
-                }
+                const possibleVpcIds = this.existingVpcs.map<string>(vpc => vpc.id);
+                this.restoreField(AwsField.VPC_EXISTING_ID, AwsVpcStepMapping, possibleVpcIds);
             }
             this.formGroup.get(AwsField.VPC_NEW_CIDR).clearValidators();
             this.clearControlValue(AwsField.VPC_NEW_CIDR);
@@ -55,16 +70,15 @@ export class VpcStepComponent extends StepFormDirective implements OnInit {
             existingVpcCidrControl.setValue('');
             existingVpcCidrControl.clearValidators();
             existingVpcCidrControl.updateValueAndValidity();
-            this.clearFieldSavedData(AwsField.VPC_EXISTING_CIDR);
-            this.clearFieldSavedData(AwsField.VPC_EXISTING_ID);
             this.setNewVpcValidators();
-            AppServices.messenger.publish({
-                type: TanzuEventType.AWS_VPC_TYPE_CHANGED,
-                payload: { vpcType: VpcType.NEW.toString() }
-            });
         }
+        AppServices.messenger.publish({
+            type: TanzuEventType.AWS_VPC_TYPE_CHANGED,
+            payload: { vpcType: newVpcType }
+        });
         this.triggerStepDescriptionChange();
     }
+
     ngOnInit() {
         super.ngOnInit();
         AppServices.userDataFormService.buildForm(this.formGroup, this.wizardName, this.formName, AwsVpcStepMapping);
@@ -100,22 +114,17 @@ export class VpcStepComponent extends StepFormDirective implements OnInit {
 
         AppServices.dataServiceRegistrar.stepSubscribe<Vpc>(this, TanzuEventType.AWS_GET_EXISTING_VPCS, this.onFetchedVpcs.bind(this));
 
-        // init vpc type to new
-        AppServices.messenger.publish({
-            type: TanzuEventType.AWS_VPC_TYPE_CHANGED,
-            payload: { vpcType: VpcType.NEW.toString() }
-        });
         this.registerOnValueChange(AwsField.VPC_NON_INTERNET_FACING, this.onNonInternetFacingVPCChange.bind(this));
         this.registerOnValueChange(AwsField.VPC_EXISTING_ID, this.onChangeExistingVpc.bind(this));
+    }
+
+    protected onStepStarted() {
         this.chooseInitialVpcType();
     }
 
     private onFetchedVpcs(vpcs: Array<Vpc>) {
         this.existingVpcs = vpcs;
         this.loadingExistingVpcs = false;
-        if (this.formGroup.get(AwsField.VPC_TYPE).value === VpcType.EXISTING) {
-            this.setExistingVpcValidators();
-        }
     }
 
     onNonInternetFacingVPCChange(checked: boolean) {
@@ -130,7 +139,8 @@ export class VpcStepComponent extends StepFormDirective implements OnInit {
             this.setNewVpcValidators();
         } else {
             this.formGroup.get(AwsField.VPC_TYPE).setValue(VpcType.EXISTING);
-            this.setExistingVpcValidators();
+            const possibleVpcIds = this.existingVpcs.map<string>(vpc => vpc.id);
+            this.restoreField(AwsField.VPC_EXISTING_ID, AwsVpcStepMapping, possibleVpcIds);
         }
     }
 
@@ -164,9 +174,14 @@ export class VpcStepComponent extends StepFormDirective implements OnInit {
      * @param existingVpcId
      */
     onChangeExistingVpc(existingVpcId: any) {
+        if (!this.newVpcIdIsChangedValue(existingVpcId)) {
+            return;
+        }
+        this.curVpcId = existingVpcId;
+
         const existingVpc: Array<Vpc> = this.existingVpcs.filter((vpc) => { return vpc.id === existingVpcId; });
-        const value = existingVpc && existingVpc.length > 0 ? existingVpc[0].cidr : '';
-        this.setControlValueSafely(AwsField.VPC_EXISTING_CIDR, value);
+        const existingVpcCidr = existingVpc && existingVpc.length > 0 ? existingVpc[0].cidr : '';
+        this.setControlValueSafely(AwsField.VPC_EXISTING_CIDR, existingVpcCidr);
 
         AppServices.messenger.publish({
             type: TanzuEventType.AWS_GET_SUBNETS,

@@ -4,7 +4,7 @@ import { StepMapping } from '../../wizard/shared/field-mapping/FieldMapping';
 
 export const AwsVpcStepMapping: StepMapping = {
     fieldMappings: [
-        { name: AwsField.VPC_TYPE, required: true, defaultValue: VpcType.EXISTING, primaryTrigger: true },
+        { name: AwsField.VPC_TYPE, primaryTrigger: true },
         { name: AwsField.VPC_NEW_CIDR, label: 'VPC CIDR' },
         { name: AwsField.VPC_EXISTING_CIDR, label: 'VPC CIDR', doNotAutoRestore: true },
         { name: AwsField.VPC_EXISTING_ID, label: 'VPC ID', requiresBackendData: true },

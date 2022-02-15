@@ -51,9 +51,7 @@ export class VsphereNetworkStepComponent extends SharedNetworkStepComponent {
             if (this.vmNetworks.length === 1) {
                 this.getControl(VsphereField.NETWORK_NAME).setValue(this.vmNetworks[0]);
             } else {
-                const identifier = this.createUserDataIdentifier(VsphereField.NETWORK_NAME);
-                const fieldMapping = AppServices.fieldMapUtilities.getFieldMapping(VsphereField.NETWORK_NAME, this.stepMapping);
-                AppServices.userDataFormService.restoreField(identifier, fieldMapping, this.formGroup);
+                this.restoreField(VsphereField.NETWORK_NAME, this.supplyStepMapping());
             }
         }
     }

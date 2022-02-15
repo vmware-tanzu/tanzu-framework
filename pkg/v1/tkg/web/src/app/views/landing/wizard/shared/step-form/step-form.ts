@@ -78,6 +78,7 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
 
     ngOnInit(): void {
         this.getFormName();
+        this.subscribeToStepStartedEvents();
         this.subscribeToStepCompletedEvents();
 
         // set branding and cluster type on branding change for base wizard components
@@ -347,6 +348,18 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
         });
     }
 
+    private subscribeToStepStartedEvents() {
+        AppServices.messenger.subscribe<StepCompletedPayload>(TanzuEventType.STEP_STARTED, event => {
+            if (event.payload.wizard === this.wizardName && event.payload.step === this.formName) {
+                this.onStepStarted();
+            }
+        });
+    }
+
+    // Extending classes may want to override this
+    protected onStepStarted() {
+    }
+
     private onStepCompleted() {
         this.storeUserData();
     }
@@ -382,6 +395,12 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
 
     protected defaultLabels(stepMapping: StepMapping): Map<string, string> {
         return AppServices.fieldMapUtilities.getFieldLabelMap(stepMapping);
+    }
+
+    protected restoreField(field: string, stepMapping: StepMapping, values?: any[]) {
+        const identifier = this.createUserDataIdentifier(field);
+        const existingIdFieldMapping = AppServices.fieldMapUtilities.getFieldMapping(field, stepMapping);
+        AppServices.userDataFormService.restoreField(identifier, existingIdFieldMapping, this.formGroup, values);
     }
 
     // This method is designed to expose the protected unsubscribe field (from our base class) to allow its use in subscribing to pipes

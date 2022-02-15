@@ -29,7 +29,12 @@ import { SharedCeipStepComponent } from '../components/steps/ceip-step/ceip-step
 import { SharedIdentityStepComponent } from '../components/steps/identity-step/identity-step.component';
 import { SharedNetworkStepComponent } from '../components/steps/network-step/network-step.component';
 import { StepFormDirective } from '../step-form/step-form';
-import { StepCompletedPayload, StepDescriptionChangePayload, TanzuEvent, TanzuEventType } from './../../../../../shared/service/Messenger';
+import {
+    StepCompletedPayload,
+    StepDescriptionChangePayload,
+    StepStartedPayload,
+    TanzuEventType
+} from './../../../../../shared/service/Messenger';
 import { StepWrapperSetComponent } from '../step-wrapper/step-wrapper-set.component';
 
 // This interface describes a wizard that can register a step component
@@ -245,13 +250,14 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Wiz
      * and therefore it reuses its previous component and form states.
      */
     onNextStep(stepCompleted: string) {
+        this.broadcastStepComplete(this.supplyWizardName(), stepCompleted);
         if (stepCompleted === this.lastStep) {
             this.visitedLastStep = true;
         } else {
             const indexCompletedStep = this.stepData.findIndex(stepData => stepData.name === stepCompleted);
             this.setCurrentStep(this.stepData[indexCompletedStep + 1].name);
+            this.broadcastStepStarted(this.supplyWizardName(), this.currentStep);
         }
-        this.broadcastStepComplete(this.supplyWizardName(), stepCompleted);
         // TODO: we need to know that the last step has actually completed its recording of the data
         // NOTE: we do onWizardComplete EVERY time the user completes ANY step, if they have previously completed the wizard
         if (this.visitedLastStep) {
@@ -710,6 +716,14 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Wiz
             step: stepCompletedName,
         }
         AppServices.messenger.publish<StepCompletedPayload>( { type: TanzuEventType.STEP_COMPLETED, payload } );
+    }
+
+    private broadcastStepStarted(wizardName: string, stepStartedName: string) {
+        const payload: StepStartedPayload = {
+            wizard: wizardName,
+            step: stepStartedName,
+        }
+        AppServices.messenger.publish<StepStartedPayload>( { type: TanzuEventType.STEP_STARTED, payload } );
     }
 
     private defaultDisplayOrder(stepData: FormDataForHTML[]): string[] {

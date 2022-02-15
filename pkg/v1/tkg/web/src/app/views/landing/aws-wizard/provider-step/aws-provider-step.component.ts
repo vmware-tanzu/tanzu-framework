@@ -154,15 +154,11 @@ export class AwsProviderStepComponent extends StepFormDirective implements OnIni
     }
 
     private restoreRegion() {
-        const regionIdentifier = this.createUserDataIdentifier(AwsField.PROVIDER_REGION);
-        const regionFieldMapping = AppServices.fieldMapUtilities.getFieldMapping(AwsField.PROVIDER_REGION, AwsProviderStepMapping);
-        AppServices.userDataFormService.restoreField(regionIdentifier, regionFieldMapping, this.formGroup, this.regions);
+        this.restoreField(AwsField.PROVIDER_REGION, AwsProviderStepMapping, this.regions);
     }
 
     private restoreProfile() {
-        const profileIdentifier = this.createUserDataIdentifier(AwsField.PROVIDER_PROFILE_NAME);
-        const profileFieldMapping = AppServices.fieldMapUtilities.getFieldMapping(AwsField.PROVIDER_PROFILE_NAME, AwsProviderStepMapping);
-        AppServices.userDataFormService.restoreField(profileIdentifier, profileFieldMapping, this.formGroup, this.profileNames);
+        this.restoreField(AwsField.PROVIDER_PROFILE_NAME, AwsProviderStepMapping, this.profileNames);
     }
 
     private oneTimeCredentialsSelectedHandler() {
