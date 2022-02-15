@@ -131,6 +131,14 @@ export class NodeSettingStepComponent extends NodeSettingStepDirective<string> i
         return result;
     }
 
+    protected onProdInstanceTypeChange(prodNodeType: string) {
+        // AWS sets the worker instance in response to the AZ selection, not the prod instance type selection
+    }
+
+    protected onDevInstanceTypeChange(devNodeType: string) {
+        // AWS sets the worker instance in response to the AZ selection, not the dev instance type selection
+    }
+
     protected listenToEvents() {
         super.listenToEvents();
         AppServices.messenger.subscribe<boolean>(TanzuEventType.AWS_AIRGAPPED_VPC_CHANGE, event => {
@@ -365,6 +373,12 @@ export class NodeSettingStepComponent extends NodeSettingStepDirective<string> i
                         this.azNodeTypes[azField] = nodeTypes?.sort();
                         if (nodeTypes.length === 1) {
                             this.setControlValueSafely(workerNodeField, nodeTypes[0]);
+                        } else {
+                            // we default to the same instance type as the management cluster
+                            const mgmtClusterInstanceType = this.isClusterPlanProd ? this.prodInstanceTypeValue : this.devInstanceTypeValue;
+                            // ...but the stored value has precedence
+                            const instanceType = this.getStoredValue(workerNodeField, this.supplyStepMapping(), mgmtClusterInstanceType);
+                            this.setControlValueSafely(workerNodeField, instanceType);
                         }
                     }),
                     ((err) => {
