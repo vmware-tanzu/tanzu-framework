@@ -30,7 +30,7 @@ export enum IdentityField {
 export const IdentityStepMapping: StepMapping = {
     fieldMappings: [
         { name: IdentityField.IDENTITY_TYPE, defaultValue: IdentityManagementType.OIDC, label: 'IDENTITY PROVIDER TYPE' },
-        { name: IdentityField.IDM_SETTINGS, isBoolean: true, defaultValue: true, label: 'ENABLE IDENTITY MANAGEMENT SETTINGS' },
+        { name: IdentityField.IDM_SETTINGS, isBoolean: true, defaultValue: false, label: 'ENABLE IDENTITY MANAGEMENT SETTINGS' },
         { name: IdentityField.ISSUER_URL, label: 'ISSUER URL' },
         { name: IdentityField.CLIENT_ID, label: 'CLIENT ID' },
         { name: IdentityField.CLIENT_SECRET, mask: true, label: 'CLIENT SECRET' },

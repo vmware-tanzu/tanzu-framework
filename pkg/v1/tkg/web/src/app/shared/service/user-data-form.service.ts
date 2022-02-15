@@ -121,14 +121,23 @@ export class UserDataFormService {
             AppServices.fieldMapUtilities.passesFeatureFlagFilter(fieldMapping);
     }
 
-    restoreField(identifier: UserDataIdentifier, fieldMapping: FieldMapping, formGroup: FormGroup,
+    restoreField(identifier: UserDataIdentifier, fieldMapping: FieldMapping, formGroup: FormGroup, values?: string[],
                  options?: { onlySelf?: boolean; emitEvent?: boolean }) {
-        const storedValue = AppServices.userDataService.retrieveStoredValue(identifier.wizard, identifier.step, fieldMapping);
-        if (storedValue === undefined || storedValue === null || fieldMapping.displayOnly) {
+        let valueToUse;
+        if (values && values.length === 1) {
+            valueToUse = values[0];
+        } else {
+            const storedValue = AppServices.userDataService.retrieveStoredValue(identifier.wizard, identifier.step, fieldMapping);
+            if (storedValue !== undefined && storedValue !== null) {
+                valueToUse = storedValue;
+            }
+        }
+        if (valueToUse === undefined || valueToUse === null) {
             return;
         }
+
         if (fieldMapping.restorer) {
-            fieldMapping.restorer(storedValue);
+            fieldMapping.restorer(valueToUse);
             return;
         }
 
@@ -137,7 +146,7 @@ export class UserDataFormService {
             console.error('restoreField(): no DOM control: "' + identifier.wizard + '.' + identifier.step + '.' + identifier.field + '"');
             return;
         }
-        control.setValue(storedValue, options);
+        control.setValue(valueToUse, options);
     }
 
     // storeBackingObject expects to encounter an OBJECT backing the listbox and will use fieldDisplay of that object for the display

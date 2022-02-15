@@ -116,7 +116,7 @@ export class FieldMapUtilities {
     // (4) the field is not used due to a feature flag
     private shouldRestoreWithStoredValue(fieldMapping: FieldMapping): boolean {
         return !fieldMapping.deactivated && !fieldMapping.doNotAutoRestore && !fieldMapping.neverStore && !fieldMapping.primaryTrigger &&
-            this.passesFeatureFlagFilter(fieldMapping);
+            !fieldMapping.displayOnly && this.passesFeatureFlagFilter(fieldMapping);
     }
 
     passesFeatureFlagFilter(fieldMapping: FieldMapping): boolean {
