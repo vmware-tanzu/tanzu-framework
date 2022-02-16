@@ -261,6 +261,10 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 					}
 					return true
 				}, waitTimeout, pollingInterval).Should(BeTrue())
+				Expect(remotePkgi.Spec.PackageRef.RefName).To(Equal(pkg.Name))
+				Expect(len(remotePkgi.Spec.Values)).NotTo(BeZero())
+				Expect(remotePkgi.Spec.Values[0].SecretRef.Name).To(Equal(util.GenerateDataValueSecretName(cluster.Name,
+					util.GetPackageShortName(pkg.Name))))
 			})
 		})
 	})

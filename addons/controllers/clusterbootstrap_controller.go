@@ -197,7 +197,7 @@ func (r *ClusterBootstrapReconciler) reconcileNormal(cluster *clusterapiv1beta1.
 	corePackages = append(corePackages, clusterBootstrap.Spec.CNI, clusterBootstrap.Spec.CPI, clusterBootstrap.Spec.CSI)
 	for _, corePackage := range corePackages {
 		// The following nil check is redundant, we do not expect CNI, CPI, CSI to be nil and webhook should handle
-		// the validations against those fields. Having this nil check is mainly to allow local envtest could run when
+		// the validations against those fields. Having this nil check is mainly to allow local envtest run when
 		// any above component is missing.
 		if corePackage == nil {
 			continue
@@ -208,7 +208,7 @@ func (r *ClusterBootstrapReconciler) reconcileNormal(cluster *clusterapiv1beta1.
 		// all resources in parallel on remote cluster if there is performance issue from sequential ordering.
 		if err := r.createOrPatchAddonResourcesOnRemote(cluster, corePackage, remoteClient); err != nil {
 			// For core packages, we require all their creation or patching to succeed, so if error happens against any of the
-			// package, we return error and let the reconciler retry again.
+			// packages, we return error and let the reconciler retry again.
 			log.Error(err, fmt.Sprintf("unable to create or patch all the required resources for %s on cluster: %s/%s",
 				corePackage.RefName, cluster.Namespace, cluster.Name))
 			return ctrl.Result{}, err
@@ -232,8 +232,8 @@ func (r *ClusterBootstrapReconciler) reconcileNormal(cluster *clusterapiv1beta1.
 	return ctrl.Result{}, nil
 }
 
-// createOrPatchTanzuClusterBootstrapFromTemplate will get, clone or update a TanzuClusterBootstrap associated with a cluster
-// all linked secret refs and object refs are cloned into the same namespace as TanzuClusterBootstrap
+// createOrPatchClusterBootstrapFromTemplate will get, clone or update a ClusterBootstrap associated with a cluster
+// all linked secret refs and object refs are cloned into the same namespace as ClusterBootstrap
 func (r *ClusterBootstrapReconciler) createOrPatchClusterBootstrapFromTemplate(cluster *clusterapiv1beta1.Cluster,
 	log logr.Logger) (*runtanzuv1alpha3.ClusterBootstrap, error) {
 
@@ -320,7 +320,7 @@ func (r *ClusterBootstrapReconciler) createOrPatchClusterBootstrapFromTemplate(c
 }
 
 // createOrPatchKappPackageInstall contains the logic that create/update PackageInstall CR for kapp-controller on
-// mgmt cluster. The kapp-controller runs on mgmt cluster reconciles the PackageInstall CR and creates kapp-controller resources
+// mgmt cluster. The kapp-controller running on mgmt cluster reconciles the PackageInstall CR and creates kapp-controller resources
 // on remote workload cluster. This is required for a workload cluster and its corresponding package installations to be functional.
 func (r *ClusterBootstrapReconciler) createOrPatchKappPackageInstall(clusterBootstrap *runtanzuv1alpha3.ClusterBootstrap, cluster *clusterapiv1beta1.Cluster) error {
 	pkgi := &kapppkgiv1alpha1.PackageInstall{
@@ -431,7 +431,7 @@ func (r *ClusterBootstrapReconciler) createOrPatchPackageInstallOnRemote(cluster
 		}
 		remotePkgi.Spec.Values = []kapppkgiv1alpha1.PackageInstallValues{
 			{SecretRef: &kapppkgiv1alpha1.PackageInstallValuesSecretRef{
-				Name: remotePackageName},
+				Name: util.GenerateDataValueSecretName(cluster.Name, util.GetPackageShortName(cbPkg.RefName))},
 			},
 		}
 		return nil
@@ -537,6 +537,8 @@ func (r *ClusterBootstrapReconciler) createOrPatchAddonRoleOnRemote(cluster *clu
 	return nil
 }
 
+// createOrPatchAddonResourcesOnRemote creates or patches the resources for a cluster bootstrap package on remote workload
+// cluster. The resources are [Package CR, Secret for PackageInstall, PackageInstall CR].
 func (r *ClusterBootstrapReconciler) createOrPatchAddonResourcesOnRemote(cluster *clusterapiv1beta1.Cluster,
 	cbPkg *runtanzuv1alpha3.ClusterBootstrapPackage, clusterClient client.Client) error {
 
@@ -552,14 +554,13 @@ func (r *ClusterBootstrapReconciler) createOrPatchAddonResourcesOnRemote(cluster
 	remoteSecret, err := r.createOrPatchPackageInstallSecretOnRemote(cluster, cbPkg, clusterClient, r.Log)
 	// We expect there is NO error to create or patch the secret used for PackageInstall in a cluster.
 	if err != nil {
-		// Logging has been handled by createOrPatchPackageInstallSecret() already
+		// Logging has been handled by createOrPatchPackageInstallSecretOnRemote() already
 		return err
 	}
 	if remoteSecret == nil {
 		// The nil secret happens when tcbPkg.ValuesFrom is a ProviderRef and no data value secret for that provider is found
-		// on local cluster. This error occurs when handling additionalPackages. But it does not hurt to check nil here,
-		// and return error which let the reconciler handles the retry.
-		// The detailed logging has been handled by createOrPatchPackageInstallSecret().
+		// on local cluster. Return error here and let the reconciler handles the retry.
+		// The detailed logging has been handled by createOrPatchPackageInstallSecretOnRemote().
 		return fmt.Errorf("unable to create or patch the data value secret on cluster: %s/%s", cluster.Namespace, cluster.Name)
 	}
 	r.Log.Info(fmt.Sprintf("created secret for package %s on cluster %s/%s", remotePackage.Name, cluster.Namespace,
@@ -575,7 +576,7 @@ func (r *ClusterBootstrapReconciler) createOrPatchAddonResourcesOnRemote(cluster
 	return nil
 }
 
-// createOrPatchPackageInstallSecret creates or patches or the secret used for PackageInstall in a cluster
+// createOrPatchPackageInstallSecretOnRemote creates or patches the secret used for PackageInstall in a cluster
 func (r *ClusterBootstrapReconciler) createOrPatchPackageInstallSecretOnRemote(cluster *clusterapiv1beta1.Cluster,
 	pkg *runtanzuv1alpha3.ClusterBootstrapPackage, clusterClient client.Client, log logr.Logger) (*corev1.Secret, error) {
 
