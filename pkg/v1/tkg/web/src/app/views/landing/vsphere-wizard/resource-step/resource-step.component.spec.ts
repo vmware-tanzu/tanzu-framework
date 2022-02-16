@@ -75,7 +75,7 @@ describe('ResourceStepComponent', () => {
     });
 
     it('should retrieve resources when load resources: case 2', () => {
-        component.resetFieldsUponDCChange();
+        component.onDataCenterChange();
         expect(component.formGroup.get('resourcePool').value).toBeFalsy();
         expect(component.formGroup.get('datastore').value).toBeFalsy();
         expect(component.formGroup.get('vmFolder').value).toBeFalsy();

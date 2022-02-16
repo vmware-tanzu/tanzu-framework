@@ -5,7 +5,7 @@ import { IpFamilyEnum } from '../../../../shared/constants/app.constants';
 export const VsphereProviderStepFieldMapping: StepMapping = {
     fieldMappings: [
         { name: VsphereField.PROVIDER_CONNECTION_INSECURE, isBoolean: true, defaultValue: false, label: 'VSPHERE INSECURE CONNECTION' },
-        { name: VsphereField.PROVIDER_DATA_CENTER, required: true, label: 'DATACENTER', requiresBackendData: true },
+        { name: VsphereField.PROVIDER_DATA_CENTER, label: 'DATACENTER', requiresBackendData: true },
         { name: VsphereField.PROVIDER_IP_FAMILY, defaultValue: IpFamilyEnum.IPv4, featureFlag: 'vsphereIPv6', label: 'IP FAMILY' },
         { name: VsphereField.PROVIDER_SSH_KEY, required: true, label: 'SSH PUBLIC KEY' },
         { name: VsphereField.PROVIDER_SSH_KEY_FILE, doNotAutoSave: true },

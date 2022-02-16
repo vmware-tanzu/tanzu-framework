@@ -96,7 +96,7 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
         });
 
         this.formGroup.get(VsphereField.PROVIDER_DATA_CENTER).valueChanges.subscribe(data => {
-            this.dcOnChange(data)
+            this.onDataCenterChange(data)
         });
 
         if (this.enableIpv6) {
@@ -157,9 +157,9 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
         this.htmlFieldLabels = AppServices.fieldMapUtilities.getFieldLabelMap(VsphereProviderStepFieldMapping);
         this.storeDefaultLabels(VsphereProviderStepFieldMapping);
 
+        this.formGroup.get(VsphereField.PROVIDER_SSH_KEY).disable({ emitEvent: false});
         this.formGroup.get(VsphereField.PROVIDER_DATA_CENTER).disable({ emitEvent: false});
         this.datacenters = [];
-        this.formGroup.get(VsphereField.PROVIDER_SSH_KEY).disable({ emitEvent: false});
         this.customizeForm();
     }
 
@@ -171,9 +171,8 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
             this.connected = false;
             this.loadingState = ClrLoadingState.DEFAULT;
             this.formGroup.markAsPending(); // a temporary fix to ignore this.formGroup.statusChanges detection
-            this.clearControlValue(VsphereField.PROVIDER_DATA_CENTER);
             this.datacenters = [];
-            this.formGroup.get(VsphereField.PROVIDER_DATA_CENTER).disable();
+            this.disarmField(VsphereField.PROVIDER_DATA_CENTER);
             this.triggerStepDescriptionChange();
         } else {
             console.log('already disconnected so ignoring disconnect call (msg:' + consoleMsg + ')');
@@ -353,16 +352,7 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
     retrieveDatacenters() {
         this.apiClient.getVSphereDatacenters()
             .pipe(takeUntil(this.unsubscribe))
-            .subscribe((res) => {
-                this.datacenters = sortPaths(res, function (item) { return item.name; }, '/');
-                this.formGroup.get(VsphereField.PROVIDER_DATA_CENTER).enable();
-                this.formGroup.get(VsphereField.PROVIDER_SSH_KEY).enable();
-                const storedDataCenter = this.getStoredValue(VsphereField.PROVIDER_DATA_CENTER, VsphereProviderStepFieldMapping, '');
-                this.formGroup.get(VsphereField.PROVIDER_DATA_CENTER).setValue(storedDataCenter);
-                if (this.datacenters.length === 1) {
-                    this.formGroup.get(VsphereField.PROVIDER_DATA_CENTER).setValue(this.datacenters[0].name);
-                }
-            },
+            .subscribe((dcs) => this.onDataCentersRetrieved(dcs),
             (err) => {
                 const error = err.error.message || err.message || JSON.stringify(err);
                 this.errorNotification =
@@ -371,13 +361,28 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
         );
     }
 
+    private onDataCentersRetrieved(vSphereDatacenters: VSphereDatacenter[]) {
+        const sshKeyControl = this.getControl(VsphereField.PROVIDER_SSH_KEY);
+        sshKeyControl.enable();
+        sshKeyControl.updateValueAndValidity();
+
+        this.datacenters = sortPaths(vSphereDatacenters, function (item) { return item.name; }, '/');
+        const dataCenterControl = this.getControl(VsphereField.PROVIDER_DATA_CENTER);
+        dataCenterControl.enable();
+        const possibleDataCenterNames = this.datacenters.map<string>(dc => dc.name);
+        this.restoreField(VsphereField.PROVIDER_DATA_CENTER, VsphereProviderStepFieldMapping, possibleDataCenterNames);
+        // NOTE: seems odd to call updateValueAndValidity() before setValidators(), but seems only way to get correct behavior
+        dataCenterControl.updateValueAndValidity();
+        dataCenterControl.setValidators([Validators.required]);
+    }
+
     /**
-     * @method dcOnChange
+     * @method onDataCenterChange
      * helper method to emit datacenter selection value when changed
-     * triggers all subsequent vsphere API discovery calls dependant on datacenter moid
+     * triggers all subsequent vsphere API discovery calls dependent on datacenter moid
      * @param $event {string} datacenter moid value emitted from select change
      */
-    dcOnChange(nameDatacenter: string) {
+    private onDataCenterChange(nameDatacenter: string) {
         if (this.datacenters) {
             let dcMoid = '';
             const datacenter = this.datacenters.find(dc => dc.name === nameDatacenter);

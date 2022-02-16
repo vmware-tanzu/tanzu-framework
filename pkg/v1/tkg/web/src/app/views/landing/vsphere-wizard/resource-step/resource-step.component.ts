@@ -63,13 +63,12 @@ export class ResourceStepComponent extends StepFormDirective implements OnInit {
         this.registerDefaultFileImportedHandler(this.eventFileImported, VsphereResourceStepMapping);
         this.registerDefaultFileImportErrorHandler(this.eventFileImportError);
 
-        /**
-         * Whenever data center selection changes, reset the relevant fields
-        */
-        AppServices.messenger.subscribe(TanzuEventType.VSPHERE_DATACENTER_CHANGED, event => { this.resetFieldsUponDCChange(); },
-            this.unsubscribe);
-
+        this.listenToEvents();
         this.subscribeToServices();
+    }
+
+    private listenToEvents() {
+        AppServices.messenger.subscribe(TanzuEventType.VSPHERE_DATACENTER_CHANGED, this.onDataCenterChange.bind(this), this.unsubscribe);
     }
 
     loadResourceOptions() {
@@ -81,21 +80,14 @@ export class ResourceStepComponent extends StepFormDirective implements OnInit {
         this.retrieveVMFolders();
     }
 
-    // Reset the relevant fields upon data center change
-    resetFieldsUponDCChange() {
-        const fieldsToReset = [VsphereField.RESOURCE_POOL.toString(), VsphereField.RESOURCE_DATASTORE, VsphereField.RESOURCE_VMFOLDER];
+    // public only for testing
+    onDataCenterChange() {
         // NOTE: because the saved data values MAY be applicable to the just-chosen DC,
         // we try to set the fields to the saved value
-        if (this.hasSavedData()) {
-            for (const [key, control] of Object.entries(this.formGroup.controls)) {
-                if (fieldsToReset.includes(key)) {
-                    const savedValue = this.getStoredValue(key, VsphereResourceStepMapping, control.value);
-                    control.setValue(savedValue);
-                }
-            }
-        } else {
-            fieldsToReset.forEach(f => this.formGroup.get(f).setValue(""));
-        }
+        const fieldsToReset = [VsphereField.RESOURCE_POOL, VsphereField.RESOURCE_DATASTORE, VsphereField.RESOURCE_VMFOLDER];
+        fieldsToReset.forEach(field => {
+            this.setFieldWithStoredValue(field, VsphereResourceStepMapping, this.getFieldValue(field));
+        });
     }
 
     /**
