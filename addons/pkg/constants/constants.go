@@ -4,7 +4,12 @@
 // Package constants defines various constants used in the code.
 package constants
 
-import "time"
+import (
+	"reflect"
+	"time"
+
+	clusterapiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
+)
 
 const (
 	/* Addon constants section */
@@ -116,12 +121,12 @@ const (
 	// DiscoveryCacheInvalidateInterval is the interval for invalidating cache
 	DiscoveryCacheInvalidateInterval = time.Minute * 10
 
-	// ClusterKind is the Kind for cluster-api Cluster object
-	ClusterKind = "cluster"
-
 	// AntreaAddonName is the name of Antrea Addon Controller
 	AntreaAddonName = "antrea"
 
 	// InfrastructureRefDocker is the docker infrastructure
 	InfrastructureRefDocker = "DockerCluster"
 )
+
+// ClusterKind is the Kind for cluster-api Cluster object
+var ClusterKind = reflect.TypeOf(clusterapiv1beta1.Cluster{}).Name()

@@ -4,14 +4,14 @@
 package predicates
 
 import (
-	"reflect"
 	"strings"
 
 	"github.com/go-logr/logr"
-	clusterapiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/event"
 	"sigs.k8s.io/controller-runtime/pkg/predicate"
+
+	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
 )
 
 // TKR returns a predicate.Predicate that filters tkr
@@ -46,9 +46,8 @@ func ClusterHasLabel(label string, logger logr.Logger) predicate.Funcs {
 // value for the specified label. For other input object types, it returns true
 func processIfClusterHasLabel(label string, obj client.Object, logger logr.Logger) bool {
 	kind := obj.GetObjectKind().GroupVersionKind().Kind
-	clusterKind := reflect.TypeOf(clusterapiv1beta1.Cluster{}).Name()
 
-	if kind != clusterKind {
+	if kind != constants.ClusterKind {
 		return true
 	}
 

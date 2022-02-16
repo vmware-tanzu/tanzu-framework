@@ -75,16 +75,6 @@ var _ = Describe("Cluster Label Check", func() {
 			})
 		})
 
-		When("cluster label does not match the input label", func() {
-			BeforeEach(func() {
-				clusterObj.Labels = map[string]string{"otherLabel": testTKRLabel}
-				result = processIfClusterHasLabel(constants.TKRLabel, clusterObj, log)
-			})
-			It("should return false", func() {
-				Expect(result).To(BeFalse())
-			})
-		})
-
 		When("cluster labels be empty", func() {
 			BeforeEach(func() {
 				clusterObj.Labels = map[string]string{}
