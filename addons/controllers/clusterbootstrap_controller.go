@@ -36,6 +36,7 @@ import (
 
 	"github.com/go-logr/logr"
 
+	kappctrlv1alpha1 "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/kappctrl/v1alpha1"
 	kapppkgiv1alpha1 "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/packaging/v1alpha1"
 	kapppkgv1alpha1 "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apiserver/apis/datapackaging/v1alpha1"
 	versions "github.com/vmware-tanzu/carvel-vendir/pkg/vendir/versions/v1alpha1"
@@ -348,6 +349,15 @@ func (r *ClusterBootstrapReconciler) createOrPatchKappPackageInstall(clusterBoot
 			RefName: clusterBootstrap.Spec.Kapp.RefName,
 			VersionSelection: &versions.VersionSelectionSemver{
 				Prereleases: &versions.VersionSelectionSemverPrereleases{},
+			},
+		}
+		// Adding the cluster reference to PackageInstall spec to instruct kapp-controller where to deploy
+		// the underlying resources
+		clusterKubeconfigDetails := util.GetClusterKubeconfigSecretDetails(cluster)
+		pkgi.Spec.Cluster = &kappctrlv1alpha1.AppCluster{
+			KubeconfigSecretRef: &kappctrlv1alpha1.AppClusterKubeconfigSecretRef{
+				Name: clusterKubeconfigDetails.Name,
+				Key:  clusterKubeconfigDetails.Key,
 			},
 		}
 		pkgi.Spec.Values = []kapppkgiv1alpha1.PackageInstallValues{
