@@ -23,10 +23,10 @@ type Resolver struct {
 
 func NewResolver() *Resolver {
 	return &Resolver{cache: cache{
-		tkrs:                 data.TKRs{},
-		osImages:             data.OSImages{},
-		tkrsShippingOSImage:  map[string]data.TKRs{},
-		osImagesShippedByTKR: map[string]data.OSImages{},
+		tkrs:          data.TKRs{},
+		osImages:      data.OSImages{},
+		osImageToTKRs: map[string]data.TKRs{},
+		tkrToOSImages: map[string]data.OSImages{},
 	}}
 }
 
@@ -62,8 +62,8 @@ type cache struct {
 	osImages data.OSImages
 
 	// indices
-	tkrsShippingOSImage  map[string]data.TKRs
-	osImagesShippedByTKR map[string]data.OSImages
+	osImageToTKRs map[string]data.TKRs
+	tkrToOSImages map[string]data.OSImages
 }
 
 type details struct {
@@ -117,35 +117,35 @@ func (cache *cache) removeObject(object interface{}) {
 
 func (cache *cache) removeTKR(tkr *runv1.TanzuKubernetesRelease) {
 	delete(cache.tkrs, tkr.Name)
-	if osImages, exists := cache.osImagesShippedByTKR[tkr.Name]; exists {
+	if osImages, exists := cache.tkrToOSImages[tkr.Name]; exists {
 		for osImageName := range osImages {
-			tkrs := cache.tkrsShippingOSImage[osImageName]
+			tkrs := cache.osImageToTKRs[osImageName]
 			delete(tkrs, tkr.Name)
 		}
-		delete(cache.osImagesShippedByTKR, tkr.Name)
+		delete(cache.tkrToOSImages, tkr.Name)
 	}
 }
 
 func (cache *cache) removeOSImage(osImage *runv1.OSImage) {
 	delete(cache.osImages, osImage.Name)
-	if tkrs, exists := cache.tkrsShippingOSImage[osImage.Name]; exists {
+	if tkrs, exists := cache.osImageToTKRs[osImage.Name]; exists {
 		for tkrName := range tkrs {
-			osImages := cache.osImagesShippedByTKR[tkrName]
-			osImages[osImage.Name] = nil // the TKR still lists this OSImage
+			osImages := cache.tkrToOSImages[tkrName]
+			osImages[osImage.Name] = nil // the TKR still lists this OSImage, so we need to keep the osImage.name as the key in this map
 		}
-		delete(cache.tkrsShippingOSImage, osImage.Name)
+		delete(cache.osImageToTKRs, osImage.Name)
 	}
 }
 
-// populate cache.tkrsShippingOSImage and cache.osImagesShippedByTKR
+// populate cache.osImageToTKRs and cache.tkrToOSImages
 // Pre-reqs: tkr is NEVER nil
 func (cache *cache) addTKR(tkr *runv1.TanzuKubernetesRelease) {
 	cache.augmentTKR(tkr)
 
 	cache.tkrs[tkr.Name] = tkr
-	shippedOSImages := cache.shippedOSImages(tkr)
-	cache.osImagesShippedByTKR[tkr.Name] = shippedOSImages
-	cache.addToTKRsShippingOSImage(shippedOSImages, tkr)
+	osImages := cache.shippedOSImages(tkr)
+	cache.tkrToOSImages[tkr.Name] = osImages
+	cache.addToOSImageToTKRs(osImages, tkr)
 }
 
 // augmentTKR:
@@ -175,30 +175,30 @@ func (cache *cache) shippedOSImages(tkr *runv1.TanzuKubernetesRelease) data.OSIm
 }
 
 // Pre-reqs: tkr is NEVER nil
-func (cache *cache) addToTKRsShippingOSImage(osImages data.OSImages, tkr *runv1.TanzuKubernetesRelease) {
+func (cache *cache) addToOSImageToTKRs(osImages data.OSImages, tkr *runv1.TanzuKubernetesRelease) {
 	for osImageName := range osImages { // we only need name, value MAY be nil (but we still want the name)
-		shippingTKRs, exists := cache.tkrsShippingOSImage[osImageName]
+		tkrs, exists := cache.osImageToTKRs[osImageName]
 		if !exists {
-			shippingTKRs = make(data.TKRs, 1) // an OSImage is shipped by (at least) 1 TKR
-			cache.tkrsShippingOSImage[osImageName] = shippingTKRs
+			tkrs = make(data.TKRs, 1) // an OSImage is shipped by (at least) 1 TKR
+			cache.osImageToTKRs[osImageName] = tkrs
 		}
-		shippingTKRs[tkr.Name] = tkr
+		tkrs[tkr.Name] = tkr
 	}
 }
 
-// populate cache.tkrsShippingOSImage and cache.osImagesShippedByTKR
+// populate cache.osImageToTKRs and cache.tkrToOSImages
 // Pre-reqs: osImage is NEVER nil
 func (cache *cache) addOSImage(osImage *runv1.OSImage) {
 	cache.augmentOSImage(osImage)
 
 	cache.osImages[osImage.Name] = osImage
 
-	shippingTKRs, exists := cache.tkrsShippingOSImage[osImage.Name]
+	tkrs, exists := cache.osImageToTKRs[osImage.Name]
 	if !exists {
-		shippingTKRs = data.TKRs{}
-		cache.tkrsShippingOSImage[osImage.Name] = shippingTKRs
+		tkrs = data.TKRs{}
+		cache.osImageToTKRs[osImage.Name] = tkrs
 	}
-	cache.addToOSImagesShippedByTKR(shippingTKRs, osImage)
+	cache.addToTKRToOSImages(tkrs, osImage)
 }
 
 // augmentOSImage:
@@ -236,9 +236,9 @@ func setRefLabels(ls labels.Set, prefix string, ref map[string]interface{}) {
 }
 
 // Pre-reqs: osImage is NEVER nil
-func (cache *cache) addToOSImagesShippedByTKR(tkrs data.TKRs, osImage *runv1.OSImage) {
+func (cache *cache) addToTKRToOSImages(tkrs data.TKRs, osImage *runv1.OSImage) {
 	for tkrName := range tkrs {
-		cache.osImagesShippedByTKR[tkrName][osImage.Name] = osImage // cache.osImagesShippedByTKR[tkrName] is NEVER nil
+		cache.tkrToOSImages[tkrName][osImage.Name] = osImage // cache.osImagesShippedByTKR[tkrName] is NEVER nil
 	}
 }
 
@@ -315,7 +315,7 @@ func (cache *cache) consideredTKRs(query data.OSImageQuery) data.TKRs {
 func (cache *cache) filterOSImagesByTKR(query data.OSImageQuery, consideredTKRs data.TKRs) map[string]data.OSImages {
 	result := make(map[string]data.OSImages, len(consideredTKRs))
 	for tkrName := range consideredTKRs {
-		osImages := cache.osImagesShippedByTKR[tkrName].Filter(func(osImage *runv1.OSImage) bool {
+		osImages := cache.tkrToOSImages[tkrName].Filter(func(osImage *runv1.OSImage) bool {
 			return query.OSImageSelector.Matches(labels.Set(osImage.Labels))
 		})
 		if len(osImages) > 0 {

@@ -115,15 +115,15 @@ var _ = Describe("Cache implementation", func() {
 
 			Expect(r1.cache.tkrs).To(Equal(r.cache.tkrs))
 			Expect(r1.cache.osImages).To(Equal(r.cache.osImages))
-			Expect(r1.cache.osImagesShippedByTKR).To(Equal(r.cache.osImagesShippedByTKR))
-			Expect(r1.cache.tkrsShippingOSImage).To(Equal(r.cache.tkrsShippingOSImage))
+			Expect(r1.cache.tkrToOSImages).To(Equal(r.cache.tkrToOSImages))
+			Expect(r1.cache.osImageToTKRs).To(Equal(r.cache.osImageToTKRs))
 		})
 
 		It("should add TKRs and OSImages to the cache", func() {
 			for tkrName, tkr := range tkrs {
 				Expect(r.cache.tkrs).To(HaveKeyWithValue(tkrName, tkr))
-				Expect(r.cache.osImagesShippedByTKR).To(HaveKey(tkrName))
-				shippedOSImages := r.cache.osImagesShippedByTKR[tkrName]
+				Expect(r.cache.tkrToOSImages).To(HaveKey(tkrName))
+				shippedOSImages := r.cache.tkrToOSImages[tkrName]
 				Expect(shippedOSImages).ToNot(BeNil())
 
 				for _, osImageRef := range tkr.Spec.OSImages {
@@ -133,20 +133,20 @@ var _ = Describe("Cache implementation", func() {
 					Expect(osImage).ToNot(BeNil())
 
 					Expect(shippedOSImages).To(HaveKeyWithValue(osImageName, osImage))
-					Expect(r.cache.tkrsShippingOSImage[osImageName]).To(HaveKeyWithValue(tkrName, tkr))
+					Expect(r.cache.osImageToTKRs[osImageName]).To(HaveKeyWithValue(tkrName, tkr))
 				}
 			}
 			for osImageName, osImage := range osImages {
 				Expect(r.cache.osImages).To(HaveKeyWithValue(osImageName, osImage))
-				Expect(r.cache.tkrsShippingOSImage).To(HaveKey(osImageName))
-				shippingTKRs := r.cache.tkrsShippingOSImage[osImageName]
+				Expect(r.cache.osImageToTKRs).To(HaveKey(osImageName))
+				shippingTKRs := r.cache.osImageToTKRs[osImageName]
 				Expect(shippingTKRs).ToNot(BeNil())
 
 				for tkrName, tkr := range shippingTKRs {
 					Expect(tkrName).ToNot(BeEmpty())
 					Expect(tkr).ToNot(BeNil())
 					Expect(tkr).To(Equal(r.cache.tkrs[tkrName]))
-					Expect(r.cache.osImagesShippedByTKR[tkrName]).To(HaveKeyWithValue(osImageName, osImage))
+					Expect(r.cache.tkrToOSImages[tkrName]).To(HaveKeyWithValue(osImageName, osImage))
 				}
 			}
 		})
@@ -185,11 +185,11 @@ var _ = Describe("Cache implementation", func() {
 
 				for _, tkr := range tkrSubset {
 					Expect(r.cache.tkrs).ToNot(HaveKey(tkr.Name))
-					Expect(r.cache.osImagesShippedByTKR).ToNot(HaveKey(tkr.Name))
+					Expect(r.cache.tkrToOSImages).ToNot(HaveKey(tkr.Name))
 				}
 				for _, osImage := range osImageSubset {
 					Expect(r.cache.osImages).ToNot(HaveKey(osImage.Name))
-					Expect(r.cache.tkrsShippingOSImage).ToNot(HaveKey(osImage.Name))
+					Expect(r.cache.osImageToTKRs).ToNot(HaveKey(osImage.Name))
 				}
 			})
 		})
@@ -223,11 +223,11 @@ var _ = Describe("Cache implementation", func() {
 
 			for _, tkr := range tkrSubset {
 				Expect(r.cache.tkrs).ToNot(HaveKey(tkr.Name))
-				Expect(r.cache.osImagesShippedByTKR).ToNot(HaveKey(tkr.Name))
+				Expect(r.cache.tkrToOSImages).ToNot(HaveKey(tkr.Name))
 			}
 			for _, osImage := range osImageSubset {
 				Expect(r.cache.osImages).ToNot(HaveKey(osImage.Name))
-				Expect(r.cache.tkrsShippingOSImage).ToNot(HaveKey(osImage.Name))
+				Expect(r.cache.osImageToTKRs).ToNot(HaveKey(osImage.Name))
 			}
 		})
 	})
