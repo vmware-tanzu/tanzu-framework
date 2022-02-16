@@ -123,9 +123,9 @@ func (r *AddonReconciler) Reconcile(ctx context.Context, req ctrl.Request) (_ ct
 		return ctrl.Result{}, err
 	}
 
-	// if tkr is not found, let the reconciler try again
+	// if tkr is not found, should not requeue for the reconciliation
 	if tkr == nil {
-		log.Info("TKR object not found")
+		log.Info("TKR object not found", "name", tkrName)
 		return ctrl.Result{}, nil
 	}
 
