@@ -1,12 +1,10 @@
 // Angular imports
 import { Component, OnInit } from '@angular/core';
 import { Validators } from '@angular/forms';
-import { distinctUntilChanged, takeUntil } from 'rxjs/operators';
 // App imports
 import AppServices from 'src/app/shared/service/appServices';
 import { AwsVpcStepMapping } from './vpc-step.fieldmapping';
 import { AwsField, VpcType } from "../aws-wizard.constants";
-import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
 import { StepFormDirective } from '../../wizard/shared/step-form/step-form';
 import { TanzuEventType } from '../../../../shared/service/Messenger';
 import { ValidationService } from './../../wizard/shared/validation/validation.service';
@@ -52,24 +50,15 @@ export class VpcStepComponent extends StepFormDirective implements OnInit {
         }
         this.curVpcType = newVpcType;
 
-        const existingVpcControl = this.formGroup.get(AwsField.VPC_EXISTING_ID);
-        const existingVpcCidrControl = this.formGroup.get(AwsField.VPC_EXISTING_CIDR);
         if (newVpcType === VpcType.EXISTING) {
+            this.clearNewVpcControls();
             if (this.existingVpcs) {
                 const possibleVpcIds = this.existingVpcs.map<string>(vpc => vpc.id);
                 this.restoreField(AwsField.VPC_EXISTING_ID, AwsVpcStepMapping, possibleVpcIds);
             }
-            this.formGroup.get(AwsField.VPC_NEW_CIDR).clearValidators();
-            this.clearControlValue(AwsField.VPC_NEW_CIDR);
-            this.clearFieldSavedData(AwsField.VPC_NEW_CIDR);
             this.setExistingVpcValidators();
         } else {
-            existingVpcControl.setValue('');
-            existingVpcControl.clearValidators();
-            existingVpcControl.updateValueAndValidity();
-            existingVpcCidrControl.setValue('');
-            existingVpcCidrControl.clearValidators();
-            existingVpcCidrControl.updateValueAndValidity();
+            this.clearExistingVpcControls();
             this.setNewVpcValidators();
         }
         AppServices.messenger.publish({
@@ -77,6 +66,23 @@ export class VpcStepComponent extends StepFormDirective implements OnInit {
             payload: { vpcType: newVpcType }
         });
         this.triggerStepDescriptionChange();
+    }
+
+    private clearNewVpcControls() {
+        this.formGroup.get(AwsField.VPC_NEW_CIDR).clearValidators();
+        this.clearControlValue(AwsField.VPC_NEW_CIDR);
+        this.clearFieldSavedData(AwsField.VPC_NEW_CIDR);
+    }
+
+    private clearExistingVpcControls() {
+        const existingVpcControl = this.formGroup.get(AwsField.VPC_EXISTING_ID);
+        const existingVpcCidrControl = this.formGroup.get(AwsField.VPC_EXISTING_CIDR);
+        existingVpcControl.setValue('');
+        existingVpcControl.clearValidators();
+        existingVpcControl.updateValueAndValidity();
+        existingVpcCidrControl.setValue('');
+        existingVpcCidrControl.clearValidators();
+        existingVpcCidrControl.updateValueAndValidity();
     }
 
     ngOnInit() {
@@ -135,13 +141,8 @@ export class VpcStepComponent extends StepFormDirective implements OnInit {
     }
 
     chooseInitialVpcType() {
-        if (!this.hasSavedData() || this.getStoredValue(AwsField.VPC_NEW_CIDR, AwsVpcStepMapping)) {
-            this.setNewVpcValidators();
-        } else {
-            this.formGroup.get(AwsField.VPC_TYPE).setValue(VpcType.EXISTING);
-            const possibleVpcIds = this.existingVpcs.map<string>(vpc => vpc.id);
-            this.restoreField(AwsField.VPC_EXISTING_ID, AwsVpcStepMapping, possibleVpcIds);
-        }
+        const vpcType = this.getStoredValue(AwsField.VPC_NEW_CIDR, AwsVpcStepMapping) ? VpcType.NEW : VpcType.EXISTING;
+        this.formGroup.get(AwsField.VPC_TYPE).setValue(vpcType);
     }
 
     /**
@@ -163,7 +164,6 @@ export class VpcStepComponent extends StepFormDirective implements OnInit {
     setExistingVpcValidators() {
         if (this.existingVpcs.length > 0) {
             this.formGroup.get(AwsField.VPC_EXISTING_ID).setValidators([Validators.required]);
-            this.formGroup.get(AwsField.VPC_EXISTING_ID).updateValueAndValidity();
         }
     }
 
