@@ -1,0 +1,15 @@
+#@data/values
+#@overlay/match-child-defaults missing_ok=True
+---
+tkrInfraMachineWebhook:
+  namespace: tanzu-system
+  createNamespace: true
+  deployment:
+    envFieldMapConfigValue: |
+      sku: spec.image.marketplace.sku
+      publisher: spec.image.marketplace.publisher
+      offer: spec.image.marketplace.offer
+      version: spec.image.marketplace.version
+      thirdPartyImage: spec.image.marketplace.thirdPartyImage
+  webhookConfig:
+    resources: azuremachines

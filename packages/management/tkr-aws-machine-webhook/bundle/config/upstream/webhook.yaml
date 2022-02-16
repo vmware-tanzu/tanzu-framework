@@ -1,0 +1,30 @@
+apiVersion: admissionregistration.k8s.io/v1
+kind: MutatingWebhookConfiguration
+metadata:
+  annotations:
+    cert-manager.io/inject-ca-from: tanzu-system/tkr-infra-machine-webhook-serving-cert
+  name: tkr-infra-machine-mutating-webhook-configuration
+webhooks:
+- admissionReviewVersions:
+  - v1
+  - v1beta1
+  clientConfig:
+    service:
+      name: tkr-infra-machine-webhook-service
+      namespace: tanzu-system
+      path: /mutate-infra-machine
+  failurePolicy: Fail
+  matchPolicy: Equivalent
+  name: tkr-infra-machine-webhook.tanzu.vmware.com
+  rules:
+  - apiGroups: ["infrastructure.cluster.x-k8s.io"]
+    apiVersions:
+    - v1
+    - v1beta1
+    - v1alpha4
+    operations:
+    - CREATE
+    resources:
+    - "toBeUpdatedByOverlay"
+  sideEffects: None
+
