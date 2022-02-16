@@ -138,6 +138,8 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Wiz
                 this.clusterTypeDescriptor = data.payload.clusterTypeDescriptor;
                 this.title = data.payload.branding.title;
             }, this.unsubscribe);
+
+        setTimeout(() => this.broadcastStepStarted(this.firstStep), 0);
     }
 
     /**
@@ -250,13 +252,13 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Wiz
      * and therefore it reuses its previous component and form states.
      */
     onNextStep(stepCompleted: string) {
-        this.broadcastStepComplete(this.supplyWizardName(), stepCompleted);
+        this.broadcastStepComplete(stepCompleted);
         if (stepCompleted === this.lastStep) {
             this.visitedLastStep = true;
         } else {
             const indexCompletedStep = this.stepData.findIndex(stepData => stepData.name === stepCompleted);
             this.setCurrentStep(this.stepData[indexCompletedStep + 1].name);
-            this.broadcastStepStarted(this.supplyWizardName(), this.currentStep);
+            this.broadcastStepStarted(this.currentStep);
         }
         // TODO: we need to know that the last step has actually completed its recording of the data
         // NOTE: we do onWizardComplete EVERY time the user completes ANY step, if they have previously completed the wizard
@@ -710,17 +712,17 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Wiz
         return this.stepData ? this.stepData.length : 0;
     }
 
-    private broadcastStepComplete(wizardName: string, stepCompletedName: string) {
+    private broadcastStepComplete(stepCompletedName: string) {
         const payload: StepCompletedPayload = {
-            wizard: wizardName,
+            wizard: this.supplyWizardName(),
             step: stepCompletedName,
         }
         AppServices.messenger.publish<StepCompletedPayload>( { type: TanzuEventType.STEP_COMPLETED, payload } );
     }
 
-    private broadcastStepStarted(wizardName: string, stepStartedName: string) {
+    private broadcastStepStarted(stepStartedName: string) {
         const payload: StepStartedPayload = {
-            wizard: wizardName,
+            wizard: this.supplyWizardName(),
             step: stepStartedName,
         }
         AppServices.messenger.publish<StepStartedPayload>( { type: TanzuEventType.STEP_STARTED, payload } );
