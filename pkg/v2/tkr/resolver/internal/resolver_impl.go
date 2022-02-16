@@ -47,7 +47,7 @@ func (r *Resolver) Resolve(query data.Query) data.Result {
 	query = normalize(query)
 
 	result := r.cache.filter(query)
-	return r.cache.sort(result)
+	return sort(result)
 }
 
 type osImageDetails struct {
@@ -341,14 +341,14 @@ func (cache *cache) filterMachineDeployments(mdQueries map[string]data.OSImageQu
 }
 
 // sort TKRs and OSImages
-func (cache *cache) sort(input details) data.Result {
+func sort(input details) data.Result {
 	return data.Result{
-		ControlPlane:       cache.sortOSImageResult(input.controlPlane),
-		MachineDeployments: cache.sortMDResults(input.machineDeployments),
+		ControlPlane:       sortOSImageResult(input.controlPlane),
+		MachineDeployments: sortMDResults(input.machineDeployments),
 	}
 }
 
-func (cache *cache) sortOSImageResult(osImageDetails osImageDetails) data.OSImageResult {
+func sortOSImageResult(osImageDetails osImageDetails) data.OSImageResult {
 	latestK8sVersion, latestTKRName, tkrsByK8sVersion := tkrsByK8sVersion(osImageDetails.tkrs)
 	return data.OSImageResult{
 		K8sVersion:       latestK8sVersion,
@@ -380,10 +380,10 @@ func tkrsByK8sVersion(tkrs data.TKRs) (string, string, map[string]data.TKRs) {
 	return latestK8sVersion, latestTKRName, result
 }
 
-func (cache *cache) sortMDResults(machineDeployments map[string]osImageDetails) map[string]data.OSImageResult {
+func sortMDResults(machineDeployments map[string]osImageDetails) map[string]data.OSImageResult {
 	result := make(map[string]data.OSImageResult, len(machineDeployments))
 	for name, osImageDetails := range machineDeployments {
-		result[name] = cache.sortOSImageResult(osImageDetails)
+		result[name] = sortOSImageResult(osImageDetails)
 	}
 	return result
 }
