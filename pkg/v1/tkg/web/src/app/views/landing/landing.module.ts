@@ -24,6 +24,7 @@ import { ErrorNotificationComponent } from "../../shared/components/error-notifi
     declarations: [
         AlertNotificationComponent,
         ConfirmationComponent,
+        ClusterClassInfoComponent,
         DeployProgressComponent,
         ErrorNotificationComponent,
         IncompatibleComponent,
@@ -42,7 +43,6 @@ import { ErrorNotificationComponent } from "../../shared/components/error-notifi
     exports: [
         AlertNotificationComponent,
         ClusterClassInfoComponent,
-        ConfirmComponent,
         ConfirmationComponent,
         ErrorNotificationComponent
     ]
