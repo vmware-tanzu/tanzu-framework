@@ -32,7 +32,6 @@ export abstract class NodeSettingStepDirective<NODEINSTANCE> extends StepFormDir
         this.subscribeToServices();
         this.listenToEvents();
 
-        this.chooseInitialClusterPlan();
         this.setClusterNameInstruction();
     }
 
@@ -219,5 +218,9 @@ export abstract class NodeSettingStepDirective<NODEINSTANCE> extends StepFormDir
     // Extending classes may want to change the display order of the fields
     protected getFieldDisplayOrder() {
         return this.defaultDisplayOrder(this.supplyStepMapping());
+    }
+
+    protected onStepStarted() {
+        this.chooseInitialClusterPlan();
     }
 }

@@ -13,8 +13,8 @@ export enum NodeSettingField {
 export const NodeSettingStepMapping: StepMapping = {
     fieldMappings: [
         { name: NodeSettingField.CLUSTER_NAME, label: 'CLUSTER NAME', validators: [SimpleValidator.IS_VALID_CLUSTER_NAME] },
-        { name: NodeSettingField.INSTANCE_TYPE_DEV, label: 'INSTANCE TYPE' },
-        { name: NodeSettingField.INSTANCE_TYPE_PROD, label: 'INSTANCE TYPE' },
+        { name: NodeSettingField.INSTANCE_TYPE_DEV, label: 'INSTANCE TYPE', primaryTrigger: true },
+        { name: NodeSettingField.INSTANCE_TYPE_PROD, label: 'INSTANCE TYPE', primaryTrigger: true },
         { name: NodeSettingField.WORKER_NODE_INSTANCE_TYPE, required: true, label: 'WORKER NODE INSTANCE TYPE' },
         { name: NodeSettingField.ENABLE_AUDIT_LOGGING, isBoolean: true, label: 'ENABLE AUDIT LOGGING' },
         { name: NodeSettingField.MACHINE_HEALTH_CHECKS_ENABLED, isBoolean: true, label: 'MACHINE HEALTH CHECKS' },
