@@ -50,11 +50,29 @@
         </clr-timeline>
     </div>
     <div class="clr-col-12 clr-col-xl-9">
-        <h4 aria-level="2">Logs</h4>
-        <log-monitor
-            [logStream]="(msgs$ | async)"
-            theme="dark">
-        </log-monitor>
+        <clr-alert>
+            <clr-alert-item>The management cluster will be created with a new cluster class configuration.
+                The cluster classes that will be created can be viewed during deployment.
+                These can then be used in the creation of workload clusters for this management cluster.
+            </clr-alert-item>
+        </clr-alert>
+        <clr-tabs>
+            <clr-tab>
+              <button clrTabLink>Logs</button>
+              <clr-tab-content *clrIfActive>
+                <log-monitor
+                    [logStream]="(msgs$ | async)"
+                    theme="dark">
+                </log-monitor>
+              </clr-tab-content>
+            </clr-tab>
+            <clr-tab>
+                <button clrTabLink>Cluster Classes</button>
+                <clr-tab-content>
+                    <app-cluster-class-info [providerType]="providerType"></app-cluster-class-info>
+                </clr-tab-content>
+            </clr-tab>
+        </clr-tabs>
     </div>
 </div>
 

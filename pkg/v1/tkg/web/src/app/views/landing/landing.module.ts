@@ -18,11 +18,13 @@ import { SharedModule } from '../../shared/shared.module';
 import { PreviewConfigComponent } from '../../shared/components/preview-config/preview-config.component';
 import { VmwCopyToClipboardButtonComponent } from '../../shared/components/copy-to-clipboard-button/copy-to-clipboard-button.component';
 import { ErrorNotificationComponent } from "../../shared/components/error-notification/error-notification.component";
+import { ClusterClassInfoComponent } from './wizard/shared/components/widgets/cluster-class-info/cluster-class-info.component';
 
 @NgModule({
     declarations: [
         AlertNotificationComponent,
         ConfirmComponent,
+        ClusterClassInfoComponent,
         DeployProgressComponent,
         ErrorNotificationComponent,
         IncompatibleComponent,
@@ -41,7 +43,8 @@ import { ErrorNotificationComponent } from "../../shared/components/error-notifi
     exports: [
         AlertNotificationComponent,
         ConfirmComponent,
-        ErrorNotificationComponent
+        ErrorNotificationComponent,
+        ClusterClassInfoComponent
     ]
 })
 
