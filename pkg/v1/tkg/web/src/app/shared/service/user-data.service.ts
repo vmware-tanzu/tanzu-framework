@@ -142,13 +142,11 @@ export class UserDataService {
         return this.ensureWizardEntry(wizard);
     }
 
-    // TODO: SHIMON: currently issue where "delete" isn't recognized as a method?!
     delete(identifier: UserDataIdentifier) {
         const wizardEntry = this.getWizardEntry(identifier.wizard);
-        if (wizardEntry && wizardEntry.steps[identifier.step]) {
-            const userDataStep = wizardEntry.steps[identifier.step] as UserDataStep;
-            const mapEntries = userDataStep.fields as Map<string, UserDataEntry>;
-            mapEntries.delete(identifier.field);
+        if (wizardEntry && wizardEntry.steps[identifier.step] && wizardEntry.steps[identifier.step].fields) {
+            delete wizardEntry.steps[identifier.step].fields[identifier.field];
+            this.storeWizardEntry(wizardEntry);
         }
     }
 
@@ -159,8 +157,9 @@ export class UserDataService {
 
     clear(identifier: UserDataIdentifier) {
         const wizardEntry = this.getWizardEntry(identifier.wizard);
-        if (wizardEntry && wizardEntry.steps[identifier.step]) {
+        if (wizardEntry && wizardEntry.steps[identifier.step] && wizardEntry.steps[identifier.step].fields) {
             this.setUserDataEntry(wizardEntry, identifier, null);
+            this.storeWizardEntry(wizardEntry);
         }
     }
 

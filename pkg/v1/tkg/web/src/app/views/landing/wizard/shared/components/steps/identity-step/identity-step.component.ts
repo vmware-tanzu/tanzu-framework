@@ -115,19 +115,21 @@ export class SharedIdentityStepComponent extends StepFormDirective implements On
             takeUntil(this.unsubscribe)
         ).subscribe(newIdentityManagementType => {
             this.idmSettingType = newIdentityManagementType;
-            this.formGroup.markAsPending();
-            if (this.isIdentityManagementOidc) {
-                this.unsetValidators(ldapValidatedFields);
-                this.setOIDCValidators();
-                this.setControlValueSafely(IdentityField.CLIENT_SECRET, '');
-            } else if (this.isIdentityManagementLdap) {
-                this.unsetValidators(oidcFields);
-                this.setLDAPValidators();
-            } else {
-                this.unsetValidators(this.fields);
-                this.disarmField(IdentityField.IDENTITY_TYPE);
+            if (this.isUsingIdentityManagement) {
+                this.formGroup.markAsPending();
+                if (this.isIdentityManagementOidc) {
+                    this.unsetValidators(ldapValidatedFields);
+                    this.setOIDCValidators();
+                    this.setControlValueSafely(IdentityField.CLIENT_SECRET, '');
+                } else if (this.isIdentityManagementLdap) {
+                    this.unsetValidators(oidcFields);
+                    this.setLDAPValidators();
+                } else {
+                    this.unsetValidators(this.fields);
+                    this.disarmField(IdentityField.IDENTITY_TYPE);
+                }
+                this.triggerStepDescriptionChange();
             }
-            this.triggerStepDescriptionChange();
         });
         this.registerStepDescriptionTriggers({fields: [IdentityField.ENDPOINT_IP, IdentityField.ENDPOINT_PORT,  IdentityField.ISSUER_URL]});
     }
@@ -366,8 +368,8 @@ export class SharedIdentityStepComponent extends StepFormDirective implements On
     }
 
     protected storeUserData() {
-        this.clearUnusedData();
         this.storeUserDataFromMapping(IdentityStepMapping);
+        this.clearUnusedData();
         this.storeDefaultDisplayOrder(IdentityStepMapping);
     }
 
@@ -375,6 +377,7 @@ export class SharedIdentityStepComponent extends StepFormDirective implements On
     // and also remove any lingering values in local storage that are no longer relevant
     private clearUnusedData() {
         if (!this.isUsingIdentityManagement) {
+            this.clearFieldSavedData(IdentityField.IDM_SETTINGS);   // do not include IDM_SETTING 'no' in confirmation page
             this.clearControlValue(IdentityField.IDENTITY_TYPE, true);
             // NOTE: by clearing this setting the tests below will be true, and all the fields will be cleared
             this.idmSettingType = null;
