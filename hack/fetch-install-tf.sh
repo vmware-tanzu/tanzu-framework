@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Copyright 2021 VMware, Inc. All Rights Reserved.
+# Copyright 2022 VMware, Inc. All Rights Reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 # Inspired by - https://github.com/vmware-tanzu/community-edition/blob/main/hack/install.sh

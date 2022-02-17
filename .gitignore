@@ -47,5 +47,3 @@ providers.tar.gz
 /build
 /packages/package-values-sha256.yaml
 /packages/**/.imgpkg
-
-.idea
