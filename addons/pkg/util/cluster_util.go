@@ -107,40 +107,9 @@ func GetClusterClient(ctx context.Context, currentClusterClient client.Client, s
 	return c, nil
 }
 
-// GetTKRForCluster gets the TKR for cluster
-func GetTKRForCluster(ctx context.Context, c client.Client, cluster *clusterv1beta1.Cluster) (*runtanzuv1alpha1.TanzuKubernetesRelease, error) {
-	if c == nil || cluster == nil {
-		return nil, nil
-	}
-
-	tkrName := GetTKRNameForCluster(ctx, c, cluster)
-	if tkrName == "" {
-		return nil, nil
-	}
-
-	tkr, err := GetTKRByName(ctx, c, tkrName)
-	if err != nil {
-		return nil, err
-	}
-
-	return tkr, nil
-}
-
-// GetTKRNameForCluster get the TKR name for the cluster
-func GetTKRNameForCluster(ctx context.Context, c client.Client, cluster *clusterv1beta1.Cluster) string {
-	if c == nil || cluster == nil {
-		return ""
-	}
-
-	return cluster.Labels[constants.TKRLabel]
-}
-
-// GetBOMForCluster gets the bom associated with the cluster
+// GetBOMForCluster gets the bom associated with the legacy-style TKGm cluster
 func GetBOMForCluster(ctx context.Context, c client.Client, cluster *clusterv1beta1.Cluster) (*bomtypes.Bom, error) {
-	tkrName := GetTKRNameForCluster(ctx, c, cluster)
-	if tkrName == "" {
-		return nil, nil
-	}
+	tkrName := cluster.Labels[constants.TKRLabel]
 
 	bom, err := GetBOMByTKRName(ctx, c, tkrName)
 	if err != nil {

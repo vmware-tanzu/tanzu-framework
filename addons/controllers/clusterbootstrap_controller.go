@@ -92,6 +92,7 @@ func (r *ClusterBootstrapReconciler) SetupWithManager(ctx context.Context, mgr c
 		).
 		WithOptions(options).
 		WithEventFilter(clusterApiPredicates.ResourceNotPaused(r.Log)).
+		WithEventFilter(predicates.ClusterHasLabel(constants.TKRLabelClassyClusters, r.Log)).
 		Build(r)
 	if err != nil {
 		r.Log.Error(err, "Error creating an addon controller")
@@ -132,11 +133,20 @@ func (r *ClusterBootstrapReconciler) Reconcile(ctx context.Context, req ctrl.Req
 		return ctrl.Result{}, err
 	}
 
-	tkrName := util.GetTKRNameForCluster(r.context, r.Client, cluster)
-	if tkrName == "" {
-		log.Info("cluster does not have an associated TKR")
+	// make sure the TKR object exists
+	tkrName := cluster.Labels[constants.TKRLabelClassyClusters]
+	tkr, err := util.GetTKRByName(r.context, r.Client, tkrName)
+	if err != nil {
+		log.Error(err, "unable to fetch TKR object", "name", tkrName)
+		return ctrl.Result{}, err
+	}
+
+	// if tkr is not found, should not requeue for the reconciliation
+	if tkr == nil {
+		log.Info("TKR object not found", "name", tkrName)
 		return ctrl.Result{}, nil
 	}
+
 	log.Info("Reconciling cluster")
 
 	// if deletion timestamp is set, handle cluster deletion
@@ -193,15 +203,11 @@ func (r *ClusterBootstrapReconciler) reconcileNormal(cluster *clusterapiv1beta1.
 
 // createOrPatchclusterBootstrapFromTemplate will get, clone or update a ClusterBootstrap associated with a cluster
 // all linked secret refs and object refs are cloned into the same namespace as clusterBootstrap
-func (r *ClusterBootstrapReconciler) createOrPatchclusterBootstrapFromTemplate(cluster *clusterapiv1beta1.Cluster,
+func (r *ClusterBootstrapReconciler) createOrPatchclusterBootstrapFromTemplate(
+	cluster *clusterapiv1beta1.Cluster,
 	log logr.Logger) (*runtanzuv1alpha3.ClusterBootstrap, error) {
 
-	tkrName := util.GetTKRNameForCluster(r.context, r.Client, cluster)
-	if tkrName == "" {
-		log.Info("cluster does not have an associated TKR")
-		return nil, nil
-	}
-
+	tkrName := cluster.Labels[constants.TKRLabelClassyClusters]
 	clusterBootstrapTemplate := &runtanzuv1alpha3.ClusterBootstrapTemplate{}
 	key := client.ObjectKey{Namespace: constants.TKGSystemNS, Name: tkrName}
 	if err := r.Client.Get(r.context, key, clusterBootstrapTemplate); err != nil {
