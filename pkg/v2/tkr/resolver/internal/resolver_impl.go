@@ -55,6 +55,7 @@ type osImageDetails struct {
 	osImagesByTKR map[string]data.OSImages
 }
 
+// cache holds known TKRs and OSImages, so they could be reused for more than one Resolve() call.
 type cache struct {
 	mutex sync.RWMutex
 
@@ -131,7 +132,13 @@ func (cache *cache) removeOSImage(osImage *runv1.OSImage) {
 	if tkrs, exists := cache.osImageToTKRs[osImage.Name]; exists {
 		for tkrName := range tkrs {
 			osImages := cache.tkrToOSImages[tkrName]
-			osImages[osImage.Name] = nil // the TKR still lists this OSImage, so we need to keep the osImage.name as the key in this map
+
+			// The TKR lists OSImage references in its Spec.OSImages field. This reference exists there regardless of
+			// whether we have the OSImage in the cache or not.
+			//
+			// For OSImages that are not (yet) present in the cache we have this slot in the index: when the OSImage gets
+			// added to the cache, we'll know where it belongs in the index.
+			osImages[osImage.Name] = nil
 		}
 		delete(cache.osImageToTKRs, osImage.Name)
 	}
@@ -144,7 +151,7 @@ func (cache *cache) addTKR(tkr *runv1.TanzuKubernetesRelease) {
 
 	cache.tkrs[tkr.Name] = tkr
 	osImages := cache.shippedOSImages(tkr)
-	cache.tkrToOSImages[tkr.Name] = osImages
+	cache.tkrToOSImages[tkr.Name] = osImages // some *OSImage values will be nil: if we don't yet have them in the cache
 	cache.addToOSImageToTKRs(osImages, tkr)
 }
 
@@ -195,8 +202,9 @@ func (cache *cache) addOSImage(osImage *runv1.OSImage) {
 
 	tkrs, exists := cache.osImageToTKRs[osImage.Name]
 	if !exists {
-		tkrs = data.TKRs{}
+		tkrs = data.TKRs{} // empty: no TKRs shipping this OSImage were added yet
 		cache.osImageToTKRs[osImage.Name] = tkrs
+		return
 	}
 	cache.addToTKRToOSImages(tkrs, osImage)
 }
@@ -242,6 +250,7 @@ func (cache *cache) addToTKRToOSImages(tkrs data.TKRs, osImage *runv1.OSImage) {
 	}
 }
 
+// normalize uses normalizeOSImageQuery() to augment both its ports: query.ControlPlane and query.MachineDeployments
 func normalize(query data.Query) data.Query {
 	mdQueries := make(map[string]data.OSImageQuery, len(query.MachineDeployments))
 	for name, osImageQuery := range query.MachineDeployments {
@@ -253,6 +262,8 @@ func normalize(query data.Query) data.Query {
 	}
 }
 
+// normalizeOSImageQuery augments the osImageQuery by appending to its TKRSelector and OSImageSelector an equivalent of
+// label query string "<k8s-version-prefix-label>,!incompatible,!deactivated,!invalid".
 func normalizeOSImageQuery(osImageQuery data.OSImageQuery) data.OSImageQuery {
 	unwantedLabels := []string{runv1.LabelIncompatible, runv1.LabelDeactivated, runv1.LabelInvalid}
 
@@ -300,18 +311,19 @@ func (cache *cache) filterOSImageDetails(osImageQuery data.OSImageQuery) osImage
 	filteredOSImagesByTKR := cache.filterOSImagesByTKR(osImageQuery, consideredTKRs)
 
 	return osImageDetails{
-		tkrs:          cache.filterTKRs(filteredOSImagesByTKR, consideredTKRs),
+		tkrs:          filterTKRsWithOSImages(filteredOSImagesByTKR, consideredTKRs),
 		osImagesByTKR: filteredOSImagesByTKR,
 	}
 }
 
+// consideredTKRs returns the initial set of TKRs satisfying the query.
 func (cache *cache) consideredTKRs(query data.OSImageQuery) data.TKRs {
 	return cache.tkrs.Filter(func(tkr *runv1.TanzuKubernetesRelease) bool {
 		return query.TKRSelector.Matches(labels.Set(tkr.Labels))
 	})
 }
 
-// return matching OSImages by TKR
+// filterOSImagesByTKR returns matching OSImages grouped by TKR. Empty sets of OSImages are not included.
 func (cache *cache) filterOSImagesByTKR(query data.OSImageQuery, consideredTKRs data.TKRs) map[string]data.OSImages {
 	result := make(map[string]data.OSImages, len(consideredTKRs))
 	for tkrName := range consideredTKRs {
@@ -325,7 +337,9 @@ func (cache *cache) filterOSImagesByTKR(query data.OSImageQuery, consideredTKRs 
 	return result
 }
 
-func (cache *cache) filterTKRs(osImagesByTKR map[string]data.OSImages, tkrs data.TKRs) data.TKRs {
+// filterTKRsWithOSImages filters out TKRs without OSImages in osImagesByTKR. Thus, only TKRs with OSImages satisfying
+// the query are included in the result.
+func filterTKRsWithOSImages(osImagesByTKR map[string]data.OSImages, tkrs data.TKRs) data.TKRs {
 	return tkrs.Filter(func(tkr *runv1.TanzuKubernetesRelease) bool {
 		_, exists := osImagesByTKR[tkr.Name]
 		return exists

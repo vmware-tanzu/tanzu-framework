@@ -22,18 +22,19 @@ func TestResolverNew(t *testing.T) {
 func Example() {
 	tkrResolver := resolver.New()
 
-	tkrSelector := labels.SelectorFromSet(labels.Set{})
-	osImageSelector := labels.SelectorFromSet(labels.Set{})
+	k8sVersionPrefix := "1.22"
+	tkrSelector, _ := labels.Parse("!deprecated")
+	osImageSelector, _ := labels.Parse("os-name=ubuntu,ami-region=us-west-2")
 
 	query := data.Query{
 		ControlPlane: data.OSImageQuery{
-			K8sVersionPrefix: "1.22",
+			K8sVersionPrefix: k8sVersionPrefix,
 			TKRSelector:      tkrSelector,
 			OSImageSelector:  osImageSelector,
 		},
 		MachineDeployments: map[string]data.OSImageQuery{
 			"np1": {
-				K8sVersionPrefix: "1.22",
+				K8sVersionPrefix: k8sVersionPrefix,
 				TKRSelector:      tkrSelector,
 				OSImageSelector:  osImageSelector,
 			},

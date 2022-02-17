@@ -15,7 +15,7 @@ type Query struct {
 	// ControlPlane specifies the Query for the control plane.
 	ControlPlane OSImageQuery
 
-	// ControlPlane specifies the OSImageQueries for worker machine deployments.
+	// MachineDeployments specifies the OSImageQueries for worker machine deployments.
 	MachineDeployments map[string]OSImageQuery
 }
 
@@ -48,10 +48,10 @@ type OSImageResult struct {
 	// TKRName is the latest conforming TKR name. If empty, then no TKRs satisfied the query.
 	TKRName string
 
-	// TKRsByK8sVersion maps resolved K8s versions to TKRs (sorted "latest first").
+	// TKRsByK8sVersion maps resolved K8s versions to TKRs.
 	TKRsByK8sVersion map[string]TKRs
 
-	// OSImagesByTKR maps resolved TKR names to OSImages (unsorted).
+	// OSImagesByTKR maps resolved TKR names to OSImages.
 	OSImagesByTKR map[string]OSImages
 }
 

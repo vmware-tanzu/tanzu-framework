@@ -30,6 +30,7 @@ type CachingResolver interface {
 	Cache
 }
 
+// New returns a newly created instance of the TKR CachingResolver implementation. It is safe for concurrent use.
 func New() CachingResolver {
 	return internal.NewResolver()
 }
