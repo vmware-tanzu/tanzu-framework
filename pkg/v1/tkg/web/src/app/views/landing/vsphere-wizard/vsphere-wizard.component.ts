@@ -14,7 +14,7 @@ import { ClusterPlan, WizardForm, WizardStep } from '../wizard/shared/constants/
 import { ExportService } from '../../../shared/service/export.service';
 import { FormDataForHTML, FormUtility } from '../wizard/shared/components/steps/form-utility';
 import { ImportParams, ImportService } from "../../../shared/service/import.service";
-import { KUBE_VIP, NSX_ADVANCED_LOAD_BALANCER } from './../wizard/shared/components/steps/load-balancer/load-balancer-step.component';
+import { KUBE_VIP, NSX_ADVANCED_LOAD_BALANCER } from './node-setting-step/node-setting-step.fieldmapping';
 import { LoadBalancerField } from '../wizard/shared/components/steps/load-balancer/load-balancer-step.fieldmapping';
 import { NodeSettingStepComponent } from './node-setting-step/node-setting-step.component';
 import { PROVIDERS, Providers } from '../../../shared/constants/app.constants';

@@ -4,15 +4,14 @@ import { Validators } from '@angular/forms';
 // App imports
 import AppServices from 'src/app/shared/service/appServices';
 import { NodeType } from '../../wizard/shared/constants/wizard.constants';
-import { IpFamilyEnum, PROVIDERS, Providers } from '../../../../shared/constants/app.constants';
-import { KUBE_VIP, NSX_ADVANCED_LOAD_BALANCER } from '../../wizard/shared/components/steps/load-balancer/load-balancer-step.component';
+import { IpFamilyEnum } from '../../../../shared/constants/app.constants';
+import { KUBE_VIP, NSX_ADVANCED_LOAD_BALANCER, VsphereNodeSettingFieldMappings } from './node-setting-step.fieldmapping';
 import { NodeSettingStepDirective } from '../../wizard/shared/components/steps/node-setting-step/node-setting-step.component';
 import { NodeSettingField } from '../../wizard/shared/components/steps/node-setting-step/node-setting-step.fieldmapping';
 import { StepMapping } from '../../wizard/shared/field-mapping/FieldMapping';
 import { TanzuEventType } from 'src/app/shared/service/Messenger';
 import { ValidationService } from '../../wizard/shared/validation/validation.service';
 import { VsphereField, VsphereNodeTypes } from '../vsphere-wizard.constants';
-import { VsphereNodeSettingFieldMappings } from './node-setting-step.fieldmapping';
 
 @Component({
     selector: 'app-node-setting-step',

@@ -8,7 +8,7 @@ import { APIClient } from '../../../../swagger';
 import AppServices from '../../../../shared/service/appServices';
 import { DataServiceRegistrarTestExtension } from '../../../../testing/data-service-registrar.testextension';
 import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
-import { KUBE_VIP } from '../../wizard/shared/components/steps/load-balancer/load-balancer-step.component';
+import { KUBE_VIP } from '../node-setting-step/node-setting-step.fieldmapping';
 import { LoadBalancerField } from '../../wizard/shared/components/steps/load-balancer/load-balancer-step.fieldmapping';
 import { Messenger, TanzuEventType } from '../../../../shared/service/Messenger';
 import { ResourcePool } from '../resource-step/resource-step.component';

@@ -135,7 +135,7 @@ export abstract class NodeSettingStepDirective<NODEINSTANCE> extends StepFormDir
         // dynamically modify the cluster field mapping
         const clusterNameMapping = AppServices.fieldMapUtilities.getFieldMapping(NodeSettingField.CLUSTER_NAME, stepMapping);
         clusterNameMapping.label = this.createClusterNameLabel();
-        clusterNameMapping.required = AppServices.appDataService.isClusterNameRequired();
+        clusterNameMapping.required = this.isClusterNameRequired();
 
         return stepMapping;
     }
@@ -175,14 +175,6 @@ export abstract class NodeSettingStepDirective<NODEINSTANCE> extends StepFormDir
         return clusterNameLabel;
     }
 
-    // creates an array of (string) nodeKeys from the current array of NODEINSTANCE objects
-    private nodeKeys(): string[] {
-        return this.nodeTypes.reduce<string[]>((accumulator, nodeType) => {
-            accumulator.push(this.getKeyFromNodeInstance(nodeType));
-            return accumulator;
-        }, []);
-    }
-
     private setClusterNameInstruction() {
         if (AppServices.appDataService.isClusterNameRequired()) {
             this.clusterNameInstruction = 'Specify a name for the ' + this.clusterTypeDescriptor + ' cluster.';
@@ -190,6 +182,11 @@ export abstract class NodeSettingStepDirective<NODEINSTANCE> extends StepFormDir
             this.clusterNameInstruction = 'Optionally specify a name for the ' + this.clusterTypeDescriptor + ' cluster. ' +
                 'If left blank, the installer names the cluster automatically.';
         }
+    }
+
+    // Extending classes may want to override this method
+    protected isClusterNameRequired():boolean {
+        return AppServices.appDataService.isClusterNameRequired();
     }
 
     dynamicDescription(): string {

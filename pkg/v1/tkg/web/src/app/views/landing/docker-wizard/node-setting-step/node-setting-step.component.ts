@@ -15,15 +15,7 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
     clusterNameInstruction: string;
 
     private supplyStepMapping() {
-        const mapping = DockerNodeSettingStepMapping;
-        // dynamically modify the cluster name label based on the type descriptor and whether the cluster name is required
-        const clusterNameMapping = AppServices.fieldMapUtilities.getFieldMapping('clusterName', mapping);
-        let clusterNameLabel = this.clusterTypeDescriptor.toUpperCase() + ' CLUSTER NAME';
-        if (!AppServices.appDataService.isClusterNameRequired()) {
-            clusterNameLabel += ' (OPTIONAL)';
-        }
-        clusterNameMapping.label = clusterNameLabel;
-        return mapping;
+        return DockerNodeSettingStepMapping;
     }
 
     ngOnInit(): void {
@@ -34,12 +26,7 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
         this.registerDefaultFileImportedHandler(this.eventFileImported, this.supplyStepMapping());
         this.registerDefaultFileImportErrorHandler(this.eventFileImportError);
 
-        if (AppServices.appDataService.isClusterNameRequired()) {
-            this.clusterNameInstruction = 'Specify a name for the ' + this.clusterTypeDescriptor + ' cluster.';
-        } else {
-            this.clusterNameInstruction = 'Optionally specify a name for the ' + this.clusterTypeDescriptor + ' cluster. ' +
-                'If left blank, the installer names the cluster automatically.';
-        }
+        this.clusterNameInstruction = 'Specify a name for the ' + this.clusterTypeDescriptor + ' cluster.';
     }
 
     protected storeUserData() {

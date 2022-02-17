@@ -52,11 +52,11 @@ describe('IdentityStepComponent', () => {
 
   it('should switch to ldap', () => {
     fixture.whenStable().then(() => {
-      spyOn(component, 'unsetAllValidators').and.callThrough();
+      spyOn(component, 'unsetValidators').and.callThrough();
       spyOn(component, 'setLDAPValidators').and.callThrough();
       component.formGroup.get(IdentityField.IDENTITY_TYPE).setValue(IdentityManagementType.LDAP);
-      expect(component.identityTypeValue).toEqual(IdentityManagementType.LDAP);
-      expect(component.unsetAllValidators).toHaveBeenCalled();
+      expect(component.isIdentityManagementLdap).toBeTrue();
+      expect(component.unsetValidators).toHaveBeenCalled();
       expect(component.setLDAPValidators).toHaveBeenCalled();
     });
   });
@@ -64,11 +64,11 @@ describe('IdentityStepComponent', () => {
   it('should switch back to oidc', () => {
     fixture.whenStable().then(() => {
       component.formGroup.get(IdentityField.IDENTITY_TYPE).setValue(IdentityManagementType.LDAP);
-      spyOn(component, 'unsetAllValidators').and.callThrough();
+      spyOn(component, 'unsetValidators').and.callThrough();
       spyOn(component, 'setOIDCValidators').and.callThrough();
       component.formGroup.get(IdentityField.IDENTITY_TYPE).setValue(IdentityManagementType.OIDC);
-      expect(component.identityTypeValue).toEqual(IdentityManagementType.OIDC);
-      expect(component.unsetAllValidators).toHaveBeenCalled();
+      expect(component.isIdentityManagementOidc).toBeTrue();
+      expect(component.unsetValidators).toHaveBeenCalled();
       expect(component.setOIDCValidators).toHaveBeenCalled();
     });
   });

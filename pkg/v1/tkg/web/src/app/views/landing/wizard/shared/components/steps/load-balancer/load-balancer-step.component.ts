@@ -16,9 +16,6 @@ import { StepFormDirective } from "../../../step-form/step-form";
 import { StepMapping } from '../../../field-mapping/FieldMapping';
 import { ValidationService } from "../../../validation/validation.service";
 
-export const KUBE_VIP = 'Kube-vip';
-export const NSX_ADVANCED_LOAD_BALANCER = "NSX Advanced Load Balancer";
-
 const SupervisedFields = [
     LoadBalancerField.CONTROLLER_HOST,
     LoadBalancerField.USERNAME,

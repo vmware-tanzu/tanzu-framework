@@ -29,7 +29,7 @@
             </clr-toggle-container>
         </div>
     </div>
-    <div *ngIf="formGroup.value['idmSettings']">
+    <div *ngIf="isUsingIdentityManagement">
         <div class="clr-row">
             <div class="clr-col-8">
                 <clr-radio-container clrInline>
@@ -58,7 +58,7 @@
                 </clr-radio-container>
             </div>
         </div>
-        <ng-container *ngIf="identityTypeValue==='oidc'">
+        <ng-container *ngIf="isIdentityManagementOidc">
             <!-- OIDC -->
             <h5 i18n="identity oidc title" aria-level="3">
                 OIDC Identity Management Source
@@ -227,7 +227,7 @@
                 </div>
             </div>
         </ng-container>
-        <ng-container *ngIf="identityTypeValue==='ldap'">
+        <ng-container *ngIf="isIdentityManagementLdap">
             <!-- LDAP -->
             <h5 i18n="identity ldap title" aria-level="3">
                 LDAPS Identity Management Source

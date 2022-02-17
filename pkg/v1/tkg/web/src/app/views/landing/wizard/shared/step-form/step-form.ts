@@ -157,6 +157,13 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
         AppServices.userDataService.clear(this.createUserDataIdentifier(fieldName));
     }
 
+    protected clearControlValue(controlName: string, clearSavedData?: boolean) {
+        this.setControlValueSafely(controlName, '' , { onlySelf: true, emitEvent: false});
+        if (clearSavedData) {
+            this.clearFieldSavedData(controlName);
+        }
+    }
+
     protected saveFieldData(fieldName: string, value: string) {
         AppServices.userDataService.store(this.createUserDataIdentifier(fieldName), {
             display: value,
@@ -292,10 +299,6 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
         if (control) {
             control.setValue(value, options);
         }
-    }
-
-    protected clearControlValue(controlName: string) {
-        this.setControlValueSafely(controlName, '' , { onlySelf: true, emitEvent: false});
     }
 
     protected setFieldWithStoredValue(field: string, stepMapping: StepMapping, defaultValue?: any,

@@ -3,12 +3,9 @@ import { Validators } from '@angular/forms';
 import { Component, OnInit } from '@angular/core';
 // App imports
 import AppServices from '../../../../shared/service/appServices';
-import {
-    KUBE_VIP,
-    NSX_ADVANCED_LOAD_BALANCER,
-    SharedLoadBalancerStepComponent
-} from '../../wizard/shared/components/steps/load-balancer/load-balancer-step.component';
+import { KUBE_VIP, NSX_ADVANCED_LOAD_BALANCER } from '../node-setting-step/node-setting-step.fieldmapping';
 import { LoadBalancerField } from '../../wizard/shared/components/steps/load-balancer/load-balancer-step.fieldmapping';
+import { SharedLoadBalancerStepComponent } from '../../wizard/shared/components/steps/load-balancer/load-balancer-step.component';
 import { TanzuEventType } from '../../../../shared/service/Messenger';
 
 const HA_REQUIRED_FIELDS = [
@@ -68,7 +65,7 @@ export class VsphereLoadBalancerStepComponent extends SharedLoadBalancerStepComp
 
     dynamicDescription(): string {
         // NOTE: even though this is a common wizard form, vSphere has a different way of describing it
-        const controllerHost = this.getFieldValue( LoadBalancerField.CONTROLLER_HOST);
+        const controllerHost = this.getFieldValue(LoadBalancerField.CONTROLLER_HOST);
         if (controllerHost) {
             return 'Controller: ' + controllerHost;
         }
