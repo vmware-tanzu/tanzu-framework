@@ -8,8 +8,8 @@ Usage:
 
 ```go
 import (
-"github.com/vmware-tanzu/tanzu-framework/pkg/v2/tkr/resolver"
-"github.com/vmware-tanzu/tanzu-framework/pkg/v2/tkr/resolver/data"
+  "github.com/vmware-tanzu/tanzu-framework/pkg/v2/tkr/resolver"
+  "github.com/vmware-tanzu/tanzu-framework/pkg/v2/tkr/resolver/data"
 )
 
 // skip ...
@@ -23,18 +23,18 @@ tkrSelector, _ := labels.Parse("!deprecated")
 osImageSelector, _ := labels.Parse("os-name=ubuntu,ami-region=us-west-2")
 
 query := data.Query{
-ControlPlane: data.OSImageQuery{
-K8sVersionPrefix: k8sVersionPrefix,
-TKRSelector:      tkrSelector,
-OSImageSelector:  osImageSelector,
-},
-MachineDeployments: map[string]data.OSImageQuery{
-"md1": {
-K8sVersionPrefix: k8sVersionPrefix,
-TKRSelector:      tkrSelector,
-OSImageSelector:  osImageSelector,
-},
-},
+  ControlPlane: data.OSImageQuery{
+    K8sVersionPrefix: k8sVersionPrefix,
+    TKRSelector:      tkrSelector,
+    OSImageSelector:  osImageSelector,
+  },
+  MachineDeployments: map[string]data.OSImageQuery{
+    "md1": {
+      K8sVersionPrefix: k8sVersionPrefix,
+      TKRSelector:      tkrSelector,
+      OSImageSelector:  osImageSelector,
+    },
+  },
 }
 
 result := tkrResolver.Resolve(query)
