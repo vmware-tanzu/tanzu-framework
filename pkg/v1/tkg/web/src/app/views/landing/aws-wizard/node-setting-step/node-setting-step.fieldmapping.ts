@@ -7,7 +7,7 @@ export const AwsNodeSettingStepMapping: StepMapping = {
         { name: AwsField.NODESETTING_AZ_1, required: true, label: 'AVAILABILITY ZONE 1', requiresBackendData: true },
         { name: AwsField.NODESETTING_AZ_2, required: true, label: 'AVAILABILITY ZONE 2', requiresBackendData: true },
         { name: AwsField.NODESETTING_AZ_3, required: true, label: 'AVAILABILITY ZONE 3', requiresBackendData: true },
-        { name: AwsField.NODESETTING_BASTION_HOST_ENABLED, isBoolean: true, defaultValue: true, label: 'ENABLE BASTION HOST' },
+        { name: AwsField.NODESETTING_BASTION_HOST_ENABLED, isBoolean: true, defaultValue: true, label: 'ACTIVATE BASTION HOST' },
         { name: AwsField.NODESETTING_CREATE_CLOUD_FORMATION, isBoolean: true, defaultValue: true,
             label: 'AUTOMATE CREATION OF AWS CLOUDFORMATION STACK' },
         { name: AwsField.NODESETTING_SSH_KEY_NAME, required: true, label: 'EC2 KEY PAIR' },

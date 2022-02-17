@@ -22,7 +22,7 @@ const ProviderNetworkFieldMapping: FieldMapping[] = [
     { name: NetworkField.CNI_TYPE, defaultValue: 'antrea', label: 'CNI PROVIDER' },
 ]
 const BasicNetworkFieldMappings: FieldMapping[] = [
-    { name: NetworkField.PROXY_SETTINGS, isBoolean: true, label: 'ENABLE PROXY SETTINGS' },
+    { name: NetworkField.PROXY_SETTINGS, isBoolean: true, label: 'ACTIVATE PROXY SETTINGS' },
     { name: NetworkField.HTTP_PROXY_URL, label: 'HTTP PROXY URL' },
     { name: NetworkField.HTTP_PROXY_USERNAME, label: 'HTTP PROXY USERNAME (OPTIONAL)' },
     { name: NetworkField.HTTP_PROXY_PASSWORD, mask: true, label: 'HTTP PROXY PASSWORD (OPTIONAL)' },

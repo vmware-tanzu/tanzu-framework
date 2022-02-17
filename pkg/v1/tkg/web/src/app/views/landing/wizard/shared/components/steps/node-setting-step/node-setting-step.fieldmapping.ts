@@ -16,7 +16,7 @@ export const NodeSettingStepMapping: StepMapping = {
         { name: NodeSettingField.INSTANCE_TYPE_DEV, label: 'INSTANCE TYPE', primaryTrigger: true },
         { name: NodeSettingField.INSTANCE_TYPE_PROD, label: 'INSTANCE TYPE', primaryTrigger: true },
         { name: NodeSettingField.WORKER_NODE_INSTANCE_TYPE, required: true, label: 'WORKER NODE INSTANCE TYPE' },
-        { name: NodeSettingField.ENABLE_AUDIT_LOGGING, isBoolean: true, label: 'ENABLE AUDIT LOGGING' },
+        { name: NodeSettingField.ENABLE_AUDIT_LOGGING, isBoolean: true, label: 'ACTIVATE AUDIT LOGGING' },
         { name: NodeSettingField.MACHINE_HEALTH_CHECKS_ENABLED, isBoolean: true, label: 'MACHINE HEALTH CHECKS' },
     ]
 }
