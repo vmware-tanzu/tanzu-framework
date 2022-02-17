@@ -9,7 +9,8 @@ import (
 
 // default value constants
 const (
-	DefaultCNIType = "antrea"
+	DefaultCNIType                         = "antrea"
+	DefaultCNISelectionClusterVariableName = "tkg.tanzu.vmware.com/cni"
 
 	DefaultDevControlPlaneMachineCount  = 1
 	DefaultProdControlPlaneMachineCount = 3
