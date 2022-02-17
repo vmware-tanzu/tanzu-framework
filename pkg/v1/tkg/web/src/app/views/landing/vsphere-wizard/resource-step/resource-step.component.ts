@@ -86,7 +86,8 @@ export class ResourceStepComponent extends StepFormDirective implements OnInit {
         // we try to set the fields to the saved value
         const fieldsToReset = [VsphereField.RESOURCE_POOL, VsphereField.RESOURCE_DATASTORE, VsphereField.RESOURCE_VMFOLDER];
         fieldsToReset.forEach(field => {
-            this.setFieldWithStoredValue(field, VsphereResourceStepMapping, this.getFieldValue(field));
+            this.setFieldWithStoredValue(field, VsphereResourceStepMapping, this.getFieldValue(field),
+                { onlySelf: true, emitEvent: false});
         });
     }
 

@@ -145,11 +145,18 @@ export class SharedIdentityStepComponent extends StepFormDirective implements On
 
     protected onStepStarted() {
         // these fields should have been restored during ngOnInit()
-        this.idmSettingType = this.getFieldValue(IdentityField.IDENTITY_TYPE);
         this.usingIdmSettings = this.getFieldValue(IdentityField.IDM_SETTINGS);
+        this.idmSettingType = this.getFieldValue(IdentityField.IDENTITY_TYPE);
+        if (!this.idmSettingType) {
+            // The type in use by default when user activated identity management is OIDC;
+            this.idmSettingType = IdentityManagementType.OIDC;
+            // setting the idm setting type should trigger the handler to set the oidc validators, etc.
+            this.setControlValueSafely(IdentityField.IDENTITY_TYPE, this.idmSettingType);
+        }
     }
 
     setOIDCValidators() {
+        const quietly = { onlySelf: true, emitEvent: false };
         this.resurrectField(IdentityField.ISSUER_URL, [
             Validators.required,
             this.validationService.noWhitespaceOnEnds(),
@@ -157,12 +164,12 @@ export class SharedIdentityStepComponent extends StepFormDirective implements On
                 this.validationService.isValidIpOrFqdnWithHttpsProtocol() : this.validationService.isValidIpv6OrFqdnWithHttpsProtocol(),
             this.validationService.isStringWithoutUrlFragment(),
             this.validationService.isStringWithoutQueryParams(),
-        ], this.getStoredValue(IdentityField.ISSUER_URL, IdentityStepMapping, ''));
+        ], this.getStoredValue(IdentityField.ISSUER_URL, IdentityStepMapping, ''), quietly);
 
         this.resurrectField(IdentityField.CLIENT_ID, [
             Validators.required,
             this.validationService.noWhitespaceOnEnds()
-        ], this.getStoredValue(IdentityField.CLIENT_ID, IdentityStepMapping, ''));
+        ], this.getStoredValue(IdentityField.CLIENT_ID, IdentityStepMapping, ''), quietly);
 
         this.resurrectField(IdentityField.CLIENT_SECRET, [
             Validators.required,
@@ -173,21 +180,22 @@ export class SharedIdentityStepComponent extends StepFormDirective implements On
             Validators.required,
             this.validationService.noWhitespaceOnEnds(),
             this.validationService.isCommaSeperatedList()
-        ], this.getStoredValue(IdentityField.SCOPES, IdentityStepMapping, ''));
+        ], this.getStoredValue(IdentityField.SCOPES, IdentityStepMapping, ''), quietly);
 
         this.resurrectField(IdentityField.OIDC_GROUPS_CLAIM, [
             Validators.required
-        ], this.getStoredValue(IdentityField.OIDC_GROUPS_CLAIM, IdentityStepMapping, ''));
+        ], this.getStoredValue(IdentityField.OIDC_GROUPS_CLAIM, IdentityStepMapping, ''), quietly);
 
         this.resurrectField(IdentityField.OIDC_USERNAME_CLAIM, [
             Validators.required
-        ], this.getStoredValue(IdentityField.OIDC_USERNAME_CLAIM, IdentityStepMapping, ''));
+        ], this.getStoredValue(IdentityField.OIDC_USERNAME_CLAIM, IdentityStepMapping, ''), quietly);
     }
 
     setLDAPValidators() {
+        const quietly = { onlySelf: true, emitEvent: false };
         this.resurrectField(IdentityField.ENDPOINT_IP, [
             Validators.required
-        ], this.getStoredValue(IdentityField.ENDPOINT_IP, IdentityStepMapping, ''));
+        ], this.getStoredValue(IdentityField.ENDPOINT_IP, IdentityStepMapping, ''), quietly);
 
         this.resurrectField(IdentityField.ENDPOINT_PORT, [
             Validators.required,
@@ -195,24 +203,24 @@ export class SharedIdentityStepComponent extends StepFormDirective implements On
             this.ipFamily === IpFamilyEnum.IPv4 ?
                 this.validationService.isValidLdap(this.formGroup.get(IdentityField.ENDPOINT_IP)) :
                 this.validationService.isValidIpv6Ldap(this.formGroup.get(IdentityField.ENDPOINT_IP))
-        ], this.getStoredValue(IdentityField.ENDPOINT_PORT, IdentityStepMapping, ''));
+        ], this.getStoredValue(IdentityField.ENDPOINT_PORT, IdentityStepMapping, ''), quietly);
 
         this.resurrectField(IdentityField.BIND_PW, [], '');
 
         this.resurrectField(IdentityField.USER_SEARCH_FILTER, [
             Validators.required
-        ], this.getStoredValue(IdentityField.USER_SEARCH_FILTER, IdentityStepMapping, ''));
+        ], this.getStoredValue(IdentityField.USER_SEARCH_FILTER, IdentityStepMapping, ''), quietly);
 
         this.resurrectField(IdentityField.USER_SEARCH_USERNAME, [
             Validators.required
-        ], this.getStoredValue(IdentityField.USER_SEARCH_USERNAME, IdentityStepMapping, ''));
+        ], this.getStoredValue(IdentityField.USER_SEARCH_USERNAME, IdentityStepMapping, ''), quietly);
 
         this.resurrectField(IdentityField.GROUP_SEARCH_FILTER, [
             Validators.required
-        ], this.getStoredValue(IdentityField.GROUP_SEARCH_FILTER, IdentityStepMapping, ''));
+        ], this.getStoredValue(IdentityField.GROUP_SEARCH_FILTER, IdentityStepMapping, ''), quietly);
 
         ldapNonValidatedFields.forEach(field => this.resurrectField(
-            field, [], this.getStoredValue(field, IdentityStepMapping, '')));
+            field, [], this.getStoredValue(field, IdentityStepMapping, ''), quietly));
     }
 
     unsetValidators(fields: string[]) {

@@ -185,7 +185,7 @@ export abstract class NodeSettingStepDirective<NODEINSTANCE> extends StepFormDir
     }
 
     // Extending classes may want to override this method
-    protected isClusterNameRequired():boolean {
+    protected isClusterNameRequired(): boolean {
         return AppServices.appDataService.isClusterNameRequired();
     }
 
