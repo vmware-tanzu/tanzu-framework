@@ -54,7 +54,7 @@ func main() {
 
 	setupLog.Info("registering webhooks to the webhook server")
 	hookServer.Register("/mutate-cluster", &webhook.Admission{
-		Handler: cluster.Webhook{},
+		Handler: &cluster.Webhook{},
 	})
 
 	setupLog.Info("starting manager")
