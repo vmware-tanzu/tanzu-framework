@@ -15,7 +15,7 @@ import { EditionData } from 'src/app/shared/service/branding.service';
 import { managementClusterPlugin } from "../../wizard/shared/constants/wizard.constants";
 import { SSLThumbprintModalComponent } from '../../wizard/shared/components/modals/ssl-thumbprint-modal/ssl-thumbprint-modal.component';
 import { StepFormDirective } from '../../wizard/shared/step-form/step-form';
-import { TanzuEvent, TanzuEventType } from 'src/app/shared/service/Messenger';
+import { TanzuEventType } from 'src/app/shared/service/Messenger';
 import { ValidationService } from '../../wizard/shared/validation/validation.service';
 import { VSphereDatacenter } from 'src/app/swagger/models/v-sphere-datacenter.model';
 import { VsphereField } from "../vsphere-wizard.constants";
@@ -82,14 +82,11 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
                 )
                 .subscribe((data) => {
                     const oldValue = this.supervisedFieldValues.get(field);
-                    const same = data === oldValue;
-                    if (same) {
-                        console.log('IGNORING change event from field ' + field + ' because value is unchanged: ' +
-                        oldValue + '-->' + data);
-                    } else {
+                    if (data !== oldValue) {
                         this.supervisedFieldValues.set(field, data);
-                        const msg = 'disconnecting due to change event from field ' + field + ' value changed: ' +
-                            oldValue + '-->' + data;
+                        const msg = field === VsphereField.PROVIDER_USER_PASSWORD ?
+                            'disconnecting due to password change' :
+                            'disconnecting due to change event from field ' + field + ' value: ' + oldValue + '-->' + data;
                         this.disconnect(msg);
                     }
                 });
@@ -100,19 +97,10 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
         });
 
         if (this.enableIpv6) {
-            this.formGroup.get(VsphereField.PROVIDER_IP_FAMILY).valueChanges
-                .pipe(
-                    distinctUntilChanged((prev, curr) => {
-                        const same = prev === curr;
-                        console.log('field PROVIDER_IP_FAMILY detects ' + !same + ' change from ' + prev + ' to ' + curr);
-                        return same;
-                    }),
-                    takeUntil(this.unsubscribe)
-                )
-                .subscribe(data => {
+            this.registerOnValueChange(VsphereField.PROVIDER_IP_FAMILY,
+                data => {
                     // In theory, we should only receive this event if the ipFamily actually changed. In practice, we double-check.
-                    const same = data === this.ipFamily;
-                    if (!same) {
+                    if (data !== this.ipFamily) {
                         AppServices.messenger.publish({
                             type: TanzuEventType.VSPHERE_IP_FAMILY_CHANGE,
                             payload: data
@@ -174,8 +162,6 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
             this.datacenters = [];
             this.disarmField(VsphereField.PROVIDER_DATA_CENTER);
             this.triggerStepDescriptionChange();
-        } else {
-            console.log('already disconnected so ignoring disconnect call (msg:' + consoleMsg + ')');
         }
     }
 
