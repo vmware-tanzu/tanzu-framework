@@ -351,13 +351,13 @@ func (r *ClusterBootstrapReconciler) createOrPatchPackageInstallSecret(cluster *
 
 	// Add cluster and package labels to secrets if not already present
 	// This helps us to track the secrets in the watch and trigger Reconcile requests when these secrets are updated
-	patchedSecret := *secret.DeepCopy()
-	if patchSecretWithLabels(&patchedSecret, pkg.RefName, cluster.Name) {
-		if err := r.Patch(r.context, &patchedSecret, client.MergeFrom(secret)); err != nil {
-			log.Error(err, "unable to update secret labels for ", "secret", secret.Name)
+	patchedSecret := secret.DeepCopy()
+	if patchSecretWithLabels(patchedSecret, pkg.RefName, cluster.Name) {
+		if err := r.Patch(r.context, patchedSecret, client.MergeFrom(secret)); err != nil {
+			log.Error(err, "unable to patch secret labels for ", "secret", secret.Name)
 			return nil, err
 		}
-		log.Info("Updated secrets with package and cluster labels to watch for changes")
+		log.Info("Patched secrets with package and cluster labels to watch for changes")
 	}
 
 	// Now prepare the dataValuesSecret to send to target cluster
