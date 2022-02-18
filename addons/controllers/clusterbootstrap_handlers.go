@@ -101,8 +101,6 @@ func (r *ClusterBootstrapReconciler) SecretsToClusters(o client.Object) []ctrl.R
 	// set the ClusterNameLabel on these cloned secrets
 	// For other secrets such as those that we get from provider status (extensible provider model), the second
 	// filter is used because it is not possible to patch the Type of these secrets because the Type may be immutable
-	//
-	// Need to confirm: We can just use the second filter that is based on the cluster label for all secrets.
 	if secret.Type == constants.ClusterBootstrapManagedSecret {
 		for _, ownerRef := range o.GetOwnerReferences() {
 			if ownerRef.Kind == reflect.TypeOf(clusterv1beta1.Cluster{}).Name() {
