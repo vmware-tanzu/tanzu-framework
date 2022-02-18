@@ -10,6 +10,7 @@ import (
 	netutils "k8s.io/utils/net"
 	clusterapiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
 
+	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/types"
 	runv1alpha3 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
 )
 
@@ -90,11 +91,12 @@ func mapKappControllerConfigSpec(cluster *clusterapiv1beta1.Cluster, config *run
 	configSpec.KappController.Deployment.MetricsBindAddress = config.Spec.KappController.Deployment.MetricsBindAddress
 
 	// Config
-	// TODO: consolidate proxy settings as derived fields https://github.com/vmware-tanzu/tanzu-framework/issues/1586
-	configSpec.KappController.Config.CaCerts = config.Spec.KappController.Config.CaCerts
-	configSpec.KappController.Config.HTTPProxy = config.Spec.KappController.Config.HTTPProxy
-	configSpec.KappController.Config.HTTPSProxy = config.Spec.KappController.Config.HTTPSProxy
-	configSpec.KappController.Config.NoProxy = config.Spec.KappController.Config.NoProxy
+	if cluster.Annotations != nil {
+		configSpec.KappController.Config.CaCerts = cluster.Annotations[types.ProxyCACertConfigAnnotation]
+		configSpec.KappController.Config.HTTPProxy = cluster.Annotations[types.HTTPProxyConfigAnnotation]
+		configSpec.KappController.Config.HTTPSProxy = cluster.Annotations[types.HTTPSProxyConfigAnnotation]
+		configSpec.KappController.Config.NoProxy = cluster.Annotations[types.NoProxyConfigAnnotation]
+	}
 	configSpec.KappController.Config.DangerousSkipTLSVerify = config.Spec.KappController.Config.DangerousSkipTLSVerify
 
 	return configSpec, nil

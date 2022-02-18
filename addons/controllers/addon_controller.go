@@ -51,7 +51,7 @@ type AddonReconciler struct {
 	Log        logr.Logger
 	Scheme     *runtime.Scheme
 	controller controller.Controller
-	Config     addonconfig.Config
+	Config     addonconfig.AddonControllerConfig
 }
 
 // SetupWithManager performs the setup actions for an add on controller, using the passed in mgr.

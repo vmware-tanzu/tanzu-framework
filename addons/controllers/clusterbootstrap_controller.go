@@ -24,6 +24,7 @@ import (
 	"k8s.io/utils/pointer"
 	clusterapiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
 	clusterapiutil "sigs.k8s.io/cluster-api/util"
+	clusterapipatchutil "sigs.k8s.io/cluster-api/util/patch"
 	clusterApiPredicates "sigs.k8s.io/cluster-api/util/predicates"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/builder"
@@ -35,6 +36,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/predicate"
 	"sigs.k8s.io/controller-runtime/pkg/source"
 
+	addonconfig "github.com/vmware-tanzu/tanzu-framework/addons/pkg/config"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/types"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/util"
@@ -48,6 +50,7 @@ type ClusterBootstrapReconciler struct {
 	Log     logr.Logger
 	Scheme  *runtime.Scheme
 	context context.Context
+	Config  addonconfig.ClusterBootstrapControllerConfig
 
 	// internal properties
 	controller    controller.Controller
@@ -58,23 +61,16 @@ type ClusterBootstrapReconciler struct {
 	cachedDiscoveryClient discovery.CachedDiscoveryInterface
 	// cache for resolved api-resources so that look up is fast (cleared periodically)
 	providerGVR map[schema.GroupKind]*schema.GroupVersionResource
-
-	ClusterBootstrapConfig ClusterBootstrapConfig
 }
 
 // NewClusterBootstrapReconciler returns a reconciler for ClusterBootstrap
-func NewClusterBootstrapReconciler(c client.Client, log logr.Logger, scheme *runtime.Scheme, clusterBootstrapConfig ClusterBootstrapConfig) *ClusterBootstrapReconciler {
+func NewClusterBootstrapReconciler(c client.Client, log logr.Logger, scheme *runtime.Scheme, config *addonconfig.ClusterBootstrapControllerConfig) *ClusterBootstrapReconciler {
 	return &ClusterBootstrapReconciler{
-		Client:                 c,
-		Log:                    log,
-		Scheme:                 scheme,
-		ClusterBootstrapConfig: clusterBootstrapConfig,
+		Client: c,
+		Log:    log,
+		Scheme: scheme,
+		Config: *config,
 	}
-}
-
-// ClusterBootstrapConfig contains configuration information related to ClusterBootstrap
-type ClusterBootstrapConfig struct {
-	CNISelectionClusterVariableName string
 }
 
 // ClusterBootstrapWatchInputs contains the inputs for Watches set in ClusterBootstrap
@@ -174,6 +170,12 @@ func (r *ClusterBootstrapReconciler) reconcileNormal(cluster *clusterapiv1beta1.
 	}
 	if clusterBootstrap == nil {
 		return ctrl.Result{}, nil
+	}
+
+	// reconcile the proxy settings of the cluster
+	err = r.reconcileClusterProxyAndNetworkSettings(cluster, log)
+	if err != nil {
+		return ctrl.Result{}, err
 	}
 
 	remoteClient, err := util.GetClusterClient(r.context, r.Client, r.Scheme, clusterapiutil.ObjectKey(cluster))
@@ -669,7 +671,7 @@ func (r *ClusterBootstrapReconciler) getCNI(
 
 	var clusterBootstrapPackage *runtanzuv1alpha3.ClusterBootstrapPackage
 
-	selectedCNI, err := util.ParseClusterVariableString(cluster, r.ClusterBootstrapConfig.CNISelectionClusterVariableName)
+	selectedCNI, err := util.ParseClusterVariableString(cluster, r.Config.CNISelectionClusterVariableName)
 	if err != nil {
 		log.Error(err, "Error parsing cluster variable value for the CNI selection")
 		return nil, err
@@ -707,4 +709,56 @@ func (r *ClusterBootstrapReconciler) watchesForClusterBootstrap() []ClusterBoots
 			handler.EnqueueRequestsFromMapFunc(r.SecretsToClusters),
 		},
 	}
+}
+
+func (r *ClusterBootstrapReconciler) reconcileClusterProxyAndNetworkSettings(cluster *clusterapiv1beta1.Cluster,
+	log logr.Logger) error {
+
+	// use patchHelper to auto detect if there is diff in Cluster CR when performing update
+	patchHelper, err := clusterapipatchutil.NewHelper(cluster, r.Client)
+	if err != nil {
+		return err
+	}
+
+	// We want the reconciliation to continue even if there are errors in getting proxy settings
+	// Log an error and proceed with defaulting to empty string
+	// Individual config controllers are responsible for validating the info provided
+	HTTPProxy, err := util.ParseClusterVariableString(cluster, r.Config.HTTPProxyClusterClassVarName)
+	if err != nil {
+		log.Error(err, "Failed to fetch cluster HTTP proxy setting, defaulting to empty")
+	}
+	HTTPSProxy, err := util.ParseClusterVariableString(cluster, r.Config.HTTPSProxyClusterClassVarName)
+	if err != nil {
+		log.Error(err, "Failed to fetch cluster HTTPS proxy setting, defaulting to empty")
+	}
+	NoProxy, err := util.ParseClusterVariableString(cluster, r.Config.NoProxyClusterClassVarName)
+	if err != nil {
+		log.Error(err, "Failed to fetch cluster no-proxy setting, defaulting to empty")
+	}
+	ProxyCACert, err := util.ParseClusterVariableString(cluster, r.Config.ProxyCACertClusterClassVarName)
+	if err != nil {
+		log.Error(err, "Failed to fetch cluster proxy CA certificate, defaulting to empty")
+	}
+	IPFamily, err := util.ParseClusterVariableString(cluster, r.Config.IPFamilyClusterClassVarName)
+	if err != nil {
+		log.Error(err, "Failed to fetch cluster IP family, defaulting to empty")
+	}
+
+	if cluster.Annotations == nil {
+		cluster.Annotations = map[string]string{}
+	}
+	cluster.Annotations[types.HTTPProxyConfigAnnotation] = HTTPProxy
+	cluster.Annotations[types.HTTPSProxyConfigAnnotation] = HTTPSProxy
+	cluster.Annotations[types.NoProxyConfigAnnotation] = NoProxy
+	cluster.Annotations[types.ProxyCACertConfigAnnotation] = ProxyCACert
+	cluster.Annotations[types.IPFamilyConfigAnnotation] = IPFamily
+
+	log.Info("setting proxy and network configurations in Cluster annotation", types.HTTPProxyConfigAnnotation, HTTPProxy, types.HTTPSProxyConfigAnnotation, HTTPSProxy, types.NoProxyConfigAnnotation, NoProxy, types.ProxyCACertConfigAnnotation, ProxyCACert, types.IPFamilyConfigAnnotation, IPFamily)
+
+	if err := patchHelper.Patch(r.context, cluster); err != nil {
+		log.Error(err, "Error patching Cluster Annotation")
+		return err
+	}
+
+	return nil
 }

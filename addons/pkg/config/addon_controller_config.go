@@ -8,8 +8,8 @@ import (
 	"time"
 )
 
-// Config contains configuration information.
-type Config struct {
+// AddonControllerConfig contains addons controller configuration information.
+type AddonControllerConfig struct {
 	AppSyncPeriod           time.Duration
 	AppWaitTimeout          time.Duration
 	AddonNamespace          string

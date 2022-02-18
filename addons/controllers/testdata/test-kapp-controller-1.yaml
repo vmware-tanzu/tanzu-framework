@@ -4,6 +4,12 @@ kind: Cluster
 metadata:
   name: test-kapp-controller-1
   namespace: default
+  annotations:
+    TKG_HTTP_PROXY: "foo.com"
+    TKG_HTTPS_PROXY: "bar.com"
+    TKG_NO_PROXY: "foobar.com"
+    TKG_PROXY_CA_CERT: "dummyCertificate"
+    TKG_IP_FAMILY: "ipv4"
 spec:
   clusterNetwork:
     pods:

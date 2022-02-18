@@ -32,7 +32,7 @@ type PackageReconciler struct {
 	ctx           context.Context
 	log           logr.Logger
 	clusterClient client.Client
-	Config        addonconfig.Config
+	Config        addonconfig.AddonControllerConfig
 }
 
 // reconcileCorePackageRepository reconciles the core package repository in the cluster

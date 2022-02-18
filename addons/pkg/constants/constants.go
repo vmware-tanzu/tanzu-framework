@@ -132,6 +132,24 @@ const (
 
 	// ClusterBootstrapManagedSecret is the name for the secrets that are managed by ClusterBootstrapController
 	ClusterBootstrapManagedSecret = "clusterbootstrap-secret"
+
+	// DefaultCNISelectionClusterVariableName is the default cluster variable name for cni selection
+	DefaultCNISelectionClusterVariableName = "tkg.tanzu.vmware.com/cni"
+
+	// DefaultHTTPProxyClusterClassVarName is the default cluster variable name for HTTP proxy setting
+	DefaultHTTPProxyClusterClassVarName = "TKG_HTTP_PROXY"
+
+	// DefaultHTTPSProxyClusterClassVarName is the default cluster variable name for HTTPS proxy setting
+	DefaultHTTPSProxyClusterClassVarName = "TKG_HTTPS_PROXY"
+
+	// DefaultNoProxyClusterClassVarName is the default cluster variable name for no proxy setting
+	DefaultNoProxyClusterClassVarName = "TKG_NO_PROXY"
+
+	// DefaultProxyCaCertClusterClassVarName is the default cluster variable name for proxy CA cert
+	DefaultProxyCaCertClusterClassVarName = "TKG_PROXY_CA_CERT"
+
+	// DefaultIPFamilyClusterClassVarName is the default cluster variable name for ip family
+	DefaultIPFamilyClusterClassVarName = "TKG_IP_FAMILY"
 )
 
 // ClusterKind is the Kind for cluster-api Cluster object

@@ -42,14 +42,13 @@ import (
 	cniv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cni/v1alpha1"
 	runtanzuv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha1"
 	runtanzuv1alpha3 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
-	tkgconstants "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
 )
 
 // These tests use Ginkgo (BDD-style Go testing framework). Refer to
 // http://onsi.github.io/ginkgo/ to learn more about Ginkgo.
 
 const (
-	waitTimeout             = time.Second * 90
+	waitTimeout             = time.Second * 60
 	pollingInterval         = time.Second * 2
 	appSyncPeriod           = 5 * time.Minute
 	appWaitTimeout          = 30 * time.Second
@@ -176,7 +175,7 @@ var _ = BeforeSuite(func(done Done) {
 		Client: mgr.GetClient(),
 		Log:    setupLog,
 		Scheme: mgr.GetScheme(),
-		Config: addonconfig.Config{
+		Config: addonconfig.AddonControllerConfig{
 			AppSyncPeriod:           appSyncPeriod,
 			AppWaitTimeout:          appWaitTimeout,
 			AddonNamespace:          addonNamespace,
@@ -209,7 +208,14 @@ var _ = BeforeSuite(func(done Done) {
 	bootstrapReconciler := NewClusterBootstrapReconciler(mgr.GetClient(),
 		ctrl.Log.WithName("controllers").WithName("ClusterBootstrap"),
 		mgr.GetScheme(),
-		ClusterBootstrapConfig{CNISelectionClusterVariableName: tkgconstants.DefaultCNISelectionClusterVariableName},
+		&addonconfig.ClusterBootstrapControllerConfig{
+			CNISelectionClusterVariableName: constants.DefaultCNISelectionClusterVariableName,
+			HTTPProxyClusterClassVarName:    constants.DefaultHTTPProxyClusterClassVarName,
+			HTTPSProxyClusterClassVarName:   constants.DefaultHTTPSProxyClusterClassVarName,
+			NoProxyClusterClassVarName:      constants.DefaultNoProxyClusterClassVarName,
+			ProxyCACertClusterClassVarName:  constants.DefaultProxyCaCertClusterClassVarName,
+			IPFamilyClusterClassVarName:     constants.DefaultIPFamilyClusterClassVarName,
+		},
 	)
 	Expect(bootstrapReconciler.SetupWithManager(ctx, mgr, controller.Options{MaxConcurrentReconciles: 1})).To(Succeed())
 

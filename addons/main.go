@@ -33,7 +33,6 @@ import (
 	runtanzuv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha1"
 	runtanzuv1alpha3 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/buildinfo"
-	tkgconstants "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
 )
 
 var (
@@ -57,7 +56,7 @@ func init() {
 	// +kubebuilder:scaffold:scheme
 }
 
-func main() {
+func main() { // nolint:funlen
 	var metricsAddr string
 	var enableLeaderElection bool
 	var clusterConcurrency int
@@ -72,6 +71,11 @@ func main() {
 	var corePackageRepoName string
 	var healthdAddr string
 	var cniSelectionClusterVarName string
+	var httpProxyClusterVarName string
+	var httpsProxyClusterVarName string
+	var noProxyClusterVarName string
+	var proxyCACertClusterVarName string
+	var ipFamilyClusterVarName string
 
 	// controller configurations
 	flag.StringVar(&metricsAddr, "metrics-bind-addr", ":8080", "The address the metric endpoint binds to.")
@@ -92,7 +96,12 @@ func main() {
 	flag.StringVar(&addonImagePullPolicy, "addon-image-pull-policy", "IfNotPresent", "The addon image pull policy")
 	flag.StringVar(&corePackageRepoName, "core-package-repo-name", "tanzu-core", "The name of core package repository")
 	flag.StringVar(&healthdAddr, "health-addr", ":18316", "The address the health endpoint binds to.")
-	flag.StringVar(&cniSelectionClusterVarName, "cni-selection-cluster-var-name", tkgconstants.DefaultCNISelectionClusterVariableName, "CNI selection cluster variable name")
+	flag.StringVar(&cniSelectionClusterVarName, "cni-selection-cluster-var-name", constants.DefaultCNISelectionClusterVariableName, "CNI selection cluster variable name")
+	flag.StringVar(&httpProxyClusterVarName, "http-proxy-cluster-var-name", constants.DefaultHTTPProxyClusterClassVarName, "HTTP proxy setting cluster variable name")
+	flag.StringVar(&httpsProxyClusterVarName, "https-proxy-cluster-var-name", constants.DefaultHTTPSProxyClusterClassVarName, "HTTPS proxy setting cluster variable name")
+	flag.StringVar(&noProxyClusterVarName, "no-proxy-cluster-var-name", constants.DefaultNoProxyClusterClassVarName, "No-proxy setting cluster variable name")
+	flag.StringVar(&proxyCACertClusterVarName, "proxy-ca-cert-cluster-var-name", constants.DefaultProxyCaCertClusterClassVarName, "Proxy CA certificate cluster variable name")
+	flag.StringVar(&ipFamilyClusterVarName, "ip-family-cluster-var-name", constants.DefaultIPFamilyClusterClassVarName, "IP family setting cluster variable name")
 
 	flag.Parse()
 
@@ -136,7 +145,7 @@ func main() {
 		Client: mgr.GetClient(),
 		Log:    ctrl.Log.WithName("controllers").WithName("Addon"),
 		Scheme: mgr.GetScheme(),
-		Config: addonconfig.Config{
+		Config: addonconfig.AddonControllerConfig{
 			AppSyncPeriod:           appSyncPeriod,
 			AppWaitTimeout:          appWaitTimeout,
 			AddonNamespace:          addonNamespace,

@@ -22,6 +22,8 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
+	"sigs.k8s.io/controller-runtime/pkg/handler"
+	"sigs.k8s.io/controller-runtime/pkg/source"
 
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/util"
@@ -88,6 +90,10 @@ func (r *KappControllerConfigReconciler) Reconcile(ctx context.Context, req ctrl
 func (r *KappControllerConfigReconciler) SetupWithManager(ctx context.Context, mgr ctrl.Manager, options controller.Options) error {
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&runv1alpha3.KappControllerConfig{}).
+		Watches(
+			&source.Kind{Type: &clusterapiv1beta1.Cluster{}},
+			handler.EnqueueRequestsFromMapFunc(r.ClusterToKappControllerConfig),
+		).
 		WithOptions(options).
 		Complete(r)
 }
