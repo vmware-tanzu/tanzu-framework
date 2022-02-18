@@ -83,7 +83,7 @@ describe('NodeSettingStepComponent', () => {
     it('should announce description change', () => {
         const msgSpy = spyOn(AppServices.messenger, 'publish').and.callThrough();
         component.ngOnInit();
-        component.clusterPlan = '';
+        component.clearClusterPlan();
 
         const staticDescription = component.dynamicDescription();
         expect(staticDescription).toEqual('Specify the resources backing the  cluster');

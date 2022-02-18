@@ -10,8 +10,8 @@ import { ValidationService } from '../../../validation/validation.service';
 @Directive()
 export abstract class NodeSettingStepDirective<NODEINSTANCE> extends StepFormDirective implements OnInit {
     nodeTypes: Array<NODEINSTANCE> = [];
-    clusterPlan: string;
     clusterNameInstruction: string;
+    private clusterPlan: string;
     private stepMapping: StepMapping;
 
     protected abstract getKeyFromNodeInstance(nodeInstance: NODEINSTANCE): string;
@@ -106,8 +106,8 @@ export abstract class NodeSettingStepDirective<NODEINSTANCE> extends StepFormDir
             const existingValue = this.formGroup.get(NodeSettingField.INSTANCE_TYPE_DEV).value;
             valueToUse = this.getStoredValue(NodeSettingField.INSTANCE_TYPE_DEV, this.supplyStepMapping(), existingValue);
         }
-        this.resurrectFieldWithStoredValue(NodeSettingField.INSTANCE_TYPE_DEV, this.supplyStepMapping(),
-        [Validators.required], valueToUse);
+        this.resurrectFieldWithStoredValue(NodeSettingField.INSTANCE_TYPE_DEV, this.supplyStepMapping(), [Validators.required],
+            valueToUse, this.quietly);
         this.disarmField(NodeSettingField.INSTANCE_TYPE_PROD);
     }
 
@@ -122,7 +122,7 @@ export abstract class NodeSettingStepDirective<NODEINSTANCE> extends StepFormDir
             valueToUse = this.getStoredValue(NodeSettingField.INSTANCE_TYPE_PROD, this.supplyStepMapping(), existingValue);
         }
         this.resurrectFieldWithStoredValue(NodeSettingField.INSTANCE_TYPE_PROD, this.supplyStepMapping(),
-            [Validators.required], valueToUse);
+            [Validators.required], valueToUse, this.quietly);
         this.disarmField(NodeSettingField.INSTANCE_TYPE_DEV);
     }
 
@@ -141,28 +141,14 @@ export abstract class NodeSettingStepDirective<NODEINSTANCE> extends StepFormDir
     }
 
     protected chooseInitialClusterPlan() {
-        const devInstanceType = this.getStoredValue(NodeSettingField.INSTANCE_TYPE_DEV, this.supplyStepMapping());
-        if (devInstanceType) {
-            this.setControlPlaneToDev();
-            return;
-        }
         const prodInstanceType = this.getStoredValue(NodeSettingField.INSTANCE_TYPE_PROD, this.supplyStepMapping());
-        if (prodInstanceType) {
-            this.setControlPlaneToProd();
-            return;
-        }
-        this.setControlPlaneToDev();
+        prodInstanceType ? this.cardClickProd() : this.cardClickDev();
     }
 
     // This method may be USED by subclasses, but should not be overwritten; subclasses should overwrite createStepMapping() instead.
     protected supplyStepMapping(): StepMapping {
         if (!this.stepMapping) {
             this.stepMapping = this.createStepMapping();
-        }
-        if (!this.stepMapping) {
-            console.error('NodeSettingStep.supplyStepMapping() returning null');
-        } else if (!this.stepMapping.fieldMappings) {
-            console.error('NodeSettingStep.supplyStepMapping() returning object missing fieldMappings');
         }
         return this.stepMapping;
     }
@@ -204,6 +190,11 @@ export abstract class NodeSettingStepDirective<NODEINSTANCE> extends StepFormDir
 
     get isClusterPlanDev(): boolean {
         return this.clusterPlan === ClusterPlan.DEV;
+    }
+
+    // TODO: this method is for testing classes; find another way
+    clearClusterPlan() {
+        this.clusterPlan = '';
     }
 
     // Extending classes should have no reason to override this method.

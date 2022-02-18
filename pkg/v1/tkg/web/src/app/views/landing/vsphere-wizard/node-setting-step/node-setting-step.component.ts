@@ -51,14 +51,18 @@ export class NodeSettingStepComponent extends NodeSettingStepDirective<NodeType>
             type: TanzuEventType.VSPHERE_CONTROL_PLANE_ENDPOINT_PROVIDER_CHANGED,
             payload: provider
         });
-        this.resurrectField(VsphereField.NODESETTING_CONTROL_PLANE_ENDPOINT_IP, (provider === KUBE_VIP) ? [
-            Validators.required,
-            this.ipFamily === IpFamilyEnum.IPv4 ? this.validationService.isValidIpOrFqdn() : this.validationService.isValidIpv6OrFqdn()
-        ] : [
-            this.ipFamily === IpFamilyEnum.IPv4 ? this.validationService.isValidIpOrFqdn() : this.validationService.isValidIpv6OrFqdn()
-        ], this.getStoredValue(VsphereField.NODESETTING_CONTROL_PLANE_ENDPOINT_IP, this.supplyStepMapping(), ''));
+        const validators = this.getIpValidators(provider);
+        const storedEndpointId = this.getStoredValue(VsphereField.NODESETTING_CONTROL_PLANE_ENDPOINT_IP, this.supplyStepMapping(), '');
+        this.resurrectField(VsphereField.NODESETTING_CONTROL_PLANE_ENDPOINT_IP, validators, storedEndpointId, this.quietly);
 
         this.controlPlaneEndpointOptional = (provider === KUBE_VIP ? '' : '(OPTIONAL)');
+    }
+
+    private getIpValidators(provider: string) {
+        const ipValidator = this.ipFamily === IpFamilyEnum.IPv4 ? this.validationService.isValidIpOrFqdn() :
+            this.validationService.isValidIpv6OrFqdn();
+        const validators = (provider === KUBE_VIP) ? [Validators.required, ipValidator] : [ipValidator];
+        return validators;
     }
 
     protected getKeyFromNodeInstance(nodeInstance: NodeType): string {
