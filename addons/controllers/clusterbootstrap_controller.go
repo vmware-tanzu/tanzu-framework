@@ -389,13 +389,13 @@ func patchSecretWithLabels(secret *corev1.Secret, pkgName, clusterName string) b
 	if secret.Labels == nil {
 		secret.Labels = map[string]string{}
 		updateLabels = true
-	} else if secret.Labels[addontypes.PackageNameLabel] != pkgName ||
-		secret.Labels[addontypes.ClusterNameLabel] != clusterName {
+	} else if secret.Labels[types.PackageNameLabel] != pkgName ||
+		secret.Labels[types.ClusterNameLabel] != clusterName {
 		updateLabels = true
 	}
 	if updateLabels {
-		secret.Labels[addontypes.PackageNameLabel] = pkgName
-		secret.Labels[addontypes.ClusterNameLabel] = clusterName
+		secret.Labels[types.PackageNameLabel] = pkgName
+		secret.Labels[types.ClusterNameLabel] = clusterName
 	}
 	return updateLabels
 }

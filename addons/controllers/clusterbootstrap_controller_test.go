@@ -215,6 +215,57 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 					return true
 				}, waitTimeout, pollingInterval).Should(BeTrue())
 			})
+
+			// Update the secret created before for foobar resource
+			// Verify that the updated secret leads to an updated data-values secret
+			By("Updating the foobar package provider secret", func() {
+				s := &v1.Secret{}
+				Expect(k8sClient.Get(ctx, client.ObjectKey{Namespace: "default", Name: "foobar-data-values"}, s)).To(Succeed())
+				s.OwnerReferences = []metav1.OwnerReference{
+					{
+						APIVersion: clusterapiv1beta1.GroupVersion.String(),
+						Kind:       "Cluster",
+						Name:       cluster.Name,
+						UID:        cluster.UID,
+					},
+				}
+				s.Data["values.yaml"] = []byte("foobar-updated")
+				Expect(k8sClient.Update(ctx, s)).To(Succeed())
+
+				Eventually(func() bool {
+					s := &v1.Secret{}
+					if err := k8sClient.Get(ctx, client.ObjectKey{Namespace: "tkg-system", Name: fmt.Sprintf("%s-foobar-data-values", clusterName)}, s); err != nil {
+						return false
+					}
+					if string(s.Data["values.yaml"]) != "foobar-updated" {
+						return false
+					}
+
+					return true
+				}, waitTimeout, pollingInterval).Should(BeTrue())
+			})
+
+			// Update the secret created before for foobar1
+			// Verify that the updated secret leads to an updated data-values secret
+			By("Updating the foobar1 package secret", func() {
+				s := &v1.Secret{}
+				secretName := fmt.Sprintf("%s-foobar1-package", clusterName)
+				Expect(k8sClient.Get(ctx, client.ObjectKey{Namespace: "default", Name: secretName}, s)).To(Succeed())
+				s.Data["values.yaml"] = []byte("foobar1-updated")
+				Expect(k8sClient.Update(ctx, s)).To(Succeed())
+
+				Eventually(func() bool {
+					s := &v1.Secret{}
+					if err := k8sClient.Get(ctx, client.ObjectKey{Namespace: "tkg-system", Name: fmt.Sprintf("%s-foobar1-data-values", clusterName)}, s); err != nil {
+						return false
+					}
+					if string(s.Data["values.yaml"]) != "foobar1-updated" {
+						return false
+					}
+
+					return true
+				}, waitTimeout, pollingInterval).Should(BeTrue())
+			})
 		})
 	})
 
