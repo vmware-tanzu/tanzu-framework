@@ -31,7 +31,6 @@ rules:
   - create
   - update
   - patch
-  - delete
 - apiGroups:
   - cluster.x-k8s.io
   resources:
