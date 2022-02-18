@@ -309,7 +309,7 @@ router.get(`${ENDPOINT}/providers/vsphere/datacenters`, (req, res) => {
         },
 
         {
-            name: '/SDDC-Datacenter/test/dc-1',
+            name: '/SDDC-Datacenter/test-a-really-long-one/dc-1',
             moid: 'test-dc-1'
         }
     ]);
