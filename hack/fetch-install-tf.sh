@@ -5,7 +5,7 @@
 
 # Inspired by - https://github.com/vmware-tanzu/community-edition/blob/main/hack/install.sh
 # Script to install tanzu framework
-# Usage: ./hack/install.sh /path/to/tanzu-framework/core/binary
+# Usage: hack/fetch-install-tf.sh
 
 set -o errexit
 set -o nounset
