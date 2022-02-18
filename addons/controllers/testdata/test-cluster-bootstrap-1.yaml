@@ -1,0 +1,92 @@
+---
+apiVersion: run.tanzu.vmware.com/v1alpha3
+kind: TanzuKubernetesRelease
+metadata:
+  name: v1.22.3
+spec:
+  version: v1.22.3
+  kubernetes:
+    version: v1.22.3
+    imageRepository: foo
+  osImages: []
+  bootstrapPackages: []
+
+---
+apiVersion: cluster.x-k8s.io/v1beta1
+kind: Cluster
+metadata:
+  name: test-cluster-tcbt
+  namespace: default
+  labels:
+    tkg.tanzu.vmware.com/cluster-name: test-cluster-tcbt
+    run.tanzu.vmware.com/tkr: v1.22.3
+spec:
+  infrastructureRef:
+    kind: VSphereCluster
+  clusterNetwork:
+    pods:
+      cidrBlocks: [ "192.168.0.0/16","fd00:100:96::/48" ]
+    services:
+      cidrBlocks: [ "192.168.0.0/16","fd00:100:96::/48" ]
+  topology:
+    class: test-clusterclass-tcbt
+    version: v1.22.3
+    variables:
+      - name: tkg.tanzu.vmware.com/cni
+        value: antrea
+---
+apiVersion: run.tanzu.vmware.com/v1alpha3
+kind: ClusterBootstrapTemplate
+metadata:
+  name: v1.22.3
+  namespace: tkg-system
+spec:
+  additionalPackages:
+    - refName: foobar.example.com.1.17.2
+      valuesFrom:
+        providerRef:
+          apiGroup: run.tanzu.vmware.com
+          kind: FooBar
+          name: example-foo
+  cnis:
+    - refName: "calico.tanzu.vmware.com.0.3.0--vmware.1-tkg.1-rc.1"
+      valuesFrom:
+        providerRef:
+          apiGroup: cni.tanzu.vmware.com
+          kind: CalicoConfig
+          name: test-cluster-tcbt
+    - refName: "antrea.tanzu.vmware.com.21.2.0--vmware.1-tkg.1-rc.1"
+      valuesFrom:
+        providerRef:
+          apiGroup: cni.tanzu.vmware.com
+          kind: AntreaConfig
+          name: test-cluster-tcbt
+
+---
+apiVersion: run.tanzu.vmware.com/v1alpha1
+kind: FooBar
+metadata:
+  name: example-foo
+  namespace: tkg-system
+spec:
+  foo: bar
+---
+apiVersion: cni.tanzu.vmware.com/v1alpha1
+kind: CalicoConfig
+metadata:
+  name: test-cluster-tcbt
+  namespace: tkg-system
+spec:
+  calico:
+    config:
+      vethMTU: 0
+---
+apiVersion: cni.tanzu.vmware.com/v1alpha1
+kind: AntreaConfig
+metadata:
+  name: test-cluster-tcbt
+  namespace: tkg-system
+spec:
+  antrea:
+    config:
+      trafficEncapMode: encap

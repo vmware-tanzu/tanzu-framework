@@ -42,6 +42,7 @@ import (
 	cniv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cni/v1alpha1"
 	runtanzuv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha1"
 	runtanzuv1alpha3 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
+	tkgconstants "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
 )
 
 // These tests use Ginkgo (BDD-style Go testing framework). Refer to
@@ -189,25 +190,26 @@ var _ = BeforeSuite(func(done Done) {
 
 	Expect((&calico.CalicoConfigReconciler{
 		Client: mgr.GetClient(),
-		Log:    setupLog,
+		Log:    ctrl.Log.WithName("controllers").WithName("CalicoConfig"),
 		Scheme: mgr.GetScheme(),
 	}).SetupWithManager(ctx, mgr, controller.Options{MaxConcurrentReconciles: 1})).To(Succeed())
 
 	Expect((&antrea.AntreaConfigReconciler{
 		Client: mgr.GetClient(),
-		Log:    setupLog,
+		Log:    ctrl.Log.WithName("controllers").WithName("AntreaConfig"),
 		Scheme: mgr.GetScheme(),
 	}).SetupWithManager(ctx, mgr, controller.Options{MaxConcurrentReconciles: 1})).To(Succeed())
 
 	Expect((&kappcontroller.KappControllerConfigReconciler{
 		Client: mgr.GetClient(),
-		Log:    setupLog,
+		Log:    ctrl.Log.WithName("controllers").WithName("KappController"),
 		Scheme: mgr.GetScheme(),
 	}).SetupWithManager(ctx, mgr, controller.Options{MaxConcurrentReconciles: 1})).To(Succeed())
 
 	bootstrapReconciler := NewClusterBootstrapReconciler(mgr.GetClient(),
 		ctrl.Log.WithName("controllers").WithName("ClusterBootstrap"),
 		mgr.GetScheme(),
+		ClusterBootstrapConfig{CNISelectionClusterVariableName: tkgconstants.DefaultCNISelectionClusterVariableName},
 	)
 	Expect(bootstrapReconciler.SetupWithManager(ctx, mgr, controller.Options{MaxConcurrentReconciles: 1})).To(Succeed())
 

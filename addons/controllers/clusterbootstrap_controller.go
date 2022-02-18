@@ -36,7 +36,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/source"
 
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
-	addontypes "github.com/vmware-tanzu/tanzu-framework/addons/pkg/types"
+	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/types"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/util"
 	"github.com/vmware-tanzu/tanzu-framework/addons/predicates"
 	runtanzuv1alpha3 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
@@ -58,15 +58,23 @@ type ClusterBootstrapReconciler struct {
 	cachedDiscoveryClient discovery.CachedDiscoveryInterface
 	// cache for resolved api-resources so that look up is fast (cleared periodically)
 	providerGVR map[schema.GroupKind]*schema.GroupVersionResource
+
+	ClusterBootstrapConfig ClusterBootstrapConfig
 }
 
 // NewClusterBootstrapReconciler returns a reconciler for ClusterBootstrap
-func NewClusterBootstrapReconciler(c client.Client, log logr.Logger, scheme *runtime.Scheme) *ClusterBootstrapReconciler {
+func NewClusterBootstrapReconciler(c client.Client, log logr.Logger, scheme *runtime.Scheme, clusterBootstrapConfig ClusterBootstrapConfig) *ClusterBootstrapReconciler {
 	return &ClusterBootstrapReconciler{
-		Client: c,
-		Log:    log,
-		Scheme: scheme,
+		Client:                 c,
+		Log:                    log,
+		Scheme:                 scheme,
+		ClusterBootstrapConfig: clusterBootstrapConfig,
 	}
+}
+
+// ClusterBootstrapConfig contains configuration information related to ClusterBootstrap
+type ClusterBootstrapConfig struct {
+	CNISelectionClusterVariableName string
 }
 
 // +kubebuilder:rbac:groups=run.tanzu.vmware.com,resources=clusterBootstraps,verbs=get;list;watch;create;update;patch;delete
@@ -121,6 +129,7 @@ func (r *ClusterBootstrapReconciler) SetupWithManager(ctx context.Context, mgr c
 // Reconcile performs the reconciliation action for the controller.
 func (r *ClusterBootstrapReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	log := r.Log.WithValues(constants.ClusterNamespaceLogKey, req.Namespace, constants.ClusterNameLogKey, req.Name)
+
 	// get cluster object
 	cluster := &clusterapiv1beta1.Cluster{}
 	if err := r.Client.Get(ctx, req.NamespacedName, cluster); err != nil {
@@ -232,6 +241,13 @@ func (r *ClusterBootstrapReconciler) createOrPatchclusterBootstrapFromTemplate(
 		clusterBootstrap.Name = cluster.Name
 		clusterBootstrap.Namespace = cluster.Namespace
 		clusterBootstrap.Spec = clusterBootstrapTemplate.Spec.DeepCopy()
+		// get selected CNI and populate clusterBootstrap.Spec.CNIs with it
+		cniPackage, err := r.getCNI(clusterBootstrapTemplate, cluster, log)
+		if err != nil {
+			return nil, err
+		}
+		clusterBootstrap.Spec.CNIs = []*runtanzuv1alpha3.ClusterBootstrapPackage{cniPackage}
+
 		secrets, providers, err := r.cloneSecretsAndProviders(cluster, clusterBootstrap, clusterBootstrapTemplate.Namespace, log)
 		if err != nil {
 			r.Log.Error(err, "unable to clone secrets, providers")
@@ -355,11 +371,11 @@ func (r *ClusterBootstrapReconciler) cloneSecretsAndProviders(cluster *clusterap
 	var createdSecrets []*corev1.Secret
 
 	packages := append([]*runtanzuv1alpha3.ClusterBootstrapPackage{
-		bootstrap.Spec.CNI,
 		bootstrap.Spec.CPI,
 		bootstrap.Spec.CSI,
 		bootstrap.Spec.Kapp,
-	}, bootstrap.Spec.AdditionalPackages...)
+	}, bootstrap.Spec.CNIs...)
+	packages = append(packages, bootstrap.Spec.AdditionalPackages...)
 
 	for _, pkg := range packages {
 		if pkg == nil {
@@ -511,8 +527,8 @@ func (r *ClusterBootstrapReconciler) updateValuesFromSecret(cluster *clusterapiv
 			newSecret.Labels = map[string]string{}
 		}
 
-		newSecret.Labels[addontypes.PackageNameLabel] = pkg.RefName
-		newSecret.Labels[addontypes.ClusterNameLabel] = cluster.Name
+		newSecret.Labels[types.PackageNameLabel] = pkg.RefName
+		newSecret.Labels[types.ClusterNameLabel] = cluster.Name
 
 		newSecret.Name = fmt.Sprintf("%s-%s-package", cluster.Name, packageShortName(pkg.RefName))
 		newSecret.Namespace = bootstrap.Namespace
@@ -556,12 +572,12 @@ func (r *ClusterBootstrapReconciler) updateValuesFromProvider(cluster *clusterap
 		providerLabels := newProvider.GetLabels()
 		if providerLabels == nil {
 			newProvider.SetLabels(map[string]string{
-				addontypes.PackageNameLabel: pkg.RefName,
-				addontypes.ClusterNameLabel: cluster.Name,
+				types.PackageNameLabel: pkg.RefName,
+				types.ClusterNameLabel: cluster.Name,
 			})
 		} else {
-			providerLabels[addontypes.PackageNameLabel] = pkg.RefName
-			providerLabels[addontypes.ClusterNameLabel] = cluster.Name
+			providerLabels[types.PackageNameLabel] = pkg.RefName
+			providerLabels[types.ClusterNameLabel] = cluster.Name
 		}
 
 		newProvider.SetName(fmt.Sprintf("%s-%s-package", cluster.Name, packageShortName(pkg.RefName)))
@@ -612,4 +628,34 @@ func (r *ClusterBootstrapReconciler) watchProvider(providerRef *corev1.TypedLoca
 			GenericFunc: func(e event.GenericEvent) bool { return true },
 		},
 	)
+}
+
+func (r *ClusterBootstrapReconciler) getCNI(
+	clusterBootstrapTemplate *runtanzuv1alpha3.ClusterBootstrapTemplate,
+	cluster *clusterapiv1beta1.Cluster,
+	log logr.Logger) (*runtanzuv1alpha3.ClusterBootstrapPackage, error) {
+
+	var clusterBootstrapPackage *runtanzuv1alpha3.ClusterBootstrapPackage
+
+	selectedCNI, err := util.ParseClusterVariableString(cluster, r.ClusterBootstrapConfig.CNISelectionClusterVariableName)
+	if err != nil {
+		log.Error(err, "Error parsing cluster variable value for the CNI selection")
+		return nil, err
+	}
+	if selectedCNI != "" {
+		for _, cni := range clusterBootstrapTemplate.Spec.CNIs {
+			if selectedCNI == packageShortName(cni.RefName) {
+				clusterBootstrapPackage = cni
+				break
+			}
+		}
+	} else {
+		if len(clusterBootstrapTemplate.Spec.CNIs) > 0 {
+			clusterBootstrapPackage = clusterBootstrapTemplate.Spec.CNIs[0]
+		} else {
+			return nil, errors.New("no CNI was specified in the ClusterClass or in ClusterBootstrap.Spec.CNIs")
+		}
+	}
+
+	return clusterBootstrapPackage, nil
 }

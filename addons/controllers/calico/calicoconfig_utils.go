@@ -11,14 +11,8 @@ import (
 	"github.com/pkg/errors"
 	clusterapiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
 
+	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/util"
 	cniv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cni/v1alpha1"
-	tkgconstants "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
-)
-
-// TODO: remove after Shivaani's PR got merged
-const (
-	// InfrastructureRefDocker is the Docker infrastructure
-	InfrastructureRefDocker = "DockerCluster"
 )
 
 // calicoConfigSpec defines the desired state of CalicoConfig
@@ -46,7 +40,7 @@ func mapCalicoConfigSpec(cluster *clusterapiv1beta1.Cluster, config *cniv1alpha1
 	configSpec.Calico.Config.VethMTU = config.Spec.Calico.Config.VethMTU
 
 	// Derive InfraProvider from the cluster
-	configSpec.InfraProvider, err = getInfraProvider(cluster)
+	configSpec.InfraProvider, err = util.GetInfraProvider(cluster)
 	if err != nil {
 		return nil, errors.Wrap(err, "Unable to get 'InfraProvider' setting for CalicoConfig")
 	}
@@ -89,29 +83,4 @@ func getCalicoNetworkSettings(cluster *clusterapiv1beta1.Cluster) (string, strin
 
 	cidrBlocks := strings.Join(clusterNetwork.Pods.CIDRBlocks, ",")
 	return strings.TrimSuffix(result, ","), cidrBlocks, nil
-}
-
-// TODO: remove after Shivaani's PR got merged
-func getInfraProvider(cluster *clusterapiv1beta1.Cluster) (string, error) {
-	var infraProvider string
-
-	infrastructureRef := cluster.Spec.InfrastructureRef
-	if infrastructureRef == nil {
-		return "", fmt.Errorf("cluster.Spec.InfrastructureRef is not set for cluster '%s", cluster.Name)
-	}
-
-	switch infrastructureRef.Kind {
-	case tkgconstants.InfrastructureRefVSphere:
-		infraProvider = tkgconstants.InfrastructureProviderVSphere
-	case tkgconstants.InfrastructureRefAWS:
-		infraProvider = tkgconstants.InfrastructureProviderAWS
-	case tkgconstants.InfrastructureRefAzure:
-		infraProvider = tkgconstants.InfrastructureProviderAzure
-	case InfrastructureRefDocker:
-		infraProvider = tkgconstants.InfrastructureProviderDocker
-	default:
-		return "", fmt.Errorf("unknown cluster.Spec.InfrastructureRef.Kind is set for cluster '%s", cluster.Name)
-	}
-
-	return infraProvider, nil
 }

@@ -55,10 +55,11 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 
 		BeforeEach(func() {
 			clusterName = "test-cluster-tcbt"
-			clusterResourceFilePath = "testdata/test-cluster-bootstrap.yaml"
+			clusterResourceFilePath = "testdata/test-cluster-bootstrap-1.yaml"
 		})
 
-		It("Should create clone ClusterBootstrapTemplate and its related objects for the cluster and create package secret for foobar.example.com.1.17.2", func() {
+		It("Should create clone ClusterBootstrapTemplate and its related objects for the cluster, create package "+
+			"secret for foobar.example.com.1.17.2 and set CNI to the one specified using cluster variable", func() {
 			cluster := &clusterapiv1beta1.Cluster{}
 			Expect(k8sClient.Get(ctx, client.ObjectKey{Namespace: "default", Name: clusterName}, cluster)).To(Succeed())
 
@@ -77,6 +78,17 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 				}
 				return false
 			}, waitTimeout, pollingInterval).Should(BeTrue())
+
+			// Verify CNI is populated in the cloned object with the value from the cluster variables definitions
+			Expect(len(clusterBootstrap.Spec.CNIs)).NotTo(BeZero())
+			cni := clusterBootstrap.Spec.CNIs[0]
+			Expect(packageShortName(cni.RefName)).To(Equal("antrea"))
+
+			Expect(cni.RefName).To(Equal("antrea.tanzu.vmware.com.21.2.0--vmware.1-tkg.1-rc.1"))
+			Expect(*cni.ValuesFrom.ProviderRef.APIGroup).To(Equal("cni.tanzu.vmware.com"))
+			Expect(cni.ValuesFrom.ProviderRef.Kind).To(Equal("AntreaConfig"))
+			providerName := fmt.Sprintf("%s-antrea-package", clusterName)
+			Expect(cni.ValuesFrom.ProviderRef.Name).To(Equal(providerName))
 
 			// Verify ResolvedTKR
 			Eventually(func() bool {
@@ -162,8 +174,46 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 					return true
 				}, waitTimeout, pollingInterval).Should(BeTrue())
 			})
-
 		})
 	})
 
+	Context("reconcileClusterBootstrapNormal, CNI selection in case of no CNI cluster variable", func() {
+
+		BeforeEach(func() {
+			clusterName = "test-cluster-tcbt-2"
+			clusterResourceFilePath = "testdata/test-cluster-bootstrap-2.yaml"
+		})
+
+		It("Should create cloned ClusterBootstrap for the cluster and set CNI to the first entry in the template (as cluster variable for CNI is not set)", func() {
+			cluster := &clusterapiv1beta1.Cluster{}
+			Expect(k8sClient.Get(ctx, client.ObjectKey{Namespace: "default", Name: clusterName}, cluster)).To(Succeed())
+
+			clusterBootstrap := &runtanzuv1alpha3.ClusterBootstrap{}
+
+			// Verify ownerReference for cluster in cloned object
+			Eventually(func() bool {
+				err := k8sClient.Get(ctx, client.ObjectKeyFromObject(cluster), clusterBootstrap)
+				if err != nil {
+					return false
+				}
+				for _, ownerRef := range clusterBootstrap.OwnerReferences {
+					if ownerRef.UID == cluster.UID {
+						return true
+					}
+				}
+				return false
+			}, waitTimeout, pollingInterval).Should(BeTrue())
+
+			// Verify CNI is populated in the cloned object with the the first entry in the template (as cluster variable for CNI is not set)
+			Expect(len(clusterBootstrap.Spec.CNIs)).To(Equal(1))
+			cni := clusterBootstrap.Spec.CNIs[0]
+			Expect(packageShortName(cni.RefName)).To(Equal("calico"))
+
+			Expect(cni.RefName).To(Equal("calico.tanzu.vmware.com.0.3.0--vmware.1-tkg.1-rc.1"))
+			Expect(*cni.ValuesFrom.ProviderRef.APIGroup).To(Equal("cni.tanzu.vmware.com"))
+			Expect(cni.ValuesFrom.ProviderRef.Kind).To(Equal("CalicoConfig"))
+			providerName := fmt.Sprintf("%s-calico-package", clusterName)
+			Expect(cni.ValuesFrom.ProviderRef.Name).To(Equal(providerName))
+		})
+	})
 })
