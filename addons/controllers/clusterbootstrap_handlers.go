@@ -6,6 +6,7 @@ package controllers
 import (
 	"errors"
 	"fmt"
+	"reflect"
 
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/types"
@@ -104,21 +105,15 @@ func (r *ClusterBootstrapReconciler) SecretsToClusters(o client.Object) []ctrl.R
 	// Need to confirm: We can just use the second filter that is based on the cluster label for all secrets.
 	if secret.Type == constants.ClusterBootstrapManagedSecret {
 		for _, ownerRef := range o.GetOwnerReferences() {
-			if ownerRef.APIVersion == clusterv1beta1.GroupVersion.String() {
+			if ownerRef.Kind == reflect.TypeOf(clusterv1beta1.Cluster{}).Name() {
 				return []ctrl.Request{{NamespacedName: types.NamespacedName{Namespace: o.GetNamespace(), Name: ownerRef.Name}}}
 			}
 		}
 	}
-	cluster := &clusterv1beta1.Cluster{}
-	clusterName := ""
 	if secret.GetLabels() != nil {
-		clusterName = secret.GetLabels()[addontypes.ClusterNameLabel]
+		clusterName := secret.GetLabels()[addontypes.ClusterNameLabel]
 		if clusterName != "" {
-			if err := r.Client.Get(r.context, client.ObjectKey{Namespace: secret.Namespace, Name: clusterName}, cluster); err != nil {
-				log.Error(err, "Error getting cluster using Secret")
-				return nil
-			}
-			return []ctrl.Request{{NamespacedName: client.ObjectKeyFromObject(cluster)}}
+			return []ctrl.Request{{NamespacedName: client.ObjectKey{Namespace: secret.Namespace, Name: clusterName}}}
 		}
 	}
 

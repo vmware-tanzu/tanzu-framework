@@ -56,7 +56,6 @@ type AddonReconciler struct {
 
 // SetupWithManager performs the setup actions for an add on controller, using the passed in mgr.
 func (r *AddonReconciler) SetupWithManager(ctx context.Context, mgr ctrl.Manager, options controller.Options) error {
-	// nolint:dupl
 	addonController, err := ctrl.NewControllerManagedBy(mgr).
 		For(&clusterapiv1beta1.Cluster{}).
 		Watches(

@@ -82,7 +82,6 @@ type ClusterBootstrapConfig struct {
 
 // SetupWithManager performs the setup actions for an ClusterBootstrap controller, using the passed in mgr.
 func (r *ClusterBootstrapReconciler) SetupWithManager(ctx context.Context, mgr ctrl.Manager, options controller.Options) error {
-	// nolint:dupl
 	ctrlr, err := ctrl.NewControllerManagedBy(mgr).
 		For(&clusterapiv1beta1.Cluster{}).
 		Watches(
