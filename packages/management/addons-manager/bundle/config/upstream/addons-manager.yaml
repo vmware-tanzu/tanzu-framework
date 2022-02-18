@@ -16,10 +16,31 @@ rules:
   resources:
   - tanzukubernetesreleases
   - tanzukubernetesreleases/status
+  - clusterbootstraps
+  - clusterbootstraptemplates
+  - kappcontrollerconfigs
   verbs:
   - get
   - list
   - watch
+  - create
+  - update
+  - patch
+  - delete
+- apiGroups:
+  - cni.tanzu.vmware.com
+  resources:
+  - antreaconfigs
+  - calicoconfigs
+  verbs:
+  - get
+  - list
+  - watch
+  - create
+  - update
+  - patch
+  - delete
+# permissions are required for addons-manager to create/update resources in the ProviderRef which are dynamic.
 - apiGroups:
   - ['*']
   resources:
