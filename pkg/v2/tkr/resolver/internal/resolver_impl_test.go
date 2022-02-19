@@ -134,8 +134,8 @@ var _ = Describe("Cache implementation", func() {
 			)
 
 			BeforeEach(func() {
-				tkrSubset = testdata.RandSubsetOfTKRs(tkrs)
-				osImageSubset = testdata.RandSubsetOfOSImages(osImages)
+				tkrSubset = testdata.RandNonEmptySubsetOfTKRs(tkrs)
+				osImageSubset = testdata.RandNonEmptySubsetOfOSImages(osImages)
 
 				for _, tkr := range tkrSubset {
 					Expect(r.cache.tkrs).To(HaveKeyWithValue(tkr.Name, tkr))
@@ -174,8 +174,8 @@ var _ = Describe("Cache implementation", func() {
 		)
 
 		BeforeEach(func() {
-			tkrSubset = testdata.RandSubsetOfTKRs(tkrs)
-			osImageSubset = testdata.RandSubsetOfOSImages(osImages)
+			tkrSubset = testdata.RandNonEmptySubsetOfTKRs(tkrs)
+			osImageSubset = testdata.RandNonEmptySubsetOfOSImages(osImages)
 
 			for _, tkr := range tkrSubset {
 				Expect(r.cache.tkrs).To(HaveKeyWithValue(tkr.Name, tkr))
@@ -207,28 +207,47 @@ var _ = Describe("Cache implementation", func() {
 })
 
 var _ = Describe("normalize(query)", func() {
-	When("label selectors are empty", func() {
-		var (
-			initialQuery    = testdata.GenQueryAllForK8sVersion(k8sVersions[rand.Intn(len(k8sVersions))])
-			normalizedQuery data.Query
-		)
+	var (
+		initialQuery,
+		normalizedQuery data.Query
+	)
 
+	When("label selectors are empty", func() {
 		BeforeEach(func() {
-			normalizedQuery = normalize(initialQuery)
+			initialQuery = testdata.GenQueryAllForK8sVersion(k8sVersions[rand.Intn(len(k8sVersions))])
 		})
 
 		It("should add label requirements for the k8s version prefix", func() {
+			normalizedQuery = normalize(initialQuery)
+
 			assertOSImageQueryExpectations(normalizedQuery.ControlPlane, initialQuery.ControlPlane)
-			for name, initialMDQuery := range initialQuery.MachineDeployments {
-				Expect(normalizedQuery.MachineDeployments).To(HaveKey(name))
-				assertOSImageQueryExpectations(normalizedQuery.MachineDeployments[name], initialMDQuery)
+			Expect(normalizedQuery.MachineDeployments).To(HaveLen(len(initialQuery.MachineDeployments)))
+			for i, initialMDQuery := range initialQuery.MachineDeployments {
+				assertOSImageQueryExpectations(normalizedQuery.MachineDeployments[i], initialMDQuery)
 			}
+		})
+
+		When("the controlPlane does not need to be resolved", func() {
+			BeforeEach(func() {
+				initialQuery.ControlPlane = nil
+			})
+
+			It("should keep it as is", func() {
+				normalizedQuery = normalize(initialQuery)
+
+				Expect(normalizedQuery.ControlPlane).To(BeNil())
+			})
 		})
 	})
 
 })
 
-func assertOSImageQueryExpectations(normalized, initial data.OSImageQuery) {
+func assertOSImageQueryExpectations(normalized, initial *data.OSImageQuery) {
+	if initial == nil {
+		Expect(normalized).To(BeNil())
+		return
+	}
+	Expect(normalized).ToNot(BeNil())
 	Expect(normalized.K8sVersionPrefix).To(Equal(initial.K8sVersionPrefix))
 	for _, selector := range []labels.Selector{normalized.TKRSelector, normalized.OSImageSelector} {
 		Expect(selector.Matches(labels.Set{version.Label(initial.K8sVersionPrefix): ""})).To(BeTrue())
@@ -276,14 +295,52 @@ var _ = Describe("Resolve()", func() {
 		result := r.Resolve(queryK8sVersionPrefix)
 
 		assertOSImageResultExpectations(result.ControlPlane, queryK8sVersionPrefix.ControlPlane, k8sVersionPrefix)
-		for name, osImageQuery := range queryK8sVersionPrefix.MachineDeployments {
-			Expect(result.MachineDeployments).To(HaveKey(name))
-			assertOSImageResultExpectations(result.MachineDeployments[name], osImageQuery, k8sVersionPrefix)
+		Expect(result.MachineDeployments).To(HaveLen(len(queryK8sVersionPrefix.MachineDeployments)))
+		for i, osImageQuery := range queryK8sVersionPrefix.MachineDeployments {
+			assertOSImageResultExpectations(result.MachineDeployments[i], osImageQuery, k8sVersionPrefix)
 		}
+	})
+
+	When("the controlPlane part doesn't need to be resolved", func() {
+		BeforeEach(func() {
+			queryK8sVersionPrefix.ControlPlane = nil
+		})
+
+		It("should skip resolving the control plane only", func() {
+			result := r.Resolve(queryK8sVersionPrefix)
+
+			assertOSImageResultExpectations(result.ControlPlane, queryK8sVersionPrefix.ControlPlane, k8sVersionPrefix)
+			Expect(result.MachineDeployments).To(HaveLen(len(queryK8sVersionPrefix.MachineDeployments)))
+			for i, osImageQuery := range queryK8sVersionPrefix.MachineDeployments {
+				assertOSImageResultExpectations(result.MachineDeployments[i], osImageQuery, k8sVersionPrefix)
+			}
+		})
+	})
+
+	When("the md[0] part doesn't need to be resolved", func() {
+		BeforeEach(func() {
+			Expect(queryK8sVersionPrefix.MachineDeployments).ToNot(BeEmpty())
+			queryK8sVersionPrefix.MachineDeployments[0] = nil
+		})
+
+		It("should skip resolving the md[0] only", func() {
+			result := r.Resolve(queryK8sVersionPrefix)
+
+			assertOSImageResultExpectations(result.ControlPlane, queryK8sVersionPrefix.ControlPlane, k8sVersionPrefix)
+			Expect(result.MachineDeployments).To(HaveLen(len(queryK8sVersionPrefix.MachineDeployments)))
+			for i, osImageQuery := range queryK8sVersionPrefix.MachineDeployments {
+				assertOSImageResultExpectations(result.MachineDeployments[i], osImageQuery, k8sVersionPrefix)
+			}
+		})
 	})
 })
 
-func assertOSImageResultExpectations(osImageResult data.OSImageResult, osImageQuery data.OSImageQuery, k8sVersionPrefix string) {
+func assertOSImageResultExpectations(osImageResult *data.OSImageResult, osImageQuery *data.OSImageQuery, k8sVersionPrefix string) {
+	if osImageQuery == nil {
+		Expect(osImageResult).To(BeNil())
+		return
+	}
+	Expect(osImageResult).ToNot(BeNil())
 	Expect(version.Prefixes(osImageResult.K8sVersion)).To(HaveKey(k8sVersionPrefix))
 	Expect(version.Prefixes(version.Label(osImageResult.TKRName))).To(HaveKey(version.Label(k8sVersionPrefix)))
 
