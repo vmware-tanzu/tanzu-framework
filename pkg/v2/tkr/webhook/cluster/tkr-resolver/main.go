@@ -7,8 +7,8 @@ import (
 	"flag"
 	"os"
 
-	"github.com/go-logr/logr"
-	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
+	"k8s.io/apimachinery/pkg/runtime"
+	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client/config"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
@@ -16,14 +16,20 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/manager/signals"
 	"sigs.k8s.io/controller-runtime/pkg/webhook"
 
+	runv1 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/buildinfo"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v2/tkr/service/cluster"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v2/tkr/resolver"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v2/tkr/webhook/cluster/tkr-resolver/cache"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v2/tkr/webhook/cluster/tkr-resolver/cluster"
 )
 
-var setupLog logr.Logger
+var (
+	scheme   = runtime.NewScheme()
+	setupLog = ctrl.Log.WithName("setup")
+)
 
 func init() {
-	setupLog = ctrl.Log.WithName("setup")
+	utilruntime.Must(runv1.AddToScheme(scheme))
 }
 
 func main() {
@@ -42,9 +48,32 @@ func main() {
 
 	// Setup a Manager
 	setupLog.Info("setting up manager")
-	mgr, err := manager.New(config.GetConfigOrDie(), manager.Options{CertDir: webhookCertDir})
+	mgr, err := manager.New(config.GetConfigOrDie(), manager.Options{
+		Scheme:  scheme,
+		CertDir: webhookCertDir,
+	})
 	if err != nil {
 		setupLog.Error(err, "unable to set up controller manager")
+		os.Exit(1)
+	}
+
+	tkrResolver := resolver.New()
+
+	if err := (&cache.Reconciler{
+		Client: mgr.GetClient(),
+		Cache:  tkrResolver,
+		Object: &runv1.TanzuKubernetesRelease{},
+	}).SetupWithManager(mgr); err != nil {
+		setupLog.Error(err, "unable to create controller", "controller", "TKR cache")
+		os.Exit(1)
+	}
+
+	if err := (&cache.Reconciler{
+		Client: mgr.GetClient(),
+		Cache:  tkrResolver,
+		Object: &runv1.OSImage{},
+	}).SetupWithManager(mgr); err != nil {
+		setupLog.Error(err, "unable to create controller", "controller", "OSImage cache")
 		os.Exit(1)
 	}
 
@@ -54,7 +83,9 @@ func main() {
 
 	setupLog.Info("registering webhooks to the webhook server")
 	hookServer.Register("/mutate-cluster", &webhook.Admission{
-		Handler: &cluster.Webhook{},
+		Handler: &cluster.Webhook{
+			TKRResolver: tkrResolver,
+		},
 	})
 
 	setupLog.Info("starting manager")
