@@ -77,40 +77,31 @@ type ClusterBootstrapConfig struct {
 	CNISelectionClusterVariableName string
 }
 
+// ClusterBootstrapWatchInputs contains the inputs for Watches set in ClusterBootstrap
+type ClusterBootstrapWatchInputs struct {
+	src          source.Source
+	eventHandler handler.EventHandler
+}
+
 // +kubebuilder:rbac:groups=run.tanzu.vmware.com,resources=clusterBootstraps,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=run.tanzu.vmware.com,resources=clusterBootstraps/status,verbs=get;update;patch
 
 // SetupWithManager performs the setup actions for an ClusterBootstrap controller, using the passed in mgr.
 func (r *ClusterBootstrapReconciler) SetupWithManager(ctx context.Context, mgr ctrl.Manager, options controller.Options) error {
-	ctrlr, err := ctrl.NewControllerManagedBy(mgr).
-		For(&clusterapiv1beta1.Cluster{}).
-		Watches(
-			&source.Kind{Type: &runtanzuv1alpha3.TanzuKubernetesRelease{}},
-			handler.EnqueueRequestsFromMapFunc(r.TKRToClusters),
-			builder.WithPredicates(
-				predicates.TKR(r.Log),
-			),
-		).
-		Watches(
-			&source.Kind{Type: &runtanzuv1alpha3.ClusterBootstrap{}},
-			handler.EnqueueRequestsFromMapFunc(r.ClusterBootstrapToClusters),
-			builder.WithPredicates(
-				predicates.TKR(r.Log),
-			),
-		).
-		Watches(
-			&source.Kind{Type: &corev1.Secret{}},
-			handler.EnqueueRequestsFromMapFunc(r.SecretsToClusters),
-			builder.WithPredicates(
-				predicates.TKR(r.Log),
-			),
-		).
+	blder := ctrl.NewControllerManagedBy(mgr).For(&clusterapiv1beta1.Cluster{})
+
+	// Set the Watches for resources watched by ClusterBootstrap
+	for _, watchInputs := range r.watchesForClusterBootstrap() {
+		blder.Watches(watchInputs.src, watchInputs.eventHandler, builder.WithPredicates(predicates.TKR(r.Log)))
+	}
+
+	ctrlr, err := blder.
 		WithOptions(options).
 		WithEventFilter(clusterApiPredicates.ResourceNotPaused(r.Log)).
 		WithEventFilter(predicates.ClusterHasLabel(constants.TKRLabelClassyClusters, r.Log)).
 		Build(r)
 	if err != nil {
-		r.Log.Error(err, "Error creating an addon controller")
+		r.Log.Error(err, "Error creating ClusterBootstrap controller")
 		return err
 	}
 
@@ -699,4 +690,21 @@ func (r *ClusterBootstrapReconciler) getCNI(
 	}
 
 	return clusterBootstrapPackage, nil
+}
+
+func (r *ClusterBootstrapReconciler) watchesForClusterBootstrap() []ClusterBootstrapWatchInputs {
+	return []ClusterBootstrapWatchInputs{
+		{
+			&source.Kind{Type: &runtanzuv1alpha3.TanzuKubernetesRelease{}},
+			handler.EnqueueRequestsFromMapFunc(r.TKRToClusters),
+		},
+		{
+			&source.Kind{Type: &corev1.Secret{}},
+			handler.EnqueueRequestsFromMapFunc(r.SecretsToClusters),
+		},
+		{
+			&source.Kind{Type: &corev1.Secret{}},
+			handler.EnqueueRequestsFromMapFunc(r.SecretsToClusters),
+		},
+	}
 }
