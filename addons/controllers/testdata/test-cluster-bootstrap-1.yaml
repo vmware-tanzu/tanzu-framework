@@ -42,6 +42,9 @@ metadata:
   namespace: tkg-system
 spec:
   additionalPackages:
+    - refName: foobar1.example.com.1.17.2
+      valuesFrom:
+        secretRef: foobar1secret
     - refName: foobar.example.com.1.17.2
       valuesFrom:
         providerRef:
@@ -70,6 +73,14 @@ metadata:
   namespace: tkg-system
 spec:
   foo: bar
+---
+kind: Secret
+metadata:
+  name: foobar1secret
+  namespace: tkg-system
+stringData:
+  values.yaml: |
+    sample-key: sample-value
 ---
 apiVersion: cni.tanzu.vmware.com/v1alpha1
 kind: CalicoConfig

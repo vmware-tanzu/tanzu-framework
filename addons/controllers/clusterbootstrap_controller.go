@@ -77,33 +77,31 @@ type ClusterBootstrapConfig struct {
 	CNISelectionClusterVariableName string
 }
 
+// ClusterBootstrapWatchInputs contains the inputs for Watches set in ClusterBootstrap
+type ClusterBootstrapWatchInputs struct {
+	src          source.Source
+	eventHandler handler.EventHandler
+}
+
 // +kubebuilder:rbac:groups=run.tanzu.vmware.com,resources=clusterBootstraps,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=run.tanzu.vmware.com,resources=clusterBootstraps/status,verbs=get;update;patch
 
 // SetupWithManager performs the setup actions for an ClusterBootstrap controller, using the passed in mgr.
 func (r *ClusterBootstrapReconciler) SetupWithManager(ctx context.Context, mgr ctrl.Manager, options controller.Options) error {
-	ctrlr, err := ctrl.NewControllerManagedBy(mgr).
-		For(&clusterapiv1beta1.Cluster{}).
-		Watches(
-			&source.Kind{Type: &runtanzuv1alpha3.TanzuKubernetesRelease{}},
-			handler.EnqueueRequestsFromMapFunc(r.TKRToClusters),
-			builder.WithPredicates(
-				predicates.TKR(r.Log),
-			),
-		).
-		Watches(
-			&source.Kind{Type: &runtanzuv1alpha3.ClusterBootstrap{}},
-			handler.EnqueueRequestsFromMapFunc(r.ClusterBootstrapToClusters),
-			builder.WithPredicates(
-				predicates.TKR(r.Log),
-			),
-		).
+	blder := ctrl.NewControllerManagedBy(mgr).For(&clusterapiv1beta1.Cluster{})
+
+	// Set the Watches for resources watched by ClusterBootstrap
+	for _, watchInputs := range r.watchesForClusterBootstrap() {
+		blder.Watches(watchInputs.src, watchInputs.eventHandler, builder.WithPredicates(predicates.TKR(r.Log)))
+	}
+
+	ctrlr, err := blder.
 		WithOptions(options).
 		WithEventFilter(clusterApiPredicates.ResourceNotPaused(r.Log)).
 		WithEventFilter(predicates.ClusterHasLabel(constants.TKRLabelClassyClusters, r.Log)).
 		Build(r)
 	if err != nil {
-		r.Log.Error(err, "Error creating an addon controller")
+		r.Log.Error(err, "Error creating ClusterBootstrap controller")
 		return err
 	}
 
@@ -342,6 +340,18 @@ func (r *ClusterBootstrapReconciler) createOrPatchPackageInstallSecret(cluster *
 		}
 	}
 
+	// Add cluster and package labels to secrets if not already present
+	// This helps us to track the secrets in the watch and trigger Reconcile requests when these secrets are updated
+	patchedSecret := secret.DeepCopy()
+	if patchSecretWithLabels(patchedSecret, pkg.RefName, cluster.Name) {
+		if err := r.Patch(r.context, patchedSecret, client.MergeFrom(secret)); err != nil {
+			log.Error(err, "unable to patch secret labels for ", "secret", secret.Name)
+			return nil, err
+		}
+		log.Info("Patched secrets with package and cluster labels to watch for changes")
+	}
+
+	// Now prepare the dataValuesSecret to send to target cluster
 	dataValuesSecret := &corev1.Secret{}
 	dataValuesSecret.Name = fmt.Sprintf("%s-%s-data-values", cluster.Name, packageShortName(pkg.RefName))
 	dataValuesSecret.Namespace = constants.TKGSystemNS
@@ -361,6 +371,24 @@ func (r *ClusterBootstrapReconciler) createOrPatchPackageInstallSecret(cluster *
 		return nil, err
 	}
 	return dataValuesSecret, nil
+}
+
+// patchSecretWithLabels updates the secret by adding package and cluster labels
+// Return true if a patch was required, false if the labels were already present
+func patchSecretWithLabels(secret *corev1.Secret, pkgName, clusterName string) bool {
+	updateLabels := false
+	if secret.Labels == nil {
+		secret.Labels = map[string]string{}
+		updateLabels = true
+	} else if secret.Labels[types.PackageNameLabel] != pkgName ||
+		secret.Labels[types.ClusterNameLabel] != clusterName {
+		updateLabels = true
+	}
+	if updateLabels {
+		secret.Labels[types.PackageNameLabel] = pkgName
+		secret.Labels[types.ClusterNameLabel] = clusterName
+	}
+	return updateLabels
 }
 
 // cloneSecretsAndProviders clones linked secrets and providers into the same namespace as clusterBootstrap
@@ -513,6 +541,7 @@ func (r *ClusterBootstrapReconciler) updateValuesFromSecret(cluster *clusterapiv
 			return nil, err
 		}
 		newSecret = secret.DeepCopy()
+		newSecret.ObjectMeta.Reset()
 		newSecret.OwnerReferences = []metav1.OwnerReference{
 			{
 				APIVersion: clusterapiv1beta1.GroupVersion.String(),
@@ -521,14 +550,17 @@ func (r *ClusterBootstrapReconciler) updateValuesFromSecret(cluster *clusterapiv
 				UID:        cluster.UID,
 			},
 		}
-		// Add cluster and package labels to cloned secrets
 
+		// Add cluster and package labels to cloned secrets
 		if newSecret.Labels == nil {
 			newSecret.Labels = map[string]string{}
 		}
 
 		newSecret.Labels[types.PackageNameLabel] = pkg.RefName
 		newSecret.Labels[types.ClusterNameLabel] = cluster.Name
+
+		// Set secret.Type to ClusterBootstrapManagedSecret to enable us to Watch these secrets
+		newSecret.Type = constants.ClusterBootstrapManagedSecret
 
 		newSecret.Name = fmt.Sprintf("%s-%s-package", cluster.Name, packageShortName(pkg.RefName))
 		newSecret.Namespace = bootstrap.Namespace
@@ -658,4 +690,21 @@ func (r *ClusterBootstrapReconciler) getCNI(
 	}
 
 	return clusterBootstrapPackage, nil
+}
+
+func (r *ClusterBootstrapReconciler) watchesForClusterBootstrap() []ClusterBootstrapWatchInputs {
+	return []ClusterBootstrapWatchInputs{
+		{
+			&source.Kind{Type: &runtanzuv1alpha3.TanzuKubernetesRelease{}},
+			handler.EnqueueRequestsFromMapFunc(r.TKRToClusters),
+		},
+		{
+			&source.Kind{Type: &corev1.Secret{}},
+			handler.EnqueueRequestsFromMapFunc(r.SecretsToClusters),
+		},
+		{
+			&source.Kind{Type: &corev1.Secret{}},
+			handler.EnqueueRequestsFromMapFunc(r.SecretsToClusters),
+		},
+	}
 }
