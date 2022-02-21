@@ -19,7 +19,7 @@ import (
 	"k8s.io/apimachinery/pkg/types"
 	aws "sigs.k8s.io/cluster-api-provider-aws/api/v1beta1"
 	azure "sigs.k8s.io/cluster-api-provider-azure/api/v1beta1"
-	vsphere "sigs.k8s.io/cluster-api-provider-vsphere/api/v1beta1"
+	vsphere "sigs.k8s.io/cluster-api-provider-vsphere/apis/v1beta1"
 	capiv1alpha3 "sigs.k8s.io/cluster-api/api/v1alpha3"
 	capi "sigs.k8s.io/cluster-api/api/v1beta1"
 	"sigs.k8s.io/cluster-api/bootstrap/kubeadm/api/v1beta1"
@@ -122,22 +122,28 @@ func DoSetMachineDeployment(clusterClient clusterclient.Client, options *SetMach
 		return apierrors.NewNotFound(schema.GroupResource{Resource: "MachineDeployment"}, "")
 	}
 
-	nameMatcher, err := regexp.Compile(fmt.Sprintf("((%s)?-)?(%s)",
-		regexp.QuoteMeta(options.ClusterName), regexp.QuoteMeta(options.Name)))
-	if err != nil {
-		return errors.Wrap(err, "failed to parse node pool name")
-	}
-
 	baseMD := workerMDs[0]
 	update := false
 	for i := range workerMDs {
-		if nameMatcher.MatchString(workerMDs[i].Name) {
+		if workerMDs[i].Name == options.Name {
 			baseMD = workerMDs[i]
 			update = true
 			break
 		}
 		if workerMDs[i].Name == options.BaseMachineDeployment {
 			baseMD = workerMDs[i]
+		}
+	}
+	if !update {
+		for i := range workerMDs {
+			if workerMDs[i].Name == options.ClusterName+"-"+options.Name {
+				baseMD = workerMDs[i]
+				update = true
+				break
+			}
+			if workerMDs[i].Name == options.BaseMachineDeployment {
+				baseMD = workerMDs[i]
+			}
 		}
 	}
 
@@ -311,28 +317,31 @@ func (c *TkgClient) DeleteMachineDeployment(options DeleteMachineDeploymentOptio
 
 // DoDeleteMachineDeployment deletes a machine deployment
 func DoDeleteMachineDeployment(clusterClient clusterclient.Client, options *DeleteMachineDeploymentOptions) error { //nolint:funlen,gocyclo
-	workers, err := clusterClient.GetMDObjectForCluster(options.ClusterName, options.Namespace)
+	workerMDs, err := clusterClient.GetMDObjectForCluster(options.ClusterName, options.Namespace)
 	if err != nil {
 		return errors.Wrap(err, "unable to get worker machine deployments")
 	}
 
-	if len(workers) < 2 {
+	if len(workerMDs) < 2 {
 		return apierrors.NewBadRequest("cannot delete last worker node pool in cluster")
-	}
-
-	nameMatcher, err := regexp.Compile(fmt.Sprintf("((%s)?-)?(%s)",
-		regexp.QuoteMeta(options.ClusterName), regexp.QuoteMeta(options.Name)))
-	if err != nil {
-		return errors.Wrap(err, "failed to compile node pool name regex")
 	}
 
 	var toDelete capi.MachineDeployment
 	var matched bool
-	for i := range workers {
-		if nameMatcher.MatchString(workers[i].Name) {
+	for i := range workerMDs {
+		if workerMDs[i].Name == options.Name {
 			matched = true
-			toDelete = workers[i]
+			toDelete = workerMDs[i]
 			break
+		}
+	}
+	if !matched {
+		for i := range workerMDs {
+			if workerMDs[i].Name == options.ClusterName+"-"+options.Name {
+				matched = true
+				toDelete = workerMDs[i]
+				break
+			}
 		}
 	}
 

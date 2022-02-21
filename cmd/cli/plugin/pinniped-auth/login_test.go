@@ -27,7 +27,6 @@ const (
 	tanzuCLIBuildSHA     = "abc123"
 )
 
-//nolint:funlen
 func TestLoginOIDCCommand(t *testing.T) {
 	sessionsCacheFilePath := filepath.Join(mustGetConfigDir(), "sessions.yaml")
 	credentialCacheFilePath := filepath.Join(mustGetConfigDir(), "credentials.yaml")

@@ -14,7 +14,6 @@ import (
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
-	"k8s.io/utils/pointer"
 	clusterapiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
 	clusterapiutil "sigs.k8s.io/cluster-api/util"
 	clusterapipatchutil "sigs.k8s.io/cluster-api/util/patch"
@@ -22,13 +21,13 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
+	"sigs.k8s.io/controller-runtime/pkg/handler"
+	"sigs.k8s.io/controller-runtime/pkg/source"
 
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/util"
 	runv1alpha3 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
 )
-
-const KappControllerAddonName = "kapp-controller"
 
 // KappControllerConfigReconciler reconciles a KappControllerConfig object
 type KappControllerConfigReconciler struct {
@@ -48,8 +47,12 @@ func (r *KappControllerConfigReconciler) Reconcile(ctx context.Context, req ctrl
 	// get kapp-controller config object
 	kappControllerConfig := &runv1alpha3.KappControllerConfig{}
 	if err := r.Client.Get(ctx, req.NamespacedName, kappControllerConfig); err != nil {
-		log.Error(err, "Unable to fetch kappControllerConfig")
-		return ctrl.Result{}, nil
+		if apierrors.IsNotFound(err) {
+			r.Log.Info("kappControllerConfig resource not found")
+			return ctrl.Result{}, nil
+		}
+		r.Log.Error(err, "Unable to fetch kappControllerConfig resource")
+		return ctrl.Result{}, err
 	}
 	// Deepcopy to prevent client-go cache conflict
 	kappControllerConfig = kappControllerConfig.DeepCopy()
@@ -59,7 +62,7 @@ func (r *KappControllerConfigReconciler) Reconcile(ctx context.Context, req ctrl
 	clusterNamespacedName := req.NamespacedName
 	cluster := &clusterapiv1beta1.Cluster{}
 	for _, owner := range kappControllerConfig.OwnerReferences {
-		if owner.Kind == cluster.Kind {
+		if owner.Kind == constants.ClusterKind {
 			clusterNamespacedName.Name = owner.Name
 			break
 		}
@@ -88,6 +91,10 @@ func (r *KappControllerConfigReconciler) Reconcile(ctx context.Context, req ctrl
 func (r *KappControllerConfigReconciler) SetupWithManager(ctx context.Context, mgr ctrl.Manager, options controller.Options) error {
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&runv1alpha3.KappControllerConfig{}).
+		Watches(
+			&source.Kind{Type: &clusterapiv1beta1.Cluster{}},
+			handler.EnqueueRequestsFromMapFunc(r.ClusterToKappControllerConfig),
+		).
 		WithOptions(options).
 		Complete(r)
 }
@@ -132,11 +139,10 @@ func (r *KappControllerConfigReconciler) ReconcileKappControllerConfigNormal(
 
 	// add owner reference to kappControllerConfig
 	ownerReference := metav1.OwnerReference{
-		APIVersion:         clusterapiv1beta1.GroupVersion.String(),
-		Kind:               cluster.Kind,
-		Name:               cluster.Name,
-		UID:                cluster.UID,
-		BlockOwnerDeletion: pointer.BoolPtr(false),
+		APIVersion: clusterapiv1beta1.GroupVersion.String(),
+		Kind:       cluster.Kind,
+		Name:       cluster.Name,
+		UID:        cluster.UID,
 	}
 
 	if !clusterapiutil.HasOwnerRef(kappControllerConfig.OwnerReferences, ownerReference) {
@@ -150,7 +156,7 @@ func (r *KappControllerConfigReconciler) ReconcileKappControllerConfigNormal(
 	}
 
 	// update status.secretRef
-	dataValueSecretName := util.GenerateDataValueSecretName(kappControllerConfig.Name, KappControllerAddonName)
+	dataValueSecretName := util.GenerateDataValueSecretName(kappControllerConfig.Name, constants.KappControllerAddonName)
 	kappControllerConfig.Status.SecretRef = dataValueSecretName
 
 	return nil
@@ -165,8 +171,14 @@ func (r *KappControllerConfigReconciler) ReconcileKappControllerConfigDataValue(
 
 	dataValuesSecret := &corev1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      util.GenerateDataValueSecretName(kappControllerConfig.Name, KappControllerAddonName),
+			Name:      util.GenerateDataValueSecretName(kappControllerConfig.Name, constants.KappControllerAddonName),
 			Namespace: cluster.Namespace,
+			OwnerReferences: []metav1.OwnerReference{{
+				APIVersion: clusterapiv1beta1.GroupVersion.String(),
+				Kind:       cluster.Kind,
+				Name:       cluster.Name,
+				UID:        cluster.UID,
+			}},
 		},
 	}
 
@@ -196,7 +208,7 @@ func (r *KappControllerConfigReconciler) ReconcileKappControllerConfigDataValue(
 		return err
 	}
 
-	log.Info(fmt.Sprintf("Resource %s data values secret %s", KappControllerAddonName, result))
+	log.Info(fmt.Sprintf("Resource %s data values secret %s", constants.KappControllerAddonName, result))
 
 	return nil
 }

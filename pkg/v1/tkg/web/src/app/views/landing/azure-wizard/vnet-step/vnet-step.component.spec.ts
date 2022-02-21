@@ -5,12 +5,13 @@ import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 // App imports
 import { APIClient } from '../../../../swagger/api-client.service';
 import AppServices from 'src/app/shared/service/appServices';
-import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
+import { AzureField, AzureForm } from '../azure-wizard.constants';
+import { DataServiceRegistrarTestExtension } from '../../../../testing/data-service-registrar.testextension';
 import { Messenger, TanzuEventType } from 'src/app/shared/service/Messenger';
 import { SharedModule } from '../../../../shared/shared.module';
 import { ValidationService } from '../../wizard/shared/validation/validation.service';
 import { VnetStepComponent } from './vnet-step.component';
-import { AzureField, AzureForm } from '../azure-wizard.constants';
+import { VSphereResourcePool } from '../../../../swagger/models';
 
 describe('VnetStepComponent', () => {
     let component: VnetStepComponent;
@@ -25,7 +26,6 @@ describe('VnetStepComponent', () => {
             providers: [
                 ValidationService,
                 FormBuilder,
-                FieldMapUtilities,
                 APIClient
             ],
             schemas: [
@@ -41,7 +41,15 @@ describe('VnetStepComponent', () => {
 
         fixture = TestBed.createComponent(VnetStepComponent);
         component = fixture.componentInstance;
-        component.setInputs('ZuchiniWizard', AzureForm.VNET,  new FormBuilder().group({}));
+        component.setStepRegistrantData({ wizard: 'ZuchiniWizard', step: AzureForm.VNET, formGroup: new FormBuilder().group({}),
+            eventFileImported: TanzuEventType.AZURE_CONFIG_FILE_IMPORTED,
+            eventFileImportError: TanzuEventType.AZURE_CONFIG_FILE_IMPORT_ERROR});
+
+        const dataServiceRegistrar = new DataServiceRegistrarTestExtension();
+        AppServices.dataServiceRegistrar = dataServiceRegistrar;
+        // we expect the wizard to have registered for these events:
+        dataServiceRegistrar.simulateRegistration<VSphereResourcePool>(TanzuEventType.AZURE_GET_RESOURCE_GROUPS);
+        dataServiceRegistrar.simulateRegistration<VSphereResourcePool>(TanzuEventType.AZURE_GET_VNETS);
 
         fixture.detectChanges();
     });
@@ -55,7 +63,7 @@ describe('VnetStepComponent', () => {
         component.ngOnInit();
 
         const staticDescription = component.dynamicDescription();
-        expect(staticDescription).toEqual('Specify an Azure VNET CIDR')
+        expect(staticDescription).toEqual('Specify an Azure VNet CIDR')
 
         const customCidrControl = component.formGroup.get(AzureField.VNET_CUSTOM_CIDR);
         customCidrControl.setValue('4.3.2.1/12');

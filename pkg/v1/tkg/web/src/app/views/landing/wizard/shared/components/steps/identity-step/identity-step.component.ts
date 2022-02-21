@@ -5,7 +5,7 @@ import { Validators } from '@angular/forms';
 import { distinctUntilChanged, takeUntil, tap } from 'rxjs/operators';
 // App imports
 import { APIClient } from 'src/app/swagger';
-import { FieldMapUtilities } from '../../../field-mapping/FieldMapUtilities';
+import AppServices from '../../../../../../../shared/service/appServices';
 import { IdentityField, IdentityStepMapping } from './identity-step.fieldmapping';
 import { IdentityManagementType } from '../../../constants/wizard.constants';
 import { IpFamilyEnum } from 'src/app/shared/constants/app.constants';
@@ -21,12 +21,10 @@ const GROUP_SEARCH = "GROUP_SEARCH";
 const DISCONNECT = "DISCONNECT";
 
 const TEST_SUCCESS = 1;
-const TEST_SKIPPED = 2;
 
 const LDAP_TESTS = [CONNECT, BIND, USER_SEARCH, GROUP_SEARCH, DISCONNECT];
 
 const NOT_STARTED = "not-started";
-const CURRENT = "current";
 const SUCCESS = "success";
 const ERROR = "error";
 const PROCESSING = "processing";
@@ -86,7 +84,6 @@ const LDAP_PARAMS = {
 export class SharedIdentityStepComponent extends StepFormDirective implements OnInit {
     static description = 'Optionally specify identity management';
 
-    identityTypeValue: string = IdentityManagementType.OIDC;
     _verifyLdapConfig = false;
 
     fields: Array<string> = [...oidcFields, ...ldapValidatedFields, ...ldapNonValidatedFields];
@@ -94,8 +91,10 @@ export class SharedIdentityStepComponent extends StepFormDirective implements On
     timelineState = {};
     timelineError = {};
 
+    private usingIdmSettings = false;
+    private idmSettingType;
+
     constructor(private apiClient: APIClient,
-                private fieldMapUtilities: FieldMapUtilities,
                 private validationService: ValidationService) {
         super();
         this.resetTimelineState();
@@ -103,40 +102,59 @@ export class SharedIdentityStepComponent extends StepFormDirective implements On
 
     private customizeForm() {
         this.registerOnIpFamilyChange(IdentityField.ISSUER_URL, [], [], () => {
-            if (this.identityTypeValue === IdentityManagementType.OIDC) {
-                this.setOIDCValidators();
-            } else if (this.identityTypeValue === IdentityManagementType.LDAP) {
-                this.setLDAPValidators();
+            if (this.isUsingIdentityManagement) {
+                if (this.isIdentityManagementOidc) {
+                    this.setOIDCValidators();
+                } else if (this.isIdentityManagementLdap) {
+                    this.setLDAPValidators();
+                }
             }
         });
         this.formGroup.get(IdentityField.IDENTITY_TYPE).valueChanges.pipe(
             distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)),
             takeUntil(this.unsubscribe)
-        ).subscribe(data => {
-            this.identityTypeValue = data;
-            this.unsetAllValidators();
-            this.formGroup.markAsPending();
-            if (this.identityTypeValue === IdentityManagementType.OIDC) {
-                this.setOIDCValidators();
-                this.setControlValueSafely(IdentityField.CLIENT_SECRET, '');
-            } else if (this.identityTypeValue === IdentityManagementType.LDAP) {
-                this.setLDAPValidators();
-            } else {
-                this.disarmField(IdentityField.IDENTITY_TYPE, true);
+        ).subscribe(newIdentityManagementType => {
+            this.idmSettingType = newIdentityManagementType;
+            if (this.isUsingIdentityManagement) {
+                this.formGroup.markAsPending();
+                if (this.isIdentityManagementOidc) {
+                    this.unsetValidators(ldapValidatedFields);
+                    this.setOIDCValidators();
+                    this.setControlValueSafely(IdentityField.CLIENT_SECRET, '');
+                } else if (this.isIdentityManagementLdap) {
+                    this.unsetValidators(oidcFields);
+                    this.setLDAPValidators();
+                } else {
+                    this.unsetValidators(this.fields);
+                    this.disarmField(IdentityField.IDENTITY_TYPE);
+                }
+                this.triggerStepDescriptionChange();
             }
-            this.triggerStepDescriptionChange();
         });
         this.registerStepDescriptionTriggers({fields: [IdentityField.ENDPOINT_IP, IdentityField.ENDPOINT_PORT,  IdentityField.ISSUER_URL]});
     }
 
     ngOnInit(): void {
         super.ngOnInit();
-        this.fieldMapUtilities.buildForm(this.formGroup, this.formName, IdentityStepMapping);
-        this.customizeForm();
+        AppServices.userDataFormService.buildForm(this.formGroup, this.wizardName, this.formName, IdentityStepMapping);
+        this.htmlFieldLabels = AppServices.fieldMapUtilities.getFieldLabelMap(IdentityStepMapping);
+        this.storeDefaultLabels(IdentityStepMapping);
+        this.registerDefaultFileImportedHandler(this.eventFileImported, IdentityStepMapping);
+        this.registerDefaultFileImportErrorHandler(this.eventFileImportError);
 
-        this.initFormWithSavedData();
-        this.identityTypeValue = this.getSavedValue(IdentityField.IDENTITY_TYPE, IdentityManagementType.OIDC);
-        this.setControlValueSafely(IdentityField.IDENTITY_TYPE, this.identityTypeValue, { emitEvent: false });
+        this.customizeForm();
+    }
+
+    protected onStepStarted() {
+        // these fields should have been restored during ngOnInit()
+        this.usingIdmSettings = this.getFieldValue(IdentityField.IDM_SETTINGS);
+        this.idmSettingType = this.getFieldValue(IdentityField.IDENTITY_TYPE);
+        if (!this.idmSettingType) {
+            // The type in use by default when user activated identity management is OIDC;
+            this.idmSettingType = IdentityManagementType.OIDC;
+            // setting the idm setting type should trigger the handler to set the oidc validators, etc.
+            this.setControlValueSafely(IdentityField.IDENTITY_TYPE, this.idmSettingType);
+        }
     }
 
     setOIDCValidators() {
@@ -147,12 +165,12 @@ export class SharedIdentityStepComponent extends StepFormDirective implements On
                 this.validationService.isValidIpOrFqdnWithHttpsProtocol() : this.validationService.isValidIpv6OrFqdnWithHttpsProtocol(),
             this.validationService.isStringWithoutUrlFragment(),
             this.validationService.isStringWithoutQueryParams(),
-        ], this.getSavedValue(IdentityField.ISSUER_URL, ''));
+        ], this.getStoredValue(IdentityField.ISSUER_URL, IdentityStepMapping, ''), this.quietly);
 
         this.resurrectField(IdentityField.CLIENT_ID, [
             Validators.required,
             this.validationService.noWhitespaceOnEnds()
-        ], this.getSavedValue(IdentityField.CLIENT_ID, ''));
+        ], this.getStoredValue(IdentityField.CLIENT_ID, IdentityStepMapping, ''), this.quietly);
 
         this.resurrectField(IdentityField.CLIENT_SECRET, [
             Validators.required,
@@ -163,21 +181,21 @@ export class SharedIdentityStepComponent extends StepFormDirective implements On
             Validators.required,
             this.validationService.noWhitespaceOnEnds(),
             this.validationService.isCommaSeperatedList()
-        ], this.getSavedValue(IdentityField.SCOPES, ''));
+        ], this.getStoredValue(IdentityField.SCOPES, IdentityStepMapping, ''), this.quietly);
 
         this.resurrectField(IdentityField.OIDC_GROUPS_CLAIM, [
             Validators.required
-        ], this.getSavedValue(IdentityField.OIDC_GROUPS_CLAIM, ''));
+        ], this.getStoredValue(IdentityField.OIDC_GROUPS_CLAIM, IdentityStepMapping, ''), this.quietly);
 
         this.resurrectField(IdentityField.OIDC_USERNAME_CLAIM, [
             Validators.required
-        ], this.getSavedValue(IdentityField.OIDC_USERNAME_CLAIM, ''));
+        ], this.getStoredValue(IdentityField.OIDC_USERNAME_CLAIM, IdentityStepMapping, ''), this.quietly);
     }
 
     setLDAPValidators() {
         this.resurrectField(IdentityField.ENDPOINT_IP, [
             Validators.required
-        ], this.getSavedValue(IdentityField.ENDPOINT_IP, ''));
+        ], this.getStoredValue(IdentityField.ENDPOINT_IP, IdentityStepMapping, ''), this.quietly);
 
         this.resurrectField(IdentityField.ENDPOINT_PORT, [
             Validators.required,
@@ -185,42 +203,46 @@ export class SharedIdentityStepComponent extends StepFormDirective implements On
             this.ipFamily === IpFamilyEnum.IPv4 ?
                 this.validationService.isValidLdap(this.formGroup.get(IdentityField.ENDPOINT_IP)) :
                 this.validationService.isValidIpv6Ldap(this.formGroup.get(IdentityField.ENDPOINT_IP))
-        ], this.getSavedValue(IdentityField.ENDPOINT_PORT, ''));
+        ], this.getStoredValue(IdentityField.ENDPOINT_PORT, IdentityStepMapping, ''), this.quietly);
 
         this.resurrectField(IdentityField.BIND_PW, [], '');
 
         this.resurrectField(IdentityField.USER_SEARCH_FILTER, [
             Validators.required
-        ], this.getSavedValue(IdentityField.USER_SEARCH_FILTER, ''));
+        ], this.getStoredValue(IdentityField.USER_SEARCH_FILTER, IdentityStepMapping, ''), this.quietly);
 
         this.resurrectField(IdentityField.USER_SEARCH_USERNAME, [
             Validators.required
-        ], this.getSavedValue(IdentityField.USER_SEARCH_USERNAME, ''));
+        ], this.getStoredValue(IdentityField.USER_SEARCH_USERNAME, IdentityStepMapping, ''), this.quietly);
 
         this.resurrectField(IdentityField.GROUP_SEARCH_FILTER, [
             Validators.required
-        ], this.getSavedValue(IdentityField.GROUP_SEARCH_FILTER, ''));
+        ], this.getStoredValue(IdentityField.GROUP_SEARCH_FILTER, IdentityStepMapping, ''), this.quietly);
 
         ldapNonValidatedFields.forEach(field => this.resurrectField(
-            field, [], this.getSavedValue(field, '')));
+            field, [], this.getStoredValue(field, IdentityStepMapping, ''), this.quietly));
     }
 
-    unsetAllValidators() {
-        this.fields.forEach(field => this.disarmField(field, true));
+    unsetValidators(fields: string[]) {
+        fields.forEach(field => this.disarmField(field));
     }
 
     toggleIdmSetting() {
-        const identityType = this.formGroup.value[IdentityField.IDM_SETTINGS] ? IdentityManagementType.OIDC : IdentityManagementType.NONE;
-        // onlySelf option will update the changes for the current control only
-        this.setControlValueSafely(IdentityField.IDENTITY_TYPE, identityType, { onlySelf: true });
-    }
-
-    initFormWithSavedData() {
-        super.initFormWithSavedData();
-        this.scrubPasswordField(IdentityField.CLIENT_SECRET);
-
-        if (!this.formGroup.value[IdentityField.IDM_SETTINGS]) {
-            this.setControlValueSafely(IdentityField.IDENTITY_TYPE, IdentityManagementType.NONE);
+        this.usingIdmSettings = !this.usingIdmSettings;
+        if (this.usingIdmSettings) {
+            if (this.isIdentityManagementOidc) {
+                this.setOIDCValidators();
+                this.setControlValueSafely(IdentityField.CLIENT_SECRET, '');
+            } else if (this.isIdentityManagementLdap) {
+                this.setLDAPValidators();
+            } else {
+                // The type in use by default when user activated identity management is OIDC;
+                this.idmSettingType = IdentityManagementType.OIDC;
+                // setting the idm setting type should trigger the handler to set the oidc validators, etc.
+                this.setControlValueSafely(IdentityField.IDENTITY_TYPE, this.idmSettingType);
+            }
+        } else {
+            this.unsetValidators(this.fields);
         }
     }
 
@@ -341,5 +363,40 @@ export class SharedIdentityStepComponent extends StepFormDirective implements On
             return 'LDAP configured: ' + ldapEndpointIp + ':' + (ldapEndpointPort ? ldapEndpointPort : '');
         }
         return SharedIdentityStepComponent.description;
+    }
+
+    protected storeUserData() {
+        this.storeUserDataFromMapping(IdentityStepMapping);
+        this.clearUnusedData();
+        this.storeDefaultDisplayOrder(IdentityStepMapping);
+    }
+
+    // At the END of the step, we clear from memory all the unused values. This will allow us to present a "clean" confirmation page,
+    // and also remove any lingering values in local storage that are no longer relevant
+    private clearUnusedData() {
+        if (!this.isUsingIdentityManagement) {
+            this.clearFieldSavedData(IdentityField.IDM_SETTINGS);   // do not include IDM_SETTING 'no' in confirmation page
+            this.clearControlValue(IdentityField.IDENTITY_TYPE, true);
+            // NOTE: by clearing this setting the tests below will be true, and all the fields will be cleared
+            this.idmSettingType = null;
+        }
+        if (!this.isIdentityManagementOidc) {
+            oidcFields.forEach(field => this.clearControlValue(field, true));
+        }
+        if (!this.isIdentityManagementLdap) {
+            [...ldapValidatedFields, ...ldapNonValidatedFields].forEach(field => this.clearControlValue(field, true));
+        }
+    }
+
+    get isIdentityManagementOidc(): boolean {
+        return this.idmSettingType === IdentityManagementType.OIDC;
+    }
+
+    get isIdentityManagementLdap(): boolean {
+        return this.idmSettingType === IdentityManagementType.LDAP;
+    }
+
+    get isUsingIdentityManagement(): boolean {
+        return this.usingIdmSettings;
     }
 }

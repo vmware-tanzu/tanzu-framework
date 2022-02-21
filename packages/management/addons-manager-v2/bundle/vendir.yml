@@ -1,0 +1,47 @@
+apiVersion: vendir.k14s.io/v1alpha1
+kind: Config
+minimumRequiredVersion: 0.12.0
+directories:
+  - path: config/upstream
+    contents:
+      - path: addons-manager.yaml
+        manual: {}
+      - path: antreaconfigs.yaml
+        git:
+          url: git@github.com:vmware-tanzu/tanzu-framework.git
+          ref: 18dfe51144349a374a909d43dd5a9978c9afdb86
+        newRootPath: config/crd/bases/cni.tanzu.vmware.com_antreaconfigs.yaml
+        includePaths:
+          - config/crd/bases/cni.tanzu.vmware.com_antreaconfigs.yaml
+      - path: calicoconfigs.yaml
+        git:
+          url: git@github.com:vmware-tanzu/tanzu-framework.git
+          ref: 18dfe51144349a374a909d43dd5a9978c9afdb86
+        newRootPath: config/crd/bases/cni.tanzu.vmware.com_calicoconfigs.yaml
+        includePaths:
+          - config/crd/bases/cni.tanzu.vmware.com_calicoconfigs.yaml
+      - path: clusterbootstraps.yaml
+        git:
+          url: git@github.com:vmware-tanzu/tanzu-framework.git
+          ref: 18dfe51144349a374a909d43dd5a9978c9afdb86
+        newRootPath: config/crd/bases/run.tanzu.vmware.com_clusterbootstraps.yaml
+        includePaths:
+          - config/crd/bases/run.tanzu.vmware.com_clusterbootstraps.yaml
+      - path: clusterbootstraptemplates.yaml
+        git:
+          url: git@github.com:vmware-tanzu/tanzu-framework.git
+          ref: 18dfe51144349a374a909d43dd5a9978c9afdb86
+        newRootPath: config/crd/bases/run.tanzu.vmware.com_clusterbootstraptemplates.yaml
+        includePaths:
+          - config/crd/bases/run.tanzu.vmware.com_clusterbootstraptemplates.yaml
+      - path: kappcontrollerconfigs.yaml
+        git:
+          url: git@github.com:vmware-tanzu/tanzu-framework.git
+          ref: 18dfe51144349a374a909d43dd5a9978c9afdb86
+        newRootPath: config/crd/bases/run.tanzu.vmware.com_kappcontrollerconfigs.yaml
+        includePaths:
+          - config/crd/bases/run.tanzu.vmware.com_kappcontrollerconfigs.yaml
+  - path: config/overlays
+    contents:
+      - path: overlay-addons-manager.yaml
+        manual: {}

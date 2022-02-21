@@ -5,7 +5,6 @@ package client_test
 
 import (
 	"fmt"
-	"testing"
 	"time"
 
 	. "github.com/onsi/ginkgo"
@@ -16,7 +15,7 @@ import (
 	"k8s.io/apimachinery/pkg/types"
 	aws "sigs.k8s.io/cluster-api-provider-aws/api/v1beta1"
 	azure "sigs.k8s.io/cluster-api-provider-azure/api/v1beta1"
-	vsphere "sigs.k8s.io/cluster-api-provider-vsphere/api/v1beta1"
+	vsphere "sigs.k8s.io/cluster-api-provider-vsphere/apis/v1beta1"
 	capi "sigs.k8s.io/cluster-api/api/v1beta1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
@@ -325,71 +324,65 @@ func GetDummyPacificCluster() tkgsv1alpha2.TanzuKubernetesCluster {
 	return tkc
 }
 
-const (
-	prependMDName1 = "test-cluster-md-0"
-	prependMDName2 = "test-cluster-md-1"
-	md1Name        = "md-0"
-	md2Name        = "md-1"
-	clusterName    = "test-cluster"
-)
+var _ = Describe("NormalizeNodePoolName", func() {
+	var (
+		workers []capi.MachineDeployment
+		err     error
+		mds     []capi.MachineDeployment
+	)
+	const (
+		prependMDName1 = "test-cluster-md-0"
+		prependMDName2 = "test-cluster-md-1"
+		md1Name        = "md-0"
+		md2Name        = "md-1"
+		clusterName    = "test-cluster"
+	)
 
-func Test_NormalizeNodePoolName_WithPrepend(t *testing.T) {
-	mds := []capi.MachineDeployment{
-		{
-			ObjectMeta: metav1.ObjectMeta{
-				Name: prependMDName1,
-			},
-		},
-		{
-			ObjectMeta: metav1.ObjectMeta{
-				Name: prependMDName2,
-			},
-		},
-	}
-
-	workers, _ := NormalizeNodePoolName(mds, clusterName)
-
-	if err != nil {
-		t.Fatal("Unexpected error normalzing node pool names")
-	}
-
-	if workers[0].Name != md1Name {
-		t.Errorf("Expected first machine deployment name to be %s, was %s", md1Name, workers[0].Name)
-	}
-
-	if workers[1].Name != md2Name {
-		t.Errorf("Expected second machine deployment name to be %s, was %s", md2Name, workers[1].Name)
-	}
-}
-
-func Test_NormalizeNodePoolName_WithoutPrepend(t *testing.T) {
-	mds := []capi.MachineDeployment{
-		{
-			ObjectMeta: metav1.ObjectMeta{
-				Name: md1Name,
-			},
-		},
-		{
-			ObjectMeta: metav1.ObjectMeta{
-				Name: md2Name,
-			},
-		},
-	}
-
-	workers, _ := NormalizeNodePoolName(mds, clusterName)
-
-	if err != nil {
-		t.Fatal("Unexpected error normalzing node pool names")
-	}
-
-	if workers[0].Name != md1Name {
-		t.Errorf("Expected first machine deployment name to be %s, was %s", md1Name, workers[0].Name)
-	}
-
-	if workers[1].Name != md2Name {
-		t.Errorf("Expected second machine deployment name to be %s, was %s", md2Name, workers[1].Name)
-	}
-}
+	JustBeforeEach(func() {
+		workers, err = NormalizeNodePoolName(mds, clusterName)
+		Expect(err).ToNot(HaveOccurred())
+	})
+	When("Machine Deployment names aren't prepended with cluster name", func() {
+		BeforeEach(func() {
+			mds = []capi.MachineDeployment{
+				{
+					ObjectMeta: metav1.ObjectMeta{
+						Name: md1Name,
+					},
+				},
+				{
+					ObjectMeta: metav1.ObjectMeta{
+						Name: md2Name,
+					},
+				},
+			}
+		})
+		It("should do keep the machine deployment names the same", func() {
+			Expect(workers[0].Name).To(Equal(md1Name))
+			Expect(workers[1].Name).To(Equal(md2Name))
+		})
+	})
+	When("Machine Deployment names are prepended with the cluster name", func() {
+		BeforeEach(func() {
+			mds = []capi.MachineDeployment{
+				{
+					ObjectMeta: metav1.ObjectMeta{
+						Name: prependMDName1,
+					},
+				},
+				{
+					ObjectMeta: metav1.ObjectMeta{
+						Name: prependMDName2,
+					},
+				},
+			}
+		})
+		It("should strip the cluster name prepend", func() {
+			Expect(workers[0].Name).To(Equal(md1Name))
+			Expect(workers[1].Name).To(Equal(md2Name))
+		})
+	})
+})
 
 var _ = Describe("Machine Deployment", func() {
 	const (
@@ -408,7 +401,6 @@ var _ = Describe("Machine Deployment", func() {
 	)
 	BeforeEach(func() {
 		clusterClient = fakes.ClusterClient{}
-
 	})
 	Context("DoDeleteMachineDeployment", func() {
 		var options DeleteMachineDeploymentOptions
@@ -599,6 +591,20 @@ var _ = Describe("Machine Deployment", func() {
 						It("should throw an error", func() {
 							Expect(err).To(HaveOccurred())
 							Expect(err).Should(MatchError(fmt.Sprintf("unable to delete machine template %s-%s-mt: ", options.ClusterName, options.Name)))
+						})
+					})
+					When("Deleting a node pool with a name that is a subset of another node pool name", func() {
+						BeforeEach(func() {
+							md2.Name = "np-1"
+							clusterClient.GetMDObjectForClusterReturns([]capi.MachineDeployment{md1, md2, md3}, nil)
+							clusterClient.DeleteResourceReturns(nil)
+						})
+						It("should delete the machine deployment with the exact matching name", func() {
+							Expect(clusterClient.DeleteResourceCallCount()).To(Equal(3))
+							mdObj := clusterClient.DeleteResourceArgsForCall(0)
+							md, ok := mdObj.(*capi.MachineDeployment)
+							Expect(ok).To(BeTrue())
+							Expect(md.Name).To(Equal("np-1"))
 						})
 					})
 					When("there is an error deleting the kubeadmconfig template", func() {
@@ -1175,6 +1181,25 @@ var _ = Describe("Machine Deployment", func() {
 						},
 					},
 				}
+				md2 = capi.MachineDeployment{
+					ObjectMeta: metav1.ObjectMeta{
+						Name: "test-cluster-np-1",
+						Annotations: map[string]string{
+							"key1": "value1",
+							"key2": "value2",
+						},
+					},
+					Spec: capi.MachineDeploymentSpec{
+						Replicas: &existingReplicas,
+						Template: capi.MachineTemplateSpec{
+							ObjectMeta: capi.ObjectMeta{
+								Labels: map[string]string{
+									"oldkey": "oldvalue",
+								},
+							},
+						},
+					},
+				}
 				clusterClient.GetMDObjectForClusterReturns([]capi.MachineDeployment{md1}, nil)
 			})
 			When("updating the machine deployment hits an error", func() {
@@ -1184,6 +1209,20 @@ var _ = Describe("Machine Deployment", func() {
 				It("should throw an error", func() {
 					Expect(err).To(HaveOccurred())
 					Expect(err).Should(MatchError("failed to update machinedeployment: "))
+				})
+			})
+			When("setting a node pool with a name that is a subset of another node pool name", func() {
+				BeforeEach(func() {
+					md2.Name = np1Name
+					clusterClient.GetMDObjectForClusterReturns([]capi.MachineDeployment{md1, md2, md3}, nil)
+					clusterClient.UpdateResourceReturns(nil)
+				})
+				It("should update the machine deployment with the exact matching name", func() {
+					Expect(clusterClient.UpdateResourceCallCount()).To(Equal(1))
+					mdObj, _, _, _ := clusterClient.UpdateResourceArgsForCall(0)
+					md, ok := mdObj.(*capi.MachineDeployment)
+					Expect(ok).To(BeTrue())
+					Expect(md.Name).To(Equal("np-1"))
 				})
 			})
 			When("the machine deployment updates successfully", func() {

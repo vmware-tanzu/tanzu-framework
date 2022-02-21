@@ -25,6 +25,11 @@ type DeleteRegionOptions struct {
 
 // DeleteRegion deletes management cluster
 func (t *tkgctl) DeleteRegion(options DeleteRegionOptions) error {
+	// Make sure activity is captured in the audit log in case of deletion failure.
+	if logPath, err := t.getAuditLogPath(options.ClusterName); err == nil {
+		log.SetAuditLog(logPath)
+	}
+
 	var err error
 
 	// delete region requires minimum 15 minutes timeout
@@ -59,6 +64,10 @@ func (t *tkgctl) DeleteRegion(options DeleteRegionOptions) error {
 	}
 
 	log.Infof("\nManagement cluster deleted!\n")
+
+	// Clean up the audit log since we were successful
+	t.removeAuditLog(options.ClusterName)
+	log.SetAuditLog("")
 
 	return nil
 }

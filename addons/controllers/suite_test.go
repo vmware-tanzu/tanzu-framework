@@ -6,6 +6,7 @@ package controllers
 import (
 	"context"
 	"os"
+	"path"
 	"path/filepath"
 	"testing"
 	"time"
@@ -19,6 +20,7 @@ import (
 	"k8s.io/client-go/kubernetes"
 	clientgoscheme "k8s.io/client-go/kubernetes/scheme"
 	"k8s.io/client-go/rest"
+	capvv1beta1 "sigs.k8s.io/cluster-api-provider-vsphere/apis/v1beta1"
 	clusterapiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
 	controlplanev1beta1 "sigs.k8s.io/cluster-api/controlplane/kubeadm/api/v1beta1"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -32,24 +34,27 @@ import (
 
 	kappctrl "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/kappctrl/v1alpha1"
 	pkgiv1alpha1 "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/packaging/v1alpha1"
+	kapppkgv1alpha1 "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apiserver/apis/datapackaging/v1alpha1"
 	antrea "github.com/vmware-tanzu/tanzu-framework/addons/controllers/antrea"
 	calico "github.com/vmware-tanzu/tanzu-framework/addons/controllers/calico"
+	cpi "github.com/vmware-tanzu/tanzu-framework/addons/controllers/cpi"
 	kappcontroller "github.com/vmware-tanzu/tanzu-framework/addons/controllers/kapp-controller"
 	addonconfig "github.com/vmware-tanzu/tanzu-framework/addons/pkg/config"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/crdwait"
 	testutil "github.com/vmware-tanzu/tanzu-framework/addons/testutil"
+
 	cniv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cni/v1alpha1"
+	cpiv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cpi/v1alpha1"
 	runtanzuv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha1"
 	runtanzuv1alpha3 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
-	tkgconstants "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
 )
 
 // These tests use Ginkgo (BDD-style Go testing framework). Refer to
 // http://onsi.github.io/ginkgo/ to learn more about Ginkgo.
 
 const (
-	waitTimeout             = time.Second * 90
+	waitTimeout             = time.Second * 60
 	pollingInterval         = time.Second * 2
 	appSyncPeriod           = 5 * time.Minute
 	appWaitTimeout          = 30 * time.Second
@@ -59,16 +64,21 @@ const (
 	addonClusterRoleBinding = "tkg-addons-app-cluster-role-binding"
 	addonImagePullPolicy    = "IfNotPresent"
 	corePackageRepoName     = "core"
+	webhookServiceName      = "webhook-service"
+	webhookScrtName         = "webhook-tls"
 )
 
 var (
 	cfg           *rest.Config
 	k8sClient     client.Client
+	k8sConfig     *rest.Config
 	testEnv       *envtest.Environment
 	ctx           = ctrl.SetupSignalHandler()
 	scheme        = runtime.NewScheme()
 	dynamicClient dynamic.Interface
 	cancel        context.CancelFunc
+	certPath      string
+	keyPath       string
 	// clientset     *kubernetes.Clientset
 )
 
@@ -94,6 +104,7 @@ var _ = BeforeSuite(func(done Done) {
 		"sigs.k8s.io/cluster-api": {"config/crd/bases",
 			"controlplane/kubeadm/config/crd/bases"},
 		"github.com/vmware-tanzu/carvel-kapp-controller": {"config/crds.yml"},
+		"sigs.k8s.io/cluster-api-provider-vsphere":       {"config/default/crd/bases"},
 	}
 	externalCRDPaths, err := testutil.GetExternalCRDPaths(externalDeps)
 	Expect(err).NotTo(HaveOccurred())
@@ -106,6 +117,8 @@ var _ = BeforeSuite(func(done Done) {
 	cfg, err = testEnv.Start()
 	Expect(err).ToNot(HaveOccurred())
 	Expect(cfg).ToNot(BeNil())
+	testEnv.ControlPlane.APIServer.Configure().Append("admission-control", "MutatingAdmissionWebhook")
+	testEnv.ControlPlane.APIServer.Configure().Append("admission-control", "ValidatingAdmissionWebhook")
 
 	err = runtanzuv1alpha1.AddToScheme(scheme)
 	Expect(err).NotTo(HaveOccurred())
@@ -128,7 +141,16 @@ var _ = BeforeSuite(func(done Done) {
 	err = pkgiv1alpha1.AddToScheme(scheme)
 	Expect(err).NotTo(HaveOccurred())
 
+	err = kapppkgv1alpha1.AddToScheme(scheme)
+	Expect(err).NotTo(HaveOccurred())
+
 	err = cniv1alpha1.AddToScheme(scheme)
+	Expect(err).NotTo(HaveOccurred())
+
+	err = cpiv1alpha1.AddToScheme(scheme)
+	Expect(err).NotTo(HaveOccurred())
+
+	err = capvv1beta1.AddToScheme(scheme)
 	Expect(err).NotTo(HaveOccurred())
 
 	k8sClient, err = client.New(cfg, client.Options{Scheme: scheme})
@@ -142,13 +164,20 @@ var _ = BeforeSuite(func(done Done) {
 	Expect(err).ToNot(HaveOccurred())
 	Expect(dynamicClient).ToNot(BeNil())
 
+	tmpDir, err := os.MkdirTemp("/tmp", "webhooktest")
+	Expect(err).ToNot(HaveOccurred())
+	certPath = path.Join(tmpDir, "tls.cert")
+	keyPath = path.Join(tmpDir, "tls.key")
+
 	options := manager.Options{
 		Scheme:             scheme,
 		MetricsBindAddress: "0",
 		Port:               9443,
+		CertDir:            tmpDir,
 	}
 	mgr, err := ctrl.NewManager(testEnv.Config, options)
 	Expect(err).ToNot(HaveOccurred())
+	k8sConfig = mgr.GetConfig()
 
 	setupLog := ctrl.Log.WithName("controllers").WithName("Addon")
 
@@ -176,7 +205,7 @@ var _ = BeforeSuite(func(done Done) {
 		Client: mgr.GetClient(),
 		Log:    setupLog,
 		Scheme: mgr.GetScheme(),
-		Config: addonconfig.Config{
+		Config: addonconfig.AddonControllerConfig{
 			AppSyncPeriod:           appSyncPeriod,
 			AppWaitTimeout:          appWaitTimeout,
 			AddonNamespace:          addonNamespace,
@@ -194,6 +223,12 @@ var _ = BeforeSuite(func(done Done) {
 		Scheme: mgr.GetScheme(),
 	}).SetupWithManager(ctx, mgr, controller.Options{MaxConcurrentReconciles: 1})).To(Succeed())
 
+	Expect((&cpi.CPIConfigReconciler{
+		Client: mgr.GetClient(),
+		Log:    ctrl.Log.WithName("controllers").WithName("CPIConfig"),
+		Scheme: mgr.GetScheme(),
+	}).SetupWithManager(ctx, mgr, controller.Options{MaxConcurrentReconciles: 1})).To(Succeed())
+
 	Expect((&antrea.AntreaConfigReconciler{
 		Client: mgr.GetClient(),
 		Log:    ctrl.Log.WithName("controllers").WithName("AntreaConfig"),
@@ -206,10 +241,22 @@ var _ = BeforeSuite(func(done Done) {
 		Scheme: mgr.GetScheme(),
 	}).SetupWithManager(ctx, mgr, controller.Options{MaxConcurrentReconciles: 1})).To(Succeed())
 
-	bootstrapReconciler := NewClusterBootstrapReconciler(mgr.GetClient(),
+	bootstrapReconciler := NewClusterBootstrapReconciler(
+		mgr.GetClient(),
 		ctrl.Log.WithName("controllers").WithName("ClusterBootstrap"),
 		mgr.GetScheme(),
-		ClusterBootstrapConfig{CNISelectionClusterVariableName: tkgconstants.DefaultCNISelectionClusterVariableName},
+		&addonconfig.ClusterBootstrapControllerConfig{
+			HTTPProxyClusterClassVarName:   constants.DefaultHTTPProxyClusterClassVarName,
+			HTTPSProxyClusterClassVarName:  constants.DefaultHTTPSProxyClusterClassVarName,
+			NoProxyClusterClassVarName:     constants.DefaultNoProxyClusterClassVarName,
+			ProxyCACertClusterClassVarName: constants.DefaultProxyCaCertClusterClassVarName,
+			IPFamilyClusterClassVarName:    constants.DefaultIPFamilyClusterClassVarName,
+			SystemNamespace:                constants.TKGSystemNS,
+			PkgiServiceAccount:             "tanzu-addons-manager-sa",
+			PkgiClusterRole:                "tanzu-addons-manager-clusterrole",
+			PkgiClusterRoleBinding:         "tanzu-addons-manager-clusterrolebinding",
+			PkgiSyncPeriod:                 10 * time.Minute,
+		},
 	)
 	Expect(bootstrapReconciler.SetupWithManager(ctx, mgr, controller.Options{MaxConcurrentReconciles: 1})).To(Succeed())
 
@@ -219,6 +266,13 @@ var _ = BeforeSuite(func(done Done) {
 
 	ns = &corev1.Namespace{ObjectMeta: metav1.ObjectMeta{Name: "tkg-system"}}
 	Expect(k8sClient.Create(context.TODO(), ns)).To(Succeed())
+
+	// Create the admission webhooks
+	f, err := os.Open("testdata/test-webhook-manifests.yaml")
+	Expect(err).ToNot(HaveOccurred())
+	defer f.Close()
+	err = testutil.CreateResources(f, cfg, dynamicClient)
+	Expect(err).ToNot(HaveOccurred())
 
 	go func() {
 		defer GinkgoRecover()

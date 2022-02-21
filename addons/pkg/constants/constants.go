@@ -17,6 +17,9 @@ const (
 	// CalicoAddonName is name of the Calico addon
 	CalicoAddonName = "calico"
 
+	// CPIAddonName is name of the cloud-provider-vsphere addon
+	CPIAddonName = "vsphere-cpi"
+
 	// TKGBomNamespace is the TKG add on BOM namespace.
 	TKGBomNamespace = "tkr-system"
 
@@ -127,11 +130,33 @@ const (
 	// InfrastructureRefDocker is the docker infrastructure
 	InfrastructureRefDocker = "DockerCluster"
 
+	// KappControllerAddonName is the addon name of Kapp Controller
+	KappControllerAddonName = "kapp-controller"
+
+	// ManagementClusterRoleLabel is the label applied to cluster object that indicates the cluster object represents a
+	// mgmt cluster
+	ManagementClusterRoleLabel = "cluster-role.tkg.tanzu.vmware.com/management"
+
 	// SecretNameLogKey is the log key for Secrets
 	SecretNameLogKey = "secret-name"
 
 	// ClusterBootstrapManagedSecret is the name for the secrets that are managed by ClusterBootstrapController
 	ClusterBootstrapManagedSecret = "clusterbootstrap-secret"
+
+	// DefaultHTTPProxyClusterClassVarName is the default cluster variable name for HTTP proxy setting
+	DefaultHTTPProxyClusterClassVarName = "tkg.tanzu.vmware.com/tkg-http-proxy"
+
+	// DefaultHTTPSProxyClusterClassVarName is the default cluster variable name for HTTPS proxy setting
+	DefaultHTTPSProxyClusterClassVarName = "tkg.tanzu.vmware.com/tkg-https-proxy"
+
+	// DefaultNoProxyClusterClassVarName is the default cluster variable name for no proxy setting
+	DefaultNoProxyClusterClassVarName = "tkg.tanzu.vmware.com/tkg-no-proxy"
+
+	// DefaultProxyCaCertClusterClassVarName is the default cluster variable name for proxy CA cert
+	DefaultProxyCaCertClusterClassVarName = "tkg.tanzu.vmware.com/tkg-proxy-ca-cert"
+
+	// DefaultIPFamilyClusterClassVarName is the default cluster variable name for ip family
+	DefaultIPFamilyClusterClassVarName = "tkg.tanzu.vmware.com/tkg-ip-family"
 )
 
 // ClusterKind is the Kind for cluster-api Cluster object

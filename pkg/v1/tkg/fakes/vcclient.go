@@ -138,6 +138,20 @@ type VCClient struct {
 		result1 string
 		result2 error
 	}
+	FindVirtualMachineTemplateMOIDByNameStub        func(string, string) (string, error)
+	findVirtualMachineTemplateMOIDByNameMutex       sync.RWMutex
+	findVirtualMachineTemplateMOIDByNameArgsForCall []struct {
+		arg1 string
+		arg2 string
+	}
+	findVirtualMachineTemplateMOIDByNameReturns struct {
+		result1 string
+		result2 error
+	}
+	findVirtualMachineTemplateMOIDByNameReturnsOnCall map[int]struct {
+		result1 string
+		result2 error
+	}
 	GetAndValidateVirtualMachineTemplateStub        func([]string, string, string, string, tkgconfigreaderwriter.TKGConfigReaderWriter) (*types.VSphereVirtualMachine, error)
 	getAndValidateVirtualMachineTemplateMutex       sync.RWMutex
 	getAndValidateVirtualMachineTemplateArgsForCall []struct {
@@ -895,6 +909,71 @@ func (fake *VCClient) FindVirtualMachineReturnsOnCall(i int, result1 string, res
 		})
 	}
 	fake.findVirtualMachineReturnsOnCall[i] = struct {
+		result1 string
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *VCClient) FindVirtualMachineTemplateMOIDByName(arg1 string, arg2 string) (string, error) {
+	fake.findVirtualMachineTemplateMOIDByNameMutex.Lock()
+	ret, specificReturn := fake.findVirtualMachineTemplateMOIDByNameReturnsOnCall[len(fake.findVirtualMachineTemplateMOIDByNameArgsForCall)]
+	fake.findVirtualMachineTemplateMOIDByNameArgsForCall = append(fake.findVirtualMachineTemplateMOIDByNameArgsForCall, struct {
+		arg1 string
+		arg2 string
+	}{arg1, arg2})
+	stub := fake.FindVirtualMachineTemplateMOIDByNameStub
+	fakeReturns := fake.findVirtualMachineTemplateMOIDByNameReturns
+	fake.recordInvocation("FindVirtualMachineTemplateMOIDByName", []interface{}{arg1, arg2})
+	fake.findVirtualMachineTemplateMOIDByNameMutex.Unlock()
+	if stub != nil {
+		return stub(arg1, arg2)
+	}
+	if specificReturn {
+		return ret.result1, ret.result2
+	}
+	return fakeReturns.result1, fakeReturns.result2
+}
+
+func (fake *VCClient) FindVirtualMachineTemplateMOIDByNameCallCount() int {
+	fake.findVirtualMachineTemplateMOIDByNameMutex.RLock()
+	defer fake.findVirtualMachineTemplateMOIDByNameMutex.RUnlock()
+	return len(fake.findVirtualMachineTemplateMOIDByNameArgsForCall)
+}
+
+func (fake *VCClient) FindVirtualMachineTemplateMOIDByNameCalls(stub func(string, string) (string, error)) {
+	fake.findVirtualMachineTemplateMOIDByNameMutex.Lock()
+	defer fake.findVirtualMachineTemplateMOIDByNameMutex.Unlock()
+	fake.FindVirtualMachineTemplateMOIDByNameStub = stub
+}
+
+func (fake *VCClient) FindVirtualMachineTemplateMOIDByNameArgsForCall(i int) (string, string) {
+	fake.findVirtualMachineTemplateMOIDByNameMutex.RLock()
+	defer fake.findVirtualMachineTemplateMOIDByNameMutex.RUnlock()
+	argsForCall := fake.findVirtualMachineTemplateMOIDByNameArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2
+}
+
+func (fake *VCClient) FindVirtualMachineTemplateMOIDByNameReturns(result1 string, result2 error) {
+	fake.findVirtualMachineTemplateMOIDByNameMutex.Lock()
+	defer fake.findVirtualMachineTemplateMOIDByNameMutex.Unlock()
+	fake.FindVirtualMachineTemplateMOIDByNameStub = nil
+	fake.findVirtualMachineTemplateMOIDByNameReturns = struct {
+		result1 string
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *VCClient) FindVirtualMachineTemplateMOIDByNameReturnsOnCall(i int, result1 string, result2 error) {
+	fake.findVirtualMachineTemplateMOIDByNameMutex.Lock()
+	defer fake.findVirtualMachineTemplateMOIDByNameMutex.Unlock()
+	fake.FindVirtualMachineTemplateMOIDByNameStub = nil
+	if fake.findVirtualMachineTemplateMOIDByNameReturnsOnCall == nil {
+		fake.findVirtualMachineTemplateMOIDByNameReturnsOnCall = make(map[int]struct {
+			result1 string
+			result2 error
+		})
+	}
+	fake.findVirtualMachineTemplateMOIDByNameReturnsOnCall[i] = struct {
 		result1 string
 		result2 error
 	}{result1, result2}
@@ -1771,6 +1850,8 @@ func (fake *VCClient) Invocations() map[string][][]interface{} {
 	defer fake.findResourcePoolMutex.RUnlock()
 	fake.findVirtualMachineMutex.RLock()
 	defer fake.findVirtualMachineMutex.RUnlock()
+	fake.findVirtualMachineTemplateMOIDByNameMutex.RLock()
+	defer fake.findVirtualMachineTemplateMOIDByNameMutex.RUnlock()
 	fake.getAndValidateVirtualMachineTemplateMutex.RLock()
 	defer fake.getAndValidateVirtualMachineTemplateMutex.RUnlock()
 	fake.getComputeResourcesMutex.RLock()

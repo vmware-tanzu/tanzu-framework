@@ -9,10 +9,16 @@ spec:
     spec:
       files:
       #@overlay/append
+      - path: C:\k\antrea_cleanup.ps1
+        content: |
+          stop-service antrea-agent -ErrorAction SilentlyContinue
+          C:\k\antrea\Clean-AntreaNetwork.ps1
+      #@overlay/append
       - path: C:\k\register_antrea_cleanup.ps1
         content: |
           $methodScript = "C:\k\antrea\Clean-AntreaNetwork.ps1"
           if (Test-Path "$methodScript") {
+              $cleanScriptPath = "C:\k\antrea_cleanup.ps1"
               $method = "Shutdown"
               $RegPath = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Group Policy"
               $RegScriptsPath = "$RegPath\Scripts\$method\0"
@@ -44,7 +50,7 @@ spec:
               $ExecTime = $BinaryString.Split(',') | ForEach-Object {"0x$_"}
               $items = @("$RegScriptsPath\0", "$RegSmScriptsPath\0")
               foreach ($item in $items) {
-                  New-ItemProperty -path "$item" -name Script -propertyType String -value $methodScript -force
+                  New-ItemProperty -path "$item" -name Script -propertyType String -value $cleanScriptPath -force
                   New-ItemProperty -path "$item" -name Parameters -propertyType String -value $method -force
                   New-ItemProperty -path "$item" -name IsPowershell -propertyType DWord -value 1 -force
                   New-ItemProperty -path "$item" -name ExecTime -propertyType Binary -value ([byte[]]$ExecTime) -force

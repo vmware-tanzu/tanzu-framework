@@ -1,0 +1,266 @@
+
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.7.0
+  creationTimestamp: null
+  name: clusterbootstraps.run.tanzu.vmware.com
+spec:
+  group: run.tanzu.vmware.com
+  names:
+    kind: ClusterBootstrap
+    listKind: ClusterBootstrapList
+    plural: clusterbootstraps
+    shortNames:
+    - cb
+    singular: clusterbootstrap
+  scope: Namespaced
+  versions:
+  - additionalPrinterColumns:
+    - description: CNI package name and version
+      jsonPath: .spec.cni.refName
+      name: CNI
+      type: string
+    - description: CSI package name and version
+      jsonPath: .spec.csi.refName
+      name: CSI
+      type: string
+    - description: CPI package name and version
+      jsonPath: .spec.cpi.refName
+      name: CPI
+      type: string
+    - description: Kapp package name and version
+      jsonPath: .spec.kapp.refName
+      name: Kapp
+      type: string
+    - description: Additional packages
+      jsonPath: .spec.additionalPackages[*].refName
+      name: Additional Packages
+      priority: 10
+      type: string
+    - description: Resolved TKR name
+      jsonPath: .status.resolvedTKR
+      name: Resolved_TKR
+      type: string
+    name: v1alpha3
+    schema:
+      openAPIV3Schema:
+        description: ClusterBootstrap is the Schema for the ClusterBootstraps API
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation
+              of an object. Servers should convert recognized schemas to the latest
+              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this
+              object represents. Servers may infer this from the endpoint the client
+              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: ClusterBootstrapTemplateSpec defines the desired state of
+              ClusterBootstrapTemplate
+            properties:
+              additionalPackages:
+                items:
+                  properties:
+                    refName:
+                      type: string
+                    valuesFrom:
+                      properties:
+                        inline:
+                          type: string
+                        providerRef:
+                          description: TypedLocalObjectReference contains enough information
+                            to let you locate the typed referenced object inside the
+                            same namespace.
+                          properties:
+                            apiGroup:
+                              description: APIGroup is the group for the resource
+                                being referenced. If APIGroup is not specified, the
+                                specified Kind must be in the core API group. For
+                                any other third-party types, APIGroup is required.
+                              type: string
+                            kind:
+                              description: Kind is the type of resource being referenced
+                              type: string
+                            name:
+                              description: Name is the name of resource being referenced
+                              type: string
+                          required:
+                          - kind
+                          - name
+                          type: object
+                        secretRef:
+                          type: string
+                      type: object
+                  required:
+                  - refName
+                  type: object
+                type: array
+              cni:
+                description: TODO these are optional for temp testing, change when
+                  TKR v1alpha3 is available
+                properties:
+                  refName:
+                    type: string
+                  valuesFrom:
+                    properties:
+                      inline:
+                        type: string
+                      providerRef:
+                        description: TypedLocalObjectReference contains enough information
+                          to let you locate the typed referenced object inside the
+                          same namespace.
+                        properties:
+                          apiGroup:
+                            description: APIGroup is the group for the resource being
+                              referenced. If APIGroup is not specified, the specified
+                              Kind must be in the core API group. For any other third-party
+                              types, APIGroup is required.
+                            type: string
+                          kind:
+                            description: Kind is the type of resource being referenced
+                            type: string
+                          name:
+                            description: Name is the name of resource being referenced
+                            type: string
+                        required:
+                        - kind
+                        - name
+                        type: object
+                      secretRef:
+                        type: string
+                    type: object
+                required:
+                - refName
+                type: object
+              cpi:
+                properties:
+                  refName:
+                    type: string
+                  valuesFrom:
+                    properties:
+                      inline:
+                        type: string
+                      providerRef:
+                        description: TypedLocalObjectReference contains enough information
+                          to let you locate the typed referenced object inside the
+                          same namespace.
+                        properties:
+                          apiGroup:
+                            description: APIGroup is the group for the resource being
+                              referenced. If APIGroup is not specified, the specified
+                              Kind must be in the core API group. For any other third-party
+                              types, APIGroup is required.
+                            type: string
+                          kind:
+                            description: Kind is the type of resource being referenced
+                            type: string
+                          name:
+                            description: Name is the name of resource being referenced
+                            type: string
+                        required:
+                        - kind
+                        - name
+                        type: object
+                      secretRef:
+                        type: string
+                    type: object
+                required:
+                - refName
+                type: object
+              csi:
+                properties:
+                  refName:
+                    type: string
+                  valuesFrom:
+                    properties:
+                      inline:
+                        type: string
+                      providerRef:
+                        description: TypedLocalObjectReference contains enough information
+                          to let you locate the typed referenced object inside the
+                          same namespace.
+                        properties:
+                          apiGroup:
+                            description: APIGroup is the group for the resource being
+                              referenced. If APIGroup is not specified, the specified
+                              Kind must be in the core API group. For any other third-party
+                              types, APIGroup is required.
+                            type: string
+                          kind:
+                            description: Kind is the type of resource being referenced
+                            type: string
+                          name:
+                            description: Name is the name of resource being referenced
+                            type: string
+                        required:
+                        - kind
+                        - name
+                        type: object
+                      secretRef:
+                        type: string
+                    type: object
+                required:
+                - refName
+                type: object
+              kapp:
+                properties:
+                  refName:
+                    type: string
+                  valuesFrom:
+                    properties:
+                      inline:
+                        type: string
+                      providerRef:
+                        description: TypedLocalObjectReference contains enough information
+                          to let you locate the typed referenced object inside the
+                          same namespace.
+                        properties:
+                          apiGroup:
+                            description: APIGroup is the group for the resource being
+                              referenced. If APIGroup is not specified, the specified
+                              Kind must be in the core API group. For any other third-party
+                              types, APIGroup is required.
+                            type: string
+                          kind:
+                            description: Kind is the type of resource being referenced
+                            type: string
+                          name:
+                            description: Name is the name of resource being referenced
+                            type: string
+                        required:
+                        - kind
+                        - name
+                        type: object
+                      secretRef:
+                        type: string
+                    type: object
+                required:
+                - refName
+                type: object
+            type: object
+          status:
+            description: ClusterBootstrapStatus defines the observed state of ClusterBootstrap
+            properties:
+              resolvedTKR:
+                type: string
+            type: object
+        required:
+        - spec
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
+status:
+  acceptedNames:
+    kind: ""
+    plural: ""
+  conditions: []
+  storedVersions: []

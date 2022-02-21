@@ -177,13 +177,6 @@ func compileCore(corePath string, arch cli.Arch) cli.Plugin {
 		os.Exit(1)
 	}
 
-	// TODO (pbarker): should copy.
-	err = buildTargets(corePath, filepath.Join(artifactsDir, cli.CoreName, cli.VersionLatest), cli.CoreName, arch, "", "")
-	if err != nil {
-		log.Errorf("error: %v", err)
-		os.Exit(1)
-	}
-
 	b, err := yaml.Marshal(cli.CoreDescriptor)
 	if err != nil {
 		log.Errorf("error: %v", err)

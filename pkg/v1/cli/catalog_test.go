@@ -107,7 +107,6 @@ func testHasUpdate(t *testing.T, multi *MultiRepo, numPluginsDowngraded int) {
 	require.Equal(t, numPluginsRequiringUpdate, numPluginsDowngraded)
 }
 
-//nolint:funlen
 func TestCatalog(t *testing.T) {
 	newTestCatalog(t)
 

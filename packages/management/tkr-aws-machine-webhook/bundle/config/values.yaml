@@ -1,0 +1,11 @@
+#@data/values
+#@overlay/match-child-defaults missing_ok=True
+---
+tkrInfraMachineWebhook:
+  namespace: tanzu-system
+  createNamespace: true
+  deployment:
+    envFieldMapConfigValue: |
+      id: spec.ami.id
+  webhookConfig:
+    resources: awsmachines

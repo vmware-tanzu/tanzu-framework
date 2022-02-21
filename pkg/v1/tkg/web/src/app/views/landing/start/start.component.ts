@@ -4,14 +4,13 @@ import { Router } from '@angular/router';
 import { Title } from '@angular/platform-browser';
 // Third party imports
 import { Observable } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
 // App imports
 import { APP_ROUTES, Routes } from '../../../shared/constants/routes.constants';
 import AppServices from 'src/app/shared/service/appServices';
 import { BasicSubscriber } from 'src/app/shared/abstracts/basic-subscriber';
 import { BrandingObj, EditionData } from '../../../shared/service/branding.service';
 import { PROVIDERS, Providers } from '../../../shared/constants/app.constants';
-import { TanzuEvent, TanzuEventType } from 'src/app/shared/service/Messenger';
+import { TanzuEventType } from 'src/app/shared/service/Messenger';
 
 @Component({
     selector: 'tkg-kickstart-ui-start',
@@ -38,16 +37,12 @@ export class StartComponent extends BasicSubscriber implements OnInit {
         /**
          * Whenever branding data changes, load content in landing page
          */
-        AppServices.messenger.getSubject(TanzuEventType.BRANDING_CHANGED)
-            .pipe(takeUntil(this.unsubscribe))
-            .subscribe((data: TanzuEvent) => {
-                const content: EditionData = data.payload;
-                const title = content.branding.title;
-                this.edition = content.edition;
-                this.clusterTypeDescriptor = content.clusterTypeDescriptor;
-                this.landingPageContent = content.branding.landingPage;
-                this.titleService.setTitle(title);
-            });
+        AppServices.messenger.subscribe<EditionData>(TanzuEventType.BRANDING_CHANGED, data => {
+            this.edition = data.payload.edition;
+            this.clusterTypeDescriptor = data.payload.clusterTypeDescriptor;
+            this.landingPageContent = data.payload.branding.landingPage;
+            this.titleService.setTitle(data.payload.branding.title);
+            }, this.unsubscribe);
     }
 
     /**

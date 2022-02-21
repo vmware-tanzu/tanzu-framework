@@ -12,7 +12,7 @@ import { NetworkField } from '../../wizard/shared/components/steps/network-step/
 import { ResourcePool } from '../resource-step/resource-step.component';
 import { SharedModule } from '../../../../shared/shared.module';
 import { ValidationService } from '../../wizard/shared/validation/validation.service';
-import { VSphereDatastore, VSphereFolder, VSphereResourcePool } from '../../../../swagger/models';
+import { VSphereDatastore, VSphereFolder, VSphereNetwork, VSphereResourcePool } from '../../../../swagger/models';
 import { VsphereNetworkStepComponent } from './vsphere-network-step.component';
 import { WizardForm } from '../../wizard/shared/constants/wizard.constants';
 
@@ -53,7 +53,9 @@ describe('NodeSettingStepComponent', () => {
 
         fixture = TestBed.createComponent(VsphereNetworkStepComponent);
         component = fixture.componentInstance;
-        component.setInputs('BozoWizard', WizardForm.NETWORK, new FormBuilder().group({}));
+        component.setStepRegistrantData({ wizard: 'BozoWizard', step: WizardForm.NETWORK, formGroup: new FormBuilder().group({}),
+            eventFileImported: TanzuEventType.VSPHERE_CONFIG_FILE_IMPORTED,
+            eventFileImportError: TanzuEventType.VSPHERE_CONFIG_FILE_IMPORT_ERROR});
 
         fixture.detectChanges();
     });
@@ -61,7 +63,7 @@ describe('NodeSettingStepComponent', () => {
     it('should announce description change', () => {
         const msgSpy = spyOn(AppServices.messenger, 'publish').and.callThrough();
         component.ngOnInit();
-        const networkNameControl = component.formGroup.get(NetworkField.NETWORK_NAME);
+        const networkNameControl = component.formGroup.controls[NetworkField.NETWORK_NAME];
         const serviceCidrControl = component.formGroup.controls[NetworkField.CLUSTER_SERVICE_CIDR];
         const podCidrControl = component.formGroup.controls[NetworkField.CLUSTER_POD_CIDR];
 
@@ -69,7 +71,7 @@ describe('NodeSettingStepComponent', () => {
         serviceCidrControl.setValue('');
         expect(component.dynamicDescription()).toEqual(VsphereNetworkStepComponent.description);
 
-        networkNameControl.setValue('CHOCMINT');
+        networkNameControl.setValue({name: 'CHOCMINT', moid: 'CHIP'} as VSphereNetwork);
         expect(msgSpy).toHaveBeenCalledWith({
             type: TanzuEventType.STEP_DESCRIPTION_CHANGE,
             payload: {
@@ -85,7 +87,7 @@ describe('NodeSettingStepComponent', () => {
             payload: {
                 wizard: 'BozoWizard',
                 step: WizardForm.NETWORK,
-                description: 'Network: CHOCMINT Cluster Pod CIDR: 1.2.3.4/12'
+                description: 'Network: CHOCMINT, Cluster Pod CIDR: 1.2.3.4/12'
             }
         });
 
@@ -95,9 +97,8 @@ describe('NodeSettingStepComponent', () => {
             payload: {
                 wizard: 'BozoWizard',
                 step: WizardForm.NETWORK,
-                description: 'Network: CHOCMINT Cluster Service CIDR: 5.6.7.8/16 Cluster Pod CIDR: 1.2.3.4/12'
+                description: 'Network: CHOCMINT, Cluster Service CIDR: 5.6.7.8/16, Cluster Pod CIDR: 1.2.3.4/12'
             }
         });
-
     });
 });

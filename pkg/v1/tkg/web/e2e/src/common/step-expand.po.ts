@@ -19,7 +19,7 @@ export class Stepper extends Step {
     }
 
     getVnetStep() {
-        return element(by.cssContainingText('clr-step-title', 'Azure VNET Settings'));
+        return element(by.cssContainingText('clr-step-title', 'Azure VNet Settings'));
     }
 
     getNodeSettingsStep() {

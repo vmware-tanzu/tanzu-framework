@@ -5,7 +5,6 @@ import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 // App imports
 import { APIClient } from '../../../../../../../swagger/api-client.service';
 import AppServices from 'src/app/shared/service/appServices';
-import { FieldMapUtilities } from '../../../field-mapping/FieldMapUtilities';
 import { IdentityField } from './identity-step.fieldmapping';
 import { IdentityManagementType, WizardForm } from '../../../constants/wizard.constants';
 import { Messenger, TanzuEventType } from 'src/app/shared/service/Messenger';
@@ -26,7 +25,6 @@ describe('IdentityStepComponent', () => {
             providers: [
                 ValidationService,
                 FormBuilder,
-                FieldMapUtilities,
                 APIClient
             ],
             schemas: [
@@ -41,9 +39,12 @@ describe('IdentityStepComponent', () => {
         AppServices.messenger = new Messenger();
         fixture = TestBed.createComponent(SharedIdentityStepComponent);
         component = fixture.componentInstance;
-        component.setInputs('BozoWizard', WizardForm.IDENTITY, new FormBuilder().group({}));
-
+        // NOTE: using Azure file import stuff just to test
+        component.setStepRegistrantData({ wizard: 'BozoWizard', step: WizardForm.IDENTITY, formGroup: new FormBuilder().group({}),
+            eventFileImported: TanzuEventType.AZURE_CONFIG_FILE_IMPORTED,
+            eventFileImportError: TanzuEventType.AZURE_CONFIG_FILE_IMPORT_ERROR});
         fixture.detectChanges();
+        component.ngOnInit();
     });
 
   it('should create', () => {
@@ -52,24 +53,30 @@ describe('IdentityStepComponent', () => {
 
   it('should switch to ldap', () => {
     fixture.whenStable().then(() => {
-      spyOn(component, 'unsetAllValidators').and.callThrough();
+      spyOn(component, 'unsetValidators').and.callThrough();
       spyOn(component, 'setLDAPValidators').and.callThrough();
+      if (!component.isUsingIdentityManagement) {
+          component.toggleIdmSetting();
+      }
       component.formGroup.get(IdentityField.IDENTITY_TYPE).setValue(IdentityManagementType.LDAP);
-      expect(component.identityTypeValue).toEqual(IdentityManagementType.LDAP);
-      expect(component.unsetAllValidators).toHaveBeenCalled();
+      expect(component.isIdentityManagementLdap).toBeTrue();
+      expect(component.unsetValidators).toHaveBeenCalled();
       expect(component.setLDAPValidators).toHaveBeenCalled();
     });
   });
 
   it('should switch back to oidc', () => {
     fixture.whenStable().then(() => {
-      component.formGroup.get(IdentityField.IDENTITY_TYPE).setValue(IdentityManagementType.LDAP);
-      spyOn(component, 'unsetAllValidators').and.callThrough();
-      spyOn(component, 'setOIDCValidators').and.callThrough();
-      component.formGroup.get(IdentityField.IDENTITY_TYPE).setValue(IdentityManagementType.OIDC);
-      expect(component.identityTypeValue).toEqual(IdentityManagementType.OIDC);
-      expect(component.unsetAllValidators).toHaveBeenCalled();
-      expect(component.setOIDCValidators).toHaveBeenCalled();
+        if (!component.isUsingIdentityManagement) {
+            component.toggleIdmSetting();
+        }
+        component.formGroup.get(IdentityField.IDENTITY_TYPE).setValue(IdentityManagementType.LDAP);
+        spyOn(component, 'unsetValidators').and.callThrough();
+        spyOn(component, 'setOIDCValidators').and.callThrough();
+        component.formGroup.get(IdentityField.IDENTITY_TYPE).setValue(IdentityManagementType.OIDC);
+        expect(component.isIdentityManagementOidc).toBeTrue();
+        expect(component.unsetValidators).toHaveBeenCalled();
+        expect(component.setOIDCValidators).toHaveBeenCalled();
     });
   });
 

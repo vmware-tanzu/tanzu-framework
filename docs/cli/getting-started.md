@@ -24,6 +24,8 @@ The API driven plugin discovery feature is enabled as default method to install 
 
 ##### macOS/Linux
 
+###### Option 1: Manual download CLI binary from GitHub Releases
+
 - Download the latest tanzu-cli tarball from [release](https://github.com/vmware-tanzu/tanzu-framework/releases/latest) page (`tanzu-cli-darwin-amd64.tar.gz` or `tanzu-cli-linux-amd64.tar.gz`)
 
 - Extract the downloaded tar file
@@ -67,6 +69,20 @@ The API driven plugin discovery feature is enabled as default method to install 
   ```sh
   tanzu plugin list
   ```
+  
+###### Option 2: Using install script
+
+You may download and install a release using the provided remote script piped into bash.
+
+```shell
+curl -H "Accept: application/vnd.github.v3.raw" \
+    -L https://api.github.com/repos/vmware-tanzu/tanzu-framework/contents/hack/fetch-install-tf.sh | \
+    bash -s
+```
+
+- This script requires `curl`,`grep`,`tr` and `jq` in order to work.
+- The release will be downloaded to a temporary directory and then installation will proceed using the downloaded `tanzu` CLI binary.
+- _Note_: A GitHub personal access token may be provided to the script as the `GITHUB_TOKEN` environment variable. This bypasses GitHub API rate limiting but is not required. Follow the [GitHub documentation](https://docs.github.com/en/github/authenticating-to-github/keeping-your-account-and-data-secure/creating-a-personal-access-token) to acquire and use a personal access token.
 
 ##### Windows
 

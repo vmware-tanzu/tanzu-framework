@@ -9,11 +9,12 @@ import (
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+
 	v1 "k8s.io/api/core/v1"
 	clusterapiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
-	kappcontroller "github.com/vmware-tanzu/tanzu-framework/addons/controllers/kapp-controller"
+	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/util"
 	"github.com/vmware-tanzu/tanzu-framework/addons/testutil"
 	runv1alpha3 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
@@ -39,7 +40,8 @@ var _ = Describe("KappControllerConfig Reconciler", func() {
 		f, err := os.Open(clusterResourceFilePath)
 		Expect(err).ToNot(HaveOccurred())
 		defer f.Close()
-		Expect(testutil.DeleteResources(f, cfg, dynamicClient, true)).To(Succeed())
+		// Best effort resource deletion
+		_ = testutil.DeleteResources(f, cfg, dynamicClient, true)
 	})
 
 	Context("reconcile KappControllerConfig for management cluster", func() {
@@ -92,7 +94,7 @@ var _ = Describe("KappControllerConfig Reconciler", func() {
 			Eventually(func() bool {
 				secretKey := client.ObjectKey{
 					Namespace: "default",
-					Name:      util.GenerateDataValueSecretName(kappConfigCRName, kappcontroller.KappControllerAddonName),
+					Name:      util.GenerateDataValueSecretName(kappConfigCRName, constants.KappControllerAddonName),
 				}
 				secret := &v1.Secret{}
 				err := k8sClient.Get(ctx, secretKey, secret)
@@ -115,6 +117,17 @@ var _ = Describe("KappControllerConfig Reconciler", func() {
 				Expect(strings.Contains(secretData, "apiPort: 10100")).Should(BeTrue())
 				Expect(strings.Contains(secretData, "metricsBindAddress: \"0\"")).Should(BeTrue())
 
+				if !strings.Contains(secretData, "caCerts: dummyCertificate") ||
+					!strings.Contains(secretData, "httpsProxy: bar.com") ||
+					!strings.Contains(secretData, "noProxy: foobar.com") {
+					return false
+				}
+
+				// user input should override cluster-wide config
+				if !strings.Contains(secretData, "httpProxy: overwrite.foo.com") {
+					return false
+				}
+
 				return true
 			}, waitTimeout, pollingInterval).Should(BeTrue())
 
@@ -125,7 +138,7 @@ var _ = Describe("KappControllerConfig Reconciler", func() {
 				if err != nil {
 					return false
 				}
-				Expect(config.Status.SecretRef).Should(Equal(util.GenerateDataValueSecretName(kappConfigCRName, kappcontroller.KappControllerAddonName)))
+				Expect(config.Status.SecretRef).Should(Equal(util.GenerateDataValueSecretName(kappConfigCRName, constants.KappControllerAddonName)))
 				return true
 			}, waitTimeout, pollingInterval).Should(BeTrue())
 

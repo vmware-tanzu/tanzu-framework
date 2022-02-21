@@ -1,13 +1,10 @@
 // Angular imports
 import { Component, OnInit } from '@angular/core';
 import { Validators } from '@angular/forms';
-// Third party imports
-import { takeUntil } from 'rxjs/operators';
 // App imports
 import AppServices from '../../../../shared/service/appServices';
-import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
 import { StepFormDirective } from '../../wizard/shared/step-form/step-form';
-import { TanzuEventType } from '../../../../shared/service/Messenger';
+import { TanzuEvent, TanzuEventType } from '../../../../shared/service/Messenger';
 import { ValidationService } from '../../wizard/shared/validation/validation.service';
 import { VSphereDatastore } from '../../../../swagger/models/v-sphere-datastore.model';
 import { VsphereField } from "../vsphere-wizard.constants";
@@ -51,110 +48,83 @@ export class ResourceStepComponent extends StepFormDirective implements OnInit {
     vmFolders: Array<VSphereFolder> = [];
 
     treeData = [];
+    private currentDataCenter: string;
 
-    constructor(private fieldMapUtilities: FieldMapUtilities,
-                private validationService: ValidationService) {
+    constructor(private validationService: ValidationService) {
         super();
     }
 
     ngOnInit() {
         super.ngOnInit();
-        this.fieldMapUtilities.buildForm(this.formGroup, this.formName, VsphereResourceStepMapping);
+        AppServices.userDataFormService.buildForm(this.formGroup, this.wizardName, this.formName, VsphereResourceStepMapping);
+        this.htmlFieldLabels = AppServices.fieldMapUtilities.getFieldLabelMap(VsphereResourceStepMapping);
+        this.storeDefaultLabels(VsphereResourceStepMapping);
         this.registerStepDescriptionTriggers({ clusterTypeDescriptor: true,
             fields: [VsphereField.RESOURCE_DATASTORE, VsphereField.RESOURCE_POOL, VsphereField.RESOURCE_VMFOLDER]});
+        this.registerDefaultFileImportedHandler(this.eventFileImported, VsphereResourceStepMapping);
+        this.registerDefaultFileImportErrorHandler(this.eventFileImportError);
 
-        /**
-         * Whenever data center selection changes, reset the relevant fields
-        */
-        AppServices.messenger.getSubject(TanzuEventType.VSPHERE_DATACENTER_CHANGED)
-            .pipe(takeUntil(this.unsubscribe))
-            .subscribe(event => {
-                this.resetFieldsUponDCChange();
-            });
-
-        this.initFormWithSavedData();
+        this.listenToEvents();
         this.subscribeToServices();
     }
 
-    initFormWithSavedData() {
-        // overwritten to avoid setting resource pool because it causes ng-valid console errors
-        const resourcePoolFields: string[] = [
-            VsphereField.RESOURCE_POOL,
-            VsphereField.RESOURCE_DATASTORE,
-            VsphereField.RESOURCE_VMFOLDER
-        ];
-        if (this.hasSavedData()) {
-            for (const [key, control] of Object.entries(this.formGroup.controls)) {
-                if (!resourcePoolFields.includes(key)) {
-                    control.setValue(this.getSavedValue(key, control.value));
-                }
-            }
-        }
+    private listenToEvents() {
+        AppServices.messenger.subscribe<string>(TanzuEventType.VSPHERE_DATACENTER_CHANGED, this.onDataCenterChange.bind(this),
+            this.unsubscribe);
     }
 
     loadResourceOptions() {
         this.resourcesFetch = 0;
         this.loadingResources = true;
-        this.retrieveResourcePools();
-        this.retrieveComputeResources();
-        this.retrieveDatastores();
-        this.retrieveVMFolders();
+        this.retrieveResourcePools(this.currentDataCenter);
+        this.retrieveComputeResources(this.currentDataCenter);
+        this.retrieveDatastores(this.currentDataCenter);
+        this.retrieveVMFolders(this.currentDataCenter);
     }
 
-    // Reset the relevant fields upon data center change
-    resetFieldsUponDCChange() {
-        const fieldsToReset = [VsphereField.RESOURCE_POOL.toString(), VsphereField.RESOURCE_DATASTORE, VsphereField.RESOURCE_VMFOLDER];
+    // public only for testing
+    onDataCenterChange(event: TanzuEvent<string>) {
+        this.currentDataCenter = event.payload;
+
+        // TODO: the following setField() calls should be done when the resources have finished being fetched (not now)
         // NOTE: because the saved data values MAY be applicable to the just-chosen DC,
         // we try to set the fields to the saved value
-        if (this.hasSavedData()) {
-            for (const [key, control] of Object.entries(this.formGroup.controls)) {
-                if (fieldsToReset.includes(key)) {
-                    const savedValue = this.getSavedValue(key, control.value);
-                    control.setValue(savedValue);
-                }
-            }
-        } else {
-            fieldsToReset.forEach(f => this.formGroup.get(f).setValue(""));
-        }
-    }
-
-    /**
-     * @method retrieveResourcePools
-     * helper method to refresh list of resource pools
-     */
-    retrieveResourcePools() {
-        AppServices.messenger.publish({
-            type: TanzuEventType.VSPHERE_GET_RESOURCE_POOLS
+        const fieldsToReset = [VsphereField.RESOURCE_POOL, VsphereField.RESOURCE_DATASTORE, VsphereField.RESOURCE_VMFOLDER];
+        fieldsToReset.forEach(field => {
+            this.setFieldWithStoredValue(field, VsphereResourceStepMapping, this.getFieldValue(field),
+                { onlySelf: true, emitEvent: false});
         });
     }
 
-    /**
-     * @method retrieveComputeResources
-     * helper method to refresh list of compute resources
-     */
-    retrieveComputeResources() {
+    // public only for testing
+    retrieveResourcePools(dc: string) {
         AppServices.messenger.publish({
-            type: TanzuEventType.VSPHERE_GET_COMPUTE_RESOURCE
+            type: TanzuEventType.VSPHERE_GET_RESOURCE_POOLS,
+            payload: {dc}
         });
     }
 
-    /**
-     * @method retrieveDatastores
-     * helper method to refresh list of datastores
-     */
-    retrieveDatastores() {
+    // public only for testing
+    retrieveComputeResources(dc: string) {
         AppServices.messenger.publish({
-            type: TanzuEventType.VSPHERE_GET_DATA_STORES
+            type: TanzuEventType.VSPHERE_GET_COMPUTE_RESOURCE,
+            payload: {dc}
         });
     }
 
-    /**
-     * @method retrieveVMFolders
-     * helper method to refresh list of vm folders
-     */
-    retrieveVMFolders() {
+    // public only for testing
+    retrieveDatastores(dc: string) {
         AppServices.messenger.publish({
-            type: TanzuEventType.VSPHERE_GET_VM_FOLDERS
+            type: TanzuEventType.VSPHERE_GET_DATA_STORES,
+            payload: {dc}
+        });
+    }
+
+    // public only for testing
+    retrieveVMFolders(dc: string) {
+        AppServices.messenger.publish({
+            type: TanzuEventType.VSPHERE_GET_VM_FOLDERS,
+            payload: {dc}
         });
     }
 
@@ -174,7 +144,7 @@ export class ResourceStepComponent extends StepFormDirective implements OnInit {
             }
             resource.label = resource.name;
         });
-        const selectResourcePool = this.getSavedValue(VsphereField.RESOURCE_POOL, '');
+        const selectResourcePool = this.getStoredValue(VsphereField.RESOURCE_POOL, VsphereResourceStepMapping, '');
         this.constructTree(resourceTree, nodeMap, selectResourcePool);
         this.treeData = this.removeDatacenter(resourceTree);
     }
@@ -288,7 +258,8 @@ export class ResourceStepComponent extends StepFormDirective implements OnInit {
             data = [];
         }
         this.vmFolders = this.sortVsphereResources(data);
-        const selectValue = (data.length === 1) ? data[0].name : this.getSavedValue(VsphereField.RESOURCE_VMFOLDER, '');
+        const storedVmFolder = this.getStoredValue(VsphereField.RESOURCE_VMFOLDER, VsphereResourceStepMapping, '');
+        const selectValue = (data.length === 1) ? data[0].name : storedVmFolder;
         const validators = [Validators.required,
             this.validationService.isValidNameInList(data.map(vmFolder => vmFolder.name))];
         this.resurrectField(VsphereField.RESOURCE_VMFOLDER, validators, selectValue);
@@ -301,7 +272,7 @@ export class ResourceStepComponent extends StepFormDirective implements OnInit {
         }
         this.datastores = this.sortVsphereResources(data);
         const selectValue = (data.length === 1) ? data[0].name :
-            this.getSavedValue(VsphereField.RESOURCE_DATASTORE, '');
+            this.getStoredValue(VsphereField.RESOURCE_DATASTORE, VsphereResourceStepMapping, '');
         const validators = [Validators.required,
             this.validationService.isValidNameInList(data.map(vmFolder => vmFolder.name))];
         this.resurrectField(VsphereField.RESOURCE_DATASTORE, validators, selectValue);
@@ -322,5 +293,10 @@ export class ResourceStepComponent extends StepFormDirective implements OnInit {
             data = [];
         }
         this.resourcePools = this.sortVsphereResources(data);
+    }
+
+    protected storeUserData() {
+        super.storeUserDataFromMapping(VsphereResourceStepMapping);
+        super.storeDefaultDisplayOrder(VsphereResourceStepMapping);
     }
 }

@@ -1,17 +1,16 @@
 // Angular imports
 import { Component } from '@angular/core';
 import { Validators } from '@angular/forms';
-// Third party imports
-import { takeUntil } from 'rxjs/operators';
 // App imports
 import AppServices from '../../../../shared/service/appServices';
-import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
 import { NetworkField } from '../../wizard/shared/components/steps/network-step/network-step.fieldmapping';
 import { SharedNetworkStepComponent } from '../../wizard/shared/components/steps/network-step/network-step.component';
+import { StepMapping } from '../../wizard/shared/field-mapping/FieldMapping';
 import { TanzuEventType } from '../../../../shared/service/Messenger';
 import { ValidationService } from '../../wizard/shared/validation/validation.service';
-import { VSphereNetwork } from '../../../../swagger/models';
 import { VsphereField } from '../vsphere-wizard.constants';
+import { VSphereNetwork } from '../../../../swagger/models';
+import { VsphereNetworkFieldMappings } from './vsphere-network-step.fieldmapping';
 
 declare var sortPaths: any;
 @Component({
@@ -22,24 +21,19 @@ declare var sortPaths: any;
 export class VsphereNetworkStepComponent extends SharedNetworkStepComponent {
     static description = 'Specify how Tanzu Kubernetes Grid networking is provided and any global network settings';
 
-    constructor(protected validationService: ValidationService,
-                protected fieldMapUtilities: FieldMapUtilities) {
-        super(validationService, fieldMapUtilities);
-        this.enableNetworkName = true;
+    vmNetworks: VSphereNetwork[] = [];
+    private stepMapping: StepMapping;
+
+    constructor(protected validationService: ValidationService) {
+        super(validationService);
     }
 
     listenToEvents() {
         super.listenToEvents();
-        AppServices.messenger.getSubject(TanzuEventType.VSPHERE_VC_AUTHENTICATED)
-            .pipe(takeUntil(this.unsubscribe))
-            .subscribe((data) => {
-                this.infraServiceAddress = data.payload;
-            });
-        AppServices.messenger.getSubject(TanzuEventType.VSPHERE_DATACENTER_CHANGED)
-            .pipe(takeUntil(this.unsubscribe))
-            .subscribe(event => {
-                this.clearControlValue(VsphereField.NETWORK_NAME);
-            });
+        AppServices.messenger.subscribe<string>(TanzuEventType.VSPHERE_VC_AUTHENTICATED,
+                data => { this.infraServiceAddress = data.payload; }, this.unsubscribe);
+        AppServices.messenger.subscribe(TanzuEventType.VSPHERE_DATACENTER_CHANGED,
+                () => { this.clearControlValue(VsphereField.NETWORK_NAME); }, this.unsubscribe);
     }
 
     protected subscribeToServices() {
@@ -48,12 +42,18 @@ export class VsphereNetworkStepComponent extends SharedNetworkStepComponent {
     }
 
     private onFetchedVmNetworks(networks: Array<VSphereNetwork>) {
-        this.vmNetworks = sortPaths(networks, function (item) { return item.name; }, '/');
+        this.vmNetworks = sortPaths(networks, function (network) { return network.name; }, '/');
+        if (!this.vmNetworks) {
+            this.vmNetworks = [];
+        }
         this.loadingNetworks = false;
-        this.resurrectField(VsphereField.NETWORK_NAME,
-            [Validators.required], networks.length === 1 ? networks[0].name : '',
-            { onlySelf: true } // only for current form control
-        );
+        if (this.vmNetworks.length > 0) {
+            if (this.vmNetworks.length === 1) {
+                this.getControl(VsphereField.NETWORK_NAME).setValue(this.vmNetworks[0]);
+            } else {
+                this.restoreField(VsphereField.NETWORK_NAME, this.supplyStepMapping());
+            }
+        }
     }
 
     protected onNoProxyChange(value: string) {
@@ -72,38 +72,68 @@ export class VsphereNetworkStepComponent extends SharedNetworkStepComponent {
         });
     }
 
-    initFormWithSavedData() {
-        super.initFormWithSavedData();
-        const fieldNetworkName = this.formGroup.get(VsphereField.NETWORK_NAME);
-        if (fieldNetworkName) {
-            const savedNetworkName = this.getSavedValue(VsphereField.NETWORK_NAME, '');
-            fieldNetworkName.setValue(
-                this.vmNetworks.length === 1 ? this.vmNetworks[0].name : savedNetworkName,
-                { onlySelf: true } // avoid step error message when networkName is empty
-            );
-        }
+    protected supplyFieldsAffectingStepDescription(): string[] {
+        const fields = super.supplyFieldsAffectingStepDescription();
+        fields.push(VsphereField.NETWORK_NAME);
+        return fields;
     }
 
-    protected supplyFieldsAffectingStepDescription(): string[] {
-        return [VsphereField.NETWORK_NAME];
+    protected supplyEnablesNetworkName(): boolean {
+        return true;
+    }
+
+    protected supplyNetworkNameInstruction(): string {
+        return 'Select a vSphere network to use as the Kubernetes service network.';
+    }
+
+    protected supplyEnablesNoProxyWarning(): boolean {
+        return true;
+    }
+
+    protected supplyNetworks(): { displayName?: string }[] {
+        return this.vmNetworks;
+    }
+
+    protected supplyStepMapping(): StepMapping {
+        if (!this.stepMapping) {
+            this.stepMapping = this.createStepMapping();
+        }
+        return this.stepMapping;
+    }
+
+    private createStepMapping(): StepMapping {
+        const fieldMappings = [...VsphereNetworkFieldMappings, ...super.supplyStepMapping().fieldMappings];
+        const result: StepMapping = { fieldMappings };
+        // we have a field that uses a backing object, so we need to assign a retriever; see FieldMapping.ts for details.
+        const networkFieldMapping = AppServices.fieldMapUtilities.getFieldMapping(VsphereField.NETWORK_NAME, result);
+        networkFieldMapping.retriever = this.networkFromName.bind(this);
+        return result;
+    }
+
+    // given a network name, returns the VSphereNetwork associated with that name. Note: method assumes this.vmNetworks is always valid
+    private networkFromName(networkName: string): VSphereNetwork {
+        return this.vmNetworks.find(network => network.name === networkName);
     }
 
     dynamicDescription(): string {
         // NOTE: even though this is a common wizard form, vSphere has a different way of describing it
         // because vSphere allows for the user to select a network name
-        const networkName = this.getFieldValue(VsphereField.NETWORK_NAME);
+        const network = this.getFieldValue(VsphereField.NETWORK_NAME);
         let result = '';
-        if (networkName) {
-            result = 'Network: ' + networkName + ' ';
+        if (network) {
+            result = 'Network: ' + network.name + ', ';
         }
         const serviceCidr = this.getFieldValue(NetworkField.CLUSTER_SERVICE_CIDR, true);
         if (serviceCidr) {
-            result +=  'Cluster Service CIDR: ' + serviceCidr + ' ';
+            result +=  'Cluster Service CIDR: ' + serviceCidr + ', ';
         }
         const podCidr = this.getFieldValue(NetworkField.CLUSTER_POD_CIDR, true);
         if (podCidr) {
             result +=  'Cluster Pod CIDR: ' + podCidr;
         }
-        return result ? result.trim() : VsphereNetworkStepComponent.description;
+        if (result.endsWith(', ')) {
+            result = result.slice(0, -2);
+        }
+        return result ? result : VsphereNetworkStepComponent.description;
     }
 }

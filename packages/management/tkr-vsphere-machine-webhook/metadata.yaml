@@ -1,0 +1,15 @@
+apiVersion: data.packaging.carvel.dev/v1alpha1
+kind: PackageMetadata
+metadata:
+  name: tkr-vsphere-machine-webhook.tanzu.vmware.com
+  namespace: tkr-vsphere-machine-webhook
+spec:
+  displayName: "tkr-vsphere-machine-webhook"
+  longDescription: "Webhook for VSphereMachine to update the VSphereMachine resource's specs based on the annotations set by TKR resolver"
+  shortDescription: "Updates the VSphereMachine object specs"
+  providerName: VMware
+  maintainers:
+    - name: "Prem Kalle"
+    - name: "Ivan Mikushin"
+  categories:
+    - "tkr resolution"

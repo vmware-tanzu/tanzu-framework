@@ -88,7 +88,6 @@ func TestValidateFeatureImmutability(t *testing.T) {
 	}
 }
 
-//nolint:funlen
 func TestNamespaceConflicts(t *testing.T) {
 	scheme, err := getScheme()
 	if err != nil {

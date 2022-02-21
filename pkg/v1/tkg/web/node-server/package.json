@@ -12,8 +12,8 @@
     "eslint": "node node_modules/eslint/bin/eslint.js",
     "eslint:all": "npm run eslint -- \"main.js\" \"src/**/*.js\"",
     "lint": "npm run eslint:all",
-    "start": "node main.js --client-dist --log --insecure",
-    "start:tce": "node main.js --client-dist --log --insecure --tce",
+    "start": "node main.js --client-dist --log",
+    "start:tce": "node main.js --client-dist --log --tce",
     "debug": "node debug main.js --client-dist --log"
   },
   "dependencies": {

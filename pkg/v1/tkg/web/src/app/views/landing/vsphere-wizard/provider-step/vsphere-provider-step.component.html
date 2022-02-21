@@ -52,9 +52,9 @@
     <app-alert-notification [notification]="configFileNotification"></app-alert-notification>
     <div class="clr-row">
         <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
-            <clr-input-container [attr.data-step-metadata]="formName">
+            <clr-input-container>
                 <label i18n="vcenter server addr label" clr-control-label aria-describedby="tooltip-vcenter-server">
-                    VCENTER SERVER
+                    {{htmlFieldLabels['vcenterAddress']}}
                     <clr-tooltip>
                         <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                         <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
@@ -76,9 +76,9 @@
             </clr-input-container>
         </div>
         <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
-            <clr-input-container [attr.data-step-metadata]="formName">
+            <clr-input-container>
                 <label i18n="username label" clr-control-label>
-                    USERNAME
+                    {{htmlFieldLabels['username']}}
                 </label>
                 <input clrInput formControlName="username" placeholder="username" />
                 <!-- Add a empty helper to avoid accessibility aria-describeby issue -->
@@ -89,9 +89,9 @@
             </clr-input-container>
         </div>
         <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
-            <clr-password-container [attr.data-step-metadata]="formName">
+            <clr-password-container>
                 <label i18n="password label" clr-control-label>
-                    PASSWORD
+                    {{htmlFieldLabels['password']}}
                 </label>
                 <input clrPassword formControlName="password" placeholder="password" />
                 <!-- Add a empty helper to avoid accessibility aria-describeby issue -->
@@ -102,8 +102,8 @@
             </clr-password-container>
         </div>
         <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
-            <clr-checkbox-container [attr.data-step-metadata]="formName">
-                <label i18n="vsphere insecure connection label" clr-control-label data-full="VSPHERE INSECURE CONNECTION">
+            <clr-checkbox-container>
+                <label i18n="vsphere insecure connection label" clr-control-label>
                     SSL THUMBPRINT VERIFICATION
                     <clr-tooltip>
                         <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
@@ -132,9 +132,9 @@
     </div>
     <div class="clr-row">
         <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
-            <clr-select-container [attr.data-step-metadata]="formName">
+            <clr-select-container>
                 <label i18n="datacenter label">
-                    DATACENTER
+                    {{htmlFieldLabels['datacenter']}}
                     <clr-tooltip>
                         <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                         <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
@@ -145,7 +145,7 @@
                         </clr-tooltip-content>
                     </clr-tooltip>
                 </label>
-                <select clrSelect name="datacenter" formControlName="datacenter" save-requires-value="true">
+                <select clrSelect name="datacenter" formControlName="datacenter">
                     <option aria-label="blank" title="blank"></option>
                     <ng-container *ngFor="let datacenter of datacenters">
                         <option [value]="datacenter.name">
@@ -159,9 +159,9 @@
             </clr-select-container>
         </div>
         <div class="clr-col-12 clr-col-sm-6 clr-col-lg-8">
-            <div class="clr-form-control" [attr.data-step-metadata]="formName">
+            <div class="clr-form-control">
                 <label for="ssh_key" class="clr-control-label" [class.label-disabled]="!connected" >
-                    SSH PUBLIC KEY
+                    {{htmlFieldLabels['ssh_key']}}
                     <clr-tooltip>
                         <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                         <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>

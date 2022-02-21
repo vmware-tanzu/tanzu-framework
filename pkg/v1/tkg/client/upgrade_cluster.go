@@ -15,7 +15,7 @@ import (
 	"k8s.io/apimachinery/pkg/types"
 	capav1beta1 "sigs.k8s.io/cluster-api-provider-aws/api/v1beta1"
 	capzv1beta1 "sigs.k8s.io/cluster-api-provider-azure/api/v1beta1"
-	capvv1beta1 "sigs.k8s.io/cluster-api-provider-vsphere/api/v1beta1"
+	capvv1beta1 "sigs.k8s.io/cluster-api-provider-vsphere/apis/v1beta1"
 	capiv1alpha3 "sigs.k8s.io/cluster-api/api/v1alpha3"
 	capi "sigs.k8s.io/cluster-api/api/v1beta1"
 	capikubeadmv1beta1 "sigs.k8s.io/cluster-api/controlplane/kubeadm/api/v1beta1"
@@ -37,18 +37,19 @@ const (
 
 // UpgradeClusterOptions upgrade cluster options
 type UpgradeClusterOptions struct {
-	ClusterName         string
-	Namespace           string
-	KubernetesVersion   string
-	TkrVersion          string
-	Kubeconfig          string
-	VSphereTemplateName string
-	OSName              string
-	OSVersion           string
-	OSArch              string
-	IsRegionalCluster   bool
-	SkipAddonUpgrade    bool
-	SkipPrompt          bool
+	ClusterName                string
+	Namespace                  string
+	KubernetesVersion          string
+	TkrVersion                 string
+	Kubeconfig                 string
+	VSphereTemplateName        string
+	VSphereWindowsTemplateName string
+	OSName                     string
+	OSVersion                  string
+	OSArch                     string
+	IsRegionalCluster          bool
+	SkipAddonUpgrade           bool
+	SkipPrompt                 bool
 	// Tanzu edition (either tce or tkg)
 	Edition string
 }
@@ -72,6 +73,8 @@ type componentInfo struct {
 	MDInfastructureTemplates           map[string]mdInfastructureTemplateInfo
 	VSphereVMTemplateName              string
 	VSphereVMTemplateMOID              string
+	VSphereWindowsVMTemplateName       string
+	VSphereWindowsVMTemplateMOID       string
 	AwsAMIID                           string
 	CAPDImageName                      string
 	CAPDImageRepo                      string
@@ -378,7 +381,9 @@ func (c *TkgClient) upgradeAddonPostNodeUpgrade(regionalClusterClient clustercli
 
 	addonsToBeUpgraded := []string{
 		"metadata/tkg",
-		"addons-management/standard-package-repo",
+	}
+	if tanzuEdition != "tce" {
+		addonsToBeUpgraded = append(addonsToBeUpgraded, "addons-management/standard-package-repo")
 	}
 	upgradeClusterMetadataOptions := &UpgradeAddonOptions{
 		AddonNames:        addonsToBeUpgraded,
@@ -508,6 +513,7 @@ func (c *TkgClient) getUpgradeClusterConfig(options *UpgradeClusterOptions) (*cl
 
 	upgradeInfo.UpgradeComponentInfo.AwsRegionToAMIMap = bomConfiguration.AMI
 	upgradeInfo.UpgradeComponentInfo.VSphereVMTemplateName = options.VSphereTemplateName
+	upgradeInfo.UpgradeComponentInfo.VSphereWindowsVMTemplateName = options.VSphereWindowsTemplateName
 
 	// get the Azure VM image info from TKG config if available and fall back to the image info from BOM if not available in TKG config file
 	azureVMImage, err := c.tkgConfigProvidersClient.GetAzureVMImageInfo(upgradeInfo.UpgradeComponentInfo.TkrVersion)
@@ -948,9 +954,15 @@ func isNewVSphereTemplateRequired(machineTemplate *capvv1beta1.VSphereMachineTem
 	if actualK8sVersion == nil || *actualK8sVersion != clusterUpgradeConfig.UpgradeComponentInfo.KubernetesVersion {
 		return true
 	}
-	// If vm moid given is not the same as we already have in VSphereMachineTemplate
-	if machineTemplate.Annotations[vmTemplateMoidKey] != clusterUpgradeConfig.UpgradeComponentInfo.VSphereVMTemplateMOID {
-		return true
+	if utils.IsWindowsTemplate(machineTemplate.Spec.Template.Spec.Template) {
+		if machineTemplate.Annotations[vmTemplateMoidKey] != clusterUpgradeConfig.UpgradeComponentInfo.VSphereWindowsVMTemplateMOID {
+			return true
+		}
+	} else {
+		// If vm moid given is not the same as we already have in VSphereMachineTemplate
+		if machineTemplate.Annotations[vmTemplateMoidKey] != clusterUpgradeConfig.UpgradeComponentInfo.VSphereVMTemplateMOID {
+			return true
+		}
 	}
 	return false
 }
@@ -1019,10 +1031,20 @@ func (c *TkgClient) createVSphereMachineDeploymentMachineTemplateForWorkers(regi
 		vsphereMachineTemplateForUpgrade.Name = clusterUpgradeConfig.UpgradeComponentInfo.MDInfastructureTemplates[clusterUpgradeConfig.MDObjects[i].Name].MDInfrastructureTemplateName
 		vsphereMachineTemplateForUpgrade.Namespace = clusterUpgradeConfig.UpgradeComponentInfo.MDInfastructureTemplates[clusterUpgradeConfig.MDObjects[i].Name].MDInfrastructureTemplateNamespace
 		vsphereMachineTemplateForUpgrade.Spec = actualVsphereMachineTemplate.DeepCopy().Spec
-		vsphereMachineTemplateForUpgrade.Spec.Template.Spec.Template = clusterUpgradeConfig.UpgradeComponentInfo.VSphereVMTemplateName
 		vsphereMachineTemplateForUpgrade.Annotations = map[string]string{}
-		vsphereMachineTemplateForUpgrade.Annotations[vmTemplateMoidKey] = clusterUpgradeConfig.UpgradeComponentInfo.VSphereVMTemplateMOID
-
+		if utils.IsWindowsTemplate(vsphereMachineTemplateForUpgrade.Spec.Template.Spec.Template) {
+			if clusterUpgradeConfig.UpgradeComponentInfo.VSphereWindowsVMTemplateName == "" {
+				return errors.Errorf("vsphere-windows-vm-template-name is a MUST for Windows Cluster Upgrade. Please specify it!")
+			}
+			if !utils.IsWindowsTemplate(clusterUpgradeConfig.UpgradeComponentInfo.VSphereWindowsVMTemplateName) {
+				return errors.Errorf("vsphere-windows-vm-template-name MUST contain the string \"windows\" without case sensitive!")
+			}
+			vsphereMachineTemplateForUpgrade.Spec.Template.Spec.Template = clusterUpgradeConfig.UpgradeComponentInfo.VSphereWindowsVMTemplateName
+			vsphereMachineTemplateForUpgrade.Annotations[vmTemplateMoidKey] = clusterUpgradeConfig.UpgradeComponentInfo.VSphereWindowsVMTemplateMOID
+		} else {
+			vsphereMachineTemplateForUpgrade.Spec.Template.Spec.Template = clusterUpgradeConfig.UpgradeComponentInfo.VSphereVMTemplateName
+			vsphereMachineTemplateForUpgrade.Annotations[vmTemplateMoidKey] = clusterUpgradeConfig.UpgradeComponentInfo.VSphereVMTemplateMOID
+		}
 		// create template for each machine deployment object
 		err = regionalClusterClient.CreateResource(vsphereMachineTemplateForUpgrade, vsphereMachineTemplateForUpgrade.Name, vsphereMachineTemplateForUpgrade.Namespace)
 		if err != nil {
@@ -1059,6 +1081,18 @@ func (c *TkgClient) createVsphereInfrastructureTemplateForUpgrade(regionalCluste
 
 	clusterUpgradeConfig.UpgradeComponentInfo.VSphereVMTemplateName = vSphereVM.Name
 	clusterUpgradeConfig.UpgradeComponentInfo.VSphereVMTemplateMOID = vSphereVM.Moid
+
+	// Add Windows Template
+	if clusterUpgradeConfig.UpgradeComponentInfo.VSphereWindowsVMTemplateName != "" {
+		vSphereWindowsMOID, err := vcClient.FindVirtualMachineTemplateMOIDByName(
+			clusterUpgradeConfig.UpgradeComponentInfo.VSphereWindowsVMTemplateName,
+			dcName,
+		)
+		if err != nil {
+			return errors.Wrap(err, "unable to get/verify windows vsphere template")
+		}
+		clusterUpgradeConfig.UpgradeComponentInfo.VSphereWindowsVMTemplateMOID = vSphereWindowsMOID
+	}
 
 	if err := c.createVSphereControlPlaneMachineTemplate(regionalClusterClient, kcp, clusterUpgradeConfig); err != nil {
 		return err

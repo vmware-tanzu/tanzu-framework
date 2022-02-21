@@ -10,7 +10,7 @@ import { Identity } from '../common/identity.po'
 export class NewVnetCommon extends WizardCommon {
 
     getFlowTestingDescription() {
-        return "Azure flow (new VNET)"
+        return "Azure flow (new VNet)"
     }
 
     setProvideResourceGroup(step: Provider) {
@@ -28,10 +28,10 @@ export class NewVnetCommon extends WizardCommon {
     }
 
     executeVnetStep() {
-        describe("VNET for Azure step", () => {
+        describe("VNet for Azure step", () => {
             const vnet = new Vnet();
 
-            it('should have moved to VNET for Azure step', () => {
+            it('should have moved to VNet for Azure step', () => {
                 expect(vnet.hasMovedToStep()).toBeTruthy();
             })
 

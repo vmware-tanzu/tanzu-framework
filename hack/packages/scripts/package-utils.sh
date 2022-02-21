@@ -90,7 +90,7 @@ function generate_package_bundles_sha256() {
 function create_package_repo_bundles() {
   if [ -z "$PACKAGE_VALUES_FILE" ];
   then
-    generate_package_bundles_sha256 localhost:5000
+    generate_package_bundles_sha256 localhost:5001
     PACKAGE_VALUES_FILE="${PROJECT_ROOT}/packages/package-values-sha256.yaml"
   fi
 

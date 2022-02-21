@@ -1,0 +1,26 @@
+apiVersion: cluster.x-k8s.io/v1beta1
+kind: Cluster
+metadata:
+  name: test-cluster-cpi-paravirtual
+  namespace: default
+spec:
+  infrastructureRef:
+    kind: VSphereCluster
+  clusterNetwork:
+    pods:
+      cidrBlocks: [ "192.168.0.0/16","fd00:100:96::/48" ]
+---
+apiVersion: cpi.tanzu.vmware.com/v1alpha1
+kind: CPIConfig
+metadata:
+  name: test-cluster-cpi-paravirtual
+  namespace: default
+spec:
+  vsphereCPI:
+    mode: vsphereParavirtualCPI
+    clusterAPIVersion: "cluster.x-k8s.io/v1beta1"
+    clusterKind: "Cluster"
+    clusterName: "test-cluster"
+    clusterUID: "test-uid"
+    supervisorMasterEndpointIP: "192.168.0.7"
+    supervisorMasterPort: "8080"

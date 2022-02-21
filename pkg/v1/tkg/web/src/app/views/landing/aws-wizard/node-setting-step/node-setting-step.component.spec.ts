@@ -33,7 +33,6 @@ describe('NodeSettingStepComponent', () => {
             providers: [
                 ValidationService,
                 FormBuilder,
-                FieldMapUtilities,
                 APIClient
             ],
             schemas: [
@@ -49,7 +48,8 @@ describe('NodeSettingStepComponent', () => {
         AppServices.dataServiceRegistrar = new DataServiceRegistrarTestExtension();
         fixture = TestBed.createComponent(NodeSettingStepComponent);
         component = fixture.componentInstance;
-        component.setInputs('SquashWizard', AwsForm.NODESETTING, new FormBuilder().group({}));
+        component.setStepRegistrantData({ wizard: 'SquashWizard', step: AwsForm.NODESETTING, formGroup: new FormBuilder().group({}),
+            eventFileImported: TanzuEventType.AWS_CONFIG_FILE_IMPORTED, eventFileImportError: TanzuEventType.AWS_CONFIG_FILE_IMPORT_ERROR});
 
         fixture.detectChanges();
     });
@@ -97,16 +97,6 @@ describe('NodeSettingStepComponent', () => {
     it('should return pro instance type', () => {
         component.formGroup.get("prodInstanceType").setValue('t3.small');
         expect(component.prodInstanceTypeValue).toBe('t3.small');
-    });
-
-    it('should return worker node instance type', () => {
-        component.formGroup.get("workerNodeInstanceType1").setValue('t3.small');
-        expect(component.formGroup.get(AwsField.NODESETTING_WORKERTYPE_1).value).toBe('t3.small');
-    });
-
-    it('should return environment type', () => {
-        component.formGroup.get("controlPlaneSetting").setValue('dev');
-        expect(component.getEnvType()).toBe('dev');
     });
 
     it('should clear availability zone', () => {
@@ -260,14 +250,19 @@ describe('NodeSettingStepComponent', () => {
     it('should handle aws vpc type change', () => {
         component.formGroup.get(AwsField.NODESETTING_VPC_PUBLIC_SUBNET_1).setValue('100.63.0.0/14');
         component.formGroup.get(AwsField.NODESETTING_VPC_PRIVATE_SUBNET_1).setValue('100.54.0.0/14');
-
+        component.ngOnInit();
+        component.cardClickProd();
         const spySubnets = [];
-        vpcSubnets.forEach(vpcSubnet => spySubnets.push(spyOn(component.formGroup.get(vpcSubnet), 'setValidators').and.callThrough()));
+        vpcSubnets.forEach(vpcSubnet => {
+            spySubnets.push(spyOn(component.formGroup.get(vpcSubnet), 'setValidators').and.callThrough());
+        });
         const spyAzs = spyOn(component, 'clearAzs').and.callThrough();
 
         AppServices.messenger.publish({ type: TanzuEventType.AWS_VPC_TYPE_CHANGED, payload: { vpcType: 'existing'}});
 
-        spySubnets.forEach(subnet => expect(subnet).toHaveBeenCalledTimes(1));
+        spySubnets.forEach((subnet, index) => {
+            expect(subnet).toHaveBeenCalled();
+        });
         expect(spyAzs).toHaveBeenCalled();
     });
 
@@ -300,7 +295,7 @@ describe('NodeSettingStepComponent', () => {
         const msgSpy = spyOn(AppServices.messenger, 'publish').and.callThrough();
 
         component.ngOnInit();
-        component.clusterPlan = '';
+        component.clearClusterPlan();
         const description = component.dynamicDescription();
         expect(description).toEqual('Specify the resources backing the  cluster');
 
@@ -314,8 +309,7 @@ describe('NodeSettingStepComponent', () => {
             }
         });
 
-        const controlPlaneSettingControl = component.formGroup.controls[AwsField.NODESETTING_CONTROL_PLANE_SETTING];
-        controlPlaneSettingControl.setValue(ClusterPlan.DEV);
+        component.cardClickDev();
         expect(msgSpy).toHaveBeenCalledWith({
             type: TanzuEventType.STEP_DESCRIPTION_CHANGE,
             payload: {
@@ -325,7 +319,7 @@ describe('NodeSettingStepComponent', () => {
             }
         });
 
-        controlPlaneSettingControl.setValue(ClusterPlan.PROD);
+        component.cardClickProd();
         expect(msgSpy).toHaveBeenCalledWith({
             type: TanzuEventType.STEP_DESCRIPTION_CHANGE,
             payload: {

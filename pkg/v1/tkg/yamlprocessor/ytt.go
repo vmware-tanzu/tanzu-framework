@@ -9,12 +9,14 @@ import (
 	"sort"
 	"strconv"
 
-	"github.com/k14s/ytt/pkg/cmd/template"
-	"github.com/k14s/ytt/pkg/files"
-	"github.com/k14s/ytt/pkg/workspace"
-	"github.com/k14s/ytt/pkg/yamlmeta"
 	"github.com/pkg/errors"
 	"gopkg.in/yaml.v3"
+
+	"github.com/vmware-tanzu/carvel-ytt/pkg/cmd/template"
+	"github.com/vmware-tanzu/carvel-ytt/pkg/files"
+	"github.com/vmware-tanzu/carvel-ytt/pkg/workspace"
+	"github.com/vmware-tanzu/carvel-ytt/pkg/workspace/datavalues"
+	"github.com/vmware-tanzu/carvel-ytt/pkg/yamlmeta"
 
 	"github.com/vmware-tanzu/tanzu-framework/apis/providers/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/carvelhelpers"
@@ -86,7 +88,7 @@ func (p *YTTProcessor) GetClusterClassTemplateName(version, name string) string 
 	return ""
 }
 
-func (p *YTTProcessor) getLoader(rawArtifact []byte) (*workspace.LibraryLoader, error) {
+func (p *YTTProcessor) getLoader(rawArtifact []byte) (*workspace.LibraryExecution, error) {
 	srcPaths, err := p.getYttSrcDir(rawArtifact)
 	if err != nil {
 		return nil, err
@@ -127,7 +129,7 @@ func (p *YTTProcessor) GetVariableMap(rawArtifact []byte) (map[string]*string, e
 		return nil, err
 	}
 
-	values, _, err := libLoader.Values([]*workspace.DataValues{})
+	values, _, err := libLoader.Values([]*datavalues.Envelope{}, datavalues.NewNullSchema())
 	if err != nil || values == nil || values.Doc == nil {
 		return nil, errors.Wrap(err, "unable to load yaml document")
 	}
@@ -201,12 +203,12 @@ func (p *YTTProcessor) Process(rawArtifact []byte, variablesClient func(string) 
 		return nil, err
 	}
 
-	valuesDoc, libraryValueDoc, err := libLoader.Values(overlayValuesDoc)
+	valuesDoc, libraryValueDoc, err := libLoader.Values(overlayValuesDoc, datavalues.NewNullSchema())
 	if err != nil {
 		return nil, err
 	}
 
-	result, err := libLoader.Eval(valuesDoc, libraryValueDoc)
+	result, err := libLoader.Eval(valuesDoc, libraryValueDoc, []*datavalues.SchemaEnvelope{})
 	if err != nil {
 		return nil, err
 	}

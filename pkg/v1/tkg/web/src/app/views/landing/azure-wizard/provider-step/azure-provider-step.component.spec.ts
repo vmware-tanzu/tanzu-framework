@@ -12,7 +12,6 @@ import { AzureField, AzureForm } from '../azure-wizard.constants';
 import { AzureProviderStepComponent } from './azure-provider-step.component';
 import { AzureResourceGroup } from '../../../../swagger/models';
 import { DataServiceRegistrarTestExtension } from '../../../../testing/data-service-registrar.testextension';
-import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
 import { Messenger, TanzuEventType } from 'src/app/shared/service/Messenger';
 import { SharedModule } from '../../../../shared/shared.module';
 import { ValidationService } from '../../wizard/shared/validation/validation.service';
@@ -32,7 +31,6 @@ describe('AzureProviderStepComponent', () => {
             providers: [
                 ValidationService,
                 FormBuilder,
-                FieldMapUtilities,
                 APIClient
             ],
             schemas: [
@@ -50,7 +48,8 @@ describe('AzureProviderStepComponent', () => {
 
         fixture = TestBed.createComponent(AzureProviderStepComponent);
         component = fixture.componentInstance;
-        component.setInputs('CarrotWizard', AzureForm.PROVIDER, new FormBuilder().group({}));
+        component.setStepRegistrantData({ wizard: 'CarrotWizard', step: AzureForm.PROVIDER, formGroup: new FormBuilder().group({}),
+        eventFileImported: TanzuEventType.AZURE_CONFIG_FILE_IMPORTED, eventFileImportError: TanzuEventType.AZURE_CONFIG_FILE_IMPORT_ERROR});
         component.ngOnInit();
         fixture.detectChanges();
     });
@@ -84,7 +83,6 @@ describe('AzureProviderStepComponent', () => {
             clientSecret: "",
             subscriptionId: "azure-subscription-12342-asdf3"
         }));
-        component.savedMetadata = null;
         component.initAzureCredentials();
         expect(component.formGroup.controls['tenantId'].value).toBe('azure-tenant1');
     });
@@ -112,7 +110,7 @@ describe('AzureProviderStepComponent', () => {
         spyOn(apiService, 'getAzureRegions').and.returnValue(throwError(new Error('oops!')));
         component.getRegions();
         expect(component.errorNotification).toBe('Unable to retrieve Azure regions');
-    })
+    });
 
     it('should verify credentials', () => {
         spyOn(apiService, 'setAzureEndpoint').and.returnValues(new Observable(subscriber => {
@@ -168,5 +166,5 @@ describe('AzureProviderStepComponent', () => {
                 description: 'Azure tenant: RIDDLER',
             }
         });
-    })
+    });
 });

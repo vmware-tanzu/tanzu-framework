@@ -1,11 +1,11 @@
-<form [formGroup]="formGroup" *ngIf="displayForm">
+<form [formGroup]="formGroup">
     <h4 i18n="cluster settings" aria-level="2">
         {{ clusterTypeDescriptorTitleCase }} Cluster Settings
     </h4>
 
     <div class="clr-row">
         <div class="clr-col-lg-6 clr-col-12">
-            <a class="card clickable" [ngClass]="{'card-selected': getEnvType()==='dev'}" (click)="cardClick('dev')" role="none">
+            <a class="card clickable" [ngClass]="{'card-selected': isClusterPlanDev}" (click)="cardClickDev()" role="none">
                 <div class="card-block">
                     <clr-icon class="card-icon" shape="computer" size="72">
                     </clr-icon>
@@ -17,10 +17,10 @@
                     </p>
                 </div>
                 <div class="card-footer">
-                    <div class="clr-row" [attr.data-step-metadata]="formName">
+                    <div class="clr-row">
                         <div class="clr-col-lg-5 clr-col-12">
-                            <label i18n="instance type label" data-full="Development instance type">
-                                INSTANCE TYPE
+                            <label i18n="instance type label">
+                                {{htmlFieldLabels['devInstanceType']}}
                                 <clr-tooltip>
                                     <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                                     <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
@@ -52,7 +52,7 @@
         </div>
 
         <div class="clr-col-lg-6 clr-col-12">
-            <a class="card clickable" [ngClass]="{'card-selected': getEnvType()==='prod'}" (click)="cardClick('prod')" role="none">
+            <a class="card clickable" [ngClass]="{'card-selected': isClusterPlanProd}" (click)="cardClickProd()" role="none">
                 <div class="card-block">
                     <clr-icon class="card-icon" shape="building" size="72">
                     </clr-icon>
@@ -64,10 +64,10 @@
                     </p>
                 </div>
                 <div class="card-footer">
-                    <div class="clr-row" [attr.data-step-metadata]="formName">
+                    <div class="clr-row">
                         <div class="clr-col-lg-5 clr-col-12">
-                            <label i18n="instance type label" data-full="Production instance type">
-                                INSTANCE TYPE
+                            <label i18n="instance type label">
+                                {{htmlFieldLabels['prodInstanceType']}}
                                 <clr-tooltip>
                                     <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                                     <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
@@ -101,23 +101,19 @@
 
     <div class="clr-row">
         <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
-            <clr-input-container [attr.data-step-metadata]="formName">
+            <clr-input-container>
                 <label i18n="cluster name label" clr-control-label>
-                    {{ clusterTypeDescriptor | uppercase }} CLUSTER NAME {{edition === 'tkg' ? '(OPTIONAL)' : ''}}
+                    {{htmlFieldLabels['clusterName']}}
                     <clr-tooltip>
                         <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                         <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
                             <span>
-                                {{  edition === 'tkg'?
-                                    'Optionally specify a name for the ' + clusterTypeDescriptor + ' cluster. If left blank,' +
-                                    'the installer names the cluster automatically.' :
-                                    'Specify a name for the ' + clusterTypeDescriptor + ' cluster.'
-                                }}
+                                {{ clusterNameInstruction }}
                             </span>
                         </clr-tooltip-content>
                     </clr-tooltip>
                 </label>
-                <input clrInput formControlName="managementClusterName" placeholder="{{edition === 'tkg' ? 'optional' : ''}}" maxlength="42"/>
+                <input clrInput formControlName="clusterName" placeholder="{{edition === 'tkg' ? 'optional' : ''}}" maxlength="42"/>
                 <!-- Add a empty helper to avoid accessibility aria-describeby issue -->
                 <clr-control-helper></clr-control-helper>
                 <clr-control-error i18n="cluster name valid msg"
@@ -134,9 +130,9 @@
             </clr-input-container>
         </div>
         <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4" *ngIf="!modeClusterStandalone">
-            <clr-select-container [attr.data-step-metadata]="formName">
+            <clr-select-container>
                 <label i18n="azure worker node instance label">
-                    WORKER NODE INSTANCE TYPE
+                    {{htmlFieldLabels['workerNodeInstanceType']}}
                     <clr-tooltip>
                         <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                         <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
@@ -158,10 +154,9 @@
             </clr-select-container>
         </div>
         <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
-            <clr-checkbox-container [attr.data-step-metadata]="formName">
-                <label i18n="cluster enable machine health check" clr-control-label
-                    data-full="ENABLE MACHINE HEALTH CHECKS">
-                    MACHINE HEALTH CHECKS
+            <clr-checkbox-container>
+                <label i18n="cluster enable machine health check" clr-control-label>
+                    {{htmlFieldLabels['machineHealthChecksEnabled']}}
                     <clr-tooltip>
                         <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                         <clr-tooltip-content clrPosition="top-left" clrSize="lg" *clrIfOpen>
@@ -183,7 +178,7 @@
     </div>
     <div class="clr-row">
         <div class="clr-col-4">
-            <app-audit-logging [formGroup]="formGroup" [formName]="formName"></app-audit-logging>
+            <app-audit-logging [label]="htmlFieldLabels['enableAuditLogging']" [formGroup]="formGroup" [formName]="formName"></app-audit-logging>
         </div>
     </div>
 </form>

@@ -23,7 +23,7 @@ overrides:
     newImage: ""
   - image: tanzu-cli-plugins/kubernetes-release-windows-amd64:latest
     newImage: ""
-  #! addons-manager
+  #! addons-manager-v2
   - image: addons-controller:latest
     newImage: ""
   #! Standalone-Plugins images
@@ -65,4 +65,8 @@ overrides:
   - image: tanzu-cli-plugins/secret-windows-amd64:latest
     newImage: ""
   - image: tanzu-cli-plugins/feature-windows-amd64:latest
+    newImage: ""
+  #! tkr-infra-machine-webhook images
+  #! The docker image would be same for all the providers
+  - image: tkr-infra-machine-webhook:latest
     newImage: ""

@@ -2,7 +2,6 @@
 import { Component, OnInit } from '@angular/core';
 // App imports
 import { AzureVirtualMachine } from '../../../../swagger/models';
-import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
 import { OsImageProviderInputs, SharedOsImageStepDirective } from '../../wizard/shared/components/steps/os-image-step/os-image-step.component';
 import { TanzuEventType } from '../../../../shared/service/Messenger';
 
@@ -11,14 +10,12 @@ import { TanzuEventType } from '../../../../shared/service/Messenger';
     templateUrl: '../../wizard/shared/components/steps/os-image-step/os-image-step.component.html',
     styleUrls: ['../../wizard/shared/components/steps/os-image-step/os-image-step.component.scss']
 })
-export class AzureOsImageStepComponent extends SharedOsImageStepDirective<AzureVirtualMachine> {
-    constructor(protected fieldMapUtilities: FieldMapUtilities) {
-        super(fieldMapUtilities);
-    }
-
+export class AzureOsImageStepComponent extends SharedOsImageStepDirective<AzureVirtualMachine> implements OnInit {
     protected supplyProviderInputs(): OsImageProviderInputs {
         return {
             event: TanzuEventType.AZURE_GET_OS_IMAGES,
+            eventImportFileFailure: TanzuEventType.AZURE_CONFIG_FILE_IMPORT_ERROR,
+            eventImportFileSuccess: TanzuEventType.AZURE_CONFIG_FILE_IMPORTED,
             noImageAlertMessage: '',
             osImageTooltipContent: 'Select a base OS image that you have already imported ' +
                 'into your Azure account. If no compatible OS image is present, import one into ' +

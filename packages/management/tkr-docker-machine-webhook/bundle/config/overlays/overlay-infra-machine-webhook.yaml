@@ -1,0 +1,79 @@
+#@ load("@ytt:data", "data")
+#@ load("@ytt:overlay", "overlay")
+
+#@ if data.values.tkrInfraMachineWebhook.createNamespace:
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: #@ data.values.tkrInfraMachineWebhook.namespace
+#@ end
+
+#@overlay/match by=overlay.subset({"kind":"Issuer", "metadata": {"name": "tkr-infra-machine-webhook-selfsigned-issuer"}})
+---
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  namespace: #@ data.values.tkrInfraMachineWebhook.namespace
+
+
+#@overlay/match by=overlay.subset({"kind":"Certificate", "metadata": {"name": "tkr-infra-machine-webhook-serving-cert"}})
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  namespace: #@ data.values.tkrInfraMachineWebhook.namespace
+spec:
+   dnsNames:
+   #@overlay/match by=overlay.index(0)
+   #@overlay/replace
+   - #@ "tkr-infra-machine-webhook-service.{}.svc".format(data.values.tkrInfraMachineWebhook.namespace)
+   #@overlay/match by=overlay.index(1)
+   #@overlay/replace
+   - #@ "tkr-infra-machine-webhook-service-cert.{}.svc.cluster.local".format(data.values.tkrInfraMachineWebhook.namespace)
+
+#@overlay/match by=overlay.subset({"kind":"Service", "metadata": {"name": "tkr-infra-machine-webhook-service"}})
+---
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: #@ data.values.tkrInfraMachineWebhook.namespace
+
+
+#@overlay/match by=overlay.subset({"kind":"Deployment", "metadata": {"name": "tkr-infra-machine-webhook-manager"}})
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: #@ data.values.tkrInfraMachineWebhook.namespace
+spec:
+  template:
+    spec:
+      containers:
+      #@overlay/match by=overlay.index(0)
+      - env:
+          #@overlay/match by="name"
+          - name: FIELD_PATH_MAP_CONFIG
+            value: #@ data.values.tkrInfraMachineWebhook.deployment.envFieldMapConfigValue
+
+
+#@overlay/match by=overlay.subset({"kind":"MutatingWebhookConfiguration"})
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: MutatingWebhookConfiguration
+metadata:
+  annotations:
+    #@overlay/match missing_ok=True
+    cert-manager.io/inject-ca-from: #@ "{}/tkr-infra-machine-webhook-serving-cert".format(data.values.tkrInfraMachineWebhook.namespace)
+webhooks:
+#@overlay/match by="name"
+- name: tkr-infra-machine-webhook.tanzu.vmware.com
+  clientConfig:
+    service:
+      namespace: #@ data.values.tkrInfraMachineWebhook.namespace
+  rules:
+  #@overlay/match by=overlay.index(0)
+    - resources:
+        #@overlay/match by=overlay.index(0)
+        #@overlay/replace
+        - #@ data.values.tkrInfraMachineWebhook.webhookConfig.resources

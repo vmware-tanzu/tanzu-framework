@@ -9,11 +9,13 @@ import { AppEdition } from 'src/app/shared/constants/branding.constants';
 import AppServices from 'src/app/shared/service/appServices';
 import { BasicSubscriber } from 'src/app/shared/abstracts/basic-subscriber';
 import { EditionData } from 'src/app/shared/service/branding.service';
-import { FormMetaData, FormMetaDataStore } from '../FormMetaDataStore';
 import { FormUtility } from '../components/steps/form-utility';
 import { IpFamilyEnum } from 'src/app/shared/constants/app.constants';
 import { Notification, NotificationTypes } from 'src/app/shared/components/alert-notification/alert-notification.component';
-import { StepDescriptionChangePayload, TanzuEvent, TanzuEventType } from 'src/app/shared/service/Messenger';
+import { StepCompletedPayload, StepDescriptionChangePayload, TanzuEvent, TanzuEventType } from 'src/app/shared/service/Messenger';
+import { StepMapping } from '../field-mapping/FieldMapping';
+import { StepRegistrantData } from '../wizard-base/wizard-base';
+import { UserDataIdentifier } from '../../../../../shared/service/user-data.service';
 import { ValidatorEnum } from './../constants/validation.constants';
 
 export interface StepDescriptionTriggers {
@@ -21,7 +23,6 @@ export interface StepDescriptionTriggers {
     fields?: string[],
 }
 
-const INIT_FIELD_DELAY = 50;            // ms
 /**
  * Abstract class that's available for stepper component to extend.
  * It captures the common logic that should happen to most if not all
@@ -32,7 +33,6 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
     wizardName: string;
     formName;
     formGroup: FormGroup;
-    savedMetadata: { [fieldName: string]: FormMetaData };
 
     edition: AppEdition = AppEdition.TCE;
     validatorEnum = ValidatorEnum;
@@ -44,7 +44,14 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
 
     clusterTypeDescriptorUsedInDescription: boolean;
 
-    private delayedFieldQueue = [];
+    // This map is made available to HTML pages to display labels before fields
+    htmlFieldLabels: Map<string, string>;
+
+    protected quietly = { onlySelf: true, emitEvent: false };   // convenient when setting field values
+    protected eventFileImported: TanzuEventType;
+    protected eventFileImportError: TanzuEventType;
+
+    protected abstract storeUserData();
 
     // This method is expected to be overridden by any step that provides a dynamic description of itself
     // (dynamic meaning depending on user-entered data). It is public to make it available for testing.
@@ -52,39 +59,35 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
         return null;
     }
 
-    setInputs(wizardName, formName: string, formGroup: FormGroup) {
-        this.formName = formName;
-        this.formGroup = formGroup;
-        this.wizardName = wizardName;
+    setStepRegistrantData(stepRegistrantData: StepRegistrantData) {
+        this.formName = stepRegistrantData.step;
+        this.formGroup = stepRegistrantData.formGroup;
+        this.wizardName = stepRegistrantData.wizard;
+        this.eventFileImported = stepRegistrantData.eventFileImported;
+        this.eventFileImportError = stepRegistrantData.eventFileImportError;
+    }
+
+    protected registerDefaultFileImportErrorHandler(eventFailure: TanzuEventType) {
+        AppServices.messenger.subscribe<string>(eventFailure, data => {
+            // Capture the import file error message
+            this.configFileNotification = {
+                notificationType: NotificationTypes.ERROR,
+                message: data.payload
+            };
+        });
     }
 
     ngOnInit(): void {
         this.getFormName();
-        this.savedMetadata = FormMetaDataStore.getMetaData(this.formName);
-        FormMetaDataStore.updateFormList(this.formName);
+        this.subscribeToStepStartedEvents();
+        this.subscribeToStepCompletedEvents();
 
         // set branding and cluster type on branding change for base wizard components
-        AppServices.messenger.getSubject(TanzuEventType.BRANDING_CHANGED)
-            .pipe(takeUntil(this.unsubscribe))
-            .subscribe((data: TanzuEvent) => {
-                const content: EditionData = data.payload;
-                this.edition = content.edition;
+        AppServices.messenger.subscribe<EditionData>(TanzuEventType.BRANDING_CHANGED, data => {
+                this.edition = data.payload.edition;
                 this.setClusterTypeDescriptor(data.payload.clusterTypeDescriptor);
-            });
+            }, this.unsubscribe);
         this.modeClusterStandalone = AppServices.appDataService.isModeClusterStandalone();
-
-        AppServices.messenger.getSubject(TanzuEventType.CONFIG_FILE_IMPORT_ERROR)
-            .pipe(takeUntil(this.unsubscribe))
-            .subscribe((data: TanzuEvent) => {
-                // Capture the import file error message
-                this.configFileNotification = {
-                    notificationType: NotificationTypes.ERROR,
-                    message: data.payload
-                };
-
-                // Clear event so that listeners in other provider workflows do not receive false notifications
-                AppServices.messenger.clearEvent(TanzuEventType.CONFIG_FILE_IMPORT_ERROR)
-            });
     }
 
     /**
@@ -119,42 +122,17 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
         return this.formGroup.controls[fieldName].value;
     }
 
-    /**
-     * Safely looks up the saved value of a control in savedMetadata
-     * @param fieldName the name of the control in savedMetadata
-     * @param defaultValue the default value if there is no saved value
-     */
-    getSavedValue(fieldName: string, defaultValue: any) {
-        const value = this.getRawSavedValue(fieldName);
-        const result = (value) ? value : defaultValue;
-
-        const shouldReturnBooleanValue = typeof defaultValue === "boolean";
-        if (shouldReturnBooleanValue) {
-            const booleanResult = result === "yes" || result === true;
-            return booleanResult;
+    getStoredValue(fieldName: string, stepMapping: StepMapping, defaultValue?: any) {
+        const fieldMapping = AppServices.fieldMapUtilities.getFieldMapping(fieldName, stepMapping);
+        const result = AppServices.userDataService.retrieveStoredValue(this.wizardName, this.formName, fieldMapping);
+        if (result === undefined || result === null) {
+            return defaultValue;
         }
         return result;
     }
 
-    getRawSavedValue(fieldName: string) {
-        const savedValue = this.savedMetadata && this.savedMetadata[fieldName] && this.savedMetadata[fieldName].displayValue;
-        const savedKey = this.savedMetadata && this.savedMetadata[fieldName] && this.savedMetadata[fieldName].key;
-        const result = (savedKey) ? savedKey : savedValue;
-        return result;
-    }
-
-    /**
-     * Safely looks up the saved key of a control in savedMetadata; this will only have been set for listboxes
-     * that have a different key from the displayed label
-     * @param fieldName the name of the control in savedMetadata
-     */
-    getSavedKey(fieldName: string): string {
-        const savedKey = this.savedMetadata && this.savedMetadata[fieldName] && this.savedMetadata[fieldName].key;
-        return savedKey;
-    }
-
     hasSavedData() {
-        return this.savedMetadata != null
+        return AppServices.userDataService.hasStoredStepData(this.wizardName, this.formName);
     }
 
     // This method could be protected, since it's primarily intended for subclasses,
@@ -176,104 +154,22 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
         return control;
     }
 
-    /**
-     * Init the field with the saved value. If the initialization has to wait
-     * until certain conditions to be satisfied, it automatically add this field
-     * to a queue and periodically checks the readiness.
-     */
-    protected initFieldWithSavedData(fieldName: string): void {
-        if (this.isFieldReadyForInitWithSavedValue(fieldName)) {
-            const control = this.formGroup.get(fieldName);
-            const savedKey = this.getSavedKey(fieldName);
-            const savedValue = this.getSavedValue(fieldName, control.value);
-            // if a key was saved (for a listbox), we use the key when setting the value of the control (ie the listbox)
-            const valueForSettingControl = (savedKey) ? savedKey : savedValue;
-
-            control.setValue(valueForSettingControl, {  emitEvent: false });
-            let index;
-            if (index = this.delayedFieldQueue.indexOf(fieldName) >= 0) {
-                this.delayedFieldQueue.splice(index, 1);
-            }
-        } else {
-            if (this.delayedFieldQueue.indexOf(fieldName) < 0) {
-                this.delayedFieldQueue.push(fieldName);
-            }
-        }
-    }
-
-    // scrubPasswordField() should be called AFTER the password field was set from saved data
-    protected scrubPasswordField(fieldName: string): void {
-        // ensure that the actual field value is not a series of asterisks (****), which is the displayValue kept in local storage
-        const passwordControl = this.formGroup.get(fieldName);
-        if (passwordControl === undefined || passwordControl === null) {
-            console.log('WARNING: scrubPasswordField() is unable to find the field ' + fieldName);
-        } else if (this.passwordContainsOnlyAsterisks(passwordControl.value)) {
-            passwordControl.setValue('', {onlySelf: true, emitEvent: false});
-        }
-        // if there is a real password in local storage (say, from import)
-        // we erase it from local storage (presuming the caller has already used the value to set the field in the form)
-        this.clearFieldSavedData(fieldName);
-    }
-
-    private passwordContainsOnlyAsterisks(password: string): boolean {
-        if (password === undefined || password === '') {
-            return false;
-        }
-        for (let x = 0; x < password.length; x++) {
-            if (password.charAt(x) !== '*') {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    /**
-     * Start the process of initializing the fields as soon as they become ready.
-     */
-    protected startProcessDelayedFieldInit() {
-        if (this.delayedFieldQueue && this.delayedFieldQueue.length > 0) {
-            this.delayedFieldQueue.forEach(fieldName => this.initFieldWithSavedData(fieldName));
-        }
-        if (this.delayedFieldQueue && this.delayedFieldQueue.length > 0) {
-            setTimeout(this.startProcessDelayedFieldInit.bind(this), INIT_FIELD_DELAY);
-        }
-    }
-
-    /**
-     * Checks if a field is ready to be initialized with saved data.
-     * All fields are ready by default.
-     * Sub classes should override this method in order to control
-     * the process.
-     * @param fieldName the field to be initialized
-     * @returns true for fields
-     */
-    protected isFieldReadyForInitWithSavedValue(fieldName: string): boolean {
-        return true;
-    }
-
-    /**
-     * Inits form fields with saved data if any;
-     */
-    initFormWithSavedData() {
-        if (this.hasSavedData()) {
-            for (const [controlName, control] of Object.entries(this.formGroup.controls)) {
-                this.initFieldWithSavedData(controlName);
-            }
-        }
-        this.startProcessDelayedFieldInit();
-    }
-
     protected clearFieldSavedData(fieldName: string) {
-        FormMetaDataStore.deleteMetaDataEntry(this.formName, fieldName);
+        AppServices.userDataService.clear(this.createUserDataIdentifier(fieldName));
     }
 
-    // TODO: this method saves the value as both the display value and the key, but that's sloppy
+    protected clearControlValue(controlName: string, clearSavedData?: boolean) {
+        this.setControlValueSafely(controlName, '' , { onlySelf: true, emitEvent: false});
+        if (clearSavedData) {
+            this.clearFieldSavedData(controlName);
+        }
+    }
+
     protected saveFieldData(fieldName: string, value: string) {
-        FormMetaDataStore.saveMetaDataEntry(this.formName, fieldName, {
-            label: '',
-            displayValue: value,
-            key: value
-        })
+        AppServices.userDataService.store(this.createUserDataIdentifier(fieldName), {
+            display: value,
+            value
+        });
     }
 
     private findField(fieldName: string, methodName: string): AbstractControl {
@@ -290,7 +186,7 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
         return field;
     }
 
-    disarmField(fieldName: string, clearSavedData: boolean, options?: {
+    disarmField(fieldName: string, clearSavedData?: boolean, options?: {
         onlySelf?: boolean;
         emitEvent?: boolean;
     }) {
@@ -313,15 +209,18 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
         if (field) {
             field.setValidators(validators);
             field.updateValueAndValidity(options);
-            field.setValue(value || null, options);
+            if (value !== undefined && field.value !== value) {
+                field.setValue(value || null, options);
+            }
         }
     }
 
-    resurrectFieldWithSavedValue(fieldName: string, validators: ValidatorFn[], defaultValue?: string, options?: {
+    resurrectFieldWithStoredValue(fieldName: string, stepMapping: StepMapping, validators: ValidatorFn[], defaultValue?: string, options?: {
         onlySelf?: boolean;
         emitEvent?: boolean;
     }) {
-        this.resurrectField(fieldName, validators, this.getSavedValue(fieldName, defaultValue), options);
+        const value = this.getStoredValue(fieldName, stepMapping, defaultValue);
+        this.resurrectField(fieldName, validators, value, options);
     }
 
     showFormError(formControlname) {
@@ -370,9 +269,7 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
     }
 
     registerOnIpFamilyChange(fieldName: string, ipv4Validators: ValidatorFn[], ipv6Validators: ValidatorFn[], cb?: () => void) {
-        AppServices.messenger.getSubject(TanzuEventType.VSPHERE_IP_FAMILY_CHANGE)
-            .pipe(takeUntil(this.unsubscribe))
-            .subscribe((data: TanzuEvent) => {
+        AppServices.messenger.subscribe<IpFamilyEnum>(TanzuEventType.VSPHERE_IP_FAMILY_CHANGE, data => {
                 if (data.payload === IpFamilyEnum.IPv4) {
                     this.resurrectField(
                         fieldName,
@@ -392,7 +289,7 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
                 if (cb) {
                     cb();
                 }
-            });
+            }, this.unsubscribe);
     }
 
     protected setControlValueSafely(controlName: string, value: any, options?: {
@@ -405,16 +302,12 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
         }
     }
 
-    protected clearControlValue(controlName: string) {
-        this.setControlValueSafely(controlName, '' , { onlySelf: true, emitEvent: false});
-    }
-
-    protected setControlWithSavedValue(controlName: string, defaultValue?: any, options?: {
-        onlySelf?: boolean,
-        emitEvent?: boolean
-    }) {
-        const defaultToUse = (defaultValue === undefined || defaultValue === null) ? '' : defaultValue;
-        this.setControlValueSafely(controlName, this.getSavedValue(controlName, defaultToUse), options);
+    protected setFieldWithStoredValue(field: string, stepMapping: StepMapping, defaultValue?: any,
+                                      options?: { onlySelf?: boolean; emitEvent?: boolean }) {
+        const fieldMapping = AppServices.fieldMapUtilities.getFieldMapping(field, stepMapping);
+        const storedValue = AppServices.userDataService.retrieveStoredValue(this.wizardName, this.formName, fieldMapping);
+        const value = storedValue === null || storedValue === undefined ? defaultValue : storedValue;
+        this.setControlValueSafely(field, value, options);
     }
 
     // HTML convenience methods
@@ -451,8 +344,90 @@ export abstract class StepFormDirective extends BasicSubscriber implements OnIni
         return this.clusterTypeDescription;
     }
 
+    private subscribeToStepCompletedEvents() {
+        AppServices.messenger.subscribe<StepCompletedPayload>(TanzuEventType.STEP_COMPLETED, event => {
+            if (event.payload.wizard === this.wizardName && event.payload.step === this.formName) {
+                this.onStepCompleted();
+            }
+        });
+    }
+
+    private subscribeToStepStartedEvents() {
+        AppServices.messenger.subscribe<StepCompletedPayload>(TanzuEventType.STEP_STARTED, event => {
+            if (event.payload.wizard === this.wizardName && event.payload.step === this.formName) {
+                this.onStepStarted();
+            }
+        });
+    }
+
+    // Extending classes may want to override this
+    protected onStepStarted() {
+    }
+
+    private onStepCompleted() {
+        this.storeUserData();
+    }
+
+    // convenience methods
+    protected createUserDataIdentifier(field: string): UserDataIdentifier {
+        return { wizard: this.wizardName, step: this.formName, field};
+    }
+
+    protected storeUserDataFromMapping(stepMapping: StepMapping) {
+        AppServices.userDataFormService.storeFromMapping(this.wizardName, this.formName, stepMapping, this.formGroup);
+    }
+
+    protected storeDefaultDisplayOrder(stepMapping: StepMapping) {
+        this.storeDisplayOrder(this.defaultDisplayOrder(stepMapping));
+    }
+
+    protected storeDisplayOrder(displayOrder: string[]) {
+        AppServices.userDataService.storeStepDisplayOrder(this.wizardName, this.formName, displayOrder);
+    }
+
+    protected storeDefaultLabels(stepMapping: StepMapping) {
+        this.storeLabels(this.defaultLabels(stepMapping));
+    }
+
+    protected storeLabels(titles: Map<string, string>) {
+        AppServices.userDataService.storeStepLabels(this.wizardName, this.formName, titles);
+    }
+
+    protected defaultDisplayOrder(stepMapping: StepMapping): string[] {
+        return AppServices.fieldMapUtilities.getLabeledFieldsWithStoredData(this.wizardName, this.formName, stepMapping);
+    }
+
+    protected defaultLabels(stepMapping: StepMapping): Map<string, string> {
+        return AppServices.fieldMapUtilities.getFieldLabelMap(stepMapping);
+    }
+
+    protected restoreField(field: string, stepMapping: StepMapping, values?: any[]) {
+        const identifier = this.createUserDataIdentifier(field);
+        const existingIdFieldMapping = AppServices.fieldMapUtilities.getFieldMapping(field, stepMapping);
+        AppServices.userDataFormService.restoreField(identifier, existingIdFieldMapping, this.formGroup, values);
+    }
+
     // This method is designed to expose the protected unsubscribe field (from our base class) to allow its use in subscribing to pipes
     get unsubscribeOnDestroy(): Subject<void> {
         return this.unsubscribe;
+    }
+
+    protected registerDefaultFileImportedHandler(eventSuccess: TanzuEventType, stepMapping: StepMapping) {
+        AppServices.messenger.subscribe<string>(eventSuccess,
+            this.defaultFileImportedHandler(stepMapping));
+    }
+
+    // This is a convenience method for child classes that want to register a callback based on this behavior PLUS something of their own
+    protected defaultFileImportedHandler(stepMapping: StepMapping)
+        : (event: TanzuEvent<any>) => void {
+        const step = this;
+        return data => {
+            this.configFileNotification = {
+                notificationType: NotificationTypes.SUCCESS,
+                message: data.payload
+            };
+            // The file import saves the data to local storage, so we reinitialize this step's form from there
+            AppServices.userDataFormService.restoreForm(step.wizardName, step.formName, step.formGroup, stepMapping);
+        }
     }
 }

@@ -10,9 +10,14 @@ import (
 
 // ClusterBootstrapTemplateSpec defines the desired state of ClusterBootstrapTemplate
 type ClusterBootstrapTemplateSpec struct {
+	// Paused can be used to prevent controllers from processing the ClusterBootstrap and all its associated objects.
+	// +optional
+	// +kubebuilder:default:=false
+	Paused bool `json:"paused,omitempty"`
+
 	// TODO these are optional for temp testing, change when TKR v1alpha3 is available
 	// +optional
-	CNIs []*ClusterBootstrapPackage `json:"cnis,omitempty"`
+	CNI *ClusterBootstrapPackage `json:"cni,omitempty"`
 	// +optional
 	CSI *ClusterBootstrapPackage `json:"csi,omitempty"`
 	// +optional
