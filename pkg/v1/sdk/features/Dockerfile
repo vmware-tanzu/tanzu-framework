@@ -18,7 +18,9 @@ RUN  go mod download
 # and so that source changes don't invalidate our downloaded layer
 
 # Copy the go source
-COPY ./ ./
+COPY ./cmd ./cmd
+COPY ./pkg ./pkg
+COPY ./apis ./apis
 
 # Build
 ARG LD_FLAGS

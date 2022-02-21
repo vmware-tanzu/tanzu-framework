@@ -12,10 +12,6 @@ import (
 
 	"github.com/MakeNowJust/heredoc"
 	"github.com/spf13/cobra"
-	"k8s.io/klog/v2"
-
-	clusterctllogger "sigs.k8s.io/cluster-api/cmd/clusterctl/log"
-	crtlog "sigs.k8s.io/controller-runtime/pkg/log"
 
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/log"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/utils"
@@ -75,10 +71,6 @@ func init() {
 
 	// Add kubeconfig flag
 	RootCmd.PersistentFlags().StringVarP(&kubeconfig, "kubeconfig", "", "", "Optional, The kubeconfig file containing the management cluster's context")
-
-	klog.SetLogger(log.GetLogr())
-	clusterctllogger.SetLogger(log.GetLogr())
-	crtlog.SetLogger(log.GetLogr())
 }
 
 func initConfig() {

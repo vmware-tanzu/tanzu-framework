@@ -14,7 +14,7 @@ import (
 var getkvCmd = &cobra.Command{
 	Use:     "kubernetesversions",
 	Aliases: []string{"kv", "kubernetesversion"},
-	Short:   "Get the list of supported kubernetes versions for workload clusters",
+	Short:   "Get the list of supported kubernetes versions",
 	Long:    "Get the list of supported kubernetes versions for workload clusters",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		return runGetTKR(cmd)

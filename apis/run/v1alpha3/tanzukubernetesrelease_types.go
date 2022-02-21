@@ -9,6 +9,15 @@ import (
 	clusterv1 "sigs.k8s.io/cluster-api/api/v1beta1"
 )
 
+const (
+	ConditionCompatible = "Compatible"
+	ConditionValid      = "Valid"
+
+	LabelIncompatible = "incompatible"
+	LabelDeactivated  = "deactivated"
+	LabelInvalid      = "invalid"
+)
+
 // TanzuKubernetesReleaseSpec defines the desired state of TanzuKubernetesRelease
 type TanzuKubernetesReleaseSpec struct {
 	// Version is the fully qualified Semantic Versioning conformant version of the TanzuKubernetesRelease.

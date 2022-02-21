@@ -80,6 +80,12 @@ func (p *YTTProcessor) GetTemplateName(version, plan string) string {
 	return fmt.Sprintf("%s.yaml", name)
 }
 
+// GetClusterClassTemplateName returns the file name of the cluster class
+// template that needs to be retrieved from the source.
+func (p *YTTProcessor) GetClusterClassTemplateName(version, name string) string {
+	return ""
+}
+
 func (p *YTTProcessor) getLoader(rawArtifact []byte) (*workspace.LibraryLoader, error) {
 	srcPaths, err := p.getYttSrcDir(rawArtifact)
 	if err != nil {

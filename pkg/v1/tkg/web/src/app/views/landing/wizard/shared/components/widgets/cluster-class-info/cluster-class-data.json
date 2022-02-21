@@ -1,0 +1,1158 @@
+{
+    "docker" : [
+        {
+            "name" : "clusterClassName TBD",
+            "categories" : [
+                {
+                    "name": "User supplied values",
+                    "variables": [
+                        {
+                            "name": "CLUSTER_NAME",
+                            "description": "Description TBD"
+                        }
+                    ]
+                },
+                {
+                    "name": "Cluster class default values (can be overridden)",
+                    "variables": [
+                        {
+                            "name": "CLUSTER_PLAN",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "CLUSTER_API_SERVER_PORT",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "SIZE",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "CONTROLPLANE_SIZE",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "WORKER_SIZE",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "ENABLE_AUDIT_LOGGING",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "CLUSTER_CIDR",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "SERVICE_CIDR",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "CONTROL_PLANE_MACHINE_COUNT",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "WORKER_MACHINE_COUNT",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "WORKER_MACHINE_COUNT_0",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "WORKER_MACHINE_COUNT_1",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "WORKER_MACHINE_COUNT_2",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "OS_NAME",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "OS_VERSION",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "OS_ARCH",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "ENABLE_AUTOSCALER",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "AUTOSCALER_MIN_SIZE_0",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "AUTOSCALER_MAX_SIZE_0",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "AUTOSCALER_MIN_SIZE_1",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "AUTOSCALER_MAX_SIZE_1",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "AUTOSCALER_MIN_SIZE_2",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "AUTOSCALER_MAX_SIZE_2",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "DOCKER_MACHINE_TEMPLATE_IMAGE",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "KUBERNETES_VERSION",
+                            "description": "Description TBD"
+                        }
+                    ]
+                },
+                {
+                    "name": "Cluster class fixed values (can not be overridden)",
+                    "variables": [
+                        {
+                            "name": "INFRASTRUCTURE_PROVIDER",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "PROVIDER_TYPE",
+                            "description": "Description TBD"
+                        }
+                    ]
+                }
+            ]
+        }
+    ],
+    "vsphere" : [
+        {
+            "name" : "clusterClassName TBD",
+            "categories" : [
+                {
+                    "name": "User supplied values",
+                    "variables": [
+                        {
+                            "name": "PROVIDER_TYPE",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "CLUSTER_CLASS",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "IS_WINDOWS_WORKLOAD_CLUSTER",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "VSPHERE_CONTROL_PLANE_ENDPOINT",
+                            "description": "Description TBD"
+                        }
+                    ]
+                },
+                {
+                    "name": "Cluster class default values (can be overridden)",
+                    "variables": [
+                        {
+                            "name": "CLUSTER_PLAN",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "CLUSTER_API_SERVER_PORT",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "SIZE",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "CONTROLPLANE_SIZE",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "WORKER_SIZE",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "VSPHERE_NUM_CPUS",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "VSPHERE_DISK_GIB",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "VSPHERE_MEM_MIB",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "VSPHERE_CONTROL_PLANE_NUM_CPUS",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "VSPHERE_CONTROL_PLANE_DISK_GIB",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "VSPHERE_CONTROL_PLANE_MEM_MIB",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "VSPHERE_WORKER_NUM_CPUS",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "VSPHERE_WORKER_DISK_GIB",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "VSPHERE_WORKER_MEM_MIB",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "VSPHERE_CLONE_MODE",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "VSPHERE_NETWORK",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "VSPHERE_TEMPLATE",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "VSPHERE_WINDOWS_TEMPLATE",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "VIP_NETWORK_INTERFACE",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "VSPHERE_SSH_AUTHORIZED_KEY",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "VSPHERE_USERNAME",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "VSPHERE_PASSWORD",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "VSPHERE_AZ_0",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "VSPHERE_AZ_1",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "VSPHERE_AZ_2",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "VSPHERE_SERVER",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "VSPHERE_DATACENTER",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "VSPHERE_RESOURCE_POOL",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "VSPHERE_DATASTORE",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "VSPHERE_FOLDER",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "VSPHERE_STORAGE_POLICY_ID",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "VSPHERE_TLS_THUMBPRINT",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "TKG_CUSTOM_IMAGE_REPOSITORY",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "TKG_CUSTOM_IMAGE_REPOSITORY_SKIP_TLS_VERIFY",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "TKG_CUSTOM_IMAGE_REPOSITORY_CA_CERTIFICATE",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "TKG_HTTP_PROXY",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "TKG_HTTPS_PROXY",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "TKG_NO_PROXY",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "TKG_PROXY_CA_CERT",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "TKG_IP_FAMILY",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "CONTROL_PLANE_NODE_NAMESERVERS",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "WORKER_NODE_NAMESERVERS",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "ENABLE_AUDIT_LOGGING",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "CLUSTER_CIDR",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "SERVICE_CIDR",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "CONTROL_PLANE_MACHINE_COUNT",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "WORKER_MACHINE_COUNT",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "WORKER_MACHINE_COUNT_0",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "WORKER_MACHINE_COUNT_1",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "WORKER_MACHINE_COUNT_2",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "OS_NAME",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "OS_VERSION",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "OS_ARCH",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "ENABLE_AUTOSCALER",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "AUTOSCALER_MIN_SIZE_0",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "AUTOSCALER_MAX_SIZE_0",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "AUTOSCALER_MIN_SIZE_1",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "AUTOSCALER_MAX_SIZE_1",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "AUTOSCALER_MIN_SIZE_2",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "AUTOSCALER_MAX_SIZE_2",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "KUBERNETES_VERSION",
+                            "description": "Description TBD"
+                        }
+                    ]
+                },
+                {
+                    "name": "Cluster class fixed values (can not be overridden)",
+                    "variables": [
+                        {
+                            "name": "INFRASTRUCTURE_PROVIDER",
+                            "description": "fixed_value_content1"
+                        },
+                        {
+                            "name": "ENABLE_MHC",
+                            "description": "fixed_value_content1"
+                        },
+                        {
+                            "name": "ENABLE_MHC_WORKER_NODE",
+                            "description": "fixed_value_content1"
+                        },
+                        {
+                            "name": "ENABLE_MHC_CONTROL_PLANE",
+                            "description": "fixed_value_content1"
+                        },
+                        {
+                            "name": "MHC_UNKNOWN_STATUS_TIMEOUT",
+                            "description": "fixed_value_content1"
+                        },
+                        {
+                            "name": "MHC_FALSE_STATUS_TIMEOUT",
+                            "description": "fixed_value_content1"
+                        },
+                        {
+                            "name": "PROVIDER_TYPE",
+                            "description": "fixed_value_content1"
+                        }
+                    ]
+                }
+            ]
+        }
+    ],
+    "aws" : [
+        {
+            "name" : "clusterClassName TBD",
+            "categories" : [
+                {
+                    "name": "User supplied values",
+                    "variables": [
+                        {
+                            "name": "CLUSTER_NAME",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "CLUSTER_CLASS",
+                            "description": "Description TBD"
+                        }
+                    ]
+                },
+                {
+                    "name": "Cluster class default values (can be overridden)",
+                    "variables": [
+                        {
+                            "name": "CLUSTER_PLAN",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "CLUSTER_API_SERVER_PORT",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "SIZE",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "CONTROLPLANE_SIZE",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "WORKER_SIZE",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "AWS_REGION",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "AWS_LOAD_BALANCER_SCHEME_INTERNAL",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "AWS_NODE_AZ",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "AWS_NODE_AZ_1",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "AWS_NODE_AZ_2",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "AWS_VPC_ID",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "AWS_PRIVATE_SUBNET_ID",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "AWS_PUBLIC_SUBNET_ID",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "AWS_PUBLIC_SUBNET_ID_1",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "AWS_PRIVATE_SUBNET_ID_1",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "AWS_PUBLIC_SUBNET_ID_2",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "AWS_PRIVATE_SUBNET_ID_2",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "AWS_VPC_CIDR",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "AWS_PRIVATE_NODE_CIDR",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "AWS_PUBLIC_NODE_CIDR",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "AWS_PRIVATE_NODE_CIDR_1",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "AWS_PUBLIC_NODE_CIDR_1",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "AWS_PRIVATE_NODE_CIDR_2",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "AWS_PUBLIC_NODE_CIDR_2",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "AWS_SECURITY_GROUP_APISERVER_LB",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "AWS_SECURITY_GROUP_BASTION",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "AWS_SECURITY_GROUP_CONTROLPLANE",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "AWS_SECURITY_GROUP_LB",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "AWS_SECURITY_GROUP_NODE",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "AWS_IDENTITY_REF_KIND",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "AWS_IDENTITY_REF_NAME",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "AWS_CONTROL_PLANE_OS_DISK_SIZE_GIB",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "AWS_NODE_OS_DISK_SIZE_GIB",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "CONTROL_PLANE_MACHINE_TYPE",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "NODE_MACHINE_TYPE",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "NODE_MACHINE_TYPE_1",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "NODE_MACHINE_TYPE_2",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "AWS_SSH_KEY_NAME",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "BASTION_HOST_ENABLED",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "TKG_CUSTOM_IMAGE_REPOSITORY",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "TKG_CUSTOM_IMAGE_REPOSITORY_SKIP_TLS_VERIFY",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "TKG_CUSTOM_IMAGE_REPOSITORY_CA_CERTIFICATE",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "TKG_HTTP_PROXY",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "TKG_HTTPS_PROXY",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "TKG_NO_PROXY",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "TKG_PROXY_CA_CERT",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "TKG_IP_FAMILY",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "ENABLE_AUDIT_LOGGING",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "CLUSTER_CIDR",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "SERVICE_CIDR",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "CONTROL_PLANE_MACHINE_COUNT",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "WORKER_MACHINE_COUNT",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "WORKER_MACHINE_COUNT_0",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "BASTION_HOST_ENABLED",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "WORKER_MACHINE_COUNT_1",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "WORKER_MACHINE_COUNT_2",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "OS_NAME",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "OS_VERSION",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "OS_ARCH",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "ENABLE_AUTOSCALER",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "AUTOSCALER_MIN_SIZE_0",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "AUTOSCALER_MAX_SIZE_0",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "AUTOSCALER_MIN_SIZE_1",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "AUTOSCALER_MAX_SIZE_1",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "AUTOSCALER_MIN_SIZE_2",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "AUTOSCALER_MAX_SIZE_2",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "KUBERNETES_VERSION",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "AWS_AMI_ID",
+                            "description": "Description TBD"
+                        }
+                    ]
+                },
+                {
+                    "name": "Cluster class fixed values (can not be overridden)",
+                    "variables": [
+                        {
+                            "name": "INFRASTRUCTURE_PROVIDER",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "ENABLE_MHC",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "ENABLE_MHC_WORKER_NODE",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "ENABLE_MHC_CONTROL_PLANE",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "MHC_UNKNOWN_STATUS_TIMEOUT",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "MHC_FALSE_STATUS_TIMEOUT",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "PROVIDER_TYPE",
+                            "description": "Description TBD"
+                        }
+                    ]
+                }
+            ]
+        }
+    ],
+    "azure" : [
+        {
+            "name" : "clusterClassName TBD",
+            "categories" : [
+                {
+                    "name": "User supplied values",
+                    "variables": [
+                        {
+                            "name": "CLUSTER_NAME",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "CLUSTER_CLASS",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "AZURE_RESOURCE_GROUP",
+                            "description": "Description TBD"
+                        }
+                    ]
+                },
+                {
+                    "name": "Cluster class default values (can be overridden)",
+                    "variables": [
+                        {
+                            "name": "CLUSTER_PLAN",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "CLUSTER_API_SERVER_PORT",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "SIZE",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "CONTROLPLANE_SIZE",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "WORKER_SIZE",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "AZURE_ENVIRONMENT",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "AZURE_ENVIRONMENT",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "AZURE_SUBSCRIPTION_ID",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "AZURE_CLIENT_ID",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "AZURE_CLIENT_SECRET",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "AZURE_LOCATION",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "AZURE_SSH_PUBLIC_KEY_B64",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "AZURE_CONTROL_PLANE_MACHINE_TYPE",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "AZURE_NODE_MACHINE_TYPE",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "AZURE_ENABLE_ACCELERATED_NETWORKING",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "AZURE_VNET_RESOURCE_GROUP",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "AZURE_VNET_NAME",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "AZURE_VNET_CIDR",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "AZURE_CONTROL_PLANE_SUBNET_NAME",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "AZURE_CONTROL_PLANE_SUBNET_CIDR",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "AZURE_CONTROL_PLANE_SUBNET_SECURITY_GROUP",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "AZURE_NODE_SUBNET_CIDR",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "AZURE_NODE_SUBNET_SECURITY_GROUP",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "AZURE_NODE_AZ",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "AZURE_NODE_AZ_1",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "AZURE_NODE_AZ_2",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "AZURE_CUSTOM_TAGS",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "AZURE_CONTROL_PLANE_OS_DISK_SIZE_GIB",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "AZURE_CONTROL_PLANE_OS_DISK_STORAGE_ACCOUNT_TYPE",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "AZURE_NODE_OS_DISK_SIZE_GIB",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "AZURE_NODE_OS_DISK_STORAGE_ACCOUNT_TYPE",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "AZURE_CONTROL_PLANE_DATA_DISK_SIZE_GIB",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "AZURE_ENABLE_NODE_DATA_DISK",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "AZURE_NODE_DATA_DISK_SIZE_GIB",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "AZURE_ENABLE_PRIVATE_CLUSTER",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "AZURE_FRONTEND_PRIVATE_IP",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "AZURE_ENABLE_CONTROL_PLANE_OUTBOUND_LB",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "AZURE_ENABLE_NODE_OUTBOUND_LB",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "AZURE_CONTROL_PLANE_OUTBOUND_LB_FRONTEND_IP_COUNT",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "AZURE_NODE_OUTBOUND_LB_FRONTEND_IP_COUNT",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "AZURE_NODE_OUTBOUND_LB_IDLE_TIMEOUT_IN_MINUTES",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "AZURE_IMAGE_ID",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "AZURE_IMAGE_RESOURCE_GROUP",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "AZURE_IMAGE_NAME",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "AZURE_IMAGE_SUBSCRIPTION_ID",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "AZURE_IMAGE_GALLERY",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "AZURE_IMAGE_PUBLISHER",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "AZURE_IMAGE_PUBLISHER",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "AZURE_IMAGE_SKU",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "AZURE_IMAGE_THIRD_PARTY",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "AZURE_IMAGE_VERSION",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "AZURE_IDENTITY_NAME",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "AZURE_IDENTITY_NAMESPACE",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "TKG_CUSTOM_IMAGE_REPOSITORY",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "TKG_CUSTOM_IMAGE_REPOSITORY_SKIP_TLS_VERIFY",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "TKG_CUSTOM_IMAGE_REPOSITORY_CA_CERTIFICATE",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "TKG_HTTP_PROXY",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "TKG_HTTPS_PROXY",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "TKG_NO_PROXY",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "TKG_PROXY_CA_CERT",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "TKG_IP_FAMILY",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "ENABLE_AUDIT_LOGGING",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "CLUSTER_CIDR",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "SERVICE_CIDR",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "CONTROL_PLANE_MACHINE_COUNT",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "WORKER_MACHINE_COUNT",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "WORKER_MACHINE_COUNT_0",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "WORKER_MACHINE_COUNT_1",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "WORKER_MACHINE_COUNT_2",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "OS_NAME",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "OS_VERSION",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "OS_ARCH",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "ENABLE_AUTOSCALER",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "AUTOSCALER_MIN_SIZE_0",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "AUTOSCALER_MAX_SIZE_0",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "AUTOSCALER_MIN_SIZE_1",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "AUTOSCALER_MAX_SIZE_1",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "AUTOSCALER_MIN_SIZE_2",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "AUTOSCALER_MAX_SIZE_2",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "KUBERNETES_VERSION",
+                            "description": "Description TBD"
+                        }
+                    ]
+                },
+                {
+                    "name": "Cluster class fixed values (can not be overridden)",
+                    "variables": [
+                        {
+                            "name": "INFRASTRUCTURE_PROVIDER",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "ENABLE_MHC",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "ENABLE_MHC_WORKER_NODE",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "ENABLE_MHC_CONTROL_PLANE",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "MHC_UNKNOWN_STATUS_TIMEOUT",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "MHC_FALSE_STATUS_TIMEOUT",
+                            "description": "Description TBD"
+                        },
+                        {
+                            "name": "PROVIDER_TYPE",
+                            "description": "Description TBD"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

@@ -44,7 +44,7 @@ import { VsphereLoadBalancerStepComponent } from '../../vsphere-wizard/load-bala
         TreeSelectComponent,
         VsphereLoadBalancerStepComponent,
         VsphereNetworkStepComponent,
-        VsphereOsImageStepComponent,
+        VsphereOsImageStepComponent
     ],
     imports: [
         CodemirrorModule,
@@ -69,7 +69,7 @@ import { VsphereLoadBalancerStepComponent } from '../../vsphere-wizard/load-bala
         TreeSelectComponent,
         VsphereLoadBalancerStepComponent,
         VsphereNetworkStepComponent,
-        VsphereOsImageStepComponent,
+        VsphereOsImageStepComponent
     ],
     providers: [
         FieldMapUtilities,

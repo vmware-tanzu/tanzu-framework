@@ -4,6 +4,9 @@ overrides:
   #! featuregates
   - image: featuregates-controller-manager:latest
     newImage: ""
+  #! capabilities
+  - image: capabilities-controller-manager:latest
+    newImage: ""
   #! Core-Management-Plugins images
   #! tanzu-cliplugins linux-amd64
   - image: tanzu-cli-plugins/cluster-linux-amd64:latest

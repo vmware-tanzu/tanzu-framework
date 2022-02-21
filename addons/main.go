@@ -14,8 +14,8 @@ import (
 	"k8s.io/client-go/kubernetes"
 	clientgoscheme "k8s.io/client-go/kubernetes/scheme"
 	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
-	"k8s.io/klog"
-	"k8s.io/klog/klogr"
+	"k8s.io/klog/v2"
+	"k8s.io/klog/v2/klogr"
 	clusterapiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
 	controlplanev1beta1 "sigs.k8s.io/cluster-api/controlplane/kubeadm/api/v1beta1"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -29,9 +29,11 @@ import (
 	addonconfig "github.com/vmware-tanzu/tanzu-framework/addons/pkg/config"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/crdwait"
+	cniv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cni/v1alpha1"
 	runtanzuv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha1"
 	runtanzuv1alpha3 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/buildinfo"
+	tkgconstants "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
 )
 
 var (
@@ -50,6 +52,7 @@ func init() {
 	_ = clusterapiv1beta1.AddToScheme(scheme)
 	_ = controlplanev1beta1.AddToScheme(scheme)
 	_ = runtanzuv1alpha3.AddToScheme(scheme)
+	_ = cniv1alpha1.AddToScheme(scheme)
 
 	// +kubebuilder:scaffold:scheme
 }
@@ -68,6 +71,7 @@ func main() {
 	var addonImagePullPolicy string
 	var corePackageRepoName string
 	var healthdAddr string
+	var cniSelectionClusterVarName string
 
 	// controller configurations
 	flag.StringVar(&metricsAddr, "metrics-bind-addr", ":8080", "The address the metric endpoint binds to.")
@@ -88,6 +92,7 @@ func main() {
 	flag.StringVar(&addonImagePullPolicy, "addon-image-pull-policy", "IfNotPresent", "The addon image pull policy")
 	flag.StringVar(&corePackageRepoName, "core-package-repo-name", "tanzu-core", "The name of core package repository")
 	flag.StringVar(&healthdAddr, "health-addr", ":18316", "The address the health endpoint binds to.")
+	flag.StringVar(&cniSelectionClusterVarName, "cni-selection-cluster-var-name", tkgconstants.DefaultCNISelectionClusterVariableName, "CNI selection cluster variable name")
 
 	flag.Parse()
 

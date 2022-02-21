@@ -74,7 +74,8 @@ var getConfigCmd = &cobra.Command{
 
 var setConfigCmd = &cobra.Command{
 	Use:   "set <path> <value>",
-	Short: "Set config values at the given path. path values: [unstable-versions, cli.edition, features.global.<feature>, features.<plugin>.<feature>, env.<variable>]",
+	Short: "Set config values at the given path",
+	Long:  "Set config values at the given path. path values: [unstable-versions, cli.edition, features.global.<feature>, features.<plugin>.<feature>, env.<variable>]",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		if len(args) < 2 {
 			return errors.Errorf("both path and value are required")
@@ -279,7 +280,7 @@ var listServersCmd = &cobra.Command{
 
 var deleteServersCmd = &cobra.Command{
 	Use:   "delete SERVER_NAME",
-	Short: "delete a server from the config",
+	Short: "Delete a server from the config",
 
 	RunE: func(cmd *cobra.Command, args []string) error {
 		if len(args) == 0 {
@@ -315,7 +316,8 @@ var deleteServersCmd = &cobra.Command{
 
 var unsetConfigCmd = &cobra.Command{
 	Use:   "unset <path>",
-	Short: "Unset config values at the given path. path values: [features.global.<feature>, features.<plugin>.<feature>, env.global.<variable>, env.<plugin>.<variable>]",
+	Short: "Unset config values at the given path",
+	Long:  "Unset config values at the given path. path values: [features.global.<feature>, features.<plugin>.<feature>, env.global.<variable>, env.<plugin>.<variable>]",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		if len(args) < 1 {
 			return errors.Errorf("path is required")

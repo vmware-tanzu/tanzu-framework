@@ -17,6 +17,7 @@ import (
 	"sigs.k8s.io/cluster-api/util/secret"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
+	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
 	addontypes "github.com/vmware-tanzu/tanzu-framework/addons/pkg/types"
 	"github.com/vmware-tanzu/tanzu-framework/addons/testutil"
 	runtanzuv1alpha3 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
@@ -55,10 +56,11 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 
 		BeforeEach(func() {
 			clusterName = "test-cluster-tcbt"
-			clusterResourceFilePath = "testdata/test-cluster-bootstrap.yaml"
+			clusterResourceFilePath = "testdata/test-cluster-bootstrap-1.yaml"
 		})
 
-		It("Should create clone ClusterBootstrapTemplate and its related objects for the cluster and create package secret for foobar.example.com.1.17.2", func() {
+		It("Should create clone ClusterBootstrapTemplate and its related objects for the cluster, create package "+
+			"secret for foobar.example.com.1.17.2 and set CNI to the one specified using cluster variable", func() {
 			cluster := &clusterapiv1beta1.Cluster{}
 			Expect(k8sClient.Get(ctx, client.ObjectKey{Namespace: "default", Name: clusterName}, cluster)).To(Succeed())
 
@@ -78,6 +80,17 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 				return false
 			}, waitTimeout, pollingInterval).Should(BeTrue())
 
+			// Verify CNI is populated in the cloned object with the value from the cluster variables definitions
+			Expect(len(clusterBootstrap.Spec.CNIs)).NotTo(BeZero())
+			cni := clusterBootstrap.Spec.CNIs[0]
+			Expect(packageShortName(cni.RefName)).To(Equal("antrea"))
+
+			Expect(cni.RefName).To(Equal("antrea.tanzu.vmware.com.21.2.0--vmware.1-tkg.1-rc.1"))
+			Expect(*cni.ValuesFrom.ProviderRef.APIGroup).To(Equal("cni.tanzu.vmware.com"))
+			Expect(cni.ValuesFrom.ProviderRef.Kind).To(Equal("AntreaConfig"))
+			providerName := fmt.Sprintf("%s-antrea-package", clusterName)
+			Expect(cni.ValuesFrom.ProviderRef.Name).To(Equal(providerName))
+
 			// Verify ResolvedTKR
 			Eventually(func() bool {
 				err := k8sClient.Get(ctx, client.ObjectKeyFromObject(cluster), clusterBootstrap)
@@ -93,12 +106,14 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 
 			var gvr schema.GroupVersionResource
 			var object *unstructured.Unstructured
+			var fooPackage *runtanzuv1alpha3.ClusterBootstrapPackage
+			var foobar1Package *runtanzuv1alpha3.ClusterBootstrapPackage
 
 			// Verify providerRef exists and also the cloned provider object with ownerReferences to cluster and ClusterBootstrap
 			Eventually(func() bool {
-				Expect(len(clusterBootstrap.Spec.AdditionalPackages) > 0).To(BeTrue())
+				Expect(len(clusterBootstrap.Spec.AdditionalPackages) > 1).To(BeTrue())
 
-				fooPackage := clusterBootstrap.Spec.AdditionalPackages[0]
+				fooPackage = clusterBootstrap.Spec.AdditionalPackages[1]
 				Expect(fooPackage.RefName == "foobar.example.com.1.17.2").To(BeTrue())
 				Expect(*fooPackage.ValuesFrom.ProviderRef.APIGroup == "run.tanzu.vmware.com").To(BeTrue())
 				Expect(fooPackage.ValuesFrom.ProviderRef.Kind == "FooBar").To(BeTrue())
@@ -135,6 +150,44 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 				return false
 			}, waitTimeout, pollingInterval).Should(BeTrue())
 
+			// Verify that secret object mapping to foobar1 package exists with ownerReferences to cluster and ClusterBootstrap
+			Eventually(func() bool {
+				foobar1Package = clusterBootstrap.Spec.AdditionalPackages[0]
+
+				Expect(foobar1Package.RefName == "foobar1.example.com.1.17.2").To(BeTrue())
+				secretName := fmt.Sprintf("%s-foobar1-package", clusterName)
+				Expect(foobar1Package.ValuesFrom.SecretRef == secretName).To(BeTrue())
+
+				s := &v1.Secret{}
+				Expect(k8sClient.Get(ctx, client.ObjectKey{Namespace: "default", Name: secretName}, s)).To(Succeed())
+
+				var foundClusterOwnerRef bool
+				var foundClusterBootstrapOwnerRef bool
+				var foundLabels bool
+				var foundType bool
+				for _, ownerRef := range s.GetOwnerReferences() {
+					if ownerRef.UID == cluster.UID {
+						foundClusterOwnerRef = true
+					}
+					if ownerRef.UID == clusterBootstrap.UID {
+						foundClusterBootstrapOwnerRef = true
+					}
+				}
+				secretLabels := s.GetLabels()
+				if secretLabels[addontypes.ClusterNameLabel] == clusterName &&
+					secretLabels[addontypes.PackageNameLabel] == foobar1Package.RefName {
+					foundLabels = true
+				}
+				if s.Type == constants.ClusterBootstrapManagedSecret {
+					foundType = true
+				}
+				if foundClusterOwnerRef && foundClusterBootstrapOwnerRef && foundLabels && foundType {
+					return true
+				}
+
+				return false
+			}, waitTimeout, pollingInterval).Should(BeTrue())
+
 			// Simulate a controller adding secretRef to provider status and
 			// verify that a data-values secret has been created for the package
 			By("patching foobar status resource with secret", func() {
@@ -163,7 +216,96 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 				}, waitTimeout, pollingInterval).Should(BeTrue())
 			})
 
+			// Update the secret created before for foobar resource
+			// Verify that the updated secret leads to an updated data-values secret
+			By("Updating the foobar package provider secret", func() {
+				s := &v1.Secret{}
+				Expect(k8sClient.Get(ctx, client.ObjectKey{Namespace: "default", Name: "foobar-data-values"}, s)).To(Succeed())
+				s.OwnerReferences = []metav1.OwnerReference{
+					{
+						APIVersion: clusterapiv1beta1.GroupVersion.String(),
+						Kind:       "Cluster",
+						Name:       cluster.Name,
+						UID:        cluster.UID,
+					},
+				}
+				s.Data["values.yaml"] = []byte("foobar-updated")
+				Expect(k8sClient.Update(ctx, s)).To(Succeed())
+
+				Eventually(func() bool {
+					s := &v1.Secret{}
+					if err := k8sClient.Get(ctx, client.ObjectKey{Namespace: "tkg-system", Name: fmt.Sprintf("%s-foobar-data-values", clusterName)}, s); err != nil {
+						return false
+					}
+					if string(s.Data["values.yaml"]) != "foobar-updated" {
+						return false
+					}
+
+					return true
+				}, waitTimeout, pollingInterval).Should(BeTrue())
+			})
+
+			// Update the secret created before for foobar1
+			// Verify that the updated secret leads to an updated data-values secret
+			By("Updating the foobar1 package secret", func() {
+				s := &v1.Secret{}
+				secretName := fmt.Sprintf("%s-foobar1-package", clusterName)
+				Expect(k8sClient.Get(ctx, client.ObjectKey{Namespace: "default", Name: secretName}, s)).To(Succeed())
+				s.Data["values.yaml"] = []byte("foobar1-updated")
+				Expect(k8sClient.Update(ctx, s)).To(Succeed())
+
+				Eventually(func() bool {
+					s := &v1.Secret{}
+					if err := k8sClient.Get(ctx, client.ObjectKey{Namespace: "tkg-system", Name: fmt.Sprintf("%s-foobar1-data-values", clusterName)}, s); err != nil {
+						return false
+					}
+					if string(s.Data["values.yaml"]) != "foobar1-updated" {
+						return false
+					}
+
+					return true
+				}, waitTimeout, pollingInterval).Should(BeTrue())
+			})
 		})
 	})
 
+	Context("reconcileClusterBootstrapNormal, CNI selection in case of no CNI cluster variable", func() {
+
+		BeforeEach(func() {
+			clusterName = "test-cluster-tcbt-2"
+			clusterResourceFilePath = "testdata/test-cluster-bootstrap-2.yaml"
+		})
+
+		It("Should create cloned ClusterBootstrap for the cluster and set CNI to the first entry in the template (as cluster variable for CNI is not set)", func() {
+			cluster := &clusterapiv1beta1.Cluster{}
+			Expect(k8sClient.Get(ctx, client.ObjectKey{Namespace: "default", Name: clusterName}, cluster)).To(Succeed())
+
+			clusterBootstrap := &runtanzuv1alpha3.ClusterBootstrap{}
+
+			// Verify ownerReference for cluster in cloned object
+			Eventually(func() bool {
+				err := k8sClient.Get(ctx, client.ObjectKeyFromObject(cluster), clusterBootstrap)
+				if err != nil {
+					return false
+				}
+				for _, ownerRef := range clusterBootstrap.OwnerReferences {
+					if ownerRef.UID == cluster.UID {
+						return true
+					}
+				}
+				return false
+			}, waitTimeout, pollingInterval).Should(BeTrue())
+
+			// Verify CNI is populated in the cloned object with the the first entry in the template (as cluster variable for CNI is not set)
+			Expect(len(clusterBootstrap.Spec.CNIs)).To(Equal(1))
+			cni := clusterBootstrap.Spec.CNIs[0]
+			Expect(packageShortName(cni.RefName)).To(Equal("calico"))
+
+			Expect(cni.RefName).To(Equal("calico.tanzu.vmware.com.0.3.0--vmware.1-tkg.1-rc.1"))
+			Expect(*cni.ValuesFrom.ProviderRef.APIGroup).To(Equal("cni.tanzu.vmware.com"))
+			Expect(cni.ValuesFrom.ProviderRef.Kind).To(Equal("CalicoConfig"))
+			providerName := fmt.Sprintf("%s-calico-package", clusterName)
+			Expect(cni.ValuesFrom.ProviderRef.Name).To(Equal(providerName))
+		})
+	})
 })

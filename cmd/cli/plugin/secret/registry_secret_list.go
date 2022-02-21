@@ -18,7 +18,8 @@ import (
 
 var registrySecretListCmd = &cobra.Command{
 	Use:   "list",
-	Short: "Lists all v1/Secret of type kubernetes.io/dockerconfigjson and checks for the associated SecretExport with the same name",
+	Short: "Lists all v1/Secrets",
+	Long:  "Lists all v1/Secret of type kubernetes.io/dockerconfigjson and checks for the associated SecretExport with the same name",
 	Args:  cobra.NoArgs,
 	Example: `
     # List registry secrets across all namespaces
