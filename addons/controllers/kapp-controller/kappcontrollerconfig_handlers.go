@@ -9,7 +9,6 @@ import (
 	"fmt"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/utils/pointer"
 	clusterv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
 	clusterapiutil "sigs.k8s.io/cluster-api/util"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -44,13 +43,12 @@ func (r *KappControllerConfigReconciler) ClusterToKappControllerConfig(o client.
 	for i := range KappControllerConfigList.Items {
 		config := &KappControllerConfigList.Items[i]
 		if config.Namespace == cluster.Namespace {
-			// add owner reference to kappControllerConfig
+			// corresponding kappControllerConfig should have following ownerRef
 			ownerReference := metav1.OwnerReference{
-				APIVersion:         clusterv1beta1.GroupVersion.String(),
-				Kind:               cluster.Kind,
-				Name:               cluster.Name,
-				UID:                cluster.UID,
-				BlockOwnerDeletion: pointer.BoolPtr(false),
+				APIVersion: clusterv1beta1.GroupVersion.String(),
+				Kind:       cluster.Kind,
+				Name:       cluster.Name,
+				UID:        cluster.UID,
 			}
 
 			if clusterapiutil.HasOwnerRef(config.OwnerReferences, ownerReference) || config.Name == cluster.Name {

@@ -19,3 +19,13 @@ type AddonControllerConfig struct {
 	AddonImagePullPolicy    string
 	CorePackageRepoName     string
 }
+
+// ClusterBootstrapControllerConfig contains configuration information related to ClusterBootstrap
+type ClusterBootstrapControllerConfig struct {
+	CNISelectionClusterVariableName string
+	HTTPProxyClusterClassVarName    string
+	HTTPSProxyClusterClassVarName   string
+	NoProxyClusterClassVarName      string
+	ProxyCACertClusterClassVarName  string
+	IPFamilyClusterClassVarName     string
+}
