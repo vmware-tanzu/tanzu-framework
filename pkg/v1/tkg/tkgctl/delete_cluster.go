@@ -20,6 +20,11 @@ type DeleteClustersOptions struct {
 
 // DeleteCluster deletes workload cluster
 func (t *tkgctl) DeleteCluster(options DeleteClustersOptions) error {
+	// Make sure activity is captured in the audit log in case of deletion failure.
+	if logPath, err := t.getAuditLogPath(options.ClusterName); err == nil {
+		log.SetAuditLog(logPath)
+	}
+
 	// if --yes is set, kick off the delete process without waiting for confirmation
 	if !options.SkipPrompt {
 		if err := askForConfirmation(fmt.Sprintf("Deleting workload cluster '%s'. Are you sure?", options.ClusterName)); err != nil {
@@ -42,6 +47,10 @@ func (t *tkgctl) DeleteCluster(options DeleteClustersOptions) error {
 	}
 
 	log.Infof("Workload cluster '%s' is being deleted \n", options.ClusterName)
+
+	// Clean up the audit log since we were successful
+	t.removeAuditLog(options.ClusterName)
+	log.SetAuditLog("")
 
 	return nil
 }

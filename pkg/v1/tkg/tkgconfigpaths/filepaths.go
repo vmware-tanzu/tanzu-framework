@@ -132,6 +132,7 @@ func (c *client) GetConfigDefaultsFilePath() (string, error) {
 		return "", err
 	}
 	return filepath.Join(tkgDir, constants.TKGConfigDefaultFileName), nil
+}
 
 // GetLogDirectory returns the directory path where log files should be stored by default.
 func (c *client) GetLogDirectory() (string, error) {

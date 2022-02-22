@@ -65,6 +65,10 @@ func (t *tkgctl) CreateCluster(cc CreateClusterOptions) error {
 		return err
 	}
 
+	if logPath, err := t.getAuditLogPath(cc.ClusterName); err == nil {
+		log.SetAuditLog(logPath)
+	}
+
 	// Always do blocking cluster create
 	waitForCluster := true
 
