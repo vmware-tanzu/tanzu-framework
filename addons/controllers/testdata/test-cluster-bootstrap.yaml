@@ -28,7 +28,7 @@ metadata:
   namespace: tkg-system
 spec:
   kapp:
-    refName: kapp-controller.tanzu.vmware.com.0.30.0+vmware.1-tkg.1
+    refName: kapp-controller.tanzu.vmware.com.0.30.0
     valuesFrom:
       providerRef:
         apiGroup: run.tanzu.vmware.com
@@ -85,7 +85,7 @@ metadata:
   name: foobar.example.com.1.17.2
   namespace: default
 spec:
-  refName: foobar.example.com.1.17.2
+  refName: foobar
   version: 1.17.2+vmware.1-tkg.1
   releasedAt: "2021-05-13T18:00:00Z"
   releaseNotes: foobar 1.17.2
@@ -173,3 +173,38 @@ spec:
           - --kube-api-qps=20
           - --kube-api-burst=30
 ---
+apiVersion: data.packaging.carvel.dev/v1alpha1
+kind: Package
+metadata:
+  name: kapp-controller.tanzu.vmware.com.0.30.0
+  namespace: default
+spec:
+  refName: kapp-controller.tanzu.vmware.com
+  version: 0.30.0+vmware.1-tkg.1
+  releaseNotes: kapp-controller 0.30.0 https://github.com/vmware-tanzu/carvel-kapp-controller
+  licenses:
+    - 'VMware’s End User License Agreement (Underlying OSS license: Apache License 2.0)'
+  template:
+    spec:
+      fetch:
+        - imgpkgBundle:
+            image: projects-stg.registry.vmware.com/tkg/tkgextensions-dev/packages/core/kapp-controller:v0.30.0_vmware.1-tkg.1
+      template:
+        - ytt:
+            paths:
+              - config/
+            ignoreUnknownComments: true
+        - kbld:
+            paths:
+              - '-'
+              - .imgpkg/images.yml
+      deploy:
+        - kapp:
+            rawOptions:
+              - --wait-timeout=30s
+              - --kube-api-qps=20
+              - --kube-api-burst=30
+  releasedAt: "2021-12-20T10:59:32Z"
+  valuesSchema:
+    openAPIv3:
+      title: kapp-controller.tanzu.vmware.com.0.30.0+vmware.1-tkg.1 values schema

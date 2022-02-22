@@ -6,6 +6,7 @@ package util
 import (
 	"context"
 	"fmt"
+	"github.com/vmware-tanzu/carvel-kapp-controller/pkg/apiserver/apis/datapackaging/v1alpha1"
 	"net"
 	"strconv"
 	"strings"
@@ -79,14 +80,12 @@ func GeneratePackageInstallName(clusterName, addonName string) string {
 	return fmt.Sprintf("%s-%s", clusterName, addonName)
 }
 
-func GetPackageShortName(refName string) string {
-	if refName != "" {
-		refParts := strings.Split(refName, ".")
-		if len(refParts) > 0 {
-			return refParts[0]
-		}
+func GetPackageMetadata(context context.Context, c client.Client, carvelPkgName, carvelPkgNamespace string) (string, string, error) {
+	pkg := &v1alpha1.Package{}
+	if err := c.Get(context, client.ObjectKey{Name: carvelPkgName, Namespace: carvelPkgNamespace}, pkg); err != nil {
+		return "", "", err
 	}
-	return refName
+	return pkg.Spec.RefName, pkg.Spec.Version, nil
 }
 
 // ParseStringForLabel parse the package ref name to make it valid for K8S object labels.

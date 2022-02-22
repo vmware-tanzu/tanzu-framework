@@ -22,6 +22,8 @@ type Config struct {
 
 // ClusterBootstrapControllerConfig contains the configuration for clusterbootstrap_controller to reconcile resources
 type ClusterBootstrapControllerConfig struct {
+	// The length of time to wait before kapp-controller's reconciliation
+	PkgiSyncPeriod time.Duration
 	// ServiceAccount name that will be used by kapp-controller to install underlying package contents
 	PkgiServiceAccount string
 	// The name that will be used to create ClusterRole contains all required rules for PkgiServiceAccount
@@ -29,5 +31,5 @@ type ClusterBootstrapControllerConfig struct {
 	// The name of ClusterRoleBinding that will be used to bind PkgiClusterRole and PkgiServiceAccount
 	PkgiClusterRoleBinding string
 	// The namespace where the bootstrap objects will be created, i.e., tkg-system
-	BootstrapSystemNamespace string
+	SystemNamespace string
 }

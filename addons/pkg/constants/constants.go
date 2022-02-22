@@ -124,4 +124,8 @@ const (
 
 	// KappControllerAddonName is the addon name of Kapp Controller
 	KappControllerAddonName = "kapp-controller"
+
+	// ManagementClusterRoleLabel is the label applied to cluster object that indicates the cluster object represents a
+	// mgmt cluster
+	ManagementClusterRoleLabel = "cluster-role.tkg.tanzu.vmware.com/management"
 )

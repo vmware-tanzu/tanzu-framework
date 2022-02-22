@@ -179,12 +179,15 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 					if err := k8sClient.Get(ctx,
 						client.ObjectKey{
 							Namespace: "default",
-							Name:      util.GeneratePackageInstallName(clusterName, util.GetPackageShortName(clusterBootstrap.Spec.Kapp.RefName)),
+							Name:      util.GeneratePackageInstallName(clusterName, "kapp-controller.tanzu.vmware.com"),
 						}, kappControllerPkgi); err != nil {
 						return false
 					}
 					return true
 				}, waitTimeout, pollingInterval).Should(BeTrue())
+				Expect(len(kappControllerPkgi.OwnerReferences) == 1).To(BeTrue())
+				Expect(kappControllerPkgi.OwnerReferences[0].APIVersion).To(Equal(clusterapiv1beta1.GroupVersion.String()))
+				Expect(kappControllerPkgi.OwnerReferences[0].Name).To(Equal(cluster.Name))
 
 				remoteClient, err := util.GetClusterClient(ctx, k8sClient, scheme, clusterapiutil.ObjectKey(cluster))
 				Expect(err).NotTo(HaveOccurred())
@@ -221,6 +224,7 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 
 				By("verifying that Package CRs of additionalPackages are created on the workload cluster properly")
 				pkg := &kapppkgv1alpha1.Package{}
+				pkgRefNameMap := make(map[string]string)
 				Eventually(func() bool {
 					for _, clusterBootstrapPackage := range clusterBootstrap.Spec.AdditionalPackages {
 						if err := remoteClient.Get(ctx,
@@ -228,6 +232,7 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 							pkg); err != nil {
 							return false
 						}
+						pkgRefNameMap[clusterBootstrapPackage.RefName] = pkg.Spec.RefName
 					}
 					return true
 				}, waitTimeout, pollingInterval).Should(BeTrue())
@@ -239,7 +244,7 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 						if err := remoteClient.Get(ctx,
 							client.ObjectKey{
 								Namespace: constants.TKGSystemNS,
-								Name:      util.GenerateDataValueSecretName(cluster.Name, util.GetPackageShortName(clusterBootstrapPackage.RefName)),
+								Name:      util.GenerateDataValueSecretName(cluster.Name, pkgRefNameMap[clusterBootstrapPackage.RefName]),
 							}, remoteSecret); err != nil {
 							return false
 						}
@@ -254,17 +259,16 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 						if err := remoteClient.Get(ctx,
 							client.ObjectKey{
 								Namespace: constants.TKGSystemNS,
-								Name:      util.GeneratePackageInstallName(clusterName, util.GetPackageShortName(clusterBootstrapPackage.RefName)),
+								Name:      util.GeneratePackageInstallName(clusterName, pkgRefNameMap[clusterBootstrapPackage.RefName]),
 							}, remotePkgi); err != nil {
 							return false
 						}
 					}
 					return true
 				}, waitTimeout, pollingInterval).Should(BeTrue())
-				Expect(remotePkgi.Spec.PackageRef.RefName).To(Equal(pkg.Name))
+				Expect(remotePkgi.Spec.PackageRef.RefName).To(Equal(pkg.Spec.RefName))
 				Expect(len(remotePkgi.Spec.Values)).NotTo(BeZero())
-				Expect(remotePkgi.Spec.Values[0].SecretRef.Name).To(Equal(util.GenerateDataValueSecretName(cluster.Name,
-					util.GetPackageShortName(pkg.Name))))
+				Expect(remotePkgi.Spec.Values[0].SecretRef.Name).To(Equal(util.GenerateDataValueSecretName(cluster.Name, pkg.Spec.RefName)))
 			})
 		})
 	})

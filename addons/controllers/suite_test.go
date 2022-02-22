@@ -214,10 +214,11 @@ var _ = BeforeSuite(func(done Done) {
 		ctrl.Log.WithName("controllers").WithName("ClusterBootstrap"),
 		mgr.GetScheme(),
 		&addonconfig.ClusterBootstrapControllerConfig{
-			BootstrapSystemNamespace: constants.TKGSystemNS,
-			PkgiServiceAccount:       "tanzu-addons-manager-sa",
-			PkgiClusterRole:          "tanzu-addons-manager-clusterrole",
-			PkgiClusterRoleBinding:   "tanzu-addons-manager-clusterrolebinding",
+			SystemNamespace:        constants.TKGSystemNS,
+			PkgiServiceAccount:     "tanzu-addons-manager-sa",
+			PkgiClusterRole:        "tanzu-addons-manager-clusterrole",
+			PkgiClusterRoleBinding: "tanzu-addons-manager-clusterrolebinding",
+			PkgiSyncPeriod:         10 * time.Minute,
 		},
 	)
 	Expect(bootstrapReconciler.SetupWithManager(ctx, mgr, controller.Options{MaxConcurrentReconciles: 1})).To(Succeed())
