@@ -116,9 +116,14 @@ var _ = Describe("KappControllerConfig Reconciler", func() {
 				Expect(strings.Contains(secretData, "apiPort: 10100")).Should(BeTrue())
 				Expect(strings.Contains(secretData, "metricsBindAddress: \"0\"")).Should(BeTrue())
 
-				if !strings.Contains(secretData, "httpProxy: foo.com") ||
+				if !strings.Contains(secretData, "caCerts: dummyCertificate") ||
 					!strings.Contains(secretData, "httpsProxy: bar.com") ||
 					!strings.Contains(secretData, "noProxy: foobar.com") {
+					return false
+				}
+
+				// user input should override cluster-wide config
+				if !strings.Contains(secretData, "httpProxy: overwrite.foo.com") {
 					return false
 				}
 

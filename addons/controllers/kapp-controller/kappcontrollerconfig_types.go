@@ -90,13 +90,28 @@ func mapKappControllerConfigSpec(cluster *clusterapiv1beta1.Cluster, config *run
 	configSpec.KappController.Deployment.APIPort = config.Spec.KappController.Deployment.APIPort
 	configSpec.KappController.Deployment.MetricsBindAddress = config.Spec.KappController.Deployment.MetricsBindAddress
 
-	// Config
+	// Will use cluster-wide proxy and network setting if no user input is provided
 	if cluster.Annotations != nil {
 		configSpec.KappController.Config.CaCerts = cluster.Annotations[types.ProxyCACertConfigAnnotation]
 		configSpec.KappController.Config.HTTPProxy = cluster.Annotations[types.HTTPProxyConfigAnnotation]
 		configSpec.KappController.Config.HTTPSProxy = cluster.Annotations[types.HTTPSProxyConfigAnnotation]
 		configSpec.KappController.Config.NoProxy = cluster.Annotations[types.NoProxyConfigAnnotation]
 	}
+
+	// user provided proxy and network setting will override cluster-wide settings
+	if config.Spec.KappController.Config.CaCerts != "" {
+		configSpec.KappController.Config.CaCerts = config.Spec.KappController.Config.CaCerts
+	}
+	if config.Spec.KappController.Config.HTTPProxy != "" {
+		configSpec.KappController.Config.HTTPProxy = config.Spec.KappController.Config.HTTPProxy
+	}
+	if config.Spec.KappController.Config.HTTPSProxy != "" {
+		configSpec.KappController.Config.HTTPSProxy = config.Spec.KappController.Config.HTTPSProxy
+	}
+	if config.Spec.KappController.Config.NoProxy != "" {
+		configSpec.KappController.Config.NoProxy = config.Spec.KappController.Config.NoProxy
+	}
+
 	configSpec.KappController.Config.DangerousSkipTLSVerify = config.Spec.KappController.Config.DangerousSkipTLSVerify
 
 	return configSpec, nil

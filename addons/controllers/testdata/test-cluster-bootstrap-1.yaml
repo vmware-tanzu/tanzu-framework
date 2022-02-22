@@ -34,15 +34,15 @@ spec:
     variables:
       - name: tkg.tanzu.vmware.com/cni
         value: antrea
-      - name: TKG_HTTP_PROXY
+      - name: tkg.tanzu.vmware.com/tkg_http_proxy
         value: "foo.com"
-      - name: TKG_HTTPS_PROXY
+      - name: tkg.tanzu.vmware.com/tkg_https_proxy
         value: "bar.com"
-      - name: TKG_NO_PROXY
+      - name: tkg.tanzu.vmware.com/tkg_no_proxy
         value: "foobar.com"
-      - name: TKG_PROXY_CA_CERT
+      - name: tkg.tanzu.vmware.com/tkg_proxy_ca_cert
         value: "dummyCertificate"
-      - name: TKG_IP_FAMILY
+      - name: tkg.tanzu.vmware.com/tkg_ip_family
         value: "ipv4"
 ---
 apiVersion: run.tanzu.vmware.com/v1alpha3

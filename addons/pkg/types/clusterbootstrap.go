@@ -6,17 +6,17 @@ package types
 
 const (
 	// HTTPProxyConfigAnnotation is the cluster HTTP proxy annotation key
-	HTTPProxyConfigAnnotation = "TKG_HTTP_PROXY"
+	HTTPProxyConfigAnnotation = "tkg.tanzu.vmware.com/tkg_http_proxy"
 
 	// HTTPSProxyConfigAnnotation is the cluster HTTPS proxy annotation key
-	HTTPSProxyConfigAnnotation = "TKG_HTTPS_PROXY"
+	HTTPSProxyConfigAnnotation = "tkg.tanzu.vmware.com/tkg_https_proxy"
 
 	// NoProxyConfigAnnotation is the cluster no-proxy annotation key
-	NoProxyConfigAnnotation = "TKG_NO_PROXY"
+	NoProxyConfigAnnotation = "tkg.tanzu.vmware.com/tkg_no_proxy"
 
 	// ProxyCACertConfigAnnotation is the cluster proxy CA certificate annotation key
-	ProxyCACertConfigAnnotation = "TKG_PROXY_CA_CERT"
+	ProxyCACertConfigAnnotation = "tkg.tanzu.vmware.com/tkg_proxy_ca_cert"
 
 	// IPFamilyConfigAnnotation is the cluster IP family annotation key
-	IPFamilyConfigAnnotation = "TKG_IP_FAMILY"
+	IPFamilyConfigAnnotation = "tkg.tanzu.vmware.com/tkg_ip_family"
 )

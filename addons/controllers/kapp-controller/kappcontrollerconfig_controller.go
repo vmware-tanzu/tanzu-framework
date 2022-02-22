@@ -14,7 +14,6 @@ import (
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
-	"k8s.io/utils/pointer"
 	clusterapiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
 	clusterapiutil "sigs.k8s.io/cluster-api/util"
 	clusterapipatchutil "sigs.k8s.io/cluster-api/util/patch"
@@ -50,8 +49,12 @@ func (r *KappControllerConfigReconciler) Reconcile(ctx context.Context, req ctrl
 	// get kapp-controller config object
 	kappControllerConfig := &runv1alpha3.KappControllerConfig{}
 	if err := r.Client.Get(ctx, req.NamespacedName, kappControllerConfig); err != nil {
-		log.Error(err, "Unable to fetch kappControllerConfig")
-		return ctrl.Result{}, nil
+		if apierrors.IsNotFound(err) {
+			r.Log.Info("kappControllerConfig resource not found")
+			return ctrl.Result{}, nil
+		}
+		r.Log.Error(err, "Unable to fetch kappControllerConfig resource")
+		return ctrl.Result{}, err
 	}
 	// Deepcopy to prevent client-go cache conflict
 	kappControllerConfig = kappControllerConfig.DeepCopy()
@@ -138,11 +141,10 @@ func (r *KappControllerConfigReconciler) ReconcileKappControllerConfigNormal(
 
 	// add owner reference to kappControllerConfig
 	ownerReference := metav1.OwnerReference{
-		APIVersion:         clusterapiv1beta1.GroupVersion.String(),
-		Kind:               cluster.Kind,
-		Name:               cluster.Name,
-		UID:                cluster.UID,
-		BlockOwnerDeletion: pointer.BoolPtr(false),
+		APIVersion: clusterapiv1beta1.GroupVersion.String(),
+		Kind:       cluster.Kind,
+		Name:       cluster.Name,
+		UID:        cluster.UID,
 	}
 
 	if !clusterapiutil.HasOwnerRef(kappControllerConfig.OwnerReferences, ownerReference) {
@@ -173,6 +175,12 @@ func (r *KappControllerConfigReconciler) ReconcileKappControllerConfigDataValue(
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      util.GenerateDataValueSecretName(kappControllerConfig.Name, KappControllerAddonName),
 			Namespace: cluster.Namespace,
+			OwnerReferences: []metav1.OwnerReference{{
+				APIVersion: clusterapiv1beta1.GroupVersion.String(),
+				Kind:       cluster.Kind,
+				Name:       cluster.Name,
+				UID:        cluster.UID,
+			}},
 		},
 	}
 
