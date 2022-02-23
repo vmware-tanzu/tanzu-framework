@@ -137,19 +137,19 @@ const (
 	DefaultCNISelectionClusterVariableName = "tkg.tanzu.vmware.com/cni"
 
 	// DefaultHTTPProxyClusterClassVarName is the default cluster variable name for HTTP proxy setting
-	DefaultHTTPProxyClusterClassVarName = "tkg.tanzu.vmware.com/tkg_http_proxy"
+	DefaultHTTPProxyClusterClassVarName = "tkg.tanzu.vmware.com/tkg-http-proxy"
 
 	// DefaultHTTPSProxyClusterClassVarName is the default cluster variable name for HTTPS proxy setting
-	DefaultHTTPSProxyClusterClassVarName = "tkg.tanzu.vmware.com/tkg_https_proxy"
+	DefaultHTTPSProxyClusterClassVarName = "tkg.tanzu.vmware.com/tkg-https-proxy"
 
 	// DefaultNoProxyClusterClassVarName is the default cluster variable name for no proxy setting
-	DefaultNoProxyClusterClassVarName = "tkg.tanzu.vmware.com/tkg_no_proxy"
+	DefaultNoProxyClusterClassVarName = "tkg.tanzu.vmware.com/tkg-no-proxy"
 
 	// DefaultProxyCaCertClusterClassVarName is the default cluster variable name for proxy CA cert
-	DefaultProxyCaCertClusterClassVarName = "tkg.tanzu.vmware.com/tkg_proxy_ca_cert"
+	DefaultProxyCaCertClusterClassVarName = "tkg.tanzu.vmware.com/tkg-proxy-ca-cert"
 
 	// DefaultIPFamilyClusterClassVarName is the default cluster variable name for ip family
-	DefaultIPFamilyClusterClassVarName = "tkg.tanzu.vmware.com/tkg_ip_family"
+	DefaultIPFamilyClusterClassVarName = "tkg.tanzu.vmware.com/tkg-ip-family"
 )
 
 // ClusterKind is the Kind for cluster-api Cluster object

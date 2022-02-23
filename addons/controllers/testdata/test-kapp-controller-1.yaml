@@ -5,11 +5,11 @@ metadata:
   name: test-kapp-controller-1
   namespace: default
   annotations:
-    tkg.tanzu.vmware.com/tkg_http_proxy: "foo.com"
-    tkg.tanzu.vmware.com/tkg_https_proxy: "bar.com"
-    tkg.tanzu.vmware.com/tkg_no_proxy: "foobar.com"
-    tkg.tanzu.vmware.com/tkg_proxy_ca_cert: "dummyCertificate"
-    tkg.tanzu.vmware.com/tkg_ip_family: "ipv4"
+    tkg.tanzu.vmware.com/tkg-http-proxy: "foo.com"
+    tkg.tanzu.vmware.com/tkg-https-proxy: "bar.com"
+    tkg.tanzu.vmware.com/tkg-no-proxy: "foobar.com"
+    tkg.tanzu.vmware.com/tkg-proxy-ca-cert: "dummyCertificate"
+    tkg.tanzu.vmware.com/tkg-ip-family: "ipv4"
 spec:
   clusterNetwork:
     pods:
