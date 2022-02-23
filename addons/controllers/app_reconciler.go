@@ -30,7 +30,7 @@ type AppReconciler struct {
 	log           logr.Logger
 	ctx           context.Context
 	clusterClient client.Client
-	Config        addonconfig.Config
+	Config        addonconfig.AddonControllerConfig
 }
 
 // ReconcileAddonKappResourceNormal reconciles and creates App CR

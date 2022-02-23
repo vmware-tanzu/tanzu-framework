@@ -104,6 +104,30 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 				return false
 			}, waitTimeout, pollingInterval).Should(BeTrue())
 
+			// Verify Proxy Configurations
+			Eventually(func() bool {
+				err := k8sClient.Get(ctx, client.ObjectKeyFromObject(cluster), clusterBootstrap)
+				if err != nil {
+					return false
+				}
+
+				err = k8sClient.Get(ctx, client.ObjectKeyFromObject(cluster), cluster)
+				if err != nil {
+					return false
+				}
+
+				if cluster.Annotations != nil &&
+					cluster.Annotations[addontypes.HTTPProxyConfigAnnotation] == "foo.com" &&
+					cluster.Annotations[addontypes.HTTPSProxyConfigAnnotation] == "bar.com" &&
+					cluster.Annotations[addontypes.NoProxyConfigAnnotation] == "foobar.com" &&
+					cluster.Annotations[addontypes.ProxyCACertConfigAnnotation] == "dummyCertificate" &&
+					cluster.Annotations[addontypes.IPFamilyConfigAnnotation] == "ipv4" {
+					return true
+				}
+
+				return false
+			}, waitTimeout, pollingInterval).Should(BeTrue())
+
 			var gvr schema.GroupVersionResource
 			var object *unstructured.Unstructured
 			var fooPackage *runtanzuv1alpha3.ClusterBootstrapPackage
