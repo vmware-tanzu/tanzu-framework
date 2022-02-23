@@ -222,14 +222,14 @@ export class NodeSettingStepComponent extends NodeSettingStepDirective<string> i
         // It will cause the selected option to be invalid all the time.
         if (this.isClusterPlanDev) {
             const devInstanceType = this.nodeTypes.length === 1 ? this.nodeTypes[0] :
-                this.formGroup.get(AwsField.NODESETTING_INSTANCE_TYPE_DEV).value;
-            this.resurrectField(AwsField.NODESETTING_INSTANCE_TYPE_DEV,
+                this.formGroup.get(NodeSettingField.INSTANCE_TYPE_DEV).value;
+            this.resurrectField(NodeSettingField.INSTANCE_TYPE_DEV,
             [Validators.required, this.validationService.isValidNameInList(this.nodeTypes)],
             devInstanceType);
         } else {
             const prodInstanceType = this.nodeTypes.length === 1 ? this.nodeTypes[0] :
-                this.formGroup.get(AwsField.NODESETTING_INSTANCE_TYPE_PROD).value;
-            this.resurrectField(AwsField.NODESETTING_INSTANCE_TYPE_PROD,
+                this.formGroup.get(NodeSettingField.INSTANCE_TYPE_PROD).value;
+            this.resurrectField(NodeSettingField.INSTANCE_TYPE_PROD,
                 [Validators.required, this.validationService.isValidNameInList(this.nodeTypes)],
                 prodInstanceType);
         }
@@ -271,7 +271,7 @@ export class NodeSettingStepComponent extends NodeSettingStepDirective<string> i
             AwsField.NODESETTING_AZ_3,
             AwsField.NODESETTING_WORKERTYPE_2,
             AwsField.NODESETTING_WORKERTYPE_3,
-            AwsField.NODESETTING_INSTANCE_TYPE_PROD
+            NodeSettingField.INSTANCE_TYPE_PROD
         ];
         prodFields.forEach(attr => this.disarmField(attr.toString(), true));
         if (this.nodeAzs && this.nodeAzs.length === 1) {

@@ -6,8 +6,9 @@ import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 // App imports
 import { APIClient } from '../../../../swagger/api-client.service';
 import AppServices from 'src/app/shared/service/appServices';
-import { AzureField, AzureForm } from '../azure-wizard.constants';
+import { AzureForm } from '../azure-wizard.constants';
 import { Messenger, TanzuEventType } from 'src/app/shared/service/Messenger';
+import { NodeSettingField } from '../../wizard/shared/components/steps/node-setting-step/node-setting-step.fieldmapping';
 import { NodeSettingStepComponent } from './node-setting-step.component';
 import { SharedModule } from '../../../../shared/shared.module';
 import { ValidationService } from '../../wizard/shared/validation/validation.service';
@@ -54,9 +55,9 @@ describe('NodeSettingStepComponent', () => {
 
     it('should be invalid when cluster name has leading/trailing spaces', () => {
         fixture.whenStable().then(() => {
-            component.formGroup.get(AzureField.NODESETTING_MANAGEMENT_CLUSTER_NAME).setValue(" test");
+            component.formGroup.get(NodeSettingField.CLUSTER_NAME).setValue(" test");
             expect(component.formGroup.valid).toBeFalsy();
-            component.formGroup.get(AzureField.NODESETTING_MANAGEMENT_CLUSTER_NAME).setValue("test   ");
+            component.formGroup.get(NodeSettingField.CLUSTER_NAME).setValue("test   ");
             expect(component.formGroup.valid).toBeFalsy();
         });
     });

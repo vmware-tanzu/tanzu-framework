@@ -27,13 +27,6 @@ export enum AzureForm {
     VNET = 'vnetForm'
 }
 export enum AzureField {
-    NODESETTING_ENABLE_AUDIT_LOGGING = 'enableAuditLogging',
-    NODESETTING_INSTANCE_TYPE_DEV = 'devInstanceType',
-    NODESETTING_INSTANCE_TYPE_PROD = 'prodInstanceType',
-    NODESETTING_MACHINE_HEALTH_CHECKS_ENABLED = 'machineHealthChecksEnabled',
-    NODESETTING_MANAGEMENT_CLUSTER_NAME = 'clusterName',
-    NODESETTING_WORKERTYPE = 'workerNodeInstanceType',
-
 /*
     NOTE: these enum values are used by backend endpoints, so do not change them:
     PROVIDER_AZURECLOUD

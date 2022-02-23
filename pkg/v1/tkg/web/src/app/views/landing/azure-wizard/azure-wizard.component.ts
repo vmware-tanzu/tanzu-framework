@@ -23,6 +23,7 @@ import { VnetStepComponent } from './vnet-step/vnet-step.component';
 import { ExportService } from '../../../shared/service/export.service';
 import { FormDataForHTML, FormUtility } from '../wizard/shared/components/steps/form-utility';
 import { ImportParams, ImportService } from "../../../shared/service/import.service";
+import { NodeSettingField } from '../wizard/shared/components/steps/node-setting-step/node-setting-step.fieldmapping';
 import { NodeSettingStepComponent } from './node-setting-step/node-setting-step.component';
 import { OsImageField } from '../wizard/shared/components/steps/os-image-step/os-image-step.fieldmapping';
 import { TanzuEventType } from '../../../shared/service/Messenger';
@@ -95,14 +96,14 @@ export class AzureWizardComponent extends WizardBaseDirective implements OnInit 
         mappings.forEach(attr => payload[attr[0]] = this.getFieldValue(attr[1], attr[2]));
 
         payload.controlPlaneFlavor = this.getStoredClusterPlan(AzureForm.NODESETTING);
-        const nodeTypeField = payload.controlPlaneFlavor === 'prod' ? AzureField.NODESETTING_INSTANCE_TYPE_PROD
-            : AzureField.NODESETTING_INSTANCE_TYPE_DEV;
+        const nodeTypeField = payload.controlPlaneFlavor === 'prod' ? NodeSettingField.INSTANCE_TYPE_PROD
+            : NodeSettingField.INSTANCE_TYPE_DEV;
         payload.controlPlaneMachineType = this.getFieldValue(AzureForm.NODESETTING, nodeTypeField);
 
         payload.workerMachineType = AppServices.appDataService.isModeClusterStandalone() ? payload.controlPlaneMachineType :
-            this.getFieldValue(AzureForm.NODESETTING, AzureField.NODESETTING_WORKERTYPE);
+            this.getFieldValue(AzureForm.NODESETTING, NodeSettingField.WORKER_NODE_INSTANCE_TYPE);
         payload.machineHealthCheckEnabled =
-            this.getBooleanFieldValue(AzureForm.NODESETTING, AzureField.NODESETTING_MACHINE_HEALTH_CHECKS_ENABLED);
+            this.getBooleanFieldValue(AzureForm.NODESETTING, NodeSettingField.MACHINE_HEALTH_CHECKS_ENABLED);
 
         const resourceGroupOption = this.getFieldValue(AzureForm.PROVIDER, AzureField.PROVIDER_RESOURCEGROUPOPTION);
         const resourceGroupField = resourceGroupOption === ResourceGroupOption.EXISTING ? AzureField.PROVIDER_RESOURCEGROUPEXISTING :
@@ -134,7 +135,7 @@ export class AzureWizardComponent extends WizardBaseDirective implements OnInit 
         }
         vnetAttrs.forEach(attr => payload[attr[0]] = this.getFieldValue(attr[1], attr[2]));
 
-        payload.enableAuditLogging = this.getBooleanFieldValue(AzureForm.NODESETTING, AzureField.NODESETTING_ENABLE_AUDIT_LOGGING);
+        payload.enableAuditLogging = this.getBooleanFieldValue(AzureForm.NODESETTING, NodeSettingField.ENABLE_AUDIT_LOGGING);
 
         this.initPayloadWithCommons(payload);
 
@@ -168,14 +169,14 @@ export class AzureWizardComponent extends WizardBaseDirective implements OnInit 
             this.storeFieldString(AzureForm.PROVIDER, AzureField.PROVIDER_REGION, payload["location"]);
 
             this.setStoredClusterPlan(AzureForm.NODESETTING, payload.controlPlaneFlavor);
-            const instanceTypeField = payload.controlPlaneFlavor === 'prod' ? AzureField.NODESETTING_INSTANCE_TYPE_PROD
-                : AzureField.NODESETTING_INSTANCE_TYPE_DEV;
+            const instanceTypeField = payload.controlPlaneFlavor === 'prod' ? NodeSettingField.INSTANCE_TYPE_PROD
+                : NodeSettingField.INSTANCE_TYPE_DEV;
             this.storeFieldString(AzureForm.NODESETTING, instanceTypeField, payload.controlPlaneMachineType);
 
             if (!AppServices.appDataService.isModeClusterStandalone()) {
-                this.storeFieldString(AzureForm.NODESETTING, AzureField.NODESETTING_WORKERTYPE, payload.workerMachineType);
+                this.storeFieldString(AzureForm.NODESETTING, NodeSettingField.WORKER_NODE_INSTANCE_TYPE, payload.workerMachineType);
             }
-            this.storeFieldBoolean(AzureForm.NODESETTING, AzureField.NODESETTING_MACHINE_HEALTH_CHECKS_ENABLED,
+            this.storeFieldBoolean(AzureForm.NODESETTING, NodeSettingField.MACHINE_HEALTH_CHECKS_ENABLED,
                 payload.machineHealthCheckEnabled);
 
             // Since we cannot tell if the resource group is custom or existing, we load it into the custom field.
@@ -202,7 +203,7 @@ export class AzureWizardComponent extends WizardBaseDirective implements OnInit 
             if (payload.isPrivateCluster) {
                 this.storeFieldString(AzureForm.VNET, AzureField.VNET_PRIVATE_IP, payload.frontendPrivateIp);
             }
-            this.storeFieldBoolean(AzureForm.NODESETTING, AzureField.NODESETTING_ENABLE_AUDIT_LOGGING, payload.enableAuditLogging);
+            this.storeFieldBoolean(AzureForm.NODESETTING, NodeSettingField.ENABLE_AUDIT_LOGGING, payload.enableAuditLogging);
 
             this.storeFieldString(WizardForm.OSIMAGE, OsImageField.IMAGE, payload.os.name);
 
@@ -223,11 +224,11 @@ export class AzureWizardComponent extends WizardBaseDirective implements OnInit 
      * Return management/standalone cluster name
      */
     getMCName() {
-        return this.getFieldValue(AzureForm.NODESETTING, AzureField.NODESETTING_MANAGEMENT_CLUSTER_NAME);
+        return this.getFieldValue(AzureForm.NODESETTING, NodeSettingField.CLUSTER_NAME);
     }
 
     saveMCName(clusterName: string) {
-        this.storeFieldString(AzureForm.NODESETTING, AzureField.NODESETTING_MANAGEMENT_CLUSTER_NAME, clusterName);
+        this.storeFieldString(AzureForm.NODESETTING, NodeSettingField.CLUSTER_NAME, clusterName);
     }
 
     /**

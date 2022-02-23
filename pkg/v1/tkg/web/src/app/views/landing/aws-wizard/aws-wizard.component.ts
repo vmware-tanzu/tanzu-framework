@@ -113,13 +113,13 @@ export class AwsWizardComponent extends WizardBaseDirective implements OnInit {
         payload.loadbalancerSchemeInternal = this.getBooleanFieldValue(AwsForm.VPC, AwsField.VPC_NON_INTERNET_FACING);
         payload.sshKeyName = this.getFieldValue(AwsForm.NODESETTING, AwsField.NODESETTING_SSH_KEY_NAME);
         payload.createCloudFormationStack = this.getFieldValue(AwsForm.NODESETTING, AwsField.NODESETTING_CREATE_CLOUD_FORMATION) || false;
-        payload.clusterName = this.getFieldValue(AwsForm.NODESETTING, AwsField.NODESETTING_CLUSTER_NAME);
+        payload.clusterName = this.getFieldValue(AwsForm.NODESETTING, NodeSettingField.CLUSTER_NAME);
         payload.controlPlaneFlavor = this.getStoredClusterPlan(AwsForm.NODESETTING);
-        const nodeTypeField = payload.controlPlaneFlavor === ClusterPlan.PROD ? AwsField.NODESETTING_INSTANCE_TYPE_PROD
-            : AwsField.NODESETTING_INSTANCE_TYPE_DEV;
+        const nodeTypeField = payload.controlPlaneFlavor === ClusterPlan.PROD ? NodeSettingField.INSTANCE_TYPE_PROD
+            : NodeSettingField.INSTANCE_TYPE_DEV;
         payload.controlPlaneNodeType = this.getFieldValue(AwsForm.NODESETTING, nodeTypeField);
         payload.bastionHostEnabled = this.getBooleanFieldValue(AwsForm.NODESETTING, AwsField.NODESETTING_BASTION_HOST_ENABLED);
-        const machineHealthChecksEnabled = this.getFieldValue(AwsForm.NODESETTING, AwsField.NODESETTING_MACHINE_HEALTH_CHECKS_ENABLED);
+        const machineHealthChecksEnabled = this.getFieldValue(AwsForm.NODESETTING, NodeSettingField.MACHINE_HEALTH_CHECKS_ENABLED);
         payload.machineHealthCheckEnabled = (machineHealthChecksEnabled === true);
         payload.vpc = {
             cidr: (this.getFieldValue(AwsForm.VPC, AwsField.VPC_TYPE) === VpcType.EXISTING) ?
@@ -129,7 +129,7 @@ export class AwsWizardComponent extends WizardBaseDirective implements OnInit {
             azs: this.getAwsNodeAzs(payload)
         };
 
-        payload.enableAuditLogging = this.getBooleanFieldValue(AwsForm.NODESETTING, AwsField.NODESETTING_ENABLE_AUDIT_LOGGING);
+        payload.enableAuditLogging = this.getBooleanFieldValue(AwsForm.NODESETTING, NodeSettingField.ENABLE_AUDIT_LOGGING);
         this.initPayloadWithCommons(payload);
 
         return payload;
@@ -144,20 +144,19 @@ export class AwsWizardComponent extends WizardBaseDirective implements OnInit {
             }
             this.storeFieldString(AwsForm.NODESETTING, AwsField.NODESETTING_SSH_KEY_NAME, payload.sshKeyName);
             this.storeFieldBoolean(AwsForm.NODESETTING, AwsField.NODESETTING_CREATE_CLOUD_FORMATION, payload.createCloudFormationStack);
-            this.storeFieldString(AwsForm.NODESETTING, AwsField.NODESETTING_CLUSTER_NAME, payload.clusterName);
+            this.storeFieldString(AwsForm.NODESETTING, NodeSettingField.CLUSTER_NAME, payload.clusterName);
 
             this.setStoredClusterPlan(AwsForm.NODESETTING, payload.controlPlaneFlavor);
             if (payload.controlPlaneFlavor === InstanceType.DEV) {
-                this.storeFieldString(AwsForm.NODESETTING, AwsField.NODESETTING_INSTANCE_TYPE_DEV, payload.controlPlaneNodeType);
+                this.storeFieldString(AwsForm.NODESETTING, NodeSettingField.INSTANCE_TYPE_DEV, payload.controlPlaneNodeType);
             } else if (payload.controlPlaneFlavor === InstanceType.PROD) {
-                this.storeFieldString(AwsForm.NODESETTING, AwsField.NODESETTING_INSTANCE_TYPE_PROD, payload.controlPlaneNodeType);
+                this.storeFieldString(AwsForm.NODESETTING, NodeSettingField.INSTANCE_TYPE_PROD, payload.controlPlaneNodeType);
             }
             this.storeFieldBoolean(AwsForm.NODESETTING, AwsField.NODESETTING_BASTION_HOST_ENABLED, payload.bastionHostEnabled);
-            this.storeFieldBoolean(AwsForm.NODESETTING, AwsField.NODESETTING_MACHINE_HEALTH_CHECKS_ENABLED,
-                payload.machineHealthCheckEnabled);
+            this.storeFieldBoolean(AwsForm.NODESETTING, NodeSettingField.MACHINE_HEALTH_CHECKS_ENABLED, payload.machineHealthCheckEnabled);
             this.storeFieldString(AwsForm.VPC, AwsField.VPC_EXISTING_ID, (payload.vpc) ? payload.vpc.vpcID : '');
             this.storeFieldBoolean(AwsForm.VPC, AwsField.VPC_NON_INTERNET_FACING, payload.loadbalancerSchemeInternal)
-            this.storeFieldBoolean(AwsForm.NODESETTING, AwsField.NODESETTING_ENABLE_AUDIT_LOGGING, payload.enableAuditLogging);
+            this.storeFieldBoolean(AwsForm.NODESETTING, NodeSettingField.ENABLE_AUDIT_LOGGING, payload.enableAuditLogging);
             this.storeVpcFields(payload.vpc);
 
             this.storeFieldString('osImageForm', 'osImage', payload.os.name);
@@ -241,7 +240,7 @@ export class AwsWizardComponent extends WizardBaseDirective implements OnInit {
      * Return management/standalone cluster name
      */
     getMCName() {
-        return this.getFieldValue(AwsForm.NODESETTING, AwsField.NODESETTING_CLUSTER_NAME);
+        return this.getFieldValue(AwsForm.NODESETTING, NodeSettingField.CLUSTER_NAME);
     }
 
     /**

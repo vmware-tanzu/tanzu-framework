@@ -2,8 +2,8 @@
 import { Component, OnInit } from '@angular/core';
 // App imports
 import AppServices from '../../../../shared/service/appServices';
-import { AzureField } from '../azure-wizard.constants';
 import { AzureInstanceType } from 'src/app/swagger/models';
+import { NodeSettingField } from '../../wizard/shared/components/steps/node-setting-step/node-setting-step.fieldmapping';
 import { NodeSettingStepDirective } from '../../wizard/shared/components/steps/node-setting-step/node-setting-step.component';
 import { TanzuEventType } from '../../../../shared/service/Messenger';
 import { ValidationService } from '../../wizard/shared/validation/validation.service';
@@ -34,7 +34,7 @@ export class NodeSettingStepComponent extends NodeSettingStepDirective<AzureInst
     private onFetchedInstanceTypes(instanceTypes: AzureInstanceType[]) {
         this.nodeTypes = instanceTypes.sort();
         if (!this.modeClusterStandalone && this.nodeTypes.length === 1) {
-            this.formGroup.get(AzureField.NODESETTING_WORKERTYPE).setValue(this.nodeTypes[0].name);
+            this.formGroup.get(NodeSettingField.WORKER_NODE_INSTANCE_TYPE).setValue(this.nodeTypes[0].name);
         }
     }
 }
