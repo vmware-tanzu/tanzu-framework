@@ -10,6 +10,14 @@ import (
 	clusterv1 "sigs.k8s.io/cluster-api/api/v1beta1"
 )
 
+const (
+	LabelImageType = "image-type"
+	LabelOSType    = "os-type"
+	LabelOSName    = "os-name"
+	LabelOSVersion = "os-version"
+	LabelOSArch    = "os-arch"
+)
+
 // OSInfo describes the "OS" part of the OSImage, defined by the Operating System's name, version and CPU architecture.
 type OSInfo struct {
 	Type    string `json:"type"`

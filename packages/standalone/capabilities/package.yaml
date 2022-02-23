@@ -1,0 +1,22 @@
+apiVersion: data.packaging.carvel.dev/v1alpha1
+kind: Package
+metadata:
+  name: capabilities.tanzu.vmware.com
+spec:
+  refName: capabilities.tanzu.vmware.com
+  version: VERSION
+  template:
+    spec:
+      fetch:
+        - imgpkgBundle:
+            image: # This value is set at the build time
+      template:
+        - ytt:
+            paths:
+              - config/
+        - kbld:
+            paths:
+              - "-"
+              - .imgpkg/images.yml
+      deploy:
+        - kapp: {}

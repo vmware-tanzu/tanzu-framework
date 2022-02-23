@@ -27,10 +27,10 @@ resources:
   kind: AntreaConfig
   version: v1alpha1
 - group: run
-  kind: TanzuClusterBootstrap
+  kind: ClusterBootstrap
   version: v1alpha3
 - group: run
-  kind: TanzuClusterBootstrapTemplate
+  kind: ClusterBootstrapTemplate
   version: v1alpha3
 - group: run
   kind: KappControllerConfig

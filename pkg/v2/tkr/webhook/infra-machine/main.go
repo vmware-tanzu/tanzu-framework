@@ -79,7 +79,7 @@ func main() {
 func getFieldMappingConfiguration() (map[string]string, error) {
 	fieldMapConfig, ok := os.LookupEnv("FIELD_PATH_MAP_CONFIG")
 	if !ok || fieldMapConfig == "" {
-		return nil, errors.New("env variable FIELD_PATH_MAPPING_CONFIG is required and should be set")
+		return nil, errors.New("env variable FIELD_PATH_MAP_CONFIG is required and should be set")
 	}
 
 	fieldPathMap := make(map[string]string, 1)

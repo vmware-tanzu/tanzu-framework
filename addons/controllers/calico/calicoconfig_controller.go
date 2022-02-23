@@ -61,22 +61,22 @@ func (r *CalicoConfigReconciler) Reconcile(ctx context.Context, req ctrl.Request
 	calicoConfig = calicoConfig.DeepCopy()
 
 	// config resources are expected to have the same name as the cluster. However, we ideally try to read the cluster name from the owner reference of the addon config object
-	clusterName := req.NamespacedName.Name
+	clusterNamespacedName := req.NamespacedName
+	cluster := &clusterapiv1beta1.Cluster{}
 	for _, ownerRef := range calicoConfig.GetOwnerReferences() {
-		if ownerRef.Kind == "Cluster" {
-			clusterName = ownerRef.Name
+		if ownerRef.Kind == constants.ClusterKind {
+			clusterNamespacedName.Name = ownerRef.Name
 			break
 		}
 	}
 
 	// verify that the cluster related to config is present
-	cluster := &clusterapiv1beta1.Cluster{}
-	if err := r.Client.Get(ctx, types.NamespacedName{Namespace: req.Namespace, Name: clusterName}, cluster); err != nil {
+	if err := r.Client.Get(ctx, clusterNamespacedName, cluster); err != nil {
 		if apierrors.IsNotFound(err) {
-			r.Log.Info(fmt.Sprintf("Cluster resource '%s/%s' not found", req.Namespace, clusterName))
+			r.Log.Info(fmt.Sprintf("Cluster resource '%s/%s' not found", clusterNamespacedName.Namespace, clusterNamespacedName.Name))
 			return ctrl.Result{}, nil
 		}
-		r.Log.Error(err, fmt.Sprintf("Unable to fetch cluster '%s/%s'", req.Namespace, clusterName))
+		r.Log.Error(err, fmt.Sprintf("Unable to fetch cluster '%s/%s'", clusterNamespacedName.Namespace, clusterNamespacedName.Name))
 		return ctrl.Result{}, err
 	}
 

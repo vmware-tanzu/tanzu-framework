@@ -64,6 +64,8 @@ type Client interface {
 	GetDefaultBoMFilePath() (string, error)
 	// GetDefaultBoMFileName returns name of default BoM file
 	GetDefaultBoMFileName() (string, error)
+	// GetManagementPackageRepositoryImage returns management package repository image
+	GetManagementPackageRepositoryImage() (string, error)
 }
 
 func (c *client) TKGConfigReaderWriter() tkgconfigreaderwriter.TKGConfigReaderWriter {

@@ -61,8 +61,8 @@ func (c *TkgClient) DescribeCluster(options DescribeTKGClustersOptions) (*cluste
 
 	objs, err := clusterctltree.Discovery(ctx, f, options.Namespace, options.ClusterName, clusterctltree.DiscoverOptions{
 		ShowOtherConditions: options.ShowOtherConditions,
-		DisableNoEcho:       options.ShowDetails,
-		DisableGrouping:     options.ShowGroupMembers,
+		Echo:                options.ShowDetails,
+		Grouping:            options.ShowGroupMembers,
 	})
 	if err != nil {
 		return nil, nil, nil, err

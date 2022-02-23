@@ -1,7 +1,7 @@
 // Copyright 2021 VMware, Inc. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-package tkgpackageclient
+package tkgpackageclient_test
 
 import (
 	. "github.com/onsi/ginkgo"
@@ -14,12 +14,13 @@ import (
 	kapppkg "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apiserver/apis/datapackaging/v1alpha1"
 
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/fakes"
+	. "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgpackageclient"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgpackagedatamodel"
 )
 
 var _ = Describe("List Packages", func() {
 	var (
-		ctl     *pkgClient
+		ctl     TKGPackageClient
 		kappCtl *fakes.KappClient
 		err     error
 		opts    = tkgpackagedatamodel.PackageOptions{
@@ -53,7 +54,8 @@ var _ = Describe("List Packages", func() {
 		BeforeEach(func() {
 			kappCtl = &fakes.KappClient{}
 			kappCtl.ListPackageMetadataReturns(nil, errors.New("failure in ListPackageMetadata"))
-			ctl = &pkgClient{kappClient: kappCtl}
+			ctl, err = NewTKGPackageClientWithKappClient(kappCtl)
+			Expect(err).NotTo(HaveOccurred())
 			pkgMetadataList, err = ctl.ListPackageMetadata(&optionsAvailable)
 		})
 		It(testFailureMsg, func() {
@@ -68,7 +70,8 @@ var _ = Describe("List Packages", func() {
 		BeforeEach(func() {
 			kappCtl = &fakes.KappClient{}
 			kappCtl.ListPackageMetadataReturns(packageMetadataList, nil)
-			ctl = &pkgClient{kappClient: kappCtl}
+			ctl, err = NewTKGPackageClientWithKappClient(kappCtl)
+			Expect(err).NotTo(HaveOccurred())
 			pkgMetadataList, err = ctl.ListPackageMetadata(&optionsAvailable)
 		})
 		It(testSuccessMsg, func() {
@@ -83,7 +86,8 @@ var _ = Describe("List Packages", func() {
 		BeforeEach(func() {
 			kappCtl = &fakes.KappClient{}
 			kappCtl.ListPackageInstallsReturns(nil, errors.New("failure in ListPackageInstalls"))
-			ctl = &pkgClient{kappClient: kappCtl}
+			ctl, err = NewTKGPackageClientWithKappClient(kappCtl)
+			Expect(err).NotTo(HaveOccurred())
 			packageInstalls, err = ctl.ListPackageInstalls(&options)
 		})
 		It(testFailureMsg, func() {
@@ -98,7 +102,8 @@ var _ = Describe("List Packages", func() {
 		BeforeEach(func() {
 			kappCtl = &fakes.KappClient{}
 			kappCtl.ListPackageInstallsReturns(pkgInstallList, nil)
-			ctl = &pkgClient{kappClient: kappCtl}
+			ctl, err = NewTKGPackageClientWithKappClient(kappCtl)
+			Expect(err).NotTo(HaveOccurred())
 			packageInstalls, err = ctl.ListPackageInstalls(&options)
 		})
 		It(testSuccessMsg, func() {
@@ -114,7 +119,8 @@ var _ = Describe("List Packages", func() {
 			optionsAvailable.PackageName = testPkgInstallName
 			kappCtl = &fakes.KappClient{}
 			kappCtl.ListPackagesReturns(nil, errors.New("failure in ListPackages"))
-			ctl = &pkgClient{kappClient: kappCtl}
+			ctl, err = NewTKGPackageClientWithKappClient(kappCtl)
+			Expect(err).NotTo(HaveOccurred())
 			packageVersions, err = ctl.ListPackages(&optionsAvailable)
 		})
 		It(testFailureMsg, func() {
@@ -130,7 +136,8 @@ var _ = Describe("List Packages", func() {
 			optionsAvailable.PackageName = testPkgInstallName
 			kappCtl = &fakes.KappClient{}
 			kappCtl.ListPackagesReturns(testPkgVersionList, nil)
-			ctl = &pkgClient{kappClient: kappCtl}
+			ctl, err = NewTKGPackageClientWithKappClient(kappCtl)
+			Expect(err).NotTo(HaveOccurred())
 			packageVersions, err = ctl.ListPackages(&optionsAvailable)
 		})
 		It(testSuccessMsg, func() {

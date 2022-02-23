@@ -24,7 +24,7 @@ var (
 // PublishCmd publishes plugin resources
 var PublishCmd = &cobra.Command{
 	Use:   "publish",
-	Short: "publish operations",
+	Short: "Publish operations",
 	RunE:  publishPlugins,
 }
 

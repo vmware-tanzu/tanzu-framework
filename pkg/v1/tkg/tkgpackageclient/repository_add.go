@@ -118,7 +118,7 @@ func (p *pkgClient) newPackageRepository(repositoryName, repositoryImg, namespac
 		}},
 	}
 
-	_, tag, err := parseRegistryImageURL(repositoryImg)
+	_, tag, err := ParseRegistryImageURL(repositoryImg)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to parse OCI registry URL")
 	}

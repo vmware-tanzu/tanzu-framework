@@ -187,11 +187,11 @@ func (p *pkgClient) updateDataValuesSecret(o *tkgpackagedatamodel.PackageOptions
 	if dataValues[filepath.Base(o.ValuesFile)], err = os.ReadFile(o.ValuesFile); err != nil {
 		return errors.Wrap(err, fmt.Sprintf("failed to read from data values file '%s'", o.ValuesFile))
 	}
-	secret = &corev1.Secret{
+	Secret = &corev1.Secret{
 		ObjectMeta: metav1.ObjectMeta{Name: o.SecretName, Namespace: o.Namespace}, Data: dataValues,
 	}
 
-	if err := p.kappClient.GetClient().Update(context.Background(), secret); err != nil {
+	if err := p.kappClient.GetClient().Update(context.Background(), Secret); err != nil {
 		return errors.Wrap(err, "failed to update Secret resource")
 	}
 

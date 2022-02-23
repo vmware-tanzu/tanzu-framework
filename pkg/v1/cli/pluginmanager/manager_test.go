@@ -636,6 +636,51 @@ func TestVerifyArtifactLocation(t *testing.T) {
 			err := verifyArtifactLocation(tc.uri)
 			if tc.errStr != "" {
 				assert.EqualError(t, err, tc.errStr)
+			} else {
+				assert.NoError(t, err)
+			}
+		})
+	}
+}
+
+func TestVerifyPluginPostDownload(t *testing.T) {
+	tcs := []struct {
+		name string
+		p    *plugin.Discovered
+		d    string
+		path string
+		err  string
+	}{
+		{
+			name: "success - no source digest",
+			p:    &plugin.Discovered{Name: "login"},
+			path: "test/local/distribution/v0.2.0/tanzu-login-darwin_amd64",
+		},
+		{
+			name: "success - with source digest",
+			p:    &plugin.Discovered{Name: "login"},
+			d:    "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+			path: "test/local/distribution/v0.2.0/tanzu-login-darwin_amd64",
+		},
+		{
+			name: "failure - digest mismatch",
+			p:    &plugin.Discovered{Name: "login"},
+			d:    "f3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+			path: "test/local/distribution/v0.2.0/tanzu-login-darwin_amd64",
+			err:  "plugin \"login\" has been corrupted during download. source digest: f3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855, actual digest: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+		},
+	}
+
+	for _, tc := range tcs {
+		t.Run(tc.name, func(t *testing.T) {
+			b, err := os.ReadFile(tc.path)
+			assert.NoError(t, err)
+
+			err = verifyPluginPostDownload(tc.p, tc.d, b)
+			if tc.err != "" {
+				assert.EqualError(t, err, tc.err)
+			} else {
+				assert.NoError(t, err)
 			}
 		})
 	}

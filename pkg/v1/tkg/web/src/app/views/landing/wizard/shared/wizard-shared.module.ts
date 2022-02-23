@@ -71,7 +71,7 @@ import LabelsComponent from './components/widgets/labels/labels.component';
         TreeSelectComponent,
         VsphereLoadBalancerStepComponent,
         VsphereNetworkStepComponent,
-        VsphereOsImageStepComponent,
+        VsphereOsImageStepComponent
     ],
     providers: [
         FieldMapUtilities,

@@ -14,6 +14,8 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgpackagedatamodel"
 )
 
+//go:generate counterfeiter -o ../fakes/tkgpackageclient.go --fake-name TKGPackageClient . TKGPackageClient
+
 // TKGPackageClient is the TKG package client interface
 type TKGPackageClient interface {
 	AddRegistrySecret(o *tkgpackagedatamodel.RegistrySecretOptions) error

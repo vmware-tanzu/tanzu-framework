@@ -24,7 +24,8 @@ import (
 
 var packageAvailableGetCmd = &cobra.Command{
 	Use:   "get PACKAGE_NAME or PACKAGE_NAME/VERSION",
-	Short: "Get details for an available package or the openAPI schema of a package with a specific version",
+	Short: "Get details for an available package",
+	Long:  "Get details for an available package or the openAPI schema of a package with a specific version",
 	Args:  cobra.ExactArgs(1),
 	Example: `
     # Get package details for a package without specifying the version

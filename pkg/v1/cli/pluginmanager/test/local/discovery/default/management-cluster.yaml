@@ -7,17 +7,17 @@ spec:
   artifacts:
     v0.2.0:
       - uri: v0.2.0/tanzu-management-cluster-darwin_amd64
-        digest: 5df2a0d87d6c562f0ea11c688ac52532aa28d744cabc7994ff0537f64b3b3320
+        digest: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
         os: darwin
         arch: amd64
         type: local
       - uri: v0.2.0/tanzu-management-cluster-linux_amd64
-        digest: 5df2a0d87d6c562f0ea11c688ac52532aa28d744cabc7994ff0537f64b3b3320
+        digest: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
         os: linux
         arch: amd64
         type: local
       - uri: v0.2.0/tanzu-management-cluster-windows_amd64
-        digest: 5df2a0d87d6c562f0ea11c688ac52532aa28d744cabc7994ff0537f64b3b3320
+        digest: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
         os: windows
         arch: amd64
         type: local

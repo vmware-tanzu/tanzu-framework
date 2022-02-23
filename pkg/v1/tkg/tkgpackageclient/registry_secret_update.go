@@ -19,20 +19,20 @@ import (
 )
 
 var (
-	secret       = &corev1.Secret{}
-	secretExport = &secretgenctrl.SecretExport{}
+	Secret       = &corev1.Secret{}
+	SecretExport = &secretgenctrl.SecretExport{}
 )
 
 // UpdateRegistrySecret updates a registry Secret in the cluster
 func (p *pkgClient) UpdateRegistrySecret(o *tkgpackagedatamodel.RegistrySecretOptions) error {
-	if err := p.kappClient.GetClient().Get(context.Background(), crtclient.ObjectKey{Name: o.SecretName, Namespace: o.Namespace}, secret); err != nil {
+	if err := p.kappClient.GetClient().Get(context.Background(), crtclient.ObjectKey{Name: o.SecretName, Namespace: o.Namespace}, Secret); err != nil {
 		if apierrors.IsNotFound(err) {
 			return fmt.Errorf("secret '%s' does not exist in namespace '%s'", o.SecretName, o.Namespace)
 		}
 		return err
 	}
 
-	registry, username, password, err := extractExistingSecretCredentials(secret, o)
+	registry, username, password, err := extractExistingSecretCredentials(Secret, o)
 	if err != nil {
 		return err
 	}
@@ -51,12 +51,12 @@ func (p *pkgClient) UpdateRegistrySecret(o *tkgpackagedatamodel.RegistrySecretOp
 		password = o.Password
 	}
 
-	dockerCfg := DockerConfigJSON{Auths: map[string]dockerConfigEntry{registry: {Username: username, Password: password}}}
+	dockerCfg := DockerConfigJSON{Auths: map[string]DockerConfigEntry{registry: {Username: username, Password: password}}}
 	dockerCfgContent, err := json.Marshal(dockerCfg)
 	if err != nil {
 		return err
 	}
-	secretToUpdate := secret.DeepCopy()
+	secretToUpdate := Secret.DeepCopy()
 	secretToUpdate.Data[corev1.DockerConfigJsonKey] = dockerCfgContent
 
 	if err := p.kappClient.GetClient().Update(context.Background(), secretToUpdate); err != nil {
@@ -121,28 +121,28 @@ func (p *pkgClient) UpdateSecretExport(o *tkgpackagedatamodel.RegistrySecretOpti
 	}
 
 	if *o.Export.ExportToAllNamespaces {
-		err := p.kappClient.GetClient().Get(context.Background(), crtclient.ObjectKey{Name: o.SecretName, Namespace: o.Namespace}, secretExport)
+		err := p.kappClient.GetClient().Get(context.Background(), crtclient.ObjectKey{Name: o.SecretName, Namespace: o.Namespace}, SecretExport)
 		if err != nil {
 			if !apierrors.IsNotFound(err) {
 				return err
 			}
-			secretExport = p.newSecretExport(o.SecretName, o.Namespace)
-			if err := p.kappClient.GetClient().Create(context.Background(), secretExport); err != nil {
+			SecretExport = p.newSecretExport(o.SecretName, o.Namespace)
+			if err := p.kappClient.GetClient().Create(context.Background(), SecretExport); err != nil {
 				return errors.Wrap(err, "failed to create SecretExport resource")
 			}
 			return nil
 		}
-		secretExportToUpdate := secretExport.DeepCopy()
+		secretExportToUpdate := SecretExport.DeepCopy()
 		secretExportToUpdate.Spec = secretgenctrl.SecretExportSpec{ToNamespaces: []string{"*"}}
 		if err := p.kappClient.GetClient().Update(context.Background(), secretExportToUpdate); err != nil {
 			return errors.Wrap(err, "failed to update SecretExport resource")
 		}
 	} else { // un-export already exported secrets
-		secretExport = &secretgenctrl.SecretExport{
+		SecretExport = &secretgenctrl.SecretExport{
 			TypeMeta:   metav1.TypeMeta{Kind: tkgpackagedatamodel.KindSecretExport, APIVersion: secretgenctrl.SchemeGroupVersion.String()},
 			ObjectMeta: metav1.ObjectMeta{Name: o.SecretName, Namespace: o.Namespace},
 		}
-		if err := p.kappClient.GetClient().Delete(context.Background(), secretExport); err != nil {
+		if err := p.kappClient.GetClient().Delete(context.Background(), SecretExport); err != nil {
 			if !apierrors.IsNotFound(err) {
 				return errors.Wrap(err, "failed to delete SecretExport resource")
 			}

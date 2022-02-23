@@ -1,7 +1,7 @@
 // Copyright 2021 VMware, Inc. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-package tkgpackageclient
+package tkgpackageclient_test
 
 import (
 	. "github.com/onsi/ginkgo"
@@ -11,12 +11,13 @@ import (
 	kappipkg "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/packaging/v1alpha1"
 
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/fakes"
+	. "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgpackageclient"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgpackagedatamodel"
 )
 
 var _ = Describe("Get Repository", func() {
 	var (
-		ctl     *pkgClient
+		ctl     TKGPackageClient
 		kappCtl *fakes.KappClient
 		err     error
 		opts    = tkgpackagedatamodel.RepositoryOptions{
@@ -28,7 +29,8 @@ var _ = Describe("Get Repository", func() {
 	)
 
 	JustBeforeEach(func() {
-		ctl = &pkgClient{kappClient: kappCtl}
+		ctl, err = NewTKGPackageClientWithKappClient(kappCtl)
+		Expect(err).NotTo(HaveOccurred())
 		repository, err = ctl.GetRepository(&options)
 	})
 

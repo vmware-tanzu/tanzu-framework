@@ -6,6 +6,7 @@ package util
 import (
 	"context"
 
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	runtanzuv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha1"
@@ -24,6 +25,9 @@ func GetTKRByName(ctx context.Context, c client.Client, tkrName string) (*runtan
 	}
 
 	if err := c.Get(ctx, tkrNamespaceName, tkr); err != nil {
+		if apierrors.IsNotFound(err) {
+			return nil, nil
+		}
 		return nil, err
 	}
 

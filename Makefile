@@ -44,7 +44,7 @@ TOOLING_BINARIES   := $(GOLANGCI_LINT) $(YTT) $(KBLD) $(VENDIR) $(IMGPKG) $(KAPP
 export REPO_VERSION ?= $(BUILD_VERSION)
 
 PINNIPED_GIT_REPOSITORY = https://github.com/vmware-tanzu/pinniped.git
-PINNIPED_VERSIONS = v0.4.4 v0.12.0
+PINNIPED_VERSIONS = v0.4.4 v0.12.1
 
 ifndef IS_OFFICIAL_BUILD
 IS_OFFICIAL_BUILD = ""
@@ -670,7 +670,7 @@ e2e-tkgpackageclient-docker: $(GINKGO) generate-embedproviders ## Run ginkgo tkg
 # These are the components in this repo that need to have a docker image built.
 # This variable refers to directory paths that contain a Makefile with `docker-build`, `docker-publish` and
 # `kbld-image-replace` targets that can build and push a docker image for that component.
-COMPONENTS := pkg/v1/sdk/features addons cliplugins pkg/v2/tkr/webhook/infra-machine
+COMPONENTS := pkg/v1/sdk/features addons cliplugins pkg/v2/tkr/webhook/infra-machine pkg/v1/sdk/capabilities
 
 .PHONY: docker-build
 docker-build: TARGET=docker-build

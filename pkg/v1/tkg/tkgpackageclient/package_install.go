@@ -233,7 +233,7 @@ func (p *pkgClient) createOrUpdateDataValuesSecret(o *tkgpackagedatamodel.Packag
 	if dataValues[filepath.Base(o.ValuesFile)], err = os.ReadFile(o.ValuesFile); err != nil {
 		return false, errors.Wrap(err, fmt.Sprintf("failed to read from data values file '%s'", o.ValuesFile))
 	}
-	secret = &corev1.Secret{
+	Secret = &corev1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:        o.SecretName,
 			Namespace:   o.Namespace,
@@ -242,9 +242,9 @@ func (p *pkgClient) createOrUpdateDataValuesSecret(o *tkgpackagedatamodel.Packag
 		Data: dataValues,
 	}
 
-	if err := p.kappClient.GetClient().Create(context.Background(), secret); err != nil {
+	if err := p.kappClient.GetClient().Create(context.Background(), Secret); err != nil {
 		if k8serror.IsAlreadyExists(err) {
-			if err := p.kappClient.GetClient().Update(context.Background(), secret); err != nil {
+			if err := p.kappClient.GetClient().Update(context.Background(), Secret); err != nil {
 				return false, err
 			}
 		} else {
