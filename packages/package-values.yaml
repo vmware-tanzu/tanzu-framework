@@ -36,10 +36,10 @@ managementPackageRepository:
       version: latest
       #! Gets replaced with imgpkg sha256 at build, this should be name:version
       sha256: "core-management-plugins:latest"
-    - name: addons-manager
-      displayName: addons-manager
+    - name: addons-manager-v2
+      displayName: addons-manager-v2
       #! Relative path to package bundle
-      path: packages/management/addons-manager
+      path: packages/management/addons-manager-v2
       domain: tanzu.vmware.com
       version: latest
       #! Gets replaced with imgpkg sha256 at build, this should be name:version
