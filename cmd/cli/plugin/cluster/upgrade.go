@@ -86,8 +86,7 @@ func init() {
 	upgradeClusterCmd.Flags().StringVarP(&uc.vSphereTemplateName, "vsphere-vm-template-name", "", "", "The vSphere VM template to be used with upgraded kubernetes version. Discovered automatically if not provided")
 	upgradeClusterCmd.Flags().MarkHidden("vsphere-vm-template-name") //nolint
 
-	upgradeClusterCmd.Flags().StringVarP(&uc.vSphereWindowsTemplateName, "vsphere-windows-vm-template-name", "", "", "The vSphere Windows VM template to be used with upgraded kubernetes version. Discovered automatically if not provided")
-	upgradeClusterCmd.Flags().MarkHidden("vsphere-windows-vm-template-name") //nolint
+	upgradeClusterCmd.Flags().StringVarP(&uc.vSphereWindowsTemplateName, "vsphere-windows-vm-template-name", "", "", "The vSphere Windows VM template to be used with upgraded kubernetes version. It MUST be provided for Windows Cluster Upgrade.")
 }
 
 func upgrade(cmd *cobra.Command, args []string) error {

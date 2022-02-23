@@ -1079,19 +1079,15 @@ func (c *TkgClient) createVsphereInfrastructureTemplateForUpgrade(regionalCluste
 	clusterUpgradeConfig.UpgradeComponentInfo.VSphereVMTemplateMOID = vSphereVM.Moid
 
 	// Add Windows Template
-	if clusterUpgradeConfig.UpgradeComponentInfo.VSphereVMTemplateName != "" {
-		vSphereWindowsVM, err := vcClient.GetAndValidateVirtualMachineTemplate(
-			tkrBom.GetOVAVersions(),
-			clusterUpgradeConfig.UpgradeComponentInfo.TkrVersion,
+	if clusterUpgradeConfig.UpgradeComponentInfo.VSphereWindowsVMTemplateName != "" {
+		vSphereWindowsMOID, err := vcClient.FindVirtualMachineTemplateMOIDByName(
 			clusterUpgradeConfig.UpgradeComponentInfo.VSphereWindowsVMTemplateName,
 			dcName,
-			c.TKGConfigReaderWriter(),
 		)
 		if err != nil {
-			return errors.Wrap(err, "unable to get/verify vsphere template")
+			return errors.Wrap(err, "unable to get/verify windows vsphere template")
 		}
-		clusterUpgradeConfig.UpgradeComponentInfo.VSphereWindowsVMTemplateName = vSphereWindowsVM.Name
-		clusterUpgradeConfig.UpgradeComponentInfo.VSphereWindowsVMTemplateMOID = vSphereWindowsVM.Moid
+		clusterUpgradeConfig.UpgradeComponentInfo.VSphereWindowsVMTemplateMOID = vSphereWindowsMOID
 	}
 
 	if err := c.createVSphereControlPlaneMachineTemplate(regionalClusterClient, kcp, clusterUpgradeConfig); err != nil {
