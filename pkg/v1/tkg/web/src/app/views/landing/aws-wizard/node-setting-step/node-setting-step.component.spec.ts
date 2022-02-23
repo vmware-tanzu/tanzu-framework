@@ -251,8 +251,7 @@ describe('NodeSettingStepComponent', () => {
         component.formGroup.get(AwsField.NODESETTING_VPC_PUBLIC_SUBNET_1).setValue('100.63.0.0/14');
         component.formGroup.get(AwsField.NODESETTING_VPC_PRIVATE_SUBNET_1).setValue('100.54.0.0/14');
         component.ngOnInit();
-
-        component.formGroup.get(AwsField.NODESETTING_CONTROL_PLANE_SETTING).setValue('prod');
+        component.cardClickProd();
         const spySubnets = [];
         vpcSubnets.forEach(vpcSubnet => {
             spySubnets.push(spyOn(component.formGroup.get(vpcSubnet), 'setValidators').and.callThrough());
@@ -310,8 +309,7 @@ describe('NodeSettingStepComponent', () => {
             }
         });
 
-        const controlPlaneSettingControl = component.formGroup.controls[AwsField.NODESETTING_CONTROL_PLANE_SETTING];
-        controlPlaneSettingControl.setValue(ClusterPlan.DEV);
+        component.cardClickDev();
         expect(msgSpy).toHaveBeenCalledWith({
             type: TanzuEventType.STEP_DESCRIPTION_CHANGE,
             payload: {
@@ -321,7 +319,7 @@ describe('NodeSettingStepComponent', () => {
             }
         });
 
-        controlPlaneSettingControl.setValue(ClusterPlan.PROD);
+        component.cardClickProd();
         expect(msgSpy).toHaveBeenCalledWith({
             type: TanzuEventType.STEP_DESCRIPTION_CHANGE,
             payload: {

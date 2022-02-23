@@ -94,7 +94,7 @@ export class AzureWizardComponent extends WizardBaseDirective implements OnInit 
 
         mappings.forEach(attr => payload[attr[0]] = this.getFieldValue(attr[1], attr[2]));
 
-        payload.controlPlaneFlavor = this.getFieldValue(AzureForm.NODESETTING, AzureField.NODESETTING_CONTROL_PLANE_SETTING);
+        payload.controlPlaneFlavor = this.getStoredClusterPlan(AzureForm.NODESETTING);
         const nodeTypeField = payload.controlPlaneFlavor === 'prod' ? AzureField.NODESETTING_INSTANCE_TYPE_PROD
             : AzureField.NODESETTING_INSTANCE_TYPE_DEV;
         payload.controlPlaneMachineType = this.getFieldValue(AzureForm.NODESETTING, nodeTypeField);
@@ -167,7 +167,7 @@ export class AzureWizardComponent extends WizardBaseDirective implements OnInit 
             this.storeFieldString(AzureForm.PROVIDER, AzureField.PROVIDER_SSHPUBLICKEY, payload["sshPublicKey"]);
             this.storeFieldString(AzureForm.PROVIDER, AzureField.PROVIDER_REGION, payload["location"]);
 
-            this.storeFieldString(AzureForm.NODESETTING, AzureField.NODESETTING_CONTROL_PLANE_SETTING, payload.controlPlaneFlavor);
+            this.setStoredClusterPlan(AzureForm.NODESETTING, payload.controlPlaneFlavor);
             const instanceTypeField = payload.controlPlaneFlavor === 'prod' ? AzureField.NODESETTING_INSTANCE_TYPE_PROD
                 : AzureField.NODESETTING_INSTANCE_TYPE_DEV;
             this.storeFieldString(AzureForm.NODESETTING, instanceTypeField, payload.controlPlaneMachineType);

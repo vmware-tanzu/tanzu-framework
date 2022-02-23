@@ -20,7 +20,6 @@ export enum AwsField {
     NODESETTING_AZ_3 = 'awsNodeAz3',
     NODESETTING_BASTION_HOST_ENABLED = 'bastionHostEnabled',
     NODESETTING_CLUSTER_NAME = 'clusterName',
-    NODESETTING_CONTROL_PLANE_SETTING = 'controlPlaneSetting',
     NODESETTING_CREATE_CLOUD_FORMATION = 'createCloudFormation',
     NODESETTING_ENABLE_AUDIT_LOGGING = 'enableAuditLogging',
     NODESETTING_INSTANCE_TYPE_DEV = 'devInstanceType',

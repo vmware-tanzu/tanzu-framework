@@ -1,12 +1,10 @@
 // Angular imports
-import { OnInit, ElementRef, AfterViewInit, ViewChild, Directive, Type } from '@angular/core';
+import { Directive, ElementRef, OnInit, Type, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Title } from '@angular/platform-browser';
 // Third party imports
-import { ClrStepper } from '@clr/angular';
-import { debounceTime, take, takeUntil } from 'rxjs/operators';
-import FileSaver from 'file-saver';
+import { takeUntil } from 'rxjs/operators';
 import { Observable } from 'rxjs';
 // App imports
 import { APP_ROUTES, Routes } from 'src/app/shared/constants/routes.constants';
@@ -36,6 +34,7 @@ import {
     TanzuEventType
 } from './../../../../../shared/service/Messenger';
 import { StepWrapperSetComponent } from '../step-wrapper/step-wrapper-set.component';
+import { NodeSettingField } from '../components/steps/node-setting-step/node-setting-step.fieldmapping';
 
 // This interface describes a wizard that can register a step component
 export interface WizardStepRegistrar {
@@ -755,5 +754,14 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Wiz
     protected storeMap(step: string, field: string, map: Map<string, string>) {
         const identifier = { wizard: this.supplyWizardName(), step, field };
         AppServices.userDataService.storeMap(identifier, map);
+    }
+
+    protected getStoredClusterPlan(step: string): string {
+        return AppServices.userDataService.retrieveStoredValue(this.wizardName, step, {name: NodeSettingField.CLUSTER_PLAN});
+    }
+
+    protected setStoredClusterPlan(step, clusterPlan: string) {
+        const identifier = {wizard: this.wizardName, step, field: NodeSettingField.CLUSTER_PLAN};
+        AppServices.userDataService.store(identifier, {display: clusterPlan, value: clusterPlan});
     }
 }

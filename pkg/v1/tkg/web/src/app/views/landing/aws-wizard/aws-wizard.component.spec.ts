@@ -10,8 +10,7 @@ import AppServices from 'src/app/shared/service/appServices';
 import { AwsField, AwsForm, VpcType } from './aws-wizard.constants';
 import { AwsWizardComponent } from './aws-wizard.component';
 import { CeipField } from '../wizard/shared/components/steps/ceip-step/ceip-step.fieldmapping';
-import { ClusterType, WizardForm } from "../wizard/shared/constants/wizard.constants";
-import { FieldMapUtilities } from '../wizard/shared/field-mapping/FieldMapUtilities';
+import { ClusterPlan, ClusterType, WizardForm } from "../wizard/shared/constants/wizard.constants";
 import { Messenger } from 'src/app/shared/service/Messenger';
 import { MetadataField } from '../wizard/shared/components/steps/metadata-step/metadata-step.fieldmapping';
 import { NetworkField } from '../wizard/shared/components/steps/network-step/network-step.fieldmapping';
@@ -130,7 +129,6 @@ describe('AwsWizardComponent', () => {
             [AwsForm.VPC, AwsField.VPC_TYPE, VpcType.NEW],
             [AwsForm.NODESETTING, AwsField.NODESETTING_AZ_1, 'us-west-a'],
             [AwsForm.NODESETTING, AwsField.NODESETTING_BASTION_HOST_ENABLED, true],
-            [AwsForm.NODESETTING, AwsField.NODESETTING_CONTROL_PLANE_SETTING, 'dev'],
             [AwsForm.NODESETTING, AwsField.NODESETTING_INSTANCE_TYPE_DEV, 't3.medium'],
             [AwsForm.NODESETTING, AwsField.NODESETTING_SSH_KEY_NAME, 'default'],
             [AwsForm.NODESETTING, NodeSettingField.WORKER_NODE_INSTANCE_TYPE, 't3.small'],
@@ -154,8 +152,11 @@ describe('AwsWizardComponent', () => {
         });
         // NOTE: because cluster labels are pulled from storage (not a DOM control) we have to put the test values in storage
         const clusterLabels = new Map<string, string>([['key1', 'value1']]);
-        const identifier = { wizard: component.wizardName, step: WizardForm.METADATA, field: 'clusterLabels'};
-        AppServices.userDataService.storeMap(identifier, clusterLabels);
+        const identifierClusterLabels = { wizard: component.wizardName, step: WizardForm.METADATA, field: 'clusterLabels'};
+        AppServices.userDataService.storeMap(identifierClusterLabels, clusterLabels);
+        // NOTE: because cluster plan is pulled from storage (not a DOM control) we have to put the test values in storage
+        const identifierClusterPlan = { wizard: component.wizardName, step: AwsForm.NODESETTING, field: NodeSettingField.CLUSTER_PLAN };
+        AppServices.userDataService.store(identifierClusterPlan, { display: ClusterPlan.DEV, value: ClusterPlan.DEV });
 
         const payload = component.getPayload();
         expect(payload.awsAccountParams).toEqual({

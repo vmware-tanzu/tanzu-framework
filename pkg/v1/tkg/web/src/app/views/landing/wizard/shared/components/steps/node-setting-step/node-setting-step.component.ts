@@ -136,13 +136,26 @@ export abstract class NodeSettingStepDirective<NODEINSTANCE> extends StepFormDir
         const clusterNameMapping = AppServices.fieldMapUtilities.getFieldMapping(NodeSettingField.CLUSTER_NAME, stepMapping);
         clusterNameMapping.label = this.createClusterNameLabel();
         clusterNameMapping.required = this.isClusterNameRequired();
+        // add retriever/restorer for cluster plan entry
+        const clusterPlanMapping = AppServices.fieldMapUtilities.getFieldMapping(NodeSettingField.CLUSTER_PLAN, stepMapping);
+        clusterPlanMapping.restorer = this.setClusterPlan.bind(this);
+        clusterPlanMapping.retriever = this.getClusterPlan.bind(this);
 
         return stepMapping;
     }
 
     protected chooseInitialClusterPlan() {
-        const prodInstanceType = this.getStoredValue(NodeSettingField.INSTANCE_TYPE_PROD, this.supplyStepMapping());
-        prodInstanceType ? this.cardClickProd() : this.cardClickDev();
+        // we first check if the cluster plan type was stored
+        const storedClusterPlan = this.getStoredValue(NodeSettingField.CLUSTER_PLAN, this.supplyStepMapping());
+        if (storedClusterPlan === ClusterPlan.PROD) {
+            this.cardClickProd();
+        } else if (storedClusterPlan === ClusterPlan.DEV) {
+            this.cardClickDev();
+        } else {
+            // there was no cluster plan type stored, but if there was an instance type for prod, we'll assume a PROD cluster plan
+            const prodInstanceType = this.getStoredValue(NodeSettingField.INSTANCE_TYPE_PROD, this.supplyStepMapping());
+            prodInstanceType ? this.cardClickProd() : this.cardClickDev();
+        }
     }
 
     // This method may be USED by subclasses, but should not be overwritten; subclasses should overwrite createStepMapping() instead.
@@ -190,6 +203,14 @@ export abstract class NodeSettingStepDirective<NODEINSTANCE> extends StepFormDir
 
     get isClusterPlanDev(): boolean {
         return this.clusterPlan === ClusterPlan.DEV;
+    }
+
+    private setClusterPlan(newClusterPlan: string) {
+        this.clusterPlan = newClusterPlan;
+    }
+
+    private getClusterPlan(): string {
+        return this.clusterPlan;
     }
 
     // TODO: this method is for testing classes; find another way

@@ -46,12 +46,12 @@ describe('NodeSettingStepComponent', () => {
     });
 
     it('should set correct value for card clicking', () => {
-        component.cardClick('prod');
+        component.cardClickProd();
         expect(component.formGroup.controls['controlPlaneSetting'].value).toBe('prod')
     });
 
     it('should get correct env value', () => {
-        component.cardClick('prod');
+        component.cardClickProd();
         expect(component.isClusterPlanProd).toBeTrue();
     });
 

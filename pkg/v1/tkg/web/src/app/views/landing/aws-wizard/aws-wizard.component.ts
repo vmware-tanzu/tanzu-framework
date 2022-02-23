@@ -114,7 +114,7 @@ export class AwsWizardComponent extends WizardBaseDirective implements OnInit {
         payload.sshKeyName = this.getFieldValue(AwsForm.NODESETTING, AwsField.NODESETTING_SSH_KEY_NAME);
         payload.createCloudFormationStack = this.getFieldValue(AwsForm.NODESETTING, AwsField.NODESETTING_CREATE_CLOUD_FORMATION) || false;
         payload.clusterName = this.getFieldValue(AwsForm.NODESETTING, AwsField.NODESETTING_CLUSTER_NAME);
-        payload.controlPlaneFlavor = this.getFieldValue(AwsForm.NODESETTING, AwsField.NODESETTING_CONTROL_PLANE_SETTING);
+        payload.controlPlaneFlavor = this.getStoredClusterPlan(AwsForm.NODESETTING);
         const nodeTypeField = payload.controlPlaneFlavor === ClusterPlan.PROD ? AwsField.NODESETTING_INSTANCE_TYPE_PROD
             : AwsField.NODESETTING_INSTANCE_TYPE_DEV;
         payload.controlPlaneNodeType = this.getFieldValue(AwsForm.NODESETTING, nodeTypeField);
@@ -146,7 +146,7 @@ export class AwsWizardComponent extends WizardBaseDirective implements OnInit {
             this.storeFieldBoolean(AwsForm.NODESETTING, AwsField.NODESETTING_CREATE_CLOUD_FORMATION, payload.createCloudFormationStack);
             this.storeFieldString(AwsForm.NODESETTING, AwsField.NODESETTING_CLUSTER_NAME, payload.clusterName);
 
-            this.storeFieldString(AwsForm.NODESETTING, AwsField.NODESETTING_CONTROL_PLANE_SETTING, payload.controlPlaneFlavor);
+            this.setStoredClusterPlan(AwsForm.NODESETTING, payload.controlPlaneFlavor);
             if (payload.controlPlaneFlavor === InstanceType.DEV) {
                 this.storeFieldString(AwsForm.NODESETTING, AwsField.NODESETTING_INSTANCE_TYPE_DEV, payload.controlPlaneNodeType);
             } else if (payload.controlPlaneFlavor === InstanceType.PROD) {

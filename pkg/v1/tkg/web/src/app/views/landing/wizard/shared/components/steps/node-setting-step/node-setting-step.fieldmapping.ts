@@ -2,6 +2,7 @@ import { StepMapping } from '../../../field-mapping/FieldMapping';
 import { SimpleValidator } from '../../../constants/validation.constants';
 
 export enum NodeSettingField {
+    CLUSTER_PLAN = 'clusterPlan',   // note: there is no actual DOM FIELD associated with this value, which is 'dev' or 'prod'
     CLUSTER_NAME = 'clusterName',
     INSTANCE_TYPE_DEV = 'devInstanceType',
     INSTANCE_TYPE_PROD = 'prodInstanceType',
@@ -12,6 +13,7 @@ export enum NodeSettingField {
 
 export const NodeSettingStepMapping: StepMapping = {
     fieldMappings: [
+        { name: NodeSettingField.CLUSTER_PLAN, hasNoDomControl: true },
         { name: NodeSettingField.CLUSTER_NAME, label: 'CLUSTER NAME', validators: [SimpleValidator.IS_VALID_CLUSTER_NAME] },
         { name: NodeSettingField.INSTANCE_TYPE_DEV, label: 'INSTANCE TYPE', primaryTrigger: true },
         { name: NodeSettingField.INSTANCE_TYPE_PROD, label: 'INSTANCE TYPE', primaryTrigger: true },

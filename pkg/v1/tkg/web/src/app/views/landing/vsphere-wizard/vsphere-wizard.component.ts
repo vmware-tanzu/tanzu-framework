@@ -10,7 +10,7 @@ import { APIClient } from '../../../swagger/api-client.service';
 import { APP_ROUTES, Routes } from '../../../shared/constants/routes.constants';
 import AppServices from "../../../shared/service/appServices";
 import { CliFields, CliGenerator } from '../wizard/shared/utils/cli-generator';
-import { ClusterPlan, WizardForm, WizardStep } from '../wizard/shared/constants/wizard.constants';
+import { ClusterPlan, WizardForm } from '../wizard/shared/constants/wizard.constants';
 import { ExportService } from '../../../shared/service/export.service';
 import { FormDataForHTML, FormUtility } from '../wizard/shared/components/steps/form-utility';
 import { ImportParams, ImportService } from "../../../shared/service/import.service";
@@ -110,15 +110,14 @@ export class VSphereWizardComponent extends WizardBaseDirective implements OnIni
             ['datacenter', VsphereForm.PROVIDER, VsphereField.PROVIDER_DATA_CENTER],
             ['ssh_key', VsphereForm.PROVIDER, VsphereField.PROVIDER_SSH_KEY],
             ['clusterName', VsphereForm.NODESETTING, VsphereField.NODESETTING_CLUSTER_NAME],
-            ['controlPlaneFlavor', VsphereForm.NODESETTING, VsphereField.NODESETTING_CONTROL_PLANE_SETTING],
             ['controlPlaneEndpoint', VsphereForm.NODESETTING, VsphereField.NODESETTING_CONTROL_PLANE_ENDPOINT_IP],
             ['datastore', VsphereForm.RESOURCE, VsphereField.RESOURCE_DATASTORE],
             ['folder', VsphereForm.RESOURCE, VsphereField.RESOURCE_VMFOLDER],
             ['resourcePool', VsphereForm.RESOURCE, VsphereField.RESOURCE_POOL]
         ];
         mappings.forEach(attr => payload[attr[0]] = this.getFieldValue(attr[1], attr[2]));
-        payload.controlPlaneNodeType =
-            this.getControlPlaneType(this.getFieldValue(VsphereForm.NODESETTING, VsphereField.NODESETTING_CONTROL_PLANE_SETTING));
+        payload.controlPlaneFlavor = this.getStoredClusterPlan(VsphereForm.NODESETTING);
+        payload.controlPlaneNodeType = this.getControlPlaneType(payload.controlPlaneFlavor);
         payload.workerNodeType = AppServices.appDataService.isModeClusterStandalone() ? payload.controlPlaneNodeType :
             this.getFieldValue(VsphereForm.NODESETTING, VsphereField.NODESETTING_WORKER_NODE_INSTANCE_TYPE);
         payload.machineHealthCheckEnabled =
@@ -165,15 +164,14 @@ export class VSphereWizardComponent extends WizardBaseDirective implements OnIni
             ['datacenter', VsphereForm.PROVIDER, VsphereField.PROVIDER_DATA_CENTER],
             ['ssh_key', VsphereForm.PROVIDER, VsphereField.PROVIDER_SSH_KEY],
             ['clusterName', VsphereForm.NODESETTING, VsphereField.NODESETTING_CLUSTER_NAME],
-            ['controlPlaneFlavor', VsphereForm.NODESETTING, VsphereField.NODESETTING_CONTROL_PLANE_SETTING],
             ['controlPlaneEndpoint', VsphereForm.NODESETTING, VsphereField.NODESETTING_CONTROL_PLANE_ENDPOINT_IP],
             ['datastore', VsphereForm.RESOURCE, VsphereField.RESOURCE_DATASTORE],
             ['folder', VsphereForm.RESOURCE, VsphereField.RESOURCE_VMFOLDER],
             ['resourcePool', VsphereForm.RESOURCE, VsphereField.RESOURCE_POOL]
         ];
         mappings.forEach(attr => this.storeFieldString(attr[1], attr[2], payload[attr[0]]));
+        this.setStoredClusterPlan(VsphereForm.NODESETTING, payload.controlPlaneFlavor);
 
-        this.storeFieldString(VsphereForm.NODESETTING, VsphereField.NODESETTING_CONTROL_PLANE_SETTING, payload.controlPlaneFlavor);
         if (payload.controlPlaneNodeType) {
             const instanceTypeField = payload.controlPlaneFlavor === 'prod' ? VsphereField.NODESETTING_INSTANCE_TYPE_PROD
                 : VsphereField.NODESETTING_INSTANCE_TYPE_DEV;

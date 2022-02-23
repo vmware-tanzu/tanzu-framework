@@ -27,7 +27,6 @@ export enum AzureForm {
     VNET = 'vnetForm'
 }
 export enum AzureField {
-    NODESETTING_CONTROL_PLANE_SETTING = 'controlPlaneSetting',
     NODESETTING_ENABLE_AUDIT_LOGGING = 'enableAuditLogging',
     NODESETTING_INSTANCE_TYPE_DEV = 'devInstanceType',
     NODESETTING_INSTANCE_TYPE_PROD = 'prodInstanceType',
