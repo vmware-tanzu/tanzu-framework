@@ -20,6 +20,7 @@ import { NodeSettingStepComponent } from './node-setting-step/node-setting-step.
 import { TanzuEventType } from '../../../shared/service/Messenger';
 import { WizardBaseDirective } from '../wizard/shared/wizard-base/wizard-base';
 import { WizardForm } from '../wizard/shared/constants/wizard.constants';
+import { DockerNodeSettingStepName } from './node-setting-step/node-setting-step.fieldmapping';
 
 @Component({
     selector: 'app-docker-wizard',
@@ -75,7 +76,7 @@ export class DockerWizardComponent extends WizardBaseDirective implements OnInit
         this.setFieldValue(WizardForm.NETWORK, NetworkField.CLUSTER_POD_CIDR,  payload.networking.clusterPodCIDR);
         this.setFieldValue(WizardForm.NETWORK, NetworkField.CNI_TYPE,  payload.networking.cniType);
 
-        this.setFieldValue('dockerNodeSettingForm', 'clusterName', payload.clusterName);
+        this.setFieldValue(DockerNodeSettingStepName, 'clusterName', payload.clusterName);
 
         this.storeProxyFieldsFromPayload(payload);
 
@@ -94,7 +95,7 @@ export class DockerWizardComponent extends WizardBaseDirective implements OnInit
             cniType: this.getFieldValue(WizardForm.NETWORK, NetworkField.CNI_TYPE)
         };
 
-        payload.clusterName = this.getFieldValue('dockerNodeSettingForm', 'clusterName');
+        payload.clusterName = this.getFieldValue(DockerNodeSettingStepName, 'clusterName');
 
         if (this.getFieldValue(WizardForm.NETWORK, NetworkField.PROXY_SETTINGS)) {
             let proxySettingsMap = null;
@@ -146,7 +147,7 @@ export class DockerWizardComponent extends WizardBaseDirective implements OnInit
      * Return management/standalone cluster name
      */
     getMCName() {
-        return this.getFieldValue('dockerNodeSettingForm', 'clusterName');
+        return this.getFieldValue(DockerNodeSettingStepName, 'clusterName');
     }
 
     /**
@@ -187,7 +188,7 @@ export class DockerWizardComponent extends WizardBaseDirective implements OnInit
     }
     get DockerNodeSettingForm(): FormDataForHTML {
         const title = FormUtility.titleCase(this.clusterTypeDescriptor) + ' Cluster Settings';
-        return { name: 'dockerNodeSettings', title: title, description: 'Optional: Specify the management cluster name',
+        return { name: DockerNodeSettingStepName, title: title, description: 'Optional: Specify the management cluster name',
             i18n: { title: 'node setting step name', description: 'node setting step description' },
         clazz: NodeSettingStepComponent};
     }
