@@ -369,16 +369,18 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
      * @param $event {string} datacenter moid value emitted from select change
      */
     private onDataCenterChange(nameDatacenter: string) {
-        if (this.datacenters) {
+        if (this.datacenters && this.datacenters.length) {
             let dcMoid = '';
             const datacenter = this.datacenters.find(dc => dc.name === nameDatacenter);
             if (datacenter && datacenter.moid) {
                 dcMoid = datacenter.moid;
             }
-            AppServices.messenger.publish({
-                type: TanzuEventType.VSPHERE_DATACENTER_CHANGED,
-                payload: dcMoid
-            });
+            if (dcMoid) {
+                AppServices.messenger.publish({
+                    type: TanzuEventType.VSPHERE_DATACENTER_CHANGED,
+                    payload: dcMoid
+                });
+            }
         }
     }
 
