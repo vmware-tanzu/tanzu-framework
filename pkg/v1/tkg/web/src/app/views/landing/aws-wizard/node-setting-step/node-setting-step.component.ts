@@ -11,11 +11,11 @@ import { AwsFieldDisplayOrder, AwsNodeSettingStepMapping } from './node-setting-
 import { AWSNodeAz } from '../../../../swagger/models/aws-node-az.model';
 import { AWSSubnet } from '../../../../swagger/models/aws-subnet.model';
 import { AzRelatedFieldsArray } from '../aws-wizard.component';
+import { NodeSettingField } from '../../wizard/shared/components/steps/node-setting-step/node-setting-step.fieldmapping';
+import { NodeSettingStepDirective } from '../../wizard/shared/components/steps/node-setting-step/node-setting-step.component';
 import { StepMapping } from '../../wizard/shared/field-mapping/FieldMapping';
 import { TanzuEventType } from '../../../../shared/service/Messenger';
 import { ValidationService } from '../../wizard/shared/validation/validation.service';
-import { NodeSettingStepDirective } from '../../wizard/shared/components/steps/node-setting-step/node-setting-step.component';
-import { NodeSettingField } from '../../wizard/shared/components/steps/node-setting-step/node-setting-step.fieldmapping';
 
 export interface AzNodeTypes {
     awsNodeAz1: Array<string>,

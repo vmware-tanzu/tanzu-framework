@@ -7,8 +7,8 @@ import AppServices from '../../../../../../../shared/service/appServices';
 import { FormUtils } from '../../../utils/form-utils';
 import { MetadataField, MetadataStepMapping } from './metadata-step.fieldmapping';
 import { StepFormDirective } from '../../../step-form/step-form';
-import { ValidationService } from '../../../validation/validation.service';
 import { StepMapping } from '../../../field-mapping/FieldMapping';
+import { ValidationService } from '../../../validation/validation.service';
 
 const LABEL_KEY_NAME = 'newLabelKey';
 const LABEL_VALUE_NAME = 'newLabelValue';

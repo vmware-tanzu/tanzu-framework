@@ -15,10 +15,10 @@ import { FieldMapUtilities } from '../wizard/shared/field-mapping/FieldMapUtilit
 import { Messenger } from 'src/app/shared/service/Messenger';
 import { MetadataField } from '../wizard/shared/components/steps/metadata-step/metadata-step.fieldmapping';
 import { NetworkField } from '../wizard/shared/components/steps/network-step/network-step.fieldmapping';
+import { NodeSettingField } from '../wizard/shared/components/steps/node-setting-step/node-setting-step.fieldmapping';
 import { NodeSettingStepComponent } from './node-setting-step/node-setting-step.component';
 import { SharedModule } from '../../../shared/shared.module';
 import { ValidationService } from '../wizard/shared/validation/validation.service';
-import { NodeSettingField } from '../wizard/shared/components/steps/node-setting-step/node-setting-step.fieldmapping';
 
 describe('AwsWizardComponent', () => {
     let component: AwsWizardComponent;

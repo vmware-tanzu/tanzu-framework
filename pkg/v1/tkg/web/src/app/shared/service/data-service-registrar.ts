@@ -125,8 +125,8 @@ export default class DataServiceRegistrar {
         if (result) {
             return result;
         }
-        console.error('DataServiceRegistrar tried to get entry for event ' + TanzuEventType[eventType] + ' but no such event has been' +
-        ' registered');
+        console.error('DataServiceRegistrar tried to get entry for event ' + TanzuEventType[eventType] +
+            ' but no such event has been registered');
         return null;
     }
 

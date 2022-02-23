@@ -2,14 +2,14 @@
 import { Component, OnInit } from '@angular/core';
 // Third party imports
 import { BehaviorSubject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
 import { LogMessage as NgxLogMessage } from 'ngx-log-monitor';
+import { takeUntil } from 'rxjs/operators';
 // App imports
 import { APP_ROUTES, Routes } from '../../../shared/constants/routes.constants';
 import AppServices from 'src/app/shared/service/appServices';
 import { BasicSubscriber } from '../../../shared/abstracts/basic-subscriber';
 import { EditionData } from '../../../shared/service/branding.service';
-import { TanzuEvent, TanzuEventType } from "../../../shared/service/Messenger";
+import { TanzuEventType } from "../../../shared/service/Messenger";
 import { WebsocketService } from '../../../shared/service/websocket.service';
 
 @Component({

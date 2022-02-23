@@ -3,8 +3,8 @@ import { Component } from '@angular/core';
 // App imports
 import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
 import { OsImageProviderInputs, SharedOsImageStepDirective } from '../../wizard/shared/components/steps/os-image-step/os-image-step.component';
-import { TanzuEventType } from '../../../../shared/service/Messenger';
 import { StepMapping } from '../../wizard/shared/field-mapping/FieldMapping';
+import { TanzuEventType } from '../../../../shared/service/Messenger';
 import { VsphereOsImageStepMapping } from './vsphere-os-image-step.fieldmapping';
 import { VSphereVirtualMachine } from '../../../../swagger/models';
 

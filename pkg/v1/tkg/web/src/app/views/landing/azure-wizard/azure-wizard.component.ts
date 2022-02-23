@@ -24,10 +24,10 @@ import { ExportService } from '../../../shared/service/export.service';
 import { FormDataForHTML, FormUtility } from '../wizard/shared/components/steps/form-utility';
 import { ImportParams, ImportService } from "../../../shared/service/import.service";
 import { NodeSettingStepComponent } from './node-setting-step/node-setting-step.component';
+import { OsImageField } from '../wizard/shared/components/steps/os-image-step/os-image-step.fieldmapping';
 import { TanzuEventType } from '../../../shared/service/Messenger';
 import { WizardBaseDirective } from '../wizard/shared/wizard-base/wizard-base';
 import { WizardForm } from '../wizard/shared/constants/wizard.constants';
-import { OsImageField } from '../wizard/shared/components/steps/os-image-step/os-image-step.fieldmapping';
 
 @Component({
     selector: 'app-azure-wizard',

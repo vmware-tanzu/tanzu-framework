@@ -4,7 +4,6 @@ import { StepFormDirective } from '../../wizard/shared/step-form/step-form';
 // App imports
 import AppServices from "../../../../shared/service/appServices";
 import { DockerNodeSettingStepMapping } from './node-setting-step.fieldmapping';
-import { TanzuEventType } from "../../../../shared/service/Messenger";
 
 @Component({
     selector: 'app-node-setting-step',

@@ -8,9 +8,9 @@ import { SharedNetworkStepComponent } from '../../wizard/shared/components/steps
 import { StepMapping } from '../../wizard/shared/field-mapping/FieldMapping';
 import { TanzuEventType } from '../../../../shared/service/Messenger';
 import { ValidationService } from '../../wizard/shared/validation/validation.service';
+import { VsphereField } from '../vsphere-wizard.constants';
 import { VSphereNetwork } from '../../../../swagger/models';
 import { VsphereNetworkFieldMappings } from './vsphere-network-step.fieldmapping';
-import { VsphereField } from '../vsphere-wizard.constants';
 
 declare var sortPaths: any;
 @Component({

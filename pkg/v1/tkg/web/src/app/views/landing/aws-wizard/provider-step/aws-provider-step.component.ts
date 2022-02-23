@@ -9,7 +9,7 @@ import AppServices from '../../../../shared/service/appServices';
 import { AwsField, CredentialType } from "../aws-wizard.constants";
 import { AwsProviderStepMapping } from './aws-provider-step.fieldmapping';
 import { StepFormDirective } from '../../wizard/shared/step-form/step-form';
-import { TanzuEvent, TanzuEventType } from '../../../../shared/service/Messenger';
+import { TanzuEventType } from '../../../../shared/service/Messenger';
 
 export const AWSAccountParamsKeys = [
     AwsField.PROVIDER_PROFILE_NAME,

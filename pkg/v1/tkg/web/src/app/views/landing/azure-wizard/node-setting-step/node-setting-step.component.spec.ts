@@ -6,12 +6,11 @@ import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 // App imports
 import { APIClient } from '../../../../swagger/api-client.service';
 import AppServices from 'src/app/shared/service/appServices';
-import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
+import { AzureField, AzureForm } from '../azure-wizard.constants';
 import { Messenger, TanzuEventType } from 'src/app/shared/service/Messenger';
 import { NodeSettingStepComponent } from './node-setting-step.component';
 import { SharedModule } from '../../../../shared/shared.module';
 import { ValidationService } from '../../wizard/shared/validation/validation.service';
-import { AzureField, AzureForm } from '../azure-wizard.constants';
 
 describe('NodeSettingStepComponent', () => {
     let component: NodeSettingStepComponent;

@@ -35,8 +35,8 @@ const BasicNetworkFieldMappings: FieldMapping[] = [
 ];
 
 export const NetworkIpv4StepMapping: StepMapping = {
-// Because, by default, the ORDER of these fields is the order in which they are displayed,
-// we put the fields in the expected display order (and avoid having to order them elsewhere in the code)
+    // Because, by default, the ORDER of these fields is the order in which they are displayed,
+    // we put the fields in the expected display order (and avoid having to order them elsewhere in the code)
     fieldMappings: [
         ...ProviderNetworkFieldMapping,
         { name: NetworkField.CLUSTER_SERVICE_CIDR, defaultValue: IAAS_DEFAULT_CIDRS.CLUSTER_SVC_CIDR, label: 'CLUSTER SERVICE CIDR' },

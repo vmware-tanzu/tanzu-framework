@@ -1,13 +1,12 @@
 // Angular imports
-import { ValidatorFn, Validators } from '@angular/forms';
 import { Injectable } from '@angular/core';
+import { ValidatorFn, Validators } from '@angular/forms';
 // App imports
 import AppServices from '../../../../../shared/service/appServices';
+import { Cloneable } from '../utils/cloneable';
 import { FieldMapping, StepMapping } from './FieldMapping';
 import { managementClusterPlugin } from '../constants/wizard.constants';
 import { ValidationService } from '../validation/validation.service';
-import { Cloneable } from '../utils/cloneable';
-import { VsphereForm } from '../../../vsphere-wizard/vsphere-wizard.constants';
 
 @Injectable()
 export class FieldMapUtilities {

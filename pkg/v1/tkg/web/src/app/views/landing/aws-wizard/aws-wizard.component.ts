@@ -20,18 +20,18 @@ import {
 import { AWSAccountParamsKeys, AwsProviderStepComponent } from './provider-step/aws-provider-step.component';
 import { AwsField, AwsForm, VpcType } from "./aws-wizard.constants";
 import { AwsOsImageStepComponent } from './os-image-step/aws-os-image-step.component';
-import { NodeSettingStepComponent } from './node-setting-step/node-setting-step.component';
 import { CliFields, CliGenerator } from '../wizard/shared/utils/cli-generator';
 import { ClusterPlan, ClusterType } from '../wizard/shared/constants/wizard.constants';
 import { ExportService } from '../../../shared/service/export.service';
 import { FormDataForHTML, FormUtility } from '../wizard/shared/components/steps/form-utility';
 import { ImportParams, ImportService } from "../../../shared/service/import.service";
 import { InstanceType } from '../../../shared/constants/app.constants';
+import { NodeSettingField } from '../wizard/shared/components/steps/node-setting-step/node-setting-step.fieldmapping';
+import { NodeSettingStepComponent } from './node-setting-step/node-setting-step.component';
 import { TanzuEventType } from '../../../shared/service/Messenger';
 import { Utils } from '../../../shared/utils';
 import { VpcStepComponent } from './vpc-step/vpc-step.component';
 import { WizardBaseDirective } from '../wizard/shared/wizard-base/wizard-base';
-import { NodeSettingField } from '../wizard/shared/components/steps/node-setting-step/node-setting-step.fieldmapping';
 
 export interface AzRelatedFields {
     az: string,
