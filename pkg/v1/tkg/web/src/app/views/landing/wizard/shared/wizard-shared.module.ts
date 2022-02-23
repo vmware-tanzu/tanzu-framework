@@ -24,6 +24,7 @@ import { ValidationService } from './validation/validation.service';
 import { VsphereNetworkStepComponent } from '../../vsphere-wizard/vsphere-network-step/vsphere-network-step.component';
 import { VsphereOsImageStepComponent } from '../../vsphere-wizard/vsphere-os-image-step/vsphere-os-image-step.component';
 import { VsphereLoadBalancerStepComponent } from '../../vsphere-wizard/load-balancer/vsphere-load-balancer-step.component';
+import LabelsComponent from './components/widgets/labels/labels.component';
 
 @NgModule({
     declarations: [
@@ -44,7 +45,8 @@ import { VsphereLoadBalancerStepComponent } from '../../vsphere-wizard/load-bala
         TreeSelectComponent,
         VsphereLoadBalancerStepComponent,
         VsphereNetworkStepComponent,
-        VsphereOsImageStepComponent
+        VsphereOsImageStepComponent,
+        LabelsComponent,
     ],
     imports: [
         CodemirrorModule,

@@ -48,19 +48,6 @@ describe('MetadataStepComponent', () => {
         fixture.detectChanges();
     });
 
-    it('should add new label', () => {
-        component.addLabel("somekey", "someval");
-        component.addLabel("somekey2", "someval2");
-        expect(component.clusterLabelsValue).toEqual("somekey:someval, somekey2:someval2");
-    });
-
-    it('should delete existing label', () => {
-        component.addLabel("akey", "avalue");
-        expect(component.clusterLabelsValue).toEqual('akey:avalue');
-        component.deleteLabel("newLabelKey2");
-        expect(component.clusterLabelsValue).toEqual('');
-    });
-
     it('should announce description change', () => {
         const msgSpy = spyOn(AppServices.messenger, 'publish').and.callThrough();
         const locationControl = component.formGroup.controls[MetadataField.CLUSTER_LOCATION];

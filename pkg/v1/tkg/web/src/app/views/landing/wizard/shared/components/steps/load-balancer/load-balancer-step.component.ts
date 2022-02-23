@@ -333,50 +333,6 @@ export class SharedLoadBalancerStepComponent extends StepFormDirective implement
     }
 
     /**
-     * Add workload cluster label'
-     */
-    addLabel(key: string, value: string) {
-        if (key === '' || value === '') {
-            this.errorNotification = `Key and value for Labels are required.`;
-        } else if (!this.labels.has(key)) {
-            this.labels.set(key, value);
-            this.formGroup.get(LoadBalancerField.CLUSTER_LABELS).setValue(this.labels);
-            this.formGroup.controls[LoadBalancerField.NEW_LABEL_KEY].setValue('');
-            this.formGroup.controls[LoadBalancerField.NEW_LABEL_VALUE].setValue('');
-        } else {
-            this.errorNotification = `A Label with the same key already exists.`;
-        }
-    }
-
-    /**
-     * Delete workload cluster label'
-     */
-    deleteLabel(key: string) {
-        this.labels.delete(key);
-        this.formGroup.get(LoadBalancerField.CLUSTER_LABELS).setValue(this.labels);
-    }
-
-    /**
-     * Get the current value of LoadBalancerField.CLUSTER_LABELS
-     */
-    get clusterLabelsValue() {
-        let labelsStr: string = '';
-        this.labels.forEach((value: string, key: string) => {
-            labelsStr += key + ':' + value + ', '
-        });
-        return labelsStr.slice(0, -2);
-    }
-
-    /**
-     * @method getLabelDisabled
-     * helper method to get if label add btn should be disabled
-     */
-    getLabelDisabled(): boolean {
-        return !(this.formGroup.get(LoadBalancerField.NEW_LABEL_KEY).valid &&
-            this.formGroup.get(LoadBalancerField.NEW_LABEL_VALUE).valid);
-    }
-
-    /**
      * This is to make sense that the list returned is always up to date.
      */
     get vipNetworksPerCloud() {
