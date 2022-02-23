@@ -330,7 +330,7 @@ export class NodeSettingStepComponent extends NodeSettingStepDirective<string> i
     private setSubnetFieldsWithOnlyOneOption(azControlName) {
         if (this.vpcType === vpcType.EXISTING && azControlName !== '') {
             const filteredPublicSubnets = this.filteredAzs[azControlName].publicSubnets;
-            if (filteredPublicSubnets.length === 1) {
+            if (filteredPublicSubnets.length === 1 && !this.airgappedVPC) {
                 this.setControlValueSafely(this.getPublicSubnetFromAz(azControlName), filteredPublicSubnets[0].id);
             }
             const filteredPrivateSubnets = this.filteredAzs[azControlName].privateSubnets;
@@ -392,10 +392,13 @@ export class NodeSettingStepComponent extends NodeSettingStepDirective<string> i
     }
 
     setSubnetFieldsFromSavedValues(): void {
-        PUBLIC_SUBNETS.forEach(vpcSubnet => {
-            const subnet = this.findSubnetFromSavedValue(vpcSubnet, this['publicSubnets']);
-            this.setControlValueSafely(vpcSubnet, subnet ? subnet.id : '');
-        });
+        // NOTE: in air-gapped VPC we do not use public subnets, so don't restore a value
+        if (!this.airgappedVPC) {
+            PUBLIC_SUBNETS.forEach(vpcSubnet => {
+                const subnet = this.findSubnetFromSavedValue(vpcSubnet, this['publicSubnets']);
+                this.setControlValueSafely(vpcSubnet, subnet ? subnet.id : '');
+            });
+        }
         PRIVATE_SUBNET.forEach(vpcSubnet => {
             const subnet = this.findSubnetFromSavedValue(vpcSubnet, this['privateSubnets']);
             this.setControlValueSafely(vpcSubnet, subnet ? subnet.id : '');
