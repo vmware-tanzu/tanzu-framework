@@ -1,0 +1,92 @@
+
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.7.0
+  creationTimestamp: null
+  name: calicoconfigs.cni.tanzu.vmware.com
+spec:
+  group: cni.tanzu.vmware.com
+  names:
+    kind: CalicoConfig
+    listKind: CalicoConfigList
+    plural: calicoconfigs
+    shortNames:
+    - calicoconf
+    singular: calicoconfig
+  scope: Namespaced
+  versions:
+  - additionalPrinterColumns:
+    - description: The namespace in which calico is deployed
+      jsonPath: .spec.cni.namespace
+      name: Namespace
+      type: string
+    - description: Maximum transmission unit setting. '0' as default means MTU will
+        be auto detected
+      jsonPath: .spec.cni.calico.config.vethMTU
+      name: VethMTU
+      type: string
+    - description: Name of the Calico data values secret
+      jsonPath: .status.secretRef
+      name: SecretRef
+      type: string
+    name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        description: CalicoConfig is the Schema for the calicoconfigs API
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation
+              of an object. Servers should convert recognized schemas to the latest
+              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this
+              object represents. Servers may infer this from the endpoint the client
+              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: CalicoConfigSpec defines the desired state of CalicoConfig
+            properties:
+              calico:
+                properties:
+                  config:
+                    properties:
+                      vethMTU:
+                        default: 0
+                        description: Maximum transmission unit setting. "0" as default
+                          means MTU will be auto detected
+                        format: int64
+                        minimum: 0
+                        type: integer
+                    type: object
+                type: object
+              namespace:
+                default: kube-system
+                description: The namespace in which calico is deployed
+                type: string
+            type: object
+          status:
+            description: CalicoConfigStatus defines the observed state of CalicoConfig
+            properties:
+              secretRef:
+                description: Name of the data value secret created by calico controller
+                type: string
+            type: object
+        required:
+        - spec
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
+status:
+  acceptedNames:
+    kind: ""
+    plural: ""
+  conditions: []
+  storedVersions: []

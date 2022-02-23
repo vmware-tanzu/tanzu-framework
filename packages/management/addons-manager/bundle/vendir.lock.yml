@@ -3,6 +3,36 @@ directories:
 - contents:
   - manual: {}
     path: addons-manager.yaml
+  - git:
+      commitTitle: Define and implement the TKR Resolver interface (#1695)...
+      sha: 18dfe51144349a374a909d43dd5a9978c9afdb86
+      tags:
+      - v0.18.0-dev-8-g18dfe511
+    path: antreaconfigs.yaml
+  - git:
+      commitTitle: Define and implement the TKR Resolver interface (#1695)...
+      sha: 18dfe51144349a374a909d43dd5a9978c9afdb86
+      tags:
+      - v0.18.0-dev-8-g18dfe511
+    path: calicoconfigs.yaml
+  - git:
+      commitTitle: Define and implement the TKR Resolver interface (#1695)...
+      sha: 18dfe51144349a374a909d43dd5a9978c9afdb86
+      tags:
+      - v0.18.0-dev-8-g18dfe511
+    path: clusterbootstraps.yaml
+  - git:
+      commitTitle: Define and implement the TKR Resolver interface (#1695)...
+      sha: 18dfe51144349a374a909d43dd5a9978c9afdb86
+      tags:
+      - v0.18.0-dev-8-g18dfe511
+    path: clusterbootstraptemplates.yaml
+  - git:
+      commitTitle: Define and implement the TKR Resolver interface (#1695)...
+      sha: 18dfe51144349a374a909d43dd5a9978c9afdb86
+      tags:
+      - v0.18.0-dev-8-g18dfe511
+    path: kappcontrollerconfigs.yaml
   path: config/upstream
 - contents:
   - manual: {}
