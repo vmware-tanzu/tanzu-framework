@@ -2177,6 +2177,14 @@ spec:
           spec:
             description: VSphereMachineSpec defines the desired state of VSphereMachine
             properties:
+              additionalDisksGiB:
+                description: AdditionalDisksGiB holds the sizes of additional disks
+                  of the virtual machine, in GiB Defaults to the eponymous property
+                  value in the template from which the virtual machine is cloned.
+                items:
+                  format: int32
+                  type: integer
+                type: array
               cloneMode:
                 description: CloneMode specifies the type of clone operation. The
                   LinkedClone mode is only support for templates that have at least
@@ -4070,6 +4078,15 @@ spec:
                     description: Spec is the specification of the desired behavior
                       of the machine.
                     properties:
+                      additionalDisksGiB:
+                        description: AdditionalDisksGiB holds the sizes of additional
+                          disks of the virtual machine, in GiB Defaults to the eponymous
+                          property value in the template from which the virtual machine
+                          is cloned.
+                        items:
+                          format: int32
+                          type: integer
+                        type: array
                       cloneMode:
                         description: CloneMode specifies the type of clone operation.
                           The LinkedClone mode is only support for templates that
@@ -5193,6 +5210,14 @@ spec:
           spec:
             description: VSphereVMSpec defines the desired state of VSphereVM.
             properties:
+              additionalDisksGiB:
+                description: AdditionalDisksGiB holds the sizes of additional disks
+                  of the virtual machine, in GiB Defaults to the eponymous property
+                  value in the template from which the virtual machine is cloned.
+                items:
+                  format: int32
+                  type: integer
+                type: array
               biosUUID:
                 description: BiosUUID is the the VM's BIOS UUID that is assigned at
                   runtime after the VM has been created. This field is required at
@@ -5647,11 +5672,42 @@ rules:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  creationTimestamp: null
   labels:
+    cluster.x-k8s.io/aggregate-to-manager: "true"
     cluster.x-k8s.io/provider: infrastructure-vsphere
+    kubeadm.controlplane.cluster.x-k8s.io/aggregate-to-manager: "true"
   name: capv-manager-role
 rules:
+- apiGroups:
+  - ""
+  resources:
+  - configmaps
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - ""
+  resources:
+  - configmaps
+  - events
+  - nodes
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - ""
+  resources:
+  - configmaps/status
+  verbs:
+  - get
+  - patch
+  - update
 - apiGroups:
   - ""
   resources:
@@ -5662,6 +5718,66 @@ rules:
   - list
   - patch
   - update
+  - watch
+- apiGroups:
+  - ""
+  resources:
+  - persistentvolumeclaims
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - update
+  - watch
+- apiGroups:
+  - ""
+  resources:
+  - persistentvolumeclaims/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - ""
+  resources:
+  - secrets
+  verbs:
+  - get
+- apiGroups:
+  - ""
+  resources:
+  - serviceaccounts
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - ""
+  resources:
+  - services
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - ""
+  resources:
+  - services/status
+  verbs:
+  - get
+- apiGroups:
+  - bootstrap.cluster.x-k8s.io
+  resources:
+  - kubeadmconfigtemplates
+  verbs:
+  - delete
+  - get
+  - list
   - watch
 - apiGroups:
   - cluster.x-k8s.io
@@ -5809,6 +5925,183 @@ rules:
   - infrastructure.cluster.x-k8s.io
   resources:
   - vspherevms/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - netoperator.vmware.com
+  resources:
+  - networks
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - rbac.authorization.k8s.io
+  resources:
+  - rolebindings
+  - roles
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - topology.tanzu.vmware.com
+  resources:
+  - availabilityzones
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - topology.tanzu.vmware.com
+  resources:
+  - availabilityzones/status
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - vmoperator.vmware.com
+  resources:
+  - virtualmachineimages
+  - virtualmachineimages/status
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - vmoperator.vmware.com
+  resources:
+  - virtualmachines
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - vmoperator.vmware.com
+  resources:
+  - virtualmachineservices
+  - virtualmachineservices/status
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - vmoperator.vmware.com
+  resources:
+  - virtualmachinesetresourcepolicies
+  - virtualmachinesetresourcepolicies/status
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - vmware.com
+  resources:
+  - virtualnetworks
+  - virtualnetworks/status
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - vmware.infrastructure.cluster.x-k8s.io
+  resources:
+  - providerserviceaccounts
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - vmware.infrastructure.cluster.x-k8s.io
+  resources:
+  - providerserviceaccounts/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - vmware.infrastructure.cluster.x-k8s.io
+  resources:
+  - vsphereclusters
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - vmware.infrastructure.cluster.x-k8s.io
+  resources:
+  - vsphereclusters/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - vmware.infrastructure.cluster.x-k8s.io
+  resources:
+  - vspheremachines
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - vmware.infrastructure.cluster.x-k8s.io
+  resources:
+  - vspheremachines/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - vmware.infrastructure.cluster.x-k8s.io
+  resources:
+  - vspheremachinetemplates
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - vmware.infrastructure.cluster.x-k8s.io
+  resources:
+  - vspheremachinetemplates/status
   verbs:
   - get
   - patch
