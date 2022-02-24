@@ -1,5 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { FormArray, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
+import { distinctUntilChanged, takeUntil } from 'rxjs/operators';
 import { FieldMapUtilities } from '../../../field-mapping/FieldMapUtilities';
 import { StepFormDirective } from '../../../step-form/step-form';
 import { FormUtils } from '../../../utils/form-utils';
@@ -63,7 +64,10 @@ export default class LabelsComponent extends StepFormDirective implements OnInit
          * @param dependentFieldName is dependent on the independent field.
          */
     onChangeWithDependentField(fieldControl: FormControl, dependentControl: FormControl) {
-        fieldControl.valueChanges.subscribe(data => {
+        fieldControl.valueChanges.pipe(
+            distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)),
+            takeUntil(this.unsubscribe)
+        ).subscribe(data => {
             if (data !== '') {
                 if (!dependentControl.hasValidator(Validators.required)) {
                     dependentControl.addValidators(Validators.required);
@@ -81,7 +85,7 @@ export default class LabelsComponent extends StepFormDirective implements OnInit
 
     validateAllLabels() {
 
-       // The setTimeout wrapper ensures that validation logic will run after a new label field is added.
+        // The setTimeout wrapper ensures that validation logic will run after a new label field is added.
         setTimeout(_ => {
             for (const label of this.labelArray.controls) {
                 const key = label.get('key');
