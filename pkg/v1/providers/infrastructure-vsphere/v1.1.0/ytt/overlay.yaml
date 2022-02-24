@@ -24,8 +24,10 @@ metadata:
 spec:
   containers:
   - args:
-    - start
+    - manager
     env:
+    - name: cp_enable
+      value: "true"
     - name: vip_arp
       value: "true"
     - name: vip_leaderelection
@@ -52,11 +54,15 @@ spec:
       capabilities:
         add:
         - NET_ADMIN
-        - SYS_TIME
+        - NET_RAW
     volumeMounts:
     - mountPath: /etc/kubernetes/admin.conf
       name: kubeconfig
   hostNetwork: true
+  hostAliases:
+  - hostnames:
+    - kubernetes
+    ip: 127.0.0.1
   volumes:
   - hostPath:
       path: /etc/kubernetes/admin.conf
