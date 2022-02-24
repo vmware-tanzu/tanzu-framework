@@ -26,7 +26,6 @@ describe('ResourceStepComponent', () => {
             providers: [
                 APIClient,
                 FormBuilder,
-                FieldMapUtilities,
                 ValidationService,
             ],
             schemas: [
@@ -49,7 +48,9 @@ describe('ResourceStepComponent', () => {
         TestBed.inject(ValidationService);
         fixture = TestBed.createComponent(ResourceStepComponent);
         component = fixture.componentInstance;
-        component.setInputs('BozoWizard', 'resourceForm', new FormBuilder().group({}));
+        component.setStepRegistrantData({ wizard: 'BozoWizard', step: 'resourceForm', formGroup: new FormBuilder().group({}),
+            eventFileImported: TanzuEventType.VSPHERE_CONFIG_FILE_IMPORTED,
+            eventFileImportError: TanzuEventType.VSPHERE_CONFIG_FILE_IMPORT_ERROR});
         component.setClusterTypeDescriptor('VANILLA');
 
         fixture.detectChanges();
@@ -74,7 +75,7 @@ describe('ResourceStepComponent', () => {
     });
 
     it('should retrieve resources when load resources: case 2', () => {
-        component.resetFieldsUponDCChange();
+        component.onDataCenterChange();
         expect(component.formGroup.get('resourcePool').value).toBeFalsy();
         expect(component.formGroup.get('datastore').value).toBeFalsy();
         expect(component.formGroup.get('vmFolder').value).toBeFalsy();

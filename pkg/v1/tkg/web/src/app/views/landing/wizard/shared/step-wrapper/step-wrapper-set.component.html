@@ -10,7 +10,7 @@
                 </app-step-wrapper>
             </ng-container>
             <clr-step-content *clrIfExpanded>
-                <app-step-controller (nextStep)="wizard.onNextStep()"></app-step-controller>
+                <app-step-controller (nextStep)="wizard.onNextStep(thisStepData.name)"></app-step-controller>
             </clr-step-content>
         </clr-stepper-panel>
     </div>

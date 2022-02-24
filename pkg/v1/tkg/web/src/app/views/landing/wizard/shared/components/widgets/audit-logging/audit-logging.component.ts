@@ -8,7 +8,7 @@ import { FormUtils } from '../../../utils/form-utils';
     styleUrls: ['./audit-logging.component.scss']
 })
 export class AuditLoggingComponent implements OnInit {
-
+    @Input() label: string;
     @Input() formName: string;
     @Input() formGroup: FormGroup;
 

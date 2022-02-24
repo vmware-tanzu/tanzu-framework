@@ -1,15 +1,9 @@
 // Angular imports
 import { Component, OnInit } from '@angular/core';
 import { StepFormDirective } from '../../wizard/shared/step-form/step-form';
-// Third party imports
-import { takeUntil } from "rxjs/operators";
 // App imports
 import AppServices from "../../../../shared/service/appServices";
 import { DockerNodeSettingStepMapping } from './node-setting-step.fieldmapping';
-import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
-import { FormMetaDataStore } from "../../wizard/shared/FormMetaDataStore";
-import { NotificationTypes } from "../../../../shared/components/alert-notification/alert-notification.component";
-import { TanzuEvent, TanzuEventType } from "../../../../shared/service/Messenger";
 
 @Component({
     selector: 'app-node-setting-step',
@@ -17,31 +11,25 @@ import { TanzuEvent, TanzuEventType } from "../../../../shared/service/Messenger
     styleUrls: ['./node-setting-step.component.scss']
 })
 export class NodeSettingStepComponent extends StepFormDirective implements OnInit {
-    constructor(private fieldMapUtilities: FieldMapUtilities) {
-        super();
-    }
+    clusterNameInstruction: string;
 
-    private customizeForm() {
-        AppServices.messenger.getSubject(TanzuEventType.CONFIG_FILE_IMPORTED)
-            .pipe(takeUntil(this.unsubscribe))
-            .subscribe((data: TanzuEvent) => {
-                this.configFileNotification = {
-                    notificationType: NotificationTypes.SUCCESS,
-                    message: data.payload
-                };
-                // The file import saves the data to local storage, so we reinitialize this step's form from there
-                this.savedMetadata = FormMetaDataStore.getMetaData(this.formName);
-                this.initFormWithSavedData();
-
-                // Clear event so that listeners in other provider workflows do not receive false notifications
-                AppServices.messenger.clearEvent(TanzuEventType.CONFIG_FILE_IMPORTED);
-            });
+    private supplyStepMapping() {
+        return DockerNodeSettingStepMapping;
     }
 
     ngOnInit(): void {
         super.ngOnInit();
-        this.fieldMapUtilities.buildForm(this.formGroup, this.formName, DockerNodeSettingStepMapping);
-        this.customizeForm();
-        this.initFormWithSavedData();
+        AppServices.userDataFormService.buildForm(this.formGroup, this.wizardName, this.formName, this.supplyStepMapping());
+        this.htmlFieldLabels = AppServices.fieldMapUtilities.getFieldLabelMap(this.supplyStepMapping());
+        this.storeDefaultLabels(this.supplyStepMapping());
+        this.registerDefaultFileImportedHandler(this.eventFileImported, this.supplyStepMapping());
+        this.registerDefaultFileImportErrorHandler(this.eventFileImportError);
+
+        this.clusterNameInstruction = 'Specify a name for the ' + this.clusterTypeDescriptor + ' cluster.';
+    }
+
+    protected storeUserData() {
+        this.storeUserDataFromMapping(DockerNodeSettingStepMapping);
+        this.storeDefaultDisplayOrder(DockerNodeSettingStepMapping);
     }
 }

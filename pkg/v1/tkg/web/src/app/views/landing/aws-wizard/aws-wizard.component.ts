@@ -20,18 +20,18 @@ import {
 import { AWSAccountParamsKeys, AwsProviderStepComponent } from './provider-step/aws-provider-step.component';
 import { AwsField, AwsForm, VpcType } from "./aws-wizard.constants";
 import { AwsOsImageStepComponent } from './os-image-step/aws-os-image-step.component';
-import { BASTION_HOST_DISABLED, BASTION_HOST_ENABLED, NodeSettingStepComponent } from './node-setting-step/node-setting-step.component';
 import { CliFields, CliGenerator } from '../wizard/shared/utils/cli-generator';
+import { ClusterPlan, ClusterType } from '../wizard/shared/constants/wizard.constants';
 import { ExportService } from '../../../shared/service/export.service';
 import { FormDataForHTML, FormUtility } from '../wizard/shared/components/steps/form-utility';
-import { FormMetaDataService } from 'src/app/shared/service/form-meta-data.service';
 import { ImportParams, ImportService } from "../../../shared/service/import.service";
 import { InstanceType } from '../../../shared/constants/app.constants';
+import { NodeSettingField } from '../wizard/shared/components/steps/node-setting-step/node-setting-step.fieldmapping';
+import { NodeSettingStepComponent } from './node-setting-step/node-setting-step.component';
 import { TanzuEventType } from '../../../shared/service/Messenger';
 import { Utils } from '../../../shared/utils';
 import { VpcStepComponent } from './vpc-step/vpc-step.component';
 import { WizardBaseDirective } from '../wizard/shared/wizard-base/wizard-base';
-import { ClusterType } from '../wizard/shared/constants/wizard.constants';
 
 export interface AzRelatedFields {
     az: string,
@@ -42,9 +42,9 @@ export interface AzRelatedFields {
 
 export const AzRelatedFieldsArray: AzRelatedFields[] = [
     { az: AwsField.NODESETTING_AZ_1, vpcPrivateSubnet: AwsField.NODESETTING_VPC_PRIVATE_SUBNET_1,
-        vpcPublicSubnet: AwsField.NODESETTING_VPC_PUBLIC_SUBNET_1, workerNodeInstanceType: AwsField.NODESETTING_WORKERTYPE_1 },
+        vpcPublicSubnet: AwsField.NODESETTING_VPC_PUBLIC_SUBNET_1, workerNodeInstanceType: NodeSettingField.WORKER_NODE_INSTANCE_TYPE },
     { az: AwsField.NODESETTING_AZ_2, vpcPrivateSubnet: AwsField.NODESETTING_VPC_PRIVATE_SUBNET_2,
-        vpcPublicSubnet: AwsField.NODESETTING_VPC_PUBLIC_SUBNET_1, workerNodeInstanceType: AwsField.NODESETTING_WORKERTYPE_1 },
+        vpcPublicSubnet: AwsField.NODESETTING_VPC_PUBLIC_SUBNET_2, workerNodeInstanceType: AwsField.NODESETTING_WORKERTYPE_2 },
     { az: AwsField.NODESETTING_AZ_3, vpcPrivateSubnet: AwsField.NODESETTING_VPC_PRIVATE_SUBNET_3,
         vpcPublicSubnet: AwsField.NODESETTING_VPC_PUBLIC_SUBNET_3, workerNodeInstanceType: AwsField.NODESETTING_WORKERTYPE_3 },
 ];
@@ -61,15 +61,22 @@ export class AwsWizardComponent extends WizardBaseDirective implements OnInit {
         private exportService: ExportService,
         private importService: ImportService,
         private apiClient: APIClient,
-        formMetaDataService: FormMetaDataService,
         titleService: Title,
         el: ElementRef) {
 
-        super(router, el, formMetaDataService, titleService, formBuilder);
+        super(router, el, titleService, formBuilder);
+    }
+
+    protected supplyFileImportedEvent(): TanzuEventType {
+        return TanzuEventType.AWS_CONFIG_FILE_IMPORTED;
+    }
+
+    protected supplyFileImportErrorEvent(): TanzuEventType {
+        return TanzuEventType.AWS_CONFIG_FILE_IMPORT_ERROR;
     }
 
     protected supplyWizardName(): string {
-        return 'AWS Wizard';
+        return 'AWSWizard';
     }
 
     protected supplyStepData(): FormDataForHTML[] {
@@ -106,12 +113,13 @@ export class AwsWizardComponent extends WizardBaseDirective implements OnInit {
         payload.loadbalancerSchemeInternal = this.getBooleanFieldValue(AwsForm.VPC, AwsField.VPC_NON_INTERNET_FACING);
         payload.sshKeyName = this.getFieldValue(AwsForm.NODESETTING, AwsField.NODESETTING_SSH_KEY_NAME);
         payload.createCloudFormationStack = this.getFieldValue(AwsForm.NODESETTING, AwsField.NODESETTING_CREATE_CLOUD_FORMATION) || false;
-        payload.clusterName = this.getFieldValue(AwsForm.NODESETTING, AwsField.NODESETTING_CLUSTER_NAME);
-        payload.controlPlaneNodeType = this.getControlPlaneNodeType('aws');
-        payload.controlPlaneFlavor = this.getControlPlaneFlavor('aws');
-        const bastionHostEnabled = this.getFieldValue(AwsForm.NODESETTING, AwsField.NODESETTING_BASTION_HOST_ENABLED);
-        payload.bastionHostEnabled = bastionHostEnabled === BASTION_HOST_ENABLED;
-        const machineHealthChecksEnabled = this.getFieldValue(AwsForm.NODESETTING, AwsField.NODESETTING_MACHINE_HEALTH_CHECKS_ENABLED);
+        payload.clusterName = this.getFieldValue(AwsForm.NODESETTING, NodeSettingField.CLUSTER_NAME);
+        payload.controlPlaneFlavor = this.getStoredClusterPlan(AwsForm.NODESETTING);
+        const nodeTypeField = payload.controlPlaneFlavor === ClusterPlan.PROD ? NodeSettingField.INSTANCE_TYPE_PROD
+            : NodeSettingField.INSTANCE_TYPE_DEV;
+        payload.controlPlaneNodeType = this.getFieldValue(AwsForm.NODESETTING, nodeTypeField);
+        payload.bastionHostEnabled = this.getBooleanFieldValue(AwsForm.NODESETTING, AwsField.NODESETTING_BASTION_HOST_ENABLED);
+        const machineHealthChecksEnabled = this.getFieldValue(AwsForm.NODESETTING, NodeSettingField.MACHINE_HEALTH_CHECKS_ENABLED);
         payload.machineHealthCheckEnabled = (machineHealthChecksEnabled === true);
         payload.vpc = {
             cidr: (this.getFieldValue(AwsForm.VPC, AwsField.VPC_TYPE) === VpcType.EXISTING) ?
@@ -121,7 +129,7 @@ export class AwsWizardComponent extends WizardBaseDirective implements OnInit {
             azs: this.getAwsNodeAzs(payload)
         };
 
-        payload.enableAuditLogging = this.getBooleanFieldValue(AwsForm.NODESETTING, AwsField.NODESETTING_ENABLE_AUDIT_LOGGING);
+        payload.enableAuditLogging = this.getBooleanFieldValue(AwsForm.NODESETTING, NodeSettingField.ENABLE_AUDIT_LOGGING);
         this.initPayloadWithCommons(payload);
 
         return payload;
@@ -131,64 +139,66 @@ export class AwsWizardComponent extends WizardBaseDirective implements OnInit {
         if (payload !== undefined) {
             if (payload.awsAccountParams !== undefined) {
                 for (const key of Object.keys(payload.awsAccountParams)) {
-                    this.saveFormField(AwsForm.PROVIDER, key, payload.awsAccountParams[key]);
+                    this.storeFieldString(AwsForm.PROVIDER, key, payload.awsAccountParams[key]);
                 }
             }
-            this.saveFormField(AwsForm.NODESETTING, AwsField.NODESETTING_SSH_KEY_NAME, payload.sshKeyName);
-            this.saveFormField(AwsForm.NODESETTING, AwsField.NODESETTING_CREATE_CLOUD_FORMATION, payload.createCloudFormationStack);
-            this.saveFormField(AwsForm.NODESETTING, AwsField.NODESETTING_CLUSTER_NAME, payload.clusterName);
+            this.storeFieldString(AwsForm.NODESETTING, AwsField.NODESETTING_SSH_KEY_NAME, payload.sshKeyName);
+            this.storeFieldBoolean(AwsForm.NODESETTING, AwsField.NODESETTING_CREATE_CLOUD_FORMATION, payload.createCloudFormationStack);
+            this.storeFieldString(AwsForm.NODESETTING, NodeSettingField.CLUSTER_NAME, payload.clusterName);
 
-            this.saveFormField(AwsForm.NODESETTING, AwsField.NODESETTING_CONTROL_PLANE_SETTING, payload.controlPlaneFlavor);
+            this.setStoredClusterPlan(AwsForm.NODESETTING, payload.controlPlaneFlavor);
             if (payload.controlPlaneFlavor === InstanceType.DEV) {
-                this.saveFormField(AwsForm.NODESETTING, AwsField.NODESETTING_INSTANCE_TYPE_DEV, payload.controlPlaneNodeType);
+                this.storeFieldString(AwsForm.NODESETTING, NodeSettingField.INSTANCE_TYPE_DEV, payload.controlPlaneNodeType);
             } else if (payload.controlPlaneFlavor === InstanceType.PROD) {
-                this.saveFormField(AwsForm.NODESETTING, AwsField.NODESETTING_INSTANCE_TYPE_PROD, payload.controlPlaneNodeType);
+                this.storeFieldString(AwsForm.NODESETTING, NodeSettingField.INSTANCE_TYPE_PROD, payload.controlPlaneNodeType);
             }
-            const bastionHost = payload.bastionHostEnabled ? BASTION_HOST_ENABLED : BASTION_HOST_DISABLED;
-            this.saveFormField(AwsForm.NODESETTING, AwsField.NODESETTING_BASTION_HOST_ENABLED, bastionHost);
-            this.saveFormField(AwsForm.NODESETTING, AwsField.NODESETTING_MACHINE_HEALTH_CHECKS_ENABLED, payload.machineHealthCheckEnabled);
-            this.saveFormField(AwsForm.VPC, AwsField.VPC_EXISTING_ID, (payload.vpc) ? payload.vpc.vpcID : '');
-            this.saveFormField(AwsForm.VPC, AwsField.VPC_NON_INTERNET_FACING, payload.loadbalancerSchemeInternal)
-            this.saveFormField(AwsForm.NODESETTING, AwsField.NODESETTING_ENABLE_AUDIT_LOGGING, payload.enableAuditLogging);
-            this.saveVpcFields(payload.vpc);
+            this.storeFieldBoolean(AwsForm.NODESETTING, AwsField.NODESETTING_BASTION_HOST_ENABLED, payload.bastionHostEnabled);
+            this.storeFieldBoolean(AwsForm.NODESETTING, NodeSettingField.MACHINE_HEALTH_CHECKS_ENABLED, payload.machineHealthCheckEnabled);
+            this.storeFieldString(AwsForm.VPC, AwsField.VPC_EXISTING_ID, (payload.vpc) ? payload.vpc.vpcID : '');
+            this.storeFieldBoolean(AwsForm.VPC, AwsField.VPC_NON_INTERNET_FACING, payload.loadbalancerSchemeInternal)
+            this.storeFieldBoolean(AwsForm.NODESETTING, NodeSettingField.ENABLE_AUDIT_LOGGING, payload.enableAuditLogging);
+            this.storeVpcFields(payload.vpc);
+
+            this.storeFieldString('osImageForm', 'osImage', payload.os.name);
 
             this.saveCommonFieldsFromPayload(payload);
+            AppServices.userDataService.updateWizardTimestamp(this.wizardName);
         }
     }
 
-    private saveVpcFields(vpc: AWSVpc) {
+    private storeVpcFields(vpc: AWSVpc) {
         if (vpc) {
             if (vpc.vpcID) {
-                this.saveFormField(AwsForm.VPC, AwsField.VPC_TYPE, VpcType.EXISTING);
-                this.saveFormField(AwsForm.VPC, AwsField.VPC_EXISTING_CIDR, vpc.cidr);
-                this.saveFormField(AwsForm.VPC, AwsField.VPC_PUBLIC_NODE_CIDR, '');
-                this.saveFormField(AwsForm.VPC, AwsField.VPC_PRIVATE_NODE_CIDR, '');
-                this.saveFormField(AwsForm.VPC, AwsField.VPC_EXISTING_ID, vpc.vpcID);
+                this.storeFieldString(AwsForm.VPC, AwsField.VPC_TYPE, VpcType.EXISTING);
+                this.storeFieldString(AwsForm.VPC, AwsField.VPC_EXISTING_CIDR, vpc.cidr);
+                this.storeFieldString(AwsForm.VPC, AwsField.VPC_PUBLIC_NODE_CIDR, '');
+                this.storeFieldString(AwsForm.VPC, AwsField.VPC_PRIVATE_NODE_CIDR, '');
+                this.storeFieldString(AwsForm.VPC, AwsField.VPC_EXISTING_ID, vpc.vpcID);
             } else {
-                this.saveFormField(AwsForm.VPC, AwsField.VPC_TYPE, VpcType.NEW);
-                this.saveFormField(AwsForm.VPC, AwsField.VPC_NEW_CIDR, vpc.cidr);
+                this.storeFieldString(AwsForm.VPC, AwsField.VPC_TYPE, VpcType.NEW);
+                this.storeFieldString(AwsForm.VPC, AwsField.VPC_NEW_CIDR, vpc.cidr);
             }
-            this.saveVpcAzs(vpc);
+            this.storeVpcAzs(vpc);
         }
     }
 
-    private saveVpcAzs(vpc: AWSVpc) {
+    private storeVpcAzs(vpc: AWSVpc) {
         if (vpc && vpc.azs && vpc.azs.length > 0) {
             const nodeAzList = vpc.azs;
             const numNodeAz = nodeAzList.length;
             for (let x = 0; x < numNodeAz; x++) {
-                this.saveAzNodeFields(nodeAzList[x], AzRelatedFieldsArray[x]);
+                this.storeAzNodeFields(nodeAzList[x], AzRelatedFieldsArray[x]);
             }
         }
     }
 
-    private saveAzNodeFields(node: AWSNodeAz, azFields: AzRelatedFields) {
-        this.saveFormField(AwsForm.NODESETTING, azFields.az, node.name);
+    private storeAzNodeFields(node: AWSNodeAz, azFields: AzRelatedFields) {
+        this.storeFieldString(AwsForm.NODESETTING, azFields.az, node.name);
         if (!AppServices.appDataService.isModeClusterStandalone()) {
-            this.saveFormField(AwsForm.NODESETTING, azFields.workerNodeInstanceType, node.workerNodeType);
+            this.storeFieldString(AwsForm.NODESETTING, azFields.workerNodeInstanceType, node.workerNodeType);
         }
-        this.saveFormField(AwsForm.NODESETTING, azFields.vpcPublicSubnet, Utils.safeString(node.publicSubnetID));
-        this.saveFormField(AwsForm.NODESETTING, azFields.vpcPrivateSubnet, Utils.safeString(node.privateSubnetID));
+        this.storeFieldString(AwsForm.NODESETTING, azFields.vpcPublicSubnet, Utils.safeString(node.publicSubnetID));
+        this.storeFieldString(AwsForm.NODESETTING, azFields.vpcPrivateSubnet, Utils.safeString(node.privateSubnetID));
     }
 
     private getAzFieldData(azFields: AzRelatedFields, standaloneControlPlaneNodeType: string) {
@@ -230,7 +240,7 @@ export class AwsWizardComponent extends WizardBaseDirective implements OnInit {
      * Return management/standalone cluster name
      */
     getMCName() {
-        return this.getFieldValue(AwsForm.NODESETTING, AwsField.NODESETTING_CLUSTER_NAME);
+        return this.getFieldValue(AwsForm.NODESETTING, NodeSettingField.CLUSTER_NAME);
     }
 
     /**
@@ -288,10 +298,10 @@ export class AwsWizardComponent extends WizardBaseDirective implements OnInit {
         return this.apiClient.importTKGConfigForAWS( { params: { filecontents: fileContents } } );
     }
 
-    importFileProcessClusterParams(nameFile: string, awsClusterParams: AWSRegionalClusterParams) {
+    importFileProcessClusterParams(event: TanzuEventType, nameFile: string, awsClusterParams: AWSRegionalClusterParams) {
         this.setFromPayload(awsClusterParams);
         this.resetToFirstStep();
-        this.importService.publishImportSuccess(nameFile);
+        this.importService.publishImportSuccess(event, nameFile);
     }
 
     // returns TRUE if user (a) will not lose data on import, or (b) confirms it's OK
@@ -305,6 +315,8 @@ export class AwsWizardComponent extends WizardBaseDirective implements OnInit {
 
     onImportFileSelected(event) {
         const params: ImportParams<AWSRegionalClusterParams> = {
+            eventSuccess: this.supplyFileImportedEvent(),
+            eventFailure: this.supplyFileImportErrorEvent(),
             file: event.target.files[0],
             validator: this.importFileValidate,
             backend: this.importFileRetrieveClusterParams.bind(this),
@@ -345,10 +357,9 @@ export class AwsWizardComponent extends WizardBaseDirective implements OnInit {
     // HTML convenience methods
 
     private subscribeToServices() {
-        AppServices.messenger.getSubject(TanzuEventType.AWS_REGION_CHANGED)
-            .subscribe(event => {
+        AppServices.messenger.subscribe(TanzuEventType.AWS_REGION_CHANGED, event => {
                 const region = event.payload;
-                AppServices.dataServiceRegistrar.trigger([TanzuEventType.AWS_GET_OS_IMAGES], {region: region});
+                AppServices.dataServiceRegistrar.trigger([TanzuEventType.AWS_GET_OS_IMAGES], { region });
                 // NOTE: even though the VPC and AZ endpoints don't take the region as a payload, they DO return different data
                 // if the user logs in to AWS using a different region. Therefore, we re-fetch that data if the region changes.
                 AppServices.dataServiceRegistrar.trigger([TanzuEventType.AWS_GET_EXISTING_VPCS, TanzuEventType.AWS_GET_AVAILABILITY_ZONES]);

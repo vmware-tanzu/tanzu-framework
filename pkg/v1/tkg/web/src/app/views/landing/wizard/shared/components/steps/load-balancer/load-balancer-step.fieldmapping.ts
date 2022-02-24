@@ -19,18 +19,19 @@ export enum LoadBalancerField {
 
 export const LoadBalancerStepMapping: StepMapping = {
     fieldMappings: [
-        { name: LoadBalancerField.CONTROLLER_HOST, validators: [SimpleValidator.IS_VALID_FQDN_OR_IP] },
-        { name: LoadBalancerField.USERNAME },
-        { name: LoadBalancerField.PASSWORD },
-        { name: LoadBalancerField.CLOUD_NAME },
-        { name: LoadBalancerField.SERVICE_ENGINE_GROUP_NAME },
-        { name: LoadBalancerField.NETWORK_NAME },
-        { name: LoadBalancerField.NETWORK_CIDR },
-        { name: LoadBalancerField.MANAGEMENT_CLUSTER_NETWORK_NAME },
-        { name: LoadBalancerField.MANAGEMENT_CLUSTER_NETWORK_CIDR, validators: [SimpleValidator.IS_VALID_IP_NETWORK_SEGMENT] },
-        { name: LoadBalancerField.CONTROLLER_CERT },
-        { name: LoadBalancerField.CLUSTER_LABELS },
-        { name: LoadBalancerField.NEW_LABEL_KEY, validators: [SimpleValidator.IS_VALID_LABEL_OR_ANNOTATION] },
-        { name: LoadBalancerField.NEW_LABEL_VALUE, validators: [SimpleValidator.IS_VALID_LABEL_OR_ANNOTATION] },
+        { name: LoadBalancerField.CONTROLLER_HOST, validators: [SimpleValidator.IS_VALID_FQDN_OR_IP], label: 'CONTROLLER HOST' },
+        { name: LoadBalancerField.USERNAME, label: 'USERNAME' },
+        { name: LoadBalancerField.PASSWORD, mask: true, label: 'PASSWORD' },
+        { name: LoadBalancerField.CLOUD_NAME, label: 'CLOUD NAME' },
+        { name: LoadBalancerField.SERVICE_ENGINE_GROUP_NAME, label: 'SERVICE ENGINE GROUP NAME' },
+        { name: LoadBalancerField.MANAGEMENT_CLUSTER_NETWORK_NAME, label: 'MANAGEMENT VIP NETWORK NAME' },
+        { name: LoadBalancerField.MANAGEMENT_CLUSTER_NETWORK_CIDR, validators: [SimpleValidator.IS_VALID_IP_NETWORK_SEGMENT],
+            label: 'MANAGEMENT VIP NETWORK CIDR' },
+        { name: LoadBalancerField.NETWORK_NAME, label: 'WORKLOAD VIP NETWORK NAME' },
+        { name: LoadBalancerField.NETWORK_CIDR, label: 'WORKLOAD VIP NETWORK CIDR' },
+        { name: LoadBalancerField.CONTROLLER_CERT, doNotAutoSave: true, label: 'CONTROLLER CERTIFICATE AUTHORITY' },
+        { name: LoadBalancerField.CLUSTER_LABELS, hasNoDomControl: true, isMap: true, label: 'CLUSTER LABELS (OPTIONAL)' },
+        { name: LoadBalancerField.NEW_LABEL_KEY, validators: [SimpleValidator.IS_VALID_LABEL_OR_ANNOTATION], neverStore: true },
+        { name: LoadBalancerField.NEW_LABEL_VALUE, validators: [SimpleValidator.IS_VALID_LABEL_OR_ANNOTATION], neverStore: true },
     ]
 }

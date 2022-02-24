@@ -10,11 +10,11 @@ import AppServices from 'src/app/shared/service/appServices';
 import { AwsField, AwsForm, VpcType } from './aws-wizard.constants';
 import { AwsWizardComponent } from './aws-wizard.component';
 import { CeipField } from '../wizard/shared/components/steps/ceip-step/ceip-step.fieldmapping';
-import { ClusterType, WizardForm } from "../wizard/shared/constants/wizard.constants";
-import { FieldMapUtilities } from '../wizard/shared/field-mapping/FieldMapUtilities';
+import { ClusterPlan, ClusterType, WizardForm } from "../wizard/shared/constants/wizard.constants";
 import { Messenger } from 'src/app/shared/service/Messenger';
 import { MetadataField } from '../wizard/shared/components/steps/metadata-step/metadata-step.fieldmapping';
 import { NetworkField } from '../wizard/shared/components/steps/network-step/network-step.fieldmapping';
+import { NodeSettingField } from '../wizard/shared/components/steps/node-setting-step/node-setting-step.fieldmapping';
 import { NodeSettingStepComponent } from './node-setting-step/node-setting-step.component';
 import { SharedModule } from '../../../shared/shared.module';
 import { ValidationService } from '../wizard/shared/validation/validation.service';
@@ -35,7 +35,6 @@ describe('AwsWizardComponent', () => {
             providers: [
                 APIClient,
                 FormBuilder,
-                FieldMapUtilities,
                 ValidationService
             ],
             schemas: [
@@ -68,12 +67,12 @@ describe('AwsWizardComponent', () => {
                 awsNodeAz1: [''],
                 awsNodeAz2: [''],
                 awsNodeAz3: [''],
-                bastionHostEnabled: [''],
+                bastionHostEnabled: [false],
                 controlPlaneSetting: [''],
                 devInstanceType: [''],
                 machineHealthChecksEnabled: [false],
                 createCloudFormation: [false],
-                workerNodeInstanceType1: [''],
+                workerNodeInstanceType: [''],
                 workerNodeInstanceType2: [''],
                 workerNodeInstanceType3: [''],
                 clusterName: [''],
@@ -122,8 +121,6 @@ describe('AwsWizardComponent', () => {
     });
 
     it('should create API payload', () => {
-        const clusterLabels = new Map();
-        clusterLabels.set('key1', 'value1');
         const mappings = [
             [AwsForm.PROVIDER, AwsField.PROVIDER_ACCESS_KEY, 'aws-access-key-id-12345'],
             [AwsForm.PROVIDER, AwsField.PROVIDER_REGION, 'US-WEST'],
@@ -131,15 +128,13 @@ describe('AwsWizardComponent', () => {
             [AwsForm.VPC, AwsField.VPC_NEW_CIDR, '10.0.0.0/16'],
             [AwsForm.VPC, AwsField.VPC_TYPE, VpcType.NEW],
             [AwsForm.NODESETTING, AwsField.NODESETTING_AZ_1, 'us-west-a'],
-            [AwsForm.NODESETTING, AwsField.NODESETTING_BASTION_HOST_ENABLED, 'yes'],
-            [AwsForm.NODESETTING, AwsField.NODESETTING_CONTROL_PLANE_SETTING, 'dev'],
-            [AwsForm.NODESETTING, AwsField.NODESETTING_INSTANCE_TYPE_DEV, 't3.medium'],
+            [AwsForm.NODESETTING, AwsField.NODESETTING_BASTION_HOST_ENABLED, true],
+            [AwsForm.NODESETTING, NodeSettingField.INSTANCE_TYPE_DEV, 't3.medium'],
             [AwsForm.NODESETTING, AwsField.NODESETTING_SSH_KEY_NAME, 'default'],
-            [AwsForm.NODESETTING, AwsField.NODESETTING_WORKERTYPE_1, 't3.small'],
+            [AwsForm.NODESETTING, NodeSettingField.WORKER_NODE_INSTANCE_TYPE, 't3.small'],
             [AwsForm.NODESETTING, AwsField.NODESETTING_CREATE_CLOUD_FORMATION, true],
-            [AwsForm.NODESETTING, AwsField.NODESETTING_MACHINE_HEALTH_CHECKS_ENABLED, true],
+            [AwsForm.NODESETTING, NodeSettingField.MACHINE_HEALTH_CHECKS_ENABLED, true],
             [WizardForm.METADATA, MetadataField.CLUSTER_DESCRIPTION, 'DescriptionEXAMPLE'],
-            [WizardForm.METADATA, MetadataField.CLUSTER_LABELS, clusterLabels],
             [WizardForm.METADATA, MetadataField.CLUSTER_LOCATION, 'mylocation1'],
             [WizardForm.NETWORK, NetworkField.CLUSTER_POD_CIDR, '100.96.0.0/11'],
             [WizardForm.NETWORK, NetworkField.CLUSTER_SERVICE_CIDR, '100.64.0.0/13'],
@@ -155,6 +150,13 @@ describe('AwsWizardComponent', () => {
             expect(formGroup).toBeTruthy();
             formGroup.addControl(fieldName, new FormControl(desiredValue));
         });
+        // NOTE: because cluster labels are pulled from storage (not a DOM control) we have to put the test values in storage
+        const clusterLabels = new Map<string, string>([['key1', 'value1']]);
+        const identifierClusterLabels = { wizard: component.wizardName, step: WizardForm.METADATA, field: 'clusterLabels'};
+        AppServices.userDataService.storeMap(identifierClusterLabels, clusterLabels);
+        // NOTE: because cluster plan is pulled from storage (not a DOM control) we have to put the test values in storage
+        const identifierClusterPlan = { wizard: component.wizardName, step: AwsForm.NODESETTING, field: NodeSettingField.CLUSTER_PLAN };
+        AppServices.userDataService.store(identifierClusterPlan, { display: ClusterPlan.DEV, value: ClusterPlan.DEV });
 
         const payload = component.getPayload();
         expect(payload.awsAccountParams).toEqual({

@@ -6,7 +6,6 @@ import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 // App imports
 import { APIClient } from '../../../../swagger/api-client.service';
 import AppServices from 'src/app/shared/service/appServices';
-import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
 import { Messenger, TanzuEventType } from 'src/app/shared/service/Messenger';
 import { NodeSettingStepComponent } from './node-setting-step.component';
 import { ValidationService } from '../../wizard/shared/validation/validation.service';
@@ -24,7 +23,6 @@ describe('NodeSettingStepComponent', () => {
             providers: [
                 ValidationService,
                 FormBuilder,
-                FieldMapUtilities,
                 APIClient
             ],
             schemas: [
@@ -40,19 +38,21 @@ describe('NodeSettingStepComponent', () => {
 
         fixture = TestBed.createComponent(NodeSettingStepComponent);
         component = fixture.componentInstance;
-        component.setInputs('BozoWizard', 'vsphereNodeSettingForm', new FormBuilder().group({}));
+        component.setStepRegistrantData({ wizard: 'BozoWizard', step: 'vsphereNodeSettingForm', formGroup: new FormBuilder().group({}),
+            eventFileImported: TanzuEventType.VSPHERE_CONFIG_FILE_IMPORTED,
+            eventFileImportError: TanzuEventType.VSPHERE_CONFIG_FILE_IMPORT_ERROR});
 
         fixture.detectChanges();
     });
 
     it('should set correct value for card clicking', () => {
-        component.cardClick('prod');
+        component.cardClickProd();
         expect(component.formGroup.controls['controlPlaneSetting'].value).toBe('prod')
     });
 
     it('should get correct env value', () => {
-        component.cardClick('prod');
-        expect(component.getEnvType()).toEqual('prod');
+        component.cardClickProd();
+        expect(component.isClusterPlanProd).toBeTrue();
     });
 
     it('should announce description change', () => {
@@ -60,6 +60,7 @@ describe('NodeSettingStepComponent', () => {
         component.ngOnInit();
         const controlPlaneSettingControl = component.formGroup.get('controlPlaneSetting');
 
+        controlPlaneSettingControl.setValue('');
         expect(component.dynamicDescription()).toEqual('Specify the resources backing the  cluster');
 
         component.setClusterTypeDescriptor('VANILLA');

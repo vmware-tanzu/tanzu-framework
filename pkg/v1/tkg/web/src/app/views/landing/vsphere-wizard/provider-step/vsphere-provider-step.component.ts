@@ -12,13 +12,10 @@ import { APIClient } from 'src/app/swagger/api-client.service';
 import { APP_ROUTES, Routes } from 'src/app/shared/constants/routes.constants';
 import AppServices from 'src/app/shared/service/appServices';
 import { EditionData } from 'src/app/shared/service/branding.service';
-import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
-import { FormMetaDataStore } from '../../wizard/shared/FormMetaDataStore';
 import { managementClusterPlugin } from "../../wizard/shared/constants/wizard.constants";
-import { NotificationTypes } from "../../../../shared/components/alert-notification/alert-notification.component";
 import { SSLThumbprintModalComponent } from '../../wizard/shared/components/modals/ssl-thumbprint-modal/ssl-thumbprint-modal.component';
 import { StepFormDirective } from '../../wizard/shared/step-form/step-form';
-import { TanzuEvent, TanzuEventType } from 'src/app/shared/service/Messenger';
+import { TanzuEventType } from 'src/app/shared/service/Messenger';
 import { ValidationService } from '../../wizard/shared/validation/validation.service';
 import { VSphereDatacenter } from 'src/app/swagger/models/v-sphere-datacenter.model';
 import { VsphereField } from "../vsphere-wizard.constants";
@@ -68,7 +65,6 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
     supervisedFieldValues = new Map<string, string>();
 
     constructor(private validationService: ValidationService,
-                private fieldMapUtilities: FieldMapUtilities,
                 private apiClient: APIClient,
                 private router: Router) {
         super();
@@ -86,73 +82,49 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
                 )
                 .subscribe((data) => {
                     const oldValue = this.supervisedFieldValues.get(field);
-                    const same = data === oldValue;
-                    if (same) {
-                        console.log('IGNORING change event from field ' + field + ' because value is unchanged: ' +
-                        oldValue + '-->' + data);
-                    } else {
+                    if (data !== oldValue) {
                         this.supervisedFieldValues.set(field, data);
-                        const msg = 'disconnecting due to change event from field ' + field + ' value changed: ' +
-                            oldValue + '-->' + data;
+                        const msg = field === VsphereField.PROVIDER_USER_PASSWORD ?
+                            'disconnecting due to password change' :
+                            'disconnecting due to change event from field ' + field + ' value: ' + oldValue + '-->' + data;
                         this.disconnect(msg);
                     }
                 });
         });
 
         this.formGroup.get(VsphereField.PROVIDER_DATA_CENTER).valueChanges.subscribe(data => {
-            this.dcOnChange(data)
+            this.onDataCenterChange(data)
         });
 
-        this.formGroup.get(VsphereField.PROVIDER_IP_FAMILY).valueChanges
-            .pipe(
-                distinctUntilChanged((prev, curr) => {
-                    const same = prev === curr;
-                    console.log('field PROVIDER_IP_FAMILY detects ' + !same + ' change from ' + prev + ' to ' + curr);
-                    return same;
-                }),
-                takeUntil(this.unsubscribe)
-            )
-            .subscribe(data => {
-                // In theory, we should only receive this event if the ipFamily actually changed. In practice, we double-check.
-                const same = data === this.ipFamily;
-                if (!same) {
-                    AppServices.messenger.publish({
-                        type: TanzuEventType.VSPHERE_IP_FAMILY_CHANGE,
-                        payload: data
-                    });
-                    this.disconnect('disconnecting because field PROVIDER_IP_FAMILY changed value to ' + data);
+        if (this.enableIpv6) {
+            this.registerOnValueChange(VsphereField.PROVIDER_IP_FAMILY,
+                data => {
+                    // In theory, we should only receive this event if the ipFamily actually changed. In practice, we double-check.
+                    if (data !== this.ipFamily) {
+                        AppServices.messenger.publish({
+                            type: TanzuEventType.VSPHERE_IP_FAMILY_CHANGE,
+                            payload: data
+                        });
+                        this.disconnect('disconnecting because field PROVIDER_IP_FAMILY changed value to ' + data);
+                    }
                 }
-            }
-        );
+            );
+        }
+        AppServices.messenger.subscribe<EditionData>(TanzuEventType.BRANDING_CHANGED, data => { this.edition = data.payload.edition; });
 
-        AppServices.messenger.getSubject(TanzuEventType.BRANDING_CHANGED)
-            .pipe(takeUntil(this.unsubscribe))
-            .subscribe((data: TanzuEvent) => {
-                const content: EditionData = data.payload;
-                this.edition = content.edition;
-            });
-
-        AppServices.messenger.getSubject(TanzuEventType.CONFIG_FILE_IMPORTED)
-            .pipe(takeUntil(this.unsubscribe))
-            .subscribe((data: TanzuEvent) => {
-                this.configFileNotification = {
-                    notificationType: NotificationTypes.SUCCESS,
-                    message: data.payload
-                };
-                // The file import saves the data to local storage, so we reinitialize this step's form from there
-                this.savedMetadata = FormMetaDataStore.getMetaData(this.formName);
-                this.initFormWithSavedData();
-
-                // Clear event so that listeners in other provider workflows do not receive false notifications
-                AppServices.messenger.clearEvent(TanzuEventType.CONFIG_FILE_IMPORTED);
-            });
+        // handle file import:
+        AppServices.messenger.subscribe<string>(this.eventFileImported, data => {
+            this.defaultFileImportedHandler(VsphereProviderStepFieldMapping)(data);
+            this.disconnect('Disconnecting due to file import');
+        });
+        this.registerDefaultFileImportErrorHandler(this.eventFileImportError);
 
         this.fileReader.onload = (event) => {
             try {
-                this.formGroup.get(VsphereField.PROVIDER_SSH_KEY).setValue(event.target.result);
-                console.log(event.target.result);
+                const sshKey = event.target['result'];
+                this.formGroup.get(VsphereField.PROVIDER_SSH_KEY).setValue(sshKey);
             } catch (error) {
-                console.log(error.message);
+                console.error('Error reading SSH key file: ' + error.message);
                 return;
             }
             this.formGroup.get(VsphereField.PROVIDER_SSH_KEY_FILE).setValue('');
@@ -169,13 +141,14 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
     ngOnInit() {
         super.ngOnInit();
         this.enableIpv6 = AppServices.appDataService.isPluginFeatureActivated(managementClusterPlugin, 'vsphereIPv6');
-        this.fieldMapUtilities.buildForm(this.formGroup, this.formName, VsphereProviderStepFieldMapping);
+        AppServices.userDataFormService.buildForm(this.formGroup, this.wizardName, this.formName, VsphereProviderStepFieldMapping);
+        this.htmlFieldLabels = AppServices.fieldMapUtilities.getFieldLabelMap(VsphereProviderStepFieldMapping);
+        this.storeDefaultLabels(VsphereProviderStepFieldMapping);
+
+        this.formGroup.get(VsphereField.PROVIDER_SSH_KEY).disable({ emitEvent: false});
         this.formGroup.get(VsphereField.PROVIDER_DATA_CENTER).disable({ emitEvent: false});
         this.datacenters = [];
-        this.formGroup.get(VsphereField.PROVIDER_SSH_KEY).disable({ emitEvent: false});
         this.customizeForm();
-
-        this.initFormWithSavedData();
     }
 
     private disconnect(consoleMsg?: string) {
@@ -186,17 +159,10 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
             this.connected = false;
             this.loadingState = ClrLoadingState.DEFAULT;
             this.formGroup.markAsPending(); // a temporary fix to ignore this.formGroup.statusChanges detection
-            this.clearControlValue(VsphereField.PROVIDER_DATA_CENTER);
             this.datacenters = [];
-            this.formGroup.get(VsphereField.PROVIDER_DATA_CENTER).disable();
+            this.disarmField(VsphereField.PROVIDER_DATA_CENTER);
             this.triggerStepDescriptionChange();
-        } else {
-            console.log('already disconnected so ignoring disconnect call (msg:' + consoleMsg + ')');
         }
-    }
-    initFormWithSavedData() {
-        super.initFormWithSavedData();
-        this.scrubPasswordField(VsphereField.PROVIDER_USER_PASSWORD);
     }
 
     /**
@@ -279,10 +245,6 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
                     } else {
                         this.thumbprint = thumbprint;
                         this.formGroup.controls[VsphereField.PROVIDER_THUMBPRINT].setValue(thumbprint);
-                        FormMetaDataStore.saveMetaDataEntry(this.formName, VsphereField.PROVIDER_THUMBPRINT, {
-                            label: 'SSL THUMBPRINT',
-                            displayValue: thumbprint
-                        });
                         this.sslThumbprintModal.open();
                     }
                 },
@@ -376,15 +338,7 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
     retrieveDatacenters() {
         this.apiClient.getVSphereDatacenters()
             .pipe(takeUntil(this.unsubscribe))
-            .subscribe((res) => {
-                this.datacenters = sortPaths(res, function (item) { return item.name; }, '/');
-                this.formGroup.get(VsphereField.PROVIDER_DATA_CENTER).enable();
-                this.formGroup.get(VsphereField.PROVIDER_SSH_KEY).enable();
-                this.formGroup.get(VsphereField.PROVIDER_DATA_CENTER).setValue(this.getSavedValue(VsphereField.PROVIDER_DATA_CENTER, ''));
-                if (this.datacenters.length === 1) {
-                    this.formGroup.get(VsphereField.PROVIDER_DATA_CENTER).setValue(this.datacenters[0].name);
-                }
-            },
+            .subscribe((dcs) => this.onDataCentersRetrieved(dcs),
             (err) => {
                 const error = err.error.message || err.message || JSON.stringify(err);
                 this.errorNotification =
@@ -393,23 +347,40 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
         );
     }
 
+    private onDataCentersRetrieved(vSphereDatacenters: VSphereDatacenter[]) {
+        const sshKeyControl = this.getControl(VsphereField.PROVIDER_SSH_KEY);
+        sshKeyControl.enable();
+        sshKeyControl.updateValueAndValidity();
+
+        this.datacenters = sortPaths(vSphereDatacenters, function (item) { return item.name; }, '/');
+        const dataCenterControl = this.getControl(VsphereField.PROVIDER_DATA_CENTER);
+        dataCenterControl.enable();
+        const possibleDataCenterNames = this.datacenters.map<string>(dc => dc.name);
+        this.restoreField(VsphereField.PROVIDER_DATA_CENTER, VsphereProviderStepFieldMapping, possibleDataCenterNames);
+        // NOTE: seems odd to call updateValueAndValidity() before setValidators(), but seems only way to get correct behavior
+        dataCenterControl.updateValueAndValidity();
+        dataCenterControl.setValidators([Validators.required]);
+    }
+
     /**
-     * @method dcOnChange
+     * @method onDataCenterChange
      * helper method to emit datacenter selection value when changed
-     * triggers all subsequent vsphere API discovery calls dependant on datacenter moid
+     * triggers all subsequent vsphere API discovery calls dependent on datacenter moid
      * @param $event {string} datacenter moid value emitted from select change
      */
-    dcOnChange(nameDatacenter: string) {
-        if (this.datacenters) {
+    private onDataCenterChange(nameDatacenter: string) {
+        if (this.datacenters && this.datacenters.length) {
             let dcMoid = '';
             const datacenter = this.datacenters.find(dc => dc.name === nameDatacenter);
             if (datacenter && datacenter.moid) {
                 dcMoid = datacenter.moid;
             }
-            AppServices.messenger.publish({
-                type: TanzuEventType.VSPHERE_DATACENTER_CHANGED,
-                payload: dcMoid
-            });
+            if (dcMoid) {
+                AppServices.messenger.publish({
+                    type: TanzuEventType.VSPHERE_DATACENTER_CHANGED,
+                    payload: dcMoid
+                });
+            }
         }
     }
 
@@ -466,5 +437,10 @@ export class VSphereProviderStepComponent extends StepFormDirective implements O
         }
         const version = this.vsphereVersion ? this.vsphereVersion + ' ' : '';
         return 'Validate the vSphere ' + version + 'provider account for Tanzu';
+    }
+
+    protected storeUserData() {
+        this.storeUserDataFromMapping(VsphereProviderStepFieldMapping);
+        this.storeDefaultDisplayOrder(VsphereProviderStepFieldMapping);
     }
 }

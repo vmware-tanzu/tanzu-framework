@@ -2,9 +2,10 @@
 import { Component, OnInit } from '@angular/core';
 // App imports
 import { AWSVirtualMachine } from '../../../../swagger/models';
-import AppServices from '../../../../shared/service/appServices';
-import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
-import { OsImageProviderInputs, SharedOsImageStepDirective } from '../../wizard/shared/components/steps/os-image-step/os-image-step.component';
+import {
+    OsImageProviderInputs,
+    SharedOsImageStepDirective
+} from '../../wizard/shared/components/steps/os-image-step/os-image-step.component';
 import { TanzuEventType } from '../../../../shared/service/Messenger';
 
 @Component({
@@ -13,22 +14,6 @@ import { TanzuEventType } from '../../../../shared/service/Messenger';
     styleUrls: ['../../wizard/shared/components/steps/os-image-step/os-image-step.component.scss']
 })
 export class AwsOsImageStepComponent extends SharedOsImageStepDirective<AWSVirtualMachine> implements OnInit {
-    // aws globals
-    region: string;
-
-    constructor(protected fieldMapUtilities: FieldMapUtilities) {
-        super(fieldMapUtilities);
-    }
-
-    ngOnInit() {
-        super.ngOnInit();
-
-        AppServices.messenger.getSubject(TanzuEventType.AWS_REGION_CHANGED)
-            .subscribe(event => {
-                this.region = event.payload;
-            });
-    }
-
     protected supplyProviderInputs(): OsImageProviderInputs {
         return {
             event: TanzuEventType.AWS_GET_OS_IMAGES,
@@ -36,5 +21,13 @@ export class AwsOsImageStepComponent extends SharedOsImageStepDirective<AWSVirtu
                 'into your AWS account. If no compatible OS image is present, import one into ' +
                 'AWS and click the Refresh button'
         };
+    }
+
+    protected supplyImportFileSuccessEvent(): TanzuEventType {
+        return TanzuEventType.AWS_CONFIG_FILE_IMPORTED;
+    }
+
+    protected supplyImportFileFailureEvent(): TanzuEventType {
+        return TanzuEventType.AWS_CONFIG_FILE_IMPORT_ERROR;
     }
 }

@@ -35,7 +35,6 @@ describe('VSphereProviderStepComponent', () => {
             providers: [
                 ValidationService,
                 FormBuilder,
-                FieldMapUtilities,
                 APIClient
             ],
             schemas: [
@@ -54,7 +53,9 @@ describe('VSphereProviderStepComponent', () => {
 
         fixture = TestBed.createComponent(VSphereProviderStepComponent);
         component = fixture.componentInstance;
-        component.setInputs('BozoWizard', 'vsphereProviderForm', new FormBuilder().group({}));
+        component.setStepRegistrantData({ wizard: 'BozoWizard', step: 'vsphereProviderForm', formGroup: new FormBuilder().group({}),
+            eventFileImported: TanzuEventType.VSPHERE_CONFIG_FILE_IMPORTED,
+            eventFileImportError: TanzuEventType.VSPHERE_CONFIG_FILE_IMPORT_ERROR});
 
         fixture.detectChanges();
     });

@@ -1,18 +1,14 @@
 <form [formGroup]="formGroup">
     <div class="clr-row">
         <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
-            <clr-input-container [attr.data-step-metadata]="formName">
+            <clr-input-container>
                 <label i18n="cluster name label" clr-control-label>
-                    {{ clusterTypeDescriptor | uppercase }} CLUSTER NAME {{edition === 'tkg' ? '(OPTIONAL)' : ''}}
+                    {{htmlFieldLabels['clusterName']}}
                     <clr-tooltip>
                         <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                         <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
                             <span>
-                                {{  edition === 'tkg'?
-                                    'Optionally specify a name for the ' + clusterTypeDescriptor + ' cluster. If left blank,' +
-                                    'the installer names the cluster automatically.' :
-                                    'Specify a name for the ' + clusterTypeDescriptor + ' cluster.'
-                                }}
+                                {{ clusterNameInstruction }}
                             </span>
                         </clr-tooltip-content>
                     </clr-tooltip>

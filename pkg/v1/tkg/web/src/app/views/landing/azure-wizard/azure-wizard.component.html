@@ -22,7 +22,7 @@
             </ng-container>
         </div>
     </div>
-    <app-shared-delete-data-popup></app-shared-delete-data-popup>
+    <app-shared-delete-data-popup [wizard]="wizardName"></app-shared-delete-data-popup>
     <app-step-wrapper-set [wizard]="registrar"></app-step-wrapper-set>
     <button class="btn btn-primary mt-20" [disabled]="!getWizardValidity()" (click)="reviewConfiguration(true)">
         REVIEW CONFIGURATION
@@ -30,7 +30,7 @@
 </div>
 
 <ng-container *ngIf="review">
-    <tkg-kickstart-ui-confirm></tkg-kickstart-ui-confirm>
+    <app-confirmation [wizard]="wizardName"></app-confirmation>
     <app-error-notification [errorNotification]="errorNotification"></app-error-notification>
     <div class="clr-row mt-20">
         <div class="clr-col-12 btn-container">
