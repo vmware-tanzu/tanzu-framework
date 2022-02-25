@@ -22,7 +22,6 @@ import (
 	kubetesting "k8s.io/client-go/testing"
 )
 
-// nolint:funlen
 func TestCreateOrUpdatePinnipedInfo(t *testing.T) {
 	const (
 		namespace = "kube-public"

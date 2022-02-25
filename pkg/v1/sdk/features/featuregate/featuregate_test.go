@@ -78,7 +78,6 @@ func TestComputeFeatureStates(t *testing.T) {
 	}
 }
 
-//nolint:funlen
 func TestFeaturesActivatedInNamespacesMatchingSelector(t *testing.T) {
 	scheme, err := configv1alpha1.SchemeBuilder.Build()
 	if err != nil {
