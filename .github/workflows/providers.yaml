@@ -43,7 +43,7 @@ jobs:
         mkdir -p bin
         wget -q https://storage.googleapis.com/tkg-cli-builds/bin/pict.linux -O bin/pict
         chmod +x bin/pict
-        wget -q https://github.com/k14s/ytt/releases/download/v0.30.0/ytt-linux-amd64 -O bin/ytt
+        wget -q https://github.com/vmware-tanzu/carvel-ytt/releases/download/v0.30.0/ytt-linux-amd64 -O bin/ytt
         chmod +x bin/ytt
         echo "$PWD/bin" >> $GITHUB_PATH
 
