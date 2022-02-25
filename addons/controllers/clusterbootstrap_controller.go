@@ -564,6 +564,13 @@ func (r *ClusterBootstrapReconciler) createOrPatchKappPackageInstall(clusterBoot
 				Name: secretName},
 			},
 		}
+
+		if pkgi.Labels == nil {
+			pkgi.Labels = map[string]string{}
+		}
+		pkgi.Labels[types.ClusterNameLabel] = cluster.Name
+		pkgi.Labels[types.ClusterNamespaceLabel] = cluster.Namespace
+
 		return nil
 	}
 
@@ -646,6 +653,13 @@ func (r *ClusterBootstrapReconciler) createOrPatchPackageInstallOnRemote(cluster
 				Prereleases: &versions.VersionSelectionSemverPrereleases{},
 			},
 		}
+
+		if remotePkgi.Labels == nil {
+			remotePkgi.Labels = map[string]string{}
+		}
+		remotePkgi.Labels[types.ClusterNameLabel] = cluster.Name
+		remotePkgi.Labels[types.ClusterNamespaceLabel] = cluster.Namespace
+
 		if remoteSecret != nil {
 			// The nil remoteSecret means no data values for current ClusterBootstrapPackage are needed. And no remote secret
 			// object gets created. The PackageInstall CR should be created without specifying the spec.Values.
@@ -1184,7 +1198,7 @@ func (r *ClusterBootstrapReconciler) updateValuesFromProvider(cluster *clusterap
 				newProvider.SetResourceVersion(provider.GetResourceVersion())
 				createdOrUpdatedProvider, err = r.dynamicClient.Resource(*gvr).Namespace(cluster.Namespace).Update(r.context, newProvider, metav1.UpdateOptions{})
 				if err != nil {
-					log.Info(fmt.Sprintf("unable to updated provider %s/%s", newProvider.GetNamespace(), newProvider.GetName()), "gvr", gvr)
+					log.Info(fmt.Sprintf("unable to update provider %s/%s", newProvider.GetNamespace(), newProvider.GetName()), "gvr", gvr)
 					return nil, err
 				}
 			} else {

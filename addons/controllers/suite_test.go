@@ -42,6 +42,7 @@ import (
 	addonconfig "github.com/vmware-tanzu/tanzu-framework/addons/pkg/config"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/crdwait"
+	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/util"
 	testutil "github.com/vmware-tanzu/tanzu-framework/addons/testutil"
 	cniv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cni/v1alpha1"
 	cpiv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cpi/v1alpha1"
@@ -263,6 +264,14 @@ var _ = BeforeSuite(func(done Done) {
 		},
 	)
 	Expect(bootstrapReconciler.SetupWithManager(ctx, mgr, controller.Options{MaxConcurrentReconciles: 1})).To(Succeed())
+
+	tracker := util.NewRemoteObjectTracker(mgr)
+	Expect((&PackageInstallStatusReconciler{
+		Client:  mgr.GetClient(),
+		Log:     ctrl.Log.WithName("controllers").WithName("PackageInstallStatus"),
+		Scheme:  mgr.GetScheme(),
+		Tracker: tracker,
+	}).SetupWithManager(ctx, mgr, controller.Options{MaxConcurrentReconciles: 1})).To(Succeed())
 
 	// pre-create namespace
 	ns := &corev1.Namespace{ObjectMeta: metav1.ObjectMeta{Name: "tkr-system"}}

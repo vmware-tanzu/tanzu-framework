@@ -5,7 +5,6 @@ package util
 
 import (
 	"fmt"
-	"testing"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -24,11 +23,6 @@ const (
 	testK8sVersion          = "v1.22.3"
 	testNamespace           = "test-ns"
 )
-
-func TestTKRTestUnit(t *testing.T) {
-	RegisterFailHandler(Fail)
-	RunSpecs(t, "util/Cluster Variable Util Tests")
-}
 
 var _ = Describe("Parse String Cluster Variable", func() {
 	Context("ParseClusterVariableString()", func() {

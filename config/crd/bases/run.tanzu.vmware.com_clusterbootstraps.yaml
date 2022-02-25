@@ -252,6 +252,31 @@ spec:
           status:
             description: ClusterBootstrapStatus defines the observed state of ClusterBootstrap
             properties:
+              conditions:
+                items:
+                  properties:
+                    lastTransitionTime:
+                      description: Last time the condition transitioned from one status
+                        to another. It reflects the time any other fields in the condition
+                        changed
+                      format: date-time
+                      type: string
+                    status:
+                      description: Status of the condition, one of True, False, Unknown
+                      type: string
+                    type:
+                      description: Type of condition in CamelCase
+                      type: string
+                    usefulErrorMessage:
+                      description: A human readable error message. Will be empty in
+                        case no error happened
+                      type: string
+                  required:
+                  - lastTransitionTime
+                  - status
+                  - type
+                  type: object
+                type: array
               resolvedTKR:
                 type: string
             type: object

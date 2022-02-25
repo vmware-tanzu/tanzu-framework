@@ -11,8 +11,11 @@ const (
 	// AddonNameLabel is the label on the Secret to indicate the name of addon to be installed
 	AddonNameLabel = "tkg.tanzu.vmware.com/addon-name"
 
-	// ClusterNameLabel is the label on the Secret to indicate the cluster on which addon is to be installed
+	// ClusterNameLabel is the label on the resource to indicate the cluster on which addon is to be installed
 	ClusterNameLabel = "tkg.tanzu.vmware.com/cluster-name"
+
+	// ClusterNamespaceLabel is the label on the resource to indicate the cluster namespace on which resource is to be installed
+	ClusterNamespaceLabel = "tkg.tanzu.vmware.com/cluster-namespace"
 
 	// PackageNameLabel is the label on the cloned objects namely Secrets and Providers by "TanzuClusterBootstrap" Reconciler to indicate the package name
 	PackageNameLabel = "tkg.tanzu.vmware.com/package-name"
