@@ -8,11 +8,8 @@ import { APIClient } from '../../../../swagger/api-client.service';
 import AppServices from '../../../../shared/service/appServices';
 import { AwsField, CredentialType } from "../aws-wizard.constants";
 import { AwsProviderStepMapping } from './aws-provider-step.fieldmapping';
-import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
-import { FormMetaDataStore } from "../../wizard/shared/FormMetaDataStore";
-import { NotificationTypes } from "../../../../shared/components/alert-notification/alert-notification.component";
 import { StepFormDirective } from '../../wizard/shared/step-form/step-form';
-import { TanzuEvent, TanzuEventType } from '../../../../shared/service/Messenger';
+import { TanzuEventType } from '../../../../shared/service/Messenger';
 
 export const AWSAccountParamsKeys = [
     AwsField.PROVIDER_PROFILE_NAME,
@@ -35,7 +32,7 @@ export class AwsProviderStepComponent extends StepFormDirective implements OnIni
     profileNames: Array<string> = [];
     validCredentials: boolean = false;
 
-    constructor(private fieldMapUtilities: FieldMapUtilities, private apiClient: APIClient) {
+    constructor(private apiClient: APIClient) {
         super();
     }
 
@@ -73,7 +70,10 @@ export class AwsProviderStepComponent extends StepFormDirective implements OnIni
     ngOnInit() {
         super.ngOnInit();
 
-        this.fieldMapUtilities.buildForm(this.formGroup, this.formName, AwsProviderStepMapping);
+        AppServices.userDataFormService.buildForm(this.formGroup, this.wizardName, this.formName, AwsProviderStepMapping);
+        this.htmlFieldLabels = AppServices.fieldMapUtilities.getFieldLabelMap(AwsProviderStepMapping);
+        this.storeDefaultLabels(AwsProviderStepMapping);
+
         this.customizeForm();
 
         this.loading = true;
@@ -91,10 +91,7 @@ export class AwsProviderStepComponent extends StepFormDirective implements OnIni
             }
         );
 
-        this.formGroup.get(AwsField.PROVIDER_AUTH_TYPE).valueChanges.pipe(
-            distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)),
-            takeUntil(this.unsubscribe)
-        ).subscribe(data => {
+        this.registerOnValueChange(AwsField.PROVIDER_AUTH_TYPE, data => {
             this.authTypeValue = data;
 
             if (this.authTypeValue === CredentialType.ONETIME) {
@@ -105,25 +102,19 @@ export class AwsProviderStepComponent extends StepFormDirective implements OnIni
                 this.disarmField(AwsField.PROVIDER_AUTH_TYPE, true);
             }
         });
-        this.authTypeValue = this.getSavedValue(AwsField.PROVIDER_AUTH_TYPE, CredentialType.PROFILE);
-        this.setControlValueSafely(AwsField.PROVIDER_AUTH_TYPE, this.authTypeValue, { emitEvent: false });
+        this.authTypeValue = this.getStoredValue(AwsField.PROVIDER_AUTH_TYPE, AwsProviderStepMapping, CredentialType.PROFILE);
+        this.setControlValueSafely(AwsField.PROVIDER_AUTH_TYPE, this.authTypeValue);
 
-        AppServices.messenger.getSubject(TanzuEventType.CONFIG_FILE_IMPORTED)
-            .pipe(takeUntil(this.unsubscribe))
-            .subscribe((data: TanzuEvent) => {
-                this.configFileNotification = {
-                    notificationType: NotificationTypes.SUCCESS,
-                    message: data.payload
-                };
-                // The file import saves the data to local storage, so we reinitialize this step's form from there
-                this.savedMetadata = FormMetaDataStore.getMetaData(this.formName);
-                this.initFormWithSavedData();
+        // handle file import
+        AppServices.messenger.subscribe<string>(this.eventFileImported, this.onFileImported.bind(this));
+        this.registerDefaultFileImportErrorHandler(this.eventFileImportError);
 
-                // Clear event so that listeners in other provider workflows do not receive false notifications
-                AppServices.messenger.clearEvent(TanzuEventType.CONFIG_FILE_IMPORTED);
-            });
+        this.chooseInitialAuthType();
+    }
 
-        this.initFormWithSavedData();
+    private onFileImported(data) {
+        this.defaultFileImportedHandler(AwsProviderStepMapping)(data);
+        this.setValidCredentials(false);
     }
 
     trimCreds(data) {
@@ -153,16 +144,21 @@ export class AwsProviderStepComponent extends StepFormDirective implements OnIni
             .subscribe(
                 (next) => {
                     this.regions = next[0].sort();
-                    if (this.regions.length === 1) {
-                        this.formGroup.get(AwsField.PROVIDER_REGION).setValue(this.regions[0]);
-                    }
+                    this.restoreRegion();
+
                     this.profileNames = next[1];
-                    if (this.profileNames.length === 1) {
-                        this.formGroup.get(AwsField.PROVIDER_PROFILE_NAME).setValue(this.profileNames[0], { onlySelf: true });
-                    }
+                    this.restoreProfile();
                 },
                 () => this.loading = false
             );
+    }
+
+    private restoreRegion() {
+        this.restoreField(AwsField.PROVIDER_REGION, AwsProviderStepMapping, this.regions);
+    }
+
+    private restoreProfile() {
+        this.restoreField(AwsField.PROVIDER_PROFILE_NAME, AwsProviderStepMapping, this.profileNames);
     }
 
     private oneTimeCredentialsSelectedHandler() {
@@ -184,21 +180,13 @@ export class AwsProviderStepComponent extends StepFormDirective implements OnIni
         }
     }
 
-    initFormWithSavedData() {
-        super.initFormWithSavedData();
-
+    chooseInitialAuthType() {
         // Use the presence of a saved secret access key to set the access type.
         // (Which is to say: assume CredentialType.PROFILE unless there is a saved secret access key.)
         // NOTE: if there is a real saved access key (from import) we erase it immediately after using it here
-        const savedSecretAccessKey = this.getRawSavedValue(AwsField.PROVIDER_SECRET_ACCESS_KEY);
+        const fieldMapping = AppServices.fieldMapUtilities.getFieldMapping(AwsField.PROVIDER_SECRET_ACCESS_KEY, AwsProviderStepMapping);
+        const savedSecretAccessKey = AppServices.userDataService.retrieveStoredValue(this.wizardName, this.formName, fieldMapping);
         this.authTypeValue = (savedSecretAccessKey) ? CredentialType.ONETIME : CredentialType.PROFILE;
-
-        this.scrubPasswordField(AwsField.PROVIDER_ACCESS_KEY);
-        this.scrubPasswordField(AwsField.PROVIDER_SECRET_ACCESS_KEY);
-
-        // Initializations not needed the first time the form is loaded, but
-        // required to re-initialize after form has been used
-        this.setValidCredentials(false);
     }
 
     /**
@@ -254,5 +242,10 @@ export class AwsProviderStepComponent extends StepFormDirective implements OnIni
     // For use in HTML
     isAuthTypeProfile() {
         return this.authTypeValue === CredentialType.PROFILE;
+    }
+
+    protected storeUserData() {
+        this.storeUserDataFromMapping(AwsProviderStepMapping);
+        this.storeDefaultDisplayOrder(AwsProviderStepMapping);
     }
 }

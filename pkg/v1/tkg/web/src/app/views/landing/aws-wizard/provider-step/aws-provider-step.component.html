@@ -5,7 +5,7 @@
         <div class="clr-col-8">
             <clr-radio-container clrInline>
                 <label>
-                    AWS CREDENTIAL TYPE
+                    {{htmlFieldLabels['authType']}}
                     <clr-tooltip>
                         <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                         <clr-tooltip-content clrPosition="right" clrSize="lg" *clrIfOpen>
@@ -59,9 +59,9 @@
         </p>
         <div class="clr-row">
             <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
-                <clr-password-container [attr.data-step-metadata]="formName">
+                <clr-password-container>
                     <label i18n="aws access key id label" clr-control-label>
-                        ACCESS KEY ID (OPTIONAL)
+                        {{htmlFieldLabels['accessKeyID']}}
                         <clr-tooltip>
                             <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                             <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
@@ -77,9 +77,9 @@
                 </clr-password-container>
             </div>
             <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
-                <clr-password-container [attr.data-step-metadata]="formName">
+                <clr-password-container>
                     <label i18n="aws secret access key label" clr-control-label>
-                        SECRET ACCESS KEY (OPTIONAL)
+                        {{htmlFieldLabels['secretAccessKey']}}
                         <clr-tooltip>
                             <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                             <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
@@ -95,9 +95,9 @@
                 </clr-password-container>
             </div>
             <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
-                <clr-input-container [attr.data-step-metadata]="formName">
+                <clr-input-container>
                     <label i18n="aws session token label" clr-control-label>
-                        SESSION TOKEN (OPTIONAL)
+                        {{htmlFieldLabels['sessionToken']}}
                         <clr-tooltip>
                             <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                             <clr-tooltip-content clrPosition="top-left" clrSize="lg" *clrIfOpen>
@@ -126,9 +126,9 @@
         </p>
         <div class="clr-row">
             <div class="clr-col-4">
-                <clr-select-container [attr.data-step-metadata]="formName">
+                <clr-select-container>
                     <label i18n="aws credential profile label">
-                        AWS CREDENTIAL PROFILE
+                        {{htmlFieldLabels['profileName']}}
                         <clr-tooltip>
                             <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                             <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
@@ -138,7 +138,7 @@
                             </clr-tooltip-content>
                         </clr-tooltip>
                     </label>
-                    <select clrSelect name="profileName" formControlName="profileName" save-requires-value="true">
+                    <select clrSelect name="profileName" formControlName="profileName">
                         <option aria-label="blank" title="blank"></option>
                         <option *ngFor="let profile of profileNames" [value]="profile">{{profile}}</option>
                     </select>
@@ -151,9 +151,9 @@
 
         <div class="clr-row">
             <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
-                <clr-select-container [attr.data-step-metadata]="formName">
+                <clr-select-container>
                     <label i18n="aws region label">
-                        REGION
+                        {{htmlFieldLabels['region']}}
                         <clr-tooltip>
                             <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                             <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>

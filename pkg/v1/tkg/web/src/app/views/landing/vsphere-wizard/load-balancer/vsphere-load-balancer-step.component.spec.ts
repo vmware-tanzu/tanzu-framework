@@ -1,5 +1,6 @@
 // Angular imports
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 // App imports
@@ -7,7 +8,8 @@ import { APIClient } from '../../../../swagger';
 import AppServices from '../../../../shared/service/appServices';
 import { DataServiceRegistrarTestExtension } from '../../../../testing/data-service-registrar.testextension';
 import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
-import { KUBE_VIP } from '../../wizard/shared/components/steps/load-balancer/load-balancer-step.component';
+import { KUBE_VIP } from '../node-setting-step/node-setting-step.fieldmapping';
+import { LoadBalancerField } from '../../wizard/shared/components/steps/load-balancer/load-balancer-step.fieldmapping';
 import { Messenger, TanzuEventType } from '../../../../shared/service/Messenger';
 import { ResourcePool } from '../resource-step/resource-step.component';
 import { SharedModule } from '../../../../shared/shared.module';
@@ -15,7 +17,6 @@ import { ValidationService } from '../../wizard/shared/validation/validation.ser
 import { VSphereDatastore, VSphereFolder, VSphereResourcePool } from '../../../../swagger/models';
 import { VsphereLoadBalancerStepComponent } from './vsphere-load-balancer-step.component';
 import { WizardForm } from '../../wizard/shared/constants/wizard.constants';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 describe('VsphereLoadBalancerStepComponent', () => {
     let component: VsphereLoadBalancerStepComponent;
@@ -55,7 +56,9 @@ describe('VsphereLoadBalancerStepComponent', () => {
 
         fixture = TestBed.createComponent(VsphereLoadBalancerStepComponent);
         component = fixture.componentInstance;
-        component.setInputs('BozoWizard', WizardForm.LOADBALANCER, new FormBuilder().group({}));
+        component.setStepRegistrantData({ wizard: 'BozoWizard', step: WizardForm.LOADBALANCER, formGroup: new FormBuilder().group({}),
+            eventFileImported: TanzuEventType.VSPHERE_CONFIG_FILE_IMPORTED,
+            eventFileImportError: TanzuEventType.VSPHERE_CONFIG_FILE_IMPORT_ERROR});
 
         fixture.detectChanges();
     });

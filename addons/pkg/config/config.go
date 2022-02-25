@@ -8,8 +8,8 @@ import (
 	"time"
 )
 
-// Config contains configuration information.
-type Config struct {
+// AddonControllerConfig contains addons controller configuration information.
+type AddonControllerConfig struct {
 	AppSyncPeriod           time.Duration
 	AppWaitTimeout          time.Duration
 	AddonNamespace          string
@@ -18,4 +18,14 @@ type Config struct {
 	AddonClusterRoleBinding string
 	AddonImagePullPolicy    string
 	CorePackageRepoName     string
+}
+
+// ClusterBootstrapControllerConfig contains configuration information related to ClusterBootstrap
+type ClusterBootstrapControllerConfig struct {
+	CNISelectionClusterVariableName string
+	HTTPProxyClusterClassVarName    string
+	HTTPSProxyClusterClassVarName   string
+	NoProxyClusterClassVarName      string
+	ProxyCACertClusterClassVarName  string
+	IPFamilyClusterClassVarName     string
 }

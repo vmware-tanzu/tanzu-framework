@@ -21,23 +21,18 @@
 
     <div class="clr-row">
         <div class="clr-col-12">
-            <clr-toggle-container [attr.data-step-metadata]="formName">
+            <clr-toggle-container>
                 <clr-toggle-wrapper>
                     <input type="checkbox" clrToggle name="idmSettings" formControlName="idmSettings" (change)="toggleIdmSetting()"/>
-                    <label>Enable Identity Management Settings</label>
+                    <label>{{htmlFieldLabels['idmSettings']}}</label>
                 </clr-toggle-wrapper>
             </clr-toggle-container>
         </div>
     </div>
-    <div *ngIf="formGroup.value['idmSettings']">
+    <div *ngIf="isUsingIdentityManagement">
         <div class="clr-row">
             <div class="clr-col-8">
-                <clr-radio-container
-                        clrInline
-                        [attr.data-step-metadata]="formName"
-                        data-name="identityType"
-                        data-label="identity provider type"
-                        [attr.data-value]="identityTypeValue">
+                <clr-radio-container clrInline>
                     <clr-radio-wrapper>
                         <input
                             type="radio"
@@ -63,17 +58,17 @@
                 </clr-radio-container>
             </div>
         </div>
-        <ng-container *ngIf="identityTypeValue==='oidc'">
+        <ng-container *ngIf="isIdentityManagementOidc">
             <!-- OIDC -->
             <h5 i18n="identity oidc title" aria-level="3">
                 OIDC Identity Management Source
             </h5>
             <div class="clr-row oidc-form">
                 <div class="clr-col-8">
-                    <div class="clr-form-control" [attr.data-step-metadata]="formName">
+                    <div class="clr-form-control">
                         <clr-input-container>
                             <label i18n="identity issuer url label" class="clr-control-label">
-                                ISSUER URL
+                                {{htmlFieldLabels['issuerURL']}}
                                 <clr-tooltip>
                                     <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                                     <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
@@ -107,10 +102,10 @@
             </div>
             <div class="clr-row oidc-form">
                 <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
-                    <div class="clr-form-control" [attr.data-step-metadata]="formName">
+                    <div class="clr-form-control">
                         <clr-input-container>
                             <label i18n="identity client id label" class="clr-control-label">
-                                CLIENT ID
+                                {{htmlFieldLabels['clientId']}}
                                 <clr-tooltip>
                                     <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                                     <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
@@ -128,10 +123,10 @@
                     </div>
                 </div>
                 <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
-                    <div class="clr-form-control" [attr.data-step-metadata]="formName">
+                    <div class="clr-form-control">
                         <clr-input-container>
                             <label i18n="identity client secret label" class="clr-control-label">
-                                CLIENT SECRET
+                                {{htmlFieldLabels['clientSecret']}}
                                 <clr-tooltip>
                                     <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                                     <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
@@ -152,10 +147,10 @@
 
             <div class="clr-row oidc-form">
                 <div class="clr-col-4">
-                    <div class="clr-form-control" [attr.data-step-metadata]="formName">
+                    <div class="clr-form-control">
                         <clr-input-container>
                             <label i18n="identity scopes label" class="clr-control-label">
-                                SCOPES
+                                {{htmlFieldLabels['scopes']}}
                                 <clr-tooltip>
                                     <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                                     <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
@@ -184,10 +179,10 @@
             <div class="clr-row oidc-form">
                 <!-- Email claim -->
                 <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
-                    <div class="clr-form-control" [attr.data-step-metadata]="formName">
+                    <div class="clr-form-control">
                         <clr-input-container>
                             <label>
-                                USERNAME CLAIM
+                                {{htmlFieldLabels['oidcUsernameClaim']}}
                                 <clr-tooltip>
                                     <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                                     <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
@@ -208,10 +203,10 @@
                 </div>
                 <!-- Groups claim -->
                 <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
-                    <div class="clr-form-control" [attr.data-step-metadata]="formName">
+                    <div class="clr-form-control">
                         <clr-input-container>
                             <label>
-                                GROUPS CLAIM
+                                {{htmlFieldLabels['oidcGroupsClaim']}}
                                 <clr-tooltip>
                                     <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                                     <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
@@ -232,18 +227,18 @@
                 </div>
             </div>
         </ng-container>
-        <ng-container *ngIf="identityTypeValue==='ldap'">
+        <ng-container *ngIf="isIdentityManagementLdap">
             <!-- LDAP -->
             <h5 i18n="identity ldap title" aria-level="3">
                 LDAPS Identity Management Source
             </h5>
             <div class="clr-row">
                 <!-- LDAP endpoint -->
-                <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4" [attr.data-step-metadata]="formName">
+                <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
                     <div class="clr-form-control ldap-endpoint">
                         <div class="clr-control-container">
                             <label class="ldap-endpoint-label theme-override">
-                                LDAPS Endpoint
+                                {{htmlFieldLabels['endpointIp']}}
                                 <clr-tooltip>
                                     <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                                     <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
@@ -251,12 +246,7 @@
                                     </clr-tooltip-content>
                                 </clr-tooltip>
                             </label>
-                            <div
-                                class="clr-input-wrapper"
-                                [class.clr-error]="formGroup.get('endpointIp').invalid"
-                                [attr.data-step-metadata]="formName"
-                                data-name="endpointIp"
-                                data-label="ldap endpoint ip">
+                            <div>
                                 <input clrInput
                                        class="endpoint-ip-input"
                                        formControlName="endpointIp"
@@ -272,12 +262,7 @@
                                        aria-label="ldap endpoint colon"
                                        value=":"/>
                             </div>
-                            <div
-                                class="clr-input-wrapper"
-                                [class.clr-error]="formGroup.get('endpointPort').invalid"
-                                [attr.data-step-metadata]="formName"
-                                data-name="endpointPort"
-                                data-label="ldap endpoint port">
+                            <div>
                                 <input clrInput
                                        class="endpoint-port-input"
                                        formControlName="endpointPort"
@@ -293,9 +278,9 @@
 
                 <!-- Bind DN -->
                 <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
-                    <clr-input-container [attr.data-step-metadata]="formName">
+                    <clr-input-container>
                         <label>
-                            BIND DN (OPTIONAL)
+                            {{htmlFieldLabels['bindDN']}}
                             <clr-tooltip>
                                 <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                                 <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
@@ -317,9 +302,9 @@
 
                 <!-- Bind Password -->
                 <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
-                    <clr-input-container [attr.data-step-metadata]="formName">
+                    <clr-input-container>
                         <label>
-                            BIND PASSWORD (OPTIONAL)
+                            {{htmlFieldLabels['bindPW']}}
                             <clr-tooltip>
                                 <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                                 <clr-tooltip-content clrPosition="top-left" clrSize="lg" *clrIfOpen>
@@ -346,9 +331,9 @@
             <div class="clr-row">
                 <!-- User search base DN -->
                 <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
-                    <clr-input-container [attr.data-step-metadata]="formName">
+                    <clr-input-container>
                         <label>
-                            BASE DN (OPTIONAL)
+                            {{htmlFieldLabels['userSearchBaseDN']}}
                             <clr-tooltip>
                                 <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                                 <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
@@ -369,9 +354,9 @@
 
                 <!-- User search filter -->
                 <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
-                    <clr-input-container [attr.data-step-metadata]="formName">
+                    <clr-input-container>
                         <label>
-                            FILTER
+                            {{htmlFieldLabels['userSearchFilter']}}
                             <clr-tooltip>
                                 <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                                 <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
@@ -397,9 +382,9 @@
 
                 <!-- User search username -->
                 <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
-                    <clr-input-container [attr.data-step-metadata]="formName">
+                    <clr-input-container>
                         <label>
-                            USERNAME
+                            {{htmlFieldLabels['userSearchUsername']}}
                             <clr-tooltip>
                                 <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                                 <clr-tooltip-content clrPosition="top-left" clrSize="lg" *clrIfOpen>
@@ -425,9 +410,9 @@
             <div class="clr-row">
                 <!-- Group search base DN -->
                 <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
-                    <clr-input-container [attr.data-step-metadata]="formName">
+                    <clr-input-container>
                         <label>
-                            BASE DN (OPTIONAL)
+                            {{htmlFieldLabels['groupSearchBaseDN']}}
                             <clr-tooltip>
                                 <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                                 <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
@@ -448,9 +433,9 @@
 
                 <!-- Group search filter -->
                 <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
-                    <clr-input-container [attr.data-step-metadata]="formName">
+                    <clr-input-container>
                         <label>
-                            FILTER
+                            {{htmlFieldLabels['groupSearchFilter']}}
                             <clr-tooltip>
                                 <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                                 <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
@@ -471,9 +456,9 @@
 
                 <!-- Group search name attribute -->
                 <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
-                    <clr-input-container [attr.data-step-metadata]="formName">
+                    <clr-input-container>
                         <label>
-                            NAME ATTRIBUTE (OPTIONAL)
+                            {{htmlFieldLabels['groupSearchNameAttr']}}
                             <clr-tooltip>
                                 <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                                 <clr-tooltip-content clrPosition="top-left" clrSize="lg" *clrIfOpen>
@@ -493,9 +478,9 @@
             <div class="clr-row">
                 <!-- Group search user attribute -->
                 <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
-                    <clr-input-container [attr.data-step-metadata]="formName">
+                    <clr-input-container>
                         <label>
-                            USER ATTRIBUTE (OPTIONAL)
+                            {{htmlFieldLabels['groupSearchUserAttr']}}
                             <clr-tooltip>
                                 <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                                 <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
@@ -515,9 +500,9 @@
 
                 <!-- Group search group attribute -->
                 <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
-                    <clr-input-container [attr.data-step-metadata]="formName">
+                    <clr-input-container>
                         <label>
-                            GROUP ATTRIBUTE (OPTIONAL)
+                            {{htmlFieldLabels['groupSearchGroupAttr']}}
                             <clr-tooltip>
                                 <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                                 <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
@@ -537,9 +522,9 @@
             <div class="clr-row">
                 <!-- Root CA -->
                 <div class="clr-col-12 clr-col-lg-4">
-                    <div class="clr-form-control" [attr.data-step-metadata]="formName">
+                    <div class="clr-form-control">
                         <label for="ldapRootCAData" class="clr-control-label" >
-                            ROOT CA (OPTIONAL)
+                            {{htmlFieldLabels['ldapRootCAData']}}
                             <clr-tooltip>
                                 <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                                 <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
@@ -589,7 +574,7 @@
                             <div class="clr-col-12 clr-col-sm-6 clr-col-lg-6">
                                 <clr-input-container>
                                     <label>
-                                        TEST USER NAME (OPTIONAL)
+                                        {{htmlFieldLabels['testUserName']}}
                                         <clr-tooltip>
                                             <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22">
                                             </clr-icon>
@@ -605,7 +590,7 @@
                             <div class="clr-col-12 clr-col-sm-6 clr-col-lg-6">
                                 <clr-input-container>
                                     <label>
-                                        TEST GROUP NAME (OPTIONAL)
+                                        {{htmlFieldLabels['testGroupName']}}
                                         <clr-tooltip>
                                             <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22">
                                             </clr-icon>

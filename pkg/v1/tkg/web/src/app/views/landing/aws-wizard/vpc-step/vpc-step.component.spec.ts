@@ -27,7 +27,6 @@ describe('VpcComponent', () => {
                 APIClient,
                 ValidationService,
                 FormBuilder,
-                FieldMapUtilities,
             ],
             schemas: [
                 CUSTOM_ELEMENTS_SCHEMA
@@ -40,7 +39,8 @@ describe('VpcComponent', () => {
         AppServices.messenger = new Messenger();
         fixture = TestBed.createComponent(VpcStepComponent);
         component = fixture.componentInstance;
-        component.setInputs('PickleWizard', AwsForm.VPC, new FormBuilder().group({}));
+        component.setStepRegistrantData({ wizard: 'PickleWizard', step: AwsForm.VPC, formGroup: new FormBuilder().group({}),
+            eventFileImported: TanzuEventType.AWS_CONFIG_FILE_IMPORTED, eventFileImportError: TanzuEventType.AWS_CONFIG_FILE_IMPORT_ERROR});
         fixture.detectChanges();
     });
 
@@ -75,7 +75,7 @@ describe('VpcComponent', () => {
         }];
         component.formGroup.get(AwsField.VPC_TYPE).setValue(VpcType.EXISTING);
         fixture.detectChanges();
-        component.existingVpcOnChange('vpc-1');
+        component.onChangeExistingVpc('vpc-1');
         expect(component.formGroup.get('existingVpcCidr').value).toBe('100.64.0.0/13');
     }));
 
@@ -102,8 +102,13 @@ describe('VpcComponent', () => {
             }
         });
 
+        // NOTE: setting the existing VPC id causes a search of existingVpcs to find the corresponding CIDR,
+        // so we need to set up existingVpcs to have the VPC id we're using in the test
+        component.existingVpcs = [{
+            id: 'someVpc',
+            cidr: '3.4.3.4/24',
+        }]
         vpcTypeControl.setValue(VpcType.EXISTING);
-        vpcExistingCidrControl.setValue('3.4.3.4/24');
         vpcExistingIdControl.setValue('someVpc');
         expect(msgSpy).toHaveBeenCalledWith({
             type: TanzuEventType.STEP_DESCRIPTION_CHANGE,

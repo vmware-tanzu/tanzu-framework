@@ -19,13 +19,7 @@ export enum AwsField {
     NODESETTING_AZ_2 = 'awsNodeAz2',
     NODESETTING_AZ_3 = 'awsNodeAz3',
     NODESETTING_BASTION_HOST_ENABLED = 'bastionHostEnabled',
-    NODESETTING_CLUSTER_NAME = 'clusterName',
-    NODESETTING_CONTROL_PLANE_SETTING = 'controlPlaneSetting',
     NODESETTING_CREATE_CLOUD_FORMATION = 'createCloudFormation',
-    NODESETTING_ENABLE_AUDIT_LOGGING = 'enableAuditLogging',
-    NODESETTING_INSTANCE_TYPE_DEV = 'devInstanceType',
-    NODESETTING_INSTANCE_TYPE_PROD = 'prodInstanceType',
-    NODESETTING_MACHINE_HEALTH_CHECKS_ENABLED = 'machineHealthChecksEnabled',
     NODESETTING_SSH_KEY_NAME = 'sshKeyName',
     NODESETTING_VPC_PUBLIC_SUBNET_1 = 'vpcPublicSubnet1',
     NODESETTING_VPC_PUBLIC_SUBNET_2 = 'vpcPublicSubnet2',
@@ -33,7 +27,7 @@ export enum AwsField {
     NODESETTING_VPC_PRIVATE_SUBNET_1 = 'vpcPrivateSubnet1',
     NODESETTING_VPC_PRIVATE_SUBNET_2 = 'vpcPrivateSubnet2',
     NODESETTING_VPC_PRIVATE_SUBNET_3 = 'vpcPrivateSubnet3',
-    NODESETTING_WORKERTYPE_1 = 'workerNodeInstanceType1',
+    // NOTE: worker type 1 uses NodeSettingField.WORKER_NODE_INSTANCE_TYPE from the shared component
     NODESETTING_WORKERTYPE_2 = 'workerNodeInstanceType2',
     NODESETTING_WORKERTYPE_3 = 'workerNodeInstanceType3',
 

@@ -68,19 +68,19 @@ type KappDeployment struct {
 }
 
 type KappConfig struct {
-	// A cert chain of trusted CA certs. These will be added to the system-wide cert pool of trusted CA's
+	// A cert chain of trusted CA certs. These will be added to the system-wide cert pool of trusted CA's. Cluster-wide CA Certificate setting will be used if this is not provided.
 	//+kubebuilder:validation:Optional
 	CaCerts string `json:"caCerts,omitempty"`
 
-	// The url/ip of a proxy for kapp controller to use when making network requests
+	// The url/ip of a proxy for kapp controller to use when making network requests. Cluster-wide HTTP proxy setting will be used if this is not provided.
 	//+kubebuilder:validation:Optional
 	HTTPProxy string `json:"httpProxy,omitempty"`
 
-	// The url/ip of a TLS capable proxy for kapp-controller to use when making network requests
+	// The url/ip of a TLS capable proxy for kapp-controller to use when making network requests. Cluster-wide HTTPS proxy setting will be used if this is not provided.
 	//+kubebuilder:validation:Optional
 	HTTPSProxy string `json:"httpsProxy,omitempty"`
 
-	// A comma delimited list of domain names which kapp-controller should bypass the proxy for when making requests
+	// A comma delimited list of domain names which kapp-controller should bypass the proxy for when making requests. Cluster-wide no-proxy setting will be used if this is not provided.
 	//+kubebuilder:validation:Optional
 	NoProxy string `json:"noProxy,omitempty"`
 

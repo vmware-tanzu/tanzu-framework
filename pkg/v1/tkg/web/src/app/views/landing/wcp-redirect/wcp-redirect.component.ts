@@ -1,8 +1,6 @@
 // Angular imports
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-// Third Party Imports
-import { takeUntil } from 'rxjs/operators';
 // App Imports
 import { APP_ROUTES, Routes } from '../../../shared/constants/routes.constants';
 import AppServices from 'src/app/shared/service/appServices';
@@ -24,12 +22,12 @@ export class WcpRedirectComponent extends StepFormDirective implements OnInit {
         super();
     }
 
+    // This method must be implemented from the base class, but we have no user data to save
+    protected storeUserData() {}
+
     ngOnInit() {
-        AppServices.messenger.getSubject(TanzuEventType.VSPHERE_VC_AUTHENTICATED)
-            .pipe(takeUntil(this.unsubscribe))
-            .subscribe((data) => {
-                this.vcHost = data.payload;
-            });
+        AppServices.messenger.subscribe<string>(TanzuEventType.VSPHERE_VC_AUTHENTICATED, data => { this.vcHost = data.payload; },
+            this.unsubscribe);
     }
 
     /**
@@ -54,7 +52,6 @@ export class WcpRedirectComponent extends StepFormDirective implements OnInit {
      * @desc helper method to launch vSphere wcp enablement workflow in new window
      */
     relaunchVsphereWizard() {
-
         window.open(`https://${this.vcHost}/ui/app/workload-platform/`, '_blank');
     }
 }

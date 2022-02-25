@@ -5,7 +5,6 @@ import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 // App imports
 import { APIClient } from 'src/app/swagger/api-client.service';
 import AppServices from '../../../../../../../shared/service/appServices';
-import { FieldMapUtilities } from '../../../field-mapping/FieldMapUtilities';
 import { Messenger, TanzuEventType } from 'src/app/shared/service/Messenger';
 import { OsImageField } from './os-image-step.fieldmapping';
 import { SharedModule } from 'src/app/shared/shared.module';
@@ -28,7 +27,6 @@ describe('VsphereOsImageStepComponent', () => {
             providers: [
                 ValidationService,
                 FormBuilder,
-                FieldMapUtilities,
                 APIClient,
             ],
             schemas: [
@@ -42,7 +40,10 @@ describe('VsphereOsImageStepComponent', () => {
         AppServices.messenger = new Messenger();
         fixture = TestBed.createComponent(VsphereOsImageStepComponent);
         component = fixture.componentInstance;
-        component.setInputs('BozoWizard', WizardForm.OSIMAGE, new FormBuilder().group({}));
+        // NOTE: using Azure file import events just for testing
+        component.setStepRegistrantData({ wizard: 'BozoWizard', step: WizardForm.OSIMAGE, formGroup: new FormBuilder().group({}),
+            eventFileImported: TanzuEventType.AZURE_CONFIG_FILE_IMPORTED,
+            eventFileImportError: TanzuEventType.AZURE_CONFIG_FILE_IMPORT_ERROR});
 
         fixture.detectChanges();
     });

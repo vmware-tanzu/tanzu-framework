@@ -1,5 +1,5 @@
 // Angular imports
-import { Component, OnInit, ElementRef } from '@angular/core';
+import { Component, ElementRef, OnInit } from '@angular/core';
 import { FormBuilder } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Title } from '@angular/platform-browser';
@@ -10,17 +10,17 @@ import { APIClient } from '../../../swagger/api-client.service';
 import { APP_ROUTES, Routes } from '../../../shared/constants/routes.constants';
 import AppServices from "../../../shared/service/appServices";
 import { CliFields, CliGenerator } from '../wizard/shared/utils/cli-generator';
-import { ClusterPlan, WizardForm, WizardStep } from '../wizard/shared/constants/wizard.constants';
+import { ClusterPlan, WizardForm } from '../wizard/shared/constants/wizard.constants';
 import { ExportService } from '../../../shared/service/export.service';
 import { FormDataForHTML, FormUtility } from '../wizard/shared/components/steps/form-utility';
-import { FormMetaDataService } from 'src/app/shared/service/form-meta-data.service';
 import { ImportParams, ImportService } from "../../../shared/service/import.service";
-import { KUBE_VIP, NSX_ADVANCED_LOAD_BALANCER, SharedLoadBalancerStepComponent } from './../wizard/shared/components/steps/load-balancer/load-balancer-step.component';
+import { KUBE_VIP, NSX_ADVANCED_LOAD_BALANCER } from './node-setting-step/node-setting-step.fieldmapping';
 import { LoadBalancerField } from '../wizard/shared/components/steps/load-balancer/load-balancer-step.fieldmapping';
 import { NodeSettingStepComponent } from './node-setting-step/node-setting-step.component';
 import { PROVIDERS, Providers } from '../../../shared/constants/app.constants';
 import { ResourceStepComponent } from './resource-step/resource-step.component';
 import { TanzuEventType } from '../../../shared/service/Messenger';
+import { VsphereField, VsphereForm, VsphereNodeTypes } from './vsphere-wizard.constants';
 import {
     VSphereDatastore,
     VSphereFolder,
@@ -29,7 +29,6 @@ import {
     VSphereResourcePool,
     VSphereVirtualMachine
 } from '../../../swagger/models';
-import { VsphereField, VsphereForm } from './vsphere-wizard.constants';
 import { VsphereLoadBalancerStepComponent } from './load-balancer/vsphere-load-balancer-step.component';
 import { VsphereNetworkStepComponent } from './vsphere-network-step/vsphere-network-step.component';
 import { VsphereOsImageStepComponent } from './vsphere-os-image-step/vsphere-os-image-step.component';
@@ -57,11 +56,10 @@ export class VSphereWizardComponent extends WizardBaseDirective implements OnIni
         private exportService: ExportService,
         private importService: ImportService,
         formBuilder: FormBuilder,
-        formMetaDataService: FormMetaDataService,
         titleService: Title,
         el: ElementRef) {
 
-        super(router, el, formMetaDataService, titleService, formBuilder);
+        super(router, el, titleService, formBuilder);
 
         this.provider = AppServices.appDataService.getProviderType();
         this.tkrVersion = AppServices.appDataService.getTkrVersion();
@@ -70,8 +68,16 @@ export class VSphereWizardComponent extends WizardBaseDirective implements OnIni
         });
     }
 
+    protected supplyFileImportedEvent(): TanzuEventType {
+        return TanzuEventType.VSPHERE_CONFIG_FILE_IMPORTED;
+    }
+
+    protected supplyFileImportErrorEvent(): TanzuEventType {
+        return TanzuEventType.VSPHERE_CONFIG_FILE_IMPORT_ERROR;
+    }
+
     protected supplyWizardName(): string {
-        return 'vSphere Wizard';
+        return 'vSphereWizard';
     }
 
     protected supplyStepData(): FormDataForHTML[] {
@@ -104,15 +110,14 @@ export class VSphereWizardComponent extends WizardBaseDirective implements OnIni
             ['datacenter', VsphereForm.PROVIDER, VsphereField.PROVIDER_DATA_CENTER],
             ['ssh_key', VsphereForm.PROVIDER, VsphereField.PROVIDER_SSH_KEY],
             ['clusterName', VsphereForm.NODESETTING, VsphereField.NODESETTING_CLUSTER_NAME],
-            ['controlPlaneFlavor', VsphereForm.NODESETTING, VsphereField.NODESETTING_CONTROL_PLANE_SETTING],
             ['controlPlaneEndpoint', VsphereForm.NODESETTING, VsphereField.NODESETTING_CONTROL_PLANE_ENDPOINT_IP],
             ['datastore', VsphereForm.RESOURCE, VsphereField.RESOURCE_DATASTORE],
             ['folder', VsphereForm.RESOURCE, VsphereField.RESOURCE_VMFOLDER],
             ['resourcePool', VsphereForm.RESOURCE, VsphereField.RESOURCE_POOL]
         ];
         mappings.forEach(attr => payload[attr[0]] = this.getFieldValue(attr[1], attr[2]));
-        payload.controlPlaneNodeType =
-            this.getControlPlaneType(this.getFieldValue(VsphereForm.NODESETTING, VsphereField.NODESETTING_CONTROL_PLANE_SETTING));
+        payload.controlPlaneFlavor = this.getStoredClusterPlan(VsphereForm.NODESETTING);
+        payload.controlPlaneNodeType = this.getControlPlaneType(payload.controlPlaneFlavor);
         payload.workerNodeType = AppServices.appDataService.isModeClusterStandalone() ? payload.controlPlaneNodeType :
             this.getFieldValue(VsphereForm.NODESETTING, VsphereField.NODESETTING_WORKER_NODE_INSTANCE_TYPE);
         payload.machineHealthCheckEnabled =
@@ -159,21 +164,35 @@ export class VSphereWizardComponent extends WizardBaseDirective implements OnIni
             ['datacenter', VsphereForm.PROVIDER, VsphereField.PROVIDER_DATA_CENTER],
             ['ssh_key', VsphereForm.PROVIDER, VsphereField.PROVIDER_SSH_KEY],
             ['clusterName', VsphereForm.NODESETTING, VsphereField.NODESETTING_CLUSTER_NAME],
-            ['controlPlaneFlavor', VsphereForm.NODESETTING, VsphereField.NODESETTING_CONTROL_PLANE_SETTING],
             ['controlPlaneEndpoint', VsphereForm.NODESETTING, VsphereField.NODESETTING_CONTROL_PLANE_ENDPOINT_IP],
             ['datastore', VsphereForm.RESOURCE, VsphereField.RESOURCE_DATASTORE],
             ['folder', VsphereForm.RESOURCE, VsphereField.RESOURCE_VMFOLDER],
             ['resourcePool', VsphereForm.RESOURCE, VsphereField.RESOURCE_POOL]
         ];
-        mappings.forEach(attr => this.saveFormField(attr[1], attr[2], payload[attr[0]]));
+        mappings.forEach(attr => this.storeFieldString(attr[1], attr[2], payload[attr[0]]));
+        this.setStoredClusterPlan(VsphereForm.NODESETTING, payload.controlPlaneFlavor);
 
-        this.saveControlPlaneFlavor('vsphere', payload.controlPlaneFlavor);
-        this.saveControlPlaneNodeType('vsphere', payload.controlPlaneFlavor, payload.controlPlaneNodeType);
+        if (payload.controlPlaneNodeType) {
+            const instanceTypeField = payload.controlPlaneFlavor === 'prod' ? VsphereField.NODESETTING_INSTANCE_TYPE_PROD
+                : VsphereField.NODESETTING_INSTANCE_TYPE_DEV;
+            const vSphereNode = this.getVSphereNode(payload.controlPlaneNodeType);
+            if (vSphereNode) {
+                this.storeFieldString('vsphereNodeSettingForm', instanceTypeField, vSphereNode.id, vSphereNode.name);
+            }
+        }
 
-        this.saveFormField(VsphereForm.NODESETTING, VsphereField.NODESETTING_ENABLE_AUDIT_LOGGING, payload.enableAuditLogging);
-        this.saveFormField(VsphereForm.NODESETTING, VsphereField.NODESETTING_MACHINE_HEALTH_CHECKS_ENABLED,
+        this.storeFieldBoolean(VsphereForm.NODESETTING, VsphereField.NODESETTING_ENABLE_AUDIT_LOGGING, payload.enableAuditLogging);
+        this.storeFieldBoolean(VsphereForm.NODESETTING, VsphereField.NODESETTING_MACHINE_HEALTH_CHECKS_ENABLED,
             payload.machineHealthCheckEnabled);
-        this.saveFormListbox(VsphereForm.NODESETTING, VsphereField.NODESETTING_WORKER_NODE_INSTANCE_TYPE, payload.workerNodeType);
+
+        const workerNodeType = payload.workerNodeType;
+        if (workerNodeType) {
+            const vSphereNode = this.getVSphereNode(workerNodeType);
+            if (vSphereNode) {
+                this.storeFieldString(VsphereForm.NODESETTING, VsphereField.NODESETTING_WORKER_NODE_INSTANCE_TYPE, vSphereNode.id,
+                    vSphereNode.name);
+            }
+        }
 
         if (payload.vsphereCredentials !== undefined) {
             const vsphereCredentialsMappings = [
@@ -181,14 +200,14 @@ export class VSphereWizardComponent extends WizardBaseDirective implements OnIni
                 ['username', VsphereForm.PROVIDER, VsphereField.PROVIDER_USER_NAME],
                 ['thumbprint', VsphereForm.PROVIDER, VsphereField.PROVIDER_THUMBPRINT]
             ];
-            vsphereCredentialsMappings.forEach(attr => this.saveFormField(attr[1], attr[2], payload.vsphereCredentials[attr[0]]));
+            vsphereCredentialsMappings.forEach(attr => this.storeFieldString(attr[1], attr[2], payload.vsphereCredentials[attr[0]]));
             const decodedPassword = AppServices.appDataService.decodeBase64(payload.vsphereCredentials['password']);
-            this.saveFormField(VsphereForm.PROVIDER, VsphereField.PROVIDER_USER_PASSWORD, decodedPassword);
+            this.storeFieldString(VsphereForm.PROVIDER, VsphereField.PROVIDER_USER_PASSWORD, decodedPassword);
         }
 
         if (payload.aviConfig !== undefined) {
             const endpointProvider = payload.aviConfig['controlPlaneHaProvider'] ? NSX_ADVANCED_LOAD_BALANCER : KUBE_VIP;
-            this.saveFormField(VsphereForm.NODESETTING, VsphereField.NODESETTING_CONTROL_PLANE_ENDPOINT_PROVIDER, endpointProvider);
+            this.storeFieldString(VsphereForm.NODESETTING, VsphereField.NODESETTING_CONTROL_PLANE_ENDPOINT_PROVIDER, endpointProvider);
             // Set (or clear) the network name (based on whether it's different from the aviConfig value
             const managementClusterVipNetworkName = payload.aviConfig['managementClusterVipNetworkName'];
             let uiMcNetworkName = '';
@@ -196,17 +215,24 @@ export class VSphereWizardComponent extends WizardBaseDirective implements OnIni
                 uiMcNetworkName = payload.aviConfig['managementClusterVipNetworkName'];
             }
 
-            this.saveFormField(WizardForm.LOADBALANCER, LoadBalancerField.MANAGEMENT_CLUSTER_NETWORK_NAME, uiMcNetworkName);
+            this.storeFieldString(WizardForm.LOADBALANCER, LoadBalancerField.MANAGEMENT_CLUSTER_NETWORK_NAME, uiMcNetworkName);
             // Set (or clear) the CIDR setting (based on whether it's different from the aviConfig value
             const managementClusterNetworkCIDR = payload.aviConfig['managementClusterVipNetworkCidr'];
             let uiMcCidr = '';
             if (managementClusterNetworkCIDR !== payload.aviConfig.network.cidr) {
                 uiMcCidr = managementClusterNetworkCIDR;
             }
-            this.saveFormField(WizardForm.LOADBALANCER, LoadBalancerField.MANAGEMENT_CLUSTER_NETWORK_CIDR, uiMcCidr)
+            this.storeFieldString(WizardForm.LOADBALANCER, LoadBalancerField.MANAGEMENT_CLUSTER_NETWORK_CIDR, uiMcCidr)
         }
 
+        this.storeFieldString('osImageForm', 'osImage', payload.os.moid, payload.os.name);
+
         this.saveCommonFieldsFromPayload(payload);
+        AppServices.userDataService.updateWizardTimestamp(this.wizardName);
+    }
+
+    private getVSphereNode(workerNodeType: string) {
+        return VsphereNodeTypes.find(node => node.id === workerNodeType);
     }
 
     /**
@@ -325,10 +351,10 @@ export class VSphereWizardComponent extends WizardBaseDirective implements OnIni
         return this.apiClient.importTKGConfigForVsphere( { params: { filecontents: fileContents } } );
     }
 
-    importFileProcessClusterParams(nameFile: string, vsphereClusterParams: VsphereRegionalClusterParams) {
+    importFileProcessClusterParams(event: TanzuEventType, nameFile: string, vsphereClusterParams: VsphereRegionalClusterParams) {
         this.setFromPayload(vsphereClusterParams);
         this.resetToFirstStep();
-        this.importService.publishImportSuccess(nameFile);
+        this.importService.publishImportSuccess(event, nameFile);
     }
 
     // returns TRUE if user (a) will not lose data on import, or (b) confirms it's OK
@@ -342,6 +368,8 @@ export class VSphereWizardComponent extends WizardBaseDirective implements OnIni
 
     onImportFileSelected(event) {
         const params: ImportParams<VsphereRegionalClusterParams> = {
+            eventSuccess: this.supplyFileImportedEvent(),
+            eventFailure: this.supplyFileImportErrorEvent(),
             file: event.target.files[0],
             validator: this.importFileValidate,
             backend: this.importFileRetrieveClusterParams.bind(this),
@@ -355,17 +383,15 @@ export class VSphereWizardComponent extends WizardBaseDirective implements OnIni
     }
 
     private subscribeToServices() {
-        AppServices.messenger.getSubject(TanzuEventType.VSPHERE_DATACENTER_CHANGED)
-            .subscribe(event => {
-                const datacenterMoid = event.payload;
-                AppServices.dataServiceRegistrar.trigger( [
-                    TanzuEventType.VSPHERE_GET_RESOURCE_POOLS,
-                    TanzuEventType.VSPHERE_GET_COMPUTE_RESOURCE,
-                    TanzuEventType.VSPHERE_GET_VM_NETWORKS,
-                    TanzuEventType.VSPHERE_GET_DATA_STORES,
-                    TanzuEventType.VSPHERE_GET_VM_FOLDERS,
-                    TanzuEventType.VSPHERE_GET_OS_IMAGES
-                ], {dc: datacenterMoid});
+        AppServices.messenger.subscribe<string>(TanzuEventType.VSPHERE_DATACENTER_CHANGED, event => {
+            AppServices.dataServiceRegistrar.trigger( [
+                TanzuEventType.VSPHERE_GET_RESOURCE_POOLS,
+                TanzuEventType.VSPHERE_GET_COMPUTE_RESOURCE,
+                TanzuEventType.VSPHERE_GET_VM_NETWORKS,
+                TanzuEventType.VSPHERE_GET_DATA_STORES,
+                TanzuEventType.VSPHERE_GET_VM_FOLDERS,
+                TanzuEventType.VSPHERE_GET_OS_IMAGES
+                ], { dc: event.payload });
             });
     }
 

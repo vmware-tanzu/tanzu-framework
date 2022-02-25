@@ -21,7 +21,6 @@ describe('SharedCeipStepComponent', () => {
             ],
             providers: [
                 FormBuilder,
-                FieldMapUtilities,
                 ValidationService
             ],
             schemas: [

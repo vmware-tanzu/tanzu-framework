@@ -6,15 +6,13 @@ import { takeUntil } from 'rxjs/operators';
 import { APIClient } from '../../../../swagger/api-client.service';
 import { AppEdition } from 'src/app/shared/constants/branding.constants';
 import AppServices from '../../../../shared/service/appServices';
-import { AwsField, AwsForm, VpcType } from "../aws-wizard.constants";
-import { AwsNodeSettingStepMapping } from './node-setting-step.fieldmapping';
+import { AwsField, VpcType } from "../aws-wizard.constants";
+import { AwsFieldDisplayOrder, AwsNodeSettingStepMapping } from './node-setting-step.fieldmapping';
 import { AWSNodeAz } from '../../../../swagger/models/aws-node-az.model';
 import { AWSSubnet } from '../../../../swagger/models/aws-subnet.model';
 import { AzRelatedFieldsArray } from '../aws-wizard.component';
-import { ClusterPlan } from '../../wizard/shared/constants/wizard.constants';
-import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
-import { FormMetaDataStore } from '../../wizard/shared/FormMetaDataStore';
-import { StepFormDirective } from '../../wizard/shared/step-form/step-form';
+import { NodeSettingField } from '../../wizard/shared/components/steps/node-setting-step/node-setting-step.fieldmapping';
+import { NodeSettingStepDirective } from '../../wizard/shared/components/steps/node-setting-step/node-setting-step.component';
 import { StepMapping } from '../../wizard/shared/field-mapping/FieldMapping';
 import { TanzuEventType } from '../../../../shared/service/Messenger';
 import { ValidationService } from '../../wizard/shared/validation/validation.service';
@@ -40,17 +38,13 @@ export interface FilteredAzs {
     }
 }
 
-export const BASTION_HOST_ENABLED = 'yes';
-export const BASTION_HOST_DISABLED = 'no';
-const swap = (arr, index1, index2) => { [arr[index1], arr[index2]] = [arr[index2], arr[index1]] }
-
 const AZS = [
     AwsField.NODESETTING_AZ_1,
     AwsField.NODESETTING_AZ_2,
     AwsField.NODESETTING_AZ_3,
 ];
 const WORKER_NODE_INSTANCE_TYPES = [
-    AwsField.NODESETTING_WORKERTYPE_1,
+    NodeSettingField.WORKER_NODE_INSTANCE_TYPE,
     AwsField.NODESETTING_WORKERTYPE_2,
     AwsField.NODESETTING_WORKERTYPE_3
 ];
@@ -76,21 +70,19 @@ enum vpcType {
     styleUrls: ['./node-setting-step.component.scss']
 })
 
-export class NodeSettingStepComponent extends StepFormDirective implements OnInit {
+export class NodeSettingStepComponent extends NodeSettingStepDirective<string> implements OnInit {
     APP_EDITION: any = AppEdition;
 
-    nodeTypes: Array<string> = [];
-    clusterPlan: string;
     vpcType: string;
-    nodeAzs: Array<AWSNodeAz>;
+    nodeAzs: Array<AWSNodeAz> = [];
     azNodeTypes: AzNodeTypes = {
         awsNodeAz1: [],
         awsNodeAz2: [],
         awsNodeAz3: []
     };
 
-    publicSubnets: Array<AWSSubnet>;
-    privateSubnets: Array<AWSSubnet>;
+    publicSubnets: Array<AWSSubnet> = new Array<AWSSubnet>();
+    privateSubnets: Array<AWSSubnet> = new Array<AWSSubnet>();
 
     filteredAzs: FilteredAzs = {
         awsNodeAz1: {
@@ -106,8 +98,6 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
             privateSubnets: []
         }
     };
-
-    displayForm = false;
 
     config = {
         displayKey: 'description',
@@ -125,21 +115,33 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
 
     airgappedVPC = false;
 
-    constructor(private validationService: ValidationService,
-                private fieldMapUtilities: FieldMapUtilities,
+    constructor(protected validationService: ValidationService,
                 private apiClient: APIClient) {
-        super();
+        super(validationService);
     }
 
-    private supplyStepMapping(): StepMapping {
-        FieldMapUtilities.getFieldMapping(AwsField.NODESETTING_CLUSTER_NAME, AwsNodeSettingStepMapping).required =
-            AppServices.appDataService.isClusterNameRequired();
-        return AwsNodeSettingStepMapping;
+    protected createStepMapping(): StepMapping {
+        // AWS has a bunch of extra fields (related to AZs) over and above the default base class field mapping
+        const result = { fieldMappings: [ ...super.createStepMapping().fieldMappings, ...AwsNodeSettingStepMapping.fieldMappings]};
+        // The worker node instance in the base class is used as workerNodeInstance1 for AWS; it needs diff label and requiresBackendData
+        const workerNodeInstanceType = AppServices.fieldMapUtilities.getFieldMapping(NodeSettingField.WORKER_NODE_INSTANCE_TYPE, result);
+        workerNodeInstanceType.label = 'AZ1 WORKER NODE INSTANCE TYPE';
+        workerNodeInstanceType.requiresBackendData = true;
+
+        return result;
     }
 
-    private customizeForm() {
-        this.registerStepDescriptionTriggers({clusterTypeDescriptor: true, fields: [AwsField.NODESETTING_CONTROL_PLANE_SETTING]});
-        AppServices.messenger.getSubject(TanzuEventType.AWS_AIRGAPPED_VPC_CHANGE).subscribe(event => {
+    protected onProdInstanceTypeChange(prodNodeType: string) {
+        // AWS sets the worker instance in response to the AZ selection, not the prod instance type selection
+    }
+
+    protected onDevInstanceTypeChange(devNodeType: string) {
+        // AWS sets the worker instance in response to the AZ selection, not the dev instance type selection
+    }
+
+    protected listenToEvents() {
+        super.listenToEvents();
+        AppServices.messenger.subscribe<boolean>(TanzuEventType.AWS_AIRGAPPED_VPC_CHANGE, event => {
             this.airgappedVPC = event.payload;
             if (this.airgappedVPC) { // public subnet IDs shouldn't be provided
                 PUBLIC_SUBNETS.forEach(f => {
@@ -154,63 +156,46 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
             }
         });
 
-        /**
-         * Whenever aws region selection changes, update AZ subregion
-         */
-        AppServices.messenger.getSubject(TanzuEventType.AWS_REGION_CHANGED)
-            .pipe(takeUntil(this.unsubscribe))
-            .subscribe(event => {
-                if (this.formGroup.get(AwsField.NODESETTING_AZ_1)) {
-                    this.publicSubnets = [];
-                    this.privateSubnets = [];
+        AppServices.messenger.subscribe(TanzuEventType.AWS_REGION_CHANGED, () => {
+            if (this.formGroup.get(AwsField.NODESETTING_AZ_1)) {
+                this.publicSubnets = [];
+                this.privateSubnets = [];
 
-                    this.clearSubnetData();
-                    this.clearAzs();
-                    this.clearSubnets();
-                }
-            });
-
-        AppServices.messenger.getSubject(TanzuEventType.AWS_VPC_TYPE_CHANGED)
-            .subscribe(event => {
-                this.vpcType = event.payload.vpcType;
-                if (this.vpcType !== vpcType.EXISTING) {
-                    this.clearSubnets();
-                }
-                this.updateVpcSubnets();
-
-                // clear az selection
-                this.clearAzs();
-                [...AZS, ...WORKER_NODE_INSTANCE_TYPES, ...VPC_SUBNETS].forEach(
-                    field => this.getControl(field).updateValueAndValidity()
-                );
-            });
-
-        AppServices.messenger.getSubject(TanzuEventType.AWS_VPC_CHANGED)
-            .subscribe(event => {
+                this.clearSubnetData();
                 this.clearAzs();
                 this.clearSubnets();
-            });
+            }
+        }, this.unsubscribe);
 
-        AzRelatedFieldsArray.forEach(azRelatedFields => {
-           this.registerOnValueChange(azRelatedFields.az, (newlySelectedAz) => {
-               this.filterSubnetsByAZ(azRelatedFields.az, newlySelectedAz);
-               this.setSubnetFieldsWithOnlyOneOption(azRelatedFields.az);
-               this.updateWorkerNodeInstanceTypes(azRelatedFields.az, newlySelectedAz, azRelatedFields.workerNodeInstanceType);
-           });
-        });
-
-        this.registerOnValueChange(AwsField.NODESETTING_CONTROL_PLANE_SETTING, data => {
-            if (data === ClusterPlan.DEV) {
-                this.setControlPlaneToDev();
-            } else if (data === ClusterPlan.PROD) {
-                this.setControlPlaneToProd();
+        AppServices.messenger.subscribe<{ vpcType: string }>(TanzuEventType.AWS_VPC_TYPE_CHANGED, event => {
+            this.vpcType = event.payload.vpcType;
+            if (this.vpcType !== vpcType.EXISTING) {
+                this.clearSubnets();
             }
             this.updateVpcSubnets();
-            this.triggerStepDescriptionChange();
+
+            // clear az selection
+            this.clearAzs();
+            [...AZS, ...WORKER_NODE_INSTANCE_TYPES, ...VPC_SUBNETS].forEach(
+                field => this.getControl(field).updateValueAndValidity()
+            );
+        });
+
+        AppServices.messenger.subscribe(TanzuEventType.AWS_VPC_CHANGED, () => {
+            this.clearAzs();
+            this.clearSubnets();
+        });
+
+        AzRelatedFieldsArray.forEach(azRelatedFields => {
+            this.registerOnValueChange(azRelatedFields.az, (newlySelectedAz) => {
+                this.filterSubnetsByAZ(azRelatedFields.az, newlySelectedAz);
+                this.setSubnetFieldsWithOnlyOneOption(azRelatedFields.az);
+                this.updateWorkerNodeInstanceTypes(azRelatedFields.az, newlySelectedAz, azRelatedFields.workerNodeInstanceType);
+            });
         });
     }
 
-    private subscribeToServices() {
+    protected subscribeToServices() {
         AppServices.dataServiceRegistrar.stepSubscribe<AWSSubnet>(this, TanzuEventType.AWS_GET_SUBNETS, this.onFetchedSubnets.bind(this));
         AppServices.dataServiceRegistrar.stepSubscribe<string>(this, TanzuEventType.AWS_GET_NODE_TYPES, this.onFetchedNodeTypes.bind(this));
         AppServices.dataServiceRegistrar.stepSubscribe<AWSNodeAz>(this, TanzuEventType.AWS_GET_AVAILABILITY_ZONES,
@@ -237,47 +222,23 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
         // It will cause the selected option to be invalid all the time.
         if (this.isClusterPlanDev) {
             const devInstanceType = this.nodeTypes.length === 1 ? this.nodeTypes[0] :
-                this.formGroup.get(AwsField.NODESETTING_INSTANCE_TYPE_DEV).value;
-            this.resurrectField(AwsField.NODESETTING_INSTANCE_TYPE_DEV,
+                this.formGroup.get(NodeSettingField.INSTANCE_TYPE_DEV).value;
+            this.resurrectField(NodeSettingField.INSTANCE_TYPE_DEV,
             [Validators.required, this.validationService.isValidNameInList(this.nodeTypes)],
             devInstanceType);
         } else {
             const prodInstanceType = this.nodeTypes.length === 1 ? this.nodeTypes[0] :
-                this.formGroup.get(AwsField.NODESETTING_INSTANCE_TYPE_PROD).value;
-            this.resurrectField(AwsField.NODESETTING_INSTANCE_TYPE_PROD,
+                this.formGroup.get(NodeSettingField.INSTANCE_TYPE_PROD).value;
+            this.resurrectField(NodeSettingField.INSTANCE_TYPE_PROD,
                 [Validators.required, this.validationService.isValidNameInList(this.nodeTypes)],
                 prodInstanceType);
         }
-}
-
-    ngOnInit() {
-        super.ngOnInit();
-        this.fieldMapUtilities.buildForm(this.formGroup, this.formName, this.supplyStepMapping());
-        this.subscribeToServices();
-        this.customizeForm();
-
-        setTimeout(_ => {
-            this.displayForm = true;
-            const existingVpcId = FormMetaDataStore.getMetaDataItem(AwsForm.VPC, 'existingVpcId');
-            if (existingVpcId && existingVpcId.displayValue) {
-                AppServices.messenger.publish({
-                    type: TanzuEventType.AWS_GET_SUBNETS,
-                    payload: { vpcId: existingVpcId.displayValue }
-                });
-            }
-        });
-        this.initFormWithSavedData();
     }
 
-    private setControlPlaneToProd() {
-        this.clusterPlan = ClusterPlan.PROD;
+    protected setControlPlaneToProd() {
+        super.setControlPlaneToProd();
+        this.updateVpcSubnets();
 
-        this.disarmField(AwsField.NODESETTING_INSTANCE_TYPE_DEV, true);
-        this.resurrectFieldWithSavedValue(AwsField.NODESETTING_INSTANCE_TYPE_PROD,
-            [Validators.required, this.validationService.isValidNameInList(this.nodeTypes)],
-            this.nodeTypes.length === 1 ? this.nodeTypes[0] : this.formGroup.get(AwsField.NODESETTING_INSTANCE_TYPE_PROD).value,
-            { onlySelf: true }
-        );
         for (let i = 0; i < AZS.length; i++) {
             const thisAZ = AZS[i];
             const otherAZs = this.otherAZs(thisAZ);
@@ -288,35 +249,36 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
                     this.getControl(otherAZs[0]),
                     this.getControl(otherAZs[1]) ])
             ]);
-            this.setControlWithSavedValue(thisAZ);
+            this.setFieldWithStoredValue(thisAZ, this.supplyStepMapping());
         }
         if (!this.modeClusterStandalone) {
-            WORKER_NODE_INSTANCE_TYPES.forEach(field => this.resurrectFieldWithSavedValue(field.toString(), [Validators.required]));
+            WORKER_NODE_INSTANCE_TYPES.forEach((field, index) => {
+                // only populated the worker node instance type if the associated AZ has a value
+                if (this.getFieldValue(AZS[index])) {
+                    this.resurrectFieldWithStoredValue(field.toString(), this.supplyStepMapping(), [Validators.required]);
+                } else {
+                    this.resurrectField(field.toString(), [Validators.required]);
+                }
+            });
         }
     }
 
-    private setControlPlaneToDev() {
-        this.clusterPlan = ClusterPlan.DEV;
+    protected setControlPlaneToDev() {
+        super.setControlPlaneToDev();
+        this.updateVpcSubnets();
         const prodFields = [
             AwsField.NODESETTING_AZ_2,
             AwsField.NODESETTING_AZ_3,
             AwsField.NODESETTING_WORKERTYPE_2,
             AwsField.NODESETTING_WORKERTYPE_3,
-            AwsField.NODESETTING_INSTANCE_TYPE_PROD
+            NodeSettingField.INSTANCE_TYPE_PROD
         ];
         prodFields.forEach(attr => this.disarmField(attr.toString(), true));
         if (this.nodeAzs && this.nodeAzs.length === 1) {
             this.setControlValueSafely(AwsField.NODESETTING_AZ_1, this.nodeAzs[0].name);
         } else {
-            this.setControlWithSavedValue(AwsField.NODESETTING_AZ_1);
+            this.setFieldWithStoredValue(AwsField.NODESETTING_AZ_1, this.supplyStepMapping());
         }
-        if (!this.modeClusterStandalone) {
-            this.resurrectFieldWithSavedValue(AwsField.NODESETTING_WORKERTYPE_1, [Validators.required],
-                this.azNodeTypes.awsNodeAz1.length === 1 ? this.azNodeTypes.awsNodeAz1[0] : '');
-        }
-        this.resurrectFieldWithSavedValue(AwsField.NODESETTING_INSTANCE_TYPE_DEV,
-            [Validators.required, this.validationService.isValidNameInList(this.nodeTypes)],
-            this.nodeTypes.length === 1 ? this.nodeTypes[0] : this.formGroup.get(AwsField.NODESETTING_INSTANCE_TYPE_DEV).value);
     }
 
     // returns an array of the other two AZs (used to populate a validator that ensures unique AZs are selected)
@@ -324,39 +286,8 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
         return AZS.filter((field, index, arr) => { return field !== targetAz });
     }
 
-    initFormWithSavedData() {
-        const devInstanceType = this.getSavedValue(AwsField.NODESETTING_INSTANCE_TYPE_DEV, '');
-        const prodInstanceType = this.getSavedValue(AwsField.NODESETTING_INSTANCE_TYPE_PROD, '');
-        const isProdInstanceType = devInstanceType === '';
-        this.cardClick(isProdInstanceType ? ClusterPlan.PROD : ClusterPlan.DEV);
-        super.initFormWithSavedData();
-        // because it's in its own component, the enable audit logging field does not get initialized in the above call to
-        // super.initFormWithSavedData()
-        setTimeout( () => {
-            this.setControlWithSavedValue('enableAuditLogging', false);
-        })
-
-        if (isProdInstanceType) {
-            const nodeType = this.nodeTypes.length === 1 ? this.nodeTypes[0] : prodInstanceType;
-            this.clearControlValue(AwsField.NODESETTING_INSTANCE_TYPE_DEV);
-            this.setControlValueSafely(AwsField.NODESETTING_INSTANCE_TYPE_PROD, nodeType);
-        } else {
-            const nodeType = this.nodeTypes.length === 1 ? this.nodeTypes[0] : devInstanceType;
-            this.setControlValueSafely(AwsField.NODESETTING_INSTANCE_TYPE_DEV, nodeType);
-            this.clearControlValue(AwsField.NODESETTING_INSTANCE_TYPE_PROD);
-        }
-    }
-
-    get devInstanceTypeValue() {
-        return this.getFieldValue(AwsField.NODESETTING_INSTANCE_TYPE_DEV);
-    }
-
-    get prodInstanceTypeValue() {
-        return this.getFieldValue(AwsField.NODESETTING_INSTANCE_TYPE_PROD);
-    }
-
     get workerNodeInstanceType1Value() {
-        return this.getFieldValue(AwsField.NODESETTING_WORKERTYPE_1);
+        return this.getFieldValue(NodeSettingField.WORKER_NODE_INSTANCE_TYPE);
     }
 
     get workerNodeInstanceType2Value() {
@@ -367,45 +298,17 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
         return this.getFieldValue(AwsField.NODESETTING_WORKERTYPE_3);
     }
 
-    /**
-     * @method cardClick
-     * sets control plane setting value depending on whether NodeType.DEV or NodeType.PROD
-     * card was clicked
-     * @param envType
-     */
-    cardClick(envType: string) {
-        this.setControlValueSafely(AwsField.NODESETTING_CONTROL_PLANE_SETTING, envType);
-    }
-
-    /**
-     * @method getEnvType
-     * returns selected control plane setting
-     * @returns {string} NodeType.DEV or NodeType.PROD
-     */
-    getEnvType(): string {
-        return this.getFieldValue(AwsField.NODESETTING_CONTROL_PLANE_SETTING);
-    }
-
-    /**
-     * @method clearAzs
-     * helper method used to clear selected AZs from UI controls
-     */
+    // public for testing
     clearAzs() {
         AZS.forEach(az => this.clearControlValue(az));
     }
 
-    /**
-     * @method clearSubnets
-     * helper method used to clear selected subnets from UI controls
-     */
+    // public for testing
     clearSubnets() {
         VPC_SUBNETS.forEach(vpcSubnet => this.clearControlValue(vpcSubnet));
     }
 
-    /**
-     * @method clearSubnetData
-     * FilteredAzs does not have iterator, so manually clear subnets
-     */
+    // public for testing
     clearSubnetData() {
         AZS.forEach(az => {
             this.filteredAzs[az.toString()].publicSubnets = [];
@@ -413,12 +316,6 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
         });
     }
 
-    /**
-     * @method filterSubnetsByAZ
-     * helper method that filters larger lists of public and private subnets and returns filtered
-     * lists based on match of availability zone name
-     * @param $event
-     */
     filterSubnetsByAZ(azControlName, az): void {
         if (this.vpcType === vpcType.EXISTING && azControlName !== '' && az !== '') {
             this.filteredAzs[azControlName].publicSubnets = this.filterSubnetArrayByAZ(az, this.publicSubnets);
@@ -433,7 +330,7 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
     private setSubnetFieldsWithOnlyOneOption(azControlName) {
         if (this.vpcType === vpcType.EXISTING && azControlName !== '') {
             const filteredPublicSubnets = this.filteredAzs[azControlName].publicSubnets;
-            if (filteredPublicSubnets.length === 1) {
+            if (filteredPublicSubnets.length === 1 && !this.airgappedVPC) {
                 this.setControlValueSafely(this.getPublicSubnetFromAz(azControlName), filteredPublicSubnets[0].id);
             }
             const filteredPrivateSubnets = this.filteredAzs[azControlName].privateSubnets;
@@ -476,6 +373,12 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
                         this.azNodeTypes[azField] = nodeTypes?.sort();
                         if (nodeTypes.length === 1) {
                             this.setControlValueSafely(workerNodeField, nodeTypes[0]);
+                        } else {
+                            // we default to the same instance type as the management cluster
+                            const mgmtClusterInstanceType = this.isClusterPlanProd ? this.prodInstanceTypeValue : this.devInstanceTypeValue;
+                            // ...but the stored value has precedence
+                            const instanceType = this.getStoredValue(workerNodeField, this.supplyStepMapping(), mgmtClusterInstanceType);
+                            this.setControlValueSafely(workerNodeField, instanceType);
                         }
                     }),
                     ((err) => {
@@ -489,10 +392,13 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
     }
 
     setSubnetFieldsFromSavedValues(): void {
-        PUBLIC_SUBNETS.forEach(vpcSubnet => {
-            const subnet = this.findSubnetFromSavedValue(vpcSubnet, this['publicSubnets']);
-            this.setControlValueSafely(vpcSubnet, subnet ? subnet.id : '');
-        });
+        // NOTE: in air-gapped VPC we do not use public subnets, so don't restore a value
+        if (!this.airgappedVPC) {
+            PUBLIC_SUBNETS.forEach(vpcSubnet => {
+                const subnet = this.findSubnetFromSavedValue(vpcSubnet, this['publicSubnets']);
+                this.setControlValueSafely(vpcSubnet, subnet ? subnet.id : '');
+            });
+        }
         PRIVATE_SUBNET.forEach(vpcSubnet => {
             const subnet = this.findSubnetFromSavedValue(vpcSubnet, this['privateSubnets']);
             this.setControlValueSafely(vpcSubnet, subnet ? subnet.id : '');
@@ -501,7 +407,7 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
 
     // Given an array of subnet objects, find the one corresponding to the saved value of the given field
     private findSubnetFromSavedValue(subnetField: AwsField, subnets: AWSSubnet[]) {
-        const savedValue = this.getSavedValue(subnetField, '');
+        const savedValue = this.getStoredValue(subnetField, this.supplyStepMapping());
         // note that the saved value could either be the CIDR or the ID, so we find a match for either
         return subnets.find(x => { return x.cidr === savedValue || x.id === savedValue; });
     }
@@ -531,7 +437,7 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
                 AwsField.NODESETTING_VPC_PUBLIC_SUBNET_2,
                 AwsField.NODESETTING_VPC_PUBLIC_SUBNET_3
             ].forEach(field => {
-                this.resurrectFieldWithSavedValue(field.toString(), [Validators.required]);
+                this.resurrectFieldWithStoredValue(field.toString(), this.supplyStepMapping(), [Validators.required]);
             });
         } else if (this.isClusterPlanDev) {
             // in DEV deployments, only one subnet is used
@@ -539,7 +445,7 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
                 AwsField.NODESETTING_VPC_PRIVATE_SUBNET_1,
                 AwsField.NODESETTING_VPC_PUBLIC_SUBNET_1,
             ].forEach(field => {
-                this.resurrectFieldWithSavedValue(field.toString(), [Validators.required]);
+                this.resurrectFieldWithStoredValue(field.toString(), this.supplyStepMapping(), [Validators.required]);
             });
             [
                 AwsField.NODESETTING_VPC_PRIVATE_SUBNET_2,
@@ -562,25 +468,22 @@ export class NodeSettingStepComponent extends StepFormDirective implements OnIni
         }
     }
 
-    dynamicDescription(): string {
-        if (this.isClusterPlanProd) {
-            return 'Production cluster selected: 3 node control plane';
-        }
-        if (this.isClusterPlanDev) {
-            return 'Development cluster selected: 1 node control plane';
-        }
-        return 'Specify the resources backing the ' + this.clusterTypeDescriptor + ' cluster';
-    }
-
-    get isClusterPlanProd(): boolean {
-        return this.clusterPlan === ClusterPlan.PROD;
-    }
-
-    get isClusterPlanDev(): boolean {
-        return this.clusterPlan === ClusterPlan.DEV;
-    }
-
     get isVpcTypeExisting(): boolean {
         return this.vpcType === VpcType.EXISTING;
+    }
+
+    protected getKeyFromNodeInstance(nodeInstance: string): string {
+        return nodeInstance;
+    }
+
+    protected getDisplayFromNodeInstance(nodeInstance: string): string {
+        return nodeInstance;
+    }
+
+    // We override the default behavior of displaying the fields in the order they occur in the StepMapping.
+    // This is because we inherit some fields from the shared NodeSettingStep, and just appending AWS added fields results
+    // in a jumbled order.
+    protected getFieldDisplayOrder(): string[] {
+        return AppServices.userDataService.fieldsWithStoredData(this.wizardName, this.formName, AwsFieldDisplayOrder);
     }
 }

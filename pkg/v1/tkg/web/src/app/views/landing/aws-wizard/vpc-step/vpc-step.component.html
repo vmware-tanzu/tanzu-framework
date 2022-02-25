@@ -24,9 +24,9 @@
 
     <div class="clr-row" *ngIf="formGroup.value.vpcType == 'new'">
         <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
-            <clr-input-container [attr.data-step-metadata]="formName">
+            <clr-input-container>
                 <label i18n="aws vpc cidr label" clr-control-label>
-                    VPC CIDR
+                    {{htmlFieldLabels['vpc']}}
                     <clr-tooltip>
                         <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                         <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
@@ -50,9 +50,9 @@
     </div>
     <div class="clr-row" *ngIf="formGroup.value.vpcType == 'existing'">
         <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
-            <clr-select-container [attr.data-step-metadata]="formName">
+            <clr-select-container>
                 <label i18n="existing vpc label">
-                    VPC ID
+                    {{htmlFieldLabels['existingVpcId']}}
                     <clr-tooltip>
                         <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                         <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
@@ -62,8 +62,7 @@
                         </clr-tooltip-content>
                     </clr-tooltip>
                 </label>
-                <select clrSelect name="existingVpcId" formControlName="existingVpcId"
-                    (change)="existingVpcOnChange($event.target.value)">
+                <select clrSelect name="existingVpcId" formControlName="existingVpcId">
                     <option aria-label="blank" title="blank"></option>
                     <ng-container *ngFor="let existingVpc of existingVpcs">
                         <option [value]="existingVpc.id">
@@ -77,9 +76,9 @@
             </clr-select-container>
         </div>
         <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
-            <clr-input-container [attr.data-step-metadata]="formName">
+            <clr-input-container>
                 <label i18n="existing vpc cidr" clr-control-label>
-                    VPC CIDR
+                    {{htmlFieldLabels['existingVpcCidr']}}
                     <clr-tooltip>
                         <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                         <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
@@ -99,13 +98,12 @@
 
     <div class="clr-row" *ngIf="formGroup.value.vpcType == 'existing'">
         <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
-            <clr-checkbox-container [attr.data-step-metadata]="formName">
+            <clr-checkbox-container>
                 <clr-checkbox-wrapper>
                     <input type="checkbox" clrCheckbox name="nonInternetFacingVPC"
                         formControlName="nonInternetFacingVPC" role="checkbox"
                         aria-label="This is not an internet facing VPC" />
-                    <label i18n="aws vpc non internet facing" clr-control-label
-                        data-full="THIS IS NOT AN INTERNET FACING VPC">
+                    <label i18n="aws vpc non internet facing" clr-control-label>
                         This is not an internet facing VPC
                         <clr-tooltip>
                             <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
@@ -120,5 +118,4 @@
             </clr-checkbox-container>
         </div>
     </div>
-
 </form>

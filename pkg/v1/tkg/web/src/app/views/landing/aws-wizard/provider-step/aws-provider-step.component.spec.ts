@@ -32,7 +32,6 @@ describe('AwsProviderStepComponent', () => {
             providers: [
                 ValidationService,
                 FormBuilder,
-                FieldMapUtilities,
                 {
                     provide: APIClient,
                     useValue: jasmine.createSpyObj(
