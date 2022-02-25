@@ -1035,6 +1035,9 @@ func (c *TkgClient) createVSphereMachineDeploymentMachineTemplateForWorkers(regi
 		vsphereMachineTemplateForUpgrade.Spec = actualVsphereMachineTemplate.DeepCopy().Spec
 		vsphereMachineTemplateForUpgrade.Annotations = map[string]string{}
 		if isVSphereWindowsTemplate(vsphereMachineTemplateForUpgrade.Spec.Template.Spec.Template) {
+			if clusterUpgradeConfig.UpgradeComponentInfo.VSphereWindowsVMTemplateName == "" {
+				return errors.Errorf("vsphere-windows-vm-template-name is a MUST for Windows Cluster Upgrade. Please specify it!")
+			}
 			vsphereMachineTemplateForUpgrade.Spec.Template.Spec.Template = clusterUpgradeConfig.UpgradeComponentInfo.VSphereWindowsVMTemplateName
 			vsphereMachineTemplateForUpgrade.Annotations[vmTemplateMoidKey] = clusterUpgradeConfig.UpgradeComponentInfo.VSphereWindowsVMTemplateMOID
 		} else {
