@@ -1,0 +1,16 @@
+apiVersion: data.packaging.carvel.dev/v1alpha1
+kind: PackageMetadata
+metadata:
+  name: capabilities.tanzu.vmware.com
+  namespace: capabilities
+spec:
+  displayName: "capabilities"
+  longDescription: "Capabilities package provides Capabilities API that offers the ability to query a cluster's capabilities."
+  shortDescription: "Cluster capabilities"
+  providerName: VMware
+  maintainers:
+    - name: "Rajath Agasthya"
+    - name: "Jeff Moroski"
+    - name: "Harish Yayi"
+  categories:
+    - "cluster capabilities"

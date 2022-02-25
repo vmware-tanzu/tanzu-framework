@@ -14,7 +14,7 @@ var outputFormat string
 var getCeipCmd = &cobra.Command{
 	Use:     "ceip-participation",
 	Aliases: []string{"ceip", "ceip-participations"},
-	Short:   "Get the current CEIP opt-in status of the current management cluster",
+	Short:   "Get the current CEIP opt-in status",
 	Long:    "Get the current CEIP opt-in status of the current management cluster",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		return runGetCEIP(cmd)

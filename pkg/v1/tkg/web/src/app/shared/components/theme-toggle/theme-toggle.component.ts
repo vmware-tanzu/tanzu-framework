@@ -28,6 +28,8 @@ export class ThemeToggleComponent {
                 const stored = localStorage.getItem('clr-theme');
                 if (stored) {
                     this.theme = JSON.parse(stored);
+                } else if (window.matchMedia('(prefers-color-scheme)').media !== 'not all') {
+                    this.theme = window.matchMedia('(prefers-color-scheme: light)').matches ? this.themes[0] : this.themes[1];
                 }
             } catch (err) {
                 console.log(`Error retrieving clr-theme from local storage: ${err}`);

@@ -49,7 +49,7 @@ import (
 // http://onsi.github.io/ginkgo/ to learn more about Ginkgo.
 
 const (
-	waitTimeout             = time.Second * 90
+	waitTimeout             = time.Second * 60
 	pollingInterval         = time.Second * 2
 	appSyncPeriod           = 5 * time.Minute
 	appWaitTimeout          = 30 * time.Second
@@ -179,7 +179,7 @@ var _ = BeforeSuite(func(done Done) {
 		Client: mgr.GetClient(),
 		Log:    setupLog,
 		Scheme: mgr.GetScheme(),
-		Config: addonconfig.Config{
+		Config: addonconfig.AddonControllerConfig{
 			AppSyncPeriod:           appSyncPeriod,
 			AppWaitTimeout:          appWaitTimeout,
 			AddonNamespace:          addonNamespace,
@@ -193,19 +193,19 @@ var _ = BeforeSuite(func(done Done) {
 
 	Expect((&calico.CalicoConfigReconciler{
 		Client: mgr.GetClient(),
-		Log:    setupLog,
+		Log:    ctrl.Log.WithName("controllers").WithName("CalicoConfig"),
 		Scheme: mgr.GetScheme(),
 	}).SetupWithManager(ctx, mgr, controller.Options{MaxConcurrentReconciles: 1})).To(Succeed())
 
 	Expect((&antrea.AntreaConfigReconciler{
 		Client: mgr.GetClient(),
-		Log:    setupLog,
+		Log:    ctrl.Log.WithName("controllers").WithName("AntreaConfig"),
 		Scheme: mgr.GetScheme(),
 	}).SetupWithManager(ctx, mgr, controller.Options{MaxConcurrentReconciles: 1})).To(Succeed())
 
 	Expect((&kappcontroller.KappControllerConfigReconciler{
 		Client: mgr.GetClient(),
-		Log:    setupLog,
+		Log:    ctrl.Log.WithName("controllers").WithName("KappController"),
 		Scheme: mgr.GetScheme(),
 	}).SetupWithManager(ctx, mgr, controller.Options{MaxConcurrentReconciles: 1})).To(Succeed())
 
@@ -214,11 +214,17 @@ var _ = BeforeSuite(func(done Done) {
 		ctrl.Log.WithName("controllers").WithName("ClusterBootstrap"),
 		mgr.GetScheme(),
 		&addonconfig.ClusterBootstrapControllerConfig{
-			SystemNamespace:        constants.TKGSystemNS,
-			PkgiServiceAccount:     "tanzu-addons-manager-sa",
-			PkgiClusterRole:        "tanzu-addons-manager-clusterrole",
-			PkgiClusterRoleBinding: "tanzu-addons-manager-clusterrolebinding",
-			PkgiSyncPeriod:         10 * time.Minute,
+			CNISelectionClusterVariableName: constants.DefaultCNISelectionClusterVariableName,
+			HTTPProxyClusterClassVarName:    constants.DefaultHTTPProxyClusterClassVarName,
+			HTTPSProxyClusterClassVarName:   constants.DefaultHTTPSProxyClusterClassVarName,
+			NoProxyClusterClassVarName:      constants.DefaultNoProxyClusterClassVarName,
+			ProxyCACertClusterClassVarName:  constants.DefaultProxyCaCertClusterClassVarName,
+			IPFamilyClusterClassVarName:     constants.DefaultIPFamilyClusterClassVarName,
+			SystemNamespace:                 constants.TKGSystemNS,
+			PkgiServiceAccount:              "tanzu-addons-manager-sa",
+			PkgiClusterRole:                 "tanzu-addons-manager-clusterrole",
+			PkgiClusterRoleBinding:          "tanzu-addons-manager-clusterrolebinding",
+			PkgiSyncPeriod:                  10 * time.Minute,
 		},
 	)
 	Expect(bootstrapReconciler.SetupWithManager(ctx, mgr, controller.Options{MaxConcurrentReconciles: 1})).To(Succeed())

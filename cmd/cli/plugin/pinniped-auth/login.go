@@ -42,16 +42,16 @@ type loginOIDCOptions struct {
 	conciergeIsClusterScoped   bool
 }
 
-// We currently embed both the v0.4.4 and v0.12.0 Pinniped CLIs. This is so that the pinniped-auth
-// plugin can work with old TKr's that are still running Pinniped version v0.4.4. The v0.12.0 CLI
+// We currently embed both the v0.4.4 and v0.12.1 Pinniped CLIs. This is so that the pinniped-auth
+// plugin can work with old TKr's that are still running Pinniped version v0.4.4. The v0.12.1 CLI
 // will not work with the v0.4.4 Concierge because Pinniped changed its Concierge APIs to be cluster
 // scoped in v0.6.0. We can remove the v0.4.4 CLI when the pinniped-auth plugin no longer needs to
 // work with Pinniped version v0.4.4.
 var (
 	//go:embed asset/pinniped-v0.4.4
 	pinnipedv044Binary []byte
-	//go:embed asset/pinniped-v0.12.0
-	pinnipedv0120Binary []byte
+	//go:embed asset/pinniped-v0.12.1
+	pinnipedv0121Binary []byte
 )
 
 var loginOptions = &loginOIDCOptions{}
@@ -125,8 +125,8 @@ func getPinnipedCLICmd(args []string, loginOptions *loginOIDCOptions, pluginRoot
 		pinnipedBinary = pinnipedv044Binary
 		pinnipedVersion = "v0.4.4"
 	} else {
-		pinnipedBinary = pinnipedv0120Binary
-		pinnipedVersion = "v0.12.0"
+		pinnipedBinary = pinnipedv0121Binary
+		pinnipedVersion = "v0.12.1"
 	}
 
 	buildSHA = strings.ReplaceAll(buildSHA, "-dirty", "")

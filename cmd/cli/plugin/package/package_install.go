@@ -4,11 +4,8 @@
 package main
 
 import (
-	"fmt"
-
 	"github.com/spf13/cobra"
 
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/log"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgpackageclient"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgpackagedatamodel"
 )
@@ -52,23 +49,5 @@ func packageInstall(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	pp := &tkgpackagedatamodel.PackageProgress{
-		ProgressMsg: make(chan string, 10),
-		Err:         make(chan error),
-		Done:        make(chan struct{}),
-	}
-	go pkgClient.InstallPackage(packageInstallOp, pp, tkgpackagedatamodel.OperationTypeInstall)
-
-	initialMsg := fmt.Sprintf("Installing package '%s'", packageInstallOp.PackageName)
-	if err := DisplayProgress(initialMsg, pp); err != nil {
-		if err.Error() == tkgpackagedatamodel.ErrPackageAlreadyExists {
-			log.Infof("Updated installed package '%s'", packageInstallOp.PkgInstallName)
-			return nil
-		}
-		return err
-	}
-
-	log.Infof("\n %s", fmt.Sprintf("Added installed package '%s'",
-		packageInstallOp.PkgInstallName))
-	return nil
+	return pkgClient.InstallPackageSync(packageInstallOp, tkgpackagedatamodel.OperationTypeInstall)
 }

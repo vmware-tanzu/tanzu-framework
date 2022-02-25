@@ -5,6 +5,7 @@
 package pluginmanager
 
 import (
+	"crypto/sha256"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -23,6 +24,7 @@ import (
 	cliv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/apis/config/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/artifact"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/catalog"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/common"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/discovery"
@@ -384,15 +386,25 @@ func GetRecommendedVersionOfPlugin(serverName, pluginName string) (string, error
 func installOrUpgradePlugin(serverName string, p *plugin.Discovered, version string) error {
 	log.Infof("Installing plugin '%v:%v'", p.Name, version)
 
-	// verify plugin before installation
-	err := verifyPlugin(p)
+	// verify plugin before download
+	err := verifyPluginPreDownload(p)
 	if err != nil {
-		return errors.Wrapf(err, "%q plugin verification failed", p.Name)
+		return errors.Wrapf(err, "%q plugin pre-download verification failed", p.Name)
 	}
 
 	b, err := p.Distribution.Fetch(version, runtime.GOOS, runtime.GOARCH)
 	if err != nil {
 		return err
+	}
+
+	// verify plugin after download but before installation
+	d, err := p.Distribution.GetDigest(version, runtime.GOOS, runtime.GOARCH)
+	if err != nil {
+		return err
+	}
+	err = verifyPluginPostDownload(p, d, b)
+	if err != nil {
+		return errors.Wrapf(err, "%q plugin post-download verification failed", p.Name)
 	}
 
 	pluginName := p.Name
@@ -712,11 +724,9 @@ func getPluginDescriptorResource(pluginFilePath string) (*cliv1alpha1.PluginDesc
 	return &pd, nil
 }
 
-// verifyPlugin verifies the plugin source is allowed to be used
-// and returns error if the verification fails
-// Currently this function only focuses on the verification of the OCI registry
-// based plugin artifacts by verifying the registry source
-func verifyPlugin(p *plugin.Discovered) error {
+// verifyPluginPreDownload verifies that the plugin distribution repo is trusted
+// and returns error if the verification fails.
+func verifyPluginPreDownload(p *plugin.Discovered) error {
 	artifactInfo, err := p.Distribution.DescribeArtifact(p.RecommendedVersion, runtime.GOOS, runtime.GOARCH)
 	if err != nil {
 		return err
@@ -724,7 +734,10 @@ func verifyPlugin(p *plugin.Discovered) error {
 	if artifactInfo.Image != "" {
 		return verifyRegistry(artifactInfo.Image)
 	}
-	return nil
+	if artifactInfo.URI != "" {
+		return verifyArtifactLocation(artifactInfo.URI)
+	}
+	return errors.Errorf("no download information available for artifact \"%s:%s:%s:%s\"", p.Name, p.RecommendedVersion, runtime.GOOS, runtime.GOARCH)
 }
 
 // verifyRegistry verifies the authenticity of the registry from where cli is
@@ -738,4 +751,47 @@ func verifyRegistry(image string) error {
 		}
 	}
 	return errors.Errorf("untrusted registry detected with image %q. Allowed registries are %v", image, trustedRegistries)
+}
+
+// verifyArtifactLocation verifies the artifact location from where the cli is
+// trying to download the plugins by comparing it with the list of trusted locations
+func verifyArtifactLocation(uri string) error {
+	art, err := artifact.NewURIArtifact(uri)
+	if err != nil {
+		return err
+	}
+
+	switch art.(type) {
+	case *artifact.LocalArtifact:
+		// trust local artifacts implicitly
+		return nil
+
+	default:
+		trustedLocations := config.GetTrustedArtifactLocations()
+		for _, tl := range trustedLocations {
+			// Verify that the URI has a trusted location as the prefix
+			if tl != "" && strings.HasPrefix(uri, tl) {
+				return nil
+			}
+		}
+		return errors.Errorf("untrusted artifact location detected with URI %q. Allowed locations are %v", uri, trustedLocations)
+	}
+}
+
+// verifyPluginPostDownload compares the source digest of the plugin against the
+// SHA256 hash of the downloaded binary to ensure that the binary was not altered
+// during transit.
+func verifyPluginPostDownload(p *plugin.Discovered, srcDigest string, b []byte) error {
+	if srcDigest == "" {
+		// Skip if the Distribution repo does not have the source digest.
+		return nil
+	}
+
+	d := sha256.Sum256(b)
+	actDigest := fmt.Sprintf("%x", d)
+	if actDigest != srcDigest {
+		return errors.Errorf("plugin %q has been corrupted during download. source digest: %s, actual digest: %s", p.Name, srcDigest, actDigest)
+	}
+
+	return nil
 }

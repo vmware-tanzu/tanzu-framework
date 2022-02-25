@@ -652,3 +652,24 @@ func (c *client) getDefaultBOMFileImagePathAndTagFromCompatabilityFile() (string
 	}
 	return "", "", errors.Errorf("unable to find the supported TKG BOM version for the management plugin version %q in the TKG Compatibility file %q", tkgconfigpaths.TKGManagementClusterPluginVersion, compatibilityFile)
 }
+
+// GetManagementPackageRepositoryImage returns management package repository image
+func (c *client) GetManagementPackageRepositoryImage() (string, error) {
+	bomConfiguration, err := c.GetDefaultTkgBOMConfiguration()
+	if err != nil {
+		return "", err
+	}
+
+	tfmpComponent, ok := bomConfiguration.Components["tanzu-framework-management-packages"]
+	if !ok || len(tfmpComponent) == 0 {
+		return "", errors.New("unable to find 'tanzu-framework-management-packages' component in BoM file")
+	}
+
+	tfmprImage, ok := tfmpComponent[0].Images["tanzuFrameworkManagementPackageRepositoryImage"]
+	if !ok || tfmprImage == nil {
+		return "", errors.New("unable to find 'tanzuFrameworkManagementPackageRepositoryImage' image in BoM file")
+	}
+
+	managementPackageRepositoryImage := fmt.Sprintf("%s/%s:%s", bomConfiguration.ImageConfig.ImageRepository, tfmprImage.ImagePath, tfmprImage.Tag)
+	return managementPackageRepositoryImage, nil
+}

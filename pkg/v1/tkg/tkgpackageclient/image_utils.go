@@ -15,8 +15,8 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgpackagedatamodel"
 )
 
-// parseRegistryImageURL parses the registry image URL to get repository and tag, tag is empty if not specified
-func parseRegistryImageURL(imgURL string) (repository, tag string, err error) {
+// ParseRegistryImageURL parses the registry image URL to get repository and tag, tag is empty if not specified
+func ParseRegistryImageURL(imgURL string) (repository, tag string, err error) {
 	ref, err := name.ParseReference(imgURL, name.WeakValidation)
 	if err != nil {
 		return "", "", err
@@ -37,7 +37,7 @@ func GetCurrentRepositoryAndTagInUse(pkgr *kappipkg.PackageRepository) (reposito
 		return "", "", errors.New("failed to find OCI registry URL")
 	}
 
-	repository, tag, err = parseRegistryImageURL(pkgr.Spec.Fetch.ImgpkgBundle.Image)
+	repository, tag, err = ParseRegistryImageURL(pkgr.Spec.Fetch.ImgpkgBundle.Image)
 	if err != nil {
 		return "", "", errors.Wrap(err, "failed to parse OCI registry URL")
 	}

@@ -1,0 +1,163 @@
+
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.7.0
+  creationTimestamp: null
+  name: antreaconfigs.cni.tanzu.vmware.com
+spec:
+  group: cni.tanzu.vmware.com
+  names:
+    kind: AntreaConfig
+    listKind: AntreaConfigList
+    plural: antreaconfigs
+    shortNames:
+    - antreaconf
+    singular: antreaconfig
+  scope: Namespaced
+  versions:
+  - additionalPrinterColumns:
+    - description: The traffic encapsulation mode. One of the following options =>
+        encap, noEncap, hybrid, networkPolicyOnly
+      jsonPath: .spec.antrea.config.trafficEncapMode
+      name: TrafficEncapMode
+      type: string
+    - description: Default MTU to use for the host gateway interface and the network
+        interface of each Pod. If omitted, antrea-agent will discover the MTU of the
+        Node's primary interface
+      jsonPath: .spec.antrea.config.defaultMTU
+      name: DefaultMTU
+      type: string
+    - description: Flag to enable/disable antrea proxy
+      jsonPath: .spec.antrea.config.featureGates.AntreaProxy
+      name: AntreaProxy
+      type: string
+    - description: Flag to enable/disable antrea policy
+      jsonPath: .spec.antrea.config.featureGates.AntreaPolicy
+      name: AntreaPolicy
+      type: string
+    - description: Name of the antrea data values secret
+      jsonPath: .status.secretRef
+      name: SecretRef
+      type: string
+    name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        description: AntreaConfig is the Schema for the antreaconfigs API
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation
+              of an object. Servers should convert recognized schemas to the latest
+              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this
+              object represents. Servers may infer this from the endpoint the client
+              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: AntreaConfigSpec defines the desired state of AntreaConfig
+            properties:
+              antrea:
+                properties:
+                  config:
+                    properties:
+                      defaultMTU:
+                        default: ""
+                        description: Default MTU to use for the host gateway interface
+                          and the network interface of each Pod. If omitted, antrea-agent
+                          will discover the MTU of the Node's primary interface
+                        type: string
+                      disableUdpTunnelOffload:
+                        default: false
+                        description: Disable UDP tunnel offload feature on default
+                          NIC
+                        type: boolean
+                      featureGates:
+                        description: FeatureGates is a map of feature names to flags
+                          that enable or disable experimental features
+                        properties:
+                          AntreaPolicy:
+                            default: true
+                            description: Flag to enable/disable antrea policy
+                            type: boolean
+                          AntreaProxy:
+                            default: false
+                            description: Flag to enable/disable antrea proxy
+                            type: boolean
+                          AntreaTraceflow:
+                            default: false
+                            description: Flag to enable/disable antrea traceflow
+                            type: boolean
+                          Egress:
+                            default: false
+                            description: Flag to enable/disable SNAT IPs of Pod egress
+                              traffic
+                            type: boolean
+                          EndpointSlice:
+                            default: false
+                            description: Flag to enable/disable EndpointSlice support
+                              in AntreaProxy. If AntreaProxy is not enabled, this
+                              flag will not take effect
+                            type: boolean
+                          FlowExporter:
+                            default: false
+                            description: Flag to enable/disable flow exporter
+                            type: boolean
+                          NetworkPolicyStats:
+                            default: false
+                            description: Flag to enable/disable network policy stats
+                            type: boolean
+                          NodePortLocal:
+                            default: false
+                            description: Flag to enable/disable NodePortLocal feature
+                              to make the pods reachable externally through NodePort
+                            type: boolean
+                        type: object
+                      noSNAT:
+                        default: false
+                        description: Flag to enable/disable SNAT for the egress traffic
+                          from a Pod to the external network
+                        type: boolean
+                      tlsCipherSuites:
+                        default: TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,TLS_RSA_WITH_AES_256_GCM_SHA384
+                        description: List of allowed cipher suites. If omitted, the
+                          default Go Cipher Suites will be used
+                        type: string
+                      trafficEncapMode:
+                        default: encap
+                        description: The traffic encapsulation mode. One of the following
+                          options => encap, noEncap, hybrid, networkPolicyOnly
+                        enum:
+                        - encap
+                        - noEncap
+                        - hybrid
+                        - networkPolicyOnly
+                        type: string
+                    type: object
+                type: object
+            type: object
+          status:
+            description: AntreaConfigStatus defines the observed state of AntreaConfig
+            properties:
+              secretRef:
+                description: Reference to the data value secret created by controller
+                type: string
+            type: object
+        required:
+        - spec
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
+status:
+  acceptedNames:
+    kind: ""
+    plural: ""
+  conditions: []
+  storedVersions: []

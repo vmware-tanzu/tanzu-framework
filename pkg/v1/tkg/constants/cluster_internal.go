@@ -118,3 +118,10 @@ const (
 	// ClusterNameLabel is the label on the Secret to indicate the cluster on which addon is to be installed
 	ClusterNameLabel = "tkg.tanzu.vmware.com/cluster-name"
 )
+
+// TKG management package related constants
+const (
+	TKGManagementPackageName           = "tkg.tanzu.vmware.com"
+	TKGManagementPackageInstallName    = "tkg-pkg"
+	TKGManagementPackageRepositoryName = "management"
+)

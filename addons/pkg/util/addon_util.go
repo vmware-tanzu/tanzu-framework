@@ -6,20 +6,21 @@ package util
 import (
 	"context"
 	"fmt"
-	"github.com/vmware-tanzu/carvel-kapp-controller/pkg/apiserver/apis/datapackaging/v1alpha1"
 	"net"
 	"strconv"
 	"strings"
 
-	"github.com/pkg/errors"
 	"gopkg.in/yaml.v2"
 	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	clusterapiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
+	"github.com/pkg/errors"
+
 	kappctrl "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/kappctrl/v1alpha1"
 	pkgiv1alpha1 "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/packaging/v1alpha1"
+	"github.com/vmware-tanzu/carvel-kapp-controller/pkg/apiserver/apis/datapackaging/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
 	addontypes "github.com/vmware-tanzu/tanzu-framework/addons/pkg/types"
 	infraconstants "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
@@ -80,9 +81,9 @@ func GeneratePackageInstallName(clusterName, addonName string) string {
 	return fmt.Sprintf("%s-%s", clusterName, addonName)
 }
 
-func GetPackageMetadata(context context.Context, c client.Client, carvelPkgName, carvelPkgNamespace string) (string, string, error) {
+func GetPackageMetadata(ctx context.Context, c client.Client, carvelPkgName, carvelPkgNamespace string) (string, string, error) {
 	pkg := &v1alpha1.Package{}
-	if err := c.Get(context, client.ObjectKey{Name: carvelPkgName, Namespace: carvelPkgNamespace}, pkg); err != nil {
+	if err := c.Get(ctx, client.ObjectKey{Name: carvelPkgName, Namespace: carvelPkgNamespace}, pkg); err != nil {
 		return "", "", err
 	}
 	return pkg.Spec.RefName, pkg.Spec.Version, nil

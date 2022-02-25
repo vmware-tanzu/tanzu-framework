@@ -46,5 +46,10 @@ func (p *pkgClient) GetPackage(o *tkgpackagedatamodel.PackageOptions) (*kapppkg.
 		}
 	}
 
+	// If only one package version available and version is not provided, use that version
+	if len(packageVersions.Items) == 1 && o.Version == "" {
+		return resolvedPackage, &packageVersions.Items[0], nil
+	}
+
 	return nil, nil, errors.Errorf(fmt.Sprintf("failed to resolve package '%s' with version '%s'", o.PackageName, o.Version))
 }

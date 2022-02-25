@@ -40,7 +40,8 @@ var _ = Describe("KappControllerConfig Reconciler", func() {
 		f, err := os.Open(clusterResourceFilePath)
 		Expect(err).ToNot(HaveOccurred())
 		defer f.Close()
-		Expect(testutil.DeleteResources(f, cfg, dynamicClient, true)).To(Succeed())
+		// Best effort resource deletion
+		_ = testutil.DeleteResources(f, cfg, dynamicClient, true)
 	})
 
 	Context("reconcile KappControllerConfig for management cluster", func() {
@@ -115,6 +116,17 @@ var _ = Describe("KappControllerConfig Reconciler", func() {
 				Expect(strings.Contains(secretData, "key: node.cloudprovider.kubernetes.io/uninitialized")).Should(BeTrue())
 				Expect(strings.Contains(secretData, "apiPort: 10100")).Should(BeTrue())
 				Expect(strings.Contains(secretData, "metricsBindAddress: \"0\"")).Should(BeTrue())
+
+				if !strings.Contains(secretData, "caCerts: dummyCertificate") ||
+					!strings.Contains(secretData, "httpsProxy: bar.com") ||
+					!strings.Contains(secretData, "noProxy: foobar.com") {
+					return false
+				}
+
+				// user input should override cluster-wide config
+				if !strings.Contains(secretData, "httpProxy: overwrite.foo.com") {
+					return false
+				}
 
 				return true
 			}, waitTimeout, pollingInterval).Should(BeTrue())

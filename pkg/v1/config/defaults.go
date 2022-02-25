@@ -4,6 +4,7 @@
 package config
 
 import (
+	"fmt"
 	"os"
 	"strings"
 
@@ -100,7 +101,7 @@ func GetDefaultStandaloneDiscoveryLocalPath() string {
 // GetTrustedRegistries returns the list of trusted registries that can be used for
 // downloading the CLIPlugins
 func GetTrustedRegistries() []string {
-	trustedRegistries := []string{}
+	var trustedRegistries []string
 
 	// Add default registry to trusted registries
 	if DefaultStandaloneDiscoveryRepository != "" {
@@ -120,4 +121,20 @@ func GetTrustedRegistries() []string {
 	}
 
 	return trustedRegistries
+}
+
+func getHTTPURIForGCPPluginRepository(repo configv1alpha1.GCPPluginRepository) string {
+	return fmt.Sprintf("https://storage.googleapis.com/%s/", repo.BucketName)
+}
+
+// GetTrustedArtifactLocations returns the list of trusted URI prefixes that can
+// be trusted for downloading the CLIPlugins. Currently, this includes only the
+// "tanzu-cli-advanced-plugins" GCP bucket where TMC plugins are stored. Other
+// exceptions can be added as and when necessary.
+func GetTrustedArtifactLocations() []string {
+	trustedLocations := []string{
+		getHTTPURIForGCPPluginRepository(AdvancedGCPBucketRepository),
+	}
+
+	return trustedLocations
 }

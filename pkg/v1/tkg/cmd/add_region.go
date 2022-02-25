@@ -18,7 +18,7 @@ var (
 	ar           = &addRegionOptions{}
 	addRegionCmd = &cobra.Command{
 		Use:     "management-cluster",
-		Short:   "Add an existing management cluster to the config file",
+		Short:   "Add an existing management cluster",
 		Long:    "Add an existing management cluster to the config file",
 		Aliases: []string{"mc"},
 		Run: func(cmd *cobra.Command, args []string) {

@@ -60,7 +60,8 @@ spec:
                     properties:
                       caCerts:
                         description: A cert chain of trusted CA certs. These will
-                          be added to the system-wide cert pool of trusted CA's
+                          be added to the system-wide cert pool of trusted CA's. Cluster-wide
+                          CA Certificate setting will be used if this is not provided.
                         type: string
                       dangerousSkipTLSVerify:
                         description: A comma delimited list of hostnames for which
@@ -68,16 +69,19 @@ spec:
                         type: string
                       httpProxy:
                         description: The url/ip of a proxy for kapp controller to
-                          use when making network requests
+                          use when making network requests. Cluster-wide HTTP proxy
+                          setting will be used if this is not provided.
                         type: string
                       httpsProxy:
                         description: The url/ip of a TLS capable proxy for kapp-controller
-                          to use when making network requests
+                          to use when making network requests. Cluster-wide HTTPS
+                          proxy setting will be used if this is not provided.
                         type: string
                       noProxy:
                         description: A comma delimited list of domain names which
                           kapp-controller should bypass the proxy for when making
-                          requests
+                          requests. Cluster-wide no-proxy setting will be used if
+                          this is not provided.
                         type: string
                     type: object
                   createNamespace:

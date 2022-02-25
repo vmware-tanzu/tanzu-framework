@@ -46,6 +46,14 @@ const (
 	// AVI_MANAGEMENT_CLUSTER_CONTROL_PLANE_VIP_NETWORK_NAME and AVI_MANAGEMENT_CLUSTER_CONTROL_PLANE_VIP_NETWORK_CIDR
 	// when creating a cluster.
 	FeatureFlagManagementClusterNetworkSeparation = "features.management-cluster.network-separation-beta"
+	// AWS Instance Types Exclude ARM feature flags determine whether instance types with processor architecture
+	// support of ARM should be included when discovering available AWS instance types. Setting feature flag to true
+	// filters out ARM supporting instance types; false allows ARM instance types to be included in results.
+	FeatureFlagAwsInstanceTypesExcludeArm = "features.management-cluster.aws-instance-types-exclude-arm"
+	// PackageBasedLCM feature flag determines whether to use package based lifecycle management of management component
+	// or legacy way of managing management components. This is also used for clusterclass based management and workload
+	// cluster provisioning
+	FeatureFlagPackageBasedLCM = "features.global.package-based-lcm-beta"
 )
 
 // DefaultCliFeatureFlags is used to populate an initially empty config file with default values for feature flags.
@@ -73,6 +81,8 @@ var (
 		FeatureFlagManagementClusterCustomNameservers:         false,
 		FeatureFlagClusterCustomNameservers:                   false,
 		FeatureFlagManagementClusterNetworkSeparation:         false,
+		FeatureFlagAwsInstanceTypesExcludeArm:                 true,
+		FeatureFlagPackageBasedLCM:                            false,
 	}
 )
 

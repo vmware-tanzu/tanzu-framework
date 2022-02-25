@@ -8,8 +8,8 @@ import (
 	"time"
 )
 
-// Config contains configuration information.
-type Config struct {
+// AddonControllerConfig contains addons controller configuration information.
+type AddonControllerConfig struct {
 	AppSyncPeriod           time.Duration
 	AppWaitTimeout          time.Duration
 	AddonNamespace          string
@@ -20,8 +20,14 @@ type Config struct {
 	CorePackageRepoName     string
 }
 
-// ClusterBootstrapControllerConfig contains the configuration for clusterbootstrap_controller to reconcile resources
+// ClusterBootstrapControllerConfig contains configuration information related to ClusterBootstrap
 type ClusterBootstrapControllerConfig struct {
+	CNISelectionClusterVariableName string
+	HTTPProxyClusterClassVarName    string
+	HTTPSProxyClusterClassVarName   string
+	NoProxyClusterClassVarName      string
+	ProxyCACertClusterClassVarName  string
+	IPFamilyClusterClassVarName     string
 	// The length of time to wait before kapp-controller's reconciliation
 	PkgiSyncPeriod time.Duration
 	// ServiceAccount name that will be used by kapp-controller to install underlying package contents

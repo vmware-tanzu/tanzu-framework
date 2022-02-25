@@ -1,7 +1,7 @@
 // Copyright 2021 VMware, Inc. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-package tkgpackageclient
+package tkgpackageclient_test
 
 import (
 	. "github.com/onsi/ginkgo"
@@ -12,12 +12,13 @@ import (
 	"k8s.io/apimachinery/pkg/runtime/schema"
 
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/fakes"
+	. "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgpackageclient"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgpackagedatamodel"
 )
 
 var _ = Describe("Delete Repository", func() {
 	var (
-		ctl     *pkgClient
+		ctl     TKGPackageClient
 		kappCtl *fakes.KappClient
 		err     error
 		opts    = tkgpackagedatamodel.RepositoryOptions{
@@ -34,7 +35,8 @@ var _ = Describe("Delete Repository", func() {
 			Err:         make(chan error),
 			Done:        make(chan struct{}),
 		}
-		ctl = &pkgClient{kappClient: kappCtl}
+		ctl, err = NewTKGPackageClientWithKappClient(kappCtl)
+		Expect(err).NotTo(HaveOccurred())
 		go ctl.DeleteRepository(&options, progress)
 		err = testReceive(progress)
 	})

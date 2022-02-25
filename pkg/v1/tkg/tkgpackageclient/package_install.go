@@ -32,6 +32,30 @@ const (
 
 // InstallPackage installs the PackageInstall and its associated resources in the cluster
 func (p *pkgClient) InstallPackage(o *tkgpackagedatamodel.PackageOptions, progress *tkgpackagedatamodel.PackageProgress, operationType tkgpackagedatamodel.OperationType) {
+	p.installPackage(o, progress, operationType)
+}
+
+// InstallPackageSync installs the PackageInstall and its associated resources in the cluster and returns an error if any
+func (p *pkgClient) InstallPackageSync(o *tkgpackagedatamodel.PackageOptions, operationType tkgpackagedatamodel.OperationType) error {
+	pp := newPackageProgress()
+
+	go p.installPackage(o, pp, operationType)
+
+	initialMsg := fmt.Sprintf("Installing package '%s'", o.PackageName)
+	if err := DisplayProgress(initialMsg, pp); err != nil {
+		if err.Error() == tkgpackagedatamodel.ErrPackageAlreadyExists {
+			log.Infof("Updated installed package '%s'", o.PkgInstallName)
+			return nil
+		}
+		return err
+	}
+
+	log.Infof("\n %s", fmt.Sprintf("Added installed package '%s'",
+		o.PkgInstallName))
+	return nil
+}
+
+func (p *pkgClient) installPackage(o *tkgpackagedatamodel.PackageOptions, progress *tkgpackagedatamodel.PackageProgress, operationType tkgpackagedatamodel.OperationType) {
 	var (
 		pkgInstall                      *kappipkg.PackageInstall
 		pkgPluginResourceCreationStatus *tkgpackagedatamodel.PkgPluginResourceCreationStatus
@@ -209,7 +233,7 @@ func (p *pkgClient) createOrUpdateDataValuesSecret(o *tkgpackagedatamodel.Packag
 	if dataValues[filepath.Base(o.ValuesFile)], err = os.ReadFile(o.ValuesFile); err != nil {
 		return false, errors.Wrap(err, fmt.Sprintf("failed to read from data values file '%s'", o.ValuesFile))
 	}
-	secret = &corev1.Secret{
+	Secret = &corev1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:        o.SecretName,
 			Namespace:   o.Namespace,
@@ -218,9 +242,9 @@ func (p *pkgClient) createOrUpdateDataValuesSecret(o *tkgpackagedatamodel.Packag
 		Data: dataValues,
 	}
 
-	if err := p.kappClient.GetClient().Create(context.Background(), secret); err != nil {
+	if err := p.kappClient.GetClient().Create(context.Background(), Secret); err != nil {
 		if k8serror.IsAlreadyExists(err) {
-			if err := p.kappClient.GetClient().Update(context.Background(), secret); err != nil {
+			if err := p.kappClient.GetClient().Update(context.Background(), Secret); err != nil {
 				return false, err
 			}
 		} else {

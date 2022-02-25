@@ -24,7 +24,7 @@ var deleteMHCCP = &deleteMachineHealthCheckCPOptions{}
 
 var deleteMachineHealthCheckCPCmd = &cobra.Command{
 	Use:   "delete CLUSTER_NAME",
-	Short: "Delete a MachineHealthCheck object of the control plane of a cluster",
+	Short: "Delete a MachineHealthCheck object",
 	Long:  "Delete a MachineHealthCheck object of the control plane of a cluster",
 	Args:  cobra.ExactArgs(1),
 	RunE:  deleteMachineHealthCheckCP,

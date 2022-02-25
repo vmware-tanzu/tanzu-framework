@@ -24,6 +24,28 @@ const (
 
 // AddRepository validates the provided input and adds the package repository CR to the cluster
 func (p *pkgClient) AddRepository(o *tkgpackagedatamodel.RepositoryOptions, progress *tkgpackagedatamodel.PackageProgress, operationType tkgpackagedatamodel.OperationType) {
+	p.addRepository(o, progress, operationType)
+}
+
+// AddRepositorySync validates the provided input and adds the package repository CR to the cluster and returns error if any
+func (p *pkgClient) AddRepositorySync(o *tkgpackagedatamodel.RepositoryOptions, operationType tkgpackagedatamodel.OperationType) error {
+	pp := newPackageProgress()
+
+	go p.addRepository(o, pp, operationType)
+
+	initialMsg := fmt.Sprintf("Adding package repository '%s'", o.RepositoryName)
+	if err := DisplayProgress(initialMsg, pp); err != nil {
+		if err.Error() == tkgpackagedatamodel.ErrRepoAlreadyExists {
+			log.Infof("Updated package repository '%s' in namespace '%s'", o.RepositoryName, o.Namespace)
+			return nil
+		}
+		return err
+	}
+	log.Infof("Added package repository '%s' in namespace '%s'", o.RepositoryName, o.Namespace)
+	return nil
+}
+
+func (p *pkgClient) addRepository(o *tkgpackagedatamodel.RepositoryOptions, progress *tkgpackagedatamodel.PackageProgress, operationType tkgpackagedatamodel.OperationType) {
 	var (
 		pkgRepository *kappipkg.PackageRepository
 		err           error
@@ -96,7 +118,7 @@ func (p *pkgClient) newPackageRepository(repositoryName, repositoryImg, namespac
 		}},
 	}
 
-	_, tag, err := parseRegistryImageURL(repositoryImg)
+	_, tag, err := ParseRegistryImageURL(repositoryImg)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to parse OCI registry URL")
 	}

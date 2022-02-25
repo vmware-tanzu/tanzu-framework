@@ -1,0 +1,34 @@
+:host ::ng-deep {
+    .description-wrapper {
+        margin-bottom: 20px;
+    }
+    clr-stack-block {
+        .stack-block-content {
+            background-color: initial !important;
+        }
+        clr-stack-block {
+            .stack-block-label[tabindex="0"]{
+                background-color: #fafafa;
+            }
+            .stack-children .stack-block-label{
+                padding-left: 3rem;
+            }
+        }
+    }
+}
+
+.dark {
+    :host ::ng-deep clr-stack-block {
+        .stack-block-content {
+            background-color: initial !important;
+        }
+        clr-stack-block {
+            .stack-block-label[tabindex="0"]{
+                background-color: #1B2A32;
+            }
+            .stack-children .stack-block-label{
+                padding-left: 5rem;
+            }
+        }
+    }
+}

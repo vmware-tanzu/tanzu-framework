@@ -41,4 +41,9 @@ const (
 	DefaultDualStackPrimaryIPv6ServiceCIDR = DefaultIPv6ServiceCIDR + "," + DefaultIPv4ServiceCIDR
 	// DefaultIsWindowsWorkloadCluster is false, indicating that the normal thing to do is, is to make linux clusters.
 	DefaultIsWindowsWorkloadCluster = false
+
+	// Default maximum query per second for the rest config
+	DefaultQPS = 200
+	// Default maximum burst for throttle for the rest config
+	DefaultBurst = 200
 )

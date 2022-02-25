@@ -11,7 +11,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/go-logr/logr"
 	"github.com/pkg/errors"
 )
 
@@ -98,14 +97,14 @@ func (l *logger) Outputf(format string, args ...interface{}) {
 }
 
 // V returns an InfoLogger value for a specific verbosity level.
-func (l *logger) V(level int) logr.Logger {
+func (l *logger) V(level int) LoggerImpl {
 	nl := l.clone()
 	nl.level = int32(level)
 	return nl
 }
 
 // WithName adds a new element to the logger's name.
-func (l *logger) WithName(name string) logr.Logger {
+func (l *logger) WithName(name string) LoggerImpl {
 	nl := l.clone()
 	if len(l.prefix) > 0 {
 		nl.prefix = l.prefix + "/"
@@ -115,7 +114,7 @@ func (l *logger) WithName(name string) logr.Logger {
 }
 
 // WithValues adds some key-value pairs of context to a logger.
-func (l *logger) WithValues(kvList ...interface{}) logr.Logger {
+func (l *logger) WithValues(kvList ...interface{}) LoggerImpl {
 	nl := l.clone()
 	nl.values = append(nl.values, kvList...)
 	return nl

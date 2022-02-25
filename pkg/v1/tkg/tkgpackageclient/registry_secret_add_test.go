@@ -1,7 +1,7 @@
 // Copyright 2021 VMware, Inc. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-package tkgpackageclient
+package tkgpackageclient_test
 
 import (
 	. "github.com/onsi/ginkgo"
@@ -9,6 +9,7 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/fakes"
+	. "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgpackageclient"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgpackagedatamodel"
 )
 
@@ -22,7 +23,7 @@ const (
 
 var _ = Describe("Add Secret", func() {
 	var (
-		ctl     *pkgClient
+		ctl     TKGPackageClient
 		crtCtl  *fakes.CRTClusterClient
 		kappCtl *fakes.KappClient
 		err     error
@@ -38,7 +39,8 @@ var _ = Describe("Add Secret", func() {
 	)
 
 	JustBeforeEach(func() {
-		ctl = &pkgClient{kappClient: kappCtl}
+		ctl, err = NewTKGPackageClientWithKappClient(kappCtl)
+		Expect(err).NotTo(HaveOccurred())
 		err = ctl.AddRegistrySecret(&options)
 	})
 
