@@ -10,6 +10,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/go-logr/logr"
 	corev1 "k8s.io/api/core/v1"
 	rbacv1 "k8s.io/api/rbac/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
@@ -36,8 +37,6 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/handler"
 	"sigs.k8s.io/controller-runtime/pkg/predicate"
 	"sigs.k8s.io/controller-runtime/pkg/source"
-
-	"github.com/go-logr/logr"
 
 	kappctrlv1alpha1 "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/kappctrl/v1alpha1"
 	kapppkgiv1alpha1 "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/packaging/v1alpha1"
@@ -445,8 +444,8 @@ func (r *ClusterBootstrapReconciler) createOrPatchPackageOnRemote(cluster *clust
 	if err = r.Client.Get(r.context, key, localPackage); err != nil {
 		// If there is an error to get the Carvel Package CR from local cluster, nothing needs to be created/cloned on remote.
 		// Let the reconciler try again.
-		r.Log.Error(err, fmt.Sprintf("unable to get package %s, nothing needs to be created on cluster %s/%s",
-			key.String(), cluster.Namespace, cluster.Name))
+		r.Log.Error(err, fmt.Sprintf("unable to create or patch Package %s on cluster %s/%s. Error occurs when getting Package %s from the management cluster",
+			key.String(), cluster.Namespace, cluster.Name, key.String()))
 		return nil, err
 	}
 	remotePackage := &kapppkgv1alpha1.Package{}
@@ -696,7 +695,7 @@ func (r *ClusterBootstrapReconciler) createOrPatchPackageInstallSecretOnRemote(c
 
 	dataValuesSecretMutateFn := func() error {
 		remoteSecret.Data = map[string][]byte{}
-		for k, v := range localSecret.Data {
+		for k, v := range patchedSecret.Data {
 			remoteSecret.Data[k] = v
 		}
 		return nil
