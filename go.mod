@@ -5,7 +5,9 @@ go 1.17
 // Legacy tags before v0.1.0 was created
 retract [v1.4.0-pre-alpha-1, v1.4.0-pre-alpha-2]
 
-replace sigs.k8s.io/cluster-api => sigs.k8s.io/cluster-api v1.1.3
+replace sigs.k8s.io/cluster-api => github.com/vuil/cluster-api v0.2.6-0.20220316225820-339677a2ef18
+
+//replace sigs.k8s.io/cluster-api => sigs.k8s.io/cluster-api v1.1.3
 
 require (
 	cloud.google.com/go/storage v1.18.2

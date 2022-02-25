@@ -1790,6 +1790,8 @@ github.com/vmware/govmomi v0.27.1 h1:Rf3o1btFrkJa9be5KtgJ4CyOO8mbFnBxmNtAVHNyFes
 github.com/vmware/govmomi v0.27.1/go.mod h1:daTuJEcQosNMXYJOeku0qdBJP9SOLLWB3Mqz8THtv6o=
 github.com/vmware/vmw-guestinfo v0.0.0-20170707015358-25eff159a728/go.mod h1:x9oS4Wk2s2u4tS29nEaDLdzvuHdB19CvSGJjPgkZJNk=
 github.com/vmware/vmw-ovflib v0.0.0-20170608004843-1f217b9dc714/go.mod h1:jiPk45kn7klhByRvUq5i2vo1RtHKBHj+iWGFpxbXuuI=
+github.com/vuil/cluster-api v0.2.6-0.20220316225820-339677a2ef18 h1:soEY0KPXriIbWrFY1GhutYgN4Ss8vB1Yk9Qp5o/ZiT0=
+github.com/vuil/cluster-api v0.2.6-0.20220316225820-339677a2ef18/go.mod h1:XqFZ0s9+KKjI/K39/EzHyAb4Sljprqvnm/XKWPgPp3Y=
 github.com/willf/bitset v1.1.11-0.20200630133818-d5bec3311243/go.mod h1:RjeCKbqT1RxIR/KWY6phxZiaY1IyutSBfGjNPySAYV4=
 github.com/willf/bitset v1.1.11/go.mod h1:83CECat5yLh5zVOf4P1ErAgKA5UDvKtgyUABdr3+MjI=
 github.com/xanzy/go-gitlab v0.31.0/go.mod h1:sPLojNBn68fMUWSxIJtdVVIP8uSBYqesTfDUseX11Ug=
@@ -2849,8 +2851,6 @@ sigs.k8s.io/apiserver-network-proxy/konnectivity-client v0.0.23/go.mod h1:LEScyz
 sigs.k8s.io/apiserver-network-proxy/konnectivity-client v0.0.25/go.mod h1:Mlj9PNLmG9bZ6BHFwFKDo5afkpWyUISkb9Me0GnK66I=
 sigs.k8s.io/apiserver-network-proxy/konnectivity-client v0.0.27/go.mod h1:tq2nT0Kx7W+/f2JVE+zxYtUhdjuELJkVpNz+x/QN5R4=
 sigs.k8s.io/aws-iam-authenticator v0.5.3/go.mod h1:DIq7gy0lvnyaG88AgFyJzUVeix+ia5msHEp4RL0102I=
-sigs.k8s.io/cluster-api v1.1.3 h1:t682KcIPFeKGwe2SlxGvZa/HVmLA80XJ45KHBhzUETM=
-sigs.k8s.io/cluster-api v1.1.3/go.mod h1:XqFZ0s9+KKjI/K39/EzHyAb4Sljprqvnm/XKWPgPp3Y=
 sigs.k8s.io/cluster-api-provider-aws v1.1.0 h1:b9Jkk6fGKW09DgnfEPnvkD/H+WomH4CRgW5UjIJpoXs=
 sigs.k8s.io/cluster-api-provider-aws v1.1.0/go.mod h1:GtzEj1B+kQoxoxrAs3oMRs7FP8UiIZ9NDDT4mZgEttA=
 sigs.k8s.io/cluster-api-provider-azure v1.0.1 h1:FIGBO1LRTtKC584K6mtSiLt3kF3KQVZ+v9WvpP6DoTI=
