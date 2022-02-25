@@ -284,7 +284,7 @@ func (r *ClusterBootstrapReconciler) createOrPatchClusterBootstrapFromTemplate(c
 		clusterBootstrap.Namespace = cluster.Namespace
 		clusterBootstrap.Spec = clusterBootstrapTemplate.Spec.DeepCopy()
 		// get selected CNI and populate clusterBootstrap.Spec.CNIs with it
-		cniPackage, err := r.getCNIClusterBootstrapPackage(clusterBootstrapTemplate, cluster, log)
+		cniPackage, err := r.getCNIForClusterBootstrap(clusterBootstrapTemplate, cluster, log)
 		if err != nil {
 			return nil, err
 		}
@@ -1088,7 +1088,7 @@ func (r *ClusterBootstrapReconciler) GetDataValueSecretNameFromBootstrapPackage(
 	return "", err
 }
 
-func (r *ClusterBootstrapReconciler) getCNIClusterBootstrapPackage(
+func (r *ClusterBootstrapReconciler) getCNIForClusterBootstrap(
 	clusterBootstrapTemplate *runtanzuv1alpha3.ClusterBootstrapTemplate,
 	cluster *clusterapiv1beta1.Cluster,
 	log logr.Logger) (*runtanzuv1alpha3.ClusterBootstrapPackage, error) {

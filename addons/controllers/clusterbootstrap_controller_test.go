@@ -103,44 +103,34 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 					return false
 				}, waitTimeout, pollingInterval).Should(BeTrue())
 
-				// TODO
-				By("CNI thing")
-				//// Verify CNI is populated in the cloned object with the value from the cluster variables definitions
-				//Expect(len(clusterBootstrap.Spec.CNIs)).NotTo(BeZero())
-				//cni := clusterBootstrap.Spec.CNIs[0]
-				//Expect(packageShortName(cni.RefName)).To(Equal("antrea"))
-				//
-				//Expect(cni.RefName).To(Equal("antrea.tanzu.vmware.com.21.2.0--vmware.1-tkg.1-rc.1"))
-				//Expect(*cni.ValuesFrom.ProviderRef.APIGroup).To(Equal("cni.tanzu.vmware.com"))
-				//Expect(cni.ValuesFrom.ProviderRef.Kind).To(Equal("AntreaConfig"))
-				//providerName := fmt.Sprintf("%s-antrea-package", clusterName)
-				//Expect(cni.ValuesFrom.ProviderRef.Name).To(Equal(providerName))
+				By("verifying that CNI has been populated properly")
+				// Verify CNI is populated in the cloned object with the value from the cluster variables definitions
+				Expect(len(clusterBootstrap.Spec.CNIs)).NotTo(BeZero())
+				cni := clusterBootstrap.Spec.CNIs[0]
+				Expect(strings.HasPrefix(cni.RefName, "antrea")).To(BeTrue())
 
-				// TODO
-				By("Proxy thing")
-				// Verify Proxy Configurations
-				//Eventually(func() bool {
-				//	err := k8sClient.Get(ctx, client.ObjectKeyFromObject(cluster), clusterBootstrap)
-				//	if err != nil {
-				//		return false
-				//	}
-				//
-				//	err = k8sClient.Get(ctx, client.ObjectKeyFromObject(cluster), cluster)
-				//	if err != nil {
-				//		return false
-				//	}
-				//
-				//	if cluster.Annotations != nil &&
-				//		cluster.Annotations[addontypes.HTTPProxyConfigAnnotation] == "foo.com" &&
-				//		cluster.Annotations[addontypes.HTTPSProxyConfigAnnotation] == "bar.com" &&
-				//		cluster.Annotations[addontypes.NoProxyConfigAnnotation] == "foobar.com" &&
-				//		cluster.Annotations[addontypes.ProxyCACertConfigAnnotation] == "dummyCertificate" &&
-				//		cluster.Annotations[addontypes.IPFamilyConfigAnnotation] == "ipv4" {
-				//		return true
-				//	}
-				//
-				//	return false
-				//}, waitTimeout, pollingInterval).Should(BeTrue())
+				Expect(cni.RefName).To(Equal("antrea.tanzu.vmware.com.1.2.3--vmware.1-tkg.1"))
+				Expect(*cni.ValuesFrom.ProviderRef.APIGroup).To(Equal("cni.tanzu.vmware.com"))
+				Expect(cni.ValuesFrom.ProviderRef.Kind).To(Equal("AntreaConfig"))
+				providerName := fmt.Sprintf("%s-antrea.tanzu.vmware.com-package", clusterName)
+				Expect(cni.ValuesFrom.ProviderRef.Name).To(Equal(providerName))
+
+				By("verifying that the proxy related annotations are populated to cluster object properly")
+				Eventually(func() bool {
+					err := k8sClient.Get(ctx, client.ObjectKeyFromObject(cluster), cluster)
+					if err != nil {
+						return false
+					}
+					if cluster.Annotations != nil &&
+						cluster.Annotations[addontypes.HTTPProxyConfigAnnotation] == "foo.com" &&
+						cluster.Annotations[addontypes.HTTPSProxyConfigAnnotation] == "bar.com" &&
+						cluster.Annotations[addontypes.NoProxyConfigAnnotation] == "foobar.com" &&
+						cluster.Annotations[addontypes.ProxyCACertConfigAnnotation] == "dummyCertificate" &&
+						cluster.Annotations[addontypes.IPFamilyConfigAnnotation] == "ipv4" {
+						return true
+					}
+					return false
+				}, waitTimeout, pollingInterval).Should(BeTrue())
 
 				By("verifying that the providerRef from additionalPackages is cloned into cluster namespace and ownerReferences set properly")
 				var gvr schema.GroupVersionResource
