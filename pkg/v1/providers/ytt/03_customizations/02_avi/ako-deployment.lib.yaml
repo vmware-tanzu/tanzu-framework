@@ -88,6 +88,9 @@ data:
   logLevel: "WARN"
   deleteConfig: "false"
   serviceType:  NodePort
+#@ if data.values.AVI_NSXT_T1LR:
+  nsxtT1LR: #@ data.values.AVI_NSXT_T1LR
+#@ end
 #@ if data.values.AVI_MANAGEMENT_CLUSTER_SERVICE_ENGINE_GROUP:
   serviceEngineGroupName: #@ data.values.AVI_MANAGEMENT_CLUSTER_SERVICE_ENGINE_GROUP
 #@ else:
@@ -237,6 +240,13 @@ spec:
                 configMapKeyRef:
                   name: avi-k8s-config
                   key: serviceType
+            #@ if data.values.AVI_NSXT_T1LR:
+            - name: NSXT_T1_LR
+              valueFrom:
+                configMapKeyRef:
+                  name: avi-k8s-config
+                  key: nsxtT1LR
+            #@ end
             - name: POD_NAME
               valueFrom:
                 fieldRef:
