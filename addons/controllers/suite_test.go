@@ -68,6 +68,7 @@ var (
 	scheme        = runtime.NewScheme()
 	dynamicClient dynamic.Interface
 	cancel        context.CancelFunc
+	webhooksFile  string
 	// clientset     *kubernetes.Clientset
 )
 
@@ -80,6 +81,8 @@ func TestAddonController(t *testing.T) {
 }
 
 var _ = BeforeSuite(func(done Done) {
+	var f *os.File
+	var err error
 
 	logf.SetLogger(zap.New(zap.WriteTo(GinkgoWriter), zap.UseDevMode(true)))
 
@@ -225,6 +228,29 @@ var _ = BeforeSuite(func(done Done) {
 
 	ns = &corev1.Namespace{ObjectMeta: metav1.ObjectMeta{Name: "tkg-system"}}
 	Expect(k8sClient.Create(context.TODO(), ns)).To(Succeed())
+
+	// Apply the webhooks configuration
+	webhooksFile = "webhooks/manifests.yaml"
+	f, err = os.Open(webhooksFile)
+	Expect(err).ToNot(HaveOccurred())
+	defer f.Close()
+	err = testutil.CreateResources(f, cfg, dynamicClient)
+	Expect(err).ToNot(HaveOccurred())
+
+	wh := mgr.GetWebhookServer()
+	wh.CertDir = "/tmp/k8s-webhook-server/serving-certs"
+	wh.Host = "127.0.0.1"
+	wh.Port = 9443
+
+	// Setup the webhooks
+	if err = (&cniv1alpha1.AntreaConfig{}).SetupWebhookWithManager(mgr); err != nil {
+		setupLog.Error(err, "unable to create webhook for Antrea")
+		os.Exit(1)
+	}
+	if err = (&cniv1alpha1.CalicoConfig{}).SetupWebhookWithManager(mgr); err != nil {
+		setupLog.Error(err, "unable to create webhook for Calico")
+		os.Exit(1)
+	}
 
 	go func() {
 		defer GinkgoRecover()

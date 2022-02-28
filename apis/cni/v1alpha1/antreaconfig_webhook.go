@@ -5,6 +5,7 @@
 package v1alpha1
 
 import (
+	"context"
 	"fmt"
 	"reflect"
 
@@ -12,13 +13,52 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/util/validation/field"
+	k8sscheme "k8s.io/client-go/kubernetes/scheme"
+	clusterapiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
 	ctrl "sigs.k8s.io/controller-runtime"
+	"sigs.k8s.io/controller-runtime/pkg/client"
+	"sigs.k8s.io/controller-runtime/pkg/client/config"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/webhook"
+
+	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
+	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/util"
+	infraconstants "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
 )
 
 // log is for logging in this package.
 var antreaconfiglog = logf.Log.WithName("antreaconfig-resource")
+
+var cl client.Client
+
+func getScheme() (*runtime.Scheme, error) {
+	s, err := SchemeBuilder.Build()
+	if err != nil {
+		return nil, err
+	}
+	if err := k8sscheme.AddToScheme(s); err != nil {
+		return nil, err
+	}
+	return s, nil
+}
+
+// Get a cached client.
+func (r *AntreaConfig) getClient() (client.Client, error) {
+	if cl != nil && !reflect.ValueOf(cl).IsNil() {
+		return cl, nil
+	}
+
+	s, err := getScheme()
+	if err != nil {
+		return nil, err
+	}
+
+	cfg, err := config.GetConfig()
+	if err != nil {
+		return nil, err
+	}
+	return client.New(cfg, client.Options{Scheme: s})
+}
 
 func (r *AntreaConfig) SetupWebhookWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewWebhookManagedBy(mgr).
@@ -28,18 +68,59 @@ func (r *AntreaConfig) SetupWebhookWithManager(mgr ctrl.Manager) error {
 
 // EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!
 
-// +kubebuilder:webhook:path=/mutate-cni-tanzu-vmware-com-v1alpha1-antreaconfig,mutating=true,failurePolicy=fail,groups=cni.tanzu.vmware.com,resources=antreaconfigs,verbs=create;update,versions=v1alpha1,name=mantreaconfig.kb.io
-
 var _ webhook.Defaulter = &AntreaConfig{}
 var _ webhook.Validator = &AntreaConfig{}
+
+// +kubebuilder:webhook:path=/mutate-cni-tanzu-vmware-com-v1alpha1-antreaconfig,mutating=true,failurePolicy=fail,groups=cni.tanzu.vmware.com,resources=antreaconfigs,verbs=create;update,versions=v1alpha1,name=mantreaconfig.kb.io,admissionReviewVersions=v1,sideEffects=None
 
 // Default implements webhook.Defaulter so a webhook will be registered for the type
 func (r *AntreaConfig) Default() {
 	antreaconfiglog.Info("default", "name", r.Name)
-	// No-op for default
+
+	c, err := r.getClient()
+	if err != nil {
+		antreaconfiglog.Error(err, "Couldn't get client in Defaulter webhook")
+		return
+	}
+	ctx := context.Background()
+
+	// Get the cluster object
+	cluster := &clusterapiv1beta1.Cluster{}
+	key := client.ObjectKey{Namespace: r.Namespace, Name: r.ClusterName}
+	if err := c.Get(ctx, key, cluster); err != nil {
+		if apierrors.IsNotFound(err) {
+			antreaconfiglog.Info("Cluster not found")
+			return
+		}
+		antreaconfiglog.Error(err, "unable to fetch cluster")
+		return
+	}
+
+	infraProvider, err := util.GetInfraProvider(cluster)
+	if err != nil {
+		antreaconfiglog.Error(err, "Unable to get InfraProvider")
+		return
+	}
+
+	// If Infrastructure provider is VSphere and NSXTPodRoutingEnabled is true then
+	// defaults for TrafficEncapMode and NoSNAT must be forced in AntreaConfig
+	if infraProvider == infraconstants.InfrastructureRefVSphere {
+
+		nsxt_pod_routing, err := util.ParseClusterVariableBool(cluster, constants.NSXTPodRoutingEnabledClassVarName)
+		if err != nil {
+			antreaconfiglog.Error(err, "Cannot parse cluster variable %s",
+				constants.NSXTPodRoutingEnabledClassVarName)
+			return
+		}
+		if nsxt_pod_routing == true {
+			r.Spec.Antrea.AntreaConfigDataValue.TrafficEncapMode = "noEncap"
+			r.Spec.Antrea.AntreaConfigDataValue.NoSNAT = true
+		}
+	}
+	return
 }
 
-// +kubebuilder:webhook:verbs=create;update,path=/validate-cni-tanzu-vmware-com-v1alpha1-antreaconfig,mutating=false,failurePolicy=fail,groups=cni.tanzu.vmware.com,resources=antreaconfigs,versions=v1alpha1,name=vantreaconfig.kb.io
+// +kubebuilder:webhook:verbs=create;update,path=/validate-cni-tanzu-vmware-com-v1alpha1-antreaconfig,mutating=false,failurePolicy=fail,groups=cni.tanzu.vmware.com,resources=antreaconfigs,versions=v1alpha1,name=vantreaconfig.kb.io,admissionReviewVersions=v1,sideEffects=None
 
 // ValidateCreate implements webhook.Validator so a webhook will be registered for the type
 func (r *AntreaConfig) ValidateCreate() error {
