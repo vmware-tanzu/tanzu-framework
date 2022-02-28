@@ -57,7 +57,7 @@ var createClusterCmd = &cobra.Command{
 }
 
 func init() {
-	createClusterCmd.Flags().StringVarP(&cc.clusterConfigFile, "file", "f", "", "Configuration file from which to create a cluster")
+	createClusterCmd.Flags().StringVarP(&cc.clusterConfigFile, "file", "f", "", "Configuration file or Cluster objects from which to create a cluster")
 	createClusterCmd.Flags().StringVarP(&cc.tkrName, "tkr", "", "", "TanzuKubernetesRelease(TKr) to be used for creating the workload cluster. If TKr name prefix is provided, the latest compatible TKr matching the TKr name prefix would be used")
 
 	createClusterCmd.Flags().StringVarP(&cc.plan, "plan", "p", "", "The plan to be used for creating the workload cluster")
