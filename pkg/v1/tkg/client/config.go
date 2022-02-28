@@ -116,6 +116,9 @@ func (c *TkgClient) getClusterConfiguration(options *ClusterConfigOptions, isMan
 		return nil, err
 	}
 
+	// Sets cluster class value.
+	SetClusterClass(c.TKGConfigReaderWriter())
+
 	// need to provide clusterctl the worker count for md0 and not the full worker-machine-count value.
 	workerCounts, err := c.DistributeMachineDeploymentWorkers(*options.WorkerMachineCount, options.ProviderRepositorySource.Flavor == constants.PlanProd, isManagementCluster, infraProviderName, isWindowsWorkloadCluster)
 	if err != nil {

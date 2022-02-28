@@ -6,12 +6,15 @@ package client
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"os/exec"
 	"strconv"
 	"strings"
 	"time"
 
 	"github.com/pkg/errors"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfigreaderwriter"
 	"k8s.io/apimachinery/pkg/util/validation"
 	"k8s.io/apimachinery/pkg/util/version"
 	apimachineryversion "k8s.io/apimachinery/pkg/version"
@@ -25,6 +28,27 @@ var vsphereBuildMinimumRequirement = 14367737
 type kubectlVersion struct { //nolint
 	ClientVersion *apimachineryversion.Info `json:"clientVersion,omitempty"`
 	ServerVersion *apimachineryversion.Info `json:"serverVersion,omitempty"`
+}
+
+type ClusterClassSelector interface {
+	Select(config tkgconfigreaderwriter.TKGConfigReaderWriter) string
+}
+
+type GivenClusterClassSelector struct{}
+type ProviderBasedClusterClassSelector struct{}
+
+func (GivenClusterClassSelector) Select(config tkgconfigreaderwriter.TKGConfigReaderWriter) string {
+	ret, _ := config.Get(constants.ConfigVariableClusterClass)
+
+	return ret
+}
+
+func (ProviderBasedClusterClassSelector) Select(config tkgconfigreaderwriter.TKGConfigReaderWriter) string {
+	if provider, err := config.Get(constants.ConfigVariableProviderType); err == nil && provider != "" {
+		return fmt.Sprintf("tkg-%s-default", provider)
+	}
+
+	return ""
 }
 
 // ParseProviderName defines a utility function that parses the abbreviated syntax for name[:version]
@@ -245,4 +269,20 @@ func (c *TkgClient) validateKubectlPrerequisites() error { //nolint
 // ConfigureTimeout updates/configures timeout already set in the tkgClient
 func (c *TkgClient) ConfigureTimeout(timeout time.Duration) {
 	c.timeout = timeout
+}
+
+// SetClusterClass sets the value of CLUSTER_CLASS based on an array of selectors.
+// Uses the first non empty name provided by a selector.
+func SetClusterClass(config tkgconfigreaderwriter.TKGConfigReaderWriter) {
+	clusterClassSelectors := []ClusterClassSelector{
+		GivenClusterClassSelector{},
+		ProviderBasedClusterClassSelector{},
+	}
+
+	for _, selector := range clusterClassSelectors {
+		if name := selector.Select(config); name != "" {
+			config.Set(constants.ConfigVariableClusterClass, name)
+			break
+		}
+	}
 }
