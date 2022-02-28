@@ -576,6 +576,8 @@ func (c *TkgClient) BuildRegionalClusterConfiguration(options *InitRegionOptions
 		namespace = defaultTkgNamespace
 	}
 
+	SetClusterClass(c.TKGConfigReaderWriter())
+
 	controlPlaneMachineCount, workerMachineCount := c.getMachineCountForMC(options.Plan)
 
 	providerRepositorySource := &clusterctl.ProviderRepositorySourceOptions{
