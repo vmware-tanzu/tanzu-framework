@@ -4,6 +4,7 @@
 package client
 
 import (
+	"fmt"
 	"os"
 	"strconv"
 	"strings"
@@ -167,7 +168,11 @@ func (c *TkgClient) legacyClusterCreation(options *CreateClusterOptions, waitFor
 	if err != nil {
 		return err
 	}
-	bytes, err = c.getClusterConfiguration(&options.ClusterConfigOptions, isManagementCluster, infraProviderName, options.IsWindowsWorkloadCluster)
+	if options.IsInputFileHasCClass {
+		bytes, err = getContentFromInputFile(options.ClusterConfigFile)
+	} else {
+		bytes, err = c.getClusterConfiguration(&options.ClusterConfigOptions, isManagementCluster, infraProviderName, options.IsWindowsWorkloadCluster)
+	}
 	if err != nil {
 		return errors.Wrap(err, "unable to get cluster configuration")
 	}
@@ -192,6 +197,14 @@ func (c *TkgClient) legacyClusterCreation(options *CreateClusterOptions, waitFor
 		return nil
 	}
 	return c.waitForClusterCreation(regionalClusterClient, options)
+}
+
+func getContentFromInputFile(fileName string) ([]byte, error) {
+	content, err := os.ReadFile(fileName)
+	if err != nil {
+		return nil, errors.Wrap(err, fmt.Sprintf("Error while reading input file %v : ", fileName))
+	}
+	return content, nil
 }
 
 func (c *TkgClient) waitForClusterCreation(regionalClusterClient clusterclient.Client, options *CreateClusterOptions) error {
