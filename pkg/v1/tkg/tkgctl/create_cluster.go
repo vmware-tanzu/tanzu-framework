@@ -13,6 +13,7 @@ import (
 	"github.com/pkg/errors"
 	clusterctl "sigs.k8s.io/cluster-api/cmd/clusterctl/client"
 
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/config"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/client"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/log"
@@ -47,14 +48,28 @@ type CreateClusterOptions struct {
 	Edition string
 }
 
+const (
+	ClusterKind      = "Cluster"
+	ClusterClassKind = "ClusterClass"
+)
+
 //nolint:gocritic
 // CreateCluster create tkg cluster
 func (t *tkgctl) CreateCluster(cc CreateClusterOptions) error {
+	isInputFileHasCClass := false
+	var err error
+	// If clusterclass feature flag is enabled then only check for cluster class validation from input file.
+	if config.IsFeatureActivated(config.FeatureFlagPackageBasedLCM) {
+		isInputFileHasCClass, err = t.checkIfInputFileIsCClassBased(&cc)
+		if err != nil {
+			return err
+		}
+	}
+
 	if cc.GenerateOnly {
 		return t.ConfigCluster(cc)
 	}
 
-	var err error
 	cc.ClusterConfigFile, err = t.ensureClusterConfigFile(cc.ClusterConfigFile)
 	if err != nil {
 		return err
@@ -85,6 +100,7 @@ func (t *tkgctl) CreateCluster(cc CreateClusterOptions) error {
 	if err != nil {
 		return err
 	}
+	options.IsInputFileHasCClass = isInputFileHasCClass
 
 	isPacific, err := t.tkgClient.IsPacificManagementCluster()
 	if err != nil {
@@ -160,6 +176,7 @@ func (t *tkgctl) getCreateClusterOptions(name string, cc *CreateClusterOptions) 
 		ClusterOptionsEnableList:    clusterOptionsEnableList,
 		Edition:                     cc.Edition,
 		IsWindowsWorkloadCluster:    cc.IsWindowsWorkloadCluster,
+		ClusterConfigFile:           cc.ClusterConfigFile,
 	}, nil
 }
 
