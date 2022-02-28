@@ -201,6 +201,130 @@ var _ = Describe("Unit tests for getAndDownloadTkrIfNeeded", func() {
 	})
 })
 
+var _ = Describe("Unit tests for - ccluster.yaml as input file for 'tanzu cluster create -f ccluster' use case", func() {
+	var (
+		ctl       tkgctl
+		tkgClient = &fakes.Client{}
+		bomClient = &fakes.TKGConfigBomClient{}
+		options   CreateClusterOptions
+	)
+	JustBeforeEach(func() {
+		tkgConfigReaderWriter, _ := tkgconfigreaderwriter.NewReaderWriterFromConfigFile("../fakes/config/config.yaml", "../fakes/config/config.yaml")
+		ctl = tkgctl{
+			configDir:              testingDir,
+			tkgClient:              tkgClient,
+			tkgConfigReaderWriter:  tkgConfigReaderWriter,
+			tkgConfigUpdaterClient: tkgconfigupdater.New(testingDir, nil, tkgConfigReaderWriter),
+			tkgBomClient:           bomClient,
+		}
+	})
+	Context("create cluster with ccluster.yaml : use cases", func() {
+		BeforeEach(func() {
+			options = CreateClusterOptions{
+				ClusterName:            "test-cluster",
+				Plan:                   "dev",
+				InfrastructureProvider: "",
+				Namespace:              "",
+				GenerateOnly:           false,
+				TkrVersion:             fakeTKRVersion,
+				SkipPrompt:             true,
+				Edition:                "tkg",
+				ClusterConfigFile:      "../fakes/config/ccluster1_clusterOnly.yaml",
+			}
+		})
+		It("Input file is ccluster type, make sure configurations are updated..", func() {
+			//Set some values before processing the input ccluster.yaml file.
+			ctl.TKGConfigReaderWriter().Set("CLUSTER_NAME", "BeforeCheckingInputFile")
+			vpcID := "VPC_ID_BeforeCheckingInputFile_11"
+			ctl.TKGConfigReaderWriter().Set("AWS_VPC_ID", vpcID)
+
+			//Process input ccluster.yaml file.
+			IsInputFileHasCClass, err := ctl.checkIfInputFileIsCClassBased(&options)
+			Expect(IsInputFileHasCClass).Should(BeTrue())
+			Expect(err).To(BeNil())
+
+			cname, _ := ctl.TKGConfigReaderWriter().Get("CLUSTER_NAME")
+			//cname should be same as CLUSTER_NAME value from the input config file options.ClusterConfigFile
+			// though we set before checking but it should override by the input ccluster.yaml file
+			Expect(cname).To(Equal("wcc2"))
+			vpcCIDR, _ := ctl.TKGConfigReaderWriter().Get("AWS_VPC_CIDR")
+			Expect(vpcCIDR).To(Equal("10.0.0.0/16"))
+			nodeType, _ := ctl.TKGConfigReaderWriter().Get("NODE_MACHINE_TYPE")
+			Expect(nodeType).To(Equal("m3.xlarge"))
+			tls, _ := ctl.TKGConfigReaderWriter().Get("TKG_CUSTOM_IMAGE_REPOSITORY_SKIP_TLS_VERIFY")
+			Expect(tls).To(Equal("true"))
+			//AWS_VPC_ID should be the same value what we set before processing, as this value is empty in ccluster.yaml file
+			vpcIDAfterProcess, _ := ctl.TKGConfigReaderWriter().Get("AWS_VPC_ID")
+			Expect(vpcIDAfterProcess).To(Equal(vpcID))
+		})
+		It("Input file is ccluster type with multiple objects.", func() {
+			//Set some values before processing the input ccluster.yaml file.
+			ctl.TKGConfigReaderWriter().Set("CLUSTER_NAME", "BeforeCheckingInputFile")
+			vpcID := "VPC_ID_BeforeCheckingInputFile_22"
+			ctl.TKGConfigReaderWriter().Set("AWS_VPC_ID", vpcID)
+
+			//Process input ccluster.yaml file.
+			options.ClusterConfigFile = "../fakes/config/ccluster2_multipleObjects.yaml"
+			IsInputFileHasCClass, err := ctl.checkIfInputFileIsCClassBased(&options)
+			Expect(IsInputFileHasCClass).Should(BeTrue())
+			Expect(err).To(BeNil())
+
+			cname, _ := ctl.TKGConfigReaderWriter().Get("CLUSTER_NAME")
+			//cname should be same as CLUSTER_NAME value from the input config file options.ClusterConfigFile
+			// though we set before checking but it should override by the input ccluster.yaml file
+			Expect(cname).To(Equal("wcc11"))
+			vpcCIDR, _ := ctl.TKGConfigReaderWriter().Get("AWS_VPC_CIDR")
+			Expect(vpcCIDR).To(Equal("10.0.0.0/16"))
+			nodeType, _ := ctl.TKGConfigReaderWriter().Get("NODE_MACHINE_TYPE")
+			Expect(nodeType).To(Equal("m3.xlarge"))
+			tls, _ := ctl.TKGConfigReaderWriter().Get("TKG_CUSTOM_IMAGE_REPOSITORY_SKIP_TLS_VERIFY")
+			Expect(tls).To(Equal("false"))
+			repository, _ := ctl.TKGConfigReaderWriter().Get("TKG_CUSTOM_IMAGE_REPOSITORY")
+			Expect(repository).To(BeEmpty())
+			//AWS_VPC_ID should be the same value what we set before processing, as this value is empty in ccluster.yaml file
+			vpcIDAfterProcess, _ := ctl.TKGConfigReaderWriter().Get("AWS_VPC_ID")
+			Expect(vpcIDAfterProcess).To(Equal(vpcID))
+		})
+
+		It("make sure CreateClusterOptions values are updated.", func() {
+			options.ClusterName = "BeforeProcess"
+			options.Plan = "Plan"
+			//Process input ccluster.yaml file.
+			Expect(options.ClusterName).To(Equal("BeforeProcess"))
+			Expect(options.Plan).To(Equal("Plan"))
+
+			options.ClusterConfigFile = "../fakes/config/ccluster1_clusterOnly.yaml"
+			_, _ = ctl.checkIfInputFileIsCClassBased(&options)
+
+			cname, _ := ctl.TKGConfigReaderWriter().Get("CLUSTER_NAME")
+			Expect(cname).To(Equal("wcc2"))
+			Expect(options.ClusterName).To(Equal("wcc2"))
+			Expect(options.Plan).To(Equal("devcc"))
+		})
+
+		It("Input file is config.yaml file not ccluster.yaml file", func() {
+			options.ClusterConfigFile = "../fakes/config/ccluster1_config.yaml"
+			IsInputFileHasCClass, err := ctl.checkIfInputFileIsCClassBased(&options)
+			Expect(IsInputFileHasCClass).Should(BeFalse())
+			Expect(err).To(BeNil())
+		})
+
+		It("Input file is not specified", func() {
+			options.ClusterConfigFile = ""
+			IsInputFileHasCClass, _ := ctl.checkIfInputFileIsCClassBased(&options)
+			Expect(IsInputFileHasCClass).Should(BeFalse())
+		})
+
+		It("Input file not exists", func() {
+			options.ClusterConfigFile = "NOT-EXISTS"
+			_, err := ctl.checkIfInputFileIsCClassBased(&options)
+			Expect(err).To(HaveOccurred())
+		})
+
+	})
+
+})
+
 func getConfigFilePath() string {
 	filename := "config1.yaml"
 	filePath := "../fakes/config/kubeconfig/" + filename
