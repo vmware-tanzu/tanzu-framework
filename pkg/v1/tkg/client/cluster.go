@@ -148,6 +148,7 @@ func (c *TkgClient) legacyClusterCreation(options *CreateClusterOptions, waitFor
 	if err != nil {
 		return errors.Wrap(err, "validation failed")
 	}
+
 	var bytes []byte
 	isManagementCluster := false
 	if options.KubernetesVersion, options.TKRVersion, err = c.ConfigureAndValidateTkrVersion(options.TKRVersion); err != nil {
