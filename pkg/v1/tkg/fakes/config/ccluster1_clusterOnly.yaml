@@ -1,0 +1,91 @@
+apiVersion: cluster.x-k8s.io/v1beta1
+kind: Cluster
+metadata:
+  annotations:
+    osInfo: ubuntu,20.04,amd64
+  labels:
+    tanzuKubernetesRelease: v1.22.5---vmware.1-tkg.2-zshippable
+    tkg.tanzu.vmware.com/cluster-name: wcc2
+  name: wcc2
+  namespace: default
+spec:
+  clusterNetwork:
+    pods:
+      cidrBlocks:
+      - 100.96.0.0/11
+    services:
+      cidrBlocks:
+      - 100.64.0.0/13
+  topology:
+    class: tkg-aws-default
+    controlPlane:
+      replicas: 1
+    variables:
+    - name: CLUSTER_PLAN
+      value: devcc
+    - name: AWS_AMI_ID
+      value: "ami-0b12ea388b0c61c8f"
+    - name: AWS_REGION
+      value: us-west-2
+    - name: AWS_NODE_AZ
+      value: us-west-2a
+    - name: AWS_VPC_ID
+      value: ""
+    - name: AWS_PRIVATE_SUBNET_ID
+      value: ""
+    - name: AWS_PUBLIC_SUBNET_ID
+      value: ""
+    - name: AWS_VPC_CIDR
+      value: 10.0.0.0/16
+    - name: AWS_PRIVATE_NODE_CIDR
+      value: 10.0.16.0/20
+    - name: AWS_PUBLIC_NODE_CIDR
+      value: 10.0.0.0/20
+    - name: AWS_SECURITY_GROUP_APISERVER_LB
+      value: ""
+    - name: AWS_SECURITY_GROUP_BASTION
+      value: ""
+    - name: AWS_SECURITY_GROUP_CONTROLPLANE
+      value: ""
+    - name: AWS_SECURITY_GROUP_LB
+      value: ""
+    - name: AWS_SECURITY_GROUP_NODE
+      value: ""
+    - name: AWS_IDENTITY_REF_KIND
+      value: ""
+    - name: AWS_IDENTITY_REF_NAME
+      value: ""
+    - name: AWS_CONTROL_PLANE_OS_DISK_SIZE_GIB
+      value: 80
+    - name: AWS_NODE_OS_DISK_SIZE_GIB
+      value: 80
+    - name: CONTROL_PLANE_MACHINE_TYPE
+      value: m3.xlarge
+    - name: NODE_MACHINE_TYPE
+      value: m3.xlarge
+    - name: AWS_SSH_KEY_NAME
+      value: default
+    - name: BASTION_HOST_ENABLED
+      value: false
+    - name: AWS_LOAD_BALANCER_SCHEME_INTERNAL
+      value: false
+    - name: TKG_CUSTOM_IMAGE_REPOSITORY
+      value: ""
+    - name: TKG_CUSTOM_IMAGE_REPOSITORY_HOSTNAME
+      value: projects-stg.registry.vmware.com
+    - name: TKG_CUSTOM_IMAGE_REPOSITORY_SKIP_TLS_VERIFY
+      value: true
+    - name: TKG_CUSTOM_IMAGE_REPOSITORY_CA_CERTIFICATE
+      value: ""
+    - name: TKG_PROXY_CA_CERT
+      value: ""
+    - name: ENABLE_AUDIT_LOGGING
+      value: ""
+    version: v1.22.5+vmware.1
+    workers:
+      machineDeployments:
+      - class: tkg-worker
+        failureDomain: us-west-2a
+        name: md-0
+        replicas: 1
+---
