@@ -152,6 +152,7 @@ const (
 
 	ConfigVariableClusterPlan             = "CLUSTER_PLAN"
 	ConfigVariableClusterName             = "CLUSTER_NAME"
+	ConfigVariableClusterClass            = "CLUSTER_CLASS"
 	ConfigVariableInfraProvider           = "INFRASTRUCTURE_PROVIDER"
 	ConfigVariableTkrName                 = "KUBERNETES_RELEASE"
 	ConfigVariableKubernetesVersion       = "KUBERNETES_VERSION"
