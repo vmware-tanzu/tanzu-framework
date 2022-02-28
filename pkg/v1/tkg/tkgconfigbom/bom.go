@@ -670,7 +670,11 @@ func (c *client) GetManagementPackageRepositoryImage() (string, error) {
 		return "", errors.New("unable to find 'tanzuFrameworkManagementPackageRepositoryImage' image in BoM file")
 	}
 
-	managementPackageRepositoryImage := fmt.Sprintf("%s/%s:%s", bomConfiguration.ImageConfig.ImageRepository, tfmprImage.ImagePath, tfmprImage.Tag)
+	repository := bomConfiguration.ImageConfig.ImageRepository
+	if tfmprImage.ImageRepository != "" {
+		repository = tfmprImage.ImageRepository
+	}
+	managementPackageRepositoryImage := fmt.Sprintf("%s/%s:%s", repository, tfmprImage.ImagePath, tfmprImage.Tag)
 	return managementPackageRepositoryImage, nil
 }
 
