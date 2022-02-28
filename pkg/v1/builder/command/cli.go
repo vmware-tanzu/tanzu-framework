@@ -167,18 +167,60 @@ func getMaxParallelism() int {
 	return maxConcurrent
 }
 
+// outputPath returns the output path for a binary or file based on the arch.
+func outputPath(baseDir string, arch cli.Arch, name string, subPaths ...string) (out string, err error) {
+	defer func() {
+		if err != nil {
+			err = fmt.Errorf("failed to build output path: %w", err)
+		}
+	}()
+
+	absArtifactsDir, err := filepath.Abs(baseDir)
+	if err != nil {
+		return "", err
+	}
+
+	osys, err := arch.OS()
+	if err != nil {
+		return "", err
+	}
+
+	arc, err := arch.Architecture()
+	if err != nil {
+		return "", err
+	}
+
+	paths := []string{absArtifactsDir, osys, arc, "cli", name}
+	paths = append(paths, subPaths...)
+	out = filepath.Join(paths...)
+	return
+}
+
 // compileCore builds the core plugin for the plugin at the given corePath and arch.
 func compileCore(corePath string, arch cli.Arch) cli.Plugin {
 	log.Break()
 	log.Info("building core binary")
-	err := buildTargets(corePath, filepath.Join(artifactsDir, cli.CoreName, version), cli.CoreName, arch, "", "")
+
+	// Build versioned binary.
+	out, err := outputPath(artifactsDir, arch, cli.CoreName, version)
+	if err != nil {
+		log.Errorf("error: %v", err)
+		os.Exit(1)
+	}
+	err = buildTargets(corePath, out, cli.CoreName, arch, "", "")
 	if err != nil {
 		log.Errorf("error: %v", err)
 		os.Exit(1)
 	}
 
+	// Build "latest" binary.
+	out, err = outputPath(artifactsDir, arch, cli.CoreName, cli.VersionLatest)
+	if err != nil {
+		log.Errorf("error: %v", err)
+		os.Exit(1)
+	}
 	// TODO (pbarker): should copy.
-	err = buildTargets(corePath, filepath.Join(artifactsDir, cli.CoreName, cli.VersionLatest), cli.CoreName, arch, "", "")
+	err = buildTargets(corePath, out, cli.CoreName, arch, "", "")
 	if err != nil {
 		log.Errorf("error: %v", err)
 		os.Exit(1)
@@ -190,7 +232,12 @@ func compileCore(corePath string, arch cli.Arch) cli.Plugin {
 		os.Exit(1)
 	}
 
-	configPath := filepath.Join(artifactsDir, cli.CoreDescriptor.Name, cli.PluginFileName)
+	// Create plugin descriptor file.
+	configPath, err := outputPath(artifactsDir, arch, cli.CoreDescriptor.Name, cli.PluginFileName)
+	if err != nil {
+		log.Errorf("error: %v", err)
+		os.Exit(1)
+	}
 	err = os.WriteFile(configPath, b, 0644)
 	if err != nil {
 		log.Errorf("error: %v", err)
@@ -210,7 +257,7 @@ func compile(cmd *cobra.Command, args []string) error {
 	if version == "" {
 		log.Fatal("version flag must be set")
 	}
-	log.Infof("building local repository at ./%s", artifactsDir)
+	log.Infof("building local repository at %s", artifactsDir)
 
 	manifest := cli.Manifest{
 		CreatedTime: time.Now(),
@@ -498,18 +545,20 @@ var archMap = map[cli.Arch]targetBuilder{
 }
 
 func (p *plugin) compile() error {
-	absArtifactsDir, err := filepath.Abs(artifactsDir)
+	out, err := outputPath(artifactsDir, p.arch, p.Name, p.Version)
 	if err != nil {
 		return err
 	}
 
-	outPath := filepath.Join(absArtifactsDir, p.Name, p.Version)
-	err = buildTargets(p.path, outPath, p.Name, p.arch, p.buildID, p.modPath)
+	err = buildTargets(p.path, out, p.Name, p.arch, p.buildID, p.modPath)
 	if err != nil {
 		return err
 	}
 
-	testOutPath := filepath.Join(absArtifactsDir, p.Name, p.Version, "test")
+	testOutPath, err := outputPath(artifactsDir, p.arch, p.Name, p.Version, "test")
+	if err != nil {
+		return err
+	}
 	err = buildTargets(p.testPath, testOutPath, fmt.Sprintf("%s-test", p.Name), p.arch, p.buildID, p.modPath)
 	if err != nil {
 		return err
@@ -520,7 +569,10 @@ func (p *plugin) compile() error {
 		return err
 	}
 
-	configPath := filepath.Join(absArtifactsDir, p.Name, cli.PluginFileName)
+	configPath, err := outputPath(artifactsDir, p.arch, p.Name, cli.PluginFileName)
+	if err != nil {
+		return err
+	}
 	err = os.WriteFile(configPath, b, 0644)
 	if err != nil {
 		return err

@@ -111,6 +111,29 @@ func (a Arch) IsWindows() bool {
 	return false
 }
 
+// Architecture returns the architecture from the combined os_arch string.
+func (a Arch) Architecture() (string, error) {
+	ss := strings.Split(string(a), "_")
+	s := ss[len(ss)-1]
+	for _, arc := range []string{"386", "amd64", "arm64"} {
+		if s == arc {
+			return s, nil
+		}
+	}
+	return "", fmt.Errorf("unsupported arch %q", s)
+}
+
+// OS returns the operating system from the combined os_arch string.
+func (a Arch) OS() (string, error) {
+	s := strings.Split(string(a), "_")[0]
+	for _, osys := range []string{"linux", "darwin", "windows"} {
+		if s == osys {
+			return s, nil
+		}
+	}
+	return "", fmt.Errorf("unsupported OS %q", s)
+}
+
 const (
 	// Linux386 arch.
 	Linux386 Arch = "linux_386"
