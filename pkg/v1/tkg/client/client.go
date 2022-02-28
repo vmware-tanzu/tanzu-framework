@@ -55,6 +55,8 @@ type CreateClusterOptions struct {
 	IsWindowsWorkloadCluster    bool
 	ClusterType                 TKGClusterType
 	Edition                     string
+	IsInputFileHasCClass        bool
+	ClusterConfigFile           string
 }
 
 // InitRegionOptions contains options supported by InitRegion
