@@ -93,7 +93,11 @@ func GetPackageMetadata(ctx context.Context, c client.Client, carvelPkgName, car
 // used for validation is (([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])?
 func ParseStringForLabel(refName string) string {
 	// Replace + sign with ---
-	return strings.ReplaceAll(refName, "+", "---")
+	safeLabel := strings.ReplaceAll(refName, "+", "---")
+	if len(safeLabel) <= 63 {
+		return safeLabel
+	}
+	return safeLabel[:63]
 }
 
 // GenerateAppSecretNameFromAddonSecret generates app secret name from addon secret
