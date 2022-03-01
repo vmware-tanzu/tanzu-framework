@@ -23,6 +23,7 @@ import (
 	cacheddiscovery "k8s.io/client-go/discovery/cached/memory"
 	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/util/retry"
 	"k8s.io/utils/pointer"
 	clusterapiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
 	clusterapiutil "sigs.k8s.io/cluster-api/util"
@@ -844,18 +845,25 @@ func (r *ClusterBootstrapReconciler) ensureOwnerRef(ownerRef *metav1.OwnerRefere
 			r.Log.Error(err, fmt.Sprintf("unable to get GVR of provider %s/%s", provider.GetNamespace(), provider.GetName()))
 			return err
 		}
-		// We need to get and update, otherwise there could have concurrency issue: ["the object has been modified; please
-		// apply your changes to the latest version and try again"]
-		newProvider, err := r.dynamicClient.Resource(*gvr).Namespace(provider.GetNamespace()).Get(r.context, provider.GetName(), metav1.GetOptions{})
+		err = retry.RetryOnConflict(retry.DefaultRetry, func() error {
+			// We need to get and update, otherwise there could have concurrency issue: ["the object has been modified; please
+			// apply your changes to the latest version and try again"]
+			newProvider, errGetProvider := r.dynamicClient.Resource(*gvr).Namespace(provider.GetNamespace()).Get(r.context, provider.GetName(), metav1.GetOptions{})
+			if errGetProvider != nil {
+				r.Log.Error(errGetProvider, fmt.Sprintf("unable to get provider %s/%s", provider.GetNamespace(), provider.GetName()))
+				return errGetProvider
+			}
+			newProvider = newProvider.DeepCopy()
+			newProvider.SetOwnerReferences(clusterapiutil.EnsureOwnerRef(provider.GetOwnerReferences(), *ownerRef))
+			_, errUpdateProvider := r.dynamicClient.Resource(*gvr).Namespace(newProvider.GetNamespace()).Update(r.context, newProvider, metav1.UpdateOptions{})
+			if errUpdateProvider != nil {
+				r.Log.Error(errUpdateProvider, fmt.Sprintf("unable to update provider %s/%s", provider.GetNamespace(), provider.GetName()))
+				return errUpdateProvider
+			}
+			return nil
+		})
 		if err != nil {
-			r.Log.Error(err, fmt.Sprintf("unable to get provider %s/%s", provider.GetNamespace(), provider.GetName()))
-			return err
-		}
-		newProvider = newProvider.DeepCopy()
-		newProvider.SetOwnerReferences(clusterapiutil.EnsureOwnerRef(provider.GetOwnerReferences(), *ownerRef))
-		_, err = r.dynamicClient.Resource(*gvr).Namespace(newProvider.GetNamespace()).Update(r.context, newProvider, metav1.UpdateOptions{})
-		if err != nil {
-			r.Log.Error(err, fmt.Sprintf("unable to update provider %s/%s", provider.GetNamespace(), provider.GetName()))
+			r.Log.Error(err, fmt.Sprintf("unable to update the OwnerRefrences for provider %s/%s", provider.GetNamespace(), provider.GetName()))
 			return err
 		}
 	}
