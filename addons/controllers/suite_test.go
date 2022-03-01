@@ -4,12 +4,22 @@
 package controllers
 
 import (
+	"bytes"
 	"context"
+	"crypto/rand"
+	"crypto/rsa"
+	"crypto/x509"
+	"crypto/x509/pkix"
+	"encoding/pem"
+	"io/ioutil"
+	"math/big"
+	"net"
 	"os"
 	"path/filepath"
 	"testing"
 	"time"
 
+	"github.com/go-logr/logr"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	corev1 "k8s.io/api/core/v1"
@@ -19,6 +29,7 @@ import (
 	"k8s.io/client-go/kubernetes"
 	clientgoscheme "k8s.io/client-go/kubernetes/scheme"
 	"k8s.io/client-go/rest"
+	"k8s.io/client-go/util/cert"
 	clusterapiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
 	controlplanev1beta1 "sigs.k8s.io/cluster-api/controlplane/kubeadm/api/v1beta1"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -68,7 +79,8 @@ var (
 	scheme        = runtime.NewScheme()
 	dynamicClient dynamic.Interface
 	cancel        context.CancelFunc
-	webhooksFile  string
+	certDir       string
+	caPEM         *bytes.Buffer
 	// clientset     *kubernetes.Clientset
 )
 
@@ -81,8 +93,6 @@ func TestAddonController(t *testing.T) {
 }
 
 var _ = BeforeSuite(func(done Done) {
-	var f *os.File
-	var err error
 
 	logf.SetLogger(zap.New(zap.WriteTo(GinkgoWriter), zap.UseDevMode(true)))
 
@@ -108,6 +118,7 @@ var _ = BeforeSuite(func(done Done) {
 	cfg, err = testEnv.Start()
 	Expect(err).ToNot(HaveOccurred())
 	Expect(cfg).ToNot(BeNil())
+	testEnv.ControlPlane.APIServer.Configure().Append("admission-control", "MutatingAdmissionWebhook")
 
 	err = runtanzuv1alpha1.AddToScheme(scheme)
 	Expect(err).NotTo(HaveOccurred())
@@ -229,28 +240,8 @@ var _ = BeforeSuite(func(done Done) {
 	ns = &corev1.Namespace{ObjectMeta: metav1.ObjectMeta{Name: "tkg-system"}}
 	Expect(k8sClient.Create(context.TODO(), ns)).To(Succeed())
 
-	// Apply the webhooks configuration
-	webhooksFile = "webhooks/manifests.yaml"
-	f, err = os.Open(webhooksFile)
-	Expect(err).ToNot(HaveOccurred())
-	defer f.Close()
-	err = testutil.CreateResources(f, cfg, dynamicClient)
-	Expect(err).ToNot(HaveOccurred())
-
-	wh := mgr.GetWebhookServer()
-	wh.CertDir = "/tmp/k8s-webhook-server/serving-certs"
-	wh.Host = "127.0.0.1"
-	wh.Port = 9443
-
-	// Setup the webhooks
-	if err = (&cniv1alpha1.AntreaConfig{}).SetupWebhookWithManager(mgr); err != nil {
-		setupLog.Error(err, "unable to create webhook for Antrea")
-		os.Exit(1)
-	}
-	if err = (&cniv1alpha1.CalicoConfig{}).SetupWebhookWithManager(mgr); err != nil {
-		setupLog.Error(err, "unable to create webhook for Calico")
-		os.Exit(1)
-	}
+	// setupForWebhooks sets up the certificates
+	setupWebhooks(ctx, mgr, setupLog)
 
 	go func() {
 		defer GinkgoRecover()
@@ -266,3 +257,126 @@ var _ = AfterSuite(func() {
 	err := testEnv.Stop()
 	Expect(err).ToNot(HaveOccurred())
 })
+
+// setupWebhooks configures certs/keys and sets up the webhooks with mgr
+func setupWebhooks(ctx context.Context, mgr manager.Manager, setupLog logr.Logger) {
+	var (
+		f   *os.File
+		err error
+	)
+	// Setup TLS certs and keys
+	setupCertsAndKeysForWebhooks()
+
+	// Apply the webhooks configuration
+	webhooksFile := "webhooks/manifests.yaml"
+	f, err = os.Open(webhooksFile)
+	Expect(err).ToNot(HaveOccurred())
+	defer f.Close()
+	err = testutil.CreateResources(f, cfg, dynamicClient)
+	Expect(err).ToNot(HaveOccurred())
+
+	// Update the caBundle in validating and mutating webhooks
+	k8sConfig := mgr.GetConfig()
+	client, err := kubernetes.NewForConfig(k8sConfig)
+	validatingWebhookConf, err := client.AdmissionregistrationV1().ValidatingWebhookConfigurations().
+		Get(ctx, "validating-webhook-configuration", metav1.GetOptions{})
+	Expect(err).ToNot(HaveOccurred())
+	for idx := range validatingWebhookConf.Webhooks {
+		validatingWebhookConf.Webhooks[idx].ClientConfig.CABundle = caPEM.Bytes()
+	}
+	_, err = client.AdmissionregistrationV1().ValidatingWebhookConfigurations().
+		Update(ctx, validatingWebhookConf, metav1.UpdateOptions{})
+	Expect(err).ToNot(HaveOccurred())
+
+	mutatingWebhookConf, err := client.AdmissionregistrationV1().MutatingWebhookConfigurations().
+		Get(ctx, "mutating-webhook-configuration", metav1.GetOptions{})
+	Expect(err).ToNot(HaveOccurred())
+	for idx := range mutatingWebhookConf.Webhooks {
+		mutatingWebhookConf.Webhooks[idx].ClientConfig.CABundle = caPEM.Bytes()
+	}
+	_, err = client.AdmissionregistrationV1().MutatingWebhookConfigurations().
+		Update(ctx, mutatingWebhookConf, metav1.UpdateOptions{})
+	Expect(err).ToNot(HaveOccurred())
+
+	// Configure and start the webhook server
+	wh := mgr.GetWebhookServer()
+	wh.CertDir = "/tmp/k8s-webhook-server/serving-certs"
+	wh.Host = "127.0.0.1"
+	wh.Port = 9443
+
+	// Setup the webhooks in the manager
+	if err = (&cniv1alpha1.AntreaConfig{}).SetupWebhookWithManager(mgr); err != nil {
+		setupLog.Error(err, "unable to create webhook for Antrea")
+		os.Exit(1)
+	}
+	if err = (&cniv1alpha1.CalicoConfig{}).SetupWebhookWithManager(mgr); err != nil {
+		setupLog.Error(err, "unable to create webhook for Calico")
+		os.Exit(1)
+	}
+}
+
+// setupCertsAndKeysForWebhooks sets up the certificate for CA and the cert and keys for webhook server
+func setupCertsAndKeysForWebhooks() {
+
+	// Use the default directory and file names used by webhook server for TLS certs and keys
+	certDir = "/tmp/k8s-webhook-server/serving-certs"
+	webhookCertFile := filepath.Join(certDir, "tls.crt")
+	webhookKeyFile := filepath.Join(certDir, "tls.key")
+
+	Expect(os.MkdirAll(certDir, 0666)).To(Succeed())
+
+	// CA private key
+	caPrivateKey, err := rsa.GenerateKey(rand.Reader, 4096)
+	Expect(err).ToNot(HaveOccurred())
+
+	caCert, err := cert.NewSelfSignedCACert(
+		cert.Config{CommonName: "test-self-signed-certificate", Organization: []string{"TestOrg"}},
+		caPrivateKey)
+	Expect(err).ToNot(HaveOccurred())
+
+	// encode the CA certificate
+	caPEM = new(bytes.Buffer)
+	_ = pem.Encode(caPEM, &pem.Block{
+		Type:  "CERTIFICATE",
+		Bytes: caCert.Raw,
+	})
+
+	// generate the key for webhook server
+	webhookKey, err := rsa.GenerateKey(rand.Reader, 4096)
+	Expect(err).ToNot(HaveOccurred())
+
+	// webhook server cert config
+	webhookCert := &x509.Certificate{
+		SerialNumber: big.NewInt(2022),
+		Subject: pkix.Name{
+			CommonName:   "localhost",
+			Organization: []string{"TestOrg"},
+		},
+		IPAddresses:  []net.IP{net.IPv4(127, 0, 0, 1)},
+		NotBefore:    time.Now(),
+		NotAfter:     time.Now().AddDate(1, 0, 0),
+		SubjectKeyId: []byte{2, 0, 2, 2},
+		ExtKeyUsage:  []x509.ExtKeyUsage{x509.ExtKeyUsageClientAuth, x509.ExtKeyUsageServerAuth},
+		KeyUsage:     x509.KeyUsageDigitalSignature,
+	}
+
+	// sign the webhook server certificate with the self-signed CA
+	webhookCertBytes, err := x509.CreateCertificate(rand.Reader, webhookCert, caCert, &webhookKey.PublicKey, caPrivateKey)
+	Expect(err).ToNot(HaveOccurred())
+
+	// PEM encode the certificate and key for webhook server
+	webhookCertPEM := new(bytes.Buffer)
+	_ = pem.Encode(webhookCertPEM, &pem.Block{
+		Type:  "CERTIFICATE",
+		Bytes: webhookCertBytes,
+	})
+	webhookKeyPEM := new(bytes.Buffer)
+	_ = pem.Encode(webhookKeyPEM, &pem.Block{
+		Type:  "RSA PRIVATE KEY",
+		Bytes: x509.MarshalPKCS1PrivateKey(webhookKey),
+	})
+	// Write the cert and key for webhook server to the files
+	Expect(ioutil.WriteFile(webhookCertFile, webhookCertPEM.Bytes(), 0600)).To(Succeed())
+	Expect(ioutil.WriteFile(webhookKeyFile, webhookKeyPEM.Bytes(), 0644)).To(Succeed())
+
+}
