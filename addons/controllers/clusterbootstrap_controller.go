@@ -178,7 +178,7 @@ func (r *ClusterBootstrapReconciler) reconcileNormal(cluster *clusterapiv1beta1.
 	// get or clone or patch from template
 	clusterBootstrap, err := r.createOrPatchClusterBootstrapFromTemplate(cluster, log)
 	if err != nil {
-		return ctrl.Result{}, err
+		return ctrl.Result{Requeue: true}, err
 	}
 	if clusterBootstrap == nil {
 		return ctrl.Result{}, nil
@@ -190,10 +190,13 @@ func (r *ClusterBootstrapReconciler) reconcileNormal(cluster *clusterapiv1beta1.
 		return ctrl.Result{}, err
 	}
 
+	if cluster.Status.Phase != string(clusterapiv1beta1.ClusterPhaseProvisioned) {
+		return ctrl.Result{}, nil
+	}
 	remoteClient, err := util.GetClusterClient(r.context, r.Client, r.Scheme, clusterapiutil.ObjectKey(cluster))
 	if err != nil {
 		log.Error(err, "Error getting remote cluster client")
-		return ctrl.Result{}, err
+		return ctrl.Result{Requeue: true}, err
 	}
 
 	// Create a PackageInstall CR under the cluster namespace for deploying the kapp-controller on the remote cluster.
@@ -241,7 +244,7 @@ func (r *ClusterBootstrapReconciler) reconcileNormal(cluster *clusterapiv1beta1.
 			// packages, we return error and let the reconciler retry again.
 			log.Error(err, fmt.Sprintf("unable to create or patch all the required resources for %s on cluster: %s/%s",
 				corePackage.RefName, cluster.Namespace, cluster.Name))
-			return ctrl.Result{}, err
+			return ctrl.Result{RequeueAfter: time.Second * 10}, err
 		}
 	}
 
@@ -249,7 +252,7 @@ func (r *ClusterBootstrapReconciler) reconcileNormal(cluster *clusterapiv1beta1.
 	for _, additionalPkg := range clusterBootstrap.Spec.AdditionalPackages {
 		if err := r.createOrPatchAddonResourcesOnRemote(cluster, additionalPkg, remoteClient); err != nil {
 			// Logging has been handled in createOrPatchAddonResourcesOnRemote()
-			return ctrl.Result{}, err
+			return ctrl.Result{Requeue: true}, err
 		}
 		// set watches on provider objects in additional packages if not already set
 		if additionalPkg.ValuesFrom != nil && additionalPkg.ValuesFrom.ProviderRef != nil {
