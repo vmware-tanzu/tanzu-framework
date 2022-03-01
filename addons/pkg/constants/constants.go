@@ -150,9 +150,6 @@ const (
 
 	// DefaultIPFamilyClusterClassVarName is the default cluster variable name for ip family
 	DefaultIPFamilyClusterClassVarName = "tkg.tanzu.vmware.com/tkg-ip-family"
-
-	// NSXTPodRoutingEnabledClassVarName is the cluster variable that indicates if NSXT pod routing is enabled or not
-	NSXTPodRoutingEnabledClassVarName = "NSXT_POD_ROUTING_ENABLED"
 )
 
 // ClusterKind is the Kind for cluster-api Cluster object
