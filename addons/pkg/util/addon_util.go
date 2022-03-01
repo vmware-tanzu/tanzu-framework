@@ -77,7 +77,7 @@ func GenerateAppNameFromAddonSecret(addonSecret *corev1.Secret) string {
 // PackageInstall is for reconciling resources in a cluster named "<workload-cluster-name>".
 // addonName is the short name of a Tanzu addon with which the PackageInstall CR is associated.
 func GeneratePackageInstallName(clusterName, addonName string) string {
-	return fmt.Sprintf("%s-%s", clusterName, addonName)
+	return fmt.Sprintf("%s-%s", clusterName, strings.Split(addonName, ".")[0])
 }
 
 func GetPackageMetadata(ctx context.Context, c client.Client, carvelPkgName, carvelPkgNamespace string) (string, string, error) {

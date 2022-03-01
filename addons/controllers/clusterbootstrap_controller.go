@@ -67,6 +67,7 @@ type ClusterBootstrapReconciler struct {
 	cachedDiscoveryClient discovery.CachedDiscoveryInterface
 	// cache for resolved api-resources so that look up is fast (cleared periodically)
 	providerGVR map[schema.GroupKind]*schema.GroupVersionResource
+	liveClient  client.Client
 }
 
 // NewClusterBootstrapReconciler returns a reconciler for ClusterBootstrap
@@ -122,6 +123,11 @@ func (r *ClusterBootstrapReconciler) SetupWithManager(ctx context.Context, mgr c
 	r.cachedDiscoveryClient = cacheddiscovery.NewMemCacheClient(clientset.Discovery())
 
 	go r.periodicGVRCachesClean()
+
+	r.liveClient, err = client.New(mgr.GetConfig(), client.Options{Scheme: mgr.GetScheme()})
+	if err != nil {
+		return err
+	}
 
 	return nil
 }
@@ -198,6 +204,10 @@ func (r *ClusterBootstrapReconciler) reconcileNormal(cluster *clusterapiv1beta1.
 		return ctrl.Result{}, err
 	}
 
+	if err := r.reconcileSystemNamespace(remoteClient); err != nil {
+		return ctrl.Result{}, err
+	}
+
 	// Create the ServiceAccount on remote cluster, so it could be referenced in PackageInstall CR for kapp-controller
 	// reconciliation.
 	if _, err := r.createOrPatchAddonServiceAccountOnRemote(cluster, remoteClient); err != nil {
@@ -242,7 +252,7 @@ func (r *ClusterBootstrapReconciler) reconcileNormal(cluster *clusterapiv1beta1.
 			return ctrl.Result{}, err
 		}
 		// set watches on provider objects in additional packages if not already set
-		if additionalPkg.ValuesFrom.ProviderRef != nil {
+		if additionalPkg.ValuesFrom != nil && additionalPkg.ValuesFrom.ProviderRef != nil {
 			if err := r.watchProvider(additionalPkg.ValuesFrom.ProviderRef, clusterBootstrap.Namespace, log); err != nil {
 				return ctrl.Result{}, err
 			}
@@ -353,7 +363,7 @@ func (r *ClusterBootstrapReconciler) createOrPatchKappPackageInstall(clusterBoot
 	}
 
 	// In order to create PackageInstall CR, we need to get the Package.Spec.RefName and Package.Spec.Version
-	packageRefName, packageVersion, err := util.GetPackageMetadata(r.context, r.Client, clusterBootstrap.Spec.Kapp.RefName, cluster.Namespace)
+	packageRefName, packageVersion, err := util.GetPackageMetadata(r.context, r.liveClient, clusterBootstrap.Spec.Kapp.RefName, cluster.Namespace)
 	if packageRefName == "" || packageVersion == "" || err != nil {
 		// Package.Spec.RefName and Package.Spec.Version are required fields for Package CR. We do not expect them to be
 		// empty and error should not happen when fetching them from a Package CR.
@@ -441,7 +451,7 @@ func (r *ClusterBootstrapReconciler) createOrPatchPackageOnRemote(cluster *clust
 	// Create or patch Package CR on remote cluster
 	localPackage := &kapppkgv1alpha1.Package{}
 	key := client.ObjectKey{Namespace: cluster.Namespace, Name: cbPkg.RefName}
-	if err = r.Client.Get(r.context, key, localPackage); err != nil {
+	if err = r.liveClient.Get(r.context, key, localPackage); err != nil {
 		// If there is an error to get the Carvel Package CR from local cluster, nothing needs to be created/cloned on remote.
 		// Let the reconciler try again.
 		r.Log.Error(err, fmt.Sprintf("unable to create or patch Package %s on cluster %s/%s. Error occurs when getting Package %s from the management cluster",
@@ -517,6 +527,24 @@ func (r *ClusterBootstrapReconciler) createOrPatchPackageInstallOnRemote(cluster
 	}
 
 	return remotePkgi, nil
+}
+
+func (r *ClusterBootstrapReconciler) reconcileSystemNamespace(clusterClient client.Client) error {
+	namespace := &corev1.Namespace{
+		ObjectMeta: metav1.ObjectMeta{
+			Name: r.Config.SystemNamespace,
+		},
+	}
+
+	result, err := controllerutil.CreateOrPatch(r.context, clusterClient, namespace, nil)
+	if err != nil {
+		r.Log.Error(err, "Error creating or patching system namespace")
+		return err
+	}
+	if result != controllerutil.OperationResultNone {
+		r.Log.Info("created namespace", "namespace", r.Config.SystemNamespace)
+	}
+	return nil
 }
 
 // createOrPatchAddonServiceAccountOnRemote creates or patches the addon ServiceAccount on remote cluster.
@@ -681,7 +709,7 @@ func (r *ClusterBootstrapReconciler) createOrPatchPackageInstallSecretOnRemote(c
 		r.Log.Info(fmt.Sprintf("patched the secret %s/%s with package and cluster labels", localSecret.Namespace, localSecret.Name))
 	}
 
-	packageRefName, _, err := util.GetPackageMetadata(r.context, r.Client, cbpkg.RefName, cluster.Namespace)
+	packageRefName, _, err := util.GetPackageMetadata(r.context, r.liveClient, cbpkg.RefName, cluster.Namespace)
 	if err != nil {
 		r.Log.Error(err, fmt.Sprintf("unable to get Package CR %s/%s for its metadata", cluster.Namespace, cbpkg.RefName))
 		return nil, err
@@ -764,7 +792,7 @@ func (r *ClusterBootstrapReconciler) cloneSecretsAndProviders(cluster *clusterap
 func (r *ClusterBootstrapReconciler) updateValues(cluster *clusterapiv1beta1.Cluster, bootstrap *runtanzuv1alpha3.ClusterBootstrap,
 	cbPkg *runtanzuv1alpha3.ClusterBootstrapPackage, cbTemplateNamespace string, log logr.Logger) (*corev1.Secret, *unstructured.Unstructured, error) {
 
-	packageRefName, _, err := util.GetPackageMetadata(r.context, r.Client, cbPkg.RefName, cluster.Namespace)
+	packageRefName, _, err := util.GetPackageMetadata(r.context, r.liveClient, cbPkg.RefName, cluster.Namespace)
 	if packageRefName == "" || err != nil {
 		// Package.Spec.RefName and Package.Spec.Version are required fields for Package CR. We do not expect them to be
 		// empty and error should not happen when fetching them from a Package CR.
@@ -1104,7 +1132,7 @@ func (r *ClusterBootstrapReconciler) getCNIForClusterBootstrap(
 		foundCNI := false
 		for _, cni := range clusterBootstrapTemplate.Spec.CNIs {
 			// Package should be available in cluster namespace
-			pkgRefName, _, getPkgMetadataErr := util.GetPackageMetadata(r.context, r.Client, cni.RefName, cluster.Namespace)
+			pkgRefName, _, getPkgMetadataErr := util.GetPackageMetadata(r.context, r.liveClient, cni.RefName, cluster.Namespace)
 			if getPkgMetadataErr != nil {
 				getPkgMetadataErrs = append(getPkgMetadataErrs, getPkgMetadataErr)
 			}

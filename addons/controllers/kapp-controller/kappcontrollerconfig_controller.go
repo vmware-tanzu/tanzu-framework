@@ -62,7 +62,7 @@ func (r *KappControllerConfigReconciler) Reconcile(ctx context.Context, req ctrl
 	clusterNamespacedName := req.NamespacedName
 	cluster := &clusterapiv1beta1.Cluster{}
 	for _, owner := range kappControllerConfig.OwnerReferences {
-		if owner.Kind == cluster.Kind {
+		if owner.Kind == constants.ClusterKind {
 			clusterNamespacedName.Name = owner.Name
 			break
 		}
