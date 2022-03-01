@@ -701,7 +701,7 @@ func (r *ClusterBootstrapReconciler) createOrPatchPackageInstallSecretOnRemote(c
 	// Add cluster and package labels to secrets if not already present
 	// This helps us to track the secrets in the watch and trigger Reconcile requests when these secrets are updated
 	patchedSecret := localSecret.DeepCopy()
-	if patchSecretWithLabels(patchedSecret, cbpkg.RefName, cluster.Name) {
+	if patchSecretWithLabels(patchedSecret, util.ParseStringForLabel(cbpkg.RefName), cluster.Name) {
 		if err := r.Patch(r.context, patchedSecret, client.MergeFrom(localSecret)); err != nil {
 			r.Log.Error(err, "unable to patch secret labels for ", "secret", localSecret.Name)
 			return nil, err

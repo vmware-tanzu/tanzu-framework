@@ -177,7 +177,7 @@ func (r *AntreaConfigReconciler) ReconcileAntreaConfigDataValue(
 	// prepare data values secret for AntreaConfig
 	antreaDataValuesSecret := &corev1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      util.GenerateDataValueSecretName(antreaConfig.Name, constants.AntreaAddonName),
+			Name:      util.GenerateDataValueSecretName(cluster.Name, constants.AntreaAddonName),
 			Namespace: antreaConfig.Namespace,
 		},
 	}
