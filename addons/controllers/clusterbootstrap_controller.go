@@ -175,6 +175,8 @@ func (r *ClusterBootstrapReconciler) Reconcile(ctx context.Context, req ctrl.Req
 }
 
 // reconcileNormal reconciles the ClusterBootstrap object
+// TODO: Fix the gocyclo linter issue: https://github.com/vmware-tanzu/tanzu-framework/issues/1761
+//nolint: gocyclo
 func (r *ClusterBootstrapReconciler) reconcileNormal(cluster *clusterapiv1beta1.Cluster, log logr.Logger) (ctrl.Result, error) {
 	// get or clone or patch from template
 	clusterBootstrap, err := r.createOrPatchClusterBootstrapFromTemplate(cluster, log)
@@ -186,8 +188,7 @@ func (r *ClusterBootstrapReconciler) reconcileNormal(cluster *clusterapiv1beta1.
 	}
 
 	// reconcile the proxy settings of the cluster
-	err = r.reconcileClusterProxyAndNetworkSettings(cluster, log)
-	if err != nil {
+	if err = r.reconcileClusterProxyAndNetworkSettings(cluster, log); err != nil {
 		return ctrl.Result{}, err
 	}
 
