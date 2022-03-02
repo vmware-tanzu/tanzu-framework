@@ -25,7 +25,6 @@ describe('networkStepComponent', () => {
             providers: [
                 ValidationService,
                 FormBuilder,
-                FieldMapUtilities,
                 APIClient
             ],
             schemas: [
@@ -38,7 +37,10 @@ describe('networkStepComponent', () => {
         AppServices.messenger = new Messenger();
         fixture = TestBed.createComponent(SharedNetworkStepComponent);
         component = fixture.componentInstance;
-        component.setInputs('BozoWizard', WizardForm.NETWORK, new FormBuilder().group({}));
+        // NOTE: using Azure file import events just for testing
+        component.setStepRegistrantData({ wizard: 'BozoWizard', step: WizardForm.NETWORK, formGroup: new FormBuilder().group({}),
+            eventFileImported: TanzuEventType.AZURE_CONFIG_FILE_IMPORTED,
+            eventFileImportError: TanzuEventType.AZURE_CONFIG_FILE_IMPORT_ERROR});
         component.ngOnInit();
         fixture.detectChanges();
     });

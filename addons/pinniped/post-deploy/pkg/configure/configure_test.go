@@ -26,7 +26,6 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/addons/pinniped/post-deploy/pkg/inspect"
 )
 
-// nolint:funlen
 func TestPinniped(t *testing.T) {
 	const (
 		supervisorNamespace = "pinniped-supervisor" // vars.SupervisorNamespace default

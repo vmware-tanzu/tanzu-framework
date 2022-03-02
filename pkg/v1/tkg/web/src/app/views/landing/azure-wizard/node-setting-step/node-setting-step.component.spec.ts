@@ -6,12 +6,12 @@ import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 // App imports
 import { APIClient } from '../../../../swagger/api-client.service';
 import AppServices from 'src/app/shared/service/appServices';
-import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
+import { AzureForm } from '../azure-wizard.constants';
 import { Messenger, TanzuEventType } from 'src/app/shared/service/Messenger';
+import { NodeSettingField } from '../../wizard/shared/components/steps/node-setting-step/node-setting-step.fieldmapping';
 import { NodeSettingStepComponent } from './node-setting-step.component';
 import { SharedModule } from '../../../../shared/shared.module';
 import { ValidationService } from '../../wizard/shared/validation/validation.service';
-import { AzureForm } from '../azure-wizard.constants';
 
 describe('NodeSettingStepComponent', () => {
     let component: NodeSettingStepComponent;
@@ -26,7 +26,6 @@ describe('NodeSettingStepComponent', () => {
             providers: [
                 ValidationService,
                 FormBuilder,
-                FieldMapUtilities,
                 APIClient
             ],
             schemas: [
@@ -42,7 +41,10 @@ describe('NodeSettingStepComponent', () => {
 
         fixture = TestBed.createComponent(NodeSettingStepComponent);
         component = fixture.componentInstance;
-        component.setInputs('EggplantWizard', AzureForm.NODESETTING,  new FormBuilder().group({}));
+        component.setStepRegistrantData({ wizard: 'EggplantWizard', step: AzureForm.NODESETTING,
+            formGroup: new FormBuilder().group({}),
+            eventFileImported: TanzuEventType.AZURE_CONFIG_FILE_IMPORTED,
+            eventFileImportError: TanzuEventType.AZURE_CONFIG_FILE_IMPORT_ERROR});
 
         fixture.detectChanges();
     });
@@ -53,9 +55,9 @@ describe('NodeSettingStepComponent', () => {
 
     it('should be invalid when cluster name has leading/trailing spaces', () => {
         fixture.whenStable().then(() => {
-            component.formGroup.get('managementClusterName').setValue(" test");
+            component.formGroup.get(NodeSettingField.CLUSTER_NAME).setValue(" test");
             expect(component.formGroup.valid).toBeFalsy();
-            component.formGroup.get('managementClusterName').setValue("test   ");
+            component.formGroup.get(NodeSettingField.CLUSTER_NAME).setValue("test   ");
             expect(component.formGroup.valid).toBeFalsy();
         });
     });
@@ -81,7 +83,7 @@ describe('NodeSettingStepComponent', () => {
     it('should announce description change', () => {
         const msgSpy = spyOn(AppServices.messenger, 'publish').and.callThrough();
         component.ngOnInit();
-        component.clusterPlan = '';
+        component.clearClusterPlan();
 
         const staticDescription = component.dynamicDescription();
         expect(staticDescription).toEqual('Specify the resources backing the  cluster');

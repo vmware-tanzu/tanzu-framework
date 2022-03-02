@@ -553,6 +553,7 @@ AVI_USERNAME: ""
 AVI_PASSWORD: ""
 AVI_CLOUD_NAME:
 AVI_SERVICE_ENGINE_GROUP:
+AVI_CONTROLLER_VERSION: 20.1.3
 
 #! WARNING: service engine group separation support is not enabled (because it is under development).
 #! To use a different service engine group in the management cluster, set AVI_MANAGEMENT_CLUSTER_SERVICE_ENGINE_GROUP variable to the management cluster service engine group

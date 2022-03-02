@@ -6,6 +6,6 @@ export enum CeipField {
 
 export const CeipStepMapping: StepMapping = {
     fieldMappings: [
-        { name: CeipField.OPTIN, isBoolean: true, defaultValue: true }
+        { name: CeipField.OPTIN, isBoolean: true, defaultValue: true, label: 'CEIP OPT-IN' }
     ]
 }

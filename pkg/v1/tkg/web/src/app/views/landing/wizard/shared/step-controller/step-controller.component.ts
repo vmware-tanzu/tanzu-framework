@@ -1,7 +1,6 @@
 import { Component, OnDestroy, Output, EventEmitter, ElementRef, ViewChild, AfterViewInit, Input } from '@angular/core';
 import { ClrStepButton } from '@clr/angular';
 import { distinctUntilChanged } from 'rxjs/operators';
-import { FormMetaDataService } from 'src/app/shared/service/form-meta-data.service';
 
 @Component({
     selector: 'app-step-controller',
@@ -22,7 +21,6 @@ export class StepControllerComponent implements AfterViewInit, OnDestroy {
 
     constructor(
         el: ElementRef,
-        private formMetaDataService: FormMetaDataService
     ) {
         this.nativeElement = el.nativeElement;
     }
@@ -65,6 +63,5 @@ export class StepControllerComponent implements AfterViewInit, OnDestroy {
 
     ngOnDestroy(): void {
         this.nextStep.emit(true);
-        this.formMetaDataService.saveFormMetadata(this.formName, this.findContainer());
     }
 }

@@ -1,4 +1,4 @@
-<form [formGroup]="formGroup" *ngIf="displayForm">
+<form [formGroup]="formGroup">
     <div *ngIf="errorNotification" class="alert alert-danger" role="alert">
         <div class="alert-items">
             <div class="alert-item static">
@@ -21,7 +21,7 @@
 
     <div class="clr-row">
         <div class="clr-col-lg-6 clr-col-12">
-            <a class="card clickable" [ngClass]="{'card-selected': getEnvType()==='dev'}" (click)="cardClick('dev')"
+            <a class="card clickable" [ngClass]="{'card-selected': isClusterPlanDev}" (click)="cardClickDev()"
                 role="none">
                 <div class="card-block">
                     <clr-icon class="card-icon" shape="computer" size="72">
@@ -34,9 +34,9 @@
                     </p>
                 </div>
                 <div class="card-footer">
-                    <div class="clr-row" [attr.data-step-metadata]="formName">
+                    <div class="clr-row">
                         <div class="clr-col-xl-4 clr-col-sm-12 clr-col-12 no-wrap">
-                            <label i18n="instance type label" data-full="Development instance type">
+                            <label i18n="instance type label">
                                 INSTANCE TYPE
                                 <clr-tooltip>
                                     <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22">
@@ -71,7 +71,7 @@
         </div>
 
         <div class="clr-col-lg-6 clr-col-12">
-            <a class="card clickable" [ngClass]="{'card-selected': getEnvType()==='prod'}" (click)="cardClick('prod')"
+            <a class="card clickable" [ngClass]="{'card-selected': isClusterPlanProd}" (click)="cardClickProd()"
                 role="none">
                 <div class="card-block">
                     <clr-icon class="card-icon" shape="building" size="72">
@@ -84,9 +84,9 @@
                     </p>
                 </div>
                 <div class="card-footer">
-                    <div class="clr-row" [attr.data-step-metadata]="formName">
+                    <div class="clr-row">
                         <div class="clr-col-xl-4 clr-col-sm-12 clr-col-12 no-wrap">
-                            <label i18n="instance type label" data-full="Production instance type">
+                            <label i18n="instance type label">
                                 INSTANCE TYPE
                                 <clr-tooltip>
                                     <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22">
@@ -123,9 +123,9 @@
 
     <div class="clr-row">
         <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
-            <clr-input-container [attr.data-step-metadata]="formName">
+            <clr-input-container>
                 <label i18n="cluster name label" clr-control-label>
-                    {{ clusterTypeDescriptor | uppercase }} CLUSTER NAME {{edition === 'tkg' ? '(OPTIONAL)' : ''}}
+                    {{htmlFieldLabels['clusterName']}}
                     <clr-tooltip>
                         <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                         <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
@@ -156,9 +156,8 @@
             </clr-input-container>
         </div>
         <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
-            <clr-checkbox-container [attr.data-step-metadata]="formName">
-                <label i18n="cluster enable machine health check" clr-control-label
-                    data-full="ENABLE MACHINE HEALTH CHECKS">
+            <clr-checkbox-container>
+                <label i18n="cluster enable machine health check" clr-control-label>
                     MACHINE HEALTH CHECKS
                     <clr-tooltip>
                         <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
@@ -182,7 +181,7 @@
 
     <div class="clr-row">
         <div class="clr-col-4">
-            <clr-select-container [attr.data-step-metadata]="formName">
+            <clr-select-container>
                 <label i18n="Control Plane Endpoint Provider label" clr-control-label>
                     CONTROL PLANE ENDPOINT PROVIDER
                     <clr-tooltip>
@@ -206,18 +205,18 @@
         </div>
 
         <div class="clr-col-4">
-            <clr-input-container [attr.data-step-metadata]="formName">
+            <clr-input-container>
                 <label class="hidden" i18n="load balancer template label">
                     CONTROL PLANE ENDPOINT {{controlPlaneEndpointOptional}}
                     <clr-tooltip>
                         <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                         <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
-                            <span *ngIf="currentControlPlaneEndpoingProvider === 'Kube-vip'">
+                            <span *ngIf="currentControlPlaneEndpointProvider === 'Kube-vip'">
                                 This IP address or FQDN is used by the Kube-vip (https://kube-vip.io/) pod that runs in
                                 the control plane nodes.
                                 Kube-vip provides load balancing services for the Cluster API server.
                             </span>
-                            <span *ngIf="currentControlPlaneEndpoingProvider === 'NSX Advanced Load Balancer'">
+                            <span *ngIf="currentControlPlaneEndpointProvider === 'NSX Advanced Load Balancer'">
                                 This IP or FQDN is used by NSX Advanced Load Balancer as cluster control plane endpoint.
                                 It is optional. When you specify it, it has to be from AVI controller static IP Pool.
                             </span>
@@ -240,7 +239,7 @@
 
     <div class="clr-row">
         <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4" *featureToggle="'!management-cluster.standalone-cluster-mode'">
-            <clr-select-container class="ha-template" [attr.data-step-metadata]="formName">
+            <clr-select-container class="ha-template">
                 <label class="hidden" i18n="worker node instance type label">
                     WORKER NODE INSTANCE TYPE
                     <clr-tooltip>
@@ -267,7 +266,7 @@
             </clr-select-container>
         </div>
         <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
-            <app-audit-logging [formGroup]="formGroup" [formName]="formName"></app-audit-logging>
+            <app-audit-logging [label]="htmlFieldLabels['enableAuditLogging']" [formGroup]="formGroup" [formName]="formName"></app-audit-logging>
         </div>
     </div>
 </form>

@@ -17,7 +17,6 @@ import (
 	kubetesting "k8s.io/client-go/testing"
 )
 
-// nolint:funlen
 func TestCreateOrUpdateJWTAuthenticator(t *testing.T) {
 	jwtAuthenticatorGVR := authv1alpha1.SchemeGroupVersion.WithResource("jwtauthenticators")
 

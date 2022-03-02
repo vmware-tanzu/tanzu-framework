@@ -7,18 +7,20 @@ import { Title } from '@angular/platform-browser';
 import { Observable } from 'rxjs';
 // App imports
 import { APIClient } from 'src/app/swagger';
+import AppServices from '../../../shared/service/appServices';
 import { ConfigFileInfo, DockerRegionalClusterParams } from 'src/app/swagger/models';
 import { CliFields, CliGenerator } from '../wizard/shared/utils/cli-generator';
 import { DaemonValidationStepComponent } from './daemon-validation-step/daemon-validation-step.component';
 import { DockerNetworkStepComponent } from './network-step/docker-network-step.component';
 import { FormDataForHTML, FormUtility } from '../wizard/shared/components/steps/form-utility';
 import { ExportService } from "../../../shared/service/export.service";
-import { FormMetaDataService } from 'src/app/shared/service/form-meta-data.service';
 import { ImportParams, ImportService } from "../../../shared/service/import.service";
 import { NetworkField } from '../wizard/shared/components/steps/network-step/network-step.fieldmapping';
 import { NodeSettingStepComponent } from './node-setting-step/node-setting-step.component';
+import { TanzuEventType } from '../../../shared/service/Messenger';
 import { WizardBaseDirective } from '../wizard/shared/wizard-base/wizard-base';
 import { WizardForm } from '../wizard/shared/constants/wizard.constants';
+import { DockerNodeSettingStepName } from './node-setting-step/node-setting-step.fieldmapping';
 
 @Component({
     selector: 'app-docker-wizard',
@@ -30,18 +32,25 @@ export class DockerWizardComponent extends WizardBaseDirective implements OnInit
     constructor(
         router: Router,
         el: ElementRef,
-        formMetaDataService: FormMetaDataService,
         private exportService: ExportService,
         private importService: ImportService,
         formBuilder: FormBuilder,
         titleService: Title,
         private apiClient: APIClient
     ) {
-        super(router, el, formMetaDataService, titleService, formBuilder);
+        super(router, el, titleService, formBuilder);
+    }
+
+    protected supplyFileImportedEvent(): TanzuEventType {
+        return TanzuEventType.DOCKER_CONFIG_FILE_IMPORTED;
+    }
+
+    protected supplyFileImportErrorEvent(): TanzuEventType {
+        return TanzuEventType.DOCKER_CONFIG_FILE_IMPORT_ERROR;
     }
 
     protected supplyWizardName(): string {
-        return 'Docker Wizard';
+        return 'DockerWizard';
     }
 
     protected supplyStepData(): FormDataForHTML[] {
@@ -67,9 +76,11 @@ export class DockerWizardComponent extends WizardBaseDirective implements OnInit
         this.setFieldValue(WizardForm.NETWORK, NetworkField.CLUSTER_POD_CIDR,  payload.networking.clusterPodCIDR);
         this.setFieldValue(WizardForm.NETWORK, NetworkField.CNI_TYPE,  payload.networking.cniType);
 
-        this.setFieldValue('dockerNodeSettingForm', 'clusterName', payload.clusterName);
+        this.setFieldValue(DockerNodeSettingStepName, 'clusterName', payload.clusterName);
 
-        this.saveProxyFieldsFromPayload(payload);
+        this.storeProxyFieldsFromPayload(payload);
+
+        AppServices.userDataService.updateWizardTimestamp(this.wizardName);
     }
 
     getPayload() {
@@ -84,7 +95,7 @@ export class DockerWizardComponent extends WizardBaseDirective implements OnInit
             cniType: this.getFieldValue(WizardForm.NETWORK, NetworkField.CNI_TYPE)
         };
 
-        payload.clusterName = this.getFieldValue('dockerNodeSettingForm', 'clusterName');
+        payload.clusterName = this.getFieldValue(DockerNodeSettingStepName, 'clusterName');
 
         if (this.getFieldValue(WizardForm.NETWORK, NetworkField.PROXY_SETTINGS)) {
             let proxySettingsMap = null;
@@ -136,7 +147,7 @@ export class DockerWizardComponent extends WizardBaseDirective implements OnInit
      * Return management/standalone cluster name
      */
     getMCName() {
-        return this.getFieldValue('dockerNodeSettingForm', 'clusterName');
+        return this.getFieldValue(DockerNodeSettingStepName, 'clusterName');
     }
 
     /**
@@ -177,7 +188,7 @@ export class DockerWizardComponent extends WizardBaseDirective implements OnInit
     }
     get DockerNodeSettingForm(): FormDataForHTML {
         const title = FormUtility.titleCase(this.clusterTypeDescriptor) + ' Cluster Settings';
-        return { name: 'dockerNodeSettings', title: title, description: 'Optional: Specify the management cluster name',
+        return { name: DockerNodeSettingStepName, title: title, description: 'Optional: Specify the management cluster name',
             i18n: { title: 'node setting step name', description: 'node setting step description' },
         clazz: NodeSettingStepComponent};
     }
@@ -203,10 +214,10 @@ export class DockerWizardComponent extends WizardBaseDirective implements OnInit
         return this.apiClient.importTKGConfigForVsphere( { params: { filecontents: fileContents } } );
     }
 
-    importFileProcessClusterParams(nameFile: string, dockerClusterParams: DockerRegionalClusterParams) {
+    importFileProcessClusterParams(event: TanzuEventType, nameFile: string, dockerClusterParams: DockerRegionalClusterParams) {
         this.setFromPayload(dockerClusterParams);
         this.resetToFirstStep();
-        this.importService.publishImportSuccess(nameFile);
+        this.importService.publishImportSuccess(event, nameFile);
     }
 
     // returns TRUE if user (a) will not lose data on import, or (b) confirms it's OK
@@ -220,6 +231,8 @@ export class DockerWizardComponent extends WizardBaseDirective implements OnInit
 
     onImportFileSelected(event) {
         const params: ImportParams<DockerRegionalClusterParams> = {
+            eventSuccess: this.supplyFileImportedEvent(),
+            eventFailure: this.supplyFileImportErrorEvent(),
             file: event.target.files[0],
             validator: this.importFileValidate,
             backend: this.importFileRetrieveClusterParams.bind(this),

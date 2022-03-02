@@ -6,9 +6,10 @@ package carvelhelpers
 import (
 	"io"
 
-	yttui "github.com/k14s/ytt/pkg/cmd/ui"
-	"github.com/k14s/ytt/pkg/files"
-	"github.com/k14s/ytt/pkg/workspace"
+	yttui "github.com/vmware-tanzu/carvel-ytt/pkg/cmd/ui"
+	"github.com/vmware-tanzu/carvel-ytt/pkg/files"
+	"github.com/vmware-tanzu/carvel-ytt/pkg/workspace"
+	"github.com/vmware-tanzu/carvel-ytt/pkg/workspace/datavalues"
 )
 
 // ProcessYTTPackage processes configuration directory with ytt tool
@@ -24,11 +25,11 @@ func ProcessYTTPackage(configDir string) ([]byte, error) {
 	libExecFact := workspace.NewLibraryExecutionFactory(&NoopUI{}, workspace.TemplateLoaderOpts{})
 	loader := libExecFact.New(libCtx)
 
-	valuesDoc, libraryValueDoc, err := loader.Values([]*workspace.DataValues{})
+	valuesDoc, libraryValueDoc, err := loader.Values([]*datavalues.Envelope{}, datavalues.NewNullSchema())
 	if err != nil {
 		return nil, err
 	}
-	result, err := loader.Eval(valuesDoc, libraryValueDoc)
+	result, err := loader.Eval(valuesDoc, libraryValueDoc, []*datavalues.SchemaEnvelope{})
 	if err != nil {
 		return nil, err
 	}

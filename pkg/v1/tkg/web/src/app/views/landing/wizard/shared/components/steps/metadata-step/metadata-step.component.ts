@@ -1,14 +1,14 @@
 // Angular imports
 import { Component, OnInit } from '@angular/core';
 import { FormControl, Validators } from '@angular/forms';
-import { distinctUntilChanged, takeUntil } from 'rxjs/operators';
 
 // App imports
-import { FieldMapUtilities } from '../../../field-mapping/FieldMapUtilities';
+import AppServices from '../../../../../../../shared/service/appServices';
+import { FormUtils } from '../../../utils/form-utils';
 import { MetadataField, MetadataStepMapping } from './metadata-step.fieldmapping';
 import { StepFormDirective } from '../../../step-form/step-form';
+import { StepMapping } from '../../../field-mapping/FieldMapping';
 import { ValidationService } from '../../../validation/validation.service';
-import { FormUtils } from '../../../utils/form-utils';
 
 const LABEL_KEY_NAME = 'newLabelKey';
 const LABEL_VALUE_NAME = 'newLabelValue';
@@ -23,37 +23,81 @@ export class MetadataStepComponent extends StepFormDirective implements OnInit {
     keySet: Set<string> = new Set();
     savedKeySet: Set<string> = new Set();
     labelCounter: number = 0;
+    private stepMapping: StepMapping;
 
-    constructor(private validationService: ValidationService,
-                private fieldMapUtilities: FieldMapUtilities) {
+    constructor(private validationService: ValidationService) {
         super();
     }
 
     ngOnInit() {
         super.ngOnInit();
-        this.fieldMapUtilities.buildForm(this.formGroup, this.formName, MetadataStepMapping);
+        AppServices.userDataFormService.buildForm(this.formGroup, this.wizardName, this.formName, this.supplyStepMapping());
+        this.htmlFieldLabels = AppServices.fieldMapUtilities.getFieldLabelMap(this.supplyStepMapping());
+        this.storeDefaultLabels(this.supplyStepMapping());
         this.registerStepDescriptionTriggers({
             fields: [MetadataField.CLUSTER_LOCATION],
             clusterTypeDescriptor: true,
         })
+        this.registerDefaultFileImportedHandler(this.eventFileImported, this.supplyStepMapping());
+        this.registerDefaultFileImportErrorHandler(this.eventFileImportError);
 
-        this.initFormWithSavedData();
+        // initialize label controls
         if (this.labels.size === 0) {
             this.addLabel();
         }
     }
 
-    initFormWithSavedData() {
-        const savedLabelsString = this.getSavedValue(MetadataField.CLUSTER_LABELS, '');
-        if (savedLabelsString !== '') {
-            const savedLabelsArray = savedLabelsString.split(', ')
-            savedLabelsArray.map(label => {
-                const labelArray = label.split(':');
-                this.addLabel(labelArray[0], labelArray[1]);
-                this.savedKeySet.add(LABEL_KEY_NAME + this.labelCounter);
-            });
+    private supplyStepMapping(): StepMapping {
+        if (!this.stepMapping) {
+            this.stepMapping = this.createStepMapping();
         }
-        super.initFormWithSavedData();
+        return this.stepMapping;
+    }
+
+    private createStepMapping() {
+        const result = MetadataStepMapping;
+        const clusterFieldMapping = AppServices.fieldMapUtilities.getFieldMapping(MetadataField.CLUSTER_LABELS, result);
+        clusterFieldMapping.retriever = this.getClusterLabels.bind(this);
+        clusterFieldMapping.restorer = this.setClusterLabels.bind(this);
+        return result;
+    }
+
+    // TODO: the 'labels' field now holds a keyField => valueField mapping, so when receiving the data, we build new controls to hold data
+    private setClusterLabels(data: Map<string, string>)  {
+        this.clearLabels();
+        // ADD new ones
+        for (const [key, value] of data) {
+            this.addLabel(key, value);
+        }
+        // ensure at least one field
+        if (this.labels.size === 0) {
+            this.addLabel();
+        }
+    }
+
+    private clearLabels() {
+        // REMOVE existing label fields
+        for (const [keyField, valueField] of this.labels) {
+            this.formGroup.removeControl(keyField);
+            this.formGroup.removeControl(valueField);
+        }
+        this.labels = new Map<string, string>();
+        this.keySet = new Set();
+        this.labelCounter = 0;
+    }
+
+    // TODO: the 'labels' field holds a keyField => valueField mapping, so when returning the data, we build a new map from field data
+    // TODO: public for testing only
+    getClusterLabels(): Map<string, string> {
+        const result = new Map<string, string>();
+        for (const [keyField, valueField] of this.labels) {
+            const key = this.formGroup.get(keyField).value;
+            const val = this.formGroup.get(valueField).value;
+            if (key && val) {
+                result.set(key, val);
+            }
+        }
+        return result;
     }
 
     addLabel(key?: string, value?: string) {
@@ -109,7 +153,6 @@ export class MetadataStepComponent extends StepFormDirective implements OnInit {
     }
 
     validateAllLabels () {
-
         // The setTimeout wrapper ensures that validation logic will run after a new label field is added.
         setTimeout(_ => {
             for (const [labelKey, labelVal] of this.labels) {
@@ -133,26 +176,15 @@ export class MetadataStepComponent extends StepFormDirective implements OnInit {
         this.formGroup.removeControl(this.labels.get(key));
         this.labels.delete(key);
         this.keySet.delete(key);
-        this.formGroup.get(MetadataField.CLUSTER_LABELS).setValue(this.labels);
-    }
-
-    /**
-     * Get the current value of MetadataField.CLUSTER_LABELS
-     */
-    get clusterLabelsValue() {
-        let labelStr = '';
-        for (const [labelKey, labelVal] of this.labels) {
-            const key = this.formGroup.get(labelKey).value;
-            const val = this.formGroup.get(labelVal).value;
-            if (key && val) {
-                labelStr += key + ':' + val + ', '
-            }
-        }
-        return labelStr.slice(0, -2);
     }
 
     dynamicDescription(): string {
         const clusterLocation = this.getFieldValue(MetadataField.CLUSTER_LOCATION, true);
         return clusterLocation ? 'Location: ' + clusterLocation : 'Specify metadata for the ' + this.clusterTypeDescriptor + ' cluster';
+    }
+
+    protected storeUserData() {
+        this.storeUserDataFromMapping(this.supplyStepMapping());
+        this.storeDefaultDisplayOrder(this.supplyStepMapping());
     }
 }

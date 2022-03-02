@@ -23,7 +23,6 @@ import (
 	kubetesting "k8s.io/client-go/testing"
 )
 
-// nolint:funlen
 func TestCreateOrUpdateFederationDomain(t *testing.T) {
 	federationDomainGVR := configv1alpha1.SchemeGroupVersion.WithResource("federationdomains")
 
@@ -142,7 +141,6 @@ func TestCreateOrUpdateFederationDomain(t *testing.T) {
 	}
 }
 
-// nolint:funlen
 func TestRecreateIDPForDex(t *testing.T) {
 	const (
 		dexServiceIP   = "1.2.3.4"

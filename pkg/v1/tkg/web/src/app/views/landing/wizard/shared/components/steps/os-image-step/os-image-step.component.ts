@@ -1,11 +1,13 @@
+// Angular imports
+import { Directive, OnInit } from '@angular/core';
+// Third party imports
+import { Observable } from 'rxjs/internal/Observable';
 // App imports
 import AppServices from '../../../../../../../shared/service/appServices';
-import { FieldMapUtilities } from '../../../field-mapping/FieldMapUtilities';
-import { Observable } from 'rxjs/internal/Observable';
 import { OsImageField, OsImageStepMapping } from './os-image-step.fieldmapping';
 import { StepFormDirective } from '../../../step-form/step-form';
+import { StepMapping } from '../../../field-mapping/FieldMapping';
 import { TanzuEventType } from 'src/app/shared/service/Messenger';
-import { Directive, OnInit } from '@angular/core';
 
 // The intention of this class is to provide the common plumbing for the osImage step that many providers need.
 // The basic functionality is to subscribe to an event and load the resulting images into a local field.
@@ -30,13 +32,14 @@ export abstract class SharedOsImageStepDirective<IMAGE extends OsImage> extends 
     // used by HTML as well as locally
     public providerInputs: OsImageProviderInputs;
 
-    osImages: Array<IMAGE>;
+    osImages: Array<IMAGE> = [];
     loadingOsTemplate: boolean = false;
     displayNonTemplateAlert: boolean = false;
     // TODO: It's questionable whether tkrVersion should be in this class, since it's only used for vSphere
     tkrVersion: Observable<string>;
+    private stepMapping: StepMapping;
 
-    protected constructor(protected fieldMapUtilities: FieldMapUtilities) {
+    constructor() {
         super();
         this.tkrVersion = AppServices.appDataService.getTkrVersion();
     }
@@ -44,29 +47,37 @@ export abstract class SharedOsImageStepDirective<IMAGE extends OsImage> extends 
     // This method allows child classes to supply the inputs (rather than having them passed as part of an HTML component tag).
     // This allows this step to follow the same pattern as all the other steps, which only take formGroup and formName as inputs.
     protected abstract supplyProviderInputs(): OsImageProviderInputs;
+    protected abstract supplyImportFileSuccessEvent(): TanzuEventType;
+    protected abstract supplyImportFileFailureEvent(): TanzuEventType;
 
     private subscribeToProviderEvent() {
         // we register a handler for when our event receives data, namely that we'll populate our array of osImages
-        AppServices.dataServiceRegistrar.stepSubscribe<IMAGE>(this, this.providerInputs.event, this.onFetchedOsImages.bind(this));
+        AppServices.dataServiceRegistrar.stepSubscribe<IMAGE>(this, this.providerInputs.event, this.onOsImageEvent.bind(this));
     }
 
-    private onFetchedOsImages(images: Array<IMAGE>) {
-        this.osImages = images;
+    private onOsImageEvent(images: Array<IMAGE>) {
+        this.osImages = images ? images : [];
         this.loadingOsTemplate = false;
-        if (this.osImages.length === 1) {
-            this.setControlValueSafely(OsImageField.IMAGE, images[0]);
-        } else {
-            this.setControlWithSavedValue(OsImageField.IMAGE, '');
-        }
+        this.restoreField(OsImageField.IMAGE, this.stepMapping, this.osImages);
+    }
+
+    protected getImageFromStoredValue(osImageValue: string): IMAGE {
+        return this.osImages ? this.osImages.find(image => image.name === osImageValue) : null;
     }
 
     ngOnInit() {
         super.ngOnInit();
-        this.fieldMapUtilities.buildForm(this.formGroup, this.formName, OsImageStepMapping);
+        this.stepMapping = this.createStepMapping();
+
+        AppServices.userDataFormService.buildForm(this.formGroup, this.wizardName, this.formName, this.stepMapping);
+        this.htmlFieldLabels = AppServices.fieldMapUtilities.getFieldLabelMap(this.stepMapping);
+        this.storeDefaultLabels(this.stepMapping);
+        this.registerDefaultFileImportedHandler(this.supplyImportFileSuccessEvent(), this.stepMapping);
+        this.registerDefaultFileImportErrorHandler(this.supplyImportFileFailureEvent());
+
         this.providerInputs = this.supplyProviderInputs();
         this.registerStepDescriptionTriggers({fields: [OsImageField.IMAGE]});
         this.subscribeToProviderEvent();
-        this.initFormWithSavedData();
     }
 
     /**
@@ -95,5 +106,23 @@ export abstract class SharedOsImageStepDirective<IMAGE extends OsImage> extends 
             return 'OS Image: ' + this.getFieldValue(OsImageField.IMAGE).name;
         }
         return SharedOsImageStepDirective.description;
+    }
+
+    protected storeUserData() {
+        this.storeUserDataFromMapping(this.stepMapping);
+        this.storeDefaultDisplayOrder(this.stepMapping);
+    }
+
+    protected supplyStepMapping(): StepMapping {
+        return OsImageStepMapping;
+    }
+
+    private createStepMapping(): StepMapping {
+        const result = this.supplyStepMapping();
+        const osImageFieldMapping = AppServices.fieldMapUtilities.getFieldMapping(OsImageField.IMAGE, result);
+        // The retriever is a closure that can return an object based on the key
+        // By setting the retriever in the field mapping, we allow buildForm to "call us back" to get the osImage using the saved key
+        osImageFieldMapping.retriever = this.getImageFromStoredValue.bind(this);
+        return result;
     }
 }

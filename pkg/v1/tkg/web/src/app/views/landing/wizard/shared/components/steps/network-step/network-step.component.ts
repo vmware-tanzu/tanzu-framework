@@ -5,8 +5,6 @@ import { FormGroup, Validators } from '@angular/forms';
 import { distinctUntilChanged, takeUntil } from 'rxjs/operators';
 // App imports
 import AppServices from '../../../../../../../shared/service/appServices';
-import { FieldMapUtilities } from '../../../field-mapping/FieldMapUtilities';
-import { FormMetaDataStore, FormMetaData } from '../../../FormMetaDataStore';
 import { IAAS_DEFAULT_CIDRS, IpFamilyEnum } from '../../../../../../../shared/constants/app.constants';
 import { managementClusterPlugin } from "../../../constants/wizard.constants";
 import { NetworkField, NetworkIpv4StepMapping, NetworkIpv6StepMapping } from './network-step.fieldmapping';
@@ -14,9 +12,7 @@ import { StepFormDirective } from '../../../step-form/step-form';
 import { StepMapping } from '../../../field-mapping/FieldMapping';
 import { TanzuEventType } from 'src/app/shared/service/Messenger';
 import { ValidationService } from '../../../validation/validation.service';
-import { VSphereNetwork } from 'src/app/swagger/models/v-sphere-network.model';
 
-declare var sortPaths: any;
 @Component({
     selector: 'app-shared-network-step',
     templateUrl: './network-step.component.html',
@@ -24,24 +20,36 @@ declare var sortPaths: any;
 })
 export class SharedNetworkStepComponent extends StepFormDirective implements OnInit {
     static description  = 'Specify how TKG networking is provided and global network settings';
-    enableNetworkName: boolean;
 
     form: FormGroup;
     cniType: string;
-    vmNetworks: Array<VSphereNetwork> = [];
     additionalNoProxyInfo: string;
     fullNoProxy: string;
     infraServiceAddress: string = '';
     loadingNetworks: boolean = false;   // only used by vSphere
     hideNoProxyWarning: boolean = true; // only used by vSphere
 
-    constructor(protected validationService: ValidationService,
-                protected fieldMapUtilities: FieldMapUtilities
-                ) {
+    constructor(protected validationService: ValidationService) {
         super();
     }
 
-    private supplyStepMapping(): StepMapping {
+    protected supplyEnablesNetworkName(): boolean {
+        return false;
+    }
+
+    protected supplyEnablesNoProxyWarning(): boolean {
+        return false;
+    }
+
+    protected supplyNetworkNameInstruction(): string {
+        return '';
+    }
+
+    protected supplyNetworks(): { displayName?: string }[] {
+        return [];
+    }
+
+    protected supplyStepMapping(): StepMapping {
         return this.ipFamily === IpFamilyEnum.IPv4 ? NetworkIpv4StepMapping : NetworkIpv6StepMapping;
     }
 
@@ -51,11 +59,6 @@ export class SharedNetworkStepComponent extends StepFormDirective implements OnI
     }
 
     private customizeForm() {
-        if (!this.enableNetworkName) {
-            this.clearFieldSavedData(NetworkField.NETWORK_NAME);
-            this.formGroup.removeControl(NetworkField.NETWORK_NAME);
-        }
-
         const cidrs = [NetworkField.CLUSTER_SERVICE_CIDR, NetworkField.CLUSTER_POD_CIDR];
         cidrs.forEach(cidr => {
             this.registerOnIpFamilyChange(cidr, [
@@ -71,19 +74,15 @@ export class SharedNetworkStepComponent extends StepFormDirective implements OnI
 
     ngOnInit() {
         super.ngOnInit();
-        this.fieldMapUtilities.buildForm(this.formGroup, this.formName, this.supplyStepMapping());
+        AppServices.userDataFormService.buildForm(this.formGroup, this.wizardName, this.formName, this.supplyStepMapping());
+        this.htmlFieldLabels = AppServices.fieldMapUtilities.getFieldLabelMap(this.supplyStepMapping());
+        this.storeDefaultLabels(this.supplyStepMapping());
+        this.registerDefaultFileImportedHandler(this.eventFileImported, this.supplyStepMapping());
+        this.registerDefaultFileImportErrorHandler(this.eventFileImportError);
+
         this.customizeForm();
         this.listenToEvents();
         this.subscribeToServices();
-
-        const cniTypeData = {
-            label: 'CNI PROVIDER',
-            displayValue: this.cniType,
-        } as FormMetaData;
-        FormMetaDataStore.saveMetaDataEntry(this.formName, NetworkField.CNI_TYPE, cniTypeData);
-        // TODO: guessing we don't need this line (due to initFormWithSavedData() below)
-        this.formGroup.get(NetworkField.CNI_TYPE).setValue(this.cniType, { onlySelf: true });
-        this.initFormWithSavedData();
     }
 
     setValidators() {
@@ -101,14 +100,19 @@ export class SharedNetworkStepComponent extends StepFormDirective implements OnI
                 this.disarmField(NetworkField.CLUSTER_SERVICE_CIDR, false);
             }
             this.setCidrs();
-
             if (this.enableNetworkName) {
-                this.resurrectField(NetworkField.NETWORK_NAME, [
-                    Validators.required
-                ], '', { onlySelf: true }); // only for current form control
+                this.setNetworkNameValidator();
             }
         }
     }
+
+    private setNetworkNameValidator() {
+        const control = this.formGroup.controls['networkName'];
+        if (control) {
+            control.setValidators([Validators.required]);
+        }
+    }
+
     setCidrs = () => {
         if (this.cniType === 'antrea') {
             this.resurrectField(NetworkField.CLUSTER_SERVICE_CIDR, [
@@ -158,12 +162,10 @@ export class SharedNetworkStepComponent extends StepFormDirective implements OnI
             this.triggerStepDescriptionChange();
         });
 
-        AppServices.messenger.getSubject(TanzuEventType.NETWORK_STEP_GET_NO_PROXY_INFO)
-            .pipe(takeUntil(this.unsubscribe))
-            .subscribe(event => {
+        AppServices.messenger.subscribe<{ info: string }>(TanzuEventType.NETWORK_STEP_GET_NO_PROXY_INFO, event => {
                 this.additionalNoProxyInfo = event.payload.info;
                 this.generateFullNoProxy();
-            });
+            }, this.unsubscribe);
     }
 
     // onNoProxyChange() is protected to allow subclasses to override
@@ -262,13 +264,10 @@ export class SharedNetworkStepComponent extends StepFormDirective implements OnI
         }
     }
 
-    initFormWithSavedData() {
-        super.initFormWithSavedData();
-        // reset validations for httpProxyUrl and httpsProxyUrl when
-        // the data is loaded from localstorage.
-        this.toggleProxySetting(true);
-        this.scrubPasswordField(NetworkField.HTTP_PROXY_PASSWORD);
-        this.scrubPasswordField(NetworkField.HTTPS_PROXY_PASSWORD);
+    // Reset the relevant fields upon data center change
+    resetFieldsUponDCChange() {
+        const fieldsToReset = ['networkName'];
+        fieldsToReset.forEach(f => this.formGroup.get(f) && this.formGroup.get(f).setValue('', { onlySelf: true }));
     }
 
     dynamicDescription(): string {
@@ -285,5 +284,29 @@ export class SharedNetworkStepComponent extends StepFormDirective implements OnI
 
     // allows subclasses to subscribe to services during ngOnInit by overriding this method
     protected subscribeToServices() {
+    }
+
+    protected storeUserData() {
+        // We store an entry for fullNoProxy (if we have a value) so it will display on the confirmation page
+        if (this.fullNoProxy) {
+            const entry = { display: this.fullNoProxy, value: this.fullNoProxy };
+            AppServices.userDataService.store(this.createUserDataIdentifier('fullProxyList'), entry);
+        }
+        this.storeUserDataFromMapping(this.supplyStepMapping());
+        this.storeDefaultDisplayOrder(this.supplyStepMapping());
+    }
+
+    // These network-related methods are referenced in the HTML, but used only by vSphere
+    get enableNoProxyWarning(): boolean {
+        return this.supplyEnablesNoProxyWarning();
+    }
+    get enableNetworkName(): boolean {
+        return this.supplyEnablesNetworkName();
+    }
+    get networkNameInstruction(): string {
+        return this.supplyNetworkNameInstruction();
+    }
+    get networks(): { displayName?: string }[] {
+        return this.supplyNetworks();
     }
 }

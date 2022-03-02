@@ -30,14 +30,11 @@ export class HeaderBarComponent extends BasicSubscriber implements OnInit {
     }
 
     ngOnInit() {
-        AppServices.messenger.getSubject(TanzuEventType.BRANDING_CHANGED)
-            .pipe(takeUntil(this.unsubscribe))
-            .subscribe((data: TanzuEvent) => {
-                const content: EditionData = data.payload;
-                this.edition = content.edition;
+        AppServices.messenger.subscribe<EditionData>(TanzuEventType.BRANDING_CHANGED, data => {
+                this.edition = data.payload.edition;
                 this.docsUrl = (this.edition === AppEdition.TKG) ? 'https://docs.vmware.com/en/VMware-Tanzu-Kubernetes-Grid/index.html' :
                     'http://tanzucommunityedition.io/docs';
-            });
+            }, this.unsubscribe);
     }
 
     /**
