@@ -265,6 +265,26 @@ var _ = Describe("Unit tests for upgrade cluster", func() {
 					Expect(err.Error()).To(ContainSubstring("unable to get/verify vsphere template"))
 				})
 			})
+			Context("When windows vsphere template is not set", func() {
+				BeforeEach(func() {
+					upgradeClusterOptions.VSphereWindowsTemplateName = ""
+					vcClient.FindVirtualMachineTemplateMOIDByNameReturns("", errors.New("fake-error"))
+				})
+				It("should not return an error", func() {
+					Expect(err).NotTo(HaveOccurred())
+				})
+			})
+			Context("When get/validate windows vsphere template fails", func() {
+				BeforeEach(func() {
+					upgradeClusterOptions.VSphereWindowsTemplateName = "windows-ova"
+					vcClient.FindVirtualMachineTemplateMOIDByNameReturns("", errors.New("fake-error"))
+				})
+				It("returns an error", func() {
+					Expect(err).To(HaveOccurred())
+					Expect(err.Error()).To(ContainSubstring("unable to get/verify windows vsphere template"))
+					Expect(err.Error()).To(ContainSubstring("fake-error"))
+				})
+			})
 			Context("When get VSphereMachineTemplate fails", func() {
 				BeforeEach(func() {
 					regionalClusterClient.GetResourceReturnsOnCall(0, nil)
