@@ -83,5 +83,6 @@ require (
 	k8s.io/kube-openapi v0.0.0-20220124234850-424119656bbf // indirect
 	sigs.k8s.io/json v0.0.0-20211208200746-9f7c6b3444d2 // indirect
 	sigs.k8s.io/structured-merge-diff/v4 v4.2.1 // indirect
+	k8s.io/kubectl v0.23.0 // indirect
 	sigs.k8s.io/yaml v1.3.0 // indirect
 )
