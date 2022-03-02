@@ -192,6 +192,7 @@ func (r *ClusterBootstrapReconciler) reconcileNormal(cluster *clusterapiv1beta1.
 	}
 
 	if cluster.Status.Phase != string(clusterapiv1beta1.ClusterPhaseProvisioned) {
+		r.Log.Info(fmt.Sprintf("cluster %s/%s does not have status phase %s", cluster.Namespace, cluster.Name, clusterapiv1beta1.ClusterPhaseProvisioned))
 		return ctrl.Result{}, nil
 	}
 	remoteClient, err := util.GetClusterClient(r.context, r.Client, r.Scheme, clusterapiutil.ObjectKey(cluster))
@@ -437,11 +438,12 @@ func (r *ClusterBootstrapReconciler) createOrPatchKappPackageInstall(clusterBoot
 
 	_, err = controllerutil.CreateOrPatch(r.context, r.Client, pkgi, pkgiMutateFn)
 	if err != nil {
-		r.Log.Error(err, fmt.Sprintf("unable to create or patch %s PackageInstall CR for cluster: %s",
-			constants.KappControllerAddonName, cluster.Name))
+		r.Log.Error(err, fmt.Sprintf("unable to create or patch PackageInstall %s/%s for cluster: %s",
+			pkgi.Namespace, pkgi.Name, cluster.Name))
 		return err
 	}
 
+	r.Log.Info(fmt.Sprintf("created or patched the PackageInstall %s/%s for cluster %s", pkgi.Namespace, pkgi.Name, cluster.Name))
 	return nil
 }
 
@@ -953,6 +955,7 @@ func (r *ClusterBootstrapReconciler) updateValuesFromSecret(cluster *clusterapiv
 		if createOrPatchErr != nil {
 			return nil, createOrPatchErr
 		}
+		r.Log.Info(fmt.Sprintf("created or patched Secret %s/%s", newSecret.Namespace, newSecret.Name))
 		pkg.ValuesFrom.SecretRef = newSecret.Name
 	}
 	return newSecret, nil
@@ -1179,10 +1182,6 @@ func (r *ClusterBootstrapReconciler) watchesForClusterBootstrap() []ClusterBoots
 			&source.Kind{Type: &corev1.Secret{}},
 			handler.EnqueueRequestsFromMapFunc(r.SecretsToClusters),
 		},
-		{
-			&source.Kind{Type: &corev1.Secret{}},
-			handler.EnqueueRequestsFromMapFunc(r.SecretsToClusters),
-		},
 	}
 }
 
@@ -1200,23 +1199,23 @@ func (r *ClusterBootstrapReconciler) reconcileClusterProxyAndNetworkSettings(clu
 	// Individual config controllers are responsible for validating the info provided
 	HTTPProxy, err := util.ParseClusterVariableString(cluster, r.Config.HTTPProxyClusterClassVarName)
 	if err != nil {
-		log.Error(err, "Failed to fetch cluster HTTP proxy setting, defaulting to empty")
+		log.Error(err, "unable to fetch cluster HTTP proxy setting, defaulting to empty")
 	}
 	HTTPSProxy, err := util.ParseClusterVariableString(cluster, r.Config.HTTPSProxyClusterClassVarName)
 	if err != nil {
-		log.Error(err, "Failed to fetch cluster HTTPS proxy setting, defaulting to empty")
+		log.Error(err, "unable to fetch cluster HTTPS proxy setting, defaulting to empty")
 	}
 	NoProxy, err := util.ParseClusterVariableString(cluster, r.Config.NoProxyClusterClassVarName)
 	if err != nil {
-		log.Error(err, "Failed to fetch cluster no-proxy setting, defaulting to empty")
+		log.Error(err, "unable to fetch cluster no-proxy setting, defaulting to empty")
 	}
 	ProxyCACert, err := util.ParseClusterVariableString(cluster, r.Config.ProxyCACertClusterClassVarName)
 	if err != nil {
-		log.Error(err, "Failed to fetch cluster proxy CA certificate, defaulting to empty")
+		log.Error(err, "unable to fetch cluster proxy CA certificate, defaulting to empty")
 	}
 	IPFamily, err := util.ParseClusterVariableString(cluster, r.Config.IPFamilyClusterClassVarName)
 	if err != nil {
-		log.Error(err, "Failed to fetch cluster IP family, defaulting to empty")
+		log.Error(err, "unable to fetch cluster IP family, defaulting to empty")
 	}
 
 	if cluster.Annotations == nil {
@@ -1231,7 +1230,7 @@ func (r *ClusterBootstrapReconciler) reconcileClusterProxyAndNetworkSettings(clu
 	log.Info("setting proxy and network configurations in Cluster annotation", types.HTTPProxyConfigAnnotation, HTTPProxy, types.HTTPSProxyConfigAnnotation, HTTPSProxy, types.NoProxyConfigAnnotation, NoProxy, types.ProxyCACertConfigAnnotation, ProxyCACert, types.IPFamilyConfigAnnotation, IPFamily)
 
 	if err := patchHelper.Patch(r.context, cluster); err != nil {
-		log.Error(err, "Error patching Cluster Annotation")
+		log.Error(err, "unable to patch Cluster Annotation")
 		return err
 	}
 

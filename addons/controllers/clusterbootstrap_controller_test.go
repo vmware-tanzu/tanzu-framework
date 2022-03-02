@@ -37,6 +37,14 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 		clusterResourceFilePath string
 	)
 
+	// Constants defined in testdata manifests
+	const (
+		foobarCarvelPackageRefName  = "foobar.example.com"
+		foobarCarvelPackageName     = "foobar.example.com.1.17.2"
+		foobar1CarvelPackageRefName = "foobar1.example.com"
+		foobar1CarvelPackageName    = "foobar1.example.com.1.17.2"
+	)
+
 	JustBeforeEach(func() {
 		// create cluster resources
 		By("Creating a cluster")
@@ -72,6 +80,9 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 				By("verifying CAPI cluster is created properly")
 				cluster := &clusterapiv1beta1.Cluster{}
 				Expect(k8sClient.Get(ctx, client.ObjectKey{Namespace: clusterNamespace, Name: clusterName}, cluster)).To(Succeed())
+				copiedCluster := cluster.DeepCopy()
+				copiedCluster.Status.Phase = string(clusterapiv1beta1.ClusterPhaseProvisioned)
+				Expect(k8sClient.Status().Update(ctx, copiedCluster)).To(Succeed())
 
 				By("ClusterBootstrap CR is created with correct ownerReference added")
 				clusterBootstrap := &runtanzuv1alpha3.ClusterBootstrap{}
@@ -140,11 +151,11 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 					Expect(len(clusterBootstrap.Spec.AdditionalPackages) > 0).To(BeTrue())
 
 					fooPackage := clusterBootstrap.Spec.AdditionalPackages[1]
-					Expect(fooPackage.RefName == "foobar.example.com.1.17.2").To(BeTrue())
+					Expect(fooPackage.RefName == foobarCarvelPackageName).To(BeTrue())
 					Expect(*fooPackage.ValuesFrom.ProviderRef.APIGroup == "run.tanzu.vmware.com").To(BeTrue())
 					Expect(fooPackage.ValuesFrom.ProviderRef.Kind == "FooBar").To(BeTrue())
 
-					providerName := fmt.Sprintf("%s-foobar.example.com-package", clusterName)
+					providerName := fmt.Sprintf("%s-%s-package", clusterName, foobarCarvelPackageRefName)
 					Expect(fooPackage.ValuesFrom.ProviderRef.Name == providerName).To(BeTrue())
 
 					gvr = schema.GroupVersionResource{Group: "run.tanzu.vmware.com", Version: "v1alpha1", Resource: "foobars"}
@@ -176,50 +187,73 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 					return false
 				}, waitTimeout, pollingInterval).Should(BeTrue())
 
-				By("")
-				//// Verify that secret object mapping to foobar1 package exists with ownerReferences to cluster and ClusterBootstrap
-				//Eventually(func() bool {
-				//	foobar1Package = clusterBootstrap.Spec.AdditionalPackages[0]
-				//
-				//	Expect(foobar1Package.RefName == "foobar1.example.com.1.17.2").To(BeTrue())
-				//	secretName := fmt.Sprintf("%s-foobar1-package", clusterName)
-				//	Expect(foobar1Package.ValuesFrom.SecretRef == secretName).To(BeTrue())
-				//
-				//	s := &v1.Secret{}
-				//	Expect(k8sClient.Get(ctx, client.ObjectKey{Namespace: "default", Name: secretName}, s)).To(Succeed())
-				//
-				//	var foundClusterOwnerRef bool
-				//	var foundClusterBootstrapOwnerRef bool
-				//	var foundLabels bool
-				//	var foundType bool
-				//	for _, ownerRef := range s.GetOwnerReferences() {
-				//		if ownerRef.UID == cluster.UID {
-				//			foundClusterOwnerRef = true
-				//		}
-				//		if ownerRef.UID == clusterBootstrap.UID {
-				//			foundClusterBootstrapOwnerRef = true
-				//		}
-				//	}
-				//	secretLabels := s.GetLabels()
-				//	if secretLabels[addontypes.ClusterNameLabel] == clusterName &&
-				//		secretLabels[addontypes.PackageNameLabel] == foobar1Package.RefName {
-				//		foundLabels = true
-				//	}
-				//	if s.Type == constants.ClusterBootstrapManagedSecret {
-				//		foundType = true
-				//	}
-				//	if foundClusterOwnerRef && foundClusterBootstrapOwnerRef && foundLabels && foundType {
-				//		return true
-				//	}
-				//
-				//	return false
-				//}, waitTimeout, pollingInterval).Should(BeTrue())
+				By("verifying the cloned secret of an additional package which with a secretRef")
+				// Verify that secret object mapping to foobar1 package exists with ownerReferences to cluster and ClusterBootstrap
+				Eventually(func() bool {
+					// "foobar1.example.com" is the carvel package ref name
+					foobar1SecretName := fmt.Sprintf("%s-%s-package", cluster.Name, foobar1CarvelPackageRefName)
+					foobar1Secret := &corev1.Secret{}
+					if err := k8sClient.Get(ctx, client.ObjectKey{Namespace: clusterNamespace, Name: foobar1SecretName}, foobar1Secret); err != nil {
+						return false
+					}
+					var foundClusterOwnerRef bool
+					var foundClusterBootstrapOwnerRef bool
+					var foundLabels bool
+					var foundType bool
+					for _, ownerRef := range foobar1Secret.GetOwnerReferences() {
+						if ownerRef.UID == cluster.UID {
+							foundClusterOwnerRef = true
+						}
+						if ownerRef.UID == clusterBootstrap.UID {
+							foundClusterBootstrapOwnerRef = true
+						}
+					}
+					secretLabels := foobar1Secret.GetLabels()
+					if secretLabels[addontypes.ClusterNameLabel] == clusterName &&
+						secretLabels[addontypes.PackageNameLabel] == util.ParseStringForLabel(foobar1CarvelPackageName) {
+						// "foobar1.example.com.1.17.2" is clusterBootstrap.additionalPackages[0].refName
+						foundLabels = true
+					}
+					if foobar1Secret.Type == constants.ClusterBootstrapManagedSecret {
+						foundType = true
+					}
+					if foundClusterOwnerRef && foundClusterBootstrapOwnerRef && foundLabels && foundType {
+						return true
+					}
+					return false
+				}, waitTimeout, pollingInterval).Should(BeTrue())
+
+				// Update the secret created before for foobar1
+				// Verify that the updated secret leads to an updated data-values secret
+				By("Updating the foobar1 package secret", func() {
+					// In test setup, foobar1 is an additional package with a secretRef as valuesFrom. The referenced secret
+					// is cloned into cluster namespace on mgmt cluster, and eventually get mirrored on workload cluster
+					// under tkg-system namespace.
+					// Any updates to the data value secret under cluster namespace should be eventually reflected on the
+					// workload cluster under tkg-system namespace.
+					s := &corev1.Secret{}
+					Expect(k8sClient.Get(ctx, client.ObjectKey{Namespace: clusterNamespace, Name: fmt.Sprintf("%s-%s-package", cluster.Name, foobar1CarvelPackageRefName)}, s)).To(Succeed())
+					s.Data["values.yaml"] = []byte("foobar1-updated")
+					Expect(k8sClient.Update(ctx, s)).To(Succeed())
+
+					Eventually(func() bool {
+						s := &corev1.Secret{}
+						if err := k8sClient.Get(ctx, client.ObjectKey{Namespace: constants.TKGSystemNS, Name: util.GenerateDataValueSecretName(clusterName, foobar1CarvelPackageRefName)}, s); err != nil {
+							return false
+						}
+						if string(s.Data["values.yaml"]) != "foobar1-updated" {
+							return false
+						}
+
+						return true
+					}, waitTimeout, pollingInterval).Should(BeTrue())
+				})
 
 				// Simulate a controller adding secretRef to provider status and
-				// verify that a data-values secret has been created for the package
-				By("patching foobar provider object's status resource with secret", func() {
+				// verify that a data-values secret has been created for the Foobar package
+				By("patching foobar provider object's status resource with a secret ref", func() {
 					s := &corev1.Secret{}
-					s.Name = "foobar-data-values"
+					s.Name = util.GenerateDataValueSecretName(clusterName, foobarCarvelPackageRefName)
 					s.Namespace = clusterNamespace
 					s.Data = map[string][]byte{}
 					s.Data["values.yaml"] = []byte("foobar")
@@ -232,7 +266,7 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 
 					Eventually(func() bool {
 						s := &corev1.Secret{}
-						if err := k8sClient.Get(ctx, client.ObjectKey{Namespace: constants.TKGSystemNS, Name: fmt.Sprintf("%s-foobar.example.com-data-values", clusterName)}, s); err != nil {
+						if err := k8sClient.Get(ctx, client.ObjectKey{Namespace: constants.TKGSystemNS, Name: util.GenerateDataValueSecretName(clusterName, foobarCarvelPackageRefName)}, s); err != nil {
 							return false
 						}
 						if string(s.Data["values.yaml"]) != "foobar" {
@@ -308,58 +342,6 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 					return true
 				}, waitTimeout, pollingInterval).Should(BeTrue())
 
-				By("")
-				//// Update the secret created before for foobar resource
-				//// Verify that the updated secret leads to an updated data-values secret
-				//By("Updating the foobar package provider secret", func() {
-				//	s := &v1.Secret{}
-				//	Expect(k8sClient.Get(ctx, client.ObjectKey{Namespace: "default", Name: "foobar-data-values"}, s)).To(Succeed())
-				//	s.OwnerReferences = []metav1.OwnerReference{
-				//		{
-				//			APIVersion: clusterapiv1beta1.GroupVersion.String(),
-				//			Kind:       "Cluster",
-				//			Name:       cluster.Name,
-				//			UID:        cluster.UID,
-				//		},
-				//	}
-				//	s.Data["values.yaml"] = []byte("foobar-updated")
-				//	Expect(k8sClient.Update(ctx, s)).To(Succeed())
-				//
-				//	Eventually(func() bool {
-				//		s := &v1.Secret{}
-				//		if err := k8sClient.Get(ctx, client.ObjectKey{Namespace: "tkg-system", Name: fmt.Sprintf("%s-foobar-data-values", clusterName)}, s); err != nil {
-				//			return false
-				//		}
-				//		if string(s.Data["values.yaml"]) != "foobar-updated" {
-				//			return false
-				//		}
-				//
-				//		return true
-				//	}, waitTimeout, pollingInterval).Should(BeTrue())
-				//})
-
-				//// Update the secret created before for foobar1
-				//// Verify that the updated secret leads to an updated data-values secret
-				//By("Updating the foobar1 package secret", func() {
-				//	s := &v1.Secret{}
-				//	secretName := fmt.Sprintf("%s-foobar1-package", clusterName)
-				//	Expect(k8sClient.Get(ctx, client.ObjectKey{Namespace: "default", Name: secretName}, s)).To(Succeed())
-				//	s.Data["values.yaml"] = []byte("foobar1-updated")
-				//	Expect(k8sClient.Update(ctx, s)).To(Succeed())
-				//
-				//	Eventually(func() bool {
-				//		s := &v1.Secret{}
-				//		if err := k8sClient.Get(ctx, client.ObjectKey{Namespace: "tkg-system", Name: fmt.Sprintf("%s-foobar1-data-values", clusterName)}, s); err != nil {
-				//			return false
-				//		}
-				//		if string(s.Data["values.yaml"]) != "foobar1-updated" {
-				//			return false
-				//		}
-				//
-				//		return true
-				//	}, waitTimeout, pollingInterval).Should(BeTrue())
-				//})
-
 				By("verifying that the data value secret is created on the workload cluster properly")
 				remoteSecret := &corev1.Secret{}
 				Eventually(func() bool {
@@ -392,6 +374,35 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 				Expect(remotePkgi.Spec.PackageRef.RefName).To(Equal(pkg.Spec.RefName))
 				Expect(len(remotePkgi.Spec.Values)).NotTo(BeZero())
 				Expect(remotePkgi.Spec.Values[0].SecretRef.Name).To(Equal(util.GenerateDataValueSecretName(cluster.Name, pkg.Spec.RefName)))
+
+				// Update the secret created before for foobar resource
+				// Verify that the updated secret leads to an updated data-values secret
+				By("Updating the foobar package provider secret", func() {
+					s := &corev1.Secret{}
+					Expect(k8sClient.Get(ctx, client.ObjectKey{Namespace: clusterNamespace, Name: util.GenerateDataValueSecretName(clusterName, foobarCarvelPackageRefName)}, s)).To(Succeed())
+					s.OwnerReferences = []metav1.OwnerReference{
+						{
+							APIVersion: clusterapiv1beta1.GroupVersion.String(),
+							Kind:       "Cluster",
+							Name:       cluster.Name,
+							UID:        cluster.UID,
+						},
+					}
+					s.Data["values.yaml"] = []byte("foobar-updated")
+					Expect(k8sClient.Update(ctx, s)).To(Succeed())
+
+					Eventually(func() bool {
+						s := &corev1.Secret{}
+						if err := k8sClient.Get(ctx, client.ObjectKey{Namespace: constants.TKGSystemNS, Name: util.GenerateDataValueSecretName(clusterName, foobarCarvelPackageRefName)}, s); err != nil {
+							return false
+						}
+						if string(s.Data["values.yaml"]) != "foobar-updated" {
+							return false
+						}
+
+						return true
+					}, waitTimeout, pollingInterval).Should(BeTrue())
+				})
 			})
 		})
 	})

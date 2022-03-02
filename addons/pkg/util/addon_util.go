@@ -91,9 +91,9 @@ func GetPackageMetadata(ctx context.Context, c client.Client, carvelPkgName, car
 // ParseStringForLabel parse the package ref name to make it valid for K8S object labels.
 // A package ref name could contain some characters that are not allowed as a label value. The regex
 // used for validation is (([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])?
-func ParseStringForLabel(refName string) string {
+func ParseStringForLabel(s string) string {
 	// Replace + sign with ---
-	safeLabel := strings.ReplaceAll(refName, "+", "---")
+	safeLabel := strings.ReplaceAll(s, "+", "---")
 	if len(safeLabel) <= 63 {
 		return safeLabel
 	}
@@ -106,8 +106,8 @@ func GenerateAppSecretNameFromAddonSecret(addonSecret *corev1.Secret) string {
 }
 
 // GenerateDataValueSecretName generates data value secret name from the cluster and the package name
-func GenerateDataValueSecretName(clusterName, pkgName string) string {
-	return fmt.Sprintf("%s-%s-data-values", clusterName, pkgName)
+func GenerateDataValueSecretName(clusterName, carvelPkgRefName string) string {
+	return fmt.Sprintf("%s-%s-data-values", clusterName, carvelPkgRefName)
 }
 
 // GenerateAppNamespaceFromAddonSecret generates app namespace from addons secret
