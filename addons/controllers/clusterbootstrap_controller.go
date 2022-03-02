@@ -188,7 +188,7 @@ func (r *ClusterBootstrapReconciler) reconcileNormal(cluster *clusterapiv1beta1.
 	}
 
 	// reconcile the proxy settings of the cluster
-	if err = r.reconcileClusterProxyAndNetworkSettings(cluster, log); err != nil {
+	if err := r.reconcileClusterProxyAndNetworkSettings(cluster, log); err != nil {
 		return ctrl.Result{}, err
 	}
 
