@@ -29,7 +29,7 @@ func main() {
 		os.Exit(1)
 	}
 	if err := clusterapiv1beta1.AddToScheme(scheme); err != nil {
-		setupLog.Error(err, fmt.Sprintf("cannot add %s to scheme: %w", clusterapiv1beta1.GroupVersion))
+		setupLog.Error(err, fmt.Sprintf("cannot add %s to scheme", clusterapiv1beta1.GroupVersion))
 	}
 
 	// Create manager to run our controller.
