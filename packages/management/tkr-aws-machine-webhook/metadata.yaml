@@ -1,0 +1,15 @@
+apiVersion: data.packaging.carvel.dev/v1alpha1
+kind: PackageMetadata
+metadata:
+  name: tkr-aws-machine-webhook.tanzu.vmware.com
+  namespace: tkr-aws-machine-webhook
+spec:
+  displayName: "tkr-aws-machine-webhook"
+  longDescription: "Webhook for AWSMachine to update the AWSMachine resource's specs based on the annotations set by TKR resolver"
+  shortDescription: "Updates the AWSMachine object specs"
+  providerName: VMware
+  maintainers:
+    - name: "Prem Kalle"
+    - name: "Ivan Mikushin"
+  categories:
+    - "tkr resolution"
