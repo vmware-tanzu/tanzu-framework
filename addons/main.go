@@ -26,9 +26,6 @@ import (
 	kapppkg "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/packaging/v1alpha1"
 	kappdatapkg "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apiserver/apis/datapackaging/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/addons/controllers"
-	antrea "github.com/vmware-tanzu/tanzu-framework/addons/controllers/antrea"
-	calico "github.com/vmware-tanzu/tanzu-framework/addons/controllers/calico"
-	kappcontroller "github.com/vmware-tanzu/tanzu-framework/addons/controllers/kapp-controller"
 	addonconfig "github.com/vmware-tanzu/tanzu-framework/addons/pkg/config"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/crdwait"
@@ -169,55 +166,6 @@ func main() {
 	}
 	if err = addonReconciler.SetupWithManager(ctx, mgr, controller.Options{MaxConcurrentReconciles: flags.clusterConcurrency}); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "Addon")
-		os.Exit(1)
-	}
-
-	if err = (&calico.CalicoConfigReconciler{
-		Client: mgr.GetClient(),
-		Log:    ctrl.Log.WithName("controllers").WithName("CalicoConfig"),
-		Scheme: mgr.GetScheme(),
-	}).SetupWithManager(ctx, mgr, controller.Options{MaxConcurrentReconciles: 1}); err != nil {
-		setupLog.Error(err, "unable to create controller", "controller", "calico")
-		os.Exit(1)
-	}
-
-	if err = (&antrea.AntreaConfigReconciler{
-		Client: mgr.GetClient(),
-		Log:    ctrl.Log.WithName("controllers").WithName("AntreaConfig"),
-		Scheme: mgr.GetScheme(),
-	}).SetupWithManager(ctx, mgr, controller.Options{MaxConcurrentReconciles: 1}); err != nil {
-		setupLog.Error(err, "unable to create controller", "controller", "antrea")
-		os.Exit(1)
-	}
-	if err = (&kappcontroller.KappControllerConfigReconciler{
-		Client: mgr.GetClient(),
-		Log:    ctrl.Log.WithName("controllers").WithName("KappController"),
-		Scheme: mgr.GetScheme(),
-	}).SetupWithManager(ctx, mgr, controller.Options{MaxConcurrentReconciles: 1}); err != nil {
-		setupLog.Error(err, "unable to create controller", "controller", "kapp")
-		os.Exit(1)
-	}
-
-	bootstrapReconciler := controllers.NewClusterBootstrapReconciler(
-		mgr.GetClient(),
-		ctrl.Log.WithName("controllers").WithName("ClusterBootstrap"),
-		mgr.GetScheme(),
-		&addonconfig.ClusterBootstrapControllerConfig{
-			CNISelectionClusterVariableName: constants.DefaultCNISelectionClusterVariableName,
-			HTTPProxyClusterClassVarName:    constants.DefaultHTTPProxyClusterClassVarName,
-			HTTPSProxyClusterClassVarName:   constants.DefaultHTTPSProxyClusterClassVarName,
-			NoProxyClusterClassVarName:      constants.DefaultNoProxyClusterClassVarName,
-			ProxyCACertClusterClassVarName:  constants.DefaultProxyCaCertClusterClassVarName,
-			IPFamilyClusterClassVarName:     constants.DefaultIPFamilyClusterClassVarName,
-			SystemNamespace:                 constants.TKGSystemNS,
-			PkgiServiceAccount:              "tanzu-addons-manager-sa",
-			PkgiClusterRole:                 "tanzu-addons-manager-clusterrole",
-			PkgiClusterRoleBinding:          "tanzu-addons-manager-clusterrolebinding",
-			PkgiSyncPeriod:                  10 * time.Minute,
-		},
-	)
-	if err := bootstrapReconciler.SetupWithManager(ctx, mgr, controller.Options{MaxConcurrentReconciles: 1}); err != nil {
-		setupLog.Error(err, "unable to create controller", "controller", "clusterbootstrap")
 		os.Exit(1)
 	}
 
