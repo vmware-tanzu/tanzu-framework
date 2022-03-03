@@ -378,7 +378,9 @@ func (c *TkgClient) upgradeAddonPostNodeUpgrade(regionalClusterClient clustercli
 
 	addonsToBeUpgraded := []string{
 		"metadata/tkg",
-		"addons-management/standard-package-repo",
+	}
+	if tanzuEdition != "tce" {
+		addonsToBeUpgraded = append(addonsToBeUpgraded, "addons-management/standard-package-repo")
 	}
 	upgradeClusterMetadataOptions := &UpgradeAddonOptions{
 		AddonNames:        addonsToBeUpgraded,
