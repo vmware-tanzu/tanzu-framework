@@ -1172,6 +1172,10 @@ var _ = Describe("Validate", func() {
 
 					coreDNSIP, _ := tkgConfigReaderWriter.Get(constants.ConfigVariableCoreDNSIP)
 					Expect(coreDNSIP).Should(Equal("::a"))
+				})
+			})
+		})
+
 		Context("Network Separation configuration and validation", func() {
 			It("should allow empty network separation configurations", func() {
 				validationError := tkgClient.ConfigureAndValidateManagementClusterConfiguration(initRegionOptions, true)
