@@ -267,7 +267,6 @@ var _ = Describe("Unit tests for upgrade cluster", func() {
 			})
 			Context("When windows vsphere template is not set", func() {
 				BeforeEach(func() {
-					upgradeClusterOptions.VSphereWindowsTemplateName = ""
 					vcClient.FindVirtualMachineTemplateMOIDByNameReturns("", errors.New("fake-error"))
 				})
 				It("should not return an error", func() {
@@ -344,6 +343,41 @@ var _ = Describe("Unit tests for upgrade cluster", func() {
 				It("should not create a new KubeadmConfigTemplate", func() {
 					Expect(err).NotTo(HaveOccurred())
 					Expect(regionalClusterClient.CreateResourceCallCount()).To(Equal(0))
+				})
+			})
+			Context("When vSphereWindowsTemplateName is not set", func() {
+				BeforeEach(func() {
+					setDummyVMTemplate(regionalClusterClient, "old-vm-win", "Windows-ova")
+					vcClient.FindVirtualMachineTemplateMOIDByNameReturns("vm-win", nil)
+				})
+				It("returns an error", func() {
+					Expect(err).To(HaveOccurred())
+					Expect(err.Error()).To(ContainSubstring("a MUST for Windows Cluster Upgrade"))
+				})
+			})
+			Context("When vSphereWindowsTemplateName is set out of specification", func() {
+				BeforeEach(func() {
+					setDummyVMTemplate(regionalClusterClient, "old-vm-win", "WindOws-ova")
+					upgradeClusterOptions.VSphereWindowsTemplateName = "win-ova"
+					vcClient.FindVirtualMachineTemplateMOIDByNameReturns("vm-win", nil)
+				})
+				It("returns an error", func() {
+					Expect(err).To(HaveOccurred())
+					Expect(err.Error()).To(ContainSubstring("MUST contain the string \"windows\""))
+				})
+			})
+			Context("When do windows cluster upgrade", func() {
+				BeforeEach(func() {
+					setDummyVMTemplate(regionalClusterClient, "vm-win", "windows-ova")
+					upgradeClusterOptions.VSphereWindowsTemplateName = "new-WinDows-ova"
+					vcClient.FindVirtualMachineTemplateMOIDByNameReturns("new-vm-win", nil)
+				})
+				It("should not return an error", func() {
+					Expect(err).NotTo(HaveOccurred())
+					i, _, _, _ := regionalClusterClient.CreateResourceArgsForCall(1)
+					template := i.(*capvv1beta1.VSphereMachineTemplate)
+					Expect(template.Annotations["vmTemplateMoid"]).To(Equal("new-vm-win"))
+					Expect(template.Spec.Template.Spec.Template).To(Equal("new-WinDows-ova"))
 				})
 			})
 		})
@@ -875,4 +909,45 @@ func setupBomFile(defaultBomFile string, configDir string) {
 	}
 	err = utils.CopyFile(defaultBomFile, filepath.Join(bomDir, filepath.Base(defaultBomFile)))
 	Expect(err).ToNot(HaveOccurred())
+}
+
+func setDummyVMTemplate(regionalClusterClient *fakes.ClusterClient, vmTemplateMoid string, vmTemplateName string) {
+	callIndex := 0
+	regionalClusterClient.GetResourceStub = func(i interface{}, s1, s2 string, pvf clusterclient.PostVerifyrFunc, po *clusterclient.PollOptions) error {
+		if callIndex == 0 {
+			cluster := i.(*capi.Cluster)
+			*cluster = capi.Cluster{}
+		}
+		if callIndex == 1 {
+			mt := i.(*capvv1beta1.VSphereMachineTemplate)
+			*mt = capvv1beta1.VSphereMachineTemplate{
+				ObjectMeta: metav1.ObjectMeta{
+					Annotations: map[string]string{
+						"vmTemplateMoid": "vm-1",
+					},
+				},
+			}
+		}
+		if callIndex == 2 {
+			mt := i.(*capvv1beta1.VSphereMachineTemplate)
+			*mt = capvv1beta1.VSphereMachineTemplate{
+				ObjectMeta: metav1.ObjectMeta{
+					Annotations: map[string]string{
+						"vmTemplateMoid": vmTemplateMoid,
+					},
+				},
+				Spec: capvv1beta1.VSphereMachineTemplateSpec{
+					Template: capvv1beta1.VSphereMachineTemplateResource{
+						Spec: capvv1beta1.VSphereMachineSpec{
+							VirtualMachineCloneSpec: capvv1beta1.VirtualMachineCloneSpec{
+								Template: vmTemplateName,
+							},
+						},
+					},
+				},
+			}
+		}
+		callIndex++
+		return nil
+	}
 }

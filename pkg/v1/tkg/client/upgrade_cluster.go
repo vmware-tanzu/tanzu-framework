@@ -966,7 +966,7 @@ func isNewVSphereTemplateRequired(machineTemplate *capvv1beta1.VSphereMachineTem
 }
 
 func isVSphereWindowsTemplate(machineTemplateSpecTemplateName string) bool {
-	return strings.Contains(machineTemplateSpecTemplateName, "windows")
+	return strings.Contains(strings.ToLower(machineTemplateSpecTemplateName), "windows")
 }
 
 func (c *TkgClient) createVSphereControlPlaneMachineTemplate(regionalClusterClient clusterclient.Client, kcp *capikubeadmv1beta1.KubeadmControlPlane, clusterUpgradeConfig *clusterUpgradeInfo) error {
@@ -1037,6 +1037,9 @@ func (c *TkgClient) createVSphereMachineDeploymentMachineTemplateForWorkers(regi
 		if isVSphereWindowsTemplate(vsphereMachineTemplateForUpgrade.Spec.Template.Spec.Template) {
 			if clusterUpgradeConfig.UpgradeComponentInfo.VSphereWindowsVMTemplateName == "" {
 				return errors.Errorf("vsphere-windows-vm-template-name is a MUST for Windows Cluster Upgrade. Please specify it!")
+			}
+			if !isVSphereWindowsTemplate(clusterUpgradeConfig.UpgradeComponentInfo.VSphereWindowsVMTemplateName) {
+				return errors.Errorf("vsphere-windows-vm-template-name MUST contain the string \"windows\"!")
 			}
 			vsphereMachineTemplateForUpgrade.Spec.Template.Spec.Template = clusterUpgradeConfig.UpgradeComponentInfo.VSphereWindowsVMTemplateName
 			vsphereMachineTemplateForUpgrade.Annotations[vmTemplateMoidKey] = clusterUpgradeConfig.UpgradeComponentInfo.VSphereWindowsVMTemplateMOID
