@@ -2612,6 +2612,7 @@ sigs.k8s.io/cluster-api v1.1.1 h1:wU1J+Yyu9xDC5M2uACH4Ii8vrIk37oZiCKeMEfyL0pk=
 sigs.k8s.io/cluster-api v1.1.1/go.mod h1:aSxmmNwDjmg9rDaL0RhRELpGX9uSTTwLF02AMtk/XGY=
 sigs.k8s.io/cluster-api-provider-aws v1.1.0/go.mod h1:GtzEj1B+kQoxoxrAs3oMRs7FP8UiIZ9NDDT4mZgEttA=
 sigs.k8s.io/cluster-api-provider-azure v1.0.1/go.mod h1:T8MQq12kJi/N0MZLTIhFR8aPqeriXVluvLPJjWO7bCw=
+sigs.k8s.io/cluster-api-provider-vsphere v1.0.2 h1:QOpyVJInjIqSaISnKBIVFWPGLDhVsvev4sDkEGqlg1o=
 sigs.k8s.io/cluster-api-provider-vsphere v1.0.2/go.mod h1:Z6MDQcZjX5DUcEFStotBptj2fMR4vgCVPAnw6inIY20=
 sigs.k8s.io/cluster-api/test v1.0.0/go.mod h1:8WQozDv62x2qHkCB1wTUeFjuwawuHKUTh8IMH5hePQs=
 sigs.k8s.io/cluster-api/test v1.0.1-0.20211111175208-4cc2fce2111a/go.mod h1:VDgiTRAZTTC9mayIn7g6TJ3g77mYFGzis/jKDjj4Ho0=
