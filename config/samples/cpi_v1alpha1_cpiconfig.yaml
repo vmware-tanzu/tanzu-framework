@@ -1,0 +1,35 @@
+apiVersion: cpi.tanzu.vmware.com/v1alpha1
+kind: CPIConfig
+metadata:
+  name: cpiconfig-sample
+spec:
+  vsphereCPI:
+    mode: vsphereCPI
+    tlsThumbprint: "test"
+    server: 10.1.1.1
+    datacenter: ds-test
+    vSphereCredentialRef:
+      name: vsphere-credentials
+      namespace: tkg-system
+    insecureFlag: False
+    vmInternalNetwork: null
+    vmExternalNetwork: null
+    cloudProviderExtraArgs:
+      tlsCipherSuites: TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
+    nsxt:
+      podRoutingEnabled: false
+      routes:
+        routerPath: ""
+      nsxtCredentialsRef:
+        name: nsxt-credentials
+        namespace: tkg-system
+      host: "10.1.1.2"
+      insecureFlag: false
+      remoteAuth: false
+      vmcAccessToken: ""
+      vmcAuthHost: ""
+      clientCertKeyData: ""
+      clientCertData: ""
+      rootCAData: ""
+      secretName: "cloud-provider-vsphere-nsxt-credentials"
+      secretNamespace: "kube-system"

@@ -11,31 +11,50 @@ import (
 	clusterapiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
 )
 
+func ParseClusterVariableBool(cluster *clusterapiv1beta1.Cluster, variableName string) (bool, error) {
+	var result interface{}
+	result, err := parseClusterVariable(cluster, variableName)
+	if err != nil || result == nil {
+		return false, err
+	}
+	return result.(bool), err
+}
+
 func ParseClusterVariableString(cluster *clusterapiv1beta1.Cluster, variableName string) (string, error) {
+	var result interface{}
+	result, err := parseClusterVariable(cluster, variableName)
+	if err != nil || result == nil {
+		return "", err
+	}
+	return result.(string), err
+}
+
+func parseClusterVariable(cluster *clusterapiv1beta1.Cluster, variableName string) (interface{}, error) {
 	var (
 		clusterVariableValue interface{}
-		result               string
+		result               interface{}
 	)
 
 	if cluster == nil {
-		return "", errors.New("cluster resource is nil")
+		return nil, errors.New("cluster resource is nil")
 	}
 	if cluster.Spec.Topology == nil || variableName == "" {
-		return "", nil
+		return nil, nil
 	}
 	clusterVariables := cluster.Spec.Topology.Variables
 	for _, clusterVariable := range clusterVariables {
 		if clusterVariable.Name == variableName {
 			if err := json.Unmarshal(clusterVariable.Value.Raw, &clusterVariableValue); err != nil {
-				return "", fmt.Errorf("failed in json unmarshal of cluster variable value for '%s'", variableName)
+				return nil, fmt.Errorf("failed in json unmarshal of cluster variable value for '%s'", variableName)
 			}
 			switch t := clusterVariableValue.(type) {
 			case string:
 				result = t
+			case bool:
+				result = t
 			default:
-				return "", fmt.Errorf("invalid type for the cluster variable value for '%s'", variableName)
+				return nil, fmt.Errorf("invalid type for the cluster variable value for '%s'", variableName)
 			}
-
 			break
 		}
 	}

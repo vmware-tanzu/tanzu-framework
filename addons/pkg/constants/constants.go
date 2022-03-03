@@ -17,6 +17,9 @@ const (
 	// CalicoAddonName is name of the Calico addon
 	CalicoAddonName = "calico"
 
+	// CPIAddonName is name of the cloud-provider-vsphere addon
+	CPIAddonName = "vsphere-cpi"
+
 	// TKGBomNamespace is the TKG add on BOM namespace.
 	TKGBomNamespace = "tkr-system"
 
