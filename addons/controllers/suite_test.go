@@ -33,6 +33,7 @@ import (
 
 	kappctrl "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/kappctrl/v1alpha1"
 	pkgiv1alpha1 "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/packaging/v1alpha1"
+	kapppkgv1alpha1 "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apiserver/apis/datapackaging/v1alpha1"
 	antrea "github.com/vmware-tanzu/tanzu-framework/addons/controllers/antrea"
 	calico "github.com/vmware-tanzu/tanzu-framework/addons/controllers/calico"
 	cpi "github.com/vmware-tanzu/tanzu-framework/addons/controllers/cpi"
@@ -132,6 +133,9 @@ var _ = BeforeSuite(func(done Done) {
 	err = pkgiv1alpha1.AddToScheme(scheme)
 	Expect(err).NotTo(HaveOccurred())
 
+	err = kapppkgv1alpha1.AddToScheme(scheme)
+	Expect(err).NotTo(HaveOccurred())
+
 	err = cniv1alpha1.AddToScheme(scheme)
 	Expect(err).NotTo(HaveOccurred())
 
@@ -222,7 +226,8 @@ var _ = BeforeSuite(func(done Done) {
 		Scheme: mgr.GetScheme(),
 	}).SetupWithManager(ctx, mgr, controller.Options{MaxConcurrentReconciles: 1})).To(Succeed())
 
-	bootstrapReconciler := NewClusterBootstrapReconciler(mgr.GetClient(),
+	bootstrapReconciler := NewClusterBootstrapReconciler(
+		mgr.GetClient(),
 		ctrl.Log.WithName("controllers").WithName("ClusterBootstrap"),
 		mgr.GetScheme(),
 		&addonconfig.ClusterBootstrapControllerConfig{
@@ -232,6 +237,11 @@ var _ = BeforeSuite(func(done Done) {
 			NoProxyClusterClassVarName:      constants.DefaultNoProxyClusterClassVarName,
 			ProxyCACertClusterClassVarName:  constants.DefaultProxyCaCertClusterClassVarName,
 			IPFamilyClusterClassVarName:     constants.DefaultIPFamilyClusterClassVarName,
+			SystemNamespace:                 constants.TKGSystemNS,
+			PkgiServiceAccount:              "tanzu-addons-manager-sa",
+			PkgiClusterRole:                 "tanzu-addons-manager-clusterrole",
+			PkgiClusterRoleBinding:          "tanzu-addons-manager-clusterrolebinding",
+			PkgiSyncPeriod:                  10 * time.Minute,
 		},
 	)
 	Expect(bootstrapReconciler.SetupWithManager(ctx, mgr, controller.Options{MaxConcurrentReconciles: 1})).To(Succeed())

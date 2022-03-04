@@ -130,6 +130,13 @@ const (
 	// InfrastructureRefDocker is the docker infrastructure
 	InfrastructureRefDocker = "DockerCluster"
 
+	// KappControllerAddonName is the addon name of Kapp Controller
+	KappControllerAddonName = "kapp-controller"
+
+	// ManagementClusterRoleLabel is the label applied to cluster object that indicates the cluster object represents a
+	// mgmt cluster
+	ManagementClusterRoleLabel = "cluster-role.tkg.tanzu.vmware.com/management"
+
 	// SecretNameLogKey is the log key for Secrets
 	SecretNameLogKey = "secret-name"
 
