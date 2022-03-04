@@ -276,3 +276,29 @@ var _ = Describe("getValidTKRVersionForUpgradeGivenFullTKRName", func() {
 	})
 
 })
+
+var _ = Describe("validateVSphereWindowsTemplateName", func() {
+	var (
+		vSphereWindowsTemplateName string
+		err                        error
+	)
+	JustBeforeEach(func() {
+		err = validateVSphereWindowsTemplateName(vSphereWindowsTemplateName)
+	})
+	Context("When templateName meets restrictions", func() {
+		BeforeEach(func() {
+			vSphereWindowsTemplateName = "test-WindOws-ova"
+		})
+		It("should return true", func() {
+			Expect(err).ToNot(HaveOccurred())
+		})
+	})
+	Context("When templateName doesn't meet restrictions", func() {
+		BeforeEach(func() {
+			vSphereWindowsTemplateName = "test-win-dows-ova"
+		})
+		It("should return false", func() {
+			Expect(err).To(HaveOccurred())
+		})
+	})
+})

@@ -542,3 +542,29 @@ var _ = Describe("CompareMajorMinorPatchVersion", func() {
 		})
 	})
 })
+
+var _ = Describe("IsWindowsTemplate", func() {
+	var (
+		templateName string
+		result       bool
+	)
+	JustBeforeEach(func() {
+		result = IsWindowsTemplate(templateName)
+	})
+	Context("When templateName contains \"windows\"", func() {
+		BeforeEach(func() {
+			templateName = "test-WindOws-ova"
+		})
+		It("should return true", func() {
+			Expect(result).To(BeTrue())
+		})
+	})
+	Context("When templateName doesn't contain \"windows\"", func() {
+		BeforeEach(func() {
+			templateName = "test-win-dows-ova"
+		})
+		It("should return false", func() {
+			Expect(result).To(BeFalse())
+		})
+	})
+})

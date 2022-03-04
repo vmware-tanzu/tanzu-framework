@@ -952,7 +952,7 @@ func isNewVSphereTemplateRequired(machineTemplate *capvv1beta1.VSphereMachineTem
 	if actualK8sVersion == nil || *actualK8sVersion != clusterUpgradeConfig.UpgradeComponentInfo.KubernetesVersion {
 		return true
 	}
-	if isVSphereWindowsTemplate(machineTemplate.Spec.Template.Spec.Template) {
+	if utils.IsWindowsTemplate(machineTemplate.Spec.Template.Spec.Template) {
 		if machineTemplate.Annotations[vmTemplateMoidKey] != clusterUpgradeConfig.UpgradeComponentInfo.VSphereWindowsVMTemplateMOID {
 			return true
 		}
@@ -963,10 +963,6 @@ func isNewVSphereTemplateRequired(machineTemplate *capvv1beta1.VSphereMachineTem
 		}
 	}
 	return false
-}
-
-func isVSphereWindowsTemplate(machineTemplateSpecTemplateName string) bool {
-	return strings.Contains(strings.ToLower(machineTemplateSpecTemplateName), "windows")
 }
 
 func (c *TkgClient) createVSphereControlPlaneMachineTemplate(regionalClusterClient clusterclient.Client, kcp *capikubeadmv1beta1.KubeadmControlPlane, clusterUpgradeConfig *clusterUpgradeInfo) error {
@@ -1034,12 +1030,12 @@ func (c *TkgClient) createVSphereMachineDeploymentMachineTemplateForWorkers(regi
 		vsphereMachineTemplateForUpgrade.Namespace = clusterUpgradeConfig.UpgradeComponentInfo.MDInfastructureTemplates[clusterUpgradeConfig.MDObjects[i].Name].MDInfrastructureTemplateNamespace
 		vsphereMachineTemplateForUpgrade.Spec = actualVsphereMachineTemplate.DeepCopy().Spec
 		vsphereMachineTemplateForUpgrade.Annotations = map[string]string{}
-		if isVSphereWindowsTemplate(vsphereMachineTemplateForUpgrade.Spec.Template.Spec.Template) {
+		if utils.IsWindowsTemplate(vsphereMachineTemplateForUpgrade.Spec.Template.Spec.Template) {
 			if clusterUpgradeConfig.UpgradeComponentInfo.VSphereWindowsVMTemplateName == "" {
 				return errors.Errorf("vsphere-windows-vm-template-name is a MUST for Windows Cluster Upgrade. Please specify it!")
 			}
-			if !isVSphereWindowsTemplate(clusterUpgradeConfig.UpgradeComponentInfo.VSphereWindowsVMTemplateName) {
-				return errors.Errorf("vsphere-windows-vm-template-name MUST contain the string \"windows\"!")
+			if !utils.IsWindowsTemplate(clusterUpgradeConfig.UpgradeComponentInfo.VSphereWindowsVMTemplateName) {
+				return errors.Errorf("vsphere-windows-vm-template-name MUST contain the string \"windows\" without case sensitive!")
 			}
 			vsphereMachineTemplateForUpgrade.Spec.Template.Spec.Template = clusterUpgradeConfig.UpgradeComponentInfo.VSphereWindowsVMTemplateName
 			vsphereMachineTemplateForUpgrade.Annotations[vmTemplateMoidKey] = clusterUpgradeConfig.UpgradeComponentInfo.VSphereWindowsVMTemplateMOID

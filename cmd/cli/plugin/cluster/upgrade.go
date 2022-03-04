@@ -119,6 +119,10 @@ func upgradeCluster(server *v1alpha1.Server, clusterName string) error {
 		if err != nil {
 			return err
 		}
+		err = validateVSphereWindowsTemplateName(uc.vSphereWindowsTemplateName)
+		if err != nil {
+			return err
+		}
 	}
 
 	edition, err := config.GetEdition()
@@ -329,4 +333,11 @@ func getClusterTKRNameFromClusterLabels(clusterLabels map[string]string) (string
 		return "", errors.New("failed to get cluster TKr name from cluster labels")
 	}
 	return tkrName, nil
+}
+
+func validateVSphereWindowsTemplateName(templateName string) error {
+	if templateName != "" && !utils.IsWindowsTemplate(templateName) {
+		return errors.New("Windows Template Name vsphere-windows-vm-template-name MUST contain the string \"windows\" without case sensitive")
+	}
+	return nil
 }
