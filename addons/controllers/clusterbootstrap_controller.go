@@ -1027,9 +1027,10 @@ func (r *ClusterBootstrapReconciler) updateValuesFromProvider(cluster *clusterap
 					log.Info(fmt.Sprintf("unable to updated provider %s/%s", newProvider.GetNamespace(), newProvider.GetName()), "gvr", gvr)
 					return nil, err
 				}
+			} else {
+				log.Error(err, fmt.Sprintf("unable to clone provider %s/%s", newProvider.GetNamespace(), newProvider.GetName()), "gvr", gvr)
+				return nil, err
 			}
-			log.Error(err, fmt.Sprintf("unable to clone provider %s/%s", newProvider.GetNamespace(), newProvider.GetName()), "gvr", gvr)
-			return nil, err
 		}
 
 		valuesFrom.ProviderRef.Name = createdOrUpdatedProvider.GetName()
