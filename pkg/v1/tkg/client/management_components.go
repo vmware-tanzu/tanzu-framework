@@ -11,7 +11,6 @@ import (
 
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/managementcomponents"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfigreaderwriter"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/utils"
 )
 
 // InstallManagementComponents install management components to the cluster
@@ -63,25 +62,11 @@ func (c *TkgClient) getTKGPackageConfigValuesFile() (string, error) {
 		return "", err
 	}
 
-	tkgPackageConfig, err := managementcomponents.GetTKGPackageConfigValuesFileFromUserConfig(userProviderConfigValues)
+	valuesFile, err := managementcomponents.GetTKGPackageConfigValuesFileFromUserConfig(userProviderConfigValues)
 	if err != nil {
 		return "", err
 	}
 
-	configBytes, err := yaml.Marshal(tkgPackageConfig)
-	if err != nil {
-		return "", err
-	}
-
-	valuesFile, err := utils.CreateTempFile("", "")
-	if err != nil {
-		return "", err
-	}
-
-	err = utils.WriteToFile(valuesFile, configBytes)
-	if err != nil {
-		return "", err
-	}
 	return valuesFile, nil
 }
 

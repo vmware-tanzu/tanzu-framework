@@ -123,5 +123,5 @@ const (
 const (
 	TKGManagementPackageName           = "tkg.tanzu.vmware.com"
 	TKGManagementPackageInstallName    = "tkg-pkg"
-	TKGManagementPackageRepositoryName = "management"
+	TKGManagementPackageRepositoryName = "tanzu-management"
 )
