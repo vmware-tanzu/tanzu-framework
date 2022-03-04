@@ -1,0 +1,24 @@
+# permissions for end users to edit cpiconfigs.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: cpiconfig-editor-role
+rules:
+- apiGroups:
+  - cpi.tanzu.vmware.com
+  resources:
+  - cpiconfigs
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - cpi.tanzu.vmware.com
+  resources:
+  - cpiconfigs/status
+  verbs:
+  - get

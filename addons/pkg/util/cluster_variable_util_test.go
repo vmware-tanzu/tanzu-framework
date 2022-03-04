@@ -137,6 +137,20 @@ var _ = Describe("Parse String Cluster Variable", func() {
 			})
 		})
 
+		When("cluster variable of type (bool)", func() {
+			var result bool
+			BeforeEach(func() {
+				clusterObj.Spec.Topology.Variables = []clusterapiv1beta1.ClusterVariable{
+					{Name: testClusterVariableName, Value: apiextensionsv1.JSON{Raw: []byte(`true`)}},
+				}
+				result, err = ParseClusterVariableBool(clusterObj, testClusterVariableName)
+			})
+			It("should return variable value", func() {
+				Expect(err).NotTo(HaveOccurred())
+				Expect(result).To(BeTrue())
+			})
+		})
+
 		When("cluster variable of invalid type (map)", func() {
 			BeforeEach(func() {
 				clusterObj.Spec.Topology.Variables = []clusterapiv1beta1.ClusterVariable{

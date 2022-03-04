@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: tkr-infra-machine-webhook
+  name: tkr-infra-machine-webhook-manager
+  namespace: tanzu-system
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: tkr-infra-machine-webhook
+  template:
+    metadata:
+      labels:
+        app: tkr-infra-machine-webhook
+    spec:
+      containers:
+      - image: tkr-infra-machine-webhook:latest
+        imagePullPolicy: IfNotPresent
+        name: manager
+        env:
+        - name: FIELD_PATH_MAP_CONFIG
+          value: |
+            field: path.to.field
+        command:
+        - /manager
+        resources:
+          limits:
+            cpu: 100m
+            memory: 30Mi
+          requests:
+            cpu: 100m
+            memory: 20Mi
+        ports:
+        - containerPort: 9443
+          name: webhook-server
+          protocol: TCP
+        volumeMounts:
+        - mountPath: /tmp/k8s-webhook-server/serving-certs
+          name: cert
+          readOnly: true
+      terminationGracePeriodSeconds: 10
+      volumes:
+      - name: cert
+        secret:
+          secretName: tkr-infra-machine-webhook-service-cert

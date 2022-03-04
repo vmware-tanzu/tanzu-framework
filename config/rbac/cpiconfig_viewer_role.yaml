@@ -1,0 +1,20 @@
+# permissions for end users to view cpiconfigs.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: cpiconfig-viewer-role
+rules:
+- apiGroups:
+  - cpi.tanzu.vmware.com
+  resources:
+  - cpiconfigs
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - cpi.tanzu.vmware.com
+  resources:
+  - cpiconfigs/status
+  verbs:
+  - get
