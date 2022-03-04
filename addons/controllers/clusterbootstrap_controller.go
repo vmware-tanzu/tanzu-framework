@@ -1010,20 +1010,22 @@ func (r *ClusterBootstrapReconciler) updateValuesFromProvider(cluster *clusterap
 		newProvider.SetNamespace(bootstrap.Namespace)
 		log.Info(fmt.Sprintf("cloning provider %s/%s to namespace %s", cbTemplateNamespace, newProvider.GetName(), bootstrap.Namespace), "gvr", gvr)
 		// newProvider and createdOrUpdatedProvider are different. The newProvider is the one we want apiserver to accept,
-		// however createdOrUpdatedProvider is the actual object pointer that apiserver creates with several managed fields,
-		// i.e., resourceVersion. When error happens on create or update, createdOrUpdatedProvider will be nil, but newProvider
-		// won't. The intent of this function is to return the actual object pointer that apiserver creates, so we should
+		// however createdOrUpdatedProvider is the actual object pointer that apiserver has already created with several managed fields,
+		// The intent of this function is to return the actual object pointer that apiserver has created, so we should
 		// return createdOrUpdatedProvider instead of newProvider. Otherwise, when the caller wants to make changes to the
-		// created provider objects, there will errors. I.e., [invalid: metadata.resourceVersion: Invalid value: 0x0: must be specified for an update]
+		// created provider objects, there will be errors, i.e., [invalid: metadata.resourceVersion: Invalid value: 0x0: must be specified for an update]
 		createdOrUpdatedProvider, err = r.dynamicClient.Resource(*gvr).Namespace(bootstrap.Namespace).Create(r.context, newProvider, metav1.CreateOptions{})
 		if err != nil {
 			// There are possibilities that current reconciliation loop fails due to various reasons, and during next reconciliation
 			// loop, it is possible that the provider resource has been created. In this case, we want to run update/patch.
 			if apierrors.IsAlreadyExists(err) {
+				// Setting the resource version is because it's been removed at L984 with 'unstructured.RemoveNestedField(newProvider.Object, "metadata")'
+				// apiserver requires that field to be present for concurrency control.
+				newProvider.SetResourceVersion(provider.GetResourceVersion())
 				createdOrUpdatedProvider, err = r.dynamicClient.Resource(*gvr).Namespace(bootstrap.Namespace).Update(r.context, newProvider, metav1.UpdateOptions{})
 				if err != nil {
-					log.Info(fmt.Sprintf("updated provider %s/%s", createdOrUpdatedProvider.GetNamespace(), createdOrUpdatedProvider.GetName()), "gvr", gvr)
-					return newProvider, nil
+					log.Info(fmt.Sprintf("unable to updated provider %s/%s", newProvider.GetNamespace(), newProvider.GetName()), "gvr", gvr)
+					return nil, err
 				}
 			}
 			log.Error(err, fmt.Sprintf("unable to clone provider %s/%s", newProvider.GetNamespace(), newProvider.GetName()), "gvr", gvr)
