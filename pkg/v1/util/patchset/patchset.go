@@ -27,6 +27,7 @@ type PatchSet interface {
 	Apply(context.Context) error
 }
 
+// New patchset client
 func New(c client.Client) PatchSet {
 	return &patchSet{
 		client:   c,
