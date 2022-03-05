@@ -1196,6 +1196,10 @@ func (r *ClusterBootstrapReconciler) watchesForClusterBootstrap() []ClusterBoots
 			handler.EnqueueRequestsFromMapFunc(r.TKRToClusters),
 		},
 		{
+			&source.Kind{Type: &runtanzuv1alpha3.ClusterBootstrap{}},
+			handler.EnqueueRequestsFromMapFunc(r.ClusterBootstrapToClusters),
+		},
+		{
 			&source.Kind{Type: &corev1.Secret{}},
 			handler.EnqueueRequestsFromMapFunc(r.SecretsToClusters),
 		},
