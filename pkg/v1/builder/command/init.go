@@ -8,49 +8,16 @@ import (
 	"os/exec"
 	"strings"
 
-	"github.com/spf13/cobra"
+	"github.com/aunum/log"
 
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/builder/template"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/component"
 )
 
 const (
 	github = "github"
 )
 
-var (
-	repoType string
-)
-
-func init() {
-	NewInitCmd()
-}
-
-// NewInitCmd initializes a repository.
-func NewInitCmd() *cobra.Command {
-	cmd := &cobra.Command{
-		Use:   "init [name]",
-		Short: "Initialize a repository",
-		RunE:  initialize,
-		Args:  cobra.ExactArgs(1),
-	}
-
-	cmd.Flags().BoolVar(&dryRun, "dry-run", false, "print generated files to stdout")
-	cmd.Flags().StringVar(&repoType, "repo-type", "", "Type of repository: github or gitlab")
-
-	return cmd
-}
-
-func initialize(cmd *cobra.Command, args []string) error {
-	name := args[0]
-	var err error
-
-	if repoType == "" {
-		repoType, err = selectCIProvider()
-		if err != nil {
-			return err
-		}
-	}
+func Initialize(name, repoType string, dryRun bool) error {
 	data := struct {
 		RepositoryName string
 	}{
@@ -63,7 +30,7 @@ func initialize(cmd *cobra.Command, args []string) error {
 		targets = append(targets, template.GitLabCI)
 	}
 	for _, target := range targets {
-		err = target.Run(name, data, dryRun)
+		err := target.Run(name, data, dryRun)
 		if err != nil {
 			return err
 		}
@@ -78,21 +45,6 @@ func initialize(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return fmt.Errorf("%s -- %s", err, string(b))
 	}
-	cmd.Print("successfully created repository")
+	log.Success("successfully created repository")
 	return nil
-}
-
-func selectCIProvider() (selection string, err error) {
-	cfg := &component.SelectConfig{
-		Message: "choose a repository type",
-		Options: []string{
-			"GitHub",
-			"GitLab",
-		},
-	}
-	err = component.Select(cfg, &selection)
-	if err != nil {
-		return
-	}
-	return
 }

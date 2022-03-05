@@ -8,64 +8,41 @@ import (
 	"strings"
 
 	"github.com/pkg/errors"
-	"github.com/spf13/cobra"
 
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/builder/command/publish"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/common"
 )
 
-var (
-	distroType, pluginsString, oa, inputArtifactDir     string
-	localOutputDiscoveryDir, localOutputDistributionDir string
-	ociDiscoveryImage, ociDistributionImageRepository   string
-	recommendedVersion                                  string
-)
-
-// PublishCmd publishes plugin resources
-var PublishCmd = &cobra.Command{
-	Use:   "publish",
-	Short: "Publish operations",
-	RunE:  publishPlugins,
+type PublishArgs struct {
+	DistroType                     string
+	PluginsString                  string
+	OSArch                         string
+	InputArtifactDir               string
+	LocalOutputDiscoveryDir        string
+	LocalOutputDistribtionDir      string
+	OCIDiscoverImage               string
+	OCIDistributionImageRepository string
+	RecommendedVersion             string
 }
 
-func init() {
-	PublishCmd.Flags().StringVar(&distroType, "type", "", "type of discovery and distribution for publishing plugins. Supported: local")
-	PublishCmd.Flags().StringVar(&pluginsString, "plugins", "", "list of plugin names. Example: 'login management-cluster cluster'")
-	PublishCmd.Flags().StringVar(&inputArtifactDir, "input-artifact-dir", "", "artifact directory which is a output of 'tanzu builder cli compile' command")
+func PublishPlugins(publishArgs *PublishArgs) error {
+	plugins := strings.Split(publishArgs.PluginsString, " ")
+	osArch := strings.Split(publishArgs.OSArch, " ")
 
-	PublishCmd.Flags().StringVar(&oa, "os-arch", common.DefaultOSArch, "list of os-arch")
-	PublishCmd.Flags().StringVar(&recommendedVersion, "version", "", "recommended version of the plugins")
-
-	PublishCmd.Flags().StringVar(&localOutputDiscoveryDir, "local-output-discovery-dir", "", "local output directory where CLIPlugin resource yamls for discovery will be placed. Applicable to 'local' type")
-	PublishCmd.Flags().StringVar(&localOutputDistributionDir, "local-output-distribution-dir", "", "local output directory where plugin binaries will be placed. Applicable to 'local' type")
-
-	PublishCmd.Flags().StringVar(&ociDiscoveryImage, "oci-discovery-image", "", "image path to publish oci image with CLIPlugin resource yamls. Applicable to 'oci' type")
-	PublishCmd.Flags().StringVar(&ociDistributionImageRepository, "oci-distribution-image-repository", "", "image path prefix to publish oci image for plugin binaries. Applicable to 'oci' type")
-
-	_ = PublishCmd.MarkFlagRequired("type")
-	_ = PublishCmd.MarkFlagRequired("version")
-	_ = PublishCmd.MarkFlagRequired("plugins")
-	_ = PublishCmd.MarkFlagRequired("input-artifact-dir")
-}
-
-func publishPlugins(cmd *cobra.Command, args []string) error {
-	plugins := strings.Split(pluginsString, " ")
-	osArch := strings.Split(oa, " ")
-
-	if localOutputDiscoveryDir == "" {
-		localOutputDiscoveryDir = filepath.Join(common.DefaultLocalPluginDistroDir, "discovery", "oci")
+	if publishArgs.LocalOutputDiscoveryDir == "" {
+		publishArgs.LocalOutputDiscoveryDir = filepath.Join(common.DefaultLocalPluginDistroDir, "discovery", "oci")
 	}
 
 	var publisherInterface publish.Publisher
 	var err error
 
-	switch strings.ToLower(distroType) {
+	switch strings.ToLower(publishArgs.DistroType) {
 	case "local":
-		publisherInterface, err = publish.NewLocalPublisher(localOutputDistributionDir)
+		publisherInterface, err = publish.NewLocalPublisher(publishArgs.LocalOutputDistribtionDir)
 	case "oci":
-		publisherInterface, err = publish.NewOCIPublisher(ociDiscoveryImage, ociDistributionImageRepository, localOutputDiscoveryDir)
+		publisherInterface, err = publish.NewOCIPublisher(publishArgs.OCIDiscoverImage, publishArgs.OCIDistributionImageRepository, publishArgs.LocalOutputDiscoveryDir)
 	default:
-		return errors.Errorf("publish plugins with type %s is not yet supported", distroType)
+		return errors.Errorf("publish plugins with type %s is not yet supported", publishArgs.DistroType)
 	}
 	if err != nil {
 		return err
@@ -74,9 +51,9 @@ func publishPlugins(cmd *cobra.Command, args []string) error {
 	publishMetadata := publish.Metadata{
 		Plugins:            plugins,
 		OSArch:             osArch,
-		RecommendedVersion: recommendedVersion,
-		InputArtifactDir:   inputArtifactDir,
-		LocalDiscoveryPath: localOutputDiscoveryDir,
+		RecommendedVersion: publishArgs.RecommendedVersion,
+		InputArtifactDir:   publishArgs.InputArtifactDir,
+		LocalDiscoveryPath: publishArgs.LocalOutputDiscoveryDir,
 		PublisherInterface: publisherInterface,
 	}
 
