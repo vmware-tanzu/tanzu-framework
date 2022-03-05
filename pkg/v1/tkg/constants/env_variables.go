@@ -17,5 +17,6 @@ const (
 )
 
 const (
+	// AllowedRegistries for plugin downloads from OCI source
 	AllowedRegistries = "ALLOWED_REGISTRY"
 )
