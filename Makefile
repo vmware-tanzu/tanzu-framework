@@ -3,6 +3,8 @@
 
 include ./common.mk
 
+SHELL := /usr/bin/env bash
+
 # Image URL to use all building/pushing image targets
 IMG ?= controller:latest
 # Produce CRDs that work back to Kubernetes 1.11 (no version conversion)
@@ -24,6 +26,7 @@ ADDONS_DIR := addons
 YTT_TESTS_DIR := pkg/v1/providers/tests
 PACKAGES_SCRIPTS_DIR := $(abspath hack/packages/scripts)
 UI_DIR := pkg/v1/tkg/web
+GO_MODULES=$(shell find . -path "*/go.mod" | grep -v "^./pinniped" | xargs -I _ dirname _)
 
 # Add tooling binaries here and in hack/tools/Makefile
 GOLANGCI_LINT      := $(TOOLS_BIN_DIR)/golangci-lint
@@ -514,16 +517,12 @@ yamllint:
 	hack/check/check-yaml.sh
 
 go-lint: tools ## Run linting of go source
-	# Linter runs per module, add each one here. Basically, and path
-	# that contains a go.mod file.
-
-	# Linting for the addons...
-	$(GOLANGCI_LINT) run -v
-	cd $(ADDONS_DIR); $(GOLANGCI_LINT) run -v
-	cd $(ADDONS_DIR)/pinniped/post-deploy/; $(GOLANGCI_LINT) run -v
-
-	# Linting for the YTT generation test code...
-	cd $(YTT_TESTS_DIR); $(GOLANGCI_LINT) run -v
+	@for i in $(GO_MODULES); do \
+		echo "-- Linting $$i --"; \
+		pushd $${i}; \
+		$(GOLANGCI_LINT) run -v --timeout=10m || exit 1; \
+		popd; \
+	done
 
 doc-lint: tools ## Run linting checks for docs
 	$(VALE) --config=.vale/config.ini --glob='*.md' ./
@@ -534,11 +533,12 @@ doc-lint: tools ## Run linting checks for docs
 
 .PHONY: modules
 modules: ## Runs go mod to ensure modules are up to date.
-	$(GO) mod tidy
-	cd $(ADDONS_DIR); $(GO) mod tidy
-	cd $(ADDONS_DIR)/pinniped/post-deploy/; $(GO) mod tidy
-	cd $(TOOLS_DIR); $(GO) mod tidy
-	cd $(YTT_TESTS_DIR); $(GO) mod tidy
+	@for i in $(GO_MODULES); do \
+		echo "-- Tidying $$i --"; \
+		pushd $${i}; \
+		$(GO) mod tidy || exit 1; \
+		popd; \
+	done
 
 .PHONY: verify
 verify: ## Run all verification scripts
