@@ -89,6 +89,9 @@ jobs:
         go-version: '1.17'
       id: go
 
+    - name: Check out code into the Go module directory
+      uses: actions/checkout@v1
+
     - name: Run lint checks
       run: |
         make lint
