@@ -4,6 +4,7 @@
 package client
 
 import (
+	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -61,8 +62,44 @@ type waitForAddonsOptions struct {
 // if TKGSupportedClusterOptions is set to ""(for development purpose) the check would be deactivated
 var TKGSupportedClusterOptions string
 
+func (c *TkgClient) isCustomOverlayPresent() (bool, error) {
+	var providersChecksum, prePopulatedChecksumFromFile string
+	var err error
+
+	if providersChecksum, err = c.tkgConfigUpdaterClient.GetProvidersChecksum(); err != nil {
+		return false, err
+	}
+
+	if prePopulatedChecksumFromFile, err = c.tkgConfigUpdaterClient.GetPopulatedProvidersChecksumFromFile(); err != nil {
+		return false, err
+	}
+
+	return providersChecksum != "" && providersChecksum == prePopulatedChecksumFromFile, nil
+}
+
 // CreateCluster create workload cluster
-func (c *TkgClient) CreateCluster(options *CreateClusterOptions, waitForCluster bool) error { //nolint:gocyclo,funlen
+func (c *TkgClient) CreateCluster(options *CreateClusterOptions, waitForCluster bool) error {
+	var isCustomOverlayDetected bool
+	var err error
+
+	if isCustomOverlayDetected, err = c.isCustomOverlayPresent(); err != nil {
+		return err
+	}
+
+	// Ignore the checksum check if config variable 'SUPPRESS_PROVIDERS_UPDATE' is set.
+	isSuppressProvidersUpdateSet := os.Getenv(constants.SuppressProvidersUpdate) != ""
+
+	if isCustomOverlayDetected && !isSuppressProvidersUpdateSet {
+		return c.legacyClusterCreation(options, waitForCluster)
+	}
+
+	// TODO: Add steps required to create a CC based cluster
+	return nil
+}
+
+// Create cluster without using ClusterClasses, if custom overlays or modifications to the overlays are detected
+func (c *TkgClient) legacyClusterCreation(options *CreateClusterOptions, waitForCluster bool) error { //nolint:gocyclo,funlen
+	log.Info("Changes to the cluster templates are detected. Creating cluster without using the ClusterClass mechanism")
 	if err := CheckClusterNameFormat(options.ClusterName, options.ProviderRepositorySource.InfrastructureProvider); err != nil {
 		return NewValidationError(ValidationErrorCode, err.Error())
 	}
