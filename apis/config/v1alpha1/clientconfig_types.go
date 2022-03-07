@@ -110,6 +110,8 @@ type CLIOptions struct {
 	DiscoverySources []PluginDiscovery `json:"discoverySources,omitempty" yaml:"discoverySources"`
 	// UnstableVersionSelector determined which version tags are allowed
 	UnstableVersionSelector VersionSelectorLevel `json:"unstableVersionSelector,omitempty" yaml:"unstableVersionSelector"`
+	// Edition determines which editions plugins are running as
+	Edition string `json:"edition,omitempty" yaml:"edition"`
 }
 
 // PluginDiscovery contains a specific distribution mechanism. Only one of the
