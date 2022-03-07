@@ -1,6 +1,11 @@
 #!/bin/bash
 
-set -e
+set -euo pipefail
+
+MY_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+
+# Always run from config-controller directory for reproducibility
+cd "${MY_DIR}/.."
 
 tag="dev"
 # tag="$(uuidgen)" # Uncomment to create random image every time
