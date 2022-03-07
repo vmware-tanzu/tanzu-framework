@@ -34,4 +34,6 @@ const (
 	TKGClusterConfigFileDirForUI           = "clusterconfigs"
 	TKGRegistryCertFile                    = "registry_certs"
 	TKGRegistryTrustedRootCAFileForWindows = ".registry_trusted_root_certs_win"
+
+	LogFolderName = "logs"
 )

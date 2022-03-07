@@ -49,4 +49,7 @@ type Client interface {
 
 	// GetConfigDefaultsFilePath returns config_default.yaml file path under TKG directory
 	GetConfigDefaultsFilePath() (string, error)
+
+	// GetLogDirectory returns the directory path where log files should be stored by default.
+	GetLogDirectory() (string, error)
 }

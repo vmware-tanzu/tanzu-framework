@@ -6,6 +6,7 @@ package tkgctl
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 
 	"github.com/pkg/errors"
 
@@ -100,4 +101,51 @@ func (t *tkgctl) ensureClusterConfigFile(clusterConfigFile string) (string, erro
 		return "", errors.Wrap(err, "unable to update encoded credentials")
 	}
 	return clusterConfigFile, nil
+}
+
+// ensureLogDirectory returns the directory path where log files should be stored by default.
+func (t *tkgctl) ensureLogDirectory() (string, error) {
+	logDir, err := tkgconfigpaths.New(t.configDir).GetLogDirectory()
+	if err != nil {
+		return "", err
+	}
+
+	// We got the path it should be, make sure it exists
+	if _, err = os.Stat(logDir); os.IsNotExist(err) {
+		log.V(3).Infof("cluster log directory does not exist. Creating new one at %q", logDir)
+		err := os.MkdirAll(logDir, os.ModePerm)
+		if err != nil {
+			return "", errors.Wrap(err, "cannot initialize cluster log directory")
+		}
+	}
+
+	return logDir, nil
+}
+
+// getAuditLogPath gets the full path to where an audit log should be located
+// for a give clusterName.
+func (t *tkgctl) getAuditLogPath(clusterName string) (string, error) {
+	if clusterName == "" {
+		return "", errors.New("cluster name is required to determine audit log path")
+	}
+
+	path, err := t.ensureLogDirectory()
+	if err != nil {
+		return "", fmt.Errorf("unable to determine audit log path: %s", err.Error())
+	}
+
+	return filepath.Join(path, fmt.Sprintf("%s.log", clusterName)), nil
+}
+
+// removeAuditLog will remove a cluster's audit log from the local filesystem.
+// This is done on a best effort basis, so if the file does not exist, or if
+// there is an issue deleting the file there will be no indication.
+func (t *tkgctl) removeAuditLog(clusterName string) {
+	path, err := t.getAuditLogPath(clusterName)
+	if err != nil {
+		// We delete on a best-effort basis, so just return
+		return
+	}
+
+	_ = os.Remove(path)
 }

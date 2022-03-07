@@ -140,6 +140,12 @@ func SetFile(fileName string) {
 	logWriter.SetFile(fileName)
 }
 
+// SetAuditLog sets the log file that should capture all logging activity. This
+// file will contain all logging regardless of set verbosity level.
+func SetAuditLog(fileName string) {
+	logWriter.SetAuditLog(fileName)
+}
+
 // SetChannel sets the channel to writer
 // if channel is set, writer will forward log messages to this log channel
 func SetChannel(channel chan<- []byte) {
