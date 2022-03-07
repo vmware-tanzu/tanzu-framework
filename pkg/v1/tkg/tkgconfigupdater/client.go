@@ -80,6 +80,10 @@ type Client interface {
 	EnsureProvidersInConfig(needUpdate bool, tkgConfigNode *yaml.Node) error
 	// EnsureTemplateFiles ensures that $HOME/.tkg/providers exists and it is up-to-date
 	EnsureTemplateFiles() (bool, error)
+	// GetProvidersChecksum calculates and returns the checksum calculated from all the template yaml files in the providers directory
+	GetProvidersChecksum() (string, error)
+	// GetPopulatedProvidersChecksumFromFile reads and returns the checksum from providers.sha256sum file in the providers directory
+	GetPopulatedProvidersChecksumFromFile() (string, error)
 }
 
 func (c *client) TKGConfigReaderWriter() tkgconfigreaderwriter.TKGConfigReaderWriter {
