@@ -44,12 +44,6 @@ let paths = {
         mockServiceRoute: `${srcDir}/routes/api/mockService`,
         util: `${srcDir}/services/util`,
         www: `${srcDir}/www`
-    },
-
-    // server/support files
-    support: {
-        certificate: `${supportDir}/cert.pem`,
-        privateKey: `${supportDir}/key.pem`
     }
 };
 
