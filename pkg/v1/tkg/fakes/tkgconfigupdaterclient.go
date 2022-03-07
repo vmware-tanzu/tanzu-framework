@@ -165,6 +165,30 @@ type TKGConfigUpdaterClient struct {
 		result1 string
 		result2 error
 	}
+	GetPopulatedProvidersChecksumFromFileStub        func() (string, error)
+	getPopulatedProvidersChecksumFromFileMutex       sync.RWMutex
+	getPopulatedProvidersChecksumFromFileArgsForCall []struct {
+	}
+	getPopulatedProvidersChecksumFromFileReturns struct {
+		result1 string
+		result2 error
+	}
+	getPopulatedProvidersChecksumFromFileReturnsOnCall map[int]struct {
+		result1 string
+		result2 error
+	}
+	GetProvidersChecksumStub        func() (string, error)
+	getProvidersChecksumMutex       sync.RWMutex
+	getProvidersChecksumArgsForCall []struct {
+	}
+	getProvidersChecksumReturns struct {
+		result1 string
+		result2 error
+	}
+	getProvidersChecksumReturnsOnCall map[int]struct {
+		result1 string
+		result2 error
+	}
 	SetDefaultConfigurationStub        func()
 	setDefaultConfigurationMutex       sync.RWMutex
 	setDefaultConfigurationArgsForCall []struct {
@@ -962,6 +986,118 @@ func (fake *TKGConfigUpdaterClient) GetDefaultInfrastructureVersionReturnsOnCall
 	}{result1, result2}
 }
 
+func (fake *TKGConfigUpdaterClient) GetPopulatedProvidersChecksumFromFile() (string, error) {
+	fake.getPopulatedProvidersChecksumFromFileMutex.Lock()
+	ret, specificReturn := fake.getPopulatedProvidersChecksumFromFileReturnsOnCall[len(fake.getPopulatedProvidersChecksumFromFileArgsForCall)]
+	fake.getPopulatedProvidersChecksumFromFileArgsForCall = append(fake.getPopulatedProvidersChecksumFromFileArgsForCall, struct {
+	}{})
+	stub := fake.GetPopulatedProvidersChecksumFromFileStub
+	fakeReturns := fake.getPopulatedProvidersChecksumFromFileReturns
+	fake.recordInvocation("GetPopulatedProvidersChecksumFromFile", []interface{}{})
+	fake.getPopulatedProvidersChecksumFromFileMutex.Unlock()
+	if stub != nil {
+		return stub()
+	}
+	if specificReturn {
+		return ret.result1, ret.result2
+	}
+	return fakeReturns.result1, fakeReturns.result2
+}
+
+func (fake *TKGConfigUpdaterClient) GetPopulatedProvidersChecksumFromFileCallCount() int {
+	fake.getPopulatedProvidersChecksumFromFileMutex.RLock()
+	defer fake.getPopulatedProvidersChecksumFromFileMutex.RUnlock()
+	return len(fake.getPopulatedProvidersChecksumFromFileArgsForCall)
+}
+
+func (fake *TKGConfigUpdaterClient) GetPopulatedProvidersChecksumFromFileCalls(stub func() (string, error)) {
+	fake.getPopulatedProvidersChecksumFromFileMutex.Lock()
+	defer fake.getPopulatedProvidersChecksumFromFileMutex.Unlock()
+	fake.GetPopulatedProvidersChecksumFromFileStub = stub
+}
+
+func (fake *TKGConfigUpdaterClient) GetPopulatedProvidersChecksumFromFileReturns(result1 string, result2 error) {
+	fake.getPopulatedProvidersChecksumFromFileMutex.Lock()
+	defer fake.getPopulatedProvidersChecksumFromFileMutex.Unlock()
+	fake.GetPopulatedProvidersChecksumFromFileStub = nil
+	fake.getPopulatedProvidersChecksumFromFileReturns = struct {
+		result1 string
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *TKGConfigUpdaterClient) GetPopulatedProvidersChecksumFromFileReturnsOnCall(i int, result1 string, result2 error) {
+	fake.getPopulatedProvidersChecksumFromFileMutex.Lock()
+	defer fake.getPopulatedProvidersChecksumFromFileMutex.Unlock()
+	fake.GetPopulatedProvidersChecksumFromFileStub = nil
+	if fake.getPopulatedProvidersChecksumFromFileReturnsOnCall == nil {
+		fake.getPopulatedProvidersChecksumFromFileReturnsOnCall = make(map[int]struct {
+			result1 string
+			result2 error
+		})
+	}
+	fake.getPopulatedProvidersChecksumFromFileReturnsOnCall[i] = struct {
+		result1 string
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *TKGConfigUpdaterClient) GetProvidersChecksum() (string, error) {
+	fake.getProvidersChecksumMutex.Lock()
+	ret, specificReturn := fake.getProvidersChecksumReturnsOnCall[len(fake.getProvidersChecksumArgsForCall)]
+	fake.getProvidersChecksumArgsForCall = append(fake.getProvidersChecksumArgsForCall, struct {
+	}{})
+	stub := fake.GetProvidersChecksumStub
+	fakeReturns := fake.getProvidersChecksumReturns
+	fake.recordInvocation("GetProvidersChecksum", []interface{}{})
+	fake.getProvidersChecksumMutex.Unlock()
+	if stub != nil {
+		return stub()
+	}
+	if specificReturn {
+		return ret.result1, ret.result2
+	}
+	return fakeReturns.result1, fakeReturns.result2
+}
+
+func (fake *TKGConfigUpdaterClient) GetProvidersChecksumCallCount() int {
+	fake.getProvidersChecksumMutex.RLock()
+	defer fake.getProvidersChecksumMutex.RUnlock()
+	return len(fake.getProvidersChecksumArgsForCall)
+}
+
+func (fake *TKGConfigUpdaterClient) GetProvidersChecksumCalls(stub func() (string, error)) {
+	fake.getProvidersChecksumMutex.Lock()
+	defer fake.getProvidersChecksumMutex.Unlock()
+	fake.GetProvidersChecksumStub = stub
+}
+
+func (fake *TKGConfigUpdaterClient) GetProvidersChecksumReturns(result1 string, result2 error) {
+	fake.getProvidersChecksumMutex.Lock()
+	defer fake.getProvidersChecksumMutex.Unlock()
+	fake.GetProvidersChecksumStub = nil
+	fake.getProvidersChecksumReturns = struct {
+		result1 string
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *TKGConfigUpdaterClient) GetProvidersChecksumReturnsOnCall(i int, result1 string, result2 error) {
+	fake.getProvidersChecksumMutex.Lock()
+	defer fake.getProvidersChecksumMutex.Unlock()
+	fake.GetProvidersChecksumStub = nil
+	if fake.getProvidersChecksumReturnsOnCall == nil {
+		fake.getProvidersChecksumReturnsOnCall = make(map[int]struct {
+			result1 string
+			result2 error
+		})
+	}
+	fake.getProvidersChecksumReturnsOnCall[i] = struct {
+		result1 string
+		result2 error
+	}{result1, result2}
+}
+
 func (fake *TKGConfigUpdaterClient) SetDefaultConfiguration() {
 	fake.setDefaultConfigurationMutex.Lock()
 	fake.setDefaultConfigurationArgsForCall = append(fake.setDefaultConfigurationArgsForCall, struct {
@@ -1017,6 +1153,10 @@ func (fake *TKGConfigUpdaterClient) Invocations() map[string][][]interface{} {
 	defer fake.ensureTemplateFilesMutex.RUnlock()
 	fake.getDefaultInfrastructureVersionMutex.RLock()
 	defer fake.getDefaultInfrastructureVersionMutex.RUnlock()
+	fake.getPopulatedProvidersChecksumFromFileMutex.RLock()
+	defer fake.getPopulatedProvidersChecksumFromFileMutex.RUnlock()
+	fake.getProvidersChecksumMutex.RLock()
+	defer fake.getProvidersChecksumMutex.RUnlock()
 	fake.setDefaultConfigurationMutex.RLock()
 	defer fake.setDefaultConfigurationMutex.RUnlock()
 	copiedInvocations := map[string][][]interface{}{}
