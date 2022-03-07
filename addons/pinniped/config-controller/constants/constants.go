@@ -5,7 +5,7 @@ import (
 	clusterapiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
 )
 
-const(
+const (
 	//TODO: I kinda don't like that we're copying a lot of these from addons/pkg/constants
 
 	// TKGDataValueFileName is the default name of YTT data value field

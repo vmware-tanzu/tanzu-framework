@@ -2,6 +2,8 @@ package controllers
 
 import (
 	"fmt"
+	"strings"
+
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pinniped/config-controller/constants"
@@ -11,7 +13,6 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	clusterapiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
-	"strings"
 )
 
 var _ = Describe("Controller", func() {
@@ -67,7 +68,7 @@ var _ = Describe("Controller", func() {
 						},
 					}
 					wantSecretLabels := map[string]string{
-						constants.TKGAddonLabel:   constants.PinnipedAddonLabel,
+						constants.TKGAddonLabel:       constants.PinnipedAddonLabel,
 						constants.TKGClusterNameLabel: cluster.Name,
 					}
 
@@ -84,7 +85,6 @@ var _ = Describe("Controller", func() {
 				}).Should(Succeed())
 			})
 		})
-
 
 		When("cluster is updated", func() {
 			BeforeEach(func() {
@@ -108,7 +108,7 @@ var _ = Describe("Controller", func() {
 						},
 					}
 					wantSecretLabels := map[string]string{
-						constants.TKGAddonLabel:   constants.PinnipedAddonLabel,
+						constants.TKGAddonLabel:       constants.PinnipedAddonLabel,
 						constants.TKGClusterNameLabel: cluster.Name,
 					}
 
@@ -190,7 +190,7 @@ var _ = Describe("Controller", func() {
 			It("recreates the secret with identity_management_type set to none", func() {
 				Eventually(func(g Gomega) {
 					wantSecretLabels := map[string]string{
-						constants.TKGAddonLabel:   constants.PinnipedAddonLabel,
+						constants.TKGAddonLabel:       constants.PinnipedAddonLabel,
 						constants.TKGClusterNameLabel: cluster.Name,
 					}
 
@@ -236,7 +236,7 @@ var _ = Describe("Controller", func() {
 						},
 					}
 					wantSecretLabels := map[string]string{
-						constants.TKGAddonLabel:   constants.PinnipedAddonLabel,
+						constants.TKGAddonLabel:       constants.PinnipedAddonLabel,
 						constants.TKGClusterNameLabel: cluster.Name,
 					}
 
@@ -259,7 +259,7 @@ var _ = Describe("Controller", func() {
 					Namespace: pinnipedNamespace,
 					Name:      "another-secret",
 					Labels: map[string]string{
-						constants.TKGAddonLabel: "pumpkin",
+						constants.TKGAddonLabel:       "pumpkin",
 						constants.TKGClusterNameLabel: cluster.Name,
 					},
 				},
@@ -280,7 +280,7 @@ var _ = Describe("Controller", func() {
 			It("does not get updated", func() {
 				Eventually(func(g Gomega) {
 					wantSecretLabels := map[string]string{
-						constants.TKGAddonLabel:   "pumpkin",
+						constants.TKGAddonLabel:       "pumpkin",
 						constants.TKGClusterNameLabel: cluster.Name,
 					}
 
@@ -301,7 +301,7 @@ var _ = Describe("Controller", func() {
 					Namespace: pinnipedNamespace,
 					Name:      "newest-secret",
 					Labels: map[string]string{
-						constants.TKGAddonLabel: constants.PinnipedAddonLabel,
+						constants.TKGAddonLabel:       constants.PinnipedAddonLabel,
 						constants.TKGClusterNameLabel: cluster.Name,
 					},
 				},
@@ -322,7 +322,7 @@ var _ = Describe("Controller", func() {
 			It("does not get updated", func() {
 				Eventually(func(g Gomega) {
 					wantSecretLabels := map[string]string{
-						constants.TKGAddonLabel:   constants.PinnipedAddonLabel,
+						constants.TKGAddonLabel:       constants.PinnipedAddonLabel,
 						constants.TKGClusterNameLabel: cluster.Name,
 					}
 
@@ -346,7 +346,7 @@ var _ = Describe("Controller", func() {
 			},
 			Data: map[string]string{
 				// TODO: do we want to add the other fields??
-				"issuer": "tuna.io",
+				"issuer":                "tuna.io",
 				"issuer_ca_bundle_data": "ball-of-fluff",
 			},
 		}
@@ -409,7 +409,7 @@ var _ = Describe("Controller", func() {
 						}
 
 						wantSecretLabels := map[string]string{
-							constants.TKGAddonLabel:   constants.PinnipedAddonLabel,
+							constants.TKGAddonLabel:       constants.PinnipedAddonLabel,
 							constants.TKGClusterNameLabel: c.Name,
 						}
 
@@ -448,10 +448,9 @@ var _ = Describe("Controller", func() {
 						}
 
 						wantSecretLabels := map[string]string{
-							constants.TKGAddonLabel:   constants.PinnipedAddonLabel,
+							constants.TKGAddonLabel:       constants.PinnipedAddonLabel,
 							constants.TKGClusterNameLabel: c.Name,
 						}
-
 
 						err := k8sClient.Get(ctx, client.ObjectKeyFromObject(secret), secret)
 						g.Expect(err).NotTo(HaveOccurred())
@@ -488,10 +487,9 @@ var _ = Describe("Controller", func() {
 						}
 
 						wantSecretLabels := map[string]string{
-							constants.TKGAddonLabel:   constants.PinnipedAddonLabel,
+							constants.TKGAddonLabel:       constants.PinnipedAddonLabel,
 							constants.TKGClusterNameLabel: c.Name,
 						}
-
 
 						err := k8sClient.Get(ctx, client.ObjectKeyFromObject(secret), secret)
 						g.Expect(err).NotTo(HaveOccurred())

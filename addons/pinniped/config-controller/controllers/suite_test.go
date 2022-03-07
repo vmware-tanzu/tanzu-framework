@@ -46,6 +46,7 @@ var k8sClient client.Client
 var testEnv *envtest.Environment
 var ctx = ctrl.SetupSignalHandler()
 var cancel context.CancelFunc
+
 const pinnipedNamespace = "pinniped-namespace"
 
 func TestController(t *testing.T) {

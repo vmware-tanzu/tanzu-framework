@@ -112,8 +112,7 @@ func (c *pinnipedController) Reconcile(ctx context.Context, req ctrl.Request) (r
 			if err := c.client.DeleteAllOf(ctx, &corev1.Secret{}, client.InNamespace(req.Namespace),
 				client.MatchingLabels{
 					constants.TKGClusterNameLabel: req.Name,
-					constants.TKGAddonLabel:       constants.PinnipedAddonLabel});
-				err != nil {
+					constants.TKGAddonLabel:       constants.PinnipedAddonLabel}); err != nil {
 				if k8serror.IsNotFound(err) {
 					return reconcile.Result{}, nil
 				}
@@ -159,8 +158,7 @@ func (c *pinnipedController) reconcileAddonSecret(ctx context.Context, cluster c
 		if err := c.client.DeleteAllOf(ctx, &corev1.Secret{}, client.InNamespace(cluster.Namespace),
 			client.MatchingLabels{
 				constants.TKGAddonLabel:       constants.PinnipedAddonLabel,
-				constants.TKGClusterNameLabel: cluster.Name});
-			err != nil {
+				constants.TKGClusterNameLabel: cluster.Name}); err != nil {
 			if k8serror.IsNotFound(err) {
 				return nil
 			}
@@ -169,7 +167,7 @@ func (c *pinnipedController) reconcileAddonSecret(ctx context.Context, cluster c
 		return nil
 	}
 	var (
-		supervisorAddress string
+		supervisorAddress  string
 		supervisorCABundle string
 	)
 
@@ -193,7 +191,6 @@ func (c *pinnipedController) reconcileAddonSecret(ctx context.Context, cluster c
 		supervisorAddress = ""
 		supervisorCABundle = ""
 	}
-
 
 	log.Info(fmt.Sprintf("supervisorAddress: %q, supervisorCABundle: %q", supervisorAddress, supervisorCABundle))
 

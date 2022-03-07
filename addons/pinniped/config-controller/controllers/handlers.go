@@ -14,7 +14,6 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/predicate"
 )
 
-
 func (c *pinnipedController) configMapToCluster(o client.Object) []ctrl.Request {
 	// return empty object, if pinniped-info CM changes, update all the secrets
 	c.Log.Info("Configmap created/updated/deleted, sending back empty request to reconcile all clusters/secrets")
@@ -31,7 +30,7 @@ func withNamespacedName(namespacedName types.NamespacedName) builder.Predicates 
 			UpdateFunc: func(e event.UpdateEvent) bool {
 				return isNamespacedName(e.ObjectOld) || isNamespacedName(e.ObjectNew)
 			},
-			DeleteFunc: func(e event.DeleteEvent) bool { return false },
+			DeleteFunc:  func(e event.DeleteEvent) bool { return false },
 			GenericFunc: func(e event.GenericEvent) bool { return isNamespacedName(e.Object) },
 		},
 	)
