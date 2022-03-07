@@ -390,7 +390,9 @@ var _ = Describe("Controller", func() {
 
 		AfterEach(func() {
 			err := k8sClient.Delete(ctx, configMap)
-			Expect(err).NotTo(HaveOccurred())
+			if err != nil {
+				Expect(k8serrors.IsNotFound(err)).To(BeTrue(), fmt.Sprintf("got error: %s", err.Error()))
+			}
 			for _, c := range clusterList.Items {
 				c := c
 				clusterCopy := c.DeepCopy()
