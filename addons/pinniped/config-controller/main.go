@@ -17,10 +17,7 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/addons/pinniped/config-controller/controllers"
 )
 
-// TODO: any other t-f controller conventions that we aren't following that we should follow?
 // TODO: use tanzu logging solution (from controller-runtime?)
-// TODO: provide a way to pause the controller
-// TODO: pass pinniped-info ConfigMap namespace and name via command line flags
 var setupLog = ctrl.Log.WithName("setup")
 
 func main() {
@@ -41,7 +38,6 @@ func main() {
 	ctrl.SetLogger(klogr.New())
 	manager, err := ctrl.NewManager(ctrl.GetConfigOrDie(), ctrl.Options{
 		Scheme: scheme,
-		// TODO: do we want to set any of these options (e.g., webhook port, leader election)?
 	})
 	if err != nil {
 		setupLog.Error(err, "unable to start manager")
