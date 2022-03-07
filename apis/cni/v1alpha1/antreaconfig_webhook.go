@@ -46,8 +46,8 @@ func (r *AntreaConfig) ValidateCreate() error {
 
 	var allErrs field.ErrorList
 
-	if r.Spec.Antrea.AntreaConfigDataValue.FeatureGates.AntreaProxy == false &&
-		r.Spec.Antrea.AntreaConfigDataValue.FeatureGates.EndpointSlice == true {
+	if !r.Spec.Antrea.AntreaConfigDataValue.FeatureGates.AntreaProxy &&
+		r.Spec.Antrea.AntreaConfigDataValue.FeatureGates.EndpointSlice {
 		allErrs = append(allErrs,
 			field.Invalid(field.NewPath("spec", "antrea", "config", "featureGates", "EndpointSlice"),
 				r.Spec.Antrea.AntreaConfigDataValue.FeatureGates.EndpointSlice,
@@ -55,12 +55,14 @@ func (r *AntreaConfig) ValidateCreate() error {
 		)
 	}
 
-	if r.Spec.Antrea.AntreaConfigDataValue.NoSNAT == true &&
+	if r.Spec.Antrea.AntreaConfigDataValue.NoSNAT &&
 		(r.Spec.Antrea.AntreaConfigDataValue.TrafficEncapMode == "encap" ||
 			r.Spec.Antrea.AntreaConfigDataValue.TrafficEncapMode == "hybrid") {
-		field.Invalid(field.NewPath("spec", "antrea", "config", "noSNAT"),
-			r.Spec.Antrea.AntreaConfigDataValue.NoSNAT,
-			"field must be disabled for encap and hybrid mode")
+		allErrs = append(allErrs,
+			field.Invalid(field.NewPath("spec", "antrea", "config", "noSNAT"),
+				r.Spec.Antrea.AntreaConfigDataValue.NoSNAT,
+				"field must be disabled for encap and hybrid mode"),
+		)
 	}
 
 	if len(allErrs) == 0 {
@@ -68,7 +70,6 @@ func (r *AntreaConfig) ValidateCreate() error {
 	}
 	return apierrors.NewInvalid(
 		schema.GroupKind{Group: "cni.tanzu.vmware.com", Kind: "AntreaConfig"}, r.Name, allErrs)
-
 }
 
 // ValidateUpdate implements webhook.Validator so a webhook will be registered for the type

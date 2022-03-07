@@ -21,7 +21,7 @@ import (
 
 const testCluster = "test-cluster-calico"
 
-var _ = FDescribe("CalicoConfig Reconciler", func() {
+var _ = Describe("CalicoConfig Reconciler", func() {
 	var (
 		clusterName             string
 		clusterResourceFilePath string
