@@ -17,11 +17,8 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/addons/pinniped/config-controller/controllers"
 )
 
-// TODO: use tanzu logging solution (from controller-runtime?)
-var setupLog = ctrl.Log.WithName("setup")
-
 func main() {
-	setupLog = ctrl.Log.WithName("Pinniped Config Controller Set Up")
+	setupLog := ctrl.Log.WithName("Pinniped Config Controller Set Up")
 	setupLog.Info("starting")
 
 	// Add types to scheme.
