@@ -144,6 +144,30 @@ issues:
         - revive
       text: "it will be inferred from"
 
+    # Disable linters for API conversions.
+    # - var-naming, ST1003: Generated conversion stubs have underscores in function names.
+    # - receiver-naming, ST1016: Much easier to read when the receiver is referred as src/dst.
+    - linters:
+        - revive
+      text: "var-naming: don't use underscores in Go names;"
+      path: .*apis\/.*\/conversion\.go$
+    - linters:
+        - revive
+      text: "receiver-naming: receiver name"
+      path: .*apis\/.*\/conversion\.go$
+    - linters:
+        - stylecheck
+      text: "ST1003: should not use underscores in Go names;"
+      path: .*apis\/.*\/conversion\.go$
+    - linters:
+        - stylecheck
+      text: "ST1016: methods on the same type should have the same receiver name"
+      path: .*apis\/.*\/conversion\.go$
+    - linters:
+        - goheader
+      text: "Expected:SPDX-License-Identifier"
+      path: hack/boilerplate/test/fail.go
+
   include:
     - EXC0011 # disable excluding of issues about missing package comments from stylecheck
 
