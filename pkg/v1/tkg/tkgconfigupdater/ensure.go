@@ -321,6 +321,10 @@ func (c *client) saveProvidersFromRemoteRepo(providerDirPath string) error {
 	if err != nil {
 		return errors.Wrapf(err, "error while saving provider tag file '%s'", providerTagFileName)
 	}
+
+	if err := c.saveProvidersChecksumToFile(); err != nil {
+		return errors.Wrap(err, "error while saving providers checksum to file")
+	}
 	return nil
 }
 
