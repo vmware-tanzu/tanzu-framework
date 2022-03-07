@@ -52,7 +52,7 @@ help: ## Display this help
 test: fmt vet ## Run Tests
 	$(MAKE) kubebuilder -C ${ROOT_DIR}$(TOOLS_DIR)
 	KUBEBUILDER_ASSETS=${ROOT_DIR}$(KUBEBUILDER_BIN_DIR) go test ./... -coverprofile cover.out -v 2
-	$(MAKE) test -C pinniped/post-deploy
+	./pinniped/hack/test.sh
 
 .PHONY: test-verbose
 test-verbose: ## Verbose tests with streaming output for debugging
