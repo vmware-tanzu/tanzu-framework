@@ -1,3 +1,6 @@
+// Copyright 2022 VMware, Inc. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
+
 package controllers
 
 import (
@@ -6,13 +9,14 @@ import (
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	"github.com/vmware-tanzu/tanzu-framework/addons/pinniped/config-controller/constants"
-	tkgconstants "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
 	corev1 "k8s.io/api/core/v1"
 	k8serrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	clusterapiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+
+	"github.com/vmware-tanzu/tanzu-framework/addons/pinniped/config-controller/constants"
+	tkgconstants "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
 )
 
 var _ = Describe("Controller", func() {
@@ -89,7 +93,8 @@ var _ = Describe("Controller", func() {
 		When("cluster is updated", func() {
 			BeforeEach(func() {
 				clusterCopy := cluster.DeepCopy()
-				k8sClient.Get(ctx, client.ObjectKeyFromObject(clusterCopy), clusterCopy)
+				err := k8sClient.Get(ctx, client.ObjectKeyFromObject(clusterCopy), clusterCopy)
+				Expect(err).NotTo(HaveOccurred())
 				annotations := clusterCopy.ObjectMeta.Annotations
 				if annotations == nil {
 					annotations = make(map[string]string)
@@ -339,6 +344,11 @@ var _ = Describe("Controller", func() {
 	})
 
 	Context("pinniped-info configmap", func() {
+		const (
+			issuer             = "cats.dev"
+			issuerCABundleData = "secret-blanket"
+		)
+
 		configMap := &corev1.ConfigMap{
 			ObjectMeta: metav1.ObjectMeta{
 				Namespace: "kube-public",
@@ -369,7 +379,8 @@ var _ = Describe("Controller", func() {
 				// have to make a copy so we don't edit global var
 				clusterCopy := c.DeepCopy()
 				// TODO: this is failing b/c cluster is already there... but we're deleting it below..............................
-				k8sClient.Create(ctx, clusterCopy)
+				err := k8sClient.Create(ctx, clusterCopy)
+				Expect(err).NotTo(HaveOccurred())
 				Eventually(func(g Gomega) {
 					err := k8sClient.Get(ctx, client.ObjectKeyFromObject(clusterCopy), &clusterapiv1beta1.Cluster{})
 					g.Expect(err).NotTo(HaveOccurred())
@@ -378,8 +389,10 @@ var _ = Describe("Controller", func() {
 		})
 
 		AfterEach(func() {
-			k8sClient.Delete(ctx, configMap)
+			err := k8sClient.Delete(ctx, configMap)
+			Expect(err).NotTo(HaveOccurred())
 			for _, c := range clusterList.Items {
+				c := c
 				clusterCopy := c.DeepCopy()
 				err := k8sClient.Delete(ctx, clusterCopy)
 				if err != nil {
@@ -432,8 +445,8 @@ var _ = Describe("Controller", func() {
 			BeforeEach(func() {
 				configMapCopy := configMap.DeepCopy()
 				configMapCopy.Namespace = pinnipedNamespace
-				configMapCopy.Data["issuer"] = "cats.dev"
-				configMapCopy.Data["issuer_ca_bundle_data"] = "secret-blanket"
+				configMapCopy.Data["issuer"] = issuer
+				configMapCopy.Data["issuer_ca_bundle_data"] = issuerCABundleData
 				Expect(k8sClient.Create(ctx, configMapCopy)).To(Succeed())
 			})
 
@@ -471,8 +484,8 @@ var _ = Describe("Controller", func() {
 				configMapCopy := configMap.DeepCopy()
 				configMapCopy.Name = "kitties"
 				configMapCopy.Data = make(map[string]string)
-				configMapCopy.Data["issuer"] = "cats.dev"
-				configMapCopy.Data["issuer_ca_bundle_data"] = "secret-blanket"
+				configMapCopy.Data["issuer"] = issuer
+				configMapCopy.Data["issuer_ca_bundle_data"] = issuerCABundleData
 				Expect(k8sClient.Create(ctx, configMapCopy)).To(Succeed())
 			})
 

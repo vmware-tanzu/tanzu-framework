@@ -1,15 +1,20 @@
+// Copyright 2022 VMware, Inc. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
+
 package main
 
 import (
 	"fmt"
-	"k8s.io/klog/v2/klogr"
 	"os"
 
-	"github.com/vmware-tanzu/tanzu-framework/addons/pinniped/config-controller/controllers"
+	"k8s.io/klog/v2/klogr"
+
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	clusterapiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
 	ctrl "sigs.k8s.io/controller-runtime"
+
+	"github.com/vmware-tanzu/tanzu-framework/addons/pinniped/config-controller/controllers"
 )
 
 // TODO: any other t-f controller conventions that we aren't following that we should follow?
@@ -54,5 +59,4 @@ func main() {
 		setupLog.Error(err, "unable to start manager")
 		os.Exit(1)
 	}
-
 }

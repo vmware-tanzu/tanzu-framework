@@ -1,41 +1,46 @@
+// Copyright 2022 VMware, Inc. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
+
+// Package controllers contains the pinniped-config-controller-manager controller code.
 package controllers
 
 import (
 	"context"
 	"fmt"
+
 	"github.com/go-logr/logr"
 	"github.com/pkg/errors"
-	"github.com/vmware-tanzu/tanzu-framework/addons/pinniped/config-controller/constants"
-	"github.com/vmware-tanzu/tanzu-framework/addons/pinniped/config-controller/utils"
 	"gopkg.in/yaml.v3"
 	corev1 "k8s.io/api/core/v1"
 	k8serror "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 	clusterapiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
+	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/builder"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 	"sigs.k8s.io/controller-runtime/pkg/handler"
+	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 	"sigs.k8s.io/controller-runtime/pkg/source"
 
-	ctrl "sigs.k8s.io/controller-runtime"
-	"sigs.k8s.io/controller-runtime/pkg/reconcile"
+	"github.com/vmware-tanzu/tanzu-framework/addons/pinniped/config-controller/constants"
+	"github.com/vmware-tanzu/tanzu-framework/addons/pinniped/config-controller/utils"
 )
 
-type pinnipedController struct {
+type PinnipedController struct {
 	client client.Client
 	Log    logr.Logger
 }
 
-func NewController(client client.Client) *pinnipedController {
-	return &pinnipedController{
-		client: client,
+func NewController(c client.Client) *PinnipedController {
+	return &PinnipedController{
+		client: c,
 		Log:    ctrl.Log.WithName("Pinniped Config Controller"),
 	}
 }
 
-func (c *pinnipedController) SetupWithManager(manager ctrl.Manager) error {
+func (c *PinnipedController) SetupWithManager(manager ctrl.Manager) error {
 	// CM gets deleted: do nothing for now...should it get logged?
 	// CM generic func: do nothing
 	// Addons secret deleted: recreate it User only manages addons secret on mgmt cluster
@@ -56,7 +61,7 @@ func (c *pinnipedController) SetupWithManager(manager ctrl.Manager) error {
 			),
 		).
 		// TODO: uncomment this to filter based on TKr version (only check v1alpha3 clusters/secrets)
-		//WithEventFilter(utils.ClusterHasLabel(constants.TKRLabelClassyClusters, c.Log)).
+		// WithEventFilter(utils.ClusterHasLabel(constants.TKRLabelClassyClusters, c.Log)).
 		Complete(c)
 	if err != nil {
 		c.Log.Error(err, "Error creating pinniped config controller")
@@ -65,7 +70,7 @@ func (c *pinnipedController) SetupWithManager(manager ctrl.Manager) error {
 	return nil
 }
 
-func (c *pinnipedController) Reconcile(ctx context.Context, req ctrl.Request) (reconcile.Result, error) {
+func (c *PinnipedController) Reconcile(ctx context.Context, req ctrl.Request) (reconcile.Result, error) {
 	log := c.Log.WithName("Pinniped Config Controller Reconcile Function")
 	pinnipedInfoCM := &corev1.ConfigMap{
 		ObjectMeta: metav1.ObjectMeta{
@@ -91,12 +96,12 @@ func (c *pinnipedController) Reconcile(ctx context.Context, req ctrl.Request) (r
 			return reconcile.Result{}, err
 		}
 
-		for _, cluster := range clusters.Items {
-			if utils.IsManagementCluster(cluster) {
+		for i := range clusters.Items {
+			if utils.IsManagementCluster(&clusters.Items[i]) {
 				continue
 			}
 
-			if err := c.reconcileAddonSecret(ctx, cluster, *pinnipedInfoCM); err != nil {
+			if err := c.reconcileAddonSecret(ctx, &clusters.Items[i], pinnipedInfoCM); err != nil {
 				log.Error(err, "Error reconciling addon secret")
 				return reconcile.Result{}, err
 			}
@@ -125,12 +130,12 @@ func (c *pinnipedController) Reconcile(ctx context.Context, req ctrl.Request) (r
 		return reconcile.Result{}, err
 	}
 
-	if utils.IsManagementCluster(cluster) {
+	if utils.IsManagementCluster(&cluster) {
 		log.Info("Cluster is management cluster")
 		return reconcile.Result{}, nil
 	}
 
-	if err := c.reconcileAddonSecret(ctx, cluster, *pinnipedInfoCM); err != nil {
+	if err := c.reconcileAddonSecret(ctx, &cluster, pinnipedInfoCM); err != nil {
 		log.Error(err, "Error reconciling addon secret")
 		return reconcile.Result{}, err
 	}
@@ -150,7 +155,8 @@ type pinniped struct {
 	SupervisorCABundle string `yaml:"supervisor_ca_bundle_data,omitempty"`
 }
 
-func (c *pinnipedController) reconcileAddonSecret(ctx context.Context, cluster clusterapiv1beta1.Cluster, pinnipedInfoCM corev1.ConfigMap) error {
+// nolint:funlen // Eh, we can live with a function of this length
+func (c *PinnipedController) reconcileAddonSecret(ctx context.Context, cluster *clusterapiv1beta1.Cluster, pinnipedInfoCM *corev1.ConfigMap) error {
 	log := c.Log.WithValues(constants.NamespaceLogKey, cluster.Namespace, constants.NameLogKey, cluster.Name)
 	// check if cluster is scheduled for deletion, if so, delete addon secret on mgmt cluster
 	if !cluster.GetDeletionTimestamp().IsZero() {
@@ -208,7 +214,7 @@ func (c *pinnipedController) reconcileAddonSecret(ctx context.Context, cluster c
 		},
 	}
 	// TODO: remove this
-	pinnipedAddonSecret.Type = "tkg.tanzu.vmware.com/addon"
+	pinnipedAddonSecret.Type = constants.TKGAddonType
 	pinnipedAddonSecret.Data = make(map[string][]byte)
 
 	pinnipedAddonSecretMutateFn := func() error {

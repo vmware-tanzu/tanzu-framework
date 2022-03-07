@@ -1,16 +1,22 @@
+// Copyright 2022 VMware, Inc. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
+
+// Package utils contains utilities used throughout the codebase.
 package utils
 
 import (
 	"fmt"
+	"strings"
+
 	"github.com/go-logr/logr"
-	"github.com/vmware-tanzu/tanzu-framework/addons/pinniped/config-controller/constants"
-	tkgconstants "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
 	corev1 "k8s.io/api/core/v1"
 	clusterapiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/event"
 	"sigs.k8s.io/controller-runtime/pkg/predicate"
-	"strings"
+
+	"github.com/vmware-tanzu/tanzu-framework/addons/pinniped/config-controller/constants"
+	tkgconstants "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
 )
 
 // IsAddonType returns true if the secret is type `tkg.tanzu.vmware.com/addon`
@@ -24,13 +30,13 @@ func HasAddonLabel(secret *corev1.Secret, label string) bool {
 }
 
 // IsManagementCluster returns true if the cluster has the "cluster-role.tkg.tanzu.vmware.com/management" label
-func IsManagementCluster(cluster clusterapiv1beta1.Cluster) bool {
+func IsManagementCluster(cluster *clusterapiv1beta1.Cluster) bool {
 	_, labelExists := cluster.GetLabels()[constants.TKGManagementLabel]
 	return labelExists
 }
 
 // GetInfraProvider get infrastructure kind from cluster spec
-func GetInfraProvider(cluster clusterapiv1beta1.Cluster) (string, error) {
+func GetInfraProvider(cluster *clusterapiv1beta1.Cluster) (string, error) {
 	var infraProvider string
 
 	infrastructureRef := cluster.Spec.InfrastructureRef

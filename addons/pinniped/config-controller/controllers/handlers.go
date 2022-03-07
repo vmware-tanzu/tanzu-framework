@@ -1,10 +1,12 @@
+// Copyright 2022 VMware, Inc. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
+
 package controllers
 
 import (
 	"fmt"
+
 	"github.com/pkg/errors"
-	"github.com/vmware-tanzu/tanzu-framework/addons/pinniped/config-controller/constants"
-	"github.com/vmware-tanzu/tanzu-framework/addons/pinniped/config-controller/utils"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/types"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -12,9 +14,12 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/event"
 	"sigs.k8s.io/controller-runtime/pkg/predicate"
+
+	"github.com/vmware-tanzu/tanzu-framework/addons/pinniped/config-controller/constants"
+	"github.com/vmware-tanzu/tanzu-framework/addons/pinniped/config-controller/utils"
 )
 
-func (c *pinnipedController) configMapToCluster(o client.Object) []ctrl.Request {
+func (c *PinnipedController) configMapToCluster(o client.Object) []ctrl.Request {
 	// return empty object, if pinniped-info CM changes, update all the secrets
 	c.Log.Info("Configmap created/updated/deleted, sending back empty request to reconcile all clusters/secrets")
 	return []ctrl.Request{}
@@ -36,7 +41,7 @@ func withNamespacedName(namespacedName types.NamespacedName) builder.Predicates 
 	)
 }
 
-func (c *pinnipedController) addonSecretToCluster(o client.Object) []ctrl.Request {
+func (c *PinnipedController) addonSecretToCluster(o client.Object) []ctrl.Request {
 	log := c.Log.WithValues(constants.NamespaceLogKey, o.GetName(), constants.NameLogKey, o.GetNamespace())
 
 	log.Info("Mapping Addon Secret to cluster")
@@ -55,7 +60,7 @@ func (c *pinnipedController) addonSecretToCluster(o client.Object) []ctrl.Reques
 	}}
 }
 
-func (c *pinnipedController) withAddonLabel(addonLabel string) predicate.Funcs {
+func (c *PinnipedController) withAddonLabel(addonLabel string) predicate.Funcs {
 	// Predicate func will get called for all events (create, update, delete, generic)
 	return predicate.NewPredicateFuncs(func(o client.Object) bool {
 		var secret *corev1.Secret
