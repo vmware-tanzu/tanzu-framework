@@ -24,6 +24,9 @@ type Client interface {
 	// GetTKGProvidersDirectory returns path to tkg config directory "$HOME/.tkg/providers"
 	GetTKGProvidersDirectory() (string, error)
 
+	// GetTKGProvidersCheckSumPath returns path to the providers checksum file
+	GetTKGProvidersCheckSumPath() (string, error)
+
 	// GetTKGCompatibilityDirectory returns path to tkg compatibility directory "<TKGConfigDirectory>/compatibility"
 	GetTKGCompatibilityDirectory() (string, error)
 
