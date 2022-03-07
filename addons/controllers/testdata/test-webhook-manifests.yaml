@@ -5,12 +5,8 @@ metadata:
   name: webhook-service
   namespace: tkg-system
 spec:
-  ports:
-    - port: 443
-      protocol: TCP
-      targetPort: 9443
-  selector:
-    control-plane: controller-manager
+  type: ExternalName
+  externalName: 127.0.0.1
 ---
 apiVersion: admissionregistration.k8s.io/v1
 kind: MutatingWebhookConfiguration
@@ -30,18 +26,19 @@ webhooks:
         name: webhook-service
         namespace: tkg-system
         path: /mutate-cni-tanzu-vmware-com-v1alpha1-antreaconfig
+        port: 9443
     failurePolicy: Fail
     name: mantreaconfig.kb.io
-#    rules:
-#      - apiGroups:
-#          - cni.tanzu.vmware.com
-#        apiVersions:
-#          - v1alpha1
-#        operations:
-#          - CREATE
-#          - UPDATE
-#        resources:
-#          - antreaconfigs
+    rules:
+      - apiGroups:
+          - cni.tanzu.vmware.com
+        apiVersions:
+          - v1alpha1
+        operations:
+          - CREATE
+          - UPDATE
+        resources:
+          - antreaconfigs
     sideEffects: None
     timeoutSeconds: 30
   - admissionReviewVersions:
@@ -54,18 +51,19 @@ webhooks:
         name: webhook-service
         namespace: tkg-system
         path: /mutate-cni-tanzu-vmware-com-v1alpha1-calicoconfig
+        port: 9443
     failurePolicy: Fail
     name: mcalicoconfig.kb.io
-#    rules:
-#      - apiGroups:
-#          - cni.tanzu.vmware.com
-#        apiVersions:
-#          - v1alpha1
-#        operations:
-#          - CREATE
-#          - UPDATE
-#        resources:
-#          - calicoconfigs
+    rules:
+      - apiGroups:
+          - cni.tanzu.vmware.com
+        apiVersions:
+          - v1alpha1
+        operations:
+          - CREATE
+          - UPDATE
+        resources:
+          - calicoconfigs
     sideEffects: None
     timeoutSeconds: 30
 ---
@@ -87,18 +85,19 @@ webhooks:
         name: webhook-service
         namespace: tkg-system
         path: /validate-cni-tanzu-vmware-com-v1alpha1-antreaconfig
+        port: 9443
     failurePolicy: Fail
     name: vantreaconfig.kb.io
-#    rules:
-#      - apiGroups:
-#          - cni.tanzu.vmware.com
-#        apiVersions:
-#          - v1alpha1
-#        operations:
-#          - CREATE
-#          - UPDATE
-#        resources:
-#          - antreaconfigs
+    rules:
+      - apiGroups:
+          - cni.tanzu.vmware.com
+        apiVersions:
+          - v1alpha1
+        operations:
+          - CREATE
+          - UPDATE
+        resources:
+          - antreaconfigs
     sideEffects: None
     timeoutSeconds: 30
   - admissionReviewVersions:
@@ -111,17 +110,18 @@ webhooks:
         name: webhook-service
         namespace: tkg-system
         path: /validate-cni-tanzu-vmware-com-v1alpha1-calicoconfig
+        port: 9443
     failurePolicy: Fail
     name: vcalicoconfig.kb.io
-#    rules:
-#      - apiGroups:
-#          - cni.tanzu.vmware.com
-#        apiVersions:
-#          - v1alpha1
-#        operations:
-#          - CREATE
-#          - UPDATE
-#        resources:
-#          - calicoconfigs
+    rules:
+      - apiGroups:
+          - cni.tanzu.vmware.com
+        apiVersions:
+          - v1alpha1
+        operations:
+          - CREATE
+          - UPDATE
+        resources:
+          - calicoconfigs
     sideEffects: None
     timeoutSeconds: 30

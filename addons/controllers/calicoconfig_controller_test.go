@@ -21,7 +21,7 @@ import (
 
 const testCluster = "test-cluster-calico"
 
-var _ = Describe("CalicoConfig Reconciler", func() {
+var _ = FDescribe("CalicoConfig Reconciler", func() {
 	var (
 		clusterName             string
 		clusterResourceFilePath string
@@ -71,7 +71,7 @@ var _ = Describe("CalicoConfig Reconciler", func() {
 					return false
 				}
 
-				//check spec values
+				// check spec values
 				Expect(config.Spec.Namespace).Should(Equal("kube-system"))
 				Expect(config.Spec.Calico.Config.VethMTU).Should(Equal(int64(0)))
 

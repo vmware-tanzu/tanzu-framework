@@ -19,7 +19,7 @@ import (
 	cniv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cni/v1alpha1"
 )
 
-var _ = Describe("AntreaConfig Reconciler", func() {
+var _ = FDescribe("AntreaConfig Reconciler", func() {
 	var (
 		configCRName            string
 		clusterResourceFilePath string

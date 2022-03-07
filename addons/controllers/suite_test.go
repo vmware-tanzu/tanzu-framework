@@ -13,9 +13,12 @@ import (
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	adminregv1 "k8s.io/api/admissionregistration/v1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/selection"
 	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/kubernetes"
 	clientgoscheme "k8s.io/client-go/kubernetes/scheme"
@@ -31,6 +34,8 @@ import (
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
+
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/webhooks"
 
 	kappctrl "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/kappctrl/v1alpha1"
 	pkgiv1alpha1 "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/packaging/v1alpha1"
@@ -75,6 +80,7 @@ var (
 	testEnv       *envtest.Environment
 	ctx           = ctrl.SetupSignalHandler()
 	scheme        = runtime.NewScheme()
+	mgr           manager.Manager
 	dynamicClient dynamic.Interface
 	cancel        context.CancelFunc
 	certPath      string
@@ -166,16 +172,17 @@ var _ = BeforeSuite(func(done Done) {
 
 	tmpDir, err := os.MkdirTemp("/tmp", "webhooktest")
 	Expect(err).ToNot(HaveOccurred())
-	certPath = path.Join(tmpDir, "tls.cert")
+	certPath = path.Join(tmpDir, "tls.crt")
 	keyPath = path.Join(tmpDir, "tls.key")
 
 	options := manager.Options{
 		Scheme:             scheme,
 		MetricsBindAddress: "0",
+		Host:               "127.0.0.1",
 		Port:               9443,
 		CertDir:            tmpDir,
 	}
-	mgr, err := ctrl.NewManager(testEnv.Config, options)
+	mgr, err = ctrl.NewManager(testEnv.Config, options)
 	Expect(err).ToNot(HaveOccurred())
 	k8sConfig = mgr.GetConfig()
 
@@ -272,6 +279,39 @@ var _ = BeforeSuite(func(done Done) {
 	Expect(err).ToNot(HaveOccurred())
 	defer f.Close()
 	err = testutil.CreateResources(f, cfg, dynamicClient)
+	Expect(err).ToNot(HaveOccurred())
+
+	labelMatch, _ := labels.NewRequirement("webhook-cert", selection.Equals, []string{"self-managed"})
+	labelSelector := labels.NewSelector()
+	labelSelector = labelSelector.Add(*labelMatch)
+
+	secret, err := webhooks.InstallNewCertificates(ctx, k8sConfig, certPath, keyPath, webhookScrtName, addonNamespace, webhookServiceName, "webhook-cert=self-managed")
+	Expect(err).ToNot(HaveOccurred())
+
+	vwcfgs := &adminregv1.ValidatingWebhookConfigurationList{}
+	err = k8sClient.List(ctx, vwcfgs, &client.ListOptions{LabelSelector: labelSelector})
+	Expect(err).ToNot(HaveOccurred())
+	Expect(vwcfgs.Items).ToNot(BeEmpty())
+	for _, wcfg := range vwcfgs.Items {
+		for _, whook := range wcfg.Webhooks {
+			Expect(whook.ClientConfig.CABundle).To(Equal(secret.Data[resources.CACert]))
+		}
+	}
+
+	mwcfgs := &adminregv1.MutatingWebhookConfigurationList{}
+	err = k8sClient.List(ctx, mwcfgs, &client.ListOptions{LabelSelector: labelSelector})
+	Expect(err).ToNot(HaveOccurred())
+	Expect(mwcfgs.Items).ToNot(BeEmpty())
+	for _, wcfg := range mwcfgs.Items {
+		for _, whook := range wcfg.Webhooks {
+			Expect(whook.ClientConfig.CABundle).To(Equal(secret.Data[resources.CACert]))
+		}
+	}
+
+	// Set up the webhooks in the manager
+	err = (&cniv1alpha1.AntreaConfig{}).SetupWebhookWithManager(mgr)
+	Expect(err).ToNot(HaveOccurred())
+	err = (&cniv1alpha1.CalicoConfig{}).SetupWebhookWithManager(mgr)
 	Expect(err).ToNot(HaveOccurred())
 
 	go func() {
