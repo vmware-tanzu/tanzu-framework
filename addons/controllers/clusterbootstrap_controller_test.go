@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"time"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -432,6 +433,87 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 				Expect(cni.ValuesFrom.ProviderRef.Kind).To(Equal("CalicoConfig"))
 				providerName := fmt.Sprintf("%s-calico.tanzu.vmware.com-package", clusterName)
 				Expect(cni.ValuesFrom.ProviderRef.Name).To(Equal(providerName))
+			})
+		})
+	})
+
+	When("ClusterBootstrap is paused", func() {
+		BeforeEach(func() {
+			clusterName = "test-cluster-tcbt-3"
+			clusterNamespace = "cluster-namespace-3"
+			clusterResourceFilePath = "testdata/test-cluster-bootstrap-3.yaml"
+		})
+		Context("from a ClusterBootstrapTemplate", func() {
+			It("should block ClusterBootstrap reconciliation if it is paused", func() {
+
+				By("verifying CAPI cluster is created properly")
+				cluster := &clusterapiv1beta1.Cluster{}
+				Expect(k8sClient.Get(ctx, client.ObjectKey{Namespace: clusterNamespace, Name: clusterName}, cluster)).To(Succeed())
+				copiedCluster := cluster.DeepCopy()
+				copiedCluster.Status.Phase = string(clusterapiv1beta1.ClusterPhaseProvisioned)
+				Expect(k8sClient.Status().Update(ctx, copiedCluster)).To(Succeed())
+
+				By("ClusterBootstrap CR is created")
+				clusterBootstrap := &runtanzuv1alpha3.ClusterBootstrap{}
+				// Verify ownerReference for cluster in cloned object
+				Eventually(func() bool {
+					err := k8sClient.Get(ctx, client.ObjectKeyFromObject(cluster), clusterBootstrap)
+					if err != nil {
+						return false
+					}
+					for _, ownerRef := range clusterBootstrap.OwnerReferences {
+						if ownerRef.UID == cluster.UID {
+							return true
+						}
+					}
+					return false
+				}, waitTimeout, pollingInterval).Should(BeTrue())
+
+				By("Should have remote secret value same as foobar1secret secret value")
+				remoteClient, err := util.GetClusterClient(ctx, k8sClient, scheme, clusterapiutil.ObjectKey(cluster))
+				Expect(err).NotTo(HaveOccurred())
+				Expect(remoteClient).NotTo(BeNil())
+				s := &corev1.Secret{}
+				remoteSecret := &corev1.Secret{}
+				Eventually(func() bool {
+					err := k8sClient.Get(ctx, client.ObjectKey{Namespace: clusterNamespace, Name: fmt.Sprintf("%s-%s-package", clusterName, foobar1CarvelPackageRefName)}, s)
+					if err != nil {
+						return false
+					}
+					err = remoteClient.Get(ctx, client.ObjectKey{Namespace: constants.TKGSystemNS, Name: util.GenerateDataValueSecretName(clusterName, foobar1CarvelPackageRefName)}, remoteSecret)
+					if err != nil {
+						return false
+					}
+					if string(s.Data["values.yaml"]) != string(remoteSecret.Data["values.yaml"]) {
+						return false
+					}
+					return true
+				}, waitTimeout, pollingInterval).Should(BeTrue())
+
+				By("Pause ClusterBootstrap CR")
+				clusterBootstrap.Spec.Paused = true
+				Expect(k8sClient.Update(ctx, clusterBootstrap)).To(Succeed())
+
+				By("Should not reconcile foobar1secret secret change", func() {
+					// Get secretRef
+					Expect(k8sClient.Get(ctx, client.ObjectKey{Namespace: clusterNamespace, Name: fmt.Sprintf("%s-%s-package", clusterName, foobar1CarvelPackageRefName)}, s)).To(Succeed())
+					s.Data["values.yaml"] = []byte("values changed")
+					Expect(k8sClient.Update(ctx, s)).To(Succeed())
+
+					// Wait 10 seconds in case reconciliation happens
+					time.Sleep(10 * time.Second)
+
+					Eventually(func() bool {
+						remoteSecret := &corev1.Secret{}
+						if err := k8sClient.Get(ctx, client.ObjectKey{Namespace: constants.TKGSystemNS, Name: util.GenerateDataValueSecretName(clusterName, foobar1CarvelPackageRefName)}, remoteSecret); err != nil {
+							return false
+						}
+						// values.yaml should not update
+						Expect(string(s.Data["values.yaml"]) == string(remoteSecret.Data["values.yaml"])).ToNot(BeTrue())
+						return true
+					}, waitTimeout, pollingInterval).Should(BeTrue())
+				})
+
 			})
 		})
 	})
