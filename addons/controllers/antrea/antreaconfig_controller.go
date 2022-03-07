@@ -67,7 +67,7 @@ func (r *AntreaConfigReconciler) Reconcile(ctx context.Context, req ctrl.Request
 	clusterNamespacedName := req.NamespacedName
 	cluster := &clusterapiv1beta1.Cluster{}
 	for _, owner := range antreaConfig.OwnerReferences {
-		if owner.Kind == cluster.Kind {
+		if owner.Kind == constants.ClusterKind {
 			clusterNamespacedName.Name = owner.Name
 			break
 		}
@@ -177,7 +177,7 @@ func (r *AntreaConfigReconciler) ReconcileAntreaConfigDataValue(
 	// prepare data values secret for AntreaConfig
 	antreaDataValuesSecret := &corev1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      util.GenerateDataValueSecretName(antreaConfig.Name, constants.AntreaAddonName),
+			Name:      util.GenerateDataValueSecretName(cluster.Name, constants.AntreaAddonName),
 			Namespace: antreaConfig.Namespace,
 		},
 	}

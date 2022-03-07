@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"net"
 	"strconv"
+	"strings"
 
 	"github.com/pkg/errors"
 	"gopkg.in/yaml.v2"
@@ -18,6 +19,7 @@ import (
 
 	kappctrl "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/kappctrl/v1alpha1"
 	pkgiv1alpha1 "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/packaging/v1alpha1"
+	kapppkgv1alpha1 "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apiserver/apis/datapackaging/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
 	addontypes "github.com/vmware-tanzu/tanzu-framework/addons/pkg/types"
 	infraconstants "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
@@ -67,14 +69,45 @@ func GenerateAppNameFromAddonSecret(addonSecret *corev1.Secret) string {
 	return addonName
 }
 
+// GeneratePackageInstallName is the util function to generate the PackageInstall CR name in a consistent manner.
+// clusterName is the name of cluster within which all resources associated with this PackageInstall CR is installed.
+// It does not necessarily
+// mean the PackageInstall CR will be installed in that cluster. I.e., the kapp-controller PackageInstall CR is installed
+// in the management cluster but is named after "<workload-cluster-name>-kapp-controller". It indicates that this kapp-controller
+// PackageInstall is for reconciling resources in a cluster named "<workload-cluster-name>".
+// addonName is the short name of a Tanzu addon with which the PackageInstall CR is associated.
+func GeneratePackageInstallName(clusterName, addonName string) string {
+	return fmt.Sprintf("%s-%s", clusterName, strings.Split(addonName, ".")[0])
+}
+
+func GetPackageMetadata(ctx context.Context, c client.Client, carvelPkgName, carvelPkgNamespace string) (string, string, error) {
+	pkg := &kapppkgv1alpha1.Package{}
+	if err := c.Get(ctx, client.ObjectKey{Name: carvelPkgName, Namespace: carvelPkgNamespace}, pkg); err != nil {
+		return "", "", err
+	}
+	return pkg.Spec.RefName, pkg.Spec.Version, nil
+}
+
+// ParseStringForLabel parse the package ref name to make it valid for K8S object labels.
+// A package ref name could contain some characters that are not allowed as a label value. The regex
+// used for validation is (([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])?
+func ParseStringForLabel(s string) string {
+	// Replace + sign with ---
+	safeLabel := strings.ReplaceAll(s, "+", "---")
+	if len(safeLabel) <= 63 {
+		return safeLabel
+	}
+	return safeLabel[:63]
+}
+
 // GenerateAppSecretNameFromAddonSecret generates app secret name from addon secret
 func GenerateAppSecretNameFromAddonSecret(addonSecret *corev1.Secret) string {
 	return fmt.Sprintf("%s-data-values", GenerateAppNameFromAddonSecret(addonSecret))
 }
 
 // GenerateDataValueSecretName generates data value secret name from the cluster and the package name
-func GenerateDataValueSecretName(clusterName, pkgName string) string {
-	return fmt.Sprintf("%s-%s-data-values", clusterName, pkgName)
+func GenerateDataValueSecretName(clusterName, carvelPkgRefName string) string {
+	return fmt.Sprintf("%s-%s-data-values", clusterName, carvelPkgRefName)
 }
 
 // GenerateAppNamespaceFromAddonSecret generates app namespace from addons secret

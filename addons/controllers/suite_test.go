@@ -6,6 +6,7 @@ package controllers
 import (
 	"context"
 	"os"
+	"path"
 	"path/filepath"
 	"testing"
 	"time"
@@ -33,6 +34,7 @@ import (
 
 	kappctrl "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/kappctrl/v1alpha1"
 	pkgiv1alpha1 "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/packaging/v1alpha1"
+	kapppkgv1alpha1 "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apiserver/apis/datapackaging/v1alpha1"
 	antrea "github.com/vmware-tanzu/tanzu-framework/addons/controllers/antrea"
 	calico "github.com/vmware-tanzu/tanzu-framework/addons/controllers/calico"
 	cpi "github.com/vmware-tanzu/tanzu-framework/addons/controllers/cpi"
@@ -62,16 +64,21 @@ const (
 	addonClusterRoleBinding = "tkg-addons-app-cluster-role-binding"
 	addonImagePullPolicy    = "IfNotPresent"
 	corePackageRepoName     = "core"
+	webhookServiceName      = "webhook-service"
+	webhookScrtName         = "webhook-tls"
 )
 
 var (
 	cfg           *rest.Config
 	k8sClient     client.Client
+	k8sConfig     *rest.Config
 	testEnv       *envtest.Environment
 	ctx           = ctrl.SetupSignalHandler()
 	scheme        = runtime.NewScheme()
 	dynamicClient dynamic.Interface
 	cancel        context.CancelFunc
+	certPath      string
+	keyPath       string
 	// clientset     *kubernetes.Clientset
 )
 
@@ -110,6 +117,8 @@ var _ = BeforeSuite(func(done Done) {
 	cfg, err = testEnv.Start()
 	Expect(err).ToNot(HaveOccurred())
 	Expect(cfg).ToNot(BeNil())
+	testEnv.ControlPlane.APIServer.Configure().Append("admission-control", "MutatingAdmissionWebhook")
+	testEnv.ControlPlane.APIServer.Configure().Append("admission-control", "ValidatingAdmissionWebhook")
 
 	err = runtanzuv1alpha1.AddToScheme(scheme)
 	Expect(err).NotTo(HaveOccurred())
@@ -132,6 +141,9 @@ var _ = BeforeSuite(func(done Done) {
 	err = pkgiv1alpha1.AddToScheme(scheme)
 	Expect(err).NotTo(HaveOccurred())
 
+	err = kapppkgv1alpha1.AddToScheme(scheme)
+	Expect(err).NotTo(HaveOccurred())
+
 	err = cniv1alpha1.AddToScheme(scheme)
 	Expect(err).NotTo(HaveOccurred())
 
@@ -152,13 +164,20 @@ var _ = BeforeSuite(func(done Done) {
 	Expect(err).ToNot(HaveOccurred())
 	Expect(dynamicClient).ToNot(BeNil())
 
+	tmpDir, err := os.MkdirTemp("/tmp", "webhooktest")
+	Expect(err).ToNot(HaveOccurred())
+	certPath = path.Join(tmpDir, "tls.cert")
+	keyPath = path.Join(tmpDir, "tls.key")
+
 	options := manager.Options{
 		Scheme:             scheme,
 		MetricsBindAddress: "0",
 		Port:               9443,
+		CertDir:            tmpDir,
 	}
 	mgr, err := ctrl.NewManager(testEnv.Config, options)
 	Expect(err).ToNot(HaveOccurred())
+	k8sConfig = mgr.GetConfig()
 
 	setupLog := ctrl.Log.WithName("controllers").WithName("Addon")
 
@@ -222,7 +241,8 @@ var _ = BeforeSuite(func(done Done) {
 		Scheme: mgr.GetScheme(),
 	}).SetupWithManager(ctx, mgr, controller.Options{MaxConcurrentReconciles: 1})).To(Succeed())
 
-	bootstrapReconciler := NewClusterBootstrapReconciler(mgr.GetClient(),
+	bootstrapReconciler := NewClusterBootstrapReconciler(
+		mgr.GetClient(),
 		ctrl.Log.WithName("controllers").WithName("ClusterBootstrap"),
 		mgr.GetScheme(),
 		&addonconfig.ClusterBootstrapControllerConfig{
@@ -232,6 +252,11 @@ var _ = BeforeSuite(func(done Done) {
 			NoProxyClusterClassVarName:      constants.DefaultNoProxyClusterClassVarName,
 			ProxyCACertClusterClassVarName:  constants.DefaultProxyCaCertClusterClassVarName,
 			IPFamilyClusterClassVarName:     constants.DefaultIPFamilyClusterClassVarName,
+			SystemNamespace:                 constants.TKGSystemNS,
+			PkgiServiceAccount:              "tanzu-addons-manager-sa",
+			PkgiClusterRole:                 "tanzu-addons-manager-clusterrole",
+			PkgiClusterRoleBinding:          "tanzu-addons-manager-clusterrolebinding",
+			PkgiSyncPeriod:                  10 * time.Minute,
 		},
 	)
 	Expect(bootstrapReconciler.SetupWithManager(ctx, mgr, controller.Options{MaxConcurrentReconciles: 1})).To(Succeed())
@@ -242,6 +267,13 @@ var _ = BeforeSuite(func(done Done) {
 
 	ns = &corev1.Namespace{ObjectMeta: metav1.ObjectMeta{Name: "tkg-system"}}
 	Expect(k8sClient.Create(context.TODO(), ns)).To(Succeed())
+
+	// Create the admission webhooks
+	f, err := os.Open("testdata/test-webhook-manifests.yaml")
+	Expect(err).ToNot(HaveOccurred())
+	defer f.Close()
+	err = testutil.CreateResources(f, cfg, dynamicClient)
+	Expect(err).ToNot(HaveOccurred())
 
 	go func() {
 		defer GinkgoRecover()

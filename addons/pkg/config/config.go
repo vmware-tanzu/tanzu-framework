@@ -28,4 +28,14 @@ type ClusterBootstrapControllerConfig struct {
 	NoProxyClusterClassVarName      string
 	ProxyCACertClusterClassVarName  string
 	IPFamilyClusterClassVarName     string
+	// The length of time to wait before kapp-controller's reconciliation
+	PkgiSyncPeriod time.Duration
+	// ServiceAccount name that will be used by kapp-controller to install underlying package contents
+	PkgiServiceAccount string
+	// The name that will be used to create ClusterRole contains all required rules for PkgiServiceAccount
+	PkgiClusterRole string
+	// The name of ClusterRoleBinding that will be used to bind PkgiClusterRole and PkgiServiceAccount
+	PkgiClusterRoleBinding string
+	// The namespace where the bootstrap objects will be created, i.e., tkg-system
+	SystemNamespace string
 }

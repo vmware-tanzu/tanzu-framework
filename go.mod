@@ -8,7 +8,7 @@ retract [v1.4.0-pre-alpha-1, v1.4.0-pre-alpha-2]
 replace sigs.k8s.io/cluster-api => sigs.k8s.io/cluster-api v1.1.1
 
 require (
-	cloud.google.com/go/storage v1.10.0
+	cloud.google.com/go/storage v1.18.2
 	github.com/AlecAivazis/survey/v2 v2.1.1
 	github.com/Azure/azure-sdk-for-go v58.1.0+incompatible
 	github.com/Azure/go-autorest/autorest v0.11.21
@@ -36,7 +36,7 @@ require (
 	github.com/go-openapi/runtime v0.19.4
 	github.com/go-openapi/spec v0.19.5
 	github.com/go-openapi/strfmt v0.19.5
-	github.com/go-openapi/swag v0.19.14
+	github.com/go-openapi/swag v0.19.15
 	github.com/go-openapi/validate v0.19.8
 	github.com/gobwas/glob v0.2.3
 	github.com/golang-jwt/jwt v3.2.2+incompatible
@@ -85,7 +85,7 @@ require (
 	github.com/yalp/jsonpath v0.0.0-20180802001716-5cc68e5049a0
 	go.uber.org/multierr v1.6.0
 	golang.org/x/mod v0.5.1
-	golang.org/x/net v0.0.0-20211111160137-58aab5ef257a
+	golang.org/x/net v0.0.0-20211209124913-491a49abca63
 	golang.org/x/oauth2 v0.0.0-20211104180415-d3ed0bb246c8
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
 	golang.org/x/term v0.0.0-20210927222741-03fcf44c2211
@@ -100,6 +100,7 @@ require (
 	k8s.io/client-go v0.23.0
 	k8s.io/kubectl v0.23.0
 	k8s.io/utils v0.0.0-20210930125809-cb0fa318a74b
+	knative.dev/pkg v0.0.0-20220225161142-708dc1cc48e9
 	sigs.k8s.io/cluster-api v1.1.1
 	sigs.k8s.io/cluster-api-provider-aws v1.1.0
 	sigs.k8s.io/cluster-api-provider-azure v1.0.1
@@ -134,8 +135,12 @@ require (
 	github.com/aws/amazon-vpc-cni-k8s v1.10.1 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/blang/semver v3.5.1+incompatible // indirect
+	github.com/blendle/zapdriver v1.3.1 // indirect
+	github.com/census-instrumentation/opencensus-proto v0.3.0 // indirect
 	github.com/cespare/xxhash/v2 v2.1.2 // indirect
 	github.com/cheggaaa/pb v1.0.29 // indirect
+	github.com/cncf/udpa/go v0.0.0-20210930031921-04548b0d99d4 // indirect
+	github.com/cncf/xds/go v0.0.0-20211130200136-a8f946100490 // indirect
 	github.com/containerd/containerd v1.5.9 // indirect
 	github.com/containerd/stargz-snapshotter/estargz v0.10.0 // indirect
 	github.com/coredns/caddy v1.1.1 // indirect
@@ -151,6 +156,8 @@ require (
 	github.com/docker/go-connections v0.4.0 // indirect
 	github.com/docker/go-units v0.4.0 // indirect
 	github.com/drone/envsubst/v2 v2.0.0-20210730161058-179042472c46 // indirect
+	github.com/envoyproxy/go-control-plane v0.10.1 // indirect
+	github.com/envoyproxy/protoc-gen-validate v0.6.2 // indirect
 	github.com/evanphx/json-patch v4.12.0+incompatible // indirect
 	github.com/evanphx/json-patch/v5 v5.6.0 // indirect
 	github.com/fsnotify/fsnotify v1.5.1 // indirect
@@ -181,7 +188,7 @@ require (
 	github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51 // indirect
 	github.com/klauspost/compress v1.13.6 // indirect
 	github.com/magiconair/properties v1.8.5 // indirect
-	github.com/mailru/easyjson v0.7.6 // indirect
+	github.com/mailru/easyjson v0.7.7 // indirect
 	github.com/mattn/go-colorable v0.1.12 // indirect
 	github.com/mattn/go-runewidth v0.0.13 // indirect
 	github.com/matttproud/golang_protobuf_extensions v1.0.2-0.20181231171920-c182affec369 // indirect
@@ -217,13 +224,13 @@ require (
 	github.com/vmware-tanzu/carvel-imgpkg v0.23.1 // indirect
 	go.mongodb.org/mongo-driver v1.1.2 // indirect
 	go.opencensus.io v0.23.0 // indirect
-	go.uber.org/atomic v1.7.0 // indirect
+	go.uber.org/atomic v1.9.0 // indirect
 	go.uber.org/zap v1.19.1 // indirect
 	golang.org/x/crypto v0.0.0-20211108221036-ceb1ce70b4fa // indirect
 	golang.org/x/sys v0.0.0-20220114195835-da31bd327af9 // indirect
 	golang.org/x/text v0.3.7 // indirect
 	golang.org/x/time v0.0.0-20210723032227-1f47c861a9ac // indirect
-	golang.org/x/tools v0.1.6-0.20210820212750-d4cc65f0b2ff // indirect
+	golang.org/x/tools v0.1.8 // indirect
 	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/genproto v0.0.0-20211208223120-3a66f561d7aa // indirect
