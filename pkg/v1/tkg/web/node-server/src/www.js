@@ -26,17 +26,6 @@ let port;
 // {Node|http}
 let server;
 
-let certificate;
-let privateKey;
-
-try {
-    certificate = fs.readFileSync(appConfig.devUiServerCertificatePath, 'utf8');
-    privateKey = fs.readFileSync(appConfig.devUiServerPrivateKeyPath, 'utf8');
-} catch (error) {
-    winston.info(error);
-    appConfig.serverErrorState = true;
-}
-
 // Normalize a port into a number, string, or false.
 // @returns {Number|String|Boolean} Normalized port as a string (named pipe), number
 //   (port), or `false` (invalid|unknown).
@@ -100,243 +89,227 @@ if (_.includes(process.argv, '--tce') || appConfig.serverErrorState) {
 }
 
 // create HTTP server
-if (_.includes(process.argv, '--insecure') || appConfig.serverErrorState) {
-    winston.warn('Starting UI server in insecure (http) mode');
-    server = http.createServer(app);
+winston.warn('Starting UI server in insecure (http) mode');
+server = http.createServer(app);
 
-    const logData = [
-        {
-            type: 'status',
-            data: {
-                message: 'start deploying',
-                status: 'running',
-                currentPhase: 'Configure prerequisite',
-                totalPhases: ['Configure prerequisite',
-                    'Validate configuration',
-                    'Generate cluster configuration',
-                    'Setup bootstrap cluster',
-                    'Install providers on bootstrap cluster',
-                    'Create management cluster',
-                    'Install providers on management cluster',
-                    'Move cluster-api objects from bootstrap cluster to management cluster'],
-                successfulPhases: []
-            }
-        },
-        {
-            type: 'log',
-            data: {
-                currentPhase: 'Deploy Cluster phase msg 1',
-                message: 'I0227 16:23:18.924759 ms0',
-                logType: 'INFO'
-            }
-        },
-        {
-            type: 'log',
-            data: {
-                currentPhase: 'Deploy Cluster phase msg 2',
-                message: 'I0227 16:23:18.924759 msg1',
-                logType: 'INFO'
-            }
-        },
-        {
-            type: 'log',
-            data: {
-                currentPhase: 'Deploy Cluster phase msg 3',
-                message: 'I0227 16:23:18.924759 msg1',
-                logType: 'INFO'
-            }
-        },
-        {
-            type: 'status',
-            data: {
-                message: 'start deploying',
-                status: 'running',
-                currentPhase: 'Validate configuration',
-                totalPhases: ['Configure prerequisite',
-                    'Validate configuration',
-                    'Generate cluster configuration',
-                    'Setup bootstrap cluster',
-                    'Install providers on bootstrap cluster',
-                    'Create management cluster',
-                    'Install providers on management cluster',
-                    'Move cluster-api objects from bootstrap cluster to management cluster'],
-                successfulPhases: []
-            }
-        },
-        {
-            type: 'status',
-            data: {
-                message: 'start deploying',
-                status: 'running',
-                currentPhase: 'Generate cluster configuration',
-                totalPhases: ['Configure prerequisite',
-                    'Validate configuration',
-                    'Generate cluster configuration',
-                    'Setup bootstrap cluster',
-                    'Install providers on bootstrap cluster',
-                    'Create management cluster',
-                    'Install providers on management cluster',
-                    'Move cluster-api objects from bootstrap cluster to management cluster'],
-                successfulPhases: []
-            }
-        },
-        {
-            type: 'status',
-            data: {
-                message: 'start deploying',
-                status: 'running',
-                currentPhase: 'Setup bootstrap cluster',
-                totalPhases: ['Configure prerequisite',
-                    'Validate configuration',
-                    'Generate cluster configuration',
-                    'Setup bootstrap cluster',
-                    'Install providers on bootstrap cluster',
-                    'Create management cluster',
-                    'Install providers on management cluster',
-                    'Move cluster-api objects from bootstrap cluster to management cluster'],
-                successfulPhases: ['Move cluster-api objects from bootstrap cluster to management cluster']
-            }
-        },
-        {
-            type: 'status',
-            data: {
-                message: 'start deploying',
-                status: 'running',
-                currentPhase: 'Install providers on bootstrap cluster',
-                totalPhases: ['Configure prerequisite',
-                    'Validate configuration',
-                    'Generate cluster configuration',
-                    'Setup bootstrap cluster',
-                    'Install providers on bootstrap cluster',
-                    'Create management cluster',
-                    'Install providers on management cluster',
-                    'Move cluster-api objects from bootstrap cluster to management cluster'],
-                successfulPhases: ['Move cluster-api objects from bootstrap cluster to management cluster']
-            }
-        },
-        {
-            type: 'status',
-            data: {
-                message: 'start deploying',
-                status: 'running',
-                currentPhase: 'Create management cluster',
-                totalPhases: ['Configure prerequisite',
-                    'Validate configuration',
-                    'Generate cluster configuration',
-                    'Setup bootstrap cluster',
-                    'Install providers on bootstrap cluster',
-                    'Create management cluster',
-                    'Install providers on management cluster',
-                    'Move cluster-api objects from bootstrap cluster to management cluster'],
-                successfulPhases: ['Move cluster-api objects from bootstrap cluster to management cluster']
-            }
-        },
-        {
-            type: 'status',
-            data: {
-                message: 'start deploying',
-                status: 'running',
-                currentPhase: 'Install providers on management cluster',
-                totalPhases: ['Configure prerequisite',
-                    'Validate configuration',
-                    'Generate cluster configuration',
-                    'Setup bootstrap cluster',
-                    'Install providers on bootstrap cluster',
-                    'Create management cluster',
-                    'Install providers on management cluster',
-                    'Move cluster-api objects from bootstrap cluster to management cluster'],
-                successfulPhases: ['Move cluster-api objects from bootstrap cluster to management cluster']
-            }
-        },
-        {
-            type: 'status',
-            data: {
-                message: 'start deploying',
-                status: 'running',
-                currentPhase: 'Move cluster-api objects from bootstrap cluster to management cluster',
-                totalPhases: ['Configure prerequisite',
-                    'Validate configuration',
-                    'Generate cluster configuration',
-                    'Setup bootstrap cluster',
-                    'Install providers on bootstrap cluster',
-                    'Create management cluster',
-                    'Install providers on management cluster',
-                    'Move cluster-api objects from bootstrap cluster to management cluster'],
-                successfulPhases: ['Move cluster-api objects from bootstrap cluster to management cluster']
-            }
-        },
-        {
-            type: 'status',
-            data: {
-                message: 'start deploying',
-                status: 'successful',
-                totalPhases: ['Configure prerequisite',
-                    'Validate configuration',
-                    'Generate cluster configuration',
-                    'Setup bootstrap cluster',
-                    'Install providers on bootstrap cluster',
-                    'Create management cluster',
-                    'Install providers on management cluster',
-                    'Move cluster-api objects from bootstrap cluster to management cluster'],
-                successfulPhases: ['Move cluster-api objects from bootstrap cluster to management cluster']
-            }
+const logData = [
+    {
+        type: 'status',
+        data: {
+            message: 'start deploying',
+            status: 'running',
+            currentPhase: 'Configure prerequisite',
+            totalPhases: ['Configure prerequisite',
+                'Validate configuration',
+                'Generate cluster configuration',
+                'Setup bootstrap cluster',
+                'Install providers on bootstrap cluster',
+                'Create management cluster',
+                'Install providers on management cluster',
+                'Move cluster-api objects from bootstrap cluster to management cluster'],
+            successfulPhases: []
         }
-    ];
+    },
+    {
+        type: 'log',
+        data: {
+            currentPhase: 'Deploy Cluster phase msg 1',
+            message: 'I0227 16:23:18.924759 ms0',
+            logType: 'INFO'
+        }
+    },
+    {
+        type: 'log',
+        data: {
+            currentPhase: 'Deploy Cluster phase msg 2',
+            message: 'I0227 16:23:18.924759 msg1',
+            logType: 'INFO'
+        }
+    },
+    {
+        type: 'log',
+        data: {
+            currentPhase: 'Deploy Cluster phase msg 3',
+            message: 'I0227 16:23:18.924759 msg1',
+            logType: 'INFO'
+        }
+    },
+    {
+        type: 'status',
+        data: {
+            message: 'start deploying',
+            status: 'running',
+            currentPhase: 'Validate configuration',
+            totalPhases: ['Configure prerequisite',
+                'Validate configuration',
+                'Generate cluster configuration',
+                'Setup bootstrap cluster',
+                'Install providers on bootstrap cluster',
+                'Create management cluster',
+                'Install providers on management cluster',
+                'Move cluster-api objects from bootstrap cluster to management cluster'],
+            successfulPhases: []
+        }
+    },
+    {
+        type: 'status',
+        data: {
+            message: 'start deploying',
+            status: 'running',
+            currentPhase: 'Generate cluster configuration',
+            totalPhases: ['Configure prerequisite',
+                'Validate configuration',
+                'Generate cluster configuration',
+                'Setup bootstrap cluster',
+                'Install providers on bootstrap cluster',
+                'Create management cluster',
+                'Install providers on management cluster',
+                'Move cluster-api objects from bootstrap cluster to management cluster'],
+            successfulPhases: []
+        }
+    },
+    {
+        type: 'status',
+        data: {
+            message: 'start deploying',
+            status: 'running',
+            currentPhase: 'Setup bootstrap cluster',
+            totalPhases: ['Configure prerequisite',
+                'Validate configuration',
+                'Generate cluster configuration',
+                'Setup bootstrap cluster',
+                'Install providers on bootstrap cluster',
+                'Create management cluster',
+                'Install providers on management cluster',
+                'Move cluster-api objects from bootstrap cluster to management cluster'],
+            successfulPhases: ['Move cluster-api objects from bootstrap cluster to management cluster']
+        }
+    },
+    {
+        type: 'status',
+        data: {
+            message: 'start deploying',
+            status: 'running',
+            currentPhase: 'Install providers on bootstrap cluster',
+            totalPhases: ['Configure prerequisite',
+                'Validate configuration',
+                'Generate cluster configuration',
+                'Setup bootstrap cluster',
+                'Install providers on bootstrap cluster',
+                'Create management cluster',
+                'Install providers on management cluster',
+                'Move cluster-api objects from bootstrap cluster to management cluster'],
+            successfulPhases: ['Move cluster-api objects from bootstrap cluster to management cluster']
+        }
+    },
+    {
+        type: 'status',
+        data: {
+            message: 'start deploying',
+            status: 'running',
+            currentPhase: 'Create management cluster',
+            totalPhases: ['Configure prerequisite',
+                'Validate configuration',
+                'Generate cluster configuration',
+                'Setup bootstrap cluster',
+                'Install providers on bootstrap cluster',
+                'Create management cluster',
+                'Install providers on management cluster',
+                'Move cluster-api objects from bootstrap cluster to management cluster'],
+            successfulPhases: ['Move cluster-api objects from bootstrap cluster to management cluster']
+        }
+    },
+    {
+        type: 'status',
+        data: {
+            message: 'start deploying',
+            status: 'running',
+            currentPhase: 'Install providers on management cluster',
+            totalPhases: ['Configure prerequisite',
+                'Validate configuration',
+                'Generate cluster configuration',
+                'Setup bootstrap cluster',
+                'Install providers on bootstrap cluster',
+                'Create management cluster',
+                'Install providers on management cluster',
+                'Move cluster-api objects from bootstrap cluster to management cluster'],
+            successfulPhases: ['Move cluster-api objects from bootstrap cluster to management cluster']
+        }
+    },
+    {
+        type: 'status',
+        data: {
+            message: 'start deploying',
+            status: 'running',
+            currentPhase: 'Move cluster-api objects from bootstrap cluster to management cluster',
+            totalPhases: ['Configure prerequisite',
+                'Validate configuration',
+                'Generate cluster configuration',
+                'Setup bootstrap cluster',
+                'Install providers on bootstrap cluster',
+                'Create management cluster',
+                'Install providers on management cluster',
+                'Move cluster-api objects from bootstrap cluster to management cluster'],
+            successfulPhases: ['Move cluster-api objects from bootstrap cluster to management cluster']
+        }
+    },
+    {
+        type: 'status',
+        data: {
+            message: 'start deploying',
+            status: 'successful',
+            totalPhases: ['Configure prerequisite',
+                'Validate configuration',
+                'Generate cluster configuration',
+                'Setup bootstrap cluster',
+                'Install providers on bootstrap cluster',
+                'Create management cluster',
+                'Install providers on management cluster',
+                'Move cluster-api objects from bootstrap cluster to management cluster'],
+            successfulPhases: ['Move cluster-api objects from bootstrap cluster to management cluster']
+        }
+    }
+];
 
-    // set up websocket connection piggy-backed on express router at path '/ws'
-    const ws = new WebSocket({ server: server, path: '/ws' });
+// set up websocket connection piggy-backed on express router at path '/ws'
+const ws = new WebSocket({ server: server, path: '/ws' });
 
-    // wire websocket handlers
-    ws.on('connection', function (ws) {
-        // show the connection has been established in the console
-        winston.info("WS Connection established:");
+// wire websocket handlers
+ws.on('connection', function (ws) {
+    // show the connection has been established in the console
+    winston.info("WS Connection established:");
 
-        // wire the event handlers
-        ws.on('message', function (data) {
-            // show the message object in the console
-            var message = JSON.parse(data);
-            winston.info("WS Message received from client:");
-            winston.info(message);
+    // wire the event handlers
+    ws.on('message', function (data) {
+        // show the message object in the console
+        var message = JSON.parse(data);
+        winston.info("WS Message received from client:");
+        winston.info(message);
 
-            // send response to received message
-            if (message.operation && message.operation === 'logs') {
-                let x = 0;
+        // send response to received message
+        if (message.operation && message.operation === 'logs') {
+            let x = 0;
 
-                // mock an interval between sending log data
-                setInterval(function() {
-                    if (x < logData.length) {
-                        ws.send(JSON.stringify(logData[x]));
-                    }
-                    else return;
+            // mock an interval between sending log data
+            setInterval(function() {
+                if (x < logData.length) {
+                    ws.send(JSON.stringify(logData[x]));
+                }
+                else return;
 
-                    x++;
-                }, 1500);
+                x++;
+            }, 1500);
 
-            } else {
-                let response = {
-                    source: "WebAppsNodeJs Application (server)",
-                    message:"Client Message Received!"
-                };
+        } else {
+            let response = {
+                source: "WebAppsNodeJs Application (server)",
+                message:"Client Message Received!"
+            };
 
-                ws.send(JSON.stringify(response));
-            }
-        });
+            ws.send(JSON.stringify(response));
+        }
     });
-} else {
-    winston.info('Starting UI server in secure (https) mode');
-
-    // Allow only protocol >= TLS 1.2
-    server = https.createServer({
-        cert: certificate,
-        key: privateKey,
-        secureOptions: (
-            constants.SSL_OP_NO_SSLv2 |
-            constants.SSL_OP_NO_SSLv3 |
-            constants.SSL_OP_NO_TLSv1 |
-            constants.SSL_OP_NO_TLSv1_1
-        )
-    }, app);
-}
+});
 
 // listen on provided port, on all network interfaces
 server.listen(port);

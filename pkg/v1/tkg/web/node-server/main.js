@@ -51,11 +51,6 @@ if (portIdx >= 0) {
 appConfig.mode = 'development';
 appConfig.logLevel = 'debug';
 
-appConfig.devUiServerCertificatePath = paths.support.certificate;
-appConfig.devUiServerPrivateKeyPath = paths.support.privateKey;
-
-
-
 ////////////////////////////////////////////////////////////////////////////////
 // Initialization
 

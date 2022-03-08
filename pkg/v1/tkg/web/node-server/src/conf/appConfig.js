@@ -26,10 +26,6 @@ let __clientPath;
 let __logLevel;
 // @see #def.apiEndpoint
 let __apiEndpoint;
-// @see #def.uiServerCertificatePath
-let __uiServerCertificatePath;
-// @see #def.uiServerPrivateKeyPath
-let __uiServerPrivateKeyPath;
 // @see #def.sampleJsonDirectory
 let __sampleJsonDirectory;
 // @see #def.__serverErrorState
@@ -139,30 +135,6 @@ let def = {
 
         __clientPath = newValue;
     },
-    /**
-     * Absolute path to location of certificate for UI server
-     * @type {String|undefined}
-     */
-    get uiServerCertificatePath() {
-        return __uiServerCertificatePath;
-    },
-    set uiServerCertificatePath(newValue) {
-        assert(newValue && _.isString(newValue),
-            'UI Server Certificate path must be a string');
-        __uiServerCertificatePath = newValue;
-    },
-
-    /**
-     * Absolute path to location of private key for UI server
-     * @type {String|undefined}
-     */
-    get uiServerPrivateKeyPath() {
-        return __uiServerPrivateKeyPath;
-    },
-    set uiServerPrivateKeyPath(newValue) {
-        assert(newValue && _.isString(newValue), 'Private key path must be a string');
-        __uiServerPrivateKeyPath = newValue;
-    },
 
     /**
      * Absolute path to location of folder containing sampleJson
@@ -217,8 +189,6 @@ __port = DEFAULT_PORT;
 __logLevel = DEFAULT_LOG_LEVEL;
 __apiEndpoint = '/api';
 __sampleJsonDirectory = `${__dirname}/../../json`;
-__uiServerCertificatePath = '/storage/data/certs/server.crt';
-__uiServerPrivateKeyPath = '/storage/data/certs/server.key';
 __serverErrorState = false;
 __edition = 'tkg';
 
