@@ -5,7 +5,6 @@ package controllers
 
 import (
 	"fmt"
-	"strings"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -25,6 +24,11 @@ var _ = Describe("Controller", func() {
 	//   WLC addon secret is created (verify it gets updated w/info from CM and management cluster)
 	//   CM is deleted (make sure nothing happens/secrets are not deleted)
 	//   CM is updated (make sure secrets get updated)
+
+	const defaultValuesYAML = `identity_management_type: none
+infrastructure_provider: vsphere
+tkg_cluster_role: workload
+`
 
 	// making global var so we don't have to repeat var assignment, but also ok if we hate it
 	cluster := &clusterapiv1beta1.Cluster{
@@ -79,13 +83,7 @@ var _ = Describe("Controller", func() {
 					err := k8sClient.Get(ctx, client.ObjectKeyFromObject(gotSecret), gotSecret)
 					g.Expect(err).NotTo(HaveOccurred())
 					g.Expect(gotSecret.Labels).To(Equal(wantSecretLabels))
-					secretData := string(gotSecret.Data["values.yaml"])
-					// TODO: could we maybe marshal this yaml back into struct??
-					g.Expect(strings.Contains(secretData, "identity_management_type: none")).Should(BeTrue())
-					g.Expect(strings.Contains(secretData, "infrastructure_provider: vsphere")).Should(BeTrue())
-					g.Expect(strings.Contains(secretData, "tkg_cluster_role: workload")).Should(BeTrue())
-					g.Expect(strings.Contains(secretData, "supervisor_svc_endpoint")).Should(BeFalse())
-					g.Expect(strings.Contains(secretData, "supervisor_ca_bundle_data")).Should(BeFalse())
+					g.Expect(string(gotSecret.Data["values.yaml"])).Should(Equal(defaultValuesYAML))
 				}).Should(Succeed())
 			})
 		})
@@ -120,13 +118,7 @@ var _ = Describe("Controller", func() {
 					err := k8sClient.Get(ctx, client.ObjectKeyFromObject(gotSecret), gotSecret)
 					g.Expect(err).NotTo(HaveOccurred())
 					g.Expect(gotSecret.Labels).To(Equal(wantSecretLabels))
-					secretData := string(gotSecret.Data["values.yaml"])
-					// TODO: could we maybe marshal this yaml back into struct??
-					g.Expect(strings.Contains(secretData, "identity_management_type: none")).Should(BeTrue())
-					g.Expect(strings.Contains(secretData, "infrastructure_provider: vsphere")).Should(BeTrue())
-					g.Expect(strings.Contains(secretData, "tkg_cluster_role: workload")).Should(BeTrue())
-					g.Expect(strings.Contains(secretData, "supervisor_svc_endpoint")).Should(BeFalse())
-					g.Expect(strings.Contains(secretData, "supervisor_ca_bundle_data")).Should(BeFalse())
+					g.Expect(string(gotSecret.Data["values.yaml"])).Should(Equal(defaultValuesYAML))
 				}).Should(Succeed())
 			})
 		})
@@ -202,13 +194,7 @@ var _ = Describe("Controller", func() {
 					err := k8sClient.Get(ctx, client.ObjectKeyFromObject(gotSecret), gotSecret)
 					g.Expect(err).NotTo(HaveOccurred())
 					g.Expect(gotSecret.Labels).To(Equal(wantSecretLabels))
-					secretData := string(gotSecret.Data["values.yaml"])
-					// TODO: could we maybe marshal this yaml back into struct??
-					g.Expect(strings.Contains(secretData, "identity_management_type: none")).Should(BeTrue())
-					g.Expect(strings.Contains(secretData, "infrastructure_provider: vsphere")).Should(BeTrue())
-					g.Expect(strings.Contains(secretData, "tkg_cluster_role: workload")).Should(BeTrue())
-					g.Expect(strings.Contains(secretData, "supervisor_svc_endpoint")).Should(BeFalse())
-					g.Expect(strings.Contains(secretData, "supervisor_ca_bundle_data")).Should(BeFalse())
+					g.Expect(string(gotSecret.Data["values.yaml"])).Should(Equal(defaultValuesYAML))
 				}).Should(Succeed())
 			})
 		})
@@ -248,13 +234,7 @@ var _ = Describe("Controller", func() {
 					err := k8sClient.Get(ctx, client.ObjectKeyFromObject(gotSecret), gotSecret)
 					g.Expect(err).NotTo(HaveOccurred())
 					g.Expect(gotSecret.Labels).To(Equal(wantSecretLabels))
-					secretData := string(gotSecret.Data["values.yaml"])
-					// TODO: could we maybe marshal this yaml back into struct??
-					g.Expect(strings.Contains(secretData, "identity_management_type: none")).Should(BeTrue())
-					g.Expect(strings.Contains(secretData, "infrastructure_provider: vsphere")).Should(BeTrue())
-					g.Expect(strings.Contains(secretData, "tkg_cluster_role: workload")).Should(BeTrue())
-					g.Expect(strings.Contains(secretData, "supervisor_svc_endpoint")).Should(BeFalse())
-					g.Expect(strings.Contains(secretData, "supervisor_ca_bundle_data")).Should(BeFalse())
+					g.Expect(string(gotSecret.Data["values.yaml"])).Should(Equal(defaultValuesYAML))
 				}).Should(Succeed())
 			})
 		})
@@ -427,17 +407,18 @@ var _ = Describe("Controller", func() {
 							constants.TKGAddonLabel:       constants.PinnipedAddonLabel,
 							constants.TKGClusterNameLabel: c.Name,
 						}
+						wantSecretData := fmt.Sprintf(`identity_management_type: oidc
+infrastructure_provider: vsphere
+tkg_cluster_role: workload
+pinniped:
+    supervisor_svc_endpoint: %s
+    supervisor_ca_bundle_data: %s
+`, configMap.Data["issuer"], configMap.Data["issuer_ca_bundle_data"])
 
 						err := k8sClient.Get(ctx, client.ObjectKeyFromObject(secret), secret)
 						g.Expect(err).NotTo(HaveOccurred())
 						g.Expect(secret.Labels).To(Equal(wantSecretLabels))
-						secretData := string(secret.Data["values.yaml"])
-						// TODO: could we maybe marshal this yaml back into struct??
-						g.Expect(strings.Contains(secretData, "identity_management_type: oidc")).Should(BeTrue())
-						g.Expect(strings.Contains(secretData, "infrastructure_provider: vsphere")).Should(BeTrue())
-						g.Expect(strings.Contains(secretData, "tkg_cluster_role: workload")).Should(BeTrue())
-						g.Expect(strings.Contains(secretData, fmt.Sprintf("supervisor_svc_endpoint: %s", configMap.Data["issuer"]))).Should(BeTrue())
-						g.Expect(strings.Contains(secretData, fmt.Sprintf("supervisor_ca_bundle_data: %s", configMap.Data["issuer_ca_bundle_data"]))).Should(BeTrue())
+						g.Expect(string(secret.Data["values.yaml"])).To(Equal(wantSecretData))
 					}
 				}).Should(Succeed())
 			})
@@ -470,13 +451,7 @@ var _ = Describe("Controller", func() {
 						err := k8sClient.Get(ctx, client.ObjectKeyFromObject(secret), secret)
 						g.Expect(err).NotTo(HaveOccurred())
 						g.Expect(secret.Labels).To(Equal(wantSecretLabels))
-						secretData := string(secret.Data["values.yaml"])
-						// TODO: could we maybe marshal this yaml back into struct??
-						g.Expect(strings.Contains(secretData, "identity_management_type: none")).Should(BeTrue())
-						g.Expect(strings.Contains(secretData, "infrastructure_provider: vsphere")).Should(BeTrue())
-						g.Expect(strings.Contains(secretData, "tkg_cluster_role: workload")).Should(BeTrue())
-						g.Expect(strings.Contains(secretData, "supervisor_svc_endpoint")).Should(BeFalse())
-						g.Expect(strings.Contains(secretData, "supervisor_ca_bundle_data")).Should(BeFalse())
+						g.Expect(string(secret.Data["values.yaml"])).To(Equal(defaultValuesYAML))
 					}
 				}).Should(Succeed())
 			})
@@ -509,13 +484,7 @@ var _ = Describe("Controller", func() {
 						err := k8sClient.Get(ctx, client.ObjectKeyFromObject(secret), secret)
 						g.Expect(err).NotTo(HaveOccurred())
 						g.Expect(secret.Labels).To(Equal(wantSecretLabels))
-						secretData := string(secret.Data["values.yaml"])
-						// TODO: could we maybe marshal this yaml back into struct??
-						g.Expect(strings.Contains(secretData, "identity_management_type: none")).Should(BeTrue())
-						g.Expect(strings.Contains(secretData, "infrastructure_provider: vsphere")).Should(BeTrue())
-						g.Expect(strings.Contains(secretData, "tkg_cluster_role: workload")).Should(BeTrue())
-						g.Expect(strings.Contains(secretData, "supervisor_svc_endpoint")).Should(BeFalse())
-						g.Expect(strings.Contains(secretData, "supervisor_ca_bundle_data")).Should(BeFalse())
+						g.Expect(string(secret.Data["values.yaml"])).To(Equal(defaultValuesYAML))
 					}
 				}).Should(Succeed())
 			})
