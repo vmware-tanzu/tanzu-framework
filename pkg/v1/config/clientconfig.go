@@ -15,6 +15,7 @@ import (
 	"k8s.io/apimachinery/pkg/runtime/serializer/json"
 
 	configv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/config/v1alpha1"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/buildinfo"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/common"
 )
 
@@ -147,6 +148,7 @@ func NewClientConfig() (*configv1alpha1.ClientConfig, error) {
 			CLI: &configv1alpha1.CLIOptions{
 				Repositories:            DefaultRepositories,
 				UnstableVersionSelector: DefaultVersionSelector,
+				Edition:                 buildinfo.Edition,
 			},
 		},
 	}
@@ -179,6 +181,10 @@ func populateDefaultCliFeatureValues(c *configv1alpha1.ClientConfig, defaultCliF
 func addFeatureFlag(c *configv1alpha1.ClientConfig, plugin, flag string, flagValue bool) {
 	if c.ClientOptions == nil {
 		c.ClientOptions = &configv1alpha1.ClientOptions{}
+	}
+	// if edition is not set, set it to what was specified at build time
+	if c.ClientOptions.CLI.Edition == "" {
+		c.ClientOptions.CLI.Edition = buildinfo.Edition
 	}
 	if c.ClientOptions.Features == nil {
 		c.ClientOptions.Features = make(map[string]configv1alpha1.FeatureMap)

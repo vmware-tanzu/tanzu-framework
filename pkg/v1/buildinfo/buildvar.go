@@ -19,4 +19,8 @@ var (
 	// Version is the version the binary was built with.
 	// Set by go build -ldflags "-X" flag
 	Version string
+
+	// Edition is the edition the binary was built for.
+	// Set by go build -ldflags "-X" flag
+	Edition string
 )
