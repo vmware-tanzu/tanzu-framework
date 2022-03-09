@@ -48,6 +48,7 @@ export class ResourceStepComponent extends StepFormDirective implements OnInit {
     vmFolders: Array<VSphereFolder> = [];
 
     treeData = [];
+    private currentDataCenter: string;
 
     constructor(private validationService: ValidationService) {
         super();
@@ -68,7 +69,7 @@ export class ResourceStepComponent extends StepFormDirective implements OnInit {
     }
 
     private listenToEvents() {
-        AppServices.messenger.subscribe(TanzuEventType.VSPHERE_DATACENTER_CHANGED, this.onDataCenterChange.bind(this), this.unsubscribe);
+        AppServices.messenger.subscribe<{dc: string}>(TanzuEventType.VSPHERE_DATACENTER_CHANGED, this.onDataCenterChange.bind(this), this.unsubscribe);
     }
 
     loadResourceOptions() {
@@ -81,7 +82,10 @@ export class ResourceStepComponent extends StepFormDirective implements OnInit {
     }
 
     // public only for testing
-    onDataCenterChange() {
+    onDataCenterChange(payload: {dc: string}) {
+        this.currentDataCenter = payload.dc;
+
+        // TODO: the following setField() calls should be done when the resources have finished being fetched (not now)
         // NOTE: because the saved data values MAY be applicable to the just-chosen DC,
         // we try to set the fields to the saved value
         const fieldsToReset = [VsphereField.RESOURCE_POOL, VsphereField.RESOURCE_DATASTORE, VsphereField.RESOURCE_VMFOLDER];
@@ -97,7 +101,8 @@ export class ResourceStepComponent extends StepFormDirective implements OnInit {
      */
     retrieveResourcePools() {
         AppServices.messenger.publish({
-            type: TanzuEventType.VSPHERE_GET_RESOURCE_POOLS
+            type: TanzuEventType.VSPHERE_GET_RESOURCE_POOLS,
+            payload: this.currentDataCenter
         });
     }
 
@@ -107,7 +112,8 @@ export class ResourceStepComponent extends StepFormDirective implements OnInit {
      */
     retrieveComputeResources() {
         AppServices.messenger.publish({
-            type: TanzuEventType.VSPHERE_GET_COMPUTE_RESOURCE
+            type: TanzuEventType.VSPHERE_GET_COMPUTE_RESOURCE,
+            payload: this.currentDataCenter
         });
     }
 
@@ -117,7 +123,8 @@ export class ResourceStepComponent extends StepFormDirective implements OnInit {
      */
     retrieveDatastores() {
         AppServices.messenger.publish({
-            type: TanzuEventType.VSPHERE_GET_DATA_STORES
+            type: TanzuEventType.VSPHERE_GET_DATA_STORES,
+            payload: this.currentDataCenter
         });
     }
 
@@ -127,7 +134,8 @@ export class ResourceStepComponent extends StepFormDirective implements OnInit {
      */
     retrieveVMFolders() {
         AppServices.messenger.publish({
-            type: TanzuEventType.VSPHERE_GET_VM_FOLDERS
+            type: TanzuEventType.VSPHERE_GET_VM_FOLDERS,
+            payload: this.currentDataCenter
         });
     }
 
