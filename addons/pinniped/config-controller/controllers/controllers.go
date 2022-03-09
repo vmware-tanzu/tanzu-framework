@@ -151,8 +151,13 @@ type pinnipedDataValues struct {
 }
 
 type pinniped struct {
-	SupervisorEndpoint string `yaml:"supervisor_svc_endpoint,omitempty"`
-	SupervisorCABundle string `yaml:"supervisor_ca_bundle_data,omitempty"`
+	SupervisorEndpoint string    `yaml:"supervisor_svc_endpoint,omitempty"`
+	SupervisorCABundle string    `yaml:"supervisor_ca_bundle_data,omitempty"`
+	Concierge          concierge `yaml:"concierge"`
+}
+
+type concierge struct {
+	Audience string `yaml:"audience,omitempty"`
 }
 
 // nolint:funlen // Eh, we can live with a function of this length
@@ -234,6 +239,7 @@ func (c *PinnipedController) reconcileAddonSecret(ctx context.Context, cluster *
 		pinnipedDataValues.ClusterRole = "workload"
 		pinnipedDataValues.Pinniped.SupervisorEndpoint = supervisorAddress
 		pinnipedDataValues.Pinniped.SupervisorCABundle = supervisorCABundle
+		pinnipedDataValues.Pinniped.Concierge.Audience = string(cluster.UID)
 		dataValueYamlBytes, err := yaml.Marshal(pinnipedDataValues)
 		if err != nil {
 			log.Error(err, "Error marshaling Pinniped Addon Secret values to Yaml")
