@@ -114,15 +114,8 @@ func (c *PinnipedController) Reconcile(ctx context.Context, req ctrl.Request) (r
 	cluster := clusterapiv1beta1.Cluster{}
 	if err := c.client.Get(ctx, req.NamespacedName, &cluster); err != nil {
 		if k8serror.IsNotFound(err) {
-			if err := c.client.DeleteAllOf(ctx, &corev1.Secret{}, client.InNamespace(req.Namespace),
-				client.MatchingLabels{
-					constants.TKGClusterNameLabel: req.Name,
-					constants.TKGAddonLabel:       constants.PinnipedAddonLabel}); err != nil {
-				if k8serror.IsNotFound(err) {
-					return reconcile.Result{}, nil
-				}
-				log.Error(err, "Error deleting addons secrets")
-				return reconcile.Result{}, err
+			if err := c.reconcileClusterDelete(ctx, req.NamespacedName); err != nil {
+				return reconcile.Result{}, fmt.Errorf("failed to reconcile cluster delete: %w", err)
 			}
 			return reconcile.Result{}, nil
 		}
@@ -160,20 +153,14 @@ type concierge struct {
 	Audience string `yaml:"audience,omitempty"`
 }
 
-// nolint:funlen // Eh, we can live with a function of this length
+// nolint:funlen,nolintlint // Eh, we can live with a function of this length
 func (c *PinnipedController) reconcileAddonSecret(ctx context.Context, cluster *clusterapiv1beta1.Cluster, pinnipedInfoCM *corev1.ConfigMap) error {
 	log := c.Log.WithValues(constants.NamespaceLogKey, cluster.Namespace, constants.NameLogKey, cluster.Name)
 	// check if cluster is scheduled for deletion, if so, delete addon secret on mgmt cluster
 	if !cluster.GetDeletionTimestamp().IsZero() {
 		c.Log.Info("Cluster is getting deleted, deleting addon secret")
-		if err := c.client.DeleteAllOf(ctx, &corev1.Secret{}, client.InNamespace(cluster.Namespace),
-			client.MatchingLabels{
-				constants.TKGAddonLabel:       constants.PinnipedAddonLabel,
-				constants.TKGClusterNameLabel: cluster.Name}); err != nil {
-			if k8serror.IsNotFound(err) {
-				return nil
-			}
-			return err
+		if err := c.reconcileClusterDelete(ctx, client.ObjectKeyFromObject(cluster)); err != nil {
+			return fmt.Errorf("failed to reconcile cluster delete: %w", err)
 		}
 		return nil
 	}
@@ -185,7 +172,7 @@ func (c *PinnipedController) reconcileAddonSecret(ctx context.Context, cluster *
 	identityManagementType := "none"
 	if pinnipedInfoCM.Data != nil {
 		var labelExists bool
-		identityManagementType = "oidc"
+		identityManagementType = "oidc"                                // nolint:goconst
 		supervisorAddress, labelExists = pinnipedInfoCM.Data["issuer"] // TODO: get rid of raw strings...
 		if !labelExists {
 			err := errors.New("could not find issuer")
@@ -260,4 +247,25 @@ func (c *PinnipedController) reconcileAddonSecret(ctx context.Context, cluster *
 	log.Info(fmt.Sprintf("Result of create/patch: '%s'", result))
 
 	return nil
+}
+
+func (c *PinnipedController) reconcileClusterDelete(ctx context.Context, clusterName types.NamespacedName) error {
+	secretName := secretNameFromClusterName(clusterName)
+	secret := &corev1.Secret{
+		ObjectMeta: metav1.ObjectMeta{
+			Namespace: secretName.Namespace,
+			Name:      secretName.Name,
+		},
+	}
+	if err := c.client.Delete(ctx, secret); err != nil && !k8serror.IsNotFound(err) {
+		return fmt.Errorf("could not delete secret %s for cluster %s: %w", secretName, clusterName, err)
+	}
+	return nil
+}
+
+func secretNameFromClusterName(clusterName types.NamespacedName) types.NamespacedName {
+	return types.NamespacedName{
+		Namespace: clusterName.Namespace,
+		Name:      fmt.Sprintf("%s-pinniped-addon", clusterName.Name),
+	}
 }
