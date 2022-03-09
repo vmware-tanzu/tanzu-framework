@@ -18,23 +18,54 @@ import (
 )
 
 const (
-	kubeVipName             = "kube-vip"
-	vipLeaseDurationKey     = "VIP_LEASEDURATION"
-	vipRenewDeadlineKey     = "VIP_RENEWDEADLINE"
-	vipRetryPeriodKey       = "VIP_RETRYPERIOD"
-	vipLeaseDuration        = "vip_leaseduration"
-	vipRenewDeadline        = "vip_renewdeadline"
-	vipRetryPeriod          = "vip_retryperiod"
-	defaultLeaseDuration    = "15"
-	defaultRenewDeadline    = "10"
-	defaultRetryPeriod      = "2"
-	defaultNewLeaseDuration = "30"
-	defaultNewRenewDeadline = "20"
-	defaultNewRetryPeriod   = "4"
+	kubeVipName              = "kube-vip"
+	vipLeaseDurationKey      = "VIP_LEASEDURATION"
+	vipRenewDeadlineKey      = "VIP_RENEWDEADLINE"
+	vipRetryPeriodKey        = "VIP_RETRYPERIOD"
+	vipLeaseDuration         = "vip_leaseduration"
+	vipRenewDeadline         = "vip_renewdeadline"
+	vipRetryPeriod           = "vip_retryperiod"
+	defaultLeaseDuration     = "15"
+	defaultRenewDeadline     = "10"
+	defaultRetryPeriod       = "2"
+	defaultNewLeaseDuration  = "30"
+	defaultNewRenewDeadline  = "20"
+	defaultNewRetryPeriod    = "4"
+	kubeVipCpEnableFlag      = "cp_enable"
+	kubeVipArgManager        = "manager"
+	kubeVipCapabilitySysTime = "SYS_TIME"
+	kubeVipCapabilityNetRaw  = "NET_RAW"
+	kubeVipLocalHost         = "127.0.0.1"
+	kubeVipHostAlias         = "kubernetes"
 )
 
-// ModifyKubeVipTimeOutAndSerialize modifies the time-out and lease duration parameters and serializes it to a string that can be patched
-func ModifyKubeVipTimeOutAndSerialize(currentKubeVipPod *corev1.Pod, newLeaseDuration, newRenewDeadline, newRetryPeriod string) (string, error) {
+func upgradeKubeVipPodSpec(envVars []corev1.EnvVar, currentKubeVipPod *corev1.Pod) *corev1.Pod {
+	envVar := corev1.EnvVar{Name: kubeVipCpEnableFlag, Value: "true"}
+	envVars = append(envVars, envVar)
+	currentKubeVipPod.Spec.Containers[0].Env = envVars
+	// replace arg "start" with "manager"
+	for index, arg := range currentKubeVipPod.Spec.Containers[0].Args {
+		if arg == "start" {
+			currentKubeVipPod.Spec.Containers[0].Args[index] = kubeVipArgManager
+		}
+	}
+
+	// Replace capability SYS_TIME with NET_RAW
+	for index, capability := range currentKubeVipPod.Spec.Containers[0].SecurityContext.Capabilities.Add {
+		if capability == kubeVipCapabilitySysTime {
+			currentKubeVipPod.Spec.Containers[0].SecurityContext.Capabilities.Add[index] = kubeVipCapabilityNetRaw
+		}
+	}
+	currentKubeVipPod.Spec.HostAliases = []corev1.HostAlias{
+		{
+			IP:        kubeVipLocalHost,
+			Hostnames: []string{kubeVipHostAlias},
+		},
+	}
+	return currentKubeVipPod
+}
+
+func modifyKubeVipTimeout(currentKubeVipPod *corev1.Pod, newLeaseDuration, newRenewDeadline, newRetryPeriod string) ([]corev1.EnvVar, *corev1.Pod) {
 	var envVars []corev1.EnvVar
 	for _, envVar := range currentKubeVipPod.Spec.Containers[0].Env {
 		if envVar.Name == vipLeaseDuration && envVar.Value == defaultLeaseDuration {
@@ -51,8 +82,13 @@ func ModifyKubeVipTimeOutAndSerialize(currentKubeVipPod *corev1.Pod, newLeaseDur
 		}
 		envVars = append(envVars, envVar)
 	}
+	return envVars, currentKubeVipPod
+}
 
-	currentKubeVipPod.Spec.Containers[0].Env = envVars
+// ModifyKubeVipAndSerialize modifies the time-out and lease duration parameters and serializes it to a string that can be patched
+func ModifyKubeVipAndSerialize(currentKubeVipPod *corev1.Pod, newLeaseDuration, newRenewDeadline, newRetryPeriod string) (string, error) {
+	envVars, currentKubeVipPod := modifyKubeVipTimeout(currentKubeVipPod, newLeaseDuration, newRenewDeadline, newRetryPeriod)
+	currentKubeVipPod = upgradeKubeVipPodSpec(envVars, currentKubeVipPod)
 
 	log.V(6).Infof("Marshaling kube-vip pod into a byte array")
 
@@ -113,7 +149,7 @@ func (c *TkgClient) UpdateKCPObjectWithIncreasedKubeVip(currentKCP *capikubeadmv
 			log.V(6).Infof("KubeVipPod Name: %s", currentKubeVipPod.Name)
 			newLeaseDuration, newRenewDeadline, newRetryPeriod := c.getNewKubeVipParameters()
 			log.V(6).Infof("New Lease Duration %s, New Renew Deadline %s, New Retry Period %s", newLeaseDuration, newRenewDeadline, newRetryPeriod)
-			newKCPPod, err := ModifyKubeVipTimeOutAndSerialize(&currentKubeVipPod, newLeaseDuration, newRenewDeadline, newRetryPeriod)
+			newKCPPod, err := ModifyKubeVipAndSerialize(&currentKubeVipPod, newLeaseDuration, newRenewDeadline, newRetryPeriod)
 			if err != nil {
 				return nil, errors.Wrap(err, "unable to update kube-vip timeouts")
 			}
