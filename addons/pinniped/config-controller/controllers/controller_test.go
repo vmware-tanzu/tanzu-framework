@@ -4,6 +4,7 @@
 package controllers
 
 import (
+	"context"
 	"fmt"
 
 	. "github.com/onsi/ginkgo"
@@ -45,23 +46,11 @@ var _ = Describe("Controller", func() {
 
 	Context("Cluster", func() {
 		BeforeEach(func() {
-			// have to make a copy so we don't edit global var
-			err := k8sClient.Create(ctx, cluster)
-			Expect(err).NotTo(HaveOccurred())
-			Eventually(func(g Gomega) {
-				err := k8sClient.Get(ctx, client.ObjectKeyFromObject(cluster), &clusterapiv1beta1.Cluster{})
-				g.Expect(err).NotTo(HaveOccurred())
-			}).Should(Succeed())
+			create(ctx, cluster)
 		})
-		AfterEach(func() {
-			if err := k8sClient.Delete(ctx, cluster); err != nil {
-				Expect(k8serrors.IsNotFound(err)).To(BeTrue())
-			}
 
-			Eventually(func(g Gomega) {
-				err := k8sClient.Get(ctx, client.ObjectKeyFromObject(cluster), &clusterapiv1beta1.Cluster{})
-				g.Expect(k8serrors.IsNotFound(err)).To(BeTrue())
-			}).Should(Succeed())
+		AfterEach(func() {
+			delete(ctx, cluster)
 		})
 
 		When("cluster is created", func() {
@@ -147,12 +136,7 @@ var _ = Describe("Controller", func() {
 
 		When("Cluster is deleted", func() {
 			BeforeEach(func() {
-				err := k8sClient.Delete(ctx, cluster)
-				Expect(err).NotTo(HaveOccurred())
-				Eventually(func(g Gomega) {
-					err := k8sClient.Get(ctx, client.ObjectKeyFromObject(cluster), &clusterapiv1beta1.Cluster{})
-					g.Expect(k8serrors.IsNotFound(err)).To(BeTrue())
-				}).Should(Succeed())
+				delete(ctx, cluster)
 			})
 
 			It("deletes the Pinniped addon secret associated with the cluster", func() {
@@ -172,24 +156,13 @@ var _ = Describe("Controller", func() {
 
 	Context("Addon Secret", func() {
 		BeforeEach(func() {
-			Expect(k8sClient.Create(ctx, cluster)).To(Succeed())
-			Eventually(func(g Gomega) {
-				err := k8sClient.Get(ctx, client.ObjectKeyFromObject(cluster), &clusterapiv1beta1.Cluster{})
-				g.Expect(err).NotTo(HaveOccurred())
-			}).Should(Succeed())
+			create(ctx, cluster)
 		})
 
 		AfterEach(func() {
-			err := k8sClient.Delete(ctx, cluster)
-			if err != nil {
-				Expect(k8serrors.IsNotFound(err)).To(BeTrue())
-			}
-
-			Eventually(func(g Gomega) {
-				err := k8sClient.Get(ctx, client.ObjectKeyFromObject(cluster), &clusterapiv1beta1.Cluster{})
-				g.Expect(k8serrors.IsNotFound(err)).To(BeTrue())
-			}).Should(Succeed())
+			delete(ctx, cluster)
 		})
+
 		When("the secret gets deleted", func() {
 			var gotSecret *corev1.Secret
 
@@ -200,7 +173,6 @@ var _ = Describe("Controller", func() {
 						Name:      fmt.Sprintf("%s-pinniped-addon", cluster.Name),
 					},
 				}
-
 				Eventually(func(g Gomega) {
 					err := k8sClient.Delete(ctx, gotSecret)
 					g.Expect(err).NotTo(HaveOccurred())
@@ -312,7 +284,7 @@ var _ = Describe("Controller", func() {
 			})
 
 			AfterEach(func() {
-				Expect(k8sClient.Delete(ctx, gotSecret)).To(Succeed())
+				delete(ctx, gotSecret)
 			})
 
 			It("does not get updated", func() {
@@ -352,11 +324,11 @@ var _ = Describe("Controller", func() {
 				secretCopy.Type = "not-an-addon"
 				secretCopy.Data = map[string][]byte{}
 				secretCopy.Data["values.yaml"] = []byte("identity_management_type: moses")
-				Expect(k8sClient.Create(ctx, secretCopy)).To(Succeed())
+				create(ctx, secretCopy)
 			})
 
 			AfterEach(func() {
-				Expect(k8sClient.Delete(ctx, gotSecret)).To(Succeed())
+				delete(ctx, gotSecret)
 			})
 
 			It("does not get updated", func() {
@@ -418,37 +390,21 @@ var _ = Describe("Controller", func() {
 
 			for _, c := range clusters {
 				// TODO: this is failing b/c cluster is already there... but we're deleting it below..............................
-				c := c
-				err := k8sClient.Create(ctx, c)
-				Expect(err).NotTo(HaveOccurred())
-				Eventually(func(g Gomega) {
-					err := k8sClient.Get(ctx, client.ObjectKeyFromObject(c), &clusterapiv1beta1.Cluster{})
-					g.Expect(err).NotTo(HaveOccurred())
-				}).Should(Succeed())
+				create(ctx, c)
 			}
 		})
 
 		AfterEach(func() {
-			err := k8sClient.Delete(ctx, configMap)
-			if err != nil {
-				Expect(k8serrors.IsNotFound(err)).To(BeTrue(), fmt.Sprintf("got error: %s", err.Error()))
-			}
+			delete(ctx, configMap)
+
 			for _, c := range clusters {
-				c := c
-				err := k8sClient.Delete(ctx, c)
-				if err != nil {
-					Expect(k8serrors.IsNotFound(err)).To(BeTrue())
-				}
-				Eventually(func(g Gomega) {
-					err := k8sClient.Get(ctx, client.ObjectKeyFromObject(c), &clusterapiv1beta1.Cluster{})
-					g.Expect(k8serrors.IsNotFound(err)).To(BeTrue())
-				}).Should(Succeed())
+				// bbb
+				delete(ctx, c)
 			}
 		})
 		When("the configmap gets created", func() {
 			BeforeEach(func() {
-				configMapCopy := configMap.DeepCopy()
-				Expect(k8sClient.Create(ctx, configMapCopy)).To(Succeed())
+				create(ctx, configMap)
 			})
 
 			It("loops through all the addons secrets", func() {
@@ -497,7 +453,7 @@ var _ = Describe("Controller", func() {
 				configMapCopy.Namespace = pinnipedNamespace
 				configMapCopy.Data["issuer"] = issuer
 				configMapCopy.Data["issuer_ca_bundle_data"] = issuerCABundleData
-				Expect(k8sClient.Create(ctx, configMapCopy)).To(Succeed())
+				create(ctx, configMapCopy)
 			})
 
 			It("does not update addon secrets", func() {
@@ -543,7 +499,7 @@ var _ = Describe("Controller", func() {
 				configMapCopy.Data = make(map[string]string)
 				configMapCopy.Data["issuer"] = issuer
 				configMapCopy.Data["issuer_ca_bundle_data"] = issuerCABundleData
-				Expect(k8sClient.Create(ctx, configMapCopy)).To(Succeed())
+				create(ctx, configMapCopy)
 			})
 
 			It("does not update addon secrets", func() {
@@ -584,3 +540,29 @@ var _ = Describe("Controller", func() {
 		})
 	})
 })
+
+func create(ctx context.Context, o client.Object) {
+	err := k8sClient.Create(ctx, o)
+	Expect(err).NotTo(HaveOccurred())
+
+	oCopy := o.DeepCopyObject().(client.Object)
+	Eventually(func(g Gomega) {
+		err := k8sClient.Get(ctx, client.ObjectKeyFromObject(o), oCopy)
+		g.Expect(err).NotTo(HaveOccurred())
+	}).Should(Succeed())
+}
+
+func delete(ctx context.Context, o client.Object) {
+	err := k8sClient.Delete(ctx, o)
+
+	// Accept cases where the object has already been deleted.
+	if err != nil {
+		Expect(k8serrors.IsNotFound(err)).To(BeTrue(), "got error: %#v", err)
+	}
+
+	oCopy := o.DeepCopyObject().(client.Object)
+	Eventually(func(g Gomega) {
+		err := k8sClient.Get(ctx, client.ObjectKeyFromObject(o), oCopy)
+		g.Expect(k8serrors.IsNotFound(err)).To(BeTrue())
+	}).Should(Succeed())
+}
