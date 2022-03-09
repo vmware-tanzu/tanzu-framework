@@ -3,13 +3,5 @@
 
 package v1alpha3
 
-func (*ClusterBootstrap) Hub()             {}
-func (*ClusterBootstrapList) Hub()         {}
-func (*ClusterBootstrapTemplate) Hub()     {}
-func (*ClusterBootstrapTemplateList) Hub() {}
-func (*KappControllerConfig) Hub()         {}
-func (*KappControllerConfigList) Hub()     {}
-func (*OSImage) Hub()                      {}
-func (*OSImageList) Hub()                  {}
-func (*TanzuKubernetesRelease) Hub()       {}
-func (*TanzuKubernetesReleaseList) Hub()   {}
+func (*TanzuKubernetesRelease) Hub()     {}
+func (*TanzuKubernetesReleaseList) Hub() {}
