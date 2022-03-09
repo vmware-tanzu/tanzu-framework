@@ -16,8 +16,9 @@ const (
 	// BOMKubernetesComponentKey is the BOM k8s component key
 	BOMKubernetesComponentKey = "kubernetes"
 
-	// ManagememtClusterRoleLabel is the management cluster role label
-	ManagememtClusterRoleLabel = "cluster-role.tkg.tanzu.vmware.com/management"
+	// ManagementClusterRoleLabel is the management cluster role label
+	// It indicates the cluster object represents a mgmt cluster
+	ManagementClusterRoleLabel = "cluster-role.tkg.tanzu.vmware.com/management"
 
 	// TKGVersionKey is the TKG version key
 	TKGVersionKey = "TKGVERSION"

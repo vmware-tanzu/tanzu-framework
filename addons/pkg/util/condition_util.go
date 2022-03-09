@@ -4,6 +4,8 @@
 package util
 
 import (
+	"strings"
+
 	corev1 "k8s.io/api/core/v1"
 
 	"github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/kappctrl/v1alpha1"
@@ -84,6 +86,18 @@ func SummarizeAppConditions(conditions []v1alpha1.AppCondition) v1alpha1.AppCond
 	}
 
 	return summaryCondition
+}
+
+// GetKappUsefulErrorMessage extracts the relevant portion from UsefulErrorMessage
+func GetKappUsefulErrorMessage(s string) string {
+	var errString string
+	n := len(s)
+	i := strings.Index(s, "kapp: Error")
+	if i != -1 {
+		errString = s[i:n]
+	}
+
+	return errString
 }
 
 // HasSameState returns true if a ClusterBootstrap condition has the same state of another; state is defined

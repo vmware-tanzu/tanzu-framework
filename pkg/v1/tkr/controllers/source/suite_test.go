@@ -199,7 +199,7 @@ var _ = Describe("UpdateTKRCompatibleCondition", func() {
 			cm := newMetadataConfigMap(metadataContent)
 			tkrs = []runv1.TanzuKubernetesRelease{tkr1, tkr4, tkr3, tkr2, tkr5}
 
-			mgmtcluster := newManagementCluster(map[string]string{constants.ManagememtClusterRoleLabel: ""}, map[string]string{constants.TKGVersionKey: "v1.10"})
+			mgmtcluster := newManagementCluster(map[string]string{constants.ManagementClusterRoleLabel: ""}, map[string]string{constants.TKGVersionKey: "v1.10"})
 			objects = []runtime.Object{mgmtcluster, cm}
 		})
 		It("should update the TKRs' compatible condition", func() {
@@ -357,7 +357,7 @@ var _ = Describe("initialReconcile", func() {
 			fakeRegistry.GetFileReturnsOnCall(1, bomContent17, nil)
 			fakeRegistry.GetFileReturnsOnCall(2, nil, errors.New("fake-error"))
 			fakeRegistry.GetFileReturnsOnCall(3, bomContent193, nil)
-			mgmtcluster := newManagementCluster(map[string]string{constants.ManagememtClusterRoleLabel: ""}, map[string]string{constants.TKGVersionKey: "v1.1"})
+			mgmtcluster := newManagementCluster(map[string]string{constants.ManagementClusterRoleLabel: ""}, map[string]string{constants.TKGVersionKey: "v1.1"})
 			objects = []runtime.Object{mgmtcluster}
 			fakeClient = uidSetter{fake.NewClientBuilder().WithScheme(scheme).WithRuntimeObjects(objects...).Build()}
 		})
@@ -412,7 +412,7 @@ var _ = Describe("initialReconcile", func() {
 			fakeRegistry.GetFileReturnsOnCall(2, bomContent18, nil)
 			fakeRegistry.GetFileReturnsOnCall(3, bomContent193, nil)
 
-			mgmtcluster := newManagementCluster(map[string]string{constants.ManagememtClusterRoleLabel: ""}, map[string]string{constants.TKGVersionKey: "v1.1"})
+			mgmtcluster := newManagementCluster(map[string]string{constants.ManagementClusterRoleLabel: ""}, map[string]string{constants.TKGVersionKey: "v1.1"})
 			objects = []runtime.Object{mgmtcluster}
 			fakeClient = uidSetter{fake.NewClientBuilder().WithScheme(scheme).WithRuntimeObjects(objects...).Build()}
 		})
@@ -481,7 +481,7 @@ var _ = Describe("watchMgmtCluster()", func() {
 		It("should emit a request", func() {
 			cluster := &clusterv1.Cluster{
 				ObjectMeta: metav1.ObjectMeta{
-					Labels: map[string]string{constants.ManagememtClusterRoleLabel: ""},
+					Labels: map[string]string{constants.ManagementClusterRoleLabel: ""},
 				},
 			}
 			requests := watchMgmtCluster(cluster)
@@ -525,7 +525,7 @@ var _ = Describe("r.Reconcile()", func() {
 			cm1 = newConfigMap(version11810, map[string]string{constants.BomConfigMapTKRLabel: version11810}, map[string]string{constants.BomConfigMapImageTagAnnotation: "bom-v1.18.10+vmware.1"}, bomContent18)
 			cm2 = newConfigMap(version1193, map[string]string{constants.BomConfigMapTKRLabel: version1193}, map[string]string{constants.BomConfigMapImageTagAnnotation: "bom-v1.19.3+vmware.1"}, bomContent193)
 			tkr1 := existingTkrFromBom(version11810, bomContent18)
-			mgmtCluster := newManagementCluster(map[string]string{constants.ManagememtClusterRoleLabel: ""}, map[string]string{constants.TKGVersionKey: "v1.1"})
+			mgmtCluster := newManagementCluster(map[string]string{constants.ManagementClusterRoleLabel: ""}, map[string]string{constants.TKGVersionKey: "v1.1"})
 			cmMeta = newMetadataConfigMap(metadataContent)
 
 			objects = []runtime.Object{mgmtCluster, cmMeta, cm1, cm2, &tkr1}
@@ -568,7 +568,7 @@ var _ = Describe("r.Reconcile()", func() {
 			cm1 = newConfigMap(version11713, map[string]string{constants.BomConfigMapTKRLabel: version11713}, map[string]string{constants.BomConfigMapImageTagAnnotation: "bom-v1.17.13+vmware.1"}, bomContent17)
 			cm2 = newConfigMap(version1193, map[string]string{constants.BomConfigMapTKRLabel: version1193}, map[string]string{constants.BomConfigMapImageTagAnnotation: "bom-v1.19.3+vmware.1"}, bomContent193)
 			tkr1 := existingTkrFromBom(version11713, bomContent17)
-			mgmtCluster := newManagementCluster(map[string]string{constants.ManagememtClusterRoleLabel: ""}, map[string]string{constants.TKGVersionKey: "v1.1"})
+			mgmtCluster := newManagementCluster(map[string]string{constants.ManagementClusterRoleLabel: ""}, map[string]string{constants.TKGVersionKey: "v1.1"})
 			cmMeta := newMetadataConfigMap(metadataContent)
 
 			objects = []runtime.Object{mgmtCluster, cmMeta, cm1, cm2, &tkr1}
@@ -593,7 +593,7 @@ var _ = Describe("r.Reconcile()", func() {
 		BeforeEach(func() {
 			cm1 = newConfigMap(version11713, map[string]string{constants.BomConfigMapTKRLabel: version11713}, map[string]string{constants.BomConfigMapImageTagAnnotation: "bom-v1.17.13+vmware.1"}, bomContent17)
 			cm2 = newConfigMap(version1193, map[string]string{constants.BomConfigMapTKRLabel: version1193}, map[string]string{constants.BomConfigMapImageTagAnnotation: "bom-v1.19.3+vmware.1"}, bomContent193)
-			mgmtCluster := newManagementCluster(map[string]string{constants.ManagememtClusterRoleLabel: ""}, map[string]string{constants.TKGVersionKey: "v1.1"})
+			mgmtCluster := newManagementCluster(map[string]string{constants.ManagementClusterRoleLabel: ""}, map[string]string{constants.TKGVersionKey: "v1.1"})
 			cmMeta := newMetadataConfigMap(metadataContent)
 
 			delete(cm1.BinaryData, constants.BomConfigMapContentKey)
@@ -624,7 +624,7 @@ var _ = Describe("r.Reconcile()", func() {
 			cm1 = newConfigMap(version11713, map[string]string{constants.BomConfigMapTKRLabel: version11713}, map[string]string{constants.BomConfigMapImageTagAnnotation: "bom-v1.17.13+vmware.1"}, bomContent17)
 			tkr1 := existingTkrFromBom(version11713, bomContent17)
 			conditions.MarkFalse(&tkr1, runv1.ConditionCompatible, "", capi.ConditionSeverityInfo, "")
-			mgmtCluster := newManagementCluster(map[string]string{constants.ManagememtClusterRoleLabel: ""}, map[string]string{constants.TKGVersionKey: "v1.1"})
+			mgmtCluster := newManagementCluster(map[string]string{constants.ManagementClusterRoleLabel: ""}, map[string]string{constants.TKGVersionKey: "v1.1"})
 			cmMeta = newMetadataConfigMap(metadataContent)
 
 			objects = []runtime.Object{mgmtCluster, cmMeta, cm1, &tkr1}
@@ -667,7 +667,7 @@ var _ = Describe("r.Reconcile()", func() {
 			cm1 = newConfigMap(version11713, map[string]string{constants.BomConfigMapTKRLabel: version11713}, map[string]string{constants.BomConfigMapImageTagAnnotation: "bom-v1.17.13+vmware.1"}, bomContent17)
 			cm2 = newConfigMap(version1193, map[string]string{constants.BomConfigMapTKRLabel: version1193}, map[string]string{constants.BomConfigMapImageTagAnnotation: "bom-v1.19.3+vmware.1"}, bomContent193)
 			tkr1 := existingTkrFromBom(version11713, bomContent17)
-			mgmtCluster := newManagementCluster(map[string]string{constants.ManagememtClusterRoleLabel: ""}, map[string]string{constants.TKGVersionKey: "v1.1"})
+			mgmtCluster := newManagementCluster(map[string]string{constants.ManagementClusterRoleLabel: ""}, map[string]string{constants.TKGVersionKey: "v1.1"})
 
 			objects = []runtime.Object{mgmtCluster, cm1, cm2, &tkr1}
 		})

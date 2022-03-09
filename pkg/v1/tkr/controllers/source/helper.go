@@ -211,7 +211,7 @@ func (r *reconciler) GetManagementClusterVersion(ctx context.Context) (string, e
 	items := clusterList.Items
 	for i := range items {
 		labels := items[i].GetLabels()
-		if _, ok := labels[constants.ManagememtClusterRoleLabel]; ok {
+		if _, ok := labels[constants.ManagementClusterRoleLabel]; ok {
 			tkgVersion, ok := items[i].Annotations[constants.TKGVersionKey]
 			if ok {
 				return tkgVersion, nil

@@ -47,6 +47,7 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/util"
 	"github.com/vmware-tanzu/tanzu-framework/addons/predicates"
 	runtanzuv1alpha3 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
+	tkrconstants "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkr/pkg/constants"
 )
 
 // ClusterBootstrapReconciler reconciles a ClusterBootstrap object
@@ -493,7 +494,7 @@ func (r *ClusterBootstrapReconciler) mergeClusterBootstrapPackagesWithTemplate(
 // on remote workload cluster. This is required for a workload cluster and its corresponding package installations to be functional.
 func (r *ClusterBootstrapReconciler) createOrPatchKappPackageInstall(clusterBootstrap *runtanzuv1alpha3.ClusterBootstrap, cluster *clusterapiv1beta1.Cluster) error {
 	// Skip if the cluster object represents the management cluster
-	if _, exists := cluster.Labels[constants.ManagementClusterRoleLabel]; exists {
+	if _, exists := cluster.Labels[tkrconstants.ManagementClusterRoleLabel]; exists {
 		r.Log.Info(fmt.Sprintf("cluster %s/%s is management cluster, skip creating or patching the PackageInstall CR for kapp-controller", cluster.Namespace, cluster.Name))
 		return nil
 	}
