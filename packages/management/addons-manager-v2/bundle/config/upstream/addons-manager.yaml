@@ -41,10 +41,8 @@ rules:
   - patch
   - delete
 # permissions are required for addons-manager to create/update resources in the ProviderRef which are dynamic.
-- apiGroups:
-  - ['*']
-  resources:
-  - ['*']
+- apiGroups: ['*']
+  resources: ['*']
   verbs:
   - get
   - list
