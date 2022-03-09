@@ -50,6 +50,7 @@ type Parameters struct {
 	SupervisorSvcEndpoint    string
 	FederationDomainName     string
 	JWTAuthenticatorName     string
+	JWTAuthenticatorAudience string
 	SupervisorCertName       string
 	SupervisorCertNamespace  string
 	SupervisorCABundleData   string
@@ -196,6 +197,7 @@ func TKGAuthentication(c Clients) error {
 		SupervisorSvcEndpoint:    vars.SupervisorSvcEndpoint,
 		FederationDomainName:     vars.FederationDomainName,
 		JWTAuthenticatorName:     vars.JWTAuthenticatorName,
+		JWTAuthenticatorAudience: vars.JWTAuthenticatorAudience,
 		SupervisorCertName:       vars.SupervisorCertName,
 		SupervisorCertNamespace:  vars.SupervisorNamespace,
 		SupervisorCABundleData:   vars.SupervisorCABundleData,
@@ -315,7 +317,12 @@ func Pinniped(ctx context.Context, c Clients, inspector inspect.Inspector, p *Pa
 	} else if p.ClusterType == constants.TKGWorkloadClusterType {
 		zap.S().Info("Workload cluster detected")
 
-		if err = conciergeConfigurator.CreateOrUpdateJWTAuthenticator(ctx, p.JWTAuthenticatorName, p.SupervisorSvcEndpoint, p.ClusterName, p.SupervisorCABundleData); err != nil {
+		audience := p.JWTAuthenticatorAudience
+		if audience == "" {
+			audience = p.ClusterName
+		}
+
+		if err = conciergeConfigurator.CreateOrUpdateJWTAuthenticator(ctx, p.JWTAuthenticatorName, p.SupervisorSvcEndpoint, audience, p.SupervisorCABundleData); err != nil {
 			// on workload cluster, we only create or update JWTAuthenticator
 			// SupervisorSvcEndpoint will be passed in on workload cluster
 			zap.S().Error(err)
