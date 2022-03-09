@@ -115,11 +115,19 @@ func upgradeCluster(server *v1alpha1.Server, clusterName string) error {
 			return err
 		}
 
-		tkrVersion, err = getValidTkrVersionFromTkrForUpgrade(tkgctlClient, clusterClient, clusterName)
+		result, err := tkgctlClient.DescribeCluster(tkgctl.DescribeTKGClustersOptions{
+			ClusterName: clusterName,
+			Namespace:   uc.namespace,
+		})
 		if err != nil {
 			return err
 		}
-		err = validateVSphereWindowsTemplateName(uc.vSphereWindowsTemplateName)
+
+		tkrVersion, err = getValidTkrVersionFromTkrForUpgrade(&result, clusterClient)
+		if err != nil {
+			return err
+		}
+		err = validateWindowsClusterUpgrade(result.ClusterInfo.WindowsWorkerCount, uc.vSphereWindowsTemplateName)
 		if err != nil {
 			return err
 		}
@@ -147,15 +155,7 @@ func upgradeCluster(server *v1alpha1.Server, clusterName string) error {
 	return tkgctlClient.UpgradeCluster(upgradeClusterOptions)
 }
 
-func getValidTkrVersionFromTkrForUpgrade(tkgctlClient tkgctl.TKGClient, clusterClient clusterclient.Client, clusterName string) (string, error) {
-	result, err := tkgctlClient.DescribeCluster(tkgctl.DescribeTKGClustersOptions{
-		ClusterName: clusterName,
-		Namespace:   uc.namespace,
-	})
-	if err != nil {
-		return "", err
-	}
-
+func getValidTkrVersionFromTkrForUpgrade(result *tkgctl.DescribeClusterResult, clusterClient clusterclient.Client) (string, error) {
 	tkrs, err := clusterClient.GetTanzuKubernetesReleases("")
 	if err != nil {
 		return "", err
@@ -164,9 +164,9 @@ func getValidTkrVersionFromTkrForUpgrade(tkgctlClient tkgctl.TKGClient, clusterC
 	tkrForUpgrade, err := getMatchingTkrForTkrName(tkrs, uc.tkrName)
 	// If the complete TKR name is provided, use it
 	if err == nil {
-		return getValidTKRVersionForUpgradeGivenFullTKRName(clusterName, uc.namespace, result.ClusterInfo.Labels, &tkrForUpgrade, tkrs)
+		return getValidTKRVersionForUpgradeGivenFullTKRName(result.ClusterInfo.Name, uc.namespace, result.ClusterInfo.Labels, &tkrForUpgrade, tkrs)
 	}
-	return getValidTKRVersionForUpgradeGivenTKRNamePrefix(clusterName, uc.namespace, uc.tkrName, result.ClusterInfo.K8sVersion, result.ClusterInfo.Labels, tkrs)
+	return getValidTKRVersionForUpgradeGivenTKRNamePrefix(result.ClusterInfo.Name, uc.namespace, uc.tkrName, result.ClusterInfo.K8sVersion, result.ClusterInfo.Labels, tkrs)
 }
 
 func getValidTKRVersionForUpgradeGivenFullTKRName(clusterName, namespace string, clusterLabels map[string]string,
@@ -335,9 +335,13 @@ func getClusterTKRNameFromClusterLabels(clusterLabels map[string]string) (string
 	return tkrName, nil
 }
 
-func validateVSphereWindowsTemplateName(templateName string) error {
-	if templateName != "" && !utils.IsWindowsTemplate(templateName) {
-		return errors.New("Windows Template Name vsphere-windows-vm-template-name MUST contain the string \"windows\" without case sensitive")
+func validateWindowsClusterUpgrade(windowsWorkerCount int, templateName string) error {
+	if windowsWorkerCount > 0 {
+		if templateName == "" {
+			return errors.New("Windows Template Name vsphere-windows-vm-template-name MUST contain the string \"windows\" without case sensitive")
+		} else if !utils.IsWindowsTemplate(templateName) {
+			return errors.New("Windows Template Name vsphere-windows-vm-template-name MUST contain the string \"windows\" without case sensitive")
+		}
 	}
 	return nil
 }
