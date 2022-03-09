@@ -302,12 +302,31 @@ var _ = Describe("validateVSphereWindowsTemplateName", func() {
 		})
 		It("should return false", func() {
 			Expect(err).To(HaveOccurred())
+			Expect(err.Error()).To(ContainSubstring("MUST contain the string \"windows\""))
+		})
+	})
+	Context("When templateName is not set", func() {
+		BeforeEach(func() {
+			windowsWorkerCount = 2
+			vSphereWindowsTemplateName = ""
+		})
+		It("should return false", func() {
+			Expect(err).To(HaveOccurred())
+			Expect(err.Error()).To(ContainSubstring("MUST be set"))
 		})
 	})
 	Context("When no windows node", func() {
 		BeforeEach(func() {
 			windowsWorkerCount = 0
 			vSphereWindowsTemplateName = "test-ova"
+		})
+		It("should return true", func() {
+			Expect(err).ToNot(HaveOccurred())
+		})
+	})
+	Context("When no windows node", func() {
+		BeforeEach(func() {
+			windowsWorkerCount = 0
 		})
 		It("should return true", func() {
 			Expect(err).ToNot(HaveOccurred())

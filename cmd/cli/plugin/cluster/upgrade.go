@@ -338,7 +338,7 @@ func getClusterTKRNameFromClusterLabels(clusterLabels map[string]string) (string
 func validateWindowsClusterUpgrade(windowsWorkerCount int, templateName string) error {
 	if windowsWorkerCount > 0 {
 		if templateName == "" {
-			return errors.New("Windows Template Name vsphere-windows-vm-template-name MUST contain the string \"windows\" without case sensitive")
+			return errors.New("Parameter vsphere-windows-vm-template-name MUST be set for windows node")
 		} else if !utils.IsWindowsTemplate(templateName) {
 			return errors.New("Windows Template Name vsphere-windows-vm-template-name MUST contain the string \"windows\" without case sensitive")
 		}
