@@ -55,36 +55,7 @@ var _ = Describe("Controller", func() {
 
 		When("cluster is created", func() {
 			It("creates a secret with identity_management_type set to none", func() {
-				Eventually(func(g Gomega) {
-					gotSecret := &corev1.Secret{
-						ObjectMeta: metav1.ObjectMeta{
-							Namespace: pinnipedNamespace,
-							Name:      fmt.Sprintf("%s-pinniped-addon", cluster.Name),
-						},
-					}
-					wantSecretLabels := map[string]string{
-						constants.TKGAddonLabel:       constants.PinnipedAddonLabel,
-						constants.TKGClusterNameLabel: cluster.Name,
-					}
-					wantValuesYAML := map[string]interface{}{
-						"identity_management_type": "none",
-						"infrastructure_provider":  "vsphere",
-						"tkg_cluster_role":         "workload",
-						"pinniped": map[string]interface{}{
-							"concierge": map[string]interface{}{
-								"audience": string(cluster.UID),
-							},
-						},
-					}
-
-					err := k8sClient.Get(ctx, client.ObjectKeyFromObject(gotSecret), gotSecret)
-					g.Expect(err).NotTo(HaveOccurred())
-					g.Expect(gotSecret.Labels).To(Equal(wantSecretLabels))
-
-					var gotValuesYAML map[string]interface{}
-					g.Expect(yaml.Unmarshal(gotSecret.Data["values.yaml"], &gotValuesYAML)).Should(Succeed())
-					g.Expect(gotValuesYAML).Should(Equal(wantValuesYAML))
-				}).Should(Succeed())
+				Eventually(addonSecretFunc(ctx, cluster, nil)).Should(Succeed())
 			})
 		})
 
@@ -101,36 +72,7 @@ var _ = Describe("Controller", func() {
 			})
 			// TODO: test where we edit that TKR label on the cluster.....................................
 			It("secret remains unchanged", func() {
-				Eventually(func(g Gomega) {
-					gotSecret := &corev1.Secret{
-						ObjectMeta: metav1.ObjectMeta{
-							Namespace: pinnipedNamespace,
-							Name:      fmt.Sprintf("%s-pinniped-addon", cluster.Name),
-						},
-					}
-					wantSecretLabels := map[string]string{
-						constants.TKGAddonLabel:       constants.PinnipedAddonLabel,
-						constants.TKGClusterNameLabel: cluster.Name,
-					}
-					wantValuesYAML := map[string]interface{}{
-						"identity_management_type": "none",
-						"infrastructure_provider":  "vsphere",
-						"tkg_cluster_role":         "workload",
-						"pinniped": map[string]interface{}{
-							"concierge": map[string]interface{}{
-								"audience": string(cluster.UID),
-							},
-						},
-					}
-
-					err := k8sClient.Get(ctx, client.ObjectKeyFromObject(gotSecret), gotSecret)
-					g.Expect(err).NotTo(HaveOccurred())
-					g.Expect(gotSecret.Labels).To(Equal(wantSecretLabels))
-
-					var gotValuesYAML map[string]interface{}
-					g.Expect(yaml.Unmarshal(gotSecret.Data["values.yaml"], &gotValuesYAML)).Should(Succeed())
-					g.Expect(gotValuesYAML).Should(Equal(wantValuesYAML))
-				}).Should(Succeed())
+				Eventually(addonSecretFunc(ctx, cluster, nil)).Should(Succeed())
 			})
 		})
 
@@ -181,28 +123,7 @@ var _ = Describe("Controller", func() {
 
 			It("recreates the secret with identity_management_type set to none", func() {
 				Eventually(func(g Gomega) {
-					wantSecretLabels := map[string]string{
-						constants.TKGAddonLabel:       constants.PinnipedAddonLabel,
-						constants.TKGClusterNameLabel: cluster.Name,
-					}
-					wantValuesYAML := map[string]interface{}{
-						"identity_management_type": "none",
-						"infrastructure_provider":  "vsphere",
-						"tkg_cluster_role":         "workload",
-						"pinniped": map[string]interface{}{
-							"concierge": map[string]interface{}{
-								"audience": string(cluster.UID),
-							},
-						},
-					}
-
-					err := k8sClient.Get(ctx, client.ObjectKeyFromObject(gotSecret), gotSecret)
-					g.Expect(err).NotTo(HaveOccurred())
-					g.Expect(gotSecret.Labels).To(Equal(wantSecretLabels))
-
-					var gotValuesYAML map[string]interface{}
-					g.Expect(yaml.Unmarshal(gotSecret.Data["values.yaml"], &gotValuesYAML)).Should(Succeed())
-					g.Expect(gotValuesYAML).Should(Equal(wantValuesYAML))
+					Eventually(addonSecretFunc(ctx, cluster, nil)).Should(Succeed())
 				}).Should(Succeed())
 			})
 		})
@@ -229,36 +150,7 @@ var _ = Describe("Controller", func() {
 			})
 
 			It("updates the secret with the proper data values", func() {
-				Eventually(func(g Gomega) {
-					gotSecret := &corev1.Secret{
-						ObjectMeta: metav1.ObjectMeta{
-							Namespace: pinnipedNamespace,
-							Name:      fmt.Sprintf("%s-pinniped-addon", cluster.Name),
-						},
-					}
-					wantSecretLabels := map[string]string{
-						constants.TKGAddonLabel:       constants.PinnipedAddonLabel,
-						constants.TKGClusterNameLabel: cluster.Name,
-					}
-					wantValuesYAML := map[string]interface{}{
-						"identity_management_type": "none",
-						"infrastructure_provider":  "vsphere",
-						"tkg_cluster_role":         "workload",
-						"pinniped": map[string]interface{}{
-							"concierge": map[string]interface{}{
-								"audience": string(cluster.UID),
-							},
-						},
-					}
-
-					err := k8sClient.Get(ctx, client.ObjectKeyFromObject(gotSecret), gotSecret)
-					g.Expect(err).NotTo(HaveOccurred())
-					g.Expect(gotSecret.Labels).To(Equal(wantSecretLabels))
-
-					var gotValuesYAML map[string]interface{}
-					g.Expect(yaml.Unmarshal(gotSecret.Data["values.yaml"], &gotValuesYAML)).Should(Succeed())
-					g.Expect(gotValuesYAML).Should(Equal(wantValuesYAML))
-				}).Should(Succeed())
+				Eventually(addonSecretFunc(ctx, cluster, nil)).Should(Succeed())
 			})
 		})
 		When("the secret does not have the Pinniped addon label", func() {
@@ -398,7 +290,6 @@ var _ = Describe("Controller", func() {
 			delete(ctx, configMap)
 
 			for _, c := range clusters {
-				// bbb
 				delete(ctx, c)
 			}
 		})
@@ -408,42 +299,9 @@ var _ = Describe("Controller", func() {
 			})
 
 			It("loops through all the addons secrets", func() {
-				Eventually(func(g Gomega) {
-
-					for _, c := range clusters {
-						secret := &corev1.Secret{
-							ObjectMeta: metav1.ObjectMeta{
-								Namespace: c.Namespace,
-								Name:      fmt.Sprintf("%s-pinniped-addon", c.Name),
-							},
-						}
-
-						wantSecretLabels := map[string]string{
-							constants.TKGAddonLabel:       constants.PinnipedAddonLabel,
-							constants.TKGClusterNameLabel: c.Name,
-						}
-						wantValuesYAML := map[string]interface{}{
-							"identity_management_type": "oidc",
-							"infrastructure_provider":  "vsphere",
-							"tkg_cluster_role":         "workload",
-							"pinniped": map[string]interface{}{
-								"supervisor_svc_endpoint":   configMap.Data["issuer"],
-								"supervisor_ca_bundle_data": configMap.Data["issuer_ca_bundle_data"],
-								"concierge": map[string]interface{}{
-									"audience": string(c.UID),
-								},
-							},
-						}
-
-						err := k8sClient.Get(ctx, client.ObjectKeyFromObject(secret), secret)
-						g.Expect(err).NotTo(HaveOccurred())
-						g.Expect(secret.Labels).To(Equal(wantSecretLabels))
-
-						var gotValuesYAML map[string]interface{}
-						g.Expect(yaml.Unmarshal(secret.Data["values.yaml"], &gotValuesYAML)).Should(Succeed())
-						g.Expect(gotValuesYAML).Should(Equal(wantValuesYAML))
-					}
-				}).Should(Succeed())
+				for _, c := range clusters {
+					Eventually(addonSecretFunc(ctx, c, configMap)).Should(Succeed())
+				}
 			})
 		})
 		When("a configmap in a different namespace gets created", func() {
@@ -457,39 +315,9 @@ var _ = Describe("Controller", func() {
 			})
 
 			It("does not update addon secrets", func() {
-				Eventually(func(g Gomega) {
-					for _, c := range clusters {
-						secret := &corev1.Secret{
-							ObjectMeta: metav1.ObjectMeta{
-								Namespace: c.Namespace,
-								Name:      fmt.Sprintf("%s-pinniped-addon", c.Name),
-							},
-						}
-
-						wantSecretLabels := map[string]string{
-							constants.TKGAddonLabel:       constants.PinnipedAddonLabel,
-							constants.TKGClusterNameLabel: c.Name,
-						}
-						wantValuesYAML := map[string]interface{}{
-							"identity_management_type": "none",
-							"infrastructure_provider":  "vsphere",
-							"tkg_cluster_role":         "workload",
-							"pinniped": map[string]interface{}{
-								"concierge": map[string]interface{}{
-									"audience": string(c.UID),
-								},
-							},
-						}
-
-						err := k8sClient.Get(ctx, client.ObjectKeyFromObject(secret), secret)
-						g.Expect(err).NotTo(HaveOccurred())
-						g.Expect(secret.Labels).To(Equal(wantSecretLabels))
-
-						var gotValuesYAML map[string]interface{}
-						g.Expect(yaml.Unmarshal(secret.Data["values.yaml"], &gotValuesYAML)).Should(Succeed())
-						g.Expect(gotValuesYAML).Should(Equal(wantValuesYAML))
-					}
-				}).Should(Succeed())
+				for _, c := range clusters {
+					Eventually(addonSecretFunc(ctx, c, nil)).Should(Succeed())
+				}
 			})
 		})
 		When("a configmap with a different name gets created", func() {
@@ -503,39 +331,9 @@ var _ = Describe("Controller", func() {
 			})
 
 			It("does not update addon secrets", func() {
-				Eventually(func(g Gomega) {
-					for _, c := range clusters {
-						secret := &corev1.Secret{
-							ObjectMeta: metav1.ObjectMeta{
-								Namespace: c.Namespace,
-								Name:      fmt.Sprintf("%s-pinniped-addon", c.Name),
-							},
-						}
-
-						wantSecretLabels := map[string]string{
-							constants.TKGAddonLabel:       constants.PinnipedAddonLabel,
-							constants.TKGClusterNameLabel: c.Name,
-						}
-						wantValuesYAML := map[string]interface{}{
-							"identity_management_type": "none",
-							"infrastructure_provider":  "vsphere",
-							"tkg_cluster_role":         "workload",
-							"pinniped": map[string]interface{}{
-								"concierge": map[string]interface{}{
-									"audience": string(c.UID),
-								},
-							},
-						}
-
-						err := k8sClient.Get(ctx, client.ObjectKeyFromObject(secret), secret)
-						g.Expect(err).NotTo(HaveOccurred())
-						g.Expect(secret.Labels).To(Equal(wantSecretLabels))
-
-						var gotValuesYAML map[string]interface{}
-						g.Expect(yaml.Unmarshal(secret.Data["values.yaml"], &gotValuesYAML)).Should(Succeed())
-						g.Expect(gotValuesYAML).Should(Equal(wantValuesYAML))
-					}
-				}).Should(Succeed())
+				for _, c := range clusters {
+					Eventually(addonSecretFunc(ctx, c, nil)).Should(Succeed())
+				}
 			})
 		})
 	})
@@ -565,4 +363,45 @@ func delete(ctx context.Context, o client.Object) {
 		err := k8sClient.Get(ctx, client.ObjectKeyFromObject(o), oCopy)
 		g.Expect(k8serrors.IsNotFound(err)).To(BeTrue())
 	}).Should(Succeed())
+}
+
+func addonSecretFunc(ctx context.Context, cluster *clusterapiv1beta1.Cluster, configMap *corev1.ConfigMap) func(Gomega) {
+	return func(g Gomega) {
+		secret := &corev1.Secret{
+			ObjectMeta: metav1.ObjectMeta{
+				Namespace: cluster.Namespace,
+				Name:      fmt.Sprintf("%s-pinniped-addon", cluster.Name),
+			},
+		}
+
+		wantSecretLabels := map[string]string{
+			constants.TKGAddonLabel:       constants.PinnipedAddonLabel,
+			constants.TKGClusterNameLabel: cluster.Name,
+		}
+		wantValuesYAML := map[string]interface{}{
+			"identity_management_type": "none",
+			"infrastructure_provider":  "vsphere",
+			"tkg_cluster_role":         "workload",
+			"pinniped": map[string]interface{}{
+				"concierge": map[string]interface{}{
+					"audience": string(cluster.UID),
+				},
+			},
+		}
+		if configMap != nil {
+			wantValuesYAML["identity_management_type"] = "oidc"
+
+			m := wantValuesYAML["pinniped"].(map[string]interface{})
+			m["supervisor_svc_endpoint"] = configMap.Data["issuer"]
+			m["supervisor_ca_bundle_data"] = configMap.Data["issuer_ca_bundle_data"]
+		}
+
+		err := k8sClient.Get(ctx, client.ObjectKeyFromObject(secret), secret)
+		g.Expect(err).NotTo(HaveOccurred())
+		g.Expect(secret.Labels).To(Equal(wantSecretLabels))
+
+		var gotValuesYAML map[string]interface{}
+		g.Expect(yaml.Unmarshal(secret.Data["values.yaml"], &gotValuesYAML)).Should(Succeed())
+		g.Expect(gotValuesYAML).Should(Equal(wantValuesYAML))
+	}
 }
