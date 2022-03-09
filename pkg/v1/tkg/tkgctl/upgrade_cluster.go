@@ -41,6 +41,10 @@ func (t *tkgctl) UpgradeCluster(options UpgradeClusterOptions) error {
 	var err error
 	var k8sVersion string
 
+	if logPath, err := t.getAuditLogPath(options.ClusterName); err == nil {
+		log.SetAuditLog(logPath)
+	}
+
 	// upgrade requires minimum 15 minutes timeout
 	minTimeoutReq := 15 * time.Minute
 	if options.Timeout < minTimeoutReq {

@@ -18,13 +18,6 @@ vsphereCPI:
 #@ if data.values.TKG_IP_FAMILY:
   ipFamily: #@ data.values.TKG_IP_FAMILY
 #@ end
-#@ if data.values.TKG_CLUSTER_ROLE == "workload": #! For backwards compatibility. i.e. C.1 mgmt cluster creates a C.0 wlc with older addon templates.
-  image:
-    repository: #@ get_image_repo_for_component(cpiImage)
-    path: #@ cpiImage.imagePath
-    tag: #@ cpiImage.tag
-    pullPolicy: IfNotPresent
-#@ end
   cloudProviderExtraArgs:
     tls-cipher-suites: TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
   nsxt:

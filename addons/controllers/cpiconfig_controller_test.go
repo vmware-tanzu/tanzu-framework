@@ -8,7 +8,7 @@ import (
 	"os"
 	"strings"
 
-	"sigs.k8s.io/cluster-api-provider-vsphere/api/v1beta1"
+	"sigs.k8s.io/cluster-api-provider-vsphere/apis/v1beta1"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"

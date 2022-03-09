@@ -25,7 +25,7 @@ require (
 	k8s.io/utils v0.0.0-20210930125809-cb0fa318a74b
 	knative.dev/pkg v0.0.0-20220225161142-708dc1cc48e9
 	sigs.k8s.io/cluster-api v1.1.1
-	sigs.k8s.io/cluster-api-provider-vsphere v1.0.2
+	sigs.k8s.io/cluster-api-provider-vsphere v1.1.0
 	sigs.k8s.io/controller-runtime v0.11.0
 )
 

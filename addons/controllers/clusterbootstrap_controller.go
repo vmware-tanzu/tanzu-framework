@@ -175,8 +175,6 @@ func (r *ClusterBootstrapReconciler) Reconcile(ctx context.Context, req ctrl.Req
 }
 
 // reconcileNormal reconciles the ClusterBootstrap object
-// TODO: Fix the gocyclo linter issue: https://github.com/vmware-tanzu/tanzu-framework/issues/1761
-//nolint: gocyclo
 func (r *ClusterBootstrapReconciler) reconcileNormal(cluster *clusterapiv1beta1.Cluster, log logr.Logger) (ctrl.Result, error) {
 	// get or clone or patch from template
 	clusterBootstrap, err := r.createOrPatchClusterBootstrapFromTemplate(cluster, log)
@@ -210,19 +208,7 @@ func (r *ClusterBootstrapReconciler) reconcileNormal(cluster *clusterapiv1beta1.
 		return ctrl.Result{}, err
 	}
 
-	if err := r.reconcileSystemNamespace(remoteClient); err != nil {
-		return ctrl.Result{}, err
-	}
-
-	// Create the ServiceAccount on remote cluster, so it could be referenced in PackageInstall CR for kapp-controller
-	// reconciliation.
-	if _, err := r.createOrPatchAddonServiceAccountOnRemote(cluster, remoteClient); err != nil {
-		return ctrl.Result{}, err
-	}
-
-	// Create the ClusterRole on remote cluster, and bind it to the ServiceAccount created in above. kapp-controller
-	// reconciliation needs privileges.
-	if err := r.createOrPatchAddonRBACOnRemote(cluster, remoteClient); err != nil {
+	if err := r.prepareRemoteCluster(cluster, remoteClient); err != nil {
 		return ctrl.Result{}, err
 	}
 
@@ -231,13 +217,14 @@ func (r *ClusterBootstrapReconciler) reconcileNormal(cluster *clusterapiv1beta1.
 	var corePackages []*runtanzuv1alpha3.ClusterBootstrapPackage
 	corePackages = append(corePackages, clusterBootstrap.Spec.CPI, clusterBootstrap.Spec.CSI)
 	corePackages = append(corePackages, clusterBootstrap.Spec.CNIs...)
+
+	// The following filtering out of nil items is not necessary in production
+	// as we do not expect CNI, CPI, CSI to be nil and webhook should handle
+	// the validations against those fields. This nil filter is mainly to allow
+	// local envtest run when any above component is missing.
+	corePackages = removeCorePackagesNils(corePackages)
+
 	for _, corePackage := range corePackages {
-		// The following nil check is redundant, we do not expect CNI, CPI, CSI to be nil and webhook should handle
-		// the validations against those fields. Having this nil check is mainly to allow local envtest run when
-		// any above component is missing.
-		if corePackage == nil {
-			continue
-		}
 		// There are different ways to have all the resources created or patched on remote cluster. Current solution is
 		// to handle packages in sequence order. I.e., Create all resources for CNI first, and then CPI, CSI. It is also
 		// possible to create all resources in a different order or in parallel. We will consider to use goroutines to create
@@ -283,15 +270,21 @@ func (r *ClusterBootstrapReconciler) createOrPatchClusterBootstrapFromTemplate(c
 
 	clusterBootstrap := &runtanzuv1alpha3.ClusterBootstrap{}
 	err := r.Client.Get(r.context, client.ObjectKeyFromObject(cluster), clusterBootstrap)
+	if err != nil && !apierrors.IsNotFound(err) {
+		return nil, err
+	}
+
+	if clusterBootstrap.Spec != nil && clusterBootstrap.Spec.Paused {
+		// Skip reconcile if ClusterBootstrap is paused
+		log.Info("ClusterBootstrap is paused, blocking further processing")
+		return nil, nil
+	}
 	// if found and resolved tkr is the same, return found object as the TKR is supposed to be immutable
 	// also preserves any user changes
-	if err == nil && tkrName == clusterBootstrap.Status.ResolvedTKR {
+	if tkrName == clusterBootstrap.Status.ResolvedTKR {
 		return clusterBootstrap, nil
 	}
 
-	if !apierrors.IsNotFound(err) {
-		return nil, err
-	}
 	if clusterBootstrap.UID == "" {
 		log.Info("ClusterBootstrap for cluster does not exist, cloning from template")
 
@@ -554,6 +547,32 @@ func (r *ClusterBootstrapReconciler) reconcileSystemNamespace(clusterClient clie
 	return nil
 }
 
+func (r *ClusterBootstrapReconciler) prepareRemoteCluster(cluster *clusterapiv1beta1.Cluster, clusterClient client.Client) error {
+	if err := r.reconcileSystemNamespace(clusterClient); err != nil {
+		return err
+	}
+
+	// Create the ServiceAccount on remote cluster, so it could be referenced in PackageInstall CR for kapp-controller
+	// reconciliation.
+	if _, err := r.createOrPatchAddonServiceAccountOnRemote(cluster, clusterClient); err != nil {
+		return err
+	}
+
+	// Create the ClusterRole on remote cluster, and bind it to the ServiceAccount created in above. kapp-controller
+	// reconciliation needs privileges.
+	return r.createOrPatchAddonRBACOnRemote(cluster, clusterClient)
+}
+
+func removeCorePackagesNils(pkgs []*runtanzuv1alpha3.ClusterBootstrapPackage) []*runtanzuv1alpha3.ClusterBootstrapPackage {
+	var filtered []*runtanzuv1alpha3.ClusterBootstrapPackage
+	for _, pkg := range pkgs {
+		if pkg != nil {
+			filtered = append(filtered, pkg)
+		}
+	}
+	return filtered
+}
+
 // createOrPatchAddonServiceAccountOnRemote creates or patches the addon ServiceAccount on remote cluster.
 // The ServiceAccount will be referenced by the PackageInstall CR, so that kapp-controller on remote cluster could consume
 // for PackageInstall reconciliation.
@@ -667,7 +686,7 @@ func (r *ClusterBootstrapReconciler) createOrPatchAddonResourcesOnRemote(cluster
 		return err
 	}
 	if remoteSecret != nil {
-		r.Log.Info(fmt.Sprintf("created or patched secret for package %s on cluster %s/%s", remotePackage.Name, cluster.Namespace,
+		r.Log.Info(fmt.Sprintf("created or patched secret %s/%s for package %s on cluster %s/%s", remoteSecret.Namespace, remoteSecret.Name, remotePackage.Name, cluster.Namespace,
 			cluster.Name))
 	}
 
@@ -1181,6 +1200,10 @@ func (r *ClusterBootstrapReconciler) watchesForClusterBootstrap() []ClusterBoots
 		{
 			&source.Kind{Type: &runtanzuv1alpha3.TanzuKubernetesRelease{}},
 			handler.EnqueueRequestsFromMapFunc(r.TKRToClusters),
+		},
+		{
+			&source.Kind{Type: &runtanzuv1alpha3.ClusterBootstrap{}},
+			handler.EnqueueRequestsFromMapFunc(r.ClusterBootstrapToClusters),
 		},
 		{
 			&source.Kind{Type: &corev1.Secret{}},

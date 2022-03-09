@@ -36,6 +36,10 @@ type UpgradeRegionOptions struct {
 func (t *tkgctl) UpgradeRegion(options UpgradeRegionOptions) error {
 	var err error
 
+	if logPath, err := t.getAuditLogPath(options.ClusterName); err == nil {
+		log.SetAuditLog(logPath)
+	}
+
 	// upgrade requires minimum 15 minutes timeout
 	minTimeoutReq := 15 * time.Minute
 	if options.Timeout < minTimeoutReq {

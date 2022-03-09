@@ -709,7 +709,7 @@ package-bundles: management-package-bundles ## Build tar bundles for multiple pa
 
 .PHONY: management-package-bundles
 management-package-bundles: tools management-imgpkg-lock-output ## Build tar bundles for packages
-	PACKAGE_REPOSITORY="management" $(PACKAGES_SCRIPTS_DIR)/package-utils.sh create_package_bundles localhost:5000
+	PACKAGE_REPOSITORY="management" $(PACKAGES_SCRIPTS_DIR)/package-utils.sh create_package_bundles localhost:5001
 
 .PHONY: package-repo-bundle
 package-repo-bundle: ## Build tar bundles for package repo with given package-values.yaml file
@@ -739,7 +739,7 @@ clean-registry: ## Stops and removes local docker registry
 
 .PHONY: local-registry
 local-registry: clean-registry ## Starts up a local docker registry
-	docker run -d -p 5000:5000 --name registry registry:2
+	docker run -d -p 5001:5000 --name registry registry:2
 
 .PHONY: trivy-scan
 trivy-scan: ## Trivy scan images used in packages
