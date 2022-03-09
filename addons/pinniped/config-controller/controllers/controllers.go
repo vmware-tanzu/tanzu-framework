@@ -28,6 +28,11 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/addons/pinniped/config-controller/utils"
 )
 
+const valuesYAMLPrefix = `#@data/values
+#@overlay/match-child-defaults missing_ok=True
+---
+`
+
 type PinnipedController struct {
 	client client.Client
 	Log    logr.Logger
@@ -232,6 +237,7 @@ func (c *PinnipedController) reconcileAddonSecret(ctx context.Context, cluster *
 			log.Error(err, "Error marshaling Pinniped Addon Secret values to Yaml")
 			return err
 		}
+		dataValueYamlBytes = append([]byte(valuesYAMLPrefix), dataValueYamlBytes...)
 		pinnipedAddonSecret.Data[constants.TKGDataValueFieldName] = dataValueYamlBytes
 
 		return nil

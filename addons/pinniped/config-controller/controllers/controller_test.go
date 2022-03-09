@@ -400,6 +400,10 @@ func addonSecretFunc(ctx context.Context, cluster *clusterapiv1beta1.Cluster, co
 		g.Expect(err).NotTo(HaveOccurred())
 		g.Expect(secret.Labels).To(Equal(wantSecretLabels))
 
+		g.Expect(string(secret.Data["values.yaml"])).To(HavePrefix(`#@data/values
+#@overlay/match-child-defaults missing_ok=True
+---
+`))
 		var gotValuesYAML map[string]interface{}
 		g.Expect(yaml.Unmarshal(secret.Data["values.yaml"], &gotValuesYAML)).Should(Succeed())
 		g.Expect(gotValuesYAML).Should(Equal(wantValuesYAML))
