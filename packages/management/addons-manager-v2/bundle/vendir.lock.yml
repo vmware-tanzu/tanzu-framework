@@ -4,38 +4,44 @@ directories:
   - manual: {}
     path: addons-manager.yaml
   - git:
-      commitTitle: Define and implement the TKR Resolver interface (#1695)...
-      sha: 18dfe51144349a374a909d43dd5a9978c9afdb86
+      commitTitle: Add pause mechanism to ClusterBootstrap (#1780)...
+      sha: e5905812ba8e1e474db32c2e1776ca782f76f454
       tags:
-      - v0.18.0-dev-8-g18dfe511
-    path: antreaconfigs.yaml
+      - v0.19.0-dev-15-ge5905812
+    path: cni.tanzu.vmware.com_antreaconfigs.yaml
   - git:
-      commitTitle: Define and implement the TKR Resolver interface (#1695)...
-      sha: 18dfe51144349a374a909d43dd5a9978c9afdb86
+      commitTitle: Add pause mechanism to ClusterBootstrap (#1780)...
+      sha: e5905812ba8e1e474db32c2e1776ca782f76f454
       tags:
-      - v0.18.0-dev-8-g18dfe511
-    path: calicoconfigs.yaml
+      - v0.19.0-dev-15-ge5905812
+    path: cni.tanzu.vmware.com_calicoconfigs.yaml
   - git:
-      commitTitle: Define and implement the TKR Resolver interface (#1695)...
-      sha: 18dfe51144349a374a909d43dd5a9978c9afdb86
+      commitTitle: Add pause mechanism to ClusterBootstrap (#1780)...
+      sha: e5905812ba8e1e474db32c2e1776ca782f76f454
       tags:
-      - v0.18.0-dev-8-g18dfe511
-    path: clusterbootstraps.yaml
+      - v0.19.0-dev-15-ge5905812
+    path: run.tanzu.vmware.com_clusterbootstraps.yaml
   - git:
-      commitTitle: Define and implement the TKR Resolver interface (#1695)...
-      sha: 18dfe51144349a374a909d43dd5a9978c9afdb86
+      commitTitle: Add pause mechanism to ClusterBootstrap (#1780)...
+      sha: e5905812ba8e1e474db32c2e1776ca782f76f454
       tags:
-      - v0.18.0-dev-8-g18dfe511
-    path: clusterbootstraptemplates.yaml
+      - v0.19.0-dev-15-ge5905812
+    path: run.tanzu.vmware.com_clusterbootstraptemplates.yaml
   - git:
-      commitTitle: Define and implement the TKR Resolver interface (#1695)...
-      sha: 18dfe51144349a374a909d43dd5a9978c9afdb86
+      commitTitle: Add pause mechanism to ClusterBootstrap (#1780)...
+      sha: e5905812ba8e1e474db32c2e1776ca782f76f454
       tags:
-      - v0.18.0-dev-8-g18dfe511
-    path: kappcontrollerconfigs.yaml
+      - v0.19.0-dev-15-ge5905812
+    path: run.tanzu.vmware.com_kappcontrollerconfigs.yaml
+  - git:
+      commitTitle: Add pause mechanism to ClusterBootstrap (#1780)...
+      sha: e5905812ba8e1e474db32c2e1776ca782f76f454
+      tags:
+      - v0.19.0-dev-15-ge5905812
+    path: cpi.tanzu.vmware.com_cpiconfigs.yaml
   path: config/upstream
 - contents:
   - manual: {}
-    path: overlay-addons-manager.yaml
+    path: feature-gate-clusterbootstrap.yaml
   path: config/overlays
 kind: LockConfig

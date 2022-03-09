@@ -4,6 +4,7 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"os"
 	"time"
@@ -26,6 +27,10 @@ import (
 	kapppkg "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/packaging/v1alpha1"
 	kappdatapkg "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apiserver/apis/datapackaging/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/addons/controllers"
+	antreacontroller "github.com/vmware-tanzu/tanzu-framework/addons/controllers/antrea"
+	calicocontroller "github.com/vmware-tanzu/tanzu-framework/addons/controllers/calico"
+	cpicontroller "github.com/vmware-tanzu/tanzu-framework/addons/controllers/cpi"
+	kappcontroller "github.com/vmware-tanzu/tanzu-framework/addons/controllers/kapp-controller"
 	addonconfig "github.com/vmware-tanzu/tanzu-framework/addons/pkg/config"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/crdwait"
@@ -57,24 +62,25 @@ func init() {
 }
 
 type addonFlags struct {
-	metricsAddr               string
-	enableLeaderElection      bool
-	clusterConcurrency        int
-	syncPeriod                time.Duration
-	appSyncPeriod             time.Duration
-	appWaitTimeout            time.Duration
-	addonNamespace            string
-	addonServiceAccount       string
-	addonClusterRole          string
-	addonClusterRoleBinding   string
-	addonImagePullPolicy      string
-	corePackageRepoName       string
-	healthdAddr               string
-	httpProxyClusterVarName   string
-	httpsProxyClusterVarName  string
-	noProxyClusterVarName     string
-	proxyCACertClusterVarName string
-	ipFamilyClusterVarName    string
+	metricsAddr                 string
+	enableLeaderElection        bool
+	clusterConcurrency          int
+	syncPeriod                  time.Duration
+	appSyncPeriod               time.Duration
+	appWaitTimeout              time.Duration
+	addonNamespace              string
+	addonServiceAccount         string
+	addonClusterRole            string
+	addonClusterRoleBinding     string
+	addonImagePullPolicy        string
+	corePackageRepoName         string
+	healthdAddr                 string
+	httpProxyClusterVarName     string
+	httpsProxyClusterVarName    string
+	noProxyClusterVarName       string
+	proxyCACertClusterVarName   string
+	ipFamilyClusterVarName      string
+	featureGateClusterBootstrap bool
 }
 
 func parseAddonFlags(addonFlags *addonFlags) {
@@ -102,6 +108,7 @@ func parseAddonFlags(addonFlags *addonFlags) {
 	flag.StringVar(&addonFlags.noProxyClusterVarName, "no-proxy-cluster-var-name", constants.DefaultNoProxyClusterClassVarName, "No-proxy setting cluster variable name")
 	flag.StringVar(&addonFlags.proxyCACertClusterVarName, "proxy-ca-cert-cluster-var-name", constants.DefaultProxyCaCertClusterClassVarName, "Proxy CA certificate cluster variable name")
 	flag.StringVar(&addonFlags.ipFamilyClusterVarName, "ip-family-cluster-var-name", constants.DefaultIPFamilyClusterClassVarName, "IP family setting cluster variable name")
+	flag.BoolVar(&addonFlags.featureGateClusterBootstrap, "feature-gate-cluster-bootstrap", false, "Feature gate to enable clusterbootstap and addonconfig controllers that rely on TKR v1alphav3")
 
 	flag.Parse()
 }
@@ -166,6 +173,9 @@ func main() {
 		setupLog.Error(err, "unable to create controller", "controller", "Addon")
 		os.Exit(1)
 	}
+	if flags.featureGateClusterBootstrap {
+		enableClusterBootstrapAndConfigControllers(ctx, mgr, flags)
+	}
 
 	setupChecks(mgr)
 	setupLog.Info("starting manager")
@@ -183,6 +193,64 @@ func setupChecks(mgr ctrl.Manager) {
 
 	if err := mgr.AddHealthzCheck("ping", healthz.Ping); err != nil {
 		setupLog.Error(err, "unable to create health check")
+		os.Exit(1)
+	}
+}
+
+func enableClusterBootstrapAndConfigControllers(ctx context.Context, mgr ctrl.Manager, flags *addonFlags) {
+	if err := (&calicocontroller.CalicoConfigReconciler{
+		Client: mgr.GetClient(),
+		Log:    ctrl.Log.WithName("CalicoConfigController"),
+		Scheme: mgr.GetScheme(),
+	}).SetupWithManager(ctx, mgr, controller.Options{MaxConcurrentReconciles: 1}); err != nil {
+		setupLog.Error(err, "unable to create CalicoConfigController", "controller", "calico")
+		os.Exit(1)
+	}
+
+	if err := (&antreacontroller.AntreaConfigReconciler{
+		Client: mgr.GetClient(),
+		Log:    ctrl.Log.WithName("AntreaConfigController"),
+		Scheme: mgr.GetScheme(),
+	}).SetupWithManager(ctx, mgr, controller.Options{MaxConcurrentReconciles: 1}); err != nil {
+		setupLog.Error(err, "unable to create AntreaConfigController", "controller", "antrea")
+		os.Exit(1)
+	}
+	if err := (&kappcontroller.KappControllerConfigReconciler{
+		Client: mgr.GetClient(),
+		Log:    ctrl.Log.WithName("KappControllerConfig"),
+		Scheme: mgr.GetScheme(),
+	}).SetupWithManager(ctx, mgr, controller.Options{MaxConcurrentReconciles: 1}); err != nil {
+		setupLog.Error(err, "unable to create KappControllerConfig", "controller", "kapp")
+		os.Exit(1)
+	}
+	if err := (&cpicontroller.CPIConfigReconciler{
+		Client: mgr.GetClient(),
+		Log:    ctrl.Log.WithName("CPIConfig"),
+		Scheme: mgr.GetScheme(),
+	}).SetupWithManager(ctx, mgr, controller.Options{MaxConcurrentReconciles: 1}); err != nil {
+		setupLog.Error(err, "unable to create CPIConfigController", "controller", "vspherecpi")
+		os.Exit(1)
+	}
+
+	bootstrapReconciler := controllers.NewClusterBootstrapReconciler(
+		mgr.GetClient(),
+		ctrl.Log.WithName("ClusterBootstrapController"),
+		mgr.GetScheme(),
+		&addonconfig.ClusterBootstrapControllerConfig{
+			HTTPProxyClusterClassVarName:   constants.DefaultHTTPProxyClusterClassVarName,
+			HTTPSProxyClusterClassVarName:  constants.DefaultHTTPSProxyClusterClassVarName,
+			NoProxyClusterClassVarName:     constants.DefaultNoProxyClusterClassVarName,
+			ProxyCACertClusterClassVarName: constants.DefaultProxyCaCertClusterClassVarName,
+			IPFamilyClusterClassVarName:    constants.DefaultIPFamilyClusterClassVarName,
+			SystemNamespace:                flags.addonNamespace,
+			PkgiServiceAccount:             constants.PackageInstallServiceAccount,
+			PkgiClusterRole:                constants.PackageInstallClusterRole,
+			PkgiClusterRoleBinding:         constants.PackageInstallClusterRoleBinding,
+			PkgiSyncPeriod:                 flags.syncPeriod,
+		},
+	)
+	if err := bootstrapReconciler.SetupWithManager(ctx, mgr, controller.Options{MaxConcurrentReconciles: 1}); err != nil {
+		setupLog.Error(err, "unable to create controller", "controller", "clusterbootstrap")
 		os.Exit(1)
 	}
 }

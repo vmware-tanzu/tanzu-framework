@@ -19,7 +19,8 @@ tanzuAddonsManager:
       operator: Exists
     - effect: NoSchedule
       key: node-role.kubernetes.io/master
-
+  featureGates:
+    clusterBootstrapController: false
 #@ end
 
 

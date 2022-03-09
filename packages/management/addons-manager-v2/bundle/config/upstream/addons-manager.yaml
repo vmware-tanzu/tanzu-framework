@@ -1,10 +1,20 @@
+#@ load("@ytt:data", "data")
+
+#@ if data.values.tanzuAddonsManager.createNamespace:
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: #@ data.values.tanzuAddonsManager.namespace
+#@ end
+---
 apiVersion: v1
 kind: ServiceAccount
 metadata:
   labels:
     app: tanzu-addons-manager
   name: tanzu-addons-manager-sa
-  namespace: tanzu-system
+  namespace: #@ data.values.tanzuAddonsManager.namespace
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
@@ -40,7 +50,7 @@ rules:
   - update
   - patch
   - delete
-# permissions are required for addons-manager to create/update resources in the ProviderRef which are dynamic.
+#! permissions are required for addons-manager to create/update resources in the ProviderRef which are dynamic.
 - apiGroups: ['*']
   resources: ['*']
   verbs:
@@ -144,7 +154,7 @@ roleRef:
 subjects:
 - kind: ServiceAccount
   name: tanzu-addons-manager-sa
-  namespace: tanzu-system
+  namespace: #@ data.values.tanzuAddonsManager.namespace
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -152,7 +162,7 @@ metadata:
   labels:
     app: tanzu-addons-manager
   name: tanzu-addons-controller-manager
-  namespace: tanzu-system
+  namespace: #@ data.values.tanzuAddonsManager.namespace
 spec:
   replicas: 1
   selector:
@@ -168,6 +178,9 @@ spec:
         - --metrics-bind-addr=0
         - --leader-elect=false
         - --health-addr=:18316
+        - #@ "--addon-namespace={}".format(data.values.tanzuAddonsManager.namespace)
+        #@ if/end data.values.tanzuAddonsManager.featureGates.clusterBootstrapController:
+        - --feature-gate-cluster-bootstrap=true
         image: addons-controller:latest
         imagePullPolicy: IfNotPresent
         name: tanzu-addons-controller
@@ -207,3 +220,9 @@ spec:
                 fieldPath: metadata.namespace
       serviceAccount: tanzu-addons-manager-sa
       terminationGracePeriodSeconds: 10
+      #@ if/end data.values.tanzuAddonsManager.deployment.hostNetwork:
+      hostNetwork: true
+      #@ if/end data.values.tanzuAddonsManager.deployment.priorityClassName:
+      priorityClassName: #@ data.values.tanzuAddonsManager.deployment.priorityClassName
+      #@ if/end hasattr(data.values.tanzuAddonsManager.deployment, 'tolerations') and data.values.tanzuAddonsManager.deployment.tolerations:
+      tolerations: #@ data.values.tanzuAddonsManager.deployment.tolerations

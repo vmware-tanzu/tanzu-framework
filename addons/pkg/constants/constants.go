@@ -157,6 +157,18 @@ const (
 
 	// DefaultIPFamilyClusterClassVarName is the default cluster variable name for ip family
 	DefaultIPFamilyClusterClassVarName = "tkg.tanzu.vmware.com/tkg-ip-family"
+
+	// PackageInstallServiceAccount is service account name used for PackageInstall
+	PackageInstallServiceAccount = "tanzu-cluster-bootstrap-sa"
+
+	// PackageInstallClusterRole is cluster role name used for PackageInstall
+	PackageInstallClusterRole = "tanzu-cluster-bootstrap-clusterrole"
+
+	// PackageInstallClusterRoleBinding is cluster role binding name used for PackageInstall
+	PackageInstallClusterRoleBinding = "tanzu-cluster-bootstrap-clusterrolebinding"
+
+	// PackageInstallSyncPeriod is the sync period for kapp-controller to periodically reconcile a PackageInstall
+	PackageInstallSyncPeriod = time.Minute * 10
 )
 
 // ClusterKind is the Kind for cluster-api Cluster object

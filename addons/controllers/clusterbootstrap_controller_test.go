@@ -302,7 +302,7 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 				sa := &corev1.ServiceAccount{}
 				Eventually(func() bool {
 					if err := remoteClient.Get(ctx,
-						client.ObjectKey{Namespace: constants.TKGSystemNS, Name: "tanzu-addons-manager-sa"},
+						client.ObjectKey{Namespace: constants.TKGSystemNS, Name: constants.PackageInstallServiceAccount},
 						sa); err != nil {
 						return false
 					}
@@ -311,7 +311,7 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 				clusterRole := &rbacv1.ClusterRole{}
 				Eventually(func() bool {
 					if err := remoteClient.Get(ctx,
-						client.ObjectKey{Name: "tanzu-addons-manager-clusterrole"},
+						client.ObjectKey{Name: constants.PackageInstallClusterRole},
 						clusterRole); err != nil {
 						return false
 					}
@@ -320,7 +320,7 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 				clusterRoleBinding := &rbacv1.ClusterRoleBinding{}
 				Eventually(func() bool {
 					if err := remoteClient.Get(ctx,
-						client.ObjectKey{Name: "tanzu-addons-manager-clusterrolebinding"},
+						client.ObjectKey{Name: constants.PackageInstallClusterRoleBinding},
 						clusterRoleBinding); err != nil {
 						return false
 					}
