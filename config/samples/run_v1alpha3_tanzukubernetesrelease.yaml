@@ -1,0 +1,6 @@
+apiVersion: run.tanzu.vmware.com/v1alpha3
+kind: TanzuKubernetesRelease
+metadata:
+  name: tanzukubernetesrelease-sample
+spec:
+  # TODO(user): Add fields here
