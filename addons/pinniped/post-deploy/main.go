@@ -14,7 +14,7 @@ import (
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"k8s.io/client-go/kubernetes"
-	k8sconfig "sigs.k8s.io/controller-runtime/pkg/client/config"
+	"k8s.io/client-go/rest"
 
 	"github.com/vmware-tanzu/tanzu-framework/addons/pinniped/post-deploy/pkg/configure"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pinniped/post-deploy/pkg/vars"
@@ -108,7 +108,7 @@ func initZapLog() *zap.Logger {
 }
 
 func initClients() (configure.Clients, error) {
-	cfg, err := k8sconfig.GetConfig()
+	cfg, err := rest.InClusterConfig()
 	if err != nil {
 		return configure.Clients{}, fmt.Errorf("could not get k8s config: %w", err)
 	}
