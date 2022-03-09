@@ -18,10 +18,6 @@ import (
 
 const (
 	clusterpPauseWebhookManifestFile = "testdata/webhooks/cluster-pause-webhook-manifests.yaml"
-	clusterPauseWebhookScrtName      = "cluster-pause-webhook-tls"
-	clusterPauseWebhookServiceName   = "cluster-pause-webhook-service"
-	clusterPauseWebhookLabel         = "cluster-pause-webhook"
-	clusterPauseWebhookNamespace     = "tkg-system-0"
 )
 
 var _ = Describe("when cluster paused state is managed by webhook", func() {
@@ -35,14 +31,6 @@ var _ = Describe("when cluster paused state is managed by webhook", func() {
 
 		// set up the certificates and webhook before creating any objects
 		By("Creating and installing new certificates for ClusterBootstrap Admission Webhooks")
-		webhookCertDetails := testutil.WebhookCertificatesDetails{
-			CertPath:           certPath,
-			KeyPath:            keyPath,
-			WebhookScrtName:    clusterPauseWebhookScrtName,
-			AddonNamespace:     clusterPauseWebhookNamespace,
-			WebhookServiceName: clusterPauseWebhookServiceName,
-			LabelSelector:      clusterPauseWebhookLabel,
-		}
 		err = testutil.SetupWebhookCertificates(ctx, k8sClient, k8sConfig, &webhookCertDetails)
 		Expect(err).ToNot(HaveOccurred())
 	})
@@ -62,7 +50,7 @@ var _ = Describe("when cluster paused state is managed by webhook", func() {
 			// Create a cluster object
 			cluster := &clusterapiv1beta1.Cluster{}
 			cluster.Name = "pause-test-cluster"
-			cluster.Namespace = clusterPauseWebhookNamespace
+			cluster.Namespace = addonNamespace
 			cluster.Spec.Topology = &clusterapiv1beta1.Topology{
 				Version: "v1.19.3---vmware.1",
 			}

@@ -81,6 +81,7 @@ type addonFlags struct {
 	syncPeriod                      time.Duration
 	appSyncPeriod                   time.Duration
 	appWaitTimeout                  time.Duration
+	clusterDeleteTimeout            time.Duration
 	addonNamespace                  string
 	addonServiceAccount             string
 	addonClusterRole                string
@@ -105,6 +106,8 @@ func parseAddonFlags(addonFlags *addonFlags) {
 		"The minimum interval at which watched resources are reconciled (e.g. 10m)")
 	flag.DurationVar(&addonFlags.appSyncPeriod, "app-sync-period", 5*time.Minute, "Frequency of app reconciliation (e.g. 5m)")
 	flag.DurationVar(&addonFlags.appWaitTimeout, "app-wait-timeout", 30*time.Second, "Maximum time to wait for app to be ready (e.g. 30s)")
+	flag.DurationVar(&addonFlags.clusterDeleteTimeout, "cluster-delete-timeout", 10*time.Minute, "Maximum time to wait for addon resources to be deleted before allowing cluster deletion to proceed")
+
 	// resource configurations (optional)
 	flag.StringVar(&addonFlags.addonNamespace, "addon-namespace", "tkg-system", "The namespace of addon resources")
 	flag.StringVar(&addonFlags.addonServiceAccount, "addon-service-account-name", "tkg-addons-app-sa", "The name of addon service account")
@@ -260,6 +263,15 @@ func enableClusterBootstrapAndConfigControllers(ctx context.Context, mgr ctrl.Ma
 		os.Exit(1)
 	}
 
+	if err := (&controllers.MachineReconciler{
+		Client: mgr.GetClient(),
+		Log:    ctrl.Log.WithName("MachineController"),
+		Scheme: mgr.GetScheme(),
+	}).SetupWithManager(ctx, mgr, controller.Options{MaxConcurrentReconciles: 1}); err != nil {
+		setupLog.Error(err, "unable to create addons MachineController", "controller", "machine")
+		os.Exit(1)
+	}
+
 	bootstrapReconciler := controllers.NewClusterBootstrapReconciler(
 		mgr.GetClient(),
 		ctrl.Log.WithName("ClusterBootstrapController"),
@@ -271,6 +283,7 @@ func enableClusterBootstrapAndConfigControllers(ctx context.Context, mgr ctrl.Ma
 			PkgiClusterRole:             constants.PackageInstallClusterRole,
 			PkgiClusterRoleBinding:      constants.PackageInstallClusterRoleBinding,
 			PkgiSyncPeriod:              flags.syncPeriod,
+			ClusterDeleteTimeout:        flags.clusterDeleteTimeout,
 		},
 	)
 	if err := bootstrapReconciler.SetupWithManager(ctx, mgr, controller.Options{MaxConcurrentReconciles: 1}); err != nil {

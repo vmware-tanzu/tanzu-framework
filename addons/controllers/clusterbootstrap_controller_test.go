@@ -25,6 +25,7 @@ import (
 	vspherecsiv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/csi/v1alpha1"
 	runtanzuv1alpha3 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
 
+	"github.com/go-logr/logr"
 	corev1 "k8s.io/api/core/v1"
 	rbacv1 "k8s.io/api/rbac/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -34,6 +35,7 @@ import (
 	clusterapiutil "sigs.k8s.io/cluster-api/util"
 	"sigs.k8s.io/cluster-api/util/secret"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 )
 
 var _ = Describe("ClusterBootstrap Reconciler", func() {
@@ -41,7 +43,6 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 		clusterName             string
 		clusterNamespace        string
 		clusterResourceFilePath string
-		enableWebhook           bool
 	)
 
 	// Constants defined in testdata manifests
@@ -50,36 +51,10 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 		foobarCarvelPackageName     = "foobar.example.com.1.17.2"
 		foobar1CarvelPackageRefName = "foobar1.example.com"
 		foobar1CarvelPackageName    = "foobar1.example.com.1.17.2"
-		// webhooks
-		clusterbootstrapWebhookLabel        = "clusterbootstrap-webhook"
-		clusterbootstrapWebhookManifestFile = "testdata/webhooks/clusterbootstrap-webhook-manifests.yaml"
-		clusterbootstrapWebhookServiceName  = "clusterbootstrap-webhook-service"
-		clusterbootstrapWebhookScrtName     = "clusterbootstrap-webhook-tls"
-		foobar2CarvelPackageRefName         = "foobar2.example.com"
+		foobar2CarvelPackageRefName = "foobar2.example.com"
 	)
 
 	JustBeforeEach(func() {
-		if enableWebhook {
-			// Create the webhooks
-			f, err := os.Open(clusterbootstrapWebhookManifestFile)
-			Expect(err).ToNot(HaveOccurred())
-			err = testutil.CreateResources(f, cfg, dynamicClient)
-			Expect(err).ToNot(HaveOccurred())
-			f.Close()
-
-			// set up the certificates and webhook before creating any objects
-			By("Creating and installing new certificates for ClusterBootstrap Admission Webhooks")
-			webhookCertDetails := testutil.WebhookCertificatesDetails{
-				CertPath:           certPath,
-				KeyPath:            keyPath,
-				WebhookScrtName:    clusterbootstrapWebhookScrtName,
-				AddonNamespace:     addonNamespace,
-				WebhookServiceName: clusterbootstrapWebhookServiceName,
-				LabelSelector:      clusterbootstrapWebhookLabel,
-			}
-			err = testutil.SetupWebhookCertificates(ctx, k8sClient, k8sConfig, &webhookCertDetails)
-			Expect(err).ToNot(HaveOccurred())
-		}
 
 		// create cluster resources
 		By("Creating a cluster")
@@ -93,15 +68,6 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 	})
 
 	AfterEach(func() {
-		if enableWebhook {
-			By("Deleting webhook")
-			// Create the webhooks
-			f, err := os.Open(clusterbootstrapWebhookManifestFile)
-			Expect(err).ToNot(HaveOccurred())
-			err = testutil.DeleteResources(f, cfg, dynamicClient, false)
-			Expect(err).ToNot(HaveOccurred())
-			f.Close()
-		}
 
 		By("Deleting kubeconfig for cluster")
 		key := client.ObjectKey{
@@ -125,7 +91,6 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 			clusterName = "test-cluster-tcbt"
 			clusterNamespace = "cluster-namespace"
 			clusterResourceFilePath = "testdata/test-cluster-bootstrap-1.yaml"
-			enableWebhook = true
 		})
 		Context("from a ClusterBootstrapTemplate", func() {
 			It("should create ClusterBootstrap CR and the related objects for the cluster", func() {
@@ -166,6 +131,59 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 					return false
 				}, waitTimeout, pollingInterval).Should(BeTrue())
 
+				By("cluster should be marked with finalizer")
+				Eventually(func() bool {
+					err := k8sClient.Get(ctx, client.ObjectKeyFromObject(cluster), cluster)
+					if err != nil {
+						return false
+					}
+					return controllerutil.ContainsFinalizer(cluster, addontypes.AddonFinalizer)
+				}, waitTimeout, pollingInterval).Should(BeTrue())
+
+				By("clusterbootstrap should be marked with finalizer")
+				Eventually(func() bool {
+					err := k8sClient.Get(ctx, client.ObjectKeyFromObject(cluster), clusterBootstrap)
+					if err != nil {
+						return false
+					}
+					return controllerutil.ContainsFinalizer(clusterBootstrap, addontypes.AddonFinalizer)
+				}, waitTimeout, pollingInterval).Should(BeTrue())
+
+				By("cluster kubeconfig secret should be marked with finalizer")
+				clusterKubeConfigSecret := &corev1.Secret{}
+				key := client.ObjectKey{Namespace: cluster.Namespace, Name: secret.Name(clusterName, secret.Kubeconfig)}
+				Eventually(func() bool {
+					err := k8sClient.Get(ctx, key, clusterKubeConfigSecret)
+					if err != nil {
+						return false
+					}
+					return controllerutil.ContainsFinalizer(clusterKubeConfigSecret, addontypes.AddonFinalizer)
+				}, waitTimeout, pollingInterval).Should(BeTrue())
+
+				By("packageinstall should have been created for each additional package in the clusterBoostrap")
+				Expect(hasPackageInstalls(ctx, k8sClient, cluster, constants.TKGSystemNS,
+					clusterBootstrap.Spec.AdditionalPackages, logr.Logger{})).To(BeTrue())
+
+				By("packageinstalls for additional packages should all have the correct owner reference set")
+				var ownerIsCluster bool
+				pkgInstall := &kapppkgiv1alpha1.PackageInstall{}
+				for _, pkg := range clusterBootstrap.Spec.AdditionalPackages {
+					ownerIsCluster = false
+					pkgInstallName := util.GeneratePackageInstallName(cluster.Name, pkg.RefName)
+					err := k8sClient.Get(ctx, client.ObjectKey{Name: pkgInstallName, Namespace: constants.TKGSystemNS}, pkgInstall)
+					if err == nil {
+						for _, ownerRef := range pkgInstall.OwnerReferences {
+							if ownerRef.UID == cluster.UID {
+								ownerIsCluster = true
+								break
+							}
+						}
+						if !ownerIsCluster {
+							break
+						}
+					}
+				}
+				Expect(ownerIsCluster).To(BeTrue())
 				By("verifying that CNI has been populated properly")
 				// Verify CNI is populated in the cloned object with the value from the cluster bootstrap template
 				Expect(clusterBootstrap.Spec.CNI).NotTo(BeNil())
@@ -654,7 +672,7 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 				By("Test ClusterBootstrapTemplate webhook validateUpdate", func() {
 					// fetch the latest clusterbootstraptemplate
 					clusterBootstrapTemplate := &runtanzuv1alpha3.ClusterBootstrapTemplate{}
-					key := client.ObjectKey{Namespace: addonNamespace, Name: "v1.22.3"}
+					key = client.ObjectKey{Namespace: addonNamespace, Name: "v1.22.3"}
 					err = k8sClient.Get(ctx, key, clusterBootstrapTemplate)
 					Expect(err).ToNot(HaveOccurred())
 
@@ -664,6 +682,56 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 					Expect(err).Should(HaveOccurred())
 					Expect(strings.Contains(err.Error(), "ClusterBootstrapTemplate has immutable spec, update is not allowed")).To(BeTrue())
 				})
+				By("finalizers should be added back automatically to bootstrap")
+				Eventually(func() bool {
+					err := k8sClient.Get(ctx, client.ObjectKeyFromObject(cluster), clusterBootstrap)
+					if err != nil {
+						return false
+					}
+					return controllerutil.ContainsFinalizer(clusterBootstrap, addontypes.AddonFinalizer)
+				}, waitTimeout, pollingInterval).Should(BeTrue())
+
+				By("delete cluster with foreground propagation policy")
+				deletePropagation := metav1.DeletePropagationForeground
+				deleteOptions := client.DeleteOptions{PropagationPolicy: &deletePropagation}
+				Expect(k8sClient.Delete(ctx, cluster, &deleteOptions)).To(Succeed())
+
+				By("instacllpackages for additional packages should have been removed.")
+				Expect(hasPackageInstalls(ctx, k8sClient, cluster, constants.TKGSystemNS,
+					clusterBootstrap.Spec.AdditionalPackages, logr.Logger{})).To(BeTrue())
+				Eventually(func() bool {
+					return hasPackageInstalls(ctx, k8sClient, cluster, constants.TKGSystemNS,
+						clusterBootstrap.Spec.AdditionalPackages, logr.Logger{})
+				}, waitTimeout, pollingInterval).Should(BeFalse())
+
+				By("finalizer should be removed from clusterboostrap")
+				Eventually(func() bool {
+					err := k8sClient.Get(ctx, client.ObjectKeyFromObject(cluster), clusterBootstrap)
+					if err != nil {
+						return false
+					}
+					return controllerutil.ContainsFinalizer(clusterBootstrap, addontypes.AddonFinalizer)
+				}, waitTimeout, pollingInterval).Should(BeFalse())
+
+				By("finalizer should be removed from cluster")
+				Eventually(func() bool {
+					err := k8sClient.Get(ctx, client.ObjectKeyFromObject(cluster), cluster)
+					if err != nil {
+						return false
+					}
+					return controllerutil.ContainsFinalizer(cluster, addontypes.AddonFinalizer)
+				}, waitTimeout, pollingInterval).Should(BeFalse())
+
+				By("finalizer should be removed from cluster kubeconfig secret")
+				key = client.ObjectKey{Namespace: cluster.Namespace, Name: secret.Name(clusterName, secret.Kubeconfig)}
+				Eventually(func() bool {
+					err := k8sClient.Get(ctx, key, clusterKubeConfigSecret)
+					if err != nil {
+						return false
+					}
+					return controllerutil.ContainsFinalizer(clusterKubeConfigSecret, addontypes.AddonFinalizer)
+				}, waitTimeout, pollingInterval).Should(BeFalse())
+
 			})
 		})
 	})
@@ -673,7 +741,6 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 			clusterName = "test-cluster-tcbt-2"
 			clusterNamespace = "cluster-namespace-2"
 			clusterResourceFilePath = "testdata/test-cluster-bootstrap-2.yaml"
-			enableWebhook = false
 		})
 		Context("from a ClusterBootstrapTemplate", func() {
 			It("should block ClusterBootstrap reconciliation if it is paused", func() {

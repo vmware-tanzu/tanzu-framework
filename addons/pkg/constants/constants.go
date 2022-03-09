@@ -176,7 +176,7 @@ const (
 	AddonWebhookLabelKey = "tkg.tanzu.vmware.com/addon-webhooks"
 
 	// AddonWebhookLabelValue is the value for the label for addon admission webhooks
-	AddonWebhookLabelValue = ""
+	AddonWebhookLabelValue = "addon-webhooks"
 
 	// LocalObjectRefSuffix is the suffix of a field within the provider's CR. This suffix indicates that the field is a
 	// K8S typed local object reference
