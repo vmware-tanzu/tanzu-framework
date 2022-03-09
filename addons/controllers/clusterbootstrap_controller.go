@@ -284,171 +284,196 @@ func (r *ClusterBootstrapReconciler) createOrPatchClusterBootstrapFromTemplate(c
 
 	if clusterBootstrap.UID == "" {
 		log.Info("ClusterBootstrap for cluster does not exist, cloning from template")
-
-		clusterBootstrap.Name = cluster.Name
-		clusterBootstrap.Namespace = cluster.Namespace
-		clusterBootstrap.Spec = clusterBootstrapTemplate.Spec.DeepCopy()
-
-		secrets, providers, err := r.cloneSecretsAndProviders(cluster, clusterBootstrap, clusterBootstrapTemplate.Namespace, log)
-		if err != nil {
-			r.Log.Error(err, "unable to clone secrets or providers")
-			return nil, err
-		}
-
-		clusterBootstrap.OwnerReferences = []metav1.OwnerReference{
-			{
-				APIVersion:         clusterapiv1beta1.GroupVersion.String(),
-				Kind:               cluster.Kind,
-				Name:               cluster.Name,
-				UID:                cluster.UID,
-				Controller:         pointer.BoolPtr(true),
-				BlockOwnerDeletion: pointer.BoolPtr(true),
-			},
-		}
-
-		if err := r.Client.Create(r.context, clusterBootstrap); err != nil {
-			return nil, err
-		}
-		// ensure ownerRef of clusterBootstrap on created secrets and providers, this can only be done after
-		// clusterBootstrap is created
-		if err := r.ensureOwnerRef(clusterBootstrap, secrets, providers); err != nil {
-			r.Log.Error(err, fmt.Sprintf("unable to ensure ClusterBootstrap %s/%s as a ownerRef on created secrets and providers", clusterBootstrap.Namespace, clusterBootstrap.Name))
-			return nil, err
-		}
-
-		clusterBootstrap.Status.ResolvedTKR = tkrName
-		if err := r.Status().Update(r.context, clusterBootstrap); err != nil {
-			r.Log.Error(err, fmt.Sprintf("unable to update the status of ClusterBootstrap %s/%s", clusterBootstrap.Namespace, clusterBootstrap.Name))
-			return nil, err
-		}
-		r.Log.Info("cloned clusterBootstrap", "clusterBootstrap", clusterBootstrap)
-		return clusterBootstrap, nil
+		return r.createClusterBootstrapFromTemplate(cluster, clusterBootstrapTemplate, tkrName, log)
 	}
-
 	// TODO: Add a warning prompt in CLI before cluster upgrade. Telling the user to make sure the compatibility if there is any customization in valuesFrom of packages
 	// https://github.com/vmware-tanzu/tanzu-framework/issues/1807
 	// Handle ClusterBootstrap update when TKR version of the cluster is upgraded
 	if tkrName != clusterBootstrap.Status.ResolvedTKR {
 		log.Info(fmt.Sprintf("Upgrading ClusterBootstrap from TKR %s to TKR %s", clusterBootstrap.Status.ResolvedTKR, tkrName))
-
-		// Will update ClusterBootstrap based on new clusterBootstrapTemplate
-		updatedClusterBootstrap := clusterBootstrap.DeepCopy()
-		patchHelper, err := clusterapipatchutil.NewHelper(updatedClusterBootstrap, r.Client)
-		if err != nil {
-			return nil, err
-		}
-		if clusterBootstrapTemplate.Spec == nil || updatedClusterBootstrap.Spec == nil {
-			return nil, errors.New("ClusterBootstrap and ClusterBootstrapTemplate spec can't be nil")
-		}
-
-		// Upgrade the refName of all the core packages
-		// Package updates keep the users' customization in valuesFrom
-		// We assume:
-		//    1. ClusterBootstrapTemplate will always have Kapp and CNI package available
-		//    2. ClusterBootstrapTemplate will always have consistent core packages refNames in different TKR versions (same name, different version)
-		//    3. The Group and Kind for default core package providers will not change across different TKR versions
-		//    4. All packages, including additional packages, can't be deleted (meaning the package refName can't be changed, only allow version bump)
-		//    5. We will keep users' customization on valuesFrom of each package, users are responsible for the correctness of the content they put in will work with the next version.
-		newCNIPkg, err := r.getCNIForClusterBootstrap(clusterBootstrapTemplate, cluster, log)
-		if err != nil {
-			log.Error(err, "unable to get the selected CNI")
-			return nil, err
-		}
-		if len(updatedClusterBootstrap.Spec.CNIs) != 1 {
-			log.Info("not exactly 1 CNI is selected in ClusterBootstrap, should not happen. Continue with CNI selected in ClusterBootstrapTemplate of new TKR")
-			updatedClusterBootstrap.Spec.CNIs = []*runtanzuv1alpha3.ClusterBootstrapPackage{newCNIPkg.DeepCopy()}
-		} else {
-			// We don't allow change to the CNI selection once it starts running
-			// ClusterBootstrap webhook will make sure the package RefName always match the original CNI
-			updatedClusterBootstrap.Spec.CNIs[0].RefName = newCNIPkg.RefName
-		}
-
-		if updatedClusterBootstrap.Spec.Kapp == nil {
-			log.Info("no Kapp-Controller package specified in ClusterBootstarp, should not happen. Continue with Kapp-Controller in ClusterBootstrapTemplate of new TKR")
-			updatedClusterBootstrap.Spec.Kapp = clusterBootstrapTemplate.Spec.Kapp.DeepCopy()
-		} else {
-			updatedClusterBootstrap.Spec.Kapp.RefName = clusterBootstrapTemplate.Spec.Kapp.RefName
-		}
-
-		// CSI and CPI can be nil, only update if it's present
-		// According to assumption 2, no need to do nil check on template
-		if updatedClusterBootstrap.Spec.CSI == nil {
-			updatedClusterBootstrap.Spec.CSI = clusterBootstrapTemplate.Spec.CSI.DeepCopy()
-		} else {
-			updatedClusterBootstrap.Spec.CSI.RefName = clusterBootstrapTemplate.Spec.CSI.RefName
-		}
-
-		if updatedClusterBootstrap.Spec.CPI == nil {
-			updatedClusterBootstrap.Spec.CSI = clusterBootstrapTemplate.Spec.CSI.DeepCopy()
-		} else {
-			updatedClusterBootstrap.Spec.CSI.RefName = clusterBootstrapTemplate.Spec.CSI.RefName
-		}
-
-		// Since we don't allow users to delete additional packages in our webhook
-		// Meaning the users will not be able to customize the packageRefName
-		// Find all the corresponding pairs in ClusterBootstrap and new ClusterBootstrapTemplate to update
-		// Add the additional package if it's only present in the new ClusterBootstrapTemplate
-		// Leave the package as it is if it's only present in ClusterBootstrap but not in the new Template
-		additionalPackageMap := map[string]*runtanzuv1alpha3.ClusterBootstrapPackage{}
-
-		for _, pkg := range updatedClusterBootstrap.Spec.AdditionalPackages {
-			packageRefName, _, err := util.GetPackageMetadata(r.context, r.liveClient, pkg.RefName, cluster.Namespace)
-			if err != nil || packageRefName == "" {
-				errorMsg := fmt.Sprintf("unable to fetch Package.Spec.RefName or Package.Spec.Version from Package %s/%s", cluster.Namespace, pkg.RefName)
-				r.Log.Error(err, errorMsg)
-				return nil, errors.Wrap(err, errorMsg)
-			}
-			additionalPackageMap[packageRefName] = pkg
-		}
-
-		packages := make([]*runtanzuv1alpha3.ClusterBootstrapPackage, 0)
-		for _, templatePkg := range clusterBootstrapTemplate.Spec.AdditionalPackages {
-			// use the refName in package CR, since the package CR hasn't been cloned at this point, use SystemNamespace to fetch packageCR
-			packageRefName, _, err := util.GetPackageMetadata(r.context, r.liveClient, templatePkg.RefName, r.Config.SystemNamespace)
-			if err != nil || packageRefName == "" {
-				errorMsg := fmt.Sprintf("unable to fetch Package.Spec.RefName or Package.Spec.Version from Package %s/%s", cluster.Namespace, templatePkg.RefName)
-				r.Log.Error(err, errorMsg)
-				return nil, errors.Wrap(err, errorMsg)
-			}
-
-			// Find the one to one match for additional package in new ClusterBootstrapTemplate and old ClusterBootstrap and update
-			if pkg, ok := additionalPackageMap[packageRefName]; ok {
-				pkg.RefName = templatePkg.RefName
-			} else {
-				// If new additional package is added in ClusterBootstrapTemplate, just add it to updated ClusterBootstrap
-				newPkg := templatePkg.DeepCopy()
-				updatedClusterBootstrap.Spec.AdditionalPackages = append(updatedClusterBootstrap.Spec.AdditionalPackages, newPkg)
-				packages = append(packages, newPkg)
-			}
-		}
-
-		// Handle newly added additional package values
-		secrets, providers, err := r.cloneSecretsAndProvidersFromList(cluster, packages, clusterBootstrapTemplate.Namespace, log)
-		if err != nil {
-			r.Log.Error(err, "unable to clone secrets or providers")
-			return nil, err
-		}
-
-		// No need to update ClusterBootstrap ownerRef
-
-		// Patch the Spec and update the Resolved TKR
-		updatedClusterBootstrap.Status.ResolvedTKR = tkrName
-		if err := patchHelper.Patch(r.context, updatedClusterBootstrap); err != nil {
-			log.Error(err, "failed to updated clusterBootstrap")
-			return nil, err
-		}
-		// ensure ownerRef of clusterBootstrap on created secrets and providers, this can only be done after
-		// clusterBootstrap is updated
-		if err := r.ensureOwnerRef(updatedClusterBootstrap, secrets, providers); err != nil {
-			r.Log.Error(err, fmt.Sprintf("unable to ensure ClusterBootstrap %s/%s as a ownerRef on created secrets and providers", clusterBootstrap.Namespace, clusterBootstrap.Name))
-			return nil, err
-		}
-
-		r.Log.Info("updated clusterBootstrap", "clusterBootstrap", updatedClusterBootstrap)
-
-		return updatedClusterBootstrap, nil
+		return r.patchClusterBootstrapFromTemplate(cluster, clusterBootstrap, clusterBootstrapTemplate, tkrName, log)
 	}
 	return nil, errors.New("should not happen")
+}
+
+// createClusterBootstrapFromTemplate will create ClusterBootstrap associated with a cluster
+func (r *ClusterBootstrapReconciler) createClusterBootstrapFromTemplate(
+	cluster *clusterapiv1beta1.Cluster,
+	clusterBootstrapTemplate *runtanzuv1alpha3.ClusterBootstrapTemplate,
+	tkrName string,
+	log logr.Logger) (*runtanzuv1alpha3.ClusterBootstrap, error) {
+
+	clusterBootstrap := &runtanzuv1alpha3.ClusterBootstrap{}
+	clusterBootstrap.Name = cluster.Name
+	clusterBootstrap.Namespace = cluster.Namespace
+	clusterBootstrap.Spec = clusterBootstrapTemplate.Spec.DeepCopy()
+	// get selected CNI and populate clusterBootstrap.Spec.CNIs with it
+	cniPackage, err := r.getCNIForClusterBootstrap(clusterBootstrapTemplate, cluster, log)
+	if err != nil {
+		return nil, err
+	}
+	clusterBootstrap.Spec.CNIs = []*runtanzuv1alpha3.ClusterBootstrapPackage{cniPackage}
+
+	secrets, providers, err := r.cloneSecretsAndProviders(cluster, clusterBootstrap, clusterBootstrapTemplate.Namespace, log)
+	if err != nil {
+		r.Log.Error(err, "unable to clone secrets or providers")
+		return nil, err
+	}
+
+	clusterBootstrap.OwnerReferences = []metav1.OwnerReference{
+		{
+			APIVersion:         clusterapiv1beta1.GroupVersion.String(),
+			Kind:               cluster.Kind,
+			Name:               cluster.Name,
+			UID:                cluster.UID,
+			Controller:         pointer.BoolPtr(true),
+			BlockOwnerDeletion: pointer.BoolPtr(true),
+		},
+	}
+
+	if err := r.Client.Create(r.context, clusterBootstrap); err != nil {
+		return nil, err
+	}
+	// ensure ownerRef of clusterBootstrap on created secrets and providers, this can only be done after
+	// clusterBootstrap is created
+	if err := r.ensureOwnerRef(clusterBootstrap, secrets, providers); err != nil {
+		r.Log.Error(err, fmt.Sprintf("unable to ensure ClusterBootstrap %s/%s as a ownerRef on created secrets and providers", clusterBootstrap.Namespace, clusterBootstrap.Name))
+		return nil, err
+	}
+
+	clusterBootstrap.Status.ResolvedTKR = tkrName
+	if err := r.Status().Update(r.context, clusterBootstrap); err != nil {
+		r.Log.Error(err, fmt.Sprintf("unable to update the status of ClusterBootstrap %s/%s", clusterBootstrap.Namespace, clusterBootstrap.Name))
+		return nil, err
+	}
+	r.Log.Info("cloned clusterBootstrap", "clusterBootstrap", clusterBootstrap)
+
+	return clusterBootstrap, nil
+}
+
+// patchClusterBootstrapFromTemplate will patch ClusterBootstrap associated with a cluster in case of TKR upgrade
+func (r *ClusterBootstrapReconciler) patchClusterBootstrapFromTemplate(
+	cluster *clusterapiv1beta1.Cluster,
+	clusterBootstrap *runtanzuv1alpha3.ClusterBootstrap,
+	clusterBootstrapTemplate *runtanzuv1alpha3.ClusterBootstrapTemplate,
+	tkrName string,
+	log logr.Logger) (*runtanzuv1alpha3.ClusterBootstrap, error) {
+
+	// Will update ClusterBootstrap based on new clusterBootstrapTemplate
+	updatedClusterBootstrap := clusterBootstrap.DeepCopy()
+	patchHelper, err := clusterapipatchutil.NewHelper(updatedClusterBootstrap, r.Client)
+	if err != nil {
+		return nil, err
+	}
+	if clusterBootstrapTemplate.Spec == nil || updatedClusterBootstrap.Spec == nil {
+		return nil, errors.New("ClusterBootstrap and ClusterBootstrapTemplate spec can't be nil")
+	}
+
+	// Upgrade the refName of all the core packages
+	// Package updates keep the users' customization in valuesFrom
+	// We assume:
+	//    1. ClusterBootstrapTemplate will always have Kapp and CNI package available
+	//    2. ClusterBootstrapTemplate will always have consistent core packages refNames in different TKR versions (same name, different version)
+	//    3. The Group and Kind for default core package providers will not change across different TKR versions
+	//    4. All packages, including additional packages, can't be deleted (meaning the package refName can't be changed, only allow version bump)
+	//    5. We will keep users' customization on valuesFrom of each package, users are responsible for the correctness of the content they put in will work with the next version.
+	newCNIPkg, err := r.getCNIForClusterBootstrap(clusterBootstrapTemplate, cluster, log)
+	if err != nil {
+		log.Error(err, "unable to get the selected CNI")
+		return nil, err
+	}
+	if len(updatedClusterBootstrap.Spec.CNIs) != 1 {
+		log.Info("not exactly 1 CNI is selected in ClusterBootstrap, should not happen. Continue with CNI selected in ClusterBootstrapTemplate of new TKR")
+		updatedClusterBootstrap.Spec.CNIs = []*runtanzuv1alpha3.ClusterBootstrapPackage{newCNIPkg.DeepCopy()}
+	} else {
+		// We don't allow change to the CNI selection once it starts running
+		// ClusterBootstrap webhook will make sure the package RefName always match the original CNI
+		updatedClusterBootstrap.Spec.CNIs[0].RefName = newCNIPkg.RefName
+	}
+
+	if updatedClusterBootstrap.Spec.Kapp == nil {
+		log.Info("no Kapp-Controller package specified in ClusterBootstarp, should not happen. Continue with Kapp-Controller in ClusterBootstrapTemplate of new TKR")
+		updatedClusterBootstrap.Spec.Kapp = clusterBootstrapTemplate.Spec.Kapp.DeepCopy()
+	} else {
+		updatedClusterBootstrap.Spec.Kapp.RefName = clusterBootstrapTemplate.Spec.Kapp.RefName
+	}
+
+	// CSI and CPI can be nil, only update if it's present
+	// According to assumption 2, no need to do nil check on template
+	if updatedClusterBootstrap.Spec.CSI == nil {
+		updatedClusterBootstrap.Spec.CSI = clusterBootstrapTemplate.Spec.CSI.DeepCopy()
+	} else {
+		updatedClusterBootstrap.Spec.CSI.RefName = clusterBootstrapTemplate.Spec.CSI.RefName
+	}
+
+	if updatedClusterBootstrap.Spec.CPI == nil {
+		updatedClusterBootstrap.Spec.CSI = clusterBootstrapTemplate.Spec.CSI.DeepCopy()
+	} else {
+		updatedClusterBootstrap.Spec.CSI.RefName = clusterBootstrapTemplate.Spec.CSI.RefName
+	}
+
+	// Since we don't allow users to delete additional packages in our webhook
+	// Meaning the users will not be able to customize the packageRefName
+	// Find all the corresponding pairs in ClusterBootstrap and new ClusterBootstrapTemplate to update
+	// Add the additional package if it's only present in the new ClusterBootstrapTemplate
+	// Leave the package as it is if it's only present in ClusterBootstrap but not in the new Template
+	additionalPackageMap := map[string]*runtanzuv1alpha3.ClusterBootstrapPackage{}
+
+	for _, pkg := range updatedClusterBootstrap.Spec.AdditionalPackages {
+		packageRefName, _, err := util.GetPackageMetadata(r.context, r.liveClient, pkg.RefName, cluster.Namespace)
+		if err != nil || packageRefName == "" {
+			errorMsg := fmt.Sprintf("unable to fetch Package.Spec.RefName or Package.Spec.Version from Package %s/%s", cluster.Namespace, pkg.RefName)
+			r.Log.Error(err, errorMsg)
+			return nil, errors.Wrap(err, errorMsg)
+		}
+		additionalPackageMap[packageRefName] = pkg
+	}
+
+	packages := make([]*runtanzuv1alpha3.ClusterBootstrapPackage, 0)
+	for _, templatePkg := range clusterBootstrapTemplate.Spec.AdditionalPackages {
+		// use the refName in package CR, since the package CR hasn't been cloned at this point, use SystemNamespace to fetch packageCR
+		packageRefName, _, err := util.GetPackageMetadata(r.context, r.liveClient, templatePkg.RefName, r.Config.SystemNamespace)
+		if err != nil || packageRefName == "" {
+			errorMsg := fmt.Sprintf("unable to fetch Package.Spec.RefName or Package.Spec.Version from Package %s/%s", cluster.Namespace, templatePkg.RefName)
+			r.Log.Error(err, errorMsg)
+			return nil, errors.Wrap(err, errorMsg)
+		}
+
+		// Find the one to one match for additional package in new ClusterBootstrapTemplate and old ClusterBootstrap and update
+		if pkg, ok := additionalPackageMap[packageRefName]; ok {
+			pkg.RefName = templatePkg.RefName
+		} else {
+			// If new additional package is added in ClusterBootstrapTemplate, just add it to updated ClusterBootstrap
+			newPkg := templatePkg.DeepCopy()
+			updatedClusterBootstrap.Spec.AdditionalPackages = append(updatedClusterBootstrap.Spec.AdditionalPackages, newPkg)
+			packages = append(packages, newPkg)
+		}
+	}
+
+	// Handle newly added additional package values
+	secrets, providers, err := r.cloneSecretsAndProvidersFromList(cluster, packages, clusterBootstrapTemplate.Namespace, log)
+	if err != nil {
+		r.Log.Error(err, "unable to clone secrets or providers")
+		return nil, err
+	}
+
+	// No need to update ClusterBootstrap ownerRef
+
+	// Patch the Spec and update the Resolved TKR
+	updatedClusterBootstrap.Status.ResolvedTKR = tkrName
+	if err := patchHelper.Patch(r.context, updatedClusterBootstrap); err != nil {
+		log.Error(err, "failed to updated clusterBootstrap")
+		return nil, err
+	}
+	// ensure ownerRef of clusterBootstrap on created secrets and providers, this can only be done after
+	// clusterBootstrap is updated
+	if err := r.ensureOwnerRef(updatedClusterBootstrap, secrets, providers); err != nil {
+		r.Log.Error(err, fmt.Sprintf("unable to ensure ClusterBootstrap %s/%s as a ownerRef on created secrets and providers", clusterBootstrap.Namespace, clusterBootstrap.Name))
+		return nil, err
+	}
+
+	r.Log.Info("updated clusterBootstrap", "clusterBootstrap", updatedClusterBootstrap)
+	return updatedClusterBootstrap, nil
 }
 
 // createOrPatchKappPackageInstall contains the logic that create/update PackageInstall CR for kapp-controller on
