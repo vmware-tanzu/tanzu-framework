@@ -7,7 +7,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"strings"
 	"time"
 
 	"github.com/go-logr/logr"
@@ -18,7 +17,6 @@ import (
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
-	errorsutil "k8s.io/apimachinery/pkg/util/errors"
 	"k8s.io/client-go/discovery"
 	cacheddiscovery "k8s.io/client-go/discovery/cached/memory"
 	"k8s.io/client-go/dynamic"
@@ -215,8 +213,7 @@ func (r *ClusterBootstrapReconciler) reconcileNormal(cluster *clusterapiv1beta1.
 	// Create or patch the resources for CNI, CPI, CSI to be running on the remote cluster.
 	// Those resources include Package CR, data value Secret, PackageInstall CR.
 	var corePackages []*runtanzuv1alpha3.ClusterBootstrapPackage
-	corePackages = append(corePackages, clusterBootstrap.Spec.CPI, clusterBootstrap.Spec.CSI)
-	corePackages = append(corePackages, clusterBootstrap.Spec.CNIs...)
+	corePackages = append(corePackages, clusterBootstrap.Spec.CNI, clusterBootstrap.Spec.CPI, clusterBootstrap.Spec.CSI)
 
 	// The following filtering out of nil items is not necessary in production
 	// as we do not expect CNI, CPI, CSI to be nil and webhook should handle
@@ -291,12 +288,6 @@ func (r *ClusterBootstrapReconciler) createOrPatchClusterBootstrapFromTemplate(c
 		clusterBootstrap.Name = cluster.Name
 		clusterBootstrap.Namespace = cluster.Namespace
 		clusterBootstrap.Spec = clusterBootstrapTemplate.Spec.DeepCopy()
-		// get selected CNI and populate clusterBootstrap.Spec.CNIs with it
-		cniPackage, err := r.getCNIForClusterBootstrap(clusterBootstrapTemplate, cluster, log)
-		if err != nil {
-			return nil, err
-		}
-		clusterBootstrap.Spec.CNIs = []*runtanzuv1alpha3.ClusterBootstrapPackage{cniPackage}
 
 		secrets, providers, err := r.cloneSecretsAndProviders(cluster, clusterBootstrap, clusterBootstrapTemplate.Namespace, log)
 		if err != nil {
@@ -789,11 +780,11 @@ func (r *ClusterBootstrapReconciler) cloneSecretsAndProviders(cluster *clusterap
 	var createdSecrets []*corev1.Secret
 
 	packages := append([]*runtanzuv1alpha3.ClusterBootstrapPackage{
+		bootstrap.Spec.CNI,
 		bootstrap.Spec.CPI,
 		bootstrap.Spec.CSI,
 		bootstrap.Spec.Kapp,
-	}, bootstrap.Spec.CNIs...)
-	packages = append(packages, bootstrap.Spec.AdditionalPackages...)
+	}, bootstrap.Spec.AdditionalPackages...)
 
 	for _, pkg := range packages {
 		if pkg == nil {
@@ -1150,49 +1141,6 @@ func (r *ClusterBootstrapReconciler) GetDataValueSecretNameFromBootstrapPackage(
 	// The message in err object has sufficient information
 	r.Log.Error(err, "")
 	return "", err
-}
-
-func (r *ClusterBootstrapReconciler) getCNIForClusterBootstrap(
-	clusterBootstrapTemplate *runtanzuv1alpha3.ClusterBootstrapTemplate,
-	cluster *clusterapiv1beta1.Cluster,
-	log logr.Logger) (*runtanzuv1alpha3.ClusterBootstrapPackage, error) {
-
-	var clusterBootstrapPackage *runtanzuv1alpha3.ClusterBootstrapPackage
-
-	selectedCNI, err := util.ParseClusterVariableString(cluster, r.Config.CNISelectionClusterVariableName)
-	if err != nil {
-		log.Error(err, "Error parsing cluster variable value for the CNI selection")
-		return nil, err
-	}
-	if selectedCNI != "" {
-		var getPkgMetadataErrs []error
-		foundCNI := false
-		for _, cni := range clusterBootstrapTemplate.Spec.CNIs {
-			// Package should be available in cluster namespace
-			pkgRefName, _, getPkgMetadataErr := util.GetPackageMetadata(r.context, r.liveClient, cni.RefName, cluster.Namespace)
-			if getPkgMetadataErr != nil {
-				getPkgMetadataErrs = append(getPkgMetadataErrs, getPkgMetadataErr)
-			}
-			// selectedCNI string from cluster.Topology.Variables could be any arbitrary string. I.e., antrea or antrea.tanzu.vmware.com
-			// A Carvel package refName could follow a different naming convention.
-			// When comparing the selectedCNI string with
-			if strings.HasPrefix(pkgRefName, selectedCNI) {
-				clusterBootstrapPackage = cni
-				foundCNI = true
-				break
-			}
-		}
-		if len(getPkgMetadataErrs) != 0 && !foundCNI {
-			return nil, errorsutil.NewAggregate(getPkgMetadataErrs)
-		}
-	} else {
-		if len(clusterBootstrapTemplate.Spec.CNIs) > 0 {
-			clusterBootstrapPackage = clusterBootstrapTemplate.Spec.CNIs[0]
-		} else {
-			return nil, errors.New("no CNI was specified in the ClusterClass or in ClusterBootstrap.Spec.CNIs")
-		}
-	}
-	return clusterBootstrapPackage, nil
 }
 
 func (r *ClusterBootstrapReconciler) watchesForClusterBootstrap() []ClusterBootstrapWatchInputs {

@@ -57,25 +57,24 @@ func init() {
 }
 
 type addonFlags struct {
-	metricsAddr                string
-	enableLeaderElection       bool
-	clusterConcurrency         int
-	syncPeriod                 time.Duration
-	appSyncPeriod              time.Duration
-	appWaitTimeout             time.Duration
-	addonNamespace             string
-	addonServiceAccount        string
-	addonClusterRole           string
-	addonClusterRoleBinding    string
-	addonImagePullPolicy       string
-	corePackageRepoName        string
-	healthdAddr                string
-	cniSelectionClusterVarName string
-	httpProxyClusterVarName    string
-	httpsProxyClusterVarName   string
-	noProxyClusterVarName      string
-	proxyCACertClusterVarName  string
-	ipFamilyClusterVarName     string
+	metricsAddr               string
+	enableLeaderElection      bool
+	clusterConcurrency        int
+	syncPeriod                time.Duration
+	appSyncPeriod             time.Duration
+	appWaitTimeout            time.Duration
+	addonNamespace            string
+	addonServiceAccount       string
+	addonClusterRole          string
+	addonClusterRoleBinding   string
+	addonImagePullPolicy      string
+	corePackageRepoName       string
+	healthdAddr               string
+	httpProxyClusterVarName   string
+	httpsProxyClusterVarName  string
+	noProxyClusterVarName     string
+	proxyCACertClusterVarName string
+	ipFamilyClusterVarName    string
 }
 
 func parseAddonFlags(addonFlags *addonFlags) {
@@ -98,7 +97,6 @@ func parseAddonFlags(addonFlags *addonFlags) {
 	flag.StringVar(&addonFlags.addonImagePullPolicy, "addon-image-pull-policy", "IfNotPresent", "The addon image pull policy")
 	flag.StringVar(&addonFlags.corePackageRepoName, "core-package-repo-name", "tanzu-core", "The name of core package repository")
 	flag.StringVar(&addonFlags.healthdAddr, "health-addr", ":18316", "The address the health endpoint binds to.")
-	flag.StringVar(&addonFlags.cniSelectionClusterVarName, "cni-selection-cluster-var-name", constants.DefaultCNISelectionClusterVariableName, "CNI selection cluster variable name")
 	flag.StringVar(&addonFlags.httpProxyClusterVarName, "http-proxy-cluster-var-name", constants.DefaultHTTPProxyClusterClassVarName, "HTTP proxy setting cluster variable name")
 	flag.StringVar(&addonFlags.httpsProxyClusterVarName, "https-proxy-cluster-var-name", constants.DefaultHTTPSProxyClusterClassVarName, "HTTPS proxy setting cluster variable name")
 	flag.StringVar(&addonFlags.noProxyClusterVarName, "no-proxy-cluster-var-name", constants.DefaultNoProxyClusterClassVarName, "No-proxy setting cluster variable name")

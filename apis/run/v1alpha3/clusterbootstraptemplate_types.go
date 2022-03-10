@@ -17,7 +17,7 @@ type ClusterBootstrapTemplateSpec struct {
 
 	// TODO these are optional for temp testing, change when TKR v1alpha3 is available
 	// +optional
-	CNIs []*ClusterBootstrapPackage `json:"cnis,omitempty"`
+	CNI *ClusterBootstrapPackage `json:"cni,omitempty"`
 	// +optional
 	CSI *ClusterBootstrapPackage `json:"csi,omitempty"`
 	// +optional
