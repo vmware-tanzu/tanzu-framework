@@ -32,8 +32,6 @@ var _ webhook.Validator = &CalicoConfig{}
 
 // Default implements webhook.Defaulter so a webhook will be registered for the type
 func (r *CalicoConfig) Default() {
-	calicoconfiglog.Info("default", "name", r.Name)
-
 	// No-op for default
 }
 
@@ -41,8 +39,6 @@ func (r *CalicoConfig) Default() {
 
 // ValidateCreate implements webhook.Validator so a webhook will be registered for the type
 func (r *CalicoConfig) ValidateCreate() error {
-	calicoconfiglog.Info("validate create", "name", r.Name)
-
 	return nil
 }
 
@@ -80,8 +76,6 @@ func (r *CalicoConfig) ValidateUpdate(old runtime.Object) error {
 
 // ValidateDelete implements webhook.Validator so a webhook will be registered for the type
 func (r *CalicoConfig) ValidateDelete() error {
-	calicoconfiglog.Info("validate delete", "name", r.Name)
-
 	// No validation required for CalicoConfig deletion
 	return nil
 }

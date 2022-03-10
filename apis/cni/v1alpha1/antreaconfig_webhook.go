@@ -25,8 +25,6 @@ func (r *AntreaConfig) SetupWebhookWithManager(mgr ctrl.Manager) error {
 		Complete()
 }
 
-// EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!
-
 var _ webhook.Defaulter = &AntreaConfig{}
 var _ webhook.Validator = &AntreaConfig{}
 
@@ -34,7 +32,6 @@ var _ webhook.Validator = &AntreaConfig{}
 
 // Default implements webhook.Defaulter so a webhook will be registered for the type
 func (r *AntreaConfig) Default() {
-	antreaconfiglog.Info("default", "name", r.Name)
 	// No-op for default
 }
 
@@ -128,8 +125,6 @@ func (r *AntreaConfig) ValidateUpdate(old runtime.Object) error {
 
 // ValidateDelete implements webhook.Validator so a webhook will be registered for the type
 func (r *AntreaConfig) ValidateDelete() error {
-	antreaconfiglog.Info("validate delete", "name", r.Name)
-
 	// No validation required for AntreaConfig deletion
 	return nil
 }
