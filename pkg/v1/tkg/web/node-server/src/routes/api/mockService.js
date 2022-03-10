@@ -1045,7 +1045,7 @@ router.post(`${ENDPOINT}/providers/azure/resourcegroups`, (req, res) => {
 });
 
 /**
- * Retrieve Azure VNETS for a particular resource group
+ * Retrieve Azure VNets for a particular resource group
  */
 router.get(`${ENDPOINT}/providers/azure/resourcegroups/:rgn/vnets`, (req, res) => {
     winston.info('Mock TKG UI RETRIEVE AZURE VNETS');
