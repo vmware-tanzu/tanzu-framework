@@ -122,22 +122,28 @@ func DoSetMachineDeployment(clusterClient clusterclient.Client, options *SetMach
 		return apierrors.NewNotFound(schema.GroupResource{Resource: "MachineDeployment"}, "")
 	}
 
-	nameMatcher, err := regexp.Compile(fmt.Sprintf("((%s)?-)?(%s)",
-		regexp.QuoteMeta(options.ClusterName), regexp.QuoteMeta(options.Name)))
-	if err != nil {
-		return errors.Wrap(err, "failed to parse node pool name")
-	}
-
 	baseMD := workerMDs[0]
 	update := false
 	for i := range workerMDs {
-		if nameMatcher.MatchString(workerMDs[i].Name) {
+		if workerMDs[i].Name == options.Name {
 			baseMD = workerMDs[i]
 			update = true
 			break
 		}
 		if workerMDs[i].Name == options.BaseMachineDeployment {
 			baseMD = workerMDs[i]
+		}
+	}
+	if !update {
+		for i := range workerMDs {
+			if workerMDs[i].Name == options.ClusterName+"-"+options.Name {
+				baseMD = workerMDs[i]
+				update = true
+				break
+			}
+			if workerMDs[i].Name == options.BaseMachineDeployment {
+				baseMD = workerMDs[i]
+			}
 		}
 	}
 

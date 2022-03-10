@@ -1181,6 +1181,25 @@ var _ = Describe("Machine Deployment", func() {
 						},
 					},
 				}
+				md2 = capi.MachineDeployment{
+					ObjectMeta: metav1.ObjectMeta{
+						Name: "test-cluster-np-1",
+						Annotations: map[string]string{
+							"key1": "value1",
+							"key2": "value2",
+						},
+					},
+					Spec: capi.MachineDeploymentSpec{
+						Replicas: &existingReplicas,
+						Template: capi.MachineTemplateSpec{
+							ObjectMeta: capi.ObjectMeta{
+								Labels: map[string]string{
+									"oldkey": "oldvalue",
+								},
+							},
+						},
+					},
+				}
 				clusterClient.GetMDObjectForClusterReturns([]capi.MachineDeployment{md1}, nil)
 			})
 			When("updating the machine deployment hits an error", func() {
@@ -1190,6 +1209,20 @@ var _ = Describe("Machine Deployment", func() {
 				It("should throw an error", func() {
 					Expect(err).To(HaveOccurred())
 					Expect(err).Should(MatchError("failed to update machinedeployment: "))
+				})
+			})
+			When("setting a node pool with a name that is a subset of another node pool name", func() {
+				BeforeEach(func() {
+					md2.Name = np1Name
+					clusterClient.GetMDObjectForClusterReturns([]capi.MachineDeployment{md1, md2, md3}, nil)
+					clusterClient.UpdateResourceReturns(nil)
+				})
+				It("should update the machine deployment with the exact matching name", func() {
+					Expect(clusterClient.UpdateResourceCallCount()).To(Equal(1))
+					mdObj, _, _, _ := clusterClient.UpdateResourceArgsForCall(0)
+					md, ok := mdObj.(*capi.MachineDeployment)
+					Expect(ok).To(BeTrue())
+					Expect(md.Name).To(Equal("np-1"))
 				})
 			})
 			When("the machine deployment updates successfully", func() {
