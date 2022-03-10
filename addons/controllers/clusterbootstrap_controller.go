@@ -270,15 +270,21 @@ func (r *ClusterBootstrapReconciler) createOrPatchClusterBootstrapFromTemplate(c
 
 	clusterBootstrap := &runtanzuv1alpha3.ClusterBootstrap{}
 	err := r.Client.Get(r.context, client.ObjectKeyFromObject(cluster), clusterBootstrap)
+	if err != nil && !apierrors.IsNotFound(err) {
+		return nil, err
+	}
+
+	if clusterBootstrap.Spec != nil && clusterBootstrap.Spec.Paused {
+		// Skip reconcile if ClusterBootstrap is paused
+		log.Info("ClusterBootstrap is paused, blocking further processing")
+		return nil, nil
+	}
 	// if found and resolved tkr is the same, return found object as the TKR is supposed to be immutable
 	// also preserves any user changes
-	if err == nil && tkrName == clusterBootstrap.Status.ResolvedTKR {
+	if tkrName == clusterBootstrap.Status.ResolvedTKR {
 		return clusterBootstrap, nil
 	}
 
-	if !apierrors.IsNotFound(err) {
-		return nil, err
-	}
 	if clusterBootstrap.UID == "" {
 		log.Info("ClusterBootstrap for cluster does not exist, cloning from template")
 
@@ -680,7 +686,7 @@ func (r *ClusterBootstrapReconciler) createOrPatchAddonResourcesOnRemote(cluster
 		return err
 	}
 	if remoteSecret != nil {
-		r.Log.Info(fmt.Sprintf("created or patched secret for package %s on cluster %s/%s", remotePackage.Name, cluster.Namespace,
+		r.Log.Info(fmt.Sprintf("created or patched secret %s/%s for package %s on cluster %s/%s", remoteSecret.Namespace, remoteSecret.Name, remotePackage.Name, cluster.Namespace,
 			cluster.Name))
 	}
 

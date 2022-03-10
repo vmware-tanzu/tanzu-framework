@@ -243,6 +243,11 @@ spec:
                 required:
                 - refName
                 type: object
+              paused:
+                default: false
+                description: Paused can be used to prevent controllers from processing
+                  the ClusterBootstrap and all its associated objects.
+                type: boolean
             type: object
         required:
         - spec

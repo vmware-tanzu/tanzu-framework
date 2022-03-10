@@ -16,7 +16,7 @@ NODE_MACHINE_TYPE: "NA","m5.large"
 _TKG_CLUSTER_FORCE_ROLE: "NA", "management"
 _CNAME: "testcluster", "c1", "really-long-cluster-name-with-hyphen"
 _PLAN: "dev", "prod"
-_INFRA: "vsphere:v1.0.2"
+_INFRA: "vsphere:v1.1.0"
 
 BASTION_HOST_ENABLED: "true"
 NODE_STARTUP_TIMEOUT: "20m"
@@ -68,6 +68,7 @@ AVI_SERVICE_ENGINE_GROUP: "test-se-group"
 AVI_MANAGEMENT_CLUSTER_SERVICE_ENGINE_GROUP: "NA", "test-mc-se-group"
 AVI_DATA_NETWORK: "WorkloadCluster-Network-data-plane"
 AVI_DATA_NETWORK_CIDR: "10.161.136.0/24"
+AVI_NSXT_T1LR: "", "/infra/tier-1s/test-tier1"
 
 # These values might be empty when user grade to the tkg 1.5 version, other they will always contain values
 AVI_CONTROL_PLANE_NETWORK: "", "WorkloadCluster-Network-control-plane"

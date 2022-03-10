@@ -14,18 +14,12 @@ export class AzureOsImageStepComponent extends SharedOsImageStepDirective<AzureV
     protected supplyProviderInputs(): OsImageProviderInputs {
         return {
             event: TanzuEventType.AZURE_GET_OS_IMAGES,
+            eventImportFileFailure: TanzuEventType.AZURE_CONFIG_FILE_IMPORT_ERROR,
+            eventImportFileSuccess: TanzuEventType.AZURE_CONFIG_FILE_IMPORTED,
             noImageAlertMessage: '',
             osImageTooltipContent: 'Select a base OS image that you have already imported ' +
                 'into your Azure account. If no compatible OS image is present, import one into ' +
                 'Azure and click the Refresh button',
         };
-    }
-
-    protected supplyImportFileSuccessEvent(): TanzuEventType {
-        return TanzuEventType.AZURE_CONFIG_FILE_IMPORTED;
-    }
-
-    protected supplyImportFileFailureEvent(): TanzuEventType {
-        return TanzuEventType.AZURE_CONFIG_FILE_IMPORT_ERROR;
     }
 }

@@ -75,7 +75,7 @@ describe('ResourceStepComponent', () => {
     });
 
     it('should retrieve resources when load resources: case 2', () => {
-        component.onDataCenterChange();
+        component.onDataCenterChange({type: TanzuEventType.VSPHERE_DATACENTER_CHANGED, payload: ''});
         expect(component.formGroup.get('resourcePool').value).toBeFalsy();
         expect(component.formGroup.get('datastore').value).toBeFalsy();
         expect(component.formGroup.get('vmFolder').value).toBeFalsy();
@@ -83,19 +83,19 @@ describe('ResourceStepComponent', () => {
 
     it('should retrieve resources when load resources: case 3', () => {
         const msgSpy = spyOn(AppServices.messenger, 'publish').and.callThrough();
-        component.retrieveResourcePools();
+        component.retrieveResourcePools('dc-2');
         expect(msgSpy).toHaveBeenCalled();
     });
 
     it('should retrieve ds when load resources', async () => {
         const msgSpy = spyOn(AppServices.messenger, 'publish').and.callThrough();
-        component.retrieveDatastores();
+        component.retrieveDatastores('dc-2');
         expect(msgSpy).toHaveBeenCalled();
     });
 
     it('should retrieve vm folders when load resources', async () => {
         const msgSpy = spyOn(AppServices.messenger, 'publish').and.callThrough();
-        component.retrieveVMFolders();
+        component.retrieveVMFolders('dc-2');
         expect(msgSpy).toHaveBeenCalled();
     });
 

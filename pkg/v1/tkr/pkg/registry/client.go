@@ -11,7 +11,6 @@ import (
 	"github.com/cppforlife/go-cli-ui/ui"
 	regname "github.com/google/go-containerregistry/pkg/name"
 	regv1 "github.com/google/go-containerregistry/pkg/v1"
-	"github.com/google/go-containerregistry/pkg/v1/remote"
 	"github.com/k14s/imgpkg/pkg/imgpkg/cmd"
 	ctlimg "github.com/k14s/imgpkg/pkg/imgpkg/registry"
 	"github.com/pkg/errors"
@@ -52,7 +51,7 @@ func (r *registry) GetFile(imageWithTag, filename string) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	d, err := remote.Get(ref)
+	d, err := r.registry.Get(ref)
 	if err != nil {
 		return nil, errors.Wrap(err, "Collecting images")
 	}
@@ -124,7 +123,7 @@ func (r *registry) GetFiles(imageWithTag string) (map[string][]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	d, err := remote.Get(ref)
+	d, err := r.registry.Get(ref)
 	if err != nil {
 		return nil, errors.Wrap(err, "Collecting images")
 	}
