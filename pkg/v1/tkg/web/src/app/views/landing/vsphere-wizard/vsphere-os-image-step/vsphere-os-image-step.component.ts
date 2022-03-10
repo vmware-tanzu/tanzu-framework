@@ -1,8 +1,11 @@
 // Angular imports
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 // App imports
-import { FieldMapUtilities } from '../../wizard/shared/field-mapping/FieldMapUtilities';
-import { OsImageProviderInputs, SharedOsImageStepDirective } from '../../wizard/shared/components/steps/os-image-step/os-image-step.component';
+import AppServices from '../../../../shared/service/appServices';
+import {
+    OsImageProviderInputs,
+    SharedOsImageStepDirective
+} from '../../wizard/shared/components/steps/os-image-step/os-image-step.component';
 import { StepMapping } from '../../wizard/shared/field-mapping/FieldMapping';
 import { TanzuEventType } from '../../../../shared/service/Messenger';
 import { VsphereOsImageStepMapping } from './vsphere-os-image-step.fieldmapping';
@@ -13,12 +16,21 @@ import { VSphereVirtualMachine } from '../../../../swagger/models';
     templateUrl: '../../wizard/shared/components/steps/os-image-step/os-image-step.component.html',
     styleUrls: ['../../wizard/shared/components/steps/os-image-step/os-image-step.component.scss']
 })
-export class VsphereOsImageStepComponent extends SharedOsImageStepDirective<VSphereVirtualMachine> {
+export class VsphereOsImageStepComponent extends SharedOsImageStepDirective<VSphereVirtualMachine> implements OnInit {
     private tkrVersionString: string;
+    private currentDataCenter: string; // the currently selected data center
 
     constructor() {
         super();
         this.tkrVersion.subscribe(value => { this.tkrVersionString = value; });
+    }
+
+    ngOnInit() {
+        super.ngOnInit();
+        // subscribe to the VSPHERE_DATACENTER_CHANGED event so that we can capture the current data center. We need it so that if
+        // the user wants to refresh the os images available, we have the datacenter id for the backend call to get the os images
+        AppServices.messenger.subscribe<string>(TanzuEventType.VSPHERE_DATACENTER_CHANGED,
+                event => this.currentDataCenter = event.payload);
     }
 
     // NOTE: there is an implicit assumption here that the tkrVersion Observable will have delivered a value before
@@ -35,11 +47,19 @@ export class VsphereOsImageStepComponent extends SharedOsImageStepDirective<VSph
         const nonTemplateAlertMessage = 'Your selected OS image must be converted to a VM template. ' +
             'You may click the refresh icon to reload the OS image list once this has been done.'
         return {
+            createOsImageEventPayload: this.createOsImageEventPayload.bind(this),
             event: TanzuEventType.VSPHERE_GET_OS_IMAGES,
+            eventImportFileFailure: TanzuEventType.VSPHERE_CONFIG_FILE_IMPORT_ERROR,
+            eventImportFileSuccess: TanzuEventType.VSPHERE_CONFIG_FILE_IMPORTED,
             noImageAlertMessage: noImageAlertMessage,
             osImageTooltipContent: osImageTooltipContent,
             nonTemplateAlertMessage: nonTemplateAlertMessage,
         };
+    }
+
+    // returns a payload that can be used with the VSPHERE_GET_OS_IMAGES event to refresh the os images from the backend
+    private createOsImageEventPayload() {
+        return { dc: this.currentDataCenter };
     }
 
     protected getImageFromStoredValue(osImageValue: string): VSphereVirtualMachine {
@@ -50,13 +70,5 @@ export class VsphereOsImageStepComponent extends SharedOsImageStepDirective<VSph
 
     protected supplyStepMapping(): StepMapping {
         return VsphereOsImageStepMapping;
-    }
-
-    protected supplyImportFileSuccessEvent(): TanzuEventType {
-        return TanzuEventType.VSPHERE_CONFIG_FILE_IMPORTED;
-    }
-
-    protected supplyImportFileFailureEvent(): TanzuEventType {
-        return TanzuEventType.VSPHERE_CONFIG_FILE_IMPORT_ERROR;
     }
 }

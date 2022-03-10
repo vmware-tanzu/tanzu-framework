@@ -20,11 +20,15 @@ export interface OsImage {
     name?: string
 }
 export interface OsImageProviderInputs {
+    createOsImageEventPayload?: () => any,  // some providers need to send a payload when refreshing the list of OS images; some do not
     event: TanzuEventType,
+    eventImportFileSuccess: TanzuEventType,
+    eventImportFileFailure: TanzuEventType,
     osImageTooltipContent: string,
     nonTemplateAlertMessage?: string,
     noImageAlertMessage?: string,
 }
+
 @Directive()
 export abstract class SharedOsImageStepDirective<IMAGE extends OsImage> extends StepFormDirective implements OnInit {
     static description = 'Specify the OS Image';
@@ -47,8 +51,6 @@ export abstract class SharedOsImageStepDirective<IMAGE extends OsImage> extends 
     // This method allows child classes to supply the inputs (rather than having them passed as part of an HTML component tag).
     // This allows this step to follow the same pattern as all the other steps, which only take formGroup and formName as inputs.
     protected abstract supplyProviderInputs(): OsImageProviderInputs;
-    protected abstract supplyImportFileSuccessEvent(): TanzuEventType;
-    protected abstract supplyImportFileFailureEvent(): TanzuEventType;
 
     private subscribeToProviderEvent() {
         // we register a handler for when our event receives data, namely that we'll populate our array of osImages
@@ -72,12 +74,13 @@ export abstract class SharedOsImageStepDirective<IMAGE extends OsImage> extends 
         AppServices.userDataFormService.buildForm(this.formGroup, this.wizardName, this.formName, this.stepMapping);
         this.htmlFieldLabels = AppServices.fieldMapUtilities.getFieldLabelMap(this.stepMapping);
         this.storeDefaultLabels(this.stepMapping);
-        this.registerDefaultFileImportedHandler(this.supplyImportFileSuccessEvent(), this.stepMapping);
-        this.registerDefaultFileImportErrorHandler(this.supplyImportFileFailureEvent());
 
         this.providerInputs = this.supplyProviderInputs();
         this.registerStepDescriptionTriggers({fields: [OsImageField.IMAGE]});
         this.subscribeToProviderEvent();
+
+        this.registerDefaultFileImportedHandler(this.providerInputs.eventImportFileSuccess, this.stepMapping);
+        this.registerDefaultFileImportErrorHandler(this.providerInputs.eventImportFileFailure);
     }
 
     /**
@@ -88,8 +91,11 @@ export abstract class SharedOsImageStepDirective<IMAGE extends OsImage> extends 
     retrieveOsImages() {
         this.loadingOsTemplate = true;
         this.displayNonTemplateAlert = false;
+        // some providers need to send a payload when refreshing the list of OS images; some do not
+        const payload = this.providerInputs.createOsImageEventPayload ? this.providerInputs.createOsImageEventPayload() : undefined;
         AppServices.messenger.publish({
-            type: this.providerInputs.event
+            type: this.providerInputs.event,
+            payload
         });
     }
 
