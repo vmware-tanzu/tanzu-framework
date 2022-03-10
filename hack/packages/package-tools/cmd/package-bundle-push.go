@@ -9,6 +9,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strings"
 
 	"github.com/spf13/cobra"
 	"gopkg.in/yaml.v2"
@@ -30,6 +31,7 @@ func init() {
 	packageBundlePushCmd.Flags().StringVar(&registry, "registry", "", "OCI registry where the package bundle image needs to be stored")
 	packageBundlePushCmd.Flags().StringVar(&version, "version", "", "Package bundle version")
 	packageBundlePushCmd.Flags().StringVar(&subVersion, "sub-version", "", "Package bundle subversion")
+	packageBundlePushCmd.Flags().BoolVar(&all, "all", false, "Push all package bundles in given package repository to an image repository")
 	packageBundlePushCmd.MarkFlagRequired("repository") //nolint: errcheck
 	packageBundlePushCmd.MarkFlagRequired("registry")   //nolint: errcheck
 	packageBundlePushCmd.MarkFlagRequired("version")    //nolint: errcheck
@@ -58,6 +60,12 @@ func runPackageBundlePush(cmd *cobra.Command, args []string) error {
 	repository, found := packageValues.Repositories[packageRepository]
 	if !found {
 		return fmt.Errorf("%s repository not found", packageRepository)
+	}
+
+	if !all {
+		if err := prunePackages(&repository, args); err != nil {
+			return err
+		}
 	}
 
 	for _, pkg := range repository.Packages {
@@ -111,5 +119,37 @@ func validatePackageBundlePushFlags() error {
 	if utils.IsStringEmpty(version) {
 		return fmt.Errorf("version flag cannot be empty")
 	}
+	return nil
+}
+
+// prunePackages will update the given repository packages list to contain only
+// the bundle packages that match the first argument which contains a
+// comma-separated list of package bundles. If no package bundles are provided
+// or one cannot be found, an error is returned.
+func prunePackages(repository *Repository, args []string) error {
+	if len(args) == 0 {
+		return fmt.Errorf("at least one package bundle name is required to be specified")
+	}
+
+	// Only the first argument of the command will be recognized. The argument
+	// is expected to contain a list of comma separated package bundles.
+	csvBundles := args[0]
+	bundles := strings.Split(csvBundles, ",")
+
+	var pruned []Package
+	for _, bundle := range bundles {
+		var argFound bool
+		for _, pkg := range repository.Packages {
+			if pkg.Name == bundle {
+				argFound = true
+				pruned = append(pruned, pkg)
+			}
+		}
+		if !argFound {
+			return fmt.Errorf("unable to find package bundle %q", bundle)
+		}
+	}
+
+	repository.Packages = pruned
 	return nil
 }
