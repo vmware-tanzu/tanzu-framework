@@ -311,28 +311,31 @@ func (c *TkgClient) DeleteMachineDeployment(options DeleteMachineDeploymentOptio
 
 // DoDeleteMachineDeployment deletes a machine deployment
 func DoDeleteMachineDeployment(clusterClient clusterclient.Client, options *DeleteMachineDeploymentOptions) error { //nolint:funlen,gocyclo
-	workers, err := clusterClient.GetMDObjectForCluster(options.ClusterName, options.Namespace)
+	workerMDs, err := clusterClient.GetMDObjectForCluster(options.ClusterName, options.Namespace)
 	if err != nil {
 		return errors.Wrap(err, "unable to get worker machine deployments")
 	}
 
-	if len(workers) < 2 {
+	if len(workerMDs) < 2 {
 		return apierrors.NewBadRequest("cannot delete last worker node pool in cluster")
-	}
-
-	nameMatcher, err := regexp.Compile(fmt.Sprintf("((%s)?-)?(%s)",
-		regexp.QuoteMeta(options.ClusterName), regexp.QuoteMeta(options.Name)))
-	if err != nil {
-		return errors.Wrap(err, "failed to compile node pool name regex")
 	}
 
 	var toDelete capi.MachineDeployment
 	var matched bool
-	for i := range workers {
-		if nameMatcher.MatchString(workers[i].Name) {
+	for i := range workerMDs {
+		if workerMDs[i].Name == options.Name {
 			matched = true
-			toDelete = workers[i]
+			toDelete = workerMDs[i]
 			break
+		}
+	}
+	if !matched {
+		for i := range workerMDs {
+			if workerMDs[i].Name == options.ClusterName+"-"+options.Name {
+				matched = true
+				toDelete = workerMDs[i]
+				break
+			}
 		}
 	}
 
