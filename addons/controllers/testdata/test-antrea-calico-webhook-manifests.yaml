@@ -1,0 +1,127 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: webhook-service
+  namespace: tkg-system
+spec:
+  type: ExternalName
+  externalName: 127.0.0.1
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: MutatingWebhookConfiguration
+metadata:
+  creationTimestamp: null
+  labels:
+    webhook-cert: cni-webhook
+  name: mutating-webhook-configuration
+webhooks:
+  - admissionReviewVersions:
+      - v1
+      - v1beta1
+    clientConfig:
+      #placeholder for cabundle. To be modifed by patch or programatically.
+      caBundle: Cg==
+      service:
+        name: webhook-service
+        namespace: tkg-system
+        path: /mutate-cni-tanzu-vmware-com-v1alpha1-antreaconfig
+        port: 9443
+    failurePolicy: Fail
+    name: mantreaconfig.kb.io
+    rules:
+      - apiGroups:
+          - cni.tanzu.vmware.com
+        apiVersions:
+          - v1alpha1
+        operations:
+          - CREATE
+          - UPDATE
+        resources:
+          - antreaconfigs
+    sideEffects: None
+    timeoutSeconds: 30
+  - admissionReviewVersions:
+      - v1
+      - v1beta1
+    clientConfig:
+      #placeholder for cabundle. To be modifed by patch or programatically.
+      caBundle: Cg==
+      service:
+        name: webhook-service
+        namespace: tkg-system
+        path: /mutate-cni-tanzu-vmware-com-v1alpha1-calicoconfig
+        port: 9443
+    failurePolicy: Fail
+    name: mcalicoconfig.kb.io
+    rules:
+      - apiGroups:
+          - cni.tanzu.vmware.com
+        apiVersions:
+          - v1alpha1
+        operations:
+          - CREATE
+          - UPDATE
+        resources:
+          - calicoconfigs
+    sideEffects: None
+    timeoutSeconds: 30
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingWebhookConfiguration
+metadata:
+  creationTimestamp: null
+  labels:
+    webhook-cert: cni-webhook
+  name: validating-webhook-configuration
+webhooks:
+  - admissionReviewVersions:
+      - v1
+      - v1beta1
+    clientConfig:
+      #placeholder for cabundle. To be modifed by patch or programatically.
+      caBundle: Cg==
+      service:
+        name: webhook-service
+        namespace: tkg-system
+        path: /validate-cni-tanzu-vmware-com-v1alpha1-antreaconfig
+        port: 9443
+    failurePolicy: Fail
+    name: vantreaconfig.kb.io
+    rules:
+      - apiGroups:
+          - cni.tanzu.vmware.com
+        apiVersions:
+          - v1alpha1
+        operations:
+          - CREATE
+          - UPDATE
+        resources:
+          - antreaconfigs
+    sideEffects: None
+    timeoutSeconds: 30
+  - admissionReviewVersions:
+      - v1
+      - v1beta1
+    clientConfig:
+      #placeholder for cabundle. To be modifed by patch or programatically.
+      caBundle: Cg==
+      service:
+        name: webhook-service
+        namespace: tkg-system
+        path: /validate-cni-tanzu-vmware-com-v1alpha1-calicoconfig
+        port: 9443
+    failurePolicy: Fail
+    name: vcalicoconfig.kb.io
+    rules:
+      - apiGroups:
+          - cni.tanzu.vmware.com
+        apiVersions:
+          - v1alpha1
+        operations:
+          - CREATE
+          - UPDATE
+        resources:
+          - calicoconfigs
+    sideEffects: None
+    timeoutSeconds: 30

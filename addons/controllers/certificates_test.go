@@ -4,6 +4,8 @@
 package controllers
 
 import (
+	"os"
+
 	adminregv1 "k8s.io/api/admissionregistration/v1"
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/selection"
@@ -12,6 +14,8 @@ import (
 	"knative.dev/pkg/webhook/certificates/resources"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
+	"github.com/vmware-tanzu/tanzu-framework/addons/testutil"
+
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
@@ -19,6 +23,15 @@ import (
 )
 
 var _ = Describe("Webhook", func() {
+	Context("Webhook Manifests", func() {
+		It("Should create webhook manifests for tests", func() {
+			f, err := os.Open("testdata/test-webhook-manifests.yaml")
+			Expect(err).ToNot(HaveOccurred())
+			defer f.Close()
+			err = testutil.CreateResources(f, cfg, dynamicClient)
+			Expect(err).ToNot(HaveOccurred())
+		})
+	})
 
 	Context("server's certificate and key", func() {
 		It("should be generated and written to the webhook server CertDir", func() {
@@ -86,4 +99,13 @@ var _ = Describe("Webhook", func() {
 		})
 	})
 
+	Context("Delete webhook Manifests", func() {
+		It("Should delete webhook manifests after tests", func() {
+			f, err := os.Open("testdata/test-webhook-manifests.yaml")
+			Expect(err).ToNot(HaveOccurred())
+			defer f.Close()
+			err = testutil.DeleteResources(f, cfg, dynamicClient, true)
+			Expect(err).ToNot(HaveOccurred())
+		})
+	})
 })

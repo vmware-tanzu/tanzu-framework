@@ -13,12 +13,9 @@ import (
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	adminregv1 "k8s.io/api/admissionregistration/v1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/runtime"
-	"k8s.io/apimachinery/pkg/selection"
 	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/kubernetes"
 	clientgoscheme "k8s.io/client-go/kubernetes/scheme"
@@ -71,6 +68,8 @@ const (
 	corePackageRepoName     = "core"
 	webhookServiceName      = "webhook-service"
 	webhookScrtName         = "webhook-tls"
+	cniWebhookLabel         = "cni-webhook"
+	cniWebhookManifestFile  = "testdata/test-antrea-calico-webhook-manifests.yaml"
 )
 
 var (
@@ -274,39 +273,8 @@ var _ = BeforeSuite(func(done Done) {
 	ns = &corev1.Namespace{ObjectMeta: metav1.ObjectMeta{Name: "tkg-system"}}
 	Expect(k8sClient.Create(context.TODO(), ns)).To(Succeed())
 
-	// Create the admission webhooks
-	f, err := os.Open("testdata/test-webhook-manifests.yaml")
+	_, err = webhooks.InstallNewCertificates(ctx, k8sConfig, certPath, keyPath, webhookScrtName, addonNamespace, webhookServiceName, "webhook-cert=self-managed")
 	Expect(err).ToNot(HaveOccurred())
-	defer f.Close()
-	err = testutil.CreateResources(f, cfg, dynamicClient)
-	Expect(err).ToNot(HaveOccurred())
-
-	labelMatch, _ := labels.NewRequirement("webhook-cert", selection.Equals, []string{"self-managed"})
-	labelSelector := labels.NewSelector()
-	labelSelector = labelSelector.Add(*labelMatch)
-
-	secret, err := webhooks.InstallNewCertificates(ctx, k8sConfig, certPath, keyPath, webhookScrtName, addonNamespace, webhookServiceName, "webhook-cert=self-managed")
-	Expect(err).ToNot(HaveOccurred())
-
-	vwcfgs := &adminregv1.ValidatingWebhookConfigurationList{}
-	err = k8sClient.List(ctx, vwcfgs, &client.ListOptions{LabelSelector: labelSelector})
-	Expect(err).ToNot(HaveOccurred())
-	Expect(vwcfgs.Items).ToNot(BeEmpty())
-	for _, wcfg := range vwcfgs.Items {
-		for _, whook := range wcfg.Webhooks {
-			Expect(whook.ClientConfig.CABundle).To(Equal(secret.Data[resources.CACert]))
-		}
-	}
-
-	mwcfgs := &adminregv1.MutatingWebhookConfigurationList{}
-	err = k8sClient.List(ctx, mwcfgs, &client.ListOptions{LabelSelector: labelSelector})
-	Expect(err).ToNot(HaveOccurred())
-	Expect(mwcfgs.Items).ToNot(BeEmpty())
-	for _, wcfg := range mwcfgs.Items {
-		for _, whook := range wcfg.Webhooks {
-			Expect(whook.ClientConfig.CABundle).To(Equal(secret.Data[resources.CACert]))
-		}
-	}
 
 	// Set up the webhooks in the manager
 	err = (&cniv1alpha1.AntreaConfig{}).SetupWebhookWithManager(mgr)
