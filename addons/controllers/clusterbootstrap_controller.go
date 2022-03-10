@@ -526,6 +526,7 @@ func (r *ClusterBootstrapReconciler) createOrPatchKappPackageInstall(clusterBoot
 					UID:        cluster.UID,
 				},
 			},
+			Labels: map[string]string{types.ClusterNameLabel: cluster.Name, types.ClusterNamespaceLabel: cluster.Namespace},
 		},
 	}
 
@@ -565,12 +566,6 @@ func (r *ClusterBootstrapReconciler) createOrPatchKappPackageInstall(clusterBoot
 				Name: secretName},
 			},
 		}
-
-		if pkgi.Labels == nil {
-			pkgi.Labels = map[string]string{}
-		}
-		pkgi.Labels[types.ClusterNameLabel] = cluster.Name
-		pkgi.Labels[types.ClusterNamespaceLabel] = cluster.Namespace
 
 		return nil
 	}
@@ -641,6 +636,7 @@ func (r *ClusterBootstrapReconciler) createOrPatchPackageInstallOnRemote(cluster
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      util.GeneratePackageInstallName(cluster.Name, remotePackageRefName),
 			Namespace: r.Config.SystemNamespace,
+			Labels:    map[string]string{types.ClusterNameLabel: cluster.Name, types.ClusterNamespaceLabel: cluster.Namespace},
 		},
 	}
 
@@ -654,12 +650,6 @@ func (r *ClusterBootstrapReconciler) createOrPatchPackageInstallOnRemote(cluster
 				Prereleases: &versions.VersionSelectionSemverPrereleases{},
 			},
 		}
-
-		if remotePkgi.Labels == nil {
-			remotePkgi.Labels = map[string]string{}
-		}
-		remotePkgi.Labels[types.ClusterNameLabel] = cluster.Name
-		remotePkgi.Labels[types.ClusterNamespaceLabel] = cluster.Namespace
 
 		if remoteSecret != nil {
 			// The nil remoteSecret means no data values for current ClusterBootstrapPackage are needed. And no remote secret

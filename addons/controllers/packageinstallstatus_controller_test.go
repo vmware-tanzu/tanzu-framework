@@ -50,8 +50,8 @@ var _ = Describe("PackageInstallStatus Reconciler", func() {
 		Expect(testutil.CreateResources(f, cfg, dynamicClient)).Should(Succeed())
 
 		By("Installing antrea into management cluster")
-		testInstallPackage(clusterNameMng, antreaPkg, antreaPkgShortName, constants.TKGSystemNS)
-		testUpdatePkgInstallStatus(mngAntreaObjKey, kappctrlv1alpha1.ReconcileSucceeded)
+		installPackage(clusterNameMng, antreaPkg, antreaPkgShortName, constants.TKGSystemNS)
+		updatePkgInstallStatus(mngAntreaObjKey, kappctrlv1alpha1.ReconcileSucceeded)
 
 		By("Creating kubeconfig for management cluster")
 		Expect(testutil.CreateKubeconfigSecret(cfg, clusterNameMng, clusterNamespaceMng, k8sClient)).Should(Succeed())
@@ -91,53 +91,47 @@ var _ = Describe("PackageInstallStatus Reconciler", func() {
 			Expect(k8sClient.Status().Update(ctx, wlcCluster)).Should(Succeed())
 
 			By("verifying management and workload clusters' ClusterBootstrap has been created")
-			mngClusterBootstrap := testClusterBootstrapGet(client.ObjectKeyFromObject(mngCluster))
-			Expect(mngClusterBootstrap).ShouldNot(BeNil())
-			wlcClusterBootstrap := testClusterBootstrapGet(client.ObjectKeyFromObject(wlcCluster))
-			Expect(wlcClusterBootstrap).ShouldNot(BeNil())
+			clusterBootstrapGet(client.ObjectKeyFromObject(mngCluster))
+			clusterBootstrapGet(client.ObjectKeyFromObject(wlcCluster))
 
 			By("verifying un-managed packages do not update the 'Status.Conditions' for ClusterBootstrap")
-			// install unmanaged package into management cluster. Make sure ClusterBootstrap conditions does not get changed fro un-managed package
-			testInstallPackage(mngCluster.Name, "pkg.test.carvel.dev.1.0.0", "unmanaged-pkgi", mngCluster.Namespace)
-			mngClusterBootstrap = testClusterBootstrapGet(client.ObjectKeyFromObject(mngCluster))
-			Expect(mngClusterBootstrap).ShouldNot(BeNil())
+			// install unmanaged package into management cluster. Make sure ClusterBootstrap conditions does not get changed from un-managed package
+			installPackage(mngCluster.Name, "pkg.test.carvel.dev.1.0.0", "unmanaged-pkgi", mngCluster.Namespace)
+			mngClusterBootstrap := clusterBootstrapGet(client.ObjectKeyFromObject(mngCluster))
 			// Antrea is already installed into management cluster's tkg-system namespace
 			Expect(len(mngClusterBootstrap.Status.Conditions)).Should(Equal(1))
 			antreaCondType := "Antrea-" + runtanzuv1alpha3.ConditionType(v1alpha1.ReconcileSucceeded)
 			Expect(mngClusterBootstrap.Status.Conditions[0].Type).Should(Equal(antreaCondType))
 			// install unmanaged package into workload cluster. Make sure cluster bootstrap conditions does not get changed fro un-managed package
-			testInstallPackage(wlcCluster.Name, "pkg.test.carvel.dev.1.0.0", "unmanaged-pkgi", wlcCluster.Namespace)
-			wlcClusterBootstrap = testClusterBootstrapGet(client.ObjectKeyFromObject(wlcCluster))
-			Expect(wlcClusterBootstrap).ShouldNot(BeNil())
+			installPackage(wlcCluster.Name, "pkg.test.carvel.dev.1.0.0", "unmanaged-pkgi", wlcCluster.Namespace)
+			wlcClusterBootstrap := clusterBootstrapGet(client.ObjectKeyFromObject(wlcCluster))
 			Expect(len(wlcClusterBootstrap.Status.Conditions)).Should(Equal(0))
 
 			By("verifying ClusterBootstrap 'Status.Conditions' does not get updated when PackageInstall's summarized condition is Unknown")
 			// verify for management cluster
-			testUpdatePkgInstallStatus(mngAntreaObjKey, util.UnknownCondition)
-			mngClusterBootstrap = testClusterBootstrapGet(client.ObjectKeyFromObject(mngCluster))
-			Expect(mngClusterBootstrap).ShouldNot(BeNil())
+			updatePkgInstallStatus(mngAntreaObjKey, util.UnknownCondition)
+			mngClusterBootstrap = clusterBootstrapGet(client.ObjectKeyFromObject(mngCluster))
 			// Antrea is already installed into management cluster's tkg-system namespace
 			Expect(len(mngClusterBootstrap.Status.Conditions)).Should(Equal(1))
 			Expect(mngClusterBootstrap.Status.Conditions[0].Type).Should(Equal(antreaCondType))
 			// verify for workload cluster
-			testUpdatePkgInstallStatus(wlcAntreaObjKey, util.UnknownCondition)
-			testUpdatePkgInstallStatus(wlcKappObjKey, util.UnknownCondition)
-			wlcClusterBootstrap = testClusterBootstrapGet(client.ObjectKeyFromObject(wlcCluster))
-			Expect(wlcClusterBootstrap).ShouldNot(BeNil())
+			updatePkgInstallStatus(wlcAntreaObjKey, util.UnknownCondition)
+			updatePkgInstallStatus(wlcKappObjKey, util.UnknownCondition)
+			wlcClusterBootstrap = clusterBootstrapGet(client.ObjectKeyFromObject(wlcCluster))
 			Expect(len(wlcClusterBootstrap.Status.Conditions)).Should(Equal(0))
 
 			By("verifying ClusterBootstrap 'Status.Conditions' gets updated for managed packages")
 			// verify for management cluster
-			mngClusterBootstrapStatus := testWaitForClusterBootstrapStatus(client.ObjectKeyFromObject(mngCluster), antreaCondType)
+			mngClusterBootstrapStatus := waitForClusterBootstrapStatus(client.ObjectKeyFromObject(mngCluster), antreaCondType)
 			Expect(len(mngClusterBootstrapStatus.Conditions)).Should(Equal(1))
 			Expect(mngClusterBootstrapStatus.Conditions[0].Type).Should(Equal(antreaCondType))
 			// verify for workload cluster
-			testUpdatePkgInstallStatus(wlcAntreaObjKey, kappctrlv1alpha1.ReconcileSucceeded)
-			testUpdatePkgInstallStatus(wlcKappObjKey, kappctrlv1alpha1.Reconciling)
+			updatePkgInstallStatus(wlcAntreaObjKey, kappctrlv1alpha1.ReconcileSucceeded)
+			updatePkgInstallStatus(wlcKappObjKey, kappctrlv1alpha1.Reconciling)
 			antreaCondType = "Antrea-" + runtanzuv1alpha3.ConditionType(v1alpha1.ReconcileSucceeded)
 			kappCondType := "Kapp-Controller-" + runtanzuv1alpha3.ConditionType(v1alpha1.Reconciling)
-			testWaitForClusterBootstrapStatus(client.ObjectKeyFromObject(wlcCluster), antreaCondType)
-			wlcClusterBootstrapStatus := testWaitForClusterBootstrapStatus(client.ObjectKeyFromObject(wlcCluster), kappCondType)
+			waitForClusterBootstrapStatus(client.ObjectKeyFromObject(wlcCluster), antreaCondType)
+			wlcClusterBootstrapStatus := waitForClusterBootstrapStatus(client.ObjectKeyFromObject(wlcCluster), kappCondType)
 			Expect(len(wlcClusterBootstrapStatus.Conditions)).Should(Equal(2))
 			Expect(wlcClusterBootstrapStatus.Conditions[0].Type).Should(Equal(antreaCondType))
 			Expect(wlcClusterBootstrapStatus.Conditions[1].Type).Should(Equal(kappCondType))
@@ -145,8 +139,8 @@ var _ = Describe("PackageInstallStatus Reconciler", func() {
 	})
 })
 
-// testUpdatePkgInstallStatus simulates kapp controller PackageInstall status update
-func testUpdatePkgInstallStatus(objKey client.ObjectKey, appCondType kappctrlv1alpha1.AppConditionType) {
+// updatePkgInstallStatus simulates kapp controller PackageInstall status update
+func updatePkgInstallStatus(objKey client.ObjectKey, appCondType kappctrlv1alpha1.AppConditionType) {
 	pkgInstall := &kapppkgiv1alpha1.PackageInstall{}
 	Eventually(func() bool {
 		if err := k8sClient.Get(ctx, objKey, pkgInstall); err != nil {
@@ -159,19 +153,20 @@ func testUpdatePkgInstallStatus(objKey client.ObjectKey, appCondType kappctrlv1a
 	}, waitTimeout, pollingInterval).Should(BeTrue())
 }
 
-// testClusterBootstrapGet gets ClusterBootstrap resource with the provided object key
-func testClusterBootstrapGet(objKey client.ObjectKey) *runtanzuv1alpha3.ClusterBootstrap {
+// clusterBootstrapGet gets ClusterBootstrap resource with the provided object key
+func clusterBootstrapGet(objKey client.ObjectKey) *runtanzuv1alpha3.ClusterBootstrap {
 	clusterBootstrap := &runtanzuv1alpha3.ClusterBootstrap{}
 	Eventually(func() bool {
 		err := k8sClient.Get(ctx, objKey, clusterBootstrap)
 		return err == nil
 	}, waitTimeout, pollingInterval).Should(BeTrue())
 
+	Expect(clusterBootstrap).ShouldNot(BeNil())
 	return clusterBootstrap
 }
 
-// testWaitForClusterBootstrapStatus checks ClusterBootstrap's 'Status.Conditions' includes provided condition type
-func testWaitForClusterBootstrapStatus(objKey client.ObjectKey, condType runtanzuv1alpha3.ConditionType) *runtanzuv1alpha3.ClusterBootstrapStatus {
+// waitForClusterBootstrapStatus checks ClusterBootstrap's 'Status.Conditions' includes provided condition type
+func waitForClusterBootstrapStatus(objKey client.ObjectKey, condType runtanzuv1alpha3.ConditionType) *runtanzuv1alpha3.ClusterBootstrapStatus {
 	clusterBootstrap := &runtanzuv1alpha3.ClusterBootstrap{}
 	Eventually(func() bool {
 		if err := k8sClient.Get(ctx, objKey, clusterBootstrap); err != nil {
@@ -188,8 +183,8 @@ func testWaitForClusterBootstrapStatus(objKey client.ObjectKey, condType runtanz
 	return &clusterBootstrap.Status
 }
 
-// testInstallPackage installs a package into the provided namespace
-func testInstallPackage(clusterName, pkgName, pkgiName, namespace string) {
+// installPackage installs a package into the provided namespace
+func installPackage(clusterName, pkgName, pkgiName, namespace string) {
 	packageRefName, _, err := util.GetPackageMetadata(ctx, k8sClient, pkgName, namespace)
 	Expect(err).ShouldNot(HaveOccurred())
 	Expect(packageRefName).ShouldNot(Equal(""))
