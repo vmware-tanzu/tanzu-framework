@@ -4,7 +4,7 @@ import { Validators } from '@angular/forms';
 // App imports
 import AppServices from '../../../../shared/service/appServices';
 import { StepFormDirective } from '../../wizard/shared/step-form/step-form';
-import { TanzuEventType } from '../../../../shared/service/Messenger';
+import { TanzuEvent, TanzuEventType } from '../../../../shared/service/Messenger';
 import { ValidationService } from '../../wizard/shared/validation/validation.service';
 import { VSphereDatastore } from '../../../../swagger/models/v-sphere-datastore.model';
 import { VsphereField } from "../vsphere-wizard.constants";
@@ -69,21 +69,22 @@ export class ResourceStepComponent extends StepFormDirective implements OnInit {
     }
 
     private listenToEvents() {
-        AppServices.messenger.subscribe<{dc: string}>(TanzuEventType.VSPHERE_DATACENTER_CHANGED, this.onDataCenterChange.bind(this), this.unsubscribe);
+        AppServices.messenger.subscribe<string>(TanzuEventType.VSPHERE_DATACENTER_CHANGED, this.onDataCenterChange.bind(this),
+            this.unsubscribe);
     }
 
     loadResourceOptions() {
         this.resourcesFetch = 0;
         this.loadingResources = true;
-        this.retrieveResourcePools();
-        this.retrieveComputeResources();
-        this.retrieveDatastores();
-        this.retrieveVMFolders();
+        this.retrieveResourcePools(this.currentDataCenter);
+        this.retrieveComputeResources(this.currentDataCenter);
+        this.retrieveDatastores(this.currentDataCenter);
+        this.retrieveVMFolders(this.currentDataCenter);
     }
 
     // public only for testing
-    onDataCenterChange(payload: {dc: string}) {
-        this.currentDataCenter = payload.dc;
+    onDataCenterChange(event: TanzuEvent<string>) {
+        this.currentDataCenter = event.payload;
 
         // TODO: the following setField() calls should be done when the resources have finished being fetched (not now)
         // NOTE: because the saved data values MAY be applicable to the just-chosen DC,
@@ -95,47 +96,35 @@ export class ResourceStepComponent extends StepFormDirective implements OnInit {
         });
     }
 
-    /**
-     * @method retrieveResourcePools
-     * helper method to refresh list of resource pools
-     */
-    retrieveResourcePools() {
+    // public only for testing
+    retrieveResourcePools(dc: string) {
         AppServices.messenger.publish({
             type: TanzuEventType.VSPHERE_GET_RESOURCE_POOLS,
-            payload: this.currentDataCenter
+            payload: {dc}
         });
     }
 
-    /**
-     * @method retrieveComputeResources
-     * helper method to refresh list of compute resources
-     */
-    retrieveComputeResources() {
+    // public only for testing
+    retrieveComputeResources(dc: string) {
         AppServices.messenger.publish({
             type: TanzuEventType.VSPHERE_GET_COMPUTE_RESOURCE,
-            payload: this.currentDataCenter
+            payload: {dc}
         });
     }
 
-    /**
-     * @method retrieveDatastores
-     * helper method to refresh list of datastores
-     */
-    retrieveDatastores() {
+    // public only for testing
+    retrieveDatastores(dc: string) {
         AppServices.messenger.publish({
             type: TanzuEventType.VSPHERE_GET_DATA_STORES,
-            payload: this.currentDataCenter
+            payload: {dc}
         });
     }
 
-    /**
-     * @method retrieveVMFolders
-     * helper method to refresh list of vm folders
-     */
-    retrieveVMFolders() {
+    // public only for testing
+    retrieveVMFolders(dc: string) {
         AppServices.messenger.publish({
             type: TanzuEventType.VSPHERE_GET_VM_FOLDERS,
-            payload: this.currentDataCenter
+            payload: {dc}
         });
     }
 
