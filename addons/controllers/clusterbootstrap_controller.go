@@ -314,7 +314,14 @@ func (r *ClusterBootstrapReconciler) createClusterBootstrapFromTemplate(
 	}
 	clusterBootstrap.Spec.CNIs = []*runtanzuv1alpha3.ClusterBootstrapPackage{cniPackage}
 
-	secrets, providers, err := r.cloneSecretsAndProviders(cluster, clusterBootstrap, clusterBootstrapTemplate.Namespace, log)
+	packages := append([]*runtanzuv1alpha3.ClusterBootstrapPackage{
+		clusterBootstrap.Spec.CPI,
+		clusterBootstrap.Spec.CSI,
+		clusterBootstrap.Spec.Kapp,
+	}, clusterBootstrap.Spec.CNIs...)
+	packages = append(packages, clusterBootstrap.Spec.AdditionalPackages...)
+
+	secrets, providers, err := r.cloneSecretsAndProvidersFromPackageList(cluster, packages, clusterBootstrapTemplate.Namespace, log)
 	if err != nil {
 		r.Log.Error(err, "unable to clone secrets or providers")
 		return nil, err
@@ -352,7 +359,7 @@ func (r *ClusterBootstrapReconciler) createClusterBootstrapFromTemplate(
 }
 
 // patchClusterBootstrapFromTemplate will patch ClusterBootstrap associated with a cluster in case of TKR upgrade
-func (r *ClusterBootstrapReconciler) patchClusterBootstrapFromTemplate(
+func (r *ClusterBootstrapReconciler) patchClusterBootstrapFromTemplate( // nolint:funlen
 	cluster *clusterapiv1beta1.Cluster,
 	clusterBootstrap *runtanzuv1alpha3.ClusterBootstrap,
 	clusterBootstrapTemplate *runtanzuv1alpha3.ClusterBootstrapTemplate,
@@ -369,9 +376,11 @@ func (r *ClusterBootstrapReconciler) patchClusterBootstrapFromTemplate(
 		return nil, errors.New("ClusterBootstrap and ClusterBootstrapTemplate spec can't be nil")
 	}
 
+	packages := make([]*runtanzuv1alpha3.ClusterBootstrapPackage, 0)
+
 	// Upgrade the refName of all the core packages
 	// Package updates keep the users' customization in valuesFrom
-	// We assume:
+	// We assume the following enforced by our build and also webhook:
 	//    1. ClusterBootstrapTemplate will always have Kapp and CNI package available
 	//    2. ClusterBootstrapTemplate will always have consistent core packages refNames in different TKR versions (same name, different version)
 	//    3. The Group and Kind for default core package providers will not change across different TKR versions
@@ -401,15 +410,19 @@ func (r *ClusterBootstrapReconciler) patchClusterBootstrapFromTemplate(
 	// CSI and CPI can be nil, only update if it's present
 	// According to assumption 2, no need to do nil check on template
 	if updatedClusterBootstrap.Spec.CSI == nil {
-		updatedClusterBootstrap.Spec.CSI = clusterBootstrapTemplate.Spec.CSI.DeepCopy()
+		newCSIPkg := clusterBootstrapTemplate.Spec.CSI.DeepCopy()
+		updatedClusterBootstrap.Spec.CSI = newCSIPkg
+		packages = append(packages, newCSIPkg)
 	} else {
 		updatedClusterBootstrap.Spec.CSI.RefName = clusterBootstrapTemplate.Spec.CSI.RefName
 	}
 
 	if updatedClusterBootstrap.Spec.CPI == nil {
-		updatedClusterBootstrap.Spec.CSI = clusterBootstrapTemplate.Spec.CSI.DeepCopy()
+		newCPIPkg := clusterBootstrapTemplate.Spec.CPI.DeepCopy()
+		updatedClusterBootstrap.Spec.CPI = newCPIPkg
+		packages = append(packages, newCPIPkg)
 	} else {
-		updatedClusterBootstrap.Spec.CSI.RefName = clusterBootstrapTemplate.Spec.CSI.RefName
+		updatedClusterBootstrap.Spec.CPI.RefName = clusterBootstrapTemplate.Spec.CPI.RefName
 	}
 
 	// Since we don't allow users to delete additional packages in our webhook
@@ -429,7 +442,6 @@ func (r *ClusterBootstrapReconciler) patchClusterBootstrapFromTemplate(
 		additionalPackageMap[packageRefName] = pkg
 	}
 
-	packages := make([]*runtanzuv1alpha3.ClusterBootstrapPackage, 0)
 	for _, templatePkg := range clusterBootstrapTemplate.Spec.AdditionalPackages {
 		// use the refName in package CR, since the package CR hasn't been cloned at this point, use SystemNamespace to fetch packageCR
 		packageRefName, _, err := util.GetPackageMetadata(r.context, r.liveClient, templatePkg.RefName, r.Config.SystemNamespace)
@@ -450,8 +462,8 @@ func (r *ClusterBootstrapReconciler) patchClusterBootstrapFromTemplate(
 		}
 	}
 
-	// Handle newly added additional package values
-	secrets, providers, err := r.cloneSecretsAndProvidersFromList(cluster, packages, clusterBootstrapTemplate.Namespace, log)
+	// Handle newly added package values
+	secrets, providers, err := r.cloneSecretsAndProvidersFromPackageList(cluster, packages, clusterBootstrapTemplate.Namespace, log)
 	if err != nil {
 		r.Log.Error(err, "unable to clone secrets or providers")
 		return nil, err
@@ -906,22 +918,8 @@ func patchSecretWithLabels(secret *corev1.Secret, pkgName, clusterName string) b
 	return updateLabels
 }
 
-// cloneSecretsAndProviders clones linked secrets and providers into the same namespace as clusterBootstrap
-func (r *ClusterBootstrapReconciler) cloneSecretsAndProviders(cluster *clusterapiv1beta1.Cluster, bootstrap *runtanzuv1alpha3.ClusterBootstrap,
-	templateNS string, log logr.Logger) ([]*corev1.Secret, []*unstructured.Unstructured, error) {
-
-	packages := append([]*runtanzuv1alpha3.ClusterBootstrapPackage{
-		bootstrap.Spec.CNI,
-		bootstrap.Spec.CPI,
-		bootstrap.Spec.CSI,
-		bootstrap.Spec.Kapp,
-	}, bootstrap.Spec.AdditionalPackages...)
-
-	return r.cloneSecretsAndProvidersFromList(cluster, packages, templateNS, log)
-}
-
-// cloneSecretsAndProviders clones linked secrets and providers into the same namespace as clusterBootstrap
-func (r *ClusterBootstrapReconciler) cloneSecretsAndProvidersFromList(
+// cloneSecretsAndProvidersFromPackageList clones secrets and providers from packages into the same namespace as clusterBootstrap
+func (r *ClusterBootstrapReconciler) cloneSecretsAndProvidersFromPackageList(
 	cluster *clusterapiv1beta1.Cluster,
 	packages []*runtanzuv1alpha3.ClusterBootstrapPackage,
 	templateNS string, log logr.Logger) ([]*corev1.Secret, []*unstructured.Unstructured, error) {
