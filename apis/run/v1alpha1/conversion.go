@@ -24,15 +24,16 @@ func (spoke *TanzuKubernetesRelease) ConvertTo(hubRaw conversion.Hub) error {
 		return nil
 	}
 
-	restored := &v1alpha3.TanzuKubernetesRelease{}
 	// Some Hub types not present in spoke, and might be stored in spoke annotations.
 	// Restore data stored in spoke's annotations.
-	// TODO: Check for not ok?
-	if _, err := utilconversion.UnmarshalData(spoke, restored); err != nil {
+	restoredHub := &v1alpha3.TanzuKubernetesRelease{}
+	if ok, err := utilconversion.UnmarshalData(spoke, restoredHub); err != nil {
 		return err
+	} else if ok {
+		// OK means there is data in annotations that need to be restored.
+		hub.Spec.BootstrapPackages = restoredHub.Spec.BootstrapPackages
+		hub.Spec.OSImages = restoredHub.Spec.OSImages
 	}
-	hub.Spec.BootstrapPackages = restored.Spec.BootstrapPackages
-	hub.Spec.OSImages = restored.Spec.OSImages
 
 	// Store the entire spoke in Hub's annotations to prevent loss of incompatible spoke types.
 	if err := utilconversion.MarshalData(spoke, hub); err != nil {
@@ -51,19 +52,20 @@ func (spoke *TanzuKubernetesRelease) ConvertFrom(hubRaw conversion.Hub) error {
 
 	// From hub, get missing spoke fields from annotations.
 	restored := &TanzuKubernetesRelease{}
-	// TODO(Shashank): Check for not ok?
-	if _, err := utilconversion.UnmarshalData(hub, restored); err != nil {
+	if ok, err := utilconversion.UnmarshalData(hub, restored); err != nil {
 		return err
-	}
-	if restored.Spec.Images != nil {
-		for _, image := range restored.Spec.Images {
-			if image.Name != "etcd" && image.Name != "pause" && image.Name != "coredns" {
-				// No need to copy over etcd, pause and coredns as those are compatible and handled separately.
-				spoke.Spec.Images = append(spoke.Spec.Images, image)
+	} else if ok {
+		// Annotations contain data, restore the relevant ones.
+		spoke.Spec.NodeImageRef = restored.Spec.NodeImageRef
+		if restored.Spec.Images != nil {
+			for _, image := range restored.Spec.Images {
+				if image.Name != etcdContainerImageName && image.Name != pauseContainerImageName && image.Name != corednsContainerImageName {
+					// Do not copy over etcd, pause and coredns as those are compatible and handled in the autoconvert.
+					spoke.Spec.Images = append(spoke.Spec.Images, image)
+				}
 			}
 		}
 	}
-	spoke.Spec.NodeImageRef = restored.Spec.NodeImageRef
 
 	// Store hub's missing fields in spoke's annotations.
 	if err := utilconversion.MarshalData(hub, spoke); err != nil {
@@ -73,19 +75,7 @@ func (spoke *TanzuKubernetesRelease) ConvertFrom(hubRaw conversion.Hub) error {
 	return nil
 }
 
-func (src *TanzuKubernetesReleaseList) ConvertTo(dstRaw conversion.Hub) error {
-	dst := dstRaw.(*v1alpha3.TanzuKubernetesReleaseList)
-
-	return Convert_v1alpha1_TanzuKubernetesReleaseList_To_v1alpha3_TanzuKubernetesReleaseList(src, dst, nil)
-}
-
-func (dst *TanzuKubernetesReleaseList) ConvertFrom(srcRaw conversion.Hub) error {
-	src := srcRaw.(*v1alpha3.TanzuKubernetesReleaseList)
-
-	return autoConvert_v1alpha3_TanzuKubernetesReleaseList_To_v1alpha1_TanzuKubernetesReleaseList(src, dst, nil)
-}
-
-// Convert_v1alpha1_TanzuKubernetesReleaseSpec_To_v1alpha3_TanzuKubernetesReleaseSpec is generated
+// Convert_v1alpha1_TanzuKubernetesReleaseSpec_To_v1alpha3_TanzuKubernetesReleaseSpec  will convert the compatible types in TanzuKubernetesReleaseSpec v1alpha1 to v1alpha3 equivalent.
 func Convert_v1alpha1_TanzuKubernetesReleaseSpec_To_v1alpha3_TanzuKubernetesReleaseSpec(in *TanzuKubernetesReleaseSpec, out *v1alpha3.TanzuKubernetesReleaseSpec, s apiconversion.Scope) error {
 	out.Kubernetes.Version = in.KubernetesVersion
 	out.Kubernetes.ImageRepository = in.Repository
@@ -116,7 +106,7 @@ func Convert_v1alpha1_TanzuKubernetesReleaseSpec_To_v1alpha3_TanzuKubernetesRele
 	return autoConvert_v1alpha1_TanzuKubernetesReleaseSpec_To_v1alpha3_TanzuKubernetesReleaseSpec(in, out, s)
 }
 
-// Convert_v1alpha3_TanzuKubernetesReleaseSpec_To_v1alpha1_TanzuKubernetesReleaseSpec is generated
+// Convert_v1alpha3_TanzuKubernetesReleaseSpec_To_v1alpha1_TanzuKubernetesReleaseSpec will convert the compatible types in TanzuKubernetesReleaseSpec v1alpha3 to v1alpha1 equivalent.
 func Convert_v1alpha3_TanzuKubernetesReleaseSpec_To_v1alpha1_TanzuKubernetesReleaseSpec(in *v1alpha3.TanzuKubernetesReleaseSpec, out *TanzuKubernetesReleaseSpec, s apiconversion.Scope) error {
 	out.KubernetesVersion = in.Kubernetes.Version
 	out.Repository = in.Kubernetes.ImageRepository
@@ -144,4 +134,16 @@ func Convert_v1alpha3_TanzuKubernetesReleaseSpec_To_v1alpha1_TanzuKubernetesRele
 		})
 	}
 	return autoConvert_v1alpha3_TanzuKubernetesReleaseSpec_To_v1alpha1_TanzuKubernetesReleaseSpec(in, out, s)
+}
+
+func (src *TanzuKubernetesReleaseList) ConvertTo(dstRaw conversion.Hub) error {
+	dst := dstRaw.(*v1alpha3.TanzuKubernetesReleaseList)
+
+	return Convert_v1alpha1_TanzuKubernetesReleaseList_To_v1alpha3_TanzuKubernetesReleaseList(src, dst, nil)
+}
+
+func (dst *TanzuKubernetesReleaseList) ConvertFrom(srcRaw conversion.Hub) error {
+	src := srcRaw.(*v1alpha3.TanzuKubernetesReleaseList)
+
+	return autoConvert_v1alpha3_TanzuKubernetesReleaseList_To_v1alpha1_TanzuKubernetesReleaseList(src, dst, nil)
 }
