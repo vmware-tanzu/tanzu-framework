@@ -9,8 +9,8 @@ import (
 	"os"
 
 	certmanagerclientset "github.com/jetstack/cert-manager/pkg/client/clientset/versioned"
-	pinnipedconciergeclientset "go.pinniped.dev/generated/1.19/client/concierge/clientset/versioned"
-	pinnipedsupervisorclientset "go.pinniped.dev/generated/1.19/client/supervisor/clientset/versioned"
+	pinnipedconciergeclientset "go.pinniped.dev/generated/1.20/client/concierge/clientset/versioned"
+	pinnipedsupervisorclientset "go.pinniped.dev/generated/1.20/client/supervisor/clientset/versioned"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"k8s.io/client-go/kubernetes"

@@ -12,9 +12,9 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
-	configv1alpha1 "go.pinniped.dev/generated/1.19/apis/supervisor/config/v1alpha1"
-	idpv1alpha1 "go.pinniped.dev/generated/1.19/apis/supervisor/idp/v1alpha1"
-	pinnipedsupervisorfake "go.pinniped.dev/generated/1.19/client/supervisor/clientset/versioned/fake"
+	configv1alpha1 "go.pinniped.dev/generated/1.20/apis/supervisor/config/v1alpha1"
+	idpv1alpha1 "go.pinniped.dev/generated/1.20/apis/supervisor/idp/v1alpha1"
+	pinnipedsupervisorfake "go.pinniped.dev/generated/1.20/client/supervisor/clientset/versioned/fake"
 	corev1 "k8s.io/api/core/v1"
 	kubeerrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
