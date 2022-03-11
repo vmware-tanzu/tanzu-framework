@@ -8,6 +8,18 @@ metadata:
   creationTimestamp: null
   name: tanzukubernetesreleases.run.tanzu.vmware.com
 spec:
+  conversion:
+    strategy: Webhook
+    webhook:
+      clientConfig:
+        caBundle: Cg==
+        service:
+          name: capd-webhook-service
+          namespace: capd-system
+          path: /convert
+      conversionReviewVersions:
+      - v1
+      - v1beta1
   group: run.tanzu.vmware.com
   names:
     kind: TanzuKubernetesRelease
