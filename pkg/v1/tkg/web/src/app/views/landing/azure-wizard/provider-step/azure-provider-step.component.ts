@@ -199,6 +199,19 @@ export class AzureProviderStepComponent extends StepFormDirective implements OnI
             );
     }
 
+    // From the user-entered data, create an accountParams object to send to the azure endpoint for verification
+    private createCredentialParamsObject() {
+        const chosenCloudObject = this.getFieldValue(AzureField.PROVIDER_AZURECLOUD);
+        const azureCloud = chosenCloudObject ? chosenCloudObject.name : '';
+        return {
+            tenantId: this.getFieldValue(AzureField.PROVIDER_TENANT),
+            clientId: this.getFieldValue(AzureField.PROVIDER_CLIENT),
+            clientSecret: this.getFieldValue(AzureField.PROVIDER_CLIENTSECRET),
+            subscriptionId: this.getFieldValue(AzureField.PROVIDER_SUBSCRIPTION),
+            azureCloud
+        };
+    }
+
     /**
      * @method verifyCredentials
      * helper method to verify Azure connection credentials
@@ -206,12 +219,8 @@ export class AzureProviderStepComponent extends StepFormDirective implements OnI
     verifyCredentials() {
         this.loadingState = ClrLoadingState.LOADING
         this.errorNotification = '';
-        const accountParams = {};
-        for (const key of AzureAccountParamsKeys) {
-            accountParams[key] = this.formGroup.get(key).value;
-        }
         this.apiClient.setAzureEndpoint({
-            accountParams: accountParams
+            accountParams: this.createCredentialParamsObject()
         })
             .pipe(
                 finalize(() => this.loadingState = ClrLoadingState.DEFAULT),
