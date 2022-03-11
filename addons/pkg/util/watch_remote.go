@@ -79,7 +79,7 @@ func (t *RemoteObjectTracker) Watch(ctx context.Context, input *remote.WatchInpu
 	}
 
 	if a.watches.Has(input.Name) {
-		t.log.V(6).Info("Watch already exists", "namespace", input.Cluster.Namespace, "cluster", input.Cluster.Name, "name", input.Name)
+		t.log.Info("Watch already exists", "namespace", input.Cluster.Namespace, "cluster", input.Cluster.Name, "name", input.Name)
 		return nil
 	}
 
@@ -102,7 +102,7 @@ func (t *RemoteObjectTracker) DeleteAccessor(cluster client.ObjectKey) {
 		return
 	}
 
-	t.log.V(2).Info("Deleting ClusterAccessors", "cluster", cluster.String())
+	t.log.Info("Deleting ClusterAccessors", "cluster", cluster.String())
 
 	delete(t.ClusterAccessors, cluster)
 }

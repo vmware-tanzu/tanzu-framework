@@ -66,8 +66,8 @@ type ClusterBootstrapReconciler struct {
 	// discovery client for looking up api-resources and preferred versions
 	cachedDiscoveryClient discovery.CachedDiscoveryInterface
 	// cache for resolved api-resources so that look up is fast (cleared periodically)
-	providerGVR map[schema.GroupKind]*schema.GroupVersionResource
-	liveClient  client.Client
+	providerGVR                  map[schema.GroupKind]*schema.GroupVersionResource
+	aggregatedAPIResourcesClient client.Client
 }
 
 // NewClusterBootstrapReconciler returns a reconciler for ClusterBootstrap
@@ -124,7 +124,7 @@ func (r *ClusterBootstrapReconciler) SetupWithManager(ctx context.Context, mgr c
 
 	go r.periodicGVRCachesClean()
 
-	r.liveClient, err = client.New(mgr.GetConfig(), client.Options{Scheme: mgr.GetScheme()})
+	r.aggregatedAPIResourcesClient, err = client.New(mgr.GetConfig(), client.Options{Scheme: mgr.GetScheme()})
 	if err != nil {
 		return err
 	}
@@ -500,7 +500,7 @@ func (r *ClusterBootstrapReconciler) createOrPatchKappPackageInstall(clusterBoot
 	}
 
 	// In order to create PackageInstall CR, we need to get the Package.Spec.RefName and Package.Spec.Version
-	packageRefName, packageVersion, err := util.GetPackageMetadata(r.context, r.liveClient, clusterBootstrap.Spec.Kapp.RefName, cluster.Namespace)
+	packageRefName, packageVersion, err := util.GetPackageMetadata(r.context, r.aggregatedAPIResourcesClient, clusterBootstrap.Spec.Kapp.RefName, cluster.Namespace)
 	if packageRefName == "" || packageVersion == "" || err != nil {
 		// Package.Spec.RefName and Package.Spec.Version are required fields for Package CR. We do not expect them to be
 		// empty and error should not happen when fetching them from a Package CR.
@@ -591,7 +591,7 @@ func (r *ClusterBootstrapReconciler) createOrPatchPackageOnRemote(cluster *clust
 	// Create or patch Package CR on remote cluster
 	localPackage := &kapppkgv1alpha1.Package{}
 	key := client.ObjectKey{Namespace: cluster.Namespace, Name: cbPkg.RefName}
-	if err = r.liveClient.Get(r.context, key, localPackage); err != nil {
+	if err = r.aggregatedAPIResourcesClient.Get(r.context, key, localPackage); err != nil {
 		// If there is an error to get the Carvel Package CR from local cluster, nothing needs to be created/cloned on remote.
 		// Let the reconciler try again.
 		r.Log.Error(err, fmt.Sprintf("unable to create or patch Package %s on cluster %s/%s. Error occurs when getting Package %s from the management cluster",
@@ -877,7 +877,7 @@ func (r *ClusterBootstrapReconciler) createOrPatchPackageInstallSecretOnRemote(c
 		r.Log.Info(fmt.Sprintf("patched the secret %s/%s with package and cluster labels", localSecret.Namespace, localSecret.Name))
 	}
 
-	packageRefName, _, err := util.GetPackageMetadata(r.context, r.liveClient, cbpkg.RefName, cluster.Namespace)
+	packageRefName, _, err := util.GetPackageMetadata(r.context, r.aggregatedAPIResourcesClient, cbpkg.RefName, cluster.Namespace)
 	if err != nil {
 		r.Log.Error(err, fmt.Sprintf("unable to get Package CR %s/%s for its metadata", cluster.Namespace, cbpkg.RefName))
 		return nil, err
@@ -955,7 +955,7 @@ func (r *ClusterBootstrapReconciler) cloneSecretsAndProvidersFromPackageList(
 func (r *ClusterBootstrapReconciler) updateValues(cluster *clusterapiv1beta1.Cluster,
 	cbPkg *runtanzuv1alpha3.ClusterBootstrapPackage, cbTemplateNamespace string, log logr.Logger) (*corev1.Secret, *unstructured.Unstructured, error) {
 
-	packageRefName, _, err := util.GetPackageMetadata(r.context, r.liveClient, cbPkg.RefName, cluster.Namespace)
+	packageRefName, _, err := util.GetPackageMetadata(r.context, r.aggregatedAPIResourcesClient, cbPkg.RefName, cluster.Namespace)
 	if packageRefName == "" || err != nil {
 		// Package.Spec.RefName and Package.Spec.Version are required fields for Package CR. We do not expect them to be
 		// empty and error should not happen when fetching them from a Package CR.
