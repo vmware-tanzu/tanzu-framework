@@ -9,15 +9,9 @@ import (
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	adminregv1 "k8s.io/api/admissionregistration/v1"
 	v1 "k8s.io/api/core/v1"
-	"k8s.io/apimachinery/pkg/labels"
-	"k8s.io/apimachinery/pkg/selection"
-	"knative.dev/pkg/webhook/certificates/resources"
 	clusterapiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
-
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/webhooks"
 
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/util"
@@ -42,8 +36,6 @@ var _ = Describe("AntreaConfig Reconciler and Webhooks", func() {
 	)
 
 	JustBeforeEach(func() {
-		var secret *v1.Secret
-
 		// Create the admission webhooks
 		f, err = os.Open(cniWebhookManifestFile)
 		Expect(err).ToNot(HaveOccurred())
@@ -53,33 +45,17 @@ var _ = Describe("AntreaConfig Reconciler and Webhooks", func() {
 
 		// set up the certificates and webhook before creating any objects
 		By("Creating and installing new certificates for Antrea Admission Webhooks")
-		labelMatch, _ := labels.NewRequirement("webhook-cert", selection.Equals, []string{cniWebhookLabel})
-		labelSelector := labels.NewSelector()
-		labelSelector = labelSelector.Add(*labelMatch)
 
-		secret, err = webhooks.InstallNewCertificates(ctx, k8sConfig, certPath, keyPath, webhookScrtName, addonNamespace, webhookServiceName, "webhook-cert="+cniWebhookLabel)
-		Expect(err).ToNot(HaveOccurred())
-
-		vwcfgs := &adminregv1.ValidatingWebhookConfigurationList{}
-		err = k8sClient.List(ctx, vwcfgs, &client.ListOptions{LabelSelector: labelSelector})
-		Expect(err).ToNot(HaveOccurred())
-		Expect(vwcfgs.Items).ToNot(BeEmpty())
-		for _, wcfg := range vwcfgs.Items {
-			for _, whook := range wcfg.Webhooks {
-				Expect(whook.ClientConfig.CABundle).To(Equal(secret.Data[resources.CACert]))
-			}
+		webhookCertDetails := testutil.WebhookCertificatesDetails{
+			CertPath:           certPath,
+			KeyPath:            keyPath,
+			WebhookScrtName:    webhookScrtName,
+			AddonNamespace:     addonNamespace,
+			WebhookServiceName: webhookServiceName,
+			LabelSelector:      cniWebhookLabel,
 		}
-
-		mwcfgs := &adminregv1.MutatingWebhookConfigurationList{}
-		err = k8sClient.List(ctx, mwcfgs, &client.ListOptions{LabelSelector: labelSelector})
+		err = testutil.SetupWebhookCertificates(ctx, k8sClient, k8sConfig, &webhookCertDetails)
 		Expect(err).ToNot(HaveOccurred())
-		Expect(mwcfgs.Items).ToNot(BeEmpty())
-		for _, wcfg := range mwcfgs.Items {
-			for _, whook := range wcfg.Webhooks {
-				Expect(whook.ClientConfig.CABundle).To(Equal(secret.Data[resources.CACert]))
-			}
-		}
-
 	})
 
 	AfterEach(func() {

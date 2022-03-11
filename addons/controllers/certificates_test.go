@@ -6,13 +6,9 @@ package controllers
 import (
 	"os"
 
-	adminregv1 "k8s.io/api/admissionregistration/v1"
-	"k8s.io/apimachinery/pkg/labels"
-	"k8s.io/apimachinery/pkg/selection"
 	cert2 "k8s.io/client-go/util/cert"
 	"k8s.io/client-go/util/keyutil"
 	"knative.dev/pkg/webhook/certificates/resources"
-	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/vmware-tanzu/tanzu-framework/addons/testutil"
 
@@ -54,44 +50,17 @@ var _ = Describe("Webhook", func() {
 	Context("Mutating and Validating Configurations", func() {
 		It("should be updated with CA bundle ", func() {
 			var err error
-
-			labelMatch, _ := labels.NewRequirement("webhook-cert", selection.Equals, []string{"self-managed"})
-			labelSelector := labels.NewSelector()
-			labelSelector = labelSelector.Add(*labelMatch)
-
-			orgvwcfgs := &adminregv1.ValidatingWebhookConfigurationList{}
-			err = k8sClient.List(ctx, orgvwcfgs, &client.ListOptions{LabelSelector: labelSelector})
-			Expect(err).ToNot(HaveOccurred())
-			Expect(orgvwcfgs.Items).ToNot(BeEmpty())
-
-			orgmwcfgs := &adminregv1.MutatingWebhookConfigurationList{}
-			err = k8sClient.List(ctx, orgmwcfgs, &client.ListOptions{LabelSelector: labelSelector})
-			Expect(err).ToNot(HaveOccurred())
-			Expect(orgmwcfgs.Items).ToNot(BeEmpty())
-
-			secret, err := webhooks.InstallNewCertificates(ctx, k8sConfig, certPath, keyPath, webhookScrtName, addonNamespace, webhookServiceName, "webhook-cert=self-managed")
-			Expect(err).ToNot(HaveOccurred())
-
-			vwcfgs := &adminregv1.ValidatingWebhookConfigurationList{}
-			err = k8sClient.List(ctx, vwcfgs, &client.ListOptions{LabelSelector: labelSelector})
-			Expect(err).ToNot(HaveOccurred())
-			Expect(vwcfgs.Items).ToNot(BeEmpty())
-			for _, wcfg := range vwcfgs.Items {
-				for _, whook := range wcfg.Webhooks {
-					Expect(whook.ClientConfig.CABundle).To(Equal(secret.Data[resources.CACert]))
-				}
+			webhookCertDetails := testutil.WebhookCertificatesDetails{
+				CertPath:           certPath,
+				KeyPath:            keyPath,
+				WebhookScrtName:    webhookScrtName,
+				AddonNamespace:     addonNamespace,
+				WebhookServiceName: webhookServiceName,
+				LabelSelector:      "self-managed",
 			}
 
-			mwcfgs := &adminregv1.MutatingWebhookConfigurationList{}
-			err = k8sClient.List(ctx, mwcfgs, &client.ListOptions{LabelSelector: labelSelector})
+			err = testutil.SetupWebhookCertificates(ctx, k8sClient, k8sConfig, &webhookCertDetails)
 			Expect(err).ToNot(HaveOccurred())
-			Expect(mwcfgs.Items).ToNot(BeEmpty())
-			for _, wcfg := range mwcfgs.Items {
-				for _, whook := range wcfg.Webhooks {
-					Expect(whook.ClientConfig.CABundle).To(Equal(secret.Data[resources.CACert]))
-				}
-			}
-
 		})
 		It("should fail fail update when  label selector is not provided", func() {
 			_, err := webhooks.InstallNewCertificates(ctx, k8sConfig, certPath, keyPath, webhookScrtName, addonNamespace, webhookServiceName, "")
