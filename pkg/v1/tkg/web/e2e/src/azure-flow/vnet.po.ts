@@ -7,11 +7,11 @@ export class Vnet extends Step {
     }
 
     getSelectAnExistingVnet() {
-        return element(by.cssContainingText("label", "Select an existing VNET"));
+        return element(by.cssContainingText("label", "Select an existing VNet"));
     }
 
     getCreateNewVnet() {
-        return element(by.cssContainingText("label", "Create a new VNET on Azure"));
+        return element(by.cssContainingText("label", "Create a new VNet on Azure"));
     }
 
     getResourceGroup() {

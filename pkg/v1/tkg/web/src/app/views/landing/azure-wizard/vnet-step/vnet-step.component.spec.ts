@@ -63,7 +63,7 @@ describe('VnetStepComponent', () => {
         component.ngOnInit();
 
         const staticDescription = component.dynamicDescription();
-        expect(staticDescription).toEqual('Specify an Azure VNET CIDR')
+        expect(staticDescription).toEqual('Specify an Azure VNet CIDR')
 
         const customCidrControl = component.formGroup.get(AzureField.VNET_CUSTOM_CIDR);
         customCidrControl.setValue('4.3.2.1/12');
