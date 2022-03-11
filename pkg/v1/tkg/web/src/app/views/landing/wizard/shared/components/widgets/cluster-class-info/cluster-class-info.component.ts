@@ -25,10 +25,9 @@ export class ClusterClassInfoComponent implements OnInit {
 
     clusterClasses: Array<ClusterClass> = [];
 
-    constructor() { }
-
     ngOnInit(): void {
-       this.clusterClasses = clusterClassData[this.providerType.toLowerCase()];
+        if (this.providerType) {
+            this.clusterClasses = clusterClassData[this.providerType.toLowerCase()];
+        }
     }
-
 }
