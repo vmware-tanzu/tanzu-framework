@@ -80,13 +80,23 @@ export class AzureWizardComponent extends WizardBaseDirective implements OnInit 
         this.subscribeToServices();
     }
 
+    // From the user-entered data, create an accountParams object to send to the azure endpoint for verification
+    private createCredentialParamsObject() {
+        const chosenCloudObject = this.getFieldValue(AzureForm.PROVIDER, AzureField.PROVIDER_AZURECLOUD);
+        const azureCloud = chosenCloudObject ? chosenCloudObject.name : '';
+        return {
+            tenantId: this.getFieldValue(AzureForm.PROVIDER, AzureField.PROVIDER_TENANT),
+            clientId: this.getFieldValue(AzureForm.PROVIDER, AzureField.PROVIDER_CLIENT),
+            clientSecret: this.getFieldValue(AzureForm.PROVIDER, AzureField.PROVIDER_CLIENTSECRET),
+            subscriptionId: this.getFieldValue(AzureForm.PROVIDER, AzureField.PROVIDER_SUBSCRIPTION),
+            azureCloud
+        };
+    }
+
     getPayload(): any {
         const payload: AzureRegionalClusterParams = {};
 
-        payload.azureAccountParams = {};
-        AzureAccountParamsKeys.forEach(key => {
-            payload.azureAccountParams[key] = this.getFieldValue(AzureForm.PROVIDER, key);
-        });
+        payload.azureAccountParams = this.createCredentialParamsObject();
 
         const mappings = [
             ["location", AzureForm.PROVIDER, AzureField.PROVIDER_REGION],
