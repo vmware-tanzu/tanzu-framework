@@ -4,40 +4,40 @@ directories:
   - manual: {}
     path: addons-manager.yaml
   - git:
-      commitTitle: Add pause mechanism to ClusterBootstrap (#1780)...
-      sha: e5905812ba8e1e474db32c2e1776ca782f76f454
+      commitTitle: Remove CNI selection using cluster variable (#1834)...
+      sha: 9ed3b1664b261d2d5c9dac552f8a2cc97168caf5
       tags:
-      - v0.19.0-dev-15-ge5905812
+      - v0.19.0-dev-30-g9ed3b166
     path: cni.tanzu.vmware.com_antreaconfigs.yaml
   - git:
-      commitTitle: Add pause mechanism to ClusterBootstrap (#1780)...
-      sha: e5905812ba8e1e474db32c2e1776ca782f76f454
+      commitTitle: Remove CNI selection using cluster variable (#1834)...
+      sha: 9ed3b1664b261d2d5c9dac552f8a2cc97168caf5
       tags:
-      - v0.19.0-dev-15-ge5905812
+      - v0.19.0-dev-30-g9ed3b166
     path: cni.tanzu.vmware.com_calicoconfigs.yaml
   - git:
-      commitTitle: Add pause mechanism to ClusterBootstrap (#1780)...
-      sha: e5905812ba8e1e474db32c2e1776ca782f76f454
+      commitTitle: Remove CNI selection using cluster variable (#1834)...
+      sha: 9ed3b1664b261d2d5c9dac552f8a2cc97168caf5
       tags:
-      - v0.19.0-dev-15-ge5905812
+      - v0.19.0-dev-30-g9ed3b166
     path: run.tanzu.vmware.com_clusterbootstraps.yaml
   - git:
-      commitTitle: Add pause mechanism to ClusterBootstrap (#1780)...
-      sha: e5905812ba8e1e474db32c2e1776ca782f76f454
+      commitTitle: Remove CNI selection using cluster variable (#1834)...
+      sha: 9ed3b1664b261d2d5c9dac552f8a2cc97168caf5
       tags:
-      - v0.19.0-dev-15-ge5905812
+      - v0.19.0-dev-30-g9ed3b166
     path: run.tanzu.vmware.com_clusterbootstraptemplates.yaml
   - git:
-      commitTitle: Add pause mechanism to ClusterBootstrap (#1780)...
-      sha: e5905812ba8e1e474db32c2e1776ca782f76f454
+      commitTitle: Remove CNI selection using cluster variable (#1834)...
+      sha: 9ed3b1664b261d2d5c9dac552f8a2cc97168caf5
       tags:
-      - v0.19.0-dev-15-ge5905812
+      - v0.19.0-dev-30-g9ed3b166
     path: run.tanzu.vmware.com_kappcontrollerconfigs.yaml
   - git:
-      commitTitle: Add pause mechanism to ClusterBootstrap (#1780)...
-      sha: e5905812ba8e1e474db32c2e1776ca782f76f454
+      commitTitle: Remove CNI selection using cluster variable (#1834)...
+      sha: 9ed3b1664b261d2d5c9dac552f8a2cc97168caf5
       tags:
-      - v0.19.0-dev-15-ge5905812
+      - v0.19.0-dev-30-g9ed3b166
     path: cpi.tanzu.vmware.com_cpiconfigs.yaml
   path: config/upstream
 - contents:
