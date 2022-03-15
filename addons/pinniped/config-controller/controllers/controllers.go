@@ -41,7 +41,7 @@ type PinnipedController struct {
 func NewController(c client.Client) *PinnipedController {
 	return &PinnipedController{
 		client: c,
-		Log:    ctrl.Log.WithName("Pinniped Config Controller"),
+		Log:    ctrl.Log.WithName("pinniped config controller"),
 	}
 }
 
@@ -69,14 +69,15 @@ func (c *PinnipedController) SetupWithManager(manager ctrl.Manager) error {
 		// WithEventFilter(utils.ClusterHasLabel(constants.TKRLabelClassyClusters, c.Log)).
 		Complete(c)
 	if err != nil {
-		c.Log.Error(err, "Error creating pinniped config controller")
+		c.Log.Error(err, "error creating pinniped config controller")
 		return err
 	}
 	return nil
 }
 
 func (c *PinnipedController) Reconcile(ctx context.Context, req ctrl.Request) (reconcile.Result, error) {
-	log := c.Log.WithName("Pinniped Config Controller Reconcile Function")
+	log := c.Log.WithName("reconcile").WithValues("request object", req)
+	log.Info("starting reconciliation")
 	pinnipedInfoCM := &corev1.ConfigMap{
 		ObjectMeta: metav1.ObjectMeta{
 			Namespace: constants.KubePublicNamespace,
@@ -86,35 +87,36 @@ func (c *PinnipedController) Reconcile(ctx context.Context, req ctrl.Request) (r
 
 	if err := c.client.Get(ctx, client.ObjectKeyFromObject(pinnipedInfoCM), pinnipedInfoCM); err != nil {
 		if !k8serror.IsNotFound(err) {
-			log.Error(err, "Error getting pinniped-info configmap")
+			log.Error(err, "error getting pinniped-info configmap")
 			return reconcile.Result{}, err
 		}
 
-		log.Info("pinniped-info configmap not found, setting value to nil")
+		log.V(1).Info("pinniped-info configmap not found, setting value to nil")
 		pinnipedInfoCM.Data = nil
 	}
 	// if req is empty, CM changed, let's loop through all clusters and create/update/delete secrets
 	if (req == ctrl.Request{}) {
+		log.V(1).Info("empty request provided, checking all clusters")
 		clusters := &clusterapiv1beta1.ClusterList{}
 		if err := c.client.List(ctx, clusters); err != nil {
-			log.Error(err, "Error listing clusters")
+			log.Error(err, "error listing clusters")
 			return reconcile.Result{}, err
 		}
 
 		for i := range clusters.Items {
 			if utils.IsManagementCluster(&clusters.Items[i]) {
+				log.V(1).Info("skipping reconciliation of management cluster")
 				continue
 			}
 
 			if err := c.reconcileAddonSecret(ctx, &clusters.Items[i], pinnipedInfoCM); err != nil {
-				log.Error(err, "Error reconciling addon secret")
+				log.Error(err, "error reconciling addon secret")
 				return reconcile.Result{}, err
 			}
 		}
 		return reconcile.Result{}, nil
 	}
 
-	log = log.WithValues(constants.NamespaceLogKey, req.Namespace, constants.NameLogKey, req.Name)
 	// Get cluster from rec
 	cluster := clusterapiv1beta1.Cluster{}
 	if err := c.client.Get(ctx, req.NamespacedName, &cluster); err != nil {
@@ -124,12 +126,12 @@ func (c *PinnipedController) Reconcile(ctx context.Context, req ctrl.Request) (r
 			}
 			return reconcile.Result{}, nil
 		}
-		log.Error(err, "Error getting cluster")
+		log.Error(err, "error getting cluster")
 		return reconcile.Result{}, err
 	}
 
 	if utils.IsManagementCluster(&cluster) {
-		log.Info("Cluster is management cluster")
+		log.V(1).Info("skipping reconciliation of management cluster")
 		return reconcile.Result{}, nil
 	}
 
@@ -163,7 +165,7 @@ func (c *PinnipedController) reconcileAddonSecret(ctx context.Context, cluster *
 	log := c.Log.WithValues(constants.NamespaceLogKey, cluster.Namespace, constants.NameLogKey, cluster.Name)
 	// check if cluster is scheduled for deletion, if so, delete addon secret on mgmt cluster
 	if !cluster.GetDeletionTimestamp().IsZero() {
-		c.Log.Info("Cluster is getting deleted, deleting addon secret")
+		log.V(1).Info("cluster is getting deleted, deleting addon secret")
 		if err := c.reconcileClusterDelete(ctx, client.ObjectKeyFromObject(cluster)); err != nil {
 			return fmt.Errorf("failed to reconcile cluster delete: %w", err)
 		}
@@ -181,13 +183,13 @@ func (c *PinnipedController) reconcileAddonSecret(ctx context.Context, cluster *
 		supervisorAddress, labelExists = pinnipedInfoCM.Data["issuer"] // TODO: get rid of raw strings...
 		if !labelExists {
 			err := errors.New("could not find issuer")
-			log.Error(err, "Error retrieving issuer from pinniped-info configmap")
+			log.Error(err, "error retrieving issuer from pinniped-info configmap")
 			return err
 		}
 		supervisorCABundle, labelExists = pinnipedInfoCM.Data["issuer_ca_bundle_data"] // TODO: get rid of raw strings...
 		if !labelExists {
 			err := errors.New("could not find ca bundle")
-			log.Error(err, "Error retrieving ca bundle from pinniped-info configmap")
+			log.Error(err, "error retrieving ca bundle from pinniped-info configmap")
 			return err
 		}
 	} else {
@@ -195,7 +197,7 @@ func (c *PinnipedController) reconcileAddonSecret(ctx context.Context, cluster *
 		supervisorCABundle = ""
 	}
 
-	log.Info(fmt.Sprintf("supervisorAddress: %q, supervisorCABundle: %q", supervisorAddress, supervisorCABundle))
+	log.V(1).Info("retrieved data from pinniped-info configmap", "supervisorAddress", supervisorAddress, "supervisorCABundle", supervisorCABundle)
 
 	pinnipedAddonSecret := &corev1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
@@ -224,7 +226,7 @@ func (c *PinnipedController) reconcileAddonSecret(ctx context.Context, cluster *
 		// TODO: should we fail here if we can't find infra provider?
 		infraProvider, err := utils.GetInfraProvider(cluster)
 		if err != nil {
-			log.Error(err, "Unable to get infrastructure_provider for ", "cluster", cluster.Name)
+			log.Error(err, "unable to get infrastructure_provider", "cluster", cluster.Name)
 			return err
 		}
 		pinnipedDataValues.Infrastructure = infraProvider
@@ -234,7 +236,7 @@ func (c *PinnipedController) reconcileAddonSecret(ctx context.Context, cluster *
 		pinnipedDataValues.Pinniped.Concierge.Audience = fmt.Sprintf("%s-%s", cluster.Name, string(cluster.UID))
 		dataValueYamlBytes, err := yaml.Marshal(pinnipedDataValues)
 		if err != nil {
-			log.Error(err, "Error marshaling Pinniped Addon Secret values to Yaml")
+			log.Error(err, "error marshaling Pinniped Addon Secret values to yaml")
 			return err
 		}
 		dataValueYamlBytes = append([]byte(valuesYAMLPrefix), dataValueYamlBytes...)
@@ -243,20 +245,21 @@ func (c *PinnipedController) reconcileAddonSecret(ctx context.Context, cluster *
 		return nil
 	}
 
-	log.Info("Creating or patching addon secret")
+	log.V(1).Info("creating or patching addon secret")
 	result, err := controllerutil.CreateOrPatch(ctx, c.client, pinnipedAddonSecret, pinnipedAddonSecretMutateFn)
-	if err != nil {
-		log.Error(err, "Error creating or patching Pinniped addon secret data values")
+	if err != nil && !k8serror.IsAlreadyExists(err) {
+		log.Error(err, "error creating or patching data values")
 		return err
 	}
 
-	log.Info(fmt.Sprintf("Result of create/patch: '%s'", result))
+	log.Info("finished creating/patching", "result", result)
 
 	return nil
 }
 
 func (c *PinnipedController) reconcileClusterDelete(ctx context.Context, clusterName types.NamespacedName) error {
 	secretName := secretNameFromClusterName(clusterName)
+	log := c.Log.WithValues(constants.NamespaceLogKey, secretName.Namespace, constants.NameLogKey, secretName.Name)
 	secret := &corev1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
 			Namespace: secretName.Namespace,
@@ -266,6 +269,7 @@ func (c *PinnipedController) reconcileClusterDelete(ctx context.Context, cluster
 	if err := c.client.Delete(ctx, secret); err != nil && !k8serror.IsNotFound(err) {
 		return fmt.Errorf("could not delete secret %s for cluster %s: %w", secretName, clusterName, err)
 	}
+	log.Info("deleted the secret")
 	return nil
 }
 

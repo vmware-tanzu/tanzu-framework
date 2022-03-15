@@ -6,7 +6,6 @@ package utils
 
 import (
 	"fmt"
-	"strings"
 
 	"github.com/go-logr/logr"
 	corev1 "k8s.io/api/core/v1"
@@ -80,7 +79,7 @@ func ClusterHasLabel(label string, logger logr.Logger) predicate.Funcs {
 
 // processIfClusterHasLabel determines if the input object is a cluster with a non-empty
 // value for the specified label. For other input object types, it returns true
-func processIfClusterHasLabel(label string, obj client.Object, logger logr.Logger) bool {
+func processIfClusterHasLabel(label string, obj client.Object, log logr.Logger) bool {
 	kind := obj.GetObjectKind().GroupVersionKind().Kind
 
 	if kind != constants.ClusterKind {
@@ -94,7 +93,9 @@ func processIfClusterHasLabel(label string, obj client.Object, logger logr.Logge
 		}
 	}
 
-	log := logger.WithValues("namespace", obj.GetNamespace(), strings.ToLower(kind), obj.GetName())
-	log.V(6).Info("Cluster resource does not have label", "label", label)
+	log.V(1).Info("Cluster resource does not have label",
+		"label", label,
+		constants.NamespaceLogKey, obj.GetNamespace(),
+		constants.NameLogKey, obj.GetName())
 	return false
 }

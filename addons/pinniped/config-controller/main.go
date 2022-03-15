@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"os"
 
+	"k8s.io/klog/v2"
 	"k8s.io/klog/v2/klogr"
 
 	"github.com/go-logr/logr"
@@ -19,8 +20,10 @@ import (
 )
 
 func main() {
-	setupLog := ctrl.Log.WithName("Pinniped Config Controller Set Up")
-	setupLog.Info("starting")
+	klog.InitFlags(nil)
+	ctrl.SetLogger(klogr.New())
+	setupLog := ctrl.Log.WithName("pinniped config controller").WithName("set up")
+	setupLog.Info("starting set up")
 	if err := reallyMain(setupLog); err != nil {
 		setupLog.Error(err, "error running controller")
 		os.Exit(1)
@@ -41,7 +44,6 @@ func reallyMain(setupLog logr.Logger) error {
 	}
 
 	// Create manager to run our controller.
-	ctrl.SetLogger(klogr.New())
 	manager, err := ctrl.NewManager(ctrl.GetConfigOrDie(), ctrl.Options{
 		Scheme: scheme,
 	})
@@ -56,7 +58,7 @@ func reallyMain(setupLog logr.Logger) error {
 	}
 
 	// Tell manager to start running our controller.
-	setupLog.Info("starting manager")
+	setupLog.V(1).Info("starting manager")
 	if err := manager.Start(ctrl.SetupSignalHandler()); err != nil {
 		return fmt.Errorf("unable to start manager: %w", err)
 	}

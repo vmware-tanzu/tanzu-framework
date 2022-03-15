@@ -6,7 +6,6 @@ package controllers
 import (
 	"fmt"
 
-	"github.com/pkg/errors"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/types"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -21,7 +20,7 @@ import (
 
 func (c *PinnipedController) configMapToCluster(o client.Object) []ctrl.Request {
 	// return empty object, if pinniped-info CM changes, update all the secrets
-	c.Log.Info("Configmap created/updated/deleted, sending back empty request to reconcile all clusters/secrets")
+	c.Log.V(1).Info("configmap created/updated/deleted, sending back empty request to reconcile all clusters")
 	return []ctrl.Request{}
 }
 
@@ -44,16 +43,15 @@ func withNamespacedName(namespacedName types.NamespacedName) builder.Predicates 
 func (c *PinnipedController) addonSecretToCluster(o client.Object) []ctrl.Request {
 	log := c.Log.WithValues(constants.NamespaceLogKey, o.GetName(), constants.NameLogKey, o.GetNamespace())
 
-	log.Info("Mapping Addon Secret to cluster")
+	log.V(1).Info("mapping addon secret to cluster")
 	clusterName, labelExists := o.GetLabels()[constants.TKGClusterNameLabel]
 
 	if !labelExists || clusterName == "" {
-		log.Error(errors.New("cluster name label not found on resource"),
-			"Expected to find cluster name label")
+		log.Error(nil, "cluster name label not found on resource")
 		return nil
 	}
 
-	log.Info("Adding cluster for reconciliation")
+	log.V(1).Info("adding cluster for reconciliation")
 
 	return []ctrl.Request{{
 		NamespacedName: client.ObjectKey{Namespace: o.GetNamespace(), Name: clusterName},
@@ -64,21 +62,21 @@ func (c *PinnipedController) withAddonLabel(addonLabel string) predicate.Funcs {
 	// Predicate func will get called for all events (create, update, delete, generic)
 	return predicate.NewPredicateFuncs(func(o client.Object) bool {
 		var secret *corev1.Secret
+		log := c.Log.WithValues(constants.NamespaceLogKey, o.GetName(), constants.NameLogKey, o.GetNamespace())
 		switch obj := o.(type) {
 		case *corev1.Secret:
 			secret = obj
 		default:
-			c.Log.Info("Expected object type of secret. Got object type", "actualType", fmt.Sprintf("%T", o))
+			log.V(1).Info("expected secret, got", "type", fmt.Sprintf("%T", o))
 			return false
 		}
 		// TODO: do we care if secret is paused?
 		if utils.IsAddonType(secret) && utils.HasAddonLabel(secret, addonLabel) {
+			log.V(1).Info("adding cluster for reconciliation")
 			return true
 		}
 
-		c.Log.Info("Secret is not an addon or does not have the given label",
-			constants.NamespaceLogKey, secret.Namespace, constants.NameLogKey, secret.Name, "label", addonLabel)
-
+		log.V(1).Info("secret is not an addon or does not have the given label", "label", addonLabel)
 		return false
 	})
 }
