@@ -22,12 +22,11 @@ type AddonControllerConfig struct {
 
 // ClusterBootstrapControllerConfig contains configuration information related to ClusterBootstrap
 type ClusterBootstrapControllerConfig struct {
-	CNISelectionClusterVariableName string
-	HTTPProxyClusterClassVarName    string
-	HTTPSProxyClusterClassVarName   string
-	NoProxyClusterClassVarName      string
-	ProxyCACertClusterClassVarName  string
-	IPFamilyClusterClassVarName     string
+	HTTPProxyClusterClassVarName   string
+	HTTPSProxyClusterClassVarName  string
+	NoProxyClusterClassVarName     string
+	ProxyCACertClusterClassVarName string
+	IPFamilyClusterClassVarName    string
 	// The length of time to wait before kapp-controller's reconciliation
 	PkgiSyncPeriod time.Duration
 	// ServiceAccount name that will be used by kapp-controller to install underlying package contents

@@ -143,9 +143,6 @@ const (
 	// ClusterBootstrapManagedSecret is the name for the secrets that are managed by ClusterBootstrapController
 	ClusterBootstrapManagedSecret = "clusterbootstrap-secret"
 
-	// DefaultCNISelectionClusterVariableName is the default cluster variable name for cni selection
-	DefaultCNISelectionClusterVariableName = "tkg.tanzu.vmware.com/cni"
-
 	// DefaultHTTPProxyClusterClassVarName is the default cluster variable name for HTTP proxy setting
 	DefaultHTTPProxyClusterClassVarName = "tkg.tanzu.vmware.com/tkg-http-proxy"
 

@@ -45,11 +45,6 @@ describe('NodeSettingStepComponent', () => {
         fixture.detectChanges();
     });
 
-    it('should set correct value for card clicking', () => {
-        component.cardClickProd();
-        expect(component.formGroup.controls['controlPlaneSetting'].value).toBe('prod')
-    });
-
     it('should get correct env value', () => {
         component.cardClickProd();
         expect(component.isClusterPlanProd).toBeTrue();
@@ -58,9 +53,7 @@ describe('NodeSettingStepComponent', () => {
     it('should announce description change', () => {
         const msgSpy = spyOn(AppServices.messenger, 'publish').and.callThrough();
         component.ngOnInit();
-        const controlPlaneSettingControl = component.formGroup.get('controlPlaneSetting');
 
-        controlPlaneSettingControl.setValue('');
         expect(component.dynamicDescription()).toEqual('Specify the resources backing the  cluster');
 
         component.setClusterTypeDescriptor('VANILLA');
@@ -73,7 +66,7 @@ describe('NodeSettingStepComponent', () => {
             }
         });
 
-        controlPlaneSettingControl.setValue('dev');
+        component.cardClickDev();
         expect(msgSpy).toHaveBeenCalledWith({
             type: TanzuEventType.STEP_DESCRIPTION_CHANGE,
             payload: {
@@ -83,7 +76,7 @@ describe('NodeSettingStepComponent', () => {
             }
         });
 
-        controlPlaneSettingControl.setValue('prod');
+        component.cardClickProd();
         expect(msgSpy).toHaveBeenCalledWith({
             type: TanzuEventType.STEP_DESCRIPTION_CHANGE,
             payload: {

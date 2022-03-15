@@ -9,7 +9,7 @@ import { Identity } from '../common/identity.po'
 
 export class ExistingVnetCommon extends WizardCommon {
     getFlowTestingDescription() {
-        return "Azure flow (existing VNET)"
+        return "Azure flow (existing VNet)"
     }
 
     setProvideResourceGroup(step: Provider) {
@@ -23,14 +23,14 @@ export class ExistingVnetCommon extends WizardCommon {
     }
 
     executeVnetStep() {
-        describe("VNET for Azure step", () => {
+        describe("VNet for Azure step", () => {
             const vnet = new Vnet();
 
-            it('should have moved to VNET for Azure step', () => {
+            it('should have moved to VNet for Azure step', () => {
                 expect(vnet.hasMovedToStep()).toBeTruthy();
             })
 
-            it('should be able to select an existing VNET', () => {
+            it('should be able to select an existing VNet', () => {
                 vnet.getSelectAnExistingVnet().click();
                 browser.waitForAngular();
                 vnet.selectOptionByText(vnet.getResourceGroup(), PARAMS.AZURE_RESOURCE_GROUP);
