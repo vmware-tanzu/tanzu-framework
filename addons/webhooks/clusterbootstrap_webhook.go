@@ -93,13 +93,8 @@ func (webhook *ClusterBootstrap) ValidateCreate(ctx context.Context, obj runtime
 
 	var allErrs field.ErrorList
 
-	// Only 1 CNI selection is allowed
-	if len(clusterBootstrap.Spec.CNIs) == 1 {
-		if err := webhook.ValidateClusterBootstrapPackage(ctx, clusterBootstrap.Spec.CNIs[0], clusterBootstrap.Namespace, getFieldPath("cni")); err != nil {
-			allErrs = append(allErrs, err)
-		}
-	} else {
-		allErrs = append(allErrs, field.Invalid(getFieldPath("cnis"), clusterBootstrap.Spec.CNIs, "more than 1 CNI selection is provided"))
+	if err := webhook.ValidateClusterBootstrapPackage(ctx, clusterBootstrap.Spec.CNI, clusterBootstrap.Namespace, getFieldPath("cni")); err != nil {
+		allErrs = append(allErrs, err)
 	}
 
 	if err := webhook.ValidateClusterBootstrapPackage(ctx, clusterBootstrap.Spec.Kapp, clusterBootstrap.Namespace, getFieldPath("kapp")); err != nil {
@@ -242,13 +237,8 @@ func (webhook *ClusterBootstrap) ValidateUpdate(ctx context.Context, oldObj, new
 	}
 
 	namespace := newClusterBootstrap.Namespace
-	// Only 1 CNI selection is allowed
-	if len(oldClusterBootstrap.Spec.CNIs) == 1 && len(newClusterBootstrap.Spec.CNIs) == 1 {
-		if err := validatePackageUpdate(ctx, oldClusterBootstrap.Spec.CNIs[0], newClusterBootstrap.Spec.CNIs[0], namespace, getFieldPath("cnis")); err != nil {
-			allErrs = append(allErrs, err)
-		}
-	} else {
-		allErrs = append(allErrs, field.Invalid(getFieldPath("cnis"), newClusterBootstrap.Spec.CNIs, "more than 1 CNI selection is provided"))
+	if err := validatePackageUpdate(ctx, oldClusterBootstrap.Spec.CNI, newClusterBootstrap.Spec.CNI, namespace, getFieldPath("cni")); err != nil {
+		allErrs = append(allErrs, err)
 	}
 
 	if err := validatePackageUpdate(ctx, oldClusterBootstrap.Spec.CSI, newClusterBootstrap.Spec.CSI, namespace, getFieldPath("csi")); err != nil {

@@ -67,7 +67,7 @@ func (c *ClusterBootstrapBuilder) Build() *runv1alpha3.ClusterBootstrap {
 			Namespace: c.namespace,
 		},
 		Spec: &runv1alpha3.ClusterBootstrapTemplateSpec{
-			CNIs:               []*runv1alpha3.ClusterBootstrapPackage{c.cni},
+			CNI:                c.cni,
 			CSI:                c.csi,
 			CPI:                c.cpi,
 			Kapp:               c.kapp,
