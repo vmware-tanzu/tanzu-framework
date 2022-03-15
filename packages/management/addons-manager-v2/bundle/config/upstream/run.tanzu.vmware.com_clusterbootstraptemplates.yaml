@@ -6,16 +6,16 @@ metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.7.0
   creationTimestamp: null
-  name: clusterbootstraps.run.tanzu.vmware.com
+  name: clusterbootstraptemplates.run.tanzu.vmware.com
 spec:
   group: run.tanzu.vmware.com
   names:
-    kind: ClusterBootstrap
-    listKind: ClusterBootstrapList
-    plural: clusterbootstraps
+    kind: ClusterBootstrapTemplate
+    listKind: ClusterBootstrapTemplateList
+    plural: clusterbootstraptemplates
     shortNames:
-    - cb
-    singular: clusterbootstrap
+    - cbt
+    singular: clusterbootstraptemplate
   scope: Namespaced
   versions:
   - additionalPrinterColumns:
@@ -40,14 +40,11 @@ spec:
       name: Additional Packages
       priority: 10
       type: string
-    - description: Resolved TKR name
-      jsonPath: .status.resolvedTKR
-      name: Resolved_TKR
-      type: string
     name: v1alpha3
     schema:
       openAPIV3Schema:
-        description: ClusterBootstrap is the Schema for the ClusterBootstraps API
+        description: ClusterBootstrapTemplate is the Schema for the ClusterBootstraptemplates
+          API
         properties:
           apiVersion:
             description: 'APIVersion defines the versioned schema of this representation
@@ -244,20 +241,18 @@ spec:
                 required:
                 - refName
                 type: object
-            type: object
-          status:
-            description: ClusterBootstrapStatus defines the observed state of ClusterBootstrap
-            properties:
-              resolvedTKR:
-                type: string
+              paused:
+                default: false
+                description: Paused can be used to prevent controllers from processing
+                  the ClusterBootstrap and all its associated objects.
+                type: boolean
             type: object
         required:
         - spec
         type: object
     served: true
     storage: true
-    subresources:
-      status: {}
+    subresources: {}
 status:
   acceptedNames:
     kind: ""

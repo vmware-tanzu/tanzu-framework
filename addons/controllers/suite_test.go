@@ -252,10 +252,10 @@ var _ = BeforeSuite(func(done Done) {
 			ProxyCACertClusterClassVarName: constants.DefaultProxyCaCertClusterClassVarName,
 			IPFamilyClusterClassVarName:    constants.DefaultIPFamilyClusterClassVarName,
 			SystemNamespace:                constants.TKGSystemNS,
-			PkgiServiceAccount:             "tanzu-addons-manager-sa",
-			PkgiClusterRole:                "tanzu-addons-manager-clusterrole",
-			PkgiClusterRoleBinding:         "tanzu-addons-manager-clusterrolebinding",
-			PkgiSyncPeriod:                 10 * time.Minute,
+			PkgiServiceAccount:             constants.PackageInstallServiceAccount,
+			PkgiClusterRole:                constants.PackageInstallClusterRole,
+			PkgiClusterRoleBinding:         constants.PackageInstallClusterRoleBinding,
+			PkgiSyncPeriod:                 constants.PackageInstallSyncPeriod,
 		},
 	)
 	Expect(bootstrapReconciler.SetupWithManager(ctx, mgr, controller.Options{MaxConcurrentReconciles: 1})).To(Succeed())

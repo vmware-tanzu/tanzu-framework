@@ -3,10 +3,12 @@
 
 ---
 tanzuAddonsManager:
-  namespace: tanzu-system
+  namespace: tkg-system
   createNamespace: true
   deployment:
     hostNetwork: true
     priorityClassName: null
     tolerations: []
     healthzPort: 18316
+  featureGates:
+    clusterBootstrapController: false
