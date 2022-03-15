@@ -18,6 +18,7 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
 	addontypes "github.com/vmware-tanzu/tanzu-framework/addons/pkg/types"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/util"
+	"github.com/vmware-tanzu/tanzu-framework/addons/test/builder"
 	"github.com/vmware-tanzu/tanzu-framework/addons/test/testutil"
 	antreaconfigv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cni/v1alpha1"
 	vspherecpiv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cpi/v1alpha1"
@@ -39,6 +40,7 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 		clusterName             string
 		clusterNamespace        string
 		clusterResourceFilePath string
+		enableWebhook           bool
 	)
 
 	// Constants defined in testdata manifests
@@ -47,9 +49,36 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 		foobarCarvelPackageName     = "foobar.example.com.1.17.2"
 		foobar1CarvelPackageRefName = "foobar1.example.com"
 		foobar1CarvelPackageName    = "foobar1.example.com.1.17.2"
+		// webhooks
+		clusterbootstrapWebhookLabel        = "clusterbootstrap-webhook"
+		clusterbootstrapWebhookManifestFile = "testdata/webhooks/clusterbootstrap-webhook-manifests.yaml"
+		clusterbootstrapWebhookServiceName  = "clusterbootstrap-webhook-service"
+		clusterbootstrapWebhookScrtName     = "clusterbootstrap-webhook-tls"
 	)
 
 	JustBeforeEach(func() {
+		if enableWebhook {
+			// Create the webhooks
+			f, err := os.Open(clusterbootstrapWebhookManifestFile)
+			Expect(err).ToNot(HaveOccurred())
+			err = testutil.CreateResources(f, cfg, dynamicClient)
+			Expect(err).ToNot(HaveOccurred())
+			f.Close()
+
+			// set up the certificates and webhook before creating any objects
+			By("Creating and installing new certificates for ClusterBootstrap Admission Webhooks")
+			webhookCertDetails := testutil.WebhookCertificatesDetails{
+				CertPath:           certPath,
+				KeyPath:            keyPath,
+				WebhookScrtName:    clusterbootstrapWebhookScrtName,
+				AddonNamespace:     addonNamespace,
+				WebhookServiceName: clusterbootstrapWebhookServiceName,
+				LabelSelector:      clusterbootstrapWebhookLabel,
+			}
+			err = testutil.SetupWebhookCertificates(ctx, k8sClient, k8sConfig, &webhookCertDetails)
+			Expect(err).ToNot(HaveOccurred())
+		}
+
 		// create cluster resources
 		By("Creating a cluster")
 		f, err := os.Open(clusterResourceFilePath)
@@ -62,6 +91,16 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 	})
 
 	AfterEach(func() {
+		if enableWebhook {
+			By("Deleting webhook")
+			// Create the webhooks
+			f, err := os.Open(clusterbootstrapWebhookManifestFile)
+			Expect(err).ToNot(HaveOccurred())
+			err = testutil.DeleteResources(f, cfg, dynamicClient, true)
+			Expect(err).ToNot(HaveOccurred())
+			f.Close()
+		}
+
 		By("Deleting kubeconfig for cluster")
 		key := client.ObjectKey{
 			Namespace: clusterNamespace,
@@ -77,6 +116,7 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 			clusterName = "test-cluster-tcbt"
 			clusterNamespace = "cluster-namespace"
 			clusterResourceFilePath = "testdata/test-cluster-bootstrap-1.yaml"
+			enableWebhook = true
 		})
 		Context("from a ClusterBootstrapTemplate", func() {
 			It("should create ClusterBootstrap CR and the related objects for the cluster", func() {
@@ -429,7 +469,7 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 
 				By("Updating cluster TKR version", func() {
 					newTKRVersion := "v1.23.3"
-					cluster := &clusterapiv1beta1.Cluster{}
+					cluster = &clusterapiv1beta1.Cluster{}
 					Expect(k8sClient.Get(ctx, client.ObjectKey{Namespace: clusterNamespace, Name: clusterName}, cluster)).To(Succeed())
 					cluster.Labels[constants.TKRLabelClassyClusters] = newTKRVersion
 					Expect(k8sClient.Update(ctx, cluster)).To(Succeed())
@@ -480,6 +520,83 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 					}, waitTimeout, pollingInterval).Should(BeTrue())
 				})
 
+				By("Test mutating webhook", func() {
+					// fetch the latest clusterbootstrap
+					Eventually(func() bool {
+						err := k8sClient.Get(ctx, client.ObjectKeyFromObject(cluster), clusterBootstrap)
+						if err != nil {
+							return false
+						}
+						for _, ownerRef := range clusterBootstrap.OwnerReferences {
+							if ownerRef.UID == cluster.UID {
+								return true
+							}
+						}
+						return false
+					}, waitTimeout, pollingInterval).Should(BeTrue())
+
+					// CNI can't be nil
+					mutateClusterBootstrap := clusterBootstrap.DeepCopy()
+					mutateClusterBootstrap.Spec.CNI = nil
+					err := k8sClient.Update(ctx, mutateClusterBootstrap)
+					Expect(err).To(HaveOccurred())
+					fmt.Println(err.Error())
+					Expect(strings.Contains(err.Error(), "spec.cni: Invalid value: \"null\": package can't be nil")).To(BeTrue())
+
+					// Kapp can't be nil
+					mutateClusterBootstrap = clusterBootstrap.DeepCopy()
+					mutateClusterBootstrap.Spec.Kapp = nil
+					err = k8sClient.Update(ctx, mutateClusterBootstrap)
+					Expect(err).To(HaveOccurred())
+					fmt.Println(err.Error())
+					Expect(strings.Contains(err.Error(), "spec.kapp: Invalid value: \"null\": package can't be nil")).To(BeTrue())
+
+					// CSI can be nil
+					mutateClusterBootstrap = clusterBootstrap.DeepCopy()
+					mutateClusterBootstrap.Spec.CSI = nil
+					err = k8sClient.Update(ctx, mutateClusterBootstrap)
+					Expect(err).ToNot(HaveOccurred())
+
+					// Package CR must exist
+					mutateClusterBootstrap = clusterBootstrap.DeepCopy()
+					mutateClusterBootstrap.Spec.CNI.RefName = "antrea.tanzu.vmware.com.1.2.5--vmware.1-tkg.1"
+					err = k8sClient.Update(ctx, mutateClusterBootstrap)
+					fmt.Println(err.Error())
+					Expect(strings.Contains(err.Error(), "\"antrea.tanzu.vmware.com.1.2.5--vmware.1-tkg.1\" not found")).To(BeTrue())
+
+					// Package Refname can't change
+					mutateClusterBootstrap = clusterBootstrap.DeepCopy()
+					mutateClusterBootstrap.Spec.CNI.RefName = "foobar1.example.com.1.17.2"
+					err = k8sClient.Update(ctx, mutateClusterBootstrap)
+					fmt.Println(err.Error())
+					Expect(strings.Contains(err.Error(), "new package refName and old package refName should be the same")).To(BeTrue())
+
+					// Package can't be downgraded
+					mutateClusterBootstrap = clusterBootstrap.DeepCopy()
+					mutateClusterBootstrap.Spec.CNI.RefName = "antrea.tanzu.vmware.com.0.13.3--vmware.1-tkg.1"
+					err = k8sClient.Update(ctx, mutateClusterBootstrap)
+					fmt.Println(err.Error())
+					Expect(strings.Contains(err.Error(), "package downgrade is not allowed")).To(BeTrue())
+
+					// Additional package can't be removed
+					mutateClusterBootstrap = clusterBootstrap.DeepCopy()
+					mutateClusterBootstrap.Spec.AdditionalPackages = mutateClusterBootstrap.Spec.AdditionalPackages[:len(mutateClusterBootstrap.Spec.AdditionalPackages)-1]
+					err = k8sClient.Update(ctx, mutateClusterBootstrap)
+					fmt.Println(err.Error())
+					Expect(strings.Contains(err.Error(), "missing updated additional package")).To(BeTrue())
+				})
+
+				By("Test validating webhook", func() {
+					namespace := "default"
+
+					// TODO: Add more testcases for ClusterBootstrap Validating webhook after rebase with the TKR upgrade PR
+					in := builder.ClusterBootstrap(namespace, "test-cb-1").
+						WithCNIPackage(builder.ClusterBootstrapPackage("cni.example.com.1.17.2").WithProviderRef("run.tanzu.vmware.com", "foo", "bar").Build()).
+						WithAdditionalPackage(builder.ClusterBootstrapPackage("pinniped.example.com.1.11.3").Build()).Build()
+
+					err = k8sClient.Create(ctx, in)
+					Expect(err).Should(HaveOccurred())
+				})
 			})
 		})
 	})
@@ -489,6 +606,7 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 			clusterName = "test-cluster-tcbt-2"
 			clusterNamespace = "cluster-namespace-2"
 			clusterResourceFilePath = "testdata/test-cluster-bootstrap-2.yaml"
+			enableWebhook = false
 		})
 		Context("from a ClusterBootstrapTemplate", func() {
 			It("should block ClusterBootstrap reconciliation if it is paused", func() {

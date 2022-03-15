@@ -154,15 +154,16 @@ var _ = Describe("CalicoConfig Reconciler and Webhooks", func() {
 		})
 
 		It("Should fail mutating webhooks for immutable fields for CalicoConfig", func() {
+			configNamespace := "default"
 			key := client.ObjectKey{
-				Namespace: "default",
+				Namespace: configNamespace,
 				Name:      testCluster,
 			}
 			config := &cniv1alpha1.CalicoConfig{}
 			Expect(k8sClient.Get(ctx, key, config)).To(Succeed())
 
 			By("Trying to update the immutable Namespace field in Calico Spec")
-			config.Spec.Namespace = "default"
+			config.Spec.Namespace = configNamespace
 			Expect(k8sClient.Update(ctx, config)).ToNot(Succeed())
 		})
 	})

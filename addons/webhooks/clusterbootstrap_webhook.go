@@ -210,8 +210,6 @@ func (webhook *ClusterBootstrap) getGVR(gk schema.GroupKind) (*schema.GroupVersi
 
 // ValidateUpdate implements webhook.Validator so a webhook will be registered for the type
 func (webhook *ClusterBootstrap) ValidateUpdate(ctx context.Context, oldObj, newObj runtime.Object) error {
-	fmt.Println("**************ValidateUpgrade*************")
-
 	// Covert objs to ClusterBootstrap
 	newClusterBootstrap, ok := newObj.(*runv1alpha3.ClusterBootstrap)
 	if !ok {
@@ -226,7 +224,7 @@ func (webhook *ClusterBootstrap) ValidateUpdate(ctx context.Context, oldObj, new
 	var allErrs field.ErrorList
 
 	// This function combines new package spec validation and package upgrade validation together
-	validatePackageUpdate := func(ctx context.Context, old, new *runv1alpha3.ClusterBootstrapPackage, namespace string, fldPath *field.Path) *field.Error {
+	validateMandatoryCorePackageUpdate := func(ctx context.Context, old, new *runv1alpha3.ClusterBootstrapPackage, namespace string, fldPath *field.Path) *field.Error {
 		if err := webhook.ValidateClusterBootstrapPackage(ctx, new, namespace, fldPath); err != nil {
 			return err
 		}
@@ -237,19 +235,34 @@ func (webhook *ClusterBootstrap) ValidateUpdate(ctx context.Context, oldObj, new
 	}
 
 	namespace := newClusterBootstrap.Namespace
-	if err := validatePackageUpdate(ctx, oldClusterBootstrap.Spec.CNI, newClusterBootstrap.Spec.CNI, namespace, getFieldPath("cni")); err != nil {
+	if err := validateMandatoryCorePackageUpdate(ctx, oldClusterBootstrap.Spec.CNI, newClusterBootstrap.Spec.CNI, namespace, getFieldPath("cni")); err != nil {
 		allErrs = append(allErrs, err)
 	}
 
-	if err := validatePackageUpdate(ctx, oldClusterBootstrap.Spec.CSI, newClusterBootstrap.Spec.CSI, namespace, getFieldPath("csi")); err != nil {
+	if err := validateMandatoryCorePackageUpdate(ctx, oldClusterBootstrap.Spec.Kapp, newClusterBootstrap.Spec.Kapp, namespace, getFieldPath("kapp")); err != nil {
 		allErrs = append(allErrs, err)
 	}
 
-	if err := validatePackageUpdate(ctx, oldClusterBootstrap.Spec.CPI, newClusterBootstrap.Spec.CPI, namespace, getFieldPath("cpi")); err != nil {
+	// CSI and CPI can be nil
+	validateOptionalCorePackageUpdate := func(ctx context.Context, old, new *runv1alpha3.ClusterBootstrapPackage, namespace string, fldPath *field.Path) *field.Error {
+		if new != nil {
+			if err := webhook.ValidateClusterBootstrapPackage(ctx, new, namespace, fldPath); err != nil {
+				return err
+			}
+			if old != nil {
+				if err := webhook.ValidateClusterBootstrapPackageUpdate(ctx, old, new, fldPath); err != nil {
+					return err
+				}
+			}
+		}
+		return nil
+	}
+
+	if err := validateOptionalCorePackageUpdate(ctx, oldClusterBootstrap.Spec.CSI, newClusterBootstrap.Spec.CSI, namespace, getFieldPath("csi")); err != nil {
 		allErrs = append(allErrs, err)
 	}
 
-	if err := validatePackageUpdate(ctx, oldClusterBootstrap.Spec.Kapp, newClusterBootstrap.Spec.Kapp, namespace, getFieldPath("kapp")); err != nil {
+	if err := validateOptionalCorePackageUpdate(ctx, oldClusterBootstrap.Spec.CPI, newClusterBootstrap.Spec.CPI, namespace, getFieldPath("cpi")); err != nil {
 		allErrs = append(allErrs, err)
 	}
 
@@ -287,7 +300,7 @@ func (webhook *ClusterBootstrap) ValidateUpdate(ctx context.Context, oldObj, new
 				continue
 			}
 			if newAdditionalPkgMap[oldPackageRefName] == nil {
-				allErrs = append(allErrs, field.Invalid(addtionalPkgFldPath.Child("refName"), pkg.RefName, "new additional package with the same refName is not found"))
+				allErrs = append(allErrs, field.Invalid(addtionalPkgFldPath.Child("refName"), pkg.RefName, "missing updated additional package"))
 				continue
 			}
 			if err := webhook.ValidateClusterBootstrapPackageUpdate(ctx, pkg, newAdditionalPkgMap[oldPackageRefName], addtionalPkgFldPath); err != nil {
@@ -359,13 +372,16 @@ func (webhook *ClusterBootstrap) ValidateClusterBootstrapPackageUpdate(ctx conte
 	if old.ValuesFrom != nil && new.ValuesFrom != nil {
 		// We don't allow changes to APIGroup and Kind of providerRef
 		if old.ValuesFrom.ProviderRef != nil && new.ValuesFrom.ProviderRef != nil {
-			if old.ValuesFrom.ProviderRef.APIGroup != new.ValuesFrom.ProviderRef.APIGroup ||
+			if *old.ValuesFrom.ProviderRef.APIGroup != *new.ValuesFrom.ProviderRef.APIGroup ||
 				old.ValuesFrom.ProviderRef.Kind != new.ValuesFrom.ProviderRef.Kind {
 				return field.Invalid(fldPath.Child("valuesFrom"), new.ValuesFrom.ProviderRef, "change to Group and Kind in ProviderRef is not allowed")
 			}
 		}
 
-		// No restrictions if users want to switch from ProviderRef to secretRef/inline
+		// Users can't switch from ProviderRef to secretRef/inline
+		if old.ValuesFrom.ProviderRef != nil && new.ValuesFrom.ProviderRef == nil {
+			return field.Invalid(fldPath.Child("valuesFrom"), new.ValuesFrom.ProviderRef, "change from providerRef to secretRef or Inline is not allowed")
+		}
 	}
 
 	return nil
