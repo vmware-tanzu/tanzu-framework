@@ -307,19 +307,13 @@ func (r *ClusterBootstrapReconciler) createClusterBootstrapFromTemplate(
 	clusterBootstrap.Name = cluster.Name
 	clusterBootstrap.Namespace = cluster.Namespace
 	clusterBootstrap.Spec = clusterBootstrapTemplate.Spec.DeepCopy()
-	// get selected CNI and populate clusterBootstrap.Spec.CNIs with it
-	cniPackage, err := r.getCNIForClusterBootstrap(clusterBootstrapTemplate, cluster, log)
-	if err != nil {
-		return nil, err
-	}
-	clusterBootstrap.Spec.CNIs = []*runtanzuv1alpha3.ClusterBootstrapPackage{cniPackage}
 
 	packages := append([]*runtanzuv1alpha3.ClusterBootstrapPackage{
+		clusterBootstrap.Spec.CNI,
 		clusterBootstrap.Spec.CPI,
 		clusterBootstrap.Spec.CSI,
 		clusterBootstrap.Spec.Kapp,
-	}, clusterBootstrap.Spec.CNIs...)
-	packages = append(packages, clusterBootstrap.Spec.AdditionalPackages...)
+	}, clusterBootstrap.Spec.AdditionalPackages...)
 
 	secrets, providers, err := r.cloneSecretsAndProvidersFromPackageList(cluster, packages, clusterBootstrapTemplate.Namespace, log)
 	if err != nil {
@@ -386,18 +380,13 @@ func (r *ClusterBootstrapReconciler) patchClusterBootstrapFromTemplate( // nolin
 	//    3. The Group and Kind for default core package providers will not change across different TKR versions
 	//    4. All packages, including additional packages, can't be deleted (meaning the package refName can't be changed, only allow version bump)
 	//    5. We will keep users' customization on valuesFrom of each package, users are responsible for the correctness of the content they put in will work with the next version.
-	newCNIPkg, err := r.getCNIForClusterBootstrap(clusterBootstrapTemplate, cluster, log)
-	if err != nil {
-		log.Error(err, "unable to get the selected CNI")
-		return nil, err
-	}
-	if len(updatedClusterBootstrap.Spec.CNIs) != 1 {
-		log.Info("not exactly 1 CNI is selected in ClusterBootstrap, should not happen. Continue with CNI selected in ClusterBootstrapTemplate of new TKR")
-		updatedClusterBootstrap.Spec.CNIs = []*runtanzuv1alpha3.ClusterBootstrapPackage{newCNIPkg.DeepCopy()}
+	if updatedClusterBootstrap.Spec.CNI == nil {
+		log.Info("no CNI package specified in ClusterBootstarp, should not happen. Continue with CNI in ClusterBootstrapTemplate of new TKR")
+		updatedClusterBootstrap.Spec.CNI = clusterBootstrapTemplate.Spec.CNI.DeepCopy()
 	} else {
 		// We don't allow change to the CNI selection once it starts running
 		// ClusterBootstrap webhook will make sure the package RefName always match the original CNI
-		updatedClusterBootstrap.Spec.CNIs[0].RefName = newCNIPkg.RefName
+		updatedClusterBootstrap.Spec.CNI.RefName = clusterBootstrapTemplate.Spec.CNI.RefName
 	}
 
 	if updatedClusterBootstrap.Spec.Kapp == nil {

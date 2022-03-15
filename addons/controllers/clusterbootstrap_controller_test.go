@@ -419,8 +419,7 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 							return false
 						}
 						// Validate CNI
-						Expect(len(upgradedClusterBootstrap.Spec.CNIs)).To(Equal(1))
-						cni := upgradedClusterBootstrap.Spec.CNIs[0]
+						cni := upgradedClusterBootstrap.Spec.CNI
 						fmt.Println(cni.RefName)
 						Expect(strings.HasPrefix(cni.RefName, "antrea")).To(BeTrue())
 						Expect(cni.RefName).To(Equal("antrea.tanzu.vmware.com.1.2.3--vmware.4-tkg.2-advanced-zshippable"))
