@@ -7,3 +7,9 @@ metadata:
   infraProvider: ""
 
 configvalues:
+
+frameworkPackage:
+  namespaceForPackageInstallation: tkg-system
+  featureGatesPackageValues:
+    namespace: tkg-system
+    createNamespace: false
