@@ -1,8 +1,10 @@
+#@ load("@ytt:data", "data")
+
 apiVersion: v1
 kind: Service
 metadata:
   name: tanzu-featuregates-webhook-service
-  namespace: tkg-system
+  namespace: #@ data.values.namespace
 spec:
   ports:
     - port: 443

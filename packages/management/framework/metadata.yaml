@@ -1,0 +1,18 @@
+apiVersion: data.packaging.carvel.dev/v1alpha1
+kind: PackageMetadata
+metadata:
+  name: framework.tanzu.vmware.com
+  namespace: framework
+spec:
+  displayName: "framework"
+  longDescription: "framework package provides PackageInstall CRs and Service Accounts needed for installing the Tanzu Framework components (addons, featuregates, TKR)"
+  shortDescription: "Tanzu Framework components"
+  providerName: VMware
+  maintainers:
+    - name: "Rajath Agasthya"
+    - name: "Jeff Moroski"
+    - name: "Harish Yayi"
+    - name: "Lucheng Bao"
+    - name: "Guanpeng Gao"
+  categories:
+    - "Tanzu Framework components"

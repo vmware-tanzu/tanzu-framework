@@ -1,6 +1,6 @@
 # addons-manager Package
 
-Addon-manager generates addon secrets which contain the configurations for addons based on TKR/BOM, KubeadmControlPlane and CLI inputs provided during cluster creation.
+Addons-manager generates addon secrets which contain the configurations for addons based on TKR/BOM, KubeadmControlPlane and CLI inputs provided during cluster creation.
 It then creates these PackageInstall CRs on management and workload clusters which then get reconciled by a local kapp-controller.
 
 ## Components
