@@ -80,13 +80,23 @@ export class AzureWizardComponent extends WizardBaseDirective implements OnInit 
         this.subscribeToServices();
     }
 
+    // From the user-entered data, create an accountParams object to send to the azure endpoint for verification
+    private createCredentialParamsObject() {
+        const chosenCloudObject = this.getFieldValue(AzureForm.PROVIDER, AzureField.PROVIDER_AZURECLOUD);
+        const azureCloud = chosenCloudObject ? chosenCloudObject.name : '';
+        return {
+            tenantId: this.getFieldValue(AzureForm.PROVIDER, AzureField.PROVIDER_TENANT),
+            clientId: this.getFieldValue(AzureForm.PROVIDER, AzureField.PROVIDER_CLIENT),
+            clientSecret: this.getFieldValue(AzureForm.PROVIDER, AzureField.PROVIDER_CLIENTSECRET),
+            subscriptionId: this.getFieldValue(AzureForm.PROVIDER, AzureField.PROVIDER_SUBSCRIPTION),
+            azureCloud
+        };
+    }
+
     getPayload(): any {
         const payload: AzureRegionalClusterParams = {};
 
-        payload.azureAccountParams = {};
-        AzureAccountParamsKeys.forEach(key => {
-            payload.azureAccountParams[key] = this.getFieldValue(AzureForm.PROVIDER, key);
-        });
+        payload.azureAccountParams = this.createCredentialParamsObject();
 
         const mappings = [
             ["location", AzureForm.PROVIDER, AzureField.PROVIDER_REGION],
@@ -321,7 +331,7 @@ export class AzureWizardComponent extends WizardBaseDirective implements OnInit 
         clazz: AzureProviderStepComponent};
     }
     get AzureVnetForm(): FormDataForHTML {
-        return { name: AzureForm.VNET, title: 'Azure VNET Settings', description: 'Specify an Azure VNET CIDR',
+        return { name: AzureForm.VNET, title: 'Azure VNet Settings', description: 'Specify an Azure VNet CIDR',
             i18n: {title: 'vnet step name', description: 'vnet step description'},
         clazz: VnetStepComponent};
     }
@@ -335,7 +345,7 @@ export class AzureWizardComponent extends WizardBaseDirective implements OnInit 
         return this.getOsImageForm(AzureOsImageStepComponent);
     }
     get AzureNetworkForm(): FormDataForHTML {
-        return FormUtility.formWithOverrides(this.NetworkForm, {description: 'Specify an Azure VNET CIDR'});
+        return FormUtility.formWithOverrides(this.NetworkForm, {description: 'Specify an Azure VNet CIDR'});
     }
     //
     // HTML convenience methods
@@ -416,6 +426,6 @@ export class AzureWizardComponent extends WizardBaseDirective implements OnInit 
             "Failed to retrieve list of OS images from the specified Azure Server." );
         AppServices.dataServiceRegistrar.register<AzureVirtualNetwork>(TanzuEventType.AZURE_GET_VNETS,
             (payload: {resourceGroupName: string, location: string}) => { return wizard.apiClient.getAzureVnets(payload)},
-            "Failed to retrieve list of VNETs from the specified Azure Server." );
+            "Failed to retrieve list of VNets from the specified Azure Server." );
     }
 }

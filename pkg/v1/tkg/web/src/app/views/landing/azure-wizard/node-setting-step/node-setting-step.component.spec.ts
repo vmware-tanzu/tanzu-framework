@@ -98,14 +98,13 @@ describe('NodeSettingStepComponent', () => {
             }
         });
 
-        const planeSettingControl = component.formGroup.get('controlPlaneSetting');
-        planeSettingControl.setValue('prod');
+        component.cardClickProd();
         expect(msgSpy).toHaveBeenCalledWith({
             type: TanzuEventType.STEP_DESCRIPTION_CHANGE,
             payload: {
                 wizard: 'EggplantWizard',
                 step: AzureForm.NODESETTING,
-                description: 'Control plane type: prod',
+                description: 'Production cluster selected: 3 node control plane',
             }
         });
     });

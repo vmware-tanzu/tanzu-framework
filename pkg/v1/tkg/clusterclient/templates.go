@@ -15,7 +15,7 @@ func (c *client) GetVCClientAndDataCenter(clusterName, clusterNamespace, vsphere
 		return c.verificationClientFactory.GetVCClientAndDataCenter(clusterName, clusterNamespace, vsphereMachineTemplateObjectName)
 	}
 
-	vsphereUsername, vspherePassword, err := c.GetVCCredentialsFromSecret(clusterName)
+	vsphereUsername, vspherePassword, err := c.GetVCCredentialsFromCluster(clusterName, clusterNamespace)
 	if err != nil {
 		return nil, "", errors.Wrap(err, "unable to retrieve vSphere credentials to retrieve VM Template")
 	}

@@ -1,0 +1,237 @@
+
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.7.0
+  creationTimestamp: null
+  name: cpiconfigs.cpi.tanzu.vmware.com
+spec:
+  group: cpi.tanzu.vmware.com
+  names:
+    kind: CPIConfig
+    listKind: CPIConfigList
+    plural: cpiconfigs
+    shortNames:
+    - cpic
+    singular: cpiconfig
+  scope: Namespaced
+  versions:
+  - additionalPrinterColumns:
+    - description: The name of the CPIConfig
+      jsonPath: .spec.namespace
+      name: Name
+      type: string
+    - description: Name of the kapp-controller data values secret
+      jsonPath: .spec.vsphereCPI.mode
+      name: Mode
+      type: string
+    name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        description: CPIConfig is the Schema for the cpiconfigs API
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation
+              of an object. Servers should convert recognized schemas to the latest
+              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this
+              object represents. Servers may infer this from the endpoint the client
+              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: CPIConfigSpec defines the desired state of CPIConfig
+            properties:
+              vsphereCPI:
+                properties:
+                  clusterAPIVersion:
+                    default: cluster.x-k8s.io/v1beta1
+                    description: Used in vsphereParavirtual mode, defines the Cluster
+                      API versions.
+                    type: string
+                  clusterKind:
+                    description: Used in vsphereParavirtual mode, defines the Cluster
+                      kind.
+                    type: string
+                  clusterName:
+                    description: Used in vsphereParavirtual mode, defines the Cluster
+                      name.
+                    type: string
+                  clusterUID:
+                    description: Used in vsphereParavirtual mode, defines the Cluster
+                      UID.
+                    type: string
+                  datacenter:
+                    description: The datacenter in which VMs are created/located
+                    type: string
+                  http_proxy:
+                    description: HTTP proxy setting
+                    type: string
+                  https_proxy:
+                    description: HTTPS proxy setting
+                    type: string
+                  insecureFlag:
+                    default: false
+                    description: The flag that disables TLS peer verification
+                    type: boolean
+                  ipFamily:
+                    description: The IP family configuration
+                    enum:
+                    - ipv4
+                    - ipv6
+                    - ipv4,ipv6
+                    - ipv6,ipv4
+                    type: string
+                  mode:
+                    description: The vSphere mode. Either `vsphereCPI` or `vsphereParavirtualCPI`.
+                    enum:
+                    - vsphereCPI
+                    - vsphereParavirtualCPI
+                    type: string
+                  no_proxy:
+                    description: No-proxy setting
+                    type: string
+                  nsxt:
+                    properties:
+                      clientCertData:
+                        description: Client certificate data for NSX-T
+                        type: string
+                      clientCertKeyData:
+                        description: Client certificate key for NSX-T
+                        type: string
+                      host:
+                        description: The NSX-T server
+                        type: string
+                      insecureFlag:
+                        description: InsecureFlag is to be set to true if NSX-T uses
+                          self-signed cert
+                        type: boolean
+                      nsxtCredentialsRef:
+                        description: A secret reference that contains Nsx-T login
+                          credentials to access NSX-T consists of the field username
+                          and password
+                        properties:
+                          name:
+                            description: Name is unique within a namespace to reference
+                              a secret resource.
+                            type: string
+                          namespace:
+                            description: Namespace defines the space within which
+                              the secret name must be unique.
+                            type: string
+                        type: object
+                      podRoutingEnabled:
+                        default: false
+                        description: A flag that enables pod routing
+                        type: boolean
+                      remoteAuth:
+                        description: RemoteAuth is to be set to true if NSX-T uses
+                          remote authentication (authentication done through the vIDM)
+                        type: boolean
+                      rootCAData:
+                        description: The certificate authority for the server certificate
+                          for locally signed certificates
+                        type: string
+                      routes:
+                        description: Route configuration for NSXT
+                        properties:
+                          clusterCidr:
+                            description: Cluster CIDR
+                            type: string
+                          routerPath:
+                            description: NSX-T T0/T1 logical router path
+                            type: string
+                        type: object
+                      secretName:
+                        description: The name of secret that stores CPI configuration
+                        type: string
+                      secretNamespace:
+                        description: The namespace of secret that stores CPI configuration
+                        type: string
+                      vmcAccessToken:
+                        description: VMCAccessToken is VMC access token for token
+                          based authentication
+                        type: string
+                      vmcAuthHost:
+                        description: VMCAuthHost is VMC verification host for token
+                          based authentication
+                        type: string
+                    type: object
+                  region:
+                    description: The region used by vSphere multi-AZ feature
+                    type: string
+                  server:
+                    description: The IP address or FQDN of the vSphere endpoint
+                    type: string
+                  supervisorMasterEndpointIP:
+                    description: Used in vsphereParavirtual mode, the endpoint IP
+                      of supervisor cluster's API server.
+                    type: string
+                  supervisorMasterPort:
+                    description: Used in vsphereParavirtual mode, the endpoint port
+                      of supervisor cluster's API server port.
+                    type: string
+                  tlsCipherSuites:
+                    default: TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
+                    description: External arguments for cloud provider
+                    type: string
+                  tlsThumbprint:
+                    description: The cryptographic thumbprint of the vSphere endpoint's
+                      certificate. Default value is "".
+                    type: string
+                  vSphereCredentialRef:
+                    description: A secret reference that contains vSphere login credentials
+                      to access a vSphere endpoint consists of the fields username
+                      and password
+                    properties:
+                      name:
+                        description: Name is unique within a namespace to reference
+                          a secret resource.
+                        type: string
+                      namespace:
+                        description: Namespace defines the space within which the
+                          secret name must be unique.
+                        type: string
+                    type: object
+                  vmExcludeExternalNetworkSubnetCidr:
+                    description: External VM network CIDR to be excluded
+                    type: string
+                  vmExcludeInternalNetworkSubnetCidr:
+                    description: Internal VM network CIDR to be excluded
+                    type: string
+                  vmExternalNetwork:
+                    description: External VM network name
+                    type: string
+                  vmInternalNetwork:
+                    description: Internal VM network name
+                    type: string
+                  zone:
+                    description: The zone used by vSphere multi-AZ feature
+                    type: string
+                type: object
+            required:
+            - vsphereCPI
+            type: object
+          status:
+            description: CPIConfigStatus defines the observed state of CPIConfig
+            properties:
+              secretRef:
+                description: Name of the data value secret created by cpi controller
+                type: string
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
+status:
+  acceptedNames:
+    kind: ""
+    plural: ""
+  conditions: []
+  storedVersions: []

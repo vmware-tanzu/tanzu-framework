@@ -36,8 +36,6 @@ spec:
     class: test-clusterclass-tcbt
     version: v1.22.3
     variables:
-      - name: tkg.tanzu.vmware.com/cni
-        value: antrea
       - name: tkg.tanzu.vmware.com/tkg-http-proxy
         value: "foo.com"
       - name: tkg.tanzu.vmware.com/tkg-https-proxy
@@ -72,19 +70,13 @@ spec:
           apiGroup: run.tanzu.vmware.com
           kind: FooBar
           name: example-foo
-  cnis:
-    - refName: calico.tanzu.vmware.com.3.19.1--vmware.1-tkg.1
-      valuesFrom:
-        providerRef:
-          apiGroup: cni.tanzu.vmware.com
-          kind: CalicoConfig
-          name: test-cluster-tcbt
-    - refName: antrea.tanzu.vmware.com.1.2.3--vmware.1-tkg.1
-      valuesFrom:
-        providerRef:
-          apiGroup: cni.tanzu.vmware.com
-          kind: AntreaConfig
-          name: test-cluster-tcbt
+  cni:
+    refName: antrea.tanzu.vmware.com.1.2.3--vmware.1-tkg.1
+    valuesFrom:
+      providerRef:
+        apiGroup: cni.tanzu.vmware.com
+        kind: AntreaConfig
+        name: test-cluster-tcbt
 ---
 apiVersion: run.tanzu.vmware.com/v1alpha1
 kind: FooBar

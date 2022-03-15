@@ -44,6 +44,7 @@ describe('IdentityStepComponent', () => {
             eventFileImported: TanzuEventType.AZURE_CONFIG_FILE_IMPORTED,
             eventFileImportError: TanzuEventType.AZURE_CONFIG_FILE_IMPORT_ERROR});
         fixture.detectChanges();
+        component.ngOnInit();
     });
 
   it('should create', () => {
@@ -54,6 +55,9 @@ describe('IdentityStepComponent', () => {
     fixture.whenStable().then(() => {
       spyOn(component, 'unsetValidators').and.callThrough();
       spyOn(component, 'setLDAPValidators').and.callThrough();
+      if (!component.isUsingIdentityManagement) {
+          component.toggleIdmSetting();
+      }
       component.formGroup.get(IdentityField.IDENTITY_TYPE).setValue(IdentityManagementType.LDAP);
       expect(component.isIdentityManagementLdap).toBeTrue();
       expect(component.unsetValidators).toHaveBeenCalled();
@@ -63,13 +67,16 @@ describe('IdentityStepComponent', () => {
 
   it('should switch back to oidc', () => {
     fixture.whenStable().then(() => {
-      component.formGroup.get(IdentityField.IDENTITY_TYPE).setValue(IdentityManagementType.LDAP);
-      spyOn(component, 'unsetValidators').and.callThrough();
-      spyOn(component, 'setOIDCValidators').and.callThrough();
-      component.formGroup.get(IdentityField.IDENTITY_TYPE).setValue(IdentityManagementType.OIDC);
-      expect(component.isIdentityManagementOidc).toBeTrue();
-      expect(component.unsetValidators).toHaveBeenCalled();
-      expect(component.setOIDCValidators).toHaveBeenCalled();
+        if (!component.isUsingIdentityManagement) {
+            component.toggleIdmSetting();
+        }
+        component.formGroup.get(IdentityField.IDENTITY_TYPE).setValue(IdentityManagementType.LDAP);
+        spyOn(component, 'unsetValidators').and.callThrough();
+        spyOn(component, 'setOIDCValidators').and.callThrough();
+        component.formGroup.get(IdentityField.IDENTITY_TYPE).setValue(IdentityManagementType.OIDC);
+        expect(component.isIdentityManagementOidc).toBeTrue();
+        expect(component.unsetValidators).toHaveBeenCalled();
+        expect(component.setOIDCValidators).toHaveBeenCalled();
     });
   });
 
