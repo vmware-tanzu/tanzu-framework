@@ -90,7 +90,8 @@ const (
 	osWindows    = "windows"
 )
 
-const cpiCreds = `#@data/values
+const (
+	cpiCreds = `#@data/values
 #@overlay/match-child-defaults missing_ok=True
 ---
 vsphereCPI:
@@ -102,9 +103,13 @@ vsphereCPI:
   username: test@test.com
   password: test!23`
 
-const creds = `password: password
+	creds = `password: password
 username: username
 `
+	vSphereBootstrapCredSecName = "capv-manager-bootstrap-credentials"
+	defaultUserName             = "username"
+	defaultPassword             = "password"
+)
 
 type Replicas struct {
 	SpecReplica     int32
@@ -1863,8 +1868,8 @@ var _ = Describe("Cluster Client", func() {
 		)
 
 		BeforeEach(func() {
-			username = "username"
-			password = "password"
+			username = defaultUserName
+			password = defaultPassword
 
 			reInitialize()
 			kubeConfigPath := getConfigFilePath("config1.yaml")
@@ -2016,6 +2021,120 @@ var _ = Describe("Cluster Client", func() {
 					err = clstClient.UpdateVsphereCsiConfigSecret("clusterName", "", username, password)
 					Expect(err).ToNot(BeNil())
 				})
+			})
+		})
+	})
+	Describe("Get Vsphere Credentials from cluster", func() {
+		var (
+			username    string
+			password    string
+			gotUserName string
+			gotPassword string
+		)
+		BeforeEach(func() {
+			username = defaultUserName
+			password = defaultPassword
+
+			reInitialize()
+			kubeConfigPath := getConfigFilePath("config1.yaml")
+			clstClient, err = NewClient(kubeConfigPath, "", clusterClientOptions)
+			Expect(err).NotTo(HaveOccurred())
+		})
+
+		Context("When the secret with cluster name in cluster's namespace exists", func() {
+			It("should return the credentials from the secret", func() {
+				clientset.GetCalls(func(ctx context.Context, name types.NamespacedName, secret crtclient.Object) error {
+					data := map[string][]byte{
+						"username": []byte(username),
+						"password": []byte(password),
+					}
+					secret.(*corev1.Secret).Data = data
+					return nil
+				})
+
+				gotUserName, gotPassword, err = clstClient.GetVCCredentialsFromCluster("clusterName", "namespace")
+				Expect(err).To(BeNil())
+				Expect(gotUserName).To(Equal(username))
+				Expect(gotPassword).To(Equal(password))
+			})
+		})
+		Context("When the secret with cluster name in cluster's namespace exists", func() {
+			It("should return the credentials from the secret even if the password has special yaml character", func() {
+				clientset.GetCalls(func(ctx context.Context, name types.NamespacedName, secret crtclient.Object) error {
+					password = `%pass'word`
+					data := map[string][]byte{
+						"username": []byte(username),
+						"password": []byte(password),
+					}
+					secret.(*corev1.Secret).Data = data
+					return nil
+				})
+
+				gotUserName, gotPassword, err = clstClient.GetVCCredentialsFromCluster("clusterName", "namespace")
+				Expect(err).To(BeNil())
+				Expect(gotUserName).To(Equal(username))
+				Expect(gotPassword).To(Equal(password))
+			})
+		})
+		Context("When the secret with cluster name in cluster's namespace doesn't exists", func() {
+			It("should return return error if UpdateCapvManagerBootstrapCredentialsSecret secret is not present", func() {
+				clientset.GetCalls(func(ctx context.Context, name types.NamespacedName, secret crtclient.Object) error {
+					return apierrors.NewNotFound(schema.GroupResource{Group: "", Resource: "Secret"}, "not found")
+				})
+
+				gotUserName, gotPassword, err = clstClient.GetVCCredentialsFromCluster("clusterName", "namespace")
+				Expect(err).ToNot(BeNil())
+				Expect(err.Error()).To(ContainSubstring("unable to retrieve vSphere credentials from capv-manager-bootstrap-credentials secret"))
+			})
+
+			It("should return return error if UpdateCapvManagerBootstrapCredentialsSecret secret data fails to unmarshal", func() {
+				clientset.GetCalls(func(ctx context.Context, name types.NamespacedName, secret crtclient.Object) error {
+					if name.Name != vSphereBootstrapCredSecName {
+						return apierrors.NewNotFound(schema.GroupResource{Group: "", Resource: "Secret"}, "not found")
+					}
+					secretData := map[string][]byte{
+						"credentials.yaml": []byte("username: 'username'\npassword: 'pass'word'\n"), // pasword value has single quote
+					}
+					secret.(*corev1.Secret).Data = secretData
+					return nil
+				})
+
+				gotUserName, gotPassword, err = clstClient.GetVCCredentialsFromCluster("clusterName", "namespace")
+				Expect(err).ToNot(BeNil())
+				Expect(err.Error()).To(ContainSubstring("failed to unmarshal vSphere credentials"))
+			})
+			It("should return return error if UpdateCapvManagerBootstrapCredentialsSecret secret data doesn't have 'credentails.yaml' data", func() {
+				clientset.GetCalls(func(ctx context.Context, name types.NamespacedName, secret crtclient.Object) error {
+					if name.Name != vSphereBootstrapCredSecName {
+						return apierrors.NewNotFound(schema.GroupResource{Group: "", Resource: "Secret"}, "not found")
+					}
+					secretData := map[string][]byte{
+						"non-credentials.yaml": []byte("username: 'username'\npassword: 'password'\n"),
+					}
+					secret.(*corev1.Secret).Data = secretData
+					return nil
+				})
+
+				gotUserName, gotPassword, err = clstClient.GetVCCredentialsFromCluster("clusterName", "namespace")
+				Expect(err).ToNot(BeNil())
+				Expect(err.Error()).To(ContainSubstring("Unable to obtain credentials.yaml field from capv-manager-bootstrap-credentials secret's data"))
+			})
+			It("should return the credentials from UpdateCapvManagerBootstrapCredentialsSecret secret", func() {
+				clientset.GetCalls(func(ctx context.Context, name types.NamespacedName, secret crtclient.Object) error {
+					if name.Name != vSphereBootstrapCredSecName {
+						return apierrors.NewNotFound(schema.GroupResource{Group: "", Resource: "Secret"}, "not found")
+					}
+					secretData := map[string][]byte{
+						"credentials.yaml": []byte(creds),
+					}
+					secret.(*corev1.Secret).Data = secretData
+					return nil
+				})
+
+				gotUserName, gotPassword, err = clstClient.GetVCCredentialsFromCluster("clusterName", "namespace")
+				Expect(err).To(BeNil())
+				Expect(gotUserName).To(Equal(username))
+				Expect(gotPassword).To(Equal(password))
 			})
 		})
 	})
