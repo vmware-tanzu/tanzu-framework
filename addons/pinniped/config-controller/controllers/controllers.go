@@ -231,7 +231,7 @@ func (c *PinnipedController) reconcileAddonSecret(ctx context.Context, cluster *
 		pinnipedDataValues.ClusterRole = "workload"
 		pinnipedDataValues.Pinniped.SupervisorEndpoint = supervisorAddress
 		pinnipedDataValues.Pinniped.SupervisorCABundle = supervisorCABundle
-		pinnipedDataValues.Pinniped.Concierge.Audience = string(cluster.UID)
+		pinnipedDataValues.Pinniped.Concierge.Audience = fmt.Sprintf("%s-%s", cluster.Name, string(cluster.UID))
 		dataValueYamlBytes, err := yaml.Marshal(pinnipedDataValues)
 		if err != nil {
 			log.Error(err, "Error marshaling Pinniped Addon Secret values to Yaml")

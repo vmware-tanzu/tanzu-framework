@@ -384,7 +384,7 @@ func addonSecretFunc(ctx context.Context, cluster *clusterapiv1beta1.Cluster, co
 			"tkg_cluster_role":         "workload",
 			"pinniped": map[string]interface{}{
 				"concierge": map[string]interface{}{
-					"audience": string(cluster.UID),
+					"audience": fmt.Sprintf("%s-%s", cluster.Name, string(cluster.UID)),
 				},
 			},
 		}
