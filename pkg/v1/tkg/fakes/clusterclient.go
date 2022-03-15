@@ -497,6 +497,22 @@ type ClusterClient struct {
 		result2 string
 		result3 error
 	}
+	GetVCCredentialsFromClusterStub        func(string, string) (string, string, error)
+	getVCCredentialsFromClusterMutex       sync.RWMutex
+	getVCCredentialsFromClusterArgsForCall []struct {
+		arg1 string
+		arg2 string
+	}
+	getVCCredentialsFromClusterReturns struct {
+		result1 string
+		result2 string
+		result3 error
+	}
+	getVCCredentialsFromClusterReturnsOnCall map[int]struct {
+		result1 string
+		result2 string
+		result3 error
+	}
 	GetVCCredentialsFromSecretStub        func(string) (string, string, error)
 	getVCCredentialsFromSecretMutex       sync.RWMutex
 	getVCCredentialsFromSecretArgsForCall []struct {
@@ -3383,6 +3399,74 @@ func (fake *ClusterClient) GetVCClientAndDataCenterReturnsOnCall(i int, result1 
 	}
 	fake.getVCClientAndDataCenterReturnsOnCall[i] = struct {
 		result1 vc.Client
+		result2 string
+		result3 error
+	}{result1, result2, result3}
+}
+
+func (fake *ClusterClient) GetVCCredentialsFromCluster(arg1 string, arg2 string) (string, string, error) {
+	fake.getVCCredentialsFromClusterMutex.Lock()
+	ret, specificReturn := fake.getVCCredentialsFromClusterReturnsOnCall[len(fake.getVCCredentialsFromClusterArgsForCall)]
+	fake.getVCCredentialsFromClusterArgsForCall = append(fake.getVCCredentialsFromClusterArgsForCall, struct {
+		arg1 string
+		arg2 string
+	}{arg1, arg2})
+	stub := fake.GetVCCredentialsFromClusterStub
+	fakeReturns := fake.getVCCredentialsFromClusterReturns
+	fake.recordInvocation("GetVCCredentialsFromCluster", []interface{}{arg1, arg2})
+	fake.getVCCredentialsFromClusterMutex.Unlock()
+	if stub != nil {
+		return stub(arg1, arg2)
+	}
+	if specificReturn {
+		return ret.result1, ret.result2, ret.result3
+	}
+	return fakeReturns.result1, fakeReturns.result2, fakeReturns.result3
+}
+
+func (fake *ClusterClient) GetVCCredentialsFromClusterCallCount() int {
+	fake.getVCCredentialsFromClusterMutex.RLock()
+	defer fake.getVCCredentialsFromClusterMutex.RUnlock()
+	return len(fake.getVCCredentialsFromClusterArgsForCall)
+}
+
+func (fake *ClusterClient) GetVCCredentialsFromClusterCalls(stub func(string, string) (string, string, error)) {
+	fake.getVCCredentialsFromClusterMutex.Lock()
+	defer fake.getVCCredentialsFromClusterMutex.Unlock()
+	fake.GetVCCredentialsFromClusterStub = stub
+}
+
+func (fake *ClusterClient) GetVCCredentialsFromClusterArgsForCall(i int) (string, string) {
+	fake.getVCCredentialsFromClusterMutex.RLock()
+	defer fake.getVCCredentialsFromClusterMutex.RUnlock()
+	argsForCall := fake.getVCCredentialsFromClusterArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2
+}
+
+func (fake *ClusterClient) GetVCCredentialsFromClusterReturns(result1 string, result2 string, result3 error) {
+	fake.getVCCredentialsFromClusterMutex.Lock()
+	defer fake.getVCCredentialsFromClusterMutex.Unlock()
+	fake.GetVCCredentialsFromClusterStub = nil
+	fake.getVCCredentialsFromClusterReturns = struct {
+		result1 string
+		result2 string
+		result3 error
+	}{result1, result2, result3}
+}
+
+func (fake *ClusterClient) GetVCCredentialsFromClusterReturnsOnCall(i int, result1 string, result2 string, result3 error) {
+	fake.getVCCredentialsFromClusterMutex.Lock()
+	defer fake.getVCCredentialsFromClusterMutex.Unlock()
+	fake.GetVCCredentialsFromClusterStub = nil
+	if fake.getVCCredentialsFromClusterReturnsOnCall == nil {
+		fake.getVCCredentialsFromClusterReturnsOnCall = make(map[int]struct {
+			result1 string
+			result2 string
+			result3 error
+		})
+	}
+	fake.getVCCredentialsFromClusterReturnsOnCall[i] = struct {
+		result1 string
 		result2 string
 		result3 error
 	}{result1, result2, result3}
@@ -6511,6 +6595,8 @@ func (fake *ClusterClient) Invocations() map[string][][]interface{} {
 	defer fake.getTanzuKubernetesReleasesMutex.RUnlock()
 	fake.getVCClientAndDataCenterMutex.RLock()
 	defer fake.getVCClientAndDataCenterMutex.RUnlock()
+	fake.getVCCredentialsFromClusterMutex.RLock()
+	defer fake.getVCCredentialsFromClusterMutex.RUnlock()
 	fake.getVCCredentialsFromSecretMutex.RLock()
 	defer fake.getVCCredentialsFromSecretMutex.RUnlock()
 	fake.getVCServerMutex.RLock()
