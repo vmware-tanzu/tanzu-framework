@@ -81,13 +81,6 @@ func (r *AntreaConfig) ValidateUpdate(old runtime.Object) error {
 	var allErrs field.ErrorList
 
 	// Check for changes to immutable fields and return errors
-	if !reflect.DeepEqual(r.Spec.Antrea.AntreaConfigDataValue.DefaultMTU,
-		oldObj.Spec.Antrea.AntreaConfigDataValue.DefaultMTU) {
-		allErrs = append(allErrs,
-			field.Invalid(field.NewPath("spec", "antrea", "config", "defaultMTU"),
-				r.Spec.Antrea.AntreaConfigDataValue.DefaultMTU, "field is immutable"),
-		)
-	}
 	if !reflect.DeepEqual(r.Spec.Antrea.AntreaConfigDataValue.NoSNAT,
 		oldObj.Spec.Antrea.AntreaConfigDataValue.NoSNAT) {
 		allErrs = append(allErrs,

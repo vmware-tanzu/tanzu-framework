@@ -60,13 +60,6 @@ func (r *CalicoConfig) ValidateUpdate(old runtime.Object) error {
 				r.Spec.Namespace, "field is immutable"),
 		)
 	}
-	if !reflect.DeepEqual(r.Spec.Calico.Config.VethMTU,
-		oldObj.Spec.Calico.Config.VethMTU) {
-		allErrs = append(allErrs,
-			field.Invalid(field.NewPath("spec", "calico", "config", "vethMTU"),
-				r.Spec.Calico.Config.VethMTU, "field is immutable"),
-		)
-	}
 	if len(allErrs) == 0 {
 		return nil
 	}
