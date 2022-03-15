@@ -25,14 +25,11 @@ var _ = Describe("AntreaConfig Reconciler and Webhooks", func() {
 		clusterResourceFilePath string
 		err                     error
 		f                       *os.File
-		checkCleanup            bool
 	)
 
 	const (
 		antreaManifestsTestFile1 = "testdata/antrea-test-1.yaml"
 		antreaTestCluster1       = "test-cluster-4"
-		antreaManifestsTestFile2 = "testdata/antrea-test-2.yaml"
-		antreaTestCluster2       = "test-cluster-5"
 	)
 
 	JustBeforeEach(func() {
@@ -56,6 +53,14 @@ var _ = Describe("AntreaConfig Reconciler and Webhooks", func() {
 		}
 		err = testutil.SetupWebhookCertificates(ctx, k8sClient, k8sConfig, &webhookCertDetails)
 		Expect(err).ToNot(HaveOccurred())
+
+		// create cluster resources
+		By("Creating a cluster and a AntreaConfig")
+		f, err = os.Open(clusterResourceFilePath)
+		Expect(err).ToNot(HaveOccurred())
+		err = testutil.CreateResources(f, cfg, dynamicClient)
+		Expect(err).ToNot(HaveOccurred())
+		f.Close()
 	})
 
 	AfterEach(func() {
@@ -63,9 +68,7 @@ var _ = Describe("AntreaConfig Reconciler and Webhooks", func() {
 		f, err = os.Open(clusterResourceFilePath)
 		Expect(err).ToNot(HaveOccurred())
 		err = testutil.DeleteResources(f, cfg, dynamicClient, true)
-		if checkCleanup {
-			Expect(err).ToNot(HaveOccurred())
-		}
+		Expect(err).ToNot(HaveOccurred())
 		f.Close()
 
 		By("Deleting the Admission Webhook configuration for Antrea")
@@ -81,18 +84,9 @@ var _ = Describe("AntreaConfig Reconciler and Webhooks", func() {
 		BeforeEach(func() {
 			configCRName = antreaTestCluster1
 			clusterResourceFilePath = antreaManifestsTestFile1
-			checkCleanup = true
 		})
 
 		It("Should reconcile AntreaConfig and create data value secret on management cluster", func() {
-
-			// create cluster resources
-			By("Creating a cluster and a AntreaConfig")
-			f, err = os.Open(clusterResourceFilePath)
-			Expect(err).ToNot(HaveOccurred())
-			err = testutil.CreateResources(f, cfg, dynamicClient)
-			Expect(err).ToNot(HaveOccurred())
-			f.Close()
 
 			key := client.ObjectKey{
 				Namespace: "default",
@@ -196,42 +190,14 @@ var _ = Describe("AntreaConfig Reconciler and Webhooks", func() {
 
 	})
 
-	Context("Validating webhooks for AntreaConfig", func() {
-
-		BeforeEach(func() {
-			configCRName = antreaTestCluster2
-			clusterResourceFilePath = antreaManifestsTestFile2
-			checkCleanup = true
-		})
-
-		It("Should fail validation webhooks for invalid AntreaConfig", func() {
-			// create cluster resources
-			By("Creating a cluster and a AntreaConfig")
-			f, err = os.Open(clusterResourceFilePath)
-			Expect(err).ToNot(HaveOccurred())
-			err = testutil.CreateResources(f, cfg, dynamicClient)
-			Expect(err).To(HaveOccurred())
-			f.Close()
-			checkCleanup = false
-		})
-	})
-
 	Context("Mutating webhooks for AntreaConfig", func() {
 
 		BeforeEach(func() {
 			configCRName = antreaTestCluster1
 			clusterResourceFilePath = antreaManifestsTestFile1
-			checkCleanup = true
 		})
 
 		It("Should fail mutating webhooks for immutable field for AntreaConfig", func() {
-			// create cluster resources
-			By("Creating a cluster and a AntreaConfig")
-			f, err = os.Open(clusterResourceFilePath)
-			Expect(err).ToNot(HaveOccurred())
-			err = testutil.CreateResources(f, cfg, dynamicClient)
-			Expect(err).ToNot(HaveOccurred())
-			f.Close()
 
 			key := client.ObjectKey{
 				Namespace: "default",
