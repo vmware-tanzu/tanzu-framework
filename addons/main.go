@@ -223,9 +223,9 @@ func enableClusterBootstrapAndConfigControllers(ctx context.Context, mgr ctrl.Ma
 		setupLog.Error(err, "unable to create KappControllerConfig", "controller", "kapp")
 		os.Exit(1)
 	}
-	if err := (&cpicontroller.CPIConfigReconciler{
+	if err := (&cpicontroller.VSphereCPIConfigReconciler{
 		Client: mgr.GetClient(),
-		Log:    ctrl.Log.WithName("CPIConfig"),
+		Log:    ctrl.Log.WithName("VSphereCPIConfig"),
 		Scheme: mgr.GetScheme(),
 	}).SetupWithManager(ctx, mgr, controller.Options{MaxConcurrentReconciles: 1}); err != nil {
 		setupLog.Error(err, "unable to create CPIConfigController", "controller", "vspherecpi")

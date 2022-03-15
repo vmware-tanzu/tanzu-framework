@@ -3,13 +3,13 @@
 
 package controllers
 
-// supported modes for CPIConfig
+// supported modes for VSphereCPIConfig
 const (
-	CPINonParavirtualMode = "vsphereCPI"
-	CPIParavirtualMode    = "vsphereParavirtualCPI"
+	VsphereCPINonParavirtualMode = "vsphereCPI"
+	VSphereCPIParavirtualMode    = "vsphereParavirtualCPI"
 )
 
-// cluster variable names required by CPIConfig to derive values
+// cluster variable names required by VSphereCPIConfig to derive values
 const (
 	NsxtPodRoutingEnabledVarName  = "NSXT_POD_ROUTING_ENABLED"
 	NsxtRouterPathVarName         = "NSXT_ROUTER_PATH"

@@ -11,7 +11,7 @@ spec:
       cidrBlocks: [ "192.168.0.0/16","fd00:100:96::/48" ]
 ---
 apiVersion: cpi.tanzu.vmware.com/v1alpha1
-kind: CPIConfig
+kind: VSphereCPIConfig
 metadata:
   name: test-cluster-cpi-paravirtual
   namespace: default

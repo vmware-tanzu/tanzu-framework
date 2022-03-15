@@ -2,12 +2,12 @@
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: cpiconfig-viewer-role
+  name: vspherecpiconfig-viewer-role
 rules:
 - apiGroups:
   - cpi.tanzu.vmware.com
   resources:
-  - cpiconfigs
+  - vspherecpiconfigs
   verbs:
   - get
   - list
@@ -15,6 +15,6 @@ rules:
 - apiGroups:
   - cpi.tanzu.vmware.com
   resources:
-  - cpiconfigs/status
+  - vspherecpiconfigs/status
   verbs:
   - get
