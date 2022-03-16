@@ -1,0 +1,50 @@
+#@ load("@ytt:overlay", "overlay")
+#@ load("@ytt:data", "data")
+#@ load("@ytt:yaml", "yaml")
+#@ load("@ytt:base64", "base64")
+#@ load("/lib/helpers.star", "get_bom_data_for_tkr_name", "get_image_repo_for_component")
+
+#@ if data.values.PROVIDER_TYPE != "tkg-service-vsphere":
+#@   bomData = get_bom_data_for_tkr_name()
+#@ end
+
+#@ def kappcontrolleroverlay():
+
+#@overlay/match by=overlay.subset({"kind":"Deployment","metadata":{"name": "kapp-controller"}})
+---
+metadata:
+  annotations:
+    #@overlay/remove
+    kbld.k14s.io/images: ""
+spec:
+  template:
+    spec:
+      containers:
+      #@overlay/match by=overlay.subset({"name":"kapp-controller"})
+      - image: #@ "{}/{}:{}".format(get_image_repo_for_component(bomData.components["kapp-controller"][0].images.kappControllerImage), bomData.components["kapp-controller"][0].images.kappControllerImage.imagePath, bomData.components["kapp-controller"][0].images.kappControllerImage.tag)
+      #@overlay/match missing_ok=True
+      initContainers:
+      #@overlay/match by=overlay.subset({"name":"init-kapp-controller"}), missing_ok=True
+      - image: #@ "{}/{}:{}".format(get_image_repo_for_component(bomData.components["kapp-controller"][0].images.kappControllerImage), bomData.components["kapp-controller"][0].images.kappControllerImage.imagePath, bomData.components["kapp-controller"][0].images.kappControllerImage.tag)
+      #@overlay/match missing_ok=True
+      tolerations:
+      - key: CriticalAddonsOnly
+        operator: Exists
+      - effect: NoSchedule
+        key: node-role.kubernetes.io/master
+      - effect: NoSchedule
+        key: node.kubernetes.io/not-ready
+      - effect: NoSchedule
+        key: node.cloudprovider.kubernetes.io/uninitialized
+        value: "true"
+
+#@overlay/match by=overlay.all,expects="1+"
+---
+#@overlay/match missing_ok=True
+metadata:
+  #@overlay/match missing_ok=True
+  annotations:
+    #@overlay/match missing_ok=True
+    tkg.tanzu.vmware.com/addon-type: "addons-management/kapp-controller"
+
+#@ end

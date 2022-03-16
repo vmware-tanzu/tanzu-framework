@@ -1,0 +1,29 @@
+#@ load("@ytt:data", "data")
+#@ load("@ytt:yaml", "yaml")
+#@ load("@ytt:struct", "struct")
+#@ load("/lib/config_variable_association.star", "config_variable_association")
+
+#@ list_skip_variable_from_storing = [
+#@  "VSPHERE_PASSWORD",
+#@  "AWS_ACCESS_KEY_ID",
+#@  "AWS_SECRET_ACCESS_KEY",
+#@  "AZURE_CLIENT_ID",
+#@  "AZURE_CLIENT_SECRET",
+#@  "NSXT_PASSWORD",
+#@  "OIDC_IDENTITY_PROVIDER_CLIENT_SECRET",
+#@  "LDAP_BIND_PASSWORD",
+#@  "AVI_PASSWORD",
+#@ ]
+
+#@ def getConfigKeyValues():
+#@ kvs = config_variable_association()
+
+#@ for configVariable in kvs:
+
+#@ if configVariable not in list_skip_variable_from_storing and data.values.PROVIDER_TYPE in kvs[configVariable]:
+#@yaml/text-templated-strings
+(@= configVariable @): #@ data.values[configVariable]
+#@ end
+
+#@ end
+#@ end
