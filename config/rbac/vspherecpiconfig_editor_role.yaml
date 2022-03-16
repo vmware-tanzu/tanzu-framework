@@ -2,12 +2,12 @@
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: cpiconfig-editor-role
+  name: vspherecpiconfig-editor-role
 rules:
 - apiGroups:
   - cpi.tanzu.vmware.com
   resources:
-  - cpiconfigs
+  - vspherecpiconfigs
   verbs:
   - create
   - delete
@@ -19,6 +19,6 @@ rules:
 - apiGroups:
   - cpi.tanzu.vmware.com
   resources:
-  - cpiconfigs/status
+  - vspherecpiconfigs/status
   verbs:
   - get

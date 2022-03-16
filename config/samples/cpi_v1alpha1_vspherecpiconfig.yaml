@@ -1,7 +1,7 @@
 apiVersion: cpi.tanzu.vmware.com/v1alpha1
-kind: CPIConfig
+kind: VSphereCPIConfig
 metadata:
-  name: cpiconfig-sample
+  name: vspherecpiconfig-sample
 spec:
   vsphereCPI:
     mode: vsphereCPI

@@ -22,13 +22,13 @@ import (
 )
 
 // mapCPIConfigToDataValuesNonParavirtual generates CPI data values for non-paravirtual modes
-func (r *CPIConfigReconciler) mapCPIConfigToDataValuesNonParavirtual( // nolint
+func (r *VSphereCPIConfigReconciler) mapCPIConfigToDataValuesNonParavirtual( // nolint
 	ctx context.Context,
-	cpiConfig *cpiv1alpha1.CPIConfig, cluster *clusterapiv1beta1.Cluster) (*CPIDataValues, error,
+	cpiConfig *cpiv1alpha1.VSphereCPIConfig, cluster *clusterapiv1beta1.Cluster) (*VSphereCPIDataValues, error,
 ) { // nolint:whitespace
-	d := &CPIDataValues{}
+	d := &VSphereCPIDataValues{}
 	c := cpiConfig.Spec.VSphereCPI.NonParavirtualConfig
-	d.VSphereCPI.Mode = CPINonParavirtualMode
+	d.VSphereCPI.Mode = VsphereCPINonParavirtualMode
 
 	// get the vsphere cluster object
 	vsphereCluster, err := r.getVSphereCluster(ctx, cluster)
@@ -95,7 +95,7 @@ func (r *CPIConfigReconciler) mapCPIConfigToDataValuesNonParavirtual( // nolint
 	d.VSphereCPI.Nsxt.SecretName = r.tryParseClusterVariableString(cluster, NsxtSecretNameVarName)
 	d.VSphereCPI.Nsxt.SecretNamespace = r.tryParseClusterVariableString(cluster, NsxtSecretNamespaceVarName)
 
-	// allow API user to override the derived values if he/she specified fields in the CPIConfig
+	// allow API user to override the derived values if he/she specified fields in the VSphereCPIConfig
 	if c.TLSThumbprint != "" {
 		d.VSphereCPI.TLSThumbprint = c.TLSThumbprint
 	}
@@ -188,11 +188,11 @@ func (r *CPIConfigReconciler) mapCPIConfigToDataValuesNonParavirtual( // nolint
 }
 
 // mapCPIConfigToDataValuesParavirtual generates CPI data values for paravirtual modes
-func (r *CPIConfigReconciler) mapCPIConfigToDataValuesParavirtual(_ context.Context, cpiConfig *cpiv1alpha1.CPIConfig, _ *clusterapiv1beta1.Cluster) (*CPIDataValues, error) {
-	d := &CPIDataValues{}
+func (r *VSphereCPIConfigReconciler) mapCPIConfigToDataValuesParavirtual(_ context.Context, cpiConfig *cpiv1alpha1.VSphereCPIConfig, _ *clusterapiv1beta1.Cluster) (*VSphereCPIDataValues, error) {
+	d := &VSphereCPIDataValues{}
 	c := cpiConfig.Spec.VSphereCPI
 
-	d.VSphereCPI.Mode = CPIParavirtualMode
+	d.VSphereCPI.Mode = VSphereCPIParavirtualMode
 	d.VSphereCPI.ClusterAPIVersion = c.ClusterAPIVersion
 	d.VSphereCPI.ClusterKind = c.ClusterKind
 	d.VSphereCPI.ClusterName = c.ClusterName
@@ -203,27 +203,27 @@ func (r *CPIConfigReconciler) mapCPIConfigToDataValuesParavirtual(_ context.Cont
 	return d, nil
 }
 
-// mapCPIConfigToDataValues maps CPIConfig CR to data values
-func (r *CPIConfigReconciler) mapCPIConfigToDataValues(ctx context.Context, cpiConfig *cpiv1alpha1.CPIConfig, cluster *clusterapiv1beta1.Cluster) (*CPIDataValues, error) {
+// mapCPIConfigToDataValues maps VSphereCPIConfig CR to data values
+func (r *VSphereCPIConfigReconciler) mapCPIConfigToDataValues(ctx context.Context, cpiConfig *cpiv1alpha1.VSphereCPIConfig, cluster *clusterapiv1beta1.Cluster) (*VSphereCPIDataValues, error) {
 	switch cpiConfig.Spec.VSphereCPI.Mode {
-	case CPINonParavirtualMode:
+	case VsphereCPINonParavirtualMode:
 		return r.mapCPIConfigToDataValuesNonParavirtual(ctx, cpiConfig, cluster)
-	case CPIParavirtualMode:
+	case VSphereCPIParavirtualMode:
 		return r.mapCPIConfigToDataValuesParavirtual(ctx, cpiConfig, cluster)
 	default:
 		break
 	}
-	return nil, errors.Errorf("Invalid CPI mode %s, must either be %s or %s", cpiConfig.Spec.VSphereCPI.Mode, CPIParavirtualMode, CPINonParavirtualMode)
+	return nil, errors.Errorf("Invalid CPI mode %s, must either be %s or %s", cpiConfig.Spec.VSphereCPI.Mode, VSphereCPIParavirtualMode, VsphereCPINonParavirtualMode)
 }
 
-// getOwnerCluster verifies that the CPIConfig has a cluster as its owner reference,
-// and returns the cluster. It tries to read the cluster name from the CPIConfig's owner reference objects.
-// If not there, we assume the owner cluster and CPIConfig always has the same name.
-func (r *CPIConfigReconciler) getOwnerCluster(ctx context.Context, cpiConfig *cpiv1alpha1.CPIConfig) (*clusterapiv1beta1.Cluster, error) {
+// getOwnerCluster verifies that the VSphereCPIConfig has a cluster as its owner reference,
+// and returns the cluster. It tries to read the cluster name from the VSphereCPIConfig's owner reference objects.
+// If not there, we assume the owner cluster and VSphereCPIConfig always has the same name.
+func (r *VSphereCPIConfigReconciler) getOwnerCluster(ctx context.Context, cpiConfig *cpiv1alpha1.VSphereCPIConfig) (*clusterapiv1beta1.Cluster, error) {
 	cluster := &clusterapiv1beta1.Cluster{}
 	clusterName := cpiConfig.Name
 
-	// retrieve the owner cluster for the CPIConfig object
+	// retrieve the owner cluster for the VSphereCPIConfig object
 	for _, ownerRef := range cpiConfig.GetOwnerReferences() {
 		if strings.EqualFold(ownerRef.Kind, constants.ClusterKind) {
 			clusterName = ownerRef.Name
@@ -243,7 +243,7 @@ func (r *CPIConfigReconciler) getOwnerCluster(ctx context.Context, cpiConfig *cp
 }
 
 // getVSphereCluster gets the VSphereCluster CR for the cluster object
-func (r *CPIConfigReconciler) getVSphereCluster(ctx context.Context, cluster *clusterapiv1beta1.Cluster) (*capvv1beta1.VSphereCluster, error) {
+func (r *VSphereCPIConfigReconciler) getVSphereCluster(ctx context.Context, cluster *clusterapiv1beta1.Cluster) (*capvv1beta1.VSphereCluster, error) {
 	vsphereCluster := &capvv1beta1.VSphereCluster{}
 	if err := r.Client.Get(ctx, types.NamespacedName{
 		Namespace: cluster.Namespace,
@@ -258,7 +258,7 @@ func (r *CPIConfigReconciler) getVSphereCluster(ctx context.Context, cluster *cl
 }
 
 // getSecret gets the secret object given its name and namespace
-func (r *CPIConfigReconciler) getSecret(ctx context.Context, namespace, name string) (*v1.Secret, error) {
+func (r *VSphereCPIConfigReconciler) getSecret(ctx context.Context, namespace, name string) (*v1.Secret, error) {
 	secret := &v1.Secret{}
 	if err := r.Client.Get(ctx, types.NamespacedName{Namespace: namespace, Name: name}, secret); err != nil {
 		if apierrors.IsNotFound(err) {
@@ -288,7 +288,7 @@ func controlPlaneName(clusterName string) string {
 
 // tryParseClusterVariableBool tries to parse a boolean cluster variable,
 // info any error that occurs
-func (r *CPIConfigReconciler) tryParseClusterVariableBool(cluster *clusterapiv1beta1.Cluster, variableName string) bool {
+func (r *VSphereCPIConfigReconciler) tryParseClusterVariableBool(cluster *clusterapiv1beta1.Cluster, variableName string) bool {
 	res, err := util.ParseClusterVariableBool(cluster, variableName)
 	if err != nil {
 		r.Log.Info(fmt.Sprintf("cannot parse cluster variable with key %s", variableName))
@@ -298,7 +298,7 @@ func (r *CPIConfigReconciler) tryParseClusterVariableBool(cluster *clusterapiv1b
 
 // tryParseClusterVariableString tries to parse a string cluster variable,
 // info any error that occurs
-func (r *CPIConfigReconciler) tryParseClusterVariableString(cluster *clusterapiv1beta1.Cluster, variableName string) string {
+func (r *VSphereCPIConfigReconciler) tryParseClusterVariableString(cluster *clusterapiv1beta1.Cluster, variableName string) string {
 	res, err := util.ParseClusterVariableString(cluster, variableName)
 	if err != nil {
 		r.Log.Info(fmt.Sprintf("cannot parse cluster variable with key %s", variableName))

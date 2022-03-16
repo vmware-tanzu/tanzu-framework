@@ -27,30 +27,30 @@ import (
 	cpiv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cpi/v1alpha1"
 )
 
-// CPIConfigReconciler reconciles a CPIConfig object
-type CPIConfigReconciler struct {
+// VSphereCPIConfigReconciler reconciles a VSphereCPIConfig object
+type VSphereCPIConfigReconciler struct {
 	client.Client
 	Log    logr.Logger
 	Scheme *runtime.Scheme
 }
 
-//+kubebuilder:rbac:groups=cpi.tanzu.vmware.com,resources=cpiconfigs,verbs=get;list;watch;create;update;patch;delete
-//+kubebuilder:rbac:groups=cpi.tanzu.vmware.com,resources=cpiconfigs/status,verbs=get;update;patch
+//+kubebuilder:rbac:groups=cpi.tanzu.vmware.com,resources=vspherecpiconfigs,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups=cpi.tanzu.vmware.com,resources=vspherecpiconfigs/status,verbs=get;update;patch
 
-// Reconcile the CPIConfig CRD
-func (r *CPIConfigReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	r.Log = r.Log.WithValues("CPIConfig", req.NamespacedName)
+// Reconcile the VSphereCPIConfig CRD
+func (r *VSphereCPIConfigReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
+	r.Log = r.Log.WithValues("VSphereCPIConfig", req.NamespacedName)
 
-	r.Log.Info("Start reconciliation for CPIConfig")
+	r.Log.Info("Start reconciliation for VSphereCPIConfig")
 
-	// fetch CPIConfig resource
-	cpiConfig := &cpiv1alpha1.CPIConfig{}
+	// fetch VSphereCPIConfig resource
+	cpiConfig := &cpiv1alpha1.VSphereCPIConfig{}
 	if err := r.Client.Get(ctx, req.NamespacedName, cpiConfig); err != nil {
 		if apierrors.IsNotFound(err) {
-			r.Log.Info("CPIConfig resource not found")
+			r.Log.Info("VSphereCPIConfig resource not found")
 			return ctrl.Result{}, nil
 		}
-		r.Log.Error(err, "Unable to fetch CPIConfig resource")
+		r.Log.Error(err, "Unable to fetch VSphereCPIConfig resource")
 		return ctrl.Result{}, err
 	}
 
@@ -59,54 +59,54 @@ func (r *CPIConfigReconciler) Reconcile(ctx context.Context, req ctrl.Request) (
 	if cluster == nil {
 		return ctrl.Result{}, err // no need to requeue if cluster is not found
 	}
-	if res, err := r.reconcileCPIConfig(ctx, cpiConfig, cluster); err != nil {
-		r.Log.Error(err, "Failed to reconcile CPIConfig")
+	if res, err := r.reconcileVSphereCPIConfig(ctx, cpiConfig, cluster); err != nil {
+		r.Log.Error(err, "Failed to reconcile VSphereCPIConfig")
 		return res, err
 	}
 	return ctrl.Result{}, nil
 }
 
-// reconcileCPIConfig reconciles CPIConfig with its owner cluster
-func (r *CPIConfigReconciler) reconcileCPIConfig(ctx context.Context, cpiConfig *cpiv1alpha1.CPIConfig, cluster *clusterapiv1beta1.Cluster) (_ ctrl.Result, retErr error) {
+// reconcileVSphereCPIConfig reconciles VSphereCPIConfig with its owner cluster
+func (r *VSphereCPIConfigReconciler) reconcileVSphereCPIConfig(ctx context.Context, cpiConfig *cpiv1alpha1.VSphereCPIConfig, cluster *clusterapiv1beta1.Cluster) (_ ctrl.Result, retErr error) {
 	patchHelper, err := clusterapipatchutil.NewHelper(cpiConfig, r.Client)
 	if err != nil {
 		return ctrl.Result{}, err
 	}
-	// patch CPIConfig before returning the function
+	// patch VSphereCPIConfig before returning the function
 	defer func() {
-		r.Log.Info("Patching CPIConfig")
+		r.Log.Info("Patching VSphereCPIConfig")
 		if err := patchHelper.Patch(ctx, cpiConfig); err != nil {
-			r.Log.Error(err, "Error patching CPIConfig")
+			r.Log.Error(err, "Error patching VSphereCPIConfig")
 			retErr = err
 		}
-		r.Log.Info("Successfully patched CPIConfig")
+		r.Log.Info("Successfully patched VSphereCPIConfig")
 	}()
 
 	if !cpiConfig.GetDeletionTimestamp().IsZero() {
 		return ctrl.Result{}, nil
 	}
-	if err = r.reconcileCPIConfigNormal(ctx, cpiConfig, cluster); err != nil {
-		r.Log.Error(err, "Error reconciling CPIConfig to create/patch data values secret")
+	if err = r.reconcileVSphereCPIConfigNormal(ctx, cpiConfig, cluster); err != nil {
+		r.Log.Error(err, "Error reconciling VSphereCPIConfig to create/patch data values secret")
 		return ctrl.Result{}, err
 	}
-	r.Log.Info("Successfully reconciled CPIConfig")
+	r.Log.Info("Successfully reconciled VSphereCPIConfig")
 	return ctrl.Result{}, nil
 }
 
-// reconcileCPIConfigNormal triggers when a CPIConfig is not being deleted
-// it ensures the owner reference of the CPIConfig and generates the data values secret for CPI
-func (r *CPIConfigReconciler) reconcileCPIConfigNormal(ctx context.Context,
-	cpiConfig *cpiv1alpha1.CPIConfig, cluster *clusterapiv1beta1.Cluster) (retErr error) {
-	// add owner reference to CPIConfig if not already added by TanzuClusterBootstrap Controller
+// reconcileVSphereCPIConfigNormal triggers when a VSphereCPIConfig is not being deleted
+// it ensures the owner reference of the VSphereCPIConfig and generates the data values secret for CPI
+func (r *VSphereCPIConfigReconciler) reconcileVSphereCPIConfigNormal(ctx context.Context,
+	cpiConfig *cpiv1alpha1.VSphereCPIConfig, cluster *clusterapiv1beta1.Cluster) (retErr error) {
+	// add owner reference to VSphereCPIConfig if not already added by TanzuClusterBootstrap Controller
 	ownerReference := metav1.OwnerReference{
 		APIVersion: clusterapiv1beta1.GroupVersion.String(),
 		Kind:       cluster.Kind,
 		Name:       cluster.Name,
 		UID:        cluster.UID,
 	}
-	r.Log.Info("Ensure CPIConfig has the cluster as owner reference")
+	r.Log.Info("Ensure VSphereCPIConfig has the cluster as owner reference")
 	if !clusterapiutil.HasOwnerRef(cpiConfig.OwnerReferences, ownerReference) {
-		r.Log.Info("Adding owner reference to CPIConfig")
+		r.Log.Info("Adding owner reference to VSphereCPIConfig")
 		cpiConfig.OwnerReferences = clusterapiutil.EnsureOwnerRef(cpiConfig.OwnerReferences, ownerReference)
 	}
 	secret := &v1.Secret{
@@ -122,33 +122,33 @@ func (r *CPIConfigReconciler) reconcileCPIConfigNormal(ctx context.Context,
 		secret.Data = make(map[string][]byte)
 		cpiConfigSpec, err := r.mapCPIConfigToDataValues(ctx, cpiConfig, cluster)
 		if err != nil {
-			r.Log.Error(err, "Error while mapping CPIConfig to data values")
+			r.Log.Error(err, "Error while mapping VSphereCPIConfig to data values")
 			return err
 		}
 		yamlBytes, err := yaml.Marshal(cpiConfigSpec)
 		if err != nil {
-			r.Log.Error(err, "Error marshaling CPIConfig to Yaml")
+			r.Log.Error(err, "Error marshaling VSphereCPIConfig to Yaml")
 			return err
 		}
 		secret.Data[constants.TKGDataValueFileName] = yamlBytes
-		r.Log.Info("Mutated CPIConfig data values")
+		r.Log.Info("Mutated VSphereCPIConfig data values")
 		return nil
 	}
 	result, err := controllerutil.CreateOrPatch(ctx, r.Client, secret, mutateFn)
 	if err != nil {
-		r.Log.Error(err, "Error creating or patching CPIConfig data values secret")
+		r.Log.Error(err, "Error creating or patching VSphereCPIConfig data values secret")
 		return err
 	}
 	r.Log.Info(fmt.Sprintf("Resource '%s' data values secret '%s'", constants.CPIAddonName, result))
-	// update the secret reference in CPIConfig status
+	// update the secret reference in VSphereCPIConfig status
 	cpiConfig.Status.SecretRef = secret.Name
 	return nil
 }
 
 // SetupWithManager sets up the controller with the Manager.
-func (r *CPIConfigReconciler) SetupWithManager(_ context.Context, mgr ctrl.Manager, options controller.Options) error {
+func (r *VSphereCPIConfigReconciler) SetupWithManager(_ context.Context, mgr ctrl.Manager, options controller.Options) error {
 	return ctrl.NewControllerManagedBy(mgr).
-		For(&cpiv1alpha1.CPIConfig{}).
+		For(&cpiv1alpha1.VSphereCPIConfig{}).
 		WithOptions(options).
 		Complete(r)
 }

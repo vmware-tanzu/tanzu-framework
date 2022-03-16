@@ -8,11 +8,10 @@ import (
 	"os"
 	"strings"
 
-	"sigs.k8s.io/cluster-api-provider-vsphere/apis/v1beta1"
-
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	v1 "k8s.io/api/core/v1"
+	capvv1beta1 "sigs.k8s.io/cluster-api-provider-vsphere/apis/v1beta1"
 	clusterapiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
@@ -21,7 +20,7 @@ import (
 	cpiv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cpi/v1alpha1"
 )
 
-var _ = Describe("CPIConfig Reconciler", func() {
+var _ = Describe("VSphereCPIConfig Reconciler", func() {
 	const (
 		clusterNamespace = "default"
 	)
@@ -33,7 +32,7 @@ var _ = Describe("CPIConfig Reconciler", func() {
 	)
 
 	JustBeforeEach(func() {
-		By("Creating cluster and CPIConfig resources")
+		By("Creating cluster and VSphereCPIConfig resources")
 		key = client.ObjectKey{
 			Namespace: clusterNamespace,
 			Name:      clusterName,
@@ -46,7 +45,7 @@ var _ = Describe("CPIConfig Reconciler", func() {
 	})
 
 	AfterEach(func() {
-		By("Deleting cluster and CPIConfig resources")
+		By("Deleting cluster and VSphereCPIConfig resources")
 		for _, filePath := range []string{clusterResourceFilePath} {
 			f, err := os.Open(filePath)
 			Expect(err).ToNot(HaveOccurred())
@@ -56,13 +55,13 @@ var _ = Describe("CPIConfig Reconciler", func() {
 		}
 	})
 
-	Context("reconcile CPIConfig manifests in non-paravirtual mode", func() {
+	Context("reconcile VSphereCPIConfig manifests in non-paravirtual mode", func() {
 		BeforeEach(func() {
 			clusterName = "test-cluster-cpi"
-			clusterResourceFilePath = "testdata/test-cpi-non-paravirtual.yaml"
+			clusterResourceFilePath = "testdata/test-vsphere-cpi-non-paravirtual.yaml"
 		})
 
-		It("Should reconcile CPIConfig and create data values secret for CPIConfig on management cluster", func() {
+		It("Should reconcile VSphereCPIConfig and create data values secret for VSphereCPIConfig on management cluster", func() {
 			cluster := &clusterapiv1beta1.Cluster{}
 			Eventually(func() bool {
 				if err := k8sClient.Get(ctx, key, cluster); err != nil {
@@ -72,8 +71,8 @@ var _ = Describe("CPIConfig Reconciler", func() {
 			}, waitTimeout, pollingInterval).Should(BeTrue())
 
 			// the vsphere cluster and vsphere machine template should be provided
-			vsphereCluster := &v1beta1.VSphereCluster{}
-			cpMachineTemplate := &v1beta1.VSphereMachineTemplate{}
+			vsphereCluster := &capvv1beta1.VSphereCluster{}
+			cpMachineTemplate := &capvv1beta1.VSphereMachineTemplate{}
 			Eventually(func() bool {
 				if err := k8sClient.Get(ctx, key, vsphereCluster); err != nil {
 					return false
@@ -88,7 +87,7 @@ var _ = Describe("CPIConfig Reconciler", func() {
 			}, waitTimeout, pollingInterval).Should(BeTrue())
 
 			// the cpi config object should be deployed
-			config := &cpiv1alpha1.CPIConfig{}
+			config := &cpiv1alpha1.VSphereCPIConfig{}
 			Eventually(func() bool {
 				if err := k8sClient.Get(ctx, key, config); err != nil {
 					return false
@@ -169,12 +168,12 @@ var _ = Describe("CPIConfig Reconciler", func() {
 		})
 	})
 
-	Context("reconcile CPIConfig manifests in paravirtual mode", func() {
+	Context("reconcile VSphereCPIConfig manifests in paravirtual mode", func() {
 		BeforeEach(func() {
 			clusterName = "test-cluster-cpi-paravirtual"
-			clusterResourceFilePath = "testdata/test-cpi-paravirtual.yaml"
+			clusterResourceFilePath = "testdata/test-vsphere-cpi-paravirtual.yaml"
 		})
-		It("Should reconcile CPIConfig and create data values secret for CPIConfig on management cluster", func() {
+		It("Should reconcile VSphereCPIConfig and create data values secret for VSphereCPIConfig on management cluster", func() {
 			// the data values secret should be generated
 			secret := &v1.Secret{}
 			Eventually(func() bool {
@@ -200,7 +199,7 @@ var _ = Describe("CPIConfig Reconciler", func() {
 			}, waitTimeout, pollingInterval).Should(BeTrue())
 
 			// eventually the secret ref to the data values should be updated
-			config := &cpiv1alpha1.CPIConfig{}
+			config := &cpiv1alpha1.VSphereCPIConfig{}
 			Eventually(func() bool {
 				if err := k8sClient.Get(ctx, key, config); err != nil {
 					return false

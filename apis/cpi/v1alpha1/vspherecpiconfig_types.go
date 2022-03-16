@@ -8,8 +8,8 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-// CPIConfigSpec defines the desired state of CPIConfig
-type CPIConfigSpec struct {
+// VSphereCPIConfigSpec defines the desired state of VSphereCPIConfig
+type VSphereCPIConfigSpec struct {
 	VSphereCPI VSphereCPI `json:"vsphereCPI"`
 }
 
@@ -191,37 +191,37 @@ type VSphereCPI struct {
 	*ParavirtualConfig `json:""`
 }
 
-// CPIConfigStatus defines the observed state of CPIConfig
-type CPIConfigStatus struct {
-	// Name of the data value secret created by cpi controller
+// VSphereCPIConfigStatus defines the observed state of VSphereCPIConfig
+type VSphereCPIConfigStatus struct {
+	// Name of the data value secret created by vSphere CPI controller
 	//+ kubebuilder:validation:Optional
 	SecretRef string `json:"secretRef,omitempty"`
 }
 
 //+kubebuilder:object:root=true
 //+kubebuilder:subresource:status
-//+kubebuilder:resource:path=cpiconfigs,shortName=cpic,scope=Namespaced
-//+kubebuilder:printcolumn:name="Name",type="string",JSONPath=".spec.namespace",description="The name of the CPIConfig"
+//+kubebuilder:resource:path=vspherecpiconfigs,shortName=vcpic,scope=Namespaced
+//+kubebuilder:printcolumn:name="Name",type="string",JSONPath=".spec.namespace",description="The name of the VSphereCPIConfig"
 //+kubebuilder:printcolumn:name="Mode",type="string",JSONPath=".spec.vsphereCPI.mode",description="Name of the kapp-controller data values secret"
 
-// CPIConfig is the Schema for the cpiconfigs API
-type CPIConfig struct {
+// VSphereCPIConfig is the Schema for the VSphereCPIConfig API
+type VSphereCPIConfig struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
-	Spec   CPIConfigSpec   `json:"spec,omitempty"`
-	Status CPIConfigStatus `json:"status,omitempty"`
+	Spec   VSphereCPIConfigSpec   `json:"spec,omitempty"`
+	Status VSphereCPIConfigStatus `json:"status,omitempty"`
 }
 
 //+kubebuilder:object:root=true
 
-// CPIConfigList contains a list of CPIConfig
-type CPIConfigList struct {
+// VSphereCPIConfigList contains a list of VSphereCPIConfig
+type VSphereCPIConfigList struct {
 	metav1.TypeMeta `json:",inline"`
 	metav1.ListMeta `json:"metadata,omitempty"`
-	Items           []CPIConfig `json:"items"`
+	Items           []VSphereCPIConfig `json:"items"`
 }
 
 func init() {
-	SchemeBuilder.Register(&CPIConfig{}, &CPIConfigList{})
+	SchemeBuilder.Register(&VSphereCPIConfig{}, &VSphereCPIConfigList{})
 }

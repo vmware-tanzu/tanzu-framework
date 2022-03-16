@@ -93,7 +93,7 @@ data:
   username: bnN4dC1hZG1pbg== # nsxt-admin
 ---
 apiVersion: cpi.tanzu.vmware.com/v1alpha1
-kind: CPIConfig
+kind: VSphereCPIConfig
 metadata:
   name: test-cluster-cpi
   namespace: default
