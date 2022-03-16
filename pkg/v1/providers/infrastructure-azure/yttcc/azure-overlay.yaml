@@ -205,3 +205,29 @@
 #!      useExperimentalRetryJoin: true
 #!#@ end
 
+<<<<<<< HEAD
+=======
+#@overlay/match by=overlay.subset({"kind":"KubeadmConfigTemplate"}),expects="1+"
+---
+spec:
+  #@overlay/match missing_ok=True
+  template:
+    #@overlay/match missing_ok=True
+    spec:
+      #@overlay/match missing_ok=True
+      preKubeadmCommands:
+      #@overlay/append
+      - "if [ -f /etc/kubernetes/azure.json ]; then sed -i 's/\"vmType\": \"vmss\"/\"vmType\": \"standard\"/' /etc/kubernetes/azure.json; fi"
+
+#@overlay/match by=overlay.subset({"kind":"KubeadmControlPlaneTemplate"})
+---
+spec:
+  template:
+    spec:
+      #@overlay/match missing_ok=True
+      kubeadmConfigSpec:
+        #@overlay/match missing_ok=True
+        preKubeadmCommands:
+        #@overlay/append
+        - "if [ -f /etc/kubernetes/azure.json ]; then sed -i 's/\"vmType\": \"vmss\"/\"vmType\": \"standard\"/' /etc/kubernetes/azure.json; fi"
+>>>>>>> df86b628 (Cluster classes for Azure, AWS and vSphere)

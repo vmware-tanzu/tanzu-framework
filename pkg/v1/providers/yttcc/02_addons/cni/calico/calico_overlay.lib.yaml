@@ -1,0 +1,46 @@
+#@ load("@ytt:overlay", "overlay")
+#@ load("@ytt:data", "data")
+#@ load("/lib/helpers.star", "get_bom_data_for_tkr_name", "get_image_repo_for_component")
+
+#@ if data.values.PROVIDER_TYPE != "tkg-service-vsphere":
+#@   calicoImages = get_bom_data_for_tkr_name().components["calico_all"][0].images
+#@ end
+
+#@ def updatecalicoimage():
+
+#@overlay/match by=overlay.subset({"kind":"DaemonSet"})
+---
+spec:
+  template:
+    spec:
+      initContainers:
+        #@overlay/match by=overlay.subset({"name":"upgrade-ipam"})
+        - image: #@ "{}/{}:{}".format(get_image_repo_for_component(calicoImages.calicoCniImage), calicoImages.calicoCniImage.imagePath, calicoImages.calicoCniImage.tag)
+          #@overlay/match missing_ok=True
+          imagePullPolicy: IfNotPresent
+        #@overlay/match by=overlay.subset({"name":"install-cni"})
+        - image: #@ "{}/{}:{}".format(get_image_repo_for_component(calicoImages.calicoCniImage), calicoImages.calicoCniImage.imagePath, calicoImages.calicoCniImage.tag)
+          #@overlay/match missing_ok=True
+          imagePullPolicy: IfNotPresent
+        #@overlay/match by=overlay.subset({"name":"flexvol-driver"})
+        - image: #@ "{}/{}:{}".format(get_image_repo_for_component(calicoImages.calicoPodDaemonImage), calicoImages.calicoPodDaemonImage.imagePath, calicoImages.calicoPodDaemonImage.tag)
+          #@overlay/match missing_ok=True
+          imagePullPolicy: IfNotPresent
+      containers:
+        #@overlay/match by=overlay.subset({"name":"calico-node"})
+        - image: #@ "{}/{}:{}".format(get_image_repo_for_component(calicoImages.calicoNodeImage), calicoImages.calicoNodeImage.imagePath, calicoImages.calicoNodeImage.tag)
+          #@overlay/match missing_ok=True
+          imagePullPolicy: IfNotPresent
+
+#@overlay/match by=overlay.subset({"kind":"Deployment"})
+---
+spec:
+  template:
+    spec:
+      containers:
+        #@overlay/match by=overlay.subset({"name":"calico-kube-controllers"})
+        - image: #@ "{}/{}:{}".format(get_image_repo_for_component(calicoImages.calicoKubecontrollerImage), calicoImages.calicoKubecontrollerImage.imagePath, calicoImages.calicoKubecontrollerImage.tag)
+          #@overlay/match missing_ok=True
+          imagePullPolicy: IfNotPresent
+
+#@ end

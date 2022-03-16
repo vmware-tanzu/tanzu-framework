@@ -1,0 +1,52 @@
+#@ load("@ytt:data", "data")
+#@ load("@ytt:yaml", "yaml")
+#@ load("/lib/helpers.star", "get_default_tkg_bom_data", "get_image_repo_for_component")
+
+#@ def management_package_repo():
+#@ management_package_repo_bundle = get_default_tkg_bom_data().components["tanzu-framework-management-packages"][0].images.tanzuFrameworkManagementPackageRepositoryImage
+apiVersion: packaging.carvel.dev/v1alpha1
+kind: PackageRepository
+metadata:
+  name: tanzu-management
+  namespace: tkg-system
+  annotations:
+    tkg.tanzu.vmware.com/addon-type: "packages/management-package-repo"
+spec:
+  fetch:
+    imgpkgBundle:
+      image: #@ "{}/{}:{}".format(get_image_repo_for_component(management_package_repo_bundle), management_package_repo_bundle.imagePath, management_package_repo_bundle.tag)
+#@ end
+
+#@ if data.values.TKG_CLUSTER_ROLE != "workload" and data.values.PROVIDER_TYPE != "tkg-service-vsphere" and not data.values.FEATURE_FLAG_PACKAGE_BASED_LCM:
+#@ if data.values.DISABLE_CRS_FOR_ADDON_TYPE and "packages/management-package-repo" in data.values.DISABLE_CRS_FOR_ADDON_TYPE:
+--- #@ management_package_repo()
+#@ else:
+---
+apiVersion: addons.cluster.x-k8s.io/v1beta1
+kind: ClusterResourceSet
+metadata:
+  name: #@ "{}-management-package-repository".format(data.values.CLUSTER_NAME)
+  labels:
+    cluster.x-k8s.io/cluster-name: #@ data.values.CLUSTER_NAME
+  annotations:
+    tkg.tanzu.vmware.com/addon-type: "packages/management-package-repo"
+spec:
+  strategy: "ApplyOnce"
+  clusterSelector:
+    matchLabels:
+      tkg.tanzu.vmware.com/cluster-name: #@ data.values.CLUSTER_NAME
+  resources:
+    - name: #@ "{}-management-package-repository-crs".format(data.values.CLUSTER_NAME)
+      kind: Secret
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: #@ "{}-management-package-repository-crs".format(data.values.CLUSTER_NAME)
+  annotations:
+    tkg.tanzu.vmware.com/addon-type: "packages/management-package-repo"
+type: addons.cluster.x-k8s.io/resource-set
+stringData:
+  value: #@ yaml.encode(management_package_repo())
+#@ end
+#@ end

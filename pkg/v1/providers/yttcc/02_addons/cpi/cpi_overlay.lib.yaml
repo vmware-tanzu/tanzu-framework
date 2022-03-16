@@ -1,0 +1,22 @@
+#@ load("@ytt:overlay", "overlay")
+#@ load("@ytt:data", "data")
+#@ load("/lib/helpers.star", "get_bom_data_for_tkr_name", "get_image_repo_for_component")
+
+#@ if data.values.PROVIDER_TYPE != "tkg-service-vsphere":
+#@   cpiImage = get_bom_data_for_tkr_name().components["cloud_provider_vsphere"][0].images.ccmControllerImage
+#@   cpiImageRepo = get_image_repo_for_component(cpiImage)
+#@ end
+
+#@ def update_vsphere_cpi_image():
+
+#@overlay/match by=overlay.subset({"kind": "DaemonSet", "metadata": {"name": "vsphere-cloud-controller-manager"}})
+---
+spec:
+  template:
+    spec:
+      containers:
+      #@overlay/match by=overlay.subset({"name": "vsphere-cloud-controller-manager"})
+      - image: #@ "{}/{}:{}".format(cpiImageRepo, cpiImage.imagePath, cpiImage.tag)
+        #@overlay/match missing_ok=True
+        imagePullPolicy: IfNotPresent
+#@ end
