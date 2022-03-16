@@ -142,3 +142,75 @@ func TestRoundTripWithMultiplePauseImagesInSpoke(t *testing.T) {
 		})
 	})
 }
+
+// TODO: Add a UT for hub - spoke with no annotations.
+func TestContainerImagesConversionFromSpokeToHubWithNoAnnotations(t *testing.T) {
+	t.Run("for TanzuKubernetesRelease", func(t *testing.T) {
+		hub := &v1alpha3.TanzuKubernetesRelease{
+			Spec: v1alpha3.TanzuKubernetesReleaseSpec{
+				Version: "#ŉƈOƕʘ賡谒湪ȥ#4",
+				Kubernetes: v1alpha3.KubernetesSpec{
+					Version:         `ìd/i涇u趗\庰鏜`,
+					ImageRepository: "辑",
+					Etcd: &v1alpha3.ContainerImageInfo{
+						ImageRepository: "9ŉ劆掬ȳƤʟNʮ犓ȓ峌堲Ȥ:ě",
+						ImageTag:        "Eĺ垦婽Ô驽伕WƇ|q`1老縜",
+					},
+					Pause: &v1alpha3.ContainerImageInfo{
+						ImageRepository: "9ŉ劆掬ȳƤʟNʮ犓ȓ峌堲Ȥ:ě",
+						ImageTag:        "Eĺ垦婽Ô驽伕WƇ|q`1老縜",
+					},
+					CoreDNS: &v1alpha3.ContainerImageInfo{
+						ImageRepository: "9ŉ劆掬ȳƤʟNʮ犓ȓ峌堲Ȥ:ě",
+						ImageTag:        "Eĺ垦婽Ô驽伕WƇ|q`1老縜",
+					},
+				},
+				OSImages: []v1.LocalObjectReference{{
+					Name: "F",
+				}},
+				BootstrapPackages: []v1.LocalObjectReference{{
+					Name: "BP",
+				}},
+			},
+		}
+
+		expectedSpoke := &TanzuKubernetesRelease{
+			Spec: TanzuKubernetesReleaseSpec{
+				Version:           "#ŉƈOƕʘ賡谒湪ȥ#4",
+				KubernetesVersion: `ìd/i涇u趗\庰鏜`,
+				Repository:        "辑",
+				Images: []ContainerImage{
+					{
+						Name:       "etcd",
+						Repository: "9ŉ劆掬ȳƤʟNʮ犓ȓ峌堲Ȥ:ě",
+						Tag:        "Eĺ垦婽Ô驽伕WƇ|q`1老縜",
+					},
+					{
+						Name:       "coredns",
+						Repository: "9ŉ劆掬ȳƤʟNʮ犓ȓ峌堲Ȥ:ě",
+						Tag:        "Eĺ垦婽Ô驽伕WƇ|q`1老縜",
+					},
+					{
+						Name:       "pause",
+						Repository: "9ŉ劆掬ȳƤʟNʮ犓ȓ峌堲Ȥ:ě",
+						Tag:        "Eĺ垦婽Ô驽伕WƇ|q`1老縜",
+					},
+				},
+			},
+		}
+
+		t.Run("hub-spoke", func(t *testing.T) {
+			g := gomega.NewWithT(t)
+			hubBefore := hub
+
+			// Convert from hub to spoke.
+			dstCopy := &TanzuKubernetesRelease{}
+			g.Expect(dstCopy.ConvertFrom(hubBefore)).To(gomega.Succeed())
+
+			// Sync annotations in expected and real.
+			expectedSpoke.ObjectMeta.Annotations = dstCopy.ObjectMeta.Annotations
+
+			g.Expect(apiequality.Semantic.DeepEqual(expectedSpoke, dstCopy)).To(gomega.BeTrue(), cmp.Diff(expectedSpoke, dstCopy))
+		})
+	})
+}
