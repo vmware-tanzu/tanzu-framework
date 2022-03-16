@@ -286,8 +286,6 @@ func (r *ClusterBootstrapReconciler) createOrPatchClusterBootstrapFromTemplate(c
 		log.Info("ClusterBootstrap for cluster does not exist, cloning from template")
 		return r.createClusterBootstrapFromTemplate(cluster, clusterBootstrapTemplate, tkrName, log)
 	}
-	// TODO: Add a warning prompt in CLI before cluster upgrade. Telling the user to make sure the compatibility if there is any customization in valuesFrom of packages
-	// https://github.com/vmware-tanzu/tanzu-framework/issues/1807
 	// Handle ClusterBootstrap update when TKR version of the cluster is upgraded
 	if tkrName != clusterBootstrap.Status.ResolvedTKR {
 		log.Info(fmt.Sprintf("Upgrading ClusterBootstrap from TKR %s to TKR %s", clusterBootstrap.Status.ResolvedTKR, tkrName))
@@ -353,7 +351,7 @@ func (r *ClusterBootstrapReconciler) createClusterBootstrapFromTemplate(
 }
 
 // patchClusterBootstrapFromTemplate will patch ClusterBootstrap associated with a cluster in case of TKR upgrade
-func (r *ClusterBootstrapReconciler) patchClusterBootstrapFromTemplate( // nolint:funlen
+func (r *ClusterBootstrapReconciler) patchClusterBootstrapFromTemplate(
 	cluster *clusterapiv1beta1.Cluster,
 	clusterBootstrap *runtanzuv1alpha3.ClusterBootstrap,
 	clusterBootstrapTemplate *runtanzuv1alpha3.ClusterBootstrapTemplate,
@@ -370,7 +368,42 @@ func (r *ClusterBootstrapReconciler) patchClusterBootstrapFromTemplate( // nolin
 		return nil, errors.New("ClusterBootstrap and ClusterBootstrapTemplate spec can't be nil")
 	}
 
-	packages := make([]*runtanzuv1alpha3.ClusterBootstrapPackage, 0)
+	packages, err := r.mergeClusterBootstrapPackagesWithTemplate(cluster, updatedClusterBootstrap, clusterBootstrapTemplate, log)
+	if err != nil {
+		return nil, err
+	}
+
+	// Handle newly added package values
+	secrets, providers, err := r.cloneSecretsAndProvidersFromPackageList(cluster, packages, clusterBootstrapTemplate.Namespace, log)
+	if err != nil {
+		r.Log.Error(err, "unable to clone secrets or providers")
+		return nil, err
+	}
+
+	// No need to update ClusterBootstrap ownerRef
+	// Patch the Spec and update the Resolved TKR
+	updatedClusterBootstrap.Status.ResolvedTKR = tkrName
+	if err := patchHelper.Patch(r.context, updatedClusterBootstrap); err != nil {
+		log.Error(err, "failed to updated clusterBootstrap")
+		return nil, err
+	}
+	// ensure ownerRef of clusterBootstrap on created secrets and providers, this can only be done after
+	// clusterBootstrap is updated
+	if err := r.ensureOwnerRef(updatedClusterBootstrap, secrets, providers); err != nil {
+		r.Log.Error(err, fmt.Sprintf("unable to ensure ClusterBootstrap %s/%s as a ownerRef on created secrets and providers", clusterBootstrap.Namespace, clusterBootstrap.Name))
+		return nil, err
+	}
+
+	r.Log.Info("updated clusterBootstrap", "clusterBootstrap", updatedClusterBootstrap)
+	return updatedClusterBootstrap, nil
+}
+
+// mergeClusterBootstrapPackagesWithTemplate will merge all the packageRefs according to the new ClusterBootstrapTemplate
+func (r *ClusterBootstrapReconciler) mergeClusterBootstrapPackagesWithTemplate(
+	cluster *clusterapiv1beta1.Cluster,
+	updatedClusterBootstrap *runtanzuv1alpha3.ClusterBootstrap,
+	clusterBootstrapTemplate *runtanzuv1alpha3.ClusterBootstrapTemplate,
+	log logr.Logger) ([]*runtanzuv1alpha3.ClusterBootstrapPackage, error) {
 
 	// Upgrade the refName of all the core packages
 	// Package updates keep the users' customization in valuesFrom
@@ -380,6 +413,7 @@ func (r *ClusterBootstrapReconciler) patchClusterBootstrapFromTemplate( // nolin
 	//    3. The Group and Kind for default core package providers will not change across different TKR versions
 	//    4. All packages, including additional packages, can't be deleted (meaning the package refName can't be changed, only allow version bump)
 	//    5. We will keep users' customization on valuesFrom of each package, users are responsible for the correctness of the content they put in will work with the next version.
+	packages := make([]*runtanzuv1alpha3.ClusterBootstrapPackage, 0)
 	if updatedClusterBootstrap.Spec.CNI == nil {
 		log.Info("no CNI package specified in ClusterBootstarp, should not happen. Continue with CNI in ClusterBootstrapTemplate of new TKR")
 		updatedClusterBootstrap.Spec.CNI = clusterBootstrapTemplate.Spec.CNI.DeepCopy()
@@ -451,30 +485,7 @@ func (r *ClusterBootstrapReconciler) patchClusterBootstrapFromTemplate( // nolin
 		}
 	}
 
-	// Handle newly added package values
-	secrets, providers, err := r.cloneSecretsAndProvidersFromPackageList(cluster, packages, clusterBootstrapTemplate.Namespace, log)
-	if err != nil {
-		r.Log.Error(err, "unable to clone secrets or providers")
-		return nil, err
-	}
-
-	// No need to update ClusterBootstrap ownerRef
-
-	// Patch the Spec and update the Resolved TKR
-	updatedClusterBootstrap.Status.ResolvedTKR = tkrName
-	if err := patchHelper.Patch(r.context, updatedClusterBootstrap); err != nil {
-		log.Error(err, "failed to updated clusterBootstrap")
-		return nil, err
-	}
-	// ensure ownerRef of clusterBootstrap on created secrets and providers, this can only be done after
-	// clusterBootstrap is updated
-	if err := r.ensureOwnerRef(updatedClusterBootstrap, secrets, providers); err != nil {
-		r.Log.Error(err, fmt.Sprintf("unable to ensure ClusterBootstrap %s/%s as a ownerRef on created secrets and providers", clusterBootstrap.Namespace, clusterBootstrap.Name))
-		return nil, err
-	}
-
-	r.Log.Info("updated clusterBootstrap", "clusterBootstrap", updatedClusterBootstrap)
-	return updatedClusterBootstrap, nil
+	return packages, nil
 }
 
 // createOrPatchKappPackageInstall contains the logic that create/update PackageInstall CR for kapp-controller on
