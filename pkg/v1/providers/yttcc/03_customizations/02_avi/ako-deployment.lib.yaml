@@ -1,0 +1,271 @@
+#@ load("@ytt:data", "data")
+#@ load("@ytt:base64", "base64")
+#@ load("@ytt:json", "json")
+#@ load("/lib/helpers.star", "get_default_tkr_bom_data", "get_default_tkg_bom_data", "tkg_image_repo")
+
+#@ akoRepo = get_default_tkr_bom_data().components["load-balancer-and-ingress-service"][0]
+
+#@ def ako_image_with_tag():
+#@  return "{}/{}:{}".format(tkg_image_repo(), akoRepo.images.loadBalancerAndIngressServiceImage.imagePath, akoRepo.images.loadBalancerAndIngressServiceImage.tag)
+#@ end
+
+#@ def cluster_namespaced_name():
+#@  return "{}-{}".format("tkg-system", data.values.CLUSTER_NAME)
+#@ end
+
+#@ def ako_name():
+#@  return "ako-{}".format(cluster_namespaced_name())
+#@ end
+
+#! input cidr example 10.0.0.0/24
+#! output "10.0.0.0" and "24"
+#@ def network_cidr():
+#@  if data.values.AVI_MANAGEMENT_CLUSTER_CONTROL_PLANE_VIP_NETWORK_NAME and data.values.AVI_MANAGEMENT_CLUSTER_CONTROL_PLANE_VIP_NETWORK_CIDR:
+#@    cidr = data.values.AVI_MANAGEMENT_CLUSTER_CONTROL_PLANE_VIP_NETWORK_CIDR
+#@  else:
+#@    if data.values.AVI_MANAGEMENT_CLUSTER_VIP_NETWORK_NAME and data.values.AVI_MANAGEMENT_CLUSTER_VIP_NETWORK_CIDR:
+#@      cidr = data.values.AVI_MANAGEMENT_CLUSTER_VIP_NETWORK_CIDR
+#@    else:
+#@      cidr = data.values.AVI_DATA_NETWORK_CIDR
+#@    end
+#@  end
+#@  return cidr
+#@ end
+
+#@ def network_name():
+#@  if data.values.AVI_MANAGEMENT_CLUSTER_CONTROL_PLANE_VIP_NETWORK_NAME and data.values.AVI_MANAGEMENT_CLUSTER_CONTROL_PLANE_VIP_NETWORK_CIDR:
+#@    name = data.values.AVI_MANAGEMENT_CLUSTER_CONTROL_PLANE_VIP_NETWORK_NAME
+#@  else:
+#@    if data.values.AVI_MANAGEMENT_CLUSTER_VIP_NETWORK_NAME and data.values.AVI_MANAGEMENT_CLUSTER_VIP_NETWORK_CIDR:
+#@      name = data.values.AVI_MANAGEMENT_CLUSTER_VIP_NETWORK_NAME
+#@    else:
+#@      name = data.values.AVI_DATA_NETWORK
+#@    end
+#@  end
+#@  return name
+#@ end
+
+#@ def vip_network():
+#@  return json.encode([{ "networkName": network_name(), "cidr": network_cidr() }])
+#@ end
+
+#@ def avi_secret():
+apiVersion: v1
+kind: Secret
+metadata:
+  name: avi-secret
+  namespace: tkg-system
+type: Opaque
+data:
+  username: #@ base64.encode(data.values.AVI_USERNAME)
+  password: #@ base64.encode(data.values.AVI_PASSWORD)
+  certificateAuthorityData: #@ data.values.AVI_CA_DATA_B64
+#@ end
+
+
+#@ def ako_serviceaccount():
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: ako-sa
+  namespace: tkg-system
+#@ end
+
+#@ def ako_configmap():
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: avi-k8s-config
+  namespace: tkg-system
+data:
+  controllerIP: #@ data.values.AVI_CONTROLLER
+  cniPlugin: #@ data.values.CNI
+  fullSyncFrequency: "1800"
+  cloudName: #@ data.values.AVI_CLOUD_NAME
+  clusterName: #@ cluster_namespaced_name()
+  disableStaticRouteSync: #@ "{}".format(data.values.AVI_DISABLE_STATIC_ROUTE_SYNC).lower()
+  defaultIngController: #@ "{}".format(data.values.AVI_INGRESS_DEFAULT_INGRESS_CONTROLLER).lower()
+  logLevel: "WARN"
+  deleteConfig: "false"
+  serviceType:  NodePort
+#@ if data.values.AVI_NSXT_T1LR:
+  nsxtT1LR: #@ data.values.AVI_NSXT_T1LR
+#@ end
+#@ if data.values.AVI_MANAGEMENT_CLUSTER_SERVICE_ENGINE_GROUP:
+  serviceEngineGroupName: #@ data.values.AVI_MANAGEMENT_CLUSTER_SERVICE_ENGINE_GROUP
+#@ else:
+  serviceEngineGroupName: #@ data.values.AVI_SERVICE_ENGINE_GROUP
+#@ end
+  vipNetworkList: #@ vip_network()
+  apiServerPort: "8080"
+#@ end
+
+#@ def ako_clusterrole():
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: ako-cr
+rules:
+  - apiGroups: [""]
+    resources: ["*"]
+    verbs: ['get', 'watch', 'list']
+  - apiGroups: ["apps"]
+    resources: ["statefulsets"]
+    verbs: ["get","watch","list"]
+  - apiGroups: ["apps"]
+    resources: ["statefulsets/status"]
+    verbs: ["get","watch","list","patch", "update"]
+  - apiGroups: ["extensions", "networking.k8s.io"]
+    resources: ["ingresses", "ingresses/status", "ingressclasses"]
+    verbs: ["get","watch","list","patch", "update"]
+  - apiGroups: [""]
+    resources: ["services", "services/status", "secrets"]
+    verbs: ["get","watch","list","patch", "update"]
+  - apiGroups: [""]
+    resources: ["services"]
+    verbs: ["get", "watch", "list", "patch"]
+  - apiGroups: ["crd.projectcalico.org"]
+    resources: ["blockaffinities"]
+    verbs: ["get", "watch", "list"]
+  - apiGroups: ["network.openshift.io"]
+    resources: ["hostsubnets"]
+    verbs: ["get", "watch", "list"]
+  - apiGroups: ["route.openshift.io"]
+    resources: ["routes", "routes/status"]
+    verbs: ["get", "watch", "list", "patch", "update"]
+  - apiGroups: ["ako.vmware.com"]
+    resources: ["hostrules", "hostrules/status", "httprules", "httprules/status", "aviinfrasettings", "aviinfrasettings/status"]
+    verbs: ["get","watch","list","patch", "update"]
+  - apiGroups: ["networking.x-k8s.io"]
+    resources: ["gateways", "gateways/status", "gatewayclasses", "gatewayclasses/status"]
+    verbs: ["get","watch","list","patch", "update"]
+#@ end
+
+#@ def ako_clusterrolebinding():
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: ako-crb
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: ako-cr
+subjects:
+  - kind: ServiceAccount
+    name: ako-sa
+    namespace: tkg-system
+#@ end
+
+
+#@ def ako_statefulset():
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: ako
+  namespace: tkg-system
+  labels:
+    app.kubernetes.io/name: #@ ako_name()
+    app.kubernetes.io/version: #@ akoRepo.images.loadBalancerAndIngressServiceImage.tag
+spec:
+  replicas: 1
+  serviceName: ako
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: #@ ako_name()
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: #@ ako_name()
+    spec:
+      serviceAccountName: ako-sa
+      securityContext: {}
+      containers:
+        - name: #@ ako_name()
+          securityContext: null
+          image: #@ ako_image_with_tag()
+          imagePullPolicy: #@ data.values.AVI_AKO_IMAGE_PULL_POLICY
+          env:
+            - name: CTRL_IPADDRESS
+              valueFrom:
+                configMapKeyRef:
+                  name: avi-k8s-config
+                  key: controllerIP
+            - name: CNI_PLUGIN
+              valueFrom:
+                configMapKeyRef:
+                  name: avi-k8s-config
+                  key: cniPlugin
+            - name: FULL_SYNC_INTERVAL
+              valueFrom:
+                configMapKeyRef:
+                  name: avi-k8s-config
+                  key: fullSyncFrequency
+            - name: CLOUD_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: avi-k8s-config
+                  key: cloudName
+            - name: CLUSTER_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: avi-k8s-config
+                  key: clusterName
+            - name: DISABLE_STATIC_ROUTE_SYNC
+              valueFrom:
+                configMapKeyRef:
+                  name: avi-k8s-config
+                  key: disableStaticRouteSync
+            - name: DEFAULT_ING_CONTROLLER
+              valueFrom:
+                configMapKeyRef:
+                  name: avi-k8s-config
+                  key: defaultIngController
+            - name: SEG_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: avi-k8s-config
+                  key: serviceEngineGroupName
+            - name: VIP_NETWORK_LIST
+              valueFrom:
+                configMapKeyRef:
+                  name: avi-k8s-config
+                  key: vipNetworkList
+            - name: AKO_API_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: avi-k8s-config
+                  key: apiServerPort
+            - name: SERVICE_TYPE
+              valueFrom:
+                configMapKeyRef:
+                  name: avi-k8s-config
+                  key: serviceType
+            #@ if data.values.AVI_NSXT_T1LR:
+            - name: NSXT_T1_LR
+              valueFrom:
+                configMapKeyRef:
+                  name: avi-k8s-config
+                  key: nsxtT1LR
+            #@ end
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+          resources:
+            limits:
+              cpu: "350m"
+              memory: "400Mi"
+            requests:
+              cpu: "50m"
+              memory: "50Mi"
+          livenessProbe:
+            httpGet:
+              path: /api/status
+              port:  8080
+            initialDelaySeconds: 10
+            periodSeconds: 10
+#@ end
