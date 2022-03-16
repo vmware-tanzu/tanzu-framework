@@ -1,0 +1,230 @@
+#! Please add any overlays specific to Azure provider under this file.
+
+#@ load("@ytt:overlay", "overlay")
+#@ load("@ytt:data", "data")
+
+#@ load("lib/helpers.star", "get_bom_data_for_tkr_name", "kubeadm_image_repo", "get_azure_image")
+#@ load("lib/validate.star", "validate_configuration")
+
+#@ validate_configuration("azure")
+
+#@ bomDataForK8sVersion = get_bom_data_for_tkr_name()
+
+#!#@ if data.values.CLUSTER_PLAN == "prod":
+#!---
+#!apiVersion: cluster.x-k8s.io/v1beta1
+#!kind: MachineDeployment
+#!metadata:
+#!  name: #@ "{}-md-1".format(data.values.CLUSTER_NAME)
+#!spec:
+#!  clusterName: #@ data.values.CLUSTER_NAME
+#!  replicas: #@ data.values.WORKER_MACHINE_COUNT_1
+#!  selector:
+#!    matchLabels: null
+#!  template:
+#!    metadata:
+#!      labels:
+#!        node-pool: #@ "{}-worker-pool".format(data.values.CLUSTER_NAME)
+#!    spec:
+#!      bootstrap:
+#!        configRef:
+#!          name: #@ "{}-md-1".format(data.values.CLUSTER_NAME)
+#!          apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
+#!          kind: KubeadmConfigTemplate
+#!      clusterName: #@ data.values.CLUSTER_NAME
+#!      infrastructureRef:
+#!        name: #@ "{}-md-1".format(data.values.CLUSTER_NAME)
+#!        apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+#!        kind: AzureMachineTemplate
+#!      version: #@ data.values.KUBERNETES_VERSION
+#!      failureDomain: #@ data.values.AZURE_NODE_AZ_1 or "2"
+#!---
+#!apiVersion: cluster.x-k8s.io/v1beta1
+#!kind: MachineDeployment
+#!metadata:
+#!  name: #@ "{}-md-2".format(data.values.CLUSTER_NAME)
+#!spec:
+#!  clusterName: #@ data.values.CLUSTER_NAME
+#!  replicas: #@ data.values.WORKER_MACHINE_COUNT_2
+#!  selector:
+#!    matchLabels: null
+#!  template:
+#!    metadata:
+#!      labels:
+#!        node-pool: #@ "{}-worker-pool".format(data.values.CLUSTER_NAME)
+#!    spec:
+#!      bootstrap:
+#!        configRef:
+#!          name: #@ "{}-md-2".format(data.values.CLUSTER_NAME)
+#!          apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
+#!          kind: KubeadmConfigTemplate
+#!      clusterName: #@ data.values.CLUSTER_NAME
+#!      infrastructureRef:
+#!        name: #@ "{}-md-2".format(data.values.CLUSTER_NAME)
+#!        apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+#!        kind: AzureMachineTemplate
+#!      version: #@ data.values.KUBERNETES_VERSION
+#!      failureDomain: #@ data.values.AZURE_NODE_AZ_2 or "3"
+#!---
+#!apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+#!kind: AzureMachineTemplate
+#!metadata:
+#!  name: #@ "{}-md-1".format(data.values.CLUSTER_NAME)
+#!spec:
+#!  template:
+#!    spec:
+#!      #@ if data.values.AZURE_ENABLE_NODE_DATA_DISK == True:
+#!      #@overlay/match missing_ok=True
+#!      dataDisks:
+#!      - diskSizeGB: #@ data.values.AZURE_NODE_DATA_DISK_SIZE_GIB
+#!        lun: 0
+#!        nameSuffix: nodedisk
+#!      #@ end
+#!      #@overlay/match missing_ok=True
+#!      image: #@ get_azure_image(bomDataForK8sVersion)
+#!      sshPublicKey: #@ data.values.AZURE_SSH_PUBLIC_KEY_B64
+#!      vmSize: #@ data.values.AZURE_NODE_MACHINE_TYPE
+#!      osDisk:
+#!        diskSizeGB: #@ data.values.AZURE_NODE_OS_DISK_SIZE_GIB
+#!        managedDisk:
+#!          storageAccountType: #@ data.values.AZURE_NODE_OS_DISK_STORAGE_ACCOUNT_TYPE
+#!        osType: Linux
+#!---
+#!apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+#!kind: AzureMachineTemplate
+#!metadata:
+#!  name: #@ "{}-md-2".format(data.values.CLUSTER_NAME)
+#!spec:
+#!  template:
+#!    spec:
+#!      #@ if data.values.AZURE_ENABLE_NODE_DATA_DISK == True:
+#!      #@overlay/match missing_ok=True
+#!      dataDisks:
+#!      - diskSizeGB: #@ data.values.AZURE_NODE_DATA_DISK_SIZE_GIB
+#!        lun: 0
+#!        nameSuffix: nodedisk
+#!      #@ end
+#!      #@overlay/match missing_ok=True
+#!      image: #@ get_azure_image(bomDataForK8sVersion)
+#!      sshPublicKey: #@ data.values.AZURE_SSH_PUBLIC_KEY_B64
+#!      vmSize: #@ data.values.AZURE_NODE_MACHINE_TYPE
+#!      osDisk:
+#!        diskSizeGB: #@ data.values.AZURE_NODE_OS_DISK_SIZE_GIB
+#!        managedDisk:
+#!          storageAccountType: #@ data.values.AZURE_NODE_OS_DISK_STORAGE_ACCOUNT_TYPE
+#!        osType: Linux
+#!---
+#!apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
+#!kind: KubeadmConfigTemplate
+#!metadata:
+#!  name: #@ "{}-md-1".format(data.values.CLUSTER_NAME)
+#!spec:
+#!  template:
+#!    spec:
+#!      #@ if data.values.AZURE_ENABLE_NODE_DATA_DISK == True:
+#!      #@overlay/match missing_ok=True
+#!      diskSetup:
+#!        filesystems:
+#!        - device: /dev/disk/azure/scsi1/lun0
+#!          extraOpts:
+#!          - -E
+#!          - lazy_itable_init=1,lazy_journal_init=1
+#!          filesystem: ext4
+#!          label: node_disk
+#!        partitions:
+#!        - device: /dev/disk/azure/scsi1/lun0
+#!          layout: true
+#!          overwrite: false
+#!          tableType: gpt
+#!      #@overlay/match missing_ok=True
+#!      mounts:
+#!      - - LABEL=node_disk
+#!        - /var/lib/nodedisk
+#!      #@ end
+#!      files:
+#!      #@overlay/match by=overlay.index(0)
+#!      #@overlay/replace
+#!      - contentFrom:
+#!          secret:
+#!            key: worker-node-azure.json
+#!            name: #@ "{}-md-1-azure-json".format(data.values.CLUSTER_NAME)
+#!        owner: root:root
+#!        path: /etc/kubernetes/azure.json
+#!        permissions: "0644"
+#!      joinConfiguration:
+#!        nodeRegistration:
+#!          kubeletExtraArgs:
+#!            cloud-config: /etc/kubernetes/azure.json
+#!            cloud-provider: azure
+#!          name: '{{ ds.meta_data["local_hostname"] }}'
+#!      useExperimentalRetryJoin: true
+#!---
+#!apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
+#!kind: KubeadmConfigTemplate
+#!metadata:
+#!  name: #@ "{}-md-2".format(data.values.CLUSTER_NAME)
+#!spec:
+#!  template:
+#!    spec:
+#!      #@ if data.values.AZURE_ENABLE_NODE_DATA_DISK == True:
+#!      #@overlay/match missing_ok=True
+#!      diskSetup:
+#!        filesystems:
+#!        - device: /dev/disk/azure/scsi1/lun0
+#!          extraOpts:
+#!          - -E
+#!          - lazy_itable_init=1,lazy_journal_init=1
+#!          filesystem: ext4
+#!          label: node_disk
+#!        partitions:
+#!        - device: /dev/disk/azure/scsi1/lun0
+#!          layout: true
+#!          overwrite: false
+#!          tableType: gpt
+#!      #@overlay/match missing_ok=True
+#!      mounts:
+#!      - - LABEL=node_disk
+#!        - /var/lib/nodedisk
+#!      #@ end
+#!      files:
+#!      #@overlay/match by=overlay.index(0)
+#!      #@overlay/replace
+#!      - contentFrom:
+#!          secret:
+#!            key: worker-node-azure.json
+#!            name: #@ "{}-md-2-azure-json".format(data.values.CLUSTER_NAME)
+#!        owner: root:root
+#!        path: /etc/kubernetes/azure.json
+#!        permissions: "0644"
+#!      joinConfiguration:
+#!        nodeRegistration:
+#!          kubeletExtraArgs:
+#!            cloud-config: /etc/kubernetes/azure.json
+#!            cloud-provider: azure
+#!          name: '{{ ds.meta_data["local_hostname"] }}'
+#!      useExperimentalRetryJoin: true
+#!#@ end
+
+#@overlay/match by=overlay.subset({"kind":"KubeadmConfigTemplate"}),expects="1+"
+---
+spec:
+  #@overlay/match missing_ok=True
+  template:
+    #@overlay/match missing_ok=True
+    spec:
+      #@overlay/match missing_ok=True
+      preKubeadmCommands:
+      #@overlay/append
+      - "if [ -f /etc/kubernetes/azure.json ]; then sed -i 's/\"vmType\": \"vmss\"/\"vmType\": \"standard\"/' /etc/kubernetes/azure.json; fi"
+
+#@overlay/match by=overlay.subset({"kind":"KubeadmControlPlaneTemplate"})
+---
+spec:
+  template:
+    spec:
+      #@overlay/match missing_ok=True
+      kubeadmConfigSpec:
+        #@overlay/match missing_ok=True
+        preKubeadmCommands:
+        #@overlay/append
+        - "if [ -f /etc/kubernetes/azure.json ]; then sed -i 's/\"vmType\": \"vmss\"/\"vmType\": \"standard\"/' /etc/kubernetes/azure.json; fi"

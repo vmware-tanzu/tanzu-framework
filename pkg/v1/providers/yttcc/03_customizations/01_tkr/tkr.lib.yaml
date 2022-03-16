@@ -1,0 +1,363 @@
+#@ def tkryaml():
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  labels:
+    control-plane: controller-manager
+  name: tkr-system
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: tkr-controller-config
+  namespace: tkr-system
+data:
+  caCerts: ""
+  imageRepository: ""
+---
+
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.7.0
+  creationTimestamp: null
+  name: tanzukubernetesreleases.run.tanzu.vmware.com
+spec:
+  group: run.tanzu.vmware.com
+  names:
+    kind: TanzuKubernetesRelease
+    listKind: TanzuKubernetesReleaseList
+    plural: tanzukubernetesreleases
+    shortNames:
+    - tkr
+    singular: tanzukubernetesrelease
+  scope: Cluster
+  versions:
+  - additionalPrinterColumns:
+    - jsonPath: .spec.version
+      name: Version
+      type: string
+    - jsonPath: .status.conditions[?(@.type=='Compatible')].status
+      name: Compatible
+      type: string
+    - jsonPath: .metadata.creationTimestamp
+      name: Created
+      type: date
+    name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        description: TanzuKubernetesRelease is the schema for the tanzukubernetesreleases
+          API. TanzuKubernetesRelease objects represent Kubernetes releases available
+          via TKG, which can be used to create TanzuKubernetesCluster instances. TKRs
+          are immutable to end-users. They are created and managed by TKG to provide
+          discovery of Kubernetes releases to TKG users.
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation
+              of an object. Servers should convert recognized schemas to the latest
+              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this
+              object represents. Servers may infer this from the endpoint the client
+              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: TanzuKubernetesReleaseSpec defines the desired state of TanzuKubernetesRelease
+            properties:
+              images:
+                description: Images is the list of (other than Kubernetes core) essential
+                  container images shipped by this TKR (e.g. coredns, etcd).
+                items:
+                  description: ContainerImage is a struct representing a single fully
+                    qualified container image name, constructed as `{Repository}/{Name}:{Tag}`.
+                  properties:
+                    name:
+                      description: Name is the container image name without the repository
+                        prefix. It MUST be a valid URI path, MAY contain zero or more
+                        '/', and SHOULD NOT start or end with '/'.
+                      type: string
+                    repository:
+                      description: Repository is the container image repository used
+                        by this image. It MUST be a DNS-compatible name.
+                      type: string
+                    tag:
+                      description: Tag is the container image version tag. It is the
+                        suffix coming after ':' in a fully qualified image name.
+                      type: string
+                  required:
+                  - name
+                  type: object
+                type: array
+              kubernetesVersion:
+                description: KubernetesVersion is the fully qualified Semantic Versioning
+                  conformant version of Kubernetes shipped by this TKR. The same KubernetesVersion
+                  MAY be shipped by different TKRs.
+                type: string
+              nodeImageRef:
+                description: NodeImageRef refers to an object representing the image
+                  used to create TKC nodes (e.g. VirtualMachineImage).
+                properties:
+                  apiVersion:
+                    description: API version of the referent.
+                    type: string
+                  fieldPath:
+                    description: 'If referring to a piece of an object instead of
+                      an entire object, this string should contain a valid JSON/Go
+                      field access statement, such as desiredState.manifest.containers[2].
+                      For example, if the object reference is to a container within
+                      a pod, this would take on a value like: "spec.containers{name}"
+                      (where "name" refers to the name of the container that triggered
+                      the event) or if no container name is specified "spec.containers[2]"
+                      (container with index 2 in this pod). This syntax is chosen
+                      only to have some well-defined way of referencing a part of
+                      an object. TODO: this design is not final and this field is
+                      subject to change in the future.'
+                    type: string
+                  kind:
+                    description: 'Kind of the referent. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+                    type: string
+                  name:
+                    description: 'Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names'
+                    type: string
+                  namespace:
+                    description: 'Namespace of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/'
+                    type: string
+                  resourceVersion:
+                    description: 'Specific resourceVersion to which this reference
+                      is made, if any. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#concurrency-control-and-consistency'
+                    type: string
+                  uid:
+                    description: 'UID of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#uids'
+                    type: string
+                type: object
+              repository:
+                description: Repository is the container image repository for Kubernetes
+                  core images, such as kube-apiserver, kube-proxy, etc. It MUST be
+                  a DNS-compatible name.
+                type: string
+              version:
+                description: Version is the fully qualified Semantic Versioning conformant
+                  version of the TanzuKubernetesRelease. Version MUST be unique across
+                  all TanzuKubernetesRelease objects.
+                type: string
+            required:
+            - version
+            type: object
+          status:
+            description: TanzuKubernetesReleaseStatus defines the observed state of
+              TanzuKubernetesRelease
+            properties:
+              conditions:
+                items:
+                  description: Condition defines an observation of a Cluster API resource
+                    operational state.
+                  properties:
+                    lastTransitionTime:
+                      description: Last time the condition transitioned from one status
+                        to another. This should be when the underlying condition changed.
+                        If that is not known, then using the time when the API field
+                        changed is acceptable.
+                      format: date-time
+                      type: string
+                    message:
+                      description: A human readable message indicating details about
+                        the transition. This field may be empty.
+                      type: string
+                    reason:
+                      description: The reason for the condition's last transition
+                        in CamelCase. The specific API may choose whether or not this
+                        field is considered a guaranteed API. This field may not be
+                        empty.
+                      type: string
+                    severity:
+                      description: Severity provides an explicit classification of
+                        Reason code, so the users or machines can immediately understand
+                        the current situation and act accordingly. The Severity field
+                        MUST be set only when Status=False.
+                      type: string
+                    status:
+                      description: Status of the condition, one of True, False, Unknown.
+                      type: string
+                    type:
+                      description: Type of condition in CamelCase or in foo.example.com/CamelCase.
+                        Many .condition.type values are consistent across resources
+                        like Available, but because arbitrary conditions can be useful
+                        (see .node.status.conditions), the ability to deconflict is
+                        important.
+                      type: string
+                  required:
+                  - lastTransitionTime
+                  - status
+                  - type
+                  type: object
+                type: array
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
+status:
+  acceptedNames:
+    kind: ""
+    plural: ""
+  conditions: []
+  storedVersions: []
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: tkr-leader-election-role
+  namespace: tkr-system
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - configmaps
+  verbs:
+  - get
+  - list
+  - watch
+  - create
+  - update
+  - patch
+  - delete
+- apiGroups:
+  - ""
+  resources:
+  - configmaps/status
+  verbs:
+  - get
+  - update
+  - patch
+- apiGroups:
+  - ""
+  resources:
+  - events
+  verbs:
+  - create
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  creationTimestamp: null
+  name: tkr-manager-role
+rules:
+- apiGroups:
+  - run.tanzu.vmware.com
+  resources:
+  - tanzukubernetesreleases
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - run.tanzu.vmware.com
+  resources:
+  - tanzukubernetesreleases/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - cluster.x-k8s.io
+  resources:
+  - clusters
+  - clusters/status
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - ""
+  resources:
+  - configmaps
+  verbs:
+  - get
+  - list
+  - watch
+  - create
+  - update
+  - patch
+  - delete
+- apiGroups:
+  - coordination.k8s.io
+  resources:
+  - leases
+  verbs:
+  - create
+  - get
+  - update
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: tkr-leader-election-rolebinding
+  namespace: tkr-system
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: tkr-leader-election-role
+subjects:
+- kind: ServiceAccount
+  name: default
+  namespace: tkr-system
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: tkr-manager-rolebinding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: tkr-manager-role
+subjects:
+- kind: ServiceAccount
+  name: default
+  namespace: tkr-system
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    control-plane: controller-manager
+  name: tkr-controller-manager
+  namespace: tkr-system
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      control-plane: controller-manager
+  template:
+    metadata:
+      labels:
+        control-plane: controller-manager
+    spec:
+      containers:
+      - args:
+        - --enable-leader-election
+        command:
+        - /manager
+#!       The prod registry does not use a latest tag, but the image tag will be overlayed based on the BoM file being used
+        image: projects.registry.vmware.com/tkg/tanzu_core/tkr/tkr-controller-manager:latest
+        imagePullPolicy: Always
+        name: manager
+        resources:
+          limits:
+            cpu: 100m
+            memory: 100Mi
+          requests:
+            cpu: 100m
+            memory: 20Mi
+      terminationGracePeriodSeconds: 10
+#@ end

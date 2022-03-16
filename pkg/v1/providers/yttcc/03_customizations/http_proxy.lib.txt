@@ -1,0 +1,6 @@
+(@- def http_proxy_unit_file(http_proxy, https_proxy, no_proxy): -@)
+[Service]
+Environment="HTTP_PROXY=(@=http_proxy @)"
+Environment="HTTPS_PROXY=(@=https_proxy @)"
+Environment="NO_PROXY=(@=no_proxy @)"
+(@ end -@)

@@ -44,7 +44,6 @@ stringData:
 #@ end
 #@ end
 
-
 #@ if data.values.PROVIDER_TYPE != "tkg-service-vsphere" and data.values.TKG_CLUSTER_ROLE == "workload":
 
 ---

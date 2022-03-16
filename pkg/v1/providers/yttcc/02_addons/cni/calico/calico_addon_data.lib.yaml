@@ -1,0 +1,33 @@
+#@ load("@ytt:data", "data")
+#@ load("@ytt:yaml", "yaml")
+#@ load("/lib/helpers.star", "get_bom_data_for_tkr_name", "tkg_image_repo", "get_image_repo_for_component")
+
+#@ if data.values.PROVIDER_TYPE != "tkg-service-vsphere":
+#@   calicoImages = get_bom_data_for_tkr_name().components["calico_all"][0].images
+#@ end
+
+#@ def calicodatavalues():
+infraProvider: #@ data.values.PROVIDER_TYPE
+ipFamily: #@ data.values.TKG_IP_FAMILY
+calico:
+  config:
+    clusterCIDR: #@ data.values.CLUSTER_CIDR
+#@ if data.values.TKG_CLUSTER_ROLE == "workload": #! For backwards compatibility. i.e. C.1 mgmt cluster creates a C.0 wlc with older addon templates.
+  image:
+    repository: #@ get_image_repo_for_component(calicoImages.calicoCniImage)
+    pullPolicy: IfNotPresent
+  cniImage:
+    path: #@ calicoImages.calicoCniImage.imagePath
+    tag: #@ calicoImages.calicoCniImage.tag
+  nodeImage:
+    path: #@ calicoImages.calicoNodeImage.imagePath
+    tag: #@ calicoImages.calicoNodeImage.tag
+  podDaemonImage:
+    path: #@ calicoImages.calicoPodDaemonImage.imagePath
+    tag: #@ calicoImages.calicoPodDaemonImage.tag
+  kubeControllerImage:
+    path: #@ calicoImages.calicoKubecontrollerImage.imagePath
+    tag: #@ calicoImages.calicoKubecontrollerImage.tag
+#@ end
+
+#@ end
