@@ -19,6 +19,7 @@ import (
 
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/clusterclient"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/log"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/utils"
 )
 
 const (
@@ -278,6 +279,16 @@ func getClusterRoles(clusterLabels map[string]string) []string {
 	}
 
 	return clusterRoles
+}
+
+func getClusterWindowsWorkerCount(clusterInfo *clusterObjects) int {
+	var replicas int
+	for i := range clusterInfo.machines {
+		if clusterInfo.machines[i].Status.NodeInfo != nil && utils.IsWindowsTemplate(clusterInfo.machines[i].Status.NodeInfo.OperatingSystem) {
+			replicas++
+		}
+	}
+	return replicas
 }
 
 // ################### Helpers for determining Cluster Status ##################

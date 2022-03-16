@@ -276,3 +276,60 @@ var _ = Describe("getValidTKRVersionForUpgradeGivenFullTKRName", func() {
 	})
 
 })
+
+var _ = Describe("validateVSphereWindowsTemplateName", func() {
+	var (
+		windowsWorkerCount         int
+		vSphereWindowsTemplateName string
+		err                        error
+	)
+	JustBeforeEach(func() {
+		err = validateWindowsClusterUpgrade(windowsWorkerCount, vSphereWindowsTemplateName)
+	})
+	Context("When templateName meets restrictions", func() {
+		BeforeEach(func() {
+			windowsWorkerCount = 1
+			vSphereWindowsTemplateName = "test-WindOws-ova"
+		})
+		It("should return true", func() {
+			Expect(err).ToNot(HaveOccurred())
+		})
+	})
+	Context("When templateName doesn't meet restrictions", func() {
+		BeforeEach(func() {
+			windowsWorkerCount = 1
+			vSphereWindowsTemplateName = "test-win-dows-ova"
+		})
+		It("should return false", func() {
+			Expect(err).To(HaveOccurred())
+			Expect(err.Error()).To(ContainSubstring("MUST contain the string \"windows\""))
+		})
+	})
+	Context("When templateName is not set", func() {
+		BeforeEach(func() {
+			windowsWorkerCount = 2
+			vSphereWindowsTemplateName = ""
+		})
+		It("should return false", func() {
+			Expect(err).To(HaveOccurred())
+			Expect(err.Error()).To(ContainSubstring("MUST be set"))
+		})
+	})
+	Context("When no windows node", func() {
+		BeforeEach(func() {
+			windowsWorkerCount = 0
+			vSphereWindowsTemplateName = "test-ova"
+		})
+		It("should return true", func() {
+			Expect(err).ToNot(HaveOccurred())
+		})
+	})
+	Context("When no windows node", func() {
+		BeforeEach(func() {
+			windowsWorkerCount = 0
+		})
+		It("should return true", func() {
+			Expect(err).ToNot(HaveOccurred())
+		})
+	})
+})
