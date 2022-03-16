@@ -1,0 +1,1181 @@
+apiVersion: cluster.x-k8s.io/v1beta1
+kind: ClusterClass
+metadata:
+  name: tkg-azure-default
+  namespace: default
+spec:
+  controlPlane:
+    ref:
+      apiVersion: controlplane.cluster.x-k8s.io/v1beta1
+      kind: KubeadmControlPlaneTemplate
+      name: tkg-kcp
+    machineInfrastructure:
+      ref:
+        apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+        kind: AzureMachineTemplate
+        name: tkg-controlplane-azure-template
+  workers:
+    machineDeployments:
+    - class: tkg-worker
+      template:
+         bootstrap:
+           ref:
+             apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
+             kind: KubeadmConfigTemplate
+             name: tkg-bootstrap-template
+         infrastructure:
+           ref:
+             apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+             kind: AzureMachineTemplate
+             name: tkg-azure-template
+  infrastructure:
+     ref:
+        apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+        kind: AzureClusterTemplate
+        name: azure-cluster-template
+  variables:
+  - name: AZURE_LOCATION
+    required: true
+    schema:
+      openAPIV3Schema:
+        type: string
+        default: ""
+  - name: AZURE_VNET_NAME
+    required: true
+    schema:
+      openAPIV3Schema:
+        type: string
+        default: ""
+  - name: AZURE_VNET_CIDR
+    required: true
+    schema:
+      openAPIV3Schema:
+        type: string
+        default: ""
+  - name: AZURE_CONTROL_PLANE_SUBNET_NAME
+    schema:
+      openAPIV3Schema:
+        type: string
+        default: ""
+  - name: AZURE_CONTROL_PLANE_SUBNET_SECURITY_GROUP
+    schema:
+      openAPIV3Schema:
+        type: string
+        default: ""
+  - name: AZURE_CONTROL_PLANE_SUBNET_CIDR
+    schema:
+      openAPIV3Schema:
+        type: string
+        default: 10.0.0.0/24
+  - name: AZURE_NODE_SUBNET_NAME
+    schema:
+      openAPIV3Schema:
+        type: string
+        default: ""
+  - name: AZURE_NODE_SUBNET_SECURITY_GROUP
+    schema:
+      openAPIV3Schema:
+        type: string
+        default: ""
+  - name: AZURE_NODE_SUBNET_CIDR
+    required: true
+    schema:
+      openAPIV3Schema:
+        type: string
+        default: 10.0.1.0/24
+  - name: AZURE_RESOURCE_GROUP
+    schema:
+      openAPIV3Schema:
+        type: string
+        default: ""
+  - name: AZURE_VNET_RESOURCE_GROUP
+    schema:
+      openAPIV3Schema:
+        type: string
+        default: ""
+  - name: AZURE_SUBSCRIPTION_ID
+    required: true
+    schema:
+      openAPIV3Schema:
+        type: string
+        default: ""
+  - name: CLUSTER_NAME
+    required: true
+    schema:
+      openAPIV3Schema:
+        type: string
+  - name: AZURE_IDENTITY_NAME
+    schema:
+      openAPIV3Schema:
+        type: string
+        default: ""
+  - name: AZURE_IDENTITY_NAMESPACE
+    schema:
+      openAPIV3Schema:
+        type: string
+        default: ""
+  - name: TKG_CLUSTER_ROLE
+    required: true
+    schema:
+      openAPIV3Schema:
+        type: string
+        default: ""
+  - name: AZURE_ENVIRONMENT
+    schema:
+      openAPIV3Schema:
+        type: string
+        default: AzurePublicCloud
+  - name: AZURE_SSH_PUBLIC_KEY_B64
+    required: true
+    schema:
+      openAPIV3Schema:
+        type: string
+        default: ""
+  - name: AZURE_CONTROL_PLANE_MACHINE_TYPE
+    schema:
+      openAPIV3Schema:
+        type: string
+        default: Standard_D2s_v3
+  - name: AZURE_NODE_MACHINE_TYPE
+    schema:
+      openAPIV3Schema:
+        type: string
+        default: Standard_D2s_v3
+  - name: AZURE_ENABLE_ACCELERATED_NETWORKING
+    schema:
+      openAPIV3Schema:
+        type: boolean
+        default: true
+  - name: AZURE_ENABLE_NODE_DATA_DISK
+    schema:
+      openAPIV3Schema:
+        type: boolean
+        default: false
+  - name: AZURE_CONTROL_PLANE_OS_DISK_STORAGE_ACCOUNT_TYPE
+    schema:
+      openAPIV3Schema:
+        type: string
+        default: Premium_LRS
+  - name: AZURE_NODE_OS_DISK_STORAGE_ACCOUNT_TYPE
+    schema:
+      openAPIV3Schema:
+        type: string
+        default: Premium_LRS
+  - name: AZURE_CONTROL_PLANE_OS_DISK_SIZE_GIB
+    schema:
+      openAPIV3Schema:
+        type: integer
+        default: 128
+  - name: AZURE_CONTROL_PLANE_DATA_DISK_SIZE_GIB
+    schema:
+      openAPIV3Schema:
+        type: integer
+        default: 256
+  - name: AZURE_NODE_OS_DISK_SIZE_GIB
+    schema:
+      openAPIV3Schema:
+        type: integer
+        default: 128
+  - name: AZURE_NODE_DATA_DISK_SIZE_GIB
+    schema:
+      openAPIV3Schema:
+        type: integer
+        default: 256
+  - name: AZURE_ENABLE_PRIVATE_CLUSTER
+    schema:
+      openAPIV3Schema:
+        type: boolean
+        default: false
+  - name: AZURE_ENABLE_CONTROL_PLANE_OUTBOUND_LB
+    schema:
+      openAPIV3Schema:
+        type: boolean
+        default: false
+  - name: AZURE_ENABLE_NODE_OUTBOUND_LB
+    schema:
+      openAPIV3Schema:
+        type: boolean
+        default: false
+  - name: AZURE_FRONTEND_PRIVATE_IP
+    schema:
+      openAPIV3Schema:
+        type: string
+        default: 10.0.0.100
+  - name: AZURE_CONTROL_PLANE_OUTBOUND_LB_FRONTEND_IP_COUNT
+    schema:
+      openAPIV3Schema:
+        type: integer
+        default: 1
+  - name: AZURE_NODE_OUTBOUND_LB_FRONTEND_IP_COUNT
+    schema:
+      openAPIV3Schema:
+        type: integer
+        default: 1
+  - name: AZURE_NODE_OUTBOUND_LB_IDLE_TIMEOUT_IN_MINUTES
+    schema:
+      openAPIV3Schema:
+        type: integer
+        default: 4
+  - name: proxy
+    schema:
+      openAPIV3Schema:
+        type: object
+        properties:
+          httpProxy:
+            type: string
+            default: ""
+          httpsProxy:
+            type: string
+            default: ""
+          noProxy:
+            type: array
+            items:
+              type: string
+        required:
+          - httpProxy
+          - httpsProxy
+          - noProxy
+  - name: TKG_PROXY_CA_CERT
+    schema:
+      openAPIV3Schema:
+        type: string
+        default: ""
+  - name: TKG_CUSTOM_IMAGE_REPOSITORY
+    schema:
+      openAPIV3Schema:
+        type: string
+        default: ""
+  - name: TKG_CUSTOM_IMAGE_REPOSITORY_CA_CERTIFICATE
+    schema:
+      openAPIV3Schema:
+        type: string
+        default: ""
+  - name: TKG_CUSTOM_IMAGE_REPOSITORY_SKIP_TLS_VERIFY
+    schema:
+      openAPIV3Schema:
+        type: boolean
+        default: false
+  - name: ENABLE_AUDIT_LOGGING
+    schema:
+      openAPIV3Schema:
+        type: boolean
+        default: false
+  - name: AZURE_CUSTOM_TAGS
+    schema:
+      openAPIV3Schema:
+        type: string
+        default: ""
+  - name: TKR_KUBERNETES_SPEC
+    schema:
+      openAPIV3Schema:
+        type: object
+  patches:
+  - name: AzureClusterCustomTags
+    enabledIf: '{{if .AZURE_CUSTOM_TAGS}}true{{end}}'
+    definitions:
+    - selector:
+        apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+        kind: AzureClusterTemplate
+        matchResources:
+          infrastructureCluster: true
+      jsonPatches:
+      - op: add
+        path: "/spec/template/spec/additionalTags"
+        valueFrom:
+          template: |
+            {{$azureTags := split "," .AZURE_CUSTOM_TAGS}}{{range $azureTag := $azureTags}}{{$azureTag = trim $azureTag}}{{$azureTagSplit := split "=" $azureTag}}{{$azureTagSplit._0}}: {{$azureTagSplit._1}}
+            {{end}}
+  - name: AzureClusterIdentityRef
+    enabledIf: '{{if or (and .AZURE_IDENTITY_NAME .AZURE_IDENTITY_NAMESPACE) (eq .TKG_CLUSTER_ROLE "management")}}true{{end}}'
+    definitions:
+    - selector:
+        apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+        kind: AzureClusterTemplate
+        matchResources:
+          infrastructureCluster: true
+      jsonPatches:
+      - op: add
+        path: "/spec/template/spec/identityRef"
+        valueFrom:
+          template: |
+            apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+            kind: AzureClusterIdentity
+            name: {{.builtin.cluster.name}}-identity
+            namespace: tkg-system
+  - name: AzureClusterIdentityName
+    enabledIf: '{{if and .AZURE_IDENTITY_NAME .AZURE_IDENTITY_NAMESPACE}}true{{end}}'
+    definitions:
+    - selector:
+        apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+        kind: AzureClusterTemplate
+        matchResources:
+          infrastructureCluster: true
+      jsonPatches:
+      - op: replace
+        path: "/spec/template/spec/identityRef/name"
+        valueFrom:
+          variable: AZURE_IDENTITY_NAME
+      - op: replace
+        path: "/spec/template/spec/identityRef/namespace"
+        valueFrom:
+          variable: AZURE_IDENTITY_NAMESPACE
+  - name: ACT_main
+    definitions:
+    - selector:
+        apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+        kind: AzureClusterTemplate
+        matchResources:
+          infrastructureCluster: true
+      jsonPatches:
+      - op: replace
+        path: "/spec/template/spec/azureEnvironment"
+        valueFrom:
+          variable: AZURE_ENVIRONMENT
+      - op: replace
+        path: "/spec/template/spec/location"
+        valueFrom:
+          variable: AZURE_LOCATION
+      - op: replace
+        path: "/spec/template/spec/networkSpec/vnet"
+        valueFrom:
+          template: |
+            name: {{if .AZURE_VNET_NAME}}{{.AZURE_VNET_NAME}}{{else}}{{.builtin.cluster.name}}-vnet{{end}}
+            resourceGroup: {{if .AZURE_VNET_RESOURCE_GROUP}}{{.AZURE_VNET_RESOURCE_GROUP}}{{else if .AZURE_RESOURCE_GROUP}}{{.AZURE_RESOURCE_GROUP}}{{else}}{{.builtin.cluster.name}}{{end}}
+            cidrBlocks: [{{.AZURE_VNET_CIDR}}]
+      - op: replace
+        path: "/spec/template/spec/resourceGroup"
+        valueFrom:
+          template: |
+            {{if .AZURE_RESOURCE_GROUP}}{{.AZURE_RESOURCE_GROUP}}{{else}}{{.builtin.cluster.name}}{{end}}
+      - op: replace
+        path: "/spec/template/spec/subscriptionID"
+        valueFrom:
+          variable: AZURE_SUBSCRIPTION_ID
+      - op: replace
+        path: "/spec/template/spec/networkSpec/subnets"
+        valueFrom:
+          template: |
+            - name: '{{ .AZURE_CONTROL_PLANE_SUBNET_NAME }}'
+              role: control-plane
+              cidrBlocks: [{{ .AZURE_CONTROL_PLANE_SUBNET_CIDR }}]
+              {{if .AZURE_CONTROL_PLANE_SUBNET_SECURITY_GROUP}}securityGroup: {{.AZURE_CONTROL_PLANE_SUBNET_SECURITY_GROUP}}{{end}}
+            - name: '{{ .AZURE_NODE_SUBNET_NAME }}'
+              role: node
+              cidrBlocks: [{{ .AZURE_NODE_SUBNET_CIDR }}]
+              {{if .AZURE_NODE_SUBNET_SECURITY_GROUP}}securityGroup: {{.AZURE_NODE_SUBNET_SECURITY_GROUP}}{{end}}
+  - name: AMT_ControlPlane_Main
+    definitions:
+    - selector:
+        apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+        kind: AzureMachineTemplate
+        matchResources:
+          controlPlane: true
+      jsonPatches:
+      - op: replace
+        path: "/spec/template/spec/sshPublicKey"
+        valueFrom:
+          variable: AZURE_SSH_PUBLIC_KEY_B64
+      - op: replace
+        path: "/spec/template/spec/vmSize"
+        valueFrom:
+          variable: AZURE_CONTROL_PLANE_MACHINE_TYPE
+      - op: add
+        path: "/spec/template/spec/acceleratedNetworking"
+        valueFrom:
+          variable: AZURE_ENABLE_ACCELERATED_NETWORKING
+      - op: replace
+        path: "/spec/template/spec/dataDisks"
+        valueFrom:
+          template: |
+            - diskSizeGB: {{ .AZURE_CONTROL_PLANE_DATA_DISK_SIZE_GIB }}
+              lun: 0
+              nameSuffix: etcddisk
+      - op: replace
+        path: "/spec/template/spec/osDisk"
+        valueFrom:
+          template: |
+            osType: Linux
+            diskSizeGB: {{.AZURE_CONTROL_PLANE_OS_DISK_SIZE_GIB}}
+            managedDisk:
+              storageAccountType: {{.AZURE_CONTROL_PLANE_OS_DISK_STORAGE_ACCOUNT_TYPE}}
+  - name: AMT_MachineDeployment_Main
+    definitions:
+    - selector:
+        apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+        kind: AzureMachineTemplate
+        matchResources:
+          machineDeploymentClass:
+            names:
+            - tkg-worker
+      jsonPatches:
+      - op: replace
+        path: "/spec/template/spec/sshPublicKey"
+        valueFrom:
+          variable: AZURE_SSH_PUBLIC_KEY_B64
+      - op: replace
+        path: "/spec/template/spec/vmSize"
+        valueFrom:
+          variable: AZURE_NODE_MACHINE_TYPE
+      - op: add
+        path: "/spec/template/spec/acceleratedNetworking"
+        valueFrom:
+          variable: AZURE_ENABLE_ACCELERATED_NETWORKING
+      - op: replace
+        path: "/spec/template/spec/osDisk"
+        valueFrom:
+          template: |
+            osType: Linux
+            diskSizeGB: {{ .AZURE_NODE_OS_DISK_SIZE_GIB }}
+            managedDisk:
+              storageAccountType: {{ .AZURE_NODE_OS_DISK_STORAGE_ACCOUNT_TYPE }}
+  - name: AMT_EnableNodeDataDisk
+    enabledIf: '{{if .AZURE_ENABLE_NODE_DATA_DISK}}true{{end}}'
+    definitions:
+    - selector:
+        apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+        kind: AzureMachineTemplate
+        matchResources:
+          machineDeploymentClass:
+            names:
+            - tkg-worker
+      jsonPatches:
+      - op: add
+        path: "/spec/template/spec/dataDisks"
+        valueFrom:
+          template: |
+            - diskSizeGB: {{ .AZURE_NODE_DATA_DISK_SIZE_GIB }}
+              lun: 0
+              nameSuffix: nodedisk
+  - name: KCT_EnableNodeDataDisk
+    enabledIf: '{{if .AZURE_ENABLE_NODE_DATA_DISK}}true{{end}}'
+    definitions:
+    - selector:
+        apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
+        kind: KubeadmConfigTemplate
+        matchResources:
+          machineDeploymentClass:
+            names:
+              - tkg-worker
+      jsonPatches:
+      - op: add
+        path: "/spec/template/spec/diskSetup"
+        valueFrom:
+          template: |
+            filesystems:
+            - device: /dev/disk/azure/scsi1/lun0
+              extraOpts:
+              - -E
+              - lazy_itable_init=1,lazy_journal_init=1
+              filesystem: ext4
+              label: node_disk
+            partitions:
+            - device: /dev/disk/azure/scsi1/lun0
+              layout: true
+              overwrite: false
+              tableType: gpt
+      - op: add
+        path: "/spec/template/spec/mounts"
+        valueFrom:
+          template: |
+            - - LABEL=node_disk
+              - /var/lib/nodedisk
+  - name: ACT_EnablePrivatCluster
+    enabledIf: '{{if .AZURE_ENABLE_PRIVATE_CLUSTER}}true{{end}}'
+    definitions:
+    - selector:
+        apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+        kind: AzureClusterTemplate
+        matchResources:
+          infrastructureCluster: true
+      jsonPatches:
+      - op: add
+        path: "/spec/template/spec/networkSpec/apiServerLB"
+        valueFrom:
+          template: |
+            type: Internal
+            frontendIPs:
+            - name: lb-{{.builtin.cluster.name}}-ip-frontend
+              privateIP: {{ .AZURE_FRONTEND_PRIVATE_IP }}
+  - name: KCP_EnablePrivatCluster
+    enabledIf: '{{if .AZURE_ENABLE_PRIVATE_CLUSTER}}true{{end}}'
+    definitions:
+    - selector:
+        apiVersion: controlplane.cluster.x-k8s.io/v1beta1
+        kind: KubeadmControlPlaneTemplate
+        matchResources:
+          controlPlane: true
+      jsonPatches:
+      - op: add
+        path: "/spec/template/spec/kubeadmConfigSpec/preKubeadmCommands"
+        valueFrom:
+          template: |
+            - "if [ -f /tmp/kubeadm.yaml ] || [ -f /run/kubeadm/kubeadm.yaml ]; then echo '127.0.0.1   apiserver.{{.builtin.cluster.name}}.capz.io apiserver' >> /etc/hosts; fi"
+      - op: add
+        path: "/spec/template/spec/kubeadmConfigSpec/postKubeadmCommands"
+        valueFrom:
+          template: |
+            - "if [ -f /tmp/kubeadm-join-config.yaml ] || [ -f /run/kubeadm/kubeadm-join-config.yaml ]; then echo '127.0.0.1   apiserver.{{.builtin.cluster.name}}.capz.io apiserver' >> /etc/hosts; fi"
+  - name: ACT_EnableControlPlaneOutboundLB
+    enabledIf: '{{if and .AZURE_ENABLE_PRIVATE_CLUSTER .AZURE_ENABLE_CONTROL_PLANE_OUTBOUND_LB}}true{{end}}'
+    definitions:
+    - selector:
+        apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+        kind: AzureClusterTemplate
+        matchResources:
+          infrastructureCluster: true
+      jsonPatches:
+      - op: add
+        path: "/spec/template/spec/networkSpec/controlPlaneOutboundLB"
+        valueFrom:
+          template: |
+            frontendIPsCount: {{ .AZURE_CONTROL_PLANE_OUTBOUND_LB_FRONTEND_IP_COUNT }}
+  - name: ACT_EnableNodeOutboundLB
+    enabledIf: '{{if and .AZURE_ENABLE_PRIVATE_CLUSTER .AZURE_ENABLE_NODE_OUTBOUND_LB}}true{{end}}'
+    definitions:
+    - selector:
+        apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+        kind: AzureClusterTemplate
+        matchResources:
+          infrastructureCluster: true
+      jsonPatches:
+      - op: add
+        path: "/spec/template/spec/networkSpec/nodeOutboundLB"
+        valueFrom:
+          template: |
+            frontendIPsCount: {{ .AZURE_NODE_OUTBOUND_LB_FRONTEND_IP_COUNT }}
+            idleTimeoutInMinutes: {{ .AZURE_NODE_OUTBOUND_LB_IDLE_TIMEOUT_IN_MINUTES }}
+  - name: httpProxy
+    enabledIf: '{{not (not .proxy)}}'
+    definitions:
+    - selector:
+        apiVersion: controlplane.cluster.x-k8s.io/v1beta1
+        kind: KubeadmControlPlaneTemplate
+        matchResources:
+          controlPlane: true
+      jsonPatches:
+      - op: add
+        path: /spec/template/spec/kubeadmConfigSpec/files/-
+        valueFrom:
+          template: |
+            content: |
+              [Service]
+              Environment="HTTP_PROXY={{.proxy.httpProxy}}"
+              Environment="HTTPS_PROXY={{.proxy.httpsProxy}}"
+              Environment="NO_PROXY={{- range .proxy.noProxy}}{{.}},{{- end}}{{.AZURE_VNET_CIDR}},169.254.0.0/16,168.63.129.16,{{.SERVICE_CIDR}},{{.CLUSTER_CIDR}},localhost,127.0.0.1,.scv,.svc.cluster.local"
+            owner: root:root
+            path: /etc/systemd/system/containerd.service.d/http-proxy.conf
+            permissions: "0640"
+      - op: add
+        path: /spec/template/spec/kubeadmConfigSpec/files/-
+        valueFrom:
+          template: |
+            content: |
+              [Service]
+              Environment="HTTP_PROXY={{.proxy.httpProxy}}"
+              Environment="HTTPS_PROXY={{.proxy.httpsProxy}}"
+              Environment="NO_PROXY={{- range .proxy.noProxy}}{{.}},{{- end}}{{.AZURE_VNET_CIDR}},169.254.0.0/16,168.63.129.16,{{.SERVICE_CIDR}},{{.CLUSTER_CIDR}},localhost,127.0.0.1,.scv,.svc.cluster.local"
+            owner: root:root
+            path: /usr/lib/systemd/system/kubelet.service.d/http-proxy.conf
+            permissions: "0640"
+      - op: add
+        path: /spec/template/spec/kubeadmConfigSpec/preKubeadmCommands/-
+        value: systemctl daemon-reload
+      - op: add
+        path: /spec/template/spec/kubeadmConfigSpec/preKubeadmCommands/-
+        value: systemctl stop containerd
+      - op: add
+        path: /spec/template/spec/kubeadmConfigSpec/preKubeadmCommands/-
+        value: systemctl start containerd
+      - op: add
+        path: /spec/template/spec/kubeadmConfigSpec/preKubeadmCommands/-
+        valueFrom:
+          template: |
+            export HTTP_PROXY={{.proxy.httpProxy}}
+      - op: add
+        path: /spec/template/spec/kubeadmConfigSpec/preKubeadmCommands/-
+        valueFrom:
+          template: |
+            export HTTPS_PROXY={{.proxy.httpsProxy}}
+      - op: add
+        path: /spec/template/spec/kubeadmConfigSpec/preKubeadmCommands/-
+        valueFrom:
+          template: |
+            export NO_PROXY={{- range .proxy.noProxy}}{{.}},{{- end}}{{.AZURE_VNET_CIDR}},169.254.0.0/16,168.63.129.16,{{.SERVICE_CIDR}},{{.CLUSTER_CIDR}},localhost,127.0.0.1,.scv,.svc.cluster.local
+    - selector:
+        apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
+        kind: KubeadmConfigTemplate
+        matchResources:
+          machineDeploymentClass:
+            names:
+            - tkg-worker
+      jsonPatches:
+      - op: add
+        path: /spec/template/spec/files/-
+        valueFrom:
+          template: |
+            content: |
+              [Service]
+              Environment="HTTP_PROXY={{.proxy.httpProxy}}"
+              Environment="HTTPS_PROXY={{.proxy.httpsProxy}}"
+              Environment="NO_PROXY={{- range .proxy.noProxy}}{{.}},{{- end}}{{.AZURE_VNET_CIDR}},169.254.0.0/16,168.63.129.16,{{.SERVICE_CIDR}},{{.CLUSTER_CIDR}},localhost,127.0.0.1,.scv,.svc.cluster.local"
+            owner: root:root
+            path: /etc/systemd/system/containerd.service.d/http-proxy.conf
+            permissions: "0640"
+      - op: add
+        path: /spec/template/spec/files/-
+        valueFrom:
+          template: |
+            content: |
+              [Service]
+              Environment="HTTP_PROXY={{.proxy.httpProxy}}"
+              Environment="HTTPS_PROXY={{.proxy.httpsProxy}}"
+              Environment="NO_PROXY={{- range .proxy.noProxy}}{{.}},{{- end}}{{.AZURE_VNET_CIDR}},169.254.0.0/16,168.63.129.16,{{.SERVICE_CIDR}},{{.CLUSTER_CIDR}},localhost,127.0.0.1,.scv,.svc.cluster.local"
+            owner: root:root
+            path: /usr/lib/systemd/system/kubelet.service.d/http-proxy.conf
+            permissions: "0640"
+      - op: add
+        path: /spec/template/spec/preKubeadmCommands/-
+        value: systemctl daemon-reload
+      - op: add
+        path: /spec/template/spec/preKubeadmCommands/-
+        value: systemctl restart containerd
+      - op: add
+        path: /spec/template/spec/preKubeadmCommands/-
+        valueFrom:
+          template: |
+            export HTTP_PROXY={{.proxy.httpProxy}}
+      - op: add
+        path: /spec/template/spec/preKubeadmCommands/-
+        valueFrom:
+          template: |
+            export HTTPS_PROXY={{.proxy.httpsProxy}}
+      - op: add
+        path: /spec/template/spec/preKubeadmCommands/-
+        valueFrom:
+          template: |
+            export NO_PROXY={{- range .proxy.noProxy}}{{.}},{{- end}}{{.AZURE_VNET_CIDR}},169.254.0.0/16,168.63.129.16,{{.SERVICE_CIDR}},{{.CLUSTER_CIDR}},localhost,127.0.0.1,.scv,.svc.cluster.local
+  - name: registryCACert
+    enabledIf: '{{and (ne "" (or .TKG_PROXY_CA_CERT .TKG_CUSTOM_IMAGE_REPOSITORY_CA_CERTIFICATE)) (not (and .TKG_CUSTOM_IMAGE_REPOSITORY_SKIP_TLS_VERIFY (ne "" .TKG_CUSTOM_IMAGE_REPOSITORY))) }}'
+    definitions:
+    - selector:
+        apiVersion: controlplane.cluster.x-k8s.io/v1beta1
+        kind: KubeadmControlPlaneTemplate
+        matchResources:
+          controlPlane: true
+      jsonPatches:
+      - op: add
+        path: /spec/template/spec/kubeadmConfigSpec/preKubeadmCommands/-
+        valueFrom:
+          template: |
+            echo '[plugins."io.containerd.grpc.v1.cri".registry.configs."{{(index (splitList "/" .TKG_CUSTOM_IMAGE_REPOSITORY) 0)}}".tls]' >> /etc/containerd/config.toml
+      - op: add
+        path: /spec/template/spec/kubeadmConfigSpec/preKubeadmCommands/-
+        valueFrom:
+          template: |
+            echo '  ca_file = \"/etc/containerd/{{(index (splitList "/" .TKG_CUSTOM_IMAGE_REPOSITORY) 0)}}.crt\"' >> /etc/containerd/config.toml
+      - op: add
+        path: /spec/template/spec/kubeadmConfigSpec/preKubeadmCommands/-
+        value: systemctl restart containerd
+      - op: add
+        path: /spec/template/spec/kubeadmConfigSpec/files/-
+        valueFrom:
+          template: |
+            path: /etc/containerd/{{(index (splitList "/" .TKG_CUSTOM_IMAGE_REPOSITORY) 0)}}.crt
+            content: {{or .TKG_PROXY_CA_CERT .TKG_CUSTOM_IMAGE_REPOSITORY_CA_CERTIFICATE}}
+            encoding: "base64"
+            permissions: "0444"
+    - selector:
+        apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
+        kind: KubeadmConfigTemplate
+        matchResources:
+          machineDeploymentClass:
+            names:
+            - tkg-worker
+      jsonPatches:
+      - op: add
+        path: /spec/template/spec/preKubeadmCommands/-
+        valueFrom:
+          template: |
+            echo '[plugins."io.containerd.grpc.v1.cri".registry.configs."{{(index (splitList "/" .TKG_CUSTOM_IMAGE_REPOSITORY) 0)}}".tls]' >> /etc/containerd/config.toml"
+      - op: add
+        path: /spec/template/spec/preKubeadmCommands/-
+        valueFrom:
+          template: |
+            "echo '  ca_file = \"/etc/containerd/{{(index (splitList "/" .TKG_CUSTOM_IMAGE_REPOSITORY) 0)}}.crt\"' >> /etc/containerd/config.toml"
+      - op: add
+        path: /spec/template/spec/preKubeadmCommands/-
+        value: systemctl restart containerd
+      - op: add
+        path: /spec/template/spec/files/-
+        valueFrom:
+          template: |
+            path: /etc/containerd/{{(index (splitList "/" .TKG_CUSTOM_IMAGE_REPOSITORY) 0)}}.crt
+            content: {{or .TKG_PROXY_CA_CERT .TKG_CUSTOM_IMAGE_REPOSITORY_CA_CERTIFICATE}}
+            encoding: "base64"
+            permissions: "0444"
+  - name: registrySkipTLSVerify
+    enabledIf: '{{and (ne "" .TKG_CUSTOM_IMAGE_REPOSITORY) .TKG_CUSTOM_IMAGE_REPOSITORY_SKIP_TLS_VERIFY}}'
+    definitions:
+    - selector:
+        apiVersion: controlplane.cluster.x-k8s.io/v1beta1
+        kind: KubeadmControlPlaneTemplate
+        matchResources:
+          controlPlane: true
+      jsonPatches:
+      - op: add
+        path: /spec/template/spec/kubeadmConfigSpec/preKubeadmCommands/-
+        valueFrom:
+          template: |
+            echo '[plugins."io.containerd.grpc.v1.cri".registry.configs."{{(index (splitList "/" .TKG_CUSTOM_IMAGE_REPOSITORY) 0)}}".tls]' >> /etc/containerd/config.toml
+      - op: add
+        path: /spec/template/spec/kubeadmConfigSpec/preKubeadmCommands/-
+        value: echo '  insecure_skip_verify = true' >> /etc/containerd/config.toml
+    - selector:
+        apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
+        kind: KubeadmConfigTemplate
+        matchResources:
+          machineDeploymentClass:
+            names:
+            - tkg-worker
+      jsonPatches:
+      - op: add
+        path: /spec/template/spec/preKubeadmCommands/-
+        valueFrom:
+          template: |
+            echo '[plugins."io.containerd.grpc.v1.cri".registry.configs."{{(index (splitList "/" .TKG_CUSTOM_IMAGE_REPOSITORY) 0)}}".tls]' >> /etc/containerd/config.toml
+      - op: add
+        path: /spec/template/spec/preKubeadmCommands/-
+        value: echo '  insecure_skip_verify = true' >> /etc/containerd/config.toml
+  - name: customRepository
+    enabledIf: '{{ne "" .TKG_CUSTOM_IMAGE_REPOSITORY}}'
+    definitions:
+    - selector:
+        apiVersion: controlplane.cluster.x-k8s.io/v1beta1
+        kind: KubeadmControlPlaneTemplate
+        matchResources:
+          controlPlane: true
+      jsonPatches:
+      - op: add
+        path: /spec/template/spec/kubeadmConfigSpec/preKubeadmCommands/-
+        valueFrom:
+          template: |
+            sed -i 's|\".*/pause|\{{.TKG_CUSTOM_IMAGE_REPOSITORY}}/pause|' /etc/containerd/config.toml
+      - op: add
+        path: /spec/template/spec/kubeadmConfigSpec/preKubeadmCommands/-
+        value: systemctl restart containerd
+    - selector:
+        apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
+        kind: KubeadmConfigTemplate
+        matchResources:
+          machineDeploymentClass:
+            names:
+            - tkg-worker
+      jsonPatches:
+      - op: add
+        path: /spec/template/spec/preKubeadmCommands/-
+        valueFrom:
+          template: |
+            sed -i 's|\".*/pause|\{{.TKG_CUSTOM_IMAGE_REPOSITORY}}/pause|' /etc/containerd/config.toml
+      - op: add
+        path: /spec/template/spec/preKubeadmCommands/-
+        value: systemctl restart containerd
+  - name: auditLogging
+    enabledIf: '{{.ENABLE_AUDIT_LOGGING}}'
+    definitions:
+    - selector:
+        apiVersion: controlplane.cluster.x-k8s.io/v1beta1
+        kind: KubeadmControlPlaneTemplate
+        matchResources:
+          controlPlane: true
+      jsonPatches:
+      - op: add
+        path: /spec/template/spec/kubeadmConfigSpec/clusterConfiguration/apiServer/extraArgs/-
+        value:
+          audit-log-path: /var/log/kubernetes/audit.log
+      - op: add
+        path: /spec/template/spec/kubeadmConfigSpec/clusterConfiguration/apiServer/extraArgs/-
+        value:
+          audit-policy-file: /etc/kubernetes/audit-policy.yaml
+      - op: add
+        path: /spec/template/spec/kubeadmConfigSpec/clusterConfiguration/apiServer/extraArgs/-
+        value:
+          audit-log-maxage: "30"
+      - op: add
+        path: /spec/template/spec/kubeadmConfigSpec/clusterConfiguration/apiServer/extraArgs/-
+        value:
+          audit-log-maxbackup: "10"
+      - op: add
+        path: /spec/template/spec/kubeadmConfigSpec/clusterConfiguration/apiServer/extraArgs/-
+        value:
+          audit-log-maxsize: "100"
+      - op: add
+        path: /spec/template/spec/kubeadmConfigSpec/clusterConfiguration/apiServer/extraVolumes/-
+        value:
+          name: audit-policy
+          hostPath: /etc/kubernetes/audit-policy.yaml
+          mountPath: /etc/kubernetes/audit-policy.yaml
+      - op: add
+        path: /spec/template/spec/kubeadmConfigSpec/clusterConfiguration/apiServer/extraVolumes/-
+        value:
+          name: audit-logs
+          hostPath: /var/log/kubernetes
+          mountPath: /var/log/kubernetes
+      - op: add
+        path: /spec/template/spec/kubeadmConfigSpec/files/-
+        value:
+          path: /etc/kubernetes/audit-policy.yaml
+          owner: "root:root"
+          permissions: "0600"
+          content: |
+            ---
+            apiVersion: audit.k8s.io/v1beta1
+            kind: Policy
+            rules:
+              #! The following requests were manually identified as high-volume and low-risk,
+              #! so drop them.
+              - level: None
+                users: ["system:serviceaccount:kube-system:kube-proxy"]
+                verbs: ["watch"]
+                resources:
+                  - group: "" #! core
+                    resources: ["endpoints", "services", "services/status"]
+              - level: None
+                userGroups: ["system:nodes"]
+                verbs: ["get"]
+                resources:
+                  - group: "" #! core
+                    resources: ["nodes", "nodes/status"]
+              - level: None
+                users:
+                  - system:kube-controller-manager
+                  - system:kube-scheduler
+                  - system:serviceaccount:kube-system:endpoint-controller
+                verbs: ["get", "update"]
+                namespaces: ["kube-system"]
+                resources:
+                  - group: "" #! core
+                    resources: ["endpoints"]
+              - level: None
+                users: ["system:apiserver"]
+                verbs: ["get"]
+                resources:
+                  - group: "" #! core
+                    resources: ["namespaces", "namespaces/status", "namespaces/finalize"]
+              #! Don't log HPA fetching metrics.
+              - level: None
+                users:
+                  - system:kube-controller-manager
+                verbs: ["get", "list"]
+                resources:
+                  - group: "metrics.k8s.io"
+              #! Don't log these read-only URLs.
+              - level: None
+                nonResourceURLs:
+                  - /healthz*
+                  - /version
+                  - /swagger*
+              #! Don't log events requests.
+              - level: None
+                resources:
+                  - group: "" #! core
+                    resources: ["events"]
+              #! Don't log TMC service account performing read operations because they are high-volume.
+              - level: None
+                userGroups: ["system:serviceaccounts:vmware-system-tmc"]
+                verbs: ["get", "list", "watch"]
+              #! Don't log read requests from garbage collector because they are high-volume.
+              - level: None
+                users: ["system:serviceaccount:kube-system:generic-garbage-collector"]
+                verbs: ["get", "list", "watch"]
+              #! node and pod status calls from nodes are high-volume and can be large, don't log responses for expected updates from nodes
+              - level: Request
+                userGroups: ["system:nodes"]
+                verbs: ["update","patch"]
+                resources:
+                  - group: "" #! core
+                    resources: ["nodes/status", "pods/status"]
+                omitStages:
+                  - "RequestReceived"
+              #! deletecollection calls can be large, don't log responses for expected namespace deletions
+              - level: Request
+                users: ["system:serviceaccount:kube-system:namespace-controller"]
+                verbs: ["deletecollection"]
+                omitStages:
+                  - "RequestReceived"
+              #! Secrets, ConfigMaps, and TokenReviews can contain sensitive & binary data,
+              #! so only log at the Metadata level.
+              - level: Metadata
+                resources:
+                  - group: "" #! core
+                    resources: ["secrets", "configmaps"]
+                  - group: authentication.k8s.io
+                    resources: ["tokenreviews"]
+                omitStages:
+                  - "RequestReceived"
+              #! Get repsonses can be large; skip them.
+              - level: Request
+                verbs: ["get", "list", "watch"]
+                resources:
+                  - group: "" #! core
+                  - group: "admissionregistration.k8s.io"
+                  - group: "apiextensions.k8s.io"
+                  - group: "apiregistration.k8s.io"
+                  - group: "apps"
+                  - group: "authentication.k8s.io"
+                  - group: "authorization.k8s.io"
+                  - group: "autoscaling"
+                  - group: "batch"
+                  - group: "certificates.k8s.io"
+                  - group: "extensions"
+                  - group: "metrics.k8s.io"
+                  - group: "networking.k8s.io"
+                  - group: "policy"
+                  - group: "rbac.authorization.k8s.io"
+                  - group: "settings.k8s.io"
+                  - group: "storage.k8s.io"
+                omitStages:
+                  - "RequestReceived"
+              #! Default level for known APIs
+              - level: RequestResponse
+                resources:
+                  - group: "" #! core
+                  - group: "admissionregistration.k8s.io"
+                  - group: "apiextensions.k8s.io"
+                  - group: "apiregistration.k8s.io"
+                  - group: "apps"
+                  - group: "authentication.k8s.io"
+                  - group: "authorization.k8s.io"
+                  - group: "autoscaling"
+                  - group: "batch"
+                  - group: "certificates.k8s.io"
+                  - group: "extensions"
+                  - group: "metrics.k8s.io"
+                  - group: "networking.k8s.io"
+                  - group: "policy"
+                  - group: "rbac.authorization.k8s.io"
+                  - group: "settings.k8s.io"
+                  - group: "storage.k8s.io"
+                omitStages:
+                  - "RequestReceived"
+              #! Default level for all other requests.
+              - level: Metadata
+                omitStages:
+                  - "RequestReceived"
+---
+apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+kind: AzureClusterTemplate
+metadata:
+  name: azure-cluster-template
+  namespace: default
+spec:
+  template:
+    spec:
+      azureEnvironment: ${AZURE_ENVIRONMENT}
+      location: ${AZURE_LOCATION}
+      networkSpec:
+        vnet:
+          name: "${AZURE_VNET_NAME:=${CLUSTER_NAME}-vnet}"
+          resourceGroup: ${AZURE_VNET_RESOURCE_GROUP:=${CLUSTER_NAME}}
+          cidrBlock: ${AZURE_VNET_CIDR}
+        subnets:
+          - name: ${AZURE_CONTROL_PLANE_SUBNET_NAME}
+            role: control-plane
+            cidrBlock: ${AZURE_CONTROL_PLANE_SUBNET_CIDR}
+          - name: ${AZURE_NODE_SUBNET_NAME}
+            role: node
+            cidrBlock: ${AZURE_NODE_SUBNET_CIDR}
+      resourceGroup: ${AZURE_RESOURCE_GROUP:=${CLUSTER_NAME}}
+      subscriptionID: ${AZURE_SUBSCRIPTION_ID}
+---
+apiVersion: controlplane.cluster.x-k8s.io/v1beta1
+kind: KubeadmControlPlaneTemplate
+metadata:
+  name: tkg-kcp
+  namespace: default
+spec:
+  template:
+    spec:
+      kubeadmConfigSpec:
+        clusterConfiguration:
+          apiServer:
+            extraArgs:
+              cloud-config: /etc/kubernetes/azure.json
+              cloud-provider: azure
+            extraVolumes:
+              - hostPath: /etc/kubernetes/azure.json
+                mountPath: /etc/kubernetes/azure.json
+                name: cloud-config
+                readOnly: true
+            timeoutForControlPlane: 20m
+          controllerManager:
+            extraArgs:
+              allocate-node-cidrs: "true"
+              cloud-config: /etc/kubernetes/azure.json
+              cloud-provider: azure
+              cluster-name: ${CLUSTER_NAME}
+            extraVolumes:
+              - hostPath: /etc/kubernetes/azure.json
+                mountPath: /etc/kubernetes/azure.json
+                name: cloud-config
+                readOnly: true
+          dns:
+            imageRepository: registry.tkg.vmware.run
+            imageTag: v1.6.5_vmware.4
+          etcd:
+            local:
+              dataDir: /var/lib/etcddisk/etcd
+              extraArgs:
+                cipher-suites: TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
+                quota-backend-bytes: "8589934592"
+              imageRepository: registry.tkg.vmware.run
+              imageTag: v3.4.3_vmware.4
+          imageRepository: registry.tkg.vmware.run
+        diskSetup:
+          filesystems:
+          - device: /dev/disk/azure/scsi1/lun0
+            extraOpts:
+            - -E
+            - lazy_itable_init=1,lazy_journal_init=1
+            filesystem: ext4
+            label: etcd_disk
+          - device: ephemeral0.1
+            filesystem: ext4
+            label: ephemeral0
+            replaceFS: ntfs
+          partitions:
+          - device: /dev/disk/azure/scsi1/lun0
+            layout: true
+            overwrite: false
+            tableType: gpt
+        files:
+        - contentFrom:
+            secret:
+              key: control-plane-azure.json
+              name: ${CLUSTER_NAME}-control-plane-azure-json
+          owner: root:root
+          path: /etc/kubernetes/azure.json
+          permissions: "0644"
+        initConfiguration:
+          nodeRegistration:
+            kubeletExtraArgs:
+              azure-container-registry-config: /etc/kubernetes/azure.json
+              cloud-config: /etc/kubernetes/azure.json
+              cloud-provider: azure
+            name: '{{ ds.meta_data["local_hostname"] }}'
+        joinConfiguration:
+          nodeRegistration:
+            kubeletExtraArgs:
+              azure-container-registry-config: /etc/kubernetes/azure.json
+              cloud-config: /etc/kubernetes/azure.json
+              cloud-provider: azure
+            name: '{{ ds.meta_data["local_hostname"] }}'
+        mounts:
+          - - LABEL=etcd_disk
+            - /var/lib/etcddisk
+        useExperimentalRetryJoin: true
+        postKubeadmCommands: []
+        preKubeadmCommands: []
+      machineTemplate:
+        infrastructureRef:
+          apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+          kind: AzureMachineTemplate
+          name: tkg-control-plane
+      replicas: ${CONTROL_PLANE_MACHINE_COUNT}
+      version: ${KUBERNETES_VERSION}
+
+---
+apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+kind: AzureMachineTemplate
+metadata:
+  name: tkg-controlplane-azure-template
+  namespace: default
+spec:
+  template:
+    spec:
+      dataDisks:
+      - diskSizeGB: 256
+        lun: 0
+        nameSuffix: etcddisk
+      image:
+         id: image_id
+      osDisk:
+        diskSizeGB: 128
+        managedDisk:
+          storageAccountType: Premium_LRS
+        osType: Linux
+      sshPublicKey: ${AZURE_SSH_PUBLIC_KEY_B64:=""}
+      vmSize: ${AZURE_CONTROL_PLANE_MACHINE_TYPE}
+
+#---
+#apiVersion: cluster.x-k8s.io/v1beta1
+#kind: MachineDeployment
+#metadata:
+#  name: ${CLUSTER_NAME}-md-0
+#spec:
+#  clusterName: ${CLUSTER_NAME}
+#  replicas: ${WORKER_MACHINE_COUNT}
+#  selector:
+#    matchLabels: null
+#  template:
+#    metadata:
+#      labels:
+#        node-pool: "${CLUSTER_NAME}-worker-pool"
+#    spec:
+#      bootstrap:
+#        configRef:
+#          apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
+#          kind: KubeadmConfigTemplate
+#          name: ${CLUSTER_NAME}-md-0
+#      clusterName: ${CLUSTER_NAME}
+#      infrastructureRef:
+#        apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+#        kind: AzureMachineTemplate
+#        name: ${CLUSTER_NAME}-md-0
+#      version: ${KUBERNETES_VERSION}
+#      failureDomain: "${AZURE_NODE_AZ}"
+---
+apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+kind: AzureMachineTemplate
+metadata:
+  name: tkg-azure-template
+  namespace: default
+spec:
+  template:
+    spec:
+      osDisk:
+        diskSizeGB: 128
+        managedDisk:
+          storageAccountType: Premium_LRS
+        osType: Linux
+      image:
+         id: image_id
+      sshPublicKey: ${AZURE_SSH_PUBLIC_KEY_B64:=""}
+      vmSize: ${AZURE_NODE_MACHINE_TYPE}
+
+---
+apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
+kind: KubeadmConfigTemplate
+metadata:
+  name: tkg-bootstrap-template
+  namespace: default
+spec:
+  template:
+    spec:
+      files:
+        - contentFrom:
+            secret:
+              key: worker-node-azure.json
+              # VVVV TODO(vui)
+              name: tkg-md-0-azure-json
+          owner: root:root
+          path: /etc/kubernetes/azure.json
+          permissions: "0644"
+      joinConfiguration:
+        nodeRegistration:
+          kubeletExtraArgs:
+            azure-container-registry-config: /etc/kubernetes/azure.json
+            cloud-config: /etc/kubernetes/azure.json
+            cloud-provider: azure
+          name: '{{ ds.meta_data["local_hostname"] }}'
+      useExperimentalRetryJoin: true
+      preKubeadmCommands: []

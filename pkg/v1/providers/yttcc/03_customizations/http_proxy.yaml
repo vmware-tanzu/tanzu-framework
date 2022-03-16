@@ -1,0 +1,34 @@
+#@ load("@ytt:assert", "assert")
+#@ load("@ytt:data", "data")
+#@ load("@ytt:overlay", "overlay")
+#@ load("http_proxy.lib.txt", "http_proxy_unit_file")
+#@ load("/lib/helpers.star", "get_no_proxy")
+
+#! Validate proxy settings
+#@ if (data.values.TKG_HTTP_PROXY == "") != (data.values.TKG_HTTPS_PROXY == ""):
+#@ assert.fail("TKG_HTTP_PROXY and TKG_HTTPS_PROXY should both be set or left as empty")
+#@ end
+
+#! Populate service/pod CIDRs
+#@ if data.values.TKG_HTTP_PROXY != "":
+#@ POPULATED_NO_PROXY = get_no_proxy()
+#@ end
+
+#@ def exportEnvvar(key, val):
+#@ return "export {}={}".format(key, val)
+#@ end
+
+#@ if data.values.TKG_HTTP_PROXY != "":
+#@ if data.values.PROVIDER_TYPE == "tkg-service-vsphere":
+#@overlay/match by=overlay.subset({"kind":"TanzuKubernetesCluster"})
+---
+spec:
+  settings:
+    #@overlay/match-child-defaults missing_ok=True
+    network:
+      proxy:
+        httpProxy: #@ data.values.TKG_HTTP_PROXY
+        httpsProxy: #@ data.values.TKG_HTTPS_PROXY
+        noProxy: #@ POPULATED_NO_PROXY.split(",")
+#@ end
+#@ end

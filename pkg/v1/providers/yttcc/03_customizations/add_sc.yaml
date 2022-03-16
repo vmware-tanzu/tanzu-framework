@@ -1,0 +1,90 @@
+#@ load("@ytt:overlay", "overlay")
+#@ load("@ytt:data", "data")
+#@ load("@ytt:yaml", "yaml")
+
+
+#@ def aws_storage_class():
+---
+kind: StorageClass
+apiVersion: storage.k8s.io/v1
+metadata:
+  name: default
+  annotations:
+    storageclass.kubernetes.io/is-default-class: "true"
+provisioner: kubernetes.io/aws-ebs
+allowVolumeExpansion: true
+#@ end
+
+
+#@ def vsphere_storage_class():
+---
+kind: StorageClass
+apiVersion: storage.k8s.io/v1
+metadata:
+  name: default
+  annotations:
+    storageclass.kubernetes.io/is-default-class: "true"
+provisioner: csi.vsphere.vmware.com
+allowVolumeExpansion: true
+#@ if data.values.VSPHERE_STORAGE_POLICY_ID != "":
+parameters:
+  storagepolicyname: #@ data.values.VSPHERE_STORAGE_POLICY_ID
+#@ end
+#@ end
+
+
+#@ def azure_storage_class():
+---
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: default
+  annotations:
+    storageclass.kubernetes.io/is-default-class: "true"
+  labels:
+    kubernetes.io/cluster-service: "true"
+provisioner: kubernetes.io/azure-disk
+allowVolumeExpansion: true
+parameters:
+  kind: Managed
+  storageaccounttype: Standard_LRS
+  cachingmode: ReadOnly
+volumeBindingMode: WaitForFirstConsumer
+#@ end
+
+#@ if data.values.TKG_CLUSTER_ROLE == "workload" and data.values.ENABLE_DEFAULT_STORAGE_CLASS and data.values.PROVIDER_TYPE != "tkg-service-vsphere" and data.values.PROVIDER_TYPE != "docker":
+---
+apiVersion: addons.cluster.x-k8s.io/v1beta1
+kind: ClusterResourceSet
+metadata:
+  name: #@ "{}-default-storage-class".format(data.values.CLUSTER_NAME)
+  labels:
+    cluster.x-k8s.io/cluster-name: #@ data.values.CLUSTER_NAME
+spec:
+  strategy: "ApplyOnce"
+  clusterSelector:
+    matchLabels:
+      tkg.tanzu.vmware.com/cluster-name: #@ data.values.CLUSTER_NAME
+  resources:
+  - name: #@ "{}-default-storage-class".format(data.values.CLUSTER_NAME)
+    kind: Secret
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: #@ "{}-default-storage-class".format(data.values.CLUSTER_NAME)
+type: addons.cluster.x-k8s.io/resource-set
+stringData:
+#@ if data.values.PROVIDER_TYPE == "vsphere":
+  value: #@ yaml.encode(vsphere_storage_class())
+#@ end
+
+#@ if data.values.PROVIDER_TYPE == "aws":
+  value: #@ yaml.encode(aws_storage_class())
+#@ end
+
+#@ if data.values.PROVIDER_TYPE == "azure":
+  value: #@ yaml.encode(azure_storage_class())
+#@ end
+
+#@ end

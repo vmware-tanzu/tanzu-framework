@@ -1,0 +1,27 @@
+#@ load("@ytt:overlay", "overlay")
+#@ load("@ytt:data", "data")
+
+#@ if data.values.CLUSTER_PLAN == "prod":
+#@overlay/match missing_ok=True,by=overlay.subset({"kind":"Cluster"})
+---
+apiVersion: cluster.x-k8s.io/v1beta1
+kind: Cluster
+metadata:
+  #@overlay/match missing_ok=True
+  annotations:
+    #@overlay/match missing_ok=True
+    tkg/plan: prod
+  #! possible other customizations specific to the prod plan....
+
+#@overlay/match missing_ok=True,by=overlay.subset({"kind":"TanzuKubernetesCluster"})
+---
+apiVersion: run.tanzu.vmware.com/v1alpha2
+kind: TanzuKubernetesCluster
+metadata:
+  #@overlay/match missing_ok=True
+  annotations:
+    #@overlay/match missing_ok=True
+    tkg/plan: prod
+  #! possible other customizations specific to the prod plan....
+
+#@ end
