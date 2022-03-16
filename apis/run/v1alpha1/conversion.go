@@ -43,6 +43,7 @@ func (spoke *TanzuKubernetesRelease) ConvertTo(hubRaw conversion.Hub) error {
 	return nil
 }
 
+//nolint:stylecheck // Much easier to read when the receiver is named as spoke/src/dest.
 func (spoke *TanzuKubernetesRelease) ConvertFrom(hubRaw conversion.Hub) error {
 	hub := hubRaw.(*v1alpha3.TanzuKubernetesRelease)
 
@@ -76,6 +77,7 @@ func (spoke *TanzuKubernetesRelease) ConvertFrom(hubRaw conversion.Hub) error {
 }
 
 // Convert_v1alpha1_TanzuKubernetesReleaseSpec_To_v1alpha3_TanzuKubernetesReleaseSpec  will convert the compatible types in TanzuKubernetesReleaseSpec v1alpha1 to v1alpha3 equivalent.
+// nolint:revive,stylecheck // Generated conversion stubs have underscores in function names.
 func Convert_v1alpha1_TanzuKubernetesReleaseSpec_To_v1alpha3_TanzuKubernetesReleaseSpec(in *TanzuKubernetesReleaseSpec, out *v1alpha3.TanzuKubernetesReleaseSpec, s apiconversion.Scope) error {
 	out.Kubernetes.Version = in.KubernetesVersion
 	out.Kubernetes.ImageRepository = in.Repository
@@ -107,6 +109,7 @@ func Convert_v1alpha1_TanzuKubernetesReleaseSpec_To_v1alpha3_TanzuKubernetesRele
 }
 
 // Convert_v1alpha3_TanzuKubernetesReleaseSpec_To_v1alpha1_TanzuKubernetesReleaseSpec will convert the compatible types in TanzuKubernetesReleaseSpec v1alpha3 to v1alpha1 equivalent.
+// nolint:revive,stylecheck // Generated conversion stubs have underscores in function names.
 func Convert_v1alpha3_TanzuKubernetesReleaseSpec_To_v1alpha1_TanzuKubernetesReleaseSpec(in *v1alpha3.TanzuKubernetesReleaseSpec, out *TanzuKubernetesReleaseSpec, s apiconversion.Scope) error {
 	out.KubernetesVersion = in.Kubernetes.Version
 	out.Repository = in.Kubernetes.ImageRepository
@@ -142,6 +145,7 @@ func (src *TanzuKubernetesReleaseList) ConvertTo(dstRaw conversion.Hub) error {
 	return Convert_v1alpha1_TanzuKubernetesReleaseList_To_v1alpha3_TanzuKubernetesReleaseList(src, dst, nil)
 }
 
+//nolint:revive,stylecheck // Much easier to read when the receiver is named as spoke/src/dest.
 func (dst *TanzuKubernetesReleaseList) ConvertFrom(srcRaw conversion.Hub) error {
 	src := srcRaw.(*v1alpha3.TanzuKubernetesReleaseList)
 
