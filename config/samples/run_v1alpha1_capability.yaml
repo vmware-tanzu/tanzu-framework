@@ -11,6 +11,9 @@ spec:
           versions:
             - v1alpha1
           resource: "tanzukubernetesreleases"
+          fields:
+            - "field"
+            - "field.subfield1.subfield2"
         - name: "barGVR"
           group: "run.tanzu.vmware.com"
           versions:
