@@ -1,0 +1,125 @@
+#@ load("@ytt:overlay", "overlay")
+#@ load("@ytt:data", "data")
+#@ load("@ytt:yaml", "yaml")
+#@ load("@ytt:template", "template")
+#@ load("/lib/helpers.star", "get_default_tkg_bom_data", "get_provider", "get_kubernetes_provider")
+
+#@ if data.values.PROVIDER_TYPE != "tkg-service-vsphere":
+
+#@ def tkgmetadataoverlay():
+
+#@overlay/match by=overlay.all,expects="1+"
+---
+#@overlay/match missing_ok=True
+metadata:
+ #@overlay/match missing_ok=True
+ annotations:
+  #@overlay/match missing_ok=True
+  tkg.tanzu.vmware.com/addon-type: "metadata/tkg"
+
+#@ end
+
+
+#@ def get_bom_configmap():
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+ name: tkg-bom
+ namespace: tkg-system-public
+data:
+ bom.yaml: #@ yaml.encode(get_default_tkg_bom_data())
+#@ end
+
+#@ def get_metadata():
+---
+cluster:
+ name: #@ data.values.CLUSTER_NAME
+ type: #@ data.values.TKG_CLUSTER_ROLE
+ plan: #@ data.values.CLUSTER_PLAN
+ kubernetesProvider: #@ get_kubernetes_provider()
+ tkgVersion: #@ data.values.TKG_VERSION
+ infrastructure:
+  provider: #@ get_provider()
+bom:
+ configmapRef:
+  name: tkg-bom
+#@ end
+
+#@ def get_metadata_configmap():
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+ name: tkg-metadata
+ namespace: tkg-system-public
+data:
+ metadata.yaml: #@ yaml.encode(get_metadata())
+#@ end
+
+
+#@ def get_metadata_namespace_role():
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+ name: tkg-system-public
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+ name: tkg-metadata-reader
+ namespace: tkg-system-public
+rules:
+- apiGroups:
+  - ""
+  resourceNames:
+  - tkg-metadata
+  - tkg-bom
+  resources:
+  - configmaps
+  verbs:
+  - get
+  - list
+  - watch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+ name: tkg-metadata-reader
+ namespace: tkg-system-public
+roleRef:
+ apiGroup: rbac.authorization.k8s.io
+ kind: Role
+ name: tkg-metadata-reader
+subjects:
+- apiGroup: rbac.authorization.k8s.io
+  kind: Group
+  name: system:authenticated
+#@ end
+
+#@ def get_metadata_crs_name():
+#@ return "{}-tkg-metadata".format(data.values.CLUSTER_NAME)
+#@ end
+
+
+#@ def get_metadata_crs_secret_namespace_role_name():
+#@ return "{}-namespace-role".format(get_metadata_crs_name())
+#@ end
+
+#@ def get_metadata_crs_secret_configmap_name():
+#@ return "{}-configmap".format(get_metadata_crs_name())
+#@ end
+
+#@ def get_metadata_crs_secret_bom_configmap_name():
+#@ return "{}-bom-configmap".format(get_metadata_crs_name())
+#@ end
+
+#@ if data.values.DISABLE_CRS_FOR_ADDON_TYPE and "metadata/tkg" in data.values.DISABLE_CRS_FOR_ADDON_TYPE:
+--- #@ template.replace(overlay.apply(get_metadata_namespace_role(),tkgmetadataoverlay()))
+--- #@ template.replace(overlay.apply(get_metadata_configmap(),tkgmetadataoverlay()))
+--- #@ template.replace(overlay.apply(get_bom_configmap(),tkgmetadataoverlay()))
+
+#@ end
+
+#@ end

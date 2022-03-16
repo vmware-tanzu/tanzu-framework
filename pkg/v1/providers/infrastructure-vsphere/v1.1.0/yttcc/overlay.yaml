@@ -1,0 +1,95 @@
+#@ load("@ytt:overlay", "overlay")
+#@ load("@ytt:data", "data")
+
+
+#@ load("lib/helpers.star", "get_bom_data_for_tkr_name", "get_default_tkg_bom_data", "kubeadm_image_repo", "get_image_repo_for_component", "get_vsphere_thumbprint")
+
+#@ load("lib/validate.star", "validate_configuration")
+#@ load("@ytt:yaml", "yaml")
+#@ load("/lib/config_variable_association.star", "config_variable_association", "get_cluster_variables")
+#@ validate_configuration("vsphere")
+
+#@ bomDataForK8sVersion = get_bom_data_for_tkr_name()
+#@ bomData = get_default_tkg_bom_data()
+
+#@ if not data.values.IS_WINDOWS_WORKLOAD_CLUSTER:
+
+#@overlay/match by=overlay.subset({"kind":"Cluster"})
+---
+apiVersion: cluster.x-k8s.io/v1beta1
+kind: Cluster
+metadata:
+  name: #@ data.values.CLUSTER_NAME
+  #@ if data.values.VSPHERE_CONTROL_PLANE_ENDPOINT:
+  #@overlay/match missing_ok=True
+  annotations:
+    tkg.tanzu.vmware.com/cluster-controlplane-endpoint: #@ data.values.VSPHERE_CONTROL_PLANE_ENDPOINT
+  #@ end
+  labels:
+    #@overlay/match missing_ok=True
+    #@yaml/text-templated-strings
+    #@ if data.values.TKG_CLUSTER_ROLE != "workload":
+    cluster-role.tkg.tanzu.vmware.com/(@= data.values.TKG_CLUSTER_ROLE @): ""
+    #@ end
+    tkg.tanzu.vmware.com/cluster-name: #@ data.values.CLUSTER_NAME
+    #@overlay/match missing_ok=True
+    tanzuKubernetesRelease: #@ data.values.KUBERNETES_RELEASE
+spec:
+  clusterNetwork:
+    pods:
+      #@overlay/replace
+      cidrBlocks: #@ data.values.CLUSTER_CIDR.split(",")
+    services:
+      #@overlay/replace
+      cidrBlocks: #@ data.values.SERVICE_CIDR.split(",")
+  topology:
+    class: #@ data.values.CLUSTER_CLASS
+    controlPlane:
+      replicas: #@ data.values.CONTROL_PLANE_MACHINE_COUNT
+    workers:
+      machineDeployments:
+      #@overlay/match by=overlay.index(0)
+      - class: tkg-worker
+        name: md-0
+        #@overlay/match missing_ok=True
+        replicas: #@ data.values.WORKER_MACHINE_COUNT
+        #@ if data.values.VSPHERE_AZ_0:
+        #@overlay/match missing_ok=True
+        failureDomain: #@ data.values.VSPHERE_AZ_0
+        #@ end
+      #@ if data.values.CLUSTER_PLAN == "prod":
+      #@overlay/append
+      - class: tkg-worker
+        name: md-1
+        replicas: #@ data.values.WORKER_MACHINE_COUNT_1
+        #@ if data.values.VSPHERE_AZ_1:
+        failureDomain: #@ data.values.VSPHERE_AZ_1
+        #@ end
+      #@overlay/append
+      - class: tkg-worker
+        name: md-2
+        replicas: #@ data.values.WORKER_MACHINE_COUNT_2
+        #@ if data.values.VSPHERE_AZ_2:
+        failureDomain: #@ data.values.VSPHERE_AZ_2
+        #@ end
+      #@ end
+    #@overlay/match missing_ok=True
+    variables: 
+    #@ vars = get_cluster_variables()
+    #@ for configVariable in vars:
+       #@  if vars[configVariable] != None and configVariable in ["CLUSTER_API_SERVER_PORT", "CLUSTER_NAME", "CONTROL_PLANE_MACHINE_COUNT", "VSPHERE_CONTROL_PLANE_NUM_CPUS", "VSPHERE_CONTROL_PLANE_DISK_GIB", "VSPHERE_CONTROL_PLANE_MEM_MIB", "VSPHERE_WORKER_NUM_CPUS", "VSPHERE_WORKER_DISK_GIB", "VSPHERE_WORKER_MEM_MIB", "VSPHERE_CLONE_MODE", "VSPHERE_NETWORK", "VSPHERE_DATACENTER", "VSPHERE_DATASTORE", "VSPHERE_FOLDER", "VSPHERE_RESOURCE_POOL", "VSPHERE_STORAGE_POLICY_ID", "VSPHERE_SERVER", "VSPHERE_TLS_THUMBPRINT", "VSPHERE_SSH_AUTHORIZED_KEY", "VSPHERE_TEMPLATE", "VSPHERE_WINDOWS_TEMPLATE", "VSPHERE_CONTROL_PLANE_ENDPOINT", "proxy", "TKG_PROXY_CA_CERT", "TKG_CUSTOM_IMAGE_REPOSITORY", "TKG_CUSTOM_IMAGE_REPOSITORY_SKIP_TLS_VERIFY", "TKG_CUSTOM_IMAGE_REPOSITORY_CA_CERTIFICATE", "SERVICE_CIDR", "CLUSTER_CIDR", "ENABLE_AUDIT_LOGGING", "AVI_CONTROL_PLANE_HA_PROVIDER"]:
+      - name: #@ configVariable
+        value: #@ vars[configVariable]
+      #@ end
+    #@ end
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: #@ data.values.CLUSTER_NAME
+stringData:
+  username: #@ data.values.VSPHERE_USERNAME
+  password: #@ data.values.VSPHERE_PASSWORD
+
+#@ end

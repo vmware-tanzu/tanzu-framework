@@ -1,0 +1,37 @@
+#@ load("@ytt:data", "data")
+#@ load("/lib/helpers.star", "get_bom_data_for_tkr_name", "tkg_image_repo")
+
+#@ if data.values.PROVIDER_TYPE != "tkg-service-vsphere":
+#@   tanzuAddonsManagerImage = get_bom_data_for_tkr_name().components["tanzu-framework-addons"][0].images.tanzuAddonsManagerImage
+#@ end
+
+#@ def tanzuaddonsmanagerdatavalues():
+
+---
+tanzuAddonsManager:
+  namespace: tkg-system
+  createNamespace: false
+  deployment:
+    hostNetwork: true
+    priorityClassName: system-cluster-critical
+    tolerations:
+    - key: CriticalAddonsOnly
+      operator: Exists
+    - effect: NoSchedule
+      key: node-role.kubernetes.io/master
+  featureGates:
+    clusterBootstrapController: false
+#@ end
+
+
+#@ def tanzuaddonsmanagerimageinfodatavalues():
+---
+imageInfo:
+  imageRepository: #@ tkg_image_repo()
+  imagePullPolicy: IfNotPresent
+  images:
+    tanzuAddonsManagerImage:
+      imagePath: #@ tanzuAddonsManagerImage.imagePath
+      tag: #@ tanzuAddonsManagerImage.tag
+
+#@ end

@@ -1,5 +1,7 @@
 #@ load("@ytt:overlay", "overlay")
 #@ load("@ytt:data", "data")
+
+#! TODO: This should be moved into a windows-compatible cluster class template
 #@ if data.values.IS_WINDOWS_WORKLOAD_CLUSTER:
 #@overlay/match by=overlay.subset({"kind":"KubeadmConfigTemplate"}), expects="1+"
 ---
