@@ -1,0 +1,14 @@
+#@ load("@ytt:overlay", "overlay")
+
+#@ def tanzuaddonsmanageroverlay():
+
+#@overlay/match by=overlay.all,expects="1+"
+---
+#@overlay/match missing_ok=True
+metadata:
+  #@overlay/match missing_ok=True
+  annotations:
+    ext.packaging.carvel.dev/ytt-data-values-overlays: "tanzu-addons-manager-data-values"
+    tkg.tanzu.vmware.com/addon-type: "addons-management/tanzu-addons-manager"
+
+#@ end
