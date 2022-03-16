@@ -75,6 +75,14 @@ def tkg_image_repo_customized():
     return data.values.TKG_CUSTOM_IMAGE_REPOSITORY != ""
 end
 
+#! XXX: until all overlays are refactored to account for cluster class, any
+#! scenario involving cc will be processed via supplying a plan name that
+#! adheres to the convention of ending in "cc". Any overlay not meant to be used
+#! scenario should be guarded by calling this helper.
+def tkg_use_clusterclass():
+    return data.values.CLUSTER_PLAN != "" and data.values.CLUSTER_PLAN.endswith("cc")
+end
+
 def tkg_image_repo():
   return data.values.TKG_CUSTOM_IMAGE_REPOSITORY if data.values.TKG_CUSTOM_IMAGE_REPOSITORY else tkgBomData.imageConfig.imageRepository
 end
