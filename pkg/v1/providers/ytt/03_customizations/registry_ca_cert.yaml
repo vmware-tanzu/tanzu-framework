@@ -24,6 +24,7 @@ spec:
         content: #@ tkg_image_repo_ca_cert()
         encoding: "base64"
         permissions: "0444"
+
 #@overlay/match by=overlay.subset({"kind":"KubeadmConfigTemplate"}),expects="1+"
 ---
 apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
