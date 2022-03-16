@@ -1,7 +1,7 @@
 load("@ytt:data", "data")
 load("@ytt:overlay", "overlay")
 load("@ytt:yaml", "yaml")
-
+load("/lib/helpers.star", "get_default_tkg_bom_data")
 
 #! This file contains function 'config_variable_association' which specifies all configuration variables
 #! mentioned in 'config_default.yaml' and describes association of each configuration variable with
@@ -103,6 +103,7 @@ return {
 "NODE_MACHINE_TYPE_2": ["aws"],
 "AWS_SSH_KEY_NAME": ["aws"],
 "BASTION_HOST_ENABLED": ["aws"],
+"AWS_LOAD_BALANCER_SCHEME_INTERNAL": ["aws"],
 
 "CONTROL_PLANE_STORAGE_CLASS": ["tkg-service-vsphere"],
 "CONTROL_PLANE_VM_CLASS": ["tkg-service-vsphere"],
@@ -161,7 +162,11 @@ return {
 "AZURE_IMAGE_VERSION": ["azure"],
 "AZURE_IDENTITY_NAME": ["azure"],
 "AZURE_IDENTITY_NAMESPACE": ["azure"],
-
+"AZURE_CONTROL_PLANE_OUTBOUND_LB_FRONTEND_IP_COUNT": ["azure"],
+"AZURE_ENABLE_CONTROL_PLANE_OUTBOUND_LB": ["azure"],
+"AZURE_NODE_OUTBOUND_LB_FRONTEND_IP_COUNT": ["azure"],
+"AZURE_ENABLE_NODE_OUTBOUND_LB": ["azure"],
+"AZURE_NODE_OUTBOUND_LB_IDLE_TIMEOUT_IN_MINUTES": ["azure"],
 "ENABLE_OIDC": ["vsphere", "aws", "azure", "docker"],
 "OIDC_ISSUER_URL": ["vsphere", "aws", "azure", "docker"],
 "OIDC_USERNAME_CLAIM": ["vsphere", "aws", "azure", "docker"],
@@ -289,4 +294,33 @@ return {
 "VSPHERE_VERSION": ["vsphere"],
 }
 
+end
+
+def get_cluster_variables():
+    vars = {}
+    kvs = config_variable_association()
+    for configVariable in kvs:
+        if data.values.PROVIDER_TYPE in kvs[configVariable]:
+            if data.values[configVariable] != None:
+                vars[configVariable] = data.values[configVariable]
+            else:
+                continue
+            end
+            if configVariable == "TKG_HTTP_PROXY":
+                if vars["TKG_HTTP_PROXY"] != "":
+                    vars["proxy"] = {
+                        "httpProxy": vars["TKG_HTTP_PROXY"],
+                        "httpsProxy": data.values["TKG_HTTPS_PROXY"],
+                        "noProxy": data.values["TKG_NO_PROXY"].split(",")
+                    }
+                else:
+                    vars["proxy"] = None
+                end
+            end
+            if configVariable == "TKG_CUSTOM_IMAGE_REPOSITORY":
+                vars["TKG_CUSTOM_IMAGE_REPOSITORY_HOSTNAME"] = vars[configVariable].split("/")[0]
+            end
+        end
+    end
+    return vars
 end
