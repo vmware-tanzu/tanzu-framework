@@ -1,0 +1,81 @@
+#! RBAC for AKO Operator in bootstrap cluster
+#@ def role():
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    app: tanzu-ako-operator
+  name: ako-operator-manager-bootstrap
+rules:
+  - apiGroups: [""]
+    resources: ["*"]
+    verbs: ["create", "delete", "update", "get", "watch", "patch", "list"]
+  - apiGroups: ["apps"]
+    resources: ["statefulsets"]
+    verbs: ["create", "delete", "update", "get","watch","list"]
+  - apiGroups: ["apps"]
+    resources: ["statefulsets/status"]
+    verbs: ["create", "delete", "update", "get","watch","list","patch", "update"]
+  - apiGroups: ["apiextensions.k8s.io"]
+    resources: ["customresourcedefinitions"]
+    verbs: ["create", "delete", "update", "get", "watch", "list"]
+  - apiGroups: ["rbac.authorization.k8s.io"]
+    resources: ["clusterroles","clusterrolebindings"]
+    verbs: ["create", "delete", "update", "get", "watch", "list"]
+  - apiGroups: ["cluster.x-k8s.io"]
+    resources: ["clusters", "clusters/status", "machines", "machines/status"]
+    verbs: ["create", "delete", "update", "get","watch","list", "patch"]
+  - apiGroups: ["networking.tkg.tanzu.vmware.com"]
+    resources: ["akodeploymentconfigs"]
+    verbs: ["create", "delete", "update", "get","watch","list", "patch"]
+  - apiGroups: ["networking.tkg.tanzu.vmware.com"]
+    resources: ["akodeploymentconfigs/status"]
+    verbs: ["update", "get","watch", "patch"]
+  - apiGroups: ["extensions", "networking.k8s.io"]
+    resources: ["ingresses", "ingresses/status"]
+    verbs: ["get","watch","list","patch", "update"]
+  - apiGroups: [""]
+    resources: ["services/status"]
+    verbs: ["get","watch","list","patch", "update"]
+  - apiGroups: ["crd.projectcalico.org"]
+    resources: ["blockaffinities"]
+    verbs: ["get", "watch", "list"]
+  - apiGroups: ["network.openshift.io"]
+    resources: ["hostsubnets"]
+    verbs: ["get", "watch", "list"]
+  - apiGroups: ["route.openshift.io"]
+    resources: ["routes", "routes/status"]
+    verbs: ["get", "watch", "list", "patch", "update"]
+  - apiGroups: ["ako.vmware.com"]
+    resources: ["aviinfrasettings", "aviinfrasettings/status", "hostrules", "hostrules/status", "httprules", "httprules/status"]
+    verbs: ["get", "watch", "list", "patch", "update"]
+  - apiGroups: ["networking.x-k8s.io"]
+    resources: ["gateways", "gateways/status", "gatewayclasses", "gatewayclasses/status"]
+    verbs: ["get","watch","list","patch", "update"]
+  - apiGroups:
+      - policy
+      - extensions
+    resources:
+      - podsecuritypolicies
+    verbs:
+      - use
+    resourceNames:
+      - "*"
+#@ end
+
+#@ def role_binding():
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  labels:
+    app: tanzu-ako-operator
+  name: ako-operator-bootstrap-rolebinding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: ako-operator-manager-bootstrap
+subjects:
+  - kind: ServiceAccount
+    name: default
+    namespace: tkg-system
+#@ end

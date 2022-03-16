@@ -1,0 +1,15 @@
+#@ load("@ytt:data", "data")
+#@ load("@ytt:json", "json")
+
+#@ if data.values.PROVIDER_TYPE == "vsphere" and data.values.TKG_CLUSTER_ROLE != "workload" and data.values.AVI_ENABLE and data.values.AVI_CONTROL_PLANE_HA_PROVIDER:
+#@ load("static.lib.yaml", "service")
+#@ load("rbac.lib.yaml", "role", "role_binding")
+#@ load("ako-operator-deployment.lib.yaml", "akoo_deployment", "avi_credentials", "avi_certificate")
+
+--- #@ service()
+--- #@ role()
+--- #@ role_binding()
+--- #@ akoo_deployment()
+--- #@ avi_credentials()
+--- #@ avi_certificate()
+#@ end
