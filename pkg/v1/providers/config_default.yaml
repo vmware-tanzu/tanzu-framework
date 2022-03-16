@@ -31,6 +31,8 @@ INFRASTRUCTURE_PROVIDER:
 #! be used instead
 CLUSTER_API_SERVER_PORT:
 
+CLUSTER_CLASS:
+
 #! Instance size configuration
 #! Instance size options available for vSphere are as follows:
 #!   vSphere: [extra-large,large,medium,small]
@@ -91,7 +93,6 @@ VSPHERE_NETWORK: VM Network
 #! discovered from the vCenter inventory, the use of this setting is no longer
 #! necessary except to disambiguate among 2 or more applicable VM templates.
 VSPHERE_TEMPLATE:
-
 VSPHERE_TEMPLATE_MOID:
 
 #! WINDOWS PARAMETERS

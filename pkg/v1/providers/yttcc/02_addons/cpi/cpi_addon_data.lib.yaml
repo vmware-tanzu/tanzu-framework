@@ -1,0 +1,43 @@
+#@ load("@ytt:data", "data")
+#@ load("/lib/helpers.star", "tkg_image_repo", "get_image_repo_for_component", "get_vsphere_thumbprint", "get_bom_data_for_tkr_name", "get_no_proxy")
+
+#@ if data.values.PROVIDER_TYPE != "tkg-service-vsphere":
+#@   cpiImage = get_bom_data_for_tkr_name().components["cloud_provider_vsphere"][0].images.ccmControllerImage
+#@ end
+
+#@ def vsphere_cpi_data_values():
+vsphereCPI:
+  tlsThumbprint: #@ get_vsphere_thumbprint()
+  server: #@ data.values.VSPHERE_SERVER
+  datacenter: #@ data.values.VSPHERE_DATACENTER
+  username: #@ data.values.VSPHERE_USERNAME
+  password: #@ data.values.VSPHERE_PASSWORD
+  region: #@ data.values.VSPHERE_REGION
+  zone: #@ data.values.VSPHERE_ZONE
+  insecureFlag: #@ data.values.VSPHERE_INSECURE
+#@ if data.values.TKG_IP_FAMILY:
+  ipFamily: #@ data.values.TKG_IP_FAMILY
+#@ end
+  cloudProviderExtraArgs:
+    tls-cipher-suites: TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
+  nsxt:
+    podRoutingEnabled: #@ data.values.NSXT_POD_ROUTING_ENABLED
+    routes:
+      routerPath: #@ data.values.NSXT_ROUTER_PATH
+      clusterCidr: #@ data.values.CLUSTER_CIDR
+    username: #@ data.values.NSXT_USERNAME
+    password: #@ data.values.NSXT_PASSWORD
+    host: #@ data.values.NSXT_MANAGER_HOST
+    insecureFlag: #@ data.values.NSXT_ALLOW_UNVERIFIED_SSL
+    remoteAuth: #@ data.values.NSXT_REMOTE_AUTH
+    vmcAccessToken: #@ data.values.NSXT_VMC_ACCESS_TOKEN
+    vmcAuthHost: #@ data.values.NSXT_VMC_AUTH_HOST
+    clientCertKeyData: #@ data.values.NSXT_CLIENT_CERT_KEY_DATA
+    clientCertData: #@ data.values.NSXT_CLIENT_CERT_DATA
+    rootCAData: #@ data.values.NSXT_ROOT_CA_DATA_B64
+    secretName: #@ data.values.NSXT_SECRET_NAME
+    secretNamespace: #@ data.values.NSXT_SECRET_NAMESPACE
+  http_proxy: #@ data.values.TKG_HTTP_PROXY
+  https_proxy: #@ data.values.TKG_HTTPS_PROXY
+  no_proxy: #@ get_no_proxy()
+#@ end

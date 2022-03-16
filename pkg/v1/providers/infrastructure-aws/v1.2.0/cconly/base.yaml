@@ -1,0 +1,1064 @@
+#@ load("@ytt:overlay", "overlay")
+#@ load("@ytt:yaml", "yaml")
+#@ load("@ytt:data", "data")
+
+apiVersion: cluster.x-k8s.io/v1beta1
+kind: ClusterClass
+metadata:
+  name: tkg-aws-default
+  namespace: default
+  annotations:
+    run.tanzu.vmware.com/resolve-tkr: ""
+spec:
+  controlPlane:
+    ref:
+      apiVersion: controlplane.cluster.x-k8s.io/v1beta1
+      kind: KubeadmControlPlaneTemplate
+      name: tkg-aws-kcp
+    machineInfrastructure:
+      ref:
+        apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+        kind: AWSMachineTemplate
+        name: tkg-aws-controlplane-template
+  workers:
+    machineDeployments:
+    - class: tkg-worker
+      template:
+         bootstrap:
+           ref:
+             apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
+             kind: KubeadmConfigTemplate
+             name: tkg-aws-bootstrap-template
+         infrastructure:
+           ref:
+             apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+             kind: AWSMachineTemplate
+             name: tkg-aws-worker-template
+  infrastructure:
+     ref:
+        apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+        kind: AWSClusterTemplate
+        name: aws-cluster-template
+  variables:
+  - name: AWS_REGION
+    required: true
+    schema:
+      openAPIV3Schema:
+        type: string
+        #@ if data.values.AWS_REGION:
+        default: #@ data.values.AWS_REGION
+        #@ end
+  - name: AWS_SSH_KEY_NAME
+    required: true
+    schema:
+      openAPIV3Schema:
+        type: string
+        #@ if data.values.AWS_SSH_KEY_NAME:
+        default: #@ data.values.AWS_SSH_KEY_NAME
+        #@ end
+  - name: BASTION_HOST_ENABLED
+    required: true
+    schema:
+      openAPIV3Schema:
+        type: boolean
+        #@ if data.values.BASTION_HOST_ENABLED:
+        default: #@ data.values.BASTION_HOST_ENABLED
+        #@ else:
+        default: true
+        #@ end
+  - name: AWS_VPC_CIDR
+    required: true
+    schema:
+      openAPIV3Schema:
+        type: string
+        default: "10.0.0.0/16"
+  - name: AWS_VPC_ID
+    required: true
+    schema:
+      openAPIV3Schema:
+        type: string
+        default: ""
+  - name: AWS_NODE_AZ
+    required: true
+    schema:
+      openAPIV3Schema:
+        type: string
+        default: ""
+  - name: AWS_NODE_AZ_1
+    required: true
+    schema:
+      openAPIV3Schema:
+        type: string
+        default: ""
+  - name: AWS_NODE_AZ_2
+    required: true
+    schema:
+      openAPIV3Schema:
+        type: string
+        default: ""
+  - name: AWS_PRIVATE_NODE_CIDR
+    required: true
+    schema:
+      openAPIV3Schema:
+        type: string
+        default: 10.0.0.0/24
+  - name: AWS_PRIVATE_NODE_CIDR_1
+    required: true
+    schema:
+      openAPIV3Schema:
+        type: string
+        default: 10.0.2.0/24
+  - name: AWS_PRIVATE_NODE_CIDR_2
+    required: true
+    schema:
+      openAPIV3Schema:
+        type: string
+        default: 10.0.4.0/24
+  - name: AWS_PRIVATE_SUBNET_ID
+    required: true
+    schema:
+      openAPIV3Schema:
+        type: string
+        default: ""
+  - name: AWS_PRIVATE_SUBNET_ID_1
+    required: true
+    schema:
+      openAPIV3Schema:
+        type: string
+        default: ""
+  - name: AWS_PRIVATE_SUBNET_ID_2
+    required: true
+    schema:
+      openAPIV3Schema:
+        type: string
+        default: ""
+  - name: AWS_PUBLIC_NODE_CIDR
+    required: true
+    schema:
+      openAPIV3Schema:
+        type: string
+        default: 10.0.1.0/24
+  - name: AWS_PUBLIC_NODE_CIDR_1
+    required: true
+    schema:
+      openAPIV3Schema:
+        type: string
+        default: 10.0.3.0/24
+  - name: AWS_PUBLIC_NODE_CIDR_2
+    required: true
+    schema:
+      openAPIV3Schema:
+        type: string
+        default: 10.0.5.0/24
+  - name: AWS_PUBLIC_SUBNET_ID
+    required: true
+    schema:
+      openAPIV3Schema:
+        type: string
+        default: ""
+  - name: AWS_PUBLIC_SUBNET_ID_1
+    required: true
+    schema:
+      openAPIV3Schema:
+        type: string
+        default: ""
+  - name: AWS_PUBLIC_SUBNET_ID_2
+    required: true
+    schema:
+      openAPIV3Schema:
+        type: string
+        default: ""
+  - name: CONTROL_PLANE_MACHINE_TYPE
+    required: true
+    schema:
+      openAPIV3Schema:
+        type: string
+        default: t3.large
+  - name: NODE_MACHINE_TYPE
+    required: true
+    schema:
+      openAPIV3Schema:
+        type: string
+        default: m5.large
+  - name: AWS_CONTROL_PLANE_OS_DISK_SIZE_GIB
+    required: true
+    schema:
+      openAPIV3Schema:
+        type: integer
+        #@ if data.values.AWS_CONTROL_PLANE_OS_DISK_SIZE_GIB:
+        default: #@ data.values.AWS_CONTROL_PLANE_OS_DISK_SIZE_GIB
+        #@ else:
+        default: 80
+        #@ end
+  - name: AWS_NODE_OS_DISK_SIZE_GIB
+    required: true
+    schema:
+      openAPIV3Schema:
+        type: integer
+        #@ if data.values.AWS_NODE_OS_DISK_SIZE_GIB:
+        default: #@ data.values.AWS_NODE_OS_DISK_SIZE_GIB
+        #@ else:
+        default: 80
+        #@ end
+  - name: AWS_SECURITY_GROUP_BASTION
+    required: true
+    schema:
+      openAPIV3Schema:
+        type: string
+        default: ""
+  - name: AWS_SECURITY_GROUP_CONTROLPLANE
+    required: true
+    schema:
+      openAPIV3Schema:
+        type: string
+        default: ""
+  - name: AWS_SECURITY_GROUP_APISERVER_LB
+    required: true
+    schema:
+      openAPIV3Schema:
+        type: string
+        default: ""
+  - name: AWS_SECURITY_GROUP_NODE
+    required: true
+    schema:
+      openAPIV3Schema:
+        type: string
+        default: ""
+  - name: AWS_SECURITY_GROUP_LB
+    required: true
+    schema:
+      openAPIV3Schema:
+        type: string
+        default: ""
+  - name: AWS_LOAD_BALANCER_SCHEME_INTERNAL
+    required: true
+    schema:
+      openAPIV3Schema:
+        type: boolean
+        default: false
+  - name: AWS_IDENTITY_REF_KIND
+    required: true
+    schema:
+      openAPIV3Schema:
+        type: string
+        default: ""
+  - name: AWS_IDENTITY_REF_NAME
+    required: true
+    schema:
+      openAPIV3Schema:
+        type: string
+        default: ""
+  - name: CLUSTER_NAME
+    required: true
+    schema:
+      openAPIV3Schema:
+        type: string
+  - name: CLUSTER_PLAN
+    required: true
+    schema:
+      openAPIV3Schema:
+        type: string
+  - name: proxy
+    schema:
+      openAPIV3Schema:
+        type: object
+        properties:
+          httpProxy:
+            type: string
+            default: ""
+          httpsProxy:
+            type: string
+            default: ""
+          noProxy:
+            type: array
+            items:
+              type: string
+        required:
+          - httpProxy
+          - httpsProxy
+          - noProxy
+  - name: TKG_PROXY_CA_CERT
+    required: true
+    schema:
+      openAPIV3Schema:
+        type: string
+        default: ""
+  - name: TKG_CUSTOM_IMAGE_REPOSITORY
+    required: true
+    schema:
+      openAPIV3Schema:
+        type: string
+        default: ""
+  - name: TKG_CUSTOM_IMAGE_REPOSITORY_CA_CERTIFICATE
+    required: true
+    schema:
+      openAPIV3Schema:
+        type: string
+        default: ""
+  - name: TKG_CUSTOM_IMAGE_REPOSITORY_SKIP_TLS_VERIFY
+    required: true
+    schema:
+      openAPIV3Schema:
+        type: boolean
+        default: false
+  - name: ENABLE_AUDIT_LOGGING
+    required: true
+    schema:
+      openAPIV3Schema:
+        type: boolean
+        default: false
+  - name: TKR_KUBERNETES_SPEC
+    schema:
+      openAPIV3Schema:
+        type: object
+  patches:
+  - name: AWSCT_main
+    definitions:
+    - selector:
+        apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+        kind: AWSClusterTemplate
+        matchResources:
+          infrastructureCluster: true
+      jsonPatches:
+      - op: replace
+        path: "/spec/template/spec/region"
+        valueFrom:
+          template: '{{.AWS_REGION}}'
+      - op: replace
+        path: "/spec/template/spec/sshKeyName"
+        valueFrom:
+          variable: AWS_SSH_KEY_NAME
+      - op: replace
+        path: "/spec/template/spec/bastion/enabled"
+        valueFrom:
+          variable: BASTION_HOST_ENABLED
+      - op: add
+        path: "/spec/template/spec/network/vpc/cidrBlock"
+        valueFrom:
+          variable: AWS_VPC_CIDR
+      - op: replace
+        path: "/spec/template/spec/network/subnets"
+        valueFrom:
+          template: |
+            - availabilityZone: {{if .AWS_NODE_AZ}} {{.AWS_NODE_AZ}} {{else if .AWS_REGION}} {{.AWS_REGION}}a{{end}}
+              cidrBlock: '{{.AWS_PRIVATE_NODE_CIDR}}'
+              id: '{{.AWS_PRIVATE_SUBNET_ID}}'
+
+  - name: AWSCT_VPC_Id
+    enabledIf: '{{if .AWS_VPC_ID }}true{{end}}'
+    definitions:
+    - selector:
+        apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+        kind: AWSClusterTemplate
+        matchResources:
+          infrastructureCluster: true
+      jsonPatches:
+      - op: add
+        path: "/spec/template/spec/network/vpc/id"
+        valueFrom:
+          template: '{{.AWS_VPC_ID}}'
+
+  - name: AWSCT_IdentityRef
+    enabledIf: '{{if .AWS_IDENTITY_REF_NAME }}true{{end}}'
+    definitions:
+    - selector:
+        apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+        kind: AWSClusterTemplate
+        matchResources:
+          infrastructureCluster: true
+      jsonPatches:
+      - op: add
+        path: "/spec/template/spec/identityRef"
+        valueFrom:
+          template: |
+            kind: {{if .AWS_IDENTITY_REF_KIND }} {{.AWS_IDENTITY_REF_KIND}} {{else}} "AWSClusterRoleIdentity"{{end}}
+            name: {{ .AWS_IDENTITY_REF_NAME }}
+
+  - name: AWSCT_ControlPlaneLoadBalancerScheme
+    enabledIf: '{{if eq .AWS_LOAD_BALANCER_SCHEME_INTERNAL true }}true{{end}}'
+    definitions:
+    - selector:
+        apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+        kind: AWSClusterTemplate
+        matchResources:
+          infrastructureCluster: true
+      jsonPatches:
+      - op: add
+        path: "/spec/template/spec/controlPlaneLoadBalancer"
+        valueFrom:
+          template: |
+            scheme: "internal"
+
+  - name: AWSCT_AvailabilityZone_Public
+    enabledIf: '{{if or (not .AWS_VPC_ID) (.AWS_PUBLIC_SUBNET_ID) }}true{{end}}'
+    definitions:
+    - selector:
+        apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+        kind: AWSClusterTemplate
+        matchResources:
+          infrastructureCluster: true
+      jsonPatches:
+      - op: add
+        path: "/spec/template/spec/network/subnets/-"
+        valueFrom:
+          template: |
+            availabilityZone: {{if .AWS_NODE_AZ}} {{.AWS_NODE_AZ}} {{else if .AWS_REGION}} {{.AWS_REGION}}a{{end}}
+            cidrBlock: '{{.AWS_PUBLIC_NODE_CIDR}}'
+            isPublic: true
+            id: '{{.AWS_PUBLIC_SUBNET_ID}}'
+  - name: AWSCT_AvailabilityZone_1_Public
+    enabledIf: '{{if and (eq .CLUSTER_PLAN "prodcc") (or (not .AWS_VPC_ID) (.AWS_PUBLIC_SUBNET_ID_1)) }}true{{end}}'
+    definitions:
+    - selector:
+        apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+        kind: AWSClusterTemplate
+        matchResources:
+          infrastructureCluster: true
+      jsonPatches:
+      - op: add
+        path: "/spec/template/spec/network/subnets/-"
+        valueFrom:
+          template: |
+            availabilityZone: {{if .AWS_NODE_AZ_1}} {{.AWS_NODE_AZ_1}} {{else if .AWS_REGION}} {{.AWS_REGION}}b{{end}}
+            cidrBlock: {{.AWS_PUBLIC_NODE_CIDR_1}}
+            isPublic: true
+            id: '{{.AWS_PUBLIC_SUBNET_ID_1}}'
+  - name: AWSCT_AvailabilityZone_2_Public
+    enabledIf: '{{if and (eq .CLUSTER_PLAN "prodcc") (or (not .AWS_VPC_ID) (.AWS_PUBLIC_SUBNET_ID_2)) }}true{{end}}'
+    definitions:
+    - selector:
+        apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+        kind: AWSClusterTemplate
+        matchResources:
+          infrastructureCluster: true
+      jsonPatches:
+      - op: add
+        path: "/spec/template/spec/network/subnets/-"
+        valueFrom:
+          template: |
+            availabilityZone: {{if .AWS_NODE_AZ_2}} {{.AWS_NODE_AZ_2}} {{else if .AWS_REGION}} {{.AWS_REGION}}c{{end}}
+            cidrBlock: {{.AWS_PUBLIC_NODE_CIDR_2}}
+            isPublic: true
+            id: '{{.AWS_PUBLIC_SUBNET_ID_2}}'
+  - name: AWSCT_AvailabilityZone_Private
+    enabledIf: '{{if eq .CLUSTER_PLAN "prodcc"}}true{{end}}'
+    definitions:
+    - selector:
+        apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+        kind: AWSClusterTemplate
+        matchResources:
+          infrastructureCluster: true
+      jsonPatches:
+      - op: add
+        path: "/spec/template/spec/network/subnets/-"
+        valueFrom:
+          template: |
+            availabilityZone: {{if .AWS_NODE_AZ_1}} {{.AWS_NODE_AZ_1}} {{else if .AWS_REGION}} {{.AWS_REGION}}b{{end}}
+            cidrBlock: {{.AWS_PRIVATE_NODE_CIDR_1}}
+            id: '{{.AWS_PRIVATE_SUBNET_ID_1}}'
+      - op: add
+        path: "/spec/template/spec/network/subnets/-"
+        valueFrom:
+          template: |
+            availabilityZone: {{if .AWS_NODE_AZ_2}} {{.AWS_NODE_AZ_2}} {{else if .AWS_REGION}} {{.AWS_REGION}}c{{end}}
+            cidrBlock: {{.AWS_PRIVATE_NODE_CIDR_2}}
+            id: '{{.AWS_PRIVATE_SUBNET_ID_2}}'
+  - name: AWSCT_SecurityGroupOverrides
+    enabledIf: '{{if or ( ne .AWS_SECURITY_GROUP_BASTION "") (ne .AWS_SECURITY_GROUP_CONTROLPLANE "") (ne .AWS_SECURITY_GROUP_APISERVER_LB "") (ne .AWS_SECURITY_GROUP_NODE "") (ne .AWS_SECURITY_GROUP_LB "")}}true{{end}}'
+    definitions:
+    - selector:
+        apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+        kind: AWSClusterTemplate
+        matchResources:
+          infrastructureCluster: true
+      jsonPatches:
+      - op: add
+        path: "/spec/template/spec/network/securityGroupOverrides"
+        valueFrom:
+          template: |
+              {{if .AWS_SECURITY_GROUP_BASTION}}  bastion: {{.AWS_SECURITY_GROUP_BASTION}} {{end}}
+              {{if .AWS_SECURITY_GROUP_CONTROLPLANE }}  controlplane: {{.AWS_SECURITY_GROUP_CONTROLPLANE}} {{end}}
+              {{if .AWS_SECURITY_GROUP_APISERVER_LB }}  apiserver-lb:  {{.AWS_SECURITY_GROUP_APISERVER_LB}} {{end}}
+              {{if .AWS_SECURITY_GROUP_NODE }}  node: {{.AWS_SECURITY_GROUP_NODE}} {{end}}
+              {{if .AWS_SECURITY_GROUP_LB }}  lb: {{.AWS_SECURITY_GROUP_LB}} {{end}}
+
+  - name: AWS_MT_controlplane
+    definitions:
+    - selector:
+        apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+        kind: AWSMachineTemplate
+        matchResources:
+          controlPlane: true
+      jsonPatches:
+      - op: replace
+        path: "/spec/template/spec/instanceType"
+        valueFrom:
+          variable: CONTROL_PLANE_MACHINE_TYPE
+      - op: replace
+        path: "/spec/template/spec/sshKeyName"
+        valueFrom:
+          variable: AWS_SSH_KEY_NAME
+      - op: replace
+        path: "/spec/template/spec/rootVolume/size"
+        valueFrom:
+          variable: AWS_CONTROL_PLANE_OS_DISK_SIZE_GIB
+
+  - name: AWS_MT_worker
+    definitions:
+    - selector:
+        apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+        kind: AWSMachineTemplate
+        matchResources:
+          machineDeploymentClass:
+            names:
+            - "tkg-worker"
+      jsonPatches:
+      - op: replace
+        path: "/spec/template/spec/instanceType"
+        valueFrom:
+          variable: NODE_MACHINE_TYPE
+      - op: replace
+        path: "/spec/template/spec/sshKeyName"
+        valueFrom:
+          variable: AWS_SSH_KEY_NAME
+      - op: replace
+        path: "/spec/template/spec/rootVolume/size"
+        valueFrom:
+          variable: AWS_NODE_OS_DISK_SIZE_GIB
+  - name: httpProxy
+    enabledIf: '{{not (not .proxy)}}'
+    definitions:
+    - selector:
+        apiVersion: controlplane.cluster.x-k8s.io/v1beta1
+        kind: KubeadmControlPlaneTemplate
+        matchResources:
+          controlPlane: true
+      jsonPatches:
+      - op: add
+        path: /spec/template/spec/kubeadmConfigSpec/files/-
+        valueFrom:
+          template: |
+            content: |
+              [Service]
+              Environment="HTTP_PROXY={{.proxy.httpProxy}}"
+              Environment="HTTPS_PROXY={{.proxy.httpsProxy}}"
+              Environment="NO_PROXY={{- range .proxy.noProxy}}{{.}},{{- end}}{{.AWS_VPC_CIDR}},169.254.0.0/16,{{.SERVICE_CIDR}},{{.CLUSTER_CIDR}},localhost,127.0.0.1,.scv,.svc.cluster.local"
+            owner: root:root
+            path: /etc/systemd/system/containerd.service.d/http-proxy.conf
+            permissions: "0640"
+      - op: add
+        path: /spec/template/spec/kubeadmConfigSpec/files/-
+        valueFrom:
+          template: |
+            content: |
+              [Service]
+              Environment="HTTP_PROXY={{.proxy.httpProxy}}"
+              Environment="HTTPS_PROXY={{.proxy.httpsProxy}}"
+              Environment="NO_PROXY={{- range .proxy.noProxy}}{{.}},{{- end}}{{.AWS_VPC_CIDR}},169.254.0.0/16,{{.SERVICE_CIDR}},{{.CLUSTER_CIDR}},localhost,127.0.0.1,.scv,.svc.cluster.local"
+            owner: root:root
+            path: /usr/lib/systemd/system/kubelet.service.d/http-proxy.conf
+            permissions: "0640"
+      - op: add
+        path: /spec/template/spec/kubeadmConfigSpec/preKubeadmCommands/-
+        value: systemctl daemon-reload
+      - op: add
+        path: /spec/template/spec/kubeadmConfigSpec/preKubeadmCommands/-
+        value: systemctl stop containerd
+      - op: add
+        path: /spec/template/spec/kubeadmConfigSpec/preKubeadmCommands/-
+        value: systemctl start containerd
+      - op: add
+        path: /spec/template/spec/kubeadmConfigSpec/preKubeadmCommands/-
+        valueFrom:
+          template: |
+            export HTTP_PROXY={{.proxy.httpProxy}}
+      - op: add
+        path: /spec/template/spec/kubeadmConfigSpec/preKubeadmCommands/-
+        valueFrom:
+          template: |
+            export HTTPS_PROXY={{.proxy.httpsProxy}}
+      - op: add
+        path: /spec/template/spec/kubeadmConfigSpec/preKubeadmCommands/-
+        valueFrom:
+          template: |
+            export NO_PROXY={{- range .proxy.noProxy}}{{.}},{{- end}}{{.AWS_VPC_CIDR}},169.254.0.0/16,{{.SERVICE_CIDR}},{{.CLUSTER_CIDR}},localhost,127.0.0.1,.scv,.svc.cluster.local
+    - selector:
+        apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
+        kind: KubeadmConfigTemplate
+        matchResources:
+          machineDeploymentClass:
+            names:
+            - tkg-worker
+      jsonPatches:
+      - op: add
+        path: /spec/template/spec/files/-
+        valueFrom:
+          template: |
+            content: |
+              [Service]
+              Environment="HTTP_PROXY={{.proxy.httpProxy}}"
+              Environment="HTTPS_PROXY={{.proxy.httpsProxy}}"
+              Environment="NO_PROXY={{- range .proxy.noProxy}}{{.}},{{- end}}{{.AWS_VPC_CIDR}},169.254.0.0/16,{{.SERVICE_CIDR}},{{.CLUSTER_CIDR}},localhost,127.0.0.1,.scv,.svc.cluster.local"
+            owner: root:root
+            path: /etc/systemd/system/containerd.service.d/http-proxy.conf
+            permissions: "0640"
+      - op: add
+        path: /spec/template/spec/files/-
+        valueFrom:
+          template: |
+            content: |
+              [Service]
+              Environment="HTTP_PROXY={{.proxy.httpProxy}}"
+              Environment="HTTPS_PROXY={{.proxy.httpsProxy}}"
+              Environment="NO_PROXY={{- range .proxy.noProxy}}{{.}},{{- end}}{{.AWS_VPC_CIDR}},169.254.0.0/16,{{.SERVICE_CIDR}},{{.CLUSTER_CIDR}},localhost,127.0.0.1,.scv,.svc.cluster.local"
+            owner: root:root
+            path: /usr/lib/systemd/system/kubelet.service.d/http-proxy.conf
+            permissions: "0640"
+      - op: add
+        path: /spec/template/spec/preKubeadmCommands/-
+        value: systemctl daemon-reload
+      - op: add
+        path: /spec/template/spec/preKubeadmCommands/-
+        value: systemctl restart containerd
+      - op: add
+        path: /spec/template/spec/preKubeadmCommands/-
+        valueFrom:
+          template: |
+            export HTTP_PROXY={{.proxy.httpProxy}}
+      - op: add
+        path: /spec/template/spec/preKubeadmCommands/-
+        valueFrom:
+          template: |
+            export HTTPS_PROXY={{.proxy.httpsProxy}}
+      - op: add
+        path: /spec/template/spec/preKubeadmCommands/-
+        valueFrom:
+          template: |
+            export NO_PROXY={{- range .proxy.noProxy}}{{.}},{{- end}}{{.AWS_VPC_CIDR}},169.254.0.0/16,{{.SERVICE_CIDR}},{{.CLUSTER_CIDR}},localhost,127.0.0.1,.scv,.svc.cluster.local
+  - name: registryCACert
+    enabledIf: '{{and (ne "" (or .TKG_PROXY_CA_CERT .TKG_CUSTOM_IMAGE_REPOSITORY_CA_CERTIFICATE)) (not (and .TKG_CUSTOM_IMAGE_REPOSITORY_SKIP_TLS_VERIFY (ne "" .TKG_CUSTOM_IMAGE_REPOSITORY))) }}'
+    definitions:
+    - selector:
+        apiVersion: controlplane.cluster.x-k8s.io/v1beta1
+        kind: KubeadmControlPlaneTemplate
+        matchResources:
+          controlPlane: true
+      jsonPatches:
+      - op: add
+        path: /spec/template/spec/kubeadmConfigSpec/preKubeadmCommands/-
+        valueFrom:
+          template: |
+            echo '[plugins."io.containerd.grpc.v1.cri".registry.configs."{{(index (splitList "/" .TKG_CUSTOM_IMAGE_REPOSITORY) 0)}}".tls]' >> /etc/containerd/config.toml
+      - op: add
+        path: /spec/template/spec/kubeadmConfigSpec/preKubeadmCommands/-
+        valueFrom:
+          template: |
+            echo '  ca_file = "/etc/containerd/{{(index (splitList "/" .TKG_CUSTOM_IMAGE_REPOSITORY) 0)}}.crt"' >> /etc/containerd/config.toml
+      - op: add
+        path: /spec/template/spec/kubeadmConfigSpec/preKubeadmCommands/-
+        value: systemctl restart containerd
+      - op: add
+        path: /spec/template/spec/kubeadmConfigSpec/files/-
+        valueFrom:
+          template: |
+            path: /etc/containerd/{{(index (splitList "/" .TKG_CUSTOM_IMAGE_REPOSITORY) 0)}}.crt
+            content: {{or .TKG_PROXY_CA_CERT .TKG_CUSTOM_IMAGE_REPOSITORY_CA_CERTIFICATE}}
+            encoding: base64
+            permissions: 0444
+    - selector:
+        apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
+        kind: KubeadmConfigTemplate
+        matchResources:
+          machineDeploymentClass:
+            names:
+            - tkg-worker
+      jsonPatches:
+      - op: add
+        path: /spec/template/spec/preKubeadmCommands/-
+        valueFrom:
+          template: |
+            echo '[plugins."io.containerd.grpc.v1.cri".registry.configs."{{(index (splitList "/" .TKG_CUSTOM_IMAGE_REPOSITORY) 0)}}".tls]' >> /etc/containerd/config.toml
+      - op: add
+        path: /spec/template/spec/preKubeadmCommands/-
+        valueFrom:
+          template: |
+            echo '  ca_file = "/etc/containerd/{{(index (splitList "/" .TKG_CUSTOM_IMAGE_REPOSITORY) 0)}}.crt"' >> /etc/containerd/config.toml
+      - op: add
+        path: /spec/template/spec/preKubeadmCommands/-
+        value: systemctl restart containerd
+      - op: add
+        path: /spec/template/spec/files/-
+        valueFrom:
+          template: |
+            path: /etc/containerd/{{(index (splitList "/" .TKG_CUSTOM_IMAGE_REPOSITORY) 0)}}.crt
+            content: {{or .TKG_PROXY_CA_CERT .TKG_CUSTOM_IMAGE_REPOSITORY_CA_CERTIFICATE}}
+            encoding: base64
+            permissions: 0444
+  - name: registrySkipTLSVerify
+    enabledIf: '{{and (ne "" .TKG_CUSTOM_IMAGE_REPOSITORY) .TKG_CUSTOM_IMAGE_REPOSITORY_SKIP_TLS_VERIFY}}'
+    definitions:
+    - selector:
+        apiVersion: controlplane.cluster.x-k8s.io/v1beta1
+        kind: KubeadmControlPlaneTemplate
+        matchResources:
+          controlPlane: true
+      jsonPatches:
+      - op: add
+        path: /spec/template/spec/kubeadmConfigSpec/preKubeadmCommands/-
+        valueFrom:
+          template: |
+            echo '[plugins."io.containerd.grpc.v1.cri".registry.configs."{{(index (splitList "/" .TKG_CUSTOM_IMAGE_REPOSITORY) 0)}}".tls]' >> /etc/containerd/config.toml
+      - op: add
+        path: /spec/template/spec/kubeadmConfigSpec/preKubeadmCommands/-
+        value: echo '  insecure_skip_verify = true' >> /etc/containerd/config.toml
+    - selector:
+        apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
+        kind: KubeadmConfigTemplate
+        matchResources:
+          machineDeploymentClass:
+            names:
+            - tkg-worker
+      jsonPatches:
+      - op: add
+        path: /spec/template/spec/preKubeadmCommands/-
+        valueFrom:
+          template: |
+            echo '[plugins."io.containerd.grpc.v1.cri".registry.configs."{{(index (splitList "/" .TKG_CUSTOM_IMAGE_REPOSITORY) 0)}}".tls]' >> /etc/containerd/config.toml
+      - op: add
+        path: /spec/template/spec/preKubeadmCommands/-
+        value: echo '  insecure_skip_verify = true' >> /etc/containerd/config.toml
+  - name: customRepository
+    enabledIf: '{{ne "" .TKG_CUSTOM_IMAGE_REPOSITORY}}'
+    definitions:
+    - selector:
+        apiVersion: controlplane.cluster.x-k8s.io/v1beta1
+        kind: KubeadmControlPlaneTemplate
+        matchResources:
+          controlPlane: true
+      jsonPatches:
+      - op: add
+        path: /spec/template/spec/kubeadmConfigSpec/preKubeadmCommands/-
+        valueFrom:
+          template: |
+            sed -i 's|\".*/pause|\{{.TKG_CUSTOM_IMAGE_REPOSITORY}}/pause|' /etc/containerd/config.toml
+      - op: add
+        path: /spec/template/spec/kubeadmConfigSpec/preKubeadmCommands/-
+        value: systemctl restart containerd
+    - selector:
+        apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
+        kind: KubeadmConfigTemplate
+        matchResources:
+          machineDeploymentClass:
+            names:
+            - tkg-worker
+      jsonPatches:
+      - op: add
+        path: /spec/template/spec/preKubeadmCommands/-
+        valueFrom:
+          template: |
+            sed -i 's|\".*/pause|\{{.TKG_CUSTOM_IMAGE_REPOSITORY}}/pause|' /etc/containerd/config.toml
+      - op: add
+        path: /spec/template/spec/preKubeadmCommands/-
+        value: systemctl restart containerd
+  - name: auditLogging
+    enabledIf: '{{.ENABLE_AUDIT_LOGGING}}'
+    definitions:
+    - selector:
+        apiVersion: controlplane.cluster.x-k8s.io/v1beta1
+        kind: KubeadmControlPlaneTemplate
+        matchResources:
+          controlPlane: true
+      jsonPatches:
+      - op: add
+        path: /spec/template/spec/kubeadmConfigSpec/clusterConfiguration/apiServer/extraArgs/-
+        value:
+          audit-log-path: /var/log/kubernetes/audit.log
+      - op: add
+        path: /spec/template/spec/kubeadmConfigSpec/clusterConfiguration/apiServer/extraArgs/-
+        value:
+          audit-policy-file: /etc/kubernetes/audit-policy.yaml
+      - op: add
+        path: /spec/template/spec/kubeadmConfigSpec/clusterConfiguration/apiServer/extraArgs/-
+        value:
+          audit-log-maxage: "30"
+      - op: add
+        path: /spec/template/spec/kubeadmConfigSpec/clusterConfiguration/apiServer/extraArgs/-
+        value:
+          audit-log-maxbackup: "10"
+      - op: add
+        path: /spec/template/spec/kubeadmConfigSpec/clusterConfiguration/apiServer/extraArgs/-
+        value:
+          audit-log-maxsize: "100"
+      - op: add
+        path: /spec/template/spec/kubeadmConfigSpec/clusterConfiguration/apiServer/extraVolumes/-
+        value:
+          name: audit-policy
+          hostPath: /etc/kubernetes/audit-policy.yaml
+          mountPath: /etc/kubernetes/audit-policy.yaml
+      - op: add
+        path: /spec/template/spec/kubeadmConfigSpec/clusterConfiguration/apiServer/extraVolumes/-
+        value:
+          name: audit-logs
+          hostPath: /var/log/kubernetes
+          mountPath: /var/log/kubernetes
+      - op: add
+        path: /spec/template/spec/kubeadmConfigSpec/files/-
+        value:
+          path: /etc/kubernetes/audit-policy.yaml
+          owner: "root:root"
+          permissions: "0600"
+          content: |
+            ---
+            apiVersion: audit.k8s.io/v1beta1
+            kind: Policy
+            rules:
+              #! The following requests were manually identified as high-volume and low-risk,
+              #! so drop them.
+              - level: None
+                users: ["system:serviceaccount:kube-system:kube-proxy"]
+                verbs: ["watch"]
+                resources:
+                  - group: "" #! core
+                    resources: ["endpoints", "services", "services/status"]
+              - level: None
+                userGroups: ["system:nodes"]
+                verbs: ["get"]
+                resources:
+                  - group: "" #! core
+                    resources: ["nodes", "nodes/status"]
+              - level: None
+                users:
+                  - system:kube-controller-manager
+                  - system:kube-scheduler
+                  - system:serviceaccount:kube-system:endpoint-controller
+                verbs: ["get", "update"]
+                namespaces: ["kube-system"]
+                resources:
+                  - group: "" #! core
+                    resources: ["endpoints"]
+              - level: None
+                users: ["system:apiserver"]
+                verbs: ["get"]
+                resources:
+                  - group: "" #! core
+                    resources: ["namespaces", "namespaces/status", "namespaces/finalize"]
+              #! Don't log HPA fetching metrics.
+              - level: None
+                users:
+                  - system:kube-controller-manager
+                verbs: ["get", "list"]
+                resources:
+                  - group: "metrics.k8s.io"
+              #! Don't log these read-only URLs.
+              - level: None
+                nonResourceURLs:
+                  - /healthz*
+                  - /version
+                  - /swagger*
+              #! Don't log events requests.
+              - level: None
+                resources:
+                  - group: "" #! core
+                    resources: ["events"]
+              #! Don't log TMC service account performing read operations because they are high-volume.
+              - level: None
+                userGroups: ["system:serviceaccounts:vmware-system-tmc"]
+                verbs: ["get", "list", "watch"]
+              #! Don't log read requests from garbage collector because they are high-volume.
+              - level: None
+                users: ["system:serviceaccount:kube-system:generic-garbage-collector"]
+                verbs: ["get", "list", "watch"]
+              #! node and pod status calls from nodes are high-volume and can be large, don't log responses for expected updates from nodes
+              - level: Request
+                userGroups: ["system:nodes"]
+                verbs: ["update","patch"]
+                resources:
+                  - group: "" #! core
+                    resources: ["nodes/status", "pods/status"]
+                omitStages:
+                  - "RequestReceived"
+              #! deletecollection calls can be large, don't log responses for expected namespace deletions
+              - level: Request
+                users: ["system:serviceaccount:kube-system:namespace-controller"]
+                verbs: ["deletecollection"]
+                omitStages:
+                  - "RequestReceived"
+              #! Secrets, ConfigMaps, and TokenReviews can contain sensitive & binary data,
+              #! so only log at the Metadata level.
+              - level: Metadata
+                resources:
+                  - group: "" #! core
+                    resources: ["secrets", "configmaps"]
+                  - group: authentication.k8s.io
+                    resources: ["tokenreviews"]
+                omitStages:
+                  - "RequestReceived"
+              #! Get repsonses can be large; skip them.
+              - level: Request
+                verbs: ["get", "list", "watch"]
+                resources:
+                  - group: "" #! core
+                  - group: "admissionregistration.k8s.io"
+                  - group: "apiextensions.k8s.io"
+                  - group: "apiregistration.k8s.io"
+                  - group: "apps"
+                  - group: "authentication.k8s.io"
+                  - group: "authorization.k8s.io"
+                  - group: "autoscaling"
+                  - group: "batch"
+                  - group: "certificates.k8s.io"
+                  - group: "extensions"
+                  - group: "metrics.k8s.io"
+                  - group: "networking.k8s.io"
+                  - group: "policy"
+                  - group: "rbac.authorization.k8s.io"
+                  - group: "settings.k8s.io"
+                  - group: "storage.k8s.io"
+                omitStages:
+                  - "RequestReceived"
+              #! Default level for known APIs
+              - level: RequestResponse
+                resources:
+                  - group: "" #! core
+                  - group: "admissionregistration.k8s.io"
+                  - group: "apiextensions.k8s.io"
+                  - group: "apiregistration.k8s.io"
+                  - group: "apps"
+                  - group: "authentication.k8s.io"
+                  - group: "authorization.k8s.io"
+                  - group: "autoscaling"
+                  - group: "batch"
+                  - group: "certificates.k8s.io"
+                  - group: "extensions"
+                  - group: "metrics.k8s.io"
+                  - group: "networking.k8s.io"
+                  - group: "policy"
+                  - group: "rbac.authorization.k8s.io"
+                  - group: "settings.k8s.io"
+                  - group: "storage.k8s.io"
+                omitStages:
+                  - "RequestReceived"
+              #! Default level for all other requests.
+              - level: Metadata
+                omitStages:
+                  - "RequestReceived"
+---
+apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+kind: AWSClusterTemplate
+metadata:
+  name: aws-cluster-template
+  namespace: default
+spec:
+  template:
+    spec:
+      region: "${AWS_REGION}"
+      sshKeyName: "${AWS_SSH_KEY_NAME}"
+      bastion:
+        enabled: true
+      network:
+        vpc:
+          cidrBlock:
+        subnets:
+          - availabilityZone: '${AWS_NODE_AZ}'
+            cidrBlock: '${AWS_PRIVATE_NODE_CIDR}'
+            id: '${AWS_PRIVATE_SUBNET_ID}'
+---
+apiVersion: controlplane.cluster.x-k8s.io/v1beta1
+kind: KubeadmControlPlaneTemplate
+metadata:
+  name: tkg-aws-kcp
+  namespace: default
+spec:
+  template:
+    spec:
+      kubeadmConfigSpec:
+        files: []
+        preKubeadmCommands: []
+        useExperimentalRetryJoin: true
+        clusterConfiguration:
+          apiServer:
+            timeoutForControlPlane: "8m0s"
+            extraVolumes: []
+            extraArgs:
+              cloud-provider: aws
+              tls-cipher-suites: TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,TLS_RSA_WITH_AES_256_GCM_SHA384
+          controllerManager:
+            extraArgs:
+              cloud-provider: aws
+              tls-cipher-suites: TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
+          dns:
+            imageRepository: projects-stg.registry.vmware.com/tkg #! TODO '${_TKG_COREDNS_IMAGE_REPOSITORY}' May be a variable for package level
+            imageTag: v1.8.4_vmware.5 #! TODO '${_TKG_COREDNS_IMAGE_TAG}' May be a variable for package level
+          etcd:
+            local:
+              dataDir: /var/lib/etcd
+              imageRepository: projects-stg.registry.vmware.com/tkg #! TODO '${_TKG_ETCD_IMAGE_REPOSITORY}' May be a variable for package level
+              imageTag: v3.5.0_vmware.5 #! TODO '${_TKG_ETCD_IMAGE_TAG}' May be a variable for package level
+              extraArgs:
+                cipher-suites: TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
+          imageRepository: projects-stg.registry.vmware.com/tkg #! TODO '${_TKG_COREDNS_IMAGE_REPOSITORY}' May be a variable for package level
+          scheduler:
+            extraArgs:
+              tls-cipher-suites: TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
+        initConfiguration:
+          nodeRegistration:
+            name: '{{ ds.meta_data.local_hostname }}'
+            kubeletExtraArgs:
+              cloud-provider: aws
+              tls-cipher-suites: TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
+        joinConfiguration:
+          nodeRegistration:
+            name: '{{ ds.meta_data.local_hostname }}'
+            kubeletExtraArgs:
+              cloud-provider: aws
+              tls-cipher-suites: TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
+---
+kind: AWSMachineTemplate
+apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+metadata:
+  name: tkg-aws-controlplane-template
+  namespace: default
+spec:
+  template:
+    spec:
+      instanceType: "${CONTROL_PLANE_MACHINE_TYPE}"
+      iamInstanceProfile: "control-plane.tkg.cloud.vmware.com"
+      sshKeyName: ${AWS_SSH_KEY_NAME}
+      ami:
+        id: "${AWS_AMI_ID}"
+      rootVolume:
+        size: 80
+---
+apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+kind: AWSMachineTemplate
+metadata:
+  name: tkg-aws-worker-template
+  namespace: default
+spec:
+  template:
+    spec:
+      instanceType: "${NODE_MACHINE_TYPE}"
+      iamInstanceProfile: "nodes.tkg.cloud.vmware.com"
+      sshKeyName: "${AWS_SSH_KEY_NAME}"
+      ami:
+        id: "${AWS_AMI_ID}"
+      rootVolume:
+        size: 80
+---
+apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
+kind: KubeadmConfigTemplate
+metadata:
+  name: tkg-aws-bootstrap-template
+  namespace: default
+spec:
+  template:
+    spec:
+      useExperimentalRetryJoin: true
+      joinConfiguration:
+        nodeRegistration:
+          name: '{{ ds.meta_data.local_hostname }}'
+          kubeletExtraArgs:
+            cloud-provider: aws
+            tls-cipher-suites: TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
+      preKubeadmCommands: []
+      files: []
