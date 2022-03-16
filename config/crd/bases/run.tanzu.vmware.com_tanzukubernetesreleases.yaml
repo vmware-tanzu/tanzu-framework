@@ -5,6 +5,7 @@ kind: CustomResourceDefinition
 metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.7.0
+    cert-manager.io/inject-ca-from: tanzu-system/tkr-conversion-webhook-serving-cert
   creationTimestamp: null
   name: tanzukubernetesreleases.run.tanzu.vmware.com
 spec:
