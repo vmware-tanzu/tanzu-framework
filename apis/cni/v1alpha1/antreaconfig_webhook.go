@@ -25,15 +25,7 @@ func (r *AntreaConfig) SetupWebhookWithManager(mgr ctrl.Manager) error {
 		Complete()
 }
 
-var _ webhook.Defaulter = &AntreaConfig{}
 var _ webhook.Validator = &AntreaConfig{}
-
-// +kubebuilder:webhook:path=/mutate-cni-tanzu-vmware-com-v1alpha1-antreaconfig,mutating=true,failurePolicy=fail,groups=cni.tanzu.vmware.com,resources=antreaconfigs,verbs=create;update,versions=v1alpha1,name=mantreaconfig.kb.io,admissionReviewVersions=v1,sideEffects=None
-
-// Default implements webhook.Defaulter so a webhook will be registered for the type
-func (r *AntreaConfig) Default() {
-	// No-op for default
-}
 
 // +kubebuilder:webhook:verbs=create;update,path=/validate-cni-tanzu-vmware-com-v1alpha1-antreaconfig,mutating=false,failurePolicy=fail,groups=cni.tanzu.vmware.com,resources=antreaconfigs,versions=v1alpha1,name=vantreaconfig.kb.io,admissionReviewVersions=v1,sideEffects=None
 

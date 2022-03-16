@@ -25,15 +25,7 @@ func (r *CalicoConfig) SetupWebhookWithManager(mgr ctrl.Manager) error {
 		Complete()
 }
 
-var _ webhook.Defaulter = &CalicoConfig{}
 var _ webhook.Validator = &CalicoConfig{}
-
-// +kubebuilder:webhook:path=/mutate-cni-tanzu-vmware-com-v1alpha1-calicoconfig,mutating=true,failurePolicy=fail,groups=cni.tanzu.vmware.com,resources=calicoconfigs,verbs=create;update,versions=v1alpha1,name=mcalicoconfig.kb.io,admissionReviewVersions=v1,sideEffects=None
-
-// Default implements webhook.Defaulter so a webhook will be registered for the type
-func (r *CalicoConfig) Default() {
-	// No-op for default
-}
 
 // +kubebuilder:webhook:verbs=create;update,path=/validate-cni-tanzu-vmware-com-v1alpha1-calicoconfig,mutating=false,failurePolicy=fail,groups=cni.tanzu.vmware.com,resources=calicoconfigs,versions=v1alpha1,name=vcalicoconfig.kb.io,admissionReviewVersions=v1,sideEffects=None
 
