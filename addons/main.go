@@ -35,6 +35,7 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/crdwait"
 	cniv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cni/v1alpha1"
+	cpiv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cpi/v1alpha1"
 	runtanzuv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha1"
 	runtanzuv1alpha3 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/buildinfo"
@@ -57,6 +58,7 @@ func init() {
 	_ = controlplanev1beta1.AddToScheme(scheme)
 	_ = runtanzuv1alpha3.AddToScheme(scheme)
 	_ = cniv1alpha1.AddToScheme(scheme)
+	_ = cpiv1alpha1.AddToScheme(scheme)
 
 	// +kubebuilder:scaffold:scheme
 }
