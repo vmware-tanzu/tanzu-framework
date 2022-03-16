@@ -59,12 +59,7 @@ func (spoke *TanzuKubernetesRelease) ConvertFrom(hubRaw conversion.Hub) error {
 		// Annotations contain data, restore the relevant ones.
 		spoke.Spec.NodeImageRef = restored.Spec.NodeImageRef
 		if restored.Spec.Images != nil {
-			for _, image := range restored.Spec.Images {
-				if image.Name != etcdContainerImageName && image.Name != pauseContainerImageName && image.Name != corednsContainerImageName {
-					// Do not copy over etcd, pause and coredns as those are compatible and handled in the autoconvert.
-					spoke.Spec.Images = append(spoke.Spec.Images, image)
-				}
-			}
+			spoke.Spec.Images = restored.Spec.Images
 		}
 	}
 
@@ -115,6 +110,8 @@ func Convert_v1alpha3_TanzuKubernetesReleaseSpec_To_v1alpha1_TanzuKubernetesRele
 	out.Repository = in.Kubernetes.ImageRepository
 
 	// Transform the containerimages.
+	// Container images are completely restored from the annotations later.
+	// This is to handle the scenario when there are no annotations present.
 	if in.Kubernetes.Etcd != nil {
 		out.Images = append(out.Images, ContainerImage{
 			Name:       etcdContainerImageName,
