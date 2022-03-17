@@ -13,6 +13,7 @@ import (
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -22,6 +23,7 @@ import (
 	"k8s.io/client-go/rest"
 	capvv1beta1 "sigs.k8s.io/cluster-api-provider-vsphere/apis/v1beta1"
 	clusterapiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
+	capiremote "sigs.k8s.io/cluster-api/controllers/remote"
 	controlplanev1beta1 "sigs.k8s.io/cluster-api/controlplane/kubeadm/api/v1beta1"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -42,7 +44,6 @@ import (
 	addonconfig "github.com/vmware-tanzu/tanzu-framework/addons/pkg/config"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/crdwait"
-	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/util"
 	testutil "github.com/vmware-tanzu/tanzu-framework/addons/testutil"
 	cniv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cni/v1alpha1"
 	cpiv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cpi/v1alpha1"
@@ -110,6 +111,7 @@ var _ = BeforeSuite(func(done Done) {
 		"github.com/vmware-tanzu/carvel-kapp-controller": {"config/crds.yml"},
 		"sigs.k8s.io/cluster-api-provider-vsphere":       {"config/default/crd/bases"},
 	}
+
 	externalCRDPaths, err := testutil.GetExternalCRDPaths(externalDeps)
 	Expect(err).NotTo(HaveOccurred())
 	Expect(externalCRDPaths).ToNot(BeEmpty())
@@ -265,7 +267,21 @@ var _ = BeforeSuite(func(done Done) {
 	)
 	Expect(bootstrapReconciler.SetupWithManager(ctx, mgr, controller.Options{MaxConcurrentReconciles: 1})).To(Succeed())
 
-	tracker := util.NewRemoteObjectTracker(mgr)
+	// Set up a ClusterCacheTracker to provide to PackageInstallStatus controller which requires a connection to remote clusters
+	l := ctrl.Log.WithName("remote").WithName("ClusterCacheTracker")
+	tracker, err := capiremote.NewClusterCacheTracker(mgr, capiremote.ClusterCacheTrackerOptions{
+		Log: &l,
+		ClientUncachedObjects: []client.Object{
+			&corev1.ConfigMap{},
+			&corev1.Secret{},
+			&corev1.Pod{},
+			&appsv1.Deployment{},
+			&appsv1.DaemonSet{},
+		},
+	})
+	Expect(err).Should(BeNil())
+	Expect(tracker).ShouldNot(BeNil())
+
 	Expect((&PackageInstallStatusReconciler{
 		Client:  mgr.GetClient(),
 		Log:     ctrl.Log.WithName("controllers").WithName("PackageInstallStatus"),

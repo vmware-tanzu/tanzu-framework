@@ -27,17 +27,19 @@ import (
 )
 
 var _ = Describe("PackageInstallStatus Reconciler", func() {
+	const (
+		antreaPkg           = "antrea.tanzu.vmware.com.1.2.3--vmware.1-tkg.2"
+		antreaPkgRefName    = "antrea.tanzu.vmware.com"
+		clusterNameMng      = "test-mng"
+		clusterNamespaceMng = "tkg-system"
+		clusterNameWlc      = "test-wlc"
+		clusterNamespaceWlc = "test-ns-wlc"
+		kappPkgRefName      = "kapp-controller.tanzu.vmware.com"
+	)
+
 	var (
-		antreaPkg               = "antrea.tanzu.vmware.com.1.2.3--vmware.1-tkg.2"
-		antreaPkgRefName        = "antrea.tanzu.vmware.com"
-		antreaPkgShortName      = "antrea"
 		clusterResourceFilePath string
-		clusterNameMng          = "test-mng"
-		clusterNamespaceMng     = "tkg-system"
-		clusterNameWlc          = "test-wlc"
-		clusterNamespaceWlc     = "test-ns-wlc"
-		kappPkgRefName          = "kapp-controller.tanzu.vmware.com"
-		mngAntreaObjKey         = client.ObjectKey{Namespace: constants.TKGSystemNS, Name: antreaPkgShortName}
+		mngAntreaObjKey         = client.ObjectKey{Namespace: constants.TKGSystemNS, Name: util.GeneratePackageInstallName(clusterNameMng, antreaPkgRefName)}
 		wlcAntreaObjKey         = client.ObjectKey{Namespace: constants.TKGSystemNS, Name: util.GeneratePackageInstallName(clusterNameWlc, antreaPkgRefName)}
 		wlcKappObjKey           = client.ObjectKey{Namespace: clusterNamespaceWlc, Name: util.GeneratePackageInstallName(clusterNameWlc, kappPkgRefName)}
 	)
@@ -50,7 +52,7 @@ var _ = Describe("PackageInstallStatus Reconciler", func() {
 		Expect(testutil.CreateResources(f, cfg, dynamicClient)).Should(Succeed())
 
 		By("Installing antrea into management cluster")
-		installPackage(clusterNameMng, antreaPkg, antreaPkgShortName, constants.TKGSystemNS)
+		installPackage(clusterNameMng, antreaPkg, constants.TKGSystemNS)
 		updatePkgInstallStatus(mngAntreaObjKey, kappctrlv1alpha1.ReconcileSucceeded)
 
 		By("Creating kubeconfig for management cluster")
@@ -80,15 +82,17 @@ var _ = Describe("PackageInstallStatus Reconciler", func() {
 			mngCluster := &clusterapiv1beta1.Cluster{}
 			Expect(k8sClient.Get(ctx, client.ObjectKey{Namespace: clusterNamespaceMng, Name: clusterNameMng}, mngCluster)).Should(Succeed())
 			// update management cluster status phase to 'Provisioned' as it is required for ClusterBootstrap reconciler
-			mngCluster.Status.Phase = string(clusterapiv1beta1.ClusterPhaseProvisioned)
-			Expect(k8sClient.Status().Update(ctx, mngCluster)).Should(Succeed())
+			mngClusterCopy := mngCluster.DeepCopy()
+			mngClusterCopy.Status.Phase = string(clusterapiv1beta1.ClusterPhaseProvisioned)
+			Expect(k8sClient.Status().Update(ctx, mngClusterCopy)).Should(Succeed())
 
 			By("verifying workload cluster is created properly")
 			wlcCluster := &clusterapiv1beta1.Cluster{}
 			Expect(k8sClient.Get(ctx, client.ObjectKey{Namespace: clusterNamespaceWlc, Name: clusterNameWlc}, wlcCluster)).Should(Succeed())
 			// update workload cluster status phase to 'Provisioned' as it is required for ClusterBootstrap reconciler
-			wlcCluster.Status.Phase = string(clusterapiv1beta1.ClusterPhaseProvisioned)
-			Expect(k8sClient.Status().Update(ctx, wlcCluster)).Should(Succeed())
+			wlcClusterCopy := wlcCluster.DeepCopy()
+			wlcClusterCopy.Status.Phase = string(clusterapiv1beta1.ClusterPhaseProvisioned)
+			Expect(k8sClient.Status().Update(ctx, wlcClusterCopy)).Should(Succeed())
 
 			By("verifying management and workload clusters' ClusterBootstrap has been created")
 			clusterBootstrapGet(client.ObjectKeyFromObject(mngCluster))
@@ -96,27 +100,27 @@ var _ = Describe("PackageInstallStatus Reconciler", func() {
 
 			By("verifying un-managed packages do not update the 'Status.Conditions' for ClusterBootstrap")
 			// install unmanaged package into management cluster. Make sure ClusterBootstrap conditions does not get changed from un-managed package
-			installPackage(mngCluster.Name, "pkg.test.carvel.dev.1.0.0", "unmanaged-pkgi", mngCluster.Namespace)
+			installPackage(mngCluster.Name, "pkg.test.carvel.dev.1.0.0", mngCluster.Namespace)
 			mngClusterBootstrap := clusterBootstrapGet(client.ObjectKeyFromObject(mngCluster))
 			// Antrea is already installed into management cluster's tkg-system namespace
 			Expect(len(mngClusterBootstrap.Status.Conditions)).Should(Equal(1))
 			antreaCondType := "Antrea-" + runtanzuv1alpha3.ConditionType(v1alpha1.ReconcileSucceeded)
 			Expect(mngClusterBootstrap.Status.Conditions[0].Type).Should(Equal(antreaCondType))
 			// install unmanaged package into workload cluster. Make sure cluster bootstrap conditions does not get changed fro un-managed package
-			installPackage(wlcCluster.Name, "pkg.test.carvel.dev.1.0.0", "unmanaged-pkgi", wlcCluster.Namespace)
+			installPackage(wlcCluster.Name, "pkg.test.carvel.dev.1.0.0", wlcCluster.Namespace)
 			wlcClusterBootstrap := clusterBootstrapGet(client.ObjectKeyFromObject(wlcCluster))
 			Expect(len(wlcClusterBootstrap.Status.Conditions)).Should(Equal(0))
 
 			By("verifying ClusterBootstrap 'Status.Conditions' does not get updated when PackageInstall's summarized condition is Unknown")
 			// verify for management cluster
-			updatePkgInstallStatus(mngAntreaObjKey, util.UnknownCondition)
+			updatePkgInstallStatus(mngAntreaObjKey, "")
 			mngClusterBootstrap = clusterBootstrapGet(client.ObjectKeyFromObject(mngCluster))
 			// Antrea is already installed into management cluster's tkg-system namespace
 			Expect(len(mngClusterBootstrap.Status.Conditions)).Should(Equal(1))
 			Expect(mngClusterBootstrap.Status.Conditions[0].Type).Should(Equal(antreaCondType))
 			// verify for workload cluster
-			updatePkgInstallStatus(wlcAntreaObjKey, util.UnknownCondition)
-			updatePkgInstallStatus(wlcKappObjKey, util.UnknownCondition)
+			updatePkgInstallStatus(wlcAntreaObjKey, "")
+			updatePkgInstallStatus(wlcKappObjKey, "")
 			wlcClusterBootstrap = clusterBootstrapGet(client.ObjectKeyFromObject(wlcCluster))
 			Expect(len(wlcClusterBootstrap.Status.Conditions)).Should(Equal(0))
 
@@ -184,7 +188,7 @@ func waitForClusterBootstrapStatus(objKey client.ObjectKey, condType runtanzuv1a
 }
 
 // installPackage installs a package into the provided namespace
-func installPackage(clusterName, pkgName, pkgiName, namespace string) {
+func installPackage(clusterName, pkgName, namespace string) {
 	packageRefName, _, err := util.GetPackageMetadata(ctx, k8sClient, pkgName, namespace)
 	Expect(err).ShouldNot(HaveOccurred())
 	Expect(packageRefName).ShouldNot(Equal(""))
@@ -193,6 +197,7 @@ func installPackage(clusterName, pkgName, pkgiName, namespace string) {
 	key := client.ObjectKey{Namespace: namespace, Name: pkgName}
 	Expect(k8sClient.Get(ctx, key, pkg)).Should(Succeed())
 
+	pkgiName := util.GeneratePackageInstallName(clusterName, packageRefName)
 	pkgi := &kapppkgiv1alpha1.PackageInstall{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      pkgiName,

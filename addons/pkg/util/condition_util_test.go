@@ -59,7 +59,7 @@ var _ = Describe("Summarize AppConditions", func() {
 					},
 					{
 						Type:    v1alpha1.ReconcileFailed,
-						Status:  corev1.ConditionFalse,
+						Status:  corev1.ConditionTrue,
 						Reason:  testReason,
 						Message: testMessage,
 					},
@@ -69,7 +69,7 @@ var _ = Describe("Summarize AppConditions", func() {
 
 			It("the summarized condition's type should be 'ReconcileFailed'", func() {
 				Expect(summaryCondition.Type).Should(Equal(v1alpha1.ReconcileFailed))
-				Expect(summaryCondition.Status).Should(Equal(corev1.ConditionFalse))
+				Expect(summaryCondition.Status).Should(Equal(corev1.ConditionTrue))
 			})
 		})
 
@@ -83,8 +83,8 @@ var _ = Describe("Summarize AppConditions", func() {
 						Message: testMessage,
 					},
 					{
-						Type:    v1alpha1.AppConditionType("Unknown"),
-						Status:  corev1.ConditionFalse,
+						Type:    "Unknown",
+						Status:  corev1.ConditionTrue,
 						Reason:  testReason,
 						Message: testMessage,
 					},
@@ -112,47 +112,9 @@ var _ = Describe("Summarize AppConditions", func() {
 			})
 
 			It("the summarized condition's type should be ", func() {
-				Expect(summaryCondition.Type).Should(Equal(UnknownCondition))
+				Expect(summaryCondition.Type).Should(Equal(v1alpha1.AppConditionType("")))
 				Expect(summaryCondition.Status).Should(Equal(corev1.ConditionStatus("")))
 			})
 		})
-
-		When("there are conditions with conflicting state types", func() {
-			BeforeEach(func() {
-				conditions = []v1alpha1.AppCondition{
-					{
-						Type:    v1alpha1.Reconciling,
-						Status:  corev1.ConditionTrue,
-						Reason:  testReason,
-						Message: testMessage,
-					},
-					{
-						Type:    v1alpha1.Reconciling,
-						Status:  corev1.ConditionFalse,
-						Reason:  testReason,
-						Message: testMessage,
-					},
-					{
-						Type:    v1alpha1.Reconciling,
-						Status:  corev1.ConditionUnknown,
-						Reason:  testReason,
-						Message: testMessage,
-					},
-					{
-						Type:    v1alpha1.Reconciling,
-						Status:  "",
-						Reason:  testReason,
-						Message: testMessage,
-					},
-				}
-				summaryCondition = SummarizeAppConditions(conditions)
-			})
-
-			It("the summarized condition's state would be 'True'", func() {
-				Expect(summaryCondition.Type).Should(Equal(v1alpha1.Reconciling))
-				Expect(summaryCondition.Status).Should(Equal(corev1.ConditionTrue))
-			})
-		})
-
 	})
 })

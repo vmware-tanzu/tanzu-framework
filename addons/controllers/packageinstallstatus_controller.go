@@ -52,7 +52,7 @@ type PackageInstallStatusReconciler struct {
 	Client     client.Client
 	Scheme     *runtime.Scheme
 	controller controller.Controller
-	Tracker    *util.RemoteObjectTracker
+	Tracker    *remote.ClusterCacheTracker
 	// aggregatedAPIResourcesClient is used when it is required to directly read from the server and not to use object caches.
 	aggregatedAPIResourcesClient client.Client
 }
@@ -61,13 +61,13 @@ type PackageInstallStatusReconciler struct {
 //+kubebuilder:rbac:groups=addons.tanzu.vmware.com,resources=packageinstallstatuses/status,verbs=get;update;patch
 
 // Reconcile performs the reconciliation action for the controller; which is reflecting the reconciliation status of each core/additional package
-// into corresponding ClusterBootstrap resource of the cluster. When the cluster is getting deleted, watches for the remote cluster will be removed
+// into corresponding ClusterBootstrap resource of the cluster
 func (r *PackageInstallStatusReconciler) Reconcile(ctx context.Context, req reconcile.Request) (reconcile.Result, error) {
 	log := r.Log.WithValues(constants.ClusterNamespaceLogKey, req.Namespace, constants.ClusterNameLogKey, req.Name)
 
 	var (
-		c           client.Client
-		clusterRole ClusterRole
+		clusterClient client.Client
+		clusterRole   ClusterRole
 	)
 
 	// get cluster object
@@ -75,16 +75,14 @@ func (r *PackageInstallStatusReconciler) Reconcile(ctx context.Context, req reco
 	if err := r.Client.Get(ctx, req.NamespacedName, cluster); err != nil {
 		if apierrors.IsNotFound(err) {
 			log.Info("Cluster not found")
-			r.Tracker.DeleteAccessor(req.NamespacedName)
 			return ctrl.Result{}, nil
 		}
 		log.Error(err, "unable to fetch cluster")
 		return ctrl.Result{}, err
 	}
 
-	// if cluster is marked for deletion, then no reconciliation is needed; just remove the cluster object from the cluster accessor map
+	// if cluster is marked for deletion, then no reconciliation is needed
 	if !cluster.GetDeletionTimestamp().IsZero() {
-		r.Tracker.DeleteAccessor(req.NamespacedName)
 		return ctrl.Result{}, nil
 	}
 
@@ -109,7 +107,7 @@ func (r *PackageInstallStatusReconciler) Reconcile(ctx context.Context, req reco
 	if isManagementCluster {
 		// the cluster is a management cluster
 		clusterRole = clusterRoleManagement
-		c = r.Client
+		clusterClient = r.Client
 	} else {
 		// the cluster is a remote workload cluster
 		clusterRole = clusterRoleWorkload
@@ -118,16 +116,17 @@ func (r *PackageInstallStatusReconciler) Reconcile(ctx context.Context, req reco
 			log.Error(err, "error getting remote cluster's client")
 			return ctrl.Result{}, err
 		}
-		c = remoteClient
+		clusterClient = remoteClient
 		log.Info("successfully got remoteClient")
-		// set watch if not already set. If the watch already exists, it doesn't get re-created (logic in util.RemoteObjectTracker)
+		// set watch if not already set. If the watch already exists, it doesn't get re-created
 		if err := r.watchPackageInstalls(ctx, cluster, log); err != nil {
 			log.Error(err, "error watching PackageInstalls on target cluster")
 			return ctrl.Result{}, err
 		}
+		log.Info("finished setting up remote watch for the cluster")
 	}
 
-	if err := r.reconcile(ctx, c, cluster, clusterRole, log); err != nil {
+	if err := r.reconcile(ctx, clusterClient, cluster, clusterRole, log); err != nil {
 		return ctrl.Result{}, err
 	}
 
@@ -138,7 +137,7 @@ func (r *PackageInstallStatusReconciler) Reconcile(ctx context.Context, req reco
 // it eventually updates ClusterBootstrapStatus with the condition entries (one for each package) in a single update operation
 // Note: use of the client c (remote or not) depends on whether the corresponding cluster is workload or management which is
 // determined in the Reconcile function
-func (r *PackageInstallStatusReconciler) reconcile(ctx context.Context, c client.Client, cluster *clusterapiv1beta1.Cluster, clusterRole ClusterRole, log logr.Logger) error {
+func (r *PackageInstallStatusReconciler) reconcile(ctx context.Context, clusterClient client.Client, cluster *clusterapiv1beta1.Cluster, clusterRole ClusterRole, log logr.Logger) error {
 	clusterBootstrap := &runtanzuv1alpha3.ClusterBootstrap{}
 	// ClusterBootstrap resource exists in the management cluster, that's why we need to use local client instead of remote client for fetching it
 	if err := r.Client.Get(ctx, client.ObjectKeyFromObject(cluster), clusterBootstrap); err != nil {
@@ -153,32 +152,32 @@ func (r *PackageInstallStatusReconciler) reconcile(ctx context.Context, c client
 		clusterBootstrap.Spec.CSI,
 	}, clusterBootstrap.Spec.AdditionalPackages...)
 
-	var statusChanged bool
+	var cbStatusChanged bool
 
 	for _, pkg := range packages {
 		if pkg == nil {
 			continue
 		}
-		conditionChanged, err := r.reconcileClusterBootstrapStatus(ctx, c, &clusterBootstrap.Status, cluster.Name, clusterRole, pkg.RefName, constants.TKGSystemNS, log)
+		cbConditionChanged, err := r.reconcileClusterBootstrapStatus(ctx, clusterClient, &clusterBootstrap.Status, cluster.Name, clusterRole, pkg.RefName, constants.TKGSystemNS, log)
 		if err != nil {
 			// Note: just log the error and continue with collecting PackageInstallStatus for other packages
 			log.Error(err, fmt.Sprintf("failed to reconcile PackageInstallStatus for package '%s/%s'", constants.TKGSystemNS, pkg.RefName))
 		}
-		statusChanged = statusChanged || conditionChanged
+		cbStatusChanged = cbStatusChanged || cbConditionChanged
 	}
 
 	// Note: kapp ctrl pkgi exists only for the workload cluster
 	// it is installed under cluster.Namespace in the management cluster and should be handled separately
 	if clusterRole == clusterRoleWorkload && clusterBootstrap.Spec.Kapp != nil {
-		conditionChanged, err := r.reconcileClusterBootstrapStatus(ctx, r.Client, &clusterBootstrap.Status, cluster.Name, clusterRole, clusterBootstrap.Spec.Kapp.RefName, cluster.Namespace, log)
+		cbConditionChanged, err := r.reconcileClusterBootstrapStatus(ctx, r.Client, &clusterBootstrap.Status, cluster.Name, clusterRole, clusterBootstrap.Spec.Kapp.RefName, cluster.Namespace, log)
 		if err != nil {
 			// Note: just log the error and proceed with updating the ClusterBootstrapStatus for other packages in one update operation
 			log.Error(err, fmt.Sprintf("failed to reconcile PackageInstallStatus for package '%s/%s'", cluster.Namespace, clusterBootstrap.Spec.Kapp.RefName))
 		}
-		statusChanged = statusChanged || conditionChanged
+		cbStatusChanged = cbStatusChanged || cbConditionChanged
 	}
 
-	if !statusChanged {
+	if !cbStatusChanged {
 		log.Info("no change in the reconciliation status of any of the core/additional packages in the cluster")
 		return nil
 	}
@@ -195,7 +194,7 @@ func (r *PackageInstallStatusReconciler) reconcile(ctx context.Context, c client
 // The Status update happens in the caller function
 func (r *PackageInstallStatusReconciler) reconcileClusterBootstrapStatus(
 	ctx context.Context,
-	c client.Client,
+	clusterClient client.Client,
 	clusterBootstrapStatus *runtanzuv1alpha3.ClusterBootstrapStatus,
 	clusterName string,
 	clusterRole ClusterRole,
@@ -205,38 +204,31 @@ func (r *PackageInstallStatusReconciler) reconcileClusterBootstrapStatus(
 
 	var pkgiName, pkgShortname string
 
-	Client := c
+	c := clusterClient
 	// controller-runtime's client (r.Client) is not able to find aggregated api server resources.
 	// That's why we need to use r.aggregatedAPIResourcesClient for fetching packageMetadata inside the management cluster.
 	// This include packages belonging to the management cluster and workload clusters' kapp controller package which
 	// is installed in the workload cluster's namespace in the management cluster.
 	// For all other packages belonging to the workload cluster, remoteClient should be used for fetching packageMetadata
 	if clusterRole == clusterRoleManagement || strings.Contains(pkgName, kappCtrlPkgPrefix) {
-		Client = r.aggregatedAPIResourcesClient
+		c = r.aggregatedAPIResourcesClient
 	}
 
 	// Note: pkgi name is determined from pkg.RefName. That's why we rely on the existence of package metadata here
-	pkgRefName, pkgVersion, err := util.GetPackageMetadata(ctx, Client, pkgName, pkgiNamespace)
+	pkgRefName, pkgVersion, err := util.GetPackageMetadata(ctx, c, pkgName, pkgiNamespace)
 	if pkgRefName == "" || pkgVersion == "" || err != nil {
 		log.Error(err, fmt.Sprintf("unable to fetch Package.Spec.RefName or Package.Spec.Version from Package '%s/%s'", pkgiNamespace, pkgName))
 		return false, err
 	}
 	pkgShortname = strings.Split(pkgRefName, ".")[0]
 
-	// package install name for core/additional packages in the workload cluster follows the <cluster name>-<addon short name> naming convention
-	// for management cluster, the naming convention for core/additional package installs is just <addon short name>
-	if clusterRole == clusterRoleWorkload {
-		pkgiName = util.GeneratePackageInstallName(clusterName, pkgRefName)
-	} else if clusterRole == clusterRoleManagement {
-		pkgiName = pkgShortname
-	}
+	// package install name for core/additional packages for both management and workload clusters should follow the <cluster name>-<addon short name> naming convention
+	pkgiName = util.GeneratePackageInstallName(clusterName, pkgRefName)
 
 	pkgi := &kapppkgiv1alpha1.PackageInstall{}
 	objectKey := client.ObjectKey{Namespace: pkgiNamespace, Name: pkgiName}
 
-	// Note: use of the client (remote or not) depends on whether the corresponding cluster is
-	// workload or management which is determined in the Reconcile function
-	if err := c.Get(ctx, objectKey, pkgi); err != nil {
+	if err := clusterClient.Get(ctx, objectKey, pkgi); err != nil {
 		log.Error(err, fmt.Sprintf("unable to get PackageInstall '%s/%s'", pkgiNamespace, pkgiName))
 		return false, err
 	}
@@ -245,7 +237,7 @@ func (r *PackageInstallStatusReconciler) reconcileClusterBootstrapStatus(
 	pkgiCondition := util.SummarizeAppConditions(pkgi.Status.Conditions)
 
 	// Note: in case of encountering an unknown PackageInstall condition, just return err=nil and proceed with handling the next package
-	if pkgiCondition.Type == util.UnknownCondition {
+	if pkgiCondition.Type == "" {
 		log.Error(fmt.Errorf("unknown condition type for '%s/%s'", pkgi.Name, pkgi.Name), "unknown condition")
 		return false, nil
 	}
@@ -287,7 +279,7 @@ func (r *PackageInstallStatusReconciler) watchPackageInstalls(ctx context.Contex
 		return nil
 	}
 
-	return r.Tracker.Watch(ctx, &remote.WatchInput{
+	return r.Tracker.Watch(ctx, remote.WatchInput{
 		Name:         "watchPackageInstallStatus",
 		Cluster:      clusterapiutil.ObjectKey(cluster),
 		Watcher:      r.controller,

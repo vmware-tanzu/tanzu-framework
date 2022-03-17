@@ -457,7 +457,7 @@ func (r *ClusterBootstrapReconciler) mergeClusterBootstrapPackagesWithTemplate(
 	additionalPackageMap := map[string]*runtanzuv1alpha3.ClusterBootstrapPackage{}
 
 	for _, pkg := range updatedClusterBootstrap.Spec.AdditionalPackages {
-		packageRefName, _, err := util.GetPackageMetadata(r.context, r.liveClient, pkg.RefName, cluster.Namespace)
+		packageRefName, _, err := util.GetPackageMetadata(r.context, r.aggregatedAPIResourcesClient, pkg.RefName, cluster.Namespace)
 		if err != nil || packageRefName == "" {
 			errorMsg := fmt.Sprintf("unable to fetch Package.Spec.RefName or Package.Spec.Version from Package %s/%s", cluster.Namespace, pkg.RefName)
 			r.Log.Error(err, errorMsg)
@@ -468,7 +468,7 @@ func (r *ClusterBootstrapReconciler) mergeClusterBootstrapPackagesWithTemplate(
 
 	for _, templatePkg := range clusterBootstrapTemplate.Spec.AdditionalPackages {
 		// use the refName in package CR, since the package CR hasn't been cloned at this point, use SystemNamespace to fetch packageCR
-		packageRefName, _, err := util.GetPackageMetadata(r.context, r.liveClient, templatePkg.RefName, r.Config.SystemNamespace)
+		packageRefName, _, err := util.GetPackageMetadata(r.context, r.aggregatedAPIResourcesClient, templatePkg.RefName, r.Config.SystemNamespace)
 		if err != nil || packageRefName == "" {
 			errorMsg := fmt.Sprintf("unable to fetch Package.Spec.RefName or Package.Spec.Version from Package %s/%s", cluster.Namespace, templatePkg.RefName)
 			r.Log.Error(err, errorMsg)
