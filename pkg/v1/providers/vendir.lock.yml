@@ -18,10 +18,10 @@ directories:
   path: ytt/vendir/cni/_ytt_lib
 - contents:
   - git:
-      commitTitle: Add 0.30.1 kapp-controller package (#3282)...
-      sha: 8dd25e7b14aa957db16745b1d38dad17a3fa5f63
+      commitTitle: Bump kapp-controller to 0.33.1 (#3476)...
+      sha: b5bf44fdf1ff4361548fc5b59b4f2fa96d228432
       tags:
-      - v0.11.0-dev.1-66-g8dd25e7b
+      - v0.12.0-dev.1-3-gb5bf44fd
     path: .
   path: ytt/vendir/kapp-controller/_ytt_lib
 kind: LockConfig
