@@ -39,6 +39,7 @@ import (
 	addonconfig "github.com/vmware-tanzu/tanzu-framework/addons/pkg/config"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/crdwait"
+	addonwebhooks "github.com/vmware-tanzu/tanzu-framework/addons/webhooks"
 	cniv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cni/v1alpha1"
 	cpiv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cpi/v1alpha1"
 	csiv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/csi/v1alpha1"
@@ -294,6 +295,14 @@ func enableWebhooks(ctx context.Context, mgr ctrl.Manager, flags *addonFlags) {
 		setupLog.Error(err, "unable to set up webhooks", "controller", "calico")
 		os.Exit(1)
 	}
+	clusterbootstrapWebhook := addonwebhooks.ClusterBootstrap{
+		Client:          mgr.GetClient(),
+		SystemNamespace: flags.addonNamespace,
+	}
+	if err := clusterbootstrapWebhook.SetupWebhookWithManager(mgr); err != nil {
+		setupLog.Error(err, "unable to create ClusterBootstrap webhook", "webhook", "clusterbootstrap")
+		os.Exit(1)
+	}
 }
 
 func enablePackageInstallStatusController(ctx context.Context, mgr ctrl.Manager, flags *addonFlags) {
@@ -330,6 +339,5 @@ func enablePackageInstallStatusController(ctx context.Context, mgr ctrl.Manager,
 	)
 	if err := pkgiStatusReconciler.SetupWithManager(ctx, mgr, controller.Options{MaxConcurrentReconciles: flags.clusterConcurrency}); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "PackageInstallStatus")
-		os.Exit(1)
 	}
 }
