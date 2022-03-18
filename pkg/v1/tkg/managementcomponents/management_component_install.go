@@ -78,13 +78,13 @@ func InstallManagementPackages(pkgClient tkgpackageclient.TKGPackageClient, mpro
 	// install management package repository
 	err := installManagementPackageRepository(pkgClient, mpro)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "unable to install management package repository")
 	}
 
 	// install tkg composite management package
 	err = installTKGManagementPackage(pkgClient, mpro)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "unable to install TKG management package")
 	}
 
 	return nil
@@ -100,7 +100,7 @@ func installManagementPackageRepository(pkgClient tkgpackageclient.TKGPackageCli
 	repositoryOptions.PollInterval = packagePollInterval
 	repositoryOptions.PollTimeout = packagePollTimeout
 
-	return pkgClient.UpdateRepositorySync(repositoryOptions, tkgpackagedatamodel.OperationTypeInstall)
+	return pkgClient.UpdateRepositorySync(repositoryOptions, tkgpackagedatamodel.OperationTypeUpdate)
 }
 
 func installTKGManagementPackage(pkgClient tkgpackageclient.TKGPackageClient, mpro ManagementPackageRepositoryOptions) error {

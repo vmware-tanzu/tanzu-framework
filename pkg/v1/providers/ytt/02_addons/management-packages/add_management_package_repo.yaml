@@ -17,7 +17,7 @@ spec:
       image: #@ "{}/{}:{}".format(get_image_repo_for_component(management_package_repo_bundle), management_package_repo_bundle.imagePath, management_package_repo_bundle.tag)
 #@ end
 
-#@ if data.values.TKG_CLUSTER_ROLE != "workload" and data.values.PROVIDER_TYPE != "tkg-service-vsphere":
+#@ if data.values.TKG_CLUSTER_ROLE != "workload" and data.values.PROVIDER_TYPE != "tkg-service-vsphere" and not data.values.FEATURE_FLAG_PACKAGE_BASED_LCM:
 #@ if data.values.DISABLE_CRS_FOR_ADDON_TYPE and "packages/management-package-repo" in data.values.DISABLE_CRS_FOR_ADDON_TYPE:
 --- #@ management_package_repo()
 #@ else:

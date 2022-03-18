@@ -21,34 +21,62 @@ import (
 
 const testCluster = "test-cluster-calico"
 
-var _ = Describe("CalicoConfig Reconciler", func() {
+var _ = Describe("CalicoConfig Reconciler and Webhooks", func() {
 	var (
-		clusterName             string
-		clusterResourceFilePath string
+		clusterName string
 	)
 
+	const (
+		clusterResourceFilePath = "testdata/test-calico.yaml"
+	)
 	JustBeforeEach(func() {
-		By("Creating cluster and CalicoConfig resources")
-		f, err := os.Open(clusterResourceFilePath)
+		// Create the admission webhooks
+		f, err := os.Open(cniWebhookManifestFile)
 		Expect(err).ToNot(HaveOccurred())
-		defer f.Close()
 		err = testutil.CreateResources(f, cfg, dynamicClient)
 		Expect(err).ToNot(HaveOccurred())
+		f.Close()
+
+		// set up the certificates and webhook before creating any objects
+		By("Creating and installing new certificates for Calico Admission Webhooks")
+		webhookCertDetails := testutil.WebhookCertificatesDetails{
+			CertPath:           certPath,
+			KeyPath:            keyPath,
+			WebhookScrtName:    webhookScrtName,
+			AddonNamespace:     addonNamespace,
+			WebhookServiceName: webhookServiceName,
+			LabelSelector:      cniWebhookLabel,
+		}
+		err = testutil.SetupWebhookCertificates(ctx, k8sClient, k8sConfig, &webhookCertDetails)
+		Expect(err).ToNot(HaveOccurred())
+
+		By("Creating cluster and CalicoConfig resources")
+		f, err = os.Open(clusterResourceFilePath)
+		Expect(err).ToNot(HaveOccurred())
+		err = testutil.CreateResources(f, cfg, dynamicClient)
+		Expect(err).ToNot(HaveOccurred())
+		f.Close()
 	})
 
 	AfterEach(func() {
 		By("Deleting cluster and CalicoConfig resources")
 		f, err := os.Open(clusterResourceFilePath)
 		Expect(err).ToNot(HaveOccurred())
-		defer f.Close()
 		err = testutil.DeleteResources(f, cfg, dynamicClient, true)
 		Expect(err).ToNot(HaveOccurred())
+		f.Close()
+
+		By("Deleting the Admission Webhook configuration for Calico")
+		f, err = os.Open(cniWebhookManifestFile)
+		Expect(err).ToNot(HaveOccurred())
+		err = testutil.DeleteResources(f, cfg, dynamicClient, true)
+		Expect(err).ToNot(HaveOccurred())
+		f.Close()
 	})
 
 	Context("reconcile CalicoConfig for management cluster", func() {
 		BeforeEach(func() {
 			clusterName = testCluster
-			clusterResourceFilePath = "testdata/test-calico.yaml"
 		})
 
 		It("Should reconcile CalicoConfig and create data values secret for CalicoConfig on management cluster", func() {
@@ -71,7 +99,7 @@ var _ = Describe("CalicoConfig Reconciler", func() {
 					return false
 				}
 
-				//check spec values
+				// check spec values
 				Expect(config.Spec.Namespace).Should(Equal("kube-system"))
 				Expect(config.Spec.Calico.Config.VethMTU).Should(Equal(int64(0)))
 
@@ -117,6 +145,25 @@ var _ = Describe("CalicoConfig Reconciler", func() {
 
 				return true
 			}, waitTimeout, pollingInterval).Should(BeTrue())
+		})
+	})
+
+	Context("Calico Admission Webhooks", func() {
+		BeforeEach(func() {
+			clusterName = testCluster
+		})
+
+		It("Should fail mutating webhooks for immutable fields for CalicoConfig", func() {
+			key := client.ObjectKey{
+				Namespace: "default",
+				Name:      testCluster,
+			}
+			config := &cniv1alpha1.CalicoConfig{}
+			Expect(k8sClient.Get(ctx, key, config)).To(Succeed())
+
+			By("Trying to update the immutable Namespace field in Calico Spec")
+			config.Spec.Namespace = "default"
+			Expect(k8sClient.Update(ctx, config)).ToNot(Succeed())
 		})
 	})
 })

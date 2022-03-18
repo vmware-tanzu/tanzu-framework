@@ -835,7 +835,7 @@ var _ = Describe("When upgrading cluster with fake controller runtime client", f
 				err := yaml.Unmarshal([]byte(kubeVipPodString), &pod)
 				Expect(err).To(BeNil())
 
-				newPodString, err := ModifyKubeVipTimeOutAndSerialize(&pod, "30", "20", "4")
+				newPodString, err := ModifyKubeVipAndSerialize(&pod, "30", "20", "4")
 				Expect(err).To(BeNil())
 
 				Expect(newPodString).ToNot(BeNil())
@@ -849,6 +849,8 @@ var _ = Describe("When upgrading cluster with fake controller runtime client", f
 				Expect(err).To(BeNil())
 				Expect(len(newKCP.Spec.KubeadmConfigSpec.Files)).To(Equal(1))
 				Expect(newKCP.Spec.KubeadmConfigSpec.Files[0].Content).To(ContainSubstring("value: \"30\""))
+				Expect(newKCP.Spec.KubeadmConfigSpec.Files[0].Content).To(ContainSubstring("name: cp_enable"))
+				Expect(newKCP.Spec.KubeadmConfigSpec.Files[0].Content).To(ContainSubstring("NET_RAW"))
 			})
 		})
 	})

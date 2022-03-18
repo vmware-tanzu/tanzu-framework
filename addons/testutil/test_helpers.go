@@ -16,24 +16,30 @@ import (
 	"time"
 
 	"github.com/onsi/ginkgo"
+	adminregv1 "k8s.io/api/admissionregistration/v1"
 	v1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
+	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/serializer/yaml"
+	"k8s.io/apimachinery/pkg/selection"
 	"k8s.io/apimachinery/pkg/util/wait"
 	yamlutil "k8s.io/apimachinery/pkg/util/yaml"
 	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
+	"knative.dev/pkg/webhook/certificates/resources"
 	clusterapiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
 	"sigs.k8s.io/cluster-api/util/secret"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/client/apiutil"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
+
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/webhooks"
 )
 
 // CreateResources using unstructured objects from a yaml/json file provided by decoder
@@ -251,4 +257,61 @@ func GetExternalCRDPaths(externalDeps map[string][]string) ([]string, error) {
 
 	logf.Log.Info("external CRD paths", "crdPaths", crdPaths)
 	return crdPaths, nil
+}
+
+type WebhookCertificatesDetails struct {
+	CertPath           string
+	KeyPath            string
+	WebhookScrtName    string
+	AddonNamespace     string
+	WebhookServiceName string
+	LabelSelector      string
+}
+
+func SetupWebhookCertificates(ctx context.Context, k8sClient client.Client, k8sConfig *rest.Config, certDetails *WebhookCertificatesDetails) error {
+	labelMatch, _ := labels.NewRequirement("webhook-cert", selection.Equals, []string{certDetails.LabelSelector})
+	labelSelector := labels.NewSelector()
+	labelSelector = labelSelector.Add(*labelMatch)
+
+	scrt, err := webhooks.InstallNewCertificates(ctx, k8sConfig, certDetails.CertPath, certDetails.KeyPath,
+		certDetails.WebhookScrtName, certDetails.AddonNamespace, certDetails.WebhookServiceName, "webhook-cert="+certDetails.LabelSelector)
+	if err != nil {
+		return err
+	}
+	vwcfgs := &adminregv1.ValidatingWebhookConfigurationList{}
+	err = k8sClient.List(ctx, vwcfgs, &client.ListOptions{LabelSelector: labelSelector})
+	if err != nil {
+		return err
+	}
+	if len(vwcfgs.Items) == 0 {
+		return fmt.Errorf("validating Webhook Configuration List is empty")
+	}
+	for i := range vwcfgs.Items {
+		wcfg := vwcfgs.Items[i]
+		for j := range wcfg.Webhooks {
+			whook := wcfg.Webhooks[j]
+			if !bytes.Equal(whook.ClientConfig.CABundle, scrt.Data[resources.CACert]) {
+				return fmt.Errorf("validating Webhook CA Bundlle is not updated correctly")
+			}
+		}
+	}
+
+	mwcfgs := &adminregv1.MutatingWebhookConfigurationList{}
+	err = k8sClient.List(ctx, mwcfgs, &client.ListOptions{LabelSelector: labelSelector})
+	if err != nil {
+		return err
+	}
+	if len(vwcfgs.Items) == 0 {
+		return fmt.Errorf("mutating Webhook Configuration List is empty")
+	}
+	for i := range mwcfgs.Items {
+		wcfg := mwcfgs.Items[i]
+		for j := range wcfg.Webhooks {
+			whook := wcfg.Webhooks[j]
+			if !bytes.Equal(whook.ClientConfig.CABundle, scrt.Data[resources.CACert]) {
+				return fmt.Errorf("malidating Webhook CA Bundlle is not updated correctly")
+			}
+		}
+	}
+	return nil
 }

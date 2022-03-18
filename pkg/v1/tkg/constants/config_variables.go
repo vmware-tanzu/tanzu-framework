@@ -192,4 +192,6 @@ const (
 	ConfigVariableAviControlPlaneNetworkCidr                     = "AVI_CONTROL_PLANE_NETWORK_CIDR"
 	ConfigVariableAviManagementClusterControlPlaneVipNetworkName = "AVI_MANAGEMENT_CLUSTER_CONTROL_PLANE_VIP_NETWORK_NAME"
 	ConfigVariableAviManagementClusterControlPlaneVipNetworkCidr = "AVI_MANAGEMENT_CLUSTER_CONTROL_PLANE_VIP_NETWORK_CIDR"
+
+	ConfigVariableFeatureFlagPackageBasedLCM = "FEATURE_FLAG_PACKAGE_BASED_LCM"
 )
