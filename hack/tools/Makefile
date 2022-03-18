@@ -18,6 +18,9 @@ export GOPROXY
 # Active module mode, as we use go modules to manage dependencies
 export GO111MODULE := on
 
+# Produce CRDs that work back to Kubernetes 1.11 (no version conversion)
+CRD_OPTIONS ?= "crd"
+
 # Directories.
 ROOT_DIR:=$(shell git rev-parse --show-toplevel)
 BIN_DIR := bin
@@ -41,6 +44,7 @@ HOST_ARCH=$(shell go env GOARCH)
 GINKGO             := $(BIN_DIR)/ginkgo
 GOLANGCI_LINT      := $(BIN_DIR)/golangci-lint
 GOIMPORTS          := $(BIN_DIR)/goimports
+CONTROLLER_GEN     := $(BIN_DIR)/controller-gen
 KUBEBUILDER        := $(BIN_DIR)/kubebuilder
 KUBEVAL            := $(BIN_DIR)/kubeval
 GOBINDATA          := $(BIN_DIR)/gobindata
@@ -116,6 +120,10 @@ conversion-gen: $(CONVERSION_GEN) $(SRCS) ## Build conversion-gen
 $(CONVERSION_GEN): go.mod
 	mkdir -p $(BIN_DIR)
 	go build -tags=tools -o $(BIN_DIR) k8s.io/code-generator/cmd/conversion-gen
+
+controller-gen: $(CONTROLLER_GEN) $(SRCS) ## Build controller-gen
+$(CONTROLLER_GEN): go.mod
+	go build -tags=tools -o $@ sigs.k8s.io/controller-tools/cmd/controller-gen
 
 ## --------------------------------------------------------------------------------------------------------
 ## Carvel tools

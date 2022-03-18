@@ -75,6 +75,10 @@ func (c *PinnipedController) SetupWithManager(manager ctrl.Manager) error {
 	return nil
 }
 
+// +kubebuilder:rbac:groups="",resources=secrets,verbs=list;watch;get;patch;update;delete
+// +kubebuilder:rbac:groups="",resources=configmaps,verbs=watch;get
+// +kubebuilder:rbac:groups="cluster.x-k8s.io",resources=clusters,verbs=list;watch;get
+
 func (c *PinnipedController) Reconcile(ctx context.Context, req ctrl.Request) (reconcile.Result, error) {
 	log := c.Log.WithName("reconcile").WithValues("request object", req)
 	log.Info("starting reconciliation")
