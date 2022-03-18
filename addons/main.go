@@ -9,6 +9,7 @@ import (
 	"os"
 	"time"
 
+	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -18,8 +19,10 @@ import (
 	"k8s.io/klog/v2"
 	"k8s.io/klog/v2/klogr"
 	clusterapiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
+	capiremote "sigs.k8s.io/cluster-api/controllers/remote"
 	controlplanev1beta1 "sigs.k8s.io/cluster-api/controlplane/kubeadm/api/v1beta1"
 	ctrl "sigs.k8s.io/controller-runtime"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller"
 	"sigs.k8s.io/controller-runtime/pkg/healthz"
 
@@ -175,6 +178,7 @@ func main() {
 		setupLog.Error(err, "unable to create controller", "controller", "Addon")
 		os.Exit(1)
 	}
+
 	if flags.featureGateClusterBootstrap {
 		enableClusterBootstrapAndConfigControllers(ctx, mgr, flags)
 	}
@@ -253,6 +257,34 @@ func enableClusterBootstrapAndConfigControllers(ctx context.Context, mgr ctrl.Ma
 	)
 	if err := bootstrapReconciler.SetupWithManager(ctx, mgr, controller.Options{MaxConcurrentReconciles: 1}); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "clusterbootstrap")
+		os.Exit(1)
+	}
+
+	// Set up a ClusterCacheTracker to provide to PackageInstallStatus controller which requires a connection to remote clusters
+	l := ctrl.Log.WithName("remote").WithName("ClusterCacheTracker")
+	tracker, err := capiremote.NewClusterCacheTracker(mgr, capiremote.ClusterCacheTrackerOptions{
+		Log: &l,
+		ClientUncachedObjects: []client.Object{
+			&corev1.ConfigMap{},
+			&corev1.Secret{},
+			&corev1.Pod{},
+			&appsv1.Deployment{},
+			&appsv1.DaemonSet{},
+		},
+	})
+	if err != nil {
+		setupLog.Error(err, "unable to create cluster cache tracker")
+		os.Exit(1)
+	}
+
+	pkgiStatusReconciler := &controllers.PackageInstallStatusReconciler{
+		Client:  mgr.GetClient(),
+		Log:     ctrl.Log.WithName("controllers").WithName("PackageInstallStatus"),
+		Scheme:  mgr.GetScheme(),
+		Tracker: tracker,
+	}
+	if err := pkgiStatusReconciler.SetupWithManager(ctx, mgr, controller.Options{MaxConcurrentReconciles: flags.clusterConcurrency}); err != nil {
+		setupLog.Error(err, "unable to create controller", "controller", "PackageInstallStatus")
 		os.Exit(1)
 	}
 }

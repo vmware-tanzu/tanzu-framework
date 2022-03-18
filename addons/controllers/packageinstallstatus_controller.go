@@ -159,22 +159,24 @@ func (r *PackageInstallStatusReconciler) reconcile(ctx context.Context, clusterC
 			continue
 		}
 		cbConditionChanged, err := r.reconcileClusterBootstrapStatus(ctx, clusterClient, &clusterBootstrap.Status, cluster.Name, clusterRole, pkg.RefName, constants.TKGSystemNS, log)
-		if err != nil {
-			// Note: just log the error and continue with collecting PackageInstallStatus for other packages
-			log.Error(err, fmt.Sprintf("failed to reconcile PackageInstallStatus for package '%s/%s'", constants.TKGSystemNS, pkg.RefName))
-		}
 		cbStatusChanged = cbStatusChanged || cbConditionChanged
+		if err != nil {
+			// in this case, we delete the existing condition corresponding to the package in the ClusterBootstrapStatus (if existing); as the corresponding pkgi or package resources do not exist for the package anymore
+			// then just continue with collecting PackageInstallStatus for other packages
+			cbStatusChanged = cbStatusChanged || r.removeConditionIfExistsForPkgName(&clusterBootstrap.Status, pkg.RefName)
+		}
 	}
 
 	// Note: kapp ctrl pkgi exists only for the workload cluster
 	// it is installed under cluster.Namespace in the management cluster and should be handled separately
 	if clusterRole == clusterRoleWorkload && clusterBootstrap.Spec.Kapp != nil {
 		cbConditionChanged, err := r.reconcileClusterBootstrapStatus(ctx, r.Client, &clusterBootstrap.Status, cluster.Name, clusterRole, clusterBootstrap.Spec.Kapp.RefName, cluster.Namespace, log)
-		if err != nil {
-			// Note: just log the error and proceed with updating the ClusterBootstrapStatus for other packages in one update operation
-			log.Error(err, fmt.Sprintf("failed to reconcile PackageInstallStatus for package '%s/%s'", cluster.Namespace, clusterBootstrap.Spec.Kapp.RefName))
-		}
 		cbStatusChanged = cbStatusChanged || cbConditionChanged
+		if err != nil {
+			// in this case, we delete the existing condition corresponding to the package in the ClusterBootstrapStatus (if existing); as the corresponding pkgi or package resources do not exist for the package anymore
+			// then just proceed with updating the ClusterBootstrapStatus for other packages in one update operation
+			cbStatusChanged = cbStatusChanged || r.removeConditionIfExistsForPkgName(&clusterBootstrap.Status, clusterBootstrap.Spec.Kapp.RefName)
+		}
 	}
 
 	if !cbStatusChanged {
@@ -186,7 +188,7 @@ func (r *PackageInstallStatusReconciler) reconcile(ctx context.Context, clusterC
 		return err
 	}
 
-	log.Info("Successfully reconciled ClusterBootstrapStatus")
+	log.Info("Successfully updated ClusterBootstrapStatus")
 	return nil
 }
 
@@ -238,7 +240,7 @@ func (r *PackageInstallStatusReconciler) reconcileClusterBootstrapStatus(
 
 	// Note: in case of encountering an unknown PackageInstall condition, just return err=nil and proceed with handling the next package
 	if pkgiCondition.Type == "" {
-		log.Error(fmt.Errorf("unknown condition type for '%s/%s'", pkgi.Name, pkgi.Name), "unknown condition")
+		log.Error(fmt.Errorf("unknown condition type for '%s/%s'", pkgiNamespace, pkgiName), "unknown condition")
 		return false, nil
 	}
 
@@ -270,6 +272,18 @@ func (r *PackageInstallStatusReconciler) reconcileClusterBootstrapStatus(
 	}
 
 	return conditionChanged, nil
+}
+
+// removeConditionIfExistsForPkgName removes the corresponding condition for the provided pkgRefName from the clusterBootstrapStatus if existing
+func (r *PackageInstallStatusReconciler) removeConditionIfExistsForPkgName(clusterBootstrapStatus *runtanzuv1alpha3.ClusterBootstrapStatus, pkgRefName string) bool {
+	for i, existingCond := range clusterBootstrapStatus.Conditions {
+		pkgShortname := strings.Split(pkgRefName, ".")[0]
+		if strings.Contains(string(existingCond.Type), strings.Title(pkgShortname)) {
+			clusterBootstrapStatus.Conditions = append(clusterBootstrapStatus.Conditions[:i], clusterBootstrapStatus.Conditions[i+1:]...)
+			return true
+		}
+	}
+	return false
 }
 
 // watchPackageInstalls sets a remote watch on the provided cluster on the Kind resource
