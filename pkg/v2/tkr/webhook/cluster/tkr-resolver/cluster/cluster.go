@@ -49,10 +49,16 @@ func (cw *Webhook) Handle(ctx context.Context, req admission.Request) admission.
 	clusterClass, err := cw.getClusterClass(ctx, cluster)
 	if err != nil {
 		if apierrors.IsNotFound(err) { // cluster is classy, but its ClusterClass is nowhere to be found
+			cw.Log.Info("ClusterClass not found",
+				"cluster", fmt.Sprintf("%s/%s", cluster.Namespace, cluster.Name),
+				"clusterClass", cluster.Spec.Topology.Class)
 			return admission.Denied("ClusterClass not found")
 		}
 		cw.Log.Error(err, "error getting ClusterClass")
 		return admission.Errored(http.StatusBadGateway, errors.Wrap(err, "error getting ClusterClass"))
+	}
+	if clusterClass == nil {
+		return admission.Allowed("Skipping TKR resolution: cluster.spec.topology not present")
 	}
 
 	if err := cw.ResolveAndSetMetadata(cluster, clusterClass); err != nil {
@@ -150,16 +156,20 @@ func getAnnotation(annotations map[string]string, name string) *string {
 	return &value
 }
 
+// constructOSImageQuery determines if resolution of TKR/OSImage is needed, and creates the *OSImageQuery that
+// instructs the resolver to perform the resolution. If not, nil is returned, indicating that no resolution is necessary
+// for this particular part of the cluster topology (either controlPlane or a machineDeployment).
 func (cw *Webhook) constructOSImageQuery(v string, tkrSelector, osImageSelector labels.Selector, labelSet labels.Set) *data.OSImageQuery {
 	if tkrName, ok := labelSet[runv1.LabelTKR]; ok {
 		if tkr := cw.TKRResolver.Get(tkrName, &runv1.TanzuKubernetesRelease{}).(*runv1.TanzuKubernetesRelease); tkr != nil {
 			if osImageName, ok := labelSet[runv1.LabelOSImage]; ok {
 				if osImage := cw.TKRResolver.Get(osImageName, &runv1.OSImage{}).(*runv1.OSImage); osImage != nil {
+					// Found TKR and OSImage. Now, see if they match the provided version and selectors.
 					req, _ := labels.NewRequirement(version.Label(v), selection.Exists, nil)
 					tkrSelectorWithVersion := tkrSelector.Add(*req)
 					osImageSelectorWithVersion := osImageSelector.Add(*req)
 					if tkrSelectorWithVersion.Matches(labels.Set(tkr.Labels)) && osImageSelectorWithVersion.Matches(labels.Set(osImage.Labels)) {
-						return nil // already have matching TKR and OSImage
+						return nil // indicating we don't need to resolve: already have matching TKR and OSImage
 					}
 				}
 			}
