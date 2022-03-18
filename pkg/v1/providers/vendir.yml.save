@@ -22,7 +22,6 @@ directories:
   contents:
   - path: .
     git:
-      url: https://github.com/aaronshurley/community-edition
-      ref: ae4bfaff7f8865dfb6e886c9445f4aec91dcae92
-    includePaths:
-    - addons/packages/kapp-controller/0.34.0/bundle/config/**/*
+      url: git@github.com:vmware-tanzu/community-edition.git
+      ref: 8dd25e7b14aa957db16745b1d38dad17a3fa5f63    includePaths:
+    - addons/packages/kapp-controller/0.33.1/bundle/config/**/*
