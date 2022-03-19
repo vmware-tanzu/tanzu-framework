@@ -1,0 +1,150 @@
+
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.7.0
+  creationTimestamp: null
+  name: csiconfigs.csi.tanzu.vmware.com
+spec:
+  group: csi.tanzu.vmware.com
+  names:
+    kind: CSIConfig
+    listKind: CSIConfigList
+    plural: csiconfigs
+    singular: csiconfig
+  scope: Namespaced
+  versions:
+  - name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        description: CSIConfig is the Schema for the csiconfigs API
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation
+              of an object. Servers should convert recognized schemas to the latest
+              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this
+              object represents. Servers may infer this from the endpoint the client
+              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: CSIConfigSpec defines the desired state of CSIConfig CSIConfigSpec
+              defines the desired state of CSIConfig
+            properties:
+              vsphereCSI:
+                properties:
+                  config:
+                    properties:
+                      attachTimeout:
+                        type: string
+                      clusterName:
+                        type: string
+                      datacenter:
+                        type: string
+                      deploymentReplicas:
+                        format: int32
+                        type: integer
+                      httpProxy:
+                        type: string
+                      httpsProxy:
+                        type: string
+                      namespace:
+                        description: The namespace csi components are to be deployed
+                          in
+                        type: string
+                      noProxy:
+                        type: string
+                      password:
+                        type: string
+                      provisionTimeout:
+                        type: string
+                      publicNetwork:
+                        type: string
+                      region:
+                        type: string
+                      resizerTimeout:
+                        type: string
+                      server:
+                        type: string
+                      useTopologyCategories:
+                        type: boolean
+                      username:
+                        type: string
+                      vSphereVersion:
+                        type: string
+                      windowsSupport:
+                        type: boolean
+                      zone:
+                        type: string
+                    required:
+                    - clusterName
+                    - datacenter
+                    - password
+                    - publicNetwork
+                    - server
+                    - username
+                    type: object
+                  mode:
+                    description: The vSphere mode. Either `vsphereCSI` or `vsphereParavirtualCSI`.
+                    enum:
+                    - vsphereCSI
+                    - vsphereParavirtualCSI
+                    type: string
+                  pvconfig:
+                    properties:
+                      clusterName:
+                        description: The name of the guest cluster using the csi components
+                        type: string
+                      clusterUID:
+                        description: The unique id of the guest cluster using the
+                          csi components
+                        type: string
+                      namespace:
+                        description: The namespace csi components are to be deployed
+                          in
+                        type: string
+                      supervisorMasterEndpointHostname:
+                        description: The DNS name of the supervisor cluster endpoint
+                        type: string
+                      supervisorMasterPort:
+                        description: The IP port via which to communicate with the
+                          supervisor cluster
+                        format: int32
+                        type: integer
+                    required:
+                    - clusterName
+                    - clusterUID
+                    - namespace
+                    - supervisorMasterEndpointHostname
+                    - supervisorMasterPort
+                    type: object
+                required:
+                - mode
+                type: object
+            required:
+            - vsphereCSI
+            type: object
+          status:
+            description: CSIConfigStatus defines the observed state of CSIConfig
+            properties:
+              secretRef:
+                description: Name of the secret created by csi controller
+                type: string
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
+status:
+  acceptedNames:
+    kind: ""
+    plural: ""
+  conditions: []
+  storedVersions: []

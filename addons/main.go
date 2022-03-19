@@ -30,12 +30,14 @@ import (
 	antreacontroller "github.com/vmware-tanzu/tanzu-framework/addons/controllers/antrea"
 	calicocontroller "github.com/vmware-tanzu/tanzu-framework/addons/controllers/calico"
 	cpicontroller "github.com/vmware-tanzu/tanzu-framework/addons/controllers/cpi"
+	csicontroller "github.com/vmware-tanzu/tanzu-framework/addons/controllers/csi"
 	kappcontroller "github.com/vmware-tanzu/tanzu-framework/addons/controllers/kapp-controller"
 	addonconfig "github.com/vmware-tanzu/tanzu-framework/addons/pkg/config"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/crdwait"
 	cniv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cni/v1alpha1"
 	cpiv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cpi/v1alpha1"
+	csiv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/csi/v1alpha1"
 	runtanzuv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha1"
 	runtanzuv1alpha3 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/buildinfo"
@@ -59,6 +61,7 @@ func init() {
 	_ = runtanzuv1alpha3.AddToScheme(scheme)
 	_ = cniv1alpha1.AddToScheme(scheme)
 	_ = cpiv1alpha1.AddToScheme(scheme)
+	_ = csiv1alpha1.AddToScheme(scheme)
 
 	// +kubebuilder:scaffold:scheme
 }
@@ -231,6 +234,13 @@ func enableClusterBootstrapAndConfigControllers(ctx context.Context, mgr ctrl.Ma
 		Scheme: mgr.GetScheme(),
 	}).SetupWithManager(ctx, mgr, controller.Options{MaxConcurrentReconciles: 1}); err != nil {
 		setupLog.Error(err, "unable to create CPIConfigController", "controller", "vspherecpi")
+		os.Exit(1)
+	}
+	if err := (&csicontroller.CSIConfigReconciler{
+		Client: mgr.GetClient(),
+		Scheme: mgr.GetScheme(),
+	}).SetupWithManager(ctx, mgr, controller.Options{MaxConcurrentReconciles: 1}); err != nil {
+		setupLog.Error(err, "unable to create CSIConfigController", "controller", "csi")
 		os.Exit(1)
 	}
 
