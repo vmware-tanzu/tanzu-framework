@@ -21,6 +21,7 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v2/tkr/resolver"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v2/tkr/resolver/data"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v2/tkr/util/testdata"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v2/tkr/util/topology"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v2/tkr/util/version"
 )
 
@@ -83,7 +84,7 @@ var _ = Describe("cluster.Webhook", func() {
 			It("should produce an empty query (no resolution needed)", func() {
 				query, err := cw.constructQuery(cluster, clusterClass)
 				Expect(err).ToNot(HaveOccurred())
-				Expect(query).To(Equal(data.Query{}))
+				Expect(query).To(BeNil())
 			})
 		})
 
@@ -96,7 +97,7 @@ var _ = Describe("cluster.Webhook", func() {
 				It("should produce an empty query (no resolution needed)", func() {
 					query, err := cw.constructQuery(cluster, clusterClass)
 					Expect(err).ToNot(HaveOccurred())
-					Expect(query).To(Equal(data.Query{}))
+					Expect(query).To(BeNil())
 				})
 			})
 
@@ -303,6 +304,26 @@ var _ = Describe("cluster.Webhook", func() {
 						err := cw.ResolveAndSetMetadata(cluster, clusterClass)
 						Expect(err).ToNot(HaveOccurred())
 						Expect(&cluster.Spec.Topology.ControlPlane).To(Equal(cp0))
+					})
+
+					When("clusterClass has TKR_KUBERNETES_SPEC variable", func() {
+						BeforeEach(func() {
+							clusterClass.Spec.Variables = append(clusterClass.Spec.Variables, clusterv1.ClusterClassVariable{
+								Name: VarTKRKubernetesSpec,
+							})
+						})
+						When("the TKR has been successfully resolved", func() {
+							BeforeEach(func() {
+							})
+
+							It("should set TKR_KUBERNETES_SPEC cluster variable", func() {
+								err := cw.ResolveAndSetMetadata(cluster, clusterClass)
+								Expect(err).ToNot(HaveOccurred())
+								tkrKubernetesSpec := &runv1.KubernetesSpec{}
+								Expect(topology.GetVariable(cluster, VarTKRKubernetesSpec, tkrKubernetesSpec)).To(Succeed())
+								Expect(tkrKubernetesSpec).To(Equal(&tkr.Spec.Kubernetes))
+							})
+						})
 					})
 				})
 

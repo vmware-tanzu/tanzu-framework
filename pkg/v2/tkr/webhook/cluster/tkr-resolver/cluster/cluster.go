@@ -25,6 +25,7 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v2/tkr/resolver"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v2/tkr/resolver/data"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v2/tkr/util/osimage"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v2/tkr/util/topology"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v2/tkr/util/version"
 )
 
@@ -72,20 +73,17 @@ func (cw *Webhook) Handle(ctx context.Context, req admission.Request) admission.
 // Pre-reqs: cluster != nil && clusterClass != nil
 func (cw *Webhook) ResolveAndSetMetadata(cluster *clusterv1.Cluster, clusterClass *clusterv1.ClusterClass) error {
 	query, err := cw.constructQuery(cluster, clusterClass)
-	if err != nil {
+	if query == nil || err != nil {
 		return err
 	}
-	if isEmpty(query) { // skipping resolution entirely
-		return nil
-	}
 
-	result := cw.TKRResolver.Resolve(query)
+	result := cw.TKRResolver.Resolve(*query)
 
 	isUnresolvedCP := isUnresolved(result.ControlPlane)
 	unresolvedMDs := unresolvedMachineDeployments(result)
 	if isUnresolvedCP || len(unresolvedMDs) != 0 {
 		return &errUnresolved{
-			query:   query,
+			query:   *query,
 			result:  result,
 			cluster: cluster,
 			cp:      isUnresolvedCP,
@@ -94,16 +92,23 @@ func (cw *Webhook) ResolveAndSetMetadata(cluster *clusterv1.Cluster, clusterClas
 	}
 
 	setMetadata(result, cluster)
-	cw.adjustKubernetesVersion(cluster)
+
+	tkr := cw.getTKR(cluster)
+	if tkr == nil {
+		return errors.Errorf("resolved TKR not available: cluster '%s/%s', TKR '%s'", cluster.Namespace, cluster.Name, cluster.Labels[runv1.LabelTKR])
+	}
+
+	adjustClusterKubernetesSpec(tkr, clusterClass, cluster)
 	return nil
 }
 
 // constructQuery creates TKR resolution query from cluster and clusterClass metadata.
+// Returns nil if resolution is not possible.
 // Pre-reqs: cluster != nil && clusterClass != nil
-func (cw *Webhook) constructQuery(cluster *clusterv1.Cluster, clusterClass *clusterv1.ClusterClass) (data.Query, error) {
+func (cw *Webhook) constructQuery(cluster *clusterv1.Cluster, clusterClass *clusterv1.ClusterClass) (*data.Query, error) {
 	tkrSelector, err := selectorFromAnnotation(cluster.Annotations, clusterClass.Annotations, runv1.AnnotationResolveTKR)
 	if tkrSelector == nil || cluster.Spec.Topology == nil {
-		return data.Query{}, err
+		return nil, err
 	}
 
 	osImageSelector, err := selectorFromAnnotation(
@@ -111,7 +116,7 @@ func (cw *Webhook) constructQuery(cluster *clusterv1.Cluster, clusterClass *clus
 		clusterClass.Spec.ControlPlane.Metadata.Annotations,
 		runv1.AnnotationResolveOSImage)
 	if err != nil {
-		return data.Query{}, err
+		return nil, err
 	}
 	if osImageSelector == nil {
 		osImageSelector = labels.Everything() // default to empty selector (matches all) for OSImages
@@ -120,15 +125,15 @@ func (cw *Webhook) constructQuery(cluster *clusterv1.Cluster, clusterClass *clus
 	cpQuery := cw.constructOSImageQuery(cluster.Spec.Topology.Version, tkrSelector, osImageSelector, labels.Merge(cluster.Labels, cluster.Spec.Topology.ControlPlane.Metadata.Labels))
 
 	if cluster.Spec.Topology.Workers == nil {
-		return data.Query{ControlPlane: cpQuery}, nil
+		return &data.Query{ControlPlane: cpQuery}, nil
 	}
 
 	mdQueries, err := cw.constructMDQueries(cluster, clusterClass, tkrSelector)
 	if err != nil {
-		return data.Query{}, err
+		return nil, err
 	}
 
-	return data.Query{ControlPlane: cpQuery, MachineDeployments: mdQueries}, nil
+	return &data.Query{ControlPlane: cpQuery, MachineDeployments: mdQueries}, nil
 }
 
 // selectorFromAnnotation produces a selector from the value of the specified annotation.
@@ -215,10 +220,6 @@ func getMDClass(clusterClass *clusterv1.ClusterClass, mdClassName string) *clust
 		}
 	}
 	return nil
-}
-
-func isEmpty(q data.Query) bool {
-	return q.ControlPlane == nil && q.MachineDeployments == nil
 }
 
 // isUnresolved is true iff there are no TKRs, or there are more than 1 OSImages for the resolved TKR, satisfying the query.
@@ -334,17 +335,24 @@ func success(req *admission.Request, cluster *clusterv1.Cluster) admission.Respo
 	return admission.PatchResponseFromRaw(req.Object.Raw, marshaledCluster)
 }
 
-func (cw *Webhook) adjustKubernetesVersion(cluster *clusterv1.Cluster) {
+func (cw *Webhook) getTKR(cluster *clusterv1.Cluster) *runv1.TanzuKubernetesRelease {
 	if cluster.Labels == nil {
-		return
+		return nil
 	}
 	tkrName, exists := cluster.Labels[runv1.LabelTKR]
 	if !exists {
-		return
+		return nil
 	}
-	tkr := cw.TKRResolver.Get(tkrName, &runv1.TanzuKubernetesRelease{}).(*runv1.TanzuKubernetesRelease)
-	if tkr == nil {
-		return
-	}
+	return cw.TKRResolver.Get(tkrName, &runv1.TanzuKubernetesRelease{}).(*runv1.TanzuKubernetesRelease)
+}
+
+const VarTKRKubernetesSpec = "TKR_KUBERNETES_SPEC"
+
+func adjustClusterKubernetesSpec(tkr *runv1.TanzuKubernetesRelease, clusterClass *clusterv1.ClusterClass, cluster *clusterv1.Cluster) {
 	cluster.Spec.Topology.Version = tkr.Spec.Kubernetes.Version
+
+	if topology.ClusterClassVariable(clusterClass, VarTKRKubernetesSpec) == nil {
+		return
+	}
+	_ = topology.SetVariable(cluster, VarTKRKubernetesSpec, &tkr.Spec.Kubernetes) // ignoring error: tkr.Spec.Kubernetes always marshals to/from JSON cleanly
 }
