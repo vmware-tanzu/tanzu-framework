@@ -7,8 +7,11 @@ import (
 	"os"
 
 	"github.com/aunum/log"
+	"github.com/cppforlife/go-cli-ui/ui"
 	_ "k8s.io/client-go/plugin/pkg/client/auth"
 
+	kctrlcmd "github.com/vmware-tanzu/carvel-kapp-controller/cli/pkg/kctrl/cmd"
+	kctrlcmdcore "github.com/vmware-tanzu/carvel-kapp-controller/cli/pkg/kctrl/cmd/core"
 	cliv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/command/plugin"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/component"
@@ -33,18 +36,25 @@ func main() {
 		log.Fatal(err)
 	}
 
-	p.Cmd.PersistentFlags().Int32VarP(&logLevel, "verbose", "", 0, "Number for the log level verbosity(0-9)")
-	p.Cmd.PersistentFlags().StringVarP(&kubeConfig, "kubeconfig", "", "", "The path to the kubeconfig file, optional")
-
-	p.AddCommands(
-		repositoryCmd,
-		packageInstallCmd,
-		packageAvailableCmd,
-		packageInstalledCmd,
-	)
-	if err := p.Execute(); err != nil {
+	err = nonExitingMain(p)
+	if err != nil {
 		os.Exit(1)
 	}
+}
+
+func nonExitingMain(p *plugin.Plugin) error {
+	confUI := ui.NewConfUI(ui.NewNoopLogger())
+
+	defer confUI.Flush()
+
+	kctrlcmd.AttachKctrlPackageCommandTree(p.Cmd, confUI, kctrlcmdcore.PackageCommandTreeOpts{BinaryName: "tanzu", PositionalArgs: true,
+		Color: false, JSON: false})
+
+	if err := p.Execute(); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // getOutputFormat gets the desired output format for package commands that need the ListTable format
