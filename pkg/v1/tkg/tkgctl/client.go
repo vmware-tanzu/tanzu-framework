@@ -38,6 +38,7 @@ type tkgctl struct {
 	tkgConfigPathsClient     tkgconfigpaths.Client
 	providerGetter           providerinterface.ProviderInterface
 	tkgConfigReaderWriter    tkgconfigreaderwriter.TKGConfigReaderWriter
+	featureGateHelper        FeatureGateHelper
 }
 
 // LoggingOptions options to configure logging with tkgctl client
@@ -162,7 +163,7 @@ func New(options Options) (TKGClient, error) { //nolint:gocritic
 		return nil, errors.Wrap(err, "unable to get default BOM file name")
 	}
 	allClients.ConfigClient.TKGConfigReaderWriter().Set(constants.ConfigVariableDefaultBomFile, defaultBoMFileName)
-
+	clusterClientOptions := clusterclient.Options{GetClientInterval: 2 * time.Second, GetClientTimeout: 5 * time.Second}
 	return &tkgctl{
 		configDir:                options.ConfigDir,
 		kubeconfig:               options.KubeConfig,
@@ -175,6 +176,7 @@ func New(options Options) (TKGClient, error) { //nolint:gocritic
 		tkgClient:                tkgClient,
 		providerGetter:           options.ProviderGetter,
 		tkgConfigReaderWriter:    allClients.ConfigClient.TKGConfigReaderWriter(),
+		featureGateHelper:        newFeatureGateHelper(&clusterClientOptions, options.KubeContext, options.KubeConfig),
 	}, nil
 }
 
