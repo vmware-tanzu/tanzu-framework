@@ -4,6 +4,7 @@
 package tkgctl
 
 import (
+	"fmt"
 	"os"
 
 	. "github.com/onsi/ginkgo"
@@ -19,6 +20,8 @@ import (
 )
 
 const fakeTKRVersion = "1.19.0+vmware.1-tkg.1"
+const configFilePath = "../fakes/config/config.yaml"
+const ccConfigFilePath = "../fakes/config/ccluster1_clusterOnly.yaml"
 
 var testingDir string
 
@@ -54,7 +57,7 @@ var _ = Describe("Unit tests for create cluster", func() {
 			tkgClient = &fakes.Client{}
 			tkgClient.IsPacificManagementClusterReturns(true, nil)
 			tkgClient.GetCurrentRegionContextReturns(regionContext, nil)
-			tkgConfigReaderWriter, err := tkgconfigreaderwriter.NewReaderWriterFromConfigFile("../fakes/config/config.yaml", "../fakes/config/config.yaml")
+			tkgConfigReaderWriter, err := tkgconfigreaderwriter.NewReaderWriterFromConfigFile(configFilePath, configFilePath)
 			Expect(err).NotTo(HaveOccurred())
 			tkgctlClient := &tkgctl{
 				configDir:              testingDir,
@@ -76,7 +79,7 @@ var _ = Describe("Unit tests for create cluster", func() {
 			tkgClient = &fakes.Client{}
 			tkgClient.IsPacificManagementClusterReturns(true, nil)
 			tkgClient.GetCurrentRegionContextReturns(regionContext, nil)
-			tkgConfigReaderWriter, err := tkgconfigreaderwriter.NewReaderWriterFromConfigFile("../fakes/config/config.yaml", "../fakes/config/config.yaml")
+			tkgConfigReaderWriter, err := tkgconfigreaderwriter.NewReaderWriterFromConfigFile(configFilePath, configFilePath)
 			Expect(err).NotTo(HaveOccurred())
 			tkgctlClient := &tkgctl{
 				configDir:              testingDir,
@@ -104,7 +107,7 @@ var _ = Describe("Unit tests for getAndDownloadTkrIfNeeded", func() {
 		err              error
 	)
 	JustBeforeEach(func() {
-		tkgConfigReaderWriter, err1 := tkgconfigreaderwriter.NewReaderWriterFromConfigFile("../fakes/config/config.yaml", "../fakes/config/config.yaml")
+		tkgConfigReaderWriter, err1 := tkgconfigreaderwriter.NewReaderWriterFromConfigFile(configFilePath, configFilePath)
 		Expect(err1).NotTo(HaveOccurred())
 		ctl = tkgctl{
 			configDir:              testingDir,
@@ -209,7 +212,7 @@ var _ = Describe("Unit tests for - ccluster.yaml as input file for 'tanzu cluste
 		options   CreateClusterOptions
 	)
 	JustBeforeEach(func() {
-		tkgConfigReaderWriter, _ := tkgconfigreaderwriter.NewReaderWriterFromConfigFile("../fakes/config/config.yaml", "../fakes/config/config.yaml")
+		tkgConfigReaderWriter, _ := tkgconfigreaderwriter.NewReaderWriterFromConfigFile(configFilePath, configFilePath)
 		ctl = tkgctl{
 			configDir:              testingDir,
 			tkgClient:              tkgClient,
@@ -229,7 +232,7 @@ var _ = Describe("Unit tests for - ccluster.yaml as input file for 'tanzu cluste
 				TkrVersion:             fakeTKRVersion,
 				SkipPrompt:             true,
 				Edition:                "tkg",
-				ClusterConfigFile:      "../fakes/config/ccluster1_clusterOnly.yaml",
+				ClusterConfigFile:      ccConfigFilePath,
 			}
 		})
 		It("Input file is ccluster type, make sure configurations are updated..", func() {
@@ -293,7 +296,7 @@ var _ = Describe("Unit tests for - ccluster.yaml as input file for 'tanzu cluste
 			Expect(options.ClusterName).To(Equal("BeforeProcess"))
 			Expect(options.Plan).To(Equal("Plan"))
 
-			options.ClusterConfigFile = "../fakes/config/ccluster1_clusterOnly.yaml"
+			options.ClusterConfigFile = ccConfigFilePath
 			_, _ = ctl.checkIfInputFileIsCClassBased(&options)
 
 			cname, _ := ctl.TKGConfigReaderWriter().Get("CLUSTER_NAME")
@@ -320,9 +323,162 @@ var _ = Describe("Unit tests for - ccluster.yaml as input file for 'tanzu cluste
 			_, err := ctl.checkIfInputFileIsCClassBased(&options)
 			Expect(err).To(HaveOccurred())
 		})
-
 	})
+})
 
+var _ = Describe("Unit tests for feature flag (config.FeatureFlagPackageBasedLCM) and featureGate for clusterclass - TKGS ", func() {
+	var (
+		options   CreateClusterOptions
+		tkgClient *fakes.Client
+	)
+
+	Context("Creating clusters for TKGs", func() {
+		BeforeEach(func() {
+			options = CreateClusterOptions{
+				ClusterName:            "test-cluster",
+				Plan:                   "dev",
+				InfrastructureProvider: "",
+				Namespace:              "",
+				GenerateOnly:           false,
+				TkrVersion:             fakeTKRVersion,
+				SkipPrompt:             true,
+				Edition:                "tkg",
+			}
+		})
+		It("positive case, feature flag (config.FeatureFlagPackageBasedLCM) enabled, clusterclass featuregate enabled, and its TKGS cluster", func() {
+			kubeConfigPath := getConfigFilePath()
+			regionContext := region.RegionContext{
+				ContextName:    "queen-anne-context",
+				SourceFilePath: kubeConfigPath,
+			}
+
+			tkgClient = &fakes.Client{}
+			tkgClient.IsPacificManagementClusterReturnsOnCall(0, true, nil)
+			tkgClient.GetCurrentRegionContextReturns(regionContext, nil)
+			tkgClient.IsFeatureActivatedReturns(true)
+			tkgClient.CreateClusterReturnsOnCall(0, nil)
+			options.ClusterConfigFile = ccConfigFilePath
+			tkgConfigReaderWriter, _ := tkgconfigreaderwriter.NewReaderWriterFromConfigFile(configFilePath, configFilePath)
+			fg := &fakes.FakeFeatureGateHelper{}
+			fg.FeatureActivatedInNamespaceReturns(true, nil)
+			tkgctlClient := &tkgctl{
+				configDir:              testingDir,
+				tkgClient:              tkgClient,
+				kubeconfig:             kubeConfigPath,
+				tkgConfigReaderWriter:  tkgConfigReaderWriter,
+				tkgConfigUpdaterClient: tkgconfigupdater.New(testingDir, nil, tkgConfigReaderWriter),
+				featureGateHelper:      fg,
+			}
+			_ = tkgctlClient.CreateCluster(options)
+			// Make sure call completed till end
+			c := tkgClient.CreateClusterCallCount()
+			Expect(1).To(Equal(c))
+			// Make sure its TKGs system.
+			pc := tkgClient.IsPacificManagementClusterCallCount()
+			Expect(1).To(Equal(pc))
+			// Make sure its ClusterClass use case.
+			cname, _ := tkgctlClient.tkgConfigReaderWriter.Get("CLUSTER_NAME")
+			Expect(cname).To(Equal("wcc2"))
+		})
+		It("clusterclass feature flag 'config.FeatureFlagPackageBasedLCM' not enabled", func() {
+			kubeConfigPath := getConfigFilePath()
+			regionContext := region.RegionContext{
+				ContextName:    "queen-anne-context",
+				SourceFilePath: kubeConfigPath,
+			}
+
+			tkgClient = &fakes.Client{}
+			tkgClient.IsPacificManagementClusterReturnsOnCall(0, true, nil)
+			tkgClient.GetCurrentRegionContextReturns(regionContext, nil)
+			tkgClient.IsFeatureActivatedReturns(false)
+			tkgClient.CreateClusterReturnsOnCall(0, nil)
+			options.ClusterConfigFile = ccConfigFilePath
+			tkgConfigReaderWriter, _ := tkgconfigreaderwriter.NewReaderWriterFromConfigFile(configFilePath, configFilePath)
+			fg := &fakes.FakeFeatureGateHelper{}
+			fg.FeatureActivatedInNamespaceReturns(true, nil)
+			tkgctlClient := &tkgctl{
+				configDir:              testingDir,
+				tkgClient:              tkgClient,
+				kubeconfig:             kubeConfigPath,
+				tkgConfigReaderWriter:  tkgConfigReaderWriter,
+				tkgConfigUpdaterClient: tkgconfigupdater.New(testingDir, nil, tkgConfigReaderWriter),
+				featureGateHelper:      fg,
+			}
+			_ = tkgctlClient.CreateCluster(options)
+			// Make sure call completed till end
+			c := tkgClient.CreateClusterCallCount()
+			Expect(1).To(Equal(c))
+			// Make sure its TKGs system.
+			pc := tkgClient.IsPacificManagementClusterCallCount()
+			Expect(1).To(Equal(pc))
+			// As feature flag (config.FeatureFlagPackageBasedLCM) is not enabled, the input ccluster1_clusterOnly.yaml file not processed,
+			// so cname is empty only.
+			cname, _ := tkgctlClient.tkgConfigReaderWriter.Get("CLUSTER_NAME")
+			Expect(cname).To(Equal(""))
+		})
+		It("Feature 'clusterclass' is disabled in featuregate", func() {
+			kubeConfigPath := getConfigFilePath()
+			regionContext := region.RegionContext{
+				ContextName:    "queen-anne-context",
+				SourceFilePath: kubeConfigPath,
+			}
+
+			tkgClient = &fakes.Client{}
+			tkgClient.IsPacificManagementClusterReturnsOnCall(0, true, nil)
+			tkgClient.GetCurrentRegionContextReturns(regionContext, nil)
+			tkgClient.IsFeatureActivatedReturns(true)
+			tkgClient.CreateClusterReturnsOnCall(0, nil)
+			options.ClusterConfigFile = ccConfigFilePath
+			tkgConfigReaderWriter, _ := tkgconfigreaderwriter.NewReaderWriterFromConfigFile(configFilePath, configFilePath)
+			fg := &fakes.FakeFeatureGateHelper{}
+			fg.FeatureActivatedInNamespaceReturns(false, nil)
+			tkgctlClient := &tkgctl{
+				configDir:              testingDir,
+				tkgClient:              tkgClient,
+				kubeconfig:             kubeConfigPath,
+				tkgConfigReaderWriter:  tkgConfigReaderWriter,
+				tkgConfigUpdaterClient: tkgconfigupdater.New(testingDir, nil, tkgConfigReaderWriter),
+				featureGateHelper:      fg,
+			}
+			// feature flag (config.FeatureFlagPackageBasedLCM) activated, its clusterclass input file, but "clusterclass" feature in FeatureGate is disabled, so throws error
+			err := tkgctlClient.CreateCluster(options)
+			expectedErrMsg := "vSphere with Tanzu environment detected, however, the feature 'clusterclass' is not activated in 'vmware-system-capw' namespace "
+			Expect(err.Error()).To(ContainSubstring(expectedErrMsg))
+		})
+
+		It("featuregate api throws error", func() {
+			kubeConfigPath := getConfigFilePath()
+			regionContext := region.RegionContext{
+				ContextName:    "queen-anne-context",
+				SourceFilePath: kubeConfigPath,
+			}
+
+			tkgClient = &fakes.Client{}
+			tkgClient.IsPacificManagementClusterReturnsOnCall(0, true, nil)
+			tkgClient.GetCurrentRegionContextReturns(regionContext, nil)
+			tkgClient.IsFeatureActivatedReturns(true)
+			tkgClient.CreateClusterReturnsOnCall(0, nil)
+			options.ClusterConfigFile = ccConfigFilePath
+			tkgConfigReaderWriter, _ := tkgconfigreaderwriter.NewReaderWriterFromConfigFile(configFilePath, configFilePath)
+			fg := &fakes.FakeFeatureGateHelper{}
+			errorMsg := "error while feature status in featuregate"
+			fg.FeatureActivatedInNamespaceReturns(true, fmt.Errorf(errorMsg))
+			tkgctlClient := &tkgctl{
+				configDir:              testingDir,
+				tkgClient:              tkgClient,
+				kubeconfig:             kubeConfigPath,
+				tkgConfigReaderWriter:  tkgConfigReaderWriter,
+				tkgConfigUpdaterClient: tkgconfigupdater.New(testingDir, nil, tkgConfigReaderWriter),
+				featureGateHelper:      fg,
+			}
+			// feature flag (config.FeatureFlagPackageBasedLCM) activated, its clusterclass config input file, but "clusterclass" feature in FeatureGate is enabled,
+			// but throws errro for the FeatureGate api, so we expecte error here.
+			err := tkgctlClient.CreateCluster(options)
+			fmt.Println(err.Error())
+			// as FeatureGate api throws error, we expecte error.
+			Expect(err.Error()).To(ContainSubstring(errorMsg))
+		})
+	})
 })
 
 func getConfigFilePath() string {
