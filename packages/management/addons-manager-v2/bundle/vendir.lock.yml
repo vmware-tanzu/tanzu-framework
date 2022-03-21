@@ -34,11 +34,11 @@ directories:
       - v0.19.0-dev-30-g9ed3b166
     path: run.tanzu.vmware.com_kappcontrollerconfigs.yaml
   - git:
-      commitTitle: Remove CNI selection using cluster variable (#1834)...
-      sha: 9ed3b1664b261d2d5c9dac552f8a2cc97168caf5
+      commitTitle: Rename CPIConfig to VSphereCPIConfig. (#1838)
+      sha: a0788c22755e66af31ca7dfb1a07b337a8b13820
       tags:
-      - v0.19.0-dev-30-g9ed3b166
-    path: cpi.tanzu.vmware.com_cpiconfigs.yaml
+      - v0.19.0-dev-33-ga0788c22
+    path: cpi.tanzu.vmware.com_vspherecpiconfigss.yaml
   path: config/upstream
 - contents:
   - manual: {}

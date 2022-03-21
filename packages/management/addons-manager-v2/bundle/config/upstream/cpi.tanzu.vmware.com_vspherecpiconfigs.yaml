@@ -6,20 +6,20 @@ metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.7.0
   creationTimestamp: null
-  name: cpiconfigs.cpi.tanzu.vmware.com
+  name: vspherecpiconfigs.cpi.tanzu.vmware.com
 spec:
   group: cpi.tanzu.vmware.com
   names:
-    kind: CPIConfig
-    listKind: CPIConfigList
-    plural: cpiconfigs
+    kind: VSphereCPIConfig
+    listKind: VSphereCPIConfigList
+    plural: vspherecpiconfigs
     shortNames:
-    - cpic
-    singular: cpiconfig
+    - vcpic
+    singular: vspherecpiconfig
   scope: Namespaced
   versions:
   - additionalPrinterColumns:
-    - description: The name of the CPIConfig
+    - description: The name of the VSphereCPIConfig
       jsonPath: .spec.namespace
       name: Name
       type: string
@@ -30,7 +30,7 @@ spec:
     name: v1alpha1
     schema:
       openAPIV3Schema:
-        description: CPIConfig is the Schema for the cpiconfigs API
+        description: VSphereCPIConfig is the Schema for the VSphereCPIConfig API
         properties:
           apiVersion:
             description: 'APIVersion defines the versioned schema of this representation
@@ -45,7 +45,7 @@ spec:
           metadata:
             type: object
           spec:
-            description: CPIConfigSpec defines the desired state of CPIConfig
+            description: VSphereCPIConfigSpec defines the desired state of VSphereCPIConfig
             properties:
               vsphereCPI:
                 properties:
@@ -218,10 +218,10 @@ spec:
             - vsphereCPI
             type: object
           status:
-            description: CPIConfigStatus defines the observed state of CPIConfig
+            description: VSphereCPIConfigStatus defines the observed state of VSphereCPIConfig
             properties:
               secretRef:
-                description: Name of the data value secret created by cpi controller
+                description: Name of the data value secret created by vSphere CPI controller
                 type: string
             type: object
         type: object

@@ -6,7 +6,7 @@
 #@ clusterbootstrapscrd = overlay.subset({"kind": "CustomResourceDefinition", "metadata": {"name": "clusterbootstraps.run.tanzu.vmware.com"}})
 #@ clusterbootstraptemplatescrd = overlay.subset({"kind": "CustomResourceDefinition", "metadata": {"name": "clusterbootstraptemplates.run.tanzu.vmware.com"}})
 #@ kappcontrollerconfigscrd = overlay.subset({"kind": "CustomResourceDefinition", "metadata": {"name": "kappcontrollerconfigs.run.tanzu.vmware.com"}})
-#@ vspherecpiconfigscrd = overlay.subset({"kind": "CustomResourceDefinition", "metadata": {"name": "cpiconfigs.cpi.tanzu.vmware.com"}})
+#@ vspherecpiconfigscrd = overlay.subset({"kind": "CustomResourceDefinition", "metadata": {"name": "vspherecpiconfigs.cpi.tanzu.vmware.com"}})
 
 #@overlay/match by=overlay.or_op(antreaconfigscrd, calicoconfigscrd, clusterbootstrapscrd, clusterbootstraptemplatescrd, kappcontrollerconfigscrd, vspherecpiconfigscrd), expects=6
 #@ if/end not data.values.tanzuAddonsManager.featureGates.clusterBootstrapController:
