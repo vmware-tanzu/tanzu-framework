@@ -52,6 +52,7 @@ IMGPKG             := $(BIN_DIR)/imgpkg
 YQ                 := $(BIN_DIR)/yq
 TRIVY              := $(BIN_DIR)/trivy
 KAPP               := $(BIN_DIR)/kapp
+CONVERSION_GEN     := $(BIN_DIR)/conversion-gen
 
 ## --------------------------------------
 ## Help
@@ -110,6 +111,11 @@ $(YQ):
 	echo $(HOST_OS) $(HOST_ARCH)
 	curl -sL https://github.com/mikefarah/yq/releases/download/$(YQ_VERSION)/yq_$(HOST_OS)_$(HOST_ARCH) -o $(@) && \
 	chmod a+x $(@)
+
+conversion-gen: $(CONVERSION_GEN) $(SRCS) ## Build conversion-gen
+$(CONVERSION_GEN): go.mod
+	mkdir -p $(BIN_DIR)
+	go build -tags=tools -o $(BIN_DIR) k8s.io/code-generator/cmd/conversion-gen
 
 ## --------------------------------------------------------------------------------------------------------
 ## Carvel tools

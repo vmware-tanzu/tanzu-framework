@@ -1,0 +1,24 @@
+# permissions for end users to edit tanzukubernetesreleases.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: tanzukubernetesrelease-editor-role
+rules:
+- apiGroups:
+  - run.tanzu.vmware.com
+  resources:
+  - tanzukubernetesreleases
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - run.tanzu.vmware.com
+  resources:
+  - tanzukubernetesreleases/status
+  verbs:
+  - get

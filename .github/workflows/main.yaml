@@ -89,6 +89,14 @@ jobs:
         go-version: '1.17'
       id: go
 
+    - name: Cache linting
+      uses: actions/cache@v2
+      with:
+        path: ${{ runner.temp }}/lint_cache
+        key: ${{ runner.os }}-lint-cache
+
     - name: Run lint checks
+      env:
+        GOLANGCI_LINT_CACHE: ${{ runner.temp }}/lint_cache
       run: |
         make lint
