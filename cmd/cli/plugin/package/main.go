@@ -43,12 +43,16 @@ func main() {
 }
 
 func nonExitingMain(p *plugin.Plugin) error {
-	confUI := ui.NewConfUI(ui.NewNoopLogger())
+	writerUI := ui.NewWriterUI(os.Stdout, os.Stderr, ui.NewNoopLogger())
+	adapterUI := &AdapterUI{*writerUI, os.Stdout, ""}
+	confUI := ui.NewWrappingConfUI(adapterUI, ui.NewNoopLogger())
 
 	defer confUI.Flush()
 
 	kctrlcmd.AttachKctrlPackageCommandTree(p.Cmd, confUI, kctrlcmdcore.PackageCommandTreeOpts{BinaryName: "tanzu", PositionalArgs: true,
 		Color: false, JSON: false})
+
+	setOutputFormat(p.Cmd, adapterUI)
 
 	if err := p.Execute(); err != nil {
 		return err
