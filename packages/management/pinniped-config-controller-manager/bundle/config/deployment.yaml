@@ -3,7 +3,7 @@
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: pinniped #! TODO: what should this be?
+  name: #@ data.values.namespace
 ---
 apiVersion: v1
 kind: ServiceAccount
@@ -40,5 +40,5 @@ spec:
     spec:
       serviceAccountName: pinniped-config-controller-manager
       containers:
-      - image: #@ data.values.image
+      - image: pinniped-config-controller-manager:latest
         name: pinniped-config-controller-manager

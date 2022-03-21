@@ -15,4 +15,4 @@ cd "${MY_DIR}/.."
 make controller-gen -C "${TF_ROOT}/hack/tools"
 
 # generate RBAC rules
-"${TF_ROOT}/hack/tools/bin/controller-gen" paths=./controllers +rbac:roleName=pinniped-config-controller-manager output:rbac:dir=./manifests
+"${TF_ROOT}/hack/tools/bin/controller-gen" paths=./controllers +rbac:roleName=pinniped-config-controller-manager output:rbac:dir="${TF_ROOT}/packages/management/pinniped-config-controller-manager/bundle/config"

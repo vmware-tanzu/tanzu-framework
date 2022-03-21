@@ -1,0 +1,25 @@
+apiVersion: data.packaging.carvel.dev/v1alpha1
+kind: Package
+metadata:
+  name: pinniped-config-controller-manager.tanzu.vmware.com.0.0.0 # TODO: what version?
+  namespace: tkg-system # TODO: what is this supposed to be?
+spec:
+  refName: pinniped-config-controller-manager.tanzu.vmware.com
+  version: 0.0.0
+  licenses:
+    - "UNKNOWN"
+  template:
+    spec:
+      fetch:
+        - imgpkgBundle:
+            image: pinniped-config-controller-manager-package:latest
+      template:
+        - ytt:
+            paths:
+              - config/
+        - kbld:
+            paths:
+              - "-"
+              - .imgpkg/images.yml
+      deploy:
+        - kapp: {}

@@ -1,0 +1,19 @@
+# TODO: Makefile to hook into root Makefile?
+# TODO: unit tests?
+
+apiVersion: data.packaging.carvel.dev/v1alpha1
+kind: PackageMetadata
+metadata:
+  name: pinniped-config-controller-manager.tanzu.vmware.com
+  namespace: tkg-system # TODO: what is this supposed to be?
+spec:
+  displayName: "pinniped-config-controller-manager"
+  longDescription: "This package provides Pinniped lifecycle management capabilities."
+  shortDescription: "This package provides Pinniped lifecycle management capabilities."
+  providerName: VMware
+  maintainers:
+  - name: Andrew Keesler
+  - name: Ben Petersen
+  - name: Sarah Abbey
+  categories:
+    - "addons-lifecycle-management"
