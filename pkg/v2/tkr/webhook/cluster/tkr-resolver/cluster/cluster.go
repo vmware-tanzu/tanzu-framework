@@ -98,7 +98,7 @@ func (cw *Webhook) ResolveAndSetMetadata(cluster *clusterv1.Cluster, clusterClas
 		return errors.Errorf("resolved TKR not available: cluster '%s/%s', TKR '%s'", cluster.Namespace, cluster.Name, cluster.Labels[runv1.LabelTKR])
 	}
 
-	adjustClusterKubernetesSpec(tkr, clusterClass, cluster)
+	cw.adjustClusterKubernetesSpec(tkr, clusterClass, cluster)
 	return nil
 }
 
@@ -348,10 +348,11 @@ func (cw *Webhook) getTKR(cluster *clusterv1.Cluster) *runv1.TanzuKubernetesRele
 
 const VarTKRKubernetesSpec = "TKR_KUBERNETES_SPEC"
 
-func adjustClusterKubernetesSpec(tkr *runv1.TanzuKubernetesRelease, clusterClass *clusterv1.ClusterClass, cluster *clusterv1.Cluster) {
+func (cw *Webhook) adjustClusterKubernetesSpec(tkr *runv1.TanzuKubernetesRelease, clusterClass *clusterv1.ClusterClass, cluster *clusterv1.Cluster) {
 	cluster.Spec.Topology.Version = tkr.Spec.Kubernetes.Version
 
 	if topology.ClusterClassVariable(clusterClass, VarTKRKubernetesSpec) == nil {
+		cw.Log.Info("Skipping setting the variable: not defined in ClusterClass", "variable", VarTKRKubernetesSpec, "ClusterClass", fmt.Sprintf("%s/%s", clusterClass.Namespace, clusterClass.Name))
 		return
 	}
 	_ = topology.SetVariable(cluster, VarTKRKubernetesSpec, &tkr.Spec.Kubernetes) // ignoring error: tkr.Spec.Kubernetes always marshals to/from JSON cleanly
