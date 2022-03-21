@@ -9,9 +9,9 @@ directories:
     path: tkr-infra-machine-webhook-deployment.yaml
   - manual: {}
     path: webhook.yaml
-  path: config/upstream
+  path: bundle/config/upstream
 - contents:
   - manual: {}
     path: overlay-infra-machine-webhook.yaml
-  path: config/overlays
+  path: bundle/config/overlays
 kind: LockConfig

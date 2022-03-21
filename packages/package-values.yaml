@@ -1,156 +1,150 @@
 #@data/values
 ---
-#! This is the package repository that you want to build
-packageRepository: null
-#! This is the package that you want to build
-packageName: null
+repositories:
+  management:
+    version: null
+    sha256: latest
+    name: management
+    domain: tanzu.vmware.com
+    registry: registry
 
-managementPackageRepository:
-  #! This gets overwritten by build
-  version: null
-  sha256: null
-  name: management
-  domain: tanzu.vmware.com
+    packageSpec:
+      syncPeriod: 5m
+      deploy:
+        kappWaitTimeout: 5m
+        kubeAPIQPS: 20
+        kubeAPIBurst: 30
 
-  packageSpec:
-    syncPeriod: 5m
-    deploy:
-      kappWaitTimeout: 5m
-      kubeAPIQPS: 20
-      kubeAPIBurst: 30
+    packages:
+      - name: featuregates
+        displayName: featuregates
+        #! Relative path to package bundle
+        path: packages/management/featuregates
+        domain: tanzu.vmware.com
+        version: latest
+        #! Gets replaced with imgpkg sha256 at build, this should be name:version
+        sha256: "featuregates:latest"
+      - name: core-management-plugins
+        displayName: core-management-plugins
+        #! Relative path to package bundle
+        path: packages/management/core-management-plugins
+        domain: tanzu.vmware.com
+        version: latest
+        #! Gets replaced with imgpkg sha256 at build, this should be name:version
+        sha256: "core-management-plugins:latest"
+      - name: addons-manager-v2
+        displayName: addons-manager-v2
+        #! Relative path to package bundle
+        path: packages/management/addons-manager-v2
+        domain: tanzu.vmware.com
+        version: latest
+        #! Gets replaced with imgpkg sha256 at build, this should be name:version
+        sha256: "addons-manager:latest"
+      - name: tkg
+        displayName: tkg
+        #! Relative path to package bundle
+        path: packages/management/tkg
+        domain: tanzu.vmware.com
+        version: latest
+        #! Gets replaced with imgpkg sha256 at build, this should be name:version
+        sha256: "tkg:latest"
+      - name: tkg-clusterclass
+        displayName: tkg-clusterclass
+        #! Relative path to package bundle
+        path: packages/management/tkg-clusterclass
+        domain: tanzu.vmware.com
+        version: latest
+        #! Gets replaced with imgpkg sha256 at build, this should be name:version
+        sha256: "tkg-clusterclass:latest"
+      - name: tkg-clusterclass-docker
+        displayName: tkg-clusterclass-docker
+        #! Relative path to package bundle
+        path: packages/management/tkg-clusterclass-docker
+        domain: tanzu.vmware.com
+        version: latest
+        #! Gets replaced with imgpkg sha256 at build, this should be name:version
+        sha256: "tkg-clusterclass-docker:latest"
+      - name: tkg-clusterclass-azure
+        displayName: tkg-clusterclass-azure
+        #! Relative path to package bundle
+        path: packages/management/tkg-clusterclass-azure
+        domain: tanzu.vmware.com
+        version: latest
+        #! Gets replaced with imgpkg sha256 at build, this should be name:version
+        sha256: "tkg-clusterclass-azure:latest"
+      - name: tkg-clusterclass-vsphere
+        displayName: tkg-clusterclass-vsphere
+        #! Relative path to package bundle
+        path: packages/management/tkg-clusterclass-vsphere
+        domain: tanzu.vmware.com
+        version: latest
+        #! Gets replaced with imgpkg sha256 at build, this should be name:version
+        sha256: "tkg-clusterclass-vsphere:latest"
+      - name: tkg-clusterclass-aws
+        displayName: tkg-clusterclass-aws
+        #! Relative path to package bundle
+        path: packages/management/tkg-clusterclass-aws
+        domain: tanzu.vmware.com
+        version: latest
+        #! Gets replaced with imgpkg sha256 at build, this should be name:version
+        sha256: "tkg-clusterclass-aws:latest"
+      - name: tkr-aws-machine-webhook
+        displayName: tkr-aws-machine-webhook
+        #! Relative path to package bundle
+        path: packages/management/tkr-aws-machine-webhook
+        domain: tanzu.vmware.com
+        version: latest
+        #! Gets replaced with imgpkg sha256 at build, this should be name:version
+        sha256: "tkr-aws-machine-webhook:latest"
+      - name: tkr-azure-machine-webhook
+        displayName: tkr-azure-machine-webhook
+        #! Relative path to package bundle
+        path: packages/management/tkr-azure-machine-webhook
+        domain: tanzu.vmware.com
+        version: latest
+        #! Gets replaced with imgpkg sha256 at build, this should be name:version
+        sha256: "tkr-azure-machine-webhook:latest"
+      - name: tkr-docker-machine-webhook
+        displayName: tkr-docker-machine-webhook
+        #! Relative path to package bundle
+        path: packages/management/tkr-docker-machine-webhook
+        domain: tanzu.vmware.com
+        version: latest
+        #! Gets replaced with imgpkg sha256 at build, this should be name:version
+        sha256: "tkr-docker-machine-webhook:latest"
+      - name: tkr-vsphere-machine-webhook
+        displayName: tkr-vsphere-machine-webhook
+        #! Relative path to package bundle
+        path: packages/management/tkr-vsphere-machine-webhook
+        domain: tanzu.vmware.com
+        version: latest
+        #! Gets replaced with imgpkg sha256 at build, this should be name:version
+        sha256: "tkr-vsphere-machine-webhook:latest"
 
-  packages:
-    - name: featuregates
-      displayName: featuregates
-      #! Relative path to package bundle
-      path: packages/management/featuregates
-      domain: tanzu.vmware.com
-      version: latest
-      #! Gets replaced with imgpkg sha256 at build, this should be name:version
-      sha256: "featuregates:latest"
-    - name: core-management-plugins
-      displayName: core-management-plugins
-      #! Relative path to package bundle
-      path: packages/management/core-management-plugins
-      domain: tanzu.vmware.com
-      version: latest
-      #! Gets replaced with imgpkg sha256 at build, this should be name:version
-      sha256: "core-management-plugins:latest"
-    - name: addons-manager-v2
-      displayName: addons-manager-v2
-      #! Relative path to package bundle
-      path: packages/management/addons-manager-v2
-      domain: tanzu.vmware.com
-      version: latest
-      #! Gets replaced with imgpkg sha256 at build, this should be name:version
-      sha256: "addons-manager:latest"
-    - name: tkg
-      displayName: tkg
-      #! Relative path to package bundle
-      path: packages/management/tkg
-      domain: tanzu.vmware.com
-      version: latest
-      #! Gets replaced with imgpkg sha256 at build, this should be name:version
-      sha256: "tkg:latest"
-    - name: tkg-clusterclass
-      displayName: tkg-clusterclass
-      #! Relative path to package bundle
-      path: packages/management/tkg-clusterclass
-      domain: tanzu.vmware.com
-      version: latest
-      #! Gets replaced with imgpkg sha256 at build, this should be name:version
-      sha256: "tkg-clusterclass:latest"
-    - name: tkg-clusterclass-docker
-      displayName: tkg-clusterclass-docker
-      #! Relative path to package bundle
-      path: packages/management/tkg-clusterclass-docker
-      domain: tanzu.vmware.com
-      version: latest
-      #! Gets replaced with imgpkg sha256 at build, this should be name:version
-      sha256: "tkg-clusterclass-docker:latest"
-    - name: tkg-clusterclass-azure
-      displayName: tkg-clusterclass-azure
-      #! Relative path to package bundle
-      path: packages/management/tkg-clusterclass-azure
-      domain: tanzu.vmware.com
-      version: latest
-      #! Gets replaced with imgpkg sha256 at build, this should be name:version
-      sha256: "tkg-clusterclass-azure:latest"
-    - name: tkg-clusterclass-vsphere
-      displayName: tkg-clusterclass-vsphere
-      #! Relative path to package bundle
-      path: packages/management/tkg-clusterclass-vsphere
-      domain: tanzu.vmware.com
-      version: latest
-      #! Gets replaced with imgpkg sha256 at build, this should be name:version
-      sha256: "tkg-clusterclass-vsphere:latest"
-    - name: tkg-clusterclass-aws
-      displayName: tkg-clusterclass-aws
-      #! Relative path to package bundle
-      path: packages/management/tkg-clusterclass-aws
-      domain: tanzu.vmware.com
-      version: latest
-      #! Gets replaced with imgpkg sha256 at build, this should be name:version
-      sha256: "tkg-clusterclass-aws:latest"
-    - name: tkr-aws-machine-webhook
-      displayName: tkr-aws-machine-webhook
-      #! Relative path to package bundle
-      path: packages/management/tkr-aws-machine-webhook
-      domain: tanzu.vmware.com
-      version: latest
-      #! Gets replaced with imgpkg sha256 at build, this should be name:version
-      sha256: "tkr-aws-machine-webhook:latest"
-    - name: tkr-azure-machine-webhook
-      displayName: tkr-azure-machine-webhook
-      #! Relative path to package bundle
-      path: packages/management/tkr-azure-machine-webhook
-      domain: tanzu.vmware.com
-      version: latest
-      #! Gets replaced with imgpkg sha256 at build, this should be name:version
-      sha256: "tkr-azure-machine-webhook:latest"
-    - name: tkr-docker-machine-webhook
-      displayName: tkr-docker-machine-webhook
-      #! Relative path to package bundle
-      path: packages/management/tkr-docker-machine-webhook
-      domain: tanzu.vmware.com
-      version: latest
-      #! Gets replaced with imgpkg sha256 at build, this should be name:version
-      sha256: "tkr-docker-machine-webhook:latest"
-    - name: tkr-vsphere-machine-webhook
-      displayName: tkr-vsphere-machine-webhook
-      #! Relative path to package bundle
-      path: packages/management/tkr-vsphere-machine-webhook
-      domain: tanzu.vmware.com
-      version: latest
-      #! Gets replaced with imgpkg sha256 at build, this should be name:version
-      sha256: "tkr-vsphere-machine-webhook:latest"
+  standalone:
+    version: null
+    sha256: null
+    name: standalone
+    domain: tanzu.vmware.com
 
+    packageSpec:
+      syncPeriod: 5m
+      deploy:
+        kappWaitTimeout: 5m
+        kubeAPIQPS: 20
+        kubeAPIBurst: 30
 
-standalonePackageRepository:
-  #! This gets overwritten by build
-  version: null
-  sha256: null
-  name: standalone
-  domain: tanzu.vmware.com
-
-  packageSpec:
-    syncPeriod: 5m
-    deploy:
-      kappWaitTimeout: 5m
-      kubeAPIQPS: 20
-      kubeAPIBurst: 30
-
-  packages:
-    - name: standalone-plugins
-      displayName: standalone-plugins
-      #! Relative path to package bundle
-      path: packages/standalone/standalone-plugins
-      domain: tanzu.vmware.com
-      version: latest
-      #! Gets replaced with imgpkg sha256 at build, this should be name:version
-      sha256: "standalone-plugins:latest"
-    - name: capabilities
-      path: packages/management/capabilities
-      domain: tanzu.vmware.com
-      version: latest
-      sha256: "capabilities:latest"
+    packages:
+      - name: standalone-plugins
+        displayName: standalone-plugins
+        #! Relative path to package bundle
+        path: packages/standalone/standalone-plugins
+        domain: tanzu.vmware.com
+        version: latest
+        #! Gets replaced with imgpkg sha256 at build, this should be name:version
+        sha256: "standalone-plugins:latest"
+      - name: capabilities
+        path: packages/management/capabilities
+        domain: tanzu.vmware.com
+        version: latest
+        sha256: "capabilities:latest"

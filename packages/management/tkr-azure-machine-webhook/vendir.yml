@@ -2,7 +2,7 @@ apiVersion: vendir.k14s.io/v1alpha1
 kind: Config
 minimumRequiredVersion: 0.12.0
 directories:
-  - path: config/upstream
+  - path: bundle/config/upstream
     contents:
       - path: certificates.yaml
         manual: {}
@@ -12,7 +12,7 @@ directories:
         manual: {}
       - path: webhook.yaml
         manual: {}
-  - path: config/overlays
+  - path: bundle/config/overlays
     contents:
     - path: overlay-infra-machine-webhook.yaml
       manual: {}
