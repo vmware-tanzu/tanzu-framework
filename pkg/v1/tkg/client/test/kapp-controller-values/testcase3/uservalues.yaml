@@ -1,0 +1,8 @@
+#@data/values
+#@overlay/match-child-defaults missing_ok=True
+---
+CORE_DNS_IP: "10.10.10.10"
+
+TKG_CUSTOM_IMAGE_REPOSITORY: "fake.custom-repo.com"
+TKG_CUSTOM_IMAGE_REPOSITORY_CA_CERTIFICATE: "ZmFrZS1jYS1jZXJ0" #! fake-ca-cert
+TKG_CUSTOM_IMAGE_REPOSITORY_SKIP_TLS_VERIFY: true

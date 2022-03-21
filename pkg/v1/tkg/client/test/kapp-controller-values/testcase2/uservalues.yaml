@@ -1,0 +1,15 @@
+#@data/values
+#@overlay/match-child-defaults missing_ok=True
+---
+CORE_DNS_IP: "10.10.10.10"
+
+TKG_HTTP_PROXY: "5.5.5.5"
+TKG_HTTPS_PROXY: "5.5.5.5"
+TKG_NO_PROXY: ""
+TKG_PROXY_CA_CERT:
+
+PROVIDER_TYPE: "aws"
+AWS_VPC_CIDR: "20.20.0.0"
+SERVICE_CIDR: "20.20.20.10"
+CLUSTER_CIDR: "20.20.20.11"
+TKG_IP_FAMILY: "ipv4"

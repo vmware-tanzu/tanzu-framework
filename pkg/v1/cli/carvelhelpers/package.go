@@ -5,6 +5,7 @@ package carvelhelpers
 
 import (
 	"os"
+	"path/filepath"
 
 	"github.com/pkg/errors"
 
@@ -13,15 +14,24 @@ import (
 
 // ProcessCarvelPackage processes a carvel package and returns a configuration YAML
 // Downloads package to temporary directory and processes the package by
-// implementing equivalent functionality as the command: `ytt -f <path> | kbld -f -`
-func ProcessCarvelPackage(image string) ([]byte, error) {
-	configDir, err := DownloadImageBundleAndSaveFilesToTempDir(image)
+// implementing equivalent functionality as the command: `ytt -f <path> [-f <values-files>] | kbld -f -`
+func ProcessCarvelPackage(image string, valuesFiles ...string) ([]byte, error) {
+	pkgDir, err := DownloadImageBundleAndSaveFilesToTempDir(image)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get resource files from discovery")
 	}
-	defer os.RemoveAll(configDir)
+	defer os.RemoveAll(pkgDir)
+	return CarvelPackageProcessor(pkgDir, image, valuesFiles...)
+}
 
-	bytes, err := ProcessYTTPackage(configDir)
+// CarvelPackageProcessor processes a carvel package and returns a configuration YAML file
+func CarvelPackageProcessor(pkgDir, image string, valuesFiles ...string) ([]byte, error) {
+	// Each package contains `config` and `.imgpkg` directory
+	// `config` directory contains ytt files
+	// `.imgpkg` directory contains ImageLock configuration for ImageResolution
+	configDir := filepath.Join(pkgDir, "config")
+	files := append([]string{configDir}, valuesFiles...)
+	bytes, err := ProcessYTTPackage(files...)
 	if err != nil {
 		return nil, errors.Wrap(err, "error while running ytt")
 	}
@@ -37,5 +47,13 @@ func ProcessCarvelPackage(image string) ([]byte, error) {
 		return nil, errors.Wrap(err, "error while saving file")
 	}
 
-	return ResolveImagesInPackage([]string{f.Name()})
+	inputFilesForImageResolution := []string{f.Name()}
+
+	// Use `.imgpkg` directory if exists for ImageResolution
+	imgpkgDir := filepath.Join(pkgDir, ".imgpkg")
+	if utils.PathExists(imgpkgDir) {
+		inputFilesForImageResolution = append(inputFilesForImageResolution, imgpkgDir)
+	}
+
+	return ResolveImagesInPackage(inputFilesForImageResolution)
 }

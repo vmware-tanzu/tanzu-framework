@@ -1,0 +1,7 @@
+#@ load("@ytt:overlay", "overlay")
+#@ load("@ytt:data", "data")
+
+#@overlay/match by=overlay.subset({"kind": "Pod","metadata": {"name": "test"}}),expects="1+"
+---
+metadata:
+  namespace: #@ data.values.NAMESPACE

@@ -207,6 +207,18 @@ type TKGConfigBomClient struct {
 		result1 string
 		result2 error
 	}
+	GetKappControllerPackageImageStub        func() (string, error)
+	getKappControllerPackageImageMutex       sync.RWMutex
+	getKappControllerPackageImageArgsForCall []struct {
+	}
+	getKappControllerPackageImageReturns struct {
+		result1 string
+		result2 error
+	}
+	getKappControllerPackageImageReturnsOnCall map[int]struct {
+		result1 string
+		result2 error
+	}
 	GetManagementPackageRepositoryImageStub        func() (string, error)
 	getManagementPackageRepositoryImageMutex       sync.RWMutex
 	getManagementPackageRepositoryImageArgsForCall []struct {
@@ -1181,6 +1193,62 @@ func (fake *TKGConfigBomClient) GetK8sVersionFromTkrVersionReturnsOnCall(i int, 
 	}{result1, result2}
 }
 
+func (fake *TKGConfigBomClient) GetKappControllerPackageImage() (string, error) {
+	fake.getKappControllerPackageImageMutex.Lock()
+	ret, specificReturn := fake.getKappControllerPackageImageReturnsOnCall[len(fake.getKappControllerPackageImageArgsForCall)]
+	fake.getKappControllerPackageImageArgsForCall = append(fake.getKappControllerPackageImageArgsForCall, struct {
+	}{})
+	stub := fake.GetKappControllerPackageImageStub
+	fakeReturns := fake.getKappControllerPackageImageReturns
+	fake.recordInvocation("GetKappControllerPackageImage", []interface{}{})
+	fake.getKappControllerPackageImageMutex.Unlock()
+	if stub != nil {
+		return stub()
+	}
+	if specificReturn {
+		return ret.result1, ret.result2
+	}
+	return fakeReturns.result1, fakeReturns.result2
+}
+
+func (fake *TKGConfigBomClient) GetKappControllerPackageImageCallCount() int {
+	fake.getKappControllerPackageImageMutex.RLock()
+	defer fake.getKappControllerPackageImageMutex.RUnlock()
+	return len(fake.getKappControllerPackageImageArgsForCall)
+}
+
+func (fake *TKGConfigBomClient) GetKappControllerPackageImageCalls(stub func() (string, error)) {
+	fake.getKappControllerPackageImageMutex.Lock()
+	defer fake.getKappControllerPackageImageMutex.Unlock()
+	fake.GetKappControllerPackageImageStub = stub
+}
+
+func (fake *TKGConfigBomClient) GetKappControllerPackageImageReturns(result1 string, result2 error) {
+	fake.getKappControllerPackageImageMutex.Lock()
+	defer fake.getKappControllerPackageImageMutex.Unlock()
+	fake.GetKappControllerPackageImageStub = nil
+	fake.getKappControllerPackageImageReturns = struct {
+		result1 string
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *TKGConfigBomClient) GetKappControllerPackageImageReturnsOnCall(i int, result1 string, result2 error) {
+	fake.getKappControllerPackageImageMutex.Lock()
+	defer fake.getKappControllerPackageImageMutex.Unlock()
+	fake.GetKappControllerPackageImageStub = nil
+	if fake.getKappControllerPackageImageReturnsOnCall == nil {
+		fake.getKappControllerPackageImageReturnsOnCall = make(map[int]struct {
+			result1 string
+			result2 error
+		})
+	}
+	fake.getKappControllerPackageImageReturnsOnCall[i] = struct {
+		result1 string
+		result2 error
+	}{result1, result2}
+}
+
 func (fake *TKGConfigBomClient) GetManagementPackageRepositoryImage() (string, error) {
 	fake.getManagementPackageRepositoryImageMutex.Lock()
 	ret, specificReturn := fake.getManagementPackageRepositoryImageReturnsOnCall[len(fake.getManagementPackageRepositoryImageArgsForCall)]
@@ -1381,6 +1449,8 @@ func (fake *TKGConfigBomClient) Invocations() map[string][][]interface{} {
 	defer fake.getDefaultTkrBOMConfigurationMutex.RUnlock()
 	fake.getK8sVersionFromTkrVersionMutex.RLock()
 	defer fake.getK8sVersionFromTkrVersionMutex.RUnlock()
+	fake.getKappControllerPackageImageMutex.RLock()
+	defer fake.getKappControllerPackageImageMutex.RUnlock()
 	fake.getManagementPackageRepositoryImageMutex.RLock()
 	defer fake.getManagementPackageRepositoryImageMutex.RUnlock()
 	fake.initBOMRegistryMutex.RLock()

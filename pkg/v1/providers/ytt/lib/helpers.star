@@ -265,6 +265,7 @@ def get_vsphere_thumbprint():
   return data.values.VSPHERE_TLS_THUMBPRINT
 end
 
+#! Change done in this function needs to be done in `kapp-controller-values/helper.star` as well.
 def get_no_proxy():
   if data.values.TKG_HTTP_PROXY != "":
     full_no_proxy_list = []
