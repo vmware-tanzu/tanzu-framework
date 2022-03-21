@@ -4,10 +4,14 @@
 package client_test
 
 import (
+	"os"
+	"strings"
+
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
 	. "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/client"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/log"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfigreaderwriter"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/utils"
 )
@@ -80,8 +84,72 @@ PQR: ""
 	})
 })
 
+var _ = Describe("Unit tests for GetKappControllerConfigValuesFile", func() {
+	var (
+		err                               error
+		kappControllerValuesYttDir        = "../../providers/kapp-controller-values"
+		inputDataValuesFile               string
+		processedKappControllerValuesFile string
+		outputKappControllerValuesFile    string
+	)
+
+	validateResult := func() {
+		Expect(err).NotTo(HaveOccurred())
+		Expect(processedKappControllerValuesFile).NotTo(BeEmpty())
+		filedata1, err := readFileData(processedKappControllerValuesFile)
+		Expect(err).NotTo(HaveOccurred())
+		filedata2, err := readFileData(outputKappControllerValuesFile)
+		Expect(err).NotTo(HaveOccurred())
+		if strings.Compare(filedata1, filedata2) != 0 {
+			log.Infof("Processed Output: %v", filedata1)
+			log.Infof("Expected  Output: %v", filedata2)
+		}
+		Expect(filedata1).To(Equal(filedata2))
+	}
+
+	JustBeforeEach(func() {
+		processedKappControllerValuesFile, err = GetKappControllerConfigValuesFile(inputDataValuesFile, kappControllerValuesYttDir)
+	})
+
+	Context("When no config variables are defined by user", func() {
+		BeforeEach(func() {
+			inputDataValuesFile = "test/kapp-controller-values/testcase1/uservalues.yaml"
+			outputKappControllerValuesFile = "test/kapp-controller-values/testcase1/output.yaml"
+		})
+		It("should match the output file", func() {
+			validateResult()
+		})
+	})
+
+	Context("When codedns, provider type and cidr variables are defined by user", func() {
+		BeforeEach(func() {
+			inputDataValuesFile = "test/kapp-controller-values/testcase2/uservalues.yaml"
+			outputKappControllerValuesFile = "test/kapp-controller-values/testcase2/output.yaml"
+		})
+		It("should match the output file", func() {
+			validateResult()
+		})
+	})
+
+	Context("When custom image repository variables are defined by user", func() {
+		BeforeEach(func() {
+			inputDataValuesFile = "test/kapp-controller-values/testcase3/uservalues.yaml"
+			outputKappControllerValuesFile = "test/kapp-controller-values/testcase3/output.yaml"
+		})
+		It("should match the output file", func() {
+			validateResult()
+		})
+	})
+
+})
+
 func writeConfigFileData(configconfigFileData string) string {
 	tmpFile, _ := utils.CreateTempFile("", "")
 	_ = utils.WriteToFile(tmpFile, []byte(configconfigFileData))
 	return tmpFile
+}
+
+func readFileData(filePath string) (string, error) {
+	data, err := os.ReadFile(filePath)
+	return string(data), err
 }

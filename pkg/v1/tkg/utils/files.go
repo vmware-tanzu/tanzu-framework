@@ -93,3 +93,12 @@ func SaveFile(filePath string, data []byte) error {
 
 	return nil
 }
+
+// PathExists returns true if file/directory exists otherwise returns false
+func PathExists(dir string) bool {
+	_, err := os.Stat(dir)
+	if err != nil && os.IsNotExist(err) {
+		return false
+	}
+	return true
+}

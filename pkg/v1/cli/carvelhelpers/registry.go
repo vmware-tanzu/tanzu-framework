@@ -40,7 +40,11 @@ func DownloadImageBundleAndSaveFilesToTempDir(imageWithTag string) (string, erro
 		return "", errors.Wrap(err, "error creating temporary directory")
 	}
 	err = reg.DownloadBundle(imageWithTag, tmpDir)
-	return tmpDir, err
+	if err != nil {
+		return "", errors.Wrap(err, "error downloading bundle")
+	}
+
+	return tmpDir, nil
 }
 
 // newRegistry returns a new registry object by also

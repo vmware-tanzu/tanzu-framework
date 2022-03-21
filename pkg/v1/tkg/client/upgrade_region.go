@@ -104,21 +104,10 @@ func (c *TkgClient) UpgradeManagementCluster(options *UpgradeClusterOptions) err
 		return errors.New("upgrading 'Tanzu Kubernetes Cluster service for vSphere' management cluster is not yet supported")
 	}
 
-	// Validate the compatibility before upgrading management cluster
-	log.Infof("Validating the compatibility before management cluster upgrade")
-	err = c.validateCompatibilityBeforeManagementClusterUpgrade(options, regionalClusterClient)
+	// Validate the upgrade and preconfigure required variables
+	err = c.validateAndconfigure(options, regionalClusterClient)
 	if err != nil {
 		return err
-	}
-
-	// Validate required environment variables are set
-	log.Infof("Validating for the required environment variables to be set")
-	if err := c.validateEnvVariables(regionalClusterClient); err != nil {
-		return errors.Wrap(err, "required env variables are not set")
-	}
-
-	if err := c.configureVariablesForProvidersInstallation(regionalClusterClient); err != nil {
-		return errors.Wrap(err, "unable to configure variables for provider installation")
 	}
 
 	log.Info("Upgrading management cluster providers...")
@@ -149,6 +138,27 @@ func (c *TkgClient) UpgradeManagementCluster(options *UpgradeClusterOptions) err
 	err = regionalClusterClient.PatchClusterObjectWithTKGVersion(options.ClusterName, options.Namespace, c.tkgBomClient.GetCurrentTKGVersion())
 	if err != nil {
 		return err
+	}
+
+	return nil
+}
+
+func (c *TkgClient) validateAndconfigure(options *UpgradeClusterOptions, regionalClusterClient clusterclient.Client) error {
+	// Validate the compatibility before upgrading management cluster
+	log.Infof("Validating the compatibility before management cluster upgrade")
+	err := c.validateCompatibilityBeforeManagementClusterUpgrade(options, regionalClusterClient)
+	if err != nil {
+		return err
+	}
+
+	// Validate required environment variables are set
+	log.Infof("Validating for the required environment variables to be set")
+	if err := c.validateEnvVariables(regionalClusterClient); err != nil {
+		return errors.Wrap(err, "required env variables are not set")
+	}
+
+	if err := c.configureVariablesForProvidersInstallation(regionalClusterClient); err != nil {
+		return errors.Wrap(err, "unable to configure variables for provider installation")
 	}
 
 	return nil

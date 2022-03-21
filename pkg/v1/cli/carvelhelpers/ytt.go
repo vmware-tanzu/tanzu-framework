@@ -14,8 +14,8 @@ import (
 
 // ProcessYTTPackage processes configuration directory with ytt tool
 // Implements similar functionality as `ytt -f <config-dir>`
-func ProcessYTTPackage(configDir string) ([]byte, error) {
-	yttFiles, err := files.NewSortedFilesFromPaths([]string{configDir}, files.SymlinkAllowOpts{})
+func ProcessYTTPackage(configDirs ...string) ([]byte, error) {
+	yttFiles, err := files.NewSortedFilesFromPaths(configDirs, files.SymlinkAllowOpts{})
 	if err != nil {
 		return nil, err
 	}

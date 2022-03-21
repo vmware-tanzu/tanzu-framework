@@ -1,0 +1,13 @@
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: test
+  namespace: fake-namespace
+spec:
+  containers:
+  - args:
+    - manager
+    image: test.fake.repo/tkg/kapp-controller@sha256:abcd017b151bb08c8a9699715495589ee64158ff0d79dba08a06a121de732a75
+    name: nginx
+    resources: {}

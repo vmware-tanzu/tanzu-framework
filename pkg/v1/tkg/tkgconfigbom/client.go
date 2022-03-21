@@ -66,6 +66,8 @@ type Client interface {
 	GetDefaultBoMFileName() (string, error)
 	// GetManagementPackageRepositoryImage returns management package repository image
 	GetManagementPackageRepositoryImage() (string, error)
+	// GetKappControllerPackageImage returns kapp-controller package image
+	GetKappControllerPackageImage() (string, error)
 }
 
 func (c *client) TKGConfigReaderWriter() tkgconfigreaderwriter.TKGConfigReaderWriter {
