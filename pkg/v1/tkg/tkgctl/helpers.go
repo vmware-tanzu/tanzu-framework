@@ -172,7 +172,7 @@ func (t *tkgctl) checkIfInputFileIsCClassBased(cc *CreateClusterOptions) (bool, 
 	}
 	for i := range yamlObjects {
 		obj := yamlObjects[i]
-		if obj.GetKind() == ClusterKind {
+		if obj.GetKind() == constants.KindCluster {
 			isInputFileHasCClass = true
 			t.processCClusterObjectForConfigurationVariables(obj)
 			t.overrideClusterOptionsWithCClusterConfigurationValues(cc)
