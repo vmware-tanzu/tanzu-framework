@@ -12,6 +12,7 @@ import (
 	. "github.com/onsi/gomega"
 	v1 "k8s.io/api/core/v1"
 	capvv1beta1 "sigs.k8s.io/cluster-api-provider-vsphere/apis/v1beta1"
+	capvvmwarev1beta1 "sigs.k8s.io/cluster-api-provider-vsphere/apis/vmware/v1beta1"
 	clusterapiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
@@ -205,6 +206,25 @@ var _ = Describe("VSphereCPIConfig Reconciler", func() {
 					return false
 				}
 				Expect(config.Status.SecretRef).To(Equal(fmt.Sprintf("%s-%s-data-values", clusterName, constants.CPIAddonName)))
+				return true
+			})
+		})
+
+		It("Should reconcile ProviderServiceAccount", func() {
+			serviceAccount := &capvvmwarev1beta1.ProviderServiceAccount{}
+			Eventually(func() bool {
+				serviceAccountKey := client.ObjectKey{
+					Namespace: clusterNamespace,
+					Name:      fmt.Sprintf("%s-ccm", clusterName),
+				}
+				if err := k8sClient.Get(ctx, serviceAccountKey, serviceAccount); err != nil {
+					return false
+				}
+				Expect(serviceAccount.Spec.Ref.Name).To(Equal(key.Name))
+				Expect(serviceAccount.Spec.Ref.Namespace).To(Equal(key.Namespace))
+				Expect(serviceAccount.Spec.Rules).To(HaveLen(4))
+				Expect(serviceAccount.Spec.TargetNamespace).To(Equal("vmware-system-cloud-provider"))
+				Expect(serviceAccount.Spec.TargetSecretName).To(Equal("cloud-provider-creds"))
 				return true
 			})
 		})
