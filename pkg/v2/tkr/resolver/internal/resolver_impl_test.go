@@ -333,6 +333,36 @@ var _ = Describe("Resolve()", func() {
 			}
 		})
 	})
+
+	When("a TKR lists non-existent OSImages", func() {
+		var (
+			tkrWithNonExistentOSImages *runv1.TanzuKubernetesRelease
+		)
+
+		BeforeEach(func() {
+			tkrWithNonExistentOSImages = testdata.ChooseTKR(tkrs)
+			for i := range tkrWithNonExistentOSImages.Spec.OSImages {
+				osImageRef := &tkrWithNonExistentOSImages.Spec.OSImages[i]
+				osImageRef.Name = osImageRef.Name + "-non-existent"
+			}
+
+			r.Add(tkrWithNonExistentOSImages)
+
+			k8sVersion = tkrWithNonExistentOSImages.Spec.Kubernetes.Version
+			k8sVersionPrefix = testdata.ChooseK8sVersionPrefix(k8sVersion)
+			queryK8sVersionPrefix = testdata.GenQueryAllForK8sVersion(k8sVersionPrefix)
+		})
+
+		It("should not panic and keep resolving", func() {
+			result := r.Resolve(queryK8sVersionPrefix)
+
+			for _, tkrs := range result.ControlPlane.TKRsByK8sVersion {
+				for tkrName := range tkrs {
+					Expect(tkrName).ToNot(Equal(tkrWithNonExistentOSImages.Name))
+				}
+			}
+		})
+	})
 })
 
 func assertOSImageResultExpectations(osImageResult *data.OSImageResult, osImageQuery *data.OSImageQuery, k8sVersionPrefix string) {

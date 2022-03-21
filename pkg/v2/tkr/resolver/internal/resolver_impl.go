@@ -340,7 +340,7 @@ func (cache *cache) filterOSImagesByTKR(query data.OSImageQuery, consideredTKRs 
 	result := make(map[string]data.OSImages, len(consideredTKRs))
 	for tkrName := range consideredTKRs {
 		osImages := cache.tkrToOSImages[tkrName].Filter(func(osImage *runv1.OSImage) bool {
-			return query.OSImageSelector.Matches(labels.Set(osImage.Labels))
+			return osImage != nil && query.OSImageSelector.Matches(labels.Set(osImage.Labels))
 		})
 		if len(osImages) > 0 {
 			result[tkrName] = osImages
