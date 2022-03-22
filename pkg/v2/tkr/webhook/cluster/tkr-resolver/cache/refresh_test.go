@@ -8,6 +8,7 @@ import (
 	"reflect"
 	"testing"
 
+	"github.com/go-logr/logr"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/pkg/errors"
@@ -66,18 +67,20 @@ var _ = Describe("Reconciler", func() {
 			Client: fakeClient,
 			Cache:  cache,
 			Object: &runv1.TanzuKubernetesRelease{},
+			Log:    logr.Discard(),
 		}
 		osImageReconciler = &Reconciler{
 			Client: fakeClient,
 			Cache:  cache,
 			Object: &runv1.OSImage{},
+			Log:    logr.Discard(),
 		}
 	})
 
 	Describe("Reconcile()", func() {
 		When("a TKR exists", func() {
 			It("should add it to the TKRResolver cache", func() {
-				for _, tkr := range testdata.RandSubsetOfTKRs(tkrs) {
+				for _, tkr := range testdata.RandNonEmptySubsetOfTKRs(tkrs) {
 					result, err := tkrReconciler.Reconcile(context.Background(), ctrl.Request{
 						NamespacedName: types.NamespacedName{
 							Name: tkr.Name,
@@ -93,7 +96,7 @@ var _ = Describe("Reconciler", func() {
 
 		When("an OSImage exists", func() {
 			It("should add it to the TKRResolver cache", func() {
-				for _, osImage := range testdata.RandSubsetOfOSImages(osImages) {
+				for _, osImage := range testdata.RandNonEmptySubsetOfOSImages(osImages) {
 					result, err := osImageReconciler.Reconcile(context.Background(), ctrl.Request{
 						NamespacedName: types.NamespacedName{
 							Name: osImage.Name,
@@ -109,14 +112,14 @@ var _ = Describe("Reconciler", func() {
 
 		When("a TKR is not found", func() {
 			BeforeEach(func() {
-				tkrs = testdata.RandSubsetOfTKRs(tkrs)
+				tkrs = testdata.RandNonEmptySubsetOfTKRs(tkrs)
 				for _, tkr := range tkrs {
 					Expect(fakeClient.Delete(context.Background(), tkr)).To(Succeed())
 				}
 			})
 
 			It("should remove it from the TKRResolver cache", func() {
-				for _, tkr := range testdata.RandSubsetOfTKRs(tkrs) {
+				for _, tkr := range testdata.RandNonEmptySubsetOfTKRs(tkrs) {
 					result, err := tkrReconciler.Reconcile(context.Background(), ctrl.Request{
 						NamespacedName: types.NamespacedName{
 							Name: tkr.Name,
@@ -132,14 +135,14 @@ var _ = Describe("Reconciler", func() {
 
 		When("an OSImage is not found", func() {
 			BeforeEach(func() {
-				osImages = testdata.RandSubsetOfOSImages(osImages)
+				osImages = testdata.RandNonEmptySubsetOfOSImages(osImages)
 				for _, osImage := range osImages {
 					Expect(fakeClient.Delete(context.Background(), osImage)).To(Succeed())
 				}
 			})
 
 			It("should remove it from the TKRResolver cache", func() {
-				for _, osImage := range testdata.RandSubsetOfOSImages(osImages) {
+				for _, osImage := range testdata.RandNonEmptySubsetOfOSImages(osImages) {
 					result, err := osImageReconciler.Reconcile(context.Background(), ctrl.Request{
 						NamespacedName: types.NamespacedName{
 							Name: osImage.Name,
@@ -163,7 +166,7 @@ var _ = Describe("Reconciler", func() {
 			})
 
 			It("should return that error", func() {
-				for _, tkr := range testdata.RandSubsetOfTKRs(tkrs) {
+				for _, tkr := range testdata.RandNonEmptySubsetOfTKRs(tkrs) {
 					result, err := tkrReconciler.Reconcile(context.Background(), ctrl.Request{
 						NamespacedName: types.NamespacedName{
 							Name: tkr.Name,
@@ -172,7 +175,7 @@ var _ = Describe("Reconciler", func() {
 					Expect(err).To(Equal(expectedErr))
 					Expect(result).To(Equal(ctrl.Result{}))
 				}
-				for _, osImage := range testdata.RandSubsetOfOSImages(osImages) {
+				for _, osImage := range testdata.RandNonEmptySubsetOfOSImages(osImages) {
 					result, err := osImageReconciler.Reconcile(context.Background(), ctrl.Request{
 						NamespacedName: types.NamespacedName{
 							Name: osImage.Name,
@@ -230,6 +233,10 @@ func (f *fakeCache) Remove(objects ...interface{}) {
 		key := reflect.TypeOf(object).String() + "@" + object.GetName()
 		f.removedObjects[key] = object
 	}
+}
+
+func (f *fakeCache) Get(string, interface{}) interface{} {
+	panic("not supposed to be used yet")
 }
 
 type failingGet struct {

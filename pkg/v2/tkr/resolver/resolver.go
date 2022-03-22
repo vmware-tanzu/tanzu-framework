@@ -22,6 +22,9 @@ type Cache interface {
 
 	// Remove TanzuKubernetesRelease or OSImage objects from the resolver cache.
 	Remove(objects ...interface{})
+
+	// Get an object by name and obj type.
+	Get(name string, obj interface{}) interface{}
 }
 
 // CachingResolver combines Resolver and Cache (for convenience).
