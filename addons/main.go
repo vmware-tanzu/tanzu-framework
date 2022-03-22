@@ -7,6 +7,7 @@ import (
 	"context"
 	"flag"
 	"os"
+	"path"
 	"time"
 
 	corev1 "k8s.io/api/core/v1"
@@ -40,6 +41,7 @@ import (
 	runtanzuv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha1"
 	runtanzuv1alpha3 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/buildinfo"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/webhooks"
 )
 
 var (
@@ -145,10 +147,17 @@ func main() {
 		setupLog.Error(err, "unable to wait for CRDs")
 		os.Exit(1)
 	}
+
+	if err := os.MkdirAll(constants.WebhookCertDir, 0755); err != nil {
+		setupLog.Error(err, "unable to create directory for webhook certificates", "directory", constants.WebhookCertDir)
+		os.Exit(1)
+	}
 	mgr, err := ctrl.NewManager(ctrl.GetConfigOrDie(), ctrl.Options{
 		Scheme:                 scheme,
 		MetricsBindAddress:     flags.metricsAddr,
+		Host:                   "127.0.0.1",
 		Port:                   9443,
+		CertDir:                constants.WebhookCertDir,
 		LeaderElection:         flags.enableLeaderElection,
 		LeaderElectionID:       "5832a104.run.tanzu.addons",
 		SyncPeriod:             &flags.syncPeriod,
@@ -260,6 +269,27 @@ func enableClusterBootstrapAndConfigControllers(ctx context.Context, mgr ctrl.Ma
 	)
 	if err := bootstrapReconciler.SetupWithManager(ctx, mgr, controller.Options{MaxConcurrentReconciles: 1}); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "clusterbootstrap")
+		os.Exit(1)
+	}
+
+	setupCNIWebhooks(ctx, mgr, flags)
+}
+
+func setupCNIWebhooks(ctx context.Context, mgr ctrl.Manager, flags *addonFlags) {
+
+	certPath := path.Join(constants.WebhookCertDir, "tls.crt")
+	keyPath := path.Join(constants.WebhookCertDir, "tls.key")
+	if _, err := webhooks.InstallNewCertificates(ctx, mgr.GetConfig(), certPath, keyPath, constants.WebhookScrtName, flags.addonNamespace, constants.WebhookServiceName, "webhook-cert="+constants.CNIWebhookLabel); err != nil {
+		setupLog.Error(err, "unable to install certificates for cni webhooks")
+		os.Exit(1)
+	}
+	// Set up the webhooks in the manager
+	if err := (&cniv1alpha1.AntreaConfig{}).SetupWebhookWithManager(mgr); err != nil {
+		setupLog.Error(err, "unable to set up webhooks", "controller", "antrea")
+		os.Exit(1)
+	}
+	if err := (&cniv1alpha1.CalicoConfig{}).SetupWebhookWithManager(mgr); err != nil {
+		setupLog.Error(err, "unable to set up webhooks", "controller", "calico")
 		os.Exit(1)
 	}
 }
