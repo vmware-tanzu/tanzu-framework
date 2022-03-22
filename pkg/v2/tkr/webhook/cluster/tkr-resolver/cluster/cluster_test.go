@@ -297,6 +297,7 @@ var _ = Describe("cluster.Webhook", func() {
 						getMap(&cluster.Labels)[runv1.LabelTKR] = tkr.Name
 						getMap(&cluster.Labels)[runv1.LabelKubernetesVersion] = version.Label(tkr.Spec.Kubernetes.Version)
 						getMap(&cluster.Spec.Topology.ControlPlane.Metadata.Labels)[runv1.LabelOSImage] = osImage.Name
+						getMap(&cluster.Spec.Topology.ControlPlane.Metadata.Labels)[runv1.LabelTKR] = tkr.Name
 					})
 
 					It("should not resolve the ControlPlane", func() {

@@ -285,6 +285,7 @@ func setMetadata(result data.Result, cluster *clusterv1.Cluster) {
 
 func setMetadataFromOSImageResult(osImageResult *data.OSImageResult, ls, annots map[string]string) {
 	for osImageName, osImage := range osImageResult.OSImagesByTKR[osImageResult.TKRName] { // only one such OSImage
+		ls[runv1.LabelTKR] = osImageResult.TKRName
 		ls[runv1.LabelOSImage] = osImageName
 
 		ls[runv1.LabelOSType] = osImage.Spec.OS.Type
