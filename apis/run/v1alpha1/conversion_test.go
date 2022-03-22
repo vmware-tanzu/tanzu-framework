@@ -46,6 +46,10 @@ func TestHubSpokeHub(t *testing.T) {
 						ImageRepository: "9ŉ劆掬ȳƤʟNʮ犓ȓ峌堲Ȥ:ě",
 						ImageTag:        "Eĺ垦婽Ô驽伕WƇ|q`1老縜",
 					},
+					KubeVIP: &v1alpha3.ContainerImageInfo{
+						ImageRepository: "9ŉ劆掬ȳƤʟNʮ犓ȓ峌堲Ȥ:ě",
+						ImageTag:        "Eĺ垦婽Ô驽伕WƇ|q`1老縜",
+					},
 				},
 				OSImages: []v1.LocalObjectReference{{
 					Name: "F",
@@ -161,6 +165,10 @@ func TestContainerImagesConversionFromSpokeToHubWithNoAnnotations(t *testing.T) 
 						ImageTag:        "Eĺ垦婽Ô驽伕WƇ|q`1老縜",
 					},
 					CoreDNS: &v1alpha3.ContainerImageInfo{
+						ImageRepository: "9ŉ劆掬ȳƤʟNʮ犓ȓ峌堲Ȥ:ě",
+						ImageTag:        "Eĺ垦婽Ô驽伕WƇ|q`1老縜",
+					},
+					KubeVIP: &v1alpha3.ContainerImageInfo{
 						ImageRepository: "9ŉ劆掬ȳƤʟNʮ犓ȓ峌堲Ȥ:ě",
 						ImageTag:        "Eĺ垦婽Ô驽伕WƇ|q`1老縜",
 					},
