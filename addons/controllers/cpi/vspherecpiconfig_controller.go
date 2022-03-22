@@ -14,6 +14,7 @@ import (
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
+	capvvmwarev1beta1 "sigs.k8s.io/cluster-api-provider-vsphere/apis/vmware/v1beta1"
 	clusterapiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
 	clusterapiutil "sigs.k8s.io/cluster-api/util"
 	clusterapipatchutil "sigs.k8s.io/cluster-api/util/patch"
@@ -36,6 +37,7 @@ type VSphereCPIConfigReconciler struct {
 
 //+kubebuilder:rbac:groups=cpi.tanzu.vmware.com,resources=vspherecpiconfigs,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups=cpi.tanzu.vmware.com,resources=vspherecpiconfigs/status,verbs=get;update;patch
+//+kubebuilder:rbac:groups=vmware.infrastructure.cluster.x-k8s.io,resources=providerserviceaccounts,verbs=get;create;list;watch;update;patch
 
 // Reconcile the VSphereCPIConfig CRD
 func (r *VSphereCPIConfigReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
@@ -139,6 +141,21 @@ func (r *VSphereCPIConfigReconciler) reconcileVSphereCPIConfigNormal(ctx context
 		r.Log.Error(err, "Error creating or patching VSphereCPIConfig data values secret")
 		return err
 	}
+
+	// deploy the provider service account for paravirtual mode
+	if cpiConfig.Spec.VSphereCPI.Mode == VSphereCPIParavirtualMode {
+		r.Log.Info("Create or update provider serviceAccount for VSphere CPI")
+
+		serviceAccount := &capvvmwarev1beta1.ProviderServiceAccount{}
+		_, err := controllerutil.CreateOrUpdate(ctx, r.Client, serviceAccount, func() error {
+			serviceAccount = r.mapCPIConfigToProviderServiceAccount(cluster)
+			return controllerutil.SetControllerReference(cluster, serviceAccount, r.Scheme)
+		})
+		if err != nil {
+			r.Log.Error(err, "Error creating or updating ProviderServiceAccount for VSphere CPI")
+		}
+	}
+
 	r.Log.Info(fmt.Sprintf("Resource '%s' data values secret '%s'", constants.CPIAddonName, result))
 	// update the secret reference in VSphereCPIConfig status
 	cpiConfig.Status.SecretRef = secret.Name
