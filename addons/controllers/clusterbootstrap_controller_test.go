@@ -4,6 +4,7 @@
 package controllers
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"strings"
@@ -404,6 +405,10 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 					}, waitTimeout, pollingInterval).Should(BeTrue())
 				})
 
+				By("verifying the embedded local object reference is cloned into cluster namespace", func() {
+					assertEventuallyExistInNamespace(ctx, k8sClient, clusterNamespace, "cpi-vsphere-credential", &corev1.Secret{})
+				})
+
 				By("Updating cluster TKR version", func() {
 					newTKRVersion := "v1.23.3"
 					cluster := &clusterapiv1beta1.Cluster{}
@@ -543,3 +548,10 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 	})
 
 })
+
+func assertEventuallyExistInNamespace(ctx context.Context, k8sClient client.Client, namespace, name string, obj client.Object) {
+	Eventually(func() error {
+		key := client.ObjectKey{Name: name, Namespace: namespace}
+		return k8sClient.Get(ctx, key, obj)
+	}, waitTimeout, pollingInterval).Should(Succeed())
+}

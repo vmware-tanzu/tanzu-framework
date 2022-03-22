@@ -130,8 +130,8 @@ var _ = Describe("VSphereCPIConfig Reconciler", func() {
 				Expect(strings.Contains(secretData, "vmExcludeExternalNetworkSubnetCidr: 22.22.3.0/24")).Should(BeTrue())
 				Expect(strings.Contains(secretData, "tlsThumbprint: test-thumbprint")).Should(BeTrue())
 				Expect(strings.Contains(secretData, "server: vsphere-server.local")).Should(BeTrue())
-				Expect(strings.Contains(secretData, "username: administrator@vsphere.local")).Should(BeTrue())
-				Expect(strings.Contains(secretData, "password: Admin!23")).Should(BeTrue())
+				Expect(strings.Contains(secretData, "username: foo")).Should(BeTrue())
+				Expect(strings.Contains(secretData, "password: bar")).Should(BeTrue())
 
 				Expect(strings.Contains(secretData, "nsxt:")).Should(BeTrue())
 				Expect(strings.Contains(secretData, "podRoutingEnabled: true")).Should(BeTrue())

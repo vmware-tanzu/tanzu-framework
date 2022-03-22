@@ -86,6 +86,15 @@ spec:
 apiVersion: v1
 kind: Secret
 metadata:
+  name: cpi-vsphere-credential
+  namespace: default
+data:
+  username: Zm9v # foo
+  password: YmFy # bar
+---
+apiVersion: v1
+kind: Secret
+metadata:
   name: nsxt-credential
   namespace: default
 data:
@@ -107,3 +116,6 @@ spec:
     vmExternalNetwork: external-net
     vmExcludeInternalNetworkSubnetCidr: 192.168.3.0/24
     vmExcludeExternalNetworkSubnetCidr: 22.22.3.0/24
+    vSphereCredentialLocalObjRef:
+      kind: Secret
+      name: cpi-vsphere-credential

@@ -666,6 +666,8 @@ func (r *ClusterBootstrapReconciler) createOrPatchPackageInstallOnRemote(cluster
 	return remotePkgi, nil
 }
 
+// reconcileSystemNamespace creates system namespace on remote workload cluster. This is because the system namespace
+// might not have been created yet when this controller reconciles remote cluster.
 func (r *ClusterBootstrapReconciler) reconcileSystemNamespace(clusterClient client.Client) error {
 	namespace := &corev1.Namespace{
 		ObjectMeta: metav1.ObjectMeta{
@@ -675,7 +677,7 @@ func (r *ClusterBootstrapReconciler) reconcileSystemNamespace(clusterClient clie
 
 	result, err := controllerutil.CreateOrPatch(r.context, clusterClient, namespace, nil)
 	if err != nil {
-		r.Log.Error(err, "Error creating or patching system namespace")
+		r.Log.Error(err, "unable to create or patch system namespace")
 		return err
 	}
 	if result != controllerutil.OperationResultNone {
@@ -1122,6 +1124,57 @@ func (r *ClusterBootstrapReconciler) updateValuesFromSecret(cluster *clusterapiv
 	return newSecret, nil
 }
 
+// cloneEmbeddedLocalObjectRef attempts to clone the embedded local object references from provider's namespace to cluster's
+// namespace. An example of embedded local object reference is the secret reference under CPIConfig.
+func (r *ClusterBootstrapReconciler) cloneEmbeddedLocalObjectRef(cluster *clusterapiv1beta1.Cluster, provider *unstructured.Unstructured) error {
+	groupKindNamesMap := util.ExtractTypedLocalObjectRef(provider.UnstructuredContent(), constants.LocalObjectRefSuffix)
+	if len(groupKindNamesMap) == 0 {
+		return nil
+	}
+
+	providerGVK := provider.GroupVersionKind()
+	r.Log.Info(fmt.Sprintf("cloning the embedded local object references within provider: %s with name: %s under"+
+		" namespace: %s to target namespace %s", provider.GroupVersionKind().String(), provider.GetName(), provider.GetNamespace(), cluster.Namespace))
+	for groupKind, resourceNames := range groupKindNamesMap {
+		gvr, err := r.getGVR(groupKind)
+		if err != nil {
+			// error has been logged within getGVR()
+			return err
+		}
+		for _, resourceName := range resourceNames {
+			r.Log.Info(fmt.Sprintf("cloning the GVR %s with name %s from namespace %s to target namespace %s",
+				gvr.String(), resourceName, provider.GetNamespace(), cluster.Namespace))
+			fetchedObj, err := r.dynamicClient.Resource(*gvr).Namespace(provider.GetNamespace()).Get(r.context, resourceName, metav1.GetOptions{})
+			if err != nil {
+				r.Log.Error(err, fmt.Sprintf("unable to get provider: %s with name: %s under namespace: %s",
+					providerGVK.String(), provider.GetName(), provider.GetNamespace()))
+				return err
+			}
+
+			copiedObj := fetchedObj.DeepCopy()
+			copiedObj.SetNamespace(cluster.Namespace)
+			_, err = r.dynamicClient.Resource(*gvr).Namespace(cluster.Namespace).Create(r.context, copiedObj, metav1.CreateOptions{})
+			if err != nil {
+				if apierrors.IsAlreadyExists(err) {
+					_, err = r.dynamicClient.Resource(*gvr).Namespace(cluster.Namespace).Update(r.context, copiedObj, metav1.UpdateOptions{})
+					if err != nil {
+						r.Log.Error(err, fmt.Sprintf("unable to clone the GVR %s with name %s from namespace %s to"+
+							" target namespace %s", gvr.String(), resourceName, provider.GetNamespace(), cluster.Namespace))
+						return err
+					}
+				} else {
+					r.Log.Error(err, fmt.Sprintf("unable to clone the GVR %s with name %s from namespace %s to"+
+						" target namespace %s", gvr.String(), resourceName, provider.GetNamespace(), cluster.Namespace))
+					return err
+				}
+			}
+		}
+	}
+	r.Log.Info(fmt.Sprintf("cloned the embedded local object references within provider: %s with name: %s under"+
+		" namespace: %s to target namespace %s", providerGVK.String(), provider.GetName(), provider.GetNamespace(), cluster.Namespace))
+	return nil
+}
+
 // updateValuesFromProvider updates providerRef in valuesFrom
 func (r *ClusterBootstrapReconciler) updateValuesFromProvider(cluster *clusterapiv1beta1.Cluster,
 	pkg *runtanzuv1alpha3.ClusterBootstrapPackage, cbTemplateNamespace, pkgRefName string, log logr.Logger) (*unstructured.Unstructured, error) {
@@ -1195,6 +1248,10 @@ func (r *ClusterBootstrapReconciler) updateValuesFromProvider(cluster *clusterap
 
 		valuesFrom.ProviderRef.Name = createdOrUpdatedProvider.GetName()
 		log.Info(fmt.Sprintf("cloned provider %s/%s to namespace %s", createdOrUpdatedProvider.GetNamespace(), createdOrUpdatedProvider.GetName(), cluster.Namespace), "gvr", gvr)
+
+		if err := r.cloneEmbeddedLocalObjectRef(cluster, provider); err != nil {
+			return nil, err
+		}
 	}
 
 	return createdOrUpdatedProvider, nil

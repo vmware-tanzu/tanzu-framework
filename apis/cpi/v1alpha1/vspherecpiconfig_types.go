@@ -33,10 +33,10 @@ type NSXT struct {
 	// +kubebuilder:validation:Optional
 	Routes *NSXTRoute `json:"routes"`
 
-	// A secret reference that contains Nsx-T login credentials to access NSX-T
+	// A secret reference that contains Nsx-T login credential to access NSX-T
 	// consists of the field username and password
 	// +kubebuilder:validation:Optional
-	NSXTCredentialsRef *v1.SecretReference `json:"nsxtCredentialsRef"`
+	CredentialLocalObjRef *v1.TypedLocalObjectReference `json:"credentialLocalObjRef"`
 
 	// The NSX-T server
 	// +kubebuilder:validation:Optional
@@ -92,7 +92,7 @@ type NonParavirtualConfig struct {
 	// A secret reference that contains vSphere login credentials to access a vSphere endpoint
 	// consists of the fields username and password
 	// +kubebuilder:validation:Optional
-	VSphereCredentialRef *v1.SecretReference `json:"vSphereCredentialRef"`
+	VSphereCredentialLocalObjRef *v1.TypedLocalObjectReference `json:"vSphereCredentialLocalObjRef"`
 
 	// The cryptographic thumbprint of the vSphere endpoint's certificate. Default value is "".
 	// +kubebuilder:validation:Optional

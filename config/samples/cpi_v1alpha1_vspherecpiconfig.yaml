@@ -8,9 +8,10 @@ spec:
     tlsThumbprint: "test"
     server: 10.1.1.1
     datacenter: ds-test
-    vSphereCredentialRef:
+    vSphereCredentialLocalObjRef:
+      apiGroup: ""
+      kind: Secret
       name: vsphere-credentials
-      namespace: tkg-system
     insecureFlag: False
     vmInternalNetwork: null
     vmExternalNetwork: null
@@ -20,9 +21,10 @@ spec:
       podRoutingEnabled: false
       routes:
         routerPath: ""
-      nsxtCredentialsRef:
+      credentialLocalObjRef:
+        apiGroup: ""
+        kind: Secret
         name: nsxt-credentials
-        namespace: tkg-system
       host: "10.1.1.2"
       insecureFlag: false
       remoteAuth: false
