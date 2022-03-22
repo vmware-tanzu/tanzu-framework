@@ -50,6 +50,38 @@ rules:
   - update
   - patch
   - delete
+#! permissions are required for addons-manager to reconcile vspherecpiconfigs and CPI related service accounts
+- apiGroups:
+  - cpi.tanzu.vmware.com
+  resources:
+  - vspherecpiconfigs
+  verbs:
+  - get
+  - list
+  - watch
+  - create
+  - update
+  - patch
+  - delete
+- apiGroups:
+  - cpi.tanzu.vmware.com
+  resources:
+  - vspherecpiconfigs/status
+  verbs:
+  - get
+  - update
+  - patch
+- apiGroups:
+  - vmware.infrastructure.cluster.x-k8s.io
+  resources:
+  - providerserviceaccounts
+  verbs:
+  - get
+  - create
+  - list
+  - watch
+  - update
+  - patch
 #! permissions are required for addons-manager to create/update resources in the ProviderRef which are dynamic.
 - apiGroups: ['*']
   resources: ['*']
