@@ -20,8 +20,7 @@ import (
 
 func (c *PinnipedController) configMapToCluster(o client.Object) []ctrl.Request {
 	// return empty object, if pinniped-info CM changes, update all the secrets
-	c.Log.V(1).Info("configmap created/updated/deleted, sending back empty request to reconcile all clusters")
-	return []ctrl.Request{}
+	return []ctrl.Request{{}}
 }
 
 func withNamespacedName(namespacedName types.NamespacedName) builder.Predicates {
@@ -34,7 +33,7 @@ func withNamespacedName(namespacedName types.NamespacedName) builder.Predicates 
 			UpdateFunc: func(e event.UpdateEvent) bool {
 				return isNamespacedName(e.ObjectOld) || isNamespacedName(e.ObjectNew)
 			},
-			DeleteFunc:  func(e event.DeleteEvent) bool { return false },
+			DeleteFunc:  func(e event.DeleteEvent) bool { return isNamespacedName(e.Object) },
 			GenericFunc: func(e event.GenericEvent) bool { return isNamespacedName(e.Object) },
 		},
 	)

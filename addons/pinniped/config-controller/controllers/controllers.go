@@ -46,8 +46,6 @@ func NewController(c client.Client) *PinnipedController {
 }
 
 func (c *PinnipedController) SetupWithManager(manager ctrl.Manager) error {
-	// CM gets deleted: do nothing for now...should it get logged?
-	// CM generic func: do nothing
 	// Addons secret deleted: recreate it User only manages addons secret on mgmt cluster
 
 	err := ctrl.
@@ -76,7 +74,7 @@ func (c *PinnipedController) SetupWithManager(manager ctrl.Manager) error {
 }
 
 // +kubebuilder:rbac:groups="",resources=secrets,verbs=list;watch;get;patch;update;delete
-// +kubebuilder:rbac:groups="",resources=configmaps,verbs=watch;get
+// +kubebuilder:rbac:groups="",resources=configmaps,verbs=list;watch;get
 // +kubebuilder:rbac:groups="cluster.x-k8s.io",resources=clusters,verbs=list;watch;get
 
 func (c *PinnipedController) Reconcile(ctx context.Context, req ctrl.Request) (reconcile.Result, error) {
@@ -100,7 +98,7 @@ func (c *PinnipedController) Reconcile(ctx context.Context, req ctrl.Request) (r
 	}
 	// if req is empty, CM changed, let's loop through all clusters and create/update/delete secrets
 	if (req == ctrl.Request{}) {
-		log.V(1).Info("empty request provided, checking all clusters")
+		log.V(1).Info("configmap changed, checking all clusters")
 		clusters := &clusterapiv1beta1.ClusterList{}
 		if err := c.client.List(ctx, clusters); err != nil {
 			log.Error(err, "error listing clusters")

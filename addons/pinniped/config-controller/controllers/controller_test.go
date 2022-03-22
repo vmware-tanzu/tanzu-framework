@@ -298,12 +298,25 @@ var _ = Describe("Controller", func() {
 				create(ctx, configMap)
 			})
 
-			It("loops through all the addons secrets", func() {
+			It("updates all the addons secrets", func() {
 				for _, c := range clusters {
 					Eventually(addonSecretFunc(ctx, c, configMap)).Should(Succeed())
 				}
 			})
+
+			When("the configmap gets deleted", func() {
+				BeforeEach(func() {
+					delete(ctx, configMap)
+				})
+
+				It("updates all the addons secrets", func() {
+					for _, c := range clusters {
+						Eventually(addonSecretFunc(ctx, c, nil)).Should(Succeed())
+					}
+				})
+			})
 		})
+
 		When("a configmap in a different namespace gets created", func() {
 			// TODO: Add info to CM and make sure it doesn't get propagated to secrets
 			BeforeEach(func() {
