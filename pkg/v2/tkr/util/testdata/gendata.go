@@ -71,6 +71,14 @@ func ChooseK8sVersionFromTKRs(tkrs data.TKRs) string {
 	return ks[rand.Intn(len(ks))]
 }
 
+func ChooseTKR(tkrs data.TKRs) *runv1.TanzuKubernetesRelease {
+	ks := make([]*runv1.TanzuKubernetesRelease, 0, len(tkrs))
+	for _, tkr := range tkrs {
+		ks = append(ks, tkr)
+	}
+	return ks[rand.Intn(len(ks))]
+}
+
 func GenOSImages(k8sVersions []string, numOSImages int) data.OSImages {
 	result := make(data.OSImages, numOSImages)
 	for range make([]struct{}, numOSImages) {
@@ -182,7 +190,7 @@ func GenTKR(osImagesByK8sVersion map[string]data.OSImages) *runv1.TanzuKubernete
 		},
 		Spec: runv1.TanzuKubernetesReleaseSpec{
 			Version:  v,
-			OSImages: OsImageRefs(RandSubsetOfOSImages(osImagesByK8sVersion[k8sVersion])),
+			OSImages: OsImageRefs(RandNonEmptySubsetOfOSImages(osImagesByK8sVersion[k8sVersion])),
 			Kubernetes: runv1.KubernetesSpec{
 				Version: k8sVersion,
 			},
@@ -201,24 +209,32 @@ func OsImageRefs(osImages data.OSImages) []corev1.LocalObjectReference {
 	return result
 }
 
-func RandSubsetOfOSImages(osImages data.OSImages) data.OSImages {
-	result := make(data.OSImages, len(osImages))
-	for name, osImage := range osImages {
-		if rand.Intn(2) == 1 {
-			result[name] = osImage
+func RandNonEmptySubsetOfOSImages(osImages data.OSImages) data.OSImages {
+	if len(osImages) == 0 {
+		panic("input data.OSImages set is empty")
+	}
+	for {
+		result := osImages.Filter(func(osImage *runv1.OSImage) bool {
+			return rand.Intn(2) == 1
+		})
+		if len(result) != 0 {
+			return result
 		}
 	}
-	return result
 }
 
-func RandSubsetOfTKRs(tkrs data.TKRs) data.TKRs {
-	result := make(data.TKRs, len(tkrs))
-	for name, tkr := range tkrs {
-		if rand.Intn(2) == 1 {
-			result[name] = tkr
+func RandNonEmptySubsetOfTKRs(tkrs data.TKRs) data.TKRs {
+	if len(tkrs) == 0 {
+		panic("input data.TKRs set is empty")
+	}
+	for {
+		result := tkrs.Filter(func(tkr *runv1.TanzuKubernetesRelease) bool {
+			return rand.Intn(2) == 1
+		})
+		if len(result) != 0 {
+			return result
 		}
 	}
-	return result
 }
 
 func GenQueryAllForK8sVersion(k8sVersionPrefix string) data.Query {
@@ -228,17 +244,17 @@ func GenQueryAllForK8sVersion(k8sVersionPrefix string) data.Query {
 	}
 }
 
-func GenMDQueriesAllForK8sVersion(k8sVersionPrefix string) map[string]data.OSImageQuery {
-	numMDs := rand.Intn(maxMDs) + 1
-	result := make(map[string]data.OSImageQuery, numMDs)
-	for range make([]struct{}, numMDs) {
-		result[rand.String(rand.IntnRange(8, 12))] = GenOSImageQueryAllForK8sVersion(k8sVersionPrefix)
+func GenMDQueriesAllForK8sVersion(k8sVersionPrefix string) []*data.OSImageQuery {
+	numMDs := rand.IntnRange(2, maxMDs+1)
+	result := make([]*data.OSImageQuery, numMDs)
+	for i := 0; i < numMDs; i++ {
+		result[i] = GenOSImageQueryAllForK8sVersion(k8sVersionPrefix)
 	}
 	return result
 }
 
-func GenOSImageQueryAllForK8sVersion(k8sVersionPrefix string) data.OSImageQuery {
-	return data.OSImageQuery{
+func GenOSImageQueryAllForK8sVersion(k8sVersionPrefix string) *data.OSImageQuery {
+	return &data.OSImageQuery{
 		K8sVersionPrefix: k8sVersionPrefix,
 		TKRSelector:      labels.Everything(),
 		OSImageSelector:  labels.Everything(),
