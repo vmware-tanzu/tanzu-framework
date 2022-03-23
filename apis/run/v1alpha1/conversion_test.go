@@ -203,6 +203,11 @@ func TestContainerImagesConversionFromSpokeToHubWithNoAnnotations(t *testing.T) 
 						Repository: "9ŉ劆掬ȳƤʟNʮ犓ȓ峌堲Ȥ:ě",
 						Tag:        "Eĺ垦婽Ô驽伕WƇ|q`1老縜",
 					},
+					{
+						Name:       "kube-vip",
+						Repository: "9ŉ劆掬ȳƤʟNʮ犓ȓ峌堲Ȥ:ě",
+						Tag:        "Eĺ垦婽Ô驽伕WƇ|q`1老縜",
+					},
 				},
 			},
 		}
