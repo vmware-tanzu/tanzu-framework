@@ -41,7 +41,7 @@ func (adapterUI *AdapterUI) PrintTable(table Table) {
 	keys := []string{}
 	for _, h := range table.Header {
 		if !h.Hidden {
-			keys = append(keys, replaceSpaceWithHyphen(strings.ToUpper(h.Title)))
+			keys = append(keys, strings.ToUpper(strings.ReplaceAll(h.Title, " ", "-")))
 		}
 	}
 
@@ -78,16 +78,4 @@ func setOutputFormat(cmd *cobra.Command, adapterUI *AdapterUI) {
 			c.PreRun = func(_ *cobra.Command, args []string) { adapterUI.SetOutputFormat(output) }
 		}
 	}
-}
-
-func replaceSpaceWithHyphen(key string) string {
-	modifiedKey := ""
-	for _, k := range key {
-		if k == ' ' {
-			modifiedKey += "-"
-		} else {
-			modifiedKey += string(k)
-		}
-	}
-	return modifiedKey
 }
