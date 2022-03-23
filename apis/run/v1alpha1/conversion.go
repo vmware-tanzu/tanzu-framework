@@ -15,6 +15,7 @@ const (
 	etcdContainerImageName    = "etcd"
 	corednsContainerImageName = "coredns"
 	pauseContainerImageName   = "pause"
+	kubeVipContainerImageName = "kube-vip"
 )
 
 func (spoke *TanzuKubernetesRelease) ConvertTo(hubRaw conversion.Hub) error {
@@ -95,6 +96,11 @@ func Convert_v1alpha1_TanzuKubernetesReleaseSpec_To_v1alpha3_TanzuKubernetesRele
 				ImageRepository: image.Repository,
 				ImageTag:        image.Tag,
 			}
+		case kubeVipContainerImageName:
+			out.Kubernetes.KubeVIP = &v1alpha3.ContainerImageInfo{
+				ImageRepository: image.Repository,
+				ImageTag:        image.Tag,
+			}
 		default:
 			break
 		}
@@ -131,6 +137,13 @@ func Convert_v1alpha3_TanzuKubernetesReleaseSpec_To_v1alpha1_TanzuKubernetesRele
 			Name:       pauseContainerImageName,
 			Repository: in.Kubernetes.Pause.ImageRepository,
 			Tag:        in.Kubernetes.Pause.ImageTag,
+		})
+	}
+	if in.Kubernetes.KubeVIP != nil {
+		out.Images = append(out.Images, ContainerImage{
+			Name:       kubeVipContainerImageName,
+			Repository: in.Kubernetes.KubeVIP.ImageRepository,
+			Tag:        in.Kubernetes.KubeVIP.ImageTag,
 		})
 	}
 	return autoConvert_v1alpha3_TanzuKubernetesReleaseSpec_To_v1alpha1_TanzuKubernetesReleaseSpec(in, out, s)

@@ -265,6 +265,19 @@ spec:
                     description: ImageRepository specifies container image registry
                       to pull images from.
                     type: string
+                  kube-vip:
+                    description: KubeVIP specifies the container image repository
+                      and tag for kube-vip.
+                    properties:
+                      imageRepository:
+                        description: ImageRepository sets the container registry to
+                          pull images from. if not set, defaults to the ImageRepository
+                          defined in KubernetesSpec.
+                        type: string
+                      imageTag:
+                        description: ImageTag specifies a tag for the image.
+                        type: string
+                    type: object
                   pause:
                     description: Pause specifies the container image repository and
                       tag for pause.
