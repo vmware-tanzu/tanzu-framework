@@ -1,0 +1,15 @@
+apiVersion: data.packaging.carvel.dev/v1alpha1
+kind: PackageMetadata
+metadata:
+  name: tkr-service.tanzu.vmware.com
+  namespace: tkr-service
+spec:
+  displayName: "tkr-service"
+  longDescription: "tkr-service package provides TKR resolution based on the annotations provided on cluster and clusterclass resources"
+  shortDescription: "TKR resolution service"
+  providerName: VMware
+  maintainers:
+    - name: "Ivan Mikushin"
+    - name: "Prem Kalle"
+  categories:
+    - "tkr resolution"
