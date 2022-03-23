@@ -14,7 +14,7 @@ spec:
     version: v1.22.3
 ---
 apiVersion: csi.tanzu.vmware.com/v1alpha1
-kind: CSIConfig
+kind: VSphereCSIConfig
 metadata:
   name: test-cluster-csi
   namespace: default

@@ -19,7 +19,7 @@ import (
 	csiv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/csi/v1alpha1"
 )
 
-var _ = Describe("CSIConfig Reconciler", func() {
+var _ = Describe("VSphereCSIConfig Reconciler", func() {
 	const (
 		clusterNamespace = "default"
 	)
@@ -31,7 +31,7 @@ var _ = Describe("CSIConfig Reconciler", func() {
 	)
 
 	JustBeforeEach(func() {
-		By("Creating cluster and CSIConfig resources")
+		By("Creating cluster and VSphereCSIConfig resources")
 		key = client.ObjectKey{
 			Namespace: clusterNamespace,
 			Name:      clusterName,
@@ -44,7 +44,7 @@ var _ = Describe("CSIConfig Reconciler", func() {
 	})
 
 	AfterEach(func() {
-		By("Deleting cluster and CSIConfig resources")
+		By("Deleting cluster and VSphereCSIConfig resources")
 		for _, filePath := range []string{clusterResourceFilePath} {
 			f, err := os.Open(filePath)
 			Expect(err).ToNot(HaveOccurred())
@@ -54,13 +54,13 @@ var _ = Describe("CSIConfig Reconciler", func() {
 		}
 	})
 
-	Context("reconcile CSIConfig manifests in non-paravirtual mode", func() {
+	Context("reconcile VSphereCSIConfig manifests in non-paravirtual mode", func() {
 		BeforeEach(func() {
 			clusterName = "test-cluster-csi"
 			clusterResourceFilePath = "testdata/test-csi-non-paravirtual.yaml"
 		})
 
-		It("Should reconcile CSIConfig and create data values secret for CSIConfig on management cluster", func() {
+		It("Should reconcile VSphereCSIConfig and create data values secret for VSphereCSIConfig on management cluster", func() {
 			cluster := &clusterapiv1beta1.Cluster{}
 			Eventually(func() bool {
 				if err := k8sClient.Get(ctx, key, cluster); err != nil {
@@ -70,7 +70,7 @@ var _ = Describe("CSIConfig Reconciler", func() {
 			}, waitTimeout, pollingInterval).Should(BeTrue())
 
 			// the csi config object should be deployed
-			config := &csiv1alpha1.CSIConfig{}
+			config := &csiv1alpha1.VSphereCSIConfig{}
 			Eventually(func() bool {
 				if err := k8sClient.Get(ctx, key, config); err != nil {
 					return false
@@ -165,12 +165,12 @@ var _ = Describe("CSIConfig Reconciler", func() {
 		})
 	})
 
-	Context("reconcile CSIConfig manifests in paravirtual mode", func() {
+	Context("reconcile VSphereCSIConfig manifests in paravirtual mode", func() {
 		BeforeEach(func() {
 			clusterName = "test-cluster-pv-csi"
 			clusterResourceFilePath = "testdata/test-csi-paravirtual.yaml"
 		})
-		It("Should reconcile CSIConfig and create data values secret for CSIConfig on management cluster", func() {
+		It("Should reconcile VSphereCSIConfig and create data values secret for VSphereCSIConfig on management cluster", func() {
 			// the data values secret should be generated
 			secret := &v1.Secret{}
 			Eventually(func() bool {
@@ -194,7 +194,7 @@ var _ = Describe("CSIConfig Reconciler", func() {
 			}, waitTimeout, pollingInterval).Should(BeTrue())
 
 			// eventually the secret ref to the data values should be updated
-			config := &csiv1alpha1.CSIConfig{}
+			config := &csiv1alpha1.VSphereCSIConfig{}
 			Eventually(func() bool {
 				if err := k8sClient.Get(ctx, key, config); err != nil {
 					return false

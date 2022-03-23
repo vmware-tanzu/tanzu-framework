@@ -236,11 +236,11 @@ func enableClusterBootstrapAndConfigControllers(ctx context.Context, mgr ctrl.Ma
 		setupLog.Error(err, "unable to create CPIConfigController", "controller", "vspherecpi")
 		os.Exit(1)
 	}
-	if err := (&csicontroller.CSIConfigReconciler{
+	if err := (&csicontroller.VSphereCSIConfigReconciler{
 		Client: mgr.GetClient(),
 		Scheme: mgr.GetScheme(),
 	}).SetupWithManager(ctx, mgr, controller.Options{MaxConcurrentReconciles: 1}); err != nil {
-		setupLog.Error(err, "unable to create CSIConfigController", "controller", "csi")
+		setupLog.Error(err, "unable to create VSphereCSIConfigController", "controller", "csi")
 		os.Exit(1)
 	}
 

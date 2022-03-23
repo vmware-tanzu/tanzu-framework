@@ -23,14 +23,14 @@ import (
 // EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!
 // NOTE: json tags are required.  Any new fields you add must have json tags for the fields to be serialized.
 
-// CSIConfigSpec defines the desired state of CSIConfig
-// CSIConfigSpec defines the desired state of CSIConfig
-type CSIConfigSpec struct {
+// VSphereCSIConfigSpec defines the desired state of VSphereCSIConfig
+// VSphereCSIConfigSpec defines the desired state of VSphereCSIConfig
+type VSphereCSIConfigSpec struct {
 	VSphereCSI VSphereCSI `json:"vsphereCSI"`
 }
 
-// CSIConfigStatus defines the observed state of CSIConfig
-type CSIConfigStatus struct {
+// VSphereCSIConfigStatus defines the observed state of VSphereCSIConfig
+type VSphereCSIConfigStatus struct {
 	// Name of the secret created by csi controller
 	//+ kubebuilder:validation:Optional
 	SecretRef *string `json:"secretRef,omitempty"`
@@ -39,22 +39,22 @@ type CSIConfigStatus struct {
 //+kubebuilder:object:root=true
 //+kubebuilder:subresource:status
 
-// CSIConfig is the Schema for the csiconfigs API
-type CSIConfig struct {
+// VSphereCSIConfig is the Schema for the vspherecsiconfigs API
+type VSphereCSIConfig struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
-	Spec   CSIConfigSpec   `json:"spec,omitempty"`
-	Status CSIConfigStatus `json:"status,omitempty"`
+	Spec   VSphereCSIConfigSpec   `json:"spec,omitempty"`
+	Status VSphereCSIConfigStatus `json:"status,omitempty"`
 }
 
 //+kubebuilder:object:root=true
 
-// CSIConfigList contains a list of CSIConfig
-type CSIConfigList struct {
+// VSphereCSIConfigList contains a list of VSphereCSIConfig
+type VSphereCSIConfigList struct {
 	metav1.TypeMeta `json:",inline"`
 	metav1.ListMeta `json:"metadata,omitempty"`
-	Items           []CSIConfig `json:"items"`
+	Items           []VSphereCSIConfig `json:"items"`
 }
 
 type VSphereCSI struct {
@@ -151,5 +151,5 @@ type NonParavirtualConfig struct {
 }
 
 func init() {
-	SchemeBuilder.Register(&CSIConfig{}, &CSIConfigList{})
+	SchemeBuilder.Register(&VSphereCSIConfig{}, &VSphereCSIConfigList{})
 }

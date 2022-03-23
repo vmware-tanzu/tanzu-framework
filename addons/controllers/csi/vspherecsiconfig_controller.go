@@ -8,9 +8,6 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
-	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/util"
-	csiv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/csi/v1alpha1"
 	yaml "gopkg.in/yaml.v3"
 	v1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
@@ -24,54 +21,58 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/controller"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 	"sigs.k8s.io/controller-runtime/pkg/log"
+
+	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
+	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/util"
+	csiv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/csi/v1alpha1"
 )
 
-// CSIConfigReconciler reconciles a CSIConfig object
-type CSIConfigReconciler struct {
+// VSphereCSIConfigReconciler reconciles a VSphereCSIConfig object
+type VSphereCSIConfigReconciler struct {
 	client.Client
 	Scheme *runtime.Scheme
 }
 
-//+kubebuilder:rbac:groups=csi.tanzu.vmware.com,resources=csiconfigs,verbs=get;list;watch;create;update;patch;delete
-//+kubebuilder:rbac:groups=csi.tanzu.vmware.com,resources=csiconfigs/status,verbs=get;update;patch
-//+kubebuilder:rbac:groups=csi.tanzu.vmware.com,resources=csiconfigs/finalizers,verbs=update
+//+kubebuilder:rbac:groups=csi.tanzu.vmware.com,resources=vspherecsiconfigs,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups=csi.tanzu.vmware.com,resources=vspherecsiconfigs/status,verbs=get;update;patch
+//+kubebuilder:rbac:groups=csi.tanzu.vmware.com,resources=vspherecsiconfigs/finalizers,verbs=update
 //+kubebuilder:rbac:groups="",resources=secrets,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups=cluster.x-k8s.io,resources=clusters,verbs=get;list;watch
 
 // Reconcile is part of the main kubernetes reconciliation loop which aims to
 // move the current state of the cluster closer to the desired state.
-func (r *CSIConfigReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	logger := log.FromContext(ctx).WithValues("CSIConfig", req.NamespacedName)
+func (r *VSphereCSIConfigReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
+	logger := log.FromContext(ctx).WithValues("VSphereCSIConfig", req.NamespacedName)
 
-	csiConfig := &csiv1alpha1.CSIConfig{}
-	if err := r.Get(ctx, req.NamespacedName, csiConfig); err != nil {
+	vcsiConfig := &csiv1alpha1.VSphereCSIConfig{}
+	if err := r.Get(ctx, req.NamespacedName, vcsiConfig); err != nil {
 		if apierrors.IsNotFound(err) {
-			logger.Info("CSIConfig resource not found")
+			logger.Info("VSphereCSIConfig resource not found")
 			return ctrl.Result{}, nil
 		}
 
-		logger.Error(err, "Unable to fetch CSIConfig resource")
+		logger.Error(err, "Unable to fetch VSphereCSIConfig resource")
 		return ctrl.Result{}, err
 	}
 
-	if cluster, err := r.getOwnerCluster(ctx, csiConfig); cluster == nil {
+	if cluster, err := r.getOwnerCluster(ctx, vcsiConfig); cluster == nil {
 		return ctrl.Result{RequeueAfter: 20 * time.Second}, err // retry until corresponding cluster is found
 	}
 
-	return r.reconcileCSIConfig(ctx, csiConfig)
+	return r.reconcileVSphereCSIConfig(ctx, vcsiConfig)
 }
 
 // SetupWithManager sets up the controller with the Manager.
-func (r *CSIConfigReconciler) SetupWithManager(_ context.Context, mgr ctrl.Manager,
+func (r *VSphereCSIConfigReconciler) SetupWithManager(_ context.Context, mgr ctrl.Manager,
 	options controller.Options) error {
 	return ctrl.NewControllerManagedBy(mgr).
-		For(&csiv1alpha1.CSIConfig{}).
+		For(&csiv1alpha1.VSphereCSIConfig{}).
 		WithOptions(options).
 		Complete(r)
 }
 
-func (r *CSIConfigReconciler) reconcileCSIConfig(ctx context.Context,
-	csiCfg *csiv1alpha1.CSIConfig) (result ctrl.Result, retErr error) {
+func (r *VSphereCSIConfigReconciler) reconcileVSphereCSIConfig(ctx context.Context,
+	csiCfg *csiv1alpha1.VSphereCSIConfig) (result ctrl.Result, retErr error) {
 
 	logger := log.FromContext(ctx)
 
@@ -82,12 +83,12 @@ func (r *CSIConfigReconciler) reconcileCSIConfig(ctx context.Context,
 
 	defer func() {
 		if retErr != nil {
-			// don't modify CSIConfig if there is an error
+			// don't modify VSphereCSIConfig if there is an error
 			return
 		}
 
 		if err := patchHelper.Patch(ctx, csiCfg); err != nil {
-			logger.Error(err, "Failed to patch CSIConfig")
+			logger.Error(err, "Failed to patch VSphereCSIConfig")
 			retErr = err
 		}
 	}()
@@ -96,20 +97,20 @@ func (r *CSIConfigReconciler) reconcileCSIConfig(ctx context.Context,
 		return ctrl.Result{}, nil // deleted
 	}
 
-	if result, err = r.reconcileCSIConfigNormal(ctx, csiCfg); err != nil {
-		logger.Error(err, "Error reconciling CSIConfig")
+	if result, err = r.reconcileVSphereCSIConfigNormal(ctx, csiCfg); err != nil {
+		logger.Error(err, "Error reconciling VSphereCSIConfig")
 		return result, err
 	}
 
 	return result, nil
 }
 
-func (r *CSIConfigReconciler) reconcileCSIConfigNormal(ctx context.Context,
-	csiCfg *csiv1alpha1.CSIConfig) (result ctrl.Result, retErr error) {
+func (r *VSphereCSIConfigReconciler) reconcileVSphereCSIConfigNormal(ctx context.Context,
+	csiCfg *csiv1alpha1.VSphereCSIConfig) (result ctrl.Result, retErr error) {
 
 	logger := log.FromContext(ctx)
 
-	// add owner reference to CSIConfig if not already added
+	// add owner reference to VSphereCSIConfig if not already added
 	cluster, err := r.getOwnerCluster(ctx, csiCfg)
 	if err != nil {
 		return ctrl.Result{}, err
@@ -128,9 +129,9 @@ func (r *CSIConfigReconciler) reconcileCSIConfigNormal(ctx context.Context,
 
 	addonName := ""
 	switch csiCfg.Spec.VSphereCSI.Mode {
-	case CSINonParavirtualMode:
+	case VSphereCSINonParavirtualMode:
 		addonName = constants.CSIAddonName
-	case CSIParavirtualMode:
+	case VSphereCSIParavirtualMode:
 		addonName = constants.PVCSIAddonName
 	}
 
@@ -145,9 +146,9 @@ func (r *CSIConfigReconciler) reconcileCSIConfigNormal(ctx context.Context,
 
 	mutateFn := func() error {
 		secret.Data = make(map[string][]byte)
-		dvs, err := r.mapCSIConfigToDataValues(ctx, csiCfg)
+		dvs, err := r.mapVSphereCSIConfigToDataValues(ctx, csiCfg)
 		if err != nil {
-			logger.Error(err, "Error while mapping CSIConfig to data values")
+			logger.Error(err, "Error while mapping VSphereCSIConfig to data values")
 			return err
 		}
 		yamlBytes, err := yaml.Marshal(dvs)
@@ -162,7 +163,7 @@ func (r *CSIConfigReconciler) reconcileCSIConfigNormal(ctx context.Context,
 	opResult, err := controllerutil.CreateOrPatch(ctx, r.Client, secret, mutateFn)
 
 	if err != nil {
-		logger.Error(err, "Error creating or patching CSIConfig data values secret")
+		logger.Error(err, "Error creating or patching VSphereCSIConfig data values secret")
 		return result, err
 	}
 

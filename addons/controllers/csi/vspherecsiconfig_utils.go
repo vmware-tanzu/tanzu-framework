@@ -9,32 +9,33 @@ import (
 	"strings"
 
 	"github.com/pkg/errors"
-	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
-	csiv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/csi/v1alpha1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/types"
 	clusterapiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
 	"sigs.k8s.io/controller-runtime/pkg/log"
+
+	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
+	csiv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/csi/v1alpha1"
 )
 
-// mapCSIConfigToDataValues maps CSIConfig CR to data values
-func (r *CSIConfigReconciler) mapCSIConfigToDataValues(ctx context.Context, csiConfig *csiv1alpha1.CSIConfig) (*DataValues, error) {
-	switch csiConfig.Spec.VSphereCSI.Mode {
-	case CSINonParavirtualMode:
-		return r.mapCSIConfigToDataValuesNonParavirtual(ctx, csiConfig)
-	case CSIParavirtualMode:
-		return r.mapCSIConfigToDataValuesParavirtual(ctx, csiConfig)
+// mapVSphereCSIConfigToDataValues maps VSphereCSIConfig CR to data values
+func (r *VSphereCSIConfigReconciler) mapVSphereCSIConfigToDataValues(ctx context.Context, vcsiConfig *csiv1alpha1.VSphereCSIConfig) (*DataValues, error) {
+	switch vcsiConfig.Spec.VSphereCSI.Mode {
+	case VSphereCSINonParavirtualMode:
+		return r.mapVSphereCSIConfigToDataValuesNonParavirtual(ctx, vcsiConfig)
+	case VSphereCSIParavirtualMode:
+		return r.mapVSphereCSIConfigToDataValuesParavirtual(ctx, vcsiConfig)
 	default:
 		break
 	}
 	return nil, errors.Errorf("Invalid CSI mode '%s', must either be '%s' or '%s'",
-		csiConfig.Spec.VSphereCSI.Mode, CSIParavirtualMode, CSINonParavirtualMode)
+		vcsiConfig.Spec.VSphereCSI.Mode, VSphereCSIParavirtualMode, VSphereCSINonParavirtualMode)
 }
 
-func (r *CSIConfigReconciler) mapCSIConfigToDataValuesParavirtual(ctx context.Context,
-	csiConfig *csiv1alpha1.CSIConfig) (*DataValues, error) {
+func (r *VSphereCSIConfigReconciler) mapVSphereCSIConfigToDataValuesParavirtual(ctx context.Context,
+	vcsiConfig *csiv1alpha1.VSphereCSIConfig) (*DataValues, error) {
 	dvs := &DataValues{}
-	pvconfig := csiConfig.Spec.VSphereCSI.ParavirtualConfig
+	pvconfig := vcsiConfig.Spec.VSphereCSI.ParavirtualConfig
 
 	if pvconfig == nil {
 		return nil, errors.Errorf("ParavirtualConfig missing in Spec.VSphereCSI")
@@ -49,9 +50,9 @@ func (r *CSIConfigReconciler) mapCSIConfigToDataValuesParavirtual(ctx context.Co
 	return dvs, nil
 }
 
-func (r *CSIConfigReconciler) mapCSIConfigToDataValuesNonParavirtual(ctx context.Context, csiConfig *csiv1alpha1.CSIConfig) (*DataValues, error) {
+func (r *VSphereCSIConfigReconciler) mapVSphereCSIConfigToDataValuesNonParavirtual(ctx context.Context, vcsiConfig *csiv1alpha1.VSphereCSIConfig) (*DataValues, error) {
 	dvs := &DataValues{}
-	config := csiConfig.Spec.VSphereCSI.NonParavirtualConfig
+	config := vcsiConfig.Spec.VSphereCSI.NonParavirtualConfig
 
 	if config == nil {
 		return nil, errors.Errorf("NonParavirtualConfig missing in Spec.VSphereCSI")
@@ -81,29 +82,29 @@ func (r *CSIConfigReconciler) mapCSIConfigToDataValuesNonParavirtual(ctx context
 	return dvs, nil
 }
 
-// getOwnerCluster verifies that the CSIConfig has a cluster as its owner reference,
-// and returns the cluster. It tries to read the cluster name from the CSIConfig's owner reference objects.
-// If not there, we assume the owner cluster and CSIConfig always has the same name.
-func (r *CSIConfigReconciler) getOwnerCluster(ctx context.Context,
-	csiConfig *csiv1alpha1.CSIConfig) (*clusterapiv1beta1.Cluster, error) {
+// getOwnerCluster verifies that the VSphereCSIConfig has a cluster as its owner reference,
+// and returns the cluster. It tries to read the cluster name from the VSphereCSIConfig's owner reference objects.
+// If not there, we assume the owner cluster and VSphereCSIConfig always has the same name.
+func (r *VSphereCSIConfigReconciler) getOwnerCluster(ctx context.Context,
+	vcsiConfig *csiv1alpha1.VSphereCSIConfig) (*clusterapiv1beta1.Cluster, error) {
 
 	logger := log.FromContext(ctx)
 	cluster := &clusterapiv1beta1.Cluster{}
-	clusterName := csiConfig.Name
+	clusterName := vcsiConfig.Name
 
-	// retrieve the owner cluster for the CSIConfig object
-	for _, ownerRef := range csiConfig.GetOwnerReferences() {
+	// retrieve the owner cluster for the VSphereCSIConfig object
+	for _, ownerRef := range vcsiConfig.GetOwnerReferences() {
 		if strings.EqualFold(ownerRef.Kind, constants.ClusterKind) {
 			clusterName = ownerRef.Name
 			break
 		}
 	}
-	if err := r.Client.Get(ctx, types.NamespacedName{Namespace: csiConfig.Namespace, Name: clusterName}, cluster); err != nil {
+	if err := r.Client.Get(ctx, types.NamespacedName{Namespace: vcsiConfig.Namespace, Name: clusterName}, cluster); err != nil {
 		if apierrors.IsNotFound(err) {
-			logger.Info(fmt.Sprintf("Cluster resource '%s/%s' not found", csiConfig.Namespace, clusterName))
+			logger.Info(fmt.Sprintf("Cluster resource '%s/%s' not found", vcsiConfig.Namespace, clusterName))
 			return nil, nil
 		}
-		logger.Error(err, fmt.Sprintf("Unable to fetch cluster '%s/%s'", csiConfig.Namespace, clusterName))
+		logger.Error(err, fmt.Sprintf("Unable to fetch cluster '%s/%s'", vcsiConfig.Namespace, clusterName))
 		return nil, err
 	}
 
