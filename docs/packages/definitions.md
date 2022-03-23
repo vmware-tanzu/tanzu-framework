@@ -12,4 +12,11 @@ Ex: Featuregates, addons-manager, etc.
 
 ## Management package repository
 
-A management package repository is a repository for packages that are exclusively intended to be installed on a management cluster.
+A management package repository is a repository for packages that are exclusively intended to be installed on a
+management cluster.
+
+## Meta package
+
+A Package that contains PackageInstall CRs, Secrets and ServiceAccounts, RBAC rules that are needed to install other
+packages and when the meta package is installed, it installs the other packages. A meta Package may describe
+a specific version of a Distribution.
