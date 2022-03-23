@@ -62,6 +62,10 @@ type KubernetesSpec struct {
 	// CoreDNS specifies the container image repository and tag for coredns.
 	// +optional
 	CoreDNS *ContainerImageInfo `json:"coredns"`
+
+	// KubeVIP specifies the container image repository and tag for kube-vip.
+	// +optional
+	KubeVIP *ContainerImageInfo `json:"kube-vip"`
 }
 
 // ContainerImageInfo allows to customize the image used for components that are not
