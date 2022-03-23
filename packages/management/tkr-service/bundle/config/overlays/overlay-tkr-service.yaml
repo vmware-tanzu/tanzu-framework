@@ -1,14 +1,6 @@
 #@ load("@ytt:data", "data")
 #@ load("@ytt:overlay", "overlay")
 
-#@ if data.values.tkrService.createNamespace:
----
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: #@ data.values.tkrService.namespace
-#@ end
-
 #@overlay/match by=overlay.subset({"kind":"ServiceAccount", "metadata": {"name": "tkr-service-manager-sa"}})
 ---
 apiVersion: v1

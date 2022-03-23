@@ -1,14 +1,9 @@
-# featuregates Package
+# tkr-service Package
 
-Featuregates management package provides Features and Featuregates APIs to
-allow developers to have a system to control rollout and availability of new
-Features.
+The tkr-service management package provides the following services:
+
+* TKR resolution functionality based on the annotations provided on cluster and clusterclass objects.
 
 ## Components
 
-* featuregate-controller
-
-## Usage Example
-
-To learn more about the Featuregate controller and Features, FeatureGates APIs
-and how to use them, refer to this [doc](../../../docs/api-machinery/features-and-featuregates.md)
+* tkr-resolver-cluster-webhook

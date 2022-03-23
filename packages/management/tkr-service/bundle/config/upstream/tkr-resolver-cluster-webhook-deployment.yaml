@@ -5,7 +5,7 @@ metadata:
   labels:
     app: tkr-resolver-cluster-webhook
   name: tkr-resolver-cluster-webhook-manager
-  namespace: tanzu-system
+  namespace: tkr-system
 spec:
   replicas: 1
   selector:

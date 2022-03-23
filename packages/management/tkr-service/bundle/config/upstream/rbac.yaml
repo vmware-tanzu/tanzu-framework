@@ -4,7 +4,7 @@ metadata:
   labels:
     app: tkr-resolver-cluster-webhook
   name: tkr-service-manager-sa
-  namespace: tanzu-system
+  namespace: tkr-system
   annotations:
     kapp.k14s.io/change-group: "v1/sa-tkr-service-manager"
 ---
@@ -87,4 +87,4 @@ roleRef:
 subjects:
 - kind: ServiceAccount
   name: tkr-service-manager-sa
-  namespace: tanzu-system
+  namespace: tkr-system

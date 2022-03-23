@@ -2,5 +2,4 @@
 #@overlay/match-child-defaults missing_ok=True
 ---
 tkrService:
-  namespace: tanzu-system
-  createNamespace: true
+  namespace: tkr-system

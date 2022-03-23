@@ -2,7 +2,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: tkr-infra-machine-webhook-service
-  namespace: tanzu-system
+  namespace: tkr-system
 spec:
   ports:
   - port: 443
