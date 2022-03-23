@@ -59,6 +59,31 @@ spec:
       - name: tkg.tanzu.vmware.com/tkg-ip-family
         value: "ipv4"
 ---
+apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+kind: VSphereCluster
+metadata:
+  name: test-cluster-tcbt
+  namespace: cluster-namespace
+spec:
+  thumbprint: test-thumbprint
+  server: vsphere-server.local
+---
+apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+kind: VSphereMachineTemplate
+metadata:
+  name: test-cluster-tcbt-control-plane
+  namespace: cluster-namespace
+spec:
+  template:
+    spec:
+      datacenter: dc0
+      template: /dc0/vm/photon-3-kube-v1.22.3+vmware.1-tkg.2
+      network:
+        devices:
+          - networkName: test-network
+            dhcp6: true
+            dhcp4: false
+---
 apiVersion: run.tanzu.vmware.com/v1alpha3
 kind: ClusterBootstrapTemplate
 metadata:
@@ -89,6 +114,13 @@ spec:
         apiGroup: cni.tanzu.vmware.com
         kind: AntreaConfig
         name: test-cluster-tcbt
+  cpi:
+    refName: vsphere-cpi.tanzu.vmware.com.1.22.3--vmware.1-tkg.1
+    valuesFrom:
+      providerRef:
+        apiGroup: cpi.tanzu.vmware.com
+        kind: VSphereCPIConfig
+        name: test-cluster-cpi
 ---
 apiVersion: run.tanzu.vmware.com/v1alpha3
 kind: ClusterBootstrapTemplate
@@ -124,7 +156,7 @@ spec:
     refName: vsphere-cpi.tanzu.vmware.com.1.22.3--vmware.1-tkg.1
     valuesFrom:
       providerRef:
-        apiGroup: cpi.tanzu.vmware.com/v1alpha1
+        apiGroup: cpi.tanzu.vmware.com
         kind: VSphereCPIConfig
         name: test-cluster-cpi
 ---
@@ -190,6 +222,15 @@ spec:
         - effect: NoSchedule
           key: node.cloudprovider.kubernetes.io/uninitialized
           value: "true"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: test-cluster-tcbt
+  namespace: cluster-namespace
+data:
+  password: QWRtaW4hMjM= # Admin!23
+  username: YWRtaW5pc3RyYXRvckB2c3BoZXJlLmxvY2Fs # administrator@vsphere.local
 ---
 apiVersion: v1
 kind: Secret

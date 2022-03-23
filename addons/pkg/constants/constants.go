@@ -172,7 +172,7 @@ const (
 
 	// LocalObjectRefSuffix is the suffix of a field within the provider's CR. This suffix indicates that the field is a
 	// K8S typed local object reference
-	LocalObjectRefSuffix = "LocalObjectRef"
+	LocalObjectRefSuffix = "LocalObjRef"
 )
 
 // ClusterKind is the Kind for cluster-api Cluster object
