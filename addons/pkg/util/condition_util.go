@@ -7,9 +7,9 @@ import (
 	"strings"
 
 	corev1 "k8s.io/api/core/v1"
+	clusterapiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
 
 	"github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/kappctrl/v1alpha1"
-	runtanzuv1alpha3 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
 )
 
 // SummarizeAppConditions summarizes the provided conditions slice into a single condition with the following logic:
@@ -53,9 +53,10 @@ func GetKappUsefulErrorMessage(s string) string {
 }
 
 // HasSameState returns true if a ClusterBootstrap condition has the same state of another; state is defined
-// by the union of following fields: Type, Status, UsefulErrorMessage (it excludes LastTransitionTime).
-func HasSameState(i, j *runtanzuv1alpha3.Condition) bool {
+// by the union of following fields: Type, Status, Message, Reason (it excludes LastTransitionTime).
+func HasSameState(i, j *clusterapiv1beta1.Condition) bool {
 	return i.Type == j.Type &&
 		i.Status == j.Status &&
-		i.UsefulErrorMessage == j.UsefulErrorMessage
+		i.Message == j.Message &&
+		i.Reason == j.Reason
 }

@@ -67,25 +67,26 @@ func init() {
 }
 
 type addonFlags struct {
-	metricsAddr                 string
-	enableLeaderElection        bool
-	clusterConcurrency          int
-	syncPeriod                  time.Duration
-	appSyncPeriod               time.Duration
-	appWaitTimeout              time.Duration
-	addonNamespace              string
-	addonServiceAccount         string
-	addonClusterRole            string
-	addonClusterRoleBinding     string
-	addonImagePullPolicy        string
-	corePackageRepoName         string
-	healthdAddr                 string
-	httpProxyClusterVarName     string
-	httpsProxyClusterVarName    string
-	noProxyClusterVarName       string
-	proxyCACertClusterVarName   string
-	ipFamilyClusterVarName      string
-	featureGateClusterBootstrap bool
+	metricsAddr                     string
+	enableLeaderElection            bool
+	clusterConcurrency              int
+	syncPeriod                      time.Duration
+	appSyncPeriod                   time.Duration
+	appWaitTimeout                  time.Duration
+	addonNamespace                  string
+	addonServiceAccount             string
+	addonClusterRole                string
+	addonClusterRoleBinding         string
+	addonImagePullPolicy            string
+	corePackageRepoName             string
+	healthdAddr                     string
+	httpProxyClusterVarName         string
+	httpsProxyClusterVarName        string
+	noProxyClusterVarName           string
+	proxyCACertClusterVarName       string
+	ipFamilyClusterVarName          string
+	featureGateClusterBootstrap     bool
+	featureGatePackageInstallStatus bool
 }
 
 func parseAddonFlags(addonFlags *addonFlags) {
@@ -114,6 +115,7 @@ func parseAddonFlags(addonFlags *addonFlags) {
 	flag.StringVar(&addonFlags.proxyCACertClusterVarName, "proxy-ca-cert-cluster-var-name", constants.DefaultProxyCaCertClusterClassVarName, "Proxy CA certificate cluster variable name")
 	flag.StringVar(&addonFlags.ipFamilyClusterVarName, "ip-family-cluster-var-name", constants.DefaultIPFamilyClusterClassVarName, "IP family setting cluster variable name")
 	flag.BoolVar(&addonFlags.featureGateClusterBootstrap, "feature-gate-cluster-bootstrap", false, "Feature gate to enable clusterbootstap and addonconfig controllers that rely on TKR v1alphav3")
+	flag.BoolVar(&addonFlags.featureGatePackageInstallStatus, "feature-gate-package-install-status", false, "Feature gate to enable packageinstallstatus controller")
 
 	flag.Parse()
 }
@@ -178,9 +180,12 @@ func main() {
 		setupLog.Error(err, "unable to create controller", "controller", "Addon")
 		os.Exit(1)
 	}
-
 	if flags.featureGateClusterBootstrap {
 		enableClusterBootstrapAndConfigControllers(ctx, mgr, flags)
+	}
+
+	if flags.featureGatePackageInstallStatus {
+		enablePackageInstallStatusController(ctx, mgr, flags)
 	}
 
 	setupChecks(mgr)
@@ -259,7 +264,9 @@ func enableClusterBootstrapAndConfigControllers(ctx context.Context, mgr ctrl.Ma
 		setupLog.Error(err, "unable to create controller", "controller", "clusterbootstrap")
 		os.Exit(1)
 	}
+}
 
+func enablePackageInstallStatusController(ctx context.Context, mgr ctrl.Manager, flags *addonFlags) {
 	// Set up a ClusterCacheTracker to provide to PackageInstallStatus controller which requires a connection to remote clusters
 	l := ctrl.Log.WithName("remote").WithName("ClusterCacheTracker")
 	tracker, err := capiremote.NewClusterCacheTracker(mgr, capiremote.ClusterCacheTrackerOptions{
@@ -277,12 +284,14 @@ func enableClusterBootstrapAndConfigControllers(ctx context.Context, mgr ctrl.Ma
 		os.Exit(1)
 	}
 
-	pkgiStatusReconciler := &controllers.PackageInstallStatusReconciler{
-		Client:  mgr.GetClient(),
-		Log:     ctrl.Log.WithName("controllers").WithName("PackageInstallStatus"),
-		Scheme:  mgr.GetScheme(),
-		Tracker: tracker,
-	}
+	pkgiStatusReconciler := controllers.NewPackageInstallStatusReconciler(
+		mgr.GetClient(),
+		mgr.GetScheme(),
+		&addonconfig.PackageInstallStatusControllerConfig{
+			SystemNamespace: flags.addonNamespace,
+		},
+		tracker,
+	)
 	if err := pkgiStatusReconciler.SetupWithManager(ctx, mgr, controller.Options{MaxConcurrentReconciles: flags.clusterConcurrency}); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "PackageInstallStatus")
 		os.Exit(1)

@@ -282,12 +282,14 @@ var _ = BeforeSuite(func(done Done) {
 	Expect(err).Should(BeNil())
 	Expect(tracker).ShouldNot(BeNil())
 
-	Expect((&PackageInstallStatusReconciler{
-		Client:  mgr.GetClient(),
-		Log:     ctrl.Log.WithName("controllers").WithName("PackageInstallStatus"),
-		Scheme:  mgr.GetScheme(),
-		Tracker: tracker,
-	}).SetupWithManager(ctx, mgr, controller.Options{MaxConcurrentReconciles: 1})).To(Succeed())
+	Expect((NewPackageInstallStatusReconciler(
+		mgr.GetClient(),
+		mgr.GetScheme(),
+		&addonconfig.PackageInstallStatusControllerConfig{
+			SystemNamespace: constants.TKGSystemNS,
+		},
+		tracker,
+	)).SetupWithManager(ctx, mgr, controller.Options{MaxConcurrentReconciles: 1})).To(Succeed())
 
 	// pre-create namespace
 	ns := &corev1.Namespace{ObjectMeta: metav1.ObjectMeta{Name: "tkr-system"}}

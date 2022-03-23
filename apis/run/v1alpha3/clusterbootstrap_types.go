@@ -4,33 +4,16 @@
 package v1alpha3
 
 import (
-	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+
+	clusterapicondition "sigs.k8s.io/cluster-api/api/v1beta1"
 )
 
 // ClusterBootstrapStatus defines the observed state of ClusterBootstrap
 type ClusterBootstrapStatus struct {
 	ResolvedTKR string `json:"resolvedTKR,omitempty"`
 
-	Conditions Conditions `json:"conditions,omitempty"`
-}
-
-type Conditions []Condition
-type ConditionType string
-
-type Condition struct {
-	// Type of condition in CamelCase
-	Type ConditionType `json:"type"`
-
-	// Status of the condition, one of True, False, Unknown
-	Status corev1.ConditionStatus `json:"status"`
-
-	// A human readable error message. Will be empty in case no error happened
-	UsefulErrorMessage string `json:"usefulErrorMessage,omitempty"`
-
-	// Last time the condition transitioned from one status to another.
-	// It reflects the time any other fields in the condition changed
-	LastTransitionTime metav1.Time `json:"lastTransitionTime"`
+	Conditions clusterapicondition.Conditions `json:"conditions,omitempty"`
 }
 
 // +kubebuilder:object:root=true

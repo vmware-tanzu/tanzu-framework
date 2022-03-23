@@ -149,7 +149,11 @@ func (r *ClusterBootstrapReconciler) Reconcile(ctx context.Context, req ctrl.Req
 	}
 
 	// make sure the TKR object exists
-	tkrName := cluster.Labels[constants.TKRLabelClassyClusters]
+	tkrName, err := util.GetClusterLabel(cluster.Labels, constants.TKRLabelClassyClusters)
+	if err != nil {
+		return ctrl.Result{}, err
+	}
+
 	tkr, err := util.GetTKRByName(r.context, r.Client, tkrName)
 	if err != nil {
 		log.Error(err, "unable to fetch TKR object", "name", tkrName)

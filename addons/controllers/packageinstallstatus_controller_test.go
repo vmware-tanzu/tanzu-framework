@@ -104,7 +104,7 @@ var _ = Describe("PackageInstallStatus Reconciler", func() {
 			mngClusterBootstrap := clusterBootstrapGet(client.ObjectKeyFromObject(mngCluster))
 			// Antrea is already installed into management cluster's tkg-system namespace
 			Expect(len(mngClusterBootstrap.Status.Conditions)).Should(Equal(1))
-			antreaCondType := "Antrea-" + runtanzuv1alpha3.ConditionType(v1alpha1.ReconcileSucceeded)
+			antreaCondType := "Antrea-" + clusterapiv1beta1.ConditionType(v1alpha1.ReconcileSucceeded)
 			Expect(mngClusterBootstrap.Status.Conditions[0].Type).Should(Equal(antreaCondType))
 			// install unmanaged package into workload cluster. Make sure cluster bootstrap conditions does not get changed fro un-managed package
 			installPackage(wlcCluster.Name, "pkg.test.carvel.dev.1.0.0", wlcCluster.Namespace)
@@ -132,8 +132,8 @@ var _ = Describe("PackageInstallStatus Reconciler", func() {
 			// verify for workload cluster
 			updatePkgInstallStatus(wlcAntreaObjKey, kappctrlv1alpha1.ReconcileSucceeded)
 			updatePkgInstallStatus(wlcKappObjKey, kappctrlv1alpha1.Reconciling)
-			antreaCondType = "Antrea-" + runtanzuv1alpha3.ConditionType(v1alpha1.ReconcileSucceeded)
-			kappCondType := "Kapp-Controller-" + runtanzuv1alpha3.ConditionType(v1alpha1.Reconciling)
+			antreaCondType = "Antrea-" + clusterapiv1beta1.ConditionType(v1alpha1.ReconcileSucceeded)
+			kappCondType := "Kapp-Controller-" + clusterapiv1beta1.ConditionType(v1alpha1.Reconciling)
 			waitForClusterBootstrapStatus(client.ObjectKeyFromObject(wlcCluster), antreaCondType)
 			wlcClusterBootstrapStatus := waitForClusterBootstrapStatus(client.ObjectKeyFromObject(wlcCluster), kappCondType)
 			Expect(len(wlcClusterBootstrapStatus.Conditions)).Should(Equal(2))
@@ -170,7 +170,7 @@ func clusterBootstrapGet(objKey client.ObjectKey) *runtanzuv1alpha3.ClusterBoots
 }
 
 // waitForClusterBootstrapStatus checks ClusterBootstrap's 'Status.Conditions' includes provided condition type
-func waitForClusterBootstrapStatus(objKey client.ObjectKey, condType runtanzuv1alpha3.ConditionType) *runtanzuv1alpha3.ClusterBootstrapStatus {
+func waitForClusterBootstrapStatus(objKey client.ObjectKey, condType clusterapiv1beta1.ConditionType) *runtanzuv1alpha3.ClusterBootstrapStatus {
 	clusterBootstrap := &runtanzuv1alpha3.ClusterBootstrap{}
 	Eventually(func() bool {
 		if err := k8sClient.Get(ctx, objKey, clusterBootstrap); err != nil {
