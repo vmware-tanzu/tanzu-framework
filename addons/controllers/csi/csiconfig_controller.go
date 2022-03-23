@@ -1,25 +1,16 @@
-/*
-Copyright 2022.
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
+// Copyright 2022 VMware, Inc. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 package controllers
 
 import (
 	"context"
 	"fmt"
+	"time"
 
+	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
+	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/util"
+	csiv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/csi/v1alpha1"
 	yaml "gopkg.in/yaml.v3"
 	v1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
@@ -33,11 +24,6 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/controller"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 	"sigs.k8s.io/controller-runtime/pkg/log"
-
-	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
-	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/util"
-
-	csiv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/csi/v1alpha1"
 )
 
 // CSIConfigReconciler reconciles a CSIConfig object
@@ -54,29 +40,22 @@ type CSIConfigReconciler struct {
 
 // Reconcile is part of the main kubernetes reconciliation loop which aims to
 // move the current state of the cluster closer to the desired state.
-// TODO(user): Modify the Reconcile function to compare the state specified by
-// the CSIConfig object against the actual cluster state, and then
-// perform operations to make the cluster state reflect the state specified by
-// the user.
-//
-// For more details, check Reconcile and its Result here:
-// - https://pkg.go.dev/sigs.k8s.io/controller-runtime@v0.8.3/pkg/reconcile
 func (r *CSIConfigReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	logger := log.FromContext(ctx).WithValues("CSIConfig", req.NamespacedName)
 
 	csiConfig := &csiv1alpha1.CSIConfig{}
 	if err := r.Get(ctx, req.NamespacedName, csiConfig); err != nil {
 		if apierrors.IsNotFound(err) {
-			logger.Info("CSIConfig resource not found", "namespacedName", req.NamespacedName)
+			logger.Info("CSIConfig resource not found")
 			return ctrl.Result{}, nil
 		}
 
-		logger.Error(err, "Unable to fetch CSIConfig resource", "namespacedName", req.NamespacedName)
+		logger.Error(err, "Unable to fetch CSIConfig resource")
 		return ctrl.Result{}, err
 	}
 
 	if cluster, err := r.getOwnerCluster(ctx, csiConfig); cluster == nil {
-		return ctrl.Result{}, err // no need to requeue if cluster is not found
+		return ctrl.Result{RequeueAfter: 20 * time.Second}, err // retry until corresponding cluster is found
 	}
 
 	return r.reconcileCSIConfig(ctx, csiConfig)
@@ -109,7 +88,7 @@ func (r *CSIConfigReconciler) reconcileCSIConfig(ctx context.Context,
 
 		if err := patchHelper.Patch(ctx, csiCfg); err != nil {
 			logger.Error(err, "Failed to patch CSIConfig")
-			return
+			retErr = err
 		}
 	}()
 
@@ -150,9 +129,9 @@ func (r *CSIConfigReconciler) reconcileCSIConfigNormal(ctx context.Context,
 	addonName := ""
 	switch csiCfg.Spec.VSphereCSI.Mode {
 	case CSINonParavirtualMode:
-		addonName = "vsphere-csi"
+		addonName = constants.CSIAddonName
 	case CSIParavirtualMode:
-		addonName = "vsphere-pv-csi"
+		addonName = constants.PVCSIAddonName
 	}
 
 	secret := &v1.Secret{

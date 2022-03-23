@@ -1,18 +1,5 @@
-/*
-
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
+// Copyright 2022 VMware, Inc. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 package controllers
 
@@ -23,31 +10,31 @@ type DataValues struct {
 }
 
 type DataValuesVSpherePVCSI struct {
-	ClusterName                      string `json:"clusterName"`
-	ClusterUID                       string `json:"clusterUID"`
-	Namespace                        string `json:"namespace"`
-	SupervisorMasterEndpointHostname string `json:"supervisorMasterEndpointHostname"`
-	SupervisorMasterPort             int32  `json:"supervisorMasterPort"`
+	ClusterName                      string `yaml:"clusterName"`
+	ClusterUID                       string `yaml:"clusterUID"`
+	Namespace                        string `yaml:"namespace"`
+	SupervisorMasterEndpointHostname string `yaml:"supervisorMasterEndpointHostname"`
+	SupervisorMasterPort             int32  `yaml:"supervisorMasterPort"`
 }
 
 type DataValuesVSphereCSI struct {
-	Namespace             string  `json:"namespace"`
-	ClusterName           string  `json:"clusterName"`
-	Server                string  `json:"server"`
-	Datacenter            string  `json:"datacenter"`
-	PublicNetwork         string  `json:"publicNetwork"`
-	Username              string  `json:"username"`
-	Password              string  `json:"password"`
-	Region                *string `json:"region,omitempty"`
-	Zone                  *string `json:"zone,omitempty"`
-	UseTopologyCategories *bool   `json:"useTopologyCategories,omitempty"`
-	ProvisionTimeout      *string `json:"provisionTimeout,omitempty"`
-	AttachTimeout         *string `json:"attachTimeout,omitempty"`
-	ResizerTimeout        *string `json:"resizerTimeout,omitempty"`
-	VSphereVersion        *string `json:"vSphereVersion,omitempty"`
-	HttpProxy             *string `json:"httpProxy,omitempty"`
-	HttpsProxy            *string `json:"httpsProxy,omitempty"`
-	NoProxy               *string `json:"noProxy,omitempty"`
-	DeploymentReplicas    *int32  `json:"deploymentReplicas,omitempty"`
-	WindowsSupport        *bool   `json:"windowsSupport,omitempty"`
+	Namespace             string  `yaml:"namespace"`
+	ClusterName           string  `yaml:"clusterName"`
+	Server                string  `yaml:"server"`
+	Datacenter            string  `yaml:"datacenter"`
+	PublicNetwork         string  `yaml:"publicNetwork"`
+	Username              string  `yaml:"username"`
+	Password              string  `yaml:"password"`
+	Region                *string `yaml:"region,omitempty"`
+	Zone                  *string `yaml:"zone,omitempty"`
+	UseTopologyCategories *bool   `yaml:"useTopologyCategories,omitempty"`
+	ProvisionTimeout      *string `yaml:"provisionTimeout,omitempty"`
+	AttachTimeout         *string `yaml:"attachTimeout,omitempty"`
+	ResizerTimeout        *string `yaml:"resizerTimeout,omitempty"`
+	VSphereVersion        *string `yaml:"vSphereVersion,omitempty"`
+	HttpProxy             *string `yaml:"httpProxy,omitempty"`
+	HttpsProxy            *string `yaml:"httpsProxy,omitempty"`
+	NoProxy               *string `yaml:"noProxy,omitempty"`
+	DeploymentReplicas    *int32  `yaml:"deploymentReplicas,omitempty"`
+	WindowsSupport        *bool   `yaml:"windowsSupport,omitempty"`
 }

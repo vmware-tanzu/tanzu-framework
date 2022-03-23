@@ -17,6 +17,12 @@ const (
 	// CalicoAddonName is name of the Calico addon
 	CalicoAddonName = "calico"
 
+	// PVCSIAddonName is name of the vsphere-pv-csi addon
+	PVCSIAddonName = "vsphere-pv-csi"
+
+	// CSIAddonName is name of the vsphere-csi addon
+	CSIAddonName = "vsphere-csi"
+
 	// CPIAddonName is name of the cloud-provider-vsphere addon
 	CPIAddonName = "vsphere-cpi"
 
