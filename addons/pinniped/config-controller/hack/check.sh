@@ -21,3 +21,6 @@ go vet ./... || error "'go vet' failed"
 
 # Make sure our tests pass.
 ./hack/test.sh
+
+# Make sure our default secret generation script works as expected
+./hack/generate-package-secret.test.sh

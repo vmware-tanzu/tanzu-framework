@@ -644,6 +644,10 @@ generate-go-conversions: $(CONVERSION_GEN) ## Generate conversions go code
 		--output-file-base=zz_generated.conversion \
 		--go-header-file=./hack/boilerplate.go.txt
 
+.PHONY: generate-package-secret ## Generate the default pinniped addon secret. e.g. make generate-package-secret tkr=v1.23.3---vmware.1-tkg.1 iaas=vsphere
+generate-package-secret:
+	./addons/pinniped/config-controller/hack/generate-package-secret.sh -v tkr=${tkr} -v infrastructure_provider=${iaas}
+
 
 ## --------------------------------------
 ##@ Provider templates/overlays
@@ -738,7 +742,7 @@ package-repo-bundle: tools prep-package-tools ## Build tar bundles for package r
 
 .PHONY: push-package-bundles
 push-package-bundles: tools prep-package-tools ## Push specified package bundle(s) in a package repository.
-## Specified package bundles must be set to the PACKAGE_BUNDLES environment variable as comma-separated values 
+## Specified package bundles must be set to the PACKAGE_BUNDLES environment variable as comma-separated values
 ## and must not contain spaces. Example: PACKAGE_BUNDLES=featuregates,core-management-plugins
 	cd hack/packages/package-tools && $(GO) run main.go package-bundle push $(PACKAGE_BUNDLES) --repository=$(PACKAGE_REPOSITORY) --registry=$(OCI_REGISTRY) --version=$(BUILD_VERSION) --sub-version=$(PACKAGE_SUB_VERSION)
 
