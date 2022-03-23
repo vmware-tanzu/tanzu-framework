@@ -9,7 +9,7 @@ import (
 	"strings"
 
 	"github.com/cppforlife/go-cli-ui/ui"
-	. "github.com/cppforlife/go-cli-ui/ui/table"
+	uitable "github.com/cppforlife/go-cli-ui/ui/table"
 	"github.com/spf13/cobra"
 
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/component"
@@ -37,7 +37,7 @@ func (adapterUI *AdapterUI) SetOutputFormat(outputFormat string) {
 	adapterUI.outputFormat = outputFormat
 }
 
-func (adapterUI *AdapterUI) PrintTable(table Table) {
+func (adapterUI *AdapterUI) PrintTable(table uitable.Table) {
 	keys := []string{}
 	for _, h := range table.Header {
 		if !h.Hidden {
