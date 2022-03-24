@@ -93,7 +93,7 @@ type ParavirtualConfig struct {
 type NonParavirtualConfig struct {
 	// The namespace csi components are to be deployed in
 	// +kubebuilder:validation:Required
-	Namespace string `json:"namespace,omitempty"`
+	Namespace string `json:"namespace"`
 
 	// +kubebuilder:validation:Required
 	ClusterName string `json:"clusterName"`
@@ -114,34 +114,34 @@ type NonParavirtualConfig struct {
 	Password string `json:"password"`
 
 	// +kubebuilder:validation:Optional
-	Region *string `json:"region,omitempty"`
+	Region string `json:"region,omitempty"`
 
 	// +kubebuilder:validation:Optional
-	Zone *string `json:"zone,omitempty"`
+	Zone string `json:"zone,omitempty"`
 
 	// +kubebuilder:validation:Optional
 	UseTopologyCategories *bool `json:"useTopologyCategories,omitempty"`
 
 	// +kubebuilder:validation:Optional
-	ProvisionTimeout *string `json:"provisionTimeout,omitempty"`
+	ProvisionTimeout string `json:"provisionTimeout,omitempty"`
 
 	// +kubebuilder:validation:Optional
-	AttachTimeout *string `json:"attachTimeout,omitempty"`
+	AttachTimeout string `json:"attachTimeout,omitempty"`
 
 	// +kubebuilder:validation:Optional
-	ResizerTimeout *string `json:"resizerTimeout,omitempty"`
+	ResizerTimeout string `json:"resizerTimeout,omitempty"`
 
 	// +kubebuilder:validation:Optional
-	VSphereVersion *string `json:"vSphereVersion,omitempty"`
+	VSphereVersion string `json:"vSphereVersion,omitempty"`
 
 	// +kubebuilder:validation:Optional
-	HttpProxy *string `json:"httpProxy,omitempty"`
+	HttpProxy string `json:"httpProxy,omitempty"`
 
 	// +kubebuilder:validation:Optional
-	HttpsProxy *string `json:"httpsProxy,omitempty"`
+	HttpsProxy string `json:"httpsProxy,omitempty"`
 
 	// +kubebuilder:validation:Optional
-	NoProxy *string `json:"noProxy,omitempty"`
+	NoProxy string `json:"noProxy,omitempty"`
 
 	// +kubebuilder:validation:Optional
 	DeploymentReplicas *int32 `json:"deploymentReplicas,omitempty"`

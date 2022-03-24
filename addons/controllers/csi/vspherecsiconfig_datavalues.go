@@ -18,23 +18,23 @@ type DataValuesVSpherePVCSI struct {
 }
 
 type DataValuesVSphereCSI struct {
-	Namespace             string  `yaml:"namespace"`
-	ClusterName           string  `yaml:"clusterName"`
-	Server                string  `yaml:"server"`
-	Datacenter            string  `yaml:"datacenter"`
-	PublicNetwork         string  `yaml:"publicNetwork"`
-	Username              string  `yaml:"username"`
-	Password              string  `yaml:"password"`
-	Region                *string `yaml:"region,omitempty"`
-	Zone                  *string `yaml:"zone,omitempty"`
-	UseTopologyCategories *bool   `yaml:"useTopologyCategories,omitempty"`
-	ProvisionTimeout      *string `yaml:"provisionTimeout,omitempty"`
-	AttachTimeout         *string `yaml:"attachTimeout,omitempty"`
-	ResizerTimeout        *string `yaml:"resizerTimeout,omitempty"`
-	VSphereVersion        *string `yaml:"vSphereVersion,omitempty"`
-	HttpProxy             *string `yaml:"httpProxy,omitempty"`
-	HttpsProxy            *string `yaml:"httpsProxy,omitempty"`
-	NoProxy               *string `yaml:"noProxy,omitempty"`
-	DeploymentReplicas    *int32  `yaml:"deploymentReplicas,omitempty"`
-	WindowsSupport        *bool   `yaml:"windowsSupport,omitempty"`
+	Namespace             string `yaml:"namespace"`
+	ClusterName           string `yaml:"clusterName"`
+	Server                string `yaml:"server"`
+	Datacenter            string `yaml:"datacenter"`
+	PublicNetwork         string `yaml:"publicNetwork"`
+	Username              string `yaml:"username"`
+	Password              string `yaml:"password"`
+	Region                string `yaml:"region,omitempty"`
+	Zone                  string `yaml:"zone,omitempty"`
+	UseTopologyCategories *bool  `yaml:"useTopologyCategories,omitempty"`
+	ProvisionTimeout      string `yaml:"provisionTimeout,omitempty"`
+	AttachTimeout         string `yaml:"attachTimeout,omitempty"`
+	ResizerTimeout        string `yaml:"resizerTimeout,omitempty"`
+	VSphereVersion        string `yaml:"vSphereVersion,omitempty"`
+	HttpProxy             string `yaml:"httpProxy,omitempty"`
+	HttpsProxy            string `yaml:"httpsProxy,omitempty"`
+	NoProxy               string `yaml:"noProxy,omitempty"`
+	DeploymentReplicas    *int32 `yaml:"deploymentReplicas,omitempty"`
+	WindowsSupport        *bool  `yaml:"windowsSupport,omitempty"`
 }

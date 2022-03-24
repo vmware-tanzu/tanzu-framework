@@ -60,7 +60,7 @@ var _ = Describe("VSphereCSIConfig Reconciler", func() {
 			clusterResourceFilePath = "testdata/test-csi-non-paravirtual.yaml"
 		})
 
-		It("Should reconcile VSphereCSIConfig and create data values secret for VSphereCSIConfig on management cluster", func() {
+		FIt("Should reconcile VSphereCSIConfig and create data values secret for VSphereCSIConfig on management cluster", func() {
 			cluster := &clusterapiv1beta1.Cluster{}
 			Eventually(func() bool {
 				if err := k8sClient.Get(ctx, key, cluster); err != nil {
@@ -84,26 +84,17 @@ var _ = Describe("VSphereCSIConfig Reconciler", func() {
 				Expect(config.Spec.VSphereCSI.NonParavirtualConfig.PublicNetwork).Should(Equal("8.2.0.0/16"))
 				Expect(config.Spec.VSphereCSI.NonParavirtualConfig.Username).Should(Equal("administrator@vsphere.local"))
 				Expect(config.Spec.VSphereCSI.NonParavirtualConfig.Password).Should(Equal("test-passwd"))
-				Expect(config.Spec.VSphereCSI.NonParavirtualConfig.Region).NotTo(BeZero())
-				Expect(*config.Spec.VSphereCSI.NonParavirtualConfig.Region).Should(Equal("test-region"))
-				Expect(config.Spec.VSphereCSI.NonParavirtualConfig.Zone).NotTo(BeZero())
-				Expect(*config.Spec.VSphereCSI.NonParavirtualConfig.Zone).Should(Equal("test-zone"))
+				Expect(config.Spec.VSphereCSI.NonParavirtualConfig.Region).Should(Equal("test-region"))
+				Expect(config.Spec.VSphereCSI.NonParavirtualConfig.Zone).Should(Equal("test-zone"))
 				Expect(config.Spec.VSphereCSI.NonParavirtualConfig.UseTopologyCategories).NotTo(BeZero())
 				Expect(*config.Spec.VSphereCSI.NonParavirtualConfig.UseTopologyCategories).Should(Equal(true))
-				Expect(config.Spec.VSphereCSI.NonParavirtualConfig.ProvisionTimeout).NotTo(BeZero())
-				Expect(*config.Spec.VSphereCSI.NonParavirtualConfig.ProvisionTimeout).Should(Equal("33s"))
-				Expect(config.Spec.VSphereCSI.NonParavirtualConfig.AttachTimeout).NotTo(BeZero())
-				Expect(*config.Spec.VSphereCSI.NonParavirtualConfig.AttachTimeout).Should(Equal("77s"))
-				Expect(config.Spec.VSphereCSI.NonParavirtualConfig.ResizerTimeout).NotTo(BeZero())
-				Expect(*config.Spec.VSphereCSI.NonParavirtualConfig.ResizerTimeout).Should(Equal("99s"))
-				Expect(config.Spec.VSphereCSI.NonParavirtualConfig.VSphereVersion).NotTo(BeZero())
-				Expect(*config.Spec.VSphereCSI.NonParavirtualConfig.VSphereVersion).Should(Equal("8.1.2-release"))
-				Expect(config.Spec.VSphereCSI.NonParavirtualConfig.HttpProxy).NotTo(BeZero())
-				Expect(*config.Spec.VSphereCSI.NonParavirtualConfig.HttpProxy).Should(Equal("1.1.1.1"))
-				Expect(config.Spec.VSphereCSI.NonParavirtualConfig.HttpsProxy).NotTo(BeZero())
-				Expect(*config.Spec.VSphereCSI.NonParavirtualConfig.HttpsProxy).Should(Equal("2.2.2.2"))
-				Expect(config.Spec.VSphereCSI.NonParavirtualConfig.NoProxy).NotTo(BeZero())
-				Expect(*config.Spec.VSphereCSI.NonParavirtualConfig.NoProxy).Should(Equal("3.3.3.3"))
+				Expect(config.Spec.VSphereCSI.NonParavirtualConfig.ProvisionTimeout).Should(Equal("33s"))
+				Expect(config.Spec.VSphereCSI.NonParavirtualConfig.AttachTimeout).Should(Equal("77s"))
+				Expect(config.Spec.VSphereCSI.NonParavirtualConfig.ResizerTimeout).Should(Equal("99s"))
+				Expect(config.Spec.VSphereCSI.NonParavirtualConfig.VSphereVersion).Should(Equal("8.1.2-release"))
+				Expect(config.Spec.VSphereCSI.NonParavirtualConfig.HttpProxy).Should(Equal("1.1.1.1"))
+				Expect(config.Spec.VSphereCSI.NonParavirtualConfig.HttpsProxy).Should(Equal("2.2.2.2"))
+				Expect(config.Spec.VSphereCSI.NonParavirtualConfig.NoProxy).Should(Equal("3.3.3.3"))
 				Expect(config.Spec.VSphereCSI.NonParavirtualConfig.DeploymentReplicas).NotTo(BeZero())
 				Expect(*config.Spec.VSphereCSI.NonParavirtualConfig.DeploymentReplicas).Should(Equal(int32(3)))
 				Expect(config.Spec.VSphereCSI.NonParavirtualConfig.WindowsSupport).NotTo(BeZero())
@@ -170,7 +161,7 @@ var _ = Describe("VSphereCSIConfig Reconciler", func() {
 			clusterName = "test-cluster-pv-csi"
 			clusterResourceFilePath = "testdata/test-csi-paravirtual.yaml"
 		})
-		It("Should reconcile VSphereCSIConfig and create data values secret for VSphereCSIConfig on management cluster", func() {
+		FIt("Should reconcile VSphereCSIConfig and create data values secret for VSphereCSIConfig on management cluster", func() {
 			// the data values secret should be generated
 			secret := &v1.Secret{}
 			Eventually(func() bool {

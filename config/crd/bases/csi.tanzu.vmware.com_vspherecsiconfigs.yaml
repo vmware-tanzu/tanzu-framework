@@ -85,6 +85,7 @@ spec:
                     required:
                     - clusterName
                     - datacenter
+                    - namespace
                     - password
                     - publicNetwork
                     - server

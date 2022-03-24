@@ -106,7 +106,7 @@ func (r *VSphereCSIConfigReconciler) reconcileVSphereCSIConfig(ctx context.Conte
 }
 
 func (r *VSphereCSIConfigReconciler) reconcileVSphereCSIConfigNormal(ctx context.Context,
-	csiCfg *csiv1alpha1.VSphereCSIConfig) (result ctrl.Result, retErr error) {
+	csiCfg *csiv1alpha1.VSphereCSIConfig) (ctrl.Result, error) {
 
 	logger := log.FromContext(ctx)
 
@@ -164,7 +164,7 @@ func (r *VSphereCSIConfigReconciler) reconcileVSphereCSIConfigNormal(ctx context
 
 	if err != nil {
 		logger.Error(err, "Error creating or patching VSphereCSIConfig data values secret")
-		return result, err
+		return ctrl.Result{}, err
 	}
 
 	logger.Info(fmt.Sprintf("'%s' the secret '%s'", opResult,
