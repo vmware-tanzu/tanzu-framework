@@ -5,7 +5,7 @@ directories:
       commitTitle: Add prefix to data hash, so it cannot be parsed as integer. (#2694)
       sha: 3b497a299c4d67377ca30036bd38e934794ca0f8
       tags:
-      - v0.10.0-dev.4-29-g3b497a29
+      - v0.10.0-rc.2-29-g3b497a29
     path: .
   path: ytt/vendir/vsphere_cpi/_ytt_lib
 - contents:
@@ -13,16 +13,15 @@ directories:
       commitTitle: Antrea disable UDP tunnel offload (#2723)
       sha: daa90ee40f373474c7714e72182b7ad784c2ffaf
       tags:
-      - v0.10.0-dev.4-36-gdaa90ee4
+      - v0.10.0-rc.2-36-gdaa90ee4
     path: .
   path: ytt/vendir/cni/_ytt_lib
 - contents:
   - git:
-      commitTitle: Add kapp controller init container to configure core DNS for cluster
-        IP access (#2727)...
-      sha: 1ce18be43347405d3dfbde4ba2cbb0d1e2fa0b41
+      commitTitle: Add 0.30.1 kapp-controller package (#3282)...
+      sha: 8dd25e7b14aa957db16745b1d38dad17a3fa5f63
       tags:
-      - v0.10.0-dev.4-39-g1ce18be4
+      - v0.11.0-dev.1-66-g8dd25e7b
     path: .
   path: ytt/vendir/kapp-controller/_ytt_lib
 kind: LockConfig
