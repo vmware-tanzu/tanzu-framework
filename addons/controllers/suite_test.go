@@ -318,11 +318,17 @@ var _ = BeforeSuite(func(done Done) {
 	err = (&cniv1alpha1.CalicoConfig{}).SetupWebhookWithManager(mgr)
 	Expect(err).ToNot(HaveOccurred())
 	err = (&webhooks.ClusterPause{Client: k8sClient}).SetupWebhookWithManager(mgr)
+	Expect(err).ToNot(HaveOccurred())
 	clusterbootstrapWebhook := addonwebhooks.ClusterBootstrap{
 		Client:          k8sClient,
 		SystemNamespace: addonNamespace,
 	}
 	err = clusterbootstrapWebhook.SetupWebhookWithManager(mgr)
+	Expect(err).ToNot(HaveOccurred())
+	clusterbootstrapTemplateWebhook := addonwebhooks.ClusterBootstrapTemplate{
+		SystemNamespace: addonNamespace,
+	}
+	err = clusterbootstrapTemplateWebhook.SetupWebhookWithManager(mgr)
 	Expect(err).ToNot(HaveOccurred())
 
 	go func() {

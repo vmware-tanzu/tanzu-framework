@@ -483,7 +483,6 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 						}
 						// Validate CNI
 						cni := upgradedClusterBootstrap.Spec.CNI
-						fmt.Println(cni.RefName)
 						Expect(strings.HasPrefix(cni.RefName, "antrea")).To(BeTrue())
 						Expect(cni.RefName).To(Equal("antrea.tanzu.vmware.com.1.2.3--vmware.4-tkg.2-advanced-zshippable"))
 						Expect(*cni.ValuesFrom.ProviderRef.APIGroup).To(Equal("cni.tanzu.vmware.com"))
@@ -492,7 +491,7 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 
 						// Validate Kapp
 						kapp := upgradedClusterBootstrap.Spec.Kapp
-						Expect(kapp.RefName).To(Equal("kapp-controller.tanzu.vmware.com.0.30.1"))
+						Expect(kapp.RefName).To(Equal("kapp-controller.tanzu.vmware.com.0.30.2"))
 						Expect(*kapp.ValuesFrom.ProviderRef.APIGroup).To(Equal("run.tanzu.vmware.com"))
 						Expect(kapp.ValuesFrom.ProviderRef.Kind).To(Equal("KappControllerConfig"))
 						Expect(kapp.ValuesFrom.ProviderRef.Name).To(Equal(fmt.Sprintf("%s-kapp-controller.tanzu.vmware.com-package", clusterName)))
@@ -520,10 +519,10 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 					}, waitTimeout, pollingInterval).Should(BeTrue())
 				})
 
-				By("Test mutating webhook", func() {
+				By("Test mutating webhook of ClusterBootstrap", func() {
 					// fetch the latest clusterbootstrap
 					Eventually(func() bool {
-						err := k8sClient.Get(ctx, client.ObjectKeyFromObject(cluster), clusterBootstrap)
+						err = k8sClient.Get(ctx, client.ObjectKeyFromObject(cluster), clusterBootstrap)
 						if err != nil {
 							return false
 						}
@@ -540,7 +539,6 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 					mutateClusterBootstrap.Spec.CNI = nil
 					err := k8sClient.Update(ctx, mutateClusterBootstrap)
 					Expect(err).To(HaveOccurred())
-					fmt.Println(err.Error())
 					Expect(strings.Contains(err.Error(), "spec.cni: Invalid value: \"null\": package can't be nil")).To(BeTrue())
 
 					// Kapp can't be nil
@@ -548,7 +546,6 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 					mutateClusterBootstrap.Spec.Kapp = nil
 					err = k8sClient.Update(ctx, mutateClusterBootstrap)
 					Expect(err).To(HaveOccurred())
-					fmt.Println(err.Error())
 					Expect(strings.Contains(err.Error(), "spec.kapp: Invalid value: \"null\": package can't be nil")).To(BeTrue())
 
 					// CSI can be nil
@@ -561,41 +558,51 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 					mutateClusterBootstrap = clusterBootstrap.DeepCopy()
 					mutateClusterBootstrap.Spec.CNI.RefName = "antrea.tanzu.vmware.com.1.2.5--vmware.1-tkg.1"
 					err = k8sClient.Update(ctx, mutateClusterBootstrap)
-					fmt.Println(err.Error())
 					Expect(strings.Contains(err.Error(), "\"antrea.tanzu.vmware.com.1.2.5--vmware.1-tkg.1\" not found")).To(BeTrue())
 
 					// Package Refname can't change
 					mutateClusterBootstrap = clusterBootstrap.DeepCopy()
 					mutateClusterBootstrap.Spec.CNI.RefName = "foobar1.example.com.1.17.2"
 					err = k8sClient.Update(ctx, mutateClusterBootstrap)
-					fmt.Println(err.Error())
 					Expect(strings.Contains(err.Error(), "new package refName and old package refName should be the same")).To(BeTrue())
 
 					// Package can't be downgraded
 					mutateClusterBootstrap = clusterBootstrap.DeepCopy()
 					mutateClusterBootstrap.Spec.CNI.RefName = "antrea.tanzu.vmware.com.0.13.3--vmware.1-tkg.1"
 					err = k8sClient.Update(ctx, mutateClusterBootstrap)
-					fmt.Println(err.Error())
 					Expect(strings.Contains(err.Error(), "package downgrade is not allowed")).To(BeTrue())
 
 					// Additional package can't be removed
 					mutateClusterBootstrap = clusterBootstrap.DeepCopy()
 					mutateClusterBootstrap.Spec.AdditionalPackages = mutateClusterBootstrap.Spec.AdditionalPackages[:len(mutateClusterBootstrap.Spec.AdditionalPackages)-1]
 					err = k8sClient.Update(ctx, mutateClusterBootstrap)
-					fmt.Println(err.Error())
 					Expect(strings.Contains(err.Error(), "missing updated additional package")).To(BeTrue())
 				})
 
-				By("Test validating webhook", func() {
+				By("Test validating webhook of ClusterBootstrap", func() {
 					namespace := "default"
 
-					// TODO: Add more testcases for ClusterBootstrap Validating webhook after rebase with the TKR upgrade PR
+					// TODO: Add more testcases for ClusterBootstrap Validating webhook
 					in := builder.ClusterBootstrap(namespace, "test-cb-1").
 						WithCNIPackage(builder.ClusterBootstrapPackage("cni.example.com.1.17.2").WithProviderRef("run.tanzu.vmware.com", "foo", "bar").Build()).
 						WithAdditionalPackage(builder.ClusterBootstrapPackage("pinniped.example.com.1.11.3").Build()).Build()
 
 					err = k8sClient.Create(ctx, in)
 					Expect(err).Should(HaveOccurred())
+				})
+
+				By("Test mutating webhook of ClusterBootstrapTemplate", func() {
+					// fetch the latest clusterbootstraptemplate
+					clusterBootstrapTemplate := &runtanzuv1alpha3.ClusterBootstrapTemplate{}
+					key := client.ObjectKey{Namespace: addonNamespace, Name: "v1.22.3"}
+					err = k8sClient.Get(ctx, key, clusterBootstrapTemplate)
+					Expect(err).ToNot(HaveOccurred())
+
+					// ClusterBootstrapTemplate should be immutable
+					clusterBootstrapTemplate.Spec.Kapp = nil
+					err = k8sClient.Update(ctx, clusterBootstrapTemplate)
+					Expect(err).Should(HaveOccurred())
+					Expect(strings.Contains(err.Error(), "ClusterBootstrapTemplate is immutable, update is not allowed")).To(BeTrue())
 				})
 			})
 		})

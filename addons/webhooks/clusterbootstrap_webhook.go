@@ -31,9 +31,6 @@ import (
 // log is for logging in this package.
 var clusterbootstraplog = logf.Log.WithName("clusterbootstrap-resource")
 
-//+kubebuilder:webhook:verbs=create;update,path=/validate-run-tanzu-vmware-com-v1alpha3-clusterbootstrap,mutating=false,failurePolicy=fail,groups=run.tanzu.vmware.com,resources=clusterbootstraps,versions=v1alpha3,name=vclusterbootstrap.kb.io
-//+kubebuilder:webhook:path=/mutate-run-tanzu-vmware-com-v1alpha3-clusterbootstrap,mutating=true,failurePolicy=fail,groups=run.tanzu.vmware.com,resources=clusterbootstraps,verbs=create;update,versions=v1alpha3,name=mclusterbootstrap.kb.io
-
 // ClusterBootstrap implements a validating and defaulting webhook for ClusterBootstrap.
 type ClusterBootstrap struct {
 	Client          client.Reader
@@ -68,6 +65,9 @@ func (wh *ClusterBootstrap) SetupWebhookWithManager(mgr ctrl.Manager) error {
 		Complete()
 }
 
+//+kubebuilder:webhook:verbs=create;update,path=/validate-run-tanzu-vmware-com-v1alpha3-clusterbootstrap,mutating=false,failurePolicy=fail,groups=run.tanzu.vmware.com,resources=clusterbootstraps,versions=v1alpha3,name=vclusterbootstrap.kb.io
+//+kubebuilder:webhook:path=/mutate-run-tanzu-vmware-com-v1alpha3-clusterbootstrap,mutating=true,failurePolicy=fail,groups=run.tanzu.vmware.com,resources=clusterbootstraps,verbs=create;update,versions=v1alpha3,name=mclusterbootstrap.kb.io
+
 var _ webhook.CustomDefaulter = &ClusterBootstrap{}
 var _ webhook.CustomValidator = &ClusterBootstrap{}
 
@@ -86,28 +86,29 @@ func (wh *ClusterBootstrap) ValidateCreate(ctx context.Context, obj runtime.Obje
 
 	clusterBootstrap, ok := obj.(*runv1alpha3.ClusterBootstrap)
 	if !ok {
-		return apierrors.NewBadRequest(fmt.Sprintf("expected a Cluster but got a %T", obj))
+		return apierrors.NewBadRequest(fmt.Sprintf("expected a ClusterBootstrap but got a %T", obj))
 	}
 	clusterbootstraplog.Info("validate create", "name", clusterBootstrap.Name)
 
 	var allErrs field.ErrorList
+	// Iterating one by one because we need field info for getFieldPath, and some core packages can be nil
 
-	if err := wh.ValidateClusterBootstrapPackage(ctx, clusterBootstrap.Spec.CNI, clusterBootstrap.Namespace, getFieldPath("cni")); err != nil {
+	if err := wh.validateClusterBootstrapPackage(ctx, clusterBootstrap.Spec.CNI, clusterBootstrap.Namespace, getFieldPath("cni")); err != nil {
 		allErrs = append(allErrs, err)
 	}
 
-	if err := wh.ValidateClusterBootstrapPackage(ctx, clusterBootstrap.Spec.Kapp, clusterBootstrap.Namespace, getFieldPath("kapp")); err != nil {
+	if err := wh.validateClusterBootstrapPackage(ctx, clusterBootstrap.Spec.Kapp, clusterBootstrap.Namespace, getFieldPath("kapp")); err != nil {
 		allErrs = append(allErrs, err)
 	}
 
 	// CSI and CPI can be nil
 	if clusterBootstrap.Spec.CSI != nil {
-		if err := wh.ValidateClusterBootstrapPackage(ctx, clusterBootstrap.Spec.CSI, clusterBootstrap.Namespace, getFieldPath("csi")); err != nil {
+		if err := wh.validateClusterBootstrapPackage(ctx, clusterBootstrap.Spec.CSI, clusterBootstrap.Namespace, getFieldPath("csi")); err != nil {
 			allErrs = append(allErrs, err)
 		}
 	}
 	if clusterBootstrap.Spec.CPI != nil {
-		if err := wh.ValidateClusterBootstrapPackage(ctx, clusterBootstrap.Spec.CPI, clusterBootstrap.Namespace, getFieldPath("cpi")); err != nil {
+		if err := wh.validateClusterBootstrapPackage(ctx, clusterBootstrap.Spec.CPI, clusterBootstrap.Namespace, getFieldPath("cpi")); err != nil {
 			allErrs = append(allErrs, err)
 		}
 	}
@@ -115,7 +116,7 @@ func (wh *ClusterBootstrap) ValidateCreate(ctx context.Context, obj runtime.Obje
 	if clusterBootstrap.Spec.AdditionalPackages != nil {
 		// validate additional packages
 		for _, pkg := range clusterBootstrap.Spec.AdditionalPackages {
-			if err := wh.ValidateClusterBootstrapPackage(ctx, pkg, clusterBootstrap.Namespace, getFieldPath("additionalPackages")); err != nil {
+			if err := wh.validateClusterBootstrapPackage(ctx, pkg, clusterBootstrap.Namespace, getFieldPath("additionalPackages")); err != nil {
 				allErrs = append(allErrs, err)
 			}
 		}
@@ -130,7 +131,8 @@ func (wh *ClusterBootstrap) ValidateCreate(ctx context.Context, obj runtime.Obje
 		clusterBootstrap.Name, allErrs)
 }
 
-func (wh *ClusterBootstrap) ValidateClusterBootstrapPackage(ctx context.Context, pkg *runv1alpha3.ClusterBootstrapPackage, clusterBootstrapNamespace string, fldPath *field.Path) *field.Error {
+// validateClusterBootstrapPackage validates content clusterBootstrapPackage
+func (wh *ClusterBootstrap) validateClusterBootstrapPackage(ctx context.Context, pkg *runv1alpha3.ClusterBootstrapPackage, clusterBootstrapNamespace string, fldPath *field.Path) *field.Error {
 	if pkg == nil {
 		return field.Invalid(fldPath, pkg, "package can't be nil")
 	}
@@ -141,47 +143,57 @@ func (wh *ClusterBootstrap) ValidateClusterBootstrapPackage(ctx context.Context,
 		return field.Invalid(fldPath.Child("refName"), pkg.RefName, err.Error())
 	}
 
-	// valuesFrom can't be nil
-	if pkg.ValuesFrom == nil {
-		return field.Invalid(fldPath.Child("valuesFrom"), pkg.ValuesFrom, "valuesFrom can't be nil")
+	if err := wh.validateValuesFrom(ctx, pkg.ValuesFrom, clusterBootstrapNamespace, fldPath.Child("valuesFrom")); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// validateValuesFrom validates content of valuesFrom
+func (wh *ClusterBootstrap) validateValuesFrom(ctx context.Context, valuesFrom *runv1alpha3.ValuesFrom, clusterBootstrapNamespace string, fldPath *field.Path) *field.Error {
+	// valuesFrom can be nil
+	if valuesFrom == nil {
+		return nil
 	}
 
 	// Currently, we don't allow more than one field from valuesFrom to be present
-	if (pkg.ValuesFrom.ProviderRef != nil && pkg.ValuesFrom.SecretRef != "") ||
-		(pkg.ValuesFrom.ProviderRef != nil && pkg.ValuesFrom.Inline != "") ||
-		(pkg.ValuesFrom.SecretRef != "" && pkg.ValuesFrom.Inline != "") {
-		return field.Invalid(fldPath.Child("valuesFrom"), pkg.ValuesFrom, "valuesFrom can't have more than one non-null subfield")
+	if (valuesFrom.ProviderRef != nil && valuesFrom.SecretRef != "") ||
+		(valuesFrom.ProviderRef != nil && valuesFrom.Inline != "") ||
+		(valuesFrom.SecretRef != "" && valuesFrom.Inline != "") {
+		return field.Invalid(fldPath, valuesFrom, "valuesFrom can't have more than one non-null subfield")
 	}
 
-	if pkg.ValuesFrom.ProviderRef != nil {
-		if pkg.ValuesFrom.ProviderRef.APIGroup == nil {
-			return field.Invalid(fldPath.Child("valuesFrom").Child("ProviderRef"), pkg.ValuesFrom.ProviderRef, "APIGroup can't be nil")
+	if valuesFrom.ProviderRef != nil {
+		if valuesFrom.ProviderRef.APIGroup == nil {
+			return field.Invalid(fldPath.Child("ProviderRef"), valuesFrom.ProviderRef, "APIGroup can't be nil")
 		}
 		//	validation for providerRef, i.e. check if GVR and CRD resource exist in cluster
-		gvr, err := wh.getGVR(schema.GroupKind{Group: *pkg.ValuesFrom.ProviderRef.APIGroup, Kind: pkg.ValuesFrom.ProviderRef.Kind})
+		gvr, err := wh.getGVR(schema.GroupKind{Group: *valuesFrom.ProviderRef.APIGroup, Kind: valuesFrom.ProviderRef.Kind})
 		if err != nil {
-			return field.Invalid(fldPath.Child("valuesFrom").Child("ProviderRef"), pkg.ValuesFrom.ProviderRef, err.Error())
+			return field.Invalid(fldPath.Child("ProviderRef"), valuesFrom.ProviderRef, err.Error())
 		}
-		_, err = wh.dynamicClient.Resource(*gvr).Namespace(clusterBootstrapNamespace).Get(ctx, pkg.ValuesFrom.ProviderRef.Name, metav1.GetOptions{})
+		_, err = wh.dynamicClient.Resource(*gvr).Namespace(clusterBootstrapNamespace).Get(ctx, valuesFrom.ProviderRef.Name, metav1.GetOptions{})
 		if err != nil {
-			return field.Invalid(fldPath.Child("valuesFrom").Child("ProviderRef"), pkg.ValuesFrom.ProviderRef, err.Error())
+			return field.Invalid(fldPath.Child("ProviderRef"), valuesFrom.ProviderRef, err.Error())
 		}
 	}
 
-	if pkg.ValuesFrom.SecretRef != "" {
+	if valuesFrom.SecretRef != "" {
 		// check if secretRef exists
 		valueSecret := &corev1.Secret{}
 		key := client.ObjectKey{
-			Name:      pkg.ValuesFrom.SecretRef,
+			Name:      valuesFrom.SecretRef,
 			Namespace: clusterBootstrapNamespace,
 		}
 		err := wh.Client.Get(ctx, key, valueSecret)
 		if err != nil {
-			return field.Invalid(fldPath.Child("valuesFrom").Child("SecretRef"), pkg.ValuesFrom.SecretRef, err.Error())
+			return field.Invalid(fldPath.Child("SecretRef"), valuesFrom.SecretRef, err.Error())
 		}
 	}
 
 	// TODO: validation for inline manifests? No-op for now
+
 	return nil
 }
 
@@ -224,7 +236,7 @@ func (wh *ClusterBootstrap) ValidateUpdate(ctx context.Context, oldObj, newObj r
 
 	// This function combines new package spec validation and package upgrade validation together
 	validateMandatoryCorePackageUpdate := func(ctx context.Context, old, new *runv1alpha3.ClusterBootstrapPackage, namespace string, fldPath *field.Path) *field.Error {
-		if err := wh.ValidateClusterBootstrapPackage(ctx, new, namespace, fldPath); err != nil {
+		if err := wh.validateClusterBootstrapPackage(ctx, new, namespace, fldPath); err != nil {
 			return err
 		}
 		if err := wh.ValidateClusterBootstrapPackageUpdate(ctx, old, new, fldPath); err != nil {
@@ -245,7 +257,7 @@ func (wh *ClusterBootstrap) ValidateUpdate(ctx context.Context, oldObj, newObj r
 	// CSI and CPI can be nil
 	validateOptionalCorePackageUpdate := func(ctx context.Context, old, new *runv1alpha3.ClusterBootstrapPackage, namespace string, fldPath *field.Path) *field.Error {
 		if new != nil {
-			if err := wh.ValidateClusterBootstrapPackage(ctx, new, namespace, fldPath); err != nil {
+			if err := wh.validateClusterBootstrapPackage(ctx, new, namespace, fldPath); err != nil {
 				return err
 			}
 			if old != nil {
@@ -271,7 +283,7 @@ func (wh *ClusterBootstrap) ValidateUpdate(ctx context.Context, oldObj, newObj r
 	if newClusterBootstrap.Spec.AdditionalPackages != nil {
 		for _, pkg := range newClusterBootstrap.Spec.AdditionalPackages {
 			// First make sure the new pkg is valid
-			if err := wh.ValidateClusterBootstrapPackage(ctx, pkg, namespace, addtionalPkgFldPath); err != nil {
+			if err := wh.validateClusterBootstrapPackage(ctx, pkg, namespace, addtionalPkgFldPath); err != nil {
 				allErrs = append(allErrs, err)
 				continue
 			}
