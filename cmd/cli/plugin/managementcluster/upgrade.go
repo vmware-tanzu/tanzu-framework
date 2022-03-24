@@ -49,6 +49,7 @@ var upgradeRegionCmd = &cobra.Command{
 	RunE: func(cmd *cobra.Command, args []string) error {
 		return runForCurrentMC(runUpgradeRegion)
 	},
+	SilenceUsage: true,
 }
 
 type upgradeRegionOptions struct {

@@ -87,6 +87,7 @@ var getClusterCmd = &cobra.Command{
 		}
 		return runForCurrentMC(getClusterDetails)
 	},
+	SilenceUsage: true,
 }
 
 func init() {

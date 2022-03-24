@@ -6,6 +6,7 @@ package main
 import "github.com/spf13/cobra"
 
 var credentialsCmd = &cobra.Command{
-	Use:   "credentials",
-	Short: "Update Credentials for Management Cluster",
+	Use:          "credentials",
+	Short:        "Update Credentials for Management Cluster",
+	SilenceUsage: true,
 }

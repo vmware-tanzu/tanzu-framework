@@ -50,9 +50,10 @@ type createClusterOptions struct {
 var cc = &createClusterOptions{}
 
 var createClusterCmd = &cobra.Command{
-	Use:   "create CLUSTER_NAME",
-	Short: "Create a cluster",
-	RunE:  create,
+	Use:          "create CLUSTER_NAME",
+	Short:        "Create a cluster",
+	RunE:         create,
+	SilenceUsage: true,
 }
 
 func init() {

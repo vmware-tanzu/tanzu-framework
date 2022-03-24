@@ -25,11 +25,12 @@ type setMachineHealthCheckNodeOptions struct {
 var setMHCNode = &setMachineHealthCheckNodeOptions{}
 
 var setMachineHealthCheckNodeCmd = &cobra.Command{
-	Use:   "set CLUSTER_NAME",
-	Short: "Create or update a MachineHealthCheck for a cluster",
-	Long:  "Create or update a MachineHealthCheck for a cluster",
-	Args:  cobra.ExactArgs(1),
-	RunE:  setMachineHealthCheckNode,
+	Use:          "set CLUSTER_NAME",
+	Short:        "Create or update a MachineHealthCheck for a cluster",
+	Long:         "Create or update a MachineHealthCheck for a cluster",
+	Args:         cobra.ExactArgs(1),
+	RunE:         setMachineHealthCheckNode,
+	SilenceUsage: true,
 }
 
 func init() {

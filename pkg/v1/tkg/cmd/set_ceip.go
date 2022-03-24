@@ -39,7 +39,7 @@ var setCeipCmd = &cobra.Command{
 func init() {
 	setCeipCmd.Flags().StringVarP(&isProd, "isProd", "", "", "use --isProd false to write telemetry data to the staging datastore")
 	setCeipCmd.Flags().MarkHidden("isProd") //nolint
-	setCeipCmd.Flags().StringVarP(&labels, "labels", "", "", "use --labels=entitlement-account-number=\"num1\",env-type=\"env\" to self-identify the customer's account number and environmment")
+	setCeipCmd.Flags().StringVarP(&labels, "labels", "", "", "use --labels=entitlement-account-number=\"num1\",env-type=\"env\" to self-identify the customer's account number and environment")
 	setCmd.AddCommand(setCeipCmd)
 }
 
