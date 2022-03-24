@@ -34,7 +34,7 @@ func main() {
 
 	p.Cmd.PersistentFlags().Int32VarP(&logLevel, "verbose", "v", 0, "Number for the log level verbosity(0-9)")
 	p.Cmd.PersistentFlags().StringVar(&logFile, "log-file", "", "Log file path")
-
+	p.Cmd.SilenceUsage = true
 	p.AddCommands(
 		createClusterCmd,
 		listClustersCmd,

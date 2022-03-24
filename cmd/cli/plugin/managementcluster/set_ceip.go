@@ -11,17 +11,18 @@ var isProd string
 var labels string
 
 var setCeipCmd = &cobra.Command{
-	Use:   "set OPT_IN_BOOL",
-	Short: "Set the opt-in preference for CEIP",
-	Long:  "Set the opt-in preference for CEIP of the current management cluster",
-	Args:  cobra.ExactArgs(1),
-	RunE:  runSetCeip,
+	Use:          "set OPT_IN_BOOL",
+	Short:        "Set the opt-in preference for CEIP",
+	Long:         "Set the opt-in preference for CEIP of the current management cluster",
+	Args:         cobra.ExactArgs(1),
+	RunE:         runSetCeip,
+	SilenceUsage: true,
 }
 
 func init() {
 	setCeipCmd.Flags().StringVarP(&isProd, "isProd", "", "", "use --isProd false to write telemetry data to the staging datastore")
 	setCeipCmd.Flags().MarkHidden("isProd") //nolint
-	setCeipCmd.Flags().StringVarP(&labels, "labels", "", "", "use --labels=entitlement-account-number=\"num1\",env-type=\"env\" to self-identify the customer's account number and environmment")
+	setCeipCmd.Flags().StringVarP(&labels, "labels", "", "", "use --labels=entitlement-account-number=\"num1\",env-type=\"env\" to self-identify the customer's account number and environment")
 	ceipCmd.AddCommand(setCeipCmd)
 }
 

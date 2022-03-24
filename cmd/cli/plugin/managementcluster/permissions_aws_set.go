@@ -8,10 +8,11 @@ import (
 )
 
 var setAWSPermissionsCmd = &cobra.Command{
-	Use:   "set",
-	Short: "Configure permissions on AWS",
-	Long:  `Configure permissions on AWS`,
-	RunE:  setAWSPermissions,
+	Use:          "set",
+	Short:        "Configure permissions on AWS",
+	Long:         `Configure permissions on AWS`,
+	RunE:         setAWSPermissions,
+	SilenceUsage: true,
 }
 
 type awsPermissionsOptions struct {

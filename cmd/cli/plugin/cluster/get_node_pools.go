@@ -29,10 +29,11 @@ type listNodePoolOptions struct {
 var lnp = &listNodePoolOptions{}
 
 var listNodePoolsCmd = &cobra.Command{
-	Use:   "list [CLUSTER_NAME]",
-	Short: "List node pools",
-	Args:  cobra.ExactArgs(1),
-	RunE:  listNodePools,
+	Use:          "list [CLUSTER_NAME]",
+	Short:        "List node pools",
+	Args:         cobra.ExactArgs(1),
+	RunE:         listNodePools,
+	SilenceUsage: true,
 }
 
 func init() {

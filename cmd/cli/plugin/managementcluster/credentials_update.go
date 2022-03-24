@@ -34,6 +34,7 @@ var credentialsUpdateCmd = &cobra.Command{
 
 		return updateClusterCredentials(clusterName)
 	},
+	SilenceUsage: true,
 }
 
 func init() {

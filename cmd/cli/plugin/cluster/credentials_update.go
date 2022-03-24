@@ -24,10 +24,11 @@ type updateCredentialsOptions struct {
 var updateCredentialsOpts = updateCredentialsOptions{}
 
 var credentialsUpdateCmd = &cobra.Command{
-	Use:   "update CLUSTER_NAME",
-	Short: "Update credentials for a cluster",
-	Args:  cobra.ExactArgs(1),
-	RunE:  updateCredentials,
+	Use:          "update CLUSTER_NAME",
+	Short:        "Update credentials for a cluster",
+	Args:         cobra.ExactArgs(1),
+	RunE:         updateCredentials,
+	SilenceUsage: true,
 }
 
 func init() {

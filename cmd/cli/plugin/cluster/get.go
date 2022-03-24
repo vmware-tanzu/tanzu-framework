@@ -46,10 +46,11 @@ var cd = &getClustersOptions{}
 var cmdOutput io.Writer
 
 var getClustersCmd = &cobra.Command{
-	Use:   "get CLUSTER_NAME",
-	Short: "Get details from a cluster",
-	Args:  cobra.ExactArgs(1),
-	RunE:  get,
+	Use:          "get CLUSTER_NAME",
+	Short:        "Get details from a cluster",
+	Args:         cobra.ExactArgs(1),
+	RunE:         get,
+	SilenceUsage: true,
 }
 
 func init() {

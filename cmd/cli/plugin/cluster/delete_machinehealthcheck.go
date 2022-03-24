@@ -21,11 +21,12 @@ type deleteMachineHealthCheckOptions struct {
 var deleteMHC = &deleteMachineHealthCheckOptions{}
 
 var deleteMachineHealthCheckCmd = &cobra.Command{
-	Use:   "delete CLUSTER_NAME",
-	Short: "Delete a MachineHealthCheck object of a cluster",
-	Long:  "Delete a MachineHealthCheck object of a cluster",
-	Args:  cobra.ExactArgs(1),
-	RunE:  deleteMachineHealthCheck,
+	Use:          "delete CLUSTER_NAME",
+	Short:        "Delete a MachineHealthCheck object of a cluster",
+	Long:         "Delete a MachineHealthCheck object of a cluster",
+	Args:         cobra.ExactArgs(1),
+	RunE:         deleteMachineHealthCheck,
+	SilenceUsage: true,
 }
 
 func init() {

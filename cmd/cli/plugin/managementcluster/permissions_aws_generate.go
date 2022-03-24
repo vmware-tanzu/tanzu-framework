@@ -10,10 +10,11 @@ import (
 )
 
 var generateAWSCloudFormationTemplateCmd = &cobra.Command{
-	Use:   "generate-cloudformation-template",
-	Short: "Generate AWS CloudFormation Template",
-	Long:  `Generate AWS CloudFormation Template`,
-	RunE:  generateCloudFormationTemplate,
+	Use:          "generate-cloudformation-template",
+	Short:        "Generate AWS CloudFormation Template",
+	Long:         `Generate AWS CloudFormation Template`,
+	RunE:         generateCloudFormationTemplate,
+	SilenceUsage: true,
 }
 
 func init() {

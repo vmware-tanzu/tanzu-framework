@@ -36,7 +36,8 @@ var getClusterKubeconfigCmd = &cobra.Command{
 	
 	# Get management cluster admin kubeconfig
 	tanzu management-cluster kubeconfig get --admin`,
-	RunE: getKubeconfig,
+	RunE:         getKubeconfig,
+	SilenceUsage: true,
 }
 
 func init() {

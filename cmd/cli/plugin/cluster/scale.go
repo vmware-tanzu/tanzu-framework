@@ -24,10 +24,11 @@ type scaleClustersOptions struct {
 var sc = &scaleClustersOptions{}
 
 var scaleClusterCmd = &cobra.Command{
-	Use:   "scale CLUSTER_NAME",
-	Short: "Scale a cluster",
-	Args:  cobra.ExactArgs(1),
-	RunE:  scale,
+	Use:          "scale CLUSTER_NAME",
+	Short:        "Scale a cluster",
+	Args:         cobra.ExactArgs(1),
+	RunE:         scale,
+	SilenceUsage: true,
 }
 
 func init() {

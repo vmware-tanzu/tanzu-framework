@@ -69,7 +69,8 @@ var upgradeClusterCmd = &cobra.Command{
     --os-name ubuntu --os-version 20.04 --os-arch amd64
     --os-name ubuntu --os-version 18.04 --os-arch amd64
 `,
-	RunE: upgrade,
+	RunE:         upgrade,
+	SilenceUsage: true,
 }
 
 func init() {

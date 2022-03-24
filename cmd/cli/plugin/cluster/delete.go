@@ -22,10 +22,11 @@ type deleteClustersOptions struct {
 var dc = &deleteClustersOptions{}
 
 var deleteClusterCmd = &cobra.Command{
-	Use:   "delete CLUSTER_NAME",
-	Short: "Delete a cluster",
-	Args:  cobra.ExactArgs(1),
-	RunE:  deleteCmd,
+	Use:          "delete CLUSTER_NAME",
+	Short:        "Delete a cluster",
+	Args:         cobra.ExactArgs(1),
+	RunE:         deleteCmd,
+	SilenceUsage: true,
 }
 
 func init() {

@@ -447,6 +447,17 @@ func (t *Test) ExecContainsErrorString(contains string) error {
 	return nil
 }
 
+// ExecContainsStdErrorString executes the command and checks if the StdError contains the given string.
+func (t *Test) ExecNotContainsStdErrorString(contains string) error {
+	err := ExecNotContainsStdErrorString(t.Command, contains)
+	if err != nil {
+		t.Result.Error(err)
+		return err
+	}
+	t.Result.Success()
+	return nil
+}
+
 // ExecContainsErrorString checks that the given command stdErr output contains the string
 func ExecContainsErrorString(command, contains string) error {
 	_, stdErr, err := Exec(command)
@@ -454,6 +465,24 @@ func ExecContainsErrorString(command, contains string) error {
 		return err
 	}
 	return ContainsString(stdErr, contains)
+}
+
+// ExecContainsStdErrorString checks that the given command stdErr output contains the string
+func ExecNotContainsStdErrorString(command, contains string) error {
+	_, stdErr, err := Exec(command)
+	if err != nil && stdErr == nil {
+		return err
+	}
+	return NotContainsString(stdErr, contains)
+}
+
+// NotContainsString checks that the given buffer not contains the string if contains then throws error.
+func NotContainsString(stdOut *bytes.Buffer, contains string) error {
+	so := stdOut.String()
+	if strings.Contains(so, contains) {
+		return fmt.Errorf("stdOut %q contains %q", so, contains)
+	}
+	return nil
 }
 
 // ContainsString checks that the given buffer contains the string.

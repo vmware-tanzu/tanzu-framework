@@ -4,7 +4,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"os"
 
@@ -14,7 +13,6 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/command/plugin"
 	clitest "github.com/vmware-tanzu/tanzu-framework/pkg/v1/test/cli"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
 )
 
 const (
@@ -32,8 +30,6 @@ type testConfig struct {
 
 var tconf *testConfig
 var descriptor = cli.NewTestFor("cluster")
-var createManagementClusterTest *clitest.Test
-var deleteManagementCusterTest *clitest.Test
 
 var _ = func() error {
 	tconf = &testConfig{}
@@ -72,45 +68,9 @@ func (c *testConfig) defaults() {
 }
 
 func init() {
-	mcConfigFile, err := os.CreateTemp("", tconf.ManagementClusterName)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	createMcCommand := fmt.Sprintf("management-cluster create -v3 -f %s", mcConfigFile.Name())
-	createManagementClusterTest = clitest.NewTest("create management-cluster", createMcCommand, func(t *clitest.Test) error {
-		defer os.Remove(mcConfigFile.Name())
-
-		configVars := make(map[string]string)
-		configVars[constants.ConfigVariableClusterName] = tconf.ManagementClusterName
-		configVars[constants.ConfigVariableClusterPlan] = "dev"
-		configVars[constants.ConfigVariableInfraProvider] = tconf.InfrastructureName
-		configVars[constants.ConfigVariableCNI] = "calico"
-
-		out, err := yaml.Marshal(configVars)
-		if err != nil {
-			return err
-		}
-
-		if err := os.WriteFile(mcConfigFile.Name(), out, 0644); err != nil {
-			return err
-		}
-
-		if err := t.ExecContainsErrorString("Management cluster created!"); err != nil {
-			return err
-		}
-
-		return nil
-	})
-
-	deleteManagementCusterTest = clitest.NewTest("delete management-cluster", "management-cluster delete -v3 -y --force", func(t *clitest.Test) error {
-		if err := t.Exec(); err != nil {
-			return err
-		}
-
-		return nil
-	})
 	// Init the tests as per the dependency
+	initManagementCluster()
+	initClusterSilentModeUsecases()
 	initCreate()
 	initAvailableUpgrades()
 	initDelete()
@@ -132,6 +92,14 @@ func test(c *cobra.Command, _ []string) error {
 	m := clitest.NewMain("cluster", c, Cleanup)
 	defer m.Finish()
 
+	err := silenceUsageMCTestCases(m)
+	if err != nil {
+		return err
+	}
+	err = silenceUsageClusterTestCases(m)
+	if err != nil {
+		return err
+	}
 	// create management-cluster
 	if !tconf.UseExistingCluster {
 		m.AddTest(createManagementClusterTest)
@@ -170,6 +138,100 @@ func test(c *cobra.Command, _ []string) error {
 		}
 	}
 
+	return nil
+}
+
+func silenceUsageMCTestCases(m *clitest.Main) error {
+	// Test use case# management-cluster : SilenceUsage: true
+	m.AddTest(managementClusterUnAvailableSubCommandTest)
+	if err := managementClusterUnAvailableSubCommandTest.Run(); err != nil {
+		return err
+	}
+
+	// Test use case# management-cluster ceip-participation set : SilenceUsage: true
+	m.AddTest(mcCeipSetSilent)
+	if err := mcCeipSetSilent.Run(); err != nil {
+		return err
+	}
+
+	// Test use case# management-cluster create -nonExistsFlag : SilenceUsage: true :
+	m.AddTest(mcCreateNonExistsFlag)
+	if err := mcCreateNonExistsFlag.Run(); err != nil {
+		return err
+	}
+	return nil
+}
+
+func silenceUsageClusterTestCases(m *clitest.Main) error {
+	// Test use case# cluster create : SilenceUsage: true
+	m.AddTest(createClusterNegTestSilentMode)
+	if err := createClusterNegTestSilentMode.Run(); err != nil {
+		return err
+	}
+
+	// Test use case# cluster delete : SilenceUsage: true
+	m.AddTest(deleteClusterNegTestSilentMode)
+	if err := deleteClusterNegTestSilentMode.Run(); err != nil {
+		return err
+	}
+
+	// Test use case# cluster available-upgrades get  : SilenceUsage: true
+	m.AddTest(availableUpgradesGetNegTestSilentMode)
+	if err := availableUpgradesGetNegTestSilentMode.Run(); err != nil {
+		return err
+	}
+
+	// Test use case# cluster available-upgrades get  : SilenceUsage: true
+	m.AddTest(credUpdateNegTestSilentMode)
+	if err := credUpdateNegTestSilentMode.Run(); err != nil {
+		return err
+	}
+	// Test use case: cluster get : SilenceUsage : true
+	m.AddTest(clusterGetTestSilentMode)
+	if err := clusterGetTestSilentMode.Run(); err != nil {
+		return err
+	}
+	// Test use case: cluster kubeconfig get : SilenceUsage : true
+	m.AddTest(clusterKubeconfGetSilentMode)
+	if err := clusterKubeconfGetSilentMode.Run(); err != nil {
+		return err
+	}
+
+	// Test use case: cluster machinehealthcheck node get : SilenceUsage : true
+	m.AddTest(clusterMHGet)
+	if err := clusterMHGet.Run(); err != nil {
+		return err
+	}
+
+	// Test use case: cluster node-pool set : SilenceUsage : true
+	m.AddTest(clusterNodePoolSetSilentMode)
+	if err := clusterNodePoolSetSilentMode.Run(); err != nil {
+		return err
+	}
+
+	// Test use case: cluster node-pool list : SilenceUsage : true
+	m.AddTest(clusterNodePoolListSilentMode)
+	if err := clusterNodePoolListSilentMode.Run(); err != nil {
+		return err
+	}
+
+	// Test use case: cluster node-pool delete : SilenceUsage : true
+	m.AddTest(clusterNodePoolDeleteSilentMode)
+	if err := clusterNodePoolDeleteSilentMode.Run(); err != nil {
+		return err
+	}
+
+	// Test use case: cluster scale : SilenceUsage : true
+	m.AddTest(clusterScaleSilentMode)
+	if err := clusterScaleSilentMode.Run(); err != nil {
+		return err
+	}
+
+	// Test use case: cluster upgrade : SilenceUsage : true
+	m.AddTest(clusterUpgradeSilentMode)
+	if err := clusterUpgradeSilentMode.Run(); err != nil {
+		return err
+	}
 	return nil
 }
 
