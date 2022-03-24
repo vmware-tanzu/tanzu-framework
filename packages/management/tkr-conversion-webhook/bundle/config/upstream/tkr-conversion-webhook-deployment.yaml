@@ -1,0 +1,45 @@
+#@ load("@ytt:data", "data")
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: tkr-conversion-webhook
+  name: tkr-conversion-webhook-manager
+  namespace: #@ data.values.tkrConversionWebhook.namespace
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: tkr-conversion-webhook
+  template:
+    metadata:
+      labels:
+        app: tkr-conversion-webhook
+    spec:
+      containers:
+      - image: tkr-conversion-webhook:latest
+        imagePullPolicy: IfNotPresent
+        name: manager
+        command:
+        - /manager
+        resources:
+          limits:
+            cpu: 100m
+            memory: 30Mi
+          requests:
+            cpu: 100m
+            memory: 20Mi
+        ports:
+        - containerPort: 9443
+          name: webhook-server
+          protocol: TCP
+        volumeMounts:
+        - mountPath: /tmp/k8s-webhook-server/serving-certs
+          name: cert
+          readOnly: true
+      terminationGracePeriodSeconds: 10
+      volumes:
+      - name: cert
+        secret:
+          secretName: tkr-conversion-webhook-service-cert

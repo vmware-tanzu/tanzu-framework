@@ -1,0 +1,15 @@
+apiVersion: vendir.k14s.io/v1alpha1
+directories:
+- contents:
+  - manual: {}
+    path: certificates.yaml
+  - manual: {}
+    path: service.yaml
+  - manual: {}
+    path: tkr-conversion-webhook-deployment.yaml
+  - manual: {}
+    path: osimage-crd.yaml
+  - manual: {}
+    path: tkr-crd.yaml
+  path: bundle/config/upstream
+kind: LockConfig

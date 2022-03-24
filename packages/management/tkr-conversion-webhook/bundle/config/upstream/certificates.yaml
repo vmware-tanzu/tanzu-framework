@@ -1,0 +1,25 @@
+#@ load("@ytt:data", "data")
+---
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  labels:
+  name: tkr-conversion-webhook-selfsigned-issuer
+  namespace: #@ data.values.tkrConversionWebhook.namespace
+spec:
+  selfSigned: {}
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  labels:
+  name: tkr-conversion-webhook-serving-cert
+  namespace: #@ data.values.tkrConversionWebhook.namespace
+spec:
+  dnsNames:
+  - #@ "tkr-conversion-webhook-service.{}.svc".format(data.values.tkrConversionWebhook.namespace)
+  - #@ "tkr-conversion-webhook-service-cert.{}.svc.cluster.local".format(data.values.tkrConversionWebhook.namespace)
+  issuerRef:
+    kind: Issuer
+    name: tkr-conversion-webhook-selfsigned-issuer
+  secretName: tkr-conversion-webhook-service-cert

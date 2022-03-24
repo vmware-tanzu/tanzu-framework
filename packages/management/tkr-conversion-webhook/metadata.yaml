@@ -1,0 +1,16 @@
+apiVersion: data.packaging.carvel.dev/v1alpha1
+kind: PackageMetadata
+metadata:
+  name: tkr-conversion-webhook.tanzu.vmware.com
+  namespace: tkr-conversion-webhook
+spec:
+  displayName: "tkr-conversion-webhook"
+  longDescription: "Conversion Webhook which enables conversion between v1alpha1 and v1alpha3 versions of TKR API."
+  shortDescription: "Conversion Webhook for TKR APIs"
+  providerName: VMware
+  maintainers:
+    - name: "Prem Kalle"
+    - name: "Ivan Mikushin"
+    - name: "Shashank Girish"
+  categories:
+    - "tkr conversion"
