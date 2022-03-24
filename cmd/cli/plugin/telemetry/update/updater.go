@@ -1,3 +1,7 @@
+// Copyright 2022 VMware, Inc. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
+
+// Package update contains logic for the update subcommand
 package update
 
 import (
@@ -103,7 +107,6 @@ func (u *Updater) UpdateIdentifiers(ctx context.Context, identifierVals []Update
 		if err != nil {
 			return err
 		}
-
 	} else if err != nil {
 		return err
 	} else {

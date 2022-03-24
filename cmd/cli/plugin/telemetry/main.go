@@ -1,3 +1,6 @@
+// Copyright 2022 VMware, Inc. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
+
 package main
 
 import (
@@ -8,6 +11,7 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/buildinfo"
 
 	"github.com/aunum/log"
+
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/component"
 
 	cliv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"

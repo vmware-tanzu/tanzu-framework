@@ -1,3 +1,6 @@
+// Copyright 2022 VMware, Inc. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
+
 package status_test
 
 import (
@@ -19,8 +22,8 @@ func TestStatus(t *testing.T) {
 
 		configMap := strings.Split(r.URL.Path, "/api/v1/namespaces/vmware-system-telemetry/configmaps/")[1]
 		switch configMap {
-		case "vmware-telemetry-identifiers":
-			w.Write([]byte(`{
+		case kubernetes.SharedIdsConfigMapName:
+			_, err := w.Write([]byte(`{
 				"kind": "ConfigMap",
 				"apiVersion": "v1",
 				"metadata": {
@@ -35,8 +38,11 @@ func TestStatus(t *testing.T) {
 					"env_is_prod": "true"
 				}
 			}`))
-		case "vmware-telemetry-cluster-ceip":
-			w.Write([]byte(`{
+			if err != nil {
+				t.Fail()
+			}
+		case kubernetes.CeipConfigMapName:
+			_, err := w.Write([]byte(`{
 				"kind": "ConfigMap",
 				"apiVersion": "v1",
 				"metadata": {
@@ -49,6 +55,9 @@ func TestStatus(t *testing.T) {
 					"level": "standard"
 				}
 			}`))
+			if err != nil {
+				t.Fail()
+			}
 		}
 	})
 	assert.NoError(t, err)
@@ -82,9 +91,9 @@ func TestStatus_IgnoreNotFoundErrors(t *testing.T) {
 
 		configMap := strings.Split(r.URL.Path, "/api/v1/namespaces/vmware-system-telemetry/configmaps/")[1]
 		switch configMap {
-		case "vmware-telemetry-cluster-ceip":
+		case kubernetes.CeipConfigMapName:
 			w.WriteHeader(http.StatusNotFound)
-			w.Write([]byte(`{
+			_, err := w.Write([]byte(`{
 					"kind": "Status",
 					"apiVersion": "v1",
 					"metadata": {},
@@ -97,9 +106,12 @@ func TestStatus_IgnoreNotFoundErrors(t *testing.T) {
 						"kind": "configmap"
 					},
 					"code": 404}`))
-		case "vmware-telemetry-identifiers":
+			if err != nil {
+				t.Fail()
+			}
+		case kubernetes.SharedIdsConfigMapName:
 			w.WriteHeader(http.StatusNotFound)
-			w.Write([]byte(`{
+			_, err := w.Write([]byte(`{
 					"kind": "Status",
 					"apiVersion": "v1",
 					"metadata": {},
@@ -112,6 +124,9 @@ func TestStatus_IgnoreNotFoundErrors(t *testing.T) {
 						"kind": "configmap"
 					},
 					"code": 404}`))
+			if err != nil {
+				t.Fail()
+			}
 		}
 	})
 	assert.NoError(t, err)
@@ -142,9 +157,9 @@ func TestStatus_CeipConfigMapError(t *testing.T) {
 
 		configMap := strings.Split(r.URL.Path, "/api/v1/namespaces/vmware-system-telemetry/configmaps/")[1]
 		switch configMap {
-		case "vmware-telemetry-cluster-ceip":
+		case kubernetes.CeipConfigMapName:
 			w.WriteHeader(http.StatusForbidden)
-			w.Write([]byte(`{
+			_, err := w.Write([]byte(`{
 					"kind": "Status",
 					"apiVersion": "v1",
 					"metadata": {},
@@ -157,6 +172,9 @@ func TestStatus_CeipConfigMapError(t *testing.T) {
 						"kind": "configmap"
 					},
 					"code": 403}`))
+			if err != nil {
+				t.Fail()
+			}
 		}
 	})
 	assert.NoError(t, err)
@@ -182,10 +200,9 @@ func TestStatus_IdsConfigMapError(t *testing.T) {
 
 		configMap := strings.Split(r.URL.Path, "/api/v1/namespaces/vmware-system-telemetry/configmaps/")[1]
 		switch configMap {
-		case "vmware-telemetry-cluster-ceip":
+		case kubernetes.CeipConfigMapName:
 			w.WriteHeader(http.StatusNotFound)
-			w.Write([]byte(`{
-					"kind": "Status",
+			_, err := w.Write([]byte(`{					"kind": "Status",
 					"apiVersion": "v1",
 					"metadata": {},
 					"status": "Failure",
@@ -197,10 +214,13 @@ func TestStatus_IdsConfigMapError(t *testing.T) {
 						"kind": "configmap"
 					},
 					"code": 404}`))
+			if err != nil {
+				t.Fail()
+			}
 
-		case "vmware-telemetry-identifiers":
+		case kubernetes.SharedIdsConfigMapName:
 			w.WriteHeader(http.StatusForbidden)
-			w.Write([]byte(`{
+			_, err := w.Write([]byte(`{
 					"kind": "Status",
 					"apiVersion": "v1",
 					"metadata": {},
@@ -213,6 +233,9 @@ func TestStatus_IdsConfigMapError(t *testing.T) {
 						"kind": "configmap"
 					},
 					"code": 403}`))
+			if err != nil {
+				t.Fail()
+			}
 		}
 	})
 	assert.NoError(t, err)

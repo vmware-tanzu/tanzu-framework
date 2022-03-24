@@ -1,3 +1,6 @@
+// Copyright 2022 VMware, Inc. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
+
 package cmd
 
 import (
@@ -10,12 +13,13 @@ import (
 	"github.com/spf13/pflag"
 
 	"github.com/spf13/cobra"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/component"
 	"k8s.io/client-go/dynamic"
+
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/component"
 )
 
 var (
-	ean, cspOrgId, envIsProd string
+	ean, cspOrgID, envIsProd string
 	ceipOptIn, ceipOptOut    bool
 )
 
@@ -59,7 +63,7 @@ func NewUpdateCmd(clientGetter func() (dynamic.Interface, error), out component.
 	uc.Cmd.Flags().StringVar(&ean, UpdateEanFlag, "", `Accepts a string and sets a cluster-wide
                                 entitlement account number. Empty string is
                                 equivalent to unsetting this value`)
-	uc.Cmd.Flags().StringVar(&cspOrgId, UpdateCspOrgFlag, "", `Accepts a string and sets a cluster-wide CSP
+	uc.Cmd.Flags().StringVar(&cspOrgID, UpdateCspOrgFlag, "", `Accepts a string and sets a cluster-wide CSP
                                 org ID. Empty string is equivalent to
                                 unsetting this value.`)
 	uc.Cmd.Flags().StringVar(&envIsProd, UpdateEnvIsProdFlag, "", `Accepts a boolean and sets a cluster-wide

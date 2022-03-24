@@ -1,3 +1,6 @@
+// Copyright 2022 VMware, Inc. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
+
 package update_test
 
 import (
@@ -19,10 +22,10 @@ func TestUpdateCeip_NoPreviousConfiguration(t *testing.T) {
 	clf, srv, err := kubernetes.GetKubernetesClientServer(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", runtime.ContentTypeJSON)
 		switch r.URL.Path {
-		case "/api/v1/namespaces/vmware-system-telemetry":
+		case kubernetes.TelemetryNamespaceURI:
 			assert.Equal(t, r.Method, http.MethodGet)
 			w.WriteHeader(http.StatusNotFound)
-			w.Write([]byte(`{
+			_, err := w.Write([]byte(`{
 					"kind": "Status",
 					"apiVersion": "v1",
 					"metadata": {},
@@ -35,24 +38,30 @@ func TestUpdateCeip_NoPreviousConfiguration(t *testing.T) {
 						"kind": "namespace"
 					},
 					"code": 404}`))
-		case "/api/v1/namespaces":
+			if err != nil {
+				t.Fail()
+			}
+		case kubernetes.NamespacesURI:
 			assert.Equal(t, r.Method, http.MethodPost)
 			namespaceCreated = true
 			buf, err := ioutil.ReadAll(r.Body)
 			assert.NoError(t, err)
 			assert.Contains(t, string(buf), `"name":"vmware-system-telemetry"`)
 			w.WriteHeader(http.StatusCreated)
-			w.Write([]byte(`{
+			_, err = w.Write([]byte(`{
 				  "kind": "Namespace",
 				  "apiVersion": "v1",
 				  "metadata": {
 					"name": "vmware-system-telemetry"
 				  }
 				}`))
-		case "/api/v1/namespaces/vmware-system-telemetry/configmaps/vmware-telemetry-cluster-ceip":
+			if err != nil {
+				t.Fail()
+			}
+		case kubernetes.CeipConfigMapURI:
 			assert.Equal(t, r.Method, http.MethodGet)
 			w.WriteHeader(http.StatusNotFound)
-			w.Write([]byte(`{
+			_, err := w.Write([]byte(`{
 					"kind": "Status",
 					"apiVersion": "v1",
 					"metadata": {},
@@ -65,21 +74,26 @@ func TestUpdateCeip_NoPreviousConfiguration(t *testing.T) {
 						"kind": "configmap"
 					},
 					"code": 404}`))
-		case "/api/v1/namespaces/vmware-system-telemetry/configmaps":
+			if err != nil {
+				t.Fail()
+			}
+		case kubernetes.ConfigMapsURI:
 			assert.Equal(t, r.Method, http.MethodPost)
 			buf, err := ioutil.ReadAll(r.Body)
 			assert.NoError(t, err)
 			assert.Contains(t, string(buf), `"level":"standard"`)
 			ceipUpdated = true
 			w.WriteHeader(http.StatusCreated)
-			w.Write([]byte(`{
+			_, err = w.Write([]byte(`{
 				  "kind": "ConfigMap",
 				  "apiVersion": "v1",
 				  "metadata": {
 					"name": "vmware-telemetry-cluster-ceip"
 				  }
 				}`))
-
+			if err != nil {
+				t.Fail()
+			}
 		}
 	})
 	assert.NoError(t, err)
@@ -100,20 +114,23 @@ func TestUpdateCeip_CreateConfigMapError(t *testing.T) {
 	clf, srv, err := kubernetes.GetKubernetesClientServer(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", runtime.ContentTypeJSON)
 		switch r.URL.Path {
-		case "/api/v1/namespaces/vmware-system-telemetry":
+		case kubernetes.TelemetryNamespaceURI:
 			assert.Equal(t, r.Method, http.MethodGet)
 			w.WriteHeader(http.StatusOK)
-			w.Write([]byte(`{
+			_, err := w.Write([]byte(`{
 				  "kind": "Namespace",
 				  "apiVersion": "v1",
 				  "metadata": {
 					"name": "vmware-system-telemetry"
 				  }
 				}`))
-		case "/api/v1/namespaces/vmware-system-telemetry/configmaps/vmware-telemetry-cluster-ceip":
+			if err != nil {
+				t.Fail()
+			}
+		case kubernetes.CeipConfigMapURI:
 			assert.Equal(t, r.Method, http.MethodGet)
 			w.WriteHeader(http.StatusNotFound)
-			w.Write([]byte(`{
+			_, err := w.Write([]byte(`{
 					"kind": "Status",
 					"apiVersion": "v1",
 					"metadata": {},
@@ -126,10 +143,13 @@ func TestUpdateCeip_CreateConfigMapError(t *testing.T) {
 						"kind": "configmap"
 					},
 					"code": 404}`))
-		case "/api/v1/namespaces/vmware-system-telemetry/configmaps":
+			if err != nil {
+				t.Fail()
+			}
+		case kubernetes.ConfigMapsURI:
 			assert.Equal(t, r.Method, http.MethodPost)
 			w.WriteHeader(http.StatusForbidden)
-			w.Write([]byte(`{
+			_, err := w.Write([]byte(`{
 			  "kind": "Status",
 			  "apiVersion": "v1",
 			  "metadata": {},
@@ -142,7 +162,9 @@ func TestUpdateCeip_CreateConfigMapError(t *testing.T) {
 			  },
 			  "code": 403
 			}`))
-
+			if err != nil {
+				t.Fail()
+			}
 		}
 	})
 	assert.NoError(t, err)
@@ -167,20 +189,23 @@ func TestUpdateCeip_GetConfigMapError(t *testing.T) {
 		w.Header().Set("Content-Type", runtime.ContentTypeJSON)
 
 		switch r.URL.Path {
-		case "/api/v1/namespaces/vmware-system-telemetry":
+		case kubernetes.TelemetryNamespaceURI:
 			assert.Equal(t, r.Method, http.MethodGet)
 			w.WriteHeader(http.StatusOK)
-			w.Write([]byte(`{
+			_, err := w.Write([]byte(`{
 				  "kind": "Namespace",
 				  "apiVersion": "v1",
 				  "metadata": {
 					"name": "vmware-system-telemetry"
 				  }
 				}`))
-		case "/api/v1/namespaces/vmware-system-telemetry/configmaps/vmware-telemetry-cluster-ceip":
+			if err != nil {
+				t.Fail()
+			}
+		case kubernetes.CeipConfigMapURI:
 			assert.Equal(t, r.Method, http.MethodGet)
 			w.WriteHeader(http.StatusForbidden)
-			w.Write([]byte(`{
+			_, err := w.Write([]byte(`{
 					"kind": "Status",
 					"apiVersion": "v1",
 					"metadata": {},
@@ -193,6 +218,9 @@ func TestUpdateCeip_GetConfigMapError(t *testing.T) {
 						"kind": "configmap"
 					},
 					"code": 403}`))
+			if err != nil {
+				t.Fail()
+			}
 		}
 	})
 	assert.NoError(t, err)
@@ -216,21 +244,24 @@ func TestUpdateCeip_UpdateConfigMapError(t *testing.T) {
 	clf, srv, err := kubernetes.GetKubernetesClientServer(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", runtime.ContentTypeJSON)
 		switch r.URL.Path {
-		case "/api/v1/namespaces/vmware-system-telemetry":
+		case kubernetes.TelemetryNamespaceURI:
 			assert.Equal(t, r.Method, http.MethodGet)
 			w.WriteHeader(http.StatusOK)
-			w.Write([]byte(`{
+			_, err := w.Write([]byte(`{
 				  "kind": "Namespace",
 				  "apiVersion": "v1",
 				  "metadata": {
 					"name": "vmware-system-telemetry"
 				  }
 				}`))
-		case "/api/v1/namespaces/vmware-system-telemetry/configmaps/vmware-telemetry-cluster-ceip":
+			if err != nil {
+				t.Fail()
+			}
+		case kubernetes.CeipConfigMapURI:
 			switch r.Method {
 			case http.MethodGet:
 				w.WriteHeader(http.StatusOK)
-				w.Write([]byte(`{
+				_, err := w.Write([]byte(`{
 					"apiVersion": "v1",
 					"data": {
 						"level": "disabled"
@@ -241,10 +272,13 @@ func TestUpdateCeip_UpdateConfigMapError(t *testing.T) {
 						"namespace": "vmware-system-telemetry",
 						"uid": "464177f9-4e0a-4c83-b1cc-a8197788de24"}
 					}`))
+				if err != nil {
+					t.Fail()
+				}
 
 			case http.MethodPut:
 				w.WriteHeader(http.StatusForbidden)
-				w.Write([]byte(`{
+				_, err := w.Write([]byte(`{
 					"kind": "Status",
 					"apiVersion": "v1",
 					"metadata": {},
@@ -257,6 +291,9 @@ func TestUpdateCeip_UpdateConfigMapError(t *testing.T) {
 					},
 					"code": 403
 				}`))
+				if err != nil {
+					t.Fail()
+				}
 			}
 		}
 	})
@@ -283,34 +320,40 @@ func TestUpdateCeip_PreviousConfigurationExists(t *testing.T) {
 		w.Header().Set("Content-Type", runtime.ContentTypeJSON)
 
 		switch r.URL.Path {
-		case "/api/v1/namespaces/vmware-system-telemetry":
+		case kubernetes.TelemetryNamespaceURI:
 			assert.Equal(t, r.Method, http.MethodGet)
 			w.WriteHeader(http.StatusOK)
-			w.Write([]byte(`{
+			_, err := w.Write([]byte(`{
 				  "kind": "Namespace",
 				  "apiVersion": "v1",
 				  "metadata": {
 					"name": "vmware-system-telemetry"
 				  }
 				}`))
-		case "/api/v1/namespaces":
+			if err != nil {
+				t.Fail()
+			}
+		case kubernetes.NamespacesURI:
 			assert.Equal(t, r.Method, http.MethodPost)
 			buf, err := ioutil.ReadAll(r.Body)
 			assert.NoError(t, err)
 			assert.Contains(t, string(buf), `"name":"vmware-system-telemetry"`)
 			w.WriteHeader(http.StatusCreated)
-			w.Write([]byte(`{
+			_, err = w.Write([]byte(`{
 				  "kind": "Namespace",
 				  "apiVersion": "v1",
 				  "metadata": {
 					"name": "vmware-system-telemetry"
 				  }
 				}`))
-		case "/api/v1/namespaces/vmware-system-telemetry/configmaps/vmware-telemetry-cluster-ceip":
+			if err != nil {
+				t.Fail()
+			}
+		case kubernetes.CeipConfigMapURI:
 			switch r.Method {
 			case http.MethodGet:
 				w.WriteHeader(http.StatusOK)
-				w.Write([]byte(`{
+				_, err := w.Write([]byte(`{
 					"apiVersion": "v1",
 					"data": {
 						"level": "disabled"
@@ -321,6 +364,9 @@ func TestUpdateCeip_PreviousConfigurationExists(t *testing.T) {
 						"namespace": "vmware-system-telemetry",
 						"uid": "464177f9-4e0a-4c83-b1cc-a8197788de24"}
 					}`))
+				if err != nil {
+					t.Fail()
+				}
 
 			case http.MethodPut:
 				w.WriteHeader(http.StatusOK)
@@ -328,7 +374,7 @@ func TestUpdateCeip_PreviousConfigurationExists(t *testing.T) {
 				assert.NoError(t, err)
 				assert.Contains(t, string(buf), `"level":"standard"`)
 				ceipUpdated = true
-				w.Write([]byte(`{
+				_, err = w.Write([]byte(`{
 					"apiVersion": "v1",
 					"data": {
 						"level": "standard"
@@ -339,23 +385,28 @@ func TestUpdateCeip_PreviousConfigurationExists(t *testing.T) {
 						"namespace": "vmware-system-telemetry",
 						"uid": "464177f9-4e0a-4c83-b1cc-a8197788de24"}
 					}`))
+				if err != nil {
+					t.Fail()
+				}
 			}
 
-		case "/api/v1/namespaces/vmware-system-telemetry/configmaps":
+		case kubernetes.ConfigMapsURI:
 			assert.Equal(t, r.Method, http.MethodPost)
 			buf, err := ioutil.ReadAll(r.Body)
 			assert.NoError(t, err)
 			assert.Contains(t, string(buf), `"level":"standard"`)
 			ceipUpdated = true
 			w.WriteHeader(http.StatusCreated)
-			w.Write([]byte(`{
+			_, err = w.Write([]byte(`{
 				  "kind": "ConfigMap",
 				  "apiVersion": "v1",
 				  "metadata": {
 					"name": "vmware-telemetry-cluster-ceip"
 				  }
 				}`))
-
+			if err != nil {
+				t.Fail()
+			}
 		}
 	})
 	assert.NoError(t, err)
@@ -374,10 +425,10 @@ func TestUpdateCeip_PreviousConfigurationExists(t *testing.T) {
 func TestUpdateCeip_FailToFindNamespace(t *testing.T) {
 	clf, srv, err := kubernetes.GetKubernetesClientServer(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", runtime.ContentTypeJSON)
-		if r.URL.Path == "/api/v1/namespaces/vmware-system-telemetry" {
+		if r.URL.Path == kubernetes.TelemetryNamespaceURI {
 			assert.Equal(t, r.Method, http.MethodGet)
 			w.WriteHeader(http.StatusForbidden)
-			w.Write([]byte(`{
+			_, err := w.Write([]byte(`{
 			  "kind": "Status",
 			  "apiVersion": "v1",
 			  "metadata": {
@@ -392,6 +443,9 @@ func TestUpdateCeip_FailToFindNamespace(t *testing.T) {
 			  },
 			  "code": 403
 			}`))
+			if err != nil {
+				t.Fail()
+			}
 		}
 	})
 
@@ -418,10 +472,10 @@ func TestUpdateIdentifiers_NoPreviousConfiguration(t *testing.T) {
 	clf, srv, err := kubernetes.GetKubernetesClientServer(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", runtime.ContentTypeJSON)
 		switch r.URL.Path {
-		case "/api/v1/namespaces/vmware-system-telemetry":
+		case kubernetes.TelemetryNamespaceURI:
 			assert.Equal(t, r.Method, http.MethodGet)
 			w.WriteHeader(http.StatusNotFound)
-			w.Write([]byte(`{
+			_, err := w.Write([]byte(`{
 					"kind": "Status",
 					"apiVersion": "v1",
 					"metadata": {},
@@ -434,37 +488,46 @@ func TestUpdateIdentifiers_NoPreviousConfiguration(t *testing.T) {
 						"kind": "namespace"
 					},
 					"code": 404}`))
-		case "/api/v1/namespaces":
+			if err != nil {
+				t.Fail()
+			}
+		case kubernetes.NamespacesURI:
 			assert.Equal(t, r.Method, http.MethodPost)
 			namespaceCreated = true
 			buf, err := ioutil.ReadAll(r.Body)
 			assert.NoError(t, err)
 			assert.Contains(t, string(buf), `"name":"vmware-system-telemetry"`)
 			w.WriteHeader(http.StatusCreated)
-			w.Write([]byte(`{
+			_, err = w.Write([]byte(`{
 				  "kind": "Namespace",
 				  "apiVersion": "v1",
 				  "metadata": {
 					"name": "vmware-system-telemetry"
 				  }
 				}`))
-		case "/api/v1/namespaces/vmware-system-telemetry/configmaps/vmware-telemetry-identifiers":
+			if err != nil {
+				t.Fail()
+			}
+		case kubernetes.SharedIdsConfigMapURI:
 			if r.Method == http.MethodPut {
 				buf, err := ioutil.ReadAll(r.Body)
 				assert.NoError(t, err)
 				assert.Contains(t, string(buf), `"data":{"key-1":"val-1","key-2":"val-2"`)
 				identifiersUpdated = true
 				w.WriteHeader(http.StatusOK)
-				w.Write([]byte(`{
+				_, err = w.Write([]byte(`{
 				  "kind": "ConfigMap",
 				  "apiVersion": "v1",
 				  "metadata": {
 					"name": "vmware-telemetry-identifiers"
 				  }
 				}`))
+				if err != nil {
+					t.Fail()
+				}
 			} else if r.Method == http.MethodGet {
 				w.WriteHeader(http.StatusNotFound)
-				w.Write([]byte(`{
+				_, err := w.Write([]byte(`{
 					"kind": "Status",
 					"apiVersion": "v1",
 					"metadata": {},
@@ -477,22 +540,27 @@ func TestUpdateIdentifiers_NoPreviousConfiguration(t *testing.T) {
 						"kind": "configmap"
 					},
 					"code": 404}`))
+				if err != nil {
+					t.Fail()
+				}
 			}
-		case "/api/v1/namespaces/vmware-system-telemetry/configmaps":
+		case kubernetes.ConfigMapsURI:
 			assert.Equal(t, r.Method, http.MethodPost)
 			buf, err := ioutil.ReadAll(r.Body)
 			assert.NoError(t, err)
 			assert.Contains(t, string(buf), `"name":"vmware-telemetry-identifiers"`)
 			identifiersCreated = true
 			w.WriteHeader(http.StatusCreated)
-			w.Write([]byte(`{
+			_, err = w.Write([]byte(`{
 				  "kind": "ConfigMap",
 				  "apiVersion": "v1",
 				  "metadata": {
 					"name": "vmware-telemetry-identifiers"
 				  }
 				}`))
-
+			if err != nil {
+				t.Fail()
+			}
 		}
 	})
 	assert.NoError(t, err)
@@ -519,33 +587,39 @@ func TestUpdateIdentifiers_UpdateOnlyChangedIdentifiers(t *testing.T) {
 	clf, srv, err := kubernetes.GetKubernetesClientServer(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", runtime.ContentTypeJSON)
 		switch r.URL.Path {
-		case "/api/v1/namespaces/vmware-system-telemetry":
+		case kubernetes.TelemetryNamespaceURI:
 			assert.Equal(t, r.Method, http.MethodGet)
 			w.WriteHeader(http.StatusOK)
-			w.Write([]byte(`{
+			_, err := w.Write([]byte(`{
 				  "kind": "Namespace",
 				  "apiVersion": "v1",
 				  "metadata": {
 					"name": "vmware-system-telemetry"
 				  }
 				}`))
-		case "/api/v1/namespaces/vmware-system-telemetry/configmaps/vmware-telemetry-identifiers":
+			if err != nil {
+				t.Fail()
+			}
+		case kubernetes.SharedIdsConfigMapURI:
 			if r.Method == http.MethodPut {
 				buf, err := ioutil.ReadAll(r.Body)
 				assert.NoError(t, err)
 				assert.Contains(t, string(buf), `"data":{"key-1":"val-1","key-2":"val-2","key-3":"val-3"`)
 				identifiersUpdated = true
 				w.WriteHeader(http.StatusOK)
-				w.Write([]byte(`{
+				_, err = w.Write([]byte(`{
 				  "kind": "ConfigMap",
 				  "apiVersion": "v1",
 				  "metadata": {
 					"name": "vmware-telemetry-identifiers"
 				  }
 				}`))
+				if err != nil {
+					t.Fail()
+				}
 			} else if r.Method == http.MethodGet {
 				w.WriteHeader(http.StatusOK)
-				w.Write([]byte(`{
+				_, err := w.Write([]byte(`{
 					"apiVersion": "v1",
 					"data": {
 						"key-1": "val-1",
@@ -558,6 +632,9 @@ func TestUpdateIdentifiers_UpdateOnlyChangedIdentifiers(t *testing.T) {
 						"uid": "464177f9-4e0a-4c83-b1cc-a8197788de24"
 					}
 				}`))
+				if err != nil {
+					t.Fail()
+				}
 			}
 		}
 	})
@@ -583,20 +660,23 @@ func TestUpdateIdentifiers_CreateConfigMapError(t *testing.T) {
 	clf, srv, err := kubernetes.GetKubernetesClientServer(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", runtime.ContentTypeJSON)
 		switch r.URL.Path {
-		case "/api/v1/namespaces/vmware-system-telemetry":
+		case kubernetes.TelemetryNamespaceURI:
 			assert.Equal(t, r.Method, http.MethodGet)
 			w.WriteHeader(http.StatusOK)
-			w.Write([]byte(`{
+			_, err := w.Write([]byte(`{
 				  "kind": "Namespace",
 				  "apiVersion": "v1",
 				  "metadata": {
 					"name": "vmware-system-telemetry"
 				  }
 				}`))
-		case "/api/v1/namespaces/vmware-system-telemetry/configmaps/vmware-telemetry-identifiers":
+			if err != nil {
+				t.Fail()
+			}
+		case kubernetes.SharedIdsConfigMapURI:
 			assert.Equal(t, r.Method, http.MethodGet)
 			w.WriteHeader(http.StatusNotFound)
-			w.Write([]byte(`{
+			_, err := w.Write([]byte(`{
 					"kind": "Status",
 					"apiVersion": "v1",
 					"metadata": {},
@@ -609,10 +689,13 @@ func TestUpdateIdentifiers_CreateConfigMapError(t *testing.T) {
 						"kind": "configmap"
 					},
 					"code": 404}`))
-		case "/api/v1/namespaces/vmware-system-telemetry/configmaps":
+			if err != nil {
+				t.Fail()
+			}
+		case kubernetes.ConfigMapsURI:
 			assert.Equal(t, r.Method, http.MethodPost)
 			w.WriteHeader(http.StatusForbidden)
-			w.Write([]byte(`{
+			_, err := w.Write([]byte(`{
 			  "kind": "Status",
 			  "apiVersion": "v1",
 			  "metadata": {},
@@ -625,6 +708,9 @@ func TestUpdateIdentifiers_CreateConfigMapError(t *testing.T) {
 			  },
 			  "code": 403
 			}`))
+			if err != nil {
+				t.Fail()
+			}
 		}
 	})
 	assert.NoError(t, err)
@@ -649,20 +735,23 @@ func TestUpdateIdentifiers_GetConfigMapError(t *testing.T) {
 		w.Header().Set("Content-Type", runtime.ContentTypeJSON)
 
 		switch r.URL.Path {
-		case "/api/v1/namespaces/vmware-system-telemetry":
+		case kubernetes.TelemetryNamespaceURI:
 			assert.Equal(t, r.Method, http.MethodGet)
 			w.WriteHeader(http.StatusOK)
-			w.Write([]byte(`{
+			_, err := w.Write([]byte(`{
 				  "kind": "Namespace",
 				  "apiVersion": "v1",
 				  "metadata": {
 					"name": "vmware-system-telemetry"
 				  }
 				}`))
-		case "/api/v1/namespaces/vmware-system-telemetry/configmaps/vmware-telemetry-identifiers":
+			if err != nil {
+				t.Fail()
+			}
+		case kubernetes.SharedIdsConfigMapURI:
 			assert.Equal(t, r.Method, http.MethodGet)
 			w.WriteHeader(http.StatusForbidden)
-			w.Write([]byte(`{
+			_, err := w.Write([]byte(`{
 					"kind": "Status",
 					"apiVersion": "v1",
 					"metadata": {},
@@ -675,6 +764,9 @@ func TestUpdateIdentifiers_GetConfigMapError(t *testing.T) {
 						"kind": "configmap"
 					},
 					"code": 403}`))
+			if err != nil {
+				t.Fail()
+			}
 		}
 	})
 	assert.NoError(t, err)
@@ -698,21 +790,24 @@ func TestUpdateIdentifiers_UpdateConfigMapError(t *testing.T) {
 	clf, srv, err := kubernetes.GetKubernetesClientServer(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", runtime.ContentTypeJSON)
 		switch r.URL.Path {
-		case "/api/v1/namespaces/vmware-system-telemetry":
+		case kubernetes.TelemetryNamespaceURI:
 			assert.Equal(t, r.Method, http.MethodGet)
 			w.WriteHeader(http.StatusOK)
-			w.Write([]byte(`{
+			_, err := w.Write([]byte(`{
 				  "kind": "Namespace",
 				  "apiVersion": "v1",
 				  "metadata": {
 					"name": "vmware-system-telemetry"
 				  }
 				}`))
-		case "/api/v1/namespaces/vmware-system-telemetry/configmaps/vmware-telemetry-identifiers":
+			if err != nil {
+				t.Fail()
+			}
+		case kubernetes.SharedIdsConfigMapURI:
 			switch r.Method {
 			case http.MethodGet:
 				w.WriteHeader(http.StatusOK)
-				w.Write([]byte(`{
+				_, err := w.Write([]byte(`{
 					"apiVersion": "v1",
 					"data": {
 						"key-1": "val-1"
@@ -723,10 +818,13 @@ func TestUpdateIdentifiers_UpdateConfigMapError(t *testing.T) {
 						"namespace": "vmware-system-telemetry",
 						"uid": "464177f9-4e0a-4c83-b1cc-a8197788de24"}
 					}`))
+				if err != nil {
+					t.Fail()
+				}
 
 			case http.MethodPut:
 				w.WriteHeader(http.StatusForbidden)
-				w.Write([]byte(`{
+				_, err := w.Write([]byte(`{
 					"kind": "Status",
 					"apiVersion": "v1",
 					"metadata": {},
@@ -739,6 +837,9 @@ func TestUpdateIdentifiers_UpdateConfigMapError(t *testing.T) {
 					},
 					"code": 403
 				}`))
+				if err != nil {
+					t.Fail()
+				}
 			}
 		}
 	})
@@ -762,10 +863,10 @@ func TestUpdateIdentifiers_UpdateConfigMapError(t *testing.T) {
 func TestUpdateIdentifiers_FailToFindNamespace(t *testing.T) {
 	clf, srv, err := kubernetes.GetKubernetesClientServer(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", runtime.ContentTypeJSON)
-		if r.URL.Path == "/api/v1/namespaces/vmware-system-telemetry" {
+		if r.URL.Path == kubernetes.TelemetryNamespaceURI {
 			assert.Equal(t, r.Method, http.MethodGet)
 			w.WriteHeader(http.StatusForbidden)
-			w.Write([]byte(`{
+			_, err := w.Write([]byte(`{
 			  "kind": "Status",
 			  "apiVersion": "v1",
 			  "metadata": {
@@ -780,6 +881,9 @@ func TestUpdateIdentifiers_FailToFindNamespace(t *testing.T) {
 			  },
 			  "code": 403
 			}`))
+			if err != nil {
+				t.Fail()
+			}
 		}
 	})
 

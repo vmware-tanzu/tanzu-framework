@@ -1,3 +1,6 @@
+// Copyright 2022 VMware, Inc. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
+
 package kubernetes
 
 import (
@@ -12,7 +15,7 @@ import (
 // We expect a KUBECONFIG env var to be set for cluster targeting
 func GetDynamicClient() (dynamic.Interface, error) {
 	path := os.Getenv("KUBECONFIG")
-	if len(path) == 0 {
+	if path == "" {
 		return nil, errors.New("KUBECONFIG must be set for the telemetry command")
 	}
 

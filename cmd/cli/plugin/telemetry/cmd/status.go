@@ -1,11 +1,15 @@
+// Copyright 2022 VMware, Inc. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
+
 package cmd
 
 import (
 	"github.com/vmware-tanzu/tanzu-framework/cmd/cli/plugin/telemetry/status"
 
 	"github.com/spf13/cobra"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/component"
 	"k8s.io/client-go/dynamic"
+
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/component"
 )
 
 type StatusCmd struct {

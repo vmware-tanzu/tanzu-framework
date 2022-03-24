@@ -1,11 +1,13 @@
+// Copyright 2022 VMware, Inc. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
+
+// Package status contains logic for the status subcommand
 package status
 
 import (
 	"context"
 	"fmt"
 
-	"github.com/vmware-tanzu/tanzu-framework/cmd/cli/plugin/telemetry/kubernetes"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/component"
 	"gopkg.in/yaml.v2"
 	v1core "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
@@ -13,6 +15,9 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	runtimeschema "k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/client-go/dynamic"
+
+	"github.com/vmware-tanzu/tanzu-framework/cmd/cli/plugin/telemetry/kubernetes"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/component"
 )
 
 type Printer struct {
@@ -48,13 +53,16 @@ func (s Printer) getStatus(namespace, configMapName string) (string, error) {
 		return "", err
 	} else {
 		var configMap v1core.ConfigMap
-		runtime.DefaultUnstructuredConverter.FromUnstructured(configMapUnstructured.UnstructuredContent(), &configMap)
+		err = runtime.DefaultUnstructuredConverter.FromUnstructured(configMapUnstructured.UnstructuredContent(), &configMap)
+		if err != nil {
+			return "", err
+		}
 
 		yamlData, err := yaml.Marshal(configMap.Data)
 		if err != nil {
 			return "", err
 		}
 
-		return fmt.Sprintf("%s", yamlData), nil
+		return string(yamlData), nil
 	}
 }
