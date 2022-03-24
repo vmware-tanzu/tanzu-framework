@@ -2,15 +2,15 @@ load("@ytt:data", "data")
 load("@ytt:assert", "assert")
 
 def validate_vsphereCPI():
-   data.values.vsphereCPI.server or assert.fail("vsphereCPI server should be provided")
-   data.values.vsphereCPI.datacenter or assert.fail("vsphereCPI datacenter should be provided")
-   data.values.vsphereCPI.username or assert.fail("vsphereCPI username should be provided")
-   data.values.vsphereCPI.password or assert.fail("vsphereCPI password should be provided")
+   data.values.vsphereCPI.server != "" or assert.fail("vsphereCPI server should be provided")
+   data.values.vsphereCPI.datacenter != "" or assert.fail("vsphereCPI datacenter should be provided")
+   data.values.vsphereCPI.username != "" or assert.fail("vsphereCPI username should be provided")
+   data.values.vsphereCPI.password != "" or assert.fail("vsphereCPI password should be provided")
    if not data.values.vsphereCPI.insecureFlag:
      data.values.vsphereCPI.tlsThumbprint or assert.fail("vsphereCPI tlsThumbprint should be provided when insecureFlag is False")
    end
-   if data.values.vsphereCPI.ipFamily and (data.values.vsphereCPI.ipFamily not in ["ipv4", "ipv6"]):
-     assert.fail("vsphereCPI ipFamily should be either ipv4 or ipv6 if provided")
+   if data.values.vsphereCPI.ipFamily and (data.values.vsphereCPI.ipFamily not in ["ipv4", "ipv6", "ipv4,ipv6", "ipv6,ipv4"]):
+     assert.fail("vsphereCPI ipFamily should be one of \"ipv4\", \"ipv6\", \"ipv4,ipv6\", or \"ipv6,ipv4\" if provided")
    end
 end
 
@@ -37,7 +37,7 @@ def validate_nsxt_cert():
 end
 
 def validate_nsxt_secret():
-   if data.values.vsphereCPI.nsxt.secretName == "" or data.values.vsphereCPI.nsxt.secretNamespace == "" or validate_nsxt_username_password() == False:
+   if data.values.vsphereCPI.nsxt.secretName == "" or data.values.vsphereCPI.nsxt.secretNamespace == "":
      return False
    end
    return True

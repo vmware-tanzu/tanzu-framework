@@ -50,14 +50,12 @@ var _ = Describe("Windows Ytt Templating", func() {
 			"TKG_DEFAULT_BOM":             "tkg-bom-v1.4.0.yaml",
 			"KUBERNETES_RELEASE":          "v1.21.2---vmware.1-tkg.1",
 			"CORE_DNS_IP":                 "10.64.0.10",
+			"CLUSTER_CIDR":                "192.168.1.0/16",
 		})
-
-		// Printing these values helps for debugging the ytt command if needed
-		fmt.Println(values)
 
 		// useful debugging information that we don't actually need for day-to-day testing
 		rawClusterAPIYaml, err := ytt.RenderYTTTemplate(ytt.CommandOptions{}, paths, strings.NewReader(values))
-		Expect(err).NotTo(HaveOccurred())
+		Expect(err).NotTo(HaveOccurred(), values)
 
 		// Test 1: Making sure that we have a few basic ClusterAPI objects in the windows templates...
 

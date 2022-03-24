@@ -2,10 +2,10 @@ apiVersion: vendir.k14s.io/v1alpha1
 directories:
 - contents:
   - git:
-      commitTitle: Add prefix to data hash, so it cannot be parsed as integer. (#2694)
-      sha: 3b497a299c4d67377ca30036bd38e934794ca0f8
+      commitTitle: Add vsphere-cpi 1.22.6 1.21.3 1.20.1 (#3757)...
+      sha: 944389be7a7905deddedfe0db2ab21ac4454bd2d
       tags:
-      - v0.10.0-rc.2-29-g3b497a29
+      - v0.12.0-dev.1-129-g944389be
     path: .
   path: ytt/vendir/vsphere_cpi/_ytt_lib
 - contents:
