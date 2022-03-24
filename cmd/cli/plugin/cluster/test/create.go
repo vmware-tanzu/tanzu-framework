@@ -25,7 +25,7 @@ const (
 	devPlanName = "dev"
 )
 
-func initCreate() {
+func initClusterCreate() {
 	clusterName = tconf.ClusterPrefix + clitest.GenerateName()
 	plan = devPlanName
 

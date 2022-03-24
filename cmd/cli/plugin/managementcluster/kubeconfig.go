@@ -8,6 +8,7 @@ import (
 )
 
 var clusterKubeconfigCmd = &cobra.Command{
-	Use:   "kubeconfig",
-	Short: "Kubeconfig of management cluster",
+	Use:          "kubeconfig",
+	Short:        "Kubeconfig of management cluster",
+	SilenceUsage: true,
 }

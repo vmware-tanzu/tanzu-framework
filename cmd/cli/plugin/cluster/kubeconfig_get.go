@@ -36,8 +36,9 @@ var getClusterKubeconfigCmd = &cobra.Command{
 
     # Get workload cluster admin kubeconfig
     tanzu cluster kubeconfig get CLUSTER_NAME --admin`,
-	Args: cobra.ExactArgs(1),
-	RunE: getKubeconfig,
+	Args:         cobra.ExactArgs(1),
+	RunE:         getKubeconfig,
+	SilenceUsage: true,
 }
 
 func init() {

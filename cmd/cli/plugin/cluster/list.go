@@ -25,9 +25,10 @@ type listClusterOptions struct {
 var lc = &listClusterOptions{}
 
 var listClustersCmd = &cobra.Command{
-	Use:   "list",
-	Short: "List clusters",
-	RunE:  list,
+	Use:          "list",
+	Short:        "List clusters",
+	RunE:         list,
+	SilenceUsage: true,
 }
 
 func init() {

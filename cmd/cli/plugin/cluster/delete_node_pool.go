@@ -21,11 +21,12 @@ type deleteNodePoolOptions struct {
 var deleteNP = &deleteNodePoolOptions{}
 
 var deleteNodePoolCmd = &cobra.Command{
-	Use:   "delete CLUSTER_NAME",
-	Short: "Delete a NodePool object of a cluster",
-	Long:  "Delete a NodePool object of a cluster",
-	Args:  cobra.ExactArgs(1),
-	RunE:  deleteNodePool,
+	Use:          "delete CLUSTER_NAME",
+	Short:        "Delete a NodePool object of a cluster",
+	Long:         "Delete a NodePool object of a cluster",
+	Args:         cobra.ExactArgs(1),
+	RunE:         deleteNodePool,
+	SilenceUsage: true,
 }
 
 func init() {

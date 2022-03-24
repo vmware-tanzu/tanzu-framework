@@ -39,6 +39,7 @@ var importCmd = &cobra.Command{
 	RunE: func(cmd *cobra.Command, args []string) error {
 		return runImport(importOption.file)
 	},
+	SilenceUsage: true,
 }
 
 func init() {
