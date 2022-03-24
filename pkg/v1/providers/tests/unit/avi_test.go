@@ -190,6 +190,7 @@ var _ = Describe("AKO-operator Ytt Templating", func() {
 			"VSPHERE_FOLDER":             "ds0",
 			"VSPHERE_SSH_AUTHORIZED_KEY": "ssh-rsa AAAA...+M7Q== vmware-tanzu.local",
 			"VSPHERE_INSECURE":           "true",
+			"CLUSTER_CIDR":               "192.168.1.0/16",
 
 			// required avi related values
 			"AVI_USERNAME":              AviUsername,
