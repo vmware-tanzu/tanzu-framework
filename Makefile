@@ -58,7 +58,7 @@ endif
 # NPM registry to use for downloading node modules for UI build
 CUSTOM_NPM_REGISTRY ?= $(shell git config tkg.npmregistry)
 
-# TKG Compatibility Image repo and  path related configuration
+# TKG Compatibility Image repo and path related configuration
 # These set the defaults after a fresh install in ~/.config/tanzu/config.yaml
 # Users can change these values by running commands like:
 # tanzu config set cli.edition tce
@@ -715,8 +715,8 @@ docker-all: docker-build docker-publish kbld-image-replace ## Ship Docker images
 ## --------------------------------------
 
 .PHONY: create-package
-create-package: ## Stub out new package directories and manifests. Usage: make create-management-package PACKAGE_NAME=foobar
-	@hack/packages/scripts/create-package.sh $(PACKAGE_REPOSITORY) $(PACKAGE_NAME)
+create-package: ## Stub out new package directories and manifests. Usage: make create-package PACKAGE_NAME=foobar
+	@hack/packages/scripts/create-package.sh $(PACKAGE_NAME)
 
 .PHONY: prep-package-tools
 prep-package-tools:
@@ -724,7 +724,7 @@ prep-package-tools:
 
 .PHONY: package-bundle
 package-bundle: tools prep-package-tools ## Build one specific tar bundle package, needs PACKAGE_NAME VERSION
-	cd hack/packages/package-tools && $(GO) run main.go package-bundle generate $(PACKAGE_NAME) --repository=$(PACKAGE_REPOSITORY) --version=$(PACKAGE_VERSION) --sub-version=$(PACKAGE_SUB_VERSION)
+	cd hack/packages/package-tools && $(GO) run main.go package-bundle generate $(PACKAGE_NAME) --version=$(PACKAGE_VERSION) --sub-version=$(PACKAGE_SUB_VERSION)
 
 .PHONY: package-bundles
 package-bundles: tools prep-package-tools ## Build tar bundles for multiple packages
@@ -738,7 +738,7 @@ package-repo-bundle: tools prep-package-tools ## Build tar bundles for package r
 push-package-bundles: tools prep-package-tools ## Push specified package bundle(s) in a package repository.
 ## Specified package bundles must be set to the PACKAGE_BUNDLES environment variable as comma-separated values
 ## and must not contain spaces. Example: PACKAGE_BUNDLES=featuregates,core-management-plugins
-	cd hack/packages/package-tools && $(GO) run main.go package-bundle push $(PACKAGE_BUNDLES) --repository=$(PACKAGE_REPOSITORY) --registry=$(OCI_REGISTRY) --version=$(BUILD_VERSION) --sub-version=$(PACKAGE_SUB_VERSION)
+	cd hack/packages/package-tools && $(GO) run main.go package-bundle push $(PACKAGE_BUNDLES) --registry=$(OCI_REGISTRY) --version=$(BUILD_VERSION) --sub-version=$(PACKAGE_SUB_VERSION)
 
 .PHONY: push-all-package-bundles
 push-all-package-bundles: tools prep-package-tools ## Push all package bundles in a package repository

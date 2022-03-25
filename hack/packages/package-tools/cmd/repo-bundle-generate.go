@@ -96,7 +96,7 @@ func generatePackageBundlesSha256(projectRootDir, localRegistry string) error {
 		if subVersion != "" {
 			imagePackageVersion = version + "_" + subVersion
 		}
-		packagePath := filepath.Join(projectRootDir, "packages", packageRepository, pkg.Name)
+		packagePath := filepath.Join(projectRootDir, "packages", pkg.Name)
 
 		if err := utils.RunMakeTarget(packagePath, "configure-package"); err != nil {
 			return err
@@ -106,10 +106,13 @@ func generatePackageBundlesSha256(projectRootDir, localRegistry string) error {
 
 		// push the imgpkg bundle to local registry
 		lockOutputFile := pkg.Name + "-" + imagePackageVersion + "-lock-output.yaml"
-		imgpkgCmd := exec.Command(filepath.Join(toolsBinDir, "imgpkg"),
-			"push", "-b", localRegistry+"/"+pkg.Name+":"+imagePackageVersion,
+		imgpkgCmd := exec.Command(
+			filepath.Join(toolsBinDir, "imgpkg"),
+			"push",
+			"-b", localRegistry+"/"+pkg.Name+":"+imagePackageVersion,
 			"--file", filepath.Join(packagePath, "bundle"),
-			"--lock-output", lockOutputFile) // #nosec G204
+			"--lock-output", lockOutputFile,
+		) // #nosec G204
 
 		var errBytes bytes.Buffer
 		imgpkgCmd.Stderr = &errBytes
@@ -155,24 +158,27 @@ func generatePackageBundlesSha256(projectRootDir, localRegistry string) error {
 
 func generateRepoBundle(projectRootDir string) error {
 	fmt.Printf("Generating %q repo bundle...\n", packageRepository)
-	if err := utils.CreateDir(filepath.Join(projectRootDir, constants.RepoBundlesDir, packageRepository, ".imgpkg")); err != nil {
+	if err := utils.CreateDir(filepath.Join(projectRootDir, constants.RepoBundlesDir, ".imgpkg")); err != nil {
 		return err
 	}
 
-	if err := utils.CreateDir(filepath.Join(projectRootDir, constants.RepoBundlesDir, packageRepository, "packages")); err != nil {
+	if err := utils.CreateDir(filepath.Join(projectRootDir, constants.RepoBundlesDir, "packages")); err != nil {
 		return err
 	}
 
 	toolsBinDir := filepath.Join(projectRootDir, constants.ToolsBinDirPath)
 
 	// generate repo bundle image lock output file
-	yttCmd := exec.Command(filepath.Join(toolsBinDir, "ytt"), "-f", filepath.Join(projectRootDir, "hack", "packages", "templates", "repo-utils", "images-tmpl.yaml"),
+	yttCmd := exec.Command(
+		filepath.Join(toolsBinDir, "ytt"),
+		"-f", filepath.Join(projectRootDir, "hack", "packages", "templates", "repo-utils", "images-tmpl.yaml"),
 		"-f", filepath.Join(projectRootDir, "hack", "packages", "templates", "repo-utils", "package-helpers.lib.yaml"),
 		"-f", packageValuesFile,
 		"-v", "packageRepository="+packageRepository,
-		"-v", "registry="+registry) // #nosec G204
+		"-v", "registry="+registry,
+	) // #nosec G204
 
-	outFilePath := filepath.Join(projectRootDir, constants.RepoBundlesDir, packageRepository, ".imgpkg", "images.yml")
+	outFilePath := filepath.Join(projectRootDir, constants.RepoBundlesDir, ".imgpkg", "images.yml")
 	outfile, err := os.Create(outFilePath)
 	if err != nil {
 		return fmt.Errorf("error creating file %s : %w", outFilePath, err)
@@ -210,21 +216,16 @@ func generateRepoBundle(projectRootDir string) error {
 	// create tarball of repo bundle
 	tarBallPath := filepath.Join(projectRootDir, constants.RepoBundlesDir)
 	tarBallFileName := "tanzu-framework-" + packageRepository + "-repo-" + version + ".tar.gz"
-	pathToContents := filepath.Join(tarBallPath, packageRepository)
-	if err := utils.CreateTarball(tarBallPath, tarBallFileName, pathToContents); err != nil {
+	if err := utils.CreateTarball(tarBallPath, tarBallFileName, tarBallPath); err != nil {
 		return fmt.Errorf("couldn't generate package bundle: %w", err)
 	}
 
-	// move the tar ball to repository directory
-	if err := os.Rename(filepath.Join(tarBallPath, tarBallFileName), filepath.Join(tarBallPath, packageRepository, tarBallFileName)); err != nil {
-		return err
-	}
 	return nil
 }
 
 func generatePackageCR(projectRootDir, toolsBinDir string, pkg *Package) error {
 	fmt.Printf("Generating Package CR for package %q...\n", pkg.Name)
-	if err := utils.CreateDir(filepath.Join(projectRootDir, constants.RepoBundlesDir, packageRepository, "packages", pkg.Name+"."+pkg.Domain)); err != nil {
+	if err := utils.CreateDir(filepath.Join(projectRootDir, constants.RepoBundlesDir, "packages", pkg.Name+"."+pkg.Domain)); err != nil {
 		return err
 	}
 	pkgVersion := getPackageVersion(version)
@@ -243,7 +244,7 @@ func generatePackageCR(projectRootDir, toolsBinDir string, pkg *Package) error {
 		"-v", "registry="+registry,
 		"-v", "timestamp="+utils.GetFormattedCurrentTime()) // #nosec G204
 
-	packageFilePath := filepath.Join(projectRootDir, constants.RepoBundlesDir, packageRepository, "packages", pkg.Name+"."+pkg.Domain, packageFileName)
+	packageFilePath := filepath.Join(projectRootDir, constants.RepoBundlesDir, "packages", pkg.Name+"."+pkg.Domain, packageFileName)
 	packageFile, err := os.Create(packageFilePath)
 	if err != nil {
 		return fmt.Errorf("couldn't create file %s: %w", packageFilePath, err)
@@ -259,15 +260,17 @@ func generatePackageCR(projectRootDir, toolsBinDir string, pkg *Package) error {
 	}
 
 	// generate PacakageMetadata CR and write it to a file
-	packageMetadataYttCmd := exec.Command(filepath.Join(toolsBinDir, "ytt"), "-f", filepath.Join(projectRootDir, "packages", packageRepository, pkg.Name, "metadata.yaml"),
+	packageMetadataYttCmd := exec.Command(
+		filepath.Join(toolsBinDir, "ytt"), "-f", filepath.Join(projectRootDir, "packages", pkg.Name, "metadata.yaml"),
 		"-f", filepath.Join(projectRootDir, "hack", "packages", "templates", "repo-utils", "package-metadata-cr-overlay.yaml"),
 		"-f", filepath.Join(projectRootDir, "hack", "packages", "templates", "repo-utils", "package-helpers.lib.yaml"),
 		"-f", packageValuesFile,
 		"-v", "packageRepository="+packageRepository,
 		"-v", "packageName="+pkg.Name,
-		"-v", "registry="+registry) // #nosec G204
+		"-v", "registry="+registry,
+	) // #nosec G204
 
-	packageMetadataFilePath := filepath.Join(projectRootDir, constants.RepoBundlesDir, packageRepository, "packages", pkg.Name+"."+pkg.Domain, "metadata.yml")
+	packageMetadataFilePath := filepath.Join(projectRootDir, constants.RepoBundlesDir, "packages", pkg.Name+"."+pkg.Domain, "metadata.yml")
 	metadataFile, err := os.Create(packageMetadataFilePath)
 	if err != nil {
 		return fmt.Errorf("couldn't create file %s: %w", packageMetadataFilePath, err)

@@ -7,5 +7,5 @@ directories:
     path: rbac.yaml
   - manual: {}
     path: tanzu-capabilities-controller-manager.yaml
-  path: config/upstream
+  path: bundle/config/upstream
 kind: LockConfig

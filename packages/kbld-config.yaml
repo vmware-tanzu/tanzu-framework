@@ -73,3 +73,5 @@ overrides:
   #! tkr-resolver-cluster-webhook image
   - image: tkr-resolver-cluster-webhook:latest
     newImage: ""
+  - image: tkr-conversion-webhook:latest
+    newImage: ""
