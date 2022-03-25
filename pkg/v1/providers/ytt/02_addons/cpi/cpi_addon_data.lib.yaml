@@ -1,8 +1,23 @@
+#@ load("@ytt:assert", "assert")
 #@ load("@ytt:data", "data")
+#@ load("@ytt:ip", "ip")
 #@ load("/lib/helpers.star", "tkg_image_repo", "get_image_repo_for_component", "get_vsphere_thumbprint", "get_bom_data_for_tkr_name", "get_no_proxy")
 
 #@ if data.values.PROVIDER_TYPE != "tkg-service-vsphere":
 #@   cpiImage = get_bom_data_for_tkr_name().components["cloud_provider_vsphere"][0].images.ccmControllerImage
+#@ end
+
+#@ vsphereControlPlaneEndpointAsCidr = ""
+#@ if data.values.VSPHERE_CONTROL_PLANE_ENDPOINT:
+#@   vsphereControlPlaneEndpoint, err = assert.try_to(lambda : ip.parse_addr(data.values.VSPHERE_CONTROL_PLANE_ENDPOINT))
+#@   if err == None:
+#@     if vsphereControlPlaneEndpoint.is_ipv4():
+#@       vsphereControlPlaneEndpointAsCidr = vsphereControlPlaneEndpoint.string() + "/32"
+#@     end
+#@     if vsphereControlPlaneEndpoint.is_ipv6():
+#@       vsphereControlPlaneEndpointAsCidr = vsphereControlPlaneEndpoint.string() + "/128"
+#@     end
+#@   end
 #@ end
 
 #@ def vsphere_cpi_data_values():
@@ -18,6 +33,8 @@ vsphereCPI:
 #@ if data.values.TKG_IP_FAMILY:
   ipFamily: #@ data.values.TKG_IP_FAMILY
 #@ end
+  vmExcludeInternalNetworkSubnetCidr: #@ vsphereControlPlaneEndpointAsCidr
+  vmExcludeExternalNetworkSubnetCidr: #@ vsphereControlPlaneEndpointAsCidr
   cloudProviderExtraArgs:
     tls-cipher-suites: TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
   nsxt:

@@ -39,7 +39,7 @@ repositories:
         domain: tanzu.vmware.com
         version: latest
         #! Gets replaced with imgpkg sha256 at build, this should be name:version
-        sha256: "addons-manager:latest"
+        sha256: "addons-manager-v2:latest"
       - name: tkg
         displayName: tkg
         #! Relative path to package bundle

@@ -7,6 +7,7 @@ package cache
 import (
 	"context"
 
+	"github.com/go-logr/logr"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -16,6 +17,7 @@ import (
 )
 
 type Reconciler struct {
+	Log    logr.Logger
 	Client client.Client
 	Cache  resolver.Cache
 	Object client.Object
@@ -34,11 +36,13 @@ func (r *Reconciler) Reconcile(ctx context.Context, req ctrl.Request) (result ct
 		if apierrors.IsNotFound(err) {
 			object.SetName(req.Name)
 			r.Cache.Remove(object)
+			r.Log.Info("removed", "name", req.Name)
 			return ctrl.Result{}, nil
 		}
 		return ctrl.Result{}, err
 	}
 
 	r.Cache.Add(object)
+	r.Log.Info("added", "name", req.Name)
 	return ctrl.Result{}, nil
 }
