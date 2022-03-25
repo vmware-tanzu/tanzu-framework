@@ -29,7 +29,7 @@ require (
 	github.com/briandowns/spinner v1.16.0
 	github.com/cppforlife/go-cli-ui v0.0.0-20200716203538-1e47f820817f
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
-	github.com/docker/docker v20.10.9+incompatible
+	github.com/docker/docker v20.10.11+incompatible
 	github.com/elazarl/go-bindata-assetfs v1.0.1
 	github.com/fatih/color v1.13.0
 	github.com/getkin/kin-openapi v0.66.0
@@ -104,9 +104,9 @@ require (
 	k8s.io/utils v0.0.0-20210930125809-cb0fa318a74b
 	sigs.k8s.io/cluster-api v1.0.4
 	sigs.k8s.io/cluster-api-provider-aws v1.0.0
-	sigs.k8s.io/cluster-api-provider-azure v1.0.1
+	sigs.k8s.io/cluster-api-provider-azure v1.0.2
 	sigs.k8s.io/cluster-api-provider-vsphere v1.0.3
-	sigs.k8s.io/cluster-api/test v1.0.1
+	sigs.k8s.io/cluster-api/test v1.0.4
 	sigs.k8s.io/controller-runtime v0.10.3
 	sigs.k8s.io/controller-tools v0.7.0
 	sigs.k8s.io/kind v0.11.1
