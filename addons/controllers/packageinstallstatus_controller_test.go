@@ -81,18 +81,12 @@ var _ = Describe("PackageInstallStatus Reconciler", func() {
 			By("verifying management cluster is created properly")
 			mngCluster := &clusterapiv1beta1.Cluster{}
 			Expect(k8sClient.Get(ctx, client.ObjectKey{Namespace: clusterNamespaceMng, Name: clusterNameMng}, mngCluster)).Should(Succeed())
-			// update management cluster status phase to 'Provisioned' as it is required for ClusterBootstrap reconciler
-			mngClusterCopy := mngCluster.DeepCopy()
-			mngClusterCopy.Status.Phase = string(clusterapiv1beta1.ClusterPhaseProvisioned)
-			Expect(k8sClient.Status().Update(ctx, mngClusterCopy)).Should(Succeed())
+			updateClusterStateToPhaseProvisioned(mngCluster)
 
 			By("verifying workload cluster is created properly")
 			wlcCluster := &clusterapiv1beta1.Cluster{}
 			Expect(k8sClient.Get(ctx, client.ObjectKey{Namespace: clusterNamespaceWlc, Name: clusterNameWlc}, wlcCluster)).Should(Succeed())
-			// update workload cluster status phase to 'Provisioned' as it is required for ClusterBootstrap reconciler
-			wlcClusterCopy := wlcCluster.DeepCopy()
-			wlcClusterCopy.Status.Phase = string(clusterapiv1beta1.ClusterPhaseProvisioned)
-			Expect(k8sClient.Status().Update(ctx, wlcClusterCopy)).Should(Succeed())
+			updateClusterStateToPhaseProvisioned(wlcCluster)
 
 			By("verifying management and workload clusters' ClusterBootstrap has been created")
 			clusterBootstrapGet(client.ObjectKeyFromObject(mngCluster))
@@ -218,4 +212,15 @@ func installPackage(clusterName, pkgName, namespace string) {
 	installedPkg := &kapppkgiv1alpha1.PackageInstall{}
 	key = client.ObjectKey{Namespace: namespace, Name: pkgiName}
 	Expect(k8sClient.Get(ctx, key, installedPkg)).Should(Succeed())
+}
+
+// updateClusterStateToPhaseProvisioned updates cluster state to 'PhaseProvisioned'
+func updateClusterStateToPhaseProvisioned(cluster *clusterapiv1beta1.Cluster) {
+	Eventually(func() bool {
+		cluster.Status.Phase = string(clusterapiv1beta1.ClusterPhaseProvisioned)
+		if err := k8sClient.Status().Update(ctx, cluster); err != nil {
+			return false
+		}
+		return true
+	}, waitTimeout, pollingInterval).Should(BeTrue())
 }

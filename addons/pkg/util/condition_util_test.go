@@ -20,7 +20,7 @@ var _ = Describe("Summarize AppConditions", func() {
 	Context("SummarizeAppConditions()", func() {
 		var (
 			conditions       []v1alpha1.AppCondition
-			summaryCondition v1alpha1.AppCondition
+			summaryCondition *v1alpha1.AppCondition
 		)
 
 		When("there is any condition with 'Reconciling' type", func() {
@@ -111,9 +111,8 @@ var _ = Describe("Summarize AppConditions", func() {
 				summaryCondition = SummarizeAppConditions(conditions)
 			})
 
-			It("the summarized condition's type should be ", func() {
-				Expect(summaryCondition.Type).Should(Equal(v1alpha1.AppConditionType("")))
-				Expect(summaryCondition.Status).Should(Equal(corev1.ConditionStatus("")))
+			It("the summarized condition should be nil", func() {
+				Expect(summaryCondition).Should(BeNil())
 			})
 		})
 	})

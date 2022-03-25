@@ -9,7 +9,6 @@ import (
 	"os"
 	"time"
 
-	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -22,7 +21,6 @@ import (
 	capiremote "sigs.k8s.io/cluster-api/controllers/remote"
 	controlplanev1beta1 "sigs.k8s.io/cluster-api/controlplane/kubeadm/api/v1beta1"
 	ctrl "sigs.k8s.io/controller-runtime"
-	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller"
 	"sigs.k8s.io/controller-runtime/pkg/healthz"
 
@@ -267,25 +265,31 @@ func enableClusterBootstrapAndConfigControllers(ctx context.Context, mgr ctrl.Ma
 }
 
 func enablePackageInstallStatusController(ctx context.Context, mgr ctrl.Manager, flags *addonFlags) {
-	// Set up a ClusterCacheTracker to provide to PackageInstallStatus controller which requires a connection to remote clusters
+	// set up a ClusterCacheTracker to provide to PackageInstallStatus controller which requires a connection to remote clusters
+	// the informers/caches are created only for objects accessed through Get/List in the code.
+	// we only read Package and PackageInstall resources through our cached client, we let those two resource types to be cached and we don't add any resource type to the ClientUncachedObjects list
 	l := ctrl.Log.WithName("remote").WithName("ClusterCacheTracker")
-	tracker, err := capiremote.NewClusterCacheTracker(mgr, capiremote.ClusterCacheTrackerOptions{
-		Log: &l,
-		ClientUncachedObjects: []client.Object{
-			&corev1.ConfigMap{},
-			&corev1.Secret{},
-			&corev1.Pod{},
-			&appsv1.Deployment{},
-			&appsv1.DaemonSet{},
-		},
-	})
+	tracker, err := capiremote.NewClusterCacheTracker(mgr, capiremote.ClusterCacheTrackerOptions{Log: &l})
 	if err != nil {
 		setupLog.Error(err, "unable to create cluster cache tracker")
 		os.Exit(1)
 	}
 
+	// set up CluterCacheReconciler to drops the accessor via deleteAccessor upon cluster deletion.
+	// after a Cluster is deleted (from the apiserver/etcd), the CluterCacheReconciler drops the accessor via deleteAccessor.
+	// the healthchecking inside of the ClusterCacheTracker would remove the accessor at some point but the ClusterCacheReconciler does it more cleanly directly upon Cluster delete
+	if err := (&capiremote.ClusterCacheReconciler{
+		Client:  mgr.GetClient(),
+		Log:     ctrl.Log.WithName("remote").WithName("ClusterCacheReconciler"),
+		Tracker: tracker,
+	}).SetupWithManager(ctx, mgr, controller.Options{MaxConcurrentReconciles: flags.clusterConcurrency}); err != nil {
+		setupLog.Error(err, "unable to create controller", "controller", "ClusterCacheReconciler")
+		os.Exit(1)
+	}
+
 	pkgiStatusReconciler := controllers.NewPackageInstallStatusReconciler(
 		mgr.GetClient(),
+		ctrl.Log.WithName("PackageInstallStatusController"),
 		mgr.GetScheme(),
 		&addonconfig.PackageInstallStatusControllerConfig{
 			SystemNamespace: flags.addonNamespace,

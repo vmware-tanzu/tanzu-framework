@@ -15,17 +15,15 @@ import (
 
 // pkgiToCluster returns a list of Requests with Cluster ObjectKey
 func (r *PackageInstallStatusReconciler) pkgiToCluster(o client.Object) []ctrl.Request {
-	log := ctrl.LoggerFrom(r.ctx).WithName("PackageInstallStatusController")
-
 	pkgi, ok := o.(*kapppkgiv1alpha1.PackageInstall)
 	if !ok {
-		log.Error(errors.New("invalid type"),
+		r.Log.Error(errors.New("invalid type"),
 			"Expected to receive PackageInstall resource",
 			"actualType", fmt.Sprintf("%T", o))
 		return nil
 	}
 
-	log.WithValues("pkgi-name", pkgi.Name).Info("Mapping PackageInstalls to cluster")
+	r.Log.WithValues("pkgi-name", pkgi.Name).Info("Mapping PackageInstalls to cluster")
 
 	clusterObjKey := r.getClusterNamespacedName(pkgi)
 	if clusterObjKey == nil {

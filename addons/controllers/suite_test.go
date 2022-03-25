@@ -13,7 +13,6 @@ import (
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -267,23 +266,22 @@ var _ = BeforeSuite(func(done Done) {
 	)
 	Expect(bootstrapReconciler.SetupWithManager(ctx, mgr, controller.Options{MaxConcurrentReconciles: 1})).To(Succeed())
 
-	// Set up a ClusterCacheTracker to provide to PackageInstallStatus controller which requires a connection to remote clusters
+	// set up a ClusterCacheTracker to provide to PackageInstallStatus controller which requires a connection to remote clusters
 	l := ctrl.Log.WithName("remote").WithName("ClusterCacheTracker")
-	tracker, err := capiremote.NewClusterCacheTracker(mgr, capiremote.ClusterCacheTrackerOptions{
-		Log: &l,
-		ClientUncachedObjects: []client.Object{
-			&corev1.ConfigMap{},
-			&corev1.Secret{},
-			&corev1.Pod{},
-			&appsv1.Deployment{},
-			&appsv1.DaemonSet{},
-		},
-	})
+	tracker, err := capiremote.NewClusterCacheTracker(mgr, capiremote.ClusterCacheTrackerOptions{Log: &l})
 	Expect(err).Should(BeNil())
 	Expect(tracker).ShouldNot(BeNil())
 
+	// set up CluterCacheReconciler to drops the accessor via deleteAccessor upon cluster deletion
+	Expect((&capiremote.ClusterCacheReconciler{
+		Client:  mgr.GetClient(),
+		Log:     ctrl.Log.WithName("remote").WithName("ClusterCacheReconciler"),
+		Tracker: tracker,
+	}).SetupWithManager(ctx, mgr, controller.Options{MaxConcurrentReconciles: 1})).To(Succeed())
+
 	Expect((NewPackageInstallStatusReconciler(
 		mgr.GetClient(),
+		ctrl.Log.WithName("controllers").WithName("PackageInstallStatus"),
 		mgr.GetScheme(),
 		&addonconfig.PackageInstallStatusControllerConfig{
 			SystemNamespace: constants.TKGSystemNS,

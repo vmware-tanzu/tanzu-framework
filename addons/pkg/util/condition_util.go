@@ -20,9 +20,7 @@ import (
 // - Otherwise, if there be any 'DeleteFailed' condition type with status 'True', the summary condition type will be 'DeleteFailed'
 // - Otherwise, the summary condition type will be 'UnknownCondition'
 // Note that ReconcileFailed|Reconciling|ReconcileSucceeded|Deleting|DeleteFailed|DeleteSucceeded are mutually exclusive
-func SummarizeAppConditions(conditions []v1alpha1.AppCondition) v1alpha1.AppCondition {
-	summaryCondition := v1alpha1.AppCondition{}
-
+func SummarizeAppConditions(conditions []v1alpha1.AppCondition) *v1alpha1.AppCondition {
 	wantedCondTypes := []v1alpha1.AppConditionType{
 		v1alpha1.Reconciling,
 		v1alpha1.ReconcileFailed,
@@ -33,11 +31,11 @@ func SummarizeAppConditions(conditions []v1alpha1.AppCondition) v1alpha1.AppCond
 	for _, wantedCondType := range wantedCondTypes {
 		for _, cond := range conditions {
 			if cond.Type == wantedCondType && cond.Status == corev1.ConditionTrue {
-				return cond
+				return &cond
 			}
 		}
 	}
-	return summaryCondition
+	return nil
 }
 
 // GetKappUsefulErrorMessage extracts the relevant portion from UsefulErrorMessage
