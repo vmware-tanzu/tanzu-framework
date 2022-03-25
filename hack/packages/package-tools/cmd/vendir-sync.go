@@ -34,19 +34,31 @@ func runPackageVendirSync(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	repositoryPath := filepath.Join(projectRootDir, "packages", packageRepository)
-	toolsBinDir := filepath.Join(projectRootDir, constants.ToolsBinDirPath)
-	files, err := os.ReadDir(repositoryPath)
+	packageValues, err := readPackageValues(projectRootDir)
 	if err != nil {
-		return fmt.Errorf("couldn't read repository directory: %w", err)
+		return err
+	}
+	packagesToSync, err := selectPackages(packageValues, packageRepository)
+	if err != nil {
+		return err
+	}
+
+	packagesPath := filepath.Join(projectRootDir, "packages")
+	toolsBinDir := filepath.Join(projectRootDir, constants.ToolsBinDirPath)
+	files, err := os.ReadDir(packagesPath)
+	if err != nil {
+		return fmt.Errorf("couldn't read packages directory: %w", err)
 	}
 
 	for _, file := range files {
 		if file.IsDir() {
-			fmt.Printf("Syncing package %s\n", file.Name())
-			packagePath := filepath.Join(repositoryPath, file.Name())
-			if err := syncPackage(packagePath, toolsBinDir); err != nil {
-				return err
+			_, ok := packagesToSync[file.Name()]
+			if ok {
+				fmt.Printf("Syncing package %s\n", file.Name())
+				packagePath := filepath.Join(packagesPath, file.Name())
+				if err := syncPackage(packagePath, toolsBinDir); err != nil {
+					return err
+				}
 			}
 		}
 	}
@@ -66,4 +78,34 @@ func syncPackage(packagePath, toolsBinDir string) error {
 		return fmt.Errorf("couldn't vendir sync package: %s", errBytes.String())
 	}
 	return nil
+}
+
+// selectPackages will return a map of package names as keys in a given repo. If
+// no repo is provided, all packages will be in the map.
+func selectPackages(pkgVals PackageValues, repoName string) (map[string]struct{}, error) {
+	selectPkgs := make(map[string]struct{})
+
+	for repo := range pkgVals.Repositories {
+		if repoName == "" {
+			// --repository flag was not provided and is optional, so don't
+			// filter out any packages.
+			for _, pkg := range pkgVals.Repositories[repo].Packages {
+				selectPkgs[pkg.Name] = struct{}{}
+			}
+			continue
+		}
+
+		_, found := pkgVals.Repositories[repoName]
+		if !found {
+			return nil, fmt.Errorf("%s repository not found", repoName)
+		}
+
+		if pkgVals.Repositories[repo].Name == repoName {
+			for _, pkg := range pkgVals.Repositories[repo].Packages {
+				selectPkgs[pkg.Name] = struct{}{}
+			}
+		}
+	}
+
+	return selectPkgs, nil
 }
