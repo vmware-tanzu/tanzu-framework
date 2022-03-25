@@ -23,12 +23,12 @@ func (r *PackageInstallStatusReconciler) pkgiToCluster(o client.Object) []ctrl.R
 		return nil
 	}
 
-	r.Log.WithValues("pkgi-name", pkgi.Name).Info("Mapping PackageInstalls to cluster")
-
 	clusterObjKey := r.getClusterNamespacedName(pkgi)
 	if clusterObjKey == nil {
 		return nil
 	}
+
+	r.Log.WithValues("pkgi-name", pkgi.Name).WithValues("pkgi-ns", pkgi.Namespace).Info("Mapped PackageInstall to cluster")
 
 	return []ctrl.Request{{NamespacedName: client.ObjectKey{Namespace: clusterObjKey.Namespace, Name: clusterObjKey.Name}}}
 }
