@@ -83,10 +83,6 @@ type addonFlags struct {
 	addonImagePullPolicy            string
 	corePackageRepoName             string
 	healthdAddr                     string
-	httpProxyClusterVarName         string
-	httpsProxyClusterVarName        string
-	noProxyClusterVarName           string
-	proxyCACertClusterVarName       string
 	ipFamilyClusterVarName          string
 	featureGateClusterBootstrap     bool
 	featureGatePackageInstallStatus bool
@@ -112,10 +108,6 @@ func parseAddonFlags(addonFlags *addonFlags) {
 	flag.StringVar(&addonFlags.addonImagePullPolicy, "addon-image-pull-policy", "IfNotPresent", "The addon image pull policy")
 	flag.StringVar(&addonFlags.corePackageRepoName, "core-package-repo-name", "tanzu-core", "The name of core package repository")
 	flag.StringVar(&addonFlags.healthdAddr, "health-addr", ":18316", "The address the health endpoint binds to.")
-	flag.StringVar(&addonFlags.httpProxyClusterVarName, "http-proxy-cluster-var-name", constants.DefaultHTTPProxyClusterClassVarName, "HTTP proxy setting cluster variable name")
-	flag.StringVar(&addonFlags.httpsProxyClusterVarName, "https-proxy-cluster-var-name", constants.DefaultHTTPSProxyClusterClassVarName, "HTTPS proxy setting cluster variable name")
-	flag.StringVar(&addonFlags.noProxyClusterVarName, "no-proxy-cluster-var-name", constants.DefaultNoProxyClusterClassVarName, "No-proxy setting cluster variable name")
-	flag.StringVar(&addonFlags.proxyCACertClusterVarName, "proxy-ca-cert-cluster-var-name", constants.DefaultProxyCaCertClusterClassVarName, "Proxy CA certificate cluster variable name")
 	flag.StringVar(&addonFlags.ipFamilyClusterVarName, "ip-family-cluster-var-name", constants.DefaultIPFamilyClusterClassVarName, "IP family setting cluster variable name")
 	flag.BoolVar(&addonFlags.featureGateClusterBootstrap, "feature-gate-cluster-bootstrap", false, "Feature gate to enable clusterbootstap and addonconfig controllers that rely on TKR v1alphav3")
 	flag.BoolVar(&addonFlags.featureGatePackageInstallStatus, "feature-gate-package-install-status", false, "Feature gate to enable packageinstallstatus controller")
@@ -268,16 +260,12 @@ func enableClusterBootstrapAndConfigControllers(ctx context.Context, mgr ctrl.Ma
 		ctrl.Log.WithName("ClusterBootstrapController"),
 		mgr.GetScheme(),
 		&addonconfig.ClusterBootstrapControllerConfig{
-			HTTPProxyClusterClassVarName:   constants.DefaultHTTPProxyClusterClassVarName,
-			HTTPSProxyClusterClassVarName:  constants.DefaultHTTPSProxyClusterClassVarName,
-			NoProxyClusterClassVarName:     constants.DefaultNoProxyClusterClassVarName,
-			ProxyCACertClusterClassVarName: constants.DefaultProxyCaCertClusterClassVarName,
-			IPFamilyClusterClassVarName:    constants.DefaultIPFamilyClusterClassVarName,
-			SystemNamespace:                flags.addonNamespace,
-			PkgiServiceAccount:             constants.PackageInstallServiceAccount,
-			PkgiClusterRole:                constants.PackageInstallClusterRole,
-			PkgiClusterRoleBinding:         constants.PackageInstallClusterRoleBinding,
-			PkgiSyncPeriod:                 flags.syncPeriod,
+			IPFamilyClusterClassVarName: constants.DefaultIPFamilyClusterClassVarName,
+			SystemNamespace:             flags.addonNamespace,
+			PkgiServiceAccount:          constants.PackageInstallServiceAccount,
+			PkgiClusterRole:             constants.PackageInstallClusterRole,
+			PkgiClusterRoleBinding:      constants.PackageInstallClusterRoleBinding,
+			PkgiSyncPeriod:              flags.syncPeriod,
 		},
 	)
 	if err := bootstrapReconciler.SetupWithManager(ctx, mgr, controller.Options{MaxConcurrentReconciles: 1}); err != nil {
