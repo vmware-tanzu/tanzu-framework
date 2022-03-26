@@ -70,11 +70,10 @@ type registrySecretOutput struct {
 }
 
 type repositoryOutput struct {
-	Name       string `json:"name"`
-	Repository string `json:"repository"`
-	Tag        string `json:"tag"`
-	Status     string `json:"status"`
-	Namespace  string `json:"namespace"`
+	Name      string `json:"name"`
+	Source    string `json:"source"`
+	Status    string `json:"status"`
+	Namespace string `json:"namespace"`
 }
 
 type packageInstalledOutput struct {
@@ -315,27 +314,24 @@ var _ = Describe("Package plugin integration test", func() {
 		}
 
 		expectedRepoOutput = repositoryOutput{
-			Name:       config.RepositoryName,
-			Repository: config.RepositoryURLNoTag,
-			Tag:        config.RepositoryOriginalTag,
-			Status:     "Reconcile succeeded",
-			Namespace:  config.Namespace,
+			Name:      config.RepositoryName,
+			Source:    fmt.Sprintf("(imgpkg) %s:%s", config.RepositoryURLNoTag, config.RepositoryOriginalTag),
+			Status:    "Reconcile succeeded",
+			Namespace: config.Namespace,
 		}
 
 		expectedRepoOutputLatestTag = repositoryOutput{
-			Name:       config.RepositoryName,
-			Repository: config.RepositoryURLNoTag,
-			Tag:        "(>0.0.0)",
-			Status:     "Reconcile succeeded",
-			Namespace:  config.Namespace,
+			Name:      config.RepositoryName,
+			Source:    fmt.Sprintf("(imgpkg) %s ()", config.RepositoryURLNoTag),
+			Status:    "Reconcile succeeded",
+			Namespace: config.Namespace,
 		}
 
 		expectedRepoOutputPrivate = repositoryOutput{
-			Name:       config.RepositoryName,
-			Repository: config.RepositoryURLPrivateNoTag,
-			Tag:        config.RepositoryPrivateTag,
-			Status:     "Reconcile succeeded",
-			Namespace:  config.Namespace,
+			Name:      config.RepositoryName,
+			Source:    fmt.Sprintf("(imgpkg) %s@%s", config.RepositoryURLPrivateNoTag, config.RepositoryPrivateTag),
+			Status:    "Reconcile succeeded",
+			Namespace: config.Namespace,
 		}
 
 		expectedPkgOutput = packageInstalledOutput{
@@ -361,6 +357,7 @@ var _ = Describe("Package plugin integration test", func() {
 		It("should pass all checks on management cluster", func() {
 			cleanup()
 			setUpPrivateRegistry(config.KubeConfigPathMC, config.ClusterNameMC)
+			createTestNamespace(config.KubeConfigPathMC, config.ClusterNameMC, config.Namespace)
 			testHelper()
 			log.Info("Successfully finished package plugin integration tests on management cluster")
 		})
@@ -374,6 +371,7 @@ var _ = Describe("Package plugin integration test", func() {
 		It("should pass all checks on workload cluster", func() {
 			cleanup()
 			setUpPrivateRegistry(config.KubeConfigPathWLC, config.ClusterNameWLC)
+			createTestNamespace(config.KubeConfigPathWLC, config.ClusterNameWLC, config.Namespace)
 			testHelper()
 			log.Info("Successfully finished package plugin integration tests on workload cluster")
 		})
@@ -387,7 +385,7 @@ func cleanup() {
 
 	By("cleanup previous package repository installation")
 	result = packagePlugin.DeleteRepository(&repoOptions)
-	Expect(result.Error).ToNot(HaveOccurred())
+	Expect(result.Error).Should(HaveOccurred())
 
 	By("cleanup previous secret installation")
 	resultImgPullSecret = secretPlugin.DeleteRegistrySecret(&imgPullSecretOptions)
@@ -511,6 +509,19 @@ func setUpPrivateRegistry(kubeconfigPath, clusterName string) {
 	Expect(err).ToNot(HaveOccurred())
 }
 
+func createTestNamespace(kubeconfigPath, clusterName, testNamespace string) {
+	By("create test namespace in cluster")
+	kubeCtx := clusterName + "-admin@" + clusterName
+
+	command := exec.NewCommand(
+		exec.WithCommand("kubectl"),
+		exec.WithArgs("apply", "-f", "config/assets/test-namespace.yml", "--context", kubeCtx, "--kubeconfig", kubeconfigPath),
+		exec.WithStdout(GinkgoWriter),
+	)
+	err = command.RunAndRedirectOutput(context.Background())
+	Expect(err).ToNot(HaveOccurred())
+}
+
 func testHelper() {
 
 	By("trying to update package repository with a private URL")
@@ -567,7 +578,6 @@ func testHelper() {
 	By("update package repository with a new URL without tag")
 	repoOptions.RepositoryURL = config.RepositoryURLNoTag
 	repoOptions.CreateRepository = true
-	repoOptions.CreateNamespace = true
 	repoOptions.PollInterval = pollInterval
 	repoOptions.PollTimeout = pollTimeout
 	result = packagePlugin.UpdateRepository(&repoOptions)
@@ -682,9 +692,9 @@ func testHelper() {
 	result = packagePlugin.DeleteRepository(&repoOptions)
 	Expect(result.Error).ToNot(HaveOccurred())
 
-	By("wait for package repository deletion")
-	result = packagePlugin.CheckRepositoryDeleted(&repoOptions)
-	Expect(result.Error).ToNot(HaveOccurred())
+	By("check package repository deletion")
+	result = packagePlugin.GetRepository(&repoOptions)
+	Expect(result.Error).To(HaveOccurred())
 
 	By("delete registry secret")
 	resultImgPullSecret = secretPlugin.DeleteRegistrySecret(&imgPullSecretOptions)
