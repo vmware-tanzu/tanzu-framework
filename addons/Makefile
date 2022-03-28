@@ -12,10 +12,10 @@ export GO111MODULE := on
 
 # Image URL to use all building/pushing image targets
 IMG_DEFAULT_NAME ?= addons-controller
-IMG_DEFAULT_TAG := $(shell git describe --always --dirty --tags)
+IMG_DEFAULT_TAG := latest
 IMG_DEFAULT_NAME_TAG := $(IMG_DEFAULT_NAME):$(IMG_DEFAULT_TAG)
 
-IMG_VERSION_OVERRIDE ?= $(IMG_DEFAULT_TAG)
+IMG_VERSION_OVERRIDE ?= $(shell git describe --always --dirty --tags)
 
 ifeq ($(strip $(OCI_REGISTRY)),)
 	IMG ?= $(IMG_DEFAULT_NAME):$(IMG_VERSION_OVERRIDE)
@@ -101,7 +101,7 @@ docker-build: ## Build the docker image
 	cd .. && docker build -t $(IMG) -f addons/Dockerfile --build-arg LD_FLAGS="$(LD_FLAGS)" .
 
 .PHONY: docker-publish
-docker-push: ## Push the docker image
+docker-publish: ## Push the docker image
 	docker push $(IMG)
 
 .PHONY: docker-remove
@@ -117,7 +117,8 @@ docker-build-and-publish: docker-build docker-publish kbld-image-replace
 
 .PHONY: kbld-image-replace
 kbld-image-replace: ## Add newImage in kbld-config.yaml
-	cd ../hack/packages/kbld-image-replace && $(MAKE) run IMAGE=$(IMG_DEFAULT_NAME_TAG) NEW_IMAGE=$(IMG)
+	cd ../hack/packages/kbld-image-replace && \
+	  go run main.go -kbld-config ../../../packages/addons-manager/kbld-config.yaml $(IMG_DEFAULT_NAME_TAG) $(IMG)
 
 ## --------------------------------------
 ## Clean

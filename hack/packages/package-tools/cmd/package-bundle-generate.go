@@ -62,7 +62,7 @@ func runPackageBundleGenerate(cmd *cobra.Command, args []string) error {
 	} else {
 		fmt.Printf("Generating %q package bundle...\n", packageName)
 		packagePath := filepath.Join(projectRootDir, "packages", packageName)
-		if err := generateSingleImgpkgLockOutput(projectRootDir, toolsBinDir, packagePath); err != nil {
+		if err := generateSingleImgpkgLockOutput(toolsBinDir, packagePath); err != nil {
 			return fmt.Errorf("couldn't generate imgpkg lock output file: %w", err)
 		}
 		pkg, err := getPackageFromPackageValues(projectRootDir, packageName)
@@ -88,7 +88,7 @@ func validatePackageBundleGenerateFlags() error {
 	return nil
 }
 
-func generateSingleImgpkgLockOutput(projectRootDir, toolsBinDir, packagePath string) error {
+func generateSingleImgpkgLockOutput(toolsBinDir, packagePath string) error {
 	if err := utils.RunMakeTarget(packagePath, "configure-package"); err != nil {
 		return err
 	}
@@ -102,10 +102,16 @@ func generateSingleImgpkgLockOutput(projectRootDir, toolsBinDir, packagePath str
 	yttCmd := exec.Command(filepath.Join(toolsBinDir, "ytt"),
 		"--ignore-unknown-comments",
 		"-f", filepath.Join(packagePath, "bundle", "config")) // #nosec G204
-	kbldCmd := exec.Command(filepath.Join(toolsBinDir, "kbld"),
-		"-f", "-", // kbld interprets this as reading a file from stdin
-		"-f", filepath.Join(projectRootDir, constants.KbldConfigFilePath),
-		"--imgpkg-lock-output", filepath.Join(imgpkgLockOutputDir, "images.yml")) // #nosec G204
+
+	kbldArgs := []string{
+		"-f", "-",
+		"--imgpkg-lock-output", filepath.Join(imgpkgLockOutputDir, "images.yml"),
+	}
+	if _, err := os.Stat(filepath.Join(packagePath, "kbld-config.yaml")); err == nil {
+		kbldArgs = append(kbldArgs, "-f", filepath.Join(packagePath, "kbld-config.yaml"))
+	}
+
+	kbldCmd := exec.Command(filepath.Join(toolsBinDir, "kbld"), kbldArgs...) // #nosec G204
 
 	pipe, err := yttCmd.StdoutPipe()
 	if err != nil {
@@ -209,7 +215,7 @@ func generatePackageBundles(projectRootDir, toolsBinDir string) error {
 			}
 
 			// generate package bundle imgpkg lock output file
-			if err := generateSingleImgpkgLockOutput(projectRootDir, toolsBinDir, packagePath); err != nil {
+			if err := generateSingleImgpkgLockOutput(toolsBinDir, packagePath); err != nil {
 				return fmt.Errorf("couldn't generate imgpkg lock output file: %w", err)
 			}
 
