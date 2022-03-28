@@ -22,9 +22,10 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 	"sigs.k8s.io/controller-runtime/pkg/source"
 
+	tkgconstants "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
+
 	"github.com/vmware-tanzu/tanzu-framework/addons/pinniped/config-controller/constants"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pinniped/config-controller/utils"
-	tkgconstants "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
 )
 
 type PinnipedController struct {
@@ -58,6 +59,10 @@ func (c *PinnipedController) SetupWithManager(manager ctrl.Manager) error {
 	}
 	return nil
 }
+
+// +kubebuilder:rbac:groups="",resources=secrets,verbs=list;watch;get;patch;update
+// +kubebuilder:rbac:groups="",resources=configmaps,verbs=list;watch;get
+// +kubebuilder:rbac:groups="cluster.x-k8s.io",resources=clusters,verbs=get
 
 func (c *PinnipedController) Reconcile(ctx context.Context, req ctrl.Request) (reconcile.Result, error) {
 	log := c.Log.WithName("reconcile").WithValues("request object", req)
