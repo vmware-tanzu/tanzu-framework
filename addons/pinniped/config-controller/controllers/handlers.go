@@ -6,6 +6,7 @@ package controllers
 import (
 	"fmt"
 
+	"github.com/go-logr/logr"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/types"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -18,7 +19,7 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/addons/pinniped/config-controller/utils"
 )
 
-func (c *PinnipedController) configMapToCluster(o client.Object) []ctrl.Request {
+func (c *PinnipedController) configMapToSecret(o client.Object) []ctrl.Request {
 	// return empty object, if pinniped-info CM changes, update all the secrets
 	return []ctrl.Request{{}}
 }
@@ -39,43 +40,45 @@ func withNamespacedName(namespacedName types.NamespacedName) builder.Predicates 
 	)
 }
 
-func (c *PinnipedController) addonSecretToCluster(o client.Object) []ctrl.Request {
-	log := c.Log.WithValues(constants.NamespaceLogKey, o.GetName(), constants.NameLogKey, o.GetNamespace())
-
-	log.V(1).Info("mapping addon secret to cluster")
-	clusterName, labelExists := o.GetLabels()[constants.TKGClusterNameLabel]
-
-	if !labelExists || clusterName == "" {
-		log.Error(nil, "cluster name label not found on resource")
-		return nil
-	}
-
-	log.V(1).Info("adding cluster for reconciliation")
-
-	return []ctrl.Request{{
-		NamespacedName: client.ObjectKey{Namespace: o.GetNamespace(), Name: clusterName},
-	}}
-}
-
-func (c *PinnipedController) withAddonLabel(addonLabel string) predicate.Funcs {
-	// Predicate func will get called for all events (create, update, delete, generic)
-	return predicate.NewPredicateFuncs(func(o client.Object) bool {
+func (c *PinnipedController) withPackageName(packageName string) builder.Predicates {
+	var log logr.Logger
+	containsPackageName := func(o client.Object, packageName string) bool {
 		var secret *corev1.Secret
-		log := c.Log.WithValues(constants.NamespaceLogKey, o.GetName(), constants.NameLogKey, o.GetNamespace())
+		log = c.Log.WithValues(constants.SecretNamespaceLogKey, o.GetName(), constants.SecretNameLogKey, o.GetNamespace())
 		switch obj := o.(type) {
 		case *corev1.Secret:
 			secret = obj
 		default:
-			log.V(1).Info("expected secret, got", "type", fmt.Sprintf("%T", o))
+			c.Log.V(1).Info("expected secret, got", "type", fmt.Sprintf("%T", o))
 			return false
 		}
 		// TODO: do we care if secret is paused?
-		if utils.IsAddonType(secret) && utils.HasAddonLabel(secret, addonLabel) {
-			log.V(1).Info("adding cluster for reconciliation")
+		if utils.IsClusterBootstrapType(secret) && utils.ContainsPackageName(secret, packageName) {
+			log.V(1).Info("adding secret for reconciliation")
 			return true
 		}
 
-		log.V(1).Info("secret is not an addon or does not have the given label", "label", addonLabel)
+		log.V(1).Info(
+			"secret is not a cluster bootstrap type or does not have the given name",
+			"name", packageName)
 		return false
-	})
+	}
+	// Predicate func will get called for all events (createObject, update, deleteObject, generic)
+	return builder.WithPredicates(
+		predicate.Funcs{
+			CreateFunc: func(e event.CreateEvent) bool { return containsPackageName(e.Object, packageName) },
+			UpdateFunc: func(e event.UpdateEvent) bool {
+				return containsPackageName(e.ObjectOld, packageName) || containsPackageName(e.ObjectNew, packageName)
+			},
+			DeleteFunc: func(e event.DeleteEvent) bool {
+				log.V(1).Info(
+					"secret is being deleted, skipping reconcile",
+					constants.SecretNamespaceLogKey, e.Object.GetNamespace(),
+					constants.SecretNameLogKey, e.Object.GetName(),
+				)
+				return false
+			},
+			GenericFunc: func(e event.GenericEvent) bool { return containsPackageName(e.Object, packageName) },
+		},
+	)
 }
