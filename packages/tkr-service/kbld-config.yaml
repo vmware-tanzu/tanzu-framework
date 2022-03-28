@@ -1,0 +1,9 @@
+apiVersion: kbld.k14s.io/v1alpha1
+kind: Config
+overrides:
+- image: tkr-resolver-cluster-webhook:latest
+  newImage: ""
+- image: tkr-conversion-webhook:latest
+  newImage: ""
+- image: tkr-status-controller:latest
+  newImage: ""

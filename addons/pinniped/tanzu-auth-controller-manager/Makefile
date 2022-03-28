@@ -4,6 +4,8 @@
 # This Makefile is here to follow step 4 of this README:
 #   https://github.com/vmware-tanzu/tanzu-framework/blob/5cdba3181afbc31b05d4df51052fb47f3fcb5b92/docs/packages/add-new-package-to-package-repo.md
 
+include ../../../common.mk
+
 IMG_DEFAULT_NAME := tanzu-auth-controller-manager
 IMG_DEFAULT_TAG := latest
 IMG_DEFAULT_NAME_TAG := $(IMG_DEFAULT_NAME):$(IMG_DEFAULT_TAG)
@@ -18,7 +20,7 @@ endif
 
 .PHONY: docker-build
 docker-build: ## Build docker image
-	docker build -t $(IMG) -f Dockerfile .
+	docker build -t $(IMG) -f Dockerfile --build-arg LD_FLAGS="$(LD_FLAGS)" .
 
 .PHONY: docker-publish
 docker-publish: ## Publish docker image
@@ -26,4 +28,5 @@ docker-publish: ## Publish docker image
 
 .PHONY: kbld-image-replace
 kbld-image-replace: ## Add newImage in kbld-config.yaml
-	cd ../../../hack/packages/kbld-image-replace && $(MAKE) run IMAGE=$(IMG_DEFAULT_NAME_TAG) NEW_IMAGE=$(IMG)
+	cd ../../../hack/packages/kbld-image-replace && \
+		go run main.go -kbld-config ../../../packages/tanzu-auth/kbld-config.yaml $(IMG_DEFAULT_NAME_TAG) $(IMG)

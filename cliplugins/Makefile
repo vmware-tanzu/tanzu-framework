@@ -42,8 +42,12 @@ kbld-image-replace-%: ## Add newImage in kbld-config.yaml
 	$(eval OSARCH = $(word 2,$(subst _, ,$*)))
 	$(eval OS = $(word 1,$(subst -, ,$(OSARCH))))
 	$(eval ARCH = $(word 2,$(subst -, ,$(OSARCH))))
+	$(eval PACKAGE_NAME = $(word 3,$(subst _, ,$*)))
 
-	cd ../hack/packages/kbld-image-replace && $(MAKE) run IMAGE=$(IMG_BASEPATH)/$(PLUGIN_NAME)-$(OS)-$(ARCH):$(IMG_DEFAULT_TAG) NEW_IMAGE=$(IMG_REPOSITORY)/$(PLUGIN_NAME)-$(OS)-$(ARCH):$(IMG_VERSION_OVERRIDE)
+	cd ../hack/packages/kbld-image-replace && \
+	  go run main.go -kbld-config ../../../packages/$(PACKAGE_NAME)/kbld-config.yaml \
+	  $(IMG_BASEPATH)/$(PLUGIN_NAME)-$(OS)-$(ARCH):$(IMG_DEFAULT_TAG) \
+	  $(IMG_REPOSITORY)/$(PLUGIN_NAME)-$(OS)-$(ARCH):$(IMG_VERSION_OVERRIDE)
 
 .PHONY: docker-image-name-%
 docker-image-name-%:
@@ -72,9 +76,14 @@ docker-publish: ## Publish docker image
 
 .PHONY: kbld-image-replace
 kbld-image-replace: ## Add newImage in kbld-config.yaml
-	@ for plugin in $(PLUGINS) ; do \
+	@ for plugin in $(STANDALONE_PLUGINS) ; do \
 		for env in $(ENVS) ; do \
-			$(MAKE) kbld-image-replace-$$plugin"_"$$env --no-print-directory ; \
+			$(MAKE) kbld-image-replace-$$plugin"_"$$env"_"standalone-plugins --no-print-directory ; \
+		done \
+	done
+	@ for plugin in $(CONTEXTAWARE_PLUGINS) ; do \
+		for env in $(ENVS) ; do \
+			$(MAKE) kbld-image-replace-$$plugin"_"$$env"_"core-management-plugins --no-print-directory ; \
 		done \
 	done
 

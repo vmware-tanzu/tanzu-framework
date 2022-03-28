@@ -19,12 +19,12 @@ func main() {
 	file := flag.String("kbld-config", "../../../packages/kbld-config.yaml", "Path to kbld-config.yaml file")
 	flag.Parse()
 
-	if len(os.Args) != 3 {
+	if len(flag.Args()) != 2 {
 		log.Fatal("need image and newImage arguments")
 	}
 
-	image := os.Args[1]
-	newImage := os.Args[2]
+	image := flag.Arg(0)
+	newImage := flag.Arg(1)
 
 	file = &[]string{filepath.Clean(*file)}[0]
 
