@@ -1239,6 +1239,7 @@ func (r *ClusterBootstrapReconciler) updateValuesFromProvider(cluster *clusterap
 			// There are possibilities that current reconciliation loop fails due to various reasons, and during next reconciliation
 			// loop, it is possible that the provider resource has been created. In this case, we want to run update/patch.
 			if apierrors.IsAlreadyExists(err) {
+				r.Log.Info(fmt.Sprintf("provider %s/%s already exist, patching its Labels and OwnerReferences fields", newProvider.GetNamespace(), newProvider.GetName()))
 				// Instantiate an empty unstructured and only set ownerReferences and Labels for patching
 				patchObj := unstructured.Unstructured{}
 				patchObj.SetLabels(newProvider.GetLabels())
