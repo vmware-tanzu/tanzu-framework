@@ -2,13 +2,7 @@
 #@ load("@ytt:assert", "assert")
 
 #@ def get_package_repository(repository_name):
-#@   if data.values.packageRepository == "management":
-#@     return data.values.managementPackageRepository
-#@   elif data.values.packageRepository == "standalone":
-#@     return data.values.standalonePackageRepository
-#@   else:
-#@     assert("Package Repository must be management or standalone")
-#@   end
+#@   return data.values.repositories[repository_name]
 #@ end
 
 #@ def get_package(package_repository, package_name):

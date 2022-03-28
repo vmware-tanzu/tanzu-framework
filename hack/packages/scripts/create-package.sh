@@ -52,7 +52,7 @@ sed $SEDARGS "s/PACKAGE_NAME/${PACKAGE_NAME}/g" hack/packages/templates/new-pack
 sed $SEDARGS "s/PACKAGE_NAME/${PACKAGE_NAME}/g" hack/packages/templates/new-package/metadata.yaml > "${PACKAGE_DIR}/metadata.yaml"
 sed $SEDARGS "s/PACKAGE_NAME/${PACKAGE_NAME}/g" hack/packages/templates/new-package/package.yaml > "${PACKAGE_DIR}/package.yaml"
 sed $SEDARGS "s/PACKAGE_NAME/${PACKAGE_NAME}/g" hack/packages/templates/new-package/values.yaml > "${PACKAGE_DIR}/bundle/config/values.yaml"
-sed $SEDARGS "s/PACKAGE_NAME/${PACKAGE_NAME}/g" hack/packages/templates/new-package/vendir.yml > "${PACKAGE_DIR}/bundle/vendir.yml"
+sed $SEDARGS "s/PACKAGE_NAME/${PACKAGE_NAME}/g" hack/packages/templates/new-package/vendir.yml > "${PACKAGE_DIR}/vendir.yml"
 cp hack/packages/templates/new-package/Makefile ${PACKAGE_DIR}/Makefile
 
 echo

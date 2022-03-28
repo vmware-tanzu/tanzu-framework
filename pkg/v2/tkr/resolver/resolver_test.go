@@ -27,13 +27,13 @@ func Example() {
 	osImageSelector, _ := labels.Parse("os-name=ubuntu,ami-region=us-west-2")
 
 	query := data.Query{
-		ControlPlane: data.OSImageQuery{
+		ControlPlane: &data.OSImageQuery{
 			K8sVersionPrefix: k8sVersionPrefix,
 			TKRSelector:      tkrSelector,
 			OSImageSelector:  osImageSelector,
 		},
-		MachineDeployments: map[string]data.OSImageQuery{
-			"np1": {
+		MachineDeployments: []*data.OSImageQuery{
+			{
 				K8sVersionPrefix: k8sVersionPrefix,
 				TKRSelector:      tkrSelector,
 				OSImageSelector:  osImageSelector,

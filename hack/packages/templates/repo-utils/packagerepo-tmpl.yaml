@@ -11,4 +11,4 @@ metadata:
 spec:
   fetch:
     imgpkgBundle:
-      image: #@ "{}/{}@sha256:{}".format(package_repository.registry, package_repository.name, package_repository.sha256)
+      image: #@ "{}/{}@sha256:{}".format(data.values.registry, package_repository.name, data.values.sha256)

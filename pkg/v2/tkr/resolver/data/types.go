@@ -5,6 +5,8 @@
 package data
 
 import (
+	"fmt"
+
 	"k8s.io/apimachinery/pkg/labels"
 
 	runv1 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
@@ -13,10 +15,16 @@ import (
 // Query sets constraints for resolution of TKRs. Its structure reflects Cluster API cluster topology.
 type Query struct {
 	// ControlPlane specifies the Query for the control plane.
-	ControlPlane OSImageQuery
+	// Set to nil if we want to skip resolving the control plane part.
+	ControlPlane *OSImageQuery
 
 	// MachineDeployments specifies the OSImageQueries for worker machine deployments.
-	MachineDeployments map[string]OSImageQuery
+	// An individual machine deployment query part may be set to nil if we want to skip resolving it.
+	MachineDeployments []*OSImageQuery
+}
+
+func (q Query) String() string {
+	return fmt.Sprintf("{controlPlane: %s, machineDeployments: %s}", q.ControlPlane, q.MachineDeployments)
 }
 
 // OSImageQuery sets constraints for resolution of OSImages for the control plane or a machine deployment of a cluster.
@@ -31,13 +39,28 @@ type OSImageQuery struct {
 	OSImageSelector labels.Selector
 }
 
+const strNil = "nil"
+
+func (q *OSImageQuery) String() string {
+	if q == nil {
+		return strNil
+	}
+	return fmt.Sprintf("{k8sVersionPrefix: '%s', tkrSelector: '%s', osImageSelector: '%s'}", q.K8sVersionPrefix, q.TKRSelector, q.OSImageSelector)
+}
+
 // Result carries the results of TKR resolution. Its structure reflects Cluster API cluster topology.
 type Result struct {
 	// ControlPlane carries the Result for the  control plane.
-	ControlPlane OSImageResult
+	// It is set to nil if resolving the control plane part was skipped.
+	ControlPlane *OSImageResult
 
 	// ControlPlane carries the Result for worker machine deployments.
-	MachineDeployments map[string]OSImageResult
+	// An individual machine deployment result is set to nil if resolving it was skipped.
+	MachineDeployments []*OSImageResult
+}
+
+func (r Result) String() string {
+	return fmt.Sprintf("{controlPlane: %s, machineDeployments: %s}", r.ControlPlane, r.MachineDeployments)
 }
 
 // OSImageResult carries the results of OSImage resolution for the control plane or a machine deployment of a cluster.
@@ -53,6 +76,13 @@ type OSImageResult struct {
 
 	// OSImagesByTKR maps resolved TKR names to OSImages.
 	OSImagesByTKR map[string]OSImages
+}
+
+func (r *OSImageResult) String() string {
+	if r == nil {
+		return strNil
+	}
+	return fmt.Sprintf("{k8sVersion: '%s', tkrName: '%s', osImagesByTKR: %s}", r.K8sVersion, r.TKRName, r.OSImagesByTKR)
 }
 
 // TKRs is a set of TanzuKubernetesRelease objects implemented as a map tkr.Name -> tkr.
@@ -81,4 +111,12 @@ func (osImages OSImages) Filter(f func(osImage *runv1.OSImage) bool) OSImages {
 		}
 	}
 	return result
+}
+
+func (osImages OSImages) String() string {
+	names := make([]string, 0, len(osImages))
+	for name := range osImages {
+		names = append(names, name)
+	}
+	return fmt.Sprintf("%v", names)
 }

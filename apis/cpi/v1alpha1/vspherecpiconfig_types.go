@@ -161,6 +161,7 @@ type ParavirtualConfig struct {
 
 	// Used in vsphereParavirtual mode, defines the Cluster kind.
 	// +kubebuilder:validation:Optional
+	// +kubebuilder:default:=Cluster
 	ClusterKind string `json:"clusterKind"`
 
 	// Used in vsphereParavirtual mode, defines the Cluster name.

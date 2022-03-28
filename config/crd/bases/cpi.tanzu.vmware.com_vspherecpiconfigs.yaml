@@ -55,6 +55,7 @@ spec:
                       API versions.
                     type: string
                   clusterKind:
+                    default: Cluster
                     description: Used in vsphereParavirtual mode, defines the Cluster
                       kind.
                     type: string

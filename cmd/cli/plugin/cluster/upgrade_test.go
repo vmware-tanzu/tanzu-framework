@@ -231,7 +231,31 @@ var _ = Describe("getValidTKRVersionForUpgradeGivenFullTKRName", func() {
 			})
 		})
 
+		Context("when existing TKR associated with cluster and user provided TKR is same and no new upgrades are available for the given TKR during upgrade, it should return provided TKR", func() {
+
+			BeforeEach(func() {
+				availableUpgrades := fmt.Sprintf("TKR(s) with later version is available: %s,%s,%s", "v1.18.8---vmware.1-tkg.1", "v1.18.17---vmware.2-tkg.1", "v1.18.14---vmware.1-tkg.1-rc.1")
+				tkr1 := getFakeTKR("v1.17.18---vmware.1-tkg.2", "v1.17.18+vmware.1", corev1.ConditionTrue, availableUpgrades)
+				tkr2 := getFakeTKR("v1.18.8---vmware.1-tkg.1", "v1.18.8+vmware.1", corev1.ConditionTrue, "")
+				tkr3 := getFakeTKR("v1.18.17---vmware.2-tkg.1", "v1.18.17+vmware.2", corev1.ConditionTrue, "")
+				tkr4 := getFakeTKR("v1.18.14---vmware.1-tkg.1-rc.1", "v1.18.14+vmware.1", corev1.ConditionTrue, "")
+				tkr5 := getFakeTKR("v1.18.17---vmware.1-tkg.2", "v1.18.17+vmware.1", corev1.ConditionTrue, "")
+				tkrs = []runv1alpha1.TanzuKubernetesRelease{tkr1, tkr4, tkr3, tkr2, tkr5}
+
+				tkrForUpgrade = tkr5
+
+				clusterLabels = map[string]string{
+					"tanzuKubernetesRelease": "v1.18.17---vmware.1-tkg.2",
+				}
+			})
+			It("should return not return error", func() {
+				Expect(err).ToNot(HaveOccurred())
+				Expect(latestTKRVersion).To(Equal("v1.18.17+vmware.1-tkg.2"))
+			})
+		})
+
 	})
+
 	Context("When cluster doesn't have TKR version label", func() {
 		BeforeEach(func() {
 			clusterLabels = map[string]string{}

@@ -27,3 +27,10 @@ const (
 	NsxtSecretNameVarName         = "NSXT_SECRET_NAME"      // nolint:gosec
 	NsxtSecretNamespaceVarName    = "NSXT_SECRET_NAMESPACE" // nolint:gosec
 )
+
+// secret in the target cluster that contains the generated service account
+// token.
+const (
+	ProviderServiceAccountSecretName      = "cloud-provider-creds"
+	ProviderServiceAccountSecretNamespace = "vmware-system-cloud-provider" // nolint:gosec
+)

@@ -5,7 +5,6 @@
 package internal
 
 import (
-	"fmt"
 	"sync"
 
 	"k8s.io/apimachinery/pkg/labels"
@@ -14,6 +13,7 @@ import (
 
 	runv1 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v2/tkr/resolver/data"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v2/tkr/util/osimage"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v2/tkr/util/version"
 )
 
@@ -43,6 +43,19 @@ func (r *Resolver) Remove(objects ...interface{}) {
 	r.cache.remove(objects)
 }
 
+func (r *Resolver) Get(name string, obj interface{}) interface{} {
+	r.cache.mutex.RLock()
+	defer r.cache.mutex.RUnlock()
+
+	switch obj.(type) {
+	case *runv1.TanzuKubernetesRelease:
+		return r.cache.tkrs[name]
+	case *runv1.OSImage:
+		return r.cache.osImages[name]
+	}
+	return nil
+}
+
 func (r *Resolver) Resolve(query data.Query) data.Result {
 	query = normalize(query)
 
@@ -68,8 +81,8 @@ type cache struct {
 }
 
 type details struct {
-	controlPlane       osImageDetails
-	machineDeployments map[string]osImageDetails
+	controlPlane       *osImageDetails
+	machineDeployments []*osImageDetails
 }
 
 func (cache *cache) add(objects []interface{}) {
@@ -223,24 +236,11 @@ func (cache *cache) augmentOSImage(osImage *runv1.OSImage) {
 	osImage.Labels[runv1.LabelOSVersion] = osImage.Spec.OS.Version
 	osImage.Labels[runv1.LabelOSArch] = osImage.Spec.OS.Arch
 
-	imageType := osImage.Spec.Image.Type
-	osImage.Labels[runv1.LabelImageType] = imageType
-
-	setRefLabels(osImage.Labels, imageType, osImage.Spec.Image.Ref)
+	osImage.Labels[runv1.LabelImageType] = osImage.Spec.Image.Type
+	osimage.SetRefLabels(osImage.Labels, osImage.Spec.Image.Type, osImage.Spec.Image.Ref)
 
 	ensureLabel(osImage.Labels, runv1.LabelIncompatible, conditions.IsFalse(osImage, runv1.ConditionCompatible))
 	ensureLabel(osImage.Labels, runv1.LabelInvalid, conditions.IsFalse(osImage, runv1.ConditionValid))
-}
-
-func setRefLabels(ls labels.Set, prefix string, ref map[string]interface{}) {
-	for name, value := range ref {
-		prefixedName := prefix + "-" + name
-		if value, ok := value.(map[string]interface{}); ok {
-			setRefLabels(ls, prefixedName, value)
-			continue
-		}
-		ls[prefixedName] = fmt.Sprint(value)
-	}
 }
 
 // Pre-reqs: osImage is NEVER nil
@@ -252,29 +252,37 @@ func (cache *cache) addToTKRToOSImages(tkrs data.TKRs, osImage *runv1.OSImage) {
 
 // normalize uses normalizeOSImageQuery() to augment both its ports: query.ControlPlane and query.MachineDeployments
 func normalize(query data.Query) data.Query {
-	mdQueries := make(map[string]data.OSImageQuery, len(query.MachineDeployments))
-	for name, osImageQuery := range query.MachineDeployments {
-		mdQueries[name] = normalizeOSImageQuery(osImageQuery)
-	}
 	return data.Query{
 		ControlPlane:       normalizeOSImageQuery(query.ControlPlane),
-		MachineDeployments: mdQueries,
+		MachineDeployments: normalizeMDQueries(query.MachineDeployments),
 	}
 }
 
 // normalizeOSImageQuery augments the osImageQuery by appending to its TKRSelector and OSImageSelector an equivalent of
 // label query string "<k8s-version-prefix-label>,!incompatible,!deactivated,!invalid".
-func normalizeOSImageQuery(osImageQuery data.OSImageQuery) data.OSImageQuery {
+func normalizeOSImageQuery(osImageQuery *data.OSImageQuery) *data.OSImageQuery {
+	if osImageQuery == nil {
+		return nil
+	}
+
 	unwantedLabels := []string{runv1.LabelIncompatible, runv1.LabelDeactivated, runv1.LabelInvalid}
 
 	tkrSelector := addLabelNotExistsReq(osImageQuery.TKRSelector, unwantedLabels...)
 	osImageSelector := addLabelNotExistsReq(osImageQuery.OSImageSelector, unwantedLabels...)
 
-	return data.OSImageQuery{
+	return &data.OSImageQuery{
 		K8sVersionPrefix: osImageQuery.K8sVersionPrefix,
 		TKRSelector:      addLabelExistsReq(tkrSelector, version.Label(osImageQuery.K8sVersionPrefix)),
 		OSImageSelector:  addLabelExistsReq(osImageSelector, version.Label(osImageQuery.K8sVersionPrefix)),
 	}
+}
+
+func normalizeMDQueries(mdQueries []*data.OSImageQuery) []*data.OSImageQuery {
+	result := make([]*data.OSImageQuery, len(mdQueries))
+	for i, osImageQuery := range mdQueries {
+		result[i] = normalizeOSImageQuery(osImageQuery)
+	}
+	return result
 }
 
 // Pre-req: labels are valid
@@ -306,11 +314,15 @@ func (cache *cache) filter(query data.Query) details {
 	}
 }
 
-func (cache *cache) filterOSImageDetails(osImageQuery data.OSImageQuery) osImageDetails {
-	consideredTKRs := cache.consideredTKRs(osImageQuery)
-	filteredOSImagesByTKR := cache.filterOSImagesByTKR(osImageQuery, consideredTKRs)
+func (cache *cache) filterOSImageDetails(osImageQuery *data.OSImageQuery) *osImageDetails {
+	if osImageQuery == nil {
+		return nil
+	}
 
-	return osImageDetails{
+	consideredTKRs := cache.consideredTKRs(*osImageQuery)
+	filteredOSImagesByTKR := cache.filterOSImagesByTKR(*osImageQuery, consideredTKRs)
+
+	return &osImageDetails{
 		tkrs:          filterTKRsWithOSImages(filteredOSImagesByTKR, consideredTKRs),
 		osImagesByTKR: filteredOSImagesByTKR,
 	}
@@ -328,7 +340,7 @@ func (cache *cache) filterOSImagesByTKR(query data.OSImageQuery, consideredTKRs 
 	result := make(map[string]data.OSImages, len(consideredTKRs))
 	for tkrName := range consideredTKRs {
 		osImages := cache.tkrToOSImages[tkrName].Filter(func(osImage *runv1.OSImage) bool {
-			return query.OSImageSelector.Matches(labels.Set(osImage.Labels))
+			return osImage != nil && query.OSImageSelector.Matches(labels.Set(osImage.Labels))
 		})
 		if len(osImages) > 0 {
 			result[tkrName] = osImages
@@ -346,10 +358,10 @@ func filterTKRsWithOSImages(osImagesByTKR map[string]data.OSImages, tkrs data.TK
 	})
 }
 
-func (cache *cache) filterMachineDeployments(mdQueries map[string]data.OSImageQuery) map[string]osImageDetails {
-	result := make(map[string]osImageDetails, len(mdQueries))
-	for name, mdQuery := range mdQueries {
-		result[name] = cache.filterOSImageDetails(mdQuery)
+func (cache *cache) filterMachineDeployments(mdQueries []*data.OSImageQuery) []*osImageDetails {
+	result := make([]*osImageDetails, len(mdQueries))
+	for i, mdQuery := range mdQueries {
+		result[i] = cache.filterOSImageDetails(mdQuery)
 	}
 	return result
 }
@@ -362,9 +374,12 @@ func sort(input details) data.Result {
 	}
 }
 
-func sortOSImageResult(osImageDetails osImageDetails) data.OSImageResult {
+func sortOSImageResult(osImageDetails *osImageDetails) *data.OSImageResult {
+	if osImageDetails == nil {
+		return nil
+	}
 	latestK8sVersion, latestTKRName, tkrsByK8sVersion := tkrsByK8sVersion(osImageDetails.tkrs)
-	return data.OSImageResult{
+	return &data.OSImageResult{
 		K8sVersion:       latestK8sVersion,
 		TKRName:          latestTKRName,
 		TKRsByK8sVersion: tkrsByK8sVersion,
@@ -394,10 +409,10 @@ func tkrsByK8sVersion(tkrs data.TKRs) (string, string, map[string]data.TKRs) {
 	return latestK8sVersion, latestTKRName, result
 }
 
-func sortMDResults(machineDeployments map[string]osImageDetails) map[string]data.OSImageResult {
-	result := make(map[string]data.OSImageResult, len(machineDeployments))
-	for name, osImageDetails := range machineDeployments {
-		result[name] = sortOSImageResult(osImageDetails)
+func sortMDResults(machineDeployments []*osImageDetails) []*data.OSImageResult {
+	result := make([]*data.OSImageResult, len(machineDeployments))
+	for i, osImageDetails := range machineDeployments {
+		result[i] = sortOSImageResult(osImageDetails)
 	}
 	return result
 }

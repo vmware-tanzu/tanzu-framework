@@ -1,0 +1,19 @@
+apiVersion: vendir.k14s.io/v1alpha1
+directories:
+- contents:
+  - manual: {}
+    path: certificates.yaml
+  - manual: {}
+    path: feature-crd.yaml
+  - manual: {}
+    path: featuregate-crd.yaml
+  - manual: {}
+    path: rbac.yaml
+  - manual: {}
+    path: service.yaml
+  - manual: {}
+    path: tanzu-featuregates-manager.yaml
+  - manual: {}
+    path: webhook.yaml
+  path: bundle/config/upstream
+kind: LockConfig

@@ -3,7 +3,7 @@
 
 include ../../../../../../common.mk
 
-IMG_DEFAULT_NAME := tkr-cluster-webhook
+IMG_DEFAULT_NAME := tkr-resolver-cluster-webhook
 IMG_DEFAULT_TAG := latest
 IMG_DEFAULT_NAME_TAG := $(IMG_DEFAULT_NAME):$(IMG_DEFAULT_TAG)
 
