@@ -1223,6 +1223,7 @@ func (r *ClusterBootstrapReconciler) updateValuesFromProvider(cluster *clusterap
 		} else {
 			providerLabels[addontypes.PackageNameLabel] = util.ParseStringForLabel(pkg.RefName)
 			providerLabels[addontypes.ClusterNameLabel] = cluster.Name
+			newProvider.SetLabels(providerLabels)
 		}
 
 		newProvider.SetName(fmt.Sprintf("%s-%s-package", cluster.Name, pkgRefName))
@@ -1238,13 +1239,18 @@ func (r *ClusterBootstrapReconciler) updateValuesFromProvider(cluster *clusterap
 			// There are possibilities that current reconciliation loop fails due to various reasons, and during next reconciliation
 			// loop, it is possible that the provider resource has been created. In this case, we want to run update/patch.
 			if apierrors.IsAlreadyExists(err) {
-				var jsonData []byte
-				if jsonData, err = newProvider.MarshalJSON(); err != nil {
+				// Instantiate an empty unstructured and only set ownerReferences and Labels for patching
+				patchObj := unstructured.Unstructured{}
+				patchObj.SetLabels(newProvider.GetLabels())
+				patchObj.SetOwnerReferences(newProvider.GetOwnerReferences())
+				patchData, err := patchObj.MarshalJSON()
+				if err != nil {
+					log.Error(err, fmt.Sprintf("unable to patch provider %s/%s", newProvider.GetNamespace(), newProvider.GetName()), "gvr", gvr)
 					return nil, err
 				}
-				createdOrUpdatedProvider, err = r.dynamicClient.Resource(*gvr).Namespace(cluster.Namespace).Patch(r.context, newProvider.GetName(), types.MergePatchType, jsonData, metav1.PatchOptions{})
+				createdOrUpdatedProvider, err = r.dynamicClient.Resource(*gvr).Namespace(cluster.Namespace).Patch(r.context, newProvider.GetName(), types.MergePatchType, patchData, metav1.PatchOptions{})
 				if err != nil {
-					log.Info(fmt.Sprintf("unable to updated provider %s/%s", newProvider.GetNamespace(), newProvider.GetName()), "gvr", gvr)
+					log.Error(err, fmt.Sprintf("unable to patch provider %s/%s", newProvider.GetNamespace(), newProvider.GetName()), "gvr", gvr)
 					return nil, err
 				}
 			} else {

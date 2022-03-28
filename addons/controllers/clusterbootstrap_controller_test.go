@@ -406,7 +406,12 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 				})
 
 				By("verifying the embedded local object reference is cloned into cluster namespace", func() {
-					assertEventuallyExistInNamespace(ctx, k8sClient, clusterNamespace, "cpi-vsphere-credential", &corev1.Secret{})
+					name := "cpi-vsphere-credential"
+					assertEventuallyExistInNamespace(ctx, k8sClient, clusterNamespace, name, &corev1.Secret{})
+					assertSecretContains(ctx, k8sClient, clusterNamespace, name, map[string][]byte{
+						"username": []byte("Zm9v"), // foo
+						"password": []byte("YmFy"), // bar
+					})
 				})
 
 				By("Updating cluster TKR version", func() {
@@ -548,6 +553,15 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 	})
 
 })
+
+func assertSecretContains(ctx context.Context, k8sClient client.Client, namespace, name string, secretContent map[string][]byte) {
+	secret := &corev1.Secret{}
+	err := k8sClient.Get(ctx, client.ObjectKey{Namespace: namespace, Name: name}, secret)
+	Expect(err).ToNot(HaveOccurred())
+	for k, v := range secretContent {
+		Expect(string(secret.Data[k]) == string(v)).ToNot(BeTrue())
+	}
+}
 
 func assertEventuallyExistInNamespace(ctx context.Context, k8sClient client.Client, namespace, name string, obj client.Object) {
 	Eventually(func() error {
