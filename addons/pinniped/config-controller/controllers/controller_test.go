@@ -20,20 +20,22 @@ import (
 	tkgconstants "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
 )
 
-var _ = Describe("Controller", func() {
-	// TODO: Test cases:
-	//   Management cluster addon secret is created/updated/deleted (make sure wlc secrets get updated/deleted? accordingly)
-	//   WLC addon secret is created (verify it gets updated w/info from CM and management cluster)
-	//   CM is deleted (make sure nothing happens/secrets are not deleted)
-	//   CM is updated (make sure secrets get updated)
+const TestPinnipedLabel = "pinniped.tanzu.vmware.com.1.2.3--vmware.1-tkg.1"
 
-	var cluster *clusterapiv1beta1.Cluster
+var _ = Describe("Controller", func() {
+	var (
+		cluster          *clusterapiv1beta1.Cluster
+		pinnipedCBSecret *corev1.Secret
+	)
 
 	BeforeEach(func() {
 		cluster = &clusterapiv1beta1.Cluster{
 			ObjectMeta: metav1.ObjectMeta{
 				Namespace: pinnipedNamespace,
 				Name:      "some-name",
+				Labels: map[string]string{
+					constants.TKRLabelClassyClusters: "v1.23.3",
+				},
 			},
 			Spec: clusterapiv1beta1.ClusterSpec{
 				InfrastructureRef: &corev1.ObjectReference{
@@ -42,201 +44,187 @@ var _ = Describe("Controller", func() {
 				},
 			},
 		}
+
+		pinnipedCBSecret = &corev1.Secret{
+			ObjectMeta: metav1.ObjectMeta{
+				Namespace: pinnipedNamespace,
+				Name:      fmt.Sprintf("%s-%s-package", cluster.Name, "pinniped.tanzu.vmware.com"),
+				Labels: map[string]string{
+					constants.PackageNameLabel:    TestPinnipedLabel,
+					constants.TKGClusterNameLabel: cluster.Name,
+				},
+			},
+			Type: constants.ClusterBootstrapManagedSecret,
+		}
 	})
 
-	Context("Cluster", func() {
+	Context("ClusterBootstrap Secret", func() {
 		BeforeEach(func() {
-			create(ctx, cluster)
+			createObject(ctx, cluster)
+			createObject(ctx, pinnipedCBSecret)
 		})
 
 		AfterEach(func() {
-			delete(ctx, cluster)
+			deleteObject(ctx, cluster)
+			deleteObject(ctx, pinnipedCBSecret)
 		})
 
-		When("cluster is created", func() {
-			It("creates a secret with identity_management_type set to none", func() {
-				Eventually(addonSecretFunc(ctx, cluster, nil)).Should(Succeed())
+		When("the secret gets created", func() {
+			It("updates the secret with the proper data values", func() {
+				Eventually(cbSecretFunc(ctx, cluster, nil)).Should(Succeed())
 			})
 		})
 
-		When("cluster is updated", func() {
+		When("the secret gets updated", func() {
 			BeforeEach(func() {
-				clusterCopy := cluster.DeepCopy()
-				annotations := clusterCopy.ObjectMeta.Annotations
-				if annotations == nil {
-					annotations = make(map[string]string)
-				}
-				annotations["sweetest-cat"] = "lionel"
-				clusterCopy.ObjectMeta.Annotations = annotations
-				Expect(k8sClient.Update(ctx, clusterCopy)).To(Succeed())
-			})
-			// TODO: test where we edit that TKR label on the cluster.....................................
-			It("secret remains unchanged", func() {
-				Eventually(addonSecretFunc(ctx, cluster, nil)).Should(Succeed())
-			})
-		})
-
-		When("Cluster is deleted", func() {
-			BeforeEach(func() {
-				delete(ctx, cluster)
-			})
-
-			It("deletes the Pinniped addon secret associated with the cluster", func() {
 				Eventually(func(g Gomega) {
-					gotSecret := &corev1.Secret{
-						ObjectMeta: metav1.ObjectMeta{
-							Namespace: pinnipedNamespace,
-							Name:      fmt.Sprintf("%s-pinniped-addon", cluster.Name),
-						},
-					}
-					err := k8sClient.Get(ctx, client.ObjectKeyFromObject(gotSecret), gotSecret)
-					g.Expect(k8serrors.IsNotFound(err)).To(BeTrue())
-				}).Should(Succeed())
-			})
-		})
-	})
-
-	Context("Addon Secret", func() {
-		BeforeEach(func() {
-			create(ctx, cluster)
-		})
-
-		AfterEach(func() {
-			delete(ctx, cluster)
-		})
-
-		When("the secret gets deleted", func() {
-			var gotSecret *corev1.Secret
-
-			BeforeEach(func() {
-				gotSecret = &corev1.Secret{
-					ObjectMeta: metav1.ObjectMeta{
-						Namespace: pinnipedNamespace,
-						Name:      fmt.Sprintf("%s-pinniped-addon", cluster.Name),
-					},
-				}
-				Eventually(func(g Gomega) {
-					err := k8sClient.Delete(ctx, gotSecret)
+					err := k8sClient.Get(ctx, client.ObjectKeyFromObject(pinnipedCBSecret), pinnipedCBSecret)
 					g.Expect(err).NotTo(HaveOccurred())
 				}).Should(Succeed())
-			})
-
-			It("recreates the secret with identity_management_type set to none", func() {
-				Eventually(func(g Gomega) {
-					Eventually(addonSecretFunc(ctx, cluster, nil)).Should(Succeed())
-				}).Should(Succeed())
-			})
-		})
-
-		When("identity_management_type is changed on the secret", func() {
-			var gotSecret *corev1.Secret
-
-			BeforeEach(func() {
-				gotSecret = &corev1.Secret{
-					ObjectMeta: metav1.ObjectMeta{
-						Namespace: pinnipedNamespace,
-						Name:      fmt.Sprintf("%s-pinniped-addon", cluster.Name),
-					},
+				secretCopy := pinnipedCBSecret.DeepCopy()
+				updatedSecretDataValues := map[string][]byte{
+					constants.TKGDataValueFieldName: []byte(fmt.Sprintf("%s: fire", constants.IdentityManagementTypeKey)),
 				}
-
-				Eventually(func(g Gomega) {
-					err := k8sClient.Get(ctx, client.ObjectKeyFromObject(gotSecret), gotSecret)
-					g.Expect(err).NotTo(HaveOccurred())
-				}).Should(Succeed())
-				secretCopy := gotSecret.DeepCopy()
-				updatedSecretDataValues := []byte(`identity_management_type: fire`)
-				secretCopy.Data["values.yaml"] = updatedSecretDataValues
+				secretCopy.Data = updatedSecretDataValues
 				Expect(k8sClient.Update(ctx, secretCopy)).To(Succeed())
 			})
 
 			It("updates the secret with the proper data values", func() {
-				Eventually(addonSecretFunc(ctx, cluster, nil)).Should(Succeed())
+				Eventually(cbSecretFunc(ctx, cluster, nil)).Should(Succeed())
 			})
 		})
-		When("the secret does not have the Pinniped addon label", func() {
-			var gotSecret *corev1.Secret
+
+		When("random values are added to the secret", func() {
+			var secretCopy *corev1.Secret
+			BeforeEach(func() {
+				secretCopy = pinnipedCBSecret.DeepCopy()
+				Eventually(func(g Gomega) {
+					err := k8sClient.Get(ctx, client.ObjectKeyFromObject(secretCopy), secretCopy)
+					g.Expect(err).NotTo(HaveOccurred())
+					g.Expect(secretCopy.Data).NotTo(BeNil())
+				}).Should(Succeed())
+				dataValues := secretCopy.Data[constants.TKGDataValueFieldName]
+				dataValues = append(dataValues, "sweetest_cat: lionel"...)
+				secretCopy.Data[constants.TKGDataValueFieldName] = dataValues
+				Expect(k8sClient.Update(ctx, secretCopy)).To(Succeed())
+			})
+
+			It("they are preserved", func() {
+				Eventually(func(g Gomega) {
+					actualSecret := pinnipedCBSecret.DeepCopy()
+					err := k8sClient.Get(ctx, client.ObjectKeyFromObject(actualSecret), actualSecret)
+					g.Expect(err).NotTo(HaveOccurred())
+					var gotValuesYAML map[string]interface{}
+					var wantValuesYAML map[string]interface{}
+					g.Expect(yaml.Unmarshal(actualSecret.Data[constants.TKGDataValueFieldName], &gotValuesYAML)).Should(Succeed())
+					g.Expect(yaml.Unmarshal(secretCopy.Data[constants.TKGDataValueFieldName], &wantValuesYAML)).Should(Succeed())
+					g.Expect(gotValuesYAML).Should(Equal(wantValuesYAML))
+				}).Should(Succeed())
+			})
+		})
+
+		When("the secret contains overlays", func() {
+			var secretCopy *corev1.Secret
+			BeforeEach(func() {
+				secretCopy = pinnipedCBSecret.DeepCopy()
+				Eventually(func(g Gomega) {
+					err := k8sClient.Get(ctx, client.ObjectKeyFromObject(secretCopy), secretCopy)
+					g.Expect(err).NotTo(HaveOccurred())
+					g.Expect(secretCopy.Data).NotTo(BeNil())
+				}).Should(Succeed())
+				secretCopy.Data[constants.TKGDataOverlayFieldName] = []byte(`#@ load("@ytt:overlay", "overlay")
+   #@overlay/match by=overlay.subset({"kind": "Service", "metadata": {"name": "pinniped-supervisor", "namespace": "pinniped-supervisor"}})
+   ---
+   #@overlay/replace
+   spec:
+     type: LoadBalancer
+     selector:
+       app: pinniped-supervisor
+     ports:
+       - name: https
+         protocol: TCP
+         port: 443
+         targetPort: 8443`)
+				Expect(k8sClient.Update(ctx, secretCopy)).To(Succeed())
+			})
+
+			It("they are preserved", func() {
+				Eventually(func(g Gomega) {
+					actualSecret := pinnipedCBSecret.DeepCopy()
+					err := k8sClient.Get(ctx, client.ObjectKeyFromObject(actualSecret), actualSecret)
+					g.Expect(err).NotTo(HaveOccurred())
+					g.Expect(actualSecret.Data[constants.TKGDataOverlayFieldName]).Should(Equal(secretCopy.Data[constants.TKGDataOverlayFieldName]))
+					Eventually(cbSecretFunc(ctx, cluster, nil)).Should(Succeed())
+				}).Should(Succeed())
+			})
+		})
+
+		When("the secret does not have the Pinniped package label", func() {
+			var secretCopy *corev1.Secret
+			var secretLabels map[string]string
+			var secretData map[string][]byte
 
 			BeforeEach(func() {
-				gotSecret = &corev1.Secret{
-					ObjectMeta: metav1.ObjectMeta{
-						Namespace: pinnipedNamespace,
-						Name:      "another-secret",
-						Labels: map[string]string{
-							constants.TKGAddonLabel:       "pumpkin",
-							constants.TKGClusterNameLabel: cluster.Name,
-						},
-					},
+				secretCopy = pinnipedCBSecret.DeepCopy()
+				secretLabels = map[string]string{
+					constants.TKGAddonLabel:       "pinniped",
+					constants.TKGClusterNameLabel: cluster.Name,
 				}
-
-				secretCopy := gotSecret.DeepCopy()
-				secretCopy.Type = "tkg.tanzu.vmware.com/addon"
-				secretCopy.Data = map[string][]byte{}
-				secretCopy.Data["values.yaml"] = []byte("identity_management_type: moses")
+				secretData = map[string][]byte{
+					constants.TKGDataValueFieldName: []byte(fmt.Sprintf("%s: moses", constants.IdentityManagementTypeKey)),
+				}
+				secretCopy.Name = "another-secret"
+				secretCopy.Labels = secretLabels
+				secretCopy.Type = constants.ClusterBootstrapManagedSecret
+				secretCopy.Data = secretData
 				Expect(k8sClient.Create(ctx, secretCopy)).To(Succeed())
 			})
 
 			AfterEach(func() {
-				delete(ctx, gotSecret)
+				deleteObject(ctx, secretCopy)
 			})
 
 			It("does not get updated", func() {
 				Eventually(func(g Gomega) {
-					wantSecretLabels := map[string]string{
-						constants.TKGAddonLabel:       "pumpkin",
-						constants.TKGClusterNameLabel: cluster.Name,
-					}
-
-					wantSecretData := map[string][]byte{
-						"values.yaml": []byte("identity_management_type: moses"),
-					}
-					err := k8sClient.Get(ctx, client.ObjectKeyFromObject(gotSecret), gotSecret)
+					err := k8sClient.Get(ctx, client.ObjectKeyFromObject(secretCopy), secretCopy)
 					g.Expect(err).NotTo(HaveOccurred())
-					g.Expect(gotSecret.Labels).To(Equal(wantSecretLabels))
-					g.Expect(gotSecret.Data).To(Equal(wantSecretData))
+					g.Expect(secretCopy.Labels).To(Equal(secretLabels))
+					g.Expect(secretCopy.Data).To(Equal(secretData))
 				}).Should(Succeed())
 			})
 		})
-		// TODO: Edit these when we figure out our label sitch :/
-		When("the secret is not an addon type", func() {
-			var gotSecret *corev1.Secret
+
+		When("the secret is not a ClusterBootstrap secret type", func() {
+			var secretCopy *corev1.Secret
+			var secretLabels map[string]string
+			var secretData map[string][]byte
 
 			BeforeEach(func() {
-				gotSecret = &corev1.Secret{
-					ObjectMeta: metav1.ObjectMeta{
-						Namespace: pinnipedNamespace,
-						Name:      "newest-secret",
-						Labels: map[string]string{
-							constants.TKGAddonLabel:       constants.PinnipedAddonLabel,
-							constants.TKGClusterNameLabel: cluster.Name,
-						},
-					},
+				secretCopy = pinnipedCBSecret.DeepCopy()
+				secretCopy.Name = "newest-secret"
+				secretLabels = map[string]string{
+					constants.PackageNameLabel:    "pinniped.fun.times",
+					constants.TKGClusterNameLabel: cluster.Name,
 				}
-
-				secretCopy := gotSecret.DeepCopy()
-				secretCopy.Type = "not-an-addon"
-				secretCopy.Data = map[string][]byte{}
-				secretCopy.Data["values.yaml"] = []byte("identity_management_type: moses")
-				create(ctx, secretCopy)
+				secretData = map[string][]byte{
+					constants.TKGDataValueFieldName: []byte(fmt.Sprintf("%s: moses", constants.IdentityManagementTypeKey)),
+				}
+				secretCopy.Labels = secretLabels
+				secretCopy.Type = "not-an-cb-managed-secret"
+				secretCopy.Data = secretData
+				createObject(ctx, secretCopy)
 			})
 
 			AfterEach(func() {
-				delete(ctx, gotSecret)
+				deleteObject(ctx, secretCopy)
 			})
 
 			It("does not get updated", func() {
 				Eventually(func(g Gomega) {
-					wantSecretLabels := map[string]string{
-						constants.TKGAddonLabel:       constants.PinnipedAddonLabel,
-						constants.TKGClusterNameLabel: cluster.Name,
-					}
-
-					wantSecretData := map[string][]byte{
-						"values.yaml": []byte("identity_management_type: moses"),
-					}
-					err := k8sClient.Get(ctx, client.ObjectKeyFromObject(gotSecret), gotSecret)
+					err := k8sClient.Get(ctx, client.ObjectKeyFromObject(secretCopy), secretCopy)
 					g.Expect(err).NotTo(HaveOccurred())
-					g.Expect(gotSecret.Labels).To(Equal(wantSecretLabels))
-					g.Expect(gotSecret.Data).To(Equal(wantSecretData))
+					g.Expect(secretCopy.Labels).To(Equal(secretLabels))
+					g.Expect(secretCopy.Data).To(Equal(secretData))
 				}).Should(Succeed())
 			})
 		})
@@ -244,13 +232,14 @@ var _ = Describe("Controller", func() {
 
 	Context("pinniped-info configmap", func() {
 		const (
-			issuer             = "cats.dev"
+			issuer             = "cats.meow"
 			issuerCABundleData = "secret-blanket"
 		)
 
 		var (
-			configMap *corev1.ConfigMap
 			clusters  []*clusterapiv1beta1.Cluster
+			configMap *corev1.ConfigMap
+			secrets   []*corev1.Secret
 		)
 		BeforeEach(func() {
 			configMap = &corev1.ConfigMap{
@@ -260,8 +249,8 @@ var _ = Describe("Controller", func() {
 				},
 				Data: map[string]string{
 					// TODO: do we want to add the other fields??
-					"issuer":                "tuna.io",
-					"issuer_ca_bundle_data": "ball-of-fluff",
+					constants.IssuerKey:         "tuna.io",
+					constants.IssuerCABundleKey: "ball-of-fluff",
 				},
 			}
 
@@ -278,92 +267,150 @@ var _ = Describe("Controller", func() {
 				},
 			}
 
+			secret2 := &corev1.Secret{
+				ObjectMeta: metav1.ObjectMeta{
+					Namespace: pinnipedNamespace,
+					Name:      fmt.Sprintf("%s-%s-package", cluster2.Name, "pinniped.tanzu.vmware.com"),
+					Labels: map[string]string{
+						constants.PackageNameLabel:    TestPinnipedLabel,
+						constants.TKGClusterNameLabel: cluster2.Name,
+					},
+				},
+				Type: constants.ClusterBootstrapManagedSecret,
+			}
+
 			clusters = []*clusterapiv1beta1.Cluster{cluster, cluster2}
+			secrets = []*corev1.Secret{pinnipedCBSecret, secret2}
+			createObject(ctx, configMap)
 
 			for _, c := range clusters {
-				// TODO: this is failing b/c cluster is already there... but we're deleting it below..............................
-				create(ctx, c)
+				createObject(ctx, c)
+			}
+
+			for _, s := range secrets {
+				createObject(ctx, s)
 			}
 		})
 
 		AfterEach(func() {
-			delete(ctx, configMap)
-
+			deleteObject(ctx, configMap)
 			for _, c := range clusters {
-				delete(ctx, c)
+				deleteObject(ctx, c)
+			}
+
+			for _, s := range secrets {
+				deleteObject(ctx, s)
 			}
 		})
 		When("the configmap gets created", func() {
-			BeforeEach(func() {
-				create(ctx, configMap)
-			})
-
-			It("updates all the addons secrets", func() {
+			It("updates all the ClusterBootstrap secrets", func() {
 				for _, c := range clusters {
-					Eventually(addonSecretFunc(ctx, c, configMap)).Should(Succeed())
+					Eventually(cbSecretFunc(ctx, c, configMap)).Should(Succeed())
 				}
 			})
+		})
 
-			When("the configmap gets deleted", func() {
-				BeforeEach(func() {
-					delete(ctx, configMap)
-				})
+		When("the configmap gets updated", func() {
+			var configMapCopy *corev1.ConfigMap
+			BeforeEach(func() {
+				configMapCopy = configMap.DeepCopy()
+				configMapCopy.Data[constants.IssuerKey] = issuer
+				configMapCopy.Data[constants.IssuerCABundleKey] = issuerCABundleData
+				err := k8sClient.Update(ctx, configMapCopy)
+				Expect(err).NotTo(HaveOccurred())
+				Eventually(func(g Gomega) {
+					err := k8sClient.Get(ctx, client.ObjectKeyFromObject(configMapCopy), configMapCopy)
+					g.Expect(err).NotTo(HaveOccurred())
+				}).Should(Succeed())
+			})
 
-				It("updates all the addons secrets", func() {
-					for _, c := range clusters {
-						Eventually(addonSecretFunc(ctx, c, nil)).Should(Succeed())
-					}
-				})
+			It("updates all the ClusterBootStrap secrets", func() {
+				for _, c := range clusters {
+					Eventually(cbSecretFunc(ctx, c, configMapCopy)).Should(Succeed())
+				}
+			})
+		})
+
+		When("the configmap gets does not have an issuer or caBundle", func() {
+			var configMapCopy *corev1.ConfigMap
+			BeforeEach(func() {
+				configMapCopy = configMap.DeepCopy()
+				delete(configMapCopy.Data, constants.IssuerKey)
+				delete(configMapCopy.Data, constants.IssuerCABundleKey)
+				err := k8sClient.Update(ctx, configMapCopy)
+				Expect(err).NotTo(HaveOccurred())
+				Eventually(func(g Gomega) {
+					err := k8sClient.Get(ctx, client.ObjectKeyFromObject(configMapCopy), configMapCopy)
+					g.Expect(err).NotTo(HaveOccurred())
+				}).Should(Succeed())
+			})
+
+			It("updates all the ClusterBootStrap secrets", func() {
+				for _, c := range clusters {
+					Eventually(cbSecretFunc(ctx, c, nil)).Should(Succeed())
+				}
+			})
+		})
+
+		When("the configmap gets deleted", func() {
+			BeforeEach(func() {
+				deleteObject(ctx, configMap)
+			})
+
+			It("updates all the ClusterBootstrap secrets", func() {
+				for _, c := range clusters {
+					Eventually(cbSecretFunc(ctx, c, nil)).Should(Succeed())
+				}
 			})
 		})
 
 		When("a configmap in a different namespace gets created", func() {
-			// TODO: Add info to CM and make sure it doesn't get propagated to secrets
 			BeforeEach(func() {
 				configMapCopy := configMap.DeepCopy()
 				configMapCopy.Namespace = pinnipedNamespace
-				configMapCopy.Data["issuer"] = issuer
-				configMapCopy.Data["issuer_ca_bundle_data"] = issuerCABundleData
-				create(ctx, configMapCopy)
+				configMapCopy.Data[constants.IssuerKey] = issuer
+				configMapCopy.Data[constants.IssuerCABundleKey] = issuerCABundleData
+				createObject(ctx, configMapCopy)
 			})
 
-			It("does not update addon secrets", func() {
+			It("does not update secrets", func() {
 				for _, c := range clusters {
-					Eventually(addonSecretFunc(ctx, c, nil)).Should(Succeed())
+					Eventually(cbSecretFunc(ctx, c, configMap)).Should(Succeed())
 				}
 			})
 		})
+
 		When("a configmap with a different name gets created", func() {
 			BeforeEach(func() {
 				configMapCopy := configMap.DeepCopy()
 				configMapCopy.Name = "kitties"
 				configMapCopy.Data = make(map[string]string)
-				configMapCopy.Data["issuer"] = issuer
-				configMapCopy.Data["issuer_ca_bundle_data"] = issuerCABundleData
-				create(ctx, configMapCopy)
+				configMapCopy.Data[constants.IssuerKey] = issuer
+				configMapCopy.Data[constants.IssuerCABundleKey] = issuerCABundleData
+				createObject(ctx, configMapCopy)
 			})
 
-			It("does not update addon secrets", func() {
+			It("does not update secrets", func() {
 				for _, c := range clusters {
-					Eventually(addonSecretFunc(ctx, c, nil)).Should(Succeed())
+					Eventually(cbSecretFunc(ctx, c, configMap)).Should(Succeed())
 				}
 			})
 		})
 	})
 })
 
-func create(ctx context.Context, o client.Object) {
-	err := k8sClient.Create(ctx, o)
+func createObject(ctx context.Context, o client.Object) {
+	oCopy := o.DeepCopyObject().(client.Object)
+	err := k8sClient.Create(ctx, oCopy)
 	Expect(err).NotTo(HaveOccurred())
 
-	oCopy := o.DeepCopyObject().(client.Object)
 	Eventually(func(g Gomega) {
 		err := k8sClient.Get(ctx, client.ObjectKeyFromObject(o), oCopy)
 		g.Expect(err).NotTo(HaveOccurred())
 	}).Should(Succeed())
 }
 
-func delete(ctx context.Context, o client.Object) {
+func deleteObject(ctx context.Context, o client.Object) {
 	err := k8sClient.Delete(ctx, o)
 
 	// Accept cases where the object has already been deleted.
@@ -378,47 +425,46 @@ func delete(ctx context.Context, o client.Object) {
 	}).Should(Succeed())
 }
 
-func addonSecretFunc(ctx context.Context, cluster *clusterapiv1beta1.Cluster, configMap *corev1.ConfigMap) func(Gomega) {
+func cbSecretFunc(ctx context.Context, cluster *clusterapiv1beta1.Cluster, configMap *corev1.ConfigMap) func(Gomega) {
 	return func(g Gomega) {
+		clusterCopy := cluster.DeepCopy()
+		err := k8sClient.Get(ctx, client.ObjectKeyFromObject(clusterCopy), clusterCopy)
+		g.Expect(err).NotTo(HaveOccurred())
+
 		secret := &corev1.Secret{
 			ObjectMeta: metav1.ObjectMeta{
-				Namespace: cluster.Namespace,
-				Name:      fmt.Sprintf("%s-pinniped-addon", cluster.Name),
+				Namespace: clusterCopy.Namespace,
+				Name:      fmt.Sprintf("%s-%s-package", clusterCopy.Name, "pinniped.tanzu.vmware.com"),
 			},
 		}
 
-		wantSecretLabels := map[string]string{
-			constants.TKGAddonLabel:       constants.PinnipedAddonLabel,
-			constants.TKGClusterNameLabel: cluster.Name,
+		wantSecretLabel := map[string]string{
+			constants.PackageNameLabel:    TestPinnipedLabel,
+			constants.TKGClusterNameLabel: clusterCopy.Name,
 		}
 		wantValuesYAML := map[string]interface{}{
-			"identity_management_type": "none",
-			"infrastructure_provider":  "vsphere",
-			"tkg_cluster_role":         "workload",
+			constants.IdentityManagementTypeKey: constants.None,
+			"infrastructure_provider":           "vsphere",
+			"tkg_cluster_role":                  "workload",
 			"pinniped": map[string]interface{}{
 				"concierge": map[string]interface{}{
-					"audience": fmt.Sprintf("%s-%s", cluster.Name, string(cluster.UID)),
+					"audience": fmt.Sprintf("%s-%s", clusterCopy.Name, string(clusterCopy.UID)),
 				},
 			},
 		}
 		if configMap != nil {
-			wantValuesYAML["identity_management_type"] = "oidc"
+			wantValuesYAML[constants.IdentityManagementTypeKey] = constants.OIDC
 
 			m := wantValuesYAML["pinniped"].(map[string]interface{})
-			m["supervisor_svc_endpoint"] = configMap.Data["issuer"]
-			m["supervisor_ca_bundle_data"] = configMap.Data["issuer_ca_bundle_data"]
+			m[constants.SupervisorEndpointKey] = configMap.Data[constants.IssuerKey]
+			m[constants.SupervisorCABundleKey] = configMap.Data[constants.IssuerCABundleKey]
 		}
 
-		err := k8sClient.Get(ctx, client.ObjectKeyFromObject(secret), secret)
+		err = k8sClient.Get(ctx, client.ObjectKeyFromObject(secret), secret)
 		g.Expect(err).NotTo(HaveOccurred())
-		g.Expect(secret.Labels).To(Equal(wantSecretLabels))
-
-		g.Expect(string(secret.Data["values.yaml"])).To(HavePrefix(`#@data/values
-#@overlay/match-child-defaults missing_ok=True
----
-`))
+		g.Expect(secret.Labels).To(Equal(wantSecretLabel))
 		var gotValuesYAML map[string]interface{}
-		g.Expect(yaml.Unmarshal(secret.Data["values.yaml"], &gotValuesYAML)).Should(Succeed())
+		g.Expect(yaml.Unmarshal(secret.Data[constants.TKGDataValueFieldName], &gotValuesYAML)).Should(Succeed())
 		g.Expect(gotValuesYAML).Should(Equal(wantValuesYAML))
 	}
 }

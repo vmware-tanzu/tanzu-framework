@@ -16,7 +16,6 @@ kind: ClusterRole
 metadata:
   name: pinniped-config-controller-manager
 rules:
-  #! TODO: we shouldn't need all these verbs on secrets and configmaps
   - apiGroups: [""]
     resources: [secrets, configmaps]
     verbs: [create, get, list, patch, update, watch, delete]
