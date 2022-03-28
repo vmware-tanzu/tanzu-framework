@@ -14,8 +14,9 @@ import (
 // NewFakeClusterQueryClient returns a fake ClusterQueryClient for use in tests.
 func NewFakeClusterQueryClient(resources []*metav1.APIResourceList, scheme *runtime.Scheme, objs []runtime.Object) (*ClusterQueryClient, error) {
 	fakeDynamicClient := dynamicFake.NewSimpleDynamicClient(scheme, objs...)
-	fakeDiscoveryClient := &fakediscovery.FakeDiscovery{Fake: &k8stesting.Fake{
-		Resources: resources,
-	}}
+	fakeDiscoveryClient := &fakediscovery.FakeDiscovery{
+		Fake: &k8stesting.Fake{
+			Resources: resources,
+		}}
 	return NewClusterQueryClient(fakeDynamicClient, fakeDiscoveryClient)
 }

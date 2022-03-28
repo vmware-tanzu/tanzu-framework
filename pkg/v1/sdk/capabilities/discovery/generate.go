@@ -25,7 +25,7 @@ func QueryTargetsToCapabilityResource(queryTargets []QueryTarget) (*runv1alpha1.
 				Name:     fmt.Sprintf("gvr-%d", rand.Int31()), //nolint:gosec
 				Group:    query.group,
 				Versions: query.versions,
-				Resource: query.resource,
+				Resource: query.resource.String,
 			}
 			gvrQueries = append(gvrQueries, q)
 		case *QueryObject:

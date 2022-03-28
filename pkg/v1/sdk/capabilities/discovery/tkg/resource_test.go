@@ -32,12 +32,12 @@ func TestHasTanzuRunGroup(t *testing.T) {
 		errExpected       bool
 		want              bool
 	}{
-		{"Tanzu run exists without version", discoveryClientWithTanzuRunGroup, []string{}, false, true},
+		{"Tanzu run exists without version if WithVersion method was omittied", discoveryClientWithTanzuRunGroup, nil, false, true},
 		{"Tanzu run exists with correct version", discoveryClientWithTanzuRunGroup, []string{"v1alpha1"}, false, true},
 		{"Tanzu run does not exist with incorrect version", discoveryClientWithTanzuRunGroup, []string{"v1"}, false, false},
 		{"Tanzu run exists with correct multiple versions", discoveryClientWithTanzuRunGroupMultipleVersions, []string{"v1alpha1", "v1"}, false, true},
 		{"Tanzu run does not exist with incorrect multiple versions", discoveryClientWithTanzuRunGroupMultipleVersions, []string{"v1alpha1", "v2"}, false, false},
-		{"Tanzu run does not exist", discoveryClientWithoutTanzuRunGroup, []string{}, false, false},
+		{"Tanzu run does not exist", discoveryClientWithoutTanzuRunGroup, nil, false, false},
 	}
 	for _, tc := range testCases {
 		t.Run(tc.description, func(t *testing.T) {
