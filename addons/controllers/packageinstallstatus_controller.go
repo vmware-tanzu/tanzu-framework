@@ -153,7 +153,7 @@ func (r *PackageInstallStatusReconciler) Reconcile(_ context.Context, req reconc
 
 	if cluster.Status.Phase != string(clusterapiv1beta1.ClusterPhaseProvisioned) {
 		log.Info(fmt.Sprintf("cluster %s/%s does not have status phase %s", cluster.Namespace, cluster.Name, clusterapiv1beta1.ClusterPhaseProvisioned))
-		return ctrl.Result{}, nil
+		return ctrl.Result{RequeueAfter: constants.RequeueAfterDuration}, nil
 	}
 
 	// determine cluster role
@@ -168,7 +168,7 @@ func (r *PackageInstallStatusReconciler) Reconcile(_ context.Context, req reconc
 		clusterRole = clusterRoleWorkload
 		remoteClient, err := r.tracker.GetClient(r.ctx, clusterapiutil.ObjectKey(cluster))
 		if err != nil {
-			return ctrl.Result{RequeueAfter: time.Second * 10}, errors.Wrap(err, "error getting remote cluster's client")
+			return ctrl.Result{RequeueAfter: constants.RequeueAfterDuration}, errors.Wrap(err, "error getting remote cluster's client")
 		}
 		clusterClient = remoteClient
 		log.Info("successfully got remoteClient")

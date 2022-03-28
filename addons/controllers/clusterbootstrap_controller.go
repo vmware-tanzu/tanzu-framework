@@ -236,7 +236,7 @@ func (r *ClusterBootstrapReconciler) reconcileNormal(cluster *clusterapiv1beta1.
 			// packages, we return error and let the reconciler retry again.
 			log.Error(err, fmt.Sprintf("unable to create or patch all the required resources for %s on cluster: %s/%s",
 				corePackage.RefName, cluster.Namespace, cluster.Name))
-			return ctrl.Result{RequeueAfter: time.Second * 10}, err
+			return ctrl.Result{RequeueAfter: constants.RequeueAfterDuration}, err
 		}
 	}
 

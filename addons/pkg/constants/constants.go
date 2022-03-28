@@ -165,6 +165,9 @@ const (
 
 	// PackageInstallSyncPeriod is the sync period for kapp-controller to periodically reconcile a PackageInstall
 	PackageInstallSyncPeriod = time.Minute * 10
+
+	// RequeueAfterInterval determines the duration after which the Controller should requeue the reconcile key
+	RequeueAfterDuration =  time.Second * 10
 )
 
 // ClusterKind is the Kind for cluster-api Cluster object
