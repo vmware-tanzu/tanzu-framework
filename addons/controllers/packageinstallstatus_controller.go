@@ -14,6 +14,7 @@ import (
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
+	kerrors "k8s.io/apimachinery/pkg/util/errors"
 	clusterapiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
 	"sigs.k8s.io/cluster-api/controllers/remote"
 	clusterapiutil "sigs.k8s.io/cluster-api/util"
@@ -204,7 +205,7 @@ func (r *PackageInstallStatusReconciler) reconcile(clusterClient client.Client, 
 	defer func() {
 		log.Info("patching ClusterBootstrapStatus")
 		if err := patchHelper.Patch(r.ctx, clusterBootstrap); err != nil {
-			retErr = errors.Wrap(err, "error patching ClusterBootstrapStatus")
+			retErr = kerrors.NewAggregate([]error{retErr, errors.Wrap(err, "error patching ClusterBootstrapStatus")})
 		}
 		log.Info("Successfully patched ClusterBootstrapStatus")
 	}()
@@ -353,23 +354,23 @@ func (r *PackageInstallStatusReconciler) watchPackageInstalls(cluster *clusterap
 func (r *PackageInstallStatusReconciler) pkgiIsManagedAndStatusChanged(log logr.Logger) predicate.Funcs {
 	return predicate.Funcs{
 		CreateFunc: func(e event.CreateEvent) bool {
-			return r.processPkgiStatus(e.Object, log.WithValues("predicate", "createEvent"))
+			return r.processPkgiIsManagedAndStatusChanged(e.Object, log.WithValues("predicate", "createEvent"))
 		},
 		UpdateFunc: func(e event.UpdateEvent) bool {
-			return r.processPkgiStatus(e.ObjectNew, log.WithValues("predicate", "updateEvent"))
+			return r.processPkgiIsManagedAndStatusChanged(e.ObjectNew, log.WithValues("predicate", "updateEvent"))
 		},
 		DeleteFunc: func(e event.DeleteEvent) bool {
-			return r.processPkgiStatus(e.Object, log.WithValues("predicate", "deleteEvent"))
+			return r.processPkgiIsManagedAndStatusChanged(e.Object, log.WithValues("predicate", "deleteEvent"))
 		},
 		GenericFunc: func(e event.GenericEvent) bool {
-			return r.processPkgiStatus(e.Object, log.WithValues("predicate", "genericEvent"))
+			return r.processPkgiIsManagedAndStatusChanged(e.Object, log.WithValues("predicate", "genericEvent"))
 		},
 	}
 }
 
-// processPkgiStatus returns true if pkgi status should be processed.
+// processPkgiIsManagedAndStatusChanged returns true if pkgi status should be processed.
 // pkgi status can be processed if it is a managed package and exists in the list of packages defined in ClusterBootstrap
-func (r *PackageInstallStatusReconciler) processPkgiStatus(o client.Object, log logr.Logger) bool {
+func (r *PackageInstallStatusReconciler) processPkgiIsManagedAndStatusChanged(o client.Object, log logr.Logger) bool {
 	var pkgi *kapppkgiv1alpha1.PackageInstall
 	switch obj := o.(type) {
 	case *kapppkgiv1alpha1.PackageInstall:
