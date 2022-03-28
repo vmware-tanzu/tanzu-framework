@@ -12,7 +12,6 @@ import (
 	v1 "k8s.io/api/core/v1"
 	rbacv1 "k8s.io/api/rbac/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 	capvv1beta1 "sigs.k8s.io/cluster-api-provider-vsphere/apis/v1beta1"
 	capvvmwarev1beta1 "sigs.k8s.io/cluster-api-provider-vsphere/apis/vmware/v1beta1"
@@ -191,15 +190,18 @@ func (r *VSphereCPIConfigReconciler) mapCPIConfigToDataValuesNonParavirtual( // 
 }
 
 // mapCPIConfigToDataValuesParavirtual generates CPI data values for paravirtual modes
-func (r *VSphereCPIConfigReconciler) mapCPIConfigToDataValuesParavirtual(_ context.Context, cpiConfig *cpiv1alpha1.VSphereCPIConfig, _ *clusterapiv1beta1.Cluster) (*VSphereCPIDataValues, error) {
+func (r *VSphereCPIConfigReconciler) mapCPIConfigToDataValuesParavirtual(_ context.Context, cpiConfig *cpiv1alpha1.VSphereCPIConfig, cluster *clusterapiv1beta1.Cluster) (*VSphereCPIDataValues, error) {
 	d := &VSphereCPIDataValues{}
 	c := cpiConfig.Spec.VSphereCPI
 
 	d.VSphereCPI.Mode = VSphereCPIParavirtualMode
-	d.VSphereCPI.ClusterAPIVersion = c.ClusterAPIVersion
-	d.VSphereCPI.ClusterKind = c.ClusterKind
-	d.VSphereCPI.ClusterName = c.ClusterName
-	d.VSphereCPI.ClusterUID = c.ClusterUID
+
+	// derive owner cluster information
+	d.VSphereCPI.ClusterAPIVersion = cluster.GroupVersionKind().GroupVersion().String()
+	d.VSphereCPI.ClusterKind = cluster.GroupVersionKind().Kind
+	d.VSphereCPI.ClusterName = cluster.ObjectMeta.Name
+	d.VSphereCPI.ClusterUID = string(cluster.ObjectMeta.UID)
+
 	d.VSphereCPI.SupervisorMasterEndpointIP = c.SupervisorMasterEndpointIP
 	d.VSphereCPI.SupervisorMasterPort = c.SupervisorMasterPort
 
@@ -219,42 +221,35 @@ func (r *VSphereCPIConfigReconciler) mapCPIConfigToDataValues(ctx context.Contex
 	return nil, errors.Errorf("Invalid CPI mode %s, must either be %s or %s", cpiConfig.Spec.VSphereCPI.Mode, VSphereCPIParavirtualMode, VsphereCPINonParavirtualMode)
 }
 
-// mapCPIConfigToProviderServiceAccount maps CPIConfig and cluster to the corresponding service account
-func (r *VSphereCPIConfigReconciler) mapCPIConfigToProviderServiceAccount(cluster *clusterapiv1beta1.Cluster) *capvvmwarev1beta1.ProviderServiceAccount {
-	serviceAccount := &capvvmwarev1beta1.ProviderServiceAccount{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:      getCCMName(cluster),
-			Namespace: cluster.Namespace,
-		},
-		Spec: capvvmwarev1beta1.ProviderServiceAccountSpec{
-			Ref: &v1.ObjectReference{Name: cluster.Name, Namespace: cluster.Namespace},
-			Rules: []rbacv1.PolicyRule{
-				{
-					Verbs:     []string{"get", "create", "update", "patch", "delete"},
-					APIGroups: []string{"vmoperator.vmware.com"},
-					Resources: []string{"virtualmachineservices", "virtualmachineservices/status"},
-				},
-				{
-					Verbs:     []string{"get", "list"},
-					APIGroups: []string{"vmoperator.vmware.com"},
-					Resources: []string{"virtualmachines", "virtualmachines/status"},
-				},
-				{
-					Verbs:     []string{"get", "create", "update", "list", "patch", "delete", "watch"},
-					APIGroups: []string{"nsx.vmware.com"},
-					Resources: []string{"ippools", "ippools/status"},
-				},
-				{
-					Verbs:     []string{"get", "create", "update", "list", "patch", "delete"},
-					APIGroups: []string{"nsx.vmware.com"},
-					Resources: []string{"routesets", "routesets/status"},
-				},
+// mapCPIConfigToProviderServiceAccountSpec maps CPIConfig and cluster to the corresponding service account spec
+func (r *VSphereCPIConfigReconciler) mapCPIConfigToProviderServiceAccountSpec(cluster *clusterapiv1beta1.Cluster) capvvmwarev1beta1.ProviderServiceAccountSpec {
+	return capvvmwarev1beta1.ProviderServiceAccountSpec{
+		Ref: &v1.ObjectReference{Name: cluster.Name, Namespace: cluster.Namespace},
+		Rules: []rbacv1.PolicyRule{
+			{
+				Verbs:     []string{"get", "create", "update", "patch", "delete"},
+				APIGroups: []string{"vmoperator.vmware.com"},
+				Resources: []string{"virtualmachineservices", "virtualmachineservices/status"},
 			},
-			TargetNamespace:  ProviderServiceAccountSecretNamespace,
-			TargetSecretName: ProviderServiceAccountSecretName,
+			{
+				Verbs:     []string{"get", "list"},
+				APIGroups: []string{"vmoperator.vmware.com"},
+				Resources: []string{"virtualmachines", "virtualmachines/status"},
+			},
+			{
+				Verbs:     []string{"get", "create", "update", "list", "patch", "delete", "watch"},
+				APIGroups: []string{"nsx.vmware.com"},
+				Resources: []string{"ippools", "ippools/status"},
+			},
+			{
+				Verbs:     []string{"get", "create", "update", "list", "patch", "delete"},
+				APIGroups: []string{"nsx.vmware.com"},
+				Resources: []string{"routesets", "routesets/status"},
+			},
 		},
+		TargetNamespace:  ProviderServiceAccountSecretNamespace,
+		TargetSecretName: ProviderServiceAccountSecretName,
 	}
-	return serviceAccount
 }
 
 // getOwnerCluster verifies that the VSphereCPIConfig has a cluster as its owner reference,
@@ -337,7 +332,7 @@ func getCCMName(cluster *clusterapiv1beta1.Cluster) string {
 func (r *VSphereCPIConfigReconciler) tryParseClusterVariableBool(cluster *clusterapiv1beta1.Cluster, variableName string) bool {
 	res, err := util.ParseClusterVariableBool(cluster, variableName)
 	if err != nil {
-		r.Log.Info(fmt.Sprintf("cannot parse cluster variable with key %s", variableName))
+		r.Log.Info(fmt.Sprintf("Cannot parse cluster variable with key %s", variableName))
 	}
 	return res
 }

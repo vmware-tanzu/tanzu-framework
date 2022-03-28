@@ -154,24 +154,6 @@ type NonParavirtualConfig struct {
 }
 
 type ParavirtualConfig struct {
-	// Used in vsphereParavirtual mode, defines the Cluster API versions.
-	// +kubebuilder:validation:Optional
-	// +kubebuilder:default:=cluster.x-k8s.io/v1beta1
-	ClusterAPIVersion string `json:"clusterAPIVersion"`
-
-	// Used in vsphereParavirtual mode, defines the Cluster kind.
-	// +kubebuilder:validation:Optional
-	// +kubebuilder:default:=Cluster
-	ClusterKind string `json:"clusterKind"`
-
-	// Used in vsphereParavirtual mode, defines the Cluster name.
-	// +kubebuilder:validation:Optional
-	ClusterName string `json:"clusterName"`
-
-	// Used in vsphereParavirtual mode, defines the Cluster UID.
-	// +kubebuilder:validation:Optional
-	ClusterUID string `json:"clusterUID"`
-
 	// Used in vsphereParavirtual mode, the endpoint IP of supervisor cluster's API server.
 	// +kubebuilder:validation:Optional
 	SupervisorMasterEndpointIP string `json:"supervisorMasterEndpointIP"`

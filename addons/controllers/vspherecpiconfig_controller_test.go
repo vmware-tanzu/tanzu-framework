@@ -6,6 +6,7 @@ package controllers
 import (
 	"fmt"
 	"os"
+	"regexp"
 	"strings"
 
 	. "github.com/onsi/ginkgo"
@@ -191,8 +192,12 @@ var _ = Describe("VSphereCPIConfig Reconciler", func() {
 				Expect(strings.Contains(secretData, "mode: vsphereParavirtualCPI")).Should(BeTrue())
 				Expect(strings.Contains(secretData, "clusterAPIVersion: cluster.x-k8s.io/v1beta1")).Should(BeTrue())
 				Expect(strings.Contains(secretData, "clusterKind: Cluster")).Should(BeTrue())
-				Expect(strings.Contains(secretData, "clusterName: test-cluster")).Should(BeTrue())
-				Expect(strings.Contains(secretData, "clusterUID: test-uid")).Should(BeTrue())
+				Expect(strings.Contains(secretData, "clusterName: test-cluster-cpi-paravirtual")).Should(BeTrue())
+
+				uuidReg, err := regexp.Compile("clusterUID: [0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}")
+				Expect(err).ShouldNot(HaveOccurred())
+				Expect(uuidReg.FindString(secretData)).To(Not(BeEmpty()))
+
 				Expect(strings.Contains(secretData, "supervisorMasterEndpointIP: 192.168.0.7")).Should(BeTrue())
 				Expect(strings.Contains(secretData, "supervisorMasterPort: \"8080\"")).Should(BeTrue())
 

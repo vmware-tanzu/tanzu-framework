@@ -18,9 +18,5 @@ metadata:
 spec:
   vsphereCPI:
     mode: vsphereParavirtualCPI
-    clusterAPIVersion: "cluster.x-k8s.io/v1beta1"
-    clusterKind: "Cluster"
-    clusterName: "test-cluster"
-    clusterUID: "test-uid"
     supervisorMasterEndpointIP: "192.168.0.7"
     supervisorMasterPort: "8080"

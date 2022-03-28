@@ -48,24 +48,6 @@ spec:
             properties:
               vsphereCPI:
                 properties:
-                  clusterAPIVersion:
-                    default: cluster.x-k8s.io/v1beta1
-                    description: Used in vsphereParavirtual mode, defines the Cluster
-                      API versions.
-                    type: string
-                  clusterKind:
-                    default: Cluster
-                    description: Used in vsphereParavirtual mode, defines the Cluster
-                      kind.
-                    type: string
-                  clusterName:
-                    description: Used in vsphereParavirtual mode, defines the Cluster
-                      name.
-                    type: string
-                  clusterUID:
-                    description: Used in vsphereParavirtual mode, defines the Cluster
-                      UID.
-                    type: string
                   datacenter:
                     description: The datacenter in which VMs are created/located
                     type: string
