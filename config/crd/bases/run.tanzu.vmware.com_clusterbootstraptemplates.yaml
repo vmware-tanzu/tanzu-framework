@@ -68,9 +68,12 @@ spec:
                     refName:
                       type: string
                     valuesFrom:
+                      description: ValuesFrom specifies how values for package install
+                        are retrieved from
                       properties:
                         inline:
-                          type: string
+                          type: object
+                          x-kubernetes-preserve-unknown-fields: true
                         providerRef:
                           description: TypedLocalObjectReference contains enough information
                             to let you locate the typed referenced object inside the
@@ -106,9 +109,12 @@ spec:
                   refName:
                     type: string
                   valuesFrom:
+                    description: ValuesFrom specifies how values for package install
+                      are retrieved from
                     properties:
                       inline:
-                        type: string
+                        type: object
+                        x-kubernetes-preserve-unknown-fields: true
                       providerRef:
                         description: TypedLocalObjectReference contains enough information
                           to let you locate the typed referenced object inside the
@@ -141,9 +147,12 @@ spec:
                   refName:
                     type: string
                   valuesFrom:
+                    description: ValuesFrom specifies how values for package install
+                      are retrieved from
                     properties:
                       inline:
-                        type: string
+                        type: object
+                        x-kubernetes-preserve-unknown-fields: true
                       providerRef:
                         description: TypedLocalObjectReference contains enough information
                           to let you locate the typed referenced object inside the
@@ -176,9 +185,12 @@ spec:
                   refName:
                     type: string
                   valuesFrom:
+                    description: ValuesFrom specifies how values for package install
+                      are retrieved from
                     properties:
                       inline:
-                        type: string
+                        type: object
+                        x-kubernetes-preserve-unknown-fields: true
                       providerRef:
                         description: TypedLocalObjectReference contains enough information
                           to let you locate the typed referenced object inside the
@@ -211,9 +223,12 @@ spec:
                   refName:
                     type: string
                   valuesFrom:
+                    description: ValuesFrom specifies how values for package install
+                      are retrieved from
                     properties:
                       inline:
-                        type: string
+                        type: object
+                        x-kubernetes-preserve-unknown-fields: true
                       providerRef:
                         description: TypedLocalObjectReference contains enough information
                           to let you locate the typed referenced object inside the

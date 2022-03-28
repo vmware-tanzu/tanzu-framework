@@ -10,6 +10,7 @@ import (
 
 	"github.com/go-logr/logr"
 	"github.com/pkg/errors"
+	"gopkg.in/yaml.v3"
 	corev1 "k8s.io/api/core/v1"
 	rbacv1 "k8s.io/api/rbac/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
@@ -841,6 +842,56 @@ func (r *ClusterBootstrapReconciler) createOrPatchAddonResourcesOnRemote(cluster
 func (r *ClusterBootstrapReconciler) createOrPatchPackageInstallSecretOnRemote(cluster *clusterapiv1beta1.Cluster,
 	cbpkg *runtanzuv1alpha3.ClusterBootstrapPackage, clusterClient client.Client) (*corev1.Secret, error) {
 
+	var patchedSecret *corev1.Secret
+	var err error
+
+	if cbpkg.ValuesFrom.ProviderRef != nil || cbpkg.ValuesFrom.SecretRef != "" {
+		patchedSecret, err = r.getPatchedLocalSecret(cluster, cbpkg)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	packageRefName, _, err := util.GetPackageMetadata(r.context, r.liveClient, cbpkg.RefName, cluster.Namespace)
+	if err != nil {
+		r.Log.Error(err, fmt.Sprintf("unable to get Package CR %s/%s for its metadata", cluster.Namespace, cbpkg.RefName))
+		return nil, err
+	}
+
+	remoteSecret := &corev1.Secret{}
+	remoteSecret.Name = util.GenerateDataValueSecretName(cluster.Name, packageRefName)
+	// The secret will be created or patched under tkg-system namespace on remote cluster
+	remoteSecret.Namespace = r.Config.SystemNamespace
+	remoteSecret.Type = corev1.SecretTypeOpaque
+
+	dataValuesSecretMutateFn := func() error {
+		remoteSecret.Data = map[string][]byte{}
+		if patchedSecret != nil {
+			for k, v := range patchedSecret.Data {
+				remoteSecret.Data[k] = v
+			}
+		} else {
+			inlineConfigYamlBytes, err := yaml.Marshal(cbpkg.ValuesFrom.Inline)
+			if err != nil {
+				r.Log.Error(err, "Error marshaling inline config to Yaml")
+				return err
+			}
+			remoteSecret.Data[constants.TKGDataValueFileName] = inlineConfigYamlBytes
+		}
+		return nil
+	}
+
+	_, err = controllerutil.CreateOrPatch(r.context, clusterClient, remoteSecret, dataValuesSecretMutateFn)
+	if err != nil {
+		r.Log.Error(err, "error creating or patching addon data values secret")
+		return nil, err
+	}
+	return remoteSecret, nil
+}
+
+func (r *ClusterBootstrapReconciler) getPatchedLocalSecret(cluster *clusterapiv1beta1.Cluster,
+	cbpkg *runtanzuv1alpha3.ClusterBootstrapPackage) (*corev1.Secret, error) {
+
 	secretName, err := r.GetDataValueSecretNameFromBootstrapPackage(cbpkg, cluster.Namespace)
 	if err != nil {
 		// logging has been handled in GetDataValueSecretNameFromBootstrapPackage()
@@ -861,6 +912,7 @@ func (r *ClusterBootstrapReconciler) createOrPatchPackageInstallSecretOnRemote(c
 
 	// TODO: This logic should be moved to cloneSecretsAndProviders()
 	// https://github.com/vmware-tanzu/tanzu-framework/issues/1729
+
 	// Add cluster and package labels to secrets if not already present
 	// This helps us to track the secrets in the watch and trigger Reconcile requests when these secrets are updated
 	patchedSecret := localSecret.DeepCopy()
@@ -872,32 +924,7 @@ func (r *ClusterBootstrapReconciler) createOrPatchPackageInstallSecretOnRemote(c
 		r.Log.Info(fmt.Sprintf("patched the secret %s/%s with package and cluster labels", localSecret.Namespace, localSecret.Name))
 	}
 
-	packageRefName, _, err := util.GetPackageMetadata(r.context, r.liveClient, cbpkg.RefName, cluster.Namespace)
-	if err != nil {
-		r.Log.Error(err, fmt.Sprintf("unable to get Package CR %s/%s for its metadata", cluster.Namespace, cbpkg.RefName))
-		return nil, err
-	}
-
-	remoteSecret := &corev1.Secret{}
-	remoteSecret.Name = util.GenerateDataValueSecretName(cluster.Name, packageRefName)
-	// The secret will be created or patched under tkg-system namespace on remote cluster
-	remoteSecret.Namespace = r.Config.SystemNamespace
-	remoteSecret.Type = corev1.SecretTypeOpaque
-
-	dataValuesSecretMutateFn := func() error {
-		remoteSecret.Data = map[string][]byte{}
-		for k, v := range patchedSecret.Data {
-			remoteSecret.Data[k] = v
-		}
-		return nil
-	}
-
-	_, err = controllerutil.CreateOrPatch(r.context, clusterClient, remoteSecret, dataValuesSecretMutateFn)
-	if err != nil {
-		r.Log.Error(err, "error creating or patching addon data values secret")
-		return nil, err
-	}
-	return remoteSecret, nil
+	return patchedSecret, nil
 }
 
 // patchSecretWithLabels updates the secret by adding package and cluster labels
@@ -962,6 +989,7 @@ func (r *ClusterBootstrapReconciler) updateValues(cluster *clusterapiv1beta1.Clu
 	if cbPkg.ValuesFrom == nil {
 		return nil, nil, nil
 	}
+
 	if cbPkg.ValuesFrom.SecretRef != "" {
 		secret, err := r.updateValuesFromSecret(cluster, cbPkg, cbTemplateNamespace, packageRefName, log)
 		if err != nil {
