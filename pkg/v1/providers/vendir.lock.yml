@@ -2,10 +2,10 @@ apiVersion: vendir.k14s.io/v1alpha1
 directories:
 - contents:
   - git:
-      commitTitle: update vsphere-cpi validations to allow dualstack (#2734)...
-      sha: 165340fbaf9d7729c84434471d5a190f6096c492
+      commitTitle: Add new flags insecure and remoteAuthEnabled (#3152)...
+      sha: 0fa3055c5cddf67f8c23edea420575cb4eb7d5d8
       tags:
-      - v0.10.0-rc.2-43-g165340fb
+      - v0.11.0-dev.1-120-g0fa3055c
     path: .
   path: ytt/vendir/vsphere_cpi/_ytt_lib
 - contents:

@@ -13,7 +13,7 @@ images:
   #@ imagePackageVersion = "v" + package.version + "_" + package.packageSubVersion
   #@ end
 - annotations:
-    kbld.carvel.dev/id: #@ "{}/{}:{}".format(package_repository.registry, package.name, imagePackageVersion)
-  image: #@ "{}/{}@sha256:{}".format(package_repository.registry, package.name, package.sha256)
+    kbld.carvel.dev/id: #@ "{}/{}:{}".format(data.values.registry, package.name, imagePackageVersion)
+  image: #@ "{}/{}@sha256:{}".format(data.values.registry, package.name, package.sha256)
 #@ end
 kind: ImagesLock

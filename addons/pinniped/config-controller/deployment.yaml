@@ -1,0 +1,57 @@
+#@ load("@ytt:data", "data")
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: pinniped #! TODO: what should this be?
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: pinniped-config-controller-manager
+  namespace: pinniped
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: pinniped-config-controller-manager
+rules:
+  #! TODO: we shouldn't need all these verbs on secrets and configmaps
+  - apiGroups: [""]
+    resources: [secrets, configmaps]
+    verbs: [create, get, list, patch, update, watch, delete]
+  - apiGroups: ["cluster.x-k8s.io"]
+    resources: [clusters]
+    verbs: [get, list, watch]
+---
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: pinniped-config-controller-manager
+subjects:
+  - kind: ServiceAccount
+    name: pinniped-config-controller-manager
+    namespace: pinniped
+roleRef:
+  kind: ClusterRole
+  name: pinniped-config-controller-manager
+  apiGroup: rbac.authorization.k8s.io
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: pinniped-config-controller-manager
+  namespace: pinniped
+spec:
+  selector:
+    matchLabels:
+      app: pinniped-config-controller-manager
+  template:
+    metadata:
+      labels:
+        app: pinniped-config-controller-manager
+    spec:
+      serviceAccountName: pinniped-config-controller-manager
+      containers:
+      - image: #@ data.values.image
+        name: pinniped-config-controller-manager

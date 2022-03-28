@@ -189,6 +189,12 @@ func getValidTKRVersionForUpgradeGivenFullTKRName(clusterName, namespace string,
 		return tkrForUpgrade.Spec.Version, nil
 	}
 
+	// If existing TKR on the cluster and the one requested are same
+	// continue the upgrade using the given TKR
+	if tkrName == tkrForUpgrade.GetName() {
+		return tkrForUpgrade.Spec.Version, nil
+	}
+
 	// get the TKR associated with the cluster
 	tkr, err := getMatchingTkrForTkrName(tkrs, tkrName)
 	if err != nil {

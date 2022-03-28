@@ -16,6 +16,14 @@ const (
 	LabelIncompatible = "incompatible"
 	LabelDeactivated  = "deactivated"
 	LabelInvalid      = "invalid"
+
+	AnnotationResolveTKR     = "run.tanzu.vmware.com/resolve-tkr"
+	AnnotationResolveOSImage = "run.tanzu.vmware.com/resolve-os-image"
+	AnnotationOSImageRef     = "run.tanzu.vmware.com/os-image-ref"
+
+	LabelTKR               = "run.tanzu.vmware.com/tkr"
+	LabelKubernetesVersion = "run.tanzu.vmware.com/kubernetesVersion"
+	LabelOSImage           = "run.tanzu.vmware.com/os-image"
 )
 
 // TanzuKubernetesReleaseSpec defines the desired state of TanzuKubernetesRelease
@@ -54,6 +62,10 @@ type KubernetesSpec struct {
 	// CoreDNS specifies the container image repository and tag for coredns.
 	// +optional
 	CoreDNS *ContainerImageInfo `json:"coredns"`
+
+	// KubeVIP specifies the container image repository and tag for kube-vip.
+	// +optional
+	KubeVIP *ContainerImageInfo `json:"kube-vip"`
 }
 
 // ContainerImageInfo allows to customize the image used for components that are not

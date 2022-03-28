@@ -10,9 +10,12 @@ import (
 
 	"github.com/pkg/errors"
 	v1 "k8s.io/api/core/v1"
+	rbacv1 "k8s.io/api/rbac/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 	capvv1beta1 "sigs.k8s.io/cluster-api-provider-vsphere/apis/v1beta1"
+	capvvmwarev1beta1 "sigs.k8s.io/cluster-api-provider-vsphere/apis/vmware/v1beta1"
 	clusterapiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
 
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
@@ -216,6 +219,44 @@ func (r *VSphereCPIConfigReconciler) mapCPIConfigToDataValues(ctx context.Contex
 	return nil, errors.Errorf("Invalid CPI mode %s, must either be %s or %s", cpiConfig.Spec.VSphereCPI.Mode, VSphereCPIParavirtualMode, VsphereCPINonParavirtualMode)
 }
 
+// mapCPIConfigToProviderServiceAccount maps CPIConfig and cluster to the corresponding service account
+func (r *VSphereCPIConfigReconciler) mapCPIConfigToProviderServiceAccount(cluster *clusterapiv1beta1.Cluster) *capvvmwarev1beta1.ProviderServiceAccount {
+	serviceAccount := &capvvmwarev1beta1.ProviderServiceAccount{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      getCCMName(cluster),
+			Namespace: cluster.Namespace,
+		},
+		Spec: capvvmwarev1beta1.ProviderServiceAccountSpec{
+			Ref: &v1.ObjectReference{Name: cluster.Name, Namespace: cluster.Namespace},
+			Rules: []rbacv1.PolicyRule{
+				{
+					Verbs:     []string{"get", "create", "update", "patch", "delete"},
+					APIGroups: []string{"vmoperator.vmware.com"},
+					Resources: []string{"virtualmachineservices", "virtualmachineservices/status"},
+				},
+				{
+					Verbs:     []string{"get", "list"},
+					APIGroups: []string{"vmoperator.vmware.com"},
+					Resources: []string{"virtualmachines", "virtualmachines/status"},
+				},
+				{
+					Verbs:     []string{"get", "create", "update", "list", "patch", "delete", "watch"},
+					APIGroups: []string{"nsx.vmware.com"},
+					Resources: []string{"ippools", "ippools/status"},
+				},
+				{
+					Verbs:     []string{"get", "create", "update", "list", "patch", "delete"},
+					APIGroups: []string{"nsx.vmware.com"},
+					Resources: []string{"routesets", "routesets/status"},
+				},
+			},
+			TargetNamespace:  ProviderServiceAccountSecretNamespace,
+			TargetSecretName: ProviderServiceAccountSecretName,
+		},
+	}
+	return serviceAccount
+}
+
 // getOwnerCluster verifies that the VSphereCPIConfig has a cluster as its owner reference,
 // and returns the cluster. It tries to read the cluster name from the VSphereCPIConfig's owner reference objects.
 // If not there, we assume the owner cluster and VSphereCPIConfig always has the same name.
@@ -284,6 +325,11 @@ func getUsernameAndPasswordFromSecret(s *v1.Secret) (string, string, error) {
 // controlPlaneName returns the control plane name for a cluster name
 func controlPlaneName(clusterName string) string {
 	return fmt.Sprintf("%s-control-plane", clusterName)
+}
+
+// getCCMName returns the name of cloud control manager for a cluster
+func getCCMName(cluster *clusterapiv1beta1.Cluster) string {
+	return fmt.Sprintf("%s-%s", cluster.Name, "ccm")
 }
 
 // tryParseClusterVariableBool tries to parse a boolean cluster variable,

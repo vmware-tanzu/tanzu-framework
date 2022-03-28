@@ -82,7 +82,7 @@ var (
 	cancel        context.CancelFunc
 	certPath      string
 	keyPath       string
-	// clientset     *kubernetes.Clientset
+	tmpDir        string
 )
 
 func TestAddonController(t *testing.T) {
@@ -167,7 +167,7 @@ var _ = BeforeSuite(func(done Done) {
 	Expect(err).ToNot(HaveOccurred())
 	Expect(dynamicClient).ToNot(BeNil())
 
-	tmpDir, err := os.MkdirTemp("/tmp", "webhooktest")
+	tmpDir, err = os.MkdirTemp("/tmp", "webhooktest")
 	Expect(err).ToNot(HaveOccurred())
 	certPath = path.Join(tmpDir, "tls.crt")
 	keyPath = path.Join(tmpDir, "tls.key")
