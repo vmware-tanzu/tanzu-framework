@@ -759,3 +759,5 @@ trivy-scan: ## Trivy scan images used in packages
 
 .PHONY: package-push-bundles-repo ## Performs build and publishes packages and repo bundles
 package-push-bundles-repo: package-bundles push-package-bundles package-repo-bundle push-package-repo-bundles
+
+ci: verify all test
