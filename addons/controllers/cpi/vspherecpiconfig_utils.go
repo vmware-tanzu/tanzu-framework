@@ -305,6 +305,7 @@ func (r *VSphereCPIConfigReconciler) getSecret(ctx context.Context, namespace, n
 	return secret, nil
 }
 
+// getUsernameAndPasswordFromSecret extracts the username and password from a secret object
 func getUsernameAndPasswordFromSecret(s *v1.Secret) (string, string, error) {
 	username, exists := s.Data["username"]
 	if !exists {
