@@ -26,4 +26,4 @@ spec:
       clusterUID: "test-uid"
       namespace: "default"
       supervisorMasterEndpointHostname: "sababu.svc.local"
-      supervisorMasterPort: 6443
+      supervisorMasterPort: 7443

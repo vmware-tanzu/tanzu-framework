@@ -55,11 +55,12 @@ func (r *VSphereCSIConfigReconciler) Reconcile(ctx context.Context, req ctrl.Req
 		return ctrl.Result{}, err
 	}
 
-	if cluster, err := r.getOwnerCluster(ctx, vcsiConfig); cluster == nil {
+	cluster, err := r.getOwnerCluster(ctx, vcsiConfig)
+	if cluster == nil {
 		return ctrl.Result{RequeueAfter: 20 * time.Second}, err // retry until corresponding cluster is found
 	}
 
-	return r.reconcileVSphereCSIConfig(ctx, vcsiConfig)
+	return r.reconcileVSphereCSIConfig(ctx, vcsiConfig, cluster)
 }
 
 // SetupWithManager sets up the controller with the Manager.
@@ -72,7 +73,8 @@ func (r *VSphereCSIConfigReconciler) SetupWithManager(_ context.Context, mgr ctr
 }
 
 func (r *VSphereCSIConfigReconciler) reconcileVSphereCSIConfig(ctx context.Context,
-	csiCfg *csiv1alpha1.VSphereCSIConfig) (result ctrl.Result, retErr error) {
+	csiCfg *csiv1alpha1.VSphereCSIConfig,
+	cluster *clusterapiv1beta1.Cluster) (result ctrl.Result, retErr error) {
 
 	logger := log.FromContext(ctx)
 
@@ -97,7 +99,7 @@ func (r *VSphereCSIConfigReconciler) reconcileVSphereCSIConfig(ctx context.Conte
 		return ctrl.Result{}, nil // deleted
 	}
 
-	if result, err = r.reconcileVSphereCSIConfigNormal(ctx, csiCfg); err != nil {
+	if result, err = r.reconcileVSphereCSIConfigNormal(ctx, csiCfg, cluster); err != nil {
 		logger.Error(err, "Error reconciling VSphereCSIConfig")
 		return result, err
 	}
@@ -106,15 +108,10 @@ func (r *VSphereCSIConfigReconciler) reconcileVSphereCSIConfig(ctx context.Conte
 }
 
 func (r *VSphereCSIConfigReconciler) reconcileVSphereCSIConfigNormal(ctx context.Context,
-	csiCfg *csiv1alpha1.VSphereCSIConfig) (ctrl.Result, error) {
+	csiCfg *csiv1alpha1.VSphereCSIConfig,
+	cluster *clusterapiv1beta1.Cluster) (ctrl.Result, error) {
 
 	logger := log.FromContext(ctx)
-
-	// add owner reference to VSphereCSIConfig if not already added
-	cluster, err := r.getOwnerCluster(ctx, csiCfg)
-	if err != nil {
-		return ctrl.Result{}, err
-	}
 
 	ownerRef := metav1.OwnerReference{
 		APIVersion: clusterapiv1beta1.GroupVersion.String(),
@@ -146,7 +143,7 @@ func (r *VSphereCSIConfigReconciler) reconcileVSphereCSIConfigNormal(ctx context
 
 	mutateFn := func() error {
 		secret.Data = make(map[string][]byte)
-		dvs, err := r.mapVSphereCSIConfigToDataValues(ctx, csiCfg)
+		dvs, err := r.mapVSphereCSIConfigToDataValues(ctx, csiCfg, cluster)
 		if err != nil {
 			logger.Error(err, "Error while mapping VSphereCSIConfig to data values")
 			return err

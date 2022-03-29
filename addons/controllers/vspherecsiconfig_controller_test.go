@@ -57,10 +57,10 @@ var _ = Describe("VSphereCSIConfig Reconciler", func() {
 	Context("reconcile VSphereCSIConfig manifests in non-paravirtual mode", func() {
 		BeforeEach(func() {
 			clusterName = "test-cluster-csi"
-			clusterResourceFilePath = "testdata/test-csi-non-paravirtual.yaml"
+			clusterResourceFilePath = "testdata/test-vsphere-csi-non-paravirtual.yaml"
 		})
 
-		FIt("Should reconcile VSphereCSIConfig and create data values secret for VSphereCSIConfig on management cluster", func() {
+		It("Should reconcile VSphereCSIConfig and create data values secret for VSphereCSIConfig on management cluster", func() {
 			cluster := &clusterapiv1beta1.Cluster{}
 			Eventually(func() bool {
 				if err := k8sClient.Get(ctx, key, cluster); err != nil {
@@ -77,6 +77,7 @@ var _ = Describe("VSphereCSIConfig Reconciler", func() {
 				}
 				Expect(config.Spec.VSphereCSI.Mode).Should(Equal("vsphereCSI"))
 				Expect(config.Spec.VSphereCSI.NonParavirtualConfig).NotTo(BeZero())
+				Expect(config.Spec.VSphereCSI.NonParavirtualConfig.TLSThumbprint).Should(Equal("yadayada"))
 				Expect(config.Spec.VSphereCSI.NonParavirtualConfig.Namespace).Should(Equal("default"))
 				Expect(config.Spec.VSphereCSI.NonParavirtualConfig.ClusterName).Should(Equal("test-clustername"))
 				Expect(config.Spec.VSphereCSI.NonParavirtualConfig.Server).Should(Equal("svr-0"))
@@ -86,6 +87,7 @@ var _ = Describe("VSphereCSIConfig Reconciler", func() {
 				Expect(config.Spec.VSphereCSI.NonParavirtualConfig.Password).Should(Equal("test-passwd"))
 				Expect(config.Spec.VSphereCSI.NonParavirtualConfig.Region).Should(Equal("test-region"))
 				Expect(config.Spec.VSphereCSI.NonParavirtualConfig.Zone).Should(Equal("test-zone"))
+				Expect(*config.Spec.VSphereCSI.NonParavirtualConfig.InsecureFlag).Should(Equal(false))
 				Expect(config.Spec.VSphereCSI.NonParavirtualConfig.UseTopologyCategories).NotTo(BeZero())
 				Expect(*config.Spec.VSphereCSI.NonParavirtualConfig.UseTopologyCategories).Should(Equal(true))
 				Expect(config.Spec.VSphereCSI.NonParavirtualConfig.ProvisionTimeout).Should(Equal("33s"))
@@ -123,6 +125,7 @@ var _ = Describe("VSphereCSIConfig Reconciler", func() {
 				secretData := string(secret.Data["values.yaml"])
 				Expect(len(secretData)).Should(Not(BeZero()))
 				Expect(strings.Contains(secretData, "vsphereCSI:")).Should(BeTrue())
+				Expect(strings.Contains(secretData, "tlsThumbprint: yadayada")).Should(BeTrue())
 				Expect(strings.Contains(secretData, "namespace: default")).Should(BeTrue())
 				Expect(strings.Contains(secretData, "server: svr-0")).Should(BeTrue())
 				Expect(strings.Contains(secretData, "datacenter: dc0")).Should(BeTrue())
@@ -131,6 +134,7 @@ var _ = Describe("VSphereCSIConfig Reconciler", func() {
 				Expect(strings.Contains(secretData, "password: test-passwd")).Should(BeTrue())
 				Expect(strings.Contains(secretData, "region: test-region")).Should(BeTrue())
 				Expect(strings.Contains(secretData, "zone: test-zone")).Should(BeTrue())
+				Expect(strings.Contains(secretData, "insecureFlag: false")).Should(BeTrue())
 				Expect(strings.Contains(secretData, "useTopologyCategories: true")).Should(BeTrue())
 				Expect(strings.Contains(secretData, "provisionTimeout: 33s")).Should(BeTrue())
 				Expect(strings.Contains(secretData, "attachTimeout: 77s")).Should(BeTrue())
@@ -159,9 +163,9 @@ var _ = Describe("VSphereCSIConfig Reconciler", func() {
 	Context("reconcile VSphereCSIConfig manifests in paravirtual mode", func() {
 		BeforeEach(func() {
 			clusterName = "test-cluster-pv-csi"
-			clusterResourceFilePath = "testdata/test-csi-paravirtual.yaml"
+			clusterResourceFilePath = "testdata/test-vsphere-csi-paravirtual.yaml"
 		})
-		FIt("Should reconcile VSphereCSIConfig and create data values secret for VSphereCSIConfig on management cluster", func() {
+		It("Should reconcile VSphereCSIConfig and create data values secret for VSphereCSIConfig on management cluster", func() {
 			// the data values secret should be generated
 			secret := &v1.Secret{}
 			Eventually(func() bool {
@@ -179,6 +183,45 @@ var _ = Describe("VSphereCSIConfig Reconciler", func() {
 				Expect(strings.Contains(secretData, "clusterUID: test-uid")).Should(BeTrue())
 				Expect(strings.Contains(secretData, "namespace: default")).Should(BeTrue())
 				Expect(strings.Contains(secretData, "supervisorMasterEndpointHostname: sababu.svc.local")).Should(BeTrue())
+				Expect(strings.Contains(secretData, "supervisorMasterPort: 7443")).Should(BeTrue())
+
+				return true
+			}, waitTimeout, pollingInterval).Should(BeTrue())
+
+			// eventually the secret ref to the data values should be updated
+			config := &csiv1alpha1.VSphereCSIConfig{}
+			Eventually(func() bool {
+				if err := k8sClient.Get(ctx, key, config); err != nil {
+					return false
+				}
+				Expect(config.Status.SecretRef).To(Equal(fmt.Sprintf("%s-%s-data-values", clusterName, constants.PVCSIAddonName)))
+				return true
+			})
+		})
+	})
+
+	Context("reconcile VSphereCSIConfig manifests in paravirtual mode with minimal config", func() {
+		BeforeEach(func() {
+			clusterName = "test-cluster-pv-csi"
+			clusterResourceFilePath = "testdata/test-vsphere-csi-paravirtual-minimal.yaml"
+		})
+		It("Should reconcile VSphereCSIConfig and create data values secret for VSphereCSIConfig on management cluster", func() {
+			// the data values secret should be generated
+			secret := &v1.Secret{}
+			Eventually(func() bool {
+				secretKey := client.ObjectKey{
+					Namespace: clusterNamespace,
+					Name:      fmt.Sprintf("%s-%s-data-values", clusterName, constants.PVCSIAddonName),
+				}
+				if err := k8sClient.Get(ctx, secretKey, secret); err != nil {
+					return false
+				}
+				secretData := string(secret.Data["values.yaml"])
+				Expect(len(secretData)).Should(Not(BeZero()))
+				Expect(strings.Contains(secretData, "vspherePVCSI:")).Should(BeTrue())
+				Expect(strings.Contains(secretData, "clusterName: test-cluster")).Should(BeTrue())
+				Expect(strings.Contains(secretData, "clusterUID: test-uid")).Should(BeTrue())
+				Expect(strings.Contains(secretData, "supervisorMasterEndpointHostname: supervisor.default.svc")).Should(BeTrue())
 				Expect(strings.Contains(secretData, "supervisorMasterPort: 6443")).Should(BeTrue())
 
 				return true

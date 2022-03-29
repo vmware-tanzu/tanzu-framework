@@ -54,6 +54,8 @@ spec:
                         type: string
                       httpsProxy:
                         type: string
+                      insecureFlag:
+                        type: boolean
                       namespace:
                         description: The namespace csi components are to be deployed
                           in
@@ -72,6 +74,8 @@ spec:
                         type: string
                       server:
                         type: string
+                      tlsThumbprint:
+                        type: string
                       useTopologyCategories:
                         type: boolean
                       username:
@@ -82,14 +86,6 @@ spec:
                         type: boolean
                       zone:
                         type: string
-                    required:
-                    - clusterName
-                    - datacenter
-                    - namespace
-                    - password
-                    - publicNetwork
-                    - server
-                    - username
                     type: object
                   mode:
                     description: The vSphere mode. Either `vsphereCSI` or `vsphereParavirtualCSI`.
@@ -121,9 +117,6 @@ spec:
                     required:
                     - clusterName
                     - clusterUID
-                    - namespace
-                    - supervisorMasterEndpointHostname
-                    - supervisorMasterPort
                     type: object
                 required:
                 - mode

@@ -17,7 +17,7 @@ func ParseClusterVariableBool(cluster *clusterapiv1beta1.Cluster, variableName s
 	if err != nil || result == nil {
 		return false, err
 	}
-	return result.(bool), err
+	return result.(bool), nil
 }
 
 func ParseClusterVariableString(cluster *clusterapiv1beta1.Cluster, variableName string) (string, error) {
@@ -26,7 +26,7 @@ func ParseClusterVariableString(cluster *clusterapiv1beta1.Cluster, variableName
 	if err != nil || result == nil {
 		return "", err
 	}
-	return result.(string), err
+	return result.(string), nil
 }
 
 func parseClusterVariable(cluster *clusterapiv1beta1.Cluster, variableName string) (interface{}, error) {

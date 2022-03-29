@@ -78,39 +78,42 @@ type ParavirtualConfig struct {
 	ClusterUID string `json:"clusterUID"`
 
 	// The namespace csi components are to be deployed in
-	// +kubebuilder:validation:Required
-	Namespace string `json:"namespace"`
+	// +kubebuilder:validation:Optional
+	Namespace string `json:"namespace,omitempty"`
 
 	// The DNS name of the supervisor cluster endpoint
-	// +kubebuilder:validation:Required
-	SupervisorMasterEndpointHostname string `json:"supervisorMasterEndpointHostname"`
+	// +kubebuilder:validation:Optional
+	SupervisorMasterEndpointHostname string `json:"supervisorMasterEndpointHostname,omitempty"`
 
 	// The IP port via which to communicate with the supervisor cluster
-	// +kubebuilder:validation:Required
-	SupervisorMasterPort int32 `json:"supervisorMasterPort"`
+	// +kubebuilder:validation:Optional
+	SupervisorMasterPort *int32 `json:"supervisorMasterPort,omitempty"`
 }
 
 type NonParavirtualConfig struct {
+	// +kubebuilder:validation:Optional
+	TLSThumbprint string `json:"tlsThumbprint,omitempty"`
+
 	// The namespace csi components are to be deployed in
-	// +kubebuilder:validation:Required
+	// +kubebuilder:validation:Optional
 	Namespace string `json:"namespace"`
 
-	// +kubebuilder:validation:Required
+	// +kubebuilder:validation:Optional
 	ClusterName string `json:"clusterName"`
 
-	// +kubebuilder:validation:Required
+	// +kubebuilder:validation:Optional
 	Server string `json:"server"`
 
-	// +kubebuilder:validation:Required
+	// +kubebuilder:validation:Optional
 	Datacenter string `json:"datacenter"`
 
-	// +kubebuilder:validation:Required
+	// +kubebuilder:validation:Optional
 	PublicNetwork string `json:"publicNetwork"`
 
-	// +kubebuilder:validation:Required
+	// +kubebuilder:validation:Optional
 	Username string `json:"username"`
 
-	// +kubebuilder:validation:Required
+	// +kubebuilder:validation:Optional
 	Password string `json:"password"`
 
 	// +kubebuilder:validation:Optional
@@ -118,6 +121,9 @@ type NonParavirtualConfig struct {
 
 	// +kubebuilder:validation:Optional
 	Zone string `json:"zone,omitempty"`
+
+	// +kubebuilder:validation:Optional
+	InsecureFlag *bool `json:"insecureFlag,omitempty"`
 
 	// +kubebuilder:validation:Optional
 	UseTopologyCategories *bool `json:"useTopologyCategories,omitempty"`

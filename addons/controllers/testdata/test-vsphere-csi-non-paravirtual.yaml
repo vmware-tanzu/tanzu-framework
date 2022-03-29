@@ -22,6 +22,7 @@ spec:
   vsphereCSI:
     mode: vsphereCSI
     config:
+      tlsThumbprint: "yadayada"
       namespace: default
       clusterName: test-clustername
       server: svr-0
@@ -31,6 +32,7 @@ spec:
       password: test-passwd
       region: test-region
       zone: test-zone
+      insecureFlag: false
       useTopologyCategories: true
       provisionTimeout: 33s
       attachTimeout: 77s
