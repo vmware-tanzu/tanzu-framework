@@ -1,0 +1,24 @@
+apiVersion: cni.tanzu.vmware.com/v1alpha1
+kind: AntreaConfig
+metadata:
+  name: v1.23.3---vmware.1-tkg.1
+  namespace: tkg-system
+spec:
+  antrea:
+    config:
+      featureGates:
+        EndpointSlice: true
+---
+apiVersion: cni.tanzu.vmware.com/v1alpha1
+kind: AntreaConfig
+metadata:
+  name: v1.23.3---vmware.1-tkg.1-routable
+  namespace: tkg-system
+spec:
+  antrea:
+    config:
+      trafficEncapMode: noEncap
+      noSNAT: true
+      featureGates:
+        AntreaProxy: true
+        EndpointSlice: true
