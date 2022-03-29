@@ -1,0 +1,24 @@
+#@ load("@ytt:data", "data")
+---
+apiVersion: run.tanzu.vmware.com/v1alpha3
+kind: KappControllerConfig
+metadata:
+  name: #@ data.values.TKR_VERSION
+  namespace: #@ data.values.GLOBAL_NAMESPACE
+spec:
+  namespace: #@ data.values.GLOBAL_NAMESPACE
+  kappController:
+    globalNamespace: #@ data.values.GLOBAL_NAMESPACE
+    deployment:
+      apiPort: 10100
+      tolerations:
+        - key: CriticalAddonsOnly
+          operator: Exists
+        - effect: NoSchedule
+          key: node-role.kubernetes.io/master
+        - effect: NoSchedule
+          key: node.kubernetes.io/not-ready
+        - effect: NoSchedule
+          key: node.cloudprovider.kubernetes.io/uninitialized
+          value: "true"
+

@@ -112,6 +112,7 @@ func mapKappControllerConfigSpec(cluster *clusterapiv1beta1.Cluster, config *run
 		configSpec.KappController.Config.NoProxy = config.Spec.KappController.Config.NoProxy
 	}
 
+	// TODO: config.dangerousSkipTLSVerify need to be read from cluster variable and handled by kapp config controller https://github.com/vmware-tanzu/tanzu-framework/issues/1856
 	configSpec.KappController.Config.DangerousSkipTLSVerify = config.Spec.KappController.Config.DangerousSkipTLSVerify
 
 	return configSpec, nil
