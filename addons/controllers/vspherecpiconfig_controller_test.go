@@ -198,8 +198,8 @@ var _ = Describe("VSphereCPIConfig Reconciler", func() {
 				Expect(err).ShouldNot(HaveOccurred())
 				Expect(uuidReg.FindString(secretData)).To(Not(BeEmpty()))
 
-				Expect(strings.Contains(secretData, "supervisorMasterEndpointIP: 192.168.0.7")).Should(BeTrue())
-				Expect(strings.Contains(secretData, "supervisorMasterPort: \"8080\"")).Should(BeTrue())
+				Expect(strings.Contains(secretData, "supervisorMasterEndpointIP: 172.17.0.3")).Should(BeTrue())
+				Expect(strings.Contains(secretData, "supervisorMasterPort: \"6773\"")).Should(BeTrue())
 
 				return true
 			}, waitTimeout, pollingInterval).Should(BeTrue())

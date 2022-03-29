@@ -154,13 +154,7 @@ type NonParavirtualConfig struct {
 }
 
 type ParavirtualConfig struct {
-	// Used in vsphereParavirtual mode, the endpoint IP of supervisor cluster's API server.
-	// +kubebuilder:validation:Optional
-	SupervisorMasterEndpointIP string `json:"supervisorMasterEndpointIP"`
-
-	// Used in vsphereParavirtual mode, the endpoint port of supervisor cluster's API server port.
-	// +kubebuilder:validation:Optional
-	SupervisorMasterPort string `json:"supervisorMasterPort"`
+	// All configurations for paravirtual mode will be derived
 }
 
 type VSphereCPI struct {

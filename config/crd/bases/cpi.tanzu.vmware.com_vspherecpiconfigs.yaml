@@ -150,14 +150,6 @@ spec:
                   server:
                     description: The IP address or FQDN of the vSphere endpoint
                     type: string
-                  supervisorMasterEndpointIP:
-                    description: Used in vsphereParavirtual mode, the endpoint IP
-                      of supervisor cluster's API server.
-                    type: string
-                  supervisorMasterPort:
-                    description: Used in vsphereParavirtual mode, the endpoint port
-                      of supervisor cluster's API server port.
-                    type: string
                   tlsCipherSuites:
                     default: TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
                     description: External arguments for cloud provider

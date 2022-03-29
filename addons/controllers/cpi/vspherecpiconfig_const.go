@@ -34,3 +34,15 @@ const (
 	ProviderServiceAccountSecretName      = "cloud-provider-creds"
 	ProviderServiceAccountSecretNamespace = "vmware-system-cloud-provider" // nolint:gosec
 )
+
+// constants used for deriving supervisor API server endpoint
+const (
+	SupervisorLoadBalancerSvcNamespace = "kube-system"
+	SupervisorLoadBalancerSvcName      = "kube-apiserver-lb-svc"
+
+	// ConfigMapClusterInfo defines the name for the ConfigMap where the information how to connect and trust the cluster exist
+	ConfigMapClusterInfo = "cluster-info"
+
+	// KubeConfigKey defines at which key in the Data object of the ConfigMap the KubeConfig object is stored
+	KubeConfigKey = "kubeconfig"
+)
