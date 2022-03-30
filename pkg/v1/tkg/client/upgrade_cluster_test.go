@@ -774,6 +774,54 @@ var _ = Describe("When upgrading cluster with fake controller runtime client", f
 		})
 	})
 
+	var _ = Describe("Test PatchKubernetesVersionToKubeadmControlPlane", func() {
+		Context("Testing EtcdExtraArgs parameter configuration", func() {
+			It("when EtcdExtraArgs is defined", func() {
+				clusterUpgradeConfig := &ClusterUpgradeInfo{
+					ClusterName:      "cluster-1",
+					ClusterNamespace: constants.DefaultNamespace,
+					UpgradeComponentInfo: ComponentInfo{
+						EtcdExtraArgs:     map[string]string{"fake-arg": "fake-arg-value"},
+						KubernetesVersion: "v1.18.0+vmware.2",
+					},
+					ActualComponentInfo: ComponentInfo{
+						KubernetesVersion: "v1.18.0+vmware.1",
+					},
+				}
+
+				err = tkgClient.PatchKubernetesVersionToKubeadmControlPlane(regionalClusterClient, clusterUpgradeConfig)
+				Expect(err).To(BeNil())
+
+				updatedKCP, err := regionalClusterClient.GetKCPObjectForCluster(clusterUpgradeConfig.ClusterName, clusterUpgradeConfig.ClusterNamespace)
+				Expect(err).To(BeNil())
+				Expect(updatedKCP.ObjectMeta.Name).To(Equal("kcp-cluster-1"))
+				Expect(updatedKCP.Spec.KubeadmConfigSpec.ClusterConfiguration.Etcd.Local.ExtraArgs["fake-arg"]).To(Equal("fake-arg-value"))
+			})
+
+			It("when EtcdExtraArgs is empty", func() {
+				clusterUpgradeConfig := &ClusterUpgradeInfo{
+					ClusterName:      "cluster-1",
+					ClusterNamespace: constants.DefaultNamespace,
+					UpgradeComponentInfo: ComponentInfo{
+						EtcdExtraArgs:     map[string]string{},
+						KubernetesVersion: "v1.18.0+vmware.2",
+					},
+					ActualComponentInfo: ComponentInfo{
+						KubernetesVersion: "v1.18.0+vmware.1",
+					},
+				}
+
+				err = tkgClient.PatchKubernetesVersionToKubeadmControlPlane(regionalClusterClient, clusterUpgradeConfig)
+				Expect(err).To(BeNil())
+
+				updatedKCP, err := regionalClusterClient.GetKCPObjectForCluster(clusterUpgradeConfig.ClusterName, clusterUpgradeConfig.ClusterNamespace)
+				Expect(err).To(BeNil())
+				Expect(updatedKCP.ObjectMeta.Name).To(Equal("kcp-cluster-1"))
+				Expect(len(updatedKCP.Spec.KubeadmConfigSpec.ClusterConfiguration.Etcd.Local.ExtraArgs)).To(Equal(0))
+			})
+		})
+	})
+
 	var _ = Describe("Test helper functions", func() {
 		Context("Testing the kube-vip modifier helper function", func() {
 			It("modifies the kube-vip parameters", func() {
