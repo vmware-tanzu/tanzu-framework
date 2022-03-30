@@ -147,10 +147,11 @@ func main() {
 		setupLog.Error(err, "unable to wait for CRDs")
 		os.Exit(1)
 	}
-
-	if err := os.MkdirAll(constants.WebhookCertDir, 0755); err != nil {
-		setupLog.Error(err, "unable to create directory for webhook certificates", "directory", constants.WebhookCertDir)
-		os.Exit(1)
+	if flags.featureGateClusterBootstrap {
+		if err := os.MkdirAll(constants.WebhookCertDir, 0755); err != nil {
+			setupLog.Error(err, "unable to create directory for webhook certificates", "directory", constants.WebhookCertDir)
+			os.Exit(1)
+		}
 	}
 	mgr, err := ctrl.NewManager(ctrl.GetConfigOrDie(), ctrl.Options{
 		Scheme:                 scheme,
@@ -189,6 +190,7 @@ func main() {
 	}
 	if flags.featureGateClusterBootstrap {
 		enableClusterBootstrapAndConfigControllers(ctx, mgr, flags)
+		enableWebhooks(ctx, mgr, flags)
 	}
 
 	if flags.featureGatePackageInstallStatus {
@@ -271,11 +273,9 @@ func enableClusterBootstrapAndConfigControllers(ctx context.Context, mgr ctrl.Ma
 		setupLog.Error(err, "unable to create controller", "controller", "clusterbootstrap")
 		os.Exit(1)
 	}
-
-	setupCNIWebhooks(ctx, mgr, flags)
 }
 
-func setupCNIWebhooks(ctx context.Context, mgr ctrl.Manager, flags *addonFlags) {
+func enableWebhooks(ctx context.Context, mgr ctrl.Manager, flags *addonFlags) {
 	certPath := path.Join(constants.WebhookCertDir, "tls.crt")
 	keyPath := path.Join(constants.WebhookCertDir, "tls.key")
 	if _, err := webhooks.InstallNewCertificates(ctx, mgr.GetConfig(), certPath, keyPath, constants.WebhookScrtName, flags.addonNamespace, constants.WebhookServiceName, "webhook-cert="+constants.CNIWebhookLabel); err != nil {
@@ -291,8 +291,6 @@ func setupCNIWebhooks(ctx context.Context, mgr ctrl.Manager, flags *addonFlags) 
 		setupLog.Error(err, "unable to set up webhooks", "controller", "calico")
 		os.Exit(1)
 	}
-
-	// TO DO: Apply webhook configuration manifests
 }
 
 func enablePackageInstallStatusController(ctx context.Context, mgr ctrl.Manager, flags *addonFlags) {

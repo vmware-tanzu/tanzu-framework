@@ -66,7 +66,7 @@ const (
 	addonClusterRoleBinding = "tkg-addons-app-cluster-role-binding"
 	addonImagePullPolicy    = "IfNotPresent"
 	corePackageRepoName     = "core"
-	webhookServiceName      = "webhook-service"
+	webhookServiceName      = "tanzu-addons-manager-webhook-service"
 	webhookScrtName         = "webhook-tls"
 	cniWebhookLabel         = "cni-webhook"
 	cniWebhookManifestFile  = "testdata/test-antrea-calico-webhook-manifests.yaml"
