@@ -774,6 +774,33 @@ var _ = Describe("When upgrading cluster with fake controller runtime client", f
 		})
 	})
 
+	var _ = Describe("Test PatchKubernetesVersionToKubeadmControlPlane", func() {
+		Context("Testing EtcdExtraArgs parameter configuration", func() {
+			It("Validate experimental-initial-corrupt-check gets set as part of extraArgs", func() {
+				clusterUpgradeConfig := &ClusterUpgradeInfo{
+					ClusterName:      "cluster-1",
+					ClusterNamespace: constants.DefaultNamespace,
+					UpgradeComponentInfo: ComponentInfo{
+						KubernetesVersion: "v1.18.0+vmware.2",
+					},
+					ActualComponentInfo: ComponentInfo{
+						KubernetesVersion: "v1.18.0+vmware.1",
+					},
+					KCPObjectName:      "kcp-cluster-1",
+					KCPObjectNamespace: constants.DefaultNamespace,
+				}
+
+				err = tkgClient.PatchKubernetesVersionToKubeadmControlPlane(regionalClusterClient, clusterUpgradeConfig)
+				Expect(err).To(BeNil())
+
+				updatedKCP, err := regionalClusterClient.GetKCPObjectForCluster(clusterUpgradeConfig.ClusterName, clusterUpgradeConfig.ClusterNamespace)
+				Expect(err).To(BeNil())
+				Expect(updatedKCP.ObjectMeta.Name).To(Equal("kcp-cluster-1"))
+				Expect(updatedKCP.Spec.KubeadmConfigSpec.ClusterConfiguration.Etcd.Local.ExtraArgs["experimental-initial-corrupt-check"]).To(Equal("true"))
+			})
+		})
+	})
+
 	var _ = Describe("Test helper functions", func() {
 		Context("Testing the kube-vip modifier helper function", func() {
 			It("modifies the kube-vip parameters", func() {

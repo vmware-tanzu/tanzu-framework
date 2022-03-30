@@ -231,7 +231,7 @@ var (
 					Expect(err).To(MatchError("No BOM file found with TKr version "))
 				})
 			})
-			Context("When tkr version is found", func() {
+			Context("When tkr version(v1.18.0+vmware.1-tkg.2) is found", func() {
 				BeforeEach(func() {
 					createTempDirectory()
 					tkgConfigDir = testingDir
@@ -245,6 +245,28 @@ var (
 				It("Should return the BOMConfiguration", func() {
 					Expect(err).ToNot(HaveOccurred())
 					Expect(bomConfiguration).ToNot(BeNil())
+					Expect(bomConfiguration.KubeadmConfigSpec.Etcd.Local.DataDir).To(Equal("/var/lib/etcd"))
+					Expect(bomConfiguration.KubeadmConfigSpec.Etcd.Local.ImageRepository).To(Equal("registry.tkg.vmware.run"))
+					Expect(bomConfiguration.KubeadmConfigSpec.Etcd.Local.ImageTag).To(Equal("v3.4.13_vmware.4"))
+				})
+			})
+			Context("When tkr version(v1.19.3+vmware.1-tkg.1) is found", func() {
+				BeforeEach(func() {
+					createTempDirectory()
+					tkgConfigDir = testingDir
+					setupBomFile("../fakes/config/bom/tkr-bom-v1.18.0+vmware.1-tkg.2.yaml", tkgConfigDir)
+					setupBomFile("../fakes/config/bom/tkr-bom-v1.19.3+vmware.1-tkg.1.yaml", tkgConfigDir)
+					tkrVersion = "v1.19.3+vmware.1-tkg.1"
+				})
+				AfterEach(func() {
+					deleteTempDirectory()
+				})
+				It("Should return the BOMConfiguration", func() {
+					Expect(err).ToNot(HaveOccurred())
+					Expect(bomConfiguration).ToNot(BeNil())
+					Expect(bomConfiguration.KubeadmConfigSpec.Etcd.Local.DataDir).To(Equal("/var/lib/etcd"))
+					Expect(bomConfiguration.KubeadmConfigSpec.Etcd.Local.ImageRepository).To(Equal("registry.tkg.vmware.run"))
+					Expect(bomConfiguration.KubeadmConfigSpec.Etcd.Local.ImageTag).To(Equal("v3.4.13_vmware.4"))
 				})
 			})
 		})
