@@ -4,7 +4,7 @@ metadata:
   labels:
     app: tkr-infra-machine-webhook
   name: tkr-infra-machine-webhook-manager
-  namespace: tanzu-system
+  namespace: tkr-system
 spec:
   replicas: 1
   selector:

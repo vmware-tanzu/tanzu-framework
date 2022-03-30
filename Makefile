@@ -19,7 +19,6 @@ endif
 TOOLS_DIR := $(abspath hack/tools)
 TOOLS_BIN_DIR := $(TOOLS_DIR)/bin
 BIN_DIR := bin
-ROOT_DIR := $(shell git rev-parse --show-toplevel)
 ADDONS_DIR := addons
 YTT_TESTS_DIR := pkg/v1/providers/tests
 PACKAGE_TOOLING_DIR := hack/packages/package-tools
@@ -27,10 +26,12 @@ PACKAGES_SCRIPTS_DIR := $(abspath hack/packages/scripts)
 UI_DIR := pkg/v1/tkg/web
 
 # Add tooling binaries here and in hack/tools/Makefile
+CONTROLLER_GEN     := $(TOOLS_BIN_DIR)/controller-gen
 GOLANGCI_LINT      := $(TOOLS_BIN_DIR)/golangci-lint
 GOIMPORTS          := $(TOOLS_BIN_DIR)/goimports
 GOBINDATA          := $(TOOLS_BIN_DIR)/gobindata
 KUBEBUILDER        := $(TOOLS_BIN_DIR)/kubebuilder
+KUSTOMIZE          := $(TOOLS_BIN_DIR)/kustomize
 YTT                := $(TOOLS_BIN_DIR)/ytt
 KBLD               := $(TOOLS_BIN_DIR)/kbld
 VENDIR             := $(TOOLS_BIN_DIR)/vendir
@@ -41,7 +42,7 @@ GINKGO             := $(TOOLS_BIN_DIR)/ginkgo
 VALE               := $(TOOLS_BIN_DIR)/vale
 YQ                 := $(TOOLS_BIN_DIR)/yq
 CONVERSION_GEN     := $(TOOLS_BIN_DIR)/conversion-gen
-TOOLING_BINARIES   := $(GOLANGCI_LINT) $(YTT) $(KBLD) $(VENDIR) $(IMGPKG) $(KAPP) $(KUBEVAL) $(GOIMPORTS) $(GOBINDATA) $(GINKGO) $(VALE) $(YQ) $(CONVERSION_GEN)
+TOOLING_BINARIES   := $(CONTROLLER_GEN) $(GOLANGCI_LINT) $(YTT) $(KBLD) $(VENDIR) $(IMGPKG) $(KAPP) $(KUBEVAL) $(KUSTOMIZE) $(GOIMPORTS) $(GOBINDATA) $(GINKGO) $(VALE) $(YQ) $(CONVERSION_GEN)
 
 PINNIPED_GIT_REPOSITORY = https://github.com/vmware-tanzu/pinniped.git
 PINNIPED_VERSIONS = v0.4.4 v0.12.1
@@ -154,17 +155,17 @@ manager: generate fmt vet ## Build manager binary
 run: generate fmt vet manifests ## Run against the configured Kubernetes cluster in ~/.kube/config
 	$(GO) run -ldflags "$(LD_FLAGS)" ./main.go
 
-install: manifests ## Install CRDs into a cluster
+install: manifests tools ## Install CRDs into a cluster
 	kustomize build config/crd | kubectl apply -f -
 
 uninstall: manifests ## Uninstall CRDs from a cluster
 	kustomize build config/crd | kubectl delete -f -
 
-deploy: manifests ## Deploy controller in the configured Kubernetes cluster in ~/.kube/config
+deploy: manifests tools ## Deploy controller in the configured Kubernetes cluster in ~/.kube/config
 	cd config/manager && kustomize edit set image controller=${IMG}
 	kustomize build config/default | kubectl apply -f -
 
-manifests: controller-gen ## Generate manifests e.g. CRD, RBAC etc.
+manifests: tools ## Generate manifests e.g. CRD, RBAC etc.
 	$(CONTROLLER_GEN) \
 		$(CRD_OPTIONS) \
 		paths=./apis/... \
@@ -173,24 +174,9 @@ manifests: controller-gen ## Generate manifests e.g. CRD, RBAC etc.
 generate-go: $(COUNTERFEITER) ## Generate code via go generate.
 	PATH=$(abspath hack/tools/bin):$(PATH) go generate ./...
 
-generate: controller-gen ## Generate code via controller-gen
+generate: tools ## Generate code via controller-gen
 	$(CONTROLLER_GEN) object:headerFile="hack/boilerplate.go.txt",year=$(shell date +%Y) paths="./..."
 	$(MAKE) fmt
-
-controller-gen: ## Download controller-gen
-ifeq (, $(shell which controller-gen))
-	@{ \
-	set -e ;\
-	CONTROLLER_GEN_TMP_DIR=$$(mktemp -d) ;\
-	cd $$CONTROLLER_GEN_TMP_DIR ;\
-	$(GO) mod init tmp ;\
-	$(GO) get sigs.k8s.io/controller-tools/cmd/controller-gen@v0.7.0 ;\
-	rm -rf $$CONTROLLER_GEN_TMP_DIR ;\
-	}
-CONTROLLER_GEN=$(GOBIN)/controller-gen
-else
-CONTROLLER_GEN=$(shell which controller-gen)
-endif
 
 ## --------------------------------------
 ##@ Tooling Binaries
@@ -644,6 +630,10 @@ generate-go-conversions: $(CONVERSION_GEN) ## Generate conversions go code
 		--output-file-base=zz_generated.conversion \
 		--go-header-file=./hack/boilerplate.go.txt
 
+.PHONY: generate-package-secret ## Generate the default pinniped addon secret. e.g. make generate-package-secret tkr=v1.23.3---vmware.1-tkg.1 iaas=vsphere
+generate-package-secret:
+	./addons/pinniped/config-controller/hack/generate-package-secret.sh -v tkr=${tkr} -v infrastructure_provider=${iaas}
+
 
 ## --------------------------------------
 ##@ Provider templates/overlays
@@ -691,7 +681,7 @@ e2e-tkgpackageclient-docker: $(GINKGO) generate-embedproviders ## Run ginkgo tkg
 # These are the components in this repo that need to have a docker image built.
 # This variable refers to directory paths that contain a Makefile with `docker-build`, `docker-publish` and
 # `kbld-image-replace` targets that can build and push a docker image for that component.
-COMPONENTS := pkg/v1/sdk/features addons cliplugins pkg/v2/tkr/webhook/infra-machine pkg/v1/sdk/capabilities pkg/v2/tkr/webhook/tkr-conversion
+COMPONENTS := pkg/v1/sdk/features addons cliplugins pkg/v2/tkr/webhook/infra-machine pkg/v1/sdk/capabilities pkg/v2/tkr/webhook/tkr-conversion pkg/v2/tkr/webhook/cluster/tkr-resolver
 
 .PHONY: docker-build
 docker-build: TARGET=docker-build
@@ -738,7 +728,7 @@ package-repo-bundle: tools prep-package-tools ## Build tar bundles for package r
 
 .PHONY: push-package-bundles
 push-package-bundles: tools prep-package-tools ## Push specified package bundle(s) in a package repository.
-## Specified package bundles must be set to the PACKAGE_BUNDLES environment variable as comma-separated values 
+## Specified package bundles must be set to the PACKAGE_BUNDLES environment variable as comma-separated values
 ## and must not contain spaces. Example: PACKAGE_BUNDLES=featuregates,core-management-plugins
 	cd hack/packages/package-tools && $(GO) run main.go package-bundle push $(PACKAGE_BUNDLES) --repository=$(PACKAGE_REPOSITORY) --registry=$(OCI_REGISTRY) --version=$(BUILD_VERSION) --sub-version=$(PACKAGE_SUB_VERSION)
 

@@ -45,6 +45,9 @@ var (
 	// JWTAuthenticatorName is the JWT authentication name.
 	JWTAuthenticatorName = ""
 
+	// JWTAuthenticatorAudience is the JWT authenticator audience.
+	JWTAuthenticatorAudience = ""
+
 	// SupervisorCertName is the supervisor cert name.
 	SupervisorCertName = ""
 

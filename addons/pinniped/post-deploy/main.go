@@ -45,6 +45,10 @@ func main() {
 	// required for workload cluster: yes
 	flag.StringVar(&vars.JWTAuthenticatorName, "jwtauthenticator-name", "", "The name of Pinniped JWTAuthenticator")
 
+	// optional for management cluster: no
+	// optional for workload cluster: yes
+	flag.StringVar(&vars.JWTAuthenticatorAudience, "jwtauthenticator-audience", "", "The uid of the workload cluster if provided, otherwise defaulted to the workload cluster name.  This value is published to the pinniped-info configmap.")
+
 	// required for management cluster: yes
 	// required for workload cluster: no
 	flag.StringVar(&vars.SupervisorCertName, "supervisor-cert-name", "", "The name of Certificate for Pinniped supervisor service")

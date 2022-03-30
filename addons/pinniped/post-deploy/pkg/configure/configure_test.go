@@ -131,6 +131,9 @@ func TestPinniped(t *testing.T) {
 			},
 		},
 	}
+	jwtAuthenticatorWithUUIDAudience := jwtAuthenticator.DeepCopy()
+	jwtAuthenticatorWithUUIDAudience.ObjectMeta.Name = "jwt-authenticator-meow"
+	jwtAuthenticatorWithUUIDAudience.Spec.Audience = "tiny angry kittens TINY ANGRY KITTENS!!!"
 
 	tests := []struct {
 		name                         string
@@ -218,6 +221,83 @@ func TestPinniped(t *testing.T) {
 				kubetesting.NewRootGetAction(jwtAuthenticatorGVR, jwtAuthenticator.Name),
 				kubetesting.NewRootUpdateAction(jwtAuthenticatorGVR, jwtAuthenticator),
 			},
+		}, {
+			name: "management cluster configured with explicit concierge audience should ignore the audience (not write it to the JWTAuthenticator)",
+			newKubeClient: func() *kubefake.Clientset {
+				c := kubefake.NewSimpleClientset(
+					supervisorService,
+					supervisorCertificateSecret,
+					supervisorPods[0],
+					supervisorPods[1],
+				)
+				c.PrependReactor("delete", "secrets", func(action kubetesting.Action) (bool, runtime.Object, error) {
+					// When we delete the secret in the implementation, we expect the cert-manager controller
+					// to recreate it. Since there is no cert-manager controller running, let's just tell the
+					// fake kube client to not delete it (i.e., that we "handled" the delete ourselves).
+					return actionIsOnObject(action, supervisorCertificateSecret), nil, nil
+				})
+				return c
+			},
+			newCertManagerClient: func() *certmanagerfake.Clientset {
+				return certmanagerfake.NewSimpleClientset(supervisorCertificate)
+			},
+			newSupervisorClient: func() *pinnipedsupervisorfake.Clientset {
+				return pinnipedsupervisorfake.NewSimpleClientset()
+			},
+			// even if a custom audience is provided (see parameters) the mgmt cluster should still return a generic authenticator
+			newConciergeClient: func() *pinnipedconciergefake.Clientset {
+				// The jwtauthenticator is usually deployed onto the management cluster with no spec fields
+				// set; see:
+				//   https://github.com/vmware-tanzu/community-edition/blob/1aa7936d88f5d9b04398d800bfe83a165619ee16/addons/packages/pinniped/0.4.4/bundle/config/overlay/pinniped-jwtauthenticator.yaml
+				defaultJWTAuthenticator := jwtAuthenticator.DeepCopy()
+				defaultJWTAuthenticator.Spec = authv1alpha1.JWTAuthenticatorSpec{}
+				return pinnipedconciergefake.NewSimpleClientset(defaultJWTAuthenticator)
+			},
+			parameters: Parameters{
+				ClusterType:              "management",
+				ClusterName:              pinnipedInfoConfigMap.Data["cluster_name"],
+				SupervisorSvcNamespace:   supervisorService.Namespace,
+				SupervisorSvcName:        supervisorService.Name,
+				FederationDomainName:     federationDomain.Name,
+				SupervisorCertNamespace:  supervisorCertificate.Namespace,
+				SupervisorCertName:       supervisorCertificate.Name,
+				JWTAuthenticatorName:     jwtAuthenticator.Name,
+				JWTAuthenticatorAudience: "I am a rebel and providing this even when I should not have done so.",
+				ConciergeIsClusterScoped: true,
+			},
+			wantKubeClientActions: []kubetesting.Action{
+				// 1. Get the supervisor service endpoint to create the correct issuer
+				kubetesting.NewGetAction(serviceGVR, supervisorService.Namespace, supervisorService.Name),
+				// 4. Blow away the old supervisor certificate secret to force it to recreate
+				kubetesting.NewDeleteAction(secretGVR, supervisorCertificateSecret.Namespace, supervisorCertificateSecret.Name),
+				// 5. Read the new supervisor certificate secret that has the correct SAN(s) from step 3
+				kubetesting.NewGetAction(secretGVR, supervisorCertificateSecret.Namespace, supervisorCertificateSecret.Name),
+				// 7. Create the pinniped info configmap with the supervisor discovery information
+				kubetesting.NewGetAction(configMapGVR, pinnipedInfoConfigMap.Namespace, pinnipedInfoConfigMap.Name),
+				kubetesting.NewCreateAction(configMapGVR, pinnipedInfoConfigMap.Namespace, pinnipedInfoConfigMap),
+				// 8. Kick the supervisor pods so that they reload new serving cert info
+				kubetesting.NewListAction(podGVR, podGVK, supervisorNamespace, metav1.ListOptions{}),
+				kubetesting.NewDeleteAction(podGVR, supervisorPods[0].Namespace, supervisorPods[0].Name),
+				kubetesting.NewDeleteAction(podGVR, supervisorPods[1].Namespace, supervisorPods[1].Name),
+			},
+			wantCertManagerClientActions: []kubetesting.Action{
+				// 3. We ensure the supervisor certificate has the correct SAN(s)
+				kubetesting.NewGetAction(certificateGVR, supervisorCertificate.Namespace, supervisorCertificate.Name),
+				kubetesting.NewGetAction(certificateGVR, supervisorCertificate.Namespace, supervisorCertificate.Name),
+				kubetesting.NewUpdateAction(certificateGVR, supervisorCertificate.Namespace, supervisorCertificate),
+			},
+			wantSupervisorClientActions: []kubetesting.Action{
+				// 2. We create the federationdomain with the correct issuer
+				kubetesting.NewGetAction(federationDomainGVR, federationDomain.Namespace, federationDomain.Name),
+				kubetesting.NewCreateAction(federationDomainGVR, federationDomain.Namespace, federationDomain),
+			},
+			// Even though we are given parameters with a custom audience, we want to get back a generic authenticator
+			// without the custom audience on the mgmt cluster.
+			wantConciergeClientActions: []kubetesting.Action{
+				// 6. We update the jwtauthenticator with the correct supervisor issuer, CA data, and audience
+				kubetesting.NewRootGetAction(jwtAuthenticatorGVR, jwtAuthenticator.Name),
+				kubetesting.NewRootUpdateAction(jwtAuthenticatorGVR, jwtAuthenticator),
+			},
 		},
 		{
 			name: "workload cluster configured from scratch",
@@ -260,6 +340,51 @@ func TestPinniped(t *testing.T) {
 				// 1. We update the jwtauthenticator with the correct supervisor issuer, CA data, and audience
 				kubetesting.NewRootGetAction(jwtAuthenticatorGVR, jwtAuthenticator.Name),
 				kubetesting.NewRootUpdateAction(jwtAuthenticatorGVR, jwtAuthenticator),
+			},
+		},
+		{
+			name: "workload cluster configured from scratch with explicit concierge audience should generate a JWTAuthenticator with the customized audience value",
+			newKubeClient: func() *kubefake.Clientset {
+				return kubefake.NewSimpleClientset()
+			},
+			newCertManagerClient: func() *certmanagerfake.Clientset {
+				return certmanagerfake.NewSimpleClientset(supervisorCertificate)
+			},
+			newSupervisorClient: func() *pinnipedsupervisorfake.Clientset {
+				return pinnipedsupervisorfake.NewSimpleClientset()
+			},
+			// on the workload cluster, if given a custom audience, we should return a JWTAuthenticator with that audience
+			newConciergeClient: func() *pinnipedconciergefake.Clientset {
+				// The jwtauthenticator is usually deployed onto the workload cluster with all fields set
+				// correctly except for the audience; see:
+				//   https://github.com/vmware-tanzu/community-edition/blob/1aa7936d88f5d9b04398d800bfe83a165619ee16/addons/packages/pinniped/0.4.4/bundle/config/overlay/pinniped-jwtauthenticator.yaml
+				jwtAuthenticatorWIthUUID := jwtAuthenticatorWithUUIDAudience.DeepCopy()
+				return pinnipedconciergefake.NewSimpleClientset(jwtAuthenticatorWIthUUID)
+			},
+			parameters: Parameters{
+				ClusterType:            "workload",
+				SupervisorSvcNamespace: supervisorService.Namespace,
+				SupervisorSvcEndpoint:  jwtAuthenticatorWithUUIDAudience.Spec.Issuer,
+				SupervisorCABundleData: jwtAuthenticatorWithUUIDAudience.Spec.TLS.CertificateAuthorityData,
+				JWTAuthenticatorName:   jwtAuthenticatorWithUUIDAudience.Name,
+				// custom audience provided
+				JWTAuthenticatorAudience: jwtAuthenticatorWithUUIDAudience.Spec.Audience,
+				ConciergeIsClusterScoped: true,
+			},
+			wantKubeClientActions: []kubetesting.Action{
+				// 2. Create the Pinniped info configmap
+				kubetesting.NewGetAction(configMapGVR, pinnipedInfoConfigMapWorkloadCluster.Namespace, pinnipedInfoConfigMapWorkloadCluster.Name),
+				kubetesting.NewCreateAction(configMapGVR, pinnipedInfoConfigMapWorkloadCluster.Namespace, pinnipedInfoConfigMapWorkloadCluster),
+				// 3. Look for any supervisor pods to recreate (we do this on both management and workload clusters)
+				kubetesting.NewListAction(podGVR, podGVK, supervisorNamespace, metav1.ListOptions{}),
+			},
+			wantCertManagerClientActions: []kubetesting.Action{},
+			wantSupervisorClientActions:  []kubetesting.Action{},
+			// on the workload cluster, if given a custom audience, we should return a JWTAuthenticator with that audience
+			wantConciergeClientActions: []kubetesting.Action{
+				// 1. We update the jwtauthenticator with the correct supervisor issuer, CA data, and audience
+				kubetesting.NewRootGetAction(jwtAuthenticatorGVR, jwtAuthenticatorWithUUIDAudience.Name),
+				kubetesting.NewRootUpdateAction(jwtAuthenticatorGVR, jwtAuthenticatorWithUUIDAudience),
 			},
 		},
 		{

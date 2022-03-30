@@ -3,7 +3,7 @@ kind: Issuer
 metadata:
   labels:
   name: tkr-infra-machine-webhook-selfsigned-issuer
-  namespace: tanzu-system
+  namespace: tkr-system
 spec:
   selfSigned: {}
 ---
@@ -12,11 +12,11 @@ kind: Certificate
 metadata:
   labels:
   name: tkr-infra-machine-webhook-serving-cert
-  namespace: tanzu-system
+  namespace: tkr-system
 spec:
   dnsNames:
-  - tkr-infra-machine-webhook-service.tanzu-system.svc
-  - tkr-infra-machine-webhook-service-cert.tanzu-system.svc.cluster.local
+  - tkr-infra-machine-webhook-service.tkr-system.svc
+  - tkr-infra-machine-webhook-service-cert.tkr-system.svc.cluster.local
   issuerRef:
     kind: Issuer
     name: tkr-infra-machine-webhook-selfsigned-issuer
