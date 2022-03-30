@@ -7,6 +7,9 @@ metadata:
     app: tanzu-featuregates-manager
   name: tanzu-featuregates-controller-manager
   namespace: #@ data.values.namespace
+  annotations:
+    kapp.k14s.io/change-rule.0: "upsert after upserting featuregates.config.tanzu.vmware.com/certificate"
+    kapp.k14s.io/change-rule.1: "delete before deleting featuregates.config.tanzu.vmware.com/certificate"
 spec:
   replicas: 1
   selector:
