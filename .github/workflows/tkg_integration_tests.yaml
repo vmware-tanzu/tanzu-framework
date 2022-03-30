@@ -20,8 +20,10 @@ jobs:
     name: TKG Integration Tests CAPD
     runs-on: tkg
     steps:
-    - name: Free disk space on runner
-      run: sudo rm -rf /usr/share/dotnet
+    - name: Free disk space and clean up installed plugins on runner
+      run: |
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /home/tanzu/.local/share/tanzu-cli/*
 
     - name: Set up Go 1.x
       uses: actions/setup-go@v2
@@ -85,8 +87,10 @@ jobs:
     env:
       azure_client_id: ${{secrets.AZURE_CLIENT_ID_SAIB}}
     steps:
-    - name: Free disk space on runner
-      run: sudo rm -rf /usr/share/dotnet
+    - name: Free disk space and clean up installed plugins on runner
+      run: |
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /home/tanzu/.local/share/tanzu-cli/*
 
     - name: Set up Go 1.x
       uses: actions/setup-go@v2
