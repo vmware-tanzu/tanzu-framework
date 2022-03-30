@@ -25,6 +25,8 @@ kubeadmConfigSpec:
       dataDir: /var/lib/etcd
       imageRepository: registry.tkg.vmware.run
       imageTag: v3.4.13_vmware.4
+      extraArgs:
+        fake-arg: fake-arg-value
   dns:
     type: CoreDNS
     imageRepository: registry.tkg.vmware.run

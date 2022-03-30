@@ -85,9 +85,10 @@ type etcd struct {
 }
 
 type localEtcd struct {
-	DataDir         string `yaml:"dataDir"`
-	ImageRepository string `yaml:"imageRepository"`
-	ImageTag        string `yaml:"imageTag"`
+	DataDir         string            `yaml:"dataDir"`
+	ImageRepository string            `yaml:"imageRepository"`
+	ImageTag        string            `yaml:"imageTag"`
+	ExtraArgs       map[string]string `yaml:"extraArgs,omitempty"`
 }
 
 type dns struct {
