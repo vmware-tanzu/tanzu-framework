@@ -2,29 +2,29 @@ apiVersion: admissionregistration.k8s.io/v1
 kind: MutatingWebhookConfiguration
 metadata:
   annotations:
-    cert-manager.io/inject-ca-from: tkr-system/tkr-infra-machine-webhook-serving-cert
-  name: tkr-infra-machine-mutating-webhook-configuration
+    cert-manager.io/inject-ca-from: tkr-system/tkr-resolver-cluster-webhook-serving-cert
+  name: tkr-cluster-mutating-webhook-configuration
 webhooks:
 - admissionReviewVersions:
   - v1
   - v1beta1
   clientConfig:
     service:
-      name: tkr-infra-machine-webhook-service
+      name: tkr-resolver-cluster-webhook-service
       namespace: tkr-system
-      path: /mutate-infra-machine
+      path: /mutate-cluster
   failurePolicy: Fail
   matchPolicy: Equivalent
-  name: tkr-infra-machine-webhook.tanzu.vmware.com
+  name: tkr-resolver-cluster-webhook.tanzu.vmware.com
   rules:
-  - apiGroups: ["infrastructure.cluster.x-k8s.io"]
+  - apiGroups: ["cluster.x-k8s.io"]
     apiVersions:
     - v1
     - v1beta1
     - v1alpha4
     operations:
     - CREATE
+    - UPDATE
     resources:
-    - "toBeUpdatedByOverlay"
+    - "clusters"
   sideEffects: None
-

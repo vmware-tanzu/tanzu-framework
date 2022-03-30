@@ -2,8 +2,7 @@
 #@overlay/match-child-defaults missing_ok=True
 ---
 tkrInfraMachineWebhook:
-  namespace: tanzu-system
-  createNamespace: true
+  namespace: tkr-system
   deployment:
     envFieldMapConfigValue: |
       customImage: spec.customImage

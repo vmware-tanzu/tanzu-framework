@@ -1,28 +1,25 @@
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    app: tkr-infra-machine-webhook
-  name: tkr-infra-machine-webhook-manager
+    app: tkr-resolver-cluster-webhook
+  name: tkr-resolver-cluster-webhook-manager
   namespace: tkr-system
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: tkr-infra-machine-webhook
+      app: tkr-resolver-cluster-webhook
   template:
     metadata:
       labels:
-        app: tkr-infra-machine-webhook
+        app: tkr-resolver-cluster-webhook
     spec:
       containers:
-      - image: tkr-infra-machine-webhook:latest
-        imagePullPolicy: IfNotPresent
+      - image: tkr-resolver-cluster-webhook:latest
+        imagePullPolicy: Always
         name: manager
-        env:
-        - name: FIELD_PATH_MAP_CONFIG
-          value: |
-            field: path.to.field
         command:
         - /manager
         resources:
@@ -40,8 +37,9 @@ spec:
         - mountPath: /tmp/k8s-webhook-server/serving-certs
           name: cert
           readOnly: true
+      serviceAccount: tkr-service-manager-sa
       terminationGracePeriodSeconds: 10
       volumes:
       - name: cert
         secret:
-          secretName: tkr-infra-machine-webhook-service-cert
+          secretName: tkr-resolver-cluster-webhook-service-cert
