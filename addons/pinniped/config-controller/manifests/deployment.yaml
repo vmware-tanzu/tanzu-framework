@@ -11,19 +11,6 @@ metadata:
   name: pinniped-config-controller-manager
   namespace: pinniped
 ---
-apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRole
-metadata:
-  name: pinniped-config-controller-manager
-rules:
-  #! TODO: we shouldn't need all these verbs on secrets and configmaps
-  - apiGroups: [""]
-    resources: [secrets, configmaps]
-    verbs: [create, get, list, patch, update, watch, delete]
-  - apiGroups: ["cluster.x-k8s.io"]
-    resources: [clusters]
-    verbs: [get, list, watch]
----
 kind: ClusterRoleBinding
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:

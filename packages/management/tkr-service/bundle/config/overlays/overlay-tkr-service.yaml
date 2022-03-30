@@ -1,0 +1,72 @@
+#@ load("@ytt:data", "data")
+#@ load("@ytt:overlay", "overlay")
+
+#@overlay/match by=overlay.subset({"kind":"ServiceAccount", "metadata": {"name": "tkr-service-manager-sa"}})
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  namespace: #@ data.values.tkrService.namespace
+
+#@overlay/match by=overlay.subset({"kind":"ClusterRoleBinding", "metadata": {"name": "tkr-service-manager-clusterrolebinding"}})
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+subjects:
+#@overlay/match by=overlay.subset({"kind":"ServiceAccount", "name": "tkr-service-manager-sa"})
+- kind: ServiceAccount
+  name: tkr-service-manager-sa
+  namespace: #@ data.values.tkrService.namespace
+
+#@overlay/match by=overlay.subset({"kind":"Issuer", "metadata": {"name": "tkr-resolver-cluster-webhook-selfsigned-issuer"}})
+---
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  namespace: #@ data.values.tkrService.namespace
+
+#@overlay/match by=overlay.subset({"kind":"Certificate", "metadata": {"name": "tkr-resolver-cluster-webhook-serving-cert"}})
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  namespace: #@ data.values.tkrService.namespace
+spec:
+   dnsNames:
+   #@overlay/match by=overlay.index(0)
+   #@overlay/replace
+   - #@ "tkr-resolver-cluster-webhook-service.{}.svc".format(data.values.tkrService.namespace)
+   #@overlay/match by=overlay.index(1)
+   #@overlay/replace
+   - #@ "tkr-resolver-cluster-webhook-service-cert.{}.svc.cluster.local".format(data.values.tkrService.namespace)
+
+#@overlay/match by=overlay.subset({"kind":"Service", "metadata": {"name": "tkr-resolver-cluster-webhook-service"}})
+---
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: #@ data.values.tkrService.namespace
+
+
+#@overlay/match by=overlay.subset({"kind":"Deployment", "metadata": {"name": "tkr-resolver-cluster-webhook-manager"}})
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: #@ data.values.tkrService.namespace
+
+
+#@overlay/match by=overlay.subset({"kind":"MutatingWebhookConfiguration", "metadata": {"name": "tkr-cluster-mutating-webhook-configuration"}})
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: MutatingWebhookConfiguration
+metadata:
+  annotations:
+    #@overlay/match missing_ok=True
+    cert-manager.io/inject-ca-from: #@ "{}/tkr-resolver-cluster-webhook-serving-cert".format(data.values.tkrService.namespace)
+webhooks:
+#@overlay/match by="name"
+- name: tkr-resolver-cluster-webhook.tanzu.vmware.com
+  clientConfig:
+    service:
+      namespace: #@ data.values.tkrService.namespace

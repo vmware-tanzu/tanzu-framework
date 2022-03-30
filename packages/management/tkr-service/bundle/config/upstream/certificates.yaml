@@ -1,0 +1,23 @@
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  labels:
+  name: tkr-resolver-cluster-webhook-selfsigned-issuer
+  namespace: tkr-system
+spec:
+  selfSigned: {}
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  labels:
+  name: tkr-resolver-cluster-webhook-serving-cert
+  namespace: tkr-system
+spec:
+  dnsNames:
+  - tkr-resolver-cluster-webhook-service.tkr-system.svc
+  - tkr-resolver-cluster-webhook-service-cert.tkr-system.svc.cluster.local
+  issuerRef:
+    kind: Issuer
+    name: tkr-resolver-cluster-webhook-selfsigned-issuer
+  secretName: tkr-resolver-cluster-webhook-service-cert

@@ -66,7 +66,10 @@ overrides:
     newImage: ""
   - image: tanzu-cli-plugins/feature-windows-amd64:latest
     newImage: ""
-  #! tkr-infra-machine-webhook images
+  #! tkr-infra-machine-webhook image
   #! The docker image would be same for all the providers
   - image: tkr-infra-machine-webhook:latest
+    newImage: ""
+  #! tkr-resolver-cluster-webhook image
+  - image: tkr-resolver-cluster-webhook:latest
     newImage: ""
