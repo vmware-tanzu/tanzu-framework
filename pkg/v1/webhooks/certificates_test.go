@@ -50,7 +50,8 @@ var _ = BeforeSuite(func() {
 
 var _ = AfterSuite(func() {
 	By("remove test resources")
-	os.RemoveAll(tmpDir)
+	_ = os.RemoveAll(tmpDir) // ignore errors since we check directory status next
+
 	_, err := os.Stat(tmpDir)
 	Expect(os.IsNotExist(err))
 

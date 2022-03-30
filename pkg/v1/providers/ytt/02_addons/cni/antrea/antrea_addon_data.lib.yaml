@@ -64,6 +64,8 @@ antrea:
       AntreaPolicy: #@ data.values.ANTREA_POLICY
       NodePortLocal: #@ data.values.ANTREA_NODEPORTLOCAL
       AntreaTraceflow: #@ data.values.ANTREA_TRACEFLOW
+      Egress: #@ data.values.ANTREA_EGRESS
+      FlowExporter: #@ data.values.ANTREA_FLOWEXPORTER
 #@ if data.values.TKG_CLUSTER_ROLE == "workload": #! For backwards compatibility. i.e. C.1 mgmt cluster creates a C.0 wlc with older addon templates.
   image:
     repository: #@ get_image_repo_for_component(antreaImage)

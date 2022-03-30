@@ -35,6 +35,9 @@ resources:
 - group: run
   kind: KappControllerConfig
   version: v1alpha3
+- group: run
+  kind: TanzuKubernetesRelease
+  version: v1alpha3
 - group: cpi
   kind: CPIConfig
   version: v1alpha1

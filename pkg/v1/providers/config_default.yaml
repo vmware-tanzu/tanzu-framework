@@ -602,6 +602,8 @@ ANTREA_ENDPOINTSLICE: true
 ANTREA_POLICY: true
 ANTREA_NODEPORTLOCAL: false
 ANTREA_TRACEFLOW: true
+ANTREA_EGRESS: false
+ANTREA_FLOWEXPORTER: false
 ANTREA_DISABLE_UDP_TUNNEL_OFFLOAD: false
 
 
@@ -626,7 +628,8 @@ VSPHERE_VERSION:
 #! CORE_DNS_IP is the IP of core DNS service, supports both IPv4 and IPv6
 #! It is the 10th index of SERVICE_CIDR subnet
 CORE_DNS_IP:
-
+#! This defines feature flag package-based-lcm is enabled or not
+FEATURE_FLAG_PACKAGE_BASED_LCM:
 
 #! ---------------------------------------------------------------------
 #! BoM file processing, internal use only

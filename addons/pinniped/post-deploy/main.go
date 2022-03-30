@@ -9,12 +9,12 @@ import (
 	"os"
 
 	certmanagerclientset "github.com/jetstack/cert-manager/pkg/client/clientset/versioned"
-	pinnipedconciergeclientset "go.pinniped.dev/generated/1.19/client/concierge/clientset/versioned"
-	pinnipedsupervisorclientset "go.pinniped.dev/generated/1.19/client/supervisor/clientset/versioned"
+	pinnipedconciergeclientset "go.pinniped.dev/generated/1.20/client/concierge/clientset/versioned"
+	pinnipedsupervisorclientset "go.pinniped.dev/generated/1.20/client/supervisor/clientset/versioned"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"k8s.io/client-go/kubernetes"
-	k8sconfig "sigs.k8s.io/controller-runtime/pkg/client/config"
+	"k8s.io/client-go/rest"
 
 	"github.com/vmware-tanzu/tanzu-framework/addons/pinniped/post-deploy/pkg/configure"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pinniped/post-deploy/pkg/vars"
@@ -44,6 +44,10 @@ func main() {
 	// required for management cluster: yes
 	// required for workload cluster: yes
 	flag.StringVar(&vars.JWTAuthenticatorName, "jwtauthenticator-name", "", "The name of Pinniped JWTAuthenticator")
+
+	// optional for management cluster: no
+	// optional for workload cluster: yes
+	flag.StringVar(&vars.JWTAuthenticatorAudience, "jwtauthenticator-audience", "", "The uid of the workload cluster if provided, otherwise defaulted to the workload cluster name.  This value is published to the pinniped-info configmap.")
 
 	// required for management cluster: yes
 	// required for workload cluster: no
@@ -108,7 +112,7 @@ func initZapLog() *zap.Logger {
 }
 
 func initClients() (configure.Clients, error) {
-	cfg, err := k8sconfig.GetConfig()
+	cfg, err := rest.InClusterConfig()
 	if err != nil {
 		return configure.Clients{}, fmt.Errorf("could not get k8s config: %w", err)
 	}

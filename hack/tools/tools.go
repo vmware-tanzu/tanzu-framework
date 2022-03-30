@@ -14,4 +14,7 @@ import (
 	_ "github.com/onsi/ginkgo/ginkgo"
 	_ "github.com/shuLhan/go-bindata"
 	_ "golang.org/x/tools/cmd/goimports"
+	_ "k8s.io/code-generator/cmd/conversion-gen"
+	_ "sigs.k8s.io/controller-tools/cmd/controller-gen"
+	_ "sigs.k8s.io/kustomize/kustomize/v4"
 )

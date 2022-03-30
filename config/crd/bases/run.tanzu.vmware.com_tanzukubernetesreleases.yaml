@@ -1,10 +1,9 @@
-
 ---
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
   annotations:
-    controller-gen.kubebuilder.io/version: v0.7.0
+    controller-gen.kubebuilder.io/version: v0.8.0
   creationTimestamp: null
   name: tanzukubernetesreleases.run.tanzu.vmware.com
 spec:
@@ -265,6 +264,19 @@ spec:
                     description: ImageRepository specifies container image registry
                       to pull images from.
                     type: string
+                  kube-vip:
+                    description: KubeVIP specifies the container image repository
+                      and tag for kube-vip.
+                    properties:
+                      imageRepository:
+                        description: ImageRepository sets the container registry to
+                          pull images from. if not set, defaults to the ImageRepository
+                          defined in KubernetesSpec.
+                        type: string
+                      imageTag:
+                        description: ImageTag specifies a tag for the image.
+                        type: string
+                    type: object
                   pause:
                     description: Pause specifies the container image repository and
                       tag for pause.

@@ -111,6 +111,12 @@ func (c *TkgClient) UpgradeManagementCluster(options *UpgradeClusterOptions) err
 		return err
 	}
 
+	// Validate required environment variables are set
+	log.Infof("Validating for the required environment variables to be set")
+	if err := c.validateEnvVariables(regionalClusterClient); err != nil {
+		return errors.Wrap(err, "required env variables are not set")
+	}
+
 	if err := c.configureVariablesForProvidersInstallation(regionalClusterClient); err != nil {
 		return errors.Wrap(err, "unable to configure variables for provider installation")
 	}

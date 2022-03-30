@@ -19,17 +19,19 @@ endif
 TOOLS_DIR := $(abspath hack/tools)
 TOOLS_BIN_DIR := $(TOOLS_DIR)/bin
 BIN_DIR := bin
-ROOT_DIR := $(shell git rev-parse --show-toplevel)
 ADDONS_DIR := addons
 YTT_TESTS_DIR := pkg/v1/providers/tests
+PACKAGE_TOOLING_DIR := hack/packages/package-tools
 PACKAGES_SCRIPTS_DIR := $(abspath hack/packages/scripts)
 UI_DIR := pkg/v1/tkg/web
 
 # Add tooling binaries here and in hack/tools/Makefile
+CONTROLLER_GEN     := $(TOOLS_BIN_DIR)/controller-gen
 GOLANGCI_LINT      := $(TOOLS_BIN_DIR)/golangci-lint
 GOIMPORTS          := $(TOOLS_BIN_DIR)/goimports
 GOBINDATA          := $(TOOLS_BIN_DIR)/gobindata
 KUBEBUILDER        := $(TOOLS_BIN_DIR)/kubebuilder
+KUSTOMIZE          := $(TOOLS_BIN_DIR)/kustomize
 YTT                := $(TOOLS_BIN_DIR)/ytt
 KBLD               := $(TOOLS_BIN_DIR)/kbld
 VENDIR             := $(TOOLS_BIN_DIR)/vendir
@@ -39,9 +41,8 @@ KUBEVAL            := $(TOOLS_BIN_DIR)/kubeval
 GINKGO             := $(TOOLS_BIN_DIR)/ginkgo
 VALE               := $(TOOLS_BIN_DIR)/vale
 YQ                 := $(TOOLS_BIN_DIR)/yq
-TOOLING_BINARIES   := $(GOLANGCI_LINT) $(YTT) $(KBLD) $(VENDIR) $(IMGPKG) $(KAPP) $(KUBEVAL) $(GOIMPORTS) $(GOBINDATA) $(GINKGO) $(VALE) $(YQ)
-
-export REPO_VERSION ?= $(BUILD_VERSION)
+CONVERSION_GEN     := $(TOOLS_BIN_DIR)/conversion-gen
+TOOLING_BINARIES   := $(CONTROLLER_GEN) $(GOLANGCI_LINT) $(YTT) $(KBLD) $(VENDIR) $(IMGPKG) $(KAPP) $(KUBEVAL) $(KUSTOMIZE) $(GOIMPORTS) $(GOBINDATA) $(GINKGO) $(VALE) $(YQ) $(CONVERSION_GEN)
 
 PINNIPED_GIT_REPOSITORY = https://github.com/vmware-tanzu/pinniped.git
 PINNIPED_VERSIONS = v0.4.4 v0.12.1
@@ -84,6 +85,10 @@ endif
 ifndef DEFAULT_STANDALONE_DISCOVERY_LOCAL_PATH
 DEFAULT_STANDALONE_DISCOVERY_LOCAL_PATH = "standalone"
 endif
+
+# Package tooling related variables
+PACKAGE_VERSION ?= ${BUILD_VERSION}
+REPO_BUNDLE_VERSION ?= ${BUILD_VERSION}
 
 DOCKER_DIR := /app
 SWAGGER=docker run --rm -v ${PWD}:${DOCKER_DIR}:$(DOCKER_VOL_OPTS) quay.io/goswagger/swagger:v0.21.0
@@ -150,17 +155,17 @@ manager: generate fmt vet ## Build manager binary
 run: generate fmt vet manifests ## Run against the configured Kubernetes cluster in ~/.kube/config
 	$(GO) run -ldflags "$(LD_FLAGS)" ./main.go
 
-install: manifests ## Install CRDs into a cluster
+install: manifests tools ## Install CRDs into a cluster
 	kustomize build config/crd | kubectl apply -f -
 
 uninstall: manifests ## Uninstall CRDs from a cluster
 	kustomize build config/crd | kubectl delete -f -
 
-deploy: manifests ## Deploy controller in the configured Kubernetes cluster in ~/.kube/config
+deploy: manifests tools ## Deploy controller in the configured Kubernetes cluster in ~/.kube/config
 	cd config/manager && kustomize edit set image controller=${IMG}
 	kustomize build config/default | kubectl apply -f -
 
-manifests: controller-gen ## Generate manifests e.g. CRD, RBAC etc.
+manifests: tools ## Generate manifests e.g. CRD, RBAC etc.
 	$(CONTROLLER_GEN) \
 		$(CRD_OPTIONS) \
 		paths=./apis/... \
@@ -169,24 +174,9 @@ manifests: controller-gen ## Generate manifests e.g. CRD, RBAC etc.
 generate-go: $(COUNTERFEITER) ## Generate code via go generate.
 	PATH=$(abspath hack/tools/bin):$(PATH) go generate ./...
 
-generate: controller-gen ## Generate code via controller-gen
+generate: tools ## Generate code via controller-gen
 	$(CONTROLLER_GEN) object:headerFile="hack/boilerplate.go.txt",year=$(shell date +%Y) paths="./..."
 	$(MAKE) fmt
-
-controller-gen: ## Download controller-gen
-ifeq (, $(shell which controller-gen))
-	@{ \
-	set -e ;\
-	CONTROLLER_GEN_TMP_DIR=$$(mktemp -d) ;\
-	cd $$CONTROLLER_GEN_TMP_DIR ;\
-	$(GO) mod init tmp ;\
-	$(GO) get sigs.k8s.io/controller-tools/cmd/controller-gen@v0.7.0 ;\
-	rm -rf $$CONTROLLER_GEN_TMP_DIR ;\
-	}
-CONTROLLER_GEN=$(GOBIN)/controller-gen
-else
-CONTROLLER_GEN=$(shell which controller-gen)
-endif
 
 ## --------------------------------------
 ##@ Tooling Binaries
@@ -485,7 +475,7 @@ test: generate fmt vet manifests build-cli-mocks ## Run tests
 
 	## Test the YTT cluster templates
 	echo "Changing into the provider test directory to verify ytt cluster templates..."
-	cd ./pkg/v1/providers/tests/unit && PATH=$(abspath hack/tools/bin):"$(PATH)" $(GO) test -v -timeout 90s ./
+	cd ./pkg/v1/providers/tests/unit && PATH=$(abspath hack/tools/bin):"$(PATH)" $(GO) test -v -timeout 120s ./
 	echo "... ytt cluster template verification complete!"
 
 	PATH=$(abspath hack/tools/bin):"$(PATH)" $(GO) test -coverprofile cover.out -v `go list ./... | grep -v github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/test`
@@ -524,6 +514,9 @@ go-lint: tools ## Run linting of go source
 
 	# Linting for the YTT generation test code...
 	cd $(YTT_TESTS_DIR); $(GOLANGCI_LINT) run -v
+
+	# Linting for package tooling
+	cd $(PACKAGE_TOOLING_DIR); $(GOLANGCI_LINT) run -v
 
 doc-lint: tools ## Run linting checks for docs
 	$(VALE) --config=.vale/config.ini --glob='*.md' ./
@@ -624,6 +617,24 @@ generate-ui-swagger-api: ## Generate swagger files for UI backend
 	git checkout HEAD ${UI_DIR}/server/restapi/server.go
 	$(MAKE) fmt
 
+.PHONY: clean-generated-conversions
+clean-generated-conversions: ## Remove files generated by conversion-gen from the mentioned dirs. Example SRC_DIRS="./api/run/v1alpha1"
+	(IFS=','; for i in $(SRC_DIRS); do find $$i -type f -name 'zz_generated.conversion*' -exec rm -f {} \;; done)
+
+.PHONY: generate-go-conversions
+generate-go-conversions: $(CONVERSION_GEN) ## Generate conversions go code
+	$(MAKE) clean-generated-conversions SRC_DIRS="./apis/run/v1alpha1"
+	$(CONVERSION_GEN) \
+		--input-dirs=./apis/run/v1alpha1 \
+		--build-tag=ignore_autogenerated_core \
+		--output-file-base=zz_generated.conversion \
+		--go-header-file=./hack/boilerplate.go.txt
+
+.PHONY: generate-package-secret ## Generate the default pinniped addon secret. e.g. make generate-package-secret tkr=v1.23.3---vmware.1-tkg.1 iaas=vsphere
+generate-package-secret:
+	./addons/pinniped/config-controller/hack/generate-package-secret.sh -v tkr=${tkr} -v infrastructure_provider=${iaas}
+
+
 ## --------------------------------------
 ##@ Provider templates/overlays
 ## --------------------------------------
@@ -670,7 +681,7 @@ e2e-tkgpackageclient-docker: $(GINKGO) generate-embedproviders ## Run ginkgo tkg
 # These are the components in this repo that need to have a docker image built.
 # This variable refers to directory paths that contain a Makefile with `docker-build`, `docker-publish` and
 # `kbld-image-replace` targets that can build and push a docker image for that component.
-COMPONENTS := pkg/v1/sdk/features addons cliplugins pkg/v2/tkr/webhook/infra-machine pkg/v1/sdk/capabilities
+COMPONENTS := pkg/v1/sdk/features addons cliplugins pkg/v2/tkr/webhook/infra-machine pkg/v1/sdk/capabilities pkg/v2/tkr/webhook/tkr-conversion
 
 .PHONY: docker-build
 docker-build: TARGET=docker-build
@@ -699,61 +710,52 @@ docker-all: docker-build docker-publish kbld-image-replace ## Ship Docker images
 create-package: ## Stub out new package directories and manifests. Usage: make create-management-package PACKAGE_NAME=foobar
 	@hack/packages/scripts/create-package.sh $(PACKAGE_REPOSITORY) $(PACKAGE_NAME)
 
+.PHONY: prep-package-tools
+prep-package-tools:
+	cd hack/packages/package-tools && $(GO) mod tidy
+
 .PHONY: package-bundle
-package-bundle: ## Build one specific tar bundle package, needs PACKAGE_NAME VERSION
-	PACKAGE_REPOSITORY=$(PACKAGE_REPOSITORY) PACKAGE_NAME=$(PACKAGE_NAME) $(PACKAGES_SCRIPTS_DIR)/package-utils.sh generate_single_imgpkg_lock_output
-	PACKAGE_REPOSITORY=$(PACKAGE_REPOSITORY) PACKAGE_NAME=$(PACKAGE_NAME) PACKAGE_SUB_VERSION=$(PACKAGE_SUB_VERSION) $(PACKAGES_SCRIPTS_DIR)/package-utils.sh create_single_package_bundle
+package-bundle: tools prep-package-tools ## Build one specific tar bundle package, needs PACKAGE_NAME VERSION
+	cd hack/packages/package-tools && $(GO) run main.go package-bundle generate $(PACKAGE_NAME) --repository=$(PACKAGE_REPOSITORY) --version=$(PACKAGE_VERSION) --sub-version=$(PACKAGE_SUB_VERSION)
 
 .PHONY: package-bundles
-package-bundles: management-package-bundles ## Build tar bundles for multiple packages
-
-.PHONY: management-package-bundles
-management-package-bundles: tools management-imgpkg-lock-output ## Build tar bundles for packages
-	PACKAGE_REPOSITORY="management" $(PACKAGES_SCRIPTS_DIR)/package-utils.sh create_package_bundles localhost:5001
+package-bundles: tools prep-package-tools ## Build tar bundles for multiple packages
+	cd hack/packages/package-tools && $(GO) run main.go package-bundle generate --all --repository=$(PACKAGE_REPOSITORY) --version=$(PACKAGE_VERSION) --sub-version=$(PACKAGE_SUB_VERSION)
 
 .PHONY: package-repo-bundle
-package-repo-bundle: ## Build tar bundles for package repo with given package-values.yaml file
-	PACKAGE_REPOSITORY=$(PACKAGE_REPOSITORY) REGISTRY=$(OCI_REGISTRY)/packages/$(PACKAGE_REPOSITORY) PACKAGE_VALUES_FILE=$(PACKAGE_VALUES_FILE) $(PACKAGES_SCRIPTS_DIR)/package-utils.sh create_package_repo_bundles
+package-repo-bundle: tools prep-package-tools ## Build tar bundles for package repo with given package-values.yaml file
+	cd hack/packages/package-tools && $(GO) run main.go repo-bundle generate --repository=$(PACKAGE_REPOSITORY) --registry=$(OCI_REGISTRY) --version=$(REPO_BUNDLE_VERSION) --package-values-file=$(PACKAGE_VALUES_FILE) --sub-version=$(REPO_BUNDLE_SUB_VERSION)
 
 .PHONY: push-package-bundles
-push-package-bundles: push-management-package-bundles  ## Push package bundles
+push-package-bundles: tools prep-package-tools ## Push specified package bundle(s) in a package repository.
+## Specified package bundles must be set to the PACKAGE_BUNDLES environment variable as comma-separated values
+## and must not contain spaces. Example: PACKAGE_BUNDLES=featuregates,core-management-plugins
+	cd hack/packages/package-tools && $(GO) run main.go package-bundle push $(PACKAGE_BUNDLES) --repository=$(PACKAGE_REPOSITORY) --registry=$(OCI_REGISTRY) --version=$(BUILD_VERSION) --sub-version=$(PACKAGE_SUB_VERSION)
 
-.PHONY: push-package-repo-bundles
-push-package-repo-bundles: push-management-package-repo-bundle ## Push package repo bundles
+.PHONY: push-all-package-bundles
+push-all-package-bundles: tools prep-package-tools ## Push all package bundles in a package repository
+	cd hack/packages/package-tools && $(GO) run main.go package-bundle push --repository=$(PACKAGE_REPOSITORY) --registry=$(OCI_REGISTRY) --version=$(BUILD_VERSION) --sub-version=$(PACKAGE_SUB_VERSION) --all
 
-.PHONY: push-management-package-bundles
-push-management-package-bundles: tools ## Push management package bundles
-	PACKAGE_REPOSITORY="management" REGISTRY=$(OCI_REGISTRY)/packages/management $(PACKAGES_SCRIPTS_DIR)/package-utils.sh push_package_bundles
+.PHONY: push-package-repo-bundle
+push-package-repo-bundle: tools prep-package-tools ## Push package repo bundles
+	cd hack/packages/package-tools && $(GO) run main.go repo-bundle push --repository=$(PACKAGE_REPOSITORY) --registry=$(OCI_REGISTRY) --version=$(REPO_BUNDLE_VERSION)
 
-.PHONY: push-management-package-repo-bundle
-push-management-package-repo-bundle: tools ## Push management package repo bundles
-	PACKAGE_REPOSITORY="management" REGISTRY=$(OCI_REGISTRY)/packages/management $(PACKAGES_SCRIPTS_DIR)/package-utils.sh push_package_repo_bundles
+.PHONY: package-vendir-sync
+package-vendir-sync: tools ## Performs a `vendir sync` for each package in a repository
+	cd hack/packages/package-tools && $(GO) run main.go vendir sync --repository=$(PACKAGE_REPOSITORY)
 
-.PHONY: management-imgpkg-lock-output
-management-imgpkg-lock-output: tools ## Generate imgpkg lock output for packages
-	PACKAGE_REPOSITORY="management" $(PACKAGES_SCRIPTS_DIR)/package-utils.sh generate_imgpkg_lock_output
+.PHONY: local-registry
+local-registry: clean-registry ## Starts up a local docker registry. Local docker registry is used for pushing the package bundle to get the sha256, for using it later when producing repo bundle
+	docker run -d -p 5001:5000 --name registry mirror.gcr.io/library/registry:2
 
 .PHONY: clean-registry
 clean-registry: ## Stops and removes local docker registry
 	docker container stop registry && docker container rm -v registry || true
-
-.PHONY: local-registry
-local-registry: clean-registry ## Starts up a local docker registry
-	docker run -d -p 5001:5000 --name registry registry:2
 
 .PHONY: trivy-scan
 trivy-scan: ## Trivy scan images used in packages
 	make -C $(TOOLS_DIR) trivy
 	$(PACKAGES_SCRIPTS_DIR)/package-utils.sh trivy_scan
 
-.PHONY: management-package-vendir-sync
-management-package-vendir-sync: ## Performs a `vendir sync` for each management package
-	@cd packages/management && for package in *; do\
-		printf "\n===> syncing $${package}\n";\
-		pushd $${package}/bundle;\
-		$(TOOLS_BIN_DIR)/vendir sync >> /dev/null;\
-		popd;\
-	done
-	
 .PHONY: package-push-bundles-repo ## Performs build and publishes packages and repo bundles
 package-push-bundles-repo: package-bundles push-package-bundles package-repo-bundle push-package-repo-bundles

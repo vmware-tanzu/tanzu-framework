@@ -238,12 +238,7 @@ func (k *KindClusterProxy) getKindRegistryConfig() (string, error) {
 		return "", caCertErr
 	}
 
-	hostname := ""
-	if customRepository != "" {
-		hostname = strings.Split(customRepository, "/")[0]
-	} else {
-		hostname = k.options.DefaultImageRepo
-	}
+	hostname := k.ResolveHostname(customRepository)
 
 	registryTLSConfig := criRegistryTLSConfig{
 		InsecureSkipVerify: tkgconfigClient.IsCustomRepositorySkipTLSVerify(),

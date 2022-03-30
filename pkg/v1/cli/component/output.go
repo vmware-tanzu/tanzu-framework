@@ -14,8 +14,10 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-const colWidth = 300
-const indentation = `  `
+const (
+	colWidth    = 80
+	indentation = `  `
+)
 
 // OutputWriter is an interface for something that can write output.
 type OutputWriter interface {
