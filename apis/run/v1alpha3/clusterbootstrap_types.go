@@ -5,12 +5,9 @@ package v1alpha3
 
 import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-)
 
-// ClusterBootstrapStatus defines the observed state of ClusterBootstrap
-type ClusterBootstrapStatus struct {
-	ResolvedTKR string `json:"resolvedTKR,omitempty"`
-}
+	clusterapiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
+)
 
 // +kubebuilder:object:root=true
 // +kubebuilder:subresource:status
@@ -29,6 +26,23 @@ type ClusterBootstrap struct {
 
 	Spec   *ClusterBootstrapTemplateSpec `json:"spec"`
 	Status ClusterBootstrapStatus        `json:"status,omitempty"`
+}
+
+// ClusterBootstrapStatus defines the observed state of ClusterBootstrap
+type ClusterBootstrapStatus struct {
+	ResolvedTKR string `json:"resolvedTKR,omitempty"`
+
+	Conditions clusterapiv1beta1.Conditions `json:"conditions,omitempty"`
+}
+
+// GetConditions returns the set of conditions for this object. implements Setter interface
+func (c *ClusterBootstrap) GetConditions() clusterapiv1beta1.Conditions {
+	return c.Status.Conditions
+}
+
+// SetConditions sets the conditions on this object. implements Setter interface
+func (c *ClusterBootstrap) SetConditions(conditions clusterapiv1beta1.Conditions) {
+	c.Status.Conditions = conditions
 }
 
 //+kubebuilder:object:root=true

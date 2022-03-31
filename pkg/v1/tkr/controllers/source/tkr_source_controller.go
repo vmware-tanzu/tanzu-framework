@@ -184,7 +184,7 @@ func watchMgmtCluster(o client.Object) []reconcile.Request {
 	if labels == nil {
 		return nil
 	}
-	if _, exists := labels[constants.ManagememtClusterRoleLabel]; exists {
+	if _, exists := labels[constants.ManagementClusterRoleLabel]; exists {
 		return []reconcile.Request{{NamespacedName: client.ObjectKey{
 			Namespace: constants.TKRNamespace,
 			Name:      constants.BOMMetadataConfigMapName,

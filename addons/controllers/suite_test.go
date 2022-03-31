@@ -22,6 +22,7 @@ import (
 	"k8s.io/client-go/rest"
 	capvv1beta1 "sigs.k8s.io/cluster-api-provider-vsphere/apis/v1beta1"
 	clusterapiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
+	capiremote "sigs.k8s.io/cluster-api/controllers/remote"
 	controlplanev1beta1 "sigs.k8s.io/cluster-api/controlplane/kubeadm/api/v1beta1"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -109,6 +110,7 @@ var _ = BeforeSuite(func(done Done) {
 		"github.com/vmware-tanzu/carvel-kapp-controller": {"config/crds.yml"},
 		"sigs.k8s.io/cluster-api-provider-vsphere":       {"config/default/crd/bases"},
 	}
+
 	externalCRDPaths, err := testutil.GetExternalCRDPaths(externalDeps)
 	Expect(err).NotTo(HaveOccurred())
 	Expect(externalCRDPaths).ToNot(BeEmpty())
@@ -263,6 +265,29 @@ var _ = BeforeSuite(func(done Done) {
 		},
 	)
 	Expect(bootstrapReconciler.SetupWithManager(ctx, mgr, controller.Options{MaxConcurrentReconciles: 1})).To(Succeed())
+
+	// set up a ClusterCacheTracker to provide to PackageInstallStatus controller which requires a connection to remote clusters
+	l := ctrl.Log.WithName("remote").WithName("ClusterCacheTracker")
+	tracker, err := capiremote.NewClusterCacheTracker(mgr, capiremote.ClusterCacheTrackerOptions{Log: &l})
+	Expect(err).Should(BeNil())
+	Expect(tracker).ShouldNot(BeNil())
+
+	// set up CluterCacheReconciler to drops the accessor via deleteAccessor upon cluster deletion
+	Expect((&capiremote.ClusterCacheReconciler{
+		Client:  mgr.GetClient(),
+		Log:     ctrl.Log.WithName("remote").WithName("ClusterCacheReconciler"),
+		Tracker: tracker,
+	}).SetupWithManager(ctx, mgr, controller.Options{MaxConcurrentReconciles: 1})).To(Succeed())
+
+	Expect((NewPackageInstallStatusReconciler(
+		mgr.GetClient(),
+		ctrl.Log.WithName("controllers").WithName("PackageInstallStatus"),
+		mgr.GetScheme(),
+		&addonconfig.PackageInstallStatusControllerConfig{
+			SystemNamespace: constants.TKGSystemNS,
+		},
+		tracker,
+	)).SetupWithManager(ctx, mgr, controller.Options{MaxConcurrentReconciles: 1})).To(Succeed())
 
 	// pre-create namespace
 	ns := &corev1.Namespace{ObjectMeta: metav1.ObjectMeta{Name: "tkr-system"}}

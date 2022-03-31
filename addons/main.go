@@ -18,6 +18,7 @@ import (
 	"k8s.io/klog/v2"
 	"k8s.io/klog/v2/klogr"
 	clusterapiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
+	capiremote "sigs.k8s.io/cluster-api/controllers/remote"
 	controlplanev1beta1 "sigs.k8s.io/cluster-api/controlplane/kubeadm/api/v1beta1"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/controller"
@@ -64,25 +65,26 @@ func init() {
 }
 
 type addonFlags struct {
-	metricsAddr                 string
-	enableLeaderElection        bool
-	clusterConcurrency          int
-	syncPeriod                  time.Duration
-	appSyncPeriod               time.Duration
-	appWaitTimeout              time.Duration
-	addonNamespace              string
-	addonServiceAccount         string
-	addonClusterRole            string
-	addonClusterRoleBinding     string
-	addonImagePullPolicy        string
-	corePackageRepoName         string
-	healthdAddr                 string
-	httpProxyClusterVarName     string
-	httpsProxyClusterVarName    string
-	noProxyClusterVarName       string
-	proxyCACertClusterVarName   string
-	ipFamilyClusterVarName      string
-	featureGateClusterBootstrap bool
+	metricsAddr                     string
+	enableLeaderElection            bool
+	clusterConcurrency              int
+	syncPeriod                      time.Duration
+	appSyncPeriod                   time.Duration
+	appWaitTimeout                  time.Duration
+	addonNamespace                  string
+	addonServiceAccount             string
+	addonClusterRole                string
+	addonClusterRoleBinding         string
+	addonImagePullPolicy            string
+	corePackageRepoName             string
+	healthdAddr                     string
+	httpProxyClusterVarName         string
+	httpsProxyClusterVarName        string
+	noProxyClusterVarName           string
+	proxyCACertClusterVarName       string
+	ipFamilyClusterVarName          string
+	featureGateClusterBootstrap     bool
+	featureGatePackageInstallStatus bool
 }
 
 func parseAddonFlags(addonFlags *addonFlags) {
@@ -111,6 +113,7 @@ func parseAddonFlags(addonFlags *addonFlags) {
 	flag.StringVar(&addonFlags.proxyCACertClusterVarName, "proxy-ca-cert-cluster-var-name", constants.DefaultProxyCaCertClusterClassVarName, "Proxy CA certificate cluster variable name")
 	flag.StringVar(&addonFlags.ipFamilyClusterVarName, "ip-family-cluster-var-name", constants.DefaultIPFamilyClusterClassVarName, "IP family setting cluster variable name")
 	flag.BoolVar(&addonFlags.featureGateClusterBootstrap, "feature-gate-cluster-bootstrap", false, "Feature gate to enable clusterbootstap and addonconfig controllers that rely on TKR v1alphav3")
+	flag.BoolVar(&addonFlags.featureGatePackageInstallStatus, "feature-gate-package-install-status", false, "Feature gate to enable packageinstallstatus controller")
 
 	flag.Parse()
 }
@@ -177,6 +180,10 @@ func main() {
 	}
 	if flags.featureGateClusterBootstrap {
 		enableClusterBootstrapAndConfigControllers(ctx, mgr, flags)
+	}
+
+	if flags.featureGatePackageInstallStatus {
+		enablePackageInstallStatusController(ctx, mgr, flags)
 	}
 
 	setupChecks(mgr)
@@ -253,6 +260,44 @@ func enableClusterBootstrapAndConfigControllers(ctx context.Context, mgr ctrl.Ma
 	)
 	if err := bootstrapReconciler.SetupWithManager(ctx, mgr, controller.Options{MaxConcurrentReconciles: 1}); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "clusterbootstrap")
+		os.Exit(1)
+	}
+}
+
+func enablePackageInstallStatusController(ctx context.Context, mgr ctrl.Manager, flags *addonFlags) {
+	// set up a ClusterCacheTracker to provide to PackageInstallStatus controller which requires a connection to remote clusters
+	// the informers/caches are created only for objects accessed through Get/List in the code.
+	// we only read Package and PackageInstall resources through our cached client, we let those two resource types to be cached and we don't add any resource type to the ClientUncachedObjects list
+	l := ctrl.Log.WithName("remote").WithName("ClusterCacheTracker")
+	tracker, err := capiremote.NewClusterCacheTracker(mgr, capiremote.ClusterCacheTrackerOptions{Log: &l})
+	if err != nil {
+		setupLog.Error(err, "unable to create cluster cache tracker")
+		os.Exit(1)
+	}
+
+	// set up CluterCacheReconciler to drops the accessor via deleteAccessor upon cluster deletion.
+	// after a Cluster is deleted (from the apiserver/etcd), the CluterCacheReconciler drops the accessor via deleteAccessor.
+	// the healthchecking inside of the ClusterCacheTracker would remove the accessor at some point but the ClusterCacheReconciler does it more cleanly directly upon Cluster delete
+	if err := (&capiremote.ClusterCacheReconciler{
+		Client:  mgr.GetClient(),
+		Log:     ctrl.Log.WithName("remote").WithName("ClusterCacheReconciler"),
+		Tracker: tracker,
+	}).SetupWithManager(ctx, mgr, controller.Options{MaxConcurrentReconciles: flags.clusterConcurrency}); err != nil {
+		setupLog.Error(err, "unable to create controller", "controller", "ClusterCacheReconciler")
+		os.Exit(1)
+	}
+
+	pkgiStatusReconciler := controllers.NewPackageInstallStatusReconciler(
+		mgr.GetClient(),
+		ctrl.Log.WithName("PackageInstallStatusController"),
+		mgr.GetScheme(),
+		&addonconfig.PackageInstallStatusControllerConfig{
+			SystemNamespace: flags.addonNamespace,
+		},
+		tracker,
+	)
+	if err := pkgiStatusReconciler.SetupWithManager(ctx, mgr, controller.Options{MaxConcurrentReconciles: flags.clusterConcurrency}); err != nil {
+		setupLog.Error(err, "unable to create controller", "controller", "PackageInstallStatus")
 		os.Exit(1)
 	}
 }

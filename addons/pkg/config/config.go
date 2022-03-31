@@ -38,3 +38,9 @@ type ClusterBootstrapControllerConfig struct {
 	// The namespace where the bootstrap objects will be created, i.e., tkg-system
 	SystemNamespace string
 }
+
+// PackageInstallStatusControllerConfig contains configuration information related to PackageInstallStatus
+type PackageInstallStatusControllerConfig struct {
+	// The namespace where the bootstrap objects will be created, i.e., tkg-system
+	SystemNamespace string
+}

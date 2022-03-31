@@ -133,10 +133,6 @@ const (
 	// KappControllerAddonName is the addon name of Kapp Controller
 	KappControllerAddonName = "kapp-controller"
 
-	// ManagementClusterRoleLabel is the label applied to cluster object that indicates the cluster object represents a
-	// mgmt cluster
-	ManagementClusterRoleLabel = "cluster-role.tkg.tanzu.vmware.com/management"
-
 	// SecretNameLogKey is the log key for Secrets
 	SecretNameLogKey = "secret-name"
 
@@ -169,6 +165,9 @@ const (
 
 	// PackageInstallSyncPeriod is the sync period for kapp-controller to periodically reconcile a PackageInstall
 	PackageInstallSyncPeriod = time.Minute * 10
+
+	// RequeueAfterInterval determines the duration after which the Controller should requeue the reconcile key
+	RequeueAfterDuration = time.Second * 10
 )
 
 // ClusterKind is the Kind for cluster-api Cluster object

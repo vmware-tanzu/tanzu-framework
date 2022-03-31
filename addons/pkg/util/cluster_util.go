@@ -150,3 +150,16 @@ func ClustersToRequests(clusters []*clusterv1beta1.Cluster, log logr.Logger) []c
 
 	return requests
 }
+
+func GetClusterLabel(clusterLabels map[string]string, labelKey string) (string, error) {
+	if clusterLabels == nil {
+		return "", errors.New("cluster labels is empty")
+	}
+
+	labelValue, ok := clusterLabels[labelKey]
+	if !ok {
+		return "", errors.Errorf("cluster label '%s' does not exist", labelKey)
+	}
+
+	return labelValue, nil
+}

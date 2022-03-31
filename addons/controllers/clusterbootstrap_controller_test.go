@@ -293,6 +293,9 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 				Expect(len(kappControllerPkgi.OwnerReferences) == 1).To(BeTrue())
 				Expect(kappControllerPkgi.OwnerReferences[0].APIVersion).To(Equal(clusterapiv1beta1.GroupVersion.String()))
 				Expect(kappControllerPkgi.OwnerReferences[0].Name).To(Equal(cluster.Name))
+				Expect(kappControllerPkgi.Annotations).ShouldNot(BeNil())
+				Expect(kappControllerPkgi.Annotations[addontypes.ClusterNamespaceAnnotation]).Should(Equal(clusterNamespace))
+				Expect(kappControllerPkgi.Annotations[addontypes.ClusterNameAnnotation]).Should(Equal(clusterName))
 
 				remoteClient, err := util.GetClusterClient(ctx, k8sClient, scheme, clusterapiutil.ObjectKey(cluster))
 				Expect(err).NotTo(HaveOccurred())
@@ -374,6 +377,9 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 				Expect(remotePkgi.Spec.PackageRef.RefName).To(Equal(pkg.Spec.RefName))
 				Expect(len(remotePkgi.Spec.Values)).NotTo(BeZero())
 				Expect(remotePkgi.Spec.Values[0].SecretRef.Name).To(Equal(util.GenerateDataValueSecretName(cluster.Name, pkg.Spec.RefName)))
+				Expect(remotePkgi.Annotations).ShouldNot(BeNil())
+				Expect(remotePkgi.Annotations[addontypes.ClusterNamespaceAnnotation]).Should(Equal(clusterNamespace))
+				Expect(remotePkgi.Annotations[addontypes.ClusterNameAnnotation]).Should(Equal(clusterName))
 
 				// Update the secret created before for foobar resource
 				// Verify that the updated secret leads to an updated data-values secret
