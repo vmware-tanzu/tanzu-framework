@@ -1,0 +1,62 @@
+#@ load("@ytt:overlay", "overlay")
+#@ load("@ytt:data", "data")
+#@ load("/lib/helpers.star", "tkg_image_repo_customized", "tkg_image_repo_hostname", "tkg_image_repo_ca_cert", "tkg_image_repo_skip_tls_verify")
+
+#! This ytt overlay adds proxy certificate on TKG cluster nodes, so containerd and other tools trust these CA certificates.
+#! It works when using Photon or Ubuntu or Amazon linux 2 as the TKG node template on all TKG infrastructure providers.
+
+#@ if data.values.TKG_PROXY_CA_CERT != "":
+#@overlay/match by=overlay.subset({"kind":"KubeadmControlPlane"})
+---
+apiVersion: controlplane.cluster.x-k8s.io/v1beta1
+kind: KubeadmControlPlane
+spec:
+  kubeadmConfigSpec:
+    #@overlay/match missing_ok=True
+    preKubeadmCommands:
+      #! For Photon OS
+      #@overlay/append
+      - ! which rehash_ca_certificates.sh 2>/dev/null || rehash_ca_certificates.sh
+      #! For Ubuntu
+      #@overlay/append
+      - ! which update-ca-certificates 2>/dev/null || (mv /etc/ssl/certs/tkg-custom-ca.pem /usr/local/share/ca-certificates/tkg-custom-ca.crt && update-ca-certificates)
+      #! For Amazon
+      #@overlay/append
+      - ! which update-ca-trust 2>/dev/null || (update-ca-trust force-enable && mv /etc/ssl/certs/tkg-custom-ca.pem /etc/pki/ca-trust/source/anchors/tkg-custom-ca.crt && update-ca-trust extract)
+      #@overlay/append
+      - systemctl restart containerd
+    #@overlay/match missing_ok=True
+    files:
+      #@overlay/append
+      - path: /etc/ssl/certs/tkg-custom-ca.pem
+        content: #@ tkg_image_repo_ca_cert()
+        encoding: "base64"
+        permissions: "0444"
+#@overlay/match by=overlay.subset({"kind":"KubeadmConfigTemplate"}),expects="1+"
+---
+apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
+kind: KubeadmConfigTemplate
+spec:
+  template:
+    spec:
+      #@overlay/match missing_ok=True
+      preKubeadmCommands:
+        #! For Photon OS
+        #@overlay/append
+        - ! which rehash_ca_certificates.sh 2>/dev/null || rehash_ca_certificates.sh
+        #! For Ubuntu
+        #@overlay/append
+        - ! which update-ca-certificates 2>/dev/null || (mv /etc/ssl/certs/tkg-custom-ca.pem /usr/local/share/ca-certificates/tkg-custom-ca.crt && update-ca-certificates)
+        #! For Amazon
+        #@overlay/append
+        - ! which update-ca-trust 2>/dev/null || (update-ca-trust force-enable && mv /etc/ssl/certs/tkg-custom-ca.pem /etc/pki/ca-trust/source/anchors/tkg-custom-ca.crt && update-ca-trust extract)
+        #@overlay/append
+        - systemctl restart containerd
+      #@overlay/match missing_ok=True
+      files:
+        #@overlay/append
+        - path: /etc/ssl/certs/tkg-custom-ca.pem
+          content: #@ tkg_image_repo_ca_cert()
+          encoding: "base64"
+          permissions: "0444"
+#@ end
