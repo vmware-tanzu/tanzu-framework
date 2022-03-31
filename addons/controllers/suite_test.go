@@ -279,7 +279,7 @@ var _ = BeforeSuite(func(done Done) {
 	Expect(err).ToNot(HaveOccurred())
 	err = (&cniv1alpha1.CalicoConfig{}).SetupWebhookWithManager(mgr)
 	Expect(err).ToNot(HaveOccurred())
-	err = (&webhooks.Cluster{Client: k8sClient}).SetupWebhookWithManager(mgr)
+	err = (&webhooks.ClusterPause{Client: k8sClient}).SetupWebhookWithManager(mgr)
 	Expect(err).ToNot(HaveOccurred())
 
 	go func() {
