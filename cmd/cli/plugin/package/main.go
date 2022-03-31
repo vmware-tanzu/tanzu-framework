@@ -35,8 +35,8 @@ func main() {
 }
 
 func nonExitingMain(p *plugin.Plugin) error {
-	writerUI := ui.NewWriterUI(os.Stdout, os.Stderr, ui.NewNoopLogger())
-	adapterUI := &AdapterUI{*writerUI, os.Stdout, ""}
+	writerUI := ui.NewWriterUI(p.Cmd.OutOrStdout(), p.Cmd.ErrOrStderr(), ui.NewNoopLogger())
+	adapterUI := &AdapterUI{WriterUI: *writerUI, outWriter: p.Cmd.OutOrStdout()}
 	confUI := ui.NewWrappingConfUI(adapterUI, ui.NewNoopLogger())
 
 	defer confUI.Flush()

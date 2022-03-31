@@ -18,8 +18,10 @@ import (
 
 type AdapterUI struct {
 	ui.WriterUI
-	outWriter    io.Writer
+	outWriter io.Writer
+
 	outputFormat string
+	tableCount   int
 }
 
 // PrintLinef overrides go-cli-ui/ui.PrintLinef
@@ -43,7 +45,16 @@ func (adapterUI *AdapterUI) SetOutputFormat(outputFormat string) {
 // It accepts a table and renders it based on the output format
 //nolint:gocritic // Cannot change the function signature as it is defined in go-cli-ui
 func (adapterUI *AdapterUI) PrintTable(table uitable.Table) {
+	outputFormat := adapterUI.outputFormat // copy outputFormat so that it doesn't get overwritten in next steps in cases of multiple tables
 	keys := []string{}
+
+	adapterUI.tableCount++
+
+	// For json output, we want to print only 1 table to make sure that it doesn't become an invalid json
+	if adapterUI.tableCount > 1 && outputFormat == string(component.JSONOutputType) {
+		return
+	}
+
 	for _, h := range table.Header {
 		if !h.Hidden {
 			keys = append(keys, strings.ToUpper(strings.ReplaceAll(h.Title, " ", "-")))
@@ -51,13 +62,13 @@ func (adapterUI *AdapterUI) PrintTable(table uitable.Table) {
 	}
 
 	if table.Transpose {
-		if adapterUI.outputFormat != string(component.JSONOutputType) && adapterUI.outputFormat != string(component.YAMLOutputType) {
+		if outputFormat != string(component.JSONOutputType) && outputFormat != string(component.YAMLOutputType) {
 			// For table output, we want to force the list table format for this part
-			adapterUI.outputFormat = string(component.ListTableOutputType)
+			outputFormat = string(component.ListTableOutputType)
 		}
 	}
 
-	t := component.NewOutputWriter(adapterUI.outWriter, adapterUI.outputFormat, keys...)
+	t := component.NewOutputWriter(adapterUI.outWriter, outputFormat, keys...)
 
 	for _, row := range table.Rows {
 		var tRow []interface{}

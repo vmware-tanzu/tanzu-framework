@@ -260,4 +260,4 @@ require (
 	sigs.k8s.io/structured-merge-diff/v4 v4.2.1 // indirect
 )
 
-replace github.com/vmware-tanzu/carvel-kapp-controller/cli => github.com/vmware-tanzu/carvel-kapp-controller/cli v0.0.0-20220330201511-bcfe4befb4cf
+replace github.com/vmware-tanzu/carvel-kapp-controller/cli => github.com/vmware-tanzu/carvel-kapp-controller/cli v0.0.0-20220404044316-590de9ead52b
