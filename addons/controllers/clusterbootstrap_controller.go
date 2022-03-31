@@ -530,7 +530,7 @@ func (r *ClusterBootstrapReconciler) createOrPatchKappPackageInstall(clusterBoot
 					UID:        cluster.UID,
 				},
 			},
-			Labels: map[string]string{types.ClusterNameLabel: cluster.Name, types.ClusterNamespaceLabel: cluster.Namespace},
+			Annotations: map[string]string{types.ClusterNameAnnotation: cluster.Name, types.ClusterNamespaceAnnotation: cluster.Namespace},
 		},
 	}
 
@@ -638,9 +638,9 @@ func (r *ClusterBootstrapReconciler) createOrPatchPackageInstallOnRemote(cluster
 	// Create PackageInstall CRs on the remote workload cluster, kapp-controller will take care of reconciling them
 	remotePkgi := &kapppkgiv1alpha1.PackageInstall{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      util.GeneratePackageInstallName(cluster.Name, remotePackageRefName),
-			Namespace: r.Config.SystemNamespace,
-			Labels:    map[string]string{types.ClusterNameLabel: cluster.Name, types.ClusterNamespaceLabel: cluster.Namespace},
+			Name:        util.GeneratePackageInstallName(cluster.Name, remotePackageRefName),
+			Namespace:   r.Config.SystemNamespace,
+			Annotations: map[string]string{types.ClusterNameAnnotation: cluster.Name, types.ClusterNamespaceAnnotation: cluster.Namespace},
 		},
 	}
 

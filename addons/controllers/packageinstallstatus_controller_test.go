@@ -194,9 +194,9 @@ func installPackage(clusterName, pkgName, namespace string) {
 	pkgiName := util.GeneratePackageInstallName(clusterName, packageRefName)
 	pkgi := &kapppkgiv1alpha1.PackageInstall{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      pkgiName,
-			Namespace: namespace,
-			Labels:    map[string]string{types.ClusterNameLabel: clusterName, types.ClusterNamespaceLabel: namespace},
+			Name:        pkgiName,
+			Namespace:   namespace,
+			Annotations: map[string]string{types.ClusterNameAnnotation: clusterName, types.ClusterNamespaceAnnotation: namespace},
 		},
 		Spec: kapppkgiv1alpha1.PackageInstallSpec{
 			PackageRef: &kapppkgiv1alpha1.PackageRef{

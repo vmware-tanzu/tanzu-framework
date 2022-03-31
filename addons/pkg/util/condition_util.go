@@ -18,7 +18,7 @@ import (
 // - Otherwise, if there be any 'ReconcileSucceeded' condition type with status 'True', the summary condition type will be 'ReconcileSucceeded'
 // - Otherwise, if there be any 'Deleting' condition type with status 'True', the summary condition type will be 'Deleting'
 // - Otherwise, if there be any 'DeleteFailed' condition type with status 'True', the summary condition type will be 'DeleteFailed'
-// - Otherwise, the summary condition type will be 'UnknownCondition'
+// - Otherwise, the condition type is unknown and nil will be returned
 // Note that ReconcileFailed|Reconciling|ReconcileSucceeded|Deleting|DeleteFailed|DeleteSucceeded are mutually exclusive
 func SummarizeAppConditions(conditions []v1alpha1.AppCondition) *v1alpha1.AppCondition {
 	wantedCondTypes := []v1alpha1.AppConditionType{

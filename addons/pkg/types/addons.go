@@ -14,9 +14,6 @@ const (
 	// ClusterNameLabel is the label on the resource to indicate the cluster on which addon is to be installed
 	ClusterNameLabel = "tkg.tanzu.vmware.com/cluster-name"
 
-	// ClusterNamespaceLabel is the label on the resource to indicate the cluster namespace on which resource is to be installed
-	ClusterNamespaceLabel = "tkg.tanzu.vmware.com/cluster-namespace"
-
 	// PackageNameLabel is the label on the cloned objects namely Secrets and Providers by "TanzuClusterBootstrap" Reconciler to indicate the package name
 	PackageNameLabel = "tkg.tanzu.vmware.com/package-name"
 
@@ -40,6 +37,12 @@ const (
 
 	// AddonPausedAnnotation is the add on's "paused" annotation
 	AddonPausedAnnotation = "tkg.tanzu.vmware.com/addon-paused"
+
+	// ClusterNameAnnotation is the cluster's name annotation
+	ClusterNameAnnotation = "tkg.tanzu.vmware.com/cluster-name"
+
+	// ClusterNamespaceAnnotation is the cluster's namespace annotation
+	ClusterNamespaceAnnotation = "tkg.tanzu.vmware.com/cluster-namespace"
 )
 
 // AddonImageInfo contains addon image info

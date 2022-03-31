@@ -423,17 +423,17 @@ func (r *PackageInstallStatusReconciler) isPackageManaged(clusterObjKey client.O
 }
 
 func (r *PackageInstallStatusReconciler) getClusterNamespacedName(pkgi *kapppkgiv1alpha1.PackageInstall) *client.ObjectKey {
-	labels := pkgi.GetLabels()
-	if labels == nil {
+	annotations := pkgi.GetAnnotations()
+	if annotations == nil {
 		return nil
 	}
 
-	clusterName, ok := labels[types.ClusterNameLabel]
+	clusterName, ok := annotations[types.ClusterNameAnnotation]
 	if !ok || clusterName == "" {
 		return nil
 	}
 
-	clusterNamespace, ok := labels[types.ClusterNamespaceLabel]
+	clusterNamespace, ok := annotations[types.ClusterNamespaceAnnotation]
 	if !ok || clusterNamespace == "" {
 		return nil
 	}
