@@ -1,6 +1,6 @@
 #@ load("@ytt:data", "data")
 #@ load("@ytt:assert", "assert")
-#@ load("/lib/helpers.star", "get_bom_data_for_tkr_name", "get_image_repo_for_component", "get_no_proxy")
+#@ load("/lib/helpers.star", "get_bom_data_for_tkr_name", "get_image_repo_for_component",  "get_vsphere_thumbprint", "get_no_proxy")
 
 
 #! `topology-catogories` label is only available in CSI 2.4 and newer
@@ -66,6 +66,7 @@ vsphereCSI:
 #@ end
   namespace: kube-system
   clusterName: #@ data.values.CLUSTER_NAME
+  tlsThumbprint: #@ get_vsphere_thumbprint()
   server: #@ data.values.VSPHERE_SERVER
   datacenter: #@ data.values.VSPHERE_DATACENTER
   publicNetwork: #@ data.values.VSPHERE_NETWORK
@@ -73,6 +74,7 @@ vsphereCSI:
   password: #@ data.values.VSPHERE_PASSWORD
   region: #@ data.values.VSPHERE_REGION
   zone: #@ data.values.VSPHERE_ZONE
+  insecureFlag: #@ data.values.VSPHERE_INSECURE
   vSphereVersion: #@ data.values.VSPHERE_VERSION
   http_proxy: #@ data.values.TKG_HTTP_PROXY
   https_proxy: #@ data.values.TKG_HTTPS_PROXY
