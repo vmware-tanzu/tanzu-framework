@@ -44,7 +44,7 @@ func nonExitingMain(p *plugin.Plugin) error {
 	kctrlcmd.AttachKctrlPackageCommandTree(p.Cmd, confUI, kctrlcmdcore.PackageCommandTreeOpts{BinaryName: "tanzu", PositionalArgs: true,
 		Color: false, JSON: false})
 
-	setOutputFormat(p.Cmd, adapterUI)
+	setOutputFormatFlag(p.Cmd, adapterUI)
 
 	if err := p.Execute(); err != nil {
 		return err

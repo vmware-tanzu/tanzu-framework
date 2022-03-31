@@ -22,6 +22,8 @@ type AdapterUI struct {
 	outputFormat string
 }
 
+// PrintLinef overrides go-cli-ui/ui.PrintLinef
+// It is used to print lines, but excludes certain lines based on the pattern
 func (adapterUI *AdapterUI) PrintLinef(pattern string, args ...interface{}) {
 	if strings.Contains(pattern, "Target cluster") {
 		return
@@ -37,6 +39,9 @@ func (adapterUI *AdapterUI) SetOutputFormat(outputFormat string) {
 	adapterUI.outputFormat = outputFormat
 }
 
+// PrintTable overrides go-cli-ui/ui.PrintTable
+// It accepts a table and renders it based on the output format
+//nolint:gocritic // Cannot change the function signature as it is defined in go-cli-ui
 func (adapterUI *AdapterUI) PrintTable(table uitable.Table) {
 	keys := []string{}
 	for _, h := range table.Header {
@@ -67,10 +72,10 @@ func (adapterUI *AdapterUI) PrintTable(table uitable.Table) {
 	t.Render()
 }
 
-func setOutputFormat(cmd *cobra.Command, adapterUI *AdapterUI) {
+func setOutputFormatFlag(cmd *cobra.Command, adapterUI *AdapterUI) {
 	for _, c := range cmd.Commands() {
 		if len(c.Commands()) > 1 {
-			setOutputFormat(c, adapterUI)
+			setOutputFormatFlag(c, adapterUI)
 		}
 		var output string
 		if _, ok := c.Annotations["table"]; ok {
