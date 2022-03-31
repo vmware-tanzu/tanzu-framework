@@ -8,4 +8,4 @@ metadata:
 spec:
   calico:
     config:
-      vethMTU: 0 #! This is the only available parameter. Even thought the value is the same as default, keeping it here because spec can't be empty
+      vethMTU: 0

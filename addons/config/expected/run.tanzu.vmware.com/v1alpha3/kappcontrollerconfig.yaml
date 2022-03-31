@@ -8,7 +8,11 @@ spec:
   kappController:
     globalNamespace: tkg-system
     deployment:
+      concurrency: 4
+      hostNetwork: true
+      priorityClassName: system-cluster-critical
       apiPort: 10100
+      metricsBindAddress: "0"
       tolerations:
       - key: CriticalAddonsOnly
         operator: Exists

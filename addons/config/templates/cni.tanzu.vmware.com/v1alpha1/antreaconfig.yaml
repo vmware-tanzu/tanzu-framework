@@ -8,8 +8,18 @@ metadata:
 spec:
   antrea:
     config:
+      trafficEncapMode: "encap"
+      noSNAT: false
+      tlsCipherSuites: TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,TLS_RSA_WITH_AES_256_GCM_SHA384
+      disableUdpTunnelOffload: false
       featureGates:
+        AntreaProxy: true
         EndpointSlice: true
+        AntreaPolicy: true
+        NodePortLocal: false
+        AntreaTraceflow: true
+        Egress: false
+        FlowExporter: false
 ---
 apiVersion: cni.tanzu.vmware.com/v1alpha1
 kind: AntreaConfig
@@ -21,6 +31,13 @@ spec:
     config:
       trafficEncapMode: "noEncap"
       noSNAT: true
+      tlsCipherSuites: TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,TLS_RSA_WITH_AES_256_GCM_SHA384
+      disableUdpTunnelOffload: false
       featureGates:
         AntreaProxy: true
         EndpointSlice: true
+        AntreaPolicy: true
+        NodePortLocal: false
+        AntreaTraceflow: true
+        Egress: false
+        FlowExporter: false
