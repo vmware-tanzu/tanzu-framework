@@ -1,6 +1,6 @@
 #@ load("@ytt:data", "data")
 
-#@ def cni_webhook_manifests():
+#@ def webhook_manifests():
 ---
 apiVersion: v1
 kind: Service
