@@ -38,6 +38,8 @@ var (
 	setupLog = ctrl.Log.WithName("setup")
 )
 
+// vuil: SOME fake comment
+
 func init() {
 	klog.InitFlags(nil)
 

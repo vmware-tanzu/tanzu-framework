@@ -26,6 +26,8 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/utils"
 )
 
+// vuil: some fake comment
+
 type tkgctl struct {
 	kubeconfig               string
 	kubecontext              string

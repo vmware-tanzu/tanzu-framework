@@ -25,7 +25,7 @@ var _ = Describe("TKG_IP_FAMILY Ytt Templating", func() {
 		var paths []string
 		BeforeEach(func() {
 			paths = []string{
-				// assumes that ../../ is where the yaml templates live
+				// vuil: SOME FAKE CHANGE assumes that ../../ is where the yaml templates live
 				filepath.Join(yamlRoot, "config_default.yaml"),
 				filepath.Join(yamlRoot, "ytt", "03_customizations", "ip_family.yaml"),
 			}
