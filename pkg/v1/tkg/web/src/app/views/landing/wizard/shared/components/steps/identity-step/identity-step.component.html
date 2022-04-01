@@ -169,7 +169,10 @@
                             <!-- Add a empty helper to avoid accessibility aria-describeby issue -->
                             <clr-control-helper></clr-control-helper>
                             <clr-control-error *clrIfError="validatorEnum.REQUIRED">
-                                Scopes are required. It must not include whitespace on ends. It must be a comma separated list of scopes.
+                                Scopes are required. It must be a comma separated list of scopes.
+                            </clr-control-error>
+                            <clr-control-error *clrIfError="validatorEnum.WHITESPACE">
+                                It must not include whitespace.
                             </clr-control-error>
                         </clr-input-container>
                     </div>

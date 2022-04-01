@@ -696,7 +696,7 @@ export class ValidationService {
         return (control: AbstractControl) => {
             const ctrlValue: string = control.value;
             if (ctrlValue) {
-                if (!XRegExp('^(((\\w+)(,\\s?\\w+)+)|(\\w+))$').test(ctrlValue)) {
+                if (!XRegExp('^(((\\w+)(,\\w+)+)|(\\w+))$').test(ctrlValue)) {
                     return {
                         [ValidatorEnum.COMMA_SEPARATED_WORDS]: true
                     };
