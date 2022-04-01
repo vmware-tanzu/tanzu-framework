@@ -12,6 +12,7 @@ import (
 	cert2 "k8s.io/client-go/util/cert"
 	ctrl "sigs.k8s.io/controller-runtime"
 
+	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/webhooks"
 )
 
@@ -24,6 +25,7 @@ const (
 var setupLog = ctrl.Log.WithName("controllers").WithName("Addon")
 
 var _ = Describe("when webhook TLS is being continuously managed", func() {
+
 	Context("if check frequency time is reached", func() {
 		It("tls certificates should be validated and rotated if invalid", func() {
 			privCtx := context.Background()
@@ -37,7 +39,7 @@ var _ = Describe("when webhook TLS is being continuously managed", func() {
 				KeyPath:       keyPath,
 				Name:          webhookScrtName,
 				ServiceName:   webhookServiceName,
-				LabelSelector: "webhook-cert=self-managed",
+				LabelSelector: constants.AddonWebhookLabelKey,
 				Logger:        setupLog,
 				Namespace:     addonNamespace,
 				RotationTime:  rotationTime,
@@ -60,7 +62,7 @@ var _ = Describe("when webhook TLS is being continuously managed", func() {
 
 			cancelFn()
 
-			//The certificates should be different due to rotation
+			// The certificates should be different due to rotation
 			Expect(secondCertPEM).ToNot(Equal(firstCertPEM))
 
 		})
@@ -76,7 +78,7 @@ var _ = Describe("when webhook TLS is being continuously managed", func() {
 				KeyPath:       keyPath,
 				Name:          webhookScrtName,
 				ServiceName:   webhookServiceName,
-				LabelSelector: "webhook-cert=self-managed",
+				LabelSelector: constants.AddonWebhookLabelKey,
 				Logger:        setupLog,
 				Namespace:     addonNamespace,
 				RotationTime:  rotationTime,
@@ -90,7 +92,7 @@ var _ = Describe("when webhook TLS is being continuously managed", func() {
 	Context("if rotation time is 0 or less than 0", func() {
 		It("should set rotation to one day", func() {
 			rotationTime := zeroTime
-			managementFrequency := oneDay //any value larger than 0 will work here
+			managementFrequency := oneDay // any value larger than 0 will work here
 			webhookTLS := webhooks.WebhookTLS{
 				Ctx:           context.Background(),
 				K8sConfig:     k8sConfig,
@@ -98,7 +100,7 @@ var _ = Describe("when webhook TLS is being continuously managed", func() {
 				KeyPath:       keyPath,
 				Name:          webhookScrtName,
 				ServiceName:   webhookServiceName,
-				LabelSelector: "webhook-cert=self-managed",
+				LabelSelector: constants.AddonWebhookLabelKey,
 				Logger:        setupLog,
 				Namespace:     addonNamespace,
 				RotationTime:  rotationTime,
@@ -114,7 +116,7 @@ var _ = Describe("when webhook TLS is being continuously managed", func() {
 			privCtx := context.Background()
 			cacelCtx, cancelFn := context.WithCancel(privCtx)
 			rotationTime := oneWeek
-			managementFrequency := time.Second / 2 //manage the certificates every 1/2 second for testing purposes
+			managementFrequency := time.Second / 2 // manage the certificates every 1/2 second for testing purposes
 			webhookTLS := webhooks.WebhookTLS{
 				Ctx:           cacelCtx,
 				K8sConfig:     k8sConfig,
@@ -122,7 +124,7 @@ var _ = Describe("when webhook TLS is being continuously managed", func() {
 				KeyPath:       keyPath,
 				Name:          webhookScrtName,
 				ServiceName:   webhookServiceName,
-				LabelSelector: "webhook-cert=self-managed",
+				LabelSelector: constants.AddonWebhookLabelKey,
 				Logger:        setupLog,
 				Namespace:     addonNamespace,
 				RotationTime:  rotationTime,
@@ -144,7 +146,7 @@ var _ = Describe("when webhook TLS is being continuously managed", func() {
 
 			cancelFn()
 
-			//The certificates should be the same since we did not hit one week rotation
+			// The certificates should be the same since we did not hit one week rotation
 			Expect(secondCertPEM).To(Equal(firstCertPEM))
 
 		})

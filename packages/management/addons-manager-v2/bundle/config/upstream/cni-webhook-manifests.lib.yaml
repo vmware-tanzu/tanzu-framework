@@ -18,7 +18,7 @@ apiVersion: admissionregistration.k8s.io/v1
 kind: MutatingWebhookConfiguration
 metadata:
   labels:
-    webhook-cert: self-managed
+    tkg.tanzu.vmware.com/addon-webhooks: ""
   name: mutating-webhook-configuration
 webhooks:
   - admissionReviewVersions:
@@ -72,7 +72,7 @@ apiVersion: admissionregistration.k8s.io/v1
 kind: ValidatingWebhookConfiguration
 metadata:
   labels:
-    webhook-cert: self-managed
+    tkg.tanzu.vmware.com/addon-webhooks: ""
   name: validating-webhook-configuration
 webhooks:
   - admissionReviewVersions:

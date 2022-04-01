@@ -68,7 +68,8 @@ const (
 	corePackageRepoName     = "core"
 	webhookServiceName      = "tanzu-addons-manager-webhook-service"
 	webhookScrtName         = "webhook-tls"
-	cniWebhookLabel         = "cni-webhook"
+	addonWebhookLabelKey    = "tkg.tanzu.vmware.com/addon-webhooks"
+	addonWebhookLabelValue  = ""
 	cniWebhookManifestFile  = "testdata/test-antrea-calico-webhook-manifests.yaml"
 )
 
@@ -300,7 +301,7 @@ var _ = BeforeSuite(func(done Done) {
 	ns = &corev1.Namespace{ObjectMeta: metav1.ObjectMeta{Name: "tkg-system"}}
 	Expect(k8sClient.Create(context.TODO(), ns)).To(Succeed())
 
-	_, err = webhooks.InstallNewCertificates(ctx, k8sConfig, certPath, keyPath, webhookScrtName, addonNamespace, webhookServiceName, "webhook-cert=self-managed")
+	_, err = webhooks.InstallNewCertificates(ctx, k8sConfig, certPath, keyPath, webhookScrtName, addonNamespace, webhookServiceName, addonWebhookLabelKey)
 	Expect(err).ToNot(HaveOccurred())
 
 	// Set up the webhooks in the manager

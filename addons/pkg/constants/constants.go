@@ -168,6 +168,7 @@ const (
 
 	// RequeueAfterInterval determines the duration after which the Controller should requeue the reconcile key
 	RequeueAfterDuration = time.Second * 10
+
 	// WebhookCertDir is the directory where the certificate and key are stored for webhook server TLS handshake
 	WebhookCertDir = "/etc/k8s-webhook-server/serving-certs"
 
@@ -177,8 +178,8 @@ const (
 	// WebhookScrtName is the name of secret that holds certificates and key for webhook service
 	WebhookScrtName = "webhook-tls"
 
-	// CNIWebhookLabel is the label for admission webhooks for CNI
-	CNIWebhookLabel = "cni-webhook"
+	// AddonWebhookLabelKey is the label for addon admission webhooks
+	AddonWebhookLabelKey = "tkg.tanzu.vmware.com/addon-webhooks"
 )
 
 // ClusterKind is the Kind for cluster-api Cluster object

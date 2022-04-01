@@ -269,12 +269,12 @@ type WebhookCertificatesDetails struct {
 }
 
 func SetupWebhookCertificates(ctx context.Context, k8sClient client.Client, k8sConfig *rest.Config, certDetails *WebhookCertificatesDetails) error {
-	labelMatch, _ := labels.NewRequirement("webhook-cert", selection.Equals, []string{certDetails.LabelSelector})
+	labelMatch, _ := labels.NewRequirement("tkg.tanzu.vmware.com/addon-webhooks", selection.Equals, []string{certDetails.LabelSelector})
 	labelSelector := labels.NewSelector()
 	labelSelector = labelSelector.Add(*labelMatch)
 
 	scrt, err := webhooks.InstallNewCertificates(ctx, k8sConfig, certDetails.CertPath, certDetails.KeyPath,
-		certDetails.WebhookScrtName, certDetails.AddonNamespace, certDetails.WebhookServiceName, "webhook-cert="+certDetails.LabelSelector)
+		certDetails.WebhookScrtName, certDetails.AddonNamespace, certDetails.WebhookServiceName, "tkg.tanzu.vmware.com/addon-webhooks="+certDetails.LabelSelector)
 	if err != nil {
 		return err
 	}
@@ -303,7 +303,7 @@ func SetupWebhookCertificates(ctx context.Context, k8sClient client.Client, k8sC
 		for j := range wcfg.Webhooks {
 			whook := wcfg.Webhooks[j]
 			if !bytes.Equal(whook.ClientConfig.CABundle, scrt.Data[resources.CACert]) {
-				return fmt.Errorf("malidating Webhook CA Bundlle is not updated correctly")
+				return fmt.Errorf("mutating Webhook CA Bundlle is not updated correctly")
 			}
 		}
 	}
