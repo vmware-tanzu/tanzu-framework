@@ -518,7 +518,7 @@ var _ = Describe("Unit tests for upgrade cluster", func() {
 		})
 		Context("When patch MD fails", func() {
 			BeforeEach(func() {
-				regionalClusterClient.PatchResourceReturnsOnCall(0, errors.New("fake-error-patch-resource-md"))
+				regionalClusterClient.PatchResourceReturnsOnCall(1, errors.New("fake-error-patch-resource-md"))
 			})
 			It("returns an error", func() {
 				Expect(err).To(HaveOccurred())

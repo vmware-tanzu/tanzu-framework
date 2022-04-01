@@ -1120,6 +1120,8 @@ func (c *TkgClient) PatchKubernetesVersionToKubeadmControlPlane(regionalClusterC
 	}
 
 	// Patch "experimental-initial-corrupt-check" : "true" directly to KCP resource
+	// This singular patch is required because of the existing issue (https://github.com/kubernetes-sigs/cluster-api/pull/5670)
+	// with CAPI v1.0.1
 	patchString := `{
 		"spec": {
 		  "kubeadmConfigSpec": {
