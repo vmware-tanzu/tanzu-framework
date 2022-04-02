@@ -262,6 +262,22 @@ return immediately with an exit code indicating the server's response.
 The completion notice should include an example of the `get` command the user would need in order to poll the resource
 to check the state/status of the operation.
 
+### Graceful Shutdown and Signal Handling
+
+Each plugin runs as a child process of the Tanzu CLI.
+When a system signal is sent, for example with CTRL+C, the Tanzu CLI as well as every plugin will have a chance to capture the signal.
+If the signal is not captured, the default behavior for all Go applications is to exit immediately.
+Tanzu CLI will capture the signal and wait for plugins to exit or 30 seconds, whichever occurs first.
+If plugins do not exit in time, then they will be killed by Tanzu CLI.
+
+It is encouraged that every plugin be evaluated and determine if each will benefit from graceful shutdown.
+A [signals library](pkg/v1/cli/signals/signals.go) has been provided that will provide a context that will be closed when a `SIGTERM` or `SIGINT` is captured.
+This context can be added to a plugin struct using the [Framework plugin library](pkg/v1/cli/command/plugin/plugin.go)'s `p.AddContext(ctx)` method.
+When `p.Execute()` is called, and if a context has been set, the context will be passed along to every command added via `p.AddCommands(...)` method.
+
+The context then should be sent to every long-running process.
+These processes should watch for the context and start orderly shut down when the context is canceled.
+
 ### Tab Completion
 
 TBD

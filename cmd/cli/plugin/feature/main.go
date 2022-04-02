@@ -4,7 +4,7 @@
 package main
 
 import (
-	"os"
+	"context"
 	"time"
 
 	"github.com/aunum/log"
@@ -12,6 +12,7 @@ import (
 	cliv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/buildinfo"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/command/plugin"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/signals"
 )
 
 var descriptor = cliv1alpha1.PluginDescriptor{
@@ -35,7 +36,13 @@ func main() {
 		FeatureDeactivateCmd,
 	)
 
+	ctx := signals.SetupSignalHandler()
+	ctx, cancel := context.WithTimeout(ctx, contextTimeout)
+	defer cancel()
+	p.AddContext(ctx)
+
 	if err := p.Execute(); err != nil {
-		os.Exit(1)
+		log.Errorf("executing plugin: %w", err)
+		return
 	}
 }

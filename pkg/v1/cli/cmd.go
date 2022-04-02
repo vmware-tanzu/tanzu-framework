@@ -30,13 +30,12 @@ func NewTestFor(pluginName string) *cliv1alpha1.PluginDescriptor {
 }
 
 // GetCmd returns a cobra command for the plugin.
-func GetCmd(p *cliv1alpha1.PluginDescriptor) *cobra.Command {
+func GetCmd(ctx context.Context, p *cliv1alpha1.PluginDescriptor) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   p.Name,
 		Short: p.Description,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			runner := NewRunner(p.Name, p.InstallationPath, args)
-			ctx := context.Background()
 			return runner.Run(ctx)
 		},
 		DisableFlagParsing: true,
@@ -59,7 +58,6 @@ func GetCmd(p *cliv1alpha1.PluginDescriptor) *cobra.Command {
 			completion = append(completion, toComplete)
 
 			runner := NewRunner(p.Name, p.InstallationPath, completion)
-			ctx := context.Background()
 			output, _, err := runner.RunOutput(ctx)
 			if err != nil {
 				return nil, cobra.ShellCompDirectiveError
@@ -92,7 +90,6 @@ func GetCmd(p *cliv1alpha1.PluginDescriptor) *cobra.Command {
 			completion = append(completion, toComplete)
 
 			runner := NewRunner(p.Name, p.InstallationPath, completion)
-			ctx := context.Background()
 			output, stderr, err := runner.RunOutput(ctx)
 			if err != nil || stderr != "" {
 				return nil, cobra.ShellCompDirectiveError
@@ -117,7 +114,6 @@ func GetCmd(p *cliv1alpha1.PluginDescriptor) *cobra.Command {
 
 		// Pass this new command in to our plugin to have it handle help output
 		runner := NewRunner(p.Name, p.InstallationPath, helpArgs)
-		ctx := context.Background()
 		err := runner.Run(ctx)
 		if err != nil {
 			log.Error("Help output for '%s' is not available.", c.Name())
