@@ -39,6 +39,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client/apiutil"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 
+	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/webhooks"
 )
 
@@ -269,12 +270,12 @@ type WebhookCertificatesDetails struct {
 }
 
 func SetupWebhookCertificates(ctx context.Context, k8sClient client.Client, k8sConfig *rest.Config, certDetails *WebhookCertificatesDetails) error {
-	labelMatch, _ := labels.NewRequirement("tkg.tanzu.vmware.com/addon-webhooks", selection.Equals, []string{certDetails.LabelSelector})
+	labelMatch, _ := labels.NewRequirement(constants.AddonWebhookLabelKey, selection.Equals, []string{certDetails.LabelSelector})
 	labelSelector := labels.NewSelector()
 	labelSelector = labelSelector.Add(*labelMatch)
 
 	scrt, err := webhooks.InstallNewCertificates(ctx, k8sConfig, certDetails.CertPath, certDetails.KeyPath,
-		certDetails.WebhookScrtName, certDetails.AddonNamespace, certDetails.WebhookServiceName, "tkg.tanzu.vmware.com/addon-webhooks="+certDetails.LabelSelector)
+		certDetails.WebhookScrtName, certDetails.AddonNamespace, certDetails.WebhookServiceName, constants.AddonWebhookLabelKey+"="+certDetails.LabelSelector)
 	if err != nil {
 		return err
 	}

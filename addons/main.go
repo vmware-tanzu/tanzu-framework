@@ -278,7 +278,7 @@ func enableClusterBootstrapAndConfigControllers(ctx context.Context, mgr ctrl.Ma
 func enableWebhooks(ctx context.Context, mgr ctrl.Manager, flags *addonFlags) {
 	certPath := path.Join(constants.WebhookCertDir, "tls.crt")
 	keyPath := path.Join(constants.WebhookCertDir, "tls.key")
-	if _, err := webhooks.InstallNewCertificates(ctx, mgr.GetConfig(), certPath, keyPath, constants.WebhookScrtName, flags.addonNamespace, constants.WebhookServiceName, constants.AddonWebhookLabelKey); err != nil {
+	if _, err := webhooks.InstallNewCertificates(ctx, mgr.GetConfig(), certPath, keyPath, constants.WebhookScrtName, flags.addonNamespace, constants.WebhookServiceName, constants.AddonWebhookLabelKey+"="+constants.AddonWebhookLabelValue); err != nil {
 		setupLog.Error(err, "unable to install certificates for cni webhooks")
 		os.Exit(1)
 	}

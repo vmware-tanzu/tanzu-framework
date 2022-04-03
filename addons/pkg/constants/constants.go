@@ -178,8 +178,11 @@ const (
 	// WebhookScrtName is the name of secret that holds certificates and key for webhook service
 	WebhookScrtName = "webhook-tls"
 
-	// AddonWebhookLabelKey is the label for addon admission webhooks
+	// AddonWebhookLabelKey is the key for the label for addon admission webhooks
 	AddonWebhookLabelKey = "tkg.tanzu.vmware.com/addon-webhooks"
+
+	// AddonWebhookLabelValue is the value for the label for addon admission webhooks
+	AddonWebhookLabelValue = ""
 )
 
 // ClusterKind is the Kind for cluster-api Cluster object
