@@ -281,6 +281,7 @@ return {
 "ANTREA_EGRESS": ["vsphere", "aws", "azure", "docker"],
 "ANTREA_FLOWEXPORTER": ["vsphere", "aws", "azure", "docker"],
 "ANTREA_DISABLE_UDP_TUNNEL_OFFLOAD": ["vsphere", "aws", "azure", "docker"],
+"ANTREA_DEFAULT_MTU": ["vsphere", "aws", "azure", "docker"],
 
 "PROVIDER_TYPE": ["vsphere", "aws", "azure", "tkg-service-vsphere", "docker"],
 "TKG_CLUSTER_ROLE": ["vsphere", "aws", "azure", "tkg-service-vsphere", "docker"],

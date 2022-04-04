@@ -605,7 +605,7 @@ ANTREA_TRACEFLOW: true
 ANTREA_EGRESS: false
 ANTREA_FLOWEXPORTER: false
 ANTREA_DISABLE_UDP_TUNNEL_OFFLOAD: false
-
+ANTREA_DEFAULT_MTU:
 
 #! ---------------------------------------------------------------------
 #! Internal configuration, not meant to be overridden
