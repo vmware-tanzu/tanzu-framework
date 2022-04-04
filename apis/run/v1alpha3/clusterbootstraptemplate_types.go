@@ -15,7 +15,6 @@ type ClusterBootstrapTemplateSpec struct {
 	// +kubebuilder:default:=false
 	Paused bool `json:"paused,omitempty"`
 
-	// TODO these are optional for temp testing, change when TKR v1alpha3 is available
 	// +optional
 	CNI *ClusterBootstrapPackage `json:"cni,omitempty"`
 	// +optional

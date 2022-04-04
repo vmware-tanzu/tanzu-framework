@@ -102,8 +102,6 @@ spec:
                   type: object
                 type: array
               cni:
-                description: TODO these are optional for temp testing, change when
-                  TKR v1alpha3 is available
                 properties:
                   refName:
                     type: string
