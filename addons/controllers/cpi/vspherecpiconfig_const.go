@@ -37,6 +37,9 @@ const (
 
 // constants used for deriving supervisor API server endpoint
 const (
+	SupervisorEndpointHostname = "supervisor.default.svc"
+	SupervisorEndpointPort     = 6443
+
 	SupervisorLoadBalancerSvcNamespace = "kube-system"
 	SupervisorLoadBalancerSvcName      = "kube-apiserver-lb-svc"
 

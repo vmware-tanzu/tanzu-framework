@@ -6,18 +6,13 @@ package controllers
 import (
 	"context"
 	"fmt"
-	"net/url"
-	"strconv"
 	"strings"
 
 	"github.com/pkg/errors"
 	v1 "k8s.io/api/core/v1"
 	rbacv1 "k8s.io/api/rbac/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
-	"k8s.io/client-go/tools/clientcmd"
-	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
 	capvv1beta1 "sigs.k8s.io/cluster-api-provider-vsphere/apis/v1beta1"
 	capvvmwarev1beta1 "sigs.k8s.io/cluster-api-provider-vsphere/apis/vmware/v1beta1"
 	clusterapiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
@@ -195,7 +190,7 @@ func (r *VSphereCPIConfigReconciler) mapCPIConfigToDataValuesNonParavirtual( // 
 }
 
 // mapCPIConfigToDataValuesParavirtual generates CPI data values for paravirtual modes
-func (r *VSphereCPIConfigReconciler) mapCPIConfigToDataValuesParavirtual(ctx context.Context, _ *cpiv1alpha1.VSphereCPIConfig, cluster *clusterapiv1beta1.Cluster) (*VSphereCPIDataValues, error) {
+func (r *VSphereCPIConfigReconciler) mapCPIConfigToDataValuesParavirtual(_ context.Context, _ *cpiv1alpha1.VSphereCPIConfig, cluster *clusterapiv1beta1.Cluster) (*VSphereCPIDataValues, error) {
 	d := &VSphereCPIDataValues{}
 	d.VSphereCPI.Mode = VSphereCPIParavirtualMode
 
@@ -205,12 +200,8 @@ func (r *VSphereCPIConfigReconciler) mapCPIConfigToDataValuesParavirtual(ctx con
 	d.VSphereCPI.ClusterName = cluster.ObjectMeta.Name
 	d.VSphereCPI.ClusterUID = string(cluster.ObjectMeta.UID)
 
-	address, port, err := r.GetSupervisorAPIServerAddress(ctx)
-	if err != nil {
-		return nil, err
-	}
-	d.VSphereCPI.SupervisorMasterEndpointIP = address
-	d.VSphereCPI.SupervisorMasterPort = fmt.Sprint(port)
+	d.VSphereCPI.SupervisorMasterEndpointIP = SupervisorEndpointHostname
+	d.VSphereCPI.SupervisorMasterPort = fmt.Sprint(SupervisorEndpointPort)
 
 	return d, nil
 }
@@ -333,110 +324,6 @@ func controlPlaneName(clusterName string) string {
 // getCCMName returns the name of cloud control manager for a cluster
 func getCCMName(cluster *clusterapiv1beta1.Cluster) string {
 	return fmt.Sprintf("%s-%s", cluster.Name, "ccm")
-}
-
-// getSupervisorAPIServerVIP attempts to extract the ingress IP for supervisor API endpoint if the service
-// "kube-system/kube-apiserver-lb-svc" is available
-func (r *VSphereCPIConfigReconciler) getSupervisorAPIServerVIP(ctx context.Context) (string, int32, error) {
-	svc := &v1.Service{}
-	svcKey := types.NamespacedName{Name: SupervisorLoadBalancerSvcName, Namespace: SupervisorLoadBalancerSvcNamespace}
-	if err := r.Client.Get(ctx, svcKey, svc); err != nil {
-		return "", 0, errors.Wrapf(err, "unable to get supervisor loadbalancer svc %s", svcKey)
-	}
-	if len(svc.Status.LoadBalancer.Ingress) > 0 {
-		ingress := svc.Status.LoadBalancer.Ingress[0]
-		if len(ingress.Ports) == 0 {
-			return "", 0, errors.Errorf("ingress %s(%s) doesn't have open port", ingress.Hostname, ingress.IP)
-		}
-		port := ingress.Ports[0].Port
-		if ipAddr := ingress.IP; ipAddr != "" {
-			return ipAddr, port, nil
-		}
-		return ingress.Hostname, port, nil
-	}
-	return "", 0, errors.Errorf("no VIP found in the supervisor loadbalancer svc %s", svcKey)
-}
-
-// getSupervisorAPIServerFIP get a valid Supervisor Cluster Management Network Floating IP (FIP) from the cluster-info configmap
-func (r *VSphereCPIConfigReconciler) getSupervisorAPIServerFIP(ctx context.Context) (string, int32, error) {
-	urlString, err := r.getSupervisorAPIServerURLWithFIP(ctx)
-	if err != nil {
-		return "", 0, errors.Wrap(err, "unable to get supervisor url")
-	}
-	urlVal, err := url.Parse(urlString)
-	if err != nil {
-		return "", 0, errors.Wrapf(err, "unable to parse supervisor url from %s", urlString)
-	}
-	host := urlVal.Hostname()
-	port, err := strconv.ParseInt(urlVal.Port(), 10, 32)
-	if err != nil {
-		return "", 0, errors.Wrapf(err, "unable to parse supervisor port from %s", urlString)
-	}
-	if host == "" {
-		return "", 0, errors.Errorf("unable to get supervisor host from url %s", urlVal)
-	}
-	return host, int32(port), nil
-}
-
-// getSupervisorAPIServerURLWithFIP get a Supervisor Cluster Management Network Floating IP (FIP)
-func (r *VSphereCPIConfigReconciler) getSupervisorAPIServerURLWithFIP(ctx context.Context) (string, error) {
-	cm := &v1.ConfigMap{}
-	cmKey := types.NamespacedName{Name: ConfigMapClusterInfo, Namespace: metav1.NamespacePublic}
-	if err := r.Client.Get(ctx, cmKey, cm); err != nil {
-		return "", err
-	}
-	kubeconfig, err := tryParseClusterInfoFromConfigMap(cm)
-	if err != nil {
-		return "", err
-	}
-	clusterConfig := getClusterFromKubeConfig(kubeconfig)
-	if clusterConfig != nil {
-		return clusterConfig.Server, nil
-	}
-	return "", errors.Errorf("unable to get cluster from kubeconfig in ConfigMap %s/%s", cm.Namespace, cm.Name)
-}
-
-// GetSupervisorAPIServerAddress discovers the supervisor api server address
-// 1. Check if a k8s service "kube-system/kube-apiserver-lb-svc" is available, if so, fetch the loadbalancer IP.
-// 2. If not, get the Supervisor Cluster Management Network Floating IP (FIP) from the cluster-info configmap. This is
-// to support non-NSX-T development use cases only. If we are unable to find the cluster-info configmap for some reason,
-// we log the error.
-func (r *VSphereCPIConfigReconciler) GetSupervisorAPIServerAddress(ctx context.Context) (string, int32, error) {
-	supervisorHost, supervisorPort, err := r.getSupervisorAPIServerVIP(ctx)
-	if err != nil {
-		r.Log.Info("Unable to discover supervisor apiserver virtual ip, fallback to floating ip", "reason", err.Error())
-		supervisorHost, supervisorPort, err = r.getSupervisorAPIServerFIP(ctx)
-		if err != nil {
-			r.Log.Error(err, "Unable to discover supervisor apiserver address")
-			return "", 0, errors.Wrapf(err, "Unable to discover supervisor apiserver address")
-		}
-	}
-	return supervisorHost, supervisorPort, nil
-}
-
-// tryParseClusterInfoFromConfigMap tries to parse a kubeconfig file from a ConfigMap key
-func tryParseClusterInfoFromConfigMap(cm *v1.ConfigMap) (*clientcmdapi.Config, error) {
-	kubeConfigString, ok := cm.Data[KubeConfigKey]
-	if !ok || kubeConfigString == "" {
-		return nil, errors.Errorf("no %s key in ConfigMap %s/%s", KubeConfigKey, cm.Namespace, cm.Name)
-	}
-	parsedKubeConfig, err := clientcmd.Load([]byte(kubeConfigString))
-	if err != nil {
-		return nil, errors.Wrapf(err, "couldn't parse the kubeconfig file in the ConfigMap %s/%s", cm.Namespace, cm.Name)
-	}
-	return parsedKubeConfig, nil
-}
-
-// GetClusterFromKubeConfig returns the default Cluster of the specified KubeConfig
-func getClusterFromKubeConfig(config *clientcmdapi.Config) *clientcmdapi.Cluster {
-	// If there is an unnamed cluster object, use it
-	if config.Clusters[""] != nil {
-		return config.Clusters[""]
-	}
-	if config.Contexts[config.CurrentContext] != nil {
-		return config.Clusters[config.Contexts[config.CurrentContext].Cluster]
-	}
-	return nil
 }
 
 // tryParseClusterVariableBool tries to parse a boolean cluster variable,
