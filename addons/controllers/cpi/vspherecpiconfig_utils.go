@@ -205,7 +205,7 @@ func (r *VSphereCPIConfigReconciler) mapCPIConfigToDataValuesParavirtual(ctx con
 	d.VSphereCPI.ClusterName = cluster.ObjectMeta.Name
 	d.VSphereCPI.ClusterUID = string(cluster.ObjectMeta.UID)
 
-	address, port, err := r.getSupervisorAPIServerAddress(ctx)
+	address, port, err := r.GetSupervisorAPIServerAddress(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -396,12 +396,12 @@ func (r *VSphereCPIConfigReconciler) getSupervisorAPIServerURLWithFIP(ctx contex
 	return "", errors.Errorf("unable to get cluster from kubeconfig in ConfigMap %s/%s", cm.Namespace, cm.Name)
 }
 
-// getSupervisorAPIServerAddress discovers the supervisor api server address
+// GetSupervisorAPIServerAddress discovers the supervisor api server address
 // 1. Check if a k8s service "kube-system/kube-apiserver-lb-svc" is available, if so, fetch the loadbalancer IP.
 // 2. If not, get the Supervisor Cluster Management Network Floating IP (FIP) from the cluster-info configmap. This is
 // to support non-NSX-T development use cases only. If we are unable to find the cluster-info configmap for some reason,
 // we log the error.
-func (r *VSphereCPIConfigReconciler) getSupervisorAPIServerAddress(ctx context.Context) (string, int32, error) {
+func (r *VSphereCPIConfigReconciler) GetSupervisorAPIServerAddress(ctx context.Context) (string, int32, error) {
 	supervisorHost, supervisorPort, err := r.getSupervisorAPIServerVIP(ctx)
 	if err != nil {
 		r.Log.Info("Unable to discover supervisor apiserver virtual ip, fallback to floating ip", "reason", err.Error())

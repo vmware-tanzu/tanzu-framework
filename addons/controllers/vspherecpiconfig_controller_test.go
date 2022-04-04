@@ -4,6 +4,7 @@
 package controllers
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"regexp"
@@ -12,15 +13,69 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	v1 "k8s.io/api/core/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	capvv1beta1 "sigs.k8s.io/cluster-api-provider-vsphere/apis/v1beta1"
 	capvvmwarev1beta1 "sigs.k8s.io/cluster-api-provider-vsphere/apis/vmware/v1beta1"
 	clusterapiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
+	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+	"sigs.k8s.io/controller-runtime/pkg/client/fake"
 
+	cpi "github.com/vmware-tanzu/tanzu-framework/addons/controllers/cpi"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/addons/testutil"
 	cpiv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cpi/v1alpha1"
 )
+
+var _ = Describe("VSphereCPIConfig reconciler unit tests", func() {
+	var (
+		reconciler = &cpi.VSphereCPIConfigReconciler{
+			Log: ctrl.Log.WithName("controllers").WithName("VSphereCPIConfig"),
+		}
+		service = &v1.Service{
+			ObjectMeta: metav1.ObjectMeta{Name: "kube-apiserver-lb-svc", Namespace: "kube-system"},
+			Status: v1.ServiceStatus{
+				LoadBalancer: v1.LoadBalancerStatus{
+					Ingress: []v1.LoadBalancerIngress{
+						{
+							IP:    "1.2.3.4",
+							Ports: []v1.PortStatus{{Port: 1234}},
+						},
+					},
+				},
+			},
+		}
+		configmap = &v1.ConfigMap{
+			ObjectMeta: metav1.ObjectMeta{Name: "cluster-info", Namespace: "kube-public"},
+			Data: map[string]string{
+				"kubeconfig": `apiVersion: v1
+clusters:
+- cluster:
+    server: https://5.6.7.8:5678
+  name: ""
+`,
+			},
+		}
+	)
+
+	It("Should derive supervisor virtual IP from service \"kube-system/kube-apiserver-lb-svc\"", func() {
+		reconciler.Client = fake.NewClientBuilder().WithObjects(service).Build()
+
+		ip, port, err := reconciler.GetSupervisorAPIServerAddress(context.TODO())
+		Expect(err).ToNot(HaveOccurred())
+		Expect(ip).To(Equal("1.2.3.4"))
+		Expect(port).To(Equal(int32(1234)))
+	})
+
+	It("Should derive supervisor floating IP from configmap \"kube-public/cluster-info\"", func() {
+		reconciler.Client = fake.NewClientBuilder().WithObjects(configmap).Build()
+
+		ip, port, err := reconciler.GetSupervisorAPIServerAddress(context.TODO())
+		Expect(err).ToNot(HaveOccurred())
+		Expect(ip).To(Equal("5.6.7.8"))
+		Expect(port).To(Equal(int32(5678)))
+	})
+})
 
 var _ = Describe("VSphereCPIConfig Reconciler", func() {
 	const (
@@ -170,7 +225,7 @@ var _ = Describe("VSphereCPIConfig Reconciler", func() {
 		})
 	})
 
-	Context("reconcile VSphereCPIConfig manifests in paravirtual mode", func() {
+	Context("reconcile VSphereCPIConfig manifests in paravirtual mode, with floating IP", func() {
 		BeforeEach(func() {
 			clusterName = "test-cluster-cpi-paravirtual"
 			clusterResourceFilePath = "testdata/test-vsphere-cpi-paravirtual.yaml"
