@@ -82,8 +82,8 @@ require (
 	github.com/spf13/viper v1.10.0
 	github.com/stretchr/testify v1.7.1-0.20210427113832-6241f9ab9942
 	github.com/tj/assert v0.0.0-20171129193455-018094318fb0
-	github.com/vmware-tanzu/carvel-kapp-controller v0.34.0
-	github.com/vmware-tanzu/carvel-kapp-controller/cli v0.0.0-20220317195610-79cbbd3a2af3
+	github.com/vmware-tanzu/carvel-kapp-controller v0.35.0
+	github.com/vmware-tanzu/carvel-kapp-controller/cli v0.0.0-20220411145111-c57b4576653c
 	github.com/vmware-tanzu/carvel-secretgen-controller v0.5.0
 	github.com/vmware-tanzu/carvel-vendir v0.24.0
 	github.com/vmware-tanzu/carvel-ytt v0.40.0
@@ -154,7 +154,7 @@ require (
 	github.com/containerd/stargz-snapshotter/estargz v0.10.0 // indirect
 	github.com/coredns/caddy v1.1.1 // indirect
 	github.com/coredns/corefile-migration v1.0.14 // indirect
-	github.com/cppforlife/cobrautil v0.0.0-20200514214827-bb86e6965d72 // indirect
+	github.com/cppforlife/cobrautil v0.0.0-20220411122935-c28a9f274a4e // indirect
 	github.com/cppforlife/color v1.9.1-0.20200716202919-6706ac40b835 // indirect
 	github.com/cpuguy83/go-md2man/v2 v2.0.1 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
@@ -259,5 +259,3 @@ require (
 	sigs.k8s.io/json v0.0.0-20211208200746-9f7c6b3444d2 // indirect
 	sigs.k8s.io/structured-merge-diff/v4 v4.2.1 // indirect
 )
-
-replace github.com/vmware-tanzu/carvel-kapp-controller/cli => github.com/vmware-tanzu/carvel-kapp-controller/cli v0.0.0-20220404044316-590de9ead52b

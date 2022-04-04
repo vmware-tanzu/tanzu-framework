@@ -322,7 +322,7 @@ var _ = Describe("Package plugin integration test", func() {
 
 		expectedRepoOutputLatestTag = repositoryOutput{
 			Name:      config.RepositoryName,
-			Source:    fmt.Sprintf("(imgpkg) %s ()", config.RepositoryURLNoTag),
+			Source:    fmt.Sprintf("(imgpkg) %s", config.RepositoryURLNoTag),
 			Status:    "Reconcile succeeded",
 			Namespace: config.Namespace,
 		}
