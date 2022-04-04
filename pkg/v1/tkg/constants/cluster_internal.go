@@ -117,6 +117,8 @@ const (
 	AddonNameLabel = "tkg.tanzu.vmware.com/addon-name"
 	// ClusterNameLabel is the label on the Secret to indicate the cluster on which addon is to be installed
 	ClusterNameLabel = "tkg.tanzu.vmware.com/cluster-name"
+	// ClusterPauseLabel is the label on the Cluster Object to indicate the cluster is paused by TKG
+	ClusterPauseLabel = "tkg.tanzu.vmware.com/paused"
 )
 
 // TKG management package related constants

@@ -283,9 +283,6 @@ func SetupWebhookCertificates(ctx context.Context, k8sClient client.Client, k8sC
 	if err != nil {
 		return err
 	}
-	if len(vwcfgs.Items) == 0 {
-		return fmt.Errorf("validating Webhook Configuration List is empty")
-	}
 	for i := range vwcfgs.Items {
 		wcfg := vwcfgs.Items[i]
 		for j := range wcfg.Webhooks {
@@ -300,9 +297,6 @@ func SetupWebhookCertificates(ctx context.Context, k8sClient client.Client, k8sC
 	err = k8sClient.List(ctx, mwcfgs, &client.ListOptions{LabelSelector: labelSelector})
 	if err != nil {
 		return err
-	}
-	if len(vwcfgs.Items) == 0 {
-		return fmt.Errorf("mutating Webhook Configuration List is empty")
 	}
 	for i := range mwcfgs.Items {
 		wcfg := mwcfgs.Items[i]
