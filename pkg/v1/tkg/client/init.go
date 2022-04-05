@@ -78,7 +78,7 @@ func (c *TkgClient) InitRegionDryRun(options *InitRegionOptions) ([]byte, error)
 		err                 error
 	)
 	// Obtain management cluster configuration of a provided flavor
-	if regionalConfigBytes, options.ClusterName, err = c.BuildRegionalClusterConfiguration(options); err != nil {
+	if regionalConfigBytes, options.ClusterName, _, err = c.BuildRegionalClusterConfiguration(options); err != nil {
 		return nil, errors.Wrap(err, "unable to build management cluster configuration")
 	}
 
@@ -95,6 +95,7 @@ func (c *TkgClient) InitRegion(options *InitRegionOptions) error { //nolint:funl
 	var bootstrapClusterName string
 	var regionContext region.RegionContext
 	var filelock *fslock.Lock
+	var configFilePath string
 
 	bootstrapClusterKubeconfigPath, err := getTKGKubeConfigPath(false)
 	if err != nil {
@@ -172,9 +173,10 @@ func (c *TkgClient) InitRegion(options *InitRegionOptions) error { //nolint:funl
 	log.Info("Generating cluster configuration...")
 
 	// Obtain management cluster configuration of a provided flavor
-	if regionalConfigBytes, options.ClusterName, err = c.BuildRegionalClusterConfiguration(options); err != nil {
+	if regionalConfigBytes, options.ClusterName, configFilePath, err = c.BuildRegionalClusterConfiguration(options); err != nil {
 		return errors.Wrap(err, "unable to build management cluster configuration")
 	}
+	log.Infof("ClusterClass based management-cluster config file has been generated and stored at: '%v'", configFilePath)
 
 	log.SendProgressUpdate(statusRunning, StepSetupBootstrapCluster, InitRegionSteps)
 	log.Info("Setting up bootstrapper...")
@@ -563,9 +565,11 @@ func generateRegionalClusterName(infrastructureProvider, kubeContext string) str
 }
 
 // BuildRegionalClusterConfiguration build management cluster configuration
-func (c *TkgClient) BuildRegionalClusterConfiguration(options *InitRegionOptions) ([]byte, string, error) {
+// returns cluster-configuration bytes, clustername, configFilePath, error if present
+func (c *TkgClient) BuildRegionalClusterConfiguration(options *InitRegionOptions) ([]byte, string, string, error) {
 	var bytes []byte
 	var err error
+	var configFilePath string
 
 	if options.ClusterName == "" {
 		options.ClusterName = generateRegionalClusterName(options.InfrastructureProvider, "")
@@ -592,15 +596,16 @@ func (c *TkgClient) BuildRegionalClusterConfiguration(options *InitRegionOptions
 		ClusterName:              options.ClusterName,
 		ControlPlaneMachineCount: swag.Int64(int64(controlPlaneMachineCount)),
 		WorkerMachineCount:       swag.Int64(int64(workerMachineCount)),
+		YamlProcessor:            yamlprocessor.NewYttProcessorWithConfigDir(c.tkgConfigDir),
 	}
 
-	if !options.DisableYTT {
-		clusterConfigOptions.YamlProcessor = yamlprocessor.NewYttProcessorWithConfigDir(c.tkgConfigDir)
+	if options.IsInputFileHasCClass {
+		bytes, err = getContentFromInputFile(options.ClusterConfigFile)
+	} else {
+		bytes, configFilePath, err = c.getClusterConfigurationBytes(&clusterConfigOptions, clusterConfigOptions.ProviderRepositorySource.InfrastructureProvider, true, false, true)
 	}
 
-	bytes, err = c.getClusterConfiguration(&clusterConfigOptions, true, clusterConfigOptions.ProviderRepositorySource.InfrastructureProvider, false)
-
-	return bytes, options.ClusterName, err
+	return bytes, options.ClusterName, configFilePath, err
 }
 
 type waitForProvidersOptions struct {
