@@ -6,6 +6,7 @@ package client
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
@@ -63,62 +64,28 @@ type waitForAddonsOptions struct {
 // if TKGSupportedClusterOptions is set to ""(for development purpose) the check would be deactivated
 var TKGSupportedClusterOptions string
 
-func (c *TkgClient) isCustomOverlayPresent() (bool, error) {
-	var providersChecksum, prePopulatedChecksumFromFile string
-	var err error
-
-	if providersChecksum, err = c.tkgConfigUpdaterClient.GetProvidersChecksum(); err != nil {
-		return false, err
-	}
-
-	if prePopulatedChecksumFromFile, err = c.tkgConfigUpdaterClient.GetPopulatedProvidersChecksumFromFile(); err != nil {
-		return false, err
-	}
-
-	return providersChecksum != "" && providersChecksum == prePopulatedChecksumFromFile, nil
-}
-
-// CreateCluster create workload cluster
-func (c *TkgClient) CreateCluster(options *CreateClusterOptions, waitForCluster bool) error {
-	var isCustomOverlayDetected bool
-	var err error
-
-	if isCustomOverlayDetected, err = c.isCustomOverlayPresent(); err != nil {
-		return err
-	}
-
-	// Ignore the checksum check if config variable 'SUPPRESS_PROVIDERS_UPDATE' is set.
-	isSuppressProvidersUpdateSet := os.Getenv(constants.SuppressProvidersUpdate) != ""
-
-	if isCustomOverlayDetected && !isSuppressProvidersUpdateSet {
-		return c.legacyClusterCreation(options, waitForCluster)
-	}
-
-	// TODO: Add steps required to create a CC based cluster
-	return nil
-}
-
-// Create cluster without using ClusterClasses, if custom overlays or modifications to the overlays are detected
-func (c *TkgClient) legacyClusterCreation(options *CreateClusterOptions, waitForCluster bool) error { //nolint:gocyclo,funlen
-	log.Info("Changes to the cluster templates are detected. Creating cluster without using the ClusterClass mechanism")
+// CreateCluster creates a workload cluster based on a cluster template
+// generated from the provided options. Returns cluster creation attempted
+// information along with error information
+func (c *TkgClient) CreateCluster(options *CreateClusterOptions, waitForCluster bool) (bool, error) { //nolint:gocyclo,funlen
 	if err := CheckClusterNameFormat(options.ClusterName, options.ProviderRepositorySource.InfrastructureProvider); err != nil {
-		return NewValidationError(ValidationErrorCode, err.Error())
+		return false, NewValidationError(ValidationErrorCode, err.Error())
 	}
 	log.Info("Validating configuration...")
 	// validate kubectl only since we need only kubectl for create cluster
 	if err := c.ValidatePrerequisites(false, true); err != nil {
-		return err
+		return false, err
 	}
 	currentRegion, err := c.GetCurrentRegionContext()
 	if err != nil {
-		return errors.Wrap(err, "cannot get current management cluster context")
+		return false, errors.Wrap(err, "cannot get current management cluster context")
 	}
 
 	options.Kubeconfig = clusterctlclient.Kubeconfig{Path: currentRegion.SourceFilePath, Context: currentRegion.ContextName}
 	if options.ProviderRepositorySource.InfrastructureProvider != "" {
 		options.ProviderRepositorySource.InfrastructureProvider, err = c.tkgConfigUpdaterClient.CheckInfrastructureVersion(options.ProviderRepositorySource.InfrastructureProvider)
 		if err != nil {
-			return errors.Wrap(err, "unable to check infrastructure provider version")
+			return false, errors.Wrap(err, "unable to check infrastructure provider version")
 		}
 	}
 	clusterclientOptions := clusterclient.Options{
@@ -128,76 +95,127 @@ func (c *TkgClient) legacyClusterCreation(options *CreateClusterOptions, waitFor
 	}
 	regionalClusterClient, err := clusterclient.NewClient(options.Kubeconfig.Path, options.Kubeconfig.Context, clusterclientOptions)
 	if err != nil {
-		return errors.Wrap(err, "unable to get cluster client while creating cluster")
+		return false, errors.Wrap(err, "unable to get cluster client while creating cluster")
 	}
 
 	isPacific, err := regionalClusterClient.IsPacificRegionalCluster()
 	if err != nil {
-		return errors.Wrap(err, "error determining Tanzu Kubernetes Cluster service for vSphere management cluster ")
+		return false, errors.Wrap(err, "error determining Tanzu Kubernetes Cluster service for vSphere management cluster ")
 	}
 	if isPacific {
 		err := c.ValidatePacificVersionWithCLI(regionalClusterClient)
 		if err != nil {
-			return err
+			return false, err
 		}
-		return c.createPacificCluster(options, waitForCluster)
+		return true, c.createPacificCluster(options, waitForCluster)
 	}
 
 	// Validate management cluster version
 	err = c.ValidateManagementClusterVersionWithCLI(regionalClusterClient)
 	if err != nil {
-		return errors.Wrap(err, "validation failed")
+		return false, errors.Wrap(err, "validation failed")
 	}
 
 	var bytes []byte
 	isManagementCluster := false
 	if options.KubernetesVersion, options.TKRVersion, err = c.ConfigureAndValidateTkrVersion(options.TKRVersion); err != nil {
-		return err
+		return false, err
 	}
 	if customImageRepo, err := c.TKGConfigReaderWriter().Get(constants.ConfigVariableCustomImageRepository); err != nil && customImageRepo != "" && tkgconfighelper.IsCustomRepository(customImageRepo) {
 		log.Infof("Using custom image repository: %s", customImageRepo)
 	}
 
 	if err := c.ConfigureAndValidateWorkloadClusterConfiguration(options, regionalClusterClient, false); err != nil {
-		return errors.Wrap(err, "workload cluster configuration validation failed")
+		return false, errors.Wrap(err, "workload cluster configuration validation failed")
 	}
 	infraProvider, err := regionalClusterClient.GetRegionalClusterDefaultProviderName(clusterctlv1.InfrastructureProviderType)
 	if err != nil {
-		return errors.Wrap(err, "failed to get cluster provider information.")
+		return false, errors.Wrap(err, "failed to get cluster provider information.")
 	}
 	infraProviderName, _, err := ParseProviderName(infraProvider)
 	if err != nil {
-		return err
+		return false, err
 	}
+
 	if options.IsInputFileHasCClass {
 		bytes, err = getContentFromInputFile(options.ClusterConfigFile)
+		if err != nil {
+			return false, errors.Wrap(err, "unable to get cluster configuration")
+		}
 	} else {
-		bytes, err = c.getClusterConfiguration(&options.ClusterConfigOptions, isManagementCluster, infraProviderName, options.IsWindowsWorkloadCluster)
+		_, configFilePath, err := c.getClusterConfigurationBytes(&options.ClusterConfigOptions, infraProviderName, isManagementCluster, options.IsWindowsWorkloadCluster, true)
+		if err != nil {
+			return false, errors.Wrap(err, "unable to get cluster configuration")
+		}
+
+		log.Warningf("\nLegacy configuration file detected. The inputs from said file have been converted into the new Cluster configuration as '%v'\n", configFilePath)
+		log.Warningf("To create a cluster with it, use")
+		log.Warningf("    tanzu cluster create --file %v", configFilePath)
+
+		return false, nil
 	}
-	if err != nil {
-		return errors.Wrap(err, "unable to get cluster configuration")
-	}
+
 	clusters, err := regionalClusterClient.ListClusters("")
 	if err != nil {
-		return errors.Wrap(err, "unable to get list of workload clusters managed by current regional cluster")
+		return false, errors.Wrap(err, "unable to get list of workload clusters managed by current management cluster")
 	}
 
 	for i := range clusters {
 		if clusters[i].Name == options.ClusterName {
-			return errors.Errorf("cluster with name %s already exists, please specify another name", options.ClusterName)
+			return false, errors.Errorf("cluster with name %s already exists, please specify another name", options.ClusterName)
 		}
 	}
 
 	log.Infof("Creating workload cluster '%s'...", options.ClusterName)
 	err = c.DoCreateCluster(regionalClusterClient, options.ClusterName, options.TargetNamespace, string(bytes))
 	if err != nil {
-		return errors.Wrap(err, "unable to create cluster")
+		return false, errors.Wrap(err, "unable to create cluster")
 	}
 	// If user opts not to wait for the cluster to be provisioned, return
 	if !waitForCluster {
-		return nil
+		return false, nil
 	}
-	return c.waitForClusterCreation(regionalClusterClient, options)
+	return true, c.waitForClusterCreation(regionalClusterClient, options)
+}
+
+// getClusterConfigurationBytes returns cluster configuration by taking into consideration of legacy vs clusterclass based cluster creation
+// if saveToFile option is true it will also save the configuration to the file
+func (c *TkgClient) getClusterConfigurationBytes(options *ClusterConfigOptions, infraProviderName string, isManagementCluster, isWindowsWorkloadCluster, saveToFile bool) ([]byte, string, error) {
+	deployClusterClassBasedCluster, err := c.ShouldDeployClusterClassBasedCluster(isManagementCluster)
+	if err != nil {
+		return nil, "", err
+	}
+
+	// If clusterClass based cluster creation is feasible update the plan to use clusterclass based plan
+	if deployClusterClassBasedCluster {
+		plan, err := getCCPlanFromLegacyPlan(options.ProviderRepositorySource.Flavor)
+		if err != nil {
+			return nil, "", err
+		}
+		options.ProviderRepositorySource.Flavor = plan
+	}
+
+	// Get the cluster configuration yaml bytes
+	bytes, err := c.getClusterConfiguration(options, isManagementCluster, infraProviderName, isWindowsWorkloadCluster)
+	if err != nil {
+		return nil, "", err
+	}
+
+	// Return if file save is not requested
+	if !saveToFile {
+		return bytes, "", nil
+	}
+
+	clusterConfigDir, err := c.tkgConfigPathsClient.GetClusterConfigurationDirectory()
+	if err != nil {
+		return nil, "", err
+	}
+	configFilePath := filepath.Join(clusterConfigDir, fmt.Sprintf("%s.yaml", options.ClusterName))
+	err = utils.SaveFile(configFilePath, bytes)
+	if err != nil {
+		return nil, "", err
+	}
+	return bytes, configFilePath, nil
 }
 
 func getContentFromInputFile(fileName string) ([]byte, error) {
