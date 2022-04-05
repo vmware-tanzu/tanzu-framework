@@ -220,6 +220,7 @@ var _ = Describe("Unit tests for - ccluster.yaml as input file for 'tanzu cluste
 			tkgConfigUpdaterClient: tkgconfigupdater.New(testingDir, nil, tkgConfigReaderWriter),
 			tkgBomClient:           bomClient,
 		}
+		tkgClient.IsFeatureActivatedReturns(true)
 	})
 	Context("create cluster with ccluster.yaml : use cases", func() {
 		BeforeEach(func() {
@@ -242,7 +243,7 @@ var _ = Describe("Unit tests for - ccluster.yaml as input file for 'tanzu cluste
 			ctl.TKGConfigReaderWriter().Set("AWS_VPC_ID", vpcID)
 
 			//Process input ccluster.yaml file.
-			IsInputFileHasCClass, err := ctl.checkIfInputFileIsCClassBased(&options)
+			IsInputFileHasCClass, err := ctl.processWorkloadClusterInputFile(&options)
 			Expect(IsInputFileHasCClass).Should(BeTrue())
 			Expect(err).To(BeNil())
 
@@ -268,7 +269,7 @@ var _ = Describe("Unit tests for - ccluster.yaml as input file for 'tanzu cluste
 
 			//Process input ccluster.yaml file.
 			options.ClusterConfigFile = "../fakes/config/ccluster2_multipleObjects.yaml"
-			IsInputFileHasCClass, err := ctl.checkIfInputFileIsCClassBased(&options)
+			IsInputFileHasCClass, err := ctl.processWorkloadClusterInputFile(&options)
 			Expect(IsInputFileHasCClass).Should(BeTrue())
 			Expect(err).To(BeNil())
 
@@ -297,7 +298,7 @@ var _ = Describe("Unit tests for - ccluster.yaml as input file for 'tanzu cluste
 			Expect(options.Plan).To(Equal("Plan"))
 
 			options.ClusterConfigFile = ccConfigFilePath
-			_, _ = ctl.checkIfInputFileIsCClassBased(&options)
+			_, _ = ctl.processWorkloadClusterInputFile(&options)
 
 			cname, _ := ctl.TKGConfigReaderWriter().Get("CLUSTER_NAME")
 			Expect(cname).To(Equal("wcc2"))
@@ -307,20 +308,20 @@ var _ = Describe("Unit tests for - ccluster.yaml as input file for 'tanzu cluste
 
 		It("Input file is config.yaml file not ccluster.yaml file", func() {
 			options.ClusterConfigFile = "../fakes/config/ccluster1_config.yaml"
-			IsInputFileHasCClass, err := ctl.checkIfInputFileIsCClassBased(&options)
+			IsInputFileHasCClass, err := ctl.processWorkloadClusterInputFile(&options)
 			Expect(IsInputFileHasCClass).Should(BeFalse())
 			Expect(err).To(BeNil())
 		})
 
 		It("Input file is not specified", func() {
 			options.ClusterConfigFile = ""
-			IsInputFileHasCClass, _ := ctl.checkIfInputFileIsCClassBased(&options)
+			IsInputFileHasCClass, _ := ctl.processWorkloadClusterInputFile(&options)
 			Expect(IsInputFileHasCClass).Should(BeFalse())
 		})
 
 		It("Input file not exists", func() {
 			options.ClusterConfigFile = "NOT-EXISTS"
-			_, err := ctl.checkIfInputFileIsCClassBased(&options)
+			_, err := ctl.processWorkloadClusterInputFile(&options)
 			Expect(err).To(HaveOccurred())
 		})
 	})
@@ -356,7 +357,7 @@ var _ = Describe("Unit tests for feature flag (config.FeatureFlagPackageBasedLCM
 			tkgClient.IsPacificManagementClusterReturnsOnCall(0, true, nil)
 			tkgClient.GetCurrentRegionContextReturns(regionContext, nil)
 			tkgClient.IsFeatureActivatedReturns(true)
-			tkgClient.CreateClusterReturnsOnCall(0, nil)
+			tkgClient.CreateClusterReturnsOnCall(0, false, nil)
 			options.ClusterConfigFile = ccConfigFilePath
 			tkgConfigReaderWriter, _ := tkgconfigreaderwriter.NewReaderWriterFromConfigFile(configFilePath, configFilePath)
 			fg := &fakes.FakeFeatureGateHelper{}
@@ -391,7 +392,7 @@ var _ = Describe("Unit tests for feature flag (config.FeatureFlagPackageBasedLCM
 			tkgClient.IsPacificManagementClusterReturnsOnCall(0, true, nil)
 			tkgClient.GetCurrentRegionContextReturns(regionContext, nil)
 			tkgClient.IsFeatureActivatedReturns(false)
-			tkgClient.CreateClusterReturnsOnCall(0, nil)
+			tkgClient.CreateClusterReturnsOnCall(0, false, nil)
 			options.ClusterConfigFile = ccConfigFilePath
 			tkgConfigReaderWriter, _ := tkgconfigreaderwriter.NewReaderWriterFromConfigFile(configFilePath, configFilePath)
 			fg := &fakes.FakeFeatureGateHelper{}
@@ -427,7 +428,7 @@ var _ = Describe("Unit tests for feature flag (config.FeatureFlagPackageBasedLCM
 			tkgClient.IsPacificManagementClusterReturnsOnCall(0, true, nil)
 			tkgClient.GetCurrentRegionContextReturns(regionContext, nil)
 			tkgClient.IsFeatureActivatedReturns(true)
-			tkgClient.CreateClusterReturnsOnCall(0, nil)
+			tkgClient.CreateClusterReturnsOnCall(0, false, nil)
 			options.ClusterConfigFile = ccConfigFilePath
 			tkgConfigReaderWriter, _ := tkgconfigreaderwriter.NewReaderWriterFromConfigFile(configFilePath, configFilePath)
 			fg := &fakes.FakeFeatureGateHelper{}
@@ -457,7 +458,7 @@ var _ = Describe("Unit tests for feature flag (config.FeatureFlagPackageBasedLCM
 			tkgClient.IsPacificManagementClusterReturnsOnCall(0, true, nil)
 			tkgClient.GetCurrentRegionContextReturns(regionContext, nil)
 			tkgClient.IsFeatureActivatedReturns(true)
-			tkgClient.CreateClusterReturnsOnCall(0, nil)
+			tkgClient.CreateClusterReturnsOnCall(0, false, nil)
 			options.ClusterConfigFile = ccConfigFilePath
 			tkgConfigReaderWriter, _ := tkgconfigreaderwriter.NewReaderWriterFromConfigFile(configFilePath, configFilePath)
 			fg := &fakes.FakeFeatureGateHelper{}
