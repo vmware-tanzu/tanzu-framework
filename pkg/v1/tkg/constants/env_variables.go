@@ -13,7 +13,8 @@ const (
 
 // environment variables for internal development use
 const (
-	SuppressProvidersUpdate = "SUPPRESS_PROVIDERS_UPDATE"
+	SuppressProvidersUpdate       = "SUPPRESS_PROVIDERS_UPDATE"
+	DeployClusterWithClusterClass = "DEPLOY_CLUSTER_WITH_CLUSTERCLASS"
 )
 
 const (
