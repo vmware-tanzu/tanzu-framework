@@ -303,6 +303,13 @@ func enableWebhooks(ctx context.Context, mgr ctrl.Manager, flags *addonFlags) {
 		setupLog.Error(err, "unable to create ClusterBootstrap webhook", "webhook", "clusterbootstrap")
 		os.Exit(1)
 	}
+	clusterbootstrapTemplateWebhook := addonwebhooks.ClusterBootstrapTemplate{
+		SystemNamespace: flags.addonNamespace,
+	}
+	if err := clusterbootstrapTemplateWebhook.SetupWebhookWithManager(mgr); err != nil {
+		setupLog.Error(err, "unable to create clusterbootstrapTemplate webhook", "webhook", "clusterbootstraptemplate")
+		os.Exit(1)
+	}
 }
 
 func enablePackageInstallStatusController(ctx context.Context, mgr ctrl.Manager, flags *addonFlags) {

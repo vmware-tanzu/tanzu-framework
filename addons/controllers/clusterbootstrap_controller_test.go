@@ -519,7 +519,7 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 					}, waitTimeout, pollingInterval).Should(BeTrue())
 				})
 
-				By("Test mutating webhook of ClusterBootstrap", func() {
+				By("Test ClusterBootstrap webhook validateUpdate ", func() {
 					// fetch the latest clusterbootstrap
 					Eventually(func() bool {
 						err = k8sClient.Get(ctx, client.ObjectKeyFromObject(cluster), clusterBootstrap)
@@ -579,26 +579,38 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 					Expect(strings.Contains(err.Error(), "missing updated additional package")).To(BeTrue())
 				})
 
-				By("Test validating webhook of ClusterBootstrap", func() {
+				By("Test ClusterBootstrap webhook validateCreate", func() {
 					namespace := "default"
 
-					// TODO: Add more testcases for ClusterBootstrap Validating webhook
+					// case1
 					in := builder.ClusterBootstrap(namespace, "test-cb-1").
 						WithCNIPackage(builder.ClusterBootstrapPackage("cni.example.com.1.17.2").WithProviderRef("run.tanzu.vmware.com", "foo", "bar").Build()).
 						WithAdditionalPackage(builder.ClusterBootstrapPackage("pinniped.example.com.1.11.3").Build()).Build()
-
 					err = k8sClient.Create(ctx, in)
 					Expect(err).Should(HaveOccurred())
+					Expect(strings.Contains(err.Error(), "packages.data.packaging.carvel.dev \"cni.example.com.1.17.2\" not found")).To(BeTrue())
+					Expect(strings.Contains(err.Error(), "package can't be nil")).To(BeTrue())
+
+					// case2
+					in = builder.ClusterBootstrap(addonNamespace, "test-cb-1").
+						WithKappPackage(builder.ClusterBootstrapPackage("kapp-controller.community.tanzu.vmware.com.0.30.2").WithProviderRef("run.tanzu.vmware.com", "foo", "bar").Build()).
+						WithCNIPackage(builder.ClusterBootstrapPackage("calico.tanzu.vmware.com.3.19.1--vmware.1-tkg.1").WithProviderRef("cni.tanzu.vmware.com", "CalicoConfig", "invalidName").Build()).
+						WithAdditionalPackage(builder.ClusterBootstrapPackage("foobar.example.com.1.17.2").WithSecretRef("invalidSecret").Build()).Build()
+					err = k8sClient.Create(ctx, in)
+					Expect(err).Should(HaveOccurred())
+					Expect(strings.Contains(err.Error(), "calicoconfigs.cni.tanzu.vmware.com \"invalidName\" not found")).To(BeTrue())
+					Expect(strings.Contains(err.Error(), "unable to find server preferred resource run.tanzu.vmware.com/foo")).To(BeTrue())
+
 				})
 
-				By("Test mutating webhook of ClusterBootstrapTemplate", func() {
+				By("Test ClusterBootstrapTemplate webhook validateUpdate", func() {
 					// fetch the latest clusterbootstraptemplate
 					clusterBootstrapTemplate := &runtanzuv1alpha3.ClusterBootstrapTemplate{}
 					key := client.ObjectKey{Namespace: addonNamespace, Name: "v1.22.3"}
 					err = k8sClient.Get(ctx, key, clusterBootstrapTemplate)
 					Expect(err).ToNot(HaveOccurred())
 
-					// ClusterBootstrapTemplate should be immutable
+					// ClusterBootstrapTemplate spec should be immutable
 					clusterBootstrapTemplate.Spec.Kapp = nil
 					err = k8sClient.Update(ctx, clusterBootstrapTemplate)
 					Expect(err).Should(HaveOccurred())

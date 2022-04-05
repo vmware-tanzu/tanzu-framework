@@ -73,7 +73,7 @@ const (
 	webhookScrtName         = "webhook-tls"
 	addonWebhookLabelKey    = "tkg.tanzu.vmware.com/addon-webhooks"
 	addonWebhookLabelValue  = ""
-	cniWebhookManifestFile  = "testdata/test-antrea-calico-webhook-manifests.yaml"
+	cniWebhookManifestFile  = "testdata/webhooks/test-antrea-calico-webhook-manifests.yaml"
 )
 
 var (
@@ -308,9 +308,6 @@ var _ = BeforeSuite(func(done Done) {
 
 	ns = &corev1.Namespace{ObjectMeta: metav1.ObjectMeta{Name: "tkg-system"}}
 	Expect(k8sClient.Create(context.TODO(), ns)).To(Succeed())
-
-	_, err = webhooks.InstallNewCertificates(ctx, k8sConfig, certPath, keyPath, webhookScrtName, addonNamespace, webhookServiceName, addonWebhookLabelKey+"="+addonWebhookLabelValue)
-	Expect(err).ToNot(HaveOccurred())
 
 	// Set up the webhooks in the manager
 	err = (&cniv1alpha1.AntreaConfig{}).SetupWebhookWithManager(mgr)

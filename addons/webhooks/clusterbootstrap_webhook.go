@@ -380,21 +380,29 @@ func (wh *ClusterBootstrap) ValidateClusterBootstrapPackageUpdate(ctx context.Co
 		return field.Invalid(fldPath.Child("refName"), newPkg.RefName, "package downgrade is not allowed")
 	}
 
-	if oldPkg.ValuesFrom != nil && newPkg.ValuesFrom != nil {
+	if err := wh.validateValuesFromUpdate(ctx, oldPkg.ValuesFrom, newPkg.ValuesFrom, fldPath.Child("valuesFrom")); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// validateValuesFromUpdate validates contents of valuesFrom in upgrade
+func (wh *ClusterBootstrap) validateValuesFromUpdate(_ context.Context, oldValuesFrom *runv1alpha3.ValuesFrom, newValuesFrom *runv1alpha3.ValuesFrom, fldPath *field.Path) *field.Error {
+	if oldValuesFrom != nil && newValuesFrom != nil {
 		// We don't allow changes to APIGroup and Kind of providerRef
-		if oldPkg.ValuesFrom.ProviderRef != nil && newPkg.ValuesFrom.ProviderRef != nil {
-			if *oldPkg.ValuesFrom.ProviderRef.APIGroup != *newPkg.ValuesFrom.ProviderRef.APIGroup ||
-				oldPkg.ValuesFrom.ProviderRef.Kind != newPkg.ValuesFrom.ProviderRef.Kind {
-				return field.Invalid(fldPath.Child("valuesFrom"), newPkg.ValuesFrom.ProviderRef, "change to Group and Kind in ProviderRef is not allowed")
+		if oldValuesFrom.ProviderRef != nil && newValuesFrom.ProviderRef != nil {
+			if *oldValuesFrom.ProviderRef.APIGroup != *newValuesFrom.ProviderRef.APIGroup ||
+				oldValuesFrom.ProviderRef.Kind != newValuesFrom.ProviderRef.Kind {
+				return field.Invalid(fldPath.Child("ProviderRef"), newValuesFrom.ProviderRef, "change to Group and Kind in ProviderRef is not allowed")
 			}
 		}
 
 		// Users can't switch from ProviderRef to secretRef/inline
-		if oldPkg.ValuesFrom.ProviderRef != nil && newPkg.ValuesFrom.ProviderRef == nil {
-			return field.Invalid(fldPath.Child("valuesFrom"), newPkg.ValuesFrom.ProviderRef, "change from providerRef to secretRef or Inline is not allowed")
+		if oldValuesFrom.ProviderRef != nil && newValuesFrom.ProviderRef == nil {
+			return field.Invalid(fldPath.Child("ProviderRef"), newValuesFrom.ProviderRef, "change from providerRef to secretRef or Inline is not allowed")
 		}
 	}
-
 	return nil
 }
 
