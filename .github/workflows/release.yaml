@@ -61,12 +61,14 @@ jobs:
       shell: bash
       run: |
         set -o xtrace
+        RELEASE_BRANCH="main"
         RELEASE_VERSION=${GITHUB_REF#refs/*/}
         major=$(echo "$RELEASE_VERSION"  | sed 's/^v\(.*\)/\1/' | cut -d. -f1)
         minor=$(echo "$RELEASE_VERSION" | cut -d. -f2)
         revision=$(echo "$RELEASE_VERSION" | cut -d. -f3)
         if [ "$revision" -gt 0 ];then
           revision=$(($revision-1))
+          RELEASE_BRANCH="release-${major}.${minor}"
         elif [ "$minor" -gt 0 ]; then
           minor=$(($minor-1))
         elif [ "$major" -gt 0 ]; then
@@ -88,6 +90,7 @@ jobs:
         echo "::set-output name=prev-release-version::$LAST_TAG"
         echo "::set-output name=repo-name::$(echo '${{ github.repository }}' | awk -F '/' '{print $2}')"
         echo "::set-output name=repo-org::$(echo '${{ github.repository }}' | awk -F '/' '{print $1}')"
+        echo "::set-output name=release-branch::$RELEASE_BRANCH"
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -110,7 +113,7 @@ jobs:
             --github-base-url https://github.com \
             --org ${{ steps.generate-release-details.outputs.repo-org }} \
             --repo ${{ steps.generate-release-details.outputs.repo-name }} \
-            --branch main \
+            --branch ${{ steps.generate-release-details.outputs.release-branch }} \
             --required-author "" \
             --start-sha ${{ steps.generate-release-details.outputs.start-sha }} \
             --end-sha ${{ steps.generate-release-details.outputs.end-sha }} \
