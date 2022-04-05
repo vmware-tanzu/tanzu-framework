@@ -151,3 +151,12 @@ func (c *client) GetLogDirectory() (string, error) {
 	}
 	return filepath.Join(tkgDir, constants.LogFolderName), nil
 }
+
+// GetClusterConfigurationDirectory returns the directory path where cluster configuration files will be stored
+func (c *client) GetClusterConfigurationDirectory() (string, error) {
+	tkgDir, err := c.GetTKGDirectory()
+	if err != nil {
+		return "", err
+	}
+	return filepath.Join(tkgDir, constants.TKGClusterConfigFileDirForUI), nil
+}

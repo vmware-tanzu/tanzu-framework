@@ -86,17 +86,19 @@ type Client struct {
 	createAWSCloudFormationStackReturnsOnCall map[int]struct {
 		result1 error
 	}
-	CreateClusterStub        func(*client.CreateClusterOptions, bool) error
+	CreateClusterStub        func(*client.CreateClusterOptions, bool) (bool, error)
 	createClusterMutex       sync.RWMutex
 	createClusterArgsForCall []struct {
 		arg1 *client.CreateClusterOptions
 		arg2 bool
 	}
 	createClusterReturns struct {
-		result1 error
+		result1 bool
+		result2 error
 	}
 	createClusterReturnsOnCall map[int]struct {
-		result1 error
+		result1 bool
+		result2 error
 	}
 	DeactivateTanzuKubernetesReleasesStub        func(string) error
 	deactivateTanzuKubernetesReleasesMutex       sync.RWMutex
@@ -964,7 +966,7 @@ func (fake *Client) CreateAWSCloudFormationStackReturnsOnCall(i int, result1 err
 	}{result1}
 }
 
-func (fake *Client) CreateCluster(arg1 *client.CreateClusterOptions, arg2 bool) error {
+func (fake *Client) CreateCluster(arg1 *client.CreateClusterOptions, arg2 bool) (bool, error) {
 	fake.createClusterMutex.Lock()
 	ret, specificReturn := fake.createClusterReturnsOnCall[len(fake.createClusterArgsForCall)]
 	fake.createClusterArgsForCall = append(fake.createClusterArgsForCall, struct {
@@ -979,9 +981,9 @@ func (fake *Client) CreateCluster(arg1 *client.CreateClusterOptions, arg2 bool) 
 		return stub(arg1, arg2)
 	}
 	if specificReturn {
-		return ret.result1
+		return ret.result1, ret.result2
 	}
-	return fakeReturns.result1
+	return fakeReturns.result1, fakeReturns.result2
 }
 
 func (fake *Client) CreateClusterCallCount() int {
@@ -990,7 +992,7 @@ func (fake *Client) CreateClusterCallCount() int {
 	return len(fake.createClusterArgsForCall)
 }
 
-func (fake *Client) CreateClusterCalls(stub func(*client.CreateClusterOptions, bool) error) {
+func (fake *Client) CreateClusterCalls(stub func(*client.CreateClusterOptions, bool) (bool, error)) {
 	fake.createClusterMutex.Lock()
 	defer fake.createClusterMutex.Unlock()
 	fake.CreateClusterStub = stub
@@ -1003,27 +1005,30 @@ func (fake *Client) CreateClusterArgsForCall(i int) (*client.CreateClusterOption
 	return argsForCall.arg1, argsForCall.arg2
 }
 
-func (fake *Client) CreateClusterReturns(result1 error) {
+func (fake *Client) CreateClusterReturns(result1 bool, result2 error) {
 	fake.createClusterMutex.Lock()
 	defer fake.createClusterMutex.Unlock()
 	fake.CreateClusterStub = nil
 	fake.createClusterReturns = struct {
-		result1 error
-	}{result1}
+		result1 bool
+		result2 error
+	}{result1, result2}
 }
 
-func (fake *Client) CreateClusterReturnsOnCall(i int, result1 error) {
+func (fake *Client) CreateClusterReturnsOnCall(i int, result1 bool, result2 error) {
 	fake.createClusterMutex.Lock()
 	defer fake.createClusterMutex.Unlock()
 	fake.CreateClusterStub = nil
 	if fake.createClusterReturnsOnCall == nil {
 		fake.createClusterReturnsOnCall = make(map[int]struct {
-			result1 error
+			result1 bool
+			result2 error
 		})
 	}
 	fake.createClusterReturnsOnCall[i] = struct {
-		result1 error
-	}{result1}
+		result1 bool
+		result2 error
+	}{result1, result2}
 }
 
 func (fake *Client) DeactivateTanzuKubernetesReleases(arg1 string) error {

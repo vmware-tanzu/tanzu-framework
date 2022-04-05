@@ -13,6 +13,7 @@ import (
 
 	"github.com/go-openapi/swag"
 	"github.com/pkg/errors"
+	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	clusterctl "sigs.k8s.io/cluster-api/cmd/clusterctl/client"
 
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/config"
@@ -57,12 +58,17 @@ func (t *tkgctl) CreateCluster(cc CreateClusterOptions) error {
 		return t.ConfigCluster(cc)
 	}
 	isInputFileHasCClass := false
-	isPacific := false
+	isTKGSCluster := false
 	var err error
-	isPacific, isInputFileHasCClass, err = t.processInputCClassFile(&cc)
+	isInputFileHasCClass, err = t.processWorkloadClusterInputFile(&cc)
 	if err != nil {
 		return err
 	}
+	isTKGSCluster, err = t.processManagementClusterForTKGSCluster(isInputFileHasCClass)
+	if err != nil {
+		return err
+	}
+
 	cc.ClusterConfigFile, err = t.ensureClusterConfigFile(cc.ClusterConfigFile)
 	if err != nil {
 		return err
@@ -95,7 +101,7 @@ func (t *tkgctl) CreateCluster(cc CreateClusterOptions) error {
 	}
 	options.IsInputFileHasCClass = isInputFileHasCClass
 
-	if isPacific {
+	if isTKGSCluster {
 		// For TKGS kubernetesVersion will be same as TkrVersion
 		options.KubernetesVersion = cc.TkrVersion
 		options.TKRVersion = cc.TkrVersion
@@ -110,9 +116,14 @@ func (t *tkgctl) CreateCluster(cc CreateClusterOptions) error {
 		}
 	}
 
-	err = t.tkgClient.CreateCluster(&options, waitForCluster)
+	attempedClusterCreation, err := t.tkgClient.CreateCluster(&options, waitForCluster)
 	if err != nil {
 		return err
+	}
+
+	// if cluster creation was not attempted return
+	if !attempedClusterCreation {
+		return nil
 	}
 
 	if waitForCluster {
@@ -124,29 +135,62 @@ func (t *tkgctl) CreateCluster(cc CreateClusterOptions) error {
 	return nil
 }
 
-func (t *tkgctl) processInputCClassFile(cc *CreateClusterOptions) (bool, bool, error) {
+func (t *tkgctl) processManagementClusterInputFile(ir *InitRegionOptions) (bool, error) {
+	var clusterobj unstructured.Unstructured
+	var err error
 	isInputFileHasCClass := false
-	isPacific, err := t.tkgClient.IsPacificManagementCluster()
-	if err != nil {
-		return isPacific, isInputFileHasCClass, errors.Wrap(err, "unable to determine if management cluster is on vSphere with Tanzu")
-	}
+
 	if t.tkgClient.IsFeatureActivated(config.FeatureFlagPackageBasedLCM) {
-		isInputFileHasCClass, err = t.checkIfInputFileIsCClassBased(cc)
+		isInputFileHasCClass, clusterobj, err = t.checkIfInputFileIsCClassBased(ir.ClusterConfigFile)
 		if err != nil {
-			return isPacific, isInputFileHasCClass, err
+			return isInputFileHasCClass, err
 		}
-		if isInputFileHasCClass && isPacific {
+		if isInputFileHasCClass {
+			t.processCClusterObjectForConfigurationVariables(clusterobj)
+			t.overrideManagementClusterOptionsWithCClusterConfigurationValues(ir)
+		}
+	}
+	return isInputFileHasCClass, nil
+}
+
+func (t *tkgctl) processWorkloadClusterInputFile(cc *CreateClusterOptions) (bool, error) {
+	var clusterobj unstructured.Unstructured
+	var err error
+	isInputFileHasCClass := false
+
+	if t.tkgClient.IsFeatureActivated(config.FeatureFlagPackageBasedLCM) {
+		isInputFileHasCClass, clusterobj, err = t.checkIfInputFileIsCClassBased(cc.ClusterConfigFile)
+		if err != nil {
+			return isInputFileHasCClass, err
+		}
+		if isInputFileHasCClass {
+			t.processCClusterObjectForConfigurationVariables(clusterobj)
+			t.overrideClusterOptionsWithCClusterConfigurationValues(cc)
+		}
+	}
+	return isInputFileHasCClass, nil
+}
+
+func (t *tkgctl) processManagementClusterForTKGSCluster(isInputFileHasCClass bool) (bool, error) {
+	isTKGSCluster, err := t.tkgClient.IsPacificManagementCluster()
+	if err != nil {
+		return isTKGSCluster, errors.Wrap(err, "unable to determine if management cluster is on vSphere with Tanzu")
+	}
+
+	if t.tkgClient.IsFeatureActivated(config.FeatureFlagPackageBasedLCM) {
+		if isInputFileHasCClass && isTKGSCluster {
 			isFeatureActivated, err := t.featureGateHelper.FeatureActivatedInNamespace(context.Background(), constants.CCFeature, constants.TKGSClusterClassNamespace)
 			if err != nil {
-				return isPacific, isInputFileHasCClass, errors.Wrap(err, fmt.Sprintf("error while checking feature '%v' status in namespace '%v'", constants.CCFeature, constants.TKGSClusterClassNamespace))
+				return isTKGSCluster, errors.Wrap(err, fmt.Sprintf("error while checking feature '%v' status in namespace '%v'", constants.CCFeature, constants.TKGSClusterClassNamespace))
 			}
 			if !isFeatureActivated {
-				return isPacific, isInputFileHasCClass, fmt.Errorf("vSphere with Tanzu environment detected, however, the feature '%v' is not activated in '%v' namespace ", constants.CCFeature, constants.TKGSClusterClassNamespace)
+				return isTKGSCluster, fmt.Errorf("vSphere with Tanzu environment detected, however, the feature '%v' is not activated in '%v' namespace ", constants.CCFeature, constants.TKGSClusterClassNamespace)
 			}
 		}
 	}
-	return isPacific, isInputFileHasCClass, nil
+	return isTKGSCluster, nil
 }
+
 func (t *tkgctl) getCreateClusterOptions(name string, cc *CreateClusterOptions) (client.CreateClusterOptions, error) {
 	providerRepositorySource := &clusterctl.ProviderRepositorySourceOptions{
 		InfrastructureProvider: cc.InfrastructureProvider,
