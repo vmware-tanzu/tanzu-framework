@@ -55,4 +55,7 @@ type Client interface {
 
 	// GetLogDirectory returns the directory path where log files should be stored by default.
 	GetLogDirectory() (string, error)
+
+	// GetClusterConfigurationDirectory returns the directory path where cluster configuration files will be stored
+	GetClusterConfigurationDirectory() (string, error)
 }
