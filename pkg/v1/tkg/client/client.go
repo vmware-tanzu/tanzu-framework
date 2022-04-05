@@ -78,9 +78,9 @@ type InitRegionOptions struct {
 	Labels                      map[string]string
 	FeatureFlags                map[string]string
 	LaunchUI                    bool
-	DisableYTT                  bool
 	CeipOptIn                   bool
 	UseExistingCluster          bool
+	IsInputFileHasCClass        bool
 }
 
 // DeleteRegionOptions contains options supported by DeleteRegion
@@ -115,8 +115,9 @@ type Client interface {
 	// and validates k8s version format is valid semantic version
 	ConfigureAndValidateTkrVersion(tkrVersion string) (string, string, error)
 	// CreateCluster creates a workload cluster based on a cluster template
-	// generated from the provided options
-	CreateCluster(options *CreateClusterOptions, waitForCluster bool) error
+	// generated from the provided options. Returns cluster creation attempted
+	// information along with error information
+	CreateCluster(options *CreateClusterOptions, waitForCluster bool) (attempedClusterCreation bool, err error)
 	// CreateAWSCloudFormationStack create aws cloud formation stack
 	CreateAWSCloudFormationStack() error
 	// DeleteRegion deletes management cluster via a self-provisioned kind cluster

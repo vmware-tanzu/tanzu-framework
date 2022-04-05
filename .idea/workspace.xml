@@ -1,0 +1,228 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="ALL" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="43714594-8c11-4012-8a8f-9f768197a7c3" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/pinniped/internal/testutil/tempdir.go" beforeDir="false" afterPath="$PROJECT_DIR$/pinniped/internal/testutil/tempdir.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pinniped/internal/testutil/tempdir_go1.14.go" beforeDir="false" afterPath="$PROJECT_DIR$/pinniped/internal/testutil/tempdir_go1.14.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pinniped/test/testlib/iplookup.go" beforeDir="false" afterPath="$PROJECT_DIR$/pinniped/test/testlib/iplookup.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pinniped/test/testlib/iplookup_go1.14.go" beforeDir="false" afterPath="$PROJECT_DIR$/pinniped/test/testlib/iplookup_go1.14.go" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Go File" />
+      </list>
+    </option>
+  </component>
+  <component name="GOROOT" url="file:///usr/local/go" />
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+    <option name="ROOT_SYNC" value="DONT_SYNC" />
+  </component>
+  <component name="GitRewordedCommitMessages">
+    <option name="commitMessagesMapping">
+      <RewordedCommitMessageMapping>
+        <option name="originalMessage" value="author cluster classes for Azure, AWS and vSphere&#10;&#10;Co-authored by: Nick Tenczar &lt;ntenczar@vmware.com&gt;&#10;Co-authored by: PremKumar Kalle &lt;pkalle@vmware.com&gt;&#10;Co-authored by: Sai Bandi &lt;sai@vmware.com&gt;" />
+        <option name="rewordedMessage" value="author cluster classes for Azure, AWS and vSphere&#10;&#10;&#10;Co-authored by: Nick Tenczar &lt;ntenczar@vmware.com&gt;&#10;Co-authored by: PremKumar Kalle &lt;pkalle@vmware.com&gt;&#10;Co-authored by: Sai Bandi &lt;sai@vmware.com&gt;" />
+      </RewordedCommitMessageMapping>
+    </option>
+    <option name="currentCommit" value="1" />
+    <option name="onto" value="fee421b5542afaf5d3daf865640b3a4afc12385d" />
+  </component>
+  <component name="GitSEFilterConfiguration">
+    <file-type-list>
+      <filtered-out-file-type name="LOCAL_BRANCH" />
+      <filtered-out-file-type name="REMOTE_BRANCH" />
+      <filtered-out-file-type name="TAG" />
+      <filtered-out-file-type name="COMMIT_BY_MESSAGE" />
+    </file-type-list>
+  </component>
+  <component name="GoLibraries">
+    <option name="indexEntireGoPath" value="false" />
+  </component>
+  <component name="MarkdownSettingsMigration">
+    <option name="stateVersion" value="1" />
+  </component>
+  <component name="ProjectId" id="27Ou0jjJjrVlLvmmlAvjjcC2KlS" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">
+    <property name="DefaultGoTemplateProperty" value="Go File" />
+    <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
+    <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+    <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="go.format.on.save.advertiser.fired" value="true" />
+    <property name="go.formatter.settings.were.checked" value="true" />
+    <property name="go.import.settings.migrated" value="true" />
+    <property name="go.modules.go.list.on.any.changes.was.set" value="true" />
+    <property name="go.sdk.automatically.set" value="true" />
+    <property name="go.watchers.conflict.with.on.save.actions.check.performed" value="true" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/pkg/v1/tkg/test/tkgctl/aws_cc" />
+  </component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/pkg/v1/tkg/test/tkgctl/aws_cc" />
+    </key>
+  </component>
+  <component name="RunManager" selected="Go Test.go test tkgctl">
+    <configuration name="go build aws_cc_suite.go" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true" nameIsGenerated="true">
+      <module name="mirrors_github_tanzu-framework" />
+      <working_directory value="$PROJECT_DIR$" />
+      <envs>
+        <env name="E2E_CONFIG" value="$PROJECT_DIR$/pkg/v1/tkg/test/config/aws.yaml" />
+      </envs>
+      <kind value="FILE" />
+      <package value="github.com/vmware-tanzu/tanzu-framework" />
+      <directory value="$PROJECT_DIR$" />
+      <filePath value="$PROJECT_DIR$/pkg/v1/tkg/test/tkgctl/aws_cc/aws_cc_suite.go" />
+      <method v="2" />
+    </configuration>
+    <configuration name="go build aws_cc_wc.go" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true" nameIsGenerated="true">
+      <module name="mirrors_github_tanzu-framework" />
+      <working_directory value="$PROJECT_DIR$" />
+      <kind value="FILE" />
+      <package value="github.com/vmware-tanzu/tanzu-framework" />
+      <directory value="$PROJECT_DIR$" />
+      <filePath value="$PROJECT_DIR$/pkg/v1/tkg/test/tkgctl/aws_cc/aws_cc_wc.go" />
+      <method v="2" />
+    </configuration>
+    <configuration name="TestTkgctl in github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgctl" type="GoTestRunConfiguration" factoryName="Go Test" temporary="true" nameIsGenerated="true">
+      <module name="mirrors_github_tanzu-framework" />
+      <working_directory value="$PROJECT_DIR$/pkg/v1/tkg/tkgctl" />
+      <root_directory value="$PROJECT_DIR$" />
+      <kind value="PACKAGE" />
+      <package value="github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgctl" />
+      <directory value="$PROJECT_DIR$/pkg/v1/tkg/tkgctl" />
+      <filePath value="$PROJECT_DIR$" />
+      <framework value="gotest" />
+      <pattern value="^\QTestTkgctl\E$" />
+      <method v="2" />
+    </configuration>
+    <configuration name="aws_suite_test.go" type="GoTestRunConfiguration" factoryName="Go Test" temporary="true" nameIsGenerated="true">
+      <module name="mirrors_github_tanzu-framework" />
+      <working_directory value="$PROJECT_DIR$/pkg/v1/tkg/test/tkgctl/aws" />
+      <envs>
+        <env name="E2E_CONFIG" value="$PROJECT_DIR$/pkg/v1/tkg/test/config/aws.yaml" />
+      </envs>
+      <root_directory value="$PROJECT_DIR$" />
+      <kind value="FILE" />
+      <package value="github.com/vmware-tanzu/tanzu-framework" />
+      <directory value="$PROJECT_DIR$" />
+      <filePath value="$PROJECT_DIR$/pkg/v1/tkg/test/tkgctl/aws/aws_suite_test.go" />
+      <framework value="gotest" />
+      <method v="2" />
+    </configuration>
+    <configuration name="go test tkgctl" type="GoTestRunConfiguration" factoryName="Go Test" temporary="true" nameIsGenerated="true">
+      <module name="mirrors_github_tanzu-framework" />
+      <working_directory value="$PROJECT_DIR$/pkg/v1/tkg/tkgctl" />
+      <root_directory value="$PROJECT_DIR$" />
+      <kind value="DIRECTORY" />
+      <package value="github.com/vmware-tanzu/tanzu-framework" />
+      <directory value="$PROJECT_DIR$/pkg/v1/tkg/tkgctl" />
+      <filePath value="$PROJECT_DIR$" />
+      <framework value="gotest" />
+      <method v="2" />
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Go Test.go test tkgctl" />
+        <item itemvalue="Go Test.TestTkgctl in github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgctl" />
+        <item itemvalue="Go Build.go build aws_cc_wc.go" />
+        <item itemvalue="Go Build.go build aws_cc_suite.go" />
+        <item itemvalue="Go Test.aws_suite_test.go" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State>
+              <option name="FILTERS">
+                <map>
+                  <entry key="branch">
+                    <value>
+                      <list>
+                        <option value="topic/ccdev2" />
+                      </list>
+                    </value>
+                  </entry>
+                </map>
+              </option>
+            </State>
+          </value>
+        </entry>
+      </map>
+    </option>
+    <option name="RECENT_FILTERS">
+      <map>
+        <entry key="Branch">
+          <value>
+            <list>
+              <RecentGroup>
+                <option name="FILTER_VALUES">
+                  <option value="topic/ccdev2" />
+                </option>
+              </RecentGroup>
+            </list>
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="author cluster classes for Azure, AWS and vSphere&#10;&#10;&#10;Co-authored by: Nick Tenczar &lt;ntenczar@vmware.com&gt;&#10;Co-authored by: PremKumar Kalle &lt;pkalle@vmware.com&gt;&#10;Co-authored by: Sai Bandi &lt;sai@vmware.com&gt;" />
+    <MESSAGE value="author cluster classes for Azure, AWS and vSphere&#10;&#10;&#10;Co-authored-by: Nick Tenczar &lt;ntenczar@vmware.com&gt;&#10;Co-authored-by: PremKumar Kalle &lt;pkalle@vmware.com&gt;&#10;Co-authored-by: Sai Bandi &lt;sai@vmware.com&gt;&#10;Co-authored-by: Anuj Chaudhari &lt;anujc@vmware.com&gt;&#10;Co-authored-by: Chandra Pamuluri &lt;cpamuluri@cpamuluri-a01.vmware.com&gt;" />
+    <MESSAGE value="author cluster classes for Azure, AWS and vSphere&#10;&#10;&#10;Co-authored-by: Nick Tenczar &lt;ntenczar@vmware.com&gt;&#10;Co-authored-by: PremKumar Kalle &lt;pkalle@vmware.com&gt;&#10;Co-authored-by: Sai Bandi &lt;sai@vmware.com&gt;&#10;Co-authored-by: Anuj Chaudhari &lt;anujc@vmware.com&gt;&#10;Co-authored-by: Chandra Pamuluri &lt;cpamuluri@cpamuluri-a01.vmware.com&gt;" />
+  </component>
+  <component name="VgoProject">
+    <integration-enabled>true</integration-enabled>
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/pkg/v1/tkg/tkgconfigupdater/save.go</url>
+          <line>77</line>
+          <option name="timeStamp" value="1" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/pkg/v1/tkg/tkgconfigupdater/save.go</url>
+          <line>101</line>
+          <option name="timeStamp" value="4" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/pkg/v1/tkg/tkgconfigupdater/save.go</url>
+          <line>103</line>
+          <option name="timeStamp" value="5" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/apis/config/v1alpha1/clientconfig.go</url>
+          <line>93</line>
+          <option name="timeStamp" value="10" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/pkg/v1/config/clientconfig.go</url>
+          <line>606</line>
+          <option name="timeStamp" value="11" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
+  </component>
+</project>
