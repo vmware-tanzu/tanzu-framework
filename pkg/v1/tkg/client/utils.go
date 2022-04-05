@@ -411,3 +411,17 @@ func getInfraNameFromRegionContext(regionalClusterClient clusterclient.Client) (
 
 	return infraProviderName, nil
 }
+
+func getCCPlanFromLegacyPlan(plan string) (string, error) {
+	switch plan {
+	case constants.PlanDev:
+		return constants.PlanDevCC, nil
+	case constants.PlanProd:
+		return constants.PlanProdCC, nil
+	case constants.PlanDevCC:
+		return constants.PlanDevCC, nil
+	case constants.PlanProdCC:
+		return constants.PlanProdCC, nil
+	}
+	return "", errors.Errorf("unknown plan '%v'", plan)
+}
