@@ -139,4 +139,33 @@ var _ = Describe("Utils", func() {
 			})
 		})
 	})
+
+	Describe("GetCCPlanFromLegacyPlan", func() {
+		It("when dev plan is used", func() {
+			plan, err := getCCPlanFromLegacyPlan(constants.PlanDev)
+			Expect(err).ToNot(HaveOccurred())
+			Expect(plan).To(Equal(constants.PlanDevCC))
+		})
+		It("when prod plan is used", func() {
+			plan, err := getCCPlanFromLegacyPlan(constants.PlanProd)
+			Expect(err).ToNot(HaveOccurred())
+			Expect(plan).To(Equal(constants.PlanProdCC))
+		})
+		It("when devcc plan is used", func() {
+			plan, err := getCCPlanFromLegacyPlan(constants.PlanDevCC)
+			Expect(err).ToNot(HaveOccurred())
+			Expect(plan).To(Equal(constants.PlanDevCC))
+		})
+		It("when prodcc plan is used", func() {
+			plan, err := getCCPlanFromLegacyPlan(constants.PlanProdCC)
+			Expect(err).ToNot(HaveOccurred())
+			Expect(plan).To(Equal(constants.PlanProdCC))
+		})
+		It("when random plan is used", func() {
+			_, err := getCCPlanFromLegacyPlan("random")
+			Expect(err).To(HaveOccurred())
+			Expect(err.Error()).To(Equal("unknown plan 'random'"))
+		})
+	})
+
 })
