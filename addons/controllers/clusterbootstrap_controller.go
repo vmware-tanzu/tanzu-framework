@@ -531,7 +531,7 @@ func (r *ClusterBootstrapReconciler) createOrPatchKappPackageInstall(clusterBoot
 					UID:        cluster.UID,
 				},
 			},
-			Annotations: map[string]string{types.ClusterNameAnnotation: cluster.Name, types.ClusterNamespaceAnnotation: cluster.Namespace},
+			Annotations: map[string]string{addontypes.ClusterNameAnnotation: cluster.Name, addontypes.ClusterNamespaceAnnotation: cluster.Namespace},
 		},
 	}
 
@@ -641,7 +641,7 @@ func (r *ClusterBootstrapReconciler) createOrPatchPackageInstallOnRemote(cluster
 		ObjectMeta: metav1.ObjectMeta{
 			Name:        util.GeneratePackageInstallName(cluster.Name, remotePackageRefName),
 			Namespace:   r.Config.SystemNamespace,
-			Annotations: map[string]string{types.ClusterNameAnnotation: cluster.Name, types.ClusterNamespaceAnnotation: cluster.Namespace},
+			Annotations: map[string]string{addontypes.ClusterNameAnnotation: cluster.Name, addontypes.ClusterNamespaceAnnotation: cluster.Namespace},
 		},
 	}
 
