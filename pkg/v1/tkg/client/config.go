@@ -88,7 +88,8 @@ func (c *TkgClient) GetClusterConfiguration(options *CreateClusterOptions) ([]by
 		return nil, err
 	}
 
-	return c.getClusterConfiguration(&options.ClusterConfigOptions, false, infraProviderName, options.IsWindowsWorkloadCluster)
+	bytes, _, err := c.getClusterConfigurationBytes(&options.ClusterConfigOptions, infraProviderName, false, options.IsWindowsWorkloadCluster, false)
+	return bytes, err
 }
 
 func (c *TkgClient) configureAndValidateConfiguration(options *CreateClusterOptions, regionalClusterClient clusterclient.Client, skipValidation bool) error {

@@ -7,6 +7,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"os"
 	"os/exec"
 	"strconv"
 	"strings"
@@ -17,7 +18,9 @@ import (
 	"k8s.io/apimachinery/pkg/util/version"
 	apimachineryversion "k8s.io/apimachinery/pkg/version"
 
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/config"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/log"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfigreaderwriter"
 )
 
@@ -286,4 +289,44 @@ func SetClusterClass(config tkgconfigreaderwriter.TKGConfigReaderWriter) {
 			break
 		}
 	}
+}
+
+func (c *TkgClient) isCustomOverlayPresent() (bool, error) {
+	var providersChecksum, prePopulatedChecksumFromFile string
+	var err error
+
+	if providersChecksum, err = c.tkgConfigUpdaterClient.GetProvidersChecksum(); err != nil {
+		return false, err
+	}
+
+	if prePopulatedChecksumFromFile, err = c.tkgConfigUpdaterClient.GetPopulatedProvidersChecksumFromFile(); err != nil {
+		return false, err
+	}
+
+	return providersChecksum == "" || providersChecksum != prePopulatedChecksumFromFile, nil
+}
+
+func (c *TkgClient) ShouldDeployClusterClassBasedCluster(isManagementCluster bool) (bool, error) {
+	var isCustomOverlayDetected bool
+	var err error
+
+	if isCustomOverlayDetected, err = c.isCustomOverlayPresent(); err != nil {
+		return false, err
+	}
+
+	featureFlagPackageBasedLCMEnabled := config.IsFeatureActivated(config.FeatureFlagPackageBasedLCM)
+
+	// If `package-based-lcm` featureflag is enabled and deploying management cluster
+	// Always use ClusterClass based Cluster deployment
+	if featureFlagPackageBasedLCMEnabled && isManagementCluster {
+		if isCustomOverlayDetected {
+			log.Warning("Warning: It seems like you have done some customizations to the template overlays. However, CLI might ignore those customizations when creating management-cluster.")
+		}
+		return true, nil
+	}
+
+	deployClusterWithClusterClassEnv := os.Getenv(constants.DeployClusterWithClusterClass) != ""
+
+	deployClusterClassBasedCluster := config.IsFeatureActivated(config.FeatureFlagPackageBasedLCM) && (deployClusterWithClusterClassEnv || !isCustomOverlayDetected)
+	return deployClusterClassBasedCluster, nil
 }
