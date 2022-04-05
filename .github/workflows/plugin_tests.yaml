@@ -19,8 +19,11 @@ jobs:
     name: Plugin Tests
     runs-on: tkg
     steps:
-      - name: Free disk space on runner
-        run: sudo rm -rf /usr/share/dotnet
+      - name: Free disk space and clean up installed plugins on runner
+        run: |
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /home/tanzu/.local/share/tanzu-cli/*
+          mkdir -p /home/tanzu/.local/share/tanzu-cli/test
 
       - name: Set up Go 1.x
         uses: actions/setup-go@v2
@@ -85,7 +88,7 @@ jobs:
         run: make install-cli-plugins ENABLE_CONTEXT_AWARE_PLUGIN_DISCOVERY=false
 
       - name: Cleanup
-        run: rm -rf ~/.tanzu ~/.tkg ~/.config; docker kill $(docker ps -q) | true; docker system prune -a --volumes -f
+        run: rm -rf ~/.tanzu ~/.tkg ~/.config ~/.cache/tanzu; docker kill $(docker ps -q) | true; docker system prune -a --volumes -f
 
       - name: Run cluster test plugin
         run: tanzu test plugin cluster

@@ -1084,7 +1084,7 @@ func (c *client) GetClusterInfrastructure() (string, error) {
 	clusters := &capi.ClusterList{}
 
 	selectors := []crtclient.ListOption{
-		crtclient.MatchingLabels(map[string]string{tkrconstants.ManagememtClusterRoleLabel: ""}),
+		crtclient.MatchingLabels(map[string]string{tkrconstants.ManagementClusterRoleLabel: ""}),
 	}
 	err := c.clientSet.List(context.Background(), clusters, selectors...)
 	if err != nil || len(clusters.Items) != 1 {

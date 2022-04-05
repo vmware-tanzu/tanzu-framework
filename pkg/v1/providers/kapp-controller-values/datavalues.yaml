@@ -1,0 +1,7 @@
+#@ load("@ytt:template", "template")
+#@ load("@ytt:data", "data")
+#@ load("@ytt:yaml", "yaml")
+#@ load("kapp-controller_data.lib.yaml", "kappcontrollerdatavalues")
+
+--- #@ template.replace(kappcontrollerdatavalues())
+

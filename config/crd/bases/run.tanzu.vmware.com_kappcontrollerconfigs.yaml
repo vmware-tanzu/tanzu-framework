@@ -54,6 +54,9 @@ spec:
             description: KappControllerConfigSpec defines the desired state of KappControllerConfig
             properties:
               kappController:
+                default:
+                  deployment:
+                    hostNetwork: true
                 properties:
                   config:
                     properties:
@@ -84,13 +87,15 @@ spec:
                         type: string
                     type: object
                   createNamespace:
-                    default: true
+                    default: false
                     description: Whether to create namespace specified for kapp-controller
                     type: boolean
                   deployment:
+                    default:
+                      hostNetwork: true
                     properties:
                       apiPort:
-                        default: 10350
+                        default: 10100
                         description: Bind port for kapp-controller API
                         type: integer
                       concurrency:
@@ -130,7 +135,7 @@ spec:
                         type: array
                     type: object
                   globalNamespace:
-                    default: tanzu-package-repo-global
+                    default: tkg-system
                     description: The namespace value used for global packaging resources.
                       Any Package and PackageMetadata CRs within that namespace will
                       be included in all other namespaces on the cluster, without
@@ -138,7 +143,7 @@ spec:
                     type: string
                 type: object
               namespace:
-                default: kube-system
+                default: tkg-system
                 description: The namespace in which kapp-controller is deployed
                 type: string
             type: object

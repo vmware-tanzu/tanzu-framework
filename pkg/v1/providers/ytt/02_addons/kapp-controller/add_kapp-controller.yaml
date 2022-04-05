@@ -7,7 +7,7 @@
 #@ load("kapp-controller_addon_data.lib.yaml", "kappcontrollerdatavalues")
 #@ load("/vendir/kapp-controller/kapp-controller.lib.yaml", "kapp_controller_lib")
 
-#@ if data.values.PROVIDER_TYPE != "tkg-service-vsphere" and data.values.TKG_CLUSTER_ROLE != "workload":
+#@ if data.values.PROVIDER_TYPE != "tkg-service-vsphere" and data.values.TKG_CLUSTER_ROLE != "workload" and not data.values.FEATURE_FLAG_PACKAGE_BASED_LCM:
 
 #@ if data.values.DISABLE_CRS_FOR_ADDON_TYPE and "addons-management/kapp-controller" in data.values.DISABLE_CRS_FOR_ADDON_TYPE:
 --- #@ template.replace(overlay.apply(kapp_controller_lib.with_data_values(kappcontrollerdatavalues()).eval(), kappcontrolleroverlay()))

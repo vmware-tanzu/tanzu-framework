@@ -1,0 +1,11 @@
+#@ load("@ytt:data", "data")
+---
+apiVersion: cni.tanzu.vmware.com/v1alpha1
+kind: CalicoConfig
+metadata:
+  name: #@ data.values.TKR_VERSION
+  namespace: #@ data.values.GLOBAL_NAMESPACE
+spec:
+  calico:
+    config:
+      vethMTU: 0

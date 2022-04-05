@@ -1,0 +1,41 @@
+#@ load("@ytt:data", "data")
+#@ load("@ytt:yaml", "yaml")
+#@ load("@ytt:base64", "base64")
+#@ load("helpers.star", "get_no_proxy", "tkg_image_repo_ca_cert", "tkg_image_repo_skip_tls_verify", "tkg_custom_image_repo_hostname")
+
+#@ def kappcontrollerdatavalues():
+---
+kappController:
+  namespace: tkg-system
+  createNamespace: true
+  globalNamespace: tkg-system
+  deployment:
+    concurrency: 4
+    coreDNSIP: #@ data.values.CORE_DNS_IP
+    hostNetwork: true
+    priorityClassName: system-cluster-critical
+    apiPort: 10100
+    metricsBindAddress: "0"
+    tolerations:
+    - key: CriticalAddonsOnly
+      operator: Exists
+    - effect: NoSchedule
+      key: node-role.kubernetes.io/master
+    - effect: NoSchedule
+      key: node.kubernetes.io/not-ready
+    - effect: NoSchedule
+      key: node.cloudprovider.kubernetes.io/uninitialized
+      value: "true"
+  config:
+    #@ if tkg_image_repo_ca_cert():
+    caCerts: #@ base64.decode(tkg_image_repo_ca_cert())
+    #@ end
+    #@ if data.values.TKG_HTTP_PROXY:
+    httpProxy: #@ data.values.TKG_HTTP_PROXY
+    httpsProxy: #@ data.values.TKG_HTTPS_PROXY
+    noProxy: #@ get_no_proxy()
+    #@ end
+    #@ if tkg_image_repo_skip_tls_verify():
+    dangerousSkipTLSVerify: #@ tkg_custom_image_repo_hostname()
+    #@ end
+#@ end

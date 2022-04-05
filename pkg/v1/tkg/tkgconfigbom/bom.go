@@ -673,3 +673,36 @@ func (c *client) GetManagementPackageRepositoryImage() (string, error) {
 	managementPackageRepositoryImage := fmt.Sprintf("%s/%s:%s", bomConfiguration.ImageConfig.ImageRepository, tfmprImage.ImagePath, tfmprImage.Tag)
 	return managementPackageRepositoryImage, nil
 }
+
+// GetKappControllerPackageImage returns kapp-controller package image
+func (c *client) GetKappControllerPackageImage() (string, error) {
+	tkrBomConfig, err := c.GetDefaultTkrBOMConfiguration()
+	if err != nil {
+		return "", err
+	}
+
+	if tkrBomConfig == nil {
+		return "", errors.New("invalid BoM configuration")
+	}
+
+	tkgCorePackagesComponent := tkrBomConfig.Components[TKGCorePackages]
+	if len(tkgCorePackagesComponent) == 0 && tkgCorePackagesComponent[0] == nil || tkgCorePackagesComponent[0].Images == nil {
+		return "", errors.Errorf("missing or invalid '%s' component as part of TKR BoM", TKGCorePackages)
+	}
+
+	// Determining the kapp-controller package based on the prefix match because we can have different domain for community edition
+	var kappControllerImageInfo *ImageInfo
+	for imageName, imageInfo := range tkgCorePackagesComponent[0].Images {
+		if strings.HasPrefix(imageName, KappControllerPackageImagePrefix) {
+			kappControllerImageInfo = imageInfo
+			break
+		}
+	}
+
+	if kappControllerImageInfo == nil {
+		return "", errors.Errorf("missing 'kapp-controller' package in the '%s' component", TKGCorePackages)
+	}
+
+	kappControllerImage := fmt.Sprintf("%s/%s:%s", tkrBomConfig.ImageConfig.ImageRepository, kappControllerImageInfo.ImagePath, kappControllerImageInfo.Tag)
+	return kappControllerImage, nil
+}

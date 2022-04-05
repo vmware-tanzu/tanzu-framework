@@ -39,6 +39,7 @@ cluster:
  plan: #@ data.values.CLUSTER_PLAN
  kubernetesProvider: #@ get_kubernetes_provider()
  tkgVersion: #@ data.values.TKG_VERSION
+ edition: #@ data.values.BUILD_EDITION
  infrastructure:
   provider: #@ get_provider()
 bom:
