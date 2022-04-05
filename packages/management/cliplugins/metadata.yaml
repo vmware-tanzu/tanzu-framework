@@ -1,0 +1,14 @@
+apiVersion: data.packaging.carvel.dev/v1alpha1
+kind: PackageMetadata
+metadata:
+  name: cliplugins.tanzu.vmware.com
+  namespace: tkg-system
+spec:
+  displayName: "cliplugins"
+  longDescription: "CLIPlugins package provides the CLIPlugin CRD"
+  shortDescription: "CLIPlugin management"
+  providerName: VMware
+  maintainers:
+    - name: "Anuj Chaudhari"
+  categories:
+    - "cliplugins"
