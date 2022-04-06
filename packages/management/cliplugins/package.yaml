@@ -2,7 +2,6 @@ apiVersion: data.packaging.carvel.dev/v1alpha1
 kind: Package
 metadata:
   name: cliplugins.tanzu.vmware.com
-  namespace: tkg-system
 spec:
   refName: cliplugins.tanzu.vmware.com
   version: latest
