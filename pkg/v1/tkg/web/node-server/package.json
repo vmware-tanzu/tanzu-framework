@@ -22,7 +22,7 @@
     "connect-busboy": "0.0.2",
     "express": "^4.17.1",
     "express-http-proxy": "^1.6.2",
-    "express-rate-limit": "^5.5.1",
+    "express-rate-limit": "^6.3.0",
     "http": "0.0.0",
     "https": "1.0.0",
     "lodash": "^4.17.21",
