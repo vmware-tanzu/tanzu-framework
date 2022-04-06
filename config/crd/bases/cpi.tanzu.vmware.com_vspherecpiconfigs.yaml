@@ -48,24 +48,6 @@ spec:
             properties:
               vsphereCPI:
                 properties:
-                  clusterAPIVersion:
-                    default: cluster.x-k8s.io/v1beta1
-                    description: Used in vsphereParavirtual mode, defines the Cluster
-                      API versions.
-                    type: string
-                  clusterKind:
-                    default: Cluster
-                    description: Used in vsphereParavirtual mode, defines the Cluster
-                      kind.
-                    type: string
-                  clusterName:
-                    description: Used in vsphereParavirtual mode, defines the Cluster
-                      name.
-                    type: string
-                  clusterUID:
-                    description: Used in vsphereParavirtual mode, defines the Cluster
-                      UID.
-                    type: string
                   datacenter:
                     description: The datacenter in which VMs are created/located
                     type: string
@@ -167,14 +149,6 @@ spec:
                     type: string
                   server:
                     description: The IP address or FQDN of the vSphere endpoint
-                    type: string
-                  supervisorMasterEndpointIP:
-                    description: Used in vsphereParavirtual mode, the endpoint IP
-                      of supervisor cluster's API server.
-                    type: string
-                  supervisorMasterPort:
-                    description: Used in vsphereParavirtual mode, the endpoint port
-                      of supervisor cluster's API server port.
                     type: string
                   tlsCipherSuites:
                     default: TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
