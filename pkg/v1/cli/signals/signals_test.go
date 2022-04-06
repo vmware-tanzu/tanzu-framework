@@ -31,32 +31,34 @@ func TestSetupSignalHandler(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		ctx := SetupSignalHandler()
+		t.Run(tc.desc, func(t *testing.T) {
+			ctx := SetupSignalHandler()
 
-		startTime := time.Now()
-		var wg sync.WaitGroup
+			startTime := time.Now()
+			var wg sync.WaitGroup
 
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
-			for {
-				select {
-				case <-ctx.Done():
-					return
-				default:
-					if time.Since(startTime) > tc.tolerance {
-						t.Errorf("%s: want: immediate interrupt signal, got: no signal after %v", tc.desc, tc.tolerance)
+			wg.Add(1)
+			go func() {
+				defer wg.Done()
+				for {
+					select {
+					case <-ctx.Done():
 						return
+					default:
+						if time.Since(startTime) > tc.tolerance {
+							t.Errorf("want: immediate interrupt signal, got: no signal after %v", tc.tolerance)
+							return
+						}
 					}
 				}
-			}
-		}()
+			}()
 
-		// Send system signal.
-		if err := syscall.Kill(syscall.Getpid(), tc.signal); err != nil {
-			t.Errorf("want: no error, got: %v", err)
-		}
-		wg.Wait()
+			// Send system signal.
+			if err := syscall.Kill(syscall.Getpid(), tc.signal); err != nil {
+				t.Errorf("want: no error, got: %v", err)
+			}
+			wg.Wait()
+		})
 	}
 }
 
@@ -82,34 +84,36 @@ func TestSetupSignalHandlerWithTimeout(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		ctx := SetupSignalHandlerWithTimeout(tc.waitTime)
+		t.Run(tc.desc, func(t *testing.T) {
+			ctx := SetupSignalHandlerWithTimeout(tc.waitTime)
 
-		startTime := time.Now()
-		var wg sync.WaitGroup
+			startTime := time.Now()
+			var wg sync.WaitGroup
 
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
-			for {
-				select {
-				case <-ctx.Done():
-					if time.Since(startTime) < tc.waitTime {
-						t.Errorf("%s: want: interrupt signal after %v, got: signal prematurely, after %v", tc.desc, tc.waitTime, time.Since(startTime))
-					}
-					return
-				default:
-					if time.Since(startTime) > (tc.waitTime + tc.tolerance) {
-						t.Errorf("%s: want: interrupt signal after %v, got: no signal after %v", tc.desc, tc.waitTime, tc.waitTime+tc.tolerance)
+			wg.Add(1)
+			go func() {
+				defer wg.Done()
+				for {
+					select {
+					case <-ctx.Done():
+						if time.Since(startTime) < tc.waitTime {
+							t.Errorf("want: interrupt signal after %v, got: signal prematurely, after %v", tc.waitTime, time.Since(startTime))
+						}
 						return
+					default:
+						if time.Since(startTime) > (tc.waitTime + tc.tolerance) {
+							t.Errorf("want: interrupt signal after %v, got: no signal after %v", tc.waitTime, tc.waitTime+tc.tolerance)
+							return
+						}
 					}
 				}
-			}
-		}()
+			}()
 
-		// Send system signal.
-		if err := syscall.Kill(syscall.Getpid(), tc.signal); err != nil {
-			t.Errorf("want: no error, got: %v", err)
-		}
-		wg.Wait()
+			// Send system signal.
+			if err := syscall.Kill(syscall.Getpid(), tc.signal); err != nil {
+				t.Errorf("want: no error, got: %v", err)
+			}
+			wg.Wait()
+		})
 	}
 }
