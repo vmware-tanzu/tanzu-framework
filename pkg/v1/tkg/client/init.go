@@ -176,7 +176,7 @@ func (c *TkgClient) InitRegion(options *InitRegionOptions) error { //nolint:funl
 	if regionalConfigBytes, options.ClusterName, configFilePath, err = c.BuildRegionalClusterConfiguration(options); err != nil {
 		return errors.Wrap(err, "unable to build management cluster configuration")
 	}
-	log.Infof("ClusterClass based management-cluster config file has been generated and stored at: '%v'", configFilePath)
+	log.Infof("ClusterClass based management cluster config file has been generated and stored at: '%v'", configFilePath)
 
 	log.SendProgressUpdate(statusRunning, StepSetupBootstrapCluster, InitRegionSteps)
 	log.Info("Setting up bootstrapper...")
@@ -599,10 +599,22 @@ func (c *TkgClient) BuildRegionalClusterConfiguration(options *InitRegionOptions
 		YamlProcessor:            yamlprocessor.NewYttProcessorWithConfigDir(c.tkgConfigDir),
 	}
 
-	if options.IsInputFileHasCClass {
+	if options.IsInputFileClusterClassBased {
 		bytes, err = getContentFromInputFile(options.ClusterConfigFile)
 	} else {
-		bytes, configFilePath, err = c.getClusterConfigurationBytes(&clusterConfigOptions, clusterConfigOptions.ProviderRepositorySource.InfrastructureProvider, true, false, true)
+		bytes, err = c.getClusterConfigurationBytes(&clusterConfigOptions, clusterConfigOptions.ProviderRepositorySource.InfrastructureProvider, true, false)
+		if err != nil {
+			return bytes, options.ClusterName, "", err
+		}
+		clusterConfigDir, err := c.tkgConfigPathsClient.GetClusterConfigurationDirectory()
+		if err != nil {
+			return bytes, options.ClusterName, "", err
+		}
+		configFilePath := filepath.Join(clusterConfigDir, fmt.Sprintf("%s.yaml", options.ClusterName))
+		err = utils.SaveFile(configFilePath, bytes)
+		if err != nil {
+			return bytes, options.ClusterName, "", err
+		}
 	}
 
 	return bytes, options.ClusterName, configFilePath, err
