@@ -64,6 +64,7 @@ require (
 	github.com/mattn/go-isatty v0.0.14
 	github.com/olekukonko/tablewriter v0.0.5
 	github.com/onsi/ginkgo v1.16.5
+	github.com/onsi/ginkgo/v2 v2.0.0
 	github.com/onsi/gomega v1.18.1
 	github.com/otiai10/copy v1.4.2
 	github.com/pelletier/go-toml/v2 v2.0.0-beta.3
@@ -145,7 +146,7 @@ require (
 	github.com/cheggaaa/pb v1.0.29 // indirect
 	github.com/cncf/udpa/go v0.0.0-20210930031921-04548b0d99d4 // indirect
 	github.com/cncf/xds/go v0.0.0-20211130200136-a8f946100490 // indirect
-	github.com/containerd/containerd v1.5.9 // indirect
+	github.com/containerd/containerd v1.5.11 // indirect
 	github.com/containerd/stargz-snapshotter/estargz v0.10.0 // indirect
 	github.com/coredns/caddy v1.1.1 // indirect
 	github.com/coredns/corefile-migration v1.0.14 // indirect

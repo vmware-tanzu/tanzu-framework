@@ -1,8 +1,10 @@
+#@ load("@ytt:data", "data")
+
 apiVersion: cert-manager.io/v1
 kind: Issuer
 metadata:
   name: tanzu-featuregates-selfsigned-issuer
-  namespace: tkg-system
+  namespace: #@ data.values.namespace
 spec:
   selfSigned: {}
 ---
@@ -10,11 +12,11 @@ apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
   name: tanzu-featuregates-serving-cert
-  namespace: tkg-system
+  namespace: #@ data.values.namespace
 spec:
   dnsNames:
-    - tanzu-featuregates-webhook-service.tkg-system.svc
-    - tanzu-featuregates-webhook-service-cert.tkg-system.svc.cluster.local
+    - #@ "tanzu-featuregates-webhook-service.{}.svc".format(data.values.namespace)
+    - #@ "tanzu-featuregates-webhook-service-cert.{}.svc.cluster.local".format(data.values.namespace)
   issuerRef:
     kind: Issuer
     name: tanzu-featuregates-selfsigned-issuer

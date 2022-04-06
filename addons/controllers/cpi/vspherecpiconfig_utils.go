@@ -12,13 +12,12 @@ import (
 	v1 "k8s.io/api/core/v1"
 	rbacv1 "k8s.io/api/rbac/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 	capvv1beta1 "sigs.k8s.io/cluster-api-provider-vsphere/apis/v1beta1"
 	capvvmwarev1beta1 "sigs.k8s.io/cluster-api-provider-vsphere/apis/vmware/v1beta1"
 	clusterapiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
 
-	cuitl "github.com/vmware-tanzu/tanzu-framework/addons/controllers/utils"
+  cutil "github.com/vmware-tanzu/tanzu-framework/addons/controllers/utils"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
 	pkgtypes "github.com/vmware-tanzu/tanzu-framework/addons/pkg/types"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/util"
@@ -35,7 +34,7 @@ func (r *VSphereCPIConfigReconciler) mapCPIConfigToDataValuesNonParavirtual( // 
 	d.VSphereCPI.Mode = VsphereCPINonParavirtualMode
 
 	// get the vsphere cluster object
-	vsphereCluster, err := cuitl.GetVSphereCluster(ctx, r.Client, cluster)
+	vsphereCluster, err := cutil.GetVSphereCluster(ctx, r.Client, cluster)
 	if err != nil {
 		return nil, err
 	}
@@ -45,11 +44,11 @@ func (r *VSphereCPIConfigReconciler) mapCPIConfigToDataValuesNonParavirtual( // 
 	d.VSphereCPI.Server = vsphereCluster.Spec.Server
 
 	// derive vSphere username and password from the <cluster name> secret
-	clusterSecret, err := cuitl.GetSecret(ctx, r.Client, cluster.Namespace, cluster.Name)
+	clusterSecret, err := cutil.GetSecret(ctx, r.Client, cluster.Namespace, cluster.Name)
 	if err != nil {
 		return nil, err
 	}
-	d.VSphereCPI.Username, d.VSphereCPI.Password, err = cuitl.GetUsernameAndPasswordFromSecret(clusterSecret)
+	d.VSphereCPI.Username, d.VSphereCPI.Password, err = cutil.GetUsernameAndPasswordFromSecret(clusterSecret)
 	if err != nil {
 		return nil, err
 	}
@@ -58,12 +57,12 @@ func (r *VSphereCPIConfigReconciler) mapCPIConfigToDataValuesNonParavirtual( // 
 	cpMachineTemplate := &capvv1beta1.VSphereMachineTemplate{}
 	if err := r.Client.Get(ctx, types.NamespacedName{
 		Namespace: cluster.Namespace,
-		Name:      cuitl.ControlPlaneName(cluster.Name),
+		Name:      cutil.ControlPlaneName(cluster.Name),
 	}, cpMachineTemplate); err != nil {
 		if apierrors.IsNotFound(err) {
-			return nil, errors.Errorf("VSphereMachineTemplate %s/%s not found", cluster.Namespace, cuitl.ControlPlaneName(cluster.Name))
+			return nil, errors.Errorf("VSphereMachineTemplate %s/%s not found", cluster.Namespace,  cutil.ControlPlaneName(cluster.Name))
 		}
-		return nil, errors.Errorf("VSphereMachineTemplate %s/%s could not be fetched, error %v", cluster.Namespace, cuitl.ControlPlaneName(cluster.Name), err)
+		return nil, errors.Errorf("VSphereMachineTemplate %s/%s could not be fetched, error %v", cluster.Namespace, controlPlaneName(cluster.Name), err)
 	}
 
 	// derive data center information from control plane machine template, if not provided
@@ -110,11 +109,11 @@ func (r *VSphereCPIConfigReconciler) mapCPIConfigToDataValuesNonParavirtual( // 
 		d.VSphereCPI.Datacenter = c.Datacenter
 	}
 	if c.VSphereCredentialRef != nil {
-		vsphereSecret, err := cuitl.GetSecret(ctx, r.Client, c.VSphereCredentialRef.Namespace, c.VSphereCredentialRef.Name)
+		vsphereSecret, err := cutil.GetSecret(ctx,r.Client, c.VSphereCredentialRef.Namespace, c.VSphereCredentialRef.Name)
 		if err != nil {
 			return nil, err
 		}
-		d.VSphereCPI.Username, d.VSphereCPI.Password, err = cuitl.GetUsernameAndPasswordFromSecret(vsphereSecret)
+		d.VSphereCPI.Username, d.VSphereCPI.Password, err = cutil.GetUsernameAndPasswordFromSecret(vsphereSecret)
 		if err != nil {
 			return nil, err
 		}
@@ -141,11 +140,11 @@ func (r *VSphereCPIConfigReconciler) mapCPIConfigToDataValuesNonParavirtual( // 
 			d.VSphereCPI.Nsxt.Routes.ClusterCidr = c.NSXT.Routes.ClusterCidr
 		}
 		if c.NSXT.NSXTCredentialsRef != nil {
-			nsxtSecret, err := cuitl.GetSecret(ctx, r.Client, c.NSXT.NSXTCredentialsRef.Namespace, c.NSXT.NSXTCredentialsRef.Name)
+			nsxtSecret, err := cutil.GetSecret(ctx, r.Client, c.NSXT.NSXTCredentialsRef.Namespace, c.NSXT.NSXTCredentialsRef.Name)
 			if err != nil {
 				return nil, err
 			}
-			d.VSphereCPI.Nsxt.Username, d.VSphereCPI.Nsxt.Password, err = cuitl.GetUsernameAndPasswordFromSecret(nsxtSecret)
+			d.VSphereCPI.Nsxt.Username, d.VSphereCPI.Nsxt.Password, err = cutil.GetUsernameAndPasswordFromSecret(nsxtSecret)
 			if err != nil {
 				return nil, err
 			}
@@ -192,17 +191,18 @@ func (r *VSphereCPIConfigReconciler) mapCPIConfigToDataValuesNonParavirtual( // 
 }
 
 // mapCPIConfigToDataValuesParavirtual generates CPI data values for paravirtual modes
-func (r *VSphereCPIConfigReconciler) mapCPIConfigToDataValuesParavirtual(_ context.Context, cpiConfig *cpiv1alpha1.VSphereCPIConfig, _ *clusterapiv1beta1.Cluster) (*VSphereCPIDataValues, error) {
+func (r *VSphereCPIConfigReconciler) mapCPIConfigToDataValuesParavirtual(_ context.Context, _ *cpiv1alpha1.VSphereCPIConfig, cluster *clusterapiv1beta1.Cluster) (*VSphereCPIDataValues, error) {
 	d := &VSphereCPIDataValues{}
-	c := cpiConfig.Spec.VSphereCPI
-
 	d.VSphereCPI.Mode = VSphereCPIParavirtualMode
-	d.VSphereCPI.ClusterAPIVersion = c.ClusterAPIVersion
-	d.VSphereCPI.ClusterKind = c.ClusterKind
-	d.VSphereCPI.ClusterName = c.ClusterName
-	d.VSphereCPI.ClusterUID = c.ClusterUID
-	d.VSphereCPI.SupervisorMasterEndpointIP = c.SupervisorMasterEndpointIP
-	d.VSphereCPI.SupervisorMasterPort = c.SupervisorMasterPort
+
+	// derive owner cluster information
+	d.VSphereCPI.ClusterAPIVersion = cluster.GroupVersionKind().GroupVersion().String()
+	d.VSphereCPI.ClusterKind = cluster.GroupVersionKind().Kind
+	d.VSphereCPI.ClusterName = cluster.ObjectMeta.Name
+	d.VSphereCPI.ClusterUID = string(cluster.ObjectMeta.UID)
+
+	d.VSphereCPI.SupervisorMasterEndpointIP = SupervisorEndpointHostname
+	d.VSphereCPI.SupervisorMasterPort = fmt.Sprint(SupervisorEndpointPort)
 
 	return d, nil
 }
@@ -220,42 +220,35 @@ func (r *VSphereCPIConfigReconciler) mapCPIConfigToDataValues(ctx context.Contex
 	return nil, errors.Errorf("Invalid CPI mode %s, must either be %s or %s", cpiConfig.Spec.VSphereCPI.Mode, VSphereCPIParavirtualMode, VsphereCPINonParavirtualMode)
 }
 
-// mapCPIConfigToProviderServiceAccount maps CPIConfig and cluster to the corresponding service account
-func (r *VSphereCPIConfigReconciler) mapCPIConfigToProviderServiceAccount(cluster *clusterapiv1beta1.Cluster) *capvvmwarev1beta1.ProviderServiceAccount {
-	serviceAccount := &capvvmwarev1beta1.ProviderServiceAccount{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:      cuitl.GetCCMName(cluster),
-			Namespace: cluster.Namespace,
-		},
-		Spec: capvvmwarev1beta1.ProviderServiceAccountSpec{
-			Ref: &v1.ObjectReference{Name: cluster.Name, Namespace: cluster.Namespace},
-			Rules: []rbacv1.PolicyRule{
-				{
-					Verbs:     []string{"get", "create", "update", "patch", "delete"},
-					APIGroups: []string{"vmoperator.vmware.com"},
-					Resources: []string{"virtualmachineservices", "virtualmachineservices/status"},
-				},
-				{
-					Verbs:     []string{"get", "list"},
-					APIGroups: []string{"vmoperator.vmware.com"},
-					Resources: []string{"virtualmachines", "virtualmachines/status"},
-				},
-				{
-					Verbs:     []string{"get", "create", "update", "list", "patch", "delete", "watch"},
-					APIGroups: []string{"nsx.vmware.com"},
-					Resources: []string{"ippools", "ippools/status"},
-				},
-				{
-					Verbs:     []string{"get", "create", "update", "list", "patch", "delete"},
-					APIGroups: []string{"nsx.vmware.com"},
-					Resources: []string{"routesets", "routesets/status"},
-				},
+// mapCPIConfigToProviderServiceAccountSpec maps CPIConfig and cluster to the corresponding service account spec
+func (r *VSphereCPIConfigReconciler) mapCPIConfigToProviderServiceAccountSpec(cluster *clusterapiv1beta1.Cluster) capvvmwarev1beta1.ProviderServiceAccountSpec {
+	return capvvmwarev1beta1.ProviderServiceAccountSpec{
+		Ref: &v1.ObjectReference{Name: cluster.Name, Namespace: cluster.Namespace},
+		Rules: []rbacv1.PolicyRule{
+			{
+				Verbs:     []string{"get", "create", "update", "patch", "delete"},
+				APIGroups: []string{"vmoperator.vmware.com"},
+				Resources: []string{"virtualmachineservices", "virtualmachineservices/status"},
 			},
-			TargetNamespace:  ProviderServiceAccountSecretNamespace,
-			TargetSecretName: ProviderServiceAccountSecretName,
+			{
+				Verbs:     []string{"get", "list"},
+				APIGroups: []string{"vmoperator.vmware.com"},
+				Resources: []string{"virtualmachines", "virtualmachines/status"},
+			},
+			{
+				Verbs:     []string{"get", "create", "update", "list", "patch", "delete", "watch"},
+				APIGroups: []string{"nsx.vmware.com"},
+				Resources: []string{"ippools", "ippools/status"},
+			},
+			{
+				Verbs:     []string{"get", "create", "update", "list", "patch", "delete"},
+				APIGroups: []string{"nsx.vmware.com"},
+				Resources: []string{"routesets", "routesets/status"},
+			},
 		},
+		TargetNamespace:  ProviderServiceAccountSecretNamespace,
+		TargetSecretName: ProviderServiceAccountSecretName,
 	}
-	return serviceAccount
 }
 
 // getOwnerCluster verifies that the VSphereCPIConfig has a cluster as its owner reference,
@@ -289,7 +282,7 @@ func (r *VSphereCPIConfigReconciler) getOwnerCluster(ctx context.Context, cpiCon
 func (r *VSphereCPIConfigReconciler) tryParseClusterVariableBool(cluster *clusterapiv1beta1.Cluster, variableName string) bool {
 	res, err := util.ParseClusterVariableBool(cluster, variableName)
 	if err != nil {
-		r.Log.Info(fmt.Sprintf("cannot parse cluster variable with key %s", variableName))
+		r.Log.Info(fmt.Sprintf("Cannot parse cluster variable with key %s", variableName))
 	}
 	return res
 }

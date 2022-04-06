@@ -1,0 +1,31 @@
+#@ load("@ytt:data", "data")
+#@ load("@ytt:yaml", "yaml")
+
+---
+apiVersion: packaging.carvel.dev/v1alpha1
+kind: PackageInstall
+metadata:
+  name: tanzu-framework
+  namespace: #@ data.values.frameworkPackage.namespaceForPackageInstallation
+  annotations:
+    kapp.k14s.io/change-rule: "upsert after upserting framework-packageinstall/serviceaccount"
+spec:
+  serviceAccountName: tanzu-framework-package-sa
+  packageRef:
+    refName: framework.tanzu.vmware.com
+    versionSelection:
+      prereleases: {}
+  values:
+    - secretRef:
+        name: tanzu-framework-values
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: tanzu-framework-values
+  namespace: #@ data.values.frameworkPackage.namespaceForPackageInstallation
+  annotations:
+    kapp.k14s.io/change-rule: "upsert after upserting framework-packageinstall/serviceaccount"
+type: Opaque
+stringData:
+  values.yaml: #@ yaml.encode(data.values.frameworkPackage)

@@ -1,17 +1,19 @@
+#@ load("@ytt:data", "data")
+
 apiVersion: admissionregistration.k8s.io/v1
 kind: ValidatingWebhookConfiguration
 metadata:
   name: tanzu-featuregates-validating-webhook
   annotations:
     # This is the expected certificate generated beforehand.
-    cert-manager.io/inject-ca-from: tkg-system/tanzu-featuregates-serving-cert
+    cert-manager.io/inject-ca-from: #@ "{}/tanzu-featuregates-serving-cert".format(data.values.namespace)
 webhooks:
   - admissionReviewVersions:
       - v1beta1
     clientConfig:
       service:
         name: tanzu-featuregates-webhook-service
-        namespace: tkg-system
+        namespace: #@ data.values.namespace
         path: /validate-config-tanzu-vmware-com-v1alpha1-featuregate
     failurePolicy: Fail
     name: featuregate.config.tanzu.vmware.com
