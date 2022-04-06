@@ -52,3 +52,13 @@ func filterPackageRepos(pkgVals PackageValues) ([]string, error) {
 
 	return filteredRepos, nil
 }
+
+// packagesContains checks if a package is in the given collection of packages.
+func packagesContains(packagesList []Package, pkg string) bool {
+	for _, p := range packagesList {
+		if p.Name == pkg {
+			return true
+		}
+	}
+	return false
+}

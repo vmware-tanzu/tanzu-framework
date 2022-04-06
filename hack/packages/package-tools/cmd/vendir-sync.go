@@ -38,7 +38,7 @@ func runPackageVendirSync(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-	packagesToSync, err := selectPackages(packageValues, packageRepository)
+	pkgRepos, err := filterPackageRepos(packageValues)
 	if err != nil {
 		return err
 	}
@@ -52,12 +52,13 @@ func runPackageVendirSync(cmd *cobra.Command, args []string) error {
 
 	for _, file := range files {
 		if file.IsDir() {
-			_, ok := packagesToSync[file.Name()]
-			if ok {
-				fmt.Printf("Syncing package %s\n", file.Name())
-				packagePath := filepath.Join(packagesPath, file.Name())
-				if err := syncPackage(packagePath, toolsBinDir); err != nil {
-					return err
+			for _, repo := range pkgRepos {
+				if packagesContains(packageValues.Repositories[repo].Packages, file.Name()) {
+					fmt.Printf("Syncing package %s\n", file.Name())
+					packagePath := filepath.Join(packagesPath, file.Name())
+					if err := syncPackage(packagePath, toolsBinDir); err != nil {
+						return err
+					}
 				}
 			}
 		}
@@ -78,34 +79,4 @@ func syncPackage(packagePath, toolsBinDir string) error {
 		return fmt.Errorf("couldn't vendir sync package: %s", errBytes.String())
 	}
 	return nil
-}
-
-// selectPackages will return a map of package names as keys in a given repo. If
-// no repo is provided, all packages will be in the map.
-func selectPackages(pkgVals PackageValues, repoName string) (map[string]struct{}, error) {
-	selectPkgs := make(map[string]struct{})
-
-	for repo := range pkgVals.Repositories {
-		if repoName == "" {
-			// --repository flag was not provided and is optional, so don't
-			// filter out any packages.
-			for _, pkg := range pkgVals.Repositories[repo].Packages {
-				selectPkgs[pkg.Name] = struct{}{}
-			}
-			continue
-		}
-
-		_, found := pkgVals.Repositories[repoName]
-		if !found {
-			return nil, fmt.Errorf("%s repository not found", repoName)
-		}
-
-		if pkgVals.Repositories[repo].Name == repoName {
-			for _, pkg := range pkgVals.Repositories[repo].Packages {
-				selectPkgs[pkg.Name] = struct{}{}
-			}
-		}
-	}
-
-	return selectPkgs, nil
 }
