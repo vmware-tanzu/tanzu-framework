@@ -170,7 +170,7 @@ const (
 	RequeueAfterDuration = time.Second * 10
 
 	// WebhookCertDir is the directory where the certificate and key are stored for webhook server TLS handshake
-	WebhookCertDir = "/etc/k8s-webhook-server/serving-certs"
+	WebhookCertDir = "/tmp/k8s-webhook-server/serving-certs"
 
 	// WebhookServiceName is the name of the k8s service that serves the admission requests
 	WebhookServiceName = "tanzu-addons-manager-webhook-service"

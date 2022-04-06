@@ -156,8 +156,7 @@ func main() {
 	mgr, err := ctrl.NewManager(ctrl.GetConfigOrDie(), ctrl.Options{
 		Scheme:                 scheme,
 		MetricsBindAddress:     flags.metricsAddr,
-		Host:                   "127.0.0.1",
-		Port:                   9443,
+		Port:                   9453,
 		CertDir:                constants.WebhookCertDir,
 		LeaderElection:         flags.enableLeaderElection,
 		LeaderElectionID:       "5832a104.run.tanzu.addons",
