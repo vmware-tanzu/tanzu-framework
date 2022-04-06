@@ -29,7 +29,7 @@
     "mkdirp": "^0.5.5",
     "morgan": "1.10.0",
     "path": "0.12.7",
-    "properties-reader": "0.0.16",
+    "properties-reader": "2.2.0",
     "rotating-file-stream": "1.0.5",
     "url": "0.11.0",
     "winston": "^2.4.5",
