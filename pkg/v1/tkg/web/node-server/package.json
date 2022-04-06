@@ -33,7 +33,7 @@
     "rotating-file-stream": "1.0.5",
     "url": "0.11.0",
     "winston": "^2.4.5",
-    "ws": "^7.4.6"
+    "ws": "^8.5.0"
   },
   "devDependencies": {}
 }
