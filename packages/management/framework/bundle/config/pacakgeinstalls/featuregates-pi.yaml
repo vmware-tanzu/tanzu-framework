@@ -8,7 +8,8 @@ metadata:
   name: tanzu-featuregates
   namespace: #@ data.values.namespaceForPackageInstallation
   annotations:
-    kapp.k14s.io/change-rule: "upsert after upserting featuregates-packageinstall/serviceaccount"
+    kapp.k14s.io/change-rule.0: "upsert after upserting featuregates-packageinstall/serviceaccount"
+    kapp.k14s.io/change-rule.1: "delete before deleting featuregates-packageinstall/serviceaccount"
 spec:
   serviceAccountName: tanzu-featuregates-package-sa
   packageRef:
@@ -25,7 +26,8 @@ metadata:
   name: tanzu-featuregates-values
   namespace: #@ data.values.namespaceForPackageInstallation
   annotations:
-    kapp.k14s.io/change-rule: "upsert after upserting featuregates-packageinstall/serviceaccount"
+    kapp.k14s.io/change-rule.0: "upsert after upserting featuregates-packageinstall/serviceaccount"
+    kapp.k14s.io/change-rule.1: "delete before deleting featuregates-packageinstall/serviceaccount"
 type: Opaque
 stringData:
   values.yaml: #@ yaml.encode(data.values.featureGatesPackageValues)

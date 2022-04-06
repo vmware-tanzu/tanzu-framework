@@ -18,8 +18,8 @@ spec:
     versionSelection:
       prereleases: {}
   values:
-  - secretRef:
-      name: tkg-clusterclass-values
+    - secretRef:
+        name: tkg-clusterclass-values
 ---
 apiVersion: v1
 kind: Secret
