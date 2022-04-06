@@ -19,6 +19,7 @@ import (
 	"sigs.k8s.io/cluster-api/cmd/clusterctl/client/repository"
 	addonsv1 "sigs.k8s.io/cluster-api/exp/addons/api/v1beta1"
 
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/config"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/clusterclient"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/log"
@@ -65,7 +66,7 @@ type waitForAddonsOptions struct {
 var TKGSupportedClusterOptions string
 
 // CreateCluster creates a workload cluster based on a cluster template
-// generated from the provided options. Returns cluster creation attempted
+// generated from the provided options. Returns whether cluster creation was attempted
 // information along with error information
 func (c *TkgClient) CreateCluster(options *CreateClusterOptions, waitForCluster bool) (bool, error) { //nolint:gocyclo,funlen
 	if err := CheckClusterNameFormat(options.ClusterName, options.ProviderRepositorySource.InfrastructureProvider); err != nil {
@@ -117,6 +118,7 @@ func (c *TkgClient) CreateCluster(options *CreateClusterOptions, waitForCluster 
 	}
 
 	var bytes []byte
+	var configFilePath string
 	isManagementCluster := false
 	if options.KubernetesVersion, options.TKRVersion, err = c.ConfigureAndValidateTkrVersion(options.TKRVersion); err != nil {
 		return false, err
@@ -137,22 +139,37 @@ func (c *TkgClient) CreateCluster(options *CreateClusterOptions, waitForCluster 
 		return false, err
 	}
 
-	if options.IsInputFileHasCClass {
+	if options.IsInputFileClusterClassBased {
 		bytes, err = getContentFromInputFile(options.ClusterConfigFile)
 		if err != nil {
 			return false, errors.Wrap(err, "unable to get cluster configuration")
 		}
 	} else {
-		_, configFilePath, err := c.getClusterConfigurationBytes(&options.ClusterConfigOptions, infraProviderName, isManagementCluster, options.IsWindowsWorkloadCluster, true)
+		bytes, err = c.getClusterConfigurationBytes(&options.ClusterConfigOptions, infraProviderName, isManagementCluster, options.IsWindowsWorkloadCluster)
 		if err != nil {
 			return false, errors.Wrap(err, "unable to get cluster configuration")
 		}
 
-		log.Warningf("\nLegacy configuration file detected. The inputs from said file have been converted into the new Cluster configuration as '%v'\n", configFilePath)
-		log.Warningf("To create a cluster with it, use")
-		log.Warningf("    tanzu cluster create --file %v", configFilePath)
+		clusterConfigDir, err := c.tkgConfigPathsClient.GetClusterConfigurationDirectory()
+		if err != nil {
+			return false, err
+		}
+		configFilePath = filepath.Join(clusterConfigDir, fmt.Sprintf("%s.yaml", options.ClusterName))
+		err = utils.SaveFile(configFilePath, bytes)
+		if err != nil {
+			return false, err
+		}
 
-		return false, nil
+		log.Warningf("\nLegacy configuration file detected. The inputs from said file have been converted into the new Cluster configuration as '%v'", configFilePath)
+
+		// If `features.cluster.auto-apply-generated-clusterclass-based-configuration` feature-flag is not activated
+		// log command to use to create cluster using ClusterClass based config file and return
+		if !config.IsFeatureActivated(config.FeatureFlagAutoApplyGeneratedClusterClassBasedConfiguration) {
+			log.Warningf("\nTo create a cluster with it, use")
+			log.Warningf("    tanzu cluster create --file %v", configFilePath)
+			return false, nil
+		}
+		log.Warningf("\nUsing this new Cluster configuration '%v' to create the cluster.\n", configFilePath)
 	}
 
 	clusters, err := regionalClusterClient.ListClusters("")
@@ -179,43 +196,23 @@ func (c *TkgClient) CreateCluster(options *CreateClusterOptions, waitForCluster 
 }
 
 // getClusterConfigurationBytes returns cluster configuration by taking into consideration of legacy vs clusterclass based cluster creation
-// if saveToFile option is true it will also save the configuration to the file
-func (c *TkgClient) getClusterConfigurationBytes(options *ClusterConfigOptions, infraProviderName string, isManagementCluster, isWindowsWorkloadCluster, saveToFile bool) ([]byte, string, error) {
+func (c *TkgClient) getClusterConfigurationBytes(options *ClusterConfigOptions, infraProviderName string, isManagementCluster, isWindowsWorkloadCluster bool) ([]byte, error) {
 	deployClusterClassBasedCluster, err := c.ShouldDeployClusterClassBasedCluster(isManagementCluster)
 	if err != nil {
-		return nil, "", err
+		return nil, err
 	}
 
-	// If clusterClass based cluster creation is feasible update the plan to use clusterclass based plan
+	// If ClusterClass based cluster creation is feasible update the plan to use ClusterClass based plan
 	if deployClusterClassBasedCluster {
 		plan, err := getCCPlanFromLegacyPlan(options.ProviderRepositorySource.Flavor)
 		if err != nil {
-			return nil, "", err
+			return nil, err
 		}
 		options.ProviderRepositorySource.Flavor = plan
 	}
 
 	// Get the cluster configuration yaml bytes
-	bytes, err := c.getClusterConfiguration(options, isManagementCluster, infraProviderName, isWindowsWorkloadCluster)
-	if err != nil {
-		return nil, "", err
-	}
-
-	// Return if file save is not requested
-	if !saveToFile {
-		return bytes, "", nil
-	}
-
-	clusterConfigDir, err := c.tkgConfigPathsClient.GetClusterConfigurationDirectory()
-	if err != nil {
-		return nil, "", err
-	}
-	configFilePath := filepath.Join(clusterConfigDir, fmt.Sprintf("%s.yaml", options.ClusterName))
-	err = utils.SaveFile(configFilePath, bytes)
-	if err != nil {
-		return nil, "", err
-	}
-	return bytes, configFilePath, nil
+	return c.getClusterConfiguration(options, isManagementCluster, infraProviderName, isWindowsWorkloadCluster)
 }
 
 func getContentFromInputFile(fileName string) ([]byte, error) {
