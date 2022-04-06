@@ -57,14 +57,14 @@ func (t *tkgctl) CreateCluster(cc CreateClusterOptions) error {
 	if cc.GenerateOnly {
 		return t.ConfigCluster(cc)
 	}
-	isInputFileHasCClass := false
+	isInputFileClusterClassBased := false
 	isTKGSCluster := false
 	var err error
-	isInputFileHasCClass, err = t.processWorkloadClusterInputFile(&cc)
+	isInputFileClusterClassBased, err = t.processWorkloadClusterInputFile(&cc)
 	if err != nil {
 		return err
 	}
-	isTKGSCluster, err = t.processManagementClusterForTKGSCluster(isInputFileHasCClass)
+	isTKGSCluster, err = t.processManagementClusterForTKGSCluster(isInputFileClusterClassBased)
 	if err != nil {
 		return err
 	}
@@ -99,7 +99,7 @@ func (t *tkgctl) CreateCluster(cc CreateClusterOptions) error {
 	if err != nil {
 		return err
 	}
-	options.IsInputFileHasCClass = isInputFileHasCClass
+	options.IsInputFileClusterClassBased = isInputFileClusterClassBased
 
 	if isTKGSCluster {
 		// For TKGS kubernetesVersion will be same as TkrVersion
@@ -138,47 +138,47 @@ func (t *tkgctl) CreateCluster(cc CreateClusterOptions) error {
 func (t *tkgctl) processManagementClusterInputFile(ir *InitRegionOptions) (bool, error) {
 	var clusterobj unstructured.Unstructured
 	var err error
-	isInputFileHasCClass := false
+	isInputFileClusterClassBased := false
 
 	if t.tkgClient.IsFeatureActivated(config.FeatureFlagPackageBasedLCM) {
-		isInputFileHasCClass, clusterobj, err = t.checkIfInputFileIsCClassBased(ir.ClusterConfigFile)
+		isInputFileClusterClassBased, clusterobj, err = t.checkIfInputFileIsClusterClassBased(ir.ClusterConfigFile)
 		if err != nil {
-			return isInputFileHasCClass, err
+			return isInputFileClusterClassBased, err
 		}
-		if isInputFileHasCClass {
+		if isInputFileClusterClassBased {
 			t.processCClusterObjectForConfigurationVariables(clusterobj)
 			t.overrideManagementClusterOptionsWithCClusterConfigurationValues(ir)
 		}
 	}
-	return isInputFileHasCClass, nil
+	return isInputFileClusterClassBased, nil
 }
 
 func (t *tkgctl) processWorkloadClusterInputFile(cc *CreateClusterOptions) (bool, error) {
 	var clusterobj unstructured.Unstructured
 	var err error
-	isInputFileHasCClass := false
+	isInputFileClusterClassBased := false
 
 	if t.tkgClient.IsFeatureActivated(config.FeatureFlagPackageBasedLCM) {
-		isInputFileHasCClass, clusterobj, err = t.checkIfInputFileIsCClassBased(cc.ClusterConfigFile)
+		isInputFileClusterClassBased, clusterobj, err = t.checkIfInputFileIsClusterClassBased(cc.ClusterConfigFile)
 		if err != nil {
-			return isInputFileHasCClass, err
+			return isInputFileClusterClassBased, err
 		}
-		if isInputFileHasCClass {
+		if isInputFileClusterClassBased {
 			t.processCClusterObjectForConfigurationVariables(clusterobj)
 			t.overrideClusterOptionsWithCClusterConfigurationValues(cc)
 		}
 	}
-	return isInputFileHasCClass, nil
+	return isInputFileClusterClassBased, nil
 }
 
-func (t *tkgctl) processManagementClusterForTKGSCluster(isInputFileHasCClass bool) (bool, error) {
+func (t *tkgctl) processManagementClusterForTKGSCluster(isInputFileClusterClassBased bool) (bool, error) {
 	isTKGSCluster, err := t.tkgClient.IsPacificManagementCluster()
 	if err != nil {
 		return isTKGSCluster, errors.Wrap(err, "unable to determine if management cluster is on vSphere with Tanzu")
 	}
 
 	if t.tkgClient.IsFeatureActivated(config.FeatureFlagPackageBasedLCM) {
-		if isInputFileHasCClass && isTKGSCluster {
+		if isInputFileClusterClassBased && isTKGSCluster {
 			isFeatureActivated, err := t.featureGateHelper.FeatureActivatedInNamespace(context.Background(), constants.CCFeature, constants.TKGSClusterClassNamespace)
 			if err != nil {
 				return isTKGSCluster, errors.Wrap(err, fmt.Sprintf("error while checking feature '%v' status in namespace '%v'", constants.CCFeature, constants.TKGSClusterClassNamespace))

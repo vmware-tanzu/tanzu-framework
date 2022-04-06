@@ -154,34 +154,34 @@ func (t *tkgctl) removeAuditLog(clusterName string) {
 	_ = os.Remove(path)
 }
 
-// checkIfInputFileIsCClassBased checks user input file, if it has Cluster object then
+// checkIfInputFileIsClusterClassBased checks user input file, if it has Cluster object then
 // reads all non-empty variables in cluster.spec.topology.variables, and updates those variables in
 // environment and also CreateClusterOptions.
-func (t *tkgctl) checkIfInputFileIsCClassBased(clusterConfigFile string) (bool, unstructured.Unstructured, error) {
+func (t *tkgctl) checkIfInputFileIsClusterClassBased(clusterConfigFile string) (bool, unstructured.Unstructured, error) {
 	var clusterobj unstructured.Unstructured
 
-	isInputFileHasCClass := false
+	isInputFileClusterClassBased := false
 	if clusterConfigFile == "" {
-		return isInputFileHasCClass, clusterobj, nil
+		return isInputFileClusterClassBased, clusterobj, nil
 	}
 	content, err := os.ReadFile(clusterConfigFile)
 	if err != nil {
-		return isInputFileHasCClass, clusterobj, errors.Wrap(err, fmt.Sprintf("Unable to read input file: %v ", clusterConfigFile))
+		return isInputFileClusterClassBased, clusterobj, errors.Wrap(err, fmt.Sprintf("Unable to read input file: %v ", clusterConfigFile))
 	}
 	yamlObjects, err := utilyaml.ToUnstructured(content)
 	if err != nil {
-		return isInputFileHasCClass, clusterobj, errors.Wrap(err, fmt.Sprintf("Input file content is not yaml formatted, file path: %v", clusterConfigFile))
+		return isInputFileClusterClassBased, clusterobj, errors.Wrap(err, fmt.Sprintf("Input file content is not yaml formatted, file path: %v", clusterConfigFile))
 	}
 
 	for i := range yamlObjects {
 		obj := yamlObjects[i]
 		if obj.GetKind() == constants.KindCluster {
-			isInputFileHasCClass = true
+			isInputFileClusterClassBased = true
 			clusterobj = obj
 			break
 		}
 	}
-	return isInputFileHasCClass, clusterobj, nil
+	return isInputFileClusterClassBased, clusterobj, nil
 }
 
 // processCClusterObjectForConfigurationVariables takes ccluster object, process it to capture all configuration variables and add them in environment.
