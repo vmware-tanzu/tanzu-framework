@@ -92,9 +92,9 @@ func (t *tkgctl) Init(options InitRegionOptions) error {
 	// validate docker only if user is not using an existing cluster
 	log.Infof("\nValidating the pre-requisites...")
 
-	isInputFileHasCClass, err := t.processManagementClusterInputFile(&options)
-	if err == nil && isInputFileHasCClass {
-		return errors.New("Creating management-cluster using ClusterClass based configuration file is not yet supported. Please use legacy configuration file.")
+	isInputFileClusterClassBased, err := t.processManagementClusterInputFile(&options)
+	if err == nil && isInputFileClusterClassBased {
+		return errors.New("Creating management cluster using ClusterClass based configuration file is not yet supported. Please use legacy configuration file when creating managment cluster.")
 	}
 
 	if err := t.tkgClient.ValidatePrerequisites(!options.UseExistingCluster, true); err != nil {
@@ -108,7 +108,7 @@ func (t *tkgctl) Init(options InitRegionOptions) error {
 	}
 
 	optionsIR := t.populateClientInitRegionOptions(&options, nodeSizeOptions, ceipOptIn)
-	optionsIR.IsInputFileHasCClass = isInputFileHasCClass
+	optionsIR.IsInputFileClusterClassBased = isInputFileClusterClassBased
 
 	// take the provided hidden flags and enable the related feature flags
 	t.tkgClient.ParseHiddenArgsAsFeatureFlags(&optionsIR)

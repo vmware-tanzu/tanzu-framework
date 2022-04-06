@@ -7,7 +7,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"os"
 	"os/exec"
 	"strconv"
 	"strings"
@@ -325,8 +324,8 @@ func (c *TkgClient) ShouldDeployClusterClassBasedCluster(isManagementCluster boo
 		return true, nil
 	}
 
-	deployClusterWithClusterClassEnv := os.Getenv(constants.DeployClusterWithClusterClass) != ""
+	deployClusterClassBasedCluster := config.IsFeatureActivated(config.FeatureFlagPackageBasedLCM) &&
+		(config.IsFeatureActivated(config.FeatureFlagForceDeployClusterWithClusterClass) || !isCustomOverlayDetected)
 
-	deployClusterClassBasedCluster := config.IsFeatureActivated(config.FeatureFlagPackageBasedLCM) && (deployClusterWithClusterClassEnv || !isCustomOverlayDetected)
 	return deployClusterClassBasedCluster, nil
 }

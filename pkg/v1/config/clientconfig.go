@@ -54,6 +54,14 @@ const (
 	// or legacy way of managing management components. This is also used for clusterclass based management and workload
 	// cluster provisioning
 	FeatureFlagPackageBasedLCM = "features.global.package-based-lcm-beta"
+	// FeatureFlagAutoApplyGeneratedClusterClassBasedConfiguration feature flag determines whether to auto-apply the generated ClusterClass
+	// based configuration after converting legacy configration to ClusterClass based config or not
+	// Note: This is a hidden feature-flag that doesn't get persisted to config.yaml by default
+	FeatureFlagAutoApplyGeneratedClusterClassBasedConfiguration = "features.cluster.auto-apply-generated-clusterclass-based-configuration"
+	// FeatureFlagForceDeployClusterWithClusterClass if this feature flag is set CLI will try to deploy ClusterClass
+	// based cluster even if user has done any customization to the provider templates
+	// Note: This is a hidden feature-flag that doesn't get persisted to config.yaml by default
+	FeatureFlagForceDeployClusterWithClusterClass = "features.cluster.force-deploy-cluster-with-clusterclass"
 )
 
 // DefaultCliFeatureFlags is used to populate an initially empty config file with default values for feature flags.
