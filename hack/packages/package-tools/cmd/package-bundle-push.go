@@ -36,7 +36,7 @@ func init() {
 }
 
 func runPackageBundlePush(cmd *cobra.Command, args []string) error {
-	if err := validatePackageBundlePushFlags(); err != nil {
+	if err := validatePackageBundlePushFlags(args); err != nil {
 		return err
 	}
 	projectRootDir, err := utils.GetProjectRootDir()
@@ -56,7 +56,9 @@ func runPackageBundlePush(cmd *cobra.Command, args []string) error {
 	}
 
 	if !all {
-		if err := prunePackages(packageValues.Repositories, args); err != nil {
+		// The first argument is expected to be a comma-separated list of
+		// package bundles.
+		if err := prunePackages(packageValues.Repositories, args[0]); err != nil {
 			return err
 		}
 	}
@@ -106,7 +108,12 @@ func runPackageBundlePush(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
-func validatePackageBundlePushFlags() error {
+func validatePackageBundlePushFlags(args []string) error {
+	// At least one argument is expected to be passed in if --all is not specified.
+	if !all && len(args) == 0 {
+		return fmt.Errorf("at least one package bundle name is required to be specified")
+	}
+
 	if utils.IsStringEmpty(registry) {
 		return fmt.Errorf("registry flag cannot be empty")
 	}
@@ -116,18 +123,9 @@ func validatePackageBundlePushFlags() error {
 	return nil
 }
 
-// prunePackages will update the given repository packages list to contain only
-// the bundle packages that match the first argument which contains a
-// comma-separated list of package bundles. If no package bundles are provided
-// or one cannot be found, an error is returned.
-func prunePackages(repos map[string]Repository, args []string) error {
-	if len(args) == 0 {
-		return fmt.Errorf("at least one package bundle name is required to be specified")
-	}
-
-	// Only the first argument of the command will be recognized. The argument
-	// is expected to contain a list of comma separated package bundles.
-	csvBundles := args[0]
+// prunePackages will update in place the given map of repository packages to
+// contain only the bundle packages listed in csvBundles.
+func prunePackages(repos map[string]Repository, csvBundles string) error {
 	bundles := strings.Split(csvBundles, ",")
 
 	prunedPkgs := make(map[string][]Package)
