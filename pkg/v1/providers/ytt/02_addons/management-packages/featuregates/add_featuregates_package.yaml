@@ -144,7 +144,21 @@ spec:
     refName: featuregates.tanzu.vmware.com
     versionSelection:
       prereleases: {}
+  values:
+    - secretRef:
+        name: tanzu-featuregates-values
 ---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: tanzu-featuregates-values
+  namespace: tkg-system
+  annotations:
+    tkg.tanzu.vmware.com/addon-type: "packages/management-package"
+type: Opaque
+stringData:
+  values.yaml: |
+    namespace: tkg-system
 #@ end
 
 #@ if data.values.TKG_CLUSTER_ROLE != "workload" and data.values.PROVIDER_TYPE != "tkg-service-vsphere":
