@@ -7,7 +7,7 @@ import (
 	"testing"
 	"time"
 
-	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -22,7 +22,9 @@ import (
 
 func TestResolver(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "tkr/resolver/internal Unit Tests")
+	suiteConfig, _ := GinkgoConfiguration()
+	suiteConfig.FailFast = true
+	RunSpecs(t, "tkr/resolver/internal Unit Tests", suiteConfig)
 }
 
 const (
@@ -37,6 +39,8 @@ var k8sVersions = []string{k8s1_20_1, k8s1_20_2, k8s1_21_1, k8s1_21_3, k8s1_22_0
 
 const numOSImages = 50
 const numTKRs = 10
+
+const numRepeats = 1000
 
 var _ = Describe("Cache implementation", func() {
 	var (
@@ -242,6 +246,12 @@ var _ = Describe("normalize(query)", func() {
 
 })
 
+func repeat(n int, f func()) {
+	for i := 0; i < n; i++ {
+		f()
+	}
+}
+
 func assertOSImageQueryExpectations(normalized, initial *data.OSImageQuery) {
 	if initial == nil {
 		Expect(normalized).To(BeNil())
@@ -306,14 +316,16 @@ var _ = Describe("Resolve()", func() {
 			queryK8sVersionPrefix.ControlPlane = nil
 		})
 
-		It("should skip resolving the control plane only", func() {
-			result := r.Resolve(queryK8sVersionPrefix)
+		repeat(numRepeats, func() {
+			It("should skip resolving the control plane only", func() {
+				result := r.Resolve(queryK8sVersionPrefix)
 
-			assertOSImageResultExpectations(result.ControlPlane, queryK8sVersionPrefix.ControlPlane, k8sVersionPrefix)
-			Expect(result.MachineDeployments).To(HaveLen(len(queryK8sVersionPrefix.MachineDeployments)))
-			for i, osImageQuery := range queryK8sVersionPrefix.MachineDeployments {
-				assertOSImageResultExpectations(result.MachineDeployments[i], osImageQuery, k8sVersionPrefix)
-			}
+				assertOSImageResultExpectations(result.ControlPlane, queryK8sVersionPrefix.ControlPlane, k8sVersionPrefix)
+				Expect(result.MachineDeployments).To(HaveLen(len(queryK8sVersionPrefix.MachineDeployments)))
+				for i, osImageQuery := range queryK8sVersionPrefix.MachineDeployments {
+					assertOSImageResultExpectations(result.MachineDeployments[i], osImageQuery, k8sVersionPrefix)
+				}
+			})
 		})
 	})
 
@@ -323,14 +335,16 @@ var _ = Describe("Resolve()", func() {
 			queryK8sVersionPrefix.MachineDeployments[0] = nil
 		})
 
-		It("should skip resolving the md[0] only", func() {
-			result := r.Resolve(queryK8sVersionPrefix)
+		repeat(numRepeats, func() {
+			It("should skip resolving the md[0] only", func() {
+				result := r.Resolve(queryK8sVersionPrefix)
 
-			assertOSImageResultExpectations(result.ControlPlane, queryK8sVersionPrefix.ControlPlane, k8sVersionPrefix)
-			Expect(result.MachineDeployments).To(HaveLen(len(queryK8sVersionPrefix.MachineDeployments)))
-			for i, osImageQuery := range queryK8sVersionPrefix.MachineDeployments {
-				assertOSImageResultExpectations(result.MachineDeployments[i], osImageQuery, k8sVersionPrefix)
-			}
+				assertOSImageResultExpectations(result.ControlPlane, queryK8sVersionPrefix.ControlPlane, k8sVersionPrefix)
+				Expect(result.MachineDeployments).To(HaveLen(len(queryK8sVersionPrefix.MachineDeployments)))
+				for i, osImageQuery := range queryK8sVersionPrefix.MachineDeployments {
+					assertOSImageResultExpectations(result.MachineDeployments[i], osImageQuery, k8sVersionPrefix)
+				}
+			})
 		})
 	})
 
@@ -353,14 +367,16 @@ var _ = Describe("Resolve()", func() {
 			queryK8sVersionPrefix = testdata.GenQueryAllForK8sVersion(k8sVersionPrefix)
 		})
 
-		It("should not panic and keep resolving", func() {
-			result := r.Resolve(queryK8sVersionPrefix)
+		repeat(numRepeats, func() {
+			It("should not panic and keep resolving", func() {
+				result := r.Resolve(queryK8sVersionPrefix)
 
-			for _, tkrs := range result.ControlPlane.TKRsByK8sVersion {
-				for tkrName := range tkrs {
-					Expect(tkrName).ToNot(Equal(tkrWithNonExistentOSImages.Name))
+				for _, tkrs := range result.ControlPlane.TKRsByK8sVersion {
+					for tkrName := range tkrs {
+						Expect(tkrName).ToNot(Equal(tkrWithNonExistentOSImages.Name))
+					}
 				}
-			}
+			})
 		})
 	})
 })
@@ -368,6 +384,11 @@ var _ = Describe("Resolve()", func() {
 func assertOSImageResultExpectations(osImageResult *data.OSImageResult, osImageQuery *data.OSImageQuery, k8sVersionPrefix string) {
 	if osImageQuery == nil {
 		Expect(osImageResult).To(BeNil())
+		return
+	}
+	if k8sVersionPrefix == "" {
+		Expect(osImageResult.K8sVersion).To(Equal(""))
+		Expect(osImageResult.TKRName).To(Equal(""))
 		return
 	}
 	Expect(osImageResult).ToNot(BeNil())
