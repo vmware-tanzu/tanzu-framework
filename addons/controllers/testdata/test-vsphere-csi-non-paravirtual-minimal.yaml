@@ -1,0 +1,74 @@
+apiVersion: cluster.x-k8s.io/v1beta1
+kind: Cluster
+metadata:
+  name: test-cluster-csi
+  namespace: default
+  annotations:
+    tkg.tanzu.vmware.com/tkg-http-proxy: "foo.com"
+    tkg.tanzu.vmware.com/tkg-https-proxy: "bar.com"
+    tkg.tanzu.vmware.com/tkg-no-proxy: "foobar.com"
+    tkg.tanzu.vmware.com/tkg-ip-family: "ipv6"
+spec:
+  infrastructureRef:
+    kind: VSphereCluster
+  clusterNetwork:
+    pods:
+      cidrBlocks: [ "192.168.0.0/16","fd00:100:96::/48" ]
+  topology:
+    class: test-clusterclass-tcbt
+    version: v1.22.3
+    variables:
+      - name: VSPHERE_NETWORK
+        value: "3.7.9.0/16"
+      - name: VSPHERE_REGION
+        value: mombasa
+      - name: VSPHERE_ZONE
+        value: kisauni
+      - name: VSPHERE_VERSION
+        value: "8.3.7-release"
+      - name: IS_WINDOWS_WORKLOAD_CLUSTER
+        value: true
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: test-cluster-csi
+  namespace: default
+data:
+  password: QWRtaW4hMjM= # Admin!23
+  username: YWRtaW5pc3RyYXRvckB2c3BoZXJlLmxvY2Fs # administrator@vsphere.local
+---
+apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+kind: VSphereCluster
+metadata:
+  name: test-cluster-csi
+  namespace: default
+spec:
+  thumbprint: thumbprint-yadayada
+  server: vsphere-server.local
+---
+apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+kind: VSphereMachineTemplate
+metadata:
+  name: test-cluster-csi-control-plane
+  namespace: default
+spec:
+  template:
+    spec:
+      datacenter: dc0
+      template: /dc0/vm/photon-3-kube-v1.22.3+vmware.1-tkg.2
+      network:
+        devices:
+        - networkName: test-network
+          dhcp6: true
+          dhcp4: false
+---
+apiVersion: csi.tanzu.vmware.com/v1alpha1
+kind: VSphereCSIConfig
+metadata:
+  name: test-cluster-csi
+  namespace: default
+spec:
+  vsphereCSI:
+    mode: vsphereCSI
+      

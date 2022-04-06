@@ -1,0 +1,23 @@
+apiVersion: cluster.x-k8s.io/v1beta1
+kind: Cluster
+metadata:
+  name: test-cluster-pv-csi
+  namespace: default
+spec:
+  infrastructureRef:
+    kind: VSphereCluster
+  clusterNetwork:
+    pods:
+      cidrBlocks: [ "192.168.0.0/16","fd00:100:96::/48" ]
+  topology:
+    class: test-clusterclass-tcbt
+    version: v1.22.3
+---
+apiVersion: csi.tanzu.vmware.com/v1alpha1
+kind: VSphereCSIConfig
+metadata:
+  name: test-cluster-pv-csi
+  namespace: default
+spec:
+  vsphereCSI:
+    mode: vsphereParavirtualCSI

@@ -20,6 +20,12 @@ const (
 	// CPIAddonName is name of the cloud-provider-vsphere addon
 	CPIAddonName = "vsphere-cpi"
 
+	// PVCSIAddonName is name of the vsphere-pv-csi addon
+	PVCSIAddonName = "vsphere-pv-csi"
+
+	// CSIAddonName is name of the vsphere-csi addon
+	CSIAddonName = "vsphere-csi"
+
 	// TKGBomNamespace is the TKG add on BOM namespace.
 	TKGBomNamespace = "tkr-system"
 

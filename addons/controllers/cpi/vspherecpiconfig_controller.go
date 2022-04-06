@@ -1,7 +1,7 @@
 // Copyright 2022 VMware, Inc. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-// Package controllers implements k8s controller functionality for vsphere-cpi.
+// Package cpi implements k8s controller functionality for vsphere-cpi.
 package controllers
 
 import (
@@ -153,6 +153,7 @@ func (r *VSphereCPIConfigReconciler) reconcileVSphereCPIConfigNormal(ctx context
 		})
 		if err != nil {
 			r.Log.Error(err, "Error creating or updating ProviderServiceAccount for VSphere CPI")
+			return err
 		}
 	}
 

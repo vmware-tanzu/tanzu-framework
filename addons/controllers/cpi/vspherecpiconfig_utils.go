@@ -18,6 +18,7 @@ import (
 	capvvmwarev1beta1 "sigs.k8s.io/cluster-api-provider-vsphere/apis/vmware/v1beta1"
 	clusterapiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
 
+	cuitl "github.com/vmware-tanzu/tanzu-framework/addons/controllers/utils"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
 	pkgtypes "github.com/vmware-tanzu/tanzu-framework/addons/pkg/types"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/util"
@@ -34,7 +35,7 @@ func (r *VSphereCPIConfigReconciler) mapCPIConfigToDataValuesNonParavirtual( // 
 	d.VSphereCPI.Mode = VsphereCPINonParavirtualMode
 
 	// get the vsphere cluster object
-	vsphereCluster, err := r.getVSphereCluster(ctx, cluster)
+	vsphereCluster, err := cuitl.GetVSphereCluster(ctx, r.Client, cluster)
 	if err != nil {
 		return nil, err
 	}
@@ -44,11 +45,11 @@ func (r *VSphereCPIConfigReconciler) mapCPIConfigToDataValuesNonParavirtual( // 
 	d.VSphereCPI.Server = vsphereCluster.Spec.Server
 
 	// derive vSphere username and password from the <cluster name> secret
-	clusterSecret, err := r.getSecret(ctx, cluster.Namespace, cluster.Name)
+	clusterSecret, err := cuitl.GetSecret(ctx, r.Client, cluster.Namespace, cluster.Name)
 	if err != nil {
 		return nil, err
 	}
-	d.VSphereCPI.Username, d.VSphereCPI.Password, err = getUsernameAndPasswordFromSecret(clusterSecret)
+	d.VSphereCPI.Username, d.VSphereCPI.Password, err = cuitl.GetUsernameAndPasswordFromSecret(clusterSecret)
 	if err != nil {
 		return nil, err
 	}
@@ -57,12 +58,12 @@ func (r *VSphereCPIConfigReconciler) mapCPIConfigToDataValuesNonParavirtual( // 
 	cpMachineTemplate := &capvv1beta1.VSphereMachineTemplate{}
 	if err := r.Client.Get(ctx, types.NamespacedName{
 		Namespace: cluster.Namespace,
-		Name:      controlPlaneName(cluster.Name),
+		Name:      cuitl.ControlPlaneName(cluster.Name),
 	}, cpMachineTemplate); err != nil {
 		if apierrors.IsNotFound(err) {
-			return nil, errors.Errorf("VSphereMachineTemplate %s/%s not found", cluster.Namespace, controlPlaneName(cluster.Name))
+			return nil, errors.Errorf("VSphereMachineTemplate %s/%s not found", cluster.Namespace, cuitl.ControlPlaneName(cluster.Name))
 		}
-		return nil, errors.Errorf("VSphereMachineTemplate %s/%s could not be fetched, error %v", cluster.Namespace, controlPlaneName(cluster.Name), err)
+		return nil, errors.Errorf("VSphereMachineTemplate %s/%s could not be fetched, error %v", cluster.Namespace, cuitl.ControlPlaneName(cluster.Name), err)
 	}
 
 	// derive data center information from control plane machine template, if not provided
@@ -109,11 +110,11 @@ func (r *VSphereCPIConfigReconciler) mapCPIConfigToDataValuesNonParavirtual( // 
 		d.VSphereCPI.Datacenter = c.Datacenter
 	}
 	if c.VSphereCredentialRef != nil {
-		vsphereSecret, err := r.getSecret(ctx, c.VSphereCredentialRef.Namespace, c.VSphereCredentialRef.Name)
+		vsphereSecret, err := cuitl.GetSecret(ctx, r.Client, c.VSphereCredentialRef.Namespace, c.VSphereCredentialRef.Name)
 		if err != nil {
 			return nil, err
 		}
-		d.VSphereCPI.Username, d.VSphereCPI.Password, err = getUsernameAndPasswordFromSecret(vsphereSecret)
+		d.VSphereCPI.Username, d.VSphereCPI.Password, err = cuitl.GetUsernameAndPasswordFromSecret(vsphereSecret)
 		if err != nil {
 			return nil, err
 		}
@@ -140,11 +141,11 @@ func (r *VSphereCPIConfigReconciler) mapCPIConfigToDataValuesNonParavirtual( // 
 			d.VSphereCPI.Nsxt.Routes.ClusterCidr = c.NSXT.Routes.ClusterCidr
 		}
 		if c.NSXT.NSXTCredentialsRef != nil {
-			nsxtSecret, err := r.getSecret(ctx, c.NSXT.NSXTCredentialsRef.Namespace, c.NSXT.NSXTCredentialsRef.Name)
+			nsxtSecret, err := cuitl.GetSecret(ctx, r.Client, c.NSXT.NSXTCredentialsRef.Namespace, c.NSXT.NSXTCredentialsRef.Name)
 			if err != nil {
 				return nil, err
 			}
-			d.VSphereCPI.Nsxt.Username, d.VSphereCPI.Nsxt.Password, err = getUsernameAndPasswordFromSecret(nsxtSecret)
+			d.VSphereCPI.Nsxt.Username, d.VSphereCPI.Nsxt.Password, err = cuitl.GetUsernameAndPasswordFromSecret(nsxtSecret)
 			if err != nil {
 				return nil, err
 			}
@@ -223,7 +224,7 @@ func (r *VSphereCPIConfigReconciler) mapCPIConfigToDataValues(ctx context.Contex
 func (r *VSphereCPIConfigReconciler) mapCPIConfigToProviderServiceAccount(cluster *clusterapiv1beta1.Cluster) *capvvmwarev1beta1.ProviderServiceAccount {
 	serviceAccount := &capvvmwarev1beta1.ProviderServiceAccount{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      getCCMName(cluster),
+			Name:      cuitl.GetCCMName(cluster),
 			Namespace: cluster.Namespace,
 		},
 		Spec: capvvmwarev1beta1.ProviderServiceAccountSpec{
@@ -281,55 +282,6 @@ func (r *VSphereCPIConfigReconciler) getOwnerCluster(ctx context.Context, cpiCon
 	}
 	r.Log.Info(fmt.Sprintf("Cluster resource '%s/%s' is successfully found", cpiConfig.Namespace, clusterName))
 	return cluster, nil
-}
-
-// getVSphereCluster gets the VSphereCluster CR for the cluster object
-func (r *VSphereCPIConfigReconciler) getVSphereCluster(ctx context.Context, cluster *clusterapiv1beta1.Cluster) (*capvv1beta1.VSphereCluster, error) {
-	vsphereCluster := &capvv1beta1.VSphereCluster{}
-	if err := r.Client.Get(ctx, types.NamespacedName{
-		Namespace: cluster.Namespace,
-		Name:      cluster.Name,
-	}, vsphereCluster); err != nil {
-		if apierrors.IsNotFound(err) {
-			return nil, errors.Errorf("VSphereCluster %s/%s not found", cluster.Namespace, cluster.Name)
-		}
-		return nil, errors.Errorf("VSphereCluster %s/%s could not be fetched, error %v", cluster.Namespace, cluster.Name, err)
-	}
-	return vsphereCluster, nil
-}
-
-// getSecret gets the secret object given its name and namespace
-func (r *VSphereCPIConfigReconciler) getSecret(ctx context.Context, namespace, name string) (*v1.Secret, error) {
-	secret := &v1.Secret{}
-	if err := r.Client.Get(ctx, types.NamespacedName{Namespace: namespace, Name: name}, secret); err != nil {
-		if apierrors.IsNotFound(err) {
-			return nil, errors.Errorf("Secret %s/%s not found", namespace, name)
-		}
-		return nil, errors.Errorf("Secret %s/%s could not be fetched, error %v", namespace, name, err)
-	}
-	return secret, nil
-}
-
-func getUsernameAndPasswordFromSecret(s *v1.Secret) (string, string, error) {
-	username, exists := s.Data["username"]
-	if !exists {
-		return "", "", errors.Errorf("Secret %s/%s doesn't have string data with username", s.Namespace, s.Name)
-	}
-	password, exists := s.Data["password"]
-	if !exists {
-		return "", "", errors.Errorf("Secret %s/%s doesn't have string data with password", s.Namespace, s.Name)
-	}
-	return string(username), string(password), nil
-}
-
-// controlPlaneName returns the control plane name for a cluster name
-func controlPlaneName(clusterName string) string {
-	return fmt.Sprintf("%s-control-plane", clusterName)
-}
-
-// getCCMName returns the name of cloud control manager for a cluster
-func getCCMName(cluster *clusterapiv1beta1.Cluster) string {
-	return fmt.Sprintf("%s-%s", cluster.Name, "ccm")
 }
 
 // tryParseClusterVariableBool tries to parse a boolean cluster variable,

@@ -48,6 +48,7 @@ directories:
         newRootPath: config/crd/bases/cpi.tanzu.vmware.com_vspherecpiconfigs.yaml
         includePaths:
           - config/crd/bases/cpi.tanzu.vmware.com_vspherecpiconfigs.yaml
+      #TODO: add entry for 'config/crd/bases/csi.tanzu.vmware.com_vspherecsiconfigs.yaml'
   - path: bundle/config/overlays
     contents:
       - path: feature-gate-clusterbootstrap.yaml

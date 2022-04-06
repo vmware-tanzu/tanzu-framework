@@ -1,0 +1,84 @@
+apiVersion: cluster.x-k8s.io/v1beta1
+kind: Cluster
+metadata:
+  name: test-cluster-csi
+  namespace: default
+  annotations:
+    tkg.tanzu.vmware.com/tkg-http-proxy: "foo.com"
+    tkg.tanzu.vmware.com/tkg-https-proxy: "bar.com"
+    tkg.tanzu.vmware.com/tkg-no-proxy: "foobar.com"
+    tkg.tanzu.vmware.com/tkg-ip-family: "ipv6"
+spec:
+  infrastructureRef:
+    kind: VSphereCluster
+  clusterNetwork:
+    pods:
+      cidrBlocks: [ "192.168.0.0/16","fd00:100:96::/48" ]
+  topology:
+    class: test-clusterclass-tcbt
+    version: v1.22.3
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: test-cluster-csi
+  namespace: default
+data:
+  password: QWRtaW4hMjM= # Admin!23
+  username: YWRtaW5pc3RyYXRvckB2c3BoZXJlLmxvY2Fs # administrator@vsphere.local
+---
+apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+kind: VSphereCluster
+metadata:
+  name: test-cluster-csi
+  namespace: default
+spec:
+  thumbprint: test-thumbprint
+  server: vsphere-server.local
+---
+apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+kind: VSphereMachineTemplate
+metadata:
+  name: test-cluster-csi-control-plane
+  namespace: default
+spec:
+  template:
+    spec:
+      datacenter: dc0
+      template: /dc0/vm/photon-3-kube-v1.22.3+vmware.1-tkg.2
+      network:
+        devices:
+        - networkName: test-network
+          dhcp6: true
+          dhcp4: false
+---
+apiVersion: csi.tanzu.vmware.com/v1alpha1
+kind: VSphereCSIConfig
+metadata:
+  name: test-cluster-csi
+  namespace: default
+spec:
+  vsphereCSI:
+    mode: vsphereCSI
+    config:
+      tlsThumbprint: "yadayada"
+      namespace: default
+      clusterName: test-clustername
+      server: svr-0
+      datacenter: dc0
+      publicNetwork: "8.2.0.0/16"
+      username: "administrator@vsphere.local"
+      password: test-passwd
+      region: test-region
+      zone: test-zone
+      insecureFlag: false
+      useTopologyCategories: true
+      provisionTimeout: 33s
+      attachTimeout: 77s
+      resizerTimeout: 99s
+      vSphereVersion: 8.1.2-release
+      httpProxy: "1.1.1.1"
+      httpsProxy: "2.2.2.2"
+      noProxy: "3.3.3.3"
+      deploymentReplicas: 3
+      windowsSupport: true

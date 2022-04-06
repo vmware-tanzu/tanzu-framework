@@ -82,6 +82,38 @@ rules:
   - watch
   - update
   - patch
+#! permissions are required for addons-manager to reconcile vspherecsiconfigs and CSI related service accounts
+- apiGroups:
+  - csi.tanzu.vmware.com
+  resources:
+  - vspherecsiconfigs
+  verbs:
+  - get
+  - list
+  - watch
+  - create
+  - update
+  - patch
+  - delete
+- apiGroups:
+  - csi.tanzu.vmware.com
+  resources:
+  - vspherecsiconfigs/status
+  verbs:
+  - get
+  - update
+  - patch
+- apiGroups:
+  - vmware.infrastructure.cluster.x-k8s.io
+  resources:
+  - providerserviceaccounts
+  verbs:
+  - get
+  - create
+  - list
+  - watch
+  - update
+  - patch
 #! permissions are required for addons-manager to create/update resources in the ProviderRef which are dynamic.
 - apiGroups: ['*']
   resources: ['*']

@@ -1,0 +1,24 @@
+# permissions for end users to edit vspherecsiconfigs.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: vspherecsiconfig-editor-role
+rules:
+- apiGroups:
+  - csi.tanzu.vmware.com
+  resources:
+  - vspherecsiconfigs
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - csi.tanzu.vmware.com
+  resources:
+  - vspherecsiconfigs/status
+  verbs:
+  - get
