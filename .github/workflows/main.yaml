@@ -42,7 +42,7 @@ jobs:
         filter_push: '.head_commit.message | capture("Merge pull request #(?<pr>[[:digit:]]+)").pr | tonumber'
 
     - name: Find Comment
-      uses: peter-evans/find-comment@v1
+      uses: peter-evans/find-comment@v2
       id: findcomment
       with:
         issue-number: ${{ steps.get_pr_num.outputs.value }}
