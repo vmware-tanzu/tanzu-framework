@@ -67,7 +67,7 @@ require (
 	github.com/onsi/ginkgo/v2 v2.0.0
 	github.com/onsi/gomega v1.18.1
 	github.com/otiai10/copy v1.4.2
-	github.com/pelletier/go-toml/v2 v2.0.0-beta.3
+	github.com/pelletier/go-toml/v2 v2.0.0-beta.6
 	github.com/pkg/errors v0.9.1
 	github.com/rs/xid v1.2.1
 	github.com/sanathkr/go-yaml v0.0.0-20170819195128-ed9d249f429b
