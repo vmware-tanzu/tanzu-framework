@@ -19,6 +19,8 @@ kind: ValidatingWebhookConfiguration
 metadata:
   labels:
     tkg.tanzu.vmware.com/addon-webhooks: ""
+  annotations:
+    kapp.k14s.io/change-group: "addons.config.tanzu.vmware.com/webhook"
   name: tkg-cni-validating-webhook-configuration
 webhooks:
   - admissionReviewVersions:
