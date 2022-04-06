@@ -14,7 +14,7 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/vmware-tanzu/carvel-kapp-controller v0.25.0
 	github.com/vmware-tanzu/carvel-secretgen-controller v0.5.0
-	github.com/vmware-tanzu/carvel-vendir v0.24.0
+	github.com/vmware-tanzu/carvel-vendir v0.26.0
 	github.com/vmware-tanzu/tanzu-framework v0.9.0
 	gopkg.in/yaml.v2 v2.4.0
 	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b
