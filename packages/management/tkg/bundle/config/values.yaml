@@ -32,5 +32,9 @@ frameworkPackage:
 clusterclassPackage:
   namespaceForPackageInstallation: tkg-system
   clusterclassInfraPackageValues:
+
+tkrConversionWebhookPackage:
+  namespaceForPackageInstallation: tkg-system
+  tkrConversionWebhookPackageValues:
     namespace: tkg-system
     createNamespace: false

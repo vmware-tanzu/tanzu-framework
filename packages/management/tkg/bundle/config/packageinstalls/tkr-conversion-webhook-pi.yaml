@@ -1,0 +1,31 @@
+#@ load("@ytt:yaml", "yaml")
+#@ load("@ytt:data", "data")
+
+---
+apiVersion: packaging.carvel.dev/v1alpha1
+kind: PackageInstall
+metadata:
+  name: tanzu-tkr-conversion-webhook
+  namespace: #@ data.values.tkrConversionWebhookPackage.namespaceForPackageInstallation
+  annotations:
+    kapp.k14s.io/change-rule: "upsert after upserting tkr-conversion-webhook-packageinstall/serviceaccount"
+spec:
+  serviceAccountName: tanzu-tkr-conversion-webhook-package-sa
+  packageRef:
+    refName: tkr-conversion-webhook.tanzu.vmware.com
+    versionSelection:
+      prereleases: {}
+  values:
+    - secretRef:
+        name: tanzu-tkr-conversion-webhook-values
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: tanzu-tkr-conversion-webhook-values
+  namespace: #@ data.values.tkrConversionWebhookPackage.namespaceForPackageInstallation
+  annotations:
+    kapp.k14s.io/change-rule: "upsert after upserting tkr-conversion-webhook-packageinstall/serviceaccount"
+type: Opaque
+stringData:
+  values.yaml: #@ yaml.encode(data.values.tkrConversionWebhookPackage)
