@@ -639,7 +639,7 @@ generate-package-config:
 
 .PHONY: generate-package-secret ## Generate the default pinniped addon secret. e.g. make generate-package-secret tkr=v1.23.3---vmware.1-tkg.1 iaas=vsphere
 generate-package-secret:
-	./addons/pinniped/config-controller/hack/generate-package-secret.sh -v tkr=${tkr} -v infrastructure_provider=${iaas}
+	@./addons/pinniped/config-controller/hack/generate-package-secret.sh -v tkr=${tkr} -v infrastructure_provider=${iaas}
 
 
 ## --------------------------------------
