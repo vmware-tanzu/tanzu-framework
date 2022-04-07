@@ -94,9 +94,9 @@ var _ = Describe("VSphereCPIConfig Reconciler", func() {
 				if err := k8sClient.Get(ctx, key, config); err != nil {
 					return false
 				}
-				Expect(config.Spec.VSphereCPI.Mode).Should(Equal("vsphereCPI"))
-				Expect(config.Spec.VSphereCPI.Region).Should(Equal("test-region"))
-				Expect(config.Spec.VSphereCPI.Zone).Should(Equal("test-zone"))
+				Expect(*config.Spec.VSphereCPI.Mode).Should(Equal("vsphereCPI"))
+				Expect(*config.Spec.VSphereCPI.Region).Should(Equal("test-region"))
+				Expect(*config.Spec.VSphereCPI.Zone).Should(Equal("test-zone"))
 
 				if len(config.OwnerReferences) == 0 {
 					return false

@@ -13,144 +13,142 @@ type VSphereCPIConfigSpec struct {
 	VSphereCPI VSphereCPI `json:"vsphereCPI"`
 }
 
-type NSXTRoute struct {
+type NSXTRouteConfig struct {
 	// NSX-T T0/T1 logical router path
 	// +kubebuilder:validation:Optional
-	RouterPath string `json:"routerPath"`
+	RouterPath *string `json:"routerPath,omitempty"`
+}
 
-	// Cluster CIDR
+type VMNetwork struct {
+	// Internal VM network name
 	// +kubebuilder:validation:Optional
-	ClusterCidr string `json:"clusterCidr"`
+	Internal *string `json:"internal,omitempty"`
+
+	// External VM network name
+	// +kubebuilder:validation:Optional
+	External *string `json:"external,omitempty"`
+
+	// Internal VM network CIDR to be excluded
+	// +kubebuilder:validation:Optional
+	ExcludeInternalSubnetCidr *string `json:"excludeInternalSubnetCidr,omitempty"`
+
+	// External VM network CIDR to be excluded
+	// +kubebuilder:validation:Optional
+	ExcludeExternalSubnetCidr *string `json:"excludeExternalSubnetCidr,omitempty"`
 }
 
 type NSXT struct {
 	// A flag that enables pod routing
 	// +kubebuilder:validation:Optional
 	// +kubebuilder:default:=false
-	PodRoutingEnabled bool `json:"podRoutingEnabled"`
+	PodRoutingEnabled *bool `json:"podRoutingEnabled,omitempty"`
 
 	// Route configuration for NSXT
 	// +kubebuilder:validation:Optional
-	Routes *NSXTRoute `json:"routes"`
+	Route *NSXTRouteConfig `json:"route,omitempty"`
 
 	// A secret reference that contains Nsx-T login credential to access NSX-T
 	// consists of the field username and password
 	// +kubebuilder:validation:Optional
-	CredentialLocalObjRef *v1.TypedLocalObjectReference `json:"credentialLocalObjRef"`
+	CredentialLocalObjRef *v1.TypedLocalObjectReference `json:"credentialLocalObjRef,omitempty"`
 
 	// The NSX-T server
 	// +kubebuilder:validation:Optional
-	Host string `json:"host"`
+	APIHost *string `json:"apiHost,omitempty"`
 
-	// InsecureFlag is to be set to true if NSX-T uses self-signed cert
+	// Insecure is to be set to true if NSX-T uses self-signed cert
 	// +kubebuilder:validation:Optional
-	InsecureFlag bool `json:"insecureFlag"`
+	Insecure *bool `json:"insecure,omitempty"`
 
 	// RemoteAuth is to be set to true if NSX-T uses remote authentication (authentication done through the vIDM)
 	// +kubebuilder:validation:Optional
-	RemoteAuth bool `json:"remoteAuth"`
+	RemoteAuth *bool `json:"remoteAuth,omitempty"`
 
 	// VMCAccessToken is VMC access token for token based authentication
 	// +kubebuilder:validation:Optional
-	VMCAccessToken string `json:"vmcAccessToken"`
+	VMCAccessToken *string `json:"vmcAccessToken,omitempty"`
 
 	// VMCAuthHost is VMC verification host for token based authentication
 	// +kubebuilder:validation:Optional
-	VMCAuthHost string `json:"vmcAuthHost"`
+	VMCAuthHost *string `json:"vmcAuthHost,omitempty"`
 
 	// Client certificate key for NSX-T
 	// +kubebuilder:validation:Optional
-	ClientCertKeyData string `json:"clientCertKeyData"`
+	ClientCertKeyData *string `json:"clientCertKeyData,omitempty"`
 
 	// Client certificate data for NSX-T
 	// +kubebuilder:validation:Optional
-	ClientCertData string `json:"clientCertData"`
+	ClientCertData *string `json:"clientCertData,omitempty"`
 
 	// The certificate authority for the server certificate for locally signed certificates
 	// +kubebuilder:validation:Optional
-	RootCAData string `json:"rootCAData"`
+	RootCAData *string `json:"rootCAData,omitempty"`
+}
 
-	// The name of secret that stores CPI configuration
+type Proxy struct {
+	// HTTP proxy setting
 	// +kubebuilder:validation:Optional
-	SecretName string `json:"secretName"`
+	HTTPProxy *string `json:"http_proxy,omitempty"`
 
-	// The namespace of secret that stores CPI configuration
+	// HTTPS proxy setting
 	// +kubebuilder:validation:Optional
-	SecretNamespace string `json:"secretNamespace"`
+	HTTPSProxy *string `json:"https_proxy,omitempty"`
+
+	// No-proxy setting
+	// +kubebuilder:validation:Optional
+	NoProxy *string `json:"no_proxy,omitempty"`
 }
 
 type NonParavirtualConfig struct {
 
 	// The IP address or FQDN of the vSphere endpoint
 	// +kubebuilder:validation:Optional
-	Server string `json:"server"`
+	VCenterAPIEndpoint *string `json:"vCenterAPIEndpoint,omitempty"`
 
 	// The datacenter in which VMs are created/located
 	// +kubebuilder:validation:Optional
-	Datacenter string `json:"datacenter"`
+	Datacenter *string `json:"datacenter,omitempty"`
 
 	// A secret reference that contains vSphere login credentials to access a vSphere endpoint
 	// consists of the fields username and password
 	// +kubebuilder:validation:Optional
-	VSphereCredentialLocalObjRef *v1.TypedLocalObjectReference `json:"vSphereCredentialLocalObjRef"`
+	VSphereCredentialLocalObjRef *v1.TypedLocalObjectReference `json:"vSphereCredentialLocalObjRef,omitempty"`
 
 	// The cryptographic thumbprint of the vSphere endpoint's certificate. Default value is "".
 	// +kubebuilder:validation:Optional
-	TLSThumbprint string `json:"tlsThumbprint"`
+	TLSThumbprint *string `json:"tlsThumbprint,omitempty"`
 
 	// The region used by vSphere multi-AZ feature
 	// +kubebuilder:validation:Optional
-	Region string `json:"region"`
+	Region *string `json:"region,omitempty"`
 
 	// The zone used by vSphere multi-AZ feature
 	// +kubebuilder:validation:Optional
-	Zone string `json:"zone"`
+	Zone *string `json:"zone,omitempty"`
 
 	// The flag that disables TLS peer verification
 	// +kubebuilder:validation:Optional
 	// +kubebuilder:default:=false
-	InsecureFlag bool `json:"insecureFlag"`
+	Insecure *bool `json:"insecure,omitempty"`
 
 	// The IP family configuration
 	// +kubebuilder:validation:Optional
 	// +kubebuilder:validation:Enum="ipv4";"ipv6";"ipv4,ipv6";"ipv6,ipv4"
-	IPFamily string `json:"ipFamily"`
+	IPFamily *string `json:"ipFamily,omitempty"`
 
-	// Internal VM network name
 	// +kubebuilder:validation:Optional
-	VMInternalNetwork string `json:"vmInternalNetwork"`
-
-	// External VM network name
-	// +kubebuilder:validation:Optional
-	VMExternalNetwork string `json:"vmExternalNetwork"`
-
-	// Internal VM network CIDR to be excluded
-	// +kubebuilder:validation:Optional
-	VMExcludeInternalNetworkSubnetCidr string `json:"vmExcludeInternalNetworkSubnetCidr"`
-
-	// External VM network CIDR to be excluded
-	// +kubebuilder:validation:Optional
-	VMExcludeExternalNetworkSubnetCidr string `json:"vmExcludeExternalNetworkSubnetCidr"`
+	VMNetwork *VMNetwork `json:"vmNetwork,omitempty"`
 
 	// External arguments for cloud provider
 	// +kubebuilder:validation:Optional
 	// +kubebuilder:default:="TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384"
-	TLSCipherSuites string `json:"tlsCipherSuites"`
+	TLSCipherSuites *string `json:"tlsCipherSuites,omitempty"`
 
 	// +kubebuilder:validation:Optional
-	NSXT *NSXT `json:"nsxt"`
+	NSXT *NSXT `json:"nsxt,omitempty"`
 
-	// HTTP proxy setting
 	// +kubebuilder:validation:Optional
-	HTTPProxy string `json:"http_proxy"`
-
-	// HTTPS proxy setting
-	// +kubebuilder:validation:Optional
-	HTTPSProxy string `json:"https_proxy"`
-
-	// No-proxy setting
-	// +kubebuilder:validation:Optional
-	NoProxy string `json:"no_proxy"`
+	Proxy *Proxy `json:"proxy,omitempty"`
 }
 
 type ParavirtualConfig struct {
@@ -161,11 +159,11 @@ type VSphereCPI struct {
 	// The vSphere mode. Either `vsphereCPI` or `vsphereParavirtualCPI`.
 	// +kubebuilder:validation:Optional
 	// +kubebuilder:validation:Enum=vsphereCPI;vsphereParavirtualCPI
-	Mode string `json:"mode"`
+	Mode *string `json:"mode,omitempty"`
 
-	*NonParavirtualConfig `json:""`
+	*NonParavirtualConfig `json:",omitempty"`
 
-	*ParavirtualConfig `json:""`
+	*ParavirtualConfig `json:",omitempty"`
 }
 
 // VSphereCPIConfigStatus defines the observed state of VSphereCPIConfig
