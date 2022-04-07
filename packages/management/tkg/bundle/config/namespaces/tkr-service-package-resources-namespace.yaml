@@ -1,0 +1,9 @@
+#@ load("@ytt:data", "data")
+
+#@ if data.values.frameworkPackage.tkrServicePackageValues.createNamespace:
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: #@ data.values.frameworkPackage.tkrServicePackageValues.namespace
+#@ end

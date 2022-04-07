@@ -1,0 +1,33 @@
+#@ load("@ytt:yaml", "yaml")
+#@ load("@ytt:data", "data")
+
+---
+apiVersion: packaging.carvel.dev/v1alpha1
+kind: PackageInstall
+metadata:
+  name: tkr-service
+  namespace: #@ data.values.namespaceForPackageInstallation
+  annotations:
+    kapp.k14s.io/change-rule.0: "upsert after upserting tkr-service-packageinstall/serviceaccount"
+    kapp.k14s.io/change-rule.1: "delete before deleting tkr-service-packageinstall/serviceaccount"
+spec:
+  serviceAccountName: tkr-service-package-sa
+  packageRef:
+    refName: tkr-service.tanzu.vmware.com
+    versionSelection:
+      prereleases: {}
+  values:
+    - secretRef:
+        name: tkr-service-values
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: tkr-service-values
+  namespace: #@ data.values.namespaceForPackageInstallation
+  annotations:
+    kapp.k14s.io/change-rule.0: "upsert after upserting tkr-service-packageinstall/serviceaccount"
+    kapp.k14s.io/change-rule.1: "delete before deleting tkr-service-packageinstall/serviceaccount"
+type: Opaque
+stringData:
+  values.yaml: #@ yaml.encode(data.values.tkrServicePackageValues)

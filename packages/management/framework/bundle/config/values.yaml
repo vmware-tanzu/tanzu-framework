@@ -1,6 +1,8 @@
 #@data/values
+#@overlay/match-child-defaults missing_ok=True
 ---
-
 namespaceForPackageInstallation:
 featureGatesPackageValues:
+  namespace:
+tkrServicePackageValues:
   namespace:

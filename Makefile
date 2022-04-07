@@ -765,4 +765,4 @@ trivy-scan: ## Trivy scan images used in packages
 	$(PACKAGES_SCRIPTS_DIR)/package-utils.sh trivy_scan
 
 .PHONY: package-push-bundles-repo ## Performs build and publishes packages and repo bundles
-package-push-bundles-repo: package-bundles push-package-bundles package-repo-bundle push-package-repo-bundles
+package-push-bundles-repo: package-bundles push-all-package-bundles package-repo-bundle push-package-repo-bundle

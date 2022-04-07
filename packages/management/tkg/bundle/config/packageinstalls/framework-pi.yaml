@@ -8,7 +8,8 @@ metadata:
   name: tanzu-framework
   namespace: #@ data.values.frameworkPackage.namespaceForPackageInstallation
   annotations:
-    kapp.k14s.io/change-rule: "upsert after upserting framework-packageinstall/serviceaccount"
+    kapp.k14s.io/change-rule.0: "upsert after upserting framework-packageinstall/serviceaccount"
+    kapp.k14s.io/change-rule.1: "delete before deleting framework-packageinstall/serviceaccount"
 spec:
   serviceAccountName: tanzu-framework-package-sa
   packageRef:
@@ -25,7 +26,8 @@ metadata:
   name: tanzu-framework-values
   namespace: #@ data.values.frameworkPackage.namespaceForPackageInstallation
   annotations:
-    kapp.k14s.io/change-rule: "upsert after upserting framework-packageinstall/serviceaccount"
+    kapp.k14s.io/change-rule.0: "upsert after upserting framework-packageinstall/serviceaccount"
+    kapp.k14s.io/change-rule.1: "delete before deleting framework-packageinstall/serviceaccount"
 type: Opaque
 stringData:
   values.yaml: #@ yaml.encode(data.values.frameworkPackage)

@@ -1,9 +1,13 @@
+#@ load("@ytt:data", "data")
+---
 apiVersion: cert-manager.io/v1
 kind: Issuer
 metadata:
   labels:
   name: tkr-resolver-cluster-webhook-selfsigned-issuer
-  namespace: tkr-system
+  namespace: #@ data.values.namespace
+  annotations:
+  kapp.k14s.io/change-group: "tkr-service.tanzu.vmware.com/issuer"
 spec:
   selfSigned: {}
 ---
@@ -12,11 +16,15 @@ kind: Certificate
 metadata:
   labels:
   name: tkr-resolver-cluster-webhook-serving-cert
-  namespace: tkr-system
+  namespace: #@ data.values.namespace
+  annotations:
+    kapp.k14s.io/change-group: "tkr-service.tanzu.vmware.com/certificate"
+    kapp.k14s.io/change-rule.0: "upsert after upserting tkr-service.tanzu.vmware.com/issuer"
+    kapp.k14s.io/change-rule.1: "delete before deleting tkr-service.tanzu.vmware.com/issuer"
 spec:
   dnsNames:
-  - tkr-resolver-cluster-webhook-service.tkr-system.svc
-  - tkr-resolver-cluster-webhook-service-cert.tkr-system.svc.cluster.local
+  - #@ "tkr-resolver-cluster-webhook-service.{}.svc".format(data.values.namespace)
+  - #@ "tkr-resolver-cluster-webhook-service-cert.{}.svc.cluster.local".format(data.values.namespace)
   issuerRef:
     kind: Issuer
     name: tkr-resolver-cluster-webhook-selfsigned-issuer
