@@ -29,7 +29,7 @@
         "@types/lodash": "^4.14.170",
         "@types/node": "^8.10.66",
         "api-client-generator": "^4.7.1",
-        "codelyzer": "^5.2.2",
+        "codelyzer": "^6.0.2",
         "dotenv": "^8.6.0",
         "fs-extra": "^9.1.0",
         "jasmine-core": "^4.0.1",
