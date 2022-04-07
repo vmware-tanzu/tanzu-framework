@@ -168,6 +168,21 @@ const (
 
 	// RequeueAfterInterval determines the duration after which the Controller should requeue the reconcile key
 	RequeueAfterDuration = time.Second * 10
+
+	// WebhookCertDir is the directory where the certificate and key are stored for webhook server TLS handshake
+	WebhookCertDir = "/tmp/k8s-webhook-server/serving-certs"
+
+	// WebhookServiceName is the name of the k8s service that serves the admission requests
+	WebhookServiceName = "tanzu-addons-manager-webhook-service"
+
+	// WebhookScrtName is the name of secret that holds certificates and key for webhook service
+	WebhookScrtName = "webhook-tls"
+
+	// AddonWebhookLabelKey is the key for the label for addon admission webhooks
+	AddonWebhookLabelKey = "tkg.tanzu.vmware.com/addon-webhooks"
+
+	// AddonWebhookLabelValue is the value for the label for addon admission webhooks
+	AddonWebhookLabelValue = ""
 )
 
 // ClusterKind is the Kind for cluster-api Cluster object

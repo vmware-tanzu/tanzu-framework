@@ -1,5 +1,7 @@
 #@ load("@ytt:data", "data")
 #@ load("@ytt:overlay", "overlay")
+#@ load("@ytt:template", "template")
+#@ load("/upstream/cni-webhook-manifests.lib.yaml", "webhook_manifests")
 
 #@ antreaconfigscrd = overlay.subset({"kind": "CustomResourceDefinition", "metadata": {"name": "antreaconfigs.cni.tanzu.vmware.com"}})
 #@ calicoconfigscrd = overlay.subset({"kind": "CustomResourceDefinition", "metadata": {"name": "calicoconfigs.cni.tanzu.vmware.com"}})
@@ -8,6 +10,11 @@
 #@ kappcontrollerconfigscrd = overlay.subset({"kind": "CustomResourceDefinition", "metadata": {"name": "kappcontrollerconfigs.run.tanzu.vmware.com"}})
 #@ vspherecpiconfigscrd = overlay.subset({"kind": "CustomResourceDefinition", "metadata": {"name": "vspherecpiconfigs.cpi.tanzu.vmware.com"}})
 
+#@ if data.values.tanzuAddonsManager.featureGates.clusterBootstrapController:
+--- #@ template.replace(webhook_manifests())
+#@ end
+
 #@overlay/match by=overlay.or_op(antreaconfigscrd, calicoconfigscrd, clusterbootstrapscrd, clusterbootstraptemplatescrd, kappcontrollerconfigscrd, vspherecpiconfigscrd), expects=6
 #@ if/end not data.values.tanzuAddonsManager.featureGates.clusterBootstrapController:
 #@overlay/remove
+

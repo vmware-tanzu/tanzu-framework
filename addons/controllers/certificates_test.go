@@ -10,11 +10,10 @@ import (
 	"k8s.io/client-go/util/keyutil"
 	"knative.dev/pkg/webhook/certificates/resources"
 
-	"github.com/vmware-tanzu/tanzu-framework/addons/testutil"
-
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
+	"github.com/vmware-tanzu/tanzu-framework/addons/testutil"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/webhooks"
 )
 
@@ -56,13 +55,13 @@ var _ = Describe("Webhook", func() {
 				WebhookScrtName:    webhookScrtName,
 				AddonNamespace:     addonNamespace,
 				WebhookServiceName: webhookServiceName,
-				LabelSelector:      "self-managed",
+				LabelSelector:      "",
 			}
 
 			err = testutil.SetupWebhookCertificates(ctx, k8sClient, k8sConfig, &webhookCertDetails)
 			Expect(err).ToNot(HaveOccurred())
 		})
-		It("should fail fail update when  label selector is not provided", func() {
+		It("should fail update when label selector is not provided", func() {
 			_, err := webhooks.InstallNewCertificates(ctx, k8sConfig, certPath, keyPath, webhookScrtName, addonNamespace, webhookServiceName, "")
 			Expect(err).To(HaveOccurred())
 		})

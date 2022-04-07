@@ -193,6 +193,9 @@ kind: Deployment
 metadata:
   labels:
     app: tanzu-addons-manager
+  annotations:
+    kapp.k14s.io/change-rule.0: "upsert after upserting addons.config.tanzu.vmware.com/webhook"
+    kapp.k14s.io/change-rule.1: "delete before deleting addons.config.tanzu.vmware.com/webhook"
   name: tanzu-addons-controller-manager
   namespace: #@ data.values.tanzuAddonsManager.namespace
 spec:
@@ -224,6 +227,9 @@ spec:
             cpu: 100m
             memory: 40Mi
         ports:
+          - containerPort: 9453
+            name: webhook-server
+            protocol: TCP
           - containerPort: 18316
             name: healthz
             protocol: TCP

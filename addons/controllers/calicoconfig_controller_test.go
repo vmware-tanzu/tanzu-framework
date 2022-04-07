@@ -45,7 +45,7 @@ var _ = Describe("CalicoConfig Reconciler and Webhooks", func() {
 			WebhookScrtName:    webhookScrtName,
 			AddonNamespace:     addonNamespace,
 			WebhookServiceName: webhookServiceName,
-			LabelSelector:      cniWebhookLabel,
+			LabelSelector:      addonWebhookLabelValue,
 		}
 		err = testutil.SetupWebhookCertificates(ctx, k8sClient, k8sConfig, &webhookCertDetails)
 		Expect(err).ToNot(HaveOccurred())
