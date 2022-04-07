@@ -328,13 +328,6 @@ func Pinniped(ctx context.Context, c Clients, inspector inspect.Inspector, p *Pa
 			zap.S().Error(err)
 			return err
 		}
-
-		// create configmap for Pinniped info
-		if err := createOrUpdatePinnipedInfo(ctx, supervisor.PinnipedInfo{
-			ConciergeIsClusterScoped: p.ConciergeIsClusterScoped,
-		}, c.K8SClientset); err != nil {
-			return err
-		}
 	} else {
 		return fmt.Errorf("unknown cluster type %s", p.ClusterType)
 	}

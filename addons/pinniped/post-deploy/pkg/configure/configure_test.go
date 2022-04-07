@@ -83,16 +83,6 @@ func TestPinniped(t *testing.T) {
 		},
 	}
 
-	pinnipedInfoConfigMapWorkloadCluster := &corev1.ConfigMap{
-		ObjectMeta: metav1.ObjectMeta{
-			Namespace: "kube-public",
-			Name:      "pinniped-info",
-		},
-		Data: map[string]string{
-			"concierge_is_cluster_scoped": "true",
-		},
-	}
-
 	certificateGVR := certmanagerv1.SchemeGroupVersion.WithResource("certificates")
 	supervisorCertificate := &certmanagerv1.Certificate{
 		ObjectMeta: metav1.ObjectMeta{
@@ -328,10 +318,7 @@ func TestPinniped(t *testing.T) {
 				ConciergeIsClusterScoped: true,
 			},
 			wantKubeClientActions: []kubetesting.Action{
-				// 2. Create the Pinniped info configmap
-				kubetesting.NewGetAction(configMapGVR, pinnipedInfoConfigMapWorkloadCluster.Namespace, pinnipedInfoConfigMapWorkloadCluster.Name),
-				kubetesting.NewCreateAction(configMapGVR, pinnipedInfoConfigMapWorkloadCluster.Namespace, pinnipedInfoConfigMapWorkloadCluster),
-				// 3. Look for any supervisor pods to recreate (we do this on both management and workload clusters)
+				// 2. Look for any supervisor pods to recreate (we do this on both management and workload clusters)
 				kubetesting.NewListAction(podGVR, podGVK, supervisorNamespace, metav1.ListOptions{}),
 			},
 			wantCertManagerClientActions: []kubetesting.Action{},
@@ -372,10 +359,7 @@ func TestPinniped(t *testing.T) {
 				ConciergeIsClusterScoped: true,
 			},
 			wantKubeClientActions: []kubetesting.Action{
-				// 2. Create the Pinniped info configmap
-				kubetesting.NewGetAction(configMapGVR, pinnipedInfoConfigMapWorkloadCluster.Namespace, pinnipedInfoConfigMapWorkloadCluster.Name),
-				kubetesting.NewCreateAction(configMapGVR, pinnipedInfoConfigMapWorkloadCluster.Namespace, pinnipedInfoConfigMapWorkloadCluster),
-				// 3. Look for any supervisor pods to recreate (we do this on both management and workload clusters)
+				// 2. Look for any supervisor pods to recreate (we do this on both management and workload clusters)
 				kubetesting.NewListAction(podGVR, podGVK, supervisorNamespace, metav1.ListOptions{}),
 			},
 			wantCertManagerClientActions: []kubetesting.Action{},
