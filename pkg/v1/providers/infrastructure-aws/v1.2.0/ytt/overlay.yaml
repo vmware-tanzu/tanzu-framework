@@ -89,7 +89,7 @@ apiVersion: controlplane.cluster.x-k8s.io/v1beta1
 metadata:
   name: #@ "{}-control-plane".format(data.values.CLUSTER_NAME)
 spec:
-  replicas: #@ data.values.CONTROL_PLANE_MACHINE_COUNT
+  replicas: 999
   machineTemplate:
     infrastructureRef:
       kind: AWSMachineTemplate
