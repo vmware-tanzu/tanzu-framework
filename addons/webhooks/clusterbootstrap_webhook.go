@@ -73,7 +73,7 @@ var _ webhook.CustomValidator = &ClusterBootstrap{}
 
 // Default implements webhook.Defaulter so a webhook will be registered for the type
 func (wh *ClusterBootstrap) Default(ctx context.Context, obj runtime.Object) error {
-	// No-op for default
+	// TODO: Placeholder for future work https://github.com/vmware-tanzu/tanzu-framework/issues/1916
 	return nil
 }
 
@@ -388,7 +388,7 @@ func (wh *ClusterBootstrap) ValidateClusterBootstrapPackageUpdate(ctx context.Co
 }
 
 // validateValuesFromUpdate validates contents of valuesFrom in upgrade
-func (wh *ClusterBootstrap) validateValuesFromUpdate(_ context.Context, oldValuesFrom *runv1alpha3.ValuesFrom, newValuesFrom *runv1alpha3.ValuesFrom, fldPath *field.Path) *field.Error {
+func (wh *ClusterBootstrap) validateValuesFromUpdate(_ context.Context, oldValuesFrom, newValuesFrom *runv1alpha3.ValuesFrom, fldPath *field.Path) *field.Error {
 	if oldValuesFrom != nil && newValuesFrom != nil {
 		// We don't allow changes to APIGroup and Kind of providerRef
 		if oldValuesFrom.ProviderRef != nil && newValuesFrom.ProviderRef != nil {

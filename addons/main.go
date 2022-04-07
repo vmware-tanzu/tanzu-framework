@@ -346,5 +346,6 @@ func enablePackageInstallStatusController(ctx context.Context, mgr ctrl.Manager,
 	)
 	if err := pkgiStatusReconciler.SetupWithManager(ctx, mgr, controller.Options{MaxConcurrentReconciles: flags.clusterConcurrency}); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "PackageInstallStatus")
+		os.Exit(1)
 	}
 }

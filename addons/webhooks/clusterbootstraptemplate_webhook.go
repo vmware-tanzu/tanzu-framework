@@ -44,7 +44,7 @@ var _ webhook.CustomValidator = &ClusterBootstrapTemplate{}
 
 // Default implements webhook.Defaulter so a webhook will be registered for the type
 func (wh *ClusterBootstrapTemplate) Default(ctx context.Context, obj runtime.Object) error {
-	// No-op for default
+	// TODO: Placeholder for future work https://github.com/vmware-tanzu/tanzu-framework/issues/1916
 	return nil
 }
 
