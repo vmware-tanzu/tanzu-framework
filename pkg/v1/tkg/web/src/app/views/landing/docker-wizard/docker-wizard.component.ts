@@ -71,7 +71,6 @@ export class DockerWizardComponent extends WizardBaseDirective implements OnInit
     }
 
     setFromPayload(payload: DockerRegionalClusterParams) {
-        this.setFieldValue(WizardForm.NETWORK, NetworkField.NETWORK_NAME, payload.networking.networkName);
         this.setFieldValue(WizardForm.NETWORK, NetworkField.CLUSTER_SERVICE_CIDR,  payload.networking.clusterServiceCIDR);
         this.setFieldValue(WizardForm.NETWORK, NetworkField.CLUSTER_POD_CIDR,  payload.networking.clusterPodCIDR);
         this.setFieldValue(WizardForm.NETWORK, NetworkField.CNI_TYPE,  payload.networking.cniType);
@@ -87,7 +86,6 @@ export class DockerWizardComponent extends WizardBaseDirective implements OnInit
         const payload: DockerRegionalClusterParams = {}
 
         payload.networking = {
-            networkName: this.getFieldValue(WizardForm.NETWORK, NetworkField.NETWORK_NAME),
             clusterDNSName: '',
             clusterNodeCIDR: '',
             clusterServiceCIDR: this.getFieldValue(WizardForm.NETWORK, NetworkField.CLUSTER_SERVICE_CIDR),
