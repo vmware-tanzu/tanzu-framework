@@ -16,7 +16,7 @@ import (
 )
 
 const (
-	capvVersion = "v1.0.2"
+	capvVersion = "v1.0.3"
 	yamlRoot    = "../../"
 )
 
@@ -538,7 +538,6 @@ var _ = Describe("TKG_IP_FAMILY Ytt Templating", func() {
 
 	Describe("vsphere cpi", func() {
 		var paths []string
-
 		Describe("vsphere cpi data values", func() {
 			var ipFamilyPath = "$.data.vsphereCPI.ipFamily"
 			BeforeEach(func() {
@@ -596,6 +595,55 @@ var _ = Describe("TKG_IP_FAMILY Ytt Templating", func() {
 					// TODO: change this to ipv4,ipv6 once this issue is resolved:
 					// https://github.com/kubernetes/cloud-provider-vsphere/issues/302
 					Expect(output).To(HaveYAMLPathWithValue(ipFamilyPath, "ipv4"))
+				})
+			})
+			Context("exclude the vsphere control plane endpoint from node ip selection", func() {
+				var excludeInternalNetworkSubnetCidr = "$.data.vsphereCPI.vmExcludeInternalNetworkSubnetCidr"
+				var excludeExternalNetworkSubnetCidr = "$.data.vsphereCPI.vmExcludeExternalNetworkSubnetCidr"
+				When("VSPHERE_CONTROL_PLANE_ENDPOINT is ipv4", func() {
+					It("excludes it as a CIDR from both external and internal node ip selection", func() {
+						values := createDataValues(map[string]string{
+							"PROVIDER_TYPE":                  "vsphere",
+							"TKG_IP_FAMILY":                  "ipv4",
+							"VSPHERE_CONTROL_PLANE_ENDPOINT": "192.168.0.1",
+						})
+
+						output, err := ytt.RenderYTTTemplate(ytt.CommandOptions{}, paths, strings.NewReader(values))
+						Expect(err).NotTo(HaveOccurred())
+
+						Expect(output).To(HaveYAMLPathWithValue(excludeInternalNetworkSubnetCidr, "192.168.0.1/32"))
+						Expect(output).To(HaveYAMLPathWithValue(excludeExternalNetworkSubnetCidr, "192.168.0.1/32"))
+					})
+				})
+				When("VSPHERE_CONTROL_PLANE_ENDPOINT is ipv6", func() {
+					It("excludes it as a CIDR from both external and internal node ip selection", func() {
+						values := createDataValues(map[string]string{
+							"PROVIDER_TYPE":                  "vsphere",
+							"TKG_IP_FAMILY":                  "ipv6",
+							"VSPHERE_CONTROL_PLANE_ENDPOINT": "fd00:100:64::1",
+						})
+
+						output, err := ytt.RenderYTTTemplate(ytt.CommandOptions{}, paths, strings.NewReader(values))
+						Expect(err).NotTo(HaveOccurred())
+
+						Expect(output).To(HaveYAMLPathWithValue(excludeInternalNetworkSubnetCidr, "fd00:100:64::1/128"))
+						Expect(output).To(HaveYAMLPathWithValue(excludeExternalNetworkSubnetCidr, "fd00:100:64::1/128"))
+					})
+				})
+				When("VSPHERE_CONTROL_PLANE_ENDPOINT is a hostname", func() {
+					It("excludes no ips from internal and external node ip selection", func() {
+						values := createDataValues(map[string]string{
+							"PROVIDER_TYPE":                  "vsphere",
+							"TKG_IP_FAMILY":                  "ipv6",
+							"VSPHERE_CONTROL_PLANE_ENDPOINT": "cluster.local",
+						})
+
+						output, err := ytt.RenderYTTTemplate(ytt.CommandOptions{}, paths, strings.NewReader(values))
+						Expect(err).NotTo(HaveOccurred())
+
+						Expect(output).To(HaveYAMLPathWithValue(excludeInternalNetworkSubnetCidr, ""))
+						Expect(output).To(HaveYAMLPathWithValue(excludeExternalNetworkSubnetCidr, ""))
+					})
 				})
 			})
 		})

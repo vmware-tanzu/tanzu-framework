@@ -547,12 +547,16 @@ AVI_DISABLE_INGRESS_CLASS: true
 AVI_AKO_IMAGE_PULL_POLICY: IfNotPresent
 AVI_ADMIN_CREDENTIAL_NAME: avi-controller-credentials
 AVI_CA_NAME: avi-controller-ca
+AVI_CONTROLLER_VERSION: 20.1.3
 
 AVI_CONTROLLER:
 AVI_USERNAME: ""
 AVI_PASSWORD: ""
 AVI_CLOUD_NAME:
 AVI_SERVICE_ENGINE_GROUP:
+#! t1 router specifies the path for NSX Advanced Loader Balancer backend network,
+#! only applies when configure NSX ALB to NSX-T cloud.
+AVI_NSXT_T1LR:
 
 #! WARNING: service engine group separation support is not enabled (because it is under development).
 #! To use a different service engine group in the management cluster, set AVI_MANAGEMENT_CLUSTER_SERVICE_ENGINE_GROUP variable to the management cluster service engine group

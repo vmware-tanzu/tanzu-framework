@@ -11,6 +11,10 @@ import (
 	"regexp"
 	"time"
 
+	clusterctlv1 "sigs.k8s.io/cluster-api/cmd/clusterctl/api/v1alpha3"
+
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/clusterclient"
+
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfighelper"
 
 	"github.com/imdario/mergo"
@@ -346,15 +350,15 @@ func (c *TkgClient) getMachineCountForMC(plan string) (int, int) {
 		if cpc%2 == 1 {
 			controlPlaneMachineCount = cpc
 		} else {
-			log.Info("Using default value for CONTROL_PLANE_MACHINE_COUNT= %d. Reason: Provided value is an even number", controlPlaneMachineCount)
+			log.Infof("Using default value for CONTROL_PLANE_MACHINE_COUNT = %d. Reason: Provided value is an even number", controlPlaneMachineCount)
 		}
 	} else {
-		log.Info("Using default value for CONTROL_PLANE_MACHINE_COUNT= %d. Reason: %s", controlPlaneMachineCount, err.Error())
+		log.Infof("Using default value for CONTROL_PLANE_MACHINE_COUNT = %d. Reason: %s", controlPlaneMachineCount, err.Error())
 	}
 	if wc, err := tkgconfighelper.GetIntegerVariableFromConfig(constants.ConfigVariableWorkerMachineCount, c.TKGConfigReaderWriter()); err == nil {
 		workerMachineCount = wc
 	} else {
-		log.Info("Using default value for WORKER_MACHINE_COUNT= %d. Reason: %s", workerMachineCount, err.Error())
+		log.Infof("Using default value for WORKER_MACHINE_COUNT = %d. Reason: %s", workerMachineCount, err.Error())
 	}
 
 	return controlPlaneMachineCount, workerMachineCount
@@ -379,4 +383,31 @@ func (c *TkgClient) getDefaultMachineCountForMC(plan string) (int, int) {
 		// do nothing. If config overrides are provided, they'll get overridden in the calling function
 	}
 	return controlPlaneMachineCount, workerMachineCount
+}
+
+func (c *TkgClient) validateEnvVariables(regionalClusterClient clusterclient.Client) error {
+	infraProviderName, err := getInfraNameFromRegionContext(regionalClusterClient)
+	if err != nil {
+		return errors.Wrap(err, "Unable to get infra provider from the context")
+	}
+
+	err = c.ValidateEnvVariables(infraProviderName)
+	if err != nil {
+		return errors.Wrap(err, "required env variables are not set")
+	}
+	return nil
+}
+
+func getInfraNameFromRegionContext(regionalClusterClient clusterclient.Client) (string, error) {
+	infraProvider, err := regionalClusterClient.GetRegionalClusterDefaultProviderName(clusterctlv1.InfrastructureProviderType)
+	if err != nil {
+		return "", errors.Wrap(err, "failed to get cluster provider information.")
+	}
+
+	infraProviderName, _, err := ParseProviderName(infraProvider)
+	if err != nil {
+		return "", errors.Wrap(err, "failed to parse provider name")
+	}
+
+	return infraProviderName, nil
 }

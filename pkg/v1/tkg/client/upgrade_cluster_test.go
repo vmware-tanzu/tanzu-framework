@@ -518,7 +518,7 @@ var _ = Describe("Unit tests for upgrade cluster", func() {
 		})
 		Context("When patch MD fails", func() {
 			BeforeEach(func() {
-				regionalClusterClient.PatchResourceReturnsOnCall(0, errors.New("fake-error-patch-resource-md"))
+				regionalClusterClient.PatchResourceReturnsOnCall(1, errors.New("fake-error-patch-resource-md"))
 			})
 			It("returns an error", func() {
 				Expect(err).To(HaveOccurred())
@@ -771,6 +771,33 @@ var _ = Describe("When upgrading cluster with fake controller runtime client", f
 		It("returns an error", func() {
 			Expect(err).To(HaveOccurred())
 			Expect(err.Error()).To(ContainSubstring("attempted to upgrade kubernetes from v1.18.5+vmware.1 to v1.18.0+vmware.1. Kubernetes version downgrade is not allowed."))
+		})
+	})
+
+	var _ = Describe("Test PatchKubernetesVersionToKubeadmControlPlane", func() {
+		Context("Testing EtcdExtraArgs parameter configuration", func() {
+			It("Validate experimental-initial-corrupt-check gets set as part of extraArgs", func() {
+				clusterUpgradeConfig := &ClusterUpgradeInfo{
+					ClusterName:      "cluster-1",
+					ClusterNamespace: constants.DefaultNamespace,
+					UpgradeComponentInfo: ComponentInfo{
+						KubernetesVersion: "v1.18.0+vmware.2",
+					},
+					ActualComponentInfo: ComponentInfo{
+						KubernetesVersion: "v1.18.0+vmware.1",
+					},
+					KCPObjectName:      "kcp-cluster-1",
+					KCPObjectNamespace: constants.DefaultNamespace,
+				}
+
+				err = tkgClient.PatchKubernetesVersionToKubeadmControlPlane(regionalClusterClient, clusterUpgradeConfig)
+				Expect(err).To(BeNil())
+
+				updatedKCP, err := regionalClusterClient.GetKCPObjectForCluster(clusterUpgradeConfig.ClusterName, clusterUpgradeConfig.ClusterNamespace)
+				Expect(err).To(BeNil())
+				Expect(updatedKCP.ObjectMeta.Name).To(Equal("kcp-cluster-1"))
+				Expect(updatedKCP.Spec.KubeadmConfigSpec.ClusterConfiguration.Etcd.Local.ExtraArgs["experimental-initial-corrupt-check"]).To(Equal("true"))
+			})
 		})
 	})
 

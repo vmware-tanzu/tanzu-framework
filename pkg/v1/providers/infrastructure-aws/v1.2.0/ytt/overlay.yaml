@@ -113,6 +113,15 @@ spec:
         local:
           imageRepository: #@ kubeadm_image_repo(bomDataForK8sVersion.kubeadmConfigSpec.etcd.local.imageRepository)
           imageTag: #@ bomDataForK8sVersion.kubeadmConfigSpec.etcd.local.imageTag
+          #@ if getattr(bomDataForK8sVersion.kubeadmConfigSpec.etcd.local, "extraArgs", None) != None:
+          #@overlay/match missing_ok=True
+          extraArgs:
+            #@ for key in bomDataForK8sVersion.kubeadmConfigSpec.etcd.local["extraArgs"]:
+            #@overlay/match missing_ok=True
+            #@yaml/text-templated-strings
+            (@= key @): #@ "{}".format(bomDataForK8sVersion.kubeadmConfigSpec.etcd.local["extraArgs"][key]).lower()
+            #@ end
+          #@ end
       dns:
         imageRepository: #@ kubeadm_image_repo(bomDataForK8sVersion.kubeadmConfigSpec.dns.imageRepository)
         imageTag: #@ bomDataForK8sVersion.kubeadmConfigSpec.dns.imageTag

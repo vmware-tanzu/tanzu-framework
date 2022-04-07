@@ -3,6 +3,7 @@ module github.com/vmware-tanzu/tanzu-framework
 go 1.16
 
 replace (
+	github.com/briandowns/spinner => github.com/alonyb/spinner v1.12.7
 	github.com/googleapis/gnostic => github.com/googleapis/gnostic v0.5.5 // indirect
 	github.com/k14s/kbld => github.com/anujc25/carvel-kbld v0.31.0-update-vendir
 	sigs.k8s.io/cluster-api => sigs.k8s.io/cluster-api v1.0.1
@@ -25,10 +26,10 @@ require (
 	github.com/avinetworks/sdk v0.0.0-20201123134013-c157ef55b6f7
 	github.com/aws/aws-sdk-go v1.40.56
 	github.com/awslabs/goformation/v4 v4.19.5
-	github.com/briandowns/spinner v1.16.0
+	github.com/briandowns/spinner v1.18.0
 	github.com/cppforlife/go-cli-ui v0.0.0-20200716203538-1e47f820817f
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
-	github.com/docker/docker v20.10.9+incompatible
+	github.com/docker/docker v20.10.11+incompatible
 	github.com/elazarl/go-bindata-assetfs v1.0.1
 	github.com/fatih/color v1.13.0
 	github.com/getkin/kin-openapi v0.66.0
@@ -63,6 +64,7 @@ require (
 	github.com/k14s/ytt v0.32.1-0.20210511155130-214258be2519
 	github.com/lithammer/dedent v1.1.0
 	github.com/logrusorgru/aurora v2.0.3+incompatible
+	github.com/mattn/go-isatty v0.0.14
 	github.com/olekukonko/tablewriter v0.0.4
 	github.com/onsi/ginkgo v1.16.5
 	github.com/onsi/gomega v1.16.0
@@ -101,11 +103,11 @@ require (
 	k8s.io/klog/v2 v2.10.0
 	k8s.io/kubectl v0.22.2
 	k8s.io/utils v0.0.0-20210930125809-cb0fa318a74b
-	sigs.k8s.io/cluster-api v1.0.1
+	sigs.k8s.io/cluster-api v1.0.4
 	sigs.k8s.io/cluster-api-provider-aws v1.0.0
-	sigs.k8s.io/cluster-api-provider-azure v1.0.1
-	sigs.k8s.io/cluster-api-provider-vsphere v1.0.2
-	sigs.k8s.io/cluster-api/test v1.0.1
+	sigs.k8s.io/cluster-api-provider-azure v1.0.2
+	sigs.k8s.io/cluster-api-provider-vsphere v1.0.3
+	sigs.k8s.io/cluster-api/test v1.0.4
 	sigs.k8s.io/controller-runtime v0.10.3
 	sigs.k8s.io/controller-tools v0.7.0
 	sigs.k8s.io/kind v0.11.1

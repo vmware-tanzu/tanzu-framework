@@ -16,6 +16,7 @@ import (
 	crtclient "sigs.k8s.io/controller-runtime/pkg/client"
 
 	azureclient "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/azure"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/log"
 )
 
@@ -36,6 +37,30 @@ const (
 	CapvNamespace                    = "capv-system"
 )
 
+func (c *client) GetVCCredentialsFromCluster(clusterName, clusterNamespace string) (string, string, error) {
+	//TODO: https://github.com/vmware-tanzu/tanzu-framework/issues/1833
+	// Update the code to support "VSphereClusterIdentity" kind as identityRef(secret name should be read from VSphereClusterIdentity object)
+	username, password, err := c.getCredentialsFromSecret(clusterName, clusterNamespace)
+	if err != nil && !k8serrors.IsNotFound(err) {
+		return "", "", errors.Wrap(err, "unable to retrieve vSphere credentials")
+	}
+	if username != "" && password != "" {
+		return username, password, nil
+	}
+	// If cluster specific secret is not present, fallback on bootstrap credential secret
+	// Note: There is chance that we fail to get VC credentials if management cluster is created before identityRef(Secret or VSphereClusterIdentity kind) is being used,
+	// because getting credentials from "capv-manager-bootstrap-credentials" secret would fail if the vsphere's password
+	// contain single quote(') due to unmarshaling issue(ref: https://github.com/kubernetes-sigs/cluster-api-provider-vsphere/issues/1460)
+	log.Info("cluster specific secret is not present, fallback on bootstrap credential secret")
+	username, password, err = c.getCredentialsFromvSphereBootstrapCredentialSecret()
+	if err != nil {
+		return "", "", errors.Wrapf(err, "unable to retrieve vSphere credentials from %s secret", vSphereBootstrapCredentialSecret)
+	}
+	return username, password, nil
+}
+
+// GetVCCredentialsFromSecret gets the VC credentials from secret
+// Deprecated: use GetVCCredentialsFromCluster() method instead which would use both clustername and namespace to get the VC credentials
 func (c *client) GetVCCredentialsFromSecret(clusterName string) (string, string, error) {
 	secretList := &corev1.SecretList{}
 	err := c.ListResources(secretList, &crtclient.ListOptions{})
@@ -43,7 +68,6 @@ func (c *client) GetVCCredentialsFromSecret(clusterName string) (string, string,
 		return "", "", errors.Wrap(err, "unable to retrieve vSphere credentials")
 	}
 
-	// multi-tenancy feature is introduced in TKG 1.4. credentials are saved as a cluster specific secret on the management cluster
 	var usernameBytes []byte
 	var passwordBytes []byte
 
@@ -62,40 +86,59 @@ func (c *client) GetVCCredentialsFromSecret(clusterName string) (string, string,
 			return string(usernameBytes), string(passwordBytes), nil
 		}
 	}
-
 	// If cluster specific secret is not present, fallback on bootstrap credential secret
 	log.Info("cluster specific secret is not present, fallback on bootstrap credential secret")
+	username, password, err := c.getCredentialsFromvSphereBootstrapCredentialSecret()
+	if err != nil {
+		return "", "", errors.Wrapf(err, "unable to retrieve vSphere credentials from %s secret", vSphereBootstrapCredentialSecret)
+	}
+	return username, password, nil
+}
+func (c *client) getCredentialsFromSecret(secretName, secretNamespace string) (string, string, error) {
+	secret := &corev1.Secret{}
+	if secretNamespace == "" {
+		secretNamespace = constants.DefaultNamespace
+	}
+	if err := c.GetResource(secret, secretName, secretNamespace, nil, nil); err != nil {
+		return "", "", err
+	}
+	usernameBytes := secret.Data["username"]
+	passwordBytes := secret.Data["password"]
+	return string(usernameBytes), string(passwordBytes), nil
+}
+func (c *client) getCredentialsFromvSphereBootstrapCredentialSecret() (string, string, error) {
 	var credentialBytes []byte
-	for i := range secretList.Items {
-		if secretList.Items[i].Name == vSphereBootstrapCredentialSecret {
-			ok := false
-			credentialBytes, ok = secretList.Items[i].Data[KeyVSphereCredentials]
-			if !ok {
-				return "", "", errors.Errorf("Unable to obtain %s field from %s secret's data", vSphereBootstrapCredentialSecret, KeyVSphereCredentials)
-			}
-			break
-		}
+	secret := &corev1.Secret{}
+	if err := c.GetResource(secret, vSphereBootstrapCredentialSecret, CapvNamespace, nil, nil); err != nil {
+		return "", "", errors.Wrapf(err, "unable to retrieve vSphere credentials secret %s", vSphereBootstrapCredentialSecret)
+	}
+
+	ok := false
+	credentialBytes, ok = secret.Data[KeyVSphereCredentials]
+	if !ok {
+		return "", "", errors.Errorf("Unable to obtain %s field from %s secret's data", KeyVSphereCredentials, vSphereBootstrapCredentialSecret)
 	}
 
 	if len(credentialBytes) == 0 {
 		return "", "", errors.Errorf("unable to retrieve vSphere credentials secret %s", vSphereBootstrapCredentialSecret)
 	}
 
+	// TODO: Currently there is a upstream bug where the marshaling of vSphere credentials would fails
+	// if the password contains single quote('). We should update this code if upstream updates the format
+	// of capv-manager-bootstrap-credentials secret
 	var credentialMap map[string]string
-	if err = yaml.Unmarshal(credentialBytes, &credentialMap); err != nil {
-		return "", "", errors.Wrap(err, "unable to retrieve vSphere credentials")
+	if err := yaml.Unmarshal(credentialBytes, &credentialMap); err != nil {
+		return "", "", errors.Wrap(err, "failed to unmarshal vSphere credentials")
 	}
 
 	var vsphereUsername string
 	var vspherePassword string
 
-	var ok bool
-
 	if vsphereUsername, ok = credentialMap["username"]; !ok {
-		return "", "", errors.New("unable to retrieve vSphere credentials")
+		return "", "", errors.New("unable to find username")
 	}
 	if vspherePassword, ok = credentialMap["password"]; !ok {
-		return "", "", errors.New("unable to retrieve vSphere credentials")
+		return "", "", errors.New("unable to find password")
 	}
 
 	return vsphereUsername, vspherePassword, nil
@@ -148,19 +191,6 @@ func (c *client) UpdateVsphereIdentityRefSecret(clusterName, namespace, username
 }
 
 func (c *client) UpdateCapvManagerBootstrapCredentialsSecret(username, password string) error {
-	oldUsername, oldPassword, err := c.GetVCCredentialsFromSecret("")
-	if err != nil {
-		return err
-	}
-
-	if username == "" {
-		username = oldUsername
-	}
-
-	if password == "" {
-		password = oldPassword
-	}
-
 	credentialMap := map[string]string{
 		"username": username,
 		"password": password,

@@ -5,10 +5,10 @@ directories:
   contents:
   - path: .
     git:
-      url: git@github.com:vmware-tanzu/tce.git
-      ref: 3b497a299c4d67377ca30036bd38e934794ca0f8
+      url: git@github.com:vmware-tanzu/community-edition.git
+      ref: 944389be7a7905deddedfe0db2ab21ac4454bd2d
     includePaths:
-    - addons/packages/vsphere-cpi/1.22.4/bundle/config/**/*
+    - addons/packages/vsphere-cpi/1.22.6/bundle/config/**/*
 - path: ytt/vendir/cni/_ytt_lib
   contents:
   - path: .
@@ -23,6 +23,6 @@ directories:
   - path: .
     git:
       url: git@github.com:vmware-tanzu/community-edition.git
-      ref: 1ce18be43347405d3dfbde4ba2cbb0d1e2fa0b41
+      ref: 8dd25e7b14aa957db16745b1d38dad17a3fa5f63
     includePaths:
-    - addons/packages/kapp-controller/0.30.0/bundle/config/**/*
+    - addons/packages/kapp-controller/0.30.1/bundle/config/**/*

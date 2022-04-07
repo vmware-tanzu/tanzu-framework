@@ -450,7 +450,11 @@ func (c *TkgClient) ConfigureAndValidateVSphereTemplate(vcClient vc.Client, tkrV
 // GetVSphereEndpoint gets vsphere client based on credentials set in config variables
 func (c *TkgClient) GetVSphereEndpoint(clusterClient clusterclient.Client) (vc.Client, error) {
 	if clusterClient != nil {
-		username, password, err := clusterClient.GetVCCredentialsFromSecret("")
+		regionContext, err := c.GetCurrentRegionContext()
+		if err != nil {
+			return nil, errors.Wrap(err, "failed to get current region context")
+		}
+		username, password, err := clusterClient.GetVCCredentialsFromCluster(regionContext.ClusterName, constants.TkgNamespace)
 		if err != nil {
 			return nil, err
 		}
@@ -1601,7 +1605,11 @@ func (c *TkgClient) getFullTKGNoProxy(providerName string) (string, error) {
 }
 
 func (c *TkgClient) configureVsphereCredentialsFromCluster(clusterClient clusterclient.Client) error {
-	vsphereUsername, vspherePassword, err := clusterClient.GetVCCredentialsFromSecret("")
+	regionContext, err := c.GetCurrentRegionContext()
+	if err != nil {
+		return errors.Wrap(err, "failed to get current region context")
+	}
+	vsphereUsername, vspherePassword, err := clusterClient.GetVCCredentialsFromCluster(regionContext.ClusterName, constants.TkgNamespace)
 	if err != nil {
 		return errors.Wrap(err, "unable to get vsphere credentials from secret")
 	}

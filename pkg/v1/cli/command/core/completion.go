@@ -43,9 +43,6 @@ var (
 
 		# Zsh instructions:
 
-		  ## Load only for current session:
-		  source <(tanzu completion zsh)
-
 		  ## Load for all new sessions:
 		  echo "autoload -U compinit; compinit" >> ~/.zshrc
 		  tanzu completion zsh > "${fpath[1]}/_tanzu"`)

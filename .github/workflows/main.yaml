@@ -94,12 +94,21 @@ jobs:
           - addons/pinniped/post-deploy
           - pkg/v1/providers/tests
     steps:
+    - name: Set up Go
+      uses: actions/setup-go@v2
+      with:
+        go-version: '1.16'
+      id: go
+
     - uses: actions/checkout@v2
 
     - name: Run golangci-lint
       uses: golangci/golangci-lint-action@v2
       with:
         version: v1.39.0
+        # not in action.yaml! : go-version: 1.16.15
+        # skips go installation and rely on earlier setup-go step to fix go to 1.16
+        skip-go-installation: true
         args: --timeout=10m -v
         working-directory: ${{matrix.working-directory}}
 

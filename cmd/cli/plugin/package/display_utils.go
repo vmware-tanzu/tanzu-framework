@@ -5,16 +5,18 @@ package main
 
 import (
 	"fmt"
+	"os"
 	"time"
 
 	"github.com/briandowns/spinner"
+	"github.com/mattn/go-isatty"
 
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/log"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgpackagedatamodel"
 )
 
 // DisplayProgress creates an spinner instance; keeps receiving the progress messages in the channel and displays those using the spinner until an error occurs
-func DisplayProgress(initialMsg string, pp *tkgpackagedatamodel.PackageProgress) error {
+func DisplayProgress(initialMsg string, pp *tkgpackagedatamodel.PackageProgress) error { //nolint:gocyclo
 	var (
 		currMsg string
 		s       *spinner.Spinner
@@ -32,22 +34,34 @@ func DisplayProgress(initialMsg string, pp *tkgpackagedatamodel.PackageProgress)
 		return err
 	}
 
-	writeProgress := func(s *spinner.Spinner, msg string) error {
+	s.Suffix = fmt.Sprintf(" %s", initialMsg)
+	// Start the spinner only if attached to terminal
+	attachedToTerminal := isatty.IsTerminal(os.Stdout.Fd()) || isatty.IsCygwinTerminal(os.Stdout.Fd())
+	if attachedToTerminal {
+		s.Start()
+	}
+
+	writeProgressToSpinner := func(s *spinner.Spinner, msg string) error {
+		if !attachedToTerminal {
+			return nil
+		}
+		spinnerMsg := s.Suffix
 		s.Stop()
 		if s, err = newSpinner(); err != nil {
 			return err
 		}
-		log.Infof("\n")
+		// Stopping the spinner would eliminate the whole line
+		// We want to keep the spinner message to give users more contexts
+		log.Infof("%s\n", spinnerMsg)
 		s.Suffix = fmt.Sprintf(" %s", msg)
 		s.Start()
 		return nil
 	}
 
-	s.Suffix = fmt.Sprintf(" %s", initialMsg)
-	s.Start()
-
 	defer func() {
-		s.Stop()
+		if attachedToTerminal {
+			s.Stop()
+		}
 	}()
 	for {
 		select {
@@ -56,7 +70,7 @@ func DisplayProgress(initialMsg string, pp *tkgpackagedatamodel.PackageProgress)
 			return err
 		case msg := <-pp.ProgressMsg:
 			if msg != currMsg {
-				if err := writeProgress(s, msg); err != nil {
+				if err := writeProgressToSpinner(s, msg); err != nil {
 					return err
 				}
 				currMsg = msg
@@ -66,7 +80,7 @@ func DisplayProgress(initialMsg string, pp *tkgpackagedatamodel.PackageProgress)
 				if msg == currMsg {
 					continue
 				}
-				if err := writeProgress(s, msg); err != nil {
+				if err := writeProgressToSpinner(s, msg); err != nil {
 					return err
 				}
 				currMsg = msg
