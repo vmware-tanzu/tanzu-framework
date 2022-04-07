@@ -562,7 +562,7 @@ func (r *ClusterBootstrapReconciler) createOrPatchKappPackageInstall(clusterBoot
 				Key:  clusterKubeconfigDetails.Key,
 			},
 		}
-		secretName, err := r.GetDataValueSecretNameFromBootstrapPackage(clusterBootstrap.Spec.Kapp, cluster.Namespace)
+		secretName, err := r.GetDataValueSecretNameFromBootstrapPackage(clusterBootstrap.Spec.Kapp, cluster)
 		if err != nil {
 			return err
 		}
@@ -853,7 +853,7 @@ func (r *ClusterBootstrapReconciler) createOrPatchAddonResourcesOnRemote(cluster
 func (r *ClusterBootstrapReconciler) createOrPatchPackageInstallSecretOnRemote(cluster *clusterapiv1beta1.Cluster,
 	cbpkg *runtanzuv1alpha3.ClusterBootstrapPackage, clusterClient client.Client) (*corev1.Secret, error) {
 
-	secretName, err := r.GetDataValueSecretNameFromBootstrapPackage(cbpkg, cluster.Namespace)
+	secretName, err := r.GetDataValueSecretNameFromBootstrapPackage(cbpkg, cluster)
 	if err != nil {
 		// logging has been handled in GetDataValueSecretNameFromBootstrapPackage()
 		return nil, err
@@ -974,6 +974,15 @@ func (r *ClusterBootstrapReconciler) updateValues(cluster *clusterapiv1beta1.Clu
 	if cbPkg.ValuesFrom == nil {
 		return nil, nil, nil
 	}
+
+	if cbPkg.ValuesFrom.Inline != nil {
+		secret, err := r.createSecretFromInline(cluster, cbPkg, cbTemplateNamespace, packageRefName, log)
+		if err != nil {
+			return nil, nil, err
+		}
+		return secret, nil, nil
+	}
+
 	if cbPkg.ValuesFrom.SecretRef != "" {
 		secret, err := r.updateValuesFromSecret(cluster, cbPkg, cbTemplateNamespace, packageRefName, log)
 		if err != nil {
@@ -1087,6 +1096,42 @@ func (r *ClusterBootstrapReconciler) periodicGVRCachesClean() {
 	}
 }
 
+// createSecretFromInline creates a Secret from inline config in valuesFrom
+func (r *ClusterBootstrapReconciler) createSecretFromInline(cluster *clusterapiv1beta1.Cluster,
+	pkg *runtanzuv1alpha3.ClusterBootstrapPackage, templateNS, pkgRefName string, log logr.Logger) (*corev1.Secret, error) {
+
+	inlineSecret := &corev1.Secret{}
+	inlineSecret.Name = util.GeneratePackageSecretName(cluster.Name, pkgRefName)
+	// The secret will be created or patched under tkg-system namespace on remote cluster
+	inlineSecret.Namespace = cluster.Namespace
+	inlineSecret.Type = corev1.SecretTypeOpaque
+
+	var createOrPatchErr error
+	_, createOrPatchErr = controllerutil.CreateOrPatch(r.context, r.Client, inlineSecret, func() error {
+		inlineSecret.OwnerReferences = []metav1.OwnerReference{
+			{
+				APIVersion: clusterapiv1beta1.GroupVersion.String(),
+				Kind:       cluster.Kind,
+				Name:       cluster.Name,
+				UID:        cluster.UID,
+			},
+		}
+
+		// Add cluster and package labels to cloned secrets
+		inlineSecret.Labels = map[string]string{}
+		inlineSecret.Labels[types.PackageNameLabel] = util.ParseStringForLabel(pkg.RefName)
+		inlineSecret.Labels[types.ClusterNameLabel] = cluster.Name
+		// Set secret.Type to ClusterBootstrapManagedSecret to enable us to Watch these secrets
+		inlineSecret.Type = constants.ClusterBootstrapManagedSecret
+		return nil
+	})
+	if createOrPatchErr != nil {
+		return nil, createOrPatchErr
+	}
+	r.Log.Info(fmt.Sprintf("created or patched Secret for inline config %s/%s", inlineSecret.Namespace, inlineSecret.Name))
+	return inlineSecret, nil
+}
+
 // updateValuesFromSecret updates secretRef in valuesFrom
 func (r *ClusterBootstrapReconciler) updateValuesFromSecret(cluster *clusterapiv1beta1.Cluster,
 	pkg *runtanzuv1alpha3.ClusterBootstrapPackage, templateNS, pkgRefName string, log logr.Logger) (*corev1.Secret, error) {
@@ -1101,7 +1146,7 @@ func (r *ClusterBootstrapReconciler) updateValuesFromSecret(cluster *clusterapiv
 		}
 		newSecret = secret.DeepCopy()
 		newSecret.ObjectMeta.Reset()
-		newSecret.Name = fmt.Sprintf("%s-%s-package", cluster.Name, pkgRefName)
+		newSecret.Name = util.GeneratePackageSecretName(cluster.Name, pkgRefName)
 		newSecret.Namespace = cluster.Namespace
 
 		var createOrPatchErr error
@@ -1253,7 +1298,7 @@ func (r *ClusterBootstrapReconciler) updateValuesFromProvider(cluster *clusterap
 			newProvider.SetLabels(providerLabels)
 		}
 
-		newProvider.SetName(fmt.Sprintf("%s-%s-package", cluster.Name, pkgRefName))
+		newProvider.SetName(util.GeneratePackageSecretName(cluster.Name, pkgRefName))
 		newProvider.SetNamespace(cluster.Namespace)
 		log.Info(fmt.Sprintf("cloning provider %s/%s to namespace %s", cbTemplateNamespace, newProvider.GetName(), cluster.Namespace), "gvr", gvr)
 		// newProvider and createdOrUpdatedProvider are different. The newProvider is the one we want apiserver to accept,
@@ -1342,14 +1387,23 @@ func (r *ClusterBootstrapReconciler) watchProvider(providerRef *corev1.TypedLoca
 // Returns:
 // - string: The secret name which references to the Secret CR on mgmt cluster under a particular cluster namespace.
 // - error: whether there is error when getting the secret name.
-func (r *ClusterBootstrapReconciler) GetDataValueSecretNameFromBootstrapPackage(cbPkg *runtanzuv1alpha3.ClusterBootstrapPackage, clusterNamespace string) (string, error) {
+func (r *ClusterBootstrapReconciler) GetDataValueSecretNameFromBootstrapPackage(cbPkg *runtanzuv1alpha3.ClusterBootstrapPackage, cluster *clusterapiv1beta1.Cluster) (string, error) {
 	// When valuesFrom is nil, we interpret it as no data values are needed for the package installation.
 	if cbPkg.ValuesFrom == nil {
 		r.Log.Info(fmt.Sprintf("no data values are provided to the ClusterBootstrapPackage.ValuesFrom field. ClusterBootstrapPackage.RefName: %s", cbPkg.RefName))
 		return "", nil
 	}
 
-	// TODO: Handle inline valueFrom. https://github.com/vmware-tanzu/tanzu-framework/issues/1694
+	if cbPkg.ValuesFrom.Inline != nil {
+		packageSecretName := util.GeneratePackageSecretName(cluster.Name, cbPkg.RefName)
+		secret := &corev1.Secret{}
+		key := client.ObjectKey{Namespace: cluster.Namespace, Name: packageSecretName}
+		if err := r.Get(r.context, key, secret); err != nil {
+			r.Log.Error(err, "unable to fetch secret for package with inline config", "objectkey", key)
+			return "", err
+		}
+		return packageSecretName, nil
+	}
 
 	if cbPkg.ValuesFrom.SecretRef != "" {
 		return cbPkg.ValuesFrom.SecretRef, nil
@@ -1361,7 +1415,7 @@ func (r *ClusterBootstrapReconciler) GetDataValueSecretNameFromBootstrapPackage(
 			r.Log.Error(err, "unable to get GVR")
 			return "", err
 		}
-		provider, err := r.dynamicClient.Resource(*gvr).Namespace(clusterNamespace).Get(r.context, cbPkg.ValuesFrom.ProviderRef.Name, metav1.GetOptions{}, "status")
+		provider, err := r.dynamicClient.Resource(*gvr).Namespace(cluster.Namespace).Get(r.context, cbPkg.ValuesFrom.ProviderRef.Name, metav1.GetOptions{}, "status")
 		if err != nil {
 			r.Log.Error(err, "unable to fetch provider", "GVR", gvr)
 			return "", err

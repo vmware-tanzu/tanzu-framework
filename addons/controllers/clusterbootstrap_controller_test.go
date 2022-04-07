@@ -54,6 +54,7 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 		clusterbootstrapWebhookManifestFile = "testdata/webhooks/clusterbootstrap-webhook-manifests.yaml"
 		clusterbootstrapWebhookServiceName  = "clusterbootstrap-webhook-service"
 		clusterbootstrapWebhookScrtName     = "clusterbootstrap-webhook-tls"
+		foobar2CarvelPackageRefName = "foobar2.example.com"
 	)
 
 	JustBeforeEach(func() {
@@ -320,6 +321,21 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 						return true
 					}, waitTimeout, pollingInterval).Should(BeTrue())
 				})
+
+				By("verifying that data value secret is created for a package with inline config")
+				Eventually(func() bool {
+					s := &corev1.Secret{}
+					if err := k8sClient.Get(ctx, client.ObjectKey{Namespace: constants.TKGSystemNS, Name: util.GenerateDataValueSecretName(clusterName, foobar2CarvelPackageRefName)}, s); err != nil {
+						return false
+					}
+					dataValue := string(s.Data["values.yaml"])
+					if !strings.Contains(dataValue, "key1") || !strings.Contains(dataValue, "sample-value1") ||
+						!strings.Contains(dataValue, "key2") || !strings.Contains(dataValue, "sample-value2") {
+						return false
+					}
+
+					return true
+				}, waitTimeout, pollingInterval).Should(BeTrue())
 
 				By("verifying that kapp-controller PackageInstall CR is created under cluster namespace properly on the management cluster")
 				// Verify kapp-controller PackageInstall CR has been created under cluster namespace on management cluster
