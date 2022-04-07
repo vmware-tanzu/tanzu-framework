@@ -3,7 +3,8 @@
 
 #! User configurable values for tkg-clusterclass.
 
-metadata:
+namespaceForPackageInstallation: tkg-system
+clusterclassInfraPackageValues:
+  namespace: tkg-system
   infraProvider: ""
-
-configvalues:
+  configValues:
