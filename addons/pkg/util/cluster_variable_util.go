@@ -60,8 +60,7 @@ func ParseClusterVariableList(cluster *clusterapiv1beta1.Cluster, variableName s
 	for i, v := range rec {
 		tmpList[i] = fmt.Sprint(v)
 	}
-	varList := strings.Join(tmpList, ",")
-
+	varList := strings.Join(tmpList, ", ")
 	return varList, err
 }
 

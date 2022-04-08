@@ -1448,14 +1448,14 @@ func (r *ClusterBootstrapReconciler) reconcileClusterProxyAndNetworkSettings(clu
 		cluster.Annotations = map[string]string{}
 	}
 
-	cluster.Annotations[types.HTTPProxyConfigAnnotation] = HTTPProxy
-	cluster.Annotations[types.HTTPSProxyConfigAnnotation] = HTTPSProxy
-	cluster.Annotations[types.NoProxyConfigAnnotation] = NoProxy
-	cluster.Annotations[types.ProxyCACertConfigAnnotation] = ProxyCACert
-	cluster.Annotations[types.IPFamilyConfigAnnotation] = IPFamily
-	cluster.Annotations[types.SkipTLSVerifyConfigAnnotation] = SkipTLSVerify
+	cluster.Annotations[addontypes.HTTPProxyConfigAnnotation] = HTTPProxy
+	cluster.Annotations[addontypes.HTTPSProxyConfigAnnotation] = HTTPSProxy
+	cluster.Annotations[addontypes.NoProxyConfigAnnotation] = NoProxy
+	cluster.Annotations[addontypes.ProxyCACertConfigAnnotation] = ProxyCACert
+	cluster.Annotations[addontypes.IPFamilyConfigAnnotation] = IPFamily
+	cluster.Annotations[addontypes.SkipTLSVerifyConfigAnnotation] = SkipTLSVerify
 
-	log.Info("setting proxy and network configurations in Cluster annotation", types.HTTPProxyConfigAnnotation, HTTPProxy, types.HTTPSProxyConfigAnnotation, HTTPSProxy, types.NoProxyConfigAnnotation, NoProxy, types.ProxyCACertConfigAnnotation, ProxyCACert, types.IPFamilyConfigAnnotation, IPFamily, types.SkipTLSVerifyConfigAnnotation, SkipTLSVerify)
+	log.Info("setting proxy and network configurations in Cluster annotation", addontypes.HTTPProxyConfigAnnotation, HTTPProxy, addontypes.HTTPSProxyConfigAnnotation, HTTPSProxy, addontypes.NoProxyConfigAnnotation, NoProxy, addontypes.ProxyCACertConfigAnnotation, ProxyCACert, addontypes.IPFamilyConfigAnnotation, IPFamily, addontypes.SkipTLSVerifyConfigAnnotation, SkipTLSVerify)
 
 	if err := patchHelper.Patch(r.context, cluster); err != nil {
 		log.Error(err, "unable to patch Cluster Annotation")
