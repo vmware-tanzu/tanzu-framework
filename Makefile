@@ -440,7 +440,7 @@ build-install-cli-all-with-oci-discovery: clean-catalog-cache clean-cli-plugins 
 # TODO: Remove this target when all tests are migrated to use tanzu cli
 .PHONY: tkg-cli ## Builds TKG-CLI binary
 tkg-cli: configure-buildtags-embedproviders configure-bom prep-build-cli ## Build tkg CLI binary only, and without rebuilding ui bits (providers are embedded to the binary)
-	GO111MODULE=on $(GO) build -o $(BIN_DIR)/tkg-${GOHOSTOS}-${GOHOSTARCH} -ldflags "${LD_FLAGS}" -tags "${BUILD_TAGS}" cmd/cli/tkg/main.go
+	GO111MODULE=on $(GO) build -o $(BIN_DIR)/tkg-${GOHOSTOS}-${GOHOSTARCH} --gcflags "${GC_FLAGS}" -ldflags "${LD_FLAGS}" -tags "${BUILD_TAGS}" cmd/cli/tkg/main.go
 
 .PHONY: build-cli-image
 build-cli-image: ## Build the CLI image
