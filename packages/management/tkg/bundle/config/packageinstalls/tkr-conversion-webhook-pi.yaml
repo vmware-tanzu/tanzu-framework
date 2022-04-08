@@ -8,7 +8,8 @@ metadata:
   name: tanzu-tkr-conversion-webhook
   namespace: #@ data.values.tkrConversionWebhookPackage.namespaceForPackageInstallation
   annotations:
-    kapp.k14s.io/change-rule: "upsert after upserting tkr-conversion-webhook-packageinstall/serviceaccount"
+    kapp.k14s.io/change-rule.0: "upsert after upserting tkr-conversion-webhook-packageinstall/serviceaccount"
+    kapp.k14s.io/change-rule.1: "delete before deleting tkr-conversion-webhook-packageinstall/serviceaccount"
 spec:
   serviceAccountName: tanzu-tkr-conversion-webhook-package-sa
   packageRef:
@@ -25,7 +26,8 @@ metadata:
   name: tanzu-tkr-conversion-webhook-values
   namespace: #@ data.values.tkrConversionWebhookPackage.namespaceForPackageInstallation
   annotations:
-    kapp.k14s.io/change-rule: "upsert after upserting tkr-conversion-webhook-packageinstall/serviceaccount"
+    kapp.k14s.io/change-rule.0: "upsert after upserting tkr-conversion-webhook-packageinstall/serviceaccount"
+    kapp.k14s.io/change-rule.1: "delete before deleting tkr-conversion-webhook-packageinstall/serviceaccount"
 type: Opaque
 stringData:
   values.yaml: #@ yaml.encode(data.values.tkrConversionWebhookPackage)
