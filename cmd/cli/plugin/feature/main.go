@@ -5,6 +5,7 @@ package main
 
 import (
 	"context"
+	"os"
 	"time"
 
 	"github.com/aunum/log"
@@ -38,11 +39,11 @@ func main() {
 
 	ctx := signals.SetupSignalHandler()
 	ctx, cancel := context.WithTimeout(ctx, contextTimeout)
-	defer cancel()
 	p.AddContext(ctx)
 
 	if err := p.Execute(); err != nil {
-		log.Errorf("executing plugin: %w", err)
-		return
+		cancel()
+		os.Exit(1)
 	}
+	cancel()
 }
