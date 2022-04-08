@@ -41,7 +41,7 @@ This document provides guidance on how to build and publish package and repo bun
    To build a particular package bundle, run:
 
    ```shell
-      PACKAGE_REPOSITORY=management PACKAGE_NAME=my-package make package-bundle
+      PACKAGE_NAME=my-package make package-bundle
    ```
 
 5. Build package repo bundle
@@ -55,8 +55,8 @@ This document provides guidance on how to build and publish package and repo bun
 
 6. Push package bundles
 
-   After the package bundles are generated, now it's time to push them to an OCI registry, so that they can be consumed, run
-   the below make target:
+   After the package bundles are generated, now it's time to push them to an OCI registry, so that they can be consumed.
+   Run the below make target to push all the package bundles in the specified package repository:
 
    ```shell
       PACKAGE_REPOSITORY=management OCI_REGISTRY=${REGISTRY} make push-all-package-bundles
@@ -65,7 +65,7 @@ This document provides guidance on how to build and publish package and repo bun
    If you are interested in pushing only a few package bundles, you could do that by running
 
    ```shell
-      PACKAGE_REPOSITORY=management OCI_REGISTRY=${REGISTRY} make push-package-bundles ${PACKAGE_BUNDLES}
+      OCI_REGISTRY=${REGISTRY} make push-package-bundles ${PACKAGE_BUNDLES}
    ```
 
    PACKAGE_BUNDLES variable should be comma-separated values and must not contain spaces.
