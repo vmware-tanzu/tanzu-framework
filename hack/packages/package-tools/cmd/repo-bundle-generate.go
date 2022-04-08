@@ -235,14 +235,17 @@ func generatePackageCR(projectRootDir, toolsBinDir string, pkg *Package) error {
 	}
 
 	// generate Package CR and write it to a file
-	packageYttCmd := exec.Command(filepath.Join(toolsBinDir, "ytt"), "-f", filepath.Join(projectRootDir, "packages", packageRepository, pkg.Name, "package.yaml"),
+	packageYttCmd := exec.Command(
+		filepath.Join(toolsBinDir, "ytt"),
+		"-f", filepath.Join(projectRootDir, "packages", pkg.Name, "package.yaml"),
 		"-f", filepath.Join(projectRootDir, "hack", "packages", "templates", "repo-utils", "package-cr-overlay.yaml"),
 		"-f", filepath.Join(projectRootDir, "hack", "packages", "templates", "repo-utils", "package-helpers.lib.yaml"),
 		"-f", packageValuesFile,
 		"-v", "packageRepository="+packageRepository,
 		"-v", "packageName="+pkg.Name,
 		"-v", "registry="+registry,
-		"-v", "timestamp="+utils.GetFormattedCurrentTime()) // #nosec G204
+		"-v", "timestamp="+utils.GetFormattedCurrentTime(),
+	) // #nosec G204
 
 	packageFilePath := filepath.Join(projectRootDir, constants.RepoBundlesDir, "packages", pkg.Name+"."+pkg.Domain, packageFileName)
 	packageFile, err := os.Create(packageFilePath)
