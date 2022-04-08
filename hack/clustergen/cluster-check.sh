@@ -16,7 +16,10 @@ BASE_DIR="$(dirname "$0")"
 GOOS=$(go env GOOS)
 GOARCH=$(go env GOARCH)
 CLI_REPO=${CLI_REPO:-${PWD}/../..}
-GIT_BRANCH_PROVIDERS_BASE=$1
+# Note: if GIT_BRANCH_PROVIDERS_BASE is not set, default to HEAD^, which will not
+# produce the behavior unless the provider changes is consolidate into a single
+# commit at HEAD
+GIT_BRANCH_PROVIDERS_BASE=${1:-HEAD^}
 GIT_BRANCH_PROVIDERS=${2:-HEAD}
 LAST_BASE_BRANCH_COMMIT_FILE="tests/clustergen/testdata/base_branch_commit"
 
@@ -37,8 +40,7 @@ make generate-testcases
 # TODO: Handle current commit that is not HEAD
 rm -rf tests/clustergen/testdata/new || true
 git log --pretty=oneline -5 | cat
-CLI_REPO=${CLI_REPO} ${BASE_DIR}/rebuild-cli.sh ${PWD}
-make CLUSTERGEN_OUTPUT_DIR=new GOOS=${GOOS} GOARCH=${GOARCH} CLI_REPO=${CLI_REPO} cluster-generation-tests
+make CLUSTERGEN_CC_OUTPUT_DIR=newcc CLUSTERGEN_OUTPUT_DIR=new GOOS=${GOOS} GOARCH=${GOARCH} CLI_REPO=${CLI_REPO} cluster-generation-tests
 
 if [ "${LAST_BASE_BRANCH_COMMIT}" != "${BASE_BRANCH_COMMIT}" ]; then
   echo "Base branch differs, regenerating output for ${GIT_BRANCH_PROVIDERS_BASE}...."
@@ -46,8 +48,7 @@ if [ "${LAST_BASE_BRANCH_COMMIT}" != "${BASE_BRANCH_COMMIT}" ]; then
   rm -rf tests/clustergen/testdata/old || true
   git checkout -B clustergen_test_base ${GIT_BRANCH_PROVIDERS_BASE}
   git log --pretty=oneline -5 | cat
-  CLI_REPO=${CLI_REPO} ${BASE_DIR}/rebuild-cli.sh ${PWD}
-  make CLUSTERGEN_OUTPUT_DIR=old GOOS=${GOOS} GOARCH=${GOARCH} CLI_REPO=${CLI_REPO} cluster-generation-tests
+  make CLUSTERGEN_CC_OUTPUT_DIR=oldcc CLUSTERGEN_OUTPUT_DIR=old GOOS=${GOOS} GOARCH=${GOARCH} CLI_REPO=${CLI_REPO} cluster-generation-tests
   git checkout .
   git checkout -
 else
@@ -57,6 +58,7 @@ fi
 pushd tests/clustergen/testdata
 mkdir output || true
 rm -f output/*
+diff -r -U15 oldcc/cclass newcc/cclass > output/clustergen_cc.diff.txt
 diff -r -U15 old new > output/clustergen.diff.txt
 cat output/clustergen.diff.txt
 docker run -i --rm -v $PWD:$PWD -w $PWD gcr.io/eminent-nation-87317/tkg-go-ci diff2html -i file -F output/clustergen.html -- output/clustergen.diff.txt
