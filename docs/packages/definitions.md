@@ -8,7 +8,7 @@ To learn about the Carvel package concepts visit this [page](https://carvel.dev/
 Any package that performs the role of managing and operating a workload cluster is a Management package.
 Management packages are purpose-built to be installed on the management cluster.
 
-Ex: Featuregates, addons-manager, etc.
+Example: Featuregates, addons-manager, etc.
 
 ## Management package repository
 
