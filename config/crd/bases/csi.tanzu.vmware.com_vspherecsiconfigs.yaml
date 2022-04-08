@@ -1,0 +1,117 @@
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.8.0
+  creationTimestamp: null
+  name: vspherecsiconfigs.csi.tanzu.vmware.com
+spec:
+  group: csi.tanzu.vmware.com
+  names:
+    kind: VSphereCSIConfig
+    listKind: VSphereCSIConfigList
+    plural: vspherecsiconfigs
+    singular: vspherecsiconfig
+  scope: Namespaced
+  versions:
+  - name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        description: VSphereCSIConfig is the Schema for the vspherecsiconfigs API
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation
+              of an object. Servers should convert recognized schemas to the latest
+              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this
+              object represents. Servers may infer this from the endpoint the client
+              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: VSphereCSIConfigSpec defines the desired state of VSphereCSIConfig
+            properties:
+              vsphereCSI:
+                properties:
+                  config:
+                    properties:
+                      attachTimeout:
+                        type: string
+                      clusterName:
+                        type: string
+                      datacenter:
+                        type: string
+                      deploymentReplicas:
+                        format: int32
+                        type: integer
+                      httpProxy:
+                        type: string
+                      httpsProxy:
+                        type: string
+                      insecureFlag:
+                        type: boolean
+                      namespace:
+                        description: The namespace csi components are to be deployed
+                          in
+                        type: string
+                      noProxy:
+                        type: string
+                      password:
+                        type: string
+                      provisionTimeout:
+                        type: string
+                      publicNetwork:
+                        type: string
+                      region:
+                        type: string
+                      resizerTimeout:
+                        type: string
+                      server:
+                        type: string
+                      tlsThumbprint:
+                        type: string
+                      useTopologyCategories:
+                        type: boolean
+                      username:
+                        type: string
+                      vSphereVersion:
+                        type: string
+                      windowsSupport:
+                        type: boolean
+                      zone:
+                        type: string
+                    type: object
+                  mode:
+                    description: The vSphere mode. Either `vsphereCSI` or `vsphereParavirtualCSI`.
+                    enum:
+                    - vsphereCSI
+                    - vsphereParavirtualCSI
+                    type: string
+                required:
+                - mode
+                type: object
+            required:
+            - vsphereCSI
+            type: object
+          status:
+            description: VSphereCSIConfigStatus defines the observed state of VSphereCSIConfig
+            properties:
+              secretRef:
+                description: Name of the secret created by csi controller
+                type: string
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
+status:
+  acceptedNames:
+    kind: ""
+    plural: ""
+  conditions: []
+  storedVersions: []

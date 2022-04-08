@@ -11,6 +11,7 @@ resources:
 - bases/cni.tanzu.vmware.com_antreaconfigs.yaml
 - bases/run.tanzu.vmware.com_kappcontrollerconfigs.yaml
 - bases/cpi.tanzu.vmware.com_cpiconfigs.yaml
+- bases/csi.tanzu.vmware.com_vspherecsiconfigs.yaml
 # +kubebuilder:scaffold:crdkustomizeresource
 
 patchesStrategicMerge:

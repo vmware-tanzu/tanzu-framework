@@ -35,6 +35,7 @@ const (
 	ProviderServiceAccountSecretNamespace = "vmware-system-cloud-provider" // nolint:gosec
 )
 
+// TODO: make these constants accessible to other controllers (for example csi) https://github.com/vmware-tanzu/tanzu-framework/issues/2086
 // constants used for deriving supervisor API server endpoint
 const (
 	SupervisorEndpointHostname = "supervisor.default.svc"

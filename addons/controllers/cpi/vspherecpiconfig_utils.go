@@ -276,6 +276,7 @@ func (r *VSphereCPIConfigReconciler) getOwnerCluster(ctx context.Context, cpiCon
 	return cluster, nil
 }
 
+// TODO: make these functions accessible to other controllers (for example csi) https://github.com/vmware-tanzu/tanzu-framework/issues/2086
 // getVSphereCluster gets the VSphereCluster CR for the cluster object
 func (r *VSphereCPIConfigReconciler) getVSphereCluster(ctx context.Context, cluster *clusterapiv1beta1.Cluster) (*capvv1beta1.VSphereCluster, error) {
 	vsphereCluster := &capvv1beta1.VSphereCluster{}

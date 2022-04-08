@@ -40,6 +40,7 @@ import (
 	antrea "github.com/vmware-tanzu/tanzu-framework/addons/controllers/antrea"
 	calico "github.com/vmware-tanzu/tanzu-framework/addons/controllers/calico"
 	cpi "github.com/vmware-tanzu/tanzu-framework/addons/controllers/cpi"
+	csi "github.com/vmware-tanzu/tanzu-framework/addons/controllers/csi"
 	kappcontroller "github.com/vmware-tanzu/tanzu-framework/addons/controllers/kapp-controller"
 	addonconfig "github.com/vmware-tanzu/tanzu-framework/addons/pkg/config"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
@@ -47,6 +48,7 @@ import (
 	testutil "github.com/vmware-tanzu/tanzu-framework/addons/testutil"
 	cniv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cni/v1alpha1"
 	cpiv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cpi/v1alpha1"
+	csiv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/csi/v1alpha1"
 	runtanzuv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha1"
 	runtanzuv1alpha3 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/webhooks"
@@ -157,6 +159,9 @@ var _ = BeforeSuite(func(done Done) {
 	err = cpiv1alpha1.AddToScheme(scheme)
 	Expect(err).NotTo(HaveOccurred())
 
+	err = csiv1alpha1.AddToScheme(scheme)
+	Expect(err).NotTo(HaveOccurred())
+
 	err = capvv1beta1.AddToScheme(scheme)
 	Expect(err).NotTo(HaveOccurred())
 
@@ -237,6 +242,12 @@ var _ = BeforeSuite(func(done Done) {
 	Expect((&cpi.VSphereCPIConfigReconciler{
 		Client: mgr.GetClient(),
 		Log:    ctrl.Log.WithName("controllers").WithName("VSphereCPIConfig"),
+		Scheme: mgr.GetScheme(),
+	}).SetupWithManager(ctx, mgr, controller.Options{MaxConcurrentReconciles: 1})).To(Succeed())
+
+	Expect((&csi.VSphereCSIConfigReconciler{
+		Client: mgr.GetClient(),
+		Log:    ctrl.Log.WithName("controllers").WithName("VSphereCSIConfig"),
 		Scheme: mgr.GetScheme(),
 	}).SetupWithManager(ctx, mgr, controller.Options{MaxConcurrentReconciles: 1})).To(Succeed())
 
