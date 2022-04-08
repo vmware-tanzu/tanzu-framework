@@ -8,6 +8,7 @@ tanzuAddonsManager:
   deployment:
     hostNetwork: true
     priorityClassName: null
+    nodeSelector: null
     tolerations: []
     healthzPort: 18316
   featureGates:

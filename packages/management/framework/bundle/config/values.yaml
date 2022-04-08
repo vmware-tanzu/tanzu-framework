@@ -6,3 +6,5 @@ featureGatesPackageValues:
   namespace:
 tkrServicePackageValues:
   namespace:
+addonsManagerPackageValues:
+  namespace:

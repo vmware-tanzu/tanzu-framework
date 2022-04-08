@@ -16,6 +16,33 @@ frameworkPackage:
   tkrServicePackageValues:
     namespace: tkg-system
     createNamespace: false
+  addonsManagerPackageValues:
+    tanzuAddonsManager:
+      namespace: tkg-system
+      createNamespace: false
+      deployment:
+        hostNetwork: true
+        priorityClassName: system-cluster-critical
+        nodeSelector:
+          node-role.kubernetes.io/master: ""
+        tolerations:
+        - effect: NoSchedule
+          key: node-role.kubernetes.io/master
+          operator: Exists
+        - key: CriticalAddonsOnly
+          operator: Exists
+        - effect: NoExecute
+          key: node.alpha.kubernetes.io/notReady
+          operator: Exists
+        - effect: NoExecute
+          key: node.alpha.kubernetes.io/unreachable
+          operator: Exists
+        - effect: NoSchedule
+          key: kubeadmNode
+          operator: Equal
+          value: master
+      featureGates:
+        clusterBootstrapController: true
 
 clusterclassPackage:
   namespaceForPackageInstallation: tkg-system
