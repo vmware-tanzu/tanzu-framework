@@ -9,12 +9,13 @@
 #@ clusterbootstraptemplatescrd = overlay.subset({"kind": "CustomResourceDefinition", "metadata": {"name": "clusterbootstraptemplates.run.tanzu.vmware.com"}})
 #@ kappcontrollerconfigscrd = overlay.subset({"kind": "CustomResourceDefinition", "metadata": {"name": "kappcontrollerconfigs.run.tanzu.vmware.com"}})
 #@ vspherecpiconfigscrd = overlay.subset({"kind": "CustomResourceDefinition", "metadata": {"name": "vspherecpiconfigs.cpi.tanzu.vmware.com"}})
+#@ vspherecsiconfigscrd = overlay.subset({"kind": "CustomResourceDefinition", "metadata": {"name": "vspherecsiconfigs.csi.tanzu.vmware.com"}})
 
 #@ if data.values.tanzuAddonsManager.featureGates.clusterBootstrapController:
 --- #@ template.replace(webhook_manifests())
 #@ end
 
-#@overlay/match by=overlay.or_op(antreaconfigscrd, calicoconfigscrd, clusterbootstrapscrd, clusterbootstraptemplatescrd, kappcontrollerconfigscrd, vspherecpiconfigscrd), expects=6
+#@overlay/match by=overlay.or_op(antreaconfigscrd, calicoconfigscrd, clusterbootstrapscrd, clusterbootstraptemplatescrd, kappcontrollerconfigscrd, vspherecpiconfigscrd, vspherecsiconfigscrd), expects=7
 #@ if/end not data.values.tanzuAddonsManager.featureGates.clusterBootstrapController:
 #@overlay/remove
 
