@@ -145,10 +145,14 @@ func (r *VSphereCPIConfigReconciler) reconcileVSphereCPIConfigNormal(ctx context
 	// deploy the provider service account for paravirtual mode
 	if cpiConfig.Spec.VSphereCPI.Mode == VSphereCPIParavirtualMode {
 		r.Log.Info("Create or update provider serviceAccount for VSphere CPI")
-
-		serviceAccount := &capvvmwarev1beta1.ProviderServiceAccount{}
+		serviceAccount := &capvvmwarev1beta1.ProviderServiceAccount{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      getCCMName(cluster),
+				Namespace: cluster.Namespace,
+			},
+		}
 		_, err := controllerutil.CreateOrUpdate(ctx, r.Client, serviceAccount, func() error {
-			serviceAccount = r.mapCPIConfigToProviderServiceAccount(cluster)
+			serviceAccount.Spec = r.mapCPIConfigToProviderServiceAccountSpec(cluster)
 			return controllerutil.SetControllerReference(cluster, serviceAccount, r.Scheme)
 		})
 		if err != nil {

@@ -365,8 +365,12 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Wiz
      * @param payload
      */
     initPayloadWithCommons(payload: any) {
+        // The network name field is only used by vSphere. If it is populated, the value of the field is an OBJECT, whose name field
+        // should be considered the network name.
+        // TODO: refactor to move vSphere-specific assignment to vSphere wizard (or to vSphere network step, if steps fill out the payload)
+        const selectedNetwork = this.getFieldValue(WizardForm.NETWORK, NetworkField.NETWORK_NAME);
         payload.networking = {
-            networkName: this.getFieldValue(WizardForm.NETWORK, NetworkField.NETWORK_NAME),
+            networkName: selectedNetwork ? selectedNetwork.name : '',
             clusterDNSName: '',
             clusterNodeCIDR: '',
             clusterServiceCIDR: this.getFieldValue(WizardForm.NETWORK, NetworkField.CLUSTER_SERVICE_CIDR),

@@ -47,6 +47,9 @@ var regionDirections = []string{"central", "north", "south", "west", "east"}
 const maxMDs = 5
 
 func ChooseK8sVersionPrefix(v string) string {
+	if v == "" {
+		return ""
+	}
 	versionPrefixes := version.Prefixes(v)
 	vs := make([]string, 0, len(versionPrefixes))
 	for v := range versionPrefixes {
@@ -64,8 +67,14 @@ func ChooseK8sVersion(osImagesByK8sVersion map[string]data.OSImages) string {
 }
 
 func ChooseK8sVersionFromTKRs(tkrs data.TKRs) string {
-	ks := make([]string, 0, len(tkrs))
-	for _, tkr := range tkrs {
+	goodTKRs := tkrs.Filter(func(tkr *runv1.TanzuKubernetesRelease) bool {
+		return !conditions.IsFalse(tkr, runv1.ConditionValid) && !conditions.IsFalse(tkr, runv1.ConditionCompatible)
+	})
+	ks := make([]string, 0, len(goodTKRs))
+	if len(goodTKRs) == 0 {
+		return ""
+	}
+	for _, tkr := range goodTKRs {
 		ks = append(ks, tkr.Spec.Kubernetes.Version)
 	}
 	return ks[rand.Intn(len(ks))]
@@ -105,9 +114,6 @@ func GenOSImage(k8sVersions []string) *runv1.OSImage {
 			KubernetesVersion: k8sVersion,
 			OS:                os,
 			Image:             image,
-		},
-		Status: runv1.OSImageStatus{
-			Conditions: GenConditions(),
 		},
 	}
 }
@@ -194,6 +200,9 @@ func GenTKR(osImagesByK8sVersion map[string]data.OSImages) *runv1.TanzuKubernete
 			Kubernetes: runv1.KubernetesSpec{
 				Version: k8sVersion,
 			},
+		},
+		Status: runv1.TanzuKubernetesReleaseStatus{
+			Conditions: GenConditions(),
 		},
 	}
 }

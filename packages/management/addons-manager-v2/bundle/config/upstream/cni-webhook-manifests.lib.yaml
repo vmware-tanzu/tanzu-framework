@@ -1,0 +1,71 @@
+#@ load("@ytt:data", "data")
+
+#@ def webhook_manifests():
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: tanzu-addons-manager-webhook-service
+  namespace: tkg-system
+spec:
+  ports:
+  - port: 443
+    targetPort: 9453
+  selector:
+    app: tanzu-addons-manager
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingWebhookConfiguration
+metadata:
+  labels:
+    tkg.tanzu.vmware.com/addon-webhooks: ""
+  annotations:
+    kapp.k14s.io/change-group: "addons.config.tanzu.vmware.com/webhook"
+  name: tkg-cni-validating-webhook-configuration
+webhooks:
+  - admissionReviewVersions:
+      - v1
+      - v1beta1
+    clientConfig:
+      service:
+        name: tanzu-addons-manager-webhook-service
+        namespace: tkg-system
+        path: /validate-cni-tanzu-vmware-com-v1alpha1-antreaconfig
+    failurePolicy: Fail
+    name: vantreaconfig.kb.io
+    rules:
+      - apiGroups:
+          - cni.tanzu.vmware.com
+        apiVersions:
+          - v1alpha1
+        operations:
+          - CREATE
+          - UPDATE
+        resources:
+          - antreaconfigs
+    sideEffects: None
+    timeoutSeconds: 30
+  - admissionReviewVersions:
+      - v1
+      - v1beta1
+    clientConfig:
+      service:
+        name: tanzu-addons-manager-webhook-service
+        namespace: tkg-system
+        path: /validate-cni-tanzu-vmware-com-v1alpha1-calicoconfig
+    failurePolicy: Fail
+    name: vcalicoconfig.kb.io
+    rules:
+      - apiGroups:
+          - cni.tanzu.vmware.com
+        apiVersions:
+          - v1alpha1
+        operations:
+          - CREATE
+          - UPDATE
+        resources:
+          - calicoconfigs
+    sideEffects: None
+    timeoutSeconds: 30
+
+#@ end

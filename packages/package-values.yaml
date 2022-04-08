@@ -24,6 +24,14 @@ repositories:
         version: latest
         #! Gets replaced with imgpkg sha256 at build, this should be name:version
         sha256: "featuregates:latest"
+      - name: cliplugins
+        displayName: cliplugins
+        #! Relative path to package bundle
+        path: packages/management/cliplugins
+        domain: tanzu.vmware.com
+        version: latest
+        #! Gets replaced with imgpkg sha256 at build, this should be name:version
+        sha256: "cliplugins:latest"
       - name: core-management-plugins
         displayName: core-management-plugins
         #! Relative path to package bundle
@@ -128,6 +136,14 @@ repositories:
         version: latest
         #! Gets replaced with imgpkg sha256 at build, this should be name:version
         sha256: "tkr-service:latest"
+      - name: framework
+        displayName: framework
+        #! Relative path to package bundle
+        path: packages/management/framework
+        domain: tanzu.vmware.com
+        version: latest
+        #! Gets replaced with imgpkg sha256 at build, this should be name:version
+        sha256: "framework:latest"
 
   standalone:
     version: null

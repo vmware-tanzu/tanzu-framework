@@ -21,6 +21,7 @@ import (
 	clientgoscheme "k8s.io/client-go/kubernetes/scheme"
 	"k8s.io/client-go/rest"
 	capvv1beta1 "sigs.k8s.io/cluster-api-provider-vsphere/apis/v1beta1"
+	capvvmwarev1beta1 "sigs.k8s.io/cluster-api-provider-vsphere/apis/vmware/v1beta1"
 	clusterapiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
 	capiremote "sigs.k8s.io/cluster-api/controllers/remote"
 	controlplanev1beta1 "sigs.k8s.io/cluster-api/controlplane/kubeadm/api/v1beta1"
@@ -65,9 +66,10 @@ const (
 	addonClusterRoleBinding = "tkg-addons-app-cluster-role-binding"
 	addonImagePullPolicy    = "IfNotPresent"
 	corePackageRepoName     = "core"
-	webhookServiceName      = "webhook-service"
+	webhookServiceName      = "tanzu-addons-manager-webhook-service"
 	webhookScrtName         = "webhook-tls"
-	cniWebhookLabel         = "cni-webhook"
+	addonWebhookLabelKey    = "tkg.tanzu.vmware.com/addon-webhooks"
+	addonWebhookLabelValue  = ""
 	cniWebhookManifestFile  = "testdata/test-antrea-calico-webhook-manifests.yaml"
 )
 
@@ -108,7 +110,7 @@ var _ = BeforeSuite(func(done Done) {
 		"sigs.k8s.io/cluster-api": {"config/crd/bases",
 			"controlplane/kubeadm/config/crd/bases"},
 		"github.com/vmware-tanzu/carvel-kapp-controller": {"config/crds.yml"},
-		"sigs.k8s.io/cluster-api-provider-vsphere":       {"config/default/crd/bases"},
+		"sigs.k8s.io/cluster-api-provider-vsphere":       {"config/default/crd/bases", "config/supervisor/crd"},
 	}
 
 	externalCRDPaths, err := testutil.GetExternalCRDPaths(externalDeps)
@@ -156,6 +158,9 @@ var _ = BeforeSuite(func(done Done) {
 	Expect(err).NotTo(HaveOccurred())
 
 	err = capvv1beta1.AddToScheme(scheme)
+	Expect(err).NotTo(HaveOccurred())
+
+	err = capvvmwarev1beta1.AddToScheme(scheme)
 	Expect(err).NotTo(HaveOccurred())
 
 	k8sClient, err = client.New(cfg, client.Options{Scheme: scheme})
@@ -296,7 +301,7 @@ var _ = BeforeSuite(func(done Done) {
 	ns = &corev1.Namespace{ObjectMeta: metav1.ObjectMeta{Name: "tkg-system"}}
 	Expect(k8sClient.Create(context.TODO(), ns)).To(Succeed())
 
-	_, err = webhooks.InstallNewCertificates(ctx, k8sConfig, certPath, keyPath, webhookScrtName, addonNamespace, webhookServiceName, "webhook-cert=self-managed")
+	_, err = webhooks.InstallNewCertificates(ctx, k8sConfig, certPath, keyPath, webhookScrtName, addonNamespace, webhookServiceName, addonWebhookLabelKey+"="+addonWebhookLabelValue)
 	Expect(err).ToNot(HaveOccurred())
 
 	// Set up the webhooks in the manager

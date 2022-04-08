@@ -1,0 +1,31 @@
+#@ load("@ytt:yaml", "yaml")
+#@ load("@ytt:data", "data")
+
+---
+apiVersion: packaging.carvel.dev/v1alpha1
+kind: PackageInstall
+metadata:
+  name: tanzu-featuregates
+  namespace: #@ data.values.namespaceForPackageInstallation
+  annotations:
+    kapp.k14s.io/change-rule: "upsert after upserting featuregates-packageinstall/serviceaccount"
+spec:
+  serviceAccountName: tanzu-featuregates-package-sa
+  packageRef:
+    refName: featuregates.tanzu.vmware.com
+    versionSelection:
+      prereleases: {}
+  values:
+    - secretRef:
+        name: tanzu-featuregates-values
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: tanzu-featuregates-values
+  namespace: #@ data.values.namespaceForPackageInstallation
+  annotations:
+    kapp.k14s.io/change-rule: "upsert after upserting featuregates-packageinstall/serviceaccount"
+type: Opaque
+stringData:
+  values.yaml: #@ yaml.encode(data.values.featureGatesPackageValues)

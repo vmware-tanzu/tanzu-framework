@@ -1,3 +1,5 @@
+#@ load("@ytt:data", "data")
+
 apiVersion: v1
 kind: ServiceAccount
 metadata:
@@ -6,7 +8,7 @@ metadata:
   annotations:
     kapp.k14s.io/change-group: "featuregates.config.tanzu.vmware.com/serviceaccount"
   name: tanzu-featuregates-manager-sa
-  namespace: tkg-system
+  namespace: #@ data.values.namespace
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
@@ -73,4 +75,4 @@ roleRef:
 subjects:
   - kind: ServiceAccount
     name: tanzu-featuregates-manager-sa
-    namespace: tkg-system
+    namespace: #@ data.values.namespace

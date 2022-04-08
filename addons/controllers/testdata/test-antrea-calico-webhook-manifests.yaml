@@ -2,7 +2,7 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: webhook-service
+  name: tanzu-addons-manager-webhook-service
   namespace: tkg-system
 spec:
   type: ExternalName
@@ -11,19 +11,16 @@ spec:
 apiVersion: admissionregistration.k8s.io/v1
 kind: ValidatingWebhookConfiguration
 metadata:
-  creationTimestamp: null
   labels:
-    webhook-cert: cni-webhook
+    tkg.tanzu.vmware.com/addon-webhooks: ""
   name: validating-webhook-configuration
 webhooks:
   - admissionReviewVersions:
       - v1
       - v1beta1
     clientConfig:
-      #placeholder for cabundle. To be modifed by patch or programatically.
-      caBundle: Cg==
       service:
-        name: webhook-service
+        name: tanzu-addons-manager-webhook-service
         namespace: tkg-system
         path: /validate-cni-tanzu-vmware-com-v1alpha1-antreaconfig
         port: 9443
@@ -45,10 +42,8 @@ webhooks:
       - v1
       - v1beta1
     clientConfig:
-      #placeholder for cabundle. To be modifed by patch or programatically.
-      caBundle: Cg==
       service:
-        name: webhook-service
+        name: tanzu-addons-manager-webhook-service
         namespace: tkg-system
         path: /validate-cni-tanzu-vmware-com-v1alpha1-calicoconfig
         port: 9443
