@@ -1,16 +1,17 @@
 // Copyright 2022 VMware, Inc. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-package v1alpha1
+package v1alpha2
 
 import (
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
 	"github.com/onsi/gomega"
+	"github.com/stretchr/testify/assert"
 	v1 "k8s.io/api/core/v1"
 	apiequality "k8s.io/apimachinery/pkg/api/equality"
-	v1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
+	"sigs.k8s.io/cluster-api/api/v1beta1"
 
 	"github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
 	utilconversion "github.com/vmware-tanzu/tanzu-framework/util/conversion"
@@ -226,4 +227,14 @@ func TestContainerImagesConversionFromSpokeToHubWithNoAnnotations(t *testing.T) 
 			g.Expect(apiequality.Semantic.DeepEqual(expectedSpoke, dstCopy)).To(gomega.BeTrue(), cmp.Diff(expectedSpoke, dstCopy))
 		})
 	})
+}
+
+func TestConvertTo(t *testing.T) {
+	ci := ContainerImage{
+		Repository: "repo",
+		Name:       "nginx",
+		Tag:        "1.2.3",
+	}
+
+	assert.Equal(t, ci.String(), "repo/nginx:1.2.3")
 }

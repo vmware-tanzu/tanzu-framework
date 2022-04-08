@@ -1,4 +1,4 @@
-// Copyright (c) 2021 VMware, Inc. All Rights Reserved.
+// Copyright 2022 VMware, Inc. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
 package v1alpha2
@@ -6,7 +6,7 @@ package v1alpha2
 import (
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	clusterv1 "sigs.k8s.io/cluster-api/api/v1alpha3"
+	clusterv1 "sigs.k8s.io/cluster-api/api/v1beta1"
 )
 
 // TanzuKubernetesClusterPhase is a type for the Tanzu Kubernetes cluster's
@@ -48,7 +48,6 @@ const (
 
 // TanzuKubernetesClusterSpec defines the desired state of TanzuKubernetesCluster: its nodes, the software installed on those nodes and
 // the way that software should be configured.
-//nolint:gocritic
 type TanzuKubernetesClusterSpec struct {
 	// Topology specifies the topology for the Tanzu Kubernetes cluster: the number, purpose, and organization of the nodes which
 	// form the cluster and the resources allocated for each.
@@ -110,6 +109,11 @@ type NodePool struct {
 	// +optional
 	Taints []corev1.Taint `json:"taints,omitempty"`
 
+	// FailureDomain is the failure domain the machines will be created in.
+	// Must match a key in the FailureDomains map stored on the cluster object.
+	// +optional
+	FailureDomain *string `json:"failureDomain,omitempty"`
+
 	TopologySettings `json:",inline"`
 }
 
@@ -158,7 +162,6 @@ type TopologySettings struct {
 
 // Distribution specifies the version of software which should be installed on the control plane and worker nodes. This
 // version information encompasses Kubernetes and its dependencies, the base OS of the node, and add-ons.
-//nolint:gocritic
 type Distribution struct {
 	// Version specifies the fully-qualified desired Kubernetes distribution version of the Tanzu Kubernetes cluster. If the
 	// cluster exists and is not of the specified version, it will be upgraded.
@@ -266,13 +269,13 @@ type ProxyConfiguration struct {
 	// Example: http://<user>:<pwd>@<ip>:<port>
 	//
 	// +optional
-	HttpProxy *string `json:"httpProxy,omitempty"` //nolint:revive,stylecheck
+	HttpProxy *string `json:"httpProxy,omitempty"`
 
 	// HttpsProxy specifies a proxy URL to use for creating HTTPS connections outside the cluster.
 	// Example: http://<user>:<pwd>@<ip>:<port>
 	//
 	// +optional
-	HttpsProxy *string `json:"httpsProxy,omitempty"` //nolint:revive,stylecheck
+	HttpsProxy *string `json:"httpsProxy,omitempty"`
 
 	// NoProxy specifies a list of destination domain names, domains, IP addresses or other network CIDRs to exclude proxying.
 	// Example: [localhost, 127.0.0.1, 10.10.10.0/24]
@@ -317,7 +320,6 @@ type Storage struct {
 }
 
 // TanzuKubernetesClusterStatus defines the observed state of TanzuKubernetesCluster.
-//nolint:gocritic
 type TanzuKubernetesClusterStatus struct {
 	// APIEndpoints represents the endpoints to communicate with the control plane.
 	// +optional
@@ -366,7 +368,6 @@ type APIEndpoint struct {
 	Port int `json:"port"`
 }
 
-// AddonType type of Addon
 type AddonType string
 
 const (
@@ -440,7 +441,6 @@ func (as *AddonStatus) SetStatus(addonName, version string) {
 // +kubebuilder:printcolumn:name="Updates Available",type=string,JSONPath=.status.conditions[?(@.type=='UpdatesAvailable')].message
 
 // TanzuKubernetesCluster is the schema for the Tanzu Kubernetes Grid service for vSphere API.
-//nolint:gocritic
 type TanzuKubernetesCluster struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`

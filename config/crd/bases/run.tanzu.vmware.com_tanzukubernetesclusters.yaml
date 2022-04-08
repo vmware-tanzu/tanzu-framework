@@ -361,6 +361,11 @@ spec:
                       description: NodePool describes a group of nodes within a cluster
                         that have the same configuration
                       properties:
+                        failureDomain:
+                          description: FailureDomain is the failure domain the machines
+                            will be created in. Must match a key in the FailureDomains
+                            map stored on the cluster object.
+                          type: string
                         labels:
                           additionalProperties:
                             type: string
@@ -583,6 +588,7 @@ spec:
                               to deconflict is important.
                             type: string
                         required:
+                        - lastTransitionTime
                         - status
                         - type
                         type: object
@@ -658,6 +664,7 @@ spec:
                         important.
                       type: string
                   required:
+                  - lastTransitionTime
                   - status
                   - type
                   type: object
