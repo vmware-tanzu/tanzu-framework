@@ -19,6 +19,7 @@ import (
 	addontypes "github.com/vmware-tanzu/tanzu-framework/addons/pkg/types"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/util"
 	"github.com/vmware-tanzu/tanzu-framework/addons/testutil"
+	vspherecpiv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cpi/v1alpha1"
 	runtanzuv1alpha3 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
 
 	corev1 "k8s.io/api/core/v1"
@@ -32,7 +33,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
-var _ = Describe("ClusterBootstrap Reconciler", func() {
+var _ = FDescribe("ClusterBootstrap Reconciler", func() {
 	var (
 		clusterName             string
 		clusterNamespace        string
@@ -418,6 +419,10 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 						"username": []byte("Zm9v"), // foo
 						"password": []byte("YmFy"), // bar
 					})
+					assertOwnerReferencesExist(ctx, k8sClient, clusterNamespace, name, &corev1.Secret{}, []metav1.OwnerReference{
+						{APIVersion: clusterapiv1beta1.GroupVersion.String(), Kind: "Cluster", Name: clusterName},
+						{APIVersion: vspherecpiv1alpha1.GroupVersion.String(), Kind: "VSphereCPIConfig", Name: "test-cluster-cpi"},
+					})
 				})
 
 				By("Updating cluster TKR version", func() {
@@ -561,11 +566,11 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 })
 
 func assertSecretContains(ctx context.Context, k8sClient client.Client, namespace, name string, secretContent map[string][]byte) {
-	secret := &corev1.Secret{}
-	err := k8sClient.Get(ctx, client.ObjectKey{Namespace: namespace, Name: name}, secret)
+	s := &corev1.Secret{}
+	err := k8sClient.Get(ctx, client.ObjectKey{Namespace: namespace, Name: name}, s)
 	Expect(err).ToNot(HaveOccurred())
 	for k, v := range secretContent {
-		Expect(string(secret.Data[k]) == string(v)).ToNot(BeTrue())
+		Expect(string(s.Data[k]) == string(v)).ToNot(BeTrue())
 	}
 }
 
@@ -574,4 +579,22 @@ func assertEventuallyExistInNamespace(ctx context.Context, k8sClient client.Clie
 		key := client.ObjectKey{Name: name, Namespace: namespace}
 		return k8sClient.Get(ctx, key, obj)
 	}, waitTimeout, pollingInterval).Should(Succeed())
+}
+
+func assertOwnerReferencesExist(ctx context.Context, k8sClient client.Client, namespace, name string, obj client.Object, ownerReferencesToCheck []metav1.OwnerReference) {
+	key := client.ObjectKey{Name: name, Namespace: namespace}
+	Expect(k8sClient.Get(ctx, key, obj)).NotTo(HaveOccurred())
+
+	for _, ownerReferenceToCheck := range ownerReferencesToCheck {
+		found := false
+		for _, ownerReferenceFromObj := range obj.GetOwnerReferences() {
+			// skip the comparison of UID on purpose, caller does not know the UIDs of ownerReferencesToCheck beforehand
+			if ownerReferenceToCheck.APIVersion == ownerReferenceFromObj.APIVersion &&
+				ownerReferenceToCheck.Kind == ownerReferenceFromObj.Kind &&
+				ownerReferenceToCheck.Name == ownerReferenceFromObj.Name {
+				found = true
+			}
+		}
+		Expect(found).To(BeTrue())
+	}
 }

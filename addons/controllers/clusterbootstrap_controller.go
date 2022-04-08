@@ -1162,13 +1162,31 @@ func (r *ClusterBootstrapReconciler) cloneEmbeddedLocalObjectRef(cluster *cluste
 			}
 
 			copiedObj := fetchedObj.DeepCopy()
+			// Remove resoruceVersion to make sure dynamicClient create could work
 			unstructured.RemoveNestedField(copiedObj.Object, "metadata", "resourceVersion")
 			copiedObj.SetNamespace(cluster.Namespace)
+			ownerReferences := copiedObj.GetOwnerReferences()
+			ownerReferences = clusterapiutil.EnsureOwnerRef(ownerReferences, metav1.OwnerReference{
+				APIVersion: provider.GetAPIVersion(),
+				Kind:       provider.GetKind(),
+				Name:       provider.GetName(),
+				UID:        provider.GetUID(),
+			})
+			ownerReferences = clusterapiutil.EnsureOwnerRef(ownerReferences, metav1.OwnerReference{
+				APIVersion: clusterapiv1beta1.GroupVersion.String(),
+				Kind:       "Cluster",
+				Name:       cluster.GetName(),
+				UID:        cluster.GetUID(),
+			})
+			copiedObj.SetOwnerReferences(ownerReferences)
 			_, err = r.dynamicClient.Resource(*gvr).Namespace(cluster.Namespace).Create(r.context, copiedObj, metav1.CreateOptions{})
 			if err != nil {
 				if apierrors.IsAlreadyExists(err) {
+					// Only patch the ownerReferences
+					patchObj := unstructured.Unstructured{}
+					patchObj.SetOwnerReferences(ownerReferences)
 					var jsonData []byte
-					if jsonData, err = copiedObj.MarshalJSON(); err != nil {
+					if jsonData, err = patchObj.MarshalJSON(); err != nil {
 						return err
 					}
 					_, err = r.dynamicClient.Resource(*gvr).Namespace(cluster.Namespace).Patch(r.context, copiedObj.GetName(), types.MergePatchType, jsonData, metav1.PatchOptions{})
