@@ -17,7 +17,7 @@ func TKRName(version string) string {
 	return "v" + strings.ReplaceAll(strings.TrimPrefix(version, "v"), "+", "---")
 }
 
-// TKRName is the name of TanzuKubernetesRelease object for the provided version
+// TKRRef returns an ObjectReference to the TanzuKubernetesRelease object for the provided version.
 func TKRRef(version string) *corev1.ObjectReference {
 	tkrName := TKRName(version)
 	// TKR Reference should be nil if version == ""

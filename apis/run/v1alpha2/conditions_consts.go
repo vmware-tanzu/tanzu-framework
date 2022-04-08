@@ -114,7 +114,7 @@ const (
 	ConditionTanzuKubernetesReleaseCompatible = "TanzuKubernetesReleaseCompatible"
 )
 
-// All conditions we want to consider to determine the Ready Condition of TanzuKubernetesCluster
+// ConditionTypes lists all conditions we want to consider to determine the Ready Condition of TanzuKubernetesCluster
 // NOTE: The order of conditions types defines the priority for determining the Reason and Message for the target condition.
 var ConditionTypes = []clusterv1.ConditionType{
 	ControlPlaneReadyCondition,

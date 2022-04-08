@@ -55,7 +55,7 @@ type TanzuKubernetesClusterSpec struct {
 
 	// Distribution specifies the distribution for the Tanzu Kubernetes cluster: the software installed on the control plane and
 	// worker nodes, including Kubernetes itself.
-	// DEPRECATED: use topology.controlPlane.tkr and topology.nodePools[*].tkr instead.
+	// Deprecated: use topology.controlPlane.tkr and topology.nodePools[*].tkr instead.
 	// +optional
 	Distribution Distribution `json:"distribution,omitempty"`
 
@@ -170,7 +170,7 @@ type Distribution struct {
 	// the minor version is changed, it may only be incremented; skipping minor versions is not supported.
 	//
 	// The current observed version of the cluster is held by `status.version`.
-	// DEPRECATED: use topology.controlPlane.tkr and topology.nodePools[*].tkr instead.
+	// Deprecated: use topology.controlPlane.tkr and topology.nodePools[*].tkr instead.
 	// +optional
 	Version string `json:"fullVersion"`
 
@@ -188,7 +188,7 @@ type Distribution struct {
 	//
 	// To upgrade a cluster to the most recent version that still matches the hint, leave the hint alone and remove the
 	// fullVersion from the spec. This will cause the hint to be re-resolved.
-	// DEPRECATED: use topology.controlPlane.tkr and topology.nodePools[*].tkr instead.
+	// Deprecated: use topology.controlPlane.tkr and topology.nodePools[*].tkr instead.
 	// +optional
 	VersionHint string `json:"version"`
 }
@@ -269,12 +269,14 @@ type ProxyConfiguration struct {
 	// Example: http://<user>:<pwd>@<ip>:<port>
 	//
 	// +optional
+	// nolint:revive,stylecheck // suppress lint error about var naming because this is a legacy API
 	HttpProxy *string `json:"httpProxy,omitempty"`
 
 	// HttpsProxy specifies a proxy URL to use for creating HTTPS connections outside the cluster.
 	// Example: http://<user>:<pwd>@<ip>:<port>
 	//
 	// +optional
+	// nolint:revive,stylecheck // suppress lint error about var naming because this is a legacy API
 	HttpsProxy *string `json:"httpsProxy,omitempty"`
 
 	// NoProxy specifies a list of destination domain names, domains, IP addresses or other network CIDRs to exclude proxying.
@@ -335,7 +337,7 @@ type TanzuKubernetesClusterStatus struct {
 	Addons []AddonStatus `json:"addons,omitempty"`
 
 	// Phase of this TanzuKubernetesCluster.
-	// DEPRECATED: will be removed in v1alpha3
+	// Deprecated: will be removed in v1alpha3
 	// +optional
 	Phase TanzuKubernetesClusterPhase `json:"phase,omitempty"`
 
@@ -441,6 +443,7 @@ func (as *AddonStatus) SetStatus(addonName, version string) {
 // +kubebuilder:printcolumn:name="Updates Available",type=string,JSONPath=.status.conditions[?(@.type=='UpdatesAvailable')].message
 
 // TanzuKubernetesCluster is the schema for the Tanzu Kubernetes Grid service for vSphere API.
+// nolint:gocritic // suppress lint error: typeDefFirst: definition of type 'TanzuKubernetesCluster' should appear before its methods
 type TanzuKubernetesCluster struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
