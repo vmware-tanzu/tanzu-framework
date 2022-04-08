@@ -23,8 +23,8 @@ metadata:
     kapp.k14s.io/change-rule.1: "delete before deleting tkr-service.tanzu.vmware.com/issuer"
 spec:
   dnsNames:
-  - #@ "tkr-resolver-cluster-webhook-service.{}.svc".format(data.values.namespace)
-  - #@ "tkr-resolver-cluster-webhook-service-cert.{}.svc.cluster.local".format(data.values.namespace)
+    -  #@ "tkr-resolver-cluster-webhook-service.{}.svc".format(data.values.namespace)
+    -  #@ "tkr-resolver-cluster-webhook-service-cert.{}.svc.cluster.local".format(data.values.namespace)
   issuerRef:
     kind: Issuer
     name: tkr-resolver-cluster-webhook-selfsigned-issuer
