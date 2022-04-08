@@ -6,7 +6,7 @@ metadata:
   labels:
     app: tkr-conversion-webhook
   name: tkr-conversion-webhook-manager
-  namespace: #@ data.values.tkrConversionWebhook.namespace
+  namespace: #@ data.values.namespace
 spec:
   replicas: 1
   selector:

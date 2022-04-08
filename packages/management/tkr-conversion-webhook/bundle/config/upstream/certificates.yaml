@@ -5,7 +5,7 @@ kind: Issuer
 metadata:
   labels:
   name: tkr-conversion-webhook-selfsigned-issuer
-  namespace: #@ data.values.tkrConversionWebhook.namespace
+  namespace: #@ data.values.namespace
 spec:
   selfSigned: {}
 ---
@@ -14,11 +14,11 @@ kind: Certificate
 metadata:
   labels:
   name: tkr-conversion-webhook-serving-cert
-  namespace: #@ data.values.tkrConversionWebhook.namespace
+  namespace: #@ data.values.namespace
 spec:
   dnsNames:
-  - #@ "tkr-conversion-webhook-service.{}.svc".format(data.values.tkrConversionWebhook.namespace)
-  - #@ "tkr-conversion-webhook-service-cert.{}.svc.cluster.local".format(data.values.tkrConversionWebhook.namespace)
+  - #@ "tkr-conversion-webhook-service.{}.svc".format(data.values.namespace)
+  - #@ "tkr-conversion-webhook-service-cert.{}.svc.cluster.local".format(data.values.namespace)
   issuerRef:
     kind: Issuer
     name: tkr-conversion-webhook-selfsigned-issuer

@@ -5,7 +5,7 @@ kind: CustomResourceDefinition
 metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.7.0
-    cert-manager.io/inject-ca-from: #@ "{}/tkr-conversion-webhook-serving-cert".format(data.values.tkrConversionWebhook.namespace)
+    cert-manager.io/inject-ca-from: #@ "{}/tkr-conversion-webhook-serving-cert".format(data.values.namespace)
   creationTimestamp: null
   name: tanzukubernetesreleases.run.tanzu.vmware.com
 spec:
@@ -16,7 +16,7 @@ spec:
         caBundle: Cg==
         service:
           name: tkr-conversion-webhook-service
-          namespace: #@ data.values.tkrConversionWebhook.namespace
+          namespace: #@ data.values.namespace
           path: /convert
       conversionReviewVersions:
       - v1
