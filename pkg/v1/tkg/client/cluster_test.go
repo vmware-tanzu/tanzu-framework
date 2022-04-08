@@ -6,7 +6,7 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"sigs.k8s.io/cluster-api/api/v1alpha3"
+	capi "sigs.k8s.io/cluster-api/api/v1beta1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	. "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/client"
@@ -40,9 +40,9 @@ var _ = Describe("ValidateManagementClusterVersionWithCLI", func() {
 
 		regionalClient = fakes.ClusterClient{}
 		regionalClient.ListResourcesStub = func(i interface{}, lo ...client.ListOption) error {
-			list := i.(*v1alpha3.ClusterList)
-			*list = v1alpha3.ClusterList{
-				Items: []v1alpha3.Cluster{
+			list := i.(*capi.ClusterList)
+			*list = capi.ClusterList{
+				Items: []capi.Cluster{
 					{
 						ObjectMeta: v1.ObjectMeta{
 							Name:      clusterName,

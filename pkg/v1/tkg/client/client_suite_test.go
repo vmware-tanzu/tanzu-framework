@@ -36,7 +36,6 @@ import (
 	capav1beta1 "sigs.k8s.io/cluster-api-provider-aws/api/v1beta1"
 	capzv1beta1 "sigs.k8s.io/cluster-api-provider-azure/api/v1beta1"
 	capvv1beta1 "sigs.k8s.io/cluster-api-provider-vsphere/apis/v1beta1"
-	capiv1alpha3 "sigs.k8s.io/cluster-api/api/v1alpha3"
 	capi "sigs.k8s.io/cluster-api/api/v1beta1"
 	controlplanev1 "sigs.k8s.io/cluster-api/controlplane/kubeadm/api/v1beta1"
 
@@ -68,7 +67,7 @@ var scheme = runtime.NewScheme()
 
 func init() {
 	_ = capi.AddToScheme(scheme)
-	_ = capiv1alpha3.AddToScheme(scheme)
+	_ = capi.AddToScheme(scheme)
 	_ = corev1.AddToScheme(scheme)
 	_ = appsv1.AddToScheme(scheme)
 	_ = controlplanev1.AddToScheme(scheme)

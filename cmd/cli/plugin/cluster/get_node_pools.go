@@ -8,7 +8,7 @@ import (
 	"strings"
 
 	"github.com/pkg/errors"
-	"sigs.k8s.io/cluster-api/api/v1alpha3"
+	capi "sigs.k8s.io/cluster-api/api/v1beta1"
 
 	"github.com/spf13/cobra"
 
@@ -124,7 +124,7 @@ func listPacificNodePools(cmd *cobra.Command, tkgctlClient tkgctl.TKGClient, mdO
 	return nil
 }
 
-func updateMDsWithTKCNodepoolNames(tkcObj *tkgsv1alpha2.TanzuKubernetesCluster, machineDeployments []v1alpha3.MachineDeployment) error {
+func updateMDsWithTKCNodepoolNames(tkcObj *tkgsv1alpha2.TanzuKubernetesCluster, machineDeployments []capi.MachineDeployment) error {
 	nodepools := tkcObj.Spec.Topology.NodePools
 	for mdIdx := range machineDeployments {
 		nodepoolName := getNodePoolNameFromMDName(tkcObj.Name, machineDeployments[mdIdx].Name)

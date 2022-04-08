@@ -17,7 +17,6 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/util/uuid"
 	clientgoscheme "k8s.io/client-go/kubernetes/scheme"
-	clusterv1 "sigs.k8s.io/cluster-api/api/v1alpha3"
 	capi "sigs.k8s.io/cluster-api/api/v1beta1"
 	"sigs.k8s.io/cluster-api/util/conditions"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -470,8 +469,8 @@ func (c clientErrOnCreate) Create(ctx context.Context, obj client.Object, opts .
 var _ = Describe("watchMgmtCluster()", func() {
 	When("receiving an event for a workload Cluster", func() {
 		It("should NOT emit a request", func() {
-			Expect(watchMgmtCluster(&clusterv1.Cluster{})).To(HaveLen(0))
-			Expect(watchMgmtCluster(&clusterv1.Cluster{ObjectMeta: metav1.ObjectMeta{
+			Expect(watchMgmtCluster(&capi.Cluster{})).To(HaveLen(0))
+			Expect(watchMgmtCluster(&capi.Cluster{ObjectMeta: metav1.ObjectMeta{
 				Labels: map[string]string{},
 			}})).To(HaveLen(0))
 		})
@@ -479,7 +478,7 @@ var _ = Describe("watchMgmtCluster()", func() {
 
 	When("receiving an event for a management Cluster", func() {
 		It("should emit a request", func() {
-			cluster := &clusterv1.Cluster{
+			cluster := &capi.Cluster{
 				ObjectMeta: metav1.ObjectMeta{
 					Labels: map[string]string{constants.ManagementClusterRoleLabel: ""},
 				},

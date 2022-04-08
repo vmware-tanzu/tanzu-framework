@@ -4,7 +4,6 @@
 package tkgctl
 
 import (
-	capiv1alpha3 "sigs.k8s.io/cluster-api/api/v1alpha3"
 	capi "sigs.k8s.io/cluster-api/api/v1beta1"
 
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/client"
@@ -17,7 +16,7 @@ func (c *tkgctl) GetMachineDeployments(options client.GetMachineDeploymentOption
 // GetPacificMachineDeployments returns the MachineDeployments of Pacific(TKGS) TKC cluster
 // This is defined separately for Pacific (TKGS) provider because the TKGS and TKGm CAPI versions could be different
 // and this should be deprecated after clusterclass is adopted by both TKGm and TKGS
-func (c *tkgctl) GetPacificMachineDeployments(options client.GetMachineDeploymentOptions) ([]capiv1alpha3.MachineDeployment, error) {
+func (c *tkgctl) GetPacificMachineDeployments(options client.GetMachineDeploymentOptions) ([]capi.MachineDeployment, error) {
 	return c.tkgClient.GetPacificMachineDeployments(options)
 }
 

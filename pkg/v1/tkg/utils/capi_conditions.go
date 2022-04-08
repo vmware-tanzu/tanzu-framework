@@ -5,7 +5,7 @@ package utils
 
 import (
 	corev1 "k8s.io/api/core/v1"
-	clusterv1alpha3 "sigs.k8s.io/cluster-api/api/v1alpha3"
+	clusterv1 "sigs.k8s.io/cluster-api/api/v1beta1"
 	crtclient "sigs.k8s.io/controller-runtime/pkg/client"
 )
 
@@ -20,12 +20,12 @@ import (
 // use the conditions package for getting conditions.
 type Getter interface {
 	crtclient.Object
-	GetConditions() clusterv1alpha3.Conditions
+	GetConditions() clusterv1.Conditions
 }
 
 // Get returns the condition with the given type, if the condition does not exist,
 // it returns nil.
-func Get(from Getter, t clusterv1alpha3.ConditionType) *clusterv1alpha3.Condition {
+func Get(from Getter, t clusterv1.ConditionType) *clusterv1.Condition {
 	conditions := from.GetConditions()
 	if conditions == nil {
 		return nil
@@ -40,13 +40,13 @@ func Get(from Getter, t clusterv1alpha3.ConditionType) *clusterv1alpha3.Conditio
 }
 
 // Has returns true if a condition with the given type exists.
-func Has(from Getter, t clusterv1alpha3.ConditionType) bool {
+func Has(from Getter, t clusterv1.ConditionType) bool {
 	return Get(from, t) != nil
 }
 
 // IsTrue is true if the condition with the given type is True, otherwise it return false
 // if the condition is not True or if the condition does not exist (is nil).
-func IsTrue(from Getter, t clusterv1alpha3.ConditionType) bool {
+func IsTrue(from Getter, t clusterv1.ConditionType) bool {
 	if c := Get(from, t); c != nil {
 		return c.Status == corev1.ConditionTrue
 	}
@@ -55,7 +55,7 @@ func IsTrue(from Getter, t clusterv1alpha3.ConditionType) bool {
 
 // IsFalse is true if the condition with the given type is False, otherwise it return false
 // if the condition is not False or if the condition does not exist (is nil).
-func IsFalse(from Getter, t clusterv1alpha3.ConditionType) bool {
+func IsFalse(from Getter, t clusterv1.ConditionType) bool {
 	if c := Get(from, t); c != nil {
 		return c.Status == corev1.ConditionFalse
 	}
@@ -64,7 +64,7 @@ func IsFalse(from Getter, t clusterv1alpha3.ConditionType) bool {
 
 // IsUnknown is true if the condition with the given type is Unknown or if the condition
 // does not exist (is nil).
-func IsUnknown(from Getter, t clusterv1alpha3.ConditionType) bool {
+func IsUnknown(from Getter, t clusterv1.ConditionType) bool {
 	if c := Get(from, t); c != nil {
 		return c.Status == corev1.ConditionUnknown
 	}
@@ -72,7 +72,7 @@ func IsUnknown(from Getter, t clusterv1alpha3.ConditionType) bool {
 }
 
 // GetReason returns a nil safe string of Reason for the condition with the given type.
-func GetReason(from Getter, t clusterv1alpha3.ConditionType) string {
+func GetReason(from Getter, t clusterv1.ConditionType) string {
 	if c := Get(from, t); c != nil {
 		return c.Reason
 	}
@@ -80,7 +80,7 @@ func GetReason(from Getter, t clusterv1alpha3.ConditionType) string {
 }
 
 // GetMessage returns a nil safe string of Message.
-func GetMessage(from Getter, t clusterv1alpha3.ConditionType) string {
+func GetMessage(from Getter, t clusterv1.ConditionType) string {
 	if c := Get(from, t); c != nil {
 		return c.Message
 	}
@@ -89,7 +89,7 @@ func GetMessage(from Getter, t clusterv1alpha3.ConditionType) string {
 
 // GetSeverity returns the condition Severity or nil if the condition
 // does not exist (is nil).
-func GetSeverity(from Getter, t clusterv1alpha3.ConditionType) *clusterv1alpha3.ConditionSeverity {
+func GetSeverity(from Getter, t clusterv1.ConditionType) *clusterv1.ConditionSeverity {
 	if c := Get(from, t); c != nil {
 		return &c.Severity
 	}

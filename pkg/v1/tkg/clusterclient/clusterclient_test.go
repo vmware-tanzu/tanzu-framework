@@ -34,7 +34,6 @@ import (
 	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/utils/pointer"
 	capav1beta1 "sigs.k8s.io/cluster-api-provider-aws/api/v1beta1"
-	capiv1alpha3 "sigs.k8s.io/cluster-api/api/v1alpha3"
 	capi "sigs.k8s.io/cluster-api/api/v1beta1"
 	controlplanev1 "sigs.k8s.io/cluster-api/controlplane/kubeadm/api/v1beta1"
 	crtclient "sigs.k8s.io/controller-runtime/pkg/client"
@@ -74,7 +73,7 @@ var imageRepository = "registry.tkg.vmware.new"
 
 func init() {
 	_ = capi.AddToScheme(scheme)
-	_ = capiv1alpha3.AddToScheme(scheme)
+	_ = capi.AddToScheme(scheme)
 	_ = capav1beta1.AddToScheme(scheme)
 	_ = corev1.AddToScheme(scheme)
 	_ = controlplanev1.AddToScheme(scheme)
@@ -137,8 +136,8 @@ var _ = Describe("Cluster Client", func() {
 		mdReplicas         Replicas
 		kcpReplicas        Replicas
 		machineObjects     []capi.Machine
-		v1a3machineObjects []capiv1alpha3.Machine
-		tkcConditions      []capiv1alpha3.Condition
+		v1a3machineObjects []capi.Machine
+		tkcConditions      []capi.Condition
 	)
 
 	// Mock the sleep implementation for unit tests
@@ -1139,9 +1138,9 @@ var _ = Describe("Cluster Client", func() {
 		Context("When ManagedCluster(pacific cluster) object is present but is not yet provisioned", func() {
 			JustBeforeEach(func() {
 				clientset.GetCalls(func(ctx context.Context, namespace types.NamespacedName, cluster crtclient.Object) error {
-					conditions := capiv1alpha3.Conditions{}
-					conditions = append(conditions, capiv1alpha3.Condition{
-						Type:    capiv1alpha3.ReadyCondition,
+					conditions := capi.Conditions{}
+					conditions = append(conditions, capi.Condition{
+						Type:    capi.ReadyCondition,
 						Status:  corev1.ConditionFalse,
 						Reason:  "fake-reason",
 						Message: "fake-message",
@@ -1159,9 +1158,9 @@ var _ = Describe("Cluster Client", func() {
 		Context("When ManagedCluster(pacific cluster) object is present and is running", func() {
 			JustBeforeEach(func() {
 				clientset.GetCalls(func(ctx context.Context, namespace types.NamespacedName, cluster crtclient.Object) error {
-					conditions := capiv1alpha3.Conditions{}
-					conditions = append(conditions, capiv1alpha3.Condition{
-						Type:   capiv1alpha3.ReadyCondition,
+					conditions := capi.Conditions{}
+					conditions = append(conditions, capi.Condition{
+						Type:   capi.ReadyCondition,
 						Status: corev1.ConditionTrue,
 					})
 					cluster.(*tkgsv1alpha2.TanzuKubernetesCluster).Status.Conditions = conditions
@@ -1474,12 +1473,12 @@ var _ = Describe("Cluster Client", func() {
 			clstClient, err = NewClient(kubeConfigPath, "", clusterClientOptions)
 			Expect(err).NotTo(HaveOccurred())
 
-			v1a3machineObjects = []capiv1alpha3.Machine{}
+			v1a3machineObjects = []capi.Machine{}
 		})
 		JustBeforeEach(func() {
 			clientset.ListCalls(func(ctx context.Context, o crtclient.ObjectList, opts ...crtclient.ListOption) error {
 				switch o := o.(type) {
-				case *capiv1alpha3.MachineList:
+				case *capi.MachineList:
 					o.Items = append(o.Items, v1a3machineObjects...)
 				default:
 					return errors.New("invalid object type")
@@ -1496,11 +1495,11 @@ var _ = Describe("Cluster Client", func() {
 
 		Context("When cluster 'Ready` condition was 'False' and severity was set to 'Error' ", func() {
 			BeforeEach(func() {
-				tkcConditions = capiv1alpha3.Conditions{}
-				tkcConditions = append(tkcConditions, capiv1alpha3.Condition{
-					Type:     capiv1alpha3.ReadyCondition,
+				tkcConditions = capi.Conditions{}
+				tkcConditions = append(tkcConditions, capi.Condition{
+					Type:     capi.ReadyCondition,
 					Status:   corev1.ConditionFalse,
-					Severity: capiv1alpha3.ConditionSeverityError,
+					Severity: capi.ConditionSeverityError,
 				})
 			})
 			It("should return an update failed error", func() {
@@ -1511,11 +1510,11 @@ var _ = Describe("Cluster Client", func() {
 
 		Context("When cluster 'Ready` condition was 'False' and severity was set to 'Warning'", func() {
 			BeforeEach(func() {
-				tkcConditions = capiv1alpha3.Conditions{}
-				tkcConditions = append(tkcConditions, capiv1alpha3.Condition{
-					Type:     capiv1alpha3.ReadyCondition,
+				tkcConditions = capi.Conditions{}
+				tkcConditions = append(tkcConditions, capi.Condition{
+					Type:     capi.ReadyCondition,
 					Status:   corev1.ConditionFalse,
-					Severity: capiv1alpha3.ConditionSeverityWarning,
+					Severity: capi.ConditionSeverityWarning,
 				})
 			})
 			It("should return an update in progress error", func() {
@@ -1526,9 +1525,9 @@ var _ = Describe("Cluster Client", func() {
 		Context("When cluster 'Ready` condition was 'True'", func() {
 			Context("When some worker machine objects has old k8s version", func() {
 				BeforeEach(func() {
-					tkcConditions = capiv1alpha3.Conditions{}
-					tkcConditions = append(tkcConditions, capiv1alpha3.Condition{
-						Type:   capiv1alpha3.ReadyCondition,
+					tkcConditions = capi.Conditions{}
+					tkcConditions = append(tkcConditions, capi.Condition{
+						Type:   capi.ReadyCondition,
 						Status: corev1.ConditionTrue,
 					})
 					v1a3machineObjects = append(v1a3machineObjects, getv1alpha3DummyMachine("fake-machine-1", "fake-new-version", false))
@@ -1541,9 +1540,9 @@ var _ = Describe("Cluster Client", func() {
 			})
 			Context("When all worker machine objects has new k8s version", func() {
 				BeforeEach(func() {
-					tkcConditions = capiv1alpha3.Conditions{}
-					tkcConditions = append(tkcConditions, capiv1alpha3.Condition{
-						Type:   capiv1alpha3.ReadyCondition,
+					tkcConditions = capi.Conditions{}
+					tkcConditions = append(tkcConditions, capi.Condition{
+						Type:   capi.ReadyCondition,
 						Status: corev1.ConditionTrue,
 					})
 					v1a3machineObjects = append(v1a3machineObjects, getv1alpha3DummyMachine("fake-machine-1", "fake-new-version", false))
@@ -2605,9 +2604,9 @@ func getDummyMachine(name, currentK8sVersion string, isCP bool) capi.Machine {
 	return machine
 }
 
-func getv1alpha3DummyMachine(name, currentK8sVersion string, isCP bool) capiv1alpha3.Machine { //nolint:unparam
+func getv1alpha3DummyMachine(name, currentK8sVersion string, isCP bool) capi.Machine { //nolint:unparam
 	// TODO: Add test cases where isCP is true, currently there are no such tests
-	machine := capiv1alpha3.Machine{}
+	machine := capi.Machine{}
 	machine.Name = name
 	machine.Namespace = fakeMdNameSpace
 	machine.Spec.Version = &currentK8sVersion

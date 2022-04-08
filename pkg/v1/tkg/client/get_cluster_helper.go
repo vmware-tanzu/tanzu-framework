@@ -10,7 +10,6 @@ import (
 	"time"
 
 	"github.com/pkg/errors"
-	capiv1alpha3 "sigs.k8s.io/cluster-api/api/v1alpha3"
 	capi "sigs.k8s.io/cluster-api/api/v1beta1"
 	controlplanev1 "sigs.k8s.io/cluster-api/controlplane/kubeadm/api/v1beta1"
 	crtclient "sigs.k8s.io/controller-runtime/pkg/client"
@@ -35,8 +34,8 @@ type clusterObjects struct {
 
 type clusterObjectsForPacific struct {
 	cluster  tkgsv1alpha2.TanzuKubernetesCluster
-	mds      []capiv1alpha3.MachineDeployment
-	machines []capiv1alpha3.Machine
+	mds      []capi.MachineDeployment
+	machines []capi.Machine
 }
 
 // ################### Helpers for Pacific ##################
@@ -44,7 +43,7 @@ type clusterObjectsForPacific struct {
 func getRunningCPMachineCountForPacific(clusterInfo *clusterObjectsForPacific) int {
 	cpMachineCount := 0
 	for i := range clusterInfo.machines {
-		if _, labelExists := clusterInfo.machines[i].GetLabels()[capiv1alpha3.MachineControlPlaneLabelName]; labelExists && strings.EqualFold(clusterInfo.machines[i].Status.Phase, "running") {
+		if _, labelExists := clusterInfo.machines[i].GetLabels()[capi.MachineControlPlaneLabelName]; labelExists && strings.EqualFold(clusterInfo.machines[i].Status.Phase, "running") {
 			cpMachineCount++
 		}
 	}
@@ -66,13 +65,13 @@ func getClusterObjectsMapForPacific(clusterClient clusterclient.Client, listOpti
 		return nil, errors.Wrap(err, "unable to get list of clusters")
 	}
 
-	var mdList capiv1alpha3.MachineDeploymentList
+	var mdList capi.MachineDeploymentList
 	err = clusterClient.ListResources(&mdList, listOptions)
 	if err != nil {
 		return nil, errors.Wrap(err, "unable to get list of MachineDeployment objects")
 	}
 
-	var machineList capiv1alpha3.MachineList
+	var machineList capi.MachineList
 	err = clusterClient.ListResources(&machineList, listOptions)
 	if err != nil {
 		return nil, errors.Wrap(err, "unable to get list of Machine objects")

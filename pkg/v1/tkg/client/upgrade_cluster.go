@@ -16,7 +16,6 @@ import (
 	capav1beta1 "sigs.k8s.io/cluster-api-provider-aws/api/v1beta1"
 	capzv1beta1 "sigs.k8s.io/cluster-api-provider-azure/api/v1beta1"
 	capvv1beta1 "sigs.k8s.io/cluster-api-provider-vsphere/apis/v1beta1"
-	capiv1alpha3 "sigs.k8s.io/cluster-api/api/v1alpha3"
 	capi "sigs.k8s.io/cluster-api/api/v1beta1"
 	capikubeadmv1beta1 "sigs.k8s.io/cluster-api/controlplane/kubeadm/api/v1beta1"
 	capdv1beta1 "sigs.k8s.io/cluster-api/test/infrastructure/docker/api/v1beta1"
@@ -1249,10 +1248,10 @@ func (c *TkgClient) verifyK8sVersion(clusterClient clusterclient.Client, newVers
 	return nil
 }
 
-func listCAPIv1alpha3Clusters(clusterClient clusterclient.Client) ([]capiv1alpha3.Cluster, error) {
-	var clusterList capiv1alpha3.ClusterList
+func listCAPIv1alpha3Clusters(clusterClient clusterclient.Client) ([]capi.Cluster, error) {
+	var clusterList capi.ClusterList
 	if err := clusterClient.ListResources(&clusterList); err != nil {
-		return []capiv1alpha3.Cluster{}, err
+		return []capi.Cluster{}, err
 	}
 
 	return clusterList.Items, nil

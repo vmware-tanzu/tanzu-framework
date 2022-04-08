@@ -40,7 +40,6 @@ import (
 	capav1beta1 "sigs.k8s.io/cluster-api-provider-aws/api/v1beta1"
 	capzv1beta1 "sigs.k8s.io/cluster-api-provider-azure/api/v1beta1"
 	capvv1beta1 "sigs.k8s.io/cluster-api-provider-vsphere/apis/v1beta1"
-	capiv1alpha3 "sigs.k8s.io/cluster-api/api/v1alpha3"
 	capi "sigs.k8s.io/cluster-api/api/v1beta1"
 	bootstrapv1 "sigs.k8s.io/cluster-api/bootstrap/kubeadm/api/v1beta1"
 	clusterctlv1 "sigs.k8s.io/cluster-api/cmd/clusterctl/api/v1alpha3"
@@ -399,7 +398,6 @@ var (
 
 func init() {
 	_ = capi.AddToScheme(scheme)
-	_ = capiv1alpha3.AddToScheme(scheme)
 	_ = corev1.AddToScheme(scheme)
 	_ = appsv1.AddToScheme(scheme)
 	_ = clusterctlv1.AddToScheme(scheme)
@@ -1021,7 +1019,7 @@ func (c *client) PatchClusterObjectWithTKGVersion(clusterName, namespace, tkgVer
 }
 
 func (c *client) GetManagementClusterTKGVersion(mgmtClusterName, clusterNamespace string) (string, error) {
-	mcObject := &capiv1alpha3.Cluster{}
+	mcObject := &capi.Cluster{}
 	err := c.GetResource(mcObject, mgmtClusterName, clusterNamespace, nil, nil)
 	if err != nil {
 		return "", errors.Wrap(err, "unable to get the cluster object")
@@ -1682,20 +1680,20 @@ func (c *client) WaitForPacificCluster(clusterName, namespace string) error {
 			return false, err
 		}
 		errcount = 0
-		if utils.IsFalse(tkcObj, capiv1alpha3.ReadyCondition) &&
-			(*utils.GetSeverity(tkcObj, capiv1alpha3.ReadyCondition) == capiv1alpha3.ConditionSeverityError) {
+		if utils.IsFalse(tkcObj, capi.ReadyCondition) &&
+			(*utils.GetSeverity(tkcObj, capi.ReadyCondition) == capi.ConditionSeverityError) {
 			return true, errors.Errorf("cluster is in failed state, reason:'%s', message:'%s'",
-				utils.GetReason(tkcObj, capiv1alpha3.ReadyCondition),
-				utils.GetMessage(tkcObj, capiv1alpha3.ReadyCondition))
+				utils.GetReason(tkcObj, capi.ReadyCondition),
+				utils.GetMessage(tkcObj, capi.ReadyCondition))
 		}
-		if utils.IsTrue(tkcObj, capiv1alpha3.ReadyCondition) {
+		if utils.IsTrue(tkcObj, capi.ReadyCondition) {
 			return false, nil
 		}
 		if time.Since(start) > c.operationTimeout {
 			return true, errors.Errorf("time out waiting for the cluster to be ready")
 		}
-		msg := utils.GetMessage(tkcObj, capiv1alpha3.ReadyCondition)
-		reason := utils.GetReason(tkcObj, capiv1alpha3.ReadyCondition)
+		msg := utils.GetMessage(tkcObj, capi.ReadyCondition)
+		reason := utils.GetReason(tkcObj, capi.ReadyCondition)
 		return false, errors.Errorf("cluster is still not provisioned, reason:'%s', message: '%s' ", reason, msg)
 	})
 	return err
@@ -1769,13 +1767,13 @@ func (c *client) verifyPacificK8sVersionUpdate(clusterName, namespace, newK8sVer
 	return nil
 }
 
-func (c *client) getWorkerMachineObjectsForPacificCluster(clusterName, namespace string) ([]capiv1alpha3.Machine, error) {
-	mdList := &capiv1alpha3.MachineList{}
+func (c *client) getWorkerMachineObjectsForPacificCluster(clusterName, namespace string) ([]capi.Machine, error) {
+	mdList := &capi.MachineList{}
 	if err := c.GetResourceList(mdList, clusterName, namespace, nil, nil); err != nil {
 		return nil, err
 	}
 
-	workerMachines := []capiv1alpha3.Machine{}
+	workerMachines := []capi.Machine{}
 	for i := range mdList.Items {
 		if _, labelFound := mdList.Items[i].Labels[capi.MachineControlPlaneLabelName]; !labelFound {
 			workerMachines = append(workerMachines, mdList.Items[i])
@@ -1805,13 +1803,13 @@ func (c *client) WaitForPacificClusterK8sVersionUpdate(clusterName, namespace, n
 		}
 
 		errcount = 0
-		if utils.IsFalse(tkcObj, capiv1alpha3.ReadyCondition) &&
-			(*utils.GetSeverity(tkcObj, capiv1alpha3.ReadyCondition) == capiv1alpha3.ConditionSeverityError) {
+		if utils.IsFalse(tkcObj, capi.ReadyCondition) &&
+			(*utils.GetSeverity(tkcObj, capi.ReadyCondition) == capi.ConditionSeverityError) {
 			return true, errors.Errorf("cluster kubernetes version update failed, reason:'%s', message:'%s'",
-				utils.GetReason(tkcObj, capiv1alpha3.ReadyCondition),
-				utils.GetMessage(tkcObj, capiv1alpha3.ReadyCondition))
+				utils.GetReason(tkcObj, capi.ReadyCondition),
+				utils.GetMessage(tkcObj, capi.ReadyCondition))
 		}
-		if utils.IsTrue(tkcObj, capiv1alpha3.ReadyCondition) {
+		if utils.IsTrue(tkcObj, capi.ReadyCondition) {
 			// check if the version is updated on worker nodes, if yes return
 			err = c.verifyPacificK8sVersionUpdate(clusterName, namespace, newK8sVersion)
 			if err == nil {

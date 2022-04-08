@@ -13,7 +13,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	capiv1alpha3 "sigs.k8s.io/cluster-api/api/v1alpha3"
+	capi "sigs.k8s.io/cluster-api/api/v1beta1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	. "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/client"
@@ -69,8 +69,8 @@ var _ = Describe("Unit tests for addons upgrade", func() {
 			regionalClusterClient.GetKCPObjectForClusterReturns(getDummyKCP(constants.DockerMachineTemplate), nil)
 			currentClusterClient.GetKubernetesVersionReturns(currentK8sVersion, nil)
 			regionalClusterClient.ListResourcesCalls(func(clusterList interface{}, options ...client.ListOption) error {
-				if clusterList, ok := clusterList.(*capiv1alpha3.ClusterList); ok {
-					clusterList.Items = []capiv1alpha3.Cluster{
+				if clusterList, ok := clusterList.(*capi.ClusterList); ok {
+					clusterList.Items = []capi.Cluster{
 						{
 							ObjectMeta: metav1.ObjectMeta{
 								Name:      clusterName,
@@ -84,13 +84,13 @@ var _ = Describe("Unit tests for addons upgrade", func() {
 			})
 
 			regionalClusterClient.GetResourceCalls(func(cluster interface{}, resourceName, namespace string, postVerify clusterclient.PostVerifyrFunc, pollOptions *clusterclient.PollOptions) error {
-				if cluster, ok := cluster.(*capiv1alpha3.Cluster); ok && resourceName == clusterName && namespace == constants.DefaultNamespace {
-					cluster.Spec = capiv1alpha3.ClusterSpec{
-						ClusterNetwork: &capiv1alpha3.ClusterNetwork{
-							Services: &capiv1alpha3.NetworkRanges{
+				if cluster, ok := cluster.(*capi.Cluster); ok && resourceName == clusterName && namespace == constants.DefaultNamespace {
+					cluster.Spec = capi.ClusterSpec{
+						ClusterNetwork: &capi.ClusterNetwork{
+							Services: &capi.NetworkRanges{
 								CIDRBlocks: serviceCIDRs,
 							},
-							Pods: &capiv1alpha3.NetworkRanges{
+							Pods: &capi.NetworkRanges{
 								CIDRBlocks: podCIDRs,
 							},
 						},
@@ -289,8 +289,8 @@ var _ = Describe("Test RetrieveProxySettings", func() {
 		workloadClusterClient = &fakes.ClusterClient{}
 		tkgClient, err = CreateTKGClient("../fakes/config/config2.yaml", testingDir, "../fakes/config/bom/tkg-bom-v1.3.1.yaml", 2*time.Millisecond)
 		regionalClusterClient.ListResourcesCalls(func(clusterList interface{}, options ...client.ListOption) error {
-			if clusterList, ok := clusterList.(*capiv1alpha3.ClusterList); ok {
-				clusterList.Items = []capiv1alpha3.Cluster{
+			if clusterList, ok := clusterList.(*capi.ClusterList); ok {
+				clusterList.Items = []capi.Cluster{
 					{
 						ObjectMeta: metav1.ObjectMeta{
 							Name:      "regional-cluster-2",
