@@ -727,10 +727,18 @@ prep-package-tools:
 
 .PHONY: package-bundle
 package-bundle: tools prep-package-tools ## Build one specific tar bundle package, needs PACKAGE_NAME VERSION
-	cd hack/packages/package-tools && $(GO) run main.go package-bundle generate $(PACKAGE_NAME) --repository=$(PACKAGE_REPOSITORY) --version=$(PACKAGE_VERSION) --sub-version=$(PACKAGE_SUB_VERSION)
+	cd hack/packages/package-tools && $(GO) run main.go package-bundle generate --thick $(PACKAGE_NAME) --repository=$(PACKAGE_REPOSITORY) --version=$(PACKAGE_VERSION) --sub-version=$(PACKAGE_SUB_VERSION)
 
+.PHONY: package-bundle-thin
+package-bundle-thin: tools prep-package-tools ## Build one specific tar bundle package, needs PACKAGE_NAME VERSION
+	cd hack/packages/package-tools && $(GO) run main.go package-bundle generate $(PACKAGE_NAME) --repository=$(PACKAGE_REPOSITORY) --version=$(PACKAGE_VERSION) --sub-version=$(PACKAGE_SUB_VERSION)
+	
 .PHONY: package-bundles
 package-bundles: tools prep-package-tools ## Build tar bundles for multiple packages
+	cd hack/packages/package-tools && $(GO) run main.go package-bundle generate --all --thick --repository=$(PACKAGE_REPOSITORY) --version=$(PACKAGE_VERSION) --sub-version=$(PACKAGE_SUB_VERSION)
+
+.PHONY: package-bundles-thin
+package-bundles-thin: tools prep-package-tools ## Build tar bundles for multiple packages
 	cd hack/packages/package-tools && $(GO) run main.go package-bundle generate --all --repository=$(PACKAGE_REPOSITORY) --version=$(PACKAGE_VERSION) --sub-version=$(PACKAGE_SUB_VERSION)
 
 .PHONY: package-repo-bundle

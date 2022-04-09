@@ -20,3 +20,8 @@ management cluster.
 A Package that contains PackageInstall CRs, Secrets and ServiceAccounts, RBAC rules that are needed to install other
 packages and when the meta package is installed, it installs the other packages. A meta Package may describe
 a specific version of a Distribution.
+
+## Thick tarball
+
+A tarball that contains a package bundle and its associated images.
+Thick tarballs are suitable for air-gapped environments.
