@@ -94,7 +94,7 @@ func (t *tkgctl) Init(options InitRegionOptions) error {
 
 	isInputFileClusterClassBased, err := t.processManagementClusterInputFile(&options)
 	if err == nil && isInputFileClusterClassBased {
-		return errors.New("Creating management cluster using ClusterClass based configuration file is not yet supported. Please use legacy configuration file when creating managment cluster.")
+		return errors.New("creating management cluster using ClusterClass based configuration file is not yet supported. Please use legacy configuration file when creating management cluster")
 	}
 
 	if err := t.tkgClient.ValidatePrerequisites(!options.UseExistingCluster, true); err != nil {
