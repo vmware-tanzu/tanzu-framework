@@ -7,9 +7,10 @@ resources using the old (pure client-side ytt-processing) and the new
 (clusterclass-based using dryrun functionality) from the same set of cluster
 configuration file
 
-```
+```text
 make clustergen-cc
 ```
+
 produces two sets of outputs for each set of cluster configuration cases,
 cleanses and normalizes the yaml, then generates diffs between the two sets of
 outputs. This is used to gauge the degree to compatibility of the
@@ -18,8 +19,8 @@ clusterclass authoring.
 
 Note: the tool requires a modified version of clusterctl CLI that includes
 a 'alpha topology-dryrun' and 'alpha generate-normalized-topology' commands,
-buildable with `make clustectl` from 
-https://github.com/vuil/cluster-api/tree/ccgen
+buildable with `make clustectl` from
+<https://github.com/vuil/cluster-api/tree/ccgen>
 The branch will be periodically updated to bring in any relevant changes
 upstream.
 

@@ -610,7 +610,7 @@ func (c *TkgClient) BuildRegionalClusterConfiguration(options *InitRegionOptions
 		if err != nil {
 			return bytes, options.ClusterName, "", err
 		}
-		configFilePath := filepath.Join(clusterConfigDir, fmt.Sprintf("%s.yaml", options.ClusterName))
+		configFilePath = filepath.Join(clusterConfigDir, fmt.Sprintf("%s.yaml", options.ClusterName))
 		err = utils.SaveFile(configFilePath, bytes)
 		if err != nil {
 			return bytes, options.ClusterName, "", err

@@ -102,7 +102,7 @@ spec:
       #@overlay/match by=overlay.index(0)
       - replicas: #@ data.values.WORKER_MACHINE_COUNT
     #@overlay/match missing_ok=True
-    variables: 
+    variables:
     #@ vars = get_cluster_variables()
     #@ if vars["TKG_CUSTOM_IMAGE_REPOSITORY"] == "":
     #@  vars["TKG_CUSTOM_IMAGE_REPOSITORY"] = bomData.imageConfig.imageRepository
