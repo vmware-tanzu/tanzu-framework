@@ -24,7 +24,7 @@ spec:
     - name: CLUSTER_PLAN
       value: devcc
     - name: AWS_AMI_ID
-      value: "ami-0b12ea388b0c61c8f"      
+      value: "ami-0b12ea388b0c61c8f"
     - name: AWS_REGION
       value: us-west-2
     - name: AWS_NODE_AZ
