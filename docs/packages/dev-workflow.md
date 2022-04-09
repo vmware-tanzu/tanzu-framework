@@ -38,10 +38,17 @@ This document provides guidance on how to build and publish package and repo bun
       PACKAGE_REPOSITORY=management make push-package-bundles
    ```
 
-   To build a particular package bundle, run:
+   To build a particular package bundle, run the following command.
+   Note that included in the package bundle will be a thick tarball that is useful for air-gapped environments.
 
    ```shell
       PACKAGE_NAME=my-package make package-bundle
+   ```
+
+   For environments where an external image registry is accessible, you may use the following command to build a package bundle:
+
+   ```shell
+      PACKAGE_NAME=my-package make package-bundle-thin
    ```
 
 5. Build package repo bundle

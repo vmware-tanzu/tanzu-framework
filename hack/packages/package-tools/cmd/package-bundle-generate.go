@@ -19,7 +19,7 @@ import (
 )
 
 var packageRepository, version, subVersion string
-var all bool
+var all, thick bool
 
 // packageBundleGenerateCmd is for generating package bundle
 var packageBundleGenerateCmd = &cobra.Command{
@@ -34,6 +34,7 @@ func init() {
 	packageBundleGenerateCmd.Flags().StringVar(&version, "version", "", "Package bundle version")
 	packageBundleGenerateCmd.Flags().StringVar(&subVersion, "sub-version", "", "Package bundle subversion")
 	packageBundleGenerateCmd.Flags().BoolVar(&all, "all", false, "Generate all package bundles in a repository")
+	packageBundleGenerateCmd.Flags().BoolVar(&thick, "thick", false, "Include thick tarball(s) in package bundle(s)")
 	packageBundleGenerateCmd.MarkFlagRequired("version") //nolint: errcheck
 }
 
@@ -63,7 +64,7 @@ func runPackageBundleGenerate(cmd *cobra.Command, args []string) error {
 		if err := generateSingleImgpkgLockOutput(projectRootDir, toolsBinDir, packagePath); err != nil {
 			return fmt.Errorf("couldn't generate imgpkg lock output file: %w", err)
 		}
-		if err := generatePackageBundle(projectRootDir, packageName, packagePath); err != nil {
+		if err := generatePackageBundle(projectRootDir, toolsBinDir, packageName, packagePath); err != nil {
 			return fmt.Errorf("couldn't generate the package bundle: %w", err)
 		}
 	}
@@ -118,7 +119,7 @@ func generateSingleImgpkgLockOutput(projectRootDir, toolsBinDir, packagePath str
 	return nil
 }
 
-func generatePackageBundle(projectRootDir, packageName, packagePath string) error {
+func generatePackageBundle(projectRootDir, toolsBinDir, packageName, packagePath string) error {
 	if err := utils.RunMakeTarget(packagePath, "configure-package"); err != nil {
 		return err
 	}
@@ -134,6 +135,38 @@ func generatePackageBundle(projectRootDir, packageName, packagePath string) erro
 	pathToContents := filepath.Join(packagePath, "bundle")
 	if err := utils.CreateTarball(tarBallPath, tarBallFileName, pathToContents); err != nil {
 		return fmt.Errorf("couldn't generate package bundle: %w", err)
+	}
+
+	// create thick tarball
+	if thick {
+		fmt.Println("Including thick tarball...")
+		var cmdErr bytes.Buffer
+
+		packageURL := fmt.Sprintf("%s/%s:%s", constants.LocalRegistryURL, packageName, imagePackageVersion)
+		imgpkgPushCmd := exec.Command(
+			filepath.Join(toolsBinDir, "imgpkg"),
+			"push",
+			"-b", packageURL,
+			"--file", filepath.Join(packagePath, "bundle"),
+		) // #nosec G204
+		imgpkgPushCmd.Stderr = &cmdErr
+		if err := imgpkgPushCmd.Run(); err != nil {
+			fmt.Println("cmd:", imgpkgPushCmd.String())
+			fmt.Println("err:", err)
+			return fmt.Errorf("pushing package bundle to local registry: %s", cmdErr.String())
+		}
+
+		tarBallFileName = packageName + "-" + imagePackageVersion + "-thick.tar.gz"
+		imgpkgCopyCmd := exec.Command(
+			filepath.Join(toolsBinDir, "imgpkg"),
+			"copy",
+			"-b", packageURL,
+			"--to-tar", filepath.Join(tarBallPath, tarBallFileName),
+		) // #nosec G204
+		imgpkgCopyCmd.Stderr = &cmdErr
+		if err := imgpkgCopyCmd.Run(); err != nil {
+			return fmt.Errorf("generating thick tarball: %s", cmdErr.String())
+		}
 	}
 
 	if err := utils.RunMakeTarget(packagePath, "reset-package"); err != nil {
@@ -209,7 +242,7 @@ func generatePackageBundles(projectRootDir, toolsBinDir string) error {
 				return err
 			}
 
-			if err := generatePackageBundle(projectRootDir, pkg.Name, packagePath); err != nil {
+			if err := generatePackageBundle(projectRootDir, toolsBinDir, pkg.Name, packagePath); err != nil {
 				return fmt.Errorf("couldn't generate package bundle: %w", err)
 			}
 
