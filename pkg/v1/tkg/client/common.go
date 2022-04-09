@@ -40,14 +40,14 @@ type ClusterClassSelector interface {
 type GivenClusterClassSelector struct{}
 type ProviderBasedClusterClassSelector struct{}
 
-func (GivenClusterClassSelector) Select(config tkgconfigreaderwriter.TKGConfigReaderWriter) string {
-	ret, _ := config.Get(constants.ConfigVariableClusterClass)
+func (GivenClusterClassSelector) Select(rw tkgconfigreaderwriter.TKGConfigReaderWriter) string {
+	ret, _ := rw.Get(constants.ConfigVariableClusterClass)
 
 	return ret
 }
 
-func (ProviderBasedClusterClassSelector) Select(config tkgconfigreaderwriter.TKGConfigReaderWriter) string {
-	if provider, err := config.Get(constants.ConfigVariableProviderType); err == nil && provider != "" {
+func (ProviderBasedClusterClassSelector) Select(rw tkgconfigreaderwriter.TKGConfigReaderWriter) string {
+	if provider, err := rw.Get(constants.ConfigVariableProviderType); err == nil && provider != "" {
 		return fmt.Sprintf("tkg-%s-default", provider)
 	}
 
@@ -276,15 +276,15 @@ func (c *TkgClient) ConfigureTimeout(timeout time.Duration) {
 
 // SetClusterClass sets the value of CLUSTER_CLASS based on an array of selectors.
 // Uses the first non empty name provided by a selector.
-func SetClusterClass(config tkgconfigreaderwriter.TKGConfigReaderWriter) {
+func SetClusterClass(rw tkgconfigreaderwriter.TKGConfigReaderWriter) {
 	clusterClassSelectors := []ClusterClassSelector{
 		GivenClusterClassSelector{},
 		ProviderBasedClusterClassSelector{},
 	}
 
 	for _, selector := range clusterClassSelectors {
-		if name := selector.Select(config); name != "" {
-			config.Set(constants.ConfigVariableClusterClass, name)
+		if name := selector.Select(rw); name != "" {
+			rw.Set(constants.ConfigVariableClusterClass, name)
 			break
 		}
 	}
