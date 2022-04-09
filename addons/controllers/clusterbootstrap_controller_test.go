@@ -19,6 +19,7 @@ import (
 	addontypes "github.com/vmware-tanzu/tanzu-framework/addons/pkg/types"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/util"
 	"github.com/vmware-tanzu/tanzu-framework/addons/testutil"
+	antreaconfigv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cni/v1alpha1"
 	vspherecpiv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cpi/v1alpha1"
 	runtanzuv1alpha3 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
 
@@ -33,7 +34,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
-var _ = FDescribe("ClusterBootstrap Reconciler", func() {
+var _ = Describe("ClusterBootstrap Reconciler", func() {
 	var (
 		clusterName             string
 		clusterNamespace        string
@@ -563,6 +564,66 @@ var _ = FDescribe("ClusterBootstrap Reconciler", func() {
 		})
 	})
 
+	When("Cluster is created", func() {
+
+		var routableAntreaConfig *antreaconfigv1alpha1.AntreaConfig
+
+		BeforeEach(func() {
+			clusterName = "test-cluster-tcbt-3"
+			clusterNamespace = "cluster-namespace-3"
+			clusterResourceFilePath = "testdata/test-cluster-bootstrap-3.yaml"
+
+			ns := &corev1.Namespace{
+				ObjectMeta: metav1.ObjectMeta{
+					Name: clusterNamespace,
+				},
+			}
+			_ = k8sClient.Create(ctx, ns)
+
+			routableAntreaConfig = &antreaconfigv1alpha1.AntreaConfig{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      fmt.Sprintf("%s-%s-package", clusterName, "antrea.tanzu.vmware.com"),
+					Namespace: clusterNamespace,
+				},
+				Spec: antreaconfigv1alpha1.AntreaConfigSpec{
+					Antrea: antreaconfigv1alpha1.Antrea{
+						AntreaConfigDataValue: antreaconfigv1alpha1.AntreaConfigDataValue{
+							TrafficEncapMode: "noEncap",
+							NoSNAT:           true,
+							FeatureGates: antreaconfigv1alpha1.AntreaFeatureGates{
+								AntreaProxy:   true,
+								EndpointSlice: true,
+							},
+						},
+					},
+				},
+			}
+			Expect(k8sClient.Create(ctx, routableAntreaConfig)).NotTo(HaveOccurred())
+			assertEventuallyExistInNamespace(ctx, k8sClient, clusterNamespace, routableAntreaConfig.Name, &antreaconfigv1alpha1.AntreaConfig{})
+		})
+
+		Context("with a routable AntreaConfig resource already exist", func() {
+			It("clusterbootstra_controller should not overwrite the existing AntreaConfig Specs", func() {
+				createdAntreaConfig := &antreaconfigv1alpha1.AntreaConfig{}
+				assertOwnerReferencesExist(ctx, k8sClient, clusterNamespace, fmt.Sprintf("%s-%s-package", clusterName, "antrea.tanzu.vmware.com"), createdAntreaConfig, []metav1.OwnerReference{
+					{
+						APIVersion: clusterapiv1beta1.GroupVersion.String(),
+						Kind:       "Cluster",
+						Name:       clusterName,
+					},
+				})
+				Expect(createdAntreaConfig.Spec.Antrea.AntreaConfigDataValue.TrafficEncapMode).To(
+					Equal(routableAntreaConfig.Spec.Antrea.AntreaConfigDataValue.TrafficEncapMode))
+				Expect(createdAntreaConfig.Spec.Antrea.AntreaConfigDataValue.NoSNAT).To(
+					Equal(routableAntreaConfig.Spec.Antrea.AntreaConfigDataValue.NoSNAT))
+				Expect(createdAntreaConfig.Spec.Antrea.AntreaConfigDataValue.FeatureGates.AntreaProxy).To(
+					Equal(routableAntreaConfig.Spec.Antrea.AntreaConfigDataValue.FeatureGates.AntreaProxy))
+				Expect(createdAntreaConfig.Spec.Antrea.AntreaConfigDataValue.FeatureGates.EndpointSlice).To(
+					Equal(routableAntreaConfig.Spec.Antrea.AntreaConfigDataValue.FeatureGates.EndpointSlice))
+			})
+		})
+	})
+
 })
 
 func assertSecretContains(ctx context.Context, k8sClient client.Client, namespace, name string, secretContent map[string][]byte) {
@@ -582,19 +643,24 @@ func assertEventuallyExistInNamespace(ctx context.Context, k8sClient client.Clie
 }
 
 func assertOwnerReferencesExist(ctx context.Context, k8sClient client.Client, namespace, name string, obj client.Object, ownerReferencesToCheck []metav1.OwnerReference) {
-	key := client.ObjectKey{Name: name, Namespace: namespace}
-	Expect(k8sClient.Get(ctx, key, obj)).NotTo(HaveOccurred())
+	Eventually(func() bool {
+		key := client.ObjectKey{Name: name, Namespace: namespace}
+		Expect(k8sClient.Get(ctx, key, obj)).NotTo(HaveOccurred())
 
-	for _, ownerReferenceToCheck := range ownerReferencesToCheck {
-		found := false
-		for _, ownerReferenceFromObj := range obj.GetOwnerReferences() {
-			// skip the comparison of UID on purpose, caller does not know the UIDs of ownerReferencesToCheck beforehand
-			if ownerReferenceToCheck.APIVersion == ownerReferenceFromObj.APIVersion &&
-				ownerReferenceToCheck.Kind == ownerReferenceFromObj.Kind &&
-				ownerReferenceToCheck.Name == ownerReferenceFromObj.Name {
-				found = true
+		for _, ownerReferenceToCheck := range ownerReferencesToCheck {
+			found := false
+			for _, ownerReferenceFromObj := range obj.GetOwnerReferences() {
+				// skip the comparison of UID on purpose, caller does not know the UIDs of ownerReferencesToCheck beforehand
+				if ownerReferenceToCheck.APIVersion == ownerReferenceFromObj.APIVersion &&
+					ownerReferenceToCheck.Kind == ownerReferenceFromObj.Kind &&
+					ownerReferenceToCheck.Name == ownerReferenceFromObj.Name {
+					found = true
+				}
+			}
+			if !found {
+				return false
 			}
 		}
-		Expect(found).To(BeTrue())
-	}
+		return true
+	}, waitTimeout, pollingInterval).Should(BeTrue())
 }
