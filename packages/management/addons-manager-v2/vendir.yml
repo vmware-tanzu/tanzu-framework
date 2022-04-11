@@ -48,6 +48,15 @@ directories:
         newRootPath: config/crd/bases/cpi.tanzu.vmware.com_vspherecpiconfigs.yaml
         includePaths:
           - config/crd/bases/cpi.tanzu.vmware.com_vspherecpiconfigs.yaml
+      - path: csi.tanzu.vmware.com_vspherecsiconfigs.yaml
+        git:
+          url: git@github.com:vmware-tanzu/tanzu-framework.git
+          ref: 9d1b2568aee9fee17b12e85a8ca3fe29c391473a
+        newRootPath: config/crd/bases/csi.tanzu.vmware.com_vspherecsiconfigs.yaml
+        includePaths:
+          - config/crd/bases/csi.tanzu.vmware.com_vspherecsiconfigs.yaml
+      - path: cni-webhook-manifests.lib.yaml
+        manual: {}
   - path: bundle/config/overlays
     contents:
       - path: feature-gate-clusterbootstrap.yaml
