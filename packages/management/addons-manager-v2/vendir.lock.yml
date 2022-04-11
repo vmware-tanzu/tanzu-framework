@@ -39,6 +39,14 @@ directories:
       tags:
       - v0.19.0-dev-33-ga0788c22
     path: cpi.tanzu.vmware.com_vspherecpiconfigs.yaml
+  - git:
+      commitTitle: adding vspherecsiconfig api and controller (#2046)
+      sha: 9d1b2568aee9fee17b12e85a8ca3fe29c391473a
+      tags:
+      - v0.21.0-dev-50-g9d1b2568
+    path: csi.tanzu.vmware.com_vspherecsiconfigs.yaml
+  - manual: {}
+    path: cni-webhook-manifests.lib.yaml
   path: bundle/config/upstream
 - contents:
   - manual: {}
