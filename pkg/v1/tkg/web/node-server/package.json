@@ -30,7 +30,7 @@
     "morgan": "1.10.0",
     "path": "0.12.7",
     "properties-reader": "2.2.0",
-    "rotating-file-stream": "1.0.5",
+    "rotating-file-stream": "3.0.3",
     "url": "0.11.0",
     "winston": "^3.7.2",
     "ws": "^8.5.0"
