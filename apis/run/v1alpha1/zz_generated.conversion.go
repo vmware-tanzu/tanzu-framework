@@ -12,7 +12,7 @@ import (
 	unsafe "unsafe"
 
 	conversion "k8s.io/apimachinery/pkg/conversion"
-	"k8s.io/apimachinery/pkg/runtime"
+	runtime "k8s.io/apimachinery/pkg/runtime"
 	v1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
 
 	v1alpha3 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
