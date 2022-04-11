@@ -31,7 +31,7 @@
         "api-client-generator": "^4.7.1",
         "codelyzer": "^6.0.2",
         "dotenv": "^8.6.0",
-        "fs-extra": "^9.1.0",
+        "fs-extra": "^10.0.1",
         "jasmine-core": "^4.0.1",
         "jasmine-reporters": "^2.4.0",
         "jasmine-spec-reporter": "^4.2.1",
