@@ -25,6 +25,7 @@ spec:
         encoding: "base64"
         permissions: "0444"
 
+#@ if not data.values.IS_WINDOWS_WORKLOAD_CLUSTER:
 #@overlay/match by=overlay.subset({"kind":"KubeadmConfigTemplate"}),expects="1+"
 ---
 apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
@@ -47,4 +48,26 @@ spec:
           content: #@ tkg_image_repo_ca_cert()
           encoding: "base64"
           permissions: "0444"
+#@ else:
+#@overlay/match by=overlay.subset({"kind":"KubeadmConfigTemplate"}),expects="1+"
+---
+apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
+kind: KubeadmConfigTemplate
+spec:
+  template:
+    spec:
+      #@overlay/match missing_ok=True
+      preKubeadmCommands:
+        #@overlay/append
+        - #@ "powershell -ExecutionPolicy Bypass -Command Add-Content -Path 'C:\\Program Files\\containerd\\config.toml' -Value '[plugins.\\\"io.containerd.grpc.v1.cri\\\".registry.configs.\\\"" + tkg_image_repo_hostname() + "\\\".tls]'"
+        #@overlay/append
+        - #@ "powershell -ExecutionPolicy Bypass -Command Add-Content -Path 'C:\\Program Files\\containerd\\config.toml' -Value '\"  \"ca_file = \\\"C:\\\\Program Files\\\\containerd\\\\" + tkg_image_repo_hostname() + ".crt\\\"'"
+      #@overlay/match missing_ok=True
+      files:
+        #@overlay/append
+        - path: #@ "C:\\Program Files\\containerd\\" + tkg_image_repo_hostname() + ".crt"
+          content: #@ tkg_image_repo_ca_cert()
+          encoding: "base64"
+          permissions: "0444"
+#@ end
 #@ end

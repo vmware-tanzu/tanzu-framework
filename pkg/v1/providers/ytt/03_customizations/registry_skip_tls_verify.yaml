@@ -42,5 +42,21 @@ spec:
       #@ end
       #@overlay/append
       - systemctl restart containerd
+#@ else:
+#@overlay/match by=overlay.subset({"kind":"KubeadmConfigTemplate"}),expects="1+"
+---
+apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
+kind: KubeadmConfigTemplate
+spec:
+  template:
+    spec:
+      #@overlay/match missing_ok=True
+      preKubeadmCommands:
+      #@ if tkg_image_repo_skip_tls_verify():
+      #@overlay/append
+      - #@ "powershell -ExecutionPolicy Bypass -Command Add-Content -Path 'C:\\Program Files\\containerd\\config.toml' -Value '[plugins.\\\"io.containerd.grpc.v1.cri\\\".registry.configs.\\\"" + tkg_image_repo_hostname() + "\\\".tls]'"
+      #@overlay/append
+      - powershell -ExecutionPolicy Bypass -Command Add-Content -Path 'C:\\Program Files\\containerd\\config.toml' -Value '"  "insecure_skip_verify = true'
+      #@ end
 #@ end
 #@ end
