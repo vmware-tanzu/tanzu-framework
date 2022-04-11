@@ -13,8 +13,3 @@ directories:
   - manual: {}
     path: webhook.yaml
   path: config/upstream
-- contents:
-  - manual: {}
-    path: overlay-tkr-service.yaml
-  path: config/overlays
-

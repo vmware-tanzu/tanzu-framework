@@ -13,3 +13,6 @@ frameworkPackage:
   featureGatesPackageValues:
     namespace: tkg-system
     createNamespace: false
+  tkrServicePackageValues:
+    namespace: tkg-system
+    createNamespace: false

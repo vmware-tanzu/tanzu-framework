@@ -5,5 +5,5 @@ installing the below packages
 
 1. Featuregates
 2. Addons-manager (To be added)
-3. TKR (To be added)
+3. TKR Service
 4. Capabilities (To be added)

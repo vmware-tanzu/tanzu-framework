@@ -1,19 +1,21 @@
+#@ load("@ytt:data", "data")
+---
 apiVersion: v1
 kind: ServiceAccount
 metadata:
   labels:
     app: tkr-resolver-cluster-webhook
   name: tkr-service-manager-sa
-  namespace: tkr-system
+  namespace: #@ data.values.namespace
   annotations:
-    kapp.k14s.io/change-group: "v1/sa-tkr-service-manager"
+    kapp.k14s.io/change-group: "tkr-service.tanzu.vmware.com/serviceaccount"
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
   name: tkr-service-manager-role
   annotations:
-    kapp.k14s.io/change-group: "v1/sa-tkr-service-manager"
+    kapp.k14s.io/change-group: "tkr-service.tanzu.vmware.com/serviceaccount"
 rules:
 - apiGroups:
   - run.tanzu.vmware.com
@@ -79,7 +81,9 @@ kind: ClusterRoleBinding
 metadata:
   name: tkr-service-manager-clusterrolebinding
   annotations:
-    kapp.k14s.io/change-rule: "upsert after upserting v1/sa-tkr-service-manager"
+    kapp.k14s.io/change-group: "tkr-service.tanzu.vmware.com/ClusterRoleBinding"
+    kapp.k14s.io/change-rule.0: "upsert after upserting tkr-service.tanzu.vmware.com/serviceaccount"
+    kapp.k14s.io/change-rule.1: "delete before deleting tkr-service.tanzu.vmware.com/serviceaccount"
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
@@ -87,4 +91,4 @@ roleRef:
 subjects:
 - kind: ServiceAccount
   name: tkr-service-manager-sa
-  namespace: tkr-system
+  namespace: #@ data.values.namespace

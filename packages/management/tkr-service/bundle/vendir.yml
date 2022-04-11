@@ -14,7 +14,3 @@ directories:
         manual: {}
       - path: webhook.yaml
         manual: {}
-  - path: config/overlays
-    contents:
-      - path: overlay-tkr-service.yaml
-        manual: {}

@@ -1,3 +1,4 @@
+#@ load("@ytt:data", "data")
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -5,7 +6,12 @@ metadata:
   labels:
     app: tkr-resolver-cluster-webhook
   name: tkr-resolver-cluster-webhook-manager
-  namespace: tkr-system
+  namespace: #@ data.values.namespace
+  annotations:
+    kapp.k14s.io/change-rule.0: "upsert after upserting tkr-service.tanzu.vmware.com/ClusterRoleBinding"
+    kapp.k14s.io/change-rule.1: "delete before deleting tkr-service.tanzu.vmware.com/ClusterRoleBinding"
+    kapp.k14s.io/change-rule.2: "upsert after upserting tkr-service.tanzu.vmware.com/certificate"
+    kapp.k14s.io/change-rule.3: "delete before deleting tkr-service.tanzu.vmware.com/certificate"
 spec:
   replicas: 1
   selector:
