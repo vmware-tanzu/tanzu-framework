@@ -17,6 +17,7 @@ import (
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
+	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/discovery"
 	cacheddiscovery "k8s.io/client-go/discovery/cached/memory"
 	"k8s.io/client-go/dynamic"
@@ -43,7 +44,7 @@ import (
 	versions "github.com/vmware-tanzu/carvel-vendir/pkg/vendir/versions/v1alpha1"
 	addonconfig "github.com/vmware-tanzu/tanzu-framework/addons/pkg/config"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
-	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/types"
+	addontypes "github.com/vmware-tanzu/tanzu-framework/addons/pkg/types"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/util"
 	"github.com/vmware-tanzu/tanzu-framework/addons/predicates"
 	runtanzuv1alpha3 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
@@ -530,7 +531,7 @@ func (r *ClusterBootstrapReconciler) createOrPatchKappPackageInstall(clusterBoot
 					UID:        cluster.UID,
 				},
 			},
-			Annotations: map[string]string{types.ClusterNameAnnotation: cluster.Name, types.ClusterNamespaceAnnotation: cluster.Namespace},
+			Annotations: map[string]string{addontypes.ClusterNameAnnotation: cluster.Name, addontypes.ClusterNamespaceAnnotation: cluster.Namespace},
 		},
 	}
 
@@ -640,7 +641,7 @@ func (r *ClusterBootstrapReconciler) createOrPatchPackageInstallOnRemote(cluster
 		ObjectMeta: metav1.ObjectMeta{
 			Name:        util.GeneratePackageInstallName(cluster.Name, remotePackageRefName),
 			Namespace:   r.Config.SystemNamespace,
-			Annotations: map[string]string{types.ClusterNameAnnotation: cluster.Name, types.ClusterNamespaceAnnotation: cluster.Namespace},
+			Annotations: map[string]string{addontypes.ClusterNameAnnotation: cluster.Name, addontypes.ClusterNamespaceAnnotation: cluster.Namespace},
 		},
 	}
 
@@ -675,6 +676,8 @@ func (r *ClusterBootstrapReconciler) createOrPatchPackageInstallOnRemote(cluster
 	return remotePkgi, nil
 }
 
+// reconcileSystemNamespace creates system namespace on remote workload cluster. This is because the system namespace
+// might not have been created yet when this controller reconciles remote cluster.
 func (r *ClusterBootstrapReconciler) reconcileSystemNamespace(clusterClient client.Client) error {
 	namespace := &corev1.Namespace{
 		ObjectMeta: metav1.ObjectMeta{
@@ -684,7 +687,7 @@ func (r *ClusterBootstrapReconciler) reconcileSystemNamespace(clusterClient clie
 
 	result, err := controllerutil.CreateOrPatch(r.context, clusterClient, namespace, nil)
 	if err != nil {
-		r.Log.Error(err, "Error creating or patching system namespace")
+		r.Log.Error(err, "unable to create or patch system namespace")
 		return err
 	}
 	if result != controllerutil.OperationResultNone {
@@ -916,13 +919,13 @@ func patchSecretWithLabels(secret *corev1.Secret, pkgName, clusterName string) b
 	if secret.Labels == nil {
 		secret.Labels = map[string]string{}
 		updateLabels = true
-	} else if secret.Labels[types.PackageNameLabel] != pkgName ||
-		secret.Labels[types.ClusterNameLabel] != clusterName {
+	} else if secret.Labels[addontypes.PackageNameLabel] != pkgName ||
+		secret.Labels[addontypes.ClusterNameLabel] != clusterName {
 		updateLabels = true
 	}
 	if updateLabels {
-		secret.Labels[types.PackageNameLabel] = pkgName
-		secret.Labels[types.ClusterNameLabel] = clusterName
+		secret.Labels[addontypes.PackageNameLabel] = pkgName
+		secret.Labels[addontypes.ClusterNameLabel] = clusterName
 	}
 	return updateLabels
 }
@@ -1116,8 +1119,8 @@ func (r *ClusterBootstrapReconciler) updateValuesFromSecret(cluster *clusterapiv
 			if newSecret.Labels == nil {
 				newSecret.Labels = map[string]string{}
 			}
-			newSecret.Labels[types.PackageNameLabel] = util.ParseStringForLabel(pkg.RefName)
-			newSecret.Labels[types.ClusterNameLabel] = cluster.Name
+			newSecret.Labels[addontypes.PackageNameLabel] = util.ParseStringForLabel(pkg.RefName)
+			newSecret.Labels[addontypes.ClusterNameLabel] = cluster.Name
 			// Set secret.Type to ClusterBootstrapManagedSecret to enable us to Watch these secrets
 			newSecret.Type = constants.ClusterBootstrapManagedSecret
 			return nil
@@ -1129,6 +1132,80 @@ func (r *ClusterBootstrapReconciler) updateValuesFromSecret(cluster *clusterapiv
 		pkg.ValuesFrom.SecretRef = newSecret.Name
 	}
 	return newSecret, nil
+}
+
+// cloneEmbeddedLocalObjectRef attempts to clone the embedded local object references from provider's namespace to cluster's
+// namespace. An example of embedded local object reference is the secret reference under CPIConfig.
+func (r *ClusterBootstrapReconciler) cloneEmbeddedLocalObjectRef(cluster *clusterapiv1beta1.Cluster, provider *unstructured.Unstructured) error {
+	groupKindNamesMap := util.ExtractTypedLocalObjectRef(provider.UnstructuredContent(), constants.LocalObjectRefSuffix)
+	if len(groupKindNamesMap) == 0 {
+		return nil
+	}
+
+	providerGVK := provider.GroupVersionKind()
+	r.Log.Info(fmt.Sprintf("cloning the embedded local object references within provider: %s with name: %s from"+
+		" %s namespace to %s namespace", provider.GroupVersionKind().String(), provider.GetName(), provider.GetNamespace(), cluster.Namespace))
+	for groupKind, resourceNames := range groupKindNamesMap {
+		gvr, err := r.getGVR(groupKind)
+		if err != nil {
+			// error has been logged within getGVR()
+			return err
+		}
+		for _, resourceName := range resourceNames {
+			r.Log.Info(fmt.Sprintf("cloning the GVR %s with name %s from %s namespace to %s namespace",
+				gvr.String(), resourceName, provider.GetNamespace(), cluster.Namespace))
+			fetchedObj, err := r.dynamicClient.Resource(*gvr).Namespace(provider.GetNamespace()).Get(r.context, resourceName, metav1.GetOptions{})
+			if err != nil {
+				r.Log.Error(err, fmt.Sprintf("unable to get provider: %s with name: %s under namespace: %s",
+					providerGVK.String(), provider.GetName(), provider.GetNamespace()))
+				return err
+			}
+
+			copiedObj := fetchedObj.DeepCopy()
+			// Remove resoruceVersion to make sure dynamicClient create could work
+			unstructured.RemoveNestedField(copiedObj.Object, "metadata", "resourceVersion")
+			copiedObj.SetNamespace(cluster.Namespace)
+			ownerReferences := copiedObj.GetOwnerReferences()
+			ownerReferences = clusterapiutil.EnsureOwnerRef(ownerReferences, metav1.OwnerReference{
+				APIVersion: provider.GetAPIVersion(),
+				Kind:       provider.GetKind(),
+				Name:       provider.GetName(),
+				UID:        provider.GetUID(),
+			})
+			ownerReferences = clusterapiutil.EnsureOwnerRef(ownerReferences, metav1.OwnerReference{
+				APIVersion: clusterapiv1beta1.GroupVersion.String(),
+				Kind:       "Cluster",
+				Name:       cluster.GetName(),
+				UID:        cluster.GetUID(),
+			})
+			copiedObj.SetOwnerReferences(ownerReferences)
+			_, err = r.dynamicClient.Resource(*gvr).Namespace(cluster.Namespace).Create(r.context, copiedObj, metav1.CreateOptions{})
+			if err != nil {
+				if apierrors.IsAlreadyExists(err) {
+					// Only patch the ownerReferences
+					patchObj := unstructured.Unstructured{}
+					patchObj.SetOwnerReferences(ownerReferences)
+					var jsonData []byte
+					if jsonData, err = patchObj.MarshalJSON(); err != nil {
+						return err
+					}
+					_, err = r.dynamicClient.Resource(*gvr).Namespace(cluster.Namespace).Patch(r.context, copiedObj.GetName(), types.MergePatchType, jsonData, metav1.PatchOptions{})
+					if err != nil {
+						r.Log.Error(err, fmt.Sprintf("unable to clone the GVR %s with name %s from namespace %s to"+
+							" target namespace %s", gvr.String(), resourceName, provider.GetNamespace(), cluster.Namespace))
+						return err
+					}
+				} else {
+					r.Log.Error(err, fmt.Sprintf("unable to clone the GVR %s with name %s from namespace %s to"+
+						" target namespace %s", gvr.String(), resourceName, provider.GetNamespace(), cluster.Namespace))
+					return err
+				}
+			}
+		}
+	}
+	r.Log.Info(fmt.Sprintf("cloned the embedded local object references within provider: %s with name: %s under"+
+		" namespace: %s to target namespace %s", providerGVK.String(), provider.GetName(), provider.GetNamespace(), cluster.Namespace))
+	return nil
 }
 
 // updateValuesFromProvider updates providerRef in valuesFrom
@@ -1167,12 +1244,13 @@ func (r *ClusterBootstrapReconciler) updateValuesFromProvider(cluster *clusterap
 				// For example, kapp-controller.tanzu.vmware.com.0.30.0+vmware.1-tkg.1 is a
 				// valid package refName, but it contains "+" that K8S complains. We parse the refName by replacing
 				// + to ---.
-				types.PackageNameLabel: util.ParseStringForLabel(pkg.RefName),
-				types.ClusterNameLabel: cluster.Name,
+				addontypes.PackageNameLabel: util.ParseStringForLabel(pkg.RefName),
+				addontypes.ClusterNameLabel: cluster.Name,
 			})
 		} else {
-			providerLabels[types.PackageNameLabel] = util.ParseStringForLabel(pkg.RefName)
-			providerLabels[types.ClusterNameLabel] = cluster.Name
+			providerLabels[addontypes.PackageNameLabel] = util.ParseStringForLabel(pkg.RefName)
+			providerLabels[addontypes.ClusterNameLabel] = cluster.Name
+			newProvider.SetLabels(providerLabels)
 		}
 
 		newProvider.SetName(fmt.Sprintf("%s-%s-package", cluster.Name, pkgRefName))
@@ -1188,10 +1266,17 @@ func (r *ClusterBootstrapReconciler) updateValuesFromProvider(cluster *clusterap
 			// There are possibilities that current reconciliation loop fails due to various reasons, and during next reconciliation
 			// loop, it is possible that the provider resource has been created. In this case, we want to run update/patch.
 			if apierrors.IsAlreadyExists(err) {
-				// Setting the resource version is because it's been removed at L984 with 'unstructured.RemoveNestedField(newProvider.Object, "metadata")'
-				// apiserver requires that field to be present for concurrency control.
-				newProvider.SetResourceVersion(provider.GetResourceVersion())
-				createdOrUpdatedProvider, err = r.dynamicClient.Resource(*gvr).Namespace(cluster.Namespace).Update(r.context, newProvider, metav1.UpdateOptions{})
+				r.Log.Info(fmt.Sprintf("provider %s/%s already exist, patching its Labels and OwnerReferences fields", newProvider.GetNamespace(), newProvider.GetName()))
+				// Instantiate an empty unstructured and only set ownerReferences and Labels for patching
+				patchObj := unstructured.Unstructured{}
+				patchObj.SetLabels(newProvider.GetLabels())
+				patchObj.SetOwnerReferences(newProvider.GetOwnerReferences())
+				patchData, err := patchObj.MarshalJSON()
+				if err != nil {
+					log.Error(err, fmt.Sprintf("unable to patch provider %s/%s", newProvider.GetNamespace(), newProvider.GetName()), "gvr", gvr)
+					return nil, err
+				}
+				createdOrUpdatedProvider, err = r.dynamicClient.Resource(*gvr).Namespace(cluster.Namespace).Patch(r.context, newProvider.GetName(), types.MergePatchType, patchData, metav1.PatchOptions{})
 				if err != nil {
 					log.Info(fmt.Sprintf("unable to update provider %s/%s", newProvider.GetNamespace(), newProvider.GetName()), "gvr", gvr)
 					return nil, err
@@ -1204,6 +1289,10 @@ func (r *ClusterBootstrapReconciler) updateValuesFromProvider(cluster *clusterap
 
 		valuesFrom.ProviderRef.Name = createdOrUpdatedProvider.GetName()
 		log.Info(fmt.Sprintf("cloned provider %s/%s to namespace %s", createdOrUpdatedProvider.GetNamespace(), createdOrUpdatedProvider.GetName(), cluster.Namespace), "gvr", gvr)
+
+		if err := r.cloneEmbeddedLocalObjectRef(cluster, provider); err != nil {
+			return nil, err
+		}
 	}
 
 	return createdOrUpdatedProvider, nil
@@ -1355,13 +1444,13 @@ func (r *ClusterBootstrapReconciler) reconcileClusterProxyAndNetworkSettings(clu
 	if cluster.Annotations == nil {
 		cluster.Annotations = map[string]string{}
 	}
-	cluster.Annotations[types.HTTPProxyConfigAnnotation] = HTTPProxy
-	cluster.Annotations[types.HTTPSProxyConfigAnnotation] = HTTPSProxy
-	cluster.Annotations[types.NoProxyConfigAnnotation] = NoProxy
-	cluster.Annotations[types.ProxyCACertConfigAnnotation] = ProxyCACert
-	cluster.Annotations[types.IPFamilyConfigAnnotation] = IPFamily
+	cluster.Annotations[addontypes.HTTPProxyConfigAnnotation] = HTTPProxy
+	cluster.Annotations[addontypes.HTTPSProxyConfigAnnotation] = HTTPSProxy
+	cluster.Annotations[addontypes.NoProxyConfigAnnotation] = NoProxy
+	cluster.Annotations[addontypes.ProxyCACertConfigAnnotation] = ProxyCACert
+	cluster.Annotations[addontypes.IPFamilyConfigAnnotation] = IPFamily
 
-	log.Info("setting proxy and network configurations in Cluster annotation", types.HTTPProxyConfigAnnotation, HTTPProxy, types.HTTPSProxyConfigAnnotation, HTTPSProxy, types.NoProxyConfigAnnotation, NoProxy, types.ProxyCACertConfigAnnotation, ProxyCACert, types.IPFamilyConfigAnnotation, IPFamily)
+	log.Info("setting proxy and network configurations in Cluster annotation", addontypes.HTTPProxyConfigAnnotation, HTTPProxy, addontypes.HTTPSProxyConfigAnnotation, HTTPSProxy, addontypes.NoProxyConfigAnnotation, NoProxy, addontypes.ProxyCACertConfigAnnotation, ProxyCACert, addontypes.IPFamilyConfigAnnotation, IPFamily)
 
 	if err := patchHelper.Patch(r.context, cluster); err != nil {
 		log.Error(err, "unable to patch Cluster Annotation")

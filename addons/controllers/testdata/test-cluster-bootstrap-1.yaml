@@ -59,6 +59,31 @@ spec:
       - name: tkg.tanzu.vmware.com/tkg-ip-family
         value: "ipv4"
 ---
+apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+kind: VSphereCluster
+metadata:
+  name: test-cluster-tcbt
+  namespace: cluster-namespace
+spec:
+  thumbprint: test-thumbprint
+  server: vsphere-server.local
+---
+apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+kind: VSphereMachineTemplate
+metadata:
+  name: test-cluster-tcbt-control-plane
+  namespace: cluster-namespace
+spec:
+  template:
+    spec:
+      datacenter: dc0
+      template: /dc0/vm/photon-3-kube-v1.22.3+vmware.1-tkg.2
+      network:
+        devices:
+          - networkName: test-network
+            dhcp6: true
+            dhcp4: false
+---
 apiVersion: run.tanzu.vmware.com/v1alpha3
 kind: ClusterBootstrapTemplate
 metadata:
@@ -89,6 +114,13 @@ spec:
         apiGroup: cni.tanzu.vmware.com
         kind: AntreaConfig
         name: test-cluster-tcbt
+  cpi:
+    refName: vsphere-cpi.tanzu.vmware.com.1.22.3--vmware.1-tkg.1
+    valuesFrom:
+      providerRef:
+        apiGroup: cpi.tanzu.vmware.com
+        kind: VSphereCPIConfig
+        name: test-cluster-cpi
 ---
 apiVersion: run.tanzu.vmware.com/v1alpha3
 kind: ClusterBootstrapTemplate
@@ -120,6 +152,13 @@ spec:
         apiGroup: cni.tanzu.vmware.com
         kind: AntreaConfig
         name: test-cluster-tcbt
+  cpi:
+    refName: vsphere-cpi.tanzu.vmware.com.1.22.3--vmware.1-tkg.1
+    valuesFrom:
+      providerRef:
+        apiGroup: cpi.tanzu.vmware.com
+        kind: VSphereCPIConfig
+        name: test-cluster-cpi
 ---
 apiVersion: run.tanzu.vmware.com/v1alpha1
 kind: FooBar
@@ -184,6 +223,43 @@ spec:
           key: node.cloudprovider.kubernetes.io/uninitialized
           value: "true"
 ---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: test-cluster-tcbt
+  namespace: cluster-namespace
+data:
+  password: QWRtaW4hMjM= # Admin!23
+  username: YWRtaW5pc3RyYXRvckB2c3BoZXJlLmxvY2Fs # administrator@vsphere.local
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: cpi-vsphere-credential
+  namespace: tkg-system
+data:
+  username: Zm9v # foo
+  password: YmFy # bar
+---
+apiVersion: cpi.tanzu.vmware.com/v1alpha1
+kind: VSphereCPIConfig
+metadata:
+  name: test-cluster-cpi
+  namespace: tkg-system
+spec:
+  vsphereCPI:
+    mode: vsphereCPI
+    region: test-region
+    zone: test-zone
+    insecureFlag: true
+    vmInternalNetwork: internal-net
+    vmExternalNetwork: external-net
+    vmExcludeInternalNetworkSubnetCidr: 192.168.3.0/24
+    vmExcludeExternalNetworkSubnetCidr: 22.22.3.0/24
+    vSphereCredentialLocalObjRef:
+      kind: Secret
+      name: cpi-vsphere-credential
+---
 apiVersion: data.packaging.carvel.dev/v1alpha1
 kind: Package
 metadata:
@@ -931,3 +1007,75 @@ spec:
   valuesSchema:
     openAPIv3:
       title: antrea.tanzu.vmware.com.1.2.3+vmware.4-tkg.2-advanced-zshippable values schema
+---
+apiVersion: data.packaging.carvel.dev/v1alpha1
+kind: Package
+metadata:
+  name: vsphere-cpi.tanzu.vmware.com.1.22.3--vmware.1-tkg.1
+  namespace: cluster-namespace
+spec:
+  refName: vsphere-cpi.tanzu.vmware.com
+  version: 1.22.3+vmware.1-tkg.1
+  releaseNotes: vsphere-cpi 1.22.3 https://github.com/kubernetes/cloud-provider-vsphere
+  licenses:
+    - 'VMware’s End User License Agreement (Underlying OSS license: Apache License 2.0)'
+  template:
+    spec:
+      fetch:
+        - imgpkgBundle:
+            image: projects-stg.registry.vmware.com/tkg/tkgextensions-dev/packages/core/vsphere-cpi:v1.22.3_vmware.1-tkg.1
+      template:
+        - ytt:
+            paths:
+              - config/
+            ignoreUnknownComments: true
+        - kbld:
+            paths:
+              - '-'
+              - .imgpkg/images.yml
+      deploy:
+        - kapp:
+            rawOptions:
+              - --wait-timeout=30s
+              - --kube-api-qps=20
+              - --kube-api-burst=30
+  releasedAt: "2021-12-20T10:59:32Z"
+  valuesSchema:
+    openAPIv3:
+      title: vsphere-cpi.tanzu.vmware.com.1.22.3--vmware.1-tkg.1 values schema
+---
+apiVersion: data.packaging.carvel.dev/v1alpha1
+kind: Package
+metadata:
+  name: vsphere-cpi.tanzu.vmware.com.1.22.3--vmware.1-tkg.1
+  namespace: tkg-system
+spec:
+  refName: vsphere-cpi.tanzu.vmware.com
+  version: 1.22.3+vmware.1-tkg.1
+  releaseNotes: vsphere-cpi 1.22.3 https://github.com/kubernetes/cloud-provider-vsphere
+  licenses:
+    - 'VMware’s End User License Agreement (Underlying OSS license: Apache License 2.0)'
+  template:
+    spec:
+      fetch:
+        - imgpkgBundle:
+            image: projects-stg.registry.vmware.com/tkg/tkgextensions-dev/packages/core/vsphere-cpi:v1.22.3_vmware.1-tkg.1
+      template:
+        - ytt:
+            paths:
+              - config/
+            ignoreUnknownComments: true
+        - kbld:
+            paths:
+              - '-'
+              - .imgpkg/images.yml
+      deploy:
+        - kapp:
+            rawOptions:
+              - --wait-timeout=30s
+              - --kube-api-qps=20
+              - --kube-api-burst=30
+  releasedAt: "2021-12-20T10:59:32Z"
+  valuesSchema:
+    openAPIv3:
+      title: vsphere-cpi.tanzu.vmware.com.1.22.3--vmware.1-tkg.1 values schema

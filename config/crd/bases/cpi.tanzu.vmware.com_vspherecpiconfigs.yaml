@@ -86,6 +86,27 @@ spec:
                       clientCertKeyData:
                         description: Client certificate key for NSX-T
                         type: string
+                      credentialLocalObjRef:
+                        description: A secret reference that contains Nsx-T login
+                          credential to access NSX-T consists of the field username
+                          and password
+                        properties:
+                          apiGroup:
+                            description: APIGroup is the group for the resource being
+                              referenced. If APIGroup is not specified, the specified
+                              Kind must be in the core API group. For any other third-party
+                              types, APIGroup is required.
+                            type: string
+                          kind:
+                            description: Kind is the type of resource being referenced
+                            type: string
+                          name:
+                            description: Name is the name of resource being referenced
+                            type: string
+                        required:
+                        - kind
+                        - name
+                        type: object
                       host:
                         description: The NSX-T server
                         type: string
@@ -93,20 +114,6 @@ spec:
                         description: InsecureFlag is to be set to true if NSX-T uses
                           self-signed cert
                         type: boolean
-                      nsxtCredentialsRef:
-                        description: A secret reference that contains Nsx-T login
-                          credentials to access NSX-T consists of the field username
-                          and password
-                        properties:
-                          name:
-                            description: Name is unique within a namespace to reference
-                              a secret resource.
-                            type: string
-                          namespace:
-                            description: Namespace defines the space within which
-                              the secret name must be unique.
-                            type: string
-                        type: object
                       podRoutingEnabled:
                         default: false
                         description: A flag that enables pod routing
@@ -158,19 +165,26 @@ spec:
                     description: The cryptographic thumbprint of the vSphere endpoint's
                       certificate. Default value is "".
                     type: string
-                  vSphereCredentialRef:
+                  vSphereCredentialLocalObjRef:
                     description: A secret reference that contains vSphere login credentials
                       to access a vSphere endpoint consists of the fields username
                       and password
                     properties:
+                      apiGroup:
+                        description: APIGroup is the group for the resource being
+                          referenced. If APIGroup is not specified, the specified
+                          Kind must be in the core API group. For any other third-party
+                          types, APIGroup is required.
+                        type: string
+                      kind:
+                        description: Kind is the type of resource being referenced
+                        type: string
                       name:
-                        description: Name is unique within a namespace to reference
-                          a secret resource.
+                        description: Name is the name of resource being referenced
                         type: string
-                      namespace:
-                        description: Namespace defines the space within which the
-                          secret name must be unique.
-                        type: string
+                    required:
+                    - kind
+                    - name
                     type: object
                   vmExcludeExternalNetworkSubnetCidr:
                     description: External VM network CIDR to be excluded

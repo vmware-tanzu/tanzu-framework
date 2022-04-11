@@ -58,7 +58,7 @@ import (
 // http://onsi.github.io/ginkgo/ to learn more about Ginkgo.
 
 const (
-	waitTimeout             = time.Second * 60
+	waitTimeout             = time.Second * 90
 	pollingInterval         = time.Second * 2
 	appSyncPeriod           = 5 * time.Minute
 	appWaitTimeout          = 30 * time.Second

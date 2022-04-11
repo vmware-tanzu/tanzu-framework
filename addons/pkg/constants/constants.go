@@ -172,7 +172,7 @@ const (
 	// PackageInstallSyncPeriod is the sync period for kapp-controller to periodically reconcile a PackageInstall
 	PackageInstallSyncPeriod = time.Minute * 10
 
-	// RequeueAfterInterval determines the duration after which the Controller should requeue the reconcile key
+	// RequeueAfterDuration determines the duration after which the Controller should requeue the reconcile key
 	RequeueAfterDuration = time.Second * 10
 
 	// WebhookCertDir is the directory where the certificate and key are stored for webhook server TLS handshake
@@ -189,6 +189,10 @@ const (
 
 	// AddonWebhookLabelValue is the value for the label for addon admission webhooks
 	AddonWebhookLabelValue = ""
+
+	// LocalObjectRefSuffix is the suffix of a field within the provider's CR. This suffix indicates that the field is a
+	// K8S typed local object reference
+	LocalObjectRefSuffix = "LocalObjRef"
 )
 
 // ClusterKind is the Kind for cluster-api Cluster object

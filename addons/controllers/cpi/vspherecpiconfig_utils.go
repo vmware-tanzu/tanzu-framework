@@ -107,8 +107,8 @@ func (r *VSphereCPIConfigReconciler) mapCPIConfigToDataValuesNonParavirtual( // 
 	if c.Datacenter != "" {
 		d.VSphereCPI.Datacenter = c.Datacenter
 	}
-	if c.VSphereCredentialRef != nil {
-		vsphereSecret, err := r.getSecret(ctx, c.VSphereCredentialRef.Namespace, c.VSphereCredentialRef.Name)
+	if c.VSphereCredentialLocalObjRef != nil {
+		vsphereSecret, err := r.getSecret(ctx, cpiConfig.Namespace, c.VSphereCredentialLocalObjRef.Name)
 		if err != nil {
 			return nil, err
 		}
@@ -138,8 +138,8 @@ func (r *VSphereCPIConfigReconciler) mapCPIConfigToDataValuesNonParavirtual( // 
 			d.VSphereCPI.Nsxt.Routes.RouterPath = c.NSXT.Routes.RouterPath
 			d.VSphereCPI.Nsxt.Routes.ClusterCidr = c.NSXT.Routes.ClusterCidr
 		}
-		if c.NSXT.NSXTCredentialsRef != nil {
-			nsxtSecret, err := r.getSecret(ctx, c.NSXT.NSXTCredentialsRef.Namespace, c.NSXT.NSXTCredentialsRef.Name)
+		if c.NSXT.CredentialLocalObjRef != nil {
+			nsxtSecret, err := r.getSecret(ctx, cpiConfig.Namespace, c.NSXT.CredentialLocalObjRef.Name)
 			if err != nil {
 				return nil, err
 			}
