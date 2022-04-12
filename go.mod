@@ -54,7 +54,7 @@ require (
 	github.com/imdario/mergo v0.3.12
 	github.com/jeremywohl/flatten v1.0.1
 	github.com/jessevdk/go-flags v1.4.0
-	github.com/jinzhu/copier v0.2.8
+	github.com/jinzhu/copier v0.3.5
 	github.com/juju/fslock v0.0.0-20160525022230-4d5c94c67b4b
 	github.com/k14s/imgpkg v0.17.0
 	github.com/k14s/kbld v0.32.0
