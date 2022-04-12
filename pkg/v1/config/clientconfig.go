@@ -37,8 +37,10 @@ func init() {
 	addedEdition := addDefaultEditionIfMissing(c)
 	addedBomRepo := addBomRepoIfMissing(c)
 	addedCompatabilityFile := addCompatibilityFileIfMissing(c)
+	// contexts could be lost when older plugins edit the config, so populate them from servers
+	addedContexts := populateContexts(c)
 
-	if addedFeatureFlags || addedDefaultDiscovery || addedEdition || addedCompatabilityFile || addedBomRepo {
+	if addedFeatureFlags || addedDefaultDiscovery || addedEdition || addedCompatabilityFile || addedBomRepo || addedContexts {
 		_ = StoreClientConfig(c)
 	}
 }
@@ -417,6 +419,11 @@ func storeConfigToLegacyDir(data []byte) {
 // Make sure to Acquire and Release tanzu lock when reading/writing to the
 // tanzu client configuration
 func StoreClientConfig(cfg *configv1alpha1.ClientConfig) error {
+	// new plugins would be setting only contexts, so populate servers for backwards compatibility
+	populateServers(cfg)
+	// old plugins would be setting only servers, so populate contexts for forwards compatibility
+	populateContexts(cfg)
+
 	cfgPath, err := ClientConfigPath()
 	if err != nil {
 		return errors.Wrap(err, "could not find config path")
@@ -513,14 +520,23 @@ func AddServer(s *configv1alpha1.Server, setCurrent bool) error {
 	if err != nil {
 		return err
 	}
+
 	for _, server := range cfg.KnownServers {
 		if server.Name == s.Name {
 			return fmt.Errorf("server %q already exists", s.Name)
 		}
 	}
+
 	cfg.KnownServers = append(cfg.KnownServers, s)
+	c := convertServerToContext(s)
+	cfg.KnownContexts = append(cfg.KnownContexts, c)
+
 	if setCurrent {
 		cfg.CurrentServer = s.Name
+		err = cfg.SetCurrentContext(c.Type, c.Name)
+		if err != nil {
+			return err
+		}
 	}
 	return StoreClientConfig(cfg)
 }
@@ -535,6 +551,7 @@ func PutServer(s *configv1alpha1.Server, setCurrent bool) error {
 	if err != nil {
 		return err
 	}
+
 	newServers := []*configv1alpha1.Server{s}
 	for _, server := range cfg.KnownServers {
 		if server.Name == s.Name {
@@ -543,8 +560,23 @@ func PutServer(s *configv1alpha1.Server, setCurrent bool) error {
 		newServers = append(newServers, server)
 	}
 	cfg.KnownServers = newServers
+
+	c := convertServerToContext(s)
+	newContexts := []*configv1alpha1.Context{c}
+	for _, ctx := range cfg.KnownContexts {
+		if ctx.Name == c.Name {
+			continue
+		}
+		newContexts = append(newContexts, ctx)
+	}
+	cfg.KnownContexts = newContexts
+
 	if setCurrent {
 		cfg.CurrentServer = s.Name
+		err = cfg.SetCurrentContext(c.Type, c.Name)
+		if err != nil {
+			return err
+		}
 	}
 	return StoreClientConfig(cfg)
 }
@@ -568,8 +600,23 @@ func RemoveServer(name string) error {
 	}
 	cfg.KnownServers = newServers
 
+	var c *configv1alpha1.Context
+	newContexts := []*configv1alpha1.Context{}
+	for _, ctx := range cfg.KnownContexts {
+		if ctx.Name != name {
+			newContexts = append(newContexts, ctx)
+		} else {
+			c = ctx
+		}
+	}
+	cfg.KnownContexts = newContexts
+
 	if cfg.CurrentServer == name {
 		cfg.CurrentServer = ""
+	}
+
+	if cfg.CurrentContext[c.Type] == name {
+		delete(cfg.CurrentContext, c.Type)
 	}
 
 	err = StoreClientConfig(cfg)
@@ -599,6 +646,16 @@ func SetCurrentServer(name string) error {
 		return fmt.Errorf("could not set current server; %q is not a known server", name)
 	}
 	cfg.CurrentServer = name
+
+	c, err := cfg.GetContext(name)
+	if err != nil {
+		return err
+	}
+	err = cfg.SetCurrentContext(c.Type, c.Name)
+	if err != nil {
+		return err
+	}
+
 	err = StoreClientConfig(cfg)
 	if err != nil {
 		return err
@@ -626,6 +683,18 @@ func EndpointFromServer(s *configv1alpha1.Server) (endpoint string, err error) {
 	case configv1alpha1.ManagementClusterServerType:
 		return s.ManagementClusterOpts.Endpoint, nil
 	case configv1alpha1.GlobalServerType:
+		return s.GlobalOpts.Endpoint, nil
+	default:
+		return endpoint, fmt.Errorf("unknown server type %q", s.Type)
+	}
+}
+
+// EndpointFromContext returns the endpoint from context.
+func EndpointFromContext(s *configv1alpha1.Context) (endpoint string, err error) {
+	switch s.Type {
+	case configv1alpha1.CtxTypeK8s:
+		return s.ClusterOpts.Endpoint, nil
+	case configv1alpha1.CtxTypeTMC:
 		return s.GlobalOpts.Endpoint, nil
 	default:
 		return endpoint, fmt.Errorf("unknown server type %q", s.Type)
