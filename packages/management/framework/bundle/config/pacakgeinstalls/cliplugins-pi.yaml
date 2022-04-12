@@ -1,0 +1,18 @@
+#@ load("@ytt:yaml", "yaml")
+#@ load("@ytt:data", "data")
+
+---
+apiVersion: packaging.carvel.dev/v1alpha1
+kind: PackageInstall
+metadata:
+  name: tanzu-cliplugins
+  namespace: #@ data.values.namespaceForPackageInstallation
+  annotations:
+    kapp.k14s.io/change-rule.0: "upsert after upserting cliplugins-packageinstall/serviceaccount"
+    kapp.k14s.io/change-rule.1: "delete after deleting cliplugins-packageinstall/serviceaccount"
+spec:
+  serviceAccountName: tanzu-cliplugins-package-sa
+  packageRef:
+    refName: cliplugins.tanzu.vmware.com
+    versionSelection:
+      prereleases: {}
