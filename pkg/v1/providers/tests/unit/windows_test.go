@@ -13,7 +13,7 @@ import (
 
 	utilyaml "sigs.k8s.io/cluster-api/util/yaml"
 
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/providers/tests/unit/ytt"
+	"github.com/vmware-tanzu/tanzu-framework/test/pkg/ytt"
 )
 
 var _ = Describe("Windows Ytt Templating", func() {

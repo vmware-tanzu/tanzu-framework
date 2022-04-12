@@ -7,7 +7,7 @@ package matchers
 import (
 	"fmt"
 	"reflect"
-	"strings"
+	"regexp"
 
 	"github.com/vmware-labs/yaml-jsonpath/pkg/yamlpath"
 	"gopkg.in/yaml.v3"
@@ -24,7 +24,8 @@ type pathWithValue struct {
 
 // FindDocsMatchingYAMLPath finds yaml documents that match all paths with values provided.
 func FindDocsMatchingYAMLPath(yamlString string, pathsWithValues map[string]string) ([]string, error) {
-	docStrings := strings.Split(yamlString, "---")
+	re := regexp.MustCompile("(?m)^---$")
+	docStrings := re.Split(yamlString, -1)
 
 	var yamlPathWithValues []pathWithValue
 	for path, value := range pathsWithValues {
@@ -40,6 +41,7 @@ func FindDocsMatchingYAMLPath(yamlString string, pathsWithValues map[string]stri
 		var node yaml.Node
 		err := yaml.Unmarshal([]byte(doc), &node)
 		if err != nil {
+			fmt.Println(doc)
 			return nil, err
 		}
 
