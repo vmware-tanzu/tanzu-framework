@@ -16,3 +16,9 @@ frameworkPackage:
   tkrServicePackageValues:
     namespace: tkg-system
     createNamespace: false
+
+clusterclassPackage:
+  namespaceForPackageInstallation: tkg-system
+  clusterclassInfraPackageValues:
+    namespace: tkg-system
+    createNamespace: false

@@ -1,0 +1,42 @@
+#@ load("@ytt:overlay", "overlay")
+#@ load("@ytt:yaml", "yaml")
+#@ load("@ytt:data", "data")
+
+#@ def clusterclassPackageValues():
+namespaceForPackageInstallation: #@ data.values.clusterclassPackage.namespaceForPackageInstallation
+clusterclassInfraPackageValues:
+  namespace: #@ data.values.clusterclassPackage.clusterclassInfraPackageValues.namespace
+  infraProvider: #@ data.values.metadata.infraProvider
+  configValues: #@ data.values.configvalues
+#@ end
+
+---
+apiVersion: packaging.carvel.dev/v1alpha1
+kind: PackageInstall
+metadata:
+  name: tkg-clusterclass
+  namespace: #@ data.values.clusterclassPackage.namespaceForPackageInstallation
+  annotations:
+    kapp.k14s.io/change-rule.0: "upsert after upserting tkg-clusterclass-packageinstall/serviceaccount"
+    kapp.k14s.io/change-rule.1: "delete before deleting tkg-clusterclass-packageinstall/serviceaccount"
+spec:
+  serviceAccountName: tanzu-tkg-package-sa
+  packageRef:
+    refName: tkg-clusterclass.tanzu.vmware.com
+    versionSelection:
+      prereleases: {}
+  values:
+  - secretRef:
+      name: tkg-clusterclass-values
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: tkg-clusterclass-values
+  namespace: #@ data.values.clusterclassPackage.namespaceForPackageInstallation
+  annotations:
+    kapp.k14s.io/change-rule.0: "upsert after upserting tkg-clusterclass-packageinstall/serviceaccount"
+    kapp.k14s.io/change-rule.1: "delete before deleting tkg-clusterclass-packageinstall/serviceaccount"
+type: Opaque
+stringData:
+  values.yaml: #@ yaml.encode(clusterclassPackageValues())

@@ -1,0 +1,69 @@
+#@ load("@ytt:overlay", "overlay")
+#@ load("@ytt:yaml", "yaml")
+#@ load("@ytt:data", "data")
+
+#@ def get_clusterclass_name():
+
+#@ if data.values.clusterclassInfraPackageValues.infraProvider == "aws":
+#@   return "tkg-clusterclass-aws"
+#@ end
+#@ if data.values.clusterclassInfraPackageValues.infraProvider == "docker":
+#@   return "tkg-clusterclass-docker"
+#@ end
+#@ if data.values.clusterclassInfraPackageValues.infraProvider == "azure":
+#@   return "tkg-clusterclass-azure"
+#@ end
+#@ if data.values.clusterclassInfraPackageValues.infraProvider == "vsphere":
+#@   return "tkg-clusterclass-vsphere"
+#@ end
+
+#@ end
+
+#@ def get_clusterclass_package_name():
+
+#@ if data.values.clusterclassInfraPackageValues.infraProvider == "aws":
+#@   return "tkg-clusterclass-aws.tanzu.vmware.com"
+#@ end
+#@ if data.values.clusterclassInfraPackageValues.infraProvider == "docker":
+#@   return "tkg-clusterclass-docker.tanzu.vmware.com"
+#@ end
+#@ if data.values.clusterclassInfraPackageValues.infraProvider == "azure":
+#@   return "tkg-clusterclass-azure.tanzu.vmware.com"
+#@ end
+#@ if data.values.clusterclassInfraPackageValues.infraProvider == "vsphere":
+#@   return "tkg-clusterclass-vsphere.tanzu.vmware.com"
+#@ end
+
+#@ end
+
+---
+apiVersion: packaging.carvel.dev/v1alpha1
+kind: PackageInstall
+metadata:
+  name: #@ get_clusterclass_name()
+  namespace: #@ data.values.namespaceForPackageInstallation
+  annotations:
+    kapp.k14s.io/change-rule.0: "upsert after upserting tkg-infra-clusterclass-packageinstall/serviceaccount"
+    kapp.k14s.io/change-rule.1: "delete before deleting tkg-infra-clusterclass-packageinstall/serviceaccount"
+spec:
+  serviceAccountName: tanzu-infra-clusterclass-package-sa
+  packageRef:
+    refName: #@ get_clusterclass_package_name()
+    versionSelection:
+      prereleases: {}
+  values:
+  - secretRef:
+      name: tkg-clusterclass-infra-values
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: tkg-clusterclass-infra-values
+  namespace: #@ data.values.namespaceForPackageInstallation
+  annotations:
+    kapp.k14s.io/change-rule.0: "upsert after upserting tkg-infra-clusterclass-packageinstall/serviceaccount"
+    kapp.k14s.io/change-rule.1: "delete before deleting tkg-infra-clusterclass-packageinstall/serviceaccount"
+type: Opaque
+stringData:
+  values.yaml: #@ yaml.encode(data.values.clusterclassInfraPackageValues.configValues)
