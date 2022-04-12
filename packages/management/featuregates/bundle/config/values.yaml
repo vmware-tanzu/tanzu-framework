@@ -2,3 +2,7 @@
 ---
 
 namespace:
+deployment:
+  hostNetwork: true
+  nodeSelector: null
+  tolerations: []
