@@ -9,7 +9,7 @@ import (
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
-	uuid "github.com/google/uuid"
+	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
 	"github.com/tj/assert"
 
@@ -75,7 +75,23 @@ func TestClientConfig(t *testing.T) {
 	require.Len(t, c.KnownServers, 2)
 	require.Equal(t, c.CurrentServer, "test1")
 
+	err = SetCurrentServer("test")
+	require.NoError(t, err)
+
+	c, err = GetClientConfig()
+	require.NoError(t, err)
+	require.Len(t, c.KnownServers, 2)
+	require.Equal(t, "test", c.CurrentServer)
+
 	err = RemoveServer("test")
+	require.NoError(t, err)
+
+	c, err = GetClientConfig()
+	require.NoError(t, err)
+	require.Len(t, c.KnownServers, 1)
+	require.Equal(t, "", c.CurrentServer)
+
+	err = PutServer(server1, true)
 	require.NoError(t, err)
 
 	c, err = GetClientConfig()
@@ -561,4 +577,63 @@ func configureTestDefaultStandaloneDiscoveryOCI() {
 func configureTestDefaultStandaloneDiscoveryLocal() {
 	DefaultStandaloneDiscoveryType = "local"
 	DefaultStandaloneDiscoveryLocalPath = "local/path"
+}
+
+func TestEndpointFromContext(t *testing.T) {
+	tcs := []struct {
+		name     string
+		ctx      *configv1alpha1.Context
+		endpoint string
+		errStr   string
+	}{
+		{
+			name: "success k8s",
+			ctx: &configv1alpha1.Context{
+				Name: "test-mc",
+				Type: configv1alpha1.CtxTypeK8s,
+				ClusterOpts: &configv1alpha1.ClusterServer{
+					Endpoint:            "test-endpoint",
+					Path:                "test-path",
+					Context:             "test-context",
+					IsManagementCluster: true,
+				},
+			},
+		},
+		{
+			name: "success tmc current",
+			ctx: &configv1alpha1.Context{
+				Name: "test-tmc",
+				Type: configv1alpha1.CtxTypeTMC,
+				GlobalOpts: &configv1alpha1.GlobalServer{
+					Endpoint: "test-endpoint",
+				},
+			},
+		},
+		{
+			name: "failure",
+			ctx: &configv1alpha1.Context{
+				Name: "test-dummy",
+				Type: "dummy",
+				ClusterOpts: &configv1alpha1.ClusterServer{
+					Endpoint:            "test-endpoint",
+					Path:                "test-path",
+					Context:             "test-context",
+					IsManagementCluster: true,
+				},
+			},
+			errStr: "unknown server type \"dummy\"",
+		},
+	}
+
+	for _, tc := range tcs {
+		t.Run(tc.name, func(t *testing.T) {
+			endpoint, err := EndpointFromContext(tc.ctx)
+			if tc.errStr == "" {
+				assert.NoError(t, err)
+				assert.Equal(t, "test-endpoint", endpoint)
+			} else {
+				assert.EqualError(t, err, tc.errStr)
+			}
+		})
+	}
 }
