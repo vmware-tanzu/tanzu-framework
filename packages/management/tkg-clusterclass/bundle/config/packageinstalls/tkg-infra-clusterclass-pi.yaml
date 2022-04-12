@@ -51,6 +51,9 @@ spec:
     refName: #@ get_clusterclass_package_name()
     versionSelection:
       prereleases: {}
+      #@ if data.values.clusterclassInfraPackageValues.versionConstraints:
+      constraints: #@ data.values.clusterclassInfraPackageValues.versionConstraints
+      #@ end
   values:
   - secretRef:
       name: tkg-clusterclass-infra-values

@@ -19,12 +19,33 @@ const (
 )
 
 // GetTKGPackageConfigValuesFileFromUserConfig returns values file from user configuration
-func GetTKGPackageConfigValuesFileFromUserConfig(userProviderConfigValues map[string]string) (string, error) {
+func GetTKGPackageConfigValuesFileFromUserConfig(managementPackageVersion string, userProviderConfigValues map[string]string) (string, error) {
 	tkgPackageConfig := TKGPackageConfig{
 		Metadata: Metadata{
 			InfraProvider: userProviderConfigValues[constants.ConfigVariableProviderType],
 		},
 		ConfigValues: userProviderConfigValues,
+		FrameworkPackage: FrameworkPackage{
+			VersionConstraints: managementPackageVersion,
+			FeaturegatePackageValues: FeaturegatePackageValues{
+				VersionConstraints: managementPackageVersion,
+			},
+			TKRServicePackageValues: TKRServicePackageValues{
+				VersionConstraints: managementPackageVersion,
+			},
+			CLIPluginsPackageValues: CLIPluginsPackageValues{
+				VersionConstraints: managementPackageVersion,
+			},
+			AddonsManagerPackageValues: AddonsManagerPackageValues{
+				VersionConstraints: managementPackageVersion,
+			},
+		},
+		ClusterClassPackage: ClusterClassPackage{
+			VersionConstraints: managementPackageVersion,
+			ClusterClassInfraPackageValues: ClusterClassInfraPackageValues{
+				VersionConstraints: managementPackageVersion,
+			},
+		},
 	}
 
 	configBytes, err := yaml.Marshal(tkgPackageConfig)

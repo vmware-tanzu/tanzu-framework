@@ -4,13 +4,16 @@
 namespaceForPackageInstallation:
 featureGatesPackageValues:
   namespace:
+  versionConstraints:
   deployment:
     hostNetwork: true
     nodeSelector: null
     tolerations: []
 tkrServicePackageValues:
   namespace:
+  versionConstraints:
 addonsManagerPackageValues:
+  versionConstraints:
   tanzuAddonsManager:
     namespace: tkg-system
     createNamespace: false
@@ -22,3 +25,6 @@ addonsManagerPackageValues:
       healthzPort: 18316
     featureGates:
       clusterBootstrapController: false
+clipluginsPackageValues:
+  namespace:
+  versionConstraints:

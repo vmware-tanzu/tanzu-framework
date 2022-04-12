@@ -6,6 +6,7 @@ package client
 import (
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/pkg/errors"
 	"gopkg.in/yaml.v3"
@@ -24,6 +25,11 @@ func (c *TkgClient) InstallManagementComponents(kubeconfig, kubecontext string) 
 		return errors.Wrap(err, "unable to get management package repository image")
 	}
 
+	managementPackageVersion, err := c.tkgBomClient.GetManagementPackagesVersion()
+	if err != nil {
+		return errors.Wrap(err, "unable to get version of management packages")
+	}
+
 	// Override management package repository image if specified as part of below environment variable
 	// NOTE: this override is only for testing purpose and we don't expect this to be used in production scenario
 	mprImage := os.Getenv("MANAGEMENT_PACKAGE_REPO_IMAGE")
@@ -31,8 +37,17 @@ func (c *TkgClient) InstallManagementComponents(kubeconfig, kubecontext string) 
 		managementPackageRepoImage = mprImage
 	}
 
+	// Override the version to use for management packages if specified as part of below environment variable
+	// NOTE: this override is only for testing purpose and we don't expect this to be used in production scenario
+	mpVersion := os.Getenv("MANAGEMENT_PACKAGE_VERSION")
+	if mprImage != "" {
+		managementPackageVersion = mpVersion
+	}
+
+	managementPackageVersion = strings.TrimLeft(managementPackageVersion, "v")
+
 	// Get TKG package's values file
-	tkgPackageValuesFile, err := c.getTKGPackageConfigValuesFile()
+	tkgPackageValuesFile, err := c.getTKGPackageConfigValuesFile(managementPackageVersion)
 	if err != nil {
 		return err
 	}
@@ -55,6 +70,7 @@ func (c *TkgClient) InstallManagementComponents(kubeconfig, kubecontext string) 
 		ManagementPackageRepositoryOptions: managementcomponents.ManagementPackageRepositoryOptions{
 			ManagementPackageRepoImage: managementPackageRepoImage,
 			TKGPackageValuesFile:       tkgPackageValuesFile,
+			PackageVersion:             managementPackageVersion,
 		},
 	}
 
@@ -69,13 +85,13 @@ func (c *TkgClient) InstallManagementComponents(kubeconfig, kubecontext string) 
 	return nil
 }
 
-func (c *TkgClient) getTKGPackageConfigValuesFile() (string, error) {
+func (c *TkgClient) getTKGPackageConfigValuesFile(managementPackageVersion string) (string, error) {
 	userProviderConfigValues, err := c.getUserConfigVariableValueMap()
 	if err != nil {
 		return "", err
 	}
 
-	valuesFile, err := managementcomponents.GetTKGPackageConfigValuesFileFromUserConfig(userProviderConfigValues)
+	valuesFile, err := managementcomponents.GetTKGPackageConfigValuesFileFromUserConfig(managementPackageVersion, userProviderConfigValues)
 	if err != nil {
 		return "", err
 	}

@@ -16,6 +16,9 @@ spec:
     refName: framework.tanzu.vmware.com
     versionSelection:
       prereleases: {}
+      #@ if data.values.frameworkPackage.versionConstraints:
+      constraints: #@ data.values.frameworkPackage.versionConstraints
+      #@ end
   values:
     - secretRef:
         name: tanzu-framework-values

@@ -16,6 +16,9 @@ spec:
     refName: tkr-service.tanzu.vmware.com
     versionSelection:
       prereleases: {}
+      #@ if data.values.tkrServicePackageValues.versionConstraints:
+      constraints: #@ data.values.tkrServicePackageValues.versionConstraints
+      #@ end
   values:
     - secretRef:
         name: tkr-service-values

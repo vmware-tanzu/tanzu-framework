@@ -231,6 +231,18 @@ type TKGConfigBomClient struct {
 		result1 string
 		result2 error
 	}
+	GetManagementPackagesVersionStub        func() (string, error)
+	getManagementPackagesVersionMutex       sync.RWMutex
+	getManagementPackagesVersionArgsForCall []struct {
+	}
+	getManagementPackagesVersionReturns struct {
+		result1 string
+		result2 error
+	}
+	getManagementPackagesVersionReturnsOnCall map[int]struct {
+		result1 string
+		result2 error
+	}
 	InitBOMRegistryStub        func() (registry.Registry, error)
 	initBOMRegistryMutex       sync.RWMutex
 	initBOMRegistryArgsForCall []struct {
@@ -1305,6 +1317,62 @@ func (fake *TKGConfigBomClient) GetManagementPackageRepositoryImageReturnsOnCall
 	}{result1, result2}
 }
 
+func (fake *TKGConfigBomClient) GetManagementPackagesVersion() (string, error) {
+	fake.getManagementPackagesVersionMutex.Lock()
+	ret, specificReturn := fake.getManagementPackagesVersionReturnsOnCall[len(fake.getManagementPackagesVersionArgsForCall)]
+	fake.getManagementPackagesVersionArgsForCall = append(fake.getManagementPackagesVersionArgsForCall, struct {
+	}{})
+	stub := fake.GetManagementPackagesVersionStub
+	fakeReturns := fake.getManagementPackagesVersionReturns
+	fake.recordInvocation("GetManagementPackagesVersion", []interface{}{})
+	fake.getManagementPackagesVersionMutex.Unlock()
+	if stub != nil {
+		return stub()
+	}
+	if specificReturn {
+		return ret.result1, ret.result2
+	}
+	return fakeReturns.result1, fakeReturns.result2
+}
+
+func (fake *TKGConfigBomClient) GetManagementPackagesVersionCallCount() int {
+	fake.getManagementPackagesVersionMutex.RLock()
+	defer fake.getManagementPackagesVersionMutex.RUnlock()
+	return len(fake.getManagementPackagesVersionArgsForCall)
+}
+
+func (fake *TKGConfigBomClient) GetManagementPackagesVersionCalls(stub func() (string, error)) {
+	fake.getManagementPackagesVersionMutex.Lock()
+	defer fake.getManagementPackagesVersionMutex.Unlock()
+	fake.GetManagementPackagesVersionStub = stub
+}
+
+func (fake *TKGConfigBomClient) GetManagementPackagesVersionReturns(result1 string, result2 error) {
+	fake.getManagementPackagesVersionMutex.Lock()
+	defer fake.getManagementPackagesVersionMutex.Unlock()
+	fake.GetManagementPackagesVersionStub = nil
+	fake.getManagementPackagesVersionReturns = struct {
+		result1 string
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *TKGConfigBomClient) GetManagementPackagesVersionReturnsOnCall(i int, result1 string, result2 error) {
+	fake.getManagementPackagesVersionMutex.Lock()
+	defer fake.getManagementPackagesVersionMutex.Unlock()
+	fake.GetManagementPackagesVersionStub = nil
+	if fake.getManagementPackagesVersionReturnsOnCall == nil {
+		fake.getManagementPackagesVersionReturnsOnCall = make(map[int]struct {
+			result1 string
+			result2 error
+		})
+	}
+	fake.getManagementPackagesVersionReturnsOnCall[i] = struct {
+		result1 string
+		result2 error
+	}{result1, result2}
+}
+
 func (fake *TKGConfigBomClient) InitBOMRegistry() (registry.Registry, error) {
 	fake.initBOMRegistryMutex.Lock()
 	ret, specificReturn := fake.initBOMRegistryReturnsOnCall[len(fake.initBOMRegistryArgsForCall)]
@@ -1453,6 +1521,8 @@ func (fake *TKGConfigBomClient) Invocations() map[string][][]interface{} {
 	defer fake.getKappControllerPackageImageMutex.RUnlock()
 	fake.getManagementPackageRepositoryImageMutex.RLock()
 	defer fake.getManagementPackageRepositoryImageMutex.RUnlock()
+	fake.getManagementPackagesVersionMutex.RLock()
+	defer fake.getManagementPackagesVersionMutex.RUnlock()
 	fake.initBOMRegistryMutex.RLock()
 	defer fake.initBOMRegistryMutex.RUnlock()
 	fake.isCustomRepositorySkipTLSVerifyMutex.RLock()

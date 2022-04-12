@@ -16,3 +16,6 @@ spec:
     refName: cliplugins.tanzu.vmware.com
     versionSelection:
       prereleases: {}
+      #@ if data.values.clipluginsPackageValues.versionConstraints:
+      constraints: #@ data.values.clipluginsPackageValues.versionConstraints
+      #@ end

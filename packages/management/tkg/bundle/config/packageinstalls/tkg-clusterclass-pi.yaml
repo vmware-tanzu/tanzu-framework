@@ -8,6 +8,7 @@ clusterclassInfraPackageValues:
   namespace: #@ data.values.clusterclassPackage.clusterclassInfraPackageValues.namespace
   infraProvider: #@ data.values.metadata.infraProvider
   configValues: #@ data.values.configvalues
+  versionConstraints: #@ data.values.clusterclassPackage.clusterclassInfraPackageValues.versionConstraints
 #@ end
 
 ---
@@ -25,6 +26,9 @@ spec:
     refName: tkg-clusterclass.tanzu.vmware.com
     versionSelection:
       prereleases: {}
+      #@ if data.values.clusterclassPackage.versionConstraints:
+      constraints: #@ data.values.clusterclassPackage.versionConstraints
+      #@ end
   values:
   - secretRef:
       name: tkg-clusterclass-values

@@ -22,6 +22,7 @@ type ClusterOptions struct {
 type ManagementPackageRepositoryOptions struct {
 	ManagementPackageRepoImage string
 	TKGPackageValuesFile       string
+	PackageVersion             string
 }
 
 // KappControllerOptions specifies kapp-controller deployment options
@@ -113,5 +114,6 @@ func installTKGManagementPackage(pkgClient tkgpackageclient.TKGPackageClient, mp
 	packageOptions.PollInterval = packagePollInterval
 	packageOptions.PollTimeout = packagePollTimeout
 	packageOptions.ValuesFile = mpro.TKGPackageValuesFile
+	packageOptions.Version = mpro.PackageVersion
 	return pkgClient.InstallPackageSync(packageOptions, tkgpackagedatamodel.OperationTypeInstall)
 }

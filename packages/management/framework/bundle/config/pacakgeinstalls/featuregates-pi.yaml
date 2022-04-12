@@ -16,6 +16,9 @@ spec:
     refName: featuregates.tanzu.vmware.com
     versionSelection:
       prereleases: {}
+      #@ if data.values.featureGatesPackageValues.versionConstraints:
+      constraints: #@ data.values.featureGatesPackageValues.versionConstraints
+      #@ end
   values:
     - secretRef:
         name: tanzu-featuregates-values

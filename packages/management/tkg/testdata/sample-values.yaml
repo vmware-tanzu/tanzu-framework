@@ -3,3 +3,19 @@ metadata:
   infraProvider: "aws"
 
 configvalues:
+
+frameworkPackage:
+  versionConstraints:
+  featureGatesPackageValues:
+    versionConstraints:
+  tkrServicePackageValues:
+    versionConstraints:
+  clipluginsPackageValues:
+    versionConstraints:
+  addonsManagerPackageValues:
+    versionConstraints:
+
+clusterclassPackage:
+  versionConstraints:
+  clusterclassInfraPackageValues:
+    versionConstraints:
