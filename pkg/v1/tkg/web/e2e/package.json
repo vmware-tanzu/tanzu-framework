@@ -33,7 +33,7 @@
         "dotenv": "^8.6.0",
         "fs-extra": "^10.0.1",
         "jasmine-core": "^4.0.1",
-        "jasmine-reporters": "^2.4.0",
+        "jasmine-reporters": "^2.5.0",
         "jasmine-spec-reporter": "^4.2.1",
         "karma": "^6.3.17",
         "karma-chrome-launcher": "^3.1.0",
