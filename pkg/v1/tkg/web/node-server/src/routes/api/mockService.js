@@ -69,6 +69,7 @@ router.get(`${ENDPOINT}/features`, (req, res) => {
             "import": "true",
             "vsphereIPv6": "true",
             "standalone-cluster-mode": "false",
+            "cluster-class-support": "true"
         },
         "cluster": {
             "validateXyz": "true"
