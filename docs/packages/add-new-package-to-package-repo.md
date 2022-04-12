@@ -12,7 +12,7 @@ Below are steps to illustrate how that can be done.
 1. Scaffold a new package and update the package files
 
    ```shell
-      PACKAGE_REPOSITORY=management PACKAGE_NAME=my-package make create-package
+      PACKAGE_NAME=my-package make create-package
    ```
 
    This would scaffold the package under the `packages` directory, and the tree structure of the generated package
