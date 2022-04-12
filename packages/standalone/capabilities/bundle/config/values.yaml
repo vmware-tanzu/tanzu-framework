@@ -1,4 +1,7 @@
 #@data/values
 ---
 
-#! User configurable values for capabilities.
+deployment:
+  hostNetwork: true
+  nodeSelector: null
+  tolerations: []
