@@ -4,6 +4,10 @@
 namespaceForPackageInstallation:
 featureGatesPackageValues:
   namespace:
+  deployment:
+    hostNetwork: true
+    nodeSelector: null
+    tolerations: []
 tkrServicePackageValues:
   namespace:
 addonsManagerPackageValues:

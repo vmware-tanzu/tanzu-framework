@@ -13,6 +13,10 @@ frameworkPackage:
   featureGatesPackageValues:
     namespace: tkg-system
     createNamespace: false
+    deployment:
+      hostNetwork: true
+      nodeSelector: null
+      tolerations: []
   tkrServicePackageValues:
     namespace: tkg-system
     createNamespace: false
