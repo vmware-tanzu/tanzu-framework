@@ -36,6 +36,14 @@ func PopulateContexts(cfg *configv1alpha1.ClientConfig) bool {
 		}
 	}
 
+	if cfg.ClientOptions != nil && cfg.ClientOptions.CLI != nil {
+		sources := cfg.ClientOptions.CLI.DiscoverySources
+		for i := range cfg.ClientOptions.CLI.DiscoverySources {
+			// This is a new field. So, using the K8s context since it is the only one available publicly.
+			sources[i].ContextType = configv1alpha1.CtxTypeK8s
+		}
+	}
+
 	return delta
 }
 

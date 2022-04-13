@@ -134,14 +134,25 @@ var tmcCmd = &cobra.Command{
 }
 
 func addCtxPlugins(cmd *cobra.Command, ctxType configv1alpha1.ContextType) error {
-	ctx, err := config.GetCurrentContext(ctxType)
-	if err != nil && ctx == nil {
-		return nil
+	var ctxName string
+	if ctx, _ := config.GetCurrentContext(ctxType); ctx != nil {
+		ctxName = ctx.Name
 	}
 
-	ctxPlugins, _, err := pluginmanager.InstalledPlugins(ctx.Name)
+	ctxPlugins, standalonePlugins, err := pluginmanager.InstalledPlugins(ctxName)
 	if err != nil {
 		return fmt.Errorf("unable to find installed plugins: %w", err)
+	}
+
+	if ctxType == configv1alpha1.CtxTypeK8s {
+		// Standalone plugins exist only for K8s context type.
+		for i := range standalonePlugins {
+			if standalonePlugins[i].Group == v1alpha1.SystemCmdGroup {
+				// Do not include plugins from the system command group.
+				continue
+			}
+			cmd.AddCommand(cli.GetCmd(&standalonePlugins[i]))
+		}
 	}
 
 	for i := range ctxPlugins {
