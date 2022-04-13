@@ -37,6 +37,6 @@ const (
 
 	LogFolderName = "logs"
 
-	TKGPackageValuesFile   = "tkgpackagevalues.yaml"
-	TKGPackageValues = "tkg-package-values"
+	TKGPackageValuesFile = "tkgpackagevalues.yaml"
+	TKGPackageValues     = "tkg-package-values"
 )

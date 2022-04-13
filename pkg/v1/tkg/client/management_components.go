@@ -4,6 +4,7 @@
 package client
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -17,6 +18,7 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/log"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/managementcomponents"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfigreaderwriter"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgpackagedatamodel"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/utils"
 )
 
@@ -34,14 +36,14 @@ func (c *TkgClient) InstallOrUpgradeManagementComponents(kubeconfig, kubecontext
 
 	// Override management package repository image if specified as part of below environment variable
 	// NOTE: this override is only for testing purpose and we don't expect this to be used in production scenario
-	mprImage := os.Getenv("MANAGEMENT_PACKAGE_REPO_IMAGE")
+	mprImage := os.Getenv("_MANAGEMENT_PACKAGE_REPO_IMAGE")
 	if mprImage != "" {
 		managementPackageRepoImage = mprImage
 	}
 
 	// Override the version to use for management packages if specified as part of below environment variable
 	// NOTE: this override is only for testing purpose and we don't expect this to be used in production scenario
-	mpVersion := os.Getenv("MANAGEMENT_PACKAGE_VERSION")
+	mpVersion := os.Getenv("_MANAGEMENT_PACKAGE_VERSION")
 	if mprImage != "" {
 		managementPackageVersion = mpVersion
 	}
@@ -73,6 +75,7 @@ func (c *TkgClient) InstallOrUpgradeManagementComponents(kubeconfig, kubecontext
 			ManagementPackageRepoImage: managementPackageRepoImage,
 			TKGPackageValuesFile:       tkgPackageValuesFile,
 			PackageVersion:             managementPackageVersion,
+			PackageInstallTimeout:      c.getPackageInstallTimeoutFromConfig(),
 		},
 	}
 
@@ -126,7 +129,10 @@ func (c *TkgClient) getUserConfigVariableValueMapForUpgrade(kubeconfig, kubecont
 
 	var tkgPackageConfig managementcomponents.TKGPackageConfig
 
-	bytes, err := clusterClient.GetSecretValue(constants.TKGPackageValuesSecret, constants.TKGPackageValuesFile, constants.TkgNamespace, nil)
+	// Handle the upgrade from legacy (non-package-based-lcm) management cluster as
+	// legacy (non-package-based-lcm) management cluster will not have this secret defined
+	// on the cluster. Github issue: https://github.com/vmware-tanzu/tanzu-framework/issues/2147
+	bytes, err := clusterClient.GetSecretValue(fmt.Sprintf(tkgpackagedatamodel.SecretName, constants.TKGManagementPackageInstallName, constants.TkgNamespace), constants.TKGPackageValuesFile, constants.TkgNamespace, nil)
 	if err != nil {
 		return nil, errors.Wrap(err, "unable to get cluster client")
 	}

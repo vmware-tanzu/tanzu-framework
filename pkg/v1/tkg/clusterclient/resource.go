@@ -335,7 +335,7 @@ func VerifyPackageInstallReconciledSuccessfully(obj crtclient.Object) error {
 			case kappctrl.ReconcileSucceeded:
 				return nil
 			case kappctrl.ReconcileFailed:
-				return fmt.Errorf("package reconciliation failed: %s", packageInstall.Status.UsefulErrorMessage)
+				return fmt.Errorf("package reconciliation failed. package: %s, reason: %s", packageInstall.Name, packageInstall.Status.UsefulErrorMessage)
 			}
 		}
 

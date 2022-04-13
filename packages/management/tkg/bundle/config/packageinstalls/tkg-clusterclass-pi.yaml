@@ -20,6 +20,8 @@ metadata:
   annotations:
     kapp.k14s.io/change-rule.0: "upsert after upserting tkg-clusterclass-packageinstall/serviceaccount"
     kapp.k14s.io/change-rule.1: "delete before deleting tkg-clusterclass-packageinstall/serviceaccount"
+  labels:
+    tkg.tanzu.vmware.com/package-type: "management"
 spec:
   serviceAccountName: tanzu-tkg-package-sa
   packageRef:

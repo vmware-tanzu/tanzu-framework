@@ -7,7 +7,7 @@
 #@ load("tanzu-addons-manager_addon_data.lib.yaml", "tanzuaddonsmanagerdatavalues")
 #@ load("tanzu-addons-manager_overlay.lib.yaml", "tanzuaddonsmanageroverlay")
 
-#@ if data.values.PROVIDER_TYPE != "tkg-service-vsphere" and data.values.TKG_CLUSTER_ROLE != "workload":
+#@ if data.values.PROVIDER_TYPE != "tkg-service-vsphere" and data.values.TKG_CLUSTER_ROLE != "workload" and not data.values.FEATURE_FLAG_PACKAGE_BASED_LCM:
 
 #@ if data.values.DISABLE_CRS_FOR_ADDON_TYPE and "addons-management/tanzu-addons-manager" in data.values.DISABLE_CRS_FOR_ADDON_TYPE:
 --- #@ template.replace(overlay.apply(tanzuaddonsmanagerpackageyaml(), tanzuaddonsmanageroverlay()))

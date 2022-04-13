@@ -119,6 +119,8 @@ const (
 	ClusterNameLabel = "tkg.tanzu.vmware.com/cluster-name"
 	// ClusterPauseLabel is the label on the Cluster Object to indicate the cluster is paused by TKG
 	ClusterPauseLabel = "tkg.tanzu.vmware.com/paused"
+	// PackageTypeLabel is the label on the PackageInstall which mentions type of the package
+	PackageTypeLabel = "tkg.tanzu.vmware.com/package-type"
 )
 
 // TKG management package related constants
@@ -126,4 +128,5 @@ const (
 	TKGManagementPackageName           = "tkg.tanzu.vmware.com"
 	TKGManagementPackageInstallName    = "tkg-pkg"
 	TKGManagementPackageRepositoryName = "tanzu-management"
+	PackageTypeManagement              = "management"
 )

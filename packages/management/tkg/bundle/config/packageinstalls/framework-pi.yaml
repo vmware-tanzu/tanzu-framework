@@ -10,6 +10,8 @@ metadata:
   annotations:
     kapp.k14s.io/change-rule.0: "upsert after upserting framework-packageinstall/serviceaccount"
     kapp.k14s.io/change-rule.1: "delete before deleting framework-packageinstall/serviceaccount"
+  labels:
+    tkg.tanzu.vmware.com/package-type: "management"
 spec:
   serviceAccountName: tanzu-framework-package-sa
   packageRef:

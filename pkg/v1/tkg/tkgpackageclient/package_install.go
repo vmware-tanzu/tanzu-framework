@@ -161,9 +161,7 @@ func (p *pkgClient) createRelatedResources(o *tkgpackagedatamodel.PackageOptions
 	}
 
 	if o.ValuesFile != "" {
-		if o.SecretName == "" {
-			o.SecretName = fmt.Sprintf(tkgpackagedatamodel.SecretName, o.PkgInstallName, o.Namespace)
-		}
+		o.SecretName = fmt.Sprintf(tkgpackagedatamodel.SecretName, o.PkgInstallName, o.Namespace)
 		progress <- fmt.Sprintf("Creating secret '%s'", o.SecretName)
 		if pkgPluginResourceCreationStatus.IsSecretCreated, err = p.createOrUpdateDataValuesSecret(o); err != nil {
 			return &pkgPluginResourceCreationStatus, err
@@ -283,7 +281,10 @@ func (p *pkgClient) createNamespace(namespace string) error {
 func (p *pkgClient) createPackageInstall(o *tkgpackagedatamodel.PackageOptions, pkgPluginResourceCreationStatus *tkgpackagedatamodel.PkgPluginResourceCreationStatus) error {
 	// construct the PackageInstall CR
 	packageInstall := &kappipkg.PackageInstall{
-		ObjectMeta: metav1.ObjectMeta{Name: o.PkgInstallName, Namespace: o.Namespace},
+		ObjectMeta: metav1.ObjectMeta{Name: o.PkgInstallName,
+			Namespace: o.Namespace,
+			Labels:    o.Labels,
+		},
 		Spec: kappipkg.PackageInstallSpec{
 			ServiceAccountName: o.ServiceAccountName,
 			PackageRef: &kappipkg.PackageRef{
