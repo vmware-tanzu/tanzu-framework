@@ -79,6 +79,9 @@ const (
 	// SystemCmdGroup are system commands.
 	SystemCmdGroup CmdGroup = "System"
 
+	// TargetCmdGroup are various target commands.
+	TargetCmdGroup CmdGroup = "Target"
+
 	// VersionCmdGroup are version commands.
 	VersionCmdGroup CmdGroup = "Version"
 
