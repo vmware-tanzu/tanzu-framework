@@ -40,31 +40,6 @@ webhooks:
           - clusterbootstraps
     sideEffects: None
     timeoutSeconds: 30
-  - admissionReviewVersions:
-      - v1
-      - v1beta1
-    clientConfig:
-      #placeholder for cabundle. To be modifed by patch or programatically.
-      caBundle: Cg==
-      service:
-        name: clusterbootstrap-webhook-service
-        namespace: tkg-system
-        path: /mutate-run-tanzu-vmware-com-v1alpha3-clusterbootstraptemplate
-        port: 9443
-    failurePolicy: Fail
-    name: clusterbootstraptemplate.mutating.vmware.com
-    rules:
-      - apiGroups:
-          - run.tanzu.vmware.com
-        apiVersions:
-          - v1alpha3
-        operations:
-          - CREATE
-          - UPDATE
-        resources:
-          - clusterbootstraptemplates
-    sideEffects: None
-    timeoutSeconds: 30
 ---
 apiVersion: admissionregistration.k8s.io/v1
 kind: ValidatingWebhookConfiguration

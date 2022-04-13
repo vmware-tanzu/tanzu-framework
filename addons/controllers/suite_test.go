@@ -323,7 +323,7 @@ var _ = BeforeSuite(func(done Done) {
 		Client:          k8sClient,
 		SystemNamespace: addonNamespace,
 	}
-	err = clusterbootstrapWebhook.SetupWebhookWithManager(mgr)
+	err = clusterbootstrapWebhook.SetupWebhookWithManager(ctx, mgr)
 	Expect(err).ToNot(HaveOccurred())
 	clusterbootstrapTemplateWebhook := addonwebhooks.ClusterBootstrapTemplate{
 		SystemNamespace: addonNamespace,

@@ -751,60 +751,6 @@ spec:
 apiVersion: data.packaging.carvel.dev/v1alpha1
 kind: Package
 metadata:
-  name: kapp-controller.community.tanzu.vmware.com.0.30.2
-  namespace: cluster-namespace
-spec:
-  refName: kapp-controller.community.tanzu.vmware.com
-  version: 0.30.2
-  releaseNotes: "kapp-controller 0.30.2 https://github.com/vmware-tanzu/carvel-kapp-controller"
-  licenses:
-    - "Apache 2.0"
-  template:
-    spec:
-      fetch:
-        - imgpkgBundle:
-            image: projects.registry.vmware.com/tce/kapp-controller@sha256:f62eb81e644b2be3891ce4d09d57f61d4c6dfb6ac308f403362955fffa25f98b
-      template:
-        - ytt:
-            paths:
-              - config/
-        - kbld:
-            paths:
-              - "-"
-              - .imgpkg/images.yml
-      deploy:
-        - kapp: {}
----
-apiVersion: data.packaging.carvel.dev/v1alpha1
-kind: Package
-metadata:
-  name: kapp-controller.community.tanzu.vmware.com.0.30.2
-  namespace: tkg-system
-spec:
-  refName: kapp-controller.community.tanzu.vmware.com
-  version: 0.30.2
-  releaseNotes: "kapp-controller 0.30.2 https://github.com/vmware-tanzu/carvel-kapp-controller"
-  licenses:
-    - "Apache 2.0"
-  template:
-    spec:
-      fetch:
-        - imgpkgBundle:
-            image: projects.registry.vmware.com/tce/kapp-controller@sha256:f62eb81e644b2be3891ce4d09d57f61d4c6dfb6ac308f403362955fffa25f98b
-      template:
-        - ytt:
-            paths:
-              - config/
-        - kbld:
-            paths:
-              - "-"
-              - .imgpkg/images.yml
-      deploy:
-        - kapp: {}
----
-apiVersion: data.packaging.carvel.dev/v1alpha1
-kind: Package
-metadata:
   name: calico.tanzu.vmware.com.3.19.1--vmware.1-tkg.1
   namespace: cluster-namespace
 spec:

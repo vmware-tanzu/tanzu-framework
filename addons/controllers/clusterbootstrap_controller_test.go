@@ -537,7 +537,7 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 					// CNI can't be nil
 					mutateClusterBootstrap := clusterBootstrap.DeepCopy()
 					mutateClusterBootstrap.Spec.CNI = nil
-					err := k8sClient.Update(ctx, mutateClusterBootstrap)
+					err = k8sClient.Update(ctx, mutateClusterBootstrap)
 					Expect(err).To(HaveOccurred())
 					Expect(strings.Contains(err.Error(), "spec.cni: Invalid value: \"null\": package can't be nil")).To(BeTrue())
 
@@ -566,6 +566,13 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 					err = k8sClient.Update(ctx, mutateClusterBootstrap)
 					Expect(strings.Contains(err.Error(), "new package refName and old package refName should be the same")).To(BeTrue())
 
+					// ProviderRef can't be changed to secretRef or inline
+					mutateClusterBootstrap = clusterBootstrap.DeepCopy()
+					mutateClusterBootstrap.Spec.Kapp.ValuesFrom.ProviderRef = nil
+					mutateClusterBootstrap.Spec.Kapp.ValuesFrom.Inline = "placeholder"
+					err = k8sClient.Update(ctx, mutateClusterBootstrap)
+					Expect(strings.Contains(err.Error(), "change from providerRef to other types of data value representation is not allowed")).To(BeTrue())
+
 					// Package can't be downgraded
 					mutateClusterBootstrap = clusterBootstrap.DeepCopy()
 					mutateClusterBootstrap.Spec.CNI.RefName = "antrea.tanzu.vmware.com.0.13.3--vmware.1-tkg.1"
@@ -593,7 +600,7 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 
 					// case2
 					in = builder.ClusterBootstrap(addonNamespace, "test-cb-1").
-						WithKappPackage(builder.ClusterBootstrapPackage("kapp-controller.community.tanzu.vmware.com.0.30.2").WithProviderRef("run.tanzu.vmware.com", "foo", "bar").Build()).
+						WithKappPackage(builder.ClusterBootstrapPackage("kapp-controller.tanzu.vmware.com.0.30.2").WithProviderRef("run.tanzu.vmware.com", "foo", "bar").Build()).
 						WithCNIPackage(builder.ClusterBootstrapPackage("calico.tanzu.vmware.com.3.19.1--vmware.1-tkg.1").WithProviderRef("cni.tanzu.vmware.com", "CalicoConfig", "invalidName").Build()).
 						WithAdditionalPackage(builder.ClusterBootstrapPackage("foobar.example.com.1.17.2").WithSecretRef("invalidSecret").Build()).Build()
 					err = k8sClient.Create(ctx, in)
@@ -614,7 +621,7 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 					clusterBootstrapTemplate.Spec.Kapp = nil
 					err = k8sClient.Update(ctx, clusterBootstrapTemplate)
 					Expect(err).Should(HaveOccurred())
-					Expect(strings.Contains(err.Error(), "ClusterBootstrapTemplate is immutable, update is not allowed")).To(BeTrue())
+					Expect(strings.Contains(err.Error(), "ClusterBootstrapTemplate has immutable spec, update is not allowed")).To(BeTrue())
 				})
 			})
 		})

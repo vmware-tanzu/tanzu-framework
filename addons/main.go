@@ -299,7 +299,7 @@ func enableWebhooks(ctx context.Context, mgr ctrl.Manager, flags *addonFlags) {
 		Client:          mgr.GetClient(),
 		SystemNamespace: flags.addonNamespace,
 	}
-	if err := clusterbootstrapWebhook.SetupWebhookWithManager(mgr); err != nil {
+	if err := clusterbootstrapWebhook.SetupWebhookWithManager(ctx, mgr); err != nil {
 		setupLog.Error(err, "unable to create ClusterBootstrap webhook", "webhook", "clusterbootstrap")
 		os.Exit(1)
 	}

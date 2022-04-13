@@ -6,6 +6,7 @@ package webhooks
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/pkg/errors"
 	corev1 "k8s.io/api/core/v1"
@@ -24,6 +25,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/webhook"
 
 	"github.com/vmware-tanzu/carvel-vendir/pkg/vendir/versions"
+	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/util"
 	runv1alpha3 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
 )
@@ -42,9 +44,13 @@ type ClusterBootstrap struct {
 	cachedDiscoveryClient discovery.CachedDiscoveryInterface
 	// client for aggregated APIs like package CR
 	aggregatedAPIResourcesClient client.Client
+	// cache for resolved api-resources so that look up is fast (cleared periodically)
+	providerGVR map[schema.GroupKind]*schema.GroupVersionResource
 }
 
-func (wh *ClusterBootstrap) SetupWebhookWithManager(mgr ctrl.Manager) error {
+// SetupWebhookWithManager performs the setup actions for an ClusterBootstrap webhook, using the passed in mgr.
+// The passed in ctx is used by the Goroutine that cleans up the GVR resource periodically
+func (wh *ClusterBootstrap) SetupWebhookWithManager(ctx context.Context, mgr ctrl.Manager) error {
 	dynClient, err := dynamic.NewForConfig(mgr.GetConfig())
 	if err != nil {
 		clusterbootstraplog.Error(err, "Error creating dynamic client")
@@ -57,6 +63,9 @@ func (wh *ClusterBootstrap) SetupWebhookWithManager(mgr ctrl.Manager) error {
 		clusterbootstraplog.Error(err, "Error creating aggregated API Resources client")
 		return err
 	}
+	wh.providerGVR = make(map[schema.GroupKind]*schema.GroupVersionResource)
+
+	go wh.periodicGVRCachesClean(ctx)
 
 	return ctrl.NewWebhookManagedBy(mgr).
 		For(&runv1alpha3.ClusterBootstrap{}).
@@ -65,8 +74,8 @@ func (wh *ClusterBootstrap) SetupWebhookWithManager(mgr ctrl.Manager) error {
 		Complete()
 }
 
-//+kubebuilder:webhook:verbs=create;update,path=/validate-run-tanzu-vmware-com-v1alpha3-clusterbootstrap,mutating=false,failurePolicy=fail,groups=run.tanzu.vmware.com,resources=clusterbootstraps,versions=v1alpha3,name=vclusterbootstrap.kb.io
-//+kubebuilder:webhook:path=/mutate-run-tanzu-vmware-com-v1alpha3-clusterbootstrap,mutating=true,failurePolicy=fail,groups=run.tanzu.vmware.com,resources=clusterbootstraps,verbs=create;update,versions=v1alpha3,name=mclusterbootstrap.kb.io
+//+kubebuilder:webhook:verbs=create;update,path=/validate-run-tanzu-vmware-com-v1alpha3-clusterbootstrap,mutating=false,failurePolicy=fail,groups=run.tanzu.vmware.com,resources=clusterbootstraps,versions=v1alpha3,name=clusterbootstrap.validating.vmware.com
+//+kubebuilder:webhook:path=/mutate-run-tanzu-vmware-com-v1alpha3-clusterbootstrap,mutating=true,failurePolicy=fail,groups=run.tanzu.vmware.com,resources=clusterbootstraps,verbs=create;update,versions=v1alpha3,name=clusterbootstrap.mutating.vmware.com
 
 var _ webhook.CustomDefaulter = &ClusterBootstrap{}
 var _ webhook.CustomValidator = &ClusterBootstrap{}
@@ -83,7 +92,6 @@ func getFieldPath(fieldName string) *field.Path {
 
 // ValidateCreate implements webhook.Validator so a webhook will be registered for the type
 func (wh *ClusterBootstrap) ValidateCreate(ctx context.Context, obj runtime.Object) error {
-
 	clusterBootstrap, ok := obj.(*runv1alpha3.ClusterBootstrap)
 	if !ok {
 		return apierrors.NewBadRequest(fmt.Sprintf("expected a ClusterBootstrap but got a %T", obj))
@@ -115,8 +123,8 @@ func (wh *ClusterBootstrap) ValidateCreate(ctx context.Context, obj runtime.Obje
 
 	if clusterBootstrap.Spec.AdditionalPackages != nil {
 		// validate additional packages
-		for _, pkg := range clusterBootstrap.Spec.AdditionalPackages {
-			if err := wh.validateClusterBootstrapPackage(ctx, pkg, clusterBootstrap.Namespace, getFieldPath("additionalPackages")); err != nil {
+		for idx, pkg := range clusterBootstrap.Spec.AdditionalPackages {
+			if err := wh.validateClusterBootstrapPackage(ctx, pkg, clusterBootstrap.Namespace, getFieldPath("additionalPackages").Child(string(rune(idx)))); err != nil {
 				allErrs = append(allErrs, err)
 			}
 		}
@@ -158,9 +166,7 @@ func (wh *ClusterBootstrap) validateValuesFrom(ctx context.Context, valuesFrom *
 	}
 
 	// Currently, we don't allow more than one field from valuesFrom to be present
-	if (valuesFrom.ProviderRef != nil && valuesFrom.SecretRef != "") ||
-		(valuesFrom.ProviderRef != nil && valuesFrom.Inline != "") ||
-		(valuesFrom.SecretRef != "" && valuesFrom.Inline != "") {
+	if valuesFrom.CountFields() > 1 {
 		return field.Invalid(fldPath, valuesFrom, "valuesFrom can't have more than one non-null subfield")
 	}
 
@@ -168,7 +174,7 @@ func (wh *ClusterBootstrap) validateValuesFrom(ctx context.Context, valuesFrom *
 		if valuesFrom.ProviderRef.APIGroup == nil {
 			return field.Invalid(fldPath.Child("ProviderRef"), valuesFrom.ProviderRef, "APIGroup can't be nil")
 		}
-		//	validation for providerRef, i.e. check if GVR and CRD resource exist in cluster
+		// check if GVR and provider CR exist in cluster
 		gvr, err := wh.getGVR(schema.GroupKind{Group: *valuesFrom.ProviderRef.APIGroup, Kind: valuesFrom.ProviderRef.Kind})
 		if err != nil {
 			return field.Invalid(fldPath.Child("ProviderRef"), valuesFrom.ProviderRef, err.Error())
@@ -192,13 +198,14 @@ func (wh *ClusterBootstrap) validateValuesFrom(ctx context.Context, valuesFrom *
 		}
 	}
 
-	// TODO: validation for inline manifests? No-op for now
-
 	return nil
 }
 
 // getGVR returns a GroupVersionResource for a GroupKind
 func (wh *ClusterBootstrap) getGVR(gk schema.GroupKind) (*schema.GroupVersionResource, error) {
+	if gvr, ok := wh.providerGVR[gk]; ok {
+		return gvr, nil
+	}
 	apiResourceList, err := wh.cachedDiscoveryClient.ServerPreferredResources()
 	if err != nil {
 		return nil, err
@@ -211,12 +218,53 @@ func (wh *ClusterBootstrap) getGVR(gk schema.GroupKind) (*schema.GroupVersionRes
 		if gv.Group == gk.Group {
 			for i := 0; i < len(apiResource.APIResources); i++ {
 				if apiResource.APIResources[i].Kind == gk.Kind {
-					return &schema.GroupVersionResource{Group: gv.Group, Resource: apiResource.APIResources[i].Name, Version: gv.Version}, nil
+					wh.providerGVR[gk] = &schema.GroupVersionResource{Group: gv.Group, Resource: apiResource.APIResources[i].Name, Version: gv.Version}
+					return wh.providerGVR[gk], nil
 				}
 			}
 		}
 	}
 	return nil, fmt.Errorf("unable to find server preferred resource %s/%s", gk.Group, gk.Kind)
+}
+
+// periodicGVRCachesClean invalidates caches used for GVR lookup
+func (wh *ClusterBootstrap) periodicGVRCachesClean(ctx context.Context) {
+	ticker := time.NewTicker(constants.DiscoveryCacheInvalidateInterval)
+	for {
+		select {
+		case <-ctx.Done():
+			ticker.Stop()
+			return
+		case <-ticker.C:
+			wh.cachedDiscoveryClient.Invalidate()
+			wh.providerGVR = make(map[schema.GroupKind]*schema.GroupVersionResource)
+		}
+	}
+}
+
+// validateMandatoryCorePackageUpdate combines new package spec validation and package upgrade validation together
+func (wh *ClusterBootstrap) validateMandatoryCorePackageUpdate(ctx context.Context, oldPkg, newPkg *runv1alpha3.ClusterBootstrapPackage, namespace string, fldPath *field.Path) *field.Error {
+	if err := wh.validateClusterBootstrapPackage(ctx, newPkg, namespace, fldPath); err != nil {
+		return err
+	}
+	if err := wh.validateClusterBootstrapPackageUpdate(ctx, oldPkg, newPkg, fldPath); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (wh *ClusterBootstrap) validateOptionalCorePackageUpdate(ctx context.Context, oldPkg, newPkg *runv1alpha3.ClusterBootstrapPackage, namespace string, fldPath *field.Path) *field.Error {
+	if newPkg != nil {
+		if err := wh.validateClusterBootstrapPackage(ctx, newPkg, namespace, fldPath); err != nil {
+			return err
+		}
+		if oldPkg != nil {
+			if err := wh.validateClusterBootstrapPackageUpdate(ctx, oldPkg, newPkg, fldPath); err != nil {
+				return err
+			}
+		}
+	}
+	return nil
 }
 
 // ValidateUpdate implements webhook.Validator so a webhook will be registered for the type
@@ -233,91 +281,26 @@ func (wh *ClusterBootstrap) ValidateUpdate(ctx context.Context, oldObj, newObj r
 	clusterbootstraplog.Info("validate update", "name", newClusterBootstrap.Name)
 
 	var allErrs field.ErrorList
-
-	// This function combines new package spec validation and package upgrade validation together
-	validateMandatoryCorePackageUpdate := func(ctx context.Context, old, new *runv1alpha3.ClusterBootstrapPackage, namespace string, fldPath *field.Path) *field.Error {
-		if err := wh.validateClusterBootstrapPackage(ctx, new, namespace, fldPath); err != nil {
-			return err
-		}
-		if err := wh.ValidateClusterBootstrapPackageUpdate(ctx, old, new, fldPath); err != nil {
-			return err
-		}
-		return nil
-	}
-
 	namespace := newClusterBootstrap.Namespace
-	if err := validateMandatoryCorePackageUpdate(ctx, oldClusterBootstrap.Spec.CNI, newClusterBootstrap.Spec.CNI, namespace, getFieldPath("cni")); err != nil {
+	if err := wh.validateMandatoryCorePackageUpdate(ctx, oldClusterBootstrap.Spec.CNI, newClusterBootstrap.Spec.CNI, namespace, getFieldPath("cni")); err != nil {
 		allErrs = append(allErrs, err)
 	}
 
-	if err := validateMandatoryCorePackageUpdate(ctx, oldClusterBootstrap.Spec.Kapp, newClusterBootstrap.Spec.Kapp, namespace, getFieldPath("kapp")); err != nil {
+	if err := wh.validateMandatoryCorePackageUpdate(ctx, oldClusterBootstrap.Spec.Kapp, newClusterBootstrap.Spec.Kapp, namespace, getFieldPath("kapp")); err != nil {
 		allErrs = append(allErrs, err)
 	}
 
 	// CSI and CPI can be nil
-	validateOptionalCorePackageUpdate := func(ctx context.Context, old, new *runv1alpha3.ClusterBootstrapPackage, namespace string, fldPath *field.Path) *field.Error {
-		if new != nil {
-			if err := wh.validateClusterBootstrapPackage(ctx, new, namespace, fldPath); err != nil {
-				return err
-			}
-			if old != nil {
-				if err := wh.ValidateClusterBootstrapPackageUpdate(ctx, old, new, fldPath); err != nil {
-					return err
-				}
-			}
-		}
-		return nil
-	}
-
-	if err := validateOptionalCorePackageUpdate(ctx, oldClusterBootstrap.Spec.CSI, newClusterBootstrap.Spec.CSI, namespace, getFieldPath("csi")); err != nil {
+	if err := wh.validateOptionalCorePackageUpdate(ctx, oldClusterBootstrap.Spec.CSI, newClusterBootstrap.Spec.CSI, namespace, getFieldPath("csi")); err != nil {
 		allErrs = append(allErrs, err)
 	}
 
-	if err := validateOptionalCorePackageUpdate(ctx, oldClusterBootstrap.Spec.CPI, newClusterBootstrap.Spec.CPI, namespace, getFieldPath("cpi")); err != nil {
+	if err := wh.validateOptionalCorePackageUpdate(ctx, oldClusterBootstrap.Spec.CPI, newClusterBootstrap.Spec.CPI, namespace, getFieldPath("cpi")); err != nil {
 		allErrs = append(allErrs, err)
 	}
 
-	// validate new additional packages
-	addtionalPkgFldPath := getFieldPath("additionalPackages")
-	newAdditionalPkgMap := map[string]*runv1alpha3.ClusterBootstrapPackage{}
-	if newClusterBootstrap.Spec.AdditionalPackages != nil {
-		for _, pkg := range newClusterBootstrap.Spec.AdditionalPackages {
-			// First make sure the new pkg is valid
-			if err := wh.validateClusterBootstrapPackage(ctx, pkg, namespace, addtionalPkgFldPath); err != nil {
-				allErrs = append(allErrs, err)
-				continue
-			}
-			newPackageRefName, _, err := util.GetPackageMetadata(ctx, wh.aggregatedAPIResourcesClient, pkg.RefName, wh.SystemNamespace)
-			if err != nil {
-				allErrs = append(allErrs, field.Invalid(addtionalPkgFldPath.Child("refName"), pkg.RefName, err.Error()))
-				continue
-			}
-			// We can't have more than one additional packages share the same refName
-			if newAdditionalPkgMap[newPackageRefName] != nil {
-				allErrs = append(allErrs, field.Invalid(addtionalPkgFldPath.Child("refName"), newPackageRefName, "more than one additional packages share the same refName"))
-				continue
-			}
-			newAdditionalPkgMap[newPackageRefName] = pkg
-		}
-	}
-
-	// Since we don't allow the deletion of additional packages, each old package should find it's corresponding new package
-	// i.e. each old package should find a new package with the same refName in package CR
-	if oldClusterBootstrap.Spec.AdditionalPackages != nil {
-		for _, pkg := range oldClusterBootstrap.Spec.AdditionalPackages {
-			oldPackageRefName, _, err := util.GetPackageMetadata(ctx, wh.aggregatedAPIResourcesClient, pkg.RefName, wh.SystemNamespace)
-			if err != nil {
-				allErrs = append(allErrs, field.Invalid(addtionalPkgFldPath.Child("refName"), pkg.RefName, err.Error()))
-				continue
-			}
-			if newAdditionalPkgMap[oldPackageRefName] == nil {
-				allErrs = append(allErrs, field.Invalid(addtionalPkgFldPath.Child("refName"), pkg.RefName, "missing updated additional package"))
-				continue
-			}
-			if err := wh.ValidateClusterBootstrapPackageUpdate(ctx, pkg, newAdditionalPkgMap[oldPackageRefName], addtionalPkgFldPath); err != nil {
-				allErrs = append(allErrs, err)
-			}
-		}
+	if err := wh.validateAdditionalPackagesUpdate(ctx, oldClusterBootstrap, newClusterBootstrap, namespace); err != nil {
+		allErrs = append(allErrs, err...)
 	}
 
 	if len(allErrs) == 0 {
@@ -329,16 +312,66 @@ func (wh *ClusterBootstrap) ValidateUpdate(ctx context.Context, oldObj, newObj r
 		newClusterBootstrap.Name, allErrs)
 }
 
-func (wh *ClusterBootstrap) ValidateClusterBootstrapPackageUpdate(ctx context.Context, oldPkg, newPkg *runv1alpha3.ClusterBootstrapPackage, fldPath *field.Path) *field.Error {
+// validateAdditionalPackagesUpdate validates the additional packages in update
+func (wh *ClusterBootstrap) validateAdditionalPackagesUpdate(ctx context.Context, oldClusterBootstrap, newClusterBootstrap *runv1alpha3.ClusterBootstrap, namespace string) field.ErrorList {
+	var allErrs field.ErrorList
+	addtionalPkgFldPath := getFieldPath("additionalPackages")
+	newAdditionalPkgMap := map[string]*runv1alpha3.ClusterBootstrapPackage{}
+
+	// validate new additional package specs
+	if newClusterBootstrap.Spec.AdditionalPackages != nil {
+		for idx, pkg := range newClusterBootstrap.Spec.AdditionalPackages {
+			// First make sure the new pkg is valid
+			if err := wh.validateClusterBootstrapPackage(ctx, pkg, namespace, addtionalPkgFldPath.Child(string(rune(idx)))); err != nil {
+				allErrs = append(allErrs, err)
+				continue
+			}
+			newPackageRefName, _, err := util.GetPackageMetadata(ctx, wh.aggregatedAPIResourcesClient, pkg.RefName, wh.SystemNamespace)
+			if err != nil {
+				allErrs = append(allErrs, field.Invalid(addtionalPkgFldPath.Child(string(rune(idx))).Child("refName"), pkg.RefName, err.Error()))
+				continue
+			}
+			// We can't have more than one additional packages share the same refName
+			if newAdditionalPkgMap[newPackageRefName] != nil {
+				allErrs = append(allErrs, field.Invalid(addtionalPkgFldPath.Child(string(rune(idx))).Child("refName"), newPackageRefName, "more than one additional packages share the same refName"))
+				continue
+			}
+			newAdditionalPkgMap[newPackageRefName] = pkg
+		}
+	}
+
+	// Since we don't allow the deletion of additional packages, each old package should find it's corresponding new package
+	// i.e. each old package should find a new package with the same refName in package CR
+	if oldClusterBootstrap.Spec.AdditionalPackages != nil {
+		for idx, pkg := range oldClusterBootstrap.Spec.AdditionalPackages {
+			oldPackageRefName, _, err := util.GetPackageMetadata(ctx, wh.aggregatedAPIResourcesClient, pkg.RefName, wh.SystemNamespace)
+			if err != nil {
+				allErrs = append(allErrs, field.Invalid(addtionalPkgFldPath.Child(string(rune(idx))).Child("refName"), pkg.RefName, err.Error()))
+				continue
+			}
+			if newAdditionalPkgMap[oldPackageRefName] == nil {
+				allErrs = append(allErrs, field.Invalid(addtionalPkgFldPath.Child(string(rune(idx))).Child("refName"), pkg.RefName, "missing updated additional package"))
+				continue
+			}
+			if err := wh.validateClusterBootstrapPackageUpdate(ctx, pkg, newAdditionalPkgMap[oldPackageRefName], addtionalPkgFldPath.Child(string(rune(idx)))); err != nil {
+				allErrs = append(allErrs, err)
+			}
+		}
+	}
+
+	return allErrs
+}
+
+func (wh *ClusterBootstrap) validateClusterBootstrapPackageUpdate(ctx context.Context, oldPkg, newPkg *runv1alpha3.ClusterBootstrapPackage, fldPath *field.Path) *field.Error {
 	//	1. For cni, cpi, csi, kapp once created
 	//	a. we won’t allow packageRef’s to be downgraded or change the package from something like calico to antrea
-	//	b. We can start with disallowing change of apiVersion and Kind. In the future we can relax this
+	//	b. We can start with disallowing change of apiGroup and Kind. In the future we can relax this
 	//	c. Can change inline or secret to whatever
 	//
 	//	2. For Additional packages that are created
 	//	a. no deletion of a package allowed, in the future we can consider relaxing this
 	//	b. Can bump package version
-	//  b. Not allowed to change apiVersion and Kind for provider
+	//  b. Not allowed to change apiGroup and Kind for provider
 	//	c. Can change inline or secret to whatever
 
 	if oldPkg == nil || newPkg == nil {
@@ -377,7 +410,7 @@ func (wh *ClusterBootstrap) ValidateClusterBootstrapPackageUpdate(ctx context.Co
 	}
 	if newPkgSemver.Compare(oldPkgSemver.Version) == -1 {
 		// package downgrade is not allowed
-		return field.Invalid(fldPath.Child("refName"), newPkg.RefName, "package downgrade is not allowed")
+		return field.Invalid(fldPath.Child("refName"), newPkg.RefName, fmt.Sprintf("package downgrade is not allowed, original version: %s, updated version %s", oldPackageVersion, newPackageVersion))
 	}
 
 	if err := wh.validateValuesFromUpdate(ctx, oldPkg.ValuesFrom, newPkg.ValuesFrom, fldPath.Child("valuesFrom")); err != nil {
@@ -390,7 +423,7 @@ func (wh *ClusterBootstrap) ValidateClusterBootstrapPackageUpdate(ctx context.Co
 // validateValuesFromUpdate validates contents of valuesFrom in upgrade
 func (wh *ClusterBootstrap) validateValuesFromUpdate(_ context.Context, oldValuesFrom, newValuesFrom *runv1alpha3.ValuesFrom, fldPath *field.Path) *field.Error {
 	if oldValuesFrom != nil && newValuesFrom != nil {
-		// We don't allow changes to APIGroup and Kind of providerRef
+		// We don't allow changes to APIGroup and Kind
 		if oldValuesFrom.ProviderRef != nil && newValuesFrom.ProviderRef != nil {
 			if *oldValuesFrom.ProviderRef.APIGroup != *newValuesFrom.ProviderRef.APIGroup ||
 				oldValuesFrom.ProviderRef.Kind != newValuesFrom.ProviderRef.Kind {
@@ -398,9 +431,9 @@ func (wh *ClusterBootstrap) validateValuesFromUpdate(_ context.Context, oldValue
 			}
 		}
 
-		// Users can't switch from ProviderRef to secretRef/inline
+		// Users need to keep using ProviderRef to if it was originally used
 		if oldValuesFrom.ProviderRef != nil && newValuesFrom.ProviderRef == nil {
-			return field.Invalid(fldPath.Child("ProviderRef"), newValuesFrom.ProviderRef, "change from providerRef to secretRef or Inline is not allowed")
+			return field.Invalid(fldPath.Child("ProviderRef"), newValuesFrom.ProviderRef, "change from providerRef to other types of data value representation is not allowed")
 		}
 	}
 	return nil

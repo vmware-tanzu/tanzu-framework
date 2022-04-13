@@ -31,22 +31,13 @@ type ClusterBootstrapTemplate struct {
 func (wh *ClusterBootstrapTemplate) SetupWebhookWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewWebhookManagedBy(mgr).
 		For(&runv1alpha3.ClusterBootstrapTemplate{}).
-		WithDefaulter(wh).
 		WithValidator(wh).
 		Complete()
 }
 
-//+kubebuilder:webhook:path=/mutate-run-tanzu-vmware-com-v1alpha3-clusterbootstraptemplate,mutating=true,failurePolicy=fail,groups=run.tanzu.vmware.com,resources=clusterbootstraptemplates,verbs=create;update,versions=v1alpha3,name=mclusterbootstraptemplate.kb.io
-//+kubebuilder:webhook:verbs=create;update,path=/validate-run-tanzu-vmware-com-v1alpha3-clusterbootstraptemplate,mutating=false,failurePolicy=fail,groups=run.tanzu.vmware.com,resources=clusterbootstraptemplates,versions=v1alpha3,name=vclusterbootstraptemplate.kb.io
+//+kubebuilder:webhook:verbs=create;update,path=/validate-run-tanzu-vmware-com-v1alpha3-clusterbootstraptemplate,mutating=false,failurePolicy=fail,groups=run.tanzu.vmware.com,resources=clusterbootstraptemplates,versions=v1alpha3,name=clusterbootstraptemplate.validating.vmware.com
 
-var _ webhook.CustomDefaulter = &ClusterBootstrapTemplate{}
 var _ webhook.CustomValidator = &ClusterBootstrapTemplate{}
-
-// Default implements webhook.Defaulter so a webhook will be registered for the type
-func (wh *ClusterBootstrapTemplate) Default(ctx context.Context, obj runtime.Object) error {
-	// TODO: Placeholder for future work https://github.com/vmware-tanzu/tanzu-framework/issues/1916
-	return nil
-}
 
 // ValidateCreate implements webhook.Validator so a webhook will be registered for the type
 /* 1. All ClusterBootstrapTempaltes should be created within the tanzu system namespace (configurable)
@@ -63,7 +54,7 @@ func (wh *ClusterBootstrapTemplate) ValidateCreate(ctx context.Context, obj runt
 	// Iterating one by one because we need field info for getFieldPath, and some core packages can be nil
 
 	if clusterBootstrapTemplate.Namespace != wh.SystemNamespace {
-		nsErrMsg := fmt.Sprintf("ClusterBootstrapTemplate can only be created in tanzu system namespace %s", wh.SystemNamespace)
+		nsErrMsg := fmt.Sprintf("ClusterBootstrapTemplate can only be created in the designated system namespace %s", wh.SystemNamespace)
 		allErrs = append(allErrs, field.Invalid(field.NewPath("namespace"), clusterBootstrapTemplate.Namespace, nsErrMsg))
 	}
 
@@ -89,8 +80,8 @@ func (wh *ClusterBootstrapTemplate) ValidateCreate(ctx context.Context, obj runt
 
 	if clusterBootstrapTemplate.Spec.AdditionalPackages != nil {
 		// validate additional packages
-		for _, pkg := range clusterBootstrapTemplate.Spec.AdditionalPackages {
-			if err := wh.validateClusterBootstrapPackage(pkg, getFieldPath("additionalPackages")); err != nil {
+		for idx, pkg := range clusterBootstrapTemplate.Spec.AdditionalPackages {
+			if err := wh.validateClusterBootstrapPackage(pkg, getFieldPath("additionalPackages").Child(string(rune(idx)))); err != nil {
 				allErrs = append(allErrs, err)
 			}
 		}
@@ -116,10 +107,8 @@ func (wh *ClusterBootstrapTemplate) validateClusterBootstrapPackage(pkg *runv1al
 	}
 
 	// Currently, we don't allow more than one field from valuesFrom to be present
-	if (pkg.ValuesFrom.ProviderRef != nil && pkg.ValuesFrom.SecretRef != "") ||
-		(pkg.ValuesFrom.ProviderRef != nil && pkg.ValuesFrom.Inline != "") ||
-		(pkg.ValuesFrom.SecretRef != "" && pkg.ValuesFrom.Inline != "") {
-		return field.Invalid(fldPath.Child("valuesFrom"), pkg.ValuesFrom, "valuesFrom can't have more than one non-null subfield")
+	if pkg.ValuesFrom.CountFields() > 1 {
+		return field.Invalid(fldPath, pkg.ValuesFrom, "valuesFrom can't have more than one non-null subfield")
 	}
 
 	// Will not check if provider config CRs, secretRefs or package CRs exist in the cluster for clusterBootstrapTemplate
@@ -146,7 +135,7 @@ func (wh *ClusterBootstrapTemplate) ValidateUpdate(ctx context.Context, oldObj, 
 	clusterbootstraptemplatelog.Info("validate update", "name", newClusterBootstrapTemplate.Name)
 
 	if !reflect.DeepEqual(newClusterBootstrapTemplate.Spec, oldClusterBootstrapTemplate.Spec) {
-		return errors.New("ClusterBootstrapTemplate is immutable, update is not allowed")
+		return errors.New("ClusterBootstrapTemplate has immutable spec, update is not allowed")
 	}
 
 	return nil
