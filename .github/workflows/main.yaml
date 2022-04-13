@@ -93,7 +93,7 @@ jobs:
       uses: actions/cache@v3
       with:
         path: ${{ runner.temp }}/lint_cache
-        key: ${{ runner.os }}-lint-cache
+        key: ${{ runner.os }}-lint-cache-2
 
     - name: Run lint checks
       env:
