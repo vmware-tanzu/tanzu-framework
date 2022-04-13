@@ -80,8 +80,8 @@ var _ = BeforeSuite(func() {
 	mgr, err := ctrl.NewManager(testEnv.Config, options)
 	Expect(err).NotTo(HaveOccurred())
 
-	reconciler := NewController(k8sClient)
-	Expect(reconciler.SetupWithManager(mgr)).To(Succeed())
+	Expect(NewV1Controller(k8sClient).SetupWithManager(mgr)).To(Succeed())
+	Expect(NewV3Controller(k8sClient).SetupWithManager(mgr)).To(Succeed())
 
 	ctx, cancel = context.WithCancel(ctx)
 	ns := &corev1.Namespace{ObjectMeta: metav1.ObjectMeta{Name: pinnipedNamespace}}

@@ -16,10 +16,7 @@ RUN go mod download
 
 # Copy the source
 COPY main.go main.go
-COPY controllers/controllers.go controllers/controllers.go
-COPY controllers/handlers.go controllers/handlers.go
-COPY utils/utils.go utils/utils.go
-COPY constants/constants.go constants/constants.go
+COPY controllers/ controllers/
 
 # Build
 ARG LD_FLAGS

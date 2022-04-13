@@ -14,13 +14,10 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/event"
 	"sigs.k8s.io/controller-runtime/pkg/predicate"
-
-	"github.com/vmware-tanzu/tanzu-framework/addons/pinniped/config-controller/constants"
-	"github.com/vmware-tanzu/tanzu-framework/addons/pinniped/config-controller/utils"
 )
 
-func (c *PinnipedController) configMapToSecret(o client.Object) []ctrl.Request {
-	// return empty object, if pinniped-info CM changes, update all the secrets
+func configMapHandler(o client.Object) []ctrl.Request {
+	// return empty object, if pinniped-info CM changes, update all secrets/clusters
 	return []ctrl.Request{{}}
 }
 
@@ -40,11 +37,11 @@ func withNamespacedName(namespacedName types.NamespacedName) builder.Predicates 
 	)
 }
 
-func (c *PinnipedController) withPackageName(packageName string) builder.Predicates {
+func (c *PinnipedV3Controller) withPackageName(packageName string) builder.Predicates {
 	var log logr.Logger
 	containsPackageName := func(o client.Object, packageName string) bool {
 		var secret *corev1.Secret
-		log = c.Log.WithValues(constants.SecretNamespaceLogKey, o.GetName(), constants.SecretNameLogKey, o.GetNamespace())
+		log = c.Log.WithValues(secretNamespaceLogKey, o.GetName(), secretNameLogKey, o.GetNamespace())
 		switch obj := o.(type) {
 		case *corev1.Secret:
 			secret = obj
@@ -53,7 +50,7 @@ func (c *PinnipedController) withPackageName(packageName string) builder.Predica
 			return false
 		}
 		// TODO: do we care if secret is paused?
-		if utils.IsClusterBootstrapType(secret) && utils.ContainsPackageName(secret, packageName) {
+		if isClusterBootstrapType(secret) && containsPackageName(secret, packageName) {
 			log.V(1).Info("adding secret for reconciliation")
 			return true
 		}
@@ -73,8 +70,8 @@ func (c *PinnipedController) withPackageName(packageName string) builder.Predica
 			DeleteFunc: func(e event.DeleteEvent) bool {
 				log.V(1).Info(
 					"secret is being deleted, skipping reconcile",
-					constants.SecretNamespaceLogKey, e.Object.GetNamespace(),
-					constants.SecretNameLogKey, e.Object.GetName(),
+					secretNamespaceLogKey, e.Object.GetNamespace(),
+					secretNameLogKey, e.Object.GetName(),
 				)
 				return false
 			},
