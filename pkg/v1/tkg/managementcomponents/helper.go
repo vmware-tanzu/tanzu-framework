@@ -5,6 +5,8 @@
 package managementcomponents
 
 import (
+	"os"
+	"path/filepath"
 	"time"
 
 	"gopkg.in/yaml.v3"
@@ -53,12 +55,8 @@ func GetTKGPackageConfigValuesFileFromUserConfig(managementPackageVersion string
 		return "", err
 	}
 
-	valuesFile, err := utils.CreateTempFile("", "")
-	if err != nil {
-		return "", err
-	}
-
-	err = utils.WriteToFile(valuesFile, configBytes)
+	valuesFile := filepath.Join(os.TempDir(), constants.TKGPackageValuesFile)
+	err = utils.SaveFile(valuesFile, configBytes)
 	if err != nil {
 		return "", err
 	}

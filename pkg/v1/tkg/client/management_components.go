@@ -12,14 +12,16 @@ import (
 	"gopkg.in/yaml.v3"
 
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/carvelhelpers"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/clusterclient"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/log"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/managementcomponents"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfigreaderwriter"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/utils"
 )
 
-// InstallManagementComponents install management components to the cluster
-func (c *TkgClient) InstallManagementComponents(kubeconfig, kubecontext string) error {
+// InstallOrUpgradeManagementComponents install management components to the cluster
+func (c *TkgClient) InstallOrUpgradeManagementComponents(kubeconfig, kubecontext string, upgrade bool) error {
 	managementPackageRepoImage, err := c.tkgBomClient.GetManagementPackageRepositoryImage()
 	if err != nil {
 		return errors.Wrap(err, "unable to get management package repository image")
@@ -47,7 +49,7 @@ func (c *TkgClient) InstallManagementComponents(kubeconfig, kubecontext string) 
 	managementPackageVersion = strings.TrimLeft(managementPackageVersion, "v")
 
 	// Get TKG package's values file
-	tkgPackageValuesFile, err := c.getTKGPackageConfigValuesFile(managementPackageVersion)
+	tkgPackageValuesFile, err := c.getTKGPackageConfigValuesFile(managementPackageVersion, kubeconfig, kubecontext, upgrade)
 	if err != nil {
 		return err
 	}
@@ -82,11 +84,19 @@ func (c *TkgClient) InstallManagementComponents(kubeconfig, kubecontext string) 
 		os.Remove(kappControllerConfigFile)
 	}
 
-	return nil
+	return err
 }
 
-func (c *TkgClient) getTKGPackageConfigValuesFile(managementPackageVersion string) (string, error) {
-	userProviderConfigValues, err := c.getUserConfigVariableValueMap()
+func (c *TkgClient) getTKGPackageConfigValuesFile(managementPackageVersion, kubeconfig, kubecontext string, upgrade bool) (string, error) {
+	var userProviderConfigValues map[string]string
+	var err error
+
+	if upgrade {
+		userProviderConfigValues, err = c.getUserConfigVariableValueMapForUpgrade(kubeconfig, kubecontext)
+	} else {
+		userProviderConfigValues, err = c.getUserConfigVariableValueMap()
+	}
+
 	if err != nil {
 		return "", err
 	}
@@ -106,6 +116,27 @@ func (c *TkgClient) getUserConfigVariableValueMap() (map[string]string, error) {
 	}
 
 	return c.GetUserConfigVariableValueMap(path, c.TKGConfigReaderWriter())
+}
+
+func (c *TkgClient) getUserConfigVariableValueMapForUpgrade(kubeconfig, kubecontext string) (map[string]string, error) {
+	clusterClient, err := clusterclient.NewClient(kubeconfig, kubecontext, clusterclient.Options{})
+	if err != nil {
+		return nil, errors.Wrap(err, "unable to get cluster client")
+	}
+
+	var tkgPackageConfig managementcomponents.TKGPackageConfig
+
+	bytes, err := clusterClient.GetSecretValue(constants.TKGPackageValuesSecret, constants.TKGPackageValuesFile, constants.TkgNamespace, nil)
+	if err != nil {
+		return nil, errors.Wrap(err, "unable to get cluster client")
+	}
+
+	err = yaml.Unmarshal(bytes, &tkgPackageConfig)
+	if err != nil {
+		return nil, errors.Wrapf(err, "unable to unmarshal configuration from secret: %v, namespace: %v", constants.TKGPackageValues, constants.TkgNamespace)
+	}
+
+	return tkgPackageConfig.ConfigValues, nil
 }
 
 func (c *TkgClient) getUserConfigVariableValueMapFile() (string, error) {

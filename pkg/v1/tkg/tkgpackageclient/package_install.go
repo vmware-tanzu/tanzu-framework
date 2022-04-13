@@ -161,7 +161,9 @@ func (p *pkgClient) createRelatedResources(o *tkgpackagedatamodel.PackageOptions
 	}
 
 	if o.ValuesFile != "" {
-		o.SecretName = fmt.Sprintf(tkgpackagedatamodel.SecretName, o.PkgInstallName, o.Namespace)
+		if o.SecretName == "" {
+			o.SecretName = fmt.Sprintf(tkgpackagedatamodel.SecretName, o.PkgInstallName, o.Namespace)
+		}
 		progress <- fmt.Sprintf("Creating secret '%s'", o.SecretName)
 		if pkgPluginResourceCreationStatus.IsSecretCreated, err = p.createOrUpdateDataValuesSecret(o); err != nil {
 			return &pkgPluginResourceCreationStatus, err

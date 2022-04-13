@@ -115,5 +115,6 @@ func installTKGManagementPackage(pkgClient tkgpackageclient.TKGPackageClient, mp
 	packageOptions.PollTimeout = packagePollTimeout
 	packageOptions.ValuesFile = mpro.TKGPackageValuesFile
 	packageOptions.Version = mpro.PackageVersion
+	packageOptions.SecretName = constants.TKGPackageValuesSecret
 	return pkgClient.InstallPackageSync(packageOptions, tkgpackagedatamodel.OperationTypeInstall)
 }
