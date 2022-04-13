@@ -189,23 +189,41 @@ func (r *AddonReconciler) ReconcileAddonDataValuesSecretNormal(
 		},
 	}
 
-	addonDataValuesSecretMutateFn := func() error {
-		addonDataValuesSecret.Type = corev1.SecretTypeOpaque
-		addonDataValuesSecret.Data = map[string][]byte{}
-		for k, v := range addonSecret.Data {
-			addonDataValuesSecret.Data[k] = v
-		}
-		// Add or updates the imageInfo if container image reference exists
-		if len(addonConfig.AddonContainerImages) > 0 {
-			imageInfoBytes, err := util.GetImageInfo(addonConfig, imageRepository, r.Config.AddonImagePullPolicy, bom)
+	var addonDataValuesSecretMutateFn controllerutil.MutateFn
+	switch {
+	// Handle calico separately to do the redundant information cleanup
+	case util.GetAddonNameFromAddonSecret(addonSecret) == constants.CalicoAddonName:
+		addonDataValuesSecretMutateFn = func() error {
+			dataValueYamlBytes, err := util.GetCalicoDataValuesFromAddonSecret(addonSecret)
 			if err != nil {
-				log.Error(err, "Error retrieving addon image info")
+				log.Error(err, "Error retrieving calico addon data values")
 				return err
 			}
-			addonDataValuesSecret.Data["imageInfo.yaml"] = imageInfoBytes
+			addonDataValuesSecret.Type = corev1.SecretTypeOpaque
+			addonDataValuesSecret.Data = map[string][]byte{
+				constants.TKGDataValueFileName: dataValueYamlBytes,
+			}
+			return nil
 		}
+	default:
+		addonDataValuesSecretMutateFn = func() error {
+			addonDataValuesSecret.Type = corev1.SecretTypeOpaque
+			addonDataValuesSecret.Data = map[string][]byte{}
+			for k, v := range addonSecret.Data {
+				addonDataValuesSecret.Data[k] = v
+			}
+			// Add or updates the imageInfo if container image reference exists
+			if len(addonConfig.AddonContainerImages) > 0 {
+				imageInfoBytes, err := util.GetImageInfo(addonConfig, imageRepository, r.Config.AddonImagePullPolicy, bom)
+				if err != nil {
+					log.Error(err, "Error retrieving addon image info")
+					return err
+				}
+				addonDataValuesSecret.Data["imageInfo.yaml"] = imageInfoBytes
+			}
 
-		return nil
+			return nil
+		}
 	}
 
 	result, err := controllerutil.CreateOrPatch(ctx, clusterClient, addonDataValuesSecret, addonDataValuesSecretMutateFn)

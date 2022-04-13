@@ -187,7 +187,7 @@ func (r *CalicoConfigReconciler) ReconcileCalicoDataValuesSecret(
 	calicoDataValuesSecretMutateFn := func() error {
 		calicoDataValuesSecret.Data = make(map[string][]byte)
 
-		calicoConfigYaml, err := mapCalicoConfigSpec(cluster, calicoConfig)
+		calicoConfigYaml, err := util.MapCalicoConfigSpec(cluster, calicoConfig)
 		if err != nil {
 			return err
 		}

@@ -130,6 +130,7 @@ var _ = Describe("CalicoConfig Reconciler and Webhooks", func() {
 				Expect(strings.Contains(secretData, "infraProvider: vsphere")).Should(BeTrue())
 				Expect(strings.Contains(secretData, "ipFamily: ipv4,ipv6")).Should(BeTrue())
 				Expect(strings.Contains(secretData, "clusterCIDR: 192.168.0.0/16,fd00:100:96::/48")).Should(BeTrue())
+				Expect(strings.Contains(secretData, "vethMTU: \"0\"")).Should(BeTrue())
 
 				return true
 			}, waitTimeout, pollingInterval).Should(BeTrue())
