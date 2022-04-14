@@ -1,0 +1,14 @@
+apiVersion: data.packaging.carvel.dev/v1alpha1
+kind: PackageMetadata
+metadata:
+  name: cluster-api-provider-aws.tanzu.vmware.com
+  namespace: cluster-api-provider-aws
+spec:
+  displayName: "cluster-api-provider-aws"
+  longDescription: "Cluster API Provider AWS provides consistent deployment and day 2 operations of 'self-managed' and EKS Kubernetes clusters on AWS"
+  shortDescription: "Cluster management for AWS"
+  providerName: VMware
+  maintainers:
+    - name: ""
+  categories:
+    - "cluster management"
