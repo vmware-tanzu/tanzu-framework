@@ -1,0 +1,14 @@
+apiVersion: data.packaging.carvel.dev/v1alpha1
+kind: PackageMetadata
+metadata:
+  name: cluster-api-provider-docker.tanzu.vmware.com
+  namespace: cluster-api-provider-docker
+spec:
+  displayName: "cluster-api-provider-docker"
+  longDescription: "CAPD is a reference implementation of an infrastructure provider for the Cluster API project using Docker."
+  shortDescription: "Cluster management for Docker"
+  providerName: VMware
+  maintainers:
+    - name: ""
+  categories:
+    - "cluster management"

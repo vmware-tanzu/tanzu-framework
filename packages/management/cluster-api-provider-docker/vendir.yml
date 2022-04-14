@@ -1,0 +1,14 @@
+apiVersion: vendir.k14s.io/v1alpha1
+kind: Config
+minimumRequiredVersion: 0.12.0
+directories:
+  - path: bundle/config/upstream
+    contents:
+      - path: .
+        githubRelease:
+          slug: kubernetes-sigs/cluster-api
+          tag: v1.1.3
+          disableAutoChecksumValidation: true
+        includePaths:
+          - infrastructure-components-development.yaml
+          - metadata.yaml
