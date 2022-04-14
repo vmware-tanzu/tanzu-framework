@@ -195,21 +195,21 @@ spec:
       namespace: '${ NAMESPACE }'
   workers:
     machineDeployments:
-      - class: tkg-worker
-        machineHealthCheck:
-        template:
-          bootstrap:
-            ref:
-              kind: KubeadmConfigTemplate
-              apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
-              name: 'tkg-vsphere-md-0'
-              namespace: '${ NAMESPACE }'
-          infrastructure:
-            ref:
-              kind: VSphereMachineTemplate
-              apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
-              name: 'tkg-vsphere-worker'
-              namespace: '${ NAMESPACE }'
+    - class: tkg-worker
+      machineHealthCheck:
+      template:
+        bootstrap:
+          ref:
+            kind: KubeadmConfigTemplate
+            apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
+            name: 'tkg-vsphere-md-0'
+            namespace: '${ NAMESPACE }'
+        infrastructure:
+          ref:
+            kind: VSphereMachineTemplate
+            apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+            name: 'tkg-vsphere-worker'
+            namespace: '${ NAMESPACE }'
   variables:
   - name: CONTROL_PLANE_MACHINE
     schema:
@@ -353,9 +353,9 @@ spec:
             items:
               type: string
         required:
-          - httpProxy
-          - httpsProxy
-          - noProxy
+        - httpProxy
+        - httpsProxy
+        - noProxy
   - name: TKG_PROXY_CA_CERT
     schema:
       openAPIV3Schema:
