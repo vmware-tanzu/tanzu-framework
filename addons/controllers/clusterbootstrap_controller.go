@@ -150,9 +150,9 @@ func (r *ClusterBootstrapReconciler) Reconcile(ctx context.Context, req ctrl.Req
 	}
 
 	// make sure the TKR object exists
-	tkrName, err := util.GetClusterLabel(cluster.Labels, constants.TKRLabelClassyClusters)
-	if err != nil {
-		return ctrl.Result{}, err
+	tkrName := util.GetClusterLabel(cluster.Labels, constants.TKRLabelClassyClusters)
+	if tkrName == "" {
+		return ctrl.Result{}, nil
 	}
 
 	tkr, err := util.GetTKRByName(r.context, r.Client, tkrName)

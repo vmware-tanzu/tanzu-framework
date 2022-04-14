@@ -6,11 +6,11 @@ apiVersion: v1
 kind: Service
 metadata:
   name: tanzu-addons-manager-webhook-service
-  namespace: tkg-system
+  namespace: #@ data.values.tanzuAddonsManager.namespace
 spec:
   ports:
   - port: 443
-    targetPort: 9453
+    targetPort: 9865
   selector:
     app: tanzu-addons-manager
 ---
@@ -29,7 +29,7 @@ webhooks:
     clientConfig:
       service:
         name: tanzu-addons-manager-webhook-service
-        namespace: tkg-system
+        namespace: #@ data.values.tanzuAddonsManager.namespace
         path: /validate-cni-tanzu-vmware-com-v1alpha1-antreaconfig
     failurePolicy: Fail
     name: vantreaconfig.kb.io
@@ -51,7 +51,7 @@ webhooks:
     clientConfig:
       service:
         name: tanzu-addons-manager-webhook-service
-        namespace: tkg-system
+        namespace: #@ data.values.tanzuAddonsManager.namespace
         path: /validate-cni-tanzu-vmware-com-v1alpha1-calicoconfig
     failurePolicy: Fail
     name: vcalicoconfig.kb.io

@@ -18,6 +18,8 @@ import (
 	_ "k8s.io/client-go/plugin/pkg/client/auth"
 	"k8s.io/klog/v2"
 	"k8s.io/klog/v2/klogr"
+	capvv1beta1 "sigs.k8s.io/cluster-api-provider-vsphere/apis/v1beta1"
+	capvvmwarev1beta1 "sigs.k8s.io/cluster-api-provider-vsphere/apis/vmware/v1beta1"
 	clusterapiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
 	capiremote "sigs.k8s.io/cluster-api/controllers/remote"
 	controlplanev1beta1 "sigs.k8s.io/cluster-api/controlplane/kubeadm/api/v1beta1"
@@ -65,6 +67,8 @@ func init() {
 	_ = cniv1alpha1.AddToScheme(scheme)
 	_ = cpiv1alpha1.AddToScheme(scheme)
 	_ = csiv1alpha1.AddToScheme(scheme)
+	_ = capvv1beta1.AddToScheme(scheme)
+	_ = capvvmwarev1beta1.AddToScheme(scheme)
 
 	// +kubebuilder:scaffold:scheme
 }
@@ -159,7 +163,7 @@ func main() {
 	mgr, err := ctrl.NewManager(ctrl.GetConfigOrDie(), ctrl.Options{
 		Scheme:                 scheme,
 		MetricsBindAddress:     flags.metricsAddr,
-		Port:                   9453,
+		Port:                   9865,
 		CertDir:                constants.WebhookCertDir,
 		LeaderElection:         flags.enableLeaderElection,
 		LeaderElectionID:       "5832a104.run.tanzu.addons",
