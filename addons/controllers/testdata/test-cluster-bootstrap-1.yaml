@@ -48,16 +48,24 @@ spec:
     class: test-clusterclass-tcbt
     version: v1.22.3
     variables:
-      - name: tkg.tanzu.vmware.com/tkg-http-proxy
-        value: "foo.com"
-      - name: tkg.tanzu.vmware.com/tkg-https-proxy
-        value: "bar.com"
-      - name: tkg.tanzu.vmware.com/tkg-no-proxy
-        value: "foobar.com"
-      - name: tkg.tanzu.vmware.com/tkg-proxy-ca-cert
-        value: "dummyCertificate"
       - name: tkg.tanzu.vmware.com/tkg-ip-family
         value: "ipv4"
+      - name: proxy
+        value:
+          httpProxy: "foo.com"
+          httpsProxy: "bar.com"
+          noProxy: "foobar.com"
+      - name: trust
+        value:
+          additionalTrustedCAs:
+            - name: CompanyInternalCA-1
+              data: aGVsbG8=
+            - name: CompanyInternalCA-2
+              data: bHWtcH9=
+      - name: skipTLSVerify
+        value:
+          - registry1
+          - registry2
 ---
 apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
 kind: VSphereCluster

@@ -24,8 +24,8 @@ const (
 	testNamespace           = "test-ns"
 )
 
-var _ = Describe("Parse String Cluster Variable", func() {
-	Context("ParseClusterVariableString()", func() {
+var _ = Describe("Parse Cluster Variable", func() {
+	Context("ParseClusterVariable functions", func() {
 		var (
 			err        error
 			result     string
@@ -43,7 +43,6 @@ var _ = Describe("Parse String Cluster Variable", func() {
 				},
 			}
 		})
-
 		When("cluster variable exists and match the input variable name", func() {
 			BeforeEach(func() {
 				clusterObj.Spec.Topology.Variables = []clusterapiv1beta1.ClusterVariable{
@@ -144,49 +143,42 @@ var _ = Describe("Parse String Cluster Variable", func() {
 				Expect(result).To(BeTrue())
 			})
 		})
-
-		When("cluster variable of invalid type (map)", func() {
-			BeforeEach(func() {
-				clusterObj.Spec.Topology.Variables = []clusterapiv1beta1.ClusterVariable{
-					{Name: testClusterVariableName, Value: apiextensionsv1.JSON{Raw: []byte(`{"enabled":false}`)}},
-				}
-				result, err = ParseClusterVariableString(clusterObj, testClusterVariableName)
-			})
-			It("should return error", func() {
-				Expect(err).To(HaveOccurred())
-				Expect(err.Error()).To(ContainSubstring(fmt.Sprintf("invalid type for the cluster variable value for '%s'", testClusterVariableName)))
-				Expect(result).To(Equal(""))
-			})
-		})
-
-		When("cluster variable of invalid type (integer)", func() {
-			BeforeEach(func() {
-				clusterObj.Spec.Topology.Variables = []clusterapiv1beta1.ClusterVariable{
-					{Name: testClusterVariableName, Value: apiextensionsv1.JSON{Raw: []byte(`2`)}},
-				}
-				result, err = ParseClusterVariableString(clusterObj, testClusterVariableName)
-			})
-			It("should return error", func() {
-				Expect(err).To(HaveOccurred())
-				Expect(err.Error()).To(ContainSubstring(fmt.Sprintf("invalid type for the cluster variable value for '%s'", testClusterVariableName)))
-				Expect(result).To(Equal(""))
-			})
-		})
-
-		When("cluster variable of invalid type (slice)", func() {
+		When("cluster variable slice exists and match the input variable name", func() {
 			BeforeEach(func() {
 				clusterObj.Spec.Topology.Variables = []clusterapiv1beta1.ClusterVariable{
 					{Name: testClusterVariableName, Value: apiextensionsv1.JSON{Raw: []byte(`["value1","value2"]`)}},
 				}
-				result, err = ParseClusterVariableString(clusterObj, testClusterVariableName)
+				result, err = ParseClusterVariableList(clusterObj, testClusterVariableName)
 			})
-			It("should return error", func() {
-				Expect(err).To(HaveOccurred())
-				Expect(err.Error()).To(ContainSubstring(fmt.Sprintf("invalid type for the cluster variable value for '%s'", testClusterVariableName)))
-				Expect(result).To(Equal(""))
+			It("should return cluster variable value", func() {
+				Expect(result).To(Equal(`value1, value2`))
+				Expect(err).NotTo(HaveOccurred())
 			})
 		})
-
+		When("cluster variable interface exists and match the input variable name", func() {
+			BeforeEach(func() {
+				clusterObj.Spec.Topology.Variables = []clusterapiv1beta1.ClusterVariable{
+					{Name: testClusterVariableName, Value: apiextensionsv1.JSON{Raw: []byte(`{"httpProxy":"foo.com"}`)}},
+				}
+				result, err = ParseClusterVariableInterface(clusterObj, testClusterVariableName, "httpProxy")
+			})
+			It("should return cluster variable value", func() {
+				Expect(result).To(Equal("foo.com"))
+				Expect(err).NotTo(HaveOccurred())
+			})
+		})
+		When("cluster variable custom certs exists and match the input variable name", func() {
+			BeforeEach(func() {
+				clusterObj.Spec.Topology.Variables = []clusterapiv1beta1.ClusterVariable{
+					{Name: testClusterVariableName, Value: apiextensionsv1.JSON{Raw: []byte(`{"additionalTrustedCAs": [{"name": "cert1", "data":"aGVsbG8="}, {"name": "cert2", "data":"bHWtcH9="}]}`)}},
+				}
+				result, err = ParseClusterVariableCert(clusterObj, testClusterVariableName, "additionalTrustedCAs", "data")
+			})
+			It("should return cluster variable value", func() {
+				Expect(result).To(Equal("aGVsbG8=\nbHWtcH9=\n"))
+				Expect(err).NotTo(HaveOccurred())
+			})
+		})
 		When("failure in json unmarshal", func() {
 			BeforeEach(func() {
 				clusterObj.Spec.Topology.Variables = []clusterapiv1beta1.ClusterVariable{

@@ -10,6 +10,7 @@ metadata:
     tkg.tanzu.vmware.com/tkg-no-proxy: "foobar.com"
     tkg.tanzu.vmware.com/tkg-proxy-ca-cert: "dummyCertificate"
     tkg.tanzu.vmware.com/tkg-ip-family: "ipv4"
+    tkg.tanzu.vmware.com/skip-tls-verify: "registry1,registry2"
 spec:
   clusterNetwork:
     pods:
@@ -47,3 +48,4 @@ spec:
           value: "true"
     config:
       httpProxy: "overwrite.foo.com"
+      dangerousSkipTLSVerify: "registry1,registry2"

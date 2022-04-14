@@ -268,16 +268,12 @@ var _ = BeforeSuite(func(done Done) {
 		ctrl.Log.WithName("controllers").WithName("ClusterBootstrap"),
 		mgr.GetScheme(),
 		&addonconfig.ClusterBootstrapControllerConfig{
-			HTTPProxyClusterClassVarName:   constants.DefaultHTTPProxyClusterClassVarName,
-			HTTPSProxyClusterClassVarName:  constants.DefaultHTTPSProxyClusterClassVarName,
-			NoProxyClusterClassVarName:     constants.DefaultNoProxyClusterClassVarName,
-			ProxyCACertClusterClassVarName: constants.DefaultProxyCaCertClusterClassVarName,
-			IPFamilyClusterClassVarName:    constants.DefaultIPFamilyClusterClassVarName,
-			SystemNamespace:                constants.TKGSystemNS,
-			PkgiServiceAccount:             constants.PackageInstallServiceAccount,
-			PkgiClusterRole:                constants.PackageInstallClusterRole,
-			PkgiClusterRoleBinding:         constants.PackageInstallClusterRoleBinding,
-			PkgiSyncPeriod:                 constants.PackageInstallSyncPeriod,
+			IPFamilyClusterClassVarName: constants.DefaultIPFamilyClusterClassVarName,
+			SystemNamespace:             constants.TKGSystemNS,
+			PkgiServiceAccount:          constants.PackageInstallServiceAccount,
+			PkgiClusterRole:             constants.PackageInstallClusterRole,
+			PkgiClusterRoleBinding:      constants.PackageInstallClusterRoleBinding,
+			PkgiSyncPeriod:              constants.PackageInstallSyncPeriod,
 		},
 	)
 	Expect(bootstrapReconciler.SetupWithManager(ctx, mgr, controller.Options{MaxConcurrentReconciles: 1})).To(Succeed())

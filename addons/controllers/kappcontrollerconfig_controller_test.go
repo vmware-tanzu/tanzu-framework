@@ -119,7 +119,8 @@ var _ = Describe("KappControllerConfig Reconciler", func() {
 
 				if !strings.Contains(secretData, "caCerts: dummyCertificate") ||
 					!strings.Contains(secretData, "httpsProxy: bar.com") ||
-					!strings.Contains(secretData, "noProxy: foobar.com") {
+					!strings.Contains(secretData, "noProxy: foobar.com") ||
+					!strings.Contains(secretData, "dangerousSkipTLSVerify: registry1,registry2") {
 					return false
 				}
 
