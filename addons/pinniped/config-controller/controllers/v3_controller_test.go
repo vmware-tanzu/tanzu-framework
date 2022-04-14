@@ -294,15 +294,32 @@ var _ = Describe("Controller", func() {
 				deleteObject(ctx, s)
 			}
 		})
-		When("the configmap gets created", func() {
-			BeforeEach(func() {
-				createObject(ctx, configMap)
+		Context("the configmap gets created", func() {
+			When("there are no ClusterBootstrap secrets", func() {
+				BeforeEach(func() {
+					for _, s := range secrets {
+						deleteObject(ctx, s)
+					}
+					createObject(ctx, configMap)
+				})
+
+				It("does not create any secrets", func() {
+					for _, c := range clusters {
+						Eventually(verifyNoSecretFunc(ctx, c, false)).Should(Succeed())
+					}
+				})
 			})
 
-			It("updates all the ClusterBootstrap secrets", func() {
-				for _, c := range clusters {
-					Eventually(verifySecretFunc(ctx, c, configMap, false)).Should(Succeed())
-				}
+			When("there are ClusterBootstrap secrets", func() {
+				BeforeEach(func() {
+					createObject(ctx, configMap)
+				})
+
+				It("updates all the ClusterBootstrap secrets", func() {
+					for _, c := range clusters {
+						Eventually(verifySecretFunc(ctx, c, configMap, false)).Should(Succeed())
+					}
+				})
 			})
 		})
 

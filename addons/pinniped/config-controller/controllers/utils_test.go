@@ -53,6 +53,24 @@ func updateObject(ctx context.Context, o client.Object) {
 	}).Should(Succeed())
 }
 
+func verifyNoSecretFunc(ctx context.Context, cluster *clusterapiv1beta1.Cluster, isV1 bool) func(Gomega) {
+	return func(g Gomega) {
+		secret := &corev1.Secret{
+			ObjectMeta: metav1.ObjectMeta{
+				Namespace: cluster.Namespace,
+				Name:      fmt.Sprintf("%s-pinniped.tanzu.vmware.com-package", cluster.Name),
+			},
+		}
+
+		if isV1 {
+			secret.Name = fmt.Sprintf("%s-pinniped-addon", cluster.Name)
+		}
+
+		err := k8sClient.Get(ctx, client.ObjectKeyFromObject(secret), secret)
+		g.Expect(k8serrors.IsNotFound(err)).To(BeTrue())
+	}
+}
+
 func verifySecretFunc(ctx context.Context, cluster *clusterapiv1beta1.Cluster, configMap *corev1.ConfigMap, isV1 bool) func(Gomega) {
 	return func(g Gomega) {
 		clusterCopy := cluster.DeepCopy()

@@ -35,17 +35,15 @@ func NewV1Controller(c client.Client) *PinnipedV1Controller {
 }
 
 func (c *PinnipedV1Controller) SetupWithManager(manager ctrl.Manager) error {
-	// Addons secret deleted: recreate it User only manages addons secret on mgmt cluster
 	err := ctrl.
 		NewControllerManagedBy(manager).
-		For(&clusterapiv1beta1.Cluster{}).
+		For(&clusterapiv1beta1.Cluster{},
+			withLabel(tkrLabel)).
 		Watches(
 			&source.Kind{Type: &corev1.ConfigMap{}},
 			handler.EnqueueRequestsFromMapFunc(configMapHandler),
 			withNamespacedName(types.NamespacedName{Namespace: "kube-public", Name: "pinniped-info"}),
 		).
-		// only watch v1alpha1 clusters
-		WithEventFilter(clusterHasLabel(tkrLabel, c.Log)).
 		Complete(c)
 	if err != nil {
 		c.Log.Error(err, "error creating pinniped config controller")
@@ -76,17 +74,14 @@ func (c *PinnipedV1Controller) Reconcile(ctx context.Context, req ctrl.Request) 
 		}
 
 		for i := range clusters.Items {
-			if isManagementCluster(&clusters.Items[i]) {
+			cluster := &clusters.Items[i]
+			log = log.WithValues(clusterNamespaceLogKey, cluster.Namespace, clusterNameLogKey, cluster.Name)
+			if isManagementCluster(cluster) {
 				log.V(1).Info("skipping reconciliation of management cluster")
 				continue
 			}
 
-			// For v1alpha1 we will delete secret if CM is not found
-			// if pinnipedInfoCM.Data == nil {
-			//	// TODO: Reconcile Delete
-			// }
-
-			if err := c.reconcileAddonSecret(ctx, &clusters.Items[i], pinnipedInfoCM, log); err != nil {
+			if err := c.reconcileAddonSecret(ctx, cluster, pinnipedInfoCM, log); err != nil {
 				log.Error(err, "error reconciling addon secret")
 				return reconcile.Result{}, err
 			}
@@ -94,12 +89,37 @@ func (c *PinnipedV1Controller) Reconcile(ctx context.Context, req ctrl.Request) 
 		return reconcile.Result{}, nil
 	}
 
-	// TODO: handle other scenarios in future stories
+	// Get cluster from rec
+	cluster := clusterapiv1beta1.Cluster{}
+	if err := c.client.Get(ctx, req.NamespacedName, &cluster); err != nil {
+		if k8serror.IsNotFound(err) {
+			// TODO: Reconcile delete if cluster not found
+			return reconcile.Result{}, nil
+		}
+		log.Error(err, "error getting cluster")
+		return reconcile.Result{}, err
+	}
+
+	log = log.WithValues(clusterNamespaceLogKey, cluster.Namespace, clusterNameLogKey, cluster.Name)
+
+	if isManagementCluster(&cluster) {
+		log.V(1).Info("skipping reconciliation of management cluster")
+		return reconcile.Result{}, nil
+	}
+
+	if err := c.reconcileAddonSecret(ctx, &cluster, pinnipedInfoCM, log); err != nil {
+		log.Error(err, "error reconciling addon secret")
+		return reconcile.Result{}, err
+	}
 	return reconcile.Result{}, nil
 }
 
 func (c *PinnipedV1Controller) reconcileAddonSecret(ctx context.Context, cluster *clusterapiv1beta1.Cluster, pinnipedInfoCM *corev1.ConfigMap, log logr.Logger) error {
-	log = log.WithValues(clusterNamespaceLogKey, cluster.Namespace, clusterNameLogKey, cluster.Name)
+	// For v1alpha1 we will delete secret if CM is not found
+	if pinnipedInfoCM.Data == nil {
+		// TODO: reconcile delete
+		return nil
+	}
 	secret := &corev1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
 			Namespace: cluster.Namespace,
