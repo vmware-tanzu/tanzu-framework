@@ -37,6 +37,27 @@ func withNamespacedName(namespacedName types.NamespacedName) builder.Predicates 
 	)
 }
 
+// withLabel determines if the input object contains the given label
+func withLabel(label string) builder.Predicates {
+	hasLabel := func(o client.Object) bool {
+		_, labelExists := o.GetLabels()[label]
+
+		return labelExists
+	}
+
+	return builder.WithPredicates(
+		predicate.Funcs{
+			CreateFunc: func(e event.CreateEvent) bool { return hasLabel(e.Object) },
+			UpdateFunc: func(e event.UpdateEvent) bool {
+				// TODO: do we want to process if either old or new cluster has/had tkrLabel??
+				return hasLabel(e.ObjectOld) || hasLabel(e.ObjectNew)
+			},
+			DeleteFunc:  func(e event.DeleteEvent) bool { return hasLabel(e.Object) },
+			GenericFunc: func(e event.GenericEvent) bool { return hasLabel(e.Object) },
+		},
+	)
+}
+
 func (c *PinnipedV3Controller) withPackageName(packageName string) builder.Predicates {
 	var log logr.Logger
 	containsPackageName := func(o client.Object, packageName string) bool {

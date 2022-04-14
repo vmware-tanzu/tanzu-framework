@@ -3,12 +3,6 @@
 
 package controllers
 
-import (
-	"reflect"
-
-	clusterapiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
-)
-
 const (
 	//TODO: I kinda don't like that we're copying a lot of these from addons/pkg/constants
 
@@ -102,6 +96,3 @@ const (
 ---
 `
 )
-
-// clusterKind is the Kind for cluster-api Cluster object
-var clusterKind = reflect.TypeOf(clusterapiv1beta1.Cluster{}).Name()
