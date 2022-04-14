@@ -84,6 +84,15 @@ func (c *DefaultClient) GetAndValidateVirtualMachineTemplate(
 	return nil, errors.Errorf("unable to find VM Template associated with TanzuKubernetesRelease %s. Please upload at least one VM Template from versions [%v] to continue", tkrVersion, strings.Join(ovaVersions, ","))
 }
 
+// FindVirtualMachineTemplateMOIDByName finds a virtual machine template MOID by template name
+func (c *DefaultClient) FindVirtualMachineTemplateMOIDByName(templateName, dc string) (string, error) {
+	templateMOID, err := c.FindVirtualMachine(context.Background(), templateName, dc)
+	if err != nil {
+		return "", errors.Wrapf(err, "invalid %s (%v)", constants.ConfigVariableVsphereTemplate, templateName)
+	}
+	return templateMOID, nil
+}
+
 // FindMatchingVirtualMachineTemplate finds a virtual machine template that matches the ova versions
 func FindMatchingVirtualMachineTemplate(
 	vms []*tkgtypes.VSphereVirtualMachine,

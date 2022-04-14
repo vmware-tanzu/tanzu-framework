@@ -174,6 +174,9 @@ func NewMachines(options TestAllClusterComponentOptions) []runtime.Object {
 			},
 			Status: capi.MachineStatus{
 				Phase: machineOption.Phase,
+				NodeInfo: &corev1.NodeSystemInfo{
+					OperatingSystem: "linux",
+				},
 			},
 		}
 		if machineOption.IsCP {

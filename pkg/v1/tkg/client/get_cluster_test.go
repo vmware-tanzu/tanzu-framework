@@ -112,6 +112,7 @@ var _ = Describe("Unit tests for get clusters", func() {
 				Expect(clusterInfo[0].K8sVersion).To(Equal(createClusterOptions.CPOptions.K8sVersion))
 				Expect(clusterInfo[0].Roles).To(Equal([]string{TkgLabelClusterRoleWorkload}))
 				Expect(clusterInfo[0].Status).To(Equal(string(TKGClusterPhaseDeleting)))
+				Expect(clusterInfo[0].WindowsWorkerCount).To(Equal(0))
 			})
 		})
 
@@ -155,6 +156,7 @@ var _ = Describe("Unit tests for get clusters", func() {
 				Expect(clusterInfo[0].K8sVersion).To(Equal(createClusterOptions.CPOptions.K8sVersion))
 				Expect(clusterInfo[0].Roles).To(Equal([]string{TkgLabelClusterRoleWorkload}))
 				Expect(clusterInfo[0].Status).To(Equal(string(TKGClusterPhaseCreating)))
+				Expect(clusterInfo[0].WindowsWorkerCount).To(Equal(0))
 			})
 		})
 
@@ -198,6 +200,7 @@ var _ = Describe("Unit tests for get clusters", func() {
 				Expect(clusterInfo[0].K8sVersion).To(Equal(createClusterOptions.CPOptions.K8sVersion))
 				Expect(clusterInfo[0].Roles).To(Equal([]string{TkgLabelClusterRoleWorkload}))
 				Expect(clusterInfo[0].Status).To(Equal(string(TKGClusterPhaseCreating)))
+				Expect(clusterInfo[0].WindowsWorkerCount).To(Equal(0))
 			})
 		})
 
@@ -251,6 +254,7 @@ var _ = Describe("Unit tests for get clusters", func() {
 				Expect(clusterInfo[0].K8sVersion).To(Equal(createClusterOptions.CPOptions.K8sVersion))
 				Expect(clusterInfo[0].Roles).To(Equal([]string{TkgLabelClusterRoleWorkload}))
 				Expect(clusterInfo[0].Status).To(Equal(string(TKGClusterPhaseCreating)))
+				Expect(clusterInfo[0].WindowsWorkerCount).To(Equal(0))
 			})
 		})
 
@@ -304,6 +308,7 @@ var _ = Describe("Unit tests for get clusters", func() {
 				Expect(clusterInfo[0].K8sVersion).To(Equal(createClusterOptions.CPOptions.K8sVersion))
 				Expect(clusterInfo[0].Roles).To(Equal([]string{TkgLabelClusterRoleWorkload}))
 				Expect(clusterInfo[0].Status).To(Equal(string(TKGClusterPhaseRunning)))
+				Expect(clusterInfo[0].WindowsWorkerCount).To(Equal(0))
 			})
 		})
 
@@ -354,6 +359,7 @@ var _ = Describe("Unit tests for get clusters", func() {
 				Expect(clusterInfo[0].K8sVersion).To(Equal(createClusterOptions.CPOptions.K8sVersion))
 				Expect(clusterInfo[0].Roles).To(Equal([]string{TkgLabelClusterRoleWorkload}))
 				Expect(clusterInfo[0].Status).To(Equal(string(TKGClusterPhaseRunning)))
+				Expect(clusterInfo[0].WindowsWorkerCount).To(Equal(0))
 			})
 		})
 
@@ -406,6 +412,7 @@ var _ = Describe("Unit tests for get clusters", func() {
 				Expect(clusterInfo[0].K8sVersion).To(Equal(createClusterOptions.CPOptions.K8sVersion))
 				Expect(clusterInfo[0].Roles).To(Equal([]string{TkgLabelClusterRoleWorkload}))
 				Expect(clusterInfo[0].Status).To(Equal(string(TKGClusterPhaseCreationStalled)))
+				Expect(clusterInfo[0].WindowsWorkerCount).To(Equal(0))
 			})
 		})
 
@@ -452,6 +459,7 @@ var _ = Describe("Unit tests for get clusters", func() {
 				Expect(clusterInfo[0].K8sVersion).To(Equal(createClusterOptions.CPOptions.K8sVersion))
 				Expect(clusterInfo[0].Roles).To(Equal([]string{TkgLabelClusterRoleWorkload}))
 				Expect(clusterInfo[0].Status).To(Equal(string(TKGClusterPhaseCreating)))
+				Expect(clusterInfo[0].WindowsWorkerCount).To(Equal(0))
 			})
 		})
 
@@ -500,6 +508,7 @@ var _ = Describe("Unit tests for get clusters", func() {
 				Expect(clusterInfo[0].K8sVersion).To(Equal(createClusterOptions.CPOptions.K8sVersion))
 				Expect(clusterInfo[0].Roles).To(Equal([]string{TkgLabelClusterRoleWorkload}))
 				Expect(clusterInfo[0].Status).To(Equal(string(TKGClusterPhaseUpdating)))
+				Expect(clusterInfo[0].WindowsWorkerCount).To(Equal(0))
 			})
 		})
 
@@ -550,6 +559,7 @@ var _ = Describe("Unit tests for get clusters", func() {
 				Expect(clusterInfo[0].K8sVersion).To(Equal(createClusterOptions.CPOptions.K8sVersion))
 				Expect(clusterInfo[0].Roles).To(Equal([]string{TkgLabelClusterRoleWorkload}))
 				Expect(clusterInfo[0].Status).To(Equal(string(TKGClusterPhaseUpdating)))
+				Expect(clusterInfo[0].WindowsWorkerCount).To(Equal(0))
 			})
 		})
 
@@ -601,6 +611,7 @@ var _ = Describe("Unit tests for get clusters", func() {
 				Expect(clusterInfo[0].K8sVersion).To(Equal(createClusterOptions.CPOptions.K8sVersion))
 				Expect(clusterInfo[0].Roles).To(Equal([]string{TkgLabelClusterRoleWorkload}))
 				Expect(clusterInfo[0].Status).To(Equal(string(TKGClusterPhaseUpdating)))
+				Expect(clusterInfo[0].WindowsWorkerCount).To(Equal(0))
 			})
 		})
 
@@ -653,6 +664,7 @@ var _ = Describe("Unit tests for get clusters", func() {
 				Expect(clusterInfo[0].K8sVersion).To(Equal(createClusterOptions.CPOptions.K8sVersion))
 				Expect(clusterInfo[0].Roles).To(Equal([]string{TkgLabelClusterRoleWorkload}))
 				Expect(clusterInfo[0].Status).To(Equal(string(TKGClusterPhaseUpdating)))
+				Expect(clusterInfo[0].WindowsWorkerCount).To(Equal(0))
 			})
 		})
 
@@ -704,6 +716,7 @@ var _ = Describe("Unit tests for get clusters", func() {
 				Expect(clusterInfo[0].K8sVersion).To(Equal(createClusterOptions.CPOptions.K8sVersion))
 				Expect(clusterInfo[0].Roles).To(Equal([]string{TkgLabelClusterRoleWorkload}))
 				Expect(clusterInfo[0].Status).To(Equal(string(TKGClusterPhaseRunning)))
+				Expect(clusterInfo[0].WindowsWorkerCount).To(Equal(0))
 			})
 		})
 
@@ -763,6 +776,7 @@ var _ = Describe("Unit tests for get clusters", func() {
 				Expect(clusterInfo[0].Roles).To(Equal([]string{TkgLabelClusterRoleWorkload}))
 				Expect(clusterInfo[0].Status).To(Equal(string(TKGClusterPhaseUpdateStalled)))
 				Expect(clusterInfo[0].Labels).Should(Equal(createClusterOptions.Labels))
+				Expect(clusterInfo[0].WindowsWorkerCount).To(Equal(0))
 			})
 		})
 
@@ -811,6 +825,8 @@ var _ = Describe("Unit tests for get clusters", func() {
 				Expect(clusterInfo[0].K8sVersion).To(Equal(createClusterOptions.CPOptions.K8sVersion))
 				Expect(clusterInfo[0].Roles).To(Equal([]string{}))
 				Expect(clusterInfo[0].Status).To(Equal(string(TKGClusterPhaseRunning)))
+				Expect(clusterInfo[0].WindowsWorkerCount).To(Equal(0))
+
 			})
 		})
 	})
@@ -930,6 +946,7 @@ var _ = Describe("Unit tests for get clusters", func() {
 				Expect(clusterInfo[0].K8sVersion).To(Equal(createClusterOptions.CPOptions.K8sVersion))
 				Expect(clusterInfo[0].Status).To(Equal(string(TKGClusterPhaseRunning)))
 				Expect(clusterInfo[0].Labels).Should(Equal(createClusterOptions.Labels))
+				Expect(clusterInfo[0].WindowsWorkerCount).To(Equal(0))
 			})
 		})
 
@@ -965,6 +982,7 @@ var _ = Describe("Unit tests for get clusters", func() {
 				Expect(clusterInfo[0].WorkerCount).To(Equal(fmt.Sprintf("%v/%v", createClusterOptions.ListMDOptions[0].ReadyReplicas, createClusterOptions.ListMDOptions[0].SpecReplicas)))
 				Expect(clusterInfo[0].K8sVersion).To(Equal(createClusterOptions.CPOptions.K8sVersion))
 				Expect(clusterInfo[0].Status).To(Equal(string(TKGClusterPhaseCreating)))
+				Expect(clusterInfo[0].WindowsWorkerCount).To(Equal(0))
 			})
 		})
 	})

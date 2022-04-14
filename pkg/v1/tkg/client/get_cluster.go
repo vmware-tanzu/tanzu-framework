@@ -20,15 +20,16 @@ type ListTKGClustersOptions struct {
 
 // ClusterInfo defines the fields of get cluster output
 type ClusterInfo struct {
-	Name              string            `json:"name" yaml:"name"`
-	Namespace         string            `json:"namespace" yaml:"namespace"`
-	Status            string            `json:"status" yaml:"status"`
-	Plan              string            `json:"plan" yaml:"plan"`
-	ControlPlaneCount string            `json:"controlplane" yaml:"controlplane"`
-	WorkerCount       string            `json:"workers" yaml:"workers"`
-	K8sVersion        string            `json:"kubernetes" yaml:"kubernetes"`
-	Roles             []string          `json:"roles" yaml:"roles"`
-	Labels            map[string]string `json:"labels" yaml:"labels"`
+	Name               string            `json:"name" yaml:"name"`
+	Namespace          string            `json:"namespace" yaml:"namespace"`
+	Status             string            `json:"status" yaml:"status"`
+	Plan               string            `json:"plan" yaml:"plan"`
+	ControlPlaneCount  string            `json:"controlplane" yaml:"controlplane"`
+	WorkerCount        string            `json:"workers" yaml:"workers"`
+	K8sVersion         string            `json:"kubernetes" yaml:"kubernetes"`
+	Roles              []string          `json:"roles" yaml:"roles"`
+	Labels             map[string]string `json:"labels" yaml:"labels"`
+	WindowsWorkerCount int               `json:"windowsworkers" yaml:"windowsworkers"`
 }
 
 // ListTKGClusters lists tkg cluster information
@@ -92,6 +93,7 @@ func (c *TkgClient) GetClusterObjects(clusterClient clusterclient.Client, listOp
 		cluster.K8sVersion = getClusterK8sVersion(clusterInfo)
 		cluster.Roles = getClusterRoles(clusterInfo.cluster.Labels)
 		cluster.Labels = clusterInfo.cluster.Labels
+		cluster.WindowsWorkerCount = getClusterWindowsWorkerCount(clusterInfo)
 		clusters = append(clusters, cluster)
 	}
 

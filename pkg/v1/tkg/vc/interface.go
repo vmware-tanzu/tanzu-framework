@@ -89,6 +89,7 @@ type Client interface {
 	FindNetwork(ctx context.Context, path, dcPath string) (string, error)
 	// GetAndValidateVirtualMachineTemplateForK8sVersion validates and returns valid virtual machine template
 	GetAndValidateVirtualMachineTemplate(ovaVersions []string, tkrName string, templateName, dc string, tkgConfigReaderWriter tkgconfigreaderwriter.TKGConfigReaderWriter) (*tkgtypes.VSphereVirtualMachine, error)
+	FindVirtualMachineTemplateMOIDByName(templateName, dc string) (string, error)
 	// GetPath returns the full path of a valid vSphere resource
 	GetPath(ctx context.Context, moid string) (string, []*models.VSphereManagementObject, error)
 }

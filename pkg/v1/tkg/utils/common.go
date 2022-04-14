@@ -295,3 +295,8 @@ func CompareMajorMinorPatchVersion(version1, version2 string) bool {
 	}
 	return false
 }
+
+// IsWindowsTemplate returns true if the template name includes "windows" without case sensitive, else false
+func IsWindowsTemplate(templateName string) bool {
+	return strings.Contains(strings.ToLower(templateName), "windows")
+}
