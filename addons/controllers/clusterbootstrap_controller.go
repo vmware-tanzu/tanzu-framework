@@ -1420,19 +1420,19 @@ func (r *ClusterBootstrapReconciler) reconcileClusterProxyAndNetworkSettings(clu
 	// We want the reconciliation to continue even if there are errors in getting proxy settings
 	// Log an error and proceed with defaulting to empty string
 	// Individual config controllers are responsible for validating the info provided
-	HTTPProxy, err := util.ParseClusterVariableString(cluster, r.Config.HTTPProxyClusterClassVarName)
+	HTTPProxy, err := util.ParseClusterVariableInterface(cluster, "proxy", "httpProxy")
 	if err != nil {
 		log.Error(err, "unable to fetch cluster HTTP proxy setting, defaulting to empty")
 	}
-	HTTPSProxy, err := util.ParseClusterVariableString(cluster, r.Config.HTTPSProxyClusterClassVarName)
+	HTTPSProxy, err := util.ParseClusterVariableInterface(cluster, "proxy", "httpsProxy")
 	if err != nil {
 		log.Error(err, "unable to fetch cluster HTTPS proxy setting, defaulting to empty")
 	}
-	NoProxy, err := util.ParseClusterVariableString(cluster, r.Config.NoProxyClusterClassVarName)
+	NoProxy, err := util.ParseClusterVariableInterface(cluster, "proxy", "noProxy")
 	if err != nil {
-		log.Error(err, "unable to fetch cluster no-proxy setting, defaulting to empty")
+		log.Error(err, "unable to fetch cluster no-proxy proxy setting, defaulting to empty")
 	}
-	ProxyCACert, err := util.ParseClusterVariableString(cluster, r.Config.ProxyCACertClusterClassVarName)
+	ProxyCACert, err := util.ParseClusterVariableCert(cluster, "trust", "additionalTrustedCAs", "data")
 	if err != nil {
 		log.Error(err, "unable to fetch cluster proxy CA certificate, defaulting to empty")
 	}
@@ -1440,17 +1440,22 @@ func (r *ClusterBootstrapReconciler) reconcileClusterProxyAndNetworkSettings(clu
 	if err != nil {
 		log.Error(err, "unable to fetch cluster IP family, defaulting to empty")
 	}
-
+	SkipTLSVerify, err := util.ParseClusterVariableList(cluster, "skipTLSVerify")
+	if err != nil {
+		log.Error(err, "unable to fetch cluster IP family, defaulting to empty")
+	}
 	if cluster.Annotations == nil {
 		cluster.Annotations = map[string]string{}
 	}
+
 	cluster.Annotations[addontypes.HTTPProxyConfigAnnotation] = HTTPProxy
 	cluster.Annotations[addontypes.HTTPSProxyConfigAnnotation] = HTTPSProxy
 	cluster.Annotations[addontypes.NoProxyConfigAnnotation] = NoProxy
 	cluster.Annotations[addontypes.ProxyCACertConfigAnnotation] = ProxyCACert
 	cluster.Annotations[addontypes.IPFamilyConfigAnnotation] = IPFamily
+	cluster.Annotations[addontypes.SkipTLSVerifyConfigAnnotation] = SkipTLSVerify
 
-	log.Info("setting proxy and network configurations in Cluster annotation", addontypes.HTTPProxyConfigAnnotation, HTTPProxy, addontypes.HTTPSProxyConfigAnnotation, HTTPSProxy, addontypes.NoProxyConfigAnnotation, NoProxy, addontypes.ProxyCACertConfigAnnotation, ProxyCACert, addontypes.IPFamilyConfigAnnotation, IPFamily)
+	log.Info("setting proxy and network configurations in Cluster annotation", addontypes.HTTPProxyConfigAnnotation, HTTPProxy, addontypes.HTTPSProxyConfigAnnotation, HTTPSProxy, addontypes.NoProxyConfigAnnotation, NoProxy, addontypes.ProxyCACertConfigAnnotation, ProxyCACert, addontypes.IPFamilyConfigAnnotation, IPFamily, addontypes.SkipTLSVerifyConfigAnnotation, SkipTLSVerify)
 
 	if err := patchHelper.Patch(r.context, cluster); err != nil {
 		log.Error(err, "unable to patch Cluster Annotation")
