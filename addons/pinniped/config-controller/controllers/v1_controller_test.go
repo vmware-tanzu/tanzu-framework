@@ -6,13 +6,13 @@ package controllers
 import (
 	"fmt"
 
+	"sigs.k8s.io/controller-runtime/pkg/client"
+
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	corev1 "k8s.io/api/core/v1"
-	k8serrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	clusterapiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
-	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	tkgconstants "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
 )
@@ -21,7 +21,11 @@ const testTKRLabel = "v1.22.3"
 
 var _ = Describe("Controller", func() {
 
-	var cluster *clusterapiv1beta1.Cluster
+	var (
+		cluster   *clusterapiv1beta1.Cluster
+		configMap *corev1.ConfigMap
+		secret    *corev1.Secret
+	)
 
 	BeforeEach(func() {
 		cluster = &clusterapiv1beta1.Cluster{
@@ -39,26 +43,104 @@ var _ = Describe("Controller", func() {
 				},
 			},
 		}
+
+		configMap = &corev1.ConfigMap{
+			ObjectMeta: metav1.ObjectMeta{
+				Namespace: "kube-public",
+				Name:      "pinniped-info",
+			},
+			Data: map[string]string{
+				"issuer":                "tuna.io",
+				"issuer_ca_bundle_data": "ball-of-fluff",
+			},
+		}
+
+		secret = &corev1.Secret{
+			ObjectMeta: metav1.ObjectMeta{
+				Namespace: cluster.Namespace,
+				Name:      fmt.Sprintf("%s-pinniped-addon", cluster.Name),
+			},
+		}
+	})
+
+	AfterEach(func() {
+		deleteObject(ctx, secret)
+	})
+
+	Context("Cluster", func() {
+		BeforeEach(func() {
+			createObject(ctx, cluster)
+		})
+
+		AfterEach(func() {
+			deleteObject(ctx, cluster)
+		})
+
+		Context("cluster is created", func() {
+			When("there is no pinniped-info configmap", func() {
+				It("does not create a secret", func() {
+					Eventually(verifyNoSecretFunc(ctx, cluster, true)).Should(Succeed())
+				})
+			})
+
+			When("there is a pinniped-info configmap", func() {
+				BeforeEach(func() {
+					createObject(ctx, configMap)
+				})
+
+				AfterEach(func() {
+					deleteObject(ctx, configMap)
+				})
+
+				It("creates a secret with information from configmap", func() {
+					Eventually(verifySecretFunc(ctx, cluster, configMap, true)).Should(Succeed())
+				})
+			})
+		})
+
+		Context("cluster is updated", func() {
+			BeforeEach(func() {
+				clusterCopy := cluster.DeepCopy()
+				Eventually(func(g Gomega) {
+					err := k8sClient.Get(ctx, client.ObjectKeyFromObject(clusterCopy), clusterCopy)
+					g.Expect(err).NotTo(HaveOccurred())
+				}).Should(Succeed())
+				annotations := clusterCopy.ObjectMeta.Annotations
+				if annotations == nil {
+					annotations = make(map[string]string)
+				}
+				annotations["sweetest-cat"] = "lionel"
+				clusterCopy.ObjectMeta.Annotations = annotations
+				updateObject(ctx, clusterCopy)
+			})
+
+			When("there is no pinniped-info configmap", func() {
+				It("does not create a secret", func() {
+					Eventually(verifyNoSecretFunc(ctx, cluster, true)).Should(Succeed())
+				})
+			})
+
+			When("there is a pinniped-info configmap", func() {
+				BeforeEach(func() {
+					createObject(ctx, configMap)
+				})
+
+				AfterEach(func() {
+					deleteObject(ctx, configMap)
+				})
+
+				It("updates the secret with information from configmap", func() {
+					Eventually(verifySecretFunc(ctx, cluster, configMap, true)).Should(Succeed())
+				})
+			})
+		})
 	})
 
 	Context("pinniped-info configmap", func() {
 
-		var (
-			configMap *corev1.ConfigMap
-			clusters  []*clusterapiv1beta1.Cluster
-		)
-		BeforeEach(func() {
-			configMap = &corev1.ConfigMap{
-				ObjectMeta: metav1.ObjectMeta{
-					Namespace: "kube-public",
-					Name:      "pinniped-info",
-				},
-				Data: map[string]string{
-					"issuer":                "tuna.io",
-					"issuer_ca_bundle_data": "ball-of-fluff",
-				},
-			}
+		var clusters []*clusterapiv1beta1.Cluster
 
+		BeforeEach(func() {
 			cluster2 := &clusterapiv1beta1.Cluster{
 				ObjectMeta: metav1.ObjectMeta{
 					Namespace: pinnipedNamespace,
@@ -200,16 +282,7 @@ var _ = Describe("Controller", func() {
 
 			It("does not create addon secrets", func() {
 				for _, c := range clusters {
-					secret := &corev1.Secret{
-						ObjectMeta: metav1.ObjectMeta{
-							Namespace: c.Namespace,
-							Name:      fmt.Sprintf("%s-pinniped-addon", c.Name),
-						},
-					}
-					Eventually(func(g Gomega) {
-						err := k8sClient.Get(ctx, client.ObjectKeyFromObject(secret), secret)
-						g.Expect(k8serrors.IsNotFound(err)).To(BeTrue())
-					}).Should(Succeed())
+					Eventually(verifyNoSecretFunc(ctx, c, true)).Should(Succeed())
 				}
 			})
 		})

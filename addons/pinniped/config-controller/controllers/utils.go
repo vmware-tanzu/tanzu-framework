@@ -9,11 +9,8 @@ import (
 	"reflect"
 	"strings"
 
-	"gopkg.in/yaml.v3"
-	"sigs.k8s.io/controller-runtime/pkg/event"
-	"sigs.k8s.io/controller-runtime/pkg/predicate"
-
 	"github.com/go-logr/logr"
+	"gopkg.in/yaml.v3"
 	corev1 "k8s.io/api/core/v1"
 	k8serror "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -167,47 +164,6 @@ func getClusterFromSecret(ctx context.Context, c client.Client, secret *corev1.S
 	}
 
 	return cluster, nil
-}
-
-// clusterHasLabel checks if the cluster has the given label... copy from predicates/tkr.go.... could we use that directly?
-func clusterHasLabel(label string, logger logr.Logger) predicate.Funcs {
-	return predicate.Funcs{
-		UpdateFunc: func(e event.UpdateEvent) bool {
-			return processIfClusterHasLabel(label, e.ObjectNew, logger.WithValues("predicate", "updateEvent"))
-		},
-		CreateFunc: func(e event.CreateEvent) bool {
-			return processIfClusterHasLabel(label, e.Object, logger.WithValues("predicate", "createEvent"))
-		},
-		DeleteFunc: func(e event.DeleteEvent) bool {
-			return processIfClusterHasLabel(label, e.Object, logger.WithValues("predicate", "deleteEvent"))
-		},
-		GenericFunc: func(e event.GenericEvent) bool {
-			return processIfClusterHasLabel(label, e.Object, logger.WithValues("predicate", "genericEvent"))
-		},
-	}
-}
-
-// processIfClusterHasLabel determines if the input object is a cluster with a non-empty
-// value for the specified label. For other input object types, it returns true
-func processIfClusterHasLabel(label string, obj client.Object, log logr.Logger) bool {
-	kind := obj.GetObjectKind().GroupVersionKind().Kind
-
-	if kind != clusterKind {
-		return true
-	}
-
-	labels := obj.GetLabels()
-	if labels != nil {
-		if l, ok := labels[label]; ok && l != "" {
-			return true
-		}
-	}
-
-	log.V(1).Info("Cluster resource does not have label",
-		"label", label,
-		clusterNamespaceLogKey, obj.GetNamespace(),
-		clusterNameLogKey, obj.GetName())
-	return false
 }
 
 // getMutateFn returns a function that updates the "values.yaml" section of the given secret
