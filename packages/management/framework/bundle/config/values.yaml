@@ -6,3 +6,15 @@ featureGatesPackageValues:
   namespace:
 tkrServicePackageValues:
   namespace:
+addonsManagerPackageValues:
+  tanzuAddonsManager:
+    namespace: tkg-system
+    createNamespace: false
+    deployment:
+      hostNetwork: true
+      priorityClassName: system-cluster-critical
+      nodeSelector: null
+      tolerations: []
+      healthzPort: 18316
+    featureGates:
+      clusterBootstrapController: false
