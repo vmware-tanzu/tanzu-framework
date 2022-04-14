@@ -193,7 +193,7 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 				var object *unstructured.Unstructured
 				// Verify providerRef exists and also the cloned provider object with ownerReferences to cluster and ClusterBootstrap
 				Eventually(func() bool {
-					Expect(len(clusterBootstrap.Spec.AdditionalPackages) > 0).To(BeTrue())
+					Expect(len(clusterBootstrap.Spec.AdditionalPackages) > 1).To(BeTrue())
 
 					fooPackage := clusterBootstrap.Spec.AdditionalPackages[1]
 					Expect(fooPackage.RefName == foobarCarvelPackageName).To(BeTrue())
@@ -329,11 +329,11 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 						return false
 					}
 					dataValue := string(s.Data["values.yaml"])
+
 					if !strings.Contains(dataValue, "key1") || !strings.Contains(dataValue, "sample-value1") ||
 						!strings.Contains(dataValue, "key2") || !strings.Contains(dataValue, "sample-value2") {
 						return false
 					}
-
 					return true
 				}, waitTimeout, pollingInterval).Should(BeTrue())
 
@@ -514,7 +514,7 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 
 						// Validate additional packages
 						// foobar3 should be added, while foobar should be kept even it was removed from the template
-						Expect(len(upgradedClusterBootstrap.Spec.AdditionalPackages)).To(Equal(3))
+						Expect(len(upgradedClusterBootstrap.Spec.AdditionalPackages)).To(Equal(4))
 						for _, pkg := range upgradedClusterBootstrap.Spec.AdditionalPackages {
 							if pkg.RefName == "foobar1.example.com.1.18.2" {
 								Expect(pkg.ValuesFrom.SecretRef).To(Equal(fmt.Sprintf("%s-foobar1.example.com-package", clusterName)))
@@ -526,6 +526,8 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 								Expect(*pkg.ValuesFrom.ProviderRef.APIGroup).To(Equal("run.tanzu.vmware.com"))
 								Expect(pkg.ValuesFrom.ProviderRef.Kind).To(Equal("FooBar"))
 								Expect(pkg.ValuesFrom.ProviderRef.Name).To(Equal(fmt.Sprintf("%s-foobar.example.com-package", clusterName)))
+							} else if pkg.RefName == "foobar2.example.com.1.18.2" {
+								Expect(pkg.ValuesFrom.Inline).NotTo(BeNil())
 							} else {
 								return false
 							}

@@ -10,6 +10,7 @@ import (
 
 	"github.com/go-logr/logr"
 	"github.com/pkg/errors"
+	"gopkg.in/yaml.v3"
 	corev1 "k8s.io/api/core/v1"
 	rbacv1 "k8s.io/api/rbac/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
@@ -976,7 +977,7 @@ func (r *ClusterBootstrapReconciler) updateValues(cluster *clusterapiv1beta1.Clu
 	}
 
 	if cbPkg.ValuesFrom.Inline != nil {
-		secret, err := r.createSecretFromInline(cluster, cbPkg, cbTemplateNamespace, packageRefName, log)
+		secret, err := r.createSecretFromInline(cluster, cbPkg, packageRefName, log)
 		if err != nil {
 			return nil, nil, err
 		}
@@ -1098,7 +1099,7 @@ func (r *ClusterBootstrapReconciler) periodicGVRCachesClean() {
 
 // createSecretFromInline creates a Secret from inline config in valuesFrom
 func (r *ClusterBootstrapReconciler) createSecretFromInline(cluster *clusterapiv1beta1.Cluster,
-	pkg *runtanzuv1alpha3.ClusterBootstrapPackage, templateNS, pkgRefName string, log logr.Logger) (*corev1.Secret, error) {
+	pkg *runtanzuv1alpha3.ClusterBootstrapPackage, pkgRefName string, log logr.Logger) (*corev1.Secret, error) {
 
 	inlineSecret := &corev1.Secret{}
 	inlineSecret.Name = util.GeneratePackageSecretName(cluster.Name, pkgRefName)
@@ -1117,10 +1118,18 @@ func (r *ClusterBootstrapReconciler) createSecretFromInline(cluster *clusterapiv
 			},
 		}
 
+		inlineSecret.Data = map[string][]byte{}
+		inlineConfigYamlBytes, err := yaml.Marshal(pkg.ValuesFrom.Inline)
+		if err != nil {
+			log.Error(err, "Error marshaling inline config to Yaml")
+			return err
+		}
+		inlineSecret.Data[constants.TKGDataValueFileName] = inlineConfigYamlBytes
+
 		// Add cluster and package labels to cloned secrets
 		inlineSecret.Labels = map[string]string{}
-		inlineSecret.Labels[types.PackageNameLabel] = util.ParseStringForLabel(pkg.RefName)
-		inlineSecret.Labels[types.ClusterNameLabel] = cluster.Name
+		inlineSecret.Labels[addontypes.PackageNameLabel] = util.ParseStringForLabel(pkg.RefName)
+		inlineSecret.Labels[addontypes.ClusterNameLabel] = cluster.Name
 		// Set secret.Type to ClusterBootstrapManagedSecret to enable us to Watch these secrets
 		inlineSecret.Type = constants.ClusterBootstrapManagedSecret
 		return nil
@@ -1395,7 +1404,15 @@ func (r *ClusterBootstrapReconciler) GetDataValueSecretNameFromBootstrapPackage(
 	}
 
 	if cbPkg.ValuesFrom.Inline != nil {
-		packageSecretName := util.GeneratePackageSecretName(cluster.Name, cbPkg.RefName)
+		packageRefName, _, err := util.GetPackageMetadata(r.context, r.aggregatedAPIResourcesClient, cbPkg.RefName, cluster.Namespace)
+		if packageRefName == "" || err != nil {
+			// Package.Spec.RefName and Package.Spec.Version are required fields for Package CR. We do not expect them to be
+			// empty and error should not happen when fetching them from a Package CR.
+			r.Log.Error(err, fmt.Sprintf("unable to fetch Package.Spec.RefName or Package.Spec.Version from Package %s/%s",
+				cluster.Namespace, cbPkg.RefName))
+			return "", err
+		}
+		packageSecretName := util.GeneratePackageSecretName(cluster.Name, packageRefName)
 		secret := &corev1.Secret{}
 		key := client.ObjectKey{Namespace: cluster.Namespace, Name: packageSecretName}
 		if err := r.Get(r.context, key, secret); err != nil {
