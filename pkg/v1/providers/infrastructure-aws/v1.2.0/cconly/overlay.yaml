@@ -21,18 +21,18 @@ spec:
       #@ end
   workers:
     machineDeployments:
-      #@overlay/match by=overlay.index(0)
-      - class: tkg-worker
-        #@overlay/match missing_ok=True
-        machineHealthCheck:
-          #@ if data.values.ENABLE_MHC or data.values.ENABLE_MHC_WORKER_NODE:
-          nodeStartupTimeout: #@ data.values.NODE_STARTUP_TIMEOUT
-          unhealthyConditions:
-          - type: Ready
-            status: Unknown
-            timeout: #@ data.values.MHC_UNKNOWN_STATUS_TIMEOUT
-          - type: Ready
-            status: "False"
-            timeout: #@ data.values.MHC_FALSE_STATUS_TIMEOUT
-          #@ end
+    #@overlay/match by=overlay.index(0)
+    - class: tkg-worker
+      #@overlay/match missing_ok=True
+      machineHealthCheck:
+        #@ if data.values.ENABLE_MHC or data.values.ENABLE_MHC_WORKER_NODE:
+        nodeStartupTimeout: #@ data.values.NODE_STARTUP_TIMEOUT
+        unhealthyConditions:
+        - type: Ready
+          status: Unknown
+          timeout: #@ data.values.MHC_UNKNOWN_STATUS_TIMEOUT
+        - type: Ready
+          status: "False"
+          timeout: #@ data.values.MHC_FALSE_STATUS_TIMEOUT
+        #@ end
 
