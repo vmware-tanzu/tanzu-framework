@@ -2,7 +2,7 @@ name: TKG Integration Tests
 
 on:
   pull_request:
-    branches: [ main, release-* ]
+    branches: [ main, release-*, package-based-lcm ]
     paths:
     - 'pkg/v1/tkg/**'
     - '!pkg/v1/tkg/tkgpackage*/*'
