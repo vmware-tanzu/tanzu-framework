@@ -1,0 +1,14 @@
+apiVersion: data.packaging.carvel.dev/v1alpha1
+kind: PackageMetadata
+metadata:
+  name: cluster-api-provider-azure.tanzu.vmware.com
+  namespace: cluster-api-provider-azure
+spec:
+  displayName: "cluster-api-provider-azure"
+  longDescription: "Cluster API implementation for Microsoft Azure"
+  shortDescription: "Cluster management for Azure"
+  providerName: VMware
+  maintainers:
+    - name: ""
+  categories:
+    - "cluster management"
