@@ -240,6 +240,8 @@ spec:
       labels:
         app: tanzu-addons-manager
     spec:
+      #@ if/end data.values.tanzuAddonsManager.deployment.nodeSelector:
+      nodeSelector: #@ data.values.tanzuAddonsManager.deployment.nodeSelector
       containers:
       - args:
         - --metrics-bind-addr=0

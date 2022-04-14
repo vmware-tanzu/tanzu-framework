@@ -1,0 +1,33 @@
+#@ load("@ytt:yaml", "yaml")
+#@ load("@ytt:data", "data")
+
+---
+apiVersion: packaging.carvel.dev/v1alpha1
+kind: PackageInstall
+metadata:
+  name: tanzu-addons-manager
+  namespace: #@ data.values.namespaceForPackageInstallation
+  annotations:
+    kapp.k14s.io/change-rule.0: "upsert after upserting addons-manager-packageinstall/serviceaccount"
+    kapp.k14s.io/change-rule.1: "delete before deleting addons-manager-packageinstall/serviceaccount"
+spec:
+  serviceAccountName: tanzu-addons-manager-package-sa
+  packageRef:
+    refName: addons-manager-v2.tanzu.vmware.com #! TODO: Drop v2 after TKG 1.6 is released https://github.com/vmware-tanzu/tanzu-framework/issues/2131
+    versionSelection:
+      prereleases: {}
+  values:
+    - secretRef:
+        name: tanzu-addons-manager-values
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: tanzu-addons-manager-values
+  namespace: #@ data.values.namespaceForPackageInstallation
+  annotations:
+    kapp.k14s.io/change-rule.0: "upsert after upserting addons-manager-packageinstall/serviceaccount"
+    kapp.k14s.io/change-rule.1: "delete before deleting addons-manager-packageinstall/serviceaccount"
+type: Opaque
+stringData:
+  values.yaml: #@ yaml.encode(data.values.addonsManagerPackageValues)
