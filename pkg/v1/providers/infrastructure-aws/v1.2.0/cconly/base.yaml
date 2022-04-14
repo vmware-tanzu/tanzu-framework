@@ -24,21 +24,21 @@ spec:
     machineDeployments:
     - class: tkg-worker
       template:
-         bootstrap:
-           ref:
-             apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
-             kind: KubeadmConfigTemplate
-             name: tkg-aws-bootstrap-template
-         infrastructure:
-           ref:
-             apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
-             kind: AWSMachineTemplate
-             name: tkg-aws-worker-template
+        bootstrap:
+          ref:
+            apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
+            kind: KubeadmConfigTemplate
+            name: tkg-aws-bootstrap-template
+        infrastructure:
+          ref:
+            apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+            kind: AWSMachineTemplate
+            name: tkg-aws-worker-template
   infrastructure:
-     ref:
-        apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
-        kind: AWSClusterTemplate
-        name: aws-cluster-template
+    ref:
+      apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+      kind: AWSClusterTemplate
+      name: aws-cluster-template
   variables:
   - name: AWS_REGION
     required: true
@@ -274,9 +274,9 @@ spec:
             items:
               type: string
         required:
-          - httpProxy
-          - httpsProxy
-          - noProxy
+        - httpProxy
+        - httpsProxy
+        - noProxy
   - name: TKG_PROXY_CA_CERT
     required: true
     schema:
@@ -959,9 +959,9 @@ spec:
         vpc:
           cidrBlock:
         subnets:
-          - availabilityZone: '${AWS_NODE_AZ}'
-            cidrBlock: '${AWS_PRIVATE_NODE_CIDR}'
-            id: '${AWS_PRIVATE_SUBNET_ID}'
+        - availabilityZone: '${AWS_NODE_AZ}'
+          cidrBlock: '${AWS_PRIVATE_NODE_CIDR}'
+          id: '${AWS_PRIVATE_SUBNET_ID}'
 ---
 apiVersion: controlplane.cluster.x-k8s.io/v1beta1
 kind: KubeadmControlPlaneTemplate
