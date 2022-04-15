@@ -59,11 +59,11 @@ CUSTOM_NPM_REGISTRY ?= $(shell git config tkg.npmregistry)
 
 # TKG Compatibility Image repo and  path related configuration
 ifndef TKG_DEFAULT_IMAGE_REPOSITORY
-TKG_DEFAULT_IMAGE_REPOSITORY = "projects-stg.registry.vmware.com/tkg"
+TKG_DEFAULT_IMAGE_REPOSITORY = "projects.registry.vmware.com/tkg"
 endif
 ifndef TKG_DEFAULT_COMPATIBILITY_IMAGE_PATH
 # TODO change it to "tkg-compatibility" once the image is pushed to registry
-TKG_DEFAULT_COMPATIBILITY_IMAGE_PATH = "framework-zshippable/tkg-compatibility"
+TKG_DEFAULT_COMPATIBILITY_IMAGE_PATH = "tkg-compatibility"
 endif
 
 ifndef ENABLE_CONTEXT_AWARE_PLUGIN_DISCOVERY
