@@ -12,7 +12,7 @@ import (
 	clusterapiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
-	"github.com/vmware-tanzu/tanzu-framework/addons/testutil"
+	"github.com/vmware-tanzu/tanzu-framework/addons/test/testutil"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
 )
 

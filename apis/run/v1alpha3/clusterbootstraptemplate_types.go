@@ -58,6 +58,19 @@ type ValuesFrom struct {
 	ProviderRef *corev1.TypedLocalObjectReference `json:"providerRef,omitempty"`
 }
 
+func (in *ValuesFrom) CountFields() int {
+	if in == nil {
+		return 0
+	}
+	counterFunc := func(flag bool) int {
+		if flag {
+			return 1
+		}
+		return 0
+	}
+	return counterFunc(in.Inline != "") + counterFunc(in.SecretRef != "") + counterFunc(in.ProviderRef != nil)
+}
+
 //+kubebuilder:object:root=true
 
 // ClusterBootstrapTemplateList contains a list of ClusterBootstrapTemplate

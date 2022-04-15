@@ -137,7 +137,7 @@ metadata:
   namespace: tkg-system
 spec:
   kapp:
-    refName: kapp-controller.tanzu.vmware.com.0.30.1
+    refName: kapp-controller.tanzu.vmware.com.0.30.2
     valuesFrom:
       providerRef:
         apiGroup: run.tanzu.vmware.com
@@ -679,56 +679,74 @@ spec:
 apiVersion: data.packaging.carvel.dev/v1alpha1
 kind: Package
 metadata:
-  name: kapp-controller.community.tanzu.vmware.com.0.30.1
+  name: kapp-controller.tanzu.vmware.com.0.30.2
   namespace: cluster-namespace
 spec:
-  refName: kapp-controller.community.tanzu.vmware.com
-  version: 0.30.1
-  releaseNotes: "kapp-controller 0.30.1 https://github.com/vmware-tanzu/carvel-kapp-controller"
+  refName: kapp-controller.tanzu.vmware.com
+  version: 0.30.2
+  releaseNotes: kapp-controller 0.30.2 https://github.com/vmware-tanzu/carvel-kapp-controller
   licenses:
-    - "Apache 2.0"
+    - 'VMware’s End User License Agreement (Underlying OSS license: Apache License 2.0)'
   template:
     spec:
       fetch:
         - imgpkgBundle:
-            image: projects.registry.vmware.com/tce/kapp-controller@sha256:f62eb81e644b2be3891ce4d09d57f61d4c6dfb6ac308f403362955fffa25f98b
+            image: projects-stg.registry.vmware.com/tkg/tkgextensions-dev/packages/core/kapp-controller:v0.30.2_vmware.1-tkg.1
       template:
         - ytt:
             paths:
               - config/
+            ignoreUnknownComments: true
         - kbld:
             paths:
-              - "-"
+              - '-'
               - .imgpkg/images.yml
       deploy:
-        - kapp: {}
+        - kapp:
+            rawOptions:
+              - --wait-timeout=30s
+              - --kube-api-qps=20
+              - --kube-api-burst=30
+  releasedAt: "2021-12-20T10:59:32Z"
+  valuesSchema:
+    openAPIv3:
+      title: kapp-controller.tanzu.vmware.com.0.30.2+vmware.1-tkg.1 values schema
 ---
 apiVersion: data.packaging.carvel.dev/v1alpha1
 kind: Package
 metadata:
-  name: kapp-controller.community.tanzu.vmware.com.0.30.1
+  name: kapp-controller.tanzu.vmware.com.0.30.2
   namespace: tkg-system
 spec:
-  refName: kapp-controller.community.tanzu.vmware.com
-  version: 0.30.1
-  releaseNotes: "kapp-controller 0.30.1 https://github.com/vmware-tanzu/carvel-kapp-controller"
+  refName: kapp-controller.tanzu.vmware.com
+  version: 0.30.2
+  releaseNotes: kapp-controller 0.30.2 https://github.com/vmware-tanzu/carvel-kapp-controller
   licenses:
-    - "Apache 2.0"
+    - 'VMware’s End User License Agreement (Underlying OSS license: Apache License 2.0)'
   template:
     spec:
       fetch:
         - imgpkgBundle:
-            image: projects.registry.vmware.com/tce/kapp-controller@sha256:f62eb81e644b2be3891ce4d09d57f61d4c6dfb6ac308f403362955fffa25f98b
+            image: projects-stg.registry.vmware.com/tkg/tkgextensions-dev/packages/core/kapp-controller:v0.30.2_vmware.1-tkg.1
       template:
         - ytt:
             paths:
               - config/
+            ignoreUnknownComments: true
         - kbld:
             paths:
-              - "-"
+              - '-'
               - .imgpkg/images.yml
       deploy:
-        - kapp: {}
+        - kapp:
+            rawOptions:
+              - --wait-timeout=30s
+              - --kube-api-qps=20
+              - --kube-api-burst=30
+  releasedAt: "2021-12-20T10:59:32Z"
+  valuesSchema:
+    openAPIv3:
+      title: kapp-controller.tanzu.vmware.com.0.30.2+vmware.1-tkg.1 values schema
 ---
 apiVersion: data.packaging.carvel.dev/v1alpha1
 kind: Package
@@ -1087,3 +1105,39 @@ spec:
   valuesSchema:
     openAPIv3:
       title: vsphere-cpi.tanzu.vmware.com.1.22.3--vmware.1-tkg.1 values schema
+---
+apiVersion: data.packaging.carvel.dev/v1alpha1
+kind: Package
+metadata:
+  name: antrea.tanzu.vmware.com.0.13.3--vmware.1-tkg.1
+  namespace: tkg-system
+spec:
+  refName: antrea.tanzu.vmware.com
+  version: 0.13.3+vmware.1-tkg.1
+  releaseNotes: antrea 0.13.3 https://github.com/antrea-io/antrea/releases/tag/v0.13.3
+  licenses:
+    - 'VMware’s End User License Agreement (Underlying OSS license: Apache License 2.0)'
+  template:
+    spec:
+      fetch:
+        - imgpkgBundle:
+            image: projects-stg.registry.vmware.com/tkg/tkgextensions-dev/packages/core/antrea:0.13.3_vmware.1-tkg.1
+      template:
+        - ytt:
+            paths:
+              - config/
+            ignoreUnknownComments: true
+        - kbld:
+            paths:
+              - '-'
+              - .imgpkg/images.yml
+      deploy:
+        - kapp:
+            rawOptions:
+              - --wait-timeout=30s
+              - --kube-api-qps=20
+              - --kube-api-burst=30
+  releasedAt: "2021-12-20T10:59:32Z"
+  valuesSchema:
+    openAPIv3:
+      title: antrea.tanzu.vmware.com.0.13.3+vmware.1-tkg.1 values schema

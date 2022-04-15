@@ -15,7 +15,7 @@ import (
 
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/util"
-	"github.com/vmware-tanzu/tanzu-framework/addons/testutil"
+	"github.com/vmware-tanzu/tanzu-framework/addons/test/testutil"
 	cniv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cni/v1alpha1"
 )
 
