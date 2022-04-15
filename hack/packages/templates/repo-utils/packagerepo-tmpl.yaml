@@ -1,7 +1,7 @@
 #@ load("@ytt:data", "data")
 #@ load("package-helpers.lib.yaml", "get_package_repository")
 
-#@ package_repository = get_package_repository(data.values.packageRepository)
+#@ package_repository = get_package_repository(data.values.packageRepository, "")
 
 ---
 apiVersion: packaging.carvel.dev/v1alpha1

@@ -62,3 +62,21 @@ func packagesContains(packagesList []Package, pkg string) bool {
 	}
 	return false
 }
+
+// getPackageFromPackageValues returns the Package definition from package-values.yaml file
+func getPackageFromPackageValues(projectRootDir, packageName string) (Package, error) {
+	packageValues, err := readPackageValues(projectRootDir)
+	if err != nil {
+		return Package{}, err
+	}
+
+	for _, repository := range packageValues.Repositories {
+		packages := repository.Packages
+		for _, pkg := range packages {
+			if pkg.Name == packageName {
+				return pkg, nil
+			}
+		}
+	}
+	return Package{}, nil
+}

@@ -2,20 +2,36 @@
 #@ load("@ytt:overlay", "overlay")
 #@ load("package-helpers.lib.yaml", "get_package_repository", "get_package", "get_package_spec")
 
-#@ package_repository = get_package_repository(data.values.packageRepository)
+#@ package_repository = get_package_repository(data.values.packageRepository, data.values.packageName)
 #@ package = get_package(package_repository, data.values.packageName)
 #@ packageSpec = get_package_spec(package_repository, package)
 
 #@ if not hasattr(package, "packageSubVersion") or package.packageSubVersion == "":
-#@ packageVersion = package.version
+#@  if package.version == "latest":
+#@    packageVersion = data.values.version
+#@  else:
+#@    packageVersion = package.version
+#@  end
 #@ else:
-#@ packageVersion = package.version + "+" + package.packageSubVersion
+#@  if package.version == "latest":
+#@    packageVersion = data.values.version + "+" + package.packageSubVersion
+#@  else:
+#@    packageVersion = package.version + "+" + package.packageSubVersion
+#@  end
 #@ end
 
 #@ if not hasattr(package, "packageSubVersion") or package.packageSubVersion == "":
-#@ imagePackageVersion = "v" + package.version
+#@  if package.version == "latest":
+#@    imagePackageVersion = "v" + data.values.version
+#@  else:
+#@    imagePackageVersion = "v" + package.version
+#@  end
 #@ else:
-#@ imagePackageVersion = "v" + package.version + "_" + package.packageSubVersion
+#@  if package.version == "latest":
+#@    imagePackageVersion = "v" + data.values.version + "_" + package.packageSubVersion
+#@  else:
+#@    imagePackageVersion = "v" + package.version + "_" + package.packageSubVersion
+#@  end
 #@ end
 
 #@ packageLicense = "VMware’s End User License Agreement (Underlying OSS license: Apache License 2.0)"
