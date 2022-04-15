@@ -15,7 +15,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
-	"github.com/vmware-tanzu/tanzu-framework/addons/testutil"
+	"github.com/vmware-tanzu/tanzu-framework/addons/test/testutil"
 	cniv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cni/v1alpha1"
 )
 
@@ -162,7 +162,7 @@ var _ = Describe("CalicoConfig Reconciler and Webhooks", func() {
 			Expect(k8sClient.Get(ctx, key, config)).To(Succeed())
 
 			By("Trying to update the immutable Namespace field in Calico Spec")
-			config.Spec.Namespace = "default"
+			config.Spec.Namespace = key.Namespace
 			Expect(k8sClient.Update(ctx, config)).ToNot(Succeed())
 		})
 	})

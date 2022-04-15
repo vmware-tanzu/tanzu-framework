@@ -1,7 +1,7 @@
 #@ load("@ytt:data", "data")
 #@ load("@ytt:overlay", "overlay")
 #@ load("@ytt:template", "template")
-#@ load("/upstream/cni-webhook-manifests.lib.yaml", "webhook_manifests")
+#@ load("/upstream/webhook-manifests.lib.yaml", "webhook_manifests")
 
 #@ antreaconfigscrd = overlay.subset({"kind": "CustomResourceDefinition", "metadata": {"name": "antreaconfigs.cni.tanzu.vmware.com"}})
 #@ calicoconfigscrd = overlay.subset({"kind": "CustomResourceDefinition", "metadata": {"name": "calicoconfigs.cni.tanzu.vmware.com"}})

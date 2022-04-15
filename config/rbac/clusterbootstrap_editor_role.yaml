@@ -1,0 +1,24 @@
+# permissions for end users to edit clusterbootstraps.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: clusterbootstrap-editor-role
+rules:
+- apiGroups:
+  - run.tanzu.vmware.com
+  resources:
+  - clusterbootstraps
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - run.tanzu.vmware.com
+  resources:
+  - clusterbootstraps/status
+  verbs:
+  - get
