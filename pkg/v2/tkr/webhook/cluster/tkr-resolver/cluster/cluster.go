@@ -132,7 +132,7 @@ func (cw *Webhook) constructQuery(cluster *clusterv1.Cluster, clusterClass *clus
 		return &data.Query{ControlPlane: cpQuery}, nil
 	}
 
-	mdQueries, err := cw.constructMDQueries(tkr, cluster, clusterClass, tkrSelector)
+	mdQueries, err := cw.constructMDOSImageQueries(tkr, cluster, clusterClass, tkrSelector)
 	if err != nil {
 		return nil, err
 	}
@@ -186,7 +186,7 @@ func (cw *Webhook) filterOSImageQuery(tkr *runv1.TanzuKubernetesRelease, tkrData
 	return osImageQuery
 }
 
-func (cw *Webhook) constructMDQueries(tkr *runv1.TanzuKubernetesRelease, cluster *clusterv1.Cluster, clusterClass *clusterv1.ClusterClass, tkrSelector labels.Selector) ([]*data.OSImageQuery, error) {
+func (cw *Webhook) constructMDOSImageQueries(tkr *runv1.TanzuKubernetesRelease, cluster *clusterv1.Cluster, clusterClass *clusterv1.ClusterClass, tkrSelector labels.Selector) ([]*data.OSImageQuery, error) {
 	mdOSImageQueries := make([]*data.OSImageQuery, len(cluster.Spec.Topology.Workers.MachineDeployments))
 
 	for i := range cluster.Spec.Topology.Workers.MachineDeployments {
