@@ -31,6 +31,7 @@ var packageBundleGenerateCmd = &cobra.Command{
 func init() {
 	packageBundleCmd.AddCommand(packageBundleGenerateCmd)
 	packageBundleGenerateCmd.Flags().StringVar(&packageRepository, "repository", "", "Package repository of the package bundle being created")
+	packageBundleGenerateCmd.Flags().StringVar(&registry, "registry", "", "OCI registry where the package bundle image needs to be stored")
 	packageBundleGenerateCmd.Flags().StringVar(&version, "version", "", "Package bundle version")
 	packageBundleGenerateCmd.Flags().StringVar(&subVersion, "sub-version", "", "Package bundle subversion")
 	packageBundleGenerateCmd.Flags().BoolVar(&all, "all", false, "Generate all package bundles in a repository")
@@ -67,6 +68,18 @@ func runPackageBundleGenerate(cmd *cobra.Command, args []string) error {
 		}
 		if err := generatePackageBundle(projectRootDir, toolsBinDir, packageName, packagePath); err != nil {
 			return fmt.Errorf("couldn't generate the package bundle: %w", err)
+		}
+		pkg, err := getPackageFromPackageValues(projectRootDir, packageName)
+		if err != nil {
+			return err
+		}
+		if err := generatePackageCR(projectRootDir,
+			toolsBinDir,
+			registry,
+			filepath.Join(projectRootDir, "build", "packages"),
+			filepath.Join(projectRootDir, constants.PackageValuesFilePath),
+			&pkg); err != nil {
+			return err
 		}
 	}
 	return nil
@@ -250,6 +263,12 @@ func generatePackageBundles(projectRootDir, toolsBinDir string) error {
 
 		if err := generatePackageBundle(projectRootDir, toolsBinDir, pkg.Name, packagePath); err != nil {
 			return fmt.Errorf("couldn't generate package bundle: %w", err)
+		}
+
+		buildPkgsDir := filepath.Join(projectRootDir, "build", "packages")
+		pkgValsPath := filepath.Join(projectRootDir, constants.PackageValuesFilePath)
+		if err := generatePackageCR(projectRootDir, toolsBinDir, registry, buildPkgsDir, pkgValsPath, &pkg); err != nil {
+			return err
 		}
 
 		// remove lock output files
