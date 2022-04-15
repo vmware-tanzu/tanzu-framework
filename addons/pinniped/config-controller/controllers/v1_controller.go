@@ -6,7 +6,6 @@ package controllers
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/go-logr/logr"
 	corev1 "k8s.io/api/core/v1"
@@ -52,7 +51,7 @@ func (c *PinnipedV1Controller) SetupWithManager(manager ctrl.Manager) error {
 	return nil
 }
 
-// +kubebuilder:rbac:groups="",resources=secrets,verbs=list;watch;get;patch;create
+// +kubebuilder:rbac:groups="",resources=secrets,verbs=list;watch;get;patch;create;delete
 // +kubebuilder:rbac:groups="",resources=configmaps,verbs=list;watch;get
 // +kubebuilder:rbac:groups="cluster.x-k8s.io",resources=clusters,verbs=list;watch;get
 
@@ -93,7 +92,13 @@ func (c *PinnipedV1Controller) Reconcile(ctx context.Context, req ctrl.Request) 
 	cluster := clusterapiv1beta1.Cluster{}
 	if err := c.client.Get(ctx, req.NamespacedName, &cluster); err != nil {
 		if k8serror.IsNotFound(err) {
-			// TODO: Reconcile delete if cluster not found
+			secretNamespacedName := secretNameFromClusterName(req.NamespacedName)
+			log = log.WithValues(
+				secretNamespaceLogKey, secretNamespacedName.Namespace,
+				secretNameLogKey, secretNamespacedName.Name)
+			if err := c.reconcileDelete(ctx, secretNamespacedName, log); err != nil {
+				return reconcile.Result{}, err
+			}
 			return reconcile.Result{}, nil
 		}
 		log.Error(err, "error getting cluster")
@@ -115,15 +120,21 @@ func (c *PinnipedV1Controller) Reconcile(ctx context.Context, req ctrl.Request) 
 }
 
 func (c *PinnipedV1Controller) reconcileAddonSecret(ctx context.Context, cluster *clusterapiv1beta1.Cluster, pinnipedInfoCM *corev1.ConfigMap, log logr.Logger) error {
+	secretNamespacedName := secretNameFromClusterName(client.ObjectKeyFromObject(cluster))
+	log = log.WithValues(secretNamespaceLogKey, secretNamespacedName.Namespace, secretNameLogKey, secretNamespacedName.Name)
 	// For v1alpha1 we will delete secret if CM is not found
-	if pinnipedInfoCM.Data == nil {
-		// TODO: reconcile delete
+	// also check if cluster is scheduled for deletion, if so, delete addon secret on mgmt cluster
+	if pinnipedInfoCM.Data == nil || !cluster.GetDeletionTimestamp().IsZero() {
+		log.V(1).Info("deleting secret")
+		if err := c.reconcileDelete(ctx, client.ObjectKeyFromObject(cluster), log); err != nil {
+			return err
+		}
 		return nil
 	}
 	secret := &corev1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
-			Namespace: cluster.Namespace,
-			Name:      fmt.Sprintf("%s-pinniped-addon", cluster.Name),
+			Namespace: secretNamespacedName.Namespace,
+			Name:      secretNamespacedName.Name,
 			Labels: map[string]string{
 				tkgAddonLabel:       pinnipedAddonLabel,
 				tkgClusterNameLabel: cluster.Name,
@@ -135,13 +146,6 @@ func (c *PinnipedV1Controller) reconcileAddonSecret(ctx context.Context, cluster
 	}
 	secret.Type = tkgAddonType
 
-	// check if cluster is scheduled for deletion, if so, delete addon secret on mgmt cluster
-	if !cluster.GetDeletionTimestamp().IsZero() {
-		log.V(1).Info("cluster is getting deleted, deleting secret")
-		// TODO: Delete secret
-		return nil
-	}
-
 	log.V(1).Info("creating or patching addon secret")
 	result, err := controllerutil.CreateOrPatch(ctx, c.client, secret, getMutateFn(secret, pinnipedInfoCM, cluster, log, true))
 	if err != nil && !k8serror.IsAlreadyExists(err) {
@@ -149,7 +153,35 @@ func (c *PinnipedV1Controller) reconcileAddonSecret(ctx context.Context, cluster
 		return err
 	}
 
-	log.Info("finished creating/patching", "result", result)
+	log.Info("finished reconciling secret", "result", result)
 
+	return nil
+}
+
+func (c *PinnipedV1Controller) reconcileDelete(ctx context.Context, secretNamespacedName types.NamespacedName, log logr.Logger) error {
+	secret := &corev1.Secret{
+		ObjectMeta: metav1.ObjectMeta{
+			Namespace: secretNamespacedName.Namespace,
+			Name:      secretNamespacedName.Name,
+			Labels: map[string]string{
+				tkgAddonLabel: pinnipedAddonLabel,
+			},
+			Annotations: map[string]string{
+				tkgAddonTypeAnnotation: pinnipedAddonTypeAnnotation,
+			},
+		},
+	}
+	secret.Type = tkgAddonType
+
+	if err := c.client.Delete(ctx, secret); err != nil {
+		if k8serror.IsNotFound(err) {
+			return nil
+		}
+		log.Error(err, "error deleting addon secret")
+		return err
+	}
+
+	// made this V1 since the logs were pretty excessive... and I couldn't seem to avoid it even w/the notFound clause above
+	log.V(1).Info("finished reconciling secret", "result", "deleted")
 	return nil
 }

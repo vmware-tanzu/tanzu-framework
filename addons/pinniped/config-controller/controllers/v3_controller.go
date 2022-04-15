@@ -105,6 +105,7 @@ func (c *PinnipedV3Controller) Reconcile(ctx context.Context, req ctrl.Request) 
 
 func (c *PinnipedV3Controller) reconcileSecret(ctx context.Context, secret *corev1.Secret, pinnipedInfoCM *corev1.ConfigMap, log logr.Logger) error {
 	// check if secret is scheduled for deletion, if so, skip reconcile
+	log = log.WithValues(secretNamespaceLogKey, secret.Namespace, secretNameLogKey, secret.Name)
 	if !secret.GetDeletionTimestamp().IsZero() {
 		log.V(1).Info("secret is getting deleted, skipping reconcile")
 		return nil
@@ -152,7 +153,7 @@ func (c *PinnipedV3Controller) reconcileDataValues(ctx context.Context, secret *
 		return err
 	}
 
-	log.Info("finished creating/patching", "result", result)
+	log.Info("finished reconciling secret", "result", result)
 
 	return nil
 }
