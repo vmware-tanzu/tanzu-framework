@@ -24,14 +24,64 @@ import (
 
 // InstallOrUpgradeManagementComponents install management components to the cluster
 func (c *TkgClient) InstallOrUpgradeManagementComponents(kubeconfig, kubecontext string, upgrade bool) error {
+	// Get TKG package's configuration options
+	tkgPackageConfigOptions, err := c.getTKGPackageConfigOptions(kubeconfig, kubecontext, upgrade)
+	if err != nil {
+		return err
+	}
+
+	// Get TKG package's values file
+	tkgPackageValuesFile, err := managementcomponents.GetTKGPackageConfigValuesFile(*tkgPackageConfigOptions)
+	if err != nil {
+		return err
+	}
+
+	// Get kapp-controller configuration file
+	kappControllerConfigFile, err := c.getKappControllerConfigFile()
+	if err != nil {
+		return err
+	}
+
+	managementcomponentsInstallOptions := managementcomponents.ManagementComponentsInstallOptions{
+		ClusterOptions: managementcomponents.ClusterOptions{
+			Kubeconfig:  kubeconfig,
+			Kubecontext: kubecontext,
+		},
+		KappControllerOptions: managementcomponents.KappControllerOptions{
+			KappControllerConfigFile:       kappControllerConfigFile,
+			KappControllerInstallNamespace: constants.TkgNamespace,
+		},
+		ManagementPackageRepositoryOptions: managementcomponents.ManagementPackageRepositoryOptions{
+			ManagementPackageRepoImage: tkgPackageConfigOptions.ManagementPackageRepoImage,
+			TKGPackageValuesFile:       tkgPackageValuesFile,
+			PackageVersion:             tkgPackageConfigOptions.ManagementPackageVersion,
+			PackageInstallTimeout:      c.getPackageInstallTimeoutFromConfig(),
+		},
+	}
+
+	err = managementcomponents.InstallManagementComponents(&managementcomponentsInstallOptions)
+
+	// Remove intermediate config files if err is empty
+	if err == nil {
+		os.Remove(tkgPackageValuesFile)
+		os.Remove(kappControllerConfigFile)
+	}
+
+	return err
+}
+
+func (c *TkgClient) getTKGPackageConfigOptions(kubeconfig, kubecontext string, upgrade bool) (*managementcomponents.TKGPackageConfigurationOptions, error) {
+	var userProviderConfigValues map[string]string
+	var err error
+
 	managementPackageRepoImage, err := c.tkgBomClient.GetManagementPackageRepositoryImage()
 	if err != nil {
-		return errors.Wrap(err, "unable to get management package repository image")
+		return nil, errors.Wrap(err, "unable to get management package repository image")
 	}
 
 	managementPackageVersion, err := c.tkgBomClient.GetManagementPackagesVersion()
 	if err != nil {
-		return errors.Wrap(err, "unable to get version of management packages")
+		return nil, errors.Wrap(err, "unable to get version of management packages")
 	}
 
 	// Override management package repository image if specified as part of below environment variable
@@ -50,50 +100,6 @@ func (c *TkgClient) InstallOrUpgradeManagementComponents(kubeconfig, kubecontext
 
 	managementPackageVersion = strings.TrimLeft(managementPackageVersion, "v")
 
-	// Get TKG package's values file
-	tkgPackageValuesFile, err := c.getTKGPackageConfigValuesFile(managementPackageVersion, kubeconfig, kubecontext, upgrade)
-	if err != nil {
-		return err
-	}
-
-	// Get kapp-controller configuration file
-	kappControllerConfigFile, err := c.getKappControllerConfigFile()
-	if err != nil {
-		return err
-	}
-
-	managementcomponentsInstallOptions := managementcomponents.ManagementComponentsInstallOptions{
-		ClusterOptions: managementcomponents.ClusterOptions{
-			Kubeconfig:  kubeconfig,
-			Kubecontext: kubecontext,
-		},
-		KappControllerOptions: managementcomponents.KappControllerOptions{
-			KappControllerConfigFile:       kappControllerConfigFile,
-			KappControllerInstallNamespace: "tkg-system",
-		},
-		ManagementPackageRepositoryOptions: managementcomponents.ManagementPackageRepositoryOptions{
-			ManagementPackageRepoImage: managementPackageRepoImage,
-			TKGPackageValuesFile:       tkgPackageValuesFile,
-			PackageVersion:             managementPackageVersion,
-			PackageInstallTimeout:      c.getPackageInstallTimeoutFromConfig(),
-		},
-	}
-
-	err = managementcomponents.InstallManagementComponents(&managementcomponentsInstallOptions)
-
-	// Remove intermediate config files if err is empty
-	if err == nil {
-		os.Remove(tkgPackageValuesFile)
-		os.Remove(kappControllerConfigFile)
-	}
-
-	return err
-}
-
-func (c *TkgClient) getTKGPackageConfigValuesFile(managementPackageVersion, kubeconfig, kubecontext string, upgrade bool) (string, error) {
-	var userProviderConfigValues map[string]string
-	var err error
-
 	if upgrade {
 		userProviderConfigValues, err = c.getUserConfigVariableValueMapForUpgrade(kubeconfig, kubecontext)
 	} else {
@@ -101,15 +107,23 @@ func (c *TkgClient) getTKGPackageConfigValuesFile(managementPackageVersion, kube
 	}
 
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
-	valuesFile, err := managementcomponents.GetTKGPackageConfigValuesFileFromUserConfig(managementPackageVersion, userProviderConfigValues)
+	tkrPackageRepoImage, tkrPackageRepoImagePath, err := c.tkgBomClient.GetTKRPackageRepoImageAndImagePath(userProviderConfigValues[constants.ConfigVariableProviderType])
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
-	return valuesFile, nil
+	return &managementcomponents.TKGPackageConfigurationOptions{
+		ManagementPackageRepoImage: managementPackageRepoImage,
+		ManagementPackageVersion:   managementPackageVersion,
+		UserProviderConfigValues:   userProviderConfigValues,
+		TKRPackageRepository: managementcomponents.TKRPackageRepository{
+			ImageRepository: tkrPackageRepoImage,
+			ImagePath:       tkrPackageRepoImagePath,
+		},
+	}, nil
 }
 
 func (c *TkgClient) getUserConfigVariableValueMap() (map[string]string, error) {

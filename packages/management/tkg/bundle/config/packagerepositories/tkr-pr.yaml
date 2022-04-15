@@ -1,0 +1,17 @@
+#@ load("@ytt:data", "data")
+
+#@ if data.values.tkrPackageRepository.imageRepository and data.values.tkrPackageRepository.imagePath:
+---
+apiVersion: packaging.carvel.dev/v1alpha1
+kind: PackageRepository
+metadata:
+  name: tkr-package-repository
+  namespace: default
+spec:
+  fetch:
+    imgpkgBundle:
+      image: #@ "{}/{}".format(data.values.tkrPackageRepository.imageRepository, data.values.tkrPackageRepository.imagePath)
+      tagSelection:
+        semver:
+          constraints: #@ data.values.tkrPackageRepository.versionConstraints
+#@ end

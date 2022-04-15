@@ -70,6 +70,8 @@ type Client interface {
 	GetManagementPackagesVersion() (string, error)
 	// GetKappControllerPackageImage returns kapp-controller package image
 	GetKappControllerPackageImage() (string, error)
+	// GetTKRPackageRepoImageAndImagePath returns TKR package repository image and imagepath
+	GetTKRPackageRepoImageAndImagePath(providerType string) (string, string, error)
 }
 
 func (c *client) TKGConfigReaderWriter() tkgconfigreaderwriter.TKGConfigReaderWriter {

@@ -128,6 +128,7 @@ type BOMConfiguration struct {
 	ImageConfig           *imageConfig                `yaml:"imageConfig"`
 	Extensions            map[string]*extensionInfo   `yaml:"extensions,omitempty"`
 	TKRBOM                *tkrBOMInfo                 `yaml:"tkr-bom"`
+	TKRPackageRepo        map[string]string           `yaml:"tkr-package-repo"`
 
 	ProvidersVersionMap map[string]string
 }

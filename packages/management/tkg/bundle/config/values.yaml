@@ -8,6 +8,11 @@ metadata:
 
 configvalues:
 
+tkrPackageRepository:
+  imageRepository: ""
+  imagePath: ""
+  versionConstraints: ">1.22.0"
+
 frameworkPackage:
   namespaceForPackageInstallation: tkg-system
   versionConstraints:

@@ -721,3 +721,17 @@ func (c *client) GetKappControllerPackageImage() (string, error) {
 	kappControllerImage := fmt.Sprintf("%s/%s:%s", tkrBomConfig.ImageConfig.ImageRepository, kappControllerImageInfo.ImagePath, kappControllerImageInfo.Tag)
 	return kappControllerImage, nil
 }
+
+// GetTKRPackageRepoImageAndImagePath returns TKR package repository image and imagepath
+func (c *client) GetTKRPackageRepoImageAndImagePath(providerType string) (string, string, error) {
+	bomConfiguration, err := c.GetDefaultTkgBOMConfiguration()
+	if err != nil {
+		return "", "", err
+	}
+
+	imagePath, exists := bomConfiguration.TKRPackageRepo[providerType]
+	if !exists {
+		return "", "", errors.Errorf("unable to find TKR package repository information for provider '%s'", providerType)
+	}
+	return bomConfiguration.ImageConfig.ImageRepository, imagePath, nil
+}

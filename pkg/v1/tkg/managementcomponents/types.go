@@ -5,15 +5,23 @@ package managementcomponents
 
 // TKGPackageConfig defines TKG package configuration
 type TKGPackageConfig struct {
-	Metadata            Metadata            `yaml:"metadata"`
-	ConfigValues        map[string]string   `yaml:"configvalues"`
-	FrameworkPackage    FrameworkPackage    `yaml:"frameworkPackage"`
-	ClusterClassPackage ClusterClassPackage `yaml:"clusterclassPackage"`
+	Metadata             Metadata             `yaml:"metadata"`
+	ConfigValues         map[string]string    `yaml:"configvalues"`
+	TKRPackageRepository TKRPackageRepository `yaml:"tkrPackageRepository"`
+	FrameworkPackage     FrameworkPackage     `yaml:"frameworkPackage"`
+	ClusterClassPackage  ClusterClassPackage  `yaml:"clusterclassPackage"`
 }
 
 // Metadata specifies metadata as part of TKG package config
 type Metadata struct {
 	InfraProvider string `yaml:"infraProvider"`
+}
+
+// TKRPackageRepository defines configuration for TKR package repository
+type TKRPackageRepository struct {
+	ImageRepository    string `yaml:"imageRepository,omitempty"`
+	ImagePath          string `yaml:"imagePath,omitempty"`
+	VersionConstraints string `yaml:"versionConstraints,omitempty"`
 }
 
 type FrameworkPackage struct {

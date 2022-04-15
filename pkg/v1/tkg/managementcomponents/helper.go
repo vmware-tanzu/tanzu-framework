@@ -20,32 +20,41 @@ const (
 	packagePollTimeout  = 10 * time.Minute
 )
 
-// GetTKGPackageConfigValuesFileFromUserConfig returns values file from user configuration
-func GetTKGPackageConfigValuesFileFromUserConfig(managementPackageVersion string, userProviderConfigValues map[string]string) (string, error) {
+// TKGPackageConfigurationOptions defines configuration needed to define TKG package values
+type TKGPackageConfigurationOptions struct {
+	ManagementPackageRepoImage string
+	ManagementPackageVersion   string
+	UserProviderConfigValues   map[string]string
+	TKRPackageRepository       TKRPackageRepository
+}
+
+// GetTKGPackageConfigValuesFile returns values file from user configuration
+func GetTKGPackageConfigValuesFile(options TKGPackageConfigurationOptions) (string, error) {
 	tkgPackageConfig := TKGPackageConfig{
 		Metadata: Metadata{
-			InfraProvider: userProviderConfigValues[constants.ConfigVariableProviderType],
+			InfraProvider: options.UserProviderConfigValues[constants.ConfigVariableProviderType],
 		},
-		ConfigValues: userProviderConfigValues,
+		ConfigValues:         options.UserProviderConfigValues,
+		TKRPackageRepository: options.TKRPackageRepository,
 		FrameworkPackage: FrameworkPackage{
-			VersionConstraints: managementPackageVersion,
+			VersionConstraints: options.ManagementPackageVersion,
 			FeaturegatePackageValues: FeaturegatePackageValues{
-				VersionConstraints: managementPackageVersion,
+				VersionConstraints: options.ManagementPackageVersion,
 			},
 			TKRServicePackageValues: TKRServicePackageValues{
-				VersionConstraints: managementPackageVersion,
+				VersionConstraints: options.ManagementPackageVersion,
 			},
 			CLIPluginsPackageValues: CLIPluginsPackageValues{
-				VersionConstraints: managementPackageVersion,
+				VersionConstraints: options.ManagementPackageVersion,
 			},
 			AddonsManagerPackageValues: AddonsManagerPackageValues{
-				VersionConstraints: managementPackageVersion,
+				VersionConstraints: options.ManagementPackageVersion,
 			},
 		},
 		ClusterClassPackage: ClusterClassPackage{
-			VersionConstraints: managementPackageVersion,
+			VersionConstraints: options.ManagementPackageVersion,
 			ClusterClassInfraPackageValues: ClusterClassInfraPackageValues{
-				VersionConstraints: managementPackageVersion,
+				VersionConstraints: options.ManagementPackageVersion,
 			},
 		},
 	}
