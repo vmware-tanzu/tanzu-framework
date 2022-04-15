@@ -44,9 +44,14 @@ jobs:
         mkdir -p bin
         wget -q https://storage.googleapis.com/tkg-cli-builds/bin/pict.linux -O bin/pict
         chmod +x bin/pict
+        mkdir -p ../cluster-api/bin
+        wget -q https://storage.googleapis.com/tkg-cli-builds/bin/clusterctl -O ../cluster-api/bin/clusterctl
+        chmod +x ../cluster-api/bin/clusterctl
         wget -q https://github.com/vmware-tanzu/carvel-ytt/releases/download/v0.30.0/ytt-linux-amd64 -O bin/ytt
         chmod +x bin/ytt
         echo "$PWD/bin" >> $GITHUB_PATH
+        sudo apt-get update -y
+        sudo apt-get install -y wdiff
 
     - name: Run clustergen verification tests
       run: |
@@ -69,4 +74,5 @@ jobs:
            ./pkg/v1/providers/tests/clustergen/testdata/prnum
            ./pkg/v1/providers/tests/clustergen/testdata/clustergen.status
            ./pkg/v1/providers/tests/clustergen/testdata/clustergen.diff.txt
+           ./pkg/v1/providers/tests/clustergen/testdata/clustergen_cc.diff.txt
            ./pkg/v1/providers/tests/clustergen/testdata/clustergen.html
