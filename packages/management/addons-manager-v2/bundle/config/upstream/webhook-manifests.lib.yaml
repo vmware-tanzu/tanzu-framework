@@ -10,7 +10,7 @@ metadata:
 spec:
   ports:
   - port: 443
-    targetPort: 9865
+    targetPort: webhook-server
   selector:
     app: tanzu-addons-manager
 ---
