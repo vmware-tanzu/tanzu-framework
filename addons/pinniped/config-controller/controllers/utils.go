@@ -225,6 +225,13 @@ func getMutateFn(secret *corev1.Secret, pinnipedInfoCM *corev1.ConfigMap, cluste
 	}
 }
 
+func secretNameFromClusterName(clusterName types.NamespacedName) types.NamespacedName {
+	return types.NamespacedName{
+		Namespace: clusterName.Namespace,
+		Name:      fmt.Sprintf("%s-pinniped-addon", clusterName.Name),
+	}
+}
+
 type pinnipedDataValues struct {
 	IdentityManagementType string   `yaml:"identity_management_type,omitempty"`
 	Infrastructure         string   `yaml:"infrastructure_provider,omitempty"`

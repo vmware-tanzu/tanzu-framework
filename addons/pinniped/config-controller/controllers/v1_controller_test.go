@@ -134,6 +134,34 @@ var _ = Describe("Controller", func() {
 				})
 			})
 		})
+
+		Context("cluster is deleted", func() {
+			When("there is no pinniped-info configmap", func() {
+				BeforeEach(func() {
+					deleteObject(ctx, cluster)
+				})
+
+				It("does not create a secret", func() {
+					Eventually(verifyNoSecretFunc(ctx, cluster, true)).Should(Succeed())
+				})
+			})
+
+			When("there is a pinniped-info configmap", func() {
+				BeforeEach(func() {
+					createObject(ctx, configMap)
+					Eventually(verifySecretFunc(ctx, cluster, configMap, true)).Should(Succeed())
+					deleteObject(ctx, cluster)
+				})
+
+				AfterEach(func() {
+					deleteObject(ctx, configMap)
+				})
+
+				It("deletes the secret", func() {
+					Eventually(verifyNoSecretFunc(ctx, cluster, true)).Should(Succeed())
+				})
+			})
+		})
 	})
 
 	Context("pinniped-info configmap", func() {
