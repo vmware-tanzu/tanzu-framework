@@ -137,10 +137,11 @@ func (r *PackageInstallStatusReconciler) Reconcile(_ context.Context, req reconc
 	clusterLabels := cluster.GetLabels()
 
 	// make sure the TKR object exists
-	tkrName, err := util.GetClusterLabel(clusterLabels, constants.TKRLabelClassyClusters)
-	if err != nil {
-		return ctrl.Result{}, err
+	tkrName := util.GetClusterLabel(cluster.Labels, constants.TKRLabelClassyClusters)
+	if tkrName == "" {
+		return ctrl.Result{}, nil
 	}
+
 	tkr, err := util.GetTKRByName(r.ctx, r.Client, tkrName)
 	if err != nil {
 		return ctrl.Result{}, errors.Wrapf(err, "unable to fetch TKR object '%s'", tkrName)

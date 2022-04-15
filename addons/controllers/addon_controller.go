@@ -116,9 +116,9 @@ func (r *AddonReconciler) Reconcile(ctx context.Context, req ctrl.Request) (_ ct
 		return ctrl.Result{}, err
 	}
 
-	tkrName, err := util.GetClusterLabel(cluster.Labels, constants.TKRLabel)
-	if err != nil {
-		return ctrl.Result{}, err
+	tkrName := util.GetClusterLabel(cluster.Labels, constants.TKRLabel)
+	if tkrName == "" {
+		return ctrl.Result{}, nil
 	}
 
 	tkr, err := util.GetTKRByName(ctx, r.Client, tkrName)
