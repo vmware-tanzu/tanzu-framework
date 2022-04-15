@@ -10,7 +10,7 @@ metadata:
 spec:
   ports:
   - port: 443
-    targetPort: 9453
+    targetPort: 9865
   selector:
     app: tanzu-addons-manager
 ---
