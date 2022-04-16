@@ -61,6 +61,10 @@ func (r *VSphereCPIConfigReconciler) Reconcile(ctx context.Context, req ctrl.Req
 	if cluster == nil {
 		return ctrl.Result{}, err // no need to requeue if cluster is not found
 	}
+	if cpiConfig.Spec.VSphereCPI.Mode == nil {
+		r.Log.Info("VSphere CPI mode is not provided.")
+		return ctrl.Result{}, nil // no need to requeue if CPI mode is not provided
+	}
 	if res, err := r.reconcileVSphereCPIConfig(ctx, cpiConfig, cluster); err != nil {
 		r.Log.Error(err, "Failed to reconcile VSphereCPIConfig")
 		return res, err
@@ -143,7 +147,7 @@ func (r *VSphereCPIConfigReconciler) reconcileVSphereCPIConfigNormal(ctx context
 	}
 
 	// deploy the provider service account for paravirtual mode
-	if cpiConfig.Spec.VSphereCPI.Mode == VSphereCPIParavirtualMode {
+	if *cpiConfig.Spec.VSphereCPI.Mode == VSphereCPIParavirtualMode {
 		r.Log.Info("Create or update provider serviceAccount for VSphere CPI")
 		serviceAccount := &capvvmwarev1beta1.ProviderServiceAccount{
 			ObjectMeta: metav1.ObjectMeta{
