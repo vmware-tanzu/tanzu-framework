@@ -37,7 +37,7 @@ func GetVariable(cluster *clusterv1.Cluster, name string, value interface{}) err
 	return errors.Wrap(err, "unmarshalling from JSON into value")
 }
 
-// SetMDVariable sets the cluster variable, to the given value.
+// SetMDVariable sets the variable for the given machineDeployment, overriding it if necessary, to the given value.
 // Pre-reqs: cluster.Spec.Topology != nil && cluster.Spec.Topology.Workers != nil
 func SetMDVariable(cluster *clusterv1.Cluster, mdIndex int, name string, value interface{}) error {
 	jsonValue, err := jsonValue(value)
@@ -58,14 +58,14 @@ func SetMDVariable(cluster *clusterv1.Cluster, mdIndex int, name string, value i
 	return nil
 }
 
-// GetMDVariable gets the value of the cluster variable.
+// GetMDVariable gets the value of the variable, possibly overridden for the given machineDeployment.
 // Pre-reqs: cluster.Spec.Topology != nil && cluster.Spec.Topology.Workers != nil
 func GetMDVariable(cluster *clusterv1.Cluster, mdIndex int, name string, value interface{}) error {
 	var jsonValue apiextensionsv1.JSON
 
 	md := &cluster.Spec.Topology.Workers.MachineDeployments[mdIndex]
 
-	if mdVar := machineDeploymentVariableForName(md, name); mdVar != nil {
+	if mdVar := mdVariableForName(md, name); mdVar != nil {
 		jsonValue = mdVar.Value
 	} else if cVar := clusterVariableForName(cluster, name); cVar != nil {
 		jsonValue = cVar.Value
@@ -86,7 +86,7 @@ func jsonValue(value interface{}) (*apiextensionsv1.JSON, error) {
 	return result, nil
 }
 
-// clusterVariableForName finds or creates in the cluster the *ClusterVariable for the given name.
+// clusterVariableForName finds the *ClusterVariable for the given name.
 // Pre-reqs: cluster.Spec.Topology != nil
 func clusterVariableForName(cluster *clusterv1.Cluster, name string) *clusterv1.ClusterVariable {
 	for i := range cluster.Spec.Topology.Variables {
@@ -111,9 +111,9 @@ func ensureClusterVariableForName(cluster *clusterv1.Cluster, name string) *clus
 	return &cluster.Spec.Topology.Variables[len(cluster.Spec.Topology.Variables)-1]
 }
 
-// clusterVariableOverrideForName finds or creates in the cluster the *ClusterVariable for the given name.
+// mdVariableForName finds in the machineDeployment the *ClusterVariable for the given name.
 // Pre-reqs: cluster.Spec.Topology != nil && cluster.Spec.Topology.Workers != nil
-func machineDeploymentVariableForName(md *clusterv1.MachineDeploymentTopology, name string) *clusterv1.ClusterVariable {
+func mdVariableForName(md *clusterv1.MachineDeploymentTopology, name string) *clusterv1.ClusterVariable {
 	if md.Variables == nil {
 		return nil
 	}
