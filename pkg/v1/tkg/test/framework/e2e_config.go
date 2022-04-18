@@ -14,6 +14,7 @@ import (
 	"github.com/pkg/errors"
 	"sigs.k8s.io/yaml"
 
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfigupdater"
 )
 
@@ -101,7 +102,7 @@ func (c *E2EConfig) Defaults() {
 	if c.TkgConfigDir == "" {
 		home, err := os.UserHomeDir()
 		Expect(err).To(BeNil())
-		c.TkgConfigDir = filepath.Join(home, ".tkg")
+		c.TkgConfigDir = filepath.Join(home, ".config", "tanzu", "tkg")
 
 		err = os.MkdirAll(c.TkgConfigDir, os.ModePerm)
 		Expect(err).To(BeNil())
@@ -139,5 +140,34 @@ func (c *E2EConfig) Validate() error {
 
 // SaveTkgConfigVariables saves the config variables from e2e config to the TKG config file
 func (c *E2EConfig) SaveTkgConfigVariables() error {
-	return tkgconfigupdater.SetConfig(c.TkgConfigVariables, c.TkgClusterConfigPath)
+	err := tkgconfigupdater.SetConfig(c.TkgConfigVariables, c.TkgClusterConfigPath)
+	if err != nil {
+		return err
+	}
+
+	fileData, err := os.ReadFile(c.TkgClusterConfigPath)
+	if err != nil {
+		return err
+	}
+
+	tkgConfigMap := make(map[string]interface{})
+	err = yaml.Unmarshal(fileData, &tkgConfigMap)
+
+	awsVariables := []string{"AWS_ACCESS_KEY_ID", "AWS_SECRET_ACCESS_KEY", "AWS_SESSION_TOKEN"}
+	for _, v := range awsVariables {
+		if val, ok := c.TkgConfigVariables[v]; ok {
+			tkgConfigMap[v] = val
+		}
+	}
+
+	outBytes, err := yaml.Marshal(&tkgConfigMap)
+	if err != nil {
+		return errors.Wrapf(err, "error marshaling configuration file")
+	}
+	err = os.WriteFile(c.TkgClusterConfigPath, outBytes, constants.ConfigFilePermissions)
+	if err != nil {
+		return errors.Wrapf(err, "error writing configuration file")
+	}
+
+	return nil
 }
