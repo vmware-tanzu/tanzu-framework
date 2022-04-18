@@ -13,10 +13,8 @@ import (
 
 	"github.com/go-logr/logr"
 	"github.com/pkg/errors"
-	"gopkg.in/yaml.v3"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/labels"
-	"k8s.io/apimachinery/pkg/selection"
 	clusterv1 "sigs.k8s.io/cluster-api/api/v1beta1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/webhook/admission"
@@ -28,6 +26,8 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v2/tkr/util/topology"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v2/tkr/util/version"
 )
+
+const VarTKRData = "TKR_DATA"
 
 type Webhook struct {
 	TKRResolver resolver.CachingResolver
@@ -91,15 +91,8 @@ func (cw *Webhook) ResolveAndSetMetadata(cluster *clusterv1.Cluster, clusterClas
 		}
 	}
 
-	setMetadata(result, cluster)
-
-	tkr := cw.getTKR(cluster)
-	if tkr == nil {
-		return errors.Errorf("resolved TKR not available: cluster '%s/%s', TKR '%s'", cluster.Namespace, cluster.Name, cluster.Labels[runv1.LabelTKR])
-	}
-
-	cw.adjustClusterKubernetesSpec(tkr, clusterClass, cluster)
-	return nil
+	err = cw.setTKRData(result, cluster)
+	return errors.Wrapf(err, "failed to set TKR_DATA: cluster '%s/%s', TKR '%s'", cluster.Namespace, cluster.Name, cluster.Labels[runv1.LabelTKR])
 }
 
 // constructQuery creates TKR resolution query from cluster and clusterClass metadata.
@@ -122,13 +115,24 @@ func (cw *Webhook) constructQuery(cluster *clusterv1.Cluster, clusterClass *clus
 		osImageSelector = labels.Everything() // default to empty selector (matches all) for OSImages
 	}
 
-	cpQuery := cw.constructOSImageQuery(cluster.Spec.Topology.Version, tkrSelector, osImageSelector, labels.Merge(cluster.Labels, cluster.Spec.Topology.ControlPlane.Metadata.Labels))
+	tkr := cw.getTKR(cluster)
+
+	var tkrData TKRData
+	if err := topology.GetVariable(cluster, VarTKRData, &tkrData); err != nil {
+		return nil, err
+	}
+
+	cpQuery := cw.filterOSImageQuery(tkr, tkrData, &data.OSImageQuery{
+		K8sVersionPrefix: cluster.Spec.Topology.Version,
+		TKRSelector:      tkrSelector,
+		OSImageSelector:  osImageSelector,
+	})
 
 	if cluster.Spec.Topology.Workers == nil {
 		return &data.Query{ControlPlane: cpQuery}, nil
 	}
 
-	mdQueries, err := cw.constructMDQueries(cluster, clusterClass, tkrSelector)
+	mdQueries, err := cw.constructMDOSImageQueries(tkr, cluster, clusterClass, tkrSelector)
 	if err != nil {
 		return nil, err
 	}
@@ -161,33 +165,28 @@ func getAnnotation(annotations map[string]string, name string) *string {
 	return &value
 }
 
-// constructOSImageQuery determines if resolution of TKR/OSImage is needed, and creates the *OSImageQuery that
+// filterOSImageQuery determines if resolution of TKR/OSImage is needed. It returns the passed *OSImageQuery that
 // instructs the resolver to perform the resolution. If not, nil is returned, indicating that no resolution is necessary
 // for this particular part of the cluster topology (either controlPlane or a machineDeployment).
-func (cw *Webhook) constructOSImageQuery(v string, tkrSelector, osImageSelector labels.Selector, labelSet labels.Set) *data.OSImageQuery {
-	if tkrName, ok := labelSet[runv1.LabelTKR]; ok {
-		if tkr := cw.TKRResolver.Get(tkrName, &runv1.TanzuKubernetesRelease{}).(*runv1.TanzuKubernetesRelease); tkr != nil {
-			if osImageName, ok := labelSet[runv1.LabelOSImage]; ok {
+func (cw *Webhook) filterOSImageQuery(tkr *runv1.TanzuKubernetesRelease, tkrData TKRData, osImageQuery *data.OSImageQuery) *data.OSImageQuery {
+	if tkr != nil && tkrData != nil {
+		if tkrDataValue := tkrData[tkr.Spec.Kubernetes.Version]; tkrDataValue != nil && tkrDataValue.Labels[runv1.LabelTKR] == tkr.Name {
+			if osImageName, ok := tkrDataValue.Labels[runv1.LabelOSImage]; ok {
 				if osImage := cw.TKRResolver.Get(osImageName, &runv1.OSImage{}).(*runv1.OSImage); osImage != nil {
 					// Found TKR and OSImage. Now, see if they match the provided version and selectors.
-					req, _ := labels.NewRequirement(version.Label(v), selection.Exists, nil)
-					tkrSelectorWithVersion := tkrSelector.Add(*req)
-					osImageSelectorWithVersion := osImageSelector.Add(*req)
-					if tkrSelectorWithVersion.Matches(labels.Set(tkr.Labels)) && osImageSelectorWithVersion.Matches(labels.Set(osImage.Labels)) {
+					if version.Prefixes(tkr.Spec.Version).Has(osImageQuery.K8sVersionPrefix) &&
+						osImageQuery.TKRSelector.Matches(labels.Set(tkr.Labels)) &&
+						osImageQuery.OSImageSelector.Matches(labels.Set(osImage.Labels)) {
 						return nil // indicating we don't need to resolve: already have matching TKR and OSImage
 					}
 				}
 			}
 		}
 	}
-	return &data.OSImageQuery{
-		K8sVersionPrefix: v,
-		TKRSelector:      tkrSelector,
-		OSImageSelector:  osImageSelector,
-	}
+	return osImageQuery
 }
 
-func (cw *Webhook) constructMDQueries(cluster *clusterv1.Cluster, clusterClass *clusterv1.ClusterClass, tkrSelector labels.Selector) ([]*data.OSImageQuery, error) {
+func (cw *Webhook) constructMDOSImageQueries(tkr *runv1.TanzuKubernetesRelease, cluster *clusterv1.Cluster, clusterClass *clusterv1.ClusterClass, tkrSelector labels.Selector) ([]*data.OSImageQuery, error) {
 	mdOSImageQueries := make([]*data.OSImageQuery, len(cluster.Spec.Topology.Workers.MachineDeployments))
 
 	for i := range cluster.Spec.Topology.Workers.MachineDeployments {
@@ -207,7 +206,15 @@ func (cw *Webhook) constructMDQueries(cluster *clusterv1.Cluster, clusterClass *
 			osImageSelector = labels.Everything() // default to empty selector (matches all)
 		}
 
-		mdOSImageQueries[i] = cw.constructOSImageQuery(cluster.Spec.Topology.Version, tkrSelector, osImageSelector, labels.Merge(cluster.Labels, md.Metadata.Labels))
+		var tkrData TKRData
+		if err := topology.GetMDVariable(cluster, i, VarTKRData, &tkrData); err != nil {
+			return nil, err
+		}
+		mdOSImageQueries[i] = cw.filterOSImageQuery(tkr, tkrData, &data.OSImageQuery{
+			K8sVersionPrefix: cluster.Spec.Topology.Version,
+			TKRSelector:      tkrSelector,
+			OSImageSelector:  osImageSelector,
+		})
 	}
 	return mdOSImageQueries, nil
 }
@@ -261,43 +268,98 @@ func (e *errUnresolved) Error() string {
 	return sb.String()
 }
 
-// setMetadata sets cluster TKR resolution metadata based on result.
+// setTKRData sets cluster TKR resolution metadata based on result.
 // It also ensures OSImage labels and os-image-ref annotation are set on controlPlane and machineDeployment
 // if TKR resolution took place.
-func setMetadata(result data.Result, cluster *clusterv1.Cluster) {
+func (cw *Webhook) setTKRData(result data.Result, cluster *clusterv1.Cluster) error {
 	if result.ControlPlane != nil {
-		getMap(&cluster.Labels)[runv1.LabelTKR] = result.ControlPlane.TKRName
-		getMap(&cluster.Labels)[runv1.LabelKubernetesVersion] = version.Label(result.ControlPlane.K8sVersion)
+		tkrData, err := ensureTKRData(cluster)
+		if err != nil {
+			return err
+		}
 
-		setMetadataFromOSImageResult(result.ControlPlane,
-			getMap(&cluster.Spec.Topology.ControlPlane.Metadata.Labels),
-			getMap(&cluster.Spec.Topology.ControlPlane.Metadata.Annotations))
+		getMap(&cluster.Labels)[runv1.LabelTKR] = result.ControlPlane.TKRName
+		cluster.Spec.Topology.Version = result.ControlPlane.K8sVersion
+
+		tkrData[result.ControlPlane.K8sVersion] = tkrDataValueForResult(result.ControlPlane)
+
+		if err := topology.SetVariable(cluster, VarTKRData, tkrData); err != nil {
+			return err
+		}
 	}
 
 	for i, osImageResult := range result.MachineDeployments {
 		if osImageResult != nil {
-			setMetadataFromOSImageResult(osImageResult,
-				getMap(&cluster.Spec.Topology.Workers.MachineDeployments[i].Metadata.Labels),
-				getMap(&cluster.Spec.Topology.Workers.MachineDeployments[i].Metadata.Annotations))
+			tkrDataMD, err := ensureTKRDataMD(cluster, i)
+			if err != nil {
+				return err
+			}
+
+			tkrDataMD[osImageResult.K8sVersion] = tkrDataValueForResult(osImageResult)
+
+			if err := topology.SetMDVariable(cluster, i, VarTKRData, tkrDataMD); err != nil {
+				return err
+			}
 		}
 	}
+
+	return nil
 }
 
-func setMetadataFromOSImageResult(osImageResult *data.OSImageResult, ls, annots map[string]string) {
-	for osImageName, osImage := range osImageResult.OSImagesByTKR[osImageResult.TKRName] { // only one such OSImage
-		ls[runv1.LabelTKR] = osImageResult.TKRName
-		ls[runv1.LabelOSImage] = osImageName
+func ensureTKRData(cluster *clusterv1.Cluster) (TKRData, error) {
+	var tkrData TKRData
+	if err := topology.GetVariable(cluster, VarTKRData, &tkrData); err != nil {
+		return nil, err
+	}
+	if tkrData == nil {
+		tkrData = TKRData{}
+		if err := topology.SetVariable(cluster, VarTKRData, &tkrData); err != nil {
+			return nil, err
+		}
+	}
+	return tkrData, nil
+}
 
-		ls[runv1.LabelOSType] = osImage.Spec.OS.Type
-		ls[runv1.LabelOSName] = osImage.Spec.OS.Name
-		ls[runv1.LabelOSVersion] = osImage.Spec.OS.Version
-		ls[runv1.LabelOSArch] = osImage.Spec.OS.Arch
+func ensureTKRDataMD(cluster *clusterv1.Cluster, i int) (TKRData, error) {
+	_, err := ensureTKRData(cluster)
+	if err != nil {
+		return nil, err
+	}
 
-		bytes, _ := yaml.Marshal(osImage.Spec.Image.Ref) // error always nil: data from the API Server is safe
-		annots[runv1.AnnotationOSImageRef] = string(bytes)
+	var tkrDataMD TKRData
+	if err := topology.GetMDVariable(cluster, i, VarTKRData, &tkrDataMD); err != nil {
+		return nil, err
+	}
 
-		ls[runv1.LabelImageType] = osImage.Spec.Image.Type
-		osimage.SetRefLabels(ls, osImage.Spec.Image.Type, osImage.Spec.Image.Ref)
+	return tkrDataMD, nil
+}
+
+func tkrDataValueForResult(osImageResult *data.OSImageResult) *TKRDataValue {
+	for _, osImage := range osImageResult.OSImagesByTKR[osImageResult.TKRName] { // only one such OSImage
+		tkr := osImageResult.TKRsByK8sVersion[osImageResult.K8sVersion][osImageResult.TKRName]
+		return tkrDataValue(tkr, osImage)
+	}
+	return nil // this should never happen
+}
+
+func tkrDataValue(tkr *runv1.TanzuKubernetesRelease, osImage *runv1.OSImage) *TKRDataValue {
+	ls := labels.Set{
+		runv1.LabelTKR:     tkr.Name,
+		runv1.LabelOSImage: osImage.Name,
+
+		runv1.LabelOSType:    osImage.Spec.OS.Type,
+		runv1.LabelOSName:    osImage.Spec.OS.Name,
+		runv1.LabelOSVersion: osImage.Spec.OS.Version,
+		runv1.LabelOSArch:    osImage.Spec.OS.Arch,
+
+		runv1.LabelImageType: osImage.Spec.Image.Type,
+	}
+	osimage.SetRefLabels(ls, osImage.Spec.Image.Type, osImage.Spec.Image.Ref)
+
+	return &TKRDataValue{
+		KubernetesSpec: tkr.Spec.Kubernetes,
+		OSImageRef:     osImage.Spec.Image.Ref,
+		Labels:         ls,
 	}
 }
 
@@ -345,16 +407,4 @@ func (cw *Webhook) getTKR(cluster *clusterv1.Cluster) *runv1.TanzuKubernetesRele
 		return nil
 	}
 	return cw.TKRResolver.Get(tkrName, &runv1.TanzuKubernetesRelease{}).(*runv1.TanzuKubernetesRelease)
-}
-
-const VarTKRKubernetesSpec = "TKR_KUBERNETES_SPEC"
-
-func (cw *Webhook) adjustClusterKubernetesSpec(tkr *runv1.TanzuKubernetesRelease, clusterClass *clusterv1.ClusterClass, cluster *clusterv1.Cluster) {
-	cluster.Spec.Topology.Version = tkr.Spec.Kubernetes.Version
-
-	if topology.ClusterClassVariable(clusterClass, VarTKRKubernetesSpec) == nil {
-		cw.Log.Info("Skipping setting the variable: not defined in ClusterClass", "variable", VarTKRKubernetesSpec, "ClusterClass", fmt.Sprintf("%s/%s", clusterClass.Namespace, clusterClass.Name))
-		return
-	}
-	_ = topology.SetVariable(cluster, VarTKRKubernetesSpec, &tkr.Spec.Kubernetes) // ignoring error: tkr.Spec.Kubernetes always marshals to/from JSON cleanly
 }
