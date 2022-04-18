@@ -149,6 +149,7 @@ func (c *PinnipedV3Controller) reconcileDataValues(ctx context.Context, secret *
 	// TODO: Create or Patch here vs. just patch since it should already be there?
 	result, err := controllerutil.CreateOrPatch(ctx, c.client, pinnipedSecret, getMutateFn(pinnipedSecret, pinnipedInfoCM, cluster, log, false))
 	if err != nil {
+		// TODO: Return err if not found here or nah?  (maybe depends on contract w/CB controller)
 		log.Error(err, "error creating or patching data values")
 		return err
 	}

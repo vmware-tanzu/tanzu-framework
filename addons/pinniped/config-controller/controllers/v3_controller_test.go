@@ -8,7 +8,6 @@ import (
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	"gopkg.in/yaml.v3"
 	corev1 "k8s.io/api/core/v1"
 	k8serrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -93,18 +92,18 @@ var _ = Describe("Controller", func() {
 		})
 
 		When("random values are added to the secret", func() {
-			var secretCopy *corev1.Secret
+			var expectedSecret *corev1.Secret
 			BeforeEach(func() {
-				secretCopy = pinnipedCBSecret.DeepCopy()
+				expectedSecret = pinnipedCBSecret.DeepCopy()
 				Eventually(func(g Gomega) {
-					err := k8sClient.Get(ctx, client.ObjectKeyFromObject(secretCopy), secretCopy)
+					err := k8sClient.Get(ctx, client.ObjectKeyFromObject(expectedSecret), expectedSecret)
 					g.Expect(err).NotTo(HaveOccurred())
-					g.Expect(secretCopy.Data).NotTo(BeNil())
+					g.Expect(expectedSecret.Data).NotTo(BeNil())
 				}).Should(Succeed())
-				dataValues := secretCopy.Data[tkgDataValueFieldName]
+				dataValues := expectedSecret.Data[tkgDataValueFieldName]
 				dataValues = append(dataValues, "sweetest_cat: lionel"...)
-				secretCopy.Data[tkgDataValueFieldName] = dataValues
-				updateObject(ctx, secretCopy)
+				expectedSecret.Data[tkgDataValueFieldName] = dataValues
+				updateObject(ctx, expectedSecret)
 			})
 
 			It("they are preserved", func() {
@@ -112,11 +111,7 @@ var _ = Describe("Controller", func() {
 					actualSecret := pinnipedCBSecret.DeepCopy()
 					err := k8sClient.Get(ctx, client.ObjectKeyFromObject(actualSecret), actualSecret)
 					g.Expect(err).NotTo(HaveOccurred())
-					var gotValuesYAML map[string]interface{}
-					var wantValuesYAML map[string]interface{}
-					g.Expect(yaml.Unmarshal(actualSecret.Data[tkgDataValueFieldName], &gotValuesYAML)).Should(Succeed())
-					g.Expect(yaml.Unmarshal(secretCopy.Data[tkgDataValueFieldName], &wantValuesYAML)).Should(Succeed())
-					g.Expect(gotValuesYAML).Should(Equal(wantValuesYAML))
+					g.Expect(actualSecret.Data).Should(Equal(expectedSecret.Data))
 				}).Should(Succeed())
 			})
 		})
@@ -171,7 +166,7 @@ var _ = Describe("Controller", func() {
 				secretData = map[string][]byte{
 					tkgDataValueFieldName: []byte(fmt.Sprintf("%s: moses", identityManagementTypeKey)),
 				}
-				secretCopy.Name = "another-secret"
+				secretCopy.Name = "another-one"
 				secretCopy.Labels = secretLabels
 				secretCopy.Type = clusterBootstrapManagedSecret
 				secretCopy.Data = secretData
@@ -199,7 +194,7 @@ var _ = Describe("Controller", func() {
 
 			BeforeEach(func() {
 				secretCopy = pinnipedCBSecret.DeepCopy()
-				secretCopy.Name = "newest-secret"
+				secretCopy.Name = "newest-one"
 				secretLabels = map[string]string{
 					packageNameLabel:    "pinniped.fun.times",
 					tkgClusterNameLabel: cluster.Name,
@@ -229,7 +224,6 @@ var _ = Describe("Controller", func() {
 	})
 
 	Context("pinniped-info configmap", func() {
-
 		var (
 			clusters  []*clusterapiv1beta1.Cluster
 			configMap *corev1.ConfigMap
@@ -297,6 +291,9 @@ var _ = Describe("Controller", func() {
 		Context("the configmap gets created", func() {
 			When("there are no ClusterBootstrap secrets", func() {
 				BeforeEach(func() {
+					for _, c := range clusters {
+						deleteObject(ctx, c)
+					}
 					for _, s := range secrets {
 						deleteObject(ctx, s)
 					}
