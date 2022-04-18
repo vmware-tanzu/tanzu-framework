@@ -212,7 +212,7 @@ func getFilesForChecksum(dirPath string) ([]string, error) {
 			return err
 		}
 
-		if !info.IsDir() && isFileWhitelisted(path) {
+		if !info.IsDir() && includePathForChecksum(path) {
 			files = append(files, path)
 		}
 
@@ -225,13 +225,17 @@ func getFilesForChecksum(dirPath string) ([]string, error) {
 	return files, nil
 }
 
-func isFileWhitelisted(path string) bool {
-	var ProvidersChecksumFileExtensionWhitelist = map[string]*interface{}{
-		".yaml": nil,
-		".star": nil,
+func includePathForChecksum(path string) bool {
+	extension := filepath.Ext(path)
+	switch extension {
+	case ".star":
+		return true
+	case ".yaml":
+		if !strings.Contains(path, "clusterclass-") {
+			return true
+		}
 	}
-	_, ok := ProvidersChecksumFileExtensionWhitelist[filepath.Ext(path)]
-	return ok
+	return false
 }
 
 // updateVersion updates the CLI version to the config file
