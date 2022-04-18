@@ -9,10 +9,11 @@ fi
 
 # edit kapp-controller deployment
 kubectl patch --type=json deployment kapp-controller -n tkg-system -p '''[{"op":"replace","path":"/spec/template/spec/containers/0/args/0","value": "-packaging-global-namespace=tkg-system"}]'''
-sleep 30
+sleep 90
 
 # install aws cluster-class package
-tanzu package install aws-cc-pi --package-name tkg-clusterclass-aws.tanzu.vmware.com --version 0.18.0-dev --values-file pkg/v1/tkg/test/config/cc/aws/aws_cc_package_config.yaml
+tanzu package available list
+tanzu package install aws-cc-pi --package-name tkg-clusterclass-aws.tanzu.vmware.com --version 0.18.0-dev --values-file ../../config/cc/aws/aws_cc_package_config.yaml
 
 # install addons-manager package
 export ADDONS_MANAGER_SECRET_NAME=$(kubectl get secret -l tkg.tanzu.vmware.com/addon-name=tanzu-addons-manager -n tkg-system -o=jsonpath='{.items[0].metadata.name}')

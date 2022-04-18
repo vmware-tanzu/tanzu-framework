@@ -25,6 +25,7 @@ type E2ECommonSpecInput struct {
 	E2EConfig       *framework.E2EConfig
 	ArtifactsFolder string
 	Cni             string
+	Plan            string
 }
 
 func E2ECommonSpec(context context.Context, inputGetter func() E2ECommonSpecInput) { //nolint:funlen
@@ -64,6 +65,10 @@ func E2ECommonSpec(context context.Context, inputGetter func() E2ECommonSpecInpu
 			Plan:        "dev",
 			CniType:     input.Cni,
 		}
+		if input.Plan != "" {
+			options.Plan = input.Plan
+		}
+
 		if input.E2EConfig.InfrastructureName == "vsphere" {
 			if input.Cni == "antrea" {
 				if clusterIP, ok := os.LookupEnv("CLUSTER_ENDPOINT_ANTREA"); ok {
@@ -94,6 +99,10 @@ func E2ECommonSpec(context context.Context, inputGetter func() E2ECommonSpecInpu
 			Plan:        "dev",
 			CniType:     input.Cni,
 		}
+		if input.Plan != "" {
+			options.Plan = input.Plan
+		}
+
 		if input.E2EConfig.InfrastructureName == "vsphere" {
 			if input.Cni == "antrea" {
 				if clusterIP, ok := os.LookupEnv("CLUSTER_ENDPOINT_ANTREA"); ok {
