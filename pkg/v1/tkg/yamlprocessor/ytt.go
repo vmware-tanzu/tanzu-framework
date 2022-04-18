@@ -85,7 +85,7 @@ func (p *YTTProcessor) GetTemplateName(version, plan string) string {
 // GetClusterClassTemplateName returns the file name of the cluster class
 // template that needs to be retrieved from the source.
 func (p *YTTProcessor) GetClusterClassTemplateName(version, name string) string {
-	return ""
+	return fmt.Sprintf("clusterclass-%s.yaml", name)
 }
 
 func (p *YTTProcessor) getLoader(rawArtifact []byte) (*workspace.LibraryExecution, error) {
@@ -215,13 +215,9 @@ func (p *YTTProcessor) Process(rawArtifact []byte, variablesClient func(string) 
 	return result.DocSet.AsBytes()
 }
 
-// getYttSrcDir returns the cached srcDir if it called multiple times else it
-// parses it from the template definition.
+// getYttSrcDir parses the template definition to obtain the paths used in the
+// ytt processing.
 func (p *YTTProcessor) getYttSrcDir(rawArtifact []byte) ([]v1alpha1.PathInfo, error) {
-	if len(p.srcPaths) != 0 {
-		return p.srcPaths, nil
-	}
-
 	srcPaths, err := p.parser.ParsePath(rawArtifact)
 	if err != nil {
 		return nil, errors.Wrap(err, "unable to parse raw artifact bytes")
