@@ -3,7 +3,7 @@ infrastructure_name: aws
 cluster_prefix: "tkg-cc-"
 tkg_config_variables:
   AWS_REGION: "us-west-2"
-  AWS_SSH_KEY_NAME: default
+  AWS_SSH_KEY_NAME: tanzutest
   AWS_ACCESS_KEY_ID: ""
   AWS_SECRET_ACCESS_KEY: ""
   AWS_SESSION_TOKEN: ""
