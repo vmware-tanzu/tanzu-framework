@@ -256,6 +256,14 @@ jobs:
       - name: Cleanup
         run: rm -rf ~/.tanzu ~/.tkg ~/.config; docker kill $(docker ps -q) | true; docker system prune -a --volumes -f
 
+      - name: Download BOM
+        run: |
+          tanzu management-cluster create -i aws -p dev || true
+      - name: Edit BOM (Update tanzu-framework-management-packages component)
+        run: |
+          pkg/v1/tkg/test/scripts/hack_bom.sh
+      - run: |
+          cat $HOME/.config/tanzu/tkg/bom/tkg-bom-v1.6.0-zshippable.yaml
       - name: Generate cluster prefix
         if: ${{ env.aws_client_id != '' }}
         env:
