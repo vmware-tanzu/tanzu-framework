@@ -100,7 +100,6 @@ var _ = Describe("CalicoConfig Reconciler and Webhooks", func() {
 				}
 
 				// check spec values
-				Expect(config.Spec.Namespace).Should(Equal("kube-system"))
 				Expect(config.Spec.Calico.Config.VethMTU).Should(Equal(int64(0)))
 
 				// check owner reference
@@ -126,10 +125,10 @@ var _ = Describe("CalicoConfig Reconciler and Webhooks", func() {
 				// check data values secret contents
 				Expect(secret.Type).Should(Equal(v1.SecretTypeOpaque))
 				secretData := string(secret.Data["values.yaml"])
-				Expect(strings.Contains(secretData, "namespace: kube-system")).Should(BeTrue())
 				Expect(strings.Contains(secretData, "infraProvider: vsphere")).Should(BeTrue())
 				Expect(strings.Contains(secretData, "ipFamily: ipv4,ipv6")).Should(BeTrue())
 				Expect(strings.Contains(secretData, "clusterCIDR: 192.168.0.0/16,fd00:100:96::/48")).Should(BeTrue())
+				Expect(strings.Contains(secretData, "vethMTU: \"0\"")).Should(BeTrue())
 
 				return true
 			}, waitTimeout, pollingInterval).Should(BeTrue())
@@ -148,22 +147,4 @@ var _ = Describe("CalicoConfig Reconciler and Webhooks", func() {
 		})
 	})
 
-	Context("Calico Admission Webhooks", func() {
-		BeforeEach(func() {
-			clusterName = testCluster
-		})
-
-		It("Should fail mutating webhooks for immutable fields for CalicoConfig", func() {
-			key := client.ObjectKey{
-				Namespace: "default",
-				Name:      testCluster,
-			}
-			config := &cniv1alpha1.CalicoConfig{}
-			Expect(k8sClient.Get(ctx, key, config)).To(Succeed())
-
-			By("Trying to update the immutable Namespace field in Calico Spec")
-			config.Spec.Namespace = key.Namespace
-			Expect(k8sClient.Update(ctx, config)).ToNot(Succeed())
-		})
-	})
 })

@@ -64,10 +64,6 @@ spec:
                         type: integer
                     type: object
                 type: object
-              namespace:
-                default: kube-system
-                description: The namespace in which calico is deployed
-                type: string
             type: object
           status:
             description: CalicoConfigStatus defines the observed state of CalicoConfig
