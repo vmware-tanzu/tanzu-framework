@@ -15,6 +15,12 @@ if [ -z "$AWS_ACCESS_KEY_ID" ]; then
   exit 0
 fi
 
+# This step makes sure that the filter applied is never empty
+if [ -z "$FILTER" ]; then
+  echo "filter for leftovers is not set"
+  exit 1
+fi
+
 wget https://github.com/genevieve/leftovers/releases/download/v0.62.0/leftovers-v0.62.0-linux-amd64
 mv leftovers-v0.62.0-linux-amd64 /usr/local/bin/leftovers
 chmod +x /usr/local/bin/leftovers
