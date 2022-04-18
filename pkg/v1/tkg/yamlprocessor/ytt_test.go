@@ -26,11 +26,19 @@ var _ = Describe("YttProcessor", func() {
 		})
 	})
 
-	Context("ArtifactName", func() {
+	Context("GetTemplateName", func() {
 		It("returns the name of the template definition file", func() {
 			yp := yamlprocessor.NewYttProcessor()
 
 			Expect(yp.GetTemplateName("version", "plan1")).To(Equal("cluster-template-definition-plan1.yaml"))
+		})
+	})
+
+	Context("GetClusterClassTemplateName", func() {
+		It("returns the name of the clusterclass definition file", func() {
+			yp := yamlprocessor.NewYttProcessor()
+
+			Expect(yp.GetClusterClassTemplateName("version", "foo")).To(Equal("clusterclass-foo.yaml"))
 		})
 	})
 
