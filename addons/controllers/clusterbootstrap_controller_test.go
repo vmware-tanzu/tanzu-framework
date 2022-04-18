@@ -54,6 +54,7 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 		clusterbootstrapWebhookManifestFile = "testdata/webhooks/clusterbootstrap-webhook-manifests.yaml"
 		clusterbootstrapWebhookServiceName  = "clusterbootstrap-webhook-service"
 		clusterbootstrapWebhookScrtName     = "clusterbootstrap-webhook-tls"
+		foobar2CarvelPackageRefName         = "foobar2.example.com"
 	)
 
 	JustBeforeEach(func() {
@@ -192,7 +193,7 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 				var object *unstructured.Unstructured
 				// Verify providerRef exists and also the cloned provider object with ownerReferences to cluster and ClusterBootstrap
 				Eventually(func() bool {
-					Expect(len(clusterBootstrap.Spec.AdditionalPackages) > 0).To(BeTrue())
+					Expect(len(clusterBootstrap.Spec.AdditionalPackages) > 1).To(BeTrue())
 
 					fooPackage := clusterBootstrap.Spec.AdditionalPackages[1]
 					Expect(fooPackage.RefName == foobarCarvelPackageName).To(BeTrue())
@@ -320,6 +321,21 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 						return true
 					}, waitTimeout, pollingInterval).Should(BeTrue())
 				})
+
+				By("verifying that data value secret is created for a package with inline config")
+				Eventually(func() bool {
+					s := &corev1.Secret{}
+					if err := k8sClient.Get(ctx, client.ObjectKey{Namespace: constants.TKGSystemNS, Name: util.GenerateDataValueSecretName(clusterName, foobar2CarvelPackageRefName)}, s); err != nil {
+						return false
+					}
+					dataValue := string(s.Data["values.yaml"])
+
+					if !strings.Contains(dataValue, "key1") || !strings.Contains(dataValue, "sample-value1") ||
+						!strings.Contains(dataValue, "key2") || !strings.Contains(dataValue, "sample-value2") {
+						return false
+					}
+					return true
+				}, waitTimeout, pollingInterval).Should(BeTrue())
 
 				By("verifying that kapp-controller PackageInstall CR is created under cluster namespace properly on the management cluster")
 				// Verify kapp-controller PackageInstall CR has been created under cluster namespace on management cluster
@@ -498,7 +514,7 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 
 						// Validate additional packages
 						// foobar3 should be added, while foobar should be kept even it was removed from the template
-						Expect(len(upgradedClusterBootstrap.Spec.AdditionalPackages)).To(Equal(3))
+						Expect(len(upgradedClusterBootstrap.Spec.AdditionalPackages)).To(Equal(4))
 						for _, pkg := range upgradedClusterBootstrap.Spec.AdditionalPackages {
 							if pkg.RefName == "foobar1.example.com.1.18.2" {
 								Expect(pkg.ValuesFrom.SecretRef).To(Equal(fmt.Sprintf("%s-foobar1.example.com-package", clusterName)))
@@ -510,6 +526,8 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 								Expect(*pkg.ValuesFrom.ProviderRef.APIGroup).To(Equal("run.tanzu.vmware.com"))
 								Expect(pkg.ValuesFrom.ProviderRef.Kind).To(Equal("FooBar"))
 								Expect(pkg.ValuesFrom.ProviderRef.Name).To(Equal(fmt.Sprintf("%s-foobar.example.com-package", clusterName)))
+							} else if pkg.RefName == "foobar2.example.com.1.18.2" {
+								Expect(pkg.ValuesFrom.Inline).NotTo(BeNil())
 							} else {
 								return false
 							}
@@ -569,7 +587,7 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 					// ProviderRef can't be changed to secretRef or inline
 					mutateClusterBootstrap = clusterBootstrap.DeepCopy()
 					mutateClusterBootstrap.Spec.Kapp.ValuesFrom.ProviderRef = nil
-					mutateClusterBootstrap.Spec.Kapp.ValuesFrom.Inline = "placeholder"
+					mutateClusterBootstrap.Spec.Kapp.ValuesFrom.Inline = map[string]interface{}{}
 					err = k8sClient.Update(ctx, mutateClusterBootstrap)
 					Expect(strings.Contains(err.Error(), "change from providerRef to other types of data value representation is not allowed")).To(BeTrue())
 

@@ -80,7 +80,7 @@ func (c *ClusterBootstrapBuilder) Build() *runv1alpha3.ClusterBootstrap {
 // ClusterBootstrapPackageBuilder holds the variables and objects required to build a runv1alpha3.ClusterBootstrapPackage.
 type ClusterBootstrapPackageBuilder struct {
 	refName     string
-	inline      string
+	inline      map[string]interface{}
 	secretRef   string
 	providerRef *corev1.TypedLocalObjectReference
 }
@@ -92,7 +92,7 @@ func ClusterBootstrapPackage(refName string) *ClusterBootstrapPackageBuilder {
 	}
 }
 
-func (c *ClusterBootstrapPackageBuilder) WithInline(inline string) *ClusterBootstrapPackageBuilder {
+func (c *ClusterBootstrapPackageBuilder) WithInline(inline map[string]interface{}) *ClusterBootstrapPackageBuilder {
 	c.inline = inline
 	return c
 }
