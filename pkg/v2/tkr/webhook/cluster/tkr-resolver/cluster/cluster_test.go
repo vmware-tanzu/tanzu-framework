@@ -8,7 +8,7 @@ import (
 	"testing"
 
 	"github.com/go-logr/logr"
-	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
@@ -37,7 +37,9 @@ var k8sVersions = []string{k8s1_20_1, k8s1_20_2, k8s1_21_1, k8s1_21_3, k8s1_22_0
 
 func TestWebhook(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "TKR Resolver: Cluster Webhook test")
+	suiteConfig, _ := GinkgoConfiguration()
+	suiteConfig.FailFast = true
+	RunSpecs(t, "TKR Resolver: Cluster Webhook test", suiteConfig)
 }
 
 var (
@@ -69,6 +71,9 @@ var _ = Describe("cluster.Webhook", func() {
 				Namespace: "test-ns",
 			},
 		}
+		clusterClass.Spec.Variables = append(clusterClass.Spec.Variables, clusterv1.ClusterClassVariable{
+			Name: VarTKRData,
+		})
 		cluster = &clusterv1.Cluster{
 			ObjectMeta: metav1.ObjectMeta{
 				Name:      "test-c-0",
@@ -125,8 +130,9 @@ var _ = Describe("cluster.Webhook", func() {
 				When("the controlPlane already satisfies the query", func() {
 					BeforeEach(func() {
 						getMap(&cluster.Labels)[runv1.LabelTKR] = tkr.Name
-						getMap(&cluster.Labels)[runv1.LabelKubernetesVersion] = version.Label(tkr.Spec.Kubernetes.Version)
-						getMap(&cluster.Spec.Topology.ControlPlane.Metadata.Labels)[runv1.LabelOSImage] = osImage.Name
+						tkrData := TKRData{}
+						tkrData[tkr.Spec.Kubernetes.Version] = tkrDataValue(tkr, osImage)
+						Expect(topology.SetVariable(cluster, VarTKRData, tkrData)).To(Succeed())
 					})
 
 					It("should return query with empty ControlPlane", func() {
@@ -223,8 +229,6 @@ var _ = Describe("cluster.Webhook", func() {
 				When("the cluster refers to a TKR that does not already satisfy the query", func() {
 					BeforeEach(func() {
 						getMap(&cluster.Labels)[runv1.LabelTKR] = tkr.Name + "-does-not-exist"
-						getMap(&cluster.Labels)[runv1.LabelKubernetesVersion] = version.Label(tkr.Spec.Kubernetes.Version)
-						getMap(&cluster.Spec.Topology.ControlPlane.Metadata.Labels)[runv1.LabelOSImage] = osImage.Name
 					})
 
 					It("should return query with non-empty ControlPlane", func() {
@@ -295,49 +299,42 @@ var _ = Describe("cluster.Webhook", func() {
 				When("the controlPlane already satisfies the query", func() {
 					BeforeEach(func() {
 						getMap(&cluster.Labels)[runv1.LabelTKR] = tkr.Name
-						getMap(&cluster.Labels)[runv1.LabelKubernetesVersion] = version.Label(tkr.Spec.Kubernetes.Version)
-						getMap(&cluster.Spec.Topology.ControlPlane.Metadata.Labels)[runv1.LabelOSImage] = osImage.Name
-						getMap(&cluster.Spec.Topology.ControlPlane.Metadata.Labels)[runv1.LabelTKR] = tkr.Name
+						tkrData := TKRData{}
+						tkrData[tkr.Spec.Kubernetes.Version] = tkrDataValue(tkr, osImage)
+						Expect(topology.SetVariable(cluster, VarTKRData, tkrData)).To(Succeed())
+
 					})
 
 					It("should not resolve the ControlPlane", func() {
-						cp0 := cluster.Spec.Topology.ControlPlane.DeepCopy()
+						clusterTopology0 := cluster.Spec.Topology.DeepCopy()
 						err := cw.ResolveAndSetMetadata(cluster, clusterClass)
 						Expect(err).ToNot(HaveOccurred())
-						Expect(&cluster.Spec.Topology.ControlPlane).To(Equal(cp0))
+						Expect(cluster.Spec.Topology).To(Equal(clusterTopology0))
 					})
+				})
 
-					When("clusterClass has TKR_KUBERNETES_SPEC variable", func() {
-						BeforeEach(func() {
-							clusterClass.Spec.Variables = append(clusterClass.Spec.Variables, clusterv1.ClusterClassVariable{
-								Name: VarTKRKubernetesSpec,
-							})
-						})
-						When("the TKR has been successfully resolved", func() {
-							BeforeEach(func() {
-							})
-
-							It("should set TKR_KUBERNETES_SPEC cluster variable", func() {
-								err := cw.ResolveAndSetMetadata(cluster, clusterClass)
-								Expect(err).ToNot(HaveOccurred())
-								tkrKubernetesSpec := &runv1.KubernetesSpec{}
-								Expect(topology.GetVariable(cluster, VarTKRKubernetesSpec, tkrKubernetesSpec)).To(Succeed())
-								Expect(tkrKubernetesSpec).To(Equal(&tkr.Spec.Kubernetes))
-							})
-						})
+				When("the TKR has been successfully resolved", func() {
+					It("should set TKR_DATA cluster variable", func() {
+						err := cw.ResolveAndSetMetadata(cluster, clusterClass)
+						Expect(err).ToNot(HaveOccurred())
+						var tkrData TKRData
+						Expect(topology.GetVariable(cluster, VarTKRData, &tkrData)).To(Succeed())
+						Expect(tkrData).ToNot(BeNil())
+						Expect(tkrData).To(HaveKey(tkr.Spec.Kubernetes.Version))
+						Expect(tkrData[tkr.Spec.Kubernetes.Version].KubernetesSpec).To(Equal(tkr.Spec.Kubernetes))
 					})
 				})
 
 				When("the TKR and controlPlane OSImage have not been resolved yet", func() {
 					It("should resolve the TKR and ControlPlane OSImage", func() {
-						err := cw.ResolveAndSetMetadata(cluster, clusterClass)
-						Expect(err).ToNot(HaveOccurred())
+						Expect(cw.ResolveAndSetMetadata(cluster, clusterClass)).To(Succeed())
 						resolvedTKR := cw.TKRResolver.Get(cluster.Labels[runv1.LabelTKR], &runv1.TanzuKubernetesRelease{}).(*runv1.TanzuKubernetesRelease)
 						Expect(resolvedTKR).ToNot(BeNil())
 						Expect(cluster.Spec.Topology.Version).To(Equal(resolvedTKR.Spec.Kubernetes.Version))
-						_, hasPrefix := version.Prefixes(cluster.Spec.Topology.Version)[k8sVersionPrefix]
-						Expect(hasPrefix).To(BeTrue())
-						resolvedOSImage := cw.TKRResolver.Get(cluster.Spec.Topology.ControlPlane.Metadata.Labels[runv1.LabelOSImage], &runv1.OSImage{}).(*runv1.OSImage)
+						Expect(version.Prefixes(cluster.Spec.Topology.Version)).To(HaveKey(k8sVersionPrefix))
+						tkrData := TKRData{}
+						Expect(topology.GetVariable(cluster, VarTKRData, &tkrData)).To(Succeed())
+						resolvedOSImage := cw.TKRResolver.Get(tkrData[cluster.Spec.Topology.Version].Labels[runv1.LabelOSImage], &runv1.OSImage{}).(*runv1.OSImage)
 						Expect(resolvedOSImage.Spec.KubernetesVersion).To(Equal(cluster.Spec.Topology.Version))
 						Expect(osImageSelector.Matches(labels.Set(resolvedOSImage.Labels))).To(BeTrue())
 					})
@@ -347,22 +344,26 @@ var _ = Describe("cluster.Webhook", func() {
 							delete(getMap(&cluster.Spec.Topology.ControlPlane.Metadata.Annotations), runv1.AnnotationResolveOSImage)
 						})
 
-						It("should resolve the TKR and ControlPlane OSImage", func() {
-							err := cw.ResolveAndSetMetadata(cluster, clusterClass)
-							if err != nil {
-								// may be unresolved: more than 1 OSImage is matched: empty resolve-os-image selector matches everything
-								err := err.(*errUnresolved)
-								tkrName := err.result.ControlPlane.TKRName
-								Expect(len(err.result.ControlPlane.OSImagesByTKR[tkrName])).To(BeNumerically(">", 1))
-								return
-							}
-							resolvedTKR := cw.TKRResolver.Get(cluster.Labels[runv1.LabelTKR], &runv1.TanzuKubernetesRelease{}).(*runv1.TanzuKubernetesRelease)
-							Expect(resolvedTKR).ToNot(BeNil())
-							Expect(cluster.Spec.Topology.Version).To(Equal(resolvedTKR.Spec.Kubernetes.Version))
-							_, hasPrefix := version.Prefixes(cluster.Spec.Topology.Version)[k8sVersionPrefix]
-							Expect(hasPrefix).To(BeTrue())
-							resolvedOSImage := cw.TKRResolver.Get(cluster.Spec.Topology.ControlPlane.Metadata.Labels[runv1.LabelOSImage], &runv1.OSImage{}).(*runv1.OSImage)
-							Expect(resolvedOSImage.Spec.KubernetesVersion).To(Equal(cluster.Spec.Topology.Version))
+						repeat(1000, func() {
+							It("should resolve the TKR and ControlPlane OSImage", func() {
+								err := cw.ResolveAndSetMetadata(cluster, clusterClass)
+								if err != nil {
+									// may be unresolved: more than 1 OSImage is matched: empty resolve-os-image selector matches everything
+									err := err.(*errUnresolved)
+									tkrName := err.result.ControlPlane.TKRName
+									Expect(len(err.result.ControlPlane.OSImagesByTKR[tkrName])).To(BeNumerically(">", 1))
+									return
+								}
+								resolvedTKR := cw.TKRResolver.Get(cluster.Labels[runv1.LabelTKR], &runv1.TanzuKubernetesRelease{}).(*runv1.TanzuKubernetesRelease)
+								Expect(resolvedTKR).ToNot(BeNil())
+								Expect(cluster.Spec.Topology.Version).To(Equal(resolvedTKR.Spec.Kubernetes.Version))
+								_, hasPrefix := version.Prefixes(cluster.Spec.Topology.Version)[k8sVersionPrefix]
+								Expect(hasPrefix).To(BeTrue())
+								tkrData := TKRData{}
+								Expect(topology.GetVariable(cluster, VarTKRData, &tkrData)).To(Succeed())
+								resolvedOSImage := cw.TKRResolver.Get(tkrData[cluster.Spec.Topology.Version].Labels[runv1.LabelOSImage], &runv1.OSImage{}).(*runv1.OSImage)
+								Expect(resolvedOSImage.Spec.KubernetesVersion).To(Equal(cluster.Spec.Topology.Version))
+							})
 						})
 					})
 				})
@@ -409,8 +410,10 @@ var _ = Describe("cluster.Webhook", func() {
 						err := cw.ResolveAndSetMetadata(cluster, clusterClass)
 						Expect(err).ToNot(HaveOccurred())
 
-						for _, md := range cluster.Spec.Topology.Workers.MachineDeployments {
-							Expect(md.Metadata.Labels[runv1.LabelOSImage]).To(Equal(osImage.Name))
+						for i := range cluster.Spec.Topology.Workers.MachineDeployments {
+							tkrData := TKRData{}
+							Expect(topology.GetMDVariable(cluster, i, VarTKRData, &tkrData)).To(Succeed())
+							Expect(tkrData[cluster.Spec.Topology.Version].Labels[runv1.LabelOSImage]).To(Equal(osImage.Name))
 						}
 					})
 
@@ -429,19 +432,17 @@ var _ = Describe("cluster.Webhook", func() {
 				When("the cluster refers to a TKR that does not already satisfy the query", func() {
 					BeforeEach(func() {
 						getMap(&cluster.Labels)[runv1.LabelTKR] = tkr.Name + "-does-not-exist"
-						getMap(&cluster.Labels)[runv1.LabelKubernetesVersion] = version.Label(tkr.Spec.Kubernetes.Version)
-						getMap(&cluster.Spec.Topology.ControlPlane.Metadata.Labels)[runv1.LabelOSImage] = osImage.Name
 					})
 
 					It("should return query with non-empty ControlPlane", func() {
-						err := cw.ResolveAndSetMetadata(cluster, clusterClass)
-						Expect(err).ToNot(HaveOccurred())
+						Expect(cw.ResolveAndSetMetadata(cluster, clusterClass)).To(Succeed())
 						resolvedTKR := cw.TKRResolver.Get(cluster.Labels[runv1.LabelTKR], &runv1.TanzuKubernetesRelease{}).(*runv1.TanzuKubernetesRelease)
 						Expect(resolvedTKR).ToNot(BeNil())
 						Expect(cluster.Spec.Topology.Version).To(Equal(resolvedTKR.Spec.Kubernetes.Version))
-						_, hasPrefix := version.Prefixes(cluster.Spec.Topology.Version)[k8sVersionPrefix]
-						Expect(hasPrefix).To(BeTrue())
-						resolvedOSImage := cw.TKRResolver.Get(cluster.Spec.Topology.ControlPlane.Metadata.Labels[runv1.LabelOSImage], &runv1.OSImage{}).(*runv1.OSImage)
+						Expect(version.Prefixes(cluster.Spec.Topology.Version)).To(HaveKey(k8sVersionPrefix))
+						tkrData := TKRData{}
+						Expect(topology.GetVariable(cluster, VarTKRData, &tkrData)).To(Succeed())
+						resolvedOSImage := cw.TKRResolver.Get(tkrData[cluster.Spec.Topology.Version].Labels[runv1.LabelOSImage], &runv1.OSImage{}).(*runv1.OSImage)
 						Expect(resolvedOSImage.Spec.KubernetesVersion).To(Equal(cluster.Spec.Topology.Version))
 						Expect(osImageSelector.Matches(labels.Set(resolvedOSImage.Labels))).To(BeTrue())
 					})
@@ -475,4 +476,10 @@ func genObjects() (data.OSImages, data.TKRs, []client.Object) {
 		objects = append(objects, tkr)
 	}
 	return osImages, tkrs, objects
+}
+
+func repeat(numTimes int, f func()) {
+	for i := 0; i < numTimes; i++ {
+		f()
+	}
 }
