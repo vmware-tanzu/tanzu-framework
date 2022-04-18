@@ -7,6 +7,8 @@ package controllers
 import (
 	"context"
 
+	"sigs.k8s.io/controller-runtime/pkg/builder"
+
 	"github.com/go-logr/logr"
 	corev1 "k8s.io/api/core/v1"
 	k8serror "k8s.io/apimachinery/pkg/api/errors"
@@ -42,6 +44,13 @@ func (c *PinnipedV1Controller) SetupWithManager(manager ctrl.Manager) error {
 			&source.Kind{Type: &corev1.ConfigMap{}},
 			handler.EnqueueRequestsFromMapFunc(configMapHandler),
 			withNamespacedName(types.NamespacedName{Namespace: "kube-public", Name: "pinniped-info"}),
+		).
+		Watches(
+			&source.Kind{Type: &corev1.Secret{}},
+			handler.EnqueueRequestsFromMapFunc(c.addonSecretToCluster),
+			builder.WithPredicates(
+				c.withAddonLabel("pinniped"),
+			),
 		).
 		Complete(c)
 	if err != nil {
