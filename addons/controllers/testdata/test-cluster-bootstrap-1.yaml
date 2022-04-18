@@ -115,6 +115,11 @@ spec:
           apiGroup: run.tanzu.vmware.com
           kind: FooBar
           name: example-foo
+    - refName: foobar2.example.com.1.18.2
+      valuesFrom:
+        inline:
+          key1: sample-value1
+          key2: sample-value2
   cni:
     refName: antrea.tanzu.vmware.com.1.2.3--vmware.1-tkg.1
     valuesFrom:
@@ -576,6 +581,90 @@ spec:
   valuesSchema:
     openAPIv3:
       title: foobar1.example.com.1.18.2+vmware.1-tkg.1 values schema
+      properties:
+        namespace:
+          type: string
+          description: The namespace in which to deploy fluent-bit.
+          default: tanzu-system-logging
+  licenses:
+    - 'VMware''s End User License Agreement (Underlying OSS license: Apache License 2.0)'
+  template:
+    spec:
+      fetch:
+        - imgpkgBundle:
+            image: projects-stg.registry.vmware.com/tkg/tkgextensions-dev/fluent-bit:v1.7.5_vmware.1-tkg.1
+      template:
+        - ytt:
+            paths:
+              - config/
+            ignoreUnknownComments: true
+        - kbld:
+            paths:
+              - '-'
+              - .imgpkg/images.yml
+      deploy:
+        - kapp:
+            rawOptions:
+              - --wait-timeout=5m
+              - --kube-api-qps=20
+              - --kube-api-burst=30
+---
+apiVersion: data.packaging.carvel.dev/v1alpha1
+kind: Package
+metadata:
+  name: foobar2.example.com.1.18.2
+  namespace: cluster-namespace
+spec:
+  refName: foobar2.example.com
+  version: 1.18.2
+  releasedAt: "2021-05-13T18:00:00Z"
+  releaseNotes: foobar2 1.18.2
+  capacityRequirementsDescription: Varies significantly based on cluster size. This should be tuned based on observed usage.
+  valuesSchema:
+    openAPIv3:
+      title: foobar2.example.com.1.18.2+vmware.1-tkg.1 values schema
+      properties:
+        namespace:
+          type: string
+          description: The namespace in which to deploy fluent-bit.
+          default: tanzu-system-logging
+  licenses:
+    - 'VMware''s End User License Agreement (Underlying OSS license: Apache License 2.0)'
+  template:
+    spec:
+      fetch:
+        - imgpkgBundle:
+            image: projects-stg.registry.vmware.com/tkg/tkgextensions-dev/fluent-bit:v1.7.5_vmware.1-tkg.1
+      template:
+        - ytt:
+            paths:
+              - config/
+            ignoreUnknownComments: true
+        - kbld:
+            paths:
+              - '-'
+              - .imgpkg/images.yml
+      deploy:
+        - kapp:
+            rawOptions:
+              - --wait-timeout=5m
+              - --kube-api-qps=20
+              - --kube-api-burst=30
+---
+apiVersion: data.packaging.carvel.dev/v1alpha1
+kind: Package
+metadata:
+  name: foobar2.example.com.1.18.2
+  namespace: tkg-system
+spec:
+  refName: foobar2.example.com
+  version: 1.18.2
+  releasedAt: "2021-05-13T18:00:00Z"
+  releaseNotes: foobar2 1.18.2
+  capacityRequirementsDescription: Varies significantly based on cluster size. This should be tuned based on observed usage.
+  valuesSchema:
+    openAPIv3:
+      title: foobar2.example.com.1.18.2+vmware.1-tkg.1 values schema
       properties:
         namespace:
           type: string

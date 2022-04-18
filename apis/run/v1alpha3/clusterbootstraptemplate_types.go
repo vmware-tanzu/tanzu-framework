@@ -4,6 +4,8 @@
 package v1alpha3
 
 import (
+	"encoding/json"
+
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
@@ -49,9 +51,14 @@ type ClusterBootstrapPackage struct {
 	ValuesFrom *ValuesFrom `json:"valuesFrom,omitempty"`
 }
 
+// ValuesFrom specifies how values for package install are retrieved from
+// +kubebuilder:object:generate=false
 type ValuesFrom struct {
 	// +optional
-	Inline string `json:"inline,omitempty"`
+	// +kubebuilder:validation:Schemaless
+	// +kubebuilder:validation:Type=object
+	// +kubebuilder:pruning:PreserveUnknownFields
+	Inline map[string]interface{} `json:"inline,omitempty"`
 	// +optional
 	SecretRef string `json:"secretRef,omitempty"`
 	// +optional
@@ -68,10 +75,37 @@ func (in *ValuesFrom) CountFields() int {
 		}
 		return 0
 	}
-	return counterFunc(in.Inline != "") + counterFunc(in.SecretRef != "") + counterFunc(in.ProviderRef != nil)
+	return counterFunc(in.Inline != nil) + counterFunc(in.SecretRef != "") + counterFunc(in.ProviderRef != nil)
 }
 
-//+kubebuilder:object:root=true
+// +kubebuilder:object:root=true
+
+// DeepCopyInto is a deepcopy function, copying the receiver, writing into out. in must be non-nil.
+func (in *ValuesFrom) DeepCopyInto(out *ValuesFrom) {
+	*out = *in
+	if in.Inline != nil {
+		out.Inline = make(map[string]interface{}, len(in.Inline))
+		refBytes, _ := json.Marshal(in.Inline)    // ignoring error: the original data is a JSON object
+		_ = json.Unmarshal(refBytes, &out.Inline) // ignoring error: the original data is a JSON object
+	}
+	if in.ProviderRef != nil {
+		in, out := &in.ProviderRef, &out.ProviderRef
+		*out = new(corev1.TypedLocalObjectReference)
+		(*in).DeepCopyInto(*out)
+	}
+}
+
+// DeepCopy is a deepcopy function, copying the receiver, creating a new MachineImageInfo.
+func (in *ValuesFrom) DeepCopy() *ValuesFrom {
+	if in == nil {
+		return nil
+	}
+	out := new(ValuesFrom)
+	in.DeepCopyInto(out)
+	return out
+}
+
+// +kubebuilder:object:root=true
 
 // ClusterBootstrapTemplateList contains a list of ClusterBootstrapTemplate
 type ClusterBootstrapTemplateList struct {
