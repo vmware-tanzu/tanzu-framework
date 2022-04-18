@@ -1,0 +1,101 @@
+// Copyright 2022 VMware, Inc. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
+
+// Package pkgcr blah blah.
+// TODO write doc
+package pkgcr
+
+import (
+	"context"
+	"reflect"
+	"strings"
+
+	"github.com/go-logr/logr"
+	kapppkgiv1 "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/packaging/v1alpha1"
+	kapppkgv1 "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apiserver/apis/datapackaging/v1alpha1"
+	"github.com/vmware-tanzu/carvel-vendir/pkg/vendir/versions/v1alpha1"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/labels"
+	"k8s.io/utils/pointer"
+	ctrl "sigs.k8s.io/controller-runtime"
+	"sigs.k8s.io/controller-runtime/pkg/builder"
+	"sigs.k8s.io/controller-runtime/pkg/client"
+	"sigs.k8s.io/controller-runtime/pkg/predicate"
+	"sigs.k8s.io/kind/pkg/errors"
+)
+
+type Reconciler struct {
+	Log    logr.Logger
+	Client client.Client
+
+	Config Config
+}
+
+type Config struct {
+	ServiceAccountName string
+}
+
+const (
+	LabelTKRPackage = "run.tanzu.vmware.com/tkr-package"
+)
+
+var hasTKRPackageLabel = func() predicate.Predicate {
+	selector, _ := labels.Parse(LabelTKRPackage)
+	return predicate.NewPredicateFuncs(func(o client.Object) bool {
+		return selector.Matches(labels.Set(o.GetLabels()))
+	})
+}()
+
+func (r *Reconciler) SetupWithManager(mgr ctrl.Manager) error {
+	return ctrl.NewControllerManagedBy(mgr).
+		For(&kapppkgv1.Package{}, builder.WithPredicates(hasTKRPackageLabel)).
+		Owns(&kapppkgiv1.PackageInstall{}).
+		Complete(r)
+}
+
+func (r *Reconciler) Reconcile(ctx context.Context, req ctrl.Request) (result ctrl.Result, retErr error) {
+	pkg := &kapppkgv1.Package{}
+
+	if err := r.Client.Get(ctx, req.NamespacedName, pkg); err != nil {
+		if apierrors.IsNotFound(err) {
+			return ctrl.Result{}, nil
+		}
+		return ctrl.Result{}, err
+	}
+
+	pkgi := r.packageInstall(pkg)
+
+	if err := r.Client.Create(ctx, pkgi); err != nil && !apierrors.IsAlreadyExists(err) {
+		return ctrl.Result{}, errors.Wrap(err, "failed to create PackageInstall")
+	}
+
+	return ctrl.Result{}, nil
+}
+
+var pkgAPIVersion, pkgKind = kapppkgv1.SchemeGroupVersion.WithKind(reflect.TypeOf(kapppkgv1.Package{}).Name()).ToAPIVersionAndKind()
+
+func (r *Reconciler) packageInstall(pkg *kapppkgv1.Package) *kapppkgiv1.PackageInstall {
+	return &kapppkgiv1.PackageInstall{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      "tkr-" + strings.ReplaceAll(pkg.Spec.Version, "+", "---"),
+			Namespace: pkg.Namespace,
+			OwnerReferences: []metav1.OwnerReference{{
+				APIVersion: pkgAPIVersion,
+				Kind:       pkgKind,
+				Name:       pkg.Name,
+				UID:        pkg.UID,
+				Controller: pointer.BoolPtr(true),
+			}},
+		},
+		Spec: kapppkgiv1.PackageInstallSpec{
+			ServiceAccountName: r.Config.ServiceAccountName,
+			PackageRef: &kapppkgiv1.PackageRef{
+				RefName: pkg.Spec.RefName,
+				VersionSelection: &v1alpha1.VersionSelectionSemver{
+					Constraints: pkg.Spec.Version,
+				},
+			},
+		},
+	}
+}
