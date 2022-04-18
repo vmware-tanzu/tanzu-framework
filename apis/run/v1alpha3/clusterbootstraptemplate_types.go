@@ -75,10 +75,11 @@ func (in *ValuesFrom) CountFields() int {
 		}
 		return 0
 	}
-	return counterFunc(in.Inline != "") + counterFunc(in.SecretRef != "") + counterFunc(in.ProviderRef != nil)
+	return counterFunc(in.Inline != nil) + counterFunc(in.SecretRef != "") + counterFunc(in.ProviderRef != nil)
 }
 
-//+kubebuilder:object:root=true
+// +kubebuilder:object:root=true
+
 // DeepCopyInto is a deepcopy function, copying the receiver, writing into out. in must be non-nil.
 func (in *ValuesFrom) DeepCopyInto(out *ValuesFrom) {
 	*out = *in

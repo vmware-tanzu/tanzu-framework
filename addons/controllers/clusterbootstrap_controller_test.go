@@ -54,7 +54,7 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 		clusterbootstrapWebhookManifestFile = "testdata/webhooks/clusterbootstrap-webhook-manifests.yaml"
 		clusterbootstrapWebhookServiceName  = "clusterbootstrap-webhook-service"
 		clusterbootstrapWebhookScrtName     = "clusterbootstrap-webhook-tls"
-		foobar2CarvelPackageRefName = "foobar2.example.com"
+		foobar2CarvelPackageRefName         = "foobar2.example.com"
 	)
 
 	JustBeforeEach(func() {
@@ -587,7 +587,7 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 					// ProviderRef can't be changed to secretRef or inline
 					mutateClusterBootstrap = clusterBootstrap.DeepCopy()
 					mutateClusterBootstrap.Spec.Kapp.ValuesFrom.ProviderRef = nil
-					mutateClusterBootstrap.Spec.Kapp.ValuesFrom.Inline = "placeholder"
+					mutateClusterBootstrap.Spec.Kapp.ValuesFrom.Inline = map[string]interface{}{}
 					err = k8sClient.Update(ctx, mutateClusterBootstrap)
 					Expect(strings.Contains(err.Error(), "change from providerRef to other types of data value representation is not allowed")).To(BeTrue())
 
