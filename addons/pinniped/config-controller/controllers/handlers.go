@@ -39,21 +39,15 @@ func withNamespacedName(namespacedName types.NamespacedName) builder.Predicates 
 
 // withLabel determines if the input object contains the given label
 func withLabel(label string) builder.Predicates {
-	hasLabel := func(o client.Object) bool {
-		_, labelExists := o.GetLabels()[label]
-
-		return labelExists
-	}
-
 	return builder.WithPredicates(
 		predicate.Funcs{
-			CreateFunc: func(e event.CreateEvent) bool { return hasLabel(e.Object) },
+			CreateFunc: func(e event.CreateEvent) bool { return hasLabel(e.Object, label) },
 			UpdateFunc: func(e event.UpdateEvent) bool {
 				// TODO: do we want to process if either old or new cluster has/had tkrLabel??
-				return hasLabel(e.ObjectOld) || hasLabel(e.ObjectNew)
+				return hasLabel(e.ObjectOld, label) || hasLabel(e.ObjectNew, label)
 			},
-			DeleteFunc:  func(e event.DeleteEvent) bool { return hasLabel(e.Object) },
-			GenericFunc: func(e event.GenericEvent) bool { return hasLabel(e.Object) },
+			DeleteFunc:  func(e event.DeleteEvent) bool { return hasLabel(e.Object, label) },
+			GenericFunc: func(e event.GenericEvent) bool { return hasLabel(e.Object, label) },
 		},
 	)
 }
@@ -71,7 +65,7 @@ func (c *PinnipedV3Controller) withPackageName(packageName string) builder.Predi
 			return false
 		}
 		// TODO: do we care if secret is paused?
-		if isClusterBootstrapType(secret) && containsPackageName(secret, packageName) {
+		if secretIsType(secret, clusterBootstrapManagedSecret) && containsPackageName(secret, packageName) {
 			log.V(1).Info("adding secret for reconciliation")
 			return true
 		}
@@ -99,4 +93,42 @@ func (c *PinnipedV3Controller) withPackageName(packageName string) builder.Predi
 			GenericFunc: func(e event.GenericEvent) bool { return containsPackageName(e.Object, packageName) },
 		},
 	)
+}
+
+func (c *PinnipedV1Controller) addonSecretToCluster(o client.Object) []ctrl.Request {
+	clusterName, labelExists := o.GetLabels()[tkgClusterNameLabel]
+
+	if !labelExists || clusterName == "" {
+		c.Log.Error(nil, "cluster name label not found on resource",
+			secretNamespaceLogKey, o.GetNamespace(), secretNameLogKey, o.GetName())
+		return nil
+	}
+
+	return []ctrl.Request{{
+		NamespacedName: client.ObjectKey{Namespace: o.GetNamespace(), Name: clusterName},
+	}}
+}
+
+func (c *PinnipedV1Controller) withAddonLabel(addonLabel string) predicate.Funcs {
+	// Predicate func will get called for all events (create, update, delete, generic)
+	return predicate.NewPredicateFuncs(func(o client.Object) bool {
+		var secret *corev1.Secret
+		log := c.Log.WithValues(secretNamespaceLogKey, o.GetNamespace(), secretNameLogKey, o.GetName())
+		switch obj := o.(type) {
+		case *corev1.Secret:
+			secret = obj
+		default:
+			log.V(1).Info("expected secret, got", "type", fmt.Sprintf("%T", o))
+			return false
+		}
+
+		// TODO: do we care if secret is paused?
+		if secretIsType(secret, tkgAddonType) && matchesLabelValue(secret, tkgAddonLabel, addonLabel) {
+			log.V(1).Info("adding cluster for reconciliation")
+			return true
+		}
+
+		log.V(1).Info("secret is not an addon Type or does not have the given label", "label", addonLabel)
+		return false
+	})
 }

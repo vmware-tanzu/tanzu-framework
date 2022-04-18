@@ -6,6 +6,8 @@ package controllers
 import (
 	"fmt"
 
+	"gopkg.in/yaml.v3"
+
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	. "github.com/onsi/ginkgo"
@@ -160,6 +162,181 @@ var _ = Describe("Controller", func() {
 				It("deletes the secret", func() {
 					Eventually(verifyNoSecretFunc(ctx, cluster, true)).Should(Succeed())
 				})
+			})
+		})
+	})
+
+	Context("Addon Secret", func() {
+		BeforeEach(func() {
+			createObject(ctx, configMap)
+			createObject(ctx, cluster)
+		})
+
+		AfterEach(func() {
+			deleteObject(ctx, configMap)
+			deleteObject(ctx, cluster)
+		})
+
+		When("the secret is deleted", func() {
+			It("recreates the secret with values from the configmap", func() {
+				Eventually(func(g Gomega) {
+					Eventually(verifySecretFunc(ctx, cluster, configMap, true)).Should(Succeed())
+				}).Should(Succeed())
+			})
+		})
+
+		When("essential secret data values are changed", func() {
+			var secretCopy *corev1.Secret
+			BeforeEach(func() {
+				secretCopy = secret.DeepCopy()
+				Eventually(func(g Gomega) {
+					err := k8sClient.Get(ctx, client.ObjectKeyFromObject(secretCopy), secretCopy)
+					g.Expect(err).NotTo(HaveOccurred())
+				}).Should(Succeed())
+				updatedSecretDataValues := &pinnipedDataValues{}
+				updatedSecretDataValues.Pinniped.SupervisorEndpoint = "marshmallow.fluff"
+				updatedSecretDataValues.Pinniped.SupervisorCABundle = "hairball"
+				updatedSecretDataValues.Pinniped.Concierge.Audience = "animal-kingdom"
+				updatedSecretDataValues.Infrastructure = "cat-tree"
+				updatedSecretDataValues.ClusterRole = "lounge"
+				updatedSecretDataValues.IdentityManagementType = "meow"
+				dataValueYamlBytes, _ := yaml.Marshal(updatedSecretDataValues)
+				secretCopy.Data[tkgDataValueFieldName] = dataValueYamlBytes
+				updateObject(ctx, secretCopy)
+			})
+
+			AfterEach(func() {
+				deleteObject(ctx, secretCopy)
+			})
+
+			It("resets the secret with the proper data values", func() {
+				Eventually(verifySecretFunc(ctx, cluster, configMap, true)).Should(Succeed())
+			})
+		})
+
+		When("random values are added to the secret", func() {
+			var expectedSecret *corev1.Secret
+			BeforeEach(func() {
+				expectedSecret = secret.DeepCopy()
+				Eventually(func(g Gomega) {
+					err := k8sClient.Get(ctx, client.ObjectKeyFromObject(expectedSecret), expectedSecret)
+					g.Expect(err).NotTo(HaveOccurred())
+					g.Expect(expectedSecret.Data).NotTo(BeNil())
+				}).Should(Succeed())
+				dataValues := expectedSecret.Data[tkgDataValueFieldName]
+				dataValues = append(dataValues, "sweetest_cat: lionel"...)
+				expectedSecret.Data[tkgDataValueFieldName] = dataValues
+				updateObject(ctx, expectedSecret)
+			})
+
+			It("they are preserved", func() {
+				Eventually(func(g Gomega) {
+					actualSecret := expectedSecret.DeepCopy()
+					err := k8sClient.Get(ctx, client.ObjectKeyFromObject(actualSecret), actualSecret)
+					g.Expect(err).NotTo(HaveOccurred())
+					g.Expect(actualSecret.Data).Should(Equal(expectedSecret.Data))
+				}).Should(Succeed())
+			})
+		})
+
+		When("the secret contains overlays", func() {
+			var expectedSecret *corev1.Secret
+			BeforeEach(func() {
+				expectedSecret = secret.DeepCopy()
+				Eventually(func(g Gomega) {
+					err := k8sClient.Get(ctx, client.ObjectKeyFromObject(expectedSecret), expectedSecret)
+					g.Expect(err).NotTo(HaveOccurred())
+					g.Expect(expectedSecret.Data).NotTo(BeNil())
+				}).Should(Succeed())
+				expectedSecret.Data[tkgDataOverlayFieldName] = []byte(`#@ load("@ytt:overlay", "overlay")
+   #@overlay/match by=overlay.subset({"kind": "Service", "metadata": {"name": "pinniped-supervisor", "namespace": "pinniped-supervisor"}})
+   ---
+   #@overlay/replace
+   spec:
+     type: LoadBalancer
+     selector:
+       app: pinniped-supervisor
+     ports:
+       - name: https
+         protocol: TCP
+         port: 443
+         targetPort: 8443`)
+				updateObject(ctx, expectedSecret)
+			})
+
+			It("they are preserved", func() {
+				Eventually(func(g Gomega) {
+					actualSecret := secret.DeepCopy()
+					err := k8sClient.Get(ctx, client.ObjectKeyFromObject(actualSecret), actualSecret)
+					g.Expect(err).NotTo(HaveOccurred())
+					g.Expect(actualSecret.Data[tkgDataOverlayFieldName]).Should(Equal(expectedSecret.Data[tkgDataOverlayFieldName]))
+					Eventually(verifySecretFunc(ctx, cluster, configMap, true)).Should(Succeed())
+				}).Should(Succeed())
+			})
+		})
+
+		When("the secret does not have the Pinniped addon label", func() {
+			var expectedSecret *corev1.Secret
+
+			BeforeEach(func() {
+				expectedSecret = secret.DeepCopy()
+				expectedSecret.Name = "another-secret"
+				expectedSecret.Type = "tkg.tanzu.vmware.com/addon"
+				expectedSecret.Labels = map[string]string{
+					tkgAddonLabel:       "pumpkin",
+					tkgClusterNameLabel: cluster.Name,
+				}
+				expectedSecret.Data = map[string][]byte{
+					"values.yaml": []byte("identity_management_type: moses"),
+				}
+				createObject(ctx, expectedSecret)
+			})
+
+			AfterEach(func() {
+				deleteObject(ctx, expectedSecret)
+			})
+
+			It("does not get updated", func() {
+				Eventually(func(g Gomega) {
+					actualSecret := expectedSecret.DeepCopy()
+					err := k8sClient.Get(ctx, client.ObjectKeyFromObject(actualSecret), actualSecret)
+					g.Expect(err).NotTo(HaveOccurred())
+					g.Expect(actualSecret.Labels).To(Equal(expectedSecret.Labels))
+					g.Expect(actualSecret.Data).To(Equal(expectedSecret.Data))
+				}).Should(Succeed())
+			})
+		})
+
+		When("the secret is not an addon type", func() {
+			var expectedSecret *corev1.Secret
+
+			BeforeEach(func() {
+				expectedSecret = secret.DeepCopy()
+				expectedSecret.Type = "not-an-addon"
+				expectedSecret.Labels = map[string]string{
+					tkgAddonLabel:       pinnipedAddonLabel,
+					tkgClusterNameLabel: cluster.Name,
+				}
+				expectedSecret.Name = "newest-secret"
+				expectedSecret.Data = map[string][]byte{
+					"values.yaml": []byte("identity_management_type: moses"),
+				}
+				createObject(ctx, expectedSecret)
+			})
+
+			AfterEach(func() {
+				deleteObject(ctx, expectedSecret)
+			})
+
+			It("does not get updated", func() {
+				Eventually(func(g Gomega) {
+					actualSecret := expectedSecret.DeepCopy()
+					err := k8sClient.Get(ctx, client.ObjectKeyFromObject(actualSecret), actualSecret)
+					g.Expect(err).NotTo(HaveOccurred())
+					g.Expect(actualSecret.Labels).To(Equal(expectedSecret.Labels))
+					g.Expect(actualSecret.Type).To(Equal(expectedSecret.Type))
+					g.Expect(actualSecret.Data).To(Equal(expectedSecret.Data))
+				}).Should(Succeed())
 			})
 		})
 	})

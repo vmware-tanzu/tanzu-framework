@@ -21,15 +21,30 @@ import (
 	tkgconstants "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
 )
 
-// isClusterBootstrapType returns true if the secret is type `tkg.tanzu.vmware.com/addon`
-func isClusterBootstrapType(secret *corev1.Secret) bool {
-	return secret.Type == clusterBootstrapManagedSecret
+// secretIsType returns true if the secret type matches the given expectedType
+func secretIsType(secret *corev1.Secret, expectedType corev1.SecretType) bool {
+	return secret.Type == expectedType
 }
 
 // containsPackageName returns true if the `tkg.tanzu.vmware.com/package-name` label contains the package name we pass in
 func containsPackageName(secret *corev1.Secret, expectedName string) bool {
 	name, labelExists := secret.Labels[packageNameLabel]
 	return labelExists && strings.Contains(name, expectedName)
+}
+
+// hasLabel returns true if the given object has the provided label
+func hasLabel(o client.Object, label string) bool {
+	_, labelExists := o.GetLabels()[label]
+
+	return labelExists
+}
+
+// matchesLabelValue returns true if the value for the given labelKey matches the labelValue we provide
+func matchesLabelValue(secret *corev1.Secret, labelKey, labelValue string) bool {
+	if !hasLabel(secret, labelKey) {
+		return false
+	}
+	return secret.Labels[labelKey] == labelValue
 }
 
 // getClusterNameFromSecret gets the cluster name from data in a secret and returns the cluster name
@@ -100,7 +115,7 @@ func listSecretsContainingPackageName(ctx context.Context, c client.Client, pack
 	// Unfortunately I could not find a LabelSelector that would do value "contains" for us, manually doing this for now
 	for i := range packageSecrets.Items {
 		secret := &packageSecrets.Items[i]
-		if isClusterBootstrapType(secret) && containsPackageName(secret, packageName) {
+		if secretIsType(secret, clusterBootstrapManagedSecret) && containsPackageName(secret, packageName) {
 			secrets.Items = append(secrets.Items, *secret)
 		}
 	}
