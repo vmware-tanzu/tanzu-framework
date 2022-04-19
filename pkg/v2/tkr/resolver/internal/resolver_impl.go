@@ -271,7 +271,7 @@ func normalizeOSImageQuery(osImageQuery *data.OSImageQuery) *data.OSImageQuery {
 	return &data.OSImageQuery{
 		K8sVersionPrefix: osImageQuery.K8sVersionPrefix,
 		TKRSelector:      addLabelExistsReq(tkrSelector, version.Label(osImageQuery.K8sVersionPrefix)),
-		OSImageSelector:  addLabelExistsReq(osImageSelector, version.Label(osImageQuery.K8sVersionPrefix)),
+		OSImageSelector:  osImageSelector,
 	}
 }
 

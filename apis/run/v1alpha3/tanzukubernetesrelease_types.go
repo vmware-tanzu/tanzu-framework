@@ -13,6 +13,8 @@ const (
 	ConditionCompatible = "Compatible"
 	ConditionValid      = "Valid"
 
+	ConditionUpdatesAvailable = "UpdatesAvailable"
+
 	LabelIncompatible = "incompatible"
 	LabelDeactivated  = "deactivated"
 	LabelInvalid      = "invalid"
