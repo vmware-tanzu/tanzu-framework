@@ -85,6 +85,13 @@ const (
 	InfrastructureProviderDocker  = "docker"
 )
 
+var InfrastructureProviders = map[string]bool{
+	InfrastructureProviderVSphere: true,
+	InfrastructureProviderAWS:     true,
+	InfrastructureProviderAzure:   true,
+	InfrastructureProviderDocker:  true,
+}
+
 // machine template name constants
 const (
 	VSphereMachineTemplate = "VSphereMachineTemplate"
