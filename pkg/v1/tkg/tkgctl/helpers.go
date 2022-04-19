@@ -7,6 +7,10 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"reflect"
+	"regexp"
+	"strconv"
+	"strings"
 
 	"github.com/pkg/errors"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
@@ -24,6 +28,7 @@ var okResponsesMap = map[string]struct{}{
 	"y": {},
 	"Y": {},
 }
+var regExMachineDep = regexp.MustCompile(constants.RegexpMachineDeploymentsOverrides)
 
 func askForConfirmation(message string) error {
 	var response string
@@ -184,39 +189,164 @@ func (t *tkgctl) checkIfInputFileIsClusterClassBased(clusterConfigFile string) (
 	return isInputFileClusterClassBased, clusterobj, nil
 }
 
-// processCClusterObjectForConfigurationVariables takes ccluster object, process it to capture all configuration variables and add them in environment.
-func (t *tkgctl) processCClusterObjectForConfigurationVariables(cclusterObj unstructured.Unstructured) {
-	variablesMap := make(map[string]string)
-	variablesMap[constants.ConfigVariableClusterName] = cclusterObj.GetName()
-	variablesMap[constants.ConfigVariableNamespace] = cclusterObj.GetNamespace()
-	spec := cclusterObj.Object["spec"].(map[string]interface{})
-	if spec != nil {
-		topology := spec["topology"].(map[string]interface{})
-		if topology != nil {
-			variables := topology["variables"].([]interface{})
-			if variables != nil {
-				for j := range variables {
-					var name string
-					var value string
-					for k := range variables[j].(map[string]interface{}) {
-						if k == "name" {
-							name = variables[j].(map[string]interface{})[k].(string)
-						} else {
-							value = fmt.Sprintf("%v", variables[j].(map[string]interface{})[k])
-						}
-					}
-					if len(value) > 0 {
-						variablesMap[name] = value
-					}
-				}
-				t.TKGConfigReaderWriter().SetMap(variablesMap)
-			}
+// processClusterObjectForConfigurationVariables takes cluster object, process it to capture all configuration variables and add them in environment.
+func (t *tkgctl) processClusterObjectForConfigurationVariables(clusterObj unstructured.Unstructured) error {
+	inputVariablesMap := make(map[string]interface{})
+	inputVariablesMap["metadata.name"] = clusterObj.GetName()
+	inputVariablesMap["metadata.namespace"] = clusterObj.GetNamespace()
+	spec := clusterObj.Object[constants.SPEC].(map[string]interface{})
+	err := processYamlObjectAndAddToMap(spec, constants.SPEC, inputVariablesMap)
+	if err != nil {
+		return err
+	}
+	providerName, err := getProviderNameFromTopologyClassName(inputVariablesMap[constants.TopologyClass])
+	if err != nil {
+		return err
+	}
+	legacyVarMap := make(map[string]string)
+	clusterAttributePathToLegacyVarNameMap := constants.InfrastructureSpecificVariableMappingMap[providerName]
+
+	// assign cluster class input values to legacy variables
+	for inputVariable := range inputVariablesMap {
+		if legacyNameForClusterObjectInputVariable, ok := clusterAttributePathToLegacyVarNameMap[inputVariable]; ok {
+			legacyVarMap[legacyNameForClusterObjectInputVariable] = fmt.Sprintf("%v", inputVariablesMap[inputVariable])
 		}
 	}
+
+	// Some properties (NODE_MACHINE_TYPE_1, NODE_MACHINE_TYPE_2, etc)
+	// can have two values from Cluster object attributes, key and value of constants.ClusterAttributesHigherPrecedenceToLowerMap are two attribute paths points to same legacy variable.
+	// eg: key - "spec.topology.workers.machineDeployments.1.variables.overrides.NODE_MACHINE_TYPE", value - "spec.topology.variables.nodes.1.machineType"
+	// these two key/value attribute paths mapped to NODE_MACHINE_TYPE_1 legacy variable, if these two attribute paths has values in Cluster Object
+	// then need to consider higher precedence attribute path value which is key of constants.ClusterAttributesHigherPrecedenceToLowerMap.
+	for higherPrecedenceKey := range constants.ClusterAttributesHigherPrecedenceToLowerMap {
+		legacyName, ok1 := clusterAttributePathToLegacyVarNameMap[higherPrecedenceKey]
+		value, ok2 := inputVariablesMap[higherPrecedenceKey]
+		if ok1 && ok2 {
+			legacyVarMap[legacyName] = fmt.Sprintf("%v", value)
+		}
+	}
+
+	// update legacyVarMap in environment
+	t.TKGConfigReaderWriter().SetMap(legacyVarMap)
+	return nil
 }
 
-// overrideClusterOptionsWithCClusterConfigurationValues overrides CreateClusterOptions attributes with latest values from the environment.
-func (t *tkgctl) overrideClusterOptionsWithCClusterConfigurationValues(cc *CreateClusterOptions) {
+// processYamlObjectAndAddToMap process specific value of the Cluster yaml object
+// value is the value for the given attribute path clusterAttributePath in Cluster object
+// if input value is final child value then value is added to variablesMap with clusterAttributePath as key,
+// if the input value is not final child value, then its process again for next level child.
+func processYamlObjectAndAddToMap(value interface{}, clusterAttributePath string, inputVariablesMap map[string]interface{}) error {
+	var err error
+	switch value := value.(type) {
+	case []interface{}:
+		err = processYamlObjectArrayInterfaceType(value, clusterAttributePath, inputVariablesMap)
+	case []map[string]interface{}:
+		for index := range value {
+			err = processYamlObjectAndAddToMap(value[index], clusterAttributePath, inputVariablesMap)
+			if err != nil {
+				return err
+			}
+		}
+	case map[string]interface{}:
+		for key := range value {
+			nextLevelName := key
+			nextLevelVal := value[nextLevelName]
+			// noProxy has value of type array, no need process array values, just assign array value.
+			if clusterAttributePath+"."+nextLevelName == "spec.topology.variables.network.proxy.noProxy" {
+				inputVariablesMap[clusterAttributePath+"."+nextLevelName] = nextLevelVal
+			} else {
+				err = processYamlObjectAndAddToMap(nextLevelVal, clusterAttributePath+"."+nextLevelName, inputVariablesMap)
+				if err != nil {
+					return err
+				}
+			}
+		}
+	case interface{}:
+		if _, ok := inputVariablesMap[clusterAttributePath]; ok {
+			log.Warningf("duplicate variable in input cluster class config file, variable path: %v", clusterAttributePath)
+		} else if fmt.Sprintf("%v", value) != "" {
+			inputVariablesMap[clusterAttributePath] = value
+		}
+	default:
+		if value != nil {
+			errInfo := fmt.Errorf("unsupported input value type:%v in input cluster class file attribute at:%v", reflect.TypeOf(value), clusterAttributePath)
+			return errInfo
+		}
+	}
+	return err
+}
+
+func processYamlObjectArrayInterfaceType(value []interface{}, clusterAttributePath string, inputVariablesMap map[string]interface{}) error {
+	var err error
+	for index := range value {
+		if clusterAttributePath == constants.TopologyVariablesNetworkSubnets || clusterAttributePath == constants.TopologyVariablesNodes || clusterAttributePath == constants.TopologyWorkersMachineDeployments {
+			err = processYamlObjectAndAddToMap(value[index], clusterAttributePath+"."+strconv.Itoa(index), inputVariablesMap)
+		} else if regExMachineDep.MatchString(clusterAttributePath) || clusterAttributePath == constants.TopologyVariables {
+			// attribute path is spec.topology.workers.machineDeployments.[0-9].variables.overrides OR spec.topology.variables
+			// which has key(as name)/value (as value), process them as next level
+			variables := value
+			for varIndex := range variables {
+				nameValueMap := variables[varIndex].(map[string]interface{})
+				varName := nameValueMap["name"]
+				varValue := nameValueMap["value"]
+				nextLevelName := clusterAttributePath + "." + varName.(string)
+				// spec.topology.variables.proxy has any value then enable TKG_HTTP_PROXY_ENABLED, spec.topology.variables.proxy mapped to TKG_HTTP_PROXY_ENABLED
+				if varName == "proxy" {
+					inputVariablesMap[nextLevelName] = true
+				} else if varName == "trust" {
+					trustValArr := varValue.([]interface{})
+					for trustIndex := range trustValArr {
+						trustName := trustValArr[trustIndex].(map[string]interface{})["name"].(string)
+						trustData := trustValArr[trustIndex].(map[string]interface{})["data"]
+						err = processYamlObjectAndAddToMap(trustData, nextLevelName+"."+trustName, inputVariablesMap)
+						if err != nil {
+							return err
+						}
+					}
+					continue // we are done processing "trust" variable, so process next variable
+				} else if varName == "TKR_DATA" { // no need to process TKR_DATA, because there is no mapping
+					continue
+				}
+				err = processYamlObjectAndAddToMap(varValue, nextLevelName, inputVariablesMap)
+				if err != nil {
+					return err
+				}
+			}
+			break // all variables are processed in above loop so break it.
+		} else {
+			// process specific index value, this index value could be of any type
+			err = processYamlObjectAndAddToMap(value[index], clusterAttributePath, inputVariablesMap)
+		}
+		if err != nil {
+			return err
+		}
+	}
+	return err
+}
+
+// getProviderNameFromTopologyClassName takes input cluster class spec.topology.class value and validates, returns provides name.
+// The Cluster spec.topology.class attribute value should be valid kubernetes object name : it should be string,
+// should be splittable with "-", after split, it should have at least 3 parts, second part should be infra provider name - [aws, azure, vsphere, docker]
+// eg: tkg-aws-default : infra provider is aws.
+// tkg-unknow-cluster1 : this is not valid name,  "unknow" is not valid infra provider name.
+
+func getProviderNameFromTopologyClassName(topologyClassValue interface{}) (string, error) {
+	var provider string
+
+	if topologyClassValue == nil || reflect.ValueOf(topologyClassValue).Kind().String() != reflect.String.String() ||
+		topologyClassValue.(string) == "" || len(strings.Split(topologyClassValue.(string), "-")) < 3 {
+		return provider, errors.New(constants.TopologyClassIncorrectValueErrMsg)
+	}
+	topologyClassSplit := strings.Split(topologyClassValue.(string), "-")
+	if _, ok := constants.InfrastructureProviders[topologyClassSplit[1]]; !ok {
+		return provider, errors.New(constants.TopologyClassIncorrectValueErrMsg)
+	}
+	return topologyClassSplit[1], nil
+}
+
+// overrideClusterOptionsWithLatestEnvironmentConfigurationValues overrides CreateClusterOptions attributes with latest values
+// from the environment, which could be updated from input config or input cluster class file.
+func (t *tkgctl) overrideClusterOptionsWithLatestEnvironmentConfigurationValues(cc *CreateClusterOptions) {
 	cc.ClusterName, _ = t.TKGConfigReaderWriter().Get(constants.ConfigVariableClusterName)
 	cc.Plan, _ = t.TKGConfigReaderWriter().Get(constants.ConfigVariableClusterPlan)
 	cc.Namespace, _ = t.TKGConfigReaderWriter().Get(constants.ConfigVariableNamespace)
@@ -231,8 +361,9 @@ func (t *tkgctl) overrideClusterOptionsWithCClusterConfigurationValues(cc *Creat
 	cc.VsphereControlPlaneEndpoint, _ = t.TKGConfigReaderWriter().Get(constants.ConfigVariableVsphereControlPlaneEndpoint)
 }
 
-// overrideManagementClusterOptionsWithCClusterConfigurationValues overrides InitRegion attributes with latest values from the environment.
-func (t *tkgctl) overrideManagementClusterOptionsWithCClusterConfigurationValues(ir *InitRegionOptions) {
+// overrideManagementClusterOptionsWithLatestEnvironmentConfigurationValues overrides InitRegion attributes with latest values
+// from the environment, which could be updated from input config or cluster class file.
+func (t *tkgctl) overrideManagementClusterOptionsWithLatestEnvironmentConfigurationValues(ir *InitRegionOptions) {
 	ir.ClusterName, _ = t.TKGConfigReaderWriter().Get(constants.ConfigVariableClusterName)
 	ir.Namespace, _ = t.TKGConfigReaderWriter().Get(constants.ConfigVariableNamespace)
 	ir.Plan, _ = t.TKGConfigReaderWriter().Get(constants.ConfigVariableClusterPlan)
