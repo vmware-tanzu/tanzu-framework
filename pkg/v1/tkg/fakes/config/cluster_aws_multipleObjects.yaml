@@ -1,0 +1,188 @@
+apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+kind: AWSMachineTemplate
+metadata:
+  name: tkg-aws-controlplane-template
+  namespace: aws-workload-cluster1
+spec:
+  template:
+    spec:
+      ami:
+        id:
+      iamInstanceProfile: control-plane.tkg.cloud.vmware.com
+      instanceType:
+      rootVolume:
+        size: 80
+      sshKeyName:
+---
+apiVersion: cluster.x-k8s.io/v1beta1
+kind: Cluster
+metadata:
+  annotations:
+    osInfo: ubuntu,20.04,amd64
+    run.tanzu.vmware.com/resolve-tkr: ""
+  labels:
+    tkg.tanzu.vmware.com/cluster-name: aws-workload-cluster1
+  name: aws-workload-cluster1 # // CLUSTER_NAME
+  namespace: default # NAMESPACE
+spec:
+  clusterNetwork:
+    pods:
+      cidrBlocks:
+        - 100.96.0.0/11 # CLUSTER_CIDR
+        - 100.96.0.0/16 # CLUSTER_CIDR
+    services:
+      cidrBlocks:
+        - 100.64.0.0/18 # SERVICE_CIDR
+  topology:
+    class: tkg-aws-default # CLUSTER_CLASS
+    controlPlane:
+      metadata:
+        annotations:
+          run.tanzu.vmware.com/resolve-os-image: ami-region=us-east-1,os-name=ubuntu
+      replicas: 1 # CONTROL_PLANE_MACHINE_COUNT
+    variables:
+      - name: network
+        value:
+          ipv6Primary: false #TKG_IP_FAMILY
+          proxy: #TKG_HTTP_PROXY_ENABLED (under this if any value is not null then set TKG_HTTP_PROXY_ENABLED)
+            httpProxy: http://10.0.200.100 #TKG_HTTP_PROXY
+            httpsProxy: http://10.0.200.100 #TKG_HTTPS_PROXY
+            noProxy: #TKG_NO_PROXY
+              - 127.0.0.1
+              - 100.64.0.0/18
+              - 10.0.0.0/16
+              - 169.254.0.0/16
+              - .svc.cluster.local
+              - .svc
+              - localhost
+          subnets:
+            - az: us-east-1a #AWS_NODE_AZ
+              private:
+                cidr: 10.0.0.0/24 #AWS_PRIVATE_NODE_CIDR
+                id: idValue #AWS_PRIVATE_SUBNET_ID
+              public:
+                cidr: 10.1.1.0/24 #AWS_PUBLIC_NODE_CIDR
+                id: idValue #AWS_PUBLIC_SUBNET_ID
+            - az: us-west-1a # AWS_NODE_AZ_1
+              private:
+                cidr: 10.0.2.0/24 #AWS_PRIVATE_NODE_CIDR_1
+                id: idValue #AWS_PRIVATE_SUBNET_ID_1
+              public:
+                cidr: 10.0.3.0/24 #AWS_PUBLIC_NODE_CIDR_1
+                id: idValue #AWS_PUBLIC_SUBNET_ID_1
+            - az: us-east-1b #AWS_NODE_AZ_2
+              private:
+                cidr: 10.0.4.0/24 #AWS_PRIVATE_NODE_CIDR_2
+                id: idValuePrivate2 #AWS_PRIVATE_SUBNET_ID_2
+              public:
+                cidr: 10.0.5.0/24 #AWS_PUBLIC_NODE_CIDR_2
+                id: idValue #AWS_PUBLIC_SUBNET_ID_2
+          vpc:
+            cidr: 10.0.0.0/16 # AWS_VPC_CIDR
+            existingID: "vpcID" # AWS_VPC_ID
+          securityGroupOverrides:
+            bastion: bationValue # AWS_SECURITY_GROUP_BASTION
+            apiServerLB: apiserverlb # AWS_SECURITY_GROUP_APISERVER_LB
+            lb: lbvalue # AWS_SECURITY_GROUP_LB
+            controlPlane: controlplaneValue # AWS_SECURITY_GROUP_CONTROLPLANE
+            node: securitygroupNode # AWS_SECURITY_GROUP_NODE
+      - name: imageRepository
+        value:
+          host: imageRepositoryHost #TKG_CUSTOM_IMAGE_REPOSITORY
+          tlsCertificateValidation: true #TKG_CUSTOM_IMAGE_REPOSITORY_SKIP_TLS_VERIFY
+      - name: clusterRole #TKG_CLUSTER_ROLE
+        value: workload
+      - name: auditLogging
+        value:
+          enabled: true #ENABLE_AUDIT_LOGGING
+      - name: trust
+        value:
+          - name: proxy
+            data: "trust.proxy.val" #TKG_PROXY_CA_CERT
+          - name: imageRepository
+            data: "trust.imageRepository.val" #TKG_CUSTOM_IMAGE_REPOSITORY_CA_CERTIFICATE
+      - name: apiServerPort
+        value: 9090 #CLUSTER_API_SERVER_PORT
+      - name: bastion
+        value:
+          enabled: true #BASTION_HOST_ENABLED
+      - name: identityRef
+        value:
+          name: identityrefname #AWS_IDENTITY_REF_NAME
+          kind: AWSClusterRoleIdentity #AWS_IDENTITY_REF_KIND
+      - name: worker
+        value:
+          instanceType: m5.large #NODE_MACHINE_TYPE
+          rootVolume:
+            sizeGiB: 80 # AWS_NODE_OS_DISK_SIZE_GIB
+      - name: controlPlane
+        value:
+          instanceType: t3.large #CONTROL_PLANE_MACHINE_TYPE
+          rootVolume:
+            sizeGiB: 80 #AWS_CONTROL_PLANE_OS_DISK_SIZE_GIB
+      - name: TKR_DATA
+        value:
+          v1.23.5+vmware.1:
+            kubernetesSpec:
+              coredns:
+                imageTag: v1.8.6_vmware.5
+              etcd:
+                imageTag: v3.5.2_vmware.4
+              imageRepository: projects.registry.vmware.com/tkg
+              version: v1.23.5+vmware.1
+            labels:
+              os-arch: amd64
+              os-name: ubuntu
+              os-type: linux
+            osImageRef:
+              id: dummy-ami-id
+              region: dummy-region
+    version: v1.23.5+vmware.1 # KUBERNETES_VERSION
+    workers:
+      machineDeployments:
+        - class: tkg-worker
+          failureDomain: us-east-1a
+          metadata:
+            annotations:
+              run.tanzu.vmware.com/resolve-os-image: ami-region=us-east-1,os-name=ubuntu
+          name: md-0
+          replicas: 1 #WORKER_MACHINE_COUNT_0
+        - class: tkg-worker
+          failureDomain: us-east-1b
+          name: md-1
+          replicas: 2 #WORKER_MACHINE_COUNT_1
+          variables:
+            overrides:
+              - name: worker
+                value:
+                  instanceType: worker1 # NODE_MACHINE_TYPE_1
+        - class: tkg-worker
+          failureDomain: us-east-1c
+          name: md-2
+          replicas: 3 #WORKER_MACHINE_COUNT_2
+          variables:
+            overrides:
+              - name: worker
+                value:
+                  instanceType: worker2 # NODE_MACHINE_TYPE_2
+---
+apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+kind: AWSClusterTemplate
+metadata:
+  name: aws-cluster-template
+  namespace: default
+spec:
+  template:
+    spec:
+      bastion:
+        enabled: true
+      network:
+        subnets:
+          - availabilityZone:
+            cidrBlock:
+            id:
+        vpc:
+          cidrBlock:
+          id:
+      region:
+      sshKeyName:
