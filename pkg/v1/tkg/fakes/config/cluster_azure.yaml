@@ -1,0 +1,123 @@
+apiVersion: cluster.x-k8s.io/v1beta1
+kind: Cluster
+metadata:
+  annotations:
+    osInfo: ubuntu,18.04,amd64
+  labels:
+    tanzuKubernetesRelease: v0.0.0---marketplace-image
+    tkg.tanzu.vmware.com/cluster-name: testcluster
+  name: azure-workload-cluster1
+  namespace: namespace-test1
+spec:
+  clusterNetwork:
+    pods:
+      cidrBlocks:
+      - 10.10.10.10/18
+    services:
+      cidrBlocks:
+      - 10.10.10.10/16
+  controlPlaneRef:
+    apiVersion: controlplane.cluster.x-k8s.io/v1beta1
+    kind: KubeadmControlPlane
+    name: testcluster-control-plane
+  infrastructureRef:
+    apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+    kind: AzureCluster
+    name: testcluster
+  topology:
+    class: tkg-azure-default
+    controlPlane:
+      replicas: 5
+    variables:
+    - name: location
+      value: westus
+    - name: clusterPlan
+      value: devcc
+    - name: tkgCustomImage
+      value:
+        repository: "repository"
+        caCert: "caCert"
+        skpTlsVerify: true
+    - name: proxy
+      value:
+        caCert: "ProxyCACert"
+        httpProxy: http://10.0.200.100
+        httpsProxy: http://10.0.200.100
+        noProxy:
+        - .svc.cluster.local
+        - .svc
+    - name: resourceGroup
+      value: ""
+    - name: tkgClusterRole
+      value: "tkgClusterRole"
+    - name: subscriptionID
+      value: 6c2a2ce1-649f-9d9k-a19c-c729h3cf6126
+    - name: environment
+      value: AzurePublicCloud
+    - name: sshPublicKey
+      value: c3NoLXJzYSBB
+    - name: enableAcceleratedNetworking
+      value: true
+    - name: enablePrivateCluster
+      value: false
+    - name: frontendPrivateIP
+      value: 22.22.22.22
+    - name: customTags
+      value: customTags11
+    - name: vnet
+      value:
+        cidr: 10.0.0.0/8
+        name: azure-vnet-name
+        resourceGroup: azure-vnet-resource-group
+    - name: identity
+      value:
+        name: test-identity1
+        namespace: test-ns1
+    - name: controlPlane
+      value:
+        dataDisk:
+          sizeGiB: 256
+        machineType: i3.xlarge
+        osDisk:
+          sizeGiB: 128
+          storageAccountType: Premium_LRS
+        outboundLB:
+          enabled: true
+          frontendIPCount: 3
+        subnet:
+          name: subnetCP
+          cidr: 10.0.0.0/24
+          securityGroup: SecurityGroupCP
+    - name: node
+      value:
+        machineType: m5.xlarge
+        osDisk:
+          sizeGiB: 128
+          storageAccountType: Premium_LRS
+        dataDisk:
+          enabled: true
+          sizeGiB: 20
+        outboundLB:
+          enabled: true
+          frontendIPCount: 1
+          idleTimeoutInMinutes: 8
+        subnet:
+          name: nodeSubnetValue
+          cidr: 10.1.0.0/16
+          securityGroup: SecurityGroupNode
+    version: v1.22.5+vmware.1
+    workers:
+      machineDeployments:
+      - class: tkg-worker
+        failureDomain: "1"
+        name: md-0
+        replicas: 1
+      - class: tkg-worker
+        failureDomain: "2"
+        name: md-1
+        replicas: 2
+      - class: tkg-worker
+        failureDomain: "3"
+        name: md-2
+        replicas: 2
+---

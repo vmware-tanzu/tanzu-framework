@@ -1,0 +1,165 @@
+apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+kind: AWSMachineTemplate
+metadata:
+  name: tkg-aws-controlplane-template
+  namespace: default
+spec:
+  template:
+    spec:
+      ami:
+        id: ${AWS_AMI_ID}
+      iamInstanceProfile: control-plane.tkg.cloud.vmware.com
+      instanceType: ${CONTROL_PLANE_MACHINE_TYPE}
+      rootVolume:
+        size: 80
+      sshKeyName: ${AWS_SSH_KEY_NAME}
+---
+apiVersion: cluster.x-k8s.io/v1beta1
+kind: Cluster
+metadata:
+  annotations:
+    osInfo: amazon,2,amd64
+    run.tanzu.vmware.com/resolve-tkr: ""
+  labels:
+    tkg.tanzu.vmware.com/cluster-name: c1
+  name: aws-workload-cluster1
+  namespace: namespace-test1
+spec:
+  clusterNetwork:
+    pods:
+      cidrBlocks:
+      - 10.10.10.10/18
+    services:
+      cidrBlocks:
+      - 100.64.0.0/18
+  controlPlaneRef:
+    apiVersion: controlplane.cluster.x-k8s.io/v1beta1
+    kind: KubeadmControlPlane
+    name: testcluster-control-plane
+  infrastructureRef:
+    apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+    kind: AWSCluster
+    name: testcluster
+  topology:
+    class: tkg-aws-default
+    controlPlane:
+      metadata:
+        annotations:
+          run.tanzu.vmware.com/resolve-os-image: ami-region=us-west-2,os-name=ubuntu
+      replicas: 1
+    variables:
+    - name: proxy
+      value:
+        caCert: ""
+        httpProxy: http://10.0.200.100
+        httpsProxy: http://10.0.200.100
+        noProxy:
+        - .svc.cluster.local
+        - .svc
+        - localhost
+        - 127.0.0.1
+        - 100.64.0.0/18
+        - 100.96.0.0/11
+        - 10.0.0.0/16
+        - 169.254.0.0/16
+    - name: clusterPlan
+      value: prodcc
+    - name: vpc
+      value:
+        cidr: 10.0.0.0/16
+        id: ""
+    - name: tkgCustomImage
+      value:
+        repository: "repository"
+        caCert: "caCert"
+        skpTlsVerify: true
+    - name: identityRef
+      value:
+        kind: AWSClusterRoleIdentity
+        name: ""
+    - name: securityGroup
+      value:
+        controlPlane: sg-12345
+        node: sg-12345
+    - name: subnets
+      value:
+      - private:
+          cidr: 10.0.0.0/24
+          id: ""
+        public:
+          cidr: 10.0.1.0/24
+          id: ""
+      - private:
+          cidr: 10.0.2.0/24
+          id: ""
+        public:
+          cidr: 10.0.3.0/24
+          id: ""
+      - private:
+          cidr: 10.0.4.0/24
+          id: ""
+        public:
+          cidr: 10.0.5.0/24
+          id: ""
+    - name: nodes
+      value:
+      - az: us-west-2b
+        machineType: m5.xlarge
+        osDisk:
+          sizeGiB: 80
+      - az: us-west-2b
+        machineType: t1.medium
+        osDisk:
+          sizeGiB: 80
+      - az: us-west-2c
+        machineType: t2.medium
+        osDisk:
+          sizeGiB: 80
+    - name: controlPlane
+      value:
+        machineType: t3.medium
+        osDisk:
+          sizeGiB: 90
+    version: v1.22.5+vmware.1
+    workers:
+      machineDeployments:
+      - class: tkg-worker
+        failureDomain: us-west-2b
+        metadata:
+          annotations:
+            run.tanzu.vmware.com/resolve-os-image: ami-region=us-west-2,os-name=ubuntu
+        name: md-0
+        replicas: 1
+      - class: tkg-worker
+        failureDomain: us-west-2b
+        name: md-1
+        replicas: null
+        variables:
+          overrides:
+          - name: NODE_MACHINE_TYPE
+            value: m6.xlarge
+      - class: tkg-worker
+        failureDomain: us-west-2c
+        name: md-2
+        replicas: 3
+---
+apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+kind: AWSClusterTemplate
+metadata:
+  name: aws-cluster-template
+  namespace: default
+spec:
+  template:
+    spec:
+      bastion:
+        enabled: true
+      network:
+        subnets:
+        - availabilityZone: ${AWS_NODE_AZ}
+          cidrBlock: ${AWS_PRIVATE_NODE_CIDR}
+          id: ${AWS_PRIVATE_SUBNET_ID}
+        vpc:
+          cidrBlock: ${AWS_VPC_CIDR}
+          id: ${AWS_VPC_ID}
+      region: ${AWS_REGION}
+      sshKeyName: ${AWS_SSH_KEY_NAME}

@@ -146,7 +146,10 @@ func (t *tkgctl) processManagementClusterInputFile(ir *InitRegionOptions) (bool,
 			return isInputFileClusterClassBased, err
 		}
 		if isInputFileClusterClassBased {
-			t.processCClusterObjectForConfigurationVariables(clusterobj)
+			err = t.processCClusterObjectForConfigurationVariables(clusterobj)
+			if err != nil {
+				return isInputFileClusterClassBased, err
+			}
 			t.overrideManagementClusterOptionsWithCClusterConfigurationValues(ir)
 		}
 	}
@@ -164,7 +167,10 @@ func (t *tkgctl) processWorkloadClusterInputFile(cc *CreateClusterOptions) (bool
 			return isInputFileClusterClassBased, err
 		}
 		if isInputFileClusterClassBased {
-			t.processCClusterObjectForConfigurationVariables(clusterobj)
+			err = t.processCClusterObjectForConfigurationVariables(clusterobj)
+			if err != nil {
+				return isInputFileClusterClassBased, err
+			}
 			t.overrideClusterOptionsWithCClusterConfigurationValues(cc)
 		}
 	}

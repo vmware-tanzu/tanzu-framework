@@ -7,6 +7,10 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"reflect"
+	"regexp"
+	"strconv"
+	"strings"
 
 	"github.com/pkg/errors"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
@@ -24,6 +28,7 @@ var okResponsesMap = map[string]struct{}{
 	"y": {},
 	"Y": {},
 }
+var regExMachineDep = regexp.MustCompile(constants.RegexpMachineDeploymentsOverrides)
 
 func askForConfirmation(message string) error {
 	var response string
@@ -185,37 +190,134 @@ func (t *tkgctl) checkIfInputFileIsClusterClassBased(clusterConfigFile string) (
 }
 
 // processCClusterObjectForConfigurationVariables takes ccluster object, process it to capture all configuration variables and add them in environment.
-func (t *tkgctl) processCClusterObjectForConfigurationVariables(cclusterObj unstructured.Unstructured) {
-	variablesMap := make(map[string]string)
-	variablesMap[constants.ConfigVariableClusterName] = cclusterObj.GetName()
-	spec := cclusterObj.Object["spec"].(map[string]interface{})
-	if spec != nil {
-		topology := spec["topology"].(map[string]interface{})
-		if topology != nil {
-			variables := topology["variables"].([]interface{})
-			if variables != nil {
-				for j := range variables {
-					var name string
-					var value string
-					for k := range variables[j].(map[string]interface{}) {
-						if k == "name" {
-							name = variables[j].(map[string]interface{})[k].(string)
-						} else {
-							value = fmt.Sprintf("%v", variables[j].(map[string]interface{})[k])
-						}
-					}
-					if len(value) > 0 {
-						variablesMap[name] = value
-					}
-				}
-				t.TKGConfigReaderWriter().SetMap(variablesMap)
+func (t *tkgctl) processCClusterObjectForConfigurationVariables(cclusterObj unstructured.Unstructured) error {
+	inputVariablesMap := make(map[string]interface{})
+	inputVariablesMap["metadata.name"] = cclusterObj.GetName()
+	inputVariablesMap["metadata.namespace"] = cclusterObj.GetNamespace()
+	spec := cclusterObj.Object[constants.SPEC].(map[string]interface{})
+	err := processYamlObjectAndAddToMap(spec, constants.SPEC, inputVariablesMap)
+	if err != nil {
+		return err
+	}
+	providerName, err := validateTopologyClassName(inputVariablesMap[constants.TopologyClass].(string))
+	if err != nil {
+		return err
+	}
+	legacyVarMap := make(map[string]string)
+	ccToLegacyNamesMap := constants.InfrastructureSpecificVariableMappingMap[providerName]
+	// assign cluster class input values to legacy variables
+	for inputVariable := range inputVariablesMap {
+		if legacyNameForClusterObjectInputVariable, ok := ccToLegacyNamesMap[inputVariable]; ok {
+			legacyVarMap[legacyNameForClusterObjectInputVariable] = fmt.Sprintf("%v", inputVariablesMap[inputVariable])
+		}
+	}
+	// override legacy variables with higher precedence values if exists
+	if providerName == constants.InfrastructureProviderAWS {
+		for higherPrecedenceKey := range constants.CclusterVariablesWithHigherPrecedence {
+			legacyName, ok1 := ccToLegacyNamesMap[higherPrecedenceKey]
+			value, ok2 := inputVariablesMap[higherPrecedenceKey]
+			if ok1 && ok2 {
+				legacyVarMap[legacyName] = fmt.Sprintf("%v", value)
 			}
 		}
 	}
+
+	t.TKGConfigReaderWriter().SetMap(legacyVarMap)
+	return nil
+}
+
+// processYamlObjectAndAddToMap process specific value of the Cluster yaml object, ccMappingName is the path of the value, if input value is simple value then its updated in the variablesMap with ccMappingName as key.
+func processYamlObjectAndAddToMap(value interface{}, ccMappingName string, variablesMap map[string]interface{}) error {
+	var err error
+	switch value := value.(type) {
+	case []interface{}:
+		err = processYamlObjectArrayInterfaceType(value, ccMappingName, variablesMap)
+	case []map[string]interface{}:
+		for index := range value {
+			err = processYamlObjectAndAddToMap(value[index], ccMappingName, variablesMap)
+			if err != nil {
+				return err
+			}
+		}
+	case map[string]interface{}:
+		for key := range value {
+			nextLevelName := key
+			nextLevelVal := value[nextLevelName]
+			// noProxy has value of type array, so assign it here
+			if ccMappingName+"."+nextLevelName == "spec.topology.variables.proxy.noProxy" {
+				variablesMap[ccMappingName+"."+nextLevelName] = nextLevelVal
+			} else {
+				err = processYamlObjectAndAddToMap(nextLevelVal, ccMappingName+"."+nextLevelName, variablesMap)
+				if err != nil {
+					return err
+				}
+			}
+		}
+	case interface{}:
+		if _, ok := variablesMap[ccMappingName]; ok {
+			log.Warningf("duplicate variable in input cluster class config file, variable path: %v", ccMappingName)
+		} else if fmt.Sprintf("%v", value) != "" {
+			variablesMap[ccMappingName] = value
+		}
+	default:
+		if value != nil {
+			errInfo := fmt.Errorf("un-supported input value type:%v in input cluster class file at:%v", reflect.TypeOf(value), ccMappingName)
+			return errInfo
+		}
+	}
+	return err
+}
+
+func processYamlObjectArrayInterfaceType(value interface{}, ccMappingName string, variablesMap map[string]interface{}) error {
+	var err error
+	for index := range value.([]interface{}) {
+		if ccMappingName == constants.TopologyVariablesSubnets || ccMappingName == constants.TopologyVariablesNodes || ccMappingName == constants.TopologyWorkersMachineDeployments {
+			err = processYamlObjectAndAddToMap(value.([]interface{})[index], ccMappingName+"."+strconv.Itoa(index), variablesMap)
+		} else if regExMachineDep.MatchString(ccMappingName) || ccMappingName == constants.TopologyVariables {
+			variables := value.([]interface{})
+			for varIndex := range variables {
+				nameValueMap := variables[varIndex].(map[string]interface{})
+				varName := nameValueMap["name"]
+				varValue := nameValueMap["value"]
+				nextLevelName := ccMappingName + "." + varName.(string)
+				// spec.topology.variables.proxy has any value then enable TKG_HTTP_PROXY_ENABLED, spec.topology.variables.proxy mapped to TKG_HTTP_PROXY_ENABLED
+				if varName == "proxy" {
+					variablesMap[nextLevelName] = true
+				}
+				err = processYamlObjectAndAddToMap(varValue, nextLevelName, variablesMap)
+				if err != nil {
+					return err
+				}
+			}
+			break // all variables are processed in above loop so break it.
+		} else {
+			err = processYamlObjectAndAddToMap(value.([]interface{})[index], ccMappingName, variablesMap)
+		}
+		if err != nil {
+			return err
+		}
+	}
+	return err
+}
+
+// validateTopologyClassName takes input cluster class spec.topology.class string and validates, returns provides name
+func validateTopologyClassName(topologyClass string) (string, error) {
+	var provider string
+	if topologyClass == "" {
+		return provider, errors.New(constants.TopologyClassIncorrectValueErrMsg)
+	}
+	topologyClassSplit := strings.Split(topologyClass, "-")
+	if len(topologyClassSplit) < 3 {
+		return provider, errors.New(constants.TopologyClassIncorrectValueErrMsg)
+	} else if _, ok := constants.InfrastructureProviders[topologyClassSplit[1]]; !ok {
+		return provider, errors.New(constants.TopologyClassIncorrectValueErrMsg)
+	}
+	return topologyClassSplit[1], nil
 }
 
 // overrideClusterOptionsWithCClusterConfigurationValues overrides CreateClusterOptions attributes with latest values from the environment.
 func (t *tkgctl) overrideClusterOptionsWithCClusterConfigurationValues(cc *CreateClusterOptions) {
+	cc.Namespace, _ = t.TKGConfigReaderWriter().Get(constants.ConfigVariableNamespace)
 	cc.ClusterName, _ = t.TKGConfigReaderWriter().Get(constants.ConfigVariableClusterName)
 	cc.Plan, _ = t.TKGConfigReaderWriter().Get(constants.ConfigVariableClusterPlan)
 	cc.InfrastructureProvider, _ = t.TKGConfigReaderWriter().Get(constants.ConfigVariableInfraProvider)
@@ -231,6 +333,7 @@ func (t *tkgctl) overrideClusterOptionsWithCClusterConfigurationValues(cc *Creat
 
 // overrideManagementClusterOptionsWithCClusterConfigurationValues overrides InitRegion attributes with latest values from the environment.
 func (t *tkgctl) overrideManagementClusterOptionsWithCClusterConfigurationValues(ir *InitRegionOptions) {
+	ir.Namespace, _ = t.TKGConfigReaderWriter().Get(constants.ConfigVariableNamespace)
 	ir.ClusterName, _ = t.TKGConfigReaderWriter().Get(constants.ConfigVariableClusterName)
 	ir.Plan, _ = t.TKGConfigReaderWriter().Get(constants.ConfigVariableClusterPlan)
 	ir.InfrastructureProvider, _ = t.TKGConfigReaderWriter().Get(constants.ConfigVariableInfraProvider)
