@@ -111,11 +111,12 @@ spec:
     mode: vsphereCPI
     region: test-region
     zone: test-zone
-    insecureFlag: true
-    vmInternalNetwork: internal-net
-    vmExternalNetwork: external-net
-    vmExcludeInternalNetworkSubnetCidr: 192.168.3.0/24
-    vmExcludeExternalNetworkSubnetCidr: 22.22.3.0/24
+    insecure: true
+    vmNetwork:
+      internal: internal-net
+      external: external-net
+      excludeInternalSubnetCidr: 192.168.3.0/24
+      excludeExternalSubnetCidr: 22.22.3.0/24
     vSphereCredentialLocalObjRef:
       kind: Secret
       name: cpi-vsphere-credential

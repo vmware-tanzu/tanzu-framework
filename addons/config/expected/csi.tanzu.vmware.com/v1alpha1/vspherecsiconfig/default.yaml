@@ -1,0 +1,8 @@
+apiVersion: csi.tanzu.vmware.com/v1alpha1
+kind: VSphereCSIConfig
+metadata:
+  name: v1.23.3---vmware.1-tkg.1
+  namespace: tkg-system
+spec:
+  vsphereCSI:
+    mode: vsphereCSI

@@ -4,8 +4,11 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"os"
+
+	"github.com/vmware-tanzu/tanzu-framework/addons/pinniped/config-controller/controllers"
 
 	"k8s.io/klog/v2"
 	"k8s.io/klog/v2/klogr"
@@ -15,12 +18,11 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	clusterapiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
 	ctrl "sigs.k8s.io/controller-runtime"
-
-	"github.com/vmware-tanzu/tanzu-framework/addons/pinniped/config-controller/controllers"
 )
 
 func main() {
 	klog.InitFlags(nil)
+	flag.Parse()
 	ctrl.SetLogger(klogr.New())
 	setupLog := ctrl.Log.WithName("pinniped config controller").WithName("set up")
 	setupLog.Info("starting set up")
@@ -51,10 +53,12 @@ func reallyMain(setupLog logr.Logger) error {
 		return fmt.Errorf("unable to start manager: %w", err)
 	}
 
-	// Register our controller with the manager.
-	controller := controllers.NewController(manager.GetClient())
-	if err := controller.SetupWithManager(manager); err != nil {
-		return fmt.Errorf("unable to create Pinniped Config Controller: %w", err)
+	// Register our controllers with the manager.
+	if err := controllers.NewV1Controller(manager.GetClient()).SetupWithManager(manager); err != nil {
+		return fmt.Errorf("unable to create %s: %w", controllers.CascadeControllerV1alpha1Name, err)
+	}
+	if err := controllers.NewV3Controller(manager.GetClient()).SetupWithManager(manager); err != nil {
+		return fmt.Errorf("unable to create %s: %w", controllers.CascadeControllerV1alpha3Name, err)
 	}
 
 	// Tell manager to start running our controller.

@@ -155,7 +155,7 @@ run:
   skip-dirs:
     - test/
     - fakes/
-  timeout: 10m
+  timeout: 15m
 
 # golangci.com configuration
 # https://github.com/golangci/golangci/wiki/Configuration

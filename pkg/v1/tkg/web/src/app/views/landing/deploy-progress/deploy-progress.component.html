@@ -49,7 +49,7 @@
             </ng-container>
         </clr-timeline>
     </div>
-    <div class="clr-col-12 clr-col-xl-9">
+    <div class="clr-col-12 clr-col-xl-9" *featureToggle="'management-cluster.cluster-class-support'">
         <clr-alert>
             <clr-alert-item>The management cluster will be created with a new cluster class configuration.
                 The cluster classes that will be created can be viewed during deployment.
@@ -73,6 +73,13 @@
                 </clr-tab-content>
             </clr-tab>
         </clr-tabs>
+    </div>
+    <div class="clr-col-12 clr-col-xl-9" *featureToggle="'!management-cluster.cluster-class-support'">
+        <h4 aria-level="2">Logs</h4>
+        <log-monitor
+            [logStream]="(msgs$ | async)"
+            theme="dark">
+        </log-monitor>
     </div>
 </div>
 

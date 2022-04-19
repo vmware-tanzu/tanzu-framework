@@ -21,9 +21,8 @@ const (
 	AnnotationResolveOSImage = "run.tanzu.vmware.com/resolve-os-image"
 	AnnotationOSImageRef     = "run.tanzu.vmware.com/os-image-ref"
 
-	LabelTKR               = "run.tanzu.vmware.com/tkr"
-	LabelKubernetesVersion = "run.tanzu.vmware.com/kubernetesVersion"
-	LabelOSImage           = "run.tanzu.vmware.com/os-image"
+	LabelTKR     = "run.tanzu.vmware.com/tkr"
+	LabelOSImage = "run.tanzu.vmware.com/os-image"
 )
 
 // TanzuKubernetesReleaseSpec defines the desired state of TanzuKubernetesRelease

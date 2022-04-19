@@ -45,7 +45,8 @@ import (
 	addonconfig "github.com/vmware-tanzu/tanzu-framework/addons/pkg/config"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/crdwait"
-	testutil "github.com/vmware-tanzu/tanzu-framework/addons/testutil"
+	"github.com/vmware-tanzu/tanzu-framework/addons/test/testutil"
+	addonwebhooks "github.com/vmware-tanzu/tanzu-framework/addons/webhooks"
 	cniv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cni/v1alpha1"
 	cpiv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cpi/v1alpha1"
 	csiv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/csi/v1alpha1"
@@ -72,7 +73,7 @@ const (
 	webhookScrtName         = "webhook-tls"
 	addonWebhookLabelKey    = "tkg.tanzu.vmware.com/addon-webhooks"
 	addonWebhookLabelValue  = ""
-	cniWebhookManifestFile  = "testdata/test-antrea-calico-webhook-manifests.yaml"
+	cniWebhookManifestFile  = "testdata/webhooks/test-antrea-calico-webhook-manifests.yaml"
 )
 
 var (
@@ -268,16 +269,12 @@ var _ = BeforeSuite(func(done Done) {
 		ctrl.Log.WithName("controllers").WithName("ClusterBootstrap"),
 		mgr.GetScheme(),
 		&addonconfig.ClusterBootstrapControllerConfig{
-			HTTPProxyClusterClassVarName:   constants.DefaultHTTPProxyClusterClassVarName,
-			HTTPSProxyClusterClassVarName:  constants.DefaultHTTPSProxyClusterClassVarName,
-			NoProxyClusterClassVarName:     constants.DefaultNoProxyClusterClassVarName,
-			ProxyCACertClusterClassVarName: constants.DefaultProxyCaCertClusterClassVarName,
-			IPFamilyClusterClassVarName:    constants.DefaultIPFamilyClusterClassVarName,
-			SystemNamespace:                constants.TKGSystemNS,
-			PkgiServiceAccount:             constants.PackageInstallServiceAccount,
-			PkgiClusterRole:                constants.PackageInstallClusterRole,
-			PkgiClusterRoleBinding:         constants.PackageInstallClusterRoleBinding,
-			PkgiSyncPeriod:                 constants.PackageInstallSyncPeriod,
+			IPFamilyClusterClassVarName: constants.DefaultIPFamilyClusterClassVarName,
+			SystemNamespace:             constants.TKGSystemNS,
+			PkgiServiceAccount:          constants.PackageInstallServiceAccount,
+			PkgiClusterRole:             constants.PackageInstallClusterRole,
+			PkgiClusterRoleBinding:      constants.PackageInstallClusterRoleBinding,
+			PkgiSyncPeriod:              constants.PackageInstallSyncPeriod,
 		},
 	)
 	Expect(bootstrapReconciler.SetupWithManager(ctx, mgr, controller.Options{MaxConcurrentReconciles: 1})).To(Succeed())
@@ -321,6 +318,17 @@ var _ = BeforeSuite(func(done Done) {
 	err = (&cniv1alpha1.CalicoConfig{}).SetupWebhookWithManager(mgr)
 	Expect(err).ToNot(HaveOccurred())
 	err = (&webhooks.ClusterPause{Client: k8sClient}).SetupWebhookWithManager(mgr)
+	Expect(err).ToNot(HaveOccurred())
+	clusterbootstrapWebhook := addonwebhooks.ClusterBootstrap{
+		Client:          k8sClient,
+		SystemNamespace: addonNamespace,
+	}
+	err = clusterbootstrapWebhook.SetupWebhookWithManager(ctx, mgr)
+	Expect(err).ToNot(HaveOccurred())
+	clusterbootstrapTemplateWebhook := addonwebhooks.ClusterBootstrapTemplate{
+		SystemNamespace: addonNamespace,
+	}
+	err = clusterbootstrapTemplateWebhook.SetupWebhookWithManager(mgr)
 	Expect(err).ToNot(HaveOccurred())
 
 	go func() {

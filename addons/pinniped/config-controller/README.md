@@ -36,3 +36,30 @@ ytt -f ./hack/ytt -v tkr=v1.23.3---vmware.1-tkg.1 -v infrastructure_provider=vsp
 # arguments are ytt args passed as: -v <arg> for example, something like:
 ./hack/generate-package-secret.sh -v tkr=v1.23.3---vmware.1-tkg.1 -v infrastructure_provider=vsphere
 ```
+
+To change the log level, add the `--v=LOG_LEVEL` arg to the controller deployment.  LOG_LEVEL should
+be a number.  Default log level is 0. Example:
+
+```yaml
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: pinniped-config-controller-manager
+  namespace: pinniped
+spec:
+  selector:
+    matchLabels:
+      app: pinniped-config-controller-manager
+  template:
+    metadata:
+      labels:
+        app: pinniped-config-controller-manager
+    spec:
+      serviceAccountName: pinniped-config-controller-manager
+      containers:
+      - args:
+        - --v=1
+        image: #@ data.values.image
+        name: pinniped-config-controller-manager
+```

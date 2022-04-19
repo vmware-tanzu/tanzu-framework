@@ -98,15 +98,11 @@ func (r *VSphereCPIConfigReconciler) mapCPIConfigToDataValuesNonParavirtual( // 
 	d.VSphereCPI.Nsxt.SecretNamespace = r.tryParseClusterVariableString(cluster, NsxtSecretNamespaceVarName)
 
 	// allow API user to override the derived values if he/she specified fields in the VSphereCPIConfig
-	if c.TLSThumbprint != "" {
-		d.VSphereCPI.TLSThumbprint = c.TLSThumbprint
-	}
-	if c.Server != "" {
-		d.VSphereCPI.Server = c.Server
-	}
-	if c.Datacenter != "" {
-		d.VSphereCPI.Datacenter = c.Datacenter
-	}
+	d.VSphereCPI.TLSThumbprint = tryParseString(d.VSphereCPI.TLSThumbprint, c.TLSThumbprint)
+	d.VSphereCPI.Server = tryParseString(d.VSphereCPI.Server, c.VCenterAPIEndpoint)
+	d.VSphereCPI.Server = tryParseString(d.VSphereCPI.Server, c.VCenterAPIEndpoint)
+	d.VSphereCPI.Datacenter = tryParseString(d.VSphereCPI.Datacenter, c.Datacenter)
+
 	if c.VSphereCredentialLocalObjRef != nil {
 		vsphereSecret, err := r.getSecret(ctx, cpiConfig.Namespace, c.VSphereCredentialLocalObjRef.Name)
 		if err != nil {
@@ -117,28 +113,35 @@ func (r *VSphereCPIConfigReconciler) mapCPIConfigToDataValuesNonParavirtual( // 
 			return nil, err
 		}
 	}
-	d.VSphereCPI.Region = c.Region
-	d.VSphereCPI.Zone = c.Zone
-	d.VSphereCPI.InsecureFlag = c.InsecureFlag
-	d.VSphereCPI.VMInternalNetwork = c.VMInternalNetwork
-	d.VSphereCPI.VMExternalNetwork = c.VMExternalNetwork
-	d.VSphereCPI.VMExcludeInternalNetworkSubnetCidr = c.VMExcludeInternalNetworkSubnetCidr
-	d.VSphereCPI.VMExcludeExternalNetworkSubnetCidr = c.VMExcludeExternalNetworkSubnetCidr
-	d.VSphereCPI.CloudProviderExtraArgs.TLSCipherSuites = c.TLSCipherSuites
+
+	d.VSphereCPI.Region = tryParseString(d.VSphereCPI.Region, c.Region)
+	d.VSphereCPI.Zone = tryParseString(d.VSphereCPI.Zone, c.Zone)
+	if c.Insecure != nil {
+		d.VSphereCPI.InsecureFlag = *c.Insecure
+	}
+
+	if c.VMNetwork != nil {
+		d.VSphereCPI.VMInternalNetwork = tryParseString(d.VSphereCPI.VMInternalNetwork, c.VMNetwork.Internal)
+		d.VSphereCPI.VMExternalNetwork = tryParseString(d.VSphereCPI.VMExternalNetwork, c.VMNetwork.External)
+		d.VSphereCPI.VMExcludeInternalNetworkSubnetCidr = tryParseString(d.VSphereCPI.VMExcludeInternalNetworkSubnetCidr, c.VMNetwork.ExcludeInternalSubnetCidr)
+		d.VSphereCPI.VMExcludeExternalNetworkSubnetCidr = tryParseString(d.VSphereCPI.VMExcludeExternalNetworkSubnetCidr, c.VMNetwork.ExcludeExternalSubnetCidr)
+	}
+	d.VSphereCPI.CloudProviderExtraArgs.TLSCipherSuites = tryParseString(d.VSphereCPI.CloudProviderExtraArgs.TLSCipherSuites, c.TLSCipherSuites)
 
 	if c.NSXT != nil {
-		if c.NSXT.PodRoutingEnabled {
-			d.VSphereCPI.Nsxt.PodRoutingEnabled = c.NSXT.PodRoutingEnabled
+		if c.NSXT.PodRoutingEnabled != nil {
+			d.VSphereCPI.Nsxt.PodRoutingEnabled = *c.NSXT.PodRoutingEnabled
 		}
 
-		if c.NSXT.InsecureFlag {
-			d.VSphereCPI.Nsxt.InsecureFlag = c.NSXT.InsecureFlag
+		if c.NSXT.Insecure != nil {
+			d.VSphereCPI.Nsxt.InsecureFlag = *c.NSXT.Insecure
 		}
-		if c.NSXT.Routes != nil {
-			d.VSphereCPI.Nsxt.Routes.RouterPath = c.NSXT.Routes.RouterPath
-			d.VSphereCPI.Nsxt.Routes.ClusterCidr = c.NSXT.Routes.ClusterCidr
+		if c.NSXT.Route != nil {
+			d.VSphereCPI.Nsxt.Routes.RouterPath = tryParseString(d.VSphereCPI.Nsxt.Routes.RouterPath, c.NSXT.Route.RouterPath)
 		}
 		if c.NSXT.CredentialLocalObjRef != nil {
+			d.VSphereCPI.Nsxt.SecretName = c.NSXT.CredentialLocalObjRef.Name
+			d.VSphereCPI.Nsxt.SecretNamespace = cpiConfig.Namespace
 			nsxtSecret, err := r.getSecret(ctx, cpiConfig.Namespace, c.NSXT.CredentialLocalObjRef.Name)
 			if err != nil {
 				return nil, err
@@ -148,43 +151,22 @@ func (r *VSphereCPIConfigReconciler) mapCPIConfigToDataValuesNonParavirtual( // 
 				return nil, err
 			}
 		}
-		if c.NSXT.Host != "" {
-			d.VSphereCPI.Nsxt.Host = c.NSXT.Host
+		d.VSphereCPI.Nsxt.Host = tryParseString(d.VSphereCPI.Nsxt.Host, c.NSXT.APIHost)
+		if c.NSXT.RemoteAuth != nil {
+			d.VSphereCPI.Nsxt.RemoteAuth = *c.NSXT.RemoteAuth
 		}
-		if c.NSXT.RemoteAuth {
-			d.VSphereCPI.Nsxt.RemoteAuth = c.NSXT.RemoteAuth
-		}
-		if c.NSXT.VMCAccessToken != "" {
-			d.VSphereCPI.Nsxt.VmcAccessToken = c.NSXT.VMCAccessToken
-		}
-		if c.NSXT.VMCAuthHost != "" {
-			d.VSphereCPI.Nsxt.VmcAuthHost = c.NSXT.VMCAuthHost
-		}
-		if c.NSXT.ClientCertKeyData != "" {
-			d.VSphereCPI.Nsxt.ClientCertKeyData = c.NSXT.ClientCertKeyData
-		}
-		if c.NSXT.ClientCertData != "" {
-			d.VSphereCPI.Nsxt.ClientCertData = c.NSXT.ClientCertData
-		}
-		if c.NSXT.RootCAData != "" {
-			d.VSphereCPI.Nsxt.RootCAData = c.NSXT.RootCAData
-		}
-		if c.NSXT.SecretName != "" {
-			d.VSphereCPI.Nsxt.SecretName = c.NSXT.SecretName
-			d.VSphereCPI.Nsxt.SecretNamespace = c.NSXT.SecretNamespace
-		}
+		d.VSphereCPI.Nsxt.VmcAccessToken = tryParseString(d.VSphereCPI.Nsxt.VmcAccessToken, c.NSXT.VMCAccessToken)
+		d.VSphereCPI.Nsxt.VmcAuthHost = tryParseString(d.VSphereCPI.Nsxt.VmcAccessToken, c.NSXT.VMCAuthHost)
+		d.VSphereCPI.Nsxt.ClientCertKeyData = tryParseString(d.VSphereCPI.Nsxt.ClientCertKeyData, c.NSXT.ClientCertKeyData)
+		d.VSphereCPI.Nsxt.ClientCertData = tryParseString(d.VSphereCPI.Nsxt.ClientCertData, c.NSXT.ClientCertData)
+		d.VSphereCPI.Nsxt.RootCAData = tryParseString(d.VSphereCPI.Nsxt.RootCAData, c.NSXT.RootCAData)
 	}
-	if c.IPFamily != "" {
-		d.VSphereCPI.IPFamily = c.IPFamily
-	}
-	if c.HTTPProxy != "" {
-		d.VSphereCPI.HTTPProxy = c.HTTPProxy
-	}
-	if c.HTTPSProxy != "" {
-		d.VSphereCPI.HTTPSProxy = c.HTTPSProxy
-	}
-	if c.NoProxy != "" {
-		d.VSphereCPI.NoProxy = c.NoProxy
+
+	d.VSphereCPI.IPFamily = tryParseString(d.VSphereCPI.IPFamily, c.IPFamily)
+	if c.Proxy != nil {
+		d.VSphereCPI.HTTPProxy = tryParseString(d.VSphereCPI.HTTPProxy, c.Proxy.HTTPProxy)
+		d.VSphereCPI.HTTPSProxy = tryParseString(d.VSphereCPI.HTTPSProxy, c.Proxy.HTTPSProxy)
+		d.VSphereCPI.NoProxy = tryParseString(d.VSphereCPI.NoProxy, c.Proxy.NoProxy)
 	}
 	return d, nil
 }
@@ -208,7 +190,8 @@ func (r *VSphereCPIConfigReconciler) mapCPIConfigToDataValuesParavirtual(_ conte
 
 // mapCPIConfigToDataValues maps VSphereCPIConfig CR to data values
 func (r *VSphereCPIConfigReconciler) mapCPIConfigToDataValues(ctx context.Context, cpiConfig *cpiv1alpha1.VSphereCPIConfig, cluster *clusterapiv1beta1.Cluster) (*VSphereCPIDataValues, error) {
-	switch cpiConfig.Spec.VSphereCPI.Mode {
+	mode := *cpiConfig.Spec.VSphereCPI.Mode
+	switch mode {
 	case VsphereCPINonParavirtualMode:
 		return r.mapCPIConfigToDataValuesNonParavirtual(ctx, cpiConfig, cluster)
 	case VSphereCPIParavirtualMode:
@@ -216,7 +199,7 @@ func (r *VSphereCPIConfigReconciler) mapCPIConfigToDataValues(ctx context.Contex
 	default:
 		break
 	}
-	return nil, errors.Errorf("Invalid CPI mode %s, must either be %s or %s", cpiConfig.Spec.VSphereCPI.Mode, VSphereCPIParavirtualMode, VsphereCPINonParavirtualMode)
+	return nil, errors.Errorf("Invalid CPI mode %s, must either be %s or %s", mode, VSphereCPIParavirtualMode, VsphereCPINonParavirtualMode)
 }
 
 // mapCPIConfigToProviderServiceAccountSpec maps CPIConfig and cluster to the corresponding service account spec
@@ -325,6 +308,14 @@ func controlPlaneName(clusterName string) string {
 // getCCMName returns the name of cloud control manager for a cluster
 func getCCMName(cluster *clusterapiv1beta1.Cluster) string {
 	return fmt.Sprintf("%s-%s", cluster.Name, "ccm")
+}
+
+// tryParseString tries to convert a string pointer and return its value, if not nil
+func tryParseString(src string, sub *string) string {
+	if sub != nil {
+		return *sub
+	}
+	return src
 }
 
 // tryParseClusterVariableBool tries to parse a boolean cluster variable,

@@ -19,4 +19,7 @@ const (
 
 	// IPFamilyConfigAnnotation is the cluster IP family annotation key
 	IPFamilyConfigAnnotation = "tkg.tanzu.vmware.com/tkg-ip-family"
+
+	// SkipTLSVeriy is the cluster skip tls verify annotation key
+	SkipTLSVerifyConfigAnnotation = "tkg.tanzu.vmware.com/skip-tls-verify"
 )

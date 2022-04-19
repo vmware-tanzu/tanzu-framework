@@ -18,7 +18,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
-	"github.com/vmware-tanzu/tanzu-framework/addons/testutil"
+	"github.com/vmware-tanzu/tanzu-framework/addons/test/testutil"
 	cpiv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cpi/v1alpha1"
 )
 
@@ -94,9 +94,9 @@ var _ = Describe("VSphereCPIConfig Reconciler", func() {
 				if err := k8sClient.Get(ctx, key, config); err != nil {
 					return false
 				}
-				Expect(config.Spec.VSphereCPI.Mode).Should(Equal("vsphereCPI"))
-				Expect(config.Spec.VSphereCPI.Region).Should(Equal("test-region"))
-				Expect(config.Spec.VSphereCPI.Zone).Should(Equal("test-zone"))
+				Expect(*config.Spec.VSphereCPI.Mode).Should(Equal("vsphereCPI"))
+				Expect(*config.Spec.VSphereCPI.Region).Should(Equal("test-region"))
+				Expect(*config.Spec.VSphereCPI.Zone).Should(Equal("test-zone"))
 
 				if len(config.OwnerReferences) == 0 {
 					return false

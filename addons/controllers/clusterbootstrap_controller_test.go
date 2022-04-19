@@ -18,7 +18,8 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
 	addontypes "github.com/vmware-tanzu/tanzu-framework/addons/pkg/types"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/util"
-	"github.com/vmware-tanzu/tanzu-framework/addons/testutil"
+	"github.com/vmware-tanzu/tanzu-framework/addons/test/builder"
+	"github.com/vmware-tanzu/tanzu-framework/addons/test/testutil"
 	antreaconfigv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cni/v1alpha1"
 	vspherecpiv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cpi/v1alpha1"
 	runtanzuv1alpha3 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
@@ -39,6 +40,7 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 		clusterName             string
 		clusterNamespace        string
 		clusterResourceFilePath string
+		enableWebhook           bool
 	)
 
 	// Constants defined in testdata manifests
@@ -47,9 +49,37 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 		foobarCarvelPackageName     = "foobar.example.com.1.17.2"
 		foobar1CarvelPackageRefName = "foobar1.example.com"
 		foobar1CarvelPackageName    = "foobar1.example.com.1.17.2"
+		// webhooks
+		clusterbootstrapWebhookLabel        = "clusterbootstrap-webhook"
+		clusterbootstrapWebhookManifestFile = "testdata/webhooks/clusterbootstrap-webhook-manifests.yaml"
+		clusterbootstrapWebhookServiceName  = "clusterbootstrap-webhook-service"
+		clusterbootstrapWebhookScrtName     = "clusterbootstrap-webhook-tls"
+		foobar2CarvelPackageRefName         = "foobar2.example.com"
 	)
 
 	JustBeforeEach(func() {
+		if enableWebhook {
+			// Create the webhooks
+			f, err := os.Open(clusterbootstrapWebhookManifestFile)
+			Expect(err).ToNot(HaveOccurred())
+			err = testutil.CreateResources(f, cfg, dynamicClient)
+			Expect(err).ToNot(HaveOccurred())
+			f.Close()
+
+			// set up the certificates and webhook before creating any objects
+			By("Creating and installing new certificates for ClusterBootstrap Admission Webhooks")
+			webhookCertDetails := testutil.WebhookCertificatesDetails{
+				CertPath:           certPath,
+				KeyPath:            keyPath,
+				WebhookScrtName:    clusterbootstrapWebhookScrtName,
+				AddonNamespace:     addonNamespace,
+				WebhookServiceName: clusterbootstrapWebhookServiceName,
+				LabelSelector:      clusterbootstrapWebhookLabel,
+			}
+			err = testutil.SetupWebhookCertificates(ctx, k8sClient, k8sConfig, &webhookCertDetails)
+			Expect(err).ToNot(HaveOccurred())
+		}
+
 		// create cluster resources
 		By("Creating a cluster")
 		f, err := os.Open(clusterResourceFilePath)
@@ -62,6 +92,16 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 	})
 
 	AfterEach(func() {
+		if enableWebhook {
+			By("Deleting webhook")
+			// Create the webhooks
+			f, err := os.Open(clusterbootstrapWebhookManifestFile)
+			Expect(err).ToNot(HaveOccurred())
+			err = testutil.DeleteResources(f, cfg, dynamicClient, true)
+			Expect(err).ToNot(HaveOccurred())
+			f.Close()
+		}
+
 		By("Deleting kubeconfig for cluster")
 		key := client.ObjectKey{
 			Namespace: clusterNamespace,
@@ -77,6 +117,7 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 			clusterName = "test-cluster-tcbt"
 			clusterNamespace = "cluster-namespace"
 			clusterResourceFilePath = "testdata/test-cluster-bootstrap-1.yaml"
+			enableWebhook = true
 		})
 		Context("from a ClusterBootstrapTemplate", func() {
 			It("should create ClusterBootstrap CR and the related objects for the cluster", func() {
@@ -139,8 +180,9 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 						cluster.Annotations[addontypes.HTTPProxyConfigAnnotation] == "foo.com" &&
 						cluster.Annotations[addontypes.HTTPSProxyConfigAnnotation] == "bar.com" &&
 						cluster.Annotations[addontypes.NoProxyConfigAnnotation] == "foobar.com" &&
-						cluster.Annotations[addontypes.ProxyCACertConfigAnnotation] == "dummyCertificate" &&
-						cluster.Annotations[addontypes.IPFamilyConfigAnnotation] == "ipv4" {
+						cluster.Annotations[addontypes.ProxyCACertConfigAnnotation] == "aGVsbG8=\nbHWtcH9=\n" &&
+						cluster.Annotations[addontypes.IPFamilyConfigAnnotation] == "ipv4" &&
+						cluster.Annotations[addontypes.SkipTLSVerifyConfigAnnotation] == "registry1, registry2" {
 						return true
 					}
 					return false
@@ -151,7 +193,7 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 				var object *unstructured.Unstructured
 				// Verify providerRef exists and also the cloned provider object with ownerReferences to cluster and ClusterBootstrap
 				Eventually(func() bool {
-					Expect(len(clusterBootstrap.Spec.AdditionalPackages) > 0).To(BeTrue())
+					Expect(len(clusterBootstrap.Spec.AdditionalPackages) > 1).To(BeTrue())
 
 					fooPackage := clusterBootstrap.Spec.AdditionalPackages[1]
 					Expect(fooPackage.RefName == foobarCarvelPackageName).To(BeTrue())
@@ -279,6 +321,21 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 						return true
 					}, waitTimeout, pollingInterval).Should(BeTrue())
 				})
+
+				By("verifying that data value secret is created for a package with inline config")
+				Eventually(func() bool {
+					s := &corev1.Secret{}
+					if err := k8sClient.Get(ctx, client.ObjectKey{Namespace: constants.TKGSystemNS, Name: util.GenerateDataValueSecretName(clusterName, foobar2CarvelPackageRefName)}, s); err != nil {
+						return false
+					}
+					dataValue := string(s.Data["values.yaml"])
+
+					if !strings.Contains(dataValue, "key1") || !strings.Contains(dataValue, "sample-value1") ||
+						!strings.Contains(dataValue, "key2") || !strings.Contains(dataValue, "sample-value2") {
+						return false
+					}
+					return true
+				}, waitTimeout, pollingInterval).Should(BeTrue())
 
 				By("verifying that kapp-controller PackageInstall CR is created under cluster namespace properly on the management cluster")
 				// Verify kapp-controller PackageInstall CR has been created under cluster namespace on management cluster
@@ -428,7 +485,7 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 
 				By("Updating cluster TKR version", func() {
 					newTKRVersion := "v1.23.3"
-					cluster := &clusterapiv1beta1.Cluster{}
+					cluster = &clusterapiv1beta1.Cluster{}
 					Expect(k8sClient.Get(ctx, client.ObjectKey{Namespace: clusterNamespace, Name: clusterName}, cluster)).To(Succeed())
 					cluster.Labels[constants.TKRLabelClassyClusters] = newTKRVersion
 					Expect(k8sClient.Update(ctx, cluster)).To(Succeed())
@@ -442,7 +499,6 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 						}
 						// Validate CNI
 						cni := upgradedClusterBootstrap.Spec.CNI
-						fmt.Println(cni.RefName)
 						Expect(strings.HasPrefix(cni.RefName, "antrea")).To(BeTrue())
 						Expect(cni.RefName).To(Equal("antrea.tanzu.vmware.com.1.2.3--vmware.4-tkg.2-advanced-zshippable"))
 						Expect(*cni.ValuesFrom.ProviderRef.APIGroup).To(Equal("cni.tanzu.vmware.com"))
@@ -451,14 +507,14 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 
 						// Validate Kapp
 						kapp := upgradedClusterBootstrap.Spec.Kapp
-						Expect(kapp.RefName).To(Equal("kapp-controller.tanzu.vmware.com.0.30.1"))
+						Expect(kapp.RefName).To(Equal("kapp-controller.tanzu.vmware.com.0.30.2"))
 						Expect(*kapp.ValuesFrom.ProviderRef.APIGroup).To(Equal("run.tanzu.vmware.com"))
 						Expect(kapp.ValuesFrom.ProviderRef.Kind).To(Equal("KappControllerConfig"))
 						Expect(kapp.ValuesFrom.ProviderRef.Name).To(Equal(fmt.Sprintf("%s-kapp-controller.tanzu.vmware.com-package", clusterName)))
 
 						// Validate additional packages
 						// foobar3 should be added, while foobar should be kept even it was removed from the template
-						Expect(len(upgradedClusterBootstrap.Spec.AdditionalPackages)).To(Equal(3))
+						Expect(len(upgradedClusterBootstrap.Spec.AdditionalPackages)).To(Equal(4))
 						for _, pkg := range upgradedClusterBootstrap.Spec.AdditionalPackages {
 							if pkg.RefName == "foobar1.example.com.1.18.2" {
 								Expect(pkg.ValuesFrom.SecretRef).To(Equal(fmt.Sprintf("%s-foobar1.example.com-package", clusterName)))
@@ -470,6 +526,8 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 								Expect(*pkg.ValuesFrom.ProviderRef.APIGroup).To(Equal("run.tanzu.vmware.com"))
 								Expect(pkg.ValuesFrom.ProviderRef.Kind).To(Equal("FooBar"))
 								Expect(pkg.ValuesFrom.ProviderRef.Name).To(Equal(fmt.Sprintf("%s-foobar.example.com-package", clusterName)))
+							} else if pkg.RefName == "foobar2.example.com.1.18.2" {
+								Expect(pkg.ValuesFrom.Inline).NotTo(BeNil())
 							} else {
 								return false
 							}
@@ -479,6 +537,110 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 					}, waitTimeout, pollingInterval).Should(BeTrue())
 				})
 
+				By("Test ClusterBootstrap webhook validateUpdate ", func() {
+					// fetch the latest clusterbootstrap
+					Eventually(func() bool {
+						err = k8sClient.Get(ctx, client.ObjectKeyFromObject(cluster), clusterBootstrap)
+						if err != nil {
+							return false
+						}
+						for _, ownerRef := range clusterBootstrap.OwnerReferences {
+							if ownerRef.UID == cluster.UID {
+								return true
+							}
+						}
+						return false
+					}, waitTimeout, pollingInterval).Should(BeTrue())
+
+					// CNI can't be nil
+					mutateClusterBootstrap := clusterBootstrap.DeepCopy()
+					mutateClusterBootstrap.Spec.CNI = nil
+					err = k8sClient.Update(ctx, mutateClusterBootstrap)
+					Expect(err).To(HaveOccurred())
+					Expect(strings.Contains(err.Error(), "spec.cni: Invalid value: \"null\": package can't be nil")).To(BeTrue())
+
+					// Kapp can't be nil
+					mutateClusterBootstrap = clusterBootstrap.DeepCopy()
+					mutateClusterBootstrap.Spec.Kapp = nil
+					err = k8sClient.Update(ctx, mutateClusterBootstrap)
+					Expect(err).To(HaveOccurred())
+					Expect(strings.Contains(err.Error(), "spec.kapp: Invalid value: \"null\": package can't be nil")).To(BeTrue())
+
+					// CSI can be nil
+					mutateClusterBootstrap = clusterBootstrap.DeepCopy()
+					mutateClusterBootstrap.Spec.CSI = nil
+					err = k8sClient.Update(ctx, mutateClusterBootstrap)
+					Expect(err).ToNot(HaveOccurred())
+
+					// Package CR must exist
+					mutateClusterBootstrap = clusterBootstrap.DeepCopy()
+					mutateClusterBootstrap.Spec.CNI.RefName = "antrea.tanzu.vmware.com.1.2.5--vmware.1-tkg.1"
+					err = k8sClient.Update(ctx, mutateClusterBootstrap)
+					Expect(strings.Contains(err.Error(), "\"antrea.tanzu.vmware.com.1.2.5--vmware.1-tkg.1\" not found")).To(BeTrue())
+
+					// Package Refname can't change
+					mutateClusterBootstrap = clusterBootstrap.DeepCopy()
+					mutateClusterBootstrap.Spec.CNI.RefName = "foobar1.example.com.1.17.2"
+					err = k8sClient.Update(ctx, mutateClusterBootstrap)
+					Expect(strings.Contains(err.Error(), "new package refName and old package refName should be the same")).To(BeTrue())
+
+					// ProviderRef can't be changed to secretRef or inline
+					mutateClusterBootstrap = clusterBootstrap.DeepCopy()
+					mutateClusterBootstrap.Spec.Kapp.ValuesFrom.ProviderRef = nil
+					mutateClusterBootstrap.Spec.Kapp.ValuesFrom.Inline = map[string]interface{}{}
+					err = k8sClient.Update(ctx, mutateClusterBootstrap)
+					Expect(strings.Contains(err.Error(), "change from providerRef to other types of data value representation is not allowed")).To(BeTrue())
+
+					// Package can't be downgraded
+					mutateClusterBootstrap = clusterBootstrap.DeepCopy()
+					mutateClusterBootstrap.Spec.CNI.RefName = "antrea.tanzu.vmware.com.0.13.3--vmware.1-tkg.1"
+					err = k8sClient.Update(ctx, mutateClusterBootstrap)
+					Expect(strings.Contains(err.Error(), "package downgrade is not allowed")).To(BeTrue())
+
+					// Additional package can't be removed
+					mutateClusterBootstrap = clusterBootstrap.DeepCopy()
+					mutateClusterBootstrap.Spec.AdditionalPackages = mutateClusterBootstrap.Spec.AdditionalPackages[:len(mutateClusterBootstrap.Spec.AdditionalPackages)-1]
+					err = k8sClient.Update(ctx, mutateClusterBootstrap)
+					Expect(strings.Contains(err.Error(), "missing updated additional package")).To(BeTrue())
+				})
+
+				By("Test ClusterBootstrap webhook validateCreate", func() {
+					namespace := "default"
+
+					// case1
+					in := builder.ClusterBootstrap(namespace, "test-cb-1").
+						WithCNIPackage(builder.ClusterBootstrapPackage("cni.example.com.1.17.2").WithProviderRef("run.tanzu.vmware.com", "foo", "bar").Build()).
+						WithAdditionalPackage(builder.ClusterBootstrapPackage("pinniped.example.com.1.11.3").Build()).Build()
+					err = k8sClient.Create(ctx, in)
+					Expect(err).Should(HaveOccurred())
+					Expect(strings.Contains(err.Error(), "packages.data.packaging.carvel.dev \"cni.example.com.1.17.2\" not found")).To(BeTrue())
+					Expect(strings.Contains(err.Error(), "package can't be nil")).To(BeTrue())
+
+					// case2
+					in = builder.ClusterBootstrap(addonNamespace, "test-cb-1").
+						WithKappPackage(builder.ClusterBootstrapPackage("kapp-controller.tanzu.vmware.com.0.30.2").WithProviderRef("run.tanzu.vmware.com", "foo", "bar").Build()).
+						WithCNIPackage(builder.ClusterBootstrapPackage("calico.tanzu.vmware.com.3.19.1--vmware.1-tkg.1").WithProviderRef("cni.tanzu.vmware.com", "CalicoConfig", "invalidName").Build()).
+						WithAdditionalPackage(builder.ClusterBootstrapPackage("foobar.example.com.1.17.2").WithSecretRef("invalidSecret").Build()).Build()
+					err = k8sClient.Create(ctx, in)
+					Expect(err).Should(HaveOccurred())
+					Expect(strings.Contains(err.Error(), "calicoconfigs.cni.tanzu.vmware.com \"invalidName\" not found")).To(BeTrue())
+					Expect(strings.Contains(err.Error(), "unable to find server preferred resource run.tanzu.vmware.com/foo")).To(BeTrue())
+
+				})
+
+				By("Test ClusterBootstrapTemplate webhook validateUpdate", func() {
+					// fetch the latest clusterbootstraptemplate
+					clusterBootstrapTemplate := &runtanzuv1alpha3.ClusterBootstrapTemplate{}
+					key := client.ObjectKey{Namespace: addonNamespace, Name: "v1.22.3"}
+					err = k8sClient.Get(ctx, key, clusterBootstrapTemplate)
+					Expect(err).ToNot(HaveOccurred())
+
+					// ClusterBootstrapTemplate spec should be immutable
+					clusterBootstrapTemplate.Spec.Kapp = nil
+					err = k8sClient.Update(ctx, clusterBootstrapTemplate)
+					Expect(err).Should(HaveOccurred())
+					Expect(strings.Contains(err.Error(), "ClusterBootstrapTemplate has immutable spec, update is not allowed")).To(BeTrue())
+				})
 			})
 		})
 	})
@@ -488,6 +650,7 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 			clusterName = "test-cluster-tcbt-2"
 			clusterNamespace = "cluster-namespace-2"
 			clusterResourceFilePath = "testdata/test-cluster-bootstrap-2.yaml"
+			enableWebhook = false
 		})
 		Context("from a ClusterBootstrapTemplate", func() {
 			It("should block ClusterBootstrap reconciliation if it is paused", func() {

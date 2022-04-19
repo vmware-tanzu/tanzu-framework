@@ -240,6 +240,8 @@ spec:
       labels:
         app: tanzu-addons-manager
     spec:
+      #@ if/end data.values.tanzuAddonsManager.deployment.nodeSelector:
+      nodeSelector: #@ data.values.tanzuAddonsManager.deployment.nodeSelector
       containers:
       - args:
         - --metrics-bind-addr=0
@@ -259,7 +261,7 @@ spec:
             cpu: 100m
             memory: 40Mi
         ports:
-          - containerPort: 9453
+          - containerPort: 9865
             name: webhook-server
             protocol: TCP
           - containerPort: 18316
