@@ -5,7 +5,7 @@ on:
   # only on pull requests as some tests involves comparing results based on differences
   # between source and target branches
   pull_request:
-    branches: [ main, release-* ]
+    branches: [ main, release-*, package-based-lcm ]
     paths:
     - 'pkg/v1/tkg/**'
     - 'pkg/v1/providers/**'
