@@ -36,6 +36,10 @@ metadata:
   labels:
   name: tkr-conversion-webhook-serving-cert
   namespace: #@ data.values.namespace
+  annotations:
+    kapp.k14s.io/change-group: "tkr-service.tanzu.vmware.com/certificate"
+    kapp.k14s.io/change-rule.0: "upsert after upserting tkr-service.tanzu.vmware.com/issuer"
+    kapp.k14s.io/change-rule.1: "delete before deleting tkr-service.tanzu.vmware.com/issuer"
 spec:
   dnsNames:
   - #@ "tkr-conversion-webhook-service.{}.svc".format(data.values.namespace)
