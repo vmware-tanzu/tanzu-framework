@@ -1,0 +1,14 @@
+apiVersion: data.packaging.carvel.dev/v1alpha1
+kind: PackageMetadata
+metadata:
+  name: tkg-autoscaler.tanzu.vmware.com
+  namespace: default
+spec:
+  displayName: "tkg-autoscaler"
+  longDescription: "Autoscaler package for tkg clusters"
+  shortDescription: "Defines the autoscaler resources for Tanzu"
+  providerName: VMware
+  maintainers:
+    - name: ""
+  categories:
+    - "clusterclass"

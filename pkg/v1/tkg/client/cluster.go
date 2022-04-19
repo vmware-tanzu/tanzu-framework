@@ -11,6 +11,9 @@ import (
 	"strings"
 	"time"
 
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgpackageclient"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgpackagedatamodel"
+
 	"github.com/pkg/errors"
 	"k8s.io/apimachinery/pkg/util/version"
 	clusterctlv1 "sigs.k8s.io/cluster-api/cmd/clusterctl/api/v1alpha3"
@@ -250,7 +253,17 @@ func (c *TkgClient) waitForClusterCreation(regionalClusterClient clusterclient.C
 		return errors.Wrap(err, "unable to wait for cluster nodes to be available")
 	}
 
-	c.WaitForAutoscalerDeployment(regionalClusterClient, options.ClusterName, options.TargetNamespace)
+	if !config.IsFeatureActivated(config.FeatureFlagPackageBasedLCM) {
+		log.Warning("Waiting for cluster autoscaler to be available...")
+		c.WaitForAutoscalerDeployment(regionalClusterClient, options.ClusterName, options.TargetNamespace)
+	} else {
+		if isEnabled := c.getValueForAutoscalerDeploymentConfig(); isEnabled {
+			err = c.InstallAutoScalerPackage(regionalClusterClient, options)
+			if err != nil {
+				log.V(6).Info("Unable to get autoscaler values file, install autoscaler manually by using tanzu package install...")
+			}
+		}
+	}
 
 	workloadClusterClient, err := clusterclient.NewClient(workloadClusterKubeconfigPath, kubeContext, clusterclient.Options{OperationTimeout: 15 * time.Minute})
 	if err != nil {
@@ -271,6 +284,34 @@ func (c *TkgClient) waitForClusterCreation(regionalClusterClient clusterclient.C
 	log.Info("Waiting for packages to be up and running...")
 	if err := c.WaitForPackages(regionalClusterClient, workloadClusterClient, options.ClusterName, options.TargetNamespace, false); err != nil {
 		log.Warningf("Warning: Cluster is created successfully, but some packages are failing. %v", err)
+	}
+
+	return nil
+}
+
+func (c *TkgClient) InstallAutoScalerPackage(regionalClusterClient clusterclient.Client, options *CreateClusterOptions) error {
+	pkgClient, err := tkgpackageclient.NewTKGPackageClient(regionalClusterClient.GetCurrentKubeconfigFile())
+	if err != nil {
+		log.Info("Could not create package client. Install autoscaler manually by using tanzu package install...")
+	} else if valuesFile, err := c.getAutoScalerValuesFileFromConfigs(options); err != nil {
+		log.Info("Unable to get autoscaler values file, install autoscaler manually by using tanzu package install...")
+	} else {
+		packageOptions := tkgpackagedatamodel.NewPackageOptions()
+		autoscalerDeploymentName := options.ClusterName + "-cluster-autoscaler"
+
+		packageOptions.PackageName = constants.TKGAutoscalerPackageInstallName
+		packageOptions.PkgInstallName = autoscalerDeploymentName
+		packageOptions.Namespace = options.TargetNamespace
+		packageOptions.Install = true
+		packageOptions.Wait = true
+		packageOptions.ValuesFile = valuesFile
+
+		log.Info("Installing autoscaler package sync")
+		err = pkgClient.InstallPackageSync(packageOptions, tkgpackagedatamodel.OperationTypeInstall)
+		if err != nil {
+			log.Info("Unable to get autoscaler values file, install autoscaler manually by using tanzu package install...")
+		}
+		os.Remove(valuesFile)
 	}
 
 	return nil

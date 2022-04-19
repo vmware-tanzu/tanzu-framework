@@ -11,6 +11,8 @@ import (
 	"regexp"
 	"time"
 
+	"sigs.k8s.io/yaml"
+
 	clusterctlv1 "sigs.k8s.io/cluster-api/cmd/clusterctl/api/v1alpha3"
 
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/clusterclient"
@@ -424,4 +426,71 @@ func getCCPlanFromLegacyPlan(plan string) (string, error) {
 		return constants.PlanProdCC, nil
 	}
 	return "", errors.Errorf("unknown plan '%v'", plan)
+}
+
+func (c *TkgClient) getAutoScalerValuesFileFromConfigs(options *CreateClusterOptions) (string, error) {
+	return c.GetAutoScalerValuesFileFromConfigs(options.ClusterName, options.TargetNamespace, "workload", options.ProviderRepositorySource.InfrastructureProvider)
+}
+
+func (c *TkgClient) GetAutoScalerValuesFileFromConfigs(clusterName, namespace, clusterRole, infrastructureProvider string) (string, error) {
+	autoScalerMap := map[string]string{
+		constants.ConfigVariableClusterName:  clusterName,
+		constants.ConfigVariableNamespace:    namespace,
+		constants.ConfigVariableClusterRole:  clusterRole,
+		constants.ConfigVariableProviderType: infrastructureProvider,
+	}
+
+	autoscalerMaxNodesTotal, err := c.TKGConfigReaderWriter().Get(constants.ConfigVariableAutoscalerMaxNodesTotal)
+	if err != nil {
+		return "", err
+	}
+	autoScalerMap[constants.ConfigVariableAutoscalerMaxNodesTotal] = autoscalerMaxNodesTotal
+
+	autoscalerScaleDownDelayAfterAdd, err := c.TKGConfigReaderWriter().Get(constants.ConfigVariableScaleDownDelayAfterAdd)
+	if err != nil {
+		return "", err
+	}
+	autoScalerMap[constants.ConfigVariableScaleDownDelayAfterAdd] = autoscalerScaleDownDelayAfterAdd
+
+	autoscalerScaleDownDelayAfterDelete, err := c.TKGConfigReaderWriter().Get(constants.ConfigVariableAutoScalerScaleDownDelayAfterDelete)
+	if err != nil {
+		return "", err
+	}
+	autoScalerMap[constants.ConfigVariableAutoScalerScaleDownDelayAfterDelete] = autoscalerScaleDownDelayAfterDelete
+
+	autoscalerScaleDownDelayAfterFailure, err := c.TKGConfigReaderWriter().Get(constants.ConfigVariableScaleDownDelayAfterFailure)
+	if err != nil {
+		return "", err
+	}
+	autoScalerMap[constants.ConfigVariableScaleDownDelayAfterFailure] = autoscalerScaleDownDelayAfterFailure
+
+	autoscalerScaleDownUnneededTime, err := c.TKGConfigReaderWriter().Get(constants.ConfigVariableScaleDownUnneededTime)
+	if err != nil {
+		return "", err
+	}
+	autoScalerMap[constants.ConfigVariableScaleDownUnneededTime] = autoscalerScaleDownUnneededTime
+
+	autoscalerMaxNodeProvisionTime, err := c.TKGConfigReaderWriter().Get(constants.ConfigVariableMaxNodeProvisionTime)
+	if err != nil {
+		return "", err
+	}
+	autoScalerMap[constants.ConfigVariableMaxNodeProvisionTime] = autoscalerMaxNodeProvisionTime
+
+	configBytes, err := yaml.Marshal(autoScalerMap)
+	if err != nil {
+		return "", err
+	}
+
+	valuesFile, err := utils.CreateTempFile("", "")
+	if err != nil {
+		return "", err
+	}
+
+	err = utils.WriteToFile(valuesFile, configBytes)
+	if err != nil {
+		return "", err
+	}
+
+	log.Infof("Values File %s", valuesFile)
+	return valuesFile, nil
 }

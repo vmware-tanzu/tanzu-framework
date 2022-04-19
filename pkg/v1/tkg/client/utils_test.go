@@ -7,6 +7,8 @@ import (
 	"os"
 	"time"
 
+	"gopkg.in/yaml.v3"
+
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
 	fakehelper "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/fakes/helper"
 
@@ -168,4 +170,60 @@ var _ = Describe("Utils", func() {
 		})
 	})
 
+	Describe("get autoscaler values for install", func() {
+		var (
+			err       error
+			tkgClient *TkgClient
+		)
+
+		BeforeEach(func() {
+			tkgClient, err = createTKGClient("../fakes/config/config.yaml", testingDir, "../fakes/config/bom/tkg-bom-v1.3.1.yaml", 2*time.Second)
+			Expect(err).NotTo(HaveOccurred())
+
+			tkgClient.TKGConfigReaderWriter().Set(constants.ConfigVariableAutoscalerMaxNodesTotal, "1")
+			tkgClient.TKGConfigReaderWriter().Set(constants.ConfigVariableScaleDownDelayAfterAdd, "0")
+			tkgClient.TKGConfigReaderWriter().Set(constants.ConfigVariableAutoScalerScaleDownDelayAfterDelete, "0")
+			tkgClient.TKGConfigReaderWriter().Set(constants.ConfigVariableScaleDownDelayAfterFailure, "0")
+			tkgClient.TKGConfigReaderWriter().Set(constants.ConfigVariableScaleDownUnneededTime, "0")
+			tkgClient.TKGConfigReaderWriter().Set(constants.ConfigVariableMaxNodeProvisionTime, "0")
+		})
+
+		It("create autoscaler config file and return", func() {
+			valuesFile, err := tkgClient.GetAutoScalerValuesFileFromConfigs("cluster", "namespace", "role", "infra")
+			Expect(err).ToNot(HaveOccurred())
+
+			valuesBytes, err := os.ReadFile(valuesFile)
+			Expect(err).ToNot(HaveOccurred())
+
+			autoscalerConfigs := map[string]string{}
+			err = yaml.Unmarshal(valuesBytes, &autoscalerConfigs)
+			Expect(err).ToNot(HaveOccurred())
+
+			Expect(autoscalerConfigs[constants.ConfigVariableClusterName]).To(Equal("cluster"))
+			Expect(autoscalerConfigs[constants.ConfigVariableNamespace]).To(Equal("namespace"))
+			Expect(autoscalerConfigs[constants.ConfigVariableClusterRole]).To(Equal("role"))
+			Expect(autoscalerConfigs[constants.ConfigVariableProviderType]).To(Equal("infra"))
+			Expect(autoscalerConfigs[constants.ConfigVariableAutoscalerMaxNodesTotal]).To(Equal("1"))
+			Expect(autoscalerConfigs[constants.ConfigVariableScaleDownDelayAfterAdd]).To(Equal("0"))
+			Expect(autoscalerConfigs[constants.ConfigVariableAutoScalerScaleDownDelayAfterDelete]).To(Equal("0"))
+			Expect(autoscalerConfigs[constants.ConfigVariableScaleDownDelayAfterFailure]).To(Equal("0"))
+			Expect(autoscalerConfigs[constants.ConfigVariableScaleDownUnneededTime]).To(Equal("0"))
+			Expect(autoscalerConfigs[constants.ConfigVariableMaxNodeProvisionTime]).To(Equal("0"))
+		})
+
+		AfterEach(func() {
+			err = os.Unsetenv(constants.ConfigVariableAutoscalerMaxNodesTotal)
+			Expect(err).ToNot(HaveOccurred())
+			err = os.Unsetenv(constants.ConfigVariableScaleDownDelayAfterAdd)
+			Expect(err).ToNot(HaveOccurred())
+			err = os.Unsetenv(constants.ConfigVariableAutoScalerScaleDownDelayAfterDelete)
+			Expect(err).ToNot(HaveOccurred())
+			err = os.Unsetenv(constants.ConfigVariableScaleDownDelayAfterFailure)
+			Expect(err).ToNot(HaveOccurred())
+			err = os.Unsetenv(constants.ConfigVariableScaleDownUnneededTime)
+			Expect(err).ToNot(HaveOccurred())
+			err = os.Unsetenv(constants.ConfigVariableMaxNodeProvisionTime)
+			Expect(err).ToNot(HaveOccurred())
+		})
+	})
 })
