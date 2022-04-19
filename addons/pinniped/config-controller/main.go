@@ -55,10 +55,10 @@ func reallyMain(setupLog logr.Logger) error {
 
 	// Register our controllers with the manager.
 	if err := controllers.NewV1Controller(manager.GetClient()).SetupWithManager(manager); err != nil {
-		return fmt.Errorf("unable to create Pinniped Config V1 Controller: %w", err)
+		return fmt.Errorf("unable to create %s: %w", controllers.CascadeControllerV1alpha1Name, err)
 	}
 	if err := controllers.NewV3Controller(manager.GetClient()).SetupWithManager(manager); err != nil {
-		return fmt.Errorf("unable to create Pinniped Config V3 Controller: %w", err)
+		return fmt.Errorf("unable to create %s: %w", controllers.CascadeControllerV1alpha3Name, err)
 	}
 
 	// Tell manager to start running our controller.

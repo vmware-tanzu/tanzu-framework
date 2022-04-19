@@ -31,7 +31,7 @@ type PinnipedV1Controller struct {
 func NewV1Controller(c client.Client) *PinnipedV1Controller {
 	return &PinnipedV1Controller{
 		client: c,
-		Log:    ctrl.Log.WithName("pinniped cascade v1 controller"),
+		Log:    ctrl.Log.WithName(CascadeControllerV1alpha1Name),
 	}
 }
 
@@ -54,7 +54,7 @@ func (c *PinnipedV1Controller) SetupWithManager(manager ctrl.Manager) error {
 		).
 		Complete(c)
 	if err != nil {
-		c.Log.Error(err, "error creating pinniped config controller")
+		c.Log.Error(err, "error creating controller")
 		return err
 	}
 	return nil
@@ -135,7 +135,7 @@ func (c *PinnipedV1Controller) reconcileAddonSecret(ctx context.Context, cluster
 	// also check if cluster is scheduled for deletion, if so, delete addon secret on mgmt cluster
 	if pinnipedInfoCM.Data == nil || !cluster.GetDeletionTimestamp().IsZero() {
 		log.V(1).Info("deleting secret")
-		if err := c.reconcileDelete(ctx, client.ObjectKeyFromObject(cluster), log); err != nil {
+		if err := c.reconcileDelete(ctx, secretNameFromClusterName(client.ObjectKeyFromObject(cluster)), log); err != nil {
 			return err
 		}
 		return nil
@@ -184,6 +184,7 @@ func (c *PinnipedV1Controller) reconcileDelete(ctx context.Context, secretNamesp
 
 	if err := c.client.Delete(ctx, secret); err != nil {
 		if k8serror.IsNotFound(err) {
+			log.V(1).Info("secret not found")
 			return nil
 		}
 		log.Error(err, "error deleting addon secret")
