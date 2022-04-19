@@ -1,0 +1,10 @@
+#@ load("@ytt:data", "data")
+---
+apiVersion: csi.tanzu.vmware.com/v1alpha1
+kind: VSphereCSIConfig
+metadata:
+  name: #@ data.values.TKR_VERSION
+  namespace: #@ data.values.GLOBAL_NAMESPACE
+spec:
+  vsphereCSI:
+    mode: #@ "vsphereCSI" if data.values.IAAS != "tkgs" else "vsphereParavirtualCSI"
