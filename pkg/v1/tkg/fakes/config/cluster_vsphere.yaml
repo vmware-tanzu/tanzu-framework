@@ -1,0 +1,127 @@
+apiVersion: cluster.x-k8s.io/v1beta1
+kind: Cluster
+metadata:
+  annotations:
+    osInfo: ",,"
+  labels:
+    cluster-role.tkg.tanzu.vmware.com/management: ""
+    tanzuKubernetesRelease: v1.23.5---vmware.1-tkg.1-zshippable
+    tkg.tanzu.vmware.com/cluster-name: c1
+  name: vsphere-workload-cluster1 # CLUSTER_NAME
+  namespace: namespace-test1
+spec:
+  clusterNetwork:
+    pods:
+      cidrBlocks: # CLUSTER_CIDR
+        - 10.10.10.10/18
+    services:
+      cidrBlocks: # SERVICE_CIDR
+        - 100.64.0.0/18
+  topology:
+    class: tkg-vsphere-default # CLUSTER_CLASS
+    controlPlane:
+      replicas: 5 # CONTROL_PLANE_MACHINE_COUNT
+    variables:
+      - name: network
+        value:
+          ipv6Primary: false #TKG_IP_FAMILY (if true expect TKG_IP_FAMILY="ipv6,ipv4")
+          proxy: #TKG_HTTP_PROXY_ENABLED (under this if any value is not null then set TKG_HTTP_PROXY_ENABLED)
+            httpProxy: http://10.0.200.100 #TKG_HTTP_PROXY
+            httpsProxy: http://10.0.200.100 #TKG_HTTPS_PROXY
+            noProxy: #TKG_NO_PROXY
+              - 127.0.0.1
+              - 100.64.0.0/18
+              - 10.0.0.0/16
+              - 169.254.0.0/16
+              - .svc.cluster.local
+              - .svc
+              - localhost
+      - name: imageRepository
+        value:
+          host: imageRepositoryHost #TKG_CUSTOM_IMAGE_REPOSITORY
+          tlsCertificateValidation: true #TKG_CUSTOM_IMAGE_REPOSITORY_SKIP_TLS_VERIFY
+      - name: clusterRole #TKG_CLUSTER_ROLE
+        value: workload
+      - name: auditLogging
+        value:
+          enabled: false #ENABLE_AUDIT_LOGGING
+      - name: trust
+        value:
+          - name: proxy
+            data: LS0tLS= #TKG_PROXY_CA_CERT
+          - name: imageRepository
+            data: trust.imageRepository.val #TKG_CUSTOM_IMAGE_REPOSITORY_CA_CERTIFICATE
+      - name: apiServerPort
+        value: 443 #CLUSTER_API_SERVER_PORT
+      - name: apiServerEndpoint # VSPHERE_CONTROL_PLANE_ENDPOINT
+        value: http://10.0.200.101
+      - name: vipNetworkInterface # VIP_NETWORK_INTERFACE
+        value: networkinter
+      - name: aviAPIServerHAProvider # AVI_CONTROL_PLANE_HA_PROVIDER
+        value: true
+      - name: vcenter
+        value:
+          cloneMode: fullClone # VSPHERE_CLONE_MODE
+          network: TESTNETWORK # VSPHERE_NETWORK
+          datacenter: /dc0 # VSPHERE_DATACENTER
+          datastore: ds1 # VSPHERE_DATASTORE
+          folder: vm0 #  VSPHERE_FOLDER
+          resourcePool: /dc0/host/cluster0/Resources/rp0 # VSPHERE_RESOURCE_POOL
+          storagePolicyID: "" # VSPHERE_STORAGE_POLICY_ID
+          server: some.fqdn.com # VSPHERE_SERVER
+          tlsThumbprint: dummythumbprint # VSPHERE_TLS_THUMBPRINT
+          template: photon-3-v1.19.3+vmware.1 # VSPHERE_TEMPLATE
+      - name: user
+        value:
+          sshAuthorizedKeys: # VSPHERE_SSH_AUTHORIZED_KEY
+            - authkeyss11
+            - authkeyss22
+      - name: controlPlane
+        value:
+          machine:
+            diskGiB: 40 # VSPHERE_CONTROL_PLANE_DISK_GIB
+            memoryMiB: 8192 # VSPHERE_CONTROL_PLANE_MEM_MIB
+            numCPUs: 2 # VSPHERE_CONTROL_PLANE_NUM_CPUS
+          network:
+            nameservers: 100.64.0.0 # CONTROL_PLANE_NODE_NAMESERVERS
+      - name: worker
+        value:
+          count: 3 # WORKER_MACHINE_COUNT -- Removed
+          machine:
+            diskGiB: 40 # VSPHERE_WORKER_DISK_GIB
+            memoryMiB: 16384 # VSPHERE_WORKER_MEM_MIB
+            numCPUs: 4 # VSPHERE_WORKER_NUM_CPUS
+          network:
+            nameservers: 100.64.0.0 # WORKER_NODE_NAMESERVERS
+      - name: TKR_DATA
+        value:
+          v1.21.2:
+            kubernetesSpec:
+              coredns:
+                imageTag: v1.8.6_vmware.5
+              etcd:
+                imageTag: v3.5.2_vmware.4
+              imageRepository: projects.registry.vmware.com/tkg
+              kube-vip:
+                imageTag: dummy-kube-vip-image-tag
+              version: v1.21.2
+            labels:
+              os-arch: amd64
+              os-name: ubuntu
+              os-type: linux
+
+    version: v1.21.2
+    workers:
+      machineDeployments:
+        - class: tkg-worker
+          failureDomain: us-east-1a # VSPHERE_AZ_0
+          name: md-0
+          replicas: 1 #WORKER_MACHINE_COUNT
+        - class: tkg-worker
+          failureDomain: us-east-1b # VSPHERE_AZ_1
+          name: md-1
+          replicas: 2 # WORKER_MACHINE_COUNT_1
+        - class: tkg-worker
+          failureDomain: us-east-1c # VSPHERE_AZ_2
+          name: md-2
+          replicas: 3 # WORKER_MACHINE_COUNT_2
