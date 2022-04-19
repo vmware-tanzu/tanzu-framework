@@ -14,3 +14,9 @@ directories:
         manual: {}
       - path: webhook.yaml
         manual: {}
+      - path: tkr-conversion-webhook-deployment.yaml
+        manual: {}
+      - path: tkr-crd.yaml
+        manual: {}
+      - path: osimage-crd.yaml
+        manual: {}

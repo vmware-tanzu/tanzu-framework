@@ -11,3 +11,17 @@ spec:
     targetPort: 9443
   selector:
     app: tkr-resolver-cluster-webhook
+
+## TKR Conversion webhook
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: tkr-conversion-webhook-service
+  namespace: #@ data.values.namespace
+spec:
+  ports:
+  - port: 443
+    targetPort: 9443
+  selector:
+    app: tkr-conversion-webhook
