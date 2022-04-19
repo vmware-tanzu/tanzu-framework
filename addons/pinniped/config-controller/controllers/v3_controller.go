@@ -28,7 +28,7 @@ type PinnipedV3Controller struct {
 func NewV3Controller(c client.Client) *PinnipedV3Controller {
 	return &PinnipedV3Controller{
 		client: c,
-		Log:    ctrl.Log.WithName("pinniped cascade v3 controller"),
+		Log:    ctrl.Log.WithName(CascadeControllerV1alpha3Name),
 	}
 }
 
@@ -46,13 +46,13 @@ func (c *PinnipedV3Controller) SetupWithManager(manager ctrl.Manager) error {
 		).
 		Complete(c)
 	if err != nil {
-		c.Log.Error(err, "error creating pinniped config controller")
+		c.Log.Error(err, "error creating controller")
 		return err
 	}
 	return nil
 }
 
-// +kubebuilder:rbac:groups="",resources=secrets,verbs=list;watch;get;patch
+// +kubebuilder:rbac:groups="",resources=secrets,verbs=list;watch;get;patch;delete
 // +kubebuilder:rbac:groups="",resources=configmaps,verbs=list;watch;get
 // +kubebuilder:rbac:groups="cluster.x-k8s.io",resources=clusters,verbs=get
 

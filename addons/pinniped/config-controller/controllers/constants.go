@@ -4,7 +4,12 @@
 package controllers
 
 const (
-	//TODO: I kinda don't like that we're copying a lot of these from addons/pkg/constants
+	CascadeControllerV1alpha1Name = "🐙 v1alpha1 tanzu auth cascade controller"
+	CascadeControllerV1alpha3Name = "🐠 v1alpha3 tanzu auth cascade controller"
+)
+
+const (
+	// TODO: I kinda don't like that we're copying a lot of these from addons/pkg/constants
 
 	// tkgDataValueFileName is the default name of YTT data value field
 	tkgDataValueFieldName = "values.yaml"
