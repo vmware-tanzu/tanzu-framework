@@ -405,6 +405,21 @@ var _ = Describe("Controller", func() {
 			})
 		})
 
+		When("the configmap gets deleted", func() {
+			BeforeEach(func() {
+				createObject(ctx, configMap)
+			})
+
+			It("deletes all the addon secrets", func() {
+				// delete it
+				deleteObject(ctx, configMap)
+				// then check if all of the secrets are deleted, also
+				for _, c := range clusters {
+					Eventually(verifyNoSecretFunc(ctx, c, true)).Should(Succeed())
+				}
+			})
+		})
+
 		When("the configmap does not have an issuer or caBundle", func() {
 			var configMapCopy *corev1.ConfigMap
 			BeforeEach(func() {
