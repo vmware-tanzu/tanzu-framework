@@ -6,11 +6,11 @@ package controllers
 import (
 	"context"
 	"fmt"
+	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/util/clusterbootstrap"
 	"time"
 
 	"github.com/go-logr/logr"
 	"github.com/pkg/errors"
-	"gopkg.in/yaml.v3"
 	corev1 "k8s.io/api/core/v1"
 	rbacv1 "k8s.io/api/rbac/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
@@ -18,13 +18,10 @@ import (
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
-	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/discovery"
 	cacheddiscovery "k8s.io/client-go/discovery/cached/memory"
 	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/kubernetes"
-	"k8s.io/client-go/util/retry"
-	"k8s.io/utils/pointer"
 	clusterapiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
 	clusterapiutil "sigs.k8s.io/cluster-api/util"
 	clusterapipatchutil "sigs.k8s.io/cluster-api/util/patch"
@@ -289,72 +286,18 @@ func (r *ClusterBootstrapReconciler) createOrPatchClusterBootstrapFromTemplate(c
 		return clusterBootstrap, nil
 	}
 
+	clusterBootstrapHelper := clusterbootstrap.NewHelper(
+		r.context, r.Client, r.aggregatedAPIResourcesClient, r.dynamicClient, r.cachedDiscoveryClient, r.Log)
 	if clusterBootstrap.UID == "" {
 		log.Info("ClusterBootstrap for cluster does not exist, cloning from template")
-		return r.createClusterBootstrapFromTemplate(cluster, clusterBootstrapTemplate, tkrName, log)
+		return clusterBootstrapHelper.CreateClusterBootstrapFromTemplate(clusterBootstrapTemplate, cluster, tkrName)
 	}
 	// Handle ClusterBootstrap update when TKR version of the cluster is upgraded
 	if tkrName != clusterBootstrap.Status.ResolvedTKR {
 		log.Info(fmt.Sprintf("Upgrading ClusterBootstrap from TKR %s to TKR %s", clusterBootstrap.Status.ResolvedTKR, tkrName))
-		return r.patchClusterBootstrapFromTemplate(cluster, clusterBootstrap, clusterBootstrapTemplate, tkrName, log)
+		return r.patchClusterBootstrapFromTemplate(cluster, clusterBootstrap, clusterBootstrapTemplate, clusterBootstrapHelper, tkrName, log)
 	}
 	return nil, errors.New("should not happen")
-}
-
-// createClusterBootstrapFromTemplate will create ClusterBootstrap associated with a cluster
-func (r *ClusterBootstrapReconciler) createClusterBootstrapFromTemplate(
-	cluster *clusterapiv1beta1.Cluster,
-	clusterBootstrapTemplate *runtanzuv1alpha3.ClusterBootstrapTemplate,
-	tkrName string,
-	log logr.Logger) (*runtanzuv1alpha3.ClusterBootstrap, error) {
-
-	clusterBootstrap := &runtanzuv1alpha3.ClusterBootstrap{}
-	clusterBootstrap.Name = cluster.Name
-	clusterBootstrap.Namespace = cluster.Namespace
-	clusterBootstrap.Spec = clusterBootstrapTemplate.Spec.DeepCopy()
-
-	packages := append([]*runtanzuv1alpha3.ClusterBootstrapPackage{
-		clusterBootstrap.Spec.CNI,
-		clusterBootstrap.Spec.CPI,
-		clusterBootstrap.Spec.CSI,
-		clusterBootstrap.Spec.Kapp,
-	}, clusterBootstrap.Spec.AdditionalPackages...)
-
-	secrets, providers, err := r.cloneSecretsAndProvidersFromPackageList(cluster, packages, clusterBootstrapTemplate.Namespace, log)
-	if err != nil {
-		r.Log.Error(err, "unable to clone secrets or providers")
-		return nil, err
-	}
-
-	clusterBootstrap.OwnerReferences = []metav1.OwnerReference{
-		{
-			APIVersion:         clusterapiv1beta1.GroupVersion.String(),
-			Kind:               cluster.Kind,
-			Name:               cluster.Name,
-			UID:                cluster.UID,
-			Controller:         pointer.BoolPtr(true),
-			BlockOwnerDeletion: pointer.BoolPtr(true),
-		},
-	}
-
-	if err := r.Client.Create(r.context, clusterBootstrap); err != nil {
-		return nil, err
-	}
-	// ensure ownerRef of clusterBootstrap on created secrets and providers, this can only be done after
-	// clusterBootstrap is created
-	if err := r.ensureOwnerRef(clusterBootstrap, secrets, providers); err != nil {
-		r.Log.Error(err, fmt.Sprintf("unable to ensure ClusterBootstrap %s/%s as a ownerRef on created secrets and providers", clusterBootstrap.Namespace, clusterBootstrap.Name))
-		return nil, err
-	}
-
-	clusterBootstrap.Status.ResolvedTKR = tkrName
-	if err := r.Status().Update(r.context, clusterBootstrap); err != nil {
-		r.Log.Error(err, fmt.Sprintf("unable to update the status of ClusterBootstrap %s/%s", clusterBootstrap.Namespace, clusterBootstrap.Name))
-		return nil, err
-	}
-	r.Log.Info("cloned clusterBootstrap", "clusterBootstrap", clusterBootstrap)
-
-	return clusterBootstrap, nil
 }
 
 // patchClusterBootstrapFromTemplate will patch ClusterBootstrap associated with a cluster in case of TKR upgrade
@@ -362,6 +305,7 @@ func (r *ClusterBootstrapReconciler) patchClusterBootstrapFromTemplate(
 	cluster *clusterapiv1beta1.Cluster,
 	clusterBootstrap *runtanzuv1alpha3.ClusterBootstrap,
 	clusterBootstrapTemplate *runtanzuv1alpha3.ClusterBootstrapTemplate,
+	clusterBootstrapHelper clusterbootstrap.Helper,
 	tkrName string,
 	log logr.Logger) (*runtanzuv1alpha3.ClusterBootstrap, error) {
 
@@ -381,7 +325,7 @@ func (r *ClusterBootstrapReconciler) patchClusterBootstrapFromTemplate(
 	}
 
 	// Handle newly added package values
-	secrets, providers, err := r.cloneSecretsAndProvidersFromPackageList(cluster, packages, clusterBootstrapTemplate.Namespace, log)
+	secrets, providers, err := clusterBootstrapHelper.CloneReferencedObjectsFromCBPackages(cluster, packages, clusterBootstrapTemplate.Namespace)
 	if err != nil {
 		r.Log.Error(err, "unable to clone secrets or providers")
 		return nil, err
@@ -396,7 +340,7 @@ func (r *ClusterBootstrapReconciler) patchClusterBootstrapFromTemplate(
 	}
 	// ensure ownerRef of clusterBootstrap on created secrets and providers, this can only be done after
 	// clusterBootstrap is updated
-	if err := r.ensureOwnerRef(updatedClusterBootstrap, secrets, providers); err != nil {
+	if err := clusterBootstrapHelper.EnsureOwnerRef(updatedClusterBootstrap, secrets, providers); err != nil {
 		r.Log.Error(err, fmt.Sprintf("unable to ensure ClusterBootstrap %s/%s as a ownerRef on created secrets and providers", clusterBootstrap.Namespace, clusterBootstrap.Name))
 		return nil, err
 	}
@@ -931,154 +875,16 @@ func patchSecretWithLabels(secret *corev1.Secret, pkgName, clusterName string) b
 	return updateLabels
 }
 
-// cloneSecretsAndProvidersFromPackageList clones secrets and providers from packages into the same namespace as clusterBootstrap
-func (r *ClusterBootstrapReconciler) cloneSecretsAndProvidersFromPackageList(
-	cluster *clusterapiv1beta1.Cluster,
-	packages []*runtanzuv1alpha3.ClusterBootstrapPackage,
-	templateNS string, log logr.Logger) ([]*corev1.Secret, []*unstructured.Unstructured, error) {
-
-	var createdProviders []*unstructured.Unstructured
-	var createdSecrets []*corev1.Secret
-
-	for _, pkg := range packages {
-		if pkg == nil {
-			continue
-		}
-		secret, provider, err := r.updateValues(cluster, pkg, templateNS, log)
-		if err != nil {
-			return nil, nil, err
-		}
-		if secret != nil {
-			createdSecrets = append(createdSecrets, secret)
-		}
-		if provider != nil {
-			createdProviders = append(createdProviders, provider)
-		}
-	}
-
-	return createdSecrets, createdProviders, nil
-}
-
-// updateValues updates secretRef and/or providerRef
-func (r *ClusterBootstrapReconciler) updateValues(cluster *clusterapiv1beta1.Cluster,
-	cbPkg *runtanzuv1alpha3.ClusterBootstrapPackage, cbTemplateNamespace string, log logr.Logger) (*corev1.Secret, *unstructured.Unstructured, error) {
-
-	packageRefName, _, err := util.GetPackageMetadata(r.context, r.aggregatedAPIResourcesClient, cbPkg.RefName, cluster.Namespace)
-	if packageRefName == "" || err != nil {
-		// Package.Spec.RefName and Package.Spec.Version are required fields for Package CR. We do not expect them to be
-		// empty and error should not happen when fetching them from a Package CR.
-		r.Log.Error(err, fmt.Sprintf("unable to fetch Package.Spec.RefName or Package.Spec.Version from Package %s/%s",
-			cluster.Namespace, cbPkg.RefName))
-		return nil, nil, err
-	}
-
-	if cbPkg.ValuesFrom == nil {
-		return nil, nil, nil
-	}
-
-	if cbPkg.ValuesFrom.Inline != nil {
-		secret, err := r.createSecretFromInline(cluster, cbPkg, packageRefName, log)
-		if err != nil {
-			return nil, nil, err
-		}
-		return secret, nil, nil
-	}
-
-	if cbPkg.ValuesFrom.SecretRef != "" {
-		secret, err := r.updateValuesFromSecret(cluster, cbPkg, cbTemplateNamespace, packageRefName, log)
-		if err != nil {
-			return nil, nil, err
-		}
-		return secret, nil, nil
-	}
-
-	if cbPkg.ValuesFrom.ProviderRef != nil {
-		provider, err := r.updateValuesFromProvider(cluster, cbPkg, cbTemplateNamespace, packageRefName, log)
-		if err != nil {
-			return nil, nil, err
-		}
-		return nil, provider, nil
-	}
-	return nil, nil, nil
-}
-
-// ensureOwnerRef will ensure the provided OwnerReference onto the secrets and provider objects
-func (r *ClusterBootstrapReconciler) ensureOwnerRef(clusterBootstrap *runtanzuv1alpha3.ClusterBootstrap, secrets []*corev1.Secret, providers []*unstructured.Unstructured) error {
-	ownerRef := metav1.OwnerReference{
-		APIVersion:         runtanzuv1alpha3.GroupVersion.String(),
-		Kind:               "ClusterBootstrap", // kind is empty after create
-		Name:               clusterBootstrap.Name,
-		UID:                clusterBootstrap.UID,
-		Controller:         pointer.BoolPtr(true),
-		BlockOwnerDeletion: pointer.BoolPtr(true),
-	}
-
-	for _, secret := range secrets {
-		ownerRefsMutateFn := func() error {
-			secret.OwnerReferences = clusterapiutil.EnsureOwnerRef(secret.OwnerReferences, ownerRef)
-			return nil
-		}
-		_, err := controllerutil.CreateOrPatch(r.context, r.Client, secret, ownerRefsMutateFn)
-		if err != nil {
-			r.Log.Error(err, fmt.Sprintf("unable to create or patch the secret %s/%s with ownerRef", secret.Namespace, secret.Name))
-			return err
-		}
-	}
-	for _, provider := range providers {
-		gvr, err := r.getGVR(provider.GroupVersionKind().GroupKind())
-		if err != nil {
-			r.Log.Error(err, fmt.Sprintf("unable to get GVR of provider %s/%s", provider.GetNamespace(), provider.GetName()))
-			return err
-		}
-		err = retry.RetryOnConflict(retry.DefaultRetry, func() error {
-			// We need to get and update, otherwise there could have concurrency issue: ["the object has been modified; please
-			// apply your changes to the latest version and try again"]
-			newProvider, errGetProvider := r.dynamicClient.Resource(*gvr).Namespace(provider.GetNamespace()).Get(r.context, provider.GetName(), metav1.GetOptions{})
-			if errGetProvider != nil {
-				r.Log.Error(errGetProvider, fmt.Sprintf("unable to get provider %s/%s", provider.GetNamespace(), provider.GetName()))
-				return errGetProvider
-			}
-			newProvider = newProvider.DeepCopy()
-			newProvider.SetOwnerReferences(clusterapiutil.EnsureOwnerRef(provider.GetOwnerReferences(), ownerRef))
-			_, errUpdateProvider := r.dynamicClient.Resource(*gvr).Namespace(newProvider.GetNamespace()).Update(r.context, newProvider, metav1.UpdateOptions{})
-			if errUpdateProvider != nil {
-				r.Log.Error(errUpdateProvider, fmt.Sprintf("unable to update provider %s/%s", provider.GetNamespace(), provider.GetName()))
-				return errUpdateProvider
-			}
-			return nil
-		})
-		if err != nil {
-			r.Log.Error(err, fmt.Sprintf("unable to update the OwnerRefrences for provider %s/%s", provider.GetNamespace(), provider.GetName()))
-			return err
-		}
-	}
-	return nil
-}
-
 // getGVR returns a GroupVersionResource for a GroupKind
 func (r *ClusterBootstrapReconciler) getGVR(gk schema.GroupKind) (*schema.GroupVersionResource, error) {
 	if gvr, ok := r.providerGVR[gk]; ok {
 		return gvr, nil
 	}
-	apiResourceList, err := r.cachedDiscoveryClient.ServerPreferredResources()
+	gvr, err := util.GetGVRForGroupKind(gk, r.cachedDiscoveryClient)
 	if err != nil {
 		return nil, err
 	}
-	for _, apiResource := range apiResourceList {
-		gv, err := schema.ParseGroupVersion(apiResource.GroupVersion)
-		if err != nil {
-			return nil, err
-		}
-		if gv.Group == gk.Group {
-			for i := 0; i < len(apiResource.APIResources); i++ {
-				if apiResource.APIResources[i].Kind == gk.Kind {
-					r.providerGVR[gk] = &schema.GroupVersionResource{Group: gv.Group, Resource: apiResource.APIResources[i].Name, Version: gv.Version}
-					return r.providerGVR[gk], nil
-				}
-			}
-		}
-	}
-
+	r.providerGVR[gk] = gvr
 	return nil, fmt.Errorf("unable to find server preferred resource %s/%s", gk.Group, gk.Kind)
 }
 
@@ -1095,261 +901,6 @@ func (r *ClusterBootstrapReconciler) periodicGVRCachesClean() {
 			r.providerGVR = make(map[schema.GroupKind]*schema.GroupVersionResource)
 		}
 	}
-}
-
-// createSecretFromInline creates a Secret from inline config in valuesFrom
-func (r *ClusterBootstrapReconciler) createSecretFromInline(cluster *clusterapiv1beta1.Cluster,
-	pkg *runtanzuv1alpha3.ClusterBootstrapPackage, pkgRefName string, log logr.Logger) (*corev1.Secret, error) {
-
-	inlineSecret := &corev1.Secret{}
-	inlineSecret.Name = util.GeneratePackageSecretName(cluster.Name, pkgRefName)
-	// The secret will be created or patched under tkg-system namespace on remote cluster
-	inlineSecret.Namespace = cluster.Namespace
-	inlineSecret.Type = corev1.SecretTypeOpaque
-
-	var createOrPatchErr error
-	_, createOrPatchErr = controllerutil.CreateOrPatch(r.context, r.Client, inlineSecret, func() error {
-		inlineSecret.OwnerReferences = []metav1.OwnerReference{
-			{
-				APIVersion: clusterapiv1beta1.GroupVersion.String(),
-				Kind:       cluster.Kind,
-				Name:       cluster.Name,
-				UID:        cluster.UID,
-			},
-		}
-
-		inlineSecret.Data = map[string][]byte{}
-		inlineConfigYamlBytes, err := yaml.Marshal(pkg.ValuesFrom.Inline)
-		if err != nil {
-			log.Error(err, "Error marshaling inline config to Yaml")
-			return err
-		}
-		inlineSecret.Data[constants.TKGDataValueFileName] = inlineConfigYamlBytes
-
-		// Add cluster and package labels to cloned secrets
-		inlineSecret.Labels = map[string]string{}
-		inlineSecret.Labels[addontypes.PackageNameLabel] = util.ParseStringForLabel(pkg.RefName)
-		inlineSecret.Labels[addontypes.ClusterNameLabel] = cluster.Name
-		// Set secret.Type to ClusterBootstrapManagedSecret to enable us to Watch these secrets
-		inlineSecret.Type = constants.ClusterBootstrapManagedSecret
-		return nil
-	})
-	if createOrPatchErr != nil {
-		return nil, createOrPatchErr
-	}
-	r.Log.Info(fmt.Sprintf("created or patched Secret for inline config %s/%s", inlineSecret.Namespace, inlineSecret.Name))
-	return inlineSecret, nil
-}
-
-// updateValuesFromSecret updates secretRef in valuesFrom
-func (r *ClusterBootstrapReconciler) updateValuesFromSecret(cluster *clusterapiv1beta1.Cluster,
-	pkg *runtanzuv1alpha3.ClusterBootstrapPackage, templateNS, pkgRefName string, log logr.Logger) (*corev1.Secret, error) {
-
-	var newSecret *corev1.Secret
-	if pkg.ValuesFrom.SecretRef != "" {
-		secret := &corev1.Secret{}
-		key := client.ObjectKey{Namespace: templateNS, Name: pkg.ValuesFrom.SecretRef}
-		if err := r.Get(r.context, key, secret); err != nil {
-			log.Error(err, "unable to fetch secret", "objectkey", key)
-			return nil, err
-		}
-		newSecret = secret.DeepCopy()
-		newSecret.ObjectMeta.Reset()
-		newSecret.Name = util.GeneratePackageSecretName(cluster.Name, pkgRefName)
-		newSecret.Namespace = cluster.Namespace
-
-		var createOrPatchErr error
-		_, createOrPatchErr = controllerutil.CreateOrPatch(r.context, r.Client, newSecret, func() error {
-			newSecret.OwnerReferences = []metav1.OwnerReference{
-				{
-					APIVersion: clusterapiv1beta1.GroupVersion.String(),
-					Kind:       cluster.Kind,
-					Name:       cluster.Name,
-					UID:        cluster.UID,
-				},
-			}
-
-			// Add cluster and package labels to cloned secrets
-			if newSecret.Labels == nil {
-				newSecret.Labels = map[string]string{}
-			}
-			newSecret.Labels[addontypes.PackageNameLabel] = util.ParseStringForLabel(pkg.RefName)
-			newSecret.Labels[addontypes.ClusterNameLabel] = cluster.Name
-			// Set secret.Type to ClusterBootstrapManagedSecret to enable us to Watch these secrets
-			newSecret.Type = constants.ClusterBootstrapManagedSecret
-			return nil
-		})
-		if createOrPatchErr != nil {
-			return nil, createOrPatchErr
-		}
-		r.Log.Info(fmt.Sprintf("created or patched Secret %s/%s", newSecret.Namespace, newSecret.Name))
-		pkg.ValuesFrom.SecretRef = newSecret.Name
-	}
-	return newSecret, nil
-}
-
-// cloneEmbeddedLocalObjectRef attempts to clone the embedded local object references from provider's namespace to cluster's
-// namespace. An example of embedded local object reference is the secret reference under CPIConfig.
-func (r *ClusterBootstrapReconciler) cloneEmbeddedLocalObjectRef(cluster *clusterapiv1beta1.Cluster, provider *unstructured.Unstructured) error {
-	groupKindNamesMap := util.ExtractTypedLocalObjectRef(provider.UnstructuredContent(), constants.LocalObjectRefSuffix)
-	if len(groupKindNamesMap) == 0 {
-		return nil
-	}
-
-	providerGVK := provider.GroupVersionKind()
-	r.Log.Info(fmt.Sprintf("cloning the embedded local object references within provider: %s with name: %s from"+
-		" %s namespace to %s namespace", provider.GroupVersionKind().String(), provider.GetName(), provider.GetNamespace(), cluster.Namespace))
-	for groupKind, resourceNames := range groupKindNamesMap {
-		gvr, err := r.getGVR(groupKind)
-		if err != nil {
-			// error has been logged within getGVR()
-			return err
-		}
-		for _, resourceName := range resourceNames {
-			r.Log.Info(fmt.Sprintf("cloning the GVR %s with name %s from %s namespace to %s namespace",
-				gvr.String(), resourceName, provider.GetNamespace(), cluster.Namespace))
-			fetchedObj, err := r.dynamicClient.Resource(*gvr).Namespace(provider.GetNamespace()).Get(r.context, resourceName, metav1.GetOptions{})
-			if err != nil {
-				r.Log.Error(err, fmt.Sprintf("unable to get provider: %s with name: %s under namespace: %s",
-					providerGVK.String(), provider.GetName(), provider.GetNamespace()))
-				return err
-			}
-
-			copiedObj := fetchedObj.DeepCopy()
-			// Remove resoruceVersion to make sure dynamicClient create could work
-			unstructured.RemoveNestedField(copiedObj.Object, "metadata", "resourceVersion")
-			copiedObj.SetNamespace(cluster.Namespace)
-			ownerReferences := copiedObj.GetOwnerReferences()
-			ownerReferences = clusterapiutil.EnsureOwnerRef(ownerReferences, metav1.OwnerReference{
-				APIVersion: provider.GetAPIVersion(),
-				Kind:       provider.GetKind(),
-				Name:       provider.GetName(),
-				UID:        provider.GetUID(),
-			})
-			ownerReferences = clusterapiutil.EnsureOwnerRef(ownerReferences, metav1.OwnerReference{
-				APIVersion: clusterapiv1beta1.GroupVersion.String(),
-				Kind:       "Cluster",
-				Name:       cluster.GetName(),
-				UID:        cluster.GetUID(),
-			})
-			copiedObj.SetOwnerReferences(ownerReferences)
-			_, err = r.dynamicClient.Resource(*gvr).Namespace(cluster.Namespace).Create(r.context, copiedObj, metav1.CreateOptions{})
-			if err != nil {
-				if apierrors.IsAlreadyExists(err) {
-					// Only patch the ownerReferences
-					patchObj := unstructured.Unstructured{}
-					patchObj.SetOwnerReferences(ownerReferences)
-					var jsonData []byte
-					if jsonData, err = patchObj.MarshalJSON(); err != nil {
-						return err
-					}
-					_, err = r.dynamicClient.Resource(*gvr).Namespace(cluster.Namespace).Patch(r.context, copiedObj.GetName(), types.MergePatchType, jsonData, metav1.PatchOptions{})
-					if err != nil {
-						r.Log.Error(err, fmt.Sprintf("unable to clone the GVR %s with name %s from namespace %s to"+
-							" target namespace %s", gvr.String(), resourceName, provider.GetNamespace(), cluster.Namespace))
-						return err
-					}
-				} else {
-					r.Log.Error(err, fmt.Sprintf("unable to clone the GVR %s with name %s from namespace %s to"+
-						" target namespace %s", gvr.String(), resourceName, provider.GetNamespace(), cluster.Namespace))
-					return err
-				}
-			}
-		}
-	}
-	r.Log.Info(fmt.Sprintf("cloned the embedded local object references within provider: %s with name: %s under"+
-		" namespace: %s to target namespace %s", providerGVK.String(), provider.GetName(), provider.GetNamespace(), cluster.Namespace))
-	return nil
-}
-
-// updateValuesFromProvider updates providerRef in valuesFrom
-func (r *ClusterBootstrapReconciler) updateValuesFromProvider(cluster *clusterapiv1beta1.Cluster,
-	pkg *runtanzuv1alpha3.ClusterBootstrapPackage, cbTemplateNamespace, pkgRefName string, log logr.Logger) (*unstructured.Unstructured, error) {
-
-	var newProvider *unstructured.Unstructured
-	var createdOrUpdatedProvider *unstructured.Unstructured
-	valuesFrom := pkg.ValuesFrom
-	if valuesFrom.ProviderRef != nil {
-		gvr, err := r.getGVR(schema.GroupKind{Group: *valuesFrom.ProviderRef.APIGroup, Kind: valuesFrom.ProviderRef.Kind})
-		if err != nil {
-			log.Error(err, "failed to getGVR")
-			return nil, err
-		}
-		provider, err := r.dynamicClient.Resource(*gvr).Namespace(cbTemplateNamespace).Get(r.context, valuesFrom.ProviderRef.Name, metav1.GetOptions{})
-		if err != nil {
-			log.Error(err, fmt.Sprintf("unable to fetch provider %s/%s", cbTemplateNamespace, valuesFrom.ProviderRef.Name), "gvr", gvr)
-			return nil, err
-		}
-		newProvider = provider.DeepCopy()
-		unstructured.RemoveNestedField(newProvider.Object, "metadata")
-		newProvider.SetOwnerReferences([]metav1.OwnerReference{
-			{
-				APIVersion: clusterapiv1beta1.GroupVersion.String(),
-				Kind:       cluster.Kind,
-				Name:       cluster.Name,
-				UID:        cluster.UID,
-			},
-		})
-		// Add cluster and package labels to cloned providers
-		providerLabels := newProvider.GetLabels()
-		if providerLabels == nil {
-			newProvider.SetLabels(map[string]string{
-				// A package refName could contain characters that K8S does not like as a label value.
-				// For example, kapp-controller.tanzu.vmware.com.0.30.0+vmware.1-tkg.1 is a
-				// valid package refName, but it contains "+" that K8S complains. We parse the refName by replacing
-				// + to ---.
-				addontypes.PackageNameLabel: util.ParseStringForLabel(pkg.RefName),
-				addontypes.ClusterNameLabel: cluster.Name,
-			})
-		} else {
-			providerLabels[addontypes.PackageNameLabel] = util.ParseStringForLabel(pkg.RefName)
-			providerLabels[addontypes.ClusterNameLabel] = cluster.Name
-			newProvider.SetLabels(providerLabels)
-		}
-
-		newProvider.SetName(util.GeneratePackageSecretName(cluster.Name, pkgRefName))
-		newProvider.SetNamespace(cluster.Namespace)
-		log.Info(fmt.Sprintf("cloning provider %s/%s to namespace %s", cbTemplateNamespace, newProvider.GetName(), cluster.Namespace), "gvr", gvr)
-		// newProvider and createdOrUpdatedProvider are different. The newProvider is the one we want apiserver to accept,
-		// however createdOrUpdatedProvider is the actual object pointer that apiserver has already created with several managed fields,
-		// The intent of this function is to return the actual object pointer that apiserver has created, so we should
-		// return createdOrUpdatedProvider instead of newProvider. Otherwise, when the caller wants to make changes to the
-		// created provider objects, there will be errors, i.e., [invalid: metadata.resourceVersion: Invalid value: 0x0: must be specified for an update]
-		createdOrUpdatedProvider, err = r.dynamicClient.Resource(*gvr).Namespace(cluster.Namespace).Create(r.context, newProvider, metav1.CreateOptions{})
-		if err != nil {
-			// There are possibilities that current reconciliation loop fails due to various reasons, and during next reconciliation
-			// loop, it is possible that the provider resource has been created. In this case, we want to run update/patch.
-			if apierrors.IsAlreadyExists(err) {
-				r.Log.Info(fmt.Sprintf("provider %s/%s already exist, patching its Labels and OwnerReferences fields", newProvider.GetNamespace(), newProvider.GetName()))
-				// Instantiate an empty unstructured and only set ownerReferences and Labels for patching
-				patchObj := unstructured.Unstructured{}
-				patchObj.SetLabels(newProvider.GetLabels())
-				patchObj.SetOwnerReferences(newProvider.GetOwnerReferences())
-				patchData, err := patchObj.MarshalJSON()
-				if err != nil {
-					log.Error(err, fmt.Sprintf("unable to patch provider %s/%s", newProvider.GetNamespace(), newProvider.GetName()), "gvr", gvr)
-					return nil, err
-				}
-				createdOrUpdatedProvider, err = r.dynamicClient.Resource(*gvr).Namespace(cluster.Namespace).Patch(r.context, newProvider.GetName(), types.MergePatchType, patchData, metav1.PatchOptions{})
-				if err != nil {
-					log.Info(fmt.Sprintf("unable to update provider %s/%s", newProvider.GetNamespace(), newProvider.GetName()), "gvr", gvr)
-					return nil, err
-				}
-			} else {
-				log.Error(err, fmt.Sprintf("unable to clone provider %s/%s", newProvider.GetNamespace(), newProvider.GetName()), "gvr", gvr)
-				return nil, err
-			}
-		}
-
-		valuesFrom.ProviderRef.Name = createdOrUpdatedProvider.GetName()
-		log.Info(fmt.Sprintf("cloned provider %s/%s to namespace %s", createdOrUpdatedProvider.GetNamespace(), createdOrUpdatedProvider.GetName(), cluster.Namespace), "gvr", gvr)
-
-		if err := r.cloneEmbeddedLocalObjectRef(cluster, provider); err != nil {
-			return nil, err
-		}
-	}
-
-	return createdOrUpdatedProvider, nil
 }
 
 // watchProvider will set a watch on the Type indicated by providerRef if not already watching

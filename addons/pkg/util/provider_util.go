@@ -4,6 +4,8 @@
 package util
 
 import (
+	"fmt"
+	"k8s.io/client-go/discovery"
 	"reflect"
 	"strings"
 
@@ -61,4 +63,26 @@ func isValidLocalObjectRef(localObjRef map[string]interface{}) bool {
 		return false
 	}
 	return true
+}
+
+// GetGVRForGroupKind returns a GroupVersionResource for a GroupKind
+func GetGVRForGroupKind(gk schema.GroupKind, discoveryClient discovery.DiscoveryInterface) (*schema.GroupVersionResource, error) {
+	apiResourceList, err := discoveryClient.ServerPreferredResources()
+	if err != nil {
+		return nil, err
+	}
+	for _, apiResource := range apiResourceList {
+		gv, err := schema.ParseGroupVersion(apiResource.GroupVersion)
+		if err != nil {
+			return nil, err
+		}
+		if gv.Group == gk.Group {
+			for i := 0; i < len(apiResource.APIResources); i++ {
+				if apiResource.APIResources[i].Kind == gk.Kind {
+					return &schema.GroupVersionResource{Group: gv.Group, Resource: apiResource.APIResources[i].Name, Version: gv.Version}, nil
+				}
+			}
+		}
+	}
+	return nil, fmt.Errorf("unable to find server preferred resource %s/%s", gk.Group, gk.Kind)
 }
