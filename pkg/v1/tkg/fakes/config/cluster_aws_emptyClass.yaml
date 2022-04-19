@@ -1,0 +1,8 @@
+apiVersion: cluster.x-k8s.io/v1beta1
+kind: Cluster
+metadata:
+  name: aws-workload-cluster1
+  namespace: namespace-test1
+spec:
+  topology:
+    class:

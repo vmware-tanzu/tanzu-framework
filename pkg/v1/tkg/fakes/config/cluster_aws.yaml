@@ -1,0 +1,133 @@
+apiVersion: cluster.x-k8s.io/v1beta1
+kind: Cluster
+metadata:
+  annotations:
+    osInfo: amazon,2,amd64
+    run.tanzu.vmware.com/resolve-tkr: ""
+  labels:
+    tkg.tanzu.vmware.com/cluster-name: c1
+  name: aws-workload-cluster1
+  namespace: namespace-test1
+spec:
+  clusterNetwork:
+    pods:
+      cidrBlocks:
+      - 10.10.10.10/18
+    services:
+      cidrBlocks:
+      - 100.64.0.0/18
+  controlPlaneRef:
+    apiVersion: controlplane.cluster.x-k8s.io/v1beta1
+    kind: KubeadmControlPlane
+    name: testcluster-control-plane
+  infrastructureRef:
+    apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+    kind: AWSCluster
+    name: testcluster
+  topology:
+    class: tkg-aws-default
+    controlPlane:
+      metadata:
+        annotations:
+          run.tanzu.vmware.com/resolve-os-image: ami-region=us-west-2,os-name=ubuntu
+      replicas: 1
+    variables:
+    - name: clusterPlan
+      value: devcc
+    - name: tkgCustomImage
+      value:
+        repository: "repository"
+        caCert: "caCert"
+        skpTlsVerify: true
+    - name: proxy
+      value:
+        caCert: "ProxyCACert"
+        httpProxy: http://10.0.200.100
+        httpsProxy: http://10.0.200.100
+        noProxy:
+        - .svc.cluster.local
+        - 169.254.0.0/16
+    - name: tkgClusterRole
+      value: "tkgClusterRole"
+    - name: region
+      value: "aws-west-0"
+    - name: loadBalancerSchemeInternal
+      value: false
+    - name: bastionHostEnabled
+      value: true
+    - name: vpc
+      value:
+        cidr: 10.0.0.0/16
+        id: "vpcId"
+    - name: identityRef
+      value:
+        kind: AWSClusterRoleIdentity
+        name: "identityRefName"
+    - name: securityGroup
+      value:
+        controlPlane: sg-12345
+        node: sg-12345
+        apiServerLB: securityGroup.apiServerLB
+        bastion: securityGroup.bastion
+        lb: securityGroup.lb
+    - name: subnets
+      value:
+      - private:
+          cidr: 10.0.0.0/24
+          id: "privateID0"
+        public:
+          cidr: 10.0.1.0/24
+          id: "publicID0"
+      - private:
+          cidr: 10.0.2.0/24
+          id: "privateID1"
+        public:
+          cidr: 10.0.3.0/24
+          id: "publicID1"
+      - private:
+          cidr: 10.0.4.0/24
+          id: "privateID2"
+        public:
+          cidr: 10.0.5.0/24
+          id: "publicID1"
+    - name: nodes
+      value:
+      - az: us-west-2b
+        machineType: m5.xlarge
+        osDisk:
+          sizeGiB: 80
+      - az: us-west-2b
+        machineType: t1.medium
+        osDisk:
+          sizeGiB: 80
+      - az: us-west-2c
+        machineType: t2.medium
+        osDisk:
+          sizeGiB: 80
+    - name: controlPlane
+      value:
+        machineType: t3.medium
+        osDisk:
+          sizeGiB: 90
+    version: v1.22.5+vmware.1
+    workers:
+      machineDeployments:
+      - class: tkg-worker
+        failureDomain: us-west-2b
+        metadata:
+          annotations:
+            run.tanzu.vmware.com/resolve-os-image: ami-region=us-west-2,os-name=ubuntu
+        name: md-0
+        replicas: 1
+      - class: tkg-worker
+        failureDomain: us-west-2b
+        name: md-1
+        replicas: null
+        variables:
+          overrides:
+          - name: NODE_MACHINE_TYPE
+            value: m6.xlarge
+      - class: tkg-worker
+        failureDomain: us-west-2c
+        name: md-2
+        replicas: 3

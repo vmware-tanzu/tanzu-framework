@@ -21,7 +21,14 @@ import (
 
 const fakeTKRVersion = "1.19.0+vmware.1-tkg.1"
 const configFilePath = "../fakes/config/config.yaml"
-const ccConfigFilePath = "../fakes/config/ccluster1_clusterOnly.yaml"
+
+const classInputFileAws = "../fakes/config/cluster_aws.yaml"
+const classInputFileAwsIncorrectClass = "../fakes/config/cluster_aws_incorrectClass.yaml"
+const classInputFileAwsEmptyClass = "../fakes/config/cluster_aws_emptyClass.yaml"
+const clusterInputFileMultipleObjectsAws = "../fakes/config/cluster_aws_multipleObjects.yaml"
+const classInputFileAzure = "../fakes/config/cluster_azure.yaml"
+const classInputFileVsphere = "../fakes/config/cluster_vsphere.yaml"
+const inputFileLegacy = "../fakes/config/cluster1_config.yaml"
 
 var testingDir string
 
@@ -204,7 +211,7 @@ var _ = Describe("Unit tests for getAndDownloadTkrIfNeeded", func() {
 	})
 })
 
-var _ = Describe("Unit tests for - ccluster.yaml as input file for 'tanzu cluster create -f ccluster' use case", func() {
+var _ = Describe("Unit tests for (AWS)  cluster_aws.yaml as input file for 'tanzu cluster create -f cluster_aws.yaml' use case", func() {
 	var (
 		ctl       tkgctl
 		tkgClient = &fakes.Client{}
@@ -222,7 +229,7 @@ var _ = Describe("Unit tests for - ccluster.yaml as input file for 'tanzu cluste
 		}
 		tkgClient.IsFeatureActivatedReturns(true)
 	})
-	Context("create cluster with ccluster.yaml : use cases", func() {
+	Context("create cluster with cluster_aws.yaml, AWS provider, plan devcc:", func() {
 		BeforeEach(func() {
 			options = CreateClusterOptions{
 				ClusterName:            "test-cluster",
@@ -233,84 +240,173 @@ var _ = Describe("Unit tests for - ccluster.yaml as input file for 'tanzu cluste
 				TkrVersion:             fakeTKRVersion,
 				SkipPrompt:             true,
 				Edition:                "tkg",
-				ClusterConfigFile:      ccConfigFilePath,
+				ClusterConfigFile:      classInputFileAws,
 			}
 		})
-		It("Input file is ccluster type, make sure configurations are updated..", func() {
-			//Set some values before processing the input ccluster.yaml file.
-			ctl.TKGConfigReaderWriter().Set("CLUSTER_NAME", "BeforeCheckingInputFile")
-			vpcID := "VPC_ID_BeforeCheckingInputFile_11"
-			ctl.TKGConfigReaderWriter().Set("AWS_VPC_ID", vpcID)
-
-			//Process input ccluster.yaml file.
+		It("create cluster with cluster_aws.yaml, AWS provider, plan devcc, make sure legacy configuration are updated:", func() {
+			// Process input cluster yaml file, this should process input cluster yaml file
+			// and update the environment with legacy name and values
+			// most of cluster yaml attributes are mapped to legacy variable for more look this - constants.ClusterToLegacyVariablesMapAws
 			IsInputFileClusterClassBased, err := ctl.processWorkloadClusterInputFile(&options)
 			Expect(IsInputFileClusterClassBased).Should(BeTrue())
 			Expect(err).To(BeNil())
 
-			cname, _ := ctl.TKGConfigReaderWriter().Get("CLUSTER_NAME")
-			//cname should be same as CLUSTER_NAME value from the input config file options.ClusterConfigFile
-			// though we set before checking but it should override by the input ccluster.yaml file
-			Expect(cname).To(Equal("wcc2"))
-			vpcCIDR, _ := ctl.TKGConfigReaderWriter().Get("AWS_VPC_CIDR")
-			Expect(vpcCIDR).To(Equal("10.0.0.0/16"))
-			nodeType, _ := ctl.TKGConfigReaderWriter().Get("NODE_MACHINE_TYPE")
-			Expect(nodeType).To(Equal("m3.xlarge"))
-			tls, _ := ctl.TKGConfigReaderWriter().Get("TKG_CUSTOM_IMAGE_REPOSITORY_SKIP_TLS_VERIFY")
-			Expect(tls).To(Equal("true"))
-			//AWS_VPC_ID should be the same value what we set before processing, as this value is empty in ccluster.yaml file
-			vpcIDAfterProcess, _ := ctl.TKGConfigReaderWriter().Get("AWS_VPC_ID")
-			Expect(vpcIDAfterProcess).To(Equal(vpcID))
-		})
-		It("Input file is ccluster type with multiple objects.", func() {
-			//Set some values before processing the input ccluster.yaml file.
-			ctl.TKGConfigReaderWriter().Set("CLUSTER_NAME", "BeforeCheckingInputFile")
-			vpcID := "VPC_ID_BeforeCheckingInputFile_22"
-			ctl.TKGConfigReaderWriter().Set("AWS_VPC_ID", vpcID)
+			// Here, we are preparing to test above call - ctl.processWorkloadClusterInputFile(&options)
+			// to make sure input cluster  attributes values are updated with legacy variables in environment (tkgctl.TKGConfigReaderWriter())
+			// Processing the input cluster yaml file with the existing util api, and expecting Cluster YAML object,
+			// from the Cluster YAML object, map attributes path with values, and update Map variablesMap.
+			_, clusterObj, _ := ctl.checkIfInputFileIsClusterClassBased(options.ClusterConfigFile)
+			variablesMap := make(map[string]interface{})
+			variablesMap["metadata.name"] = clusterObj.GetName()
+			variablesMap["metadata.namespace"] = clusterObj.GetNamespace()
+			spec := clusterObj.Object[constants.SPEC].(map[string]interface{})
+			err = processYamlObjectAndAddToMap(spec, constants.SPEC, variablesMap)
+			Expect(err).To(BeNil())
 
-			//Process input ccluster.yaml file.
-			options.ClusterConfigFile = "../fakes/config/ccluster2_multipleObjects.yaml"
+			// In AWS use case, there were few attributes repeated in cluster yaml file, we need to take always higher precedence values.
+			// below logic, takes higher precedence attribute path and its lower precedence path,
+			// check if lower precedence path has value if so overrides with higher precedence path value.
+			for higherPrecedenceKey := range constants.ClusterAttributesHigherPrecedenceToLowerMap {
+				_, ok1 := constants.ClusterAttributesToLegacyVariablesMapAws[higherPrecedenceKey]
+				valueOfAttributeWithHigherPrecedencePath, ok2 := variablesMap[higherPrecedenceKey]
+				if ok1 && ok2 {
+					lowerPrecedenceAttributePath := constants.ClusterAttributesHigherPrecedenceToLowerMap[higherPrecedenceKey]
+					// lower precedence attribute value should be overrid with higher precedence values.
+					variablesMap[lowerPrecedenceAttributePath] = fmt.Sprintf("%v", valueOfAttributeWithHigherPrecedencePath)
+				}
+			}
+
+			// Here, taking legacy variable name for every attribute in cluter input file,
+			// then check the value of legacy variable in environment, with value of the same from the input file
+			// both should match.
+			for key := range variablesMap {
+				if inputValue := variablesMap[key]; inputValue != nil {
+					legacyNameForClusterObjectInputVariable, ok := constants.ClusterAttributesToLegacyVariablesMapAws[key]
+					if ok && legacyNameForClusterObjectInputVariable != "" {
+						mappedVal, _ := ctl.TKGConfigReaderWriter().Get(legacyNameForClusterObjectInputVariable)
+						Expect(fmt.Sprintf("%v", mappedVal)).To(Equal(fmt.Sprintf("%v", inputValue)))
+					}
+				}
+			}
+			// checking manually for some variables mapping values
+			mappedVal, _ := ctl.TKGConfigReaderWriter().Get(constants.ConfigVariableClusterName)
+			Expect("aws-workload-cluster1").To(Equal(fmt.Sprintf("%v", mappedVal)))
+			// checking manually for some variables mapping values
+			mappedVal, _ = ctl.TKGConfigReaderWriter().Get(constants.ConfigVariableNamespace)
+			Expect("namespace-test1").To(Equal(fmt.Sprintf("%v", mappedVal)))
+			// check value for "spec.topology.variables.subnets.2.public.cidr"
+			mappedVal, _ = ctl.TKGConfigReaderWriter().Get(constants.ConfigVariableAWSPublicNodeCIDR2)
+			Expect("10.0.5.0/24").To(Equal(fmt.Sprintf("%v", mappedVal)))
+
+			//check value for "spec.topology.variables.nodes.0.osDisk.sizeGiB"
+			mappedVal, _ = ctl.TKGConfigReaderWriter().Get(constants.ConfigVariableAWSNodeOsDiskSizeGib)
+			Expect("80").To(Equal(fmt.Sprintf("%v", mappedVal)))
+			// check value for "spec.topology.workers.machineDeployments.2.replicas"
+			mappedVal, _ = ctl.TKGConfigReaderWriter().Get(constants.ConfigVariableWorkerMachineCount2)
+			Expect("3").To(Equal(fmt.Sprintf("%v", mappedVal)))
+			// check value for "spec.topology.workers.machineDeployments.1.variables.overrides.NODE_MACHINE_TYPE"
+			mappedVal, _ = ctl.TKGConfigReaderWriter().Get(constants.ConfigVariableNodeMachineType1)
+			Expect("m6.xlarge").To(Equal(fmt.Sprintf("%v", mappedVal)))
+
+			// check value for "spec.topology.variables.proxy" is set
+			mappedVal, _ = ctl.TKGConfigReaderWriter().Get(constants.TKGHTTPProxyEnabled)
+			Expect("true").To(Equal(fmt.Sprintf("%v", mappedVal)))
+			// check value for "spec.topology.variables.proxy" is set
+			mappedVal, _ = ctl.TKGConfigReaderWriter().Get(constants.TKGHTTPProxy)
+			Expect("http://10.0.200.100").To(Equal(fmt.Sprintf("%v", mappedVal)))
+		})
+
+		It("Input file is cluster type with multiple objects, AWS infra and plan is prodcc, make sure Cluster object processed and legacy configs are updated:", func() {
+
+			// Process input cluster yaml file, this should process input cluster yaml file
+			// and update the environment with legacy name and values
+			// most of cluster yaml attributes are mapped to legacy variable for more look this - constants.ClusterToLegacyVariablesMapAws
+			options.ClusterConfigFile = clusterInputFileMultipleObjectsAws
 			IsInputFileClusterClassBased, err := ctl.processWorkloadClusterInputFile(&options)
 			Expect(IsInputFileClusterClassBased).Should(BeTrue())
 			Expect(err).To(BeNil())
 
-			cname, _ := ctl.TKGConfigReaderWriter().Get("CLUSTER_NAME")
-			//cname should be same as CLUSTER_NAME value from the input config file options.ClusterConfigFile
-			// though we set before checking but it should override by the input ccluster.yaml file
-			Expect(cname).To(Equal("wcc11"))
-			vpcCIDR, _ := ctl.TKGConfigReaderWriter().Get("AWS_VPC_CIDR")
-			Expect(vpcCIDR).To(Equal("10.0.0.0/16"))
-			nodeType, _ := ctl.TKGConfigReaderWriter().Get("NODE_MACHINE_TYPE")
-			Expect(nodeType).To(Equal("m3.xlarge"))
-			tls, _ := ctl.TKGConfigReaderWriter().Get("TKG_CUSTOM_IMAGE_REPOSITORY_SKIP_TLS_VERIFY")
-			Expect(tls).To(Equal("false"))
-			repository, _ := ctl.TKGConfigReaderWriter().Get("TKG_CUSTOM_IMAGE_REPOSITORY")
-			Expect(repository).To(BeEmpty())
-			//AWS_VPC_ID should be the same value what we set before processing, as this value is empty in ccluster.yaml file
-			vpcIDAfterProcess, _ := ctl.TKGConfigReaderWriter().Get("AWS_VPC_ID")
-			Expect(vpcIDAfterProcess).To(Equal(vpcID))
+			// Here, we are preparing to test above call - ctl.processWorkloadClusterInputFile(&options)
+			// to make sure input cluster attributes values are updated with legacy variables in environment (tkgctl.TKGConfigReaderWriter())
+			// Processing the input cluster yaml file with the existing util api, and expecting Cluster YAML object,
+			// from the Cluster YAML object, map attributes path with values, and update Map variablesMap.
+
+			_, clusterObj, _ := ctl.checkIfInputFileIsClusterClassBased(options.ClusterConfigFile)
+			variablesMap := make(map[string]interface{})
+			variablesMap["metadata.name"] = clusterObj.GetName()
+			variablesMap["metadata.namespace"] = clusterObj.GetNamespace()
+			spec := clusterObj.Object[constants.SPEC].(map[string]interface{})
+			err = processYamlObjectAndAddToMap(spec, constants.SPEC, variablesMap)
+			Expect(err).To(BeNil())
+
+			// In AWS use case, there were few attributes repeated in cluster yaml file, we need to take always higher precedence values.
+			// below logic, takes higher precedence attribute path and its lower precedence path,
+			// check if lower precedence path has value if so overrides with higher precedence path value.
+			for higherPrecedenceKey := range constants.ClusterAttributesHigherPrecedenceToLowerMap {
+				_, ok1 := constants.ClusterAttributesToLegacyVariablesMapAws[higherPrecedenceKey]
+				value, ok2 := variablesMap[higherPrecedenceKey]
+				if ok1 && ok2 {
+					lowerPrecedenceAttribute := constants.ClusterAttributesHigherPrecedenceToLowerMap[higherPrecedenceKey]
+					// lower precedence attribute value should be the value of higher
+					variablesMap[lowerPrecedenceAttribute] = fmt.Sprintf("%v", value)
+				}
+			}
+
+			// Here, taking legacy variable name for every attribute in cluter input file,
+			// then check the value of legacy variable in environment, with value of the same from the input file
+			// both should mathc.
+			for key := range variablesMap {
+				if inputValue := variablesMap[key]; inputValue != nil {
+					legacyNameForClusterObjectInputVariable, ok := constants.ClusterAttributesToLegacyVariablesMapAws[key]
+					if ok && legacyNameForClusterObjectInputVariable != "" {
+						mappedVal, _ := ctl.TKGConfigReaderWriter().Get(legacyNameForClusterObjectInputVariable)
+						Expect(fmt.Sprintf("%v", mappedVal)).To(Equal(fmt.Sprintf("%v", inputValue)))
+					}
+				}
+			}
+			// checking manually for some variables mapping values
+			mappedVal, _ := ctl.TKGConfigReaderWriter().Get(constants.ConfigVariableClusterName)
+			Expect("aws-workload-cluster1").To(Equal(fmt.Sprintf("%v", mappedVal)))
+			// checking manually for some variables mapping values
+			mappedVal, _ = ctl.TKGConfigReaderWriter().Get(constants.ConfigVariableNamespace)
+			Expect("namespace-test1").To(Equal(fmt.Sprintf("%v", mappedVal)))
+			// check value for "spec.topology.variables.subnets.2.public.cidr"
+			mappedVal, _ = ctl.TKGConfigReaderWriter().Get(constants.ConfigVariableAWSPublicNodeCIDR2)
+			Expect("10.0.5.0/24").To(Equal(fmt.Sprintf("%v", mappedVal)))
+
+			//check value for "spec.topology.variables.nodes.0.osDisk.sizeGiB"
+			mappedVal, _ = ctl.TKGConfigReaderWriter().Get(constants.ConfigVariableAWSNodeOsDiskSizeGib)
+			Expect("80").To(Equal(fmt.Sprintf("%v", mappedVal)))
+			// check value for "spec.topology.workers.machineDeployments.2.replicas"
+			mappedVal, _ = ctl.TKGConfigReaderWriter().Get(constants.ConfigVariableWorkerMachineCount2)
+			Expect("3").To(Equal(fmt.Sprintf("%v", mappedVal)))
+			// check value for "spec.topology.workers.machineDeployments.1.variables.overrides.NODE_MACHINE_TYPE"
+			mappedVal, _ = ctl.TKGConfigReaderWriter().Get(constants.ConfigVariableNodeMachineType1)
+			Expect("m6.xlarge").To(Equal(fmt.Sprintf("%v", mappedVal)))
 		})
 
-		It("make sure CreateClusterOptions values are updated.", func() {
-			options.ClusterName = "BeforeProcess"
-			options.Plan = "Plan"
-			//Process input ccluster.yaml file.
-			Expect(options.ClusterName).To(Equal("BeforeProcess"))
-			Expect(options.Plan).To(Equal("Plan"))
+		It("Input file is cluster type does not have value for spec.topology.class", func() {
 
-			options.ClusterConfigFile = ccConfigFilePath
-			_, _ = ctl.processWorkloadClusterInputFile(&options)
-
-			cname, _ := ctl.TKGConfigReaderWriter().Get("CLUSTER_NAME")
-			Expect(cname).To(Equal("wcc2"))
-			Expect(options.ClusterName).To(Equal("wcc2"))
-			Expect(options.Plan).To(Equal("devcc"))
+			// Process input cluster.yaml file, this should process input cluster.yaml file
+			// and update the environment with legacy name and values
+			// most of cluster.yaml attributes are mapped to legacy variable for more look this - constants.clusterToLegacyVariablesMapAws
+			options.ClusterConfigFile = classInputFileAwsEmptyClass
+			_, err := ctl.processWorkloadClusterInputFile(&options)
+			Expect(fmt.Sprint(err)).To(Equal(constants.TopologyClassIncorrectValueErrMsg))
 		})
 
-		It("Input file is config.yaml file not ccluster.yaml file", func() {
-			options.ClusterConfigFile = "../fakes/config/ccluster1_config.yaml"
+		It("Input file is config.yaml file not cluster.yaml file", func() {
+			options.ClusterConfigFile = inputFileLegacy
 			IsInputFileClusterClassBased, err := ctl.processWorkloadClusterInputFile(&options)
 			Expect(IsInputFileClusterClassBased).Should(BeFalse())
 			Expect(err).To(BeNil())
+		})
+
+		It("Input file is aws clusterclass.yaml file, but in-correct topology.class name:", func() {
+			options.ClusterConfigFile = classInputFileAwsIncorrectClass
+			IsInputFileClusterClassBased, err := ctl.processWorkloadClusterInputFile(&options)
+			Expect(IsInputFileClusterClassBased).Should(BeTrue())
+			Expect(fmt.Sprint(err)).To(Equal(constants.TopologyClassIncorrectValueErrMsg))
 		})
 
 		It("Input file is not specified", func() {
@@ -327,7 +423,200 @@ var _ = Describe("Unit tests for - ccluster.yaml as input file for 'tanzu cluste
 	})
 })
 
-var _ = Describe("Unit tests for feature flag (config.FeatureFlagPackageBasedLCM) and featureGate for clusterclass - TKGS ", func() {
+var _ = Describe("Unit tests for - (Vsphere) - cluster_vsphere.yaml as input file for 'tanzu cluster create -f cluster_vsphere.yaml' use case", func() {
+	var (
+		ctl       tkgctl
+		tkgClient = &fakes.Client{}
+		bomClient = &fakes.TKGConfigBomClient{}
+		options   CreateClusterOptions
+	)
+	JustBeforeEach(func() {
+		tkgConfigReaderWriter, _ := tkgconfigreaderwriter.NewReaderWriterFromConfigFile(configFilePath, configFilePath)
+		ctl = tkgctl{
+			configDir:              testingDir,
+			tkgClient:              tkgClient,
+			tkgConfigReaderWriter:  tkgConfigReaderWriter,
+			tkgConfigUpdaterClient: tkgconfigupdater.New(testingDir, nil, tkgConfigReaderWriter),
+			tkgBomClient:           bomClient,
+		}
+		tkgClient.IsFeatureActivatedReturns(true)
+	})
+	Context("create cluster with clusterclass_vsphere.yaml, vsphere provider, plan devcc:", func() {
+		BeforeEach(func() {
+			options = CreateClusterOptions{
+				ClusterName:            "test-cluster",
+				Plan:                   "dev",
+				InfrastructureProvider: "",
+				Namespace:              "",
+				GenerateOnly:           false,
+				TkrVersion:             fakeTKRVersion,
+				SkipPrompt:             true,
+				Edition:                "tkg",
+				ClusterConfigFile:      classInputFileVsphere,
+			}
+		})
+		It("Input file is clusterclass_vsphere.yaml type,  vsphere provider, plan devcc, make sure legacy configurations are updated..", func() {
+
+			// Process input cluster.yaml file, this should process input cluster.yaml file
+			// and update the environment with legacy name and values
+			// most of cluster.yaml attributes are mapped to legacy variable for more look this - constants.ClusterToLegacyVariablesMapVsphere
+			IsInputFileClusterClassBased, err := ctl.processWorkloadClusterInputFile(&options)
+			Expect(IsInputFileClusterClassBased).Should(BeTrue())
+			Expect(err).To(BeNil())
+
+			// Here, we are preparing to test above call - ctl.processWorkloadClusterInputFile(&options)
+			// to make sure input cluster attributes values are updated with legacy variables in environment (tkgctl.TKGConfigReaderWriter())
+			// Processing the input cluster.yaml file with the existing util api, and expecting Cluster YAML object,
+			// from the Cluster YAML object, map attributes path with values, and update Map variablesMap.
+
+			_, clusterObj, _ := ctl.checkIfInputFileIsClusterClassBased(options.ClusterConfigFile)
+			variablesMap := make(map[string]interface{})
+			variablesMap["metadata.name"] = clusterObj.GetName()
+			variablesMap["metadata.namespace"] = clusterObj.GetNamespace()
+			spec := clusterObj.Object[constants.SPEC].(map[string]interface{})
+			err = processYamlObjectAndAddToMap(spec, constants.SPEC, variablesMap)
+			Expect(err).To(BeNil())
+
+			// Here, taking legacy variable name for every attribute in cluter input file,
+			// then check the value of legacy variable in environment, with value of the same from the input file
+			// both should mathc.
+			for key := range variablesMap {
+				if inputValue := variablesMap[key]; inputValue != nil {
+					legacyNameForClusterObjectInputVariable, ok := constants.ClusterAttributesToLegacyVariablesMapVsphere[key]
+					if ok && legacyNameForClusterObjectInputVariable != "" {
+						mappedVal, _ := ctl.TKGConfigReaderWriter().Get(legacyNameForClusterObjectInputVariable)
+						Expect(fmt.Sprintf("%v", mappedVal)).To(Equal(fmt.Sprintf("%v", inputValue)))
+					}
+				}
+			}
+			// checking manually for some variables mapping values
+			mappedVal, _ := ctl.TKGConfigReaderWriter().Get(constants.ConfigVariableClusterName)
+			Expect("vsphere-workload-cluster1").To(Equal(fmt.Sprintf("%v", mappedVal)))
+
+			mappedVal, _ = ctl.TKGConfigReaderWriter().Get(constants.ConfigVariableNamespace)
+			Expect("namespace-test1").To(Equal(fmt.Sprintf("%v", mappedVal)))
+
+			// check value for "spec.clusterNetwork.services.cidrBlocks"
+			mappedVal, _ = ctl.TKGConfigReaderWriter().Get(constants.ConfigVariableServiceCIDR)
+			Expect("10.10.10.10/16").To(Equal(fmt.Sprintf("%v", mappedVal)))
+
+			// check value for "spec.topology.variables.controlPlane.network.nameservers"
+			mappedVal, _ = ctl.TKGConfigReaderWriter().Get(constants.ConfigVariableControlPlaneNodeNameservers)
+			Expect("3").To(Equal(fmt.Sprintf("%v", mappedVal)))
+
+			//  check value for "spec.topology.variables.controlPlane.machine.numCPUs
+			mappedVal, _ = ctl.TKGConfigReaderWriter().Get(constants.ConfigVariableVsphereCPNumCpus)
+			Expect("2").To(Equal(fmt.Sprintf("%v", mappedVal)))
+
+			//  check value for "spec.topology.variables.node.machine.memoryMiB"
+			mappedVal, _ = ctl.TKGConfigReaderWriter().Get(constants.ConfigVariableVsphereWorkerMemMib)
+			Expect("16384").To(Equal(fmt.Sprintf("%v", mappedVal)))
+
+			//  check value for "spec.topology.workers.machineDeployments.0.replicas"
+			mappedVal, _ = ctl.TKGConfigReaderWriter().Get(constants.ConfigVariableWorkerMachineCount)
+			Expect("4").To(Equal(fmt.Sprintf("%v", mappedVal)))
+
+			mappedVal, _ = ctl.TKGConfigReaderWriter().Get(constants.ConfigVariableVsphereAz2)
+			Expect("3").To(Equal(fmt.Sprintf("%v", mappedVal)))
+
+		})
+	})
+})
+
+var _ = Describe("Unit tests for - (Azure) - cluster_azure.yaml as input file for 'tanzu cluster create -f cluster_azure.yaml' use case", func() {
+	var (
+		ctl       tkgctl
+		tkgClient = &fakes.Client{}
+		bomClient = &fakes.TKGConfigBomClient{}
+		options   CreateClusterOptions
+	)
+	JustBeforeEach(func() {
+		tkgConfigReaderWriter, _ := tkgconfigreaderwriter.NewReaderWriterFromConfigFile(configFilePath, configFilePath)
+		ctl = tkgctl{
+			configDir:              testingDir,
+			tkgClient:              tkgClient,
+			tkgConfigReaderWriter:  tkgConfigReaderWriter,
+			tkgConfigUpdaterClient: tkgconfigupdater.New(testingDir, nil, tkgConfigReaderWriter),
+			tkgBomClient:           bomClient,
+		}
+		tkgClient.IsFeatureActivatedReturns(true)
+	})
+	Context("'tanzu cluster create -f cluster_azure.yaml' use case - vsphere provider - devcc plan:", func() {
+		BeforeEach(func() {
+			options = CreateClusterOptions{
+				ClusterName:            "test-cluster",
+				Plan:                   "dev",
+				InfrastructureProvider: "",
+				Namespace:              "",
+				GenerateOnly:           false,
+				TkrVersion:             fakeTKRVersion,
+				SkipPrompt:             true,
+				Edition:                "tkg",
+				ClusterConfigFile:      classInputFileAzure,
+			}
+		})
+		It("'tanzu cluster create -f cluster_azure.yaml' use case - vsphere provider - devcc plan:, make sure legacy configurations are updated..", func() {
+
+			// Process input cluster yaml file, this should process input cluster yaml file
+			// and update the environment with legacy name and values
+			// most of cluster yaml attributes are mapped to legacy variable for more look this - constants.ClusterToLegacyVariablesMapAzure
+			IsInputFileClusterClassBased, err := ctl.processWorkloadClusterInputFile(&options)
+			Expect(IsInputFileClusterClassBased).Should(BeTrue())
+			Expect(err).To(BeNil())
+
+			// Here, we are preparing to test above call - ctl.processWorkloadClusterInputFile(&options)
+			// to make sure input cluster attributes values are updated with legacy variables in environment (tkgctl.TKGConfigReaderWriter())
+			// Processing the input cluster yaml file with the existing util api, and expecting Cluster YAML object,
+			// from the Cluster YAML object, map attributes path with values, and update Map variablesMap.
+			_, clusterObj, _ := ctl.checkIfInputFileIsClusterClassBased(options.ClusterConfigFile)
+			variablesMap := make(map[string]interface{})
+			variablesMap["metadata.name"] = clusterObj.GetName()
+			variablesMap["metadata.namespace"] = clusterObj.GetNamespace()
+			spec := clusterObj.Object[constants.SPEC].(map[string]interface{})
+			err = processYamlObjectAndAddToMap(spec, constants.SPEC, variablesMap)
+			Expect(err).To(BeNil())
+
+			// Here, taking legacy variable name for every attribute in cluter input file,
+			// then check the value of legacy variable in environment, with value of the same from the input file
+			// both should mathc.
+			for key := range variablesMap {
+				if inputValue := variablesMap[key]; inputValue != nil {
+					legacyNameForClusterObjectInputVariable, ok := constants.ClusterAttributesToLegacyVariablesMapAzure[key]
+					if ok && legacyNameForClusterObjectInputVariable != "" {
+						mappedVal, _ := ctl.TKGConfigReaderWriter().Get(legacyNameForClusterObjectInputVariable)
+						Expect(fmt.Sprintf("%v", mappedVal)).To(Equal(fmt.Sprintf("%v", inputValue)))
+					}
+				}
+			}
+
+			// checking manually for some variables mapping values
+			mappedVal, _ := ctl.TKGConfigReaderWriter().Get(constants.ConfigVariableClusterName)
+			Expect("azure-workload-cluster1").To(Equal(fmt.Sprintf("%v", mappedVal)))
+
+			// checking manually for some variables mapping values
+			mappedVal, _ = ctl.TKGConfigReaderWriter().Get(constants.ConfigVariableNamespace)
+			Expect("namespace-test1").To(Equal(fmt.Sprintf("%v", mappedVal)))
+
+			//  check value for "spec.clusterNetwork.services.cidrBlocks": ConfigVariableServiceCIDR,
+			mappedVal, _ = ctl.TKGConfigReaderWriter().Get(constants.ConfigVariableServiceCIDR)
+			Expect("10.10.10.10/16").To(Equal(fmt.Sprintf("%v", mappedVal)))
+
+			//  check value for "spec.topology.variables.controlPlane.subnet.securityGroup":       ConfigVariableAzureControlPlaneSubnetSecurityGroup,
+			mappedVal, _ = ctl.TKGConfigReaderWriter().Get(constants.ConfigVariableAzureControlPlaneSubnetSecurityGroup)
+			Expect("SecurityGroupCP").To(Equal(fmt.Sprintf("%v", mappedVal)))
+
+			//  check value for "spec.topology.variables.node.outboundLB.idleTimeoutInMinutes": ConfigVariableAzureNodeOutboundLbIdleTimeoutInMinutes,
+			mappedVal, _ = ctl.TKGConfigReaderWriter().Get(constants.ConfigVariableAzureNodeOutboundLbIdleTimeoutInMinutes)
+			Expect("8").To(Equal(fmt.Sprintf("%v", mappedVal)))
+
+			mappedVal, _ = ctl.TKGConfigReaderWriter().Get(constants.ConfigVariableAzureAZ2)
+			Expect("3").To(Equal(fmt.Sprintf("%v", mappedVal)))
+
+		})
+	})
+})
+
+var _ = Describe("Unit tests for feature flag (config.FeatureFlagPackageBasedLCM) and featureGate for clusterclass - TKGS : vSphere provider, devcc:", func() {
 	var (
 		options   CreateClusterOptions
 		tkgClient *fakes.Client
@@ -346,11 +635,11 @@ var _ = Describe("Unit tests for feature flag (config.FeatureFlagPackageBasedLCM
 				Edition:                "tkg",
 			}
 		})
-		It("positive case, feature flag (config.FeatureFlagPackageBasedLCM) enabled, clusterclass featuregate enabled, and its TKGS cluster", func() {
-			kubeConfigPath := getConfigFilePath()
+		It("positive case, feature flag (config.FeatureFlagPackageBasedLCM) enabled, clusterclass featuregate enabled, and its TKGS cluster : vSphere provider, devcc:", func() {
+			kubeConfigPath := classInputFileVsphere
 			regionContext := region.RegionContext{
 				ContextName:    "queen-anne-context",
-				SourceFilePath: kubeConfigPath,
+				SourceFilePath: classInputFileVsphere,
 			}
 
 			tkgClient = &fakes.Client{}
@@ -358,7 +647,7 @@ var _ = Describe("Unit tests for feature flag (config.FeatureFlagPackageBasedLCM
 			tkgClient.GetCurrentRegionContextReturns(regionContext, nil)
 			tkgClient.IsFeatureActivatedReturns(true)
 			tkgClient.CreateClusterReturnsOnCall(0, false, nil)
-			options.ClusterConfigFile = ccConfigFilePath
+			options.ClusterConfigFile = classInputFileVsphere
 			tkgConfigReaderWriter, _ := tkgconfigreaderwriter.NewReaderWriterFromConfigFile(configFilePath, configFilePath)
 			fg := &fakes.FakeFeatureGateHelper{}
 			fg.FeatureActivatedInNamespaceReturns(true, nil)
@@ -379,9 +668,9 @@ var _ = Describe("Unit tests for feature flag (config.FeatureFlagPackageBasedLCM
 			Expect(1).To(Equal(pc))
 			// Make sure its ClusterClass use case.
 			cname, _ := tkgctlClient.tkgConfigReaderWriter.Get("CLUSTER_NAME")
-			Expect(cname).To(Equal("wcc2"))
+			Expect(cname).To(Equal("vsphere-workload-cluster1"))
 		})
-		It("clusterclass feature flag 'config.FeatureFlagPackageBasedLCM' not enabled", func() {
+		It("clusterclass feature flag 'config.FeatureFlagPackageBasedLCM' not enabled : vSphere provider, devcc:", func() {
 			kubeConfigPath := getConfigFilePath()
 			regionContext := region.RegionContext{
 				ContextName:    "queen-anne-context",
@@ -393,7 +682,7 @@ var _ = Describe("Unit tests for feature flag (config.FeatureFlagPackageBasedLCM
 			tkgClient.GetCurrentRegionContextReturns(regionContext, nil)
 			tkgClient.IsFeatureActivatedReturns(false)
 			tkgClient.CreateClusterReturnsOnCall(0, false, nil)
-			options.ClusterConfigFile = ccConfigFilePath
+			options.ClusterConfigFile = classInputFileAzure
 			tkgConfigReaderWriter, _ := tkgconfigreaderwriter.NewReaderWriterFromConfigFile(configFilePath, configFilePath)
 			fg := &fakes.FakeFeatureGateHelper{}
 			fg.FeatureActivatedInNamespaceReturns(true, nil)
@@ -412,7 +701,7 @@ var _ = Describe("Unit tests for feature flag (config.FeatureFlagPackageBasedLCM
 			// Make sure its TKGs system.
 			pc := tkgClient.IsPacificManagementClusterCallCount()
 			Expect(1).To(Equal(pc))
-			// As feature flag (config.FeatureFlagPackageBasedLCM) is not enabled, the input ccluster1_clusterOnly.yaml file not processed,
+			// As feature flag (config.FeatureFlagPackageBasedLCM) is not enabled, the input cluster1_clusterOnly.yaml file not processed,
 			// so cname is empty only.
 			cname, _ := tkgctlClient.tkgConfigReaderWriter.Get("CLUSTER_NAME")
 			Expect(cname).To(Equal(""))
@@ -429,7 +718,7 @@ var _ = Describe("Unit tests for feature flag (config.FeatureFlagPackageBasedLCM
 			tkgClient.GetCurrentRegionContextReturns(regionContext, nil)
 			tkgClient.IsFeatureActivatedReturns(true)
 			tkgClient.CreateClusterReturnsOnCall(0, false, nil)
-			options.ClusterConfigFile = ccConfigFilePath
+			options.ClusterConfigFile = classInputFileAzure
 			tkgConfigReaderWriter, _ := tkgconfigreaderwriter.NewReaderWriterFromConfigFile(configFilePath, configFilePath)
 			fg := &fakes.FakeFeatureGateHelper{}
 			fg.FeatureActivatedInNamespaceReturns(false, nil)
@@ -459,7 +748,7 @@ var _ = Describe("Unit tests for feature flag (config.FeatureFlagPackageBasedLCM
 			tkgClient.GetCurrentRegionContextReturns(regionContext, nil)
 			tkgClient.IsFeatureActivatedReturns(true)
 			tkgClient.CreateClusterReturnsOnCall(0, false, nil)
-			options.ClusterConfigFile = ccConfigFilePath
+			options.ClusterConfigFile = classInputFileAzure
 			tkgConfigReaderWriter, _ := tkgconfigreaderwriter.NewReaderWriterFromConfigFile(configFilePath, configFilePath)
 			fg := &fakes.FakeFeatureGateHelper{}
 			errorMsg := "error while feature status in featuregate"
@@ -475,7 +764,6 @@ var _ = Describe("Unit tests for feature flag (config.FeatureFlagPackageBasedLCM
 			// feature flag (config.FeatureFlagPackageBasedLCM) activated, its clusterclass config input file, but "clusterclass" feature in FeatureGate is enabled,
 			// but throws errro for the FeatureGate api, so we expecte error here.
 			err := tkgctlClient.CreateCluster(options)
-			fmt.Println(err.Error())
 			// as FeatureGate api throws error, we expecte error.
 			Expect(err.Error()).To(ContainSubstring(errorMsg))
 		})
