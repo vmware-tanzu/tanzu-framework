@@ -93,6 +93,7 @@ func (app *App) ConfigureHandlers(api middleware.RoutableAPI) { // nolint:funlen
 	a.AwsGetAWSOSImagesHandler = aws.GetAWSOSImagesHandlerFunc(app.GetAWSOSImages)
 	a.AwsExportTKGConfigForAWSHandler = aws.ExportTKGConfigForAWSHandlerFunc(app.ExportAWSConfig)
 	a.AwsImportTKGConfigForAWSHandler = aws.ImportTKGConfigForAWSHandlerFunc(app.ImportAwsConfig)
+	a.AwsGetAWSKeyPairsHandler = aws.GetAWSKeyPairsHandlerFunc(app.GetAWSKeyPairs)
 
 	a.AzureGetAzureEndpointHandler = azure.GetAzureEndpointHandlerFunc(app.GetAzureEndpoint)
 	a.AzureSetAzureEndpointHandler = azure.SetAzureEndpointHandlerFunc(app.SetAzureEndPoint)

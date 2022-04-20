@@ -164,3 +164,26 @@ func (app *App) GetAWSOSImages(params aws.GetAWSOSImagesParams) middleware.Respo
 	}
 	return aws.NewGetAWSOSImagesOK().WithPayload(results)
 }
+
+// GetAWSKeyPairs gets a user's EC2 key pairs
+func (app *App) GetAWSKeyPairs(params aws.GetAWSKeyPairsParams) middleware.Responder {
+	if app.awsClient == nil {
+		return aws.NewGetAWSKeyPairsUnauthorized().WithPayload(Err(errors.New("aws client is not initialized properly")))
+	}
+
+	keyPairs, err := app.awsClient.ListEC2KeyPairs()
+	if err != nil {
+		return aws.NewGetAWSKeyPairsBadRequest().WithPayload(Err(err))
+	}
+
+	result := []*models.AWSKeyPair{}
+	for _, kp := range keyPairs {
+		result = append(result, &models.AWSKeyPair{
+			ID:         kp.ID,
+			Name:       kp.Name,
+			Thumbprint: kp.Thumbprint,
+		})
+	}
+
+	return aws.NewGetAWSKeyPairsOK().WithPayload(result)
+}

@@ -26,4 +26,5 @@ type Client interface {
 	GenerateBootstrapTemplate(i GenerateBootstrapTemplateInput) (*bootstrap.Template, error)
 	ListInstanceTypes(optionalAZName string) ([]string, error)
 	ListCloudFormationStacks() ([]string, error)
+	ListEC2KeyPairs() ([]*KeyPair, error)
 }
