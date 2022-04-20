@@ -9,7 +9,6 @@ import (
 	"fmt"
 
 	"github.com/go-logr/logr"
-	yaml "gopkg.in/yaml.v3"
 	v1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -131,7 +130,7 @@ func (r *VSphereCPIConfigReconciler) reconcileVSphereCPIConfigNormal(ctx context
 			r.Log.Error(err, "Error while mapping VSphereCPIConfig to data values")
 			return err
 		}
-		yamlBytes, err := yaml.Marshal(cpiConfigSpec)
+		yamlBytes, err := cpiConfigSpec.Serialize()
 		if err != nil {
 			r.Log.Error(err, "Error marshaling VSphereCPIConfig to Yaml")
 			return err

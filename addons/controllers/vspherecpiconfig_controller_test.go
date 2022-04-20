@@ -156,6 +156,14 @@ var _ = Describe("VSphereCPIConfig Reconciler", func() {
 				Expect(strings.Contains(secretData, "http_proxy: foo.com")).Should(BeTrue())
 				Expect(strings.Contains(secretData, "https_proxy: bar.com")).Should(BeTrue())
 				Expect(strings.Contains(secretData, "no_proxy: foobar.com")).Should(BeTrue())
+
+				//assert that there are no paravirt datavalue keys
+				Expect(strings.Contains(secretData, "clusterAPIVersion:")).Should(BeFalse())
+				Expect(strings.Contains(secretData, "clusterKind:")).Should(BeFalse())
+				Expect(strings.Contains(secretData, "clusterName:")).Should(BeFalse())
+				Expect(strings.Contains(secretData, "supervisorMasterEndpointIP:")).Should(BeFalse())
+				Expect(strings.Contains(secretData, "supervisorMasterPort:")).Should(BeFalse())
+
 				return true
 			}, waitTimeout, pollingInterval).Should(BeTrue())
 
@@ -200,6 +208,11 @@ var _ = Describe("VSphereCPIConfig Reconciler", func() {
 
 				Expect(strings.Contains(secretData, "supervisorMasterEndpointIP: supervisor.default.svc")).Should(BeTrue())
 				Expect(strings.Contains(secretData, "supervisorMasterPort: \"6443\"")).Should(BeTrue())
+
+				// assert that non paravirt data values don't exist, the keys should not exist
+				Expect(strings.Contains(secretData, "datacenter:")).Should(BeFalse())
+				Expect(strings.Contains(secretData, "server:")).Should(BeFalse())
+				Expect(strings.Contains(secretData, "nxst:")).Should(BeFalse())
 
 				return true
 			}, waitTimeout, pollingInterval).Should(BeTrue())
