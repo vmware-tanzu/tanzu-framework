@@ -6,7 +6,6 @@ package controllers
 import (
 	"context"
 	"fmt"
-	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/util/clusterbootstrap"
 	"time"
 
 	"github.com/go-logr/logr"
@@ -44,6 +43,7 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
 	addontypes "github.com/vmware-tanzu/tanzu-framework/addons/pkg/types"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/util"
+	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/util/clusterbootstrap"
 	"github.com/vmware-tanzu/tanzu-framework/addons/predicates"
 	runtanzuv1alpha3 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
 	tkrconstants "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkr/pkg/constants"
@@ -305,7 +305,7 @@ func (r *ClusterBootstrapReconciler) patchClusterBootstrapFromTemplate(
 	cluster *clusterapiv1beta1.Cluster,
 	clusterBootstrap *runtanzuv1alpha3.ClusterBootstrap,
 	clusterBootstrapTemplate *runtanzuv1alpha3.ClusterBootstrapTemplate,
-	clusterBootstrapHelper clusterbootstrap.Helper,
+	clusterBootstrapHelper *clusterbootstrap.Helper,
 	tkrName string,
 	log logr.Logger) (*runtanzuv1alpha3.ClusterBootstrap, error) {
 

@@ -1,3 +1,6 @@
+// Copyright 2022 VMware, Inc. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
+
 package clusterbootstrap
 
 import (
@@ -39,8 +42,9 @@ type Helper struct {
 func NewHelper(ctx context.Context, k8sClient client.Client, aggregateAPIResourcesClient client.Client,
 	dynamicClient dynamic.Interface,
 	cachedDiscoveryClient discovery.CachedDiscoveryInterface,
-	logger logr.Logger) Helper {
-	return Helper{
+	logger logr.Logger) *Helper {
+
+	return &Helper{
 		Ctx:                         ctx,
 		K8sClient:                   k8sClient,
 		AggregateAPIResourcesClient: aggregateAPIResourcesClient,
@@ -124,6 +128,7 @@ func (h *Helper) CloneReferencedObjectsFromCBPackages(
 	cluster *clusterapiv1beta1.Cluster,
 	cbPackages []*runtanzuv1alpha3.ClusterBootstrapPackage,
 	sourceNamespace string) ([]*corev1.Secret, []*unstructured.Unstructured, error) {
+
 	var createdProviders []*unstructured.Unstructured
 	var createdSecrets []*corev1.Secret
 

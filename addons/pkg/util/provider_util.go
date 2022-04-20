@@ -5,11 +5,11 @@ package util
 
 import (
 	"fmt"
-	"k8s.io/client-go/discovery"
 	"reflect"
 	"strings"
 
 	"k8s.io/apimachinery/pkg/runtime/schema"
+	"k8s.io/client-go/discovery"
 )
 
 // ExtractTypedLocalObjectRef extracts the TypedLocalObjectReference from the unstructuredContent by looking at the fields
