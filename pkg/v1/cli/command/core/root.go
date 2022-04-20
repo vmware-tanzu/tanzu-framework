@@ -60,6 +60,7 @@ func NewRootCmd() (*cobra.Command, error) {
 		versionCmd,
 		completionCmd,
 		configCmd,
+		contextCmd,
 		genAllDocsCmd,
 	)
 
