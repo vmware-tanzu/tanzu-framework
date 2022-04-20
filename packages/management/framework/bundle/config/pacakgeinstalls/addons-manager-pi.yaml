@@ -10,12 +10,17 @@ metadata:
   annotations:
     kapp.k14s.io/change-rule.0: "upsert after upserting addons-manager-packageinstall/serviceaccount"
     kapp.k14s.io/change-rule.1: "delete before deleting addons-manager-packageinstall/serviceaccount"
+  labels:
+    tkg.tanzu.vmware.com/package-type: "management"
 spec:
   serviceAccountName: tanzu-addons-manager-package-sa
   packageRef:
     refName: addons-manager-v2.tanzu.vmware.com #! TODO: Drop v2 after TKG 1.6 is released https://github.com/vmware-tanzu/tanzu-framework/issues/2131
     versionSelection:
       prereleases: {}
+      #@ if data.values.addonsManagerPackageValues.versionConstraints:
+      constraints: #@ data.values.addonsManagerPackageValues.versionConstraints
+      #@ end
   values:
     - secretRef:
         name: tanzu-addons-manager-values

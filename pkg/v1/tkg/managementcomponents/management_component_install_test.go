@@ -6,6 +6,7 @@ package managementcomponents_test
 import (
 	"errors"
 	"testing"
+	"time"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -117,4 +118,55 @@ var _ = Describe("Test InstallKappController", func() {
 		})
 	})
 
+})
+
+var _ = Describe("Test WaitForManagementPackages", func() {
+	var (
+		clusterClient *fakes.ClusterClient
+		err           error
+		timeout       time.Duration
+	)
+
+	BeforeEach(func() {
+		clusterClient = &fakes.ClusterClient{}
+		timeout = time.Duration(1)
+	})
+
+	JustBeforeEach(func() {
+		err = WaitForManagementPackages(clusterClient, timeout)
+	})
+
+	Context("when listing packageinstall throws error", func() {
+		BeforeEach(func() {
+			clusterClient.ListResourcesReturns(errors.New("fake error"))
+			clusterClient.WaitForPackageInstallReturns(nil)
+		})
+		It("should return error", func() {
+			Expect(err).To(HaveOccurred())
+			Expect(err.Error()).To(ContainSubstring("unable to list PackageInstalls"))
+			Expect(err.Error()).To(ContainSubstring("fake error"))
+		})
+	})
+
+	Context("when there is an error while waiting for packageinstall to reconcile successfully", func() {
+		BeforeEach(func() {
+			clusterClient.ListResourcesReturns(nil)
+			clusterClient.WaitForPackageInstallReturns(errors.New("fake error"))
+		})
+		It("should return error", func() {
+			Expect(err).To(HaveOccurred())
+			Expect(err.Error()).To(ContainSubstring("error while waiting for management packages to be installed"))
+			Expect(err.Error()).To(ContainSubstring("fake error"))
+		})
+	})
+
+	Context("when packages gets reconciled successfully", func() {
+		BeforeEach(func() {
+			clusterClient.ListResourcesReturns(nil)
+			clusterClient.WaitForPackageInstallReturns(nil)
+		})
+		It("should return error", func() {
+			Expect(err).NotTo(HaveOccurred())
+		})
+	})
 })

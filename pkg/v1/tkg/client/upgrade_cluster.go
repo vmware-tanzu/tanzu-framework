@@ -21,6 +21,7 @@ import (
 	capikubeadmv1beta1 "sigs.k8s.io/cluster-api/controlplane/kubeadm/api/v1beta1"
 	capdv1beta1 "sigs.k8s.io/cluster-api/test/infrastructure/docker/api/v1beta1"
 
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/config"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/clusterclient"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/log"
@@ -185,7 +186,9 @@ func (c *TkgClient) UpgradeCluster(options *UpgradeClusterOptions) error { // no
 	// The addons should upgrade prior to cluster upgrade to account for forward compatibility
 	// i.e. some old addons may not run on the nodes with new k8s version
 	// We will ensure backward compatibility when shipping packages going forward
-	if !options.SkipAddonUpgrade {
+	// With package-package-lcm approach addons will be upgraded as part of management package upgrade
+	// and we do not need to upgrade addons with below function
+	if !options.SkipAddonUpgrade && !config.IsFeatureActivated(config.FeatureFlagPackageBasedLCM) {
 		err = c.upgradeAddonPreNodeUpgrade(regionalClusterClient, currentClusterClient, options.ClusterName, options.Namespace, options.IsRegionalCluster, options.Edition)
 		if err != nil {
 			return err

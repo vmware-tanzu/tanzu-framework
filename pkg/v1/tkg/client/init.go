@@ -204,7 +204,7 @@ func (c *TkgClient) InitRegion(options *InitRegionOptions) error { //nolint:funl
 
 	// If clusterclass feature flag is enabled then deploy management components
 	if config.IsFeatureActivated(config.FeatureFlagPackageBasedLCM) {
-		if err = c.InstallManagementComponents(bootstrapClusterKubeconfigPath, ""); err != nil {
+		if err = c.InstallOrUpgradeManagementComponents(bootstrapClusterKubeconfigPath, "", false); err != nil {
 			return errors.Wrap(err, "unable to install management components to bootstrap cluster")
 		}
 	}
@@ -283,7 +283,7 @@ func (c *TkgClient) InitRegion(options *InitRegionOptions) error { //nolint:funl
 
 	// If clusterclass feature flag is enabled then deploy management components to the cluster
 	if config.IsFeatureActivated(config.FeatureFlagPackageBasedLCM) {
-		if err = c.InstallManagementComponents(regionalClusterKubeconfigPath, kubeContext); err != nil {
+		if err = c.InstallOrUpgradeManagementComponents(regionalClusterKubeconfigPath, kubeContext, false); err != nil {
 			return errors.Wrap(err, "unable to install management components to management cluster")
 		}
 	}

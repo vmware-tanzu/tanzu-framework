@@ -19,6 +19,7 @@ import (
 	crtclient "sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/config"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/clusterclient"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/log"
@@ -128,6 +129,14 @@ func (c *TkgClient) UpgradeManagementCluster(options *UpgradeClusterOptions) err
 		return errors.Wrap(err, "error waiting for provider components to be up and running after upgrading them")
 	}
 	log.Info("Management cluster providers upgraded successfully...")
+
+	// If clusterclass feature flag is enabled then deploy management components
+	if config.IsFeatureActivated(config.FeatureFlagPackageBasedLCM) {
+		log.Info("Upgrading management components...")
+		if err = c.InstallOrUpgradeManagementComponents(currentRegion.SourceFilePath, currentRegion.ContextName, true); err != nil {
+			return errors.Wrap(err, "unable to upgrade management components")
+		}
+	}
 
 	log.Info("Upgrading management cluster kubernetes version...")
 	err = c.UpgradeCluster(options)

@@ -8,3 +8,4 @@ clusterclassInfraPackageValues:
   namespace: tkg-system
   infraProvider: ""
   configValues:
+  versionConstraints:
