@@ -24,12 +24,14 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/auth/csp"
 	tkgauth "github.com/vmware-tanzu/tanzu-framework/pkg/v1/auth/tkg"
 	wcpauth "github.com/vmware-tanzu/tanzu-framework/pkg/v1/auth/wcp"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/command/plugin"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/component"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/pluginmanager"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/config"
 )
 
+// Deprecated: Shall be removed in a future version. Superseded by 'tanzu context' command.
 var descriptor = cliv1alpha1.PluginDescriptor{
 	Name:        "login",
 	Description: "Login to the platform",
@@ -60,9 +62,9 @@ func main() {
 	p.Cmd.Flags().BoolVar(&stderrOnly, "stderr-only", false, "send all output to stderr rather than stdout")
 	p.Cmd.Flags().BoolVar(&forceCSP, "force-csp", false, "force the endpoint to be logged in as a csp server")
 	p.Cmd.Flags().BoolVar(&staging, "staging", false, "use CSP staging issuer")
-	p.Cmd.Flags().MarkHidden("stderr-only") //nolint
-	p.Cmd.Flags().MarkHidden("force-csp")   //nolint
-	p.Cmd.Flags().MarkHidden("staging")     //nolint
+	p.Cmd.Flags().MarkHidden("stderr-only") // nolint
+	p.Cmd.Flags().MarkHidden("force-csp")   // nolint
+	p.Cmd.Flags().MarkHidden("staging")     // nolint
 	p.Cmd.RunE = login
 	p.Cmd.Example = `
 	# Login to TKG management cluster using endpoint
@@ -83,6 +85,8 @@ func main() {
 	$KUBECONFIG env variable would be used and, if $KUBECONFIG env is also unset default 
 	kubeconfig($HOME/.kube/config) would be used
 	`
+	cli.DeprecateCommandWithAlternative(p.Cmd, "v1.0.0", "tanzu context")
+
 	if err := p.Execute(); err != nil {
 		os.Exit(1)
 	}
@@ -354,6 +358,8 @@ func createServerWithEndpoint() (server *configv1alpha1.Server, err error) {
 		isVSphereSupervisor, err := wcpauth.IsVSphereSupervisor(endpoint, getDiscoveryHTTPClient())
 		// Fall back to assuming non vSphere supervisor.
 		if err != nil {
+			log.Fatalf("Error creating kubeconfig with tanzu pinniped-auth login plugin: %v", err)
+			return nil, err
 			// IsSupervisorClusterIgnorePort only returns an error if the
 			// underlying HTTP GET returned one. Non-200 responses will return
 			// nil errors.
