@@ -87,8 +87,8 @@ func (r *VSphereCPIConfigReconciler) mapCPIConfigToDataValuesNonParavirtual( // 
 	d.Nsxt.Username = r.tryParseClusterVariableString(cluster, NsxtUsernameVarName)
 	d.Nsxt.Password = r.tryParseClusterVariableString(cluster, NsxtPasswordVarName)
 	d.Nsxt.Host = r.tryParseClusterVariableString(cluster, NsxtManagerHostVarName)
-	d.Nsxt.InsecureFlag = r.tryParseClusterVariableBool(cluster, NsxtAllowUnverifiedSSLVarName)
-	d.Nsxt.RemoteAuth = r.tryParseClusterVariableBool(cluster, NsxtRemoteAuthVarName)
+	d.Nsxt.Insecure = r.tryParseClusterVariableBool(cluster, NsxtAllowUnverifiedSSLVarName)
+	d.Nsxt.RemoteAuthEnabled = r.tryParseClusterVariableBool(cluster, NsxtRemoteAuthVarName)
 	d.Nsxt.VmcAccessToken = r.tryParseClusterVariableString(cluster, NsxtVmcAccessTokenVarName)
 	d.Nsxt.VmcAuthHost = r.tryParseClusterVariableString(cluster, NsxtVmcAuthHostVarName)
 	d.Nsxt.ClientCertKeyData = r.tryParseClusterVariableString(cluster, NsxtClientCertKeyDataVarName)
@@ -134,7 +134,7 @@ func (r *VSphereCPIConfigReconciler) mapCPIConfigToDataValuesNonParavirtual( // 
 		}
 
 		if c.NSXT.Insecure != nil {
-			d.Nsxt.InsecureFlag = *c.NSXT.Insecure
+			d.Nsxt.Insecure = *c.NSXT.Insecure
 		}
 		if c.NSXT.Route != nil {
 			d.Nsxt.Routes.RouterPath = tryParseString(d.Nsxt.Routes.RouterPath, c.NSXT.Route.RouterPath)
@@ -153,7 +153,7 @@ func (r *VSphereCPIConfigReconciler) mapCPIConfigToDataValuesNonParavirtual( // 
 		}
 		d.Nsxt.Host = tryParseString(d.Nsxt.Host, c.NSXT.APIHost)
 		if c.NSXT.RemoteAuth != nil {
-			d.Nsxt.RemoteAuth = *c.NSXT.RemoteAuth
+			d.Nsxt.RemoteAuthEnabled = *c.NSXT.RemoteAuth
 		}
 		d.Nsxt.VmcAccessToken = tryParseString(d.Nsxt.VmcAccessToken, c.NSXT.VMCAccessToken)
 		d.Nsxt.VmcAuthHost = tryParseString(d.Nsxt.VmcAccessToken, c.NSXT.VMCAuthHost)
