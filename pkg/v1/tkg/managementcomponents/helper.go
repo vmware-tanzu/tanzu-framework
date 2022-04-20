@@ -5,6 +5,8 @@
 package managementcomponents
 
 import (
+	"os"
+	"path/filepath"
 	"time"
 
 	"gopkg.in/yaml.v3"
@@ -19,12 +21,33 @@ const (
 )
 
 // GetTKGPackageConfigValuesFileFromUserConfig returns values file from user configuration
-func GetTKGPackageConfigValuesFileFromUserConfig(userProviderConfigValues map[string]string) (string, error) {
+func GetTKGPackageConfigValuesFileFromUserConfig(managementPackageVersion string, userProviderConfigValues map[string]string) (string, error) {
 	tkgPackageConfig := TKGPackageConfig{
 		Metadata: Metadata{
 			InfraProvider: userProviderConfigValues[constants.ConfigVariableProviderType],
 		},
 		ConfigValues: userProviderConfigValues,
+		FrameworkPackage: FrameworkPackage{
+			VersionConstraints: managementPackageVersion,
+			FeaturegatePackageValues: FeaturegatePackageValues{
+				VersionConstraints: managementPackageVersion,
+			},
+			TKRServicePackageValues: TKRServicePackageValues{
+				VersionConstraints: managementPackageVersion,
+			},
+			CLIPluginsPackageValues: CLIPluginsPackageValues{
+				VersionConstraints: managementPackageVersion,
+			},
+			AddonsManagerPackageValues: AddonsManagerPackageValues{
+				VersionConstraints: managementPackageVersion,
+			},
+		},
+		ClusterClassPackage: ClusterClassPackage{
+			VersionConstraints: managementPackageVersion,
+			ClusterClassInfraPackageValues: ClusterClassInfraPackageValues{
+				VersionConstraints: managementPackageVersion,
+			},
+		},
 	}
 
 	configBytes, err := yaml.Marshal(tkgPackageConfig)
@@ -32,12 +55,8 @@ func GetTKGPackageConfigValuesFileFromUserConfig(userProviderConfigValues map[st
 		return "", err
 	}
 
-	valuesFile, err := utils.CreateTempFile("", "")
-	if err != nil {
-		return "", err
-	}
-
-	err = utils.WriteToFile(valuesFile, configBytes)
+	valuesFile := filepath.Join(os.TempDir(), constants.TKGPackageValuesFile)
+	err = utils.SaveFile(valuesFile, configBytes)
 	if err != nil {
 		return "", err
 	}

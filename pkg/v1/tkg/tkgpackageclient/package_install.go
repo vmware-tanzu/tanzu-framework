@@ -281,7 +281,10 @@ func (p *pkgClient) createNamespace(namespace string) error {
 func (p *pkgClient) createPackageInstall(o *tkgpackagedatamodel.PackageOptions, pkgPluginResourceCreationStatus *tkgpackagedatamodel.PkgPluginResourceCreationStatus) error {
 	// construct the PackageInstall CR
 	packageInstall := &kappipkg.PackageInstall{
-		ObjectMeta: metav1.ObjectMeta{Name: o.PkgInstallName, Namespace: o.Namespace},
+		ObjectMeta: metav1.ObjectMeta{Name: o.PkgInstallName,
+			Namespace: o.Namespace,
+			Labels:    o.Labels,
+		},
 		Spec: kappipkg.PackageInstallSpec{
 			ServiceAccountName: o.ServiceAccountName,
 			PackageRef: &kappipkg.PackageRef{

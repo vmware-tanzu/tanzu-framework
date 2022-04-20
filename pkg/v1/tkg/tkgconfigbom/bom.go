@@ -674,6 +674,21 @@ func (c *client) GetManagementPackageRepositoryImage() (string, error) {
 	return managementPackageRepositoryImage, nil
 }
 
+// GetManagementPackagesVersion returns version of management packages
+func (c *client) GetManagementPackagesVersion() (string, error) {
+	bomConfiguration, err := c.GetDefaultTkgBOMConfiguration()
+	if err != nil {
+		return "", err
+	}
+
+	tfmpComponent, ok := bomConfiguration.Components["tanzu-framework-management-packages"]
+	if !ok || len(tfmpComponent) == 0 {
+		return "", errors.New("unable to find 'tanzu-framework-management-packages' component in BoM file")
+	}
+
+	return tfmpComponent[0].Version, nil
+}
+
 // GetKappControllerPackageImage returns kapp-controller package image
 func (c *client) GetKappControllerPackageImage() (string, error) {
 	tkrBomConfig, err := c.GetDefaultTkrBOMConfiguration()

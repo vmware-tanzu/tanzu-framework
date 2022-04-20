@@ -10,12 +10,17 @@ metadata:
   annotations:
     kapp.k14s.io/change-rule.0: "upsert after upserting featuregates-packageinstall/serviceaccount"
     kapp.k14s.io/change-rule.1: "delete before deleting featuregates-packageinstall/serviceaccount"
+  labels:
+    tkg.tanzu.vmware.com/package-type: "management"
 spec:
   serviceAccountName: tanzu-featuregates-package-sa
   packageRef:
     refName: featuregates.tanzu.vmware.com
     versionSelection:
       prereleases: {}
+      #@ if data.values.featureGatesPackageValues.versionConstraints:
+      constraints: #@ data.values.featureGatesPackageValues.versionConstraints
+      #@ end
   values:
     - secretRef:
         name: tanzu-featuregates-values

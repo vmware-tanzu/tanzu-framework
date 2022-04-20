@@ -10,9 +10,14 @@ metadata:
   annotations:
     kapp.k14s.io/change-rule.0: "upsert after upserting cliplugins-packageinstall/serviceaccount"
     kapp.k14s.io/change-rule.1: "delete after deleting cliplugins-packageinstall/serviceaccount"
+  labels:
+    tkg.tanzu.vmware.com/package-type: "management"
 spec:
   serviceAccountName: tanzu-cliplugins-package-sa
   packageRef:
     refName: cliplugins.tanzu.vmware.com
     versionSelection:
       prereleases: {}
+      #@ if data.values.clipluginsPackageValues.versionConstraints:
+      constraints: #@ data.values.clipluginsPackageValues.versionConstraints
+      #@ end

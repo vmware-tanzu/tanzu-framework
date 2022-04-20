@@ -36,4 +36,7 @@ const (
 	TKGRegistryTrustedRootCAFileForWindows = ".registry_trusted_root_certs_win"
 
 	LogFolderName = "logs"
+
+	TKGPackageValuesFile = "tkgpackagevalues.yaml"
+	TKGPackageValues     = "tkg-package-values"
 )

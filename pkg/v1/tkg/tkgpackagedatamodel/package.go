@@ -24,6 +24,7 @@ type PackageOptions struct {
 	Install                bool
 	Wait                   bool
 	SkipPrompt             bool
+	Labels                 map[string]string
 }
 
 // NewPackageOptions instantiates PackageOptions

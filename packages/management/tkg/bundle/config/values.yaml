@@ -10,9 +10,11 @@ configvalues:
 
 frameworkPackage:
   namespaceForPackageInstallation: tkg-system
+  versionConstraints:
   featureGatesPackageValues:
     namespace: tkg-system
     createNamespace: false
+    versionConstraints:
     deployment:
       hostNetwork: true
       nodeSelector: null
@@ -20,7 +22,9 @@ frameworkPackage:
   tkrServicePackageValues:
     namespace: tkg-system
     createNamespace: false
+    versionConstraints:
   addonsManagerPackageValues:
+    versionConstraints:
     tanzuAddonsManager:
       namespace: tkg-system
       createNamespace: false
@@ -32,9 +36,14 @@ frameworkPackage:
         healthzPort: 18316
       featureGates:
         clusterBootstrapController: false
+  clipluginsPackageValues:
+    namespace: tkg-system
+    versionConstraints:
 
 clusterclassPackage:
   namespaceForPackageInstallation: tkg-system
+  versionConstraints:
   clusterclassInfraPackageValues:
     namespace: tkg-system
     createNamespace: false
+    versionConstraints:
