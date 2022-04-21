@@ -4,8 +4,8 @@
 package controllers
 
 const (
-	CascadeControllerV1alpha1Name = "🐙 v1alpha1 tanzu auth cascade controller"
-	CascadeControllerV1alpha3Name = "🐠 v1alpha3 tanzu auth cascade controller"
+	CascadeControllerV1alpha1Name = "v1alpha1 tanzu auth cascade controller"
+	CascadeControllerV1alpha3Name = "v1alpha3 tanzu auth cascade controller"
 )
 
 const (
