@@ -1,7 +1,7 @@
 #@ load("@ytt:overlay", "overlay")
 #@ load("@ytt:data", "data")
 
-#@ if data.values.PROVIDER_TYPE != "tkg-service-vsphere":
+#@ if data.values.PROVIDER_TYPE != "tkg-service-vsphere" and not data.values.FEATURE_FLAG_PACKAGE_BASED_LCM:
 #@ if (data.values.ENABLE_MHC != False and data.values.ENABLE_MHC_WORKER_NODE) or data.values.ENABLE_MHC:
 ---
 apiVersion: cluster.x-k8s.io/v1beta1
