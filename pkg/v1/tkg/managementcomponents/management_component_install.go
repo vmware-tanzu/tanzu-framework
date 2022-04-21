@@ -5,6 +5,7 @@ package managementcomponents
 
 import (
 	"context"
+	"os"
 	"time"
 
 	"github.com/pkg/errors"
@@ -69,6 +70,18 @@ func InstallManagementComponents(mcip *ManagementComponentsInstallOptions) error
 	err = WaitForManagementPackages(clusterClient, mcip.ManagementPackageRepositoryOptions.PackageInstallTimeout)
 	if err != nil {
 		return errors.Wrap(err, "timed out waiting for management packages to get reconciled successfully")
+	}
+
+	// Hack: This is temporary implementation to deploy missing components after installing management packages
+	// This is currently used to deploy TKR related resources. This can be removed once tkr-source-controller is in place
+	// and can deploy the necessary tkr components
+	resouceFile := os.Getenv("_ADDITIONAL_MANAGEMENT_COMPONENT_CONFIGURATION_FILE")
+	if resouceFile != "" {
+		log.Infof("Appling additional management component configuration from %q", resouceFile)
+		err := clusterClient.ApplyFile(resouceFile)
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil
