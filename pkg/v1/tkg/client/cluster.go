@@ -431,10 +431,18 @@ func (c *TkgClient) createPacificCluster(options *CreateClusterOptions, waitForC
 		return errors.New("creating Tanzu Kubernetes Cluster is not compatible with the node size options: --size, --controlplane-size, and --worker-size")
 	}
 
-	configYaml, err = c.getPacificClusterConfiguration(options)
-	if err != nil {
-		return errors.Wrap(err, "failed to create Tanzu Kubernetes Cluster service for vSphere workload cluster")
+	if options.IsInputFileClusterClassBased {
+		configYaml, err = getContentFromInputFile(options.ClusterConfigFile)
+		if err != nil {
+			return errors.Wrap(err, "unable to get cluster configuration")
+		}
+	} else {
+		configYaml, err = c.getPacificClusterConfiguration(options)
+		if err != nil {
+			return errors.Wrap(err, "failed to create Tanzu Kubernetes Cluster service for vSphere workload cluster")
+		}
 	}
+
 	clusterName, namespace, err = c.getClusterNameAndNameSpace()
 	if err != nil {
 		return errors.Wrap(err, "failed to get cluster name and namespace")
