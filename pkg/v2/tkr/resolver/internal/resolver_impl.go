@@ -60,6 +60,7 @@ func (r *Resolver) Resolve(query data.Query) data.Result {
 	query = normalize(query)
 
 	result := r.cache.filter(query)
+	result = intersect(result)
 	return sort(result)
 }
 
@@ -238,9 +239,6 @@ func (cache *cache) augmentOSImage(osImage *runv1.OSImage) {
 
 	osImage.Labels[runv1.LabelImageType] = osImage.Spec.Image.Type
 	osimage.SetRefLabels(osImage.Labels, osImage.Spec.Image.Type, osImage.Spec.Image.Ref)
-
-	ensureLabel(osImage.Labels, runv1.LabelIncompatible, conditions.IsFalse(osImage, runv1.ConditionCompatible))
-	ensureLabel(osImage.Labels, runv1.LabelInvalid, conditions.IsFalse(osImage, runv1.ConditionValid))
 }
 
 // Pre-reqs: osImage is NEVER nil
@@ -362,6 +360,60 @@ func (cache *cache) filterMachineDeployments(mdQueries []*data.OSImageQuery) []*
 	result := make([]*osImageDetails, len(mdQueries))
 	for i, mdQuery := range mdQueries {
 		result[i] = cache.filterOSImageDetails(mdQuery)
+	}
+	return result
+}
+
+func intersect(input details) details {
+	tkrs := intersectTKRs(input)
+	return details{
+		controlPlane:       filterOSImageDetailsForTKRs(tkrs, input.controlPlane),
+		machineDeployments: filterMDOSImageDetailsForTKRs(tkrs, input.machineDeployments),
+	}
+}
+
+func intersectTKRs(input details) data.TKRs {
+	var tkrs data.TKRs
+	if input.controlPlane != nil {
+		tkrs = input.controlPlane.tkrs
+	}
+	for _, md := range input.machineDeployments {
+		if md == nil {
+			continue
+		}
+		if tkrs == nil {
+			tkrs = md.tkrs
+			continue
+		}
+		tkrs = tkrs.Intersect(md.tkrs)
+	}
+	return tkrs
+}
+
+func filterOSImageDetailsForTKRs(tkrs data.TKRs, cpOSImageDetails *osImageDetails) *osImageDetails {
+	if cpOSImageDetails == nil {
+		return nil
+	}
+	return &osImageDetails{
+		tkrs:          tkrs,
+		osImagesByTKR: filterOSImagesByTKRForTKRs(cpOSImageDetails.osImagesByTKR, tkrs),
+	}
+}
+
+func filterOSImagesByTKRForTKRs(osImagesByTKR map[string]data.OSImages, tkrs data.TKRs) map[string]data.OSImages {
+	result := make(map[string]data.OSImages, len(osImagesByTKR))
+	for tkrName, osImages := range osImagesByTKR {
+		if tkrs[tkrName] != nil {
+			result[tkrName] = osImages
+		}
+	}
+	return result
+}
+
+func filterMDOSImageDetailsForTKRs(tkrs data.TKRs, mds []*osImageDetails) []*osImageDetails {
+	result := make([]*osImageDetails, len(mds))
+	for i, md := range mds {
+		result[i] = filterOSImageDetailsForTKRs(tkrs, md)
 	}
 	return result
 }
