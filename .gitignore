@@ -29,6 +29,7 @@ pinniped/
 provider-bundle
 providers.zip
 providers.tar.gz
+hack/providers-sync-tools/**/build
 
 # Build artifacts that may not be cleaned up properly
 .rendered-output/
