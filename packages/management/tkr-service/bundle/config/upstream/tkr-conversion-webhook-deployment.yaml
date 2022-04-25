@@ -7,6 +7,9 @@ metadata:
     app: tkr-conversion-webhook
   name: tkr-conversion-webhook-manager
   namespace: #@ data.values.namespace
+  annotations:
+    kapp.k14s.io/change-rule.0: "upsert after upserting tkr-service.tanzu.vmware.com/certificate"
+    kapp.k14s.io/change-rule.1: "delete before deleting tkr-service.tanzu.vmware.com/certificate"
 spec:
   replicas: 1
   selector:
