@@ -71,7 +71,7 @@ jobs:
           echo ::set-output name=pr_branch::"topic/releng/rel${{ steps.next_version.outputs.NEXT_VERSION }}"
 
       - name: Create Pull Request
-        uses: peter-evans/create-pull-request@v3
+        uses: peter-evans/create-pull-request@v4
         with:
           branch: ${{ steps.vars.outputs.pr_branch }}
           token: ${{ secrets.GITHUB_TOKEN }}
