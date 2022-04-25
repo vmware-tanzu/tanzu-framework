@@ -1919,6 +1919,7 @@ func (c *TkgClient) validateNameservers(nameserverConfigVariable, clusterRole st
 }
 
 func (c *TkgClient) checkIPFamilyFeatureFlags(ipFamily, clusterRole string) error {
+	/*
 	if clusterRole == TkgLabelClusterRoleManagement {
 		dualIPv4PrimaryEnabled := c.IsFeatureActivated(config.FeatureFlagManagementClusterDualStackIPv4Primary)
 		if !dualIPv4PrimaryEnabled && ipFamily == constants.DualStackPrimaryIPv4Family {
@@ -1938,6 +1939,7 @@ func (c *TkgClient) checkIPFamilyFeatureFlags(ipFamily, clusterRole string) erro
 			return dualStackFeatureFlagError(ipFamily, config.FeatureFlagClusterDualStackIPv6Primary)
 		}
 	}
+	*/
 
 	return nil
 }
