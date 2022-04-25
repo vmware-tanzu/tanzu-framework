@@ -1,0 +1,25 @@
+apiVersion: data.packaging.carvel.dev/v1alpha1
+kind: Package
+metadata:
+  name: cluster-api-control-plane-kubeadm.tanzu.vmware.com
+  namespace: cluster-api-control-plane-kubeadm
+spec:
+  refName: cluster-api-control-plane-kubeadm.tanzu.vmware.com
+  version: latest
+  licenses:
+    - "Apache 2.0"
+  template:
+    spec:
+      fetch:
+        - imgpkgBundle:
+            image: # Get this value by pushing to your OCI Registry
+      template:
+        - ytt:
+            paths:
+              - config/
+        - kbld:
+            paths:
+              - "-"
+              - .imgpkg/images.yml
+      deploy:
+        - kapp: {}

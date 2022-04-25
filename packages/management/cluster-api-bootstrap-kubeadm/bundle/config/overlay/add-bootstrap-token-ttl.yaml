@@ -1,0 +1,12 @@
+#@ load("@ytt:overlay", "overlay")
+
+#@overlay/match by=overlay.subset({"kind": "Deployment", "metadata": {"name": "capi-kubeadm-bootstrap-controller-manager"}})
+---
+spec:
+  template:
+    spec:
+      containers:
+        #@overlay/match by=overlay.subset({"name": "manager"})
+        - args:
+          #@overlay/append
+          - --bootstrap-token-ttl=${CAPBK_BOOTSTRAP_TOKEN_TTL:=15m}
