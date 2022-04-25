@@ -10,10 +10,10 @@ directories:
   path: ytt/vendir/vsphere_cpi/_ytt_lib
 - contents:
   - git:
-      commitTitle: Antrea disable UDP tunnel offload (#2723)
-      sha: daa90ee40f373474c7714e72182b7ad784c2ffaf
+      commitTitle: Add the option to skip cni plugins installation (#4423)
+      sha: 80553a0e976a4bdd26f8e64aff41ae5755eb3d4e
       tags:
-      - v0.10.0-rc.2-36-gdaa90ee4
+      - v0.13.0-dev.1-198-g80553a0e
     path: .
   path: ytt/vendir/cni/_ytt_lib
 - contents:
