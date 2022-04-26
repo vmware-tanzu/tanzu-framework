@@ -22,6 +22,7 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/addons/test/testutil"
 	antreaconfigv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cni/v1alpha1"
 	vspherecpiv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cpi/v1alpha1"
+	vspherecsiv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/csi/v1alpha1"
 	runtanzuv1alpha3 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
 
 	corev1 "k8s.io/api/core/v1"
@@ -97,7 +98,7 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 			// Create the webhooks
 			f, err := os.Open(clusterbootstrapWebhookManifestFile)
 			Expect(err).ToNot(HaveOccurred())
-			err = testutil.DeleteResources(f, cfg, dynamicClient, true)
+			err = testutil.DeleteResources(f, cfg, dynamicClient, false)
 			Expect(err).ToNot(HaveOccurred())
 			f.Close()
 		}
@@ -110,6 +111,13 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 		s := &corev1.Secret{}
 		Expect(k8sClient.Get(ctx, key, s)).To(Succeed())
 		Expect(k8sClient.Delete(ctx, s)).To(Succeed())
+
+		// delete cluster
+		By("Deleting cluster")
+		f, err := os.Open(clusterResourceFilePath)
+		Expect(err).ToNot(HaveOccurred())
+		defer f.Close()
+		Expect(testutil.DeleteResources(f, cfg, dynamicClient, false)).To(Succeed())
 	})
 
 	When("cluster is created with topology", func() {
@@ -125,9 +133,8 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 				By("verifying CAPI cluster is created properly")
 				cluster := &clusterapiv1beta1.Cluster{}
 				Expect(k8sClient.Get(ctx, client.ObjectKey{Namespace: clusterNamespace, Name: clusterName}, cluster)).To(Succeed())
-				copiedCluster := cluster.DeepCopy()
-				copiedCluster.Status.Phase = string(clusterapiv1beta1.ClusterPhaseProvisioned)
-				Expect(k8sClient.Status().Update(ctx, copiedCluster)).To(Succeed())
+				cluster.Status.Phase = string(clusterapiv1beta1.ClusterPhaseProvisioned)
+				Expect(k8sClient.Status().Update(ctx, cluster)).To(Succeed())
 
 				By("ClusterBootstrap CR is created with correct ownerReference added")
 				clusterBootstrap := &runtanzuv1alpha3.ClusterBootstrap{}
@@ -483,6 +490,19 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 					})
 				})
 
+				By("verifying the embedded local csi object reference is cloned into cluster namespace", func() {
+					name := "csi-vsphere-credential"
+					assertEventuallyExistInNamespace(ctx, k8sClient, clusterNamespace, name, &corev1.Secret{})
+					assertSecretContains(ctx, k8sClient, clusterNamespace, name, map[string][]byte{
+						"username": []byte("Zm9v"), // foo
+						"password": []byte("YmFy"), // bar
+					})
+					assertOwnerReferencesExist(ctx, k8sClient, clusterNamespace, name, &corev1.Secret{}, []metav1.OwnerReference{
+						{APIVersion: clusterapiv1beta1.GroupVersion.String(), Kind: "Cluster", Name: clusterName},
+						{APIVersion: vspherecsiv1alpha1.GroupVersion.String(), Kind: "VSphereCSIConfig", Name: "test-cluster-csi"},
+					})
+				})
+
 				By("Updating cluster TKR version", func() {
 					newTKRVersion := "v1.23.3"
 					cluster = &clusterapiv1beta1.Cluster{}
@@ -572,6 +592,9 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 					err = k8sClient.Update(ctx, mutateClusterBootstrap)
 					Expect(err).ToNot(HaveOccurred())
 
+					err = k8sClient.Get(ctx, client.ObjectKeyFromObject(cluster), clusterBootstrap)
+					Expect(err).ToNot(HaveOccurred())
+
 					// Package CR must exist
 					mutateClusterBootstrap = clusterBootstrap.DeepCopy()
 					mutateClusterBootstrap.Spec.CNI.RefName = "antrea.tanzu.vmware.com.1.2.5--vmware.1-tkg.1"
@@ -658,9 +681,8 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 				By("verifying CAPI cluster is created properly")
 				cluster := &clusterapiv1beta1.Cluster{}
 				Expect(k8sClient.Get(ctx, client.ObjectKey{Namespace: clusterNamespace, Name: clusterName}, cluster)).To(Succeed())
-				copiedCluster := cluster.DeepCopy()
-				copiedCluster.Status.Phase = string(clusterapiv1beta1.ClusterPhaseProvisioned)
-				Expect(k8sClient.Status().Update(ctx, copiedCluster)).To(Succeed())
+				cluster.Status.Phase = string(clusterapiv1beta1.ClusterPhaseProvisioned)
+				Expect(k8sClient.Status().Update(ctx, cluster)).To(Succeed())
 
 				By("ClusterBootstrap CR is created")
 				clusterBootstrap := &runtanzuv1alpha3.ClusterBootstrap{}
