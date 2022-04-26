@@ -8,7 +8,7 @@ set -euo pipefail
 MY_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 TF_ROOT="${MY_DIR}/../../../.."
 
-# Always run from config-controller directory for reproducibility
+# Always run from tanzu-auth-controller-manager directory for reproducibility
 cd "${MY_DIR}/.."
 
 # Run YTT, passing the arguments to this script straight through to YTT to ease future extensions template
