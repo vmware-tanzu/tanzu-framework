@@ -5,7 +5,7 @@
 
 #! User configurable values for tkg-clusterclass-vsphere
 
-NAMESPACE: ""
+NAMESPACE: tkg-system
 ENABLE_MHC: ""
 ENABLE_MHC_CONTROL_PLANE: ""
 ENABLE_MHC_WORKER_NODE: ""
