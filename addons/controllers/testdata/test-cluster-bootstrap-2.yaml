@@ -11,7 +11,7 @@ metadata:
   namespace: cluster-namespace-2
   labels:
     tkg.tanzu.vmware.com/cluster-name: test-cluster-tcbt-2
-    run.tanzu.vmware.com/tkr: v1.22.3
+    run.tanzu.vmware.com/tkr: v1.22.4
 spec:
   infrastructureRef:
     kind: VSphereCluster
@@ -39,7 +39,7 @@ spec:
   template:
     spec:
       datacenter: dc0
-      template: /dc0/vm/photon-3-kube-v1.22.3+vmware.1-tkg.2
+      template: /dc0/vm/photon-3-kube-v1.22.4+vmware.1-tkg.2
       network:
         devices:
           - networkName: test-network
@@ -175,19 +175,19 @@ spec:
 apiVersion: data.packaging.carvel.dev/v1alpha1
 kind: Package
 metadata:
-  name: kapp-controller.tanzu.vmware.com.0.30.0
+  name: kapp-controller.tanzu.vmware.com.0.30.3
   namespace: cluster-namespace-2
 spec:
   refName: kapp-controller.tanzu.vmware.com
-  version: 0.30.0
-  releaseNotes: kapp-controller 0.30.0 https://github.com/vmware-tanzu/carvel-kapp-controller
+  version: 0.30.1
+  releaseNotes: kapp-controller 0.30.1 https://github.com/vmware-tanzu/carvel-kapp-controller
   licenses:
     - 'VMware’s End User License Agreement (Underlying OSS license: Apache License 2.0)'
   template:
     spec:
       fetch:
         - imgpkgBundle:
-            image: projects-stg.registry.vmware.com/tkg/tkgextensions-dev/packages/core/kapp-controller:v0.30.0_vmware.1-tkg.1
+            image: projects-stg.registry.vmware.com/tkg/tkgextensions-dev/packages/core/kapp-controller:v0.30.1_vmware.1-tkg.1
       template:
         - ytt:
             paths:
@@ -206,7 +206,7 @@ spec:
   releasedAt: "2021-12-20T10:59:32Z"
   valuesSchema:
     openAPIv3:
-      title: kapp-controller.tanzu.vmware.com.0.30.0+vmware.1-tkg.1 values schema
+      title: kapp-controller.tanzu.vmware.com.0.30.3+vmware.1-tkg.1 values schema
 ---
 apiVersion: data.packaging.carvel.dev/v1alpha1
 kind: Package
@@ -295,7 +295,7 @@ spec:
     spec:
       fetch:
         - imgpkgBundle:
-            image: projects-stg.registry.vmware.com/tkg/tkgextensions-dev/packages/core/vsphere-cpi:v1.22.3_vmware.1-tkg.1
+            image: projects-stg.registry.vmware.com/tkg/tkgextensions-dev/packages/core/vsphere-cpi:v1.22.4_vmware.1-tkg.1
       template:
         - ytt:
             paths:
@@ -315,3 +315,122 @@ spec:
   valuesSchema:
     openAPIv3:
       title: vsphere-cpi.tanzu.vmware.com.1.22.3--vmware.1-tkg.1 values schema
+---
+apiVersion: run.tanzu.vmware.com/v1alpha3
+kind: TanzuKubernetesRelease
+metadata:
+  name: v1.22.4
+spec:
+  version: v1.22.4
+  kubernetes:
+    version: v1.22.4
+    imageRepository: foo
+  osImages: []
+  bootstrapPackages: []
+---
+apiVersion: run.tanzu.vmware.com/v1alpha3
+kind: ClusterBootstrapTemplate
+metadata:
+  name: v1.22.4
+  namespace: tkg-system
+spec:
+  kapp:
+    refName: kapp-controller.tanzu.vmware.com.0.30.3
+    valuesFrom:
+      providerRef:
+        apiGroup: run.tanzu.vmware.com
+        kind: KappControllerConfig
+        name: test-cluster-tcbt-2-kapp-controller-config
+  additionalPackages:
+    - refName: foobar1.example.com.1.17.2
+      valuesFrom:
+        secretRef: foobar2secret
+  cni:
+    refName: antrea.tanzu.vmware.com.1.2.3--vmware.1-tkg.1
+    valuesFrom:
+      providerRef:
+        apiGroup: cni.tanzu.vmware.com
+        kind: AntreaConfig
+        name: test-cluster-tcbt-2
+---
+apiVersion: data.packaging.carvel.dev/v1alpha1
+kind: Package
+metadata:
+  name: kapp-controller.tanzu.vmware.com.0.30.3
+  namespace: tkg-system
+spec:
+  refName: kapp-controller.tanzu.vmware.com
+  version: 0.30.1
+  releaseNotes: kapp-controller 0.30.1 https://github.com/vmware-tanzu/carvel-kapp-controller
+  licenses:
+    - 'VMware’s End User License Agreement (Underlying OSS license: Apache License 2.0)'
+  template:
+    spec:
+      fetch:
+        - imgpkgBundle:
+            image: projects-stg.registry.vmware.com/tkg/tkgextensions-dev/packages/core/kapp-controller:v0.30.1_vmware.1-tkg.1
+      template:
+        - ytt:
+            paths:
+              - config/
+            ignoreUnknownComments: true
+        - kbld:
+            paths:
+              - '-'
+              - .imgpkg/images.yml
+      deploy:
+        - kapp:
+            rawOptions:
+              - --wait-timeout=30s
+              - --kube-api-qps=20
+              - --kube-api-burst=30
+  releasedAt: "2021-12-20T10:59:32Z"
+  valuesSchema:
+    openAPIv3:
+      title: kapp-controller.tanzu.vmware.com.0.30.3+vmware.1-tkg.1 values schema
+---
+apiVersion: run.tanzu.vmware.com/v1alpha3
+kind: KappControllerConfig
+metadata:
+  name: test-cluster-tcbt-2-kapp-controller-config
+  namespace: tkg-system
+spec:
+  namespace: test-ns
+  kappController:
+    createNamespace: true
+    globalNamespace: tanzu-package-repo-global
+    deployment:
+      concurrency: 4
+      hostNetwork: true
+      priorityClassName: system-cluster-critical
+      apiPort: 10100
+      metricsBindAddress: "0"
+      tolerations:
+        - key: CriticalAddonsOnly
+          operator: Exists
+        - effect: NoSchedule
+          key: node-role.kubernetes.io/master
+        - effect: NoSchedule
+          key: node.kubernetes.io/not-ready
+        - effect: NoSchedule
+          key: node.cloudprovider.kubernetes.io/uninitialized
+          value: "true"
+---
+kind: Secret
+metadata:
+  name: foobar2secret
+  namespace: tkg-system
+stringData:
+  values.yaml: |
+    sample-key: sample-value
+---
+apiVersion: cni.tanzu.vmware.com/v1alpha1
+kind: AntreaConfig
+metadata:
+  name: test-cluster-tcbt-2
+  namespace: tkg-system
+spec:
+  antrea:
+    config:
+      trafficEncapMode: encap
+
