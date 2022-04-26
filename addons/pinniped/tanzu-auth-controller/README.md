@@ -1,6 +1,6 @@
-# pinniped-config-controller-manager
+# tanzu-auth-controller
 
-This directory is home to the `pinniped-config-controller-manager`.
+This directory is home to the `tanzu-auth-controller`.
 
 To run this on a cluster:
 
@@ -27,7 +27,7 @@ To generate the default pinniped addon secret:
 # (consult the top-level Makefile for further details)
 make generate-package-secret tkr=v1.23.3---vmware.1-tkg.1 iaas=vsphere
 
-# to generate the secret in the context of the /addons/pinniped/config-controller, do one of the following:
+# to generate the secret in the context of the /addons/pinniped/tanzu-auth-controller, do one of the following:
 
 # manually via ytt
 ytt -f ./hack/ytt -v tkr=v1.23.3---vmware.1-tkg.1 -v infrastructure_provider=vsphere

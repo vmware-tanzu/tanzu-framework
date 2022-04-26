@@ -8,4 +8,4 @@ Tanzu Auth management package provides federated user authentication to a fleet 
 
 ## Usage Example
 
-The `hack/run.sh` script in `addons/pinniped/config-controller` will deploy the tanzu-auth package.
+The `hack/run.sh` script in `addons/pinniped/tanzu-auth-controller` will deploy the tanzu-auth package.

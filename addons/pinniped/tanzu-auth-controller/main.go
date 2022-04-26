@@ -8,7 +8,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/vmware-tanzu/tanzu-framework/addons/pinniped/config-controller/controllers"
+	"github.com/vmware-tanzu/tanzu-framework/addons/pinniped/tanzu-auth-controller/controllers"
 
 	"k8s.io/klog/v2"
 	"k8s.io/klog/v2/klogr"
@@ -24,7 +24,7 @@ func main() {
 	klog.InitFlags(nil)
 	flag.Parse()
 	ctrl.SetLogger(klogr.New())
-	setupLog := ctrl.Log.WithName("pinniped config controller").WithName("set up")
+	setupLog := ctrl.Log.WithName("tanzu auth controller manager").WithName("set up")
 	setupLog.Info("starting set up")
 	if err := reallyMain(setupLog); err != nil {
 		setupLog.Error(err, "error running controller")

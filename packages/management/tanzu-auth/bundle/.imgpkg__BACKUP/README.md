@@ -11,8 +11,7 @@ Ensure you have built and pushed the `tanzu-auth-controller-manager` container t
 to the image in a later step.
 
 ```bash
-# currently called config-controller, rename coming soon
-cd path/to/tanzu-framework/addons/pinniped/config-controller
+cd path/to/tanzu-framework/addons/pinniped/tanzu-auth-controller
 # note the output of a line like:
 # The push refers to repository [harbor-repo.vmware.com/tkgiam/ben/tanzu-auth-controller-manager]
 # resolve | final: harbor-repo.vmware.com/tkgiam/ben/tanzu-auth-controller-manager:dev -> harbor-repo.vmware.com/tkgiam/ben/tanzu-auth-controller-manager@sha256:e65505c2e3bab863436ca24ace6c25dc029f32f4b349804fe9e462c2ba2f09e3

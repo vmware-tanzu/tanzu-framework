@@ -7,7 +7,7 @@ set -xeuo pipefail
 
 MY_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
-# Always run from config-controller directory for reproducibility
+# Always run from tanzu-auth-controller directory for reproducibility
 cd "${MY_DIR}/.."
 
 # Make sure all the files are formatted

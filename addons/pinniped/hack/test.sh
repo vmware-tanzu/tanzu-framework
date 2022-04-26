@@ -13,5 +13,5 @@ cd "${MY_DIR}/.."
 # Test post-deploy job
 make -C ./post-deploy test
 
-# Test config-controller
-./config-controller/hack/check.sh
+# Test tanzu-auth-controller
+./tanzu-auth-controller/hack/check.sh
