@@ -130,6 +130,7 @@ func generatePackageBundlesSha256(projectRootDir, localRegistry string) error {
 
 		packageValues.Repositories[packageRepository].Packages[i].Version = getPackageVersion(version)
 		packageValues.Repositories[packageRepository].Packages[i].Sha256 = utils.AfterString(bundleLock.Bundle.Image, localRegistry+"/"+pkg.Name+"@sha256:")
+		packageValues.Repositories[packageRepository].Packages[i].PackageSubVersion = subVersion
 		yamlData, err := yaml.Marshal(&packageValues)
 		if err != nil {
 			return fmt.Errorf("error while marshaling: %w", err)
@@ -229,10 +230,17 @@ func generatePackageCR(projectRootDir, toolsBinDir, registry, packageArtifactDir
 	if err := utils.CreateDir(filepath.Join(packageArtifactDirectory, pkg.Name+"."+pkg.Domain)); err != nil {
 		return err
 	}
+
 	pkgVersion := getPackageVersion(version)
+	packageSubVersion := pkg.PackageSubVersion
+	if subVersion != "" {
+		// subVersion flag overrides package values subversion.
+		packageSubVersion = subVersion
+	}
+
 	packageFileName := pkgVersion + ".yml"
-	if pkg.PackageSubVersion != "" {
-		packageFileName = pkgVersion + pkg.PackageSubVersion + ".yml"
+	if packageSubVersion != "" {
+		packageFileName = pkgVersion + "+" + packageSubVersion + ".yml"
 	}
 
 	// generate Package CR and write it to a file
@@ -245,6 +253,7 @@ func generatePackageCR(projectRootDir, toolsBinDir, registry, packageArtifactDir
 		"-v", "registry="+registry,
 		"-v", "timestamp="+utils.GetFormattedCurrentTime(),
 		"-v", "version="+pkgVersion,
+		"-v", "subVersion="+packageSubVersion,
 	) // #nosec G204
 
 	packageFilePath := filepath.Join(packageArtifactDirectory, pkg.Name+"."+pkg.Domain, packageFileName)

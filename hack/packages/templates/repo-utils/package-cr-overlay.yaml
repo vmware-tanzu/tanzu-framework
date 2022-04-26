@@ -6,31 +6,39 @@
 #@ package = get_package(package_repository, data.values.packageName)
 #@ packageSpec = get_package_spec(package_repository, package)
 
-#@ if not hasattr(package, "packageSubVersion") or package.packageSubVersion == "":
+#@ if not hasattr(package, "packageSubVersion") and data.values.subVersion == "":
 #@  if package.version == "latest":
 #@    packageVersion = data.values.version
 #@  else:
 #@    packageVersion = package.version
 #@  end
 #@ else:
+#@  subVersion = data.values.subVersion
+#@  if subVersion == "":
+#@    subVersion = package.packageSubVersion
+#@  end
 #@  if package.version == "latest":
-#@    packageVersion = data.values.version + "+" + package.packageSubVersion
+#@    packageVersion = data.values.version + "+" + subVersion
 #@  else:
-#@    packageVersion = package.version + "+" + package.packageSubVersion
+#@    packageVersion = package.version + "+" + subVersion
 #@  end
 #@ end
 
-#@ if not hasattr(package, "packageSubVersion") or package.packageSubVersion == "":
+#@ if not hasattr(package, "packageSubVersion") and data.values.subVersion == "":
 #@  if package.version == "latest":
 #@    imagePackageVersion = "v" + data.values.version
 #@  else:
 #@    imagePackageVersion = "v" + package.version
 #@  end
 #@ else:
+#@  subVersion = data.values.subVersion
+#@  if subVersion == "":
+#@    subVersion = package.packageSubVersion
+#@  end
 #@  if package.version == "latest":
-#@    imagePackageVersion = "v" + data.values.version + "_" + package.packageSubVersion
+#@    imagePackageVersion = "v" + data.values.version + "_" + subVersion
 #@  else:
-#@    imagePackageVersion = "v" + package.version + "_" + package.packageSubVersion
+#@    imagePackageVersion = "v" + package.version + "_" + subVersion
 #@  end
 #@ end
 
@@ -51,7 +59,7 @@ spec:
   #@overlay/match missing_ok=True
   #@overlay/replace
   licenses:
-  - #@ packageLicense
+    -  #@ packageLicense
   template:
     spec:
       #@ if/end packageSpec:
@@ -74,11 +82,11 @@ spec:
             #@overlay/match missing_ok=True
             rawOptions:
               #@overlay/match by=lambda indexOrKey, left, right: "wait-timeout" in left, missing_ok=True
-              - #@ "--wait-timeout={}".format(packageSpec.deploy.kappWaitTimeout)
+              -  #@ "--wait-timeout={}".format(packageSpec.deploy.kappWaitTimeout)
               #@overlay/match by=lambda indexOrKey, left, right: "kube-api-qps" in left, missing_ok=True
-              - #@ "--kube-api-qps={}".format(packageSpec.deploy.kubeAPIQPS)
+              -  #@ "--kube-api-qps={}".format(packageSpec.deploy.kubeAPIQPS)
               #@overlay/match by=lambda indexOrKey, left, right: "kube-api-burst" in left, missing_ok=True
-              - #@ "--kube-api-burst={}".format(packageSpec.deploy.kubeAPIBurst)
+              -  #@ "--kube-api-burst={}".format(packageSpec.deploy.kubeAPIBurst)
             #@ end
   #@overlay/match missing_ok=True
   valuesSchema:
