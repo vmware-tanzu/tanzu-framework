@@ -31,8 +31,17 @@ type ClusterClassPackage struct {
 	ClusterClassInfraPackageValues  ClusterClassInfraPackageValues `yaml:"clusterclassInfraPackageValues,omitempty"`
 }
 
+type AddonsFeatureGates struct {
+	ClusterBootstrapController bool `yaml:"clusterBootstrapController,omitempty"`
+}
+
+type TanzuAddonsManager struct {
+	FeatureGates AddonsFeatureGates `yaml:"featureGates,omitempty"`
+}
+
 type AddonsManagerPackageValues struct {
-	VersionConstraints string `yaml:"versionConstraints,omitempty"`
+	VersionConstraints string             `yaml:"versionConstraints,omitempty"`
+	TanzuAddonsManager TanzuAddonsManager `yaml:"tanzuAddonsManager,omitempty"`
 }
 
 type FeaturegatePackageValues struct {
