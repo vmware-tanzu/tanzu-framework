@@ -15,13 +15,15 @@ const (
 
 	ConditionUpdatesAvailable = "UpdatesAvailable"
 
+	ReasonTKRNotFound     = "TKRNotFound"
+	ReasonAlreadyUpToDate = "AlreadyUpToDate"
+
 	LabelIncompatible = "incompatible"
 	LabelDeactivated  = "deactivated"
 	LabelInvalid      = "invalid"
 
 	AnnotationResolveTKR     = "run.tanzu.vmware.com/resolve-tkr"
 	AnnotationResolveOSImage = "run.tanzu.vmware.com/resolve-os-image"
-	AnnotationOSImageRef     = "run.tanzu.vmware.com/os-image-ref"
 
 	LabelTKR     = "run.tanzu.vmware.com/tkr"
 	LabelOSImage = "run.tanzu.vmware.com/os-image"

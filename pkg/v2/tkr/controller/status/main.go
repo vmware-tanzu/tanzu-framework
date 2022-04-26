@@ -44,7 +44,7 @@ func main() {
 
 	setupLog.Info("Version", "version", buildinfo.Version, "buildDate", buildinfo.Date, "sha", buildinfo.SHA)
 
-	// Setup a Manager
+	// Setup Manager
 	setupLog.Info("setting up manager")
 	mgr, err := manager.New(config.GetConfigOrDie(), manager.Options{
 		Scheme: scheme,
@@ -54,6 +54,7 @@ func main() {
 		os.Exit(1)
 	}
 
+	ctx := signals.SetupSignalHandler()
 	tkrResolver := resolver.New()
 
 	if err := (&tkr.Reconciler{
@@ -80,13 +81,14 @@ func main() {
 		Log:         mgr.GetLogger().WithName("cluster.UpdatesAvailable"),
 		Client:      mgr.GetClient(),
 		TKRResolver: tkrResolver,
+		Context:     ctx,
 	}).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "Cluster UpdatesAvailable")
 		os.Exit(1)
 	}
 
 	setupLog.Info("starting manager")
-	if err := mgr.Start(signals.SetupSignalHandler()); err != nil {
+	if err := mgr.Start(ctx); err != nil {
 		setupLog.Error(err, "unable to run manager")
 		os.Exit(1)
 	}

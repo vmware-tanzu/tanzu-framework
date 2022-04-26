@@ -7,10 +7,12 @@ package clusterstatus
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/go-logr/logr"
 	"github.com/pkg/errors"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
+	"k8s.io/apimachinery/pkg/fields"
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/types"
 	kerrors "k8s.io/apimachinery/pkg/util/errors"
@@ -36,6 +38,7 @@ type Reconciler struct {
 	Log         logr.Logger
 	Client      client.Client
 	TKRResolver resolver.CachingResolver
+	Context     context.Context
 }
 
 var hasTKRLabel = func() predicate.Predicate {
@@ -45,18 +48,49 @@ var hasTKRLabel = func() predicate.Predicate {
 	})
 }()
 
+const indexCanUpdateToVersion = ".index.canUpdateToVersion"
+
 func (r *Reconciler) SetupWithManager(mgr ctrl.Manager) error {
+	if err := mgr.GetFieldIndexer().IndexField(
+		r.Context, &clusterv1.Cluster{}, indexCanUpdateToVersion, versionsClusterCanUpdateTo,
+	); err != nil {
+		return err
+	}
+
 	return ctrl.NewControllerManagedBy(mgr).
 		Named("cluster_updates_available").
-		For(&clusterv1.Cluster{}, builder.WithPredicates(hasTKRLabel)).
-		Watches(&source.Kind{Type: &runv1.TanzuKubernetesRelease{}}, handler.EnqueueRequestsFromMapFunc(r.clustersForTKR)).
+		For(&clusterv1.Cluster{}, builder.WithPredicates(hasTKRLabel, predicate.GenerationChangedPredicate{})).
+		Watches(
+			&source.Kind{Type: &runv1.TanzuKubernetesRelease{}},
+			handler.EnqueueRequestsFromMapFunc(r.clustersUpdatingToTKR),
+			builder.WithPredicates(predicate.ResourceVersionChangedPredicate{})).
 		Complete(r)
 }
 
-func (r *Reconciler) clustersForTKR(o client.Object) []ctrl.Request {
+func versionsClusterCanUpdateTo(o client.Object) []string {
+	cluster := o.(*clusterv1.Cluster)
+	if !conditions.IsTrue(cluster, runv1.ConditionUpdatesAvailable) {
+		return nil
+	}
+	message := conditions.GetMessage(cluster, runv1.ConditionUpdatesAvailable)
+	return strings.Split(strings.TrimSuffix(strings.TrimPrefix(message, "["), "]"), " ")
+}
+
+func (r *Reconciler) clustersUpdatingToTKR(o client.Object) []ctrl.Request {
+	tkr := o.(*runv1.TanzuKubernetesRelease)
+	var result []ctrl.Request
+	for _, v := range []string{tkr.Spec.Kubernetes.Version, tkr.Spec.Version} {
+		result = append(result, r.clustersUpdatingToVersion(v)...)
+	}
+	return result
+}
+
+func (r *Reconciler) clustersUpdatingToVersion(v string) []ctrl.Request {
 	clusterList := &clusterv1.ClusterList{}
-	if err := r.Client.List(context.Background(), clusterList, client.MatchingLabels{runv1.LabelTKR: o.GetName()}); err != nil {
-		r.Log.Error(err, "error listing clusters", "TKR", o.GetName())
+	if err := r.Client.List(r.Context, clusterList, &client.ListOptions{
+		FieldSelector: fields.OneTermEqualSelector(indexCanUpdateToVersion, v),
+	}); err != nil {
+		r.Log.Error(err, "error listing clusters updating to", "version", v)
 		return nil
 	}
 	result := make([]reconcile.Request, len(clusterList.Items))
@@ -108,7 +142,7 @@ func (r *Reconciler) calculateAndSetUpdatesAvailable(ctx context.Context, cluste
 	tkrName := cluster.Labels[runv1.LabelTKR]
 	tkr := r.TKRResolver.Get(tkrName, &runv1.TanzuKubernetesRelease{}).(*runv1.TanzuKubernetesRelease)
 	if tkr == nil {
-		conditions.MarkUnknown(cluster, runv1.ConditionUpdatesAvailable, "TKRNotFound", "TKR '%s' is not found", tkrName)
+		conditions.MarkUnknown(cluster, runv1.ConditionUpdatesAvailable, runv1.ReasonTKRNotFound, "TKR '%s' is not found", tkrName)
 		return nil
 	}
 	updates, err := r.updatesAvailable(tkr, cluster, clusterClass)
@@ -116,7 +150,7 @@ func (r *Reconciler) calculateAndSetUpdatesAvailable(ctx context.Context, cluste
 		return err
 	}
 	if len(updates) == 0 {
-		conditions.MarkFalse(cluster, runv1.ConditionUpdatesAvailable, "AlreadyUpToDate", clusterv1.ConditionSeverityInfo, "")
+		conditions.MarkFalse(cluster, runv1.ConditionUpdatesAvailable, runv1.ReasonAlreadyUpToDate, clusterv1.ConditionSeverityInfo, "")
 		return nil
 	}
 	updatesAvailableCondition := conditions.TrueCondition(runv1.ConditionUpdatesAvailable)

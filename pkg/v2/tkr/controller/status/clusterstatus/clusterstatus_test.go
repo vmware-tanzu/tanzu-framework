@@ -90,6 +90,7 @@ var _ = Describe("clusterstatus.Reconciler", func() {
 			Client:      c,
 			TKRResolver: tkrResolver,
 			Log:         logr.Discard(),
+			Context:     context.Background(),
 		}
 	})
 
