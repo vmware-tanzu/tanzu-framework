@@ -5,6 +5,7 @@
 
 #@ def kappcontrollerdatavalues():
 ---
+namespace: tkg-system
 kappController:
   namespace: tkg-system
   createNamespace: true
