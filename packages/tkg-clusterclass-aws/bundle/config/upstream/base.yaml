@@ -6,7 +6,7 @@ apiVersion: cluster.x-k8s.io/v1beta1
 kind: ClusterClass
 metadata:
   name: tkg-aws-default
-  namespace: default
+  namespace: #@ data.values.NAMESPACE
   annotations:
     run.tanzu.vmware.com/resolve-tkr: ""
 spec:
@@ -935,7 +935,7 @@ apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
 kind: AWSClusterTemplate
 metadata:
   name: aws-cluster-template
-  namespace: default
+  namespace: #@ data.values.NAMESPACE
 spec:
   template:
     spec:
@@ -955,7 +955,7 @@ apiVersion: controlplane.cluster.x-k8s.io/v1beta1
 kind: KubeadmControlPlaneTemplate
 metadata:
   name: tkg-aws-kcp
-  namespace: default
+  namespace: #@ data.values.NAMESPACE
 spec:
   template:
     spec:
@@ -1005,7 +1005,7 @@ kind: AWSMachineTemplate
 apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
 metadata:
   name: tkg-aws-controlplane-template
-  namespace: default
+  namespace: #@ data.values.NAMESPACE
 spec:
   template:
     spec:
@@ -1021,7 +1021,7 @@ apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
 kind: AWSMachineTemplate
 metadata:
   name: tkg-aws-worker-template
-  namespace: default
+  namespace: #@ data.values.NAMESPACE
 spec:
   template:
     spec:
@@ -1037,7 +1037,7 @@ apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
 kind: KubeadmConfigTemplate
 metadata:
   name: tkg-aws-bootstrap-template
-  namespace: default
+  namespace: #@ data.values.NAMESPACE
 spec:
   template:
     spec:

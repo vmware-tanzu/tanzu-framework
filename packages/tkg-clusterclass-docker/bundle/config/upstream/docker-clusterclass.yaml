@@ -2,7 +2,7 @@ apiVersion: cluster.x-k8s.io/v1beta1
 kind: ClusterClass
 metadata:
   name: tkg-docker-clusterclass
-  namespace: default
+  namespace: #@ data.values.NAMESPACE
 spec:
   controlPlane:
     ref:
