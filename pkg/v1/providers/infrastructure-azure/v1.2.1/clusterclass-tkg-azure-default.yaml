@@ -2,5 +2,5 @@ apiVersion: providers.tanzu.vmware.com/v1alpha1
 kind: TemplateDefinition
 spec:
   paths:
-    - path: providers/infrastructure-azure/v1.2.1/cconly
+    - path: providers/infrastructure-azure/v1.0.1/cconly
     - path: providers/config_default.yaml
