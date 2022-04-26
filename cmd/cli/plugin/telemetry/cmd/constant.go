@@ -6,8 +6,8 @@ package cmd
 
 // Update Command Flags
 const (
-	UpdateCeipOptInFlag  = "ceip-opt-in"
-	UpdateCeipOptOutFlag = "ceip-opt-out"
+	UpdateCeipOptInFlag  = "CEIP-opt-in"
+	UpdateCeipOptOutFlag = "CEIP-opt-out"
 	UpdateEanFlag        = "entitlement-account-number"
 	UpdateCspOrgFlag     = "csp-org-id"
 	UpdateEnvIsProdFlag  = "env-is-prod"

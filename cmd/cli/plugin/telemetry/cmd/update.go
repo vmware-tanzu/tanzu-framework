@@ -48,18 +48,18 @@ func NewUpdateCmd(clientGetter func() (dynamic.Interface, error), out component.
 		Use:   "update",
 		Short: "Update tanzu telemetry settings",
 		Example: `
-    # opt into ceip
-    tanzu telemetry update --ceip-opt-in
-	# opt out of ceip
-    tanzu telemetry update --ceip-opt-out
+    # opt into CEIP
+    tanzu telemetry update --CEIP-opt-in
+	# opt out of CEIP
+    tanzu telemetry update --CEIP-opt-out
 	# update shared configuration settings
     tanzu telemetry update --env-is-prod "true" --entitlement-account-number "1234" --csp-org-id "XXXX"
 `,
 		RunE: uc.Update,
 	}
 
-	uc.Cmd.Flags().BoolVar(&ceipOptIn, UpdateCeipOptInFlag, false, "opt into VMware's ceip program")
-	uc.Cmd.Flags().BoolVar(&ceipOptOut, UpdateCeipOptOutFlag, false, "opt out of VMware's ceip program")
+	uc.Cmd.Flags().BoolVar(&ceipOptIn, UpdateCeipOptInFlag, false, "opt into VMware's CEIP program")
+	uc.Cmd.Flags().BoolVar(&ceipOptOut, UpdateCeipOptOutFlag, false, "opt out of VMware's CEIP program")
 	uc.Cmd.Flags().StringVar(&ean, UpdateEanFlag, "", `Accepts a string and sets a cluster-wide
                                 entitlement account number. Empty string is
                                 equivalent to unsetting this value`)
@@ -86,7 +86,7 @@ func (uc *UpdateCmd) Update(_ *cobra.Command, _ []string) error {
 	}
 
 	if uc.Cmd.Flags().Changed(UpdateCeipOptInFlag) && uc.Cmd.Flags().Changed(UpdateCeipOptOutFlag) {
-		return errors.New("cannot set both ceip-opt-in and ceip-opt-out flags")
+		return errors.New("cannot set both CEIP-opt-in and CEIP-opt-out flags")
 	}
 
 	dynamicClient, err := uc.ClientGetter()

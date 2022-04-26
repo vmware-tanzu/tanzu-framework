@@ -1,12 +1,16 @@
 # telemetry
+
 ## Summary
+
 Plugin for configuring cluster-wide telemetry settings. These settings are applicable to any generic kubernetes cluster.
-Settings are respected by any tanzu product exercising the telemetry SDK.
+Settings are respected by any Tanzu product exercising the telemetry SDK.
 
 ## Usage
 
 ### status
+
 #### help output
+
 ```shell
 $ tanzu telemetry status --help
 Status of tanzu telemetry settings
@@ -24,6 +28,7 @@ Flags:
 ```
 
 #### printing status of cluster
+
 ```shell
 $ tanzu telemetry status
 - ceip: |
@@ -35,7 +40,9 @@ $ tanzu telemetry status
 ```
 
 ### update
+
 #### help output
+
 ```shell
 $ tanzu telemetry update --help
 Update tanzu telemetry settings
@@ -46,16 +53,16 @@ Usage:
 Examples:
 
     # opt into ceip
-    tanzu telemetry update --ceip-opt-in
-	# opt out of ceip
-    tanzu telemetry update --ceip-opt-out
-	# update shared configuration settings
+    tanzu telemetry update --CEIP-opt-in
+    # opt out of ceip
+    tanzu telemetry update --CEIP-opt-out
+    # update shared configuration settings
     tanzu telemetry update --env-is-prod "true" --entitlement-account-number "1234" --csp-org-id "XXXX"
 
 
 Flags:
-      --ceip-opt-in                         opt into VMware's ceip program
-      --ceip-opt-out                        opt out of VMware's ceip program
+      --CEIP-opt-in                         opt into VMware's CEIP program
+      --CEIP-opt-out                        opt out of VMware's CEIP program
       --csp-org-id string                   Accepts a string and sets a cluster-wide CSP
                                                                             org ID. Empty string is equivalent to
                                                                             unsetting this value.
@@ -69,14 +76,18 @@ Flags:
 ```
 
 #### opt in/out of telemetry
-```shell
-$ tanzu telemetry update --ceip-opt-in
 
-$ tanzu telemetry update --ceip-opt-out
+```shell
+$ tanzu telemetry update --CEIP-opt-in
+*no output*
+
+$ tanzu telemetry update --CEIP-opt-out
+*no output*
 
 ```
 
 #### update shared identifiers
+
 ```shell
 $ tanzu telemetry update --csp-org-id "test-org" --entitlement-account-number "XXXX" --env-is-prod false
 found existing identifiers config map
