@@ -4,7 +4,7 @@ kind: Deployment
 apiVersion: apps/v1
 metadata:
   name: tanzu-auth-controller-manager
-  namespace: tanzu-auth
+  namespace: #@ data.values.namespace
 spec:
   selector:
     matchLabels:
@@ -18,5 +18,5 @@ spec:
     spec:
       serviceAccountName: tanzu-auth-controller-manager-sa
       containers:
-      - image: #@ data.values.image
+      - image: #@ data.values.controller.image
         name: tanzu-auth-controller-manager

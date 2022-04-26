@@ -2,5 +2,6 @@
 #@overlay/match-child-defaults missing_ok=True
 ---
 
-tanzuAuth:
-  namespace: tanzu-auth #! TODO: what kind of config do we ACTUALLY want here?
+namespace: tanzu-auth
+controller:
+  image: "" #! the image to use for the tanzu-auth-controller-manager, there is no default image provided

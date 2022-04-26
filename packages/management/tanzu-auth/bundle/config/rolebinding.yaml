@@ -7,7 +7,7 @@ metadata:
 subjects:
   - kind: ServiceAccount
     name: tanzu-auth-controller-manager-sa
-    namespace: tanzu-auth
+    namespace: #@ data.values.namespace
 roleRef:
   kind: ClusterRole
   name: tanzu-auth-controller-manager

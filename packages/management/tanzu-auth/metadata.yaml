@@ -4,8 +4,8 @@ metadata:
   name: tanzu-auth.tanzu.vmware.com
 spec:
   displayName: "tanzu-auth"
-  longDescription: "Tanzu Auth package provides federated auth to a fleet of clusters via Pinniped"
-  shortDescription: "Tanzu Auth package provides federated auth to a fleet of clusters"
+  longDescription: "Tanzu Auth orchestrates the deployment of Pinniped packages to provide federated auth to a fleet of clusters for Tanzu"
+  shortDescription: "Tanzu Auth orchestrates the deployment of Pinniped packages"
   providerName: VMware
   maintainers:
     - name: "Andrew Keesler"

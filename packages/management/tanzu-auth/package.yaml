@@ -2,7 +2,7 @@ apiVersion: data.packaging.carvel.dev/v1alpha1
 kind: Package
 metadata:
   name: tanzu-auth.tanzu.vmware.com.1.6.0
-  namespace: tanzu-auth
+  namespace: tkg-system
 spec:
   refName: tanzu-auth.tanzu.vmware.com
   version: 1.6.0
@@ -12,7 +12,7 @@ spec:
     spec:
       fetch:
         - imgpkgBundle:
-          image: # Get this value by pushing to your OCI Registry
+            image: # Get this value by pushing to your OCI Registry
       template:
         - ytt:
             paths:
