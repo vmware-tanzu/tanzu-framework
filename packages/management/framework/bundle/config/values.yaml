@@ -36,3 +36,8 @@ addonsManagerPackageValues:
 clipluginsPackageValues:
   namespace:
   versionConstraints:
+tanzuAuthPackageValues:
+  namespace: tanzu-auth
+  versionConstraints:
+  controller:
+    image: ""
