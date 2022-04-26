@@ -4,6 +4,7 @@
 package v1alpha1
 
 import (
+	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -72,11 +73,10 @@ type NonParavirtualConfig struct {
 	// +kubebuilder:validation:Optional
 	PublicNetwork string `json:"publicNetwork"`
 
+	// A secret reference that contains vSphere login credentials to access a vSphere endpoint
+	// consists of the fields username and password
 	// +kubebuilder:validation:Optional
-	Username string `json:"username"`
-
-	// +kubebuilder:validation:Optional
-	Password string `json:"password"`
+	VSphereCredentialLocalObjRef *v1.TypedLocalObjectReference `json:"vSphereCredentialLocalObjRef"`
 
 	// +kubebuilder:validation:Optional
 	Region string `json:"region,omitempty"`

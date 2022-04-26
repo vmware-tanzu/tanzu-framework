@@ -52,6 +52,15 @@ spec:
           dhcp6: true
           dhcp4: false
 ---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: csi-vsphere-credential
+  namespace: default
+data:
+  username: Zm9v # foo
+  password: YmFy # bar
+---
 apiVersion: csi.tanzu.vmware.com/v1alpha1
 kind: VSphereCSIConfig
 metadata:
@@ -67,8 +76,6 @@ spec:
       server: svr-0
       datacenter: dc0
       publicNetwork: "8.2.0.0/16"
-      username: "administrator@vsphere.local"
-      password: test-passwd
       region: test-region
       zone: test-zone
       insecureFlag: false
@@ -82,4 +89,7 @@ spec:
       noProxy: "3.3.3.3"
       deploymentReplicas: 3
       windowsSupport: true
+      vSphereCredentialLocalObjRef:
+        kind: Secret
+        name: csi-vsphere-credential
 

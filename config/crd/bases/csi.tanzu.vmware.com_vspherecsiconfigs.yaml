@@ -60,8 +60,6 @@ spec:
                         type: string
                       noProxy:
                         type: string
-                      password:
-                        type: string
                       provisionTimeout:
                         type: string
                       publicNetwork:
@@ -76,8 +74,27 @@ spec:
                         type: string
                       useTopologyCategories:
                         type: boolean
-                      username:
-                        type: string
+                      vSphereCredentialLocalObjRef:
+                        description: A secret reference that contains vSphere login
+                          credentials to access a vSphere endpoint consists of the
+                          fields username and password
+                        properties:
+                          apiGroup:
+                            description: APIGroup is the group for the resource being
+                              referenced. If APIGroup is not specified, the specified
+                              Kind must be in the core API group. For any other third-party
+                              types, APIGroup is required.
+                            type: string
+                          kind:
+                            description: Kind is the type of resource being referenced
+                            type: string
+                          name:
+                            description: Name is the name of resource being referenced
+                            type: string
+                        required:
+                        - kind
+                        - name
+                        type: object
                       vSphereVersion:
                         type: string
                       windowsSupport:

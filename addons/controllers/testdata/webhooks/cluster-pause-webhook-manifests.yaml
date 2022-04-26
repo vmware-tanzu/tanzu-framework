@@ -1,9 +1,14 @@
 ---
 apiVersion: v1
+kind: Namespace
+metadata:
+  name: tkg-system-0
+---
+apiVersion: v1
 kind: Service
 metadata:
   name: cluster-pause-webhook-service
-  namespace: tkg-system
+  namespace: tkg-system-0
 spec:
   type: ExternalName
   externalName: 127.0.0.1
@@ -23,7 +28,7 @@ webhooks:
       caBundle: Cg==
       service:
         name: cluster-pause-webhook-service
-        namespace: tkg-system
+        namespace: tkg-system-0
         path: /mutate-cluster-x-k8s-io-v1beta1-cluster
         port: 9443
     failurePolicy: Fail

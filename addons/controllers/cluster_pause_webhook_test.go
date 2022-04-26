@@ -21,6 +21,7 @@ const (
 	clusterPauseWebhookScrtName      = "cluster-pause-webhook-tls"
 	clusterPauseWebhookServiceName   = "cluster-pause-webhook-service"
 	clusterPauseWebhookLabel         = "cluster-pause-webhook"
+	clusterPauseWebhookNamespace     = "tkg-system-0"
 )
 
 var _ = Describe("when cluster paused state is managed by webhook", func() {
@@ -38,7 +39,7 @@ var _ = Describe("when cluster paused state is managed by webhook", func() {
 			CertPath:           certPath,
 			KeyPath:            keyPath,
 			WebhookScrtName:    clusterPauseWebhookScrtName,
-			AddonNamespace:     addonNamespace,
+			AddonNamespace:     clusterPauseWebhookNamespace,
 			WebhookServiceName: clusterPauseWebhookServiceName,
 			LabelSelector:      clusterPauseWebhookLabel,
 		}
@@ -51,7 +52,7 @@ var _ = Describe("when cluster paused state is managed by webhook", func() {
 		// Create the webhooks
 		f, err := os.Open(clusterpPauseWebhookManifestFile)
 		Expect(err).ToNot(HaveOccurred())
-		err = testutil.DeleteResources(f, cfg, dynamicClient, true)
+		err = testutil.DeleteResources(f, cfg, dynamicClient, false)
 		Expect(err).ToNot(HaveOccurred())
 		f.Close()
 	})
@@ -61,7 +62,7 @@ var _ = Describe("when cluster paused state is managed by webhook", func() {
 			// Create a cluster object
 			cluster := &clusterapiv1beta1.Cluster{}
 			cluster.Name = "pause-test-cluster"
-			cluster.Namespace = addonNamespace
+			cluster.Namespace = clusterPauseWebhookNamespace
 			cluster.Spec.Topology = &clusterapiv1beta1.Topology{
 				Version: "v1.19.3---vmware.1",
 			}

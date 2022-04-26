@@ -134,6 +134,13 @@ spec:
         apiGroup: cpi.tanzu.vmware.com
         kind: VSphereCPIConfig
         name: test-cluster-cpi
+  csi:
+    refName: vsphere-csi.community.tanzu.vmware.com.2.4.1
+    valuesFrom:
+      providerRef:
+        apiGroup: csi.tanzu.vmware.com
+        kind: VSphereCSIConfig
+        name: test-cluster-csi
 ---
 apiVersion: run.tanzu.vmware.com/v1alpha3
 kind: ClusterBootstrapTemplate
@@ -172,6 +179,13 @@ spec:
         apiGroup: cpi.tanzu.vmware.com
         kind: VSphereCPIConfig
         name: test-cluster-cpi
+  csi:
+    refName: vsphere-csi.community.tanzu.vmware.com.2.4.1
+    valuesFrom:
+      providerRef:
+        apiGroup: csi.tanzu.vmware.com
+        kind: VSphereCSIConfig
+        name: test-cluster-csi
 ---
 apiVersion: run.tanzu.vmware.com/v1alpha1
 kind: FooBar
@@ -254,6 +268,15 @@ data:
   username: Zm9v # foo
   password: YmFy # bar
 ---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: csi-vsphere-credential
+  namespace: tkg-system
+data:
+  username: Zm9v # foo
+  password: YmFy # bar
+---
 apiVersion: cpi.tanzu.vmware.com/v1alpha1
 kind: VSphereCPIConfig
 metadata:
@@ -273,6 +296,38 @@ spec:
       kind: Secret
       name: cpi-vsphere-credential
 ---
+apiVersion: csi.tanzu.vmware.com/v1alpha1
+kind: VSphereCSIConfig
+metadata:
+  name: test-cluster-csi
+  namespace: tkg-system
+spec:
+  vsphereCSI:
+    mode: vsphereCSI
+    config:
+      tlsThumbprint: "yadayada"
+      namespace: default
+      clusterName: test-clustername
+      server: svr-0
+      datacenter: dc0
+      publicNetwork: "8.2.0.0/16"
+      region: test-region
+      zone: test-zone
+      insecureFlag: false
+      useTopologyCategories: true
+      provisionTimeout: 33s
+      attachTimeout: 77s
+      resizerTimeout: 99s
+      vSphereVersion: 8.1.2-release
+      httpProxy: "1.1.1.1"
+      httpsProxy: "2.2.2.2"
+      noProxy: "3.3.3.3"
+      deploymentReplicas: 3
+      windowsSupport: true
+      vSphereCredentialLocalObjRef:
+        kind: Secret
+        name: csi-vsphere-credential
+---
 apiVersion: data.packaging.carvel.dev/v1alpha1
 kind: Package
 metadata:
@@ -1194,6 +1249,60 @@ spec:
   valuesSchema:
     openAPIv3:
       title: vsphere-cpi.tanzu.vmware.com.1.22.3--vmware.1-tkg.1 values schema
+---
+apiVersion: data.packaging.carvel.dev/v1alpha1
+kind: Package
+metadata:
+  name: vsphere-csi.community.tanzu.vmware.com.2.4.1
+  namespace: cluster-namespace
+spec:
+  refName: vsphere-csi.community.tanzu.vmware.com
+  version: 2.4.1
+  releaseNotes: "vsphere-csi 2.4.1-rc.1 https://github.com/kubernetes-sigs/vsphere-csi-driver/releases/tag/v2.4.1-rc.1"
+  licenses:
+    - 'VMware’s End User License Agreement (Underlying OSS license: Apache License 2.0)'
+  template:
+    spec:
+      fetch:
+        - imgpkgBundle:
+            image: projects.registry.vmware.com/tce/vsphere-csi@sha256:c615f4a95de0161f244f644cfb512449ef8b2c233e63541d16fa44bcd7bd28b6
+      template:
+        - ytt:
+            paths:
+              - config/
+        - kbld:
+            paths:
+              - '-'
+              - .imgpkg/images.yml
+      deploy:
+        - kapp: {}
+---
+apiVersion: data.packaging.carvel.dev/v1alpha1
+kind: Package
+metadata:
+  name: vsphere-csi.community.tanzu.vmware.com.2.4.1
+  namespace: tkg-system
+spec:
+  refName: vsphere-csi.community.tanzu.vmware.com
+  version: 2.4.1
+  releaseNotes: "vsphere-csi 2.4.1-rc.1 https://github.com/kubernetes-sigs/vsphere-csi-driver/releases/tag/v2.4.1-rc.1"
+  licenses:
+    - 'VMware’s End User License Agreement (Underlying OSS license: Apache License 2.0)'
+  template:
+    spec:
+      fetch:
+        - imgpkgBundle:
+            image: projects.registry.vmware.com/tce/vsphere-csi@sha256:c615f4a95de0161f244f644cfb512449ef8b2c233e63541d16fa44bcd7bd28b6
+      template:
+        - ytt:
+            paths:
+              - config/
+        - kbld:
+            paths:
+              - '-'
+              - .imgpkg/images.yml
+      deploy:
+        - kapp: {}
 ---
 apiVersion: data.packaging.carvel.dev/v1alpha1
 kind: Package
