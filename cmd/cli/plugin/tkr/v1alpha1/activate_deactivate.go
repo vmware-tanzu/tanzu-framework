@@ -1,16 +1,18 @@
 // Copyright 2021 VMware, Inc. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-package main
+// Package v1alpha1 provides the command definitions for TKR API v1alpha1
+package v1alpha1
 
 import (
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 
+	"github.com/vmware-tanzu/tanzu-framework/cmd/cli/plugin/tkr/utils"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/config"
 )
 
-var activeCmd = &cobra.Command{
+var ActivateCmd = &cobra.Command{
 	Use:   "activate TKR_NAME",
 	Short: "Activate Tanzu Kubernetes Releases",
 	Long:  "Activate Tanzu Kubernetes Releases",
@@ -18,7 +20,7 @@ var activeCmd = &cobra.Command{
 	RunE:  activateKubernetesReleasesCmd,
 }
 
-var deactiveCmd = &cobra.Command{
+var DeactivateCmd = &cobra.Command{
 	Use:   "deactivate TKR_NAME",
 	Short: "Deactivate Tanzu Kubernetes Releases",
 	Long:  "Deactivate Tanzu Kubernetes Releases",
@@ -36,7 +38,7 @@ func activateKubernetesReleasesCmd(cmd *cobra.Command, args []string) error {
 		return errors.New("activating TanzuKubernetesRelease with a global server is not implemented yet")
 	}
 
-	tkgctlClient, err := createTKGClient(server.ManagementClusterOpts.Path, server.ManagementClusterOpts.Context)
+	tkgctlClient, err := utils.CreateTKGClient(server.ManagementClusterOpts.Path, server.ManagementClusterOpts.Context, LogFile, LogLevel)
 	if err != nil {
 		return err
 	}
@@ -59,7 +61,7 @@ func deactivateKubernetesReleasesCmd(cmd *cobra.Command, args []string) error {
 		return errors.New("deactivating TanzuKubernetesRelease with a global server is not implemented yet")
 	}
 
-	tkgctlClient, err := createTKGClient(server.ManagementClusterOpts.Path, server.ManagementClusterOpts.Context)
+	tkgctlClient, err := utils.CreateTKGClient(server.ManagementClusterOpts.Path, server.ManagementClusterOpts.Context, LogFile, LogLevel)
 	if err != nil {
 		return err
 	}

@@ -1,7 +1,7 @@
 // Copyright 2021 VMware, Inc. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-package main
+package v1alpha1
 
 import (
 	"time"
@@ -17,7 +17,7 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkr/pkg/types"
 )
 
-var osCmd = &cobra.Command{
+var OsCmd = &cobra.Command{
 	Use:   "os",
 	Short: "Get the OS information for a Tanzu Kubernetes Release",
 	Long:  `Get the OS information for a Tanzu Kubernetes Release`,
@@ -40,7 +40,7 @@ var getOSCmd = &cobra.Command{
 func init() {
 	getOSCmd.Flags().StringVarP(&goo.region, "region", "", "", "The AWS region where AMIs are available")
 	getOSCmd.Flags().StringVarP(&outputFormat, "output", "o", "", "Output format (yaml|json|table)")
-	osCmd.AddCommand(getOSCmd)
+	OsCmd.AddCommand(getOSCmd)
 }
 
 //nolint:gocyclo,funlen
