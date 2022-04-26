@@ -351,7 +351,19 @@ var _ = Describe("TKG_IP_FAMILY Ytt Templating", func() {
 					Expect(kubeadmControlPlaneDocs[0]).To(HaveYAMLPathWithValue("$.spec.kubeadmConfigSpec.joinConfiguration.controlPlane.localAPIEndpoint.advertiseAddress", "0.0.0.0"))
 					Expect(kubeadmControlPlaneDocs[0]).To(HaveYAMLPathWithValue("$.spec.kubeadmConfigSpec.joinConfiguration.controlPlane.localAPIEndpoint.bindPort", "443"))
 				})
+				It("does not configure node ip in KUBELET_EXTRA_ARGS in /etc/sysconfig/kubelet", func() {
+					output, err := ytt.RenderYTTTemplate(ytt.CommandOptions{}, paths, strings.NewReader(values))
+					Expect(err).NotTo(HaveOccurred())
 
+					kubeadmControlPlaneDocs, err := FindDocsMatchingYAMLPath(output, map[string]string{
+						"$.kind": "KubeadmControlPlane",
+					})
+					Expect(err).NotTo(HaveOccurred())
+
+					Expect(kubeadmControlPlaneDocs).To(HaveLen(1))
+					Expect(kubeadmControlPlaneDocs[0]).NotTo(HaveYAMLPath("$.spec.kubeadmConfigSpec.files[1]"))
+					Expect(kubeadmControlPlaneDocs[0]).NotTo(HaveYAMLPath("$.spec.kubeadmConfigSpec.preKubeadmCommands[5]"))
+				})
 			})
 
 			When("data values are set to single stack IPv6 settings", func() {
@@ -396,6 +408,22 @@ var _ = Describe("TKG_IP_FAMILY Ytt Templating", func() {
 					Expect(kubeadmControlPlaneDocs[0]).To(HaveYAMLPathWithValue("$.spec.kubeadmConfigSpec.initConfiguration.localAPIEndpoint.bindPort", "443"))
 					Expect(kubeadmControlPlaneDocs[0]).To(HaveYAMLPathWithValue("$.spec.kubeadmConfigSpec.joinConfiguration.controlPlane.localAPIEndpoint.advertiseAddress", "::/0"))
 					Expect(kubeadmControlPlaneDocs[0]).To(HaveYAMLPathWithValue("$.spec.kubeadmConfigSpec.joinConfiguration.controlPlane.localAPIEndpoint.bindPort", "443"))
+				})
+				It("configures node-ip on the control plane nodes by echoing the detected node ip into KUBELET_EXTRA_ARGS in /etc/sysconfig/kubelet", func() {
+					output, err := ytt.RenderYTTTemplate(ytt.CommandOptions{}, paths, strings.NewReader(values))
+					Expect(err).NotTo(HaveOccurred())
+
+					kubeadmControlPlaneDocs, err := FindDocsMatchingYAMLPath(output, map[string]string{
+						"$.kind": "KubeadmControlPlane",
+					})
+					Expect(err).NotTo(HaveOccurred())
+
+					Expect(kubeadmControlPlaneDocs).To(HaveLen(1))
+					Expect(kubeadmControlPlaneDocs[0]).To(HaveYAMLPathWithValue("$.spec.kubeadmConfigSpec.files[1].content", ""))
+					Expect(kubeadmControlPlaneDocs[0]).To(HaveYAMLPathWithValue("$.spec.kubeadmConfigSpec.files[1].owner", "root:root"))
+					Expect(kubeadmControlPlaneDocs[0]).To(HaveYAMLPathWithValue("$.spec.kubeadmConfigSpec.files[1].path", "/etc/sysconfig/kubelet"))
+					Expect(kubeadmControlPlaneDocs[0]).To(HaveYAMLPathWithValue("$.spec.kubeadmConfigSpec.files[1].permissions", "0640"))
+					Expect(kubeadmControlPlaneDocs[0]).To(HaveYAMLPathWithValue("$.spec.kubeadmConfigSpec.preKubeadmCommands[5]", "echo \"KUBELET_EXTRA_ARGS=--node-ip=$(ip -6 -json addr show dev eth0 scope global | jq -r .[0].addr_info[0].local)\" >> /etc/sysconfig/kubelet"))
 				})
 			})
 
@@ -442,6 +470,66 @@ var _ = Describe("TKG_IP_FAMILY Ytt Templating", func() {
 					Expect(kubeadmControlPlaneDocs[0]).To(HaveYAMLPathWithValue("$.spec.kubeadmConfigSpec.joinConfiguration.controlPlane.localAPIEndpoint.advertiseAddress", "0.0.0.0"))
 					Expect(kubeadmControlPlaneDocs[0]).To(HaveYAMLPathWithValue("$.spec.kubeadmConfigSpec.joinConfiguration.controlPlane.localAPIEndpoint.bindPort", "443"))
 				})
+				It("does not render bind-address field", func() {
+					output, err := ytt.RenderYTTTemplate(ytt.CommandOptions{}, paths, strings.NewReader(values))
+					Expect(err).NotTo(HaveOccurred())
+
+					kubeadmControlPlaneDocs, err := FindDocsMatchingYAMLPath(output, map[string]string{
+						"$.kind": "KubeadmControlPlane",
+					})
+					Expect(err).NotTo(HaveOccurred())
+
+					Expect(kubeadmControlPlaneDocs).To(HaveLen(1))
+					Expect(kubeadmControlPlaneDocs[0]).NotTo(HaveYAMLPath("$.spec.kubeadmConfigSpec.clusterConfiguration.apiServer.extraArgs.bind-address"))
+					Expect(kubeadmControlPlaneDocs[0]).NotTo(HaveYAMLPath("$.spec.kubeadmConfigSpec.clusterConfiguration.controllerManager.extraArgs.bind-address"))
+					Expect(kubeadmControlPlaneDocs[0]).NotTo(HaveYAMLPath("$.spec.kubeadmConfigSpec.clusterConfiguration.scheduler.extraArgs.bind-address"))
+				})
+				It("does not render advertise-address field", func() {
+					output, err := ytt.RenderYTTTemplate(ytt.CommandOptions{}, paths, strings.NewReader(values))
+					Expect(err).NotTo(HaveOccurred())
+
+					kubeadmControlPlaneDocs, err := FindDocsMatchingYAMLPath(output, map[string]string{
+						"$.kind": "KubeadmControlPlane",
+					})
+					Expect(err).NotTo(HaveOccurred())
+
+					Expect(kubeadmControlPlaneDocs).To(HaveLen(1))
+					Expect(kubeadmControlPlaneDocs[0]).NotTo(HaveYAMLPath("$.spec.kubeadmConfigSpec.clusterConfiguration.apiServer.extraArgs.advertise-address"))
+				})
+				It("does not render node-ip field", func() {
+					output, err := ytt.RenderYTTTemplate(ytt.CommandOptions{}, paths, strings.NewReader(values))
+					Expect(err).NotTo(HaveOccurred())
+
+					kubeadmControlPlaneDocs, err := FindDocsMatchingYAMLPath(output, map[string]string{
+						"$.kind": "KubeadmControlPlane",
+					})
+					Expect(err).NotTo(HaveOccurred())
+
+					Expect(kubeadmControlPlaneDocs).To(HaveLen(1))
+					Expect(kubeadmControlPlaneDocs[0]).NotTo(HaveYAMLPath("$.spec.kubeadmConfigSpec.initConfiguration.nodeRegistration.kubeletExtraArgs.node-ip"))
+					Expect(kubeadmControlPlaneDocs[0]).NotTo(HaveYAMLPath("$.spec.kubeadmConfigSpec.joinConfiguration.nodeRegistration.kubeletExtraArgs.node-ip"))
+
+					kubeadmConfigTemplateDocs, err := FindDocsMatchingYAMLPath(output, map[string]string{
+						"$.kind": "KubeadmConfigTemplate",
+					})
+					Expect(err).NotTo(HaveOccurred())
+
+					Expect(kubeadmConfigTemplateDocs).To(HaveLen(1))
+					Expect(kubeadmConfigTemplateDocs[0]).NotTo(HaveYAMLPath("$.spec.template.spec.joinConfiguration.nodeRegistration.kubeletExtraArgs.node-ip"))
+				})
+				It("does not configure node ip in KUBELET_EXTRA_ARGS in /etc/sysconfig/kubelet", func() {
+					output, err := ytt.RenderYTTTemplate(ytt.CommandOptions{}, paths, strings.NewReader(values))
+					Expect(err).NotTo(HaveOccurred())
+
+					kubeadmControlPlaneDocs, err := FindDocsMatchingYAMLPath(output, map[string]string{
+						"$.kind": "KubeadmControlPlane",
+					})
+					Expect(err).NotTo(HaveOccurred())
+
+					Expect(kubeadmControlPlaneDocs).To(HaveLen(1))
+					Expect(kubeadmControlPlaneDocs[0]).NotTo(HaveYAMLPath("$.spec.kubeadmConfigSpec.files[1]"))
+					Expect(kubeadmControlPlaneDocs[0]).NotTo(HaveYAMLPath("$.spec.kubeadmConfigSpec.preKubeadmCommands[5]"))
+				})
 			})
 
 			When("data values are set to ipv6,ipv4 dual stack settings", func() {
@@ -486,6 +574,35 @@ var _ = Describe("TKG_IP_FAMILY Ytt Templating", func() {
 					Expect(kubeadmControlPlaneDocs[0]).To(HaveYAMLPathWithValue("$.spec.kubeadmConfigSpec.initConfiguration.localAPIEndpoint.bindPort", "443"))
 					Expect(kubeadmControlPlaneDocs[0]).To(HaveYAMLPathWithValue("$.spec.kubeadmConfigSpec.joinConfiguration.controlPlane.localAPIEndpoint.advertiseAddress", "::/0"))
 					Expect(kubeadmControlPlaneDocs[0]).To(HaveYAMLPathWithValue("$.spec.kubeadmConfigSpec.joinConfiguration.controlPlane.localAPIEndpoint.bindPort", "443"))
+				})
+				It("does not render node-ip field for control plane nodes", func() {
+					output, err := ytt.RenderYTTTemplate(ytt.CommandOptions{}, paths, strings.NewReader(values))
+					Expect(err).NotTo(HaveOccurred())
+
+					kubeadmControlPlaneDocs, err := FindDocsMatchingYAMLPath(output, map[string]string{
+						"$.kind": "KubeadmControlPlane",
+					})
+					Expect(err).NotTo(HaveOccurred())
+
+					Expect(kubeadmControlPlaneDocs).To(HaveLen(1))
+					Expect(kubeadmControlPlaneDocs[0]).NotTo(HaveYAMLPath("$.spec.kubeadmConfigSpec.initConfiguration.nodeRegistration.kubeletExtraArgs.node-ip"))
+					Expect(kubeadmControlPlaneDocs[0]).NotTo(HaveYAMLPath("$.spec.kubeadmConfigSpec.joinConfiguration.nodeRegistration.kubeletExtraArgs.node-ip"))
+				})
+				It("configures node-ip on the control plane nodes by echoing the detected node ip into KUBELET_EXTRA_ARGS in /etc/sysconfig/kubelet", func() {
+					output, err := ytt.RenderYTTTemplate(ytt.CommandOptions{}, paths, strings.NewReader(values))
+					Expect(err).NotTo(HaveOccurred())
+
+					kubeadmControlPlaneDocs, err := FindDocsMatchingYAMLPath(output, map[string]string{
+						"$.kind": "KubeadmControlPlane",
+					})
+					Expect(err).NotTo(HaveOccurred())
+
+					Expect(kubeadmControlPlaneDocs).To(HaveLen(1))
+					Expect(kubeadmControlPlaneDocs[0]).To(HaveYAMLPathWithValue("$.spec.kubeadmConfigSpec.files[1].content", ""))
+					Expect(kubeadmControlPlaneDocs[0]).To(HaveYAMLPathWithValue("$.spec.kubeadmConfigSpec.files[1].owner", "root:root"))
+					Expect(kubeadmControlPlaneDocs[0]).To(HaveYAMLPathWithValue("$.spec.kubeadmConfigSpec.files[1].path", "/etc/sysconfig/kubelet"))
+					Expect(kubeadmControlPlaneDocs[0]).To(HaveYAMLPathWithValue("$.spec.kubeadmConfigSpec.files[1].permissions", "0640"))
+					Expect(kubeadmControlPlaneDocs[0]).To(HaveYAMLPathWithValue("$.spec.kubeadmConfigSpec.preKubeadmCommands[5]", "echo \"KUBELET_EXTRA_ARGS=--node-ip=$(ip -6 -json addr show dev eth0 scope global | jq -r .[0].addr_info[0].local)\" >> /etc/sysconfig/kubelet"))
 				})
 			})
 		})
