@@ -197,6 +197,13 @@ func (c *TkgClient) InitRegion(options *InitRegionOptions) error { //nolint:funl
 		return errors.Wrap(err, "unable to configure variables for provider installation")
 	}
 
+	// If clusterclass feature flag is enabled then deploy kapp-controller
+	if config.IsFeatureActivated(config.FeatureFlagPackageBasedLCM) {
+		if err = c.InstallOrUpgradeKappController(bootstrapClusterKubeconfigPath, ""); err != nil {
+			return errors.Wrap(err, "unable to install kapp-controller to bootstrap cluster")
+		}
+	}
+
 	log.SendProgressUpdate(statusRunning, StepInstallProvidersOnBootstrapCluster, InitRegionSteps)
 	log.Info("Installing providers on bootstrapper...")
 	// Initialize bootstrap cluster with providers
@@ -271,6 +278,13 @@ func (c *TkgClient) InitRegion(options *InitRegionOptions) error { //nolint:funl
 	regionalClusterClient, err := clusterclient.NewClient(regionalClusterKubeconfigPath, kubeContext, clusterclient.Options{OperationTimeout: c.timeout})
 	if err != nil {
 		return errors.Wrap(err, "unable to get management cluster client")
+	}
+
+	// If clusterclass feature flag is enabled then deploy kapp-controller
+	if config.IsFeatureActivated(config.FeatureFlagPackageBasedLCM) {
+		if err = c.InstallOrUpgradeKappController(regionalClusterKubeconfigPath, kubeContext); err != nil {
+			return errors.Wrap(err, "unable to install kapp-controller to management cluster")
+		}
 	}
 
 	log.SendProgressUpdate(statusRunning, StepInstallProvidersOnRegionalCluster, InitRegionSteps)
