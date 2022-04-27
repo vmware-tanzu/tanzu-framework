@@ -22,6 +22,31 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/utils"
 )
 
+func (c *TkgClient) InstallOrUpgradeKappController(kubeconfig, kubecontext string) error {
+	// Get kapp-controller configuration file
+	kappControllerConfigFile, err := c.getKappControllerConfigFile()
+	if err != nil {
+		return err
+	}
+
+	clusterClient, err := clusterclient.NewClient(kubeconfig, kubecontext, clusterclient.Options{})
+	if err != nil {
+		return errors.Wrap(err, "unable to get cluster client")
+	}
+
+	kappControllerOptions := managementcomponents.KappControllerOptions{
+		KappControllerConfigFile:       kappControllerConfigFile,
+		KappControllerInstallNamespace: constants.TkgNamespace,
+	}
+	err = managementcomponents.InstallKappController(clusterClient, kappControllerOptions)
+
+	// Remove intermediate config files if err is empty
+	if err == nil {
+		os.Remove(kappControllerConfigFile)
+	}
+	return err
+}
+
 // InstallOrUpgradeManagementComponents install management components to the cluster
 func (c *TkgClient) InstallOrUpgradeManagementComponents(kubeconfig, kubecontext string, upgrade bool) error {
 	managementPackageRepoImage, err := c.tkgBomClient.GetManagementPackageRepositoryImage()
@@ -56,20 +81,10 @@ func (c *TkgClient) InstallOrUpgradeManagementComponents(kubeconfig, kubecontext
 		return err
 	}
 
-	// Get kapp-controller configuration file
-	kappControllerConfigFile, err := c.getKappControllerConfigFile()
-	if err != nil {
-		return err
-	}
-
 	managementcomponentsInstallOptions := managementcomponents.ManagementComponentsInstallOptions{
 		ClusterOptions: managementcomponents.ClusterOptions{
 			Kubeconfig:  kubeconfig,
 			Kubecontext: kubecontext,
-		},
-		KappControllerOptions: managementcomponents.KappControllerOptions{
-			KappControllerConfigFile:       kappControllerConfigFile,
-			KappControllerInstallNamespace: "tkg-system",
 		},
 		ManagementPackageRepositoryOptions: managementcomponents.ManagementPackageRepositoryOptions{
 			ManagementPackageRepoImage: managementPackageRepoImage,
@@ -84,7 +99,6 @@ func (c *TkgClient) InstallOrUpgradeManagementComponents(kubeconfig, kubecontext
 	// Remove intermediate config files if err is empty
 	if err == nil {
 		os.Remove(tkgPackageValuesFile)
-		os.Remove(kappControllerConfigFile)
 	}
 
 	return err
