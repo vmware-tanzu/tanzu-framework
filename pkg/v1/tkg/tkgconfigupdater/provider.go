@@ -28,6 +28,7 @@ type provider struct {
 type certManager struct {
 	URL     string `yaml:"url"`
 	Version string `yaml:"version"`
+	Timeout string `yaml:"timeout"`
 }
 
 type providers struct {
@@ -55,6 +56,7 @@ func (c *client) defaultProviders() (providers, error) {
 		providersConfig.Providers[i].URL = getFilePath(tkgDir, providersConfig.Providers[i].URL)
 	}
 	providersConfig.CertManager.URL = getFilePath(tkgDir, providersConfig.CertManager.URL)
+	providersConfig.CertManager.Timeout = "30m" // TODO: Make this configurable and increase the default timeout value (https://github.com/vmware-tanzu/tanzu-framework/issues/2360)
 
 	return providersConfig, nil
 }
