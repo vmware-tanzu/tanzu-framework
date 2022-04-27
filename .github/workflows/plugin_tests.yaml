@@ -22,6 +22,8 @@ jobs:
       - name: Free disk space and clean up installed plugins on runner
         run: |
           sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /home/tanzu/.cache
+          sudo rm -rf /home/tanzu/.kube
           sudo rm -rf /home/tanzu/.local/share/tanzu-cli/*
           mkdir -p /home/tanzu/.local/share/tanzu-cli/test
 
