@@ -1,0 +1,15 @@
+apiVersion: data.packaging.carvel.dev/v1alpha1
+kind: PackageMetadata
+metadata:
+  name: tanzu-auth.tanzu.vmware.com
+spec:
+  displayName: "tanzu-auth"
+  longDescription: "Tanzu Auth orchestrates the deployment of Pinniped packages to provide federated auth to a fleet of clusters for Tanzu"
+  shortDescription: "Tanzu Auth orchestrates the deployment of Pinniped packages"
+  providerName: VMware
+  maintainers:
+    - name: "Andrew Keesler"
+    - name: "Sarah Abbey"
+    - name: "Benjamin A. Petersen"
+  categories:
+    - "auth"

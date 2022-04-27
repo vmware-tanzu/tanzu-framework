@@ -1,0 +1,22 @@
+#@ load("@ytt:data", "data")
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: tanzu-auth-controller-manager
+  namespace: #@ data.values.namespace
+spec:
+  selector:
+    matchLabels:
+      app: tanzu-auth-controller-manager
+  template:
+    metadata:
+      labels:
+        app: tanzu-auth-controller-manager
+    #! TODO: check out the spec of other packages, such as addons-manager-v1 for resource limits, etc.
+    #! we probably want to flesh this out.
+    spec:
+      serviceAccountName: tanzu-auth-controller-manager-sa
+      containers:
+      - image: #@ data.values.controller.image
+        name: tanzu-auth-controller-manager

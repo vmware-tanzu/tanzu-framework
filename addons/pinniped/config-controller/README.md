@@ -45,21 +45,21 @@ be a number.  Default log level is 0. Example:
 kind: Deployment
 apiVersion: apps/v1
 metadata:
-  name: pinniped-config-controller-manager
-  namespace: pinniped
+  name: tanzu-auth-controller-manager
+  namespace: tanzu-auth
 spec:
   selector:
     matchLabels:
-      app: pinniped-config-controller-manager
+      app: tanzu-auth-controller-manager
   template:
     metadata:
       labels:
-        app: pinniped-config-controller-manager
+        app: tanzu-auth-controller-manager
     spec:
-      serviceAccountName: pinniped-config-controller-manager
+      serviceAccountName: tanzu-auth-controller-manager-sa
       containers:
       - args:
         - --v=1
         image: #@ data.values.image
-        name: pinniped-config-controller-manager
+        name: tanzu-auth-controller-manager
 ```

@@ -8,6 +8,10 @@ set -euo pipefail
 MY_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 TF_ROOT="${MY_DIR}/../../../.."
 
+MANAGEMENT_DIR="${TF_ROOT}/packages/management"
+TANZU_AUTH_DIR="${MANAGEMENT_DIR}/tanzu-auth"
+TANZU_AUTH_CONFIG_DIR="${TANZU_AUTH_DIR}/bundle/config"
+
 # Always run from config-controller directory for reproducibility
 cd "${MY_DIR}/.."
 
@@ -15,4 +19,4 @@ cd "${MY_DIR}/.."
 make controller-gen -C "${TF_ROOT}/hack/tools"
 
 # generate RBAC rules
-"${TF_ROOT}/hack/tools/bin/controller-gen" paths=./controllers +rbac:roleName=pinniped-config-controller-manager output:rbac:dir=./manifests
+"${TF_ROOT}/hack/tools/bin/controller-gen" paths=./controllers +rbac:roleName=tanzu-auth-controller-manager output:rbac:dir="${TANZU_AUTH_CONFIG_DIR}"
