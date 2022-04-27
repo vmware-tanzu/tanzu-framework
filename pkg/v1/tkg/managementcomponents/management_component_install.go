@@ -46,7 +46,6 @@ type KappControllerOptions struct {
 type ManagementComponentsInstallOptions struct {
 	ClusterOptions                     ClusterOptions
 	ManagementPackageRepositoryOptions ManagementPackageRepositoryOptions
-	KappControllerOptions              KappControllerOptions
 }
 
 // InstallManagementComponents installs the management component to cluster
@@ -54,9 +53,6 @@ func InstallManagementComponents(mcip *ManagementComponentsInstallOptions) error
 	clusterClient, err := clusterclient.NewClient(mcip.ClusterOptions.Kubeconfig, mcip.ClusterOptions.Kubecontext, clusterclient.Options{})
 	if err != nil {
 		return errors.Wrap(err, "unable to get cluster client")
-	}
-	if err := InstallKappController(clusterClient, mcip.KappControllerOptions); err != nil {
-		return errors.Wrap(err, "unable to install kapp-controller")
 	}
 
 	// create package client
