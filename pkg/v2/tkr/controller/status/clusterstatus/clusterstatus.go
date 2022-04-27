@@ -59,7 +59,7 @@ func (r *Reconciler) SetupWithManager(mgr ctrl.Manager) error {
 
 	return ctrl.NewControllerManagedBy(mgr).
 		Named("cluster_updates_available").
-		For(&clusterv1.Cluster{}, builder.WithPredicates(hasTKRLabel, predicate.GenerationChangedPredicate{})).
+		For(&clusterv1.Cluster{}, builder.WithPredicates(hasTKRLabel, predicate.LabelChangedPredicate{})).
 		Watches(
 			&source.Kind{Type: &runv1.TanzuKubernetesRelease{}},
 			handler.EnqueueRequestsFromMapFunc(r.clustersUpdatingToTKR),
