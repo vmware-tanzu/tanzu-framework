@@ -21,10 +21,10 @@ COPY controllers/ controllers/
 # Build
 ARG LD_FLAGS
 ENV LD_FLAGS="$LD_FLAGS "'-extldflags "-static"'
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 GO111MODULE=on go build -a -ldflags "$LD_FLAGS" -o pinniped-config-controller-manager .
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 GO111MODULE=on go build -a -ldflags "$LD_FLAGS" -o tanzu-auth-controller-manager .
 
 FROM gcr.io/distroless/static:nonroot
 WORKDIR /
-COPY --from=builder /workspace/pinniped-config-controller-manager .
+COPY --from=builder /workspace/tanzu-auth-controller-manager .
 USER nonroot:nonroot
-ENTRYPOINT ["/pinniped-config-controller-manager"]
+ENTRYPOINT ["/tanzu-auth-controller-manager"]
