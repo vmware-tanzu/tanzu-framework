@@ -5,7 +5,12 @@ directories:
   - path: bundle/config/upstream
     contents:
       - path: capabilities-crd.yaml
-        manual: {}
+        git:
+          url: git@github.com:vmware-tanzu/tanzu-framework.git
+          ref: 66368ce04abcb92be48d439b09b39722a45a727b
+        newRootPath: config/crd/bases/run.tanzu.vmware.com_capabilities.yaml
+        includePaths:
+          - config/crd/bases/run.tanzu.vmware.com_capabilities.yaml
       - path: rbac.yaml
         manual: {}
       - path: tanzu-capabilities-controller-manager.yaml
