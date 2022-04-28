@@ -15,7 +15,9 @@ import (
 	. "github.com/onsi/gomega"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/selection"
 	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/kubernetes"
 	clientgoscheme "k8s.io/client-go/kubernetes/scheme"
@@ -59,36 +61,36 @@ import (
 // http://onsi.github.io/ginkgo/ to learn more about Ginkgo.
 
 const (
-	waitTimeout             = time.Second * 90
-	pollingInterval         = time.Second * 2
-	appSyncPeriod           = 5 * time.Minute
-	appWaitTimeout          = 30 * time.Second
-	addonNamespace          = "tkg-system"
-	addonServiceAccount     = "tkg-addons-app-sa"
-	addonClusterRole        = "tkg-addons-app-cluster-role"
-	addonClusterRoleBinding = "tkg-addons-app-cluster-role-binding"
-	addonImagePullPolicy    = "IfNotPresent"
-	corePackageRepoName     = "core"
-	webhookServiceName      = "tanzu-addons-manager-webhook-service"
-	webhookScrtName         = "webhook-tls"
-	addonWebhookLabelKey    = "tkg.tanzu.vmware.com/addon-webhooks"
-	addonWebhookLabelValue  = ""
-	cniWebhookManifestFile  = "testdata/webhooks/test-antrea-calico-webhook-manifests.yaml"
+	waitTimeout                         = time.Second * 90
+	pollingInterval                     = time.Second * 2
+	appSyncPeriod                       = 5 * time.Minute
+	appWaitTimeout                      = 30 * time.Second
+	addonNamespace                      = "tkg-system"
+	addonServiceAccount                 = "tkg-addons-app-sa"
+	addonClusterRole                    = "tkg-addons-app-cluster-role"
+	addonClusterRoleBinding             = "tkg-addons-app-cluster-role-binding"
+	addonImagePullPolicy                = "IfNotPresent"
+	corePackageRepoName                 = "core"
+	webhookServiceName                  = "tanzu-addons-manager-webhook-service"
+	webhookScrtName                     = "webhook-tls"
+	cniWebhookManifestFile              = "testdata/webhooks/test-antrea-calico-webhook-manifests.yaml"
+	clusterbootstrapWebhookManifestFile = "testdata/webhooks/clusterbootstrap-webhook-manifests.yaml"
 )
 
 var (
-	cfg           *rest.Config
-	k8sClient     client.Client
-	k8sConfig     *rest.Config
-	testEnv       *envtest.Environment
-	ctx           = ctrl.SetupSignalHandler()
-	scheme        = runtime.NewScheme()
-	mgr           manager.Manager
-	dynamicClient dynamic.Interface
-	cancel        context.CancelFunc
-	certPath      string
-	keyPath       string
-	tmpDir        string
+	cfg                *rest.Config
+	k8sClient          client.Client
+	k8sConfig          *rest.Config
+	testEnv            *envtest.Environment
+	ctx                = ctrl.SetupSignalHandler()
+	scheme             = runtime.NewScheme()
+	mgr                manager.Manager
+	dynamicClient      dynamic.Interface
+	cancel             context.CancelFunc
+	certPath           string
+	keyPath            string
+	tmpDir             string
+	webhookCertDetails testutil.WebhookCertificatesDetails
 )
 
 func TestAddonController(t *testing.T) {
@@ -174,6 +176,9 @@ var _ = BeforeSuite(func(done Done) {
 	Expect(k8sClient).ToNot(BeNil())
 
 	err = runtanzuv1alpha3.AddToScheme(scheme)
+	Expect(err).NotTo(HaveOccurred())
+
+	err = clusterapiv1beta1.AddToScheme(scheme)
 	Expect(err).NotTo(HaveOccurred())
 
 	dynamicClient, err = dynamic.NewForConfig(cfg)
@@ -264,6 +269,12 @@ var _ = BeforeSuite(func(done Done) {
 		Scheme: mgr.GetScheme(),
 	}).SetupWithManager(ctx, mgr, controller.Options{MaxConcurrentReconciles: 1})).To(Succeed())
 
+	Expect((&MachineReconciler{
+		Client: mgr.GetClient(),
+		Log:    ctrl.Log.WithName("controllers").WithName("MachineController"),
+		Scheme: mgr.GetScheme(),
+	}).SetupWithManager(ctx, mgr, controller.Options{MaxConcurrentReconciles: 1})).To(Succeed())
+
 	bootstrapReconciler := NewClusterBootstrapReconciler(
 		mgr.GetClient(),
 		ctrl.Log.WithName("controllers").WithName("ClusterBootstrap"),
@@ -275,9 +286,10 @@ var _ = BeforeSuite(func(done Done) {
 			PkgiClusterRole:             constants.PackageInstallClusterRole,
 			PkgiClusterRoleBinding:      constants.PackageInstallClusterRoleBinding,
 			PkgiSyncPeriod:              constants.PackageInstallSyncPeriod,
+			ClusterDeleteTimeout:        time.Second * 10,
 		},
 	)
-	Expect(bootstrapReconciler.SetupWithManager(ctx, mgr, controller.Options{MaxConcurrentReconciles: 1})).To(Succeed())
+	Expect(bootstrapReconciler.SetupWithManager(context.Background(), mgr, controller.Options{MaxConcurrentReconciles: 1})).To(Succeed())
 
 	// set up a ClusterCacheTracker to provide to PackageInstallStatus controller which requires a connection to remote clusters
 	l := ctrl.Log.WithName("remote").WithName("ClusterCacheTracker")
@@ -309,7 +321,11 @@ var _ = BeforeSuite(func(done Done) {
 	ns = &corev1.Namespace{ObjectMeta: metav1.ObjectMeta{Name: "tkg-system"}}
 	Expect(k8sClient.Create(context.TODO(), ns)).To(Succeed())
 
-	_, err = webhooks.InstallNewCertificates(ctx, k8sConfig, certPath, keyPath, webhookScrtName, addonNamespace, webhookServiceName, addonWebhookLabelKey+"="+addonWebhookLabelValue)
+	labelMatch, err := labels.NewRequirement(constants.AddonWebhookLabelKey, selection.Equals, []string{constants.AddonWebhookLabelValue})
+	Expect(err).ToNot(HaveOccurred())
+	whSelector := labels.NewSelector()
+	whSelector = whSelector.Add(*labelMatch)
+	_, err = webhooks.InstallNewCertificates(ctx, k8sConfig, certPath, keyPath, webhookScrtName, addonNamespace, webhookServiceName, whSelector.String())
 	Expect(err).ToNot(HaveOccurred())
 
 	// Set up the webhooks in the manager
@@ -336,12 +352,51 @@ var _ = BeforeSuite(func(done Done) {
 		Expect(mgr.Start(ctx)).To(Succeed())
 	}()
 
+	// Setup the tkg-system namespace resources.
+	// We do it here because  specs may be executed in parallel and
+	// this is the only way to assure the tkg-system resources are ready before all specs start
+
+	// Prepare clusterbootstrap webhooks webhooks
+	f, err := os.Open(clusterbootstrapWebhookManifestFile)
+	Expect(err).ToNot(HaveOccurred())
+	err = testutil.CreateResources(f, cfg, dynamicClient)
+	Expect(err).ToNot(HaveOccurred())
+	f.Close()
+
+	// set up the certificates and webhook before creating any objects
+	By("Creating and installing new certificates for ClusterBootstrap Admission Webhooks")
+	labelMatch, err = labels.NewRequirement(constants.AddonWebhookLabelKey, selection.Equals, []string{constants.AddonWebhookLabelValue})
+	Expect(err).ToNot(HaveOccurred())
+	whSelector = labels.NewSelector()
+	whSelector = whSelector.Add(*labelMatch)
+	webhookCertDetails = testutil.WebhookCertificatesDetails{
+		CertPath:           certPath,
+		KeyPath:            keyPath,
+		WebhookScrtName:    webhookScrtName,
+		AddonNamespace:     addonNamespace,
+		WebhookServiceName: webhookServiceName,
+		LabelSelector:      whSelector,
+	}
+	err = testutil.SetupWebhookCertificates(ctx, k8sClient, k8sConfig, &webhookCertDetails)
+	Expect(err).ToNot(HaveOccurred())
+
+	// Create the rest of tkg-system resources
+	f, err = os.Open("testdata/test-tkg-system-ns-resources.yaml")
+	Expect(err).ToNot(HaveOccurred())
+	defer f.Close()
+	Expect(testutil.CreateResources(f, cfg, dynamicClient)).To(Succeed())
+
 	close(done)
 }, 60)
 
 var _ = AfterSuite(func() {
+	f, err := os.Open(clusterbootstrapWebhookManifestFile)
+	Expect(err).ToNot(HaveOccurred())
+	err = testutil.DeleteResources(f, cfg, dynamicClient, true)
+	Expect(err).ToNot(HaveOccurred())
+	f.Close()
 	By("tearing down the test environment")
 	cancel()
-	err := testEnv.Stop()
+	err = testEnv.Stop()
 	Expect(err).ToNot(HaveOccurred())
 })

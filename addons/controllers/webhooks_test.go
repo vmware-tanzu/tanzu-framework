@@ -78,7 +78,7 @@ var _ = Describe("when webhook TLS is being continuously managed", func() {
 				KeyPath:       keyPath,
 				Name:          webhookScrtName,
 				ServiceName:   webhookServiceName,
-				LabelSelector: constants.AddonWebhookLabelKey,
+				LabelSelector: webhookCertDetails.LabelSelector.String(),
 				Logger:        setupLog,
 				Namespace:     addonNamespace,
 				RotationTime:  rotationTime,

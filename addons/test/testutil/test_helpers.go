@@ -25,7 +25,7 @@ import (
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/serializer/yaml"
-	"k8s.io/apimachinery/pkg/selection"
+
 	"k8s.io/apimachinery/pkg/util/wait"
 	yamlutil "k8s.io/apimachinery/pkg/util/yaml"
 	"k8s.io/client-go/dynamic"
@@ -39,7 +39,6 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client/apiutil"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 
-	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/webhooks"
 )
 
@@ -266,21 +265,17 @@ type WebhookCertificatesDetails struct {
 	WebhookScrtName    string
 	AddonNamespace     string
 	WebhookServiceName string
-	LabelSelector      string
+	LabelSelector      labels.Selector
 }
 
 func SetupWebhookCertificates(ctx context.Context, k8sClient client.Client, k8sConfig *rest.Config, certDetails *WebhookCertificatesDetails) error {
-	labelMatch, _ := labels.NewRequirement(constants.AddonWebhookLabelKey, selection.Equals, []string{certDetails.LabelSelector})
-	labelSelector := labels.NewSelector()
-	labelSelector = labelSelector.Add(*labelMatch)
-
 	scrt, err := webhooks.InstallNewCertificates(ctx, k8sConfig, certDetails.CertPath, certDetails.KeyPath,
-		certDetails.WebhookScrtName, certDetails.AddonNamespace, certDetails.WebhookServiceName, constants.AddonWebhookLabelKey+"="+certDetails.LabelSelector)
+		certDetails.WebhookScrtName, certDetails.AddonNamespace, certDetails.WebhookServiceName, certDetails.LabelSelector.String())
 	if err != nil {
 		return err
 	}
 	vwcfgs := &adminregv1.ValidatingWebhookConfigurationList{}
-	err = k8sClient.List(ctx, vwcfgs, &client.ListOptions{LabelSelector: labelSelector})
+	err = k8sClient.List(ctx, vwcfgs, &client.ListOptions{LabelSelector: certDetails.LabelSelector})
 	if err != nil {
 		return err
 	}
@@ -295,7 +290,7 @@ func SetupWebhookCertificates(ctx context.Context, k8sClient client.Client, k8sC
 	}
 
 	mwcfgs := &adminregv1.MutatingWebhookConfigurationList{}
-	err = k8sClient.List(ctx, mwcfgs, &client.ListOptions{LabelSelector: labelSelector})
+	err = k8sClient.List(ctx, mwcfgs, &client.ListOptions{LabelSelector: certDetails.LabelSelector})
 	if err != nil {
 		return err
 	}
