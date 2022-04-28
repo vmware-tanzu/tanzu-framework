@@ -1,4 +1,4 @@
-module github.com/vmware-tanzu/tanzu-framework/addons/pinniped/config-controller
+module github.com/vmware-tanzu/tanzu-framework/addons/pinniped/tanzu-auth-controller-manager
 
 go 1.17
 
