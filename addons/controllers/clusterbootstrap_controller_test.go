@@ -56,6 +56,10 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 	)
 
 	JustBeforeEach(func() {
+		// set up the certificates and webhook before creating any objects
+		By("Creating and installing new certificates for ClusterBootstrap Webhooks")
+		err := testutil.SetupWebhookCertificates(ctx, k8sClient, k8sConfig, &webhookCertDetails)
+		Expect(err).ToNot(HaveOccurred())
 
 		// create cluster resources
 		By("Creating a cluster")
