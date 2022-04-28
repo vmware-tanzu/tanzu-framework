@@ -4,6 +4,18 @@ kind: Namespace
 metadata:
   name: cluster-namespace-2
 ---
+apiVersion: vmoperator.vmware.com/v1alpha1
+kind: VirtualMachine
+metadata:
+  name: test-tkgs-virtual-machine
+  namespace: tkg-system
+  labels:
+    capv.vmware.com/cluster.name: test-cluster-tcbt-2
+spec:
+  powerState: "poweredOn"
+  className: "VirtualMachineClass"
+  imageName: "VirtualMachineImage"
+---
 apiVersion: cluster.x-k8s.io/v1beta1
 kind: Cluster
 metadata:

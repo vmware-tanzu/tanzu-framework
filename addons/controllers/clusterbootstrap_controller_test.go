@@ -24,6 +24,7 @@ import (
 	vspherecpiv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cpi/v1alpha1"
 	vspherecsiv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/csi/v1alpha1"
 	runtanzuv1alpha3 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
+	tkgconstants "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
 
 	"github.com/go-logr/logr"
 	corev1 "k8s.io/api/core/v1"
@@ -314,7 +315,9 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 						if string(s.Data["values.yaml"]) != "foobar1-updated" {
 							return false
 						}
-
+						// TKGS data value should not exist because no VirtualMachine is related to cluster1
+						_, ok := s.Data[constants.TKGSDataValueFileName]
+						Expect(ok).ToNot(BeTrue())
 						return true
 					}, waitTimeout, pollingInterval).Should(BeTrue())
 				})
@@ -526,6 +529,12 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 					cluster = &clusterapiv1beta1.Cluster{}
 					Expect(k8sClient.Get(ctx, client.ObjectKey{Namespace: clusterNamespace, Name: clusterName}, cluster)).To(Succeed())
 					cluster.Labels[constants.TKRLabelClassyClusters] = newTKRVersion
+					// Mock cluster pause mutating webhook
+					cluster.Spec.Paused = true
+					if cluster.Annotations == nil {
+						cluster.Annotations = map[string]string{}
+					}
+					cluster.Annotations[tkgconstants.ClusterPauseLabel] = newTKRVersion
 					Expect(k8sClient.Update(ctx, cluster)).To(Succeed())
 
 					// Wait for ClusterBootstrap upgrade reconciliation
@@ -569,6 +578,14 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 							} else {
 								return false
 							}
+						}
+
+						// The cluster should be unpaused
+						Expect(k8sClient.Get(ctx, client.ObjectKey{Namespace: clusterNamespace, Name: clusterName}, cluster)).To(Succeed())
+						Expect(cluster.Spec.Paused).ToNot(BeTrue())
+						if cluster.Annotations != nil {
+							_, ok := cluster.Annotations[tkgconstants.ClusterPauseLabel]
+							Expect(ok).ToNot(BeTrue())
 						}
 
 						return true
@@ -767,7 +784,7 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 					return false
 				}, waitTimeout, pollingInterval).Should(BeTrue())
 
-				By("Should have remote secret value same as foobar1secret secret value")
+				By("Should have remote secret value same as foobar1secret secret value and should have created TKGS data values")
 				remoteClient, err := util.GetClusterClient(ctx, k8sClient, scheme, clusterapiutil.ObjectKey(cluster))
 				Expect(err).NotTo(HaveOccurred())
 				Expect(remoteClient).NotTo(BeNil())
@@ -785,6 +802,17 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 					if string(s.Data["values.yaml"]) != string(remoteSecret.Data["values.yaml"]) {
 						return false
 					}
+					// TKGS data values should be added because cluster has related VirtualMachine
+					valueTexts, ok := remoteSecret.Data[constants.TKGSDataValueFileName]
+					if !ok {
+						return false
+					}
+					fmt.Println(string(valueTexts))
+					Expect(strings.Contains(string(valueTexts), "nodeSelector:\n    tanzuKubernetesRelease: v1.22.4")).To(BeTrue())
+					Expect(strings.Contains(string(valueTexts), "deployment:\n    updateStrategy: rollingUpdate")).To(BeTrue())
+					Expect(strings.Contains(string(valueTexts), "daemonset:\n    updateStrategy: onDelete")).To(BeTrue())
+					Expect(strings.Contains(string(valueTexts), "maxUnavailable: 0")).To(BeTrue())
+					Expect(strings.Contains(string(valueTexts), "maxSurge: 1")).To(BeTrue())
 					return true
 				}, waitTimeout, pollingInterval).Should(BeTrue())
 

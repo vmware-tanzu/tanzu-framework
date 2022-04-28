@@ -22,7 +22,6 @@ import (
 	kapppkgv1alpha1 "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apiserver/apis/datapackaging/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
 	addontypes "github.com/vmware-tanzu/tanzu-framework/addons/pkg/types"
-	infraconstants "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
 	bomtypes "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkr/pkg/types"
 )
 
@@ -297,25 +296,4 @@ func GetServiceCIDRs(cluster *clusterapiv1beta1.Cluster) (string, string, error)
 	}
 
 	return serviceCIDR, serviceCIDRv6, nil
-}
-
-// GetInfraProvider get infrastructure kind from cluster spec
-func GetInfraProvider(cluster *clusterapiv1beta1.Cluster) (string, error) {
-	var infraProvider string
-
-	if cluster.Spec.InfrastructureRef != nil {
-		infraProvider = cluster.Spec.InfrastructureRef.Kind
-		switch infraProvider {
-		case infraconstants.InfrastructureRefVSphere:
-			return infraconstants.InfrastructureProviderVSphere, nil
-		case infraconstants.InfrastructureRefAWS:
-			return infraconstants.InfrastructureProviderAWS, nil
-		case infraconstants.InfrastructureRefAzure:
-			return infraconstants.InfrastructureProviderAzure, nil
-		case constants.InfrastructureRefDocker:
-			return infraconstants.InfrastructureProviderDocker, nil
-		}
-	}
-
-	return "", errors.New("unknown error in getting infraProvider")
 }

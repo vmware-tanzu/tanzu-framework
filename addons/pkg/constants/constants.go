@@ -56,11 +56,26 @@ const (
 	// TKGDataValueFileName is the default name of YTT data value file
 	TKGDataValueFileName = "values.yaml"
 
+	// TKGSDataValueFileName is the default name of YTT data value file for TKR info
+	TKGSDataValueFileName = "tkgs-values.yaml"
+
 	// TKGCorePackageRepositoryComponentName is the name of component that includes the package and repository images
 	TKGCorePackageRepositoryComponentName = "tkg-core-packages"
 
 	// TKGCorePackageRepositoryImageName is the name of core package repository image
 	TKGCorePackageRepositoryImageName = "tanzuCorePackageRepositoryImage"
+
+	// TKGSDeploymentUpdateStrategy is the update strategy used by TKGS deployments
+	TKGSDeploymentUpdateStrategy = "rollingUpdate"
+
+	// TKGSDeploymentUpdateMaxSurge is the MaxSurge used by TKGS deployments rollingUpdate
+	TKGSDeploymentUpdateMaxSurge = 1
+
+	// TKGSDeploymentUpdateMaxUnavailable is the MaxUnavailableused by TKGS deployments rollingUpdate
+	TKGSDeploymentUpdateMaxUnavailable = 0
+
+	// TKGSDaemonsetUpdateStrategy is the update strategy used by TKGS daemonsets
+	TKGSDaemonsetUpdateStrategy = "onDelete"
 
 	/* log key section */
 
@@ -132,9 +147,6 @@ const (
 
 	// AntreaAddonName is the name of Antrea Addon Controller
 	AntreaAddonName = "antrea"
-
-	// InfrastructureRefDocker is the docker infrastructure
-	InfrastructureRefDocker = "DockerCluster"
 
 	// KappControllerAddonName is the addon name of Kapp Controller
 	KappControllerAddonName = "kapp-controller"

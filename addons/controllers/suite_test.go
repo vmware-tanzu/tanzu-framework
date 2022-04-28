@@ -55,6 +55,7 @@ import (
 	runtanzuv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha1"
 	runtanzuv1alpha3 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/webhooks"
+	vmoperatorv1alpha1 "github.com/vmware-tanzu/vm-operator-api/api/v1alpha1"
 )
 
 // These tests use Ginkgo (BDD-style Go testing framework). Refer to
@@ -123,7 +124,7 @@ var _ = BeforeSuite(func(done Done) {
 	Expect(externalCRDPaths).ToNot(BeEmpty())
 	testEnv.CRDDirectoryPaths = externalCRDPaths
 	testEnv.CRDDirectoryPaths = append(testEnv.CRDDirectoryPaths,
-		filepath.Join("..", "..", "config", "crd", "bases"), filepath.Join("testdata"))
+		filepath.Join("..", "..", "config", "crd", "bases"), filepath.Join("testdata"), filepath.Join("testdata", "dependency", "crd"))
 	testEnv.ErrorIfCRDPathMissing = true
 
 	cfg, err = testEnv.Start()
@@ -171,15 +172,12 @@ var _ = BeforeSuite(func(done Done) {
 	err = capvvmwarev1beta1.AddToScheme(scheme)
 	Expect(err).NotTo(HaveOccurred())
 
+	err = vmoperatorv1alpha1.AddToScheme(scheme)
+	Expect(err).ToNot(HaveOccurred())
+
 	k8sClient, err = client.New(cfg, client.Options{Scheme: scheme})
 	Expect(err).ToNot(HaveOccurred())
 	Expect(k8sClient).ToNot(BeNil())
-
-	err = runtanzuv1alpha3.AddToScheme(scheme)
-	Expect(err).NotTo(HaveOccurred())
-
-	err = clusterapiv1beta1.AddToScheme(scheme)
-	Expect(err).NotTo(HaveOccurred())
 
 	dynamicClient, err = dynamic.NewForConfig(cfg)
 	Expect(err).ToNot(HaveOccurred())
@@ -287,6 +285,8 @@ var _ = BeforeSuite(func(done Done) {
 			PkgiClusterRoleBinding:      constants.PackageInstallClusterRoleBinding,
 			PkgiSyncPeriod:              constants.PackageInstallSyncPeriod,
 			ClusterDeleteTimeout:        time.Second * 10,
+			// TODO: remove when the packages are ready https://github.com/vmware-tanzu/tanzu-framework/issues/2252
+			EnableTKGSUpgrade: true,
 		},
 	)
 	Expect(bootstrapReconciler.SetupWithManager(context.Background(), mgr, controller.Options{MaxConcurrentReconciles: 1})).To(Succeed())

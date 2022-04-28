@@ -50,6 +50,7 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/util"
 	"github.com/vmware-tanzu/tanzu-framework/addons/predicates"
 	runtanzuv1alpha3 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
+	tkgconstants "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
 	tkrconstants "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkr/pkg/constants"
 )
 
@@ -171,15 +172,20 @@ func (r *ClusterBootstrapReconciler) Reconcile(ctx context.Context, req ctrl.Req
 
 	log.Info("Reconciling cluster")
 
+	remoteClient, err := util.GetClusterClient(r.context, r.Client, r.Scheme, clusterapiutil.ObjectKey(cluster))
+	if err != nil {
+		log.Error(err, "Error getting remote cluster client")
+		return ctrl.Result{Requeue: true}, err
+	}
 	// if deletion timestamp is set, handle cluster deletion
 	if !cluster.GetDeletionTimestamp().IsZero() {
-		return r.reconcileDelete(cluster, log)
+		return r.reconcileDelete(cluster, remoteClient, log)
 	}
-	return r.reconcileNormal(cluster, log)
+	return r.reconcileNormal(cluster, remoteClient, log)
 }
 
 // reconcileNormal reconciles the ClusterBootstrap object
-func (r *ClusterBootstrapReconciler) reconcileNormal(cluster *clusterapiv1beta1.Cluster, log logr.Logger) (ctrl.Result, error) {
+func (r *ClusterBootstrapReconciler) reconcileNormal(cluster *clusterapiv1beta1.Cluster, remoteClient client.Client, log logr.Logger) (ctrl.Result, error) {
 	// get or clone or patch from template
 	clusterBootstrap, err := r.createOrPatchClusterBootstrapFromTemplate(cluster, log)
 	if err != nil {
@@ -205,11 +211,6 @@ func (r *ClusterBootstrapReconciler) reconcileNormal(cluster *clusterapiv1beta1.
 	if err := r.createOrPatchKappPackageInstall(clusterBootstrap, cluster); err != nil {
 		// Return error if kapp-controller fails to be deployed, let reconciler try again
 		return ctrl.Result{}, err
-	}
-
-	remoteClient, err := util.GetClusterClient(r.context, r.Client, r.Scheme, clusterapiutil.ObjectKey(cluster))
-	if err != nil {
-		return ctrl.Result{Requeue: true}, err
 	}
 
 	if err := r.prepareRemoteCluster(cluster, remoteClient); err != nil {
@@ -284,6 +285,13 @@ func (r *ClusterBootstrapReconciler) createOrPatchResourcesForAdditionalPackages
 			return ctrl.Result{}, err
 		}
 	}
+
+	if err := r.handleClusterUnpause(cluster, clusterBootstrap, log); err != nil {
+		log.Error(err, fmt.Sprintf("unable to unpause the cluster: %s/%s", cluster.Namespace, cluster.Name))
+		// Need to requeue if unpause is unsuccessful
+		return ctrl.Result{Requeue: true}, err
+	}
+
 	return ctrl.Result{}, nil
 }
 
@@ -325,6 +333,23 @@ func (r *ClusterBootstrapReconciler) addFinalizer(o client.Object) error {
 	return retry.RetryOnConflict(retry.DefaultRetry, func() error {
 		return r.Client.Update(r.context, o)
 	})
+}
+
+// handleClusterUnpause unpauses the cluster if the cluster pause annotation is set by cluster pause webhook (cluster has "tkg.tanzu.vmware.com/paused" annotation)
+func (r *ClusterBootstrapReconciler) handleClusterUnpause(cluster *clusterapiv1beta1.Cluster, clusterBootstrap *runtanzuv1alpha3.ClusterBootstrap, log logr.Logger) error {
+	if cluster.Spec.Paused && cluster.Annotations != nil {
+		if value, ok := cluster.Annotations[tkgconstants.ClusterPauseLabel]; ok && value == clusterBootstrap.Status.ResolvedTKR {
+			patchedCluster := cluster.DeepCopy()
+			delete(patchedCluster.Annotations, tkgconstants.ClusterPauseLabel)
+			patchedCluster.Spec.Paused = false
+			err := r.Client.Patch(r.context, patchedCluster, client.MergeFrom(cluster))
+			if err != nil {
+				return err
+			}
+			log.Info(fmt.Sprintf("successfully unpaused the cluster %s/%s after ClusterBootstrap reconciliation", cluster.Namespace, cluster.Name))
+		}
+	}
+	return nil
 }
 
 // createOrPatchClusterBootstrapFromTemplate will get, clone or update a ClusterBootstrap associated with a cluster
@@ -632,13 +657,14 @@ func (r *ClusterBootstrapReconciler) createOrPatchKappPackageInstall(clusterBoot
 				Key:  clusterKubeconfigDetails.Key,
 			},
 		}
-		secretName, err := r.GetDataValueSecretNameFromBootstrapPackage(clusterBootstrap.Spec.Kapp, cluster)
+		// Copy the kapp-controller secret in mgmt cluster to include the TKR nodeSelector info
+		secret, err := r.createOrPatchPackageInstallSecretOnRemote(cluster, clusterBootstrap.Spec.Kapp, r.Client)
 		if err != nil {
 			return err
 		}
 		pkgi.Spec.Values = []kapppkgiv1alpha1.PackageInstallValues{
 			{SecretRef: &kapppkgiv1alpha1.PackageInstallValuesSecretRef{
-				Name: secretName},
+				Name: secret.Name},
 			},
 		}
 
@@ -977,6 +1003,43 @@ func (r *ClusterBootstrapReconciler) createOrPatchPackageInstallSecretOnRemote(c
 		for k, v := range patchedSecret.Data {
 			remoteSecret.Data[k] = v
 		}
+		// TODO: remove when the packages are ready https://github.com/vmware-tanzu/tanzu-framework/issues/2252
+		if r.Config.EnableTKGSUpgrade {
+			// Add TKR NodeSelector info if it's a TKGS cluster
+			infraRef, err := util.GetInfraProvider(cluster)
+			if err != nil {
+				return err
+			}
+			if infraRef == tkgconstants.InfrastructureProviderVSphere {
+				ok, err := util.IsTKGSCluster(r.context, r.Client, cluster)
+				if err != nil {
+					return err
+				}
+				if ok {
+					upgradeDataValues := addontypes.TKGSDataValues{
+						NodeSelector: addontypes.NodeSelector{
+							TanzuKubernetesRelease: cluster.Labels[constants.TKRLabelClassyClusters],
+						},
+						Deployment: addontypes.DeploymentUpdateInfo{
+							UpdateStrategy: constants.TKGSDeploymentUpdateStrategy,
+							RollingUpdate: &addontypes.RollingUpdateInfo{
+								MaxSurge:       constants.TKGSDeploymentUpdateMaxSurge,
+								MaxUnavailable: constants.TKGSDeploymentUpdateMaxUnavailable,
+							},
+						},
+						Daemonset: addontypes.DaemonsetUpdateInfo{
+							UpdateStrategy: constants.TKGSDaemonsetUpdateStrategy,
+						},
+					}
+					TKRDataValueYamlBytes, err := yaml.Marshal(upgradeDataValues)
+					if err != nil {
+						return err
+					}
+					remoteSecret.Data[constants.TKGSDataValueFileName] = TKRDataValueYamlBytes
+				}
+			}
+		}
+
 		return nil
 	}
 
@@ -1611,7 +1674,7 @@ func (r *ClusterBootstrapReconciler) reconcileClusterProxyAndNetworkSettings(clu
 	return nil
 }
 
-func (r *ClusterBootstrapReconciler) makeClusterIsReadyForDeletion(cluster *clusterapiv1beta1.Cluster, log logr.Logger) (bool, error) {
+func (r *ClusterBootstrapReconciler) makeClusterIsReadyForDeletion(cluster *clusterapiv1beta1.Cluster, remoteClient client.Client, log logr.Logger) (bool, error) {
 	clusterBootstrap := &runtanzuv1alpha3.ClusterBootstrap{}
 	err := r.Client.Get(r.context, client.ObjectKeyFromObject(cluster), clusterBootstrap)
 	if err != nil && !apierrors.IsNotFound(err) {
@@ -1620,18 +1683,12 @@ func (r *ClusterBootstrapReconciler) makeClusterIsReadyForDeletion(cluster *clus
 	}
 	if apierrors.IsNotFound(err) {
 		log.Info("ClusterBootstrap not found")
-	} else {
-		remoteClient, err := util.GetClusterClient(r.context, r.Client, r.Scheme, clusterapiutil.ObjectKey(cluster))
+	} else if hasPackageInstalls(r.context, remoteClient, cluster, r.Config.SystemNamespace, clusterBootstrap.Spec.AdditionalPackages, log) {
+		err = r.removeAdditionalPackageInstalls(remoteClient, cluster, clusterBootstrap, log)
 		if err != nil {
 			return false, err
 		}
-		if hasPackageInstalls(r.context, remoteClient, cluster, r.Config.SystemNamespace, clusterBootstrap.Spec.AdditionalPackages, log) {
-			err = r.removeAdditionalPackageInstalls(remoteClient, cluster, clusterBootstrap, log)
-			if err != nil {
-				return false, err
-			}
-			return false, nil
-		}
+		return false, nil
 	}
 	log.Info("cluster is ready for deletion")
 	return true, nil
@@ -1676,7 +1733,7 @@ func (r *ClusterBootstrapReconciler) removeFinalizersFromClusterResources(cluste
 	return nil
 }
 
-func (r *ClusterBootstrapReconciler) reconcileDelete(cluster *clusterapiv1beta1.Cluster, log logr.Logger) (ctrl.Result, error) {
+func (r *ClusterBootstrapReconciler) reconcileDelete(cluster *clusterapiv1beta1.Cluster, remoteClient client.Client, log logr.Logger) (ctrl.Result, error) {
 	okToRemoveFinalizers := false
 	var err error
 
@@ -1684,7 +1741,7 @@ func (r *ClusterBootstrapReconciler) reconcileDelete(cluster *clusterapiv1beta1.
 	if timeOutReached {
 		okToRemoveFinalizers = true
 	} else {
-		okToRemoveFinalizers, err = r.makeClusterIsReadyForDeletion(cluster, log)
+		okToRemoveFinalizers, err = r.makeClusterIsReadyForDeletion(cluster, remoteClient, log)
 		if err != nil {
 			return ctrl.Result{}, err
 		}
