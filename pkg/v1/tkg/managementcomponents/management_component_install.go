@@ -4,10 +4,20 @@
 package managementcomponents
 
 import (
+	"context"
+	"time"
+
 	"github.com/pkg/errors"
+	"golang.org/x/sync/errgroup"
+	"k8s.io/apimachinery/pkg/labels"
+	"k8s.io/apimachinery/pkg/selection"
+	crtclient "sigs.k8s.io/controller-runtime/pkg/client"
+
+	kappipkg "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/packaging/v1alpha1"
 
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/clusterclient"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/log"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgpackageclient"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgpackagedatamodel"
 )
@@ -22,6 +32,8 @@ type ClusterOptions struct {
 type ManagementPackageRepositoryOptions struct {
 	ManagementPackageRepoImage string
 	TKGPackageValuesFile       string
+	PackageVersion             string
+	PackageInstallTimeout      time.Duration
 }
 
 // KappControllerOptions specifies kapp-controller deployment options
@@ -53,8 +65,16 @@ func InstallManagementComponents(mcip *ManagementComponentsInstallOptions) error
 		return err
 	}
 	if err = InstallManagementPackages(pkgClient, mcip.ManagementPackageRepositoryOptions); err != nil {
-		return errors.Wrap(err, "unable to install management packages")
+		// instead of throwing error here, wait for some additional time for packages to get reconciled successfully
+		// error will be thrown at the next step if packages are not reconciled after timeout value
+		log.Warning(err.Error())
 	}
+
+	err = WaitForManagementPackages(clusterClient, mcip.ManagementPackageRepositoryOptions.PackageInstallTimeout)
+	if err != nil {
+		return errors.Wrap(err, "timed out waiting for management packages to get reconciled successfully")
+	}
+
 	return nil
 }
 
@@ -84,7 +104,7 @@ func InstallManagementPackages(pkgClient tkgpackageclient.TKGPackageClient, mpro
 	// install tkg composite management package
 	err = installTKGManagementPackage(pkgClient, mpro)
 	if err != nil {
-		return errors.Wrap(err, "unable to install TKG management package")
+		return errors.Wrap(err, "failure while installing TKG management package")
 	}
 
 	return nil
@@ -113,5 +133,57 @@ func installTKGManagementPackage(pkgClient tkgpackageclient.TKGPackageClient, mp
 	packageOptions.PollInterval = packagePollInterval
 	packageOptions.PollTimeout = packagePollTimeout
 	packageOptions.ValuesFile = mpro.TKGPackageValuesFile
+	packageOptions.Version = mpro.PackageVersion
+	packageOptions.Labels = map[string]string{constants.PackageTypeLabel: constants.PackageTypeManagement}
 	return pkgClient.InstallPackageSync(packageOptions, tkgpackagedatamodel.OperationTypeInstall)
+}
+
+func WaitForManagementPackages(clusterClient clusterclient.Client, packageInstallTimeout time.Duration) error {
+	var packageInstalls kappipkg.PackageInstallList
+	labelMatch, _ := labels.NewRequirement(constants.PackageTypeLabel, selection.Equals, []string{constants.PackageTypeManagement})
+	labelSelector := labels.NewSelector()
+	labelSelector = labelSelector.Add(*labelMatch)
+
+	err := clusterClient.ListResources(&packageInstalls, &crtclient.ListOptions{
+		Namespace:     constants.TkgNamespace,
+		LabelSelector: labelSelector,
+	})
+	if err != nil {
+		return errors.Wrap(err, "unable to list PackageInstalls")
+	}
+
+	// Filter management packages all the available packages from tkg-system namespace
+	// Management package will have a specific label which is being used to filter the packages
+	packageInstallNames := []string{constants.TKGManagementPackageInstallName}
+	for i := range packageInstalls.Items {
+		if packageInstalls.Items[i].Name != constants.TKGManagementPackageInstallName {
+			packageInstallNames = append(packageInstallNames, packageInstalls.Items[i].Name)
+		}
+	}
+
+	// Start waiting for all packages in parallel using group.Wait
+	// Note: As PackageInstall resources are created in the cluster itself
+	// we are using currentClusterClient which will point to correct cluster
+	group, _ := errgroup.WithContext(context.Background())
+
+	for _, packageName := range packageInstallNames {
+		pn := packageName
+		log.V(3).Warningf("Waiting for package: %s", pn)
+		group.Go(
+			func() error {
+				err := clusterClient.WaitForPackageInstall(pn, constants.TkgNamespace, packageInstallTimeout)
+				if err != nil {
+					log.V(3).Warningf("Error while waiting for package '%s'", pn)
+				} else {
+					log.V(3).Infof("Successfully reconciled package: %s", pn)
+				}
+				return err
+			})
+	}
+
+	err = group.Wait()
+	if err != nil {
+		return errors.Wrap(err, "error while waiting for management packages to be installed")
+	}
+	return nil
 }

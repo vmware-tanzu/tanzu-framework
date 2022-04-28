@@ -8,6 +8,7 @@ clusterclassInfraPackageValues:
   namespace: #@ data.values.clusterclassPackage.clusterclassInfraPackageValues.namespace
   infraProvider: #@ data.values.metadata.infraProvider
   configValues: #@ data.values.configvalues
+  versionConstraints: #@ data.values.clusterclassPackage.clusterclassInfraPackageValues.versionConstraints
 #@ end
 
 ---
@@ -19,12 +20,17 @@ metadata:
   annotations:
     kapp.k14s.io/change-rule.0: "upsert after upserting tkg-clusterclass-packageinstall/serviceaccount"
     kapp.k14s.io/change-rule.1: "delete before deleting tkg-clusterclass-packageinstall/serviceaccount"
+  labels:
+    tkg.tanzu.vmware.com/package-type: "management"
 spec:
   serviceAccountName: tanzu-tkg-package-sa
   packageRef:
     refName: tkg-clusterclass.tanzu.vmware.com
     versionSelection:
       prereleases: {}
+      #@ if data.values.clusterclassPackage.versionConstraints:
+      constraints: #@ data.values.clusterclassPackage.versionConstraints
+      #@ end
   values:
   - secretRef:
       name: tkg-clusterclass-values

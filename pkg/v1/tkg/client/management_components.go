@@ -4,35 +4,54 @@
 package client
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/pkg/errors"
 	"gopkg.in/yaml.v3"
 
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/carvelhelpers"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/clusterclient"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/log"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/managementcomponents"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfigreaderwriter"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgpackagedatamodel"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/utils"
 )
 
-// InstallManagementComponents install management components to the cluster
-func (c *TkgClient) InstallManagementComponents(kubeconfig, kubecontext string) error {
+// InstallOrUpgradeManagementComponents install management components to the cluster
+func (c *TkgClient) InstallOrUpgradeManagementComponents(kubeconfig, kubecontext string, upgrade bool) error {
 	managementPackageRepoImage, err := c.tkgBomClient.GetManagementPackageRepositoryImage()
 	if err != nil {
 		return errors.Wrap(err, "unable to get management package repository image")
 	}
 
+	managementPackageVersion, err := c.tkgBomClient.GetManagementPackagesVersion()
+	if err != nil {
+		return errors.Wrap(err, "unable to get version of management packages")
+	}
+
 	// Override management package repository image if specified as part of below environment variable
 	// NOTE: this override is only for testing purpose and we don't expect this to be used in production scenario
-	mprImage := os.Getenv("MANAGEMENT_PACKAGE_REPO_IMAGE")
+	mprImage := os.Getenv("_MANAGEMENT_PACKAGE_REPO_IMAGE")
 	if mprImage != "" {
 		managementPackageRepoImage = mprImage
 	}
 
+	// Override the version to use for management packages if specified as part of below environment variable
+	// NOTE: this override is only for testing purpose and we don't expect this to be used in production scenario
+	mpVersion := os.Getenv("_MANAGEMENT_PACKAGE_VERSION")
+	if mprImage != "" {
+		managementPackageVersion = mpVersion
+	}
+
+	managementPackageVersion = strings.TrimLeft(managementPackageVersion, "v")
+
 	// Get TKG package's values file
-	tkgPackageValuesFile, err := c.getTKGPackageConfigValuesFile()
+	tkgPackageValuesFile, err := c.getTKGPackageConfigValuesFile(managementPackageVersion, kubeconfig, kubecontext, upgrade)
 	if err != nil {
 		return err
 	}
@@ -55,6 +74,8 @@ func (c *TkgClient) InstallManagementComponents(kubeconfig, kubecontext string) 
 		ManagementPackageRepositoryOptions: managementcomponents.ManagementPackageRepositoryOptions{
 			ManagementPackageRepoImage: managementPackageRepoImage,
 			TKGPackageValuesFile:       tkgPackageValuesFile,
+			PackageVersion:             managementPackageVersion,
+			PackageInstallTimeout:      c.getPackageInstallTimeoutFromConfig(),
 		},
 	}
 
@@ -66,16 +87,24 @@ func (c *TkgClient) InstallManagementComponents(kubeconfig, kubecontext string) 
 		os.Remove(kappControllerConfigFile)
 	}
 
-	return nil
+	return err
 }
 
-func (c *TkgClient) getTKGPackageConfigValuesFile() (string, error) {
-	userProviderConfigValues, err := c.getUserConfigVariableValueMap()
+func (c *TkgClient) getTKGPackageConfigValuesFile(managementPackageVersion, kubeconfig, kubecontext string, upgrade bool) (string, error) {
+	var userProviderConfigValues map[string]string
+	var err error
+
+	if upgrade {
+		userProviderConfigValues, err = c.getUserConfigVariableValueMapForUpgrade(kubeconfig, kubecontext)
+	} else {
+		userProviderConfigValues, err = c.getUserConfigVariableValueMap()
+	}
+
 	if err != nil {
 		return "", err
 	}
 
-	valuesFile, err := managementcomponents.GetTKGPackageConfigValuesFileFromUserConfig(userProviderConfigValues)
+	valuesFile, err := managementcomponents.GetTKGPackageConfigValuesFileFromUserConfig(managementPackageVersion, userProviderConfigValues)
 	if err != nil {
 		return "", err
 	}
@@ -90,6 +119,30 @@ func (c *TkgClient) getUserConfigVariableValueMap() (map[string]string, error) {
 	}
 
 	return c.GetUserConfigVariableValueMap(path, c.TKGConfigReaderWriter())
+}
+
+func (c *TkgClient) getUserConfigVariableValueMapForUpgrade(kubeconfig, kubecontext string) (map[string]string, error) {
+	clusterClient, err := clusterclient.NewClient(kubeconfig, kubecontext, clusterclient.Options{})
+	if err != nil {
+		return nil, errors.Wrap(err, "unable to get cluster client")
+	}
+
+	var tkgPackageConfig managementcomponents.TKGPackageConfig
+
+	// Handle the upgrade from legacy (non-package-based-lcm) management cluster as
+	// legacy (non-package-based-lcm) management cluster will not have this secret defined
+	// on the cluster. Github issue: https://github.com/vmware-tanzu/tanzu-framework/issues/2147
+	bytes, err := clusterClient.GetSecretValue(fmt.Sprintf(tkgpackagedatamodel.SecretName, constants.TKGManagementPackageInstallName, constants.TkgNamespace), constants.TKGPackageValuesFile, constants.TkgNamespace, nil)
+	if err != nil {
+		return nil, errors.Wrap(err, "unable to get cluster client")
+	}
+
+	err = yaml.Unmarshal(bytes, &tkgPackageConfig)
+	if err != nil {
+		return nil, errors.Wrapf(err, "unable to unmarshal configuration from secret: %v, namespace: %v", constants.TKGPackageValues, constants.TkgNamespace)
+	}
+
+	return tkgPackageConfig.ConfigValues, nil
 }
 
 func (c *TkgClient) getUserConfigVariableValueMapFile() (string, error) {

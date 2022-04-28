@@ -2,10 +2,14 @@ module github.com/vmware-tanzu/tanzu-framework
 
 go 1.17
 
+replace (
+	github.com/vmware-tanzu/tanzu-framework/apis/cni => ./apis/cni
+	github.com/vmware-tanzu/tanzu-framework/apis/cpi => ./apis/cpi
+	sigs.k8s.io/cluster-api => sigs.k8s.io/cluster-api v1.1.3
+)
+
 // Legacy tags before v0.1.0 was created
 retract [v1.4.0-pre-alpha-1, v1.4.0-pre-alpha-2]
-
-replace sigs.k8s.io/cluster-api => sigs.k8s.io/cluster-api v1.1.3
 
 require (
 	cloud.google.com/go/storage v1.18.2

@@ -19,7 +19,7 @@ import (
 	clusterapiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
 	"sigs.k8s.io/controller-runtime/pkg/log"
 
-	cuitl "github.com/vmware-tanzu/tanzu-framework/addons/controllers/utils"
+	cutil "github.com/vmware-tanzu/tanzu-framework/addons/controllers/utils"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
 	pkgtypes "github.com/vmware-tanzu/tanzu-framework/addons/pkg/types"
 	csiv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/csi/v1alpha1"
@@ -68,7 +68,7 @@ func (r *VSphereCSIConfigReconciler) mapVSphereCSIConfigToDataValuesNonParavirtu
 	dvs.VSphereCSI = &DataValuesVSphereCSI{}
 	dvs.VSphereCSI.ClusterName = cluster.Name
 
-	vsphereCluster, err := cuitl.GetVSphereCluster(ctx, r.Client, cluster)
+	vsphereCluster, err := cutil.GetVSphereCluster(ctx, r.Client, cluster)
 	if err != nil {
 		return nil, err
 	}
@@ -78,31 +78,31 @@ func (r *VSphereCSIConfigReconciler) mapVSphereCSIConfigToDataValuesNonParavirtu
 	cpMachineTemplate := &capvv1beta1.VSphereMachineTemplate{}
 	if err := r.Client.Get(ctx, types.NamespacedName{
 		Namespace: cluster.Namespace,
-		Name:      cuitl.ControlPlaneName(cluster.Name),
+		Name:      cutil.ControlPlaneName(cluster.Name),
 	}, cpMachineTemplate); err != nil {
 		if apierrors.IsNotFound(err) {
-			return nil, errors.Errorf("VSphereMachineTemplate %s/%s not found", cluster.Namespace, cuitl.ControlPlaneName(cluster.Name))
+			return nil, errors.Errorf("VSphereMachineTemplate %s/%s not found", cluster.Namespace, cutil.ControlPlaneName(cluster.Name))
 		}
-		return nil, errors.Errorf("VSphereMachineTemplate %s/%s could not be fetched, error %v", cluster.Namespace, cuitl.ControlPlaneName(cluster.Name), err)
+		return nil, errors.Errorf("VSphereMachineTemplate %s/%s could not be fetched, error %v", cluster.Namespace, cutil.ControlPlaneName(cluster.Name), err)
 	}
 
 	dvs.VSphereCSI.Datacenter = cpMachineTemplate.Spec.Template.Spec.Datacenter
-	dvs.VSphereCSI.PublicNetwork = cuitl.TryParseClusterVariableString(ctx, cluster, VSphereNetworkVarName)
+	dvs.VSphereCSI.PublicNetwork = cutil.TryParseClusterVariableString(ctx, cluster, VSphereNetworkVarName)
 
 	// derive vSphere username and password from the <cluster name> secret
-	clusterSecret, err := cuitl.GetSecret(ctx, r.Client, cluster.Namespace, cluster.Name)
+	clusterSecret, err := cutil.GetSecret(ctx, r.Client, cluster.Namespace, cluster.Name)
 	if err != nil {
 		return nil, err
 	}
-	dvs.VSphereCSI.Username, dvs.VSphereCSI.Password, err = cuitl.GetUsernameAndPasswordFromSecret(clusterSecret)
+	dvs.VSphereCSI.Username, dvs.VSphereCSI.Password, err = cutil.GetUsernameAndPasswordFromSecret(clusterSecret)
 	if err != nil {
 		return nil, err
 	}
 
-	dvs.VSphereCSI.Region = cuitl.TryParseClusterVariableString(ctx, cluster, VSphereRegionVarName)
-	dvs.VSphereCSI.Zone = cuitl.TryParseClusterVariableString(ctx, cluster, VSphereZoneVarName)
-	dvs.VSphereCSI.VSphereVersion = cuitl.TryParseClusterVariableString(ctx, cluster, VSphereVersionVarName)
-	dvs.VSphereCSI.WindowsSupport = cuitl.TryParseClusterVariableBool(ctx, cluster, IsWindowsWorkloadClusterVarName)
+	dvs.VSphereCSI.Region = cutil.TryParseClusterVariableString(ctx, cluster, VSphereRegionVarName)
+	dvs.VSphereCSI.Zone = cutil.TryParseClusterVariableString(ctx, cluster, VSphereZoneVarName)
+	dvs.VSphereCSI.VSphereVersion = cutil.TryParseClusterVariableString(ctx, cluster, VSphereVersionVarName)
+	dvs.VSphereCSI.WindowsSupport = cutil.TryParseClusterVariableBool(ctx, cluster, IsWindowsWorkloadClusterVarName)
 
 	if cluster.Annotations != nil {
 		dvs.VSphereCSI.HTTPProxy = cluster.Annotations[pkgtypes.HTTPProxyConfigAnnotation]
@@ -122,7 +122,9 @@ func (r *VSphereCSIConfigReconciler) mapVSphereCSIConfigToDataValuesNonParavirtu
 	// TODO: implement defaulting webhook for 'vspherecsiconfig' https://github.com/vmware-tanzu/tanzu-framework/issues/2088
 	// override derived values IF set in csi configuration by user
 	if vcsiConfig.Spec.VSphereCSI.NonParavirtualConfig != nil {
-		overrideDerivedValues(dvs.VSphereCSI, vcsiConfig.Spec.VSphereCSI.NonParavirtualConfig)
+		if err := r.overrideDerivedValues(ctx, dvs.VSphereCSI, vcsiConfig); err != nil {
+			return nil, errors.Errorf("Failed to override derived values: '%v'", err)
+		}
 	}
 
 	return dvs, nil
@@ -205,43 +207,23 @@ func (r *VSphereCSIConfigReconciler) mapCSIConfigToProviderServiceAccount(cluste
 	return serviceAccount
 }
 
-func overrideDerivedValues(dvscsi *DataValuesVSphereCSI, config *csiv1alpha1.NonParavirtualConfig) { // nolint:gocyclo
-	if config.Namespace != "" {
-		dvscsi.Namespace = config.Namespace
-	}
-	if config.ClusterName != "" {
-		dvscsi.ClusterName = config.ClusterName
-	}
-	if config.Server != "" {
-		dvscsi.Server = config.Server
-	}
-	if config.Datacenter != "" {
-		dvscsi.Datacenter = config.Datacenter
-	}
-	if config.PublicNetwork != "" {
-		dvscsi.PublicNetwork = config.PublicNetwork
-	}
-	if config.Username != "" {
-		dvscsi.Username = config.Username
-	}
-	if config.Password != "" {
-		dvscsi.Password = config.Password
-	}
-	if config.Region != "" {
-		dvscsi.Region = config.Region
-	}
-	if config.Zone != "" {
-		dvscsi.Zone = config.Zone
-	}
-	if config.VSphereVersion != "" {
-		dvscsi.VSphereVersion = config.VSphereVersion
-	}
-	if config.WindowsSupport != nil {
-		dvscsi.WindowsSupport = *config.WindowsSupport
-	}
-	if config.TLSThumbprint != "" {
-		dvscsi.TLSThumbprint = config.TLSThumbprint
-	}
+func (r *VSphereCSIConfigReconciler) overrideDerivedValues(ctx context.Context,
+	dvscsi *DataValuesVSphereCSI,
+	vcsiConfig *csiv1alpha1.VSphereCSIConfig) error {
+
+	r.overrideProxyValues(dvscsi, vcsiConfig)
+	r.overrideTimeoutValues(dvscsi, vcsiConfig)
+	r.overrideTopologyValues(dvscsi, vcsiConfig)
+	r.overrideClusterValues(dvscsi, vcsiConfig)
+	r.overrideMiscValues(dvscsi, vcsiConfig)
+
+	return r.overrideCredentialValues(ctx, dvscsi, vcsiConfig)
+}
+
+func (r *VSphereCSIConfigReconciler) overrideProxyValues(dvscsi *DataValuesVSphereCSI,
+	vcsiConfig *csiv1alpha1.VSphereCSIConfig) {
+
+	config := vcsiConfig.Spec.VSphereCSI.NonParavirtualConfig
 	if config.HTTPProxy != "" {
 		dvscsi.HTTPProxy = config.HTTPProxy
 	}
@@ -251,9 +233,12 @@ func overrideDerivedValues(dvscsi *DataValuesVSphereCSI, config *csiv1alpha1.Non
 	if config.NoProxy != "" {
 		dvscsi.NoProxy = config.NoProxy
 	}
-	if config.UseTopologyCategories != nil {
-		dvscsi.UseTopologyCategories = *config.UseTopologyCategories
-	}
+}
+
+func (r *VSphereCSIConfigReconciler) overrideTimeoutValues(dvscsi *DataValuesVSphereCSI,
+	vcsiConfig *csiv1alpha1.VSphereCSIConfig) {
+
+	config := vcsiConfig.Spec.VSphereCSI.NonParavirtualConfig
 	if config.ProvisionTimeout != "" {
 		dvscsi.ProvisionTimeout = config.ProvisionTimeout
 	}
@@ -263,8 +248,79 @@ func overrideDerivedValues(dvscsi *DataValuesVSphereCSI, config *csiv1alpha1.Non
 	if config.ResizerTimeout != "" {
 		dvscsi.ResizerTimeout = config.ResizerTimeout
 	}
+}
+
+func (r *VSphereCSIConfigReconciler) overrideTopologyValues(dvscsi *DataValuesVSphereCSI,
+	vcsiConfig *csiv1alpha1.VSphereCSIConfig) {
+
+	config := vcsiConfig.Spec.VSphereCSI.NonParavirtualConfig
+	if config.Server != "" {
+		dvscsi.Server = config.Server
+	}
+	if config.Datacenter != "" {
+		dvscsi.Datacenter = config.Datacenter
+	}
+	if config.PublicNetwork != "" {
+		dvscsi.PublicNetwork = config.PublicNetwork
+	}
+	if config.UseTopologyCategories != nil {
+		dvscsi.UseTopologyCategories = *config.UseTopologyCategories
+	}
 	if config.DeploymentReplicas != nil {
 		dvscsi.DeploymentReplicas = *config.DeploymentReplicas
+	}
+}
+
+func (r *VSphereCSIConfigReconciler) overrideCredentialValues(ctx context.Context,
+	dvscsi *DataValuesVSphereCSI,
+	vcsiConfig *csiv1alpha1.VSphereCSIConfig) error {
+
+	config := vcsiConfig.Spec.VSphereCSI.NonParavirtualConfig
+	if config.VSphereCredentialLocalObjRef != nil {
+		secret, err := cutil.GetSecret(ctx, r.Client, vcsiConfig.Namespace, config.VSphereCredentialLocalObjRef.Name)
+		if err != nil {
+			return err
+		}
+		dvscsi.Username, dvscsi.Password, err = cutil.GetUsernameAndPasswordFromSecret(secret)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (r *VSphereCSIConfigReconciler) overrideClusterValues(dvscsi *DataValuesVSphereCSI,
+	vcsiConfig *csiv1alpha1.VSphereCSIConfig) {
+
+	config := vcsiConfig.Spec.VSphereCSI.NonParavirtualConfig
+	if config.Namespace != "" {
+		dvscsi.Namespace = config.Namespace
+	}
+	if config.ClusterName != "" {
+		dvscsi.ClusterName = config.ClusterName
+	}
+
+	if config.Region != "" {
+		dvscsi.Region = config.Region
+	}
+	if config.Zone != "" {
+		dvscsi.Zone = config.Zone
+	}
+}
+
+func (r *VSphereCSIConfigReconciler) overrideMiscValues(dvscsi *DataValuesVSphereCSI,
+	vcsiConfig *csiv1alpha1.VSphereCSIConfig) {
+
+	config := vcsiConfig.Spec.VSphereCSI.NonParavirtualConfig
+	if config.VSphereVersion != "" {
+		dvscsi.VSphereVersion = config.VSphereVersion
+	}
+	if config.WindowsSupport != nil {
+		dvscsi.WindowsSupport = *config.WindowsSupport
+	}
+	if config.TLSThumbprint != "" {
+		dvscsi.TLSThumbprint = config.TLSThumbprint
 	}
 	if config.InsecureFlag != nil {
 		dvscsi.InsecureFlag = *config.InsecureFlag

@@ -76,7 +76,7 @@ spec:
 ---
 #@ end
 
-#@ if data.values.TKG_CLUSTER_ROLE != "workload" and data.values.PROVIDER_TYPE != "tkg-service-vsphere":
+#@ if data.values.TKG_CLUSTER_ROLE != "workload" and data.values.PROVIDER_TYPE != "tkg-service-vsphere" and not data.values.FEATURE_FLAG_PACKAGE_BASED_LCM:
 
 #@ if data.values.DISABLE_CRS_FOR_ADDON_TYPE and "packages/management-package-repo" in data.values.DISABLE_CRS_FOR_ADDON_TYPE:
 --- #@ template.replace(core_management_plugins_package_install_definition())

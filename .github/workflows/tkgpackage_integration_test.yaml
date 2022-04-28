@@ -24,10 +24,12 @@ jobs:
       - name: Free disk space and clean up installed plugins on runner
         run: |
           sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /home/tanzu/.cache
+          sudo rm -rf /home/tanzu/.kube
           sudo rm -rf /home/tanzu/.local/share/tanzu-cli/*
 
       - name: Set up Go 1.x
-        uses: actions/setup-go@v2
+        uses: actions/setup-go@v3
         with:
           go-version: '1.17'
         id: go

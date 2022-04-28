@@ -130,6 +130,7 @@ func generatePackageBundlesSha256(projectRootDir, localRegistry string) error {
 
 		packageValues.Repositories[packageRepository].Packages[i].Version = getPackageVersion(version)
 		packageValues.Repositories[packageRepository].Packages[i].Sha256 = utils.AfterString(bundleLock.Bundle.Image, localRegistry+"/"+pkg.Name+"@sha256:")
+		packageValues.Repositories[packageRepository].Packages[i].PackageSubVersion = subVersion
 		yamlData, err := yaml.Marshal(&packageValues)
 		if err != nil {
 			return fmt.Errorf("error while marshaling: %w", err)
@@ -201,8 +202,9 @@ func generateRepoBundle(projectRootDir string) error {
 		return fmt.Errorf("%s repository not found", packageRepository)
 	}
 
+	pkgRepoPkgsDir := filepath.Join(projectRootDir, constants.RepoBundlesDir, packageRepository, "packages")
 	for i := range repository.Packages {
-		if err := generatePackageCR(projectRootDir, toolsBinDir, &repository.Packages[i]); err != nil {
+		if err := generatePackageCR(projectRootDir, toolsBinDir, registry, pkgRepoPkgsDir, packageValuesFile, &repository.Packages[i]); err != nil {
 			return fmt.Errorf("couldn't generate the package: %w", err)
 		}
 	}
@@ -222,15 +224,23 @@ func generateRepoBundle(projectRootDir string) error {
 	return nil
 }
 
-func generatePackageCR(projectRootDir, toolsBinDir string, pkg *Package) error {
+func generatePackageCR(projectRootDir, toolsBinDir, registry, packageArtifactDirectory, packageValuesFile string, pkg *Package) error {
+	// package values file
 	fmt.Printf("Generating Package CR for package %q...\n", pkg.Name)
-	if err := utils.CreateDir(filepath.Join(projectRootDir, constants.RepoBundlesDir, packageRepository, "packages", pkg.Name+"."+pkg.Domain)); err != nil {
+	if err := utils.CreateDir(filepath.Join(packageArtifactDirectory, pkg.Name+"."+pkg.Domain)); err != nil {
 		return err
 	}
+
 	pkgVersion := getPackageVersion(version)
+	packageSubVersion := pkg.PackageSubVersion
+	if subVersion != "" {
+		// subVersion flag overrides package values subversion.
+		packageSubVersion = subVersion
+	}
+
 	packageFileName := pkgVersion + ".yml"
-	if pkg.PackageSubVersion != "" {
-		packageFileName = pkgVersion + pkg.PackageSubVersion + ".yml"
+	if packageSubVersion != "" {
+		packageFileName = pkgVersion + "+" + packageSubVersion + ".yml"
 	}
 
 	// generate Package CR and write it to a file
@@ -241,9 +251,12 @@ func generatePackageCR(projectRootDir, toolsBinDir string, pkg *Package) error {
 		"-v", "packageRepository="+packageRepository,
 		"-v", "packageName="+pkg.Name,
 		"-v", "registry="+registry,
-		"-v", "timestamp="+utils.GetFormattedCurrentTime()) // #nosec G204
+		"-v", "timestamp="+utils.GetFormattedCurrentTime(),
+		"-v", "version="+pkgVersion,
+		"-v", "subVersion="+packageSubVersion,
+	) // #nosec G204
 
-	packageFilePath := filepath.Join(projectRootDir, constants.RepoBundlesDir, packageRepository, "packages", pkg.Name+"."+pkg.Domain, packageFileName)
+	packageFilePath := filepath.Join(packageArtifactDirectory, pkg.Name+"."+pkg.Domain, packageFileName)
 	packageFile, err := os.Create(packageFilePath)
 	if err != nil {
 		return fmt.Errorf("couldn't create file %s: %w", packageFilePath, err)
@@ -267,7 +280,7 @@ func generatePackageCR(projectRootDir, toolsBinDir string, pkg *Package) error {
 		"-v", "packageName="+pkg.Name,
 		"-v", "registry="+registry) // #nosec G204
 
-	packageMetadataFilePath := filepath.Join(projectRootDir, constants.RepoBundlesDir, packageRepository, "packages", pkg.Name+"."+pkg.Domain, "metadata.yml")
+	packageMetadataFilePath := filepath.Join(packageArtifactDirectory, pkg.Name+"."+pkg.Domain, "metadata.yml")
 	metadataFile, err := os.Create(packageMetadataFilePath)
 	if err != nil {
 		return fmt.Errorf("couldn't create file %s: %w", packageMetadataFilePath, err)
@@ -279,7 +292,7 @@ func generatePackageCR(projectRootDir, toolsBinDir string, pkg *Package) error {
 
 	err = packageMetadataYttCmd.Run()
 	if err != nil {
-		return fmt.Errorf("couldn't generate PackageMetadata CR %s: %s", pkg.Name, packageYttCmdErrBytes.String())
+		return fmt.Errorf("couldn't generate PackageMetadata CR %s: %s", pkg.Name, packageMetadataYttCmdErrBytes.String())
 	}
 	return nil
 }

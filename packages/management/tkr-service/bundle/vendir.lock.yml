@@ -12,4 +12,10 @@ directories:
     path: tkr-resolver-cluster-webhook-deployment.yaml
   - manual: {}
     path: webhook.yaml
+  - manual: {}
+    path: tkr-conversion-webhook-deployment.yaml
+  - manual: {}
+    path: osimage-crd.yaml
+  - manual: {}
+    path: tkr-crd.yaml
   path: config/upstream

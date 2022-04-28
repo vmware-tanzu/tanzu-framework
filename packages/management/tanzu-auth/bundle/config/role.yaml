@@ -3,7 +3,7 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
   creationTimestamp: null
-  name: pinniped-config-controller-manager
+  name: tanzu-auth-controller-manager
 rules:
 - apiGroups:
   - ""

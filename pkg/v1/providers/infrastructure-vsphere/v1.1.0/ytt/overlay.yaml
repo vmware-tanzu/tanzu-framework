@@ -235,12 +235,6 @@ spec:
         #@ end
         bindPort: #@ data.values.CLUSTER_API_SERVER_PORT
       #@ end
-      #@ if data.values.TKG_IP_FAMILY == "ipv6,ipv4":
-      nodeRegistration:
-        kubeletExtraArgs:
-          #@overlay/match missing_ok=True
-          node-ip: "::"
-      #@ end
     joinConfiguration:
       #@ if (not data.values.AVI_CONTROL_PLANE_HA_PROVIDER) and data.values.CLUSTER_API_SERVER_PORT:
       #@overlay/match missing_ok=True
@@ -252,12 +246,6 @@ spec:
           advertiseAddress: '0.0.0.0'
           #@ end
           bindPort: #@ data.values.CLUSTER_API_SERVER_PORT
-      #@ end
-      #@ if data.values.TKG_IP_FAMILY == "ipv6,ipv4":
-      nodeRegistration:
-        kubeletExtraArgs:
-          #@overlay/match missing_ok=True
-          node-ip: "::"
       #@ end
     clusterConfiguration:
       imageRepository: #@ kubeadm_image_repo(bomDataForK8sVersion.kubeadmConfigSpec.imageRepository)
@@ -302,6 +290,13 @@ spec:
     #@overlay/remove
     - content:
     #@ end
+    #@ if data.values.TKG_IP_FAMILY in ["ipv6", "ipv6,ipv4"]:
+    #@overlay/append
+    - content: ""
+      owner: root:root
+      path: /etc/sysconfig/kubelet
+      permissions: "0640"
+    #@ end
     users:
     #@overlay/match by=overlay.index(0)
     #@overlay/replace
@@ -315,6 +310,15 @@ spec:
     postKubeadmCommands:
     #@overlay/append
     - sed -i '/listen-client-urls/ s/$/,https:\/\/127.0.0.1:2379/' /etc/kubernetes/manifests/etcd.yaml
+    #@ end
+    #! When using kube-vip as the control plane endpoint provider with IPv6 as
+    #! the primary IP family, set --node-ip on kubelet so that host network pods
+    #! do not get the kube-vip address as their pod IP.
+    #! See: https://github.com/vmware-tanzu/tanzu-framework/issues/2098
+    #@ if not data.values.AVI_CONTROL_PLANE_HA_PROVIDER and data.values.TKG_IP_FAMILY in ["ipv6", "ipv6,ipv4"]:
+    preKubeadmCommands:
+    #@overlay/append
+    - echo "KUBELET_EXTRA_ARGS=--node-ip=$(ip -6 -json addr show dev eth0 scope global | jq -r .[0].addr_info[0].local)" >> /etc/sysconfig/kubelet
     #@ end
   replicas: #@ data.values.CONTROL_PLANE_MACHINE_COUNT
   version: #@ data.values.KUBERNETES_VERSION

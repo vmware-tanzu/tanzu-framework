@@ -243,10 +243,6 @@ func (t *tkgctl) configureCreateClusterOptionsFromConfigFile(cc *CreateClusterOp
 			if cc.IsWindowsWorkloadCluster {
 				log.Infof("\n Creating a windows workload cluster %v\n\n", cc.ClusterName)
 			}
-			// log this since its generally a less common use case, and windows support is relatively new.
-			if cc.IsWindowsWorkloadCluster {
-				log.Infof("\n Creating a windows workload cluster %v\n\n", cc.ClusterName)
-			}
 		}
 	}
 
