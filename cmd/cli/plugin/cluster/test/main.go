@@ -68,6 +68,7 @@ func (c *testConfig) defaults() {
 }
 
 func init() {
+	os.Setenv("PATH", "$PATH:/Users/cpamuluri/go/bin")
 	// Init the tests as per the dependency
 	initManagementCluster()
 	initClusterSilentModeUsecases()
@@ -142,92 +143,98 @@ func test(c *cobra.Command, _ []string) error {
 }
 
 func silenceUsageMCTestCases(m *clitest.Main) error {
-	// Test use case# management-cluster : SilenceUsage: true
-	m.AddTest(managementClusterUnAvailableSubCommandTest)
-	if err := managementClusterUnAvailableSubCommandTest.Run(); err != nil {
+	// Test use case# management-cluster : SilenceUsage: true : should not print Usage info
+	m.AddTest(mcUnAvailCmdSilentUsage)
+	if err := mcUnAvailCmdSilentUsage.Run(); err != nil {
 		return err
 	}
 
-	// Test use case# management-cluster ceip-participation set : SilenceUsage: true
-	m.AddTest(mcCeipSetSilent)
-	if err := mcCeipSetSilent.Run(); err != nil {
+	// Test use case# management-cluster ceip-participation set : SilenceUsage: true : should not print Usage: information
+	m.AddTest(mcCeipSetSilentUsage)
+	if err := mcCeipSetSilentUsage.Run(); err != nil {
 		return err
 	}
 
-	// Test use case# management-cluster create -nonExistsFlag : SilenceUsage: true :
-	m.AddTest(mcCreateNonExistsFlag)
-	if err := mcCreateNonExistsFlag.Run(); err != nil {
+	// Test use case# management-cluster create -nonExistsFlag : SilenceUsage: true : should not print Usage: information
+	m.AddTest(mcCreateNonExistsFlagSilentUsage)
+	if err := mcCreateNonExistsFlagSilentUsage.Run(); err != nil {
+		return err
+	}
+
+	// Test use case# management-cluster create :  SilenceUsage: true : should not print Usage: information
+	m.AddTest(mcCreateSilentUage)
+	if err := mcCreateSilentUage.Run(); err != nil {
 		return err
 	}
 	return nil
 }
 
 func silenceUsageClusterTestCases(m *clitest.Main) error {
-	// Test use case# cluster create : SilenceUsage: true
+	// Test use case# cluster create : SilenceUsage: true : should not print Usage info
 	m.AddTest(createClusterNegTestSilentMode)
 	if err := createClusterNegTestSilentMode.Run(); err != nil {
 		return err
 	}
 
-	// Test use case# cluster delete : SilenceUsage: true
+	// Test use case# cluster delete : SilenceUsage: true : should not print Usage info
 	m.AddTest(deleteClusterNegTestSilentMode)
 	if err := deleteClusterNegTestSilentMode.Run(); err != nil {
 		return err
 	}
 
-	// Test use case# cluster available-upgrades get  : SilenceUsage: true
+	// Test use case# cluster available-upgrades get  : SilenceUsage: true : should not print Usage info
 	m.AddTest(availableUpgradesGetNegTestSilentMode)
 	if err := availableUpgradesGetNegTestSilentMode.Run(); err != nil {
 		return err
 	}
 
-	// Test use case# cluster available-upgrades get  : SilenceUsage: true
+	// Test use case# cluster available-upgrades get  : SilenceUsage: true : should not print Usage info
 	m.AddTest(credUpdateNegTestSilentMode)
 	if err := credUpdateNegTestSilentMode.Run(); err != nil {
 		return err
 	}
-	// Test use case: cluster get : SilenceUsage : true
+	// Test use case: cluster get : SilenceUsage : true : should not print Usage info
 	m.AddTest(clusterGetTestSilentMode)
 	if err := clusterGetTestSilentMode.Run(); err != nil {
 		return err
 	}
-	// Test use case: cluster kubeconfig get : SilenceUsage : true
+	// Test use case: cluster kubeconfig get : SilenceUsage : true : should not print Usage info
 	m.AddTest(clusterKubeconfGetSilentMode)
 	if err := clusterKubeconfGetSilentMode.Run(); err != nil {
 		return err
 	}
 
-	// Test use case: cluster machinehealthcheck node get : SilenceUsage : true
+	// Test use case: cluster machinehealthcheck node get : SilenceUsage : true : should not print Usage info
 	m.AddTest(clusterMHGet)
 	if err := clusterMHGet.Run(); err != nil {
 		return err
 	}
 
-	// Test use case: cluster node-pool set : SilenceUsage : true
+	// Test use case: cluster node-pool set : SilenceUsage : true : should not print Usage info
 	m.AddTest(clusterNodePoolSetSilentMode)
 	if err := clusterNodePoolSetSilentMode.Run(); err != nil {
 		return err
 	}
 
-	// Test use case: cluster node-pool list : SilenceUsage : true
+	// Test use case: cluster node-pool list : SilenceUsage : true : should not print Usage info
 	m.AddTest(clusterNodePoolListSilentMode)
 	if err := clusterNodePoolListSilentMode.Run(); err != nil {
 		return err
 	}
 
-	// Test use case: cluster node-pool delete : SilenceUsage : true
+	// Test use case: cluster node-pool delete : SilenceUsage : true : should not print Usage info
 	m.AddTest(clusterNodePoolDeleteSilentMode)
 	if err := clusterNodePoolDeleteSilentMode.Run(); err != nil {
 		return err
 	}
 
-	// Test use case: cluster scale : SilenceUsage : true
+	// Test use case: cluster scale : SilenceUsage : true : should not print Usage info
 	m.AddTest(clusterScaleSilentMode)
 	if err := clusterScaleSilentMode.Run(); err != nil {
 		return err
 	}
 
-	// Test use case: cluster upgrade : SilenceUsage : true
+	// Test use case: cluster upgrade : SilenceUsage : true : should not print Usage info
 	m.AddTest(clusterUpgradeSilentMode)
 	if err := clusterUpgradeSilentMode.Run(); err != nil {
 		return err

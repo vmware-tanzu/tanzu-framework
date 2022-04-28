@@ -15,11 +15,12 @@ import (
 )
 
 var (
-	createManagementClusterTest                *clitest.Test
-	deleteManagementCusterTest                 *clitest.Test
-	managementClusterUnAvailableSubCommandTest *clitest.Test
-	mcCeipSetSilent                            *clitest.Test
-	mcCreateNonExistsFlag                      *clitest.Test
+	createManagementClusterTest      *clitest.Test
+	deleteManagementCusterTest       *clitest.Test
+	mcUnAvailCmdSilentUsage          *clitest.Test
+	mcCeipSetSilentUsage             *clitest.Test
+	mcCreateNonExistsFlagSilentUsage *clitest.Test
+	mcCreateSilentUage               *clitest.Test
 )
 
 const (
@@ -31,9 +32,10 @@ func initManagementCluster() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	managementClusterUnAvailableSubCommandTest = clitest.NewTest("create management-cluster", "management-cluster UnAvailableSubCommand", FuncToExecAndValidateStdError)
-	mcCeipSetSilent = clitest.NewTest("management-cluster ceip-participation set", "management-cluster ceip-participation set", FuncToExecAndValidateStdError)
-	mcCreateNonExistsFlag = clitest.NewTest("management-cluster create -nonExistsFlag", "management-cluster create -nonExistsFlag", FuncToExecAndValidateStdError)
+	mcUnAvailCmdSilentUsage = clitest.NewTest("create management-cluster", "management-cluster UnAvailableSubCommand", FuncToExecAndValidateStdError)
+	mcCeipSetSilentUsage = clitest.NewTest("management-cluster ceip-participation set", "management-cluster ceip-participation set", FuncToExecAndValidateStdError)
+	mcCreateNonExistsFlagSilentUsage = clitest.NewTest("management-cluster create -nonExistsFlag", "management-cluster create -nonExistsFlag", FuncToExecAndValidateStdError)
+	mcCreateSilentUage = clitest.NewTest("management-cluster create", "management-cluster create", FuncToExecAndValidateStdError)
 
 	createMcCommand := fmt.Sprintf("management-cluster create -v3 -f %s", mcConfigFile.Name())
 	createManagementClusterTest = clitest.NewTest("create management-cluster", createMcCommand, func(t *clitest.Test) error {
