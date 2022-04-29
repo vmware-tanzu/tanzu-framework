@@ -34,7 +34,11 @@ func init() {
 
 func main() {
 	var webhookCertDir string
+	var metricsAddr string
+	var webhookServerPort int
 	flag.StringVar(&webhookCertDir, "webhook-cert-dir", "/tmp/k8s-webhook-server/serving-certs/", "Webhook cert directory.")
+	flag.StringVar(&metricsAddr, "metrics-bind-addr", ":8080", "The address the metric endpoint binds to.")
+	flag.IntVar(&webhookServerPort, "webhook-server-port", 9443, "The port that the webhook server serves at.")
 
 	opts := zap.Options{
 		Development: true,
@@ -49,8 +53,10 @@ func main() {
 	// Setup a Manager
 	setupLog.Info("setting up manager")
 	mgr, err := manager.New(config.GetConfigOrDie(), manager.Options{
-		Scheme:  scheme,
-		CertDir: webhookCertDir,
+		Scheme:             scheme,
+		MetricsBindAddress: metricsAddr,
+		CertDir:            webhookCertDir,
+		Port:               webhookServerPort,
 	})
 	if err != nil {
 		setupLog.Error(err, "unable to set up controller manager")

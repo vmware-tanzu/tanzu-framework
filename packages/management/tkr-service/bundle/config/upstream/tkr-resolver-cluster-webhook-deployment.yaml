@@ -28,6 +28,9 @@ spec:
         name: manager
         command:
         - /manager
+        args:
+        - --metrics-bind-addr=0
+        - #@ "--webhook-server-port={}".format(data.values.deployment.tkrResolverWebhookServerPort)
         resources:
           limits:
             cpu: 100m
@@ -36,7 +39,7 @@ spec:
             cpu: 100m
             memory: 20Mi
         ports:
-        - containerPort: 9443
+        - containerPort: #@ data.values.deployment.tkrResolverWebhookServerPort
           name: webhook-server
           protocol: TCP
         volumeMounts:
@@ -49,3 +52,15 @@ spec:
       - name: cert
         secret:
           secretName: tkr-resolver-cluster-webhook-service-cert
+      #@ if hasattr(data.values, 'deployment') and hasattr(data.values.deployment, 'hostNetwork') and data.values.deployment.hostNetwork:
+      #@overlay/match missing_ok=True
+      hostNetwork: true
+      #@ end
+      #@ if hasattr(data.values, 'deployment') and hasattr(data.values.deployment, 'tolerations') and data.values.deployment.tolerations:
+      #@overlay/match missing_ok=True
+      tolerations: #@ data.values.deployment.tolerations
+      #@ end
+      #@ if hasattr(data.values, 'deployment') and hasattr(data.values.deployment, 'nodeSelector') and data.values.deployment.nodeSelector:
+      #@overlay/match missing_ok=True
+      nodeSelector: #@ data.values.deployment.nodeSelector
+      #@ end
