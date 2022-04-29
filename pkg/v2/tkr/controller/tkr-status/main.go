@@ -18,8 +18,8 @@ import (
 
 	runv1 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/buildinfo"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v2/tkr/controller/status/clusterstatus"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v2/tkr/controller/status/tkr"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v2/tkr/controller/tkr-status/clusterstatus"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v2/tkr/controller/tkr-status/tkr"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v2/tkr/resolver"
 )
 
