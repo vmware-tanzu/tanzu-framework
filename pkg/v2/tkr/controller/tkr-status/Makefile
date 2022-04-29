@@ -1,9 +1,9 @@
 # Copyright 2022 VMware, Inc. All Rights Reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-include ../../../../../../common.mk
+include ../../../../../common.mk
 
-IMG_DEFAULT_NAME := tkr-resolver-cluster-webhook
+IMG_DEFAULT_NAME := tkr-status-controller
 IMG_DEFAULT_TAG := latest
 IMG_DEFAULT_NAME_TAG := $(IMG_DEFAULT_NAME):$(IMG_DEFAULT_TAG)
 
@@ -35,7 +35,7 @@ vet:
 
 .PHONY: docker-build
 docker-build: ## Build docker image
-	cd ../../../../../../ && docker build -t $(IMG) -f pkg/v2/tkr/webhook/cluster/tkr-resolver/Dockerfile --build-arg LD_FLAGS="$(LD_FLAGS)" .
+	cd ../../../../../ && docker build -t $(IMG) -f pkg/v2/tkr/controller/tkr-status/Dockerfile --build-arg LD_FLAGS="$(LD_FLAGS)" .
 
 .PHONY: docker-publish
 docker-publish: ## Publish docker image
@@ -43,7 +43,7 @@ docker-publish: ## Publish docker image
 
 .PHONY: kbld-image-replace
 kbld-image-replace: ## Add newImage in kbld-config.yaml
-	cd ../../../../../../hack/packages/kbld-image-replace && $(MAKE) run IMAGE=$(IMG_DEFAULT_NAME_TAG) NEW_IMAGE=$(IMG)
+	cd ../../../../../hack/packages/kbld-image-replace && $(MAKE) run IMAGE=$(IMG_DEFAULT_NAME_TAG) NEW_IMAGE=$(IMG)
 
 .PHONY: docker-image-names
 docker-image-names:
