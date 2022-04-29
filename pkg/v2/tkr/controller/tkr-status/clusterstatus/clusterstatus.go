@@ -76,6 +76,8 @@ func versionsClusterCanUpdateTo(o client.Object) []string {
 	return strings.Split(strings.TrimSuffix(strings.TrimPrefix(message, "["), "]"), " ")
 }
 
+// clustersUpdatingToTKR, for any given tkr, returns requests for clusters that have tkr.Spec.Kubernetes.Version
+// or tkr.Spec.Version in their UpdatesAvailable condition message.
 func (r *Reconciler) clustersUpdatingToTKR(o client.Object) []ctrl.Request {
 	tkr := o.(*runv1.TanzuKubernetesRelease)
 	var result []ctrl.Request
@@ -85,6 +87,7 @@ func (r *Reconciler) clustersUpdatingToTKR(o client.Object) []ctrl.Request {
 	return result
 }
 
+// clustersUpdatingToVersion produces requests for clusters that have the given version in their UpdatesAvailable condition message.
 func (r *Reconciler) clustersUpdatingToVersion(v string) []ctrl.Request {
 	clusterList := &clusterv1.ClusterList{}
 	if err := r.Client.List(r.Context, clusterList, &client.ListOptions{
