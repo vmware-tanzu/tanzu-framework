@@ -38,9 +38,6 @@ const (
 // TODO: make these constants accessible to other controllers (for example csi) https://github.com/vmware-tanzu/tanzu-framework/issues/2086
 // constants used for deriving supervisor API server endpoint
 const (
-	SupervisorEndpointHostname = "supervisor.default.svc"
-	SupervisorEndpointPort     = 6443
-
 	SupervisorLoadBalancerSvcNamespace = "kube-system"
 	SupervisorLoadBalancerSvcName      = "kube-apiserver-lb-svc"
 

@@ -208,8 +208,8 @@ var _ = Describe("VSphereCPIConfig Reconciler", func() {
 				Expect(err).ShouldNot(HaveOccurred())
 				Expect(uuidReg.FindString(secretData)).To(Not(BeEmpty()))
 
-				Expect(strings.Contains(secretData, "supervisorMasterEndpointIP: supervisor.default.svc")).Should(BeTrue())
-				Expect(strings.Contains(secretData, "supervisorMasterPort: \"6443\"")).Should(BeTrue())
+				Expect(strings.Contains(secretData, "supervisorMasterEndpointIP: 172.17.0.3")).Should(BeTrue())
+				Expect(strings.Contains(secretData, "supervisorMasterPort: \"6773\"")).Should(BeTrue())
 
 				// assert that non paravirt data values don't exist, the keys should not exist
 				Expect(strings.Contains(secretData, "datacenter:")).Should(BeFalse())
