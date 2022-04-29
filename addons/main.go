@@ -296,16 +296,16 @@ func enableWebhooks(ctx context.Context, mgr ctrl.Manager, flags *addonFlags) {
 	certPath := path.Join(constants.WebhookCertDir, "tls.crt")
 	keyPath := path.Join(constants.WebhookCertDir, "tls.key")
 	if _, err := webhooks.InstallNewCertificates(ctx, mgr.GetConfig(), certPath, keyPath, constants.WebhookScrtName, flags.addonNamespace, constants.WebhookServiceName, constants.AddonWebhookLabelKey+"="+constants.AddonWebhookLabelValue); err != nil {
-		setupLog.Error(err, "unable to install certificates for cni webhooks")
+		setupLog.Error(err, "unable to install certificates for webhooks")
 		os.Exit(1)
 	}
 	// Set up the webhooks in the manager
 	if err := (&cniv1alpha1.AntreaConfig{}).SetupWebhookWithManager(mgr); err != nil {
-		setupLog.Error(err, "unable to set up webhooks", "controller", "antrea")
+		setupLog.Error(err, "unable to set up webhooks", "webhook", "antrea")
 		os.Exit(1)
 	}
 	if err := (&cniv1alpha1.CalicoConfig{}).SetupWebhookWithManager(mgr); err != nil {
-		setupLog.Error(err, "unable to set up webhooks", "controller", "calico")
+		setupLog.Error(err, "unable to set up webhooks", "webhook", "calico")
 		os.Exit(1)
 	}
 	clusterbootstrapWebhook := addonwebhooks.ClusterBootstrap{
@@ -321,6 +321,11 @@ func enableWebhooks(ctx context.Context, mgr ctrl.Manager, flags *addonFlags) {
 	}
 	if err := clusterbootstrapTemplateWebhook.SetupWebhookWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create clusterbootstrapTemplate webhook", "webhook", "clusterbootstraptemplate")
+		os.Exit(1)
+	}
+	clusterPauseWebhook := webhooks.ClusterPause{Client: mgr.GetClient()}
+	if err := clusterPauseWebhook.SetupWebhookWithManager(mgr); err != nil {
+		setupLog.Error(err, "unable to set up webhooks", "webhook", "clusterpause")
 		os.Exit(1)
 	}
 }
