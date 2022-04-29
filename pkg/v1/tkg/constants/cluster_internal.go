@@ -61,6 +61,8 @@ const (
 
 	// TKGDataValueFormatString is required annotations for YTT data value file
 	TKGDataValueFormatString = "#@data/values\n#@overlay/match-child-defaults missing_ok=True\n---\n"
+
+	CAPVClusterSelectorKey = "capv.vmware.com/cluster.name"
 )
 
 // deployment plan constants
@@ -92,6 +94,8 @@ const (
 	InfrastructureRefAWS = "AWSCluster"
 	// InfrastructureRefAzure is the Azure infrastructure
 	InfrastructureRefAzure = "AzureCluster"
+	// InfrastructureRefDocker is the docker infrastructure
+	InfrastructureRefDocker = "DockerCluster"
 )
 
 // networking constants

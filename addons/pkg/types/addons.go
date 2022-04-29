@@ -63,3 +63,32 @@ type Image struct {
 	ImagePath string `yaml:"imagePath"`
 	Tag       string `yaml:"tag"`
 }
+
+// TKGSDataValues contains the package nodeSelector and update strategy information required by TKGS clusters
+type TKGSDataValues struct {
+	NodeSelector NodeSelector         `yaml:"nodeSelector"`
+	Deployment   DeploymentUpdateInfo `yaml:"deployment,omitempty"`
+	Daemonset    DaemonsetUpdateInfo  `yaml:"daemonset,omitempty"`
+}
+
+// NodeSelector contains the nodeSelector information
+type NodeSelector struct {
+	TanzuKubernetesRelease string `yaml:"tanzuKubernetesRelease"`
+}
+
+// DeploymentUpdateInfo contains the deployment update strategy information
+type DeploymentUpdateInfo struct {
+	UpdateStrategy string             `yaml:"updateStrategy,omitempty"`
+	RollingUpdate  *RollingUpdateInfo `yaml:"rollingUpdate,omitempty"`
+}
+
+// RollingUpdateInfo contains the rolling update settings
+type RollingUpdateInfo struct {
+	MaxUnavailable int `yaml:"maxUnavailable"`
+	MaxSurge       int `yaml:"maxSurge"`
+}
+
+// DaemonsetUpdateInfo contains the daumonset update strategy information
+type DaemonsetUpdateInfo struct {
+	UpdateStrategy string `yaml:"updateStrategy,omitempty"`
+}
