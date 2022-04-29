@@ -203,9 +203,9 @@ func (r *VSphereCPIConfigReconciler) mapCPIConfigToDataValues(ctx context.Contex
 }
 
 // mapCPIConfigToProviderServiceAccountSpec maps CPIConfig and cluster to the corresponding service account spec
-func (r *VSphereCPIConfigReconciler) mapCPIConfigToProviderServiceAccountSpec(cluster *clusterapiv1beta1.Cluster) capvvmwarev1beta1.ProviderServiceAccountSpec {
+func (r *VSphereCPIConfigReconciler) mapCPIConfigToProviderServiceAccountSpec(vsphereCluster *capvvmwarev1beta1.VSphereCluster) capvvmwarev1beta1.ProviderServiceAccountSpec {
 	return capvvmwarev1beta1.ProviderServiceAccountSpec{
-		Ref: &v1.ObjectReference{Name: cluster.Name, Namespace: cluster.Namespace},
+		Ref: &v1.ObjectReference{Name: vsphereCluster.Name, Namespace: vsphereCluster.Namespace},
 		Rules: []rbacv1.PolicyRule{
 			{
 				Verbs:     []string{"get", "create", "update", "patch", "delete"},
@@ -306,7 +306,7 @@ func controlPlaneName(clusterName string) string {
 }
 
 // getCCMName returns the name of cloud control manager for a cluster
-func getCCMName(cluster *clusterapiv1beta1.Cluster) string {
+func getCCMName(cluster *capvvmwarev1beta1.VSphereCluster) string {
 	return fmt.Sprintf("%s-%s", cluster.Name, "ccm")
 }
 

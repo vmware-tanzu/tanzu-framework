@@ -52,10 +52,10 @@ type VSphereCPINonParaVirtDataValues struct {
 	NoProxy    string `yaml:"no_proxy"`
 }
 
-func (v VSphereCPINonParaVirtDataValues) Serialize() ([]byte, error) {
+func (v *VSphereCPINonParaVirtDataValues) Serialize() ([]byte, error) {
 	dataValues := struct {
 		DataValues VSphereCPINonParaVirtDataValues `yaml:"vsphereCPI"`
-	}{DataValues: v}
+	}{DataValues: *v}
 	return yaml.Marshal(dataValues)
 }
 
@@ -73,9 +73,9 @@ type VSphereCPIParaVirtDataValues struct {
 	SupervisorMasterPort       string `yaml:"supervisorMasterPort"`
 }
 
-func (v VSphereCPIParaVirtDataValues) Serialize() ([]byte, error) {
+func (v *VSphereCPIParaVirtDataValues) Serialize() ([]byte, error) {
 	dataValues := struct {
 		VSphereCPI VSphereCPIParaVirtDataValues `yaml:"vsphereCPI"`
-	}{VSphereCPI: v}
+	}{VSphereCPI: *v}
 	return yaml.Marshal(dataValues)
 }

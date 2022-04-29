@@ -31,6 +31,7 @@ var _ = Describe("VSphereCPIConfig Reconciler", func() {
 		key                     client.ObjectKey
 		clusterName             string
 		clusterResourceFilePath string
+		vsphereClusterName      string
 	)
 
 	JustBeforeEach(func() {
@@ -60,6 +61,7 @@ var _ = Describe("VSphereCPIConfig Reconciler", func() {
 	Context("reconcile VSphereCPIConfig manifests in non-paravirtual mode", func() {
 		BeforeEach(func() {
 			clusterName = "test-cluster-cpi"
+			vsphereClusterName = "test-cluster-cpi-paravirtual-kl5tl"
 			clusterResourceFilePath = "testdata/test-vsphere-cpi-non-paravirtual.yaml"
 		})
 
@@ -212,7 +214,7 @@ var _ = Describe("VSphereCPIConfig Reconciler", func() {
 				// assert that non paravirt data values don't exist, the keys should not exist
 				Expect(strings.Contains(secretData, "datacenter:")).Should(BeFalse())
 				Expect(strings.Contains(secretData, "server:")).Should(BeFalse())
-				Expect(strings.Contains(secretData, "nxst:")).Should(BeFalse())
+				Expect(strings.Contains(secretData, "nsxt:")).Should(BeFalse())
 
 				return true
 			}, waitTimeout, pollingInterval).Should(BeTrue())
@@ -233,12 +235,12 @@ var _ = Describe("VSphereCPIConfig Reconciler", func() {
 			Eventually(func() bool {
 				serviceAccountKey := client.ObjectKey{
 					Namespace: clusterNamespace,
-					Name:      fmt.Sprintf("%s-ccm", clusterName),
+					Name:      fmt.Sprintf("%s-ccm", vsphereClusterName),
 				}
 				if err := k8sClient.Get(ctx, serviceAccountKey, serviceAccount); err != nil {
 					return false
 				}
-				Expect(serviceAccount.Spec.Ref.Name).To(Equal(key.Name))
+				Expect(serviceAccount.Spec.Ref.Name).To(Equal(vsphereClusterName))
 				Expect(serviceAccount.Spec.Ref.Namespace).To(Equal(key.Namespace))
 				Expect(serviceAccount.Spec.Rules).To(HaveLen(4))
 				Expect(serviceAccount.Spec.TargetNamespace).To(Equal("vmware-system-cloud-provider"))
