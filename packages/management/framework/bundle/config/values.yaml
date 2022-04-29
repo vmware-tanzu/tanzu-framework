@@ -9,6 +9,7 @@ featureGatesPackageValues:
     hostNetwork: true
     nodeSelector: null
     tolerations: []
+    webhookServerPort: 9443
 tkrServicePackageValues:
   namespace:
   versionConstraints:

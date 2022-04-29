@@ -1,4 +1,5 @@
 #@ load("@ytt:data", "data")
+#@ load("@ytt:overlay", "overlay")
 
 apiVersion: apps/v1
 kind: Deployment
@@ -32,7 +33,7 @@ spec:
               cpu: 100m
               memory: 20Mi
           ports:
-            - containerPort: 9443
+            - containerPort: #@ data.values.deployment.webhookServerPort
               name: webhook-server
               protocol: TCP
           volumeMounts:
