@@ -183,27 +183,13 @@ func (r *VSphereCSIConfigReconciler) reconcileVSphereCSIConfigNormal(ctx context
 	// deploy the provider service account for paravirtual mode
 	if csiCfg.Spec.VSphereCSI.Mode == VSphereCSIParavirtualMode {
 		serviceAccount := &capvvmwarev1beta1.ProviderServiceAccount{}
-		vsphereClusters := &capvvmwarev1beta1.VSphereClusterList{}
-		labelMatch, err := labels.NewRequirement(clusterapiv1beta1.ClusterLabelName, selection.Equals, []string{cluster.Name})
+		vsphereCluster, err := r.getVsphereCluster(ctx, cluster)
 		if err != nil {
-			r.Log.Error(err, "Error creating label")
 			return ctrl.Result{}, err
 		}
-		labelSelector := labels.NewSelector()
-		labelSelector = labelSelector.Add(*labelMatch)
-		if err := r.Client.List(ctx, vsphereClusters, &client.ListOptions{LabelSelector: labelSelector}); err != nil {
-			r.Log.Error(err, "error retrieving clusters")
-			return ctrl.Result{}, err
-		}
-		if len(vsphereClusters.Items) != 1 {
-			return ctrl.Result{}, fmt.Errorf("expected to find 1 VSphereCluster object for label key %s and value %s but found %d",
-				clusterapiv1beta1.ClusterLabelName, cluster.Name, len(vsphereClusters.Items))
-		}
-		vsphereCluster := vsphereClusters.Items[0]
-
 		_, err = controllerutil.CreateOrUpdate(ctx, r.Client, serviceAccount, func() error {
-			serviceAccount = r.mapCSIConfigToProviderServiceAccount(&vsphereCluster)
-			return controllerutil.SetControllerReference(&vsphereCluster, serviceAccount, r.Scheme)
+			serviceAccount = r.mapCSIConfigToProviderServiceAccount(vsphereCluster)
+			return controllerutil.SetControllerReference(vsphereCluster, serviceAccount, r.Scheme)
 		})
 		if err != nil {
 			logger.Error(err, "Error creating or updating ProviderServiceAccount for VSphere CPI")
@@ -217,4 +203,26 @@ func (r *VSphereCSIConfigReconciler) reconcileVSphereCSIConfigNormal(ctx context
 	csiCfg.Status.SecretRef = &secret.Name
 
 	return ctrl.Result{}, nil
+}
+
+func (r *VSphereCSIConfigReconciler) getVsphereCluster(ctx context.Context,
+	cluster *clusterapiv1beta1.Cluster) (*capvvmwarev1beta1.VSphereCluster, error) {
+
+	vsphereClusters := &capvvmwarev1beta1.VSphereClusterList{}
+	labelMatch, err := labels.NewRequirement(clusterapiv1beta1.ClusterLabelName, selection.Equals, []string{cluster.Name})
+	if err != nil {
+		r.Log.Error(err, "Error creating label")
+		return nil, err
+	}
+	labelSelector := labels.NewSelector()
+	labelSelector = labelSelector.Add(*labelMatch)
+	if err := r.Client.List(ctx, vsphereClusters, &client.ListOptions{LabelSelector: labelSelector}); err != nil {
+		r.Log.Error(err, "error retrieving clusters")
+		return nil, err
+	}
+	if len(vsphereClusters.Items) != 1 {
+		return nil, fmt.Errorf("expected to find 1 VSphereCluster object for label key %s and value %s but found %d",
+			clusterapiv1beta1.ClusterLabelName, cluster.Name, len(vsphereClusters.Items))
+	}
+	return &vsphereClusters.Items[0], nil
 }
