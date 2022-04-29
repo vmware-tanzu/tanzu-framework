@@ -43,7 +43,7 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
 	addontypes "github.com/vmware-tanzu/tanzu-framework/addons/pkg/types"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/util"
-	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/util/clusterbootstrap"
+	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/util/clusterbootstrapclone"
 	"github.com/vmware-tanzu/tanzu-framework/addons/predicates"
 	runtanzuv1alpha3 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
 	tkrconstants "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkr/pkg/constants"
@@ -286,7 +286,7 @@ func (r *ClusterBootstrapReconciler) createOrPatchClusterBootstrapFromTemplate(c
 		return clusterBootstrap, nil
 	}
 
-	clusterBootstrapHelper := clusterbootstrap.NewHelper(
+	clusterBootstrapHelper := clusterbootstrapclone.NewHelper(
 		r.context, r.Client, r.aggregatedAPIResourcesClient, r.dynamicClient, r.cachedDiscoveryClient, r.Log)
 	if clusterBootstrap.UID == "" {
 		log.Info("ClusterBootstrap for cluster does not exist, cloning from template")
@@ -305,7 +305,7 @@ func (r *ClusterBootstrapReconciler) patchClusterBootstrapFromTemplate(
 	cluster *clusterapiv1beta1.Cluster,
 	clusterBootstrap *runtanzuv1alpha3.ClusterBootstrap,
 	clusterBootstrapTemplate *runtanzuv1alpha3.ClusterBootstrapTemplate,
-	clusterBootstrapHelper *clusterbootstrap.Helper,
+	clusterBootstrapHelper *clusterbootstrapclone.Helper,
 	tkrName string,
 	log logr.Logger) (*runtanzuv1alpha3.ClusterBootstrap, error) {
 

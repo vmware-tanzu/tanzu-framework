@@ -18,6 +18,8 @@ require (
 	github.com/vmware-tanzu/carvel-secretgen-controller v0.5.0
 	github.com/vmware-tanzu/carvel-vendir v0.26.0
 	github.com/vmware-tanzu/tanzu-framework v0.9.0
+	github.com/vmware-tanzu/tanzu-framework/apis/cni v0.0.0-00010101000000-000000000000
+	github.com/vmware-tanzu/tanzu-framework/apis/cpi v0.0.0-00010101000000-000000000000
 	gopkg.in/yaml.v2 v2.4.0
 	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b
 	k8s.io/api v0.23.4
@@ -74,8 +76,6 @@ require (
 	github.com/prometheus/common v0.32.1 // indirect
 	github.com/prometheus/procfs v0.7.3 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
-	github.com/vmware-tanzu/tanzu-framework/apis/cni v0.0.0-00010101000000-000000000000 // indirect
-	github.com/vmware-tanzu/tanzu-framework/apis/cpi v0.0.0-00010101000000-000000000000 // indirect
 	go.uber.org/atomic v1.9.0 // indirect
 	go.uber.org/multierr v1.6.0 // indirect
 	go.uber.org/zap v1.19.1 // indirect

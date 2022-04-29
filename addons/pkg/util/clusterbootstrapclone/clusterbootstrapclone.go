@@ -1,7 +1,7 @@
 // Copyright 2022 VMware, Inc. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-package clusterbootstrap
+package clusterbootstrapclone
 
 import (
 	"context"
@@ -35,7 +35,7 @@ type Helper struct {
 	K8sClient                   client.Client
 	AggregateAPIResourcesClient client.Client
 	DynamicClient               dynamic.Interface
-	CachedDiscoveryClient       discovery.CachedDiscoveryInterface
+	DiscoveryClient             discovery.DiscoveryInterface
 	Logger                      logr.Logger
 }
 
@@ -50,7 +50,7 @@ func NewHelper(ctx context.Context, k8sClient client.Client, aggregateAPIResourc
 		K8sClient:                   k8sClient,
 		AggregateAPIResourcesClient: aggregateAPIResourcesClient,
 		DynamicClient:               dynamicClient,
-		CachedDiscoveryClient:       cachedDiscoveryClient,
+		DiscoveryClient:             cachedDiscoveryClient,
 		Logger:                      logger,
 	}
 }
@@ -314,7 +314,7 @@ func (h *Helper) cloneProviderRef(
 
 	var newProvider *unstructured.Unstructured
 	var createdOrUpdatedProvider *unstructured.Unstructured
-	gvr, err := util.GetGVRForGroupKind(schema.GroupKind{Group: *cbPkg.ValuesFrom.ProviderRef.APIGroup, Kind: cbPkg.ValuesFrom.ProviderRef.Kind}, h.CachedDiscoveryClient)
+	gvr, err := util.GetGVRForGroupKind(schema.GroupKind{Group: *cbPkg.ValuesFrom.ProviderRef.APIGroup, Kind: cbPkg.ValuesFrom.ProviderRef.Kind}, h.DiscoveryClient)
 	if err != nil {
 		h.Logger.Error(err, "failed to getGVR")
 		return nil, err
@@ -400,7 +400,7 @@ func (h *Helper) cloneEmbeddedLocalObjectRef(cluster *clusterapiv1beta1.Cluster,
 	h.Logger.Info(fmt.Sprintf("cloning the embedded local object references within provider: %s with name: %s from"+
 		" %s namespace to %s namespace", provider.GroupVersionKind().String(), provider.GetName(), provider.GetNamespace(), cluster.Namespace))
 	for groupKind, resourceNames := range groupKindNamesMap {
-		gvr, err := util.GetGVRForGroupKind(groupKind, h.CachedDiscoveryClient)
+		gvr, err := util.GetGVRForGroupKind(groupKind, h.DiscoveryClient)
 		if err != nil {
 			// error has been logged within getGVR()
 			return err
@@ -485,7 +485,7 @@ func (h *Helper) EnsureOwnerRef(clusterBootstrap *runtanzuv1alpha3.ClusterBootst
 		}
 	}
 	for _, provider := range providers {
-		gvr, err := util.GetGVRForGroupKind(provider.GroupVersionKind().GroupKind(), h.CachedDiscoveryClient)
+		gvr, err := util.GetGVRForGroupKind(provider.GroupVersionKind().GroupKind(), h.DiscoveryClient)
 		if err != nil {
 			h.Logger.Error(err, fmt.Sprintf("unable to get GVR of provider %s/%s", provider.GetNamespace(), provider.GetName()))
 			return err
