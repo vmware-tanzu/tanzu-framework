@@ -123,6 +123,8 @@ var _ = BeforeSuite(func(done Done) {
 	Expect(err).NotTo(HaveOccurred())
 	Expect(externalCRDPaths).ToNot(BeEmpty())
 	testEnv.CRDDirectoryPaths = externalCRDPaths
+	// If it is not possible to include the parent repo that contains the CRD yaml file, manually add the CRD definition file into testdata/dependency/crd
+	// For example, virtualmachines CRD is in repo vm-operator, but introducing vm-operator would cause dependency conflict in go.mod, therefore the CRD file is manually ported in
 	testEnv.CRDDirectoryPaths = append(testEnv.CRDDirectoryPaths,
 		filepath.Join("..", "..", "config", "crd", "bases"), filepath.Join("testdata"), filepath.Join("testdata", "dependency", "crd"))
 	testEnv.ErrorIfCRDPathMissing = true

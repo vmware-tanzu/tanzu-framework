@@ -1011,7 +1011,7 @@ func (r *ClusterBootstrapReconciler) createOrPatchPackageInstallSecretOnRemote(c
 				return err
 			}
 			if infraRef == tkgconstants.InfrastructureProviderVSphere {
-				ok, err := util.IsTKGSCluster(r.context, r.Client, cluster)
+				ok, err := util.IsTKGSCluster(r.context, r.dynamicClient, r.cachedDiscoveryClient, cluster)
 				if err != nil {
 					return err
 				}
@@ -1036,6 +1036,10 @@ func (r *ClusterBootstrapReconciler) createOrPatchPackageInstallSecretOnRemote(c
 						return err
 					}
 					remoteSecret.Data[constants.TKGSDataValueFileName] = TKRDataValueYamlBytes
+
+					r.Log.Info(fmt.Sprintf("added TKGS data values to secret %s/%s", remoteSecret.Namespace, remoteSecret.Name))
+				} else {
+					r.Log.Info(fmt.Sprintf("skip adding TKGS data values to secret %s/%s because %s/%s is not a TKGS cluster", remoteSecret.Namespace, remoteSecret.Name, cluster.Namespace, cluster.Name))
 				}
 			}
 		}

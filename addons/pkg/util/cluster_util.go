@@ -5,7 +5,6 @@ package util
 
 import (
 	"context"
-	"strings"
 	"time"
 
 	"github.com/go-logr/logr"
@@ -14,6 +13,9 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
+	"k8s.io/client-go/discovery"
+	cacheddiscovery "k8s.io/client-go/discovery/cached/memory"
+	"k8s.io/client-go/dynamic"
 	clusterv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
 	capiremote "sigs.k8s.io/cluster-api/controllers/remote"
 	clusterapiutil "sigs.k8s.io/cluster-api/util"
@@ -188,19 +190,45 @@ func GetInfraProvider(cluster *clusterv1beta1.Cluster) (string, error) {
 }
 
 // IsTKGSCluster checks if the cluster is a TKGS cluster
-func IsTKGSCluster(ctx context.Context, c client.Client, cluster *clusterv1beta1.Cluster) (bool, error) {
-	// Verify if operating on a TKGS cluster by checking if virtualmachine objects exist for the cluster label
-	virtualMachineList := &vmoperatorv1alpha1.VirtualMachineList{}
-	listOptions := client.MatchingLabels{
-		tkgconstants.CAPVClusterSelectorKey: cluster.Name,
+func IsTKGSCluster(ctx context.Context, dynamicClient dynamic.Interface, discoveryClient discovery.DiscoveryInterface, cluster *clusterv1beta1.Cluster) (bool, error) {
+	// Verify if virtualmachine CRD resource exists in the cluster
+	virtualMachineGVR := schema.GroupVersionResource{
+		Group:    vmoperatorv1alpha1.SchemeGroupVersion.Group,
+		Version:  vmoperatorv1alpha1.SchemeGroupVersion.Version,
+		Resource: "virtualmachines",
 	}
-
-	if err := c.List(ctx, virtualMachineList, listOptions); err != nil {
-		// If CRD resource doesn't exist on cluster, it will throw an unKnownError with the error message that contains `no matches for kind "VirtualMachine"`
-		if strings.Contains(err.Error(), "no matches for kind \"VirtualMachine\"") || apierrors.IsNotFound(err) {
+	resources, err := discoveryClient.ServerResourcesForGroupVersion(virtualMachineGVR.GroupVersion().String())
+	if err != nil {
+		// If Group doesn't exist, memCacheClient discovery will return "not found" instead of IsNotFound API error
+		if apierrors.IsNotFound(err) || err.Error() == cacheddiscovery.ErrCacheNotFound.Error() {
 			return false, nil
 		}
 		return false, err
 	}
-	return len(virtualMachineList.Items) != 0, nil
+
+	exists := false
+	if resources != nil {
+		for i := range resources.APIResources {
+			if resources.APIResources[i].Name == virtualMachineGVR.Resource {
+				exists = true
+				break
+			}
+		}
+	}
+
+	if exists {
+		// Verify TKGS cluster by checking if virtualmachine objects exist with the cluster label
+		listOptions := metav1.ListOptions{
+			LabelSelector: tkgconstants.CAPVClusterSelectorKey + "=" + cluster.Name,
+		}
+		virtualMachineList, err := dynamicClient.Resource(virtualMachineGVR).List(ctx, listOptions)
+		if err != nil {
+			if apierrors.IsNotFound(err) {
+				return false, nil
+			}
+			return false, err
+		}
+		return len(virtualMachineList.Items) != 0, nil
+	}
+	return false, nil
 }
