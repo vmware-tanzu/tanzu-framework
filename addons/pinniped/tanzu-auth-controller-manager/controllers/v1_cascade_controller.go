@@ -1,7 +1,7 @@
 // Copyright 2022 VMware, Inc. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-// Package controllers contains the pinniped-config-controller code.
+// Package controllers contains the tanzu-auth-controller-manager code.
 package controllers
 
 import (

@@ -18,7 +18,7 @@ endif
 all: manager
 
 # Run tests
-test: fmt vet manifests
+test: fmt vet
 	go test ./... -coverprofile cover.out
 
 # Build manager binary

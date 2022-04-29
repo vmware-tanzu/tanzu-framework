@@ -48,17 +48,7 @@ var _ = Describe("Webhook", func() {
 
 	Context("Mutating and Validating Configurations", func() {
 		It("should be updated with CA bundle ", func() {
-			var err error
-			webhookCertDetails := testutil.WebhookCertificatesDetails{
-				CertPath:           certPath,
-				KeyPath:            keyPath,
-				WebhookScrtName:    webhookScrtName,
-				AddonNamespace:     addonNamespace,
-				WebhookServiceName: webhookServiceName,
-				LabelSelector:      "",
-			}
-
-			err = testutil.SetupWebhookCertificates(ctx, k8sClient, k8sConfig, &webhookCertDetails)
+			err := testutil.SetupWebhookCertificates(ctx, k8sClient, k8sConfig, &webhookCertDetails)
 			Expect(err).ToNot(HaveOccurred())
 		})
 		It("should fail update when label selector is not provided", func() {

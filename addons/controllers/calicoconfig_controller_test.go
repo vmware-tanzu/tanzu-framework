@@ -39,14 +39,6 @@ var _ = Describe("CalicoConfig Reconciler and Webhooks", func() {
 
 		// set up the certificates and webhook before creating any objects
 		By("Creating and installing new certificates for Calico Admission Webhooks")
-		webhookCertDetails := testutil.WebhookCertificatesDetails{
-			CertPath:           certPath,
-			KeyPath:            keyPath,
-			WebhookScrtName:    webhookScrtName,
-			AddonNamespace:     addonNamespace,
-			WebhookServiceName: webhookServiceName,
-			LabelSelector:      addonWebhookLabelValue,
-		}
 		err = testutil.SetupWebhookCertificates(ctx, k8sClient, k8sConfig, &webhookCertDetails)
 		Expect(err).ToNot(HaveOccurred())
 

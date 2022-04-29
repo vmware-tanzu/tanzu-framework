@@ -33,7 +33,7 @@ CONTROLLER_MANAGER_NAME="${APP_NAME}-controller-manager"
 CONTROLLER_MANAGER_PACKAGE_NAME="${CONTROLLER_MANAGER_NAME}-package"
 CONTROLLER_NAMESPACE_NAME="${APP_NAME}"
 
-# Always run from config-controller directory for reproducibility
+# Always run from tanzu-auth-controller-manager directory for reproducibility
 cd "${MY_DIR}/.."
 
 TAG="dev"

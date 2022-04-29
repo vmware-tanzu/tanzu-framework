@@ -102,6 +102,12 @@ func (tkrs TKRs) Filter(f func(tkr *runv1.TanzuKubernetesRelease) bool) TKRs {
 	return result
 }
 
+func (tkrs TKRs) Intersect(other TKRs) TKRs {
+	return tkrs.Filter(func(tkr *runv1.TanzuKubernetesRelease) bool {
+		return other[tkr.Name] != nil
+	})
+}
+
 // Filter returns a subset of OSImages satisfying the predicate f.
 func (osImages OSImages) Filter(f func(osImage *runv1.OSImage) bool) OSImages {
 	result := make(OSImages, len(osImages))

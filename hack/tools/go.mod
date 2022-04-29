@@ -8,7 +8,7 @@ require (
 	github.com/onsi/ginkgo v1.16.5
 	github.com/shuLhan/go-bindata v4.0.0+incompatible
 	golang.org/x/tools v0.1.10
-	k8s.io/code-generator v0.23.4
+	k8s.io/code-generator v0.23.6
 	sigs.k8s.io/controller-tools v0.8.0
 	sigs.k8s.io/kustomize/kustomize/v4 v4.5.4
 )

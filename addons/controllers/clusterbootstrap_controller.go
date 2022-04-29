@@ -25,6 +25,7 @@ import (
 	clusterapiutil "sigs.k8s.io/cluster-api/util"
 	clusterapipatchutil "sigs.k8s.io/cluster-api/util/patch"
 	clusterApiPredicates "sigs.k8s.io/cluster-api/util/predicates"
+	secretutil "sigs.k8s.io/cluster-api/util/secret"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/builder"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -169,9 +170,7 @@ func (r *ClusterBootstrapReconciler) Reconcile(ctx context.Context, req ctrl.Req
 
 	// if deletion timestamp is set, handle cluster deletion
 	if !cluster.GetDeletionTimestamp().IsZero() {
-		// TODO handle delete
-		// https://github.com/vmware-tanzu/tanzu-framework/issues/1591
-		return ctrl.Result{}, nil
+		return r.reconcileDelete(cluster, log)
 	}
 	return r.reconcileNormal(cluster, log)
 }
@@ -196,11 +195,6 @@ func (r *ClusterBootstrapReconciler) reconcileNormal(cluster *clusterapiv1beta1.
 		r.Log.Info(fmt.Sprintf("cluster %s/%s does not have status phase %s", cluster.Namespace, cluster.Name, clusterapiv1beta1.ClusterPhaseProvisioned))
 		return ctrl.Result{}, nil
 	}
-	remoteClient, err := util.GetClusterClient(r.context, r.Client, r.Scheme, clusterapiutil.ObjectKey(cluster))
-	if err != nil {
-		log.Error(err, "Error getting remote cluster client")
-		return ctrl.Result{Requeue: true}, err
-	}
 
 	// Create a PackageInstall CR under the cluster namespace for deploying the kapp-controller on the remote cluster.
 	// We need kapp-controller to be deployed prior to CNI, CPI, CSI. This will be a no-op if the cluster object is mgmt
@@ -210,9 +204,32 @@ func (r *ClusterBootstrapReconciler) reconcileNormal(cluster *clusterapiv1beta1.
 		return ctrl.Result{}, err
 	}
 
+	remoteClient, err := util.GetClusterClient(r.context, r.Client, r.Scheme, clusterapiutil.ObjectKey(cluster))
+	if err != nil {
+		return ctrl.Result{Requeue: true}, err
+	}
+
 	if err := r.prepareRemoteCluster(cluster, remoteClient); err != nil {
 		return ctrl.Result{}, err
 	}
+
+	_, err = r.createOrPatchResourcesForCorePackages(cluster, clusterBootstrap, remoteClient, log)
+	if err != nil {
+		return ctrl.Result{RequeueAfter: constants.RequeueAfterDuration}, err
+	}
+
+	_, err = r.createOrPatchResourcesForAdditionalPackages(cluster, clusterBootstrap, remoteClient, log)
+	if err != nil {
+		return ctrl.Result{RequeueAfter: constants.RequeueAfterDuration}, err
+	}
+
+	return ctrl.Result{}, nil
+}
+
+func (r *ClusterBootstrapReconciler) createOrPatchResourcesForCorePackages(cluster *clusterapiv1beta1.Cluster,
+	clusterBootstrap *runtanzuv1alpha3.ClusterBootstrap,
+	remoteClient client.Client,
+	log logr.Logger) (ctrl.Result, error) {
 
 	// Create or patch the resources for CNI, CPI, CSI to be running on the remote cluster.
 	// Those resources include Package CR, data value Secret, PackageInstall CR.
@@ -235,15 +252,21 @@ func (r *ClusterBootstrapReconciler) reconcileNormal(cluster *clusterapiv1beta1.
 			// packages, we return error and let the reconciler retry again.
 			log.Error(err, fmt.Sprintf("unable to create or patch all the required resources for %s on cluster: %s/%s",
 				corePackage.RefName, cluster.Namespace, cluster.Name))
-			return ctrl.Result{RequeueAfter: constants.RequeueAfterDuration}, err
+			return ctrl.Result{}, err
 		}
 	}
+	return ctrl.Result{}, nil
+}
 
-	// Create or patch the resources for additionalPackages
+func (r *ClusterBootstrapReconciler) createOrPatchResourcesForAdditionalPackages(cluster *clusterapiv1beta1.Cluster,
+	clusterBootstrap *runtanzuv1alpha3.ClusterBootstrap,
+	remoteClient client.Client,
+	log logr.Logger) (ctrl.Result, error) {
+
 	for _, additionalPkg := range clusterBootstrap.Spec.AdditionalPackages {
 		if err := r.createOrPatchAddonResourcesOnRemote(cluster, additionalPkg, remoteClient); err != nil {
 			// Logging has been handled in createOrPatchAddonResourcesOnRemote()
-			return ctrl.Result{Requeue: true}, err
+			return ctrl.Result{}, err
 		}
 		// set watches on provider objects in additional packages if not already set
 		if additionalPkg.ValuesFrom != nil && additionalPkg.ValuesFrom.ProviderRef != nil {
@@ -252,8 +275,53 @@ func (r *ClusterBootstrapReconciler) reconcileNormal(cluster *clusterapiv1beta1.
 			}
 		}
 	}
-
+	if len(clusterBootstrap.Spec.AdditionalPackages) > 0 { // If we reach this and there are at least one additional package, we need to add finalizer
+		err := r.addFinalizersToClusterResources(cluster, log)
+		if err != nil {
+			return ctrl.Result{}, err
+		}
+	}
 	return ctrl.Result{}, nil
+}
+
+func (r *ClusterBootstrapReconciler) addFinalizersToClusterResources(cluster *clusterapiv1beta1.Cluster, log logr.Logger) error {
+	err := r.addFinalizer(cluster)
+	if err != nil {
+		log.Error(err, "failed to add finalizer to cluster ")
+		return err
+	}
+
+	clusterKubeConfigSecret := &corev1.Secret{}
+	key := client.ObjectKey{Namespace: cluster.Namespace, Name: secretutil.Name(cluster.Name, secretutil.Kubeconfig)}
+	err = r.Client.Get(r.context, key, clusterKubeConfigSecret)
+	if err != nil {
+		return err
+	}
+	err = r.addFinalizer(clusterKubeConfigSecret)
+	if err != nil {
+		log.Error(err, "failed to add finalizer to cluster kubeconfig secret")
+		return err
+	}
+
+	clusterBootstrap := &runtanzuv1alpha3.ClusterBootstrap{}
+	err = r.Client.Get(r.context, client.ObjectKeyFromObject(cluster), clusterBootstrap)
+	if err != nil {
+		return err
+	}
+	err = r.addFinalizer(clusterBootstrap)
+	if err != nil {
+		log.Error(err, "failed to add finalizer to clusterboostrap")
+		return err
+	}
+
+	return nil
+}
+
+func (r *ClusterBootstrapReconciler) addFinalizer(o client.Object) error {
+	controllerutil.AddFinalizer(o, addontypes.AddonFinalizer)
+	return retry.RetryOnConflict(retry.DefaultRetry, func() error {
+		return r.Client.Update(r.context, o)
+	})
 }
 
 // createOrPatchClusterBootstrapFromTemplate will get, clone or update a ClusterBootstrap associated with a cluster
@@ -487,6 +555,7 @@ func (r *ClusterBootstrapReconciler) createOrPatchKappPackageInstall(clusterBoot
 		//	 ipkg.ObjectMeta.Annotations = make(map[string]string)
 		// }
 		// ipkg.ObjectMeta.Annotations[addontypes.YttMarkerAnnotation] = ""
+		pkgi.Spec.NoopDelete = true
 		pkgi.Spec.SyncPeriod = &metav1.Duration{Duration: r.Config.PkgiSyncPeriod}
 		pkgi.Spec.PackageRef = &kapppkgiv1alpha1.PackageRef{
 			// clusterBootstrap.Spec.Kapp.RefName is Package.Name. I.e., kapp-controller.tanzu.vmware.com.0.28.0+vmware.1-tkg.1-rc.1
@@ -587,6 +656,12 @@ func (r *ClusterBootstrapReconciler) createOrPatchPackageInstallOnRemote(cluster
 			Name:        util.GeneratePackageInstallName(cluster.Name, remotePackageRefName),
 			Namespace:   r.Config.SystemNamespace,
 			Annotations: map[string]string{addontypes.ClusterNameAnnotation: cluster.Name, addontypes.ClusterNamespaceAnnotation: cluster.Namespace},
+			OwnerReferences: []metav1.OwnerReference{{
+				APIVersion: clusterapiv1beta1.GroupVersion.String(),
+				Kind:       cluster.Kind,
+				Name:       cluster.Name,
+				UID:        cluster.UID,
+			}},
 		},
 	}
 
@@ -1084,5 +1159,157 @@ func (r *ClusterBootstrapReconciler) reconcileClusterProxyAndNetworkSettings(clu
 		return err
 	}
 
+	return nil
+}
+
+func (r *ClusterBootstrapReconciler) makeClusterIsReadyForDeletion(cluster *clusterapiv1beta1.Cluster, log logr.Logger) (bool, error) {
+	clusterBootstrap := &runtanzuv1alpha3.ClusterBootstrap{}
+	err := r.Client.Get(r.context, client.ObjectKeyFromObject(cluster), clusterBootstrap)
+	if err != nil && !apierrors.IsNotFound(err) {
+		log.Error(err, "failed to lookup clusterbootstrap")
+		return false, err
+	}
+	if apierrors.IsNotFound(err) {
+		log.Info("ClusterBootstrap not found")
+	} else {
+		remoteClient, err := util.GetClusterClient(r.context, r.Client, r.Scheme, clusterapiutil.ObjectKey(cluster))
+		if err != nil {
+			return false, err
+		}
+		if hasPackageInstalls(r.context, remoteClient, cluster, r.Config.SystemNamespace, clusterBootstrap.Spec.AdditionalPackages, log) {
+			err = r.removeAdditionalPackageInstalls(remoteClient, cluster, clusterBootstrap, log)
+			if err != nil {
+				return false, err
+			}
+			return false, nil
+		}
+	}
+	log.Info("cluster is ready for deletion")
+	return true, nil
+}
+
+func (r *ClusterBootstrapReconciler) removeFinalizersFromClusterResources(cluster *clusterapiv1beta1.Cluster, log logr.Logger) error {
+	log.Info("removing finalizer from clusterbootstrap if present")
+	clusterBootstrap := &runtanzuv1alpha3.ClusterBootstrap{}
+	err := r.Client.Get(r.context, client.ObjectKeyFromObject(cluster), clusterBootstrap)
+	if err != nil && !apierrors.IsNotFound(err) {
+		log.Error(err, "failed to lookup clusterbootstrap")
+		return err
+	}
+	if !apierrors.IsNotFound(err) {
+		err = r.removeFinalizer(clusterBootstrap)
+		if err != nil {
+			return err
+		}
+	}
+
+	log.Info("removing finalizer from cluster kubeconfig secret if present")
+	clusterKubeConfigSecret := &corev1.Secret{}
+	key := client.ObjectKey{Namespace: cluster.Namespace, Name: secretutil.Name(cluster.Name, secretutil.Kubeconfig)}
+	err = r.Client.Get(r.context, key, clusterKubeConfigSecret)
+	if err == nil {
+		err = r.removeFinalizer(clusterKubeConfigSecret)
+		if err != nil {
+			return err
+		}
+	} else if !apierrors.IsNotFound(err) {
+		log.Error(err, "unable to fetch cluster kubeconfig secret")
+		return err
+	}
+
+	log.Info("removing finalizer from cluster if present")
+	err = r.removeFinalizer(cluster)
+	if err != nil {
+		return err
+	}
+
+	log.Info("all finalizers have been removed from cluster resources")
+	return nil
+}
+
+func (r *ClusterBootstrapReconciler) reconcileDelete(cluster *clusterapiv1beta1.Cluster, log logr.Logger) (ctrl.Result, error) {
+	okToRemoveFinalizers := false
+	var err error
+
+	timeOutReached := time.Now().After(cluster.GetDeletionTimestamp().Add(r.Config.ClusterDeleteTimeout))
+	if timeOutReached {
+		okToRemoveFinalizers = true
+	} else {
+		okToRemoveFinalizers, err = r.makeClusterIsReadyForDeletion(cluster, log)
+		if err != nil {
+			return ctrl.Result{}, err
+		}
+	}
+
+	if !okToRemoveFinalizers {
+		return ctrl.Result{RequeueAfter: constants.RequeueAfterDuration}, nil
+	}
+
+	if err = r.removeFinalizersFromClusterResources(cluster, log); err != nil {
+		return ctrl.Result{Requeue: true}, nil
+	}
+
+	return ctrl.Result{}, nil
+}
+
+func (r *ClusterBootstrapReconciler) removeFinalizer(o client.Object) error {
+	controllerutil.RemoveFinalizer(o, addontypes.AddonFinalizer)
+	return retry.RetryOnConflict(retry.DefaultRetry, func() error {
+		return r.Client.Update(r.context, o)
+	})
+}
+
+func hasPackageInstalls(ctx context.Context, remoteClient client.Client,
+	cluster *clusterapiv1beta1.Cluster, namespace string, packages []*runtanzuv1alpha3.ClusterBootstrapPackage,
+	log logr.Logger) bool {
+
+	for _, pkg := range packages {
+		pkgInstallName := util.GeneratePackageInstallName(cluster.Name, pkg.RefName)
+		if packageInstallExists(ctx, pkgInstallName, namespace, remoteClient, log) {
+			return true
+		}
+	}
+	return false
+}
+
+func packageInstallExists(ctx context.Context, pkgInstallName, pkgInstallNamespace string,
+	remoteClient client.Client, log logr.Logger) bool {
+
+	pkgInstall := &kapppkgiv1alpha1.PackageInstall{}
+	if err := remoteClient.Get(ctx, client.ObjectKey{Name: pkgInstallName, Namespace: pkgInstallNamespace}, pkgInstall); err != nil {
+		if apierrors.IsNotFound(err) {
+			return false
+		}
+		log.Error(err, "could not verify if package install is present")
+		return true
+	}
+	return true
+}
+
+func (r *ClusterBootstrapReconciler) removeAdditionalPackageInstalls(remoteClient client.Client, cluster *clusterapiv1beta1.Cluster, clusterBootstrap *runtanzuv1alpha3.ClusterBootstrap, log logr.Logger) error {
+	// Removes all additional package install CRs from the cluster
+
+	err := r.Client.Get(r.context, client.ObjectKeyFromObject(cluster), clusterBootstrap)
+	if err != nil {
+		return err
+	}
+	if clusterBootstrap == nil {
+		return nil
+	}
+	for _, additionalPkg := range clusterBootstrap.Spec.AdditionalPackages {
+		additionalPkgInstall := &kapppkgiv1alpha1.PackageInstall{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      util.GeneratePackageInstallName(cluster.Name, additionalPkg.RefName),
+				Namespace: r.Config.SystemNamespace,
+			},
+		}
+		log.Info(fmt.Sprintf("deleteting package install %s/%s", additionalPkgInstall.Namespace, additionalPkgInstall.Name))
+		err = remoteClient.Delete(r.context, additionalPkgInstall)
+		if err != nil && !apierrors.IsNotFound(err) {
+			log.Error(err, fmt.Sprintf("unable to delete package install for %s/%s",
+				additionalPkgInstall.Namespace, additionalPkg.RefName))
+			return err
+		}
+	}
 	return nil
 }

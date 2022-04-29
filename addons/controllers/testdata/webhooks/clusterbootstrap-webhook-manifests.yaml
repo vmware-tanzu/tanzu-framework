@@ -2,7 +2,7 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: clusterbootstrap-webhook-service
+  name: tanzu-addons-manager-webhook-service
   namespace: tkg-system
 spec:
   type: ExternalName
@@ -12,7 +12,7 @@ apiVersion: admissionregistration.k8s.io/v1
 kind: MutatingWebhookConfiguration
 metadata:
   labels:
-    tkg.tanzu.vmware.com/addon-webhooks: "clusterbootstrap-webhook"
+    tkg.tanzu.vmware.com/addon-webhooks: "addon-webhooks"
   name: clusterbootstrap-mutating-webhook-configuration
 webhooks:
   - admissionReviewVersions:
@@ -22,7 +22,7 @@ webhooks:
       #placeholder for cabundle. To be modifed by patch or programatically.
       caBundle: Cg==
       service:
-        name: clusterbootstrap-webhook-service
+        name: tanzu-addons-manager-webhook-service
         namespace: tkg-system
         path: /mutate-run-tanzu-vmware-com-v1alpha3-clusterbootstrap
         port: 9443
@@ -46,7 +46,7 @@ kind: ValidatingWebhookConfiguration
 metadata:
   creationTimestamp: null
   labels:
-    tkg.tanzu.vmware.com/addon-webhooks: "clusterbootstrap-webhook"
+    tkg.tanzu.vmware.com/addon-webhooks: "addon-webhooks"
   name: clusterbootstrap-validating-webhook-configuration
 webhooks:
   - admissionReviewVersions:
@@ -56,7 +56,7 @@ webhooks:
       #placeholder for cabundle. To be modifed by patch or programatically.
       caBundle: Cg==
       service:
-        name: clusterbootstrap-webhook-service
+        name: tanzu-addons-manager-webhook-service
         namespace: tkg-system
         path: /validate-run-tanzu-vmware-com-v1alpha3-clusterbootstrap
         port: 9443
@@ -81,7 +81,7 @@ webhooks:
       #placeholder for cabundle. To be modifed by patch or programatically.
       caBundle: Cg==
       service:
-        name: clusterbootstrap-webhook-service
+        name: tanzu-addons-manager-webhook-service
         namespace: tkg-system
         path: /validate-run-tanzu-vmware-com-v1alpha3-clusterbootstraptemplate
         port: 9443

@@ -33,6 +33,8 @@ type ClusterBootstrapControllerConfig struct {
 	PkgiClusterRoleBinding string
 	// The namespace where the bootstrap objects will be created, i.e., tkg-system
 	SystemNamespace string
+	// The maximum amount of time that will be spent trying to clean resources before cluster deletion is allowed to proceed.
+	ClusterDeleteTimeout time.Duration
 }
 
 // PackageInstallStatusControllerConfig contains configuration information related to PackageInstallStatus

@@ -8,11 +8,11 @@ set -euo pipefail
 MY_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 TF_ROOT="${MY_DIR}/../../../.."
 
+# Always run from tanzu-auth-controller-manager directory for reproducibility
 MANAGEMENT_DIR="${TF_ROOT}/packages/management"
 TANZU_AUTH_DIR="${MANAGEMENT_DIR}/tanzu-auth"
 TANZU_AUTH_CONFIG_DIR="${TANZU_AUTH_DIR}/bundle/config"
 
-# Always run from config-controller directory for reproducibility
 cd "${MY_DIR}/.."
 
 # Install controller-gen
