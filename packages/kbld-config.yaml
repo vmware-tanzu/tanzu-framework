@@ -23,7 +23,7 @@ overrides:
     newImage: ""
   - image: tanzu-cli-plugins/kubernetes-release-windows-amd64:latest
     newImage: ""
-  #! addons-manager-v2
+  #! addons-manager
   - image: addons-controller:latest
     newImage: ""
   #! Standalone-Plugins images
