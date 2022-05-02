@@ -1,8 +1,7 @@
 // Copyright 2022 VMware, Inc. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-// Package pkgcr blah blah.
-// TODO write doc
+// Package pkgcr provides the TKR Package reconciler: it installs yet uninstalled TKR packages.
 package pkgcr
 
 import (
@@ -11,9 +10,6 @@ import (
 	"strings"
 
 	"github.com/go-logr/logr"
-	kapppkgiv1 "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/packaging/v1alpha1"
-	kapppkgv1 "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apiserver/apis/datapackaging/v1alpha1"
-	"github.com/vmware-tanzu/carvel-vendir/pkg/vendir/versions/v1alpha1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
@@ -23,6 +19,10 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/predicate"
 	"sigs.k8s.io/kind/pkg/errors"
+
+	kapppkgiv1 "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/packaging/v1alpha1"
+	kapppkgv1 "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apiserver/apis/datapackaging/v1alpha1"
+	versionsv1 "github.com/vmware-tanzu/carvel-vendir/pkg/vendir/versions/v1alpha1"
 )
 
 type Reconciler struct {
@@ -92,7 +92,7 @@ func (r *Reconciler) packageInstall(pkg *kapppkgv1.Package) *kapppkgiv1.PackageI
 			ServiceAccountName: r.Config.ServiceAccountName,
 			PackageRef: &kapppkgiv1.PackageRef{
 				RefName: pkg.Spec.RefName,
-				VersionSelection: &v1alpha1.VersionSelectionSemver{
+				VersionSelection: &versionsv1.VersionSelectionSemver{
 					Constraints: pkg.Spec.Version,
 				},
 			},

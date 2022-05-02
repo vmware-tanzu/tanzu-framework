@@ -1,8 +1,8 @@
 // Copyright 2022 VMware, Inc. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-// Package fetcher blah blah.
-// TODO write doc
+// Package fetcher provides implementation of the Fetcher component of the TKR Source Controller responsible for
+// fetching TKR BOM, TKR compatibility and TKR package repository OCI images.
 package fetcher
 
 import (
@@ -18,13 +18,14 @@ import (
 	"github.com/go-logr/logr"
 	ctlimg "github.com/k14s/imgpkg/pkg/imgpkg/registry"
 	"github.com/pkg/errors"
-	kapppkgv1 "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apiserver/apis/datapackaging/v1alpha1"
 	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 	"sigs.k8s.io/yaml"
+
+	kapppkgv1 "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apiserver/apis/datapackaging/v1alpha1"
 
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkr/pkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkr/pkg/registry"
