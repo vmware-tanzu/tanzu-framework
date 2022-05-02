@@ -1,7 +1,7 @@
 // Copyright 2021 VMware, Inc. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-package main
+package v1alpha1
 
 import (
 	"io"
@@ -18,6 +18,12 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkr/pkg/utils"
 )
 
+var (
+	LogLevel     int32
+	LogFile      string
+	outputFormat string
+)
+
 type getTKROptions struct {
 	listAll bool
 	output  io.Writer
@@ -25,7 +31,7 @@ type getTKROptions struct {
 
 var gtkr = &getTKROptions{}
 
-var getTanzuKubernetesRleasesCmd = &cobra.Command{
+var GetTanzuKubernetesRleasesCmd = &cobra.Command{
 	Use:   "get TKR_NAME",
 	Short: "Get available Tanzu Kubernetes releases",
 	Long:  "Get available Tanzu Kubernetes releases",
@@ -33,8 +39,8 @@ var getTanzuKubernetesRleasesCmd = &cobra.Command{
 }
 
 func init() {
-	getTanzuKubernetesRleasesCmd.Flags().BoolVarP(&gtkr.listAll, "all", "a", false, "List all the available Tanzu Kubernetes releases including Incompatible and deactivated")
-	getTanzuKubernetesRleasesCmd.Flags().StringVarP(&outputFormat, "output", "o", "", "Output format (yaml|json|table)")
+	GetTanzuKubernetesRleasesCmd.Flags().BoolVarP(&gtkr.listAll, "all", "a", false, "List all the available Tanzu Kubernetes releases including Incompatible and deactivated")
+	GetTanzuKubernetesRleasesCmd.Flags().StringVarP(&outputFormat, "output", "o", "", "Output format (yaml|json|table)")
 }
 
 func getKubernetesReleases(cmd *cobra.Command, args []string) error {

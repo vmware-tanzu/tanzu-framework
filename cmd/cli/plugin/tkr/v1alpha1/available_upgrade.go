@@ -1,7 +1,7 @@
 // Copyright 2021 VMware, Inc. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-package main
+package v1alpha1
 
 import (
 	"fmt"
@@ -21,7 +21,7 @@ import (
 
 const lenMsg = 2
 
-var availableUpgradesCmd = &cobra.Command{
+var AvailableUpgradesCmd = &cobra.Command{
 	Use:     "available-upgrades",
 	Short:   "Get upgrade information for a Tanzu Kubernetes Release",
 	Long:    `Get upgrade information for a Tanzu Kubernetes Release`,
@@ -37,8 +37,8 @@ var getAvailableUpgradesCmd = &cobra.Command{
 }
 
 func init() {
-	availableUpgradesCmd.Flags().StringVarP(&outputFormat, "output", "o", "", "Output format (yaml|json|table)")
-	availableUpgradesCmd.AddCommand(getAvailableUpgradesCmd)
+	AvailableUpgradesCmd.Flags().StringVarP(&outputFormat, "output", "o", "", "Output format (yaml|json|table)")
+	AvailableUpgradesCmd.AddCommand(getAvailableUpgradesCmd)
 }
 
 func getAvailableUpgrades(cmd *cobra.Command, args []string) error {
@@ -58,7 +58,7 @@ func getAvailableUpgrades(cmd *cobra.Command, args []string) error {
 		return nil
 	}
 
-	t := component.NewOutputWriter(availableUpgradesCmd.OutOrStdout(), outputFormat, "NAME", "VERSION")
+	t := component.NewOutputWriter(AvailableUpgradesCmd.OutOrStdout(), outputFormat, "NAME", "VERSION")
 	for i := range results {
 		t.AddRow(results[i].Name, results[i].Spec.Version)
 	}

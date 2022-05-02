@@ -199,10 +199,16 @@ type Client interface {
 	// IsManagementClusterAKindCluster determines if the creation of management cluster is successful
 	IsManagementClusterAKindCluster(clusterName string) (bool, error)
 	// GetTanzuKubernetesReleases returns the available TanzuKubernetesReleases
+	// Deprecated: This would not be supported from TKR API version v1alpha3,
+	// user can use go client to get TKR
 	GetTanzuKubernetesReleases(tkrName string) ([]runv1alpha1.TanzuKubernetesRelease, error)
 	// ActivateTanzuKubernetesReleases activates TanzuKubernetesRelease
+	// Deprecated: This would not be supported from TKR API version v1alpha3,
+	// user can use go client to set the labels to activate/deactivate the TKR
 	ActivateTanzuKubernetesReleases(tkrName string) error
 	// DeactivateTanzuKubernetesReleases deactivates TanzuKubernetesRelease
+	// Deprecated: This would not be supported from TKR API version v1alpha3,
+	// user can use go client to set the labels to activate/deactivate the TKR
 	DeactivateTanzuKubernetesReleases(tkrName string) error
 	// IsPacificRegionalCluster checks if the cluster pointed to by kubeconfig  is Pacific management cluster(supervisor)
 	IsPacificRegionalCluster() (bool, error)
