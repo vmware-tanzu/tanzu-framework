@@ -21,3 +21,16 @@ metadata:
 spec:
   vsphereCSI:
     mode: vsphereParavirtualCSI
+---
+apiVersion: vmware.infrastructure.cluster.x-k8s.io/v1beta1
+kind: VSphereCluster
+metadata:
+  labels:
+    cluster.x-k8s.io/cluster-name: test-cluster-pv-csi
+    topology.cluster.x-k8s.io/owned: ""
+  name: test-cluster-pv-csi-kl5tl
+  namespace: default
+spec:
+  controlPlaneEndpoint:
+    host: 192.168.116.1
+    port: 6443

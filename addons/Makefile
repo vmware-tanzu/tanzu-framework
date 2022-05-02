@@ -11,8 +11,8 @@ ROOT_DIR	:= $(dir $(shell pwd))
 export GO111MODULE := on
 
 # Image URL to use all building/pushing image targets
-IMG_DEFAULT_NAME := addons-controller
-IMG_DEFAULT_TAG := latest
+IMG_DEFAULT_NAME ?= addons-controller
+IMG_DEFAULT_TAG := $(shell git describe --always --dirty --tags)
 IMG_DEFAULT_NAME_TAG := $(IMG_DEFAULT_NAME):$(IMG_DEFAULT_TAG)
 
 IMG_VERSION_OVERRIDE ?= $(IMG_DEFAULT_TAG)

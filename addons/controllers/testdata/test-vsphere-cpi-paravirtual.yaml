@@ -18,3 +18,16 @@ metadata:
 spec:
   vsphereCPI:
     mode: vsphereParavirtualCPI
+---
+apiVersion: vmware.infrastructure.cluster.x-k8s.io/v1beta1
+kind: VSphereCluster
+metadata:
+  labels:
+    cluster.x-k8s.io/cluster-name: test-cluster-cpi-paravirtual
+    topology.cluster.x-k8s.io/owned: ""
+  name: test-cluster-cpi-paravirtual-kl5tl
+  namespace: default
+spec:
+  controlPlaneEndpoint:
+    host: 192.168.116.1
+    port: 6443

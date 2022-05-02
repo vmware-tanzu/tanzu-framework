@@ -160,14 +160,14 @@ func (r *VSphereCSIConfigReconciler) getOwnerCluster(ctx context.Context,
 }
 
 // mapCSIConfigToProviderServiceAccount maps CSIConfig and cluster to the corresponding service account
-func (r *VSphereCSIConfigReconciler) mapCSIConfigToProviderServiceAccount(cluster *clusterapiv1beta1.Cluster) *capvvmwarev1beta1.ProviderServiceAccount {
+func (r *VSphereCSIConfigReconciler) mapCSIConfigToProviderServiceAccount(vsphereCluster *capvvmwarev1beta1.VSphereCluster) *capvvmwarev1beta1.ProviderServiceAccount {
 	serviceAccount := &capvvmwarev1beta1.ProviderServiceAccount{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      fmt.Sprintf("%s-%s", cluster.Name, "pvcsi"),
-			Namespace: cluster.Namespace,
+			Name:      fmt.Sprintf("%s-%s", vsphereCluster.Name, "pvcsi"),
+			Namespace: vsphereCluster.Namespace,
 		},
 		Spec: capvvmwarev1beta1.ProviderServiceAccountSpec{
-			Ref: &v1.ObjectReference{Name: cluster.Name, Namespace: cluster.Namespace},
+			Ref: &v1.ObjectReference{Name: vsphereCluster.Name, Namespace: vsphereCluster.Namespace},
 			Rules: []rbacv1.PolicyRule{
 				{
 					APIGroups: []string{"vmoperator.vmware.com"},

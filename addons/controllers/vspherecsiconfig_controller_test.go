@@ -30,6 +30,7 @@ var _ = Describe("VSphereCSIConfig Reconciler", func() {
 		key                     client.ObjectKey
 		clusterName             string
 		clusterResourceFilePath string
+		vsphereClusterName      string
 	)
 
 	JustBeforeEach(func() {
@@ -66,6 +67,7 @@ var _ = Describe("VSphereCSIConfig Reconciler", func() {
 			BeforeEach(func() {
 				clusterName = testClusterCsiName
 				clusterResourceFilePath = "testdata/test-vsphere-csi-non-paravirtual.yaml"
+				vsphereClusterName = "test-cluster-pv-csi-kl5tl"
 			})
 
 			It("Should reconcile VSphereCSIConfig and create data values secret for VSphereCSIConfig on management cluster", func() {
@@ -299,12 +301,12 @@ var _ = Describe("VSphereCSIConfig Reconciler", func() {
 			Eventually(func() bool {
 				serviceAccountKey := client.ObjectKey{
 					Namespace: clusterNamespace,
-					Name:      fmt.Sprintf("%s-%s", clusterName, "pvcsi"),
+					Name:      fmt.Sprintf("%s-%s", vsphereClusterName, "pvcsi"),
 				}
 				if err := k8sClient.Get(ctx, serviceAccountKey, serviceAccount); err != nil {
 					return false
 				}
-				Expect(serviceAccount.Spec.Ref.Name).To(Equal(key.Name))
+				Expect(serviceAccount.Spec.Ref.Name).To(Equal(vsphereClusterName))
 				Expect(serviceAccount.Spec.Ref.Namespace).To(Equal(key.Namespace))
 				Expect(serviceAccount.Spec.Rules).To(HaveLen(6))
 				Expect(serviceAccount.Spec.TargetNamespace).To(Equal("vmware-system-csi"))
