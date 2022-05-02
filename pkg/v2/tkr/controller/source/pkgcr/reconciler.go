@@ -7,7 +7,6 @@ package pkgcr
 import (
 	"context"
 	"reflect"
-	"strings"
 
 	"github.com/go-logr/logr"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
@@ -23,6 +22,7 @@ import (
 	kapppkgiv1 "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/packaging/v1alpha1"
 	kapppkgv1 "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apiserver/apis/datapackaging/v1alpha1"
 	versionsv1 "github.com/vmware-tanzu/carvel-vendir/pkg/vendir/versions/v1alpha1"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v2/tkr/util/version"
 )
 
 type Reconciler struct {
@@ -63,6 +63,9 @@ func (r *Reconciler) Reconcile(ctx context.Context, req ctrl.Request) (result ct
 		}
 		return ctrl.Result{}, err
 	}
+	if !pkg.DeletionTimestamp.IsZero() {
+		return ctrl.Result{}, nil
+	}
 
 	pkgi := r.packageInstall(pkg)
 
@@ -78,7 +81,7 @@ var pkgAPIVersion, pkgKind = kapppkgv1.SchemeGroupVersion.WithKind(reflect.TypeO
 func (r *Reconciler) packageInstall(pkg *kapppkgv1.Package) *kapppkgiv1.PackageInstall {
 	return &kapppkgiv1.PackageInstall{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      "tkr-" + strings.ReplaceAll(pkg.Spec.Version, "+", "---"),
+			Name:      "tkr-" + version.Label(pkg.Spec.Version),
 			Namespace: pkg.Namespace,
 			OwnerReferences: []metav1.OwnerReference{{
 				APIVersion: pkgAPIVersion,
