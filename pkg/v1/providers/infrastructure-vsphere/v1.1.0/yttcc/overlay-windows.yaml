@@ -101,8 +101,25 @@ spec:
       machineDeployments:
       #@overlay/match by=overlay.index(0)
       - replicas: #@ data.values.WORKER_MACHINE_COUNT
+    #! TODO: this should only be available during testing
     #@overlay/match missing_ok=True
     variables:
+    - name: TKR_DATA
+      value:
+        v1.21.2: #! comes from clusterctl during testing
+          kubernetesSpec:
+            version: v1.21.2
+            imageRepository: #@ bomDataForK8sVersion.kubeadmConfigSpec.imageRepository
+            etcd:
+              imageTag: #@ bomDataForK8sVersion.kubeadmConfigSpec.etcd.local.imageTag
+            coredns:
+              imageTag: #@ bomDataForK8sVersion.kubeadmConfigSpec.dns.imageTag
+            kube-vip:
+              imageTag: dummy-kube-vip-image-tag
+          labels:
+            os-name: ubuntu
+            os-type: linux
+            os-arch: amd64
     #@ vars = get_cluster_variables()
     #@ if vars["TKG_CUSTOM_IMAGE_REPOSITORY"] == "":
     #@  vars["TKG_CUSTOM_IMAGE_REPOSITORY"] = bomData.imageConfig.imageRepository
