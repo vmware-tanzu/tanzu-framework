@@ -81,29 +81,27 @@ func main() {
 
 	ctx := signals.SetupSignalHandler()
 
-	fetcherConfig := fetcher.Config{
-		TKRNamespace:         tkrNamespace,
-		BOMImagePath:         bomImagePath,
-		BOMMetadataImagePath: bomMetadataImagePath,
-		TKRRepoImagePath:     tkrRepoImagePath,
-		VerifyRegistryCert:   !skipVerifyRegistryCerts,
-		TKRDiscoveryOption: fetcher.TKRDiscoveryIntervals{
-			InitialDiscoveryFrequency:    time.Duration(initTKRDiscoveryFreq) * time.Second,
-			ContinuousDiscoveryFrequency: time.Duration(continuousTKRDiscoverFreq) * time.Second,
-		},
-	}
-
 	if err := mgr.Add(&fetcher.Fetcher{
-		Log:    mgr.GetLogger().WithName("fetcher"),
+		Log:    mgr.GetLogger().WithName("tkr-fetcher"),
 		Client: mgr.GetClient(),
-		Config: fetcherConfig,
+		Config: fetcher.Config{
+			TKRNamespace:         tkrNamespace,
+			BOMImagePath:         bomImagePath,
+			BOMMetadataImagePath: bomMetadataImagePath,
+			TKRRepoImagePath:     tkrRepoImagePath,
+			VerifyRegistryCert:   !skipVerifyRegistryCerts,
+			TKRDiscoveryOption: fetcher.TKRDiscoveryIntervals{
+				InitialDiscoveryFrequency:    time.Duration(initTKRDiscoveryFreq) * time.Second,
+				ContinuousDiscoveryFrequency: time.Duration(continuousTKRDiscoverFreq) * time.Second,
+			},
+		},
 	}); err != nil {
 		setupLog.Error(err, "unable to add fetcher to controller manager")
 		os.Exit(1)
 	}
 
 	if err := (&pkgcr.Reconciler{
-		Log:    mgr.GetLogger().WithName("package"),
+		Log:    mgr.GetLogger().WithName("tkr-source"),
 		Client: mgr.GetClient(),
 		Config: pkgcr.Config{
 			ServiceAccountName: tkrPkgServiceAccountName,
@@ -114,8 +112,12 @@ func main() {
 	}
 
 	if err := (&compatibility.Reconciler{
-		Log:    mgr.GetLogger().WithName("compatibility"),
+		Ctx:    ctx,
+		Log:    mgr.GetLogger().WithName("tkr-compatibility"),
 		Client: mgr.GetClient(),
+		Config: compatibility.Config{
+			TKRNamespace: tkrNamespace,
+		},
 	}).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "TKR Compatibility")
 		os.Exit(1)

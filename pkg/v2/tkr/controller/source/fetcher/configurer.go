@@ -8,10 +8,13 @@ import (
 	"os"
 	"path"
 
+	ctlimg "github.com/k14s/imgpkg/pkg/imgpkg/registry"
 	"github.com/pkg/errors"
 	corev1 "k8s.io/api/core/v1"
 	k8serr "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/types"
+
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkr/pkg/registry"
 )
 
 const (
@@ -36,7 +39,23 @@ func (f *Fetcher) Configure() error {
 		return errors.Wrap(err, "failed to add certs")
 	}
 
-	return nil
+	f.registryOps = ctlimg.Opts{
+		VerifyCerts: f.Config.VerifyRegistryCert,
+		Anon:        true,
+	}
+
+	// Add custom CA cert paths only if VerifyCerts is enabled
+	if f.registryOps.VerifyCerts {
+		registryCertPath, err := getRegistryCertFile()
+		if err == nil {
+			if _, err = os.Stat(registryCertPath); err == nil {
+				f.registryOps.CACertPaths = []string{registryCertPath}
+			}
+		}
+	}
+
+	f.registry, err = registry.New(&f.registryOps)
+	return err
 }
 
 func addTrustedCerts(certChain string) (err error) {

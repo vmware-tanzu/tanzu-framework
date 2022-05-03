@@ -49,8 +49,9 @@ var hasTKRPackageLabel = func() predicate.Predicate {
 
 func (r *Reconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
-		For(&kapppkgv1.Package{}, builder.WithPredicates(hasTKRPackageLabel)).
-		Owns(&kapppkgiv1.PackageInstall{}).
+		For(&kapppkgv1.Package{}, builder.WithPredicates(hasTKRPackageLabel, predicate.GenerationChangedPredicate{})).
+		Owns(&kapppkgiv1.PackageInstall{}, builder.WithPredicates(predicate.GenerationChangedPredicate{})).
+		Named("tkr_source").
 		Complete(r)
 }
 
@@ -68,6 +69,8 @@ func (r *Reconciler) Reconcile(ctx context.Context, req ctrl.Request) (result ct
 	}
 
 	pkgi := r.packageInstall(pkg)
+
+	r.Log.Info("installing TKR package", "name", pkg.Spec.RefName, "version", pkg.Spec.Version)
 
 	if err := r.Client.Create(ctx, pkgi); err != nil && !apierrors.IsAlreadyExists(err) {
 		return ctrl.Result{}, errors.Wrap(err, "failed to create PackageInstall")

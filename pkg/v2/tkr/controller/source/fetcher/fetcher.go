@@ -8,7 +8,6 @@ package fetcher
 import (
 	"context"
 	"fmt"
-	"os"
 	"reflect"
 	"sort"
 	"strconv"
@@ -58,32 +57,9 @@ type TKRDiscoveryIntervals struct {
 }
 
 func (f *Fetcher) Start(ctx context.Context) error {
-	var err error
-	f.Log.Info("Starting TanzuKubernetesReleaase Reconciler")
-
 	f.Log.Info("Performing configuration setup")
 	if err := f.Configure(); err != nil {
 		return errors.Wrap(err, "failed to configure the controller")
-	}
-
-	f.registryOps = ctlimg.Opts{
-		VerifyCerts: f.Config.VerifyRegistryCert,
-		Anon:        true,
-	}
-
-	// Add custom CA cert paths only if VerifyCerts is enabled
-	if f.registryOps.VerifyCerts {
-		registryCertPath, err := getRegistryCertFile()
-		if err == nil {
-			if _, err = os.Stat(registryCertPath); err == nil {
-				f.registryOps.CACertPaths = []string{registryCertPath}
-			}
-		}
-	}
-
-	f.registry, err = registry.New(&f.registryOps)
-	if err != nil {
-		return err
 	}
 
 	f.Log.Info("Performing an initial release discovery")
@@ -440,7 +416,6 @@ func (f *Fetcher) createTKRPackages(ctx context.Context, tag string) error {
 func (f *Fetcher) filterPackageFiles(bundleContent map[string][]byte) map[string][]byte {
 	result := make(map[string][]byte, len(bundleContent))
 	for path, bytes := range bundleContent {
-		f.Log.Info("filtering package: ", "path", path, "size", len(bytes))
 		if strings.HasPrefix(path, "packages/") && !strings.HasSuffix(path, "/metadata.yml") {
 			result[path] = bytes
 		}

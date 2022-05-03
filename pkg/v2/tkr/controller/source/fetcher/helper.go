@@ -10,8 +10,6 @@ import (
 const (
 	// InitialDiscoveryRetry is the number of retries for the initial TKR sync-up
 	InitialDiscoveryRetry = 10
-	// GetManagementClusterInfoFailedError is the error message for not getting management cluster info
-	GetManagementClusterInfoFailedError = "failed to get management cluster info"
 )
 
 type errorSlice []error
