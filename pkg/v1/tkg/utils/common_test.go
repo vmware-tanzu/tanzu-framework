@@ -16,6 +16,8 @@ var (
 	k8sv1174           = "v1.17.4+vmware.2"
 	k8sv1182           = "v1.18.2+vmware.2"
 	k8sv1191           = "v1.19.1+vmware.2"
+	k8sv11731Fips1     = "v1.17.3+vmware.1-fips.1"
+	k8sv11732Fips1     = "v1.17.3+vmware.2-fips.1"
 	vABC               = "vA.B.C"
 	fakePathABC        = "gcr.io/fakepath/tkg/kind/node:vA.B.C"
 	tkrNameSample      = "tkr---version"
@@ -411,6 +413,61 @@ var _ = Describe("CompareVMwareVersionStrings", func() {
 			Expect(compareResult).To(Equal(0))
 			Expect(err).To(HaveOccurred())
 			Expect(err).To(MatchError("invalid version string"))
+		})
+	})
+
+	Context("When buildVersion includes -suffix and", func() {
+		BeforeEach(func() {
+			fromVersion = k8sv11731Fips1
+			toVersion = "v1.17.4+vmware.1-fips.1"
+		})
+		It("expect compareResult < 0", func() {
+			Expect(err).NotTo(HaveOccurred())
+			Expect(compareResult < 0).To(Equal(true))
+		})
+	})
+
+	Context("When buildVersion includes -suffix and buildVersion is different", func() {
+		BeforeEach(func() {
+			fromVersion = k8sv11731Fips1
+			toVersion = k8sv11732Fips1
+		})
+		It("expect compareResult < 0", func() {
+			Expect(err).NotTo(HaveOccurred())
+			Expect(compareResult < 0).To(Equal(true))
+		})
+	})
+
+	Context("When buildVersion includes -suffix and buildVersion is different", func() {
+		BeforeEach(func() {
+			fromVersion = k8sv11732Fips1
+			toVersion = k8sv11731Fips1
+		})
+		It("expect compareResult > 0", func() {
+			Expect(err).NotTo(HaveOccurred())
+			Expect(compareResult > 0).To(Equal(true))
+		})
+	})
+
+	Context("When buildVersion includes -suffix and buildVersion are same", func() {
+		BeforeEach(func() {
+			fromVersion = k8sv11731Fips1
+			toVersion = k8sv11731Fips1
+		})
+		It("expect compareResult = 0", func() {
+			Expect(err).NotTo(HaveOccurred())
+			Expect(compareResult == 0).To(Equal(true))
+		})
+	})
+
+	Context("When buildVersion includes -suffix and version are different", func() {
+		BeforeEach(func() {
+			fromVersion = k8sv11731Fips1
+			toVersion = "v1.17.3+vmware.1-fips.2"
+		})
+		It("expect compareResult = 0", func() {
+			Expect(err).NotTo(HaveOccurred())
+			Expect(compareResult == 0).To(Equal(true))
 		})
 	})
 })
