@@ -543,6 +543,7 @@ modules: ## Runs go mod to ensure modules are up to date.
 
 .PHONY: verify
 verify: ## Run all verification scripts
+	./packages/management/tkg-clusterclass/hack/sync-cc.sh
 	./hack/verify-dirty.sh
 
 .PHONY: clean-catalog-cache
