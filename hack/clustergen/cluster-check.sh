@@ -48,7 +48,7 @@ if [ "${LAST_BASE_BRANCH_COMMIT}" != "${BASE_BRANCH_COMMIT}" ]; then
   rm -rf tests/clustergen/testdata/old || true
   git checkout -B clustergen_test_base ${GIT_BRANCH_PROVIDERS_BASE}
   git log --pretty=oneline -5 | cat
-  make CLUSTERGEN_OUTPUT_DIR=old GOOS=${GOOS} GOARCH=${GOARCH} CLI_REPO=${CLI_REPO} cluster-generation-tests
+  make CLUSTERGEN_CC_OUTPUT_DIR=oldcc CLUSTERGEN_OUTPUT_DIR=old GOOS=${GOOS} GOARCH=${GOARCH} CLI_REPO=${CLI_REPO} cluster-generation-tests
   git checkout .
   git checkout -
 else
@@ -58,6 +58,7 @@ fi
 pushd tests/clustergen/testdata
 mkdir output || true
 rm -f output/*
+diff -r -U15 oldcc/cclass newcc/cclass > output/clustergen_cc.diff.txt
 diff -r -U15 old new > output/clustergen.diff.txt
 cat output/clustergen.diff.txt
 docker run -i --rm -v $PWD:$PWD -w $PWD gcr.io/eminent-nation-87317/tkg-go-ci diff2html -i file -F output/clustergen.html -- output/clustergen.diff.txt
