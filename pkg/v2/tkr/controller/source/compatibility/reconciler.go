@@ -69,8 +69,8 @@ func (r *Reconciler) enqueueAllTKRs(o client.Object) []ctrl.Request {
 		return nil
 	}
 	result := make([]ctrl.Request, len(tkrs.Items))
-	for i, tkr := range tkrs.Items {
-		result[i].NamespacedName.Name = tkr.Name
+	for i := range tkrs.Items {
+		result[i].NamespacedName.Name = tkrs.Items[i].Name
 	}
 	return result
 }
