@@ -307,10 +307,11 @@ spec:
       openAPIV3Schema:
         type: boolean
         default: false
-  - name: TKR_KUBERNETES_SPEC
+  - name: TKR_DATA
     schema:
       openAPIV3Schema:
         type: object
+        properties: {}
   patches:
   - name: AWSCT_main
     definitions:
@@ -482,6 +483,34 @@ spec:
               {{if .AWS_SECURITY_GROUP_NODE }}  node: {{.AWS_SECURITY_GROUP_NODE}} {{end}}
               {{if .AWS_SECURITY_GROUP_LB }}  lb: {{.AWS_SECURITY_GROUP_LB}} {{end}}
 
+  - name: AWS_KCPT
+    definitions:
+    - selector:
+        apiVersion: controlplane.cluster.x-k8s.io/v1beta1
+        kind: KubeadmControlPlaneTemplate
+        matchResources:
+          controlPlane: true
+      jsonPatches:
+      - op: replace
+        path: /spec/template/spec/kubeadmConfigSpec/clusterConfiguration/imageRepository
+        valueFrom:
+          template: '{{(index .TKR_DATA .builtin.controlPlane.version).kubernetesSpec.imageRepository}}'
+      - op: replace
+        path: /spec/template/spec/kubeadmConfigSpec/clusterConfiguration/etcd/local/imageRepository
+        valueFrom:
+          template: '{{(index .TKR_DATA .builtin.controlPlane.version).kubernetesSpec.imageRepository}}'
+      - op: replace
+        path: /spec/template/spec/kubeadmConfigSpec/clusterConfiguration/etcd/local/imageTag
+        valueFrom:
+          template: '{{(index .TKR_DATA .builtin.controlPlane.version).kubernetesSpec.etcd.imageTag}}'
+      - op: replace
+        path: /spec/template/spec/kubeadmConfigSpec/clusterConfiguration/dns/imageRepository
+        valueFrom:
+          template: '{{(index .TKR_DATA .builtin.controlPlane.version).kubernetesSpec.imageRepository}}'
+      - op: replace
+        path: /spec/template/spec/kubeadmConfigSpec/clusterConfiguration/dns/imageTag
+        valueFrom:
+          template: '{{(index .TKR_DATA .builtin.controlPlane.version).kubernetesSpec.coredns.imageTag}}'
   - name: AWS_MT_controlplane
     definitions:
     - selector:
@@ -502,6 +531,10 @@ spec:
         path: "/spec/template/spec/rootVolume/size"
         valueFrom:
           variable: AWS_CONTROL_PLANE_OS_DISK_SIZE_GIB
+      - op: replace
+        path: /spec/template/spec/ami/id
+        valueFrom:
+          template: '{{(index .TKR_DATA .builtin.controlPlane.version).osImageRef.id}}'
 
   - name: AWS_MT_worker
     definitions:
@@ -525,6 +558,53 @@ spec:
         path: "/spec/template/spec/rootVolume/size"
         valueFrom:
           variable: AWS_NODE_OS_DISK_SIZE_GIB
+      - op: replace
+        path: /spec/template/spec/ami/id
+        valueFrom:
+          template: '{{(index .TKR_DATA .builtin.machineDeployment.version).osImageRef.id}}'
+
+  - name: nodeLabels
+    definitions:
+    - selector:
+        apiVersion: controlplane.cluster.x-k8s.io/v1beta1
+        kind: KubeadmControlPlaneTemplate
+        matchResources:
+          controlPlane: true
+      jsonPatches:
+      - op: add
+        path: /spec/template/spec/kubeadmConfigSpec/joinConfiguration/nodeRegistration/kubeletExtraArgs
+        valueFrom:
+          template: |
+            node-labels: {{$first := true}}
+              {{- range $key, $val := (index .TKR_DATA .builtin.controlPlane.version).labels}}
+              {{- if $first }}
+                {{- $first = false }}
+              {{- else -}}
+                ,
+              {{- end }}
+              {{- $key }}={{- $val }}
+              {{- end}}
+    - selector:
+        apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
+        kind: KubeadmConfigTemplate
+        matchResources:
+          machineDeploymentClass:
+            names:
+            - "tkg-worker"
+      jsonPatches:
+      - op: add
+        path: /spec/template/spec/joinConfiguration/nodeRegistration/kubeletExtraArgs
+        valueFrom:
+          template: |
+            node-labels: {{$first := true}}
+              {{- range $key, $val := (index .TKR_DATA .builtin.machineDeployment.version).labels}}
+              {{- if $first }}
+                {{- $first = false }}
+              {{- else -}}
+                ,
+              {{- end }}
+              {{- $key }}={{- $val }}
+              {{- end}}
   - name: httpProxy
     enabledIf: '{{not (not .proxy)}}'
     definitions:
@@ -987,16 +1067,16 @@ spec:
               cloud-provider: aws
               tls-cipher-suites: TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
           dns:
-            imageRepository: projects-stg.registry.vmware.com/tkg #! TODO '${_TKG_COREDNS_IMAGE_REPOSITORY}' May be a variable for package level
-            imageTag: v1.8.4_vmware.5 #! TODO '${_TKG_COREDNS_IMAGE_TAG}' May be a variable for package level
+            imageRepository: #! e.g. projects-stg.registry.vmware.com/tkg
+            imageTag: #! e.g. 1.8.4_vmware.5
           etcd:
             local:
               dataDir: /var/lib/etcd
-              imageRepository: projects-stg.registry.vmware.com/tkg #! TODO '${_TKG_ETCD_IMAGE_REPOSITORY}' May be a variable for package level
-              imageTag: v3.5.0_vmware.5 #! TODO '${_TKG_ETCD_IMAGE_TAG}' May be a variable for package level
+              imageRepository: #! e.g. projects-stg.registry.vmware.com/tkg
+              imageTag: #! e.g. v3.5.0_vmware.5
               extraArgs:
                 cipher-suites: TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
-          imageRepository: projects-stg.registry.vmware.com/tkg #! TODO '${_TKG_COREDNS_IMAGE_REPOSITORY}' May be a variable for package level
+          imageRepository: #! e.g. projects-stg.registry.vmware.com/tkg
           scheduler:
             extraArgs:
               tls-cipher-suites: TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
