@@ -38,8 +38,9 @@ const (
 // TODO: make these constants accessible to other controllers (for example csi) https://github.com/vmware-tanzu/tanzu-framework/issues/2086
 // constants used for deriving supervisor API server endpoint
 const (
-	SupervisorLoadBalancerSvcNamespace = "kube-system"
-	SupervisorLoadBalancerSvcName      = "kube-apiserver-lb-svc"
+	SupervisorLoadBalancerSvcNamespace         = "kube-system"
+	SupervisorLoadBalancerSvcName              = "kube-apiserver-lb-svc"
+	SupervisorLoadBalancerSvcAPIServerPortName = "kube-apiserver"
 
 	// ConfigMapClusterInfo defines the name for the ConfigMap where the information how to connect and trust the cluster exist
 	ConfigMapClusterInfo = "cluster-info"

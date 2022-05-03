@@ -7,26 +7,82 @@ import (
 	"fmt"
 	"os"
 	"regexp"
+	"strconv"
 	"strings"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	v1 "k8s.io/api/core/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/util/intstr"
 	capvv1beta1 "sigs.k8s.io/cluster-api-provider-vsphere/apis/v1beta1"
 	capvvmwarev1beta1 "sigs.k8s.io/cluster-api-provider-vsphere/apis/vmware/v1beta1"
 	clusterapiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
+	controllers "github.com/vmware-tanzu/tanzu-framework/addons/controllers/cpi"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/addons/test/testutil"
 	cpiv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cpi/v1alpha1"
 )
 
-var _ = Describe("VSphereCPIConfig Reconciler", func() {
-	const (
-		clusterNamespace = "default"
-	)
+const (
+	clusterNamespace            = "default"
+	testSupervisorAPIServerVIP  = "10.0.0.100"
+	testSupervisorAPIServerPort = 6883
+)
 
+func newTestSupervisorLBService() *v1.Service {
+	return &v1.Service{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      controllers.SupervisorLoadBalancerSvcName,
+			Namespace: controllers.SupervisorLoadBalancerSvcNamespace,
+		},
+		Spec: v1.ServiceSpec{
+			// Note: This will be service with no selectors. The endpoints will be manually created.
+			Ports: []v1.ServicePort{
+				{
+					Name:       controllers.SupervisorLoadBalancerSvcAPIServerPortName,
+					Port:       testSupervisorAPIServerPort,
+					TargetPort: intstr.FromInt(testSupervisorAPIServerPort),
+				},
+			},
+		},
+	}
+}
+
+func newTestSupervisorLBServiceStatus() v1.ServiceStatus {
+	return v1.ServiceStatus{
+		LoadBalancer: v1.LoadBalancerStatus{
+			Ingress: []v1.LoadBalancerIngress{
+				{
+					IP: testSupervisorAPIServerVIP,
+					Ports: []v1.PortStatus{
+						{
+							Port:     int32(testSupervisorAPIServerPort),
+							Protocol: v1.ProtocolTCP,
+						},
+					},
+				},
+			},
+		},
+	}
+}
+
+func getSecretDataValuesForCluster(clusterName string) (string, error) {
+	secret := &v1.Secret{}
+	secretKey := client.ObjectKey{
+		Namespace: clusterNamespace,
+		Name:      fmt.Sprintf("%s-%s-data-values", clusterName, constants.CPIAddonName),
+	}
+	if err := k8sClient.Get(ctx, secretKey, secret); err != nil {
+		return "", err
+	}
+	secretData := string(secret.Data["values.yaml"])
+	return secretData, nil
+}
+
+var _ = Describe("VSphereCPIConfig Reconciler", func() {
 	var (
 		key                     client.ObjectKey
 		clusterName             string
@@ -187,16 +243,12 @@ var _ = Describe("VSphereCPIConfig Reconciler", func() {
 		})
 		It("Should reconcile VSphereCPIConfig and create data values secret for VSphereCPIConfig on management cluster", func() {
 			// the data values secret should be generated
-			secret := &v1.Secret{}
 			Eventually(func() bool {
-				secretKey := client.ObjectKey{
-					Namespace: clusterNamespace,
-					Name:      fmt.Sprintf("%s-%s-data-values", clusterName, constants.CPIAddonName),
-				}
-				if err := k8sClient.Get(ctx, secretKey, secret); err != nil {
+				secretData, err := getSecretDataValuesForCluster(clusterName)
+				// allow some time for data value secret to be generated
+				if err != nil {
 					return false
 				}
-				secretData := string(secret.Data["values.yaml"])
 				Expect(len(secretData)).Should(Not(BeZero()))
 				Expect(strings.Contains(secretData, "vsphereCPI:")).Should(BeTrue())
 				Expect(strings.Contains(secretData, "mode: vsphereParavirtualCPI")).Should(BeTrue())
@@ -246,6 +298,33 @@ var _ = Describe("VSphereCPIConfig Reconciler", func() {
 				Expect(serviceAccount.Spec.TargetNamespace).To(Equal("vmware-system-cloud-provider"))
 				Expect(serviceAccount.Spec.TargetSecretName).To(Equal("cloud-provider-creds"))
 				return true
+			})
+		})
+
+		When("Headless service and endpoints already exists", func() {
+			var svc *v1.Service
+			BeforeEach(func() {
+				svc = newTestSupervisorLBService()
+				Expect(k8sClient.Create(ctx, svc)).To(Succeed())
+				svc.Status = newTestSupervisorLBServiceStatus()
+				Expect(k8sClient.Status().Update(ctx, svc)).To(Succeed())
+			})
+
+			AfterEach(func() {
+				Expect(k8sClient.Delete(ctx, svc)).To(Succeed())
+			})
+
+			It("Should use headless service's endpoints", func() {
+				Eventually(func() bool {
+					secretData, err := getSecretDataValuesForCluster(clusterName)
+					// allow some time for data value secret to be generated
+					if err != nil {
+						return false
+					}
+					Expect(strings.Contains(secretData, "supervisorMasterEndpointIP: "+testSupervisorAPIServerVIP)).Should(BeTrue())
+					Expect(strings.Contains(secretData, "supervisorMasterPort: \""+strconv.Itoa(testSupervisorAPIServerPort)+"\"")).Should(BeTrue())
+					return true
+				}).Should(BeTrue())
 			})
 		})
 	})

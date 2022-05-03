@@ -198,6 +198,26 @@ func (r *VSphereCPIConfigReconciler) mapCPIConfigToDataValuesParavirtual(ctx con
 	return d, nil
 }
 
+// getAPIServerPortFromLBService searches a port named as "kube-apiserver" in
+// the service "kube-system/kube-apiserver-lb-svc"
+func getAPIServerPortFromLBService(svc *v1.Service) (int32, error) {
+	if svc == nil {
+		return 0, errors.New("lb service is nil")
+	}
+	portNum := int32(0)
+	portFound := false
+	for _, port := range svc.Spec.Ports {
+		if port.Name == SupervisorLoadBalancerSvcAPIServerPortName {
+			portNum = port.Port
+			portFound = true
+		}
+	}
+	if !portFound {
+		return 0, errors.New("lb service doesn't have a port named as " + SupervisorLoadBalancerSvcAPIServerPortName)
+	}
+	return portNum, nil
+}
+
 // getSupervisorAPIServerVIP attempts to extract the ingress IP for supervisor API endpoint if the service
 // "kube-system/kube-apiserver-lb-svc" is available
 func (r *VSphereCPIConfigReconciler) getSupervisorAPIServerVIP(ctx context.Context) (string, int32, error) {
@@ -208,10 +228,10 @@ func (r *VSphereCPIConfigReconciler) getSupervisorAPIServerVIP(ctx context.Conte
 	}
 	if len(svc.Status.LoadBalancer.Ingress) > 0 {
 		ingress := svc.Status.LoadBalancer.Ingress[0]
-		if len(ingress.Ports) == 0 {
-			return "", 0, errors.Errorf("ingress %s(%s) doesn't have open port", ingress.Hostname, ingress.IP)
+		port, err := getAPIServerPortFromLBService(svc)
+		if err != nil {
+			return "", 0, errors.Wrapf(err, "ingress %s(%s) doesn't have open port", ingress.Hostname, ingress.IP)
 		}
-		port := ingress.Ports[0].Port
 		if ipAddr := ingress.IP; ipAddr != "" {
 			return ipAddr, port, nil
 		}
