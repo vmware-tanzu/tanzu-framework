@@ -30,7 +30,7 @@ echo git checkout -B old origin/${GIT_BRANCH_PROVIDERS_BASE}
 git checkout -B old origin/${GIT_BRANCH_PROVIDERS_BASE}
 git log --pretty=oneline -5
 make generate-bindata
-make CLUSTERGEN_OUTPUT_DIR=old GOOS=${GOOS} GOARCH=${GOARCH} CLI_REPO=${CLI_REPO} cluster-generation-tests
+make CLUSTERGEN_CC_OUTPUT_DIR=oldcc CLUSTERGEN_OUTPUT_DIR=old GOOS=${GOOS} GOARCH=${GOARCH} CLI_REPO=${CLI_REPO} cluster-generation-tests
 git checkout .
 git checkout -
 
@@ -41,8 +41,10 @@ cat clustergen.diff.txt
 echo "<html><body>no diff</body></html>" > clustergen.html
 docker run -i --rm -v $PWD:$PWD -w $PWD gcr.io/eminent-nation-87317/diff2html diff2html -i file -F clustergen.html -- clustergen.diff.txt
 
+diff -r -U10 oldcc/cclass  newcc/cclass > clustergen_cc.diff.txt
+
 pushd newcc
-diff -r -U15 legacy cclass > ../clustergen_cc.diff.txt
+diff -r -U10 legacy cclass > ../clustergen_noncc_vs_cc.diff.txt
 popd
 
 popd
