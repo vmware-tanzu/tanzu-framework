@@ -171,7 +171,7 @@ jobs:
         make generate-embedproviders
         E2E_CONFIG=$PWD/pkg/v1/tkg/test/config/azure.yaml hack/tools/bin/ginkgo -nodes=3 -v -trace -tags embedproviders pkg/v1/tkg/test/tkgctl/azure
 
-    - uses: Azure/login@v1.1
+    - uses: Azure/login@v1.4.4
       if: ${{ always() && env.azure_client_id != '' }}
       with:
         creds: '{"clientId":"${{ secrets.AZURE_CLIENT_ID_SAIB }}","clientSecret":"${{ secrets.AZURE_CLIENT_SECRET_SAIB }}","subscriptionId":"${{ secrets.AZURE_SUBSCRIPTION_ID_SAIB }}","tenantId":"${{ secrets.AZURE_TENANT_ID_SAIB }}"}'
