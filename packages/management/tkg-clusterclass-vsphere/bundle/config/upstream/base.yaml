@@ -195,230 +195,218 @@ spec:
       namespace: '${ NAMESPACE }'
   workers:
     machineDeployments:
-      - class: tkg-worker
-        machineHealthCheck:
-        template:
-          bootstrap:
-            ref:
-              kind: KubeadmConfigTemplate
-              apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
-              name: 'tkg-vsphere-md-0'
-              namespace: '${ NAMESPACE }'
-          infrastructure:
-            ref:
-              kind: VSphereMachineTemplate
-              apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
-              name: 'tkg-vsphere-worker'
-              namespace: '${ NAMESPACE }'
+    - class: tkg-worker
+      machineHealthCheck:
+      template:
+        bootstrap:
+          ref:
+            kind: KubeadmConfigTemplate
+            apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
+            name: 'tkg-vsphere-md-0'
+            namespace: '${ NAMESPACE }'
+        infrastructure:
+          ref:
+            kind: VSphereMachineTemplate
+            apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+            name: 'tkg-vsphere-worker'
+            namespace: '${ NAMESPACE }'
   variables:
-  - name: CONTROL_PLANE_MACHINE
+  - name: vcenter
+    required: true
     schema:
       openAPIV3Schema:
         type: object
         properties:
-          numCPUs:
-            type: integer
-          diskGiB:
-            type: integer
-          memoryMiB:
-            type: integer
-        default:
-          numCPUs: 2
-          diskGiB: 40
-          memoryMiB: 8192
-  - name: CONTROL_PLANE_MACHINE_COUNT
-    required: true
-    schema:
-      openAPIV3Schema:
-        type: integer
-  - name: VSPHERE_CONTROL_PLANE_NUM_CPUS
-    schema:
-      openAPIV3Schema:
-        type: integer
-        default: 2
-  - name: VSPHERE_CONTROL_PLANE_DISK_GIB
-    schema:
-      openAPIV3Schema:
-        type: integer
-        default: 40
-  - name: VSPHERE_CONTROL_PLANE_MEM_MIB
-    schema:
-      openAPIV3Schema:
-        type: integer
-        default: 8192
-  - name: VSPHERE_WORKER_NUM_CPUS
-    schema:
-      openAPIV3Schema:
-        type: integer
-        default: 2
-  - name: VSPHERE_WORKER_DISK_GIB
-    schema:
-      openAPIV3Schema:
-        type: integer
-        default: 40
-  - name: VSPHERE_WORKER_MEM_MIB
-    schema:
-      openAPIV3Schema:
-        type: integer
-        default: 4096
-  - name: VSPHERE_CLONE_MODE
-    schema:
-      openAPIV3Schema:
-        type: string
-        default: fullClone
-  - name: VSPHERE_NETWORK
-    schema:
-      openAPIV3Schema:
-        type: string
-        default: VMNetwork
-  - name: VSPHERE_DATACENTER
-    required: true
-    schema:
-      openAPIV3Schema:
-        type: string
-        default: ""
-  - name: VSPHERE_DATASTORE
-    required: true
-    schema:
-      openAPIV3Schema:
-        type: string
-        default: ""
-  - name: VSPHERE_FOLDER
-    required: true
-    schema:
-      openAPIV3Schema:
-        type: string
-        default: ""
-  - name: VSPHERE_RESOURCE_POOL
-    required: true
-    schema:
-      openAPIV3Schema:
-        type: string
-        default: ""
-  - name: VSPHERE_STORAGE_POLICY_ID
-    schema:
-      openAPIV3Schema:
-        type: string
-        default: ""
-  - name: VSPHERE_SERVER
-    required: true
-    schema:
-      openAPIV3Schema:
-        type: string
-  - name: VSPHERE_TLS_THUMBPRINT
-    schema:
-      openAPIV3Schema:
-        type: string
-        default: ""
-  - name: VSPHERE_SSH_AUTHORIZED_KEY
-    schema:
-      openAPIV3Schema:
-        type: string
-        default: ""
-  - name: VSPHERE_TEMPLATE
-    required: true
-    schema:
-      openAPIV3Schema:
-        type: string
-        default: ""
+          cloneMode:
+            type: string
+            default: fullClone
+          network:
+            type: string
+            default: VMNetwork
+          datacenter:
+            type: string
+            default: ""
+          datastore:
+            type: string
+            default: ""
+          folder:
+            type: string
+            default: ""
+          resourcePool:
+            type: string
+            default: ""
+          storagePolicyID:
+            type: string
+            default: ""
+          server:
+            type: string
+            default: ""
+          tlsThumbprint:
+            type: string
+            default: ""
+          template:
+            type: string
+            default: ""
+        required:
+        - datacenter
+        - datastore
+        - folder
+        - resourcePool
+        - server
   - name: VSPHERE_WINDOWS_TEMPLATE
     schema:
       openAPIV3Schema:
         type: string
         default: ""
-  - name: VSPHERE_CONTROL_PLANE_ENDPOINT
+  - name: vipNetworkInterface
     required: true
     schema:
       openAPIV3Schema:
         type: string
-        default: ""
-  - name: VIP_NETWORK_INTERFACE
-    schema:
-      openAPIV3Schema:
-        type: string
         default: eth0
-  - name: proxy
+  - name: network
+    required: false
     schema:
       openAPIV3Schema:
         type: object
         properties:
-          httpProxy:
+          proxy:
+            type: object
+            properties:
+              httpProxy:
+                type: string
+              httpsProxy:
+                type: string
+              noProxy:
+                type: array
+                items:
+                  type: string
+                default: []
+            required:
+            - httpProxy
+            - httpsProxy
+          ipv6Primary:
+            type: boolean
+            default: false
+    default:
+      ipv6Primary: false
+  - name: imageRepository
+    required: false
+    schema:
+      openAPIV3Schema:
+        type: object
+        properties:
+          host:
             type: string
-            default: ""
-          httpsProxy:
-            type: string
-            default: ""
-          noProxy:
-            type: array
-            items:
-              type: string
-        required:
-          - httpProxy
-          - httpsProxy
-          - noProxy
-  - name: TKG_PROXY_CA_CERT
-    schema:
-      openAPIV3Schema:
-        type: string
-        default: ""
-  - name: TKG_CUSTOM_IMAGE_REPOSITORY
-    schema:
-      openAPIV3Schema:
-        type: string
-        default: ""
-  # TODO this is subset of above, try to remove this
-  - name: TKG_CUSTOM_IMAGE_REPOSITORY_HOSTNAME
-    schema:
-      openAPIV3Schema:
-        type: string
-        default: ""
-  - name: TKG_CUSTOM_IMAGE_REPOSITORY_CA_CERTIFICATE
-    schema:
-      openAPIV3Schema:
-        type: string
-        default: ""
-  - name: TKG_CUSTOM_IMAGE_REPOSITORY_SKIP_TLS_VERIFY
+          tlsCertificateValidation:
+            type: boolean
+            default: true
+  - name: aviAPIServerHAProvider
+    required: false
     schema:
       openAPIV3Schema:
         type: boolean
         default: false
-  - name: TKG_IP_FAMILY
+  - name: apiServerEndpoint
+    required: false
     schema:
       openAPIV3Schema:
         type: string
-        default: ipv4
-  - name: AVI_CONTROL_PLANE_HA_PROVIDER
-    schema:
-      openAPIV3Schema:
-        type: boolean
-        default: false
-  - name: CLUSTER_API_SERVER_PORT
+        default: ""
+  - name: apiServerPort
+    required: false
     schema:
       openAPIV3Schema:
         type: integer
-  - name: SERVICE_CIDR
+  - name: trust
+    required: false
     schema:
       openAPIV3Schema:
-        type: string
-  - name: CLUSTER_CIDR
+        type: array
+        items:
+          type: object
+          properties:
+            name:
+              type: string
+            data:
+              type: string
+          required:
+          - name
+          - data
+  - name: auditLogging
+    required: false
     schema:
       openAPIV3Schema:
-        type: string
-  - name: CONTROL_PLANE_NODE_NAMESERVERS
+        type: object
+        properties:
+          enabled:
+            type: boolean
+            default: false
+    default:
+      enabled: false
+  - name: user
+    required: false
     schema:
       openAPIV3Schema:
-        type: string
-        default: ""
-  - name: WORKER_NODE_NAMESERVERS
+        type: object
+        properties:
+          sshAuthorizedKeys:
+            type: array
+            items:
+              type: string
+            default: []
+  - name: controlPlane
+    required: true
     schema:
       openAPIV3Schema:
-        type: string
-        default: ""
-  - name: ENABLE_AUDIT_LOGGING
+        type: object
+        properties:
+          machine:
+            type: object
+            properties:
+              numCPUs:
+                type: integer
+                default: 2
+              diskGiB:
+                type: integer
+                default: 40
+              memoryMiB:
+                type: integer
+                default: 8192
+          network:
+            type: object
+            properties:
+              nameservers:
+                type: string
+  - name: worker
+    required: true
     schema:
       openAPIV3Schema:
-        type: boolean
-        default: false
+        type: object
+        properties:
+          machine:
+            type: object
+            properties:
+              numCPUs:
+                type: integer
+                default: 2
+              diskGiB:
+                type: integer
+                default: 40
+              memoryMiB:
+                type: integer
+                default: 4096
+          network:
+            type: object
+            properties:
+              nameservers:
+                type: string
+  - name: TKR_DATA
+    required: false
+    schema:
+      openAPIV3Schema:
+        type: object
+        properties: {}
   patches:
   - name: vsphereClusterTemplate
     definitions:
@@ -431,15 +419,19 @@ spec:
       - op: replace
         path: /spec/template/spec/controlPlaneEndpoint/host
         valueFrom:
-          variable: VSPHERE_CONTROL_PLANE_ENDPOINT
+          variable: apiServerEndpoint
       - op: replace
         path: /spec/template/spec/thumbprint
         valueFrom:
-          variable: VSPHERE_TLS_THUMBPRINT
+          variable: vcenter.tlsThumbprint
       - op: replace
         path: /spec/template/spec/server
         valueFrom:
-          variable: VSPHERE_SERVER
+          variable: vcenter.server
+      - op: replace
+        path: /spec/template/spec/identityRef/name
+        valueFrom:
+          template: '{{ .builtin.cluster.name }}'
   - name: controlPlaneMachineTemplate
     definitions:
     - selector:
@@ -451,51 +443,51 @@ spec:
       - op: replace
         path: /spec/template/spec/numCPUs
         valueFrom:
-          variable: VSPHERE_CONTROL_PLANE_NUM_CPUS
+          variable: controlPlane.machine.numCPUs
       - op: replace
         path: /spec/template/spec/diskGiB
         valueFrom:
-          variable: VSPHERE_CONTROL_PLANE_DISK_GIB
+          variable: controlPlane.machine.diskGiB
       - op: replace
         path: /spec/template/spec/memoryMiB
         valueFrom:
-          variable: VSPHERE_CONTROL_PLANE_MEM_MIB
+          variable: controlPlane.machine.memoryMiB
       - op: replace
         path: /spec/template/spec/cloneMode
         valueFrom:
-          variable: VSPHERE_CLONE_MODE
+          variable: vcenter.cloneMode
       - op: replace
         path: /spec/template/spec/network
         valueFrom:
-          variable: VSPHERE_NETWORK
+          variable: vcenter.network
       - op: replace
         path: /spec/template/spec/template
         valueFrom:
-          variable: VSPHERE_TEMPLATE
+          variable: vcenter.template
       - op: replace
         path: /spec/template/spec/datacenter
         valueFrom:
-          variable: VSPHERE_DATACENTER
+          variable: vcenter.datacenter
       - op: replace
         path: /spec/template/spec/datastore
         valueFrom:
-          variable: VSPHERE_DATASTORE
+          variable: vcenter.datastore
       - op: replace
         path: /spec/template/spec/folder
         valueFrom:
-          variable: VSPHERE_FOLDER
+          variable: vcenter.folder
       - op: replace
         path: /spec/template/spec/resourcePool
         valueFrom:
-          variable: VSPHERE_RESOURCE_POOL
+          variable: vcenter.resourcePool
       - op: replace
         path: /spec/template/spec/storagePolicyName
         valueFrom:
-          variable: VSPHERE_STORAGE_POLICY_ID
+          variable: vcenter.storagePolicyID
       - op: replace
         path: /spec/template/spec/server
         valueFrom:
-          variable: VSPHERE_SERVER
+          variable: vcenter.server
   - name: workerMachineTemplate
     definitions:
     - selector:
@@ -509,51 +501,51 @@ spec:
       - op: replace
         path: /spec/template/spec/numCPUs
         valueFrom:
-          variable: VSPHERE_WORKER_NUM_CPUS
+          variable: worker.machine.numCPUs
       - op: replace
         path: /spec/template/spec/diskGiB
         valueFrom:
-          variable: VSPHERE_WORKER_DISK_GIB
+          variable: worker.machine.diskGiB
       - op: replace
         path: /spec/template/spec/memoryMiB
         valueFrom:
-          variable: VSPHERE_WORKER_MEM_MIB
+          variable: worker.machine.memoryMiB
       - op: replace
         path: /spec/template/spec/cloneMode
         valueFrom:
-          variable: VSPHERE_CLONE_MODE
+          variable: vcenter.cloneMode
       - op: replace
         path: /spec/template/spec/network
         valueFrom:
-          variable: VSPHERE_NETWORK
+          variable: vcenter.network
       - op: replace
         path: /spec/template/spec/template
         valueFrom:
-          variable: VSPHERE_TEMPLATE
+          variable: vcenter.template
       - op: replace
         path: /spec/template/spec/datacenter
         valueFrom:
-          variable: VSPHERE_DATACENTER
+          variable: vcenter.datacenter
       - op: replace
         path: /spec/template/spec/datastore
         valueFrom:
-          variable: VSPHERE_DATASTORE
+          variable: vcenter.datastore
       - op: replace
         path: /spec/template/spec/folder
         valueFrom:
-          variable: VSPHERE_FOLDER
+          variable: vcenter.folder
       - op: replace
         path: /spec/template/spec/resourcePool
         valueFrom:
-          variable: VSPHERE_RESOURCE_POOL
+          variable: vcenter.resourcePool
       - op: replace
         path: /spec/template/spec/storagePolicyName
         valueFrom:
-          variable: VSPHERE_STORAGE_POLICY_ID
+          variable: vcenter.storagePolicyID
       - op: replace
         path: /spec/template/spec/server
         valueFrom:
-          variable: VSPHERE_SERVER
+          variable: vcenter.server
   - name: kubeadmControlPlaneTemplate
     definitions:
     - selector:
@@ -568,12 +560,30 @@ spec:
           template: |
             - name: capv
               sshAuthorizedKeys:
-              - '{{.VSPHERE_SSH_AUTHORIZED_KEY}}'
+              {{- range .user.sshAuthorizedKeys }}
+              - ' {{- . -}} '
+              {{- end }}
               sudo: ALL=(ALL) NOPASSWD:ALL
       - op: replace
-        path: /spec/template/spec/replicas
+        path: /spec/template/spec/kubeadmConfigSpec/clusterConfiguration/imageRepository
         valueFrom:
-          variable: CONTROL_PLANE_MACHINE_COUNT
+          template: '{{(index .TKR_DATA .builtin.controlPlane.version).kubernetesSpec.imageRepository}}'
+      - op: replace
+        path: /spec/template/spec/kubeadmConfigSpec/clusterConfiguration/etcd/local/imageRepository
+        valueFrom:
+          template: '{{(index .TKR_DATA .builtin.controlPlane.version).kubernetesSpec.imageRepository}}'
+      - op: replace
+        path: /spec/template/spec/kubeadmConfigSpec/clusterConfiguration/etcd/local/imageTag
+        valueFrom:
+          template: '{{(index .TKR_DATA .builtin.controlPlane.version).kubernetesSpec.etcd.imageTag}}'
+      - op: replace
+        path: /spec/template/spec/kubeadmConfigSpec/clusterConfiguration/dns/imageRepository
+        valueFrom:
+          template: '{{(index .TKR_DATA .builtin.controlPlane.version).kubernetesSpec.imageRepository}}'
+      - op: replace
+        path: /spec/template/spec/kubeadmConfigSpec/clusterConfiguration/dns/imageTag
+        valueFrom:
+          template: '{{(index .TKR_DATA .builtin.controlPlane.version).kubernetesSpec.coredns.imageTag}}'
   - name: KubeadmConfigTemplate
     definitions:
     - selector:
@@ -590,10 +600,12 @@ spec:
           template: |
             - name: capv
               sshAuthorizedKeys:
-              - '{{.VSPHERE_SSH_AUTHORIZED_KEY}}'
+              {{- range .user.sshAuthorizedKeys }}
+              - ' {{- . -}} '
+              {{- end }}
               sudo: ALL=(ALL) NOPASSWD:ALL
   - name: kubeVIPPod
-    enabledIf: '{{not .AVI_CONTROL_PLANE_HA_PROVIDER}}'
+    enabledIf: '{{ not .aviAPIServerHAProvider }}'
     definitions:
     - selector:
         apiVersion: controlplane.cluster.x-k8s.io/v1beta1
@@ -604,7 +616,6 @@ spec:
       - op: add
         path: /spec/template/spec/kubeadmConfigSpec/files/-
         valueFrom:
-          # TODO fix the image path
           template: |
             owner: root:root
             path: /etc/kubernetes/manifests/kube-vip.yaml
@@ -619,27 +630,29 @@ spec:
               spec:
                 containers:
                 - args:
-                  - start
+                  - manager
                   env:
+                  - name: cp_enable
+                    value: "true"
                   - name: vip_arp
                     value: "true"
                   - name: vip_leaderelection
                     value: "true"
                   - name: address
-                    value: {{.VSPHERE_CONTROL_PLANE_ENDPOINT}}
-                  {{- if and (not .AVI_CONTROL_PLANE_HA_PROVIDER) .CLUSTER_API_SERVER_PORT }}
+                    value: {{ .apiServerEndpoint }}
+                  {{- if and (not .aviControlPlaneHAProvider) .apiServerPort }}
                   - name: port
-                    value: {{.CLUSTER_API_SERVER_PORT}}
+                    value: {{ .apiServerPort }}
                   {{- end }}
                   - name: vip_interface
-                    value: {{.VIP_NETWORK_INTERFACE}}
+                    value: {{ .vipNetworkInterface }}
                   - name: vip_leaseduration
                     value: "30"
                   - name: vip_renewdeadline
                     value: "20"
                   - name: vip_retryperiod
                     value: "4"
-                  image: #@ "{}/{}:{}".format(get_image_repo_for_component(bomData.components["kube-vip"][0].images.kubeVipImage), bomData.components["kube-vip"][0].images.kubeVipImage.imagePath, bomData.components["kube-vip"][0].images.kubeVipImage.tag)
+                  image: {{(index .TKR_DATA .builtin.controlPlane.version).kubernetesSpec.imageRepository}}/kube-vip:{{(index (index .TKR_DATA .builtin.controlPlane.version).kubernetesSpec "kube-vip").imageTag}}
                   imagePullPolicy: IfNotPresent
                   name: kube-vip
                   resources: {}
@@ -647,11 +660,15 @@ spec:
                     capabilities:
                       add:
                       - NET_ADMIN
-                      - SYS_TIME
+                      - NET_RAW
                   volumeMounts:
                   - mountPath: /etc/kubernetes/admin.conf
                     name: kubeconfig
                 hostNetwork: true
+                hostAliases:
+                - hostnames:
+                  - kubernetes
+                  ip: 127.0.0.1
                 volumes:
                 - hostPath:
                     path: /etc/kubernetes/admin.conf
@@ -671,10 +688,10 @@ spec:
         valueFrom:
           template: |
             devices:
-            - networkName: {{.VSPHERE_NETWORK}}
-              {{if .CONTROL_PLANE_NODE_NAMESERVERS}}nameservers: {{.CONTROL_PLANE_NODE_NAMESERVERS}}{{end}}
-              dhcp4: {{or (eq "ipv4" .TKG_IP_FAMILY) (or (eq "ipv4,ipv6" .TKG_IP_FAMILY) (eq "ipv6,ipv4" .TKG_IP_FAMILY))}}
-              dhcp6: {{or (eq "ipv6" .TKG_IP_FAMILY) (or (eq "ipv4,ipv6" .TKG_IP_FAMILY) (eq "ipv6,ipv4" .TKG_IP_FAMILY))}}
+            - networkName: {{ .vcenter.network }}
+              {{ if .controlPlane.network.nameservers -}} nameservers: {{ .controlPlane.network.nameservers }} {{- end }}
+              {{ if list "IPv4" "DualStack" | has .builtin.cluster.network.ipFamily -}} dhcp4: true {{- end }}
+              {{ if list "IPv6" "DualStack" | has .builtin.cluster.network.ipFamily -}} dhcp6: true {{- end }}
     - selector:
         apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
         kind: VSphereMachineTemplate
@@ -688,12 +705,25 @@ spec:
         valueFrom:
           template: |
             devices:
-            - networkName: {{.VSPHERE_NETWORK}}
-              {{if .WORKER_NODE_NAMESERVERS}}nameservers: {{.WORKER_NODE_NAMESERVERS}}{{end}}
-              dhcp4: {{or (eq "ipv4" .TKG_IP_FAMILY) (or (eq "ipv4,ipv6" .TKG_IP_FAMILY) (eq "ipv6,ipv4" .TKG_IP_FAMILY))}}
-              dhcp6: {{or (eq "ipv6" .TKG_IP_FAMILY) (or (eq "ipv4,ipv6" .TKG_IP_FAMILY) (eq "ipv6,ipv4" .TKG_IP_FAMILY))}}
-  - name: controlPlaneEndpointConfiguration
-    enabledIf: '{{and (not .AVI_CONTROL_PLANE_HA_PROVIDER) (ne nil .CLUSTER_API_SERVER_PORT)}}'
+            - networkName: {{ .vcenter.network }}
+              {{ if .worker.network.nameservers -}} nameservers: {{ .worker.network.nameservers }} {{- end }}
+              {{ if list "IPv4" "DualStack" | has .builtin.cluster.network.ipFamily -}} dhcp4: true {{- end }}
+              {{ if list "IPv6" "DualStack" | has .builtin.cluster.network.ipFamily -}} dhcp6: true {{- end }}
+  - name: clusterApiServerPort
+    enabledIf: '{{ not (empty .apiServerPort) }}'
+    definitions:
+    - selector:
+        apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+        kind: VSphereClusterTemplate
+        matchResources:
+          infrastructureCluster: true
+      jsonPatches:
+      - op: replace
+        path: /spec/template/spec/controlPlaneEndpoint/port
+        valueFrom:
+          variable: apiServerPort
+  - name: apiServerEndpointConfiguration
+    enabledIf: '{{ and (not .aviAPIServerHAProvider) (not (empty .apiServerPort)) }}'
     definitions:
     - selector:
         apiVersion: controlplane.cluster.x-k8s.io/v1beta1
@@ -701,26 +731,29 @@ spec:
         matchResources:
           controlPlane: true
       jsonPatches:
-      - op: replace
-        path: /spec/template/spec/kubeadmConfigSpec/initConfiguration/localAPIEndpoint/
+      - op: add
+        path: /spec/template/spec/kubeadmConfigSpec/initConfiguration/localAPIEndpoint
         valueFrom:
           template: |
-            {{if or (eq "ipv6" .TKG_IP_FAMILY) (eq "ipv6,ipv4" .TKG_IP_FAMILY) }}advertiseAddress: '::/0'
-            {{- else }}
-            advertiseAddress: '0.0.0.0'
+            {{ if .builtin.cluster.network.ipFamily | eq "IPv6" | or (.builtin.cluster.network.ipFamily | eq "DualStack" | and (.network.ipv6Primary | default false)) -}}
+              advertiseAddress: '::/0'
+            {{- else -}}
+              advertiseAddress: '0.0.0.0'
             {{- end }}
-            bindPort: {{.CLUSTER_API_SERVER_PORT}}
-      - op: replace
-        path: /spec/template/spec/joinConfiguration/controlPlane/localAPIEndpoint
+            bindPort: {{ .apiServerPort }}
+      - op: add
+        path: /spec/template/spec/kubeadmConfigSpec/joinConfiguration/controlPlane
         valueFrom:
           template: |
-            {{if or (eq "ipv6" .TKG_IP_FAMILY) (eq "ipv6,ipv4" .TKG_IP_FAMILY) }}advertiseAddress: '::/0'
-            {{- else }}
-            advertiseAddress: '0.0.0.0'
-            {{- end }}
-            bindPort: {{.CLUSTER_API_SERVER_PORT}}
+            localAPIEndpoint:
+              {{ if .builtin.cluster.network.ipFamily | eq "IPv6" | or (.builtin.cluster.network.ipFamily | eq "DualStack" | and (.network.ipv6Primary | default false)) -}}
+                advertiseAddress: '::/0'
+              {{- else -}}
+                advertiseAddress: '0.0.0.0'
+              {{- end }}
+              bindPort: {{ .apiServerPort }}
   - name: bindAddressConfiguration
-    enabledIf: '{{eq "ipv6,ipv4" .TKG_IP_FAMILY}}'
+    enabledIf: '{{ .builtin.cluster.network.ipFamily | eq "DualStack" | and (.network.ipv6Primary | default false) }}'
     definitions:
     - selector:
         apiVersion: controlplane.cluster.x-k8s.io/v1beta1
@@ -740,7 +773,7 @@ spec:
         path: /spec/template/spec/kubeadmConfigSpec/clusterConfiguration/apiServer/extraArgs
         valueFrom:
           template: |
-            advertise-address: {{.VSPHERE_CONTROL_PLANE_ENDPOINT}}
+            advertise-address: {{ .apiServerEndpoint }}
             bind-address: "::"
       - op: add
         path: /spec/template/spec/kubeadmConfigSpec/clusterConfiguration/controllerManager/extraArgs
@@ -763,7 +796,7 @@ spec:
         value:
           node-ip: "::"
   - name: ipv6Hack
-    enabledIf: '{{eq "ipv6" .TKG_IP_FAMILY}}'
+    enabledIf: '{{ .builtin.cluster.network.ipFamily | eq "IPv6" }}'
     definitions:
     - selector:
         apiVersion: controlplane.cluster.x-k8s.io/v1beta1
@@ -774,8 +807,50 @@ spec:
       - op: add
         path: /spec/template/spec/kubeadmConfigSpec/postKubeadmCommands/-
         value: sed -i '/listen-client-urls/ s/$/,https:\/\/127.0.0.1:2379/' /etc/kubernetes/manifests/etcd.yaml
+  - name: workerLabels
+    definitions:
+    - selector:
+        apiVersion: controlplane.cluster.x-k8s.io/v1beta1
+        kind: KubeadmControlPlaneTemplate
+        matchResources:
+          controlPlane: true
+      jsonPatches:
+      - op: add
+        path: /spec/template/spec/kubeadmConfigSpec/joinConfiguration/nodeRegistration/kubeletExtraArgs/node-labels
+        valueFrom:
+          template: |
+            {{ $first := true }}
+            {{- range $key, $val := (index .TKR_DATA .builtin.controlPlane.version).labels }}
+            {{- if $first }}
+              {{- $first = false }}
+            {{- else -}}
+              ,
+            {{- end }}
+            {{- $key -}} = {{- $val }}
+            {{- end}}
+    - selector:
+        apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
+        kind: KubeadmConfigTemplate
+        matchResources:
+          machineDeploymentClass:
+            names:
+            - "tkg-worker"
+      jsonPatches:
+      - op: add
+        path: /spec/template/spec/joinConfiguration/nodeRegistration/kubeletExtraArgs/node-labels
+        valueFrom:
+          template: |
+            {{ $first := true }}
+            {{- range $key, $val := (index .TKR_DATA .builtin.machineDeployment.version).labels }}
+            {{- if $first }}
+              {{- $first = false }}
+            {{- else -}}
+              ,
+            {{- end }}
+            {{- $key -}} = {{- $val }}
+            {{- end}}
   - name: httpProxy
-    enabledIf: '{{not (not .proxy)}}'
+    enabledIf: '{{ not (empty .network.proxy) }}'
     definitions:
     - selector:
         apiVersion: controlplane.cluster.x-k8s.io/v1beta1
@@ -786,26 +861,24 @@ spec:
       - op: add
         path: /spec/template/spec/kubeadmConfigSpec/files/-
         valueFrom:
-          template: |
+          template: &containerdProxyConf |
             content: |
               [Service]
-              Environment="HTTP_PROXY={{.proxy.httpProxy}}"
-              Environment="HTTPS_PROXY={{.proxy.httpsProxy}}"
-              Environment="NO_PROXY={{- range .proxy.noProxy}}{{.}},{{- end}}{{.SERVICE_CIDR}},{{.CLUSTER_CIDR}},localhost,127.0.0.1
-            {{- if or (eq "ipv6" .TKG_IP_FAMILY) (or (eq "ipv4,ipv6" .TKG_IP_FAMILY) (eq "ipv6,ipv4" .TKG__IP_FAMILY))}},::1{{end}},.scv,.svc.cluster.local"
+              Environment="HTTP_PROXY= {{- .network.proxy.httpProxy -}} "
+              Environment="HTTPS_PROXY= {{- .network.proxy.httpsProxy -}} "
+              Environment="NO_PROXY= {{- list "localhost" "127.0.0.1" ".svc" ".svc.cluster.local" ((list "IPv6" "DualStack" | has .builtin.cluster.network.ipFamily) | ternary  "::1" nil) | concat .network.proxy.noProxy .builtin.cluster.network.services .builtin.cluster.network.pods | uniq | sortAlpha | join "," -}} "
             owner: root:root
             path: /etc/systemd/system/containerd.service.d/http-proxy.conf
             permissions: "0640"
       - op: add
         path: /spec/template/spec/kubeadmConfigSpec/files/-
         valueFrom:
-          template: |
+          template: &kubeletProxyConf |
             content: |
               [Service]
-              Environment="HTTP_PROXY={{.proxy.httpProxy}}"
-              Environment="HTTPS_PROXY={{.proxy.httpsProxy}}"
-              Environment="NO_PROXY={{- range .proxy.noProxy}}{{.}},{{- end}}{{.SERVICE_CIDR}},{{.CLUSTER_CIDR}},localhost,127.0.0.1
-            {{- if or (eq "ipv6" .TKG_IP_FAMILY) (or (eq "ipv4,ipv6" .TKG_IP_FAMILY) (eq "ipv6,ipv4" .TKG__IP_FAMILY))}},::1{{end}},.scv,.svc.cluster.local"
+              Environment="HTTP_PROXY= {{- .network.proxy.httpProxy -}} "
+              Environment="HTTPS_PROXY= {{- .network.proxy.httpsProxy -}} "
+              Environment=" {{- list "localhost" "127.0.0.1" ".svc" ".svc.cluster.local" ((list "IPv6" "DualStack" | has .builtin.cluster.network.ipFamily) | ternary  "::1" nil) | concat .network.proxy.noProxy .builtin.cluster.network.services .builtin.cluster.network.pods | uniq | sortAlpha | join "," -}} "
             owner: root:root
             path: /usr/lib/systemd/system/kubelet.service.d/http-proxy.conf
             permissions: "0640"
@@ -821,19 +894,18 @@ spec:
       - op: add
         path: /spec/template/spec/kubeadmConfigSpec/preKubeadmCommands/-
         valueFrom:
-          template: |
-            export HTTP_PROXY={{.proxy.httpProxy}}
+          template: &exportHTTPProxy |
+            export HTTP_PROXY={{.network.proxy.httpProxy}}
       - op: add
         path: /spec/template/spec/kubeadmConfigSpec/preKubeadmCommands/-
         valueFrom:
-          template: |
-            export HTTPS_PROXY={{.proxy.httpsProxy}}
+          template: &exportHTTPSProxy |
+            export HTTPS_PROXY={{.network.proxy.httpsProxy}}
       - op: add
         path: /spec/template/spec/kubeadmConfigSpec/preKubeadmCommands/-
         valueFrom:
-          template: |
-            export NO_PROXY={{- range .proxy.noProxy}}{{.}},{{- end}}{{.SERVICE_CIDR}},{{.CLUSTER_CIDR}},localhost,127.0.0.1
-            {{- if or (eq "ipv6" .TKG_IP_FAMILY) (or (eq "ipv4,ipv6" .TKG_IP_FAMILY) (eq "ipv6,ipv4" .TKG__IP_FAMILY))}},::1{{end}},.scv,.svc.cluster.local
+          template: &exportNoProxy |
+            export NO_PROXY= {{ list "localhost" "127.0.0.1" ".svc" ".svc.cluster.local" ((list "IPv6" "DualStack" | has .builtin.cluster.network.ipFamily) | ternary  "::1" nil) | concat .network.proxy.noProxy .builtin.cluster.network.services .builtin.cluster.network.pods | uniq | sortAlpha | join "," }}
     - selector:
         apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
         kind: KubeadmConfigTemplate
@@ -845,29 +917,11 @@ spec:
       - op: add
         path: /spec/template/spec/files/-
         valueFrom:
-          template: |
-            content: |
-              [Service]
-              Environment="HTTP_PROXY={{.proxy.httpProxy}}"
-              Environment="HTTPS_PROXY={{.proxy.httpsProxy}}"
-              Environment="NO_PROXY={{- range .proxy.noProxy}}{{.}},{{- end}}{{.SERVICE_CIDR}},{{.CLUSTER_CIDR}},localhost,127.0.0.1
-            {{- if or (eq "ipv6" .TKG_IP_FAMILY) (or (eq "ipv4,ipv6" .TKG_IP_FAMILY) (eq "ipv6,ipv4" .TKG__IP_FAMILY))}},::1{{end}},.scv,.svc.cluster.local"
-            owner: root:root
-            path: /etc/systemd/system/containerd.service.d/http-proxy.conf
-            permissions: "0640"
+          template: *containerdProxyConf
       - op: add
         path: /spec/template/spec/files/-
         valueFrom:
-          template: |
-            content: |
-              [Service]
-              Environment="HTTP_PROXY={{.proxy.httpProxy}}"
-              Environment="HTTPS_PROXY={{.proxy.httpsProxy}}"
-              Environment="NO_PROXY={{- range .proxy.noProxy}}{{.}},{{- end}}{{.SERVICE_CIDR}},{{.CLUSTER_CIDR}},localhost,127.0.0.1
-            {{- if or (eq "ipv6" .TKG_IP_FAMILY) (or (eq "ipv4,ipv6" .TKG_IP_FAMILY) (eq "ipv6,ipv4" .TKG__IP_FAMILY))}},::1{{end}},.scv,.svc.cluster.local"
-            owner: root:root
-            path: /usr/lib/systemd/system/kubelet.service.d/http-proxy.conf
-            permissions: "0640"
+          template: *kubeletProxyConf
       - op: add
         path: /spec/template/spec/preKubeadmCommands/-
         value: systemctl daemon-reload
@@ -877,21 +931,214 @@ spec:
       - op: add
         path: /spec/template/spec/preKubeadmCommands/-
         valueFrom:
+          template: *exportHTTPProxy
+      - op: add
+        path: /spec/template/spec/preKubeadmCommands/-
+        valueFrom:
+          template: *exportHTTPSProxy
+      - op: add
+        path: /spec/template/spec/preKubeadmCommands/-
+        valueFrom:
+          template: *exportNoProxy
+  - name: httpProxyCACert
+    enabledIf: '{{ $hasProxyCert := false }} {{- range .trust }} {{- if .name | eq "proxy" }} {{- $hasProxyCert = true }} {{- end }} {{- end }} {{- $hasProxyCert }}'
+    definitions:
+    - selector:
+        apiVersion: controlplane.cluster.x-k8s.io/v1beta1
+        kind: KubeadmControlPlaneTemplate
+        matchResources:
+          controlPlane: true
+      jsonPatches:
+      - op: add
+        path: /spec/template/spec/kubeadmConfigSpec/preKubeadmCommands/-
+        value: ! which rehash_ca_certificates.sh 2>/dev/null || rehash_ca_certificates.sh
+      - op: add
+        path: /spec/template/spec/kubeadmConfigSpec/preKubeadmCommands/-
+        value: ! which update-ca-certificates 2>/dev/null || (mv /etc/ssl/certs/tkg-custom-ca.pem /usr/local/share/ca-certificates/tkg-custom-ca.crt && update-ca-certificates)
+      - op: add
+        path: /spec/template/spec/kubeadmConfigSpec/preKubeadmCommands/-
+        value: ! which update-ca-trust 2>/dev/null || (update-ca-trust force-enable && mv /etc/ssl/certs/tkg-custom-ca.pem /etc/pki/ca-trust/source/anchors/tkg-custom-ca.crt && update-ca-trust extract)
+      - op: add
+        path: /spec/template/spec/kubeadmConfigSpec/preKubeadmCommands/-
+        value: systemctl restart containerd
+      - op: add
+        path: /spec/template/spec/kubeadmConfigSpec/files/-
+        valueFrom:
           template: |
-            export HTTP_PROXY={{.proxy.httpProxy}}
+            path: /etc/ssl/certs/tkg-custom-ca.pem
+            {{- $proxy := "" }}
+            {{- range .trust }}
+              {{- if eq .name "proxy" }}
+                {{- $proxy = .data }}
+              {{- end }}
+            {{- end }}
+            content: {{ $proxy }}
+            encoding: base64
+            permissions: "0444"
+    - selector:
+        apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
+        kind: KubeadmConfigTemplate
+        matchResources:
+          machineDeploymentClass:
+            names:
+            - tkg-worker
+      jsonPatches:
+      - op: add
+        path: /spec/template/spec/preKubeadmCommands/-
+        value: ! which rehash_ca_certificates.sh 2>/dev/null || rehash_ca_certificates.sh
+      - op: add
+        path: /spec/template/spec/preKubeadmCommands/-
+        value: ! which update-ca-certificates 2>/dev/null || (mv /etc/ssl/certs/tkg-custom-ca.pem /usr/local/share/ca-certificates/tkg-custom-ca.crt && update-ca-certificates)
+      - op: add
+        path: /spec/template/spec/preKubeadmCommands/-
+        value: ! which update-ca-trust 2>/dev/null || (update-ca-trust force-enable && mv /etc/ssl/certs/tkg-custom-ca.pem /etc/pki/ca-trust/source/anchors/tkg-custom-ca.crt && update-ca-trust extract)
+      - op: add
+        path: /spec/template/spec/preKubeadmCommands/-
+        value: systemctl restart containerd
+      - op: add
+        path: /spec/template/spec/files/-
+        valueFrom:
+          template: |
+            path: /etc/ssl/certs/tkg-custom-ca.pem
+            {{- $proxy := "" }}
+            {{- range .trust }}
+              {{- if eq .name "proxy" }}
+                {{- $proxy = .data }}
+              {{- end }}
+            {{- end }}
+            content: {{ $proxy }}
+            encoding: base64
+            permissions: "0444"
+  - name: customizedImageRepo
+    enabledIf: '{{ not (empty .imageRepository.host) }}'
+    definitions:
+    - selector:
+        apiVersion: controlplane.cluster.x-k8s.io/v1beta1
+        kind: KubeadmControlPlaneTemplate
+        matchResources:
+          controlPlane: true
+      jsonPatches:
+      - op: add
+        path: /spec/template/spec/kubeadmConfigSpec/preKubeadmCommands/-
+        valueFrom:
+          template: |
+            sed -i 's|".*/pause|" {{- or .imageRepository.host (index .TKR_DATA .builtin.controlPlane.version).kubernetesSpec.imageRepository -}} /pause|' /etc/containerd/config.toml
+    - selector:
+        apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
+        kind: KubeadmConfigTemplate
+        matchResources:
+          machineDeploymentClass:
+            names:
+            - tkg-worker
+      jsonPatches:
       - op: add
         path: /spec/template/spec/preKubeadmCommands/-
         valueFrom:
           template: |
-            export HTTPS_PROXY={{.proxy.httpsProxy}}
+            sed -i 's|".*/pause|" {{- or .imageRepository.host (index .TKR_DATA .builtin.machineDeployment.version).kubernetesSpec.imageRepository -}} /pause|' /etc/containerd/config.toml
+  - name: registryCACert
+    enabledIf: '{{ not (empty .trust) }}'
+    definitions:
+    - selector:
+        apiVersion: controlplane.cluster.x-k8s.io/v1beta1
+        kind: KubeadmControlPlaneTemplate
+        matchResources:
+          controlPlane: true
+      jsonPatches:
+      - op: add
+        path: /spec/template/spec/kubeadmConfigSpec/preKubeadmCommands/-
+        valueFrom:
+          template: |
+            {{- $host := index (or .imageRepository.host (index .TKR_DATA .builtin.controlPlane.version).kubernetesSpec.imageRepository | splitList "/") 0 -}}
+            echo '[plugins."io.containerd.grpc.v1.cri".registry.configs." {{- $host -}} ".tls]' >> /etc/containerd/config.toml
+      - op: add
+        path: /spec/template/spec/kubeadmConfigSpec/preKubeadmCommands/-
+        valueFrom:
+          template: |
+            {{- $host := index (or .imageRepository.host (index .TKR_DATA .builtin.controlPlane.version).kubernetesSpec.imageRepository | splitList "/") 0 }}
+            {{- $val := list "ca_file = \"/etc/containerd/" $host ".crt\"" | join "" }}
+            {{- with .imageRepository }}
+              {{- if .tlsCertificateValidation | eq false }}
+                {{- $val = "insecure_skip_verify = true" }}
+              {{- end }}
+            {{- end -}}
+            {{- define "echo" -}}
+              echo '  {{ . -}} ' >> /etc/containerd/config.toml
+            {{- end }}
+            {{- template "echo" $val -}}
+      - op: add
+        path: /spec/template/spec/kubeadmConfigSpec/preKubeadmCommands/-
+        value: systemctl restart containerd
+      - op: add
+        path: /spec/template/spec/kubeadmConfigSpec/files/-
+        valueFrom:
+          template: |
+            path: /etc/containerd/ {{- index (or .imageRepository.host (index .TKR_DATA .builtin.controlPlane.version).kubernetesSpec.imageRepository | splitList "/") 0 -}} .crt
+            {{- $proxy := "" }}
+            {{- $image := "" }}
+            {{- range .trust }}
+              {{- if eq .name "proxy" }}
+                {{- $proxy = .data }}
+              {{- end }}
+              {{- if eq .name "imageRepository" }}
+                {{- $image = .data }}
+              {{- end }}
+            {{- end }}
+            content: {{or $proxy $image}}
+            encoding: base64
+            permissions: "0444"
+    - selector:
+        apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
+        kind: KubeadmConfigTemplate
+        matchResources:
+          machineDeploymentClass:
+            names:
+            - tkg-worker
+      jsonPatches:
       - op: add
         path: /spec/template/spec/preKubeadmCommands/-
         valueFrom:
           template: |
-            export NO_PROXY={{- range .proxy.noProxy}}{{.}},{{- end}}{{.SERVICE_CIDR}},{{.CLUSTER_CIDR}},localhost,127.0.0.1
-            {{- if or (eq "ipv6" .TKG_IP_FAMILY) (or (eq "ipv4,ipv6" .TKG_IP_FAMILY) (eq "ipv6,ipv4" .TKG__IP_FAMILY))}},::1{{end}},.scv,.svc.cluster.local
+            {{- $host := index (or .imageRepository.host (index .TKR_DATA .builtin.machineDeployment.version).kubernetesSpec.imageRepository | splitList "/") 0 -}}
+            echo '[plugins."io.containerd.grpc.v1.cri".registry.configs." {{- $host -}} ".tls]' >> /etc/containerd/config.toml
+      - op: add
+        path: /spec/template/spec/preKubeadmCommands/-
+        valueFrom:
+          template: |
+            {{- $host := index (or .imageRepository.host (index .TKR_DATA .builtin.machineDeployment.version).kubernetesSpec.imageRepository | splitList "/") 0 }}
+            {{- $val := list "ca_file = \"/etc/containerd/" $host ".crt\"" | join "" }}
+            {{- with .imageRepository }}
+              {{- if .tlsCertificateValidation | eq false }}
+                {{- $val = "insecure_skip_verify = true" }}
+              {{- end }}
+            {{- end -}}
+            {{- define "echo" -}}
+              echo '  {{ . -}} ' >> /etc/containerd/config.toml
+            {{- end }}
+            {{- template "echo" $val -}}
+      - op: add
+        path: /spec/template/spec/preKubeadmCommands/-
+        value: systemctl restart containerd
+      - op: add
+        path: /spec/template/spec/files/-
+        valueFrom:
+          template: |
+            path: /etc/containerd/{{ index (or .imageRepository.host (index .TKR_DATA .builtin.machineDeployment.version).kubernetesSpec.imageRepository | splitList "/") 0 }}.crt
+            {{- $proxy := "" }}
+            {{- $image := "" }}
+            {{- range .trust }}
+              {{- if eq .name "proxy" }}
+                {{- $proxy = .data }}
+              {{- end }}
+              {{- if eq .name "imageRepository" }}
+                {{- $image = .data }}
+              {{- end }}
+            {{- end }}
+            content: {{or $proxy $image}}
+            encoding: base64
+            permissions: "0444"
   - name: auditLogging
-    enabledIf: '{{.ENABLE_AUDIT_LOGGING}}'
+    enabledIf: '{{ .auditLogging.enabled }}'
     definitions:
     - selector:
         apiVersion: controlplane.cluster.x-k8s.io/v1beta1
@@ -1072,128 +1319,3 @@ spec:
               - level: Metadata
                 omitStages:
                   - "RequestReceived"
-  - name: registryCACert
-    enabledIf: '{{and (ne "" (or .TKG_PROXY_CA_CERT .TKG_CUSTOM_IMAGE_REPOSITORY_CA_CERTIFICATE)) (not (and .TKG_CUSTOM_IMAGE_REPOSITORY_SKIP_TLS_VERIFY (ne "" .TKG_CUSTOM_IMAGE_REPOSITORY))) }}'
-    definitions:
-    - selector:
-        apiVersion: controlplane.cluster.x-k8s.io/v1beta1
-        kind: KubeadmControlPlaneTemplate
-        matchResources:
-          controlPlane: true
-      jsonPatches:
-      - op: add
-        path: /spec/template/spec/kubeadmConfigSpec/preKubeadmCommands/-
-        valueFrom:
-          template: |
-            "echo '[plugins.\"io.containerd.grpc.v1.cri\".registry.configs.\"{{.TKG_CUSTOM_IMAGE_REPOSITORY_HOSTNAME}}\".tls]' >> /etc/containerd/config.toml"
-      - op: add
-        path: /spec/template/spec/kubeadmConfigSpec/preKubeadmCommands/-
-        valueFrom:
-          template: |
-            "echo '  ca_file = \"/etc/containerd/{{.TKG_CUSTOM_IMAGE_REPOSITORY_HOSTNAME}}.crt\"' >> /etc/containerd/config.toml"
-      - op: add
-        path: /spec/template/spec/kubeadmConfigSpec/preKubeadmCommands/-
-        value: systemctl restart containerd
-      - op: add
-        path: /spec/template/spec/kubeadmConfigSpec/files/-
-        valueFrom:
-          template: |
-            path: "/etc/containerd/{{.TKG_CUSTOM_IMAGE_REPOSITORY_HOSTNAME}}.crt"
-            content: {{or .TKG_PROXY_CA_CERT .TKG_CUSTOM_IMAGE_REPOSITORY_CA_CERTIFICATE}}
-            encoding: "base64"
-            permissions: "0444"
-    - selector:
-        apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
-        kind: KubeadmConfigTemplate
-        matchResources:
-          machineDeploymentClass:
-            names:
-            - tkg-worker
-      jsonPatches:
-      - op: add
-        path: /spec/template/spec/preKubeadmCommands/-
-        valueFrom:
-          template: |
-            "echo '[plugins.\"io.containerd.grpc.v1.cri\".registry.configs.\"{{.TKG_CUSTOM_IMAGE_REPOSITORY_HOSTNAME}}\".tls]' >> /etc/containerd/config.toml"
-      - op: add
-        path: /spec/template/spec/preKubeadmCommands/-
-        valueFrom:
-          template: |
-            "echo '  ca_file = \"/etc/containerd/{{.TKG_CUSTOM_IMAGE_REPOSITORY_HOSTNAME}}.crt\"' >> /etc/containerd/config.toml"
-      - op: add
-        path: /spec/template/spec/preKubeadmCommands/-
-        value: systemctl restart containerd
-      - op: add
-        path: /spec/template/spec/files/-
-        valueFrom:
-          template: |
-            path: "/etc/containerd/{{.TKG_CUSTOM_IMAGE_REPOSITORY_HOSTNAME}}.crt"
-            content: {{or .TKG_PROXY_CA_CERT .TKG_CUSTOM_IMAGE_REPOSITORY_CA_CERTIFICATE}}
-            encoding: "base64"
-            permissions: "0444"
-  - name: registrySkipTLSVerify
-    enabledIf: '{{and (ne "" .TKG_CUSTOM_IMAGE_REPOSITORY) .TKG_CUSTOM_IMAGE_REPOSITORY_SKIP_TLS_VERIFY}}'
-    definitions:
-    - selector:
-        apiVersion: controlplane.cluster.x-k8s.io/v1beta1
-        kind: KubeadmControlPlaneTemplate
-        matchResources:
-          controlPlane: true
-      jsonPatches:
-      - op: add
-        path: /spec/template/spec/kubeadmConfigSpec/preKubeadmCommands/-
-        valueFrom:
-          template: |
-            echo '[plugins.\"io.containerd.grpc.v1.cri\".registry.configs.\"{{.TKG_CUSTOM_IMAGE_REPOSITORY_HOSTNAME}}\".tls]' >> /etc/containerd/config.toml
-      - op: add
-        path: /spec/template/spec/kubeadmConfigSpec/preKubeadmCommands/-
-        value: echo '  insecure_skip_verify = true' >> /etc/containerd/config.toml
-    - selector:
-        apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
-        kind: KubeadmConfigTemplate
-        matchResources:
-          machineDeploymentClass:
-            names:
-            - tkg-worker
-      jsonPatches:
-      - op: add
-        path: /spec/template/spec/preKubeadmCommands/-
-        valueFrom:
-          template: |
-            echo '[plugins.\"io.containerd.grpc.v1.cri\".registry.configs.\"{{.TKG_CUSTOM_IMAGE_REPOSITORY_HOSTNAME}}\".tls]' >> /etc/containerd/config.toml
-      - op: add
-        path: /spec/template/spec/preKubeadmCommands/-
-        value: echo '  insecure_skip_verify = true' >> /etc/containerd/config.toml
-  - name: customRepository
-    enabledIf: '{{ne "" .TKG_CUSTOM_IMAGE_REPOSITORY}}'
-    definitions:
-    - selector:
-        apiVersion: controlplane.cluster.x-k8s.io/v1beta1
-        kind: KubeadmControlPlaneTemplate
-        matchResources:
-          controlPlane: true
-      jsonPatches:
-      - op: add
-        path: /spec/template/spec/kubeadmConfigSpec/preKubeadmCommands/-
-        valueFrom:
-          template: |
-            sed -i 's|\".*/pause|\{{.TKG_CUSTOM_IMAGE_REPOSITORY}}/pause|' /etc/containerd/config.toml
-      - op: add
-        path: /spec/template/spec/kubeadmConfigSpec/preKubeadmCommands/-
-        value: systemctl restart containerd
-    - selector:
-        apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
-        kind: KubeadmConfigTemplate
-        matchResources:
-          machineDeploymentClass:
-            names:
-            - tkg-worker
-      jsonPatches:
-      - op: add
-        path: /spec/template/spec/preKubeadmCommands/-
-        valueFrom:
-          template: |
-            sed -i 's|\".*/pause|\{{.TKG_CUSTOM_IMAGE_REPOSITORY}}/pause|' /etc/containerd/config.toml
-      - op: add
-        path: /spec/template/spec/preKubeadmCommands/-
-        value: systemctl restart containerd
