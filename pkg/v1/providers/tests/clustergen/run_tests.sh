@@ -97,10 +97,10 @@ generate_diff_summary() {
    local dir=$1
    local t=$2
 
-   echo xxx {YQ4} e '. or select(.kind != "Secret")' ${dir}/"$t".norm.output redir ${dir}/"$t".norm.for_diff.yaml
    ${YQ4} e '. | select(.kind != "Secret")' ${dir}/"$t".norm.output > ${dir}/legacy/"$t".norm.yaml
    ${YQ4} e '. | select(.kind != "Secret")' ${dir}/"$t".cc.norm.output > ${dir}/cclass/"$t".norm.yaml
 
+   diff -U10 ${dir}/legacy/"$t".norm.yaml ${dir}/cclass/"$t".norm.yaml > ${dir}/"$t".u10.diff
    wdiff -s ${dir}/legacy/"$t".norm.yaml ${dir}/cclass/"$t".norm.yaml | tail -2 | head -1 > ${dir}/"$t".diff_stats
    cat ${dir}/"$t".diff_stats
 }
@@ -145,6 +145,7 @@ check_generated() {
 export SUPPRESS_PROVIDERS_UPDATE=1
 export CLUSTERCTL_SKIP_UNIQUE_NAMESPACE=true
 export CLUSTERCTL_SKIP_FETCH_CC=true
+export UNRANDOMIZE=true
 
 outputdir=$1
 mkdir -p ${TESTDATA}/${outputdir} || true
