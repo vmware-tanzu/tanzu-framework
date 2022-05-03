@@ -37,8 +37,8 @@ type VSphereCPINonParaVirtDataValues struct {
 		Username          string `yaml:"username"`
 		Password          string `yaml:"password"`
 		Host              string `yaml:"host"`
-		InsecureFlag      bool   `yaml:"insecureFlag"`
-		RemoteAuth        bool   `yaml:"remoteAuth"`
+		Insecure          bool   `yaml:"insecure"`
+		RemoteAuthEnabled bool   `yaml:"remoteAuthEnabled"`
 		VmcAccessToken    string `yaml:"vmcAccessToken"`
 		VmcAuthHost       string `yaml:"vmcAuthHost"`
 		ClientCertKeyData string `yaml:"clientCertKeyData"`
