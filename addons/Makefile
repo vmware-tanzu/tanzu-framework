@@ -51,8 +51,7 @@ help: ## Display this help
 .PHONY: test
 test: fmt vet template-tests ## Run Tests
 	$(MAKE) kubebuilder -C ${ROOT_DIR}$(TOOLS_DIR)
-	KUBEBUILDER_ASSETS=${ROOT_DIR}$(KUBEBUILDER_BIN_DIR) go test ./... -timeout 60m -coverprofile cover.out -v 2
-	$(MAKE) test -C pinniped/post-deploy
+	KUBEBUILDER_ASSETS=${ROOT_DIR}$(KUBEBUILDER_BIN_DIR) go test ./... -timeout 60m -coverprofile coverage.txt -v 2
 
 .PHONY: test-verbose
 test-verbose: ## Verbose tests with streaming output for debugging

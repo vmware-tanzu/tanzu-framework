@@ -482,17 +482,22 @@ test: generate fmt vet manifests build-cli-mocks ## Run tests
 
 	## Test the YTT cluster templates
 	echo "Changing into the provider test directory to verify ytt cluster templates..."
-	cd ./pkg/v1/providers/tests/unit && PATH=$(abspath hack/tools/bin):"$(PATH)" $(GO) test -v -timeout 120s ./
+	cd ./pkg/v1/providers/tests/unit && PATH=$(abspath hack/tools/bin):"$(PATH)" $(GO) test -coverprofile coverage1.txt -v -timeout 120s ./
 	echo "... ytt cluster template verification complete!"
 
 	echo "Verifying package tests..."
-	find ./packages/ -name "test" -type d -exec sh -c "cd {} && $(GO) test -v -timeout 120s  ./..." \;
+	find ./packages/ -name "test" -type d -exec sh -c "cd {} && $(GO) test -coverprofile coverage2.txt -v -timeout 120s  ./..." \;
 	echo "... package tests complete!"
 
-	PATH=$(abspath hack/tools/bin):"$(PATH)" $(GO) test -coverprofile cover.out -v `go list ./... | grep -v github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/test`
+	PATH=$(abspath hack/tools/bin):"$(PATH)" $(GO) test -coverprofile coverage3.txt -v `go list ./... | grep -v github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/test`
 
 	$(MAKE) kubebuilder -C $(TOOLS_DIR)
 	KUBEBUILDER_ASSETS=$(ROOT_DIR)/$(KUBEBUILDER)/bin $(MAKE) test -C addons
+
+	# pinniped post-deploy
+	$(MAKE) test -C addons/pinniped/post-deploy
+	# pinniped tanzu-auth-controller-manager
+	addons/pinniped/tanzu-auth-controller-manager/hack/test.sh
 
 .PHONY: test-cli
 test-cli: build-cli-mocks ## Run tests
