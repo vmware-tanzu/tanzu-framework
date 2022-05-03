@@ -265,10 +265,11 @@ spec:
       openAPIV3Schema:
         type: string
         default: ""
-  - name: TKR_KUBERNETES_SPEC
+  - name: TKR_DATA
     schema:
       openAPIV3Schema:
         type: object
+        properties: {}
   patches:
   - name: AzureClusterCustomTags
     enabledIf: '{{if .AZURE_CUSTOM_TAGS}}true{{end}}'
@@ -398,6 +399,40 @@ spec:
             diskSizeGB: {{.AZURE_CONTROL_PLANE_OS_DISK_SIZE_GIB}}
             managedDisk:
               storageAccountType: {{.AZURE_CONTROL_PLANE_OS_DISK_STORAGE_ACCOUNT_TYPE}}
+      - op: replace
+        path: /spec/template/spec/image/marketplace
+        valueFrom:
+          template: |
+            {{ range $k, $v := (index .TKR_DATA .builtin.controlPlane.version).osImageRef }}{{$k}}: {{$v}}
+            {{end}}
+  - name: KCPT_ControlPlane_Main
+    definitions:
+    - selector:
+        apiVersion: controlplane.cluster.x-k8s.io/v1beta1
+        kind: KubeadmControlPlaneTemplate
+        matchResources:
+          controlPlane: true
+      jsonPatches:
+      - op: replace
+        path: /spec/template/spec/kubeadmConfigSpec/clusterConfiguration/imageRepository
+        valueFrom:
+          template: '{{(index .TKR_DATA .builtin.controlPlane.version).kubernetesSpec.imageRepository}}'
+      - op: replace
+        path: /spec/template/spec/kubeadmConfigSpec/clusterConfiguration/etcd/local/imageRepository
+        valueFrom:
+          template: '{{(index .TKR_DATA .builtin.controlPlane.version).kubernetesSpec.imageRepository}}'
+      - op: replace
+        path: /spec/template/spec/kubeadmConfigSpec/clusterConfiguration/etcd/local/imageTag
+        valueFrom:
+          template: '{{(index .TKR_DATA .builtin.controlPlane.version).kubernetesSpec.etcd.imageTag}}'
+      - op: replace
+        path: /spec/template/spec/kubeadmConfigSpec/clusterConfiguration/dns/imageRepository
+        valueFrom:
+          template: '{{(index .TKR_DATA .builtin.controlPlane.version).kubernetesSpec.imageRepository}}'
+      - op: replace
+        path: /spec/template/spec/kubeadmConfigSpec/clusterConfiguration/dns/imageTag
+        valueFrom:
+          template: '{{(index .TKR_DATA .builtin.controlPlane.version).kubernetesSpec.coredns.imageTag}}'
   - name: AMT_MachineDeployment_Main
     definitions:
     - selector:
@@ -428,6 +463,12 @@ spec:
             diskSizeGB: {{ .AZURE_NODE_OS_DISK_SIZE_GIB }}
             managedDisk:
               storageAccountType: {{ .AZURE_NODE_OS_DISK_STORAGE_ACCOUNT_TYPE }}
+      - op: replace
+        path: /spec/template/spec/image/marketplace
+        valueFrom:
+          template: |
+            {{ range $k, $v := (index .TKR_DATA .builtin.machineDeployment.version).osImageRef }}{{$k}}: {{$v}}
+            {{end}}
   - name: AMT_EnableNodeDataDisk
     enabledIf: '{{if .AZURE_ENABLE_NODE_DATA_DISK}}true{{end}}'
     definitions:
@@ -544,6 +585,48 @@ spec:
           template: |
             frontendIPsCount: {{ .AZURE_NODE_OUTBOUND_LB_FRONTEND_IP_COUNT }}
             idleTimeoutInMinutes: {{ .AZURE_NODE_OUTBOUND_LB_IDLE_TIMEOUT_IN_MINUTES }}
+  - name: nodeLabels
+    definitions:
+    - selector:
+        apiVersion: controlplane.cluster.x-k8s.io/v1beta1
+        kind: KubeadmControlPlaneTemplate
+        matchResources:
+          controlPlane: true
+      jsonPatches:
+      - op: add
+        path: /spec/template/spec/kubeadmConfigSpec/joinConfiguration/nodeRegistration/kubeletExtraArgs
+        valueFrom:
+          template: |
+            node-labels: {{$first := true}}
+              {{- range $key, $val := (index .TKR_DATA .builtin.controlPlane.version).labels}}
+              {{- if $first }}
+                {{- $first = false }}
+              {{- else -}}
+                ,
+              {{- end }}
+              {{- $key }}={{- $val }}
+              {{- end}}
+    - selector:
+        apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
+        kind: KubeadmConfigTemplate
+        matchResources:
+          machineDeploymentClass:
+            names:
+            - "tkg-worker"
+      jsonPatches:
+      - op: add
+        path: /spec/template/spec/joinConfiguration/nodeRegistration/kubeletExtraArgs
+        valueFrom:
+          template: |
+            node-labels: {{$first := true}}
+              {{- range $key, $val := (index .TKR_DATA .builtin.machineDeployment.version).labels}}
+              {{- if $first }}
+                {{- $first = false }}
+              {{- else -}}
+                ,
+              {{- end }}
+              {{- $key }}={{- $val }}
+              {{- end}}
   - name: httpProxy
     enabledIf: '{{not (not .proxy)}}'
     definitions:
@@ -1019,17 +1102,17 @@ spec:
               name: cloud-config
               readOnly: true
           dns:
-            imageRepository: registry.tkg.vmware.run
-            imageTag: v1.6.5_vmware.4
+            imageRepository: #! e.g. registry.tkg.vmware.run
+            imageTag: #! e.g. v1.6.5_vmware.4
           etcd:
             local:
               dataDir: /var/lib/etcddisk/etcd
               extraArgs:
                 cipher-suites: TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
                 quota-backend-bytes: "8589934592"
-              imageRepository: registry.tkg.vmware.run
-              imageTag: v3.4.3_vmware.4
-          imageRepository: registry.tkg.vmware.run
+              imageRepository: #! e.g. registry.tkg.vmware.run
+              imageTag: #! e.g v3.4.3_vmware.4
+          imageRepository: #! e.g. registry.tkg.vmware.run
         diskSetup:
           filesystems:
           - device: /dev/disk/azure/scsi1/lun0
@@ -1097,7 +1180,7 @@ spec:
         lun: 0
         nameSuffix: etcddisk
       image:
-        id: image_id
+        marketplace:
       osDisk:
         diskSizeGB: 128
         managedDisk:
@@ -1148,7 +1231,7 @@ spec:
           storageAccountType: Premium_LRS
         osType: Linux
       image:
-        id: image_id
+        marketplace:
       sshPublicKey: ${AZURE_SSH_PUBLIC_KEY_B64:=""}
       vmSize: ${AZURE_NODE_MACHINE_TYPE}
 
