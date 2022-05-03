@@ -428,6 +428,34 @@ spec:
         valueFrom:
           template: '{{ (index .TKR_DATA .builtin.controlPlane.version).kubernetesSpec.coredns.imageTag }}'
 
+  - name: AWS_KCPT
+    definitions:
+    - selector:
+        apiVersion: controlplane.cluster.x-k8s.io/v1beta1
+        kind: KubeadmControlPlaneTemplate
+        matchResources:
+          controlPlane: true
+      jsonPatches:
+      - op: replace
+        path: /spec/template/spec/kubeadmConfigSpec/clusterConfiguration/imageRepository
+        valueFrom:
+          template: '{{(index .TKR_DATA .builtin.controlPlane.version).kubernetesSpec.imageRepository}}'
+      - op: replace
+        path: /spec/template/spec/kubeadmConfigSpec/clusterConfiguration/etcd/local/imageRepository
+        valueFrom:
+          template: '{{(index .TKR_DATA .builtin.controlPlane.version).kubernetesSpec.imageRepository}}'
+      - op: replace
+        path: /spec/template/spec/kubeadmConfigSpec/clusterConfiguration/etcd/local/imageTag
+        valueFrom:
+          template: '{{(index .TKR_DATA .builtin.controlPlane.version).kubernetesSpec.etcd.imageTag}}'
+      - op: replace
+        path: /spec/template/spec/kubeadmConfigSpec/clusterConfiguration/dns/imageRepository
+        valueFrom:
+          template: '{{(index .TKR_DATA .builtin.controlPlane.version).kubernetesSpec.imageRepository}}'
+      - op: replace
+        path: /spec/template/spec/kubeadmConfigSpec/clusterConfiguration/dns/imageTag
+        valueFrom:
+          template: '{{(index .TKR_DATA .builtin.controlPlane.version).kubernetesSpec.coredns.imageTag}}'
   - name: AWS_MT_controlplane
     definitions:
     - selector:
