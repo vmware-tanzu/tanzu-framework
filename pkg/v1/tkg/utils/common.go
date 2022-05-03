@@ -114,8 +114,11 @@ func CompareVMwareVersionStrings(v1, v2 string) (int, error) {
 		return compareResult, nil
 	}
 
-	v1VmwareBuildVersion, err1 := strconv.Atoi(v1s[1])
-	v2VmwareBuildVersion, err2 := strconv.Atoi(v2s[1])
+	buildVersionV1 := strings.Split(v1s[1], "-")
+	buildVersionV2 := strings.Split(v2s[1], "-")
+
+	v1VmwareBuildVersion, err1 := strconv.Atoi(buildVersionV1[0])
+	v2VmwareBuildVersion, err2 := strconv.Atoi(buildVersionV2[0])
 	if err1 != nil || err2 != nil {
 		return 0, errors.New("invalid version string")
 	}
