@@ -69,7 +69,7 @@ func (t *tkgctl) Init(options InitRegionOptions) error {
 
 	ceipOptIn, err := strconv.ParseBool(options.CeipOptIn)
 	if err != nil {
-		ceipOptIn = false
+		ceipOptIn = true
 	}
 
 	if logPath, err := t.getAuditLogPath(options.ClusterName); err == nil {
@@ -317,6 +317,8 @@ func (t *tkgctl) configureInitManagementClusterOptionsFromConfigFile(iro *InitRe
 		ceipOptIn, err := t.TKGConfigReaderWriter().Get(constants.ConfigVariableEnableCEIPParticipation)
 		if err == nil {
 			iro.CeipOptIn = ceipOptIn
+		} else if iro.Edition == "tce" {
+			iro.CeipOptIn = False
 		} else {
 			iro.CeipOptIn = True
 		}
