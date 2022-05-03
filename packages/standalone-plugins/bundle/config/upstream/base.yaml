@@ -24,23 +24,23 @@ spec:
     machineDeployments:
     - class: tkg-worker
       template:
-         bootstrap:
-           ref:
-             apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
-             kind: KubeadmConfigTemplate
-             name: tkg-aws-bootstrap-template
-         infrastructure:
-           ref:
-             apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
-             kind: AWSMachineTemplate
-             name: tkg-aws-worker-template
+        bootstrap:
+          ref:
+            apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
+            kind: KubeadmConfigTemplate
+            name: tkg-aws-bootstrap-template
+        infrastructure:
+          ref:
+            apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+            kind: AWSMachineTemplate
+            name: tkg-aws-worker-template
   infrastructure:
-     ref:
-        apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
-        kind: AWSClusterTemplate
-        name: aws-cluster-template
+    ref:
+      apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+      kind: AWSClusterTemplate
+      name: aws-cluster-template
   variables:
-  - name: AWS_REGION
+  - name: region
     required: true
     schema:
       openAPIV3Schema:
@@ -48,7 +48,7 @@ spec:
         #@ if data.values.AWS_REGION:
         default: #@ data.values.AWS_REGION
         #@ end
-  - name: AWS_SSH_KEY_NAME
+  - name: sshKeyName
     required: true
     schema:
       openAPIV3Schema:
@@ -56,264 +56,187 @@ spec:
         #@ if data.values.AWS_SSH_KEY_NAME:
         default: #@ data.values.AWS_SSH_KEY_NAME
         #@ end
-  - name: BASTION_HOST_ENABLED
+  - name: identityRef
     required: true
-    schema:
-      openAPIV3Schema:
-        type: boolean
-        #@ if data.values.BASTION_HOST_ENABLED:
-        default: #@ data.values.BASTION_HOST_ENABLED
-        #@ else:
-        default: true
-        #@ end
-  - name: AWS_VPC_CIDR
-    required: true
-    schema:
-      openAPIV3Schema:
-        type: string
-        default: "10.0.0.0/16"
-  - name: AWS_VPC_ID
-    required: true
-    schema:
-      openAPIV3Schema:
-        type: string
-        default: ""
-  - name: AWS_NODE_AZ
-    required: true
-    schema:
-      openAPIV3Schema:
-        type: string
-        default: ""
-  - name: AWS_NODE_AZ_1
-    required: true
-    schema:
-      openAPIV3Schema:
-        type: string
-        default: ""
-  - name: AWS_NODE_AZ_2
-    required: true
-    schema:
-      openAPIV3Schema:
-        type: string
-        default: ""
-  - name: AWS_PRIVATE_NODE_CIDR
-    required: true
-    schema:
-      openAPIV3Schema:
-        type: string
-        default: 10.0.0.0/24
-  - name: AWS_PRIVATE_NODE_CIDR_1
-    required: true
-    schema:
-      openAPIV3Schema:
-        type: string
-        default: 10.0.2.0/24
-  - name: AWS_PRIVATE_NODE_CIDR_2
-    required: true
-    schema:
-      openAPIV3Schema:
-        type: string
-        default: 10.0.4.0/24
-  - name: AWS_PRIVATE_SUBNET_ID
-    required: true
-    schema:
-      openAPIV3Schema:
-        type: string
-        default: ""
-  - name: AWS_PRIVATE_SUBNET_ID_1
-    required: true
-    schema:
-      openAPIV3Schema:
-        type: string
-        default: ""
-  - name: AWS_PRIVATE_SUBNET_ID_2
-    required: true
-    schema:
-      openAPIV3Schema:
-        type: string
-        default: ""
-  - name: AWS_PUBLIC_NODE_CIDR
-    required: true
-    schema:
-      openAPIV3Schema:
-        type: string
-        default: 10.0.1.0/24
-  - name: AWS_PUBLIC_NODE_CIDR_1
-    required: true
-    schema:
-      openAPIV3Schema:
-        type: string
-        default: 10.0.3.0/24
-  - name: AWS_PUBLIC_NODE_CIDR_2
-    required: true
-    schema:
-      openAPIV3Schema:
-        type: string
-        default: 10.0.5.0/24
-  - name: AWS_PUBLIC_SUBNET_ID
-    required: true
-    schema:
-      openAPIV3Schema:
-        type: string
-        default: ""
-  - name: AWS_PUBLIC_SUBNET_ID_1
-    required: true
-    schema:
-      openAPIV3Schema:
-        type: string
-        default: ""
-  - name: AWS_PUBLIC_SUBNET_ID_2
-    required: true
-    schema:
-      openAPIV3Schema:
-        type: string
-        default: ""
-  - name: CONTROL_PLANE_MACHINE_TYPE
-    required: true
-    schema:
-      openAPIV3Schema:
-        type: string
-        default: t3.large
-  - name: NODE_MACHINE_TYPE
-    required: true
-    schema:
-      openAPIV3Schema:
-        type: string
-        default: m5.large
-  - name: AWS_CONTROL_PLANE_OS_DISK_SIZE_GIB
-    required: true
-    schema:
-      openAPIV3Schema:
-        type: integer
-        #@ if data.values.AWS_CONTROL_PLANE_OS_DISK_SIZE_GIB:
-        default: #@ data.values.AWS_CONTROL_PLANE_OS_DISK_SIZE_GIB
-        #@ else:
-        default: 80
-        #@ end
-  - name: AWS_NODE_OS_DISK_SIZE_GIB
-    required: true
-    schema:
-      openAPIV3Schema:
-        type: integer
-        #@ if data.values.AWS_NODE_OS_DISK_SIZE_GIB:
-        default: #@ data.values.AWS_NODE_OS_DISK_SIZE_GIB
-        #@ else:
-        default: 80
-        #@ end
-  - name: AWS_SECURITY_GROUP_BASTION
-    required: true
-    schema:
-      openAPIV3Schema:
-        type: string
-        default: ""
-  - name: AWS_SECURITY_GROUP_CONTROLPLANE
-    required: true
-    schema:
-      openAPIV3Schema:
-        type: string
-        default: ""
-  - name: AWS_SECURITY_GROUP_APISERVER_LB
-    required: true
-    schema:
-      openAPIV3Schema:
-        type: string
-        default: ""
-  - name: AWS_SECURITY_GROUP_NODE
-    required: true
-    schema:
-      openAPIV3Schema:
-        type: string
-        default: ""
-  - name: AWS_SECURITY_GROUP_LB
-    required: true
-    schema:
-      openAPIV3Schema:
-        type: string
-        default: ""
-  - name: AWS_LOAD_BALANCER_SCHEME_INTERNAL
-    required: true
-    schema:
-      openAPIV3Schema:
-        type: boolean
-        default: false
-  - name: AWS_IDENTITY_REF_KIND
-    required: true
-    schema:
-      openAPIV3Schema:
-        type: string
-        default: ""
-  - name: AWS_IDENTITY_REF_NAME
-    required: true
-    schema:
-      openAPIV3Schema:
-        type: string
-        default: ""
-  - name: CLUSTER_NAME
-    required: true
-    schema:
-      openAPIV3Schema:
-        type: string
-  - name: CLUSTER_PLAN
-    required: true
-    schema:
-      openAPIV3Schema:
-        type: string
-  - name: proxy
     schema:
       openAPIV3Schema:
         type: object
         properties:
-          httpProxy:
+          kind:
             type: string
-            default: ""
-          httpsProxy:
+            default: AWSClusterRoleIdentity
+          name:
             type: string
-            default: ""
-          noProxy:
+        #! required:
+        #! - name
+  - name: bastion
+    required: false
+    schema:
+      openAPIV3Schema:
+        type: object
+        properties:
+          enabled:
+            type: boolean
+        required:
+        - enabled
+    default:
+    #@ if data.values.BASTION_HOST_ENABLED:
+      enabled: #@ data.values.BASTION_HOST_ENABLED
+    #@ else:
+      enabled: true
+    #@ end
+  - name: loadBalancerSchemeInternal
+    required: false
+    schema:
+      openAPIV3Schema:
+        type: boolean
+        default: false
+  - name: network
+    required: true
+    schema:
+      openAPIV3Schema:
+        type: object
+        properties:
+          vpc:
+            type: object
+            properties:
+              existingID:
+                type: string
+              cidr:
+                type: string
+                default: 10.0.0.0/16
+                format: cidr
+          subnets:
             type: array
             items:
-              type: string
+              type: object
+              properties:
+                az:
+                  type: string
+                private: &subnet
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                    cidr:
+                      type: string
+                      format: cidr
+                public: *subnet
+          securityGroupOverrides:
+            type: object
+            properties:
+              bastion:
+                type: string
+              apiServerLB:
+                type: string
+              lb:
+                type: string
+              controlplane:
+                type: string
+              node:
+                type: string
+          proxy:
+            type: object
+            properties:
+              httpProxy:
+                type: string
+              httpsProxy:
+                type: string
+              noProxy:
+                type: array
+                items:
+                  type: string
+                default: []
+            required:
+            - httpProxy
+            - httpsProxy
         required:
-          - httpProxy
-          - httpsProxy
-          - noProxy
-  - name: TKG_PROXY_CA_CERT
+        - vpc
+        - subnets
+  - name: controlPlane
     required: true
     schema:
       openAPIV3Schema:
-        type: string
-        default: ""
-  - name: TKG_CUSTOM_IMAGE_REPOSITORY
+        type: object
+        properties:
+          instanceType:
+            type: string
+            default: t3.large
+          rootVolume:
+            type: object
+            properties:
+              sizeGiB:
+                type: integer
+                #@ if data.values.AWS_CONTROL_PLANE_OS_DISK_SIZE_GIB:
+                default: #@ data.values.AWS_CONTROL_PLANE_OS_DISK_SIZE_GIB
+                #@ else:
+                default: 80
+                #@ end
+  - name: worker
     required: true
     schema:
       openAPIV3Schema:
-        type: string
-        default: ""
-  #! TODO this is subset of above, try to remove this
-  - name: TKG_CUSTOM_IMAGE_REPOSITORY_HOSTNAME
-    required: true
+        type: object
+        properties:
+          instanceType:
+            type: string
+            default: m5.large
+          rootVolume:
+            type: object
+            properties:
+              sizeGiB:
+                type: integer
+                #@ if data.values.AWS_NODE_OS_DISK_SIZE_GIB:
+                default: #@ data.values.AWS_NODE_OS_DISK_SIZE_GIB
+                #@ else:
+                default: 80
+                #@ end
+  - name: imageRepository
+    required: false
     schema:
       openAPIV3Schema:
-        type: string
-        default: ""
-  - name: TKG_CUSTOM_IMAGE_REPOSITORY_CA_CERTIFICATE
-    required: true
+        type: object
+        properties:
+          host:
+            type: string
+            format: uri
+          tlsCertificateValidation:
+            type: boolean
+            default: true
+  - name: trust
+    required: false
     schema:
       openAPIV3Schema:
-        type: string
-        default: ""
-  - name: TKG_CUSTOM_IMAGE_REPOSITORY_SKIP_TLS_VERIFY
-    required: true
+        type: array
+        items:
+          type: object
+          properties:
+            name:
+              type: string
+            data:
+              type: string
+          required:
+          - name
+          - data
+  - name: auditLogging
+    required: false
     schema:
       openAPIV3Schema:
-        type: boolean
-        default: false
-  - name: ENABLE_AUDIT_LOGGING
-    required: true
+        type: object
+        properties:
+          enabled:
+            type: boolean
+            default: false
+        required:
+        - enabled
+    default:
+      enabled: false
+  - name: TKR_DATA
+    required: false
     schema:
       openAPIV3Schema:
-        type: boolean
-        default: false
+        type: object
+        properties: {}
   patches:
   - name: AWSCT_main
     definitions:
@@ -324,31 +247,40 @@ spec:
           infrastructureCluster: true
       jsonPatches:
       - op: replace
-        path: "/spec/template/spec/region"
+        path: /spec/template/spec/region
         valueFrom:
-          template: '{{.AWS_REGION}}'
+          variable: region
       - op: replace
-        path: "/spec/template/spec/sshKeyName"
+        path: /spec/template/spec/sshKeyName
         valueFrom:
-          variable: AWS_SSH_KEY_NAME
+          variable: sshKeyName
       - op: replace
-        path: "/spec/template/spec/bastion/enabled"
+        path: /spec/template/spec/bastion/enabled
         valueFrom:
-          variable: BASTION_HOST_ENABLED
+          variable: bastion.enabled
       - op: add
-        path: "/spec/template/spec/network/vpc/cidrBlock"
+        path: /spec/template/spec/network/vpc/cidrBlock
         valueFrom:
-          variable: AWS_VPC_CIDR
+          variable: network.vpc.cidr
       - op: replace
-        path: "/spec/template/spec/network/subnets"
+        path: /spec/template/spec/network/subnets
         valueFrom:
           template: |
-            - availabilityZone: {{if .AWS_NODE_AZ}} {{.AWS_NODE_AZ}} {{else if .AWS_REGION}} {{.AWS_REGION}}a{{end}}
-              cidrBlock: {{.AWS_PRIVATE_NODE_CIDR}}
-              id: '{{.AWS_PRIVATE_SUBNET_ID}}'
+            {{ $suffix := list "a" "b" "c" }}
+            {{- range $i, $subnet := .network.subnets }}
+            - availabilityZone: {{ if $subnet.az }} {{- $subnet.az }} {{- else if $.region }} {{- $.region }} {{- index $suffix $i }} {{- end }}
+              cidrBlock: {{ $subnet.private.cidr | default "\"\"" }}
+              id: {{ $subnet.private.id | default "\"\"" }}
+            {{- if or (empty $.network.vpc.existingID) (not (empty $subnet.public)) }}
+            - availabilityZone: {{ if $subnet.az }} {{- $subnet.az }} {{- else if $.region }} {{- $.region }} {{- index $suffix $i }} {{- end }}
+              cidrBlock: {{ $subnet.public.cidr | default "\"\"" }}
+              isPublic: true
+              id: {{ $subnet.public.id | default "\"\"" }}
+            {{- end }}
+            {{- end }}
 
-  - name: AWSCT_VPC_Id
-    enabledIf: '{{if .AWS_VPC_ID }}true{{end}}'
+  - name: AWSCT_VPC_ID
+    enabledIf: '{{ not (empty .network.vpc.existingID) }}'
     definitions:
     - selector:
         apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
@@ -357,12 +289,12 @@ spec:
           infrastructureCluster: true
       jsonPatches:
       - op: add
-        path: "/spec/template/spec/network/vpc/id"
+        path: /spec/template/spec/network/vpc/id
         valueFrom:
-          template: '{{.AWS_VPC_ID}}'
+          variable: network.vpc.existingID
 
   - name: AWSCT_IdentityRef
-    enabledIf: '{{if .AWS_IDENTITY_REF_NAME }}true{{end}}'
+    enabledIf: '{{ not (empty .identityRef.name) }}'
     definitions:
     - selector:
         apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
@@ -371,14 +303,14 @@ spec:
           infrastructureCluster: true
       jsonPatches:
       - op: add
-        path: "/spec/template/spec/identityRef"
+        path: /spec/template/spec/identityRef
         valueFrom:
           template: |
-            kind: {{if .AWS_IDENTITY_REF_KIND }} {{.AWS_IDENTITY_REF_KIND}} {{else}} "AWSClusterRoleIdentity"{{end}}
-            name: {{ .AWS_IDENTITY_REF_NAME }}
+            kind: {{ if .identityRef.kind }} {{- .identityRef.kind }} {{- else -}} AWSClusterRoleIdentity {{- end }}
+            name: {{ .identityRef.name }}
 
   - name: AWSCT_ControlPlaneLoadBalancerScheme
-    enabledIf: '{{if eq .AWS_LOAD_BALANCER_SCHEME_INTERNAL true }}true{{end}}'
+    enabledIf: '{{ .loadBalancerSchemeInternal }}'
     definitions:
     - selector:
         apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
@@ -387,87 +319,13 @@ spec:
           infrastructureCluster: true
       jsonPatches:
       - op: add
-        path: "/spec/template/spec/controlPlaneLoadBalancer"
+        path: /spec/template/spec/controlPlaneLoadBalancer
         valueFrom:
           template: |
-            scheme: "internal"
+            scheme: internal
 
-  - name: AWSCT_AvailabilityZone_Public
-    enabledIf: '{{if or (not .AWS_VPC_ID) (.AWS_PUBLIC_SUBNET_ID) }}true{{end}}'
-    definitions:
-    - selector:
-        apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
-        kind: AWSClusterTemplate
-        matchResources:
-          infrastructureCluster: true
-      jsonPatches:
-      - op: add
-        path: "/spec/template/spec/network/subnets/-"
-        valueFrom:
-          template: |
-            availabilityZone: {{if .AWS_NODE_AZ}} {{.AWS_NODE_AZ}} {{else if .AWS_REGION}} {{.AWS_REGION}}a{{end}}
-            cidrBlock: {{.AWS_PUBLIC_NODE_CIDR}}
-            isPublic: true
-            id: '{{.AWS_PUBLIC_SUBNET_ID}}'
-  - name: AWSCT_AvailabilityZone_1_Public
-    enabledIf: '{{if and (eq .CLUSTER_PLAN "prodcc") (or (not .AWS_VPC_ID) (.AWS_PUBLIC_SUBNET_ID_1)) }}true{{end}}'
-    definitions:
-    - selector:
-        apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
-        kind: AWSClusterTemplate
-        matchResources:
-          infrastructureCluster: true
-      jsonPatches:
-      - op: add
-        path: "/spec/template/spec/network/subnets/-"
-        valueFrom:
-          template: |
-            availabilityZone: {{if .AWS_NODE_AZ_1}} {{.AWS_NODE_AZ_1}} {{else if .AWS_REGION}} {{.AWS_REGION}}b{{end}}
-            cidrBlock: {{.AWS_PUBLIC_NODE_CIDR_1}}
-            isPublic: true
-            id: '{{.AWS_PUBLIC_SUBNET_ID_1}}'
-  - name: AWSCT_AvailabilityZone_2_Public
-    enabledIf: '{{if and (eq .CLUSTER_PLAN "prodcc") (or (not .AWS_VPC_ID) (.AWS_PUBLIC_SUBNET_ID_2)) }}true{{end}}'
-    definitions:
-    - selector:
-        apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
-        kind: AWSClusterTemplate
-        matchResources:
-          infrastructureCluster: true
-      jsonPatches:
-      - op: add
-        path: "/spec/template/spec/network/subnets/-"
-        valueFrom:
-          template: |
-            availabilityZone: {{if .AWS_NODE_AZ_2}} {{.AWS_NODE_AZ_2}} {{else if .AWS_REGION}} {{.AWS_REGION}}c{{end}}
-            cidrBlock: {{.AWS_PUBLIC_NODE_CIDR_2}}
-            isPublic: true
-            id: '{{.AWS_PUBLIC_SUBNET_ID_2}}'
-  - name: AWSCT_AvailabilityZone_Private
-    enabledIf: '{{if eq .CLUSTER_PLAN "prodcc"}}true{{end}}'
-    definitions:
-    - selector:
-        apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
-        kind: AWSClusterTemplate
-        matchResources:
-          infrastructureCluster: true
-      jsonPatches:
-      - op: add
-        path: "/spec/template/spec/network/subnets/-"
-        valueFrom:
-          template: |
-            availabilityZone: {{if .AWS_NODE_AZ_1}} {{.AWS_NODE_AZ_1}} {{else if .AWS_REGION}} {{.AWS_REGION}}b{{end}}
-            cidrBlock: {{.AWS_PRIVATE_NODE_CIDR_1}}
-            id: '{{.AWS_PRIVATE_SUBNET_ID_1}}'
-      - op: add
-        path: "/spec/template/spec/network/subnets/-"
-        valueFrom:
-          template: |
-            availabilityZone: {{if .AWS_NODE_AZ_2}} {{.AWS_NODE_AZ_2}} {{else if .AWS_REGION}} {{.AWS_REGION}}c{{end}}
-            cidrBlock: {{.AWS_PRIVATE_NODE_CIDR_2}}
-            id: '{{.AWS_PRIVATE_SUBNET_ID_2}}'
   - name: AWSCT_SecurityGroupOverrides
-    enabledIf: '{{if or ( ne .AWS_SECURITY_GROUP_BASTION "") (ne .AWS_SECURITY_GROUP_CONTROLPLANE "") (ne .AWS_SECURITY_GROUP_APISERVER_LB "") (ne .AWS_SECURITY_GROUP_NODE "") (ne .AWS_SECURITY_GROUP_LB "")}}true{{end}}'
+    enabledIf: '{{ any .network.securityGroupOverrides.bastion .network.securityGroupOverrides.controlPlane .network.securityGroupOverrides.apiServerLB .network.securityGroupOverrides.node .network.securityGroupOverrides.lb }}'
     definitions:
     - selector:
         apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
@@ -476,14 +334,43 @@ spec:
           infrastructureCluster: true
       jsonPatches:
       - op: add
-        path: "/spec/template/spec/network/securityGroupOverrides"
+        path: /spec/template/spec/network/securityGroupOverrides
         valueFrom:
           template: |
-              {{if .AWS_SECURITY_GROUP_BASTION}}  bastion: {{.AWS_SECURITY_GROUP_BASTION}} {{end}}
-              {{if .AWS_SECURITY_GROUP_CONTROLPLANE }}  controlplane: {{.AWS_SECURITY_GROUP_CONTROLPLANE}} {{end}}
-              {{if .AWS_SECURITY_GROUP_APISERVER_LB }}  apiserver-lb:  {{.AWS_SECURITY_GROUP_APISERVER_LB}} {{end}}
-              {{if .AWS_SECURITY_GROUP_NODE }}  node: {{.AWS_SECURITY_GROUP_NODE}} {{end}}
-              {{if .AWS_SECURITY_GROUP_LB }}  lb: {{.AWS_SECURITY_GROUP_LB}} {{end}}
+              {{ if .network.securityGroupOverrides.bastion }}  bastion: {{ .network.securityGroupOverrides.bastion }} {{- end }}
+              {{ if .network.securityGroupOverrides.controlPlane }}  controlplane: {{ .network.securityGroupOverrides.controlPlane }} {{- end }}
+              {{ if .network.securityGroupOverrides.apiServerLB }}  apiserver-lb:  {{ .network.securityGroupOverrides.apiServerLB }} {{- end }}
+              {{ if .network.securityGroupOverrides.node }}  node: {{ .network.securityGroupOverrides.node }} {{- end }}
+              {{ if .network.securityGroupOverrides.lb }}  lb: {{ .network.securityGroupOverrides.lb }} {{- end }}
+
+  - name: AWS_KCPT
+    definitions:
+    - selector:
+        apiVersion: controlplane.cluster.x-k8s.io/v1beta1
+        kind: KubeadmControlPlaneTemplate
+        matchResources:
+          controlPlane: true
+      jsonPatches:
+      - op: replace
+        path: /spec/template/spec/kubeadmConfigSpec/clusterConfiguration/imageRepository
+        valueFrom:
+          template: '{{ (index .TKR_DATA .builtin.controlPlane.version).kubernetesSpec.imageRepository }}'
+      - op: replace
+        path: /spec/template/spec/kubeadmConfigSpec/clusterConfiguration/etcd/local/imageRepository
+        valueFrom:
+          template: '{{ (index .TKR_DATA .builtin.controlPlane.version).kubernetesSpec.imageRepository }}'
+      - op: replace
+        path: /spec/template/spec/kubeadmConfigSpec/clusterConfiguration/etcd/local/imageTag
+        valueFrom:
+          template: '{{ (index .TKR_DATA .builtin.controlPlane.version).kubernetesSpec.etcd.imageTag }}'
+      - op: replace
+        path: /spec/template/spec/kubeadmConfigSpec/clusterConfiguration/dns/imageRepository
+        valueFrom:
+          template: '{{ (index .TKR_DATA .builtin.controlPlane.version).kubernetesSpec.imageRepository }}'
+      - op: replace
+        path: /spec/template/spec/kubeadmConfigSpec/clusterConfiguration/dns/imageTag
+        valueFrom:
+          template: '{{ (index .TKR_DATA .builtin.controlPlane.version).kubernetesSpec.coredns.imageTag }}'
 
   - name: AWS_MT_controlplane
     definitions:
@@ -494,18 +381,21 @@ spec:
           controlPlane: true
       jsonPatches:
       - op: replace
-        path: "/spec/template/spec/instanceType"
+        path: /spec/template/spec/instanceType
         valueFrom:
-          variable: CONTROL_PLANE_MACHINE_TYPE
+          variable: controlPlane.instanceType
       - op: replace
-        path: "/spec/template/spec/sshKeyName"
+        path: /spec/template/spec/sshKeyName
         valueFrom:
-          variable: AWS_SSH_KEY_NAME
+          variable: sshKeyName
       - op: replace
-        path: "/spec/template/spec/rootVolume/size"
+        path: /spec/template/spec/rootVolume/size
         valueFrom:
-          variable: AWS_CONTROL_PLANE_OS_DISK_SIZE_GIB
-
+          variable: controlPlane.rootVolume.sizeGiB
+      - op: replace
+        path: /spec/template/spec/ami/id
+        valueFrom:
+          template: '{{ (index .TKR_DATA .builtin.controlPlane.version).osImageRef.id }}'
   - name: AWS_MT_worker
     definitions:
     - selector:
@@ -517,19 +407,66 @@ spec:
             - "tkg-worker"
       jsonPatches:
       - op: replace
-        path: "/spec/template/spec/instanceType"
+        path: /spec/template/spec/instanceType
         valueFrom:
-          variable: NODE_MACHINE_TYPE
+          variable: worker.instanceType
       - op: replace
-        path: "/spec/template/spec/sshKeyName"
+        path: /spec/template/spec/sshKeyName
         valueFrom:
-          variable: AWS_SSH_KEY_NAME
+          variable: sshKeyName
       - op: replace
-        path: "/spec/template/spec/rootVolume/size"
+        path: /spec/template/spec/rootVolume/size
         valueFrom:
-          variable: AWS_NODE_OS_DISK_SIZE_GIB
+          variable: worker.rootVolume.sizeGiB
+      - op: replace
+        path: /spec/template/spec/ami/id
+        valueFrom:
+          template: '{{ (index .TKR_DATA .builtin.machineDeployment.version).osImageRef.id }}'
+
+  - name: nodeLabels
+    definitions:
+    - selector:
+        apiVersion: controlplane.cluster.x-k8s.io/v1beta1
+        kind: KubeadmControlPlaneTemplate
+        matchResources:
+          controlPlane: true
+      jsonPatches:
+      - op: add
+        path: /spec/template/spec/kubeadmConfigSpec/joinConfiguration/nodeRegistration/kubeletExtraArgs/node-labels
+        valueFrom:
+          template: |
+            {{ $first := true }}
+            {{- range $key, $val := (index .TKR_DATA .builtin.controlPlane.version).labels }}
+            {{- if $first }}
+              {{- $first = false }}
+            {{- else -}}
+              ,
+            {{- end }}
+            {{- $key }}={{ $val }}
+            {{- end }}
+    - selector:
+        apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
+        kind: KubeadmConfigTemplate
+        matchResources:
+          machineDeploymentClass:
+            names:
+            - "tkg-worker"
+      jsonPatches:
+      - op: add
+        path: /spec/template/spec/joinConfiguration/nodeRegistration/kubeletExtraArgs/node-labels
+        valueFrom:
+          template: |
+            {{ $first := true }}
+            {{- range $key, $val := (index .TKR_DATA .builtin.machineDeployment.version).labels }}
+            {{- if $first }}
+              {{- $first = false }}
+            {{- else -}}
+              ,
+            {{- end }}
+            {{- $key }}={{ $val }}
+            {{- end }}
   - name: httpProxy
-    enabledIf: '{{not (not .proxy)}}'
+    enabledIf: '{{ not (empty .network.proxy) }}'
     definitions:
     - selector:
         apiVersion: controlplane.cluster.x-k8s.io/v1beta1
@@ -540,24 +477,24 @@ spec:
       - op: add
         path: /spec/template/spec/kubeadmConfigSpec/files/-
         valueFrom:
-          template: |
+          template: &containerdProxyConf |
             content: |
               [Service]
-              Environment="HTTP_PROXY={{.proxy.httpProxy}}"
-              Environment="HTTPS_PROXY={{.proxy.httpsProxy}}"
-              Environment="NO_PROXY={{- range .proxy.noProxy}}{{.}},{{- end}}{{.AWS_VPC_CIDR}},169.254.0.0/16,{{.SERVICE_CIDR}},{{.CLUSTER_CIDR}},localhost,127.0.0.1,.scv,.svc.cluster.local"
+              Environment="HTTP_PROXY= {{- .network.proxy.httpProxy -}} "
+              Environment="HTTPS_PROXY= {{- .network.proxy.httpsProxy -}} "
+              Environment="NO_PROXY= {{- list .network.vpc.cidr "169.254.0.0/16" "localhost" "127.0.0.1" ".svc" ".svc.cluster.local" | concat .network.proxy.noProxy .builtin.cluster.network.services .builtin.cluster.network.pods | uniq | sortAlpha | join "," -}} "
             owner: root:root
             path: /etc/systemd/system/containerd.service.d/http-proxy.conf
             permissions: "0640"
       - op: add
         path: /spec/template/spec/kubeadmConfigSpec/files/-
         valueFrom:
-          template: |
+          template: &kubeletProxyConf |
             content: |
               [Service]
-              Environment="HTTP_PROXY={{.proxy.httpProxy}}"
-              Environment="HTTPS_PROXY={{.proxy.httpsProxy}}"
-              Environment="NO_PROXY={{- range .proxy.noProxy}}{{.}},{{- end}}{{.AWS_VPC_CIDR}},169.254.0.0/16,{{.SERVICE_CIDR}},{{.CLUSTER_CIDR}},localhost,127.0.0.1,.scv,.svc.cluster.local"
+              Environment="HTTP_PROXY= {{- .network.proxy.httpProxy -}} "
+              Environment="HTTPS_PROXY= {{- .network.proxy.httpsProxy -}} "
+              Environment="NO_PROXY= {{- list .network.vpc.cidr "169.254.0.0/16" "localhost" "127.0.0.1" ".svc" ".svc.cluster.local" | concat .network.proxy.noProxy .builtin.cluster.network.services .builtin.cluster.network.pods | uniq | sortAlpha | join "," -}} "
             owner: root:root
             path: /usr/lib/systemd/system/kubelet.service.d/http-proxy.conf
             permissions: "0640"
@@ -573,18 +510,18 @@ spec:
       - op: add
         path: /spec/template/spec/kubeadmConfigSpec/preKubeadmCommands/-
         valueFrom:
-          template: |
-            export HTTP_PROXY={{.proxy.httpProxy}}
+          template: &exportHTTPProxy |
+            export HTTP_PROXY= {{- .network.proxy.httpProxy }}
       - op: add
         path: /spec/template/spec/kubeadmConfigSpec/preKubeadmCommands/-
         valueFrom:
-          template: |
-            export HTTPS_PROXY={{.proxy.httpsProxy}}
+          template: &exportHTTPSProxy |
+            export HTTPS_PROXY= {{- .network.proxy.httpsProxy }}
       - op: add
         path: /spec/template/spec/kubeadmConfigSpec/preKubeadmCommands/-
         valueFrom:
-          template: |
-            export NO_PROXY={{- range .proxy.noProxy}}{{.}},{{- end}}{{.AWS_VPC_CIDR}},169.254.0.0/16,{{.SERVICE_CIDR}},{{.CLUSTER_CIDR}},localhost,127.0.0.1,.scv,.svc.cluster.local
+          template: &exportNoProxy |
+            export NO_PROXY= {{- list .network.vpc.cidr "169.254.0.0/16" "localhost" "127.0.0.1" ".svc" ".svc.cluster.local" | concat .network.proxy.noProxy .builtin.cluster.network.services .builtin.cluster.network.pods | uniq | sortAlpha | join "," }}
     - selector:
         apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
         kind: KubeadmConfigTemplate
@@ -596,27 +533,11 @@ spec:
       - op: add
         path: /spec/template/spec/files/-
         valueFrom:
-          template: |
-            content: |
-              [Service]
-              Environment="HTTP_PROXY={{.proxy.httpProxy}}"
-              Environment="HTTPS_PROXY={{.proxy.httpsProxy}}"
-              Environment="NO_PROXY={{- range .proxy.noProxy}}{{.}},{{- end}}{{.AWS_VPC_CIDR}},169.254.0.0/16,{{.SERVICE_CIDR}},{{.CLUSTER_CIDR}},localhost,127.0.0.1,.scv,.svc.cluster.local"
-            owner: root:root
-            path: /etc/systemd/system/containerd.service.d/http-proxy.conf
-            permissions: "0640"
+          template: *containerdProxyConf
       - op: add
         path: /spec/template/spec/files/-
         valueFrom:
-          template: |
-            content: |
-              [Service]
-              Environment="HTTP_PROXY={{.proxy.httpProxy}}"
-              Environment="HTTPS_PROXY={{.proxy.httpsProxy}}"
-              Environment="NO_PROXY={{- range .proxy.noProxy}}{{.}},{{- end}}{{.AWS_VPC_CIDR}},169.254.0.0/16,{{.SERVICE_CIDR}},{{.CLUSTER_CIDR}},localhost,127.0.0.1,.scv,.svc.cluster.local"
-            owner: root:root
-            path: /usr/lib/systemd/system/kubelet.service.d/http-proxy.conf
-            permissions: "0640"
+          template: *kubeletProxyConf
       - op: add
         path: /spec/template/spec/preKubeadmCommands/-
         value: systemctl daemon-reload
@@ -626,20 +547,17 @@ spec:
       - op: add
         path: /spec/template/spec/preKubeadmCommands/-
         valueFrom:
-          template: |
-            export HTTP_PROXY={{.proxy.httpProxy}}
+          template: *exportHTTPProxy
       - op: add
         path: /spec/template/spec/preKubeadmCommands/-
         valueFrom:
-          template: |
-            export HTTPS_PROXY={{.proxy.httpsProxy}}
+          template: *exportHTTPSProxy
       - op: add
         path: /spec/template/spec/preKubeadmCommands/-
         valueFrom:
-          template: |
-            export NO_PROXY={{- range .proxy.noProxy}}{{.}},{{- end}}{{.AWS_VPC_CIDR}},169.254.0.0/16,{{.SERVICE_CIDR}},{{.CLUSTER_CIDR}},localhost,127.0.0.1,.scv,.svc.cluster.local
-  - name: registryCACert
-    enabledIf: '{{and (ne "" (or .TKG_PROXY_CA_CERT .TKG_CUSTOM_IMAGE_REPOSITORY_CA_CERTIFICATE)) (not (and .TKG_CUSTOM_IMAGE_REPOSITORY_SKIP_TLS_VERIFY (ne "" .TKG_CUSTOM_IMAGE_REPOSITORY))) }}'
+          template: *exportNoProxy
+  - name: httpProxyCACert
+    enabledIf: '{{ $hasProxyCert := false }} {{- range .trust }} {{- if .name | eq "proxy" }} {{- $hasProxyCert = true }} {{- end }} {{- end }} {{- $hasProxyCert }}'
     definitions:
     - selector:
         apiVersion: controlplane.cluster.x-k8s.io/v1beta1
@@ -649,14 +567,13 @@ spec:
       jsonPatches:
       - op: add
         path: /spec/template/spec/kubeadmConfigSpec/preKubeadmCommands/-
-        valueFrom:
-          template: |
-            "echo '[plugins.\"io.containerd.grpc.v1.cri\".registry.configs.\"{{.TKG_CUSTOM_IMAGE_REPOSITORY_HOSTNAME}}\".tls]' >> /etc/containerd/config.toml"
+        value: ! which rehash_ca_certificates.sh 2>/dev/null || rehash_ca_certificates.sh
       - op: add
         path: /spec/template/spec/kubeadmConfigSpec/preKubeadmCommands/-
-        valueFrom:
-          template: |
-            "echo '  ca_file = \"/etc/containerd/{{.TKG_CUSTOM_IMAGE_REPOSITORY_HOSTNAME}}.crt\"' >> /etc/containerd/config.toml"
+        value: ! which update-ca-certificates 2>/dev/null || (mv /etc/ssl/certs/tkg-custom-ca.pem /usr/local/share/ca-certificates/tkg-custom-ca.crt && update-ca-certificates)
+      - op: add
+        path: /spec/template/spec/kubeadmConfigSpec/preKubeadmCommands/-
+        value: ! which update-ca-trust 2>/dev/null || (update-ca-trust force-enable && mv /etc/ssl/certs/tkg-custom-ca.pem /etc/pki/ca-trust/source/anchors/tkg-custom-ca.crt && update-ca-trust extract)
       - op: add
         path: /spec/template/spec/kubeadmConfigSpec/preKubeadmCommands/-
         value: systemctl restart containerd
@@ -664,9 +581,15 @@ spec:
         path: /spec/template/spec/kubeadmConfigSpec/files/-
         valueFrom:
           template: |
-            path: "/etc/containerd/{{.TKG_CUSTOM_IMAGE_REPOSITORY_HOSTNAME}}.crt"
-            content: {{or .TKG_PROXY_CA_CERT .TKG_CUSTOM_IMAGE_REPOSITORY_CA_CERTIFICATE}}
-            encoding: "base64"
+            path: /etc/ssl/certs/tkg-custom-ca.pem
+            {{- $proxy := "" }}
+            {{- range .trust }}
+              {{- if eq .name "proxy" }}
+                {{- $proxy = .data }}
+              {{- end }}
+            {{- end }}
+            content: {{ $proxy }}
+            encoding: base64
             permissions: "0444"
     - selector:
         apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
@@ -678,14 +601,13 @@ spec:
       jsonPatches:
       - op: add
         path: /spec/template/spec/preKubeadmCommands/-
-        valueFrom:
-          template: |
-            "echo '[plugins.\"io.containerd.grpc.v1.cri\".registry.configs.\"{{.TKG_CUSTOM_IMAGE_REPOSITORY_HOSTNAME}}\".tls]' >> /etc/containerd/config.toml"
+        value: ! which rehash_ca_certificates.sh 2>/dev/null || rehash_ca_certificates.sh
       - op: add
         path: /spec/template/spec/preKubeadmCommands/-
-        valueFrom:
-          template: |
-            "echo '  ca_file = \"/etc/containerd/{{.TKG_CUSTOM_IMAGE_REPOSITORY_HOSTNAME}}.crt\"' >> /etc/containerd/config.toml"
+        value: ! which update-ca-certificates 2>/dev/null || (mv /etc/ssl/certs/tkg-custom-ca.pem /usr/local/share/ca-certificates/tkg-custom-ca.crt && update-ca-certificates)
+      - op: add
+        path: /spec/template/spec/preKubeadmCommands/-
+        value: ! which update-ca-trust 2>/dev/null || (update-ca-trust force-enable && mv /etc/ssl/certs/tkg-custom-ca.pem /etc/pki/ca-trust/source/anchors/tkg-custom-ca.crt && update-ca-trust extract)
       - op: add
         path: /spec/template/spec/preKubeadmCommands/-
         value: systemctl restart containerd
@@ -693,12 +615,18 @@ spec:
         path: /spec/template/spec/files/-
         valueFrom:
           template: |
-            path: "/etc/containerd/{{.TKG_CUSTOM_IMAGE_REPOSITORY_HOSTNAME}}.crt"
-            content: {{or .TKG_PROXY_CA_CERT .TKG_CUSTOM_IMAGE_REPOSITORY_CA_CERTIFICATE}}
-            encoding: "base64"
+            path: /etc/ssl/certs/tkg-custom-ca.pem
+            {{- $proxy := "" }}
+            {{- range .trust }}
+              {{- if eq .name "proxy" }}
+                {{- $proxy = .data }}
+              {{- end }}
+            {{- end }}
+            content: {{ $proxy }}
+            encoding: base64
             permissions: "0444"
-  - name: registrySkipTLSVerify
-    enabledIf: '{{and (ne "" .TKG_CUSTOM_IMAGE_REPOSITORY) .TKG_CUSTOM_IMAGE_REPOSITORY_SKIP_TLS_VERIFY}}'
+  - name: customizedImageRepo
+    enabledIf: '{{ not (empty .imageRepository.host) }}'
     definitions:
     - selector:
         apiVersion: controlplane.cluster.x-k8s.io/v1beta1
@@ -710,10 +638,7 @@ spec:
         path: /spec/template/spec/kubeadmConfigSpec/preKubeadmCommands/-
         valueFrom:
           template: |
-            echo '[plugins.\"io.containerd.grpc.v1.cri\".registry.configs.\"{{.TKG_CUSTOM_IMAGE_REPOSITORY_HOSTNAME}}\".tls]' >> /etc/containerd/config.toml
-      - op: add
-        path: /spec/template/spec/kubeadmConfigSpec/preKubeadmCommands/-
-        value: echo '  insecure_skip_verify = true' >> /etc/containerd/config.toml
+            sed -i 's|".*/pause|" {{- or .imageRepository.host (index .TKR_DATA .builtin.controlPlane.version).kubernetesSpec.imageRepository -}} /pause|' /etc/containerd/config.toml
     - selector:
         apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
         kind: KubeadmConfigTemplate
@@ -726,12 +651,9 @@ spec:
         path: /spec/template/spec/preKubeadmCommands/-
         valueFrom:
           template: |
-            echo '[plugins.\"io.containerd.grpc.v1.cri\".registry.configs.\"{{.TKG_CUSTOM_IMAGE_REPOSITORY_HOSTNAME}}\".tls]' >> /etc/containerd/config.toml
-      - op: add
-        path: /spec/template/spec/preKubeadmCommands/-
-        value: echo '  insecure_skip_verify = true' >> /etc/containerd/config.toml
-  - name: customRepository
-    enabledIf: '{{ne "" .TKG_CUSTOM_IMAGE_REPOSITORY}}'
+            sed -i 's|".*/pause|" {{- or .imageRepository.host (index .TKR_DATA .builtin.machineDeployment.version).kubernetesSpec.imageRepository -}} /pause|' /etc/containerd/config.toml
+  - name: registryCACert
+    enabledIf: '{{ not (empty .trust) }}'
     definitions:
     - selector:
         apiVersion: controlplane.cluster.x-k8s.io/v1beta1
@@ -743,10 +665,44 @@ spec:
         path: /spec/template/spec/kubeadmConfigSpec/preKubeadmCommands/-
         valueFrom:
           template: |
-            sed -i 's|\".*/pause|\{{.TKG_CUSTOM_IMAGE_REPOSITORY}}/pause|' /etc/containerd/config.toml
+            {{- $host := index (or .imageRepository.host (index .TKR_DATA .builtin.controlPlane.version).kubernetesSpec.imageRepository | splitList "/") 0 -}}
+            echo '[plugins."io.containerd.grpc.v1.cri".registry.configs." {{- $host -}} ".tls]' >> /etc/containerd/config.toml
+      - op: add
+        path: /spec/template/spec/kubeadmConfigSpec/preKubeadmCommands/-
+        valueFrom:
+          template: |
+            {{- $host := index (or .imageRepository.host (index .TKR_DATA .builtin.controlPlane.version).kubernetesSpec.imageRepository | splitList "/") 0 }}
+            {{- $val := list "ca_file = \"/etc/containerd/" $host ".crt\"" | join "" }}
+            {{- with .imageRepository }}
+              {{- if .tlsCertificateValidation | eq false }}
+                {{- $val = "insecure_skip_verify = true" }}
+              {{- end }}
+            {{- end -}}
+            {{- define "echo" -}}
+              echo '  {{ . -}} ' >> /etc/containerd/config.toml
+            {{- end }}
+            {{- template "echo" $val -}}
       - op: add
         path: /spec/template/spec/kubeadmConfigSpec/preKubeadmCommands/-
         value: systemctl restart containerd
+      - op: add
+        path: /spec/template/spec/kubeadmConfigSpec/files/-
+        valueFrom:
+          template: |
+            path: /etc/containerd/ {{- index (or .imageRepository.host (index .TKR_DATA .builtin.controlPlane.version).kubernetesSpec.imageRepository | splitList "/") 0 -}} .crt
+            {{- $proxy := "" }}
+            {{- $image := "" }}
+            {{- range .trust }}
+              {{- if eq .name "proxy" }}
+                {{- $proxy = .data }}
+              {{- end }}
+              {{- if eq .name "imageRepository" }}
+                {{- $image = .data }}
+              {{- end }}
+            {{- end }}
+            content: {{or $proxy $image}}
+            encoding: base64
+            permissions: "0444"
     - selector:
         apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
         kind: KubeadmConfigTemplate
@@ -759,12 +715,46 @@ spec:
         path: /spec/template/spec/preKubeadmCommands/-
         valueFrom:
           template: |
-            sed -i 's|\".*/pause|\{{.TKG_CUSTOM_IMAGE_REPOSITORY}}/pause|' /etc/containerd/config.toml
+            {{- $host := index (or .imageRepository.host (index .TKR_DATA .builtin.machineDeployment.version).kubernetesSpec.imageRepository | splitList "/") 0 -}}
+            echo '[plugins."io.containerd.grpc.v1.cri".registry.configs." {{- $host -}} ".tls]' >> /etc/containerd/config.toml
+      - op: add
+        path: /spec/template/spec/preKubeadmCommands/-
+        valueFrom:
+          template: |
+            {{- $host := index (or .imageRepository.host (index .TKR_DATA .builtin.machineDeployment.version).kubernetesSpec.imageRepository | splitList "/") 0 }}
+            {{- $val := list "ca_file = \"/etc/containerd/" $host ".crt\"" | join "" }}
+            {{- with .imageRepository }}
+              {{- if .tlsCertificateValidation | eq false }}
+                {{- $val = "insecure_skip_verify = true" }}
+              {{- end }}
+            {{- end -}}
+            {{- define "echo" -}}
+              echo '  {{ . -}} ' >> /etc/containerd/config.toml
+            {{- end }}
+            {{- template "echo" $val -}}
       - op: add
         path: /spec/template/spec/preKubeadmCommands/-
         value: systemctl restart containerd
+      - op: add
+        path: /spec/template/spec/files/-
+        valueFrom:
+          template: |
+            path: /etc/containerd/{{ index (or .imageRepository.host (index .TKR_DATA .builtin.machineDeployment.version).kubernetesSpec.imageRepository | splitList "/") 0 }}.crt
+            {{- $proxy := "" }}
+            {{- $image := "" }}
+            {{- range .trust }}
+              {{- if eq .name "proxy" }}
+                {{- $proxy = .data }}
+              {{- end }}
+              {{- if eq .name "imageRepository" }}
+                {{- $image = .data }}
+              {{- end }}
+            {{- end }}
+            content: {{or $proxy $image}}
+            encoding: base64
+            permissions: "0444"
   - name: auditLogging
-    enabledIf: '{{.ENABLE_AUDIT_LOGGING}}'
+    enabledIf: '{{ .auditLogging.enabled }}'
     definitions:
     - selector:
         apiVersion: controlplane.cluster.x-k8s.io/v1beta1
@@ -773,25 +763,20 @@ spec:
           controlPlane: true
       jsonPatches:
       - op: add
-        path: /spec/template/spec/kubeadmConfigSpec/clusterConfiguration/apiServer/extraArgs/-
-        value:
-          audit-log-path: /var/log/kubernetes/audit.log
+        path: /spec/template/spec/kubeadmConfigSpec/clusterConfiguration/apiServer/extraArgs/audit-log-path
+        value: /var/log/kubernetes/audit.log
       - op: add
-        path: /spec/template/spec/kubeadmConfigSpec/clusterConfiguration/apiServer/extraArgs/-
-        value:
-          audit-policy-file: /etc/kubernetes/audit-policy.yaml
+        path: /spec/template/spec/kubeadmConfigSpec/clusterConfiguration/apiServer/extraArgs/audit-policy-file
+        value: /etc/kubernetes/audit-policy.yaml
       - op: add
-        path: /spec/template/spec/kubeadmConfigSpec/clusterConfiguration/apiServer/extraArgs/-
-        value:
-          audit-log-maxage: "30"
+        path: /spec/template/spec/kubeadmConfigSpec/clusterConfiguration/apiServer/extraArgs/audit-log-maxage
+        value: "30"
       - op: add
-        path: /spec/template/spec/kubeadmConfigSpec/clusterConfiguration/apiServer/extraArgs/-
-        value:
-          audit-log-maxbackup: "10"
+        path: /spec/template/spec/kubeadmConfigSpec/clusterConfiguration/apiServer/extraArgs/audit-log-maxbackup
+        value: "10"
       - op: add
-        path: /spec/template/spec/kubeadmConfigSpec/clusterConfiguration/apiServer/extraArgs/-
-        value:
-          audit-log-maxsize: "100"
+        path: /spec/template/spec/kubeadmConfigSpec/clusterConfiguration/apiServer/extraArgs/audit-log-maxsize
+        value: "100"
       - op: add
         path: /spec/template/spec/kubeadmConfigSpec/clusterConfiguration/apiServer/extraVolumes/-
         value:
@@ -962,9 +947,9 @@ spec:
         vpc:
           cidrBlock:
         subnets:
-          - availabilityZone: '${AWS_NODE_AZ}'
-            cidrBlock: '${AWS_PRIVATE_NODE_CIDR}'
-            id: '${AWS_PRIVATE_SUBNET_ID}'
+        - availabilityZone: '${AWS_NODE_AZ}'
+          cidrBlock: '${AWS_PRIVATE_NODE_CIDR}'
+          id: '${AWS_PRIVATE_SUBNET_ID}'
 ---
 apiVersion: controlplane.cluster.x-k8s.io/v1beta1
 kind: KubeadmControlPlaneTemplate
@@ -990,16 +975,16 @@ spec:
               cloud-provider: aws
               tls-cipher-suites: TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
           dns:
-            imageRepository: projects-stg.registry.vmware.com/tkg #! TODO '${_TKG_COREDNS_IMAGE_REPOSITORY}' May be a variable for package level
-            imageTag: v1.8.4_vmware.5 #! TODO '${_TKG_COREDNS_IMAGE_TAG}' May be a variable for package level
+            imageRepository: dummy.registry.vmware.com
+            imageTag: 1.8.4_dummy.5
           etcd:
             local:
               dataDir: /var/lib/etcd
-              imageRepository: projects-stg.registry.vmware.com/tkg #! TODO '${_TKG_ETCD_IMAGE_REPOSITORY}' May be a variable for package level
-              imageTag: v3.5.0_vmware.5 #! TODO '${_TKG_ETCD_IMAGE_TAG}' May be a variable for package level
+              imageRepository: dummy.registry.vmware.com
+              imageTag: 1.8.4_dummy.5
               extraArgs:
                 cipher-suites: TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
-          imageRepository: projects-stg.registry.vmware.com/tkg #! TODO '${_TKG_COREDNS_IMAGE_REPOSITORY}' May be a variable for package level
+          imageRepository: dummy.registry.vmware.com
           scheduler:
             extraArgs:
               tls-cipher-suites: TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
