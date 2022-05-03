@@ -1,0 +1,14 @@
+apiVersion: data.packaging.carvel.dev/v1alpha1
+kind: PackageMetadata
+metadata:
+  name: cluster-api-bootstrap-kubeadm.tanzu.vmware.com
+  namespace: cluster-api-bootstrap-kubeadm
+spec:
+  displayName: "cluster-api-bootstrap-kubeadm"
+  longDescription: "The Cluster API kubeadm bootstrap provider generates the cluster certificates, initializes the control plane, and joins control plane and worker nodes to the cluster."
+  shortDescription: "Cluster bootstrapping"
+  providerName: VMware
+  maintainers:
+    - name: ""
+  categories:
+    - "cluster management"

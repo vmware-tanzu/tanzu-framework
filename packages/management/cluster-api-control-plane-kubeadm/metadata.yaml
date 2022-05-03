@@ -1,0 +1,14 @@
+apiVersion: data.packaging.carvel.dev/v1alpha1
+kind: PackageMetadata
+metadata:
+  name: cluster-api-control-plane-kubeadm.tanzu.vmware.com
+  namespace: cluster-api-control-plane-kubeadm
+spec:
+  displayName: "cluster-api-control-plane-kubeadm"
+  longDescription: "The Cluster API kubeadm control plane provider instantiates the Kubernetes control plane."
+  shortDescription: "Cluster control plane"
+  providerName: VMware
+  maintainers:
+    - name: ""
+  categories:
+    - "cluster management"

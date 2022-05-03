@@ -1,0 +1,10 @@
+#@data/values-schema
+---
+
+capaControllerManager:
+  #@schema/desc "Configures the HTTP_PROXY environment variable on capa-controller-manager."
+  httpProxy: ""
+  #@schema/desc "Configures the HTTPS_PROXY environment variable on capa-controller-manager."
+  httpsProxy: ""
+  #@schema/desc "Configures the NO_PROXY environment variable on capa-controller-manager."
+  noProxy: ""

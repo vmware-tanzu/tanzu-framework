@@ -11,8 +11,8 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/providers/tests/unit/matchers"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/providers/tests/unit/ytt"
+	"github.com/vmware-tanzu/tanzu-framework/test/pkg/matchers"
+	"github.com/vmware-tanzu/tanzu-framework/test/pkg/ytt"
 )
 
 type yttValues map[string]string
