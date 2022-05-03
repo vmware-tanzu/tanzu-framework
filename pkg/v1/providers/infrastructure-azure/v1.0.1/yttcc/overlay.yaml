@@ -110,7 +110,28 @@ spec:
       value: #@ vars[configVariable]
     #@ end
     #@ end
-
+    #! TODO: make this data only applied while testing
+    #@overlay/append
+    - name: TKR_DATA
+      value:
+        v1.23.5+vmware.1: #! value comes from clusterctl
+          kubernetesSpec:
+            version: v1.23.5+vmware.1
+            imageRepository: #@ bomDataForK8sVersion.kubeadmConfigSpec.imageRepository
+            etcd:
+              imageTag: #@ bomDataForK8sVersion.kubeadmConfigSpec.etcd.local.imageTag
+            coredns:
+              imageTag: #@ bomDataForK8sVersion.kubeadmConfigSpec.dns.imageTag
+          labels:
+            os-name: ubuntu
+            os-type: linux
+            os-arch: amd64
+          osImageRef:
+            sku: dummy-sku
+            publisher: dummy-publisher
+            offer: dummy-offer
+            version: dummy-version
+            thirdPartyImage: dummy-third-party-image
 
 #@ if data.values.TKG_CLUSTER_ROLE == "management":
 ---

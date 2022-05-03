@@ -413,23 +413,16 @@ spec:
       openAPIV3Schema:
         type: boolean
         default: false
-  - name: TKR_KUBERNETES_SPEC
-    schema:
-      openAPIV3Schema:
-        type: object
-        properties:
-          KubeVIP:
-            type: object
-            properties:
-              ImageRepository:
-                type: string
-              ImageTag:
-                type: string
   - name: CLUSTER_NAME
     required: true
     schema:
       openAPIV3Schema:
         type: string
+  - name: TKR_DATA
+    schema:
+      openAPIV3Schema:
+        type: object
+        properties: {}
   patches:
   - name: vsphereClusterTemplate
     definitions:
@@ -589,6 +582,26 @@ spec:
         path: /spec/template/spec/replicas
         valueFrom:
           variable: CONTROL_PLANE_MACHINE_COUNT
+      - op: replace
+        path: /spec/template/spec/kubeadmConfigSpec/clusterConfiguration/imageRepository
+        valueFrom:
+          template: '{{(index .TKR_DATA .builtin.controlPlane.version).kubernetesSpec.imageRepository}}'
+      - op: replace
+        path: /spec/template/spec/kubeadmConfigSpec/clusterConfiguration/etcd/local/imageRepository
+        valueFrom:
+          template: '{{(index .TKR_DATA .builtin.controlPlane.version).kubernetesSpec.imageRepository}}'
+      - op: replace
+        path: /spec/template/spec/kubeadmConfigSpec/clusterConfiguration/etcd/local/imageTag
+        valueFrom:
+          template: '{{(index .TKR_DATA .builtin.controlPlane.version).kubernetesSpec.etcd.imageTag}}'
+      - op: replace
+        path: /spec/template/spec/kubeadmConfigSpec/clusterConfiguration/dns/imageRepository
+        valueFrom:
+          template: '{{(index .TKR_DATA .builtin.controlPlane.version).kubernetesSpec.imageRepository}}'
+      - op: replace
+        path: /spec/template/spec/kubeadmConfigSpec/clusterConfiguration/dns/imageTag
+        valueFrom:
+          template: '{{(index .TKR_DATA .builtin.controlPlane.version).kubernetesSpec.coredns.imageTag}}'
   - name: KubeadmConfigTemplate
     definitions:
     - selector:
@@ -619,7 +632,6 @@ spec:
       - op: add
         path: /spec/template/spec/kubeadmConfigSpec/files/-
         valueFrom:
-          # TODO fix the image path
           template: |
             owner: root:root
             path: /etc/kubernetes/manifests/kube-vip.yaml
@@ -656,7 +668,7 @@ spec:
                     value: "20"
                   - name: vip_retryperiod
                     value: "4"
-                  image: {{.TKR_KUBERNETES_SPEC.KubeVIP.ImageRepository}}/kube-vip:{{.TKR_KUBERNETES_SPEC.KubeVIP.ImageTag}}
+                  image: {{(index .TKR_DATA .builtin.controlPlane.version).kubernetesSpec.imageRepository}}/kube-vip:{{(index (index .TKR_DATA .builtin.controlPlane.version).kubernetesSpec "kube-vip").imageTag}}
                   imagePullPolicy: IfNotPresent
                   name: kube-vip
                   resources: {}
@@ -809,6 +821,48 @@ spec:
       - op: add
         path: /spec/template/spec/kubeadmConfigSpec/postKubeadmCommands/-
         value: sed -i '/listen-client-urls/ s/$/,https:\/\/127.0.0.1:2379/' /etc/kubernetes/manifests/etcd.yaml
+  - name: nodeLabels
+    definitions:
+    - selector:
+        apiVersion: controlplane.cluster.x-k8s.io/v1beta1
+        kind: KubeadmControlPlaneTemplate
+        matchResources:
+          controlPlane: true
+      jsonPatches:
+      - op: add
+        path: /spec/template/spec/kubeadmConfigSpec/joinConfiguration/nodeRegistration/kubeletExtraArgs
+        valueFrom:
+          template: |
+            node-labels: {{$first := true}}
+              {{- range $key, $val := (index .TKR_DATA .builtin.controlPlane.version).labels}}
+              {{- if $first }}
+                {{- $first = false }}
+              {{- else -}}
+                ,
+              {{- end }}
+              {{- $key }}={{- $val }}
+              {{- end}}
+    - selector:
+        apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
+        kind: KubeadmConfigTemplate
+        matchResources:
+          machineDeploymentClass:
+            names:
+            - "tkg-worker"
+      jsonPatches:
+      - op: add
+        path: /spec/template/spec/joinConfiguration/nodeRegistration/kubeletExtraArgs
+        valueFrom:
+          template: |
+            node-labels: {{$first := true}}
+              {{- range $key, $val := (index .TKR_DATA .builtin.machineDeployment.version).labels}}
+              {{- if $first }}
+                {{- $first = false }}
+              {{- else -}}
+                ,
+              {{- end }}
+              {{- $key }}={{- $val }}
+              {{- end}}
   - name: httpProxy
     enabledIf: '{{not (not .proxy)}}'
     definitions:
