@@ -10,6 +10,7 @@ import (
 	openapiv2 "github.com/googleapis/gnostic/openapiv2"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+
 	kapppkgv1alpha1 "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apiserver/apis/datapackaging/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
 	addontypes "github.com/vmware-tanzu/tanzu-framework/addons/pkg/types"
@@ -444,7 +445,7 @@ func constructFakeAntreaConfig() *antreaconfigv1alpha1.AntreaConfig {
 	}
 }
 
-// ClusterbootstrapFakeDiscovery customize the behaviour of fake client-go FakeDiscovery.ServerPreferredResources to return
+// ClusterbootstrapFakeDiscovery customize the behavior of fake client-go FakeDiscovery.ServerPreferredResources to return
 // a customized APIResourceList.
 // The client-go FakeDiscovery.ServerPreferredResources is hardcoded to return nil.
 // https://github.com/kubernetes/client-go/blob/master/discovery/fake/discovery.go#L85
@@ -473,10 +474,6 @@ func (c ClusterbootstrapFakeDiscovery) OpenAPISchema() (*openapiv2.Document, err
 	return c.fakeDiscovery.OpenAPISchema()
 }
 
-func (c ClusterbootstrapFakeDiscovery) setFakeServerPreferredResources(resources []*metav1.APIResourceList) {
-	c.resources = resources
-}
-
 func (c ClusterbootstrapFakeDiscovery) getFakeServerPreferredResources() []*metav1.APIResourceList {
 	return c.resources
 }
@@ -485,6 +482,9 @@ func (c ClusterbootstrapFakeDiscovery) ServerResourcesForGroupVersion(groupVersi
 	return c.fakeDiscovery.ServerResourcesForGroupVersion(groupVersion)
 }
 
+// Having nolint below to get rid of the complaining on the deprecation of ServerResources. We have to have the following
+// function to customize the DiscoveryInterface
+//nolint:staticcheck
 func (c ClusterbootstrapFakeDiscovery) ServerResources() ([]*metav1.APIResourceList, error) {
 	return c.fakeDiscovery.ServerResources()
 }
