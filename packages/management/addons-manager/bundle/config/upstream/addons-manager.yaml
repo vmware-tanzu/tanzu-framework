@@ -250,6 +250,8 @@ spec:
         - #@ "--addon-namespace={}".format(data.values.tanzuAddonsManager.namespace)
         #@ if/end data.values.tanzuAddonsManager.featureGates.clusterBootstrapController:
         - --feature-gate-cluster-bootstrap=true
+        #@ if/end data.values.tanzuAddonsManager.featureGates.packageInstallStatus:
+        - --feature-gate-package-install-status=true
         image: addons-controller:latest
         imagePullPolicy: IfNotPresent
         name: tanzu-addons-controller

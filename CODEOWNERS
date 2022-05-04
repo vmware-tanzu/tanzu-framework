@@ -36,3 +36,4 @@
 # Package owners. Add individual packages here if they need to be owned by a specific team.
 /packages/management/featuregates @vmware-tanzu/tanzu-framework-reviewers @vmware-tanzu/tanzu-framework-api-machinery-owners
 /packages/management/tanzu-auth @vmware-tanzu/tanzu-framework-reviewers @vmware-tanzu/tkg-iam-owners
+/packages/management/addons-manager @vmware-tanzu/tanzu-framework-reviewers @vmware-tanzu/tkg-addons-owners

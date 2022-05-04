@@ -13,3 +13,4 @@ tanzuAddonsManager:
     healthzPort: 18316
   featureGates:
     clusterBootstrapController: false
+    packageInstallStatus: false
