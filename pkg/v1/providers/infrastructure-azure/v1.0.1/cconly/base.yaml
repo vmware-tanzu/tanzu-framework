@@ -266,6 +266,7 @@ spec:
         type: string
         default: ""
   - name: TKR_DATA
+    required: false
     schema:
       openAPIV3Schema:
         type: object
