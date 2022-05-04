@@ -308,6 +308,7 @@ spec:
         type: boolean
         default: false
   - name: TKR_DATA
+    required: false
     schema:
       openAPIV3Schema:
         type: object
