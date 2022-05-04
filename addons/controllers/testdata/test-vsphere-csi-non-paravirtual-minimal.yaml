@@ -1,7 +1,7 @@
 apiVersion: cluster.x-k8s.io/v1beta1
 kind: Cluster
 metadata:
-  name: test-cluster-csi
+  name: test-cluster-csi-minimal
   namespace: default
   annotations:
     tkg.tanzu.vmware.com/tkg-http-proxy: "foo.com"
@@ -14,6 +14,11 @@ spec:
   clusterNetwork:
     pods:
       cidrBlocks: [ "192.168.0.0/16","fd00:100:96::/48" ]
+  controlPlaneRef:
+    apiVersion: controlplane.cluster.x-k8s.io/v1beta1
+    kind: KubeadmControlPlane
+    name: test-cluster-csi-minimal-control-plane
+    namespace: default
   topology:
     class: test-clusterclass-tcbt
     version: v1.22.3
@@ -29,10 +34,27 @@ spec:
       - name: IS_WINDOWS_WORKLOAD_CLUSTER
         value: true
 ---
+apiVersion: controlplane.cluster.x-k8s.io/v1beta1
+kind: KubeadmControlPlane
+metadata:
+  name: test-cluster-csi-minimal-control-plane
+  namespace: default
+  ownerReferences:
+    - apiVersion: cluster.x-k8s.io/v1beta1
+      kind: Cluster
+      name: test-cluster-csi-minimal
+      uid: ad834522-d9a5-4841-beac-991ff3798c00
+spec:
+  kubeadmConfigSpec: {}
+  machineTemplate:
+    infrastructureRef: {}
+  replicas: 2
+  version: v1.22.3
+---
 apiVersion: v1
 kind: Secret
 metadata:
-  name: test-cluster-csi
+  name: test-cluster-csi-minimal
   namespace: default
 data:
   password: QWRtaW4hMjM= # Admin!23
@@ -41,7 +63,7 @@ data:
 apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
 kind: VSphereCluster
 metadata:
-  name: test-cluster-csi
+  name: test-cluster-csi-minimal
   namespace: default
 spec:
   thumbprint: thumbprint-yadayada
@@ -50,7 +72,7 @@ spec:
 apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
 kind: VSphereMachineTemplate
 metadata:
-  name: test-cluster-csi-control-plane
+  name: test-cluster-csi-minimal-control-plane
   namespace: default
 spec:
   template:
@@ -66,7 +88,7 @@ spec:
 apiVersion: csi.tanzu.vmware.com/v1alpha1
 kind: VSphereCSIConfig
 metadata:
-  name: test-cluster-csi
+  name: test-cluster-csi-minimal
   namespace: default
 spec:
   vsphereCSI:

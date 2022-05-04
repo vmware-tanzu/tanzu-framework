@@ -172,14 +172,14 @@ var _ = Describe("VSphereCSIConfig Reconciler", func() {
 
 		Context("using minimally populated VSphereCSIConfig", func() {
 			BeforeEach(func() {
-				clusterName = testClusterCsiName
+				clusterName = "test-cluster-csi-minimal"
 				clusterResourceFilePath = "testdata/test-vsphere-csi-non-paravirtual-minimal.yaml"
 			})
 
 			It("Should reconcile VSphereCSIConfig and create data values secret for VSphereCSIConfig", func() {
 				cluster := &clusterapiv1beta1.Cluster{}
 				Eventually(func() bool {
-					if err := k8sClient.Get(ctx, key, cluster); err != nil {
+					if err := k8sClient.Get(ctx, client.ObjectKey{Namespace: "default", Name: "test-cluster-csi-minimal"}, cluster); err != nil {
 						return false
 					}
 					return true
@@ -188,7 +188,7 @@ var _ = Describe("VSphereCSIConfig Reconciler", func() {
 				// the csi config object should be deployed
 				config := &csiv1alpha1.VSphereCSIConfig{}
 				Eventually(func() bool {
-					if err := k8sClient.Get(ctx, key, config); err != nil {
+					if err := k8sClient.Get(ctx, client.ObjectKey{Namespace: "default", Name: "test-cluster-csi-minimal"}, config); err != nil {
 						return false
 					}
 					Expect(config.Spec.VSphereCSI.Mode).Should(Equal("vsphereCSI"))
@@ -235,7 +235,7 @@ var _ = Describe("VSphereCSIConfig Reconciler", func() {
 					Expect(strings.Contains(secretData, "http_proxy: foo.com")).Should(BeTrue())
 					Expect(strings.Contains(secretData, "https_proxy: bar.com")).Should(BeTrue())
 					Expect(strings.Contains(secretData, "no_proxy: foobar.com")).Should(BeTrue())
-					Expect(strings.Contains(secretData, "deployment_replicas: 3")).Should(BeTrue())
+					Expect(strings.Contains(secretData, "deployment_replicas: 2")).Should(BeTrue())
 					Expect(strings.Contains(secretData, "windows_support: true")).Should(BeTrue())
 
 					return true
@@ -243,7 +243,7 @@ var _ = Describe("VSphereCSIConfig Reconciler", func() {
 
 				// eventually the secret ref to the data values should be updated
 				Eventually(func() bool {
-					if err := k8sClient.Get(ctx, key, config); err != nil {
+					if err := k8sClient.Get(ctx, client.ObjectKey{Namespace: "default", Name: "test-cluster-csi-minimal"}, config); err != nil {
 						return false
 					}
 					Expect(config.Status.SecretRef).To(Equal(fmt.Sprintf("%s-%s-data-values", clusterName, constants.CSIAddonName)))
