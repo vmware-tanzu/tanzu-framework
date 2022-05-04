@@ -1,0 +1,25 @@
+#@ load("@ytt:data", "data")
+#@ load("@ytt:overlay", "overlay")
+
+#@overlay/match by=overlay.subset({"kind": "Deployment", "metadata": {"name": "capv-controller-manager"}}), expects=2
+---
+spec:
+  template:
+    spec:
+      containers:
+      #@overlay/match by=overlay.subset({"name": "manager"})
+      #@overlay/match-child-defaults missing_ok=True
+      - env:
+        #@ if data.values.capvControllerManager.httpProxy != "":
+        - name: "HTTP_PROXY"
+          value: #@ data.values.capvControllerManager.httpProxy
+        #@ end
+        #@ if data.values.capvControllerManager.httpsProxy != "":
+        - name: "HTTPS_PROXY"
+          value: #@ data.values.capvControllerManager.httpsProxy
+        #@ end
+        #@ if data.values.capvControllerManager.noProxy != "":
+        - name: "NO_PROXY"
+          value: #@ data.values.capvControllerManager.noProxy
+        #@ end
+

@@ -10,6 +10,7 @@ import (
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/pkg/errors"
 
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/pluginmanager"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/config"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/client"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/clientcreator"
@@ -92,6 +93,10 @@ func (app *App) CreateVSphereRegionalCluster(params vsphere.CreateVSphereRegiona
 			log.Infof("\nManagement cluster created!\n\n")
 			log.Info("\nYou can now create your first workload cluster by running the following:\n\n")
 			log.Info("  tanzu cluster create [name] -f [file]\n\n")
+			err = pluginmanager.SyncPlugins(app.InitOptions.ClusterName)
+			if err != nil {
+				log.Warningf("unable to sync plugins after management cluster create. Please run `tanzu plugin sync` command manually to install/update plugins")
+			}
 			// wait for the logs to be dispatched to UI before exit
 			time.Sleep(sleepTimeForLogsPropogation)
 			// exit the BE server on success
@@ -173,6 +178,10 @@ func (app *App) CreateAWSRegionalCluster(params aws.CreateAWSRegionalClusterPara
 			log.Infof("\nManagement cluster created!\n\n")
 			log.Info("\nYou can now create your first workload cluster by running the following:\n\n")
 			log.Info("  tanzu cluster create [name] -f [file]\n\n")
+			err = pluginmanager.SyncPlugins(app.InitOptions.ClusterName)
+			if err != nil {
+				log.Warningf("unable to sync plugins after management cluster create. Please run `tanzu plugin sync` command manually to install/update plugins")
+			}
 			// wait for the logs to be dispatched to UI before exit
 			time.Sleep(sleepTimeForLogsPropogation)
 			// exit the BE server on success
@@ -273,6 +282,10 @@ func (app *App) CreateAzureRegionalCluster(params azure.CreateAzureRegionalClust
 			log.Infof("\nManagement cluster created!\n\n")
 			log.Info("\nYou can now create your first workload cluster by running the following:\n\n")
 			log.Info("  tanzu cluster create [name] -f [file]\n\n")
+			err = pluginmanager.SyncPlugins(app.InitOptions.ClusterName)
+			if err != nil {
+				log.Warningf("unable to sync plugins after management cluster create. Please run `tanzu plugin sync` command manually to install/update plugins")
+			}
 			// wait for the logs to be dispatched to UI before exit
 			time.Sleep(sleepTimeForLogsPropogation)
 			// exit the BE server on success
@@ -338,6 +351,10 @@ func (app *App) CreateDockerRegionalCluster(params docker.CreateDockerRegionalCl
 			log.Infof("\nManagement cluster created!\n\n")
 			log.Info("\nYou can now create your first workload cluster by running the following:\n\n")
 			log.Info("  tanzu cluster create [name] -f [file]\n\n")
+			err = pluginmanager.SyncPlugins(app.InitOptions.ClusterName)
+			if err != nil {
+				log.Warningf("unable to sync plugins after management cluster create. Please run `tanzu plugin sync` command manually to install/update plugins")
+			}
 			// wait for the logs to be dispatched to UI before exit
 			time.Sleep(sleepTimeForLogsPropogation)
 			// exit the BE server on success

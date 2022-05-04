@@ -23,9 +23,6 @@ import (
 )
 
 func addCertsToWebhookConfigs(ctx context.Context, k8sclient kubernetes.Interface, labelSelector string, secret *corev1.Secret) error {
-	if labelSelector == "" {
-		return fmt.Errorf("label selector not provided for webhook configurations udpate")
-	}
 	allValidatingWebhookConfigurations, err := k8sclient.AdmissionregistrationV1().ValidatingWebhookConfigurations().List(ctx, metav1.ListOptions{LabelSelector: labelSelector})
 	if err != nil {
 		return err
@@ -83,6 +80,9 @@ func NewTLSSecret(ctx context.Context, secretName, serviceName, certPath, keyPat
 }
 
 func InstallNewCertificates(ctx context.Context, k8sConfig *rest.Config, certPath, keyPath, secretName, namespace, serviceName, labelSelector string) (*corev1.Secret, error) {
+	if labelSelector == "" {
+		return nil, fmt.Errorf("label selector not provided for webhook configurations udpate")
+	}
 	secret, err := NewTLSSecret(ctx, secretName, serviceName, certPath, keyPath, namespace)
 	if err != nil {
 		return nil, err

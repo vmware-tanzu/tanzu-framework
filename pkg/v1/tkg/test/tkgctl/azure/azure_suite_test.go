@@ -126,6 +126,10 @@ var _ = SynchronizedBeforeSuite(func() []byte {
 	})
 	Expect(err).ToNot(HaveOccurred())
 
+	optOutStatus, err := tkgCtlClient.GetCEIP()
+	Expect(err).ToNot(HaveOccurred())
+	Expect(optOutStatus.CeipStatus).To(Equal("Opt-out"))
+
 	err = tkgCtlClient.ConfigCluster(tkgctl.CreateClusterOptions{
 		ClusterConfigFile: clusterConfigFile,
 		Edition:           "tkg",

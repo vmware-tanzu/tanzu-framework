@@ -6,3 +6,4 @@ deployment:
   hostNetwork: true
   nodeSelector: null
   tolerations: []
+  webhookServerPort: 9443

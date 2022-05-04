@@ -47,14 +47,10 @@ spec:
         description: DockerCluster is the Schema for the dockerclusters API.
         properties:
           apiVersion:
-            description: 'APIVersion defines the versioned schema of this representation
-              of an object. Servers should convert recognized schemas to the latest
-              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            description: 'APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
             type: string
           kind:
-            description: 'Kind is a string value representing the REST resource this
-              object represents. Servers may infer this from the endpoint the client
-              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            description: 'Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
             type: string
           metadata:
             type: object
@@ -62,8 +58,7 @@ spec:
             description: DockerClusterSpec defines the desired state of DockerCluster.
             properties:
               controlPlaneEndpoint:
-                description: ControlPlaneEndpoint represents the endpoint used to
-                  communicate with the control plane.
+                description: ControlPlaneEndpoint represents the endpoint used to communicate with the control plane.
                 properties:
                   host:
                     description: Host is the hostname on which the API server is serving.
@@ -77,26 +72,18 @@ spec:
                 type: object
               failureDomains:
                 additionalProperties:
-                  description: FailureDomainSpec is the Schema for Cluster API failure
-                    domains. It allows controllers to understand how many failure
-                    domains a cluster can optionally span across.
+                  description: FailureDomainSpec is the Schema for Cluster API failure domains. It allows controllers to understand how many failure domains a cluster can optionally span across.
                   properties:
                     attributes:
                       additionalProperties:
                         type: string
-                      description: Attributes is a free form map of attributes an
-                        infrastructure provider might use or require.
+                      description: Attributes is a free form map of attributes an infrastructure provider might use or require.
                       type: object
                     controlPlane:
-                      description: ControlPlane determines if this failure domain
-                        is suitable for use by control plane machines.
+                      description: ControlPlane determines if this failure domain is suitable for use by control plane machines.
                       type: boolean
                   type: object
-                description: FailureDomains are not usulaly defined on the spec. The
-                  docker provider is special since failure domains don't mean anything
-                  in a local docker environment. Instead, the docker cluster controller
-                  will simply copy these into the Status and allow the Cluster API
-                  controllers to do what they will with the defined failure domains.
+                description: FailureDomains are not usulaly defined on the spec. The docker provider is special since failure domains don't mean anything in a local docker environment. Instead, the docker cluster controller will simply copy these into the Status and allow the Cluster API controllers to do what they will with the defined failure domains.
                 type: object
             type: object
           status:
@@ -105,41 +92,26 @@ spec:
               conditions:
                 description: Conditions defines current service state of the DockerCluster.
                 items:
-                  description: Condition defines an observation of a Cluster API resource
-                    operational state.
+                  description: Condition defines an observation of a Cluster API resource operational state.
                   properties:
                     lastTransitionTime:
-                      description: Last time the condition transitioned from one status
-                        to another. This should be when the underlying condition changed.
-                        If that is not known, then using the time when the API field
-                        changed is acceptable.
+                      description: Last time the condition transitioned from one status to another. This should be when the underlying condition changed. If that is not known, then using the time when the API field changed is acceptable.
                       format: date-time
                       type: string
                     message:
-                      description: A human readable message indicating details about
-                        the transition. This field may be empty.
+                      description: A human readable message indicating details about the transition. This field may be empty.
                       type: string
                     reason:
-                      description: The reason for the condition's last transition
-                        in CamelCase. The specific API may choose whether or not this
-                        field is considered a guaranteed API. This field may not be
-                        empty.
+                      description: The reason for the condition's last transition in CamelCase. The specific API may choose whether or not this field is considered a guaranteed API. This field may not be empty.
                       type: string
                     severity:
-                      description: Severity provides an explicit classification of
-                        Reason code, so the users or machines can immediately understand
-                        the current situation and act accordingly. The Severity field
-                        MUST be set only when Status=False.
+                      description: Severity provides an explicit classification of Reason code, so the users or machines can immediately understand the current situation and act accordingly. The Severity field MUST be set only when Status=False.
                       type: string
                     status:
                       description: Status of the condition, one of True, False, Unknown.
                       type: string
                     type:
-                      description: Type of condition in CamelCase or in foo.example.com/CamelCase.
-                        Many .condition.type values are consistent across resources
-                        like Available, but because arbitrary conditions can be useful
-                        (see .node.status.conditions), the ability to deconflict is
-                        important.
+                      description: Type of condition in CamelCase or in foo.example.com/CamelCase. Many .condition.type values are consistent across resources like Available, but because arbitrary conditions can be useful (see .node.status.conditions), the ability to deconflict is important.
                       type: string
                   required:
                   - status
@@ -148,28 +120,21 @@ spec:
                 type: array
               failureDomains:
                 additionalProperties:
-                  description: FailureDomainSpec is the Schema for Cluster API failure
-                    domains. It allows controllers to understand how many failure
-                    domains a cluster can optionally span across.
+                  description: FailureDomainSpec is the Schema for Cluster API failure domains. It allows controllers to understand how many failure domains a cluster can optionally span across.
                   properties:
                     attributes:
                       additionalProperties:
                         type: string
-                      description: Attributes is a free form map of attributes an
-                        infrastructure provider might use or require.
+                      description: Attributes is a free form map of attributes an infrastructure provider might use or require.
                       type: object
                     controlPlane:
-                      description: ControlPlane determines if this failure domain
-                        is suitable for use by control plane machines.
+                      description: ControlPlane determines if this failure domain is suitable for use by control plane machines.
                       type: boolean
                   type: object
-                description: FailureDomains don't mean much in CAPD since it's all
-                  local, but we can see how the rest of cluster API will use this
-                  if we populate it.
+                description: FailureDomains don't mean much in CAPD since it's all local, but we can see how the rest of cluster API will use this if we populate it.
                 type: object
               ready:
-                description: Ready denotes that the docker cluster (infrastructure)
-                  is ready.
+                description: Ready denotes that the docker cluster (infrastructure) is ready.
                 type: boolean
             required:
             - ready
@@ -190,14 +155,10 @@ spec:
         description: DockerCluster is the Schema for the dockerclusters API.
         properties:
           apiVersion:
-            description: 'APIVersion defines the versioned schema of this representation
-              of an object. Servers should convert recognized schemas to the latest
-              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            description: 'APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
             type: string
           kind:
-            description: 'Kind is a string value representing the REST resource this
-              object represents. Servers may infer this from the endpoint the client
-              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            description: 'Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
             type: string
           metadata:
             type: object
@@ -205,8 +166,7 @@ spec:
             description: DockerClusterSpec defines the desired state of DockerCluster.
             properties:
               controlPlaneEndpoint:
-                description: ControlPlaneEndpoint represents the endpoint used to
-                  communicate with the control plane.
+                description: ControlPlaneEndpoint represents the endpoint used to communicate with the control plane.
                 properties:
                   host:
                     description: Host is the hostname on which the API server is serving.
@@ -220,38 +180,27 @@ spec:
                 type: object
               failureDomains:
                 additionalProperties:
-                  description: FailureDomainSpec is the Schema for Cluster API failure
-                    domains. It allows controllers to understand how many failure
-                    domains a cluster can optionally span across.
+                  description: FailureDomainSpec is the Schema for Cluster API failure domains. It allows controllers to understand how many failure domains a cluster can optionally span across.
                   properties:
                     attributes:
                       additionalProperties:
                         type: string
-                      description: Attributes is a free form map of attributes an
-                        infrastructure provider might use or require.
+                      description: Attributes is a free form map of attributes an infrastructure provider might use or require.
                       type: object
                     controlPlane:
-                      description: ControlPlane determines if this failure domain
-                        is suitable for use by control plane machines.
+                      description: ControlPlane determines if this failure domain is suitable for use by control plane machines.
                       type: boolean
                   type: object
-                description: FailureDomains are not usulaly defined on the spec. The
-                  docker provider is special since failure domains don't mean anything
-                  in a local docker environment. Instead, the docker cluster controller
-                  will simply copy these into the Status and allow the Cluster API
-                  controllers to do what they will with the defined failure domains.
+                description: FailureDomains are not usulaly defined on the spec. The docker provider is special since failure domains don't mean anything in a local docker environment. Instead, the docker cluster controller will simply copy these into the Status and allow the Cluster API controllers to do what they will with the defined failure domains.
                 type: object
               loadBalancer:
-                description: LoadBalancer allows defining configurations for the cluster
-                  load balancer.
+                description: LoadBalancer allows defining configurations for the cluster load balancer.
                 properties:
                   imageRepository:
-                    description: ImageRepository sets the container registry to pull
-                      the haproxy image from. if not set, "kindest" will be used instead.
+                    description: ImageRepository sets the container registry to pull the haproxy image from. if not set, "kindest" will be used instead.
                     type: string
                   imageTag:
-                    description: ImageTag allows to specify a tag for the haproxy
-                      image. if not set, "v20210715-a6da3463" will be used instead.
+                    description: ImageTag allows to specify a tag for the haproxy image. if not set, "v20210715-a6da3463" will be used instead.
                     type: string
                 type: object
             type: object
@@ -261,41 +210,26 @@ spec:
               conditions:
                 description: Conditions defines current service state of the DockerCluster.
                 items:
-                  description: Condition defines an observation of a Cluster API resource
-                    operational state.
+                  description: Condition defines an observation of a Cluster API resource operational state.
                   properties:
                     lastTransitionTime:
-                      description: Last time the condition transitioned from one status
-                        to another. This should be when the underlying condition changed.
-                        If that is not known, then using the time when the API field
-                        changed is acceptable.
+                      description: Last time the condition transitioned from one status to another. This should be when the underlying condition changed. If that is not known, then using the time when the API field changed is acceptable.
                       format: date-time
                       type: string
                     message:
-                      description: A human readable message indicating details about
-                        the transition. This field may be empty.
+                      description: A human readable message indicating details about the transition. This field may be empty.
                       type: string
                     reason:
-                      description: The reason for the condition's last transition
-                        in CamelCase. The specific API may choose whether or not this
-                        field is considered a guaranteed API. This field may not be
-                        empty.
+                      description: The reason for the condition's last transition in CamelCase. The specific API may choose whether or not this field is considered a guaranteed API. This field may not be empty.
                       type: string
                     severity:
-                      description: Severity provides an explicit classification of
-                        Reason code, so the users or machines can immediately understand
-                        the current situation and act accordingly. The Severity field
-                        MUST be set only when Status=False.
+                      description: Severity provides an explicit classification of Reason code, so the users or machines can immediately understand the current situation and act accordingly. The Severity field MUST be set only when Status=False.
                       type: string
                     status:
                       description: Status of the condition, one of True, False, Unknown.
                       type: string
                     type:
-                      description: Type of condition in CamelCase or in foo.example.com/CamelCase.
-                        Many .condition.type values are consistent across resources
-                        like Available, but because arbitrary conditions can be useful
-                        (see .node.status.conditions), the ability to deconflict is
-                        important.
+                      description: Type of condition in CamelCase or in foo.example.com/CamelCase. Many .condition.type values are consistent across resources like Available, but because arbitrary conditions can be useful (see .node.status.conditions), the ability to deconflict is important.
                       type: string
                   required:
                   - status
@@ -304,28 +238,21 @@ spec:
                 type: array
               failureDomains:
                 additionalProperties:
-                  description: FailureDomainSpec is the Schema for Cluster API failure
-                    domains. It allows controllers to understand how many failure
-                    domains a cluster can optionally span across.
+                  description: FailureDomainSpec is the Schema for Cluster API failure domains. It allows controllers to understand how many failure domains a cluster can optionally span across.
                   properties:
                     attributes:
                       additionalProperties:
                         type: string
-                      description: Attributes is a free form map of attributes an
-                        infrastructure provider might use or require.
+                      description: Attributes is a free form map of attributes an infrastructure provider might use or require.
                       type: object
                     controlPlane:
-                      description: ControlPlane determines if this failure domain
-                        is suitable for use by control plane machines.
+                      description: ControlPlane determines if this failure domain is suitable for use by control plane machines.
                       type: boolean
                   type: object
-                description: FailureDomains don't mean much in CAPD since it's all
-                  local, but we can see how the rest of cluster API will use this
-                  if we populate it.
+                description: FailureDomains don't mean much in CAPD since it's all local, but we can see how the rest of cluster API will use this if we populate it.
                 type: object
               ready:
-                description: Ready denotes that the docker cluster (infrastructure)
-                  is ready.
+                description: Ready denotes that the docker cluster (infrastructure) is ready.
                 type: boolean
             required:
             - ready
@@ -350,14 +277,10 @@ spec:
         description: DockerCluster is the Schema for the dockerclusters API.
         properties:
           apiVersion:
-            description: 'APIVersion defines the versioned schema of this representation
-              of an object. Servers should convert recognized schemas to the latest
-              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            description: 'APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
             type: string
           kind:
-            description: 'Kind is a string value representing the REST resource this
-              object represents. Servers may infer this from the endpoint the client
-              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            description: 'Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
             type: string
           metadata:
             type: object
@@ -365,8 +288,7 @@ spec:
             description: DockerClusterSpec defines the desired state of DockerCluster.
             properties:
               controlPlaneEndpoint:
-                description: ControlPlaneEndpoint represents the endpoint used to
-                  communicate with the control plane.
+                description: ControlPlaneEndpoint represents the endpoint used to communicate with the control plane.
                 properties:
                   host:
                     description: Host is the hostname on which the API server is serving.
@@ -380,38 +302,27 @@ spec:
                 type: object
               failureDomains:
                 additionalProperties:
-                  description: FailureDomainSpec is the Schema for Cluster API failure
-                    domains. It allows controllers to understand how many failure
-                    domains a cluster can optionally span across.
+                  description: FailureDomainSpec is the Schema for Cluster API failure domains. It allows controllers to understand how many failure domains a cluster can optionally span across.
                   properties:
                     attributes:
                       additionalProperties:
                         type: string
-                      description: Attributes is a free form map of attributes an
-                        infrastructure provider might use or require.
+                      description: Attributes is a free form map of attributes an infrastructure provider might use or require.
                       type: object
                     controlPlane:
-                      description: ControlPlane determines if this failure domain
-                        is suitable for use by control plane machines.
+                      description: ControlPlane determines if this failure domain is suitable for use by control plane machines.
                       type: boolean
                   type: object
-                description: FailureDomains are not usulaly defined on the spec. The
-                  docker provider is special since failure domains don't mean anything
-                  in a local docker environment. Instead, the docker cluster controller
-                  will simply copy these into the Status and allow the Cluster API
-                  controllers to do what they will with the defined failure domains.
+                description: FailureDomains are not usulaly defined on the spec. The docker provider is special since failure domains don't mean anything in a local docker environment. Instead, the docker cluster controller will simply copy these into the Status and allow the Cluster API controllers to do what they will with the defined failure domains.
                 type: object
               loadBalancer:
-                description: LoadBalancer allows defining configurations for the cluster
-                  load balancer.
+                description: LoadBalancer allows defining configurations for the cluster load balancer.
                 properties:
                   imageRepository:
-                    description: ImageRepository sets the container registry to pull
-                      the haproxy image from. if not set, "kindest" will be used instead.
+                    description: ImageRepository sets the container registry to pull the haproxy image from. if not set, "kindest" will be used instead.
                     type: string
                   imageTag:
-                    description: ImageTag allows to specify a tag for the haproxy
-                      image. if not set, "v20210715-a6da3463" will be used instead.
+                    description: ImageTag allows to specify a tag for the haproxy image. if not set, "v20210715-a6da3463" will be used instead.
                     type: string
                 type: object
             type: object
@@ -421,41 +332,26 @@ spec:
               conditions:
                 description: Conditions defines current service state of the DockerCluster.
                 items:
-                  description: Condition defines an observation of a Cluster API resource
-                    operational state.
+                  description: Condition defines an observation of a Cluster API resource operational state.
                   properties:
                     lastTransitionTime:
-                      description: Last time the condition transitioned from one status
-                        to another. This should be when the underlying condition changed.
-                        If that is not known, then using the time when the API field
-                        changed is acceptable.
+                      description: Last time the condition transitioned from one status to another. This should be when the underlying condition changed. If that is not known, then using the time when the API field changed is acceptable.
                       format: date-time
                       type: string
                     message:
-                      description: A human readable message indicating details about
-                        the transition. This field may be empty.
+                      description: A human readable message indicating details about the transition. This field may be empty.
                       type: string
                     reason:
-                      description: The reason for the condition's last transition
-                        in CamelCase. The specific API may choose whether or not this
-                        field is considered a guaranteed API. This field may not be
-                        empty.
+                      description: The reason for the condition's last transition in CamelCase. The specific API may choose whether or not this field is considered a guaranteed API. This field may not be empty.
                       type: string
                     severity:
-                      description: Severity provides an explicit classification of
-                        Reason code, so the users or machines can immediately understand
-                        the current situation and act accordingly. The Severity field
-                        MUST be set only when Status=False.
+                      description: Severity provides an explicit classification of Reason code, so the users or machines can immediately understand the current situation and act accordingly. The Severity field MUST be set only when Status=False.
                       type: string
                     status:
                       description: Status of the condition, one of True, False, Unknown.
                       type: string
                     type:
-                      description: Type of condition in CamelCase or in foo.example.com/CamelCase.
-                        Many .condition.type values are consistent across resources
-                        like Available, but because arbitrary conditions can be useful
-                        (see .node.status.conditions), the ability to deconflict is
-                        important.
+                      description: Type of condition in CamelCase or in foo.example.com/CamelCase. Many .condition.type values are consistent across resources like Available, but because arbitrary conditions can be useful (see .node.status.conditions), the ability to deconflict is important.
                       type: string
                   required:
                   - lastTransitionTime
@@ -465,28 +361,21 @@ spec:
                 type: array
               failureDomains:
                 additionalProperties:
-                  description: FailureDomainSpec is the Schema for Cluster API failure
-                    domains. It allows controllers to understand how many failure
-                    domains a cluster can optionally span across.
+                  description: FailureDomainSpec is the Schema for Cluster API failure domains. It allows controllers to understand how many failure domains a cluster can optionally span across.
                   properties:
                     attributes:
                       additionalProperties:
                         type: string
-                      description: Attributes is a free form map of attributes an
-                        infrastructure provider might use or require.
+                      description: Attributes is a free form map of attributes an infrastructure provider might use or require.
                       type: object
                     controlPlane:
-                      description: ControlPlane determines if this failure domain
-                        is suitable for use by control plane machines.
+                      description: ControlPlane determines if this failure domain is suitable for use by control plane machines.
                       type: boolean
                   type: object
-                description: FailureDomains don't mean much in CAPD since it's all
-                  local, but we can see how the rest of cluster API will use this
-                  if we populate it.
+                description: FailureDomains don't mean much in CAPD since it's all local, but we can see how the rest of cluster API will use this if we populate it.
                 type: object
               ready:
-                description: Ready denotes that the docker cluster (infrastructure)
-                  is ready.
+                description: Ready denotes that the docker cluster (infrastructure) is ready.
                 type: boolean
             type: object
         type: object
@@ -542,18 +431,13 @@ spec:
     name: v1alpha4
     schema:
       openAPIV3Schema:
-        description: DockerClusterTemplate is the Schema for the dockerclustertemplates
-          API.
+        description: DockerClusterTemplate is the Schema for the dockerclustertemplates API.
         properties:
           apiVersion:
-            description: 'APIVersion defines the versioned schema of this representation
-              of an object. Servers should convert recognized schemas to the latest
-              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            description: 'APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
             type: string
           kind:
-            description: 'Kind is a string value representing the REST resource this
-              object represents. Servers may infer this from the endpoint the client
-              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            description: 'Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
             type: string
           metadata:
             type: object
@@ -561,23 +445,19 @@ spec:
             description: DockerClusterTemplateSpec defines the desired state of DockerClusterTemplate.
             properties:
               template:
-                description: DockerClusterTemplateResource describes the data needed
-                  to create a DockerCluster from a template.
+                description: DockerClusterTemplateResource describes the data needed to create a DockerCluster from a template.
                 properties:
                   spec:
                     description: DockerClusterSpec defines the desired state of DockerCluster.
                     properties:
                       controlPlaneEndpoint:
-                        description: ControlPlaneEndpoint represents the endpoint
-                          used to communicate with the control plane.
+                        description: ControlPlaneEndpoint represents the endpoint used to communicate with the control plane.
                         properties:
                           host:
-                            description: Host is the hostname on which the API server
-                              is serving.
+                            description: Host is the hostname on which the API server is serving.
                             type: string
                           port:
-                            description: Port is the port on which the API server
-                              is serving.
+                            description: Port is the port on which the API server is serving.
                             type: integer
                         required:
                         - host
@@ -585,42 +465,27 @@ spec:
                         type: object
                       failureDomains:
                         additionalProperties:
-                          description: FailureDomainSpec is the Schema for Cluster
-                            API failure domains. It allows controllers to understand
-                            how many failure domains a cluster can optionally span
-                            across.
+                          description: FailureDomainSpec is the Schema for Cluster API failure domains. It allows controllers to understand how many failure domains a cluster can optionally span across.
                           properties:
                             attributes:
                               additionalProperties:
                                 type: string
-                              description: Attributes is a free form map of attributes
-                                an infrastructure provider might use or require.
+                              description: Attributes is a free form map of attributes an infrastructure provider might use or require.
                               type: object
                             controlPlane:
-                              description: ControlPlane determines if this failure
-                                domain is suitable for use by control plane machines.
+                              description: ControlPlane determines if this failure domain is suitable for use by control plane machines.
                               type: boolean
                           type: object
-                        description: FailureDomains are not usulaly defined on the
-                          spec. The docker provider is special since failure domains
-                          don't mean anything in a local docker environment. Instead,
-                          the docker cluster controller will simply copy these into
-                          the Status and allow the Cluster API controllers to do what
-                          they will with the defined failure domains.
+                        description: FailureDomains are not usulaly defined on the spec. The docker provider is special since failure domains don't mean anything in a local docker environment. Instead, the docker cluster controller will simply copy these into the Status and allow the Cluster API controllers to do what they will with the defined failure domains.
                         type: object
                       loadBalancer:
-                        description: LoadBalancer allows defining configurations for
-                          the cluster load balancer.
+                        description: LoadBalancer allows defining configurations for the cluster load balancer.
                         properties:
                           imageRepository:
-                            description: ImageRepository sets the container registry
-                              to pull the haproxy image from. if not set, "kindest"
-                              will be used instead.
+                            description: ImageRepository sets the container registry to pull the haproxy image from. if not set, "kindest" will be used instead.
                             type: string
                           imageTag:
-                            description: ImageTag allows to specify a tag for the
-                              haproxy image. if not set, "v20210715-a6da3463" will
-                              be used instead.
+                            description: ImageTag allows to specify a tag for the haproxy image. if not set, "v20210715-a6da3463" will be used instead.
                             type: string
                         type: object
                     type: object
@@ -642,18 +507,13 @@ spec:
     name: v1beta1
     schema:
       openAPIV3Schema:
-        description: DockerClusterTemplate is the Schema for the dockerclustertemplates
-          API.
+        description: DockerClusterTemplate is the Schema for the dockerclustertemplates API.
         properties:
           apiVersion:
-            description: 'APIVersion defines the versioned schema of this representation
-              of an object. Servers should convert recognized schemas to the latest
-              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            description: 'APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
             type: string
           kind:
-            description: 'Kind is a string value representing the REST resource this
-              object represents. Servers may infer this from the endpoint the client
-              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            description: 'Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
             type: string
           metadata:
             type: object
@@ -661,8 +521,7 @@ spec:
             description: DockerClusterTemplateSpec defines the desired state of DockerClusterTemplate.
             properties:
               template:
-                description: DockerClusterTemplateResource describes the data needed
-                  to create a DockerCluster from a template.
+                description: DockerClusterTemplateResource describes the data needed to create a DockerCluster from a template.
                 properties:
                   metadata:
                     description: 'Standard object''s metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata'
@@ -670,35 +529,25 @@ spec:
                       annotations:
                         additionalProperties:
                           type: string
-                        description: 'Annotations is an unstructured key value map
-                          stored with a resource that may be set by external tools
-                          to store and retrieve arbitrary metadata. They are not queryable
-                          and should be preserved when modifying objects. More info:
-                          http://kubernetes.io/docs/user-guide/annotations'
+                        description: 'Annotations is an unstructured key value map stored with a resource that may be set by external tools to store and retrieve arbitrary metadata. They are not queryable and should be preserved when modifying objects. More info: http://kubernetes.io/docs/user-guide/annotations'
                         type: object
                       labels:
                         additionalProperties:
                           type: string
-                        description: 'Map of string keys and values that can be used
-                          to organize and categorize (scope and select) objects. May
-                          match selectors of replication controllers and services.
-                          More info: http://kubernetes.io/docs/user-guide/labels'
+                        description: 'Map of string keys and values that can be used to organize and categorize (scope and select) objects. May match selectors of replication controllers and services. More info: http://kubernetes.io/docs/user-guide/labels'
                         type: object
                     type: object
                   spec:
                     description: DockerClusterSpec defines the desired state of DockerCluster.
                     properties:
                       controlPlaneEndpoint:
-                        description: ControlPlaneEndpoint represents the endpoint
-                          used to communicate with the control plane.
+                        description: ControlPlaneEndpoint represents the endpoint used to communicate with the control plane.
                         properties:
                           host:
-                            description: Host is the hostname on which the API server
-                              is serving.
+                            description: Host is the hostname on which the API server is serving.
                             type: string
                           port:
-                            description: Port is the port on which the API server
-                              is serving.
+                            description: Port is the port on which the API server is serving.
                             type: integer
                         required:
                         - host
@@ -706,42 +555,27 @@ spec:
                         type: object
                       failureDomains:
                         additionalProperties:
-                          description: FailureDomainSpec is the Schema for Cluster
-                            API failure domains. It allows controllers to understand
-                            how many failure domains a cluster can optionally span
-                            across.
+                          description: FailureDomainSpec is the Schema for Cluster API failure domains. It allows controllers to understand how many failure domains a cluster can optionally span across.
                           properties:
                             attributes:
                               additionalProperties:
                                 type: string
-                              description: Attributes is a free form map of attributes
-                                an infrastructure provider might use or require.
+                              description: Attributes is a free form map of attributes an infrastructure provider might use or require.
                               type: object
                             controlPlane:
-                              description: ControlPlane determines if this failure
-                                domain is suitable for use by control plane machines.
+                              description: ControlPlane determines if this failure domain is suitable for use by control plane machines.
                               type: boolean
                           type: object
-                        description: FailureDomains are not usulaly defined on the
-                          spec. The docker provider is special since failure domains
-                          don't mean anything in a local docker environment. Instead,
-                          the docker cluster controller will simply copy these into
-                          the Status and allow the Cluster API controllers to do what
-                          they will with the defined failure domains.
+                        description: FailureDomains are not usulaly defined on the spec. The docker provider is special since failure domains don't mean anything in a local docker environment. Instead, the docker cluster controller will simply copy these into the Status and allow the Cluster API controllers to do what they will with the defined failure domains.
                         type: object
                       loadBalancer:
-                        description: LoadBalancer allows defining configurations for
-                          the cluster load balancer.
+                        description: LoadBalancer allows defining configurations for the cluster load balancer.
                         properties:
                           imageRepository:
-                            description: ImageRepository sets the container registry
-                              to pull the haproxy image from. if not set, "kindest"
-                              will be used instead.
+                            description: ImageRepository sets the container registry to pull the haproxy image from. if not set, "kindest" will be used instead.
                             type: string
                           imageTag:
-                            description: ImageTag allows to specify a tag for the
-                              haproxy image. if not set, "v20210715-a6da3463" will
-                              be used instead.
+                            description: ImageTag allows to specify a tag for the haproxy image. if not set, "v20210715-a6da3463" will be used instead.
                             type: string
                         type: object
                     type: object
@@ -803,14 +637,10 @@ spec:
         description: DockerMachinePool is the Schema for the dockermachinepools API.
         properties:
           apiVersion:
-            description: 'APIVersion defines the versioned schema of this representation
-              of an object. Servers should convert recognized schemas to the latest
-              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            description: 'APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
             type: string
           kind:
-            description: 'Kind is a string value representing the REST resource this
-              object represents. Servers may infer this from the endpoint the client
-              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            description: 'Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
             type: string
           metadata:
             type: object
@@ -821,34 +651,26 @@ spec:
                 description: ProviderID is the identification ID of the Machine Pool
                 type: string
               providerIDList:
-                description: ProviderIDList is the list of identification IDs of machine
-                  instances managed by this Machine Pool
+                description: ProviderIDList is the list of identification IDs of machine instances managed by this Machine Pool
                 items:
                   type: string
                 type: array
               template:
-                description: Template contains the details used to build a replica
-                  machine within the Machine Pool
+                description: Template contains the details used to build a replica machine within the Machine Pool
                 properties:
                   customImage:
-                    description: CustomImage allows customizing the container image
-                      that is used for running the machine
+                    description: CustomImage allows customizing the container image that is used for running the machine
                     type: string
                   extraMounts:
-                    description: ExtraMounts describes additional mount points for
-                      the node container These may be used to bind a hostPath
+                    description: ExtraMounts describes additional mount points for the node container These may be used to bind a hostPath
                     items:
-                      description: Mount specifies a host volume to mount into a container.
-                        This is a simplified version of kind v1alpha4.Mount types.
+                      description: Mount specifies a host volume to mount into a container. This is a simplified version of kind v1alpha4.Mount types.
                       properties:
                         containerPath:
                           description: Path of the mount within the container.
                           type: string
                         hostPath:
-                          description: Path of the mount on the host. If the hostPath
-                            doesn't exist, then runtimes should report error. If the
-                            hostpath is a symbolic link, runtimes should follow the
-                            symlink and mount the real destination to container.
+                          description: Path of the mount on the host. If the hostPath doesn't exist, then runtimes should report error. If the hostpath is a symbolic link, runtimes should follow the symlink and mount the real destination to container.
                           type: string
                         readOnly:
                           description: If set, the mount is read-only.
@@ -856,9 +678,7 @@ spec:
                       type: object
                     type: array
                   preLoadImages:
-                    description: PreLoadImages allows to pre-load images in a newly
-                      created machine. This can be used to speed up tests by avoiding
-                      e.g. to download CNI images on all the containers.
+                    description: PreLoadImages allows to pre-load images in a newly created machine. This can be used to speed up tests by avoiding e.g. to download CNI images on all the containers.
                     items:
                       type: string
                     type: array
@@ -870,41 +690,26 @@ spec:
               conditions:
                 description: Conditions defines current service state of the DockerMachinePool.
                 items:
-                  description: Condition defines an observation of a Cluster API resource
-                    operational state.
+                  description: Condition defines an observation of a Cluster API resource operational state.
                   properties:
                     lastTransitionTime:
-                      description: Last time the condition transitioned from one status
-                        to another. This should be when the underlying condition changed.
-                        If that is not known, then using the time when the API field
-                        changed is acceptable.
+                      description: Last time the condition transitioned from one status to another. This should be when the underlying condition changed. If that is not known, then using the time when the API field changed is acceptable.
                       format: date-time
                       type: string
                     message:
-                      description: A human readable message indicating details about
-                        the transition. This field may be empty.
+                      description: A human readable message indicating details about the transition. This field may be empty.
                       type: string
                     reason:
-                      description: The reason for the condition's last transition
-                        in CamelCase. The specific API may choose whether or not this
-                        field is considered a guaranteed API. This field may not be
-                        empty.
+                      description: The reason for the condition's last transition in CamelCase. The specific API may choose whether or not this field is considered a guaranteed API. This field may not be empty.
                       type: string
                     severity:
-                      description: Severity provides an explicit classification of
-                        Reason code, so the users or machines can immediately understand
-                        the current situation and act accordingly. The Severity field
-                        MUST be set only when Status=False.
+                      description: Severity provides an explicit classification of Reason code, so the users or machines can immediately understand the current situation and act accordingly. The Severity field MUST be set only when Status=False.
                       type: string
                     status:
                       description: Status of the condition, one of True, False, Unknown.
                       type: string
                     type:
-                      description: Type of condition in CamelCase or in foo.example.com/CamelCase.
-                        Many .condition.type values are consistent across resources
-                        like Available, but because arbitrary conditions can be useful
-                        (see .node.status.conditions), the ability to deconflict is
-                        important.
+                      description: Type of condition in CamelCase or in foo.example.com/CamelCase. Many .condition.type values are consistent across resources like Available, but because arbitrary conditions can be useful (see .node.status.conditions), the ability to deconflict is important.
                       type: string
                   required:
                   - status
@@ -912,25 +717,20 @@ spec:
                   type: object
                 type: array
               instances:
-                description: Instances contains the status for each instance in the
-                  pool
+                description: Instances contains the status for each instance in the pool
                 items:
-                  description: DockerMachinePoolInstanceStatus contains status information
-                    about a DockerMachinePool.
+                  description: DockerMachinePoolInstanceStatus contains status information about a DockerMachinePool.
                   properties:
                     addresses:
-                      description: Addresses contains the associated addresses for
-                        the docker machine.
+                      description: Addresses contains the associated addresses for the docker machine.
                       items:
-                        description: MachineAddress contains information for the node's
-                          address.
+                        description: MachineAddress contains information for the node's address.
                         properties:
                           address:
                             description: The machine address.
                             type: string
                           type:
-                            description: Machine address type, one of Hostname, ExternalIP
-                              or InternalIP.
+                            description: Machine address type, one of Hostname, ExternalIP or InternalIP.
                             type: string
                         required:
                         - address
@@ -938,24 +738,19 @@ spec:
                         type: object
                       type: array
                     bootstrapped:
-                      description: Bootstrapped is true when the kubeadm bootstrapping
-                        has been run against this machine
+                      description: Bootstrapped is true when the kubeadm bootstrapping has been run against this machine
                       type: boolean
                     instanceName:
-                      description: InstanceName is the identification of the Machine
-                        Instance within the Machine Pool
+                      description: InstanceName is the identification of the Machine Instance within the Machine Pool
                       type: string
                     providerID:
-                      description: ProviderID is the provider identification of the
-                        Machine Pool Instance
+                      description: ProviderID is the provider identification of the Machine Pool Instance
                       type: string
                     ready:
-                      description: Ready denotes that the machine (docker container)
-                        is ready
+                      description: Ready denotes that the machine (docker container) is ready
                       type: boolean
                     version:
-                      description: Version defines the Kubernetes version for the
-                        Machine Instance
+                      description: Version defines the Kubernetes version for the Machine Instance
                       type: string
                   type: object
                 type: array
@@ -987,14 +782,10 @@ spec:
         description: DockerMachinePool is the Schema for the dockermachinepools API.
         properties:
           apiVersion:
-            description: 'APIVersion defines the versioned schema of this representation
-              of an object. Servers should convert recognized schemas to the latest
-              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            description: 'APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
             type: string
           kind:
-            description: 'Kind is a string value representing the REST resource this
-              object represents. Servers may infer this from the endpoint the client
-              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            description: 'Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
             type: string
           metadata:
             type: object
@@ -1005,34 +796,26 @@ spec:
                 description: ProviderID is the identification ID of the Machine Pool
                 type: string
               providerIDList:
-                description: ProviderIDList is the list of identification IDs of machine
-                  instances managed by this Machine Pool
+                description: ProviderIDList is the list of identification IDs of machine instances managed by this Machine Pool
                 items:
                   type: string
                 type: array
               template:
-                description: Template contains the details used to build a replica
-                  machine within the Machine Pool
+                description: Template contains the details used to build a replica machine within the Machine Pool
                 properties:
                   customImage:
-                    description: CustomImage allows customizing the container image
-                      that is used for running the machine
+                    description: CustomImage allows customizing the container image that is used for running the machine
                     type: string
                   extraMounts:
-                    description: ExtraMounts describes additional mount points for
-                      the node container These may be used to bind a hostPath
+                    description: ExtraMounts describes additional mount points for the node container These may be used to bind a hostPath
                     items:
-                      description: Mount specifies a host volume to mount into a container.
-                        This is a simplified version of kind v1alpha4.Mount types.
+                      description: Mount specifies a host volume to mount into a container. This is a simplified version of kind v1alpha4.Mount types.
                       properties:
                         containerPath:
                           description: Path of the mount within the container.
                           type: string
                         hostPath:
-                          description: Path of the mount on the host. If the hostPath
-                            doesn't exist, then runtimes should report error. If the
-                            hostpath is a symbolic link, runtimes should follow the
-                            symlink and mount the real destination to container.
+                          description: Path of the mount on the host. If the hostPath doesn't exist, then runtimes should report error. If the hostpath is a symbolic link, runtimes should follow the symlink and mount the real destination to container.
                           type: string
                         readOnly:
                           description: If set, the mount is read-only.
@@ -1040,9 +823,7 @@ spec:
                       type: object
                     type: array
                   preLoadImages:
-                    description: PreLoadImages allows to pre-load images in a newly
-                      created machine. This can be used to speed up tests by avoiding
-                      e.g. to download CNI images on all the containers.
+                    description: PreLoadImages allows to pre-load images in a newly created machine. This can be used to speed up tests by avoiding e.g. to download CNI images on all the containers.
                     items:
                       type: string
                     type: array
@@ -1054,41 +835,26 @@ spec:
               conditions:
                 description: Conditions defines current service state of the DockerMachinePool.
                 items:
-                  description: Condition defines an observation of a Cluster API resource
-                    operational state.
+                  description: Condition defines an observation of a Cluster API resource operational state.
                   properties:
                     lastTransitionTime:
-                      description: Last time the condition transitioned from one status
-                        to another. This should be when the underlying condition changed.
-                        If that is not known, then using the time when the API field
-                        changed is acceptable.
+                      description: Last time the condition transitioned from one status to another. This should be when the underlying condition changed. If that is not known, then using the time when the API field changed is acceptable.
                       format: date-time
                       type: string
                     message:
-                      description: A human readable message indicating details about
-                        the transition. This field may be empty.
+                      description: A human readable message indicating details about the transition. This field may be empty.
                       type: string
                     reason:
-                      description: The reason for the condition's last transition
-                        in CamelCase. The specific API may choose whether or not this
-                        field is considered a guaranteed API. This field may not be
-                        empty.
+                      description: The reason for the condition's last transition in CamelCase. The specific API may choose whether or not this field is considered a guaranteed API. This field may not be empty.
                       type: string
                     severity:
-                      description: Severity provides an explicit classification of
-                        Reason code, so the users or machines can immediately understand
-                        the current situation and act accordingly. The Severity field
-                        MUST be set only when Status=False.
+                      description: Severity provides an explicit classification of Reason code, so the users or machines can immediately understand the current situation and act accordingly. The Severity field MUST be set only when Status=False.
                       type: string
                     status:
                       description: Status of the condition, one of True, False, Unknown.
                       type: string
                     type:
-                      description: Type of condition in CamelCase or in foo.example.com/CamelCase.
-                        Many .condition.type values are consistent across resources
-                        like Available, but because arbitrary conditions can be useful
-                        (see .node.status.conditions), the ability to deconflict is
-                        important.
+                      description: Type of condition in CamelCase or in foo.example.com/CamelCase. Many .condition.type values are consistent across resources like Available, but because arbitrary conditions can be useful (see .node.status.conditions), the ability to deconflict is important.
                       type: string
                   required:
                   - status
@@ -1096,25 +862,20 @@ spec:
                   type: object
                 type: array
               instances:
-                description: Instances contains the status for each instance in the
-                  pool
+                description: Instances contains the status for each instance in the pool
                 items:
-                  description: DockerMachinePoolInstanceStatus contains status information
-                    about a DockerMachinePool.
+                  description: DockerMachinePoolInstanceStatus contains status information about a DockerMachinePool.
                   properties:
                     addresses:
-                      description: Addresses contains the associated addresses for
-                        the docker machine.
+                      description: Addresses contains the associated addresses for the docker machine.
                       items:
-                        description: MachineAddress contains information for the node's
-                          address.
+                        description: MachineAddress contains information for the node's address.
                         properties:
                           address:
                             description: The machine address.
                             type: string
                           type:
-                            description: Machine address type, one of Hostname, ExternalIP
-                              or InternalIP.
+                            description: Machine address type, one of Hostname, ExternalIP or InternalIP.
                             type: string
                         required:
                         - address
@@ -1122,24 +883,19 @@ spec:
                         type: object
                       type: array
                     bootstrapped:
-                      description: Bootstrapped is true when the kubeadm bootstrapping
-                        has been run against this machine
+                      description: Bootstrapped is true when the kubeadm bootstrapping has been run against this machine
                       type: boolean
                     instanceName:
-                      description: InstanceName is the identification of the Machine
-                        Instance within the Machine Pool
+                      description: InstanceName is the identification of the Machine Instance within the Machine Pool
                       type: string
                     providerID:
-                      description: ProviderID is the provider identification of the
-                        Machine Pool Instance
+                      description: ProviderID is the provider identification of the Machine Pool Instance
                       type: string
                     ready:
-                      description: Ready denotes that the machine (docker container)
-                        is ready
+                      description: Ready denotes that the machine (docker container) is ready
                       type: boolean
                     version:
-                      description: Version defines the Kubernetes version for the
-                        Machine Instance
+                      description: Version defines the Kubernetes version for the Machine Instance
                       type: string
                   type: object
                 type: array
@@ -1171,14 +927,10 @@ spec:
         description: DockerMachinePool is the Schema for the dockermachinepools API.
         properties:
           apiVersion:
-            description: 'APIVersion defines the versioned schema of this representation
-              of an object. Servers should convert recognized schemas to the latest
-              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            description: 'APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
             type: string
           kind:
-            description: 'Kind is a string value representing the REST resource this
-              object represents. Servers may infer this from the endpoint the client
-              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            description: 'Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
             type: string
           metadata:
             type: object
@@ -1189,34 +941,26 @@ spec:
                 description: ProviderID is the identification ID of the Machine Pool
                 type: string
               providerIDList:
-                description: ProviderIDList is the list of identification IDs of machine
-                  instances managed by this Machine Pool
+                description: ProviderIDList is the list of identification IDs of machine instances managed by this Machine Pool
                 items:
                   type: string
                 type: array
               template:
-                description: Template contains the details used to build a replica
-                  machine within the Machine Pool
+                description: Template contains the details used to build a replica machine within the Machine Pool
                 properties:
                   customImage:
-                    description: CustomImage allows customizing the container image
-                      that is used for running the machine
+                    description: CustomImage allows customizing the container image that is used for running the machine
                     type: string
                   extraMounts:
-                    description: ExtraMounts describes additional mount points for
-                      the node container These may be used to bind a hostPath
+                    description: ExtraMounts describes additional mount points for the node container These may be used to bind a hostPath
                     items:
-                      description: Mount specifies a host volume to mount into a container.
-                        This is a simplified version of kind v1alpha4.Mount types.
+                      description: Mount specifies a host volume to mount into a container. This is a simplified version of kind v1alpha4.Mount types.
                       properties:
                         containerPath:
                           description: Path of the mount within the container.
                           type: string
                         hostPath:
-                          description: Path of the mount on the host. If the hostPath
-                            doesn't exist, then runtimes should report error. If the
-                            hostpath is a symbolic link, runtimes should follow the
-                            symlink and mount the real destination to container.
+                          description: Path of the mount on the host. If the hostPath doesn't exist, then runtimes should report error. If the hostpath is a symbolic link, runtimes should follow the symlink and mount the real destination to container.
                           type: string
                         readOnly:
                           description: If set, the mount is read-only.
@@ -1224,9 +968,7 @@ spec:
                       type: object
                     type: array
                   preLoadImages:
-                    description: PreLoadImages allows to pre-load images in a newly
-                      created machine. This can be used to speed up tests by avoiding
-                      e.g. to download CNI images on all the containers.
+                    description: PreLoadImages allows to pre-load images in a newly created machine. This can be used to speed up tests by avoiding e.g. to download CNI images on all the containers.
                     items:
                       type: string
                     type: array
@@ -1238,41 +980,26 @@ spec:
               conditions:
                 description: Conditions defines current service state of the DockerMachinePool.
                 items:
-                  description: Condition defines an observation of a Cluster API resource
-                    operational state.
+                  description: Condition defines an observation of a Cluster API resource operational state.
                   properties:
                     lastTransitionTime:
-                      description: Last time the condition transitioned from one status
-                        to another. This should be when the underlying condition changed.
-                        If that is not known, then using the time when the API field
-                        changed is acceptable.
+                      description: Last time the condition transitioned from one status to another. This should be when the underlying condition changed. If that is not known, then using the time when the API field changed is acceptable.
                       format: date-time
                       type: string
                     message:
-                      description: A human readable message indicating details about
-                        the transition. This field may be empty.
+                      description: A human readable message indicating details about the transition. This field may be empty.
                       type: string
                     reason:
-                      description: The reason for the condition's last transition
-                        in CamelCase. The specific API may choose whether or not this
-                        field is considered a guaranteed API. This field may not be
-                        empty.
+                      description: The reason for the condition's last transition in CamelCase. The specific API may choose whether or not this field is considered a guaranteed API. This field may not be empty.
                       type: string
                     severity:
-                      description: Severity provides an explicit classification of
-                        Reason code, so the users or machines can immediately understand
-                        the current situation and act accordingly. The Severity field
-                        MUST be set only when Status=False.
+                      description: Severity provides an explicit classification of Reason code, so the users or machines can immediately understand the current situation and act accordingly. The Severity field MUST be set only when Status=False.
                       type: string
                     status:
                       description: Status of the condition, one of True, False, Unknown.
                       type: string
                     type:
-                      description: Type of condition in CamelCase or in foo.example.com/CamelCase.
-                        Many .condition.type values are consistent across resources
-                        like Available, but because arbitrary conditions can be useful
-                        (see .node.status.conditions), the ability to deconflict is
-                        important.
+                      description: Type of condition in CamelCase or in foo.example.com/CamelCase. Many .condition.type values are consistent across resources like Available, but because arbitrary conditions can be useful (see .node.status.conditions), the ability to deconflict is important.
                       type: string
                   required:
                   - lastTransitionTime
@@ -1281,25 +1008,20 @@ spec:
                   type: object
                 type: array
               instances:
-                description: Instances contains the status for each instance in the
-                  pool
+                description: Instances contains the status for each instance in the pool
                 items:
-                  description: DockerMachinePoolInstanceStatus contains status information
-                    about a DockerMachinePool.
+                  description: DockerMachinePoolInstanceStatus contains status information about a DockerMachinePool.
                   properties:
                     addresses:
-                      description: Addresses contains the associated addresses for
-                        the docker machine.
+                      description: Addresses contains the associated addresses for the docker machine.
                       items:
-                        description: MachineAddress contains information for the node's
-                          address.
+                        description: MachineAddress contains information for the node's address.
                         properties:
                           address:
                             description: The machine address.
                             type: string
                           type:
-                            description: Machine address type, one of Hostname, ExternalIP
-                              or InternalIP.
+                            description: Machine address type, one of Hostname, ExternalIP or InternalIP.
                             type: string
                         required:
                         - address
@@ -1307,24 +1029,19 @@ spec:
                         type: object
                       type: array
                     bootstrapped:
-                      description: Bootstrapped is true when the kubeadm bootstrapping
-                        has been run against this machine
+                      description: Bootstrapped is true when the kubeadm bootstrapping has been run against this machine
                       type: boolean
                     instanceName:
-                      description: InstanceName is the identification of the Machine
-                        Instance within the Machine Pool
+                      description: InstanceName is the identification of the Machine Instance within the Machine Pool
                       type: string
                     providerID:
-                      description: ProviderID is the provider identification of the
-                        Machine Pool Instance
+                      description: ProviderID is the provider identification of the Machine Pool Instance
                       type: string
                     ready:
-                      description: Ready denotes that the machine (docker container)
-                        is ready
+                      description: Ready denotes that the machine (docker container) is ready
                       type: boolean
                     version:
-                      description: Version defines the Kubernetes version for the
-                        Machine Instance
+                      description: Version defines the Kubernetes version for the Machine Instance
                       type: string
                   type: object
                 type: array
@@ -1393,14 +1110,10 @@ spec:
         description: DockerMachine is the Schema for the dockermachines API.
         properties:
           apiVersion:
-            description: 'APIVersion defines the versioned schema of this representation
-              of an object. Servers should convert recognized schemas to the latest
-              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            description: 'APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
             type: string
           kind:
-            description: 'Kind is a string value representing the REST resource this
-              object represents. Servers may infer this from the endpoint the client
-              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            description: 'Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
             type: string
           metadata:
             type: object
@@ -1408,28 +1121,21 @@ spec:
             description: DockerMachineSpec defines the desired state of DockerMachine.
             properties:
               bootstrapped:
-                description: Bootstrapped is true when the kubeadm bootstrapping has
-                  been run against this machine
+                description: Bootstrapped is true when the kubeadm bootstrapping has been run against this machine
                 type: boolean
               customImage:
-                description: CustomImage allows customizing the container image that
-                  is used for running the machine
+                description: CustomImage allows customizing the container image that is used for running the machine
                 type: string
               extraMounts:
-                description: ExtraMounts describes additional mount points for the
-                  node container These may be used to bind a hostPath
+                description: ExtraMounts describes additional mount points for the node container These may be used to bind a hostPath
                 items:
-                  description: Mount specifies a host volume to mount into a container.
-                    This is a simplified version of kind v1alpha4.Mount types.
+                  description: Mount specifies a host volume to mount into a container. This is a simplified version of kind v1alpha4.Mount types.
                   properties:
                     containerPath:
                       description: Path of the mount within the container.
                       type: string
                     hostPath:
-                      description: Path of the mount on the host. If the hostPath
-                        doesn't exist, then runtimes should report error. If the hostpath
-                        is a symbolic link, runtimes should follow the symlink and
-                        mount the real destination to container.
+                      description: Path of the mount on the host. If the hostPath doesn't exist, then runtimes should report error. If the hostpath is a symbolic link, runtimes should follow the symlink and mount the real destination to container.
                       type: string
                     readOnly:
                       description: If set, the mount is read-only.
@@ -1437,33 +1143,27 @@ spec:
                   type: object
                 type: array
               preLoadImages:
-                description: PreLoadImages allows to pre-load images in a newly created
-                  machine. This can be used to speed up tests by avoiding e.g. to
-                  download CNI images on all the containers.
+                description: PreLoadImages allows to pre-load images in a newly created machine. This can be used to speed up tests by avoiding e.g. to download CNI images on all the containers.
                 items:
                   type: string
                 type: array
               providerID:
-                description: ProviderID will be the container name in ProviderID format
-                  (docker:////<containername>)
+                description: ProviderID will be the container name in ProviderID format (docker:////<containername>)
                 type: string
             type: object
           status:
             description: DockerMachineStatus defines the observed state of DockerMachine.
             properties:
               addresses:
-                description: Addresses contains the associated addresses for the docker
-                  machine.
+                description: Addresses contains the associated addresses for the docker machine.
                 items:
-                  description: MachineAddress contains information for the node's
-                    address.
+                  description: MachineAddress contains information for the node's address.
                   properties:
                     address:
                       description: The machine address.
                       type: string
                     type:
-                      description: Machine address type, one of Hostname, ExternalIP
-                        or InternalIP.
+                      description: Machine address type, one of Hostname, ExternalIP or InternalIP.
                       type: string
                   required:
                   - address
@@ -1473,41 +1173,26 @@ spec:
               conditions:
                 description: Conditions defines current service state of the DockerMachine.
                 items:
-                  description: Condition defines an observation of a Cluster API resource
-                    operational state.
+                  description: Condition defines an observation of a Cluster API resource operational state.
                   properties:
                     lastTransitionTime:
-                      description: Last time the condition transitioned from one status
-                        to another. This should be when the underlying condition changed.
-                        If that is not known, then using the time when the API field
-                        changed is acceptable.
+                      description: Last time the condition transitioned from one status to another. This should be when the underlying condition changed. If that is not known, then using the time when the API field changed is acceptable.
                       format: date-time
                       type: string
                     message:
-                      description: A human readable message indicating details about
-                        the transition. This field may be empty.
+                      description: A human readable message indicating details about the transition. This field may be empty.
                       type: string
                     reason:
-                      description: The reason for the condition's last transition
-                        in CamelCase. The specific API may choose whether or not this
-                        field is considered a guaranteed API. This field may not be
-                        empty.
+                      description: The reason for the condition's last transition in CamelCase. The specific API may choose whether or not this field is considered a guaranteed API. This field may not be empty.
                       type: string
                     severity:
-                      description: Severity provides an explicit classification of
-                        Reason code, so the users or machines can immediately understand
-                        the current situation and act accordingly. The Severity field
-                        MUST be set only when Status=False.
+                      description: Severity provides an explicit classification of Reason code, so the users or machines can immediately understand the current situation and act accordingly. The Severity field MUST be set only when Status=False.
                       type: string
                     status:
                       description: Status of the condition, one of True, False, Unknown.
                       type: string
                     type:
-                      description: Type of condition in CamelCase or in foo.example.com/CamelCase.
-                        Many .condition.type values are consistent across resources
-                        like Available, but because arbitrary conditions can be useful
-                        (see .node.status.conditions), the ability to deconflict is
-                        important.
+                      description: Type of condition in CamelCase or in foo.example.com/CamelCase. Many .condition.type values are consistent across resources like Available, but because arbitrary conditions can be useful (see .node.status.conditions), the ability to deconflict is important.
                       type: string
                   required:
                   - status
@@ -1515,12 +1200,10 @@ spec:
                   type: object
                 type: array
               loadBalancerConfigured:
-                description: LoadBalancerConfigured denotes that the machine has been
-                  added to the load balancer
+                description: LoadBalancerConfigured denotes that the machine has been added to the load balancer
                 type: boolean
               ready:
-                description: Ready denotes that the machine (docker container) is
-                  ready
+                description: Ready denotes that the machine (docker container) is ready
                 type: boolean
             type: object
         type: object
@@ -1539,14 +1222,10 @@ spec:
         description: DockerMachine is the Schema for the dockermachines API.
         properties:
           apiVersion:
-            description: 'APIVersion defines the versioned schema of this representation
-              of an object. Servers should convert recognized schemas to the latest
-              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            description: 'APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
             type: string
           kind:
-            description: 'Kind is a string value representing the REST resource this
-              object represents. Servers may infer this from the endpoint the client
-              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            description: 'Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
             type: string
           metadata:
             type: object
@@ -1554,28 +1233,21 @@ spec:
             description: DockerMachineSpec defines the desired state of DockerMachine.
             properties:
               bootstrapped:
-                description: Bootstrapped is true when the kubeadm bootstrapping has
-                  been run against this machine
+                description: Bootstrapped is true when the kubeadm bootstrapping has been run against this machine
                 type: boolean
               customImage:
-                description: CustomImage allows customizing the container image that
-                  is used for running the machine
+                description: CustomImage allows customizing the container image that is used for running the machine
                 type: string
               extraMounts:
-                description: ExtraMounts describes additional mount points for the
-                  node container These may be used to bind a hostPath
+                description: ExtraMounts describes additional mount points for the node container These may be used to bind a hostPath
                 items:
-                  description: Mount specifies a host volume to mount into a container.
-                    This is a simplified version of kind v1alpha4.Mount types.
+                  description: Mount specifies a host volume to mount into a container. This is a simplified version of kind v1alpha4.Mount types.
                   properties:
                     containerPath:
                       description: Path of the mount within the container.
                       type: string
                     hostPath:
-                      description: Path of the mount on the host. If the hostPath
-                        doesn't exist, then runtimes should report error. If the hostpath
-                        is a symbolic link, runtimes should follow the symlink and
-                        mount the real destination to container.
+                      description: Path of the mount on the host. If the hostPath doesn't exist, then runtimes should report error. If the hostpath is a symbolic link, runtimes should follow the symlink and mount the real destination to container.
                       type: string
                     readOnly:
                       description: If set, the mount is read-only.
@@ -1583,33 +1255,27 @@ spec:
                   type: object
                 type: array
               preLoadImages:
-                description: PreLoadImages allows to pre-load images in a newly created
-                  machine. This can be used to speed up tests by avoiding e.g. to
-                  download CNI images on all the containers.
+                description: PreLoadImages allows to pre-load images in a newly created machine. This can be used to speed up tests by avoiding e.g. to download CNI images on all the containers.
                 items:
                   type: string
                 type: array
               providerID:
-                description: ProviderID will be the container name in ProviderID format
-                  (docker:////<containername>)
+                description: ProviderID will be the container name in ProviderID format (docker:////<containername>)
                 type: string
             type: object
           status:
             description: DockerMachineStatus defines the observed state of DockerMachine.
             properties:
               addresses:
-                description: Addresses contains the associated addresses for the docker
-                  machine.
+                description: Addresses contains the associated addresses for the docker machine.
                 items:
-                  description: MachineAddress contains information for the node's
-                    address.
+                  description: MachineAddress contains information for the node's address.
                   properties:
                     address:
                       description: The machine address.
                       type: string
                     type:
-                      description: Machine address type, one of Hostname, ExternalIP
-                        or InternalIP.
+                      description: Machine address type, one of Hostname, ExternalIP or InternalIP.
                       type: string
                   required:
                   - address
@@ -1619,41 +1285,26 @@ spec:
               conditions:
                 description: Conditions defines current service state of the DockerMachine.
                 items:
-                  description: Condition defines an observation of a Cluster API resource
-                    operational state.
+                  description: Condition defines an observation of a Cluster API resource operational state.
                   properties:
                     lastTransitionTime:
-                      description: Last time the condition transitioned from one status
-                        to another. This should be when the underlying condition changed.
-                        If that is not known, then using the time when the API field
-                        changed is acceptable.
+                      description: Last time the condition transitioned from one status to another. This should be when the underlying condition changed. If that is not known, then using the time when the API field changed is acceptable.
                       format: date-time
                       type: string
                     message:
-                      description: A human readable message indicating details about
-                        the transition. This field may be empty.
+                      description: A human readable message indicating details about the transition. This field may be empty.
                       type: string
                     reason:
-                      description: The reason for the condition's last transition
-                        in CamelCase. The specific API may choose whether or not this
-                        field is considered a guaranteed API. This field may not be
-                        empty.
+                      description: The reason for the condition's last transition in CamelCase. The specific API may choose whether or not this field is considered a guaranteed API. This field may not be empty.
                       type: string
                     severity:
-                      description: Severity provides an explicit classification of
-                        Reason code, so the users or machines can immediately understand
-                        the current situation and act accordingly. The Severity field
-                        MUST be set only when Status=False.
+                      description: Severity provides an explicit classification of Reason code, so the users or machines can immediately understand the current situation and act accordingly. The Severity field MUST be set only when Status=False.
                       type: string
                     status:
                       description: Status of the condition, one of True, False, Unknown.
                       type: string
                     type:
-                      description: Type of condition in CamelCase or in foo.example.com/CamelCase.
-                        Many .condition.type values are consistent across resources
-                        like Available, but because arbitrary conditions can be useful
-                        (see .node.status.conditions), the ability to deconflict is
-                        important.
+                      description: Type of condition in CamelCase or in foo.example.com/CamelCase. Many .condition.type values are consistent across resources like Available, but because arbitrary conditions can be useful (see .node.status.conditions), the ability to deconflict is important.
                       type: string
                   required:
                   - status
@@ -1661,12 +1312,10 @@ spec:
                   type: object
                 type: array
               loadBalancerConfigured:
-                description: LoadBalancerConfigured denotes that the machine has been
-                  added to the load balancer
+                description: LoadBalancerConfigured denotes that the machine has been added to the load balancer
                 type: boolean
               ready:
-                description: Ready denotes that the machine (docker container) is
-                  ready
+                description: Ready denotes that the machine (docker container) is ready
                 type: boolean
             type: object
         type: object
@@ -1689,14 +1338,10 @@ spec:
         description: DockerMachine is the Schema for the dockermachines API.
         properties:
           apiVersion:
-            description: 'APIVersion defines the versioned schema of this representation
-              of an object. Servers should convert recognized schemas to the latest
-              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            description: 'APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
             type: string
           kind:
-            description: 'Kind is a string value representing the REST resource this
-              object represents. Servers may infer this from the endpoint the client
-              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            description: 'Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
             type: string
           metadata:
             type: object
@@ -1704,28 +1349,21 @@ spec:
             description: DockerMachineSpec defines the desired state of DockerMachine.
             properties:
               bootstrapped:
-                description: Bootstrapped is true when the kubeadm bootstrapping has
-                  been run against this machine
+                description: Bootstrapped is true when the kubeadm bootstrapping has been run against this machine
                 type: boolean
               customImage:
-                description: CustomImage allows customizing the container image that
-                  is used for running the machine
+                description: CustomImage allows customizing the container image that is used for running the machine
                 type: string
               extraMounts:
-                description: ExtraMounts describes additional mount points for the
-                  node container These may be used to bind a hostPath
+                description: ExtraMounts describes additional mount points for the node container These may be used to bind a hostPath
                 items:
-                  description: Mount specifies a host volume to mount into a container.
-                    This is a simplified version of kind v1alpha4.Mount types.
+                  description: Mount specifies a host volume to mount into a container. This is a simplified version of kind v1alpha4.Mount types.
                   properties:
                     containerPath:
                       description: Path of the mount within the container.
                       type: string
                     hostPath:
-                      description: Path of the mount on the host. If the hostPath
-                        doesn't exist, then runtimes should report error. If the hostpath
-                        is a symbolic link, runtimes should follow the symlink and
-                        mount the real destination to container.
+                      description: Path of the mount on the host. If the hostPath doesn't exist, then runtimes should report error. If the hostpath is a symbolic link, runtimes should follow the symlink and mount the real destination to container.
                       type: string
                     readOnly:
                       description: If set, the mount is read-only.
@@ -1733,33 +1371,27 @@ spec:
                   type: object
                 type: array
               preLoadImages:
-                description: PreLoadImages allows to pre-load images in a newly created
-                  machine. This can be used to speed up tests by avoiding e.g. to
-                  download CNI images on all the containers.
+                description: PreLoadImages allows to pre-load images in a newly created machine. This can be used to speed up tests by avoiding e.g. to download CNI images on all the containers.
                 items:
                   type: string
                 type: array
               providerID:
-                description: ProviderID will be the container name in ProviderID format
-                  (docker:////<containername>)
+                description: ProviderID will be the container name in ProviderID format (docker:////<containername>)
                 type: string
             type: object
           status:
             description: DockerMachineStatus defines the observed state of DockerMachine.
             properties:
               addresses:
-                description: Addresses contains the associated addresses for the docker
-                  machine.
+                description: Addresses contains the associated addresses for the docker machine.
                 items:
-                  description: MachineAddress contains information for the node's
-                    address.
+                  description: MachineAddress contains information for the node's address.
                   properties:
                     address:
                       description: The machine address.
                       type: string
                     type:
-                      description: Machine address type, one of Hostname, ExternalIP
-                        or InternalIP.
+                      description: Machine address type, one of Hostname, ExternalIP or InternalIP.
                       type: string
                   required:
                   - address
@@ -1769,41 +1401,26 @@ spec:
               conditions:
                 description: Conditions defines current service state of the DockerMachine.
                 items:
-                  description: Condition defines an observation of a Cluster API resource
-                    operational state.
+                  description: Condition defines an observation of a Cluster API resource operational state.
                   properties:
                     lastTransitionTime:
-                      description: Last time the condition transitioned from one status
-                        to another. This should be when the underlying condition changed.
-                        If that is not known, then using the time when the API field
-                        changed is acceptable.
+                      description: Last time the condition transitioned from one status to another. This should be when the underlying condition changed. If that is not known, then using the time when the API field changed is acceptable.
                       format: date-time
                       type: string
                     message:
-                      description: A human readable message indicating details about
-                        the transition. This field may be empty.
+                      description: A human readable message indicating details about the transition. This field may be empty.
                       type: string
                     reason:
-                      description: The reason for the condition's last transition
-                        in CamelCase. The specific API may choose whether or not this
-                        field is considered a guaranteed API. This field may not be
-                        empty.
+                      description: The reason for the condition's last transition in CamelCase. The specific API may choose whether or not this field is considered a guaranteed API. This field may not be empty.
                       type: string
                     severity:
-                      description: Severity provides an explicit classification of
-                        Reason code, so the users or machines can immediately understand
-                        the current situation and act accordingly. The Severity field
-                        MUST be set only when Status=False.
+                      description: Severity provides an explicit classification of Reason code, so the users or machines can immediately understand the current situation and act accordingly. The Severity field MUST be set only when Status=False.
                       type: string
                     status:
                       description: Status of the condition, one of True, False, Unknown.
                       type: string
                     type:
-                      description: Type of condition in CamelCase or in foo.example.com/CamelCase.
-                        Many .condition.type values are consistent across resources
-                        like Available, but because arbitrary conditions can be useful
-                        (see .node.status.conditions), the ability to deconflict is
-                        important.
+                      description: Type of condition in CamelCase or in foo.example.com/CamelCase. Many .condition.type values are consistent across resources like Available, but because arbitrary conditions can be useful (see .node.status.conditions), the ability to deconflict is important.
                       type: string
                   required:
                   - lastTransitionTime
@@ -1812,12 +1429,10 @@ spec:
                   type: object
                 type: array
               loadBalancerConfigured:
-                description: LoadBalancerConfigured denotes that the machine has been
-                  added to the load balancer
+                description: LoadBalancerConfigured denotes that the machine has been added to the load balancer
                 type: boolean
               ready:
-                description: Ready denotes that the machine (docker container) is
-                  ready
+                description: Ready denotes that the machine (docker container) is ready
                 type: boolean
             type: object
         type: object
@@ -1870,18 +1485,13 @@ spec:
   - name: v1alpha3
     schema:
       openAPIV3Schema:
-        description: DockerMachineTemplate is the Schema for the dockermachinetemplates
-          API.
+        description: DockerMachineTemplate is the Schema for the dockermachinetemplates API.
         properties:
           apiVersion:
-            description: 'APIVersion defines the versioned schema of this representation
-              of an object. Servers should convert recognized schemas to the latest
-              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            description: 'APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
             type: string
           kind:
-            description: 'Kind is a string value representing the REST resource this
-              object represents. Servers may infer this from the endpoint the client
-              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            description: 'Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
             type: string
           metadata:
             type: object
@@ -1889,38 +1499,27 @@ spec:
             description: DockerMachineTemplateSpec defines the desired state of DockerMachineTemplate.
             properties:
               template:
-                description: DockerMachineTemplateResource describes the data needed
-                  to create a DockerMachine from a template.
+                description: DockerMachineTemplateResource describes the data needed to create a DockerMachine from a template.
                 properties:
                   spec:
-                    description: Spec is the specification of the desired behavior
-                      of the machine.
+                    description: Spec is the specification of the desired behavior of the machine.
                     properties:
                       bootstrapped:
-                        description: Bootstrapped is true when the kubeadm bootstrapping
-                          has been run against this machine
+                        description: Bootstrapped is true when the kubeadm bootstrapping has been run against this machine
                         type: boolean
                       customImage:
-                        description: CustomImage allows customizing the container
-                          image that is used for running the machine
+                        description: CustomImage allows customizing the container image that is used for running the machine
                         type: string
                       extraMounts:
-                        description: ExtraMounts describes additional mount points
-                          for the node container These may be used to bind a hostPath
+                        description: ExtraMounts describes additional mount points for the node container These may be used to bind a hostPath
                         items:
-                          description: Mount specifies a host volume to mount into
-                            a container. This is a simplified version of kind v1alpha4.Mount
-                            types.
+                          description: Mount specifies a host volume to mount into a container. This is a simplified version of kind v1alpha4.Mount types.
                           properties:
                             containerPath:
                               description: Path of the mount within the container.
                               type: string
                             hostPath:
-                              description: Path of the mount on the host. If the hostPath
-                                doesn't exist, then runtimes should report error.
-                                If the hostpath is a symbolic link, runtimes should
-                                follow the symlink and mount the real destination
-                                to container.
+                              description: Path of the mount on the host. If the hostPath doesn't exist, then runtimes should report error. If the hostpath is a symbolic link, runtimes should follow the symlink and mount the real destination to container.
                               type: string
                             readOnly:
                               description: If set, the mount is read-only.
@@ -1928,15 +1527,12 @@ spec:
                           type: object
                         type: array
                       preLoadImages:
-                        description: PreLoadImages allows to pre-load images in a
-                          newly created machine. This can be used to speed up tests
-                          by avoiding e.g. to download CNI images on all the containers.
+                        description: PreLoadImages allows to pre-load images in a newly created machine. This can be used to speed up tests by avoiding e.g. to download CNI images on all the containers.
                         items:
                           type: string
                         type: array
                       providerID:
-                        description: ProviderID will be the container name in ProviderID
-                          format (docker:////<containername>)
+                        description: ProviderID will be the container name in ProviderID format (docker:////<containername>)
                         type: string
                     type: object
                 required:
@@ -1956,18 +1552,13 @@ spec:
     name: v1alpha4
     schema:
       openAPIV3Schema:
-        description: DockerMachineTemplate is the Schema for the dockermachinetemplates
-          API.
+        description: DockerMachineTemplate is the Schema for the dockermachinetemplates API.
         properties:
           apiVersion:
-            description: 'APIVersion defines the versioned schema of this representation
-              of an object. Servers should convert recognized schemas to the latest
-              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            description: 'APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
             type: string
           kind:
-            description: 'Kind is a string value representing the REST resource this
-              object represents. Servers may infer this from the endpoint the client
-              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            description: 'Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
             type: string
           metadata:
             type: object
@@ -1975,38 +1566,27 @@ spec:
             description: DockerMachineTemplateSpec defines the desired state of DockerMachineTemplate.
             properties:
               template:
-                description: DockerMachineTemplateResource describes the data needed
-                  to create a DockerMachine from a template.
+                description: DockerMachineTemplateResource describes the data needed to create a DockerMachine from a template.
                 properties:
                   spec:
-                    description: Spec is the specification of the desired behavior
-                      of the machine.
+                    description: Spec is the specification of the desired behavior of the machine.
                     properties:
                       bootstrapped:
-                        description: Bootstrapped is true when the kubeadm bootstrapping
-                          has been run against this machine
+                        description: Bootstrapped is true when the kubeadm bootstrapping has been run against this machine
                         type: boolean
                       customImage:
-                        description: CustomImage allows customizing the container
-                          image that is used for running the machine
+                        description: CustomImage allows customizing the container image that is used for running the machine
                         type: string
                       extraMounts:
-                        description: ExtraMounts describes additional mount points
-                          for the node container These may be used to bind a hostPath
+                        description: ExtraMounts describes additional mount points for the node container These may be used to bind a hostPath
                         items:
-                          description: Mount specifies a host volume to mount into
-                            a container. This is a simplified version of kind v1alpha4.Mount
-                            types.
+                          description: Mount specifies a host volume to mount into a container. This is a simplified version of kind v1alpha4.Mount types.
                           properties:
                             containerPath:
                               description: Path of the mount within the container.
                               type: string
                             hostPath:
-                              description: Path of the mount on the host. If the hostPath
-                                doesn't exist, then runtimes should report error.
-                                If the hostpath is a symbolic link, runtimes should
-                                follow the symlink and mount the real destination
-                                to container.
+                              description: Path of the mount on the host. If the hostPath doesn't exist, then runtimes should report error. If the hostpath is a symbolic link, runtimes should follow the symlink and mount the real destination to container.
                               type: string
                             readOnly:
                               description: If set, the mount is read-only.
@@ -2014,15 +1594,12 @@ spec:
                           type: object
                         type: array
                       preLoadImages:
-                        description: PreLoadImages allows to pre-load images in a
-                          newly created machine. This can be used to speed up tests
-                          by avoiding e.g. to download CNI images on all the containers.
+                        description: PreLoadImages allows to pre-load images in a newly created machine. This can be used to speed up tests by avoiding e.g. to download CNI images on all the containers.
                         items:
                           type: string
                         type: array
                       providerID:
-                        description: ProviderID will be the container name in ProviderID
-                          format (docker:////<containername>)
+                        description: ProviderID will be the container name in ProviderID format (docker:////<containername>)
                         type: string
                     type: object
                 required:
@@ -2043,18 +1620,13 @@ spec:
     name: v1beta1
     schema:
       openAPIV3Schema:
-        description: DockerMachineTemplate is the Schema for the dockermachinetemplates
-          API.
+        description: DockerMachineTemplate is the Schema for the dockermachinetemplates API.
         properties:
           apiVersion:
-            description: 'APIVersion defines the versioned schema of this representation
-              of an object. Servers should convert recognized schemas to the latest
-              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            description: 'APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
             type: string
           kind:
-            description: 'Kind is a string value representing the REST resource this
-              object represents. Servers may infer this from the endpoint the client
-              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            description: 'Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
             type: string
           metadata:
             type: object
@@ -2062,8 +1634,7 @@ spec:
             description: DockerMachineTemplateSpec defines the desired state of DockerMachineTemplate.
             properties:
               template:
-                description: DockerMachineTemplateResource describes the data needed
-                  to create a DockerMachine from a template.
+                description: DockerMachineTemplateResource describes the data needed to create a DockerMachine from a template.
                 properties:
                   metadata:
                     description: 'Standard object''s metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata'
@@ -2071,50 +1642,33 @@ spec:
                       annotations:
                         additionalProperties:
                           type: string
-                        description: 'Annotations is an unstructured key value map
-                          stored with a resource that may be set by external tools
-                          to store and retrieve arbitrary metadata. They are not queryable
-                          and should be preserved when modifying objects. More info:
-                          http://kubernetes.io/docs/user-guide/annotations'
+                        description: 'Annotations is an unstructured key value map stored with a resource that may be set by external tools to store and retrieve arbitrary metadata. They are not queryable and should be preserved when modifying objects. More info: http://kubernetes.io/docs/user-guide/annotations'
                         type: object
                       labels:
                         additionalProperties:
                           type: string
-                        description: 'Map of string keys and values that can be used
-                          to organize and categorize (scope and select) objects. May
-                          match selectors of replication controllers and services.
-                          More info: http://kubernetes.io/docs/user-guide/labels'
+                        description: 'Map of string keys and values that can be used to organize and categorize (scope and select) objects. May match selectors of replication controllers and services. More info: http://kubernetes.io/docs/user-guide/labels'
                         type: object
                     type: object
                   spec:
-                    description: Spec is the specification of the desired behavior
-                      of the machine.
+                    description: Spec is the specification of the desired behavior of the machine.
                     properties:
                       bootstrapped:
-                        description: Bootstrapped is true when the kubeadm bootstrapping
-                          has been run against this machine
+                        description: Bootstrapped is true when the kubeadm bootstrapping has been run against this machine
                         type: boolean
                       customImage:
-                        description: CustomImage allows customizing the container
-                          image that is used for running the machine
+                        description: CustomImage allows customizing the container image that is used for running the machine
                         type: string
                       extraMounts:
-                        description: ExtraMounts describes additional mount points
-                          for the node container These may be used to bind a hostPath
+                        description: ExtraMounts describes additional mount points for the node container These may be used to bind a hostPath
                         items:
-                          description: Mount specifies a host volume to mount into
-                            a container. This is a simplified version of kind v1alpha4.Mount
-                            types.
+                          description: Mount specifies a host volume to mount into a container. This is a simplified version of kind v1alpha4.Mount types.
                           properties:
                             containerPath:
                               description: Path of the mount within the container.
                               type: string
                             hostPath:
-                              description: Path of the mount on the host. If the hostPath
-                                doesn't exist, then runtimes should report error.
-                                If the hostpath is a symbolic link, runtimes should
-                                follow the symlink and mount the real destination
-                                to container.
+                              description: Path of the mount on the host. If the hostPath doesn't exist, then runtimes should report error. If the hostpath is a symbolic link, runtimes should follow the symlink and mount the real destination to container.
                               type: string
                             readOnly:
                               description: If set, the mount is read-only.
@@ -2122,15 +1676,12 @@ spec:
                           type: object
                         type: array
                       preLoadImages:
-                        description: PreLoadImages allows to pre-load images in a
-                          newly created machine. This can be used to speed up tests
-                          by avoiding e.g. to download CNI images on all the containers.
+                        description: PreLoadImages allows to pre-load images in a newly created machine. This can be used to speed up tests by avoiding e.g. to download CNI images on all the containers.
                         items:
                           type: string
                         type: array
                       providerID:
-                        description: ProviderID will be the container name in ProviderID
-                          format (docker:////<containername>)
+                        description: ProviderID will be the container name in ProviderID format (docker:////<containername>)
                         type: string
                     type: object
                 required:

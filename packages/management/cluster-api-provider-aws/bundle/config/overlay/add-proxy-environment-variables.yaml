@@ -1,0 +1,24 @@
+#@ load("@ytt:data", "data")
+#@ load("@ytt:overlay", "overlay")
+
+#@overlay/match by=overlay.subset({"kind": "Deployment", "metadata": {"name": "capa-controller-manager"}})
+---
+spec:
+  template:
+    spec:
+      containers:
+      #@overlay/match by=overlay.subset({"name": "manager"})
+      - env:
+        #@ if data.values.capaControllerManager.httpProxy != "":
+        - name: "HTTP_PROXY"
+          value: #@ data.values.capaControllerManager.httpProxy
+        #@ end
+        #@ if data.values.capaControllerManager.httpsProxy != "":
+        - name: "HTTPS_PROXY"
+          value: #@ data.values.capaControllerManager.httpsProxy
+        #@ end
+        #@ if data.values.capaControllerManager.noProxy != "":
+        - name: "NO_PROXY"
+          value: #@ data.values.capaControllerManager.noProxy
+        #@ end
+

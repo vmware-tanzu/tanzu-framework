@@ -35,6 +35,9 @@ type ClusterBootstrapControllerConfig struct {
 	SystemNamespace string
 	// The maximum amount of time that will be spent trying to clean resources before cluster deletion is allowed to proceed.
 	ClusterDeleteTimeout time.Duration
+	// TODO: remove when the packages are ready https://github.com/vmware-tanzu/tanzu-framework/issues/2252
+	// A feature flag to enable TKGS cluster upgrade flow, which will add nodeSelector and updateStrategy related info into data value secrets
+	EnableTKGSUpgrade bool
 }
 
 // PackageInstallStatusControllerConfig contains configuration information related to PackageInstallStatus

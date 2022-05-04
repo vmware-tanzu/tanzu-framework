@@ -19,6 +19,7 @@ frameworkPackage:
       hostNetwork: true
       nodeSelector: null
       tolerations: []
+      webhookServerPort: 9443
   tkrServicePackageValues:
     namespace: tkg-system
     createNamespace: false

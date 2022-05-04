@@ -1,0 +1,15 @@
+apiVersion: vendir.k14s.io/v1alpha1
+directories:
+- contents:
+  - git:
+      commitTitle: Updating version tag used for BOM retrieval to v0.20.0 (#1951)...
+      sha: 66368ce04abcb92be48d439b09b39722a45a727b
+      tags:
+      - v0.20.0
+    path: capabilities-crd.yaml
+  - manual: {}
+    path: rbac.yaml
+  - manual: {}
+    path: tanzu-capabilities-controller-manager.yaml
+  path: bundle/config/upstream
+kind: LockConfig

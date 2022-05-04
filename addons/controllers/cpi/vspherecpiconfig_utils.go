@@ -6,13 +6,18 @@ package controllers
 import (
 	"context"
 	"fmt"
+	"net/url"
+	"strconv"
 	"strings"
 
 	"github.com/pkg/errors"
 	v1 "k8s.io/api/core/v1"
 	rbacv1 "k8s.io/api/rbac/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
+	"k8s.io/client-go/tools/clientcmd"
+	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
 	capvv1beta1 "sigs.k8s.io/cluster-api-provider-vsphere/apis/v1beta1"
 	capvvmwarev1beta1 "sigs.k8s.io/cluster-api-provider-vsphere/apis/vmware/v1beta1"
 	clusterapiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
@@ -26,11 +31,11 @@ import (
 // mapCPIConfigToDataValuesNonParavirtual generates CPI data values for non-paravirtual modes
 func (r *VSphereCPIConfigReconciler) mapCPIConfigToDataValuesNonParavirtual( // nolint
 	ctx context.Context,
-	cpiConfig *cpiv1alpha1.VSphereCPIConfig, cluster *clusterapiv1beta1.Cluster) (*VSphereCPIDataValues, error,
+	cpiConfig *cpiv1alpha1.VSphereCPIConfig, cluster *clusterapiv1beta1.Cluster) (VSphereCPIDataValues, error,
 ) { // nolint:whitespace
-	d := &VSphereCPIDataValues{}
+	d := &VSphereCPINonParaVirtDataValues{}
 	c := cpiConfig.Spec.VSphereCPI.NonParavirtualConfig
-	d.VSphereCPI.Mode = VsphereCPINonParavirtualMode
+	d.Mode = VsphereCPINonParavirtualMode
 
 	// get the vsphere cluster object
 	vsphereCluster, err := r.getVSphereCluster(ctx, cluster)
@@ -39,15 +44,15 @@ func (r *VSphereCPIConfigReconciler) mapCPIConfigToDataValuesNonParavirtual( // 
 	}
 
 	// derive the thumbprint, server from the vsphere cluster object
-	d.VSphereCPI.TLSThumbprint = vsphereCluster.Spec.Thumbprint
-	d.VSphereCPI.Server = vsphereCluster.Spec.Server
+	d.TLSThumbprint = vsphereCluster.Spec.Thumbprint
+	d.Server = vsphereCluster.Spec.Server
 
 	// derive vSphere username and password from the <cluster name> secret
 	clusterSecret, err := r.getSecret(ctx, cluster.Namespace, cluster.Name)
 	if err != nil {
 		return nil, err
 	}
-	d.VSphereCPI.Username, d.VSphereCPI.Password, err = getUsernameAndPasswordFromSecret(clusterSecret)
+	d.Username, d.Password, err = getUsernameAndPasswordFromSecret(clusterSecret)
 	if err != nil {
 		return nil, err
 	}
@@ -65,131 +70,260 @@ func (r *VSphereCPIConfigReconciler) mapCPIConfigToDataValuesNonParavirtual( // 
 	}
 
 	// derive data center information from control plane machine template, if not provided
-	d.VSphereCPI.Datacenter = cpMachineTemplate.Spec.Template.Spec.Datacenter
+	d.Datacenter = cpMachineTemplate.Spec.Template.Spec.Datacenter
 
 	// derive ClusterCidr from cluster.spec.clusterNetwork
 	if cluster.Spec.ClusterNetwork != nil && cluster.Spec.ClusterNetwork.Pods != nil && len(cluster.Spec.ClusterNetwork.Pods.CIDRBlocks) > 0 {
-		d.VSphereCPI.Nsxt.Routes.ClusterCidr = cluster.Spec.ClusterNetwork.Pods.CIDRBlocks[0]
+		d.Nsxt.Routes.ClusterCidr = cluster.Spec.ClusterNetwork.Pods.CIDRBlocks[0]
 	}
 
 	// derive IP family or proxy related settings from cluster annotations
 	if cluster.Annotations != nil {
-		d.VSphereCPI.IPFamily = cluster.Annotations[pkgtypes.IPFamilyConfigAnnotation]
-		d.VSphereCPI.HTTPProxy = cluster.Annotations[pkgtypes.HTTPProxyConfigAnnotation]
-		d.VSphereCPI.HTTPSProxy = cluster.Annotations[pkgtypes.HTTPSProxyConfigAnnotation]
-		d.VSphereCPI.NoProxy = cluster.Annotations[pkgtypes.NoProxyConfigAnnotation]
+		d.IPFamily = cluster.Annotations[pkgtypes.IPFamilyConfigAnnotation]
+		d.HTTPProxy = cluster.Annotations[pkgtypes.HTTPProxyConfigAnnotation]
+		d.HTTPSProxy = cluster.Annotations[pkgtypes.HTTPSProxyConfigAnnotation]
+		d.NoProxy = cluster.Annotations[pkgtypes.NoProxyConfigAnnotation]
 	}
 
 	// derive nsxt related configs from cluster variable
-	d.VSphereCPI.Nsxt.PodRoutingEnabled = r.tryParseClusterVariableBool(cluster, NsxtPodRoutingEnabledVarName)
-	d.VSphereCPI.Nsxt.Routes.RouterPath = r.tryParseClusterVariableString(cluster, NsxtRouterPathVarName)
-	d.VSphereCPI.Nsxt.Routes.ClusterCidr = r.tryParseClusterVariableString(cluster, ClusterCIDRVarName)
-	d.VSphereCPI.Nsxt.Username = r.tryParseClusterVariableString(cluster, NsxtUsernameVarName)
-	d.VSphereCPI.Nsxt.Password = r.tryParseClusterVariableString(cluster, NsxtPasswordVarName)
-	d.VSphereCPI.Nsxt.Host = r.tryParseClusterVariableString(cluster, NsxtManagerHostVarName)
-	d.VSphereCPI.Nsxt.InsecureFlag = r.tryParseClusterVariableBool(cluster, NsxtAllowUnverifiedSSLVarName)
-	d.VSphereCPI.Nsxt.RemoteAuth = r.tryParseClusterVariableBool(cluster, NsxtRemoteAuthVarName)
-	d.VSphereCPI.Nsxt.VmcAccessToken = r.tryParseClusterVariableString(cluster, NsxtVmcAccessTokenVarName)
-	d.VSphereCPI.Nsxt.VmcAuthHost = r.tryParseClusterVariableString(cluster, NsxtVmcAuthHostVarName)
-	d.VSphereCPI.Nsxt.ClientCertKeyData = r.tryParseClusterVariableString(cluster, NsxtClientCertKeyDataVarName)
-	d.VSphereCPI.Nsxt.ClientCertData = r.tryParseClusterVariableString(cluster, NsxtClientCertDataVarName)
-	d.VSphereCPI.Nsxt.RootCAData = r.tryParseClusterVariableString(cluster, NsxtRootCADataB64VarName)
-	d.VSphereCPI.Nsxt.SecretName = r.tryParseClusterVariableString(cluster, NsxtSecretNameVarName)
-	d.VSphereCPI.Nsxt.SecretNamespace = r.tryParseClusterVariableString(cluster, NsxtSecretNamespaceVarName)
+	d.Nsxt.PodRoutingEnabled = r.tryParseClusterVariableBool(cluster, NsxtPodRoutingEnabledVarName)
+	d.Nsxt.Routes.RouterPath = r.tryParseClusterVariableString(cluster, NsxtRouterPathVarName)
+	d.Nsxt.Routes.ClusterCidr = r.tryParseClusterVariableString(cluster, ClusterCIDRVarName)
+	d.Nsxt.Username = r.tryParseClusterVariableString(cluster, NsxtUsernameVarName)
+	d.Nsxt.Password = r.tryParseClusterVariableString(cluster, NsxtPasswordVarName)
+	d.Nsxt.Host = r.tryParseClusterVariableString(cluster, NsxtManagerHostVarName)
+	d.Nsxt.Insecure = r.tryParseClusterVariableBool(cluster, NsxtAllowUnverifiedSSLVarName)
+	d.Nsxt.RemoteAuthEnabled = r.tryParseClusterVariableBool(cluster, NsxtRemoteAuthVarName)
+	d.Nsxt.VmcAccessToken = r.tryParseClusterVariableString(cluster, NsxtVmcAccessTokenVarName)
+	d.Nsxt.VmcAuthHost = r.tryParseClusterVariableString(cluster, NsxtVmcAuthHostVarName)
+	d.Nsxt.ClientCertKeyData = r.tryParseClusterVariableString(cluster, NsxtClientCertKeyDataVarName)
+	d.Nsxt.ClientCertData = r.tryParseClusterVariableString(cluster, NsxtClientCertDataVarName)
+	d.Nsxt.RootCAData = r.tryParseClusterVariableString(cluster, NsxtRootCADataB64VarName)
+	d.Nsxt.SecretName = r.tryParseClusterVariableString(cluster, NsxtSecretNameVarName)
+	d.Nsxt.SecretNamespace = r.tryParseClusterVariableString(cluster, NsxtSecretNamespaceVarName)
 
 	// allow API user to override the derived values if he/she specified fields in the VSphereCPIConfig
-	d.VSphereCPI.TLSThumbprint = tryParseString(d.VSphereCPI.TLSThumbprint, c.TLSThumbprint)
-	d.VSphereCPI.Server = tryParseString(d.VSphereCPI.Server, c.VCenterAPIEndpoint)
-	d.VSphereCPI.Server = tryParseString(d.VSphereCPI.Server, c.VCenterAPIEndpoint)
-	d.VSphereCPI.Datacenter = tryParseString(d.VSphereCPI.Datacenter, c.Datacenter)
+	d.TLSThumbprint = tryParseString(d.TLSThumbprint, c.TLSThumbprint)
+	d.Server = tryParseString(d.Server, c.VCenterAPIEndpoint)
+	d.Server = tryParseString(d.Server, c.VCenterAPIEndpoint)
+	d.Datacenter = tryParseString(d.Datacenter, c.Datacenter)
 
 	if c.VSphereCredentialLocalObjRef != nil {
 		vsphereSecret, err := r.getSecret(ctx, cpiConfig.Namespace, c.VSphereCredentialLocalObjRef.Name)
 		if err != nil {
 			return nil, err
 		}
-		d.VSphereCPI.Username, d.VSphereCPI.Password, err = getUsernameAndPasswordFromSecret(vsphereSecret)
+		d.Username, d.Password, err = getUsernameAndPasswordFromSecret(vsphereSecret)
 		if err != nil {
 			return nil, err
 		}
 	}
 
-	d.VSphereCPI.Region = tryParseString(d.VSphereCPI.Region, c.Region)
-	d.VSphereCPI.Zone = tryParseString(d.VSphereCPI.Zone, c.Zone)
+	d.Region = tryParseString(d.Region, c.Region)
+	d.Zone = tryParseString(d.Zone, c.Zone)
 	if c.Insecure != nil {
-		d.VSphereCPI.InsecureFlag = *c.Insecure
+		d.InsecureFlag = *c.Insecure
 	}
 
 	if c.VMNetwork != nil {
-		d.VSphereCPI.VMInternalNetwork = tryParseString(d.VSphereCPI.VMInternalNetwork, c.VMNetwork.Internal)
-		d.VSphereCPI.VMExternalNetwork = tryParseString(d.VSphereCPI.VMExternalNetwork, c.VMNetwork.External)
-		d.VSphereCPI.VMExcludeInternalNetworkSubnetCidr = tryParseString(d.VSphereCPI.VMExcludeInternalNetworkSubnetCidr, c.VMNetwork.ExcludeInternalSubnetCidr)
-		d.VSphereCPI.VMExcludeExternalNetworkSubnetCidr = tryParseString(d.VSphereCPI.VMExcludeExternalNetworkSubnetCidr, c.VMNetwork.ExcludeExternalSubnetCidr)
+		d.VMInternalNetwork = tryParseString(d.VMInternalNetwork, c.VMNetwork.Internal)
+		d.VMExternalNetwork = tryParseString(d.VMExternalNetwork, c.VMNetwork.External)
+		d.VMExcludeInternalNetworkSubnetCidr = tryParseString(d.VMExcludeInternalNetworkSubnetCidr, c.VMNetwork.ExcludeInternalSubnetCidr)
+		d.VMExcludeExternalNetworkSubnetCidr = tryParseString(d.VMExcludeExternalNetworkSubnetCidr, c.VMNetwork.ExcludeExternalSubnetCidr)
 	}
-	d.VSphereCPI.CloudProviderExtraArgs.TLSCipherSuites = tryParseString(d.VSphereCPI.CloudProviderExtraArgs.TLSCipherSuites, c.TLSCipherSuites)
+	d.CloudProviderExtraArgs.TLSCipherSuites = tryParseString(d.CloudProviderExtraArgs.TLSCipherSuites, c.TLSCipherSuites)
 
 	if c.NSXT != nil {
 		if c.NSXT.PodRoutingEnabled != nil {
-			d.VSphereCPI.Nsxt.PodRoutingEnabled = *c.NSXT.PodRoutingEnabled
+			d.Nsxt.PodRoutingEnabled = *c.NSXT.PodRoutingEnabled
 		}
 
 		if c.NSXT.Insecure != nil {
-			d.VSphereCPI.Nsxt.InsecureFlag = *c.NSXT.Insecure
+			d.Nsxt.Insecure = *c.NSXT.Insecure
 		}
 		if c.NSXT.Route != nil {
-			d.VSphereCPI.Nsxt.Routes.RouterPath = tryParseString(d.VSphereCPI.Nsxt.Routes.RouterPath, c.NSXT.Route.RouterPath)
+			d.Nsxt.Routes.RouterPath = tryParseString(d.Nsxt.Routes.RouterPath, c.NSXT.Route.RouterPath)
 		}
 		if c.NSXT.CredentialLocalObjRef != nil {
-			d.VSphereCPI.Nsxt.SecretName = c.NSXT.CredentialLocalObjRef.Name
-			d.VSphereCPI.Nsxt.SecretNamespace = cpiConfig.Namespace
+			d.Nsxt.SecretName = c.NSXT.CredentialLocalObjRef.Name
+			d.Nsxt.SecretNamespace = cpiConfig.Namespace
 			nsxtSecret, err := r.getSecret(ctx, cpiConfig.Namespace, c.NSXT.CredentialLocalObjRef.Name)
 			if err != nil {
 				return nil, err
 			}
-			d.VSphereCPI.Nsxt.Username, d.VSphereCPI.Nsxt.Password, err = getUsernameAndPasswordFromSecret(nsxtSecret)
+			d.Nsxt.Username, d.Nsxt.Password, err = getUsernameAndPasswordFromSecret(nsxtSecret)
 			if err != nil {
 				return nil, err
 			}
 		}
-		d.VSphereCPI.Nsxt.Host = tryParseString(d.VSphereCPI.Nsxt.Host, c.NSXT.APIHost)
+		d.Nsxt.Host = tryParseString(d.Nsxt.Host, c.NSXT.APIHost)
 		if c.NSXT.RemoteAuth != nil {
-			d.VSphereCPI.Nsxt.RemoteAuth = *c.NSXT.RemoteAuth
+			d.Nsxt.RemoteAuthEnabled = *c.NSXT.RemoteAuth
 		}
-		d.VSphereCPI.Nsxt.VmcAccessToken = tryParseString(d.VSphereCPI.Nsxt.VmcAccessToken, c.NSXT.VMCAccessToken)
-		d.VSphereCPI.Nsxt.VmcAuthHost = tryParseString(d.VSphereCPI.Nsxt.VmcAccessToken, c.NSXT.VMCAuthHost)
-		d.VSphereCPI.Nsxt.ClientCertKeyData = tryParseString(d.VSphereCPI.Nsxt.ClientCertKeyData, c.NSXT.ClientCertKeyData)
-		d.VSphereCPI.Nsxt.ClientCertData = tryParseString(d.VSphereCPI.Nsxt.ClientCertData, c.NSXT.ClientCertData)
-		d.VSphereCPI.Nsxt.RootCAData = tryParseString(d.VSphereCPI.Nsxt.RootCAData, c.NSXT.RootCAData)
+		d.Nsxt.VmcAccessToken = tryParseString(d.Nsxt.VmcAccessToken, c.NSXT.VMCAccessToken)
+		d.Nsxt.VmcAuthHost = tryParseString(d.Nsxt.VmcAccessToken, c.NSXT.VMCAuthHost)
+		d.Nsxt.ClientCertKeyData = tryParseString(d.Nsxt.ClientCertKeyData, c.NSXT.ClientCertKeyData)
+		d.Nsxt.ClientCertData = tryParseString(d.Nsxt.ClientCertData, c.NSXT.ClientCertData)
+		d.Nsxt.RootCAData = tryParseString(d.Nsxt.RootCAData, c.NSXT.RootCAData)
 	}
 
-	d.VSphereCPI.IPFamily = tryParseString(d.VSphereCPI.IPFamily, c.IPFamily)
+	d.IPFamily = tryParseString(d.IPFamily, c.IPFamily)
 	if c.Proxy != nil {
-		d.VSphereCPI.HTTPProxy = tryParseString(d.VSphereCPI.HTTPProxy, c.Proxy.HTTPProxy)
-		d.VSphereCPI.HTTPSProxy = tryParseString(d.VSphereCPI.HTTPSProxy, c.Proxy.HTTPSProxy)
-		d.VSphereCPI.NoProxy = tryParseString(d.VSphereCPI.NoProxy, c.Proxy.NoProxy)
+		d.HTTPProxy = tryParseString(d.HTTPProxy, c.Proxy.HTTPProxy)
+		d.HTTPSProxy = tryParseString(d.HTTPSProxy, c.Proxy.HTTPSProxy)
+		d.NoProxy = tryParseString(d.NoProxy, c.Proxy.NoProxy)
 	}
 	return d, nil
 }
 
 // mapCPIConfigToDataValuesParavirtual generates CPI data values for paravirtual modes
-func (r *VSphereCPIConfigReconciler) mapCPIConfigToDataValuesParavirtual(_ context.Context, _ *cpiv1alpha1.VSphereCPIConfig, cluster *clusterapiv1beta1.Cluster) (*VSphereCPIDataValues, error) {
-	d := &VSphereCPIDataValues{}
-	d.VSphereCPI.Mode = VSphereCPIParavirtualMode
+func (r *VSphereCPIConfigReconciler) mapCPIConfigToDataValuesParavirtual(ctx context.Context, _ *cpiv1alpha1.VSphereCPIConfig, cluster *clusterapiv1beta1.Cluster) (VSphereCPIDataValues, error) {
+	d := &VSphereCPIParaVirtDataValues{}
+	d.Mode = VSphereCPIParavirtualMode
 
 	// derive owner cluster information
-	d.VSphereCPI.ClusterAPIVersion = cluster.GroupVersionKind().GroupVersion().String()
-	d.VSphereCPI.ClusterKind = cluster.GroupVersionKind().Kind
-	d.VSphereCPI.ClusterName = cluster.ObjectMeta.Name
-	d.VSphereCPI.ClusterUID = string(cluster.ObjectMeta.UID)
+	d.ClusterAPIVersion = cluster.GroupVersionKind().GroupVersion().String()
+	d.ClusterKind = cluster.GroupVersionKind().Kind
+	d.ClusterName = cluster.ObjectMeta.Name
+	d.ClusterUID = string(cluster.ObjectMeta.UID)
 
-	d.VSphereCPI.SupervisorMasterEndpointIP = SupervisorEndpointHostname
-	d.VSphereCPI.SupervisorMasterPort = fmt.Sprint(SupervisorEndpointPort)
+	address, port, err := r.getSupervisorAPIServerAddress(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	d.SupervisorMasterEndpointIP = address
+	d.SupervisorMasterPort = fmt.Sprint(port)
 
 	return d, nil
 }
 
+// getAPIServerPortFromLBService searches a port named as "kube-apiserver" in
+// the service "kube-system/kube-apiserver-lb-svc"
+func getAPIServerPortFromLBService(svc *v1.Service) (int32, error) {
+	if svc == nil {
+		return 0, errors.New("lb service is nil")
+	}
+	portNum := int32(0)
+	portFound := false
+	for _, port := range svc.Spec.Ports {
+		if port.Name == SupervisorLoadBalancerSvcAPIServerPortName {
+			portNum = port.Port
+			portFound = true
+		}
+	}
+	if !portFound {
+		return 0, errors.New("lb service doesn't have a port named as " + SupervisorLoadBalancerSvcAPIServerPortName)
+	}
+	return portNum, nil
+}
+
+// getSupervisorAPIServerVIP attempts to extract the ingress IP for supervisor API endpoint if the service
+// "kube-system/kube-apiserver-lb-svc" is available
+func (r *VSphereCPIConfigReconciler) getSupervisorAPIServerVIP(ctx context.Context) (string, int32, error) {
+	svc := &v1.Service{}
+	svcKey := types.NamespacedName{Name: SupervisorLoadBalancerSvcName, Namespace: SupervisorLoadBalancerSvcNamespace}
+	if err := r.Client.Get(ctx, svcKey, svc); err != nil {
+		return "", 0, errors.Wrapf(err, "unable to get supervisor loadbalancer svc %s", svcKey)
+	}
+	if len(svc.Status.LoadBalancer.Ingress) > 0 {
+		ingress := svc.Status.LoadBalancer.Ingress[0]
+		port, err := getAPIServerPortFromLBService(svc)
+		if err != nil {
+			return "", 0, errors.Wrapf(err, "ingress %s(%s) doesn't have open port", ingress.Hostname, ingress.IP)
+		}
+		if ipAddr := ingress.IP; ipAddr != "" {
+			return ipAddr, port, nil
+		}
+		return ingress.Hostname, port, nil
+	}
+	return "", 0, errors.Errorf("no VIP found in the supervisor loadbalancer svc %s", svcKey)
+}
+
+// getSupervisorAPIServerFIP get a valid Supervisor Cluster Management Network Floating IP (FIP) from the cluster-info configmap
+func (r *VSphereCPIConfigReconciler) getSupervisorAPIServerFIP(ctx context.Context) (string, int32, error) {
+	urlString, err := r.getSupervisorAPIServerURLWithFIP(ctx)
+	if err != nil {
+		return "", 0, errors.Wrap(err, "unable to get supervisor url")
+	}
+	urlVal, err := url.Parse(urlString)
+	if err != nil {
+		return "", 0, errors.Wrapf(err, "unable to parse supervisor url from %s", urlString)
+	}
+	host := urlVal.Hostname()
+	port, err := strconv.ParseInt(urlVal.Port(), 10, 32)
+	if err != nil {
+		return "", 0, errors.Wrapf(err, "unable to parse supervisor port from %s", urlString)
+	}
+	if host == "" {
+		return "", 0, errors.Errorf("unable to get supervisor host from url %s", urlVal)
+	}
+	return host, int32(port), nil
+}
+
+// getSupervisorAPIServerURLWithFIP get a Supervisor Cluster Management Network Floating IP (FIP)
+func (r *VSphereCPIConfigReconciler) getSupervisorAPIServerURLWithFIP(ctx context.Context) (string, error) {
+	cm := &v1.ConfigMap{}
+	cmKey := types.NamespacedName{Name: ConfigMapClusterInfo, Namespace: metav1.NamespacePublic}
+	if err := r.Client.Get(ctx, cmKey, cm); err != nil {
+		return "", err
+	}
+	kubeconfig, err := tryParseClusterInfoFromConfigMap(cm)
+	if err != nil {
+		return "", err
+	}
+	clusterConfig := getClusterFromKubeConfig(kubeconfig)
+	if clusterConfig != nil {
+		return clusterConfig.Server, nil
+	}
+	return "", errors.Errorf("unable to get cluster from kubeconfig in ConfigMap %s/%s", cm.Namespace, cm.Name)
+}
+
+// getSupervisorAPIServerAddress discovers the supervisor api server address
+// 1. Check if a k8s service "kube-system/kube-apiserver-lb-svc" is available, if so, fetch the loadbalancer IP.
+// 2. If not, get the Supervisor Cluster Management Network Floating IP (FIP) from the cluster-info configmap. This is
+// to support non-NSX-T development use cases only. If we are unable to find the cluster-info configmap for some reason,
+// we log the error.
+func (r *VSphereCPIConfigReconciler) getSupervisorAPIServerAddress(ctx context.Context) (string, int32, error) {
+	supervisorHost, supervisorPort, err := r.getSupervisorAPIServerVIP(ctx)
+	if err != nil {
+		r.Log.Info("Unable to discover supervisor apiserver virtual ip, fallback to floating ip", "reason", err.Error())
+		supervisorHost, supervisorPort, err = r.getSupervisorAPIServerFIP(ctx)
+		if err != nil {
+			r.Log.Error(err, "Unable to discover supervisor apiserver address")
+			return "", 0, errors.Wrapf(err, "Unable to discover supervisor apiserver address")
+		}
+	}
+	return supervisorHost, supervisorPort, nil
+}
+
+// tryParseClusterInfoFromConfigMap tries to parse a kubeconfig file from a ConfigMap key
+func tryParseClusterInfoFromConfigMap(cm *v1.ConfigMap) (*clientcmdapi.Config, error) {
+	kubeConfigString, ok := cm.Data[KubeConfigKey]
+	if !ok || kubeConfigString == "" {
+		return nil, errors.Errorf("no %s key in ConfigMap %s/%s", KubeConfigKey, cm.Namespace, cm.Name)
+	}
+	parsedKubeConfig, err := clientcmd.Load([]byte(kubeConfigString))
+	if err != nil {
+		return nil, errors.Wrapf(err, "couldn't parse the kubeconfig file in the ConfigMap %s/%s", cm.Namespace, cm.Name)
+	}
+	return parsedKubeConfig, nil
+}
+
+// GetClusterFromKubeConfig returns the default Cluster of the specified KubeConfig
+func getClusterFromKubeConfig(config *clientcmdapi.Config) *clientcmdapi.Cluster {
+	// If there is an unnamed cluster object, use it
+	if config.Clusters[""] != nil {
+		return config.Clusters[""]
+	}
+	if config.Contexts[config.CurrentContext] != nil {
+		return config.Clusters[config.Contexts[config.CurrentContext].Cluster]
+	}
+	return nil
+}
+
 // mapCPIConfigToDataValues maps VSphereCPIConfig CR to data values
-func (r *VSphereCPIConfigReconciler) mapCPIConfigToDataValues(ctx context.Context, cpiConfig *cpiv1alpha1.VSphereCPIConfig, cluster *clusterapiv1beta1.Cluster) (*VSphereCPIDataValues, error) {
+func (r *VSphereCPIConfigReconciler) mapCPIConfigToDataValues(ctx context.Context, cpiConfig *cpiv1alpha1.VSphereCPIConfig, cluster *clusterapiv1beta1.Cluster) (VSphereCPIDataValues, error) {
 	mode := *cpiConfig.Spec.VSphereCPI.Mode
 	switch mode {
 	case VsphereCPINonParavirtualMode:
@@ -203,9 +337,9 @@ func (r *VSphereCPIConfigReconciler) mapCPIConfigToDataValues(ctx context.Contex
 }
 
 // mapCPIConfigToProviderServiceAccountSpec maps CPIConfig and cluster to the corresponding service account spec
-func (r *VSphereCPIConfigReconciler) mapCPIConfigToProviderServiceAccountSpec(cluster *clusterapiv1beta1.Cluster) capvvmwarev1beta1.ProviderServiceAccountSpec {
+func (r *VSphereCPIConfigReconciler) mapCPIConfigToProviderServiceAccountSpec(vsphereCluster *capvvmwarev1beta1.VSphereCluster) capvvmwarev1beta1.ProviderServiceAccountSpec {
 	return capvvmwarev1beta1.ProviderServiceAccountSpec{
-		Ref: &v1.ObjectReference{Name: cluster.Name, Namespace: cluster.Namespace},
+		Ref: &v1.ObjectReference{Name: vsphereCluster.Name, Namespace: vsphereCluster.Namespace},
 		Rules: []rbacv1.PolicyRule{
 			{
 				Verbs:     []string{"get", "create", "update", "patch", "delete"},
@@ -306,7 +440,7 @@ func controlPlaneName(clusterName string) string {
 }
 
 // getCCMName returns the name of cloud control manager for a cluster
-func getCCMName(cluster *clusterapiv1beta1.Cluster) string {
+func getCCMName(cluster *capvvmwarev1beta1.VSphereCluster) string {
 	return fmt.Sprintf("%s-%s", cluster.Name, "ccm")
 }
 

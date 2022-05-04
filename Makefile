@@ -476,10 +476,18 @@ test: generate fmt vet manifests build-cli-mocks ## Run tests
 	## Skip running TKG integration tests
 	$(MAKE) ytt -C $(TOOLS_DIR)
 
+	echo "Verifying cluster-api packages and pkg/v1/providers are in sync..."
+	make -C hack/providers-sync-tools validate
+	echo "... cluster-api packages are in sync"
+
 	## Test the YTT cluster templates
 	echo "Changing into the provider test directory to verify ytt cluster templates..."
 	cd ./pkg/v1/providers/tests/unit && PATH=$(abspath hack/tools/bin):"$(PATH)" $(GO) test -v -timeout 120s ./
 	echo "... ytt cluster template verification complete!"
+
+	echo "Verifying package tests..."
+	find ./packages/ -name "test" -type d -exec sh -c "cd {} && $(GO) test -v -timeout 120s  ./..." \;
+	echo "... package tests complete!"
 
 	PATH=$(abspath hack/tools/bin):"$(PATH)" $(GO) test -coverprofile cover.out -v `go list ./... | grep -v github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/test`
 

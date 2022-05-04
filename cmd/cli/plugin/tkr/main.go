@@ -5,14 +5,17 @@ package main
 
 import (
 	"os"
-	"path/filepath"
+
+	"github.com/spf13/cobra"
+
+	tkrv1alpha1 "github.com/vmware-tanzu/tanzu-framework/cmd/cli/plugin/tkr/v1alpha1"
+	tkrv1alpha3 "github.com/vmware-tanzu/tanzu-framework/cmd/cli/plugin/tkr/v1alpha3"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/config"
 
 	"github.com/aunum/log"
 
 	cliv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/command/plugin"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/config"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgctl"
 )
 
 var descriptor = cliv1alpha1.PluginDescriptor{
@@ -23,9 +26,23 @@ var descriptor = cliv1alpha1.PluginDescriptor{
 }
 
 var (
-	logLevel     int32
-	logFile      string
-	outputFormat string
+	logLevel int32
+	logFile  string
+
+	v1alpha1CmdsList = []*cobra.Command{
+		tkrv1alpha1.GetTanzuKubernetesRleasesCmd,
+		tkrv1alpha1.OsCmd,
+		tkrv1alpha1.AvailableUpgradesCmd,
+		tkrv1alpha1.ActivateCmd,
+		tkrv1alpha1.DeactivateCmd,
+	}
+
+	v1alpha3CmdsList = []*cobra.Command{
+		tkrv1alpha3.GetTanzuKubernetesRleasesCmd,
+		tkrv1alpha3.OsCmd,
+		tkrv1alpha3.ActivateCmd,
+		tkrv1alpha3.DeactivateCmd,
+	}
 )
 
 func main() {
@@ -33,39 +50,19 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-
 	p.Cmd.PersistentFlags().Int32VarP(&logLevel, "verbose", "v", 0, "Number for the log level verbosity(0-9)")
 	p.Cmd.PersistentFlags().StringVar(&logFile, "log-file", "", "Log file path")
-
-	p.AddCommands(
-		getTanzuKubernetesRleasesCmd,
-		osCmd,
-		availableUpgradesCmd,
-		activeCmd,
-		deactiveCmd,
-	)
+	// Add the right set of commands based on the feature flag
+	if config.IsFeatureActivated(config.FeatureFlagTKRVersionV1Alpha3) {
+		tkrv1alpha3.LogFile = logFile
+		tkrv1alpha3.LogLevel = logLevel
+		p.AddCommands(v1alpha3CmdsList...)
+	} else {
+		tkrv1alpha1.LogFile = logFile
+		tkrv1alpha1.LogLevel = logLevel
+		p.AddCommands(v1alpha1CmdsList...)
+	}
 	if err := p.Execute(); err != nil {
 		os.Exit(1)
 	}
-}
-
-func getConfigDir() (string, error) {
-	tanzuConfigDir, err := config.LocalDir()
-	if err != nil {
-		return "", err
-	}
-	return filepath.Join(tanzuConfigDir, "tkg"), nil
-}
-
-func createTKGClient(kubeconfig, kubecontext string) (tkgctl.TKGClient, error) {
-	configDir, err := getConfigDir()
-	if err != nil {
-		return nil, err
-	}
-	return tkgctl.New(tkgctl.Options{
-		ConfigDir:   configDir,
-		KubeConfig:  kubeconfig,
-		KubeContext: kubecontext,
-		LogOptions:  tkgctl.LoggingOptions{Verbosity: logLevel, File: logFile},
-	})
 }

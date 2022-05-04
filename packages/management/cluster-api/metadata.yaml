@@ -1,0 +1,14 @@
+apiVersion: data.packaging.carvel.dev/v1alpha1
+kind: PackageMetadata
+metadata:
+  name: cluster-api.tanzu.vmware.com
+  namespace: cluster-api
+spec:
+  displayName: "cluster-api"
+  longDescription: "Cluster API is a Kubernetes sub-project focused on providing declarative APIs and tooling to simplify provisioning, upgrading, and operating multiple Kubernetes clusters."
+  shortDescription: "Cluster management"
+  providerName: VMware
+  maintainers:
+    - name: ""
+  categories:
+    - "cluster management"

@@ -1,0 +1,14 @@
+apiVersion: data.packaging.carvel.dev/v1alpha1
+kind: PackageMetadata
+metadata:
+  name: cluster-api-provider-vsphere.tanzu.vmware.com
+  namespace: cluster-api-provider-vsphere
+spec:
+  displayName: "cluster-api-provider-vsphere"
+  longDescription: "Cluster API provider for vSphere is a concrete implementation of Cluster API for vSphere"
+  shortDescription: "Cluster management for vSphere"
+  providerName: VMware
+  maintainers:
+    - name: ""
+  categories:
+    - "cluster management"
