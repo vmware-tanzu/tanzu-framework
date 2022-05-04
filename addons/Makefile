@@ -101,9 +101,12 @@ run: fmt vet ## Run locally
 docker-build: ## Build the docker image
 	cd .. && docker build -t $(IMG) -f addons/Dockerfile --build-arg LD_FLAGS="$(LD_FLAGS)" .
 
-.PHONY: docker-publish
+.PHONY: docker-push
 docker-push: ## Push the docker image
 	docker push $(IMG)
+
+.PHONY: docker-publish ## Push the docker image
+docker-publish: docker-push
 
 .PHONY: docker-remove
 docker-remove: ## Remove the docker image
