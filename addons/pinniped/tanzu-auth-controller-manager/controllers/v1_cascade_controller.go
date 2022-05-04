@@ -144,13 +144,6 @@ func (c *PinnipedV1Controller) reconcileAddonSecret(ctx context.Context, cluster
 		ObjectMeta: metav1.ObjectMeta{
 			Namespace: secretNamespacedName.Namespace,
 			Name:      secretNamespacedName.Name,
-			Labels: map[string]string{
-				tkgAddonLabel:       pinnipedAddonLabel,
-				tkgClusterNameLabel: cluster.Name,
-			},
-			Annotations: map[string]string{
-				tkgAddonTypeAnnotation: pinnipedAddonTypeAnnotation,
-			},
 		},
 	}
 	secret.Type = tkgAddonType
@@ -172,15 +165,8 @@ func (c *PinnipedV1Controller) reconcileDelete(ctx context.Context, secretNamesp
 		ObjectMeta: metav1.ObjectMeta{
 			Namespace: secretNamespacedName.Namespace,
 			Name:      secretNamespacedName.Name,
-			Labels: map[string]string{
-				tkgAddonLabel: pinnipedAddonLabel,
-			},
-			Annotations: map[string]string{
-				tkgAddonTypeAnnotation: pinnipedAddonTypeAnnotation,
-			},
 		},
 	}
-	secret.Type = tkgAddonType
 
 	if err := c.client.Delete(ctx, secret); err != nil {
 		if k8serror.IsNotFound(err) {
