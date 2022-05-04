@@ -48,6 +48,11 @@ type InitRegionOptions struct {
 	GenerateOnly                bool
 }
 
+const (
+	// TCEBuildEdition string constant for the value "tce"
+	TCEBuildEdition = "tce"
+)
+
 //nolint:gocritic,gocyclo,funlen
 // Init initializes tkg management cluster
 func (t *tkgctl) Init(options InitRegionOptions) error {
@@ -72,7 +77,11 @@ func (t *tkgctl) Init(options InitRegionOptions) error {
 
 	ceipOptIn, err := strconv.ParseBool(options.CeipOptIn)
 	if err != nil {
-		ceipOptIn = false
+		if options.Edition == TCEBuildEdition {
+			ceipOptIn = false
+		} else {
+			ceipOptIn = true
+		}
 	}
 
 	// init requires minimum 15 minutes timeout
@@ -308,13 +317,9 @@ func (t *tkgctl) configureInitManagementClusterOptionsFromConfigFile(iro *InitRe
 
 	// set ceip participation from config variable
 	if iro.CeipOptIn == "" {
-		ceipOptIn, err := t.TKGConfigReaderWriter().Get(constants.ConfigVariableEnableCEIPParticipation)
-		if err == nil {
-			iro.CeipOptIn = ceipOptIn
-		} else {
-			iro.CeipOptIn = True
-		}
+		iro.CeipOptIn = t.setCEIPOptinBasedOnConfigAndBuildEdition(iro.Edition)
 	}
+
 	log.V(5).Infof("CEIP Opt-in status: %s", iro.CeipOptIn)
 
 	return nil

@@ -124,6 +124,10 @@ var _ = SynchronizedBeforeSuite(func() []byte {
 	})
 	Expect(err).ToNot(HaveOccurred())
 
+	optOutStatus, err := tkgCtlClient.GetCEIP()
+	Expect(err).ToNot(HaveOccurred())
+	Expect(optOutStatus.CeipStatus).To(Equal("Opt-out"))
+
 	By(fmt.Sprintf("Creating initial workload cluster %q", clusterName))
 
 	defer os.Remove(clusterConfigFile)

@@ -6,3 +6,6 @@ package tkgctl
 
 // True string constant for the value "true"
 var True = "true"
+
+// False string constant for the value "false"
+var False = "false"
