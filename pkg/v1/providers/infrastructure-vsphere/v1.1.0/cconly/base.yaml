@@ -419,6 +419,7 @@ spec:
       openAPIV3Schema:
         type: string
   - name: TKR_DATA
+    required: false
     schema:
       openAPIV3Schema:
         type: object
