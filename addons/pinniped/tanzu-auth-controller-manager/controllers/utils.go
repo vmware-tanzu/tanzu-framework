@@ -223,8 +223,14 @@ func getMutateFn(secret *corev1.Secret, pinnipedInfoCM *corev1.ConfigMap, cluste
 		pinnipedDataValues.ClusterRole = "workload"
 		pinnipedDataValues.Pinniped.SupervisorEndpoint = supervisorAddress
 		pinnipedDataValues.Pinniped.SupervisorCABundle = supervisorCABundle
-		// TODO: Do we want to include concierge audience if idmgmttype is none?
 		pinnipedDataValues.Pinniped.Concierge.Audience = fmt.Sprintf("%s-%s", cluster.Name, string(cluster.UID))
+
+		if !isV1 && identityManagementType == none {
+			// we actually have to set this to empty vs. not adding the vars above so that it overwrites
+			// what is already there
+			pinnipedDataValues.Pinniped = pinniped{}
+		}
+
 		dataValueYamlBytes, err := yaml.Marshal(pinnipedDataValues)
 		if err != nil {
 			log.Error(err, "error marshaling Pinniped Secret values to yaml")
@@ -233,6 +239,17 @@ func getMutateFn(secret *corev1.Secret, pinnipedInfoCM *corev1.ConfigMap, cluste
 
 		if isV1 {
 			dataValueYamlBytes = append([]byte(valuesYAMLPrefix), dataValueYamlBytes...)
+			if secret.ObjectMeta.Annotations == nil {
+				secret.ObjectMeta.Annotations = make(map[string]string)
+			}
+			secret.ObjectMeta.Annotations[tkgAddonTypeAnnotation] = pinnipedAddonTypeAnnotation
+
+			if secret.ObjectMeta.Labels == nil {
+				secret.ObjectMeta.Labels = make(map[string]string)
+			}
+			secret.ObjectMeta.Labels[tkgAddonLabel] = pinnipedAddonLabel
+			secret.ObjectMeta.Labels[tkgClusterNameLabel] = cluster.Name
+			secret.Type = tkgAddonType
 		}
 
 		secret.Data[tkgDataValueFieldName] = dataValueYamlBytes
