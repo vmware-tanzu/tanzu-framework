@@ -7,7 +7,7 @@ metadata:
   name: tkr-service-selfsigned-issuer
   namespace: #@ data.values.namespace
   annotations:
-  kapp.k14s.io/change-group: "tkr-service.tanzu.vmware.com/issuer"
+    kapp.k14s.io/change-group: "tkr-service.tanzu.vmware.com/issuer"
 spec:
   selfSigned: {}
 ---
