@@ -20,6 +20,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/labels"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 	"sigs.k8s.io/yaml"
@@ -29,6 +30,7 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkr/pkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkr/pkg/registry"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkr/pkg/types"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v2/tkr/controller/source/pkgcr"
 )
 
 type Fetcher struct {
@@ -58,7 +60,7 @@ type TKRDiscoveryIntervals struct {
 
 func (f *Fetcher) Start(ctx context.Context) error {
 	f.Log.Info("Performing configuration setup")
-	if err := f.Configure(); err != nil {
+	if err := f.configure(); err != nil {
 		return errors.Wrap(err, "failed to configure the controller")
 	}
 
@@ -75,7 +77,7 @@ func (f *Fetcher) Start(ctx context.Context) error {
 
 func (f *Fetcher) initialReconcile(ctx context.Context, frequency time.Duration, retries int) {
 	for {
-		if err := f.SyncRelease(ctx); err != nil {
+		if err := f.syncRelease(ctx); err != nil {
 			f.Log.Error(err, "Failed to complete initial TKR discovery")
 			retries--
 			if retries <= 0 {
@@ -97,7 +99,7 @@ func (f *Fetcher) initialReconcile(ctx context.Context, frequency time.Duration,
 
 func (f *Fetcher) tkrDiscovery(ctx context.Context, frequency time.Duration) {
 	for {
-		if err := f.SyncRelease(ctx); err != nil {
+		if err := f.syncRelease(ctx); err != nil {
 			f.Log.Error(err, "Failed to reconcile TKRs, retrying")
 		}
 		select {
@@ -109,7 +111,7 @@ func (f *Fetcher) tkrDiscovery(ctx context.Context, frequency time.Duration) {
 	}
 }
 
-func (f *Fetcher) SyncRelease(ctx context.Context) error {
+func (f *Fetcher) syncRelease(ctx context.Context) error {
 	select {
 	case <-ctx.Done():
 		return nil // no error: we're done
@@ -330,8 +332,8 @@ func (f *Fetcher) createBOMConfigMap(ctx context.Context, tag string) error {
 	name := strings.ReplaceAll(releaseName, "+", "---")
 
 	// label the ConfigMap with image tag and tkr name
-	labels := make(map[string]string)
-	labels[constants.BomConfigMapTKRLabel] = name
+	ls := make(map[string]string)
+	ls[constants.BomConfigMapTKRLabel] = name
 
 	annotations := make(map[string]string)
 	annotations[constants.BomConfigMapImageTagAnnotation] = tag
@@ -343,7 +345,7 @@ func (f *Fetcher) createBOMConfigMap(ctx context.Context, tag string) error {
 		ObjectMeta: metav1.ObjectMeta{
 			Name:        name,
 			Namespace:   f.Config.TKRNamespace,
-			Labels:      labels,
+			Labels:      ls,
 			Annotations: annotations,
 		},
 		BinaryData: binaryData,
@@ -403,6 +405,9 @@ func (f *Fetcher) createTKRPackages(ctx context.Context, tag string) error {
 		pkg := &kapppkgv1.Package{}
 		if err := yaml.Unmarshal(bytes, pkg); err != nil {
 			f.Log.Error(err, "failed to parse a package in bundle '%s' at path: '%s'", imageName, path)
+			continue
+		}
+		if pkg.Labels == nil || !labels.Set(pkg.Labels).Has(pkgcr.LabelTKRPackage) {
 			continue
 		}
 		pkg.Namespace = f.Config.TKRNamespace

@@ -23,7 +23,7 @@ const (
 	registryCertsFile = "registry_certs"
 )
 
-func (f *Fetcher) Configure() error {
+func (f *Fetcher) configure() error {
 	configMap := &corev1.ConfigMap{}
 	err := f.Client.Get(context.Background(), types.NamespacedName{Namespace: f.Config.TKRNamespace, Name: configMapName}, configMap)
 	// Don't configure anything if the ConfigMap is not found
