@@ -1,0 +1,13 @@
+#@ load("@ytt:overlay", "overlay")
+
+#! TODO: I assume these won't get applied in the v1alpha3 case...
+
+#@overlay/match missing_ok=True,by=overlay.subset({"kind":"Cluster"})
+---
+apiVersion: cluster.x-k8s.io/v1beta1
+kind: Cluster
+metadata:
+  #@overlay/match missing_ok=True
+  annotations:
+    #@overlay/match missing_ok=True
+    auth.tkg.tanzu.vmware.com/auto-configure: ""
