@@ -197,7 +197,7 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 				Expect(clusterBootstrap.Spec.CNI.RefName).To(Equal("antrea.tanzu.vmware.com.1.2.3--vmware.1-tkg.1"))
 				Expect(*clusterBootstrap.Spec.CNI.ValuesFrom.ProviderRef.APIGroup).To(Equal("cni.tanzu.vmware.com"))
 				Expect(clusterBootstrap.Spec.CNI.ValuesFrom.ProviderRef.Kind).To(Equal("AntreaConfig"))
-				providerName := fmt.Sprintf("%s-antrea.tanzu.vmware.com-package", clusterName)
+				providerName := fmt.Sprintf("%s-antrea-package", clusterName)
 				Expect(clusterBootstrap.Spec.CNI.ValuesFrom.ProviderRef.Name).To(Equal(providerName))
 
 				By("verifying that the proxy related annotations are populated to cluster object properly")
@@ -795,7 +795,7 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 				s := &corev1.Secret{}
 				remoteSecret := &corev1.Secret{}
 				Eventually(func() bool {
-					err := k8sClient.Get(ctx, client.ObjectKey{Namespace: clusterNamespace, Name: fmt.Sprintf("%s-%s-package", clusterName, foobar1CarvelPackageRefName)}, s)
+					err := k8sClient.Get(ctx, client.ObjectKey{Namespace: clusterNamespace, Name: fmt.Sprintf("%s-foobar1-package", clusterName)}, s)
 					if err != nil {
 						return false
 					}
@@ -812,7 +812,7 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 						return false
 					}
 					fmt.Println(string(valueTexts))
-					Expect(strings.Contains(string(valueTexts), "nodeSelector:\n    tanzuKubernetesRelease: v1.22.4")).To(BeTrue())
+					Expect(strings.Contains(string(valueTexts), "nodeSelector:\n    run.tanzu.vmware.com/tkr: v1.22.4")).To(BeTrue())
 					Expect(strings.Contains(string(valueTexts), "deployment:\n    updateStrategy: rollingUpdate")).To(BeTrue())
 					Expect(strings.Contains(string(valueTexts), "daemonset:\n    updateStrategy: onDelete")).To(BeTrue())
 					Expect(strings.Contains(string(valueTexts), "maxUnavailable: 0")).To(BeTrue())
@@ -889,7 +889,7 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 		Context("with a routable AntreaConfig resource already exist", func() {
 			It("clusterbootstra_controller should not overwrite the existing AntreaConfig Specs", func() {
 				createdAntreaConfig := &antreaconfigv1alpha1.AntreaConfig{}
-				assertOwnerReferencesExist(ctx, k8sClient, clusterNamespace, fmt.Sprintf("%s-%s-package", clusterName, "antrea.tanzu.vmware.com"), createdAntreaConfig, []metav1.OwnerReference{
+				assertOwnerReferencesExist(ctx, k8sClient, clusterNamespace, fmt.Sprintf("%s-antrea-package", clusterName), createdAntreaConfig, []metav1.OwnerReference{
 					{
 						APIVersion: clusterapiv1beta1.GroupVersion.String(),
 						Kind:       "Cluster",
