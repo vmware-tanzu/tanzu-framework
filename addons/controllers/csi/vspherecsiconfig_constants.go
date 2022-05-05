@@ -26,9 +26,10 @@ const (
 )
 
 const (
-	VSphereCSINamespace                 = "kube-system"
-	VSphereCSIProvisionTimeout          = "300s"
-	VSphereCSIAttachTimeout             = "300s"
-	VSphereCSIResizerTimeout            = "300s"
-	VSphereCSIDefaultDeploymentReplicas = 3
+	VSphereCSINamespace             = "kube-system"
+	VSphereCSIProvisionTimeout      = "300s"
+	VSphereCSIAttachTimeout         = "300s"
+	VSphereCSIResizerTimeout        = "300s"
+	VSphereCSIMinDeploymentReplicas = 1
+	VSphereCSIMaxDeploymentReplicas = 3
 )

@@ -17,6 +17,7 @@ import (
 	capvv1beta1 "sigs.k8s.io/cluster-api-provider-vsphere/apis/v1beta1"
 	capvvmwarev1beta1 "sigs.k8s.io/cluster-api-provider-vsphere/apis/vmware/v1beta1"
 	clusterapiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
+	capictrlpkubeadmv1beta1 "sigs.k8s.io/cluster-api/controlplane/kubeadm/api/v1beta1"
 	"sigs.k8s.io/controller-runtime/pkg/log"
 
 	cutil "github.com/vmware-tanzu/tanzu-framework/addons/controllers/utils"
@@ -116,7 +117,11 @@ func (r *VSphereCSIConfigReconciler) mapVSphereCSIConfigToDataValuesNonParavirtu
 	dvs.VSphereCSI.ProvisionTimeout = VSphereCSIProvisionTimeout
 	dvs.VSphereCSI.AttachTimeout = VSphereCSIAttachTimeout
 	dvs.VSphereCSI.ResizerTimeout = VSphereCSIResizerTimeout
-	dvs.VSphereCSI.DeploymentReplicas = VSphereCSIDefaultDeploymentReplicas
+	deploymentReplicas, err := r.computeRecommendedNumberOfDeploymentReplicas(ctx, cluster)
+	if err != nil {
+		return nil, errors.Errorf("Failed to set number of vsphere csi deployment replicas: '%v'", err)
+	}
+	dvs.VSphereCSI.DeploymentReplicas = deploymentReplicas
 	dvs.VSphereCSI.InsecureFlag = true
 
 	// TODO: implement defaulting webhook for 'vspherecsiconfig' https://github.com/vmware-tanzu/tanzu-framework/issues/2088
@@ -213,7 +218,7 @@ func (r *VSphereCSIConfigReconciler) overrideDerivedValues(ctx context.Context,
 
 	r.overrideProxyValues(dvscsi, vcsiConfig)
 	r.overrideTimeoutValues(dvscsi, vcsiConfig)
-	r.overrideTopologyValues(dvscsi, vcsiConfig)
+	r.overrideTopologyValues(ctx, dvscsi, vcsiConfig)
 	r.overrideClusterValues(dvscsi, vcsiConfig)
 	r.overrideMiscValues(dvscsi, vcsiConfig)
 
@@ -250,7 +255,8 @@ func (r *VSphereCSIConfigReconciler) overrideTimeoutValues(dvscsi *DataValuesVSp
 	}
 }
 
-func (r *VSphereCSIConfigReconciler) overrideTopologyValues(dvscsi *DataValuesVSphereCSI,
+func (r *VSphereCSIConfigReconciler) overrideTopologyValues(ctx context.Context,
+	dvscsi *DataValuesVSphereCSI,
 	vcsiConfig *csiv1alpha1.VSphereCSIConfig) {
 
 	config := vcsiConfig.Spec.VSphereCSI.NonParavirtualConfig
@@ -267,7 +273,7 @@ func (r *VSphereCSIConfigReconciler) overrideTopologyValues(dvscsi *DataValuesVS
 		dvscsi.UseTopologyCategories = *config.UseTopologyCategories
 	}
 	if config.DeploymentReplicas != nil {
-		dvscsi.DeploymentReplicas = *config.DeploymentReplicas
+		dvscsi.DeploymentReplicas = r.constrainNumberOfDeploymentReplicas(ctx, *config.DeploymentReplicas)
 	}
 }
 
@@ -325,4 +331,50 @@ func (r *VSphereCSIConfigReconciler) overrideMiscValues(dvscsi *DataValuesVSpher
 	if config.InsecureFlag != nil {
 		dvscsi.InsecureFlag = *config.InsecureFlag
 	}
+}
+
+func (r *VSphereCSIConfigReconciler) constrainNumberOfDeploymentReplicas(ctx context.Context, proposedCount int32) int32 {
+	logger := log.FromContext(ctx)
+	if proposedCount < VSphereCSIMinDeploymentReplicas {
+		logger.Info(fmt.Sprintf("WARNING: adjusting vsphere csi replica count from '%d' to '%d'",
+			proposedCount, VSphereCSIMinDeploymentReplicas))
+		return VSphereCSIMinDeploymentReplicas
+	}
+
+	if proposedCount > VSphereCSIMaxDeploymentReplicas {
+		logger.Info(fmt.Sprintf("WARNING: adjusting vsphere csi replica count from '%d' to '%d'",
+			proposedCount, VSphereCSIMaxDeploymentReplicas))
+		return VSphereCSIMaxDeploymentReplicas
+	}
+
+	return proposedCount
+}
+
+func (r *VSphereCSIConfigReconciler) computeRecommendedNumberOfDeploymentReplicas(ctx context.Context,
+	cluster *clusterapiv1beta1.Cluster) (int32, error) {
+
+	cpNodeCount, err := r.getNumberOfControlPlaneNodes(ctx, cluster)
+
+	if err != nil {
+		return -1, errors.Errorf("Failed to compute number of vsphere csi deployment replicas: '%v'", err)
+	}
+
+	return r.constrainNumberOfDeploymentReplicas(ctx, cpNodeCount), nil
+}
+
+func (r *VSphereCSIConfigReconciler) getNumberOfControlPlaneNodes(ctx context.Context,
+	cluster *clusterapiv1beta1.Cluster) (int32, error) {
+
+	name := cluster.Spec.ControlPlaneRef.Name
+	namespace := cluster.Spec.ControlPlaneRef.Namespace
+
+	kcp := &capictrlpkubeadmv1beta1.KubeadmControlPlane{}
+	if err := r.Client.Get(ctx, types.NamespacedName{
+		Namespace: namespace,
+		Name:      name,
+	}, kcp); err != nil {
+		return -1, errors.Errorf("KubeadmControlPlane %s/%s could not be fetched, error %v",
+			name, namespace, err)
+	}
+	return *kcp.Spec.Replicas, nil
 }
