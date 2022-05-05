@@ -43,6 +43,7 @@ frameworkPackage:
         tolerations: []
       featureGates:
         clusterBootstrapController: false
+        packageInstallStatus: false
   clipluginsPackageValues:
     namespace: tkg-system
     versionConstraints:
