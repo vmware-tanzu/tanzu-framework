@@ -24,6 +24,13 @@ frameworkPackage:
     namespace: tkg-system
     createNamespace: false
     versionConstraints:
+    deployment:
+      hostNetwork: false
+      nodeSelector: null
+      tolerations: []
+      #! If hostNetwork is set to true the below two ports should be different
+      tkrConversionWebhookServerPort: 9443
+      tkrResolverWebhookServerPort: 9443
   addonsManagerPackageValues:
     versionConstraints:
     tanzuAddonsManager:
@@ -34,7 +41,6 @@ frameworkPackage:
         priorityClassName: system-cluster-critical
         nodeSelector: null
         tolerations: []
-        healthzPort: 18316
       featureGates:
         clusterBootstrapController: false
   clipluginsPackageValues:
