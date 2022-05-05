@@ -4,54 +4,39 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    app: tkr-resolver-cluster-webhook
-  name: tkr-resolver-cluster-webhook-manager
+    app: tkr-status-controller
+  name: tkr-status-controller-manager
   namespace: #@ data.values.namespace
   annotations:
     kapp.k14s.io/change-rule.0: "upsert after upserting tkr-service.tanzu.vmware.com/ClusterRoleBinding"
     kapp.k14s.io/change-rule.1: "delete before deleting tkr-service.tanzu.vmware.com/ClusterRoleBinding"
-    kapp.k14s.io/change-rule.2: "upsert after upserting tkr-service.tanzu.vmware.com/certificate"
-    kapp.k14s.io/change-rule.3: "delete before deleting tkr-service.tanzu.vmware.com/certificate"
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: tkr-resolver-cluster-webhook
+      app: tkr-status-controller
   template:
     metadata:
       labels:
-        app: tkr-resolver-cluster-webhook
+        app: tkr-status-controller
     spec:
       containers:
-      - image: tkr-resolver-cluster-webhook:latest
-        imagePullPolicy: IfNotPresent
-        name: manager
-        command:
-        - /manager
-        args:
-        - --metrics-bind-addr=0
-        - #@ "--webhook-server-port={}".format(data.values.deployment.tkrResolverWebhookServerPort)
-        resources:
-          limits:
-            cpu: 100m
-            memory: 30Mi
-          requests:
-            cpu: 100m
-            memory: 20Mi
-        ports:
-        - containerPort: #@ data.values.deployment.tkrResolverWebhookServerPort
-          name: webhook-server
-          protocol: TCP
-        volumeMounts:
-        - mountPath: /tmp/k8s-webhook-server/serving-certs
-          name: cert
-          readOnly: true
+        - image: tkr-status-controller:latest
+          imagePullPolicy: IfNotPresent
+          name: manager
+          command:
+            - /manager
+          args:
+            - --metrics-bind-addr=0
+          resources:
+            limits:
+              cpu: 100m
+              memory: 30Mi
+            requests:
+              cpu: 100m
+              memory: 20Mi
       serviceAccount: tkr-service-manager-sa
       terminationGracePeriodSeconds: 10
-      volumes:
-      - name: cert
-        secret:
-          secretName: tkr-resolver-cluster-webhook-service-cert
       #@ if hasattr(data.values, 'deployment') and hasattr(data.values.deployment, 'hostNetwork') and data.values.deployment.hostNetwork:
       #@overlay/match missing_ok=True
       hostNetwork: true

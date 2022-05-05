@@ -7,3 +7,5 @@ The tkr-service management package provides the following services:
 ## Components
 
 * tkr-resolver-cluster-webhook
+* tkr-conversion-webhook
+* tkr-status-controller
