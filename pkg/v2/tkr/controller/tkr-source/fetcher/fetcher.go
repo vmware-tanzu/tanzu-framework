@@ -112,49 +112,16 @@ func (f *Fetcher) tkrDiscovery(ctx context.Context, frequency time.Duration) {
 }
 
 func (f *Fetcher) fetchAll(ctx context.Context) error {
-	return runConcurrently(ctx,
-		f.fetchTKRCompatibilityCM,
-		f.fetchTKRBOMConfigMaps,
-		f.fetchTKRPackages)
-}
-
-func runConcurrently(ctx context.Context, fs ...func(context.Context) error) error {
-	select {
-	case <-ctx.Done():
-		return nil // no error: we're done
-	default:
-	}
-
-	errChan := make(chan error)
-
-	for _, f := range fs {
-		go func(f func(context.Context) error) {
-			errChan <- f(ctx)
-		}(f)
-	}
-
-	select {
-	case <-ctx.Done():
-		return nil // no error: we're done
-	case err := <-allErrors(errChan, len(fs)):
-		return err
-	}
-}
-
-func allErrors(errChan <-chan error, n int) <-chan error {
-	result := make(chan error)
-
-	go func() {
-		defer close(result)
-		var errList []error
-		for i := 0; i < n; i++ {
-			err := <-errChan
-			errList = append(errList, err)
-		}
-		result <- kerrors.NewAggregate(errList)
-	}()
-
-	return result
+	return kerrors.AggregateGoroutines(
+		func() error {
+			return f.fetchTKRCompatibilityCM(ctx)
+		},
+		func() error {
+			return f.fetchTKRBOMConfigMaps(ctx)
+		},
+		func() error {
+			return f.fetchTKRPackages(ctx)
+		})
 }
 
 func (f *Fetcher) fetchTKRCompatibilityCM(ctx context.Context) error {
@@ -372,18 +339,11 @@ func (f *Fetcher) createTKRPackages(ctx context.Context, tag string) error {
 		return errors.Wrapf(err, "failed to fetch the BOM file from image '%s'", imageName)
 	}
 
-	packageFiles := f.filterPackageFiles(bundleContent)
+	f.Log.Info("Getting TKR package(s) from", "image", imageName)
+	packages := f.filterTKRPackages(bundleContent)
 
-	for path, bytes := range packageFiles {
-		f.Log.Info("package", "path", path, "size", len(bytes))
-		pkg := &kapppkgv1.Package{}
-		if err := yaml.Unmarshal(bytes, pkg); err != nil {
-			f.Log.Error(err, "failed to parse a package in bundle '%s' at path: '%s'", imageName, path)
-			continue
-		}
-		if pkg.Labels == nil || !labels.Set(pkg.Labels).Has(pkgcr.LabelTKRPackage) {
-			continue
-		}
+	for _, pkg := range packages {
+		f.Log.Info("Creating package", "name", pkg.Name)
 		pkg.Namespace = f.Config.TKRNamespace
 		if err := f.Client.Create(ctx, pkg); err != nil && !apierrors.IsAlreadyExists(err) {
 			return errors.Wrapf(err, "could not create Package: name='%s'", pkg.Name)
@@ -392,12 +352,21 @@ func (f *Fetcher) createTKRPackages(ctx context.Context, tag string) error {
 	return nil
 }
 
-func (f *Fetcher) filterPackageFiles(bundleContent map[string][]byte) map[string][]byte {
-	result := make(map[string][]byte, len(bundleContent))
+func (f *Fetcher) filterTKRPackages(bundleContent map[string][]byte) []*kapppkgv1.Package {
+	result := make([]*kapppkgv1.Package, 0, len(bundleContent))
 	for path, bytes := range bundleContent {
-		if strings.HasPrefix(path, "packages/") && !strings.HasSuffix(path, "/metadata.yml") {
-			result[path] = bytes
+		if !strings.HasPrefix(path, "packages/") || strings.HasSuffix(path, "/metadata.yml") {
+			continue
 		}
+		pkg := &kapppkgv1.Package{}
+		if err := yaml.Unmarshal(bytes, pkg); err != nil {
+			f.Log.Error(err, "failed to parse a package at path: '%s'", path)
+			continue
+		}
+		if pkg.Labels == nil || !labels.Set(pkg.Labels).Has(pkgcr.LabelTKRPackage) {
+			continue
+		}
+		result = append(result, pkg)
 	}
 	return result
 }

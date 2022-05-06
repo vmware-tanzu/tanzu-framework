@@ -40,19 +40,18 @@ const (
 	LabelTKRPackage = "run.tanzu.vmware.com/tkr-package"
 )
 
-var hasTKRPackageLabel = func() predicate.Predicate {
-	selector, _ := labels.Parse(LabelTKRPackage)
-	return predicate.NewPredicateFuncs(func(o client.Object) bool {
-		return selector.Matches(labels.Set(o.GetLabels()))
-	})
-}()
-
 func (r *Reconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
-		For(&kapppkgv1.Package{}, builder.WithPredicates(hasTKRPackageLabel, predicate.GenerationChangedPredicate{})).
+		For(&kapppkgv1.Package{}, builder.WithPredicates(hasTKRPackageLabelPredicate, predicate.GenerationChangedPredicate{})).
 		Owns(&kapppkgiv1.PackageInstall{}, builder.WithPredicates(predicate.GenerationChangedPredicate{})).
 		Named("tkr_source").
 		Complete(r)
+}
+
+var hasTKRPackageLabelPredicate = predicate.NewPredicateFuncs(hasTKRPackageLabel)
+
+func hasTKRPackageLabel(o client.Object) bool {
+	return labels.Set(o.GetLabels()).Has(LabelTKRPackage)
 }
 
 func (r *Reconciler) Reconcile(ctx context.Context, req ctrl.Request) (result ctrl.Result, retErr error) {
