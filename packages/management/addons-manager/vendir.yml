@@ -55,7 +55,7 @@ directories:
         newRootPath: config/crd/bases/csi.tanzu.vmware.com_vspherecsiconfigs.yaml
         includePaths:
           - config/crd/bases/csi.tanzu.vmware.com_vspherecsiconfigs.yaml
-      - path: cni-webhook-manifests.lib.yaml
+      - path: webhook-manifests.lib.yaml
         manual: {}
   - path: bundle/config/overlays
     contents:
