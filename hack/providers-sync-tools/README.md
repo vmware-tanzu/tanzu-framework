@@ -4,10 +4,10 @@
 
 Tanzu-framework is moving towards packaging cluster-api componentry. While this
 transition is happening, tanzu-framework will have cluster-api components in
-two locations: `packages/management/cluster-api*` and `pkg/v1/providers`.
+two locations: `packages/cluster-api*` and `pkg/v1/providers`.
 
 These tools exist to ensure cluster-api related packages in the
-`packages/management` directory stay in sync with the content in
+`packages` directory stay in sync with the content in
 `pkg/v1/providers`.
 
 ## How it works
@@ -43,18 +43,18 @@ overlays have no diff with the content of `pkg/v1/providers`.
 1. Making a tweak to `pkg/v1/providers/<cluster-api-folder>`
     - add an overlay file to `hack/provider-sync-tools/<some cluster-api
       package>/overlays`.
-      NOTE: There are many files in `pkg/v1/providers/<cluster-api-foler>/` and
+      NOTE: There are many files in `pkg/v1/providers/<cluster-api-folder>/` and
       only some of them are copied from upstream cluster-api, typically CRDs.
       These sync tools are intended to sync the files that come from upstream
       and the tweaks to files that come from upstream. Files in
-      `pkg/v1/providers/<cluster-api-foler>` that are not from upstream should
+      `pkg/v1/providers/<cluster-api-folder>` that are not from upstream should
       be edited in place, i.e. cluster configuration files.
     - run `make all` to and check to see that `pkg/v1/providers/<cluster-api
       folder>` contents looks as desired.
     - commit the changes
 
 1. Bumping cluster-api to a newer version
-    - edit the package(s) `packages/management/<some-cluster-api-package>/`
+    - edit the package(s) `packages/<some-cluster-api-package>/`
       vendir file to match the desired version
     - run the unit tests in the package(s), ensuring they're passing.
     - `cd hack/provider-sync-tools && make all`

@@ -5,34 +5,34 @@ directories:
   contents:
   - path: .
     directory:
-      path: ../../packages/management/cluster-api-control-plane-kubeadm/bundle/config/
+      path: ../../packages/cluster-api-control-plane-kubeadm/bundle/config/
 - path: cluster-api/build/upstream
   contents:
   - path: .
     directory:
-      path: ../../packages/management/cluster-api/bundle/config/
+      path: ../../packages/cluster-api/bundle/config/
 - path: cluster-api-bootstrap-kubeadm/build/upstream
   contents:
   - path: .
     directory:
-      path: ../../packages/management/cluster-api-bootstrap-kubeadm/bundle/config/
+      path: ../../packages/cluster-api-bootstrap-kubeadm/bundle/config/
 - path: cluster-api-provider-aws/build/upstream
   contents:
   - path: .
     directory:
-      path: ../../packages/management/cluster-api-provider-aws/bundle/config/
+      path: ../../packages/cluster-api-provider-aws/bundle/config/
 - path: cluster-api-provider-azure/build/upstream
   contents:
   - path: .
     directory:
-      path: ../../packages/management/cluster-api-provider-azure/bundle/config/
+      path: ../../packages/cluster-api-provider-azure/bundle/config/
 - path: cluster-api-provider-docker/build/upstream
   contents:
   - path: .
     directory:
-      path: ../../packages/management/cluster-api-provider-docker/bundle/config/
+      path: ../../packages/cluster-api-provider-docker/bundle/config/
 - path: cluster-api-provider-vsphere/build/upstream
   contents:
   - path: .
     directory:
-      path: ../../packages/management/cluster-api-provider-vsphere/bundle/config/
+      path: ../../packages/cluster-api-provider-vsphere/bundle/config/

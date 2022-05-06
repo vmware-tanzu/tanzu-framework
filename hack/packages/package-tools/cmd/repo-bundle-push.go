@@ -31,6 +31,7 @@ func init() {
 	repoBundlePushCmd.Flags().StringVar(&packageRepository, "repository", "", "Package repository of the package repo bundle being pushed")
 	repoBundlePushCmd.Flags().StringVar(&registry, "registry", "", "OCI registry where the package repo bundle image needs to be stored")
 	repoBundlePushCmd.Flags().StringVar(&version, "version", "", "Package repo bundle version")
+	repoBundlePushCmd.Flags().StringVar(&subVersion, "sub-version", "", "Package subversion of a package in repo bundle")
 	repoBundlePushCmd.MarkFlagRequired("repository") //nolint: errcheck
 	repoBundlePushCmd.MarkFlagRequired("registry")   //nolint: errcheck
 	repoBundlePushCmd.MarkFlagRequired("version")    //nolint: errcheck
@@ -47,14 +48,16 @@ func runRepoBundlePush(cmd *cobra.Command, args []string) error {
 	}
 
 	toolsBinDir := filepath.Join(projectRootDir, constants.ToolsBinDirPath)
+	repoVersion := formatVersion(nil, "+").concat
 
-	repoBundlePath := filepath.Join(projectRootDir, constants.RepoBundlesDir, packageRepository, "tanzu-framework-"+packageRepository+"-repo-"+version)
+	repoBundlePath := filepath.Join(projectRootDir, constants.RepoBundlesDir, "tanzu-framework-"+packageRepository+"-repo-"+repoVersion)
 	if err := utils.CreateDir(repoBundlePath); err != nil {
 		return err
 	}
 
 	// untar the repo bundle
-	tarBallFilePath := filepath.Join(projectRootDir, constants.RepoBundlesDir, packageRepository, "tanzu-framework-"+packageRepository+"-repo-"+version+".tar.gz")
+	tarBallVersion := formatVersion(nil, "_").concat
+	tarBallFilePath := filepath.Join(projectRootDir, constants.RepoBundlesDir, "tanzu-framework-"+packageRepository+"-repo-"+tarBallVersion+".tar.gz")
 	r, err := os.Open(tarBallFilePath)
 	if err != nil {
 		return fmt.Errorf("couldn't open tar file %s: %w", tarBallFilePath, err)
@@ -64,10 +67,15 @@ func runRepoBundlePush(cmd *cobra.Command, args []string) error {
 	}
 
 	// push the repo bundle
-	lockOutputFile := filepath.Join(repoBundlePath, "tanzu-framework-"+packageRepository+"-repo-"+version+"-lock-output.yaml")
-	imgpkgCmd := exec.Command(filepath.Join(toolsBinDir, "imgpkg"), "push", "-b", registry+"/"+packageRepository+":"+version,
+	lockOutputFile := filepath.Join(repoBundlePath, "tanzu-framework-"+packageRepository+"-repo-"+repoVersion+"-lock-output.yaml")
+	imgpkgCmd := exec.Command(
+		filepath.Join(toolsBinDir, "imgpkg"),
+		"push",
+		"-b",
+		registry+"/"+packageRepository+":"+tarBallVersion,
 		"--file", repoBundlePath,
-		"--lock-output", lockOutputFile) // #nosec G204
+		"--lock-output", lockOutputFile,
+	) // #nosec G204
 
 	var imgpkgCmdErrBytes bytes.Buffer
 	imgpkgCmd.Stderr = &imgpkgCmdErrBytes
@@ -88,14 +96,17 @@ func runRepoBundlePush(cmd *cobra.Command, args []string) error {
 
 	sha256 := strings.Split(bundleLock.Bundle.Image, ":")[1]
 
-	yttCmd := exec.Command(filepath.Join(toolsBinDir, "ytt"), "-f", filepath.Join(projectRootDir, "hack", "packages", "templates", "repo-utils", "packagerepo-tmpl.yaml"),
+	yttCmd := exec.Command(
+		filepath.Join(toolsBinDir, "ytt"),
+		"-f", filepath.Join(projectRootDir, "hack", "packages", "templates", "repo-utils", "packagerepo-tmpl.yaml"),
 		"-f", filepath.Join(projectRootDir, "hack", "packages", "templates", "repo-utils", "package-helpers.lib.yaml"),
 		"-f", filepath.Join(projectRootDir, constants.PackageValuesSha256FilePath),
 		"-v", "packageRepository="+packageRepository,
 		"-v", "registry="+registry,
-		"-v", "sha256="+sha256) // #nosec G204
+		"-v", "sha256="+sha256,
+	) // #nosec G204
 
-	packageRepositoryCRFilePath := filepath.Join(projectRootDir, constants.RepoBundlesDir, packageRepository, "tanzu-framework-"+packageRepository+"-repo-"+version+".yaml")
+	packageRepositoryCRFilePath := filepath.Join(projectRootDir, constants.RepoBundlesDir, "tanzu-framework-"+packageRepository+"-repo-"+repoVersion+".yaml")
 	outfile, err := os.Create(packageRepositoryCRFilePath)
 	if err != nil {
 		return fmt.Errorf("error creating file %s : %w", packageRepositoryCRFilePath, err)

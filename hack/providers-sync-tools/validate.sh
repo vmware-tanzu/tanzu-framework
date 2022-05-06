@@ -11,7 +11,7 @@ function validate_rendered_files() {
 	local provider_name="${2}"
 	local rendered_dir="${source_package_name}/build/rendered"
 
-	local version=$(cat ../../packages/management/${source_package_name}/vendir.yml | grep tag | sed 's/^.*tag: //')
+	local version=$(cat ../../packages/${source_package_name}/vendir.yml | grep tag | sed 's/^.*tag: //')
 
 	local rendered_files="$(find "${rendered_dir}/upstream" -type f)"
 	set +e
@@ -20,7 +20,7 @@ function validate_rendered_files() {
 	  local exit_code="${?}"
 	  if [[ ${exit_code} -ne 0 ]]; then
 		echo "[Error] Files ${rendered_file} and ../../pkg/v1/providers/${provider_name}/${version}/$(basename ${rendered_file}) are different."
-	    echo "[Error] pkg/v1/providers is out of sync with packages/management/cluster-api*. See 'hack/providers-sync-tools/README.md'."
+	    echo "[Error] pkg/v1/providers is out of sync with packages/cluster-api*. See 'hack/providers-sync-tools/README.md'."
 	    exit ${exit_code}
 	  fi
 	done
