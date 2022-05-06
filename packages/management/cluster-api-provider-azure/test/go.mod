@@ -1,4 +1,4 @@
-module github.com/vmware-tanzu/tanzu-framework/packages/management/cluster-api-provider-azure/test
+module github.com/vmware-tanzu/tanzu-framework/packages/cluster-api-provider-azure/test
 
 go 1.17
 
@@ -22,4 +22,4 @@ require (
 	k8s.io/utils v0.0.0-20220210201930-3a6ce19ff2f9 // indirect
 )
 
-replace github.com/vmware-tanzu/tanzu-framework/test/pkg => ../../../../test/pkg
+replace github.com/vmware-tanzu/tanzu-framework/test/pkg => ../../../test/pkg
