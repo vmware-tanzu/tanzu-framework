@@ -1,4 +1,4 @@
-// Copyright 2021 VMware, Inc. All Rights Reserved.
+// Copyright 2022 VMware, Inc. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
 package fetcher
@@ -23,18 +23,15 @@ const (
 	registryCertsFile = "registry_certs"
 )
 
-func (f *Fetcher) configure() error {
+func (f *Fetcher) configure(ctx context.Context) error {
 	configMap := &corev1.ConfigMap{}
-	err := f.Client.Get(context.Background(), types.NamespacedName{Namespace: f.Config.TKRNamespace, Name: configMapName}, configMap)
-	// Don't configure anything if the ConfigMap is not found
-	if k8serr.IsNotFound(err) {
-		return nil
+	if err := f.Client.Get(ctx,
+		types.NamespacedName{Namespace: f.Config.TKRNamespace, Name: configMapName},
+		configMap); !k8serr.IsNotFound(err) {
+		return errors.Wrapf(err, "unable to get the ConfigMap %s", configMapName)
 	}
 
-	if err != nil {
-		return errors.Wrapf(err, "unable to find the ConfigMap %s", configMapName)
-	}
-	err = addTrustedCerts(configMap.Data[caCertsKey])
+	err := addTrustedCerts(configMap.Data[caCertsKey])
 	if err != nil {
 		return errors.Wrap(err, "failed to add certs")
 	}

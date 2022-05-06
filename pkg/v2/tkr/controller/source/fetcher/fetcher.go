@@ -8,7 +8,6 @@ package fetcher
 import (
 	"context"
 	"fmt"
-	"reflect"
 	"sort"
 	"strconv"
 	"strings"
@@ -21,6 +20,7 @@ import (
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
+	kerrors "k8s.io/apimachinery/pkg/util/errors"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 	"sigs.k8s.io/yaml"
@@ -60,7 +60,7 @@ type TKRDiscoveryIntervals struct {
 
 func (f *Fetcher) Start(ctx context.Context) error {
 	f.Log.Info("Performing configuration setup")
-	if err := f.configure(); err != nil {
+	if err := f.configure(ctx); err != nil {
 		return errors.Wrap(err, "failed to configure the controller")
 	}
 
@@ -77,17 +77,17 @@ func (f *Fetcher) Start(ctx context.Context) error {
 
 func (f *Fetcher) initialReconcile(ctx context.Context, frequency time.Duration, retries int) {
 	for {
-		if err := f.syncRelease(ctx); err != nil {
-			f.Log.Error(err, "Failed to complete initial TKR discovery")
+		if err := f.fetchAll(ctx); err != nil {
+			f.Log.Error(err, "Failed to complete initial TKR fetch")
 			retries--
 			if retries <= 0 {
 				return
 			}
 
-			f.Log.Info("Failed to complete initial TKR discovery, retrying")
+			f.Log.Info("Failed to complete initial TKR fetch, retrying")
 			select {
 			case <-ctx.Done():
-				f.Log.Info("Stop performing initial TKR discovery")
+				f.Log.Info("Stop performing initial TKR fetch")
 				return
 			case <-time.After(frequency):
 				continue
@@ -99,87 +99,61 @@ func (f *Fetcher) initialReconcile(ctx context.Context, frequency time.Duration,
 
 func (f *Fetcher) tkrDiscovery(ctx context.Context, frequency time.Duration) {
 	for {
-		if err := f.syncRelease(ctx); err != nil {
-			f.Log.Error(err, "Failed to reconcile TKRs, retrying")
+		if err := f.fetchAll(ctx); err != nil {
+			f.Log.Error(err, "Failed to fetch TKRs, retrying")
 		}
 		select {
 		case <-ctx.Done():
-			f.Log.Info("Stop performing TKR discovery")
+			f.Log.Info("Stop fetching TKRs")
 			return
 		case <-time.After(frequency):
 		}
 	}
 }
 
-func (f *Fetcher) syncRelease(ctx context.Context) error {
+func (f *Fetcher) fetchAll(ctx context.Context) error {
+	return runConcurrently(ctx,
+		f.fetchTKRCompatibilityCM,
+		f.fetchTKRBOMConfigMaps,
+		f.fetchTKRPackages)
+}
+
+func runConcurrently(ctx context.Context, fs ...func(context.Context) error) error {
 	select {
 	case <-ctx.Done():
 		return nil // no error: we're done
 	default:
 	}
 
-	ctx1 := goRun(ctx, func(ctx context.Context) {
-		// create/update bom-metadata ConfigMap
-		if err := f.fetchTKRCompatibilityCM(ctx); err != nil {
-			// not returning: even if we fail to get BOM metadata, we still want to reconcile BOM ConfigMaps
-			f.Log.Error(err, "Failed to reconcile BOM metadata ConfigMap")
-		}
-	})
+	errChan := make(chan error)
 
-	ctx2 := goRun(ctx, func(ctx context.Context) {
-		if err := f.fetchTKRBOMConfigMaps(ctx); err != nil {
-			f.Log.Error(err, "failed to reconcile BOM ConfigMaps")
-		}
-	})
-
-	ctx3 := goRun(ctx, func(ctx context.Context) {
-		if err := f.fetchTKRPackages(ctx); err != nil {
-			f.Log.Error(err, "failed to fetch TKR Packages")
-		}
-	})
+	for _, f := range fs {
+		go func(f func(context.Context) error) {
+			errChan <- f(ctx)
+		}(f)
+	}
 
 	select {
 	case <-ctx.Done():
-	case <-untilAllClosed(ctx1.Done(), ctx2.Done(), ctx3.Done()):
+		return nil // no error: we're done
+	case err := <-allErrors(errChan, len(fs)):
+		return err
 	}
-
-	return nil
 }
 
-func goRun(ctx context.Context, f func(context.Context)) context.Context {
-	childCtx, childCancel := context.WithCancel(ctx)
+func allErrors(errChan <-chan error, n int) <-chan error {
+	result := make(chan error)
 
 	go func() {
-		defer childCancel()
-		f(childCtx)
+		defer close(result)
+		var errList []error
+		for i := 0; i < n; i++ {
+			err := <-errChan
+			errList = append(errList, err)
+		}
+		result <- kerrors.NewAggregate(errList)
 	}()
 
-	return childCtx
-}
-
-func untilAllClosed(cs ...<-chan struct{}) chan struct{} {
-	done := make(chan struct{})
-
-	go func() {
-		scs := selectCases(cs)
-		for len(scs) > 0 {
-			i, _, _ := reflect.Select(scs)
-			scs = append(scs[:i], scs[i+1:]...)
-		}
-		close(done)
-	}()
-
-	return done
-}
-
-func selectCases(cs []<-chan struct{}) []reflect.SelectCase {
-	result := make([]reflect.SelectCase, len(cs))
-	for i, c := range cs {
-		result[i] = reflect.SelectCase{
-			Dir:  reflect.SelectRecv,
-			Chan: reflect.ValueOf(c),
-		}
-	}
 	return result
 }
 

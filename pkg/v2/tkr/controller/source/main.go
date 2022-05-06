@@ -49,7 +49,7 @@ func main() {
 	var continuousTKRDiscoverFreq int
 	var skipVerifyRegistryCerts bool
 
-	flag.StringVar(&tkrNamespace, "namespace", "tkr-system", "Namespace for TKR related resources")
+	flag.StringVar(&tkrNamespace, "namespace", "tkg-system", "Namespace for TKR related resources")
 	flag.StringVar(&tkrPkgServiceAccountName, "sa-name", "tkr-service-manager-sa", "ServiceAccount name used by TKR PackageInstalls")
 	flag.StringVar(&bomImagePath, "bom-image-path", "", "The BOM image path.")
 	flag.StringVar(&bomMetadataImagePath, "bom-metadata-image-path", "", "The BOM compatibility metadata image path.")

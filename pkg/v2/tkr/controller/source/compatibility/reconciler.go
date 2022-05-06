@@ -86,7 +86,7 @@ func (r *Reconciler) Reconcile(ctx context.Context, req ctrl.Request) (result ct
 	tkr := &runv1.TanzuKubernetesRelease{}
 	if err := r.Client.Get(ctx, req.NamespacedName, tkr); err != nil {
 		if apierrors.IsNotFound(err) {
-			return ctrl.Result{}, nil // do nothing if the ConfigMap does not exist
+			return ctrl.Result{}, nil // do nothing if the TKR does not exist
 		}
 		return ctrl.Result{}, err
 	}
@@ -121,7 +121,7 @@ func (r *Reconciler) updateTKRCompatibleCondition(ctx context.Context, tkr *runv
 		conditions.MarkTrue(tkr, runv1.ConditionCompatible)
 		return nil
 	}
-	conditions.MarkFalse(tkr, runv1.ConditionCompatible, "", clusterv1.ConditionSeverityInfo, "")
+	conditions.MarkFalse(tkr, runv1.ConditionCompatible, "", clusterv1.ConditionSeverityWarning, "")
 	return nil
 }
 
