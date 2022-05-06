@@ -1068,16 +1068,16 @@ spec:
               cloud-provider: aws
               tls-cipher-suites: TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
           dns:
-            imageRepository: #! e.g. projects-stg.registry.vmware.com/tkg
-            imageTag: #! e.g. 1.8.4_vmware.5
+            imageRepository: dummy.registry.vmware.com
+            imageTag: 1.8.4_dummy.5
           etcd:
             local:
               dataDir: /var/lib/etcd
-              imageRepository: #! e.g. projects-stg.registry.vmware.com/tkg
-              imageTag: #! e.g. v3.5.0_vmware.5
+              imageRepository: dummy.registry.vmware.com
+              imageTag: 1.8.4_dummy.5
               extraArgs:
                 cipher-suites: TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
-          imageRepository: #! e.g. projects-stg.registry.vmware.com/tkg
+          imageRepository: dummy.registry.vmware.com
           scheduler:
             extraArgs:
               tls-cipher-suites: TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
