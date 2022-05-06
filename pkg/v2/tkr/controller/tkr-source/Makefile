@@ -35,7 +35,7 @@ vet:
 
 .PHONY: docker-build
 docker-build: ## Build docker image
-	cd ../../../../../ && docker build -t $(IMG) -f pkg/v2/tkr/controller/source/Dockerfile --build-arg LD_FLAGS="$(LD_FLAGS)" .
+	cd ../../../../../ && docker build -t $(IMG) -f pkg/v2/tkr/controller/tkr-source/Dockerfile --build-arg LD_FLAGS="$(LD_FLAGS)" .
 
 .PHONY: docker-publish
 docker-publish: ## Publish docker image

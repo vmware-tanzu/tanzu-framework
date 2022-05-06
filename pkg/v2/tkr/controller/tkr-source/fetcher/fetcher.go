@@ -30,7 +30,7 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkr/pkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkr/pkg/registry"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkr/pkg/types"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v2/tkr/controller/source/pkgcr"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v2/tkr/controller/tkr-source/pkgcr"
 )
 
 type Fetcher struct {

@@ -22,9 +22,9 @@ import (
 
 	runv1 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/buildinfo"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v2/tkr/controller/source/compatibility"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v2/tkr/controller/source/fetcher"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v2/tkr/controller/source/pkgcr"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v2/tkr/controller/tkr-source/compatibility"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v2/tkr/controller/tkr-source/fetcher"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v2/tkr/controller/tkr-source/pkgcr"
 )
 
 var (
