@@ -172,12 +172,6 @@ func (c *TkgClient) InitRegion(options *InitRegionOptions) error { //nolint:funl
 	log.SendProgressUpdate(statusRunning, StepGenerateClusterConfiguration, InitRegionSteps)
 	log.Info("Generating cluster configuration...")
 
-	// Obtain management cluster configuration of a provided flavor
-	if regionalConfigBytes, options.ClusterName, configFilePath, err = c.BuildRegionalClusterConfiguration(options); err != nil {
-		return errors.Wrap(err, "unable to build management cluster configuration")
-	}
-	log.Infof("ClusterClass based management cluster config file has been generated and stored at: '%v'", configFilePath)
-
 	log.SendProgressUpdate(statusRunning, StepSetupBootstrapCluster, InitRegionSteps)
 	log.Info("Setting up bootstrapper...")
 	// Ensure bootstrap cluster and copy boostrap cluster kubeconfig to ~/kube-tkg directory
@@ -217,6 +211,12 @@ func (c *TkgClient) InitRegion(options *InitRegionOptions) error { //nolint:funl
 			return errors.Wrap(err, "unable to install management components to bootstrap cluster")
 		}
 	}
+
+	// Obtain management cluster configuration of a provided flavor
+	if regionalConfigBytes, options.ClusterName, configFilePath, err = c.BuildRegionalClusterConfiguration(options); err != nil {
+		return errors.Wrap(err, "unable to build management cluster configuration")
+	}
+	log.Infof("ClusterClass based management cluster config file has been generated and stored at: '%v'", configFilePath)
 
 	isStartedRegionalClusterCreation = true
 
