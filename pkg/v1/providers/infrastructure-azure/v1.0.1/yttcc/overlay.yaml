@@ -119,33 +119,11 @@ spec:
     variables:
     #@ vars = get_azure_vars()
     #@ for configVariable in vars:
-    #@  if vars[configVariable] != None and configVariable in ["location", "network", "controlPlane", "worker", "resourceGroup", "subscriptionID", "identityRef", "clusterRole", "environment", "sshPublicKey", "acceleratedNetworking", "privateCluster", "frontendPrivateIP", "imageRepository", "auditLogging", "customTags", "apiServerPort", "trust"]:
+    #@  if vars[configVariable] != None and configVariable in ["location", "network", "controlPlane", "worker", "resourceGroup", "subscriptionID", "identityRef", "clusterRole", "environment", "sshPublicKey", "acceleratedNetworking", "privateCluster", "frontendPrivateIP", "imageRepository", "auditLogging", "customTags", "apiServerPort", "trust", "TKR_DATA"]:
     - name: #@ configVariable
       value: #@ vars[configVariable]
     #@ end
     #@ end
-    #! TODO: make this data only applied while testing
-    #@overlay/append
-    - name: TKR_DATA
-      value:
-        v1.23.5+vmware.1: #! value comes from clusterctl
-          kubernetesSpec:
-            version: v1.23.5+vmware.1
-            imageRepository: projects-stg.registry.vmware.com
-            etcd:
-              imageTag: #@ bomDataForK8sVersion.kubeadmConfigSpec.etcd.local.imageTag
-            coredns:
-              imageTag: #@ bomDataForK8sVersion.kubeadmConfigSpec.dns.imageTag
-          labels:
-            os-name: ubuntu
-            os-type: linux
-            os-arch: amd64
-          osImageRef:
-            sku: dummy-sku
-            publisher: dummy-publisher
-            offer: dummy-offer
-            version: dummy-version
-            thirdPartyImage: dummy-third-party-image
 
 #@ if data.values.TKG_CLUSTER_ROLE == "management":
 ---

@@ -73,28 +73,11 @@ spec:
         failureDomain: #@ data.values.VSPHERE_AZ_2
         #@ end
       #@ end
-    #! TODO: this should only be available during testing
     #@overlay/match missing_ok=True
     variables:
-    - name: TKR_DATA
-      value:
-        v1.21.2: #! comes from clusterctl during testing
-          kubernetesSpec:
-            version: v1.21.2
-            imageRepository: projects-stg.registry.vmware.com
-            etcd:
-              imageTag: #@ bomDataForK8sVersion.kubeadmConfigSpec.etcd.local.imageTag
-            coredns:
-              imageTag: #@ bomDataForK8sVersion.kubeadmConfigSpec.dns.imageTag
-            kube-vip:
-              imageTag: dummy-kube-vip-image-tag
-          labels:
-            os-name: ubuntu
-            os-type: linux
-            os-arch: amd64
     #@ vars = get_vsphere_vars()
     #@ for configVariable in vars:
-    #@  if vars[configVariable] != None and configVariable in ["apiServerPort", "controlPlane", "worker", "vcenter", "VSPHERE_WINDOWS_TEMPLATE", "apiServerEndpoint", "network", "imageRepository", "trust", "user", "auditLogging", "aviAPIServerHAProvider"]:
+    #@  if vars[configVariable] != None and configVariable in ["apiServerPort", "controlPlane", "worker", "vcenter", "VSPHERE_WINDOWS_TEMPLATE", "apiServerEndpoint", "network", "imageRepository", "trust", "user", "auditLogging", "aviAPIServerHAProvider", "TKR_DATA"]:
     - name: #@ configVariable
       value: #@ vars[configVariable]
     #@ end
