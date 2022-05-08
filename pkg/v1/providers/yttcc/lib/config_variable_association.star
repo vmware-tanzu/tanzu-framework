@@ -371,7 +371,11 @@ def get_cluster_variables():
     if data.values["CLUSTER_API_SERVER_PORT"] != None:
         vars["apiServerPort"] = data.values["CLUSTER_API_SERVER_PORT"]
     end
-    
+
+    if data.values["TKR_DATA"] != "":
+        vars["TKR_DATA"] = data.values["TKR_DATA"]
+    end
+
     return vars
 end
 
