@@ -97,28 +97,9 @@ spec:
     variables:
     #@ vars = get_aws_vars()
     #@ for configVariable in vars:
-    #@  if vars[configVariable] != None and configVariable in ["region", "sshKeyName", "bastion", "network", "controlPlane", "worker", "loadBalancerSchemeInternal", "identityRef", "imageRepository", "trust", "auditLogging", "cni"]:
+    #@  if vars[configVariable] != None and configVariable in ["region", "sshKeyName", "bastion", "network", "controlPlane", "worker", "loadBalancerSchemeInternal", "identityRef", "imageRepository", "trust", "auditLogging", "cni", "TKR_DATA"]:
     - name: #@ configVariable
       value: #@ vars[configVariable]
     #@ end
     #@ end
-    #! TODO: make this data only available while testing.
-    #@overlay/append
-    - name: TKR_DATA
-      value:
-        v1.23.5+vmware.1: #! this comes from the clusterclt for testing
-          kubernetesSpec:
-            version: v1.23.5+vmware.1
-            imageRepository: projects-stg.registry.vmware.com
-            etcd:
-              imageTag: #@ bomDataForK8sVersion.kubeadmConfigSpec.etcd.local.imageTag
-            coredns:
-              imageTag: #@ bomDataForK8sVersion.kubeadmConfigSpec.dns.imageTag
-          labels:
-            os-name: ubuntu
-            os-type: linux
-            os-arch: amd64
-          osImageRef:
-            id: dummy-ami-id
-            region: dummy-region
 
