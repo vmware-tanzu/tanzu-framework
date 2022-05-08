@@ -72,21 +72,60 @@ generate_cluster_configurations() {
     echo "${cmdargs[@]}"
 
     if [ ! -z "$outputdircc" ]; then
-       if [[ $RESULT -eq 0 ]]; then
-         # XXX fixup plan, hard code cluster class
-         cat "$t" | perl -pe 's/--plan (\S+)/--plan $1cc/; s/_PLAN: (\S+)/_PLAN: $1cc/' > /tmp/test_tkg_config_cc
-         echo "CLUSTER_CLASS: tkg-${infra}-default" >> /tmp/test_tkg_config_cc
-         read -r -a cmdargs < <(grep EXE: /tmp/test_tkg_config_cc | cut -d: -f2-)
-         echo $TKG --file /tmp/test_tkg_config_cc --configdir ${TKG_CONFIG_DIR} --log_file /tmp/"$t"_cc.log config cluster "${cmdargs[@]}"
-         $TKG --file /tmp/test_tkg_config_cc --configdir ${TKG_CONFIG_DIR} --log_file /tmp/"$t"_cc.log config cluster "${cmdargs[@]}" 2>/tmp/err_cc.txt 1>/tmp/expected_cc.yaml
-         #normalize_cc /tmp/expected_cc.yaml ${outputdir}/"$t".cc.output
-         cp /tmp/expected_cc.yaml ${outputdir}/"$t".cc.output
-         ${CLUSTERCTL} alpha generate-normalized-topology -p -f ${outputdir}/"$t".cc.output > /tmp/"$t".cc.gnt.yaml
-         denoise_dryrun /tmp/"$t".cc.gnt.yaml ${outputdircc}/"$t".cc.norm.output
+      if [[ $RESULT -eq 0 ]]; then
+        # XXX fixup plan, hard code cluster class
+        cat "$t" | perl -pe 's/--plan (\S+)/--plan $1cc/; s/_PLAN: (\S+)/_PLAN: $1cc/' > /tmp/test_tkg_config_cc
+        echo "CLUSTER_CLASS: tkg-${infra}-default" >> /tmp/test_tkg_config_cc
+        read -r -a cmdargs < <(grep EXE: /tmp/test_tkg_config_cc | cut -d: -f2-)
+        cat <<- EOF >> /tmp/test_tkg_config_cc
+TKR_DATA: |-
+  v1.21.2:
+    kubernetesSpec:
+      version: v1.21.2
+      imageRepository: projects-stg.registry.vmware.com
+      etcd:
+        imageTag: v1.0.0-test
+      coredns:
+        imageTag: v1.1.0-test
+      kube-vip:
+        imageTag: v2.0.0-test
+    labels:
+      os-name: ubuntu
+      os-type: linux
+      os-arch: amd64
+  v1.23.5+vmware.1:
+    kubernetesSpec:
+      version: v1.23.5+vmware.1
+      imageRepository: projects-stg.registry.vmware.com
+      etcd:
+        imageTag: v1.0.0-test
+      coredns:
+        imageTag: v1.1.0-test
+      kube-vip:
+        imageTag: v2.0.0-test
+    labels:
+      os-name: ubuntu
+      os-type: linux
+      os-arch: amd64
+    osImageRef:
+      id: test-ami-id
+      region: test-region
+      sku: test-sku
+      publisher: test-publisher
+      offer: test-offer
+      version: test-version
+      thirdPartyImage: test-third-party-image
+EOF
+        echo $TKG --file /tmp/test_tkg_config_cc --configdir ${TKG_CONFIG_DIR} --log_file /tmp/"$t"_cc.log config cluster "${cmdargs[@]}"
+        $TKG --file /tmp/test_tkg_config_cc --configdir ${TKG_CONFIG_DIR} --log_file /tmp/"$t"_cc.log config cluster "${cmdargs[@]}" 2>/tmp/err_cc.txt 1>/tmp/expected_cc.yaml
+        #normalize_cc /tmp/expected_cc.yaml ${outputdir}/"$t".cc.output
+        cp /tmp/expected_cc.yaml ${outputdir}/"$t".cc.output
+        ${CLUSTERCTL} alpha generate-normalized-topology -p -f ${outputdir}/"$t".cc.output > /tmp/"$t".cc.gnt.yaml
+        denoise_dryrun /tmp/"$t".cc.gnt.yaml ${outputdircc}/"$t".cc.norm.output
 
-         echo generate_diff_summary "${outputdircc}","$t"
-         generate_diff_summary ${outputdircc} $t
-       fi
+        echo generate_diff_summary "${outputdircc}","$t"
+        generate_diff_summary ${outputdircc} $t
+      fi
     fi
   done
   popd
