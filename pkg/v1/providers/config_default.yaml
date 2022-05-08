@@ -652,6 +652,8 @@ VSPHERE_VERSION:
 CORE_DNS_IP:
 #! This defines feature flag package-based-lcm is enabled or not
 FEATURE_FLAG_PACKAGE_BASED_LCM:
+#! Used for testing clusterclasses only
+TKR_DATA:
 
 #! ---------------------------------------------------------------------
 #! BoM file processing, internal use only
