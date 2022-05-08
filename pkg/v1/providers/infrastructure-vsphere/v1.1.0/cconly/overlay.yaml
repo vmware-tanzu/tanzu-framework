@@ -1,8 +1,6 @@
 #@ load("@ytt:overlay", "overlay")
 #@ load("@ytt:data", "data")
 
-#@ if not data.values.IS_WINDOWS_WORKLOAD_CLUSTER:
-
 #@overlay/match by=overlay.subset({"kind":"ClusterClass"})
 ---
 apiVersion: cluster.x-k8s.io/v1beta1
@@ -33,7 +31,7 @@ spec:
       namespace: #@ data.values.NAMESPACE
   workers:
     machineDeployments:
-    #@overlay/match by=overlay.index(0)
+    #@overlay/match by="class"
     - class: tkg-worker
       machineHealthCheck:
         #@ if data.values.ENABLE_MHC or data.values.ENABLE_MHC_WORKER_NODE:
@@ -56,5 +54,26 @@ spec:
             name: tkg-vsphere-worker
             namespace: #@ data.values.NAMESPACE
 
-#@ end
+    #@overlay/match by="class", missing_ok=True
+    - class: tkg-worker-windows
+      machineHealthCheck:
+        #@ if data.values.ENABLE_MHC or data.values.ENABLE_MHC_WORKER_NODE:
+        nodeStartupTimeout: #@ data.values.NODE_STARTUP_TIMEOUT
+        unhealthyConditions:
+        - type: Ready
+          status: Unknown
+          timeout: #@ data.values.MHC_UNKNOWN_STATUS_TIMEOUT
+        - type: Ready
+          status: "False"
+          timeout: #@ data.values.MHC_FALSE_STATUS_TIMEOUT
+        #@ end
+      template:
+        bootstrap:
+          ref:
+            name: tkg-vsphere-md-0
+            namespace: #@ data.values.NAMESPACE
+        infrastructure:
+          ref:
+            name: tkg-vsphere-worker
+            namespace: #@ data.values.NAMESPACE
 
