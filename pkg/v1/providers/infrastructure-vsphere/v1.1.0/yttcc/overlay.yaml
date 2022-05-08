@@ -12,8 +12,6 @@
 #@ bomDataForK8sVersion = get_bom_data_for_tkr_name()
 #@ bomData = get_default_tkg_bom_data()
 
-#@ if not data.values.IS_WINDOWS_WORKLOAD_CLUSTER:
-
 #@overlay/match by=overlay.subset({"kind":"Cluster"})
 ---
 apiVersion: cluster.x-k8s.io/v1beta1
@@ -48,6 +46,7 @@ spec:
       replicas: #@ data.values.CONTROL_PLANE_MACHINE_COUNT
     workers:
       machineDeployments:
+      #@ if not data.values.IS_WINDOWS_WORKLOAD_CLUSTER:
       #@overlay/match by=overlay.index(0)
       - class: tkg-worker
         name: md-0
@@ -57,7 +56,7 @@ spec:
         #@overlay/match missing_ok=True
         failureDomain: #@ data.values.VSPHERE_AZ_0
         #@ end
-      #@ if data.values.CLUSTER_PLAN == "prod":
+      #@ if data.values.CLUSTER_PLAN == "prodcc":
       #@overlay/append
       - class: tkg-worker
         name: md-1
@@ -72,6 +71,29 @@ spec:
         #@ if data.values.VSPHERE_AZ_2:
         failureDomain: #@ data.values.VSPHERE_AZ_2
         #@ end
+      #@ end
+      #@ else:
+      #@overlay/match by=overlay.index(0)
+      #@overlay/replace
+      - class: tkg-worker-windows
+        name: md-0
+        replicas: #@ data.values.WORKER_MACHINE_COUNT
+      #@ if data.values.CLUSTER_PLAN == "prodcc":
+      #@overlay/append
+      - class: tkg-worker-windows
+        name: md-1
+        replicas: #@ data.values.WORKER_MACHINE_COUNT_1
+        #@ if data.values.VSPHERE_AZ_1:
+        failureDomain: #@ data.values.VSPHERE_AZ_1
+        #@ end
+      #@overlay/append
+      - class: tkg-worker-windows
+        name: md-2
+        replicas: #@ data.values.WORKER_MACHINE_COUNT_2
+        #@ if data.values.VSPHERE_AZ_2:
+        failureDomain: #@ data.values.VSPHERE_AZ_2
+        #@ end
+      #@ end
       #@ end
     #@overlay/match missing_ok=True
     variables:
@@ -91,5 +113,3 @@ metadata:
 stringData:
   username: #@ data.values.VSPHERE_USERNAME
   password: #@ data.values.VSPHERE_PASSWORD
-
-#@ end
