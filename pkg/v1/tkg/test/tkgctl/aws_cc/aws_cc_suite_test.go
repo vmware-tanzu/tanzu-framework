@@ -7,12 +7,13 @@ package aws_cc
 import (
 	"context"
 	"fmt"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/test/framework/exec"
 	"os"
 	"path/filepath"
 	"strings"
 	"testing"
 	"time"
+
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/test/framework/exec"
 
 	. "github.com/onsi/ginkgo"
 	"github.com/onsi/ginkgo/config"
