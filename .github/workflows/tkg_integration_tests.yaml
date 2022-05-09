@@ -290,7 +290,7 @@ jobs:
           fi
           make configure-bom
           make generate-embedproviders
-          E2E_CONFIG=$PWD/pkg/v1/tkg/test/config/aws.yaml hack/tools/bin/ginkgo -nodes=3 -v -trace -tags embedproviders pkg/v1/tkg/test/tkgctl/aws_cc 
+          E2E_CONFIG=$PWD/pkg/v1/tkg/test/config/aws.yaml hack/tools/bin/ginkgo -nodes=3 -v -trace -tags embedproviders pkg/v1/tkg/test/tkgctl/aws_cc
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
