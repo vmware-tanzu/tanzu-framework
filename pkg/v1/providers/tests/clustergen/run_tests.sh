@@ -6,7 +6,8 @@
 SCRIPT=$(realpath "${BASH_SOURCE[0]}")
 TESTROOT=$(dirname "$SCRIPT")
 TKG=${TKG:-${TESTROOT}/../../bin/tkg-darwin-amd64}
-CLUSTERCTL=${CLUSTERCTL:-~/cluster-api/bin/clusterctl}
+#CLUSTERCTL=${CLUSTERCTL:-~/cluster-api/bin/clusterctl}
+CLUSTERCTL=/usr/local/bin/clusterctl
 TESTDATA=${TESTDATA:-testdata}
 CASES=${CASES:-*.case}
 BUILDER_IMAGE=gcr.io/eminent-nation-87317/tkg-go-ci:latest
