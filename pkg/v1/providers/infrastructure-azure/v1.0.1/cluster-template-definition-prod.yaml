@@ -1,3 +1,6 @@
+#! This is dummy cluster template file that enables the client library 
+#! to create/upgrade when connecting older patch versions of the management cluster. 
+#! Not relevant when operations is invoked directly via the CLI.
 apiVersion: providers.tanzu.vmware.com/v1alpha1
 kind: TemplateDefinition
 spec:
