@@ -34,7 +34,7 @@ import (
 	controllreruntimefake "sigs.k8s.io/controller-runtime/pkg/client/fake"
 )
 
-var _ = Describe("Clusterbootstrap", func() {
+var _ = Describe("ClusterbootstrapClone", func() {
 	var (
 		helper                        *Helper
 		fakeClient                    client.Client
@@ -96,7 +96,7 @@ var _ = Describe("Clusterbootstrap", func() {
 			helper.DynamicClient = fakeDynamicClient
 		})
 		It("should succeed to ensure owner references", func() {
-			clusterbootstrap := constructFakeClusterBootstrap()
+			clusterbootstrap := constructFakeEmptyClusterBootstrap()
 			secrets := []*corev1.Secret{constructFakeSecret()}
 			unstructuredObj := convertToUnstructured(constructFakeAntreaConfig())
 			providers := []*unstructured.Unstructured{unstructuredObj}
@@ -128,7 +128,7 @@ var _ = Describe("Clusterbootstrap", func() {
 	Context("Verify cloneProviderRef()", func() {
 		BeforeEach(func() {
 			cluster = constructFakeCluster()
-			antreaClusterbootstrapPackage = constructFakeAntreaClusterBootstrapPackageWithProviderRef()
+			antreaClusterbootstrapPackage = constructFakeClusterBootstrapPackageWithAntreaProviderRef()
 		})
 		It("should fail if provider dose not exist", func() {
 			// reset dynamic client
@@ -153,7 +153,7 @@ var _ = Describe("Clusterbootstrap", func() {
 	Context("Verify cloneSecretRef()", func() {
 		BeforeEach(func() {
 			cluster = constructFakeCluster()
-			antreaClusterbootstrapPackage = constructFakeAntreaClusterBootstrapPackageWithSecretRef()
+			antreaClusterbootstrapPackage = constructFakeClusterBootstrapPackageWithSecretRef()
 		})
 		It("should fail if secret dose not exist", func() {
 			createdOrUpdatedProvider, err := helper.cloneSecretRef(cluster, antreaClusterbootstrapPackage, fakeAntreaCarvelPkgRefName, fakeSourceNamespace)
@@ -176,7 +176,7 @@ var _ = Describe("Clusterbootstrap", func() {
 	Context("Verify createSecretFromInline()", func() {
 		BeforeEach(func() {
 			cluster = constructFakeCluster()
-			antreaClusterbootstrapPackage = constructFakeAntreaClusterBootstrapPackageWithInlineRef()
+			antreaClusterbootstrapPackage = constructFakeClusterBootstrapPackageWithInlineRef()
 		})
 		It("", func() {
 			createdSecret, err := helper.createSecretFromInline(cluster, antreaClusterbootstrapPackage, fakeAntreaCarvelPkgRefName)
@@ -208,21 +208,21 @@ var _ = Describe("Clusterbootstrap", func() {
 			Expect(err).NotTo(HaveOccurred())
 		})
 		It("should success when ValuesFrom.Inline is not empty", func() {
-			bootstrapPackage := constructFakeAntreaClusterBootstrapPackageWithInlineRef()
+			bootstrapPackage := constructFakeClusterBootstrapPackageWithInlineRef()
 			clonedSecret, clonedProvider, err := helper.cloneReferencedObjectsFromCBPackage(cluster, bootstrapPackage, fakeAntreaCarvelPkgRefName, fakeSourceNamespace)
 			Expect(clonedSecret).NotTo(BeNil())
 			Expect(clonedProvider).To(BeNil())
 			Expect(err).NotTo(HaveOccurred())
 		})
 		It("should success when ValuesFrom.ProviderRef is not empty", func() {
-			bootstrapPackage := constructFakeAntreaClusterBootstrapPackageWithProviderRef()
+			bootstrapPackage := constructFakeClusterBootstrapPackageWithAntreaProviderRef()
 			clonedSecret, clonedProvider, err := helper.cloneReferencedObjectsFromCBPackage(cluster, bootstrapPackage, fakeAntreaCarvelPkgRefName, fakeSourceNamespace)
 			Expect(clonedSecret).To(BeNil())
 			Expect(clonedProvider).NotTo(BeNil())
 			Expect(err).NotTo(HaveOccurred())
 		})
 		It("should return error when ValuesFrom.SecretRef is not empty but dose not exist", func() {
-			bootstrapPackage := constructFakeAntreaClusterBootstrapPackageWithSecretRef()
+			bootstrapPackage := constructFakeClusterBootstrapPackageWithSecretRef()
 			clonedSecret, clonedProvider, err := helper.cloneReferencedObjectsFromCBPackage(cluster, bootstrapPackage, fakeAntreaCarvelPkgRefName, fakeSourceNamespace)
 			Expect(clonedSecret).To(BeNil())
 			Expect(clonedProvider).To(BeNil())
@@ -242,7 +242,7 @@ var _ = Describe("Clusterbootstrap", func() {
 		})
 		It("should return empty objects with error when no carvel package metadata is found", func() {
 			clonedSecrets, clonedProviders, err := helper.CloneReferencedObjectsFromCBPackages(cluster,
-				[]*v1alpha3.ClusterBootstrapPackage{constructFakeAntreaClusterBootstrapPackageWithProviderRef()},
+				[]*v1alpha3.ClusterBootstrapPackage{constructFakeClusterBootstrapPackageWithAntreaProviderRef()},
 				fakeSourceNamespace)
 			Expect(clonedSecrets).To(BeNil())
 			Expect(clonedProviders).To(BeNil())
@@ -253,7 +253,7 @@ var _ = Describe("Clusterbootstrap", func() {
 			err := fakeClient.Create(context.TODO(), constructAntreaCarvelPackage(cluster.Namespace))
 			Expect(err).To(BeNil())
 			clonedSecrets, clonedProviders, err := helper.CloneReferencedObjectsFromCBPackages(cluster,
-				[]*v1alpha3.ClusterBootstrapPackage{constructFakeAntreaClusterBootstrapPackageWithProviderRef()},
+				[]*v1alpha3.ClusterBootstrapPackage{constructFakeClusterBootstrapPackageWithAntreaProviderRef()},
 				fakeSourceNamespace)
 			Expect(clonedSecrets).To(BeNil())
 			Expect(len(clonedProviders)).To(Equal(1))
@@ -270,7 +270,7 @@ var _ = Describe("Clusterbootstrap", func() {
 			Expect(err).NotTo(HaveOccurred())
 
 			clonedSecrets, clonedProviders, err := helper.CloneReferencedObjectsFromCBPackages(cluster,
-				[]*v1alpha3.ClusterBootstrapPackage{constructFakeAntreaClusterBootstrapPackageWithSecretRef()},
+				[]*v1alpha3.ClusterBootstrapPackage{constructFakeClusterBootstrapPackageWithSecretRef()},
 				fakeSourceNamespace)
 			Expect(len(clonedSecrets)).To(Equal(1))
 			Expect(clonedProviders).To(BeNil())
@@ -284,7 +284,7 @@ var _ = Describe("Clusterbootstrap", func() {
 		)
 		BeforeEach(func() {
 			cluster = constructFakeCluster()
-			clusterbootstrapTemplate = constructFakeClusterBootstrapTemplate()
+			clusterbootstrapTemplate = constructFakeClusterBootstrapTemplateWithCNI()
 		})
 		It("should return clusterbootstrap without error", func() {
 			// Create a fake antrea carvel package
@@ -299,6 +299,86 @@ var _ = Describe("Clusterbootstrap", func() {
 		})
 
 	})
+
+	Context("Verify AddDefaultsFromTemplate()", func() {
+		var fakeClusterBootstrapTemplate *v1alpha3.ClusterBootstrapTemplate
+		BeforeEach(func() {
+			fakeClusterBootstrapTemplate = constructFakeClusterBootstrapTemplateWithCNI()
+		})
+		It("should add what ClusterBootstrapTemplate has to the empty ClusterBootstrap", func() {
+			emptyClusterBootstrap := &v1alpha3.ClusterBootstrap{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      "fake-clusterbootstrap",
+					Namespace: "fake-cluster-ns",
+					UID:       "uid",
+				},
+				Spec: &v1alpha3.ClusterBootstrapTemplateSpec{},
+			}
+
+			updatedClusterBootstrap, err := helper.AddMissingSpecFromTemplate(fakeClusterBootstrapTemplate, emptyClusterBootstrap)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(updatedClusterBootstrap.Spec).NotTo(BeNil())
+			Expect(updatedClusterBootstrap.Spec.CNI).NotTo(BeNil())
+			Expect(updatedClusterBootstrap.Spec.CNI.RefName).To(Equal(fakeClusterBootstrapTemplate.Spec.CNI.RefName))
+			Expect(updatedClusterBootstrap.Spec.CNI.ValuesFrom.ProviderRef.Name).To(Equal(fakeClusterBootstrapTemplate.Spec.CNI.ValuesFrom.ProviderRef.Name))
+			Expect(updatedClusterBootstrap.Spec.CNI.ValuesFrom.ProviderRef.Kind).To(Equal(fakeClusterBootstrapTemplate.Spec.CNI.ValuesFrom.ProviderRef.Kind))
+
+			// Spec.Paused is not set in fakeClusterBootstrapTemplate, it should be false
+			Expect(updatedClusterBootstrap.Spec.Paused).To(BeFalse())
+			// The ClusterBootstrapPackage not set in fakeClusterBootstrapTemplate. They should not be copied
+			Expect(updatedClusterBootstrap.Spec.CPI).To(BeNil())
+			Expect(updatedClusterBootstrap.Spec.CSI).To(BeNil())
+			Expect(updatedClusterBootstrap.Spec.Kapp).To(BeNil())
+			Expect(updatedClusterBootstrap.Spec.AdditionalPackages).To(BeNil())
+		})
+
+		It("should not overwrite the components which already exist", func() {
+			antreaAPIGroup := antreaconfigv1alpha1.GroupVersion.Group
+			fakeCPIClusterBootstrapPackage := constructFakeClusterBootstrapPackageWithSecretRef()
+			fakeCSIClusterBootstrapPackage := constructFakeClusterBootstrapPackageWithInlineRef()
+			// Update fakeClusterBootstrapTemplate by adding a fake CPI and CSI package
+			fakeClusterBootstrapTemplate.Spec.CPI = fakeCPIClusterBootstrapPackage
+			fakeClusterBootstrapTemplate.Spec.CSI = fakeCSIClusterBootstrapPackage
+
+			fakeClusterBootstrap := &v1alpha3.ClusterBootstrap{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      "fake-clusterbootstrap",
+					Namespace: "fake-cluster-ns",
+					UID:       "uid",
+				},
+				Spec: &v1alpha3.ClusterBootstrapTemplateSpec{
+					// We do not expect this part to be overwritten to be what fakeClusterBootstrapTemplate has
+					CNI: &v1alpha3.ClusterBootstrapPackage{
+						RefName: "foo-antrea-clusterbootstrarp-package",
+						ValuesFrom: &v1alpha3.ValuesFrom{
+							ProviderRef: &corev1.TypedLocalObjectReference{
+								APIGroup: &antreaAPIGroup,
+								Kind:     "AntreaConfig",
+								Name:     "fooAntreaConfig",
+							},
+						},
+					},
+				},
+			}
+
+			updatedClusterBootstrap, err := helper.AddMissingSpecFromTemplate(fakeClusterBootstrapTemplate, fakeClusterBootstrap)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(updatedClusterBootstrap.Spec.CNI).NotTo(BeNil())
+			// We do not expect the RefName and ValuesFrom gets overwritten if they already exist
+			Expect(updatedClusterBootstrap.Spec.CNI.RefName).To(Equal(fakeClusterBootstrap.Spec.CNI.RefName))
+			Expect(updatedClusterBootstrap.Spec.CNI.ValuesFrom.ProviderRef.Kind).To(Equal(fakeClusterBootstrap.Spec.CNI.ValuesFrom.ProviderRef.Kind))
+			Expect(updatedClusterBootstrap.Spec.CNI.ValuesFrom.ProviderRef.Name).To(Equal(fakeClusterBootstrap.Spec.CNI.ValuesFrom.ProviderRef.Name))
+			// CPI should be added to updatedClusterBootstrap
+			Expect(updatedClusterBootstrap.Spec.CPI).NotTo(BeNil())
+			Expect(updatedClusterBootstrap.Spec.CPI.ValuesFrom.SecretRef).To(Equal(fakeCPIClusterBootstrapPackage.ValuesFrom.SecretRef))
+			// CSI should be added to updatedClusterBootstrap
+			Expect(updatedClusterBootstrap.Spec.CSI).NotTo(BeNil())
+			assertTwoMapsShouldEqual(updatedClusterBootstrap.Spec.CPI.ValuesFrom.Inline, fakeCSIClusterBootstrapPackage.ValuesFrom.Inline)
+			// The ClusterBootstrapPackage not set in fakeClusterBootstrapTemplate. They should not be copied
+			Expect(updatedClusterBootstrap.Spec.Kapp).To(BeNil())
+			Expect(updatedClusterBootstrap.Spec.AdditionalPackages).To(BeNil())
+		})
+	})
 })
 
 func convertToUnstructured(obj runtime.Object) *unstructured.Unstructured {
@@ -310,24 +390,24 @@ func convertToUnstructured(obj runtime.Object) *unstructured.Unstructured {
 	}
 }
 
-func constructFakeClusterBootstrapTemplate() *v1alpha3.ClusterBootstrapTemplate {
+func constructFakeClusterBootstrapTemplateWithCNI() *v1alpha3.ClusterBootstrapTemplate {
 	return &v1alpha3.ClusterBootstrapTemplate{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "fake-clusterbootstrap-template",
 			Namespace: "fake-ns",
 		},
 		Spec: &v1alpha3.ClusterBootstrapTemplateSpec{
-			CNI: constructFakeAntreaClusterBootstrapPackageWithProviderRef(),
+			CNI: constructFakeClusterBootstrapPackageWithAntreaProviderRef(),
 		},
 	}
 }
 
-var AntreaCBPackageRefName = "fake-antrea-clusterbootstrarp-package"
+var fakeCBPackageRefName = "fake-clusterbootstrarp-package"
 
 func constructAntreaCarvelPackage(namespace string) *kapppkgv1alpha1.Package {
 	return &kapppkgv1alpha1.Package{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      AntreaCBPackageRefName,
+			Name:      fakeCBPackageRefName,
 			Namespace: namespace,
 		},
 		Spec: kapppkgv1alpha1.PackageSpec{
@@ -336,29 +416,29 @@ func constructAntreaCarvelPackage(namespace string) *kapppkgv1alpha1.Package {
 	}
 }
 
-func constructFakeAntreaClusterBootstrapPackageWithSecretRef() *v1alpha3.ClusterBootstrapPackage {
+func constructFakeClusterBootstrapPackageWithSecretRef() *v1alpha3.ClusterBootstrapPackage {
 	return &v1alpha3.ClusterBootstrapPackage{
-		RefName: AntreaCBPackageRefName,
+		RefName: fakeCBPackageRefName,
 		ValuesFrom: &v1alpha3.ValuesFrom{
 			SecretRef: "fake-secret",
 		},
 	}
 }
 
-func constructFakeAntreaClusterBootstrapPackageWithInlineRef() *v1alpha3.ClusterBootstrapPackage {
+func constructFakeClusterBootstrapPackageWithInlineRef() *v1alpha3.ClusterBootstrapPackage {
 	return &v1alpha3.ClusterBootstrapPackage{
-		RefName: AntreaCBPackageRefName,
+		RefName: fakeCBPackageRefName,
 		ValuesFrom: &v1alpha3.ValuesFrom{
 			Inline: map[string]interface{}{"foo": "bar"},
 		},
 	}
 }
 
-func constructFakeAntreaClusterBootstrapPackageWithProviderRef() *v1alpha3.ClusterBootstrapPackage {
+func constructFakeClusterBootstrapPackageWithAntreaProviderRef() *v1alpha3.ClusterBootstrapPackage {
 	antreaAPIGroup := antreaconfigv1alpha1.GroupVersion.Group
 	antreaConfig := constructFakeAntreaConfig()
 	return &v1alpha3.ClusterBootstrapPackage{
-		RefName: AntreaCBPackageRefName,
+		RefName: fakeCBPackageRefName,
 		ValuesFrom: &v1alpha3.ValuesFrom{
 			ProviderRef: &corev1.TypedLocalObjectReference{
 				APIGroup: &antreaAPIGroup,
@@ -390,7 +470,7 @@ func constructFakeSecret() *corev1.Secret {
 	}
 }
 
-func constructFakeClusterBootstrap() *v1alpha3.ClusterBootstrap {
+func constructFakeEmptyClusterBootstrap() *v1alpha3.ClusterBootstrap {
 	return &v1alpha3.ClusterBootstrap{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "fake-clusterbootstrap",
@@ -442,6 +522,14 @@ func constructFakeAntreaConfig() *antreaconfigv1alpha1.AntreaConfig {
 				AntreaConfigDataValue: antreaconfigv1alpha1.AntreaConfigDataValue{TrafficEncapMode: "encap"},
 			},
 		},
+	}
+}
+
+func assertTwoMapsShouldEqual(left, right map[string]interface{}) {
+	for keyFromLeft, valueFromLeft := range left {
+		valueFromRight, exist := right[keyFromLeft]
+		Expect(exist).To(BeTrue())
+		Expect(valueFromLeft).To(Equal(valueFromRight))
 	}
 }
 

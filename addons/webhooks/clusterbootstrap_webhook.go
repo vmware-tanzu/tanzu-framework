@@ -6,6 +6,7 @@ package webhooks
 import (
 	"context"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/pkg/errors"
@@ -27,6 +28,7 @@ import (
 	"github.com/vmware-tanzu/carvel-vendir/pkg/vendir/versions"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/util"
+	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/util/clusterbootstrapclone"
 	runv1alpha3 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
 )
 
@@ -82,7 +84,44 @@ var _ webhook.CustomValidator = &ClusterBootstrap{}
 
 // Default implements webhook.Defaulter so a webhook will be registered for the type
 func (wh *ClusterBootstrap) Default(ctx context.Context, obj runtime.Object) error {
-	// TODO: Placeholder for future work https://github.com/vmware-tanzu/tanzu-framework/issues/1916
+	clusterBootstrap, ok := obj.(*runv1alpha3.ClusterBootstrap)
+	if !ok {
+		return apierrors.NewBadRequest(fmt.Sprintf("expected a ClusterBootstrap but got a %T", obj))
+	}
+
+	var annotationValue string // <Namespace>/<Name>
+	var annotationExist bool
+	if clusterBootstrap.Annotations != nil {
+		annotationValue, annotationExist = clusterBootstrap.Annotations[constants.AddCBMissingFieldsAnnotationKey]
+	}
+	if !annotationExist {
+		// It is a no-op if the annotation does not exist or the annotation value is empty
+		return nil
+	}
+
+	clusterbootstraplog.Info("attempt to add defaults", "name", clusterBootstrap.Name)
+	valueSegments := strings.Split(annotationValue, "/")
+	if len(valueSegments) != 2 {
+		err := fmt.Errorf("invalid value for annotation: %s. The value needs to be <Namespace>/<Name>",
+			constants.AddCBMissingFieldsAnnotationKey)
+		clusterbootstraplog.Error(err, fmt.Sprintf("unable to add defaults to the missing fields of ClusterBootstrap %s/%s",
+			clusterBootstrap.Namespace, clusterBootstrap.Name))
+		return err
+	}
+	namespace, name := valueSegments[0], valueSegments[1]
+	clusterBootstrapTemplate := &runv1alpha3.ClusterBootstrapTemplate{}
+	if err := wh.Client.Get(ctx, client.ObjectKey{Namespace: namespace, Name: name}, clusterBootstrapTemplate); err != nil {
+		clusterbootstraplog.Error(err, fmt.Sprintf("unable to add defaults to the missing fields of ClusterBootstrap %s/%s",
+			clusterBootstrap.Namespace, clusterBootstrap.Name))
+		return err
+	}
+	helper := clusterbootstrapclone.Helper{Logger: clusterbootstraplog}
+	if _, err := helper.AddMissingSpecFromTemplate(clusterBootstrapTemplate, clusterBootstrap); err != nil {
+		clusterbootstraplog.Error(err, fmt.Sprintf("unable to add defaults to the missing fields of ClusterBootstrap %s/%s",
+			clusterBootstrap.Namespace, clusterBootstrap.Name))
+		return err
+	}
+
 	return nil
 }
 
@@ -201,6 +240,7 @@ func (wh *ClusterBootstrap) validateValuesFrom(ctx context.Context, valuesFrom *
 	return nil
 }
 
+// TODO: Consider to use provider_util.go#GetGVRForGroupKind()
 // getGVR returns a GroupVersionResource for a GroupKind
 func (wh *ClusterBootstrap) getGVR(gk schema.GroupKind) (*schema.GroupVersionResource, error) {
 	if gvr, ok := wh.providerGVR[gk]; ok {

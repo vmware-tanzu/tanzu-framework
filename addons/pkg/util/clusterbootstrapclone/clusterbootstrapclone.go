@@ -6,6 +6,7 @@ package clusterbootstrapclone
 import (
 	"context"
 	"fmt"
+	"reflect"
 
 	"github.com/go-logr/logr"
 	"gopkg.in/yaml.v3"
@@ -13,6 +14,7 @@ import (
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
+	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/discovery"
@@ -55,11 +57,68 @@ func NewHelper(ctx context.Context, k8sClient client.Client, aggregateAPIResourc
 	}
 }
 
-// AddDefaultsFromTemplate scans clusterBootstrap's fields. For fields which are not specified, it adds defaults from clusterBootstrapTemplate
-func (h *Helper) AddDefaultsFromTemplate(clusterBootstrap *runtanzuv1alpha3.ClusterBootstrap,
-	clusterBootstrapTemplate *runtanzuv1alpha3.ClusterBootstrapTemplate) (*runtanzuv1alpha3.ClusterBootstrap, error) {
-	// TODO: https://github.com/vmware-tanzu/tanzu-framework/issues/1916
-	return nil, nil
+// AddMissingSpecFromTemplate scans clusterBootstrap's fields. For fields which are not specified, it adds defaults from
+// clusterBootstrapTemplate
+func (h *Helper) AddMissingSpecFromTemplate(clusterBootstrapTemplate *runtanzuv1alpha3.ClusterBootstrapTemplate,
+	clusterBootstrap *runtanzuv1alpha3.ClusterBootstrap) (*runtanzuv1alpha3.ClusterBootstrap, error) {
+
+	converter := runtime.DefaultUnstructuredConverter
+	var copyFrom map[string]interface{}
+	var target map[string]interface{}
+	var err error
+	// DeepCopy() here is to make sure to handle the pointer fields properly. We do not want any changes in clusterBootstrapTemplate
+	// have side effects on the ClusterBootstrap object
+	if copyFrom, err = converter.ToUnstructured(clusterBootstrapTemplate.Spec.DeepCopy()); err != nil {
+		return nil, err
+	}
+	if target, err = converter.ToUnstructured(clusterBootstrap.Spec.DeepCopy()); err != nil {
+		return nil, err
+	}
+	if err = assignMissingFields(copyFrom, target); err != nil {
+		return nil, err
+	}
+	updatedTemplateSpec := &runtanzuv1alpha3.ClusterBootstrapTemplateSpec{}
+	if err = converter.FromUnstructured(target, updatedTemplateSpec); err != nil {
+		return nil, err
+	}
+	clusterBootstrap.Spec = updatedTemplateSpec
+	return clusterBootstrap, nil
+}
+
+func assignMissingFields(copyFrom, destination map[string]interface{}) error {
+	for keyInFrom, valueInFrom := range copyFrom {
+		valueInTarget, exist := destination[keyInFrom]
+		if !exist || valueInTarget == nil {
+			// If keyInFrom does not exist in addMissingTo or valueInTo is nil, we need to copy valueInFrom and add to
+			// addMissingTo.
+			if valueInFrom != nil {
+				valueInFromType := reflect.TypeOf(valueInFrom)
+				if valueInFromType.Kind() == reflect.Map {
+					copiedVal, _, copyErr := unstructured.NestedFieldCopy(valueInFrom.(map[string]interface{}))
+					if copyErr != nil {
+						return nil
+					}
+					destination[keyInFrom] = copiedVal
+				} else {
+					// TODO: Handle the primitive pointer, e.g., *int. Ideally we need to make a copy of the pointer
+					// instead of reassigning directly. It is a shallow copy with current approach, copyFrom and destination
+					// share the same underlying data. We are good at the moment because this function is internally
+					// used for handling ClusterBootstrapTemplateSpec which does not have any primitive pointers in its
+					// API definition.
+					destination[keyInFrom] = valueInFrom
+				}
+			}
+		} else {
+			// If keyInFrom exists in addMissingTo, recursively look inside the nested fields.
+			if valueInFrom != nil && reflect.TypeOf(valueInFrom).Kind() == reflect.Map &&
+				valueInTarget != nil && reflect.TypeOf(valueInTarget).Kind() == reflect.Map {
+				if err := assignMissingFields(valueInFrom.(map[string]interface{}), valueInTarget.(map[string]interface{})); err != nil {
+					return err
+				}
+			}
+		}
+	}
+	return nil
 }
 
 // CreateClusterBootstrapFromTemplate does the following:
