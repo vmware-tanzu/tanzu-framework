@@ -537,12 +537,12 @@ func (c *TkgClient) ConfigureAndValidateWorkloadClusterConfiguration(options *Cr
 		}
 	}
 
-	name, _, err := ParseProviderName(infraProvider)
+	providerName, _, err := ParseProviderName(infraProvider)
 	if err != nil {
 		return err
 	}
 
-	if err = c.ConfigureAndValidateHTTPProxyConfiguration(name); err != nil {
+	if err = c.ConfigureAndValidateHTTPProxyConfiguration(providerName); err != nil {
 		return NewValidationError(ValidationErrorCode, err.Error())
 	}
 
@@ -581,11 +581,24 @@ func (c *TkgClient) ConfigureAndValidateWorkloadClusterConfiguration(options *Cr
 		return NewValidationError(ValidationErrorCode, err.Error())
 	}
 
+	if err = c.validateServiceCIDRNetmask(); err != nil {
+		return NewValidationError(ValidationErrorCode, err.Error())
+	}
+
 	if err = c.ConfigureAndValidateNameserverConfiguration(TkgLabelClusterRoleWorkload); err != nil {
 		return NewValidationError(ValidationErrorCode, err.Error())
 	}
 
-	switch name {
+	if err := c.configureAndValidateProviderConfig(providerName, options, clusterClient, skipValidation); err != nil {
+		return err
+	}
+
+	return c.ValidateSupportOfK8sVersionForManagmentCluster(clusterClient, options.KubernetesVersion, skipValidation)
+}
+
+// ValidateProviderConfig configure and validate based on provider
+func (c *TkgClient) configureAndValidateProviderConfig(providerName string, options *CreateClusterOptions, clusterClient clusterclient.Client, skipValidation bool) error {
+	switch providerName {
 	case AWSProviderName:
 		if err := c.ConfigureAndValidateAWSConfig(options.TKRVersion, options.NodeSizeOptions, skipValidation,
 			options.ClusterConfigOptions.ProviderRepositorySource.Flavor == constants.PlanProd, *options.WorkerMachineCount, clusterClient, false); err != nil {
@@ -608,8 +621,7 @@ func (c *TkgClient) ConfigureAndValidateWorkloadClusterConfiguration(options *Cr
 			return NewValidationError(ValidationErrorCode, err.Error())
 		}
 	}
-
-	return c.ValidateSupportOfK8sVersionForManagmentCluster(clusterClient, options.KubernetesVersion, skipValidation)
+	return nil
 }
 
 // ValidateSupportOfK8sVersionForManagmentCluster validate k8s version support for management cluster
