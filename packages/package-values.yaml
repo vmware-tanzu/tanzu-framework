@@ -188,3 +188,9 @@ repositories:
         domain: tanzu.vmware.com
         version: latest
         sha256: "capabilities:latest"
+      - name: tkg-storageclass
+        displayName: tkg-storageclass
+        path: packages/standalone/tkg-storageclass
+        domain: tanzu.vmware.com
+        version: latest
+        sha256: "tkg-storageclass:latest"

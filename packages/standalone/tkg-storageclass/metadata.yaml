@@ -1,0 +1,14 @@
+apiVersion: data.packaging.carvel.dev/v1alpha1
+kind: PackageMetadata
+metadata:
+  name: tkg-storageclass.tanzu.vmware.com
+  namespace: tanzu-package-repo-global
+spec:
+  displayName: "tkg-storageclass"
+  longDescription: "tkg-storageclass defines the storageclass resources for the cluster"
+  shortDescription: "Defines the storageclass resources for the cluster"
+  providerName: VMware
+  maintainers:
+    - name: "Sudarshan Aji"
+  categories:
+    - "storageclass"
