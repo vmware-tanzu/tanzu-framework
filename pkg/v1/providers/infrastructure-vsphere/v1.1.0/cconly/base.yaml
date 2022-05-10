@@ -831,18 +831,18 @@ spec:
           controlPlane: true
       jsonPatches:
       - op: add
-        path: /spec/template/spec/kubeadmConfigSpec/joinConfiguration/nodeRegistration/kubeletExtraArgs
+        path: /spec/template/spec/kubeadmConfigSpec/joinConfiguration/nodeRegistration/kubeletExtraArgs/node-labels
         valueFrom:
           template: |
-            node-labels: {{$first := true}}
-              {{- range $key, $val := (index .TKR_DATA .builtin.controlPlane.version).labels}}
-              {{- if $first }}
-                {{- $first = false }}
-              {{- else -}}
-                ,
-              {{- end }}
-              {{- $key }}={{- $val }}
-              {{- end}}
+            {{$first := true}}
+            {{- range $key, $val := (index .TKR_DATA .builtin.controlPlane.version).labels}}
+            {{- if $first }}
+              {{- $first = false }}
+            {{- else -}}
+              ,
+            {{- end }}
+            {{- $key }}={{- $val }}
+            {{- end}}
     - selector:
         apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
         kind: KubeadmConfigTemplate
@@ -852,18 +852,18 @@ spec:
             - "tkg-worker"
       jsonPatches:
       - op: add
-        path: /spec/template/spec/joinConfiguration/nodeRegistration/kubeletExtraArgs
+        path: /spec/template/spec/joinConfiguration/nodeRegistration/kubeletExtraArgs/node-labels
         valueFrom:
           template: |
-            node-labels: {{$first := true}}
-              {{- range $key, $val := (index .TKR_DATA .builtin.machineDeployment.version).labels}}
-              {{- if $first }}
-                {{- $first = false }}
-              {{- else -}}
-                ,
-              {{- end }}
-              {{- $key }}={{- $val }}
-              {{- end}}
+            {{$first := true}}
+            {{- range $key, $val := (index .TKR_DATA .builtin.machineDeployment.version).labels}}
+            {{- if $first }}
+              {{- $first = false }}
+            {{- else -}}
+              ,
+            {{- end }}
+            {{- $key }}={{- $val }}
+            {{- end}}
   - name: httpProxy
     enabledIf: '{{not (not .proxy)}}'
     definitions:
