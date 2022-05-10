@@ -7,6 +7,7 @@ import (
 	"encoding/base64"
 	"fmt"
 	"net"
+	"strings"
 
 	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
@@ -381,10 +382,10 @@ func (c *TkgClient) setNetworkingConfiguration(regionalClusterClient clusterclie
 
 	if cluster.Spec.ClusterNetwork != nil {
 		if cluster.Spec.ClusterNetwork.Pods != nil && len(cluster.Spec.ClusterNetwork.Pods.CIDRBlocks) > 0 {
-			c.TKGConfigReaderWriter().Set(constants.ConfigVariableClusterCIDR, cluster.Spec.ClusterNetwork.Pods.CIDRBlocks[0])
+			c.TKGConfigReaderWriter().Set(constants.ConfigVariableClusterCIDR, strings.Join(cluster.Spec.ClusterNetwork.Pods.CIDRBlocks, ","))
 		}
 		if cluster.Spec.ClusterNetwork.Services != nil && len(cluster.Spec.ClusterNetwork.Services.CIDRBlocks) > 0 {
-			c.TKGConfigReaderWriter().Set(constants.ConfigVariableServiceCIDR, cluster.Spec.ClusterNetwork.Services.CIDRBlocks[0])
+			c.TKGConfigReaderWriter().Set(constants.ConfigVariableServiceCIDR, strings.Join(cluster.Spec.ClusterNetwork.Services.CIDRBlocks, ","))
 		}
 		ipFamily, err := GetIPFamily(cluster)
 		if err != nil {
