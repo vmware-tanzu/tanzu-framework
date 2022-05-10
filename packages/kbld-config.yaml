@@ -7,6 +7,9 @@ overrides:
   #! capabilities
   - image: capabilities-controller-manager:latest
     newImage: ""
+  #! tanzu-auth-controller-manager
+  - image: tanzu-auth-controller-manager:latest
+    newImage: ""
   #! Core-Management-Plugins images
   #! tanzu-cliplugins linux-amd64
   - image: tanzu-cli-plugins/cluster-linux-amd64:latest
