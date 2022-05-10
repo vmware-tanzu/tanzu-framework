@@ -9,6 +9,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"strconv"
 	"time"
 
 	"sigs.k8s.io/yaml"
@@ -433,50 +434,19 @@ func (c *TkgClient) getAutoScalerValuesFileFromConfigs(options *CreateClusterOpt
 }
 
 func (c *TkgClient) GetAutoScalerValuesFileFromConfigs(clusterName, namespace, clusterRole, infrastructureProvider string) (string, error) {
-	autoScalerMap := map[string]string{
+	autoScalerConfigs := map[string]string{
 		constants.ConfigVariableClusterName:  clusterName,
 		constants.ConfigVariableNamespace:    namespace,
 		constants.ConfigVariableClusterRole:  clusterRole,
 		constants.ConfigVariableProviderType: infrastructureProvider,
 	}
 
-	autoscalerMaxNodesTotal, err := c.TKGConfigReaderWriter().Get(constants.ConfigVariableAutoscalerMaxNodesTotal)
+	err := c.populateAutoScalerConfigVariables(autoScalerConfigs)
 	if err != nil {
 		return "", err
 	}
-	autoScalerMap[constants.ConfigVariableAutoscalerMaxNodesTotal] = autoscalerMaxNodesTotal
 
-	autoscalerScaleDownDelayAfterAdd, err := c.TKGConfigReaderWriter().Get(constants.ConfigVariableScaleDownDelayAfterAdd)
-	if err != nil {
-		return "", err
-	}
-	autoScalerMap[constants.ConfigVariableScaleDownDelayAfterAdd] = autoscalerScaleDownDelayAfterAdd
-
-	autoscalerScaleDownDelayAfterDelete, err := c.TKGConfigReaderWriter().Get(constants.ConfigVariableAutoScalerScaleDownDelayAfterDelete)
-	if err != nil {
-		return "", err
-	}
-	autoScalerMap[constants.ConfigVariableAutoScalerScaleDownDelayAfterDelete] = autoscalerScaleDownDelayAfterDelete
-
-	autoscalerScaleDownDelayAfterFailure, err := c.TKGConfigReaderWriter().Get(constants.ConfigVariableScaleDownDelayAfterFailure)
-	if err != nil {
-		return "", err
-	}
-	autoScalerMap[constants.ConfigVariableScaleDownDelayAfterFailure] = autoscalerScaleDownDelayAfterFailure
-
-	autoscalerScaleDownUnneededTime, err := c.TKGConfigReaderWriter().Get(constants.ConfigVariableScaleDownUnneededTime)
-	if err != nil {
-		return "", err
-	}
-	autoScalerMap[constants.ConfigVariableScaleDownUnneededTime] = autoscalerScaleDownUnneededTime
-
-	autoscalerMaxNodeProvisionTime, err := c.TKGConfigReaderWriter().Get(constants.ConfigVariableMaxNodeProvisionTime)
-	if err != nil {
-		return "", err
-	}
-	autoScalerMap[constants.ConfigVariableMaxNodeProvisionTime] = autoscalerMaxNodeProvisionTime
-
-	configBytes, err := yaml.Marshal(autoScalerMap)
+	configBytes, err := yaml.Marshal(autoScalerConfigs)
 	if err != nil {
 		return "", err
 	}
@@ -493,4 +463,46 @@ func (c *TkgClient) GetAutoScalerValuesFileFromConfigs(clusterName, namespace, c
 
 	log.Infof("Values File %s", valuesFile)
 	return valuesFile, nil
+}
+
+func (c *TkgClient) populateAutoScalerConfigVariables(autoScalerMap map[string]string) error {
+	configs := []string{constants.ConfigVariableAutoscalerMaxNodesTotal, constants.ConfigVariableScaleDownDelayAfterAdd, constants.ConfigVariableAutoScalerScaleDownDelayAfterDelete,
+		constants.ConfigVariableScaleDownDelayAfterFailure, constants.ConfigVariableScaleDownUnneededTime, constants.ConfigVariableMaxNodeProvisionTime}
+
+	for _, configKey := range configs {
+		configValue, err := c.TKGConfigReaderWriter().Get(configKey)
+		if err != nil {
+			return errors.Wrapf(err, "unable to get config value for autoscaler config %s", configKey)
+		}
+		err = validateAutoScalerConfigs(configKey, configValue)
+		if err != nil {
+			return errors.Wrapf(err, "validation failed for autoscaler config key %s, with value %s", configKey, configValue)
+		}
+
+		autoScalerMap[configKey] = configValue
+	}
+
+	return nil
+}
+
+func validateAutoScalerConfigs(configKey, configValue string) error {
+	if configKey == constants.ConfigVariableAutoscalerMaxNodesTotal {
+		intVal, err := strconv.Atoi(configValue)
+		if err != nil {
+			return errors.Wrapf(err, "invalid value %s for config key %s", configValue, configKey)
+		}
+		if intVal < 0 {
+			return fmt.Errorf("%s cannot have a value less than 0", configKey)
+		}
+	} else {
+		timeVal, err := time.ParseDuration(configValue)
+		if err != nil {
+			return errors.Wrapf(err, "invalid value %s for config key %s. The value needs to be a valid duration e.g(10m, 5s, 3h)", configValue, configKey)
+		}
+		if timeVal < 0 {
+			return fmt.Errorf("invalid value %s for config key %s. The time duration cannot be negative", configValue, configKey)
+		}
+	}
+
+	return nil
 }

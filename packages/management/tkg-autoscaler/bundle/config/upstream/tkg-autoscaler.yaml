@@ -44,6 +44,7 @@ spec:
     spec:
       containers:
         - image: tkg-autoscaler:latest
+          imagePullPolicy: IfNotPresent
           name: #@ "{}-cluster-autoscaler".format(data.values.CLUSTER_NAME)
           volumeMounts:
             - name: #@ autoscaler_volume_name()

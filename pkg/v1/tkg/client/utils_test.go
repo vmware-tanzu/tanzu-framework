@@ -176,54 +176,89 @@ var _ = Describe("Utils", func() {
 			tkgClient *TkgClient
 		)
 
-		BeforeEach(func() {
-			tkgClient, err = createTKGClient("../fakes/config/config.yaml", testingDir, "../fakes/config/bom/tkg-bom-v1.3.1.yaml", 2*time.Second)
-			Expect(err).NotTo(HaveOccurred())
+		Context("create autoscaler config file and return", func() {
+			BeforeEach(func() {
+				tkgClient, err = createTKGClient("../fakes/config/config.yaml", testingDir, "../fakes/config/bom/tkg-bom-v1.3.1.yaml", 2*time.Second)
+				Expect(err).NotTo(HaveOccurred())
 
-			tkgClient.TKGConfigReaderWriter().Set(constants.ConfigVariableAutoscalerMaxNodesTotal, "1")
-			tkgClient.TKGConfigReaderWriter().Set(constants.ConfigVariableScaleDownDelayAfterAdd, "0")
-			tkgClient.TKGConfigReaderWriter().Set(constants.ConfigVariableAutoScalerScaleDownDelayAfterDelete, "0")
-			tkgClient.TKGConfigReaderWriter().Set(constants.ConfigVariableScaleDownDelayAfterFailure, "0")
-			tkgClient.TKGConfigReaderWriter().Set(constants.ConfigVariableScaleDownUnneededTime, "0")
-			tkgClient.TKGConfigReaderWriter().Set(constants.ConfigVariableMaxNodeProvisionTime, "0")
+				tkgClient.TKGConfigReaderWriter().Set(constants.ConfigVariableAutoscalerMaxNodesTotal, "1")
+				tkgClient.TKGConfigReaderWriter().Set(constants.ConfigVariableScaleDownDelayAfterAdd, "10s")
+				tkgClient.TKGConfigReaderWriter().Set(constants.ConfigVariableAutoScalerScaleDownDelayAfterDelete, "10m")
+				tkgClient.TKGConfigReaderWriter().Set(constants.ConfigVariableScaleDownDelayAfterFailure, "50s")
+				tkgClient.TKGConfigReaderWriter().Set(constants.ConfigVariableScaleDownUnneededTime, "5h")
+				tkgClient.TKGConfigReaderWriter().Set(constants.ConfigVariableMaxNodeProvisionTime, "1h")
+			})
+
+			It("create autoscaler config file and return", func() {
+				valuesFile, err := tkgClient.GetAutoScalerValuesFileFromConfigs("cluster", "namespace", "role", "infra")
+				Expect(err).ToNot(HaveOccurred())
+
+				valuesBytes, err := os.ReadFile(valuesFile)
+				Expect(err).ToNot(HaveOccurred())
+
+				autoscalerConfigs := map[string]string{}
+				err = yaml.Unmarshal(valuesBytes, &autoscalerConfigs)
+				Expect(err).ToNot(HaveOccurred())
+
+				Expect(autoscalerConfigs[constants.ConfigVariableClusterName]).To(Equal("cluster"))
+				Expect(autoscalerConfigs[constants.ConfigVariableNamespace]).To(Equal("namespace"))
+				Expect(autoscalerConfigs[constants.ConfigVariableClusterRole]).To(Equal("role"))
+				Expect(autoscalerConfigs[constants.ConfigVariableProviderType]).To(Equal("infra"))
+				Expect(autoscalerConfigs[constants.ConfigVariableAutoscalerMaxNodesTotal]).To(Equal("1"))
+				Expect(autoscalerConfigs[constants.ConfigVariableScaleDownDelayAfterAdd]).To(Equal("10s"))
+				Expect(autoscalerConfigs[constants.ConfigVariableAutoScalerScaleDownDelayAfterDelete]).To(Equal("10m"))
+				Expect(autoscalerConfigs[constants.ConfigVariableScaleDownDelayAfterFailure]).To(Equal("50s"))
+				Expect(autoscalerConfigs[constants.ConfigVariableScaleDownUnneededTime]).To(Equal("5h"))
+				Expect(autoscalerConfigs[constants.ConfigVariableMaxNodeProvisionTime]).To(Equal("1h"))
+			})
+
+			AfterEach(func() {
+				err = os.Unsetenv(constants.ConfigVariableAutoscalerMaxNodesTotal)
+				Expect(err).ToNot(HaveOccurred())
+				err = os.Unsetenv(constants.ConfigVariableScaleDownDelayAfterAdd)
+				Expect(err).ToNot(HaveOccurred())
+				err = os.Unsetenv(constants.ConfigVariableAutoScalerScaleDownDelayAfterDelete)
+				Expect(err).ToNot(HaveOccurred())
+				err = os.Unsetenv(constants.ConfigVariableScaleDownDelayAfterFailure)
+				Expect(err).ToNot(HaveOccurred())
+				err = os.Unsetenv(constants.ConfigVariableScaleDownUnneededTime)
+				Expect(err).ToNot(HaveOccurred())
+				err = os.Unsetenv(constants.ConfigVariableMaxNodeProvisionTime)
+				Expect(err).ToNot(HaveOccurred())
+			})
 		})
 
-		It("create autoscaler config file and return", func() {
-			valuesFile, err := tkgClient.GetAutoScalerValuesFileFromConfigs("cluster", "namespace", "role", "infra")
-			Expect(err).ToNot(HaveOccurred())
+		Context("validate autoscaler configs  being used", func() {
+			It("validate max nodes total", func() {
+				configKey := constants.ConfigVariableAutoscalerMaxNodesTotal
+				err = validateAutoScalerConfigs(configKey, "1")
+				Expect(err).ToNot(HaveOccurred())
+				err = validateAutoScalerConfigs(configKey, "banana")
+				Expect(err).To(HaveOccurred())
+				Expect(err.Error()).To(ContainSubstring("invalid value"))
+				err = validateAutoScalerConfigs(configKey, "-100")
+				Expect(err).To(HaveOccurred())
+				Expect(err.Error()).To(ContainSubstring("cannot have a value less than 0"))
+			})
 
-			valuesBytes, err := os.ReadFile(valuesFile)
-			Expect(err).ToNot(HaveOccurred())
-
-			autoscalerConfigs := map[string]string{}
-			err = yaml.Unmarshal(valuesBytes, &autoscalerConfigs)
-			Expect(err).ToNot(HaveOccurred())
-
-			Expect(autoscalerConfigs[constants.ConfigVariableClusterName]).To(Equal("cluster"))
-			Expect(autoscalerConfigs[constants.ConfigVariableNamespace]).To(Equal("namespace"))
-			Expect(autoscalerConfigs[constants.ConfigVariableClusterRole]).To(Equal("role"))
-			Expect(autoscalerConfigs[constants.ConfigVariableProviderType]).To(Equal("infra"))
-			Expect(autoscalerConfigs[constants.ConfigVariableAutoscalerMaxNodesTotal]).To(Equal("1"))
-			Expect(autoscalerConfigs[constants.ConfigVariableScaleDownDelayAfterAdd]).To(Equal("0"))
-			Expect(autoscalerConfigs[constants.ConfigVariableAutoScalerScaleDownDelayAfterDelete]).To(Equal("0"))
-			Expect(autoscalerConfigs[constants.ConfigVariableScaleDownDelayAfterFailure]).To(Equal("0"))
-			Expect(autoscalerConfigs[constants.ConfigVariableScaleDownUnneededTime]).To(Equal("0"))
-			Expect(autoscalerConfigs[constants.ConfigVariableMaxNodeProvisionTime]).To(Equal("0"))
-		})
-
-		AfterEach(func() {
-			err = os.Unsetenv(constants.ConfigVariableAutoscalerMaxNodesTotal)
-			Expect(err).ToNot(HaveOccurred())
-			err = os.Unsetenv(constants.ConfigVariableScaleDownDelayAfterAdd)
-			Expect(err).ToNot(HaveOccurred())
-			err = os.Unsetenv(constants.ConfigVariableAutoScalerScaleDownDelayAfterDelete)
-			Expect(err).ToNot(HaveOccurred())
-			err = os.Unsetenv(constants.ConfigVariableScaleDownDelayAfterFailure)
-			Expect(err).ToNot(HaveOccurred())
-			err = os.Unsetenv(constants.ConfigVariableScaleDownUnneededTime)
-			Expect(err).ToNot(HaveOccurred())
-			err = os.Unsetenv(constants.ConfigVariableMaxNodeProvisionTime)
-			Expect(err).ToNot(HaveOccurred())
+			It("validate autoscaler configs that are durations", func() {
+				configKeys := []string{constants.ConfigVariableScaleDownDelayAfterAdd, constants.ConfigVariableAutoScalerScaleDownDelayAfterDelete,
+					constants.ConfigVariableScaleDownDelayAfterFailure, constants.ConfigVariableScaleDownUnneededTime, constants.ConfigVariableMaxNodeProvisionTime}
+				for _, configKey := range configKeys {
+					err = validateAutoScalerConfigs(configKey, "5m")
+					Expect(err).ToNot(HaveOccurred())
+					err = validateAutoScalerConfigs(configKey, "10s")
+					Expect(err).ToNot(HaveOccurred())
+					err = validateAutoScalerConfigs(configKey, "15h")
+					Expect(err).ToNot(HaveOccurred())
+					err = validateAutoScalerConfigs(configKey, "15")
+					Expect(err).To(HaveOccurred())
+					Expect(err.Error()).To(ContainSubstring("The value needs to be a valid duration e.g(10m, 5s, 3h)"))
+					err = validateAutoScalerConfigs(configKey, "-15h")
+					Expect(err).To(HaveOccurred())
+					Expect(err.Error()).To(ContainSubstring("The time duration cannot be negative"))
+				}
+			})
 		})
 	})
 })
