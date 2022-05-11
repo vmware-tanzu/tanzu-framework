@@ -3,10 +3,37 @@
 
 ---
 infraProvider: vsphere
+nodeSelector: null
+deployment:
+  updateStrategy: null
+  rollingUpdate:
+    maxUnavailable: null
+    maxSurge: null
+daemonset:
+  updateStrategy: null
 antrea:
   config:
+    egress:
+      exceptCIDRs: []
+    nodePortLocal:
+      enabled: true
+      portRange: 61000-62000
+    antreaProxy:
+      proxyAll: false
+      nodePortAddresses: []
+      skipServices: []
+      proxyLoadBalancerIPs: false
+    kubeAPIServerOverride: null
+    transportInterface: null
+    transportInterfaceCIDRs: []
+    multicastInterfaces: []
+    tunnelType: geneve
+    trafficEncryptionMode: none
+    wireGuard:
+      port: 51820
     serviceCIDR: 10.96.0.0/12
     serviceCIDRv6: null
+    enableUsageReporting: false
     trafficEncapMode: encap
     noSNAT: false
     disableUdpTunnelOffload: false
@@ -17,9 +44,12 @@ antrea:
     featureGates:
       AntreaProxy: true
       EndpointSlice: false
+      AntreaTraceflow: true
+      NodePortLocal: true
       AntreaPolicy: true
       FlowExporter: false
-      Egress: false
-      NodePortLocal: false
-      AntreaTraceflow: true
       NetworkPolicyStats: false
+      Egress: true
+      AntreaIPAM: false
+      ServiceExternalIP: false
+      Multicast: false
