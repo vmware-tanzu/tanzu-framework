@@ -170,26 +170,28 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 				Expect(hasPackageInstalls(ctx, k8sClient, cluster, constants.TKGSystemNS,
 					clusterBootstrap.Spec.AdditionalPackages, logr.Logger{})).To(BeTrue())
 
-				By("packageinstalls for additional packages should all have the correct owner reference set")
-				var ownerIsCluster bool
+				By("packageinstalls for core packages should not have owner references")
+				var corePackages []*runtanzuv1alpha3.ClusterBootstrapPackage
+				corePackages = append(corePackages, clusterBootstrap.Spec.CNI, clusterBootstrap.Spec.CPI, clusterBootstrap.Spec.CSI)
 				pkgInstall := &kapppkgiv1alpha1.PackageInstall{}
-				for _, pkg := range clusterBootstrap.Spec.AdditionalPackages {
-					ownerIsCluster = false
+				for _, pkg := range corePackages {
 					pkgInstallName := util.GeneratePackageInstallName(cluster.Name, pkg.RefName)
 					err := k8sClient.Get(ctx, client.ObjectKey{Name: pkgInstallName, Namespace: constants.TKGSystemNS}, pkgInstall)
-					if err == nil {
-						for _, ownerRef := range pkgInstall.OwnerReferences {
-							if ownerRef.UID == cluster.UID {
-								ownerIsCluster = true
-								break
-							}
-						}
-						if !ownerIsCluster {
-							break
-						}
-					}
+					Expect(err).ToNot(HaveOccurred())
+					Expect(len(pkgInstall.OwnerReferences) == 0).To(BeTrue())
+
 				}
-				Expect(ownerIsCluster).To(BeTrue())
+
+				By("packageinstalls for additional packages should not have owner references")
+				pkgInstall = &kapppkgiv1alpha1.PackageInstall{}
+				for _, pkg := range clusterBootstrap.Spec.AdditionalPackages {
+					pkgInstallName := util.GeneratePackageInstallName(cluster.Name, pkg.RefName)
+					err := k8sClient.Get(ctx, client.ObjectKey{Name: pkgInstallName, Namespace: constants.TKGSystemNS}, pkgInstall)
+					Expect(err).ToNot(HaveOccurred())
+					Expect(len(pkgInstall.OwnerReferences) == 0).To(BeTrue())
+
+				}
+
 				By("verifying that CNI has been populated properly")
 				// Verify CNI is populated in the cloned object with the value from the cluster bootstrap template
 				Expect(clusterBootstrap.Spec.CNI).NotTo(BeNil())

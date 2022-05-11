@@ -738,12 +738,6 @@ func (r *ClusterBootstrapReconciler) createOrPatchPackageInstallOnRemote(cluster
 			Name:        util.GeneratePackageInstallName(cluster.Name, remotePackageRefName),
 			Namespace:   r.Config.SystemNamespace,
 			Annotations: map[string]string{addontypes.ClusterNameAnnotation: cluster.Name, addontypes.ClusterNamespaceAnnotation: cluster.Namespace},
-			OwnerReferences: []metav1.OwnerReference{{
-				APIVersion: clusterapiv1beta1.GroupVersion.String(),
-				Kind:       cluster.Kind,
-				Name:       cluster.Name,
-				UID:        cluster.UID,
-			}},
 		},
 	}
 
