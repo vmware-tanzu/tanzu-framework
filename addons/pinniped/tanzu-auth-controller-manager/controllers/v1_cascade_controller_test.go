@@ -178,6 +178,10 @@ var _ = Describe("Controller", func() {
 		})
 
 		When("the secret is deleted", func() {
+			BeforeEach(func() {
+				deleteObject(ctx, secret)
+			})
+
 			It("recreates the secret with values from the configmap", func() {
 				Eventually(func(g Gomega) {
 					Eventually(verifySecretFunc(ctx, cluster, configMap, true)).Should(Succeed())
@@ -203,10 +207,6 @@ var _ = Describe("Controller", func() {
 				dataValueYamlBytes, _ := yaml.Marshal(updatedSecretDataValues)
 				secretCopy.Data[tkgDataValueFieldName] = dataValueYamlBytes
 				updateObject(ctx, secretCopy)
-			})
-
-			AfterEach(func() {
-				deleteObject(ctx, secretCopy)
 			})
 
 			It("resets the secret with the proper data values", func() {
@@ -339,6 +339,29 @@ var _ = Describe("Controller", func() {
 				}).Should(Succeed())
 			})
 		})
+
+		When("the annotation is changed on the secret", func() {
+			var secretCopy *corev1.Secret
+
+			BeforeEach(func() {
+				secretCopy = secret.DeepCopy()
+				Eventually(func(g Gomega) {
+					err := k8sClient.Get(ctx, client.ObjectKeyFromObject(secretCopy), secretCopy)
+					g.Expect(err).NotTo(HaveOccurred())
+				}).Should(Succeed())
+				secretCopy.Annotations = map[string]string{
+					tkgAddonTypeAnnotation: "calico",
+				}
+				updateObject(ctx, secretCopy)
+			})
+
+			It("the annotation gets updated", func() {
+				Eventually(func(g Gomega) {
+					Eventually(verifySecretFunc(ctx, cluster, configMap, true)).Should(Succeed())
+				}).Should(Succeed())
+			})
+		})
+
 	})
 
 	Context("pinniped-info configmap", func() {

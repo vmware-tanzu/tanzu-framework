@@ -34,6 +34,8 @@ func init() {
 }
 
 func main() {
+	var metricsAddr string
+	flag.StringVar(&metricsAddr, "metrics-bind-addr", ":8080", "The address the metric endpoint binds to.")
 	opts := zap.Options{
 		Development: true,
 	}
@@ -47,7 +49,8 @@ func main() {
 	// Setup Manager
 	setupLog.Info("setting up manager")
 	mgr, err := manager.New(config.GetConfigOrDie(), manager.Options{
-		Scheme: scheme,
+		Scheme:             scheme,
+		MetricsBindAddress: metricsAddr,
 	})
 	if err != nil {
 		setupLog.Error(err, "unable to set up controller manager")

@@ -20,6 +20,11 @@ spec:
       cidrBlocks: [ "192.168.0.0/16","fd00:100:96::/48" ]
     services:
       cidrBlocks: [ "192.168.0.0/16","fd00:100:96::/48" ]
+  controlPlaneRef:
+    apiVersion: controlplane.cluster.x-k8s.io/v1beta1
+    kind: KubeadmControlPlane
+    name: test-cluster-tcbt-control-plane
+    namespace: cluster-namespace
   topology:
     class: test-clusterclass-tcbt
     version: v1.22.3
@@ -42,6 +47,23 @@ spec:
         value:
           - registry1
           - registry2
+---
+apiVersion: controlplane.cluster.x-k8s.io/v1beta1
+kind: KubeadmControlPlane
+metadata:
+  name: test-cluster-tcbt-control-plane
+  namespace: cluster-namespace
+  ownerReferences:
+    - apiVersion: cluster.x-k8s.io/v1beta1
+      kind: Cluster
+      name: test-cluster-tcbt
+      uid: bd834522-d9a5-4841-beac-991ff3798c01
+spec:
+  kubeadmConfigSpec: {}
+  machineTemplate:
+    infrastructureRef: {}
+  replicas: 3
+  version: v1.22.3
 ---
 apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
 kind: VSphereCluster
