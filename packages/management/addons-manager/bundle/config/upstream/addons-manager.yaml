@@ -246,7 +246,7 @@ spec:
       - args:
         - --metrics-bind-addr=0
         - --leader-elect=false
-        - --health-addr=:18316
+        - #@ "--health-addr=:{}".format(data.values.tanzuAddonsManager.deployment.healthzPort)
         - #@ "--addon-namespace={}".format(data.values.tanzuAddonsManager.namespace)
         #@ if/end data.values.tanzuAddonsManager.featureGates.clusterBootstrapController:
         - --feature-gate-cluster-bootstrap=true
@@ -263,10 +263,10 @@ spec:
             cpu: 100m
             memory: 40Mi
         ports:
-          - containerPort: 9865
+          - containerPort: #@ data.values.tanzuAddonsManager.deployment.webhookServerPort
             name: webhook-server
             protocol: TCP
-          - containerPort: 18316
+          - containerPort: #@ data.values.tanzuAddonsManager.deployment.healthzPort
             name: healthz
             protocol: TCP
         readinessProbe:

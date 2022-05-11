@@ -130,6 +130,9 @@ func parseAddonFlags(addonFlags *addonFlags) {
 }
 
 func main() {
+	var webhookServerPort int
+	flag.IntVar(&webhookServerPort, "webhook-server-port", 9865, "The port that the webhook server serves at.")
+
 	// parse flags
 	flags := &addonFlags{}
 	parseAddonFlags(flags)
@@ -165,7 +168,7 @@ func main() {
 	mgr, err := ctrl.NewManager(ctrl.GetConfigOrDie(), ctrl.Options{
 		Scheme:                 scheme,
 		MetricsBindAddress:     flags.metricsAddr,
-		Port:                   9865,
+		Port:                   webhookServerPort,
 		CertDir:                constants.WebhookCertDir,
 		LeaderElection:         flags.enableLeaderElection,
 		LeaderElectionID:       "5832a104.run.tanzu.addons",
