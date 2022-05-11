@@ -33,6 +33,9 @@ func init() {
 }
 
 func main() {
+	var webhookServerPort int
+	flag.IntVar(&webhookServerPort, "webhook-server-port", 9443, "The port that the webhook server serves at.")
+
 	opts := zap.Options{
 		Development: true,
 	}
@@ -44,7 +47,7 @@ func main() {
 	setupLog.Info("Version", "version", buildinfo.Version, "buildDate", buildinfo.Date, "sha", buildinfo.SHA)
 
 	var err error
-	mgr, err := ctrl.NewManager(ctrl.GetConfigOrDie(), ctrl.Options{Scheme: scheme, MetricsBindAddress: "0", Port: 9443})
+	mgr, err := ctrl.NewManager(ctrl.GetConfigOrDie(), ctrl.Options{Scheme: scheme, MetricsBindAddress: "0", Port: webhookServerPort})
 	if err != nil {
 		setupLog.Error(err, "unable to start manager")
 		os.Exit(1)
