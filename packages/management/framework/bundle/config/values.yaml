@@ -33,6 +33,7 @@ addonsManagerPackageValues:
       healthzPort: 18316
     featureGates:
       clusterBootstrapController: false
+      packageInstallStatus: false
 clipluginsPackageValues:
   namespace:
   versionConstraints:

@@ -106,12 +106,20 @@ func GenerateAppSecretNameFromAddonSecret(addonSecret *corev1.Secret) string {
 
 // GenerateDataValueSecretName generates data value secret name from the cluster and the package name
 func GenerateDataValueSecretName(clusterName, carvelPkgRefName string) string {
-	return fmt.Sprintf("%s-%s-data-values", clusterName, carvelPkgRefName)
+	return fmt.Sprintf("%s-%s-data-values", clusterName, packageShortName(carvelPkgRefName))
 }
 
 // GeneratePackageSecretName generates secret name for a package from the cluster and the package name
 func GeneratePackageSecretName(clusterName, carvelPkgRefName string) string {
-	return fmt.Sprintf("%s-%s-package", clusterName, carvelPkgRefName)
+	return fmt.Sprintf("%s-%s-package", clusterName, packageShortName(carvelPkgRefName))
+}
+
+func packageShortName(pkgRefName string) string {
+	nameTokens := strings.Split(pkgRefName, ".")
+	if len(nameTokens) >= 1 {
+		return nameTokens[0]
+	}
+	return pkgRefName
 }
 
 // GenerateAppNamespaceFromAddonSecret generates app namespace from addons secret
