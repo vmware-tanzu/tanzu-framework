@@ -15,7 +15,7 @@ metadata:
 spec:
   serviceAccountName: tanzu-addons-manager-package-sa
   packageRef:
-    refName: addons-manager-v2.tanzu.vmware.com #! TODO: Drop v2 after TKG 1.6 is released https://github.com/vmware-tanzu/tanzu-framework/issues/2131
+    refName: addons-manager.tanzu.vmware.com
     versionSelection:
       prereleases: {}
       #@ if data.values.addonsManagerPackageValues.versionConstraints:

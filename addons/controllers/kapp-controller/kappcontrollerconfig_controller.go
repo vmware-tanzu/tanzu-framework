@@ -156,7 +156,7 @@ func (r *KappControllerConfigReconciler) ReconcileKappControllerConfigNormal(
 	}
 
 	// update status.secretRef
-	dataValueSecretName := util.GenerateDataValueSecretName(kappControllerConfig.Name, constants.KappControllerAddonName)
+	dataValueSecretName := util.GenerateDataValueSecretName(cluster.Name, constants.KappControllerAddonName)
 	kappControllerConfig.Status.SecretRef = dataValueSecretName
 
 	return nil
@@ -171,7 +171,7 @@ func (r *KappControllerConfigReconciler) ReconcileKappControllerConfigDataValue(
 
 	dataValuesSecret := &corev1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      util.GenerateDataValueSecretName(kappControllerConfig.Name, constants.KappControllerAddonName),
+			Name:      util.GenerateDataValueSecretName(cluster.Name, constants.KappControllerAddonName),
 			Namespace: cluster.Namespace,
 			OwnerReferences: []metav1.OwnerReference{{
 				APIVersion: clusterapiv1beta1.GroupVersion.String(),

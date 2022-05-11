@@ -327,7 +327,7 @@ func (h *Helper) cloneSecretRef(
 
 	newSecret := secret.DeepCopy()
 	newSecret.ObjectMeta.Reset()
-	newSecret.Name = fmt.Sprintf("%s-%s-package", cluster.Name, carvelPkgRefName)
+	newSecret.Name = util.GeneratePackageSecretName(cluster.Name, carvelPkgRefName)
 	newSecret.Namespace = cluster.Namespace
 
 	opResult, createOrPatchErr := controllerutil.CreateOrPatch(h.Ctx, h.K8sClient, newSecret, func() error {
@@ -410,7 +410,7 @@ func (h *Helper) cloneProviderRef(
 		newProvider.SetLabels(providerLabels)
 	}
 
-	newProvider.SetName(fmt.Sprintf("%s-%s-package", cluster.Name, carvelPkgRefName))
+	newProvider.SetName(util.GeneratePackageSecretName(cluster.Name, carvelPkgRefName))
 	newProvider.SetNamespace(cluster.Namespace)
 	h.Logger.Info(fmt.Sprintf("cloning provider %s/%s to namespace %s", sourceNamespace, newProvider.GetName(), cluster.Namespace), "gvr", gvr)
 	createdOrUpdatedProvider, err = h.DynamicClient.Resource(*gvr).Namespace(cluster.Namespace).Create(h.Ctx, newProvider, metav1.CreateOptions{})

@@ -13,6 +13,13 @@ featureGatesPackageValues:
 tkrServicePackageValues:
   namespace:
   versionConstraints:
+  deployment:
+    hostNetwork: false
+    nodeSelector: null
+    tolerations: []
+    #! If hostNetwork is set to true the below two ports should be different
+    tkrConversionWebhookServerPort: 9443
+    tkrResolverWebhookServerPort: 9443
 addonsManagerPackageValues:
   versionConstraints:
   tanzuAddonsManager:
@@ -26,6 +33,7 @@ addonsManagerPackageValues:
       healthzPort: 18316
     featureGates:
       clusterBootstrapController: false
+      packageInstallStatus: false
 clipluginsPackageValues:
   namespace:
   versionConstraints:

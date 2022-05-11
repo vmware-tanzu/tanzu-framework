@@ -179,6 +179,12 @@ func (r *AntreaConfigReconciler) ReconcileAntreaConfigDataValue(
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      util.GenerateDataValueSecretName(cluster.Name, constants.AntreaAddonName),
 			Namespace: antreaConfig.Namespace,
+			OwnerReferences: []metav1.OwnerReference{{
+				APIVersion: clusterapiv1beta1.GroupVersion.String(),
+				Kind:       cluster.Kind,
+				Name:       cluster.Name,
+				UID:        cluster.UID,
+			}},
 		},
 	}
 

@@ -94,7 +94,7 @@ var _ = Describe("KappControllerConfig Reconciler", func() {
 			Eventually(func() bool {
 				secretKey := client.ObjectKey{
 					Namespace: "default",
-					Name:      util.GenerateDataValueSecretName(kappConfigCRName, constants.KappControllerAddonName),
+					Name:      util.GenerateDataValueSecretName(cluster.Name, constants.KappControllerAddonName),
 				}
 				secret := &v1.Secret{}
 				err := k8sClient.Get(ctx, secretKey, secret)
@@ -139,7 +139,7 @@ var _ = Describe("KappControllerConfig Reconciler", func() {
 				if err != nil {
 					return false
 				}
-				Expect(config.Status.SecretRef).Should(Equal(util.GenerateDataValueSecretName(kappConfigCRName, constants.KappControllerAddonName)))
+				Expect(config.Status.SecretRef).Should(Equal(util.GenerateDataValueSecretName(cluster.Name, constants.KappControllerAddonName)))
 				return true
 			}, waitTimeout, pollingInterval).Should(BeTrue())
 

@@ -29,6 +29,7 @@ import (
 	"github.com/go-logr/logr"
 	corev1 "k8s.io/api/core/v1"
 	rbacv1 "k8s.io/api/rbac/v1"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime/schema"
@@ -197,7 +198,7 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 				Expect(clusterBootstrap.Spec.CNI.RefName).To(Equal("antrea.tanzu.vmware.com.1.2.3--vmware.1-tkg.1"))
 				Expect(*clusterBootstrap.Spec.CNI.ValuesFrom.ProviderRef.APIGroup).To(Equal("cni.tanzu.vmware.com"))
 				Expect(clusterBootstrap.Spec.CNI.ValuesFrom.ProviderRef.Kind).To(Equal("AntreaConfig"))
-				providerName := fmt.Sprintf("%s-antrea.tanzu.vmware.com-package", clusterName)
+				providerName := fmt.Sprintf("%s-antrea-package", clusterName)
 				Expect(clusterBootstrap.Spec.CNI.ValuesFrom.ProviderRef.Name).To(Equal(providerName))
 
 				By("verifying that the proxy related annotations are populated to cluster object properly")
@@ -230,7 +231,7 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 					Expect(*fooPackage.ValuesFrom.ProviderRef.APIGroup == "run.tanzu.vmware.com").To(BeTrue())
 					Expect(fooPackage.ValuesFrom.ProviderRef.Kind == "FooBar").To(BeTrue())
 
-					providerName := fmt.Sprintf("%s-%s-package", clusterName, foobarCarvelPackageRefName)
+					providerName := fmt.Sprintf("%s-foobar-package", clusterName)
 					Expect(fooPackage.ValuesFrom.ProviderRef.Name == providerName).To(BeTrue())
 
 					gvr = schema.GroupVersionResource{Group: "run.tanzu.vmware.com", Version: "v1alpha1", Resource: "foobars"}
@@ -266,7 +267,7 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 				// Verify that secret object mapping to foobar1 package exists with ownerReferences to cluster and ClusterBootstrap
 				Eventually(func() bool {
 					// "foobar1.example.com" is the carvel package ref name
-					foobar1SecretName := fmt.Sprintf("%s-%s-package", cluster.Name, foobar1CarvelPackageRefName)
+					foobar1SecretName := fmt.Sprintf("%s-foobar1-package", cluster.Name)
 					foobar1Secret := &corev1.Secret{}
 					if err := k8sClient.Get(ctx, client.ObjectKey{Namespace: clusterNamespace, Name: foobar1SecretName}, foobar1Secret); err != nil {
 						return false
@@ -307,7 +308,7 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 					// Any updates to the data value secret under cluster namespace should be eventually reflected on the
 					// workload cluster under tkg-system namespace.
 					s := &corev1.Secret{}
-					Expect(k8sClient.Get(ctx, client.ObjectKey{Namespace: clusterNamespace, Name: fmt.Sprintf("%s-%s-package", cluster.Name, foobar1CarvelPackageRefName)}, s)).To(Succeed())
+					Expect(k8sClient.Get(ctx, client.ObjectKey{Namespace: clusterNamespace, Name: fmt.Sprintf("%s-foobar1-package", cluster.Name)}, s)).To(Succeed())
 					s.Data["values.yaml"] = []byte("foobar1-updated")
 					Expect(k8sClient.Update(ctx, s)).To(Succeed())
 
@@ -554,29 +555,29 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 						Expect(cni.RefName).To(Equal("antrea.tanzu.vmware.com.1.2.3--vmware.4-tkg.2-advanced-zshippable"))
 						Expect(*cni.ValuesFrom.ProviderRef.APIGroup).To(Equal("cni.tanzu.vmware.com"))
 						Expect(cni.ValuesFrom.ProviderRef.Kind).To(Equal("AntreaConfig"))
-						Expect(cni.ValuesFrom.ProviderRef.Name).To(Equal(fmt.Sprintf("%s-antrea.tanzu.vmware.com-package", clusterName)))
+						Expect(cni.ValuesFrom.ProviderRef.Name).To(Equal(fmt.Sprintf("%s-antrea-package", clusterName)))
 
 						// Validate Kapp
 						kapp := upgradedClusterBootstrap.Spec.Kapp
 						Expect(kapp.RefName).To(Equal("kapp-controller.tanzu.vmware.com.0.30.2"))
 						Expect(*kapp.ValuesFrom.ProviderRef.APIGroup).To(Equal("run.tanzu.vmware.com"))
 						Expect(kapp.ValuesFrom.ProviderRef.Kind).To(Equal("KappControllerConfig"))
-						Expect(kapp.ValuesFrom.ProviderRef.Name).To(Equal(fmt.Sprintf("%s-kapp-controller.tanzu.vmware.com-package", clusterName)))
+						Expect(kapp.ValuesFrom.ProviderRef.Name).To(Equal(fmt.Sprintf("%s-kapp-controller-package", clusterName)))
 
 						// Validate additional packages
 						// foobar3 should be added, while foobar should be kept even it was removed from the template
 						Expect(len(upgradedClusterBootstrap.Spec.AdditionalPackages)).To(Equal(4))
 						for _, pkg := range upgradedClusterBootstrap.Spec.AdditionalPackages {
 							if pkg.RefName == "foobar1.example.com.1.18.2" {
-								Expect(pkg.ValuesFrom.SecretRef).To(Equal(fmt.Sprintf("%s-foobar1.example.com-package", clusterName)))
+								Expect(pkg.ValuesFrom.SecretRef).To(Equal(fmt.Sprintf("%s-foobar1-package", clusterName)))
 							} else if pkg.RefName == "foobar3.example.com.1.17.2" {
 								Expect(*pkg.ValuesFrom.ProviderRef.APIGroup).To(Equal("run.tanzu.vmware.com"))
 								Expect(pkg.ValuesFrom.ProviderRef.Kind).To(Equal("FooBar"))
-								Expect(pkg.ValuesFrom.ProviderRef.Name).To(Equal(fmt.Sprintf("%s-foobar3.example.com-package", clusterName)))
+								Expect(pkg.ValuesFrom.ProviderRef.Name).To(Equal(fmt.Sprintf("%s-foobar3-package", clusterName)))
 							} else if pkg.RefName == "foobar.example.com.1.17.2" {
 								Expect(*pkg.ValuesFrom.ProviderRef.APIGroup).To(Equal("run.tanzu.vmware.com"))
 								Expect(pkg.ValuesFrom.ProviderRef.Kind).To(Equal("FooBar"))
-								Expect(pkg.ValuesFrom.ProviderRef.Name).To(Equal(fmt.Sprintf("%s-foobar.example.com-package", clusterName)))
+								Expect(pkg.ValuesFrom.ProviderRef.Name).To(Equal(fmt.Sprintf("%s-foobar-package", clusterName)))
 							} else if pkg.RefName == "foobar2.example.com.1.18.2" {
 								Expect(pkg.ValuesFrom.Inline).NotTo(BeNil())
 							} else {
@@ -795,7 +796,7 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 				s := &corev1.Secret{}
 				remoteSecret := &corev1.Secret{}
 				Eventually(func() bool {
-					err := k8sClient.Get(ctx, client.ObjectKey{Namespace: clusterNamespace, Name: fmt.Sprintf("%s-%s-package", clusterName, foobar1CarvelPackageRefName)}, s)
+					err := k8sClient.Get(ctx, client.ObjectKey{Namespace: clusterNamespace, Name: fmt.Sprintf("%s-foobar1-package", clusterName)}, s)
 					if err != nil {
 						return false
 					}
@@ -812,7 +813,7 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 						return false
 					}
 					fmt.Println(string(valueTexts))
-					Expect(strings.Contains(string(valueTexts), "nodeSelector:\n    tanzuKubernetesRelease: v1.22.4")).To(BeTrue())
+					Expect(strings.Contains(string(valueTexts), "nodeSelector:\n    run.tanzu.vmware.com/tkr: v1.22.4")).To(BeTrue())
 					Expect(strings.Contains(string(valueTexts), "deployment:\n    updateStrategy: rollingUpdate")).To(BeTrue())
 					Expect(strings.Contains(string(valueTexts), "daemonset:\n    updateStrategy: onDelete")).To(BeTrue())
 					Expect(strings.Contains(string(valueTexts), "maxUnavailable: 0")).To(BeTrue())
@@ -826,7 +827,7 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 
 				By("Should not reconcile foobar1secret secret change", func() {
 					// Get secretRef
-					Expect(k8sClient.Get(ctx, client.ObjectKey{Namespace: clusterNamespace, Name: fmt.Sprintf("%s-%s-package", clusterName, foobar1CarvelPackageRefName)}, s)).To(Succeed())
+					Expect(k8sClient.Get(ctx, client.ObjectKey{Namespace: clusterNamespace, Name: fmt.Sprintf("%s-foobar1-package", clusterName)}, s)).To(Succeed())
 					s.Data["values.yaml"] = []byte("values changed")
 					Expect(k8sClient.Update(ctx, s)).To(Succeed())
 
@@ -856,23 +857,25 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 			clusterName = "test-cluster-tcbt-3"
 			clusterNamespace = "cluster-namespace-3"
 			clusterResourceFilePath = "testdata/test-cluster-bootstrap-3.yaml"
-
 			ns := &corev1.Namespace{
 				ObjectMeta: metav1.ObjectMeta{
 					Name: clusterNamespace,
 				},
 			}
-			_ = k8sClient.Create(ctx, ns)
+			err := k8sClient.Create(ctx, ns)
+			if err != nil {
+				Expect(apierrors.IsAlreadyExists(err)).To(BeTrue())
+			}
 
 			routableAntreaConfig = &antreaconfigv1alpha1.AntreaConfig{
 				ObjectMeta: metav1.ObjectMeta{
-					Name:      fmt.Sprintf("%s-%s-package", clusterName, "antrea.tanzu.vmware.com"),
+					Name:      fmt.Sprintf("%s-antrea-package", clusterName),
 					Namespace: clusterNamespace,
 				},
 				Spec: antreaconfigv1alpha1.AntreaConfigSpec{
 					Antrea: antreaconfigv1alpha1.Antrea{
 						AntreaConfigDataValue: antreaconfigv1alpha1.AntreaConfigDataValue{
-							TrafficEncapMode: "noEncap",
+							TrafficEncapMode: "hybrid",
 							NoSNAT:           true,
 							FeatureGates: antreaconfigv1alpha1.AntreaFeatureGates{
 								AntreaProxy:   true,
@@ -887,22 +890,31 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 		})
 
 		Context("with a routable AntreaConfig resource already exist", func() {
-			It("clusterbootstra_controller should not overwrite the existing AntreaConfig Specs", func() {
-				createdAntreaConfig := &antreaconfigv1alpha1.AntreaConfig{}
-				assertOwnerReferencesExist(ctx, k8sClient, clusterNamespace, fmt.Sprintf("%s-%s-package", clusterName, "antrea.tanzu.vmware.com"), createdAntreaConfig, []metav1.OwnerReference{
+			It("clusterbootstrap_controller should not overwrite the existing AntreaConfig Specs", func() {
+
+				// get clusterBootstrap object for the cluster and inspect that its CNI matches the AntreaConfig that was pre-created.
+				clusterBootstrap := &runtanzuv1alpha3.ClusterBootstrap{}
+				Eventually(func() bool {
+					err := k8sClient.Get(ctx, client.ObjectKey{Namespace: clusterNamespace, Name: clusterName}, clusterBootstrap)
+					return err == nil
+				}, waitTimeout, pollingInterval).Should(BeTrue())
+
+				antreaConfig := &antreaconfigv1alpha1.AntreaConfig{}
+				// use the name from cloned clusterBootstrap to verify it is the same
+				assertOwnerReferencesExist(ctx, k8sClient, clusterNamespace, clusterBootstrap.Spec.CNI.ValuesFrom.ProviderRef.Name, antreaConfig, []metav1.OwnerReference{
 					{
 						APIVersion: clusterapiv1beta1.GroupVersion.String(),
 						Kind:       "Cluster",
 						Name:       clusterName,
 					},
 				})
-				Expect(createdAntreaConfig.Spec.Antrea.AntreaConfigDataValue.TrafficEncapMode).To(
+				Expect(antreaConfig.Spec.Antrea.AntreaConfigDataValue.TrafficEncapMode).To(
 					Equal(routableAntreaConfig.Spec.Antrea.AntreaConfigDataValue.TrafficEncapMode))
-				Expect(createdAntreaConfig.Spec.Antrea.AntreaConfigDataValue.NoSNAT).To(
+				Expect(antreaConfig.Spec.Antrea.AntreaConfigDataValue.NoSNAT).To(
 					Equal(routableAntreaConfig.Spec.Antrea.AntreaConfigDataValue.NoSNAT))
-				Expect(createdAntreaConfig.Spec.Antrea.AntreaConfigDataValue.FeatureGates.AntreaProxy).To(
+				Expect(antreaConfig.Spec.Antrea.AntreaConfigDataValue.FeatureGates.AntreaProxy).To(
 					Equal(routableAntreaConfig.Spec.Antrea.AntreaConfigDataValue.FeatureGates.AntreaProxy))
-				Expect(createdAntreaConfig.Spec.Antrea.AntreaConfigDataValue.FeatureGates.EndpointSlice).To(
+				Expect(antreaConfig.Spec.Antrea.AntreaConfigDataValue.FeatureGates.EndpointSlice).To(
 					Equal(routableAntreaConfig.Spec.Antrea.AntreaConfigDataValue.FeatureGates.EndpointSlice))
 			})
 		})

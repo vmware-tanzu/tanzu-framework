@@ -30,8 +30,10 @@
 /cmd/cli/plugin/feature @vmware-tanzu/tanzu-framework-reviewers @vmware-tanzu/tanzu-framework-api-machinery-owners
 /cmd/cli/plugin-admin/codegen @vmware-tanzu/tanzu-framework-reviewers @vmware-tanzu/tanzu-framework-api-machinery-owners
 /pkg/v1/codegen @vmware-tanzu/tanzu-framework-reviewers @vmware-tanzu/tanzu-framework-api-machinery-owners
-/packages/management @vmware-tanzu/tanzu-framework-reviewers @vmware-tanzu/tanzu-framework-api-machinery-owners
-/packages/management/tanzu-auth @vmware-tanzu/tanzu-framework-reviewers @vmware-tanzu/tanzu-framework-api-machinery-owners @vmware-tanzu/tkg-iam-owners
 /pkg/v1/providers/ytt/02_addons/management-packages @vmware-tanzu/tanzu-framework-reviewers @vmware-tanzu/tanzu-framework-api-machinery-owners
 /hack/packages @vmware-tanzu/tanzu-framework-reviewers @vmware-tanzu/tanzu-framework-api-machinery-owners
 /docs/api-machinery @vmware-tanzu/tanzu-framework-reviewers @vmware-tanzu/tanzu-framework-api-machinery-owners
+# Package owners. Add individual packages here if they need to be owned by a specific team.
+/packages/management/featuregates @vmware-tanzu/tanzu-framework-reviewers @vmware-tanzu/tanzu-framework-api-machinery-owners
+/packages/management/tanzu-auth @vmware-tanzu/tanzu-framework-reviewers @vmware-tanzu/tkg-iam-owners
+/packages/management/addons-manager @vmware-tanzu/tanzu-framework-reviewers @vmware-tanzu/tkg-addons-owners
