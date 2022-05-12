@@ -69,3 +69,8 @@ end
 def get_no_proxy():
     return "fake-no-proxy"
 end
+
+def get_tkr_version_from_tkr_name(tkr_name):
+   strs = tkr_name.split("---")
+   return strs[0] + "+" + strs[1]
+end

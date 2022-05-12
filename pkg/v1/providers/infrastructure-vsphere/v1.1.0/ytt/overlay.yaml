@@ -1,15 +1,34 @@
 #@ load("@ytt:overlay", "overlay")
 #@ load("@ytt:data", "data")
+#@ load("@ytt:regexp", "regexp")
 
 
-#@ load("lib/helpers.star", "get_bom_data_for_tkr_name", "get_default_tkg_bom_data", "kubeadm_image_repo", "get_image_repo_for_component", "get_vsphere_thumbprint")
+#@ load("lib/helpers.star", "get_bom_data_for_tkr_name", "get_default_tkg_bom_data", "kubeadm_image_repo", "get_image_repo_for_component", "get_vsphere_thumbprint", "get_tkr_version_from_tkr_name")
 
 #@ load("lib/validate.star", "validate_configuration")
 #@ load("@ytt:yaml", "yaml")
 #@ validate_configuration("vsphere")
 
+#! The compare_semver_versions function compares the major, minor, patch
+#! numbers of two versions. It returns 1 if a > b, 0 if a == b, -1 if a < b.
+#! Anything after the patch number is ignored. a and b must be in the
+#! form of v<X>.<Y>.<Z>[+build-info]
+#@ def compare_semver_versions(a, b):
+#@   a_array = regexp.replace("v?(\d+\.\d+\.\d+).*", a, "$1").split(".")
+#@   b_array = regexp.replace("v?(\d+\.\d+\.\d+).*", b, "$1").split(".")
+#@   for i in range(len(a_array)):
+#@     if int(a_array[i]) > int(b_array[i]):
+#@       return 1
+#@     elif int(a_array[i]) < int(b_array[i]):
+#@       return -1
+#@     end
+#@   end
+#@   return 0
+#@ end
+
 #@ bomDataForK8sVersion = get_bom_data_for_tkr_name()
 #@ bomData = get_default_tkg_bom_data()
+#@ tkrVersion = get_tkr_version_from_tkr_name(data.values.KUBERNETES_RELEASE)
 
 #@ if not data.values.IS_WINDOWS_WORKLOAD_CLUSTER:
 
@@ -290,7 +309,7 @@ spec:
     #@overlay/remove
     - content:
     #@ end
-    #@ if data.values.TKG_IP_FAMILY in ["ipv6", "ipv6,ipv4"]:
+    #@ if data.values.TKG_IP_FAMILY in ["ipv6", "ipv6,ipv4"] and compare_semver_versions(tkrVersion, "v1.22.8") >= 0:
     #@overlay/append
     - content: ""
       owner: root:root
@@ -315,7 +334,7 @@ spec:
     #! the primary IP family, set --node-ip on kubelet so that host network pods
     #! do not get the kube-vip address as their pod IP.
     #! See: https://github.com/vmware-tanzu/tanzu-framework/issues/2098
-    #@ if not data.values.AVI_CONTROL_PLANE_HA_PROVIDER and data.values.TKG_IP_FAMILY in ["ipv6", "ipv6,ipv4"]:
+    #@ if not data.values.AVI_CONTROL_PLANE_HA_PROVIDER and data.values.TKG_IP_FAMILY in ["ipv6", "ipv6,ipv4"] and compare_semver_versions(tkrVersion, "v1.22.8") >= 0:
     preKubeadmCommands:
     #@overlay/append
     - echo "KUBELET_EXTRA_ARGS=--node-ip=$(ip -6 -json addr show dev eth0 scope global | jq -r .[0].addr_info[0].local)" >> /etc/sysconfig/kubelet
