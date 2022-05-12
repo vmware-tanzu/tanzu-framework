@@ -4,7 +4,7 @@
 #@ load("lib/helpers.star", "get_bom_data_for_tkr_name", "get_default_tkg_bom_data", "kubeadm_image_repo", "get_image_repo_for_component", "get_vsphere_thumbprint")
 #@ load("lib/validate.star", "validate_configuration")
 #@ load("@ytt:yaml", "yaml")
-#@ load("/lib/config_variable_association.star", "config_variable_association", "get_cluster_variables")
+#@ load("/lib/config_variable_association.star", "config_variable_association", "get_vsphere_vars")
 #@ validate_configuration("vsphere")
 
 #@ bomDataForK8sVersion = get_bom_data_for_tkr_name()
@@ -109,7 +109,7 @@ spec:
         v1.21.2: #! comes from clusterctl during testing
           kubernetesSpec:
             version: v1.21.2
-            imageRepository: #@ bomDataForK8sVersion.kubeadmConfigSpec.imageRepository
+            imageRepository: projects-stg.registry.vmware.com
             etcd:
               imageTag: #@ bomDataForK8sVersion.kubeadmConfigSpec.etcd.local.imageTag
             coredns:
@@ -120,12 +120,9 @@ spec:
             os-name: ubuntu
             os-type: linux
             os-arch: amd64
-    #@ vars = get_cluster_variables()
-    #@ if vars["TKG_CUSTOM_IMAGE_REPOSITORY"] == "":
-    #@  vars["TKG_CUSTOM_IMAGE_REPOSITORY"] = bomData.imageConfig.imageRepository
-    #@ end
+    #@ vars = get_vsphere_vars()
     #@ for configVariable in vars:
-    #@  if vars[configVariable] != None and configVariable in ["CLUSTER_API_SERVER_PORT", "CLUSTER_NAME", "CONTROL_PLANE_MACHINE_COUNT", "VSPHERE_CONTROL_PLANE_NUM_CPUS", "VSPHERE_CONTROL_PLANE_DISK_GIB", "VSPHERE_CONTROL_PLANE_MEM_MIB", "VSPHERE_WORKER_NUM_CPUS", "VSPHERE_WORKER_DISK_GIB", "VSPHERE_WORKER_MEM_MIB", "VSPHERE_CLONE_MODE", "VSPHERE_NETWORK", "VSPHERE_DATACENTER", "VSPHERE_DATASTORE", "VSPHERE_FOLDER", "VSPHERE_RESOURCE_POOL", "VSPHERE_STORAGE_POLICY_ID", "VSPHERE_SERVER", "VSPHERE_TLS_THUMBPRINT", "VSPHERE_SSH_AUTHORIZED_KEY", "VSPHERE_TEMPLATE", "VSPHERE_WINDOWS_TEMPLATE", "VSPHERE_CONTROL_PLANE_ENDPOINT", "proxy", "TKG_PROXY_CA_CERT", "TKG_CUSTOM_IMAGE_REPOSITORY", "TKG_CUSTOM_IMAGE_REPOSITORY_SKIP_TLS_VERIFY", "TKG_CUSTOM_IMAGE_REPOSITORY_CA_CERTIFICATE", "SERVICE_CIDR", "CLUSTER_CIDR", "ENABLE_AUDIT_LOGGING", "AVI_CONTROL_PLANE_HA_PROVIDER"]:
+    #@  if vars[configVariable] != None and configVariable in ["apiServerPort", "controlPlane", "worker", "vcenter", "VSPHERE_WINDOWS_TEMPLATE", "apiServerEndpoint", "network", "imageRepository", "trust", "user", "auditLogging", "aviAPIServerHAProvider"]:
     - name: #@ configVariable
       value: #@ vars[configVariable]
     #@ end
