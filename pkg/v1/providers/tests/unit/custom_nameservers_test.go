@@ -30,6 +30,7 @@ var _ = Describe("Control Plane/Workload Node Nameserver Ytt Templating", func()
 		BeforeEach(func() {
 			values = createDataValues(map[string]string{
 				"CLUSTER_NAME":                   "foo",
+				"KUBERNETES_RELEASE":             "v1.22.11---vmware.1-tkg.1",
 				"TKG_CLUSTER_ROLE":               "workload",
 				"TKG_IP_FAMILY":                  "ipv4",
 				"CONTROL_PLANE_NODE_NAMESERVERS": "1.1.1.1,2.2.2.2",
@@ -75,6 +76,7 @@ var _ = Describe("Control Plane/Workload Node Nameserver Ytt Templating", func()
 		BeforeEach(func() {
 			values = createDataValues(map[string]string{
 				"CLUSTER_NAME":                   "foo",
+				"KUBERNETES_RELEASE":             "v1.22.11---vmware.1-tkg.1",
 				"TKG_CLUSTER_ROLE":               "workload",
 				"TKG_IP_FAMILY":                  "ipv6",
 				"CONTROL_PLANE_NODE_NAMESERVERS": "fd00::1,fd00::2",
@@ -120,6 +122,7 @@ var _ = Describe("Control Plane/Workload Node Nameserver Ytt Templating", func()
 		BeforeEach(func() {
 			values = createDataValues(map[string]string{
 				"CLUSTER_NAME":                   "foo",
+				"KUBERNETES_RELEASE":             "v1.22.11---vmware.1-tkg.1",
 				"TKG_CLUSTER_ROLE":               "workload",
 				"TKG_IP_FAMILY":                  "ipv4,ipv6",
 				"CONTROL_PLANE_NODE_NAMESERVERS": "1.1.1.1,fd00::2",
