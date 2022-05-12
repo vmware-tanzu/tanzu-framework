@@ -32,7 +32,13 @@ chmod +x /usr/local/bin/kind
 # Delete any kind cluster that are left behind
 kind get clusters | xargs -n 1 kind delete cluster --name
 
+# Run dry-run to see all resources
+leftovers -d -i aws --aws-access-key-id="${AWS_ACCESS_KEY_ID}" --aws-secret-access-key="${AWS_SECRET_ACCESS_KEY}" --aws-session-token="${AWS_SESSION_TOKEN}" --filter="${FILTER}" --aws-region="${AWS_REGION}" -n
+
 leftovers -i aws --aws-access-key-id="${AWS_ACCESS_KEY_ID}" --aws-secret-access-key="${AWS_SECRET_ACCESS_KEY}" --aws-session-token="${AWS_SESSION_TOKEN}" --filter="${FILTER}" --aws-region="${AWS_REGION}" -n || true
+
+# Run dry-run to see any leftover resources
+leftovers -d -i aws --aws-access-key-id="${AWS_ACCESS_KEY_ID}" --aws-secret-access-key="${AWS_SECRET_ACCESS_KEY}" --aws-session-token="${AWS_SESSION_TOKEN}" --filter="${FILTER}" --aws-region="${AWS_REGION}" -n
 
 # Retry the deletion incase the previous attempt failed
 leftovers -i aws --aws-access-key-id="${AWS_ACCESS_KEY_ID}" --aws-secret-access-key="${AWS_SECRET_ACCESS_KEY}" --aws-session-token="${AWS_SESSION_TOKEN}" --filter="${FILTER}" --aws-region="${AWS_REGION}" -n
