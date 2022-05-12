@@ -82,3 +82,6 @@ overrides:
   #! tkr-conversion-webhook image
   - image: tkr-conversion-webhook:latest
     newImage: ""
+  #! tkr-source-controller image
+  - image: tkr-source-controller:latest
+    newImage: ""

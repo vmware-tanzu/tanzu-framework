@@ -42,6 +42,7 @@ func init() {
 }
 
 func main() {
+	var metricsAddr string
 	var tkrNamespace string
 	var tkrPkgServiceAccountName string
 	var bomImagePath string
@@ -51,8 +52,9 @@ func main() {
 	var continuousTKRDiscoverFreq int
 	var skipVerifyRegistryCerts bool
 
+	flag.StringVar(&metricsAddr, "metrics-bind-addr", ":8080", "The address the metric endpoint binds to.")
 	flag.StringVar(&tkrNamespace, "namespace", "tkg-system", "Namespace for TKR related resources")
-	flag.StringVar(&tkrPkgServiceAccountName, "sa-name", "tkr-service-manager-sa", "ServiceAccount name used by TKR PackageInstalls")
+	flag.StringVar(&tkrPkgServiceAccountName, "sa-name", "tkr-source-controller-manager-sa", "ServiceAccount name used by TKR PackageInstalls")
 	flag.StringVar(&bomImagePath, "bom-image-path", "", "The BOM image path.")
 	flag.StringVar(&bomMetadataImagePath, "bom-metadata-image-path", "", "The BOM compatibility metadata image path.")
 	flag.StringVar(&tkrRepoImagePath, "tkr-repo-image-path", "", "The TKR Package Repository image path.")
@@ -74,7 +76,8 @@ func main() {
 	// Setup Manager
 	setupLog.Info("setting up manager")
 	mgr, err := manager.New(config.GetConfigOrDie(), manager.Options{
-		Scheme: scheme,
+		Scheme:             scheme,
+		MetricsBindAddress: metricsAddr,
 	})
 	if err != nil {
 		setupLog.Error(err, "unable to set up controller manager")

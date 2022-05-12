@@ -1,0 +1,50 @@
+#@ load("@ytt:data", "data")
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: tkr-source-controller
+  name: tkr-source-controller-manager
+  namespace: #@ data.values.namespace
+  annotations:
+    kapp.k14s.io/change-rule.0: "upsert after upserting tkr-source-controller.tanzu.vmware.com/ClusterRoleBinding"
+    kapp.k14s.io/change-rule.1: "delete before deleting tkr-source-controller.tanzu.vmware.com/ClusterRoleBinding"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: tkr-source-controller
+  template:
+    metadata:
+      labels:
+        app: tkr-source-controller
+    spec:
+      containers:
+      - image: tkr-source-controller:latest
+        imagePullPolicy: IfNotPresent
+        name: manager
+        command:
+        - /manager
+        args:
+        - --metrics-bind-addr=0
+        - --sa-name=tkr-source-controller-manager-sa
+        - #@ "--namespace={}".format(data.values.namespace)
+        - #@ "--bom-image-path={}".format(data.values.bomImagePath)
+        - #@ "--bom-metadata-image-path={}".format(data.values.bomMetadataImagePath)
+        - #@ "--tkr-repo-image-path={}".format(data.values.tkrRepoImagePath)
+        - #@ "--initial-discover-frequency={}".format(data.values.initialDiscoverFrequency)
+        - #@ "--continuous-discover-frequency={}".format(data.values.continuousDiscoverFrequency)
+        #@ if/end hasattr(data.values, 'skipVerifyRegistryCert') and data.values.skipVerifyRegistryCert:
+        - --skip-verify-registry-cert=true
+        env:
+        resources:
+          limits:
+            cpu: 100m
+            memory: 200Mi
+          requests:
+            cpu: 100m
+            memory: 40Mi
+      serviceAccount: tkr-source-controller-manager-sa
+      terminationGracePeriodSeconds: 10
+

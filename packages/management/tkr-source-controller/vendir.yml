@@ -1,0 +1,14 @@
+apiVersion: vendir.k14s.io/v1alpha1
+kind: Config
+minimumRequiredVersion: 0.12.0
+directories:
+  - path: bundle/config/upstream
+    contents:
+      - manual: {}
+        path: rbac.yaml
+      - manual: {}
+        path: tkr-source-controller-deployment.yaml
+  - path: bundle/config/overlays
+    contents:
+      - path: overlay-tkr-source-controller.yaml
+        manual: {}
