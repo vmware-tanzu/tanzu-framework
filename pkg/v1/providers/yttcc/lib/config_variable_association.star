@@ -831,3 +831,273 @@ def get_vsphere_vars():
 
     return vars
 end
+
+def get_azure_vars():
+    simpleMapping = {}
+    simpleMapping["AZURE_LOCATION"] = "location"
+    simpleMapping["AZURE_RESOURCE_GROUP"] = "resourceGroup"
+    simpleMapping["AZURE_SUBSCRIPTION_ID"] = "subscriptionID"
+    simpleMapping["AZURE_ENVIRONMENT"] = "environment"
+    simpleMapping["AZURE_SSH_PUBLIC_KEY_B64"] = "sshPublicKey"
+    simpleMapping["AZURE_FRONTEND_PRIVATE_IP"] = "frontendPrivateIP"
+    simpleMapping["AZURE_CUSTOM_TAGS"] = "customTags"
+    vars = get_cluster_variables()
+
+    for key in simpleMapping:
+        if data.values[key] != None:
+            vars[simpleMapping[key]] = data.values[key]
+        end
+    end
+
+    if data.values["AZURE_ENABLE_ACCELERATED_NETWORKING"] != "":
+        vars["acceleratedNetworking"] =  {
+            "enabled": data.values["AZURE_ENABLE_ACCELERATED_NETWORKING"]
+        }
+    end
+    if data.values["AZURE_ENABLE_PRIVATE_CLUSTER"] != "":
+        vars["privateCluster"] = {
+            "enabled": data.values["AZURE_ENABLE_PRIVATE_CLUSTER"]
+        }
+    end
+
+    if vars.get("network") == None:
+        vars["network"] = {}
+    end
+
+    vnet = {}
+    if data.values["AZURE_VNET_NAME"] != "":
+        vnet["name"] = data.values["AZURE_VNET_NAME"]
+    end
+    if data.values["AZURE_VNET_CIDR"] != "":
+        vnet["cidrBlocks"] = [
+            data.values["AZURE_VNET_CIDR"]
+        ]
+    end
+    if data.values["AZURE_VNET_RESOURCE_GROUP"] != "":
+        vnet["resourceGroup"] = data.values["AZURE_VNET_RESOURCE_GROUP"]
+    end
+    if vnet != {}:
+        vars["network"]["vnet"] = vnet
+    end
+
+    identity = {}
+    if data.values["AZURE_IDENTITY_NAME"] != "":
+        identity["name"] = data.values["AZURE_IDENTITY_NAME"]
+    end
+    if data.values["AZURE_IDENTITY_NAMESPACE"] != "":
+        identity["namespace"] = data.values["AZURE_IDENTITY_NAMESPACE"]
+    end
+    if identity != {}:
+        vars["identityRef"] = identity
+    end
+
+    controlPlane = {}
+    if data.values["AZURE_CONTROL_PLANE_MACHINE_TYPE"] != "":
+        controlPlane["vmSize"] = data.values["AZURE_CONTROL_PLANE_MACHINE_TYPE"]
+    end
+
+    osDisk = {}
+    if data.values["AZURE_CONTROL_PLANE_OS_DISK_STORAGE_ACCOUNT_TYPE"] != "":
+        osDisk["storageAccountType"] = data.values["AZURE_CONTROL_PLANE_OS_DISK_STORAGE_ACCOUNT_TYPE"]
+    end
+    if data.values["AZURE_CONTROL_PLANE_OS_DISK_SIZE_GIB"] != "":
+        osDisk["sizeGiB"] = data.values["AZURE_CONTROL_PLANE_OS_DISK_SIZE_GIB"]
+    end
+    if osDisk != {}:
+        controlPlane["osDisk"] = osDisk
+    end
+
+    dataDisk = {}
+    if data.values["AZURE_CONTROL_PLANE_DATA_DISK_SIZE_GIB"] != "":
+        dataDisk["sizeGiB"] = data.values["AZURE_CONTROL_PLANE_DATA_DISK_SIZE_GIB"]
+        controlPlane["dataDisks"] = [dataDisk]
+    end
+
+    subnet = {}
+    if data.values["AZURE_CONTROL_PLANE_SUBNET_NAME"] != "":
+        subnet["name"] = data.values["AZURE_CONTROL_PLANE_SUBNET_NAME"]
+    end
+    if data.values["AZURE_CONTROL_PLANE_SUBNET_CIDR"] != "":
+        subnet["cidr"] = data.values["AZURE_CONTROL_PLANE_SUBNET_CIDR"]
+    end
+    if data.values["AZURE_CONTROL_PLANE_SUBNET_SECURITY_GROUP"] != "":
+        subnet["securityGroup"] = data.values["AZURE_CONTROL_PLANE_SUBNET_SECURITY_GROUP"]
+    end
+    if subnet != {}:
+        controlPlane["subnet"] = subnet
+    end
+
+    outboundLB = {}
+    if data.values["AZURE_ENABLE_CONTROL_PLANE_OUTBOUND_LB"] != False:
+        outboundLB["enabled"] = data.values["AZURE_ENABLE_CONTROL_PLANE_OUTBOUND_LB"]
+    end
+    if data.values["AZURE_CONTROL_PLANE_OUTBOUND_LB_FRONTEND_IP_COUNT"] != "":
+        outboundLB["frontendIPCount"] = data.values["AZURE_CONTROL_PLANE_OUTBOUND_LB_FRONTEND_IP_COUNT"]
+    end
+    if outboundLB != {}:
+        controlPlane["outboundLB"] = outboundLB
+    end
+
+    if controlPlane != {}:
+        vars["controlPlane"] = controlPlane
+    end
+
+    worker = {}
+    if data.values["AZURE_NODE_MACHINE_TYPE"] != "":
+        worker["vmSize"] = data.values["AZURE_NODE_MACHINE_TYPE"]
+    end
+
+    osDisk = {}
+    if data.values["AZURE_NODE_OS_DISK_STORAGE_ACCOUNT_TYPE"] != "":
+        osDisk["storageAccountType"] = data.values["AZURE_NODE_OS_DISK_STORAGE_ACCOUNT_TYPE"]
+    end
+    if data.values["AZURE_NODE_OS_DISK_SIZE_GIB"] != "":
+        osDisk["sizeGiB"] = data.values["AZURE_NODE_OS_DISK_SIZE_GIB"]
+    end
+    if osDisk != {}:
+        worker["osDisk"] = osDisk
+    end
+
+    dataDisk = {}
+    if data.values["AZURE_ENABLE_NODE_DATA_DISK"] != False:
+        worker["dataDisks"] = [dataDisk]
+    end
+    if data.values["AZURE_NODE_DATA_DISK_SIZE_GIB"] != "":
+        dataDisk["sizeGiB"] = data.values["AZURE_NODE_DATA_DISK_SIZE_GIB"]
+    end
+
+    subnet = {}
+    if data.values["AZURE_NODE_SUBNET_NAME"] != "":
+        subnet["name"] = data.values["AZURE_NODE_SUBNET_NAME"]
+    end
+    if data.values["AZURE_NODE_SUBNET_CIDR"] != "":
+        subnet["cidr"] = data.values["AZURE_NODE_SUBNET_CIDR"]
+    end
+    if data.values["AZURE_NODE_SUBNET_SECURITY_GROUP"] != "":
+        subnet["securityGroup"] = data.values["AZURE_NODE_SUBNET_SECURITY_GROUP"]
+    end
+    if subnet != {}:
+        worker["subnet"] = subnet
+    end
+
+    outboundLB = {}
+    if data.values["AZURE_ENABLE_NODE_OUTBOUND_LB"] != False:
+        outboundLB["enabled"] = data.values["AZURE_ENABLE_NODE_OUTBOUND_LB"]
+    end
+    if data.values["AZURE_NODE_OUTBOUND_LB_FRONTEND_IP_COUNT"] != "":
+        outboundLB["frontendIPCount"] = data.values["AZURE_NODE_OUTBOUND_LB_FRONTEND_IP_COUNT"]
+    end
+    if data.values["AZURE_NODE_OUTBOUND_LB_IDLE_TIMEOUT_IN_MINUTES"] != "":
+        outboundLB["idleTimeoutInMinutes"] = data.values["AZURE_NODE_OUTBOUND_LB_IDLE_TIMEOUT_IN_MINUTES"]
+    end
+    if outboundLB != {}:
+        worker["outboundLB"] = outboundLB
+    end
+
+    if worker != {}:
+        vars["worker"] = worker
+    end
+
+    return vars
+end
+
+def get_vsphere_vars():
+    simpleMapping = {}
+    simpleMapping["VSPHERE_CONTROL_PLANE_ENDPOINT"] = "apiServerEndpoint"
+    simpleMapping["VIP_NETWORK_INTERFACE"] = "vipNetworkInterface"
+    simpleMapping["AVI_CONTROL_PLANE_HA_PROVIDER"] = "aviAPIServerHAProvider"
+
+    vars = get_cluster_variables()
+
+    for key in simpleMapping:
+        if data.values[key] != None:
+            vars[simpleMapping[key]] = data.values[key]
+        end
+    end
+
+    vcenter = {}
+    vcenterMapping = {}
+    vcenterMapping["VSPHERE_CLONE_MODE"] = "cloneMode"
+    vcenterMapping["VSPHERE_NETWORK"] = "network"
+    vcenterMapping["VSPHERE_DATACENTER"] = "datacenter"
+    vcenterMapping["VSPHERE_DATASTORE"] = "datastore"
+    vcenterMapping["VSPHERE_FOLDER"] = "folder"
+    vcenterMapping["VSPHERE_RESOURCE_POOL"] = "resourcePool"
+    vcenterMapping["VSPHERE_STORAGE_POLICY_ID"] = "storagePolicyID"
+    vcenterMapping["VSPHERE_SERVER"] = "server"
+    vcenterMapping["VSPHERE_TLS_THUMBPRINT"] = "tlsThumbprint"
+    vcenterMapping["VSPHERE_TEMPLATE"] = "template"
+
+    for key in vcenterMapping:
+        if data.values[key] != None:
+            vcenter[vcenterMapping[key]] = data.values[key]
+        end
+    end
+
+    if vcenter != {}:
+        vars["vcenter"] = vcenter
+    end
+
+    if data.values["VSPHERE_SSH_AUTHORIZED_KEY"] != None:
+        vars["user"] = {
+            "sshAuthorizedKeys": [data.values["VSPHERE_SSH_AUTHORIZED_KEY"]]
+        }
+    end
+
+    controlPlane = {}
+    machine = {}
+    if data.values["VSPHERE_CONTROL_PLANE_NUM_CPUS"] != "":
+        machine["numCPUs"] = data.values["VSPHERE_CONTROL_PLANE_NUM_CPUS"]
+    end
+    if data.values["VSPHERE_CONTROL_PLANE_DISK_GIB"] != "":
+        machine["diskGiB"] = data.values["VSPHERE_CONTROL_PLANE_DISK_GIB"]
+    end
+    if data.values["VSPHERE_CONTROL_PLANE_MEM_MIB"] != "":
+        machine["memoryMiB"] = data.values["VSPHERE_CONTROL_PLANE_MEM_MIB"]
+    end
+    if machine != {}:
+        controlPlane["machine"] = machine
+    end
+
+    network = {}
+    if data.values["CONTROL_PLANE_NODE_NAMESERVERS"] != None:
+        network["nameservers"] = data.values["CONTROL_PLANE_NODE_NAMESERVERS"]
+    end
+    if network != {}:
+        controlPlane["network"] = network
+    end
+    if controlPlane != {}:
+        vars["controlPlane"] = controlPlane
+    end
+
+    worker = {}
+    if data.values["WORKER_MACHINE_COUNT"] != "":
+        worker["count"] = data.values["WORKER_MACHINE_COUNT"]
+    end
+    machine = {}
+    if data.values["VSPHERE_WORKER_NUM_CPUS"] != "":
+        machine["numCPUs"] = data.values["VSPHERE_WORKER_NUM_CPUS"]
+    end
+    if data.values["VSPHERE_WORKER_DISK_GIB"] != "":
+        machine["diskGiB"] = data.values["VSPHERE_WORKER_DISK_GIB"]
+    end
+    if data.values["VSPHERE_WORKER_MEM_MIB"] != "":
+        machine["memoryMiB"] = data.values["VSPHERE_WORKER_MEM_MIB"]
+    end
+    if machine != {}:
+        worker["machine"] = machine
+    end
+
+    network = {}
+    if data.values["WORKER_NODE_NAMESERVERS"] != None:
+        network["nameservers"] = data.values["WORKER_NODE_NAMESERVERS"]
+    end
+    if network != {}:
+        worker["network"] = network
+    end
+    if worker != {}:
+        vars["worker"] = worker
+    end
+
+    return vars
+end
