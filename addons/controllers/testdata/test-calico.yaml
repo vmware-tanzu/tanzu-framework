@@ -17,7 +17,6 @@ metadata:
   name: test-cluster-calico
   namespace: default
 spec:
-  namespace: "kube-system"
   infraProvider: vsphere
   ipFamily: ipv4
   clusterCIDR: ""
