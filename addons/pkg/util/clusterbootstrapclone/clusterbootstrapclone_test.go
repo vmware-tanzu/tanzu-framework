@@ -145,7 +145,7 @@ var _ = Describe("Clusterbootstrap", func() {
 
 			createdOrUpdatedProvider, err := helper.cloneProviderRef(cluster, antreaClusterbootstrapPackage, fakeAntreaCarvelPkgRefName, fakeSourceNamespace)
 			Expect(err).NotTo(HaveOccurred())
-			Expect(createdOrUpdatedProvider.GetName()).To(Equal(fmt.Sprintf("%s-%s-package", cluster.Name, fakeAntreaCarvelPkgRefName)))
+			Expect(createdOrUpdatedProvider.GetName()).To(Equal(fmt.Sprintf("%s-%s-package", cluster.Name, "antrea")))
 			Expect(createdOrUpdatedProvider.GetNamespace()).To(Equal(cluster.Namespace))
 		})
 	})
