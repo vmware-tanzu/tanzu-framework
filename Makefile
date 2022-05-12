@@ -706,7 +706,7 @@ e2e-tkgpackageclient-docker: $(GINKGO) generate-embedproviders ## Run ginkgo tkg
 # These are the components in this repo that need to have a docker image built.
 # This variable refers to directory paths that contain a Makefile with `docker-build`, `docker-publish` and
 # `kbld-image-replace` targets that can build and push a docker image for that component.
-COMPONENTS :=  \
+COMPONENTS ?=  \
   pkg/v2/tkr/controller/tkr-source \
   pkg/v2/tkr/controller/tkr-status \
   pkg/v1/sdk/features \
