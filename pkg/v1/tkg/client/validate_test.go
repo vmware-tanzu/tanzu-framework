@@ -792,121 +792,37 @@ var _ = Describe("Validate", func() {
 			)
 		})
 
-		Context("SERVICE_CIDR netmask validation", func() {
-			Context("when SERVICE_CIDR is ipv4", func() {
-				BeforeEach(func() {
-					tkgConfigReaderWriter.Set(constants.ConfigVariableIPFamily, "ipv4")
-				})
+		DescribeTable("SERVICE_CIDR size validation - invalid cases", func(ipFamily, serviceCIDR, problematicCIDR, netmaskSizeConstraint string) {
+			tkgConfigReaderWriter.Set(constants.ConfigVariableIPFamily, ipFamily)
+			tkgConfigReaderWriter.Set(constants.ConfigVariableServiceCIDR, serviceCIDR)
 
-				Context("when Service CIDR size is too large", func() {
-					It("should fail validation", func() {
-						tkgConfigReaderWriter.Set(constants.ConfigVariableServiceCIDR, "192.168.2.1/11")
+			validationError := tkgClient.ConfigureAndValidateManagementClusterConfiguration(initRegionOptions, true)
+			Expect(validationError).To(HaveOccurred())
+			expectedErrorMsg := fmt.Sprintf(`invalid SERVICE_CIDR "%s", expected netmask to be "%s" or greater`, problematicCIDR, netmaskSizeConstraint)
+			Expect(validationError.Error()).To(ContainSubstring(expectedErrorMsg))
+		},
+			Entry("ipv4 cidr too large", "ipv4", "192.168.2.1/11", "192.168.2.1/11", "/12"),
+			Entry("ipv6 cidr too large", "ipv6", "::1/107", "::1/107", "/108"),
+			Entry("ipv4-primary dualstack: ipv4 cidr too large", "ipv4,ipv6", "1.2.3.4/11,::1/108", "1.2.3.4/11", "/12"),
+			Entry("ipv4-primary dualstack: ipv6 cidr too large", "ipv4,ipv6", "1.2.3.4/12,::1/107", "::1/107", "/108"),
+			Entry("ipv6-primary dualstack: ipv6 cidr too large", "ipv6,ipv4", "::1/107,1.2.3.4/12", "::1/107", "/108"),
+			Entry("ipv6-primary dualstack: ipv4 cidr too large", "ipv6,ipv4", "::1/108,1.2.3.4/11", "1.2.3.4/11", "/12"),
+		)
 
-						validationError := tkgClient.ConfigureAndValidateManagementClusterConfiguration(initRegionOptions, true)
-						Expect(validationError).To(HaveOccurred())
-						Expect(validationError.Error()).To(ContainSubstring("invalid SERVICE_CIDR \"192.168.2.1/11\", expected netmask to be \"/12\" or greater"))
-					})
-				})
-				Context("when Service CIDR size is at or below the maximum size", func() {
-					It("should pass validation", func() {
-						tkgConfigReaderWriter.Set(constants.ConfigVariableServiceCIDR, "192.168.2.1/12")
+		DescribeTable("SERVICE_CIDR size validation - valid cases", func(ipFamily, serviceCIDR string) {
+			tkgConfigReaderWriter.Set(constants.ConfigVariableIPFamily, ipFamily)
+			tkgConfigReaderWriter.Set(constants.ConfigVariableServiceCIDR, serviceCIDR)
 
-						validationError := tkgClient.ConfigureAndValidateManagementClusterConfiguration(initRegionOptions, true)
-						Expect(validationError).NotTo(HaveOccurred())
-					})
-				})
-			})
-
-			Context("when SERVICE_CIDR is ipv6", func() {
-				BeforeEach(func() {
-					tkgConfigReaderWriter.Set(constants.ConfigVariableIPFamily, "ipv6")
-				})
-
-				Context("when Service CIDR size is too large", func() {
-					It("should fail validation", func() {
-						tkgConfigReaderWriter.Set(constants.ConfigVariableServiceCIDR, "::1/107")
-
-						validationError := tkgClient.ConfigureAndValidateManagementClusterConfiguration(initRegionOptions, true)
-						Expect(validationError).To(HaveOccurred())
-						Expect(validationError.Error()).To(ContainSubstring("invalid SERVICE_CIDR \"::1/107\", expected netmask to be \"/108\" or greater"))
-					})
-				})
-				Context("when Service CIDR size is at or below the maximum size", func() {
-					It("should pass validation", func() {
-						tkgConfigReaderWriter.Set(constants.ConfigVariableServiceCIDR, "::1/108")
-
-						validationError := tkgClient.ConfigureAndValidateManagementClusterConfiguration(initRegionOptions, true)
-						Expect(validationError).NotTo(HaveOccurred())
-					})
-				})
-			})
-
-			Context("when IPFamily is ipv4,ipv6 i.e Dual-stack Primary IPv4", func() {
-				BeforeEach(func() {
-					tkgConfigReaderWriter.Set(constants.ConfigVariableIPFamily, "ipv4,ipv6")
-				})
-
-				Context("when the primary ipv4 Service CIDR size is too large", func() {
-					It("should fail validation", func() {
-						tkgConfigReaderWriter.Set(constants.ConfigVariableServiceCIDR, "1.2.3.4/11,::1/108")
-
-						validationError := tkgClient.ConfigureAndValidateManagementClusterConfiguration(initRegionOptions, true)
-						Expect(validationError).To(HaveOccurred())
-						Expect(validationError.Error()).To(ContainSubstring("invalid SERVICE_CIDR \"1.2.3.4/11\", expected netmask to be \"/12\" or greater"))
-					})
-				})
-				Context("when the secondary ipv6 Service CIDR size is too large", func() {
-					It("should fail validation", func() {
-						tkgConfigReaderWriter.Set(constants.ConfigVariableServiceCIDR, "1.2.3.4/12,::1/107")
-
-						validationError := tkgClient.ConfigureAndValidateManagementClusterConfiguration(initRegionOptions, true)
-						Expect(validationError).To(HaveOccurred())
-						Expect(validationError.Error()).To(ContainSubstring("invalid SERVICE_CIDR \"::1/107\", expected netmask to be \"/108\" or greater"))
-					})
-				})
-				Context("when Service CIDRs sizes are at or below the maximum size", func() {
-					It("should pass validation", func() {
-						tkgConfigReaderWriter.Set(constants.ConfigVariableServiceCIDR, "1.2.3.4/12,::1/108")
-
-						validationError := tkgClient.ConfigureAndValidateManagementClusterConfiguration(initRegionOptions, true)
-						Expect(validationError).NotTo(HaveOccurred())
-					})
-				})
-			})
-
-			Context("when IPFamily is ipv6,ipv4 i.e Dual-stack Primary IPv6", func() {
-				BeforeEach(func() {
-					tkgConfigReaderWriter.Set(constants.ConfigVariableIPFamily, "ipv6,ipv4")
-				})
-
-				Context("when the primary ipv6 Service CIDR size is too large", func() {
-					It("should fail validation", func() {
-						tkgConfigReaderWriter.Set(constants.ConfigVariableServiceCIDR, "::1/107,1.2.3.4/12")
-
-						validationError := tkgClient.ConfigureAndValidateManagementClusterConfiguration(initRegionOptions, true)
-						Expect(validationError).To(HaveOccurred())
-						Expect(validationError.Error()).To(ContainSubstring("invalid SERVICE_CIDR \"::1/107\", expected netmask to be \"/108\" or greater"))
-					})
-				})
-				Context("when the secondary ipv4 Service CIDR size is too large", func() {
-					It("should fail validation", func() {
-						tkgConfigReaderWriter.Set(constants.ConfigVariableServiceCIDR, "::1/108,1.2.3.4/11")
-
-						validationError := tkgClient.ConfigureAndValidateManagementClusterConfiguration(initRegionOptions, true)
-						Expect(validationError).To(HaveOccurred())
-						Expect(validationError.Error()).To(ContainSubstring("invalid SERVICE_CIDR \"1.2.3.4/11\", expected netmask to be \"/12\" or greater"))
-					})
-				})
-				Context("when Service CIDRs sizes are at or below the maximum size", func() {
-					It("pass validation", func() {
-						tkgConfigReaderWriter.Set(constants.ConfigVariableServiceCIDR, "::1/108,1.2.3.4/12")
-
-						validationError := tkgClient.ConfigureAndValidateManagementClusterConfiguration(initRegionOptions, true)
-						Expect(validationError).NotTo(HaveOccurred())
-					})
-				})
-			})
-		})
+			validationError := tkgClient.ConfigureAndValidateManagementClusterConfiguration(initRegionOptions, true)
+			Expect(validationError).NotTo(HaveOccurred())
+		},
+			Entry("ipv4 cidr at max size", "ipv4", "192.168.2.1/12"),
+			Entry("ipv4 cidr at slightly smaller size", "ipv4", "192.168.2.1/13"),
+			Entry("ipv6 cidr at max size", "ipv6", "::1/108"),
+			Entry("ipv6 cidr at slightly smaller size", "ipv6", "::1/108"),
+			Entry("ipv4-primary dualstack: cidrs at max size", "ipv4,ipv6", "1.2.3.4/12,::1/108"),
+			Entry("ipv6-primary dualstack: cidrs at max size", "ipv6,ipv4", "::1/108,1.2.3.4/12"),
+		)
 
 		Context("Nameserver configuration and validation", func() {
 			It("should allow empty nameserver configurations", func() {
@@ -1291,6 +1207,38 @@ var _ = Describe("Validate", func() {
 				})
 			})
 		})
+
+		DescribeTable("SERVICE_CIDR size validation - invalid cases", func(ipFamily, serviceCIDR, problematicCIDR, netmaskSizeConstraint string) {
+			tkgConfigReaderWriter.Set(constants.ConfigVariableIPFamily, ipFamily)
+			tkgConfigReaderWriter.Set(constants.ConfigVariableServiceCIDR, serviceCIDR)
+
+			validationError := tkgClient.ConfigureAndValidateWorkloadClusterConfiguration(createClusterOptions, clusterClient, true)
+			Expect(validationError).To(HaveOccurred())
+			expectedErrorMsg := fmt.Sprintf(`invalid SERVICE_CIDR "%s", expected netmask to be "%s" or greater`, problematicCIDR, netmaskSizeConstraint)
+			Expect(validationError.Error()).To(ContainSubstring(expectedErrorMsg))
+		},
+			Entry("ipv4 cidr too large", "ipv4", "192.168.2.1/11", "192.168.2.1/11", "/12"),
+			Entry("ipv6 cidr too large", "ipv6", "::1/107", "::1/107", "/108"),
+			Entry("ipv4-primary dualstack: ipv4 cidr too large", "ipv4,ipv6", "1.2.3.4/11,::1/108", "1.2.3.4/11", "/12"),
+			Entry("ipv4-primary dualstack: ipv6 cidr too large", "ipv4,ipv6", "1.2.3.4/12,::1/107", "::1/107", "/108"),
+			Entry("ipv6-primary dualstack: ipv6 cidr too large", "ipv6,ipv4", "::1/107,1.2.3.4/12", "::1/107", "/108"),
+			Entry("ipv6-primary dualstack: ipv4 cidr too large", "ipv6,ipv4", "::1/108,1.2.3.4/11", "1.2.3.4/11", "/12"),
+		)
+
+		DescribeTable("SERVICE_CIDR size validation - valid cases", func(ipFamily, serviceCIDR string) {
+			tkgConfigReaderWriter.Set(constants.ConfigVariableIPFamily, ipFamily)
+			tkgConfigReaderWriter.Set(constants.ConfigVariableServiceCIDR, serviceCIDR)
+
+			validationError := tkgClient.ConfigureAndValidateWorkloadClusterConfiguration(createClusterOptions, clusterClient, true)
+			Expect(validationError).NotTo(HaveOccurred())
+		},
+			Entry("ipv4 cidr at max size", "ipv4", "192.168.2.1/12"),
+			Entry("ipv4 cidr at slightly smaller size", "ipv4", "192.168.2.1/13"),
+			Entry("ipv6 cidr at max size", "ipv6", "::1/108"),
+			Entry("ipv6 cidr at slightly smaller size", "ipv6", "::1/108"),
+			Entry("ipv4-primary dualstack: cidrs at max size", "ipv4,ipv6", "1.2.3.4/12,::1/108"),
+			Entry("ipv6-primary dualstack: cidrs at max size", "ipv6,ipv4", "::1/108,1.2.3.4/12"),
+		)
 	})
 })
 
