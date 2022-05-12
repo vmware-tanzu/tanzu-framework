@@ -1,0 +1,67 @@
+name: Publish Management Packages
+
+on:
+  pull_request:
+    branches: [ main, release-*, package-based-lcm ]
+    paths:
+      - 'pkg/v1/tkg/**'
+      - 'pkg/v1/tkr/**'
+      - 'pkg/v2/tkr/**'
+      - 'packages/management/**'
+      - '!pkg/v1/tkg/tkgpackage*/*'
+      - '!pkg/v1/tkg/kappclient/*'
+      - '!pkg/v1/tkg/test/tkgpackageclient/**'
+      - 'pkg/v1/providers/**'
+      - '.github/workflows/publish_management_package.yaml'
+
+jobs:
+
+  build:
+    name: Release
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Set up Go 1.x
+        uses: actions/setup-go@v3
+        with:
+          go-version: '1.17'
+        id: go
+
+      - name: Use Node 16.x
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16.x
+
+      - name: Check out code into the Go module directory
+        uses: actions/checkout@v1
+
+      - name: Get dependencies
+        run: |
+          go get -v -t -d ./...
+          if [ -f Gopkg.toml ]; then
+              curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
+              dep ensure
+          fi
+
+      - name: Build management packages
+        env:
+          NUM: ${{ github.run_id }}
+        run: |
+          export OCI_REGISTRY=projects.registry.vmware.com/tanzu_framework/github-actions/management
+          export BUILD_VERSION=v0.${NUM}
+          export PACKAGE_VERSION=v0.${NUM}
+          make COMPONENTS="pkg/v2/tkr/controller/tkr-status pkg/v1/sdk/features addons pkg/v2/tkr/webhook/infra-machine pkg/v1/sdk/capabilities pkg/v2/tkr/webhook/tkr-conversion pkg/v2/tkr/webhook/cluster/tkr-resolver" docker-build
+
+      - uses: 'docker/login-action@v1'
+        with:
+          registry: 'projects.registry.vmware.com/tanzu_framework'
+          username: '${{ secrets.OCI_REGISTRY_USERNAME }}'
+          password: '${{ secrets.OCI_REGISTRY_TOKEN }}'
+
+      - name: Publish management packages
+        env:
+          NUM: ${{ github.run_number }}
+        run: |
+          make COMPONENTS="pkg/v2/tkr/controller/tkr-status pkg/v1/sdk/features addons pkg/v2/tkr/webhook/infra-machine pkg/v1/sdk/capabilities pkg/v2/tkr/webhook/tkr-conversion pkg/v2/tkr/webhook/cluster/tkr-resolver" docker-publish
+          make COMPONENTS="pkg/v2/tkr/controller/tkr-status pkg/v1/sdk/features addons pkg/v2/tkr/webhook/infra-machine pkg/v1/sdk/capabilities pkg/v2/tkr/webhook/tkr-conversion pkg/v2/tkr/webhook/cluster/tkr-resolver" kbld-image-replace
+          make package-push-bundles-repo PACKAGE_REPOSITORY=management
