@@ -5,6 +5,7 @@ go 1.17
 replace (
 	github.com/vmware-tanzu/tanzu-framework/apis/cni => ./apis/cni
 	github.com/vmware-tanzu/tanzu-framework/apis/cpi => ./apis/cpi
+	github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3 => ./apis/run/v1alpha3
 	sigs.k8s.io/cluster-api => sigs.k8s.io/cluster-api v1.1.3
 )
 
@@ -87,6 +88,7 @@ require (
 	github.com/vmware-tanzu/carvel-secretgen-controller v0.5.0
 	github.com/vmware-tanzu/carvel-vendir v0.24.0
 	github.com/vmware-tanzu/carvel-ytt v0.40.0
+	github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3 v0.0.0-00010101000000-000000000000
 	github.com/vmware/govmomi v0.27.1
 	github.com/yalp/jsonpath v0.0.0-20180802001716-5cc68e5049a0
 	go.uber.org/multierr v1.6.0
