@@ -102,7 +102,7 @@ spec:
       value: #@ vars[configVariable]
     #@ end
     #@ end
-    #! TODO: make this data only available while testing.
+    #! TODO: make this data only available while testing. DUMMY-test-from-fork
     #@overlay/append
     - name: TKR_DATA
       value:
