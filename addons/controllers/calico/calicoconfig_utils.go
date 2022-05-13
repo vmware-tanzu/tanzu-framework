@@ -6,6 +6,7 @@ package controllers
 import (
 	"fmt"
 	"net"
+	"strconv"
 	"strings"
 
 	"github.com/pkg/errors"
@@ -17,7 +18,6 @@ import (
 
 // calicoConfigSpec defines the desired state of CalicoConfig
 type calicoConfigSpec struct {
-	Namespace     string `yaml:"namespace,omitempty"`
 	InfraProvider string `yaml:"infraProvider"`
 	IPFamily      string `yaml:"ipFamily,omitempty"`
 	Calico        calico `yaml:"calico,omitempty"`
@@ -28,7 +28,7 @@ type calico struct {
 }
 
 type config struct {
-	VethMTU     int64  `yaml:"vethMTU,omitempty"`
+	VethMTU     string `yaml:"vethMTU,omitempty"`
 	ClusterCIDR string `yaml:"clusterCIDR"`
 }
 
@@ -36,8 +36,7 @@ func mapCalicoConfigSpec(cluster *clusterapiv1beta1.Cluster, config *cniv1alpha1
 	var err error
 
 	configSpec := &calicoConfigSpec{}
-	configSpec.Namespace = config.Spec.Namespace
-	configSpec.Calico.Config.VethMTU = config.Spec.Calico.Config.VethMTU
+	configSpec.Calico.Config.VethMTU = strconv.FormatInt(config.Spec.Calico.Config.VethMTU, 10)
 
 	// Derive InfraProvider from the cluster
 	configSpec.InfraProvider, err = util.GetInfraProvider(cluster)

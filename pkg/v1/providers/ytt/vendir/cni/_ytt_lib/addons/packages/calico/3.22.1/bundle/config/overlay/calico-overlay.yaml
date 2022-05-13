@@ -14,7 +14,7 @@ metadata:
   #@overlay/match missing_ok=True
   annotations:
     kapp.k14s.io/disable-default-label-scoping-rules: ""
-    kapp.k14s.io/update-strategy: always-replace
+    kapp.k14s.io/update-strategy: fallback-on-replace
 
 #@overlay/match by=overlay.subset({"kind":"DaemonSet", "metadata": {"name": "calico-node"}})
 ---
@@ -23,9 +23,19 @@ metadata:
   #@overlay/match missing_ok=True
   annotations:
     kapp.k14s.io/disable-default-label-scoping-rules: ""
+    kapp.k14s.io/update-strategy: fallback-on-replace
 spec:
   template:
     spec:
+      initContainers:
+        #@overlay/match by=overlay.subset({"name":"install-cni"})
+        - name: install-cni
+          env:
+            #@ if hasattr(values.calico.config, 'skipCNIBinaries') and values.calico.config.skipCNIBinaries == True:
+            #@overlay/merge
+            - name: SKIP_CNI_BINARIES
+              value: "bandwidth,flannel,host-local,loopback,portmap,tuning"
+            #@ end
       containers:
         #@overlay/match by=overlay.subset({"name":"calico-node"})
         - name: calico-node
@@ -41,8 +51,7 @@ spec:
             #@overlay/match by=overlay.subset({"name":"CALICO_IPV4POOL_VXLAN"})
             #@overlay/remove
             - {}
-            #! Calico v3.19.1 support cluster CIDR auto-detect.
-            #! So the cluster CIDR is only appended when configured in values.
+            #! The cluster CIDR is only appended when configured in values.
             #@ if values.calico.config.clusterCIDR:
             #@overlay/append
             - name: CALICO_IPV6POOL_CIDR
@@ -60,8 +69,7 @@ spec:
             #@ elif values.ipFamily in ["ipv4,ipv6", "ipv6,ipv4"]:
             #@overlay/match by=overlay.subset({"name":"FELIX_IPV6SUPPORT"})
             - value: "true"
-            #! Calico v3.19.1 support cluster CIDR auto-detect.
-            #! So the cluster CIDR is only appended when configured in values.
+            #! The cluster CIDR is only appended when configured in values.
             #@ if values.calico.config.clusterCIDR:
             #@overlay/append
             - name: CALICO_IPV4POOL_CIDR
@@ -144,7 +152,7 @@ spec:
 data:
   #@ if/end values.infraProvider == "azure":
   calico_backend: "vxlan"
-  #@ if/end hasattr(values.calico.config, 'vethMTU'):
+  #@ if/end hasattr(values.calico.config, 'vethMTU') and values.calico.config.vethMTU:
   veth_mtu: #@ values.calico.config.vethMTU
   #@overlay/replace via=configure_ipam_by_ip_family
   cni_network_config:

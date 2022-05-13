@@ -1,5 +1,6 @@
 #@ load("@ytt:data", "data")
 #@ load("@ytt:overlay", "overlay")
+#@ load("helpers.star", "getWebhookServerPort")
 
 apiVersion: apps/v1
 kind: Deployment
@@ -25,6 +26,8 @@ spec:
         - image: featuregates-controller-manager:latest
           imagePullPolicy: IfNotPresent
           name: manager
+          args:
+            - #@ "--webhook-server-port={}".format(getWebhookServerPort())
           resources:
             limits:
               cpu: 100m
@@ -33,7 +36,7 @@ spec:
               cpu: 100m
               memory: 20Mi
           ports:
-            - containerPort: #@ data.values.deployment.webhookServerPort
+            - containerPort: #@ getWebhookServerPort()
               name: webhook-server
               protocol: TCP
           volumeMounts:

@@ -13,11 +13,11 @@ directories:
   contents:
   - path: .
     git:
-      url: git@github.com:vmware-tanzu/tce.git
-      ref: daa90ee40f373474c7714e72182b7ad784c2ffaf
+      url: git@github.com:vmware-tanzu/community-edition.git
+      ref: 80553a0e976a4bdd26f8e64aff41ae5755eb3d4e
     includePaths:
     - addons/packages/antrea/1.2.3/bundle/config/**/*
-    - addons/packages/calico/3.19.1/bundle/config/**/*
+    - addons/packages/calico/3.22.1/bundle/config/**/*
 - path: ytt/vendir/kapp-controller/_ytt_lib
   contents:
   - path: .
