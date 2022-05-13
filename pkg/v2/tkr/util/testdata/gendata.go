@@ -178,6 +178,30 @@ func GenTKRs(numTKRs int, osImagesByK8sVersion map[string]data.OSImages) data.TK
 	return result
 }
 
+func GenCBTs(ns string, tkrs data.TKRs) []*runv1.ClusterBootstrapTemplate {
+	result := make([]*runv1.ClusterBootstrapTemplate, 0, len(tkrs))
+	for _, tkr := range tkrs {
+		cbt := GenCBT(ns, tkr)
+		result = append(result, cbt)
+	}
+	return result
+}
+
+var cbtAPIVersion, cbtKind = runv1.GroupVersion.WithKind(reflect.TypeOf(runv1.ClusterBootstrapTemplate{}).Name()).ToAPIVersionAndKind()
+
+func GenCBT(ns string, tkr *runv1.TanzuKubernetesRelease) *runv1.ClusterBootstrapTemplate {
+	return &runv1.ClusterBootstrapTemplate{
+		TypeMeta: metav1.TypeMeta{
+			APIVersion: cbtAPIVersion,
+			Kind:       cbtKind,
+		},
+		ObjectMeta: metav1.ObjectMeta{
+			Namespace: ns,
+			Name:      tkr.Name,
+		},
+	}
+}
+
 var tkrAPIVersion, tkrKind = runv1.GroupVersion.WithKind(reflect.TypeOf(runv1.TanzuKubernetesRelease{}).Name()).ToAPIVersionAndKind()
 
 func GenTKR(osImagesByK8sVersion map[string]data.OSImages) *runv1.TanzuKubernetesRelease {

@@ -46,7 +46,7 @@ func TestReconciler(t *testing.T) {
 	RegisterFailHandler(Fail)
 	suiteConfig, _ := GinkgoConfiguration()
 	suiteConfig.FailFast = true
-	RunSpecs(t, "TKR Resolver: Cluster Webhook test", suiteConfig)
+	RunSpecs(t, "Cluster Status Reconciler test", suiteConfig)
 }
 
 var (
@@ -59,7 +59,7 @@ var (
 	objects      []client.Object
 )
 
-var _ = Describe("clusterstatus.Reconciler", func() {
+var _ = Describe("tkr-status/clusterstatus.Reconciler", func() {
 	BeforeEach(func() {
 		osImages, tkrs, objects = genObjects()
 
