@@ -369,9 +369,14 @@ func (c *TkgClient) InitRegion(options *InitRegionOptions) error { //nolint:funl
 		}
 	}
 
-	log.Info("Waiting for packages to be up and running...")
-	if err := c.WaitForPackages(regionalClusterClient, regionalClusterClient, options.ClusterName, targetClusterNamespace, true); err != nil {
-		log.Warningf("Warning: Management cluster is created successfully, but some packages are failing. %v", err)
+	// Wait for packages if the feature-flag is disabled
+	// We do not need to wait for packages as we have already installed and waited for all
+	// packages to be deployed during tkg package installation
+	if !config.IsFeatureActivated(config.FeatureFlagPackageBasedLCM) {
+		log.Info("Waiting for packages to be up and running...")
+		if err := c.WaitForPackages(regionalClusterClient, regionalClusterClient, options.ClusterName, targetClusterNamespace, true); err != nil {
+			log.Warningf("Warning: Management cluster is created successfully, but some packages are failing. %v", err)
+		}
 	}
 
 	log.Infof("You can now access the management cluster %s by running 'kubectl config use-context %s'", options.ClusterName, kubeContext)
