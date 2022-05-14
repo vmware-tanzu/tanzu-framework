@@ -217,9 +217,11 @@ func (c *TkgClient) UpgradeCluster(options *UpgradeClusterOptions) error { // no
 	}
 
 	if options.IsRegionalCluster {
-		log.Info("Waiting for additional components to be up and running...")
-		if err := c.WaitForAddonsDeployments(regionalClusterClient); err != nil {
-			return err
+		if !config.IsFeatureActivated(config.FeatureFlagPackageBasedLCM) {
+			log.Info("Waiting for additional components to be up and running...")
+			if err := c.WaitForAddonsDeployments(regionalClusterClient); err != nil {
+				return err
+			}
 		}
 	}
 
