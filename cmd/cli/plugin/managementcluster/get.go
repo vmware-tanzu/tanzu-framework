@@ -132,13 +132,13 @@ func getClusterDetails(currServ *v1alpha1.Server) error {
 		return err
 	}
 
-	t := component.NewOutputWriter(cmdOutput, "table", "NAME", "NAMESPACE", "STATUS", "CONTROLPLANE", "WORKERS", "KUBERNETES", "ROLES", "PLAN")
+	t := component.NewOutputWriter(cmdOutput, "table", "NAME", "NAMESPACE", "STATUS", "CONTROLPLANE", "WORKERS", "KUBERNETES", "ROLES", "PLAN", "TKR")
 	cl := results.ClusterInfo
 	clusterRoles := "<none>"
 	if len(cl.Roles) != 0 {
 		clusterRoles = strings.Join(cl.Roles, ",")
 	}
-	t.AddRow(cl.Name, cl.Namespace, cl.Status, cl.ControlPlaneCount, cl.WorkerCount, cl.K8sVersion, clusterRoles, cl.Plan)
+	t.AddRow(cl.Name, cl.Namespace, cl.Status, cl.ControlPlaneCount, cl.WorkerCount, cl.K8sVersion, clusterRoles, cl.Plan, cl.TKR)
 
 	t.Render()
 	log.Infof("\n\nDetails:\n\n")

@@ -7,6 +7,8 @@ import (
 	"fmt"
 	"time"
 
+	runv1 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
+
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -22,6 +24,7 @@ import (
 )
 
 var fakeManagementClusterName = "fake-mgmt-cluster"
+var fakeTKRName = "v1.1.1---faketkr.1-tkg1"
 
 var _ = Describe("Unit tests for get clusters", func() {
 	var (
@@ -76,6 +79,7 @@ var _ = Describe("Unit tests for get clusters", func() {
 					Namespace:   constants.DefaultNamespace,
 					Labels: map[string]string{
 						TkgLabelClusterRolePrefix + TkgLabelClusterRoleWorkload: "",
+						LegacyClusterTKRLabel: fakeTKRName,
 					},
 					ClusterOptions: fakehelper.TestClusterOptions{
 						Phase:                   "deleting",
@@ -112,6 +116,7 @@ var _ = Describe("Unit tests for get clusters", func() {
 				Expect(clusterInfo[0].K8sVersion).To(Equal(createClusterOptions.CPOptions.K8sVersion))
 				Expect(clusterInfo[0].Roles).To(Equal([]string{TkgLabelClusterRoleWorkload}))
 				Expect(clusterInfo[0].Status).To(Equal(string(TKGClusterPhaseDeleting)))
+				Expect(clusterInfo[0].TKR).To(Equal(fakeTKRName))
 			})
 		})
 
@@ -122,6 +127,7 @@ var _ = Describe("Unit tests for get clusters", func() {
 					Namespace:   constants.DefaultNamespace,
 					Labels: map[string]string{
 						TkgLabelClusterRolePrefix + TkgLabelClusterRoleWorkload: "",
+						runv1.LabelTKR: fakeTKRName,
 					},
 					ClusterOptions: fakehelper.TestClusterOptions{
 						Phase:                   "provisioning",
@@ -155,6 +161,7 @@ var _ = Describe("Unit tests for get clusters", func() {
 				Expect(clusterInfo[0].K8sVersion).To(Equal(createClusterOptions.CPOptions.K8sVersion))
 				Expect(clusterInfo[0].Roles).To(Equal([]string{TkgLabelClusterRoleWorkload}))
 				Expect(clusterInfo[0].Status).To(Equal(string(TKGClusterPhaseCreating)))
+				Expect(clusterInfo[0].TKR).To(Equal(fakeTKRName))
 			})
 		})
 
@@ -198,6 +205,7 @@ var _ = Describe("Unit tests for get clusters", func() {
 				Expect(clusterInfo[0].K8sVersion).To(Equal(createClusterOptions.CPOptions.K8sVersion))
 				Expect(clusterInfo[0].Roles).To(Equal([]string{TkgLabelClusterRoleWorkload}))
 				Expect(clusterInfo[0].Status).To(Equal(string(TKGClusterPhaseCreating)))
+				Expect(clusterInfo[0].TKR).To(Equal(""))
 			})
 		})
 
@@ -901,6 +909,7 @@ var _ = Describe("Unit tests for get clusters", func() {
 					Namespace:   constants.DefaultNamespace,
 					Labels: map[string]string{
 						TkgLabelClusterRolePrefix + TkgLabelClusterRoleWorkload: "",
+						runv1.LabelTKR: fakeTKRName,
 					},
 					ClusterOptions: fakehelper.TestClusterOptions{
 						Phase: "running",
@@ -930,6 +939,7 @@ var _ = Describe("Unit tests for get clusters", func() {
 				Expect(clusterInfo[0].K8sVersion).To(Equal(createClusterOptions.CPOptions.K8sVersion))
 				Expect(clusterInfo[0].Status).To(Equal(string(TKGClusterPhaseRunning)))
 				Expect(clusterInfo[0].Labels).Should(Equal(createClusterOptions.Labels))
+				Expect(clusterInfo[0].TKR).To(Equal(fakeTKRName))
 			})
 		})
 
@@ -965,6 +975,7 @@ var _ = Describe("Unit tests for get clusters", func() {
 				Expect(clusterInfo[0].WorkerCount).To(Equal(fmt.Sprintf("%v/%v", createClusterOptions.ListMDOptions[0].ReadyReplicas, createClusterOptions.ListMDOptions[0].SpecReplicas)))
 				Expect(clusterInfo[0].K8sVersion).To(Equal(createClusterOptions.CPOptions.K8sVersion))
 				Expect(clusterInfo[0].Status).To(Equal(string(TKGClusterPhaseCreating)))
+				Expect(clusterInfo[0].TKR).To(Equal(""))
 			})
 		})
 	})
