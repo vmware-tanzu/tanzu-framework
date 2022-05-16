@@ -97,7 +97,7 @@ spec:
     variables:
     #@ vars = get_aws_vars()
     #@ for configVariable in vars:
-    #@  if vars[configVariable] != None and configVariable in ["region", "sshKeyName", "bastion", "network", "controlPlane", "worker", "loadBalancerSchemeInternal", "identityRef", "imageRepository", "trust", "auditLogging"]:
+    #@  if vars[configVariable] != None and configVariable in ["region", "sshKeyName", "bastion", "network", "controlPlane", "worker", "loadBalancerSchemeInternal", "identityRef", "imageRepository", "trust", "auditLogging", "cni"]:
     - name: #@ configVariable
       value: #@ vars[configVariable]
     #@ end
