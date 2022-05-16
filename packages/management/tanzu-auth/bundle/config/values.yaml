@@ -4,4 +4,4 @@
 
 namespace: tanzu-auth
 controller:
-  image: "" #! the image to use for the tanzu-auth-controller-manager, there is no default image provided
+  image: tanzu-auth-controller-manager:latest
