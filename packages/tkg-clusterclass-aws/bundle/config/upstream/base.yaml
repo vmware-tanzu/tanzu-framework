@@ -91,6 +91,16 @@ spec:
       openAPIV3Schema:
         type: boolean
         default: false
+  - name: cni
+    required: true
+    schema:
+      openAPIV3Schema:
+        type: string
+        #@ if data.values.CNI:
+        default: #@ data.values.CNI
+        #@ else:
+        default: ""
+        #@ end
   - name: network
     required: true
     schema:
@@ -278,6 +288,53 @@ spec:
               id: {{ $subnet.public.id | default "\"\"" }}
             {{- end }}
             {{- end }}
+
+  - name: AWSCT_CNIIngressRules_Calico
+    enabledIf: '{{ .cni | eq "calico" }}'
+    definitions:
+    - selector:
+        apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+        kind: AWSClusterTemplate
+        matchResources:
+          infrastructureCluster: true
+      jsonPatches:
+      - op: add
+        path: /spec/template/spec/network/cni/cniIngressRules/-
+        value:
+          description: bgp (calico)
+          fromPort: 179
+          protocol: tcp
+          toPort: 179
+      - op: add
+        path: /spec/template/spec/network/cni/cniIngressRules/-
+        value:
+          description: IP-in-IP (calico)
+          fromPort: -1
+          protocol: "4"
+          toPort: 65535
+  - name: AWSCT_CNIIngressRules_Antrea
+    enabledIf: '{{ .cni | eq "antrea" }}'
+    definitions:
+    - selector:
+        apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+        kind: AWSClusterTemplate
+        matchResources:
+          infrastructureCluster: true
+      jsonPatches:
+      - op: add
+        path: /spec/template/spec/network/cni/cniIngressRules/-
+        value:
+          description: antrea1
+          fromPort: 10349
+          protocol: tcp
+          toPort: 10349
+      - op: add
+        path: /spec/template/spec/network/cni/cniIngressRules/-
+        value:
+          description: genev
+          fromPort: 6081
+          protocol: udp
+          toPort: 6081
 
   - name: AWSCT_VPC_ID
     enabledIf: '{{ not (empty .network.vpc.existingID) }}'
@@ -950,6 +1007,16 @@ spec:
         - availabilityZone: '${AWS_NODE_AZ}'
           cidrBlock: '${AWS_PRIVATE_NODE_CIDR}'
           id: '${AWS_PRIVATE_SUBNET_ID}'
+        cni:
+          cniIngressRules:
+          - description: kapp-controller
+            fromPort: 10100
+            protocol: tcp
+            toPort: 10100
+          - description: addons-manager
+            fromPort: 9865
+            protocol: tcp
+            toPort: 9865
 ---
 apiVersion: controlplane.cluster.x-k8s.io/v1beta1
 kind: KubeadmControlPlaneTemplate
