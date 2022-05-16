@@ -327,6 +327,8 @@ def get_cluster_variables():
         vars["network"] = network
     end
 
+    vars["cni"] = data.values["CNI"]
+
     customImageRepository = {}
     if data.values["TKG_CUSTOM_IMAGE_REPOSITORY"] != "":
         customImageRepository["host"] = data.values["TKG_CUSTOM_IMAGE_REPOSITORY"]
