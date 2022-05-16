@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/ginkgo/extensions/table"
 	. "github.com/onsi/gomega"
 
 	. "github.com/vmware-tanzu/tanzu-framework/pkg/v1/providers/tests/unit/matchers"
@@ -255,11 +256,12 @@ var _ = Describe("TKG_IP_FAMILY Ytt Templating", func() {
 			When("cluster cidr and service cidr have multiple values", func() {
 				BeforeEach(func() {
 					values = createDataValues(map[string]string{
-						"CLUSTER_NAME":     "foo",
-						"TKG_CLUSTER_ROLE": "workload",
-						"TKG_IP_FAMILY":    "ipv4,ipv6",
-						"CLUSTER_CIDR":     "100.96.0.0/11,fd00:100:96::/48",
-						"SERVICE_CIDR":     "100.64.0.0/18,fd00:100:64::/108",
+						"CLUSTER_NAME":       "foo",
+						"KUBERNETES_RELEASE": "v1.22.11---vmware.1-tkg.1",
+						"TKG_CLUSTER_ROLE":   "workload",
+						"TKG_IP_FAMILY":      "ipv4,ipv6",
+						"CLUSTER_CIDR":       "100.96.0.0/11,fd00:100:96::/48",
+						"SERVICE_CIDR":       "100.64.0.0/18,fd00:100:64::/108",
 					})
 				})
 
@@ -281,11 +283,12 @@ var _ = Describe("TKG_IP_FAMILY Ytt Templating", func() {
 			When("cluster cidr and service cidr have a single value", func() {
 				BeforeEach(func() {
 					values = createDataValues(map[string]string{
-						"CLUSTER_NAME":     "foo",
-						"TKG_CLUSTER_ROLE": "workload",
-						"TKG_IP_FAMILY":    "ipv4",
-						"CLUSTER_CIDR":     "100.96.0.0/11",
-						"SERVICE_CIDR":     "100.64.0.0/18",
+						"CLUSTER_NAME":       "foo",
+						"KUBERNETES_RELEASE": "v1.22.11---vmware.1-tkg.1",
+						"TKG_CLUSTER_ROLE":   "workload",
+						"TKG_IP_FAMILY":      "ipv4",
+						"CLUSTER_CIDR":       "100.96.0.0/11",
+						"SERVICE_CIDR":       "100.64.0.0/18",
 					})
 				})
 
@@ -312,6 +315,7 @@ var _ = Describe("TKG_IP_FAMILY Ytt Templating", func() {
 				BeforeEach(func() {
 					values = createDataValues(map[string]string{
 						"CLUSTER_NAME":            "foo",
+						"KUBERNETES_RELEASE":      "v1.22.11---vmware.1-tkg.1",
 						"TKG_CLUSTER_ROLE":        "workload",
 						"TKG_IP_FAMILY":           "ipv4",
 						"CLUSTER_CIDR":            "100.96.0.0/11",
@@ -370,6 +374,7 @@ var _ = Describe("TKG_IP_FAMILY Ytt Templating", func() {
 				BeforeEach(func() {
 					values = createDataValues(map[string]string{
 						"CLUSTER_NAME":            "foo",
+						"KUBERNETES_RELEASE":      "v1.22.11---vmware.1-tkg.1",
 						"TKG_CLUSTER_ROLE":        "workload",
 						"TKG_IP_FAMILY":           "ipv6",
 						"CLUSTER_CIDR":            "fd00:100:96::/48",
@@ -409,7 +414,16 @@ var _ = Describe("TKG_IP_FAMILY Ytt Templating", func() {
 					Expect(kubeadmControlPlaneDocs[0]).To(HaveYAMLPathWithValue("$.spec.kubeadmConfigSpec.joinConfiguration.controlPlane.localAPIEndpoint.advertiseAddress", "::/0"))
 					Expect(kubeadmControlPlaneDocs[0]).To(HaveYAMLPathWithValue("$.spec.kubeadmConfigSpec.joinConfiguration.controlPlane.localAPIEndpoint.bindPort", "443"))
 				})
-				It("configures node-ip on the control plane nodes by echoing the detected node ip into KUBELET_EXTRA_ARGS in /etc/sysconfig/kubelet", func() {
+				DescribeTable("configures node-ip on the control plane nodes by echoing the detected node ip into KUBELET_EXTRA_ARGS in /etc/sysconfig/kubelet when the tkr is >= 1.22.8", func(kubernetesRelease string) {
+					values = createDataValues(map[string]string{
+						"CLUSTER_NAME":            "foo",
+						"KUBERNETES_RELEASE":      kubernetesRelease,
+						"TKG_CLUSTER_ROLE":        "workload",
+						"TKG_IP_FAMILY":           "ipv6",
+						"CLUSTER_CIDR":            "fd00:100:96::/48",
+						"SERVICE_CIDR":            "fd00:100:64::/108",
+						"CLUSTER_API_SERVER_PORT": "443",
+					})
 					output, err := ytt.RenderYTTTemplate(ytt.CommandOptions{}, paths, strings.NewReader(values))
 					Expect(err).NotTo(HaveOccurred())
 
@@ -424,13 +438,50 @@ var _ = Describe("TKG_IP_FAMILY Ytt Templating", func() {
 					Expect(kubeadmControlPlaneDocs[0]).To(HaveYAMLPathWithValue("$.spec.kubeadmConfigSpec.files[1].path", "/etc/sysconfig/kubelet"))
 					Expect(kubeadmControlPlaneDocs[0]).To(HaveYAMLPathWithValue("$.spec.kubeadmConfigSpec.files[1].permissions", "0640"))
 					Expect(kubeadmControlPlaneDocs[0]).To(HaveYAMLPathWithValue("$.spec.kubeadmConfigSpec.preKubeadmCommands[5]", "echo \"KUBELET_EXTRA_ARGS=--node-ip=$(ip -6 -json addr show dev eth0 scope global | jq -r .[0].addr_info[0].local)\" >> /etc/sysconfig/kubelet"))
-				})
+				},
+					Entry("when the tkr is 1.22.8", "v1.22.8---vmware.1-tkg.1"),
+					Entry("when the tkr is 1.22.11", "v1.22.11---vmware.1-tkg.1"),
+					Entry("when the tkr is 1.22.12", "v1.22.12---vmware.1-tkg.1"),
+					Entry("when the tkr is 1.22.40", "v1.22.40---vmware.1-tkg.1"),
+					Entry("when the tkr is 1.23.7", "v1.23.7---vmware.1-tkg.1"),
+					Entry("when the tkr is 1.23.10", "v1.23.10---vmware.1-tkg.1"),
+				)
+				DescribeTable("does not configure node-ip on the control plane into KUBELET_EXTRA_ARGS in /etc/sysconfig/kubelet when the tkr is < 1.22.8", func(kubernetesRelease string) {
+					values = createDataValues(map[string]string{
+						"CLUSTER_NAME":            "foo",
+						"KUBERNETES_RELEASE":      kubernetesRelease,
+						"TKG_CLUSTER_ROLE":        "workload",
+						"TKG_IP_FAMILY":           "ipv6",
+						"CLUSTER_CIDR":            "fd00:100:96::/48",
+						"SERVICE_CIDR":            "fd00:100:64::/108",
+						"CLUSTER_API_SERVER_PORT": "443",
+					})
+					output, err := ytt.RenderYTTTemplate(ytt.CommandOptions{}, paths, strings.NewReader(values))
+					Expect(err).NotTo(HaveOccurred())
+
+					kubeadmControlPlaneDocs, err := FindDocsMatchingYAMLPath(output, map[string]string{
+						"$.kind": "KubeadmControlPlane",
+					})
+					Expect(err).NotTo(HaveOccurred())
+
+					Expect(kubeadmControlPlaneDocs).To(HaveLen(1))
+					Expect(kubeadmControlPlaneDocs[0]).NotTo(HaveYAMLPath("$.spec.kubeadmConfigSpec.files[1]"))
+					Expect(kubeadmControlPlaneDocs[0]).NotTo(ContainSubstring("KUBELET_EXTRA_ARGS=--node-ip="))
+				},
+					Entry("when the tkr is 1.22.7", "v1.22.7---vmware.1-tkg.1"),
+					Entry("when the tkr is 1.21.20", "v1.21.20---vmware.1-tkg.1"),
+					Entry("when the tkr is 1.21.8", "v1.21.8---vmware.1-tkg.1"),
+					Entry("when the tkr is 1.20.15", "v1.20.15---vmware.1-tkg.1"),
+					Entry("when the tkr is 1.20.3", "v1.20.3---vmware.1-tkg.1"),
+					Entry("when the tkr is 1.6.0", "v1.6.0---vmware.1-tkg.1"),
+				)
 			})
 
 			When("data values are set to ipv4,ipv6 dual stack settings", func() {
 				BeforeEach(func() {
 					values = createDataValues(map[string]string{
 						"CLUSTER_NAME":            "foo",
+						"KUBERNETES_RELEASE":      "v1.22.11---vmware.1-tkg.1",
 						"TKG_CLUSTER_ROLE":        "workload",
 						"TKG_IP_FAMILY":           "ipv4,ipv6",
 						"CLUSTER_CIDR":            "100.96.0.0/11,fd00:100:96::/48",
@@ -536,6 +587,7 @@ var _ = Describe("TKG_IP_FAMILY Ytt Templating", func() {
 				BeforeEach(func() {
 					values = createDataValues(map[string]string{
 						"CLUSTER_NAME":            "foo",
+						"KUBERNETES_RELEASE":      "v1.22.11---vmware.1-tkg.1",
 						"TKG_CLUSTER_ROLE":        "workload",
 						"TKG_IP_FAMILY":           "ipv6,ipv4",
 						"CLUSTER_CIDR":            "fd00:100:96::/48,100.96.0.0/11",
