@@ -18,5 +18,5 @@ spec:
     spec:
       serviceAccountName: tanzu-auth-controller-manager-sa
       containers:
-      - image: #@ data.values.controller.image
+      - image: harbor-repo.vmware.com/tkgiam/akeesler/tanzu-auth-controller-manager@sha256:c8dddd54e80802a166833facb20552bd06a4ec60957318bb937835c9e0451197
         name: tanzu-auth-controller-manager

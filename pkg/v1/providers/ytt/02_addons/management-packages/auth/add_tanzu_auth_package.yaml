@@ -1,0 +1,105 @@
+#@ load("@ytt:data", "data")
+#@ load("@ytt:yaml", "yaml")
+#@ load("@ytt:template", "template")
+
+#@ def tanzu_auth_package_install_definition():
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: tanzu-auth-package-sa
+  namespace: tkg-system
+  annotations:
+    tkg.tanzu.vmware.com/addon-type: "packages/management-package"
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: tanzu-auth-package-cluster-role
+  annotations:
+    tkg.tanzu.vmware.com/addon-type: "packages/management-package"
+rules:
+- apiGroups: ["*"]
+  resources: ["*"]
+  verbs: ["*"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: tanzu-auth-package-cluster-rolebinding
+  annotations:
+    tkg.tanzu.vmware.com/addon-type: "packages/management-package"
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: tanzu-auth-package-cluster-role
+subjects:
+  - kind: ServiceAccount
+    name: tanzu-auth-package-sa
+    namespace: tkg-system
+---
+apiVersion: packaging.carvel.dev/v1alpha1
+kind: PackageInstall
+metadata:
+  name: tanzu-auth
+  namespace: tkg-system
+  annotations:
+    tkg.tanzu.vmware.com/addon-type: "packages/management-package"
+spec:
+  serviceAccountName: tanzu-auth-package-sa
+  packageRef:
+    refName: tanzu-auth.tanzu.vmware.com
+    versionSelection:
+      prereleases: {}
+  values:
+    - secretRef:
+        name: tanzu-auth-values
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: tanzu-auth-values
+  namespace: tkg-system
+  annotations:
+    tkg.tanzu.vmware.com/addon-type: "packages/management-package"
+type: Opaque
+stringData:
+  values.yaml: |
+    namespace: tkg-system
+    controller:
+      image: harbor-repo.vmware.com/tkgiam/akeesler/tanzu-auth-controller-manager@sha256:bae0de6e06831d546e5af94316a508b02dd2bcd4c70383744aecd69248f7b989
+#@ end
+
+#@ if data.values.TKG_CLUSTER_ROLE != "workload" and data.values.PROVIDER_TYPE != "tkg-service-vsphere"  and not data.values.FEATURE_FLAG_PACKAGE_BASED_LCM:
+#@ if data.values.DISABLE_CRS_FOR_ADDON_TYPE and "packages/management-package" in data.values.DISABLE_CRS_FOR_ADDON_TYPE:
+--- #@ template.replace(tanzu_auth_package_install_definition())
+#@ else:
+---
+apiVersion: addons.cluster.x-k8s.io/v1alpha3
+kind: ClusterResourceSet
+metadata:
+  name: #@ "{}-tanzu-auth-package".format(data.values.CLUSTER_NAME)
+  labels:
+    cluster.x-k8s.io/cluster-name: #@ data.values.CLUSTER_NAME
+  annotations:
+    tkg.tanzu.vmware.com/addon-type: "packages/management-package"
+spec:
+  strategy: "ApplyOnce"
+  clusterSelector:
+    matchLabels:
+      tkg.tanzu.vmware.com/cluster-name: #@ data.values.CLUSTER_NAME
+  resources:
+    - name: #@ "{}-tanzu-auth-package-crs".format(data.values.CLUSTER_NAME)
+      kind: Secret
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: #@ "{}-tanzu-auth-package-crs".format(data.values.CLUSTER_NAME)
+  annotations:
+    tkg.tanzu.vmware.com/addon-type: "packages/management-package"
+type: addons.cluster.x-k8s.io/resource-set
+stringData:
+  value: #@ yaml.encode(tanzu_auth_package_install_definition())
+#@ end
+#@ end
