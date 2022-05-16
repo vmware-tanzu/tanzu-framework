@@ -24,7 +24,7 @@ spec:
     - name: network
       value:
         ipv6Primary: true #TKG_IP_FAMILY (if true set TKG_IP_FAMILY="ipv6,ipv4")
-        proxy: #TKG_HTTP_PROXY (under this if any value is not null then set TKG_HTTP_PROXY)
+        proxy: #TKG_HTTP_PROXY_ENABLED (under this if any value is not null then set TKG_HTTP_PROXY_ENABLED)
           httpProxy: http://10.0.200.100 #TKG_HTTP_PROXY
           httpsProxy: http://10.0.200.100 #TKG_HTTPS_PROXY
           noProxy:  #TKG_NO_PROXY
@@ -38,6 +38,7 @@ spec:
         vnet:
           cidrBlocks: #AZURE_VNET_CIDR
           - 10.0.0.0/8
+          - 10.0.0.0/16
           name: azure-vnet-name #AZURE_VNET_NAME
           resourceGroup: azure-vnet-resource-group #AZURE_VNET_RESOURCE_GROUP
     - name: imageRepository

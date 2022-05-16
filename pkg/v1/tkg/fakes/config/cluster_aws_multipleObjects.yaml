@@ -29,6 +29,7 @@ spec:
     pods:
       cidrBlocks:
       - 100.96.0.0/11 # CLUSTER_CIDR
+      - 100.96.0.0/16 # CLUSTER_CIDR
     services:
       cidrBlocks:
       - 100.64.0.0/18 # SERVICE_CIDR
@@ -41,9 +42,9 @@ spec:
       replicas: 1 # CONTROL_PLANE_MACHINE_COUNT
     variables:
     - name: network 
-      value:
+      value: 
         ipv6Primary: true #TKG_IP_FAMILY (if true set TKG_IP_FAMILY="ipv6,ipv4")
-        proxy: #TKG_HTTP_PROXY (under this if any value is not null then set TKG_HTTP_PROXY)
+        proxy: #TKG_HTTP_PROXY_ENABLED (under this if any value is not null then set TKG_HTTP_PROXY_ENABLED)
           httpProxy: http://10.0.200.100 #TKG_HTTP_PROXY
           httpsProxy: http://10.0.200.100 #TKG_HTTPS_PROXY
           noProxy:  #TKG_NO_PROXY
@@ -60,7 +61,7 @@ spec:
             cidr: 10.0.0.0/24 #AWS_PRIVATE_NODE_CIDR
             id: idValue #AWS_PRIVATE_SUBNET_ID
           public:
-            cidr: 10.0.1.0/24 #AWS_PUBLIC_NODE_CIDR
+            cidr: 10.1.1.0/24 #AWS_PUBLIC_NODE_CIDR
             id: idValue #AWS_PUBLIC_SUBNET_ID
         - az: us-west-1a # AWS_NODE_AZ_1
           private:
@@ -72,7 +73,7 @@ spec:
         - az: us-east-1b #AWS_NODE_AZ_2
           private: 
             cidr: 10.0.4.0/24 #AWS_PRIVATE_NODE_CIDR_2
-            id: idValue #AWS_PRIVATE_SUBNET_ID_2
+            id: idValuePrivate2 #AWS_PRIVATE_SUBNET_ID_2
           public:
             cidr: 10.0.5.0/24 #AWS_PUBLIC_NODE_CIDR_2
             id: idValue #AWS_PUBLIC_SUBNET_ID_2

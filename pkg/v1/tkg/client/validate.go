@@ -1556,10 +1556,14 @@ func (c *TkgClient) getFullTKGNoProxy(providerName string) (string, error) {
 	noProxyMap[constants.LocalHostIP] = true
 
 	if serviceCIDR, _ := c.TKGConfigReaderWriter().Get(constants.ConfigVariableServiceCIDR); serviceCIDR != "" {
-		noProxyMap[serviceCIDR] = true
+		for _, np := range strings.Split(serviceCIDR, ",") {
+			noProxyMap[np] = true
+		}
 	}
 	if clusterCIDR, _ := c.TKGConfigReaderWriter().Get(constants.ConfigVariableClusterCIDR); clusterCIDR != "" {
-		noProxyMap[clusterCIDR] = true
+		for _, np := range strings.Split(clusterCIDR, ",") {
+			noProxyMap[np] = true
+		}
 	}
 	if ipfamily, _ := c.TKGConfigReaderWriter().Get(constants.ConfigVariableIPFamily); ipfamily == constants.IPv6Family {
 		noProxyMap[constants.LocalHostIPv6] = true
@@ -1579,7 +1583,9 @@ func (c *TkgClient) getFullTKGNoProxy(providerName string) (string, error) {
 		noProxyMap[constants.LinkLocalAddress] = true
 	case constants.InfrastructureProviderAzure:
 		if vnetCIDR, _ := c.TKGConfigReaderWriter().Get(constants.ConfigVariableAzureVnetCidr); vnetCIDR != "" {
-			noProxyMap[vnetCIDR] = true
+			for _, np := range strings.Split(vnetCIDR, ",") {
+				noProxyMap[np] = true
+			}
 		}
 		noProxyMap[constants.LinkLocalAddress] = true
 		noProxyMap[constants.AzurePublicVIP] = true
@@ -1776,26 +1782,28 @@ func (c *TkgClient) validateIPHostnameForIPFamily(configKey, ipFamily string) er
 }
 
 func (c *TkgClient) validateCIDRsForIPFamily(configVariableName, cidrs, ipFamily string) error {
-	switch ipFamily {
-	case constants.IPv4Family:
-		if !isCIDRIPv4(cidrs) {
-			return invalidCIDRError(configVariableName, cidrs, ipFamily)
-		}
-	case constants.IPv6Family:
-		if !isCIDRIPv6(cidrs) {
-			return invalidCIDRError(configVariableName, cidrs, ipFamily)
-		}
-	case constants.DualStackPrimaryIPv4Family:
-		cidrSlice := strings.Split(cidrs, ",")
-		if len(cidrSlice) != 2 || !isCIDRIPv4(cidrSlice[0]) || !isCIDRIPv6(cidrSlice[1]) {
-			return fmt.Errorf(`invalid %s %q, expected to have "<IPv4 CIDR>,<IPv6 CIDR>" for %s %q`,
-				configVariableName, cidrs, constants.ConfigVariableIPFamily, ipFamily)
-		}
-	case constants.DualStackPrimaryIPv6Family:
-		cidrSlice := strings.Split(cidrs, ",")
-		if len(cidrSlice) != 2 || !isCIDRIPv6(cidrSlice[0]) || !isCIDRIPv4(cidrSlice[1]) {
-			return fmt.Errorf(`invalid %s %q, expected to have "<IPv6 CIDR>,<IPv4 CIDR>" for %s %q`,
-				configVariableName, cidrs, constants.ConfigVariableIPFamily, ipFamily)
+	for _, cidr := range strings.Split(cidrs, ",") {
+		switch ipFamily {
+		case constants.IPv4Family:
+			if !isCIDRIPv4(cidr) {
+				return invalidCIDRError(configVariableName, cidr, ipFamily)
+			}
+		case constants.IPv6Family:
+			if !isCIDRIPv6(cidr) {
+				return invalidCIDRError(configVariableName, cidr, ipFamily)
+			}
+		case constants.DualStackPrimaryIPv4Family:
+			cidrSlice := strings.Split(cidr, ",")
+			if len(cidrSlice) != 2 || !isCIDRIPv4(cidrSlice[0]) || !isCIDRIPv6(cidrSlice[1]) {
+				return fmt.Errorf(`invalid %s %q, expected to have "<IPv4 CIDR>,<IPv6 CIDR>" for %s %q`,
+					configVariableName, cidr, constants.ConfigVariableIPFamily, ipFamily)
+			}
+		case constants.DualStackPrimaryIPv6Family:
+			cidrSlice := strings.Split(cidr, ",")
+			if len(cidrSlice) != 2 || !isCIDRIPv6(cidrSlice[0]) || !isCIDRIPv4(cidrSlice[1]) {
+				return fmt.Errorf(`invalid %s %q, expected to have "<IPv6 CIDR>,<IPv4 CIDR>" for %s %q`,
+					configVariableName, cidr, constants.ConfigVariableIPFamily, ipFamily)
+			}
 		}
 	}
 	return nil

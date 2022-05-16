@@ -183,6 +183,7 @@ const (
 	TKGNoProxy          = "TKG_NO_PROXY"
 	TKGProxyCACert      = "TKG_PROXY_CA_CERT"
 	EnableAuditLogging  = "ENABLE_AUDIT_LOGGING"
+	TKGIPFamily         = "TKG_IP_FAMILY"
 
 	ConfigVariableOSName    = "OS_NAME"
 	ConfigVariableOSVersion = "OS_VERSION"
@@ -194,6 +195,7 @@ const (
 	ConfigVariableCoreDNSIP = "CORE_DNS_IP"
 
 	ConfigVariableIPFamily = "TKG_IP_FAMILY"
+	TKGIPV6Primary         = "TKG_IPV6_PRIMARY"
 
 	ConfigVariableControlPlaneNodeNameservers = "CONTROL_PLANE_NODE_NAMESERVERS"
 	ConfigVariableWorkerNodeNameservers       = "WORKER_NODE_NAMESERVERS"

@@ -25,7 +25,7 @@ spec:
     - name: network 
       value:
         ipv6Primary: true #TKG_IP_FAMILY (if true set TKG_IP_FAMILY="ipv6,ipv4")
-        proxy: #TKG_HTTP_PROXY (under this if any value is not null then set TKG_HTTP_PROXY)
+        proxy: #TKG_HTTP_PROXY_ENABLED (under this if any value is not null then set TKG_HTTP_PROXY_ENABLED)
           httpProxy: http://10.0.200.100 #TKG_HTTP_PROXY
           httpsProxy: http://10.0.200.100 #TKG_HTTPS_PROXY
           noProxy:  #TKG_NO_PROXY
@@ -73,7 +73,9 @@ spec:
         template: photon-3-v1.19.3+vmware.1 # VSPHERE_TEMPLATE
     - name: user
       value:
-      sshAuthorizedKey : authKeySssh # VSPHERE_SSH_AUTHORIZED_KEY
+        sshAuthorizedKeys : # VSPHERE_SSH_AUTHORIZED_KEY
+        - authkeyss11
+        - authkeyss22
     - name: controlPlane
       value:
         machine:
@@ -81,16 +83,16 @@ spec:
           memoryMiB: 8192 # VSPHERE_CONTROL_PLANE_MEM_MIB
           numCPUs: 2 # VSPHERE_CONTROL_PLANE_NUM_CPUS
         network:
-          nameservers: nameserversValue # CONTROL_PLANE_NODE_NAMESERVERS
+          nameservers: 100.64.0.0 # CONTROL_PLANE_NODE_NAMESERVERS
     - name: worker
       value:
-        count: 3 # WORKER_MACHINE_COUNT
+        count: 3 # WORKER_MACHINE_COUNT -- Removed
         machine:
           diskGiB: 40 # VSPHERE_WORKER_DISK_GIB
           memoryMiB: 16384 # VSPHERE_WORKER_MEM_MIB
           numCPUs: 4 # VSPHERE_WORKER_NUM_CPUS
         network:
-          nameservers: nameserversValue # WORKER_NODE_NAMESERVERS
+          nameservers: 100.64.0.0 # WORKER_NODE_NAMESERVERS
     - name: TKR_DATA
       value:
         v1.21.2:

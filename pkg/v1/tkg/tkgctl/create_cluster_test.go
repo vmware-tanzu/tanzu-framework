@@ -508,7 +508,7 @@ var _ = Describe("Unit tests for - (Vsphere) - cluster_vsphere.yaml as input fil
 
 			// check value for "spec.topology.variables.controlPlane.network.nameservers"
 			mappedVal, _ = ctl.TKGConfigReaderWriter().Get(constants.ConfigVariableControlPlaneNodeNameservers)
-			Expect("nameserversValue").To(Equal(fmt.Sprintf("%v", mappedVal)))
+			Expect("100.64.0.0").To(Equal(fmt.Sprintf("%v", mappedVal)))
 
 			//  check value for "spec.topology.variables.controlPlane.machine.numCPUs
 			mappedVal, _ = ctl.TKGConfigReaderWriter().Get(constants.ConfigVariableVsphereCPNumCpus)

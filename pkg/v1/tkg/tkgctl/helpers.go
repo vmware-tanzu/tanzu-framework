@@ -5,6 +5,7 @@ package tkgctl
 
 import (
 	"fmt"
+	"net"
 	"os"
 	"path/filepath"
 	"reflect"
@@ -203,10 +204,11 @@ func (t *tkgctl) processClusterObjectForConfigurationVariables(clusterObj unstru
 	if err != nil {
 		return err
 	}
-	legacyVarMap := make(map[string]string)
+
 	clusterAttributePathToLegacyVarNameMap := constants.InfrastructureSpecificVariableMappingMap[providerName]
 
 	// assign cluster class input values to legacy variables
+	legacyVarMap := make(map[string]string)
 	for inputVariable := range inputVariablesMap {
 		if legacyNameForClusterObjectInputVariable, ok := clusterAttributePathToLegacyVarNameMap[inputVariable]; ok {
 			legacyVarMap[legacyNameForClusterObjectInputVariable] = fmt.Sprintf("%v", inputVariablesMap[inputVariable])
@@ -225,6 +227,17 @@ func (t *tkgctl) processClusterObjectForConfigurationVariables(clusterObj unstru
 			legacyVarMap[legacyName] = fmt.Sprintf("%v", value)
 		}
 	}
+
+	// Set TKG IP Family based on Cluster and Service CIDRs
+	var isIPV6Primary bool
+	if legacyVarMap[constants.TKGIPV6Primary] != "" {
+		isIPV6Primary, _ = strconv.ParseBool(legacyVarMap[constants.TKGIPV6Primary])
+	}
+	IPFamily, err := GetIPFamilyForGiveClusterNetworkCIDRs(stringArrayToStringWithCommaSeparatedElements(legacyVarMap[constants.ConfigVariableClusterCIDR]), stringArrayToStringWithCommaSeparatedElements(legacyVarMap[constants.ConfigVariableServiceCIDR]), isIPV6Primary)
+	if err != nil {
+		return err
+	}
+	legacyVarMap[constants.TKGIPFamily] = IPFamily
 
 	// update legacyVarMap in environment
 	t.TKGConfigReaderWriter().SetMap(legacyVarMap)
@@ -251,11 +264,13 @@ func processYamlObjectAndAddToMap(value interface{}, clusterAttributePath string
 		for key := range value {
 			nextLevelName := key
 			nextLevelVal := value[nextLevelName]
-			// noProxy has value of type array, no need process array values, just assign array value.
-			if clusterAttributePath+"."+nextLevelName == "spec.topology.variables.network.proxy.noProxy" {
-				inputVariablesMap[clusterAttributePath+"."+nextLevelName] = nextLevelVal
+			nextLevelFullPath := clusterAttributePath + "." + nextLevelName
+			// There are attributes which has value of type array, no need to process those variables values further
+			// convert array data into a string (with comma separated elements) and assign the value
+			if _, ok := constants.ClusterAttributesWithArrayTypeValue[nextLevelFullPath]; ok && nextLevelVal != nil {
+				inputVariablesMap[nextLevelFullPath] = stringArrayToStringWithCommaSeparatedElements(fmt.Sprintf("%v", nextLevelVal))
 			} else {
-				err = processYamlObjectAndAddToMap(nextLevelVal, clusterAttributePath+"."+nextLevelName, inputVariablesMap)
+				err = processYamlObjectAndAddToMap(nextLevelVal, nextLevelFullPath, inputVariablesMap)
 				if err != nil {
 					return err
 				}
@@ -266,6 +281,10 @@ func processYamlObjectAndAddToMap(value interface{}, clusterAttributePath string
 			log.Warningf("duplicate variable in input cluster class config file, variable path: %v", clusterAttributePath)
 		} else if fmt.Sprintf("%v", value) != "" {
 			inputVariablesMap[clusterAttributePath] = value
+			// if path spec.topology.variables.network.proxy has any child attributes then enable TKG_HTTP_PROXY_ENABLED, spec.topology.variables.network.proxy mapped to TKG_HTTP_PROXY_ENABLED
+			if strings.HasPrefix(clusterAttributePath, "spec.topology.variables.network.proxy") {
+				inputVariablesMap["spec.topology.variables.network.proxy"] = true
+			}
 		}
 	default:
 		if value != nil {
@@ -276,24 +295,25 @@ func processYamlObjectAndAddToMap(value interface{}, clusterAttributePath string
 	return err
 }
 
+// processYamlObjectArrayInterfaceType process array interface type, does handles some special cases of cluster class attribute paths
 func processYamlObjectArrayInterfaceType(value []interface{}, clusterAttributePath string, inputVariablesMap map[string]interface{}) error {
 	var err error
 	for index := range value {
 		if clusterAttributePath == constants.TopologyVariablesNetworkSubnets || clusterAttributePath == constants.TopologyVariablesNodes || clusterAttributePath == constants.TopologyWorkersMachineDeployments {
 			err = processYamlObjectAndAddToMap(value[index], clusterAttributePath+"."+strconv.Itoa(index), inputVariablesMap)
 		} else if regExMachineDep.MatchString(clusterAttributePath) || clusterAttributePath == constants.TopologyVariables {
-			// attribute path is spec.topology.workers.machineDeployments.[0-9].variables.overrides OR spec.topology.variables
-			// which has key(as name)/value (as value), process them as next level
+			// The attribute paths - spec.topology.workers.machineDeployments.[0-9].variables.overrides, spec.topology.variables
+			// has array of data, each array element is of type map, with key(as "name")/value (as "value")
+			// to organize better, get "name" and "value", append "name" value to attribute path and "value" value as value, process them as next level.
 			variables := value
 			for varIndex := range variables {
 				nameValueMap := variables[varIndex].(map[string]interface{})
 				varName := nameValueMap["name"]
 				varValue := nameValueMap["value"]
 				nextLevelName := clusterAttributePath + "." + varName.(string)
-				// spec.topology.variables.proxy has any value then enable TKG_HTTP_PROXY_ENABLED, spec.topology.variables.proxy mapped to TKG_HTTP_PROXY_ENABLED
-				if varName == "proxy" {
-					inputVariablesMap[nextLevelName] = true
-				} else if varName == "trust" {
+				// The attribute path "spec.topology.variables.trust.*" has value of type array, each array element is of type map, map has keys - "name" and "data",
+				// need to process "spec.topology.variables.trust."+ (value of "name") as attribute path and value of "data" next level value, process it again.
+				if varName == "trust" {
 					trustValArr := varValue.([]interface{})
 					for trustIndex := range trustValArr {
 						trustName := trustValArr[trustIndex].(map[string]interface{})["name"].(string)
@@ -304,7 +324,7 @@ func processYamlObjectArrayInterfaceType(value []interface{}, clusterAttributePa
 						}
 					}
 					continue // we are done processing "trust" variable, so process next variable
-				} else if varName == "TKR_DATA" { // no need to process TKR_DATA, because there is no mapping
+				} else if varName == "TKR_DATA" { // no need to process TKR_DATA, because there is no mapping as of now
 					continue
 				}
 				err = processYamlObjectAndAddToMap(varValue, nextLevelName, inputVariablesMap)
@@ -345,32 +365,158 @@ func getProviderNameFromTopologyClassName(topologyClassValue interface{}) (strin
 }
 
 // overrideClusterOptionsWithLatestEnvironmentConfigurationValues overrides CreateClusterOptions attributes with latest values
-// from the environment, which could be updated from input config or input cluster class file.
+// from the environment only if environment has value, the variable values in environment could be updated from input config file or input cluster class file.
 func (t *tkgctl) overrideClusterOptionsWithLatestEnvironmentConfigurationValues(cc *CreateClusterOptions) {
-	cc.ClusterName, _ = t.TKGConfigReaderWriter().Get(constants.ConfigVariableClusterName)
-	cc.Plan, _ = t.TKGConfigReaderWriter().Get(constants.ConfigVariableClusterPlan)
-	cc.Namespace, _ = t.TKGConfigReaderWriter().Get(constants.ConfigVariableNamespace)
-	cc.InfrastructureProvider, _ = t.TKGConfigReaderWriter().Get(constants.ConfigVariableInfraProvider)
-	cc.ControlPlaneMachineCount, _ = tkgconfighelper.GetIntegerVariableFromConfig(constants.ConfigVariableControlPlaneMachineCount, t.TKGConfigReaderWriter())
-	cc.WorkerMachineCount, _ = tkgconfighelper.GetIntegerVariableFromConfig(constants.ConfigVariableWorkerMachineCount, t.TKGConfigReaderWriter())
-	cc.Size, _ = t.TKGConfigReaderWriter().Get(constants.ConfigVariableSize)
-	cc.ControlPlaneSize, _ = t.TKGConfigReaderWriter().Get(constants.ConfigVariableControlPlaneSize)
-	cc.WorkerSize, _ = t.TKGConfigReaderWriter().Get(constants.ConfigVariableWorkerSize)
-	cc.CniType, _ = t.TKGConfigReaderWriter().Get(constants.ConfigVariableCNI)
-	cc.EnableClusterOptions, _ = t.TKGConfigReaderWriter().Get(constants.ConfigVariableEnableClusterOptions)
-	cc.VsphereControlPlaneEndpoint, _ = t.TKGConfigReaderWriter().Get(constants.ConfigVariableVsphereControlPlaneEndpoint)
+	if val, err := t.TKGConfigReaderWriter().Get(constants.ConfigVariableClusterName); err == nil && val != "" {
+		cc.ClusterName = val
+	}
+	if val, err := t.TKGConfigReaderWriter().Get(constants.ConfigVariableClusterPlan); err == nil && val != "" {
+		cc.Plan = val
+	}
+	if val, err := t.TKGConfigReaderWriter().Get(constants.ConfigVariableNamespace); err == nil && val != "" {
+		cc.Namespace = val
+	}
+	if val, err := t.TKGConfigReaderWriter().Get(constants.ConfigVariableInfraProvider); err == nil && val != "" {
+		cc.InfrastructureProvider = val
+	}
+	if val, err := tkgconfighelper.GetIntegerVariableFromConfig(constants.ConfigVariableControlPlaneMachineCount, t.TKGConfigReaderWriter()); err == nil && val != 0 {
+		cc.ControlPlaneMachineCount = val
+	}
+	if val, err := tkgconfighelper.GetIntegerVariableFromConfig(constants.ConfigVariableWorkerMachineCount, t.TKGConfigReaderWriter()); err == nil && val != 0 {
+		cc.WorkerMachineCount = val
+	}
+	if val, err := t.TKGConfigReaderWriter().Get(constants.ConfigVariableSize); err == nil && val != "" {
+		cc.Size = val
+	}
+	if val, err := t.TKGConfigReaderWriter().Get(constants.ConfigVariableControlPlaneSize); err == nil && val != "" {
+		cc.ControlPlaneSize = val
+	}
+	if val, err := t.TKGConfigReaderWriter().Get(constants.ConfigVariableWorkerSize); err == nil && val != "" {
+		cc.WorkerSize = val
+	}
+	if val, err := t.TKGConfigReaderWriter().Get(constants.ConfigVariableCNI); err == nil && val != "" {
+		cc.CniType = val
+	}
+	if val, err := t.TKGConfigReaderWriter().Get(constants.ConfigVariableEnableClusterOptions); err == nil && val != "" {
+		cc.EnableClusterOptions = val
+	}
+	if val, err := t.TKGConfigReaderWriter().Get(constants.ConfigVariableVsphereControlPlaneEndpoint); err == nil && val != "" {
+		cc.VsphereControlPlaneEndpoint = val
+	}
 }
 
 // overrideManagementClusterOptionsWithLatestEnvironmentConfigurationValues overrides InitRegion attributes with latest values
-// from the environment, which could be updated from input config or cluster class file.
+// from the environment only if environment has value, the variable values in environment could be updated from input config file or input cluster class file.
 func (t *tkgctl) overrideManagementClusterOptionsWithLatestEnvironmentConfigurationValues(ir *InitRegionOptions) {
-	ir.ClusterName, _ = t.TKGConfigReaderWriter().Get(constants.ConfigVariableClusterName)
-	ir.Namespace, _ = t.TKGConfigReaderWriter().Get(constants.ConfigVariableNamespace)
-	ir.Plan, _ = t.TKGConfigReaderWriter().Get(constants.ConfigVariableClusterPlan)
-	ir.InfrastructureProvider, _ = t.TKGConfigReaderWriter().Get(constants.ConfigVariableInfraProvider)
-	ir.Size, _ = t.TKGConfigReaderWriter().Get(constants.ConfigVariableSize)
-	ir.ControlPlaneSize, _ = t.TKGConfigReaderWriter().Get(constants.ConfigVariableControlPlaneSize)
-	ir.WorkerSize, _ = t.TKGConfigReaderWriter().Get(constants.ConfigVariableWorkerSize)
-	ir.CniType, _ = t.TKGConfigReaderWriter().Get(constants.ConfigVariableCNI)
-	ir.VsphereControlPlaneEndpoint, _ = t.TKGConfigReaderWriter().Get(constants.ConfigVariableVsphereControlPlaneEndpoint)
+	if val, err := t.TKGConfigReaderWriter().Get(constants.ConfigVariableClusterName); err == nil && val != "" {
+		ir.ClusterName = val
+	}
+	if val, err := t.TKGConfigReaderWriter().Get(constants.ConfigVariableNamespace); err == nil && val != "" {
+		ir.Namespace = val
+	}
+	if val, err := t.TKGConfigReaderWriter().Get(constants.ConfigVariableClusterPlan); err == nil && val != "" {
+		ir.Plan = val
+	}
+	if val, err := t.TKGConfigReaderWriter().Get(constants.ConfigVariableInfraProvider); err == nil && val != "" {
+		ir.InfrastructureProvider = val
+	}
+	if val, err := t.TKGConfigReaderWriter().Get(constants.ConfigVariableSize); err == nil && val != "" {
+		ir.Size = val
+	}
+	if val, err := t.TKGConfigReaderWriter().Get(constants.ConfigVariableControlPlaneSize); err == nil && val != "" {
+		ir.ControlPlaneSize = val
+	}
+	if val, err := t.TKGConfigReaderWriter().Get(constants.ConfigVariableWorkerSize); err == nil && val != "" {
+		ir.WorkerSize = val
+	}
+	if val, err := t.TKGConfigReaderWriter().Get(constants.ConfigVariableCNI); err == nil && val != "" {
+		ir.CniType = val
+	}
+	if val, err := t.TKGConfigReaderWriter().Get(constants.ConfigVariableVsphereControlPlaneEndpoint); err == nil && val != "" {
+		ir.VsphereControlPlaneEndpoint = val
+	}
+}
+
+// GetIPFamilyForGiveClusterNetworkCIDRs takes clusterNetwork - pods cirds and service cidrs, and returns IP family type
+// The input cidrs string can have multiple cidr's separated with comma (,), but it can not have more than two on each input cidr string.
+// If input cidr's has both ipv6 and ipv4, and if isIPV6Primary is true then returns "ipv6,ipv4" else if if isIPV6Primary is false then "ipv4,ipv6"
+// If all input cidr's has only ipv6 then returns "ipv6"
+// If all input cidr's has only ipv4 then returns "ipv4"
+func GetIPFamilyForGiveClusterNetworkCIDRs(podsCIDRs string, serviceCIDRs string, isIPV6Primary bool) (string, error) {
+	DefaultIPFamily := constants.IPv4Family
+	var podsIPFamily, serviceIPFamily string
+	var err error
+	if podsCIDRs != "" {
+		podsIPFamily, err = GetIPFamilyForCIDR(strings.Split(podsCIDRs, ","), isIPV6Primary)
+		if err != nil {
+			return DefaultIPFamily, err
+		}
+	} else {
+		podsIPFamily = DefaultIPFamily
+	}
+	if serviceIPFamily != "" {
+		serviceIPFamily, err = GetIPFamilyForCIDR(strings.Split(serviceCIDRs, ","), isIPV6Primary)
+		if err != nil {
+			return DefaultIPFamily, err
+		}
+	} else {
+		serviceIPFamily = DefaultIPFamily
+	}
+
+	if podsIPFamily == constants.DualStackPrimaryIPv6Family || serviceIPFamily == constants.DualStackPrimaryIPv6Family {
+		return constants.DualStackPrimaryIPv6Family, nil
+	}
+	if podsIPFamily == constants.DualStackPrimaryIPv4Family || serviceIPFamily == constants.DualStackPrimaryIPv4Family {
+		return constants.DualStackPrimaryIPv4Family, nil
+	}
+	if podsIPFamily == constants.IPv6Family || serviceIPFamily == constants.IPv6Family {
+		return constants.IPv6Family, nil
+	}
+	return constants.IPv4Family, nil
+}
+
+// stringArrayToStringWithCommaSeparatedElements converts given string (which has array data in fmt.Println output format) to string which has array elements separated with comma (,)
+// eg: Input string is "[100.96.0.0/11 100.64.0.0/18]" converts to "100.64.0.0/18,100.64.0.0/18" of string type.
+func stringArrayToStringWithCommaSeparatedElements(arrayDataInStringFormat string) string {
+	if arrayDataInStringFormat == "" {
+		return ""
+	}
+	return strings.Join(strings.Split(strings.Trim(arrayDataInStringFormat, "[]"), " "), ",")
+}
+
+// IPFamilyForCIDRStrings takes cidr array and returns ip family type (ipv4, ipv6 or dual)
+// The input cidrs array lenth max 2 only
+// If input cidr's has both ipv6 and ipv4, and if isIPV6Primary is true then returns "ipv6,ipv4" else if if isIPV6Primary is false then "ipv4,ipv6"
+// If all input cidr's has only ipv6 then returns "ipv6"
+// If all input cidr's has only ipv4 then returns "ipv4"
+func GetIPFamilyForCIDR(cidrs []string, isIPV6Primary bool) (string, error) {
+	DefaultIPFamily := constants.IPv4Family
+	if len(cidrs) > 2 {
+		return DefaultIPFamily, fmt.Errorf("too many CIDRs specified: %v", cidrs)
+	}
+	var foundIPv4 bool
+	var foundIPv6 bool
+	for _, cidr := range cidrs {
+		ip, _, err := net.ParseCIDR(cidr)
+		if err != nil {
+			return DefaultIPFamily, fmt.Errorf("could not parse CIDR %v, error: %s", cidr, err)
+		}
+		if ip.To4() != nil {
+			foundIPv4 = true
+		} else {
+			foundIPv6 = true
+		}
+	}
+	switch {
+	case foundIPv4 && foundIPv6:
+		if isIPV6Primary {
+			return constants.DualStackPrimaryIPv6Family, nil
+		}
+		return constants.DualStackPrimaryIPv4Family, nil
+	case foundIPv4:
+		return constants.IPv4Family, nil
+	case foundIPv6:
+		return constants.IPv6Family, nil
+	}
+	return DefaultIPFamily, nil
 }

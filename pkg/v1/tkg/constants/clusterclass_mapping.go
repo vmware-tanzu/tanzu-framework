@@ -18,11 +18,11 @@ var ClusterAttributesToLegacyVariablesMapCommon = map[string]string{
 
 	"spec.topology.controlPlane.metadata.annotations.run.tanzu.vmware.com/resolve-os-image": "",
 
-	"spec.topology.variables.network.ipv6Primary":      ConfigVariableIPFamily, // TKG_IP_FAMILY
-	"spec.topology.variables.network.proxy":            TKGHTTPProxyEnabled,    // TKG_HTTP_PROXY_ENABLED
-	"spec.topology.variables.network.proxy.httpProxy":  TKGHTTPProxy,           // TKG_HTTP_PROXY
-	"spec.topology.variables.network.proxy.httpsProxy": TKGHTTPSProxy,          // TKG_HTTPS_PROXY
-	"spec.topology.variables.network.proxy.noProxy":    TKGNoProxy,             // TKG_NO_PROXY
+	"spec.topology.variables.network.ipv6Primary":      TKGIPV6Primary,      // TKG_IPV6_PRIMARY
+	"spec.topology.variables.network.proxy":            TKGHTTPProxyEnabled, // TKG_HTTP_PROXY_ENABLED
+	"spec.topology.variables.network.proxy.httpProxy":  TKGHTTPProxy,        // TKG_HTTP_PROXY
+	"spec.topology.variables.network.proxy.httpsProxy": TKGHTTPSProxy,       // TKG_HTTPS_PROXY
+	"spec.topology.variables.network.proxy.noProxy":    TKGNoProxy,          // TKG_NO_PROXY
 
 	"spec.topology.variables.imageRepository.host":                     ConfigVariableCustomImageRepository,
 	"spec.topology.variables.imageRepository.tlsCertificateValidation": ConfigVariableCustomImageRepositorySkipTLSVerify,
@@ -210,12 +210,13 @@ var ClusterAttributesToLegacyVariablesMapVsphere = map[string]string{
 	"spec.topology.variables.vcenter.folder":        ConfigVariableVsphereFolder,        // VSPHERE_FOLDER
 	"spec.topology.variables.vcenter.server":        ConfigVariableVsphereServer,        // VSPHERE_SERVER
 
+	"spec.topology.variables.user.sshAuthorizedKeys": ConfigVariableVsphereSSHAuthorizedKey, // VSPHERE_SSH_AUTHORIZED_KEY
+
 	"spec.topology.variables.controlPlane.machine.diskGiB":     ConfigVariableVsphereCPDiskGib,            // VSPHERE_CONTROL_PLANE_DISK_GIB
 	"spec.topology.variables.controlPlane.machine.memoryMiB":   ConfigVariableVsphereCPMemMib,             // VSPHERE_CONTROL_PLANE_MEM_MIB
 	"spec.topology.variables.controlPlane.machine.numCPUs":     ConfigVariableVsphereCPNumCpus,            // VSPHERE_CONTROL_PLANE_NUM_CPUS
 	"spec.topology.variables.controlPlane.network.nameservers": ConfigVariableControlPlaneNodeNameservers, // CONTROL_PLANE_NODE_NAMESERVERS
 
-	"spec.topology.variables.worker.count":               ConfigVariableWorkerMachineCount,    // WORKER_MACHINE_COUNT
 	"spec.topology.variables.worker.machine.diskGiB":     ConfigVariableVsphereWorkerDiskGib,  // VSPHERE_WORKER_DISK_GIB
 	"spec.topology.variables.worker.machine.memoryMiB":   ConfigVariableVsphereWorkerMemMib,   // VSPHERE_WORKER_MEM_MIB
 	"spec.topology.variables.worker.machine.numCPUs":     ConfigVariableVsphereWorkerNumCpus,  // VSPHERE_WORKER_NUM_CPUS
@@ -223,7 +224,7 @@ var ClusterAttributesToLegacyVariablesMapVsphere = map[string]string{
 
 	TopologyWorkersMachineDeploymentsClass0:         "",
 	TopologyWorkersMachineDeploymentsName0:          "",
-	TopologyWorkersMachineDeploymentsReplicas0:      ConfigVariableWorkerMachineCount0,
+	TopologyWorkersMachineDeploymentsReplicas0:      ConfigVariableWorkerMachineCount,
 	TopologyWorkersMachineDeploymentsFailureDomain0: ConfigVariableVsphereAz0,
 
 	TopologyWorkersMachineDeploymentsClass1:         "",
@@ -239,6 +240,15 @@ var ClusterAttributesToLegacyVariablesMapVsphere = map[string]string{
 
 // ClusterAttributesToLegacyVariablesMapDocker has, Docker Cluster object attributes path mapped to legacy variable names.
 var ClusterAttributesToLegacyVariablesMapDocker = map[string]string{}
+
+// ClusterAttributesWithArrayTypeValue has, list of Cluster attributes paths, which value type is array list
+var ClusterAttributesWithArrayTypeValue = map[string]bool{
+	"spec.clusterNetwork.pods.cidrBlocks":             true,
+	"spec.clusterNetwork.services.cidrBlocks":         true,
+	"spec.topology.variables.network.proxy.noProxy":   true,
+	"spec.topology.variables.user.sshAuthorizedKeys":  true,
+	"spec.topology.variables.network.vnet.cidrBlocks": true,
+}
 
 // Cluster class variables constants
 const (
