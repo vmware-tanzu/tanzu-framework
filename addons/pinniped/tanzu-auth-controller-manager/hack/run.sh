@@ -21,7 +21,6 @@ TANZU_AUTH_BUNDLE_DIR="${TANZU_AUTH_DIR}/bundle"
 TANZU_AUTH_CONFIG_DIR="${TANZU_AUTH_BUNDLE_DIR}/config"
 
 TANZU_AUTH_PACKAGE_FILE="${TANZU_AUTH_DIR}/package.yaml"
-TANZU_AUTH_DEFAULT_VALUES_FILE="${TANZU_AUTH_BUNDLE_DIR}/values.yaml"
 
 # location to deploy the image
 REGISTRY_NAME="harbor-repo.vmware.com"
@@ -64,7 +63,7 @@ ytt --data-value "namespace=${APP_NAME}" --file "${TANZU_AUTH_CONFIG_DIR}/namesp
 
 echo -e "${YELLOW}rebuilding image lock file with ytt and kbld...${DEFAULT}"
 mkdir -p "${TANZU_AUTH_BUNDLE_DIR}/.imgpkg"
-ytt --data-value "controller.image=${CONTROLLER_IMAGE}" --file "${TANZU_AUTH_DEFAULT_VALUES_FILE}" --file "${TANZU_AUTH_CONFIG_DIR}" \
+ytt --data-value "controller.image=${CONTROLLER_IMAGE}" --file "${TANZU_AUTH_CONFIG_DIR}" \
   | kbld --file - --imgpkg-lock-output "${TANZU_AUTH_BUNDLE_DIR}/.imgpkg/images.yml"
 
 # push the tanzu-auth-controller-manager-package to the registry
