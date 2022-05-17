@@ -23,6 +23,7 @@ type FrameworkPackage struct {
 	TKRServicePackageValues         TKRServicePackageValues    `yaml:"tkrServicePackageValues,omitempty"`
 	CLIPluginsPackageValues         CLIPluginsPackageValues    `yaml:"clipluginsPackageValues,omitempty"`
 	AddonsManagerPackageValues      AddonsManagerPackageValues `yaml:"addonsManagerPackageValues,omitempty"`
+	TanzuAuthPackageValues          TanzuAuthPackageValues     `yaml:"tanzuAuthPackageValues,omitempty"`
 }
 
 type ClusterClassPackage struct {
@@ -54,6 +55,12 @@ type CLIPluginsPackageValues struct {
 }
 
 type ClusterClassInfraPackageValues struct {
+	Namespace          string `yaml:"namespace,omitempty"`
+	CreateNamespace    string `yaml:"createNamespace,omitempty"`
+	VersionConstraints string `yaml:"versionConstraints,omitempty"`
+}
+
+type TanzuAuthPackageValues struct {
 	Namespace          string `yaml:"namespace,omitempty"`
 	CreateNamespace    string `yaml:"createNamespace,omitempty"`
 	VersionConstraints string `yaml:"versionConstraints,omitempty"`

@@ -47,6 +47,11 @@ frameworkPackage:
   clipluginsPackageValues:
     namespace: tkg-system
     versionConstraints:
+  tanzuAuthPackageValues:
+    namespace: tanzu-auth
+    versionConstraints:
+    controller:
+      image: ""
 
 clusterclassPackage:
   namespaceForPackageInstallation: tkg-system

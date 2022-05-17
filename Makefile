@@ -642,10 +642,10 @@ generate-go-conversions: $(CONVERSION_GEN) ## Generate conversions go code
 .PHONY: generate-package-config ## Generate the default package config CR e.g. make generate-package-config apiGroup=cni.tanzu.vmware.com kind=AntreaConfig version=v1alpha1 tkr=v1.23.3---vmware.1-tkg.1 namespace=tkg-system
 generate-package-config:
 	@cd addons/config && \
-        ./hack/test.sh verifyAddonConfigTemplateForGVR ${apiGroup} ${version} $(shell echo $(kind) | tr A-Z a-z) "default" && \
+        ./hack/test.sh verifyAddonConfigTemplateForGVR ${apiGroup} ${version} $(shell echo $(kind) | tr A-Z a-z) $(or $(iaas),default) && \
 		$(YTT) --ignore-unknown-comments \
 			-f templates/${apiGroup}/${version}/$(shell echo $(kind) | tr A-Z a-z).yaml \
-			-f testcases/${apiGroup}/${version}/$(shell echo $(kind) | tr A-Z a-z)/default.yaml \
+			-f testcases/${apiGroup}/${version}/$(shell echo $(kind) | tr A-Z a-z)/$(or $(iaas),default).yaml \
 			-v TKR_VERSION=${tkr} -v GLOBAL_NAMESPACE=$(or $(namespace),"tkg-system") ;\
 
 

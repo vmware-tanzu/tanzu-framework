@@ -117,15 +117,21 @@ func generateSingleImgpkgLockOutput(projectRootDir, toolsBinDir, packagePath str
 		return fmt.Errorf("couldn't run ytt command to generate imgpkg lock output file: %w", err)
 	}
 	defer pipe.Close()
-	var kbldCmdErrBytes bytes.Buffer
+	var kbldCmdErrBytes, yttCmdErrBytes bytes.Buffer
 	kbldCmd.Stdin = pipe
 	kbldCmd.Stderr = &kbldCmdErrBytes
+	yttCmd.Stderr = &yttCmdErrBytes
 
 	if err := yttCmd.Start(); err != nil {
 		return fmt.Errorf("couldn't run ytt command: %w", err)
 	}
+
 	if err := kbldCmd.Run(); err != nil {
 		return fmt.Errorf("couldn't run kbld command to generate imgpkg lock output file: %s", kbldCmdErrBytes.String())
+	}
+
+	if yttCmdErrBytes.String() != "" {
+		return fmt.Errorf("couldn't run ytt command: %s", yttCmdErrBytes.String())
 	}
 
 	if err := utils.RunMakeTarget(packagePath, "reset-package"); err != nil {

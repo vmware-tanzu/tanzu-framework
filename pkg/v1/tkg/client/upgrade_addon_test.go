@@ -207,21 +207,21 @@ var _ = Describe("Unit tests for addons upgrade", func() {
 			BeforeEach(func() {
 				addonsToBeUpgraded = []string{"tkr/tkr-controller"}
 			})
-			It("sets the cluster CIDR in the TKGConfig", func() {
-				clusterCIDR, err := tkgClient.TKGConfigReaderWriter().Get(constants.ConfigVariableClusterCIDR)
-				Expect(err).NotTo(HaveOccurred())
-				Expect(clusterCIDR).To(Equal("2.3.4.5/16"))
-			})
-			It("sets the service CIDR in the TKGConfig", func() {
-				serviceCIDR, err := tkgClient.TKGConfigReaderWriter().Get(constants.ConfigVariableServiceCIDR)
-				Expect(err).NotTo(HaveOccurred())
-				Expect(serviceCIDR).To(Equal("1.2.3.4/16"))
-			})
 			When("the cidrs are unset", func() {
 				It("sets the IPFamily to ipv4", func() {
 					ipFamily, err := tkgClient.TKGConfigReaderWriter().Get(constants.ConfigVariableIPFamily)
 					Expect(err).NotTo(HaveOccurred())
 					Expect(ipFamily).To(Equal("ipv4"))
+				})
+				It("sets the cluster CIDR in the TKGConfig", func() {
+					clusterCIDR, err := tkgClient.TKGConfigReaderWriter().Get(constants.ConfigVariableClusterCIDR)
+					Expect(err).NotTo(HaveOccurred())
+					Expect(clusterCIDR).To(Equal("2.3.4.5/16"))
+				})
+				It("sets the service CIDR in the TKGConfig", func() {
+					serviceCIDR, err := tkgClient.TKGConfigReaderWriter().Get(constants.ConfigVariableServiceCIDR)
+					Expect(err).NotTo(HaveOccurred())
+					Expect(serviceCIDR).To(Equal("1.2.3.4/16"))
 				})
 			})
 			When("the cluster is ipv4", func() {
@@ -234,6 +234,16 @@ var _ = Describe("Unit tests for addons upgrade", func() {
 					Expect(err).NotTo(HaveOccurred())
 					Expect(ipFamily).To(Equal("ipv4"))
 				})
+				It("sets the serviceCIDRs to be ipv4", func() {
+					serviceCIDRs, err := tkgClient.TKGConfigReaderWriter().Get(constants.ConfigVariableServiceCIDR)
+					Expect(err).NotTo(HaveOccurred())
+					Expect(serviceCIDRs).To(Equal("2.3.4.5/16"))
+				})
+				It("sets the podCIDRs to be ipv4", func() {
+					podCIDRs, err := tkgClient.TKGConfigReaderWriter().Get(constants.ConfigVariableClusterCIDR)
+					Expect(err).NotTo(HaveOccurred())
+					Expect(podCIDRs).To(Equal("1.2.3.4/16"))
+				})
 			})
 			When("the cluster is ipv6", func() {
 				BeforeEach(func() {
@@ -244,6 +254,16 @@ var _ = Describe("Unit tests for addons upgrade", func() {
 					ipFamily, err := tkgClient.TKGConfigReaderWriter().Get(constants.ConfigVariableIPFamily)
 					Expect(err).NotTo(HaveOccurred())
 					Expect(ipFamily).To(Equal("ipv6"))
+				})
+				It("sets the serviceCIDRs to be ipv6", func() {
+					serviceCIDRs, err := tkgClient.TKGConfigReaderWriter().Get(constants.ConfigVariableServiceCIDR)
+					Expect(err).NotTo(HaveOccurred())
+					Expect(serviceCIDRs).To(Equal("fd00::/32"))
+				})
+				It("sets the podCIDRs to be ipv6", func() {
+					podCIDRs, err := tkgClient.TKGConfigReaderWriter().Get(constants.ConfigVariableClusterCIDR)
+					Expect(err).NotTo(HaveOccurred())
+					Expect(podCIDRs).To(Equal("fd01::/32"))
 				})
 			})
 			When("the cluster is dualstack and primary ipv4", func() {
@@ -256,6 +276,16 @@ var _ = Describe("Unit tests for addons upgrade", func() {
 					Expect(err).NotTo(HaveOccurred())
 					Expect(ipFamily).To(Equal("ipv4,ipv6"))
 				})
+				It("sets the serviceCIDRs to be ipv4,ipv6", func() {
+					serviceCIDRs, err := tkgClient.TKGConfigReaderWriter().Get(constants.ConfigVariableServiceCIDR)
+					Expect(err).NotTo(HaveOccurred())
+					Expect(serviceCIDRs).To(Equal("1.2.3.4/16,fd00::/32"))
+				})
+				It("sets the podCIDRs to be ipv4,ipv6", func() {
+					podCIDRs, err := tkgClient.TKGConfigReaderWriter().Get(constants.ConfigVariableClusterCIDR)
+					Expect(err).NotTo(HaveOccurred())
+					Expect(podCIDRs).To(Equal("2.3.4.5/16,fd01::/32"))
+				})
 			})
 			When("the cluster is dualstack and primary ipv6", func() {
 				BeforeEach(func() {
@@ -266,6 +296,16 @@ var _ = Describe("Unit tests for addons upgrade", func() {
 					ipFamily, err := tkgClient.TKGConfigReaderWriter().Get(constants.ConfigVariableIPFamily)
 					Expect(err).NotTo(HaveOccurred())
 					Expect(ipFamily).To(Equal("ipv6,ipv4"))
+				})
+				It("sets the serviceCIDRs to be ipv6,ipv4", func() {
+					serviceCIDRs, err := tkgClient.TKGConfigReaderWriter().Get(constants.ConfigVariableServiceCIDR)
+					Expect(err).NotTo(HaveOccurred())
+					Expect(serviceCIDRs).To(Equal("fd00::/32,1.2.3.4/16"))
+				})
+				It("sets the podCIDRs to be ipv6,ipv4", func() {
+					podCIDRs, err := tkgClient.TKGConfigReaderWriter().Get(constants.ConfigVariableClusterCIDR)
+					Expect(err).NotTo(HaveOccurred())
+					Expect(podCIDRs).To(Equal("fd01::/32,2.3.4.5/16"))
 				})
 			})
 		})

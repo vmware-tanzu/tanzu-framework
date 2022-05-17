@@ -9,12 +9,6 @@ import (
 
 // CalicoConfigSpec defines the desired state of CalicoConfig
 type CalicoConfigSpec struct {
-
-	// The namespace in which calico is deployed
-	//+ kubebuilder:validation:Optional
-	//+kubebuilder:default:=kube-system
-	Namespace string `json:"namespace,omitempty"`
-
 	Calico Calico `json:"calico,omitempty"`
 }
 

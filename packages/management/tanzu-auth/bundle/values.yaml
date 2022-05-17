@@ -1,7 +1,0 @@
-#@data/values
-#@overlay/match-child-defaults missing_ok=True
----
-
-namespace: tanzu-auth
-controller:
-  image: "" #! the image to use for the tanzu-auth-controller-manager, there is no default image provided
