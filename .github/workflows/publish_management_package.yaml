@@ -17,7 +17,7 @@ on:
 jobs:
 
   build:
-    name: Release
+    name: Publish management package
     runs-on: ubuntu-latest
     steps:
 
@@ -43,25 +43,33 @@ jobs:
               dep ensure
           fi
 
+      - name: Extract PR Number
+        uses: Dovyski/payload-info-action@master
+        id: get_pr_num
+        with:
+          # when event is a pull request, obtaining the PR number is obvious
+          filter_pull_request: '.number'
+          # when event is a push (merge of PR), obtains original PR number from the merge commit message
+          filter_push: '.head_commit.message | capture("Merge pull request #(?<pr>[[:digit:]]+)").pr | tonumber'
+
       - name: Build management packages
         env:
-          NUM: ${{ github.run_id }}
+          NUM: ${{ steps.get_pr_num.outputs.value }}
         run: |
-          export OCI_REGISTRY=projects.registry.vmware.com/tanzu_framework/github-actions/management
-          export BUILD_VERSION=v0.${NUM}
-          export PACKAGE_VERSION=v0.${NUM}
-          make COMPONENTS="pkg/v2/tkr/controller/tkr-status pkg/v1/sdk/features addons pkg/v2/tkr/webhook/infra-machine pkg/v1/sdk/capabilities pkg/v2/tkr/webhook/tkr-conversion pkg/v2/tkr/webhook/cluster/tkr-resolver" docker-build
-
-      - uses: 'docker/login-action@v1'
-        with:
-          registry: 'projects.registry.vmware.com/tanzu_framework'
-          username: '${{ secrets.OCI_REGISTRY_USERNAME }}'
-          password: '${{ secrets.OCI_REGISTRY_TOKEN }}'
+          export OCI_REGISTRY=projects.registry.vmware.com/tanzu_framework/github-actions/$NUM/management
+          echo $OCI_REGISTRY
+          make release
+          make docker-build
+        
+      - name: Login to Tanzu-Framework harbor Registry
+        run: docker login projects.registry.vmware.com -u '${{ secrets.OCI_REGISTRY_USERNAME }}' -p ${{ secrets.OCI_REGISTRY_TOKEN }}
 
       - name: Publish management packages
         env:
-          NUM: ${{ github.run_number }}
+          NUM: ${{ steps.get_pr_num.outputs.value }}
         run: |
-          make COMPONENTS="pkg/v2/tkr/controller/tkr-status pkg/v1/sdk/features addons pkg/v2/tkr/webhook/infra-machine pkg/v1/sdk/capabilities pkg/v2/tkr/webhook/tkr-conversion pkg/v2/tkr/webhook/cluster/tkr-resolver" docker-publish
-          make COMPONENTS="pkg/v2/tkr/controller/tkr-status pkg/v1/sdk/features addons pkg/v2/tkr/webhook/infra-machine pkg/v1/sdk/capabilities pkg/v2/tkr/webhook/tkr-conversion pkg/v2/tkr/webhook/cluster/tkr-resolver" kbld-image-replace
+          export OCI_REGISTRY=projects.registry.vmware.com/tanzu_framework/github-actions/$NUM/management
+          echo $OCI_REGISTRY
+          make docker-publish
+          make kbld-image-replace
           make package-push-bundles-repo PACKAGE_REPOSITORY=management
