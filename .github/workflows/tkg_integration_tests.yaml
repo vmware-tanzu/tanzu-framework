@@ -11,6 +11,16 @@ on:
     - 'pkg/v1/providers/**'
     - '.github/workflows/tkg_integration_tests.yaml'
 
+  push:
+    branches: [ package-based-lcm ]
+    paths:
+    - 'pkg/v1/tkg/**'
+    - '!pkg/v1/tkg/tkgpackage*/*'
+    - '!pkg/v1/tkg/kappclient/*'
+    - '!pkg/v1/tkg/test/tkgpackageclient/**'
+    - 'pkg/v1/providers/**'
+    - '.github/workflows/tkg_integration_tests.yaml'
+
 concurrency:
   group: ${{ format('integration-tests-{0}', github.head_ref) }}
   cancel-in-progress: true
