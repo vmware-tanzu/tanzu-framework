@@ -114,9 +114,7 @@ var _ = Describe("Cache implementation", func() {
 			}
 			for osImageName, osImage := range osImages {
 				Expect(r.cache.osImages).To(HaveKeyWithValue(osImageName, osImage))
-				Expect(r.cache.osImageToTKRs).To(HaveKey(osImageName))
 				shippingTKRs := r.cache.osImageToTKRs[osImageName]
-				Expect(shippingTKRs).ToNot(BeNil())
 
 				for tkrName, tkr := range shippingTKRs {
 					Expect(tkrName).ToNot(BeEmpty())
@@ -165,7 +163,6 @@ var _ = Describe("Cache implementation", func() {
 				}
 				for _, osImage := range osImageSubset {
 					Expect(r.cache.osImages).ToNot(HaveKey(osImage.Name))
-					Expect(r.cache.osImageToTKRs).ToNot(HaveKey(osImage.Name))
 				}
 			})
 		})
@@ -203,12 +200,56 @@ var _ = Describe("Cache implementation", func() {
 			}
 			for _, osImage := range osImageSubset {
 				Expect(r.cache.osImages).ToNot(HaveKey(osImage.Name))
-				Expect(r.cache.osImageToTKRs).ToNot(HaveKey(osImage.Name))
 			}
 		})
-	})
 
+		When("an OSImage has been removed and then added back", func() {
+			It("should preserve indices", func() {
+				osImagesToTKRs0 := copyOSImageToTKRs(r.cache.osImageToTKRs)
+				tkrsToOSImages0 := copyTKRToOSImages(r.cache.tkrToOSImages)
+				for _, osImage := range osImageSubset {
+					r.Remove(osImage)
+					r.Add(osImage)
+				}
+				Expect(r.cache.osImageToTKRs).To(Equal(osImagesToTKRs0))
+				Expect(r.cache.tkrToOSImages).To(Equal(tkrsToOSImages0))
+			})
+		})
+
+		When("an TKR has been removed and then added back", func() {
+			It("should preserve indices", func() {
+				osImageToTKRs0 := copyOSImageToTKRs(r.cache.osImageToTKRs)
+				tkrToOSImages0 := copyTKRToOSImages(r.cache.tkrToOSImages)
+				for _, tkr := range tkrSubset {
+					r.Remove(tkr)
+					r.Add(tkr)
+				}
+				Expect(r.cache.osImageToTKRs).To(Equal(osImageToTKRs0))
+				Expect(r.cache.tkrToOSImages).To(Equal(tkrToOSImages0))
+			})
+		})
+	})
 })
+
+func copyOSImageToTKRs(original map[string]data.TKRs) map[string]data.TKRs {
+	result := make(map[string]data.TKRs, len(original))
+	for k, v := range original {
+		result[k] = v.Filter(func(_ *runv1.TanzuKubernetesRelease) bool {
+			return true
+		}) // making a copy of v
+	}
+	return result
+}
+
+func copyTKRToOSImages(original map[string]data.OSImages) map[string]data.OSImages {
+	result := make(map[string]data.OSImages, len(original))
+	for k, v := range original {
+		result[k] = v.Filter(func(_ *runv1.OSImage) bool {
+			return true
+		}) // making a copy of v
+	}
+	return result
+}
 
 var _ = Describe("normalize(query)", func() {
 	var (
