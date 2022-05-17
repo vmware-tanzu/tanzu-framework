@@ -19,7 +19,7 @@ repositories:
       - name: featuregates
         displayName: featuregates
         #! Relative path to package bundle
-        path: packages/management/featuregates
+        path: packages/featuregates
         domain: tanzu.vmware.com
         version: latest
         #! Gets replaced with imgpkg sha256 at build, this should be name:version
@@ -27,7 +27,7 @@ repositories:
       - name: tanzu-auth
         displayName: tanzu-auth
         #! Relative path to package bundle
-        path: packages/management/tanzu-auth
+        path: packages/tanzu-auth
         domain: tanzu.vmware.com
         version: latest
         #! Gets replaced with imgpkg sha256 at build, this should be name:version
@@ -35,7 +35,7 @@ repositories:
       - name: cliplugins
         displayName: cliplugins
         #! Relative path to package bundle
-        path: packages/management/cliplugins
+        path: packages/cliplugins
         domain: tanzu.vmware.com
         version: latest
         #! Gets replaced with imgpkg sha256 at build, this should be name:version
@@ -43,7 +43,7 @@ repositories:
       - name: core-management-plugins
         displayName: core-management-plugins
         #! Relative path to package bundle
-        path: packages/management/core-management-plugins
+        path: packages/core-management-plugins
         domain: tanzu.vmware.com
         version: latest
         #! Gets replaced with imgpkg sha256 at build, this should be name:version
@@ -51,7 +51,7 @@ repositories:
       - name: addons-manager
         displayName: addons-manager
         #! Relative path to package bundle
-        path: packages/management/addons-manager
+        path: packages/addons-manager
         domain: tanzu.vmware.com
         version: latest
         #! Gets replaced with imgpkg sha256 at build, this should be name:version
@@ -59,7 +59,7 @@ repositories:
       - name: tkg
         displayName: tkg
         #! Relative path to package bundle
-        path: packages/management/tkg
+        path: packages/tkg
         domain: tanzu.vmware.com
         version: latest
         #! Gets replaced with imgpkg sha256 at build, this should be name:version
@@ -67,7 +67,7 @@ repositories:
       - name: tkg-clusterclass
         displayName: tkg-clusterclass
         #! Relative path to package bundle
-        path: packages/management/tkg-clusterclass
+        path: packages/tkg-clusterclass
         domain: tanzu.vmware.com
         version: latest
         #! Gets replaced with imgpkg sha256 at build, this should be name:version
@@ -75,7 +75,7 @@ repositories:
       - name: tkg-clusterclass-docker
         displayName: tkg-clusterclass-docker
         #! Relative path to package bundle
-        path: packages/management/tkg-clusterclass-docker
+        path: packages/tkg-clusterclass-docker
         domain: tanzu.vmware.com
         version: latest
         #! Gets replaced with imgpkg sha256 at build, this should be name:version
@@ -83,7 +83,7 @@ repositories:
       - name: tkg-clusterclass-azure
         displayName: tkg-clusterclass-azure
         #! Relative path to package bundle
-        path: packages/management/tkg-clusterclass-azure
+        path: packages/tkg-clusterclass-azure
         domain: tanzu.vmware.com
         version: latest
         #! Gets replaced with imgpkg sha256 at build, this should be name:version
@@ -91,7 +91,7 @@ repositories:
       - name: tkg-clusterclass-vsphere
         displayName: tkg-clusterclass-vsphere
         #! Relative path to package bundle
-        path: packages/management/tkg-clusterclass-vsphere
+        path: packages/tkg-clusterclass-vsphere
         domain: tanzu.vmware.com
         version: latest
         #! Gets replaced with imgpkg sha256 at build, this should be name:version
@@ -99,7 +99,7 @@ repositories:
       - name: tkg-clusterclass-aws
         displayName: tkg-clusterclass-aws
         #! Relative path to package bundle
-        path: packages/management/tkg-clusterclass-aws
+        path: packages/tkg-clusterclass-aws
         domain: tanzu.vmware.com
         version: latest
         #! Gets replaced with imgpkg sha256 at build, this should be name:version
@@ -107,7 +107,7 @@ repositories:
       - name: tkr-aws-machine-webhook
         displayName: tkr-aws-machine-webhook
         #! Relative path to package bundle
-        path: packages/management/tkr-aws-machine-webhook
+        path: packages/tkr-aws-machine-webhook
         domain: tanzu.vmware.com
         version: latest
         #! Gets replaced with imgpkg sha256 at build, this should be name:version
@@ -115,7 +115,7 @@ repositories:
       - name: tkr-azure-machine-webhook
         displayName: tkr-azure-machine-webhook
         #! Relative path to package bundle
-        path: packages/management/tkr-azure-machine-webhook
+        path: packages/tkr-azure-machine-webhook
         domain: tanzu.vmware.com
         version: latest
         #! Gets replaced with imgpkg sha256 at build, this should be name:version
@@ -123,7 +123,7 @@ repositories:
       - name: tkr-docker-machine-webhook
         displayName: tkr-docker-machine-webhook
         #! Relative path to package bundle
-        path: packages/management/tkr-docker-machine-webhook
+        path: packages/tkr-docker-machine-webhook
         domain: tanzu.vmware.com
         version: latest
         #! Gets replaced with imgpkg sha256 at build, this should be name:version
@@ -131,7 +131,7 @@ repositories:
       - name: tkr-vsphere-machine-webhook
         displayName: tkr-vsphere-machine-webhook
         #! Relative path to package bundle
-        path: packages/management/tkr-vsphere-machine-webhook
+        path: packages/tkr-vsphere-machine-webhook
         domain: tanzu.vmware.com
         version: latest
         #! Gets replaced with imgpkg sha256 at build, this should be name:version
@@ -139,7 +139,7 @@ repositories:
       - name: tkr-service
         displayName: tkr-service
         #! Relative path to package bundle
-        path: packages/management/tkr-service
+        path: packages/tkr-service
         domain: tanzu.vmware.com
         version: latest
         #! Gets replaced with imgpkg sha256 at build, this should be name:version
@@ -147,7 +147,7 @@ repositories:
       - name: framework
         displayName: framework
         #! Relative path to package bundle
-        path: packages/management/framework
+        path: packages/framework
         domain: tanzu.vmware.com
         version: latest
         #! Gets replaced with imgpkg sha256 at build, this should be name:version
@@ -178,13 +178,13 @@ repositories:
       - name: standalone-plugins
         displayName: standalone-plugins
         #! Relative path to package bundle
-        path: packages/standalone/standalone-plugins
+        path: packages/standalone-plugins
         domain: tanzu.vmware.com
         version: latest
         #! Gets replaced with imgpkg sha256 at build, this should be name:version
         sha256: "standalone-plugins:latest"
       - name: capabilities
-        path: packages/management/capabilities
+        path: packages/capabilities
         domain: tanzu.vmware.com
         version: latest
         sha256: "capabilities:latest"
