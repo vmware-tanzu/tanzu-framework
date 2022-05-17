@@ -1326,34 +1326,6 @@ spec:
         osType: Linux
       sshPublicKey: ${AZURE_SSH_PUBLIC_KEY_B64:=""}
       vmSize: ${AZURE_CONTROL_PLANE_MACHINE_TYPE}
-
-#---
-#apiVersion: cluster.x-k8s.io/v1beta1
-#kind: MachineDeployment
-#metadata:
-#  name: ${CLUSTER_NAME}-md-0
-#spec:
-#  clusterName: ${CLUSTER_NAME}
-#  replicas: ${WORKER_MACHINE_COUNT}
-#  selector:
-#    matchLabels: null
-#  template:
-#    metadata:
-#      labels:
-#        node-pool: "${CLUSTER_NAME}-worker-pool"
-#    spec:
-#      bootstrap:
-#        configRef:
-#          apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
-#          kind: KubeadmConfigTemplate
-#          name: ${CLUSTER_NAME}-md-0
-#      clusterName: ${CLUSTER_NAME}
-#      infrastructureRef:
-#        apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
-#        kind: AzureMachineTemplate
-#        name: ${CLUSTER_NAME}-md-0
-#      version: ${KUBERNETES_VERSION}
-#      failureDomain: "${AZURE_NODE_AZ}"
 ---
 apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
 kind: AzureMachineTemplate
