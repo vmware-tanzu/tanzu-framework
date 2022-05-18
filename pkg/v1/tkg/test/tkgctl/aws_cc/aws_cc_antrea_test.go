@@ -19,11 +19,7 @@ var _ = Describe("Functional tests for aws - Antrea", func() {
 			ArtifactsFolder: artifactsFolder,
 			Cni:             "antrea",
 			Plan:            "devcc",
-			OtherConfigs: map[string]string{
-				"AWS_VPC_ID":            "vpc-0f6da14d1b6f94a73",
-				"AWS_PUBLIC_SUBNET_ID":  "subnet-06a866e3f2285b915",
-				"AWS_PRIVATE_SUBNET_ID": "subnet-0ac292b48e3cceb4d",
-			},
+			Namespace:       "tkg-system",
 		}
 	})
 })
