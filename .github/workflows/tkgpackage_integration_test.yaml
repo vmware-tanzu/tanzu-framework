@@ -54,8 +54,11 @@ jobs:
         with:
           # when event is a pull request, obtaining the PR number is obvious
           filter_pull_request: '.number'
-          # when event is a push (merge of PR), obtains original PR number from the merge commit message
-          filter_push: '.head_commit.message | capture("Merge pull request #(?<pr>[[:digit:]]+)").pr | tonumber'
+          # when event is a push (merge of PR), since we require linear history,
+          # we are not even generating a merge commit that can help identify the
+          # PR number, so don't even try. Instead we just hard-code to a dummy
+          # value.
+          filter_push: 1009
 
       - name: Find Comment
         uses: peter-evans/find-comment@v1
