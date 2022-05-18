@@ -52,7 +52,7 @@ func CreateTarball(tarballPath, tarballFileName, pathToContents string) error {
 	}
 	file, err := os.OpenFile(filepath.Join(tarballPath, tarballFileName), os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0755)
 	if err != nil {
-		return fmt.Errorf("couln't create tarball file %s: %w", tarballFileName, err)
+		return fmt.Errorf("couldn't create tarball file %s: %w", tarballFileName, err)
 	}
 	defer file.Close()
 

@@ -50,14 +50,14 @@ func runRepoBundlePush(cmd *cobra.Command, args []string) error {
 	toolsBinDir := filepath.Join(projectRootDir, constants.ToolsBinDirPath)
 	repoVersion := formatVersion(nil, "+").concat
 
-	repoBundlePath := filepath.Join(projectRootDir, constants.RepoBundlesDir, "tanzu-framework-"+packageRepository+"-repo-"+repoVersion)
+	repoBundlePath := filepath.Join(projectRootDir, constants.RepoBundlesDir, packageRepository, "tanzu-framework-"+packageRepository+"-repo-"+repoVersion)
 	if err := utils.CreateDir(repoBundlePath); err != nil {
 		return err
 	}
 
 	// untar the repo bundle
 	tarBallVersion := formatVersion(nil, "_").concat
-	tarBallFilePath := filepath.Join(projectRootDir, constants.RepoBundlesDir, "tanzu-framework-"+packageRepository+"-repo-"+tarBallVersion+".tar.gz")
+	tarBallFilePath := filepath.Join(projectRootDir, constants.RepoBundlesDir, packageRepository, "tanzu-framework-"+packageRepository+"-repo-"+tarBallVersion+".tar.gz")
 	r, err := os.Open(tarBallFilePath)
 	if err != nil {
 		return fmt.Errorf("couldn't open tar file %s: %w", tarBallFilePath, err)
@@ -106,7 +106,7 @@ func runRepoBundlePush(cmd *cobra.Command, args []string) error {
 		"-v", "sha256="+sha256,
 	) // #nosec G204
 
-	packageRepositoryCRFilePath := filepath.Join(projectRootDir, constants.RepoBundlesDir, "tanzu-framework-"+packageRepository+"-repo-"+repoVersion+".yaml")
+	packageRepositoryCRFilePath := filepath.Join(projectRootDir, constants.RepoBundlesDir, packageRepository, "tanzu-framework-"+packageRepository+"-repo-"+repoVersion+".yaml")
 	outfile, err := os.Create(packageRepositoryCRFilePath)
 	if err != nil {
 		return fmt.Errorf("error creating file %s : %w", packageRepositoryCRFilePath, err)

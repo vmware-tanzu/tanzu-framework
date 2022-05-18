@@ -158,11 +158,11 @@ func generatePackageBundlesSha256(projectRootDir, localRegistry string) error {
 
 func generateRepoBundle(projectRootDir string) error {
 	fmt.Printf("Generating %q repo bundle...\n", packageRepository)
-	if err := utils.CreateDir(filepath.Join(projectRootDir, constants.RepoBundlesDir, ".imgpkg")); err != nil {
+	if err := utils.CreateDir(filepath.Join(projectRootDir, constants.RepoBundlesDir, packageRepository, ".imgpkg")); err != nil {
 		return err
 	}
 
-	if err := utils.CreateDir(filepath.Join(projectRootDir, constants.RepoBundlesDir, "packages")); err != nil {
+	if err := utils.CreateDir(filepath.Join(projectRootDir, constants.RepoBundlesDir, packageRepository, "packages")); err != nil {
 		return err
 	}
 
@@ -178,7 +178,7 @@ func generateRepoBundle(projectRootDir string) error {
 		"-v", "registry="+registry,
 	) // #nosec G204
 
-	outFilePath := filepath.Join(projectRootDir, constants.RepoBundlesDir, ".imgpkg", "images.yml")
+	outFilePath := filepath.Join(projectRootDir, constants.RepoBundlesDir, packageRepository, ".imgpkg", "images.yml")
 	outfile, err := os.Create(outFilePath)
 	if err != nil {
 		return fmt.Errorf("error creating file %s : %w", outFilePath, err)
@@ -207,7 +207,7 @@ func generateRepoBundle(projectRootDir string) error {
 		return fmt.Errorf("%s repository not found", packageRepository)
 	}
 
-	pkgRepoPkgsDir := filepath.Join(projectRootDir, constants.RepoBundlesDir, "packages")
+	pkgRepoPkgsDir := filepath.Join(projectRootDir, constants.RepoBundlesDir, packageRepository, "packages")
 	for i := range repository.Packages {
 		if err := generatePackageCR(projectRootDir, toolsBinDir, registry, pkgRepoPkgsDir, packageValuesFile, &repository.Packages[i]); err != nil {
 			return fmt.Errorf("couldn't generate the package: %w", err)
@@ -216,7 +216,7 @@ func generateRepoBundle(projectRootDir string) error {
 
 	// create tarball of repo bundle
 	tarballVersion := formatVersion(nil, "_").concat
-	tarBallPath := filepath.Join(projectRootDir, constants.RepoBundlesDir)
+	tarBallPath := filepath.Join(projectRootDir, constants.RepoBundlesDir, packageRepository)
 	tarBallFileName := "tanzu-framework-" + packageRepository + "-repo-" + tarballVersion + ".tar.gz"
 	if err := utils.CreateTarball(tarBallPath, tarBallFileName, tarBallPath); err != nil {
 		return fmt.Errorf("couldn't generate package bundle: %w", err)
