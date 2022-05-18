@@ -1,5 +1,5 @@
 ---
-AWS_SSH_KEY_NAME: ""
+AWS_SSH_KEY_NAME: "tanzutest"
 AWS_REGION: "us-west-2"
 BASTION_HOST_ENABLED: true
 AWS_VPC_CIDR: "10.0.0.0/16"
