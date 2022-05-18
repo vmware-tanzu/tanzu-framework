@@ -57,10 +57,10 @@ func NewHelper(ctx context.Context, k8sClient client.Client, aggregateAPIResourc
 	}
 }
 
-// AddMissingSpecFromTemplate scans clusterBootstrap's fields. For fields which are not specified, it adds defaults from
+// AddMissingSpecFieldsFromTemplate scans clusterBootstrap's fields. For fields which are not specified, it adds defaults from
 // clusterBootstrapTemplate
-func (h *Helper) AddMissingSpecFromTemplate(clusterBootstrapTemplate *runtanzuv1alpha3.ClusterBootstrapTemplate,
-	clusterBootstrap *runtanzuv1alpha3.ClusterBootstrap) (*runtanzuv1alpha3.ClusterBootstrap, error) {
+func (h *Helper) AddMissingSpecFieldsFromTemplate(clusterBootstrapTemplate *runtanzuv1alpha3.ClusterBootstrapTemplate,
+	clusterBootstrap *runtanzuv1alpha3.ClusterBootstrap) error {
 
 	converter := runtime.DefaultUnstructuredConverter
 	var copyFrom map[string]interface{}
@@ -69,23 +69,23 @@ func (h *Helper) AddMissingSpecFromTemplate(clusterBootstrapTemplate *runtanzuv1
 	// DeepCopy() here is to make sure to handle the pointer fields properly. We do not want any changes in clusterBootstrapTemplate
 	// have side effects on the ClusterBootstrap object
 	if copyFrom, err = converter.ToUnstructured(clusterBootstrapTemplate.Spec.DeepCopy()); err != nil {
-		return nil, err
+		return err
 	}
 	if target, err = converter.ToUnstructured(clusterBootstrap.Spec.DeepCopy()); err != nil {
-		return nil, err
+		return err
 	}
-	if err = assignMissingFields(copyFrom, target); err != nil {
-		return nil, err
+	if err := addMissingFields(copyFrom, target); err != nil {
+		return err
 	}
 	updatedTemplateSpec := &runtanzuv1alpha3.ClusterBootstrapTemplateSpec{}
-	if err = converter.FromUnstructured(target, updatedTemplateSpec); err != nil {
-		return nil, err
+	if err := converter.FromUnstructured(target, updatedTemplateSpec); err != nil {
+		return err
 	}
 	clusterBootstrap.Spec = updatedTemplateSpec
-	return clusterBootstrap, nil
+	return nil
 }
 
-func assignMissingFields(copyFrom, destination map[string]interface{}) error {
+func addMissingFields(copyFrom, destination map[string]interface{}) error {
 	for keyInFrom, valueInFrom := range copyFrom {
 		valueInTarget, exist := destination[keyInFrom]
 		if !exist || valueInTarget == nil {
@@ -112,7 +112,7 @@ func assignMissingFields(copyFrom, destination map[string]interface{}) error {
 			// If keyInFrom exists in addMissingTo, recursively look inside the nested fields.
 			if valueInFrom != nil && reflect.TypeOf(valueInFrom).Kind() == reflect.Map &&
 				valueInTarget != nil && reflect.TypeOf(valueInTarget).Kind() == reflect.Map {
-				if err := assignMissingFields(valueInFrom.(map[string]interface{}), valueInTarget.(map[string]interface{})); err != nil {
+				if err := addMissingFields(valueInFrom.(map[string]interface{}), valueInTarget.(map[string]interface{})); err != nil {
 					return err
 				}
 			}

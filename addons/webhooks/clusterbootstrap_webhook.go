@@ -116,7 +116,7 @@ func (wh *ClusterBootstrap) Default(ctx context.Context, obj runtime.Object) err
 		return err
 	}
 	helper := clusterbootstrapclone.Helper{Logger: clusterbootstraplog}
-	if _, err := helper.AddMissingSpecFromTemplate(clusterBootstrapTemplate, clusterBootstrap); err != nil {
+	if err := helper.AddMissingSpecFieldsFromTemplate(clusterBootstrapTemplate, clusterBootstrap); err != nil {
 		clusterbootstraplog.Error(err, fmt.Sprintf("unable to add defaults to the missing fields of ClusterBootstrap %s/%s",
 			clusterBootstrap.Namespace, clusterBootstrap.Name))
 		return err

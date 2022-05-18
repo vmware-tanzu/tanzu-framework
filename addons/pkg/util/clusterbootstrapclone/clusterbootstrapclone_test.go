@@ -306,7 +306,7 @@ var _ = Describe("ClusterbootstrapClone", func() {
 			fakeClusterBootstrapTemplate = constructFakeClusterBootstrapTemplateWithCNI()
 		})
 		It("should add what ClusterBootstrapTemplate has to the empty ClusterBootstrap", func() {
-			emptyClusterBootstrap := &v1alpha3.ClusterBootstrap{
+			clusterBootstrap := &v1alpha3.ClusterBootstrap{
 				ObjectMeta: metav1.ObjectMeta{
 					Name:      "fake-clusterbootstrap",
 					Namespace: "fake-cluster-ns",
@@ -315,8 +315,9 @@ var _ = Describe("ClusterbootstrapClone", func() {
 				Spec: &v1alpha3.ClusterBootstrapTemplateSpec{},
 			}
 
-			updatedClusterBootstrap, err := helper.AddMissingSpecFromTemplate(fakeClusterBootstrapTemplate, emptyClusterBootstrap)
+			err := helper.AddMissingSpecFieldsFromTemplate(fakeClusterBootstrapTemplate, clusterBootstrap)
 			Expect(err).NotTo(HaveOccurred())
+			updatedClusterBootstrap := clusterBootstrap
 			Expect(updatedClusterBootstrap.Spec).NotTo(BeNil())
 			Expect(updatedClusterBootstrap.Spec.CNI).NotTo(BeNil())
 			Expect(updatedClusterBootstrap.Spec.CNI.RefName).To(Equal(fakeClusterBootstrapTemplate.Spec.CNI.RefName))
@@ -340,7 +341,7 @@ var _ = Describe("ClusterbootstrapClone", func() {
 			fakeClusterBootstrapTemplate.Spec.CPI = fakeCPIClusterBootstrapPackage
 			fakeClusterBootstrapTemplate.Spec.CSI = fakeCSIClusterBootstrapPackage
 
-			fakeClusterBootstrap := &v1alpha3.ClusterBootstrap{
+			clusterBootstrap := &v1alpha3.ClusterBootstrap{
 				ObjectMeta: metav1.ObjectMeta{
 					Name:      "fake-clusterbootstrap",
 					Namespace: "fake-cluster-ns",
@@ -361,13 +362,14 @@ var _ = Describe("ClusterbootstrapClone", func() {
 				},
 			}
 
-			updatedClusterBootstrap, err := helper.AddMissingSpecFromTemplate(fakeClusterBootstrapTemplate, fakeClusterBootstrap)
+			err := helper.AddMissingSpecFieldsFromTemplate(fakeClusterBootstrapTemplate, clusterBootstrap)
 			Expect(err).NotTo(HaveOccurred())
+			updatedClusterBootstrap := clusterBootstrap
 			Expect(updatedClusterBootstrap.Spec.CNI).NotTo(BeNil())
 			// We do not expect the RefName and ValuesFrom gets overwritten if they already exist
-			Expect(updatedClusterBootstrap.Spec.CNI.RefName).To(Equal(fakeClusterBootstrap.Spec.CNI.RefName))
-			Expect(updatedClusterBootstrap.Spec.CNI.ValuesFrom.ProviderRef.Kind).To(Equal(fakeClusterBootstrap.Spec.CNI.ValuesFrom.ProviderRef.Kind))
-			Expect(updatedClusterBootstrap.Spec.CNI.ValuesFrom.ProviderRef.Name).To(Equal(fakeClusterBootstrap.Spec.CNI.ValuesFrom.ProviderRef.Name))
+			Expect(updatedClusterBootstrap.Spec.CNI.RefName).To(Equal("foo-antrea-clusterbootstrarp-package"))
+			Expect(updatedClusterBootstrap.Spec.CNI.ValuesFrom.ProviderRef.Kind).To(Equal("AntreaConfig"))
+			Expect(updatedClusterBootstrap.Spec.CNI.ValuesFrom.ProviderRef.Name).To(Equal("fooAntreaConfig"))
 			// CPI should be added to updatedClusterBootstrap
 			Expect(updatedClusterBootstrap.Spec.CPI).NotTo(BeNil())
 			Expect(updatedClusterBootstrap.Spec.CPI.ValuesFrom.SecretRef).To(Equal(fakeCPIClusterBootstrapPackage.ValuesFrom.SecretRef))

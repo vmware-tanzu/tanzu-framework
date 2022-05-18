@@ -1,3 +1,6 @@
+// Copyright 2022 VMware, Inc. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
+
 package webhooks_test
 
 import (
@@ -134,7 +137,8 @@ var _ = BeforeSuite(func(done Done) {
 	dialer := &net.Dialer{Timeout: time.Second}
 	addrPort := fmt.Sprintf("%s:%d", webhookInstallOptions.LocalServingHost, webhookInstallOptions.LocalServingPort)
 	Eventually(func() error {
-		conn, err := tls.DialWithDialer(dialer, "tcp", addrPort, &tls.Config{InsecureSkipVerify: true})
+		// It is safe to have nolint:gosec below is because this is just a test
+		conn, err := tls.DialWithDialer(dialer, "tcp", addrPort, &tls.Config{InsecureSkipVerify: true}) //nolint:gosec
 		if err != nil {
 			return err
 		}
