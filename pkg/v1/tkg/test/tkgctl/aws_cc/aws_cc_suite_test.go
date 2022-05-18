@@ -13,8 +13,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/test/framework/exec"
-
 	. "github.com/onsi/ginkgo"
 	"github.com/onsi/ginkgo/config"
 	"github.com/onsi/ginkgo/reporters"
@@ -23,6 +21,7 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgctl"
 
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/test/framework"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/test/framework/exec"
 )
 
 const clusterName = "tkg-cli-wc"
@@ -85,6 +84,21 @@ var _ = SynchronizedBeforeSuite(func() []byte {
 		}
 	}
 
+	hackCmd := exec.NewCommand(
+		exec.WithCommand("../../scripts/cc_hack.sh"),
+		exec.WithStdout(GinkgoWriter),
+	)
+
+	os.Setenv("_MANAGEMENT_PACKAGE_REPO_IMAGE", "gcr.io/eminent-nation-87317/tkg/test20/management:v0.21.0")
+	os.Setenv("_MANAGEMENT_PACKAGE_VERSION", "0.21.0")
+	os.Setenv("_ADDITIONAL_MANAGEMENT_COMPONENT_CONFIGURATION_FILE", "https://gist.githubusercontent.com/anujc25/cf8b5ce3e9e241527e3af881d5d748c1/raw/32dda7874da12f98c05d6d5400cdde2f5334a90d/tkr-addons-resources-v1.23.5.yaml")
+
+	fmt.Println("Executing the hack script")
+	out, cmdErr, err := hackCmd.Run(context.Background())
+	fmt.Println(string(out))
+	fmt.Println(string(cmdErr))
+	Expect(err).To(BeNil())
+
 	cli, err := tkgctl.New(tkgctl.Options{
 		ConfigDir: e2eConfig.TkgConfigDir,
 		LogOptions: tkgctl.LoggingOptions{
@@ -120,18 +134,6 @@ var _ = SynchronizedBeforeSuite(func() []byte {
 			Namespace:   "tkg-system",
 			ExportFile:  tempFilePath,
 		})
-		Expect(err).To(BeNil())
-
-		hackCmd := exec.NewCommand(
-			exec.WithCommand("../../scripts/cc_hack.sh"),
-			exec.WithArgs(tempFilePath),
-			exec.WithStdout(GinkgoWriter),
-		)
-
-		fmt.Println("Executing the hack script")
-		out, cmdErr, err := hackCmd.Run(context.Background())
-		fmt.Println(string(out))
-		fmt.Println(string(cmdErr))
 		Expect(err).To(BeNil())
 	}
 
