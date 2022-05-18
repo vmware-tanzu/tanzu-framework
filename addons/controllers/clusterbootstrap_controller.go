@@ -210,8 +210,7 @@ func (r *ClusterBootstrapReconciler) reconcileNormal(cluster *clusterapiv1beta1.
 
 	remoteClient, err := util.GetClusterClient(r.context, r.Client, r.Scheme, clusterapiutil.ObjectKey(cluster))
 	if err != nil {
-		log.Error(err, "Error getting remote cluster client")
-		return ctrl.Result{Requeue: true}, err
+		return ctrl.Result{Requeue: true}, fmt.Errorf("failed to get remote cluster client: %w", err)
 	}
 
 	if err := r.prepareRemoteCluster(cluster, remoteClient); err != nil {
