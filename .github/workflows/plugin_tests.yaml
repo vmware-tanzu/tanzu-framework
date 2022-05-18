@@ -2,7 +2,7 @@ name: Plugin Tests
 
 on:
   pull_request:
-    branches: [main, release-*, package-based-lcm ]
+    branches: [main, release-*, xpackage-based-lcm ]
     paths:
       - "cmd/cli/plugin/cluster/**"
       - "cmd/cli/plugin/managementcluster/**"
