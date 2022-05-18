@@ -386,7 +386,6 @@ def get_aws_vars():
     simpleMapping["AWS_LOAD_BALANCER_SCHEME_INTERNAL"] = "loadBalancerSchemeInternal"
     vars = get_cluster_variables()
 
-    simpleMapping = {}
     for key in simpleMapping:
         if data.values[key] != None:
             vars[simpleMapping[key]] = data.values[key]
