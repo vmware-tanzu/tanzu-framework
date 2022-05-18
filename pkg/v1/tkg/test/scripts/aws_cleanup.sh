@@ -25,4 +25,14 @@ wget https://github.com/genevieve/leftovers/releases/download/v0.62.0/leftovers-
 mv leftovers-v0.62.0-linux-amd64 /usr/local/bin/leftovers
 chmod +x /usr/local/bin/leftovers
 
+wget https://github.com/kubernetes-sigs/kind/releases/download/v0.11.0/kind-linux-amd64
+mv kind-linux-amd64 /usr/local/bin/kind
+chmod +x /usr/local/bin/kind
+
+# Delete any kind cluster that are left behind
+kind get clusters | xargs -n 1 kind delete cluster --name
+
+leftovers -i aws --aws-access-key-id="${AWS_ACCESS_KEY_ID}" --aws-secret-access-key="${AWS_SECRET_ACCESS_KEY}" --aws-session-token="${AWS_SESSION_TOKEN}" --filter="${FILTER}" --aws-region="${AWS_REGION}" -n || true
+
+# Retry the deletion incase the previous attempt failed
 leftovers -i aws --aws-access-key-id="${AWS_ACCESS_KEY_ID}" --aws-secret-access-key="${AWS_SECRET_ACCESS_KEY}" --aws-session-token="${AWS_SESSION_TOKEN}" --filter="${FILTER}" --aws-region="${AWS_REGION}" -n
