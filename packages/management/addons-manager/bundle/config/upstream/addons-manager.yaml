@@ -247,6 +247,7 @@ spec:
         - --metrics-bind-addr=0
         - --leader-elect=false
         - #@ "--health-addr=:{}".format(data.values.tanzuAddonsManager.deployment.healthzPort)
+        - #@ "--webhook-server-port={}".format(data.values.tanzuAddonsManager.deployment.webhookServerPort)
         - #@ "--addon-namespace={}".format(data.values.tanzuAddonsManager.namespace)
         #@ if/end data.values.tanzuAddonsManager.featureGates.clusterBootstrapController:
         - --feature-gate-cluster-bootstrap=true
