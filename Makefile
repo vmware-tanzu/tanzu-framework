@@ -494,6 +494,9 @@ test: generate fmt vet manifests build-cli-mocks ## Run tests
 	$(MAKE) kubebuilder -C $(TOOLS_DIR)
 	KUBEBUILDER_ASSETS=$(ROOT_DIR)/$(KUBEBUILDER)/bin $(MAKE) test -C addons
 
+	# pinniped tanzu-auth-controller-manager
+	addons/pinniped/tanzu-auth-controller-manager/hack/test.sh
+
 .PHONY: test-cli
 test-cli: build-cli-mocks ## Run tests
 	$(GO) test ./pkg/v1/cli/... ./pkg/v1/auth/... ./pkg/v1/builder/... ./pkg/v1/config/... ./pkg/v1/encoding/... ./pkg/v1/grpc/...

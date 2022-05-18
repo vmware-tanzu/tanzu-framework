@@ -6,6 +6,7 @@ package controllers
 import (
 	"context"
 	"fmt"
+	"time"
 
 	. "github.com/onsi/gomega"
 	"gopkg.in/yaml.v3"
@@ -38,8 +39,9 @@ func deleteObject(ctx context.Context, o client.Object) {
 	oCopy := o.DeepCopyObject().(client.Object)
 	Eventually(func(g Gomega) {
 		err := k8sClient.Get(ctx, client.ObjectKeyFromObject(o), oCopy)
+		fmt.Printf("error: %v", err)
 		g.Expect(k8serrors.IsNotFound(err)).To(BeTrue())
-	}).Should(Succeed())
+	}).WithTimeout(time.Second * 5).Should(Succeed())
 }
 
 func updateObject(ctx context.Context, o client.Object) {
