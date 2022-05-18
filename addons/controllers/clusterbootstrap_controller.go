@@ -172,20 +172,15 @@ func (r *ClusterBootstrapReconciler) Reconcile(ctx context.Context, req ctrl.Req
 
 	log.Info("Reconciling cluster")
 
-	remoteClient, err := util.GetClusterClient(r.context, r.Client, r.Scheme, clusterapiutil.ObjectKey(cluster))
-	if err != nil {
-		log.Error(err, "Error getting remote cluster client")
-		return ctrl.Result{Requeue: true}, err
-	}
 	// if deletion timestamp is set, handle cluster deletion
 	if !cluster.GetDeletionTimestamp().IsZero() {
-		return r.reconcileDelete(cluster, remoteClient, log)
+		return r.reconcileDelete(cluster, log)
 	}
-	return r.reconcileNormal(cluster, remoteClient, log)
+	return r.reconcileNormal(cluster, log)
 }
 
 // reconcileNormal reconciles the ClusterBootstrap object
-func (r *ClusterBootstrapReconciler) reconcileNormal(cluster *clusterapiv1beta1.Cluster, remoteClient client.Client, log logr.Logger) (ctrl.Result, error) {
+func (r *ClusterBootstrapReconciler) reconcileNormal(cluster *clusterapiv1beta1.Cluster, log logr.Logger) (ctrl.Result, error) {
 	// get or clone or patch from template
 	clusterBootstrap, err := r.createOrPatchClusterBootstrapFromTemplate(cluster, log)
 	if err != nil {
@@ -211,6 +206,11 @@ func (r *ClusterBootstrapReconciler) reconcileNormal(cluster *clusterapiv1beta1.
 	if err := r.createOrPatchKappPackageInstall(clusterBootstrap, cluster); err != nil {
 		// Return error if kapp-controller fails to be deployed, let reconciler try again
 		return ctrl.Result{}, err
+	}
+
+	remoteClient, err := util.GetClusterClient(r.context, r.Client, r.Scheme, clusterapiutil.ObjectKey(cluster))
+	if err != nil {
+		return ctrl.Result{RequeueAfter: constants.RequeueAfterDuration}, fmt.Errorf("failed to get remote cluster client: %w", err)
 	}
 
 	if err := r.prepareRemoteCluster(cluster, remoteClient); err != nil {
@@ -1285,9 +1285,14 @@ func (r *ClusterBootstrapReconciler) removeFinalizersFromClusterResources(cluste
 	return nil
 }
 
-func (r *ClusterBootstrapReconciler) reconcileDelete(cluster *clusterapiv1beta1.Cluster, remoteClient client.Client, log logr.Logger) (ctrl.Result, error) {
+func (r *ClusterBootstrapReconciler) reconcileDelete(cluster *clusterapiv1beta1.Cluster, log logr.Logger) (ctrl.Result, error) {
 	okToRemoveFinalizers := false
 	var err error
+
+	remoteClient, err := util.GetClusterClient(r.context, r.Client, r.Scheme, clusterapiutil.ObjectKey(cluster))
+	if err != nil {
+		return ctrl.Result{RequeueAfter: constants.RequeueAfterDuration}, fmt.Errorf("failed to get remote cluster client: %w", err)
+	}
 
 	timeOutReached := time.Now().After(cluster.GetDeletionTimestamp().Add(r.Config.ClusterDeleteTimeout))
 	if timeOutReached {
