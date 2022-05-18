@@ -22,7 +22,6 @@ rules:
   resources:
   - tanzukubernetesreleases
   - osimages
-  - clusterbootstraptemplates
   verbs:
   - create
   - delete
@@ -40,18 +39,6 @@ rules:
   - get
   - patch
   - update
-- apiGroups:
-  - data.packaging.carvel.dev
-  resources:
-  - packages
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
 - apiGroups:
   - cluster.x-k8s.io
   resources:
@@ -76,7 +63,6 @@ rules:
   - ""
   resources:
   - configmaps
-  - secrets
   verbs:
   - get
   - list
