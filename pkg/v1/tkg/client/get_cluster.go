@@ -28,6 +28,7 @@ type ClusterInfo struct {
 	WorkerCount       string            `json:"workers" yaml:"workers"`
 	K8sVersion        string            `json:"kubernetes" yaml:"kubernetes"`
 	Roles             []string          `json:"roles" yaml:"roles"`
+	TKR               string            `json:"tkr" yaml:"tkr"`
 	Labels            map[string]string `json:"labels" yaml:"labels"`
 }
 
@@ -92,6 +93,7 @@ func (c *TkgClient) GetClusterObjects(clusterClient clusterclient.Client, listOp
 		cluster.K8sVersion = getClusterK8sVersion(clusterInfo)
 		cluster.Roles = getClusterRoles(clusterInfo.cluster.Labels)
 		cluster.Labels = clusterInfo.cluster.Labels
+		cluster.TKR = getClusterTKR(clusterInfo.cluster.Labels)
 		clusters = append(clusters, cluster)
 	}
 
@@ -122,6 +124,7 @@ func (c *TkgClient) GetClusterObjectsForPacific(clusterClient clusterclient.Clie
 		cluster.WorkerCount = getClusterWorkerCountForPacific(clusterInfo)
 		cluster.K8sVersion = clusterInfo.cluster.Spec.Distribution.Version
 		cluster.Labels = clusterInfo.cluster.Labels
+		cluster.TKR = getClusterTKR(clusterInfo.cluster.Labels)
 		clusters = append(clusters, cluster)
 	}
 
