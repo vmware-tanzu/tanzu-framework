@@ -20,6 +20,7 @@ import (
 	clusterctlv1 "sigs.k8s.io/cluster-api/cmd/clusterctl/api/v1alpha3"
 	crtclient "sigs.k8s.io/controller-runtime/pkg/client"
 
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/config"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/clusterclient"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/log"
@@ -136,10 +137,24 @@ func (c *TkgClient) DeleteRegion(options DeleteRegionOptions) error { //nolint:f
 			return errors.Wrap(err, "cannot create cleanup cluster client")
 		}
 
+		// If clusterclass feature flag is enabled then deploy kapp-controller
+		if config.IsFeatureActivated(config.FeatureFlagPackageBasedLCM) {
+			if err = c.InstallOrUpgradeKappController(cleanupClusterKubeconfigPath, ""); err != nil {
+				return errors.Wrap(err, "unable to install kapp-controller to bootstrap cluster")
+			}
+		}
+
 		log.Info("Installing providers to cleanup cluster...")
 		// Initialize cleanup cluster using same provider name and version from management cluster
 		if err = c.InitializeProviders(&initOptionsForCleanupCluster, cleanupClusterClient, cleanupClusterKubeconfigPath); err != nil {
 			return errors.Wrap(err, "unable to initialize providers")
+		}
+
+		// If clusterclass feature flag is enabled then deploy management components
+		if config.IsFeatureActivated(config.FeatureFlagPackageBasedLCM) {
+			if err = c.InstallOrUpgradeManagementComponents(cleanupClusterKubeconfigPath, "", false); err != nil {
+				return errors.Wrap(err, "unable to install management components to bootstrap cluster")
+			}
 		}
 
 		isStartedRegionalClusterDeletion = true
