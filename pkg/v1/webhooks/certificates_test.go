@@ -61,7 +61,9 @@ var _ = Describe("Webhook", func() {
 
 	Context("server's certificate and key", func() {
 		It("should be generated and written to the webhook server CertDir", func() {
-			secret, err := NewTLSSecret(ctx, webhookScrtName, webhookServiceName, certPath, keyPath, addonNamespace)
+			secret, err := resources.MakeSecret(ctx, webhookScrtName, addonNamespace, webhookServiceName)
+			Expect(err).ToNot(HaveOccurred())
+			err = WriteServerTLSToFileSystem(ctx, certPath, keyPath, secret)
 			Expect(err).ToNot(HaveOccurred())
 			Expect(secret).NotTo(BeNil())
 			cert, err := cert2.CertsFromFile(certPath)
@@ -76,7 +78,7 @@ var _ = Describe("Webhook", func() {
 			Expect(key).To(Equal(orgKey))
 		})
 		It("should become invalid after one week", func() {
-			secret, err := NewTLSSecret(ctx, webhookScrtName, webhookServiceName, certPath, keyPath, addonNamespace)
+			secret, err := resources.MakeSecret(ctx, webhookScrtName, addonNamespace, webhookServiceName)
 			Expect(err).ToNot(HaveOccurred())
 			Expect(secret).NotTo(BeNil())
 			err = ValidateTLSSecret(secret, time.Hour*24) // valid cert life is one week. One day should not make it invalid
