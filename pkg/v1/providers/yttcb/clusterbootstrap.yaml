@@ -15,7 +15,7 @@
 #@ end
 
 #@ def should_create_clusterbootstrap():
-#@   return data.values.CNI != "antrea" or is_antrea_configs_given() 
+#@   return data.values.CNI != "antrea" or is_antrea_configs_given()
 #@ end
 
 #@ if should_create_clusterbootstrap():
@@ -65,8 +65,8 @@ spec:
 apiVersion: cni.tanzu.vmware.com/v1alpha1
 kind: AntreaConfig
 metadata:
-  name: #@ data.values.CLUSTER_NAME 
-  namespace: #@ data.values.NAMESPACE 
+  name: #@ data.values.CLUSTER_NAME
+  namespace: #@ data.values.NAMESPACE
 spec:
   antrea:
     config:
