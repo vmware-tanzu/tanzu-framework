@@ -74,4 +74,5 @@ jobs:
            ./pkg/v1/providers/tests/clustergen/testdata/clustergen.status
            ./pkg/v1/providers/tests/clustergen/testdata/clustergen.diff.txt
            ./pkg/v1/providers/tests/clustergen/testdata/clustergen_cc.diff.txt
+           ./pkg/v1/providers/tests/clustergen/testdata/clustergen_noncc_vs_cc.diff.txt
            ./pkg/v1/providers/tests/clustergen/testdata/clustergen.html
