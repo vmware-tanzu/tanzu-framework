@@ -1,4 +1,5 @@
 #@ load("@ytt:data", "data")
+#@ load("lib/helpers.star", "get_tkr_version_from_tkr_name")
 
 #@ def is_antrea_configs_given():
 #@   return (data.values.NSXT_POD_ROUTING_ENABLED != False or
@@ -26,7 +27,7 @@ metadata:
   name: #@ data.values.CLUSTER_NAME
   namespace: #@ data.values.NAMESPACE
   annotations:
-    tkg.tanzu.vmware.com/add-missing-fields-from-tkr: #@ "{}/{}".format(data.values.CLUSTER_NAME, data.values.NAMESPACE)
+    tkg.tanzu.vmware.com/add-missing-fields-from-tkr: #@ "{}".format(get_tkr_version_from_tkr_name(data.values.KUBERNETES_RELEASE))
 spec:
   cni:
     #@ if data.values.CNI == "antrea":
