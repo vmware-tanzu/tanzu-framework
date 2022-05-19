@@ -41,6 +41,8 @@ frameworkPackage:
         priorityClassName: system-cluster-critical
         nodeSelector: null
         tolerations: []
+        webhookServerPort: 9865
+        healthzPort: 18316
       featureGates:
         clusterBootstrapController: false
         packageInstallStatus: false

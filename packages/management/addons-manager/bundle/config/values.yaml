@@ -10,6 +10,7 @@ tanzuAddonsManager:
     priorityClassName: null
     nodeSelector: null
     tolerations: []
+    webhookServerPort: 9865
     healthzPort: 18316
   featureGates:
     clusterBootstrapController: false
