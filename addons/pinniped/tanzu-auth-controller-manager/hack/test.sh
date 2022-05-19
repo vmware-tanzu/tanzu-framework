@@ -15,4 +15,4 @@ cd "${MY_DIR}/.."
 make kubebuilder -C "${TF_ROOT}/hack/tools"
 
 # Run tests
-KUBEBUILDER_ASSETS="${TF_ROOT}/hack/tools/bin/kubebuilder/bin" go test ./... -coverprofile cover.out -v 2
+KUBEBUILDER_ASSETS="${TF_ROOT}/hack/tools/bin/kubebuilder/bin" go test ./... -coverprofile coverage.txt -v 2
