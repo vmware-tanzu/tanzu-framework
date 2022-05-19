@@ -77,22 +77,10 @@ generate_cluster_configurations() {
         cat "$t" | perl -pe 's/--plan (\S+)/--plan $1cc/; s/_PLAN: (\S+)/_PLAN: $1cc/' > /tmp/test_tkg_config_cc
         echo "CLUSTER_CLASS: tkg-${infra}-default" >> /tmp/test_tkg_config_cc
         read -r -a cmdargs < <(grep EXE: /tmp/test_tkg_config_cc | cut -d: -f2-)
-        cat <<- EOF >> /tmp/test_tkg_config_cc
+
+        if [[ "${infra}" == "aws" ]]; then
+          cat <<- EOF >> /tmp/test_tkg_config_cc
 TKR_DATA: |-
-  v1.21.2:
-    kubernetesSpec:
-      version: v1.21.2
-      imageRepository: projects-stg.registry.vmware.com
-      etcd:
-        imageTag: v1.0.0-test
-      coredns:
-        imageTag: v1.1.0-test
-      kube-vip:
-        imageTag: v2.0.0-test
-    labels:
-      os-name: ubuntu
-      os-type: linux
-      os-arch: amd64
   v1.23.5+vmware.1:
     kubernetesSpec:
       version: v1.23.5+vmware.1
@@ -110,12 +98,75 @@ TKR_DATA: |-
     osImageRef:
       id: test-ami-id
       region: test-region
+EOF
+        fi
+        if [[ "${infra}" == "vsphere" ]]; then
+          cat <<- EOF >> /tmp/test_tkg_config_cc
+TKR_DATA: |-
+  v1.21.2:
+    kubernetesSpec:
+      version: v1.21.2
+      imageRepository: projects-stg.registry.vmware.com
+      etcd:
+        imageTag: v1.0.0-test
+      coredns:
+        imageTag: v1.1.0-test
+      kube-vip:
+        imageTag: v2.0.0-test
+    labels:
+      os-name: ubuntu
+      os-type: linux
+      os-arch: amd64
+EOF
+        fi
+        if [[ "${infra}" == "azure" ]]; then
+          if grep -q "AZURE_IMAGE_GALLERY" /tmp/test_tkg_config_cc; then
+            cat <<- EOF >> /tmp/test_tkg_config_cc
+TKR_DATA: |-
+  v1.23.5+vmware.1:
+    kubernetesSpec:
+      version: v1.23.5+vmware.1
+      imageRepository: projects-stg.registry.vmware.com
+      etcd:
+        imageTag: v1.0.0-test
+      coredns:
+        imageTag: v1.1.0-test
+    labels:
+      os-name: ubuntu
+      os-type: linux
+      os-arch: amd64
+    osImageRef:
+      version: test-version
+      gallery: test-gallery
+      name: test-name
+      resourceGroup: test-resource-group
+      subscriptionID: test-subscription-id
+EOF
+          else
+            cat <<- EOF >> /tmp/test_tkg_config_cc
+TKR_DATA: |-
+  v1.23.5+vmware.1:
+    kubernetesSpec:
+      version: v1.23.5+vmware.1
+      imageRepository: projects-stg.registry.vmware.com
+      etcd:
+        imageTag: v1.0.0-test
+      coredns:
+        imageTag: v1.1.0-test
+    labels:
+      os-name: ubuntu
+      os-type: linux
+      os-arch: amd64
+    osImageRef:
       sku: test-sku
       publisher: test-publisher
       offer: test-offer
       version: test-version
       thirdPartyImage: test-third-party-image
 EOF
+          fi
+        fi
+
         echo $TKG --file /tmp/test_tkg_config_cc --configdir ${TKG_CONFIG_DIR} --log_file /tmp/"$t"_cc.log config cluster "${cmdargs[@]}"
         $TKG --file /tmp/test_tkg_config_cc --configdir ${TKG_CONFIG_DIR} --log_file /tmp/"$t"_cc.log config cluster "${cmdargs[@]}" 2>/tmp/err_cc.txt 1>/tmp/expected_cc.yaml
         #normalize_cc /tmp/expected_cc.yaml ${outputdir}/"$t".cc.output

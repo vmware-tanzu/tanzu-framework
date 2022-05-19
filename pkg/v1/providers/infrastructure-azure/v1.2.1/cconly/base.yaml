@@ -437,11 +437,26 @@ spec:
             managedDisk:
               storageAccountType: {{ .controlPlane.osDisk.storageAccountType }}
       - op: replace
-        path: /spec/template/spec/image/marketplace
+        path: /spec/template/spec/image
         valueFrom:
           template: |
-            {{ range $k, $v := (index .TKR_DATA .builtin.controlPlane.version).osImageRef }} {{- $k -}} : {{ $v }}
-            {{ end }}
+            {{- $osImageRef := (index .TKR_DATA .builtin.controlPlane.version).osImageRef -}}
+            {{- if index $osImageRef "gallery" }}
+            sharedGallery:
+              resourceGroup: {{ index $osImageRef "resourceGroup" }}
+              name: {{ index $osImageRef "name" }}
+              subscriptionID: {{ index $osImageRef "subscriptionID" }}
+              gallery: {{ index $osImageRef "gallery" }}
+              version: {{ index $osImageRef "version" }}
+            {{- end }}
+            {{- if index $osImageRef "sku" }}
+            marketplace:
+              sku: {{ index $osImageRef "sku" }}
+              publisher: {{ index $osImageRef "publisher" }}
+              offer: {{ index $osImageRef "offer" }}
+              version: {{ index $osImageRef "version" }}
+              thirdPartyImage: {{ index $osImageRef "thirdPartyImage" }}
+            {{- end -}}
   - name: KCPT_ControlPlane_Main
     definitions:
     - selector:
@@ -539,11 +554,26 @@ spec:
             managedDisk:
               storageAccountType: {{ .worker.osDisk.storageAccountType }}
       - op: replace
-        path: /spec/template/spec/image/marketplace
+        path: /spec/template/spec/image
         valueFrom:
           template: |
-            {{ range $k, $v := (index .TKR_DATA .builtin.machineDeployment.version).osImageRef }} {{- $k -}} : {{ $v }}
-            {{ end }}
+            {{- $osImageRef := (index .TKR_DATA .builtin.machineDeployment.version).osImageRef -}}
+            {{- if index $osImageRef "gallery" }}
+            sharedGallery:
+              resourceGroup: {{ index $osImageRef "resourceGroup" }}
+              name: {{ index $osImageRef "name" }}
+              subscriptionID: {{ index $osImageRef "subscriptionID" }}
+              gallery: {{ index $osImageRef "gallery" }}
+              version: {{ index $osImageRef "version" }}
+            {{- end }}
+            {{- if index $osImageRef "sku" }}
+            marketplace:
+              sku: {{ index $osImageRef "sku" }}
+              publisher: {{ index $osImageRef "publisher" }}
+              offer: {{ index $osImageRef "offer" }}
+              version: {{ index $osImageRef "version" }}
+              thirdPartyImage: {{ index $osImageRef "thirdPartyImage" }}
+            {{- end -}}
   - name: KCT_Worker_Main
     definitions:
     - selector:
