@@ -203,6 +203,9 @@ func (c *TkgClient) configureVariablesForProvidersInstallation(regionalClusterCl
 		return errors.Wrap(err, "failed to set configurations for upgrade")
 	}
 
+	// Configure provider name to readerwriter config
+	c.SetProviderType(infraProviderName)
+
 	switch infraProviderName {
 	case AzureProviderName:
 		// since the templates needs Base64 values of credentials, encode them
