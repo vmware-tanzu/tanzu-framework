@@ -179,6 +179,9 @@ func (c *TkgClient) InitRegion(options *InitRegionOptions) error { //nolint:funl
 		return errors.Wrap(err, "unable to create bootstrap cluster")
 	}
 
+	// Configure kubeconfig as part of options as bootstrap cluster kubeconfig
+	options.Kubeconfig = bootstrapClusterKubeconfigPath
+
 	isBootstrapClusterCreated = true
 	log.Infof("Bootstrapper created. Kubeconfig: %s", bootstrapClusterKubeconfigPath)
 	bootStrapClusterClient, err := clusterclient.NewClient(bootstrapClusterKubeconfigPath, "", clusterclient.Options{OperationTimeout: c.timeout})
