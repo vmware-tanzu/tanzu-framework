@@ -40,7 +40,7 @@ func deleteObject(ctx context.Context, o client.Object) {
 	Eventually(func(g Gomega) {
 		err := k8sClient.Get(ctx, client.ObjectKeyFromObject(o), oCopy)
 		g.Expect(k8serrors.IsNotFound(err)).To(BeTrue())
-	}, time.Second*30).Should(Succeed())
+	}, time.Second*60).Should(Succeed())
 }
 
 func updateObject(ctx context.Context, o client.Object) {
