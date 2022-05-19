@@ -23,6 +23,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/util/json"
 	"k8s.io/apimachinery/pkg/version"
 	clientgodiscovery "k8s.io/client-go/discovery"
 	dynamicfake "k8s.io/client-go/dynamic/fake"
@@ -32,6 +33,7 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	controllreruntimefake "sigs.k8s.io/controller-runtime/pkg/client/fake"
+	k8syaml "sigs.k8s.io/yaml"
 )
 
 var _ = Describe("ClusterbootstrapClone", func() {
@@ -300,7 +302,7 @@ var _ = Describe("ClusterbootstrapClone", func() {
 
 	})
 
-	Context("Verify AddDefaultsFromTemplate()", func() {
+	Context("Verify AddMissingSpecFieldsFromTemplate()", func() {
 		var fakeClusterBootstrapTemplate *v1alpha3.ClusterBootstrapTemplate
 		BeforeEach(func() {
 			fakeClusterBootstrapTemplate = constructFakeClusterBootstrapTemplateWithCNI()
@@ -381,7 +383,115 @@ var _ = Describe("ClusterbootstrapClone", func() {
 			Expect(updatedClusterBootstrap.Spec.AdditionalPackages).To(BeNil())
 		})
 	})
+
+	Context("Verify CompleteCBPackageRefNamesFromTKR()", func() {
+		It("should complete the partial filled RefName if there is a match", func() {
+			clusterBootstrap := constructFakeEmptyClusterBootstrap()
+			clusterBootstrap.Spec = &v1alpha3.ClusterBootstrapTemplateSpec{
+				CNI: &v1alpha3.ClusterBootstrapPackage{
+					RefName: "calico*",
+					ValuesFrom: &v1alpha3.ValuesFrom{
+						Inline: map[string]interface{}{"foo": "bar"},
+					},
+				},
+			}
+			tanzuKubernetesRelease := constructFakeTanzuKubernetesRelease()
+			err := helper.CompleteCBPackageRefNamesFromTKR(tanzuKubernetesRelease, clusterBootstrap)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(clusterBootstrap.Spec.CNI.RefName).To(Equal("calico.tanzu.vmware.com.3.22.1+vmware.1-tkg.1-zshippable"))
+			Expect(clusterBootstrap.Spec.CNI.ValuesFrom.Inline["foo"]).To(Equal("bar"))
+		})
+
+		It("should return error if there is a no match", func() {
+			clusterBootstrap := constructFakeEmptyClusterBootstrap()
+			clusterBootstrap.Spec = &v1alpha3.ClusterBootstrapTemplateSpec{
+				CNI: &v1alpha3.ClusterBootstrapPackage{
+					RefName: "something-does-not-exist*",
+					ValuesFrom: &v1alpha3.ValuesFrom{
+						Inline: map[string]interface{}{"foo": "bar"},
+					},
+				},
+			}
+			tanzuKubernetesRelease := constructFakeTanzuKubernetesRelease()
+			err := helper.CompleteCBPackageRefNamesFromTKR(tanzuKubernetesRelease, clusterBootstrap)
+			Expect(err).To(HaveOccurred())
+			// The original value should stay untouched
+			Expect(clusterBootstrap.Spec.CNI.RefName).To(Equal("something-does-not-exist*"))
+		})
+
+		It("should not touch the fully filled refName", func() {
+			clusterBootstrap := constructFakeEmptyClusterBootstrap()
+			clusterBootstrap.Spec = &v1alpha3.ClusterBootstrapTemplateSpec{
+				CNI: &v1alpha3.ClusterBootstrapPackage{
+					RefName: "calico*",
+					ValuesFrom: &v1alpha3.ValuesFrom{
+						Inline: map[string]interface{}{"foo": "bar"},
+					},
+				},
+				CPI: &v1alpha3.ClusterBootstrapPackage{
+					RefName: "fake-cpi",
+					ValuesFrom: &v1alpha3.ValuesFrom{
+						ProviderRef: &corev1.TypedLocalObjectReference{
+							Name: "fake-secret",
+							Kind: "secret",
+						},
+					},
+				},
+			}
+			tanzuKubernetesRelease := constructFakeTanzuKubernetesRelease()
+			err := helper.CompleteCBPackageRefNamesFromTKR(tanzuKubernetesRelease, clusterBootstrap)
+			Expect(err).NotTo(HaveOccurred())
+			// The original value should stay untouched
+			Expect(clusterBootstrap.Spec.CPI.RefName).To(Equal("fake-cpi"))
+			Expect(clusterBootstrap.Spec.CPI.ValuesFrom.Inline).To(BeNil())
+			Expect(clusterBootstrap.Spec.CPI.ValuesFrom.SecretRef).To(BeEmpty())
+			Expect(clusterBootstrap.Spec.CPI.ValuesFrom.ProviderRef.Kind).To(Equal("secret"))
+			Expect(clusterBootstrap.Spec.CPI.ValuesFrom.ProviderRef.Name).To(Equal("fake-secret"))
+			// The partial filled refName should be updated
+			Expect(clusterBootstrap.Spec.CNI.RefName).To(Equal("calico.tanzu.vmware.com.3.22.1+vmware.1-tkg.1-zshippable"))
+			Expect(clusterBootstrap.Spec.CNI.ValuesFrom.Inline["foo"]).To(Equal("bar"))
+		})
+	})
 })
+
+func constructFakeTanzuKubernetesRelease() *v1alpha3.TanzuKubernetesRelease {
+	tkrYAML := `
+kind: TanzuKubernetesRelease
+apiVersion: run.tanzu.vmware.com/v1alpha3
+metadata:
+  name: v1.23.5---vmware.1-tkg.1-zshippable
+spec:
+  version: v1.23.5+vmware.1-tkg.1-zshippable
+  kubernetes:
+    version: v1.23.5+vmware.1
+    imageRepository: projects.registry.vmware.com/tkg
+    etcd:
+      imageTag: v3.5.2_vmware.4
+    pause:
+      imageTag: "3.6"
+    coredns:
+      imageTag: v1.8.6_vmware.5
+  osImages:
+  - name: v1.23.3---vmware.1-tkg.1-tkgs-ubuntu-2004
+  - name: v1.23.3---vmware.1-tkg.1-tkgs-photon-3
+  bootstrapPackages:
+  - name: antrea.tanzu.vmware.com.1.2.3+vmware.4-tkg.2-advanced-zshippable
+  - name: vsphere-pv-csi.tanzu.vmware.com.2.4.0+vmware.1-tkg.1-zshippable
+  - name: vsphere-cpi.tanzu.vmware.com.1.22.6+vmware.1-tkg.1-zshippable
+  - name: kapp-controller.tanzu.vmware.com.0.34.0+vmware.1-tkg.1-zshippable
+  - name: guest-cluster-auth-service.tanzu.vmware.com.1.0.0+tkg.1-zshippable
+  - name: metrics-server.tanzu.vmware.com.0.5.1+vmware.1-tkg.2-zshippable
+  - name: secretgen-controller.tanzu.vmware.com.0.8.0+vmware.1-tkg.1-zshippable
+  - name: pinniped.tanzu.vmware.com.0.12.1+vmware.1-tkg.1-zshippable
+  - name: capabilities.tanzu.vmware.com.0.22.0-dev-43-g2dd1adc9+vmware.1
+  - name: calico.tanzu.vmware.com.3.22.1+vmware.1-tkg.1-zshippable
+`
+	tkrJSONByte, err := k8syaml.YAMLToJSON([]byte(tkrYAML))
+	Expect(err).NotTo(HaveOccurred())
+	tkr := &v1alpha3.TanzuKubernetesRelease{}
+	Expect(json.Unmarshal(tkrJSONByte, tkr)).To(Succeed())
+	return tkr
+}
 
 func convertToUnstructured(obj runtime.Object) *unstructured.Unstructured {
 	//convert the runtime.Object to unstructured.Unstructured

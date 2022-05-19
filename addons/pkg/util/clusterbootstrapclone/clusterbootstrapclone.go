@@ -7,6 +7,7 @@ import (
 	"context"
 	"fmt"
 	"reflect"
+	"strings"
 
 	"github.com/go-logr/logr"
 	"gopkg.in/yaml.v3"
@@ -55,6 +56,49 @@ func NewHelper(ctx context.Context, k8sClient client.Client, aggregateAPIResourc
 		DiscoveryClient:             cachedDiscoveryClient,
 		Logger:                      logger,
 	}
+}
+
+// CompleteCBPackageRefNamesFromTKR goes through the ClusterBootstrapPackages and makes the RefName complete.
+// For example, when the clusterBootstrapPackage.RefName passed in is "calico*", this function updates it to be
+// a fully qualified name(<packageShortName>.<domain>.<version>). The fully qualified name is fetched from TKR.
+func (h *Helper) CompleteCBPackageRefNamesFromTKR(tkr *runtanzuv1alpha3.TanzuKubernetesRelease, clusterBootstrap *runtanzuv1alpha3.ClusterBootstrap) error {
+	var suffix = "*"
+	clusterBootstrapPackages := []*runtanzuv1alpha3.ClusterBootstrapPackage{
+		clusterBootstrap.Spec.CNI,
+		clusterBootstrap.Spec.CPI,
+		clusterBootstrap.Spec.CSI,
+		clusterBootstrap.Spec.Kapp,
+	}
+	clusterBootstrapPackages = append(clusterBootstrapPackages, clusterBootstrap.Spec.AdditionalPackages...)
+
+	for _, clusterBootstrapPackage := range clusterBootstrapPackages {
+		if clusterBootstrapPackage != nil && strings.HasSuffix(clusterBootstrapPackage.RefName, suffix) {
+			// The partial filled RefName will end with *. E.g., refName: calico*
+			prefixToMatch := strings.TrimSuffix(clusterBootstrapPackage.RefName, suffix)
+			fullyQualifiedCBPackageRefName, err := getFullyQualifiedCBPackageRefName(tkr, prefixToMatch)
+			if err != nil {
+				// Error means no match found. We do not expect this to happen.
+				// For atomicity, we return error immediately if there is a no match.
+				return err
+			}
+			clusterBootstrapPackage.RefName = fullyQualifiedCBPackageRefName
+		}
+	}
+	return nil
+}
+
+func getFullyQualifiedCBPackageRefName(tkr *runtanzuv1alpha3.TanzuKubernetesRelease, prefix string) (string, error) {
+	var fullyQualifiedCBPackageRefName string
+	for _, tkrBootstrapPackage := range tkr.Spec.BootstrapPackages {
+		if strings.HasPrefix(tkrBootstrapPackage.Name, prefix) {
+			fullyQualifiedCBPackageRefName = tkrBootstrapPackage.Name
+			break
+		}
+	}
+	if fullyQualifiedCBPackageRefName == "" {
+		return fullyQualifiedCBPackageRefName, fmt.Errorf("no bootstrapPackage name matches the prefix %s within the TanzuKubernetesRelease %s", prefix, tkr.Name)
+	}
+	return fullyQualifiedCBPackageRefName, nil
 }
 
 // AddMissingSpecFieldsFromTemplate scans clusterBootstrap's fields. For fields which are not specified, it adds defaults from

@@ -6,7 +6,6 @@ package webhooks
 import (
 	"context"
 	"fmt"
-	"strings"
 	"time"
 
 	"github.com/pkg/errors"
@@ -89,10 +88,10 @@ func (wh *ClusterBootstrap) Default(ctx context.Context, obj runtime.Object) err
 		return apierrors.NewBadRequest(fmt.Sprintf("expected a ClusterBootstrap but got a %T", obj))
 	}
 
-	var annotationValue string // <Namespace>/<Name>
+	var tkrName string
 	var annotationExist bool
 	if clusterBootstrap.Annotations != nil {
-		annotationValue, annotationExist = clusterBootstrap.Annotations[constants.AddCBMissingFieldsAnnotationKey]
+		tkrName, annotationExist = clusterBootstrap.Annotations[constants.AddCBMissingFieldsAnnotationKey]
 	}
 	if !annotationExist {
 		// It is a no-op if the annotation does not exist or the annotation value is empty
@@ -100,25 +99,39 @@ func (wh *ClusterBootstrap) Default(ctx context.Context, obj runtime.Object) err
 	}
 
 	clusterbootstraplog.Info("attempt to add defaults", "name", clusterBootstrap.Name)
-	valueSegments := strings.Split(annotationValue, "/")
-	if len(valueSegments) != 2 {
-		err := fmt.Errorf("invalid value for annotation: %s. The value needs to be <Namespace>/<Name>",
+	if tkrName == "" {
+		err := fmt.Errorf("invalid value for annotation: %s. The value needs to be the name of TanzuKubernetesRelease",
 			constants.AddCBMissingFieldsAnnotationKey)
 		clusterbootstraplog.Error(err, fmt.Sprintf("unable to add defaults to the missing fields of ClusterBootstrap %s/%s",
 			clusterBootstrap.Namespace, clusterBootstrap.Name))
 		return err
 	}
-	namespace, name := valueSegments[0], valueSegments[1]
+
+	// Get the helper ready for the defaulting logic
+	helper := clusterbootstrapclone.Helper{Logger: clusterbootstraplog}
+
+	// Get ClusterBootstrapTemplate and attempt to add defaults to the missing fields of ClusterBootstrap
+	clusterBootstrapTemplateName := tkrName // TanzuKubernetesRelease and ClusterBootstrapTemplate share the same name
 	clusterBootstrapTemplate := &runv1alpha3.ClusterBootstrapTemplate{}
-	if err := wh.Client.Get(ctx, client.ObjectKey{Namespace: namespace, Name: name}, clusterBootstrapTemplate); err != nil {
+	if err := wh.Client.Get(ctx, client.ObjectKey{Namespace: wh.SystemNamespace, Name: clusterBootstrapTemplateName}, clusterBootstrapTemplate); err != nil {
 		clusterbootstraplog.Error(err, fmt.Sprintf("unable to add defaults to the missing fields of ClusterBootstrap %s/%s",
 			clusterBootstrap.Namespace, clusterBootstrap.Name))
 		return err
 	}
-	helper := clusterbootstrapclone.Helper{Logger: clusterbootstraplog}
 	if err := helper.AddMissingSpecFieldsFromTemplate(clusterBootstrapTemplate, clusterBootstrap); err != nil {
 		clusterbootstraplog.Error(err, fmt.Sprintf("unable to add defaults to the missing fields of ClusterBootstrap %s/%s",
 			clusterBootstrap.Namespace, clusterBootstrap.Name))
+		return err
+	}
+
+	// Get TanzuKubernetesRelease and attempt to complete the partial filled ClusterBootstrapPackage RefName
+	tkr := &runv1alpha3.TanzuKubernetesRelease{}
+	if err := wh.Client.Get(ctx, client.ObjectKey{Name: tkrName}, tkr); err != nil {
+		clusterbootstraplog.Error(err, fmt.Sprintf("unable to get the TanzuKubernetesRelease %s", tkrName))
+		return err
+	}
+	if err := helper.CompleteCBPackageRefNamesFromTKR(tkr, clusterBootstrap); err != nil {
+		clusterbootstraplog.Error(err, "unable to complete the RefNames for ClusterBootstrapPackages due to errors")
 		return err
 	}
 
