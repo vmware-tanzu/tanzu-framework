@@ -59,11 +59,13 @@ type NodePool struct {
 	Replicas              *int32                    `yaml:"replicas,omitempty"`
 	AZ                    string                    `yaml:"az,omitempty"`
 	NodeMachineType       string                    `yaml:"nodeMachineType,omitempty"`
+	WorkerClass           string                    `yaml:"workerClass,omitempty"`
 	Labels                *map[string]string        `yaml:"labels,omitempty"`
 	VSphere               VSphereNodePool           `yaml:"vsphere,omitempty"`
 	Taints                *[]corev1.Taint           `yaml:"taints,omitempty"`
 	VMClass               string                    `yaml:"vmClass,omitempty"`
 	StorageClass          string                    `yaml:"storageClass,omitempty"`
+	TKRResolver           string                    `yaml:"tkrResolver,omitempty"`
 	Volumes               *[]tkgsv1alpha2.Volume    `yaml:"volumes,omitempty"`
 	TKR                   tkgsv1alpha2.TKRReference `yaml:"tkr,omitempty"`
 	NodeDrainTimeout      *metav1.Duration          `yaml:"nodeDrainTimeout,omitempty"`
@@ -104,6 +106,15 @@ func (c *TkgClient) SetMachineDeployment(options *SetMachineDeploymentOptions) e
 	if isPacific {
 		return c.SetNodePoolsForPacificCluster(clusterClient, options)
 	}
+
+	var cluster capi.Cluster
+	if err = clusterClient.GetResource(&cluster, options.ClusterName, options.Namespace, nil, nil); err != nil {
+		return errors.Wrap(err, "Unable to retrieve cluster resource")
+	}
+	if cluster.Spec.Topology != nil {
+		return DoSetMachineDeploymentCC(clusterClient, &cluster, options)
+	}
+
 	return DoSetMachineDeployment(clusterClient, options)
 }
 
@@ -304,6 +315,15 @@ func (c *TkgClient) DeleteMachineDeployment(options DeleteMachineDeploymentOptio
 	if isPacific {
 		return c.DeleteNodePoolForPacificCluster(clusterClient, options)
 	}
+
+	var cluster capi.Cluster
+	if err = clusterClient.GetResource(&cluster, options.ClusterName, options.Namespace, nil, nil); err != nil {
+		return errors.Wrap(err, "Unable to retrieve cluster resource")
+	}
+	if cluster.Spec.Topology != nil {
+		return DoDeleteMachineDeploymentCC(clusterClient, &cluster, &options)
+	}
+
 	return DoDeleteMachineDeployment(clusterClient, &options)
 }
 
@@ -456,6 +476,14 @@ func (c *TkgClient) GetMachineDeployments(options GetMachineDeploymentOptions) (
 	clusterClient, err := c.getClusterClient()
 	if err != nil {
 		return nil, errors.Wrap(err, "Unable to create clusterclient")
+	}
+
+	var cluster capi.Cluster
+	if err = clusterClient.GetResource(&cluster, options.ClusterName, options.Namespace, nil, nil); err != nil {
+		return nil, errors.Wrap(err, "Unable to retrieve cluster resources")
+	}
+	if cluster.Spec.Topology != nil {
+		return DoGetMachineDeploymentsCC(clusterClient, &cluster, &options)
 	}
 
 	return DoGetMachineDeployments(clusterClient, &options)
