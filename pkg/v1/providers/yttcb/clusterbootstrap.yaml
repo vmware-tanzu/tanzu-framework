@@ -1,0 +1,116 @@
+#@ load("@ytt:data", "data")
+
+#@ def is_antrea_configs_given():
+#@   return (data.values.NSXT_POD_ROUTING_ENABLED != False or
+#@           data.values.ANTREA_NO_SNAT != False or
+#@           data.values.ANTREA_TRAFFIC_ENCAP_MODE != "encap" or
+#@           data.values.ANTREA_PROXY != True or
+#@           data.values.ANTREA_ENDPOINTSLICE != True or
+#@           data.values.ANTREA_POLICY != True or
+#@           data.values.ANTREA_NODEPORTLOCAL != False or
+#@           data.values.ANTREA_TRACEFLOW != True or
+#@           data.values.ANTREA_EGRESS != False or
+#@           data.values.ANTREA_FLOWEXPORTER != False or
+#@           data.values.ANTREA_DISABLE_UDP_TUNNEL_OFFLOAD != False)
+#@ end
+
+#@ def should_create_clusterbootstrap():
+#@   return data.values.CNI != "antrea" or is_antrea_configs_given() 
+#@ end
+
+#@ if should_create_clusterbootstrap():
+---
+apiVersion: run.tanzu.vmware.com/v1alpha3
+kind: ClusterBootstrap
+metadata:
+  name: #@ data.values.CLUSTER_NAME
+  namespace: #@ data.values.NAMESPACE
+  annotations:
+    tkg.tanzu.vmware.com/add-missing-fields-from-tkr: #@ "{}/{}".format(data.values.CLUSTER_NAME, data.values.NAMESPACE)
+spec:
+  cni:
+    #@ if data.values.CNI == "antrea":
+    refName: antrea*
+    valuesFrom:
+      providerRef:
+        apiGroup: cni.tanzu.vmware.com
+        kind: AntreaConfig
+        name: #@ data.values.CLUSTER_NAME
+    #@ elif data.values.CNI == "calico":
+    refName: calico*
+    valuesFrom:
+      providerRef:
+        apiGroup: cni.tanzu.vmware.com
+        kind: CalicoConfig
+        name: #@ data.values.CLUSTER_NAME
+    #@ end
+  kapp:
+    refName: kapp-controller*
+    valuesFrom:
+      providerRef:
+        apiGroup: run.tanzu.vmware.com
+        kind: KappControllerConfig
+        name: #@ data.values.CLUSTER_NAME
+  csi:
+    refName: vsphere*
+    valuesFrom:
+      providerRef:
+        apiGroup: csi.tanzu.vmware.com
+        kind: VSphereCSIConfig
+        name: #@ data.values.CLUSTER_NAME
+#@ end
+
+---
+#@ if is_antrea_configs_given():
+apiVersion: cni.tanzu.vmware.com/v1alpha1
+kind: AntreaConfig
+metadata:
+  name: #@ data.values.CLUSTER_NAME 
+  namespace: #@ data.values.NAMESPACE 
+spec:
+  antrea:
+    config:
+      #@ if data.values.NSXT_POD_ROUTING_ENABLED:
+      trafficEncapMode: "noEncap"
+      noSNAT: true
+      #@ else:
+      trafficEncapMode: #@ data.values.ANTREA_TRAFFIC_ENCAP_MODE
+      noSNAT: #@ data.values.ANTREA_NO_SNAT
+      #@ end
+      disableUdpTunnelOffload: #@ data.values.ANTREA_DISABLE_UDP_TUNNEL_OFFLOAD
+      featureGates:
+        #@ if data.values.NSXT_POD_ROUTING_ENABLED:
+        AntreaProxy: true
+        #@ else:
+        AntreaProxy: #@ data.values.ANTREA_PROXY
+        #@ end
+        EndpointSlice: #@ data.values.ANTREA_ENDPOINTSLICE
+        AntreaPolicy: #@ data.values.ANTREA_POLICY
+        NodePortLocal: #@ data.values.ANTREA_NODEPORTLOCAL
+        AntreaTraceflow: #@ data.values.ANTREA_TRACEFLOW
+        Egress: #@ data.values.ANTREA_EGRESS
+        FlowExporter: #@ data.values.ANTREA_FLOWEXPORTER
+#@ end
+
+---
+#@ if data.values.CNI == "calico":
+apiVersion: cni.tanzu.vmware.com/v1alpha1
+kind: CalicoConfig
+metadata:
+  name: #@ data.values.CLUSTER_NAME
+  namespace: #@ data.values.NAMESPACE
+#@ end
+---
+apiVersion: run.tanzu.vmware.com/v1alpha3
+kind: KappControllerConfig
+metadata:
+  name: #@ data.values.CLUSTER_NAME
+  namespace: #@ data.values.NAMESPACE
+---
+#@ if data.values.PROVIDER_TYPE == "vsphere" and not data.values.IS_WINDOWS_WORKLOAD_CLUSTER:
+apiVersion: csi.tanzu.vmware.com/v1alpha1
+kind: VSphereCSIConfig
+metadata:
+  name: #@ data.values.CLUSTER_NAME
+  namespace: #@ data.values.NAMESPACE
+#@ end
