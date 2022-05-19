@@ -133,14 +133,14 @@ func addMissingFields(copyFrom, destination map[string]interface{}) error {
 	for keyInFrom, valueInFrom := range copyFrom {
 		valueInTarget, exist := destination[keyInFrom]
 		if !exist || valueInTarget == nil {
-			// If keyInFrom does not exist in addMissingTo or valueInTo is nil, we need to copy valueInFrom and add to
-			// addMissingTo.
+			// If keyInFrom does not exist in destination or valueInTo is nil, we need to copy valueInFrom and add to
+			// destination.
 			if valueInFrom != nil {
 				valueInFromType := reflect.TypeOf(valueInFrom)
 				if valueInFromType.Kind() == reflect.Map {
 					copiedVal, _, copyErr := unstructured.NestedFieldCopy(valueInFrom.(map[string]interface{}))
 					if copyErr != nil {
-						return nil
+						return copyErr
 					}
 					destination[keyInFrom] = copiedVal
 				} else {
@@ -153,7 +153,7 @@ func addMissingFields(copyFrom, destination map[string]interface{}) error {
 				}
 			}
 		} else {
-			// If keyInFrom exists in addMissingTo, recursively look inside the nested fields.
+			// If keyInFrom exists in destination, recursively look inside the nested fields.
 			if valueInFrom != nil && reflect.TypeOf(valueInFrom).Kind() == reflect.Map &&
 				valueInTarget != nil && reflect.TypeOf(valueInTarget).Kind() == reflect.Map {
 				if err := addMissingFields(valueInFrom.(map[string]interface{}), valueInTarget.(map[string]interface{})); err != nil {
