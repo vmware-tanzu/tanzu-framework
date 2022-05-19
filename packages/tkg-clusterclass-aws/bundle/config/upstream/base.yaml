@@ -240,6 +240,19 @@ spec:
         - enabled
         default:
           enabled: false
+  - name: nodePoolLabels
+    required: false
+    schema:
+      openAPIV3Schema:
+        type: array
+        items:
+          type: object
+          properties:
+            key:
+              type: string
+            values:
+              type: string
+        default: []
   - name: TKR_DATA
     required: false
     schema:
@@ -519,8 +532,20 @@ spec:
             {{- else -}}
               ,
             {{- end }}
-            {{- $key }}={{ $val }}
-            {{- end }}
+            {{- $key -}} = {{- $val }}
+            {{- end}}
+            {{- if .nodePoolLabels -}}
+              ,
+              {{- $first := true }}
+              {{- range .nodePoolLabels }}
+                {{- if $first }}
+                  {{- $first = false }}
+                {{- else -}}
+                  ,
+                {{- end }}
+                {{- .key -}} = {{- .value -}}
+              {{ end }}
+            {{ end }}
   - name: httpProxy
     enabledIf: '{{ not (empty .network.proxy) }}'
     definitions:

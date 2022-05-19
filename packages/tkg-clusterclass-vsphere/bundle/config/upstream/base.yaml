@@ -407,7 +407,10 @@ spec:
             type: object
             properties:
               nameservers:
-                type: string
+                type: array
+                items:
+                  type: string
+                default: []
   - name: worker
     required: true
     schema:
@@ -430,7 +433,23 @@ spec:
             type: object
             properties:
               nameservers:
-                type: string
+                type: array
+                items:
+                  type: string
+                default: []
+  - name: nodePoolLabels
+    required: false
+    schema:
+      openAPIV3Schema:
+        type: array
+        items:
+          type: object
+          properties:
+            key:
+              type: string
+            values:
+              type: string
+        default: []
   - name: TKR_DATA
     required: false
     schema:
@@ -729,9 +748,14 @@ spec:
           template: |
             devices:
             - networkName: {{ .vcenter.network }}
-              {{ if .controlPlane.network.nameservers -}} nameservers: {{ .controlPlane.network.nameservers }} {{- end }}
-              {{ if list "IPv4" "DualStack" | has .builtin.cluster.network.ipFamily -}} dhcp4: true {{- end }}
-              {{ if list "IPv6" "DualStack" | has .builtin.cluster.network.ipFamily -}} dhcp6: true {{- end }}
+            {{ if .controlPlane.network.nameservers -}}
+              nameservers:
+              {{- range .controlPlane.network.nameservers }}
+            - {{ . }}
+              {{- end }}
+            {{- end }}
+            {{ if list "IPv4" "DualStack" | has .builtin.cluster.network.ipFamily -}} dhcp4: true {{- end }}
+            {{ if list "IPv6" "DualStack" | has .builtin.cluster.network.ipFamily -}} dhcp6: true {{- end }}
     - selector:
         apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
         kind: VSphereMachineTemplate
@@ -747,9 +771,14 @@ spec:
           template: |
             devices:
             - networkName: {{ .vcenter.network }}
-              {{ if .worker.network.nameservers -}} nameservers: {{ .worker.network.nameservers }} {{- end }}
-              {{ if list "IPv4" "DualStack" | has .builtin.cluster.network.ipFamily -}} dhcp4: true {{- end }}
-              {{ if list "IPv6" "DualStack" | has .builtin.cluster.network.ipFamily -}} dhcp6: true {{- end }}
+            {{ if .worker.network.nameservers -}}
+              nameservers:
+              {{- range .worker.network.nameservers }}
+            - {{ . }}
+              {{- end }}
+            {{- end }}
+            {{ if list "IPv4" "DualStack" | has .builtin.cluster.network.ipFamily -}} dhcp4: true {{- end }}
+            {{ if list "IPv6" "DualStack" | has .builtin.cluster.network.ipFamily -}} dhcp6: true {{- end }}
   - name: clusterApiServerPort
     enabledIf: '{{ not (empty .apiServerPort) }}'
     definitions:
@@ -891,6 +920,18 @@ spec:
             {{- end }}
             {{- $key -}} = {{- $val }}
             {{- end}}
+            {{- if .nodePoolLabels -}}
+              ,
+              {{- $first := true }}
+              {{- range .nodePoolLabels }}
+                {{- if $first }}
+                  {{- $first = false }}
+                {{- else -}}
+                  ,
+                {{- end }}
+                {{- .key -}} = {{- .value -}}
+              {{ end }}
+            {{ end }}
   - name: httpProxy
     enabledIf: '{{ not (empty .network.proxy) }}'
     definitions:
