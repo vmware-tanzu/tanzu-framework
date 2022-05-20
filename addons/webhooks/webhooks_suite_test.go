@@ -68,7 +68,7 @@ var _ = BeforeSuite(func(done Done) {
 		CRDDirectoryPaths:     []string{filepath.Join("..", "..", "config", "crd", "bases"), filepath.Join("..", "controllers", "testdata", fakeCarvelPackageCRDFile)},
 		WebhookInstallOptions: envtest.WebhookInstallOptions{
 			LocalServingHost:    "127.0.0.1",
-			LocalServingPort:    9443,
+			LocalServingPort:    9447, // 9443 has been used by clusterbootstrap_test, using 9447 to avoid conflicts
 			LocalServingCertDir: tmpDir,
 			Paths:               []string{filepath.Join("..", "controllers", "testdata", "webhooks", clusterBootstrapWebhookManifestFile)},
 		},
