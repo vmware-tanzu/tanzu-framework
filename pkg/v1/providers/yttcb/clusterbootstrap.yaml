@@ -15,8 +15,13 @@
 #@           data.values.ANTREA_DISABLE_UDP_TUNNEL_OFFLOAD != False)
 #@ end
 
+#@ def is_vspherecsi_configs_given():
+#@   return (data.values.VSPHERE_INSECURE != True or
+#@           data.values.USE_TOPOLOGY_CATEGORIES != False)
+#@ end
+
 #@ def should_create_clusterbootstrap():
-#@   return data.values.CNI != "antrea" or is_antrea_configs_given()
+#@   return data.values.CNI != "antrea" or is_antrea_configs_given() or is_vspherecsi_configs_given()
 #@ end
 
 #@ if should_create_clusterbootstrap():
@@ -108,10 +113,17 @@ metadata:
   name: #@ data.values.CLUSTER_NAME
   namespace: #@ data.values.NAMESPACE
 ---
-#@ if data.values.PROVIDER_TYPE == "vsphere" and not data.values.IS_WINDOWS_WORKLOAD_CLUSTER:
+#@ if is_vspherecsi_configs_given() and data.values.PROVIDER_TYPE == "vsphere" and not data.values.IS_WINDOWS_WORKLOAD_CLUSTER:
 apiVersion: csi.tanzu.vmware.com/v1alpha1
 kind: VSphereCSIConfig
 metadata:
   name: #@ data.values.CLUSTER_NAME
   namespace: #@ data.values.NAMESPACE
+spec:
+  vsphereCSI:
+    mode: vsphereCSI
+    config:
+      insecureFlag: #@ data.values.VSPHERE_INSECURE
+      useTopologyCategories: #@ data.values.USE_TOPOLOGY_CATEGORIES
 #@ end
+
