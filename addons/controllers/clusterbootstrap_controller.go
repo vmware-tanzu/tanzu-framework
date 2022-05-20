@@ -279,10 +279,13 @@ func (r *ClusterBootstrapReconciler) createOrPatchResourcesForAdditionalPackages
 			}
 		}
 	}
-	if len(clusterBootstrap.Spec.AdditionalPackages) > 0 { // If we reach this and there are at least one additional package, we need to add finalizer
-		err := r.addFinalizersToClusterResources(cluster, log)
-		if err != nil {
-			return ctrl.Result{}, err
+	if len(clusterBootstrap.Spec.AdditionalPackages) > 0 { // If we reach this and there are at least one additional package, we need to add finalizer unless it is a management cluster
+		_, isManagmentCluster := cluster.Labels[tkrconstants.ManagementClusterRoleLabel]
+		if !isManagmentCluster {
+			err := r.addFinalizersToClusterResources(cluster, log)
+			if err != nil {
+				return ctrl.Result{}, err
+			}
 		}
 	}
 
