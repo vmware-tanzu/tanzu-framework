@@ -90,6 +90,7 @@ type addonFlags struct {
 	addonClusterRoleBinding         string
 	addonImagePullPolicy            string
 	corePackageRepoName             string
+	webhookServerPort               int
 	healthdAddr                     string
 	ipFamilyClusterVarName          string
 	featureGateClusterBootstrap     bool
@@ -120,6 +121,7 @@ func parseAddonFlags(addonFlags *addonFlags) {
 	flag.StringVar(&addonFlags.addonImagePullPolicy, "addon-image-pull-policy", "IfNotPresent", "The addon image pull policy")
 	flag.StringVar(&addonFlags.corePackageRepoName, "core-package-repo-name", "tanzu-core", "The name of core package repository")
 	flag.StringVar(&addonFlags.healthdAddr, "health-addr", ":18316", "The address the health endpoint binds to.")
+	flag.IntVar(&addonFlags.webhookServerPort, "webhook-server-port", 9865, "The port that the webhook server serves at.")
 	flag.StringVar(&addonFlags.ipFamilyClusterVarName, "ip-family-cluster-var-name", constants.DefaultIPFamilyClusterClassVarName, "IP family setting cluster variable name")
 	flag.BoolVar(&addonFlags.featureGateClusterBootstrap, "feature-gate-cluster-bootstrap", false, "Feature gate to enable clusterbootstap and addonconfig controllers that rely on TKR v1alphav3")
 	flag.BoolVar(&addonFlags.featureGatePackageInstallStatus, "feature-gate-package-install-status", false, "Feature gate to enable packageinstallstatus controller")
@@ -165,7 +167,7 @@ func main() {
 	mgr, err := ctrl.NewManager(ctrl.GetConfigOrDie(), ctrl.Options{
 		Scheme:                 scheme,
 		MetricsBindAddress:     flags.metricsAddr,
-		Port:                   9865,
+		Port:                   flags.webhookServerPort,
 		CertDir:                constants.WebhookCertDir,
 		LeaderElection:         flags.enableLeaderElection,
 		LeaderElectionID:       "5832a104.run.tanzu.addons",

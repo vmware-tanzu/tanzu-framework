@@ -25,13 +25,13 @@ TOOLS_SCRIPTS_DIR := $(ROOT_DIR)/hack/tools
 SRCS := go.mod go.sum
 
 YQ_VERSION=v4.5.0
-KUBEBUILDER_VERSION=2.3.1
 YTT_VERSION=v0.40.0
 KBLD_VERSION=v0.31.0
 KAPP_VERSION=v0.42.0
 VENDIR_VERSION=v0.23.0
 KUBEVAL_VERSION=0.15.0
-VALE_VERSION=2.10.3
+VALE_VERSION=2.17.0
+K8S_VERSION=1.23.5
 
 # Host information.
 HOST_OS=$(shell go env GOOS)
@@ -91,8 +91,8 @@ $(GOIMPORTS): go.mod go.sum
 kubebuilder: $(KUBEBUILDER) ## Install kubebuilder
 $(KUBEBUILDER):
 	mkdir -p $(BIN_DIR)
-	curl -L https://github.com/kubernetes-sigs/kubebuilder/releases/download/v${KUBEBUILDER_VERSION}/kubebuilder_${KUBEBUILDER_VERSION}_${HOST_OS}_${HOST_ARCH}.tar.gz | tar -xz -C /tmp/
-	mv /tmp/kubebuilder_$(KUBEBUILDER_VERSION)_$(HOST_OS)_$(HOST_ARCH) $(@)
+	curl -L https://go.kubebuilder.io/test-tools/${K8S_VERSION}/${HOST_OS}/${HOST_ARCH} | tar -xz -C /tmp/
+	mv /tmp/kubebuilder $(@)
 
 kustomize: $(KUSTOMIZE)
 $(KUSTOMIZE): $(BIN_DIR) go.mod go.sum # Build kustomize from tools folder.
@@ -101,7 +101,7 @@ $(KUSTOMIZE): $(BIN_DIR) go.mod go.sum # Build kustomize from tools folder.
 kubeval: $(KUBEVAL) ## Install kubeval
 $(KUBEVAL):
 	mkdir -p $(BIN_DIR)
-	curl -sL https://github.com/instrumenta/kubeval/releases/download/$(KUBEVAL_VERSION)/kubeval-$(HOST_OS)-$(HOST_ARCH).tar.gz  | tar -xz -C /tmp/
+	curl -sL https://github.com/instrumenta/kubeval/releases/download/$(KUBEVAL_VERSION)/kubeval-$(HOST_OS)-$(HOST_ARCH).tar.gz | tar -xz -C /tmp/
 	mv /tmp/kubeval $(@)
 	chmod a+x $(@)
 
@@ -113,7 +113,10 @@ $(GOBINDATA): go.mod go.sum # Build go-bindata
 vale: $(VALE)
 $(VALE):
 	mkdir -p $(BIN_DIR)
-	curl -sfL https://install.goreleaser.com/github.com/ValeLint/vale.sh | sh -s v$(VALE_VERSION)
+	# vale uses macOS for darwin, Linux for linux and 64 for amd64, so manually map them
+	curl -sfL https://github.com/errata-ai/vale/releases/download/v$(VALE_VERSION)/vale_$(VALE_VERSION)_$(shell echo $(HOST_OS) | sed 's,darwin,macOS,g'| sed 's,linux,Linux,g')_$(shell echo $(HOST_ARCH) | sed 's,amd,,g')-bit.tar.gz | tar -xz -C /tmp/
+	mv /tmp/vale $(@)
+	chmod a+x $(@)
 
 yq: $(YQ) ## Download yq
 $(YQ):

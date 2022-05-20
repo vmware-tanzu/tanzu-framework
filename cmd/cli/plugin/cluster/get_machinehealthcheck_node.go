@@ -24,11 +24,12 @@ type getMachineHealthCheckNodeOptions struct {
 var getMHCNode = &getMachineHealthCheckNodeOptions{}
 
 var getMachineHealthCheckNodeCmd = &cobra.Command{
-	Use:   "get CLUSTER_NAME",
-	Short: "Get a MachineHealthCheck object of the nodes of a cluster",
-	Long:  "Get a MachineHealthCheck object of the nodes for the given cluster",
-	Args:  cobra.ExactArgs(1),
-	RunE:  getMachineHealthCheckNode,
+	Use:          "get CLUSTER_NAME",
+	Short:        "Get a MachineHealthCheck object of the nodes of a cluster",
+	Long:         "Get a MachineHealthCheck object of the nodes for the given cluster",
+	Args:         cobra.ExactArgs(1),
+	RunE:         getMachineHealthCheckNode,
+	SilenceUsage: true,
 }
 
 func init() {

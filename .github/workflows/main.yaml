@@ -76,6 +76,10 @@ jobs:
         fi
         make configure-bom
         make test
+    - name: Upload coverage reports to Codecov with GitHub Action
+      uses: codecov/codecov-action@v3
+      with:
+        files: ./coverage1.txt,./coverage2.txt,./coverage3.txt,./addons/coverage.txt,./addons/pinniped/post-deploy/coverage.txt,./addons/pinniped/tanzu-auth-controller-manager/coverage.txt
 
   check:
     name: Lint

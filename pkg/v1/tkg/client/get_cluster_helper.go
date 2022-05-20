@@ -9,6 +9,8 @@ import (
 	"strings"
 	"time"
 
+	runv1 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
+
 	"github.com/pkg/errors"
 	capiv1alpha3 "sigs.k8s.io/cluster-api/api/v1alpha3"
 	capi "sigs.k8s.io/cluster-api/api/v1beta1"
@@ -23,7 +25,8 @@ import (
 
 const (
 	// TKGPlanAnnotation plan annotation
-	TKGPlanAnnotation = "tkg/plan"
+	TKGPlanAnnotation     = "tkg/plan"
+	LegacyClusterTKRLabel = "tanzuKubernetesRelease"
 )
 
 type clusterObjects struct {
@@ -278,6 +281,17 @@ func getClusterRoles(clusterLabels map[string]string) []string {
 	}
 
 	return clusterRoles
+}
+
+func getClusterTKR(clusterLabels map[string]string) string {
+	var clusterTKR string
+	if tkrName, exists := clusterLabels[LegacyClusterTKRLabel]; exists {
+		clusterTKR = tkrName
+	}
+	if tkrName, exists := clusterLabels[runv1.LabelTKR]; exists {
+		clusterTKR = tkrName
+	}
+	return clusterTKR
 }
 
 // ################### Helpers for determining Cluster Status ##################

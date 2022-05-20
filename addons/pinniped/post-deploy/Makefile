@@ -13,7 +13,7 @@ VERSION ?= $(GIT_VERSION)
 
 .PHONY: test
 test: fmt vet ## Run tests
-	go test ./... -coverprofile cover.out -v 2
+	go test ./... -coverprofile coverage.txt -v 2
 
 .PHONY: fmt
 fmt: ## Format the code base

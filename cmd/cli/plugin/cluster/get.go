@@ -46,10 +46,11 @@ var cd = &getClustersOptions{}
 var cmdOutput io.Writer
 
 var getClustersCmd = &cobra.Command{
-	Use:   "get CLUSTER_NAME",
-	Short: "Get details from a cluster",
-	Args:  cobra.ExactArgs(1),
-	RunE:  get,
+	Use:          "get CLUSTER_NAME",
+	Short:        "Get details from a cluster",
+	Args:         cobra.ExactArgs(1),
+	RunE:         get,
+	SilenceUsage: true,
 }
 
 func init() {
@@ -131,14 +132,14 @@ func getCluster(server *v1alpha1.Server, clusterName string) error {
 		return err
 	}
 
-	t := component.NewOutputWriter(cmdOutput, "table", "NAME", "NAMESPACE", "STATUS", "CONTROLPLANE", "WORKERS", "KUBERNETES", "ROLES")
+	t := component.NewOutputWriter(cmdOutput, "table", "NAME", "NAMESPACE", "STATUS", "CONTROLPLANE", "WORKERS", "KUBERNETES", "ROLES", "TKR")
 
 	cl := results.ClusterInfo
 	clusterRoles := noneTag
 	if len(cl.Roles) != 0 {
 		clusterRoles = strings.Join(cl.Roles, ",")
 	}
-	t.AddRow(cl.Name, cl.Namespace, cl.Status, cl.ControlPlaneCount, cl.WorkerCount, cl.K8sVersion, clusterRoles)
+	t.AddRow(cl.Name, cl.Namespace, cl.Status, cl.ControlPlaneCount, cl.WorkerCount, cl.K8sVersion, clusterRoles, cl.TKR)
 
 	t.Render()
 

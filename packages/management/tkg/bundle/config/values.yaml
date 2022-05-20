@@ -41,6 +41,8 @@ frameworkPackage:
         priorityClassName: system-cluster-critical
         nodeSelector: null
         tolerations: []
+        webhookServerPort: 9865
+        healthzPort: 18316
       featureGates:
         clusterBootstrapController: false
         packageInstallStatus: false
@@ -60,3 +62,22 @@ clusterclassPackage:
     namespace: tkg-system
     createNamespace: false
     versionConstraints:
+
+tkrSourceControllerPackage:
+  namespaceForPackageInstallation: tkg-system
+  versionConstraints:
+  tkrSourceControllerPackageValues:
+    namespace: tkg-system
+    bomImagePath:
+    bomMetadataImagePath:
+    tkrRepoImagePath:
+    skipVerifyRegistryCert: false
+    initialDiscoverFrequency: 60
+    continuousDiscoverFrequency: 600
+    deployment:
+      hostNetwork: false
+      nodeSelector: null
+      tolerations: []
+      httpProxy:
+      httpsProxy:
+      noProxy:

@@ -25,10 +25,11 @@ type clusterSetNodePoolCmdOptions struct {
 var setNodePoolOptions clusterSetNodePoolCmdOptions
 
 var clusterSetNodePoolCmd = &cobra.Command{
-	Use:   "set CLUSTER_NAME",
-	Short: "Set node pool for cluster",
-	Args:  cobra.ExactArgs(1),
-	RunE:  runSetNodePool,
+	Use:          "set CLUSTER_NAME",
+	Short:        "Set node pool for cluster",
+	Args:         cobra.ExactArgs(1),
+	RunE:         runSetNodePool,
+	SilenceUsage: true,
 }
 
 func init() {

@@ -8,6 +8,7 @@ import (
 )
 
 var clusterNodePoolCmd = &cobra.Command{
-	Use:   "node-pool",
-	Short: "Cluster node-pool operations",
+	Use:          "node-pool",
+	Short:        "Cluster node-pool operations",
+	SilenceUsage: true,
 }

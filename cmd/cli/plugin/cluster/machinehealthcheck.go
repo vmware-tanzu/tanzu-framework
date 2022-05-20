@@ -15,10 +15,11 @@ const (
 )
 
 var machineHealthCheckCmd = &cobra.Command{
-	Use:     "machinehealthcheck",
-	Short:   "MachineHealthCheck operations for a cluster",
-	Long:    `Get, set, or delete a MachineHealthCheck object for a Tanzu Kubernetes cluster`,
-	Aliases: []string{"mhc"},
+	Use:          "machinehealthcheck",
+	Short:        "MachineHealthCheck operations for a cluster",
+	Long:         `Get, set, or delete a MachineHealthCheck object for a Tanzu Kubernetes cluster`,
+	Aliases:      []string{"mhc"},
+	SilenceUsage: true,
 }
 
 func init() {

@@ -1,0 +1,40 @@
+#@ load("@ytt:data", "data")
+#@ load("@ytt:yaml", "yaml")
+
+---
+apiVersion: packaging.carvel.dev/v1alpha1
+kind: PackageInstall
+metadata:
+  name: tkr-source-controller
+  namespace: #@ data.values.tkrSourceControllerPackage.namespaceForPackageInstallation
+  annotations:
+    kapp.k14s.io/change-rule.0: "upsert after upserting framework-packageinstall/tanzu-framework"
+    kapp.k14s.io/change-rule.1: "upsert after upserting tkr-source-controller-packageinstall/serviceaccount"
+    kapp.k14s.io/change-rule.2: "delete before deleting tkr-source-controller-packageinstall/serviceaccount"
+
+  labels:
+    tkg.tanzu.vmware.com/package-type: "management"
+spec:
+  serviceAccountName: tkr-source-controller-package-sa
+  packageRef:
+    refName: tkr-source-controller.tanzu.vmware.com
+    versionSelection:
+      prereleases: {}
+      #@ if data.values.tkrSourceControllerPackage.versionConstraints:
+      constraints: #@ data.values.tkrSourceControllerPackage.versionConstraints
+      #@ end
+  values:
+    - secretRef:
+        name: tkr-source-controller-values
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: tkr-source-controller-values
+  namespace: #@ data.values.tkrSourceControllerPackage.namespaceForPackageInstallation
+  annotations:
+    kapp.k14s.io/change-rule.0: "upsert after upserting tkr-source-controller-packageinstall/serviceaccount"
+    kapp.k14s.io/change-rule.1: "delete before deleting tkr-source-controller-packageinstall/serviceaccount"
+type: Opaque
+stringData:
+  values.yaml: #@ yaml.encode(data.values.tkrSourceControllerPackage.tkrSourceControllerPackageValues)

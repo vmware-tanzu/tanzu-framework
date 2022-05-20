@@ -20,18 +20,20 @@ import (
 )
 
 var availableUpgradesCmd = &cobra.Command{
-	Use:     "available-upgrades",
-	Short:   "Get upgrade information for a cluster",
-	Long:    `Get upgrade information for a cluster`,
-	Aliases: []string{"avup"},
+	Use:          "available-upgrades",
+	Short:        "Get upgrade information for a cluster",
+	Long:         `Get upgrade information for a cluster`,
+	Aliases:      []string{"avup"},
+	SilenceUsage: true,
 }
 
 var getAvailableUpgradesCmd = &cobra.Command{
-	Use:   "get CLUSTER_NAME",
-	Short: "Get all available upgrades for a cluster",
-	Long:  `Get all available upgrades for a cluster`,
-	Args:  cobra.ExactArgs(1),
-	RunE:  availableUpgrades,
+	Use:          "get CLUSTER_NAME",
+	Short:        "Get all available upgrades for a cluster",
+	Long:         `Get all available upgrades for a cluster`,
+	Args:         cobra.ExactArgs(1),
+	RunE:         availableUpgrades,
+	SilenceUsage: true,
 }
 
 type availableUpgradeOptions struct {

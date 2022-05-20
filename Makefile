@@ -482,17 +482,22 @@ test: generate fmt vet manifests build-cli-mocks ## Run tests
 
 	## Test the YTT cluster templates
 	echo "Changing into the provider test directory to verify ytt cluster templates..."
-	cd ./pkg/v1/providers/tests/unit && PATH=$(abspath hack/tools/bin):"$(PATH)" $(GO) test -v -timeout 120s ./
+	cd ./pkg/v1/providers/tests/unit && PATH=$(abspath hack/tools/bin):"$(PATH)" $(GO) test -coverprofile coverage1.txt -v -timeout 120s ./
 	echo "... ytt cluster template verification complete!"
 
 	echo "Verifying package tests..."
-	find ./packages/ -name "test" -type d -exec sh -c "cd {} && $(GO) test -v -timeout 120s  ./..." \;
+	find ./packages/ -name "test" -type d -exec sh -c "cd {} && $(GO) test -coverprofile coverage2.txt -v -timeout 120s  ./..." \;
 	echo "... package tests complete!"
 
-	PATH=$(abspath hack/tools/bin):"$(PATH)" $(GO) test -coverprofile cover.out -v `go list ./... | grep -v github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/test`
+	PATH=$(abspath hack/tools/bin):"$(PATH)" $(GO) test -coverprofile coverage3.txt -v `go list ./... | grep -v github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/test`
 
 	$(MAKE) kubebuilder -C $(TOOLS_DIR)
 	KUBEBUILDER_ASSETS=$(ROOT_DIR)/$(KUBEBUILDER)/bin $(MAKE) test -C addons
+
+	# pinniped post-deploy
+	$(MAKE) test -C addons/pinniped/post-deploy
+	# pinniped tanzu-auth-controller-manager
+	addons/pinniped/tanzu-auth-controller-manager/hack/test.sh
 
 .PHONY: test-cli
 test-cli: build-cli-mocks ## Run tests
@@ -700,7 +705,17 @@ e2e-tkgpackageclient-docker: $(GINKGO) generate-embedproviders ## Run ginkgo tkg
 # These are the components in this repo that need to have a docker image built.
 # This variable refers to directory paths that contain a Makefile with `docker-build`, `docker-publish` and
 # `kbld-image-replace` targets that can build and push a docker image for that component.
-COMPONENTS := pkg/v2/tkr/controller/tkr-status pkg/v1/sdk/features addons cliplugins pkg/v2/tkr/webhook/infra-machine pkg/v1/sdk/capabilities pkg/v2/tkr/webhook/tkr-conversion pkg/v2/tkr/webhook/cluster/tkr-resolver
+COMPONENTS :=  \
+  pkg/v2/tkr/controller/tkr-source \
+  pkg/v2/tkr/controller/tkr-status \
+  pkg/v1/sdk/features \
+  addons \
+  cliplugins \
+  pkg/v2/tkr/webhook/infra-machine \
+  pkg/v1/sdk/capabilities \
+  pkg/v2/tkr/webhook/tkr-conversion \
+  pkg/v2/tkr/webhook/cluster/tkr-resolver \
+  addons/pinniped/tanzu-auth-controller-manager \
 
 .PHONY: docker-build
 docker-build: TARGET=docker-build
@@ -740,7 +755,7 @@ package-bundle: tools prep-package-tools ## Build one specific tar bundle packag
 .PHONY: package-bundle-thin
 package-bundle-thin: tools prep-package-tools ## Build one specific tar bundle package, needs PACKAGE_NAME VERSION
 	cd hack/packages/package-tools && $(GO) run main.go package-bundle generate $(PACKAGE_NAME) --repository=$(PACKAGE_REPOSITORY) --version=$(PACKAGE_VERSION) --sub-version=$(PACKAGE_SUB_VERSION)
-	
+
 .PHONY: package-bundles
 package-bundles: tools prep-package-tools ## Build tar bundles for multiple packages
 	cd hack/packages/package-tools && $(GO) run main.go package-bundle generate --all --thick --repository=$(PACKAGE_REPOSITORY) --version=$(PACKAGE_VERSION) --sub-version=$(PACKAGE_SUB_VERSION) --registry=$(OCI_REGISTRY)

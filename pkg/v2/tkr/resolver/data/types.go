@@ -93,6 +93,9 @@ type OSImages map[string]*runv1.OSImage
 
 // Filter returns a subset of TKRs satisfying the predicate f.
 func (tkrs TKRs) Filter(f func(tkr *runv1.TanzuKubernetesRelease) bool) TKRs {
+	if tkrs == nil {
+		return nil
+	}
 	result := make(TKRs, len(tkrs))
 	for name, tkr := range tkrs {
 		if f(tkr) {
@@ -110,6 +113,9 @@ func (tkrs TKRs) Intersect(other TKRs) TKRs {
 
 // Filter returns a subset of OSImages satisfying the predicate f.
 func (osImages OSImages) Filter(f func(osImage *runv1.OSImage) bool) OSImages {
+	if osImages == nil {
+		return nil
+	}
 	result := make(OSImages, len(osImages))
 	for name, osImage := range osImages {
 		if f(osImage) {

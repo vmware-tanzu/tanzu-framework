@@ -132,29 +132,23 @@ func (cache *cache) removeObject(object interface{}) {
 
 func (cache *cache) removeTKR(tkr *runv1.TanzuKubernetesRelease) {
 	delete(cache.tkrs, tkr.Name)
-	if osImages, exists := cache.tkrToOSImages[tkr.Name]; exists {
-		for osImageName := range osImages {
-			tkrs := cache.osImageToTKRs[osImageName]
-			delete(tkrs, tkr.Name)
+	osImages := cache.tkrToOSImages[tkr.Name]
+	for osImageName := range osImages {
+		tkrs := cache.osImageToTKRs[osImageName]
+		delete(tkrs, tkr.Name)
+		if len(tkrs) == 0 {
+			delete(cache.osImageToTKRs, osImageName)
 		}
-		delete(cache.tkrToOSImages, tkr.Name)
 	}
+	delete(cache.tkrToOSImages, tkr.Name)
 }
 
 func (cache *cache) removeOSImage(osImage *runv1.OSImage) {
 	delete(cache.osImages, osImage.Name)
-	if tkrs, exists := cache.osImageToTKRs[osImage.Name]; exists {
-		for tkrName := range tkrs {
-			osImages := cache.tkrToOSImages[tkrName]
-
-			// The TKR lists OSImage references in its Spec.OSImages field. This reference exists there regardless of
-			// whether we have the OSImage in the cache or not.
-			//
-			// For OSImages that are not (yet) present in the cache we have this slot in the index: when the OSImage gets
-			// added to the cache, we'll know where it belongs in the index.
-			osImages[osImage.Name] = nil
-		}
-		delete(cache.osImageToTKRs, osImage.Name)
+	tkrs := cache.osImageToTKRs[osImage.Name]
+	for tkrName := range tkrs {
+		osImages := cache.tkrToOSImages[tkrName]
+		delete(osImages, osImage.Name)
 	}
 }
 
@@ -164,8 +158,10 @@ func (cache *cache) addTKR(tkr *runv1.TanzuKubernetesRelease) {
 	cache.augmentTKR(tkr)
 
 	cache.tkrs[tkr.Name] = tkr
-	osImages := cache.shippedOSImages(tkr)
-	cache.tkrToOSImages[tkr.Name] = osImages // some *OSImage values will be nil: if we don't yet have them in the cache
+	osImages := cache.shippedOSImages(tkr) // some *OSImage values will be nil: if we don't yet have them in the cache
+	cache.tkrToOSImages[tkr.Name] = osImages.Filter(func(osImage *runv1.OSImage) bool {
+		return osImage != nil
+	})
 	cache.addToOSImageToTKRs(osImages, tkr)
 }
 
@@ -214,12 +210,7 @@ func (cache *cache) addOSImage(osImage *runv1.OSImage) {
 
 	cache.osImages[osImage.Name] = osImage
 
-	tkrs, exists := cache.osImageToTKRs[osImage.Name]
-	if !exists {
-		tkrs = data.TKRs{} // empty: no TKRs shipping this OSImage were added yet
-		cache.osImageToTKRs[osImage.Name] = tkrs
-		return
-	}
+	tkrs := cache.osImageToTKRs[osImage.Name]
 	cache.addToTKRToOSImages(tkrs, osImage)
 }
 
@@ -396,11 +387,11 @@ func filterOSImageDetailsForTKRs(tkrs data.TKRs, cpOSImageDetails *osImageDetail
 	}
 	return &osImageDetails{
 		tkrs:          tkrs,
-		osImagesByTKR: filterOSImagesByTKRForTKRs(cpOSImageDetails.osImagesByTKR, tkrs),
+		osImagesByTKR: filterOSImagesByTKRForTKRs(tkrs, cpOSImageDetails.osImagesByTKR),
 	}
 }
 
-func filterOSImagesByTKRForTKRs(osImagesByTKR map[string]data.OSImages, tkrs data.TKRs) map[string]data.OSImages {
+func filterOSImagesByTKRForTKRs(tkrs data.TKRs, osImagesByTKR map[string]data.OSImages) map[string]data.OSImages {
 	result := make(map[string]data.OSImages, len(osImagesByTKR))
 	for tkrName, osImages := range osImagesByTKR {
 		if tkrs[tkrName] != nil {

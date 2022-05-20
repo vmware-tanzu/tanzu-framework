@@ -1,0 +1,35 @@
+#@ load("@ytt:data", "data")
+#@ load("@ytt:overlay", "overlay")
+
+#@overlay/match by=overlay.subset({"kind": "Deployment", "metadata": {"name": "tkr-source-controller-manager"}})
+---
+spec:
+  template:
+    spec:
+      containers:
+      #@overlay/match by=overlay.subset({"name": "manager"})
+      - env:
+        #@ if hasattr(data.values, 'deployment') and hasattr(data.values.deployment, 'httpProxy') and data.values.deployment.httpProxy:
+        - name: "HTTP_PROXY"
+          value: #@ data.values.deployment.httpProxy
+        #@ end
+        #@ if hasattr(data.values, 'deployment') and hasattr(data.values.deployment, 'httpsProxy') and data.values.deployment.httpsProxy:
+        - name: "HTTPS_PROXY"
+          value: #@ data.values.deployment.httpsProxy
+        #@ end
+        #@ if hasattr(data.values, 'deployment') and hasattr(data.values.deployment, 'noProxy') and data.values.deployment.noProxy:
+        - name: "NO_PROXY"
+          value: #@ data.values.deployment.noProxy
+        #@ end
+      #@ if hasattr(data.values, 'deployment') and hasattr(data.values.deployment, 'hostNetwork') and data.values.deployment.hostNetwork:
+      #@overlay/match missing_ok=True
+      hostNetwork: true
+      #@ end
+      #@ if hasattr(data.values, 'deployment') and hasattr(data.values.deployment, 'tolerations') and data.values.deployment.tolerations:
+      #@overlay/match missing_ok=True
+      tolerations: #@ data.values.deployment.tolerations
+      #@ end
+      #@ if hasattr(data.values, 'deployment') and hasattr(data.values.deployment, 'nodeSelector') and data.values.deployment.nodeSelector:
+      #@overlay/match missing_ok=True
+      nodeSelector: #@ data.values.deployment.nodeSelector
+      #@ end

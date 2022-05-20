@@ -1,0 +1,25 @@
+# https://docs.codecov.com/docs/codecovyml-reference
+coverage:
+  precision: 2
+  round: down
+  range: 39..75
+
+  status:
+    project:
+      default:
+        target: auto # automatically calculate coverage target - should increase
+        threshold: 1% # allow for 1% reduction without failing
+        if_ci_failed: error
+        only_pulls: false
+    patch:
+      default:
+        target: auto
+        if_ci_failed: error
+        only_pulls: false
+    changes: false
+ignore:
+  - "vendor"
+  - "pinniped"
+  - "provider-bundle"
+  - "providers.zip"
+  - "providers.tar.gz"
