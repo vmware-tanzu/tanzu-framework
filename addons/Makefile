@@ -12,7 +12,11 @@ export GO111MODULE := on
 
 # Image URL to use all building/pushing image targets
 IMG_DEFAULT_NAME ?= addons-controller
-IMG_DEFAULT_TAG := $(shell git describe --always --dirty --tags)
+ifeq ($(strip $(IMG_TAG_OVERRIDE)),)
+	IMG_DEFAULT_TAG := $(shell git describe --always --dirty --tags)
+else
+	IMG_DEFAULT_TAG := $(IMG_TAG_OVERRIDE)
+endif
 IMG_DEFAULT_NAME_TAG := $(IMG_DEFAULT_NAME):$(IMG_DEFAULT_TAG)
 
 IMG_VERSION_OVERRIDE ?= $(IMG_DEFAULT_TAG)
