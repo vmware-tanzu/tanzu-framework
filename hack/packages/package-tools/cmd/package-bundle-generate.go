@@ -36,8 +36,7 @@ func init() {
 	packageBundleGenerateCmd.Flags().StringVar(&subVersion, "sub-version", "", "Package bundle subversion")
 	packageBundleGenerateCmd.Flags().BoolVar(&all, "all", false, "Generate all package bundles in a repository")
 	packageBundleGenerateCmd.Flags().BoolVar(&thick, "thick", false, "Include thick tarball(s) in package bundle(s)")
-	packageBundleGenerateCmd.MarkFlagRequired("repository") //nolint: errcheck
-	packageBundleGenerateCmd.MarkFlagRequired("version")    //nolint: errcheck
+	packageBundleGenerateCmd.MarkFlagRequired("version") //nolint: errcheck
 }
 
 func runPackageBundleGenerate(cmd *cobra.Command, args []string) error {
@@ -62,18 +61,17 @@ func runPackageBundleGenerate(cmd *cobra.Command, args []string) error {
 		}
 	} else {
 		fmt.Printf("Generating %q package bundle...\n", packageName)
-		packagePath := filepath.Join(projectRootDir, "packages", packageRepository, packageName)
+		packagePath := filepath.Join(projectRootDir, "packages", packageName)
 		if err := generateSingleImgpkgLockOutput(projectRootDir, toolsBinDir, packagePath); err != nil {
 			return fmt.Errorf("couldn't generate imgpkg lock output file: %w", err)
-		}
-		if err := generatePackageBundle(projectRootDir, toolsBinDir, packageName, packagePath); err != nil {
-			return fmt.Errorf("couldn't generate the package bundle: %w", err)
 		}
 		pkg, err := getPackageFromPackageValues(projectRootDir, packageName)
 		if err != nil {
 			return err
 		}
-
+		if err := generatePackageBundle(&pkg, projectRootDir, toolsBinDir, packageName, packagePath); err != nil {
+			return fmt.Errorf("couldn't generate the package bundle: %w", err)
+		}
 		buildPkgDir := filepath.Join(projectRootDir, "build", "packages")
 		pkgValsDir := filepath.Join(projectRootDir, constants.PackageValuesFilePath)
 		if err := generatePackageCR(projectRootDir, toolsBinDir, registry, buildPkgDir, pkgValsDir, &pkg); err != nil {
@@ -84,9 +82,6 @@ func runPackageBundleGenerate(cmd *cobra.Command, args []string) error {
 }
 
 func validatePackageBundleGenerateFlags() error {
-	if utils.IsStringEmpty(packageRepository) {
-		return fmt.Errorf("repository flag cannot be empty")
-	}
 	if utils.IsStringEmpty(version) {
 		return fmt.Errorf("version flag cannot be empty")
 	}
@@ -108,7 +103,7 @@ func generateSingleImgpkgLockOutput(projectRootDir, toolsBinDir, packagePath str
 		"--ignore-unknown-comments",
 		"-f", filepath.Join(packagePath, "bundle", "config")) // #nosec G204
 	kbldCmd := exec.Command(filepath.Join(toolsBinDir, "kbld"),
-		"-f", "-",
+		"-f", "-", // kbld interprets this as reading a file from stdin
 		"-f", filepath.Join(projectRootDir, constants.KbldConfigFilePath),
 		"--imgpkg-lock-output", filepath.Join(imgpkgLockOutputDir, "images.yml")) // #nosec G204
 
@@ -140,18 +135,16 @@ func generateSingleImgpkgLockOutput(projectRootDir, toolsBinDir, packagePath str
 	return nil
 }
 
-func generatePackageBundle(projectRootDir, toolsBinDir, packageName, packagePath string) error {
+func generatePackageBundle(pkg *Package, projectRootDir, toolsBinDir, packageName, packagePath string) error {
 	if err := utils.RunMakeTarget(packagePath, "configure-package"); err != nil {
 		return err
 	}
 
-	imagePackageVersion := version
-	if subVersion != "" {
-		imagePackageVersion = version + "_" + subVersion
-	}
+	formattedVer := formatVersion(pkg, "_")
+	imagePackageVersion := formattedVer.concat
 
 	// create tarball of package bundle
-	tarBallPath := filepath.Join(projectRootDir, constants.PackageBundlesDir, packageRepository)
+	tarBallPath := filepath.Join(projectRootDir, constants.PackageBundlesDir)
 	tarBallFileName := packageName + "-" + imagePackageVersion + ".tar.gz"
 	pathToContents := filepath.Join(packagePath, "bundle")
 	if err := utils.CreateTarball(tarBallPath, tarBallFileName, pathToContents); err != nil {
@@ -197,97 +190,104 @@ func generatePackageBundle(projectRootDir, toolsBinDir, packageName, packagePath
 }
 
 func generatePackageBundles(projectRootDir, toolsBinDir string) error {
-	packageValues, err := readPackageValues(projectRootDir)
+	pkgVals, err := readPackageValues(projectRootDir)
 	if err != nil {
-		return fmt.Errorf("couldn't read file %s: %w", packageValuesFile, err)
+		return err
+	}
+	packageRepos, err := filterPackageRepos(pkgVals)
+	if err != nil {
+		return err
 	}
 
-	repository, found := packageValues.Repositories[packageRepository]
-	if !found {
-		return fmt.Errorf("%s repository not found", packageRepository)
-	}
+	for _, repo := range packageRepos {
+		for i, pkg := range pkgVals.Repositories[repo].Packages {
+			fmt.Printf("Generating %q package bundle...\n", pkg.Name)
 
-	for i := range repository.Packages {
-		fmt.Printf("Generating %q package bundle...\n", repository.Packages[i].Name)
-		imagePackageVersion := version
-		if subVersion != "" {
-			imagePackageVersion = version + "_" + subVersion
-		}
-		packagePath := filepath.Join(projectRootDir, "packages", packageRepository, repository.Packages[i].Name)
-		if err := utils.RunMakeTarget(packagePath, "configure-package"); err != nil {
-			return err
-		}
+			packagePath := filepath.Join(projectRootDir, "packages", pkg.Name)
+			if err := utils.RunMakeTarget(packagePath, "configure-package"); err != nil {
+				return err
+			}
 
-		// generate package bundle imgpkg lock output file
-		if err := generateSingleImgpkgLockOutput(projectRootDir, toolsBinDir, packagePath); err != nil {
-			return fmt.Errorf("couldn't generate imgpkg lock output file: %w", err)
-		}
+			// generate package bundle imgpkg lock output file
+			if err := generateSingleImgpkgLockOutput(projectRootDir, toolsBinDir, packagePath); err != nil {
+				return fmt.Errorf("couldn't generate imgpkg lock output file: %w", err)
+			}
 
-		// push the imgpkg bundle to local registry
-		lockOutputFile := repository.Packages[i].Name + "-" + imagePackageVersion + "-lock-output.yaml"
-		imgpkgCmd := exec.Command(filepath.Join(toolsBinDir, "imgpkg"),
-			"push", "-b", constants.LocalRegistryURL+"/"+repository.Packages[i].Name+":"+imagePackageVersion,
-			"--file", filepath.Join(packagePath, "bundle"),
-			"--lock-output", lockOutputFile) // #nosec G204
+			// push the imgpkg bundle to local registry
+			imagePackageVersion := formatVersion(&pkgVals.Repositories[repo].Packages[i], "_").concat
+			lockOutputFile := pkg.Name + "-" + imagePackageVersion + "-lock-output.yaml"
+			imgpkgCmd := exec.Command(
+				filepath.Join(toolsBinDir, "imgpkg"),
+				"push", "-b", constants.LocalRegistryURL+"/"+pkg.Name+":"+imagePackageVersion,
+				"--file", filepath.Join(packagePath, "bundle"),
+				"--lock-output", lockOutputFile,
+			) // #nosec G204
 
-		var imgpkgCmdErrBytes bytes.Buffer
-		imgpkgCmd.Stderr = &imgpkgCmdErrBytes
-		if err := imgpkgCmd.Run(); err != nil {
-			return fmt.Errorf("couldn't push the imgpkg bundle: %s", imgpkgCmdErrBytes.String())
-		}
+			var imgpkgCmdErrBytes bytes.Buffer
+			imgpkgCmd.Stderr = &imgpkgCmdErrBytes
+			if err := imgpkgCmd.Run(); err != nil {
+				return fmt.Errorf("couldn't push the imgpkg bundle: %s", imgpkgCmdErrBytes.String())
+			}
 
-		// update the package version and sha256 in package-values-sha256.yaml file
-		lockOutputData, err := os.ReadFile(lockOutputFile)
-		if err != nil {
-			return fmt.Errorf("couldn't read lock output file %s: %w", lockOutputFile, err)
-		}
+			// update the package version and sha256 in package-values-sha256.yaml file
+			lockOutputData, err := os.ReadFile(lockOutputFile)
+			if err != nil {
+				return fmt.Errorf("couldn't read lock output file %s: %w", lockOutputFile, err)
+			}
 
-		bundleLock := lockconfig.BundleLock{}
-		if err := yaml.Unmarshal(lockOutputData, &bundleLock); err != nil {
-			return fmt.Errorf("error while unmarshaling: %w", err)
-		}
+			bundleLock := lockconfig.BundleLock{}
+			if err := yaml.Unmarshal(lockOutputData, &bundleLock); err != nil {
+				return fmt.Errorf("error while unmarshaling: %w", err)
+			}
 
-		packageValues.Repositories[packageRepository].Packages[i].Version = getPackageVersion(version)
-		packageValues.Repositories[packageRepository].Packages[i].Sha256 = utils.AfterString(
-			bundleLock.Bundle.Image,
-			constants.LocalRegistryURL+"/"+repository.Packages[i].Name+"@sha256:",
-		)
-		packageValues.Repositories[packageRepository].Packages[i].PackageSubVersion = subVersion
-		yamlData, err := yaml.Marshal(&packageValues)
-		if err != nil {
-			return fmt.Errorf("error while marshaling: %w", err)
-		}
+			pkgVals.Repositories[repo].Packages[i].Version = getPackageVersion(version)
+			pkgVals.Repositories[repo].Packages[i].Sha256 = utils.AfterString(
+				bundleLock.Bundle.Image,
+				constants.LocalRegistryURL+"/"+pkg.Name+"@sha256:",
+			)
+			yamlData, err := yaml.Marshal(&pkgVals)
+			if err != nil {
+				return fmt.Errorf("error while marshaling: %w", err)
+			}
 
-		comments := []byte("#@data/values\n---\n")
-		yamlData = append(comments, yamlData...)
-		if err := os.WriteFile(filepath.Join(projectRootDir, constants.PackageValuesSha256FilePath), yamlData, 0755); err != nil {
-			return err
-		}
+			comments := []byte("#@data/values\n---\n")
+			yamlData = append(comments, yamlData...)
+			if err := os.WriteFile(filepath.Join(projectRootDir, constants.PackageValuesSha256FilePath), yamlData, 0755); err != nil {
+				return err
+			}
 
-		if err := generatePackageBundle(projectRootDir, toolsBinDir, repository.Packages[i].Name, packagePath); err != nil {
-			return fmt.Errorf("couldn't generate package bundle: %w", err)
-		}
+			err = generatePackageBundle(
+				&pkgVals.Repositories[repo].Packages[i],
+				projectRootDir,
+				toolsBinDir,
+				pkg.Name,
+				packagePath,
+			)
+			if err != nil {
+				return fmt.Errorf("couldn't generate package bundle: %w", err)
+			}
 
-		buildPkgsDir := filepath.Join(projectRootDir, "build", "packages")
-		pkgValsPath := filepath.Join(projectRootDir, constants.PackageValuesFilePath)
-		if err := generatePackageCR(projectRootDir, toolsBinDir, registry, buildPkgsDir, pkgValsPath, &repository.Packages[i]); err != nil {
-			return err
-		}
+			buildPkgsDir := filepath.Join(projectRootDir, "build", "packages")
+			pkgValsPath := filepath.Join(projectRootDir, constants.PackageValuesFilePath)
+			err = generatePackageCR(
+				projectRootDir,
+				toolsBinDir,
+				registry,
+				buildPkgsDir,
+				pkgValsPath,
+				&pkgVals.Repositories[repo].Packages[i],
+			)
+			if err != nil {
+				return err
+			}
 
-		// remove lock output files
-		os.Remove(lockOutputFile)
+			// remove lock output files
+			os.Remove(lockOutputFile)
 
-		if err := utils.RunMakeTarget(packagePath, "reset-package"); err != nil {
-			return err
+			if err := utils.RunMakeTarget(packagePath, "reset-package"); err != nil {
+				return err
+			}
 		}
 	}
 	return nil
-}
-
-func getPackageVersion(version string) string {
-	pkgVersion := version
-	if string(version[0]) == "v" {
-		pkgVersion = version[1:]
-	}
-	return pkgVersion
 }

@@ -15,8 +15,8 @@ APP_NAME="tanzu-auth"
 KAPP_CONTROLLER_NAME="${APP_NAME}-ctrl"
 
 # location for the package install
-MANAGEMENT_DIR="${TF_ROOT}/packages/management"
-TANZU_AUTH_DIR="${MANAGEMENT_DIR}/${APP_NAME}"
+PACKAGES_DIR="${TF_ROOT}/packages"
+TANZU_AUTH_DIR="${PACKAGES_DIR}/${APP_NAME}"
 TANZU_AUTH_BUNDLE_DIR="${TANZU_AUTH_DIR}/bundle"
 TANZU_AUTH_CONFIG_DIR="${TANZU_AUTH_BUNDLE_DIR}/config"
 
@@ -27,7 +27,7 @@ REGISTRY_NAME="harbor-repo.vmware.com"
 REGISTRY_PROJECT="tkgiam"
 REGISTRY="${REGISTRY_NAME}/${REGISTRY_PROJECT}"
 
-# name of image to match that defined in /packages/management/tanzu-auth
+# name of image to match that defined in /packages/tanzu-auth
 CONTROLLER_MANAGER_NAME="${APP_NAME}-controller-manager"
 CONTROLLER_MANAGER_PACKAGE_NAME="${CONTROLLER_MANAGER_NAME}-package"
 CONTROLLER_NAMESPACE_NAME="${APP_NAME}"
@@ -53,7 +53,7 @@ docker push "${CONTROLLER_IMAGE}"
 PACKAGE_IMAGE="${REGISTRY}/$(whoami)/${CONTROLLER_MANAGER_PACKAGE_NAME}:${TAG}"
 echo -e "${YELLOW}building ${CONTROLLER_MANAGER_PACKAGE_NAME} image and pushing to ${PACKAGE_IMAGE}...${DEFAULT}"
 
-# generate new RBAC into /packages/management/tanzu-auth/bundle/config
+# generate new RBAC into /packages/tanzu-auth/bundle/config
 echo -e "${YELLOW}generating RBAC...${DEFAULT}"
 ./hack/generate.sh
 

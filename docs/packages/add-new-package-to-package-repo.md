@@ -6,19 +6,20 @@ requirements of a package being in a particular package repository.
 
 ## Steps to add a package to a package repository
 
-Let's take the example of adding a package to `management` package repository, below steps illustrate how that can be done
+Let's take the example of adding a package to `management` package repository.
+Below are steps to illustrate how that can be done.
 
 1. Scaffold a new package and update the package files
 
    ```shell
-      PACKAGE_REPOSITORY=management PACKAGE_NAME=my-package make create-package
+      PACKAGE_NAME=my-package make create-package
    ```
 
-   This would scaffold the package under packages/management directory, and the tree structure of the generated package
+   This would scaffold the package under the `packages` directory, and the tree structure of the generated package
    would look something like below:
 
    ```plain
-    packages/management/my-package
+    packages/my-package
     ├── Makefile
     ├── README.md
     ├── bundle
@@ -35,11 +36,11 @@ Let's take the example of adding a package to `management` package repository, b
    Significance of each file is provided in the above tree structure.
 
    The generated Makefile contains `configure-package` and `reset-package` target to configure the package dynamically,
-   this is completely optional.
+   which is completely optional.
 
 2. Fetch config files from datasource [optional]
 
-   If you have updated the vendir.yaml to fetch the config from a different source run:
+   If you have updated the vendir.yaml to fetch the config from a different source, run
 
    ```shell
       make package-vendir-sync
@@ -71,7 +72,7 @@ Let's take the example of adding a package to `management` package repository, b
          #! package name
        - name: my-package
          #! Relative path to package bundle
-         path: packages/management/my-package
+         path: packages/my-package
          domain: tanzu.vmware.com
          version: latest
          #! this should be name:version(my-package:latest), will be replaced at build time

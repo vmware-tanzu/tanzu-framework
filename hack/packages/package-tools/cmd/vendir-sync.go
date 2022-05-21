@@ -34,19 +34,32 @@ func runPackageVendirSync(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	repositoryPath := filepath.Join(projectRootDir, "packages", packageRepository)
-	toolsBinDir := filepath.Join(projectRootDir, constants.ToolsBinDirPath)
-	files, err := os.ReadDir(repositoryPath)
+	packageValues, err := readPackageValues(projectRootDir)
 	if err != nil {
-		return fmt.Errorf("couldn't read repository directory: %w", err)
+		return err
+	}
+	pkgRepos, err := filterPackageRepos(packageValues)
+	if err != nil {
+		return err
+	}
+
+	packagesPath := filepath.Join(projectRootDir, "packages")
+	toolsBinDir := filepath.Join(projectRootDir, constants.ToolsBinDirPath)
+	files, err := os.ReadDir(packagesPath)
+	if err != nil {
+		return fmt.Errorf("couldn't read packages directory: %w", err)
 	}
 
 	for _, file := range files {
 		if file.IsDir() {
-			fmt.Printf("Syncing package %s\n", file.Name())
-			packagePath := filepath.Join(repositoryPath, file.Name())
-			if err := syncPackage(packagePath, toolsBinDir); err != nil {
-				return err
+			for _, repo := range pkgRepos {
+				if packagesContains(packageValues.Repositories[repo].Packages, file.Name()) {
+					fmt.Printf("Syncing package %s\n", file.Name())
+					packagePath := filepath.Join(packagesPath, file.Name())
+					if err := syncPackage(packagePath, toolsBinDir); err != nil {
+						return err
+					}
+				}
 			}
 		}
 	}
