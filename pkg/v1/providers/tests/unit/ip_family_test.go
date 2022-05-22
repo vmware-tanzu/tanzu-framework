@@ -4,13 +4,13 @@
 package unit
 
 import (
-	"fmt"
 	"path/filepath"
 	"strings"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
 	. "github.com/onsi/gomega"
+	"gopkg.in/yaml.v3"
 
 	. "github.com/vmware-tanzu/tanzu-framework/test/pkg/matchers"
 	"github.com/vmware-tanzu/tanzu-framework/test/pkg/ytt"
@@ -33,7 +33,7 @@ var _ = Describe("TKG_IP_FAMILY Ytt Templating", func() {
 		})
 
 		It("allows undefined", func() {
-			values := createDataValues(map[string]string{
+			values := createDataValues(map[string]interface{}{
 				"TKG_IP_FAMILY": "",
 			})
 			_, err := ytt.RenderYTTTemplate(ytt.CommandOptions{}, paths, strings.NewReader(values))
@@ -41,7 +41,7 @@ var _ = Describe("TKG_IP_FAMILY Ytt Templating", func() {
 		})
 
 		It("allows ipv4", func() {
-			values := createDataValues(map[string]string{
+			values := createDataValues(map[string]interface{}{
 				"TKG_IP_FAMILY": "ipv4",
 			})
 			_, err := ytt.RenderYTTTemplate(ytt.CommandOptions{}, paths, strings.NewReader(values))
@@ -50,7 +50,7 @@ var _ = Describe("TKG_IP_FAMILY Ytt Templating", func() {
 
 		When("an unsupported ip family is set", func() {
 			It("does not allow dual", func() {
-				values := createDataValues(map[string]string{
+				values := createDataValues(map[string]interface{}{
 					"TKG_IP_FAMILY": "dual",
 				})
 				_, err := ytt.RenderYTTTemplate(ytt.CommandOptions{}, paths, strings.NewReader(values))
@@ -58,7 +58,7 @@ var _ = Describe("TKG_IP_FAMILY Ytt Templating", func() {
 			})
 
 			It("does not allow garbage", func() {
-				values := createDataValues(map[string]string{
+				values := createDataValues(map[string]interface{}{
 					"TKG_IP_FAMILY": "garbage",
 				})
 				_, err := ytt.RenderYTTTemplate(ytt.CommandOptions{}, paths, strings.NewReader(values))
@@ -68,7 +68,7 @@ var _ = Describe("TKG_IP_FAMILY Ytt Templating", func() {
 
 		When("provider type is vsphere", func() {
 			It("allows ipv6", func() {
-				values := createDataValues(map[string]string{
+				values := createDataValues(map[string]interface{}{
 					"TKG_IP_FAMILY": "ipv6",
 					"PROVIDER_TYPE": "vsphere",
 				})
@@ -77,7 +77,7 @@ var _ = Describe("TKG_IP_FAMILY Ytt Templating", func() {
 			})
 
 			It("allows ipv4,ipv6", func() {
-				values := createDataValues(map[string]string{
+				values := createDataValues(map[string]interface{}{
 					"TKG_IP_FAMILY": "ipv4,ipv6",
 					"PROVIDER_TYPE": "vsphere",
 				})
@@ -86,7 +86,7 @@ var _ = Describe("TKG_IP_FAMILY Ytt Templating", func() {
 			})
 
 			It("allows ipv6,ipv4", func() {
-				values := createDataValues(map[string]string{
+				values := createDataValues(map[string]interface{}{
 					"TKG_IP_FAMILY": "ipv6,ipv4",
 					"PROVIDER_TYPE": "vsphere",
 				})
@@ -97,7 +97,7 @@ var _ = Describe("TKG_IP_FAMILY Ytt Templating", func() {
 
 		When("provider type is not vsphere", func() {
 			It("does not allow ipv6", func() {
-				values := createDataValues(map[string]string{
+				values := createDataValues(map[string]interface{}{
 					"TKG_IP_FAMILY": "ipv6",
 					"PROVIDER_TYPE": "aws",
 				})
@@ -106,7 +106,7 @@ var _ = Describe("TKG_IP_FAMILY Ytt Templating", func() {
 			})
 
 			It("does not allow ipv4,ipv6", func() {
-				values := createDataValues(map[string]string{
+				values := createDataValues(map[string]interface{}{
 					"TKG_IP_FAMILY": "ipv4,ipv6",
 					"PROVIDER_TYPE": "azure",
 				})
@@ -115,7 +115,7 @@ var _ = Describe("TKG_IP_FAMILY Ytt Templating", func() {
 			})
 
 			It("does not allow ipv6,ipv4", func() {
-				values := createDataValues(map[string]string{
+				values := createDataValues(map[string]interface{}{
 					"TKG_IP_FAMILY": "ipv6,ipv4",
 					"PROVIDER_TYPE": "azure",
 				})
@@ -126,7 +126,7 @@ var _ = Describe("TKG_IP_FAMILY Ytt Templating", func() {
 
 		When("workload cluster is windows on vsphere", func() {
 			It("does not allow ipv6", func() {
-				values := createDataValues(map[string]string{
+				values := createDataValues(map[string]interface{}{
 					"IS_WINDOWS_WORKLOAD_CLUSTER": "true",
 					"TKG_IP_FAMILY":               "ipv6",
 					"PROVIDER_TYPE":               "vsphere",
@@ -135,7 +135,7 @@ var _ = Describe("TKG_IP_FAMILY Ytt Templating", func() {
 				Expect(err).To(MatchError(ContainSubstring("IS_WINDOWS_WORKLOAD_CLUSTER is not compatible with TKG_IP_FAMLY values of \"ipv6\", \"ipv4,ipv6\" or \"ipv6,ipv4\"")))
 			})
 			It("allows ipv4", func() {
-				values := createDataValues(map[string]string{
+				values := createDataValues(map[string]interface{}{
 					"IS_WINDOWS_WORKLOAD_CLUSTER": "true",
 					"TKG_IP_FAMILY":               "ipv4",
 					"PROVIDER_TYPE":               "vsphere",
@@ -144,7 +144,7 @@ var _ = Describe("TKG_IP_FAMILY Ytt Templating", func() {
 				Expect(err).NotTo(HaveOccurred())
 			})
 			It("does not allow ipv4,ipv6", func() {
-				values := createDataValues(map[string]string{
+				values := createDataValues(map[string]interface{}{
 					"IS_WINDOWS_WORKLOAD_CLUSTER": "true",
 					"TKG_IP_FAMILY":               "ipv4,ipv6",
 					"PROVIDER_TYPE":               "vsphere",
@@ -153,7 +153,7 @@ var _ = Describe("TKG_IP_FAMILY Ytt Templating", func() {
 				Expect(err).To(MatchError(ContainSubstring("IS_WINDOWS_WORKLOAD_CLUSTER is not compatible with TKG_IP_FAMLY values of \"ipv6\", \"ipv4,ipv6\" or \"ipv6,ipv4\"")))
 			})
 			It("does not allow ipv6,ipv4", func() {
-				values := createDataValues(map[string]string{
+				values := createDataValues(map[string]interface{}{
 					"IS_WINDOWS_WORKLOAD_CLUSTER": "true",
 					"TKG_IP_FAMILY":               "ipv4,ipv6",
 					"PROVIDER_TYPE":               "vsphere",
@@ -175,7 +175,7 @@ var _ = Describe("TKG_IP_FAMILY Ytt Templating", func() {
 		})
 
 		It("renders antrea yaml with ipv4,ipv6 dual stack settings", func() {
-			values := createDataValues(map[string]string{
+			values := createDataValues(map[string]interface{}{
 				"TKG_IP_FAMILY": "ipv4,ipv6",
 				"SERVICE_CIDR":  "1.2.3.4/16,fd00::/48",
 			})
@@ -187,7 +187,7 @@ var _ = Describe("TKG_IP_FAMILY Ytt Templating", func() {
 		})
 
 		It("renders antrea yaml with ipv6,ipv4 dual stack settings", func() {
-			values := createDataValues(map[string]string{
+			values := createDataValues(map[string]interface{}{
 				"TKG_IP_FAMILY": "ipv6,ipv4",
 				"SERVICE_CIDR":  "fd00::/48,1.2.3.4/16",
 			})
@@ -199,7 +199,7 @@ var _ = Describe("TKG_IP_FAMILY Ytt Templating", func() {
 		})
 
 		It("renders antrea yaml with ipv4 single stack settings", func() {
-			values := createDataValues(map[string]string{
+			values := createDataValues(map[string]interface{}{
 				"TKG_IP_FAMILY": "ipv4",
 				"SERVICE_CIDR":  "1.2.3.4/16",
 			})
@@ -211,7 +211,7 @@ var _ = Describe("TKG_IP_FAMILY Ytt Templating", func() {
 		})
 
 		It("renders antrea yaml with ipv6 single stack settings", func() {
-			values := createDataValues(map[string]string{
+			values := createDataValues(map[string]interface{}{
 				"TKG_IP_FAMILY": "ipv6",
 				"SERVICE_CIDR":  "fd00::/48",
 			})
@@ -223,7 +223,7 @@ var _ = Describe("TKG_IP_FAMILY Ytt Templating", func() {
 		})
 
 		It("renders antrea yaml with ipv4 single stack settings with undefined TKG_IP_FAMILY", func() {
-			values := createDataValues(map[string]string{
+			values := createDataValues(map[string]interface{}{
 				"SERVICE_CIDR": "1.2.3.4/16",
 			})
 			output, err := ytt.RenderYTTTemplate(ytt.CommandOptions{}, paths, strings.NewReader(values))
@@ -234,7 +234,7 @@ var _ = Describe("TKG_IP_FAMILY Ytt Templating", func() {
 		})
 
 		It("renders antrea yaml with ipv4 single stack settings with an empty TKG_IP_FAMILY", func() {
-			values := createDataValues(map[string]string{
+			values := createDataValues(map[string]interface{}{
 				"TKG_IP_FAMILY": "",
 				"SERVICE_CIDR":  "1.2.3.4/16",
 			})
@@ -261,7 +261,7 @@ var _ = Describe("TKG_IP_FAMILY Ytt Templating", func() {
 			var values string
 			When("cluster cidr and service cidr have multiple values", func() {
 				BeforeEach(func() {
-					values = createDataValues(map[string]string{
+					values = createDataValues(map[string]interface{}{
 						"CLUSTER_NAME":       "foo",
 						"KUBERNETES_RELEASE": "v1.22.11---vmware.1-tkg.1",
 						"TKG_CLUSTER_ROLE":   "workload",
@@ -288,7 +288,7 @@ var _ = Describe("TKG_IP_FAMILY Ytt Templating", func() {
 			})
 			When("cluster cidr and service cidr have a single value", func() {
 				BeforeEach(func() {
-					values = createDataValues(map[string]string{
+					values = createDataValues(map[string]interface{}{
 						"CLUSTER_NAME":       "foo",
 						"KUBERNETES_RELEASE": "v1.22.11---vmware.1-tkg.1",
 						"TKG_CLUSTER_ROLE":   "workload",
@@ -319,7 +319,7 @@ var _ = Describe("TKG_IP_FAMILY Ytt Templating", func() {
 			var values string
 			When("data values are set to single stack IPv4 settings", func() {
 				BeforeEach(func() {
-					values = createDataValues(map[string]string{
+					values = createDataValues(map[string]interface{}{
 						"CLUSTER_NAME":            "foo",
 						"KUBERNETES_RELEASE":      "v1.22.11---vmware.1-tkg.1",
 						"TKG_CLUSTER_ROLE":        "workload",
@@ -378,7 +378,7 @@ var _ = Describe("TKG_IP_FAMILY Ytt Templating", func() {
 
 			When("data values are set to single stack IPv6 settings", func() {
 				BeforeEach(func() {
-					values = createDataValues(map[string]string{
+					values = createDataValues(map[string]interface{}{
 						"CLUSTER_NAME":            "foo",
 						"KUBERNETES_RELEASE":      "v1.22.11---vmware.1-tkg.1",
 						"TKG_CLUSTER_ROLE":        "workload",
@@ -421,7 +421,7 @@ var _ = Describe("TKG_IP_FAMILY Ytt Templating", func() {
 					Expect(kubeadmControlPlaneDocs[0]).To(HaveYAMLPathWithValue("$.spec.kubeadmConfigSpec.joinConfiguration.controlPlane.localAPIEndpoint.bindPort", "443"))
 				})
 				DescribeTable("configures node-ip on the control plane nodes by echoing the detected node ip into KUBELET_EXTRA_ARGS in /etc/sysconfig/kubelet when the tkr is >= 1.22.8", func(kubernetesRelease string) {
-					values = createDataValues(map[string]string{
+					values = createDataValues(map[string]interface{}{
 						"CLUSTER_NAME":            "foo",
 						"KUBERNETES_RELEASE":      kubernetesRelease,
 						"TKG_CLUSTER_ROLE":        "workload",
@@ -453,7 +453,7 @@ var _ = Describe("TKG_IP_FAMILY Ytt Templating", func() {
 					Entry("when the tkr is 1.23.10", "v1.23.10---vmware.1-tkg.1"),
 				)
 				DescribeTable("does not configure node-ip on the control plane into KUBELET_EXTRA_ARGS in /etc/sysconfig/kubelet when the tkr is < 1.22.8", func(kubernetesRelease string) {
-					values = createDataValues(map[string]string{
+					values = createDataValues(map[string]interface{}{
 						"CLUSTER_NAME":            "foo",
 						"KUBERNETES_RELEASE":      kubernetesRelease,
 						"TKG_CLUSTER_ROLE":        "workload",
@@ -485,7 +485,7 @@ var _ = Describe("TKG_IP_FAMILY Ytt Templating", func() {
 
 			When("data values are set to ipv4,ipv6 dual stack settings", func() {
 				BeforeEach(func() {
-					values = createDataValues(map[string]string{
+					values = createDataValues(map[string]interface{}{
 						"CLUSTER_NAME":            "foo",
 						"KUBERNETES_RELEASE":      "v1.22.11---vmware.1-tkg.1",
 						"TKG_CLUSTER_ROLE":        "workload",
@@ -591,7 +591,7 @@ var _ = Describe("TKG_IP_FAMILY Ytt Templating", func() {
 
 			When("data values are set to ipv6,ipv4 dual stack settings", func() {
 				BeforeEach(func() {
-					values = createDataValues(map[string]string{
+					values = createDataValues(map[string]interface{}{
 						"CLUSTER_NAME":                   "foo",
 						"KUBERNETES_RELEASE":             "v1.22.11---vmware.1-tkg.1",
 						"TKG_CLUSTER_ROLE":               "workload",
@@ -720,7 +720,7 @@ var _ = Describe("TKG_IP_FAMILY Ytt Templating", func() {
 			var values string
 			When("ip family is configured to ipv4", func() {
 				BeforeEach(func() {
-					values = createDataValues(map[string]string{
+					values = createDataValues(map[string]interface{}{
 						"CLUSTER_NAME":                "foo",
 						"TKG_CLUSTER_ROLE":            "workload",
 						"TKG_IP_FAMILY":               "ipv4",
@@ -764,7 +764,7 @@ var _ = Describe("TKG_IP_FAMILY Ytt Templating", func() {
 			})
 			When("TKG_IP_FAMILY is unset", func() {
 				It("does not configure the CPI ip family", func() {
-					values := createDataValues(map[string]string{
+					values := createDataValues(map[string]interface{}{
 						"PROVIDER_TYPE": "vsphere",
 					})
 					output, err := ytt.RenderYTTTemplate(ytt.CommandOptions{}, paths, strings.NewReader(values))
@@ -775,7 +775,7 @@ var _ = Describe("TKG_IP_FAMILY Ytt Templating", func() {
 			})
 			When("TKG_IP_FAMILY is ipv4", func() {
 				It("configure the CPI for ipv4 only", func() {
-					values := createDataValues(map[string]string{
+					values := createDataValues(map[string]interface{}{
 						"PROVIDER_TYPE": "vsphere",
 						"TKG_IP_FAMILY": "ipv4",
 					})
@@ -787,7 +787,7 @@ var _ = Describe("TKG_IP_FAMILY Ytt Templating", func() {
 			})
 			When("TKG_IP_FAMILY is ipv6", func() {
 				It("configure the CPI for ipv6 only", func() {
-					values := createDataValues(map[string]string{
+					values := createDataValues(map[string]interface{}{
 						"PROVIDER_TYPE": "vsphere",
 						"TKG_IP_FAMILY": "ipv6",
 					})
@@ -799,7 +799,7 @@ var _ = Describe("TKG_IP_FAMILY Ytt Templating", func() {
 			})
 			When("TKG_IP_FAMILY is ipv4,ipv6", func() {
 				It("configure the CPI for ipv4 and ipv6", func() {
-					values := createDataValues(map[string]string{
+					values := createDataValues(map[string]interface{}{
 						"PROVIDER_TYPE": "vsphere",
 						"TKG_IP_FAMILY": "ipv4,ipv6",
 					})
@@ -811,7 +811,7 @@ var _ = Describe("TKG_IP_FAMILY Ytt Templating", func() {
 			})
 			When("TKG_IP_FAMILY is ipv6,ipv4", func() {
 				It("configure the CPI for ipv6 and ipv4", func() {
-					values := createDataValues(map[string]string{
+					values := createDataValues(map[string]interface{}{
 						"PROVIDER_TYPE": "vsphere",
 						"TKG_IP_FAMILY": "ipv6,ipv4",
 					})
@@ -826,7 +826,7 @@ var _ = Describe("TKG_IP_FAMILY Ytt Templating", func() {
 				var excludeExternalNetworkSubnetCidr = "$.data.vsphereCPI.vmExcludeExternalNetworkSubnetCidr"
 				When("VSPHERE_CONTROL_PLANE_ENDPOINT is ipv4", func() {
 					It("excludes it as a CIDR from both external and internal node ip selection", func() {
-						values := createDataValues(map[string]string{
+						values := createDataValues(map[string]interface{}{
 							"PROVIDER_TYPE":                  "vsphere",
 							"TKG_IP_FAMILY":                  "ipv4",
 							"VSPHERE_CONTROL_PLANE_ENDPOINT": "192.168.0.1",
@@ -841,7 +841,7 @@ var _ = Describe("TKG_IP_FAMILY Ytt Templating", func() {
 				})
 				When("VSPHERE_CONTROL_PLANE_ENDPOINT is ipv6", func() {
 					It("excludes it as a CIDR from both external and internal node ip selection", func() {
-						values := createDataValues(map[string]string{
+						values := createDataValues(map[string]interface{}{
 							"PROVIDER_TYPE":                  "vsphere",
 							"TKG_IP_FAMILY":                  "ipv6",
 							"VSPHERE_CONTROL_PLANE_ENDPOINT": "fd00:100:64::1",
@@ -856,7 +856,7 @@ var _ = Describe("TKG_IP_FAMILY Ytt Templating", func() {
 				})
 				When("VSPHERE_CONTROL_PLANE_ENDPOINT is a hostname", func() {
 					It("excludes no ips from internal and external node ip selection", func() {
-						values := createDataValues(map[string]string{
+						values := createDataValues(map[string]interface{}{
 							"PROVIDER_TYPE":                  "vsphere",
 							"TKG_IP_FAMILY":                  "ipv6",
 							"VSPHERE_CONTROL_PLANE_ENDPOINT": "cluster.local",
@@ -874,10 +874,14 @@ var _ = Describe("TKG_IP_FAMILY Ytt Templating", func() {
 	})
 })
 
-func createDataValues(values map[string]string) string {
+func createDataValues(values map[string]interface{}) string {
 	dataValues := "#@data/values\n---\n"
-	for k, v := range values {
-		dataValues += fmt.Sprintf("%s: %s\n", k, v)
+	bytes, err := yaml.Marshal(values)
+	if err != nil {
+		return ""
 	}
-	return dataValues
+	valuesStr := string(bytes)
+	valuesStr = strings.ReplaceAll(valuesStr, "\"true\"", "true")
+	valuesStr = strings.ReplaceAll(valuesStr, "\"false\"", "false")
+	return dataValues + valuesStr
 }

@@ -1,0 +1,20 @@
+#@ load("@ytt:data", "data")
+#@ load("@ytt:json", "json")
+#@ load("@ytt:overlay", "overlay")
+#@ load("@ytt:template", "template")
+
+
+#! Label workload cluster if AVI_LABELS is specified
+
+#@ if data.values.PROVIDER_TYPE == "vsphere" and data.values.TKG_CLUSTER_ROLE != "management" and data.values.AVI_LABELS:
+#@overlay/match missing_ok=True,by=overlay.subset({"kind":"Cluster"})
+---
+apiVersion: cluster.x-k8s.io/v1beta1
+kind: Cluster
+metadata:
+  #@overlay/match-child-defaults missing_ok=True
+  labels:
+    _: #@ template.replace(data.values.AVI_LABELS)
+#@ end
+
+
