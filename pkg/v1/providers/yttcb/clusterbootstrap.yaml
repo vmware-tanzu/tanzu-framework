@@ -1,27 +1,27 @@
 #@ load("@ytt:data", "data")
 #@ load("lib/helpers.star", "get_tkr_version_from_tkr_name")
 
-#@ def is_antrea_configs_given():
-#@   return (data.values.NSXT_POD_ROUTING_ENABLED != False or
-#@           data.values.ANTREA_NO_SNAT != False or
+#@ def antrea_configs_exist():
+#@   return (data.values.NSXT_POD_ROUTING_ENABLED or
+#@           data.values.ANTREA_NO_SNAT or
 #@           data.values.ANTREA_TRAFFIC_ENCAP_MODE != "encap" or
-#@           data.values.ANTREA_PROXY != True or
-#@           data.values.ANTREA_ENDPOINTSLICE != True or
-#@           data.values.ANTREA_POLICY != True or
-#@           data.values.ANTREA_NODEPORTLOCAL != False or
-#@           data.values.ANTREA_TRACEFLOW != True or
-#@           data.values.ANTREA_EGRESS != False or
-#@           data.values.ANTREA_FLOWEXPORTER != False or
-#@           data.values.ANTREA_DISABLE_UDP_TUNNEL_OFFLOAD != False)
+#@           not data.values.ANTREA_PROXY or
+#@           not data.values.ANTREA_ENDPOINTSLICE or
+#@           not data.values.ANTREA_POLICY or
+#@           data.values.ANTREA_NODEPORTLOCAL or
+#@           not data.values.ANTREA_TRACEFLOW or
+#@           data.values.ANTREA_EGRESS or
+#@           data.values.ANTREA_FLOWEXPORTER or
+#@           data.values.ANTREA_DISABLE_UDP_TUNNEL_OFFLOAD)
 #@ end
 
-#@ def is_vspherecsi_configs_given():
-#@   return (data.values.VSPHERE_INSECURE != True or
-#@           data.values.USE_TOPOLOGY_CATEGORIES != False)
+#@ def vspherecsi_configs_exist():
+#@   return (not data.values.VSPHERE_INSECURE or
+#@           data.values.USE_TOPOLOGY_CATEGORIES)
 #@ end
 
 #@ def should_create_clusterbootstrap():
-#@   return data.values.CNI != "antrea" or is_antrea_configs_given() or is_vspherecsi_configs_given()
+#@   return data.values.CNI != "antrea" or antrea_configs_exist() or vspherecsi_configs_exist()
 #@ end
 
 #@ if should_create_clusterbootstrap():
@@ -50,24 +50,19 @@ spec:
         kind: CalicoConfig
         name: #@ data.values.CLUSTER_NAME
     #@ end
-  kapp:
-    refName: kapp-controller*
-    valuesFrom:
-      providerRef:
-        apiGroup: run.tanzu.vmware.com
-        kind: KappControllerConfig
-        name: #@ data.values.CLUSTER_NAME
+  #@ if vspherecsi_configs_exist() and data.values.PROVIDER_TYPE == "vsphere" and not data.values.IS_WINDOWS_WORKLOAD_CLUSTER:
   csi:
-    refName: vsphere*
+    refName: vsphere-csi*
     valuesFrom:
       providerRef:
         apiGroup: csi.tanzu.vmware.com
         kind: VSphereCSIConfig
         name: #@ data.values.CLUSTER_NAME
+  #@ end
 #@ end
 
 ---
-#@ if is_antrea_configs_given():
+#@ if antrea_configs_exist():
 apiVersion: cni.tanzu.vmware.com/v1alpha1
 kind: AntreaConfig
 metadata:
@@ -107,13 +102,7 @@ metadata:
   namespace: #@ data.values.NAMESPACE
 #@ end
 ---
-apiVersion: run.tanzu.vmware.com/v1alpha3
-kind: KappControllerConfig
-metadata:
-  name: #@ data.values.CLUSTER_NAME
-  namespace: #@ data.values.NAMESPACE
----
-#@ if is_vspherecsi_configs_given() and data.values.PROVIDER_TYPE == "vsphere" and not data.values.IS_WINDOWS_WORKLOAD_CLUSTER:
+#@ if vspherecsi_configs_exist() and data.values.PROVIDER_TYPE == "vsphere" and not data.values.IS_WINDOWS_WORKLOAD_CLUSTER:
 apiVersion: csi.tanzu.vmware.com/v1alpha1
 kind: VSphereCSIConfig
 metadata:
@@ -123,7 +112,11 @@ spec:
   vsphereCSI:
     mode: vsphereCSI
     config:
+      #@ if data.values.VSPHERE_INSECURE:
       insecureFlag: #@ data.values.VSPHERE_INSECURE
+      #@ else:
+      tlsThumbprint: #@ data.values.VSPHERE_TLS_THUMBPRINT
+      #@ end
       useTopologyCategories: #@ data.values.USE_TOPOLOGY_CATEGORIES
 #@ end
 
