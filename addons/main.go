@@ -271,6 +271,15 @@ func enableClusterBootstrapAndConfigControllers(ctx context.Context, mgr ctrl.Ma
 		os.Exit(1)
 	}
 
+	if err := (&csicontroller.VSphereCSIFeatureStatesConfigReconciler{
+		Client: mgr.GetClient(),
+		Log:    ctrl.Log.WithName("VSphereCSIFeatureStatesConfig"),
+		Scheme: mgr.GetScheme(),
+	}).SetupWithManager(ctx, mgr, controller.Options{MaxConcurrentReconciles: 1}); err != nil {
+		setupLog.Error(err, "unable to create VSphereCSIFeatureStatesConfigController", "controller", "vspherecsifeaturestates")
+		os.Exit(1)
+	}
+
 	if err := (&controllers.MachineReconciler{
 		Client: mgr.GetClient(),
 		Log:    ctrl.Log.WithName("MachineController"),
