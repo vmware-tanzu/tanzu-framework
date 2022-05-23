@@ -470,15 +470,12 @@ func (c *TkgClient) waitForAVIResourceCleanup(regionalClusterClient clusterclien
 		if apierrors.IsNotFound(err) {
 			return nil
 		}
-		return errors.Wrapf(err, "unable to get ako statefulset")
+		log.Warning("unable to get ako statefulset")
 	}
 	if err := regionalClusterClient.WaitForAVIResourceCleanUp(constants.AkoStatefulSetName, constants.AkoNamespace); err != nil {
-		// losing connection should be consider as AVI resources clean up finished.
-		// TODO: (xudongl) Any ideas how to make this line cleaner? Thanks.
-		if strings.Contains(err.Error(), "dial tcp") {
-			return nil
+		if !strings.Contains(err.Error(), "dial tcp") {
+			log.Error(err, "clean up AVI resources error")
 		}
-		return err
 	}
 	return nil
 }
