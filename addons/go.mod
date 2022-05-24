@@ -10,14 +10,14 @@ replace (
 )
 
 require (
-	github.com/go-logr/logr v1.2.2
+	github.com/go-logr/logr v1.2.3
 	github.com/googleapis/gnostic v0.5.5
 	github.com/onsi/ginkgo v1.16.5
 	github.com/onsi/gomega v1.19.0
 	github.com/pkg/errors v0.9.1
 	github.com/vmware-tanzu/carvel-kapp-controller v0.25.0
 	github.com/vmware-tanzu/carvel-secretgen-controller v0.5.0
-	github.com/vmware-tanzu/carvel-vendir v0.26.0
+	github.com/vmware-tanzu/carvel-vendir v0.27.0
 	github.com/vmware-tanzu/tanzu-framework v0.9.0
 	github.com/vmware-tanzu/tanzu-framework/apis/cni v0.0.0-00010101000000-000000000000
 	github.com/vmware-tanzu/tanzu-framework/apis/cpi v0.0.0-00010101000000-000000000000

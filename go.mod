@@ -15,8 +15,8 @@ require (
 	cloud.google.com/go/storage v1.18.2
 	github.com/AlecAivazis/survey/v2 v2.1.1
 	github.com/Azure/azure-sdk-for-go v58.1.0+incompatible
-	github.com/Azure/go-autorest/autorest v0.11.21
-	github.com/Azure/go-autorest/autorest/azure/auth v0.5.8
+	github.com/Azure/go-autorest/autorest v0.11.24
+	github.com/Azure/go-autorest/autorest/azure/auth v0.5.11
 	github.com/Jeffail/gabs v1.4.0
 	github.com/MakeNowJust/heredoc v1.0.0
 	github.com/Masterminds/semver v1.5.0
@@ -34,7 +34,7 @@ require (
 	github.com/getkin/kin-openapi v0.94.0
 	github.com/ghodss/yaml v1.0.0
 	github.com/go-ldap/ldap/v3 v3.3.0
-	github.com/go-logr/logr v1.2.2
+	github.com/go-logr/logr v1.2.3
 	github.com/go-openapi/errors v0.19.2
 	github.com/go-openapi/loads v0.19.4
 	github.com/go-openapi/runtime v0.19.4
@@ -84,12 +84,12 @@ require (
 	github.com/stretchr/testify v1.7.1-0.20210427113832-6241f9ab9942
 	github.com/tj/assert v0.0.0-20171129193455-018094318fb0
 	github.com/vmware-tanzu/carvel-kapp-controller v0.25.0
-	github.com/vmware-tanzu/carvel-secretgen-controller v0.5.0
+	github.com/vmware-tanzu/carvel-secretgen-controller v0.8.0
 	github.com/vmware-tanzu/carvel-vendir v0.24.0
 	github.com/vmware-tanzu/carvel-ytt v0.40.0
 	github.com/vmware/govmomi v0.27.1
 	github.com/yalp/jsonpath v0.0.0-20180802001716-5cc68e5049a0
-	go.uber.org/multierr v1.6.0
+	go.uber.org/multierr v1.8.0
 	golang.org/x/mod v0.5.1
 	golang.org/x/net v0.0.0-20220425223048-2871e0cb64e4
 	golang.org/x/oauth2 v0.0.0-20220411215720-9780585627b5
@@ -124,8 +124,8 @@ require (
 	cloud.google.com/go/iam v0.3.0 // indirect
 	github.com/Azure/go-ansiterm v0.0.0-20210617225240-d185dfc1b5a1 // indirect
 	github.com/Azure/go-autorest v14.2.0+incompatible // indirect
-	github.com/Azure/go-autorest/autorest/adal v0.9.16 // indirect
-	github.com/Azure/go-autorest/autorest/azure/cli v0.4.2 // indirect
+	github.com/Azure/go-autorest/autorest/adal v0.9.18 // indirect
+	github.com/Azure/go-autorest/autorest/azure/cli v0.4.5 // indirect
 	github.com/Azure/go-autorest/autorest/date v0.3.0 // indirect
 	github.com/Azure/go-autorest/autorest/to v0.4.0 // indirect
 	github.com/Azure/go-autorest/autorest/validation v0.3.1 // indirect
@@ -175,7 +175,7 @@ require (
 	github.com/go-stack/stack v1.8.0 // indirect
 	github.com/gobuffalo/flect v0.2.4 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
-	github.com/golang-jwt/jwt/v4 v4.0.0 // indirect
+	github.com/golang-jwt/jwt/v4 v4.2.0 // indirect
 	github.com/golang/glog v1.0.0 // indirect
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
 	github.com/google/cel-go v0.10.0 // indirect
