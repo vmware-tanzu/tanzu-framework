@@ -8,6 +8,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/conversion"
 
 	v1alpha3 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v2/tkr/util/version"
 	utilconversion "github.com/vmware-tanzu/tanzu-framework/util/conversion"
 )
 
@@ -58,6 +59,8 @@ func (spoke *TanzuKubernetesRelease) ConvertFrom(hubRaw conversion.Hub) error {
 		return err
 	} else if ok {
 		// Annotations contain data, restore the relevant ones.
+		spoke.Spec.Version = restored.Spec.Version
+		spoke.Spec.KubernetesVersion = restored.Spec.KubernetesVersion
 		spoke.Spec.NodeImageRef = restored.Spec.NodeImageRef
 		if restored.Spec.Images != nil {
 			spoke.Spec.Images = restored.Spec.Images
@@ -75,7 +78,8 @@ func (spoke *TanzuKubernetesRelease) ConvertFrom(hubRaw conversion.Hub) error {
 // Convert_v1alpha2_TanzuKubernetesReleaseSpec_To_v1alpha3_TanzuKubernetesReleaseSpec  will convert the compatible types in TanzuKubernetesReleaseSpec v1alpha2 to v1alpha3 equivalent.
 // nolint:revive,stylecheck // Generated conversion stubs have underscores in function names.
 func Convert_v1alpha2_TanzuKubernetesReleaseSpec_To_v1alpha3_TanzuKubernetesReleaseSpec(in *TanzuKubernetesReleaseSpec, out *v1alpha3.TanzuKubernetesReleaseSpec, s apiconversion.Scope) error {
-	out.Kubernetes.Version = in.KubernetesVersion
+	out.Version = version.WithV(in.Version)
+	out.Kubernetes.Version = version.WithV(in.KubernetesVersion)
 	out.Kubernetes.ImageRepository = in.Repository
 
 	// Transform the container images.
@@ -106,7 +110,7 @@ func Convert_v1alpha2_TanzuKubernetesReleaseSpec_To_v1alpha3_TanzuKubernetesRele
 		}
 	}
 
-	return autoConvert_v1alpha2_TanzuKubernetesReleaseSpec_To_v1alpha3_TanzuKubernetesReleaseSpec(in, out, s)
+	return nil
 }
 
 // Convert_v1alpha3_TanzuKubernetesReleaseSpec_To_v1alpha2_TanzuKubernetesReleaseSpec will convert the compatible types in TanzuKubernetesReleaseSpec v1alpha3 to v1alpha2 equivalent.
