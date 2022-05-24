@@ -9,10 +9,13 @@ import (
 	"github.com/google/go-cmp/cmp"
 	"github.com/onsi/gomega"
 	v1 "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/api/apitesting/fuzzer"
 	apiequality "k8s.io/apimachinery/pkg/api/equality"
+	serializer "k8s.io/apimachinery/pkg/runtime/serializer"
 	v1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
 
 	"github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v2/tkr/util/version"
 	utilconversion "github.com/vmware-tanzu/tanzu-framework/util/conversion"
 )
 
@@ -20,6 +23,11 @@ func TestConversion(t *testing.T) {
 	t.Run("for TanzuKubernetesRelease", utilconversion.FuzzTestFunc(&utilconversion.FuzzTestFuncInput{
 		Hub:   &v1alpha3.TanzuKubernetesRelease{},
 		Spoke: &TanzuKubernetesRelease{},
+		FuzzerFuncs: []fuzzer.FuzzerFuncs{
+			func(_ serializer.CodecFactory) []interface{} {
+				return []interface{}{v1alpha3.FuzzTKRSpec, v1alpha3.FuzzTKRSpecKubernetes, version.Fuzz}
+			},
+		},
 	}))
 
 	// Add other types here in future
@@ -30,9 +38,9 @@ func TestHubSpokeHub(t *testing.T) {
 	t.Run("for TanzuKubernetesRelease", func(t *testing.T) {
 		hub := &v1alpha3.TanzuKubernetesRelease{
 			Spec: v1alpha3.TanzuKubernetesReleaseSpec{
-				Version: "#ŉƈOƕʘ賡谒湪ȥ#4",
+				Version: "v#ŉƈOƕʘ賡谒湪ȥ#4",
 				Kubernetes: v1alpha3.KubernetesSpec{
-					Version:         `ìd/i涇u趗\庰鏜`,
+					Version:         `vìd/i涇u趗\庰鏜`,
 					ImageRepository: "辑",
 					Etcd: &v1alpha3.ContainerImageInfo{
 						ImageRepository: "9ŉ劆掬ȳƤʟNʮ犓ȓ峌堲Ȥ:ě",
@@ -152,9 +160,9 @@ func TestContainerImagesConversionFromSpokeToHubWithNoAnnotations(t *testing.T) 
 	t.Run("for TanzuKubernetesRelease", func(t *testing.T) {
 		hub := &v1alpha3.TanzuKubernetesRelease{
 			Spec: v1alpha3.TanzuKubernetesReleaseSpec{
-				Version: "#ŉƈOƕʘ賡谒湪ȥ#4",
+				Version: "v#ŉƈOƕʘ賡谒湪ȥ#4",
 				Kubernetes: v1alpha3.KubernetesSpec{
-					Version:         `ìd/i涇u趗\庰鏜`,
+					Version:         `vìd/i涇u趗\庰鏜`,
 					ImageRepository: "辑",
 					Etcd: &v1alpha3.ContainerImageInfo{
 						ImageRepository: "9ŉ劆掬ȳƤʟNʮ犓ȓ峌堲Ȥ:ě",
@@ -184,8 +192,8 @@ func TestContainerImagesConversionFromSpokeToHubWithNoAnnotations(t *testing.T) 
 
 		expectedSpoke := &TanzuKubernetesRelease{
 			Spec: TanzuKubernetesReleaseSpec{
-				Version:           "#ŉƈOƕʘ賡谒湪ȥ#4",
-				KubernetesVersion: `ìd/i涇u趗\庰鏜`,
+				Version:           "v#ŉƈOƕʘ賡谒湪ȥ#4", // prefixed with `v` coming from v1alpha3
+				KubernetesVersion: `vìd/i涇u趗\庰鏜`,   // prefixed with `v` coming from v1alpha3
 				Repository:        "辑",
 				Images: []ContainerImage{
 					{
