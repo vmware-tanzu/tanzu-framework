@@ -97,10 +97,9 @@ func getFullyQualifiedCBPackageRefName(tkr *runtanzuv1alpha3.TanzuKubernetesRele
 				// capabilities bootstrapPackage and calico bootstrapPackage. We would like to return error in this case
 				// to let caller revise the prefix in order to narrow down to exactly one match.
 				return fullyQualifiedCBPackageRefName, fmt.Errorf("multiple bootstrapPackage names matche the prefix %s within the TanzuKubernetesRelease %s", prefix, tkr.Name)
-			} else {
-				fullyQualifiedCBPackageRefName = tkrBootstrapPackage.Name
-				found = true
 			}
+			fullyQualifiedCBPackageRefName = tkrBootstrapPackage.Name
+			found = true
 		}
 	}
 	if fullyQualifiedCBPackageRefName == "" {
