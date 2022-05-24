@@ -236,7 +236,7 @@ var _ = Describe("Controller", func() {
 				updateObject(ctx, expectedSecret)
 			})
 
-			It("they are preserved", func() {
+			XIt("they are preserved", func() {
 				Consistently(func(g Gomega) {
 					actualSecret := expectedSecret.DeepCopy()
 					err := k8sClient.Get(ctx, client.ObjectKeyFromObject(actualSecret), actualSecret)
