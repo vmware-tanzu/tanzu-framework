@@ -21,9 +21,14 @@ import (
 )
 
 var (
-	tkrName                  = "v1.23.5---vmware.1-tkg.1-zshippable"
-	fakeCarvelPackageRefName = "fake-carvel-package"
-	fakeCarvelPackageVersion = "1.0.0"
+	tkrName                               = "v1.23.5---vmware.1-tkg.1-zshippable"
+	fakeAntreaCarvelPackageRefName        = "antrea-carvel-package"
+	fakeCalicoCarvelPackageRefName        = "calico-carvel-package"
+	fakeCSICarvelPackageRefName           = "vsphere-pv-csi-carvel-package"
+	fakeKappCarvelPackageRefName          = "kapp-controller-carvel-package"
+	fakePinnipedCarvelPackageRefName      = "pinniped-carvel-package"
+	fakeMetricsServerCarvelPackageRefName = "metrics-server-carvel-package"
+	fakeCarvelPackageVersion              = "1.0.0"
 )
 
 var _ = Describe("ClusterbootstrapWebhook", func() {
@@ -76,9 +81,12 @@ var _ = Describe("ClusterbootstrapWebhook", func() {
 			Expect(clusterBootstrap.Spec.CNI.RefName).To(Equal(clusterBootstrapTemplate.Spec.CNI.RefName))
 			Expect(clusterBootstrap.Spec.Kapp.RefName).To(Equal(clusterBootstrapTemplate.Spec.Kapp.RefName))
 			Expect(clusterBootstrap.Spec.CSI.RefName).To(Equal(clusterBootstrapTemplate.Spec.CSI.RefName))
+			Expect(clusterBootstrap.Spec.AdditionalPackages).NotTo(BeNil())
+			Expect(len(clusterBootstrap.Spec.AdditionalPackages)).To(Equal(len(clusterBootstrapTemplate.Spec.AdditionalPackages)))
 		})
 		It("should add defaults ONLY to the missing fields when the ClusterBootstrap CR has the predefined annotation", func() {
 			// Create a ClusterBootstrap with empty spec
+			additionalCBPackageRefName := fmt.Sprintf("%s.%s", fakePinnipedCarvelPackageRefName, fakeCarvelPackageVersion)
 			clusterBootstrap := &runv1alpha3.ClusterBootstrap{
 				ObjectMeta: metav1.ObjectMeta{
 					Name:      clusterBootstrapName,
@@ -89,12 +97,15 @@ var _ = Describe("ClusterbootstrapWebhook", func() {
 				},
 				Spec: &runv1alpha3.ClusterBootstrapTemplateSpec{
 					CSI: &runv1alpha3.ClusterBootstrapPackage{
-						RefName: fmt.Sprintf("%s.%s", fakeCarvelPackageRefName, fakeCarvelPackageVersion),
+						RefName: fmt.Sprintf("%s.%s", fakeCSICarvelPackageRefName, fakeCarvelPackageVersion),
 						ValuesFrom: &runv1alpha3.ValuesFrom{
 							Inline: map[string]interface{}{
 								"foo": "bar",
 							},
 						},
+					},
+					AdditionalPackages: []*runv1alpha3.ClusterBootstrapPackage{
+						{RefName: additionalCBPackageRefName, ValuesFrom: &runv1alpha3.ValuesFrom{Inline: map[string]interface{}{"identity_management_type": "ldap"}}},
 					},
 				},
 			}
@@ -108,6 +119,10 @@ var _ = Describe("ClusterbootstrapWebhook", func() {
 			Expect(clusterBootstrap.Spec.Kapp.RefName).To(Equal(clusterBootstrapTemplate.Spec.Kapp.RefName))
 			Expect(clusterBootstrap.Spec.CSI.RefName).To(Equal(clusterBootstrapTemplate.Spec.CSI.RefName))
 			Expect(clusterBootstrap.Spec.CSI.ValuesFrom.Inline["foo"]).To(Equal("bar"))
+			Expect(clusterBootstrap.Spec.AdditionalPackages).NotTo(BeNil())
+			Expect(len(clusterBootstrap.Spec.AdditionalPackages)).To(Equal(1))
+			Expect(clusterBootstrap.Spec.AdditionalPackages[0].RefName).To(Equal(additionalCBPackageRefName))
+			Expect(clusterBootstrap.Spec.AdditionalPackages[0].ValuesFrom.Inline["identity_management_type"]).To(Equal("ldap"))
 		})
 		It("should NOT add defaults to the missing fields when the ClusterBootstrap CR does not have the predefined annotation", func() {
 			// Create a ClusterBootstrap with empty spec
@@ -139,12 +154,105 @@ var _ = Describe("ClusterbootstrapWebhook", func() {
 			Expect(apierrors.IsNotFound(err)).To(BeTrue())
 		})
 
-		// TODO: Add more tests to verify the CompleteCBPackageRefNamesFromTKR() logic.
-		// We don't have that test right now is because envtest has some issues to create TanzuKubernetesRelease resource
-		// by using client.Create(). The creation succeeds but the tkr.Spec.BootstrapPackages becomes empty after the
-		// creation. We to revisit and make this tests comprehensive.
+		It("should complete to the partial filled fields when the ClusterBootstrap CR has the predefined annotation", func() {
+			// Create a ClusterBootstrap with empty spec
+			clusterBootstrap := &runv1alpha3.ClusterBootstrap{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      clusterBootstrapName,
+					Namespace: clusterBootstrapNamespace,
+					Annotations: map[string]string{
+						constants.AddCBMissingFieldsAnnotationKey: "v1.23.5---vmware.1-tkg.1-zshippable",
+					},
+				},
+				Spec: &runv1alpha3.ClusterBootstrapTemplateSpec{
+					CNI: &runv1alpha3.ClusterBootstrapPackage{
+						RefName: "antrea*",
+					},
+					AdditionalPackages: []*runv1alpha3.ClusterBootstrapPackage{
+						{RefName: "pinniped*", ValuesFrom: &runv1alpha3.ValuesFrom{Inline: map[string]interface{}{"identity_management_type": "ldap"}}},
+					},
+				},
+			}
+			err := k8sClient.Create(ctx, clusterBootstrap)
+			Expect(err).NotTo(HaveOccurred())
+
+			err = k8sClient.Get(ctx, client.ObjectKey{Namespace: clusterBootstrapNamespace, Name: clusterBootstrapName}, clusterBootstrap)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(clusterBootstrap.Spec).NotTo(BeNil())
+			// clusterBootstrap.Spec.CNI.RefName should be complete by the webhook
+			Expect(clusterBootstrap.Spec.CNI.RefName).NotTo(Equal("antrea*"))
+			assertTKRBootstrapPackageNamesContain(tanzuKubernetesRelease, clusterBootstrap.Spec.CNI.RefName)
+			// clusterBootstrap.Spec.AdditionalPackages[x].RefName should be complete by the webhook
+			Expect(len(clusterBootstrap.Spec.AdditionalPackages)).To(Equal(1))
+			Expect(clusterBootstrap.Spec.AdditionalPackages[0].RefName).NotTo(Equal("pinniped*"))
+			assertTKRBootstrapPackageNamesContain(tanzuKubernetesRelease, clusterBootstrap.Spec.AdditionalPackages[0].RefName)
+			// the rest of fields should be added by the webhook
+			Expect(clusterBootstrap.Spec.Kapp.RefName).To(Equal(clusterBootstrapTemplate.Spec.Kapp.RefName))
+			Expect(clusterBootstrap.Spec.CSI.RefName).To(Equal(clusterBootstrapTemplate.Spec.CSI.RefName))
+		})
+
+		It("should complete the partial filled fields when the ClusterBootstrap CR has the predefined annotation", func() {
+			// Create a ClusterBootstrap with empty spec
+			clusterBootstrap := &runv1alpha3.ClusterBootstrap{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      clusterBootstrapName,
+					Namespace: clusterBootstrapNamespace,
+					Annotations: map[string]string{
+						constants.AddCBMissingFieldsAnnotationKey: "v1.23.5---vmware.1-tkg.1-zshippable",
+					},
+				},
+				Spec: &runv1alpha3.ClusterBootstrapTemplateSpec{
+					CNI: &runv1alpha3.ClusterBootstrapPackage{
+						RefName: "antrea*",
+					},
+					CSI: &runv1alpha3.ClusterBootstrapPackage{
+						RefName: fmt.Sprintf("%s.%s", fakeCSICarvelPackageRefName, fakeCarvelPackageVersion),
+						ValuesFrom: &runv1alpha3.ValuesFrom{
+							Inline: map[string]interface{}{"should-not-be-updated": true},
+						},
+					},
+					AdditionalPackages: []*runv1alpha3.ClusterBootstrapPackage{
+						{RefName: "pinniped*", ValuesFrom: &runv1alpha3.ValuesFrom{Inline: map[string]interface{}{"identity_management_type": "ldap"}}},
+						{RefName: fmt.Sprintf("%s.%s", fakeMetricsServerCarvelPackageRefName, fakeCarvelPackageVersion)},
+					},
+				},
+			}
+			err := k8sClient.Create(ctx, clusterBootstrap)
+			Expect(err).NotTo(HaveOccurred())
+
+			err = k8sClient.Get(ctx, client.ObjectKey{Namespace: clusterBootstrapNamespace, Name: clusterBootstrapName}, clusterBootstrap)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(clusterBootstrap.Spec).NotTo(BeNil())
+			// clusterBootstrap.Spec.CNI.RefName should be completed by the webhook
+			Expect(clusterBootstrap.Spec.CNI.RefName).NotTo(Equal("antrea*"))
+			assertTKRBootstrapPackageNamesContain(tanzuKubernetesRelease, clusterBootstrap.Spec.CNI.RefName)
+			// clusterBootstrap.Spec.AdditionalPackages[x].RefName should be completed by the webhook
+			Expect(len(clusterBootstrap.Spec.AdditionalPackages)).To(Equal(2))
+			Expect(clusterBootstrap.Spec.AdditionalPackages[0].RefName).NotTo(Equal("pinniped*"))
+			assertTKRBootstrapPackageNamesContain(tanzuKubernetesRelease, clusterBootstrap.Spec.AdditionalPackages[0].RefName)
+			Expect(clusterBootstrap.Spec.AdditionalPackages[1].RefName).To(Equal(fmt.Sprintf("%s.%s", fakeMetricsServerCarvelPackageRefName, fakeCarvelPackageVersion)))
+			// CSI should not be touched
+			Expect(clusterBootstrap.Spec.CSI.RefName).To(Equal(fmt.Sprintf("%s.%s", fakeCSICarvelPackageRefName, fakeCarvelPackageVersion)))
+			Expect(clusterBootstrap.Spec.CSI.ValuesFrom.Inline[""]).To(BeNil())
+			Expect(len(clusterBootstrap.Spec.CSI.ValuesFrom.Inline)).To(Equal(1))
+			Expect(clusterBootstrap.Spec.CSI.ValuesFrom.Inline["should-not-be-updated"]).To(BeTrue())
+			// the rest of fields should be added by the webhook
+			Expect(clusterBootstrap.Spec.Kapp.RefName).To(Equal(clusterBootstrapTemplate.Spec.Kapp.RefName))
+
+		})
 	})
 })
+
+func assertTKRBootstrapPackageNamesContain(tkr *runv1alpha3.TanzuKubernetesRelease, name string) {
+	var found bool
+	for _, pkg := range tkr.Spec.BootstrapPackages {
+		if pkg.Name == name {
+			found = true
+			break
+		}
+	}
+	Expect(found).To(BeTrue())
+}
 
 func constructFakeTanzuKubernetesRelease() *runv1alpha3.TanzuKubernetesRelease {
 	return &runv1alpha3.TanzuKubernetesRelease{
@@ -153,48 +261,64 @@ func constructFakeTanzuKubernetesRelease() *runv1alpha3.TanzuKubernetesRelease {
 		},
 		Spec: runv1alpha3.TanzuKubernetesReleaseSpec{
 			BootstrapPackages: []corev1.LocalObjectReference{
-				{Name: "antrea.tanzu.vmware.com.1.2.3+vmware.4-tkg.2-advanced-zshippable"},
-				{Name: "calico.tanzu.vmware.com.3.22.1+vmware.1-tkg.1-zshippable"},
+				{Name: fmt.Sprintf("%s.%s", fakeAntreaCarvelPackageRefName, fakeCarvelPackageVersion)},
+				{Name: fmt.Sprintf("%s.%s", fakeCalicoCarvelPackageRefName, fakeCarvelPackageVersion)},
+				{Name: fmt.Sprintf("%s.%s", fakeMetricsServerCarvelPackageRefName, fakeCarvelPackageVersion)},
+				{Name: fmt.Sprintf("%s.%s", fakePinnipedCarvelPackageRefName, fakeCarvelPackageVersion)},
 			},
 		},
 	}
 }
 
 func constructClusterBootstrapTemplate() *runv1alpha3.ClusterBootstrapTemplate {
-	fakeCarvelPackageName := fmt.Sprintf("%s.%s", fakeCarvelPackageRefName, fakeCarvelPackageVersion)
 	return &runv1alpha3.ClusterBootstrapTemplate{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      tkrName, // CBT and TKR share the same name
 			Namespace: SystemNamespace,
 		},
 		Spec: &runv1alpha3.ClusterBootstrapTemplateSpec{
-			CNI:  &runv1alpha3.ClusterBootstrapPackage{RefName: fakeCarvelPackageName},
-			Kapp: &runv1alpha3.ClusterBootstrapPackage{RefName: fakeCarvelPackageName},
+			CNI:  &runv1alpha3.ClusterBootstrapPackage{RefName: fmt.Sprintf("%s.%s", fakeAntreaCarvelPackageRefName, fakeCarvelPackageVersion)},
+			Kapp: &runv1alpha3.ClusterBootstrapPackage{RefName: fmt.Sprintf("%s.%s", fakeKappCarvelPackageRefName, fakeCarvelPackageVersion)},
 			CSI: &runv1alpha3.ClusterBootstrapPackage{
-				RefName: fakeCarvelPackageName,
+				RefName: fmt.Sprintf("%s.%s", fakeCSICarvelPackageRefName, fakeCarvelPackageVersion),
 				ValuesFrom: &runv1alpha3.ValuesFrom{
 					Inline: map[string]interface{}{
 						"fake-key": "fak-value",
 					},
-				}},
+				},
+			},
+			AdditionalPackages: []*runv1alpha3.ClusterBootstrapPackage{
+				{RefName: fmt.Sprintf("%s.%s", fakePinnipedCarvelPackageRefName, fakeCarvelPackageVersion), ValuesFrom: &runv1alpha3.ValuesFrom{Inline: map[string]interface{}{"identity_management_type": "oidc"}}},
+				{RefName: fmt.Sprintf("%s.%s", fakeMetricsServerCarvelPackageRefName, fakeCarvelPackageVersion)},
+			},
 		},
 	}
 }
 
 func createCarvelPackages(ctx context.Context, client client.Client) {
-	fakeCarvelPackage := &packagev1alpha1.Package{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:      fmt.Sprintf("%s.%s", fakeCarvelPackageRefName, fakeCarvelPackageVersion),
-			Namespace: SystemNamespace,
-		},
-		Spec: packagev1alpha1.PackageSpec{
-			RefName: fakeCarvelPackageRefName,
-			Version: fakeCarvelPackageVersion,
-			Template: packagev1alpha1.AppTemplateSpec{
-				Spec: &kappctrlv1alph1.AppSpec{},
-			},
-		},
+	packageRefNames := []string{
+		fakeAntreaCarvelPackageRefName,
+		fakeCalicoCarvelPackageRefName,
+		fakeCSICarvelPackageRefName,
+		fakeKappCarvelPackageRefName,
+		fakePinnipedCarvelPackageRefName,
+		fakeMetricsServerCarvelPackageRefName,
 	}
-	err := client.Create(ctx, fakeCarvelPackage)
-	Expect(err).NotTo(HaveOccurred())
+
+	for _, refName := range packageRefNames {
+		err := client.Create(ctx, &packagev1alpha1.Package{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      fmt.Sprintf("%s.%s", refName, fakeCarvelPackageVersion),
+				Namespace: SystemNamespace,
+			},
+			Spec: packagev1alpha1.PackageSpec{
+				RefName: refName,
+				Version: fakeCarvelPackageVersion,
+				Template: packagev1alpha1.AppTemplateSpec{
+					Spec: &kappctrlv1alph1.AppSpec{},
+				},
+			},
+		})
+		Expect(err).NotTo(HaveOccurred())
+	}
 }

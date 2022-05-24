@@ -89,10 +89,18 @@ func (h *Helper) CompleteCBPackageRefNamesFromTKR(tkr *runtanzuv1alpha3.TanzuKub
 
 func getFullyQualifiedCBPackageRefName(tkr *runtanzuv1alpha3.TanzuKubernetesRelease, prefix string) (string, error) {
 	var fullyQualifiedCBPackageRefName string
+	var found bool
 	for _, tkrBootstrapPackage := range tkr.Spec.BootstrapPackages {
 		if strings.HasPrefix(tkrBootstrapPackage.Name, prefix) {
-			fullyQualifiedCBPackageRefName = tkrBootstrapPackage.Name
-			break
+			if found {
+				// It is possible that current prefix matches multiple bootstrapPackages. For example, c* might match
+				// capabilities bootstrapPackage and calico bootstrapPackage. We would like to return error in this case
+				// to let caller revise the prefix in order to narrow down to exactly one match.
+				return fullyQualifiedCBPackageRefName, fmt.Errorf("multiple bootstrapPackage names matche the prefix %s within the TanzuKubernetesRelease %s", prefix, tkr.Name)
+			} else {
+				fullyQualifiedCBPackageRefName = tkrBootstrapPackage.Name
+				found = true
+			}
 		}
 	}
 	if fullyQualifiedCBPackageRefName == "" {
@@ -155,7 +163,16 @@ func addMissingFields(copyFrom, destination map[string]interface{}) error {
 		} else {
 			// If keyInFrom exists in destination, recursively look inside the nested fields.
 			if valueInFrom != nil && reflect.TypeOf(valueInFrom).Kind() == reflect.Map &&
-				valueInTarget != nil && reflect.TypeOf(valueInTarget).Kind() == reflect.Map {
+				valueInTarget != nil && reflect.TypeOf(valueInTarget).Kind() == reflect.Map &&
+				// ClusterBootstrapPackage.ValuesFrom.Inline is a map[string]interface{} contains the data values of a
+				// specific ClusterBootstrapPackage. When the key "inline" exist in the destination we should not attempt
+				// to invoke the addMissingFields(), otherwise the processed ClusterBootstrapPackage.ValuesFrom.Inline will
+				// contain a combined data value from both copyFrom and destination.
+				// E.g., ClusterBootstrap.Spec.CSI.ValuesFrom.Inline has {"a": "b"},
+				// and ClusterBootstrapTemplate.Spec.CSI.ValuesFrom.Inline has {"foo":"bar"}.
+				// If we do not have the following check the final processed ClusterBootstrap will have {"a": "b", "foo": "bar"}
+				// which is not expected
+				keyInFrom != "inline" {
 				if err := addMissingFields(valueInFrom.(map[string]interface{}), valueInTarget.(map[string]interface{})); err != nil {
 					return err
 				}

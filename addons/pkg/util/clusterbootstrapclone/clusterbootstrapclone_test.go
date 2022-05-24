@@ -36,6 +36,13 @@ import (
 	k8syaml "sigs.k8s.io/yaml"
 )
 
+var (
+	fakeAntreaCBPackageRefName        = "fake-antrea-clusterbootstrarp-package"
+	fakeCSICBPackageRefName           = "fake-vsphere-csi-clusterbootstrarp-package"
+	fakePinnipedCBPackageRefName      = "fake-pinniped-clusterbootstrarp-package"
+	fakeMetricsServerCBPackageRefName = "fake-metrics-server-clusterbootstrarp-package"
+)
+
 var _ = Describe("ClusterbootstrapClone", func() {
 	var (
 		helper                        *Helper
@@ -252,8 +259,7 @@ var _ = Describe("ClusterbootstrapClone", func() {
 		})
 		It("should return nil clonedSecrets and non-nil clonedProviders when carvel package metadata is found and CB"+
 			" Package has providerRef", func() {
-			err := fakeClient.Create(context.TODO(), constructAntreaCarvelPackage(cluster.Namespace))
-			Expect(err).To(BeNil())
+			prepareCarvelPackages(fakeClient, cluster.Namespace)
 			clonedSecrets, clonedProviders, err := helper.CloneReferencedObjectsFromCBPackages(cluster,
 				[]*v1alpha3.ClusterBootstrapPackage{constructFakeClusterBootstrapPackageWithAntreaProviderRef()},
 				fakeSourceNamespace)
@@ -267,9 +273,7 @@ var _ = Describe("ClusterbootstrapClone", func() {
 			initSecret := constructFakeSecret()
 			err := fakeClient.Create(context.TODO(), initSecret)
 			Expect(err).NotTo(HaveOccurred())
-			// Create a fake antrea carvel package
-			err = fakeClient.Create(context.TODO(), constructAntreaCarvelPackage(cluster.Namespace))
-			Expect(err).NotTo(HaveOccurred())
+			prepareCarvelPackages(fakeClient, cluster.Namespace)
 
 			clonedSecrets, clonedProviders, err := helper.CloneReferencedObjectsFromCBPackages(cluster,
 				[]*v1alpha3.ClusterBootstrapPackage{constructFakeClusterBootstrapPackageWithSecretRef()},
@@ -286,12 +290,10 @@ var _ = Describe("ClusterbootstrapClone", func() {
 		)
 		BeforeEach(func() {
 			cluster = constructFakeCluster()
-			clusterbootstrapTemplate = constructFakeClusterBootstrapTemplateWithCNI()
+			clusterbootstrapTemplate = constructFakeClusterBootstrapTemplate()
 		})
 		It("should return clusterbootstrap without error", func() {
-			// Create a fake antrea carvel package
-			err := fakeClient.Create(context.TODO(), constructAntreaCarvelPackage(cluster.Namespace))
-			Expect(err).NotTo(HaveOccurred())
+			prepareCarvelPackages(fakeClient, cluster.Namespace)
 
 			clusterbootstrap, err := helper.CreateClusterBootstrapFromTemplate(clusterbootstrapTemplate, cluster, "fake-tkr-name")
 			Expect(err).NotTo(HaveOccurred())
@@ -305,7 +307,7 @@ var _ = Describe("ClusterbootstrapClone", func() {
 	Context("Verify AddMissingSpecFieldsFromTemplate()", func() {
 		var fakeClusterBootstrapTemplate *v1alpha3.ClusterBootstrapTemplate
 		BeforeEach(func() {
-			fakeClusterBootstrapTemplate = constructFakeClusterBootstrapTemplateWithCNI()
+			fakeClusterBootstrapTemplate = constructFakeClusterBootstrapTemplate()
 		})
 		It("should add what ClusterBootstrapTemplate has to the empty ClusterBootstrap", func() {
 			clusterBootstrap := &v1alpha3.ClusterBootstrap{
@@ -321,18 +323,22 @@ var _ = Describe("ClusterbootstrapClone", func() {
 			Expect(err).NotTo(HaveOccurred())
 			updatedClusterBootstrap := clusterBootstrap
 			Expect(updatedClusterBootstrap.Spec).NotTo(BeNil())
+			// Expect CNI to be added
 			Expect(updatedClusterBootstrap.Spec.CNI).NotTo(BeNil())
 			Expect(updatedClusterBootstrap.Spec.CNI.RefName).To(Equal(fakeClusterBootstrapTemplate.Spec.CNI.RefName))
 			Expect(updatedClusterBootstrap.Spec.CNI.ValuesFrom.ProviderRef.Name).To(Equal(fakeClusterBootstrapTemplate.Spec.CNI.ValuesFrom.ProviderRef.Name))
 			Expect(updatedClusterBootstrap.Spec.CNI.ValuesFrom.ProviderRef.Kind).To(Equal(fakeClusterBootstrapTemplate.Spec.CNI.ValuesFrom.ProviderRef.Kind))
-
+			// Expect CSI to be added
+			Expect(updatedClusterBootstrap.Spec.CSI).NotTo(BeNil())
+			Expect(updatedClusterBootstrap.Spec.CSI.RefName).To(Equal(fakeClusterBootstrapTemplate.Spec.CSI.RefName))
+			Expect(updatedClusterBootstrap.Spec.CSI.ValuesFrom).NotTo(BeNil())
+			Expect(len(updatedClusterBootstrap.Spec.CSI.ValuesFrom.Inline)).To(Equal(len(fakeClusterBootstrapTemplate.Spec.CSI.ValuesFrom.Inline)))
 			// Spec.Paused is not set in fakeClusterBootstrapTemplate, it should be false
 			Expect(updatedClusterBootstrap.Spec.Paused).To(BeFalse())
 			// The ClusterBootstrapPackage not set in fakeClusterBootstrapTemplate. They should not be copied
 			Expect(updatedClusterBootstrap.Spec.CPI).To(BeNil())
-			Expect(updatedClusterBootstrap.Spec.CSI).To(BeNil())
 			Expect(updatedClusterBootstrap.Spec.Kapp).To(BeNil())
-			Expect(updatedClusterBootstrap.Spec.AdditionalPackages).To(BeNil())
+			Expect(len(updatedClusterBootstrap.Spec.AdditionalPackages)).To(Equal(len(fakeClusterBootstrapTemplate.Spec.AdditionalPackages)))
 		})
 
 		It("should not overwrite the components which already exist", func() {
@@ -361,6 +367,15 @@ var _ = Describe("ClusterbootstrapClone", func() {
 							},
 						},
 					},
+					CSI: &v1alpha3.ClusterBootstrapPackage{
+						RefName: "foo-vsphere-csi-clusterbootstrarp-package",
+						ValuesFrom: &v1alpha3.ValuesFrom{
+							Inline: map[string]interface{}{"should-not-be-updated": true},
+						},
+					},
+					AdditionalPackages: []*v1alpha3.ClusterBootstrapPackage{
+						{RefName: fakePinnipedCBPackageRefName, ValuesFrom: &v1alpha3.ValuesFrom{Inline: map[string]interface{}{"identity_management_type": "oidc"}}},
+					},
 				},
 			}
 
@@ -372,6 +387,9 @@ var _ = Describe("ClusterbootstrapClone", func() {
 			Expect(updatedClusterBootstrap.Spec.CNI.RefName).To(Equal("foo-antrea-clusterbootstrarp-package"))
 			Expect(updatedClusterBootstrap.Spec.CNI.ValuesFrom.ProviderRef.Kind).To(Equal("AntreaConfig"))
 			Expect(updatedClusterBootstrap.Spec.CNI.ValuesFrom.ProviderRef.Name).To(Equal("fooAntreaConfig"))
+			Expect(updatedClusterBootstrap.Spec.CSI.RefName).To(Equal("foo-vsphere-csi-clusterbootstrarp-package"))
+			Expect(len(updatedClusterBootstrap.Spec.CSI.ValuesFrom.Inline)).To(Equal(1))
+			Expect(updatedClusterBootstrap.Spec.CSI.ValuesFrom.Inline["should-not-be-updated"]).To(BeTrue())
 			// CPI should be added to updatedClusterBootstrap
 			Expect(updatedClusterBootstrap.Spec.CPI).NotTo(BeNil())
 			Expect(updatedClusterBootstrap.Spec.CPI.ValuesFrom.SecretRef).To(Equal(fakeCPIClusterBootstrapPackage.ValuesFrom.SecretRef))
@@ -380,7 +398,12 @@ var _ = Describe("ClusterbootstrapClone", func() {
 			assertTwoMapsShouldEqual(updatedClusterBootstrap.Spec.CPI.ValuesFrom.Inline, fakeCSIClusterBootstrapPackage.ValuesFrom.Inline)
 			// The ClusterBootstrapPackage not set in fakeClusterBootstrapTemplate. They should not be copied
 			Expect(updatedClusterBootstrap.Spec.Kapp).To(BeNil())
-			Expect(updatedClusterBootstrap.Spec.AdditionalPackages).To(BeNil())
+			// The ClusterBootstrapPackage has only 1 additional package, however the fakeClusterBootstrapTemplate has 2
+			// We should not change the user intention to make the additional packages 2 in this case. If users want to
+			// derive all additional packages from ClusterBootstrapTemplate, they should not specify this field.
+			Expect(len(updatedClusterBootstrap.Spec.AdditionalPackages)).To(Equal(1))
+			Expect(updatedClusterBootstrap.Spec.AdditionalPackages[0].RefName).To(Equal(fakePinnipedCBPackageRefName))
+			Expect(updatedClusterBootstrap.Spec.AdditionalPackages[0].ValuesFrom.Inline["identity_management_type"]).To(Equal("oidc"))
 		})
 	})
 
@@ -394,12 +417,18 @@ var _ = Describe("ClusterbootstrapClone", func() {
 						Inline: map[string]interface{}{"foo": "bar"},
 					},
 				},
+				AdditionalPackages: []*v1alpha3.ClusterBootstrapPackage{
+					{RefName: "pinniped*", ValuesFrom: &v1alpha3.ValuesFrom{Inline: map[string]interface{}{"identity_management_type": "oidc"}}},
+				},
 			}
 			tanzuKubernetesRelease := constructFakeTanzuKubernetesRelease()
 			err := helper.CompleteCBPackageRefNamesFromTKR(tanzuKubernetesRelease, clusterBootstrap)
 			Expect(err).NotTo(HaveOccurred())
 			Expect(clusterBootstrap.Spec.CNI.RefName).To(Equal("calico.tanzu.vmware.com.3.22.1+vmware.1-tkg.1-zshippable"))
 			Expect(clusterBootstrap.Spec.CNI.ValuesFrom.Inline["foo"]).To(Equal("bar"))
+			Expect(len(clusterBootstrap.Spec.AdditionalPackages)).To(Equal(1))
+			Expect(clusterBootstrap.Spec.AdditionalPackages[0].RefName).To(Equal("pinniped.tanzu.vmware.com.0.12.1+vmware.1-tkg.1-zshippable"))
+			Expect(clusterBootstrap.Spec.AdditionalPackages[0].ValuesFrom.Inline["identity_management_type"]).To(Equal("oidc"))
 		})
 
 		It("should return error if there is a no match", func() {
@@ -417,6 +446,21 @@ var _ = Describe("ClusterbootstrapClone", func() {
 			Expect(err).To(HaveOccurred())
 			// The original value should stay untouched
 			Expect(clusterBootstrap.Spec.CNI.RefName).To(Equal("something-does-not-exist*"))
+		})
+
+		It("should return error if there is a multiple matches", func() {
+			clusterBootstrap := constructFakeEmptyClusterBootstrap()
+			clusterBootstrap.Spec = &v1alpha3.ClusterBootstrapTemplateSpec{
+				CNI: &v1alpha3.ClusterBootstrapPackage{
+					RefName: "v*", // v* matches multiple ClusterBootstrapPackage in tanzuKubernetesRelease
+					ValuesFrom: &v1alpha3.ValuesFrom{
+						Inline: map[string]interface{}{"foo": "bar"},
+					},
+				},
+			}
+			tanzuKubernetesRelease := constructFakeTanzuKubernetesRelease()
+			err := helper.CompleteCBPackageRefNamesFromTKR(tanzuKubernetesRelease, clusterBootstrap)
+			Expect(err).To(HaveOccurred())
 		})
 
 		It("should not touch the fully filled refName", func() {
@@ -437,6 +481,9 @@ var _ = Describe("ClusterbootstrapClone", func() {
 						},
 					},
 				},
+				AdditionalPackages: []*v1alpha3.ClusterBootstrapPackage{
+					{RefName: "pinniped.tanzu.vmware.com.0.11.1", ValuesFrom: &v1alpha3.ValuesFrom{Inline: map[string]interface{}{"identity_management_type": "ldap"}}},
+				},
 			}
 			tanzuKubernetesRelease := constructFakeTanzuKubernetesRelease()
 			err := helper.CompleteCBPackageRefNamesFromTKR(tanzuKubernetesRelease, clusterBootstrap)
@@ -447,6 +494,9 @@ var _ = Describe("ClusterbootstrapClone", func() {
 			Expect(clusterBootstrap.Spec.CPI.ValuesFrom.SecretRef).To(BeEmpty())
 			Expect(clusterBootstrap.Spec.CPI.ValuesFrom.ProviderRef.Kind).To(Equal("secret"))
 			Expect(clusterBootstrap.Spec.CPI.ValuesFrom.ProviderRef.Name).To(Equal("fake-secret"))
+			Expect(len(clusterBootstrap.Spec.AdditionalPackages)).To(Equal(1))
+			Expect(clusterBootstrap.Spec.AdditionalPackages[0].RefName).To(Equal("pinniped.tanzu.vmware.com.0.11.1"))
+			Expect(clusterBootstrap.Spec.AdditionalPackages[0].ValuesFrom.Inline["identity_management_type"]).To(Equal("ldap"))
 			// The partial filled refName should be updated
 			Expect(clusterBootstrap.Spec.CNI.RefName).To(Equal("calico.tanzu.vmware.com.3.22.1+vmware.1-tkg.1-zshippable"))
 			Expect(clusterBootstrap.Spec.CNI.ValuesFrom.Inline["foo"]).To(Equal("bar"))
@@ -502,7 +552,7 @@ func convertToUnstructured(obj runtime.Object) *unstructured.Unstructured {
 	}
 }
 
-func constructFakeClusterBootstrapTemplateWithCNI() *v1alpha3.ClusterBootstrapTemplate {
+func constructFakeClusterBootstrapTemplate() *v1alpha3.ClusterBootstrapTemplate {
 	return &v1alpha3.ClusterBootstrapTemplate{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "fake-clusterbootstrap-template",
@@ -510,16 +560,30 @@ func constructFakeClusterBootstrapTemplateWithCNI() *v1alpha3.ClusterBootstrapTe
 		},
 		Spec: &v1alpha3.ClusterBootstrapTemplateSpec{
 			CNI: constructFakeClusterBootstrapPackageWithAntreaProviderRef(),
+			CSI: constructFakeClusterBootstrapPackageWithCSIInlineRef(),
+			AdditionalPackages: []*v1alpha3.ClusterBootstrapPackage{
+				{RefName: fakePinnipedCBPackageRefName, ValuesFrom: &v1alpha3.ValuesFrom{Inline: map[string]interface{}{"identity_management_type": "oidc"}}},
+				{RefName: fakeMetricsServerCBPackageRefName},
+			},
 		},
 	}
 }
 
-var fakeCBPackageRefName = "fake-clusterbootstrarp-package"
+func prepareCarvelPackages(client client.Client, namespace string) {
+	err := client.Create(context.TODO(), constructAntreaCarvelPackage(namespace))
+	Expect(err).To(BeNil())
+	err = client.Create(context.TODO(), constructCSICarvelPackage(namespace))
+	Expect(err).To(BeNil())
+	err = client.Create(context.TODO(), constructPinnipedCarvelPackage(namespace))
+	Expect(err).To(BeNil())
+	err = client.Create(context.TODO(), constructMetricsCarvelPackage(namespace))
+	Expect(err).To(BeNil())
+}
 
 func constructAntreaCarvelPackage(namespace string) *kapppkgv1alpha1.Package {
 	return &kapppkgv1alpha1.Package{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      fakeCBPackageRefName,
+			Name:      fakeAntreaCBPackageRefName,
 			Namespace: namespace,
 		},
 		Spec: kapppkgv1alpha1.PackageSpec{
@@ -528,9 +592,45 @@ func constructAntreaCarvelPackage(namespace string) *kapppkgv1alpha1.Package {
 	}
 }
 
+func constructCSICarvelPackage(namespace string) *kapppkgv1alpha1.Package {
+	return &kapppkgv1alpha1.Package{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      fakeCSICBPackageRefName,
+			Namespace: namespace,
+		},
+		Spec: kapppkgv1alpha1.PackageSpec{
+			RefName: "vsphere-csi.vmware.com",
+		},
+	}
+}
+
+func constructPinnipedCarvelPackage(namespace string) *kapppkgv1alpha1.Package {
+	return &kapppkgv1alpha1.Package{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      fakePinnipedCBPackageRefName,
+			Namespace: namespace,
+		},
+		Spec: kapppkgv1alpha1.PackageSpec{
+			RefName: "pinniped.vmware.com",
+		},
+	}
+}
+
+func constructMetricsCarvelPackage(namespace string) *kapppkgv1alpha1.Package {
+	return &kapppkgv1alpha1.Package{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      fakeMetricsServerCBPackageRefName,
+			Namespace: namespace,
+		},
+		Spec: kapppkgv1alpha1.PackageSpec{
+			RefName: "metrics-server.vmware.com",
+		},
+	}
+}
+
 func constructFakeClusterBootstrapPackageWithSecretRef() *v1alpha3.ClusterBootstrapPackage {
 	return &v1alpha3.ClusterBootstrapPackage{
-		RefName: fakeCBPackageRefName,
+		RefName: fakeAntreaCBPackageRefName,
 		ValuesFrom: &v1alpha3.ValuesFrom{
 			SecretRef: "fake-secret",
 		},
@@ -539,7 +639,7 @@ func constructFakeClusterBootstrapPackageWithSecretRef() *v1alpha3.ClusterBootst
 
 func constructFakeClusterBootstrapPackageWithInlineRef() *v1alpha3.ClusterBootstrapPackage {
 	return &v1alpha3.ClusterBootstrapPackage{
-		RefName: fakeCBPackageRefName,
+		RefName: fakeAntreaCBPackageRefName,
 		ValuesFrom: &v1alpha3.ValuesFrom{
 			Inline: map[string]interface{}{"foo": "bar"},
 		},
@@ -550,13 +650,22 @@ func constructFakeClusterBootstrapPackageWithAntreaProviderRef() *v1alpha3.Clust
 	antreaAPIGroup := antreaconfigv1alpha1.GroupVersion.Group
 	antreaConfig := constructFakeAntreaConfig()
 	return &v1alpha3.ClusterBootstrapPackage{
-		RefName: fakeCBPackageRefName,
+		RefName: fakeAntreaCBPackageRefName,
 		ValuesFrom: &v1alpha3.ValuesFrom{
 			ProviderRef: &corev1.TypedLocalObjectReference{
 				APIGroup: &antreaAPIGroup,
 				Kind:     "AntreaConfig",
 				Name:     antreaConfig.Name,
 			},
+		},
+	}
+}
+
+func constructFakeClusterBootstrapPackageWithCSIInlineRef() *v1alpha3.ClusterBootstrapPackage {
+	return &v1alpha3.ClusterBootstrapPackage{
+		RefName: fakeCSICBPackageRefName,
+		ValuesFrom: &v1alpha3.ValuesFrom{
+			Inline: map[string]interface{}{"foo": "bar"},
 		},
 	}
 }

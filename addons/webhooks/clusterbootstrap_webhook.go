@@ -107,10 +107,13 @@ func (wh *ClusterBootstrap) Default(ctx context.Context, obj runtime.Object) err
 		return err
 	}
 
-	// Get the helper ready for the defaulting logic
-	helper := clusterbootstrapclone.Helper{Logger: clusterbootstraplog}
-
-	// Get ClusterBootstrapTemplate and attempt to add defaults to the missing fields of ClusterBootstrap
+	// Get TanzuKubernetesRelease and return error if not found
+	tkr := &runv1alpha3.TanzuKubernetesRelease{}
+	if err := wh.Client.Get(ctx, client.ObjectKey{Name: tkrName}, tkr); err != nil {
+		clusterbootstraplog.Error(err, fmt.Sprintf("unable to get the TanzuKubernetesRelease %s", tkrName))
+		return err
+	}
+	// Get ClusterBootstrapTemplate and return error if not found
 	clusterBootstrapTemplateName := tkrName // TanzuKubernetesRelease and ClusterBootstrapTemplate share the same name
 	clusterBootstrapTemplate := &runv1alpha3.ClusterBootstrapTemplate{}
 	if err := wh.Client.Get(ctx, client.ObjectKey{Namespace: wh.SystemNamespace, Name: clusterBootstrapTemplateName}, clusterBootstrapTemplate); err != nil {
@@ -118,23 +121,21 @@ func (wh *ClusterBootstrap) Default(ctx context.Context, obj runtime.Object) err
 			clusterBootstrap.Namespace, clusterBootstrap.Name))
 		return err
 	}
+
+	// Get the helper ready for the defaulting logic
+	helper := clusterbootstrapclone.Helper{Logger: clusterbootstraplog}
+
+	// Attempt to complete the partial filled ClusterBootstrapPackage RefName
+	if err := helper.CompleteCBPackageRefNamesFromTKR(tkr, clusterBootstrap); err != nil {
+		clusterbootstraplog.Error(err, "unable to complete the RefNames for ClusterBootstrapPackages due to errors")
+		return err
+	}
+	// Attempt to add defaults to the missing fields of ClusterBootstrap
 	if err := helper.AddMissingSpecFieldsFromTemplate(clusterBootstrapTemplate, clusterBootstrap); err != nil {
 		clusterbootstraplog.Error(err, fmt.Sprintf("unable to add defaults to the missing fields of ClusterBootstrap %s/%s",
 			clusterBootstrap.Namespace, clusterBootstrap.Name))
 		return err
 	}
-
-	// Get TanzuKubernetesRelease and attempt to complete the partial filled ClusterBootstrapPackage RefName
-	tkr := &runv1alpha3.TanzuKubernetesRelease{}
-	if err := wh.Client.Get(ctx, client.ObjectKey{Name: tkrName}, tkr); err != nil {
-		clusterbootstraplog.Error(err, fmt.Sprintf("unable to get the TanzuKubernetesRelease %s", tkrName))
-		return err
-	}
-	if err := helper.CompleteCBPackageRefNamesFromTKR(tkr, clusterBootstrap); err != nil {
-		clusterbootstraplog.Error(err, "unable to complete the RefNames for ClusterBootstrapPackages due to errors")
-		return err
-	}
-
 	return nil
 }
 
