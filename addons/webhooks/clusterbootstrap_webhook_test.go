@@ -67,7 +67,7 @@ var _ = Describe("ClusterbootstrapWebhook", func() {
 					Name:      clusterBootstrapName,
 					Namespace: clusterBootstrapNamespace,
 					Annotations: map[string]string{
-						constants.AddCBMissingFieldsAnnotationKey: "v1.23.5---vmware.1-tkg.1-zshippable",
+						constants.AddCBMissingFieldsAnnotationKey: tkrName,
 					},
 				},
 				Spec: &runv1alpha3.ClusterBootstrapTemplateSpec{},
@@ -92,7 +92,7 @@ var _ = Describe("ClusterbootstrapWebhook", func() {
 					Name:      clusterBootstrapName,
 					Namespace: clusterBootstrapNamespace,
 					Annotations: map[string]string{
-						constants.AddCBMissingFieldsAnnotationKey: "v1.23.5---vmware.1-tkg.1-zshippable",
+						constants.AddCBMissingFieldsAnnotationKey: tkrName,
 					},
 				},
 				Spec: &runv1alpha3.ClusterBootstrapTemplateSpec{
@@ -161,7 +161,7 @@ var _ = Describe("ClusterbootstrapWebhook", func() {
 					Name:      clusterBootstrapName,
 					Namespace: clusterBootstrapNamespace,
 					Annotations: map[string]string{
-						constants.AddCBMissingFieldsAnnotationKey: "v1.23.5---vmware.1-tkg.1-zshippable",
+						constants.AddCBMissingFieldsAnnotationKey: tkrName,
 					},
 				},
 				Spec: &runv1alpha3.ClusterBootstrapTemplateSpec{
@@ -198,7 +198,7 @@ var _ = Describe("ClusterbootstrapWebhook", func() {
 					Name:      clusterBootstrapName,
 					Namespace: clusterBootstrapNamespace,
 					Annotations: map[string]string{
-						constants.AddCBMissingFieldsAnnotationKey: "v1.23.5---vmware.1-tkg.1-zshippable",
+						constants.AddCBMissingFieldsAnnotationKey: tkrName,
 					},
 				},
 				Spec: &runv1alpha3.ClusterBootstrapTemplateSpec{

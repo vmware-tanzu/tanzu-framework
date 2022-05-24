@@ -102,8 +102,8 @@ func getFullyQualifiedCBPackageRefName(tkr *runtanzuv1alpha3.TanzuKubernetesRele
 			found = true
 		}
 	}
-	if fullyQualifiedCBPackageRefName == "" {
-		return fullyQualifiedCBPackageRefName, fmt.Errorf("no bootstrapPackage name matches the prefix %s within the TanzuKubernetesRelease %s", prefix, tkr.Name)
+	if !found {
+		return fullyQualifiedCBPackageRefName, fmt.Errorf("no bootstrapPackage name matches the prefix %s within the BootstrapPackages [%v] of TanzuKubernetesRelease %s", prefix, tkr.Spec.BootstrapPackages, tkr.Name)
 	}
 	return fullyQualifiedCBPackageRefName, nil
 }
