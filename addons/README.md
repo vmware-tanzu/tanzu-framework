@@ -16,7 +16,7 @@ There is a 1:1 relationship with tkr resource. This establishes a mapping of com
 Once cloned the cb resource has no linkage to a cbt until a new version of tkr is rolled out and the tkr components update the version
 
 The next set of APIs are used to provide values for configuring packages in ClusterBootstrap. Tanzu-framework defines
-a set of APIs for core packages, but they can be overriden by an OEM distributor of Tanzu by bringing their own mechanism of
+a set of APIs for core packages, but they can be overridden by an OEM distributor of Tanzu by bringing their own mechanism of
 configuring their package. See the provider model below for more information
 
 1. **KappControllerConfig** - This is a resource that represents the configuration of kapp-controller carvel package.
@@ -30,7 +30,7 @@ configuring their package. See the provider model below for more information
 1. A validating webhook for ClusterBootstrapTemplate ensures that
    1. it can only be created in a system namespace
    2. required packages such as kapp and cni are set
-   3. only type of valuesFrom is defined for a package
+   3. only one type of valuesFrom is defined for a package
    4. it is immutable
 2. A validating webhook for ClusterBootstrap ensures that
    1. required packages such as kapp and cni are set and valid
@@ -175,7 +175,7 @@ A->>S: Update statuses in ClusterBootstrap
 
 While most use cases clusters should be created by just creating a Cluster object and TKG components will create an opinionated
 cluster with packages and configurations we support customizing configurations and packages. OEM distributors of TKG should
-create their own TKr package that confirms to their majority use cases so that end users need not go down the path of customizing.
+create their own TKr package that conforms to their majority use cases so that end users need not go down the path of customizing.
 
 ### Options for customizing
 
@@ -299,22 +299,27 @@ spec:
 
 ## Provider values to a Package
 
-Configuration for a package can be provided using one of three approaches. The following illustrates all three but only
-one or none can be provided. By definition providerRef and secretRef cannot cross namespace boundary.
+Configuration for a package can be provided using one of three approaches. By definition providerRef and secretRef cannot cross namespace boundary.
 
 ```yaml
 ...
 refName: mypackage.acme.com.1.23
 valuesFrom:
    providerRef:
-      apiGroup: cni.tanzu.vmware.com
-      kind: CalicoConfig
+      apiGroup: acme.com
+      kind: AcmeConfig
       name: sample-config
+---
+refName: mypackage.acme.com.1.23
+valuesFrom:
    secretRef: my-secret-key
+---
+refName: mypackage.acme.com.1.23
+valuesFrom:
    inline:
       key1: value1
       nested_key:
-        key2: value2
+         key2: value2
 ```
 
 ### ProviderRef
