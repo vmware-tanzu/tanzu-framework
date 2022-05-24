@@ -9,8 +9,8 @@ MY_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 TF_ROOT="${MY_DIR}/../../../.."
 
 # Always run from tanzu-auth-controller-manager directory for reproducibility
-MANAGEMENT_DIR="${TF_ROOT}/packages/management"
-TANZU_AUTH_DIR="${MANAGEMENT_DIR}/tanzu-auth"
+PACKAGES_DIR="${TF_ROOT}/packages"
+TANZU_AUTH_DIR="${PACKAGES_DIR}/tanzu-auth"
 TANZU_AUTH_CONFIG_DIR="${TANZU_AUTH_DIR}/bundle/config"
 
 cd "${MY_DIR}/.."

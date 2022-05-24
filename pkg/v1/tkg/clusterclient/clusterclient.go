@@ -634,7 +634,12 @@ func (c *client) WaitForAutoscalerDeployment(deploymentName, namespace string) e
 }
 
 func (c *client) WaitForAVIResourceCleanUp(statefulSetName, namespace string) error {
-	return c.GetResource(&appsv1.StatefulSet{}, statefulSetName, namespace, VerifyAVIResourceCleanupFinished, &PollOptions{Interval: CheckResourceInterval, Timeout: AVIResourceCleanupTimeout})
+	err := c.GetResource(&appsv1.StatefulSet{}, statefulSetName, namespace, VerifyAVIResourceCleanupFinished, &PollOptions{Interval: CheckResourceInterval, Timeout: AVIResourceCleanupTimeout})
+	// retry once when network condition is poor
+	if apierrors.IsServiceUnavailable(err) {
+		return c.GetResource(&appsv1.StatefulSet{}, statefulSetName, namespace, VerifyAVIResourceCleanupFinished, &PollOptions{Interval: CheckResourceInterval, Timeout: AVIResourceCleanupTimeout})
+	}
+	return err
 }
 
 func (c *client) WaitForPackageInstall(packageName, namespace string, packageInstallTimeout time.Duration) error {

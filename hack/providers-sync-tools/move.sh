@@ -11,7 +11,7 @@ function place_rendered_files() {
 	local provider_name="${2}"
 	local rendered_dir="${source_package_name}/build/rendered"
 
-	local version=$(cat ../../packages/management/${source_package_name}/vendir.yml | grep tag | sed 's/^.*tag: //')
+	local version=$(cat ../../packages/${source_package_name}/vendir.yml | grep tag | sed 's/^.*tag: //')
 
 	cp -r "${rendered_dir}/upstream/." "../../pkg/v1/providers/${provider_name}/${version}/"
 }

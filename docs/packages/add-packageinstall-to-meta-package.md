@@ -13,7 +13,7 @@ Let's take the example of adding `featuregates` PackageInstall to `framework`.
 1. Add PackageInstall CR to the meta package config
 
    To install an actual package and its underlying resources on a Kubernetes cluster, a PackageInstall CR must be
-   created on the kubernetes cluster. So, for the package to be installed when the meta package is installed,
+   created on the Kubernetes cluster. So, for the package to be installed when the meta package is installed,
    we need to add PackageInstall CR in the meta package config.
 
    More details on PackageInstall CR can be found [here](https://carvel.dev/kapp-controller/docs/v0.34.0/packaging/#package-install)
@@ -30,7 +30,7 @@ Let's take the example of adding `featuregates` PackageInstall to `framework`.
    framework package
 
    ```plain
-   packages/management/framework
+   packages/framework
    ├── Makefile
    ├── README.md
    ├── bundle
