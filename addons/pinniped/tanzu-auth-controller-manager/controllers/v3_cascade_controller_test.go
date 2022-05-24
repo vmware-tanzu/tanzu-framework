@@ -106,8 +106,8 @@ var _ = Describe("Controller", func() {
 				updateObject(ctx, expectedSecret)
 			})
 
-			It("they are preserved", func() {
-				Eventually(func(g Gomega) {
+			XIt("they are preserved", func() {
+				Consistently(func(g Gomega) {
 					actualSecret := pinnipedCBSecret.DeepCopy()
 					err := k8sClient.Get(ctx, client.ObjectKeyFromObject(actualSecret), actualSecret)
 					g.Expect(err).NotTo(HaveOccurred())
@@ -142,7 +142,7 @@ var _ = Describe("Controller", func() {
 			})
 
 			It("they are preserved", func() {
-				Eventually(func(g Gomega) {
+				Consistently(func(g Gomega) {
 					actualSecret := pinnipedCBSecret.DeepCopy()
 					err := k8sClient.Get(ctx, client.ObjectKeyFromObject(actualSecret), actualSecret)
 					g.Expect(err).NotTo(HaveOccurred())
