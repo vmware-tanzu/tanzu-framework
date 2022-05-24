@@ -5,10 +5,9 @@ package main
 
 import (
 	"flag"
-	"os"
-
 	"k8s.io/apimachinery/pkg/runtime"
 	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
+	"os"
 	clusterv1 "sigs.k8s.io/cluster-api/api/v1beta1"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client/config"
@@ -63,9 +62,16 @@ func main() {
 
 	// Setup webhooks
 	setupLog.Info("setting up webhook server")
-
-	// TODO: Write logic here.
-	// hookServer := mgr.GetWebhookServer()
+	//hookServer := mgr.GetWebhookServer()
+	//
+	//setupLog.Info("registering webhooks to the webhook server")
+	//hookServer.Register("/mutate-cluster", &webhook.Admission{
+	//	Handler: &cluster.Webhook{
+	//		Log:         mgr.GetLogger().WithName("handler.Cluster"),
+	//		TKRResolver: tkrResolver,
+	//		Client:      mgr.GetClient(),
+	//	},
+	//})
 
 	setupLog.Info("registering webhooks to the webhook server")
 	setupLog.Info("starting manager")
