@@ -2,15 +2,15 @@
     <div class="clr-row mb-20">
         <div class="clr-col-12">
             <clr-icon
-                shape="arrow"
-                dir="left"
-                size="30"
-                class="is-info back-link"
-                role="button"
-                tabindex="0"
-                aria-label="back"
-                (click)="navigate(APP_ROUTES.LANDING)"
-                keyboardListener
+                    shape="arrow"
+                    dir="left"
+                    size="30"
+                    class="is-info back-link"
+                    role="button"
+                    tabindex="0"
+                    aria-label="back"
+                    (click)="navigate(APP_ROUTES.LANDING)"
+                    keyboardListener
             ></clr-icon>
             <h2 i18n="wizard title" aria-level="1">
                 <div class="aws-ec2-icon-30 offset-top-2"></div>
@@ -42,7 +42,7 @@
                 Deploy {{ clusterTypeDescriptorTitleCase }} Cluster
             </button>
             <button class="btn btn-outline edit-btn" (click)="reviewConfiguration(false)"
-                i18n="return to wizard for edit button">
+                    i18n="return to wizard for edit button">
                 Edit Configuration
             </button>
             <ng-container *featureToggle="'management-cluster.export-from-confirm'">

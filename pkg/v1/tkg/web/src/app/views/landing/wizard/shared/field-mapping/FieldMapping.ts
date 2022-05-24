@@ -1,4 +1,4 @@
-import { SimpleValidator } from '../constants/validation.constants';
+import {SimpleValidator} from '../constants/validation.constants';
 
 export interface StepMapping {
     fieldMappings: FieldMapping[],
@@ -32,7 +32,13 @@ export interface FieldMapping {
     restorer?: (value: any) => void, // given a saved value (or a retrieved object) this closure will store it. Used esp w/hasNoDomControl
     retriever?: (value: any) => any, // given a saved value, this closure will retrieve a backing object.
     validators?: SimpleValidator[],  // validators used by Clarity framework
+
+    // Enhanced Field Mapping
+    controlType?: ControlType // type of control to use for this field FormControl, FormArray, FormGroup
+    children?: FieldMapping[]
+    displayFunction?: (field) => string
 }
+
 // NOTES on FieldMapping:
 // requiresBackendData:
 //   This is for fields that give the user the option to pick from a list of backend resources or options. The field should use a stored
@@ -61,3 +67,9 @@ export interface FieldMapping {
 // retriever:
 //    For fields that use a JavaScript OBJECT (not a string or a Map<string, string>), when the retrieves the saved value, it needs a way
 //    to retrieve the full object using the stored value (which is a string). This "retriever" closure provides that retrieval mechanism.
+
+export const enum ControlType {
+    FormControl,
+    FormArray,
+    FormGroup
+}
