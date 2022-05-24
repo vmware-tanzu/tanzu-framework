@@ -3,12 +3,12 @@ infrastructure_name: aws
 cluster_prefix: "tkg-cc-"
 tkg_config_variables:
   AWS_REGION: "us-west-2"
-  AWS_SSH_KEY_NAME: tanzutest
+  AWS_SSH_KEY_NAME: tanzu-ci
   AWS_ACCESS_KEY_ID: ""
   AWS_SECRET_ACCESS_KEY: ""
   AWS_SESSION_TOKEN: ""
-  AWS_VPC_ID: "vpc-0f6da14d1b6f94a73"
-  AWS_PUBLIC_SUBNET_ID: "subnet-06a866e3f2285b915"
-  AWS_PRIVATE_SUBNET_ID: "subnet-0ac292b48e3cceb4d"
+  AWS_VPC_ID: "vpc-03676484fdfd6c784"
+  AWS_PUBLIC_SUBNET_ID: "subnet-0f0b20e006740cf31"
+  AWS_PRIVATE_SUBNET_ID: "subnet-0bcf9b62543c340ba"
 management_cluster_options:
   plan: dev
