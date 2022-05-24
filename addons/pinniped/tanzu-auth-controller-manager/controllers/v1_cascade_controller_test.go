@@ -179,7 +179,14 @@ var _ = Describe("Controller", func() {
 
 		When("the secret is deleted", func() {
 			BeforeEach(func() {
-				deleteObject(ctx, secret)
+				// Make sure the secret exists so that we know we are deleting something...
+				Eventually(func(g Gomega) {
+					g.Expect(k8sClient.Get(ctx, client.ObjectKeyFromObject(secret), secret.DeepCopy())).Should(Succeed())
+				}).Should(Succeed())
+				// ...then delete the secret...
+				Expect(k8sClient.Delete(ctx, secret)).To(Succeed())
+				// ...then don't wait for the secret to be gone because that would be a race with the
+				// controller.
 			})
 
 			It("recreates the secret with values from the configmap", func() {
