@@ -8,6 +8,7 @@ import (
 	"strings"
 	"testing"
 
+	fuzz "github.com/google/gofuzz"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"k8s.io/apimachinery/pkg/labels"
@@ -218,3 +219,23 @@ var _ = Describe("Label()", func() {
 		Expect(Label(v)).To(Equal("v1.22.0---vmware.1-tkg.3"))
 	})
 })
+
+var _ = Describe("Fuzz()", func() {
+	fuzzer := fuzz.New().Funcs(Fuzz)
+
+	repeat(1000, func() {
+		It("produces a randomized *Version", func() {
+			v := &Version{}
+			fuzzer.Fuzz(v)
+			vString := v.String()
+			Expect(v.version).ToNot(BeNil())
+			Expect(vString).To(HavePrefix("v"))
+		})
+	})
+})
+
+func repeat(times int, f func()) {
+	for i := 0; i < times; i++ {
+		f()
+	}
+}
