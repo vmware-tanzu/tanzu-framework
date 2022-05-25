@@ -37,7 +37,6 @@ import (
 const (
 	SystemNamespace                     = "tkg-system"
 	clusterBootstrapWebhookManifestFile = "clusterbootstrap-webhook-manifests.yaml"
-	fakeCarvelPackageCRDFile            = "fake_package_crd.yaml"
 )
 
 var (
@@ -65,7 +64,7 @@ var _ = BeforeSuite(func(done Done) {
 	testEnv = &envtest.Environment{
 		CRDInstallOptions:     envtest.CRDInstallOptions{CleanUpAfterUse: true},
 		ErrorIfCRDPathMissing: true,
-		CRDDirectoryPaths:     []string{filepath.Join("..", "..", "config", "crd", "bases"), filepath.Join("..", "controllers", "testdata", fakeCarvelPackageCRDFile)},
+		CRDDirectoryPaths:     constructCRDPaths(),
 		WebhookInstallOptions: envtest.WebhookInstallOptions{
 			LocalServingHost:    "127.0.0.1",
 			LocalServingPort:    9447, // 9443 has been used by clusterbootstrap_test, using 9447 to avoid conflicts
@@ -155,3 +154,17 @@ var _ = AfterSuite(func() {
 	err := testEnv.Stop()
 	Expect(err).NotTo(HaveOccurred())
 })
+
+func constructCRDPaths() []string {
+	// We do not need all CRDs under config/crd/bases, only load the required ones
+	return []string{
+		filepath.Join("..", "..", "config", "crd", "bases", "cni.tanzu.vmware.com_antreaconfigs.yaml"),
+		filepath.Join("..", "..", "config", "crd", "bases", "cni.tanzu.vmware.com_calicoconfigs.yaml"),
+		filepath.Join("..", "..", "config", "crd", "bases", "cpi.tanzu.vmware.com_vspherecpiconfigs.yaml"),
+		filepath.Join("..", "..", "config", "crd", "bases", "csi.tanzu.vmware.com_vspherecsiconfigs.yaml"),
+		filepath.Join("..", "..", "config", "crd", "bases", "run.tanzu.vmware.com_kappcontrollerconfigs.yaml"),
+		filepath.Join("..", "..", "config", "crd", "bases", "run.tanzu.vmware.com_clusterbootstraps.yaml"),
+		filepath.Join("..", "..", "config", "crd", "bases", "run.tanzu.vmware.com_clusterbootstraptemplates.yaml"),
+		filepath.Join("testdata", "crds"),
+	}
+}
