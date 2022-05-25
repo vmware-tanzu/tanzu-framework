@@ -59,6 +59,9 @@ spec:
         kind: VSphereCSIConfig
         name: #@ data.values.CLUSTER_NAME
   #@ end
+  additionalPackages:
+    - refName: metrics-server*
+    - refName: secretgen-controller*
 #@ end
 
 ---
@@ -117,6 +120,9 @@ spec:
       #@ else:
       tlsThumbprint: #@ data.values.VSPHERE_TLS_THUMBPRINT
       #@ end
+      datacenter: #@ data.values.VSPHERE_DATACENTER
+      zone: #@ data.values.VSPHERE_ZONE
+      region: #@ data.values.VSPHERE_REGION
       useTopologyCategories: #@ data.values.USE_TOPOLOGY_CATEGORIES
 #@ end
 
