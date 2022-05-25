@@ -474,8 +474,8 @@ var _ = Describe("EnsureProviders", func() {
 			err = copyData(tkgConfigNode, &userProviders)
 			Expect(err).ToNot(HaveOccurred())
 
-			Expect(userProviders.CertManager.URL).To(ContainSubstring("providers/cert-manager/v1.5.3/cert-manager.yaml"))
-			Expect(userProviders.CertManager.Version).To(Equal("v1.5.3"))
+			Expect(userProviders.CertManager.URL).To(ContainSubstring("providers/cert-manager/v1.7.2/cert-manager.yaml"))
+			Expect(userProviders.CertManager.Version).To(Equal("v1.7.2"))
 		})
 	})
 
