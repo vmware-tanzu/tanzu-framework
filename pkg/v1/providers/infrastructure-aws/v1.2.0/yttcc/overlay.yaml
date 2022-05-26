@@ -2,7 +2,7 @@
 #@ load("@ytt:data", "data")
 #@ load("lib/helpers.star", "get_bom_data_for_tkr_name", "kubeadm_image_repo", "get_az_from_region", "get_default_tkg_bom_data")
 #@ load("lib/validate.star", "validate_configuration")
-#@ load("/lib/config_variable_association.star", "config_variable_association", "get_cluster_variables")
+#@ load("/lib/config_variable_association.star", "config_variable_association", "get_cluster_variables", "get_aws_vars")
 
 #@ validate_configuration("aws")
 
@@ -60,7 +60,7 @@ spec:
       #@overlay/match by=overlay.index(0)
       - class: tkg-worker
         name: md-0
-        replicas: #@ data.values.WORKER_MACHINE_COUNT
+        replicas: #@ data.values.WORKER_MACHINE_COUNT_0
         #@overlay/match missing_ok=True
         failureDomain: #@ default_az_0
         metadata:
@@ -76,8 +76,9 @@ spec:
         #@ if data.values.NODE_MACHINE_TYPE_1:
         variables:
           overrides:
-          - name: NODE_MACHINE_TYPE
-            value: #@ data.values.NODE_MACHINE_TYPE_1
+          - name: worker
+            value:
+              instanceType: #@ data.values.NODE_MACHINE_TYPE_1
         #@ end
       #@overlay/append
       - class: tkg-worker
@@ -87,16 +88,18 @@ spec:
         #@ if data.values.NODE_MACHINE_TYPE_2:
         variables:
           overrides:
-          - name: NODE_MACHINE_TYPE
-            value: #@ data.values.NODE_MACHINE_TYPE_2
+          - name: worker
+            value:
+              instanceType: #@ data.values.NODE_MACHINE_TYPE_2
         #@ end
       #@ end
     #@overlay/match missing_ok=True
-    variables: 
-    #@ vars = get_cluster_variables()
+    variables:
+    #@ vars = get_aws_vars()
     #@ for configVariable in vars:
-      #@  if vars[configVariable] != None and configVariable in ["AWS_REGION", "AWS_SSH_KEY_NAME", "BASTION_HOST_ENABLED", "AWS_VPC_CIDR", "AWS_VPC_ID", "AWS_NODE_AZ", "AWS_PRIVATE_NODE_CIDR", "AWS_PRIVATE_SUBNET_ID", "AWS_PUBLIC_NODE_CIDR", "AWS_PUBLIC_SUBNET_ID", "CONTROL_PLANE_MACHINE_TYPE", "NODE_MACHINE_TYPE", "CLUSTER_NAME", "AWS_CONTROL_PLANE_OS_DISK_SIZE_GIB", "AWS_NODE_OS_DISK_SIZE_GIB", "AWS_SECURITY_GROUP_BASTION", "AWS_SECURITY_GROUP_CONTROLPLANE", "AWS_SECURITY_GROUP_APISERVER_LB", "AWS_SECURITY_GROUP_NODE", "AWS_SECURITY_GROUP_LB", "AWS_LOAD_BALANCER_SCHEME_INTERNAL", "AWS_IDENTITY_REF_KIND", "AWS_IDENTITY_REF_NAME", "CLUSTER_PLAN", "proxy", "TKG_PROXY_CA_CERT", "TKG_CUSTOM_IMAGE_REPOSITORY", "TKG_CUSTOM_IMAGE_REPOSITORY_SKIP_TLS_VERIFY", "TKG_CUSTOM_IMAGE_REPOSITORY_CA_CERTIFICATE", "ENABLE_AUDIT_LOGGING"]:
-      - name: #@ configVariable
-        value: #@ vars[configVariable]
-      #@ end
+    #@  if vars[configVariable] != None and configVariable in ["region", "sshKeyName", "bastion", "network", "controlPlane", "worker", "loadBalancerSchemeInternal", "identityRef", "imageRepository", "trust", "auditLogging", "cni", "TKR_DATA"]:
+    - name: #@ configVariable
+      value: #@ vars[configVariable]
     #@ end
+    #@ end
+
