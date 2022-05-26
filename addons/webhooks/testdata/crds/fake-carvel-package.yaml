@@ -1,0 +1,432 @@
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: packages.data.packaging.carvel.dev
+spec:
+  group: data.packaging.carvel.dev
+  names:
+    kind: Package
+    listKind: PackageList
+    plural: packages
+    singular: package
+  scope: Namespaced
+  versions:
+    - name: v1alpha1
+      schema:
+        openAPIV3Schema:
+          properties:
+            apiVersion:
+              description: 'APIVersion defines the versioned schema of this representation
+              of an object. Servers should convert recognized schemas to the latest
+              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+              type: string
+            kind:
+              description: 'Kind is a string value representing the REST resource this
+              object represents. Servers may infer this from the endpoint the client
+              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+              type: string
+            metadata:
+              type: object
+            spec:
+              properties:
+                capacityRequirementsDescription:
+                  type: string
+                licenses:
+                  items:
+                    type: string
+                  type: array
+                refName:
+                  type: string
+                releaseNotes:
+                  type: string
+                releasedAt:
+                  format: date-time
+                  nullable: true
+                  type: string
+                template:
+                  properties:
+                    spec:
+                      properties:
+                        canceled:
+                          description: Canceled when set to true will stop all active
+                            changes
+                          type: boolean
+                        cluster:
+                          properties:
+                            kubeconfigSecretRef:
+                              properties:
+                                key:
+                                  type: string
+                                name:
+                                  type: string
+                              type: object
+                            namespace:
+                              type: string
+                          type: object
+                        deploy:
+                          items:
+                            properties:
+                              kapp:
+                                properties:
+                                  delete:
+                                    properties:
+                                      rawOptions:
+                                        items:
+                                          type: string
+                                        type: array
+                                    type: object
+                                  inspect:
+                                    properties:
+                                      rawOptions:
+                                        items:
+                                          type: string
+                                        type: array
+                                    type: object
+                                  intoNs:
+                                    type: string
+                                  mapNs:
+                                    items:
+                                      type: string
+                                    type: array
+                                  rawOptions:
+                                    items:
+                                      type: string
+                                    type: array
+                                type: object
+                            type: object
+                          type: array
+                        fetch:
+                          items:
+                            properties:
+                              git:
+                                properties:
+                                  lfsSkipSmudge:
+                                    type: boolean
+                                  ref:
+                                    type: string
+                                  refSelection:
+                                    properties:
+                                      semver:
+                                        properties:
+                                          constraints:
+                                            type: string
+                                          prereleases:
+                                            properties:
+                                              identifiers:
+                                                items:
+                                                  type: string
+                                                type: array
+                                            type: object
+                                        type: object
+                                    type: object
+                                  secretRef:
+                                    description: 'Secret may include one or more keys:
+                                    ssh-privatekey, ssh-knownhosts'
+                                    properties:
+                                      name:
+                                        description: Object is expected to be within
+                                          same namespace
+                                        type: string
+                                    type: object
+                                  subPath:
+                                    type: string
+                                  url:
+                                    type: string
+                                type: object
+                              helmChart:
+                                properties:
+                                  name:
+                                    description: 'Example: stable/redis'
+                                    type: string
+                                  repository:
+                                    properties:
+                                      secretRef:
+                                        properties:
+                                          name:
+                                            description: Object is expected to be within
+                                              same namespace
+                                            type: string
+                                        type: object
+                                      url:
+                                        type: string
+                                    type: object
+                                  version:
+                                    type: string
+                                type: object
+                              http:
+                                properties:
+                                  secretRef:
+                                    description: 'Secret may include one or more keys:
+                                    username, password'
+                                    properties:
+                                      name:
+                                        description: Object is expected to be within
+                                          same namespace
+                                        type: string
+                                    type: object
+                                  sha256:
+                                    type: string
+                                  subPath:
+                                    type: string
+                                  url:
+                                    description: 'URL can point to one of following
+                                    formats: text, tgz, zip'
+                                    type: string
+                                type: object
+                              image:
+                                properties:
+                                  secretRef:
+                                    description: 'Secret may include one or more keys:
+                                    username, password, token. By default anonymous
+                                    access is used for authentication. TODO support
+                                    docker config formated secret'
+                                    properties:
+                                      name:
+                                        description: Object is expected to be within
+                                          same namespace
+                                        type: string
+                                    type: object
+                                  subPath:
+                                    type: string
+                                  tagSelection:
+                                    properties:
+                                      semver:
+                                        properties:
+                                          constraints:
+                                            type: string
+                                          prereleases:
+                                            properties:
+                                              identifiers:
+                                                items:
+                                                  type: string
+                                                type: array
+                                            type: object
+                                        type: object
+                                    type: object
+                                  url:
+                                    description: 'Example: username/app1-config:v0.1.0'
+                                    type: string
+                                type: object
+                              imgpkgBundle:
+                                properties:
+                                  image:
+                                    type: string
+                                  secretRef:
+                                    description: 'Secret may include one or more keys:
+                                    username, password, token. By default anonymous
+                                    access is used for authentication. TODO support
+                                    docker config formated secret'
+                                    properties:
+                                      name:
+                                        description: Object is expected to be within
+                                          same namespace
+                                        type: string
+                                    type: object
+                                  tagSelection:
+                                    properties:
+                                      semver:
+                                        properties:
+                                          constraints:
+                                            type: string
+                                          prereleases:
+                                            properties:
+                                              identifiers:
+                                                items:
+                                                  type: string
+                                                type: array
+                                            type: object
+                                        type: object
+                                    type: object
+                                type: object
+                              inline:
+                                properties:
+                                  paths:
+                                    additionalProperties:
+                                      type: string
+                                    type: object
+                                  pathsFrom:
+                                    items:
+                                      properties:
+                                        configMapRef:
+                                          properties:
+                                            directoryPath:
+                                              type: string
+                                            name:
+                                              type: string
+                                          type: object
+                                        secretRef:
+                                          properties:
+                                            directoryPath:
+                                              type: string
+                                            name:
+                                              type: string
+                                          type: object
+                                      type: object
+                                    type: array
+                                type: object
+                            type: object
+                          type: array
+                        noopDelete:
+                          description: When NoopDeletion set to true, App deletion should
+                            delete App CR but preserve App's associated resources
+                          type: boolean
+                        paused:
+                          description: Paused when set to true will ignore all pending
+                            changes, once it set back to false, pending changes will
+                            be applied
+                          type: boolean
+                        serviceAccountName:
+                          type: string
+                        syncPeriod:
+                          description: Controls frequency of app reconciliation
+                          type: string
+                        template:
+                          items:
+                            properties:
+                              helmTemplate:
+                                properties:
+                                  name:
+                                    type: string
+                                  namespace:
+                                    type: string
+                                  path:
+                                    type: string
+                                  valuesFrom:
+                                    items:
+                                      properties:
+                                        configMapRef:
+                                          properties:
+                                            name:
+                                              type: string
+                                          type: object
+                                        path:
+                                          type: string
+                                        secretRef:
+                                          properties:
+                                            name:
+                                              type: string
+                                          type: object
+                                      type: object
+                                    type: array
+                                type: object
+                              jsonnet:
+                                description: TODO implement jsonnet
+                                type: object
+                              kbld:
+                                properties:
+                                  paths:
+                                    items:
+                                      type: string
+                                    type: array
+                                type: object
+                              kustomize:
+                                description: TODO implement kustomize
+                                type: object
+                              sops:
+                                properties:
+                                  age:
+                                    properties:
+                                      privateKeysSecretRef:
+                                        properties:
+                                          name:
+                                            type: string
+                                        type: object
+                                    type: object
+                                  paths:
+                                    items:
+                                      type: string
+                                    type: array
+                                  pgp:
+                                    properties:
+                                      privateKeysSecretRef:
+                                        properties:
+                                          name:
+                                            type: string
+                                        type: object
+                                    type: object
+                                type: object
+                              ytt:
+                                properties:
+                                  fileMarks:
+                                    items:
+                                      type: string
+                                    type: array
+                                  ignoreUnknownComments:
+                                    type: boolean
+                                  inline:
+                                    properties:
+                                      paths:
+                                        additionalProperties:
+                                          type: string
+                                        type: object
+                                      pathsFrom:
+                                        items:
+                                          properties:
+                                            configMapRef:
+                                              properties:
+                                                directoryPath:
+                                                  type: string
+                                                name:
+                                                  type: string
+                                              type: object
+                                            secretRef:
+                                              properties:
+                                                directoryPath:
+                                                  type: string
+                                                name:
+                                                  type: string
+                                              type: object
+                                          type: object
+                                        type: array
+                                    type: object
+                                  paths:
+                                    items:
+                                      type: string
+                                    type: array
+                                  strict:
+                                    type: boolean
+                                  valuesFrom:
+                                    items:
+                                      properties:
+                                        configMapRef:
+                                          properties:
+                                            name:
+                                              type: string
+                                          type: object
+                                        path:
+                                          type: string
+                                        secretRef:
+                                          properties:
+                                            name:
+                                              type: string
+                                          type: object
+                                      type: object
+                                    type: array
+                                type: object
+                            type: object
+                          type: array
+                      type: object
+                  required:
+                    - spec
+                  type: object
+                valuesSchema:
+                  description: valuesSchema can be used to show template values that
+                    can be configured by users when a Package is installed in an OpenAPI
+                    schema format.
+                  properties:
+                    openAPIv3:
+                      nullable: true
+                      type: object
+                      x-kubernetes-preserve-unknown-fields: true
+                  type: object
+                version:
+                  type: string
+              type: object
+          required:
+            - spec
+          type: object
+      served: true
+      storage: true
+      subresources:
+        status: {}

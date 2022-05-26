@@ -27,6 +27,7 @@ import (
 	"github.com/vmware-tanzu/carvel-vendir/pkg/vendir/versions"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/util"
+	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/util/clusterbootstrapclone"
 	runv1alpha3 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
 )
 
@@ -82,7 +83,59 @@ var _ webhook.CustomValidator = &ClusterBootstrap{}
 
 // Default implements webhook.Defaulter so a webhook will be registered for the type
 func (wh *ClusterBootstrap) Default(ctx context.Context, obj runtime.Object) error {
-	// TODO: Placeholder for future work https://github.com/vmware-tanzu/tanzu-framework/issues/1916
+	clusterBootstrap, ok := obj.(*runv1alpha3.ClusterBootstrap)
+	if !ok {
+		return apierrors.NewBadRequest(fmt.Sprintf("expected a ClusterBootstrap but got a %T", obj))
+	}
+
+	var tkrName string
+	var annotationExist bool
+	if clusterBootstrap.Annotations != nil {
+		tkrName, annotationExist = clusterBootstrap.Annotations[constants.AddCBMissingFieldsAnnotationKey]
+	}
+	if !annotationExist {
+		// It is a no-op if the annotation does not exist or the annotation value is empty
+		return nil
+	}
+
+	clusterbootstraplog.Info("attempt to add defaults", "name", clusterBootstrap.Name)
+	if tkrName == "" {
+		err := fmt.Errorf("invalid value for annotation: %s. The value needs to be the name of TanzuKubernetesRelease",
+			constants.AddCBMissingFieldsAnnotationKey)
+		clusterbootstraplog.Error(err, fmt.Sprintf("unable to add defaults to the missing fields of ClusterBootstrap %s/%s",
+			clusterBootstrap.Namespace, clusterBootstrap.Name))
+		return err
+	}
+
+	// Get TanzuKubernetesRelease and return error if not found
+	tkr := &runv1alpha3.TanzuKubernetesRelease{}
+	if err := wh.Client.Get(ctx, client.ObjectKey{Name: tkrName}, tkr); err != nil {
+		clusterbootstraplog.Error(err, fmt.Sprintf("unable to get the TanzuKubernetesRelease %s", tkrName))
+		return err
+	}
+	// Get ClusterBootstrapTemplate and return error if not found
+	clusterBootstrapTemplateName := tkrName // TanzuKubernetesRelease and ClusterBootstrapTemplate share the same name
+	clusterBootstrapTemplate := &runv1alpha3.ClusterBootstrapTemplate{}
+	if err := wh.Client.Get(ctx, client.ObjectKey{Namespace: wh.SystemNamespace, Name: clusterBootstrapTemplateName}, clusterBootstrapTemplate); err != nil {
+		clusterbootstraplog.Error(err, fmt.Sprintf("unable to add defaults to the missing fields of ClusterBootstrap %s/%s",
+			clusterBootstrap.Namespace, clusterBootstrap.Name))
+		return err
+	}
+
+	// Get the helper ready for the defaulting logic
+	helper := clusterbootstrapclone.Helper{Logger: clusterbootstraplog}
+
+	// Attempt to complete the partial filled ClusterBootstrapPackage RefName
+	if err := helper.CompleteCBPackageRefNamesFromTKR(tkr, clusterBootstrap); err != nil {
+		clusterbootstraplog.Error(err, "unable to complete the RefNames for ClusterBootstrapPackages due to errors")
+		return err
+	}
+	// Attempt to add defaults to the missing fields of ClusterBootstrap
+	if err := helper.AddMissingSpecFieldsFromTemplate(clusterBootstrapTemplate, clusterBootstrap); err != nil {
+		clusterbootstraplog.Error(err, fmt.Sprintf("unable to add defaults to the missing fields of ClusterBootstrap %s/%s",
+			clusterBootstrap.Namespace, clusterBootstrap.Name))
+		return err
+	}
 	return nil
 }
 
@@ -201,6 +254,7 @@ func (wh *ClusterBootstrap) validateValuesFrom(ctx context.Context, valuesFrom *
 	return nil
 }
 
+// TODO: Consider to use provider_util.go#GetGVRForGroupKind()
 // getGVR returns a GroupVersionResource for a GroupKind
 func (wh *ClusterBootstrap) getGVR(gk schema.GroupKind) (*schema.GroupVersionResource, error) {
 	if gvr, ok := wh.providerGVR[gk]; ok {

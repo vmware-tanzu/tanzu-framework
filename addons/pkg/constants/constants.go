@@ -193,6 +193,10 @@ const (
 	// LocalObjectRefSuffix is the suffix of a field within the provider's CR. This suffix indicates that the field is a
 	// K8S typed local object reference
 	LocalObjectRefSuffix = "LocalObjRef"
+
+	// AddCBMissingFieldsAnnotationKey is the annotation key used by ClusterBootstrap webhook to implement its defaulting
+	// logic
+	AddCBMissingFieldsAnnotationKey = "tkg.tanzu.vmware.com/add-missing-fields-from-tkr"
 )
 
 // ClusterKind is the Kind for cluster-api Cluster object
