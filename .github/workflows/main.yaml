@@ -83,27 +83,3 @@ jobs:
       uses: codecov/codecov-action@v3
       with:
         files: ./coverage1.txt,./coverage2.txt,./coverage3.txt,./addons/coverage.txt,./addons/pinniped/post-deploy/coverage.txt,./addons/pinniped/tanzu-auth-controller-manager/coverage.txt
-
-  check:
-    name: Lint
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v2
-
-    - name: Set up Go 1.x
-      uses: actions/setup-go@v3
-      with:
-        go-version: '1.17'
-      id: go
-
-    - name: Cache linting
-      uses: actions/cache@v3
-      with:
-        path: ${{ runner.temp }}/lint_cache
-        key: ${{ runner.os }}-lint-cache-2
-
-    - name: Run lint checks
-      env:
-        GOLANGCI_LINT_CACHE: ${{ runner.temp }}/lint_cache
-      run: |
-        make lint
