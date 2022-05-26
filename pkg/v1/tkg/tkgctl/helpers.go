@@ -169,30 +169,30 @@ func (t *tkgctl) removeAuditLog(clusterName string) {
 // environment and also CreateClusterOptions.
 // TODO (chandrareddyp) : need to make sure the legacy validation error and log messages should not have legacy variable names in case of cluster class use case, should refer Cluster Object attributes (https://github.com/vmware-tanzu/tanzu-framework/issues/2443)
 func (t *tkgctl) checkIfInputFileIsClusterClassBased(clusterConfigFile string) (bool, unstructured.Unstructured, error) {
-	var clusterobj unstructured.Unstructured
+	var clusterObj unstructured.Unstructured
 
 	isInputFileClusterClassBased := false
 	if clusterConfigFile == "" {
-		return isInputFileClusterClassBased, clusterobj, nil
+		return isInputFileClusterClassBased, clusterObj, nil
 	}
 	content, err := os.ReadFile(clusterConfigFile)
 	if err != nil {
-		return isInputFileClusterClassBased, clusterobj, errors.Wrap(err, fmt.Sprintf("Unable to read input file: %v ", clusterConfigFile))
+		return isInputFileClusterClassBased, clusterObj, errors.Wrap(err, fmt.Sprintf("Unable to read input file: %v ", clusterConfigFile))
 	}
 	yamlObjects, err := utilyaml.ToUnstructured(content)
 	if err != nil {
-		return isInputFileClusterClassBased, clusterobj, errors.Wrap(err, fmt.Sprintf("Input file content is not yaml formatted, file path: %v", clusterConfigFile))
+		return isInputFileClusterClassBased, clusterObj, errors.Wrap(err, fmt.Sprintf("Input file content is not yaml formatted, file path: %v", clusterConfigFile))
 	}
 
 	for i := range yamlObjects {
 		obj := yamlObjects[i]
 		if obj.GetKind() == constants.KindCluster {
 			isInputFileClusterClassBased = true
-			clusterobj = obj
+			clusterObj = obj
 			break
 		}
 	}
-	return isInputFileClusterClassBased, clusterobj, nil
+	return isInputFileClusterClassBased, clusterObj, nil
 }
 
 // processClusterObjectForConfigurationVariables takes cluster object, process it to capture all configuration variables and add them in environment.
@@ -239,7 +239,9 @@ func (t *tkgctl) processClusterObjectForConfigurationVariables(clusterObj unstru
 		}
 	}
 
-	// Set TKG IP Family (TKG_IP_FAMILY) based on Cluster and Service CIDRs
+	// Identify TKG_IP_FAMILY based on Cluster and Service CIDRs, we need to set TKG_IP_FAMILY value, because we need this value for legacy validation in cluster creation flow. Cluster CIDR and Service CIDR IP Family's should be same, either "ipv4", "ip6", or dual stack ("ipv4,ipv6" or "ipv6,ipv4")
+	// If Cluster Attribute isIPV6Primary is true, then the first value of cluster/service CIDR should be ipv6 otherwise throws error.
+	// If isIPV6Primary is true, and cluster/service CIDR is dual stack, then the IP Family value should be "ipv6,ipv4" (ipv6 should come first), if isIPV6Primary is not true and  cluster/service CIDR is dual stack then IP Family value should be "ipv4,ipv6"
 	var isIPV6Primary bool
 	if legacyVarMap[constants.TKGIPV6Primary] != "" {
 		isIPV6Primary, _ = strconv.ParseBool(legacyVarMap[constants.TKGIPV6Primary])
@@ -485,7 +487,7 @@ func stringArrayToStringWithCommaSeparatedElements(arrayDataInStringFormat strin
 }
 
 // GetIPFamilyForGivenCIDRs takes cidrs array and returns ip family type (ipv4, ipv6 or dual)
-// Maximum input cidrs array lenth is 2 only - "[100.64.0.0/18,100.64.0.0/18]"
+// Maximum input cidrs array length is 2 only - "[100.64.0.0/18,100.64.0.0/18]"
 // If input cidr's can be  ipv4, ipv6 or both.
 // if isIPV6Primary is true then the first cidrs value, which is cidrs[0] must be ipv6 otherwise throws error
 // if input cidrs has both ipv6 and ipv4 then returns "ipv6,ipv4" only if isIPV6Primary true, otherwise returns "ipv4,ipv6"
