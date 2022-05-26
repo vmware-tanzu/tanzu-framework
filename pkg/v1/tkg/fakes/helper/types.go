@@ -27,6 +27,7 @@ type TestAllClusterComponentOptions struct {
 	ListMDOptions               []TestMDOptions
 	MachineOptions              []TestMachineOptions
 	ClusterConfigurationOptions TestClusterConfiguration
+	ClusterTopology             TestClusterTopology
 	InfraComponentsOptions      TestInfraComponentsOptions
 }
 
@@ -47,6 +48,11 @@ type TestClusterConfiguration struct {
 	EtcdLocalDataDir    string
 	EtcdImageRepository string
 	EtcdImageTag        string
+}
+
+type TestClusterTopology struct {
+	Class   string
+	Version string
 }
 
 // TestClusterOptions describes options for CAPI/TKC cluster
