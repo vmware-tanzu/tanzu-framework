@@ -251,43 +251,16 @@ var _ = Describe("Unit tests for (AWS)  cluster_aws.yaml as input file for 'tanz
 			Expect(IsInputFileClusterClassBased).Should(BeTrue())
 			Expect(err).To(BeNil())
 
-			// Here, we are preparing to test above call - ctl.processWorkloadClusterInputFile(&options)
-			// to make sure input cluster  attributes values are updated with legacy variables in environment (tkgctl.TKGConfigReaderWriter())
-			// Processing the input cluster yaml file with the existing util api, and expecting Cluster YAML object,
-			// from the Cluster YAML object, map attributes path with values, and update Map variablesMap.
-			_, clusterObj, _ := ctl.checkIfInputFileIsClusterClassBased(options.ClusterConfigFile)
-			variablesMap := make(map[string]interface{})
-			variablesMap["metadata.name"] = clusterObj.GetName()
-			variablesMap["metadata.namespace"] = clusterObj.GetNamespace()
-			spec := clusterObj.Object[constants.SPEC].(map[string]interface{})
-			err = processYamlObjectAndAddToMap(spec, constants.SPEC, variablesMap)
-			Expect(err).To(BeNil())
+			// process input file and get map, which has all attribute's path and its values
+			inputVariablesMap := getInputAttributesMap(&ctl, options.ClusterConfigFile)
 
+			// updates lower precedence variables with higher precedence variables values.
 			// In AWS use case, there were few attributes repeated in cluster yaml file, we need to take always higher precedence values.
-			// below logic, takes higher precedence attribute path and its lower precedence path,
-			// check if lower precedence path has value if so overrides with higher precedence path value.
-			for higherPrecedenceKey := range constants.ClusterAttributesHigherPrecedenceToLowerMap {
-				_, ok1 := constants.ClusterAttributesToLegacyVariablesMapAws[higherPrecedenceKey]
-				valueOfAttributeWithHigherPrecedencePath, ok2 := variablesMap[higherPrecedenceKey]
-				if ok1 && ok2 {
-					lowerPrecedenceAttributePath := constants.ClusterAttributesHigherPrecedenceToLowerMap[higherPrecedenceKey]
-					// lower precedence attribute value should be overrid with higher precedence values.
-					variablesMap[lowerPrecedenceAttributePath] = fmt.Sprintf("%v", valueOfAttributeWithHigherPrecedencePath)
-				}
-			}
+			updateLowerPrecedenceVariablesWithHigherPrecedenceVariablesValues(inputVariablesMap)
 
-			// Here, taking legacy variable name for every attribute in cluster input file,
-			// then check the value of legacy variable in environment, with value of the same from the input file
-			// both should match.
-			for key := range variablesMap {
-				if inputValue := variablesMap[key]; inputValue != nil {
-					legacyNameForClusterObjectInputVariable, ok := constants.ClusterAttributesToLegacyVariablesMapAws[key]
-					if ok && legacyNameForClusterObjectInputVariable != "" {
-						mappedVal, _ := ctl.TKGConfigReaderWriter().Get(legacyNameForClusterObjectInputVariable)
-						Expect(fmt.Sprintf("%v", mappedVal)).To(Equal(fmt.Sprintf("%v", inputValue)))
-					}
-				}
-			}
+			// validate input Cluster Object yaml file attributes values with corresponding legacy variable values in environment, both should be same, as we have already updated the environment with Cluster Object attribute values.
+			validateFileInputAttributeValuesWithEnvironmentValues(&ctl, inputVariablesMap, constants.ClusterAttributesToLegacyVariablesMapAws)
+
 			// checking manually for some variables mapping values
 			mappedVal, _ := ctl.TKGConfigReaderWriter().Get(constants.ConfigVariableClusterName)
 			Expect("aws-workload-cluster1").To(Equal(fmt.Sprintf("%v", mappedVal)))
@@ -355,44 +328,16 @@ var _ = Describe("Unit tests for (AWS)  cluster_aws.yaml as input file for 'tanz
 			Expect(IsInputFileClusterClassBased).Should(BeTrue())
 			Expect(err).To(BeNil())
 
-			// Here, we are preparing to test above call - ctl.processWorkloadClusterInputFile(&options)
-			// to make sure input cluster attributes values are updated with legacy variables in environment (tkgctl.TKGConfigReaderWriter())
-			// Processing the input cluster yaml file with the existing util api, and expecting Cluster YAML object,
-			// from the Cluster YAML object, map attributes path with values, and update Map variablesMap.
+			// process input file and get map, which has all attribute's path and its values
+			inputVariablesMap := getInputAttributesMap(&ctl, options.ClusterConfigFile)
 
-			_, clusterObj, _ := ctl.checkIfInputFileIsClusterClassBased(options.ClusterConfigFile)
-			variablesMap := make(map[string]interface{})
-			variablesMap["metadata.name"] = clusterObj.GetName()
-			variablesMap["metadata.namespace"] = clusterObj.GetNamespace()
-			spec := clusterObj.Object[constants.SPEC].(map[string]interface{})
-			err = processYamlObjectAndAddToMap(spec, constants.SPEC, variablesMap)
-			Expect(err).To(BeNil())
-
+			// updates lower precedence variables with higher precedence variables values.
 			// In AWS use case, there were few attributes repeated in cluster yaml file, we need to take always higher precedence values.
-			// below logic, takes higher precedence attribute path and its lower precedence path,
-			// check if lower precedence path has value if so overrides with higher precedence path value.
-			for higherPrecedenceKey := range constants.ClusterAttributesHigherPrecedenceToLowerMap {
-				_, ok1 := constants.ClusterAttributesToLegacyVariablesMapAws[higherPrecedenceKey]
-				value, ok2 := variablesMap[higherPrecedenceKey]
-				if ok1 && ok2 {
-					lowerPrecedenceAttribute := constants.ClusterAttributesHigherPrecedenceToLowerMap[higherPrecedenceKey]
-					// lower precedence attribute value should be the value of higher
-					variablesMap[lowerPrecedenceAttribute] = fmt.Sprintf("%v", value)
-				}
-			}
+			updateLowerPrecedenceVariablesWithHigherPrecedenceVariablesValues(inputVariablesMap)
 
-			// Here, taking legacy variable name for every attribute in cluster input file,
-			// then check the value of legacy variable in environment, with value of the same from the input file
-			// both should match.
-			for key := range variablesMap {
-				if inputValue := variablesMap[key]; inputValue != nil {
-					legacyNameForClusterObjectInputVariable, ok := constants.ClusterAttributesToLegacyVariablesMapAws[key]
-					if ok && legacyNameForClusterObjectInputVariable != "" {
-						mappedVal, _ := ctl.TKGConfigReaderWriter().Get(legacyNameForClusterObjectInputVariable)
-						Expect(fmt.Sprintf("%v", mappedVal)).To(Equal(fmt.Sprintf("%v", inputValue)))
-					}
-				}
-			}
+			// validate input Cluster Object yaml file attributes values with corresponding legacy variable values in environment, both should be same, as we have already updated the environment with Cluster Object attribute values.
+			validateFileInputAttributeValuesWithEnvironmentValues(&ctl, inputVariablesMap, constants.ClusterAttributesToLegacyVariablesMapAws)
+
 			// checking manually for some variables mapping values
 			mappedVal, _ := ctl.TKGConfigReaderWriter().Get(constants.ConfigVariableClusterName)
 			Expect("aws-workload-cluster1").To(Equal(fmt.Sprintf("%v", mappedVal)))
@@ -454,7 +399,7 @@ var _ = Describe("Unit tests for - (Vsphere) - cluster_vsphere.yaml as input fil
 		}
 		tkgClient.IsFeatureActivatedReturns(true)
 	})
-	Context("When inpput file is valid Cluster Class, plan devcc:", func() {
+	Context("When input file is valid Cluster Class, plan devcc:", func() {
 		BeforeEach(func() {
 			options = CreateClusterOptions{
 				ClusterName:            "test-cluster",
@@ -477,31 +422,12 @@ var _ = Describe("Unit tests for - (Vsphere) - cluster_vsphere.yaml as input fil
 			Expect(IsInputFileClusterClassBased).Should(BeTrue())
 			Expect(err).To(BeNil())
 
-			// Here, we are preparing to test above call - ctl.processWorkloadClusterInputFile(&options)
-			// to make sure input cluster attributes values are updated with legacy variables in environment (tkgctl.TKGConfigReaderWriter())
-			// Processing the input cluster.yaml file with the existing util api, and expecting Cluster YAML object,
-			// from the Cluster YAML object, map attributes path with values, and update Map variablesMap.
+			// process input file and get map, which has all attribute's path and its values
+			inputVariablesMap := getInputAttributesMap(&ctl, options.ClusterConfigFile)
 
-			_, clusterObj, _ := ctl.checkIfInputFileIsClusterClassBased(options.ClusterConfigFile)
-			variablesMap := make(map[string]interface{})
-			variablesMap["metadata.name"] = clusterObj.GetName()
-			variablesMap["metadata.namespace"] = clusterObj.GetNamespace()
-			spec := clusterObj.Object[constants.SPEC].(map[string]interface{})
-			err = processYamlObjectAndAddToMap(spec, constants.SPEC, variablesMap)
-			Expect(err).To(BeNil())
+			// validate input Cluster Object yaml file attributes values with corresponding legacy variable values in environment, both should be same, as we have already updated the environment with Cluster Object attribute values.
+			validateFileInputAttributeValuesWithEnvironmentValues(&ctl, inputVariablesMap, constants.ClusterAttributesToLegacyVariablesMapVsphere)
 
-			// Here, taking legacy variable name for every attribute in cluster input file,
-			// then check the value of legacy variable in environment, with value of the same from the input file
-			// both should match.
-			for key := range variablesMap {
-				if inputValue := variablesMap[key]; inputValue != nil {
-					legacyNameForClusterObjectInputVariable, ok := constants.ClusterAttributesToLegacyVariablesMapVsphere[key]
-					if ok && legacyNameForClusterObjectInputVariable != "" {
-						mappedVal, _ := ctl.TKGConfigReaderWriter().Get(legacyNameForClusterObjectInputVariable)
-						Expect(fmt.Sprintf("%v", mappedVal)).To(Equal(fmt.Sprintf("%v", inputValue)))
-					}
-				}
-			}
 			// checking manually for some variables mapping values
 			mappedVal, _ := ctl.TKGConfigReaderWriter().Get(constants.ConfigVariableClusterName)
 			Expect("vsphere-workload-cluster1").To(Equal(fmt.Sprintf("%v", mappedVal)))
@@ -536,7 +462,7 @@ var _ = Describe("Unit tests for - (Vsphere) - cluster_vsphere.yaml as input fil
 			// check value for "spec.topology.variables.apiServerEndpoint":      ConfigVariableVsphereControlPlaneEndpoint, VSPHERE_CONTROL_PLANE_ENDPOINT
 			mappedVal, _ = ctl.TKGConfigReaderWriter().Get(constants.ConfigVariableVsphereControlPlaneEndpoint)
 			Expect("http://10.0.200.101").To(Equal(fmt.Sprintf("%v", mappedVal)))
-			// check that cluster options also upated
+			// check that cluster options also updated
 			Expect("http://10.0.200.101").To(Equal(options.VsphereControlPlaneEndpoint))
 
 			// check value for "spec.topology.variables.controlPlane.network.nameservers"
@@ -600,30 +526,11 @@ var _ = Describe("Unit tests for - (Azure) - cluster_azure.yaml as input file fo
 			Expect(IsInputFileClusterClassBased).Should(BeTrue())
 			Expect(err).To(BeNil())
 
-			// Here, we are preparing to test above call - ctl.processWorkloadClusterInputFile(&options)
-			// to make sure input cluster attributes values are updated with legacy variables in environment (tkgctl.TKGConfigReaderWriter())
-			// Processing the input cluster yaml file with the existing util api, and expecting Cluster YAML object,
-			// from the Cluster YAML object, map attributes path with values, and update Map variablesMap.
-			_, clusterObj, _ := ctl.checkIfInputFileIsClusterClassBased(options.ClusterConfigFile)
-			variablesMap := make(map[string]interface{})
-			variablesMap["metadata.name"] = clusterObj.GetName()
-			variablesMap["metadata.namespace"] = clusterObj.GetNamespace()
-			spec := clusterObj.Object[constants.SPEC].(map[string]interface{})
-			err = processYamlObjectAndAddToMap(spec, constants.SPEC, variablesMap)
-			Expect(err).To(BeNil())
+			// process input file and get map, which has all attribute's path and its values
+			inputVariablesMap := getInputAttributesMap(&ctl, options.ClusterConfigFile)
 
-			// Here, taking legacy variable name for every attribute in cluster input file,
-			// then check the value of legacy variable in environment, with value of the same from the input file
-			// both should match.
-			for key := range variablesMap {
-				if inputValue := variablesMap[key]; inputValue != nil {
-					legacyNameForClusterObjectInputVariable, ok := constants.ClusterAttributesToLegacyVariablesMapAzure[key]
-					if ok && legacyNameForClusterObjectInputVariable != "" {
-						mappedVal, _ := ctl.TKGConfigReaderWriter().Get(legacyNameForClusterObjectInputVariable)
-						Expect(fmt.Sprintf("%v", mappedVal)).To(Equal(fmt.Sprintf("%v", inputValue)))
-					}
-				}
-			}
+			// validate input Cluster Object yaml file attributes values with corresponding legacy variables values in environment, both should be same, as we have already updated the environment with Cluster Object attribute values.
+			validateFileInputAttributeValuesWithEnvironmentValues(&ctl, inputVariablesMap, constants.ClusterAttributesToLegacyVariablesMapAzure)
 
 			// checking manually for some variables mapping values
 			mappedVal, _ := ctl.TKGConfigReaderWriter().Get(constants.ConfigVariableClusterName)
@@ -632,7 +539,7 @@ var _ = Describe("Unit tests for - (Azure) - cluster_azure.yaml as input file fo
 			// checking manually for some variables mapping values
 			mappedVal, _ = ctl.TKGConfigReaderWriter().Get(constants.ConfigVariableNamespace)
 			Expect("namespace-test1").To(Equal(fmt.Sprintf("%v", mappedVal)))
-			//Check that cluster options also upate
+			//Check that cluster options also updated
 			Expect("namespace-test1").To(Equal(options.Namespace))
 			Expect("azure").To(Equal(options.InfrastructureProvider))
 
@@ -794,13 +701,59 @@ var _ = Describe("Unit tests for feature flag (config.FeatureFlagPackageBasedLCM
 				featureGateHelper:      fg,
 			}
 			// feature flag (config.FeatureFlagPackageBasedLCM) activated, its clusterclass config input file, but "clusterclass" feature in FeatureGate is enabled,
-			// but throws errro for the FeatureGate api, so we expecte error here.
+			// but throws error for the FeatureGate api, so we expect error here.
 			err := tkgctlClient.CreateCluster(options)
-			// as FeatureGate api throws error, we expecte error.
+			// as FeatureGate api throws error, we expect error.
 			Expect(err.Error()).To(ContainSubstring(errorMsg))
 		})
 	})
 })
+
+// getInputAttributesMap process input Cluster Object yaml file and returns a map which has all attributes from the input file and its values
+func getInputAttributesMap(ctl *tkgctl, inputFile string) map[string]interface{} {
+	// to make sure input cluster attributes values are updated with legacy variables in environment (tkgctl.TKGConfigReaderWriter())
+	// Processing the input cluster yaml file with the existing util api, and expecting Cluster YAML object,
+	// from the Cluster YAML object, map attributes path with values, and update Map variablesMap.
+	_, clusterObj, _ := ctl.checkIfInputFileIsClusterClassBased(inputFile)
+	inputVariablesMap := make(map[string]interface{})
+	inputVariablesMap["metadata.name"] = clusterObj.GetName()
+	inputVariablesMap["metadata.namespace"] = clusterObj.GetNamespace()
+	spec := clusterObj.Object[constants.SPEC].(map[string]interface{})
+	err := processYamlObjectAndAddToMap(spec, constants.SPEC, inputVariablesMap)
+	Expect(err).To(BeNil())
+	return inputVariablesMap
+}
+
+// validateFileInputAttributeValuesWithEnvironmentValues takes the Cluster Object yaml file input variable map and checks its values in the environment, both should be same.
+func validateFileInputAttributeValuesWithEnvironmentValues(ctl *tkgctl, inputVariablesMap map[string]interface{}, clusterAttributesToLegacyVariablesMap map[string]string) {
+	// take  legacy variable name for every attribute in cluster input file,
+	// then check the value of legacy variable in environment, with value of the same from the input file
+	// both should match.
+	for key := range inputVariablesMap {
+		if inputValue := inputVariablesMap[key]; inputValue != nil {
+			legacyNameForClusterObjectInputVariable, ok := clusterAttributesToLegacyVariablesMap[key]
+			if ok && legacyNameForClusterObjectInputVariable != "" {
+				mappedVal, _ := ctl.TKGConfigReaderWriter().Get(legacyNameForClusterObjectInputVariable)
+				Expect(fmt.Sprintf("%v", mappedVal)).To(Equal(fmt.Sprintf("%v", inputValue)))
+			}
+		}
+	}
+}
+
+// updateLowerPrecedenceVariablesWithHigherPrecedenceVariablesValues, updates lower precedence variables with higher precedence variables values.
+func updateLowerPrecedenceVariablesWithHigherPrecedenceVariablesValues(inputVariablesMap map[string]interface{}) {
+	// below logic, takes higher precedence attribute path and its lower precedence path,
+	// check if lower precedence path has value if so overrides with higher precedence path value.
+	for higherPrecedenceKey := range constants.ClusterAttributesHigherPrecedenceToLowerMap {
+		_, ok1 := constants.ClusterAttributesToLegacyVariablesMapAws[higherPrecedenceKey]
+		value, ok2 := inputVariablesMap[higherPrecedenceKey]
+		if ok1 && ok2 {
+			lowerPrecedenceAttribute := constants.ClusterAttributesHigherPrecedenceToLowerMap[higherPrecedenceKey]
+			// lower precedence attribute value should be the value of higher
+			inputVariablesMap[lowerPrecedenceAttribute] = fmt.Sprintf("%v", value)
+		}
+	}
+}
 
 func getConfigFilePath() string {
 	filename := "config1.yaml"
