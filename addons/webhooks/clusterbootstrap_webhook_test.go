@@ -117,8 +117,10 @@ var _ = Describe("ClusterbootstrapWebhook", func() {
 			Expect(clusterBootstrap.Spec).NotTo(BeNil())
 			Expect(clusterBootstrap.Spec.CNI.RefName).To(Equal(clusterBootstrapTemplate.Spec.CNI.RefName))
 			Expect(clusterBootstrap.Spec.Kapp.RefName).To(Equal(clusterBootstrapTemplate.Spec.Kapp.RefName))
-			Expect(clusterBootstrap.Spec.CSI.RefName).To(Equal(clusterBootstrapTemplate.Spec.CSI.RefName))
+			// CSI should not be touched
+			Expect(clusterBootstrap.Spec.CSI.RefName).To(Equal(fmt.Sprintf("%s.%s", fakeCSICarvelPackageRefName, fakeCarvelPackageVersion)))
 			Expect(clusterBootstrap.Spec.CSI.ValuesFrom.Inline["foo"]).To(Equal("bar"))
+			// AdditionalPackages should not be touched
 			Expect(clusterBootstrap.Spec.AdditionalPackages).NotTo(BeNil())
 			Expect(len(clusterBootstrap.Spec.AdditionalPackages)).To(Equal(1))
 			Expect(clusterBootstrap.Spec.AdditionalPackages[0].RefName).To(Equal(additionalCBPackageRefName))
@@ -135,6 +137,7 @@ var _ = Describe("ClusterbootstrapWebhook", func() {
 			}
 			err := k8sClient.Create(ctx, clusterBootstrap)
 			Expect(err).To(HaveOccurred())
+			// Validating webhook should reject the request
 			Expect(apierrors.IsInvalid(err)).To(BeTrue())
 		})
 		It("should NOT add defaults to the missing fields when the predefined annotation has invalid value", func() {
@@ -151,9 +154,9 @@ var _ = Describe("ClusterbootstrapWebhook", func() {
 			}
 			err := k8sClient.Create(ctx, clusterBootstrap)
 			Expect(err).To(HaveOccurred())
+			// TKR and CBTemplate not found
 			Expect(apierrors.IsNotFound(err)).To(BeTrue())
 		})
-
 		It("should complete to the partial filled fields when the ClusterBootstrap CR has the predefined annotation", func() {
 			// Create a ClusterBootstrap with empty spec
 			clusterBootstrap := &runv1alpha3.ClusterBootstrap{
@@ -226,17 +229,18 @@ var _ = Describe("ClusterbootstrapWebhook", func() {
 			// clusterBootstrap.Spec.CNI.RefName should be completed by the webhook
 			Expect(clusterBootstrap.Spec.CNI.RefName).NotTo(Equal("antrea*"))
 			assertTKRBootstrapPackageNamesContain(tanzuKubernetesRelease, clusterBootstrap.Spec.CNI.RefName)
-			// clusterBootstrap.Spec.AdditionalPackages[x].RefName should be completed by the webhook
+			// clusterBootstrap.Spec.AdditionalPackages[0].RefName should be completed by the webhook
 			Expect(len(clusterBootstrap.Spec.AdditionalPackages)).To(Equal(2))
 			Expect(clusterBootstrap.Spec.AdditionalPackages[0].RefName).NotTo(Equal("pinniped*"))
 			assertTKRBootstrapPackageNamesContain(tanzuKubernetesRelease, clusterBootstrap.Spec.AdditionalPackages[0].RefName)
+			// clusterBootstrap.Spec.AdditionalPackages[1].RefName should be untouched
 			Expect(clusterBootstrap.Spec.AdditionalPackages[1].RefName).To(Equal(fmt.Sprintf("%s.%s", fakeMetricsServerCarvelPackageRefName, fakeCarvelPackageVersion)))
 			// CSI should not be touched
 			Expect(clusterBootstrap.Spec.CSI.RefName).To(Equal(fmt.Sprintf("%s.%s", fakeCSICarvelPackageRefName, fakeCarvelPackageVersion)))
 			Expect(clusterBootstrap.Spec.CSI.ValuesFrom.Inline[""]).To(BeNil())
 			Expect(len(clusterBootstrap.Spec.CSI.ValuesFrom.Inline)).To(Equal(1))
 			Expect(clusterBootstrap.Spec.CSI.ValuesFrom.Inline["should-not-be-updated"]).To(BeTrue())
-			// the rest of fields should be added by the webhook
+			// Kapp should be added by the webhook
 			Expect(clusterBootstrap.Spec.Kapp.RefName).To(Equal(clusterBootstrapTemplate.Spec.Kapp.RefName))
 
 		})
