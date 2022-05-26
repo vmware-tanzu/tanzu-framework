@@ -1,5 +1,20 @@
+#@ load("@ytt:assert", "assert")
 #@ load("@ytt:data", "data")
+#@ load("@ytt:ip", "ip")
 #@ load("lib/helpers.star", "get_tkr_version_from_tkr_name")
+
+#@ vsphereControlPlaneEndpointAsCidr = ""
+#@ if data.values.VSPHERE_CONTROL_PLANE_ENDPOINT:
+#@   vsphereControlPlaneEndpoint, err = assert.try_to(lambda : ip.parse_addr(data.values.VSPHERE_CONTROL_PLANE_ENDPOINT))
+#@   if err == None:
+#@     if vsphereControlPlaneEndpoint.is_ipv4():
+#@       vsphereControlPlaneEndpointAsCidr = vsphereControlPlaneEndpoint.string() + "/32"
+#@     end
+#@     if vsphereControlPlaneEndpoint.is_ipv6():
+#@       vsphereControlPlaneEndpointAsCidr = vsphereControlPlaneEndpoint.string() + "/128"
+#@     end
+#@   end
+#@ end
 
 #@ def antrea_configs_exist():
 #@   return (data.values.NSXT_POD_ROUTING_ENABLED or
@@ -15,13 +30,17 @@
 #@           data.values.ANTREA_DISABLE_UDP_TUNNEL_OFFLOAD)
 #@ end
 
+#@ def vspherecpi_configs_exist():
+#@   return data.values.VSPHERE_SERVER or data.values.NSXT_MANAGER_HOST
+#@ end
+
 #@ def vspherecsi_configs_exist():
 #@   return (not data.values.VSPHERE_INSECURE or
 #@           data.values.USE_TOPOLOGY_CATEGORIES)
 #@ end
 
 #@ def should_create_clusterbootstrap():
-#@   return data.values.CNI != "antrea" or antrea_configs_exist() or vspherecsi_configs_exist()
+#@   return data.values.CNI != "antrea" or antrea_configs_exist() or vspherecsi_configs_exist() or vspherecpi_configs_exist()
 #@ end
 
 #@ if should_create_clusterbootstrap():
@@ -50,6 +69,15 @@ spec:
         kind: CalicoConfig
         name: #@ data.values.CLUSTER_NAME
     #@ end
+  #@ if vspherecpi_configs_exist() and data.values.PROVIDER_TYPE == "vsphere" and not data.values.IS_WINDOWS_WORKLOAD_CLUSTER:
+  cpi:
+    refName: vsphere-cpi*
+    valuesFrom:
+      providerRef:
+        apiGroup: cpi.tanzu.vmware.com
+        kind: VSphereCPIConfig
+        name: #@ data.values.CLUSTER_NAME
+  #@ end
   #@ if vspherecsi_configs_exist() and data.values.PROVIDER_TYPE == "vsphere" and not data.values.IS_WINDOWS_WORKLOAD_CLUSTER:
   csi:
     refName: vsphere-csi*
@@ -103,6 +131,68 @@ kind: CalicoConfig
 metadata:
   name: #@ data.values.CLUSTER_NAME
   namespace: #@ data.values.NAMESPACE
+#@ end
+---
+#@ if vspherecpi_configs_exist() and data.values.PROVIDER_TYPE == "vsphere" and not data.values.IS_WINDOWS_WORKLOAD_CLUSTER:
+apiVersion: v1
+kind: Secret
+metadata:
+  name: #@ data.values.CLUSTER_NAME + "-vsphere-credential"
+  namespace: #@ data.values.NAMESPACE
+data:
+  password: #@ data.values.VSPHERE_USERNAME
+  username: #@ data.values.VSPHERE_PASSWORD
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: #@ data.values.CLUSTER_NAME + "-nsxt-credential"
+  namespace: #@ data.values.NAMESPACE
+data:
+  password: #@ data.values.NSXT_USERNAME
+  username: #@ data.values.NSXT_PASSWORD
+---
+apiVersion: cpi.tanzu.vmware.com/v1alpha1
+kind: VSphereCPIConfig
+metadata:
+  name: #@ data.values.CLUSTER_NAME
+  namespace: #@ data.values.NAMESPACE
+spec:
+  vsphereCPI:
+    mode: vsphereCPI
+    vCenterAPIEndpoint: #@ data.values.VSPHERE_SERVER
+    datacenter: #@ data.values.VSPHERE_DATACENTER
+    vSphereCredentialLocalObjRef:
+      kind: Secret
+      name: #@ data.values.CLUSTER_NAME + "-vsphere-credential"
+    tlsThumbprint: #@ data.values.VSPHERE_TLS_THUMBPRINT
+    region: #@ data.values.VSPHERE_REGION
+    zone: #@ data.values.VSPHERE_ZONE
+    insecure: #@ data.values.VSPHERE_INSECURE
+    ipFamily: #@ data.values.TKG_IP_FAMILY
+    vmNetwork:
+      excludeInternalSubnetCidr: #@ vsphereControlPlaneEndpointAsCidr
+      excludeExternalSubnetCidr: #@ vsphereControlPlaneEndpointAsCidr
+    tlsCipherSuites: TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
+    nsxt:
+      podRoutingEnabled: #@ data.values.NSXT_POD_ROUTING_ENABLED
+      route:
+        routerPath: #@ data.values.NSXT_ROUTER_PATH
+      credentialLocalObjRef:
+        kind: Secret
+        name: #@ data.values.CLUSTER_NAME + "-nsxt-credential"
+      apiHost: #@ data.values.NSXT_MANAGER_HOST
+      insecure: #@ data.values.NSXT_ALLOW_UNVERIFIED_SSL
+      remoteAuth: #@ data.values.NSXT_REMOTE_AUTH
+      vmcAccessToken: #@ data.values.NSXT_VMC_ACCESS_TOKEN
+      vmcAuthHost: #@ data.values.NSXT_VMC_AUTH_HOST
+      clientCertKeyData: #@ data.values.NSXT_CLIENT_CERT_KEY_DATA
+      clientCertData: #@ data.values.NSXT_CLIENT_CERT_DATA
+      rootCAData: #@ data.values.NSXT_ROOT_CA_DATA_B64
+    proxy:
+      http_proxy: #@ data.values.TKG_HTTP_PROXY
+      https_proxy: #@ data.values.TKG_HTTPS_PROXY
+      no_proxy: #@ data.values.TKG_NO_PROXY
 #@ end
 ---
 #@ if vspherecsi_configs_exist() and data.values.PROVIDER_TYPE == "vsphere" and not data.values.IS_WINDOWS_WORKLOAD_CLUSTER:
