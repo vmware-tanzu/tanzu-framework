@@ -5,7 +5,7 @@
 
 #@ load("@ytt:yaml", "yaml")
 #@ load("@ytt:struct", "struct")
-#@ load("/lib/config_variable_association.star", "config_variable_association", "get_cluster_variables")
+#@ load("/lib/config_variable_association.star", "config_variable_association", "get_azure_vars")
 
 #@ load("lib/helpers.star", "get_bom_data_for_tkr_name", "kubeadm_image_repo", "get_azure_image", "get_default_tkg_bom_data")
 #@ load("lib/validate.star", "validate_configuration")
@@ -86,7 +86,7 @@ spec:
       #@overlay/match by=overlay.index(0)
       - class: tkg-worker
         name: md-0
-        replicas: #@ data.values.WORKER_MACHINE_COUNT
+        replicas: #@ data.values.WORKER_MACHINE_COUNT_0
         #@overlay/match missing_ok=True
         failureDomain: #@ str(data.values.AZURE_NODE_AZ) or "1"
       #@ if data.values.CLUSTER_PLAN == "prodcc":
@@ -95,22 +95,35 @@ spec:
         name: md-1
         replicas: #@ data.values.WORKER_MACHINE_COUNT_1
         failureDomain: #@ str(data.values.AZURE_NODE_AZ_1) or "2"
+        #@ if data.values.NODE_MACHINE_TYPE_1:
+        variables:
+          overrides:
+          - name: worker
+            value:
+              vmSize: #@ data.values.NODE_MACHINE_TYPE_1
+        #@ end
       #@overlay/append
       - class: tkg-worker
         name: md-2
         replicas: #@ data.values.WORKER_MACHINE_COUNT_2
         failureDomain: #@ str(data.values.AZURE_NODE_AZ_2) or "3"
+        #@ if data.values.NODE_MACHINE_TYPE_2:
+        variables:
+          overrides:
+          - name: worker
+            value:
+              vmSize: #@ data.values.NODE_MACHINE_TYPE_2
+        #@ end
       #@ end
     #@overlay/match missing_ok=True
-    variables: 
-    #@ vars = get_cluster_variables()
+    variables:
+    #@ vars = get_azure_vars()
     #@ for configVariable in vars:
-      #@  if vars[configVariable] != None and configVariable in ["AZURE_LOCATION", "AZURE_VNET_NAME", "AZURE_VNET_CIDR", "AZURE_CONTROL_PLANE_SUBNET_NAME", "AZURE_CONTROL_PLANE_SUBNET_SECURITY_GROUP", "AZURE_CONTROL_PLANE_SUBNET_CIDR", "AZURE_NODE_SUBNET_NAME", "AZURE_NODE_SUBNET_SECURITY_GROUP", "AZURE_NODE_SUBNET_CIDR", "AZURE_RESOURCE_GROUP", "AZURE_VNET_RESOURCE_GROUP", "AZURE_SUBSCRIPTION_ID", "CLUSTER_NAME", "AZURE_IDENTITY_NAME", "AZURE_IDENTITY_NAMESPACE", "TKG_CLUSTER_ROLE", "AZURE_ENVIRONMENT", "AZURE_SSH_PUBLIC_KEY_B64", "AZURE_CONTROL_PLANE_MACHINE_TYPE", "AZURE_NODE_MACHINE_TYPE", "AZURE_ENABLE_ACCELERATED_NETWORKING", "AZURE_ENABLE_NODE_DATA_DISK", "AZURE_CONTROL_PLANE_OS_DISK_STORAGE_ACCOUNT_TYPE", "AZURE_NODE_OS_DISK_STORAGE_ACCOUNT_TYPE", "AZURE_CONTROL_PLANE_OS_DISK_SIZE_GIB", "AZURE_CONTROL_PLANE_DATA_DISK_SIZE_GIB", "AZURE_NODE_OS_DISK_SIZE_GIB", "AZURE_NODE_DATA_DISK_SIZE_GIB", "AZURE_ENABLE_PRIVATE_CLUSTER", "AZURE_ENABLE_CONTROL_PLANE_OUTBOUND_LB", "AZURE_ENABLE_NODE_OUTBOUND_LB", "AZURE_FRONTEND_PRIVATE_IP", "AZURE_CONTROL_PLANE_OUTBOUND_LB_FRONTEND_IP_COUNT", "AZURE_NODE_OUTBOUND_LB_FRONTEND_IP_COUNT", "proxy", "TKG_PROXY_CA_CERT", "TKG_CUSTOM_IMAGE_REPOSITORY", "TKG_CUSTOM_IMAGE_REPOSITORY_SKIP_TLS_VERIFY", "TKG_CUSTOM_IMAGE_REPOSITORY_CA_CERTIFICATE", "ENABLE_AUDIT_LOGGING", "AZURE_CUSTOM_TAGS", "AZURE_NODE_OUTBOUND_LB_IDLE_TIMEOUT_IN_MINUTES"]:
-      - name: #@ configVariable
-        value: #@ vars[configVariable]
-      #@ end
+    #@  if vars[configVariable] != None and configVariable in ["location", "network", "controlPlane", "worker", "resourceGroup", "subscriptionID", "identityRef", "clusterRole", "environment", "sshPublicKey", "acceleratedNetworking", "privateCluster", "frontendPrivateIP", "imageRepository", "auditLogging", "customTags", "apiServerPort", "trust", "TKR_DATA"]:
+    - name: #@ configVariable
+      value: #@ vars[configVariable]
     #@ end
-
+    #@ end
 
 #@ if data.values.TKG_CLUSTER_ROLE == "management":
 ---
