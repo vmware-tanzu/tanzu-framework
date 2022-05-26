@@ -53,7 +53,7 @@ frameworkPackage:
     namespace: tanzu-auth
     versionConstraints:
     controller:
-      image: ""
+      image: tanzu-auth-controller-manager:latest
 
 clusterclassPackage:
   namespaceForPackageInstallation: tkg-system
