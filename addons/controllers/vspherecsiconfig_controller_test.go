@@ -12,6 +12,7 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	v1 "k8s.io/api/core/v1"
+	rbacv1 "k8s.io/api/rbac/v1"
 	capvvmwarev1beta1 "sigs.k8s.io/cluster-api-provider-vsphere/apis/vmware/v1beta1"
 	clusterapiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -311,6 +312,23 @@ var _ = Describe("VSphereCSIConfig Reconciler", func() {
 				Expect(serviceAccount.Spec.Rules).To(HaveLen(6))
 				Expect(serviceAccount.Spec.TargetNamespace).To(Equal("vmware-system-csi"))
 				Expect(serviceAccount.Spec.TargetSecretName).To(Equal("pvcsi-provider-creds"))
+				return true
+			})
+		})
+
+		It("Should reconcile aggregated cluster role", func() {
+			clusterRole := &rbacv1.ClusterRole{}
+			Eventually(func() bool {
+				key := client.ObjectKey{
+					Name: constants.ProviderServiceAccountAggregatedClusterRole,
+				}
+				if err := k8sClient.Get(ctx, key, clusterRole); err != nil {
+					return false
+				}
+				Expect(clusterRole.Labels).To(Equal(map[string]string{
+					constants.CAPVClusterRoleAggregationRuleLabelSelectorKey: constants.CAPVClusterRoleAggregationRuleLabelSelectorValue,
+				}))
+				Expect(clusterRole.Rules).To(HaveLen(6))
 				return true
 			})
 		})
