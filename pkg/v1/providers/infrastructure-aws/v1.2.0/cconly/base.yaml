@@ -79,12 +79,12 @@ spec:
             type: boolean
         required:
         - enabled
-    default:
-    #@ if data.values.BASTION_HOST_ENABLED:
-      enabled: #@ data.values.BASTION_HOST_ENABLED
-    #@ else:
-      enabled: true
-    #@ end
+        default:
+        #@ if data.values.BASTION_HOST_ENABLED:
+          enabled: #@ data.values.BASTION_HOST_ENABLED
+        #@ else:
+          enabled: true
+        #@ end
   - name: loadBalancerSchemeInternal
     required: false
     schema:
@@ -239,8 +239,8 @@ spec:
             default: false
         required:
         - enabled
-    default:
-      enabled: false
+        default:
+          enabled: false
   - name: TKR_DATA
     required: false
     schema:
