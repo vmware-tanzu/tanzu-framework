@@ -1,28 +1,32 @@
-# Setup workload cluster on AWS using the ClusterClass mechanism
+# Deploy management and workload cluster on AWS using the ClusterClass mechanism
 
-- Checkout `cc_aws_integ` branch of `https://github.com/vmware-tanzu/tanzu-framework.git` repo.
-- Run `make build-install-cli-local`. This should build and install the Tanzu CLI on your machine.
-- Update ~/.config/tanzu/tkg/bom/tkg-bom-v1.6.0-zshippable.yaml.
+- Checkout the latest `package-based-lcm` branch and build the CLI
+  - make build-install-cli-local
 
-```text
-tanzu-framework-management-packages:
-  - version: v0.21.0-dev-142-g9c114e97
-    images:
-      tanzuFrameworkManagementPackageRepositoryImage:
-        imagePath: management
-        imageRepository: gcr.io/eminent-nation-87317/tkg/test16
-        tag: v0.21.0
+- Export below environment variables: (This is needed until TKR source controller is able to deploy TKR related resources on the cluster.)
+
+```bash
+export _MANAGEMENT_PACKAGE_REPO_IMAGE=gcr.io/eminent-nation-87317/tkg/test20/management:v0.21.0
+export _MANAGEMENT_PACKAGE_VERSION=0.21.0
+export _ADDITIONAL_MANAGEMENT_COMPONENT_CONFIGURATION_FILE=https://gist.githubusercontent.com/anujc25/cf8b5ce3e9e241527e3af881d5d748c1/raw/32dda7874da12f98c05d6d5400cdde2f5334a90d/tkr-addons-resources-v1.23.5.yaml
 ```
 
-- Create a management-cluster on AWS. Currently we only validated the ClusterClass based workflows on AWS. `tanzu management-cluster create --ui`
-- Set kubeconfig/kubeconfig to point to the newly created management cluster.
-- Run this script - `pkg/v1/tkg/test/scripts/cc_hack.sh`.
-- Your management-cluster is now ready for you to create a workload cluster using the cluster class mechanism. Create a workload cluster. `tanzu cluster create workload -f wc_config.yaml -v 6`
-- Contents of the `wc_config.yaml` -
+- Make sure to enable the feature-flag for `package-based-lcm`
 
-```text
-AWS_REGION: us-east-1
-AWS_SSH_KEY_NAME: <ssh key name setup on your AWS environement>
+```bash
+tanzu config set features.global.package-based-lcm-beta true
 ```
 
-- You might hit an issue with workload cluster creation and it is a known issue - <https://github.com/kubernetes-sigs/cluster-api-provider-aws/issues/3399>
+- Currently, the AWS cluster creation works only using the existing VPC approach because of [a bug in CAPA providers](https://github.com/kubernetes-sigs/cluster-api-provider-aws/issues/3399).
+
+- Create aws management-cluster using existing VPC.
+
+```bash
+tanzu management-cluster create --ui
+```
+
+- Created management-cluster will have all the ClusterClass and latest components deployed on the management-cluster. So, you can use this management-cluster to create ClusterClass based workload cluster
+
+```bash
+tanzu cluster create --file <config-file.yaml>
+```
