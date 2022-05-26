@@ -35,7 +35,7 @@ var _ = Describe("Windows Ytt Templating", func() {
 		}
 	})
 	It("Has a windows overlay", func() {
-		values := createDataValues(map[string]string{
+		values := createDataValues(map[string]interface{}{
 			"VSPHERE_INSECURE":            "true",
 			"PROVIDER_TYPE":               "vsphere",
 			"IS_WINDOWS_WORKLOAD_CLUSTER": "true",
