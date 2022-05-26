@@ -6,6 +6,8 @@ package clusterbootstrapclone
 import (
 	"context"
 	"fmt"
+	"reflect"
+	"strings"
 
 	"github.com/go-logr/logr"
 	"gopkg.in/yaml.v3"
@@ -13,6 +15,7 @@ import (
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
+	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/discovery"
@@ -55,11 +58,127 @@ func NewHelper(ctx context.Context, k8sClient client.Client, aggregateAPIResourc
 	}
 }
 
-// AddDefaultsFromTemplate scans clusterBootstrap's fields. For fields which are not specified, it adds defaults from clusterBootstrapTemplate
-func (h *Helper) AddDefaultsFromTemplate(clusterBootstrap *runtanzuv1alpha3.ClusterBootstrap,
-	clusterBootstrapTemplate *runtanzuv1alpha3.ClusterBootstrapTemplate) (*runtanzuv1alpha3.ClusterBootstrap, error) {
-	// TODO: https://github.com/vmware-tanzu/tanzu-framework/issues/1916
-	return nil, nil
+// CompleteCBPackageRefNamesFromTKR goes through the ClusterBootstrapPackages and makes the RefName complete.
+// For example, when the clusterBootstrapPackage.RefName passed in is "calico*", this function updates it to be
+// a fully qualified name(<packageShortName>.<domain>.<version>). The fully qualified name is fetched from TKR.
+func (h *Helper) CompleteCBPackageRefNamesFromTKR(tkr *runtanzuv1alpha3.TanzuKubernetesRelease, clusterBootstrap *runtanzuv1alpha3.ClusterBootstrap) error {
+	var suffix = "*"
+	clusterBootstrapPackages := []*runtanzuv1alpha3.ClusterBootstrapPackage{
+		clusterBootstrap.Spec.CNI,
+		clusterBootstrap.Spec.CPI,
+		clusterBootstrap.Spec.CSI,
+		clusterBootstrap.Spec.Kapp,
+	}
+	clusterBootstrapPackages = append(clusterBootstrapPackages, clusterBootstrap.Spec.AdditionalPackages...)
+
+	for _, clusterBootstrapPackage := range clusterBootstrapPackages {
+		if clusterBootstrapPackage != nil && strings.HasSuffix(clusterBootstrapPackage.RefName, suffix) {
+			// The partial filled RefName will end with *. E.g., refName: calico*
+			prefixToMatch := strings.TrimSuffix(clusterBootstrapPackage.RefName, suffix)
+			fullyQualifiedCBPackageRefName, err := getFullyQualifiedCBPackageRefName(tkr, prefixToMatch)
+			if err != nil {
+				// Error means no match found. We do not expect this to happen.
+				// For atomicity, we return error immediately if there is a no match.
+				return err
+			}
+			clusterBootstrapPackage.RefName = fullyQualifiedCBPackageRefName
+		}
+	}
+	return nil
+}
+
+func getFullyQualifiedCBPackageRefName(tkr *runtanzuv1alpha3.TanzuKubernetesRelease, prefix string) (string, error) {
+	var fullyQualifiedCBPackageRefName string
+	var found bool
+	for _, tkrBootstrapPackage := range tkr.Spec.BootstrapPackages {
+		if strings.HasPrefix(tkrBootstrapPackage.Name, prefix) {
+			if found {
+				// It is possible that current prefix matches multiple bootstrapPackages. For example, c* might match
+				// capabilities bootstrapPackage and calico bootstrapPackage. We would like to return error in this case
+				// to let caller revise the prefix in order to narrow down to exactly one match.
+				return fullyQualifiedCBPackageRefName, fmt.Errorf("multiple bootstrapPackage names matche the prefix %s within the TanzuKubernetesRelease %s", prefix, tkr.Name)
+			}
+			fullyQualifiedCBPackageRefName = tkrBootstrapPackage.Name
+			found = true
+		}
+	}
+	if !found {
+		return fullyQualifiedCBPackageRefName, fmt.Errorf("no bootstrapPackage name matches the prefix %s within the BootstrapPackages [%v] of TanzuKubernetesRelease %s", prefix, tkr.Spec.BootstrapPackages, tkr.Name)
+	}
+	return fullyQualifiedCBPackageRefName, nil
+}
+
+// AddMissingSpecFieldsFromTemplate scans clusterBootstrap's fields. For fields which are not specified, it adds defaults from
+// clusterBootstrapTemplate
+func (h *Helper) AddMissingSpecFieldsFromTemplate(clusterBootstrapTemplate *runtanzuv1alpha3.ClusterBootstrapTemplate,
+	clusterBootstrap *runtanzuv1alpha3.ClusterBootstrap) error {
+
+	converter := runtime.DefaultUnstructuredConverter
+	var copyFrom map[string]interface{}
+	var target map[string]interface{}
+	var err error
+	// DeepCopy() here is to make sure to handle the pointer fields properly. We do not want any changes in clusterBootstrapTemplate
+	// have side effects on the ClusterBootstrap object
+	if copyFrom, err = converter.ToUnstructured(clusterBootstrapTemplate.Spec.DeepCopy()); err != nil {
+		return err
+	}
+	if target, err = converter.ToUnstructured(clusterBootstrap.Spec.DeepCopy()); err != nil {
+		return err
+	}
+	if err := addMissingFields(copyFrom, target); err != nil {
+		return err
+	}
+	updatedTemplateSpec := &runtanzuv1alpha3.ClusterBootstrapTemplateSpec{}
+	if err := converter.FromUnstructured(target, updatedTemplateSpec); err != nil {
+		return err
+	}
+	clusterBootstrap.Spec = updatedTemplateSpec
+	return nil
+}
+
+func addMissingFields(copyFrom, destination map[string]interface{}) error {
+	for keyInFrom, valueInFrom := range copyFrom {
+		valueInTarget, exist := destination[keyInFrom]
+		if !exist || valueInTarget == nil {
+			// If keyInFrom does not exist in destination or valueInTo is nil, we need to copy valueInFrom and add to
+			// destination.
+			if valueInFrom != nil {
+				valueInFromType := reflect.TypeOf(valueInFrom)
+				if valueInFromType.Kind() == reflect.Map {
+					copiedVal, _, copyErr := unstructured.NestedFieldCopy(valueInFrom.(map[string]interface{}))
+					if copyErr != nil {
+						return copyErr
+					}
+					destination[keyInFrom] = copiedVal
+				} else {
+					// TODO: Handle the primitive pointer, e.g., *int. Ideally we need to make a copy of the pointer
+					// instead of reassigning directly. It is a shallow copy with current approach, copyFrom and destination
+					// share the same underlying data. We are good at the moment because this function is internally
+					// used for handling ClusterBootstrapTemplateSpec which does not have any primitive pointers in its
+					// API definition.
+					destination[keyInFrom] = valueInFrom
+				}
+			}
+		} else {
+			// If keyInFrom exists in destination, recursively look inside the nested fields.
+			if valueInFrom != nil && reflect.TypeOf(valueInFrom).Kind() == reflect.Map &&
+				valueInTarget != nil && reflect.TypeOf(valueInTarget).Kind() == reflect.Map &&
+				// ClusterBootstrapPackage.ValuesFrom.Inline is a map[string]interface{} contains the data values of a
+				// specific ClusterBootstrapPackage. When the key "inline" exist in the destination we should not attempt
+				// to invoke the addMissingFields(), otherwise the processed ClusterBootstrapPackage.ValuesFrom.Inline will
+				// contain a combined data value from both copyFrom and destination.
+				// E.g., ClusterBootstrap.Spec.CSI.ValuesFrom.Inline has {"a": "b"},
+				// and ClusterBootstrapTemplate.Spec.CSI.ValuesFrom.Inline has {"foo":"bar"}.
+				// If we do not have the following check the final processed ClusterBootstrap will have {"a": "b", "foo": "bar"}
+				// which is not expected
+				keyInFrom != "inline" {
+				if err := addMissingFields(valueInFrom.(map[string]interface{}), valueInTarget.(map[string]interface{})); err != nil {
+					return err
+				}
+			}
+		}
+	}
+	return nil
 }
 
 // CreateClusterBootstrapFromTemplate does the following:
