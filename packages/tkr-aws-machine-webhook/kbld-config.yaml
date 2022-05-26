@@ -1,0 +1,5 @@
+apiVersion: kbld.k14s.io/v1alpha1
+kind: Config
+overrides:
+- image: tkr-infra-machine-webhook:latest
+  newImage: ""

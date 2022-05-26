@@ -20,6 +20,10 @@ type Version struct {
 	buildMetadata BuildMetadata
 }
 
+func (v Version) String() string {
+	return "v" + v.version.String()
+}
+
 // ParseSemantic constructs a structured representation of a semantic version string including build metadata,
 // producing comparable structural representation.
 func ParseSemantic(s string) (*Version, error) {
@@ -144,4 +148,12 @@ var plusReplacer = strings.NewReplacer("+", "---")
 // Label converts version string in SemVer format to label format.
 func Label(v string) string {
 	return "v" + plusReplacer.Replace(strings.TrimPrefix(v, "v"))
+}
+
+// WithV makes sure 'v' is prepended to the version string.
+func WithV(s string) string {
+	if strings.HasPrefix(s, "v") {
+		return s
+	}
+	return "v" + s
 }
