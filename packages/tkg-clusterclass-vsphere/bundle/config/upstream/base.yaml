@@ -304,8 +304,8 @@ spec:
           ipv6Primary:
             type: boolean
             default: false
-    default:
-      ipv6Primary: false
+        default:
+          ipv6Primary: false
   - name: imageRepository
     required: false
     schema:
@@ -358,8 +358,8 @@ spec:
           enabled:
             type: boolean
             default: false
-    default:
-      enabled: false
+        default:
+          enabled: false
   - name: user
     required: false
     schema:
