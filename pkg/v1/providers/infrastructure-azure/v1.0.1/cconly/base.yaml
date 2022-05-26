@@ -65,8 +65,8 @@ spec:
           namespace:
             type: string
             default: default
-    default:
-      namespace: default
+        default:
+          namespace: default
   - name: environment
     required: false
     schema:
@@ -90,8 +90,8 @@ spec:
             default: true
         required:
         - enabled
-    default:
-      enabled: true
+        default:
+          enabled: true
   - name: privateCluster
     required: false
     schema:
@@ -103,8 +103,8 @@ spec:
             default: false
         required:
         - enabled
-    default:
-      enabled: false
+        default:
+          enabled: false
   - name: frontendPrivateIP
     required: false
     schema:
@@ -288,8 +288,8 @@ spec:
             default: false
         required:
         - enabled
-    default:
-      enabled: false
+        default:
+          enabled: false
   - name: customTags
     required: false
     schema:
