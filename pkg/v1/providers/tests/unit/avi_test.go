@@ -15,13 +15,13 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/test/pkg/ytt"
 )
 
-type yttValues map[string]string
+type yttValues map[string]interface{}
 
 func (v yttValues) toReader() io.Reader {
 	return strings.NewReader(createDataValues(v))
 }
 
-func (v yttValues) Set(key, value string) {
+func (v yttValues) Set(key string, value interface{}) {
 	v[key] = value
 }
 
@@ -165,15 +165,18 @@ var _ = Describe("AKO-operator Ytt Templating", func() {
 	BeforeEach(func() {
 		paths = []string{
 			filepath.Join(yamlRoot, "config_default.yaml"),
+			filepath.Join(yamlRoot, "infrastructure-vsphere", capvVersion, "ytt", "overlay.yaml"),
+			filepath.Join(yamlRoot, "infrastructure-vsphere", capvVersion, "ytt", "base-template.yaml"),
 			filepath.Join("./fixtures/tkr-bom-v1.21.1.yaml"),
 			filepath.Join("./fixtures/tkg-bom-v1.4.0.yaml"),
 			filepath.Join(yamlRoot, "ytt"),
 		}
 
-		baseVal = map[string]string{
+		baseVal = map[string]interface{}{
 			// required fields
 			"TKG_DEFAULT_BOM":    "tkg-bom-v1.4.0.yaml",
 			"KUBERNETES_RELEASE": "v1.21.2---vmware.1-tkg.1",
+			"CLUSTER_NAME":       "test-cluster",
 
 			// required fields to enable AVI
 			"PROVIDER_TYPE":                 "vsphere",
@@ -191,6 +194,10 @@ var _ = Describe("AKO-operator Ytt Templating", func() {
 			"VSPHERE_SSH_AUTHORIZED_KEY": "ssh-rsa AAAA...+M7Q== vmware-tanzu.local",
 			"VSPHERE_INSECURE":           "true",
 			"CLUSTER_CIDR":               "192.168.1.0/16",
+
+			// required by CAPV
+			"TKG_IP_FAMILY": "ipv4",
+			"SERVICE_CIDR":  "5.5.5.5/16",
 
 			// required avi related values
 			"AVI_USERNAME":              AviUsername,
@@ -345,6 +352,62 @@ var _ = Describe("AKO-operator Ytt Templating", func() {
 							Expect(getAVIK8sConfig(value)).To(ContainSubstring("[{\"cidr\":\"10.0.3.0/24\",\"networkName\":\"mc-control-plane-network\"}]"))
 						})
 					})
+				})
+			})
+
+			Context("setting AVI_LABELS feature", func() {
+				BeforeEach(func() {
+					value.Set("AVI_LABELS", map[string]string{
+						"foo1": "bar1",
+						"foo2": "bar2",
+					})
+				})
+				When("management cluster", func() {
+					BeforeEach(func() {
+						value.Set("TKG_CLUSTER_ROLE", "management")
+					})
+
+					It("adds labelSelector for install-ako-for-all", func() {
+						output, err := ytt.RenderYTTTemplate(ytt.CommandOptions{}, paths, value.toReader())
+						Expect(err).NotTo(HaveOccurred())
+						docs, err := matchers.FindDocsMatchingYAMLPath(output, map[string]string{
+							"$.kind":          "Secret",
+							"$.metadata.name": "test-cluster-ako-operator-addon",
+						})
+						Expect(err).NotTo(HaveOccurred())
+						Expect(docs).To(HaveLen(1))
+						Expect(docs[0]).To(ContainSubstring("avi_labels: '{\"foo1\":\"bar1\",\"foo2\":\"bar2\"}'"))
+					})
+				})
+
+				When("workload cluster", func() {
+					BeforeEach(func() {
+						value.Set("TKG_CLUSTER_ROLE", "workload")
+					})
+
+					It("labels the workload cluster", func() {
+						output, err := ytt.RenderYTTTemplate(ytt.CommandOptions{}, paths, value.toReader())
+						Expect(err).NotTo(HaveOccurred())
+						docs, err := matchers.FindDocsMatchingYAMLPath(output, map[string]string{
+							"$.kind":          "Cluster",
+							"$.metadata.name": "test-cluster",
+						})
+						Expect(err).NotTo(HaveOccurred())
+						Expect(docs).To(HaveLen(1))
+						Expect(docs[0]).To(ContainSubstring("    foo1: bar1\n    foo2: bar2"))
+					})
+				})
+
+			})
+
+			When("workload cluster and AVI_LABELS not provided", func() {
+				BeforeEach(func() {
+					value.Set("TKG_CLUSTER_ROLE", "workload")
+				})
+
+				It("should render without error", func() {
+					_, err := ytt.RenderYTTTemplate(ytt.CommandOptions{}, paths, value.toReader())
+					Expect(err).NotTo(HaveOccurred())
 				})
 			})
 		})

@@ -46,14 +46,14 @@ def write_test_cases(params_file, test_dir):
                         else:
                             cmd_args.append('{} {}'.format(k, v))
                 else:
-                    # hack to workaround the problem with pict where there is no escape char for comma.
+                    # hack to workaround the problem with pict where there is
+                    # no escape char for comma and double quote.
                     # sets "AZURE_CUSTOM_TAGS" to "tagKey1=tagValue1, tagKey2=tagValue2"
 
                     if k == "AZURE_CUSTOM_TAGS" and v.startswith('tagKey1='):
                         cfg_args.append('{}: {}'.format(k, 'tagKey1=tagValue1, tagKey2=tagValue2'))
                     elif v != "NA":
-                        cfg_args.append('{}: {}'.format(k, v.replace("<comma>", ",")))
-
+                        cfg_args.append('{}: {}'.format(k, v.replace("<comma>", ",").replace("<qq>", "\"")))
 
             testid = int(hashlib.sha256(dict_contents.encode('utf-8')).hexdigest(), 16) % 10**8
             filename = "%8.8d.case" % (testid)
