@@ -49,7 +49,7 @@ default     clusterclass-docker.tanzu.vmware.com.0.16.0-dev    clusterclass-dock
 default     clusterclass-vsphere.tanzu.vmware.com.0.16.0-dev   clusterclass-vsphere.tanzu.vmware.com   0.16.0-dev   1h58m50s
 ```
 
-Install the package for testing with `tanzu package install` command and passing `values-file` for the package. Sample [values file for aws clusterclass](/packages/management/clusterclass-aws/test-data/sample-values.yaml).
+Install the package for testing with `tanzu package install` command and passing `values-file` for the package. Sample [values file for aws clusterclass](/packages/clusterclass-aws/test-data/sample-values.yaml).
 
 ```text
 tanzu package install clusterclass-aws-pkg --package-name clusterclass-aws.tanzu.vmware.com --version 0.16.0-dev --values-file sample-values.yaml
@@ -63,7 +63,7 @@ NAMESPACE   NAME                      AGE
 default     tkg-aws-clusterclass      96m
 ```
 
-Create a `cluster` resource with required corresponding clusterclass and variable defined under topology and use kubectl apply to test the cluster creation. Sample [cluster file for aws](/packages/management/clusterclass-aws/test-data/cluster.yaml).
+Create a `cluster` resource with required corresponding clusterclass and variable defined under topology and use kubectl apply to test the cluster creation. Sample [cluster file for aws](/packages/clusterclass-aws/test-data/cluster.yaml).
 
 ```text
 kubectl apply -f cluster.yaml
