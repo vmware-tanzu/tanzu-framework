@@ -12,6 +12,7 @@ on:
       - '!pkg/v1/tkg/kappclient/*'
       - '!pkg/v1/tkg/test/tkgpackageclient/**'
       - 'pkg/v1/providers/**'
+      - '.github/workflows/tkg_integration_tests*.yaml'
       - '.github/workflows/publish_management_package.yaml'
 
   push:
@@ -22,7 +23,8 @@ on:
     - '!pkg/v1/tkg/kappclient/*'
     - '!pkg/v1/tkg/test/tkgpackageclient/**'
     - 'pkg/v1/providers/**'
-    - '.github/workflows/tkg_integration_tests.yaml'
+    - '.github/workflows/tkg_integration_tests*.yaml'
+    - '.github/workflows/publish_management_package.yaml'
 
 concurrency:
   group: ${{ format('integration-tests-{0}', github.head_ref) }}
@@ -35,6 +37,52 @@ jobs:
     env:
       aws_client_id: ${{secrets.AWS_ACCESS_KEY_ID}}
     steps:
+      - name: show environment
+        uses: hmarr/debug-action@v2
+
+      - name: Extract PR Number
+        uses: Dovyski/payload-info-action@master
+        id: get_pr_num
+        with:
+          # when event is a pull request, obtaining the PR number is obvious
+          filter_pull_request: '.number'
+          # when event is a push (merge of PR), since we require linear history,
+          # we are not even generating a merge commit that can help identify the
+          # PR number, so don't even try. Instead we just hard-code to a dummy
+          # value.
+          filter_push: 1009
+
+      - name: Determine registry directory
+        uses: Dovyski/payload-info-action@master
+        id: get_registry_dir
+        with:
+          # when event is a pull request, use the PR number as the registry dir
+          filter_pull_request: '.number'
+          # when event is a push, use branch name instead
+          filter_push: '.ref | sub("^refs/heads/"; "")'
+
+      - name: Extract registry directory
+        shell: bash
+        run: |
+          export REGDIR=$(echo ${{ steps.get_registry_dir.outputs.value }} | tr -d '"')
+          echo "##[set-output name=regdir;]$(echo $REGDIR)"
+        id: extract_reg_dir
+
+      - name: Find Comment
+        uses: peter-evans/find-comment@v1
+        id: findcomment
+        with:
+          issue-number: ${{ steps.get_pr_num.outputs.value }}
+          body-includes: //usebom
+          direction: last
+
+      - name: Extract Alternate BOM
+        shell: bash
+        run: |
+          export BOMCOMMENT=$(echo -e "${{ steps.findcomment.outputs.comment-body }}" | tr -d "[:space:]")
+          echo "##[set-output name=bompath;]$(echo "$BOMCOMMENT" | awk -F : '{print $2}')"
+        id: extract_bom
+
       - name: Free disk space and clean up installed plugins on runner
         run: |
           sudo rm -rf /usr/share/dotnet
@@ -54,32 +102,6 @@ jobs:
       - name: Build Tools
         run: make tools
 
-      - name: Extract PR Number
-        uses: Dovyski/payload-info-action@master
-        id: get_pr_num
-        with:
-          # when event is a pull request, obtaining the PR number is obvious
-          filter_pull_request: '.number'
-          # when event is a push (merge of PR), since we require linear history,
-          # we are not even generating a merge commit that can help identify the
-          # PR number, so don't even try. Instead we just hard-code to a dummy
-          # value.
-          filter_push: 1009
-
-      - name: Find Comment
-        uses: peter-evans/find-comment@v1
-        id: findcomment
-        with:
-          issue-number: ${{ steps.get_pr_num.outputs.value }}
-          body-includes: //usebom
-          direction: last
-
-      - name: Extract Alternate BOM
-        shell: bash
-        run: |
-          export BOMCOMMENT=$(echo -e "${{ steps.findcomment.outputs.comment-body }}" | tr -d "[:space:]")
-          echo "##[set-output name=bompath;]$(echo "$BOMCOMMENT" | awk -F : '{print $2}')"
-        id: extract_bom
 
       - name: Login to GCR
         uses: docker/login-action@v2
@@ -91,7 +113,7 @@ jobs:
       - name: Build management packages
         env:
           NUM: ${{ github.run_id }}
-          OCI_REGISTRY: gcr.io/eminent-nation-87317/tanzu_framework/github-actions/${{ github.event.number }}
+          OCI_REGISTRY: gcr.io/eminent-nation-87317/tanzu_framework/github-actions/${{ steps.extract_reg_dir.outputs.regdir }}
           COMPONENTS: "pkg/v2/tkr/controller/tkr-source pkg/v2/tkr/controller/tkr-status pkg/v1/sdk/features addons pkg/v2/tkr/webhook/infra-machine pkg/v1/sdk/capabilities pkg/v2/tkr/webhook/tkr-conversion pkg/v2/tkr/webhook/cluster/tkr-resolver addons/pinniped/tanzu-auth-controller-manager"
           BUILD_VERSION: "v0.21.0"
           IMG_VERSION_OVERRIDE: latest
@@ -101,7 +123,7 @@ jobs:
       - name: Publish management packages
         env:
           NUM: ${{ github.run_number }}
-          OCI_REGISTRY: gcr.io/eminent-nation-87317/tanzu_framework/github-actions/${{ github.event.number }}
+          OCI_REGISTRY: gcr.io/eminent-nation-87317/tanzu_framework/github-actions/${{ steps.extract_reg_dir.outputs.regdir }}
           COMPONENTS: "pkg/v2/tkr/controller/tkr-source pkg/v2/tkr/controller/tkr-status pkg/v1/sdk/features addons pkg/v2/tkr/webhook/infra-machine pkg/v1/sdk/capabilities pkg/v2/tkr/webhook/tkr-conversion pkg/v2/tkr/webhook/cluster/tkr-resolver addons/pinniped/tanzu-auth-controller-manager"
           BUILD_VERSION: "v0.21.0"
           IMG_VERSION_OVERRIDE: latest
@@ -154,7 +176,7 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
           AWS_REGION: "us-west-2"
-          _MANAGEMENT_PACKAGE_REPO_IMAGE: gcr.io/eminent-nation-87317/tanzu_framework/github-actions/${{ github.event.number }}/management:v0.21.0
+          _MANAGEMENT_PACKAGE_REPO_IMAGE: gcr.io/eminent-nation-87317/tanzu_framework/github-actions/${{ steps.extract_reg_dir.outputs.regdir }}/management:v0.21.0
           _MANAGEMENT_PACKAGE_VERSION: "0.21.0"
           _ADDITIONAL_MANAGEMENT_COMPONENT_CONFIGURATION_FILE: "https://gist.githubusercontent.com/anujc25/cf8b5ce3e9e241527e3af881d5d748c1/raw/32dda7874da12f98c05d6d5400cdde2f5334a90d/tkr-addons-resources-v1.23.5.yaml"
 
