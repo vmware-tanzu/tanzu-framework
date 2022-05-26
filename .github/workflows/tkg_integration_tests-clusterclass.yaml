@@ -7,7 +7,7 @@ on:
       - 'pkg/v1/tkg/**'
       - 'pkg/v1/tkr/**'
       - 'pkg/v2/tkr/**'
-      - 'packages/management/**'
+      - 'packages/**'
       - '!pkg/v1/tkg/tkgpackage*/*'
       - '!pkg/v1/tkg/kappclient/*'
       - '!pkg/v1/tkg/test/tkgpackageclient/**'
