@@ -12,7 +12,6 @@ import (
 
 	"github.com/pkg/errors"
 	v1 "k8s.io/api/core/v1"
-	rbacv1 "k8s.io/api/rbac/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
@@ -339,29 +338,8 @@ func (r *VSphereCPIConfigReconciler) mapCPIConfigToDataValues(ctx context.Contex
 // mapCPIConfigToProviderServiceAccountSpec maps CPIConfig and cluster to the corresponding service account spec
 func (r *VSphereCPIConfigReconciler) mapCPIConfigToProviderServiceAccountSpec(vsphereCluster *capvvmwarev1beta1.VSphereCluster) capvvmwarev1beta1.ProviderServiceAccountSpec {
 	return capvvmwarev1beta1.ProviderServiceAccountSpec{
-		Ref: &v1.ObjectReference{Name: vsphereCluster.Name, Namespace: vsphereCluster.Namespace},
-		Rules: []rbacv1.PolicyRule{
-			{
-				Verbs:     []string{"get", "create", "update", "patch", "delete"},
-				APIGroups: []string{"vmoperator.vmware.com"},
-				Resources: []string{"virtualmachineservices", "virtualmachineservices/status"},
-			},
-			{
-				Verbs:     []string{"get", "list"},
-				APIGroups: []string{"vmoperator.vmware.com"},
-				Resources: []string{"virtualmachines", "virtualmachines/status"},
-			},
-			{
-				Verbs:     []string{"get", "create", "update", "list", "patch", "delete", "watch"},
-				APIGroups: []string{"nsx.vmware.com"},
-				Resources: []string{"ippools", "ippools/status"},
-			},
-			{
-				Verbs:     []string{"get", "create", "update", "list", "patch", "delete"},
-				APIGroups: []string{"nsx.vmware.com"},
-				Resources: []string{"routesets", "routesets/status"},
-			},
-		},
+		Ref:              &v1.ObjectReference{Name: vsphereCluster.Name, Namespace: vsphereCluster.Namespace},
+		Rules:            providerServiceAccountRBACRules,
 		TargetNamespace:  ProviderServiceAccountSecretNamespace,
 		TargetSecretName: ProviderServiceAccountSecretName,
 	}

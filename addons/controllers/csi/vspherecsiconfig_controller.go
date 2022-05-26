@@ -10,8 +10,9 @@ import (
 
 	"github.com/go-logr/logr"
 	"github.com/pkg/errors"
-	yaml "gopkg.in/yaml.v3"
+	"gopkg.in/yaml.v3"
 	v1 "k8s.io/api/core/v1"
+	rbacv1 "k8s.io/api/rbac/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
@@ -37,6 +38,39 @@ type VSphereCSIConfigReconciler struct {
 	client.Client
 	Log    logr.Logger
 	Scheme *runtime.Scheme
+}
+
+var providerServiceAccountRBACRules = []rbacv1.PolicyRule{
+	{
+		APIGroups: []string{"vmoperator.vmware.com"},
+		Resources: []string{"virtualmachines"},
+		Verbs:     []string{"get", "list", "watch", "update", "patch"},
+	},
+	{
+		APIGroups: []string{"cns.vmware.com"},
+		Resources: []string{"cnsvolumemetadatas", "cnsfileaccessconfigs"},
+		Verbs:     []string{"get", "list", "watch", "update", "create", "delete"},
+	},
+	{
+		APIGroups: []string{"cns.vmware.com"},
+		Resources: []string{"cnscsisvfeaturestates"},
+		Verbs:     []string{"get", "list", "watch"},
+	},
+	{
+		APIGroups: []string{""},
+		Resources: []string{"persistentvolumeclaims"},
+		Verbs:     []string{"get", "list", "watch", "update", "create", "delete"},
+	},
+	{
+		APIGroups: []string{""},
+		Resources: []string{"persistentvolumeclaims/status"},
+		Verbs:     []string{"get", "update", "patch"},
+	},
+	{
+		APIGroups: []string{""},
+		Resources: []string{"events"},
+		Verbs:     []string{"list"},
+	},
 }
 
 //+kubebuilder:rbac:groups=csi.tanzu.vmware.com,resources=vspherecsiconfigs,verbs=get;list;watch;create;update;patch;delete
@@ -183,6 +217,18 @@ func (r *VSphereCSIConfigReconciler) reconcileVSphereCSIConfigNormal(ctx context
 
 	// deploy the provider service account for paravirtual mode
 	if csiCfg.Spec.VSphereCSI.Mode == VSphereCSIParavirtualMode {
+		// create an aggregated cluster role RBAC that will be inherited by CAPV (https://kubernetes.io/docs/reference/access-authn-authz/rbac/#aggregated-clusterroles)
+		// CAPV needs to hold these rules before it can grant it to serviceAccount for CSI
+		_, err := controllerutil.CreateOrPatch(ctx, r.Client, constants.CAPVAggregatedClusterRole, func() error {
+			constants.CAPVAggregatedClusterRole.Rules = providerServiceAccountRBACRules
+			return nil
+		})
+
+		if err != nil {
+			r.Log.Error(err, "Error creating or patching cluster role", "name", constants.ProviderServiceAccountAggregatedClusterRole)
+			return ctrl.Result{}, err
+		}
+
 		serviceAccount := &capvvmwarev1beta1.ProviderServiceAccount{}
 		vsphereCluster, err := r.getVsphereCluster(ctx, cluster)
 		if err != nil {

@@ -10,7 +10,6 @@ import (
 
 	"github.com/pkg/errors"
 	v1 "k8s.io/api/core/v1"
-	rbacv1 "k8s.io/api/rbac/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
@@ -172,39 +171,8 @@ func (r *VSphereCSIConfigReconciler) mapCSIConfigToProviderServiceAccount(vspher
 			Namespace: vsphereCluster.Namespace,
 		},
 		Spec: capvvmwarev1beta1.ProviderServiceAccountSpec{
-			Ref: &v1.ObjectReference{Name: vsphereCluster.Name, Namespace: vsphereCluster.Namespace},
-			Rules: []rbacv1.PolicyRule{
-				{
-					APIGroups: []string{"vmoperator.vmware.com"},
-					Resources: []string{"virtualmachines"},
-					Verbs:     []string{"get", "list", "watch", "update", "patch"},
-				},
-				{
-					APIGroups: []string{"cns.vmware.com"},
-					Resources: []string{"cnsvolumemetadatas", "cnsfileaccessconfigs"},
-					Verbs:     []string{"get", "list", "watch", "update", "create", "delete"},
-				},
-				{
-					APIGroups: []string{"cns.vmware.com"},
-					Resources: []string{"cnscsisvfeaturestates"},
-					Verbs:     []string{"get", "list", "watch"},
-				},
-				{
-					APIGroups: []string{""},
-					Resources: []string{"persistentvolumeclaims"},
-					Verbs:     []string{"get", "list", "watch", "update", "create", "delete"},
-				},
-				{
-					APIGroups: []string{""},
-					Resources: []string{"persistentvolumeclaims/status"},
-					Verbs:     []string{"get", "update", "patch"},
-				},
-				{
-					APIGroups: []string{""},
-					Resources: []string{"events"},
-					Verbs:     []string{"list"},
-				},
-			},
+			Ref:              &v1.ObjectReference{Name: vsphereCluster.Name, Namespace: vsphereCluster.Namespace},
+			Rules:            providerServiceAccountRBACRules,
 			TargetNamespace:  "vmware-system-csi",
 			TargetSecretName: "pvcsi-provider-creds",
 		},
