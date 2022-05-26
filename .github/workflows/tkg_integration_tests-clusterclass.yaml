@@ -108,7 +108,7 @@ jobs:
         run: |
           make docker-publish
           make local-registry
-          cp pkg/v1/tkg/test/config/packages/kbld_config_test.yaml packages/kbld-config.yaml
+          cp pkg/v1/tkg/test/config/packages/core-management-plugins/kbld-config_test.yaml packages/core-management-plugins/kbld-config.yaml
           make kbld-image-replace
           make package-push-bundles-repo PACKAGE_REPOSITORY=management
           make clean-registry
