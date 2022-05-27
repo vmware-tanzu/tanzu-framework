@@ -14,23 +14,24 @@ import (
 	"time"
 
 	"github.com/go-logr/logr"
-	ctlimg "github.com/k14s/imgpkg/pkg/imgpkg/registry"
 	"github.com/pkg/errors"
 	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
 	kerrors "k8s.io/apimachinery/pkg/util/errors"
+	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 	"sigs.k8s.io/yaml"
 
 	kapppkgv1 "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apiserver/apis/datapackaging/v1alpha1"
-
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkr/pkg/constants"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkr/pkg/registry"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkr/pkg/types"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v2/tkr/controller/tkr-source/pkgcr"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v2/tkr/controller/tkr-source/registry"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v2/tkr/util/sets"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v2/tkr/util/version"
 )
 
 type Fetcher struct {
@@ -38,8 +39,9 @@ type Fetcher struct {
 	Client client.Client
 	Config Config
 
-	registryOps ctlimg.Opts
-	registry    registry.Registry
+	Registry registry.Registry
+
+	Compatibility version.Compatibility
 }
 
 // Config contains the controller manager context.
@@ -48,7 +50,6 @@ type Config struct {
 	BOMImagePath         string
 	BOMMetadataImagePath string
 	TKRRepoImagePath     string
-	VerifyRegistryCert   bool
 	TKRDiscoveryOption   TKRDiscoveryIntervals
 }
 
@@ -58,12 +59,11 @@ type TKRDiscoveryIntervals struct {
 	ContinuousDiscoveryFrequency time.Duration
 }
 
-func (f *Fetcher) Start(ctx context.Context) error {
-	f.Log.Info("Performing configuration setup")
-	if err := f.configure(ctx); err != nil {
-		return errors.Wrap(err, "failed to configure the controller")
-	}
+func (f *Fetcher) SetupWithManager(m ctrl.Manager) error {
+	return m.Add(f)
+}
 
+func (f *Fetcher) Start(ctx context.Context) error {
 	f.Log.Info("Performing an initial release discovery")
 	f.initialReconcile(ctx, f.Config.TKRDiscoveryOption.InitialDiscoveryFrequency, InitialDiscoveryRetry)
 
@@ -112,14 +112,18 @@ func (f *Fetcher) tkrDiscovery(ctx context.Context, frequency time.Duration) {
 }
 
 func (f *Fetcher) fetchAll(ctx context.Context) error {
+	fetchTKRCompatibilityDone := make(chan struct{})
 	return kerrors.AggregateGoroutines(
 		func() error {
+			defer close(fetchTKRCompatibilityDone)
 			return f.fetchTKRCompatibilityCM(ctx)
 		},
 		func() error {
+			<-fetchTKRCompatibilityDone
 			return f.fetchTKRBOMConfigMaps(ctx)
 		},
 		func() error {
+			<-fetchTKRCompatibilityDone
 			return f.fetchTKRPackages(ctx)
 		})
 }
@@ -160,7 +164,7 @@ func (f *Fetcher) fetchTKRCompatibilityCM(ctx context.Context) error {
 
 func (f *Fetcher) fetchCompatibilityMetadata() (*types.CompatibilityMetadata, error) {
 	f.Log.Info("Listing BOM metadata image tags", "image", f.Config.BOMMetadataImagePath)
-	tags, err := f.registry.ListImageTags(f.Config.BOMMetadataImagePath)
+	tags, err := f.Registry.ListImageTags(f.Config.BOMMetadataImagePath)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to list compatibility metadata image tags")
 	}
@@ -184,7 +188,7 @@ func (f *Fetcher) fetchCompatibilityMetadata() (*types.CompatibilityMetadata, er
 	for i := len(tagNum) - 1; i >= 0; i-- {
 		tagName := fmt.Sprintf("v%d", tagNum[i])
 		f.Log.Info("Fetching BOM metadata image", "image", f.Config.BOMMetadataImagePath, "tag", tagName)
-		metadataContent, err = f.registry.GetFile(fmt.Sprintf("%s:%s", f.Config.BOMMetadataImagePath, tagName), "")
+		metadataContent, err = f.Registry.GetFile(fmt.Sprintf("%s:%s", f.Config.BOMMetadataImagePath, tagName), "")
 		if err == nil {
 			if err = yaml.Unmarshal(metadataContent, &metadata); err == nil {
 				break
@@ -209,15 +213,18 @@ func (f *Fetcher) fetchTKRBOMConfigMaps(ctx context.Context) error {
 	default:
 	}
 
+	compatibleImageTags, err := f.compatibleImageTags(ctx)
+	if err != nil {
+		return err
+	}
+
 	f.Log.Info("Listing BOM image tags", "image", f.Config.BOMImagePath)
-	imageTags, err := f.registry.ListImageTags(f.Config.BOMImagePath)
+	imageTags, err := f.Registry.ListImageTags(f.Config.BOMImagePath)
 	if err != nil {
 		return errors.Wrap(err, "failed to list current available BOM image tags")
 	}
-	tagMap := make(map[string]bool)
-	for _, tag := range imageTags {
-		tagMap[tag] = false
-	}
+
+	tagsToDownload := compatibleImageTags.Intersect(sets.Strings(imageTags...))
 
 	cmList := &corev1.ConfigMapList{}
 	if err := f.Client.List(ctx, cmList, &client.ListOptions{Namespace: f.Config.TKRNamespace}); err != nil {
@@ -226,25 +233,18 @@ func (f *Fetcher) fetchTKRBOMConfigMaps(ctx context.Context) error {
 
 	for i := range cmList.Items {
 		if imageTag, ok := cmList.Items[i].ObjectMeta.Annotations[constants.BomConfigMapImageTagAnnotation]; ok {
-			if _, ok := tagMap[imageTag]; ok {
-				tagMap[imageTag] = true
-			}
+			tagsToDownload.Remove(imageTag)
 		}
 	}
-	var errs errorSlice
-	for tag, exist := range tagMap {
-		if !exist {
-			if err := f.createBOMConfigMap(ctx, tag); err != nil {
-				errs = append(errs, errors.Wrapf(err, "failed to create BOM ConfigMap for image %s", fmt.Sprintf("%s:%s", f.Config.BOMImagePath, tag)))
-			}
+	var errs []error
+	for tag := range tagsToDownload {
+		if err := f.createBOMConfigMap(ctx, tag); err != nil {
+			errs = append(errs, errors.Wrapf(err, "failed to create BOM ConfigMap for image %s", fmt.Sprintf("%s:%s", f.Config.BOMImagePath, tag)))
 		}
-	}
-	if len(errs) != 0 {
-		return errs
 	}
 
 	f.Log.Info("Done reconciling BOM images", "image", f.Config.BOMImagePath)
-	return nil
+	return kerrors.NewAggregate(errs)
 }
 
 func (f *Fetcher) createBOMConfigMap(ctx context.Context, tag string) error {
@@ -255,7 +255,7 @@ func (f *Fetcher) createBOMConfigMap(ctx context.Context, tag string) error {
 	}
 
 	f.Log.Info("Fetching BOM", "image", f.Config.BOMImagePath, "tag", tag)
-	bomContent, err := f.registry.GetFile(fmt.Sprintf("%s:%s", f.Config.BOMImagePath, tag), "")
+	bomContent, err := f.Registry.GetFile(fmt.Sprintf("%s:%s", f.Config.BOMImagePath, tag), "")
 	if err != nil {
 		return errors.Wrapf(err, "failed to get the BOM file from image %s:%s", f.Config.BOMImagePath, tag)
 	}
@@ -305,24 +305,38 @@ func (f *Fetcher) fetchTKRPackages(ctx context.Context) error {
 	default:
 	}
 
+	compatibleImageTags, err := f.compatibleImageTags(ctx)
+	if err != nil {
+		return err
+	}
+
 	f.Log.Info("Listing TKR Package Repository tags", "image", f.Config.TKRRepoImagePath)
-	imageTags, err := f.registry.ListImageTags(f.Config.TKRRepoImagePath)
+	imageTags, err := f.Registry.ListImageTags(f.Config.TKRRepoImagePath)
 	if err != nil {
 		return errors.Wrap(err, "failed to list current available TKR Package Repository image tags")
 	}
 
-	var errs errorSlice
-	for _, tag := range imageTags {
+	imageTagsToPull := compatibleImageTags.Intersect(sets.Strings(imageTags...))
+
+	var errs []error
+	for tag := range imageTagsToPull {
 		if err := f.createTKRPackages(ctx, tag); err != nil {
 			errs = append(errs, errors.Wrapf(err, "failed to create TKR Package for image %s", fmt.Sprintf("%s:%s", f.Config.TKRRepoImagePath, tag)))
 		}
 	}
-	if len(errs) != 0 {
-		return errs
-	}
 
 	f.Log.Info("Done fetching TKR Packages", "image", f.Config.TKRRepoImagePath)
-	return nil
+	return kerrors.NewAggregate(errs)
+}
+
+func (f *Fetcher) compatibleImageTags(ctx context.Context) (sets.StringSet, error) {
+	compatibleTKRVersions, err := f.Compatibility.CompatibleVersions(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return compatibleTKRVersions.Map(func(v string) string {
+		return strings.ReplaceAll(v, "+", "_")
+	}), nil
 }
 
 func (f *Fetcher) createTKRPackages(ctx context.Context, tag string) error {
@@ -334,7 +348,7 @@ func (f *Fetcher) createTKRPackages(ctx context.Context, tag string) error {
 
 	imageName := fmt.Sprintf("%s:%s", f.Config.TKRRepoImagePath, tag)
 	f.Log.Info("Fetching TKR Package Repository imgpkg bundle", "image", imageName)
-	bundleContent, err := f.registry.GetFiles(imageName)
+	bundleContent, err := f.Registry.GetFiles(imageName)
 	if err != nil {
 		return errors.Wrapf(err, "failed to fetch the BOM file from image '%s'", imageName)
 	}
