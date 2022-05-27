@@ -9,7 +9,6 @@ import (
 
 	"github.com/go-logr/logr"
 	"github.com/pkg/errors"
-	"gopkg.in/yaml.v3"
 	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/labels"
@@ -22,18 +21,27 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/handler"
 	"sigs.k8s.io/controller-runtime/pkg/predicate"
 	"sigs.k8s.io/controller-runtime/pkg/source"
+	"sigs.k8s.io/yaml"
 
 	runv1 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkr/pkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkr/pkg/types"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/util/patchset"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v2/tkr/util/sets"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v2/tkr/util/version"
 )
 
 type Reconciler struct {
+	version.Compatibility
+
 	Ctx    context.Context
 	Log    logr.Logger
 	Client client.Client
+	Config Config
+}
 
+type Compatibility struct {
+	Client client.Client
 	Config Config
 }
 
@@ -112,12 +120,12 @@ func (r *Reconciler) Reconcile(ctx context.Context, req ctrl.Request) (result ct
 }
 
 func (r *Reconciler) updateTKRCompatibleCondition(ctx context.Context, tkr *runv1.TanzuKubernetesRelease) error {
-	compatibleSet, err := r.getCompatibleSet(ctx)
+	compatibleSet, err := r.CompatibleVersions(ctx)
 	if err != nil {
 		return err
 	}
 
-	if _, isCompatible := compatibleSet[tkr.Spec.Version]; isCompatible {
+	if compatibleSet.Has(tkr.Spec.Version) {
 		conditions.MarkTrue(tkr, runv1.ConditionCompatible)
 		return nil
 	}
@@ -125,38 +133,30 @@ func (r *Reconciler) updateTKRCompatibleCondition(ctx context.Context, tkr *runv
 	return nil
 }
 
-func (r *Reconciler) getCompatibleSet(ctx context.Context) (map[string]struct{}, error) {
-	mgmtClusterVersion, err := r.getManagementClusterVersion(ctx)
+func (c *Compatibility) CompatibleVersions(ctx context.Context) (sets.StringSet, error) {
+	mgmtClusterVersion, err := c.getManagementClusterVersion(ctx)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get the management cluster info")
 	}
 
-	metadata, err := r.compatibilityMetadata(ctx)
+	metadata, err := c.compatibilityMetadata(ctx)
 	if err != nil {
 		return nil, errors.Wrapf(err, "failed to get BOM compatibility metadata")
 	}
 
 	for _, mgmtVersion := range metadata.ManagementClusterVersions {
 		if mgmtClusterVersion == mgmtVersion.TKGVersion {
-			return stringSet(mgmtVersion.SupportedKubernetesVersions), nil
+			return sets.Strings(mgmtVersion.SupportedKubernetesVersions...), nil
 		}
 	}
 
-	return stringSet(nil), nil
-}
-
-func stringSet(ss []string) map[string]struct{} {
-	result := make(map[string]struct{}, len(ss))
-	for _, s := range ss {
-		result[s] = struct{}{}
-	}
-	return result
+	return sets.Strings(), nil
 }
 
 // getManagementClusterVersion get the version of the management cluster
-func (r *Reconciler) getManagementClusterVersion(ctx context.Context) (string, error) {
+func (c *Compatibility) getManagementClusterVersion(ctx context.Context) (string, error) {
 	clusterList := &clusterv1.ClusterList{}
-	if err := r.Client.List(ctx, clusterList, client.HasLabels{constants.ManagementClusterRoleLabel}); err != nil {
+	if err := c.Client.List(ctx, clusterList, client.HasLabels{constants.ManagementClusterRoleLabel}); err != nil {
 		return "", errors.Wrap(err, "failed to list clusters")
 	}
 
@@ -169,10 +169,10 @@ func (r *Reconciler) getManagementClusterVersion(ctx context.Context) (string, e
 	return "", errors.New("failed to get management cluster info")
 }
 
-func (r *Reconciler) compatibilityMetadata(ctx context.Context) (*types.CompatibilityMetadata, error) {
+func (c *Compatibility) compatibilityMetadata(ctx context.Context) (*types.CompatibilityMetadata, error) {
 	cm := &corev1.ConfigMap{}
-	cmObjectKey := client.ObjectKey{Namespace: r.Config.TKRNamespace, Name: constants.BOMMetadataConfigMapName}
-	if err := r.Client.Get(ctx, cmObjectKey, cm); err != nil {
+	cmObjectKey := client.ObjectKey{Namespace: c.Config.TKRNamespace, Name: constants.BOMMetadataConfigMapName}
+	if err := c.Client.Get(ctx, cmObjectKey, cm); err != nil {
 		return nil, err
 	}
 
