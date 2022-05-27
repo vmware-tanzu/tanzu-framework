@@ -7,7 +7,7 @@ overrides:
     newImage: gcr.io/eminent-nation-87317/tkg/test12/tanzu-cli-plugins/kubernetes-release-linux-amd64:latest
   - image: tanzu-cli-plugins/feature-linux-amd64:latest
     newImage: gcr.io/eminent-nation-87317/tkg/test12/tanzu-cli-plugins/feature-linux-amd64:latest
-    
+
   - image: tanzu-cli-plugins/cluster-darwin-amd64:latest
     newImage: gcr.io/eminent-nation-87317/tkg/test12/tanzu-cli-plugins/cluster-darwin-amd64:latest
   - image: tanzu-cli-plugins/kubernetes-release-darwin-amd64:latest
