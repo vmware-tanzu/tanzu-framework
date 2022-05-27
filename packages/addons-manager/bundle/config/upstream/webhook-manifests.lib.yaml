@@ -87,6 +87,7 @@ webhooks:
         path: /mutate-run-tanzu-vmware-com-v1alpha3-clusterbootstrap
     failurePolicy: Fail
     name: clusterbootstrap.mutating.vmware.com
+    reinvocationPolicy: IfNeeded
     rules:
       - apiGroups:
           - run.tanzu.vmware.com
