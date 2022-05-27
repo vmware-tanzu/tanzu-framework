@@ -180,6 +180,12 @@ const (
 	// WebhookCertDir is the directory where the certificate and key are stored for webhook server TLS handshake
 	WebhookCertDir = "/tmp/k8s-webhook-server/serving-certs"
 
+	// WebhookCertManagementFrequency is how often the the certificates for webhook server TLS are managed
+	WebhookCertManagementFrequency = time.Second * 60
+
+	// WebhookCertLifeTime is how long the webhook server TLS certificates are good for
+	WebhookCertLifeTime = time.Hour * 24 * 7
+
 	// WebhookServiceName is the name of the k8s service that serves the admission requests
 	WebhookServiceName = "tanzu-addons-manager-webhook-service"
 

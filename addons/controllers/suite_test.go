@@ -79,19 +79,20 @@ const (
 )
 
 var (
-	cfg                *rest.Config
-	k8sClient          client.Client
-	k8sConfig          *rest.Config
-	testEnv            *envtest.Environment
-	ctx                = ctrl.SetupSignalHandler()
-	scheme             = runtime.NewScheme()
-	mgr                manager.Manager
-	dynamicClient      dynamic.Interface
-	cancel             context.CancelFunc
-	certPath           string
-	keyPath            string
-	tmpDir             string
-	webhookCertDetails testutil.WebhookCertificatesDetails
+	cfg                   *rest.Config
+	k8sClient             client.Client
+	k8sConfig             *rest.Config
+	testEnv               *envtest.Environment
+	ctx                   = ctrl.SetupSignalHandler()
+	scheme                = runtime.NewScheme()
+	mgr                   manager.Manager
+	dynamicClient         dynamic.Interface
+	cancel                context.CancelFunc
+	certPath              string
+	keyPath               string
+	tmpDir                string
+	webhookCertDetails    testutil.WebhookCertificatesDetails
+	webhookSelectorString string
 )
 
 func TestAddonController(t *testing.T) {
@@ -325,9 +326,10 @@ var _ = BeforeSuite(func(done Done) {
 
 	labelMatch, err := labels.NewRequirement(constants.AddonWebhookLabelKey, selection.Equals, []string{constants.AddonWebhookLabelValue})
 	Expect(err).ToNot(HaveOccurred())
-	whSelector := labels.NewSelector()
-	whSelector = whSelector.Add(*labelMatch)
-	_, err = webhooks.InstallNewCertificates(ctx, k8sConfig, certPath, keyPath, webhookScrtName, addonNamespace, webhookServiceName, whSelector.String())
+	webhookSelector := labels.NewSelector()
+	webhookSelector = webhookSelector.Add(*labelMatch)
+	webhookSelectorString = webhookSelector.String()
+	_, err = webhooks.InstallNewCertificates(ctx, k8sConfig, certPath, keyPath, webhookScrtName, addonNamespace, webhookServiceName, webhookSelectorString)
 	Expect(err).ToNot(HaveOccurred())
 
 	// Set up the webhooks in the manager
@@ -367,17 +369,13 @@ var _ = BeforeSuite(func(done Done) {
 
 	// set up the certificates and webhook before creating any objects
 	By("Creating and installing new certificates for ClusterBootstrap Admission Webhooks")
-	labelMatch, err = labels.NewRequirement(constants.AddonWebhookLabelKey, selection.Equals, []string{constants.AddonWebhookLabelValue})
-	Expect(err).ToNot(HaveOccurred())
-	whSelector = labels.NewSelector()
-	whSelector = whSelector.Add(*labelMatch)
 	webhookCertDetails = testutil.WebhookCertificatesDetails{
 		CertPath:           certPath,
 		KeyPath:            keyPath,
 		WebhookScrtName:    webhookScrtName,
 		AddonNamespace:     addonNamespace,
 		WebhookServiceName: webhookServiceName,
-		LabelSelector:      whSelector,
+		LabelSelector:      webhookSelector,
 	}
 	err = testutil.SetupWebhookCertificates(ctx, k8sClient, k8sConfig, &webhookCertDetails)
 	Expect(err).ToNot(HaveOccurred())
