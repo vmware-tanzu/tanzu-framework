@@ -1236,21 +1236,21 @@ func (r *ClusterBootstrapReconciler) makeClusterIsReadyForDeletion(cluster *clus
 		log.Error(err, "failed to lookup clusterbootstrap")
 		return false, err
 	}
-	if apierrors.IsNotFound(err) {
-		log.Info("ClusterBootstrap not found")
-	} else if hasPackageInstalls(r.context, remoteClient, cluster, r.Config.SystemNamespace, clusterBootstrap.Spec.AdditionalPackages, log) {
+	if apierrors.IsNotFound(err) { // if there is no clusterbootstrap then the cluster is ready for deletion
+		return true, nil
+	}
+
+	if hasPackageInstalls(r.context, remoteClient, cluster, r.Config.SystemNamespace, clusterBootstrap.Spec.AdditionalPackages, log) {
 		err = r.removeAdditionalPackageInstalls(remoteClient, cluster, clusterBootstrap, log)
 		if err != nil {
 			return false, err
 		}
 		return false, nil
 	}
-	log.Info("cluster is ready for deletion")
 	return true, nil
 }
 
 func (r *ClusterBootstrapReconciler) removeFinalizersFromClusterResources(cluster *clusterapiv1beta1.Cluster, log logr.Logger) error {
-	log.Info("removing finalizer from clusterbootstrap if present")
 	clusterBootstrap := &runtanzuv1alpha3.ClusterBootstrap{}
 	err := r.Client.Get(r.context, client.ObjectKeyFromObject(cluster), clusterBootstrap)
 	if err != nil && !apierrors.IsNotFound(err) {
@@ -1264,7 +1264,6 @@ func (r *ClusterBootstrapReconciler) removeFinalizersFromClusterResources(cluste
 		}
 	}
 
-	log.Info("removing finalizer from cluster kubeconfig secret if present")
 	clusterKubeConfigSecret := &corev1.Secret{}
 	key := client.ObjectKey{Namespace: cluster.Namespace, Name: secretutil.Name(cluster.Name, secretutil.Kubeconfig)}
 	err = r.Client.Get(r.context, key, clusterKubeConfigSecret)
@@ -1274,17 +1273,14 @@ func (r *ClusterBootstrapReconciler) removeFinalizersFromClusterResources(cluste
 			return err
 		}
 	} else if !apierrors.IsNotFound(err) {
-		log.Error(err, "unable to fetch cluster kubeconfig secret")
 		return err
 	}
 
-	log.Info("removing finalizer from cluster if present")
 	err = r.removeFinalizer(cluster)
 	if err != nil {
 		return err
 	}
 
-	log.Info("all finalizers have been removed from cluster resources")
 	return nil
 }
 
@@ -1369,7 +1365,6 @@ func (r *ClusterBootstrapReconciler) removeAdditionalPackageInstalls(remoteClien
 				Namespace: r.Config.SystemNamespace,
 			},
 		}
-		log.Info(fmt.Sprintf("deleteting package install %s/%s", additionalPkgInstall.Namespace, additionalPkgInstall.Name))
 		err = remoteClient.Delete(r.context, additionalPkgInstall)
 		if err != nil && !apierrors.IsNotFound(err) {
 			log.Error(err, fmt.Sprintf("unable to delete package install for %s/%s",
