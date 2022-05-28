@@ -28,7 +28,9 @@ func (t *tkgctl) ConfigCluster(configClusterOption CreateClusterOptions) error {
 		return err
 	}
 
-	options, err := t.getCreateClusterOptions(configClusterOption.ClusterName, &configClusterOption)
+	isInputFileClusterClassBased := false
+	// TODO (chandrareddyp) need to support Cluster.YAML file with Cluster Object for the dry-run use case, then based on input file type, pass the isInputFileClusterClassBased flag here (https://github.com/vmware-tanzu/tanzu-framework/issues/2516)
+	options, err := t.getCreateClusterOptions(configClusterOption.ClusterName, &configClusterOption, isInputFileClusterClassBased)
 	if err != nil {
 		return err
 	}
