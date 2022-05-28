@@ -95,11 +95,10 @@ func (t *tkgctl) CreateCluster(cc CreateClusterOptions) error {
 
 	defer t.restoreAfterSettingTimeout(cc.Timeout)()
 
-	options, err := t.getCreateClusterOptions(cc.ClusterName, &cc)
+	options, err := t.getCreateClusterOptions(cc.ClusterName, &cc, isInputFileClusterClassBased)
 	if err != nil {
 		return err
 	}
-	options.IsInputFileClusterClassBased = isInputFileClusterClassBased
 
 	if isTKGSCluster {
 		// For TKGS kubernetesVersion will be same as TkrVersion
@@ -197,12 +196,12 @@ func (t *tkgctl) processManagementClusterForTKGSCluster(isInputFileClusterClassB
 	return isTKGSCluster, nil
 }
 
-func (t *tkgctl) getCreateClusterOptions(name string, cc *CreateClusterOptions) (client.CreateClusterOptions, error) {
+func (t *tkgctl) getCreateClusterOptions(name string, cc *CreateClusterOptions, isInputFileClusterClassBased bool) (client.CreateClusterOptions, error) {
 	providerRepositorySource := &clusterctl.ProviderRepositorySourceOptions{
 		InfrastructureProvider: cc.InfrastructureProvider,
 		Flavor:                 cc.Plan,
 	}
-	if cc.Plan == "" {
+	if !isInputFileClusterClassBased && cc.Plan == "" {
 		return client.CreateClusterOptions{}, errors.New("required config variable 'CLUSTER_PLAN' not set")
 	}
 
@@ -230,14 +229,15 @@ func (t *tkgctl) getCreateClusterOptions(name string, cc *CreateClusterOptions) 
 	}
 
 	return client.CreateClusterOptions{
-		ClusterConfigOptions:        configOptions,
-		NodeSizeOptions:             nodeSizeOptions,
-		CniType:                     cc.CniType,
-		VsphereControlPlaneEndpoint: cc.VsphereControlPlaneEndpoint,
-		ClusterOptionsEnableList:    clusterOptionsEnableList,
-		Edition:                     cc.Edition,
-		IsWindowsWorkloadCluster:    cc.IsWindowsWorkloadCluster,
-		ClusterConfigFile:           cc.ClusterConfigFile,
+		ClusterConfigOptions:         configOptions,
+		NodeSizeOptions:              nodeSizeOptions,
+		CniType:                      cc.CniType,
+		VsphereControlPlaneEndpoint:  cc.VsphereControlPlaneEndpoint,
+		ClusterOptionsEnableList:     clusterOptionsEnableList,
+		Edition:                      cc.Edition,
+		IsWindowsWorkloadCluster:     cc.IsWindowsWorkloadCluster,
+		ClusterConfigFile:            cc.ClusterConfigFile,
+		IsInputFileClusterClassBased: isInputFileClusterClassBased,
 	}, nil
 }
 
