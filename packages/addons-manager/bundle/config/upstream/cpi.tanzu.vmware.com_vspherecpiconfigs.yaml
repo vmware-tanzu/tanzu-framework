@@ -51,13 +51,7 @@ spec:
                   datacenter:
                     description: The datacenter in which VMs are created/located
                     type: string
-                  http_proxy:
-                    description: HTTP proxy setting
-                    type: string
-                  https_proxy:
-                    description: HTTPS proxy setting
-                    type: string
-                  insecureFlag:
+                  insecure:
                     default: false
                     description: The flag that disables TLS peer verification
                     type: boolean
@@ -75,11 +69,11 @@ spec:
                     - vsphereCPI
                     - vsphereParavirtualCPI
                     type: string
-                  no_proxy:
-                    description: No-proxy setting
-                    type: string
                   nsxt:
                     properties:
+                      apiHost:
+                        description: The NSX-T server
+                        type: string
                       clientCertData:
                         description: Client certificate data for NSX-T
                         type: string
@@ -107,12 +101,9 @@ spec:
                         - kind
                         - name
                         type: object
-                      host:
-                        description: The NSX-T server
-                        type: string
-                      insecureFlag:
-                        description: InsecureFlag is to be set to true if NSX-T uses
-                          self-signed cert
+                      insecure:
+                        description: Insecure is to be set to true if NSX-T uses self-signed
+                          cert
                         type: boolean
                       podRoutingEnabled:
                         default: false
@@ -126,22 +117,13 @@ spec:
                         description: The certificate authority for the server certificate
                           for locally signed certificates
                         type: string
-                      routes:
+                      route:
                         description: Route configuration for NSXT
                         properties:
-                          clusterCidr:
-                            description: Cluster CIDR
-                            type: string
                           routerPath:
                             description: NSX-T T0/T1 logical router path
                             type: string
                         type: object
-                      secretName:
-                        description: The name of secret that stores CPI configuration
-                        type: string
-                      secretNamespace:
-                        description: The namespace of secret that stores CPI configuration
-                        type: string
                       vmcAccessToken:
                         description: VMCAccessToken is VMC access token for token
                           based authentication
@@ -151,11 +133,20 @@ spec:
                           based authentication
                         type: string
                     type: object
+                  proxy:
+                    properties:
+                      http_proxy:
+                        description: HTTP proxy setting
+                        type: string
+                      https_proxy:
+                        description: HTTPS proxy setting
+                        type: string
+                      no_proxy:
+                        description: No-proxy setting
+                        type: string
+                    type: object
                   region:
                     description: The region used by vSphere multi-AZ feature
-                    type: string
-                  server:
-                    description: The IP address or FQDN of the vSphere endpoint
                     type: string
                   tlsCipherSuites:
                     default: TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
@@ -164,6 +155,9 @@ spec:
                   tlsThumbprint:
                     description: The cryptographic thumbprint of the vSphere endpoint's
                       certificate. Default value is "".
+                    type: string
+                  vCenterAPIEndpoint:
+                    description: The IP address or FQDN of the vSphere endpoint
                     type: string
                   vSphereCredentialLocalObjRef:
                     description: A secret reference that contains vSphere login credentials
@@ -186,18 +180,21 @@ spec:
                     - kind
                     - name
                     type: object
-                  vmExcludeExternalNetworkSubnetCidr:
-                    description: External VM network CIDR to be excluded
-                    type: string
-                  vmExcludeInternalNetworkSubnetCidr:
-                    description: Internal VM network CIDR to be excluded
-                    type: string
-                  vmExternalNetwork:
-                    description: External VM network name
-                    type: string
-                  vmInternalNetwork:
-                    description: Internal VM network name
-                    type: string
+                  vmNetwork:
+                    properties:
+                      excludeExternalSubnetCidr:
+                        description: External VM network CIDR to be excluded
+                        type: string
+                      excludeInternalSubnetCidr:
+                        description: Internal VM network CIDR to be excluded
+                        type: string
+                      external:
+                        description: External VM network name
+                        type: string
+                      internal:
+                        description: Internal VM network name
+                        type: string
+                    type: object
                   zone:
                     description: The zone used by vSphere multi-AZ feature
                     type: string

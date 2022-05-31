@@ -8,6 +8,8 @@ import (
 	"reflect"
 	"time"
 
+	rbacv1 "k8s.io/api/rbac/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	clusterapiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
 )
 
@@ -178,6 +180,12 @@ const (
 	// WebhookCertDir is the directory where the certificate and key are stored for webhook server TLS handshake
 	WebhookCertDir = "/tmp/k8s-webhook-server/serving-certs"
 
+	// WebhookCertManagementFrequency is how often the the certificates for webhook server TLS are managed
+	WebhookCertManagementFrequency = time.Second * 60
+
+	// WebhookCertLifeTime is how long the webhook server TLS certificates are good for
+	WebhookCertLifeTime = time.Hour * 24 * 7
+
 	// WebhookServiceName is the name of the k8s service that serves the admission requests
 	WebhookServiceName = "tanzu-addons-manager-webhook-service"
 
@@ -193,7 +201,30 @@ const (
 	// LocalObjectRefSuffix is the suffix of a field within the provider's CR. This suffix indicates that the field is a
 	// K8S typed local object reference
 	LocalObjectRefSuffix = "LocalObjRef"
+
+	// AddCBMissingFieldsAnnotationKey is the annotation key used by ClusterBootstrap webhook to implement its defaulting
+	// logic
+	AddCBMissingFieldsAnnotationKey = "tkg.tanzu.vmware.com/add-missing-fields-from-tkr"
+
+	// ProviderServiceAccountAggregatedClusterRole is the name of ClusterRole created by controllers that use ProviderServiceAccount
+	ProviderServiceAccountAggregatedClusterRole = "tanzu-addons-manager-providerserviceaccount-aggregatedrole"
+
+	// CAPVClusterRoleAggregationRuleLabelSelectorKey is the label selector key used by aggregation rule in CAPV ClusterRole
+	CAPVClusterRoleAggregationRuleLabelSelectorKey = "capv.infrastucture.cluster.x-k8s.io/aggregate-to-manager"
+
+	// CAPVClusterRoleAggregationRuleLabelSelectorValue is the label selector value used by aggregation rule in CAPV ClusterRole
+	CAPVClusterRoleAggregationRuleLabelSelectorValue = "true"
 )
 
 // ClusterKind is the Kind for cluster-api Cluster object
 var ClusterKind = reflect.TypeOf(clusterapiv1beta1.Cluster{}).Name()
+
+// CAPVAggregatedClusterRole is the cluster role to assign permissions to capv provider
+var CAPVAggregatedClusterRole = &rbacv1.ClusterRole{
+	ObjectMeta: metav1.ObjectMeta{
+		Name: ProviderServiceAccountAggregatedClusterRole,
+		Labels: map[string]string{
+			CAPVClusterRoleAggregationRuleLabelSelectorKey: CAPVClusterRoleAggregationRuleLabelSelectorValue,
+		},
+	},
+}

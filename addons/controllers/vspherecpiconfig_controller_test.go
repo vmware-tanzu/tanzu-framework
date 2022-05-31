@@ -13,6 +13,7 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	v1 "k8s.io/api/core/v1"
+	rbacv1 "k8s.io/api/rbac/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/intstr"
 	capvv1beta1 "sigs.k8s.io/cluster-api-provider-vsphere/apis/v1beta1"
@@ -297,6 +298,23 @@ var _ = Describe("VSphereCPIConfig Reconciler", func() {
 				Expect(serviceAccount.Spec.Rules).To(HaveLen(4))
 				Expect(serviceAccount.Spec.TargetNamespace).To(Equal("vmware-system-cloud-provider"))
 				Expect(serviceAccount.Spec.TargetSecretName).To(Equal("cloud-provider-creds"))
+				return true
+			})
+		})
+
+		It("Should reconcile aggregated cluster role", func() {
+			clusterRole := &rbacv1.ClusterRole{}
+			Eventually(func() bool {
+				key := client.ObjectKey{
+					Name: constants.ProviderServiceAccountAggregatedClusterRole,
+				}
+				if err := k8sClient.Get(ctx, key, clusterRole); err != nil {
+					return false
+				}
+				Expect(clusterRole.Labels).To(Equal(map[string]string{
+					constants.CAPVClusterRoleAggregationRuleLabelSelectorKey: constants.CAPVClusterRoleAggregationRuleLabelSelectorValue,
+				}))
+				Expect(clusterRole.Rules).To(HaveLen(5))
 				return true
 			})
 		})

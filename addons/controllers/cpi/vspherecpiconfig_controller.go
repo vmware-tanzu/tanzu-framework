@@ -10,6 +10,7 @@ import (
 
 	"github.com/go-logr/logr"
 	v1 "k8s.io/api/core/v1"
+	rbacv1 "k8s.io/api/rbac/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
@@ -34,6 +35,29 @@ type VSphereCPIConfigReconciler struct {
 	client.Client
 	Log    logr.Logger
 	Scheme *runtime.Scheme
+}
+
+var providerServiceAccountRBACRules = []rbacv1.PolicyRule{
+	{
+		Verbs:     []string{"get", "create", "update", "patch", "delete"},
+		APIGroups: []string{"vmoperator.vmware.com"},
+		Resources: []string{"virtualmachineservices", "virtualmachineservices/status"},
+	},
+	{
+		Verbs:     []string{"get", "list"},
+		APIGroups: []string{"vmoperator.vmware.com"},
+		Resources: []string{"virtualmachines", "virtualmachines/status"},
+	},
+	{
+		Verbs:     []string{"get", "create", "update", "list", "patch", "delete", "watch"},
+		APIGroups: []string{"nsx.vmware.com"},
+		Resources: []string{"ippools", "ippools/status"},
+	},
+	{
+		Verbs:     []string{"get", "create", "update", "list", "patch", "delete"},
+		APIGroups: []string{"nsx.vmware.com"},
+		Resources: []string{"routesets", "routesets/status"},
+	},
 }
 
 //+kubebuilder:rbac:groups=cpi.tanzu.vmware.com,resources=vspherecpiconfigs,verbs=get;list;watch;create;update;patch;delete
@@ -149,7 +173,17 @@ func (r *VSphereCPIConfigReconciler) reconcileVSphereCPIConfigNormal(ctx context
 
 	// deploy the provider service account for paravirtual mode
 	if *cpiConfig.Spec.VSphereCPI.Mode == VSphereCPIParavirtualMode {
-		r.Log.Info("Create or update provider serviceAccount for VSphere CPI")
+		// create an aggregated cluster role RBAC that will be inherited by CAPV (https://kubernetes.io/docs/reference/access-authn-authz/rbac/#aggregated-clusterroles)
+		// CAPV needs to hold these rules before it can grant it to serviceAccount for CPI
+		_, err := controllerutil.CreateOrPatch(ctx, r.Client, constants.CAPVAggregatedClusterRole, func() error {
+			constants.CAPVAggregatedClusterRole.Rules = providerServiceAccountRBACRules
+			return nil
+		})
+		if err != nil {
+			r.Log.Error(err, "Error creating or patching cluster role", "name", constants.ProviderServiceAccountAggregatedClusterRole)
+			return err
+		}
+
 		vsphereClusters := &capvvmwarev1beta1.VSphereClusterList{}
 		labelMatch, err := labels.NewRequirement(clusterapiv1beta1.ClusterLabelName, selection.Equals, []string{cluster.Name})
 		if err != nil {

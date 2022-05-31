@@ -16,7 +16,7 @@ import (
 	cniv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cni/v1alpha1"
 )
 
-// calicoConfigSpec defines the desired state of CalicoConfig
+// calicoConfigSpec defines the desired state of CalicoConfig.
 type calicoConfigSpec struct {
 	InfraProvider string `yaml:"infraProvider"`
 	IPFamily      string `yaml:"ipFamily,omitempty"`
@@ -28,8 +28,9 @@ type calico struct {
 }
 
 type config struct {
-	VethMTU     string `yaml:"vethMTU,omitempty"`
-	ClusterCIDR string `yaml:"clusterCIDR"`
+	VethMTU         string `yaml:"vethMTU,omitempty"`
+	ClusterCIDR     string `yaml:"clusterCIDR"`
+	SkipCNIBinaries bool   `yaml:"skipCNIBinaries"`
 }
 
 func mapCalicoConfigSpec(cluster *clusterapiv1beta1.Cluster, config *cniv1alpha1.CalicoConfig) (*calicoConfigSpec, error) {
@@ -37,6 +38,7 @@ func mapCalicoConfigSpec(cluster *clusterapiv1beta1.Cluster, config *cniv1alpha1
 
 	configSpec := &calicoConfigSpec{}
 	configSpec.Calico.Config.VethMTU = strconv.FormatInt(config.Spec.Calico.Config.VethMTU, 10)
+	configSpec.Calico.Config.SkipCNIBinaries = config.Spec.Calico.Config.SkipCNIBinaries
 
 	// Derive InfraProvider from the cluster
 	configSpec.InfraProvider, err = util.GetInfraProvider(cluster)

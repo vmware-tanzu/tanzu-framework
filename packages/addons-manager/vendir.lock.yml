@@ -4,53 +4,46 @@ directories:
   - manual: {}
     path: addons-manager.yaml
   - git:
-      commitTitle: Fix issue of namespace being hardcoded in addons-manager webhook
-        templates by templating namespace (#2133)
-      sha: 309d7fa7b034f217d2c3fbfb2c4e3969525039e5
+      commitTitle: Update SkipCNIBinaries param to CalicoConfig (#2416)
+      sha: 59a1bc05c28c912054b03043a7009c4aa45243a9
       tags:
-      - v0.21.0-dev-81-g309d7fa7
+      - v0.22.0-dev-67-g59a1bc05
     path: cni.tanzu.vmware.com_antreaconfigs.yaml
   - git:
-      commitTitle: Fix issue of namespace being hardcoded in addons-manager webhook
-        templates by templating namespace (#2133)
-      sha: 309d7fa7b034f217d2c3fbfb2c4e3969525039e5
+      commitTitle: Update SkipCNIBinaries param to CalicoConfig (#2416)
+      sha: 59a1bc05c28c912054b03043a7009c4aa45243a9
       tags:
-      - v0.21.0-dev-81-g309d7fa7
+      - v0.22.0-dev-67-g59a1bc05
     path: cni.tanzu.vmware.com_calicoconfigs.yaml
   - git:
-      commitTitle: Fix issue of namespace being hardcoded in addons-manager webhook
-        templates by templating namespace (#2133)
-      sha: 309d7fa7b034f217d2c3fbfb2c4e3969525039e5
+      commitTitle: Update SkipCNIBinaries param to CalicoConfig (#2416)
+      sha: 59a1bc05c28c912054b03043a7009c4aa45243a9
       tags:
-      - v0.21.0-dev-81-g309d7fa7
+      - v0.22.0-dev-67-g59a1bc05
     path: run.tanzu.vmware.com_clusterbootstraps.yaml
   - git:
-      commitTitle: Fix issue of namespace being hardcoded in addons-manager webhook
-        templates by templating namespace (#2133)
-      sha: 309d7fa7b034f217d2c3fbfb2c4e3969525039e5
+      commitTitle: Update SkipCNIBinaries param to CalicoConfig (#2416)
+      sha: 59a1bc05c28c912054b03043a7009c4aa45243a9
       tags:
-      - v0.21.0-dev-81-g309d7fa7
+      - v0.22.0-dev-67-g59a1bc05
     path: run.tanzu.vmware.com_clusterbootstraptemplates.yaml
   - git:
-      commitTitle: Fix issue of namespace being hardcoded in addons-manager webhook
-        templates by templating namespace (#2133)
-      sha: 309d7fa7b034f217d2c3fbfb2c4e3969525039e5
+      commitTitle: Update SkipCNIBinaries param to CalicoConfig (#2416)
+      sha: 59a1bc05c28c912054b03043a7009c4aa45243a9
       tags:
-      - v0.21.0-dev-81-g309d7fa7
+      - v0.22.0-dev-67-g59a1bc05
     path: run.tanzu.vmware.com_kappcontrollerconfigs.yaml
   - git:
-      commitTitle: Fix issue of namespace being hardcoded in addons-manager webhook
-        templates by templating namespace (#2133)
-      sha: 309d7fa7b034f217d2c3fbfb2c4e3969525039e5
+      commitTitle: Update SkipCNIBinaries param to CalicoConfig (#2416)
+      sha: 59a1bc05c28c912054b03043a7009c4aa45243a9
       tags:
-      - v0.21.0-dev-81-g309d7fa7
+      - v0.22.0-dev-67-g59a1bc05
     path: cpi.tanzu.vmware.com_vspherecpiconfigs.yaml
   - git:
-      commitTitle: Fix issue of namespace being hardcoded in addons-manager webhook
-        templates by templating namespace (#2133)
-      sha: 309d7fa7b034f217d2c3fbfb2c4e3969525039e5
+      commitTitle: Update SkipCNIBinaries param to CalicoConfig (#2416)
+      sha: 59a1bc05c28c912054b03043a7009c4aa45243a9
       tags:
-      - v0.21.0-dev-81-g309d7fa7
+      - v0.22.0-dev-67-g59a1bc05
     path: csi.tanzu.vmware.com_vspherecsiconfigs.yaml
   - manual: {}
     path: webhook-manifests.lib.yaml
