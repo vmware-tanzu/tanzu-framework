@@ -6,11 +6,12 @@ package patchset
 
 import (
 	"context"
+	"reflect"
+	"sync"
 
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/types"
 	kerrors "k8s.io/apimachinery/pkg/util/errors"
-	"sigs.k8s.io/cluster-api/util/patch"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
@@ -35,29 +36,53 @@ func New(c client.Client) PatchSet {
 }
 
 type patchSet struct {
+	sync.RWMutex
 	client   client.Client
 	patchers map[types.UID]*patcher
 }
 
 type patcher struct {
-	obj    client.Object
-	helper *patch.Helper
+	obj       client.Object
+	beforeObj client.Object
+}
+
+func (h *patcher) patch(ctx context.Context, c client.Client, obj client.Object) error {
+	for _, f := range []func() error{
+		func() error {
+			return c.Patch(ctx, obj, client.MergeFromWithOptions(h.beforeObj, client.MergeFromWithOptimisticLock{}))
+		},
+		func() error {
+			err := c.Status().Patch(ctx, obj, client.MergeFromWithOptions(h.beforeObj, client.MergeFromWithOptimisticLock{}))
+			return kerrors.FilterOut(err, apierrors.IsNotFound) // status resource may not exist
+		},
+	} {
+		if err := f(); err != nil {
+			return err
+		}
+		h.beforeObj.SetResourceVersion(obj.GetResourceVersion()) // get the new resourceVersion after a successful patch
+	}
+	return nil
 }
 
 func (ps *patchSet) Add(obj client.Object) {
+	ps.Lock()
+	defer ps.Unlock()
+
 	uid := obj.GetUID()
 	if _, exists := ps.patchers[uid]; exists {
 		return
 	}
 
-	helper, _ := patch.NewHelper(obj, ps.client)
 	ps.patchers[uid] = &patcher{
-		obj:    obj,
-		helper: helper,
+		obj:       obj,
+		beforeObj: obj.DeepCopyObject().(client.Object),
 	}
 }
 
-func (ps patchSet) Objects() map[types.UID]client.Object {
+func (ps *patchSet) Objects() map[types.UID]client.Object {
+	ps.RLock()
+	defer ps.RUnlock()
+
 	result := make(map[types.UID]client.Object, len(ps.patchers))
 	for k, v := range ps.patchers {
 		result[k] = v.obj
@@ -65,10 +90,16 @@ func (ps patchSet) Objects() map[types.UID]client.Object {
 	return result
 }
 
-func (ps patchSet) Apply(ctx context.Context) error {
+func (ps *patchSet) Apply(ctx context.Context) error {
+	ps.Lock()
+	defer ps.Unlock()
+
 	errs := make([]error, 0, len(ps.patchers))
 	for _, patcher := range ps.patchers {
-		if err := patcher.helper.Patch(ctx, patcher.obj); err != nil {
+		if reflect.DeepEqual(patcher.obj, patcher.beforeObj) {
+			continue
+		}
+		if err := patcher.patch(ctx, ps.client, patcher.obj); err != nil {
 			if !patcher.obj.GetDeletionTimestamp().IsZero() && isNotFound(err) {
 				continue
 			}

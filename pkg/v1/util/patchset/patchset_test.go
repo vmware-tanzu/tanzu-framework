@@ -11,9 +11,13 @@ import (
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	"github.com/pkg/errors"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/runtime/schema"
+	kerrors "k8s.io/apimachinery/pkg/util/errors"
 	"k8s.io/apimachinery/pkg/util/uuid"
 	"sigs.k8s.io/cluster-api/util/conditions"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -35,7 +39,7 @@ func TestPatchsetUnit(t *testing.T) {
 	RunSpecs(t, "vlabel Package Unit Tests")
 }
 
-var _ = Describe("Patchset", func() {
+var _ = Describe("PatchSet", func() {
 	var (
 		tkr1156 *runv1.TanzuKubernetesRelease
 		tkr116  *runv1.TanzuKubernetesRelease
@@ -103,6 +107,22 @@ var _ = Describe("Patchset", func() {
 		})
 	})
 
+	When("there's a conflict applying the patchset", func() {
+		BeforeEach(func() {
+			ps = New(&conflictedPatcher{})
+		})
+
+		It("return a Conflict error", func() {
+			changedTKRs := []*runv1.TanzuKubernetesRelease{tkr116, tkr117}
+			for _, tkr := range changedTKRs {
+				tkr.Labels = labels.Set{"newLabel" + tkr.Name: ""}
+			}
+			err := ps.Apply(context.Background())
+			Expect(err).To(HaveOccurred())
+			Expect(kerrors.FilterOut(err, apierrors.IsConflict)).To(BeNil())
+		})
+	})
+
 	When("a patched object is slated for deletion", func() {
 		BeforeEach(func() {
 			tkr117.DeletionTimestamp = &metav1.Time{Time: time.Now()}
@@ -138,6 +158,19 @@ type countingPatcher struct {
 func (p *countingPatcher) Patch(ctx context.Context, obj client.Object, patch client.Patch, opts ...client.PatchOption) error {
 	p.count++
 	return p.Client.Patch(ctx, obj, patch, opts...)
+}
+
+type conflictedPatcher struct {
+	client.Client
+}
+
+func (*conflictedPatcher) Patch(_ context.Context, obj client.Object, _ client.Patch, _ ...client.PatchOption) error {
+	gvk := obj.GetObjectKind().GroupVersionKind()
+	groupResource := schema.GroupResource{
+		Group:    gvk.Group,
+		Resource: gvk.Kind,
+	}
+	return apierrors.NewConflict(groupResource, obj.GetName(), errors.New("re-read the resource before patching"))
 }
 
 func newScheme() *runtime.Scheme {
