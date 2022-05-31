@@ -51,7 +51,7 @@ metadata:
   name: #@ data.values.CLUSTER_NAME
   namespace: #@ data.values.NAMESPACE
   annotations:
-    tkg.tanzu.vmware.com/add-missing-fields-from-tkr: #@ "{}".format(get_tkr_version_from_tkr_name(data.values.KUBERNETES_RELEASE))
+    tkg.tanzu.vmware.com/add-missing-fields-from-tkr: #@ data.values.KUBERNETES_RELEASE
 spec:
   cni:
     #@ if data.values.CNI == "antrea":
