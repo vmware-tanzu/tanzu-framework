@@ -21,18 +21,19 @@ import (
 )
 
 func main() {
+	disableCascadeV1alpha1 := flag.Bool("disable-cascade-v1alpha1", false, "whether to disable the v1alpha1 control loop")
 	klog.InitFlags(nil)
 	flag.Parse()
 	ctrl.SetLogger(klogr.New())
 	setupLog := ctrl.Log.WithName("tanzu auth controller manager").WithName("set up")
 	setupLog.Info("starting set up")
-	if err := reallyMain(setupLog); err != nil {
+	if err := reallyMain(setupLog, *disableCascadeV1alpha1); err != nil {
 		setupLog.Error(err, "error running controller")
 		os.Exit(1)
 	}
 }
 
-func reallyMain(setupLog logr.Logger) error {
+func reallyMain(setupLog logr.Logger, disableCascadeV1alpha1 bool) error {
 	// Add types our controller uses to scheme.
 	scheme := runtime.NewScheme()
 	addToSchemes := []func(*runtime.Scheme) error{
@@ -54,8 +55,10 @@ func reallyMain(setupLog logr.Logger) error {
 	}
 
 	// Register our controllers with the manager.
-	if err := controllers.NewV1Controller(manager.GetClient()).SetupWithManager(manager); err != nil {
-		return fmt.Errorf("unable to create %s: %w", controllers.CascadeControllerV1alpha1Name, err)
+	if !disableCascadeV1alpha1 {
+		if err := controllers.NewV1Controller(manager.GetClient()).SetupWithManager(manager); err != nil {
+			return fmt.Errorf("unable to create %s: %w", controllers.CascadeControllerV1alpha1Name, err)
+		}
 	}
 	if err := controllers.NewV3Controller(manager.GetClient()).SetupWithManager(manager); err != nil {
 		return fmt.Errorf("unable to create %s: %w", controllers.CascadeControllerV1alpha3Name, err)
