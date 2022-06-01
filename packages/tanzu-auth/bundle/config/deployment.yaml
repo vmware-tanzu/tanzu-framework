@@ -20,3 +20,4 @@ spec:
       containers:
       - image: #@ data.values.controller.image
         name: tanzu-auth-controller-manager
+        args: ["--disable-cascade-v1alpha1"]
