@@ -59,12 +59,12 @@ spec:
     #@ end
     pods:
       cidrBlocks:
-      #@overlay/match by=overlay.index(0)
-      - #@ data.values.CLUSTER_CIDR
+        #@overlay/match by=overlay.index(0)
+        - #@ data.values.CLUSTER_CIDR
     services:
       cidrBlocks:
-      #@overlay/match by=overlay.index(0)
-      - #@ data.values.SERVICE_CIDR
+        #@overlay/match by=overlay.index(0)
+        - #@ data.values.SERVICE_CIDR
   controlPlaneRef:
     name: #@ "{}-control-plane".format(data.values.CLUSTER_NAME)
   infrastructureRef:
@@ -91,35 +91,35 @@ spec:
       cidrBlock:
       #@overlay/match missing_ok=True
       cidrBlocks:
-      - #@ data.values.AZURE_VNET_CIDR
+        - #@ data.values.AZURE_VNET_CIDR
     subnets:
-    #@overlay/match by=overlay.index(0)
-    #@overlay/replace
-    - name: #@ data.values.AZURE_CONTROL_PLANE_SUBNET_NAME
-      role: control-plane
-      cidrBlocks:
-      - #@ data.values.AZURE_CONTROL_PLANE_SUBNET_CIDR
-      #@ if len(data.values.AZURE_CONTROL_PLANE_SUBNET_SECURITY_GROUP) != 0:
-      #@overlay/match missing_ok=True
-      securityGroup: #@ data.values.AZURE_CONTROL_PLANE_SUBNET_SECURITY_GROUP
-      #@ end
-    #@overlay/match by=overlay.index(1)
-    #@overlay/replace
-    - name: #@ data.values.AZURE_NODE_SUBNET_NAME
-      role: node
-      cidrBlocks:
-      - #@ data.values.AZURE_NODE_SUBNET_CIDR
-      #@ if len(data.values.AZURE_NODE_SUBNET_SECURITY_GROUP) != 0:
-      #@overlay/match missing_ok=True
-      securityGroup: #@ data.values.AZURE_NODE_SUBNET_SECURITY_GROUP
-      #@ end
+      #@overlay/match by=overlay.index(0)
+      #@overlay/replace
+      - name: #@ data.values.AZURE_CONTROL_PLANE_SUBNET_NAME
+        role: control-plane
+        cidrBlocks:
+          - #@ data.values.AZURE_CONTROL_PLANE_SUBNET_CIDR
+            #@ if len(data.values.AZURE_CONTROL_PLANE_SUBNET_SECURITY_GROUP) != 0:
+          #@overlay/match missing_ok=True
+        securityGroup: #@ data.values.AZURE_CONTROL_PLANE_SUBNET_SECURITY_GROUP
+        #@ end
+      #@overlay/match by=overlay.index(1)
+      #@overlay/replace
+      - name: #@ data.values.AZURE_NODE_SUBNET_NAME
+        role: node
+        cidrBlocks:
+          - #@ data.values.AZURE_NODE_SUBNET_CIDR
+            #@ if len(data.values.AZURE_NODE_SUBNET_SECURITY_GROUP) != 0:
+          #@overlay/match missing_ok=True
+        securityGroup: #@ data.values.AZURE_NODE_SUBNET_SECURITY_GROUP
+        #@ end
     #@ if data.values.AZURE_ENABLE_PRIVATE_CLUSTER:
     #@overlay/match missing_ok=True
     apiServerLB:
       type: Internal
       frontendIPs:
-      - name: #@ "lb-{}-ip-frontend".format(data.values.CLUSTER_NAME)
-        privateIP: #@ data.values.AZURE_FRONTEND_PRIVATE_IP
+        - name: #@ "lb-{}-ip-frontend".format(data.values.CLUSTER_NAME)
+          privateIP: #@ data.values.AZURE_FRONTEND_PRIVATE_IP
 
     #@ if data.values.AZURE_ENABLE_CONTROL_PLANE_OUTBOUND_LB:
     #@overlay/match missing_ok=True
@@ -177,12 +177,12 @@ spec:
     #@ if data.values.AZURE_ENABLE_PRIVATE_CLUSTER:
     #@overlay/match missing_ok=True
     preKubeadmCommands:
-    - #@ "if [ -f /tmp/kubeadm.yaml ] || [ -f /run/kubeadm/kubeadm.yaml ]; then echo '127.0.0.1   apiserver.{}.capz.io apiserver' >> /etc/hosts; fi".format(data.values.CLUSTER_NAME)
+      - #@ "if [ -f /tmp/kubeadm.yaml ] || [ -f /run/kubeadm/kubeadm.yaml ]; then echo '127.0.0.1   apiserver.{}.capz.io apiserver' >> /etc/hosts; fi".format(data.values.CLUSTER_NAME)
 
-    #@overlay/match missing_ok=True
+      #@overlay/match missing_ok=True
     postKubeadmCommands:
-    - #@ "if [ -f /tmp/kubeadm-join-config.yaml ] || [ -f /run/kubeadm/kubeadm-join-config.yaml ]; then echo '127.0.0.1   apiserver.{}.capz.io apiserver' >> /etc/hosts; fi".format(data.values.CLUSTER_NAME)
-    #@ end
+      - #@ "if [ -f /tmp/kubeadm-join-config.yaml ] || [ -f /run/kubeadm/kubeadm-join-config.yaml ]; then echo '127.0.0.1   apiserver.{}.capz.io apiserver' >> /etc/hosts; fi".format(data.values.CLUSTER_NAME)
+      #@ end
     clusterConfiguration:
       imageRepository: #@ kubeadm_image_repo(bomDataForK8sVersion.kubeadmConfigSpec.imageRepository)
       etcd:
@@ -205,15 +205,15 @@ spec:
         extraArgs:
           cluster-name: #@ data.values.CLUSTER_NAME
     files:
-    #@overlay/match by=overlay.index(0)
-    #@overlay/replace
-    - contentFrom:
-        secret:
-          key: control-plane-azure.json
-          name: #@ "{}-control-plane-azure-json".format(data.values.CLUSTER_NAME)
-      owner: root:root
-      path: /etc/kubernetes/azure.json
-      permissions: "0644"
+      #@overlay/match by=overlay.index(0)
+      #@overlay/replace
+      - contentFrom:
+          secret:
+            key: control-plane-azure.json
+            name: #@ "{}-control-plane-azure-json".format(data.values.CLUSTER_NAME)
+        owner: root:root
+        path: /etc/kubernetes/azure.json
+        permissions: "0644"
   replicas: #@ data.values.CONTROL_PLANE_MACHINE_COUNT
   version: #@ data.values.KUBERNETES_VERSION
 
@@ -227,10 +227,10 @@ spec:
   template:
     spec:
       dataDisks:
-      #@overlay/match by=overlay.index(0)
-      - diskSizeGB: #@ data.values.AZURE_CONTROL_PLANE_DATA_DISK_SIZE_GIB
-        lun: 0
-        nameSuffix: etcddisk
+        #@overlay/match by=overlay.index(0)
+        - diskSizeGB: #@ data.values.AZURE_CONTROL_PLANE_DATA_DISK_SIZE_GIB
+          lun: 0
+          nameSuffix: etcddisk
       osDisk:
         diskSizeGB: #@ data.values.AZURE_CONTROL_PLANE_OS_DISK_SIZE_GIB
         managedDisk:
@@ -275,9 +275,9 @@ spec:
       #@ if data.values.AZURE_ENABLE_NODE_DATA_DISK == True:
       #@overlay/match missing_ok=True
       dataDisks:
-      - diskSizeGB: #@ data.values.AZURE_NODE_DATA_DISK_SIZE_GIB
-        lun: 0
-        nameSuffix: nodedisk
+        - diskSizeGB: #@ data.values.AZURE_NODE_DATA_DISK_SIZE_GIB
+          lun: 0
+          nameSuffix: nodedisk
       #@ end
       osDisk:
         diskSizeGB: #@ data.values.AZURE_NODE_OS_DISK_SIZE_GIB
@@ -301,32 +301,32 @@ spec:
       #@overlay/match missing_ok=True
       diskSetup:
         filesystems:
-        - device: /dev/disk/azure/scsi1/lun0
-          extraOpts:
-          - -E
-          - lazy_itable_init=1,lazy_journal_init=1
-          filesystem: ext4
-          label: node_disk
+          - device: /dev/disk/azure/scsi1/lun0
+            extraOpts:
+              - -E
+              - lazy_itable_init=1,lazy_journal_init=1
+            filesystem: ext4
+            label: node_disk
         partitions:
-        - device: /dev/disk/azure/scsi1/lun0
-          layout: true
-          overwrite: false
-          tableType: gpt
+          - device: /dev/disk/azure/scsi1/lun0
+            layout: true
+            overwrite: false
+            tableType: gpt
       #@overlay/match missing_ok=True
       mounts:
-      - - LABEL=node_disk
-        - /var/lib/nodedisk
+        - - LABEL=node_disk
+          - /var/lib/nodedisk
       #@ end
       files:
-      #@overlay/match by=overlay.index(0)
-      #@overlay/replace
-      - contentFrom:
-          secret:
-            key: worker-node-azure.json
-            name: #@ "{}-md-0-azure-json".format(data.values.CLUSTER_NAME)
-        owner: root:root
-        path: /etc/kubernetes/azure.json
-        permissions: "0644"
+        #@overlay/match by=overlay.index(0)
+        #@overlay/replace
+        - contentFrom:
+            secret:
+              key: worker-node-azure.json
+              name: #@ "{}-md-0-azure-json".format(data.values.CLUSTER_NAME)
+          owner: root:root
+          path: /etc/kubernetes/azure.json
+          permissions: "0644"
 
 #@ if data.values.TKG_CLUSTER_ROLE == "management":
 ---
