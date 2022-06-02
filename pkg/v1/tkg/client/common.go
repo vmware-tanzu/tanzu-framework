@@ -306,10 +306,10 @@ func (c *TkgClient) isCustomOverlayPresent() (bool, error) {
 }
 
 func (c *TkgClient) ShouldDeployClusterClassBasedCluster(isManagementCluster bool) (bool, error) {
-	var isCustomOverlayDetected bool
+	var isCustomOverlayPresent bool
 	var err error
 
-	if isCustomOverlayDetected, err = c.isCustomOverlayPresent(); err != nil {
+	if isCustomOverlayPresent, err = c.isCustomOverlayPresent(); err != nil {
 		return false, err
 	}
 
@@ -318,14 +318,14 @@ func (c *TkgClient) ShouldDeployClusterClassBasedCluster(isManagementCluster boo
 	// If `package-based-lcm` featureflag is enabled and deploying management cluster
 	// Always use ClusterClass based Cluster deployment
 	if featureFlagPackageBasedLCMEnabled && isManagementCluster {
-		if isCustomOverlayDetected {
+		if isCustomOverlayPresent {
 			log.Warning("Warning: It seems like you have done some customizations to the template overlays. However, CLI might ignore those customizations when creating management-cluster.")
 		}
 		return true, nil
 	}
 
 	deployClusterClassBasedCluster := config.IsFeatureActivated(config.FeatureFlagPackageBasedLCM) &&
-		(config.IsFeatureActivated(config.FeatureFlagForceDeployClusterWithClusterClass) || !isCustomOverlayDetected)
+		(config.IsFeatureActivated(config.FeatureFlagForceDeployClusterWithClusterClass) || !isCustomOverlayPresent)
 
 	return deployClusterClassBasedCluster, nil
 }
