@@ -38,7 +38,36 @@ spec:
     singular: antreaagentinfo
   scope: Cluster
   versions:
-  - name: v1beta1
+  - additionalPrinterColumns:
+    - description: Health status of this Agent
+      jsonPath: .agentConditions[?(@.type=='AgentHealthy')].status
+      name: Healthy
+      type: string
+    - description: Last time the Healthy Condition was updated
+      jsonPath: .agentConditions[?(@.type=='AgentHealthy')].lastHeartbeatTime
+      name: Last Heartbeat
+      type: date
+    - description: Version of this Agent
+      jsonPath: .version
+      name: Version
+      priority: 1
+      type: string
+    - description: Node on which this Agent is running
+      jsonPath: .nodeRef.name
+      name: Node
+      priority: 1
+      type: string
+    - description: Number of local Pods managed by this Agent
+      jsonPath: .localPodNum
+      name: Num Pods
+      priority: 2
+      type: integer
+    - description: Subnets used by this Agent for Pod IPAM
+      jsonPath: .nodeSubnets
+      name: Subnets
+      priority: 2
+      type: string
+    name: v1beta1
     schema:
       openAPIV3Schema:
         type: object
@@ -86,7 +115,36 @@ spec:
     singular: antreacontrollerinfo
   scope: Cluster
   versions:
-  - name: v1beta1
+  - additionalPrinterColumns:
+    - description: Health status of the Controller
+      jsonPath: .controllerConditions[?(@.type=='ControllerHealthy')].status
+      name: Healthy
+      type: string
+    - description: Last time the Healthy Condition was updated
+      jsonPath: .controllerConditions[?(@.type=='ControllerHealthy')].lastHeartbeatTime
+      name: Last Heartbeat
+      type: date
+    - description: Version of the Controller
+      jsonPath: .version
+      name: Version
+      priority: 1
+      type: string
+    - description: Number of Agents connected to the Controller
+      jsonPath: .connectedAgentNum
+      name: Connected Agents
+      priority: 1
+      type: integer
+    - description: Node on which the Controller is running
+      jsonPath: .nodeRef.name
+      name: Node
+      priority: 1
+      type: string
+    - description: Number of Network Policies computed by Controller
+      jsonPath: .networkPolicyControllerInfo.networkPolicyNum
+      name: Num Network Policies
+      priority: 2
+      type: integer
+    name: v1beta1
     schema:
       openAPIV3Schema:
         type: object
@@ -136,6 +194,7 @@ spec:
                           type: string
                         values:
                           items:
+                            pattern: ^(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])?$
                             type: string
                           type: array
                       type: object
@@ -173,6 +232,7 @@ spec:
                           type: string
                         values:
                           items:
+                            pattern: ^(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])?$
                             type: string
                           type: array
                       type: object
@@ -196,6 +256,7 @@ spec:
                           type: string
                         values:
                           items:
+                            pattern: ^(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])?$
                             type: string
                           type: array
                       type: object
@@ -255,7 +316,7 @@ spec:
     plural: clustergroups
     shortNames:
     - cg
-    singular: group
+    singular: clustergroup
   scope: Cluster
   versions:
   - name: v1alpha2
@@ -284,6 +345,7 @@ spec:
                           type: string
                         values:
                           items:
+                            pattern: ^(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])?$
                             type: string
                           type: array
                       type: object
@@ -321,6 +383,7 @@ spec:
                           type: string
                         values:
                           items:
+                            pattern: ^(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])?$
                             type: string
                           type: array
                       type: object
@@ -344,6 +407,7 @@ spec:
                           type: string
                         values:
                           items:
+                            pattern: ^(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])?$
                             type: string
                           type: array
                       type: object
@@ -402,6 +466,7 @@ spec:
                           type: string
                         values:
                           items:
+                            pattern: ^(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])?$
                             type: string
                           type: array
                       type: object
@@ -433,6 +498,7 @@ spec:
                           type: string
                         values:
                           items:
+                            pattern: ^(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])?$
                             type: string
                           type: array
                       type: object
@@ -456,6 +522,7 @@ spec:
                           type: string
                         values:
                           items:
+                            pattern: ^(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])?$
                             type: string
                           type: array
                       type: object
@@ -557,6 +624,7 @@ spec:
                                 type: string
                               values:
                                 items:
+                                  pattern: ^(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])?$
                                   type: string
                                 type: array
                             type: object
@@ -580,6 +648,7 @@ spec:
                                 type: string
                               values:
                                 items:
+                                  pattern: ^(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])?$
                                   type: string
                                 type: array
                             type: object
@@ -597,6 +666,7 @@ spec:
                       - Allow
                       - Drop
                       - Reject
+                      - Pass
                       type: string
                     appliedTo:
                       items:
@@ -619,6 +689,7 @@ spec:
                                       type: string
                                     values:
                                       items:
+                                        pattern: ^(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])?$
                                         type: string
                                       type: array
                                   type: object
@@ -642,6 +713,7 @@ spec:
                                       type: string
                                     values:
                                       items:
+                                        pattern: ^(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])?$
                                         type: string
                                       type: array
                                   type: object
@@ -695,6 +767,7 @@ spec:
                                       type: string
                                     values:
                                       items:
+                                        pattern: ^(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])?$
                                         type: string
                                       type: array
                                   type: object
@@ -723,6 +796,7 @@ spec:
                                       type: string
                                     values:
                                       items:
+                                        pattern: ^(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])?$
                                         type: string
                                       type: array
                                   type: object
@@ -730,6 +804,18 @@ spec:
                               matchLabels:
                                 x-kubernetes-preserve-unknown-fields: true
                             type: object
+                        type: object
+                      type: array
+                    toServices:
+                      items:
+                        properties:
+                          name:
+                            type: string
+                          namespace:
+                            type: string
+                        required:
+                        - name
+                        - namespace
                         type: object
                       type: array
                   required:
@@ -744,6 +830,7 @@ spec:
                       - Allow
                       - Drop
                       - Reject
+                      - Pass
                       type: string
                     appliedTo:
                       items:
@@ -766,6 +853,7 @@ spec:
                                       type: string
                                     values:
                                       items:
+                                        pattern: ^(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])?$
                                         type: string
                                       type: array
                                   type: object
@@ -789,6 +877,7 @@ spec:
                                       type: string
                                     values:
                                       items:
+                                        pattern: ^(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])?$
                                         type: string
                                       type: array
                                   type: object
@@ -827,6 +916,7 @@ spec:
                                       type: string
                                     values:
                                       items:
+                                        pattern: ^(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])?$
                                         type: string
                                       type: array
                                   type: object
@@ -837,6 +927,8 @@ spec:
                           namespaces:
                             properties:
                               match:
+                                enum:
+                                - Self
                                 type: string
                             type: object
                           podSelector:
@@ -855,6 +947,7 @@ spec:
                                       type: string
                                     values:
                                       items:
+                                        pattern: ^(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])?$
                                         type: string
                                       type: array
                                   type: object
@@ -974,6 +1067,7 @@ spec:
                                 type: string
                               values:
                                 items:
+                                  pattern: ^(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])?$
                                   type: string
                                 type: array
                             type: object
@@ -997,6 +1091,7 @@ spec:
                                 type: string
                               values:
                                 items:
+                                  pattern: ^(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])?$
                                   type: string
                                 type: array
                             type: object
@@ -1014,6 +1109,7 @@ spec:
                       - Allow
                       - Drop
                       - Reject
+                      - Pass
                       type: string
                     appliedTo:
                       items:
@@ -1036,6 +1132,7 @@ spec:
                                       type: string
                                     values:
                                       items:
+                                        pattern: ^(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])?$
                                         type: string
                                       type: array
                                   type: object
@@ -1059,6 +1156,7 @@ spec:
                                       type: string
                                     values:
                                       items:
+                                        pattern: ^(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])?$
                                         type: string
                                       type: array
                                   type: object
@@ -1110,6 +1208,7 @@ spec:
                                       type: string
                                     values:
                                       items:
+                                        pattern: ^(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])?$
                                         type: string
                                       type: array
                                   type: object
@@ -1138,6 +1237,7 @@ spec:
                                       type: string
                                     values:
                                       items:
+                                        pattern: ^(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])?$
                                         type: string
                                       type: array
                                   type: object
@@ -1159,6 +1259,7 @@ spec:
                       - Allow
                       - Drop
                       - Reject
+                      - Pass
                       type: string
                     appliedTo:
                       items:
@@ -1181,6 +1282,7 @@ spec:
                                       type: string
                                     values:
                                       items:
+                                        pattern: ^(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])?$
                                         type: string
                                       type: array
                                   type: object
@@ -1204,6 +1306,7 @@ spec:
                                       type: string
                                     values:
                                       items:
+                                        pattern: ^(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])?$
                                         type: string
                                       type: array
                                   type: object
@@ -1242,6 +1345,7 @@ spec:
                                       type: string
                                     values:
                                       items:
+                                        pattern: ^(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])?$
                                         type: string
                                       type: array
                                   type: object
@@ -1270,6 +1374,7 @@ spec:
                                       type: string
                                     values:
                                       items:
+                                        pattern: ^(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])?$
                                         type: string
                                       type: array
                                   type: object
@@ -1380,6 +1485,7 @@ spec:
                               type: string
                             values:
                               items:
+                                pattern: ^(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])?$
                                 type: string
                               type: array
                           type: object
@@ -1403,6 +1509,7 @@ spec:
                               type: string
                             values:
                               items:
+                                pattern: ^(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])?$
                                 type: string
                               type: array
                           type: object
@@ -1566,7 +1673,19 @@ spec:
     singular: externalippool
   scope: Cluster
   versions:
-  - name: v1alpha2
+  - additionalPrinterColumns:
+    - description: The number of total IPs
+      jsonPath: .status.usage.total
+      name: Total
+      type: integer
+    - description: The number of allocated IPs
+      jsonPath: .status.usage.used
+      name: Used
+      type: integer
+    - jsonPath: .metadata.creationTimestamp
+      name: Age
+      type: date
+    name: v1alpha2
     schema:
       openAPIV3Schema:
         properties:
@@ -1612,6 +1731,7 @@ spec:
                           type: string
                         values:
                           items:
+                            pattern: ^(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])?$
                             type: string
                           type: array
                       type: object
@@ -1623,11 +1743,129 @@ spec:
             - ipRanges
             - nodeSelector
             type: object
+          status:
+            properties:
+              usage:
+                properties:
+                  total:
+                    type: integer
+                  used:
+                    type: integer
+                type: object
+            type: object
         required:
         - spec
         type: object
     served: true
     storage: true
+    subresources:
+      status: {}
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  labels:
+    app: antrea
+  name: ippools.crd.antrea.io
+spec:
+  group: crd.antrea.io
+  names:
+    kind: IPPool
+    plural: ippools
+    shortNames:
+    - ipp
+    singular: ippool
+  scope: Cluster
+  versions:
+  - name: v1alpha2
+    schema:
+      openAPIV3Schema:
+        properties:
+          spec:
+            properties:
+              ipRanges:
+                items:
+                  oneOf:
+                  - required:
+                    - cidr
+                    - gateway
+                    - prefixLength
+                  - required:
+                    - start
+                    - end
+                    - gateway
+                    - prefixLength
+                  properties:
+                    cidr:
+                      format: cidr
+                      type: string
+                    end:
+                      oneOf:
+                      - format: ipv4
+                      - format: ipv6
+                      type: string
+                    gateway:
+                      oneOf:
+                      - format: ipv4
+                      - format: ipv6
+                      type: string
+                    prefixLength:
+                      type: integer
+                    start:
+                      oneOf:
+                      - format: ipv4
+                      - format: ipv6
+                      type: string
+                    vlan:
+                      type: string
+                  type: object
+                type: array
+              ipVersion:
+                type: integer
+            required:
+            - ipVersion
+            - ipRanges
+            type: object
+          status:
+            properties:
+              ipAddresses:
+                items:
+                  properties:
+                    ipAddress:
+                      type: string
+                    owner:
+                      properties:
+                        pod:
+                          properties:
+                            containerID:
+                              type: string
+                            name:
+                              type: string
+                            namespace:
+                              type: string
+                          type: object
+                        statefulSet:
+                          properties:
+                            index:
+                              type: integer
+                            name:
+                              type: string
+                            namespace:
+                              type: string
+                          type: object
+                      type: object
+                    phase:
+                      type: string
+                  type: object
+                type: array
+            type: object
+        required:
+        - spec
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
 ---
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
@@ -1693,6 +1931,7 @@ spec:
                                 type: string
                               values:
                                 items:
+                                  pattern: ^(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])?$
                                   type: string
                                 type: array
                             type: object
@@ -1710,6 +1949,7 @@ spec:
                       - Allow
                       - Drop
                       - Reject
+                      - Pass
                       type: string
                     appliedTo:
                       items:
@@ -1730,6 +1970,7 @@ spec:
                                       type: string
                                     values:
                                       items:
+                                        pattern: ^(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])?$
                                         type: string
                                       type: array
                                   type: object
@@ -1773,6 +2014,7 @@ spec:
                                       type: string
                                     values:
                                       items:
+                                        pattern: ^(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])?$
                                         type: string
                                       type: array
                                   type: object
@@ -1804,6 +2046,7 @@ spec:
                                       type: string
                                     values:
                                       items:
+                                        pattern: ^(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])?$
                                         type: string
                                       type: array
                                   type: object
@@ -1827,6 +2070,7 @@ spec:
                                       type: string
                                     values:
                                       items:
+                                        pattern: ^(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])?$
                                         type: string
                                       type: array
                                   type: object
@@ -1834,6 +2078,17 @@ spec:
                               matchLabels:
                                 x-kubernetes-preserve-unknown-fields: true
                             type: object
+                        type: object
+                      type: array
+                    toServices:
+                      items:
+                        properties:
+                          name:
+                            type: string
+                          namespace:
+                            type: string
+                        required:
+                        - name
                         type: object
                       type: array
                   required:
@@ -1848,6 +2103,7 @@ spec:
                       - Allow
                       - Drop
                       - Reject
+                      - Pass
                       type: string
                     appliedTo:
                       items:
@@ -1868,6 +2124,7 @@ spec:
                                       type: string
                                     values:
                                       items:
+                                        pattern: ^(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])?$
                                         type: string
                                       type: array
                                   type: object
@@ -1898,6 +2155,7 @@ spec:
                                       type: string
                                     values:
                                       items:
+                                        pattern: ^(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])?$
                                         type: string
                                       type: array
                                   type: object
@@ -1927,6 +2185,7 @@ spec:
                                       type: string
                                     values:
                                       items:
+                                        pattern: ^(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])?$
                                         type: string
                                       type: array
                                   type: object
@@ -1950,6 +2209,7 @@ spec:
                                       type: string
                                     values:
                                       items:
+                                        pattern: ^(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])?$
                                         type: string
                                       type: array
                                   type: object
@@ -2067,6 +2327,7 @@ spec:
                                 type: string
                               values:
                                 items:
+                                  pattern: ^(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])?$
                                   type: string
                                 type: array
                             type: object
@@ -2084,6 +2345,7 @@ spec:
                       - Allow
                       - Drop
                       - Reject
+                      - Pass
                       type: string
                     appliedTo:
                       items:
@@ -2104,6 +2366,7 @@ spec:
                                       type: string
                                     values:
                                       items:
+                                        pattern: ^(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])?$
                                         type: string
                                       type: array
                                   type: object
@@ -2147,6 +2410,7 @@ spec:
                                       type: string
                                     values:
                                       items:
+                                        pattern: ^(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])?$
                                         type: string
                                       type: array
                                   type: object
@@ -2176,6 +2440,7 @@ spec:
                                       type: string
                                     values:
                                       items:
+                                        pattern: ^(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])?$
                                         type: string
                                       type: array
                                   type: object
@@ -2199,6 +2464,7 @@ spec:
                                       type: string
                                     values:
                                       items:
+                                        pattern: ^(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])?$
                                         type: string
                                       type: array
                                   type: object
@@ -2220,6 +2486,7 @@ spec:
                       - Allow
                       - Drop
                       - Reject
+                      - Pass
                       type: string
                     appliedTo:
                       items:
@@ -2240,6 +2507,7 @@ spec:
                                       type: string
                                     values:
                                       items:
+                                        pattern: ^(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])?$
                                         type: string
                                       type: array
                                   type: object
@@ -2270,6 +2538,7 @@ spec:
                                       type: string
                                     values:
                                       items:
+                                        pattern: ^(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])?$
                                         type: string
                                       type: array
                                   type: object
@@ -2299,6 +2568,7 @@ spec:
                                       type: string
                                     values:
                                       items:
+                                        pattern: ^(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])?$
                                         type: string
                                       type: array
                                   type: object
@@ -2322,6 +2592,7 @@ spec:
                                       type: string
                                     values:
                                       items:
+                                        pattern: ^(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])?$
                                         type: string
                                       type: array
                                   type: object
@@ -2792,6 +3063,8 @@ spec:
                       type: integer
                   type: object
                 type: array
+              startTime:
+                type: string
             type: object
         required:
         - spec
@@ -2970,6 +3243,8 @@ spec:
                       type: integer
                   type: object
                 type: array
+              startTime:
+                type: string
             type: object
         required:
         - spec
@@ -3262,6 +3537,11 @@ rules:
   - get
   - watch
   - list
+- apiGroups:
+  - ""
+  resources:
+  - nodes/status
+  verbs:
   - patch
 - apiGroups:
   - ""
@@ -3271,16 +3551,28 @@ rules:
   - get
   - watch
   - list
+- apiGroups:
+  - ""
+  resources:
+  - pods/status
+  verbs:
   - patch
 - apiGroups:
   - ""
   resources:
   - endpoints
   - services
+  - namespaces
   verbs:
   - get
   - watch
   - list
+- apiGroups:
+  - ""
+  resources:
+  - services/status
+  verbs:
+  - update
 - apiGroups:
   - discovery.k8s.io
   resources:
@@ -3397,10 +3689,25 @@ rules:
   - crd.antrea.io
   resources:
   - externalippools
+  - ippools
   verbs:
   - get
   - watch
   - list
+- apiGroups:
+  - crd.antrea.io
+  resources:
+  - ippools/status
+  verbs:
+  - update
+- apiGroups:
+  - k8s.cni.cncf.io
+  resources:
+  - network-attachment-definitions
+  verbs:
+  - get
+  - list
+  - watch
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
@@ -3429,8 +3736,8 @@ rules:
   - ""
   resources:
   - pods
-  - namespaces
   - services
+  - namespaces
   - configmaps
   verbs:
   - get
@@ -3445,6 +3752,12 @@ rules:
   - watch
   - list
   - patch
+- apiGroups:
+  - ""
+  resources:
+  - services/status
+  verbs:
+  - update
 - apiGroups:
   - networking.k8s.io
   resources:
@@ -3501,7 +3814,7 @@ rules:
 - apiGroups:
   - ""
   resourceNames:
-  - antrea-config-822fk25299
+  - antrea-config-2dd957m7fk
   resources:
   - configmaps
   verbs:
@@ -3512,7 +3825,6 @@ rules:
   - v1alpha1.stats.antrea.tanzu.vmware.com
   - v1beta1.system.antrea.tanzu.vmware.com
   - v1beta2.controlplane.antrea.tanzu.vmware.com
-  - v1beta1.controlplane.antrea.tanzu.vmware.com
   - v1alpha1.stats.antrea.io
   - v1beta1.system.antrea.io
   - v1beta2.controlplane.antrea.io
@@ -3525,6 +3837,7 @@ rules:
   - apiregistration.k8s.io
   resourceNames:
   - v1beta1.networking.antrea.tanzu.vmware.com
+  - v1beta1.controlplane.antrea.tanzu.vmware.com
   resources:
   - apiservices
   verbs:
@@ -3637,10 +3950,26 @@ rules:
   - crd.antrea.io
   resources:
   - externalippools
+  - ippools
   verbs:
   - get
   - watch
   - list
+- apiGroups:
+  - crd.antrea.io
+  resources:
+  - externalippools/status
+  - ippools/status
+  verbs:
+  - update
+- apiGroups:
+  - apps
+  resources:
+  - statefulsets
+  verbs:
+  - get
+  - list
+  - watch
 - apiGroups:
   - clusterinformation.antrea.tanzu.vmware.com
   resources:
@@ -3808,8 +4137,8 @@ data:
     # Enable traceflow which provides packet tracing feature to diagnose network issue.
     #  Traceflow: true
 
-    # Enable NodePortLocal feature to make the pods reachable externally through NodePort
-    #  NodePortLocal: false
+    # Enable NodePortLocal feature to make the Pods reachable externally through NodePort
+    #  NodePortLocal: true
 
     # Enable Antrea ClusterNetworkPolicy feature to complement K8s NetworkPolicy for cluster admins
     # to define security policies which apply to the entire cluster, and Antrea NetworkPolicy
@@ -3825,6 +4154,16 @@ data:
 
     # Enable controlling SNAT IPs of Pod egress traffic.
     #  Egress: false
+
+    # Enable flexible IPAM mode for Antrea. This mode allows to assign IP Ranges to Namespaces,
+    # Deployments and StatefulSets via IP Pool annotation.
+    #  AntreaIPAM: false
+
+    # Enable multicast traffic. This feature is supported only with noEncap mode.
+    #  Multicast: false
+
+    # Enable managing external IPs of Services of LoadBalancer type.
+    #  ServiceExternalIP: false
 
     # Name of the OpenVSwitch bridge antrea-agent will create and use.
     # Make sure it doesn't conflict with your existing OpenVSwitch bridges.
@@ -3860,20 +4199,37 @@ data:
     # performs SNAT and this option will be ignored; for other modes it must be set to false.
     #noSNAT: false
 
-    # Tunnel protocols used for encapsulating traffic across Nodes. Supported values:
+    # Tunnel protocols used for encapsulating traffic across Nodes. If WireGuard is enabled in trafficEncryptionMode,
+    # this option will not take effect. Supported values:
     # - geneve (default)
     # - vxlan
     # - gre
     # - stt
     #tunnelType: geneve
 
+    # Determines how tunnel traffic is encrypted. Currently encryption only works with encap mode.
+    # It has the following options:
+    # - none (default):  Inter-node Pod traffic will not be encrypted.
+    # - ipsec:           Enable IPsec (ESP) encryption for Pod traffic across Nodes. Antrea uses
+    #                    Preshared Key (PSK) for IKE authentication. When IPsec tunnel is enabled,
+    #                    the PSK value must be passed to Antrea Agent through an environment
+    #                    variable: ANTREA_IPSEC_PSK.
+    # - wireGuard:       Enable WireGuard for tunnel traffic encryption.
+    #trafficEncryptionMode: none
+
     # Default MTU to use for the host gateway interface and the network interface of each Pod.
     # If omitted, antrea-agent will discover the MTU of the Node's primary interface and
     # also adjust MTU to accommodate for tunnel encapsulation overhead (if applicable).
     #defaultMTU: 0
 
-    # Whether or not to enable IPsec encryption of tunnel traffic.
-    #enableIPSecTunnel: false
+    # wireGuard specifies WireGuard related configurations.
+    wireGuard:
+    #  The port for WireGuard to receive traffic.
+    #  port: 51820
+
+    egress:
+    #  exceptCIDRs is the CIDR ranges to which outbound Pod traffic will not be SNAT'd by Egresses.
+    #  exceptCIDRs: []
 
     # ClusterIP CIDR range for Services. It's required when AntreaProxy is not enabled, and should be
     # set to the same value as the one specified by --service-cluster-ip-range for kube-apiserver. When
@@ -3924,10 +4280,16 @@ data:
     # Valid time units are "ns", "us" (or "µs"), "ms", "s", "m", "h".
     #idleFlowExportTimeout: "15s"
 
-    # Provide the port range used by NodePortLocal. When the NodePortLocal feature is enabled, a port from that range will be assigned
-    # whenever a Pod's container defines a specific port to be exposed (each container can define a list of ports as pod.spec.containers[].ports),
-    # and all Node traffic directed to that port will be forwarded to the Pod.
-    #nplPortRange: 61000-62000
+    nodePortLocal:
+    # Enable NodePortLocal, a feature used to make Pods reachable using port forwarding on the host. To
+    # enable this feature, you need to set "enable" to true, and ensure that the NodePortLocal feature
+    # gate is also enabled (which is the default).
+    #  enable: false
+    # Provide the port range used by NodePortLocal. When the NodePortLocal feature is enabled, a port
+    # from that range will be assigned whenever a Pod's container defines a specific port to be exposed
+    # (each container can define a list of ports as pod.spec.containers[].ports), and all Node traffic
+    # directed to that port will be forwarded to the Pod.
+    #  portRange: 61000-62000
 
     # Provide the address of Kubernetes apiserver, to override any value provided in kubeconfig or InClusterConfig.
     # Defaults to "". It must be a host string, a host:port pair, or a URL to the base of the apiserver.
@@ -3937,9 +4299,55 @@ data:
     # https://golang.org/pkg/crypto/tls/#pkg-constants
     # Note that TLS1.3 Cipher Suites cannot be added to the list. But the apiserver will always
     # prefer TLS1.3 Cipher Suites whenever possible.
-    tlsCipherSuites: TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,TLS_RSA_WITH_AES_256_GCM_SHA384
+    #tlsCipherSuites:
     # TLS min version from: VersionTLS10, VersionTLS11, VersionTLS12, VersionTLS13.
     #tlsMinVersion:
+
+    # The name of the interface on Node which is used for tunneling or routing the traffic across Nodes.
+    # If there are multiple IP addresses configured on the interface, the first one is used. The IP
+    # address used for tunneling or routing traffic to remote Nodes is decided in the following order of
+    # preference (from highest to lowest):
+    # 1. transportInterface
+    # 2. transportInterfaceCIDRs
+    # 3. The Node IP
+    #transportInterface:
+
+    # The names of the interfaces on Nodes that are used to forward multicast traffic.
+    # Defaults to transport interface if not set.
+    #multicastInterfaces: []
+
+    # The network CIDRs of the interface on Node which is used for tunneling or routing the traffic across
+    # Nodes. If there are multiple interfaces configured the same network CIDR, the first one is used. The
+    # IP address used for tunneling or routing traffic to remote Nodes is decided in the following order of
+    # preference (from highest to lowest):
+    # 1. transportInterface
+    # 2. transportInterfaceCIDRs
+    # 3. The Node IP
+    #transportInterfaceCIDRs: [<IPv4 CIDR>,<IPv6 CIDR>]
+
+    # Option antreaProxy contains AntreaProxy related configuration options.
+    antreaProxy:
+      # ProxyAll tells antrea-agent to proxy all Service traffic, including NodePort, LoadBalancer, and ClusterIP traffic,
+      # regardless of where they come from. Therefore, running kube-proxy is no longer required. This requires the AntreaProxy
+      # feature to be enabled.
+      # Note that this option is experimental. If kube-proxy is removed, option kubeAPIServerOverride must be used to access
+      # apiserver directly.
+      #proxyAll: false
+      # A string array of values which specifies the host IPv4/IPv6 addresses for NodePort. Values can be valid IP blocks.
+      # (e.g. 1.2.3.0/24, 1.2.3.4/32). An empty string slice is meant to select all host IPv4/IPv6 addresses.
+      # Note that the option is only valid when proxyAll is true.
+      #nodePortAddresses: []
+      # An array of string values to specify a list of Services which should be ignored by AntreaProxy (traffic to these
+      # Services will not be load-balanced). Values can be a valid ClusterIP (e.g. 10.11.1.2) or a Service name
+      # with Namespace (e.g. kube-system/kube-dns)
+      #skipServices: []
+      # When ProxyLoadBalancerIPs is set to false, AntreaProxy no longer load-balances traffic destined to the
+      # External IPs of LoadBalancer Services. This is useful when the external LoadBalancer provides additional
+      # capabilities (e.g. TLS termination) and it is desirable for Pod-to-ExternalIP traffic to be sent to the
+      # external LoadBalancer instead of being load-balanced to an Endpoint directly by AntreaProxy.
+      # Note that setting ProxyLoadBalancerIPs to false usually only makes sense when ProxyAll is set to true and
+      # kube-proxy is removed from the cluser, otherwise kube-proxy will still load-balance this traffic.
+      #proxyLoadBalancerIPs: true
   antrea-cni.conflist: |
     {
         "cniVersion":"0.3.0",
@@ -3981,6 +4389,13 @@ data:
     # Run Kubernetes NodeIPAMController with Antrea.
     #  NodeIPAM: false
 
+    # Enable flexible IPAM mode for Antrea. This mode allows to assign IP Ranges to Namespaces,
+    # Deployments and StatefulSets via IP Pool annotation.
+    #  AntreaIPAM: false
+
+    # Enable managing external IPs of Services of LoadBalancer type.
+    #  ServiceExternalIP: false
+
     # The port for the antrea-controller APIServer to serve on.
     # Note that if it's set to another value, the `containerPort` of the `api` port of the
     # `antrea-controller` container must be set to the same value.
@@ -4002,7 +4417,7 @@ data:
     # https://golang.org/pkg/crypto/tls/#pkg-constants
     # Note that TLS1.3 Cipher Suites cannot be added to the list. But the apiserver will always
     # prefer TLS1.3 Cipher Suites whenever possible.
-    tlsCipherSuites: TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,TLS_RSA_WITH_AES_256_GCM_SHA384
+    #tlsCipherSuites:
 
     # TLS min version from: VersionTLS10, VersionTLS11, VersionTLS12, VersionTLS13.
     #tlsMinVersion:
@@ -4021,17 +4436,16 @@ data:
     # new CRDs.
     #legacyCRDMirroring: true
 
-    # Enable usage reporting (telemetry) to VMware.
-    #enableUsageReporting: false
     nodeIPAM:
     # Enable the integrated Node IPAM controller within the Antrea controller.
     #  enableNodeIPAM: false
 
-    # CIDR Ranges for Pods in cluster. String array containing single CIDR range, or multiple ranges.
-    # The CIDRs could be either IPv4 or IPv6. Value ignored when enableNodeIPAM is false.
+    # CIDR ranges for Pods in cluster. String array containing single CIDR range, or multiple ranges.
+    # The CIDRs could be either IPv4 or IPv6. At most one CIDR may be specified for each IP family.
+    # Value ignored when enableNodeIPAM is false.
     #  clusterCIDRs: []
 
-    # CIDR Ranges for Services in cluster. It is not necessary to specify it when there is no overlap with clusterCIDRs.
+    # CIDR ranges for Services in cluster. It is not necessary to specify it when there is no overlap with clusterCIDRs.
     # Value ignored when enableNodeIPAM is false.
     #  serviceCIDR:
     #  serviceCIDRv6:
@@ -4043,6 +4457,8 @@ data:
     # Mask size for IPv6 Node CIDR in IPv6 or dual-stack cluster. Value ignored when enableNodeIPAM is false
     # or when IPv6 Pod CIDR is not configured. Valid range is 64 to 126.
     #  nodeCIDRMaskSizeIPv6: 64
+    # Enable usage reporting (telemetry) to VMware.
+    #enableUsageReporting: false
 
     enterpriseAntrea: true
 kind: ConfigMap
@@ -4050,7 +4466,7 @@ metadata:
   annotations: {}
   labels:
     app: antrea
-  name: antrea-config-822fk25299
+  name: antrea-config-2dd957m7fk
   namespace: kube-system
 ---
 apiVersion: v1
@@ -4121,8 +4537,8 @@ spec:
             fieldRef:
               fieldPath: spec.serviceAccountName
         - name: ANTREA_CONFIG_MAP_NAME
-          value: antrea-config-822fk25299
-        image: antrea/antrea-ubuntu:v1.2.3
+          value: antrea-config-2dd957m7fk
+        image: antrea/antrea-ubuntu:v1.5.2
         imagePullPolicy: IfNotPresent
         livenessProbe:
           failureThreshold: 5
@@ -4172,7 +4588,7 @@ spec:
         key: node-role.kubernetes.io/master
       volumes:
       - configMap:
-          name: antrea-config-822fk25299
+          name: antrea-config-2dd957m7fk
         name: antrea-config
       - name: antrea-controller-tls
         secret:
@@ -4212,21 +4628,6 @@ spec:
     name: antrea
     namespace: kube-system
   version: v1alpha1
-  versionPriority: 100
----
-apiVersion: apiregistration.k8s.io/v1
-kind: APIService
-metadata:
-  labels:
-    app: antrea
-  name: v1beta1.controlplane.antrea.tanzu.vmware.com
-spec:
-  group: controlplane.antrea.tanzu.vmware.com
-  groupPriorityMinimum: 100
-  service:
-    name: antrea
-    namespace: kube-system
-  version: v1beta1
   versionPriority: 100
 ---
 apiVersion: apiregistration.k8s.io/v1
@@ -4335,7 +4736,7 @@ spec:
           valueFrom:
             fieldRef:
               fieldPath: spec.nodeName
-        image: antrea/antrea-ubuntu:v1.2.3
+        image: antrea/antrea-ubuntu:v1.5.2
         imagePullPolicy: IfNotPresent
         livenessProbe:
           exec:
@@ -4396,7 +4797,7 @@ spec:
         - --log_file_max_num=4
         command:
         - start_ovs
-        image: antrea/antrea-ubuntu:v1.2.3
+        image: antrea/antrea-ubuntu:v1.5.2
         imagePullPolicy: IfNotPresent
         livenessProbe:
           exec:
@@ -4431,7 +4832,7 @@ spec:
       initContainers:
       - command:
         - install_cni
-        image: antrea/antrea-ubuntu:v1.2.3
+        image: antrea/antrea-ubuntu:v1.5.2
         imagePullPolicy: IfNotPresent
         name: install-cni
         resources:
@@ -4465,7 +4866,8 @@ spec:
           valueFrom:
             fieldRef:
               fieldPath: spec.nodeName
-        image: antrea/antrea-ubuntu:v1.2.3
+        image: antrea/antrea-ubuntu:v1.5.2
+        imagePullPolicy: IfNotPresent
         name: antrea-agent-tweaker
         resources:
           requests:
@@ -4491,7 +4893,7 @@ spec:
         operator: Exists
       volumes:
       - configMap:
-          name: antrea-config-822fk25299
+          name: antrea-config-2dd957m7fk
         name: antrea-config
       - configMap:
           name: antrea-agent-tweaker-g56hc6fh8t
@@ -4769,6 +5171,28 @@ webhooks:
     - UPDATE
     resources:
     - egresses
+    scope: Cluster
+  sideEffects: None
+  timeoutSeconds: 5
+- admissionReviewVersions:
+  - v1
+  - v1beta1
+  clientConfig:
+    service:
+      name: antrea
+      namespace: kube-system
+      path: /validate/ippool
+  name: ippoolvalidator.antrea.io
+  rules:
+  - apiGroups:
+    - crd.antrea.io
+    apiVersions:
+    - v1alpha2
+    operations:
+    - UPDATE
+    - DELETE
+    resources:
+    - ippools
     scope: Cluster
   sideEffects: None
   timeoutSeconds: 5

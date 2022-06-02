@@ -6,6 +6,10 @@
 #@   antreaImage = get_bom_data_for_tkr_name().components["antrea"][0].images.antreaImage
 #@ end
 
+#@ def split_comma_values(value):
+#@  return value.split(",") if value else []
+#@ end
+
 #@ def is_dualstack():
 #@   return data.values.TKG_IP_FAMILY in ["ipv4,ipv6", "ipv6,ipv4"]
 #@ end
@@ -38,6 +42,25 @@
 infraProvider: #@ data.values.PROVIDER_TYPE
 antrea:
   config:
+    egress:
+      exceptCIDRs: #@ split_comma_values(data.values.ANTREA_EGRESS_EXCEPT_CIDRS)
+    nodePortLocal:
+      enabled: #@ data.values.ANTREA_NODEPORTLOCAL_ENABLED
+      portRange: #@ data.values.ANTREA_NODEPORTLOCAL_PORTRANGE
+    antreaProxy:
+      proxyAll: #@ data.values.ANTREA_PROXY_ALL
+      nodePortAddresses: #@ split_comma_values(data.values.ANTREA_PROXY_NODEPORT_ADDRS)
+      skipServices: #@ split_comma_values(data.values.ANTREA_PROXY_SKIP_SERVICES)
+      proxyLoadBalancerIPs: #@ data.values.ANTREA_PROXY_LOAD_BALANCER_IPS
+    kubeAPIServerOverride: #@ data.values.ANTREA_KUBE_APISERVER_OVERRIDE
+    transportInterface: #@ data.values.ANTREA_TRANSPORT_INTERFACE
+    transportInterfaceCIDRs: #@ split_comma_values(data.values.ANTREA_TRANSPORT_INTERFACE_CIDRS)
+    multicastInterfaces: #@ split_comma_values(data.values.ANTREA_MULTICAST_INTERFACES)
+    tunnelType: #@ data.values.ANTREA_TUNNEL_TYPE
+    trafficEncryptionMode: #@ data.values.ANTREA_TRAFFIC_ENCRYPTION_MODE
+    enableUsageReporting: #@ data.values.ANTREA_ENABLE_USAGE_REPORTING
+    wireGuard:
+      port: #@ data.values.ANTREA_WIREGUARD_PORT
     #@ if is_dualstack():
     serviceCIDR: #@ get_ipv4_service_cidr()
     #@overlay/match missing_ok=True
@@ -62,10 +85,16 @@ antrea:
       #@ end
       EndpointSlice: #@ data.values.ANTREA_ENDPOINTSLICE
       AntreaPolicy: #@ data.values.ANTREA_POLICY
-      NodePortLocal: #@ data.values.ANTREA_NODEPORTLOCAL
       AntreaTraceflow: #@ data.values.ANTREA_TRACEFLOW
+      NodePortLocal: #@ data.values.ANTREA_NODEPORTLOCAL
+      NetworkPolicyStats: #@ data.values.ANTREA_NETWORKPOLICY_STATS
       Egress: #@ data.values.ANTREA_EGRESS
+      AntreaIPAM: #@ data.values.ANTREA_IPAM
       FlowExporter: #@ data.values.ANTREA_FLOWEXPORTER
+      ServiceExternalIP: #@ data.values.ANTREA_SERVICE_EXTERNALIP
+      Multicast: #@ data.values.ANTREA_MULTICAST
+
+
 #@ if data.values.TKG_CLUSTER_ROLE == "workload": #! For backwards compatibility. i.e. C.1 mgmt cluster creates a C.0 wlc with older addon templates.
   image:
     repository: #@ get_image_repo_for_component(antreaImage)

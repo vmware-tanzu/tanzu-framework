@@ -5,8 +5,8 @@ def validate_antrea():
   data.values.infraProvider or assert.fail("Infrastructure provider should be provided")
 end
 
-#export
+# export data.values
 values = data.values
 
-# validate
+# validate antrea configuration
 validate_antrea()
