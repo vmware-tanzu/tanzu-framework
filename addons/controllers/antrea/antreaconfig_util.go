@@ -21,15 +21,42 @@ type antrea struct {
 	AntreaConfigDataValue antreaConfigDataValue `yaml:"config,omitempty"`
 }
 
+type antreaEgress struct {
+	EgressExceptCIDRs []string `yaml:"exceptCIDRs,omitempty"`
+}
+
+type antreaNodePortLocal struct {
+	Enabled   bool   `yaml:"enabled,omitempty"`
+	PortRange string `yaml:"portRange,omitempty"`
+}
+
+type antreaProxy struct {
+	ProxyAll             bool     `yaml:"enabled,omitempty"`
+	NodePortAddresses    []string `yaml:"nodePortAddresses,omitempty"`
+	SkipServices         []string `yaml:"skipServices,omitempty"`
+	ProxyLoadBalancerIPs bool     `yaml:"proxyLoadBalancerIPs,omitempty"`
+}
+
+type antreaWireGuard struct {
+	Port int `yaml:"port,omitempty"`
+}
+
 type antreaConfigDataValue struct {
-	ServiceCIDR             string             `yaml:"serviceCIDR,omitempty"`
-	ServiceCIDRv6           string             `yaml:"serviceCIDRv6,omitempty"`
-	TrafficEncapMode        string             `yaml:"trafficEncapMode,omitempty"`
-	NoSNAT                  bool               `yaml:"noSNAT,omitempty"`
-	DisableUDPTunnelOffload bool               `yaml:"disableUdpTunnelOffload,omitempty"`
-	DefaultMTU              string             `yaml:"defaultMTU,omitempty"`
-	TLSCipherSuites         string             `yaml:"tlsCipherSuites,omitempty"`
-	FeatureGates            antreaFeatureGates `yaml:"featureGates,omitempty"`
+	Egress                  antreaEgress        `yaml:"egress,omitempty"`
+	NodePortLocal           antreaNodePortLocal `yaml:"nodePortLocal,omitempty"`
+	AntreaProxy             antreaProxy         `yaml:"antreaProxy,omitempty"`
+	WireGuard               antreaWireGuard     `yaml:"wireGuard,omitempty"`
+	transportInterface      string              `yaml:"transportInterface,omitempty"`
+	transportInterfaceCIDRs []string            `yaml:"transportInterfaceCIDRs,omitempty"`
+	multicastInterface      string              `yaml:"multicastInterface,omitempty"`
+	ServiceCIDR             string              `yaml:"serviceCIDR,omitempty"`
+	ServiceCIDRv6           string              `yaml:"serviceCIDRv6,omitempty"`
+	TrafficEncapMode        string              `yaml:"trafficEncapMode,omitempty"`
+	NoSNAT                  bool                `yaml:"noSNAT,omitempty"`
+	DisableUDPTunnelOffload bool                `yaml:"disableUdpTunnelOffload,omitempty"`
+	DefaultMTU              string              `yaml:"defaultMTU,omitempty"`
+	TLSCipherSuites         string              `yaml:"tlsCipherSuites,omitempty"`
+	FeatureGates            antreaFeatureGates  `yaml:"featureGates,omitempty"`
 }
 
 type antreaFeatureGates struct {
@@ -41,6 +68,9 @@ type antreaFeatureGates struct {
 	NodePortLocal      bool `yaml:"NodePortLocal,omitempty"`
 	AntreaTraceflow    bool `yaml:"AntreaTraceflow,omitempty"`
 	NetworkPolicyStats bool `yaml:"NetworkPolicyStats,omitempty"`
+	AntreaIPAM         bool `yaml:"AntreaIPAM,omitempty"`
+	ServiceExternalIP  bool `yaml:"ServiceExternalIP,omitempty"`
+	Multicast          bool `yaml:"Multicast,omitempty"`
 }
 
 func mapAntreaConfigSpec(cluster *clusterapiv1beta1.Cluster, config *cniv1alpha1.AntreaConfig) (*antreaConfigSpec, error) {
@@ -64,6 +94,17 @@ func mapAntreaConfigSpec(cluster *clusterapiv1beta1.Cluster, config *cniv1alpha1
 	configSpec.Antrea.AntreaConfigDataValue.ServiceCIDR = serviceCIDR
 	configSpec.Antrea.AntreaConfigDataValue.ServiceCIDRv6 = serviceCIDRv6
 
+	configSpec.Antrea.AntreaConfigDataValue.Egress.EgressExceptCIDRs = config.Spec.Antrea.AntreaConfigDataValue.Egress.EgressExceptCIDRs
+	configSpec.Antrea.AntreaConfigDataValue.NodePortLocal.Enabled = config.Spec.Antrea.AntreaConfigDataValue.NodePortLocal.Enabled
+	configSpec.Antrea.AntreaConfigDataValue.NodePortLocal.PortRange = config.Spec.Antrea.AntreaConfigDataValue.NodePortLocal.PortRange
+	configSpec.Antrea.AntreaConfigDataValue.AntreaProxy.ProxyAll = config.Spec.Antrea.AntreaConfigDataValue.AntreaProxy.ProxyAll
+	configSpec.Antrea.AntreaConfigDataValue.AntreaProxy.NodePortAddresses = config.Spec.Antrea.AntreaConfigDataValue.AntreaProxy.NodePortAddresses
+	configSpec.Antrea.AntreaConfigDataValue.AntreaProxy.SkipServices = config.Spec.Antrea.AntreaConfigDataValue.AntreaProxy.SkipServices
+	configSpec.Antrea.AntreaConfigDataValue.AntreaProxy.ProxyLoadBalancerIPs = config.Spec.Antrea.AntreaConfigDataValue.AntreaProxy.ProxyLoadBalancerIPs
+	configSpec.Antrea.AntreaConfigDataValue.WireGuard.Port = config.Spec.Antrea.AntreaConfigDataValue.WireGuard.Port
+	configSpec.Antrea.AntreaConfigDataValue.transportInterface = config.Spec.Antrea.AntreaConfigDataValue.TransportInterface
+	configSpec.Antrea.AntreaConfigDataValue.transportInterfaceCIDRs = config.Spec.Antrea.AntreaConfigDataValue.TransportInterfaceCIDRs
+	configSpec.Antrea.AntreaConfigDataValue.multicastInterface = config.Spec.Antrea.AntreaConfigDataValue.MulticastInterface
 	configSpec.Antrea.AntreaConfigDataValue.TrafficEncapMode = config.Spec.Antrea.AntreaConfigDataValue.TrafficEncapMode
 	configSpec.Antrea.AntreaConfigDataValue.NoSNAT = config.Spec.Antrea.AntreaConfigDataValue.NoSNAT
 	configSpec.Antrea.AntreaConfigDataValue.DisableUDPTunnelOffload = config.Spec.Antrea.AntreaConfigDataValue.DisableUDPTunnelOffload
@@ -79,6 +120,9 @@ func mapAntreaConfigSpec(cluster *clusterapiv1beta1.Cluster, config *cniv1alpha1
 	configSpec.Antrea.AntreaConfigDataValue.FeatureGates.NodePortLocal = config.Spec.Antrea.AntreaConfigDataValue.FeatureGates.NodePortLocal
 	configSpec.Antrea.AntreaConfigDataValue.FeatureGates.AntreaTraceflow = config.Spec.Antrea.AntreaConfigDataValue.FeatureGates.AntreaTraceflow
 	configSpec.Antrea.AntreaConfigDataValue.FeatureGates.NetworkPolicyStats = config.Spec.Antrea.AntreaConfigDataValue.FeatureGates.NetworkPolicyStats
+	configSpec.Antrea.AntreaConfigDataValue.FeatureGates.AntreaIPAM = config.Spec.Antrea.AntreaConfigDataValue.FeatureGates.AntreaIPAM
+	configSpec.Antrea.AntreaConfigDataValue.FeatureGates.ServiceExternalIP = config.Spec.Antrea.AntreaConfigDataValue.FeatureGates.ServiceExternalIP
+	configSpec.Antrea.AntreaConfigDataValue.FeatureGates.Multicast = config.Spec.Antrea.AntreaConfigDataValue.FeatureGates.Multicast
 
 	return configSpec, nil
 }

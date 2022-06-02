@@ -10,10 +10,10 @@ directories:
   path: ytt/vendir/vsphere_cpi/_ytt_lib
 - contents:
   - git:
-      commitTitle: Add the option to skip cni plugins installation (#4423)
-      sha: 80553a0e976a4bdd26f8e64aff41ae5755eb3d4e
+      commitTitle: Adding Antrea CNI package version 1.5.2
+      sha: d420c7406657c4e555918b31f1bd771af85ba774
       tags:
-      - v0.13.0-dev.1-198-g80553a0e
+      - v0.13.0-dev.1-223-gd420c740
     path: .
   path: ytt/vendir/cni/_ytt_lib
 - contents:
