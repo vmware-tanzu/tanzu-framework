@@ -41,6 +41,7 @@ var _ = Describe("Unit tests for ceip", func() {
 			regionalClusterClient.RemoveCEIPTelemetryJobReturns(nil)
 			regionalClusterClient.AddCEIPTelemetryJobReturns(nil)
 			regionalClusterClient.GetRegionalClusterDefaultProviderNameReturns("aws:v0.5.5", nil)
+			regionalClusterClient.GetManagementClusterTKGVersionReturns("v1.5.0", nil)
 		})
 
 		Context("When opt-ing out of CEIP", func() {
@@ -116,6 +117,39 @@ var _ = Describe("Unit tests for ceip", func() {
 			It("should not add ::1 to noProxy", func() {
 				_, _, _, _, _, _, _, noProxy := regionalClusterClient.AddCEIPTelemetryJobArgsForCall(0)
 				Expect(noProxy).NotTo(ContainSubstring("::1"))
+			})
+		})
+
+		Context("When cluster version greater than or equal to v1.6.0 ", func() {
+			BeforeEach(func() {
+				regionalClusterClient.GetManagementClusterTKGVersionReturns("v1.6.0", nil)
+				regionalClusterClient.IsPacificRegionalClusterReturns(false, nil)
+			})
+
+			Context("cluster has the telemetry cron job already installed", func() {
+				JustBeforeEach(func() {
+					regionalClusterClient.GetResourceReturns(nil)
+					regionalClusterClient.HasCEIPTelemetryJobReturns(true, nil)
+					err = tkgClient.DoSetCEIPParticipation(regionalClusterClient, context, false, "true", "")
+				})
+
+				It("should not interact with the telemetry job", func() {
+					Expect(err).NotTo(HaveOccurred())
+					Expect(regionalClusterClient.RemoveCEIPTelemetryJobCallCount()).To(BeZero())
+					Expect(regionalClusterClient.AddCEIPTelemetryJobCallCount()).To(BeZero())
+				})
+			})
+
+			Context("cluster is missing the telemetry cron job", func() {
+				JustBeforeEach(func() {
+					regionalClusterClient.HasCEIPTelemetryJobReturns(false, nil)
+				})
+
+				It("should add the job to the cluster", func() {
+					err = tkgClient.DoSetCEIPParticipation(regionalClusterClient, context, true, "true", "")
+					Expect(err).NotTo(HaveOccurred())
+					Expect(regionalClusterClient.AddCEIPTelemetryJobCallCount()).To(Equal(1))
+				})
 			})
 		})
 	})
