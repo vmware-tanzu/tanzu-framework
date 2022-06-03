@@ -81,7 +81,7 @@ func (cw *Webhook) getClusterClass(ctx context.Context, cluster *clusterv1.Clust
 	return clusterClass, nil
 }
 
-func respPtr(resp admission.Response) *admission.Response {
+func respPtr(resp admission.Response) *admission.Response { // nolint:gocritic // suppress hugeParam: resp is heavy
 	return &resp
 }
 
