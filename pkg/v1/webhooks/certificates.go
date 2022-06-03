@@ -63,52 +63,65 @@ func addCertsToWebhookConfigs(ctx context.Context, k8sclient kubernetes.Interfac
 	return nil
 }
 
-func NewTLSSecret(ctx context.Context, secretName, serviceName, certPath, keyPath, namespace string) (*corev1.Secret, error) {
-	secret, err := resources.MakeSecretInternal(ctx, secretName, namespace, serviceName)
-	if err != nil {
-		return nil, err
-	}
-
+// WriteServerTLSToFileSystem writes servers certificate and key in provided secret to the filesystem paths provided.
+func WriteServerTLSToFileSystem(ctx context.Context, certPath, keyPath string, secret *corev1.Secret) error {
 	if err := certutil.WriteCert(certPath, secret.Data[resources.ServerCert]); err != nil {
-		return secret, err
+		return err
 	}
 	if err := keyutil.WriteKey(keyPath, secret.Data[resources.ServerKey]); err != nil {
-		return secret, err
+		return err
 	}
-
-	return secret, nil
+	return nil
 }
 
+// InstallNewCertificates creates a new set of keys and certificates and saves them to the filesystem paths provided.
+// Adds the CA certificate to webhook configurations matching label selector.
+// Returns a secret containing the server key, sever certificate and CA certificate.
 func InstallNewCertificates(ctx context.Context, k8sConfig *rest.Config, certPath, keyPath, secretName, namespace, serviceName, labelSelector string) (*corev1.Secret, error) {
 	if labelSelector == "" {
 		return nil, fmt.Errorf("label selector not provided for webhook configurations udpate")
 	}
-	secret, err := NewTLSSecret(ctx, secretName, serviceName, certPath, keyPath, namespace)
+	secret, err := resources.MakeSecret(ctx, secretName, namespace, serviceName)
 	if err != nil {
 		return nil, err
 	}
 
-	k8sclient, err := client.New(k8sConfig, client.Options{})
+	err = InstallCertificates(ctx, k8sConfig, secret, certPath, keyPath, labelSelector)
 	if err != nil {
 		return nil, err
 	}
+	return secret, nil
+}
+
+// InstallCertificates saves server certificate and key in provided secret to the filesystem paths provided.
+// Adds the CA certificate to webhook configuration matching label selector.
+func InstallCertificates(ctx context.Context, k8sConfig *rest.Config, secret *corev1.Secret, certPath, keyPath, labelSelector string) error {
+	if err := WriteServerTLSToFileSystem(ctx, certPath, keyPath, secret); err != nil {
+		return err
+	}
+	k8sclient, err := client.New(k8sConfig, client.Options{})
+	if err != nil {
+		return err
+	}
 	err = updateOrCreateTLSSecret(ctx, k8sclient, secret)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	clientSet, err := kubernetes.NewForConfig(k8sConfig)
 	if err != nil {
-		return nil, err
+		return err
 	}
 	err = addCertsToWebhookConfigs(ctx, clientSet, labelSelector, secret)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	return secret, nil
+	return nil
 }
 
+// ValidateTLSSecret checks secret has all required keys and certificates.
+// Checks certificate lifetime is valid.
 func ValidateTLSSecret(tlsSecret *corev1.Secret, certGracePeriod time.Duration) error {
 	if tlsSecret == nil {
 		return fmt.Errorf("webhook certificate secret is empty")
@@ -137,7 +150,6 @@ func ValidateTLSSecret(tlsSecret *corev1.Secret, certGracePeriod time.Duration) 
 	return nil
 }
 
-// write secret to cluster
 func updateOrCreateTLSSecret(ctx context.Context, k8sclient client.Client, tlsSecret *corev1.Secret) error {
 	if tlsSecret == nil {
 		return nil
@@ -151,6 +163,7 @@ func updateOrCreateTLSSecret(ctx context.Context, k8sclient client.Client, tlsSe
 		if err != nil {
 			return err
 		}
+		return nil
 	}
 	if err != nil {
 		return err

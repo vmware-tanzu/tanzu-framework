@@ -30,7 +30,8 @@ var _ = Describe("Webhook", func() {
 
 	Context("server's certificate and key", func() {
 		It("should be generated and written to the webhook server CertDir", func() {
-			secret, err := webhooks.NewTLSSecret(ctx, webhookScrtName, webhookServiceName, certPath, keyPath, addonNamespace)
+			print(certPath, keyPath, webhookScrtName, addonNamespace, webhookServiceName, webhookSelectorString)
+			secret, err := webhooks.InstallNewCertificates(ctx, k8sConfig, certPath, keyPath, webhookScrtName, addonNamespace, webhookServiceName, webhookSelectorString)
 			Expect(err).ToNot(HaveOccurred())
 			Expect(secret).NotTo(BeNil())
 			cert, err := cert2.CertsFromFile(certPath)

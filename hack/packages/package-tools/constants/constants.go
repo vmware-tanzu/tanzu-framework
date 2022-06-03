@@ -10,9 +10,6 @@ const (
 	// ToolsBinDirPath is the tools bin directory path
 	ToolsBinDirPath = "hack/tools/bin"
 
-	// KbldConfigFilePath is the path to kbld-config.yaml file
-	KbldConfigFilePath = "packages/kbld-config.yaml"
-
 	// PackageBundlesDir is the path to generated package bundles
 	PackageBundlesDir = "build/package-bundles"
 

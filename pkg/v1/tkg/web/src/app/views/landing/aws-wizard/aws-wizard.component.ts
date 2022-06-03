@@ -125,7 +125,7 @@ export class AwsWizardComponent extends WizardBaseDirective implements OnInit {
             cidr: (this.getFieldValue(AwsForm.VPC, AwsField.VPC_TYPE) === VpcType.EXISTING) ?
                 this.getFieldValue(AwsForm.VPC, AwsField.VPC_EXISTING_CIDR) :
                 this.getFieldValue(AwsForm.VPC, AwsField.VPC_NEW_CIDR),
-            vpcID: this.getFieldValue(AwsForm.VPC, AwsField.VPC_EXISTING_CIDR),
+            vpcID: this.getFieldValue(AwsForm.VPC, AwsField.VPC_EXISTING_ID),
             azs: this.getAwsNodeAzs(payload)
         };
 

@@ -305,8 +305,20 @@ func enableClusterBootstrapAndConfigControllers(ctx context.Context, mgr ctrl.Ma
 func enableWebhooks(ctx context.Context, mgr ctrl.Manager, flags *addonFlags) {
 	certPath := path.Join(constants.WebhookCertDir, "tls.crt")
 	keyPath := path.Join(constants.WebhookCertDir, "tls.key")
-	if _, err := webhooks.InstallNewCertificates(ctx, mgr.GetConfig(), certPath, keyPath, constants.WebhookScrtName, flags.addonNamespace, constants.WebhookServiceName, constants.AddonWebhookLabelKey+"="+constants.AddonWebhookLabelValue); err != nil {
-		setupLog.Error(err, "unable to install certificates for webhooks")
+	webhookTLS := webhooks.WebhookTLS{
+		Ctx:           ctx,
+		K8sConfig:     mgr.GetConfig(),
+		CertPath:      certPath,
+		KeyPath:       keyPath,
+		Name:          constants.WebhookScrtName,
+		ServiceName:   constants.WebhookServiceName,
+		LabelSelector: constants.AddonWebhookLabelKey + "=" + constants.AddonWebhookLabelValue,
+		Logger:        setupLog,
+		Namespace:     flags.addonNamespace,
+		RotationTime:  constants.WebhookCertLifeTime,
+	}
+	if err := webhookTLS.ManageCertificates(constants.WebhookCertManagementFrequency); err != nil {
+		setupLog.Error(err, "Unable to start webhook tls certificate management")
 		os.Exit(1)
 	}
 	// Set up the webhooks in the manager

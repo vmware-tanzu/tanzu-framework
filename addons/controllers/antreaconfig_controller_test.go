@@ -109,6 +109,9 @@ var _ = Describe("AntreaConfig Reconciler and Webhooks", func() {
 				Expect(config.Spec.Antrea.AntreaConfigDataValue.FeatureGates.AntreaTraceflow).Should(Equal(false))
 				Expect(config.Spec.Antrea.AntreaConfigDataValue.FeatureGates.AntreaPolicy).Should(Equal(true))
 				Expect(config.Spec.Antrea.AntreaConfigDataValue.FeatureGates.FlowExporter).Should(Equal(false))
+				Expect(config.Spec.Antrea.AntreaConfigDataValue.FeatureGates.AntreaIPAM).Should(Equal(false))
+				Expect(config.Spec.Antrea.AntreaConfigDataValue.FeatureGates.ServiceExternalIP).Should(Equal(false))
+				Expect(config.Spec.Antrea.AntreaConfigDataValue.FeatureGates.Multicast).Should(Equal(false))
 
 				return true
 			}, waitTimeout, pollingInterval).Should(BeTrue())
@@ -202,5 +205,4 @@ var _ = Describe("AntreaConfig Reconciler and Webhooks", func() {
 			Expect(k8sClient.Update(ctx, config)).ToNot(Succeed())
 		})
 	})
-
 })

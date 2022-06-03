@@ -70,7 +70,6 @@ func (r *MachineReconciler) Reconcile(ctx context.Context, req ctrl.Request) (_ 
 	machine := &clusterapiv1beta1.Machine{}
 	if err := r.Client.Get(ctx, req.NamespacedName, machine); err != nil {
 		if apierrors.IsNotFound(err) {
-			log.Info("machine not found, will not reconcile")
 			return reconcile.Result{}, nil
 		}
 		return reconcile.Result{}, err
@@ -97,7 +96,6 @@ func (r *MachineReconciler) Reconcile(ctx context.Context, req ctrl.Request) (_ 
 
 	// case when machine is being deleted but cluster is not
 	if !machine.GetDeletionTimestamp().IsZero() && cluster.GetDeletionTimestamp().IsZero() {
-		log.Info(fmt.Sprintf("machine is being deleted but its parent cluster is not, removing %s if present", PreTerminateAddonsAnnotationPrefix))
 		delete(machine.Annotations, PreTerminateAddonsAnnotationPrefix)
 		return ctrl.Result{}, nil
 	}
@@ -115,7 +113,6 @@ func (r *MachineReconciler) reconcileNormal(machine *clusterapiv1beta1.Machine,
 	cluster *clusterapiv1beta1.Cluster, log logr.Logger) ctrl.Result {
 
 	if controllerutil.ContainsFinalizer(cluster, addontypes.AddonFinalizer) {
-		log.Info(fmt.Sprintf("cluster is marked with finalizer %s", addontypes.AddonFinalizer))
 		if !annotations.HasWithPrefix(PreTerminateAddonsAnnotationPrefix, machine.ObjectMeta.Annotations) {
 			if machine.Annotations == nil {
 				machine.Annotations = make(map[string]string)
@@ -124,7 +121,6 @@ func (r *MachineReconciler) reconcileNormal(machine *clusterapiv1beta1.Machine,
 			machine.Annotations[PreTerminateAddonsAnnotationPrefix] = PreTerminateAddonsAnnotationValue
 		}
 	} else {
-		log.Info(fmt.Sprintf("cluster is not marked with finalizer %s", addontypes.AddonFinalizer))
 		if annotations.HasWithPrefix(PreTerminateAddonsAnnotationPrefix, machine.ObjectMeta.Annotations) {
 			log.Info(fmt.Sprintf("removing %s", PreTerminateAddonsAnnotationPrefix))
 			delete(machine.Annotations, PreTerminateAddonsAnnotationPrefix)
@@ -135,10 +131,8 @@ func (r *MachineReconciler) reconcileNormal(machine *clusterapiv1beta1.Machine,
 
 func (r *MachineReconciler) reconcileClusterDeletion(machine *clusterapiv1beta1.Machine, cluster *clusterapiv1beta1.Cluster, log logr.Logger) ctrl.Result {
 	if controllerutil.ContainsFinalizer(cluster, addontypes.AddonFinalizer) {
-		log.Info(fmt.Sprintf("cluster is schedule for deletion but marked with finalizer %s. Requeing for %s ms", addontypes.AddonFinalizer, requestRequeTime))
 		return ctrl.Result{RequeueAfter: requestRequeTime}
 	}
-	log.Info(fmt.Sprintf("cluster is schedule for deletion and not marked with finalizer %s", addontypes.AddonFinalizer))
 	if annotations.HasWithPrefix(PreTerminateAddonsAnnotationPrefix, machine.ObjectMeta.Annotations) {
 		delete(machine.Annotations, PreTerminateAddonsAnnotationPrefix)
 		log.Info(fmt.Sprintf("removing %s", PreTerminateAddonsAnnotationPrefix))

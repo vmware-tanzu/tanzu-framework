@@ -18,15 +18,11 @@ spec:
   scope: Namespaced
   versions:
   - additionalPrinterColumns:
-    - description: The namespace in which calico is deployed
-      jsonPath: .spec.cni.namespace
-      name: Namespace
-      type: string
     - description: Maximum transmission unit setting. '0' as default means MTU will
         be auto detected
-      jsonPath: .spec.cni.calico.config.vethMTU
+      jsonPath: .spec.calico.config.vethMTU
       name: VethMTU
-      type: string
+      type: integer
     - description: Name of the Calico data values secret
       jsonPath: .status.secretRef
       name: SecretRef
@@ -34,7 +30,7 @@ spec:
     name: v1alpha1
     schema:
       openAPIV3Schema:
-        description: CalicoConfig is the Schema for the calicoconfigs API
+        description: CalicoConfig is the Schema for the calicoconfigs API.
         properties:
           apiVersion:
             description: 'APIVersion defines the versioned schema of this representation
@@ -49,31 +45,38 @@ spec:
           metadata:
             type: object
           spec:
-            description: CalicoConfigSpec defines the desired state of CalicoConfig
+            description: CalicoConfigSpec defines the desired state of CalicoConfig.
             properties:
               calico:
+                description: Calico stores the configurations for Calico.
                 properties:
                   config:
+                    description: CalicoConfigDataValue contains the specific configurations
+                      for the Calico package.
                     properties:
+                      skipCNIBinaries:
+                        default: false
+                        description: SkipCNIBinaries allows to skip the cni plugin
+                          binaries installation. Default to false. Set to true for
+                          providers who already installed cni plugin binaries in their
+                          OVAs and do not want Calico to overwrite them.
+                        type: boolean
                       vethMTU:
                         default: 0
-                        description: Maximum transmission unit setting. "0" as default
-                          means MTU will be auto detected
+                        description: VethMTU defines maximum transmission unit. "0"
+                          as default means MTU will be auto detected.
                         format: int64
                         minimum: 0
                         type: integer
                     type: object
                 type: object
-              namespace:
-                default: kube-system
-                description: The namespace in which calico is deployed
-                type: string
             type: object
           status:
-            description: CalicoConfigStatus defines the observed state of CalicoConfig
+            description: CalicoConfigStatus defines the observed state of CalicoConfig.
             properties:
               secretRef:
-                description: Name of the data value secret created by calico controller
+                description: SecretRef is the name of the data value secret created
+                  by calico controller.
                 type: string
             type: object
         required:

@@ -56,9 +56,14 @@ func (w *WebhookTLS) UpdateOrCreate() error {
 	err = clusterClient.Get(w.Ctx, client.ObjectKey{
 		Namespace: w.Namespace,
 		Name:      w.Name}, currentSecret)
-	if err == nil {
+	if err == nil { // secret found. Will use if valid
 		w.secret = currentSecret
-	} else if !apierrors.IsNotFound(err) { // secret not found = "Create" case.
+	} else if apierrors.IsNotFound(err) { // secret not found = "Create" case.
+		w.secret, err = resources.MakeSecret(w.Ctx, w.Name, w.Namespace, w.ServiceName)
+		if err != nil {
+			return err
+		}
+	} else {
 		return err
 	}
 
@@ -70,6 +75,10 @@ func (w *WebhookTLS) UpdateOrCreate() error {
 		if err != nil {
 			return err
 		}
+	}
+	err = InstallCertificates(w.Ctx, w.K8sConfig, w.secret, w.CertPath, w.KeyPath, w.LabelSelector)
+	if err != nil {
+		return err
 	}
 	return nil
 }

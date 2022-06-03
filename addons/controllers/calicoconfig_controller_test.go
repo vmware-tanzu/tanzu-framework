@@ -19,16 +19,19 @@ import (
 	cniv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cni/v1alpha1"
 )
 
-const testCluster = "test-cluster-calico"
+const (
+	testClusterCalico1 = "test-cluster-calico-1"
+	testClusterCalico2 = "test-cluster-calico-2"
+	testDataCalico1    = "testdata/test-calico-1.yaml"
+	testDataCalico2    = "testdata/test-calico-2.yaml"
+)
 
 var _ = Describe("CalicoConfig Reconciler and Webhooks", func() {
 	var (
-		clusterName string
+		clusterName             string
+		clusterResourceFilePath string
 	)
 
-	const (
-		clusterResourceFilePath = "testdata/test-calico.yaml"
-	)
 	JustBeforeEach(func() {
 		// Create the admission webhooks
 		f, err := os.Open(cniWebhookManifestFile)
@@ -66,15 +69,16 @@ var _ = Describe("CalicoConfig Reconciler and Webhooks", func() {
 		f.Close()
 	})
 
-	Context("reconcile CalicoConfig for management cluster", func() {
+	Context("reconcile default CalicoConfig for management cluster on dual-stack CIDR", func() {
 		BeforeEach(func() {
-			clusterName = testCluster
+			clusterName = testClusterCalico1
+			clusterResourceFilePath = testDataCalico1
 		})
 
 		It("Should reconcile CalicoConfig and create data values secret for CalicoConfig on management cluster", func() {
 			key := client.ObjectKey{
 				Namespace: "default",
-				Name:      testCluster,
+				Name:      testClusterCalico1,
 			}
 
 			cluster := &clusterapiv1beta1.Cluster{}
@@ -93,13 +97,14 @@ var _ = Describe("CalicoConfig Reconciler and Webhooks", func() {
 
 				// check spec values
 				Expect(config.Spec.Calico.Config.VethMTU).Should(Equal(int64(0)))
+				Expect(config.Spec.Calico.Config.SkipCNIBinaries).Should(BeTrue())
 
 				// check owner reference
 				if len(config.OwnerReferences) == 0 {
 					return false
 				}
 				Expect(len(config.OwnerReferences)).Should(Equal(1))
-				Expect(config.OwnerReferences[0].Name).Should(Equal(testCluster))
+				Expect(config.OwnerReferences[0].Name).Should(Equal(testClusterCalico1))
 
 				return true
 			}, waitTimeout, pollingInterval).Should(BeTrue())
@@ -121,6 +126,83 @@ var _ = Describe("CalicoConfig Reconciler and Webhooks", func() {
 				Expect(strings.Contains(secretData, "ipFamily: ipv4,ipv6")).Should(BeTrue())
 				Expect(strings.Contains(secretData, "clusterCIDR: 192.168.0.0/16,fd00:100:96::/48")).Should(BeTrue())
 				Expect(strings.Contains(secretData, "vethMTU: \"0\"")).Should(BeTrue())
+				Expect(strings.Contains(secretData, "skipCNIBinaries: true")).Should(BeTrue())
+
+				return true
+			}, waitTimeout, pollingInterval).Should(BeTrue())
+
+			Eventually(func() bool {
+				config := &cniv1alpha1.CalicoConfig{}
+				err := k8sClient.Get(ctx, key, config)
+				if err != nil {
+					return false
+				}
+				// Check status.secretName after reconciliation
+				Expect(config.Status.SecretRef).Should(Equal(fmt.Sprintf("%s-%s-data-values", clusterName, constants.CalicoAddonName)))
+
+				return true
+			}, waitTimeout, pollingInterval).Should(BeTrue())
+		})
+	})
+
+	Context("reconcile mtu customized and cni binaries installation skipped CalicoConfig for management cluster on ipv4 CIDR", func() {
+		BeforeEach(func() {
+			clusterName = testClusterCalico2
+			clusterResourceFilePath = testDataCalico2
+		})
+
+		It("Should reconcile CalicoConfig and create data values secret for CalicoConfig on management cluster", func() {
+			key := client.ObjectKey{
+				Namespace: "default",
+				Name:      testClusterCalico2,
+			}
+
+			cluster := &clusterapiv1beta1.Cluster{}
+			Eventually(func() bool {
+				if err := k8sClient.Get(ctx, key, cluster); err != nil {
+					return false
+				}
+				return true
+			}, waitTimeout, pollingInterval).Should(BeTrue())
+
+			config := &cniv1alpha1.CalicoConfig{}
+			Eventually(func() bool {
+				if err := k8sClient.Get(ctx, key, config); err != nil {
+					return false
+				}
+
+				// check spec values
+				Expect(config.Spec.Calico.Config.VethMTU).Should(Equal(int64(1420)))
+				Expect(config.Spec.Calico.Config.SkipCNIBinaries).Should(BeFalse())
+
+				// check owner reference
+				if len(config.OwnerReferences) == 0 {
+					return false
+				}
+				Expect(len(config.OwnerReferences)).Should(Equal(1))
+				Expect(config.OwnerReferences[0].Name).Should(Equal(testClusterCalico2))
+
+				return true
+			}, waitTimeout, pollingInterval).Should(BeTrue())
+
+			Eventually(func() bool {
+				secretKey := client.ObjectKey{
+					Namespace: "default",
+					Name:      fmt.Sprintf("%s-%s-data-values", clusterName, constants.CalicoAddonName),
+				}
+				secret := &v1.Secret{}
+				if err := k8sClient.Get(ctx, secretKey, secret); err != nil {
+					return false
+				}
+
+				// check data values secret contents
+				Expect(secret.Type).Should(Equal(v1.SecretTypeOpaque))
+				secretData := string(secret.Data["values.yaml"])
+				Expect(strings.Contains(secretData, "infraProvider: docker")).Should(BeTrue())
+				Expect(strings.Contains(secretData, "ipFamily: ipv4")).Should(BeTrue())
+				Expect(strings.Contains(secretData, "clusterCIDR: 192.168.0.0/16")).Should(BeTrue())
+				Expect(strings.Contains(secretData, "vethMTU: \"1420\"")).Should(BeTrue())
+				Expect(strings.Contains(secretData, "skipCNIBinaries: false")).Should(BeTrue())
 
 				return true
 			}, waitTimeout, pollingInterval).Should(BeTrue())
