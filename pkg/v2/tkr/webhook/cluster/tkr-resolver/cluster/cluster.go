@@ -47,6 +47,22 @@ func (cw *Webhook) Handle(ctx context.Context, req admission.Request) admission.
 	if err := cw.decoder.Decode(req, cluster); err != nil {
 		return admission.Errored(http.StatusBadRequest, err)
 	}
+
+	clusterClass, response := cw.getClusterClass(ctx, cluster)
+	if response != nil {
+		return *response
+	}
+
+	if err := cw.ResolveAndSetMetadata(cluster, clusterClass); err != nil {
+		return admission.Denied(err.Error())
+	}
+	return success(&req, cluster)
+}
+
+func (cw *Webhook) getClusterClass(ctx context.Context, cluster *clusterv1.Cluster) (*clusterv1.ClusterClass, *admission.Response) {
+	if !cluster.GetDeletionTimestamp().IsZero() {
+		return nil, respPtr(admission.Allowed("Doing nothing. Cluster is being deleted"))
+	}
 	cw.Log.Info("resolving cluster", "namespace", cluster.Namespace, "name", cluster.Name)
 	clusterClass, err := topology.GetClusterClass(ctx, cw.Client, cluster)
 	if err != nil {
@@ -54,20 +70,19 @@ func (cw *Webhook) Handle(ctx context.Context, req admission.Request) admission.
 			cw.Log.Info("ClusterClass not found",
 				"cluster", fmt.Sprintf("%s/%s", cluster.Namespace, cluster.Name),
 				"clusterClass", cluster.Spec.Topology.Class)
-			return admission.Denied("ClusterClass not found")
+			return nil, respPtr(admission.Denied("ClusterClass not found"))
 		}
 		cw.Log.Error(err, "error getting ClusterClass")
-		return admission.Errored(http.StatusBadGateway, errors.Wrap(err, "error getting ClusterClass"))
+		return nil, respPtr(admission.Errored(http.StatusBadGateway, errors.Wrap(err, "error getting ClusterClass")))
 	}
 	if clusterClass == nil {
-		return admission.Allowed("Skipping TKR resolution: cluster.spec.topology not present")
+		return nil, respPtr(admission.Allowed("Skipping TKR resolution: cluster.spec.topology not present"))
 	}
+	return clusterClass, nil
+}
 
-	if err := cw.ResolveAndSetMetadata(cluster, clusterClass); err != nil {
-		return admission.Denied(err.Error())
-	}
-
-	return success(&req, cluster)
+func respPtr(resp admission.Response) *admission.Response {
+	return &resp
 }
 
 // ResolveAndSetMetadata uses cw.TKRResolver and injects resolved metadata into the provided cluster.
