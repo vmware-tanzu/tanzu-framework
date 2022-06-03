@@ -155,6 +155,33 @@ func DeleteResources(f *os.File, cfg *rest.Config, dynamicClient dynamic.Interfa
 	return nil
 }
 
+// EnsureResources verifies that resources exist, creating it if necessary
+func EnsureResources(f *os.File, cfg *rest.Config, dynamicClient dynamic.Interface) error {
+	decoder, mapper, err := parseObjects(f, cfg)
+	if err != nil {
+		return err
+	}
+
+	for {
+		resource, unstructuredObj, err := getResource(decoder, mapper, dynamicClient)
+		if err != nil {
+			if err == io.EOF {
+				break
+			} else {
+				return err
+			}
+		}
+		_, err = resource.Get(context.Background(), unstructuredObj.GetName(), metav1.GetOptions{})
+		if apierrors.IsNotFound(err) {
+			// create it
+			if _, err := resource.Create(context.Background(), unstructuredObj, metav1.CreateOptions{}); err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
 // CreateKubeconfigSecret create a secret with kubeconfig token for the cluster provided by client
 func CreateKubeconfigSecret(cfg *rest.Config, clusterName, namespace string, crClient client.Client) error {
 	clusters := make(map[string]*clientcmdapi.Cluster)

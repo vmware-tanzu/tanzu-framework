@@ -43,7 +43,7 @@ func (r *VSphereCSIConfigReconciler) mapVSphereCSIConfigToDataValues(ctx context
 		vcsiConfig.Spec.VSphereCSI.Mode, VSphereCSIParavirtualMode, VSphereCSINonParavirtualMode)
 }
 
-func (r *VSphereCSIConfigReconciler) mapVSphereCSIConfigToDataValuesParavirtual(_ context.Context,
+func (r *VSphereCSIConfigReconciler) mapVSphereCSIConfigToDataValuesParavirtual(ctx context.Context,
 	cluster *clusterapiv1beta1.Cluster) (*DataValues, error) {
 
 	dvs := &DataValues{}
@@ -51,9 +51,23 @@ func (r *VSphereCSIConfigReconciler) mapVSphereCSIConfigToDataValuesParavirtual(
 	dvs.VSpherePVCSI.ClusterName = cluster.Name
 	dvs.VSpherePVCSI.ClusterUID = string(cluster.UID)
 	// default values from https://github.com/vmware-tanzu/community-edition/blob/main/addons/packages/vsphere-pv-csi/2.4.1/bundle/config/values.yaml
-	dvs.VSpherePVCSI.Namespace = "vmware-system-csi"
-	dvs.VSpherePVCSI.SupervisorMasterEndpointHostname = "supervisor.default.svc"
-	dvs.VSpherePVCSI.SupervisorMasterPort = 6443
+	dvs.VSpherePVCSI.Namespace = VSphereSystemCSINamepace
+	dvs.VSpherePVCSI.SupervisorMasterEndpointHostname = DefaultSupervisorMasterEndpointHostname
+	dvs.VSpherePVCSI.SupervisorMasterPort = DefaultSupervisorMasterPort
+	dvs.VSpherePVCSI.FeatureStates = map[string]string{}
+	featureStatesCM := &v1.ConfigMap{}
+	key := types.NamespacedName{Namespace: VSphereCSIFeatureStateNamespace, Name: VSphereCSIFeatureStateConfigMapName}
+	if err := r.Get(ctx, key, featureStatesCM); err != nil {
+		if !apierrors.IsNotFound(err) {
+			return nil, errors.Errorf("Error reading configmap '%s/%s': %v", key.Namespace, key.Name, err)
+		}
+		dvs.VSpherePVCSI.FeatureStates = nil
+	}
+	if dvs.VSpherePVCSI.FeatureStates != nil {
+		for k, v := range featureStatesCM.Data {
+			dvs.VSpherePVCSI.FeatureStates[k] = v
+		}
+	}
 
 	return dvs, nil
 }

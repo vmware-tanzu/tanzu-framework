@@ -26,10 +26,18 @@ const (
 )
 
 const (
-	VSphereCSINamespace             = "kube-system"
-	VSphereCSIProvisionTimeout      = "300s"
-	VSphereCSIAttachTimeout         = "300s"
-	VSphereCSIResizerTimeout        = "300s"
-	VSphereCSIMinDeploymentReplicas = 1
-	VSphereCSIMaxDeploymentReplicas = 3
+	VSphereCSINamespace                 = "kube-system"
+	VSphereCSIProvisionTimeout          = "300s"
+	VSphereCSIAttachTimeout             = "300s"
+	VSphereCSIResizerTimeout            = "300s"
+	VSphereCSIMinDeploymentReplicas     = 1
+	VSphereCSIMaxDeploymentReplicas     = 3
+	VSphereCSIFeatureStateNamespace     = VSphereSystemCSINamepace
+	VSphereCSIFeatureStateConfigMapName = "csi-feature-states"
+)
+
+const (
+	VSphereSystemCSINamepace                = "vmware-system-csi"
+	DefaultSupervisorMasterEndpointHostname = "supervisor.default.svc"
+	DefaultSupervisorMasterPort             = 6443
 )
