@@ -28,6 +28,9 @@ const (
 	// CSIAddonName is name of the vsphere-csi addon
 	CSIAddonName = "vsphere-csi"
 
+	// GuestClusterAuthServiceAddonName is name of guest-cluster-auth-service addon
+	GuestClusterAuthServiceAddonName = "guest-cluster-auth-service"
+
 	// TKGBomNamespace is the TKG add on BOM namespace.
 	TKGBomNamespace = "tkr-system"
 

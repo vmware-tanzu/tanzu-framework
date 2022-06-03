@@ -12,6 +12,7 @@ replace (
 require (
 	github.com/go-logr/logr v1.2.2
 	github.com/googleapis/gnostic v0.5.5
+	github.com/jetstack/cert-manager v1.1.0
 	github.com/onsi/ginkgo v1.16.5
 	github.com/onsi/gomega v1.19.0
 	github.com/pkg/errors v0.9.1
@@ -22,6 +23,7 @@ require (
 	github.com/vmware-tanzu/tanzu-framework/apis/cni v0.0.0-00010101000000-000000000000
 	github.com/vmware-tanzu/tanzu-framework/apis/cpi v0.0.0-00010101000000-000000000000
 	github.com/vmware-tanzu/vm-operator-api v0.1.4-0.20211202185235-43eb44c09ecd
+	golang.org/x/text v0.3.7
 	gopkg.in/yaml.v2 v2.4.0
 	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b
 	k8s.io/api v0.23.4
@@ -34,6 +36,7 @@ require (
 	sigs.k8s.io/cluster-api v1.1.3
 	sigs.k8s.io/cluster-api-provider-vsphere v1.1.0
 	sigs.k8s.io/controller-runtime v0.11.1
+	sigs.k8s.io/yaml v1.3.0
 )
 
 require (
@@ -85,7 +88,6 @@ require (
 	golang.org/x/oauth2 v0.0.0-20220309155454-6242fa91716a // indirect
 	golang.org/x/sys v0.0.0-20220319134239-a9b59b0215f8 // indirect
 	golang.org/x/term v0.0.0-20210927222741-03fcf44c2211 // indirect
-	golang.org/x/text v0.3.7 // indirect
 	golang.org/x/time v0.0.0-20220224211638-0e9765cccd65 // indirect
 	gomodules.xyz/jsonpatch/v2 v2.2.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
@@ -99,5 +101,4 @@ require (
 	k8s.io/kubectl v0.23.4 // indirect
 	sigs.k8s.io/json v0.0.0-20211208200746-9f7c6b3444d2 // indirect
 	sigs.k8s.io/structured-merge-diff/v4 v4.2.1 // indirect
-	sigs.k8s.io/yaml v1.3.0 // indirect
 )
