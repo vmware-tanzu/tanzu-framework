@@ -18,7 +18,7 @@ This document provides guidance on how to build and publish package and repo bun
       OCI_REGISTRY=${REGISTRY} make docker-all
    ```
 
-   This would build, push a docker image for the component and also replaces the newImage path in the [kbld-config.yaml](../../packages/kbld-config.yaml)
+   This would build, push a docker image for the component and also replaces the newImage path in the [kbld-config.yaml](../../packages/tkg-autoscaler/kbld-config.yaml)
 
 3. Start local registry
 

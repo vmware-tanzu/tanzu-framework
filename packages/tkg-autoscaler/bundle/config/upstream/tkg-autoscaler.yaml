@@ -1,0 +1,211 @@
+#@ load("@ytt:data", "data")
+
+#@ def autoscaler_volume_name():
+#@   return "{}-cluster-autoscaler-volume".format(data.values.CLUSTER_NAME)
+#@ end
+
+#@ def autoscaler_kubeconfig_mount_path():
+#@   return "/mnt/{}-kubeconfig".format(data.values.CLUSTER_NAME)
+#@ end
+
+#@ def autoscaler_args():
+#@   args = ["--cloud-provider=clusterapi"]
+#@   args.append("--v=4")
+#@   args.append("--clusterapi-cloud-config-authoritative")
+#@   args.append("--kubeconfig=" + autoscaler_kubeconfig_mount_path() + "/value")
+#@   args.append("--node-group-auto-discovery=clusterapi:clusterName=" + data.values.CLUSTER_NAME)
+#@   args.append("--scale-down-delay-after-add=" + data.values.AUTOSCALER_SCALE_DOWN_DELAY_AFTER_ADD)
+#@   args.append("--scale-down-delay-after-delete=" + data.values.AUTOSCALER_SCALE_DOWN_DELAY_AFTER_DELETE)
+#@   args.append("--scale-down-delay-after-failure=" + data.values.AUTOSCALER_SCALE_DOWN_DELAY_AFTER_FAILURE)
+#@   args.append("--scale-down-unneeded-time=" + data.values.AUTOSCALER_SCALE_DOWN_UNNEEDED_TIME)
+#@   args.append("--max-node-provision-time=" + data.values.AUTOSCALER_MAX_NODE_PROVISION_TIME)
+#@   args.append("--max-nodes-total=" + "{}".format(data.values.AUTOSCALER_MAX_NODES_TOTAL))
+#@   return args
+#@ end
+
+#@ if data.values.TKG_CLUSTER_ROLE == "workload" and data.values.PROVIDER_TYPE != "tkg-service-vsphere":
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: #@ "{}-cluster-autoscaler".format(data.values.CLUSTER_NAME)
+  namespace: #@ data.values.NAMESPACE
+  labels:
+    app: #@ "{}-cluster-autoscaler".format(data.values.CLUSTER_NAME)
+spec:
+  selector:
+    matchLabels:
+      app: #@ "{}-cluster-autoscaler".format(data.values.CLUSTER_NAME)
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: #@ "{}-cluster-autoscaler".format(data.values.CLUSTER_NAME)
+    spec:
+      containers:
+        - image: tkg-autoscaler:latest
+          name: #@ "{}-cluster-autoscaler".format(data.values.CLUSTER_NAME)
+          volumeMounts:
+            - name: #@ autoscaler_volume_name()
+              mountPath: #@ autoscaler_kubeconfig_mount_path()
+              readOnly: true
+          command:
+            - /cluster-autoscaler
+          args: #@ autoscaler_args()
+      volumes:
+        - name: #@ autoscaler_volume_name()
+          secret:
+            secretName: #@ "{}-kubeconfig".format(data.values.CLUSTER_NAME)
+      serviceAccountName: #@ "{}-autoscaler".format(data.values.CLUSTER_NAME)
+      terminationGracePeriodSeconds: 10
+      tolerations:
+        - effect: NoSchedule
+          key: node-role.kubernetes.io/master
+---
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: #@ "{}-autoscaler-workload".format(data.values.CLUSTER_NAME)
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-autoscaler-workload
+subjects:
+  - kind: ServiceAccount
+    name: #@ "{}-autoscaler".format(data.values.CLUSTER_NAME)
+    namespace: #@ data.values.NAMESPACE
+---
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: #@ "{}-autoscaler-management".format(data.values.CLUSTER_NAME)
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-autoscaler-management
+subjects:
+  - kind: ServiceAccount
+    name: #@ "{}-autoscaler".format(data.values.CLUSTER_NAME)
+    namespace: #@ data.values.NAMESPACE
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: #@ "{}-autoscaler".format(data.values.CLUSTER_NAME)
+  namespace: #@ data.values.NAMESPACE
+---
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: cluster-autoscaler-workload
+rules:
+  - apiGroups:
+      - ""
+    resources:
+      - persistentvolumeclaims
+      - persistentvolumes
+      - pods
+      - replicationcontrollers
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - ""
+    resources:
+      - nodes
+    verbs:
+      - get
+      - list
+      - update
+      - watch
+  - apiGroups:
+      - ""
+    resources:
+      - pods/eviction
+    verbs:
+      - create
+  - apiGroups:
+      - policy
+    resources:
+      - poddisruptionbudgets
+    verbs:
+      - list
+      - watch
+  - apiGroups:
+      - storage.k8s.io
+    resources:
+      - csinodes
+      - storageclasses
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - batch
+    resources:
+      - jobs
+    verbs:
+      - list
+      - watch
+  - apiGroups:
+      - apps
+    resources:
+      - daemonsets
+      - replicasets
+      - statefulsets
+    verbs:
+      - list
+      - watch
+  - apiGroups:
+      - ""
+    resources:
+      - events
+    verbs:
+      - create
+      - patch
+  - apiGroups:
+      - ""
+    resources:
+      - configmaps
+    verbs:
+      - create
+      - delete
+      - get
+      - update
+  - apiGroups:
+      - coordination.k8s.io
+    resources:
+      - leases
+    verbs:
+      - create
+      - get
+      - update
+---
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: cluster-autoscaler-management
+rules:
+  - apiGroups:
+      - cluster.x-k8s.io
+    resources:
+      - machinedeployments
+      - machines
+      - machinesets
+    verbs:
+      - get
+      - list
+      - update
+      - watch
+      - patch
+  - apiGroups:
+      - cluster.x-k8s.io
+    resources:
+      - machinedeployments/scale
+      - machinesets/scale
+    verbs:
+      - get
+      - update
+
+#@ end
