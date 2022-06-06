@@ -24,12 +24,12 @@ if [[ -z "${BUILDER_BASE_IMAGE}" ]];
 then
   docker build \
     -t "${FULL_IMAGE_NAME}" \
-    -f "${ROOT_DIR}"/Dockerfile .
+    -f "${ROOT_DIR}"/Dockerfile ..
 else
   docker build \
     --build-arg BUILDER_BASE_IMAGE="${BUILDER_BASE_IMAGE}" \
     -t "${FULL_IMAGE_NAME}" \
-    -f "${ROOT_DIR}"/Dockerfile .
+    -f "${ROOT_DIR}"/Dockerfile ..
 fi
 
 mkdir -p "${ROOT_DIR}"/artifacts/images
