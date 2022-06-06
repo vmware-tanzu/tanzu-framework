@@ -15,7 +15,7 @@ COPY go.sum go.sum
 RUN go mod download
 
 # Copy the source
-COPY main.go main.go
+COPY cmd/ cmd/
 COPY pkg/ pkg/
 COPY Makefile Makefile
 #COPY .git/ .git/
@@ -24,5 +24,5 @@ RUN make native
 
 FROM gcr.io/distroless/static:nonroot
 WORKDIR /
-COPY --from=builder /workspace/tkg-pinniped-post-deploy .
-CMD ["/tkg-pinniped-post-deploy"]
+COPY --from=builder /workspace/tkg-pinniped-post-deploy-job .
+CMD ["/tkg-pinniped-post-deploy-job"]
