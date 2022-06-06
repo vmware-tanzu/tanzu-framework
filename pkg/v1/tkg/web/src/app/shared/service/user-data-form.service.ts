@@ -1,12 +1,16 @@
-import { BackingObjectMap, FieldMapping, StepMapping } from '../../views/landing/wizard/shared/field-mapping/FieldMapping';
-import { AbstractControl, FormControl, FormGroup } from '@angular/forms';
+import {
+    BackingObjectMap,
+    FieldMapping,
+    StepMapping
+} from '../../views/landing/wizard/shared/field-mapping/FieldMapping';
+import { AbstractControl, FormGroup } from '@angular/forms';
 import AppServices from './appServices';
 import { UserDataIdentifier, UserDataService } from './user-data.service';
 import { FormUtils } from '../../views/landing/wizard/shared/utils/form-utils';
 
 export class UserDataFormService {
     storeFromMapping(wizard, step: string, stepMapping: StepMapping, formGroup: FormGroup) {
-        AppServices.fieldMapUtilities.getActiveFieldMappings(stepMapping).forEach( fieldMapping => {
+        AppServices.fieldMapUtilities.getActiveFieldMappings(stepMapping).forEach(fieldMapping => {
             if (AppServices.fieldMapUtilities.shouldAutoSave(fieldMapping)) {
                 this.storeFromFieldMapping(wizard, step, fieldMapping, formGroup);
             }
@@ -15,7 +19,7 @@ export class UserDataFormService {
     }
 
     private storeFromFieldMapping(wizard, step: string, fieldMapping: FieldMapping, formGroup: FormGroup) {
-        const identifier: UserDataIdentifier = { wizard, step, field: fieldMapping.name };
+        const identifier: UserDataIdentifier = {wizard, step, field: fieldMapping.name};
         if (fieldMapping.hasNoDomControl) {
             this.storeFieldWithNoDomControl(wizard, step, fieldMapping);
         } else if (fieldMapping.isBoolean) {
@@ -26,8 +30,8 @@ export class UserDataFormService {
             this.storeMapField(identifier, formGroup);
         } else if (fieldMapping.backingObject) {
             this.storeBackingObjectField(identifier, formGroup, fieldMapping.backingObject)
-        }  else {
-            this.storeInputField(identifier, formGroup);
+        } else {
+            this.storeInputField(identifier, formGroup, fieldMapping.displayFunction);
         }
     }
 
@@ -37,7 +41,7 @@ export class UserDataFormService {
             return;
         }
         const value = fieldMapping.retriever(null);
-        const identifier = { wizard, step, field: fieldMapping.name };
+        const identifier = {wizard, step, field: fieldMapping.name};
         if (fieldMapping.isBoolean) {
             AppServices.userDataService.storeBoolean(identifier, value);
         } else if (fieldMapping.isMap) {
@@ -48,12 +52,13 @@ export class UserDataFormService {
     }
 
     // convenience methods
-    storeInputField(identifier: UserDataIdentifier, formGroup: FormGroup): boolean {
+    storeInputField(identifier: UserDataIdentifier, formGroup: FormGroup, displayFunction?: (f) => string): boolean {
         const control = this.getFormControl(identifier, formGroup);
         if (!control) {
             return false;
         }
-        AppServices.userDataService.store(identifier, { display: control.value, value: control.value });
+        const displayValue = displayFunction ? displayFunction(control.value) : control.value
+        AppServices.userDataService.store(identifier, {display: displayValue, value: control.value});
         return true;
     }
 
@@ -83,7 +88,7 @@ export class UserDataFormService {
 
     restoreForm(wizard, step: string, formGroup: FormGroup, stepMapping: StepMapping) {
         AppServices.fieldMapUtilities.getFieldMappingsToRestore(stepMapping).forEach(fieldMapping => {
-            const identifier = { wizard, step, field: fieldMapping.name };
+            const identifier = {wizard, step, field: fieldMapping.name};
             this.restoreField(identifier, fieldMapping, formGroup);
 
             // Re-store the masked field value, so that if there WAS a value for this masked field in local storage,
@@ -95,7 +100,7 @@ export class UserDataFormService {
         // Note: we set the values on the primary trigger fields AFTER all the "regular" fields are restored because the
         // handler for the trigger field change may make use the values of the other fields
         AppServices.fieldMapUtilities.getPrimaryTriggerMappingsToRestore(stepMapping).forEach(fieldMapping => {
-            const identifier = { wizard, step, field: fieldMapping.name };
+            const identifier = {wizard, step, field: fieldMapping.name};
             this.restoreField(identifier, fieldMapping, formGroup);
         })
     }
@@ -103,17 +108,7 @@ export class UserDataFormService {
     private buildFormField(formGroup: FormGroup, wizard, step: string, fieldMapping: FieldMapping) {
         AppServices.fieldMapUtilities.validateFieldMapping(step, fieldMapping);
         const initialValue = AppServices.fieldMapUtilities.getInitialValue(wizard, step, fieldMapping);
-        const validators = AppServices.fieldMapUtilities.getValidatorArray(fieldMapping);
-        FormUtils.addControl(
-            formGroup,
-            fieldMapping.name,
-            new FormControl(initialValue, validators)
-        );
-        // TODO: figure out why we cannot seem to set the initialValue using the above code: new FormControl(initialValue, validators),
-        // but putting it into a setTimeout closure seems to "fix" the problem
-        setTimeout(() => {
-            formGroup.controls[fieldMapping.name].setValue(initialValue);
-        });
+        FormUtils.addDynamicControl(formGroup, initialValue, fieldMapping);
     }
 
     private shouldBuildField(fieldMapping: FieldMapping) {
@@ -165,7 +160,7 @@ export class UserDataFormService {
         if (!control) {
             return false;
         }
-        AppServices.userDataService.store(identifier, { display: control.value ? UserDataService.MASK : '', value: '' });
+        AppServices.userDataService.store(identifier, {display: control.value ? UserDataService.MASK : '', value: ''});
         return true;
     }
 

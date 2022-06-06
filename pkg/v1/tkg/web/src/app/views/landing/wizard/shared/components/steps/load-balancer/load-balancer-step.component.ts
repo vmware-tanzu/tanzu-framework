@@ -1,20 +1,21 @@
 // Angular imports
 import { Component, OnInit } from '@angular/core';
-import { Validators } from '@angular/forms';
+import { FormArray, Validators } from '@angular/forms';
+import { ClrLoadingState } from "@clr/angular";
 // Third party imports
 import { debounceTime, distinctUntilChanged, finalize, takeUntil } from 'rxjs/operators';
-// App imports
-import { APIClient } from "../../../../../../../swagger";
-import AppServices from '../../../../../../../shared/service/appServices';
+import { IpFamilyEnum } from 'src/app/shared/constants/app.constants';
 import { AviCloud } from "src/app/swagger/models/avi-cloud.model";
 import { AviServiceEngineGroup } from "src/app/swagger/models/avi-service-engine-group.model";
-import { AviVipNetwork } from './../../../../../../../swagger/models/avi-vip-network.model';
-import { ClrLoadingState } from "@clr/angular";
-import { IpFamilyEnum } from 'src/app/shared/constants/app.constants';
-import { LoadBalancerField, LoadBalancerStepMapping } from './load-balancer-step.fieldmapping';
-import { StepFormDirective } from "../../../step-form/step-form";
+import AppServices from '../../../../../../../shared/service/appServices';
+// App imports
+import { APIClient } from "../../../../../../../swagger";
 import { StepMapping } from '../../../field-mapping/FieldMapping';
+import { StepFormDirective } from "../../../step-form/step-form";
 import { ValidationService } from "../../../validation/validation.service";
+import { TKGLabelsConfig } from '../../widgets/tkg-labels/interfaces/tkg-labels.interface';
+import { AviVipNetwork } from './../../../../../../../swagger/models/avi-vip-network.model';
+import { LoadBalancerField, LoadBalancerStepMapping } from './load-balancer-step.fieldmapping';
 
 const SupervisedFields = [
     LoadBalancerField.CONTROLLER_HOST,
@@ -37,11 +38,11 @@ export class SharedLoadBalancerStepComponent extends StepFormDirective implement
     selectedCloudName: string;
     serviceEngineGroups: Array<AviServiceEngineGroup>;
     serviceEngineGroupsFiltered: Array<AviServiceEngineGroup>;
-    labels: Map<string, string> = new Map<string, string>();
     vipNetworks: Array<AviVipNetwork> = [];
     selectedNetworkName: string;
     selectedManagementClusterNetworkName: string;
     loadBalancerLabel = 'Load Balancer Settings';
+    tkgLabelsConfig: TKGLabelsConfig;
 
     private stepMapping: StepMapping;
 
@@ -50,67 +51,28 @@ export class SharedLoadBalancerStepComponent extends StepFormDirective implement
         super();
     }
 
-    protected customizeForm() {
-        SupervisedFields.forEach(field => {
-            this.formGroup.get(field).valueChanges
-                .pipe(
-                    debounceTime(500),
-                    distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)),
-                    takeUntil(this.unsubscribe)
-                )
-                .subscribe(() => {
-                    if (this.connected) {
-                        this.connected = false;
-                        this.disarmField(LoadBalancerField.CLOUD_NAME, true);
-                        this.clouds = [];
-                        this.disarmField(LoadBalancerField.SERVICE_ENGINE_GROUP_NAME, true);
-                        this.serviceEngineGroups = [];
-                        this.disarmField(LoadBalancerField.NETWORK_CIDR, true);
-                        this.disarmField(LoadBalancerField.MANAGEMENT_CLUSTER_NETWORK_CIDR, true);
-
-                        // If connection cleared, toggle validators OFF
-                        this.toggleValidators(false);
-                    }
-                });
-        });
-
-        this.formGroup.get(LoadBalancerField.CLOUD_NAME).valueChanges.pipe(
-            distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)),
-            takeUntil(this.unsubscribe)
-        ).subscribe((cloud) => {
-            this.selectedCloudName = cloud;
-            this.onSelectCloud(this.selectedCloudName);
-        });
-
-        this.registerOnValueChange("networkName", this.onSelectVipNetwork.bind(this));
-        this.registerOnValueChange("networkCIDR", this.onSelectVipCIDR.bind(this));
-        this.registerOnValueChange(LoadBalancerField.MANAGEMENT_CLUSTER_NETWORK_NAME, this.onSelectManagementNetwork.bind(this));
-        this.registerOnIpFamilyChange(LoadBalancerField.NETWORK_CIDR, [], []);
-        this.registerOnIpFamilyChange(LoadBalancerField.MANAGEMENT_CLUSTER_NETWORK_CIDR, [
-            this.validationService.isValidIpNetworkSegment()], [
-            this.validationService.isValidIpv6NetworkSegment()
-        ]);
+    /**
+     * This is to make sense that the list returned is always up to date.
+     */
+    get vipNetworksPerCloud() {
+        if (this.vipNetworks && this.vipNetworks.length > 0 && this.selectedCloud) {
+            return this.vipNetworks.filter(net => net.cloud === this.selectedCloud.uuid);
+        }
+        return [];
     }
 
-    private supplyStepMapping(): StepMapping {
-        if (!this.stepMapping) {
-            this.stepMapping = this.createStepMapping();
-        }
-        return this.stepMapping;
+    /**
+     * This is to make sense that the list returned is always up to date.
+     */
+    get subnetsPerNetwork() {
+        return this.getSubnets(this.selectedNetworkName);
     }
 
-    private createStepMapping(): StepMapping {
-        const result = LoadBalancerStepMapping;
-        const managementClusterNetworkNameMapping = AppServices.fieldMapUtilities.getFieldMapping('managementClusterNetworkName', result);
-        const managementClusterNetworkCidrMapping = AppServices.fieldMapUtilities.getFieldMapping('managementClusterNetworkCIDR', result);
-        if (this.modeClusterStandalone) {
-            managementClusterNetworkNameMapping.label = 'STANDALONE CLUSTER VIP NETWORK NAME';
-            managementClusterNetworkCidrMapping.label = 'STANDALONE CLUSTER VIP NETWORK CIDR';
-        }
-        const clusterFieldMapping = AppServices.fieldMapUtilities.getFieldMapping(LoadBalancerField.CLUSTER_LABELS, result);
-        clusterFieldMapping.retriever = this.getClusterLabels.bind(this);
-        clusterFieldMapping.restorer = this.setClusterLabels.bind(this);
-        return result;
+    /**
+     * This is to make sense that the list returned is always up to date.
+     */
+    get subnetsPerManagementNetwork() {
+        return this.getSubnets(this.selectedManagementClusterNetworkName);
     }
 
     ngOnInit() {
@@ -122,14 +84,27 @@ export class SharedLoadBalancerStepComponent extends StepFormDirective implement
         this.registerDefaultFileImportErrorHandler(this.eventFileImportError);
 
         this.customizeForm();
-    }
 
-    private setClusterLabels(data: Map<string, string>)  {
-        return this.labels = data;
-    }
-
-    private getClusterLabels(): Map<string, string> {
-        return this.labels;
+        this.tkgLabelsConfig = {
+            label: {
+                title: this.htmlFieldLabels['clusterLabels'],
+                tooltipText: `By default, all clusters will have NSX Advanced Load Balancer enabled. Here you may
+                optionally specify cluster labels to identify a subset of clusters that should have
+                NSX Advanced Load Balancer enabled. Note: Ensure that these labels are present on
+                individual clusters that should be enabled with NSX Advanced Load Balancer.`,
+                helperText: `By default, all clusters will have NSX Advanced Load Balancer enabled. Here you may optionally
+                specify cluster labels to identify a subset of clusters that should have NSX Advanced Load Balancer
+                enabled.`
+            },
+            forms: {
+                parent: this.formGroup,
+                control: this.formGroup.get('clusterLabels') as FormArray
+            },
+            fields: {
+                clusterTypeDescriptor: 'Workload',
+                fieldMapping: LoadBalancerStepMapping.fieldMappings.find((m) => m.name === LoadBalancerField.CLUSTER_LABELS)
+            }
+        };
     }
 
     /**
@@ -249,7 +224,9 @@ export class SharedLoadBalancerStepComponent extends StepFormDirective implement
         this.serviceEngineGroupsFiltered = [];
 
         if (cloudName && this.clouds) {
-            this.selectedCloud = this.clouds.find((cloud: AviCloud) => { return cloud.name === cloudName; });
+            this.selectedCloud = this.clouds.find((cloud: AviCloud) => {
+                return cloud.name === cloudName;
+            });
             if (this.selectedCloud) {
                 this.serviceEngineGroupsFiltered = this.serviceEngineGroups.filter((group: AviServiceEngineGroup) => {
                     return group.location.includes(this.selectedCloud.uuid);
@@ -263,13 +240,14 @@ export class SharedLoadBalancerStepComponent extends StepFormDirective implement
      */
     onSelectVipNetwork(networkName: string): void {
         this.selectedNetworkName = networkName;
-        if (!this.formGroup.get(LoadBalancerField.MANAGEMENT_CLUSTER_NETWORK_NAME).value) { }
+        if (!this.formGroup.get(LoadBalancerField.MANAGEMENT_CLUSTER_NETWORK_NAME).value) {
+        }
         this.formGroup.get(LoadBalancerField.MANAGEMENT_CLUSTER_NETWORK_NAME).setValue(networkName)
     }
 
     onSelectVipCIDR(cidr: string): void {
         if (!this.formGroup.get(LoadBalancerField.MANAGEMENT_CLUSTER_NETWORK_CIDR).value) {
-                this.formGroup.get(LoadBalancerField.MANAGEMENT_CLUSTER_NETWORK_CIDR).setValue(cidr);
+            this.formGroup.get(LoadBalancerField.MANAGEMENT_CLUSTER_NETWORK_CIDR).setValue(cidr);
         }
     }
 
@@ -315,49 +293,8 @@ export class SharedLoadBalancerStepComponent extends StepFormDirective implement
     getDisabled(): boolean {
         return (
             SupervisedFields.some(f => !this.formGroup.get(f).value) ||
-                SupervisedFields.some(f => !this.formGroup.get(f).valid)
+            SupervisedFields.some(f => !this.formGroup.get(f).valid)
         )
-    }
-
-    /**
-     * Add workload cluster label'
-     */
-    addLabel(key: string, value: string) {
-        if (key === '' || value === '') {
-            this.errorNotification = `Key and value for Labels are required.`;
-        } else if (!this.labels.has(key)) {
-            this.labels.set(key, value);
-            this.formGroup.controls[LoadBalancerField.NEW_LABEL_KEY].setValue('');
-            this.formGroup.controls[LoadBalancerField.NEW_LABEL_VALUE].setValue('');
-        } else {
-            this.errorNotification = `A Label with the same key already exists.`;
-        }
-    }
-
-    /**
-     * Delete workload cluster label'
-     */
-    deleteLabel(key: string) {
-        this.labels.delete(key);
-    }
-
-    /**
-     * @method getLabelDisabled
-     * helper method to get if label add btn should be disabled
-     */
-    getLabelDisabled(): boolean {
-        return !(this.formGroup.get(LoadBalancerField.NEW_LABEL_KEY).valid &&
-            this.formGroup.get(LoadBalancerField.NEW_LABEL_VALUE).valid);
-    }
-
-    /**
-     * This is to make sense that the list returned is always up to date.
-     */
-    get vipNetworksPerCloud() {
-        if (this.vipNetworks && this.vipNetworks.length > 0 && this.selectedCloud) {
-            return this.vipNetworks.filter(net => net.cloud === this.selectedCloud.uuid);
-        }
-        return [];
     }
 
     getSubnets(networkName: string): any[] {
@@ -372,22 +309,69 @@ export class SharedLoadBalancerStepComponent extends StepFormDirective implement
         }
         return [];
     }
-    /**
-     * This is to make sense that the list returned is always up to date.
-     */
-    get subnetsPerNetwork() {
-        return this.getSubnets(this.selectedNetworkName);
-    }
 
-    /**
-     * This is to make sense that the list returned is always up to date.
-     */
-    get subnetsPerManagementNetwork() {
-        return this.getSubnets(this.selectedManagementClusterNetworkName);
+    protected customizeForm() {
+        SupervisedFields.forEach(field => {
+            this.formGroup.get(field).valueChanges
+                .pipe(
+                    debounceTime(500),
+                    distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)),
+                    takeUntil(this.unsubscribe)
+                )
+                .subscribe(() => {
+                    if (this.connected) {
+                        this.connected = false;
+                        this.disarmField(LoadBalancerField.CLOUD_NAME, true);
+                        this.clouds = [];
+                        this.disarmField(LoadBalancerField.SERVICE_ENGINE_GROUP_NAME, true);
+                        this.serviceEngineGroups = [];
+                        this.disarmField(LoadBalancerField.NETWORK_CIDR, true);
+                        this.disarmField(LoadBalancerField.MANAGEMENT_CLUSTER_NETWORK_CIDR, true);
+
+                        // If connection cleared, toggle validators OFF
+                        this.toggleValidators(false);
+                    }
+                });
+        });
+
+        this.formGroup.get(LoadBalancerField.CLOUD_NAME).valueChanges.pipe(
+            distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)),
+            takeUntil(this.unsubscribe)
+        ).subscribe((cloud) => {
+            this.selectedCloudName = cloud;
+            this.onSelectCloud(this.selectedCloudName);
+        });
+
+        this.registerOnValueChange("networkName", this.onSelectVipNetwork.bind(this));
+        this.registerOnValueChange("networkCIDR", this.onSelectVipCIDR.bind(this));
+        this.registerOnValueChange(LoadBalancerField.MANAGEMENT_CLUSTER_NETWORK_NAME, this.onSelectManagementNetwork.bind(this));
+        this.registerOnIpFamilyChange(LoadBalancerField.NETWORK_CIDR, [], []);
+        this.registerOnIpFamilyChange(LoadBalancerField.MANAGEMENT_CLUSTER_NETWORK_CIDR, [
+            this.validationService.isValidIpNetworkSegment()], [
+            this.validationService.isValidIpv6NetworkSegment()
+        ]);
     }
 
     protected storeUserData() {
         this.storeUserDataFromMapping(this.supplyStepMapping());
         this.storeDefaultDisplayOrder(this.supplyStepMapping());
+    }
+
+    private supplyStepMapping(): StepMapping {
+        if (!this.stepMapping) {
+            this.stepMapping = this.createStepMapping();
+        }
+        return this.stepMapping;
+    }
+
+    private createStepMapping(): StepMapping {
+        const result = LoadBalancerStepMapping;
+        const managementClusterNetworkNameMapping = AppServices.fieldMapUtilities.getFieldMapping('managementClusterNetworkName', result);
+        const managementClusterNetworkCidrMapping = AppServices.fieldMapUtilities.getFieldMapping('managementClusterNetworkCIDR', result);
+        if (this.modeClusterStandalone) {
+            managementClusterNetworkNameMapping.label = 'STANDALONE CLUSTER VIP NETWORK NAME';
+            managementClusterNetworkCidrMapping.label = 'STANDALONE CLUSTER VIP NETWORK CIDR';
+        }
+        return result;
     }
 }

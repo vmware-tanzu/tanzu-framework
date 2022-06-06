@@ -80,8 +80,8 @@ describe('AwsWizardComponent', () => {
             }),
             metadataForm: fb.group({
                 clusterDescription: [''],
-                clusterLabels: [new Map()],
-                clusterLocation: [''],
+                clusterLabels: [{key: 'a', value: '1'}],
+                clusterLocation: ['']
             }),
             networkForm: fb.group({
                 clusterPodCidr: [''],
@@ -150,10 +150,7 @@ describe('AwsWizardComponent', () => {
             expect(formGroup).toBeTruthy();
             formGroup.addControl(fieldName, new FormControl(desiredValue));
         });
-        // NOTE: because cluster labels are pulled from storage (not a DOM control) we have to put the test values in storage
-        const clusterLabels = new Map<string, string>([['key1', 'value1']]);
-        const identifierClusterLabels = { wizard: component.wizardName, step: WizardForm.METADATA, field: 'clusterLabels'};
-        AppServices.userDataService.storeMap(identifierClusterLabels, clusterLabels);
+
         // NOTE: because cluster plan is pulled from storage (not a DOM control) we have to put the test values in storage
         const identifierClusterPlan = { wizard: component.wizardName, step: AwsForm.NODESETTING, field: NodeSettingField.CLUSTER_PLAN };
         AppServices.userDataService.store(identifierClusterPlan, { display: ClusterPlan.DEV, value: ClusterPlan.DEV });
@@ -175,9 +172,7 @@ describe('AwsWizardComponent', () => {
             clusterPodCIDR: '100.96.0.0/11',
             cniType: 'antrea'
         });
-        expect(payload.labels).toEqual({
-            key1: 'value1'
-        });
+        expect(payload.labels).toEqual({});
         expect(payload.annotations).toEqual({
             description: 'DescriptionEXAMPLE',
             location: 'mylocation1'

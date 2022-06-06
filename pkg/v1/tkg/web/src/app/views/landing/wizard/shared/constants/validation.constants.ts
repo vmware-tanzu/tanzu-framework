@@ -91,7 +91,8 @@ export enum ValidatorEnum {
     VALID_CLUSTER_NAME = 'cluster name valid',
 
     // Metadata label
-    LABEL_UNIQUE = 'label unique'
+    LABEL_UNIQUE = 'label unique',
+    UNIQUE = 'unique'
 }
 
 // SimpleValidator identifies validators available from the Validation service
@@ -119,5 +120,8 @@ export enum SimpleValidator {
     IS_VALID_PORT,
     IS_VALID_RESOURCE_GROUP_NAME,
     NO_WHITE_SPACE,
-    NO_TRAILING_SLASH
+    NO_TRAILING_SLASH,
+    RX_UNIQUE,
+    RX_REQUIRED_IF_VALUE,
+    RX_REQUIRED_IF_KEY
 }

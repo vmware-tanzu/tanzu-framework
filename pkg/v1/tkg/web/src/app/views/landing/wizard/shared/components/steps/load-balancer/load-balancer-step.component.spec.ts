@@ -1,13 +1,11 @@
 // Angular imports
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
-import { ReactiveFormsModule } from '@angular/forms';
-import { FormBuilder } from '@angular/forms';
+import { FormArray, FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 // App imports
 import { APIClient } from '../../../../../../../swagger/api-client.service';
 import AppServices from 'src/app/shared/service/appServices';
-import { FieldMapUtilities } from '../../../field-mapping/FieldMapUtilities';
 import { Messenger } from 'src/app/shared/service/Messenger';
 import { SharedLoadBalancerStepComponent } from './load-balancer-step.component';
 import { SharedModule } from '../../../../../../../shared/shared.module';
@@ -43,11 +41,19 @@ describe('SharedLoadBalancerStepComponent', () => {
         const fb = new FormBuilder();
         fixture = TestBed.createComponent(SharedLoadBalancerStepComponent);
         component = fixture.componentInstance;
-        component.formGroup = fb.group({
-        });
+        component.formGroup = fb.group({});
 
         fixture.detectChanges();
     });
+
+    it('should initialize tkgLabelsConfig', () => {
+        component.ngOnInit();
+        const config = component.tkgLabelsConfig;
+
+        expect(config.label.title).toEqual('CLUSTER LABELS (OPTIONAL)');
+        expect(config.forms.parent.get('clusterLabels')).toBeInstanceOf(FormArray);
+        expect(config.fields.clusterTypeDescriptor).toEqual('Workload');
+    })
 
     it('should call get clouds when controller credentials have been validated', () => {
         const apiSpy = spyOn(component['apiClient'], 'getAviClouds').and.callThrough();
@@ -59,19 +65,5 @@ describe('SharedLoadBalancerStepComponent', () => {
         const apiSpy = spyOn(component['apiClient'], 'getAviServiceEngineGroups').and.callThrough();
         component.getServiceEngineGroups();
         expect(apiSpy).toHaveBeenCalled();
-    });
-
-    it('should add new label', () => {
-        component.addLabel("somekey", "someval");
-        component.addLabel("somekey2", "someval2");
-        expect(component.labels.get("somekey")).toEqual("someval");
-        expect(component.labels.get("somekey2")).toEqual("someval2");
-    });
-
-    it('should delete existing label', () => {
-        component.addLabel("akey", "avalue");
-        expect(component.labels.get("akey")).toEqual('avalue');
-        component.deleteLabel("akey");
-        expect(component.labels.get("akey")).toBeFalsy();
     });
 });
