@@ -1,4 +1,4 @@
-import {FormArray, FormGroup} from '@angular/forms';
+import { FormArray, FormGroup } from '@angular/forms';
 
 export interface TKGLabelsConfig {
     label: {

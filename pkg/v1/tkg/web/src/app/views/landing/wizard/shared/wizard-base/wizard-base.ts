@@ -1,43 +1,43 @@
 // Angular imports
-import {Directive, ElementRef, OnInit, Type, ViewChild} from '@angular/core';
-import {FormBuilder, FormGroup} from '@angular/forms';
-import {Router} from '@angular/router';
-import {Title} from '@angular/platform-browser';
+import { Directive, ElementRef, OnInit, Type, ViewChild } from '@angular/core';
+import { FormBuilder, FormGroup } from '@angular/forms';
+import { Router } from '@angular/router';
+import { Title } from '@angular/platform-browser';
 // Third party imports
-import {takeUntil} from 'rxjs/operators';
-import {Observable} from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
+import { Observable } from 'rxjs';
 // App imports
-import {APP_ROUTES, Routes} from 'src/app/shared/constants/routes.constants';
+import { APP_ROUTES, Routes } from 'src/app/shared/constants/routes.constants';
 import AppServices from '../../../../../shared/service/appServices';
-import {BasicSubscriber} from 'src/app/shared/abstracts/basic-subscriber';
-import {CeipField} from '../components/steps/ceip-step/ceip-step.fieldmapping';
-import {ClusterType, IdentityManagementType, WizardForm} from "../constants/wizard.constants";
-import {ConfigFileInfo} from '../../../../../swagger/models/config-file-info.model';
-import {EditionData} from '../../../../../shared/service/branding.service';
-import {FieldMapping} from '../field-mapping/FieldMapping';
-import {FormDataForHTML, FormUtility} from '../components/steps/form-utility';
-import {IdentityField} from '../components/steps/identity-step/identity-step.fieldmapping';
+import { BasicSubscriber } from 'src/app/shared/abstracts/basic-subscriber';
+import { CeipField } from '../components/steps/ceip-step/ceip-step.fieldmapping';
+import { ClusterType, IdentityManagementType, WizardForm } from "../constants/wizard.constants";
+import { ConfigFileInfo } from '../../../../../swagger/models/config-file-info.model';
+import { EditionData } from '../../../../../shared/service/branding.service';
+import { FieldMapping } from '../field-mapping/FieldMapping';
+import { FormDataForHTML, FormUtility } from '../components/steps/form-utility';
+import { IdentityField } from '../components/steps/identity-step/identity-step.fieldmapping';
 import {
     LoadBalancerField,
     LoadBalancerStepMapping
 } from '../components/steps/load-balancer/load-balancer-step.fieldmapping';
-import {MetadataField, MetadataStepMapping} from '../components/steps/metadata-step/metadata-step.fieldmapping';
-import {MetadataStepComponent} from '../components/steps/metadata-step/metadata-step.component';
-import {NetworkField} from '../components/steps/network-step/network-step.fieldmapping';
-import {OsImageField} from '../components/steps/os-image-step/os-image-step.fieldmapping';
-import {Providers, PROVIDERS} from 'src/app/shared/constants/app.constants';
-import {SharedCeipStepComponent} from '../components/steps/ceip-step/ceip-step.component';
-import {SharedIdentityStepComponent} from '../components/steps/identity-step/identity-step.component';
-import {SharedNetworkStepComponent} from '../components/steps/network-step/network-step.component';
-import {StepFormDirective} from '../step-form/step-form';
+import { MetadataField, MetadataStepMapping } from '../components/steps/metadata-step/metadata-step.fieldmapping';
+import { MetadataStepComponent } from '../components/steps/metadata-step/metadata-step.component';
+import { NetworkField } from '../components/steps/network-step/network-step.fieldmapping';
+import { OsImageField } from '../components/steps/os-image-step/os-image-step.fieldmapping';
+import { Providers, PROVIDERS } from 'src/app/shared/constants/app.constants';
+import { SharedCeipStepComponent } from '../components/steps/ceip-step/ceip-step.component';
+import { SharedIdentityStepComponent } from '../components/steps/identity-step/identity-step.component';
+import { SharedNetworkStepComponent } from '../components/steps/network-step/network-step.component';
+import { StepFormDirective } from '../step-form/step-form';
 import {
     StepCompletedPayload,
     StepDescriptionChangePayload,
     StepStartedPayload,
     TanzuEventType
 } from './../../../../../shared/service/Messenger';
-import {StepWrapperSetComponent} from '../step-wrapper/step-wrapper-set.component';
-import {NodeSettingField} from '../components/steps/node-setting-step/node-setting-step.fieldmapping';
+import { StepWrapperSetComponent } from '../step-wrapper/step-wrapper-set.component';
+import { NodeSettingField } from '../components/steps/node-setting-step/node-setting-step.fieldmapping';
 
 // This interface describes a wizard that can register a step component
 export interface WizardStepRegistrar {
@@ -101,12 +101,16 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Wiz
 
     // supplyFileImportedEvent() allows the child class to give this class the event to broadcast on successful file import
     protected abstract supplyFileImportedEvent(): TanzuEventType;
+
     // supplyFileImportErrorEvent() allows the child class to give this class the event to broadcast on file import error
     protected abstract supplyFileImportErrorEvent(): TanzuEventType;
+
     // supplyStepData() allows the child class gives this class the data for the steps.
     protected abstract supplyStepData(): FormDataForHTML[];
+
     // supplyWizardName() allows the child class gives this class the wizard name; this is used to identify which wizard a step belongs to
     protected abstract supplyWizardName(): string;
+
     // supplyDisplayOrder() allows the child class to specify the order (and which steps) get displayed (on confirmation page).
     // By default, we take the order from the stepData (so stepData should be set before invoking this method)
     protected supplyDisplayOrder(): string[] {
@@ -137,19 +141,21 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Wiz
 
         // set step description (if it's a step description for this wizard)
         AppServices.messenger.subscribe<StepDescriptionChangePayload>(TanzuEventType.STEP_DESCRIPTION_CHANGE, data => {
-                const stepDescriptionPayload = data.payload as StepDescriptionChangePayload;
-                if (this.supplyWizardName() === stepDescriptionPayload.wizard) {
-                    // we use setTimeout to avoid a possible ExpressionChangedAfterItHasBeenCheckedError
-                    setTimeout(() => { this.stepDescription[stepDescriptionPayload.step] = stepDescriptionPayload.description; }, 0);
-                }
-            }, this.unsubscribe);
+            const stepDescriptionPayload = data.payload as StepDescriptionChangePayload;
+            if (this.supplyWizardName() === stepDescriptionPayload.wizard) {
+                // we use setTimeout to avoid a possible ExpressionChangedAfterItHasBeenCheckedError
+                setTimeout(() => {
+                    this.stepDescription[stepDescriptionPayload.step] = stepDescriptionPayload.description;
+                }, 0);
+            }
+        }, this.unsubscribe);
 
         // set branding and cluster type on branding change for base wizard components
         AppServices.messenger.subscribe<EditionData>(TanzuEventType.BRANDING_CHANGED, data => {
-                this.edition = data.payload.edition;
-                this.clusterTypeDescriptor = data.payload.clusterTypeDescriptor;
-                this.title = data.payload.branding.title;
-            }, this.unsubscribe);
+            this.edition = data.payload.edition;
+            this.clusterTypeDescriptor = data.payload.clusterTypeDescriptor;
+            this.title = data.payload.branding.title;
+        }, this.unsubscribe);
 
         setTimeout(() => this.broadcastStepStarted(this.firstStep), 0);
     }
@@ -163,7 +169,7 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Wiz
     /**
      * Retrieve the config file from the backend and return as a string
      */
-    abstract retrieveExportFile():  Observable<string>;
+    abstract retrieveExportFile(): Observable<string>;
 
     /**
      * Switch the mode between "Review Configuration" and "Edit Configuration"
@@ -203,7 +209,9 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Wiz
      * @method method to trigger deployment
      */
     abstract createRegionalCluster(params: any): Observable<any>;
+
     abstract getPayload(): any;
+
     abstract setFromPayload(payload: any);
 
     isOnFirstStep() {
@@ -544,7 +552,7 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Wiz
             step: stepName,
             formGroup: this.form.controls[stepName] as FormGroup,
             eventFileImported: this.supplyFileImportedEvent(),
-            eventFileImportError: this.supplyFileImportErrorEvent(),
+            eventFileImportError: this.supplyFileImportErrorEvent()
         }
         stepComponent.setStepRegistrantData(stepRegistrantData);
     }
@@ -613,7 +621,7 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Wiz
      * @param payload
      */
     saveCommonFieldsFromPayload(payload: any) {
-        if (payload.networking !== undefined ) {
+        if (payload.networking !== undefined) {
             // Networking - general
             this.storeFieldString(WizardForm.NETWORK, NetworkField.NETWORK_NAME, payload.networking.networkName);
             this.storeFieldString(WizardForm.NETWORK, NetworkField.CLUSTER_SERVICE_CIDR, payload.networking.clusterServiceCIDR);
@@ -723,38 +731,57 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Wiz
     }
 
     get CeipForm(): FormDataForHTML {
-        return { name: WizardForm.CEIP, title: 'CEIP Agreement', description: 'Join the CEIP program for TKG',
-            i18n: { title: 'ceip agreement step title', description: 'ceip agreement step description' },
-        clazz: SharedCeipStepComponent };
+        return {
+            name: WizardForm.CEIP, title: 'CEIP Agreement', description: 'Join the CEIP program for TKG',
+            i18n: {title: 'ceip agreement step title', description: 'ceip agreement step description'},
+            clazz: SharedCeipStepComponent
+        };
     }
+
     get IdentityForm(): FormDataForHTML {
-        return { name: WizardForm.IDENTITY, title: 'Identity Management', description: SharedIdentityStepComponent.description,
-            i18n: { title: 'identity step title', description: 'identity step description' },
-        clazz: SharedIdentityStepComponent };
+        return {
+            name: WizardForm.IDENTITY,
+            title: 'Identity Management',
+            description: SharedIdentityStepComponent.description,
+            i18n: {title: 'identity step title', description: 'identity step description'},
+            clazz: SharedIdentityStepComponent
+        };
     }
+
     get MetadataForm(): FormDataForHTML {
-        return { name: WizardForm.METADATA, title: 'Metadata',
+        return {
+            name: WizardForm.METADATA, title: 'Metadata',
             description: 'Specify metadata for the ' + this.clusterTypeDescriptor + ' cluster',
-            i18n: { title: 'metadata step name', description: 'metadata step description' },
-        clazz: MetadataStepComponent };
+            i18n: {title: 'metadata step name', description: 'metadata step description'},
+            clazz: MetadataStepComponent
+        };
     }
+
     get NetworkForm(): FormDataForHTML {
-        return { name: WizardForm.NETWORK, title: 'Kubernetes Network',
+        return {
+            name: WizardForm.NETWORK, title: 'Kubernetes Network',
             description: SharedNetworkStepComponent.description,
-            i18n: { title: 'Kubernetes network step name', description: 'Kubernetes network step description' },
-        clazz: SharedNetworkStepComponent };
+            i18n: {title: 'Kubernetes network step name', description: 'Kubernetes network step description'},
+            clazz: SharedNetworkStepComponent
+        };
     }
+
     getOsImageForm(clazz: Type<StepFormDirective>): FormDataForHTML {
-        return { name: WizardForm.OSIMAGE, title: 'OS Image', description: 'Specify the OS Image',
-            i18n: { title: 'OS Image step title', description: 'OS Image step description' },
-        clazz: clazz };
+        return {
+            name: WizardForm.OSIMAGE, title: 'OS Image', description: 'Specify the OS Image',
+            i18n: {title: 'OS Image step title', description: 'OS Image step description'},
+            clazz: clazz
+        };
     }
+
     get wizardForm(): FormGroup {
         return this.form;
     }
+
     get clusterTypeDescriptorTitleCase() {
         return FormUtility.titleCase(this.clusterTypeDescriptor);
     }
+
     get wizardName(): string {
         return this.supplyWizardName();
     }
@@ -762,6 +789,7 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Wiz
     get isDataOld(): boolean {
         return AppServices.userDataService.isWizardDataOld(this.supplyWizardName());
     }
+
     //
     // HTML convenience methods
 
@@ -781,33 +809,37 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Wiz
     private broadcastStepComplete(stepCompletedName: string) {
         const payload: StepCompletedPayload = {
             wizard: this.supplyWizardName(),
-            step: stepCompletedName,
+            step: stepCompletedName
         }
-        AppServices.messenger.publish<StepCompletedPayload>( { type: TanzuEventType.STEP_COMPLETED, payload } );
+        AppServices.messenger.publish<StepCompletedPayload>({type: TanzuEventType.STEP_COMPLETED, payload});
     }
 
     private broadcastStepStarted(stepStartedName: string) {
         const payload: StepStartedPayload = {
             wizard: this.supplyWizardName(),
-            step: stepStartedName,
+            step: stepStartedName
         }
-        AppServices.messenger.publish<StepStartedPayload>( { type: TanzuEventType.STEP_STARTED, payload } );
+        AppServices.messenger.publish<StepStartedPayload>({type: TanzuEventType.STEP_STARTED, payload});
     }
 
     private defaultDisplayOrder(stepData: FormDataForHTML[]): string[] {
         // reduce the array of stepData items into an array of step name strings, which will be in the same order
         return stepData.reduce<string[]>((accumulator, daStep) => {
-            accumulator.push(daStep.name); return accumulator;
+            accumulator.push(daStep.name);
+            return accumulator;
         }, []);
     }
+
     private storeWizardDisplayOrder(displayOrder: string[]) {
         AppServices.userDataService.storeWizardDisplayOrder(this.supplyWizardName(), displayOrder);
     }
+
     private storeWizardStepDescriptions() {
         AppServices.userDataService.storeWizardDescriptions(this.wizardName, this.stepDescription);
     }
+
     private storeWizardTitles() {
-        const titles = this.stepData.reduce<Map<string, string>>( (accumulator, stepData) => {
+        const titles = this.stepData.reduce<Map<string, string>>((accumulator, stepData) => {
             accumulator[stepData.name] = stepData.title;
             return accumulator;
         }, new Map<string, string>());
@@ -819,7 +851,7 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Wiz
     }
 
     protected storeMap(step: string, field: string, map: Map<string, string>) {
-        const identifier = { wizard: this.supplyWizardName(), step, field };
+        const identifier = {wizard: this.supplyWizardName(), step, field};
         AppServices.userDataService.storeMap(identifier, map);
     }
 

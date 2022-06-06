@@ -1,18 +1,18 @@
 /**
  * Angular modules
  */
-import {Injectable} from '@angular/core';
+import { Injectable } from '@angular/core';
 import XRegExp from 'xregexp';
-import {AbstractControl, FormGroup, ValidationErrors} from '@angular/forms';
-import {Netmask} from 'netmask';
+import { AbstractControl, FormGroup, ValidationErrors } from '@angular/forms';
+import { Netmask } from 'netmask';
 import isIp from 'is-ip';
 
 /**
  * App imports
  */
 import * as validationMethods from './validation.methods';
-import {SimpleValidator, ValidatorEnum} from '../constants/validation.constants';
-import {RxwebValidators} from "@rxweb/reactive-form-validators";
+import { SimpleValidator, ValidatorEnum } from '../constants/validation.constants';
+import { RxwebValidators } from "@rxweb/reactive-form-validators";
 
 /**
  * @class ValidationService
@@ -50,9 +50,9 @@ export class ValidationService {
             [SimpleValidator.RX_UNIQUE, RxwebValidators.unique()],
             [
                 SimpleValidator.RX_REQUIRED_IF_VALUE,
-                RxwebValidators.required({conditionalExpression: (x, _) => !!x.value}),
+                RxwebValidators.required({conditionalExpression: (x, _) => !!x.value})
             ],
-            [SimpleValidator.RX_REQUIRED_IF_KEY, RxwebValidators.required({conditionalExpression: (x, _) => !!x.key})],
+            [SimpleValidator.RX_REQUIRED_IF_KEY, RxwebValidators.required({conditionalExpression: (x, _) => !!x.key})]
         ]);
     }
 
@@ -750,6 +750,7 @@ export class ValidationService {
             return {[ValidatorEnum.REQUIRED]: true};
         }
     }
+
     /**
      * @method isValidIpv6Ldap
      *  - non-empty
@@ -777,6 +778,7 @@ export class ValidationService {
             return {[ValidatorEnum.REQUIRED]: true};
         }
     }
+
     isValidNameInList(list: Array<String>): any {
         return (control: AbstractControl) => {
             const ctrlValue: string = control.value;

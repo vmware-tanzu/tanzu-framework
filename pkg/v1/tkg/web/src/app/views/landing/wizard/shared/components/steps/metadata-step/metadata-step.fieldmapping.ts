@@ -1,5 +1,5 @@
-import {ControlType, StepMapping} from '../../../field-mapping/FieldMapping';
-import {SimpleValidator} from '../../../constants/validation.constants';
+import { ControlType, StepMapping } from '../../../field-mapping/FieldMapping';
+import { SimpleValidator } from '../../../constants/validation.constants';
 
 export enum MetadataField {
     CLUSTER_LABELS = 'clusterLabels',

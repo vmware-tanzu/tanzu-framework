@@ -1,9 +1,9 @@
-import {TkgLabelsComponent} from './tkg-labels.component';
-import {FormArray, FormBuilder, FormControl, FormGroup} from "@angular/forms";
-import {ControlType} from "../../../field-mapping/FieldMapping";
-import {SimpleValidator} from "../../../constants/validation.constants";
-import {TKGLabelsConfig} from "./interfaces/tkg-labels.interface";
-import {FormUtils} from "../../../utils/form-utils";
+import { TkgLabelsComponent } from './tkg-labels.component';
+import { FormArray, FormBuilder, FormControl, FormGroup } from "@angular/forms";
+import { ControlType } from "../../../field-mapping/FieldMapping";
+import { SimpleValidator } from "../../../constants/validation.constants";
+import { TKGLabelsConfig } from "./interfaces/tkg-labels.interface";
+import { FormUtils } from "../../../utils/form-utils";
 
 describe('TkgLabelsComponent', () => {
     let component: TkgLabelsComponent;
@@ -13,11 +13,11 @@ describe('TkgLabelsComponent', () => {
     const tkgLabelsConfig: TKGLabelsConfig = {
         label: {
             title: 'LABELS (OPTIONAL)',
-            tooltipText: `Optionally specify labels for the Management cluster.`,
+            tooltipText: `Optionally specify labels for the Management cluster.`
         },
         forms: {
             parent: null,
-            control: null,
+            control: null
         },
         fields: {
             clusterType: 'Management',
@@ -33,17 +33,17 @@ describe('TkgLabelsComponent', () => {
                         validators: [
                             SimpleValidator.IS_VALID_LABEL_OR_ANNOTATION,
                             SimpleValidator.RX_UNIQUE,
-                            SimpleValidator.RX_REQUIRED_IF_VALUE,
-                        ],
+                            SimpleValidator.RX_REQUIRED_IF_VALUE
+                        ]
                     },
                     {
                         name: 'value',
                         defaultValue: '',
                         controlType: ControlType.FormControl,
-                        validators: [SimpleValidator.IS_VALID_LABEL_OR_ANNOTATION, SimpleValidator.RX_REQUIRED_IF_KEY],
-                    },
-                ],
-            },
+                        validators: [SimpleValidator.IS_VALID_LABEL_OR_ANNOTATION, SimpleValidator.RX_REQUIRED_IF_KEY]
+                    }
+                ]
+            }
         }
     };
 

@@ -3,10 +3,10 @@ import {
     FieldMapping,
     StepMapping
 } from '../../views/landing/wizard/shared/field-mapping/FieldMapping';
-import {AbstractControl, FormGroup} from '@angular/forms';
+import { AbstractControl, FormGroup } from '@angular/forms';
 import AppServices from './appServices';
-import {UserDataIdentifier, UserDataService} from './user-data.service';
-import {FormUtils} from '../../views/landing/wizard/shared/utils/form-utils';
+import { UserDataIdentifier, UserDataService } from './user-data.service';
+import { FormUtils } from '../../views/landing/wizard/shared/utils/form-utils';
 
 export class UserDataFormService {
     storeFromMapping(wizard, step: string, stepMapping: StepMapping, formGroup: FormGroup) {

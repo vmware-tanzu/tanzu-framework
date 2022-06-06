@@ -1,12 +1,12 @@
 // Angular imports
-import {Component, OnInit} from '@angular/core';
-import {FormArray} from '@angular/forms';
+import { Component, OnInit } from '@angular/core';
+import { FormArray } from '@angular/forms';
 // App imports
 import AppServices from '../../../../../../../shared/service/appServices';
-import {StepMapping} from '../../../field-mapping/FieldMapping';
-import {StepFormDirective} from '../../../step-form/step-form';
-import {TKGLabelsConfig} from '../../widgets/tkg-labels/interfaces/tkg-labels.interface';
-import {MetadataField, MetadataStepMapping} from './metadata-step.fieldmapping';
+import { StepMapping } from '../../../field-mapping/FieldMapping';
+import { StepFormDirective } from '../../../step-form/step-form';
+import { TKGLabelsConfig } from '../../widgets/tkg-labels/interfaces/tkg-labels.interface';
+import { MetadataField, MetadataStepMapping } from './metadata-step.fieldmapping';
 
 @Component({
     selector: 'app-metadata-step',

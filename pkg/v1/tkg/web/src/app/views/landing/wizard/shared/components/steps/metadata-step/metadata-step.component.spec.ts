@@ -1,16 +1,16 @@
 // Angular imports
-import {async, ComponentFixture, TestBed} from '@angular/core/testing';
-import {CUSTOM_ELEMENTS_SCHEMA} from '@angular/core';
-import {FormArray, FormBuilder, ReactiveFormsModule} from '@angular/forms';
+import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { FormArray, FormBuilder, ReactiveFormsModule } from '@angular/forms';
 // App imports
-import {APIClient} from '../../../../../../../swagger/api-client.service';
+import { APIClient } from '../../../../../../../swagger/api-client.service';
 import AppServices from 'src/app/shared/service/appServices';
-import {Messenger, TanzuEventType} from 'src/app/shared/service/Messenger';
-import {MetadataStepComponent} from './metadata-step.component';
-import {SharedModule} from '../../../../../../../shared/shared.module';
-import {ValidationService} from '../../../validation/validation.service';
-import {WizardForm} from '../../../constants/wizard.constants';
-import {MetadataField} from './metadata-step.fieldmapping';
+import { Messenger, TanzuEventType } from 'src/app/shared/service/Messenger';
+import { MetadataStepComponent } from './metadata-step.component';
+import { SharedModule } from '../../../../../../../shared/shared.module';
+import { ValidationService } from '../../../validation/validation.service';
+import { WizardForm } from '../../../constants/wizard.constants';
+import { MetadataField } from './metadata-step.fieldmapping';
 
 describe('MetadataStepComponent', () => {
     let component: MetadataStepComponent;

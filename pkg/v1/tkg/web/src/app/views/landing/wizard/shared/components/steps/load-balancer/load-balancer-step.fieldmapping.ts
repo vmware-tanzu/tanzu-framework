@@ -1,5 +1,5 @@
-import {ControlType, StepMapping} from '../../../field-mapping/FieldMapping';
-import {SimpleValidator} from '../../../constants/validation.constants';
+import { ControlType, StepMapping } from '../../../field-mapping/FieldMapping';
+import { SimpleValidator } from '../../../constants/validation.constants';
 
 export enum LoadBalancerField {
     CLOUD_NAME = 'cloudName',
@@ -22,7 +22,7 @@ export const LoadBalancerStepMapping: StepMapping = {
         {
             name: LoadBalancerField.CONTROLLER_HOST,
             validators: [SimpleValidator.IS_VALID_FQDN_OR_IP],
-            label: 'CONTROLLER HOST',
+            label: 'CONTROLLER HOST'
         },
         {name: LoadBalancerField.USERNAME, label: 'USERNAME'},
         {name: LoadBalancerField.PASSWORD, mask: true, label: 'PASSWORD'},
@@ -32,7 +32,7 @@ export const LoadBalancerStepMapping: StepMapping = {
         {
             name: LoadBalancerField.MANAGEMENT_CLUSTER_NETWORK_CIDR,
             validators: [SimpleValidator.IS_VALID_IP_NETWORK_SEGMENT],
-            label: 'MANAGEMENT VIP NETWORK CIDR',
+            label: 'MANAGEMENT VIP NETWORK CIDR'
         },
         {name: LoadBalancerField.NETWORK_NAME, label: 'WORKLOAD VIP NETWORK NAME'},
         {name: LoadBalancerField.NETWORK_CIDR, label: 'WORKLOAD VIP NETWORK CIDR'},
@@ -59,7 +59,7 @@ export const LoadBalancerStepMapping: StepMapping = {
                     controlType: ControlType.FormControl,
                     validators: [SimpleValidator.IS_VALID_LABEL_OR_ANNOTATION, SimpleValidator.RX_REQUIRED_IF_KEY]
                 }
-            ],
-        },
-    ],
+            ]
+        }
+    ]
 };

@@ -1,21 +1,21 @@
 // Angular imports
-import {Component, OnInit} from '@angular/core';
-import {FormArray, Validators} from '@angular/forms';
-import {ClrLoadingState} from "@clr/angular";
+import { Component, OnInit } from '@angular/core';
+import { FormArray, Validators } from '@angular/forms';
+import { ClrLoadingState } from "@clr/angular";
 // Third party imports
-import {debounceTime, distinctUntilChanged, finalize, takeUntil} from 'rxjs/operators';
-import {IpFamilyEnum} from 'src/app/shared/constants/app.constants';
-import {AviCloud} from "src/app/swagger/models/avi-cloud.model";
-import {AviServiceEngineGroup} from "src/app/swagger/models/avi-service-engine-group.model";
+import { debounceTime, distinctUntilChanged, finalize, takeUntil } from 'rxjs/operators';
+import { IpFamilyEnum } from 'src/app/shared/constants/app.constants';
+import { AviCloud } from "src/app/swagger/models/avi-cloud.model";
+import { AviServiceEngineGroup } from "src/app/swagger/models/avi-service-engine-group.model";
 import AppServices from '../../../../../../../shared/service/appServices';
 // App imports
-import {APIClient} from "../../../../../../../swagger";
-import {StepMapping} from '../../../field-mapping/FieldMapping';
-import {StepFormDirective} from "../../../step-form/step-form";
-import {ValidationService} from "../../../validation/validation.service";
-import {TKGLabelsConfig} from '../../widgets/tkg-labels/interfaces/tkg-labels.interface';
-import {AviVipNetwork} from './../../../../../../../swagger/models/avi-vip-network.model';
-import {LoadBalancerField, LoadBalancerStepMapping} from './load-balancer-step.fieldmapping';
+import { APIClient } from "../../../../../../../swagger";
+import { StepMapping } from '../../../field-mapping/FieldMapping';
+import { StepFormDirective } from "../../../step-form/step-form";
+import { ValidationService } from "../../../validation/validation.service";
+import { TKGLabelsConfig } from '../../widgets/tkg-labels/interfaces/tkg-labels.interface';
+import { AviVipNetwork } from './../../../../../../../swagger/models/avi-vip-network.model';
+import { LoadBalancerField, LoadBalancerStepMapping } from './load-balancer-step.fieldmapping';
 
 const SupervisedFields = [
     LoadBalancerField.CONTROLLER_HOST,

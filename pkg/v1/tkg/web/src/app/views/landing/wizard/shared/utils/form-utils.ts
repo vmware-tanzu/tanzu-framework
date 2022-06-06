@@ -1,6 +1,6 @@
-import {AbstractControl, FormArray, FormControl, FormGroup} from '@angular/forms';
+import { AbstractControl, FormArray, FormControl, FormGroup } from '@angular/forms';
 import AppServices from 'src/app/shared/service/appServices';
-import {ControlType, FieldMapping} from '../field-mapping/FieldMapping';
+import { ControlType, FieldMapping } from '../field-mapping/FieldMapping';
 
 export class FormUtils {
     static addControl(formGroup: FormGroup, name: string, control: AbstractControl) {
@@ -21,7 +21,7 @@ export class FormUtils {
         const formArrayHandler: () => void = () => {
             const formData: any[] = (initialValue && initialValue !== '' ? initialValue : null) ??
                 fieldMapping.defaultValue ?? [
-                    fieldMapping.children.reduce((obj, item) => ((obj[item.name] = item.defaultValue), obj), {}),
+                    fieldMapping.children.reduce((obj, item) => ((obj[item.name] = item.defaultValue), obj), {})
                 ];
 
             const formArray: any[] = formData.map((obj) => {
@@ -50,7 +50,7 @@ export class FormUtils {
             [ControlType.FormControl]: formControlHandler,
             // TODO: Add FormGroup handler
             [ControlType.FormGroup]: () => {
-            },
+            }
         };
 
         dynamicControlHandler(dynamicMappings)(fieldMapping.controlType);

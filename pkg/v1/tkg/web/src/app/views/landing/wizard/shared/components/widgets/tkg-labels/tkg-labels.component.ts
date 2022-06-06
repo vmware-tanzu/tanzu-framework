@@ -1,16 +1,16 @@
-import {Component, Input, OnChanges, OnDestroy, SimpleChanges} from '@angular/core';
-import {FormArray, FormGroup} from '@angular/forms';
-import {Subject} from 'rxjs';
-import {distinctUntilChanged, takeUntil} from 'rxjs/operators';
-import {ValidatorEnum} from '../../../constants/validation.constants';
-import {FieldMapping} from '../../../field-mapping/FieldMapping';
-import {FormUtils} from '../../../utils/form-utils';
-import {TKGLabelsConfig} from './interfaces/tkg-labels.interface';
+import { Component, Input, OnChanges, OnDestroy, SimpleChanges } from '@angular/core';
+import { FormArray, FormGroup } from '@angular/forms';
+import { Subject } from 'rxjs';
+import { distinctUntilChanged, takeUntil } from 'rxjs/operators';
+import { ValidatorEnum } from '../../../constants/validation.constants';
+import { FieldMapping } from '../../../field-mapping/FieldMapping';
+import { FormUtils } from '../../../utils/form-utils';
+import { TKGLabelsConfig } from './interfaces/tkg-labels.interface';
 
 @Component({
     selector: 'app-tkg-labels',
     templateUrl: './tkg-labels.component.html',
-    styleUrls: ['./tkg-labels.component.scss'],
+    styleUrls: ['./tkg-labels.component.scss']
 })
 export class TkgLabelsComponent implements OnChanges, OnDestroy {
     @Input() config: TKGLabelsConfig;

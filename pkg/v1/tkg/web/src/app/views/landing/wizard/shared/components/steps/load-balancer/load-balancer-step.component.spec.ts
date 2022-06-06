@@ -1,15 +1,15 @@
 // Angular imports
-import {async, ComponentFixture, TestBed} from '@angular/core/testing';
-import {CUSTOM_ELEMENTS_SCHEMA} from '@angular/core';
-import {FormArray, FormBuilder, ReactiveFormsModule} from '@angular/forms';
-import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
+import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { FormArray, FormBuilder, ReactiveFormsModule } from '@angular/forms';
+import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 // App imports
-import {APIClient} from '../../../../../../../swagger/api-client.service';
+import { APIClient } from '../../../../../../../swagger/api-client.service';
 import AppServices from 'src/app/shared/service/appServices';
-import {Messenger} from 'src/app/shared/service/Messenger';
-import {SharedLoadBalancerStepComponent} from './load-balancer-step.component';
-import {SharedModule} from '../../../../../../../shared/shared.module';
-import {ValidationService} from '../../../validation/validation.service';
+import { Messenger } from 'src/app/shared/service/Messenger';
+import { SharedLoadBalancerStepComponent } from './load-balancer-step.component';
+import { SharedModule } from '../../../../../../../shared/shared.module';
+import { ValidationService } from '../../../validation/validation.service';
 
 describe('SharedLoadBalancerStepComponent', () => {
     let component: SharedLoadBalancerStepComponent;
