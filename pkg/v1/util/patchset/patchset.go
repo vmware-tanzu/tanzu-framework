@@ -49,7 +49,14 @@ type patcher struct {
 func (h *patcher) patch(ctx context.Context, c client.Client, obj client.Object) error {
 	for _, f := range []func() error{
 		func() error {
-			return c.Patch(ctx, obj, client.MergeFromWithOptions(h.beforeObj, client.MergeFromWithOptimisticLock{}))
+			patchedObj := obj.DeepCopyObject().(client.Object)
+			err := c.Patch(ctx, patchedObj, client.MergeFromWithOptions(h.beforeObj, client.MergeFromWithOptimisticLock{}))
+			if err != nil {
+				return err
+			}
+			obj.SetResourceVersion(patchedObj.GetResourceVersion())
+			obj.SetGeneration(patchedObj.GetGeneration())
+			return nil
 		},
 		func() error {
 			err := c.Status().Patch(ctx, obj, client.MergeFromWithOptions(h.beforeObj, client.MergeFromWithOptimisticLock{}))
