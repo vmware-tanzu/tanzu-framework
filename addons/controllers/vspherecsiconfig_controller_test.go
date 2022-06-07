@@ -28,10 +28,11 @@ var _ = Describe("VSphereCSIConfig Reconciler", func() {
 	)
 
 	var (
-		key                     client.ObjectKey
-		clusterName             string
-		clusterResourceFilePath string
-		vsphereClusterName      string
+		key                       client.ObjectKey
+		clusterName               string
+		clusterResourceFilePath   string
+		vsphereClusterName        string
+		enduringResourcesFilePath string
 	)
 
 	JustBeforeEach(func() {
@@ -39,6 +40,13 @@ var _ = Describe("VSphereCSIConfig Reconciler", func() {
 		key = client.ObjectKey{
 			Namespace: clusterNamespace,
 			Name:      clusterName,
+		}
+		if enduringResourcesFilePath != "" {
+			fers, err := os.Open(enduringResourcesFilePath)
+			Expect(err).ToNot(HaveOccurred())
+			defer fers.Close()
+			err = testutil.EnsureResources(fers, cfg, dynamicClient)
+			Expect(err).ToNot(HaveOccurred())
 		}
 		f, err := os.Open(clusterResourceFilePath)
 		Expect(err).ToNot(HaveOccurred())
@@ -69,6 +77,7 @@ var _ = Describe("VSphereCSIConfig Reconciler", func() {
 				clusterName = testClusterCsiName
 				clusterResourceFilePath = "testdata/test-vsphere-csi-non-paravirtual.yaml"
 				vsphereClusterName = "test-cluster-pv-csi-kl5tl"
+				enduringResourcesFilePath = ""
 			})
 
 			It("Should reconcile VSphereCSIConfig and create data values secret for VSphereCSIConfig on management cluster", func() {
@@ -175,6 +184,7 @@ var _ = Describe("VSphereCSIConfig Reconciler", func() {
 			BeforeEach(func() {
 				clusterName = "test-cluster-csi-minimal"
 				clusterResourceFilePath = "testdata/test-vsphere-csi-non-paravirtual-minimal.yaml"
+				enduringResourcesFilePath = ""
 			})
 
 			It("Should reconcile VSphereCSIConfig and create data values secret for VSphereCSIConfig", func() {
@@ -260,6 +270,7 @@ var _ = Describe("VSphereCSIConfig Reconciler", func() {
 		BeforeEach(func() {
 			clusterName = "test-cluster-pv-csi"
 			clusterResourceFilePath = "testdata/test-vsphere-csi-paravirtual.yaml"
+			enduringResourcesFilePath = "testdata/vmware-csi-system-ns.yaml"
 		})
 		It("Should reconcile VSphereCSIConfig and create data values secret for VSphereCSIConfig on management cluster", func() {
 			// the data values secret should be generated
@@ -282,6 +293,10 @@ var _ = Describe("VSphereCSIConfig Reconciler", func() {
 				Expect(strings.Contains(secretData, "namespace: vmware-system-csi")).Should(BeTrue())
 				Expect(strings.Contains(secretData, "supervisor_master_endpoint_hostname: supervisor.default.svc")).Should(BeTrue())
 				Expect(strings.Contains(secretData, "supervisor_master_port: 6443")).Should(BeTrue())
+				Expect(strings.Contains(secretData, "feature_states:")).Should(BeTrue())
+				Expect(strings.Contains(secretData, "state1: value1")).Should(BeTrue())
+				Expect(strings.Contains(secretData, "state2: value2")).Should(BeTrue())
+				Expect(strings.Contains(secretData, "state3: value3")).Should(BeTrue())
 
 				return true
 			}, waitTimeout, pollingInterval).Should(BeTrue())
