@@ -364,10 +364,13 @@ func (r *ClusterBootstrapReconciler) createOrPatchClusterBootstrapFromTemplate(c
 	clusterBootstrapTemplate := &runtanzuv1alpha3.ClusterBootstrapTemplate{}
 	key := client.ObjectKey{Namespace: r.Config.SystemNamespace, Name: tkrName}
 	if err := r.Client.Get(r.context, key, clusterBootstrapTemplate); err != nil {
+		if apierrors.IsNotFound(err) {
+			log.Info("no ClusterBootstrapTemplate associated with cluster")
+			return nil, nil
+		}
 		log.Error(err, "unable to fetch ClusterBootstrapTemplate", "objectkey", key)
 		return nil, err
 	}
-
 	clusterBootstrap := &runtanzuv1alpha3.ClusterBootstrap{}
 	err := r.Client.Get(r.context, client.ObjectKeyFromObject(cluster), clusterBootstrap)
 	if err != nil && !apierrors.IsNotFound(err) {
