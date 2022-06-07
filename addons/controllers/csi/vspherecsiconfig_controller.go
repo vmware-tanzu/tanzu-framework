@@ -259,17 +259,16 @@ func (r *VSphereCSIConfigReconciler) reconcileVSphereCSIConfigNormal(ctx context
 			return ctrl.Result{}, err
 		}
 
-		serviceAccount := &capvvmwarev1beta1.ProviderServiceAccount{}
 		vsphereCluster, err := r.getVsphereCluster(ctx, cluster)
 		if err != nil {
 			return ctrl.Result{}, err
 		}
+		serviceAccount := r.mapCSIConfigToProviderServiceAccount(vsphereCluster)
 		_, err = controllerutil.CreateOrUpdate(ctx, r.Client, serviceAccount, func() error {
-			serviceAccount = r.mapCSIConfigToProviderServiceAccount(vsphereCluster)
 			return controllerutil.SetControllerReference(vsphereCluster, serviceAccount, r.Scheme)
 		})
 		if err != nil {
-			logger.Error(err, "Error creating or updating ProviderServiceAccount for VSphere CPI")
+			logger.Error(err, "Error creating or updating ProviderServiceAccount for VSphere CSI")
 			return ctrl.Result{}, err
 		}
 	}
@@ -293,7 +292,8 @@ func (r *VSphereCSIConfigReconciler) getVsphereCluster(ctx context.Context,
 	}
 	labelSelector := labels.NewSelector()
 	labelSelector = labelSelector.Add(*labelMatch)
-	if err := r.Client.List(ctx, vsphereClusters, &client.ListOptions{LabelSelector: labelSelector}); err != nil {
+	if err := r.Client.List(ctx, vsphereClusters,
+		&client.ListOptions{LabelSelector: labelSelector, Namespace: cluster.Namespace}); err != nil {
 		r.Log.Error(err, "error retrieving clusters")
 		return nil, err
 	}
