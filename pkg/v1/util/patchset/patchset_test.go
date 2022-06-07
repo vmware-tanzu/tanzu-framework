@@ -5,6 +5,7 @@ package patchset
 
 import (
 	"context"
+	"reflect"
 	"strings"
 	"testing"
 	"time"
@@ -12,6 +13,7 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/pkg/errors"
+	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
@@ -19,6 +21,7 @@ import (
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	kerrors "k8s.io/apimachinery/pkg/util/errors"
 	"k8s.io/apimachinery/pkg/util/uuid"
+	"sigs.k8s.io/cluster-api/api/v1beta1"
 	"sigs.k8s.io/cluster-api/util/conditions"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/client/fake"
@@ -107,6 +110,29 @@ var _ = Describe("PatchSet", func() {
 		})
 	})
 
+	When("applying the patchset", func() {
+		BeforeEach(func() {
+			ps = New(&statusSlashingPatcher{Client: c})
+		})
+
+		It("should not lose status of patched objects", func() {
+			changedTKRs := []*runv1.TanzuKubernetesRelease{tkr116, tkr117}
+			for _, tkr := range changedTKRs {
+				tkr.Labels = labels.Set{"newLabel" + tkr.Name: ""}
+				tkr.Status = runv1.TanzuKubernetesReleaseStatus{Conditions: []v1beta1.Condition{{}}}
+				Expect(tkr.Status).ToNot(Equal(runv1.TanzuKubernetesReleaseStatus{}))
+			}
+			Expect(ps.Apply(context.Background())).To(Succeed())
+			for _, tkr := range changedTKRs {
+				Expect(tkr.Status).ToNot(Equal(runv1.TanzuKubernetesReleaseStatus{}))
+
+				patchedTKR := &runv1.TanzuKubernetesRelease{}
+				Expect(c.Get(context.Background(), client.ObjectKey{Name: tkr.Name}, patchedTKR)).To(Succeed())
+				Expect(patchedTKR.Status).To(Equal(tkr.Status))
+			}
+		})
+	})
+
 	When("there's a conflict applying the patchset", func() {
 		BeforeEach(func() {
 			ps = New(&conflictedPatcher{})
@@ -172,6 +198,67 @@ func (*conflictedPatcher) Patch(_ context.Context, obj client.Object, _ client.P
 	}
 	return apierrors.NewConflict(groupResource, obj.GetName(), errors.New("re-read the resource before patching"))
 }
+
+type statusSlashingPatcher struct {
+	client.Client
+}
+
+func (p *statusSlashingPatcher) Patch(ctx context.Context, obj client.Object, patch client.Patch, opts ...client.PatchOption) error {
+	slashStatus(obj)
+	return p.Client.Patch(ctx, obj, patch, opts...)
+}
+
+func slashStatus(obj client.Object) {
+	defer func() {
+		e := recover()
+		if e != nil {
+			_ = e // do nothing: just want to peek at e from the debugger
+		}
+	}()
+	v := reflect.ValueOf(obj).Elem()
+	vStatus := v.FieldByName("Status")
+	tStatus := vStatus.Type()
+	vZero := reflect.New(tStatus).Elem()
+	vStatus.Set(vZero)
+}
+
+var _ = Describe("slashStatus()", func() {
+	var (
+		tkr *runv1.TanzuKubernetesRelease
+		cm  *corev1.ConfigMap
+	)
+
+	BeforeEach(func() {
+		tkr = &runv1.TanzuKubernetesRelease{
+			Spec: runv1.TanzuKubernetesReleaseSpec{},
+			Status: runv1.TanzuKubernetesReleaseStatus{
+				Conditions: []v1beta1.Condition{{
+					Type:   runv1.ConditionCompatible,
+					Status: corev1.ConditionTrue,
+				}},
+			},
+		}
+		cm = &corev1.ConfigMap{
+			Immutable: nil,
+			Data: map[string]string{
+				"foo": "bar",
+			},
+		}
+	})
+
+	It("should slash status if it exists", func() {
+		tkrOrig := tkr.DeepCopy()
+		tkrStatus := tkr.Status.DeepCopy()
+		slashStatus(tkr)
+		Expect(tkr.Status).To(Equal(runv1.TanzuKubernetesReleaseStatus{}))
+		tkr.Status = *tkrStatus
+		Expect(tkr).To(Equal(tkrOrig))
+
+		cmOrig := cm.DeepCopy()
+		slashStatus(cm)
+		Expect(cm).To(Equal(cmOrig))
+	})
+})
 
 func newScheme() *runtime.Scheme {
 	s := runtime.NewScheme()
