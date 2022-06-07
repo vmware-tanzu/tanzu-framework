@@ -44,6 +44,7 @@ spec:
         - mountPath: /tmp/k8s-webhook-server/serving-certs
           name: cert
           readOnly: true
+      serviceAccount: tkr-service-manager-sa
       terminationGracePeriodSeconds: 10
       volumes:
       - name: cert
