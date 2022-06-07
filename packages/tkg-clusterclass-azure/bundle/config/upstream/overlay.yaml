@@ -36,6 +36,17 @@ spec:
           timeout: #@ data.values.MHC_FALSE_STATUS_TIMEOUT
         #@ end
 
+#@overlay/match by=overlay.subset({"kind":"AzureClusterTemplate"})
+---
+apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+kind: AzureClusterTemplate
+spec:
+  template:
+    spec:
+      azureEnvironment: #@ data.values.AZURE_ENVIRONMENT
+      location: #@ data.values.AZURE_LOCATION
+      subscriptionID: #@ data.values.AZURE_SUBSCRIPTION_ID
+
 #@overlay/match by=overlay.subset({"kind":"KubeadmConfigTemplate"}),expects="1+"
 ---
 spec:
@@ -59,3 +70,29 @@ spec:
         preKubeadmCommands:
         #@overlay/append
         - "if [ -f /etc/kubernetes/azure.json ]; then sed -i 's/\"vmType\": \"vmss\"/\"vmType\": \"standard\"/' /etc/kubernetes/azure.json; fi"
+
+#@overlay/match by=overlay.subset({"kind": "AzureMachineTemplate", "metadata":{"name": "tkg-controlplane-azure-template"}})
+---
+apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+kind: AzureMachineTemplate
+spec:
+  template:
+    spec:
+      image:
+        #@overlay/match missing_ok=True
+        id: unknown
+      sshPublicKey: #@ data.values.AZURE_SSH_PUBLIC_KEY_B64
+      vmSize: #@ data.values.AZURE_CONTROL_PLANE_MACHINE_TYPE
+
+#@overlay/match by=overlay.subset({"kind": "AzureMachineTemplate", "metadata":{"name": "tkg-azure-template"}})
+---
+apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+kind: AzureMachineTemplate
+spec:
+  template:
+    spec:
+      image:
+        #@overlay/match missing_ok=True
+        id: unknown
+      sshPublicKey: #@ data.values.AZURE_SSH_PUBLIC_KEY_B64
+      vmSize: #@ data.values.AZURE_CONTROL_PLANE_MACHINE_TYPE
