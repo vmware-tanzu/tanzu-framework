@@ -42,6 +42,8 @@ spec:
       cidrBlocks: #@ data.values.SERVICE_CIDR.split(",")
   topology:
     class: #@ data.values.CLUSTER_CLASS
+    #! VVV TODO(vui) compute
+    version: #@ data.values.KUBERNETES_VERSION
     controlPlane:
       replicas: #@ data.values.CONTROL_PLANE_MACHINE_COUNT
     workers:
