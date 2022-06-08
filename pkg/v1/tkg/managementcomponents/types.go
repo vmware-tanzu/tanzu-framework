@@ -5,11 +5,12 @@ package managementcomponents
 
 // TKGPackageConfig defines TKG package configuration
 type TKGPackageConfig struct {
-	Metadata                   Metadata                   `yaml:"metadata"`
-	ConfigValues               map[string]string          `yaml:"configvalues"`
-	FrameworkPackage           FrameworkPackage           `yaml:"frameworkPackage"`
-	ClusterClassPackage        ClusterClassPackage        `yaml:"clusterclassPackage"`
-	TKRSourceControllerPackage TKRSourceControllerPackage `yaml:"tkrSourceControllerPackage"`
+	Metadata                     Metadata                     `yaml:"metadata"`
+	ConfigValues                 map[string]string            `yaml:"configvalues"`
+	FrameworkPackage             FrameworkPackage             `yaml:"frameworkPackage"`
+	ClusterClassPackage          ClusterClassPackage          `yaml:"clusterclassPackage"`
+	TKRSourceControllerPackage   TKRSourceControllerPackage   `yaml:"tkrSourceControllerPackage"`
+	CoreManagementPluginsPackage CoreManagementPluginsPackage `yaml:"coreManagementPluginsPackage"`
 }
 
 // Metadata specifies metadata as part of TKG package config
@@ -53,6 +54,15 @@ type AddonsFeatureGates struct {
 
 type TanzuAddonsManager struct {
 	FeatureGates AddonsFeatureGates `yaml:"featureGates,omitempty"`
+}
+type CoreManagementPluginsPackage struct {
+	NamespaceForPackageInstallation   string                            `yaml:"namespaceForPackageInstallation,omitempty"`
+	VersionConstraints                string                            `yaml:"versionConstraints,omitempty"`
+	CoreManagementPluginsPackageValue CoreManagementPluginsPackageValue `yaml:"clusterclassInfraPackageValues,omitempty"`
+}
+
+type CoreManagementPluginsPackageValue struct {
+	DeployCLIPluginCRD bool `yaml:"deployCLIPluginCRD,omitempty"`
 }
 
 type AddonsManagerPackageValues struct {
