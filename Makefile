@@ -570,7 +570,7 @@ endif
 
 .PHONY: ui-dependencies
 ui-dependencies: update-npm-registry  ## install UI dependencies (node modules)
-	cd $(UI_DIR); NG_CLI_ANALYTICS=ci npm ci; cd ../
+	cd $(UI_DIR); NG_CLI_ANALYTICS=ci npm ci --legacy-peer-deps; cd ../
 
 .PHONY: ui-build
 ui-build: ui-dependencies ## Install dependencies, then compile client UI for production
