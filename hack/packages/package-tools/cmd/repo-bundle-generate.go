@@ -228,7 +228,7 @@ func generateRepoBundle(projectRootDir string) error {
 
 func generatePackageCR(projectRootDir, toolsBinDir, registry, packageArtifactDirectory, packageValuesFile string, pkg *Package) error {
 	// package values file
-	fmt.Printf("Generating Package CR for package %q...\n", pkg.Name)
+	fmt.Printf("Generating Package CR for package '%s:%s'...\n", pkg.Name, pkg.Version)
 	if err := utils.CreateDir(filepath.Join(packageArtifactDirectory, pkg.Name+"."+pkg.Domain)); err != nil {
 		return err
 	}

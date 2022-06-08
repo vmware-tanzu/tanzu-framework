@@ -28,23 +28,32 @@ func readPackageValues(projectRootDir string) (PackageValues, error) {
 	return packageValues, nil
 }
 
-// getPackageFromPackageValues returns the package definition from the package-values.yaml file.
-func getPackageFromPackageValues(projectRootDir, packageName string) (Package, error) {
+// getPackageFromPackageValues returns the list of package definition from the package-values.yaml file.
+func getPackageFromPackageValues(projectRootDir, packageName string) ([]Package, error) {
 	packageValues, err := readPackageValues(projectRootDir)
 	if err != nil {
-		return Package{}, err
+		return []Package{}, err
 	}
 
+	matchingPackages := []Package{}
 	for i := range packageValues.Repositories {
 		packages := packageValues.Repositories[i].Packages
 		for i := range packages {
 			if packages[i].Name == packageName {
-				return packages[i], nil
+				if packages[i].Version == version {
+					return []Package{packages[i]}, nil
+				}
+				matchingPackages = append(matchingPackages, packages[i])
 			}
 		}
 	}
 
-	return Package{}, fmt.Errorf("package %q not found in %s", packageName, constants.PackageValuesFilePath)
+	// Found packages but no matching version found, returning all matching package
+	if len(matchingPackages) >= 1 {
+		return matchingPackages, nil
+	}
+
+	return []Package{}, fmt.Errorf("package %q not found in %s", packageName, constants.PackageValuesFilePath)
 }
 
 // filterPackageRepos returns a list of repos that should be generated.

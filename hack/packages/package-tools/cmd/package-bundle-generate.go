@@ -62,23 +62,25 @@ func runPackageBundleGenerate(cmd *cobra.Command, args []string) error {
 	} else {
 		fmt.Printf("Generating %q package bundle...\n", packageName)
 
-		pkg, err := getPackageFromPackageValues(projectRootDir, packageName)
+		pkgs, err := getPackageFromPackageValues(projectRootDir, packageName)
 		if err != nil {
 			return err
 		}
 
-		packagePath := filepath.Join(projectRootDir, "packages", packageName)
-		if err := generateSingleImgpkgLockOutput(toolsBinDir, packagePath, getEnvArrayFromMap(pkg.Env)...); err != nil {
-			return fmt.Errorf("couldn't generate imgpkg lock output file: %w", err)
-		}
+		for i := range pkgs {
+			packagePath := filepath.Join(projectRootDir, "packages", packageName)
+			if err := generateSingleImgpkgLockOutput(toolsBinDir, packagePath, getEnvArrayFromMap(pkgs[i].Env)...); err != nil {
+				return fmt.Errorf("couldn't generate imgpkg lock output file: %w", err)
+			}
 
-		if err := generatePackageBundle(&pkg, projectRootDir, toolsBinDir, packageName, packagePath); err != nil {
-			return fmt.Errorf("couldn't generate the package bundle: %w", err)
-		}
-		buildPkgDir := filepath.Join(projectRootDir, "build", "packages")
-		pkgValsDir := filepath.Join(projectRootDir, constants.PackageValuesFilePath)
-		if err := generatePackageCR(projectRootDir, toolsBinDir, registry, buildPkgDir, pkgValsDir, &pkg); err != nil {
-			return err
+			if err := generatePackageBundle(&pkgs[i], projectRootDir, toolsBinDir, packageName, packagePath); err != nil {
+				return fmt.Errorf("couldn't generate the package bundle: %w", err)
+			}
+			buildPkgDir := filepath.Join(projectRootDir, "build", "packages")
+			pkgValsDir := filepath.Join(projectRootDir, constants.PackageValuesFilePath)
+			if err := generatePackageCR(projectRootDir, toolsBinDir, registry, buildPkgDir, pkgValsDir, &pkgs[i]); err != nil {
+				return err
+			}
 		}
 	}
 	return nil

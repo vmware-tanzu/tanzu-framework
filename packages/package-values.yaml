@@ -72,7 +72,6 @@ repositories:
         version: latest
         #! Gets replaced with imgpkg sha256 at build, this should be name:version
         sha256: "tkg-clusterclass:latest"
-
       - name: tkg-autoscaler
         displayName: tkg-autoscaler
         #! Relative path to package bundle
@@ -106,7 +105,6 @@ repositories:
         skipVersionOverride: true
         env:
           AUTOSCALER_IMAGE: projects-stg.registry.vmware.com\/tkg\/cluster-autoscaler:v1.23.0_vmware.1
-
       - name: tkg-clusterclass-docker
         displayName: tkg-clusterclass-docker
         #! Relative path to package bundle
