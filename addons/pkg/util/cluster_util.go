@@ -77,7 +77,7 @@ func GetClustersByTKR(ctx context.Context, c client.Client, tkr *runtanzuv1alpha
 
 	clustersList := &clusterv1beta1.ClusterList{}
 
-	if err := c.List(ctx, clustersList, client.MatchingLabels{constants.TKRLabel: tkr.Name}); err != nil {
+	if err := c.List(ctx, clustersList, client.MatchingLabels{constants.TKRLabel: tkr.GetName()}); err != nil {
 		return nil, err
 	}
 
