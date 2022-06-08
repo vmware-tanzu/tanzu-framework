@@ -78,6 +78,9 @@ func GetTKGPackageConfigValuesFileFromUserConfig(managementPackageVersion string
 				TKRRepoImagePath:     tkrRepoImagePath,
 			},
 		},
+		CoreManagementPluginsPackage: CoreManagementPluginsPackage{
+			VersionConstraints: managementPackageVersion,
+		},
 	}
 
 	configBytes, err := yaml.Marshal(tkgPackageConfig)
