@@ -7,6 +7,7 @@ require (
 	github.com/onsi/gomega v1.19.0
 	github.com/vmware-tanzu/tanzu-framework/test/pkg v0.0.0-00010101000000-000000000000
 	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b
+	k8s.io/apimachinery v0.23.4
 	sigs.k8s.io/cluster-api v1.1.3
 )
 
@@ -55,7 +56,6 @@ require (
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	k8s.io/api v0.23.4 // indirect
 	k8s.io/apiextensions-apiserver v0.23.4 // indirect
-	k8s.io/apimachinery v0.23.4 // indirect
 	k8s.io/client-go v0.23.4 // indirect
 	k8s.io/component-base v0.23.4 // indirect
 	k8s.io/klog/v2 v2.40.1 // indirect
