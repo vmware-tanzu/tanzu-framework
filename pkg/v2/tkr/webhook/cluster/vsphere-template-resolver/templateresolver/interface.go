@@ -1,0 +1,26 @@
+// Copyright 2022 VMware, Inc. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
+
+package templateresolver
+
+import (
+	"github.com/go-logr/logr"
+
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/vc"
+)
+
+//go:generate ../../../../../../../hack/tools/bin/counterfeiter -o ../../../../util/fakes/templateresolver.go --fake-name TemplateResolver . TemplateResolver
+// TODO(Shashank): Change this back to original.
+
+// TemplateResolver resolves vSphere templates
+type TemplateResolver interface {
+	// Resolve returns VM template path and MOIDs satisfying query constraints.
+	Resolve(svrContext VSphereContext, query Query) Result
+	InjectVCClient(vcClient vc.Client)
+	GetVSphereEndpoint(svrContext VSphereContext) (vc.Client, error)
+}
+
+// New returns a newly created instance of the vSphere template resolver implementation.
+func New(log logr.Logger) TemplateResolver {
+	return NewResolver(log)
+}

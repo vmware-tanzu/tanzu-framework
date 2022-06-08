@@ -3,3 +3,5 @@ kind: Config
 overrides:
   - image: tkr-source-controller:latest
     newImage: ""
+  - image: vsphere-template-resolver-cluster-webhook:latest
+    newImage: ""
