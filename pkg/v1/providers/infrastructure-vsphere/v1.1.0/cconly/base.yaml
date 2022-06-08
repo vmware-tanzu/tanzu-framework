@@ -1,73 +1,77 @@
+#@ load("@ytt:overlay", "overlay")
+#@ load("@ytt:data", "data")
+#@ load("@ytt:regexp", "regexp")
+
 apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
 kind: VSphereClusterTemplate
 metadata:
   name: 'tkg-vsphere-infrastructure'
-  namespace: '${ NAMESPACE }'
+  namespace: #@ data.values.NAMESPACE
 spec:
   template:
     spec:
       controlPlaneEndpoint:
-        host: '${VSPHERE_CONTROL_PLANE_ENDPOINT}'
+        host: '#@ data.values.VSPHERE_CONTROL_PLANE_ENDPOINT'
         port: 6443
       identityRef:
         kind: Secret
         name: '${ CLUSTER_NAME }'
-      server: '${ VSPHERE_SERVER }'
-      thumbprint: '${ VSPHERE_TLS_THUMBPRINT }'
+      server: #@ data.values.VSPHERE_SERVER
+      thumbprint: #@ data.values.VSPHERE_TLS_THUMBPRINT
 ---
 apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
 kind: VSphereMachineTemplate
 metadata:
   name: 'tkg-vsphere-control-plane'
-  namespace: '${ NAMESPACE }'
+  namespace: #@ data.values.NAMESPACE
 spec:
   template:
     spec:
-      cloneMode: '${ VSPHERE_CLONE_MODE }'
-      datacenter: '${ VSPHERE_DATACENTER }'
-      datastore: '${ VSPHERE_DATASTORE }'
-      storagePolicyName: '${ VSPHERE_STORAGE_POLICY_ID }'
-      diskGiB: ${VSPHERE_CONTROL_PLANE_DISK_GIB}
-      folder: '${ VSPHERE_FOLDER }'
-      memoryMiB: ${VSPHERE_CONTROL_PLANE_MEM_MIB}
+      cloneMode: #@ data.values.VSPHERE_CLONE_MODE
+      datacenter: #@ data.values.VSPHERE_DATACENTER
+      datastore: #@ data.values.VSPHERE_DATASTORE
+      storagePolicyName: #@ data.values.VSPHERE_STORAGE_POLICY_ID
+      diskGiB: #@ data.values.VSPHERE_CONTROL_PLANE_DISK_GIB
+      folder: #@ data.values.VSPHERE_FOLDER
+      memoryMiB: #@ data.values.VSPHERE_CONTROL_PLANE_MEM_MIB
       network:
         devices:
         - dhcp4: true
-          networkName: '${ VSPHERE_NETWORK }'
-      numCPUs: ${ VSPHERE_CONTROL_PLANE_NUM_CPUS }
-      resourcePool: '${ VSPHERE_RESOURCE_POOL }'
-      server: '${ VSPHERE_SERVER }'
-      template: '${ VSPHERE_TEMPLATE }'
+          networkName: #@ data.values.VSPHERE_NETWORK
+      numCPUs:  #@ data.values.VSPHERE_CONTROL_PLANE_NUM_CPUS
+      resourcePool: #@ data.values.VSPHERE_RESOURCE_POOL
+      server: #@ data.values.VSPHERE_SERVER
+      template: #@ data.values.VSPHERE_TEMPLATE
 ---
 apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
 kind: VSphereMachineTemplate
 metadata:
   name: 'tkg-vsphere-worker'
-  namespace: '${ NAMESPACE }'
+  namespace: #@ data.values.NAMESPACE
 spec:
   template:
     spec:
-      cloneMode: '${ VSPHERE_CLONE_MODE }'
-      datacenter: '${ VSPHERE_DATACENTER }'
-      datastore: '${ VSPHERE_DATASTORE }'
-      storagePolicyName: '${ VSPHERE_STORAGE_POLICY_ID }'
-      diskGiB: ${VSPHERE_WORKER_DISK_GIB}
-      folder: '${ VSPHERE_FOLDER }'
-      memoryMiB: ${VSPHERE_WORKER_MEM_MIB}
+      cloneMode: #@ data.values.VSPHERE_CLONE_MODE
+      datacenter: #@ data.values.VSPHERE_DATACENTER
+      datastore: #@ data.values.VSPHERE_DATASTORE
+      storagePolicyName: #@ data.values.VSPHERE_STORAGE_POLICY_ID
+      diskGiB: #@ data.values.VSPHERE_WORKER_DISK_GIB
+      folder: #@ data.values.VSPHERE_FOLDER
+      memoryMiB: #@ data.values.VSPHERE_WORKER_MEM_MIB
       network:
         devices:
         - dhcp4: true
-          networkName: '${ VSPHERE_NETWORK }'
-      numCPUs: ${ VSPHERE_WORKER_NUM_CPUS }
-      resourcePool: '${ VSPHERE_RESOURCE_POOL }'
-      server: '${ VSPHERE_SERVER }'
-      template: '${ VSPHERE_TEMPLATE }'
+          networkName: #@ data.values.VSPHERE_NETWORK
+      numCPUs:  #@ data.values.VSPHERE_WORKER_NUM_CPUS
+      resourcePool: #@ data.values.VSPHERE_RESOURCE_POOL
+      server: #@ data.values.VSPHERE_SERVER
+      template: #@ data.values.VSPHERE_TEMPLATE
 ---
 apiVersion: controlplane.cluster.x-k8s.io/v1beta1
 kind: KubeadmControlPlaneTemplate
 metadata:
   name: 'tkg-vsphere-kcp'
-  namespace: '${ NAMESPACE }'
+  namespace: #@ data.values.NAMESPACE
 spec:
   template:
     spec:
@@ -127,7 +131,7 @@ spec:
         users:
         - name: capv
           sshAuthorizedKeys:
-          - '${ VSPHERE_SSH_AUTHORIZED_KEY }'
+          - #@ data.values.VSPHERE_SSH_AUTHORIZED_KEY
           sudo: ALL=(ALL) NOPASSWD:ALL
       replicas: ${ CONTROL_PLANE_MACHINE_COUNT }
       version: '${ KUBERNETES_VERSION }'
@@ -136,7 +140,7 @@ apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
 kind: KubeadmConfigTemplate
 metadata:
   name: 'tkg-vsphere-md-0'
-  namespace: '${ NAMESPACE }'
+  namespace: #@ data.values.NAMESPACE
 spec:
   template:
     spec:
@@ -159,23 +163,23 @@ spec:
       users:
       - name: capv
         sshAuthorizedKeys:
-        - '${ VSPHERE_SSH_AUTHORIZED_KEY }'
+        - #@ data.values.VSPHERE_SSH_AUTHORIZED_KEY
         sudo: ALL=(ALL) NOPASSWD:ALL
 ---
 apiVersion: v1
 kind: Secret
 metadata:
-  name: '${ CLUSTER_NAME }'
-  namespace: '${ NAMESPACE }'
+  name: #@ data.values.CLUSTER_NAME
+  namespace: #@ data.values.NAMESPACE
 stringData:
-  username: '${ VSPHERE_USERNAME }'
-  password: '${ VSPHERE_PASSWORD }'
+  username: #@ data.values.VSPHERE_USERNAME
+  password: #@ data.values.VSPHERE_PASSWORD
 ---
 apiVersion: cluster.x-k8s.io/v1beta1
 kind: ClusterClass
 metadata:
   name: tkg-vsphere-default
-  namespace: '${ NAMESPACE }'
+  namespace: #@ data.values.NAMESPACE
 spec:
   controlPlane:
     ref:
@@ -193,7 +197,7 @@ spec:
       apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
       kind: VSphereClusterTemplate
       name: 'tkg-vsphere-infrastructure'
-      namespace: '${ NAMESPACE }'
+      namespace: #@ data.values.NAMESPACE
   workers:
     machineDeployments:
     - class: tkg-worker
@@ -204,13 +208,13 @@ spec:
             kind: KubeadmConfigTemplate
             apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
             name: 'tkg-vsphere-md-0'
-            namespace: '${ NAMESPACE }'
+            namespace: #@ data.values.NAMESPACE
         infrastructure:
           ref:
             kind: VSphereMachineTemplate
             apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
             name: 'tkg-vsphere-worker'
-            namespace: '${ NAMESPACE }'
+            namespace: #@ data.values.NAMESPACE
     - class: tkg-worker-windows
       machineHealthCheck:
       template:
@@ -219,13 +223,13 @@ spec:
             kind: KubeadmConfigTemplate
             apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
             name: tkg-vsphere-md-0-worker
-            namespace: '${ NAMESPACE }'
+            namespace: #@ data.values.NAMESPACE
         infrastructure:
           ref:
             kind: VSphereMachineTemplate
             apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
             name: tkg-vsphere-worker
-            namespace: '${ NAMESPACE }'
+            namespace: #@ data.values.NAMESPACE
   variables:
   - name: vcenter
     required: true
