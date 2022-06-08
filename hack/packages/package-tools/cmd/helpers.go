@@ -37,9 +37,9 @@ func getPackageFromPackageValues(projectRootDir, packageName string) (Package, e
 
 	for i := range packageValues.Repositories {
 		packages := packageValues.Repositories[i].Packages
-		for _, pkg := range packages {
-			if pkg.Name == packageName {
-				return pkg, nil
+		for i := range packages {
+			if packages[i].Name == packageName {
+				return packages[i], nil
 			}
 		}
 	}
@@ -74,8 +74,8 @@ func filterPackageRepos(pkgVals PackageValues) ([]string, error) {
 
 // packagesContains checks if a package is in the given collection of packages.
 func packagesContains(packagesList []Package, pkg string) bool {
-	for _, p := range packagesList {
-		if p.Name == pkg {
+	for i := range packagesList {
+		if packagesList[i].Name == pkg {
 			return true
 		}
 	}

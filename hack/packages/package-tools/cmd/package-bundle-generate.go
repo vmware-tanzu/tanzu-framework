@@ -209,25 +209,25 @@ func generatePackageBundles(projectRootDir, toolsBinDir string) error {
 	}
 
 	for _, repo := range packageRepos {
-		for i, pkg := range pkgVals.Repositories[repo].Packages {
-			fmt.Printf("Generating %q package bundle...\n", pkg.Name)
+		for i := range pkgVals.Repositories[repo].Packages {
+			fmt.Printf("Generating %q package bundle...\n", pkgVals.Repositories[repo].Packages[i].Name)
 
-			packagePath := filepath.Join(projectRootDir, "packages", pkg.Name)
-			if err := utils.RunMakeTarget(packagePath, "configure-package", getEnvArrayFromMap(pkg.Env)...); err != nil {
+			packagePath := filepath.Join(projectRootDir, "packages", pkgVals.Repositories[repo].Packages[i].Name)
+			if err := utils.RunMakeTarget(packagePath, "configure-package", getEnvArrayFromMap(pkgVals.Repositories[repo].Packages[i].Env)...); err != nil {
 				return err
 			}
 
 			// generate package bundle imgpkg lock output file
-			if err := generateSingleImgpkgLockOutput(toolsBinDir, packagePath, getEnvArrayFromMap(pkg.Env)...); err != nil {
+			if err := generateSingleImgpkgLockOutput(toolsBinDir, packagePath, getEnvArrayFromMap(pkgVals.Repositories[repo].Packages[i].Env)...); err != nil {
 				return fmt.Errorf("couldn't generate imgpkg lock output file: %w", err)
 			}
 
 			// push the imgpkg bundle to local registry
 			imagePackageVersion := formatVersion(&pkgVals.Repositories[repo].Packages[i], "_").concat
-			lockOutputFile := pkg.Name + "-" + imagePackageVersion + "-lock-output.yaml"
+			lockOutputFile := pkgVals.Repositories[repo].Packages[i].Name + "-" + imagePackageVersion + "-lock-output.yaml"
 			imgpkgCmd := exec.Command(
 				filepath.Join(toolsBinDir, "imgpkg"),
-				"push", "-b", constants.LocalRegistryURL+"/"+pkg.Name+":"+imagePackageVersion,
+				"push", "-b", constants.LocalRegistryURL+"/"+pkgVals.Repositories[repo].Packages[i].Name+":"+imagePackageVersion,
 				"--file", filepath.Join(packagePath, "bundle"),
 				"--lock-output", lockOutputFile,
 			) // #nosec G204
@@ -252,7 +252,7 @@ func generatePackageBundles(projectRootDir, toolsBinDir string) error {
 			pkgVals.Repositories[repo].Packages[i].Version = formatVersion(&pkgVals.Repositories[repo].Packages[i], "_").version
 			pkgVals.Repositories[repo].Packages[i].Sha256 = utils.AfterString(
 				bundleLock.Bundle.Image,
-				constants.LocalRegistryURL+"/"+pkg.Name+"@sha256:",
+				constants.LocalRegistryURL+"/"+pkgVals.Repositories[repo].Packages[i].Name+"@sha256:",
 			)
 			yamlData, err := yaml.Marshal(&pkgVals)
 			if err != nil {
@@ -269,7 +269,7 @@ func generatePackageBundles(projectRootDir, toolsBinDir string) error {
 				&pkgVals.Repositories[repo].Packages[i],
 				projectRootDir,
 				toolsBinDir,
-				pkg.Name,
+				pkgVals.Repositories[repo].Packages[i].Name,
 				packagePath,
 			)
 			if err != nil {

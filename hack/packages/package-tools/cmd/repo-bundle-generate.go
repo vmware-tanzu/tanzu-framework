@@ -91,7 +91,8 @@ func generatePackageBundlesSha256(projectRootDir, localRegistry string) error {
 		return fmt.Errorf("repository not found %s", packageRepository)
 	}
 
-	for i, pkg := range repository.Packages {
+	for i := range repository.Packages {
+		pkg := repository.Packages[i]
 		formattedVer := formatVersion(&repository.Packages[i], "_")
 		packagePath := filepath.Join(projectRootDir, "packages", pkg.Name)
 		toolsBinDir := filepath.Join(projectRootDir, constants.ToolsBinDirPath)
