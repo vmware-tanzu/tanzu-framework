@@ -33,11 +33,13 @@ type Deploy struct {
 
 // Package holds the information about a package
 type Package struct {
-	Name              string `yaml:"name"`
-	DisplayName       string `yaml:"displayName"`
-	Path              string `yaml:"path"`
-	Domain            string `yaml:"domain"`
-	Version           string `yaml:"version"`
-	Sha256            string `yaml:"sha256"`
-	PackageSubVersion string `yaml:"packageSubVersion,omitempty"`
+	Name                string            `yaml:"name"`
+	DisplayName         string            `yaml:"displayName"`
+	Path                string            `yaml:"path"`
+	Domain              string            `yaml:"domain"`
+	Version             string            `yaml:"version"`
+	Sha256              string            `yaml:"sha256"`
+	PackageSubVersion   string            `yaml:"packageSubVersion,omitempty"`
+	SkipVersionOverride bool              `yaml:"skipVersionOverride,omitempty"`
+	Env                 map[string]string `yaml:"env,omitempty"`
 }

@@ -34,10 +34,12 @@ func CreateDir(path string) error {
 }
 
 // RunMakeTarget runs a make target
-func RunMakeTarget(path, target string) error {
+func RunMakeTarget(path, target string, envArray ...string) error {
 	cmd := exec.Command("make", "-C", path, target)
 	var errBytes bytes.Buffer
 	cmd.Stderr = &errBytes
+	cmd.Env = os.Environ()
+	cmd.Env = append(cmd.Env, envArray...)
 	err := cmd.Run()
 	if err != nil {
 		return fmt.Errorf("couldn't run the make target %s: %s", target, errBytes.String())

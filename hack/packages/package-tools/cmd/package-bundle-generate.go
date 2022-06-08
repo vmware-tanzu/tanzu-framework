@@ -61,14 +61,17 @@ func runPackageBundleGenerate(cmd *cobra.Command, args []string) error {
 		}
 	} else {
 		fmt.Printf("Generating %q package bundle...\n", packageName)
-		packagePath := filepath.Join(projectRootDir, "packages", packageName)
-		if err := generateSingleImgpkgLockOutput(toolsBinDir, packagePath); err != nil {
-			return fmt.Errorf("couldn't generate imgpkg lock output file: %w", err)
-		}
+
 		pkg, err := getPackageFromPackageValues(projectRootDir, packageName)
 		if err != nil {
 			return err
 		}
+
+		packagePath := filepath.Join(projectRootDir, "packages", packageName)
+		if err := generateSingleImgpkgLockOutput(toolsBinDir, packagePath, getEnvArrayFromMap(pkg.Env)...); err != nil {
+			return fmt.Errorf("couldn't generate imgpkg lock output file: %w", err)
+		}
+
 		if err := generatePackageBundle(&pkg, projectRootDir, toolsBinDir, packageName, packagePath); err != nil {
 			return fmt.Errorf("couldn't generate the package bundle: %w", err)
 		}
@@ -88,8 +91,8 @@ func validatePackageBundleGenerateFlags() error {
 	return nil
 }
 
-func generateSingleImgpkgLockOutput(toolsBinDir, packagePath string) error {
-	if err := utils.RunMakeTarget(packagePath, "configure-package"); err != nil {
+func generateSingleImgpkgLockOutput(toolsBinDir, packagePath string, envArray ...string) error {
+	if err := utils.RunMakeTarget(packagePath, "configure-package", envArray...); err != nil {
 		return err
 	}
 
@@ -142,7 +145,7 @@ func generateSingleImgpkgLockOutput(toolsBinDir, packagePath string) error {
 }
 
 func generatePackageBundle(pkg *Package, projectRootDir, toolsBinDir, packageName, packagePath string) error {
-	if err := utils.RunMakeTarget(packagePath, "configure-package"); err != nil {
+	if err := utils.RunMakeTarget(packagePath, "configure-package", getEnvArrayFromMap(pkg.Env)...); err != nil {
 		return err
 	}
 
@@ -210,12 +213,12 @@ func generatePackageBundles(projectRootDir, toolsBinDir string) error {
 			fmt.Printf("Generating %q package bundle...\n", pkg.Name)
 
 			packagePath := filepath.Join(projectRootDir, "packages", pkg.Name)
-			if err := utils.RunMakeTarget(packagePath, "configure-package"); err != nil {
+			if err := utils.RunMakeTarget(packagePath, "configure-package", getEnvArrayFromMap(pkg.Env)...); err != nil {
 				return err
 			}
 
 			// generate package bundle imgpkg lock output file
-			if err := generateSingleImgpkgLockOutput(toolsBinDir, packagePath); err != nil {
+			if err := generateSingleImgpkgLockOutput(toolsBinDir, packagePath, getEnvArrayFromMap(pkg.Env)...); err != nil {
 				return fmt.Errorf("couldn't generate imgpkg lock output file: %w", err)
 			}
 
@@ -246,7 +249,7 @@ func generatePackageBundles(projectRootDir, toolsBinDir string) error {
 				return fmt.Errorf("error while unmarshaling: %w", err)
 			}
 
-			pkgVals.Repositories[repo].Packages[i].Version = getPackageVersion(version)
+			pkgVals.Repositories[repo].Packages[i].Version = formatVersion(&pkgVals.Repositories[repo].Packages[i], "_").version
 			pkgVals.Repositories[repo].Packages[i].Sha256 = utils.AfterString(
 				bundleLock.Bundle.Image,
 				constants.LocalRegistryURL+"/"+pkg.Name+"@sha256:",

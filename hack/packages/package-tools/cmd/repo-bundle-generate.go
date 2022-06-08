@@ -96,7 +96,7 @@ func generatePackageBundlesSha256(projectRootDir, localRegistry string) error {
 		packagePath := filepath.Join(projectRootDir, "packages", pkg.Name)
 		toolsBinDir := filepath.Join(projectRootDir, constants.ToolsBinDirPath)
 
-		if err := utils.RunMakeTarget(packagePath, "configure-package"); err != nil {
+		if err := utils.RunMakeTarget(packagePath, "configure-package", getEnvArrayFromMap(pkg.Env)...); err != nil {
 			return err
 		}
 

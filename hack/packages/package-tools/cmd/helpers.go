@@ -89,6 +89,23 @@ type formattedVersion struct {
 }
 
 func formatVersion(pkg *Package, concatenator string) formattedVersion {
+	if pkg != nil && pkg.SkipVersionOverride {
+		fv := formattedVersion{
+			version:      pkg.Version,
+			noV:          getPackageVersion(pkg.Version),
+			concatenator: concatenator,
+			subVersion:   pkg.PackageSubVersion,
+		}
+
+		fv.concat = fv.version
+		fv.concatNoV = fv.noV
+		if fv.subVersion != "" {
+			fv.concat = fv.version + concatenator + fv.subVersion
+			fv.concatNoV = fv.noV + concatenator + fv.subVersion
+		}
+		return fv
+	}
+
 	fv := formattedVersion{
 		version:      version,
 		noV:          getPackageVersion(version),
@@ -119,4 +136,12 @@ func getPackageVersion(version string) string {
 		pkgVersion = version[1:]
 	}
 	return pkgVersion
+}
+
+func getEnvArrayFromMap(env map[string]string) []string {
+	var arrEnv []string
+	for k, v := range env {
+		arrEnv = append(arrEnv, fmt.Sprintf("%s=%s", k, v))
+	}
+	return arrEnv
 }
