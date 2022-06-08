@@ -19,15 +19,25 @@
 #@ def antrea_configs_exist():
 #@   return (data.values.NSXT_POD_ROUTING_ENABLED or
 #@           data.values.ANTREA_NO_SNAT or
+#@           data.values.ANTREA_DISABLE_UDP_TUNNEL_OFFLOAD or
 #@           data.values.ANTREA_TRAFFIC_ENCAP_MODE != "encap" or
+#@           not data.values.ANTREA_NODEPORTLOCAL_ENABLED or
+#@           data.values.ANTREA_PROXY_ALL or
+#@           data.values.ANTREA_TUNNEL_TYPE != "geneve" or
+#@           data.values.ANTREA_TRAFFIC_ENCRYPTION_MODE != "" or
+#@           data.values.ANTREA_WIREGUARD_PORT != 51820 or
+#@           data.values.ANTREA_ENABLE_USAGE_REPORTING or
 #@           not data.values.ANTREA_PROXY or
 #@           not data.values.ANTREA_ENDPOINTSLICE or
 #@           not data.values.ANTREA_POLICY or
-#@           data.values.ANTREA_NODEPORTLOCAL or
 #@           not data.values.ANTREA_TRACEFLOW or
-#@           data.values.ANTREA_EGRESS or
+#@           not data.values.ANTREA_NODEPORTLOCAL or
+#@           data.values.ANTREA_NETWORKPOLICY_STATS or
+#@           not data.values.ANTREA_EGRESS or
+#@           data.values.ANTREA_IPAM or
 #@           data.values.ANTREA_FLOWEXPORTER or
-#@           data.values.ANTREA_DISABLE_UDP_TUNNEL_OFFLOAD)
+#@           data.values.ANTREA_SERVICE_EXTERNALIP or
+#@           data.values.ANTREA_MULTICAST)
 #@ end
 
 #@ def vspherecpi_configs_exist():
@@ -43,57 +53,8 @@
 #@   return data.values.CNI != "antrea" or antrea_configs_exist() or vspherecsi_configs_exist() or vspherecpi_configs_exist()
 #@ end
 
-#@ if should_create_clusterbootstrap():
----
-apiVersion: run.tanzu.vmware.com/v1alpha3
-kind: ClusterBootstrap
-metadata:
-  name: #@ data.values.CLUSTER_NAME
-  namespace: #@ data.values.NAMESPACE
-  annotations:
-    tkg.tanzu.vmware.com/add-missing-fields-from-tkr: #@ data.values.KUBERNETES_RELEASE
-spec:
-  cni:
-    #@ if data.values.CNI == "antrea":
-    refName: antrea*
-    valuesFrom:
-      providerRef:
-        apiGroup: cni.tanzu.vmware.com
-        kind: AntreaConfig
-        name: #@ data.values.CLUSTER_NAME
-    #@ elif data.values.CNI == "calico":
-    refName: calico*
-    valuesFrom:
-      providerRef:
-        apiGroup: cni.tanzu.vmware.com
-        kind: CalicoConfig
-        name: #@ data.values.CLUSTER_NAME
-    #@ end
-  #@ if vspherecpi_configs_exist() and data.values.PROVIDER_TYPE == "vsphere" and not data.values.IS_WINDOWS_WORKLOAD_CLUSTER:
-  cpi:
-    refName: vsphere-cpi*
-    valuesFrom:
-      providerRef:
-        apiGroup: cpi.tanzu.vmware.com
-        kind: VSphereCPIConfig
-        name: #@ data.values.CLUSTER_NAME
-  #@ end
-  #@ if vspherecsi_configs_exist() and data.values.PROVIDER_TYPE == "vsphere" and not data.values.IS_WINDOWS_WORKLOAD_CLUSTER:
-  csi:
-    refName: vsphere-csi*
-    valuesFrom:
-      providerRef:
-        apiGroup: csi.tanzu.vmware.com
-        kind: VSphereCSIConfig
-        name: #@ data.values.CLUSTER_NAME
-  #@ end
-  additionalPackages:
-    - refName: metrics-server*
-    - refName: secretgen-controller*
-#@ end
-
----
 #@ if antrea_configs_exist():
+---
 apiVersion: cni.tanzu.vmware.com/v1alpha1
 kind: AntreaConfig
 metadata:
@@ -214,5 +175,56 @@ spec:
       zone: #@ data.values.VSPHERE_ZONE
       region: #@ data.values.VSPHERE_REGION
       useTopologyCategories: #@ data.values.USE_TOPOLOGY_CATEGORIES
+#@ end
+
+---
+#@ if should_create_clusterbootstrap():
+---
+apiVersion: run.tanzu.vmware.com/v1alpha3
+kind: ClusterBootstrap
+metadata:
+  name: #@ data.values.CLUSTER_NAME
+  namespace: #@ data.values.NAMESPACE
+  annotations:
+    tkg.tanzu.vmware.com/add-missing-fields-from-tkr: #@ data.values.KUBERNETES_RELEASE
+spec:
+  cni:
+    #@ if data.values.CNI == "antrea":
+    refName: antrea*
+    valuesFrom:
+      providerRef:
+        apiGroup: cni.tanzu.vmware.com
+        kind: AntreaConfig
+        name: #@ data.values.CLUSTER_NAME
+    #@ elif data.values.CNI == "calico":
+    refName: calico*
+    valuesFrom:
+      providerRef:
+        apiGroup: cni.tanzu.vmware.com
+        kind: CalicoConfig
+        name: #@ data.values.CLUSTER_NAME
+    #@ end
+  #@ if vspherecpi_configs_exist() and data.values.PROVIDER_TYPE == "vsphere" and not data.values.IS_WINDOWS_WORKLOAD_CLUSTER:
+  cpi:
+    refName: vsphere-cpi*
+    valuesFrom:
+      providerRef:
+        apiGroup: cpi.tanzu.vmware.com
+        kind: VSphereCPIConfig
+        name: #@ data.values.CLUSTER_NAME
+  #@ end
+  #@ if vspherecsi_configs_exist() and data.values.PROVIDER_TYPE == "vsphere" and not data.values.IS_WINDOWS_WORKLOAD_CLUSTER:
+  csi:
+    refName: vsphere-csi*
+    valuesFrom:
+      providerRef:
+        apiGroup: csi.tanzu.vmware.com
+        kind: VSphereCSIConfig
+        name: #@ data.values.CLUSTER_NAME
+  #@ end
+  additionalPackages:
+    - refName: metrics-server*
+    - refName: secretgen-controller*
+    - refName: pinniped*
 #@ end
 
