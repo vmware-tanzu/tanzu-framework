@@ -81,3 +81,9 @@ tkrSourceControllerPackage:
       httpProxy:
       httpsProxy:
       noProxy:
+
+coreManagementPluginsPackage:
+  namespaceForPackageInstallation: tkg-system
+  versionConstraints:
+  coreManagementPluginsPackageValues:
+    deployCLIPluginCRD: false

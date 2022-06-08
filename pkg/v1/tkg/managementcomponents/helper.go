@@ -51,6 +51,9 @@ func GetTKGPackageConfigValuesFileFromUserConfig(managementPackageVersion string
 				VersionConstraints: managementPackageVersion,
 			},
 		},
+		CoreManagementPluginsPackage: CoreManagementPluginsPackage{
+			VersionConstraints: managementPackageVersion,
+		},
 	}
 
 	configBytes, err := yaml.Marshal(tkgPackageConfig)
