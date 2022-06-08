@@ -5,10 +5,11 @@ package managementcomponents
 
 // TKGPackageConfig defines TKG package configuration
 type TKGPackageConfig struct {
-	Metadata            Metadata            `yaml:"metadata"`
-	ConfigValues        map[string]string   `yaml:"configvalues"`
-	FrameworkPackage    FrameworkPackage    `yaml:"frameworkPackage"`
-	ClusterClassPackage ClusterClassPackage `yaml:"clusterclassPackage"`
+	Metadata                   Metadata                   `yaml:"metadata"`
+	ConfigValues               map[string]string          `yaml:"configvalues"`
+	FrameworkPackage           FrameworkPackage           `yaml:"frameworkPackage"`
+	ClusterClassPackage        ClusterClassPackage        `yaml:"clusterclassPackage"`
+	TKRSourceControllerPackage TKRSourceControllerPackage `yaml:"tkrSourceControllerPackage"`
 }
 
 // Metadata specifies metadata as part of TKG package config
@@ -16,6 +17,20 @@ type Metadata struct {
 	InfraProvider string `yaml:"infraProvider"`
 }
 
+type TKRSourceControllerPackage struct {
+	NamespaceForPackageInstallation  string                           `yaml:"namespaceForPackageInstallation,omitempty"`
+	VersionConstraints               string                           `yaml:"versionConstraints,omitempty"`
+	TKRSourceControllerPackageValues TKRSourceControllerPackageValues `yaml:"tkrSourceControllerPackageValues,omitempty"`
+}
+
+type TKRSourceControllerPackageValues struct {
+	Namespace            string `yaml:"namespace,omitempty"`
+	CreateNamespace      string `yaml:"createNamespace,omitempty"`
+	VersionConstraints   string `yaml:"versionConstraints,omitempty"`
+	BomImagePath         string `yaml:"bomImagePath,omitempty"`
+	BomMetadataImagePath string `yaml:"bomMetadataImagePath,omitempty"`
+	TKRRepoImagePath     string `yaml:"tkrRepoImagePath,omitempty"`
+}
 type FrameworkPackage struct {
 	NamespaceForPackageInstallation string                     `yaml:"namespaceForPackageInstallation,omitempty"`
 	VersionConstraints              string                     `yaml:"versionConstraints,omitempty"`
