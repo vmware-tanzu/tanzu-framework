@@ -1,0 +1,40 @@
+#@ load("@ytt:data", "data")
+#@ load("@ytt:yaml", "yaml")
+
+---
+apiVersion: packaging.carvel.dev/v1alpha1
+kind: PackageInstall
+metadata:
+  name: core-management-plugins
+  namespace: #@ data.values.coreManagementPluginsPackage.namespaceForPackageInstallation
+  annotations:
+    kapp.k14s.io/change-rule.0: "upsert after upserting framework-packageinstall/tanzu-framework"
+    kapp.k14s.io/change-rule.1: "upsert after upserting core-management-plugins-packageinstall/serviceaccount"
+    kapp.k14s.io/change-rule.2: "delete before deleting core-management-plugins-packageinstall/serviceaccount"
+
+  labels:
+    tkg.tanzu.vmware.com/package-type: "management"
+spec:
+  serviceAccountName: core-management-plugins-package-sa
+  packageRef:
+    refName: core-management-plugins.tanzu.vmware.com
+    versionSelection:
+      prereleases: {}
+      #@ if data.values.coreManagementPluginsPackage.versionConstraints:
+      constraints: #@ data.values.coreManagementPluginsPackage.versionConstraints
+      #@ end
+  values:
+    - secretRef:
+        name: core-management-plugins-values
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: core-management-plugins-values
+  namespace: #@ data.values.coreManagementPluginsPackage.namespaceForPackageInstallation
+  annotations:
+    kapp.k14s.io/change-rule.0: "upsert after upserting core-management-plugins-packageinstall/serviceaccount"
+    kapp.k14s.io/change-rule.1: "delete before deleting core-management-plugins-packageinstall/serviceaccount"
+type: Opaque
+stringData:
+  values.yaml: #@ yaml.encode(data.values.coreManagementPluginsPackage.coreManagementPluginsPackageValues)
