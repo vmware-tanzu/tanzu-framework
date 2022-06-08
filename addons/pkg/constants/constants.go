@@ -69,7 +69,7 @@ const (
 	TKGCorePackageRepositoryImageName = "tanzuCorePackageRepositoryImage"
 
 	// TKGSDeploymentUpdateStrategy is the update strategy used by TKGS deployments
-	TKGSDeploymentUpdateStrategy = "rollingUpdate"
+	TKGSDeploymentUpdateStrategy = "RollingUpdate"
 
 	// TKGSDeploymentUpdateMaxSurge is the MaxSurge used by TKGS deployments rollingUpdate
 	TKGSDeploymentUpdateMaxSurge = 1
@@ -78,7 +78,7 @@ const (
 	TKGSDeploymentUpdateMaxUnavailable = 0
 
 	// TKGSDaemonsetUpdateStrategy is the update strategy used by TKGS daemonsets
-	TKGSDaemonsetUpdateStrategy = "onDelete"
+	TKGSDaemonsetUpdateStrategy = "OnDelete"
 
 	/* log key section */
 
