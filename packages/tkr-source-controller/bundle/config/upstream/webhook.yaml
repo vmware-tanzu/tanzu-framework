@@ -1,0 +1,33 @@
+#@ load("@ytt:data", "data")
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: MutatingWebhookConfiguration
+metadata:
+  annotations:
+    cert-manager.io/inject-ca-from: #@ "{}/tkr-vsphere-cluster-webhook-serving-cert".format(data.values.namespace)
+  name: tkr-cluster-mutating-webhook-configuration
+webhooks:
+- admissionReviewVersions:
+  - v1
+  - v1beta1
+  clientConfig:
+    service:
+      name: tkr-vsphere-cluster-webhook-service
+      namespace: #@ data.values.namespace
+      path: /resolve-template
+  failurePolicy: Fail
+  reinvocationPolicy: IfNeeded
+  matchPolicy: Equivalent
+  name: tkr-vsphere-cluster-webhook.tanzu.vmware.com
+  rules:
+  - apiGroups: ["cluster.x-k8s.io"]
+    apiVersions:
+    - v1
+    - v1beta1
+    - v1alpha4
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - "clusters"
+  sideEffects: None

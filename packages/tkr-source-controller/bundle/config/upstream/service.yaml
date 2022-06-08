@@ -1,0 +1,13 @@
+#@ load("@ytt:data", "data")
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: tkr-vsphere-cluster-webhook-service
+  namespace: #@ data.values.namespace
+spec:
+  ports:
+  - port: 443
+    targetPort: webhook-server
+  selector:
+    app: tkr-vsphere-cluster-webhook

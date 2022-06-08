@@ -5,18 +5,24 @@ package main
 
 import (
 	"flag"
+	"os"
+
+	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
-	"os"
 	clusterv1 "sigs.k8s.io/cluster-api/api/v1beta1"
+	controlplanev1 "sigs.k8s.io/cluster-api/controlplane/kubeadm/api/v1beta1"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client/config"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
 	"sigs.k8s.io/controller-runtime/pkg/manager/signals"
+	"sigs.k8s.io/controller-runtime/pkg/webhook"
 
 	runv1 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/buildinfo"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v2/tkr/webhook/cluster/vsphere-template-resolver/template"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v2/tkr/webhook/cluster/vsphere-template-resolver/templateresolver"
 )
 
 var (
@@ -26,7 +32,9 @@ var (
 
 func init() {
 	utilruntime.Must(runv1.AddToScheme(scheme))
+	utilruntime.Must(corev1.AddToScheme(scheme))
 	utilruntime.Must(clusterv1.AddToScheme(scheme))
+	utilruntime.Must(controlplanev1.AddToScheme(scheme))
 }
 
 func main() {
@@ -62,16 +70,17 @@ func main() {
 
 	// Setup webhooks
 	setupLog.Info("setting up webhook server")
-	//hookServer := mgr.GetWebhookServer()
-	//
-	//setupLog.Info("registering webhooks to the webhook server")
-	//hookServer.Register("/mutate-cluster", &webhook.Admission{
-	//	Handler: &cluster.Webhook{
-	//		Log:         mgr.GetLogger().WithName("handler.Cluster"),
-	//		TKRResolver: tkrResolver,
-	//		Client:      mgr.GetClient(),
-	//	},
-	//})
+	hookServer := mgr.GetWebhookServer()
+
+	setupLog.Info("registering webhooks to the webhook server")
+	resolverLog := mgr.GetLogger().WithName("webhook.vsphere-template-resolver")
+	hookServer.Register("/resolve-template", &webhook.Admission{
+		Handler: &template.Webhook{
+			Log:      resolverLog,
+			Client:   mgr.GetClient(),
+			Resolver: templateresolver.New(resolverLog),
+		},
+	})
 
 	setupLog.Info("registering webhooks to the webhook server")
 	setupLog.Info("starting manager")

@@ -17,7 +17,7 @@ metadata:
   annotations:
     kapp.k14s.io/change-group: "tkr-source-controller.tanzu.vmware.com/serviceaccount"
 rules:
-  #  RBAC rules to create PackageInstall CR and service accounts
+  #!  RBAC rules to create PackageInstall CR and service accounts
   - apiGroups: ["*"]
     resources: ["*"]
     verbs: ["*"]

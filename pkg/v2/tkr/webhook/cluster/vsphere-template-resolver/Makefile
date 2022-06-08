@@ -3,7 +3,7 @@
 
 include ../../../../../../common.mk
 
-IMG_DEFAULT_NAME := vsphere-template-resolver-cluster-webhook
+IMG_DEFAULT_NAME := tkr-vsphere-cluster-webhook
 IMG_DEFAULT_TAG := latest
 IMG_DEFAULT_NAME_TAG := $(IMG_DEFAULT_NAME):$(IMG_DEFAULT_TAG)
 

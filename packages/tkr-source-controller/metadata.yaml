@@ -5,11 +5,12 @@ metadata:
   namespace: tkr-source-controller
 spec:
   displayName: "tkr-source-controller"
-  longDescription: "tkr-source-controller package fetches and installs the TKRs and related resources from the source(Image repository) and reconciles the TKR compatibility with the management cluster"
+  longDescription: "tkr-source-controller package fetches and installs the TKRs and related resources from the source(Image repository) and reconciles the TKR compatibility with the management cluster. Additionally, it resolves vsphere templates for vsphere provider during cluster create and update."
   shortDescription: "TKR resource reconciler"
   providerName: VMware
   maintainers:
     - name: "Ivan Mikushin"
     - name: "Prem Kalle"
+    - name: "Shashank Girish"
   categories:
     - "tkr source reconciliation"
