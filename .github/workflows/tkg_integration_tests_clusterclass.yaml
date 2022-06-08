@@ -36,7 +36,7 @@ on:
     - '.github/workflows/tkg_integration_tests*.yaml'
 
 concurrency:
-  group: ${{ format('integration-tests-{0}', github.head_ref) }}
+  group: ${{ format('integration-tests-clusterclass-{0}', github.head_ref) }}
   cancel-in-progress: true
 
 jobs:
