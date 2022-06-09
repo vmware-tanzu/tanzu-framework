@@ -12,6 +12,7 @@ import (
 	rt "runtime"
 	"strings"
 	"testing"
+	"text/template"
 	"time"
 
 	"github.com/go-openapi/swag"
@@ -2529,6 +2530,92 @@ var _ = Describe("Cluster Client", func() {
 			})
 		})
 	})
+	Describe("VerifyCLIPluginCRD", func() {
+		var (
+			server         *ghttp.Server
+			kubeConfigPath string
+		)
+		BeforeEach(func() {
+			reInitialize()
+			kubeConfigPath = ""
+			server = ghttp.NewServer()
+			clusterClientOptions = Options{}
+
+			server.AppendHandlers(
+				ghttp.CombineHandlers(
+					ghttp.VerifyRequest("GET", "/version"),
+					ghttp.RespondWith(http.StatusOK, "{\"major\": \"1\",\"minor\": \"17+\"}"),
+				),
+			)
+		})
+		JustBeforeEach(func() {
+			tmpl, err := template.New("kubeconfig").Parse(kubeconfigTemplate)
+			Expect(err).NotTo(HaveOccurred())
+
+			tmpFile, err := os.CreateTemp("", "fake-kubeconfig-cliplugin-test")
+			Expect(err).NotTo(HaveOccurred())
+			data := struct{ Server string }{Server: server.URL()}
+			Expect(tmpl.ExecuteTemplate(tmpFile, "kubeconfig", data)).To(Succeed())
+			tmpFile.Close()
+
+			kubeConfigPath = tmpFile.Name()
+			clusterClientOptions = NewOptions(nil, nil, discoveryClientFactory, nil)
+			clstClient, err = NewClient(kubeConfigPath, "", clusterClientOptions)
+			Expect(err).NotTo(HaveOccurred())
+
+		})
+		AfterEach(func() {
+			if kubeConfigPath != "" {
+				os.Remove(kubeConfigPath)
+			}
+		})
+		Context("when the API GroupVersion cli.tanzu.vmware.com exists and contains the CLIPlugin resource", func() {
+			BeforeEach(func() {
+				discoveryClient.ServerGroupsAndResourcesReturns([]*metav1.APIGroup{
+					{Name: "cli.tanzu.vmware.com"},
+				}, []*metav1.APIResourceList{
+					{GroupVersion: "cli.tanzu.vmware.com/v1alpha1", APIResources: []metav1.APIResource{
+						{Name: "cliplugins", Group: "cli.tanzu.vmware.com"},
+					}},
+				}, nil)
+			})
+			It("returns true", func() {
+				supported, err := clstClient.VerifyCLIPluginCRD()
+				Expect(err).ToNot(HaveOccurred())
+
+				Expect(supported).To(Equal(true))
+
+			})
+		})
+		Context("when the API GroupVersion cli.tanzu.vmware.com does not exist", func() {
+			BeforeEach(func() {
+				discoveryClient.ServerGroupsAndResourcesReturns([]*metav1.APIGroup{
+					{Name: "foo.tanzu.vmware.com"},
+				}, []*metav1.APIResourceList{}, nil)
+
+			})
+			It("returns false", func() {
+				supported, err := clstClient.VerifyCLIPluginCRD()
+				Expect(err).ToNot(HaveOccurred())
+
+				Expect(supported).To(Equal(false))
+			})
+		})
+		Context("when the API GroupVersion cli.tanzu.vmware.com exists but the CLIPlugin resource does not", func() {
+			BeforeEach(func() {
+				discoveryClient.ServerGroupsAndResourcesReturns([]*metav1.APIGroup{
+					{Name: "cli.tanzu.vmware.com"},
+				}, []*metav1.APIResourceList{}, nil)
+
+			})
+			It("returns false", func() {
+				supported, err := clstClient.VerifyCLIPluginCRD()
+				Expect(err).ToNot(HaveOccurred())
+
+				Expect(supported).To(Equal(false))
+			})
+		})
+	})
 })
 
 func createTempDirectory() {
@@ -2665,3 +2752,27 @@ func getDummyPacificCluster() tkgsv1alpha2.TanzuKubernetesCluster {
 	tkc.Spec.Topology.NodePools = nodepools
 	return tkc
 }
+
+const (
+	kubeconfigTemplate = `
+current-context: context
+apiVersion: v1
+clusters:
+- cluster:
+    api-version: v1
+    server: {{.Server}}
+    insecure-skip-tls-verify: true
+  name: current-cluster
+contexts:
+- context:
+    cluster: current-cluster
+    namespace: chisel-ns
+    user: blue-user
+  name: context
+kind: Config
+users:
+- name: blue-user
+  user:
+    token: blue-token
+`
+)

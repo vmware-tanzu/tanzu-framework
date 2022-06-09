@@ -345,7 +345,7 @@ func enableWebhooks(ctx context.Context, mgr ctrl.Manager, flags *addonFlags) {
 		setupLog.Error(err, "unable to create clusterbootstrapTemplate webhook", "webhook", "clusterbootstraptemplate")
 		os.Exit(1)
 	}
-	clusterPauseWebhook := webhooks.ClusterPause{Client: mgr.GetClient()}
+	clusterPauseWebhook := addonwebhooks.ClusterPause{Client: mgr.GetClient()}
 	if err := clusterPauseWebhook.SetupWebhookWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to set up webhooks", "webhook", "clusterpause")
 		os.Exit(1)

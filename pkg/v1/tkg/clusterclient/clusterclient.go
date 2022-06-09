@@ -35,6 +35,7 @@ import (
 	kerrors "k8s.io/apimachinery/pkg/util/errors"
 	"k8s.io/apimachinery/pkg/util/sets"
 	"k8s.io/client-go/discovery"
+	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
 	capav1beta1 "sigs.k8s.io/cluster-api-provider-aws/api/v1beta1"
@@ -347,14 +348,20 @@ type DiscoveryClient interface {
 	discovery.DiscoveryInterface
 }
 
+type DynamicClient interface {
+	dynamic.Interface
+}
+
 type client struct {
 	clientSet                 CrtClient
 	discoveryClient           DiscoveryClient
+	dynamicClient             DynamicClient
 	kubeConfigPath            string
 	currentContext            string
 	poller                    Poller
 	crtClientFactory          CrtClientFactory
 	discoveryClientFactory    DiscoveryClientFactory
+	dynamicClientFactory      DynamicClientFactory
 	configLoadingRules        *clientcmd.ClientConfigLoadingRules
 	getClientInterval         time.Duration
 	getClientTimeout          time.Duration
@@ -2309,22 +2316,13 @@ func (c *client) IsClusterRegisteredToTMC() (bool, error) {
 
 // VerifyCLIPluginCRD returns true if CRD exists else return false
 func (c *client) VerifyCLIPluginCRD() (bool, error) {
-	restconfigClient, err := c.GetRestConfigClient()
-	if err != nil {
-		return false, err
-	}
-	clusterQueryClient, err := capdiscovery.NewClusterQueryClientForConfig(restconfigClient)
+	// Since we're looking up API types via discovery, we don't need the dynamic client.
+	clusterQueryClient, err := capdiscovery.NewClusterQueryClient(c.dynamicClient, c.discoveryClient)
 	if err != nil {
 		return false, err
 	}
 
-	// Check if 'cliplugins' CRD is present or not
-	agent := &corev1.ObjectReference{
-		Kind:       "CustomResourceDefinition",
-		Name:       "cliplugins.cli.tanzu.vmware.com",
-		APIVersion: "apiextensions.k8s.io/v1",
-	}
-	var queryObject = capdiscovery.Object("CLIPluginCRDObject", agent)
+	var queryObject = capdiscovery.Group("cliPlugins", cliv1alpha1.GroupVersionKindCLIPlugin.Group).WithResource("cliplugins")
 
 	// Build query client.
 	cqc := clusterQueryClient.Query(queryObject)
@@ -2348,6 +2346,7 @@ type Options struct {
 	poller                    Poller
 	crtClientFactory          CrtClientFactory
 	discoveryClientFactory    DiscoveryClientFactory
+	dynamicClientFactory      DynamicClientFactory
 	GetClientInterval         time.Duration
 	GetClientTimeout          time.Duration
 	OperationTimeout          time.Duration
@@ -2385,6 +2384,10 @@ func NewClient(kubeConfigPath string, context string, options Options) (Client, 
 		options.discoveryClientFactory = &discoveryClientFactory{}
 	}
 
+	if options.dynamicClientFactory == nil {
+		options.dynamicClientFactory = &dynamicClientFactory{}
+	}
+
 	if options.GetClientInterval.Seconds() == 0 {
 		options.GetClientInterval = getClientDefaultInterval
 	}
@@ -2401,6 +2404,7 @@ func NewClient(kubeConfigPath string, context string, options Options) (Client, 
 		poller:                    options.poller,
 		crtClientFactory:          options.crtClientFactory,
 		discoveryClientFactory:    options.discoveryClientFactory,
+		dynamicClientFactory:      options.dynamicClientFactory,
 		configLoadingRules:        rules,
 		getClientInterval:         options.GetClientInterval,
 		getClientTimeout:          options.GetClientTimeout,
@@ -2424,6 +2428,7 @@ func (c *client) CloneWithTimeout(getClientTimeout time.Duration) Client {
 		poller:                 c.poller,
 		crtClientFactory:       c.crtClientFactory,
 		discoveryClientFactory: c.discoveryClientFactory,
+		dynamicClientFactory:   c.dynamicClientFactory,
 		configLoadingRules:     c.configLoadingRules,
 		getClientInterval:      c.getClientInterval,
 		getClientTimeout:       getClientTimeout,
@@ -2451,7 +2456,7 @@ func (c *client) updateK8sClients(ctx string) error {
 	}
 
 	clientSet, err := c.poller.PollImmediateWithGetter(c.getClientInterval, c.getClientTimeout, func() (interface{}, error) {
-		return getK8sClients(kubeConfigBytes, c.crtClientFactory, c.discoveryClientFactory)
+		return getK8sClients(kubeConfigBytes, c.crtClientFactory, c.discoveryClientFactory, c.dynamicClientFactory)
 	})
 	if err != nil {
 		return errors.Wrap(err, "unable to get client")
@@ -2460,6 +2465,7 @@ func (c *client) updateK8sClients(ctx string) error {
 	k8sClients := clientSet.(k8ClientSet)
 	c.clientSet = k8sClients.crtClient
 	c.discoveryClient = k8sClients.discoveryClient
+	c.dynamicClient = k8sClients.dynamicClient
 	c.currentContext = ctx
 
 	return nil
@@ -2507,7 +2513,7 @@ func (c *client) MergeConfigForCluster(kubeConfig []byte, mergeFile string) erro
 	return nil
 }
 
-func getK8sClients(kubeConfigBytes []byte, crtClientFactory CrtClientFactory, discoveryClientFactory DiscoveryClientFactory) (interface{}, error) {
+func getK8sClients(kubeConfigBytes []byte, crtClientFactory CrtClientFactory, discoveryClientFactory DiscoveryClientFactory, dynamicClientFactory DynamicClientFactory) (interface{}, error) {
 	var crtClient crtclient.Client
 	var discoveryClient discovery.DiscoveryInterface
 	restConfig, err := clientcmd.RESTConfigFromKubeConfig(kubeConfigBytes)
@@ -2538,9 +2544,15 @@ func getK8sClients(kubeConfigBytes []byte, crtClientFactory CrtClientFactory, di
 		return nil, errors.Errorf("Failed to invoke API on cluster : %v", err)
 	}
 
+	dynamicClient, err := dynamicClientFactory.NewDynamicClientForConfig(restConfig)
+	if err != nil {
+		return nil, errors.Errorf("Error getting dynamic client due to : %v", err)
+	}
+
 	clientSet := k8ClientSet{
 		crtClient:       crtClient,
 		discoveryClient: discoveryClient,
+		dynamicClient:   dynamicClient,
 	}
 
 	return clientSet, nil
@@ -2549,6 +2561,7 @@ func getK8sClients(kubeConfigBytes []byte, crtClientFactory CrtClientFactory, di
 type k8ClientSet struct {
 	crtClient       crtclient.Client
 	discoveryClient discovery.DiscoveryInterface
+	dynamicClient   dynamic.Interface
 }
 
 // LoadCurrentKubeconfigBytes loads current kubeconfig bytes
@@ -2583,6 +2596,20 @@ type discoveryClientFactory struct{}
 // NewDiscoveryClientForConfig creates new discovery client factory
 func (c *discoveryClientFactory) NewDiscoveryClientForConfig(restConfig *rest.Config) (discovery.DiscoveryInterface, error) {
 	return discovery.NewDiscoveryClientForConfig(restConfig)
+}
+
+//go:generate counterfeiter -o ../fakes/dynamicclientfactory.go --fake-name DynamicClientFactory . DynamicClientFactory
+
+// DynamicClientFactory is a interface to create adynamic client
+type DynamicClientFactory interface {
+	NewDynamicClientForConfig(config *rest.Config) (dynamic.Interface, error)
+}
+
+type dynamicClientFactory struct{}
+
+// NewDynamicClientForConfig creates a new discovery client factory
+func (c *dynamicClientFactory) NewDynamicClientForConfig(restConfig *rest.Config) (dynamic.Interface, error) {
+	return dynamic.NewForConfig(restConfig)
 }
 
 type crtClientFactory struct{}

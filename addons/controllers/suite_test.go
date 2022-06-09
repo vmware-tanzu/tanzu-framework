@@ -337,7 +337,7 @@ var _ = BeforeSuite(func(done Done) {
 	Expect(err).ToNot(HaveOccurred())
 	err = (&cniv1alpha1.CalicoConfig{}).SetupWebhookWithManager(mgr)
 	Expect(err).ToNot(HaveOccurred())
-	err = (&webhooks.ClusterPause{Client: k8sClient}).SetupWebhookWithManager(mgr)
+	err = (&addonwebhooks.ClusterPause{Client: k8sClient}).SetupWebhookWithManager(mgr)
 	Expect(err).ToNot(HaveOccurred())
 	clusterbootstrapWebhook := addonwebhooks.ClusterBootstrap{
 		Client:          k8sClient,
