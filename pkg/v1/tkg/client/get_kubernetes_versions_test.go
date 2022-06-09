@@ -4,7 +4,6 @@
 package client_test
 
 import (
-	"fmt"
 	"os"
 	"path/filepath"
 	"time"
@@ -44,10 +43,13 @@ var _ = Describe("Unit tests for GetTanzuKubernetesReleases", func() {
 				regionalClusterClient.GetPacificTKCAPIVersionReturns("fake-api-versions", nil)
 				tkrInfo, err = tkgClient.DoGetTanzuKubernetesReleases(regionalClusterClient)
 			})
-			It("should return error", func() {
-				Expect(err).To(HaveOccurred())
-				Expect(err.Error()).To(ContainSubstring(fmt.Sprintf("Only %q Tanzu Kubernetes Cluster API version is supported by current version of Tanzu CLI", constants.DefaultPacificClusterAPIVersion)))
-			})
+			/*
+				TODO: (chandrareddyp) we need revisit below API Version validation, for now we disabled it.
+				It("should return error", func() {
+					Expect(err).To(HaveOccurred())
+					Expect(err.Error()).To(ContainSubstring(fmt.Sprintf("Only %q Tanzu Kubernetes Cluster API version is supported by current version of Tanzu CLI", constants.DefaultPacificClusterAPIVersion)))
+				})
+			*/
 		})
 		Context("When vSphere with Kubernetes does not support tanzukuberenetesrelease objects", func() {
 			JustBeforeEach(func() {
