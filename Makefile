@@ -547,7 +547,7 @@ modules: ## Runs go mod to ensure modules are up to date.
 	done
 
 .PHONY: verify
-verify: ## Run all verification scripts
+verify: modules ## Run all verification scripts
 	./hack/verify-dirty.sh
 
 .PHONY: clean-catalog-cache
