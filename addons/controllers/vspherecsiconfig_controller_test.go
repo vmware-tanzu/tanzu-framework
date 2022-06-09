@@ -347,10 +347,10 @@ var _ = Describe("VSphereCSIConfig Reconciler", func() {
 			clusterRole := &rbacv1.ClusterRole{}
 			Eventually(func() error {
 				key := client.ObjectKey{
-					Name: constants.ProviderServiceAccountAggregatedClusterRole,
+					Name: constants.VsphereCSIProviderServiceAccountAggregatedClusterRole,
 				}
 				if err := k8sClient.Get(ctx, key, clusterRole); err != nil {
-					return fmt.Errorf("Failed to get ClusterRole '%v': '%v'", key, err)
+					return err
 				}
 				Expect(clusterRole.Labels).To(Equal(map[string]string{
 					constants.CAPVClusterRoleAggregationRuleLabelSelectorKey: constants.CAPVClusterRoleAggregationRuleLabelSelectorValue,
