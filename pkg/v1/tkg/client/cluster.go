@@ -104,9 +104,11 @@ func (c *TkgClient) CreateCluster(options *CreateClusterOptions, waitForCluster 
 		return false, errors.Wrap(err, "error determining Tanzu Kubernetes Cluster service for vSphere management cluster ")
 	}
 	if isPacific {
-		err := c.ValidatePacificVersionWithCLI(regionalClusterClient)
-		if err != nil {
-			return false, err
+		if !options.IsInputFileClusterClassBased {
+			err := c.ValidatePacificVersionWithCLI(regionalClusterClient)
+			if err != nil {
+				return false, err
+			}
 		}
 		return true, c.createPacificCluster(options, waitForCluster)
 	}
