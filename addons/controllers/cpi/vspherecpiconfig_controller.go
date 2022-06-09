@@ -60,6 +60,16 @@ var providerServiceAccountRBACRules = []rbacv1.PolicyRule{
 	},
 }
 
+// VsphereCPIProviderServiceAccountAggregatedClusterRole is the cluster role to assign permissions to capv provider
+var vsphereCPIProviderServiceAccountAggregatedClusterRole = &rbacv1.ClusterRole{
+	ObjectMeta: metav1.ObjectMeta{
+		Name: constants.VsphereCPIProviderServiceAccountAggregatedClusterRole,
+		Labels: map[string]string{
+			constants.CAPVClusterRoleAggregationRuleLabelSelectorKey: constants.CAPVClusterRoleAggregationRuleLabelSelectorValue,
+		},
+	},
+}
+
 //+kubebuilder:rbac:groups=cpi.tanzu.vmware.com,resources=vspherecpiconfigs,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups=cpi.tanzu.vmware.com,resources=vspherecpiconfigs/status,verbs=get;update;patch
 //+kubebuilder:rbac:groups=vmware.infrastructure.cluster.x-k8s.io,resources=providerserviceaccounts,verbs=get;create;list;watch;update;patch
@@ -175,12 +185,13 @@ func (r *VSphereCPIConfigReconciler) reconcileVSphereCPIConfigNormal(ctx context
 	if *cpiConfig.Spec.VSphereCPI.Mode == VSphereCPIParavirtualMode {
 		// create an aggregated cluster role RBAC that will be inherited by CAPV (https://kubernetes.io/docs/reference/access-authn-authz/rbac/#aggregated-clusterroles)
 		// CAPV needs to hold these rules before it can grant it to serviceAccount for CPI
-		_, err := controllerutil.CreateOrPatch(ctx, r.Client, constants.CAPVAggregatedClusterRole, func() error {
-			constants.CAPVAggregatedClusterRole.Rules = providerServiceAccountRBACRules
+
+		_, err := controllerutil.CreateOrPatch(ctx, r.Client, vsphereCPIProviderServiceAccountAggregatedClusterRole, func() error {
+			vsphereCPIProviderServiceAccountAggregatedClusterRole.Rules = providerServiceAccountRBACRules
 			return nil
 		})
 		if err != nil {
-			r.Log.Error(err, "Error creating or patching cluster role", "name", constants.ProviderServiceAccountAggregatedClusterRole)
+			r.Log.Error(err, "Error creating or patching cluster role", "name", vsphereCPIProviderServiceAccountAggregatedClusterRole)
 			return err
 		}
 
