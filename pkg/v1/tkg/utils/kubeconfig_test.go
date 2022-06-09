@@ -26,6 +26,7 @@ var _ = Describe("Kubeconfig Tests", func() {
 		issuer                   string
 		issuerCA                 string
 		conciergeIsClusterScoped bool
+		conciergeAudience        string
 		servCert                 *x509.Certificate
 	)
 
@@ -210,11 +211,14 @@ var _ = Describe("Kubeconfig Tests", func() {
 				issuer = "https://fakeissuer.com"
 				issuerCA = "fakeCAData"
 				conciergeIsClusterScoped = false
+				conciergeAudience = "some-concierge-audience"
 				pinnipedInfo := fakehelper.GetFakePinnipedInfo(fakehelper.PinnipedInfo{
 					ClusterName:              clustername,
 					Issuer:                   issuer,
 					IssuerCABundleData:       issuerCA,
-					ConciergeIsClusterScoped: conciergeIsClusterScoped})
+					ConciergeIsClusterScoped: conciergeIsClusterScoped,
+					ConciergeAudience:        &conciergeAudience,
+				})
 				tlsserver.AppendHandlers(
 					ghttp.CombineHandlers(
 						ghttp.VerifyRequest("GET", "/api/v1/namespaces/kube-public/configmaps/pinniped-info"),
@@ -232,6 +236,7 @@ var _ = Describe("Kubeconfig Tests", func() {
 				Expect(gotPinnipedInfo.Data.Issuer).Should(Equal(issuer))
 				Expect(gotPinnipedInfo.Data.IssuerCABundle).Should(Equal(issuerCA))
 				Expect(gotPinnipedInfo.Data.ConciergeIsClusterScoped).Should(Equal(conciergeIsClusterScoped))
+				Expect(gotPinnipedInfo.Data.ConciergeAudience).Should(Equal(&conciergeAudience))
 			})
 		})
 	})

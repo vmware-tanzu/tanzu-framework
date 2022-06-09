@@ -92,6 +92,7 @@ func (c *TkgClient) GetWCClusterPinnipedInfo(regionalClusterClient clusterclient
 	if workloadClusterPinnipedInfo != nil {
 		// Get ConciergeIsClusterScoped from workload cluster in case it is different from the management cluster
 		pinnipedInfo.Data.ConciergeIsClusterScoped = workloadClusterPinnipedInfo.Data.ConciergeIsClusterScoped
+		pinnipedInfo.Data.ConciergeAudience = workloadClusterPinnipedInfo.Data.ConciergeAudience
 	} else {
 		// If workloadClusterPinnipedInfo is nil, assume it is an older TKG cluster and set ConciergeIsClusterScoped to defaults
 		pinnipedInfo.Data.ConciergeIsClusterScoped = false

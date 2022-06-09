@@ -55,6 +55,7 @@ var _ = Describe("Unit tests for get cluster pinniped info", func() {
 		issuerCA                          string
 		conciergeIsClusterScoped          bool
 		conciergeIsClusterScopedWLCluster bool
+		conciergeAudience                 string
 		servCert                          *x509.Certificate
 		clusterPinnipedInfo               *ClusterPinnipedInfo
 	)
@@ -363,6 +364,7 @@ var _ = Describe("Unit tests for get cluster pinniped info", func() {
 				issuerCA = fakeCAData
 				conciergeIsClusterScoped = false
 				conciergeIsClusterScopedWLCluster = true
+				conciergeAudience = "some-concierge-audience"
 				pinnipedInfo = fakehelper.GetFakePinnipedInfo(fakehelper.PinnipedInfo{
 					ClusterName:              mgmtClusterName,
 					Issuer:                   issuer,
@@ -371,6 +373,7 @@ var _ = Describe("Unit tests for get cluster pinniped info", func() {
 				})
 				pinnipedInfoWorkloadCluster := fakehelper.GetFakePinnipedInfo(fakehelper.PinnipedInfo{
 					ConciergeIsClusterScoped: conciergeIsClusterScopedWLCluster,
+					ConciergeAudience:        &conciergeAudience,
 				})
 				searchNamespace = constants.DefaultNamespace
 				// create a fake controller-runtime cluster with the []runtime.Object mentioned with createClusterOptions
@@ -396,6 +399,7 @@ var _ = Describe("Unit tests for get cluster pinniped info", func() {
 				Expect(clusterPinnipedInfo.PinnipedInfo.Data.Issuer).To(Equal(issuer))
 				Expect(clusterPinnipedInfo.PinnipedInfo.Data.IssuerCABundle).To(Equal(issuerCA))
 				Expect(clusterPinnipedInfo.PinnipedInfo.Data.ConciergeIsClusterScoped).To(Equal(conciergeIsClusterScopedWLCluster))
+				Expect(clusterPinnipedInfo.PinnipedInfo.Data.ConciergeAudience).To(Equal(&conciergeAudience))
 			})
 		})
 	})

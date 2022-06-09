@@ -23,10 +23,11 @@ type PinnipedConfigMapInfo struct {
 	Kind    string `json:"kind" yaml:"kind"`
 	Version string `json:"apiVersion" yaml:"apiVersion"`
 	Data    struct {
-		ClusterName              string `json:"cluster_name" yaml:"cluster_name"`
-		Issuer                   string `json:"issuer" yaml:"issuer"`
-		IssuerCABundle           string `json:"issuer_ca_bundle_data" yaml:"issuer_ca_bundle_data"`
-		ConciergeIsClusterScoped bool   `json:"concierge_is_cluster_scoped,string" yaml:"concierge_is_cluster_scoped"`
+		ClusterName              string  `json:"cluster_name" yaml:"cluster_name"`
+		Issuer                   string  `json:"issuer" yaml:"issuer"`
+		IssuerCABundle           string  `json:"issuer_ca_bundle_data" yaml:"issuer_ca_bundle_data"`
+		ConciergeIsClusterScoped bool    `json:"concierge_is_cluster_scoped,string" yaml:"concierge_is_cluster_scoped"`
+		ConciergeAudience        *string `json:"concierge_audience,omitempty" yaml:"concierge_audience"`
 	}
 }
 

@@ -97,7 +97,11 @@ func getPinnipedKubeconfig(tkgctlClient tkgctl.TKGClient, workloadClusterName st
 	}
 
 	// for workload cluster the audience would be set to the clustername
+	// ...unless we have specified the audience in the pinniped-info CM
 	audience := clusterPinnipedInfo.ClusterName
+	if clusterPinnipedInfo.PinnipedInfo.Data.ConciergeAudience != nil {
+		audience = *clusterPinnipedInfo.PinnipedInfo.Data.ConciergeAudience
+	}
 
 	kubeconfig, err := tkgauth.GetPinnipedKubeconfig(clusterPinnipedInfo.ClusterInfo, clusterPinnipedInfo.PinnipedInfo,
 		clusterPinnipedInfo.ClusterName, audience)
