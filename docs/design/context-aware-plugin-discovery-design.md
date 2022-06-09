@@ -489,7 +489,8 @@ To install the plugin with local source, download the plugin `tar.gz` from the r
   ✔  successfully installed 'all' plugin
   ```
 
-- List all installed plugins: As `package` and `secret` plugins can also be discovered with default discovery it will be displayed as `installed` with discovery information mentioned. Status of `package` plugin should list `update available` as the installed version is `v0.12.0-dev` but version `v0.13.0-dev` is discovered from the default discovery
+- List all installed plugins: As `package` and `secret` plugins can also be discovered with default discovery it will be displayed as `installed` with discovery information mentioned. Status of `package` plugin should list `update available` as the installed version is `v0.12.0-dev` but version `v0.13.0-dev` is discovered from the default discovery.
+- Note: When the plugin is installed (even if the update is available) the `VERSION` field will show installed version of the plugin. When plugin is not installed, `VERSION` field will show discovered recommended version for the plugin.
 
   ```sh
   $ tanzu plugin list
