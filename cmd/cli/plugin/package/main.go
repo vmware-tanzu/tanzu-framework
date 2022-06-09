@@ -10,8 +10,10 @@ import (
 	_ "k8s.io/client-go/plugin/pkg/client/auth"
 
 	cliv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
+	"github.com/vmware-tanzu/tanzu-framework/cmd/cli/plugin/package/kctrl"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/command/plugin"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/component"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/config"
 	capdiscovery "github.com/vmware-tanzu/tanzu-framework/pkg/v1/sdk/capabilities/discovery"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/kappclient"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgpackagedatamodel"
@@ -31,6 +33,13 @@ func main() {
 	p, err := plugin.NewPlugin(&descriptor)
 	if err != nil {
 		log.Fatal(err)
+	}
+
+	if config.IsFeatureActivated(config.FeatureFlagPackagePluginKctrlCommandTree) {
+		if err := kctrl.Invoke(p); err != nil {
+			os.Exit(1)
+		}
+		return
 	}
 
 	p.Cmd.PersistentFlags().Int32VarP(&logLevel, "verbose", "", 0, "Number for the log level verbosity(0-9)")
