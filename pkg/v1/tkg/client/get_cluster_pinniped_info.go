@@ -4,10 +4,15 @@
 package client
 
 import (
+	"context"
 	"fmt"
 	"time"
 
+	"github.com/mitchellh/mapstructure"
 	"github.com/pkg/errors"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/runtime/schema"
+	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/tools/clientcmd"
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
 
@@ -92,7 +97,16 @@ func (c *TkgClient) GetWCClusterPinnipedInfo(regionalClusterClient clusterclient
 	if workloadClusterPinnipedInfo != nil {
 		// Get ConciergeIsClusterScoped from workload cluster in case it is different from the management cluster
 		pinnipedInfo.Data.ConciergeIsClusterScoped = workloadClusterPinnipedInfo.Data.ConciergeIsClusterScoped
-		pinnipedInfo.Data.ConciergeAudience = workloadClusterPinnipedInfo.Data.ConciergeAudience
+		if pinnipedInfo.Data.ConciergeAudience != nil {
+			pinnipedInfo.Data.ConciergeAudience = workloadClusterPinnipedInfo.Data.ConciergeAudience
+		} else {
+			// handle 1.5.x pinniped package case...
+			audience, err := getJWTAuthenticatorAudience(regionalClusterClient, options.ClusterName, options.Namespace)
+			if err != nil {
+				return nil, errors.Wrap(err, "get workload cluster jwtauthenticator audience")
+			}
+			pinnipedInfo.Data.ConciergeAudience = &audience
+		}
 	} else {
 		// If workloadClusterPinnipedInfo is nil, assume it is an older TKG cluster and set ConciergeIsClusterScoped to defaults
 		pinnipedInfo.Data.ConciergeIsClusterScoped = false
@@ -155,4 +169,52 @@ func getClusterInfo(
 	}
 
 	return cluster, nil
+}
+
+func getJWTAuthenticatorAudience(
+	regionalClusterClient clusterclient.Client,
+	clusterName, clusterNamespace string,
+) (string, error) {
+	kubeconfigData, err := regionalClusterClient.GetKubeConfigForCluster(clusterName, clusterNamespace, nil)
+	if err != nil {
+		return "", fmt.Errorf("failed to get kubeconfig for cluster %s/%s: %w", clusterNamespace, clusterName, err)
+	}
+
+	clientConfig, err := clientcmd.NewClientConfigFromBytes(kubeconfigData)
+	if err != nil {
+		return "", errors.Wrap(err, "failed to load the kubeconfig")
+	}
+
+	restConfig, err := clientConfig.ClientConfig()
+	if err != nil {
+		return "", errors.Wrap(err, "failed to load the rest config")
+	}
+
+	kubeClient, err := dynamic.NewForConfig(restConfig)
+	if err != nil {
+		return "", errors.Wrap(err, "failed to create dynamic client")
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
+	defer cancel()
+	gvr := schema.GroupVersionResource{
+		Group:    "authentication.concierge.pinniped.dev",
+		Version:  "v1alpha1",
+		Resource: "jwtauthenticators",
+	}
+	obj, err := kubeClient.Resource(gvr).Get(ctx, "tkg-jwt-authenticator", metav1.GetOptions{})
+	if err != nil {
+		return "", errors.Wrap(err, "failed to get jwtauthenticator")
+	}
+
+	jwtAuthenticator := struct {
+		Spec struct {
+			Audience string `mapstructure:"audience"`
+		} `mapstructure:"spec"`
+	}{}
+	if err := mapstructure.Decode(obj.Object, &jwtAuthenticator); err != nil {
+		return "", errors.Wrap(err, "failed to unmarshal jwtauthenticator")
+	}
+
+	return jwtAuthenticator.Spec.Audience, nil
 }
