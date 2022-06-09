@@ -1,16 +1,17 @@
-### Object Propagation Controller
+# Object Propagation Controller
 
-This controller source objects into the target namespaces. 
+This controller source objects into the target namespaces.
 
 Each set of source objects is specified using:
+
 - apiVersion - required
 - kind - required
 - namespace - required
 - label selector - may be empty ("")
 
-The target namespace is specified by a label selector, which may be empty ("").   
+The target namespace is specified by a label selector, which may be empty ("").
 
-The controller reads configuration provided via `--input` CLI parameter (default: `/dev/stdin`). 
+The controller reads configuration provided via `--input` CLI parameter (default: `/dev/stdin`).
 Example input:
 
 ```yaml
