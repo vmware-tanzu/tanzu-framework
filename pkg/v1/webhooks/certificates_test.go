@@ -7,16 +7,14 @@ import (
 	"context"
 	"os"
 	"path"
-	"testing"
 	"time"
+
+	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/gomega"
 
 	cert2 "k8s.io/client-go/util/cert"
 	"k8s.io/client-go/util/keyutil"
 	"knative.dev/pkg/webhook/certificates/resources"
-	"sigs.k8s.io/controller-runtime/pkg/envtest/printer"
-
-	. "github.com/onsi/ginkgo"
-	. "github.com/onsi/gomega"
 )
 
 const (
@@ -31,14 +29,6 @@ var (
 	keyPath  string
 	tmpDir   string
 )
-
-func TestWebhookCertificates(t *testing.T) {
-	RegisterFailHandler(Fail)
-
-	RunSpecsWithDefaultAndCustomReporters(t,
-		"Webhook certificate",
-		[]Reporter{printer.NewlineReporter{}})
-}
 
 var _ = BeforeSuite(func() {
 	var err error
