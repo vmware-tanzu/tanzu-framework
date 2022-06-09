@@ -16,6 +16,7 @@ import (
 	capvvmwarev1beta1 "sigs.k8s.io/cluster-api-provider-vsphere/apis/vmware/v1beta1"
 	clusterapiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/addons/test/testutil"
@@ -25,6 +26,7 @@ import (
 var _ = Describe("VSphereCSIConfig Reconciler", func() {
 	const (
 		clusterNamespace = "default"
+		foobar           = "foobar"
 	)
 
 	var (
@@ -344,19 +346,46 @@ var _ = Describe("VSphereCSIConfig Reconciler", func() {
 		})
 
 		It("Should reconcile aggregated cluster role", func() {
+			// create a rule that should be retained
+			_, err := controllerutil.CreateOrPatch(ctx, k8sClient, constants.CAPVAggregatedClusterRole, func() error {
+				constants.CAPVAggregatedClusterRole.Rules = []rbacv1.PolicyRule{
+					{
+						APIGroups: []string{foobar},
+						Resources: []string{"baz"},
+						Verbs:     []string{"get", "list", "watch", "update", "patch"},
+					}}
+				return nil
+			})
+			Expect(err).ShouldNot(HaveOccurred())
 			clusterRole := &rbacv1.ClusterRole{}
-			Eventually(func() error {
+			Eventually(func() bool {
 				key := client.ObjectKey{
 					Name: constants.ProviderServiceAccountAggregatedClusterRole,
 				}
 				if err := k8sClient.Get(ctx, key, clusterRole); err != nil {
-					return fmt.Errorf("Failed to get ClusterRole '%v': '%v'", key, err)
+					return false
 				}
 				Expect(clusterRole.Labels).To(Equal(map[string]string{
 					constants.CAPVClusterRoleAggregationRuleLabelSelectorKey: constants.CAPVClusterRoleAggregationRuleLabelSelectorValue,
 				}))
-				Expect(clusterRole.Rules).To(HaveLen(6))
-				return nil
+				// min of 6 rules from csi, 1 from above and cpi rules could be have been added if those tests run first
+				Expect(len(clusterRole.Rules) >= 7).To(BeTrue())
+
+				var foundFoobarGroup bool
+				var foundCSIGroup bool
+				for _, r := range clusterRole.Rules {
+					// check that rule added in test is not overwritten
+					if len(r.APIGroups) > 0 && r.APIGroups[0] == foobar {
+						foundFoobarGroup = true
+					}
+					// check that a rule from cpi group is there
+					if len(r.APIGroups) > 0 && r.APIGroups[0] == "cns.vmware.com" {
+						foundCSIGroup = true
+					}
+				}
+				Expect(foundFoobarGroup).To(BeTrue())
+				Expect(foundCSIGroup).To(BeTrue())
+				return true
 			}, waitTimeout, pollingInterval).Should(Succeed())
 		})
 	})

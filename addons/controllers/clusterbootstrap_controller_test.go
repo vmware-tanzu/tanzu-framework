@@ -54,6 +54,7 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 		foobar1CarvelPackageRefName = "foobar1.example.com"
 		foobar1CarvelPackageName    = "foobar1.example.com.1.17.2"
 		foobar2CarvelPackageRefName = "foobar2.example.com"
+		foobar                      = "foobar"
 	)
 
 	JustBeforeEach(func() {
@@ -336,7 +337,7 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 					s.Name = util.GenerateDataValueSecretName(clusterName, foobarCarvelPackageRefName)
 					s.Namespace = clusterNamespace
 					s.Data = map[string][]byte{}
-					s.Data["values.yaml"] = []byte("foobar")
+					s.Data["values.yaml"] = []byte(foobar)
 					Expect(k8sClient.Create(ctx, s)).To(Succeed())
 
 					Expect(unstructured.SetNestedField(object.Object, s.Name, "status", "secretRef")).To(Succeed())
@@ -349,7 +350,7 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 						if err := k8sClient.Get(ctx, client.ObjectKey{Namespace: constants.TKGSystemNS, Name: util.GenerateDataValueSecretName(clusterName, foobarCarvelPackageRefName)}, s); err != nil {
 							return false
 						}
-						if string(s.Data["values.yaml"]) != "foobar" {
+						if string(s.Data["values.yaml"]) != foobar {
 							return false
 						}
 

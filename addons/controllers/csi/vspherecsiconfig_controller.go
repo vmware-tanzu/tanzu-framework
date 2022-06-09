@@ -250,7 +250,7 @@ func (r *VSphereCSIConfigReconciler) reconcileVSphereCSIConfigNormal(ctx context
 		// create an aggregated cluster role RBAC that will be inherited by CAPV (https://kubernetes.io/docs/reference/access-authn-authz/rbac/#aggregated-clusterroles)
 		// CAPV needs to hold these rules before it can grant it to serviceAccount for CSI
 		_, err := controllerutil.CreateOrPatch(ctx, r.Client, constants.CAPVAggregatedClusterRole, func() error {
-			constants.CAPVAggregatedClusterRole.Rules = providerServiceAccountRBACRules
+			constants.CAPVAggregatedClusterRole.Rules = append(constants.CAPVAggregatedClusterRole.Rules, providerServiceAccountRBACRules...)
 			return nil
 		})
 

@@ -20,6 +20,7 @@ import (
 	capvvmwarev1beta1 "sigs.k8s.io/cluster-api-provider-vsphere/apis/vmware/v1beta1"
 	clusterapiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 
 	controllers "github.com/vmware-tanzu/tanzu-framework/addons/controllers/cpi"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
@@ -31,6 +32,7 @@ const (
 	clusterNamespace            = "default"
 	testSupervisorAPIServerVIP  = "10.0.0.100"
 	testSupervisorAPIServerPort = 6883
+	foobar                      = "foobar"
 )
 
 func newTestSupervisorLBService() *v1.Service {
@@ -303,6 +305,17 @@ var _ = Describe("VSphereCPIConfig Reconciler", func() {
 		})
 
 		It("Should reconcile aggregated cluster role", func() {
+			// create a rule that should be retained
+			_, err := controllerutil.CreateOrPatch(ctx, k8sClient, constants.CAPVAggregatedClusterRole, func() error {
+				constants.CAPVAggregatedClusterRole.Rules = []rbacv1.PolicyRule{
+					{
+						APIGroups: []string{foobar},
+						Resources: []string{"baz"},
+						Verbs:     []string{"get", "list", "watch", "update", "patch"},
+					}}
+				return nil
+			})
+			Expect(err).ShouldNot(HaveOccurred())
 			clusterRole := &rbacv1.ClusterRole{}
 			Eventually(func() bool {
 				key := client.ObjectKey{
@@ -314,9 +327,25 @@ var _ = Describe("VSphereCPIConfig Reconciler", func() {
 				Expect(clusterRole.Labels).To(Equal(map[string]string{
 					constants.CAPVClusterRoleAggregationRuleLabelSelectorKey: constants.CAPVClusterRoleAggregationRuleLabelSelectorValue,
 				}))
-				Expect(clusterRole.Rules).To(HaveLen(5))
+				// min of 4 rules from cpi, 1 from above and csi rules could be have been added if those tests run first
+				Expect(len(clusterRole.Rules) >= 5).To(BeTrue())
+
+				var foundFoobarGroup bool
+				var foundCPIGroup bool
+				for _, r := range clusterRole.Rules {
+					// check that rule added in test is not overwritten
+					if len(r.APIGroups) > 0 && r.APIGroups[0] == foobar {
+						foundFoobarGroup = true
+					}
+					// check that a rule from cpi group is there
+					if len(r.APIGroups) > 0 && r.APIGroups[0] == "nsx.vmware.com" {
+						foundCPIGroup = true
+					}
+				}
+				Expect(foundFoobarGroup).To(BeTrue())
+				Expect(foundCPIGroup).To(BeTrue())
 				return true
-			})
+			}, waitTimeout, pollingInterval).Should(Succeed())
 		})
 
 		When("Headless service and endpoints already exists", func() {
