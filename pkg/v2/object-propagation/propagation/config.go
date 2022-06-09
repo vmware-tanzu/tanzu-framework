@@ -32,8 +32,8 @@ func NewConfig(configEntry *config.Entry) *Config {
 		str      string
 		selector *labels.Selector
 	}{
-		{configEntry.Source.Selector, &propagationConfig.SourceSelector},
-		{configEntry.Target.NamespaceSelector, &propagationConfig.TargetNSSelector},
+		{configEntry.Source.LabelSelector, &propagationConfig.SourceSelector},
+		{configEntry.Target.NamespaceLabelSelector, &propagationConfig.TargetNSSelector},
 	} {
 		var err error
 		if *s.selector, err = labels.Parse(s.str); err != nil {

@@ -19,14 +19,14 @@ Example input:
     apiVersion: v1
     kind: ConfigMap
     namespace: tanzu-system
-    selector: 'run.tanzu.vmware.com/propagated'
+    labelSelector: 'run.tanzu.vmware.com/propagated'
   target:
-    namespaceSelector: '!cluster.x-k8s.io/provider'
+    namespaceLabelSelector: '!cluster.x-k8s.io/provider'
 - source:
     apiVersion: v1
     kind: Secret
     namespace: tanzu-system
-    selector: 'run.tanzu.vmware.com/propagated'
+    labelSelector: 'run.tanzu.vmware.com/propagated'
   target:
-    namespaceSelector: '!cluster.x-k8s.io/provider'
+    namespaceLabelSelector: '!cluster.x-k8s.io/provider'
 ```

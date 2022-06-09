@@ -11,14 +11,14 @@ import (
 )
 
 type Source struct {
-	Namespace  string `json:"namespace"`
-	APIVersion string `json:"apiVersion"`
-	Kind       string `json:"kind"`
-	Selector   string `json:"selector"`
+	Namespace     string `json:"namespace"`
+	APIVersion    string `json:"apiVersion"`
+	Kind          string `json:"kind"`
+	LabelSelector string `json:"labelSelector"`
 }
 
 type Target struct {
-	NamespaceSelector string `json:"namespaceSelector"`
+	NamespaceLabelSelector string `json:"namespaceLabelSelector"`
 }
 
 type Entry struct {
@@ -55,10 +55,10 @@ func validate(entry *Entry) error {
 	if entry.Source.Namespace == "" {
 		return errors.New("source.namespace is empty")
 	}
-	if _, err := labels.Parse(entry.Source.Selector); err != nil {
+	if _, err := labels.Parse(entry.Source.LabelSelector); err != nil {
 		return errors.Wrap(err, "parsing source.selector")
 	}
-	if _, err := labels.Parse(entry.Target.NamespaceSelector); err != nil {
+	if _, err := labels.Parse(entry.Target.NamespaceLabelSelector); err != nil {
 		return errors.Wrap(err, "parsing target.namespaceSelector")
 	}
 	return nil

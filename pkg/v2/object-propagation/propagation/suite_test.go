@@ -80,13 +80,13 @@ var _ = Describe("Reconciler", func() {
 	BeforeEach(func() {
 		conf = *NewConfig(&config.Entry{
 			Source: config.Source{
-				Namespace:  nameNSTKGSystem,
-				APIVersion: "cluster.x-k8s.io/v1beta1",
-				Kind:       "ClusterClass",
-				Selector:   "",
+				Namespace:     nameNSTKGSystem,
+				APIVersion:    "cluster.x-k8s.io/v1beta1",
+				Kind:          "ClusterClass",
+				LabelSelector: "",
 			},
 			Target: config.Target{
-				NamespaceSelector: "!cluster.x-k8s.io/provider",
+				NamespaceLabelSelector: "!cluster.x-k8s.io/provider",
 			},
 		})
 	})
