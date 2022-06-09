@@ -1,0 +1,69 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: legacy-namespace
+---
+apiVersion: cluster.x-k8s.io/v1beta1
+kind: Cluster
+metadata:
+  name: test-cluster-legacy
+  namespace: legacy-namespace
+  labels:
+    tkg.tanzu.vmware.com/cluster-name: test-cluster-legacy
+    run.tanzu.vmware.com/tkr: v1.12.1
+spec:
+  infrastructureRef:
+    kind: VSphereCluster
+  clusterNetwork:
+    pods:
+      cidrBlocks: [ "192.168.0.0/16","fd00:100:96::/48" ]
+    services:
+      cidrBlocks: [ "192.168.0.0/16","fd00:100:96::/48" ]
+  controlPlaneRef:
+    apiVersion: controlplane.cluster.x-k8s.io/v1beta1
+    kind: KubeadmControlPlane
+    name: test-cluster-legacy-control-plane
+    namespace: legacy-namespace
+  topology:
+    class: test-clusterclass-legasy
+    version: v1.22.3
+    variables:
+      - name: tkg.tanzu.vmware.com/tkg-ip-family
+        value: "ipv4"
+      - name: proxy
+        value:
+          httpProxy: "foo.com"
+          httpsProxy: "bar.com"
+          noProxy: "foobar.com"
+      - name: trust
+        value:
+          additionalTrustedCAs:
+            - name: CompanyInternalCA-1
+              data: aGVsbG8=
+            - name: CompanyInternalCA-2
+              data: bHWtcH9=
+      - name: skipTLSVerify
+        value:
+          - registry1
+          - registry2
+---
+apiVersion: controlplane.cluster.x-k8s.io/v1beta1
+kind: KubeadmControlPlane
+metadata:
+  name: test-cluster-legacy-control-plane
+  namespace: legacy-namespace
+  ownerReferences:
+    - apiVersion: cluster.x-k8s.io/v1beta1
+      kind: Cluster
+      name: test-cluster-legacy
+      uid: bd834522-d9a5-4841-beac-991ff3798c01
+spec:
+  kubeadmConfigSpec: {}
+  machineTemplate:
+    infrastructureRef: {}
+  replicas: 3
+  version: v1.22.3
+
+
+

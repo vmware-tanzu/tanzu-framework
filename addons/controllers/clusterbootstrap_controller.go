@@ -170,6 +170,11 @@ func (r *ClusterBootstrapReconciler) Reconcile(ctx context.Context, req ctrl.Req
 		return ctrl.Result{}, nil
 	}
 
+	if _, labelFound := tkr.Labels[constants.TKRLableLegacyClusters]; labelFound {
+		log.Info("Skipping reconciling due to tkr label", "name", tkrName, "label", constants.TKRLableLegacyClusters)
+		return ctrl.Result{}, nil
+	}
+
 	log.Info("Reconciling cluster")
 
 	// if deletion timestamp is set, handle cluster deletion

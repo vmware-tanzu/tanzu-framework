@@ -35,6 +35,9 @@ const (
 	// TKRLabelClassyClusters is the TKR label for the clusters created using cluster-class
 	TKRLabelClassyClusters = "run.tanzu.vmware.com/tkr"
 
+	// TKRLabelLegacyClusters is the TKR label for legacy clusters
+	TKRLableLegacyClusters = "run.tanzu.vmware.com/legacy-tkr"
+
 	// TKGBomContent is the TKG BOM content.
 	TKGBomContent = "bomContent"
 

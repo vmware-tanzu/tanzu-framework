@@ -924,6 +924,22 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 		})
 	})
 
+	When("Legacy cluster is created", func() {
+		BeforeEach(func() {
+			clusterName = "test-cluster-legacy"
+			clusterNamespace = "legacy-namespace"
+			clusterResourceFilePath = "testdata/test-cluster-legacy.yaml"
+		})
+		Context("and clusterboostrap template does not exists", func() {
+			It("clusterbootstrap controller should not attempt to reconcile it", func() {
+				By("verifying CAPI cluster is created properly")
+				cluster := &clusterapiv1beta1.Cluster{}
+				Expect(k8sClient.Get(ctx, client.ObjectKey{Namespace: clusterNamespace, Name: clusterName}, cluster)).To(Succeed())
+				cluster.Status.Phase = string(clusterapiv1beta1.ClusterPhaseProvisioned)
+				Expect(k8sClient.Status().Update(ctx, cluster)).To(Succeed())
+			})
+		})
+	})
 })
 
 func assertSecretContains(ctx context.Context, k8sClient client.Client, namespace, name string, secretContent map[string][]byte) {
