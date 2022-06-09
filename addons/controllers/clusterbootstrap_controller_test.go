@@ -12,7 +12,6 @@ import (
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-
 	kapppkgiv1alpha1 "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/packaging/v1alpha1"
 	kapppkgv1alpha1 "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apiserver/apis/datapackaging/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
@@ -471,6 +470,7 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 					return true
 				}, waitTimeout, pollingInterval).Should(BeTrue())
 				Expect(remotePkgi.Spec.PackageRef.RefName).To(Equal(pkg.Spec.RefName))
+				Expect(remotePkgi.Spec.SyncPeriod.Seconds()).To(Equal(constants.PackageInstallSyncPeriod.Seconds()))
 				Expect(len(remotePkgi.Spec.Values)).NotTo(BeZero())
 				Expect(remotePkgi.Spec.Values[0].SecretRef.Name).To(Equal(util.GenerateDataValueSecretName(cluster.Name, pkg.Spec.RefName)))
 				Expect(remotePkgi.Annotations).ShouldNot(BeNil())
