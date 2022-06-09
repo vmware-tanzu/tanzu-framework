@@ -57,6 +57,9 @@ const (
 	// TKR version v1alpha3 feature flag determines whether to use Tanzu Kubernetes Release API version v1alpha3. Setting
 	// feature flag to true will allow to use the TKR version v1alpha3; false allows to use legacy TKR version v1alpha1
 	FeatureFlagTKRVersionV1Alpha3 = "features.global.tkr-version-v1alpha3-beta"
+	// Package Plugin Kctrl Command Tree determines whether to use the command tree from kctrl. Setting feature flag to
+	// true will allow to use the package command tree from kctrl for package plugin
+	FeatureFlagPackagePluginKctrlCommandTree = "features.package.kctrl-package-command-tree"
 )
 
 // DefaultCliFeatureFlags is used to populate an initially empty config file with default values for feature flags.
@@ -87,6 +90,7 @@ var (
 		FeatureFlagAwsInstanceTypesExcludeArm:                 true,
 		FeatureFlagPackageBasedLCM:                            false,
 		FeatureFlagTKRVersionV1Alpha3:                         false,
+		FeatureFlagPackagePluginKctrlCommandTree:              false,
 	}
 )
 
