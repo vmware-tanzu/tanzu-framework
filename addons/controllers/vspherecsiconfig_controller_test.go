@@ -345,18 +345,18 @@ var _ = Describe("VSphereCSIConfig Reconciler", func() {
 
 		It("Should reconcile aggregated cluster role", func() {
 			clusterRole := &rbacv1.ClusterRole{}
-			Eventually(func() bool {
+			Eventually(func() error {
 				key := client.ObjectKey{
 					Name: constants.VsphereCSIProviderServiceAccountAggregatedClusterRole,
 				}
 				if err := k8sClient.Get(ctx, key, clusterRole); err != nil {
-					return false
+					return err
 				}
 				Expect(clusterRole.Labels).To(Equal(map[string]string{
 					constants.CAPVClusterRoleAggregationRuleLabelSelectorKey: constants.CAPVClusterRoleAggregationRuleLabelSelectorValue,
 				}))
 				Expect(clusterRole.Rules).To(HaveLen(6))
-				return true
+				return nil
 			}, waitTimeout, pollingInterval).Should(Succeed())
 		})
 	})
