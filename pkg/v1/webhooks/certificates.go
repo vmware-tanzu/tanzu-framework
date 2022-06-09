@@ -4,10 +4,12 @@
 package webhooks
 
 import (
+	"bytes"
 	"context"
 	"crypto/tls"
 	"crypto/x509"
 	"fmt"
+	"os"
 	"time"
 
 	corev1 "k8s.io/api/core/v1"
@@ -65,6 +67,14 @@ func addCertsToWebhookConfigs(ctx context.Context, k8sclient kubernetes.Interfac
 
 // WriteServerTLSToFileSystem writes servers certificate and key in provided secret to the filesystem paths provided.
 func WriteServerTLSToFileSystem(ctx context.Context, certPath, keyPath string, secret *corev1.Secret) error {
+	// Only write certificates if they do not already match what's in the filesystem
+	fileSystemMatches, err := filesMatchSecret(certPath, keyPath, secret)
+	if err != nil {
+		return err
+	}
+	if fileSystemMatches {
+		return nil
+	}
 	if err := certutil.WriteCert(certPath, secret.Data[resources.ServerCert]); err != nil {
 		return err
 	}
@@ -72,6 +82,42 @@ func WriteServerTLSToFileSystem(ctx context.Context, certPath, keyPath string, s
 		return err
 	}
 	return nil
+}
+
+func filesMatchSecret(certPath, keyPath string, secret *corev1.Secret) (bool, error) {
+	_, err := os.Stat(certPath)
+	if err != nil && !os.IsNotExist(err) {
+		return false, err
+	}
+	if os.IsNotExist(err) {
+		return false, nil
+	}
+
+	_, err = os.Stat(keyPath)
+	if err != nil && !os.IsNotExist(err) {
+		return false, err
+	}
+	if os.IsNotExist(err) {
+		return false, nil
+	}
+
+	serverCertFromFile, err := os.ReadFile(certPath)
+	if err != nil {
+		return false, err
+	}
+	if !bytes.Equal(serverCertFromFile, secret.Data[resources.ServerCert]) {
+		return false, nil
+	}
+
+	serverKeyFromFile, err := os.ReadFile(keyPath)
+	if err != nil {
+		return false, err
+	}
+	if !bytes.Equal(serverKeyFromFile, secret.Data[resources.ServerKey]) {
+		return false, nil
+	}
+
+	return true, nil
 }
 
 // InstallNewCertificates creates a new set of keys and certificates and saves them to the filesystem paths provided.
