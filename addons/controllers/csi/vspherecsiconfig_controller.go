@@ -77,6 +77,16 @@ var providerServiceAccountRBACRules = []rbacv1.PolicyRule{
 	},
 }
 
+// VsphereCSIProviderServiceAccountAggregatedClusterRole is the cluster role to assign permissions to capv provider
+var vsphereCSIProviderServiceAccountAggregatedClusterRole = &rbacv1.ClusterRole{
+	ObjectMeta: metav1.ObjectMeta{
+		Name: constants.VsphereCSIProviderServiceAccountAggregatedClusterRole,
+		Labels: map[string]string{
+			constants.CAPVClusterRoleAggregationRuleLabelSelectorKey: constants.CAPVClusterRoleAggregationRuleLabelSelectorValue,
+		},
+	},
+}
+
 // SetupWithManager sets up the controller with the Manager.
 func (r *VSphereCSIConfigReconciler) SetupWithManager(_ context.Context, mgr ctrl.Manager,
 	options controller.Options) error {
@@ -249,13 +259,13 @@ func (r *VSphereCSIConfigReconciler) reconcileVSphereCSIConfigNormal(ctx context
 	if csiCfg.Spec.VSphereCSI.Mode == VSphereCSIParavirtualMode {
 		// create an aggregated cluster role RBAC that will be inherited by CAPV (https://kubernetes.io/docs/reference/access-authn-authz/rbac/#aggregated-clusterroles)
 		// CAPV needs to hold these rules before it can grant it to serviceAccount for CSI
-		_, err := controllerutil.CreateOrPatch(ctx, r.Client, constants.CAPVAggregatedClusterRole, func() error {
-			constants.CAPVAggregatedClusterRole.Rules = append(constants.CAPVAggregatedClusterRole.Rules, providerServiceAccountRBACRules...)
+		_, err := controllerutil.CreateOrPatch(ctx, r.Client, vsphereCSIProviderServiceAccountAggregatedClusterRole, func() error {
+			vsphereCSIProviderServiceAccountAggregatedClusterRole.Rules = providerServiceAccountRBACRules
 			return nil
 		})
 
 		if err != nil {
-			r.Log.Error(err, "Error creating or patching cluster role", "name", constants.ProviderServiceAccountAggregatedClusterRole)
+			r.Log.Error(err, "Error creating or patching cluster role", "name", vsphereCSIProviderServiceAccountAggregatedClusterRole)
 			return ctrl.Result{}, err
 		}
 
