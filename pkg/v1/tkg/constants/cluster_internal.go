@@ -9,8 +9,8 @@ const (
 	KindCluster                = "Cluster"
 	KindTanzuKubernetesCluster = "TanzuKubernetesCluster"
 	KindClusterClass           = "ClusterClass"
-	CCFeature                  = "clusterclass"
-	TKGSClusterClassNamespace  = "vmware-system-capw"
+	CCFeature                  = "vmware-system-tkg-clusterclass"
+	TKGSClusterClassNamespace  = "vmware-system-tkg"
 	TKGStkcapiNamespace        = "vmware-system-tkg"
 
 	PacificGCMControllerDeployment = "vmware-system-tkg-controller-manager"
