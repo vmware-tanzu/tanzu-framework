@@ -223,7 +223,14 @@ func getMutateFn(secret *corev1.Secret, pinnipedInfoCM *corev1.ConfigMap, cluste
 		pinnipedDataValues.ClusterRole = "workload"
 		pinnipedDataValues.Pinniped.SupervisorEndpoint = supervisorAddress
 		pinnipedDataValues.Pinniped.SupervisorCABundle = supervisorCABundle
-		pinnipedDataValues.Pinniped.Concierge.Audience = fmt.Sprintf("%s-%s", cluster.Name, string(cluster.UID))
+
+		if isV1 {
+			// <cluster-name>
+			pinnipedDataValues.Pinniped.Concierge.Audience = cluster.Name
+		} else {
+			// <cluster-name>-<cluster-uuid>
+			pinnipedDataValues.Pinniped.Concierge.Audience = fmt.Sprintf("%s-%s", cluster.Name, string(cluster.UID))
+		}
 
 		if !isV1 && identityManagementType == none {
 			// we actually have to set this to empty vs. not adding the vars above so that it overwrites
