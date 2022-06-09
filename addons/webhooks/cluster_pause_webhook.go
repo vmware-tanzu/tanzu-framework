@@ -14,6 +14,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/webhook"
 
+	"github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
 )
 
@@ -32,37 +33,52 @@ func (wh *ClusterPause) SetupWebhookWithManager(mgr ctrl.Manager) error {
 		Complete()
 }
 
-var _ webhook.CustomDefaulter = &ClusterPause{}
+var (
+	_              webhook.CustomDefaulter = &ClusterPause{}
+	cluster                                = &clusterv1.Cluster{}
+	currentCluster                         = &clusterv1.Cluster{}
+)
 
 // Default satisfies the defaulting webhook interface.
 func (wh *ClusterPause) Default(ctx context.Context, obj runtime.Object) error {
-	cluster, ok := obj.(*clusterv1.Cluster)
+	var tkrVersion, currentTkrVersion string
+	var tkrLabelFound, ok bool
+
+	cluster, ok = obj.(*clusterv1.Cluster)
 	if !ok {
 		return apierrors.NewBadRequest(fmt.Sprintf("expected a Cluster but got a %T", obj))
 	}
 
-	// Try to get the current cluster CR so we can compare the version
-	currentCluster := &clusterv1.Cluster{}
+	if cluster.Labels == nil {
+		return nil
+	}
+
+	if tkrVersion, tkrLabelFound = cluster.Labels[v1alpha3.LabelTKR]; !tkrLabelFound {
+		return nil
+	}
+
+	// Try to get the current cluster CR, so we can compare the version
 	key := client.ObjectKey{Name: cluster.Name, Namespace: cluster.Namespace}
-	err := wh.Client.Get(ctx, key, currentCluster)
-	if err != nil {
+	if err := wh.Client.Get(ctx, key, currentCluster); err != nil {
 		if apierrors.IsNotFound(err) {
 			return nil
 		}
 		return err
 	}
 
-	if cluster.Spec.Topology != nil {
-		// Add pause to cluster if the topology.version changes
-		// The cluster pause state will be unset by ClusterBootstrap controller after it rolls out package updates
-		if currentCluster.Spec.Topology == nil || cluster.Spec.Topology.Version != currentCluster.Spec.Topology.Version {
-			cluster.Spec.Paused = true
-			if cluster.Annotations == nil {
-				cluster.Annotations = map[string]string{}
-			}
-			// Use the desired TKR version as label value, ClusterBootstrap will unset
-			cluster.Annotations[constants.ClusterPauseLabel] = cluster.Spec.Topology.Version
+	if currentCluster.Labels != nil {
+		currentTkrVersion, tkrLabelFound = currentCluster.Labels[v1alpha3.LabelTKR]
+	}
+
+	// Add pause to cluster if the cluster.Labels["run.tanzu.vmware.com/tkr"] changes
+	// The cluster pause state will be unset by ClusterBootstrap controller after it rolls out package updates
+	if currentCluster.Labels == nil || !tkrLabelFound || currentTkrVersion != tkrVersion {
+		cluster.Spec.Paused = true
+		if cluster.Annotations == nil {
+			cluster.Annotations = map[string]string{}
 		}
+		// Use the desired TKR version as label value, ClusterBootstrap will unset
+		cluster.Annotations[constants.ClusterPauseLabel] = tkrVersion
 	}
 
 	return nil
