@@ -17,7 +17,7 @@ import (
 func ConstructQuery(versionPrefix string, cluster *clusterv1.Cluster, clusterClass *clusterv1.ClusterClass) (*data.Query, error) {
 	tkrSelector, err := selectorFromAnnotation(cluster.Annotations, clusterClass.Annotations, runv1.AnnotationResolveTKR)
 	if tkrSelector == nil || cluster.Spec.Topology == nil {
-		return nil, err
+		return nil, err // err may be nil too
 	}
 
 	osImageSelector, err := selectorFromAnnotation(
