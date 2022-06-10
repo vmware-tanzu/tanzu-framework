@@ -54,10 +54,7 @@ func (c *TkgClient) InstallOrUpgradeManagementComponents(kubeconfig, kubecontext
 		return errors.Wrap(err, "unable to get management package repository image")
 	}
 
-	managementPackageVersion, err := c.tkgBomClient.GetManagementPackagesVersion()
-	if err != nil {
-		return errors.Wrap(err, "unable to get version of management packages")
-	}
+	managementPackageVersion := ""
 
 	// Override management package repository image if specified as part of below environment variable
 	// NOTE: this override is only for testing purpose and we don't expect this to be used in production scenario
@@ -69,7 +66,7 @@ func (c *TkgClient) InstallOrUpgradeManagementComponents(kubeconfig, kubecontext
 	// Override the version to use for management packages if specified as part of below environment variable
 	// NOTE: this override is only for testing purpose and we don't expect this to be used in production scenario
 	mpVersion := os.Getenv("_MANAGEMENT_PACKAGE_VERSION")
-	if mprImage != "" {
+	if mpVersion != "" {
 		managementPackageVersion = mpVersion
 	}
 
