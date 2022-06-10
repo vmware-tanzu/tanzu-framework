@@ -19,25 +19,15 @@
 #@ def antrea_configs_exist():
 #@   return (data.values.NSXT_POD_ROUTING_ENABLED or
 #@           data.values.ANTREA_NO_SNAT or
-#@           data.values.ANTREA_DISABLE_UDP_TUNNEL_OFFLOAD or
 #@           data.values.ANTREA_TRAFFIC_ENCAP_MODE != "encap" or
-#@           not data.values.ANTREA_NODEPORTLOCAL_ENABLED or
-#@           data.values.ANTREA_PROXY_ALL or
-#@           data.values.ANTREA_TUNNEL_TYPE != "geneve" or
-#@           data.values.ANTREA_TRAFFIC_ENCRYPTION_MODE != "" or
-#@           data.values.ANTREA_WIREGUARD_PORT != 51820 or
-#@           data.values.ANTREA_ENABLE_USAGE_REPORTING or
 #@           not data.values.ANTREA_PROXY or
 #@           not data.values.ANTREA_ENDPOINTSLICE or
 #@           not data.values.ANTREA_POLICY or
-#@           not data.values.ANTREA_TRACEFLOW or
 #@           not data.values.ANTREA_NODEPORTLOCAL or
-#@           data.values.ANTREA_NETWORKPOLICY_STATS or
+#@           not data.values.ANTREA_TRACEFLOW or
 #@           not data.values.ANTREA_EGRESS or
-#@           data.values.ANTREA_IPAM or
 #@           data.values.ANTREA_FLOWEXPORTER or
-#@           data.values.ANTREA_SERVICE_EXTERNALIP or
-#@           data.values.ANTREA_MULTICAST)
+#@           data.values.ANTREA_DISABLE_UDP_TUNNEL_OFFLOAD)
 #@ end
 
 #@ def vspherecpi_configs_exist():
@@ -53,10 +43,6 @@
 #@   return data.values.CNI != "antrea" or antrea_configs_exist() or vspherecsi_configs_exist() or vspherecpi_configs_exist()
 #@ end
 
-#@ def split_comma_values(value):
-#@  return value.split(",") if value else []
-#@ end
-
 #@ if antrea_configs_exist():
 ---
 apiVersion: cni.tanzu.vmware.com/v1alpha1
@@ -67,25 +53,6 @@ metadata:
 spec:
   antrea:
     config:
-      egress:
-        exceptCIDRs: #@ split_comma_values(data.values.ANTREA_EGRESS_EXCEPT_CIDRS)
-      nodePortLocal:
-        enabled: #@ data.values.ANTREA_NODEPORTLOCAL_ENABLED
-        portRange: #@ data.values.ANTREA_NODEPORTLOCAL_PORTRANGE
-      antreaProxy:
-        proxyAll: #@ data.values.ANTREA_PROXY_ALL
-        nodePortAddresses: #@ split_comma_values(data.values.ANTREA_PROXY_NODEPORT_ADDRS)
-        skipServices: #@ split_comma_values(data.values.ANTREA_PROXY_SKIP_SERVICES)
-        proxyLoadBalancerIPs: #@ data.values.ANTREA_PROXY_LOAD_BALANCER_IPS
-      kubeAPIServerOverride: #@ data.values.ANTREA_KUBE_APISERVER_OVERRIDE
-      transportInterface: #@ data.values.ANTREA_TRANSPORT_INTERFACE
-      transportInterfaceCIDRs: #@ split_comma_values(data.values.ANTREA_TRANSPORT_INTERFACE_CIDRS)
-      multicastInterfaces: #@ split_comma_values(data.values.ANTREA_MULTICAST_INTERFACES)
-      tunnelType: #@ data.values.ANTREA_TUNNEL_TYPE
-      trafficEncryptionMode: #@ data.values.ANTREA_TRAFFIC_ENCRYPTION_MODE
-      enableUsageReporting: #@ data.values.ANTREA_ENABLE_USAGE_REPORTING
-      wireGuard:
-        port: #@ data.values.ANTREA_WIREGUARD_PORT
       #@ if data.values.NSXT_POD_ROUTING_ENABLED:
       trafficEncapMode: "noEncap"
       noSNAT: true
@@ -102,14 +69,10 @@ spec:
         #@ end
         EndpointSlice: #@ data.values.ANTREA_ENDPOINTSLICE
         AntreaPolicy: #@ data.values.ANTREA_POLICY
-        AntreaTraceflow: #@ data.values.ANTREA_TRACEFLOW
         NodePortLocal: #@ data.values.ANTREA_NODEPORTLOCAL
-        NetworkPolicyStats: #@data.values.ANTREA_NETWORKPOLICY_STATS
+        AntreaTraceflow: #@ data.values.ANTREA_TRACEFLOW
         Egress: #@ data.values.ANTREA_EGRESS
-        AntreaIPAM: #@ data.values.ANTREA_IPAM
         FlowExporter: #@ data.values.ANTREA_FLOWEXPORTER
-        ServiceExternalIP: #@ data.values.ANTREA_SERVICE_EXTERNALIP
-        Multicast: #@ data.values.ANTREA_MULTICAST
 #@ end
 
 ---
@@ -119,6 +82,10 @@ kind: CalicoConfig
 metadata:
   name: #@ data.values.CLUSTER_NAME
   namespace: #@ data.values.NAMESPACE
+spec:
+  calico:
+    config:
+      vethMTU: 0
 #@ end
 ---
 #@ if vspherecpi_configs_exist() and data.values.PROVIDER_TYPE == "vsphere" and not data.values.IS_WINDOWS_WORKLOAD_CLUSTER:
@@ -210,6 +177,8 @@ kind: KappControllerConfig
 metadata:
   name: #@ data.values.CLUSTER_NAME
   namespace: #@ data.values.NAMESPACE
+spec:
+  namespace: tkg-system
 ---
 #@ if should_create_clusterbootstrap():
 ---
@@ -219,7 +188,7 @@ metadata:
   name: #@ data.values.CLUSTER_NAME
   namespace: #@ data.values.NAMESPACE
   annotations:
-    tkg.tanzu.vmware.com/add-missing-fields-from-tkr: #@ data.values.KUBERNETES_RELEASE
+    tkg.tanzu.vmware.com/add-missing-fields-from-tkr: v1.23.5---vmware.1-tkg.1
 spec:
   cni:
     #@ if data.values.CNI == "antrea":
@@ -256,7 +225,7 @@ spec:
         name: #@ data.values.CLUSTER_NAME
   #@ end
   kapp:
-    refName: kapp-controller.tanzu.vmware.com
+    refName: kapp-controller*
     valuesFrom:
       providerRef:
         apiGroup: run.tanzu.vmware.com
