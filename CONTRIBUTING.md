@@ -30,9 +30,6 @@ not have a slack channel or email list (hopefully soon).
 
 ## Propose a Change
 
-We suggest beginning by submitting an issue so any high level feedback can be
-addressed early, particularly if significant effort will be involved.
-
 Please submit feature requests and bug reports by using GitHub issues and filling
 in the supplied template with as much detail as you can.
 
@@ -55,6 +52,9 @@ Consider commenting on the issue to seek input or  or opening a draft pull
 request to seek feedback on approaches to testing a particular change.
 
 To build the project from source, please consider the docs on [local development](docs/dev/build.md).
+
+Before submitting your pull request, please ensure that you have looked at our
+[pull request etiquette](./docs/dev/your_first_pr.md).
 
 ### Commit Messages
 
