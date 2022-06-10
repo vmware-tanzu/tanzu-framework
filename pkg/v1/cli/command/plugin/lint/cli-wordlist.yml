@@ -21,6 +21,7 @@ nouns:
   - machinehealthcheck
   - management-cluster
   - os
+  - offline
   - package
   - permissions
   - pinniped-auth
@@ -50,6 +51,7 @@ verbs:
   - show
   - update
   - upgrade
+  - upload
   - version
 global-flags:
   - help
