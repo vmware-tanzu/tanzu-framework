@@ -715,7 +715,8 @@ COMPONENTS :=  \
   pkg/v1/sdk/capabilities \
   pkg/v2/tkr/webhook/tkr-conversion \
   pkg/v2/tkr/webhook/cluster/tkr-resolver \
-  addons/pinniped/tanzu-auth-controller-manager
+  addons/pinniped/tanzu-auth-controller-manager \
+  pkg/v2/object-propagation
 
 .PHONY: docker-build
 docker-build: TARGET=docker-build
