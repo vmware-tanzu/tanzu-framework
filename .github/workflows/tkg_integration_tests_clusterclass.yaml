@@ -114,7 +114,7 @@ jobs:
         env:
           NUM: ${{ github.run_id }}
           OCI_REGISTRY: gcr.io/eminent-nation-87317/tanzu_framework/github-actions/${{ steps.extract_reg_dir.outputs.regdir }}
-          COMPONENTS: "pkg/v2/tkr/controller/tkr-source pkg/v2/tkr/controller/tkr-status pkg/v1/sdk/features addons pkg/v2/tkr/webhook/infra-machine pkg/v1/sdk/capabilities pkg/v2/tkr/webhook/tkr-conversion pkg/v2/tkr/webhook/cluster/tkr-resolver addons/pinniped/tanzu-auth-controller-manager"
+          COMPONENTS: "pkg/v2/tkr/controller/tkr-source pkg/v2/tkr/controller/tkr-status pkg/v1/sdk/features addons pkg/v2/tkr/webhook/infra-machine pkg/v1/sdk/capabilities pkg/v2/tkr/webhook/tkr-conversion pkg/v2/tkr/webhook/cluster/tkr-resolver addons/pinniped/tanzu-auth-controller-manager pkg/v2/object-propagation"
           BUILD_VERSION: "v0.21.0"
           IMG_VERSION_OVERRIDE: latest
         run: |
@@ -124,7 +124,7 @@ jobs:
         env:
           NUM: ${{ github.run_number }}
           OCI_REGISTRY: gcr.io/eminent-nation-87317/tanzu_framework/github-actions/${{ steps.extract_reg_dir.outputs.regdir }}
-          COMPONENTS: "pkg/v2/tkr/controller/tkr-source pkg/v2/tkr/controller/tkr-status pkg/v1/sdk/features addons pkg/v2/tkr/webhook/infra-machine pkg/v1/sdk/capabilities pkg/v2/tkr/webhook/tkr-conversion pkg/v2/tkr/webhook/cluster/tkr-resolver addons/pinniped/tanzu-auth-controller-manager"
+          COMPONENTS: "pkg/v2/tkr/controller/tkr-source pkg/v2/tkr/controller/tkr-status pkg/v1/sdk/features addons pkg/v2/tkr/webhook/infra-machine pkg/v1/sdk/capabilities pkg/v2/tkr/webhook/tkr-conversion pkg/v2/tkr/webhook/cluster/tkr-resolver addons/pinniped/tanzu-auth-controller-manager pkg/v2/object-propagation"
           BUILD_VERSION: "v0.21.0"
           IMG_VERSION_OVERRIDE: latest
         run: |
