@@ -6,7 +6,7 @@ package managementcomponents
 // TKGPackageConfig defines TKG package configuration
 type TKGPackageConfig struct {
 	Metadata                     Metadata                     `yaml:"metadata"`
-	ConfigValues                 map[string]string            `yaml:"configvalues"`
+	ConfigValues                 map[string]interface{}       `yaml:"configvalues"`
 	FrameworkPackage             FrameworkPackage             `yaml:"frameworkPackage"`
 	ClusterClassPackage          ClusterClassPackage          `yaml:"clusterclassPackage"`
 	TKRSourceControllerPackage   TKRSourceControllerPackage   `yaml:"tkrSourceControllerPackage"`
