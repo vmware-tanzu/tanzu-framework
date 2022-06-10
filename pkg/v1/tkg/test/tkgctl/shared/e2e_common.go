@@ -6,10 +6,12 @@ package shared
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"math/rand"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 	"time"
 
@@ -211,43 +213,70 @@ func generatePkgiNameWithVersion(packageName, PackageVersion string) string {
 	return fmt.Sprintf("%s.%s", packageName, PackageVersion)
 }
 
-func checkUtkgAddons(ctx context.Context, cl client.Client, t *testing.T) {
-	assert := assert.New(t)
+func getPackageDetailsFromCBS(CBSRefName string) (string, string, string, error) {
+	pkgShortName, err := strings.Split(CBSRefName, ".")[0]
+	if err != nil || pkgShortName == nil {
+		return "", "", "", errors.Wrapf(err, "error fetching package short name from clusterBootstrap resource")
+	}
+	pkgName, err := strings.Join(strings.Split(addonName, ".")[0:4], ".")
+	if err != nil || pkgName == nil {
+		return "", "", "", errors.Wrapf(err, "error fetching package name from clusterBootstrap resource")
+	}
+	pkgVersion, err := strings.Join(strings.Split(addonName, ".")[4:], ".")
+	if err != nil || pkgVersion == nil {
+		return "", "", "", errors.Wrapf(err, "error fetching package version from clusterBootstrap resource")
+	}
+	return pkgShortName, pkgName, pkgVersion, nil
+}
 
-	// Get ClusterBootstrap and return error if not found
+func checkUtkgAddons(ctx context.Context, cl client.Client, testPkgName string, t *testing.T) {
+	/*
+	   1. Kubeconfig for management cluster
+	   2. use this client to get wlc kubeconfig secret / get kubeconfig from it
+	   k8sclient.get(namespace, name), secret
+	   get secret
+	   3. create another client with this kubeconfig
+	   4. wlc client get pkgi information
+	*/
+	var (
+		err          error
+		pkgShortName string
+		pkgName      string
+		pkgVersion   string
+	)
+	assert := assert.New(t)
 	//mngCluster := &clusterapiv1beta1.Cluster{}
 	//clusterBootstrap := getClusterBootstrap(client.ObjectKeyFromObject(mngCluster))
+
+	//switch the context or kubeconfig
+	// Get ClusterBootstrap and return error if not found
 	clusterBootstrap := getClusterBootstrap(ctx, cl, constants.TkgNamespace, clusterNameMng)
 
 	//wlcCluster := &clusterapiv1beta1.Cluster{}
 
 	// packageInstall name for for both management and workload clusters should follow the <cluster name>-<addon short name>
 	// packageInstall name and version should match info in clusterBootstrap for all packages, format is <package name>.<package version>
-	antreaPkgiName := util.GeneratePackageInstallName(clusterName, "antrea")
-	antreaPackageInstall := getPackageInstall(ctx, cl, constants.TkgNamespace, antreaPkgiName)
-	assert.Equal(clusterBootstrap.Spec.CNI.RefName, generatePkgiNameWithVersion(antreaPackageInstall.Spec.PackageRef.RefName, antreaPackageInstall.Spec.PackageRef.VersionSelection.Constraints))
+	switch {
+	case testPkgName == "CNI":
+		pkgShortName, pkgName, pkgVersion = getPackageDetailsFromCBS(clusterBootstrap.Spec.CNI.RefName)
+	case testPkgName == "CSI":
+		pkgShortName, pkgName, pkgVersion = getPackageDetailsFromCBS(clusterBootstrap.Spec.CSI.RefName)
+	case testPkgName == "CPI":
+		pkgShortName, pkgName, pkgVersion = getPackageDetailsFromCBS(clusterBootstrap.Spec.CPI.RefName)
+	case testPkgName == "Kapp":
+		pkgShortName, pkgName, pkgVersion = getPackageDetailsFromCBS(clusterBootstrap.Spec.Kapp.RefName)
+	case testPkgName == "metrics-server":
+		pkgShortName, pkgName, pkgVersion = getPackageDetailsFromCBS(clusterBootstrap.Spec.AdditionalPackages[0].RefName)
+	case testPkgName == "secretgen-controller":
+		pkgShortName, pkgName, pkgVersion = getPackageDetailsFromCBS(clusterBootstrap.Spec.AdditionalPackages[1].RefName)
+	case testPkgName == "pinniped":
+		pkgShortName, pkgName, pkgVersion = getPackageDetailsFromCBS(clusterBootstrap.Spec.AdditionalPackages[2].RefName)
+	}
 
-	csiPkgiName := util.GeneratePackageInstallName(clusterName, "csi")
-	csiPackageInstall := getPackageInstall(ctx, cl, constants.TkgNamespace, csiPkgiName)
-	assert.Equal(clusterBootstrap.Spec.CNI.RefName, generatePkgiNameWithVersion(csiPackageInstall.Spec.PackageRef.RefName, csiPackageInstall.Spec.PackageRef.VersionSelection.Constraints))
-
-	cpiPkgiName := util.GeneratePackageInstallName(clusterName, "cpi")
-	cpiPackageInstall := getPackageInstall(ctx, cl, constants.TkgNamespace, cpiPkgiName)
-	assert.Equal(clusterBootstrap.Spec.CNI.RefName, generatePkgiNameWithVersion(cpiPackageInstall.Spec.PackageRef.RefName, cpiPackageInstall.Spec.PackageRef.VersionSelection.Constraints))
-
-	kappPkgiName := util.GeneratePackageInstallName(clusterName, "kapp")
-	kappPackageInstall := getPackageInstall(ctx, cl, constants.TkgNamespace, kappPkgiName)
-	assert.Equal(clusterBootstrap.Spec.CNI.RefName, generatePkgiNameWithVersion(kappPackageInstall.Spec.PackageRef.RefName, kappPackageInstall.Spec.PackageRef.VersionSelection.Constraints))
-
-	msPkgiName := util.GeneratePackageInstallName(clusterName, "metrics-server")
-	msPackageInstall := getPackageInstall(ctx, cl, constants.TkgNamespace, msPkgiName)
-	assert.Equal(clusterBootstrap.Spec.AdditionalPackages[0].RefName, generatePkgiNameWithVersion(msPackageInstall.Spec.PackageRef.RefName, msPackageInstall.Spec.PackageRef.VersionSelection.Constraints))
-
-	scPkgiName := util.GeneratePackageInstallName(clusterName, "secretgen-controller")
-	scPackageInstall := getPackageInstall(ctx, cl, constants.TkgNamespace, scPkgiName)
-	assert.Equal(clusterBootstrap.Spec.AdditionalPackages[1].RefName, generatePkgiNameWithVersion(scPackageInstall.Spec.PackageRef.RefName, scPackageInstall.Spec.PackageRef.VersionSelection.Constraints))
-
-	ppdPkgiName := util.GeneratePackageInstallName(clusterName, "pinniped")
-	ppdPackageInstall := getPackageInstall(ctx, cl, constants.TkgNamespace, ppdPkgiName)
-	assert.Equal(clusterBootstrap.Spec.AdditionalPackages[2].RefName, generatePkgiNameWithVersion(msPackageInstall.Spec.PackageRef.RefName, msPackageInstall.Spec.PackageRef.VersionSelection.Constraints))
+	pkgiName := util.GeneratePackageInstallName(clusterName, pkgShortName)
+	pkgi := getPackageInstall(ctx, cl, constants.TkgNamespace, pkgiName)
+	// Verify package name matches between clusterBootstrap and packageInstall
+	assert.Equal(pkgName, pkgi.Spec.PackageRef.RefName)
+	// Verify package version matches between clusterBootstrap and packageInstall
+	assert.Equal(pkgVersion, pkgi.Spec.PackageRef.VersionSelection.Constraints)
 }
