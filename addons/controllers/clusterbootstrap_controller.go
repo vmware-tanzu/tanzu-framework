@@ -693,6 +693,7 @@ func (r *ClusterBootstrapReconciler) createOrPatchPackageInstallOnRemote(cluster
 
 	_, err = controllerutil.CreateOrPatch(r.context, clusterClient, remotePkgi, func() error {
 		remotePkgi.Spec.ServiceAccountName = r.Config.PkgiServiceAccount
+		remotePkgi.Spec.SyncPeriod = &metav1.Duration{Duration: r.Config.PkgiSyncPeriod}
 		// remotePackageRefName and remotePackageVersion are fetched from the Package CR on remote cluster.
 		remotePkgi.Spec.PackageRef = &kapppkgiv1alpha1.PackageRef{
 			RefName: remotePackageRefName,
