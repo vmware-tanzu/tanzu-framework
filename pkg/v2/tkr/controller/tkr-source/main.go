@@ -112,6 +112,7 @@ func main() {
 	tkrCompatibility := &compatibility.Compatibility{
 		Client: mgr.GetClient(),
 		Config: compatibilityConfig,
+		Log:    mgr.GetLogger().WithName("tkr-compatibility"),
 	}
 	registryInstance := registry.New(mgr.GetClient(), registryConfig)
 	fetcherInstance := &fetcher.Fetcher{
