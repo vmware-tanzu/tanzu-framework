@@ -209,7 +209,6 @@ spec:
         properties:
           host:
             type: string
-            format: uri
           tlsCertificateValidation:
             type: boolean
             default: true
