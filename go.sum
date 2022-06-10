@@ -1771,8 +1771,8 @@ github.com/vmware-tanzu/carvel-kapp-controller v0.35.0 h1:zgWNumjhN+0CCiq1Wo4lVT
 github.com/vmware-tanzu/carvel-kapp-controller v0.35.0/go.mod h1:Hldrv7kPAD3THS1yUYZPFIaHmPE0ENO0ljzbJrpftiE=
 github.com/vmware-tanzu/carvel-kapp-controller/cli v0.0.0-20220531050156-3beaddc443c6 h1:78Jmi5gG2+6RYhE5ecNP9cqM0YerWFDYIBtgE6esScg=
 github.com/vmware-tanzu/carvel-kapp-controller/cli v0.0.0-20220531050156-3beaddc443c6/go.mod h1:nTX+JG0wH5EhHMVkAa3m53snQPOcSnWK/7js6kkMT3s=
-github.com/vmware-tanzu/carvel-secretgen-controller v0.5.0 h1:3mSDyzhf52Y0jdvHrhJUf4Sk97CILBOkQt/WUaD8G/8=
-github.com/vmware-tanzu/carvel-secretgen-controller v0.5.0/go.mod h1:UW9xzccG6vjNoq2emVderTX11epILNyxtmGxFupRsHc=
+github.com/vmware-tanzu/carvel-secretgen-controller v0.9.0 h1:q7WZWZubXYG486bRaPxgrT4FV8X9gwg5p9KxUE4tRWg=
+github.com/vmware-tanzu/carvel-secretgen-controller v0.9.0/go.mod h1:PXa0wiLyo5X+w9jnuUC3LOWLjaA/XBvlTBKyKP4Oluo=
 github.com/vmware-tanzu/carvel-vendir v0.23.0/go.mod h1:l35I00eXhYiIaZdOPeGX/zrj0WGfimSSqj81PrxGpAw=
 github.com/vmware-tanzu/carvel-vendir v0.24.0 h1:vEkhtfuI1ZQp8mndJJwUT0P8FyOaPrPaxSLxH89C8pI=
 github.com/vmware-tanzu/carvel-vendir v0.24.0/go.mod h1:Ls3P88J5x+i6ruw/gXgo3brIOGyfGqyzUCAofOuXRFc=
