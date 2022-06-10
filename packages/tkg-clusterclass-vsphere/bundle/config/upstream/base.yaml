@@ -83,17 +83,17 @@ spec:
       kubeadmConfigSpec:
         useExperimentalRetryJoin: true
         clusterConfiguration:
-          imageRepository: '${ _TKG_K8S_IMAGE_REPOSITORY }'
+          imageRepository: ""
           etcd:
             local:
               dataDir: /var/lib/etcd
-              imageRepository: '${ _TKG_ETCD_IMAGE_REPOSITORY }'
-              imageTag: '${ _TKG_ETCD_IMAGE_TAG }'
+              imageRepository: dummy.registry.vmware.com
+              imageTag: 1.8.4_dummy.5
               extraArgs:
                 cipher-suites: TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
           dns:
-            imageRepository: '${ _TKG_COREDNS_IMAGE_REPOSITORY }'
-            imageTag: '${ _TKG_COREDNS_IMAGE_TAG }'
+            imageRepository: dummy.registry.vmware.com
+            imageTag: 1.8.4_dummy.5
           apiServer:
             timeoutForControlPlane: "8m0s"
             extraVolumes: []
@@ -133,8 +133,8 @@ spec:
           sshAuthorizedKeys:
           - #@ data.values.VSPHERE_SSH_AUTHORIZED_KEY
           sudo: ALL=(ALL) NOPASSWD:ALL
-      replicas: ${ CONTROL_PLANE_MACHINE_COUNT }
-      version: '${ KUBERNETES_VERSION }'
+      #! replicas: #@ data.values.CONTROL_PLANE_MACHINE_COUNT
+      #! version: '${ KUBERNETES_VERSION }'
 ---
 apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
 kind: KubeadmConfigTemplate
@@ -180,6 +180,8 @@ kind: ClusterClass
 metadata:
   name: tkg-vsphere-default
   namespace: #@ data.values.NAMESPACE
+  annotations:
+    run.tanzu.vmware.com/resolve-tkr: ""
 spec:
   controlPlane:
     ref:
