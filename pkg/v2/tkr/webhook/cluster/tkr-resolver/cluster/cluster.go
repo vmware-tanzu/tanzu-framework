@@ -127,8 +127,8 @@ func (cw *Webhook) constructQuery(cluster *clusterv1.Cluster, clusterClass *clus
 	}
 
 	query, err := resolution.ConstructQuery(cluster.Spec.Topology.Version, cluster, clusterClass)
-	if err != nil {
-		return nil, err
+	if query == nil {
+		return nil, err // err may be nil too
 	}
 
 	query.ControlPlane = cw.filterOSImageQuery(tkr, tkrData, query.ControlPlane)

@@ -162,6 +162,22 @@ var _ = Describe("cluster.Webhook", func() {
 
 	Context("constructQuery()", func() {
 		When("'resolve-tkr' annotation is not present", func() {
+			BeforeEach(func() {
+				cluster.Spec.Topology = &clusterv1.Topology{} // make sure we're not entirely skipping building a query
+			})
+
+			It("should produce an empty query (no resolution needed)", func() {
+				query, err := cw.constructQuery(cluster, clusterClass)
+				Expect(err).ToNot(HaveOccurred())
+				Expect(query).To(BeNil())
+			})
+		})
+
+		When("cluster spec.topology is not present", func() {
+			BeforeEach(func() {
+				Expect(cluster.Spec.Topology).To(BeNil())
+			})
+
 			It("should produce an empty query (no resolution needed)", func() {
 				query, err := cw.constructQuery(cluster, clusterClass)
 				Expect(err).ToNot(HaveOccurred())
