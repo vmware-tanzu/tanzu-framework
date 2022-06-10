@@ -30,9 +30,14 @@ func (set StringSet) Has(s string) bool {
 	return has
 }
 
-func (set StringSet) Intersect(other StringSet) StringSet {
+func (set StringSet) Intersect(others ...StringSet) StringSet {
 	return set.Filter(func(s string) bool {
-		return other.Has(s)
+		for _, other := range others {
+			if !other.Has(s) {
+				return false
+			}
+		}
+		return true
 	})
 }
 
@@ -48,6 +53,21 @@ func (set StringSet) Filter(f func(s string) bool) StringSet {
 	r := make(StringSet, len(set))
 	for s := range set {
 		if f(s) {
+			r[s] = struct{}{}
+		}
+	}
+	return r
+}
+
+func (set StringSet) Union(sets ...StringSet) StringSet {
+	sets = append(sets, set)
+	sizeBound := 0
+	for _, aSet := range sets {
+		sizeBound += len(aSet)
+	}
+	r := make(StringSet, sizeBound)
+	for _, aSet := range sets {
+		for s := range aSet {
 			r[s] = struct{}{}
 		}
 	}
