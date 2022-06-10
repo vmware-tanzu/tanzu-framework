@@ -21,7 +21,7 @@ const (
 )
 
 // GetTKGPackageConfigValuesFileFromUserConfig returns values file from user configuration
-func GetTKGPackageConfigValuesFileFromUserConfig(managementPackageVersion string, userProviderConfigValues map[string]string) (string, error) {
+func GetTKGPackageConfigValuesFileFromUserConfig(managementPackageVersion string, userProviderConfigValues map[string]interface{}) (string, error) {
 	// TODO: Temporary hack(hard coded values) to configure TKR source controller package values. This should be replaced with the logic
 	// that fetches these values from tkg-bom(for bom related urls) and set the TKR source controller package values
 	var tkrRepoImagePath string
@@ -37,7 +37,7 @@ func GetTKGPackageConfigValuesFileFromUserConfig(managementPackageVersion string
 
 	tkgPackageConfig := TKGPackageConfig{
 		Metadata: Metadata{
-			InfraProvider: userProviderConfigValues[constants.ConfigVariableProviderType],
+			InfraProvider: userProviderConfigValues[constants.ConfigVariableProviderType].(string),
 		},
 		ConfigValues: userProviderConfigValues,
 		FrameworkPackage: FrameworkPackage{
