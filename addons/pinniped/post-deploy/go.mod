@@ -103,3 +103,5 @@ require (
 replace go.pinniped.dev/generated/1.20/apis => go.pinniped.dev/generated/1.19/apis v0.0.0-20220209183828-4d6a2af89419
 
 replace github.com/vmware-tanzu/tanzu-framework/addons/pinniped/tanzu-auth-controller-manager => ../tanzu-auth-controller-manager
+
+replace sigs.k8s.io/cluster-api => sigs.k8s.io/cluster-api v1.1.3
