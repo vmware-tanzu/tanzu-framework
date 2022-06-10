@@ -53,6 +53,10 @@
 #@   return data.values.CNI != "antrea" or antrea_configs_exist() or vspherecsi_configs_exist() or vspherecpi_configs_exist()
 #@ end
 
+#@ def split_comma_values(value):
+#@  return value.split(",") if value else []
+#@ end
+
 #@ if antrea_configs_exist():
 ---
 apiVersion: cni.tanzu.vmware.com/v1alpha1
@@ -63,6 +67,25 @@ metadata:
 spec:
   antrea:
     config:
+      egress:
+        exceptCIDRs: #@ split_comma_values(data.values.ANTREA_EGRESS_EXCEPT_CIDRS)
+      nodePortLocal:
+        enabled: #@ data.values.ANTREA_NODEPORTLOCAL_ENABLED
+        portRange: #@ data.values.ANTREA_NODEPORTLOCAL_PORTRANGE
+      antreaProxy:
+        proxyAll: #@ data.values.ANTREA_PROXY_ALL
+        nodePortAddresses: #@ split_comma_values(data.values.ANTREA_PROXY_NODEPORT_ADDRS)
+        skipServices: #@ split_comma_values(data.values.ANTREA_PROXY_SKIP_SERVICES)
+        proxyLoadBalancerIPs: #@ data.values.ANTREA_PROXY_LOAD_BALANCER_IPS
+      kubeAPIServerOverride: #@ data.values.ANTREA_KUBE_APISERVER_OVERRIDE
+      transportInterface: #@ data.values.ANTREA_TRANSPORT_INTERFACE
+      transportInterfaceCIDRs: #@ split_comma_values(data.values.ANTREA_TRANSPORT_INTERFACE_CIDRS)
+      multicastInterfaces: #@ split_comma_values(data.values.ANTREA_MULTICAST_INTERFACES)
+      tunnelType: #@ data.values.ANTREA_TUNNEL_TYPE
+      trafficEncryptionMode: #@ data.values.ANTREA_TRAFFIC_ENCRYPTION_MODE
+      enableUsageReporting: #@ data.values.ANTREA_ENABLE_USAGE_REPORTING
+      wireGuard:
+        port: #@ data.values.ANTREA_WIREGUARD_PORT
       #@ if data.values.NSXT_POD_ROUTING_ENABLED:
       trafficEncapMode: "noEncap"
       noSNAT: true
@@ -79,10 +102,14 @@ spec:
         #@ end
         EndpointSlice: #@ data.values.ANTREA_ENDPOINTSLICE
         AntreaPolicy: #@ data.values.ANTREA_POLICY
-        NodePortLocal: #@ data.values.ANTREA_NODEPORTLOCAL
         AntreaTraceflow: #@ data.values.ANTREA_TRACEFLOW
+        NodePortLocal: #@ data.values.ANTREA_NODEPORTLOCAL
+        NetworkPolicyStats: #@data.values.ANTREA_NETWORKPOLICY_STATS
         Egress: #@ data.values.ANTREA_EGRESS
+        AntreaIPAM: #@ data.values.ANTREA_IPAM
         FlowExporter: #@ data.values.ANTREA_FLOWEXPORTER
+        ServiceExternalIP: #@ data.values.ANTREA_SERVICE_EXTERNALIP
+        Multicast: #@ data.values.ANTREA_MULTICAST
 #@ end
 
 ---
@@ -178,6 +205,12 @@ spec:
 #@ end
 
 ---
+apiVersion: run.tanzu.vmware.com/v1alpha3
+kind: KappControllerConfig
+metadata:
+  name: #@ data.values.CLUSTER_NAME
+  namespace: #@ data.values.NAMESPACE
+---
 #@ if should_create_clusterbootstrap():
 ---
 apiVersion: run.tanzu.vmware.com/v1alpha3
@@ -222,6 +255,13 @@ spec:
         kind: VSphereCSIConfig
         name: #@ data.values.CLUSTER_NAME
   #@ end
+  kapp:
+    refName: kapp-controller.tanzu.vmware.com
+    valuesFrom:
+      providerRef:
+        apiGroup: run.tanzu.vmware.com
+        kind: KappControllerConfig
+        name: #@ data.values.CLUSTER_NAME
   additionalPackages:
     - refName: metrics-server*
     - refName: secretgen-controller*
