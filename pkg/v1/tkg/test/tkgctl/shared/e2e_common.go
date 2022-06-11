@@ -25,6 +25,11 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/test/framework"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgctl"
 
+	corev1 "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/runtime"
+	secretutil "sigs.k8s.io/cluster-api/util/secret"
+
+	kappctrl "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/kappctrl/v1alpha1"
 	kapppkgiv1alpha1 "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/packaging/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/util"
 	runtanzuv1alpha3 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
@@ -209,10 +214,6 @@ func getPackageInstall(ctx context.Context, k8sClient client.Client, namespace, 
 	return pkgInstall
 }
 
-func generatePkgiNameWithVersion(packageName, PackageVersion string) string {
-	return fmt.Sprintf("%s.%s", packageName, PackageVersion)
-}
-
 func getPackageDetailsFromCBS(CBSRefName string) (string, string, string, error) {
 	pkgShortName, err := strings.Split(CBSRefName, ".")[0]
 	if err != nil || pkgShortName == nil {
@@ -229,15 +230,7 @@ func getPackageDetailsFromCBS(CBSRefName string) (string, string, string, error)
 	return pkgShortName, pkgName, pkgVersion, nil
 }
 
-func checkUtkgAddons(ctx context.Context, cl client.Client, testPkgName string, t *testing.T) {
-	/*
-	   1. Kubeconfig for management cluster
-	   2. use this client to get wlc kubeconfig secret / get kubeconfig from it
-	   k8sclient.get(namespace, name), secret
-	   get secret
-	   3. create another client with this kubeconfig
-	   4. wlc client get pkgi information
-	*/
+func checkUtkgAddons(ctx context.Context, cl client.Client, scheme *runtime.Scheme, testPkgName string, t *testing.T) error {
 	var (
 		err          error
 		pkgShortName string
@@ -245,10 +238,19 @@ func checkUtkgAddons(ctx context.Context, cl client.Client, testPkgName string, 
 		pkgVersion   string
 	)
 	assert := assert.New(t)
-	//mngCluster := &clusterapiv1beta1.Cluster{}
+	mngCluster := &clusterapiv1beta1.Cluster{}
+	remoteClient, err := util.GetClusterClient(ctx, cl, scheme, clusterapiutil.ObjectKey(mngCluster))
+	if err != nil {
+	    return errors.Wrapf(err, "Error getting workload cluster client")
+	}
+	key := client.ObjectKey{Namespace: cluster.Namespace, Name: secretutil.Name(cluster.Name, secretutil.Kubeconfig)}
+	err = client.Get(r.context, key, clusterKubeConfigSecret)
+	if err != nil {
+		return errors.Wrapf(err, "Error getting workload cluster Kubeconfig")
+	}
+
 	//clusterBootstrap := getClusterBootstrap(client.ObjectKeyFromObject(mngCluster))
 
-	//switch the context or kubeconfig
 	// Get ClusterBootstrap and return error if not found
 	clusterBootstrap := getClusterBootstrap(ctx, cl, constants.TkgNamespace, clusterNameMng)
 
@@ -274,9 +276,14 @@ func checkUtkgAddons(ctx context.Context, cl client.Client, testPkgName string, 
 	}
 
 	pkgiName := util.GeneratePackageInstallName(clusterName, pkgShortName)
-	pkgi := getPackageInstall(ctx, cl, constants.TkgNamespace, pkgiName)
-	// Verify package name matches between clusterBootstrap and packageInstall
+	pkgi := getPackageInstall(ctx, remoteClient, constants.TkgNamespace, pkgiName)
+	// check package install reconcile status is succeed
+	assert.Equal(pkgi.Status.GenericStatus.Conditions.Type, kappctrl.ReconcileSucceeded)
+	assert.Equal(pkgi.Status.GenericStatus.Conditions.Status, corev1.ConditionTrue)
+
+	// Verify package name match between clusterBootstrap and packageInstall
 	assert.Equal(pkgName, pkgi.Spec.PackageRef.RefName)
-	// Verify package version matches between clusterBootstrap and packageInstall
+
+	// Verify package version match between clusterBootstrap and packageInstall
 	assert.Equal(pkgVersion, pkgi.Spec.PackageRef.VersionSelection.Constraints)
 }
