@@ -12,11 +12,14 @@ import (
 	clusterv1 "sigs.k8s.io/cluster-api/api/v1beta1"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+	logf "sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/webhook"
 
 	"github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
 )
+
+var clusterpauselog = logf.Log.WithName("cluster-pause-webhook")
 
 // +kubebuilder:webhook:verbs=create;update,path=/mutate-cluster-x-k8s-io-v1beta1-cluster,mutating=true,failurePolicy=fail,matchPolicy=Equivalent,groups=cluster.x-k8s.io,resources=clusters,versions=v1beta1,name=default.cluster.cluster.x-k8s.io,sideEffects=None,admissionReviewVersions=v1;v1beta1
 
@@ -79,6 +82,7 @@ func (wh *ClusterPause) Default(ctx context.Context, obj runtime.Object) error {
 		}
 		// Use the desired TKR version as label value, ClusterBootstrap will unset
 		cluster.Annotations[constants.ClusterPauseLabel] = tkrVersion
+		clusterpauselog.Info(fmt.Sprintf("set '%s' annotation to '%s' for cluster '%s'", constants.ClusterPauseLabel, tkrVersion, cluster.Name))
 	}
 
 	return nil
