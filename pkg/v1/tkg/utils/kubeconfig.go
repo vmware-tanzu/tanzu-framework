@@ -7,6 +7,7 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 	"net/url"
@@ -16,6 +17,11 @@ import (
 	"github.com/pkg/errors"
 	"k8s.io/client-go/tools/clientcmd"
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
+)
+
+const (
+	KubePublicNamespace       = "kube-public"
+	PinnipedInfoConfigMapName = "pinniped-info"
 )
 
 // PinnipedConfigMapInfo defines the fields of pinniped-info configMap
@@ -94,7 +100,7 @@ func GetClusterInfoFromCluster(clusterAPIServerURL string) (*clientcmdapi.Cluste
 	}
 
 	clusterAPIServerURL = strings.TrimRight(clusterAPIServerURL, " /")
-	clusterInfoURL := clusterAPIServerURL + "/api/v1/namespaces/kube-public/configmaps/cluster-info"
+	clusterInfoURL := clusterAPIServerURL + fmt.Sprintf("/api/v1/namespaces/%s/configmaps/cluster-info", KubePublicNamespace)
 	//nolint:noctx
 	req, _ := http.NewRequest("GET", clusterInfoURL, http.NoBody)
 	// To get the cluster ca certificate first time, we need to use skip verify the server certificate,
@@ -150,7 +156,7 @@ func GetClusterInfoFromCluster(clusterAPIServerURL string) (*clientcmdapi.Cluste
 // GetPinnipedInfoFromCluster gets the Pinniped Info by accessing the pinniped-info configMap in kube-public namespace
 func GetPinnipedInfoFromCluster(clusterInfo *clientcmdapi.Cluster) (*PinnipedConfigMapInfo, error) {
 	endpoint := strings.TrimRight(clusterInfo.Server, " /")
-	pinnipedInfoURL := endpoint + "/api/v1/namespaces/kube-public/configmaps/pinniped-info"
+	pinnipedInfoURL := endpoint + fmt.Sprintf("/api/v1/namespaces/%s/configmaps/%s", KubePublicNamespace, PinnipedInfoConfigMapName)
 	//nolint:noctx
 	req, _ := http.NewRequest("GET", pinnipedInfoURL, http.NoBody)
 	pool := x509.NewCertPool()
@@ -176,7 +182,7 @@ func GetPinnipedInfoFromCluster(clusterInfo *clientcmdapi.Cluster) (*PinnipedCon
 		if response.StatusCode == http.StatusNotFound {
 			return nil, nil
 		}
-		return nil, errors.New("failed to get pinniped-info from the cluster")
+		return nil, fmt.Errorf("failed to get pinniped-info from the cluster. Status code: %+v", response.StatusCode)
 	}
 
 	responseBody, err := io.ReadAll(response.Body)

@@ -4,10 +4,13 @@
 package client
 
 import (
+	"encoding/json"
 	"fmt"
 	"time"
 
+	"github.com/aunum/log"
 	"github.com/pkg/errors"
+	corev1 "k8s.io/api/core/v1"
 	"k8s.io/client-go/tools/clientcmd"
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
 
@@ -51,11 +54,12 @@ func (c *TkgClient) GetClusterPinnipedInfo(options GetClusterPinnipedInfoOptions
 	if err != nil {
 		return nil, errors.Wrap(err, "error determining 'Tanzu Kubernetes Cluster service for vSphere' management cluster")
 	}
-	if isPacific {
-		return nil, errors.New("getting pinniped information not supported for 'Tanzu Kubernetes Cluster service for vSphere' cluster")
+	if isPacific && options.IsManagementCluster {
+		return nil, errors.New("getting pinniped information not supported for 'Tanzu Kubernetes Cluster service for vSphere' management cluster")
 	}
 
 	if options.IsManagementCluster {
+		// XXX See if anything needs to be fixed here. Or do we want to leave this unsupported?
 		return c.GetMCClusterPinnipedInfo(regionalClusterClient, curRegion, options)
 	}
 
@@ -70,18 +74,33 @@ func (c *TkgClient) GetWCClusterPinnipedInfo(regionalClusterClient clusterclient
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get workload cluster information")
 	}
-	// for workload cluster pinniped-info should be available on management cluster
-	mcClusterInfo, err := getClusterInfo(regionalClusterClient, curRegion.ClusterName, TKGsystemNamespace)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to get management cluster information")
-	}
-	managementClusterPinnipedInfo, err := utils.GetPinnipedInfoFromCluster(mcClusterInfo)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to get pinniped-info from management cluster")
-	}
-	if managementClusterPinnipedInfo == nil {
+
+	// The existing PinnipedInfoConfigMap struct is a marshalled form of a
+	// ConfigMap. Marshal and unmarshal the raw CM into that struct so we can
+	// use it.
+	// TODO(mayankbh) This is a shorter term approach. The _right_ thing might
+	// be to significantly refactor the PinnipedConfigMapInfo struct so it can
+	// be constructed from an existing ConfigMap.
+	configMap := corev1.ConfigMap{}
+
+	if err := regionalClusterClient.GetResource(&configMap, utils.PinnipedInfoConfigMapName, utils.KubePublicNamespace, nil, nil); err != nil {
 		return nil, errors.New("failed to get pinniped-info from management cluster")
 	}
+
+	log.Debugf("Management cluster pinniped ConfigMap: %+v", configMap)
+
+	marshalledCM, err := json.Marshal(configMap)
+	if err != nil {
+		return nil, errors.New("failed to marshal pinniped-info from management cluster")
+	}
+
+	managementClusterPinnipedInfo := &utils.PinnipedConfigMapInfo{}
+
+	if err := json.Unmarshal(marshalledCM, managementClusterPinnipedInfo); err != nil {
+		return nil, errors.New("failed to unmarshal pinniped-info from management cluster")
+	}
+
+	log.Debugf("Management cluster pinniped info: %+v", managementClusterPinnipedInfo)
 
 	workloadClusterPinnipedInfo, err := utils.GetPinnipedInfoFromCluster(wcClusterInfo)
 	if err != nil {

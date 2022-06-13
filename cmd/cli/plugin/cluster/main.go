@@ -66,6 +66,8 @@ func createTKGClient(kubeconfig, kubecontext string) (tkgctl.TKGClient, error) {
 	if err != nil {
 		return nil, err
 	}
+	/// XXX set global logger options?
+	log.GlobalLevel = log.Level(logLevel)
 	return tkgctl.New(tkgctl.Options{
 		ConfigDir:   configDir,
 		KubeConfig:  kubeconfig,
