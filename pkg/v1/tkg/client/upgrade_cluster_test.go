@@ -103,7 +103,7 @@ owner: root:root
 path: /etc/kubernetes/manifests/kube-vip.yaml`
 )
 
-var _ = Describe("Unit tests for upgrade cluster", func() {
+var _ = Describe("Unit tests for upgrading legacy cluster", func() {
 	var (
 		err                   error
 		regionalClusterClient *fakes.ClusterClient
@@ -635,217 +635,374 @@ var _ = Describe("When upgrading cluster with fake controller runtime client", f
 			SkipAddonUpgrade:    true,
 		}
 	})
+	Describe("When upgrading a legacy cluster with fake controller runtime client", func() {
+		BeforeEach(func() {
+			newK8sVersion = "v1.18.0+vmware.1"
+			currentK8sVersion = "v1.17.3+vmware.2"
+			setupBomFile("../fakes/config/bom/tkg-bom-v1.3.1.yaml", testingDir)
+			os.Setenv("SKIP_VSPHERE_TEMPLATE_VERIFICATION", "1")
+
+			regionalClusterOptions = fakehelper.TestAllClusterComponentOptions{
+				ClusterName: "cluster-1",
+				Namespace:   constants.DefaultNamespace,
+				Labels: map[string]string{
+					TkgLabelClusterRolePrefix + TkgLabelClusterRoleWorkload: "",
+				},
+				ClusterOptions: fakehelper.TestClusterOptions{
+					Phase:                   "provisioned",
+					InfrastructureReady:     true,
+					ControlPlaneInitialized: true,
+					ControlPlaneReady:       true,
+				},
+				CPOptions: fakehelper.TestCPOptions{
+					SpecReplicas:    3,
+					ReadyReplicas:   3,
+					UpdatedReplicas: 3,
+					Replicas:        3,
+					K8sVersion:      "v1.18.2+vmware.1",
+					InfrastructureTemplate: fakehelper.TestObject{
+						Kind:      constants.VSphereMachineTemplate,
+						Name:      "cluster-1-control-plane",
+						Namespace: constants.DefaultNamespace,
+					},
+				},
+				ListMDOptions: fakehelper.GetListMDOptionsFromMDOptions(fakehelper.TestMDOptions{
+					SpecReplicas:    3,
+					ReadyReplicas:   3,
+					UpdatedReplicas: 3,
+					Replicas:        3,
+					InfrastructureTemplate: fakehelper.TestObject{
+						Kind:      constants.VSphereMachineTemplate,
+						Name:      "cluster-1-md-0",
+						Namespace: constants.DefaultNamespace,
+					},
+				}),
+				ClusterConfigurationOptions: fakehelper.TestClusterConfiguration{
+					ImageRepository:     "fake.image.repository",
+					DNSImageRepository:  "fake.image.repository",
+					DNSImageTag:         "v1.6.7_vmware.1",
+					EtcdImageRepository: "fake.image.repository",
+					EtcdImageTag:        "v3.4.3_vmware.5",
+				},
+				MachineOptions: []fakehelper.TestMachineOptions{
+					{Phase: "running", K8sVersion: "v1.18.2+vmware.1", IsCP: true},
+					{Phase: "running", K8sVersion: "v1.18.2+vmware.1", IsCP: true},
+					{Phase: "running", K8sVersion: "v1.18.2+vmware.1", IsCP: true},
+					{Phase: "running", K8sVersion: "v1.18.2+vmware.1", IsCP: false},
+					{Phase: "running", K8sVersion: "v1.18.2+vmware.1", IsCP: false},
+					{Phase: "running", K8sVersion: "v1.18.2+vmware.1", IsCP: false},
+				},
+			}
+		})
+
+		JustBeforeEach(func() {
+			configureTKGClient()
+			err = tkgClient.DoClusterUpgrade(regionalClusterClient, currentClusterClient, &upgradeClusterOptions)
+		})
+
+		// Context("When get current k8s version < new version of cluster only in +vmware.<version>", func() {
+		// 	BeforeEach(func() {
+		// 		upgradeClusterOptions.KubernetesVersion = "v1.18.0+vmware.1"
+		// 		currentClusterK8sVersion = "v1.18.0+vmware.0"
+		// 	})
+		// 	It("should not return an error", func() {
+		// 		Expect(err).NotTo(HaveOccurred())
+		// 	})
+		// })
+		Context("When get current k8s version > new version of cluster only in +vmware.<version>", func() {
+			BeforeEach(func() {
+				upgradeClusterOptions.KubernetesVersion = "v1.18.0+vmware.1"
+				currentClusterK8sVersion = "v1.18.0+vmware.2"
+			})
+			It("should return an error", func() {
+				Expect(err).To(HaveOccurred())
+				Expect(err.Error()).To(ContainSubstring("attempted to upgrade kubernetes from v1.18.0+vmware.2 to v1.18.0+vmware.1. Kubernetes version downgrade is not allowed."))
+			})
+		})
+		Context("When get current k8s version > new version of cluster only in +vmware.<version>", func() {
+			BeforeEach(func() {
+				upgradeClusterOptions.KubernetesVersion = "v1.18.0+vmware.2"
+				currentClusterK8sVersion = "v1.18.0+vmware.11"
+			})
+			It("should return an error", func() {
+				Expect(err).To(HaveOccurred())
+				Expect(err.Error()).To(ContainSubstring("attempted to upgrade kubernetes from v1.18.0+vmware.11 to v1.18.0+vmware.2. Kubernetes version downgrade is not allowed."))
+			})
+		})
+		Context("When get current k8s version > new version of cluster only in +vmware.<version>", func() {
+			BeforeEach(func() {
+				upgradeClusterOptions.KubernetesVersion = "v1.18.0+vmware.2"
+				currentClusterK8sVersion = "v2.18.0+vmware.11"
+			})
+			It("should return an error", func() {
+				Expect(err).To(HaveOccurred())
+				Expect(err.Error()).To(ContainSubstring("attempted to upgrade kubernetes from v2.18.0+vmware.11 to v1.18.0+vmware.2. Kubernetes version downgrade is not allowed."))
+			})
+		})
+		// Context("When get current k8s version == new version of cluster", func() {
+		// 	BeforeEach(func() {
+		// 		upgradeClusterOptions.KubernetesVersion = "v1.18.0+vmware.1"
+		// 		currentClusterK8sVersion = "v1.18.0+vmware.1"
+		// 	})
+		// 	It("should not return an error", func() {
+		// 		Expect(err).NotTo(HaveOccurred())
+		// 	})
+		// })
+		// Context("When get current k8s version < new version of cluster", func() {
+		// 	BeforeEach(func() {
+		// 		currentClusterK8sVersion = "v1.18.0+vmware.0"
+		// 	})
+		// 	It("should not return an error", func() {
+		// 		Expect(err).NotTo(HaveOccurred())
+		// 	})
+		// })
+		Context("When get current k8s version > new version of cluster", func() {
+			BeforeEach(func() {
+				currentClusterK8sVersion = "v1.18.0+vmware.4"
+			})
+			It("returns an error", func() {
+				Expect(err).To(HaveOccurred())
+				Expect(err.Error()).To(ContainSubstring("attempted to upgrade kubernetes from v1.18.0+vmware.4 to v1.18.0+vmware.1. Kubernetes version downgrade is not allowed."))
+			})
+		})
+		Context("When get current k8s version > new version of cluster", func() {
+			BeforeEach(func() {
+				currentClusterK8sVersion = "v1.18.5+vmware.1"
+			})
+			It("returns an error", func() {
+				Expect(err).To(HaveOccurred())
+				Expect(err.Error()).To(ContainSubstring("attempted to upgrade kubernetes from v1.18.5+vmware.1 to v1.18.0+vmware.1. Kubernetes version downgrade is not allowed."))
+			})
+		})
+
+		var _ = Describe("Test PatchKubernetesVersionToKubeadmControlPlane", func() {
+			Context("Testing EtcdExtraArgs parameter configuration", func() {
+				It("when EtcdExtraArgs is defined", func() {
+					clusterUpgradeConfig := &ClusterUpgradeInfo{
+						ClusterName:      "cluster-1",
+						ClusterNamespace: constants.DefaultNamespace,
+						UpgradeComponentInfo: ComponentInfo{
+							EtcdExtraArgs:     map[string]string{"fake-arg": "fake-arg-value"},
+							KubernetesVersion: "v1.18.0+vmware.2",
+						},
+						ActualComponentInfo: ComponentInfo{
+							KubernetesVersion: "v1.18.0+vmware.1",
+						},
+					}
+
+					err = tkgClient.PatchKubernetesVersionToKubeadmControlPlane(regionalClusterClient, clusterUpgradeConfig)
+					Expect(err).To(BeNil())
+
+					updatedKCP, err := regionalClusterClient.GetKCPObjectForCluster(clusterUpgradeConfig.ClusterName, clusterUpgradeConfig.ClusterNamespace)
+					Expect(err).To(BeNil())
+					Expect(updatedKCP.ObjectMeta.Name).To(Equal("kcp-cluster-1"))
+					Expect(updatedKCP.Spec.KubeadmConfigSpec.ClusterConfiguration.Etcd.Local.ExtraArgs["fake-arg"]).To(Equal("fake-arg-value"))
+				})
+
+				It("when EtcdExtraArgs is empty", func() {
+					clusterUpgradeConfig := &ClusterUpgradeInfo{
+						ClusterName:      "cluster-1",
+						ClusterNamespace: constants.DefaultNamespace,
+						UpgradeComponentInfo: ComponentInfo{
+							EtcdExtraArgs:     map[string]string{},
+							KubernetesVersion: "v1.18.0+vmware.2",
+						},
+						ActualComponentInfo: ComponentInfo{
+							KubernetesVersion: "v1.18.0+vmware.1",
+						},
+					}
+
+					err = tkgClient.PatchKubernetesVersionToKubeadmControlPlane(regionalClusterClient, clusterUpgradeConfig)
+					Expect(err).To(BeNil())
+
+					updatedKCP, err := regionalClusterClient.GetKCPObjectForCluster(clusterUpgradeConfig.ClusterName, clusterUpgradeConfig.ClusterNamespace)
+					Expect(err).To(BeNil())
+					Expect(updatedKCP.ObjectMeta.Name).To(Equal("kcp-cluster-1"))
+					Expect(len(updatedKCP.Spec.KubeadmConfigSpec.ClusterConfiguration.Etcd.Local.ExtraArgs)).To(Equal(0))
+				})
+			})
+		})
+
+		var _ = Describe("Test helper functions", func() {
+			Context("Testing the kube-vip modifier helper function", func() {
+				It("modifies the kube-vip parameters", func() {
+					pod := corev1.Pod{}
+					err := yaml.Unmarshal([]byte(kubeVipPodString), &pod)
+					Expect(err).To(BeNil())
+
+					newPodString, err := ModifyKubeVipAndSerialize(&pod, "30", "20", "4")
+					Expect(err).To(BeNil())
+
+					Expect(newPodString).ToNot(BeNil())
+				})
+			})
+			Context("Testing the KCP modifier helper function", func() {
+				It("Updates the KCP object with increased timeouts", func() {
+					currentKCP := getDummyKCP(constants.VSphereMachineTemplate)
+					newKCP, err := tkgClient.UpdateKCPObjectWithIncreasedKubeVip(currentKCP)
+
+					Expect(err).To(BeNil())
+					Expect(len(newKCP.Spec.KubeadmConfigSpec.Files)).To(Equal(1))
+					Expect(newKCP.Spec.KubeadmConfigSpec.Files[0].Content).To(ContainSubstring("value: \"30\""))
+					Expect(newKCP.Spec.KubeadmConfigSpec.Files[0].Content).To(ContainSubstring("name: cp_enable"))
+					Expect(newKCP.Spec.KubeadmConfigSpec.Files[0].Content).To(ContainSubstring("NET_RAW"))
+				})
+			})
+		})
+	})
+
+	Describe("When upgrading clusterclass-based cluster with fake controller runtime client", func() {
+
+		BeforeEach(func() {
+			upgradeClusterOptions.KubernetesVersion = "v1.18.2+vmware.1"
+			currentK8sVersion = "v1.17.3+vmware.2"
+			setupBomFile("../fakes/config/bom/tkg-bom-v1.3.1.yaml", testingDir)
+			os.Setenv("SKIP_VSPHERE_TEMPLATE_VERIFICATION", "1")
+
+			regionalClusterOptions = fakehelper.TestAllClusterComponentOptions{
+				ClusterName: "cluster-1",
+				Namespace:   constants.DefaultNamespace,
+				Labels: map[string]string{
+					TkgLabelClusterRolePrefix + TkgLabelClusterRoleWorkload: "",
+				},
+				ClusterOptions: fakehelper.TestClusterOptions{
+					Phase:                   "provisioned",
+					InfrastructureReady:     true,
+					ControlPlaneInitialized: true,
+					ControlPlaneReady:       true,
+				},
+				ClusterTopology: fakehelper.TestClusterTopology{
+					Class:   "test-fake-clusterclass",
+					Version: currentK8sVersion,
+				},
+				CPOptions: fakehelper.TestCPOptions{
+					SpecReplicas:    3,
+					ReadyReplicas:   3,
+					UpdatedReplicas: 3,
+					Replicas:        3,
+					K8sVersion:      "v1.18.2+vmware.1",
+					InfrastructureTemplate: fakehelper.TestObject{
+						Kind:      constants.VSphereMachineTemplate,
+						Name:      "cluster-1-control-plane",
+						Namespace: constants.DefaultNamespace,
+					},
+				},
+				ListMDOptions: fakehelper.GetListMDOptionsFromMDOptions(fakehelper.TestMDOptions{
+					SpecReplicas:    3,
+					ReadyReplicas:   3,
+					UpdatedReplicas: 3,
+					Replicas:        3,
+					InfrastructureTemplate: fakehelper.TestObject{
+						Kind:      constants.VSphereMachineTemplate,
+						Name:      "cluster-1-md-0",
+						Namespace: constants.DefaultNamespace,
+					},
+				}),
+				ClusterConfigurationOptions: fakehelper.TestClusterConfiguration{
+					ImageRepository:     "fake.image.repository",
+					DNSImageRepository:  "fake.image.repository",
+					DNSImageTag:         "v1.6.7_vmware.1",
+					EtcdImageRepository: "fake.image.repository",
+					EtcdImageTag:        "v3.4.3_vmware.5",
+				},
+				MachineOptions: []fakehelper.TestMachineOptions{
+					{Phase: "running", K8sVersion: "v1.18.2+vmware.1", IsCP: true},
+					{Phase: "running", K8sVersion: "v1.18.2+vmware.1", IsCP: true},
+					{Phase: "running", K8sVersion: "v1.18.2+vmware.1", IsCP: true},
+					{Phase: "running", K8sVersion: "v1.18.2+vmware.1", IsCP: false},
+					{Phase: "running", K8sVersion: "v1.18.2+vmware.1", IsCP: false},
+					{Phase: "running", K8sVersion: "v1.18.2+vmware.1", IsCP: false},
+				},
+			}
+		})
+
+		Context("Verify the .spec.topology.version got updated and cluster upgrade is successful", func() {
+			BeforeEach(func() {
+				configureTKGClient()
+				Expect(regionalClusterClient).NotTo(BeNil())
+
+				err = tkgClient.DoClassyClusterUpgrade(regionalClusterClient, currentClusterClient, &upgradeClusterOptions)
+			})
+
+			It("should return an error", func() {
+				Expect(err).To(BeNil())
+				Expect(regionalClusterClient).NotTo(BeNil())
+				Expect(upgradeClusterOptions).NotTo(BeNil())
+				cluster := &capi.Cluster{}
+				err = regionalClusterClient.GetResource(cluster, upgradeClusterOptions.ClusterName, upgradeClusterOptions.Namespace, nil, nil)
+				Expect(err).To(BeNil())
+				Expect(cluster.Spec.Topology.Version).To(Equal(upgradeClusterOptions.KubernetesVersion))
+			})
+		})
+	})
+})
+
+var _ = Describe("Unit tests for clusterclass-based upgrade", func() {
+	var (
+		err                   error
+		regionalClusterClient *fakes.ClusterClient
+		currentClusterClient  *fakes.ClusterClient
+		tkgClient             *TkgClient
+		upgradeClusterOptions UpgradeClusterOptions
+	)
 
 	BeforeEach(func() {
-		newK8sVersion = "v1.18.0+vmware.1"
-		currentK8sVersion = "v1.17.3+vmware.2"
-		setupBomFile("../fakes/config/bom/tkg-bom-v1.3.1.yaml", testingDir)
-		os.Setenv("SKIP_VSPHERE_TEMPLATE_VERIFICATION", "1")
+		regionalClusterClient = &fakes.ClusterClient{}
+		currentClusterClient = &fakes.ClusterClient{}
 
-		regionalClusterOptions = fakehelper.TestAllClusterComponentOptions{
-			ClusterName: "cluster-1",
-			Namespace:   constants.DefaultNamespace,
-			Labels: map[string]string{
-				TkgLabelClusterRolePrefix + TkgLabelClusterRoleWorkload: "",
-			},
-			ClusterOptions: fakehelper.TestClusterOptions{
-				Phase:                   "provisioned",
-				InfrastructureReady:     true,
-				ControlPlaneInitialized: true,
-				ControlPlaneReady:       true,
-			},
-			CPOptions: fakehelper.TestCPOptions{
-				SpecReplicas:    3,
-				ReadyReplicas:   3,
-				UpdatedReplicas: 3,
-				Replicas:        3,
-				K8sVersion:      "v1.18.2+vmware.1",
-				InfrastructureTemplate: fakehelper.TestObject{
-					Kind:      constants.VSphereMachineTemplate,
-					Name:      "cluster-1-control-plane",
-					Namespace: constants.DefaultNamespace,
-				},
-			},
-			ListMDOptions: fakehelper.GetListMDOptionsFromMDOptions(fakehelper.TestMDOptions{
-				SpecReplicas:    3,
-				ReadyReplicas:   3,
-				UpdatedReplicas: 3,
-				Replicas:        3,
-				InfrastructureTemplate: fakehelper.TestObject{
-					Kind:      constants.VSphereMachineTemplate,
-					Name:      "cluster-1-md-0",
-					Namespace: constants.DefaultNamespace,
-				},
-			}),
-			ClusterConfigurationOptions: fakehelper.TestClusterConfiguration{
-				ImageRepository:     "fake.image.repository",
-				DNSImageRepository:  "fake.image.repository",
-				DNSImageTag:         "v1.6.7_vmware.1",
-				EtcdImageRepository: "fake.image.repository",
-				EtcdImageTag:        "v3.4.3_vmware.5",
-			},
-			MachineOptions: []fakehelper.TestMachineOptions{
-				{Phase: "running", K8sVersion: "v1.18.2+vmware.1", IsCP: true},
-				{Phase: "running", K8sVersion: "v1.18.2+vmware.1", IsCP: true},
-				{Phase: "running", K8sVersion: "v1.18.2+vmware.1", IsCP: true},
-				{Phase: "running", K8sVersion: "v1.18.2+vmware.1", IsCP: false},
-				{Phase: "running", K8sVersion: "v1.18.2+vmware.1", IsCP: false},
-				{Phase: "running", K8sVersion: "v1.18.2+vmware.1", IsCP: false},
-			},
+		tkgClient, err = CreateTKGClient("../fakes/config/config.yaml", testingDir, "../fakes/config/bom/tkg-bom-v1.3.1.yaml", 2*time.Millisecond)
+
+		upgradeClusterOptions = UpgradeClusterOptions{
+			ClusterName:       "fake-cluster-name",
+			Namespace:         "fake-namespace",
+			KubernetesVersion: "v1.23.5+vmware.1",
+			TkrVersion:        newTKRVersion,
+			IsRegionalCluster: false,
+			SkipAddonUpgrade:  true,
 		}
 	})
+
 	JustBeforeEach(func() {
-		configureTKGClient()
-		err = tkgClient.DoClusterUpgrade(regionalClusterClient, currentClusterClient, &upgradeClusterOptions)
+		err = tkgClient.DoClassyClusterUpgrade(regionalClusterClient, currentClusterClient, &upgradeClusterOptions)
 	})
-
-	// Context("When get current k8s version < new version of cluster only in +vmware.<version>", func() {
-	// 	BeforeEach(func() {
-	// 		upgradeClusterOptions.KubernetesVersion = "v1.18.0+vmware.1"
-	// 		currentClusterK8sVersion = "v1.18.0+vmware.0"
-	// 	})
-	// 	It("should not return an error", func() {
-	// 		Expect(err).NotTo(HaveOccurred())
-	// 	})
-	// })
-	Context("When get current k8s version > new version of cluster only in +vmware.<version>", func() {
+	Context("When cluster patch fails", func() {
 		BeforeEach(func() {
-			upgradeClusterOptions.KubernetesVersion = "v1.18.0+vmware.1"
-			currentClusterK8sVersion = "v1.18.0+vmware.2"
+			regionalClusterClient.PatchClusterObjectReturns(errors.New("fake-patch-error"))
 		})
 		It("should return an error", func() {
 			Expect(err).To(HaveOccurred())
-			Expect(err.Error()).To(ContainSubstring("attempted to upgrade kubernetes from v1.18.0+vmware.2 to v1.18.0+vmware.1. Kubernetes version downgrade is not allowed."))
+			Expect(err.Error()).To(ContainSubstring("unable to patch kubernetes version to cluster: fake-patch-error"))
 		})
 	})
-	Context("When get current k8s version > new version of cluster only in +vmware.<version>", func() {
+	Context("When failure happens while waiting for control-plane node upgrade", func() {
 		BeforeEach(func() {
-			upgradeClusterOptions.KubernetesVersion = "v1.18.0+vmware.2"
-			currentClusterK8sVersion = "v1.18.0+vmware.11"
+			regionalClusterClient.PatchClusterObjectReturns(nil)
+			regionalClusterClient.WaitK8sVersionUpdateForCPNodesReturns(errors.New("fake-error-kcp-upgrade"))
 		})
 		It("should return an error", func() {
 			Expect(err).To(HaveOccurred())
-			Expect(err.Error()).To(ContainSubstring("attempted to upgrade kubernetes from v1.18.0+vmware.11 to v1.18.0+vmware.2. Kubernetes version downgrade is not allowed."))
+			Expect(err.Error()).To(ContainSubstring("error waiting for kubernetes version update for kubeadm control plane: fake-error-kcp-upgrade"))
 		})
 	})
-	Context("When get current k8s version > new version of cluster only in +vmware.<version>", func() {
+	Context("When failure happens while waiting for worker node upgrade", func() {
 		BeforeEach(func() {
-			upgradeClusterOptions.KubernetesVersion = "v1.18.0+vmware.2"
-			currentClusterK8sVersion = "v2.18.0+vmware.11"
+			regionalClusterClient.PatchClusterObjectReturns(nil)
+			regionalClusterClient.WaitK8sVersionUpdateForCPNodesReturns(nil)
+			regionalClusterClient.WaitK8sVersionUpdateForWorkerNodesReturns(errors.New("fake-error-worker-upgrade"))
 		})
 		It("should return an error", func() {
 			Expect(err).To(HaveOccurred())
-			Expect(err.Error()).To(ContainSubstring("attempted to upgrade kubernetes from v2.18.0+vmware.11 to v1.18.0+vmware.2. Kubernetes version downgrade is not allowed."))
+			Expect(err.Error()).To(ContainSubstring("error waiting for kubernetes version update for worker nodes: fake-error-worker-upgrade"))
 		})
 	})
-	// Context("When get current k8s version == new version of cluster", func() {
-	// 	BeforeEach(func() {
-	// 		upgradeClusterOptions.KubernetesVersion = "v1.18.0+vmware.1"
-	// 		currentClusterK8sVersion = "v1.18.0+vmware.1"
-	// 	})
-	// 	It("should not return an error", func() {
-	// 		Expect(err).NotTo(HaveOccurred())
-	// 	})
-	// })
-	// Context("When get current k8s version < new version of cluster", func() {
-	// 	BeforeEach(func() {
-	// 		currentClusterK8sVersion = "v1.18.0+vmware.0"
-	// 	})
-	// 	It("should not return an error", func() {
-	// 		Expect(err).NotTo(HaveOccurred())
-	// 	})
-	// })
-	Context("When get current k8s version > new version of cluster", func() {
+	Context("When cluster patch is successful and cluster get's upgraded successfully", func() {
 		BeforeEach(func() {
-			currentClusterK8sVersion = "v1.18.0+vmware.4"
+			regionalClusterClient.PatchClusterObjectReturns(nil)
+			regionalClusterClient.WaitK8sVersionUpdateForCPNodesReturns(nil)
+			regionalClusterClient.WaitK8sVersionUpdateForWorkerNodesReturns(nil)
 		})
-		It("returns an error", func() {
-			Expect(err).To(HaveOccurred())
-			Expect(err.Error()).To(ContainSubstring("attempted to upgrade kubernetes from v1.18.0+vmware.4 to v1.18.0+vmware.1. Kubernetes version downgrade is not allowed."))
-		})
-	})
-	Context("When get current k8s version > new version of cluster", func() {
-		BeforeEach(func() {
-			currentClusterK8sVersion = "v1.18.5+vmware.1"
-		})
-		It("returns an error", func() {
-			Expect(err).To(HaveOccurred())
-			Expect(err.Error()).To(ContainSubstring("attempted to upgrade kubernetes from v1.18.5+vmware.1 to v1.18.0+vmware.1. Kubernetes version downgrade is not allowed."))
-		})
-	})
-
-	var _ = Describe("Test PatchKubernetesVersionToKubeadmControlPlane", func() {
-		Context("Testing EtcdExtraArgs parameter configuration", func() {
-			It("when EtcdExtraArgs is defined", func() {
-				clusterUpgradeConfig := &ClusterUpgradeInfo{
-					ClusterName:      "cluster-1",
-					ClusterNamespace: constants.DefaultNamespace,
-					UpgradeComponentInfo: ComponentInfo{
-						EtcdExtraArgs:     map[string]string{"fake-arg": "fake-arg-value"},
-						KubernetesVersion: "v1.18.0+vmware.2",
-					},
-					ActualComponentInfo: ComponentInfo{
-						KubernetesVersion: "v1.18.0+vmware.1",
-					},
-				}
-
-				err = tkgClient.PatchKubernetesVersionToKubeadmControlPlane(regionalClusterClient, clusterUpgradeConfig)
-				Expect(err).To(BeNil())
-
-				updatedKCP, err := regionalClusterClient.GetKCPObjectForCluster(clusterUpgradeConfig.ClusterName, clusterUpgradeConfig.ClusterNamespace)
-				Expect(err).To(BeNil())
-				Expect(updatedKCP.ObjectMeta.Name).To(Equal("kcp-cluster-1"))
-				Expect(updatedKCP.Spec.KubeadmConfigSpec.ClusterConfiguration.Etcd.Local.ExtraArgs["fake-arg"]).To(Equal("fake-arg-value"))
-			})
-
-			It("when EtcdExtraArgs is empty", func() {
-				clusterUpgradeConfig := &ClusterUpgradeInfo{
-					ClusterName:      "cluster-1",
-					ClusterNamespace: constants.DefaultNamespace,
-					UpgradeComponentInfo: ComponentInfo{
-						EtcdExtraArgs:     map[string]string{},
-						KubernetesVersion: "v1.18.0+vmware.2",
-					},
-					ActualComponentInfo: ComponentInfo{
-						KubernetesVersion: "v1.18.0+vmware.1",
-					},
-				}
-
-				err = tkgClient.PatchKubernetesVersionToKubeadmControlPlane(regionalClusterClient, clusterUpgradeConfig)
-				Expect(err).To(BeNil())
-
-				updatedKCP, err := regionalClusterClient.GetKCPObjectForCluster(clusterUpgradeConfig.ClusterName, clusterUpgradeConfig.ClusterNamespace)
-				Expect(err).To(BeNil())
-				Expect(updatedKCP.ObjectMeta.Name).To(Equal("kcp-cluster-1"))
-				Expect(len(updatedKCP.Spec.KubeadmConfigSpec.ClusterConfiguration.Etcd.Local.ExtraArgs)).To(Equal(0))
-			})
-		})
-	})
-
-	var _ = Describe("Test helper functions", func() {
-		Context("Testing the kube-vip modifier helper function", func() {
-			It("modifies the kube-vip parameters", func() {
-				pod := corev1.Pod{}
-				err := yaml.Unmarshal([]byte(kubeVipPodString), &pod)
-				Expect(err).To(BeNil())
-
-				newPodString, err := ModifyKubeVipAndSerialize(&pod, "30", "20", "4")
-				Expect(err).To(BeNil())
-
-				Expect(newPodString).ToNot(BeNil())
-			})
-		})
-		Context("Testing the KCP modifier helper function", func() {
-			It("Updates the KCP object with increased timeouts", func() {
-				currentKCP := getDummyKCP(constants.VSphereMachineTemplate)
-				newKCP, err := tkgClient.UpdateKCPObjectWithIncreasedKubeVip(currentKCP)
-
-				Expect(err).To(BeNil())
-				Expect(len(newKCP.Spec.KubeadmConfigSpec.Files)).To(Equal(1))
-				Expect(newKCP.Spec.KubeadmConfigSpec.Files[0].Content).To(ContainSubstring("value: \"30\""))
-				Expect(newKCP.Spec.KubeadmConfigSpec.Files[0].Content).To(ContainSubstring("name: cp_enable"))
-				Expect(newKCP.Spec.KubeadmConfigSpec.Files[0].Content).To(ContainSubstring("NET_RAW"))
-			})
+		It("should not return an error", func() {
+			Expect(err).NotTo(HaveOccurred())
 		})
 	})
 })

@@ -73,6 +73,10 @@ func NewCluster(options TestAllClusterComponentOptions) *capi.Cluster {
 			Name:       "kcp-" + options.ClusterName,
 			APIVersion: controlplanev1.GroupVersion.String(),
 		},
+		Topology: &capi.Topology{
+			Class:   options.ClusterTopology.Class,
+			Version: options.ClusterTopology.Version,
+		},
 	}
 	cluster.Status = capi.ClusterStatus{
 		Phase:               options.ClusterOptions.Phase,
