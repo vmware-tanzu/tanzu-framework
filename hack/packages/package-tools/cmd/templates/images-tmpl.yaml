@@ -1,0 +1,19 @@
+#@ load("@ytt:data", "data")
+#@ load("package-helpers.lib.yaml", "get_package_repository")
+
+#@ package_repository = get_package_repository(data.values.packageRepository, "")
+
+---
+apiVersion: imgpkg.carvel.dev/v1alpha1
+images:
+  #@ for package in package_repository.packages:
+  #@ if not hasattr(package, "packageSubVersion") or package.packageSubVersion == "":
+  #@ imagePackageVersion = "v" + package.version
+  #@ else:
+  #@ imagePackageVersion = "v" + package.version + "_" + package.packageSubVersion
+  #@ end
+  - annotations:
+      kbld.carvel.dev/id: #@ "{}/{}:{}".format(data.values.registry, package.name, imagePackageVersion)
+    image: #@ "{}/{}@sha256:{}".format(data.values.registry, package.name, package.sha256)
+#@ end
+kind: ImagesLock

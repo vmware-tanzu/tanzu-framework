@@ -1,0 +1,14 @@
+#@ load("@ytt:data", "data")
+#@ load("package-helpers.lib.yaml", "get_package_repository")
+
+#@ package_repository = get_package_repository(data.values.packageRepository, "")
+
+---
+apiVersion: packaging.carvel.dev/v1alpha1
+kind: PackageRepository
+metadata:
+  name: #@ "{}.{}".format(package_repository.name, package_repository.domain)
+spec:
+  fetch:
+    imgpkgBundle:
+      image: #@ "{}/{}@sha256:{}".format(data.values.registry, package_repository.name, data.values.sha256)

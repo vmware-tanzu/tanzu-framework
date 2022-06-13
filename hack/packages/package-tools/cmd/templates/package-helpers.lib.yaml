@@ -1,0 +1,34 @@
+#@ load("@ytt:data", "data")
+#@ load("@ytt:assert", "assert")
+
+#@ def get_package_repository(repository_name, package_name):
+#@   if repository_name == "":
+#@    for repository in data.values.repositories:
+#@      for package in data.values.repositories[repository].packages:
+#@        if package.name == package_name:
+#@          return data.values.repositories[repository]
+#@        end
+#@      end
+#@    end
+#@   else:
+#@     return data.values.repositories[repository_name]
+#@   end
+#@ end
+
+#@ def get_package(package_repository, package_name):
+#@  for package in package_repository.packages:
+#@    if package.name == package_name:
+#@      return package
+#@    end
+#@  end
+#@  return None
+#@ end
+
+#@ def get_package_spec(package_repository, package):
+#@ if hasattr(package, 'spec'):
+#@   return package.spec
+#@ elif hasattr(package_repository, 'packageSpec'):
+#@   return package_repository.packageSpec
+#@ end
+#@ return None
+#@ end
