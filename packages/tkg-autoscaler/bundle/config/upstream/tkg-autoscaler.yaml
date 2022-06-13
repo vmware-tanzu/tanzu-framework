@@ -23,7 +23,6 @@
 #@   return args
 #@ end
 
-#@ if data.values.TKG_CLUSTER_ROLE == "workload" and data.values.PROVIDER_TYPE != "tkg-service-vsphere":
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -43,7 +42,7 @@ spec:
         app: #@ "{}-cluster-autoscaler".format(data.values.CLUSTER_NAME)
     spec:
       containers:
-        - image: tkg-autoscaler:latest
+        - image: #@ data.values.autoscaler_image
           name: #@ "{}-cluster-autoscaler".format(data.values.CLUSTER_NAME)
           volumeMounts:
             - name: #@ autoscaler_volume_name()
@@ -208,4 +207,3 @@ rules:
       - get
       - update
 
-#@ end
