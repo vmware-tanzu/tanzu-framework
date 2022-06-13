@@ -5,7 +5,7 @@
 
 #! User configurable values for tkg-autoscaler
 
-CLUSTER_NAME:
+CLUSTER_NAME: ""
 NAMESPACE:
 AUTOSCALER_MAX_NODES_TOTAL: "0"
 AUTOSCALER_SCALE_DOWN_DELAY_AFTER_ADD: "10m"

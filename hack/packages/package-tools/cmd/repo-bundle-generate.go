@@ -91,12 +91,13 @@ func generatePackageBundlesSha256(projectRootDir, localRegistry string) error {
 		return fmt.Errorf("repository not found %s", packageRepository)
 	}
 
-	for i, pkg := range repository.Packages {
+	for i := range repository.Packages {
+		pkg := repository.Packages[i]
 		formattedVer := formatVersion(&repository.Packages[i], "_")
 		packagePath := filepath.Join(projectRootDir, "packages", pkg.Name)
 		toolsBinDir := filepath.Join(projectRootDir, constants.ToolsBinDirPath)
 
-		if err := utils.RunMakeTarget(packagePath, "configure-package"); err != nil {
+		if err := utils.RunMakeTarget(packagePath, "configure-package", getEnvArrayFromMap(pkg.Env)...); err != nil {
 			return err
 		}
 
@@ -227,7 +228,7 @@ func generateRepoBundle(projectRootDir string) error {
 
 func generatePackageCR(projectRootDir, toolsBinDir, registry, packageArtifactDirectory, packageValuesFile string, pkg *Package) error {
 	// package values file
-	fmt.Printf("Generating Package CR for package %q...\n", pkg.Name)
+	fmt.Printf("Generating Package CR for package '%s:%s'...\n", pkg.Name, pkg.Version)
 	if err := utils.CreateDir(filepath.Join(packageArtifactDirectory, pkg.Name+"."+pkg.Domain)); err != nil {
 		return err
 	}

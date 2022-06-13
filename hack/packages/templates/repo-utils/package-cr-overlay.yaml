@@ -5,9 +5,10 @@
 #@ package_repository = get_package_repository(data.values.packageRepository, data.values.packageName)
 #@ package = get_package(package_repository, data.values.packageName)
 #@ packageSpec = get_package_spec(package_repository, package)
+#@ skipVersionOverride = hasattr(package, "skipVersionOverride") and package.skipVersionOverride
 
 #@ if not hasattr(package, "packageSubVersion") and data.values.subVersion == "":
-#@  if package.version == "latest":
+#@  if package.version == "latest" or skipVersionOverride:
 #@    packageVersion = data.values.version
 #@  else:
 #@    packageVersion = package.version
@@ -17,7 +18,7 @@
 #@  if subVersion == "":
 #@    subVersion = package.packageSubVersion
 #@  end
-#@  if package.version == "latest":
+#@  if package.version == "latest" or skipVersionOverride:
 #@    packageVersion = data.values.version + "+" + subVersion
 #@  else:
 #@    packageVersion = package.version + "+" + subVersion
@@ -25,7 +26,7 @@
 #@ end
 
 #@ if not hasattr(package, "packageSubVersion") and data.values.subVersion == "":
-#@  if package.version == "latest":
+#@  if package.version == "latest" or skipVersionOverride:
 #@    imagePackageVersion = "v" + data.values.version
 #@  else:
 #@    imagePackageVersion = "v" + package.version
@@ -35,7 +36,7 @@
 #@  if subVersion == "":
 #@    subVersion = package.packageSubVersion
 #@  end
-#@  if package.version == "latest":
+#@  if package.version == "latest" or skipVersionOverride:
 #@    imagePackageVersion = "v" + data.values.version + "_" + subVersion
 #@  else:
 #@    imagePackageVersion = "v" + package.version + "_" + subVersion
