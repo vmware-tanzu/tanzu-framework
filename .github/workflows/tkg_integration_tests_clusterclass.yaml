@@ -2,29 +2,38 @@ name: TKG Integration Tests ClusterClass
 
 on:
   pull_request:
-    branches: [ main, release-*, package-based-lcm ]
+    branches: [ main, release-* ]
     paths:
       - 'pkg/v1/tkg/**'
       - 'pkg/v1/tkr/**'
       - 'pkg/v2/tkr/**'
+      - 'pkg/v1/sdk/features/**'
+      - 'pkg/v1/sdk/capabilities/**'
+      - 'pkg/v2/object-propagation/**'
+      - 'addons/**'
       - 'packages/**'
       - '!pkg/v1/tkg/tkgpackage*/*'
       - '!pkg/v1/tkg/kappclient/*'
       - '!pkg/v1/tkg/test/tkgpackageclient/**'
       - 'pkg/v1/providers/**'
       - '.github/workflows/tkg_integration_tests*.yaml'
-      - '.github/workflows/publish_management_package.yaml'
 
   push:
-    branches: [ package-based-lcm* ]
+    branches: [ main, release-* ]
     paths:
     - 'pkg/v1/tkg/**'
+    - 'pkg/v1/tkr/**'
+    - 'pkg/v2/tkr/**'
+    - 'pkg/v1/sdk/features/**'
+    - 'pkg/v1/sdk/capabilities/**'
+    - 'pkg/v2/object-propagation/**'
+    - 'addons/**'
+    - 'packages/**'
     - '!pkg/v1/tkg/tkgpackage*/*'
     - '!pkg/v1/tkg/kappclient/*'
     - '!pkg/v1/tkg/test/tkgpackageclient/**'
     - 'pkg/v1/providers/**'
     - '.github/workflows/tkg_integration_tests*.yaml'
-    - '.github/workflows/publish_management_package.yaml'
 
 concurrency:
   group: ${{ format('integration-tests-{0}', github.head_ref) }}
