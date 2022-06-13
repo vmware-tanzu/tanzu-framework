@@ -23,3 +23,15 @@ func KubectlApplyWithArgs(ctx context.Context, kubeconfigPath string, resources 
 	err := applyCmd.RunAndRedirectOutput(ctx)
 	return err
 }
+
+// KubectlWithArgs runs kubectl command with args
+func KubectlWithArgs(ctx context.Context, kubeconfigPath string, args ...string) error {
+	aargs := append([]string{"--kubeconfig", kubeconfigPath}, args...)
+	applyCmd := NewCommand(
+		WithCommand("kubectl"),
+		WithArgs(aargs...),
+		WithStdout(GinkgoWriter),
+	)
+	err := applyCmd.RunAndRedirectOutput(ctx)
+	return err
+}

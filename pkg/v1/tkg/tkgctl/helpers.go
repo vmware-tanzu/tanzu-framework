@@ -164,11 +164,11 @@ func (t *tkgctl) removeAuditLog(clusterName string) {
 	_ = os.Remove(path)
 }
 
-// checkIfInputFileIsClusterClassBased checks user input file, if it has Cluster object then
+// CheckIfInputFileIsClusterClassBased checks user input file, if it has Cluster object then
 // reads all non-empty variables in cluster.spec.topology.variables, and updates those variables in
 // environment and also CreateClusterOptions.
 // TODO (chandrareddyp) : need to make sure the legacy validation error and log messages should not have legacy variable names in case of cluster class use case, should refer Cluster Object attributes (https://github.com/vmware-tanzu/tanzu-framework/issues/2443)
-func (t *tkgctl) checkIfInputFileIsClusterClassBased(clusterConfigFile string) (bool, unstructured.Unstructured, error) {
+func CheckIfInputFileIsClusterClassBased(clusterConfigFile string) (bool, unstructured.Unstructured, error) {
 	var clusterObj unstructured.Unstructured
 
 	isInputFileClusterClassBased := false

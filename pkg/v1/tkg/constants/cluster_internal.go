@@ -86,6 +86,7 @@ const (
 // infrastructure provider name constants
 const (
 	InfrastructureProviderVSphere = "vsphere"
+	InfrastructureProviderTkgs    = "tkgs"
 	InfrastructureProviderAWS     = "aws"
 	InfrastructureProviderAzure   = "azure"
 	InfrastructureProviderDocker  = "docker"
@@ -93,6 +94,7 @@ const (
 
 var InfrastructureProviders = map[string]bool{
 	InfrastructureProviderVSphere: true,
+	InfrastructureProviderTkgs:    true,
 	InfrastructureProviderAWS:     true,
 	InfrastructureProviderAzure:   true,
 	InfrastructureProviderDocker:  true,

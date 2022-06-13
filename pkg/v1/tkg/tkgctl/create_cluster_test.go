@@ -261,7 +261,7 @@ var _ = Describe("Unit tests for (AWS)  cluster_aws.yaml as input file for 'tanz
 			Expect(err).To(BeNil())
 
 			// process input file and get map, which has all attribute's path and its values
-			inputVariablesMap := getInputAttributesMap(&ctl, options.ClusterConfigFile)
+			inputVariablesMap := getInputAttributesMap(options.ClusterConfigFile)
 
 			// updates lower precedence variables with higher precedence variables values.
 			// In AWS use case, there were few attributes repeated in cluster yaml file, we need to take always higher precedence values.
@@ -338,7 +338,7 @@ var _ = Describe("Unit tests for (AWS)  cluster_aws.yaml as input file for 'tanz
 			Expect(err).To(BeNil())
 
 			// process input file and get map, which has all attribute's path and its values
-			inputVariablesMap := getInputAttributesMap(&ctl, options.ClusterConfigFile)
+			inputVariablesMap := getInputAttributesMap(options.ClusterConfigFile)
 
 			// updates lower precedence variables with higher precedence variables values.
 			// In AWS use case, there were few attributes repeated in cluster yaml file, we need to take always higher precedence values.
@@ -433,7 +433,7 @@ var _ = Describe("Unit tests for - (Vsphere) - cluster_vsphere.yaml as input fil
 			Expect(err).To(BeNil())
 
 			// process input file and get map, which has all attribute's path and its values
-			inputVariablesMap := getInputAttributesMap(&ctl, options.ClusterConfigFile)
+			inputVariablesMap := getInputAttributesMap(options.ClusterConfigFile)
 
 			// validate input Cluster Object yaml file attributes values with corresponding legacy variable values in environment, both should be same, as we have already updated the environment with Cluster Object attribute values.
 			validateFileInputAttributeValuesWithEnvironmentValues(&ctl, inputVariablesMap, constants.ClusterAttributesToLegacyVariablesMapVsphere)
@@ -538,7 +538,7 @@ var _ = Describe("Unit tests for - (Azure) - cluster_azure.yaml as input file fo
 			Expect(err).To(BeNil())
 
 			// process input file and get map, which has all attribute's path and its values
-			inputVariablesMap := getInputAttributesMap(&ctl, options.ClusterConfigFile)
+			inputVariablesMap := getInputAttributesMap(options.ClusterConfigFile)
 
 			// validate input Cluster Object yaml file attributes values with corresponding legacy variables values in environment, both should be same, as we have already updated the environment with Cluster Object attribute values.
 			validateFileInputAttributeValuesWithEnvironmentValues(&ctl, inputVariablesMap, constants.ClusterAttributesToLegacyVariablesMapAzure)
@@ -838,11 +838,11 @@ var _ = Describe("Clusterclass FeatureGate specific use cases", func() {
 })
 
 // getInputAttributesMap process input Cluster Object yaml file and returns a map which has all attributes from the input file and its values
-func getInputAttributesMap(ctl *tkgctl, inputFile string) map[string]interface{} {
+func getInputAttributesMap(inputFile string) map[string]interface{} {
 	// to make sure input cluster attributes values are updated with legacy variables in environment (tkgctl.TKGConfigReaderWriter())
 	// Processing the input cluster yaml file with the existing util api, and expecting Cluster YAML object,
 	// from the Cluster YAML object, map attributes path with values, and update Map variablesMap.
-	_, clusterObj, _ := ctl.checkIfInputFileIsClusterClassBased(inputFile)
+	_, clusterObj, _ := CheckIfInputFileIsClusterClassBased(inputFile)
 	inputVariablesMap := make(map[string]interface{})
 	inputVariablesMap["metadata.name"] = clusterObj.GetName()
 	inputVariablesMap["metadata.namespace"] = clusterObj.GetNamespace()
