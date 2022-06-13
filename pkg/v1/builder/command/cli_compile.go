@@ -1,6 +1,8 @@
 // Copyright 2021 VMware, Inc. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
+// Package command provides handling to generate new scaffolding, compile, and
+// publish CLI plugins.
 package command
 
 import (
@@ -16,13 +18,16 @@ import (
 
 	"github.com/aunum/log"
 	"github.com/gobwas/glob"
-	"github.com/spf13/cobra"
 	"gopkg.in/yaml.v2"
 
 	cliv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/builder/template"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/component"
+)
+
+var (
+	version, artifactsDir, ldflags string
+	tags, goprivate                string
+	targetArch                     []string
 )
 
 type plugin struct {
@@ -35,12 +40,19 @@ type plugin struct {
 	buildID  string
 }
 
-var (
-	version, path, artifactsDir, ldflags, tags string
-	corePath, match, description, goprivate    string
-	dryRun                                     bool
-	targetArch                                 []string
-)
+// PluginCompileArgs contains the values to use for compiling plugins.
+type PluginCompileArgs struct {
+	Version      string
+	SourcePath   string
+	ArtifactsDir string
+	LDFlags      string
+	Tags         string
+	CorePath     string
+	Match        string
+	Description  string
+	GoPrivate    string
+	TargetArch   []string
+}
 
 const local = "local"
 
@@ -60,89 +72,6 @@ var identifiers = []string{
 	string('\U0001F428'),
 }
 
-// CLICmd holds CLI builder commands.
-var CLICmd = &cobra.Command{
-	Use:   "cli",
-	Short: "Build CLIs",
-}
-
-func init() {
-	CompileCmd.Flags().StringVar(&version, "version", "", "version of the root cli (required)")
-	CompileCmd.Flags().StringVar(&ldflags, "ldflags", "", "ldflags to set on build")
-	CompileCmd.Flags().StringVar(&tags, "tags", "", "tags to set on build")
-	CompileCmd.Flags().StringVar(&match, "match", "*", "match a plugin name to build, supports globbing")
-	CompileCmd.Flags().StringArrayVar(&targetArch, "target", []string{"all"}, "only compile for specific target(s), use 'local' to compile for host os")
-	CompileCmd.Flags().StringVar(&path, "path", "./cmd/cli/plugin", "path of the plugins directory")
-	CompileCmd.Flags().StringVar(&artifactsDir, "artifacts", cli.DefaultArtifactsDirectory, "path to output artifacts")
-	CompileCmd.Flags().StringVar(&corePath, "corepath", "", "path for core binary")
-	CompileCmd.Flags().StringVar(&goprivate, "goprivate", "", "comma-separated list of glob patterns of module path prefixes to set as GOPRIVATE on build")
-
-	CLICmd.AddCommand(CompileCmd)
-	CLICmd.AddCommand(NewAddPluginCmd())
-}
-
-// NewAddPluginCmd adds a cli plugin to the repository.
-func NewAddPluginCmd() *cobra.Command {
-	cmd := &cobra.Command{
-		Use:   "add-plugin [name]",
-		Short: "Add a plugin to a repository",
-		RunE:  addPlugin,
-		Args:  cobra.ExactArgs(1),
-	}
-	cmd.Flags().BoolVar(&dryRun, "dry-run", false, "print generated files to stdout")
-	cmd.Flags().StringVar(&description, "description", "", "required plugin description")
-
-	return cmd
-}
-
-// TODO (pbarker): check that we are in the root of the repo
-func addPlugin(cmd *cobra.Command, args []string) error {
-	var err error
-	name := args[0]
-	if description == "" {
-		description, err = askDescription()
-		if err != nil {
-			return err
-		}
-	}
-
-	data := struct {
-		PluginName  string
-		Description string
-	}{
-		PluginName:  name,
-		Description: description,
-	}
-	targets := template.DefaultPluginTargets
-	for _, target := range targets {
-		err := target.Run("", data, dryRun)
-		if err != nil {
-			return err
-		}
-	}
-	cmd.Print("successfully created plugin")
-
-	return nil
-}
-
-func askDescription() (answer string, err error) {
-	questioncfg := &component.QuestionConfig{
-		Message: "provide a description",
-	}
-	err = component.Ask(questioncfg, &answer)
-	if err != nil {
-		return
-	}
-	return
-}
-
-// CompileCmd compiles CLI plugins
-var CompileCmd = &cobra.Command{
-	Use:   "compile",
-	Short: "Compile a repository",
-	RunE:  compile,
-}
-
 func getID(i int) string {
 	index := i
 	if i >= len(identifiers) {
@@ -152,7 +81,7 @@ func getID(i int) string {
 	return identifiers[index]
 }
 
-func getBuildArch() cli.Arch {
+func getBuildArch(targetArch []string) cli.Arch {
 	if targetArch[0] == local {
 		return cli.BuildArch()
 	}
@@ -199,25 +128,40 @@ type errInfo struct {
 	ID   string
 }
 
-func compile(cmd *cobra.Command, args []string) error {
-	if version == "" {
-		log.Fatal("version flag must be set")
+// setGlobals initializes a set of global variables used throughout the compile
+// process, based on the arguments passed in.
+func setGlobals(compileArgs *PluginCompileArgs) {
+	if compileArgs.Version == "" {
+		log.Fatal("version value must be set")
 	}
-	log.Infof("building local repository at ./%s", artifactsDir)
+
+	version = compileArgs.Version
+	artifactsDir = compileArgs.ArtifactsDir
+	ldflags = compileArgs.LDFlags
+	tags = compileArgs.Tags
+	goprivate = compileArgs.GoPrivate
+	targetArch = compileArgs.TargetArch
+}
+
+func Compile(compileArgs *PluginCompileArgs) error {
+	// Set our global values based on the passed args
+	setGlobals(compileArgs)
+
+	log.Infof("building local repository at %s", compileArgs.ArtifactsDir)
 
 	manifest := cli.Manifest{
 		CreatedTime: time.Now(),
-		CoreVersion: version,
+		CoreVersion: compileArgs.Version,
 		Plugins:     []cli.Plugin{},
 	}
-	arch := getBuildArch()
+	arch := getBuildArch(compileArgs.TargetArch)
 
-	if corePath != "" {
-		corePlugin := compileCore(corePath, arch)
+	if compileArgs.CorePath != "" {
+		corePlugin := compileCore(compileArgs.CorePath, arch)
 		manifest.Plugins = append(manifest.Plugins, corePlugin)
 	}
 
-	files, err := os.ReadDir(path)
+	files, err := os.ReadDir(compileArgs.SourcePath)
 	if err != nil {
 		return err
 	}
@@ -232,7 +176,7 @@ func compile(cmd *cobra.Command, args []string) error {
 	var wg sync.WaitGroup
 	plugins := make(chan cli.Plugin, len(files))
 	fatalErrors := make(chan errInfo, len(files))
-	g := glob.MustCompile(match)
+	g := glob.MustCompile(compileArgs.Match)
 	for i, f := range files {
 		if f.IsDir() {
 			if g.Match(f.Name()) {
@@ -251,7 +195,7 @@ func compile(cmd *cobra.Command, args []string) error {
 						plugins <- plug
 					}
 					<-guard
-				}(filepath.Join(path, f.Name()), getID(i+randSkew))
+				}(filepath.Join(compileArgs.SourcePath, f.Name()), getID(i+randSkew))
 			}
 		}
 	}
@@ -280,7 +224,7 @@ func compile(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	manifestPath := filepath.Join(artifactsDir, cli.ManifestFileName)
+	manifestPath := filepath.Join(compileArgs.ArtifactsDir, cli.ManifestFileName)
 	err = os.WriteFile(manifestPath, b, 0644)
 	if err != nil {
 		return err
@@ -372,7 +316,7 @@ type target struct {
 	args []string
 }
 
-func (t target) build(targetPath, prefix, modPath string) error {
+func (t target) build(targetPath, prefix, modPath, ldflags, tags string) error {
 	cmd := goCommand("build")
 
 	var commonArgs = []string{
@@ -544,7 +488,7 @@ func buildTargets(targetPath, outPath, pluginName string, arch cli.Arch, id, mod
 
 	for _, targetBuilder := range targets {
 		tgt := targetBuilder(pluginName, outPath)
-		err := tgt.build(targetPath, id, modPath)
+		err := tgt.build(targetPath, id, modPath, ldflags, tags)
 		if err != nil {
 			return err
 		}
