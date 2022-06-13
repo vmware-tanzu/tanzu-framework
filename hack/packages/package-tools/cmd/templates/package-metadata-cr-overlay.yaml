@@ -1,0 +1,14 @@
+#@ load("@ytt:data", "data")
+#@ load("@ytt:overlay", "overlay")
+#@ load("package-helpers.lib.yaml", "get_package_repository", "get_package")
+
+#@ package_repository = get_package_repository(data.values.packageRepository, data.values.packageName)
+#@ package = get_package(package_repository, data.values.packageName)
+
+#@overlay/match by=overlay.subset({"kind":"PackageMetadata"}),expects=1
+---
+metadata:
+  name: #@ "{}.{}".format(package.name, package_repository.domain)
+  #@overlay/match expects="0+"
+  #@overlay/remove
+  namespace: ""
