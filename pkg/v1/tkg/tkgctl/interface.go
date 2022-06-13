@@ -86,7 +86,7 @@ type TKGClient interface {
 	// Deprecated: This would not be supported from TKR API version v1alpha3,
 	// user can use go client to set the labels to activate/deactivate the TKR
 	DeactivateTanzuKubernetesReleases(tkrName string) error
-	// IsPacificRegionalCluster checks if the cluster pointed to by kubeconfig  is Pacific management cluster(supervisor)
+	// IsPacificRegionalCluster checks if the cluster pointed to by kubeconfig is Pacific management cluster(supervisor)
 	IsPacificRegionalCluster() (bool, error)
 	// GetPacificClusterObject gets Pacific cluster object
 	GetPacificClusterObject(clusterName, namespace string) (*tkgsv1alpha2.TanzuKubernetesCluster, error)

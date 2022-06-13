@@ -187,7 +187,7 @@ type Client interface {
 	// GetCurrentClusterName returns the current clusterName based on current context from kubeconfig file
 	// If context parameter is not empty, then return clusterName corresponding to the context
 	GetCurrentClusterName(context string) (string, error)
-	// GetCurrentKubeContext returns the current kube xontext
+	// GetCurrentKubeContext returns the current kube context
 	GetCurrentKubeContext() (string, error)
 	// IsRegionalCluster() checks if the current kube context point to a management cluster
 	IsRegionalCluster() error
