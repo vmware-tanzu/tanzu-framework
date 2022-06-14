@@ -59,7 +59,7 @@ echo -e "${YELLOW}generating RBAC...${DEFAULT}"
 
 # the namespace must exist before the package can be deployed
 echo -e "${YELLOW}creating namespace ${APP_NAME}...${DEFAULT}"
-ytt --data-value "namespace=${APP_NAME}" --file "${TANZU_AUTH_CONFIG_DIR}/namespace.yaml" | kubectl apply -f -
+ytt --data-value "createNamespace=true" --data-value "namespace=${APP_NAME}" --file "${TANZU_AUTH_CONFIG_DIR}/namespace.yaml" | kubectl apply -f -
 
 echo -e "${YELLOW}rebuilding image lock file with ytt and kbld...${DEFAULT}"
 mkdir -p "${TANZU_AUTH_BUNDLE_DIR}/.imgpkg"
