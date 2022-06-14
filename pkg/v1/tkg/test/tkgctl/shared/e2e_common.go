@@ -6,18 +6,15 @@ package shared
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"math/rand"
 	"os"
 	"path/filepath"
 	"strings"
-	"testing"
 	"time"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	"github.com/tj/assert"
 	"sigs.k8s.io/cluster-api/util"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
@@ -221,14 +218,13 @@ func getPackageDetailsFromCBS(CBSRefName string) (string, string, string, error)
 	return pkgShortName, pkgName, pkgVersion, nil
 }
 
-func checkUtkgAddons(ctx context.Context, cl client.Client, scheme *runtime.Scheme, testPkgName string, t *testing.T) error {
+func checkUtkgAddons(ctx context.Context, cl client.Client, scheme *runtime.Scheme, testPkgName string) error {
 	var (
 		err          error
 		pkgShortName string
 		pkgName      string
 		pkgVersion   string
 	)
-	assert := assert.New(t)
 	mngCluster := &clusterapiv1beta1.Cluster{}
 
 	// create remoteClient for workload cluster
@@ -273,14 +269,14 @@ func checkUtkgAddons(ctx context.Context, cl client.Client, scheme *runtime.Sche
 	pkgiName := addonutil.GeneratePackageInstallName(mngCluster.Name, pkgShortName)
 	pkgi := getPackageInstall(ctx, remoteClient, constants.TkgNamespace, pkgiName)
 	// check package install reconcile status is succeed
-	assert.Equal(pkgi.Status.GenericStatus.Conditions[1].Type, kappctrl.ReconcileSucceeded)
-	assert.Equal(pkgi.Status.GenericStatus.Conditions[1].Status, corev1.ConditionTrue)
+	Expect(pkgi.Status.GenericStatus.Conditions[1].Type).Should(Equal(kappctrl.ReconcileSucceeded))
+	Expect(pkgi.Status.GenericStatus.Conditions[1].Status).Should(Equal(corev1.ConditionTrue))
 
 	// Verify package name match between clusterBootstrap and packageInstall
-	assert.Equal(pkgName, pkgi.Spec.PackageRef.RefName)
+	Expect(pkgName).Should(Equal(pkgi.Spec.PackageRef.RefName))
 
 	// Verify package version match between clusterBootstrap and packageInstall
-	assert.Equal(pkgVersion, pkgi.Spec.PackageRef.VersionSelection.Constraints)
+	Expect(pkgVersion).Should(Equal(pkgi.Spec.PackageRef.VersionSelection.Constraints))
 
 	return nil
 }
