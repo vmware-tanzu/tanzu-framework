@@ -31,8 +31,9 @@ import (
 
 	kappctrl "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/kappctrl/v1alpha1"
 	kapppkgiv1alpha1 "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/packaging/v1alpha1"
-	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/util"
+	addonutil "github.com/vmware-tanzu/tanzu-framework/addons/pkg/util"
 	runtanzuv1alpha3 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
+	clusterapiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
 )
 
 type E2ECommonSpecInput struct {
@@ -43,10 +44,6 @@ type E2ECommonSpecInput struct {
 	Namespace       string
 	OtherConfigs    map[string]string
 }
-
-const (
-	clusterNameMng = "ggao-aws-june"
-)
 
 func E2ECommonSpec(context context.Context, inputGetter func() E2ECommonSpecInput) { //nolint:funlen
 	var (
@@ -215,18 +212,12 @@ func getPackageInstall(ctx context.Context, k8sClient client.Client, namespace, 
 }
 
 func getPackageDetailsFromCBS(CBSRefName string) (string, string, string, error) {
-	pkgShortName, err := strings.Split(CBSRefName, ".")[0]
-	if err != nil || pkgShortName == nil {
-		return "", "", "", errors.Wrapf(err, "error fetching package short name from clusterBootstrap resource")
-	}
-	pkgName, err := strings.Join(strings.Split(addonName, ".")[0:4], ".")
-	if err != nil || pkgName == nil {
-		return "", "", "", errors.Wrapf(err, "error fetching package name from clusterBootstrap resource")
-	}
-	pkgVersion, err := strings.Join(strings.Split(addonName, ".")[4:], ".")
-	if err != nil || pkgVersion == nil {
-		return "", "", "", errors.Wrapf(err, "error fetching package version from clusterBootstrap resource")
-	}
+	pkgShortName := strings.Split(CBSRefName, ".")[0]
+
+	pkgName := strings.Join(strings.Split(CBSRefName, ".")[0:4], ".")
+
+	pkgVersion := strings.Join(strings.Split(CBSRefName, ".")[4:], ".")
+
 	return pkgShortName, pkgName, pkgVersion, nil
 }
 
@@ -239,20 +230,21 @@ func checkUtkgAddons(ctx context.Context, cl client.Client, scheme *runtime.Sche
 	)
 	assert := assert.New(t)
 	mngCluster := &clusterapiv1beta1.Cluster{}
-	remoteClient, err := util.GetClusterClient(ctx, cl, scheme, clusterapiutil.ObjectKey(mngCluster))
+	remoteClient, err := addonutil.GetClusterClient(ctx, cl, scheme, util.ObjectKey(mngCluster))
 	if err != nil {
-	    return errors.Wrapf(err, "Error getting workload cluster client")
+	    return err
 	}
-	key := client.ObjectKey{Namespace: cluster.Namespace, Name: secretutil.Name(cluster.Name, secretutil.Kubeconfig)}
-	err = client.Get(r.context, key, clusterKubeConfigSecret)
+	key := client.ObjectKey{Namespace: constants.TkgNamespace, Name: secretutil.Name(mngCluster.Name, secretutil.Kubeconfig)}
+	clusterKubeConfigSecret := &corev1.Secret{}
+	err = remoteClient.Get(ctx, key, clusterKubeConfigSecret)
 	if err != nil {
-		return errors.Wrapf(err, "Error getting workload cluster Kubeconfig")
+		return err
 	}
 
 	//clusterBootstrap := getClusterBootstrap(client.ObjectKeyFromObject(mngCluster))
 
 	// Get ClusterBootstrap and return error if not found
-	clusterBootstrap := getClusterBootstrap(ctx, cl, constants.TkgNamespace, clusterNameMng)
+	clusterBootstrap := getClusterBootstrap(ctx, cl, constants.TkgNamespace, mngCluster.Name)
 
 	//wlcCluster := &clusterapiv1beta1.Cluster{}
 
@@ -260,30 +252,32 @@ func checkUtkgAddons(ctx context.Context, cl client.Client, scheme *runtime.Sche
 	// packageInstall name and version should match info in clusterBootstrap for all packages, format is <package name>.<package version>
 	switch {
 	case testPkgName == "CNI":
-		pkgShortName, pkgName, pkgVersion = getPackageDetailsFromCBS(clusterBootstrap.Spec.CNI.RefName)
+		pkgShortName, pkgName, pkgVersion, err = getPackageDetailsFromCBS(clusterBootstrap.Spec.CNI.RefName)
 	case testPkgName == "CSI":
-		pkgShortName, pkgName, pkgVersion = getPackageDetailsFromCBS(clusterBootstrap.Spec.CSI.RefName)
+		pkgShortName, pkgName, pkgVersion, err = getPackageDetailsFromCBS(clusterBootstrap.Spec.CSI.RefName)
 	case testPkgName == "CPI":
-		pkgShortName, pkgName, pkgVersion = getPackageDetailsFromCBS(clusterBootstrap.Spec.CPI.RefName)
+		pkgShortName, pkgName, pkgVersion, err = getPackageDetailsFromCBS(clusterBootstrap.Spec.CPI.RefName)
 	case testPkgName == "Kapp":
-		pkgShortName, pkgName, pkgVersion = getPackageDetailsFromCBS(clusterBootstrap.Spec.Kapp.RefName)
+		pkgShortName, pkgName, pkgVersion, err = getPackageDetailsFromCBS(clusterBootstrap.Spec.Kapp.RefName)
 	case testPkgName == "metrics-server":
-		pkgShortName, pkgName, pkgVersion = getPackageDetailsFromCBS(clusterBootstrap.Spec.AdditionalPackages[0].RefName)
+		pkgShortName, pkgName, pkgVersion, err = getPackageDetailsFromCBS(clusterBootstrap.Spec.AdditionalPackages[0].RefName)
 	case testPkgName == "secretgen-controller":
-		pkgShortName, pkgName, pkgVersion = getPackageDetailsFromCBS(clusterBootstrap.Spec.AdditionalPackages[1].RefName)
+		pkgShortName, pkgName, pkgVersion, err = getPackageDetailsFromCBS(clusterBootstrap.Spec.AdditionalPackages[1].RefName)
 	case testPkgName == "pinniped":
-		pkgShortName, pkgName, pkgVersion = getPackageDetailsFromCBS(clusterBootstrap.Spec.AdditionalPackages[2].RefName)
+		pkgShortName, pkgName, pkgVersion, err = getPackageDetailsFromCBS(clusterBootstrap.Spec.AdditionalPackages[2].RefName)
 	}
 
-	pkgiName := util.GeneratePackageInstallName(clusterName, pkgShortName)
+	pkgiName := addonutil.GeneratePackageInstallName(mngCluster.Name, pkgShortName)
 	pkgi := getPackageInstall(ctx, remoteClient, constants.TkgNamespace, pkgiName)
 	// check package install reconcile status is succeed
-	assert.Equal(pkgi.Status.GenericStatus.Conditions.Type, kappctrl.ReconcileSucceeded)
-	assert.Equal(pkgi.Status.GenericStatus.Conditions.Status, corev1.ConditionTrue)
+	assert.Equal(pkgi.Status.GenericStatus.Conditions[1].Type, kappctrl.ReconcileSucceeded)
+	assert.Equal(pkgi.Status.GenericStatus.Conditions[1].Status, corev1.ConditionTrue)
 
 	// Verify package name match between clusterBootstrap and packageInstall
 	assert.Equal(pkgName, pkgi.Spec.PackageRef.RefName)
 
 	// Verify package version match between clusterBootstrap and packageInstall
 	assert.Equal(pkgVersion, pkgi.Spec.PackageRef.VersionSelection.Constraints)
+
+	return nil
 }
