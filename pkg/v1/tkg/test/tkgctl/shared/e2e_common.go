@@ -167,7 +167,7 @@ func E2ECommonSpec(context context.Context, inputGetter func() E2ECommonSpecInpu
 		framework.WaitForNodes(framework.NewClusterProxy(clusterName, tempFilePath, ""), 2)
 
 		By(fmt.Sprintf("Verify addon packages on workload cluster %q matches clusterBootstrap info on management cluster", clusterName))
-		err = checkUtkgAddons(context, client)
+		err = checkUtkgAddons(context, client, scheme, "antrea")
 		Expect(err).To(BeNil())
 
 		By(fmt.Sprintf("Deleting workload cluster %q", clusterName))
@@ -230,10 +230,13 @@ func checkUtkgAddons(ctx context.Context, cl client.Client, scheme *runtime.Sche
 	)
 	assert := assert.New(t)
 	mngCluster := &clusterapiv1beta1.Cluster{}
+
+	// create remoteClient for workload cluster
 	remoteClient, err := addonutil.GetClusterClient(ctx, cl, scheme, util.ObjectKey(mngCluster))
 	if err != nil {
 	    return err
 	}
+
 	key := client.ObjectKey{Namespace: constants.TkgNamespace, Name: secretutil.Name(mngCluster.Name, secretutil.Kubeconfig)}
 	clusterKubeConfigSecret := &corev1.Secret{}
 	err = remoteClient.Get(ctx, key, clusterKubeConfigSecret)
