@@ -13,6 +13,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/client-go/tools/clientcmd"
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
+	capiv1alpha3 "sigs.k8s.io/cluster-api/api/v1alpha3"
 
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/clusterclient"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/region"
@@ -28,9 +29,10 @@ type GetClusterPinnipedInfoOptions struct {
 
 // ClusterPinnipedInfo defines the fields of cluster pinniped info
 type ClusterPinnipedInfo struct {
-	ClusterName  string
-	ClusterInfo  *clientcmdapi.Cluster
-	PinnipedInfo *utils.PinnipedConfigMapInfo
+	ClusterName     string
+	ClusterInfo     *clientcmdapi.Cluster
+	ClusterAudience *string
+	PinnipedInfo    *utils.PinnipedConfigMapInfo
 }
 
 // GetClusterPinnipedInfo gets pinniped information from cluster
@@ -116,10 +118,28 @@ func (c *TkgClient) GetWCClusterPinnipedInfo(regionalClusterClient clusterclient
 		pinnipedInfo.Data.ConciergeIsClusterScoped = false
 	}
 
+	// For clusters that use a TKr API version newer than v1alpha1, we use the cluster name + UID as
+	// the audience
+	var audience *string
+	var cluster capiv1alpha3.Cluster
+	if err := regionalClusterClient.GetResource(
+		&cluster,
+		options.ClusterName,
+		options.Namespace,
+		nil,
+		nil,
+	); err != nil {
+		return nil, errors.Wrap(err, "get cluster")
+	}
+	if _, ok := cluster.Labels[LegacyClusterTKRLabel]; !ok {
+		audience = stringPtr(fmt.Sprintf("%s-%s", cluster.Name, cluster.UID))
+	}
+
 	return &ClusterPinnipedInfo{
-		ClusterName:  options.ClusterName,
-		ClusterInfo:  wcClusterInfo,
-		PinnipedInfo: pinnipedInfo,
+		ClusterName:     options.ClusterName,
+		ClusterAudience: audience,
+		ClusterInfo:     wcClusterInfo,
+		PinnipedInfo:    pinnipedInfo,
 	}, nil
 }
 
@@ -174,3 +194,5 @@ func getClusterInfo(
 
 	return cluster, nil
 }
+
+func stringPtr(s string) *string { return &s }
