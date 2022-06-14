@@ -42,12 +42,16 @@ func init() {
 
 //go:embed templates/images-tmpl.yaml
 var imagesLockTemplate string
+
 //go:embed templates/package-helpers.lib.yaml
 var packageHelpersLib string
+
 //go:embed templates/package-cr-overlay.yaml
 var packageCrOverlay string
+
 //go:embed templates/package-metadata-cr-overlay.yaml
 var packageMetadataCrOverlay string
+
 //go:embed templates/packagerepo-tmpl.yaml
 var packageRepoTemplate string
 
