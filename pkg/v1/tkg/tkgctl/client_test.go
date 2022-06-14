@@ -4,7 +4,6 @@
 package tkgctl
 
 import (
-	"io/ioutil"
 	"os"
 	"sync"
 
@@ -74,14 +73,14 @@ var _ = Describe("Unit test for New", func() {
 	var (
 		err       error
 		options   Options
-		configDir string
+		configDir *os.File
 		tkgClient TKGClient
 	)
 	JustBeforeEach(func() {
-		configDir, _ = ioutil.TempDir("", "cluster_client_test")
-		prepareConfiDir(configDir)
+		configDir, _ = os.CreateTemp("", "cluster_client_test")
+		prepareConfiDir(configDir.Name())
 		options = Options{
-			ConfigDir:      configDir,
+			ConfigDir:      configDir.Name(),
 			ProviderGetter: fakeproviders.FakeProviderGetter(),
 		}
 		tkgClient, err = New(options)
@@ -108,6 +107,6 @@ var _ = Describe("Unit test for New", func() {
 	})
 
 	AfterEach(func() {
-		os.Remove(configDir)
+		os.Remove(configDir.Name())
 	})
 })
