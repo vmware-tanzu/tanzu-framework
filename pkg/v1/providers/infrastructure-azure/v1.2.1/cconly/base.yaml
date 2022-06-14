@@ -1325,7 +1325,9 @@ spec:
           - /var/lib/etcddisk
         useExperimentalRetryJoin: true
         postKubeadmCommands: []
-        preKubeadmCommands: []
+        preKubeadmCommands:
+        #! Ensure a non-empty preKubeadmCommands array is present to facilitate patching
+        - echo "running preKubeadmCommands…"
       machineTemplate:
         infrastructureRef:
           apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
