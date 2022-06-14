@@ -30,6 +30,15 @@ func (c *client) GetTKGProvidersDirectory() (string, error) {
 	return filepath.Join(tkgDir, constants.LocalProvidersFolderName), nil
 }
 
+// GetTKGProvidersCheckSumPath returns path to the providers checksum file
+func (c *client) GetTKGProvidersCheckSumPath() (string, error) {
+	tkgDir, err := c.GetTKGDirectory()
+	if err != nil {
+		return "", err
+	}
+	return filepath.Join(tkgDir, constants.LocalProvidersFolderName, constants.LocalProvidersChecksumFileName), nil
+}
+
 // GetTKGBoMDirectory returns path to tkg config directory "$HOME/.tkg/bom"
 func (c *client) GetTKGBoMDirectory() (string, error) {
 	tkgDir, err := c.GetTKGDirectory()
@@ -141,4 +150,13 @@ func (c *client) GetLogDirectory() (string, error) {
 		return "", err
 	}
 	return filepath.Join(tkgDir, constants.LogFolderName), nil
+}
+
+// GetClusterConfigurationDirectory returns the directory path where cluster configuration files will be stored
+func (c *client) GetClusterConfigurationDirectory() (string, error) {
+	tkgDir, err := c.GetTKGDirectory()
+	if err != nil {
+		return "", err
+	}
+	return filepath.Join(tkgDir, constants.TKGClusterConfigFileDirForUI), nil
 }

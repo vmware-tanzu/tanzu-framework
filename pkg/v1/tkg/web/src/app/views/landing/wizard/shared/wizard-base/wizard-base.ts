@@ -17,8 +17,11 @@ import { EditionData } from '../../../../../shared/service/branding.service';
 import { FieldMapping } from '../field-mapping/FieldMapping';
 import { FormDataForHTML, FormUtility } from '../components/steps/form-utility';
 import { IdentityField } from '../components/steps/identity-step/identity-step.fieldmapping';
-import { LoadBalancerField } from '../components/steps/load-balancer/load-balancer-step.fieldmapping';
-import { MetadataField } from '../components/steps/metadata-step/metadata-step.fieldmapping';
+import {
+    LoadBalancerField,
+    LoadBalancerStepMapping
+} from '../components/steps/load-balancer/load-balancer-step.fieldmapping';
+import { MetadataField, MetadataStepMapping } from '../components/steps/metadata-step/metadata-step.fieldmapping';
 import { MetadataStepComponent } from '../components/steps/metadata-step/metadata-step.component';
 import { NetworkField } from '../components/steps/network-step/network-step.fieldmapping';
 import { OsImageField } from '../components/steps/os-image-step/os-image-step.fieldmapping';
@@ -49,6 +52,16 @@ export interface StepRegistrantData {
     formGroup: FormGroup,               // the FormGroup the wizard has created for the step to use for all its field controls
     eventFileImported: TanzuEventType,    // the event the wizard broadcasts when the user has successfully imported a config file
     eventFileImportError: TanzuEventType, // the event the wizard broadcasts when an error occurs during file import
+}
+
+export interface Params<T> {
+    key: (obj: T) => string,
+    value: (obj: T) => string
+}
+
+export interface Label {
+    key: string,
+    value: string
 }
 
 @Directive()
@@ -88,12 +101,16 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Wiz
 
     // supplyFileImportedEvent() allows the child class to give this class the event to broadcast on successful file import
     protected abstract supplyFileImportedEvent(): TanzuEventType;
+
     // supplyFileImportErrorEvent() allows the child class to give this class the event to broadcast on file import error
     protected abstract supplyFileImportErrorEvent(): TanzuEventType;
+
     // supplyStepData() allows the child class gives this class the data for the steps.
     protected abstract supplyStepData(): FormDataForHTML[];
+
     // supplyWizardName() allows the child class gives this class the wizard name; this is used to identify which wizard a step belongs to
     protected abstract supplyWizardName(): string;
+
     // supplyDisplayOrder() allows the child class to specify the order (and which steps) get displayed (on confirmation page).
     // By default, we take the order from the stepData (so stepData should be set before invoking this method)
     protected supplyDisplayOrder(): string[] {
@@ -124,19 +141,21 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Wiz
 
         // set step description (if it's a step description for this wizard)
         AppServices.messenger.subscribe<StepDescriptionChangePayload>(TanzuEventType.STEP_DESCRIPTION_CHANGE, data => {
-                const stepDescriptionPayload = data.payload as StepDescriptionChangePayload;
-                if (this.supplyWizardName() === stepDescriptionPayload.wizard) {
-                    // we use setTimeout to avoid a possible ExpressionChangedAfterItHasBeenCheckedError
-                    setTimeout(() => { this.stepDescription[stepDescriptionPayload.step] = stepDescriptionPayload.description; }, 0);
-                }
-            }, this.unsubscribe);
+            const stepDescriptionPayload = data.payload as StepDescriptionChangePayload;
+            if (this.supplyWizardName() === stepDescriptionPayload.wizard) {
+                // we use setTimeout to avoid a possible ExpressionChangedAfterItHasBeenCheckedError
+                setTimeout(() => {
+                    this.stepDescription[stepDescriptionPayload.step] = stepDescriptionPayload.description;
+                }, 0);
+            }
+        }, this.unsubscribe);
 
         // set branding and cluster type on branding change for base wizard components
         AppServices.messenger.subscribe<EditionData>(TanzuEventType.BRANDING_CHANGED, data => {
-                this.edition = data.payload.edition;
-                this.clusterTypeDescriptor = data.payload.clusterTypeDescriptor;
-                this.title = data.payload.branding.title;
-            }, this.unsubscribe);
+            this.edition = data.payload.edition;
+            this.clusterTypeDescriptor = data.payload.clusterTypeDescriptor;
+            this.title = data.payload.branding.title;
+        }, this.unsubscribe);
 
         setTimeout(() => this.broadcastStepStarted(this.firstStep), 0);
     }
@@ -150,7 +169,7 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Wiz
     /**
      * Retrieve the config file from the backend and return as a string
      */
-    abstract retrieveExportFile():  Observable<string>;
+    abstract retrieveExportFile(): Observable<string>;
 
     /**
      * Switch the mode between "Review Configuration" and "Edit Configuration"
@@ -190,7 +209,9 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Wiz
      * @method method to trigger deployment
      */
     abstract createRegionalCluster(params: any): Observable<any>;
+
     abstract getPayload(): any;
+
     abstract setFromPayload(payload: any);
 
     isOnFirstStep() {
@@ -321,6 +342,31 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Wiz
     }
 
     /**
+     * @param arrObj of type [ {key: 'a', value: '1}, {key : 'b, value:'2}]
+     * @param key To Identify the ObjectKey
+     * @param value To Identify the ObjectValue
+     * @return Object {'a': 1 , 'b': '1'}
+     */
+    arrayOfObjectsToObject<T>(arrObj: T[], params: Params<T>): { [key: string]: string; } {
+        return arrObj && arrObj instanceof Array
+            ? arrObj.reduce((obj, item) => ((obj[params.key(item)] = params.value(item)), obj), {})
+            : {};
+    }
+
+    /**
+     * @param obj of type {'a' : '1', 'b': '2'}
+     * @return Array of Objects [ {key: 'a', value:'1'}, {key:'b', value:'2'}]
+     */
+    objectToArrayOfObjects(obj: Record<string, unknown>): Label[] {
+        let responseObject: Label[] = [];
+        for (const [key, value] of Object.entries(obj)) {
+            responseObject = [...responseObject, {key, value: value as string}
+            ]
+        }
+        return responseObject;
+    }
+
+    /**
      * Converts ES6 map to stringifyable object
      * @param strMap ES6 map that will be converted
      */
@@ -414,11 +460,15 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Wiz
         }
 
         payload.ceipOptIn = this.getBooleanFieldValue(WizardForm.CEIP, CeipField.OPTIN);
-        // TODO: for labels, we are reaching into storage to get the value, whereas all the other data come from fields
-        // It would be better for ALL the fields to use a FieldMapping to retrieve the data
-        const labelFieldMapping: FieldMapping = {name: MetadataField.CLUSTER_LABELS, isMap: true};
-        let labelsMap = AppServices.userDataService.retrieveStoredValue(this.supplyWizardName(), WizardForm.METADATA, labelFieldMapping);
-        payload.labels = this.strMapToObj(labelsMap);
+
+        const metaDataLabels = this.getFieldValue(WizardForm.METADATA, MetadataField.CLUSTER_LABELS);
+        payload.labels = this.arrayOfObjectsToObject<{ key: string, value: string }>(
+            metaDataLabels,
+            {
+                key: label => label.key,
+                value: label => label.value
+            }
+        );
 
         payload.os = this.getFieldValue(WizardForm.OSIMAGE, OsImageField.IMAGE);
         payload.annotations = {
@@ -469,9 +519,8 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Wiz
                 , payload.identityManagement);
         }
 
-        // TODO: for clusterLabels, we are reaching into storage to get the value, whereas all the other data come from fields
-        // It would be better for ALL the fields to use a FieldMapping to retrieve the data
-        labelsMap = AppServices.userDataService.retrieveStoredValue(this.supplyWizardName(), 'loadBalancerForm', labelFieldMapping);
+        const loadBalancerLabels = this.getFieldValue(WizardForm.LOADBALANCER, LoadBalancerField.CLUSTER_LABELS);
+
         payload.aviConfig = {
             'controller': this.getFieldValue(WizardForm.LOADBALANCER, LoadBalancerField.CONTROLLER_HOST),
             'username': this.getFieldValue(WizardForm.LOADBALANCER, LoadBalancerField.USERNAME),
@@ -483,7 +532,13 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Wiz
                 'name': this.getFieldValue(WizardForm.LOADBALANCER, LoadBalancerField.NETWORK_NAME),
                 'cidr': this.getFieldValue(WizardForm.LOADBALANCER, LoadBalancerField.NETWORK_CIDR)
             },
-            'labels': this.strMapToObj(labelsMap),
+            'labels': this.arrayOfObjectsToObject<{ key: string, value: string }>(
+                loadBalancerLabels,
+                {
+                    key: label => label.key,
+                    value: label => label.value
+                }
+            )
         }
         return payload;
     }
@@ -497,25 +552,34 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Wiz
             step: stepName,
             formGroup: this.form.controls[stepName] as FormGroup,
             eventFileImported: this.supplyFileImportedEvent(),
-            eventFileImportError: this.supplyFileImportErrorEvent(),
+            eventFileImportError: this.supplyFileImportErrorEvent()
         }
         stepComponent.setStepRegistrantData(stepRegistrantData);
     }
+
     //
     // Methods that fulfill WizardStepRegistrar
 
     // storeFieldString() is a convenience method to avoid lengthy code lines
     storeFieldString(step, field, value: string, displayString?: string) {
-        const identifier = { wizard: this.supplyWizardName(), step, field };
+        const identifier = {wizard: this.supplyWizardName(), step, field};
         const display = displayString ? displayString : value;
-        AppServices.userDataService.store(identifier, { value, display });
+        AppServices.userDataService.store(identifier, {value, display});
+    }
+
+    storeFieldArray<T>(step, field, value: T[], display?: string, displayFunction?: (field) => string) {
+        const identifier = {wizard: this.supplyWizardName(), step, field};
+        AppServices.userDataService.store(identifier, {
+            value,
+            display: display ?? displayFunction(value) ?? value.join(', ')
+        });
     }
 
     storeFieldBoolean(step, field: string, booleanValue: boolean) {
-        const identifier = { wizard: this.supplyWizardName(), step, field };
+        const identifier = {wizard: this.supplyWizardName(), step, field};
         const display = booleanValue ? 'yes' : 'no';
         const value = String(booleanValue);
-        AppServices.userDataService.store(identifier, { value, display });
+        AppServices.userDataService.store(identifier, {value, display});
     }
 
     storeProxyFieldsFromPayload(payload: any) {
@@ -557,7 +621,7 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Wiz
      * @param payload
      */
     saveCommonFieldsFromPayload(payload: any) {
-        if (payload.networking !== undefined ) {
+        if (payload.networking !== undefined) {
             // Networking - general
             this.storeFieldString(WizardForm.NETWORK, NetworkField.NETWORK_NAME, payload.networking.networkName);
             this.storeFieldString(WizardForm.NETWORK, NetworkField.CLUSTER_SERVICE_CIDR, payload.networking.clusterServiceCIDR);
@@ -571,15 +635,14 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Wiz
         // Other fields
         this.storeFieldString(WizardForm.CEIP, CeipField.OPTIN, payload.ceipOptIn);
         if (payload.labels !== undefined) {
-            // we construct a label value that mimics how the meta-data step constructs the saved label value
-            // when the user creates it label by label
-            const labelArray: Array<string> = [];
-            Object.keys(payload.labels).forEach(key => {
-                const value = payload.labels[key];
-                labelArray[labelArray.length] = key + ":" + value;
-            });
-            const labelValueToSave = labelArray.join(', ');
-            this.storeFieldString(WizardForm.METADATA, MetadataField.CLUSTER_LABELS, labelValueToSave);
+            const arrayOfObjects: Label[] = this.objectToArrayOfObjects(payload.labels);
+            const fieldMapping: FieldMapping = MetadataStepMapping.fieldMappings.find(field => field.name === MetadataField.CLUSTER_LABELS);
+            this.storeFieldArray<Label>(
+                WizardForm.METADATA,
+                MetadataField.CLUSTER_LABELS,
+                arrayOfObjects,
+                null,
+                fieldMapping.displayFunction);
         }
 
         if (payload.annotations !== undefined) {
@@ -643,7 +706,15 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Wiz
             this.storeFieldString(WizardForm.LOADBALANCER, LoadBalancerField.CONTROLLER_CERT, payload.aviConfig.ca_cert);
             this.storeFieldString(WizardForm.LOADBALANCER, LoadBalancerField.NETWORK_NAME, payload.aviConfig.network.name);
             this.storeFieldString(WizardForm.LOADBALANCER, LoadBalancerField.NETWORK_CIDR, payload.aviConfig.network.cidr);
-            this.storeMap(WizardForm.LOADBALANCER, LoadBalancerField.CLUSTER_LABELS, this.objToStrMap(payload.aviConfig.labels));
+            const arrayOfObjects: Label[] = this.objectToArrayOfObjects(payload.aviConfig.labels);
+            const fieldMapping: FieldMapping = LoadBalancerStepMapping.fieldMappings
+                .find(field => field.name === LoadBalancerField.CLUSTER_LABELS);
+            this.storeFieldArray<Label>(
+                WizardForm.LOADBALANCER,
+                LoadBalancerField.CLUSTER_LABELS,
+                arrayOfObjects,
+                null,
+                fieldMapping.displayFunction);
         }
     }
 
@@ -655,43 +726,62 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Wiz
 
     // HTML convenience methods
     //
-    get registrar(): WizardStepRegistrar {
+    get registrar() {
         return this;
     }
 
     get CeipForm(): FormDataForHTML {
-        return { name: WizardForm.CEIP, title: 'CEIP Agreement', description: 'Join the CEIP program for TKG',
-            i18n: { title: 'ceip agreement step title', description: 'ceip agreement step description' },
-        clazz: SharedCeipStepComponent };
+        return {
+            name: WizardForm.CEIP, title: 'CEIP Agreement', description: 'Join the CEIP program for TKG',
+            i18n: {title: 'ceip agreement step title', description: 'ceip agreement step description'},
+            clazz: SharedCeipStepComponent
+        };
     }
+
     get IdentityForm(): FormDataForHTML {
-        return { name: WizardForm.IDENTITY, title: 'Identity Management', description: SharedIdentityStepComponent.description,
-            i18n: { title: 'identity step title', description: 'identity step description' },
-        clazz: SharedIdentityStepComponent };
+        return {
+            name: WizardForm.IDENTITY,
+            title: 'Identity Management',
+            description: SharedIdentityStepComponent.description,
+            i18n: {title: 'identity step title', description: 'identity step description'},
+            clazz: SharedIdentityStepComponent
+        };
     }
+
     get MetadataForm(): FormDataForHTML {
-        return { name: WizardForm.METADATA, title: 'Metadata',
+        return {
+            name: WizardForm.METADATA, title: 'Metadata',
             description: 'Specify metadata for the ' + this.clusterTypeDescriptor + ' cluster',
-            i18n: { title: 'metadata step name', description: 'metadata step description' },
-        clazz: MetadataStepComponent };
+            i18n: {title: 'metadata step name', description: 'metadata step description'},
+            clazz: MetadataStepComponent
+        };
     }
+
     get NetworkForm(): FormDataForHTML {
-        return { name: WizardForm.NETWORK, title: 'Kubernetes Network',
+        return {
+            name: WizardForm.NETWORK, title: 'Kubernetes Network',
             description: SharedNetworkStepComponent.description,
-            i18n: { title: 'Kubernetes network step name', description: 'Kubernetes network step description' },
-        clazz: SharedNetworkStepComponent };
+            i18n: {title: 'Kubernetes network step name', description: 'Kubernetes network step description'},
+            clazz: SharedNetworkStepComponent
+        };
     }
+
     getOsImageForm(clazz: Type<StepFormDirective>): FormDataForHTML {
-        return { name: WizardForm.OSIMAGE, title: 'OS Image', description: 'Specify the OS Image',
-            i18n: { title: 'OS Image step title', description: 'OS Image step description' },
-        clazz: clazz };
+        return {
+            name: WizardForm.OSIMAGE, title: 'OS Image', description: 'Specify the OS Image',
+            i18n: {title: 'OS Image step title', description: 'OS Image step description'},
+            clazz: clazz
+        };
     }
+
     get wizardForm(): FormGroup {
         return this.form;
     }
+
     get clusterTypeDescriptorTitleCase() {
         return FormUtility.titleCase(this.clusterTypeDescriptor);
     }
+
     get wizardName(): string {
         return this.supplyWizardName();
     }
@@ -699,6 +789,7 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Wiz
     get isDataOld(): boolean {
         return AppServices.userDataService.isWizardDataOld(this.supplyWizardName());
     }
+
     //
     // HTML convenience methods
 
@@ -718,33 +809,37 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Wiz
     private broadcastStepComplete(stepCompletedName: string) {
         const payload: StepCompletedPayload = {
             wizard: this.supplyWizardName(),
-            step: stepCompletedName,
+            step: stepCompletedName
         }
-        AppServices.messenger.publish<StepCompletedPayload>( { type: TanzuEventType.STEP_COMPLETED, payload } );
+        AppServices.messenger.publish<StepCompletedPayload>({type: TanzuEventType.STEP_COMPLETED, payload});
     }
 
     private broadcastStepStarted(stepStartedName: string) {
         const payload: StepStartedPayload = {
             wizard: this.supplyWizardName(),
-            step: stepStartedName,
+            step: stepStartedName
         }
-        AppServices.messenger.publish<StepStartedPayload>( { type: TanzuEventType.STEP_STARTED, payload } );
+        AppServices.messenger.publish<StepStartedPayload>({type: TanzuEventType.STEP_STARTED, payload});
     }
 
     private defaultDisplayOrder(stepData: FormDataForHTML[]): string[] {
         // reduce the array of stepData items into an array of step name strings, which will be in the same order
         return stepData.reduce<string[]>((accumulator, daStep) => {
-            accumulator.push(daStep.name); return accumulator;
+            accumulator.push(daStep.name);
+            return accumulator;
         }, []);
     }
+
     private storeWizardDisplayOrder(displayOrder: string[]) {
         AppServices.userDataService.storeWizardDisplayOrder(this.supplyWizardName(), displayOrder);
     }
+
     private storeWizardStepDescriptions() {
         AppServices.userDataService.storeWizardDescriptions(this.wizardName, this.stepDescription);
     }
+
     private storeWizardTitles() {
-        const titles = this.stepData.reduce<Map<string, string>>( (accumulator, stepData) => {
+        const titles = this.stepData.reduce<Map<string, string>>((accumulator, stepData) => {
             accumulator[stepData.name] = stepData.title;
             return accumulator;
         }, new Map<string, string>());
@@ -756,7 +851,7 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Wiz
     }
 
     protected storeMap(step: string, field: string, map: Map<string, string>) {
-        const identifier = { wizard: this.supplyWizardName(), step, field };
+        const identifier = {wizard: this.supplyWizardName(), step, field};
         AppServices.userDataService.storeMap(identifier, map);
     }
 

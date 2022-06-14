@@ -95,14 +95,22 @@ func verifySecretFunc(ctx context.Context, cluster *clusterapiv1beta1.Cluster, c
 			"infrastructure_provider": "vsphere",
 			"tkg_cluster_role":        "workload",
 		}
+
 		if configMap != nil {
 			wantValuesYAML[identityManagementTypeKey] = oidc
+
+			var audience string
+			if isV1 {
+				audience = clusterCopy.Name
+			} else {
+				audience = fmt.Sprintf("%s-%s", clusterCopy.Name, string(clusterCopy.UID))
+			}
 
 			m := make(map[string]interface{})
 			m[supervisorEndpointKey] = configMap.Data[issuerKey]
 			m[supervisorCABundleKey] = configMap.Data[issuerCABundleKey]
 			m["concierge"] = map[string]interface{}{
-				"audience": fmt.Sprintf("%s-%s", clusterCopy.Name, string(clusterCopy.UID)),
+				"audience": audience,
 			}
 			wantValuesYAML["pinniped"] = m
 		}

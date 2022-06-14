@@ -7,7 +7,6 @@ import { AwsOsImageStepComponent } from '../../aws-wizard/os-image-step/aws-os-i
 import { AzureOsImageStepComponent } from '../../azure-wizard/os-image-step/azure-os-image-step.component';
 import { CodemirrorModule } from '@ctrl/ngx-codemirror';
 import { DeleteDataPopupComponent } from './components/delete-data-popup.component';
-import { FieldMapUtilities } from './field-mapping/FieldMapUtilities';
 import { MetadataStepComponent } from './components/steps/metadata-step/metadata-step.component';
 import { SharedCeipStepComponent } from './components/steps/ceip-step/ceip-step.component';
 import { SharedIdentityStepComponent } from './components/steps/identity-step/identity-step.component';
@@ -22,8 +21,13 @@ import { StepWrapperSetComponent } from './step-wrapper/step-wrapper-set.compone
 import { TreeSelectComponent } from './tree-select/tree-select.component';
 import { ValidationService } from './validation/validation.service';
 import { VsphereNetworkStepComponent } from '../../vsphere-wizard/vsphere-network-step/vsphere-network-step.component';
-import { VsphereOsImageStepComponent } from '../../vsphere-wizard/vsphere-os-image-step/vsphere-os-image-step.component';
-import { VsphereLoadBalancerStepComponent } from '../../vsphere-wizard/load-balancer/vsphere-load-balancer-step.component';
+import {
+    VsphereOsImageStepComponent
+} from '../../vsphere-wizard/vsphere-os-image-step/vsphere-os-image-step.component';
+import {
+    VsphereLoadBalancerStepComponent
+} from '../../vsphere-wizard/load-balancer/vsphere-load-balancer-step.component';
+import { TkgLabelsComponent } from './components/widgets/tkg-labels/tkg-labels.component';
 
 @NgModule({
     declarations: [
@@ -44,7 +48,8 @@ import { VsphereLoadBalancerStepComponent } from '../../vsphere-wizard/load-bala
         TreeSelectComponent,
         VsphereLoadBalancerStepComponent,
         VsphereNetworkStepComponent,
-        VsphereOsImageStepComponent
+        VsphereOsImageStepComponent,
+        TkgLabelsComponent
     ],
     imports: [
         CodemirrorModule,
@@ -69,10 +74,12 @@ import { VsphereLoadBalancerStepComponent } from '../../vsphere-wizard/load-bala
         TreeSelectComponent,
         VsphereLoadBalancerStepComponent,
         VsphereNetworkStepComponent,
-        VsphereOsImageStepComponent
+        VsphereOsImageStepComponent,
+        TkgLabelsComponent
     ],
     providers: [
         ValidationService
     ]
 })
-export class WizardSharedModule { }
+export class WizardSharedModule {
+}

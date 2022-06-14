@@ -306,7 +306,7 @@ var _ = Describe("VSphereCPIConfig Reconciler", func() {
 			clusterRole := &rbacv1.ClusterRole{}
 			Eventually(func() bool {
 				key := client.ObjectKey{
-					Name: constants.ProviderServiceAccountAggregatedClusterRole,
+					Name: constants.VsphereCPIProviderServiceAccountAggregatedClusterRole,
 				}
 				if err := k8sClient.Get(ctx, key, clusterRole); err != nil {
 					return false
@@ -314,7 +314,7 @@ var _ = Describe("VSphereCPIConfig Reconciler", func() {
 				Expect(clusterRole.Labels).To(Equal(map[string]string{
 					constants.CAPVClusterRoleAggregationRuleLabelSelectorKey: constants.CAPVClusterRoleAggregationRuleLabelSelectorValue,
 				}))
-				Expect(clusterRole.Rules).To(HaveLen(5))
+				Expect(clusterRole.Rules).To(HaveLen(4))
 				return true
 			})
 		})

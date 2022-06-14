@@ -54,6 +54,7 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 		foobar1CarvelPackageRefName = "foobar1.example.com"
 		foobar1CarvelPackageName    = "foobar1.example.com.1.17.2"
 		foobar2CarvelPackageRefName = "foobar2.example.com"
+		foobar                      = "foobar"
 	)
 
 	JustBeforeEach(func() {
@@ -336,7 +337,7 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 					s.Name = util.GenerateDataValueSecretName(clusterName, foobarCarvelPackageRefName)
 					s.Namespace = clusterNamespace
 					s.Data = map[string][]byte{}
-					s.Data["values.yaml"] = []byte("foobar")
+					s.Data["values.yaml"] = []byte(foobar)
 					Expect(k8sClient.Create(ctx, s)).To(Succeed())
 
 					Expect(unstructured.SetNestedField(object.Object, s.Name, "status", "secretRef")).To(Succeed())
@@ -349,7 +350,7 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 						if err := k8sClient.Get(ctx, client.ObjectKey{Namespace: constants.TKGSystemNS, Name: util.GenerateDataValueSecretName(clusterName, foobarCarvelPackageRefName)}, s); err != nil {
 							return false
 						}
-						if string(s.Data["values.yaml"]) != "foobar" {
+						if string(s.Data["values.yaml"]) != foobar {
 							return false
 						}
 
@@ -470,6 +471,7 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 					return true
 				}, waitTimeout, pollingInterval).Should(BeTrue())
 				Expect(remotePkgi.Spec.PackageRef.RefName).To(Equal(pkg.Spec.RefName))
+				Expect(remotePkgi.Spec.SyncPeriod.Seconds()).To(Equal(constants.PackageInstallSyncPeriod.Seconds()))
 				Expect(len(remotePkgi.Spec.Values)).NotTo(BeZero())
 				Expect(remotePkgi.Spec.Values[0].SecretRef.Name).To(Equal(util.GenerateDataValueSecretName(cluster.Name, pkg.Spec.RefName)))
 				Expect(remotePkgi.Annotations).ShouldNot(BeNil())
@@ -922,6 +924,22 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 		})
 	})
 
+	When("Legacy cluster is created", func() {
+		BeforeEach(func() {
+			clusterName = "test-cluster-legacy"
+			clusterNamespace = "legacy-namespace"
+			clusterResourceFilePath = "testdata/test-cluster-legacy.yaml"
+		})
+		Context("and clusterboostrap template does not exists", func() {
+			It("clusterbootstrap controller should not attempt to reconcile it", func() {
+				By("verifying CAPI cluster is created properly")
+				cluster := &clusterapiv1beta1.Cluster{}
+				Expect(k8sClient.Get(ctx, client.ObjectKey{Namespace: clusterNamespace, Name: clusterName}, cluster)).To(Succeed())
+				cluster.Status.Phase = string(clusterapiv1beta1.ClusterPhaseProvisioned)
+				Expect(k8sClient.Status().Update(ctx, cluster)).To(Succeed())
+			})
+		})
+	})
 })
 
 func assertSecretContains(ctx context.Context, k8sClient client.Client, namespace, name string, secretContent map[string][]byte) {

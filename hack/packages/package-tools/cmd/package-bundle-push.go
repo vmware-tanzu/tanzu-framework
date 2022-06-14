@@ -64,7 +64,8 @@ func runPackageBundlePush(cmd *cobra.Command, args []string) error {
 	}
 
 	for _, repo := range repos {
-		for i, pkg := range packageValues.Repositories[repo].Packages {
+		for i := range packageValues.Repositories[repo].Packages {
+			pkg := packageValues.Repositories[repo].Packages[i]
 			fmt.Printf("Pushing %q package bundle...\n", pkg.Name)
 			imagePackageVersion := formatVersion(&packageValues.Repositories[repo].Packages[i], "_").concat
 
@@ -135,7 +136,8 @@ func prunePackages(repos map[string]Repository, csvBundles string) error {
 
 	RepoLoop:
 		for repoName := range repos {
-			for _, pkg := range repos[repoName].Packages {
+			for i := range repos[repoName].Packages {
+				pkg := repos[repoName].Packages[i]
 				if pkg.Name == bundle {
 					bundleFound = true
 					prunedPkgs[repoName] = append(prunedPkgs[repoName], pkg)

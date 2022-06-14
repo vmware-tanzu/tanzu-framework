@@ -9,9 +9,13 @@ import (
 	"path/filepath"
 
 	"github.com/pkg/errors"
+	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
+
+	utilyaml "sigs.k8s.io/cluster-api/util/yaml"
 
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/log"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfighelper"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfigpaths"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/vc"
 )
@@ -148,4 +152,94 @@ func (t *tkgctl) removeAuditLog(clusterName string) {
 	}
 
 	_ = os.Remove(path)
+}
+
+// checkIfInputFileIsClusterClassBased checks user input file, if it has Cluster object then
+// reads all non-empty variables in cluster.spec.topology.variables, and updates those variables in
+// environment and also CreateClusterOptions.
+func (t *tkgctl) checkIfInputFileIsClusterClassBased(clusterConfigFile string) (bool, unstructured.Unstructured, error) {
+	var clusterobj unstructured.Unstructured
+
+	isInputFileClusterClassBased := false
+	if clusterConfigFile == "" {
+		return isInputFileClusterClassBased, clusterobj, nil
+	}
+	content, err := os.ReadFile(clusterConfigFile)
+	if err != nil {
+		return isInputFileClusterClassBased, clusterobj, errors.Wrap(err, fmt.Sprintf("Unable to read input file: %v ", clusterConfigFile))
+	}
+	yamlObjects, err := utilyaml.ToUnstructured(content)
+	if err != nil {
+		return isInputFileClusterClassBased, clusterobj, errors.Wrap(err, fmt.Sprintf("Input file content is not yaml formatted, file path: %v", clusterConfigFile))
+	}
+
+	for i := range yamlObjects {
+		obj := yamlObjects[i]
+		if obj.GetKind() == constants.KindCluster {
+			isInputFileClusterClassBased = true
+			clusterobj = obj
+			break
+		}
+	}
+	return isInputFileClusterClassBased, clusterobj, nil
+}
+
+// processCClusterObjectForConfigurationVariables takes ccluster object, process it to capture all configuration variables and add them in environment.
+func (t *tkgctl) processCClusterObjectForConfigurationVariables(cclusterObj unstructured.Unstructured) {
+	variablesMap := make(map[string]string)
+	variablesMap[constants.ConfigVariableClusterName] = cclusterObj.GetName()
+	variablesMap[constants.ConfigVariableNamespace] = cclusterObj.GetNamespace()
+	spec := cclusterObj.Object["spec"].(map[string]interface{})
+	if spec != nil {
+		topology := spec["topology"].(map[string]interface{})
+		if topology != nil {
+			variables := topology["variables"].([]interface{})
+			if variables != nil {
+				for j := range variables {
+					var name string
+					var value string
+					for k := range variables[j].(map[string]interface{}) {
+						if k == "name" {
+							name = variables[j].(map[string]interface{})[k].(string)
+						} else {
+							value = fmt.Sprintf("%v", variables[j].(map[string]interface{})[k])
+						}
+					}
+					if len(value) > 0 {
+						variablesMap[name] = value
+					}
+				}
+				t.TKGConfigReaderWriter().SetMap(variablesMap)
+			}
+		}
+	}
+}
+
+// overrideClusterOptionsWithCClusterConfigurationValues overrides CreateClusterOptions attributes with latest values from the environment.
+func (t *tkgctl) overrideClusterOptionsWithCClusterConfigurationValues(cc *CreateClusterOptions) {
+	cc.ClusterName, _ = t.TKGConfigReaderWriter().Get(constants.ConfigVariableClusterName)
+	cc.Plan, _ = t.TKGConfigReaderWriter().Get(constants.ConfigVariableClusterPlan)
+	cc.Namespace, _ = t.TKGConfigReaderWriter().Get(constants.ConfigVariableNamespace)
+	cc.InfrastructureProvider, _ = t.TKGConfigReaderWriter().Get(constants.ConfigVariableInfraProvider)
+	cc.ControlPlaneMachineCount, _ = tkgconfighelper.GetIntegerVariableFromConfig(constants.ConfigVariableControlPlaneMachineCount, t.TKGConfigReaderWriter())
+	cc.WorkerMachineCount, _ = tkgconfighelper.GetIntegerVariableFromConfig(constants.ConfigVariableWorkerMachineCount, t.TKGConfigReaderWriter())
+	cc.Size, _ = t.TKGConfigReaderWriter().Get(constants.ConfigVariableSize)
+	cc.ControlPlaneSize, _ = t.TKGConfigReaderWriter().Get(constants.ConfigVariableControlPlaneSize)
+	cc.WorkerSize, _ = t.TKGConfigReaderWriter().Get(constants.ConfigVariableWorkerSize)
+	cc.CniType, _ = t.TKGConfigReaderWriter().Get(constants.ConfigVariableCNI)
+	cc.EnableClusterOptions, _ = t.TKGConfigReaderWriter().Get(constants.ConfigVariableEnableClusterOptions)
+	cc.VsphereControlPlaneEndpoint, _ = t.TKGConfigReaderWriter().Get(constants.ConfigVariableVsphereControlPlaneEndpoint)
+}
+
+// overrideManagementClusterOptionsWithCClusterConfigurationValues overrides InitRegion attributes with latest values from the environment.
+func (t *tkgctl) overrideManagementClusterOptionsWithCClusterConfigurationValues(ir *InitRegionOptions) {
+	ir.ClusterName, _ = t.TKGConfigReaderWriter().Get(constants.ConfigVariableClusterName)
+	ir.Namespace, _ = t.TKGConfigReaderWriter().Get(constants.ConfigVariableNamespace)
+	ir.Plan, _ = t.TKGConfigReaderWriter().Get(constants.ConfigVariableClusterPlan)
+	ir.InfrastructureProvider, _ = t.TKGConfigReaderWriter().Get(constants.ConfigVariableInfraProvider)
+	ir.Size, _ = t.TKGConfigReaderWriter().Get(constants.ConfigVariableSize)
+	ir.ControlPlaneSize, _ = t.TKGConfigReaderWriter().Get(constants.ConfigVariableControlPlaneSize)
+	ir.WorkerSize, _ = t.TKGConfigReaderWriter().Get(constants.ConfigVariableWorkerSize)
+	ir.CniType, _ = t.TKGConfigReaderWriter().Get(constants.ConfigVariableCNI)
+	ir.VsphereControlPlaneEndpoint, _ = t.TKGConfigReaderWriter().Get(constants.ConfigVariableVsphereControlPlaneEndpoint)
 }

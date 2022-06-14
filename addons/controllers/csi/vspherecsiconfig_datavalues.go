@@ -10,11 +10,12 @@ type DataValues struct {
 }
 
 type DataValuesVSpherePVCSI struct {
-	ClusterName                      string `yaml:"cluster_name"`
-	ClusterUID                       string `yaml:"cluster_uid"`
-	Namespace                        string `yaml:"namespace"`
-	SupervisorMasterEndpointHostname string `yaml:"supervisor_master_endpoint_hostname"`
-	SupervisorMasterPort             int32  `yaml:"supervisor_master_port"`
+	ClusterName                      string            `yaml:"cluster_name"`
+	ClusterUID                       string            `yaml:"cluster_uid"`
+	Namespace                        string            `yaml:"namespace"`
+	SupervisorMasterEndpointHostname string            `yaml:"supervisor_master_endpoint_hostname"`
+	SupervisorMasterPort             int32             `yaml:"supervisor_master_port"`
+	FeatureStates                    map[string]string `yaml:"feature_states,omitempty"`
 }
 
 type DataValuesVSphereCSI struct {

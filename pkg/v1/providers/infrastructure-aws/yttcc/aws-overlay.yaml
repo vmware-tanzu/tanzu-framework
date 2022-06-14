@@ -1,0 +1,11 @@
+#! Please add any overlays specific to AWS provider under this file.
+#@ load("@ytt:overlay", "overlay")
+#@ load("@ytt:data", "data")
+#@ load("lib/helpers.star", "get_bom_data_for_tkr_name", "kubeadm_image_repo", "get_az_from_region")
+
+#@ default_az_0 = get_az_from_region(data.values.AWS_REGION, data.values.AWS_NODE_AZ, "a")
+#@ default_az_1 = get_az_from_region(data.values.AWS_REGION, data.values.AWS_NODE_AZ_1, "b")
+#@ default_az_2 = get_az_from_region(data.values.AWS_REGION, data.values.AWS_NODE_AZ_2, "c")
+
+#@ bomData = get_bom_data_for_tkr_name()
+

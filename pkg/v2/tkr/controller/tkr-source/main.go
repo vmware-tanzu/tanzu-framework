@@ -4,8 +4,11 @@
 package main
 
 import (
+	"context"
 	"flag"
+	"fmt"
 	"os"
+	"reflect"
 	"time"
 
 	corev1 "k8s.io/api/core/v1"
@@ -20,12 +23,12 @@ import (
 
 	kapppkgiv1 "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/packaging/v1alpha1"
 	kapppkgv1 "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apiserver/apis/datapackaging/v1alpha1"
-
 	runv1 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/buildinfo"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v2/tkr/controller/tkr-source/compatibility"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v2/tkr/controller/tkr-source/fetcher"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v2/tkr/controller/tkr-source/pkgcr"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v2/tkr/controller/tkr-source/registry"
 )
 
 var (
@@ -41,17 +44,19 @@ func init() {
 	utilruntime.Must(corev1.AddToScheme(scheme))
 }
 
-func main() {
-	var metricsAddr string
-	var tkrNamespace string
-	var tkrPkgServiceAccountName string
-	var bomImagePath string
-	var bomMetadataImagePath string
-	var tkrRepoImagePath string
-	var initTKRDiscoveryFreq int
-	var continuousTKRDiscoverFreq int
-	var skipVerifyRegistryCerts bool
+var (
+	metricsAddr               string
+	tkrNamespace              string
+	tkrPkgServiceAccountName  string
+	bomImagePath              string
+	bomMetadataImagePath      string
+	tkrRepoImagePath          string
+	initTKRDiscoveryFreq      int
+	continuousTKRDiscoverFreq int
+	skipVerifyRegistryCerts   bool
+)
 
+func init() {
 	flag.StringVar(&metricsAddr, "metrics-bind-addr", ":8080", "The address the metric endpoint binds to.")
 	flag.StringVar(&tkrNamespace, "namespace", "tkg-system", "Namespace for TKR related resources")
 	flag.StringVar(&tkrPkgServiceAccountName, "sa-name", "tkr-source-controller-manager-sa", "ServiceAccount name used by TKR PackageInstalls")
@@ -63,16 +68,85 @@ func main() {
 	flag.IntVar(&continuousTKRDiscoverFreq, "continuous-discover-frequency", 600, "Continuous TKR discovery frequency in seconds")
 	flag.Parse()
 
+	setupLog.Info("Version", "version", buildinfo.Version, "buildDate", buildinfo.Date, "sha", buildinfo.SHA)
+
+	registryConfig = registry.Config{
+		TKRNamespace:       tkrNamespace,
+		VerifyRegistryCert: !skipVerifyRegistryCerts,
+	}
+	fetcherConfig = fetcher.Config{
+		TKRNamespace:         tkrNamespace,
+		BOMImagePath:         bomImagePath,
+		BOMMetadataImagePath: bomMetadataImagePath,
+		TKRRepoImagePath:     tkrRepoImagePath,
+		TKRDiscoveryOption: fetcher.TKRDiscoveryIntervals{
+			InitialDiscoveryFrequency:    time.Duration(initTKRDiscoveryFreq) * time.Second,
+			ContinuousDiscoveryFrequency: time.Duration(continuousTKRDiscoverFreq) * time.Second,
+		},
+	}
+	pkgcrConfig = pkgcr.Config{
+		ServiceAccountName: tkrPkgServiceAccountName,
+	}
+	compatibilityConfig = compatibility.Config{
+		TKRNamespace: tkrNamespace,
+	}
+}
+
+var (
+	registryConfig      registry.Config
+	fetcherConfig       fetcher.Config
+	pkgcrConfig         pkgcr.Config
+	compatibilityConfig compatibility.Config
+)
+
+func main() {
 	opts := zap.Options{
 		Development: true,
 	}
 	opts.BindFlags(flag.CommandLine)
-	flag.Parse()
-
 	ctrl.SetLogger(zap.New(zap.UseFlagOptions(&opts)))
 
-	setupLog.Info("Version", "version", buildinfo.Version, "buildDate", buildinfo.Date, "sha", buildinfo.SHA)
+	mgr := createManager()
+	ctx := signals.SetupSignalHandler()
 
+	tkrCompatibility := &compatibility.Compatibility{
+		Client: mgr.GetClient(),
+		Config: compatibilityConfig,
+		Log:    mgr.GetLogger().WithName("tkr-compatibility"),
+	}
+	registryInstance := registry.New(mgr.GetClient(), registryConfig)
+	fetcherInstance := &fetcher.Fetcher{
+		Log:           mgr.GetLogger().WithName("tkr-fetcher"),
+		Client:        mgr.GetClient(),
+		Config:        fetcherConfig,
+		Registry:      registryInstance,
+		Compatibility: tkrCompatibility,
+	}
+	pkgcrReconciler := &pkgcr.Reconciler{
+		Log:      mgr.GetLogger().WithName("tkr-source"),
+		Client:   mgr.GetClient(),
+		Config:   pkgcrConfig,
+		Registry: registryInstance,
+	}
+	compatibilityReconciler := &compatibility.Reconciler{
+		Ctx:           ctx,
+		Log:           mgr.GetLogger().WithName("tkr-compatibility"),
+		Client:        mgr.GetClient(),
+		Config:        compatibilityConfig,
+		Compatibility: tkrCompatibility,
+	}
+
+	setupWithManager(mgr, []managedComponent{
+		registryInstance,
+		fetcherInstance,
+		pkgcrReconciler,
+		compatibilityReconciler,
+	})
+
+	startManager(ctx, mgr)
+}
+
+func createManager() manager.Manager {
 	// Setup Manager
 	setupLog.Info("setting up manager")
 	mgr, err := manager.New(config.GetConfigOrDie(), manager.Options{
@@ -83,51 +157,32 @@ func main() {
 		setupLog.Error(err, "unable to set up controller manager")
 		os.Exit(1)
 	}
+	return mgr
+}
 
-	ctx := signals.SetupSignalHandler()
-
-	if err := mgr.Add(&fetcher.Fetcher{
-		Log:    mgr.GetLogger().WithName("tkr-fetcher"),
-		Client: mgr.GetClient(),
-		Config: fetcher.Config{
-			TKRNamespace:         tkrNamespace,
-			BOMImagePath:         bomImagePath,
-			BOMMetadataImagePath: bomMetadataImagePath,
-			TKRRepoImagePath:     tkrRepoImagePath,
-			VerifyRegistryCert:   !skipVerifyRegistryCerts,
-			TKRDiscoveryOption: fetcher.TKRDiscoveryIntervals{
-				InitialDiscoveryFrequency:    time.Duration(initTKRDiscoveryFreq) * time.Second,
-				ContinuousDiscoveryFrequency: time.Duration(continuousTKRDiscoverFreq) * time.Second,
-			},
-		},
-	}); err != nil {
-		setupLog.Error(err, "unable to add fetcher to controller manager")
-		os.Exit(1)
+func setupWithManager(mgr manager.Manager, managedComponents []managedComponent) {
+	for _, c := range managedComponents {
+		setupLog.Info("setting up component", "type", fullTypeName(c))
+		if err := c.SetupWithManager(mgr); err != nil {
+			setupLog.Error(err, "unable to setup component", "type", fullTypeName(c))
+			os.Exit(1)
+		}
 	}
+}
 
-	if err := (&pkgcr.Reconciler{
-		Log:    mgr.GetLogger().WithName("tkr-source"),
-		Client: mgr.GetClient(),
-		Config: pkgcr.Config{
-			ServiceAccountName: tkrPkgServiceAccountName,
-		},
-	}).SetupWithManager(mgr); err != nil {
-		setupLog.Error(err, "unable to create controller", "controller", "TKR Package")
-		os.Exit(1)
+func fullTypeName(c managedComponent) string {
+	cType := reflect.TypeOf(c)
+	for cType.Kind() == reflect.Ptr {
+		cType = cType.Elem()
 	}
+	return fmt.Sprintf("%s.%s", cType.PkgPath(), cType.Name())
+}
 
-	if err := (&compatibility.Reconciler{
-		Ctx:    ctx,
-		Log:    mgr.GetLogger().WithName("tkr-compatibility"),
-		Client: mgr.GetClient(),
-		Config: compatibility.Config{
-			TKRNamespace: tkrNamespace,
-		},
-	}).SetupWithManager(mgr); err != nil {
-		setupLog.Error(err, "unable to create controller", "controller", "TKR Compatibility")
-		os.Exit(1)
-	}
+type managedComponent interface {
+	SetupWithManager(ctrl.Manager) error
+}
 
+func startManager(ctx context.Context, mgr manager.Manager) {
 	setupLog.Info("starting manager")
 	if err := mgr.Start(ctx); err != nil {
 		setupLog.Error(err, "unable to run manager")

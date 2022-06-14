@@ -4,18 +4,23 @@
 package cluster
 
 import (
+	"context"
 	"fmt"
 	"testing"
+	"time"
 
 	"github.com/go-logr/logr"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+	"github.com/pkg/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
+	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/util/rand"
 	clusterv1 "sigs.k8s.io/cluster-api/api/v1beta1"
 	"sigs.k8s.io/cluster-api/util/conditions"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+	"sigs.k8s.io/controller-runtime/pkg/client/fake"
 
 	runv1 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v2/tkr/resolver"
@@ -84,8 +89,95 @@ var _ = Describe("cluster.Webhook", func() {
 
 	const strNonExistent = "non-existent"
 
+	Context("getClusterClass()", func() {
+		When("Cluster has deletionTimestamp set", func() {
+			It("should allow the request to pass", func() {
+				cluster.DeletionTimestamp = &metav1.Time{Time: time.Now()}
+				cc, resp := cw.getClusterClass(context.Background(), cluster)
+				Expect(cc).To(BeNil())
+				Expect(resp).ToNot(BeNil())
+				Expect(resp.Allowed).To(BeTrue())
+			})
+		})
+
+		When("Cluster has no topology set", func() {
+			BeforeEach(func() {
+				Expect(cluster.Spec.Topology).To(BeNil())
+			})
+			It("should allow the request to pass", func() {
+				cc, resp := cw.getClusterClass(context.Background(), cluster)
+				Expect(cc).To(BeNil())
+				Expect(resp).ToNot(BeNil())
+				Expect(resp.Allowed).To(BeTrue())
+			})
+		})
+
+		When("ClusterClass cannot be found", func() {
+			BeforeEach(func() {
+				cw.Client = fake.NewClientBuilder().WithScheme(newScheme()).Build() // no initial objects
+				cluster.Spec.Topology = &clusterv1.Topology{
+					Class: strNonExistent,
+				}
+			})
+			It("should deny the request", func() {
+				cc, resp := cw.getClusterClass(context.Background(), cluster)
+				Expect(cc).To(BeNil())
+				Expect(resp).ToNot(BeNil())
+				Expect(resp.Allowed).To(BeFalse())
+			})
+		})
+
+		When("the client returns an error getting ClusterClass", func() {
+			var expectedErr error
+			BeforeEach(func() {
+				expectedErr = errors.New("something bad")
+				cw.Client = errorClient{Client: fake.NewClientBuilder().WithScheme(newScheme()).Build(), err: expectedErr}
+				cluster.Spec.Topology = &clusterv1.Topology{
+					Class: strNonExistent,
+				}
+			})
+			It("should deny the request", func() {
+				cc, resp := cw.getClusterClass(context.Background(), cluster)
+				Expect(cc).To(BeNil())
+				Expect(resp).ToNot(BeNil())
+				Expect(resp.Allowed).To(BeFalse())
+				Expect(resp.Result.Message).To(ContainSubstring(expectedErr.Error()))
+			})
+		})
+
+		When("ClusterClass exists", func() {
+			BeforeEach(func() {
+				cw.Client = fake.NewClientBuilder().WithScheme(newScheme()).WithObjects(clusterClass).Build()
+				cluster.Spec.Topology = &clusterv1.Topology{
+					Class: clusterClass.Name,
+				}
+			})
+			It("should deny the request", func() {
+				cc, resp := cw.getClusterClass(context.Background(), cluster)
+				Expect(cc).ToNot(BeNil(), "expecting to be able to get ClusterClass if it exists")
+				Expect(resp).To(BeNil())
+			})
+		})
+	})
+
 	Context("constructQuery()", func() {
 		When("'resolve-tkr' annotation is not present", func() {
+			BeforeEach(func() {
+				cluster.Spec.Topology = &clusterv1.Topology{} // make sure we're not entirely skipping building a query
+			})
+
+			It("should produce an empty query (no resolution needed)", func() {
+				query, err := cw.constructQuery(cluster, clusterClass)
+				Expect(err).ToNot(HaveOccurred())
+				Expect(query).To(BeNil())
+			})
+		})
+
+		When("cluster spec.topology is not present", func() {
+			BeforeEach(func() {
+				Expect(cluster.Spec.Topology).To(BeNil())
+			})
+
 			It("should produce an empty query (no resolution needed)", func() {
 				query, err := cw.constructQuery(cluster, clusterClass)
 				Expect(err).ToNot(HaveOccurred())
@@ -482,4 +574,20 @@ func repeat(numTimes int, f func()) {
 	for i := 0; i < numTimes; i++ {
 		f()
 	}
+}
+
+func newScheme() *runtime.Scheme {
+	s := runtime.NewScheme()
+	_ = runv1.AddToScheme(s)
+	_ = clusterv1.AddToScheme(s)
+	return s
+}
+
+type errorClient struct {
+	client.Client
+	err error
+}
+
+func (c errorClient) Get(_ context.Context, _ client.ObjectKey, _ client.Object) error {
+	return c.err
 }

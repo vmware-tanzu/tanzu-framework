@@ -170,6 +170,11 @@ func (r *ClusterBootstrapReconciler) Reconcile(ctx context.Context, req ctrl.Req
 		return ctrl.Result{}, nil
 	}
 
+	if _, labelFound := tkr.Labels[constants.TKRLableLegacyClusters]; labelFound {
+		log.Info("Skipping reconciling due to tkr label", "name", tkrName, "label", constants.TKRLableLegacyClusters)
+		return ctrl.Result{}, nil
+	}
+
 	log.Info("Reconciling cluster")
 
 	// if deletion timestamp is set, handle cluster deletion
@@ -693,6 +698,7 @@ func (r *ClusterBootstrapReconciler) createOrPatchPackageInstallOnRemote(cluster
 
 	_, err = controllerutil.CreateOrPatch(r.context, clusterClient, remotePkgi, func() error {
 		remotePkgi.Spec.ServiceAccountName = r.Config.PkgiServiceAccount
+		remotePkgi.Spec.SyncPeriod = &metav1.Duration{Duration: r.Config.PkgiSyncPeriod}
 		// remotePackageRefName and remotePackageVersion are fetched from the Package CR on remote cluster.
 		remotePkgi.Spec.PackageRef = &kapppkgiv1alpha1.PackageRef{
 			RefName: remotePackageRefName,

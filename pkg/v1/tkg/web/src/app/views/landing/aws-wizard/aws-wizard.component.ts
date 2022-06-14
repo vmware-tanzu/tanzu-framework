@@ -125,7 +125,7 @@ export class AwsWizardComponent extends WizardBaseDirective implements OnInit {
             cidr: (this.getFieldValue(AwsForm.VPC, AwsField.VPC_TYPE) === VpcType.EXISTING) ?
                 this.getFieldValue(AwsForm.VPC, AwsField.VPC_EXISTING_CIDR) :
                 this.getFieldValue(AwsForm.VPC, AwsField.VPC_NEW_CIDR),
-            vpcID: this.getFieldValue(AwsForm.VPC, AwsField.VPC_EXISTING_CIDR),
+            vpcID: this.getFieldValue(AwsForm.VPC, AwsField.VPC_EXISTING_ID),
             azs: this.getAwsNodeAzs(payload)
         };
 
@@ -334,18 +334,18 @@ export class AwsWizardComponent extends WizardBaseDirective implements OnInit {
         return {name: AwsForm.PROVIDER, title: 'IaaS Provider',
             description: 'Validate the AWS provider account for ' + this.title,
             i18n: {title: 'IaaS provder step name', description: 'IaaS provder step description'},
-        clazz: AwsProviderStepComponent};
+            clazz: AwsProviderStepComponent};
     }
     get AwsNodeSettingForm(): FormDataForHTML {
         return { name: AwsForm.NODESETTING, title: FormUtility.titleCase(this.clusterTypeDescriptor) + ' Cluster Settings',
             description: `Specify the resources backing the ${this.clusterTypeDescriptor} cluster`,
             i18n: {title: 'IaaS provder step name', description: 'IaaS provder step description'},
-        clazz: NodeSettingStepComponent};
+            clazz: NodeSettingStepComponent};
     }
     get AwsVpcForm(): FormDataForHTML {
         return {name: AwsForm.VPC, title: 'VPC for AWS', description: 'Specify VPC settings for AWS',
-        i18n: {title: 'vpc step name', description: 'vpc step description'},
-        clazz: VpcStepComponent};
+            i18n: {title: 'vpc step name', description: 'vpc step description'},
+            clazz: VpcStepComponent};
     }
     get AwsOsImageForm(): FormDataForHTML {
         return this.getOsImageForm(AwsOsImageStepComponent);
@@ -358,12 +358,12 @@ export class AwsWizardComponent extends WizardBaseDirective implements OnInit {
 
     private subscribeToServices() {
         AppServices.messenger.subscribe(TanzuEventType.AWS_REGION_CHANGED, event => {
-                const region = event.payload;
-                AppServices.dataServiceRegistrar.trigger([TanzuEventType.AWS_GET_OS_IMAGES], { region });
-                // NOTE: even though the VPC and AZ endpoints don't take the region as a payload, they DO return different data
-                // if the user logs in to AWS using a different region. Therefore, we re-fetch that data if the region changes.
-                AppServices.dataServiceRegistrar.trigger([TanzuEventType.AWS_GET_EXISTING_VPCS, TanzuEventType.AWS_GET_AVAILABILITY_ZONES]);
-            });
+            const region = event.payload;
+            AppServices.dataServiceRegistrar.trigger([TanzuEventType.AWS_GET_OS_IMAGES], { region });
+            // NOTE: even though the VPC and AZ endpoints don't take the region as a payload, they DO return different data
+            // if the user logs in to AWS using a different region. Therefore, we re-fetch that data if the region changes.
+            AppServices.dataServiceRegistrar.trigger([TanzuEventType.AWS_GET_EXISTING_VPCS, TanzuEventType.AWS_GET_AVAILABILITY_ZONES]);
+        });
     }
 
     private registerServices() {

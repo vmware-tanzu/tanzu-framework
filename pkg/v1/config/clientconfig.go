@@ -57,6 +57,17 @@ const (
 	// TKR version v1alpha3 feature flag determines whether to use Tanzu Kubernetes Release API version v1alpha3. Setting
 	// feature flag to true will allow to use the TKR version v1alpha3; false allows to use legacy TKR version v1alpha1
 	FeatureFlagTKRVersionV1Alpha3 = "features.global.tkr-version-v1alpha3-beta"
+	// Package Plugin Kctrl Command Tree determines whether to use the command tree from kctrl. Setting feature flag to
+	// true will allow to use the package command tree from kctrl for package plugin
+	FeatureFlagPackagePluginKctrlCommandTree = "features.package.kctrl-package-command-tree"
+	// FeatureFlagAutoApplyGeneratedClusterClassBasedConfiguration feature flag determines whether to auto-apply the generated ClusterClass
+	// based configuration after converting legacy configration to ClusterClass based config or not
+	// Note: This is a hidden feature-flag that doesn't get persisted to config.yaml by default
+	FeatureFlagAutoApplyGeneratedClusterClassBasedConfiguration = "features.cluster.auto-apply-generated-clusterclass-based-configuration"
+	// FeatureFlagForceDeployClusterWithClusterClass if this feature flag is set CLI will try to deploy ClusterClass
+	// based cluster even if user has done any customization to the provider templates
+	// Note: This is a hidden feature-flag that doesn't get persisted to config.yaml by default
+	FeatureFlagForceDeployClusterWithClusterClass = "features.cluster.force-deploy-cluster-with-clusterclass"
 )
 
 // DefaultCliFeatureFlags is used to populate an initially empty config file with default values for feature flags.
@@ -87,6 +98,7 @@ var (
 		FeatureFlagAwsInstanceTypesExcludeArm:                 true,
 		FeatureFlagPackageBasedLCM:                            false,
 		FeatureFlagTKRVersionV1Alpha3:                         false,
+		FeatureFlagPackagePluginKctrlCommandTree:              false,
 	}
 )
 

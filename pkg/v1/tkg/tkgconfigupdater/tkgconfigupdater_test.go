@@ -310,6 +310,116 @@ var _ = Describe("Credential Encoding/Decoding", func() {
 	})
 })
 
+var _ = Describe("GetPopulatedProvidersChecksumFromFile", func() {
+	var (
+		err      error
+		client   Client
+		checksum string
+	)
+
+	BeforeEach(func() {
+		createTempDirectory("template_test")
+		configPath := constConfigPath
+		setupPrerequsiteForTesting(configPath, testingDir, defaultBomFile)
+		tkgConfigReaderWriter, err := tkgconfigreaderwriter.NewReaderWriterFromConfigFile(configPath, filepath.Join(testingDir, "config.yaml"))
+		Expect(err).NotTo(HaveOccurred())
+		client = New(testingDir, NewProviderTest(), tkgConfigReaderWriter)
+		_, err = client.EnsureTemplateFiles()
+		Expect(err).NotTo(HaveOccurred())
+	})
+
+	JustBeforeEach(func() {
+		checksum, err = client.GetPopulatedProvidersChecksumFromFile()
+	})
+
+	Context("When the providers folder exists", func() {
+		It("should return the populated checksum from the providers directory", func() {
+			Expect(err).ToNot(HaveOccurred())
+			Expect(checksum).To(Equal("cb3805b1f66ea62bc52a712085c48b1d3c3e90807da332bf15d478cf558269d1"))
+		})
+	})
+
+	AfterEach(func() {
+		deleteTempDirectory()
+	})
+})
+
+var _ = Describe("GetProvidersChecksum", func() {
+	var (
+		err      error
+		client   Client
+		checksum string
+	)
+
+	BeforeEach(func() {
+		createTempDirectory("template_test")
+		configPath := constConfigPath
+		setupPrerequsiteForTesting(configPath, testingDir, defaultBomFile)
+		tkgConfigReaderWriter, err := tkgconfigreaderwriter.NewReaderWriterFromConfigFile(configPath, filepath.Join(testingDir, "config.yaml"))
+		Expect(err).NotTo(HaveOccurred())
+		client = New(testingDir, NewProviderTest(), tkgConfigReaderWriter)
+		_, err = client.EnsureTemplateFiles()
+		Expect(err).NotTo(HaveOccurred())
+	})
+
+	JustBeforeEach(func() {
+		checksum, err = client.GetProvidersChecksum()
+	})
+
+	Context("When the providers folder exist", func() {
+		It("should return the checksum of files in the providers directory", func() {
+			Expect(err).ToNot(HaveOccurred())
+			providerConfigPath := filepath.Join(testingDir, constants.LocalProvidersFolderName, constants.LocalProvidersConfigFileName)
+			_, err = os.Stat(providerConfigPath)
+			Expect(err).ToNot(HaveOccurred())
+			Expect(checksum).To(Equal("cb3805b1f66ea62bc52a712085c48b1d3c3e90807da332bf15d478cf558269d1"))
+		})
+	})
+
+	Context("When new text file is added to the providers directory", func() {
+		BeforeEach(func() {
+			providersTempFile := filepath.Join(testingDir, constants.LocalProvidersFolderName, "temp.txt")
+			err = os.WriteFile(providersTempFile, []byte("hello world"), 0644)
+			Expect(err).ToNot(HaveOccurred())
+		})
+
+		It("checksum is not modified", func() {
+			Expect(err).ToNot(HaveOccurred())
+			Expect(checksum).To(Equal("cb3805b1f66ea62bc52a712085c48b1d3c3e90807da332bf15d478cf558269d1"))
+		})
+	})
+
+	Context("When new yaml file is added to the providers directory", func() {
+		BeforeEach(func() {
+			providersTempFile := filepath.Join(testingDir, constants.LocalProvidersFolderName, "overlay.yaml")
+			err = os.WriteFile(providersTempFile, []byte("---"), 0644)
+			Expect(err).ToNot(HaveOccurred())
+		})
+
+		It("checksum is modified", func() {
+			Expect(err).ToNot(HaveOccurred())
+			Expect(checksum).To(Equal("e9bf762305c9972a10b9cd3a2996b6cc001620ecd3876acacf90eda01e948fab"))
+		})
+	})
+
+	Context("When new cluster class yaml file clusterclass-xxx.yaml is added to the providers directory", func() {
+		BeforeEach(func() {
+			providersTempFile := filepath.Join(testingDir, constants.LocalProvidersFolderName, "clusterclass-foo.yaml")
+			err = os.WriteFile(providersTempFile, []byte("---"), 0644)
+			Expect(err).ToNot(HaveOccurred())
+		})
+
+		It("checksum is not modified", func() {
+			Expect(err).ToNot(HaveOccurred())
+			Expect(checksum).To(Equal("cb3805b1f66ea62bc52a712085c48b1d3c3e90807da332bf15d478cf558269d1"))
+		})
+	})
+
+	AfterEach(func() {
+		deleteTempDirectory()
+	})
+})
+
 var _ = Describe("EnsureTemplateFiles", func() {
 	var (
 		err        error

@@ -31,6 +31,8 @@ INFRASTRUCTURE_PROVIDER:
 #! be used instead
 CLUSTER_API_SERVER_PORT:
 
+CLUSTER_CLASS:
+
 #! Instance size configuration
 #! Instance size options available for vSphere are as follows:
 #!   vSphere: [extra-large,large,medium,small]
@@ -91,7 +93,6 @@ VSPHERE_NETWORK: VM Network
 #! discovered from the vCenter inventory, the use of this setting is no longer
 #! necessary except to disambiguate among 2 or more applicable VM templates.
 VSPHERE_TEMPLATE:
-
 VSPHERE_TEMPLATE_MOID:
 
 #! WINDOWS PARAMETERS
@@ -596,15 +597,36 @@ AVI_CONTROL_PLANE_HA_PROVIDER: false
 #! Antrea CNI configuration
 #! ---------------------------------------------------------------------
 ANTREA_NO_SNAT: false
+ANTREA_DISABLE_UDP_TUNNEL_OFFLOAD: false
 ANTREA_TRAFFIC_ENCAP_MODE: "encap"
+ANTREA_EGRESS_EXCEPT_CIDRS: ""
+ANTREA_NODEPORTLOCAL_ENABLED: true
+ANTREA_NODEPORTLOCAL_PORTRANGE: 61000-62000
+ANTREA_PROXY_ALL: false
+ANTREA_PROXY_NODEPORT_ADDRS: ""
+ANTREA_PROXY_SKIP_SERVICES: ""
+ANTREA_PROXY_LOAD_BALANCER_IPS: false
+ANTREA_KUBE_APISERVER_OVERRIDE:
+ANTREA_TRANSPORT_INTERFACE:
+ANTREA_TRANSPORT_INTERFACE_CIDRS: ""
+ANTREA_MULTICAST_INTERFACES: ""
+ANTREA_TUNNEL_TYPE: geneve
+ANTREA_TRAFFIC_ENCRYPTION_MODE: none
+ANTREA_WIREGUARD_PORT: 51820
+ANTREA_ENABLE_USAGE_REPORTING: false
+
+#! Antrea feature gates
 ANTREA_PROXY: true
 ANTREA_ENDPOINTSLICE: true
 ANTREA_POLICY: true
-ANTREA_NODEPORTLOCAL: false
 ANTREA_TRACEFLOW: true
-ANTREA_EGRESS: false
+ANTREA_NODEPORTLOCAL: true
+ANTREA_NETWORKPOLICY_STATS: false
+ANTREA_EGRESS: true
+ANTREA_IPAM: false
 ANTREA_FLOWEXPORTER: false
-ANTREA_DISABLE_UDP_TUNNEL_OFFLOAD: false
+ANTREA_SERVICE_EXTERNALIP: false
+ANTREA_MULTICAST: false
 
 
 #! ---------------------------------------------------------------------
@@ -630,6 +652,8 @@ VSPHERE_VERSION:
 CORE_DNS_IP:
 #! This defines feature flag package-based-lcm is enabled or not
 FEATURE_FLAG_PACKAGE_BASED_LCM:
+#! Used for testing clusterclasses only
+TKR_DATA:
 
 #! ---------------------------------------------------------------------
 #! BoM file processing, internal use only

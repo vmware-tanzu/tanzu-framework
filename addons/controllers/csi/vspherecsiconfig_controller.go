@@ -26,7 +26,11 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
+	"sigs.k8s.io/controller-runtime/pkg/event"
+	"sigs.k8s.io/controller-runtime/pkg/handler"
 	"sigs.k8s.io/controller-runtime/pkg/log"
+	"sigs.k8s.io/controller-runtime/pkg/predicate"
+	"sigs.k8s.io/controller-runtime/pkg/source"
 
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/util"
@@ -73,10 +77,56 @@ var providerServiceAccountRBACRules = []rbacv1.PolicyRule{
 	},
 }
 
+// VsphereCSIProviderServiceAccountAggregatedClusterRole is the cluster role to assign permissions to capv provider
+var vsphereCSIProviderServiceAccountAggregatedClusterRole = &rbacv1.ClusterRole{
+	ObjectMeta: metav1.ObjectMeta{
+		Name: constants.VsphereCSIProviderServiceAccountAggregatedClusterRole,
+		Labels: map[string]string{
+			constants.CAPVClusterRoleAggregationRuleLabelSelectorKey: constants.CAPVClusterRoleAggregationRuleLabelSelectorValue,
+		},
+	},
+}
+
+// SetupWithManager sets up the controller with the Manager.
+func (r *VSphereCSIConfigReconciler) SetupWithManager(_ context.Context, mgr ctrl.Manager,
+	options controller.Options) error {
+
+	c, err := ctrl.NewControllerManagedBy(mgr).
+		For(&csiv1alpha1.VSphereCSIConfig{}).
+		WithOptions(options).
+		Build(r)
+	if err != nil {
+		return errors.Wrap(err, "failed to setup vspherecsiconfig controller")
+	}
+
+	fsPredicates := predicate.Funcs{
+		CreateFunc: func(e event.CreateEvent) bool {
+			return isFeatureStatesConfigMap(e.Object)
+		},
+		UpdateFunc: func(e event.UpdateEvent) bool {
+			return isFeatureStatesConfigMap(e.ObjectNew) &&
+				e.ObjectOld.GetResourceVersion() != e.ObjectNew.GetResourceVersion()
+		},
+		// Delete is not expected to occur
+	}
+
+	if err = c.Watch(&source.Kind{Type: &v1.ConfigMap{}},
+		handler.EnqueueRequestsFromMapFunc(r.ConfigMapToVSphereCSIConfig),
+		fsPredicates); err != nil {
+		return errors.Wrapf(err,
+			"Failed to watch for ConfigMap '%s/%s' while setting vspherecsiconfig controller",
+			VSphereCSIFeatureStateNamespace,
+			VSphereCSIFeatureStateConfigMapName)
+	}
+
+	return nil
+}
+
 //+kubebuilder:rbac:groups=csi.tanzu.vmware.com,resources=vspherecsiconfigs,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups=csi.tanzu.vmware.com,resources=vspherecsiconfigs/status,verbs=get;update;patch
 //+kubebuilder:rbac:groups=csi.tanzu.vmware.com,resources=vspherecsiconfigs/finalizers,verbs=update
 //+kubebuilder:rbac:groups="",resources=secrets,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups="",resources=configmaps,verbs=get;list;watch
 //+kubebuilder:rbac:groups=cluster.x-k8s.io,resources=clusters,verbs=get;list;watch
 //+kubebuilder:rbac:groups=controlplane.cluster.x-k8s.io,resources=kubeadmcontrolplanes,verbs=get
 //+kubebuilder:rbac:groups=vmware.infrastructure.cluster.x-k8s.io,resources=providerserviceaccounts,verbs=get;create;list;watch;update;patch
@@ -105,16 +155,6 @@ func (r *VSphereCSIConfigReconciler) Reconcile(ctx context.Context, req ctrl.Req
 	}
 
 	return r.reconcileVSphereCSIConfig(ctx, vcsiConfig, cluster)
-}
-
-// SetupWithManager sets up the controller with the Manager.
-func (r *VSphereCSIConfigReconciler) SetupWithManager(_ context.Context, mgr ctrl.Manager,
-	options controller.Options) error {
-
-	return ctrl.NewControllerManagedBy(mgr).
-		For(&csiv1alpha1.VSphereCSIConfig{}).
-		WithOptions(options).
-		Complete(r)
 }
 
 func (r *VSphereCSIConfigReconciler) reconcileVSphereCSIConfig(ctx context.Context,
@@ -219,27 +259,26 @@ func (r *VSphereCSIConfigReconciler) reconcileVSphereCSIConfigNormal(ctx context
 	if csiCfg.Spec.VSphereCSI.Mode == VSphereCSIParavirtualMode {
 		// create an aggregated cluster role RBAC that will be inherited by CAPV (https://kubernetes.io/docs/reference/access-authn-authz/rbac/#aggregated-clusterroles)
 		// CAPV needs to hold these rules before it can grant it to serviceAccount for CSI
-		_, err := controllerutil.CreateOrPatch(ctx, r.Client, constants.CAPVAggregatedClusterRole, func() error {
-			constants.CAPVAggregatedClusterRole.Rules = providerServiceAccountRBACRules
+		_, err := controllerutil.CreateOrPatch(ctx, r.Client, vsphereCSIProviderServiceAccountAggregatedClusterRole, func() error {
+			vsphereCSIProviderServiceAccountAggregatedClusterRole.Rules = providerServiceAccountRBACRules
 			return nil
 		})
 
 		if err != nil {
-			r.Log.Error(err, "Error creating or patching cluster role", "name", constants.ProviderServiceAccountAggregatedClusterRole)
+			r.Log.Error(err, "Error creating or patching cluster role", "name", vsphereCSIProviderServiceAccountAggregatedClusterRole)
 			return ctrl.Result{}, err
 		}
 
-		serviceAccount := &capvvmwarev1beta1.ProviderServiceAccount{}
 		vsphereCluster, err := r.getVsphereCluster(ctx, cluster)
 		if err != nil {
 			return ctrl.Result{}, err
 		}
+		serviceAccount := r.mapCSIConfigToProviderServiceAccount(vsphereCluster)
 		_, err = controllerutil.CreateOrUpdate(ctx, r.Client, serviceAccount, func() error {
-			serviceAccount = r.mapCSIConfigToProviderServiceAccount(vsphereCluster)
 			return controllerutil.SetControllerReference(vsphereCluster, serviceAccount, r.Scheme)
 		})
 		if err != nil {
-			logger.Error(err, "Error creating or updating ProviderServiceAccount for VSphere CPI")
+			logger.Error(err, "Error creating or updating ProviderServiceAccount for VSphere CSI")
 			return ctrl.Result{}, err
 		}
 	}
@@ -263,7 +302,8 @@ func (r *VSphereCSIConfigReconciler) getVsphereCluster(ctx context.Context,
 	}
 	labelSelector := labels.NewSelector()
 	labelSelector = labelSelector.Add(*labelMatch)
-	if err := r.Client.List(ctx, vsphereClusters, &client.ListOptions{LabelSelector: labelSelector}); err != nil {
+	if err := r.Client.List(ctx, vsphereClusters,
+		&client.ListOptions{LabelSelector: labelSelector, Namespace: cluster.Namespace}); err != nil {
 		r.Log.Error(err, "error retrieving clusters")
 		return nil, err
 	}
@@ -272,4 +312,23 @@ func (r *VSphereCSIConfigReconciler) getVsphereCluster(ctx context.Context,
 			clusterapiv1beta1.ClusterLabelName, cluster.Name, len(vsphereClusters.Items))
 	}
 	return &vsphereClusters.Items[0], nil
+}
+
+func (r *VSphereCSIConfigReconciler) ConfigMapToVSphereCSIConfig(o client.Object) []ctrl.Request {
+	configs := &csiv1alpha1.VSphereCSIConfigList{}
+	_ = r.List(context.Background(), configs)
+	requests := []ctrl.Request{}
+	for i := 0; i < len(configs.Items); i++ {
+		if configs.Items[i].Spec.VSphereCSI.Mode == VSphereCSIParavirtualMode {
+			requests = append(requests,
+				ctrl.Request{NamespacedName: client.ObjectKey{Namespace: configs.Items[i].Namespace,
+					Name: configs.Items[i].Name}})
+		}
+	}
+	return requests
+}
+
+func isFeatureStatesConfigMap(o metav1.Object) bool {
+	return o.GetNamespace() == VSphereCSIFeatureStateNamespace &&
+		o.GetName() == VSphereCSIFeatureStateConfigMapName
 }

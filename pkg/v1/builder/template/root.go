@@ -5,6 +5,9 @@ package template
 
 import "github.com/vmware-tanzu/tanzu-framework/pkg/v1/builder/template/plugintemplates"
 
+const gitignore = `artifacts
+tools/bin`
+
 // GoMod target
 var GoMod = Target{
 	Filepath: "go.mod",
@@ -20,7 +23,7 @@ var BuildVersion = Target{
 // GitIgnore target
 var GitIgnore = Target{
 	Filepath: ".gitignore",
-	Template: `/artifacts`,
+	Template: gitignore,
 }
 
 // GitLabCI target
@@ -53,7 +56,7 @@ var Makefile = Target{
 // TODO (pbarker): replace with the CLI reviewers group
 var Codeowners = Target{
 	Filepath: "CODEOWNERS",
-	Template: `* @pbarker @vuil`,
+	Template: `* @vuil`,
 }
 
 // Tools target.

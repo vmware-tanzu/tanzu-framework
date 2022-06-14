@@ -8,6 +8,10 @@ package constants
 const (
 	KindCluster                = "Cluster"
 	KindTanzuKubernetesCluster = "TanzuKubernetesCluster"
+	KindClusterClass           = "ClusterClass"
+	CCFeature                  = "clusterclass"
+	TKGSClusterClassNamespace  = "vmware-system-capw"
+	TKGStkcapiNamespace        = "vmware-system-tkg"
 
 	PacificGCMControllerDeployment = "vmware-system-tkg-controller-manager"
 	PacificGCMControllerNamespace  = "vmware-system-tkg"
@@ -67,8 +71,10 @@ const (
 
 // deployment plan constants
 const (
-	PlanDev  = "dev"
-	PlanProd = "prod"
+	PlanDev    = "dev"
+	PlanProd   = "prod"
+	PlanDevCC  = "devcc"
+	PlanProdCC = "prodcc"
 )
 
 // infrastructure provider name constants
