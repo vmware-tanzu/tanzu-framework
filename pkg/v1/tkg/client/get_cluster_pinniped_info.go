@@ -13,6 +13,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/client-go/tools/clientcmd"
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
+	capi "sigs.k8s.io/cluster-api/api/v1beta1"
 
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/clusterclient"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/region"
@@ -28,9 +29,10 @@ type GetClusterPinnipedInfoOptions struct {
 
 // ClusterPinnipedInfo defines the fields of cluster pinniped info
 type ClusterPinnipedInfo struct {
-	ClusterName  string
-	ClusterInfo  *clientcmdapi.Cluster
-	PinnipedInfo *utils.PinnipedConfigMapInfo
+	ClusterName     string
+	ClusterInfo     *clientcmdapi.Cluster
+	ClusterAudience *string
+	PinnipedInfo    *utils.PinnipedConfigMapInfo
 }
 
 // GetClusterPinnipedInfo gets pinniped information from cluster
@@ -63,12 +65,12 @@ func (c *TkgClient) GetClusterPinnipedInfo(options GetClusterPinnipedInfoOptions
 		return c.GetMCClusterPinnipedInfo(regionalClusterClient, curRegion, options)
 	}
 
-	return c.GetWCClusterPinnipedInfo(regionalClusterClient, curRegion, options)
+	return c.GetWCClusterPinnipedInfo(regionalClusterClient, curRegion, options, isPacific)
 }
 
 // GetWCClusterPinnipedInfo gets pinniped information for workload cluster
 func (c *TkgClient) GetWCClusterPinnipedInfo(regionalClusterClient clusterclient.Client,
-	curRegion region.RegionContext, options GetClusterPinnipedInfoOptions) (*ClusterPinnipedInfo, error) {
+	curRegion region.RegionContext, options GetClusterPinnipedInfoOptions, isPacific bool) (*ClusterPinnipedInfo, error) {
 
 	wcClusterInfo, err := getClusterInfo(regionalClusterClient, options.ClusterName, options.Namespace)
 	if err != nil {
@@ -116,10 +118,33 @@ func (c *TkgClient) GetWCClusterPinnipedInfo(regionalClusterClient clusterclient
 		pinnipedInfo.Data.ConciergeIsClusterScoped = false
 	}
 
+	// For clusters that use a TKr API version newer than v1alpha1, we use the cluster name + UID as
+	// the audience
+	//
+	// For right now, only do this on pacific clusters to limit the blast radius of the change; in the
+	// future, we will want to do this for all clusters
+	var audience *string
+	if isPacific {
+		var cluster capi.Cluster
+		if err := regionalClusterClient.GetResource(
+			&cluster,
+			options.ClusterName,
+			options.Namespace,
+			nil,
+			nil,
+		); err != nil {
+			return nil, errors.Wrap(err, "get cluster")
+		}
+		if _, ok := cluster.Labels[LegacyClusterTKRLabel]; !ok {
+			audience = stringPtr(fmt.Sprintf("%s-%s", cluster.Name, cluster.UID))
+		}
+	}
+
 	return &ClusterPinnipedInfo{
-		ClusterName:  options.ClusterName,
-		ClusterInfo:  wcClusterInfo,
-		PinnipedInfo: pinnipedInfo,
+		ClusterName:     options.ClusterName,
+		ClusterAudience: audience,
+		ClusterInfo:     wcClusterInfo,
+		PinnipedInfo:    pinnipedInfo,
 	}, nil
 }
 
@@ -174,3 +199,5 @@ func getClusterInfo(
 
 	return cluster, nil
 }
+
+func stringPtr(s string) *string { return &s }
