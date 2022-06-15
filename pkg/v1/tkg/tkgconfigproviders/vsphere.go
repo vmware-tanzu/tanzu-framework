@@ -108,7 +108,7 @@ func (c *client) NewVSphereConfig(params *models.VsphereRegionalClusterParams) (
 		IPFamily:             params.IPFamily,
 		HTTPProxyEnabled:     falseConst,
 
-		AviControlPlaneEndpointProvider:    falseConst,
+		AviControlPlaneEndpointProvider: falseConst,
 	}
 	if params.Os != nil {
 		if params.Os.OsInfo != nil {
