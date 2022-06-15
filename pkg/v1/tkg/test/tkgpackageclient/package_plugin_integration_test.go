@@ -8,7 +8,6 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
@@ -141,7 +140,7 @@ var _ = Describe("Package plugin integration test", func() {
 	BeforeSuite(func() {
 		flag.StringVar(&configPath, "package-plugin-config", "config/package_plugin_config.yaml", "path to the package plugin config file")
 
-		configData, err := ioutil.ReadFile(configPath)
+		configData, err := os.ReadFile(configPath)
 		Expect(err).NotTo(HaveOccurred())
 		err = yaml.Unmarshal(configData, config)
 		Expect(err).NotTo(HaveOccurred())
