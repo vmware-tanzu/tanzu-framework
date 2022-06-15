@@ -63,7 +63,7 @@ jobs:
         fi
         env | sort
         make configure-bom
-        make all
+        make all ENVS=linux-amd64
 
     - name: Verify
       run: |
@@ -75,7 +75,7 @@ jobs:
           export TKG_DEFAULT_COMPATIBILITY_IMAGE_PATH=${{ steps.extract_bom.outputs.bompath }}
         fi
         make configure-bom
-        make test
+        make test ENVS=linux-amd64
     - name: Upload coverage reports to Codecov with GitHub Action
       uses: codecov/codecov-action@v3
       with:
