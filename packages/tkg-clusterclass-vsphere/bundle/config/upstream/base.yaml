@@ -83,7 +83,7 @@ spec:
       kubeadmConfigSpec:
         useExperimentalRetryJoin: true
         clusterConfiguration:
-          imageRepository: ""
+          imageRepository: dummy.registry.vmware.com
           etcd:
             local:
               dataDir: /var/lib/etcd
@@ -107,7 +107,12 @@ spec:
           scheduler:
             extraArgs:
               tls-cipher-suites: TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
-        files: []
+        files:
+        - path: /tmp/empty.txt
+          owner: "root:root"
+          permissions: "0600"
+          content: |
+            default file
         initConfiguration:
           nodeRegistration:
             criSocket: /var/run/containerd/containerd.sock
@@ -159,7 +164,12 @@ spec:
       - echo "127.0.0.1   {{ ds.meta_data.hostname }}" >>/etc/hosts
       - echo "{{ ds.meta_data.hostname }}" >/etc/hostname
       postKubeadmCommands: []
-      files: []
+      files:
+      - path: /tmp/empty.txt
+        owner: "root:root"
+        permissions: "0600"
+        content: |
+          default file
       users:
       - name: capv
         sshAuthorizedKeys:
