@@ -96,8 +96,11 @@ func getPinnipedKubeconfig(tkgctlClient tkgctl.TKGClient, workloadClusterName st
 		return err
 	}
 
-	// for workload cluster the audience would be set to the clustername
+	// For (legacy) workload clusters, the audience is just <cluster-name>
 	audience := clusterPinnipedInfo.ClusterName
+	if clusterPinnipedInfo.ClusterAudience != nil {
+		audience = *clusterPinnipedInfo.ClusterAudience
+	}
 
 	kubeconfig, err := tkgauth.GetPinnipedKubeconfig(clusterPinnipedInfo.ClusterInfo, clusterPinnipedInfo.PinnipedInfo,
 		clusterPinnipedInfo.ClusterName, audience)
