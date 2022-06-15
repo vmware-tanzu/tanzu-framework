@@ -14,11 +14,15 @@ import (
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	"k8s.io/apimachinery/pkg/runtime"
 	"sigs.k8s.io/cluster-api/util"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/test/framework"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgctl"
+
+	pkgiv1alpha1 "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/packaging/v1alpha1"
 )
 
 type E2ECommonSpecInput struct {
@@ -35,6 +39,7 @@ func E2ECommonSpec(context context.Context, inputGetter func() E2ECommonSpecInpu
 		err          error
 		input        E2ECommonSpecInput
 		tkgCtlClient tkgctl.TKGClient
+		client       client.Client
 		logsDir      string
 		clusterName  string
 		namespace    string
@@ -149,6 +154,14 @@ func E2ECommonSpec(context context.Context, inputGetter func() E2ECommonSpecInpu
 
 		By(fmt.Sprintf("Waiting for workload cluster %q nodes to be up and running", clusterName))
 		framework.WaitForNodes(framework.NewClusterProxy(clusterName, tempFilePath, ""), 2)
+
+		By(fmt.Sprintf("Verify addon packages on workload cluster %q matches clusterBootstrap info on management cluster", clusterName))
+		scheme := runtime.NewScheme()
+		err = pkgiv1alpha1.AddToScheme(scheme)
+		Expect(err).NotTo(HaveOccurred())
+		// check antrea package information
+		err = checkPackageInstalls(context, client, scheme, "antrea")
+		Expect(err).To(BeNil())
 
 		By(fmt.Sprintf("Deleting workload cluster %q", clusterName))
 		err = tkgCtlClient.DeleteCluster(tkgctl.DeleteClustersOptions{
