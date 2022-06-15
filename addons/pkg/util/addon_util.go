@@ -88,15 +88,16 @@ func GetPackageMetadata(ctx context.Context, c client.Client, carvelPkgName, car
 }
 
 // ParseStringForLabel parse the package ref name to make it valid for K8S object labels.
-// A package ref name could contain some characters that are not allowed as a label value. The regex
-// used for validation is (([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])?
+// A package ref name could contain some characters that are not allowed as a label value.
+// Also the label should not end with any non-alphanumeric characters.
+// The regex used for validation is (([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])?
 func ParseStringForLabel(s string) string {
 	// Replace + sign with ---
 	safeLabel := strings.ReplaceAll(s, "+", "---")
 	if len(safeLabel) <= 63 {
-		return safeLabel
+		return strings.TrimRight(safeLabel, "_.-")
 	}
-	return safeLabel[:63]
+	return strings.TrimRight(safeLabel[:63], "_.-")
 }
 
 // GenerateAppSecretNameFromAddonSecret generates app secret name from addon secret
