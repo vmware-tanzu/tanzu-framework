@@ -61,7 +61,6 @@ func (c *TkgClient) GetClusterPinnipedInfo(options GetClusterPinnipedInfoOptions
 	}
 
 	if options.IsManagementCluster {
-		// XXX See if anything needs to be fixed here. Or do we want to leave this unsupported?
 		return c.GetMCClusterPinnipedInfo(regionalClusterClient, curRegion, options)
 	}
 
@@ -98,6 +97,8 @@ func (c *TkgClient) GetWCClusterPinnipedInfo(regionalClusterClient clusterclient
 
 	managementClusterPinnipedInfo := &utils.PinnipedConfigMapInfo{}
 
+	// Really, this should never fail unless we're doing something silly like
+	// marshalling a channel/function. Which we aren't.
 	if err := json.Unmarshal(marshalledCM, managementClusterPinnipedInfo); err != nil {
 		return nil, errors.New("failed to unmarshal pinniped-info from management cluster")
 	}
@@ -138,6 +139,11 @@ func (c *TkgClient) GetWCClusterPinnipedInfo(regionalClusterClient clusterclient
 		if _, ok := cluster.Labels[LegacyClusterTKRLabel]; !ok {
 			audience = stringPtr(fmt.Sprintf("%s-%s", cluster.Name, cluster.UID))
 		}
+
+		// Pacific uses a different Concierge endpoint. Ignore it when fetching
+		// a kubeconfig for a workload cluster since we use the workload
+		// cluster APIserver as the concierge endpoint.
+		pinnipedInfo.Data.ConciergeEndpoint = ""
 	}
 
 	return &ClusterPinnipedInfo{
