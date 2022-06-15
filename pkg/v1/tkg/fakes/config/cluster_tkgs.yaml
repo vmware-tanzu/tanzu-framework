@@ -1,0 +1,33 @@
+apiVersion: cluster.x-k8s.io/v1beta1
+kind: Cluster
+metadata:
+  name: cc01
+  namespace: ns01
+spec:
+  clusterNetwork:
+    services:
+      cidrBlocks: ["198.51.100.0/12"]
+    pods:
+      cidrBlocks: ["192.0.2.0/16"]
+    serviceDomain: "cluster.local"
+  topology:
+    class: tanzukubernetescluster #tkg-vsphere-default [aws|azure|vsphere]
+    version: v1.22.8+vmware.1-tkg.2-zshippable  #check  what  tkr is  available on your testbed
+    controlPlane:
+      replicas: 1
+    workers:
+      # node pools
+      machineDeployments:
+        - class: node-pool
+          name: node-pool-1
+          replicas: 1
+        - class: node-pool
+          name: node-pool-2
+          replicas: 1
+          failureDomain: foo-az
+    variables:
+      - name: vmClass
+        value: best-effort-xsmall
+      # default storageclass for control plane and node pool
+      - name: storageClass
+        value: wcpglobal-storage-profile
