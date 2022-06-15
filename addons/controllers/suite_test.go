@@ -288,8 +288,6 @@ var _ = BeforeSuite(func(done Done) {
 			PkgiClusterRoleBinding:      constants.PackageInstallClusterRoleBinding,
 			PkgiSyncPeriod:              constants.PackageInstallSyncPeriod,
 			ClusterDeleteTimeout:        time.Second * 10,
-			// TODO: remove when the packages are ready https://github.com/vmware-tanzu/tanzu-framework/issues/2252
-			EnableTKGSUpgrade: true,
 		},
 	)
 	Expect(bootstrapReconciler.SetupWithManager(context.Background(), mgr, controller.Options{MaxConcurrentReconciles: 1})).To(Succeed())

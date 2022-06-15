@@ -1100,65 +1100,74 @@ func (r *ClusterBootstrapReconciler) GetDataValueSecretNameFromBootstrapPackage(
 		err            error
 	)
 
-	if cbPkg.ValuesFrom == nil || cbPkg.ValuesFrom.Inline != nil {
-		packageRefName, _, err = util.GetPackageMetadata(r.context, r.aggregatedAPIResourcesClient, cbPkg.RefName, cluster.Namespace)
-		if packageRefName == "" || err != nil {
-			// Package.Spec.RefName and Package.Spec.Version are required fields for Package CR. We do not expect them to be
-			// empty and error should not happen when fetching them from a Package CR.
-			r.Log.Error(err, fmt.Sprintf("unable to fetch Package.Spec.RefName or Package.Spec.Version from Package %s/%s",
-				cluster.Namespace, cbPkg.RefName))
-			return "", err
-		}
+	packageRefName, _, err = util.GetPackageMetadata(r.context, r.aggregatedAPIResourcesClient, cbPkg.RefName, cluster.Namespace)
+	if packageRefName == "" || err != nil {
+		// Package.Spec.RefName and Package.Spec.Version are required fields for Package CR. We do not expect them to be
+		// empty and error should not happen when fetching them from a Package CR.
+		r.Log.Error(err, fmt.Sprintf("unable to fetch Package.Spec.RefName or Package.Spec.Version from Package %s/%s",
+			cluster.Namespace, cbPkg.RefName))
+		return "", err
 	}
 
-	if cbPkg.ValuesFrom == nil {
-		// When valuesFrom is nil, we still need to create data values secret for some usecases, i.e. vsphere infrastructure.
-		r.Log.Info(fmt.Sprintf("no data values are provided to the ClusterBootstrapPackage.ValuesFrom field. ClusterBootstrapPackage.RefName: %s", cbPkg.RefName))
-		packageSecretName, err := r.generateSecretForPackagesWithEmptyValuesFrom(cbPkg, cluster, packageRefName)
+	if cbPkg.ValuesFrom != nil {
+		if cbPkg.ValuesFrom.Inline != nil {
+			packageSecretName := util.GeneratePackageSecretName(cluster.Name, packageRefName)
+			secret := &corev1.Secret{}
+			key := client.ObjectKey{Namespace: cluster.Namespace, Name: packageSecretName}
+			if err = r.Get(r.context, key, secret); err != nil {
+				r.Log.Error(err, "unable to fetch secret for package with inline config", "objectkey", key)
+				return "", err
+			}
+			return packageSecretName, nil
+		}
+
+		if cbPkg.ValuesFrom.SecretRef != "" {
+			return cbPkg.ValuesFrom.SecretRef, nil
+		}
+
+		if cbPkg.ValuesFrom.ProviderRef != nil {
+			gvr, err := r.getGVR(schema.GroupKind{Group: *cbPkg.ValuesFrom.ProviderRef.APIGroup, Kind: cbPkg.ValuesFrom.ProviderRef.Kind})
+			if err != nil {
+				r.Log.Error(err, "unable to get GVR")
+				return "", err
+			}
+			provider, err := r.dynamicClient.Resource(*gvr).Namespace(cluster.Namespace).Get(r.context, cbPkg.ValuesFrom.ProviderRef.Name, metav1.GetOptions{}, "status")
+			if err != nil {
+				r.Log.Error(err, "unable to fetch provider", "GVR", gvr)
+				return "", err
+			}
+			secretName, found, err := unstructured.NestedString(provider.UnstructuredContent(), "status", "secretRef")
+			if err != nil {
+				r.Log.Error(err, "unable to fetch secretRef in provider", "GVR", gvr)
+				return "", err
+			}
+			if !found {
+				// In this case, we expect the secretRef to be present under status subresource and its value gets updated by
+				// the corresponding controller. However, the config controller might not create the secret in time.
+				r.Log.Info("provider status does not have secretRef", "GVR", gvr)
+				return "", nil
+			}
+			return secretName, nil
+		}
+	} else { // if cbPkg.ValuesFrom == nil
+		// When valuesFrom is nil, we still need to create data values secret for vsphere infrastructure in TKGs
+		infraRef, err := util.GetInfraProvider(cluster)
 		if err != nil {
 			return "", err
 		}
-		return packageSecretName, nil
-	}
-
-	if cbPkg.ValuesFrom.Inline != nil {
-		packageSecretName := util.GeneratePackageSecretName(cluster.Name, packageRefName)
-		secret := &corev1.Secret{}
-		key := client.ObjectKey{Namespace: cluster.Namespace, Name: packageSecretName}
-		if err = r.Get(r.context, key, secret); err != nil {
-			r.Log.Error(err, "unable to fetch secret for package with inline config", "objectkey", key)
-			return "", err
+		if infraRef == tkgconstants.InfrastructureProviderVSphere {
+			ok, err := util.IsTKGSCluster(r.context, r.dynamicClient, r.cachedDiscoveryClient, cluster)
+			if err != nil {
+				return "", err
+			}
+			if ok {
+				packageSecretName, err := r.generateSecretForPackagesWithEmptyValuesFrom(cbPkg, cluster, packageRefName)
+				if err != nil {
+					return "", err
+				}
+				return packageSecretName, nil
+			}
 		}
-		return packageSecretName, nil
-	}
-
-	if cbPkg.ValuesFrom.SecretRef != "" {
-		return cbPkg.ValuesFrom.SecretRef, nil
-	}
-
-	if cbPkg.ValuesFrom.ProviderRef != nil {
-		gvr, err := r.getGVR(schema.GroupKind{Group: *cbPkg.ValuesFrom.ProviderRef.APIGroup, Kind: cbPkg.ValuesFrom.ProviderRef.Kind})
-		if err != nil {
-			r.Log.Error(err, "unable to get GVR")
-			return "", err
-		}
-		provider, err := r.dynamicClient.Resource(*gvr).Namespace(cluster.Namespace).Get(r.context, cbPkg.ValuesFrom.ProviderRef.Name, metav1.GetOptions{}, "status")
-		if err != nil {
-			r.Log.Error(err, "unable to fetch provider", "GVR", gvr)
-			return "", err
-		}
-		secretName, found, err := unstructured.NestedString(provider.UnstructuredContent(), "status", "secretRef")
-		if err != nil {
-			r.Log.Error(err, "unable to fetch secretRef in provider", "GVR", gvr)
-			return "", err
-		}
-		if !found {
-			// In this case, we expect the secretRef to be present under status subresource and its value gets updated by
-			// the corresponding controller. However, the config controller might not create the secret in time.
-			r.Log.Info("provider status does not have secretRef", "GVR", gvr)
-			return "", nil
-		}
-		return secretName, nil
 	}
 
 	// When valuesFrom is not nil, but either valuesFrom.Inline, valuesFrom.SecretRef, or valuesFrom.providerRef is empty or nil,
