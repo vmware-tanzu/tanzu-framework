@@ -73,14 +73,14 @@ var _ = Describe("Unit test for New", func() {
 	var (
 		err       error
 		options   Options
-		configDir *os.File
+		configDir string
 		tkgClient TKGClient
 	)
 	JustBeforeEach(func() {
-		configDir, _ = os.CreateTemp("", "cluster_client_test")
-		prepareConfiDir(configDir.Name())
+		configDir, _ = os.MkdirTemp("", "cluster_client_test")
+		prepareConfiDir(configDir)
 		options = Options{
-			ConfigDir:      configDir.Name(),
+			ConfigDir:      configDir,
 			ProviderGetter: fakeproviders.FakeProviderGetter(),
 		}
 		tkgClient, err = New(options)
@@ -107,6 +107,6 @@ var _ = Describe("Unit test for New", func() {
 	})
 
 	AfterEach(func() {
-		os.Remove(configDir.Name())
+		os.Remove(configDir)
 	})
 })
