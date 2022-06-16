@@ -99,7 +99,11 @@ type addonFlags struct {
 
 func parseAddonFlags(addonFlags *addonFlags) {
 	// controller configurations
-	flag.StringVar(&addonFlags.metricsAddr, "metrics-bind-addr", ":8080", "The address the metric endpoint binds to.")
+
+	// Bind metrics endpoint to localhost, following the pattern in cluster-api projects where they moved away from kube-rbac-proxy for just guarding metrics endpoint.
+	// see https://github.com/kubernetes-sigs/cluster-api/issues/4679 and https://github.com/kubernetes-sigs/cluster-api/issues/4325
+	// 18317 is an available port in Supervisor cluster
+	flag.StringVar(&addonFlags.metricsAddr, "metrics-bind-addr", "localhost:18317", "The address the metric endpoint binds to.")
 	flag.BoolVar(&addonFlags.enableLeaderElection, "leader-elect", false,
 		"Enable leader election for controller manager. "+
 			"Enabling this will ensure there is only one active controller manager.")
