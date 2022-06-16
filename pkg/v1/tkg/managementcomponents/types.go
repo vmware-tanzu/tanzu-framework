@@ -31,6 +31,7 @@ type TKRSourceControllerPackageValues struct {
 	BomImagePath         string `yaml:"bomImagePath,omitempty"`
 	BomMetadataImagePath string `yaml:"bomMetadataImagePath,omitempty"`
 	TKRRepoImagePath     string `yaml:"tkrRepoImagePath,omitempty"`
+	DefaultCompatibleTKR string `yaml:"defaultCompatibleTKR,omitempty"`
 }
 type FrameworkPackage struct {
 	NamespaceForPackageInstallation string                     `yaml:"namespaceForPackageInstallation,omitempty"`

@@ -115,6 +115,22 @@ type tkrBOMInfo struct {
 	ImagePath string `yaml:"imagePath"`
 }
 
+type tkrCompatibilityInfo struct {
+	ImagePath string `yaml:"imagePath"`
+}
+
+type tkrPackageRepo struct {
+	AWS                string `yaml:"aws"`
+	Azure              string `yaml:"azure"`
+	VSphereNonparavirt string `yaml:"vsphere-nonparavirt"`
+}
+
+type tkrPackage struct {
+	AWS                string `yaml:"aws"`
+	Azure              string `yaml:"azure"`
+	VSphereNonparavirt string `yaml:"vsphere-nonparavirt"`
+}
+
 // BOMConfiguration defines the struct to represent BOM information
 type BOMConfiguration struct {
 	Default               *defaultInfo                `yaml:"default"`
@@ -128,6 +144,9 @@ type BOMConfiguration struct {
 	ImageConfig           *imageConfig                `yaml:"imageConfig"`
 	Extensions            map[string]*extensionInfo   `yaml:"extensions,omitempty"`
 	TKRBOM                *tkrBOMInfo                 `yaml:"tkr-bom"`
+	TKRCompatibility      *tkrCompatibilityInfo       `yaml:"tkr-compatibility"`
+	TKRPackageRepo        *tkrPackageRepo             `yaml:"tkr-package-repo"`
+	TKRPackage            *tkrPackage                 `yaml:"tkr-package"`
 
 	ProvidersVersionMap map[string]string
 }

@@ -5,6 +5,7 @@ namespace: tkg-system
 bomImagePath:
 bomMetadataImagePath:
 tkrRepoImagePath:
+defaultCompatibleTKR:
 skipVerifyRegistryCert: false
 initialDiscoverFrequency: 60
 continuousDiscoverFrequency: 600
