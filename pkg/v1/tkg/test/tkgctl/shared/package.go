@@ -10,7 +10,6 @@ import (
 	"time"
 
 	. "github.com/onsi/gomega"
-	"sigs.k8s.io/cluster-api/util"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
@@ -18,7 +17,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 
-	clusterapiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
+	"k8s.io/client-go/tools/clientcmd"
 
 	kappctrl "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/kappctrl/v1alpha1"
 	kapppkgiv1alpha1 "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/packaging/v1alpha1"
@@ -30,6 +29,23 @@ const (
 	waitTimeout     = time.Second * 90
 	pollingInterval = time.Second * 2
 )
+
+// create cluster client from kubeconfig
+func createClientFromKubeconfig(exportFile string, scheme *runtime.Scheme) (client.Client, error) {
+	config, err := clientcmd.LoadFromFile(exportFile)
+	Expect(err).ToNot(HaveOccurred(), "Failed to load cluster Kubeconfig file from %q", exportFile)
+
+	rawConfig, err := clientcmd.Write(*config)
+	Expect(err).ToNot(HaveOccurred(), "Failed to create raw config ")
+
+	restConfig, err := clientcmd.RESTConfigFromKubeConfig(rawConfig)
+	Expect(err).ToNot(HaveOccurred(), "Failed to create rest config ")
+
+	client, err := client.New(restConfig, client.Options{Scheme: scheme})
+	Expect(err).ToNot(HaveOccurred(), "Failed to create a cluster client")
+
+	return client, nil
+}
 
 // getClusterBootstrap gets ClusterBootstrap resource with the provided object key
 func getClusterBootstrap(ctx context.Context, k8sClient client.Client, namespace, clusterName string) *runtanzuv1alpha3.ClusterBootstrap {
@@ -70,7 +86,7 @@ func getPackageDetailsFromCBS(CBSRefName string) (string, string, string, error)
 	return pkgShortName, pkgName, pkgVersion, nil
 }
 
-func checkPackageInstalls(ctx context.Context, cl client.Client, scheme *runtime.Scheme, testPkgName string) error {
+func checkPackageInstalls(ctx context.Context, mccl, wccl client.Client, mcClusterName, wcClusterName string, testPkgName string) error {
 	var (
 		err          error
 		pkgShortName string
@@ -78,42 +94,40 @@ func checkPackageInstalls(ctx context.Context, cl client.Client, scheme *runtime
 		pkgVersion   string
 	)
 
-	mngCluster := &clusterapiv1beta1.Cluster{}
-
-	// create remoteClient for workload cluster
-	remoteClient, err := addonutil.GetClusterClient(ctx, cl, scheme, util.ObjectKey(mngCluster))
-	if err != nil {
-		return err
-	}
-
 	// Get ClusterBootstrap and return error if not found
-	clusterBootstrap := getClusterBootstrap(ctx, cl, constants.TkgNamespace, mngCluster.Name)
+	clusterBootstrap := getClusterBootstrap(ctx, mccl, constants.TkgNamespace, mcClusterName)
 
 	// packageInstall name for for both management and workload clusters should follow the <cluster name>-<addon short name>
 	// packageInstall name and version should match info in clusterBootstrap for all packages, format is <package name>.<package version>
 	switch {
 	case testPkgName == "CNI":
 		pkgShortName, pkgName, pkgVersion, err = getPackageDetailsFromCBS(clusterBootstrap.Spec.CNI.RefName)
+		Expect(err).NotTo(HaveOccurred())
 	case testPkgName == "CSI":
 		pkgShortName, pkgName, pkgVersion, err = getPackageDetailsFromCBS(clusterBootstrap.Spec.CSI.RefName)
+		Expect(err).NotTo(HaveOccurred())
 	case testPkgName == "CPI":
 		pkgShortName, pkgName, pkgVersion, err = getPackageDetailsFromCBS(clusterBootstrap.Spec.CPI.RefName)
+		Expect(err).NotTo(HaveOccurred())
 	case testPkgName == "Kapp":
 		pkgShortName, pkgName, pkgVersion, err = getPackageDetailsFromCBS(clusterBootstrap.Spec.Kapp.RefName)
+		Expect(err).NotTo(HaveOccurred())
 	case testPkgName == "metrics-server":
 		pkgShortName, pkgName, pkgVersion, err = getPackageDetailsFromCBS(clusterBootstrap.Spec.AdditionalPackages[0].RefName)
+		Expect(err).NotTo(HaveOccurred())
 	case testPkgName == "secretgen-controller":
 		pkgShortName, pkgName, pkgVersion, err = getPackageDetailsFromCBS(clusterBootstrap.Spec.AdditionalPackages[1].RefName)
+		Expect(err).NotTo(HaveOccurred())
 	case testPkgName == "pinniped":
 		pkgShortName, pkgName, pkgVersion, err = getPackageDetailsFromCBS(clusterBootstrap.Spec.AdditionalPackages[2].RefName)
+		Expect(err).NotTo(HaveOccurred())
 	}
 
-	pkgiName := addonutil.GeneratePackageInstallName(mngCluster.Name, pkgShortName)
-	pkgi := getPackageInstall(ctx, remoteClient, constants.TkgNamespace, pkgiName)
-
+	pkgiName := addonutil.GeneratePackageInstallName(wcClusterName, pkgShortName)
+	pkgi := getPackageInstall(ctx, wccl, constants.TkgNamespace, pkgiName)
 	// check package install reconcile status is succeed
-	Expect(pkgi.Status.GenericStatus.Conditions[1].Type).Should(Equal(kappctrl.ReconcileSucceeded))
-	Expect(pkgi.Status.GenericStatus.Conditions[1].Status).Should(Equal(corev1.ConditionTrue))
+	Expect(pkgi.Status.GenericStatus.Conditions[0].Type).Should(Equal(kappctrl.ReconcileSucceeded))
+	Expect(pkgi.Status.GenericStatus.Conditions[0].Status).Should(Equal(corev1.ConditionTrue))
 
 	// Verify package name match between clusterBootstrap and packageInstall
 	Expect(pkgName).Should(Equal(pkgi.Spec.PackageRef.RefName))
