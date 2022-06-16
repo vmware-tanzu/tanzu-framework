@@ -485,7 +485,8 @@ test: generate manifests build-cli-mocks ## Run tests
 	echo "... ytt cluster template verification complete!"
 
 	echo "Verifying package tests..."
-	find ./packages/ -name "test" -type d -exec sh -c "cd {} && $(GO) test -coverprofile coverage2.txt -v -timeout 120s  ./..." \;
+	find ./packages/ -name "test" -type d | \
+		xargs -n1  -I {} bash -c 'cd {} && PATH=$(abspath hack/tools/bin):"$(PATH)" $(GO) test -coverprofile coverage2.txt -v -timeout 120s ./...' \;
 	echo "... package tests complete!"
 
 	PATH=$(abspath hack/tools/bin):"$(PATH)" $(GO) test -coverprofile coverage3.txt -v `go list ./... | grep -v github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/test`
