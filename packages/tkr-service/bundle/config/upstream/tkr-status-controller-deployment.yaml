@@ -31,10 +31,10 @@ spec:
           resources:
             limits:
               cpu: 100m
-              memory: 30Mi
+              memory: 200Mi
             requests:
               cpu: 100m
-              memory: 20Mi
+              memory: 100Mi
       serviceAccount: tkr-service-manager-sa
       terminationGracePeriodSeconds: 10
       #@ if hasattr(data.values, 'deployment') and hasattr(data.values.deployment, 'hostNetwork') and data.values.deployment.hostNetwork:
