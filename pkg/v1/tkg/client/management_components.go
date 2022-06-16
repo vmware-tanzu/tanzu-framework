@@ -115,7 +115,12 @@ func (c *TkgClient) getTKGPackageConfigValuesFile(managementPackageVersion, kube
 		return "", err
 	}
 
-	valuesFile, err := managementcomponents.GetTKGPackageConfigValuesFileFromUserConfig(managementPackageVersion, userProviderConfigValues)
+	tkgBomConfig, err := c.tkgBomClient.GetDefaultTkgBOMConfiguration()
+	if err != nil {
+		return "", err
+	}
+
+	valuesFile, err := managementcomponents.GetTKGPackageConfigValuesFileFromUserConfig(managementPackageVersion, userProviderConfigValues, tkgBomConfig)
 	if err != nil {
 		return "", err
 	}
