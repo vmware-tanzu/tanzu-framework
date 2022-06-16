@@ -11,9 +11,12 @@ GIT_REF_LONG = $(shell git rev-parse --verify HEAD)
 # Release version
 VERSION ?= $(GIT_VERSION)
 
+TF_ROOT=$(shell git rev-parse --show-toplevel)
+
 .PHONY: test
 test: fmt vet ## Run tests
-	go test ./... -coverprofile coverage.txt -v 2
+	make kubebuilder -C "$(TF_ROOT)/hack/tools"
+	KUBEBUILDER_ASSETS="$(TF_ROOT)/hack/tools/bin/kubebuilder/bin" go test ./... -coverprofile coverage.txt -v 2
 
 .PHONY: fmt
 fmt: ## Format the code base
@@ -22,6 +25,11 @@ fmt: ## Format the code base
 .PHONY: vet
 vet: ## Vet codebase
 	go vet ./...
+
+.PHONY: lint
+lint: ## Run lint
+	make golangci-lint -C "$(TF_ROOT)/hack/tools"
+	"$(TF_ROOT)/hack/tools/bin/golangci-lint" run -v
 
 native: ## Build binary
 	CGO_ENABLED=0 go build -o tkg-pinniped-post-deploy-job -ldflags="-s -w -X $(GOTARGET)/pkg/buildinfo.Version=$(GIT_VERSION) -X github.com/vmware-tanzu/tanzu-framework/addons/pinniped/post-deploy/pkg/buildinfo.GitSHA=$(GIT_REF_LONG)" github.com/vmware-tanzu/tanzu-framework/addons/pinniped/post-deploy/cmd/job
