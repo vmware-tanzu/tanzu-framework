@@ -23,7 +23,6 @@ TOOLS_BIN_DIR := $(TOOLS_DIR)/bin
 BIN_DIR := bin
 ADDONS_DIR := addons
 YTT_TESTS_DIR := pkg/v1/providers/tests
-PACKAGE_TOOLING_DIR := hack/packages/package-tools
 PACKAGES_SCRIPTS_DIR := $(abspath hack/packages/scripts)
 UI_DIR := pkg/v1/tkg/web
 GO_MODULES=$(shell find . -path "*/go.mod" | grep -v "^./pinniped" | xargs -I _ dirname _)
@@ -152,10 +151,10 @@ help: ## Display this help (default)
 
 all: manager ui-build build-cli
 
-manager: generate fmt vet ## Build manager binary
+manager: generate ## Build manager binary
 	$(GO) build -ldflags "$(LD_FLAGS)" -o bin/manager main.go
 
-run: generate fmt vet manifests ## Run against the configured Kubernetes cluster in ~/.kube/config
+run: generate manifests ## Run against the configured Kubernetes cluster in ~/.kube/config
 	$(GO) run -ldflags "$(LD_FLAGS)" ./main.go
 
 install: manifests tools ## Install CRDs into a cluster
@@ -472,7 +471,7 @@ release-%: ## Create release for a platform
 ## --------------------------------------
 
 .PHONY: test
-test: generate fmt vet manifests build-cli-mocks ## Run tests
+test: generate manifests build-cli-mocks ## Run tests
 	## Skip running TKG integration tests
 	$(MAKE) ytt -C $(TOOLS_DIR)
 
@@ -506,9 +505,6 @@ test-cli: build-cli-mocks ## Run tests
 fmt: tools ## Run goimports
 	$(GOIMPORTS) -w -local github.com/vmware-tanzu ./
 
-vet: ## Run go vet
-	$(GO) vet ./...
-
 lint: tools go-lint doc-lint misspell yamllint ## Run linting and misspell checks
 	# Check licenses in shell scripts and Makefiles
 	hack/check-license.sh
@@ -526,9 +522,6 @@ go-lint: tools ## Run linting of go source
 		$(GOLANGCI_LINT) run -v --timeout=10m || exit 1; \
 		popd; \
 	done
-
-	# Linting for package tooling
-	cd $(PACKAGE_TOOLING_DIR); $(GOLANGCI_LINT) run -v
 
 	# Prevent use of deprecated ioutils module
 	@CHECK=$$(grep -r --include="*.go" --exclude-dir="pinniped" --exclude="zz_generated*" ioutil .); \
