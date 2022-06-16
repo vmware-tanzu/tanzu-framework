@@ -1,7 +1,7 @@
 #@data/values
 ---
 
-namespace:
+namespace: tkg-system
 deployment:
   hostNetwork: true
   nodeSelector: null
