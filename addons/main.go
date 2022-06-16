@@ -95,8 +95,6 @@ type addonFlags struct {
 	ipFamilyClusterVarName          string
 	featureGateClusterBootstrap     bool
 	featureGatePackageInstallStatus bool
-	// TODO: remove when the packages are ready https://github.com/vmware-tanzu/tanzu-framework/issues/2252
-	featureGateTKGSUpgrade bool
 }
 
 func parseAddonFlags(addonFlags *addonFlags) {
@@ -125,8 +123,6 @@ func parseAddonFlags(addonFlags *addonFlags) {
 	flag.StringVar(&addonFlags.ipFamilyClusterVarName, "ip-family-cluster-var-name", constants.DefaultIPFamilyClusterClassVarName, "IP family setting cluster variable name")
 	flag.BoolVar(&addonFlags.featureGateClusterBootstrap, "feature-gate-cluster-bootstrap", false, "Feature gate to enable clusterbootstap and addonconfig controllers that rely on TKR v1alphav3")
 	flag.BoolVar(&addonFlags.featureGatePackageInstallStatus, "feature-gate-package-install-status", false, "Feature gate to enable packageinstallstatus controller")
-	// TODO: remove when the packages are ready https://github.com/vmware-tanzu/tanzu-framework/issues/2252
-	flag.BoolVar(&addonFlags.featureGateTKGSUpgrade, "feature-gate-tkgs-upgrade", false, "Feature gate to enable TKGS clusters upgrade flow")
 
 	flag.Parse()
 }
@@ -292,8 +288,6 @@ func enableClusterBootstrapAndConfigControllers(ctx context.Context, mgr ctrl.Ma
 			PkgiClusterRoleBinding:      constants.PackageInstallClusterRoleBinding,
 			PkgiSyncPeriod:              flags.syncPeriod,
 			ClusterDeleteTimeout:        flags.clusterDeleteTimeout,
-			// TODO: remove when the packages are ready https://github.com/vmware-tanzu/tanzu-framework/issues/2252
-			EnableTKGSUpgrade: flags.featureGateTKGSUpgrade,
 		},
 	)
 	if err := bootstrapReconciler.SetupWithManager(ctx, mgr, controller.Options{MaxConcurrentReconciles: 1}); err != nil {

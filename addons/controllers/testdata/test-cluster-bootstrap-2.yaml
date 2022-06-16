@@ -357,6 +357,7 @@ spec:
     - refName: foobar1.example.com.1.17.2
       valuesFrom:
         secretRef: foobar2secret
+    - refName: foobar2.example.com.1.18.2
   cni:
     refName: antrea.tanzu.vmware.com.1.2.3--vmware.1-tkg.1
     valuesFrom:
@@ -445,4 +446,4 @@ spec:
   antrea:
     config:
       trafficEncapMode: encap
-
+---
