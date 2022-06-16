@@ -18,6 +18,7 @@ import (
 	clusterapiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
+	"github.com/vmware-tanzu/tanzu-framework/addons/pinniped/tanzu-auth-controller-manager/pkg/pinnipedinfo"
 	tkgconstants "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
 )
 
@@ -148,8 +149,8 @@ func listClustersContainingLabel(ctx context.Context, c client.Client, label str
 func getPinnipedInfoConfigMap(ctx context.Context, c client.Client, log logr.Logger) (*corev1.ConfigMap, error) {
 	pinnipedInfoCM := &corev1.ConfigMap{
 		ObjectMeta: metav1.ObjectMeta{
-			Namespace: kubePublicNamespace,
-			Name:      pinnipedInfoConfigMapName,
+			Namespace: pinnipedinfo.ConfigMapNamespace,
+			Name:      pinnipedinfo.ConfigMapName,
 		},
 	}
 
@@ -189,8 +190,8 @@ func getMutateFn(secret *corev1.Secret, pinnipedInfoCM *corev1.ConfigMap, cluste
 		identityManagementType := none
 
 		if pinnipedInfoCM.Data != nil {
-			supervisorAddress = pinnipedInfoCM.Data[issuerKey]
-			supervisorCABundle = pinnipedInfoCM.Data[issuerCABundleKey]
+			supervisorAddress = pinnipedInfoCM.Data[pinnipedinfo.IssuerKey]
+			supervisorCABundle = pinnipedInfoCM.Data[pinnipedinfo.IssuerCABundleKey]
 			identityManagementType = oidc
 			log.V(1).Info("retrieved data from pinniped-info configmap",
 				"supervisorAddress", supervisorAddress,

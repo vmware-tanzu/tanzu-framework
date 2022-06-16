@@ -9,6 +9,7 @@ import (
 	"time"
 
 	. "github.com/onsi/gomega"
+	"github.com/vmware-tanzu/tanzu-framework/addons/pinniped/tanzu-auth-controller-manager/pkg/pinnipedinfo"
 	"gopkg.in/yaml.v3"
 	corev1 "k8s.io/api/core/v1"
 	k8serrors "k8s.io/apimachinery/pkg/api/errors"
@@ -107,8 +108,8 @@ func verifySecretFunc(ctx context.Context, cluster *clusterapiv1beta1.Cluster, c
 			}
 
 			m := make(map[string]interface{})
-			m[supervisorEndpointKey] = configMap.Data[issuerKey]
-			m[supervisorCABundleKey] = configMap.Data[issuerCABundleKey]
+			m[supervisorEndpointKey] = configMap.Data[pinnipedinfo.IssuerKey]
+			m[supervisorCABundleKey] = configMap.Data[pinnipedinfo.IssuerCABundleKey]
 			m["concierge"] = map[string]interface{}{
 				"audience": audience,
 			}

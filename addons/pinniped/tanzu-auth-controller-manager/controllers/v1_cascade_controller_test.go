@@ -16,6 +16,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	clusterapiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
 
+	"github.com/vmware-tanzu/tanzu-framework/addons/pinniped/tanzu-auth-controller-manager/pkg/pinnipedinfo"
 	tkgconstants "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
 )
 
@@ -423,8 +424,8 @@ var _ = Describe("Controller", func() {
 			BeforeEach(func() {
 				createObject(ctx, configMap)
 				configMapCopy = configMap.DeepCopy()
-				configMapCopy.Data[issuerKey] = "cats.dev"
-				configMapCopy.Data[issuerCABundleKey] = "cattree"
+				configMapCopy.Data[pinnipedinfo.IssuerKey] = "cats.dev"
+				configMapCopy.Data[pinnipedinfo.IssuerCABundleKey] = "cattree"
 				updateObject(ctx, configMapCopy)
 			})
 
@@ -455,8 +456,8 @@ var _ = Describe("Controller", func() {
 			BeforeEach(func() {
 				configMapCopy = configMap.DeepCopy()
 				configMapCopy.Data["fake_data"] = "something-fake"
-				delete(configMapCopy.Data, issuerKey)
-				delete(configMapCopy.Data, issuerCABundleKey)
+				delete(configMapCopy.Data, pinnipedinfo.IssuerKey)
+				delete(configMapCopy.Data, pinnipedinfo.IssuerCABundleKey)
 				createObject(ctx, configMapCopy)
 			})
 
