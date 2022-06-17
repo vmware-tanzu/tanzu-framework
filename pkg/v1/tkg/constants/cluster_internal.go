@@ -6,12 +6,14 @@ package constants
 
 // cluster related constants used internally
 const (
-	KindCluster                = "Cluster"
-	KindTanzuKubernetesCluster = "TanzuKubernetesCluster"
-	KindClusterClass           = "ClusterClass"
-	CCFeature                  = "vmware-system-tkg-clusterclass"
-	TKGSClusterClassNamespace  = "vmware-system-tkg"
-	TKGStkcapiNamespace        = "vmware-system-tkg"
+	KindCluster                     = "Cluster"
+	KindTanzuKubernetesCluster      = "TanzuKubernetesCluster"
+	KindClusterClass                = "ClusterClass"
+	CCFeature                       = "vmware-system-tkg-clusterclass"
+	TKGSClusterClassNamespace       = "vmware-system-tkg"
+	TKGStkcapiNamespace             = "vmware-system-tkg"
+	ErrorMsgFeatureGateNotActivated = "vSphere with Tanzu environment detected, however, the feature '%v' is not activated in '%v' namespace"
+	ErrorMsgFeatureGateStatus       = "error while checking feature '%v' status in namespace '%v'"
 
 	PacificGCMControllerDeployment = "vmware-system-tkg-controller-manager"
 	PacificGCMControllerNamespace  = "vmware-system-tkg"
