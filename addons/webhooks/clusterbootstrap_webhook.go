@@ -88,6 +88,13 @@ func (wh *ClusterBootstrap) Default(ctx context.Context, obj runtime.Object) err
 		return apierrors.NewBadRequest(fmt.Sprintf("expected a ClusterBootstrap but got a %T", obj))
 	}
 
+	// If the clusterBootstrap has ownerReferences set, that means it has been reconciled by clusterbootstrap_controller
+	// already. We do not want to mutate the clusterBootstrap CR in this case because it might disrupt the changes clusterbootstrap_controller
+	// has put on clusterBootstrap.
+	if clusterBootstrap.OwnerReferences != nil && len(clusterBootstrap.OwnerReferences) != 0 {
+		return nil
+	}
+
 	var tkrName string
 	var annotationExist bool
 	if clusterBootstrap.Annotations != nil {

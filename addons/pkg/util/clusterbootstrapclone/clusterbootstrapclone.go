@@ -113,6 +113,9 @@ func getFullyQualifiedCBPackageRefName(tkr *runtanzuv1alpha3.TanzuKubernetesRele
 func (h *Helper) AddMissingSpecFieldsFromTemplate(clusterBootstrapTemplate *runtanzuv1alpha3.ClusterBootstrapTemplate,
 	clusterBootstrap *runtanzuv1alpha3.ClusterBootstrap, keysToSkip map[string]interface{}) error {
 
+	h.Logger.Info("adding the missing spec fields ClusterBootstrap %s/%s from ClusterBootstrapTemplate %s/%s",
+		clusterBootstrap.Namespace, clusterBootstrap.Name, clusterBootstrapTemplate.Namespace, clusterBootstrapTemplate.Name)
+
 	converter := runtime.DefaultUnstructuredConverter
 	var copyFrom map[string]interface{}
 	var target map[string]interface{}

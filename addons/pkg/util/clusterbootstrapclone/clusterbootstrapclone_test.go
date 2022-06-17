@@ -298,6 +298,12 @@ var _ = Describe("ClusterbootstrapClone", func() {
 			clusterbootstrap, err := helper.CreateClusterBootstrapFromTemplate(clusterbootstrapTemplate, cluster, "fake-tkr-name")
 			Expect(err).NotTo(HaveOccurred())
 			Expect(clusterbootstrap).NotTo(BeNil())
+
+			Expect(clusterbootstrap.Spec.CNI.RefName).To(Equal(clusterbootstrapTemplate.Spec.CNI.RefName))
+			Expect(clusterbootstrap.Spec.CNI.ValuesFrom).NotTo(BeNil())
+			Expect(clusterbootstrap.Spec.CSI.RefName).To(Equal(clusterbootstrapTemplate.Spec.CSI.RefName))
+			Expect(clusterbootstrap.Spec.CSI.ValuesFrom).NotTo(BeNil())
+
 			Expect(len(clusterbootstrap.OwnerReferences)).To(Equal(1))
 			Expect(clusterbootstrap.Status.ResolvedTKR).To(Equal("fake-tkr-name"))
 		})
