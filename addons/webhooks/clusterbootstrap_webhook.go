@@ -130,8 +130,11 @@ func (wh *ClusterBootstrap) Default(ctx context.Context, obj runtime.Object) err
 		clusterbootstraplog.Error(err, "unable to complete the RefNames for ClusterBootstrapPackages due to errors")
 		return err
 	}
-	// Attempt to add defaults to the missing fields of ClusterBootstrap
-	if err := helper.AddMissingSpecFieldsFromTemplate(clusterBootstrapTemplate, clusterBootstrap); err != nil {
+	// Attempt to add defaults to the missing fields of ClusterBootstrap. The valuesFrom fields will be skipped because of:
+	// At the time when a ClusterBootstrap CR gets created by third party(e.g. Tanzu CLI), the valuesFrom.ProviderRef
+	// and valuesFrom.SecretRef might not be cloned into cluster namespace yet. If we keep valuesFrom fields, validation
+	// webhook will complain that providerRef or secretRef is missing. The valuesFrom will be added back by the clusterbootstrap_controller.
+	if err := helper.AddMissingSpecFieldsFromTemplate(clusterBootstrapTemplate, clusterBootstrap, map[string]interface{}{"valuesFrom": nil}); err != nil {
 		clusterbootstraplog.Error(err, fmt.Sprintf("unable to add defaults to the missing fields of ClusterBootstrap %s/%s",
 			clusterBootstrap.Namespace, clusterBootstrap.Name))
 		return err

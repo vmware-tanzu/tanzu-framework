@@ -120,11 +120,15 @@ var _ = Describe("ClusterbootstrapWebhook", func() {
 			// CSI should not be touched
 			Expect(clusterBootstrap.Spec.CSI.RefName).To(Equal(fmt.Sprintf("%s.%s", fakeCSICarvelPackageRefName, fakeCarvelPackageVersion)))
 			Expect(clusterBootstrap.Spec.CSI.ValuesFrom.Inline["foo"]).To(Equal("bar"))
-			// AdditionalPackages should not be touched
+			// Existing additionalPackages should not be touched, the ones in ClusterBootstrapTemplate will be added
 			Expect(clusterBootstrap.Spec.AdditionalPackages).NotTo(BeNil())
-			Expect(len(clusterBootstrap.Spec.AdditionalPackages)).To(Equal(1))
-			Expect(clusterBootstrap.Spec.AdditionalPackages[0].RefName).To(Equal(additionalCBPackageRefName))
-			Expect(clusterBootstrap.Spec.AdditionalPackages[0].ValuesFrom.Inline["identity_management_type"]).To(Equal("ldap"))
+			Expect(len(clusterBootstrap.Spec.AdditionalPackages)).To(Equal(len(clusterBootstrapTemplate.Spec.AdditionalPackages)))
+			for idx, _ := range clusterBootstrap.Spec.AdditionalPackages {
+				Expect(clusterBootstrap.Spec.AdditionalPackages[idx].RefName).To(Equal(clusterBootstrapTemplate.Spec.AdditionalPackages[idx].RefName))
+				// IMPORTANT: With the new contract, valuesFrom fields will be removed from webhook. ClusterBootstrap Controller
+				// will be adding it back after the corresponding ClusterBootstrap Packages are cloned.
+				Expect(clusterBootstrap.Spec.AdditionalPackages[idx].ValuesFrom).To(BeNil())
+			}
 		})
 		It("should NOT add defaults to the missing fields when the ClusterBootstrap CR does not have the predefined annotation", func() {
 			// Create a ClusterBootstrap with empty spec
@@ -186,7 +190,7 @@ var _ = Describe("ClusterbootstrapWebhook", func() {
 			Expect(clusterBootstrap.Spec.CNI.RefName).NotTo(Equal("antrea*"))
 			assertTKRBootstrapPackageNamesContain(tanzuKubernetesRelease, clusterBootstrap.Spec.CNI.RefName)
 			// clusterBootstrap.Spec.AdditionalPackages[x].RefName should be complete by the webhook
-			Expect(len(clusterBootstrap.Spec.AdditionalPackages)).To(Equal(1))
+			Expect(len(clusterBootstrap.Spec.AdditionalPackages)).To(Equal(len(clusterBootstrapTemplate.Spec.AdditionalPackages)))
 			Expect(clusterBootstrap.Spec.AdditionalPackages[0].RefName).NotTo(Equal("pinniped*"))
 			assertTKRBootstrapPackageNamesContain(tanzuKubernetesRelease, clusterBootstrap.Spec.AdditionalPackages[0].RefName)
 			// the rest of fields should be added by the webhook

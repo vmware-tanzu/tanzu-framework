@@ -111,7 +111,7 @@ func getFullyQualifiedCBPackageRefName(tkr *runtanzuv1alpha3.TanzuKubernetesRele
 // AddMissingSpecFieldsFromTemplate scans clusterBootstrap's fields. For fields which are not specified, it adds defaults from
 // clusterBootstrapTemplate
 func (h *Helper) AddMissingSpecFieldsFromTemplate(clusterBootstrapTemplate *runtanzuv1alpha3.ClusterBootstrapTemplate,
-	clusterBootstrap *runtanzuv1alpha3.ClusterBootstrap) error {
+	clusterBootstrap *runtanzuv1alpha3.ClusterBootstrap, keysToSkip map[string]interface{}) error {
 
 	converter := runtime.DefaultUnstructuredConverter
 	var copyFrom map[string]interface{}
@@ -125,7 +125,7 @@ func (h *Helper) AddMissingSpecFieldsFromTemplate(clusterBootstrapTemplate *runt
 	if target, err = converter.ToUnstructured(clusterBootstrap.Spec.DeepCopy()); err != nil {
 		return err
 	}
-	if err := addMissingFields(copyFrom, target); err != nil {
+	if err := addMissingFields(copyFrom, target, keysToSkip); err != nil {
 		return err
 	}
 	updatedTemplateSpec := &runtanzuv1alpha3.ClusterBootstrapTemplateSpec{}
@@ -136,11 +136,17 @@ func (h *Helper) AddMissingSpecFieldsFromTemplate(clusterBootstrapTemplate *runt
 	return nil
 }
 
-func addMissingFields(copyFrom, destination map[string]interface{}) error {
+func addMissingFields(copyFrom, destination, keysToSkip map[string]interface{}) error {
 	for keyInFrom, valueInFrom := range copyFrom {
+		if keysToSkip != nil {
+			// There might be some keys we do not want to add to destination.
+			if _, exist := keysToSkip[keyInFrom]; exist {
+				continue
+			}
+		}
 		valueInTarget, exist := destination[keyInFrom]
 		if !exist || valueInTarget == nil {
-			// If keyInFrom does not exist in destination or valueInTo is nil, we need to copy valueInFrom and add to
+			// If keyInFrom does not exist in destination or valueInTarget is nil, we need to copy valueInFrom and add to
 			// destination.
 			if valueInFrom != nil {
 				valueInFromType := reflect.TypeOf(valueInFrom)
@@ -148,6 +154,11 @@ func addMissingFields(copyFrom, destination map[string]interface{}) error {
 					copiedVal, _, copyErr := unstructured.NestedFieldCopy(valueInFrom.(map[string]interface{}))
 					if copyErr != nil {
 						return copyErr
+					}
+					// unstructured.NestedFieldCopy() copies all fields, but we need to delete some fields which are meant
+					// to be skipped.
+					if removeErr := removeFields(copiedVal.(map[string]interface{}), keysToSkip); removeErr != nil {
+						return removeErr
 					}
 					destination[keyInFrom] = copiedVal
 				} else {
@@ -172,13 +183,154 @@ func addMissingFields(copyFrom, destination map[string]interface{}) error {
 				// If we do not have the following check the final processed ClusterBootstrap will have {"a": "b", "foo": "bar"}
 				// which is not expected
 				keyInFrom != "inline" {
-				if err := addMissingFields(valueInFrom.(map[string]interface{}), valueInTarget.(map[string]interface{})); err != nil {
+				if err := addMissingFields(valueInFrom.(map[string]interface{}), valueInTarget.(map[string]interface{}), keysToSkip); err != nil {
 					return err
 				}
+			} else if valueInFrom != nil && reflect.TypeOf(valueInFrom).Kind() == reflect.Slice &&
+				valueInTarget != nil && reflect.TypeOf(valueInTarget).Kind() == reflect.Slice &&
+				keyInFrom == "additionalPackages" {
+				// The following code explicitly handles ClusterBootstrap.Spec.AdditionalPackages(Golang slice). Not all
+				// Golang slices need to be handled in the same way.
+				/*
+					Example of the use case:
+						ClusterBootstrapTemplate has the following in AdditionalPackages:
+						  - {refName: a, valuesFrom: {...}}
+						  - {refName: b, valuesFrom: {...}}
+						  - {refName: c, valuesFrom: {...}}
+
+						ClusterBootstrap has the following in AdditionalPackages:
+						  - {refName: a}
+						  - {refName: c, valuesFrom: {...}}
+						  - {refName: d}
+						After addMissingFields(cbTemplate, cb, nil), we expect to get the following result in ClusterBootstrap:
+						  - {refName: a, valuesFrom: {...}}
+						  - {refName: b, valuesFrom: {...}}
+						  - {refName: c, valuesFrom: {...}}
+						  - {refName: d}
+				*/
+
+				sliceInFrom := valueInFrom.([]interface{})
+				sliceInTarget := valueInTarget.([]interface{})
+				var updatedSlice []interface{}
+				for _, sliceItemInFrom := range sliceInFrom {
+					foundMatch := false
+					itemMapInFrom := sliceItemInFrom.(map[string]interface{})
+					for _, sliceItemInTarget := range sliceInTarget {
+						itemMapInTarget := sliceItemInTarget.(map[string]interface{})
+						// If two slices items match(using refName to compare), we want to add missing fields from one to another.
+						// e.g., {refName: a, valuesFrom: {...}} and {refName: a} matches
+						if itemMapInFrom["refName"].(string) == itemMapInTarget["refName"].(string) {
+							foundMatch = true
+							if err := addMissingFields(itemMapInFrom, itemMapInTarget, keysToSkip); err != nil {
+								return err
+							}
+							if removeErr := removeFields(itemMapInTarget, keysToSkip); removeErr != nil {
+								return removeErr
+							}
+							updatedSlice = append(updatedSlice, itemMapInTarget)
+							break // we expect only one match
+						}
+					}
+					// If there is no match, we simply add the new slice item to the final slice
+					if !foundMatch {
+						if removeErr := removeFields(itemMapInFrom, keysToSkip); removeErr != nil {
+							return removeErr
+						}
+						updatedSlice = append(updatedSlice, itemMapInFrom)
+					}
+				}
+				destination[keyInFrom] = updatedSlice
 			}
 		}
 	}
 	return nil
+}
+
+// removeFields deletes the map entries by comparing the keys with keysToRemove
+func removeFields(m, keysToRemove map[string]interface{}) error {
+	if keysToRemove == nil || len(keysToRemove) == 0 {
+		return nil
+	}
+	for key, value := range m {
+		_, exist := keysToRemove[key]
+		if exist {
+			// Delete the field and continue to scan next key
+			delete(m, key)
+			continue
+		}
+		if value != nil && reflect.TypeOf(value).Kind() == reflect.Map {
+			// If value is a map, recursively look into it
+			if err := removeFields(value.(map[string]interface{}), keysToRemove); err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+// HandleExistingClusterBootstrap does the following:
+// 1. Check the annotation from the existing ClusterBootstrap CR. Add missing fields to the ClusterBootstrap CR if needed
+// 2. Clone the referenced object of ClusterBootstrapPackage.ValuesFrom into the cluster namespace. If the referenced
+//    object has embedded TypedLocalObjectReference(e.g., CPI has VSphereCPIConfig as valuesFrom, VSphereCPIConfig has
+//    a Secret reference under its Spec), this function clones the embedded object into the cluster namespace as well.
+// 3. Add OwnerReferences and Labels to the cloned objects.
+func (h *Helper) HandleExistingClusterBootstrap(clusterBootstrap *runtanzuv1alpha3.ClusterBootstrap, cluster *clusterapiv1beta1.Cluster, tkrName, systemNamespace string) (*runtanzuv1alpha3.ClusterBootstrap, error) {
+	packages := append([]*runtanzuv1alpha3.ClusterBootstrapPackage{
+		clusterBootstrap.Spec.CNI,
+		clusterBootstrap.Spec.CPI,
+		clusterBootstrap.Spec.CSI,
+		clusterBootstrap.Spec.Kapp,
+	}, clusterBootstrap.Spec.AdditionalPackages...)
+
+	if clusterBootstrap.Annotations != nil {
+		if annotationValue, annotationExist := clusterBootstrap.Annotations[constants.AddCBMissingFieldsAnnotationKey]; annotationExist {
+			tkrName = annotationValue
+			clusterBootstrapTemplateName := annotationValue // TanzuKubernetesRelease and ClusterBootstrapTemplate share the same name
+			clusterBootstrapTemplate := &runtanzuv1alpha3.ClusterBootstrapTemplate{}
+			// Get the ClusterBootstrapTemplate mentioned in the annotation under system namespace
+			if err := h.K8sClient.Get(h.Ctx, client.ObjectKey{Namespace: systemNamespace, Name: clusterBootstrapTemplateName}, clusterBootstrapTemplate); err != nil {
+				return nil, err
+			}
+			if err := h.AddMissingSpecFieldsFromTemplate(clusterBootstrapTemplate, clusterBootstrap, nil); err != nil {
+				return nil, err
+			}
+		}
+	}
+
+	secrets, providers, err := h.CloneReferencedObjectsFromCBPackages(cluster, packages, systemNamespace)
+	if err != nil {
+		h.Logger.Error(err, "unable to clone secrets or providers")
+		return nil, err
+	}
+
+	// Using controllerutil.CreateOrPatch() to patch the ClusterBootstrap CR.
+	// TODO: Revisit if using client.Patch() is better
+	if _, err := controllerutil.CreateOrPatch(h.Ctx, h.K8sClient, clusterBootstrap, func() error {
+		clusterBootstrap.OwnerReferences = []metav1.OwnerReference{
+			{
+				APIVersion:         clusterapiv1beta1.GroupVersion.String(),
+				Kind:               cluster.Kind,
+				Name:               cluster.Name,
+				UID:                cluster.UID,
+				Controller:         pointer.BoolPtr(true),
+				BlockOwnerDeletion: pointer.BoolPtr(true),
+			},
+		}
+		// controllerutil.CreateOrPatch() updates the status subresource as well
+		clusterBootstrap.Status.ResolvedTKR = tkrName
+		return nil
+	}); err != nil {
+		return nil, err
+	}
+
+	// ensure ownerRef of clusterBootstrap on created secrets and providers, this can only be done after
+	// clusterBootstrap is created
+	if err := h.EnsureOwnerRef(clusterBootstrap, secrets, providers); err != nil {
+		h.Logger.Error(err, fmt.Sprintf("unable to ensure ClusterBootstrap %s/%s as a ownerRef on created secrets and providers", clusterBootstrap.Namespace, clusterBootstrap.Name))
+		return nil, err
+	}
+
+	return clusterBootstrap, nil
 }
 
 // CreateClusterBootstrapFromTemplate does the following:

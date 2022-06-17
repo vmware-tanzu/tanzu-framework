@@ -319,7 +319,7 @@ var _ = Describe("ClusterbootstrapClone", func() {
 				Spec: &v1alpha3.ClusterBootstrapTemplateSpec{},
 			}
 
-			err := helper.AddMissingSpecFieldsFromTemplate(fakeClusterBootstrapTemplate, clusterBootstrap)
+			err := helper.AddMissingSpecFieldsFromTemplate(fakeClusterBootstrapTemplate, clusterBootstrap, nil)
 			Expect(err).NotTo(HaveOccurred())
 			updatedClusterBootstrap := clusterBootstrap
 			Expect(updatedClusterBootstrap.Spec).NotTo(BeNil())
@@ -379,7 +379,7 @@ var _ = Describe("ClusterbootstrapClone", func() {
 				},
 			}
 
-			err := helper.AddMissingSpecFieldsFromTemplate(fakeClusterBootstrapTemplate, clusterBootstrap)
+			err := helper.AddMissingSpecFieldsFromTemplate(fakeClusterBootstrapTemplate, clusterBootstrap, nil)
 			Expect(err).NotTo(HaveOccurred())
 			updatedClusterBootstrap := clusterBootstrap
 			Expect(updatedClusterBootstrap.Spec.CNI).NotTo(BeNil())
@@ -393,17 +393,105 @@ var _ = Describe("ClusterbootstrapClone", func() {
 			// CPI should be added to updatedClusterBootstrap
 			Expect(updatedClusterBootstrap.Spec.CPI).NotTo(BeNil())
 			Expect(updatedClusterBootstrap.Spec.CPI.ValuesFrom.SecretRef).To(Equal(fakeCPIClusterBootstrapPackage.ValuesFrom.SecretRef))
-			// CSI should be added to updatedClusterBootstrap
-			Expect(updatedClusterBootstrap.Spec.CSI).NotTo(BeNil())
-			assertTwoMapsShouldEqual(updatedClusterBootstrap.Spec.CPI.ValuesFrom.Inline, fakeCSIClusterBootstrapPackage.ValuesFrom.Inline)
 			// The ClusterBootstrapPackage not set in fakeClusterBootstrapTemplate. They should not be copied
 			Expect(updatedClusterBootstrap.Spec.Kapp).To(BeNil())
-			// The ClusterBootstrapPackage has only 1 additional package, however the fakeClusterBootstrapTemplate has 2
-			// We should not change the user intention to make the additional packages 2 in this case. If users want to
-			// derive all additional packages from ClusterBootstrapTemplate, they should not specify this field.
-			Expect(len(updatedClusterBootstrap.Spec.AdditionalPackages)).To(Equal(1))
-			Expect(updatedClusterBootstrap.Spec.AdditionalPackages[0].RefName).To(Equal(fakePinnipedCBPackageRefName))
-			Expect(updatedClusterBootstrap.Spec.AdditionalPackages[0].ValuesFrom.Inline["identity_management_type"]).To(Equal("oidc"))
+			Expect(len(updatedClusterBootstrap.Spec.AdditionalPackages)).To(Equal(len(fakeClusterBootstrapTemplate.Spec.AdditionalPackages)))
+			for idx, _ := range updatedClusterBootstrap.Spec.AdditionalPackages {
+				Expect(updatedClusterBootstrap.Spec.AdditionalPackages[idx].RefName).To(Equal(fakeClusterBootstrapTemplate.Spec.AdditionalPackages[idx].RefName))
+				Expect(updatedClusterBootstrap.Spec.AdditionalPackages[idx].ValuesFrom).To(Equal(fakeClusterBootstrapTemplate.Spec.AdditionalPackages[idx].ValuesFrom))
+			}
+		})
+
+		It("should add valuesFrom back if not specified in ClusterBootstrap", func() {
+			fakeCSIClusterBootstrapPackage := constructFakeClusterBootstrapPackageWithInlineRef()
+			// Update fakeClusterBootstrapTemplate by adding a fake CSI package
+			fakeClusterBootstrapTemplate.Spec.CSI = fakeCSIClusterBootstrapPackage
+
+			clusterBootstrap := &v1alpha3.ClusterBootstrap{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      "fake-clusterbootstrap",
+					Namespace: "fake-cluster-ns",
+					UID:       "uid",
+				},
+				Spec: &v1alpha3.ClusterBootstrapTemplateSpec{
+					CSI: &v1alpha3.ClusterBootstrapPackage{
+						RefName: "foo-vsphere-csi-clusterbootstrarp-package",
+					},
+					AdditionalPackages: []*v1alpha3.ClusterBootstrapPackage{
+						{RefName: fakePinnipedCBPackageRefName},
+					},
+				},
+			}
+			err := helper.AddMissingSpecFieldsFromTemplate(fakeClusterBootstrapTemplate, clusterBootstrap, nil)
+			Expect(err).NotTo(HaveOccurred())
+			updatedClusterBootstrap := clusterBootstrap
+
+			// CNI exists in fakeClusterBootstrapTemplate, it should be added back
+			Expect(updatedClusterBootstrap.Spec.CNI).NotTo(BeNil())
+			// CSI in fakeClusterBootstrapTemplate has valuesFrom, so valuesFrom should be added back
+			Expect(updatedClusterBootstrap.Spec.CSI.ValuesFrom).NotTo(BeNil())
+			Expect(updatedClusterBootstrap.Spec.CSI.ValuesFrom.Inline).NotTo(BeNil())
+			assertTwoMapsShouldEqual(updatedClusterBootstrap.Spec.CSI.ValuesFrom.Inline, fakeClusterBootstrapTemplate.Spec.CSI.ValuesFrom.Inline)
+
+			Expect(len(updatedClusterBootstrap.Spec.AdditionalPackages)).To(Equal(len(fakeClusterBootstrapTemplate.Spec.AdditionalPackages)))
+			for idx, _ := range updatedClusterBootstrap.Spec.AdditionalPackages {
+				Expect(updatedClusterBootstrap.Spec.AdditionalPackages[idx].RefName).To(Equal(fakeClusterBootstrapTemplate.Spec.AdditionalPackages[idx].RefName))
+				Expect(updatedClusterBootstrap.Spec.AdditionalPackages[idx].ValuesFrom).To(Equal(fakeClusterBootstrapTemplate.Spec.AdditionalPackages[idx].ValuesFrom))
+			}
+		})
+
+		It("should not add the fields which are meant to be skipped", func() {
+			antreaAPIGroup := antreaconfigv1alpha1.GroupVersion.Group
+			fakeCPIClusterBootstrapPackage := constructFakeClusterBootstrapPackageWithSecretRef()
+			fakeCSIClusterBootstrapPackage := constructFakeClusterBootstrapPackageWithInlineRef()
+			// Update fakeClusterBootstrapTemplate by adding a fake CPI and CSI package
+			fakeClusterBootstrapTemplate.Spec.CPI = fakeCPIClusterBootstrapPackage
+			fakeClusterBootstrapTemplate.Spec.CSI = fakeCSIClusterBootstrapPackage
+
+			clusterBootstrap := &v1alpha3.ClusterBootstrap{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      "fake-clusterbootstrap",
+					Namespace: "fake-cluster-ns",
+					UID:       "uid",
+				},
+				Spec: &v1alpha3.ClusterBootstrapTemplateSpec{
+					// We do not expect this part to be overwritten to be what fakeClusterBootstrapTemplate has
+					CNI: &v1alpha3.ClusterBootstrapPackage{
+						RefName: "foo-antrea-clusterbootstrarp-package",
+						ValuesFrom: &v1alpha3.ValuesFrom{
+							ProviderRef: &corev1.TypedLocalObjectReference{
+								APIGroup: &antreaAPIGroup,
+								Kind:     "AntreaConfig",
+								Name:     "fooAntreaConfig",
+							},
+						},
+					},
+					CSI: &v1alpha3.ClusterBootstrapPackage{
+						RefName: "foo-vsphere-csi-clusterbootstrarp-package",
+						ValuesFrom: &v1alpha3.ValuesFrom{
+							Inline: map[string]interface{}{"should-not-be-updated": true},
+						},
+					},
+					AdditionalPackages: []*v1alpha3.ClusterBootstrapPackage{
+						{RefName: fakePinnipedCBPackageRefName, ValuesFrom: &v1alpha3.ValuesFrom{Inline: map[string]interface{}{"identity_management_type": "oidc"}}},
+					},
+				},
+			}
+
+			err := helper.AddMissingSpecFieldsFromTemplate(fakeClusterBootstrapTemplate, clusterBootstrap, map[string]interface{}{"valuesFrom": nil})
+			Expect(err).NotTo(HaveOccurred())
+			updatedClusterBootstrap := clusterBootstrap
+			// CPI should be added to updatedClusterBootstrap
+			Expect(updatedClusterBootstrap.Spec.CPI).NotTo(BeNil())
+			// CPI's valuesFrom should be skipped
+			Expect(updatedClusterBootstrap.Spec.CPI.ValuesFrom).To(BeNil())
+			Expect(updatedClusterBootstrap.Spec.CPI.RefName).To(Equal(fakeClusterBootstrapTemplate.Spec.CPI.RefName))
+
+			Expect(len(updatedClusterBootstrap.Spec.AdditionalPackages)).To(Equal(len(fakeClusterBootstrapTemplate.Spec.AdditionalPackages)))
+			for idx, _ := range updatedClusterBootstrap.Spec.AdditionalPackages {
+				Expect(updatedClusterBootstrap.Spec.AdditionalPackages[idx].RefName).To(Equal(fakeClusterBootstrapTemplate.Spec.AdditionalPackages[idx].RefName))
+				Expect(updatedClusterBootstrap.Spec.AdditionalPackages[idx].ValuesFrom).To(BeNil())
+			}
 		})
 	})
 
