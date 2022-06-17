@@ -553,6 +553,7 @@ func GetFakeClusterInfo(server string, cert *x509.Certificate) string {
 // PinnipedInfo contains settings for the supervisor.
 type PinnipedInfo struct {
 	ClusterName              string `json:"cluster_name"`
+	ConciergeEndpoint        string `json:"concierge_endpoint"`
 	Issuer                   string `json:"issuer"`
 	IssuerCABundleData       string `json:"issuer_ca_bundle_data"`
 	ConciergeIsClusterScoped bool   `json:"concierge_is_cluster_scoped,string"`
