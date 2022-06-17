@@ -5,7 +5,7 @@ package update_test
 
 import (
 	"context"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"testing"
 
@@ -44,7 +44,7 @@ func TestUpdateCeip_NoPreviousConfiguration(t *testing.T) {
 		case kubernetes.NamespacesURI:
 			assert.Equal(t, r.Method, http.MethodPost)
 			namespaceCreated = true
-			buf, err := ioutil.ReadAll(r.Body)
+			buf, err := io.ReadAll(r.Body)
 			assert.NoError(t, err)
 			assert.Contains(t, string(buf), `"name":"vmware-system-telemetry"`)
 			w.WriteHeader(http.StatusCreated)
@@ -79,7 +79,7 @@ func TestUpdateCeip_NoPreviousConfiguration(t *testing.T) {
 			}
 		case kubernetes.ConfigMapsURI:
 			assert.Equal(t, r.Method, http.MethodPost)
-			buf, err := ioutil.ReadAll(r.Body)
+			buf, err := io.ReadAll(r.Body)
 			assert.NoError(t, err)
 			assert.Contains(t, string(buf), `"level":"standard"`)
 			ceipUpdated = true
@@ -335,7 +335,7 @@ func TestUpdateCeip_PreviousConfigurationExists(t *testing.T) {
 			}
 		case kubernetes.NamespacesURI:
 			assert.Equal(t, r.Method, http.MethodPost)
-			buf, err := ioutil.ReadAll(r.Body)
+			buf, err := io.ReadAll(r.Body)
 			assert.NoError(t, err)
 			assert.Contains(t, string(buf), `"name":"vmware-system-telemetry"`)
 			w.WriteHeader(http.StatusCreated)
@@ -370,7 +370,7 @@ func TestUpdateCeip_PreviousConfigurationExists(t *testing.T) {
 
 			case http.MethodPut:
 				w.WriteHeader(http.StatusOK)
-				buf, err := ioutil.ReadAll(r.Body)
+				buf, err := io.ReadAll(r.Body)
 				assert.NoError(t, err)
 				assert.Contains(t, string(buf), `"level":"standard"`)
 				ceipUpdated = true
@@ -392,7 +392,7 @@ func TestUpdateCeip_PreviousConfigurationExists(t *testing.T) {
 
 		case kubernetes.ConfigMapsURI:
 			assert.Equal(t, r.Method, http.MethodPost)
-			buf, err := ioutil.ReadAll(r.Body)
+			buf, err := io.ReadAll(r.Body)
 			assert.NoError(t, err)
 			assert.Contains(t, string(buf), `"level":"standard"`)
 			ceipUpdated = true
@@ -494,7 +494,7 @@ func TestUpdateIdentifiers_NoPreviousConfiguration(t *testing.T) {
 		case kubernetes.NamespacesURI:
 			assert.Equal(t, r.Method, http.MethodPost)
 			namespaceCreated = true
-			buf, err := ioutil.ReadAll(r.Body)
+			buf, err := io.ReadAll(r.Body)
 			assert.NoError(t, err)
 			assert.Contains(t, string(buf), `"name":"vmware-system-telemetry"`)
 			w.WriteHeader(http.StatusCreated)
@@ -510,7 +510,7 @@ func TestUpdateIdentifiers_NoPreviousConfiguration(t *testing.T) {
 			}
 		case kubernetes.SharedIdsConfigMapURI:
 			if r.Method == http.MethodPut {
-				buf, err := ioutil.ReadAll(r.Body)
+				buf, err := io.ReadAll(r.Body)
 				assert.NoError(t, err)
 				assert.Contains(t, string(buf), `"data":{"key-1":"val-1","key-2":"val-2"`)
 				identifiersUpdated = true
@@ -546,7 +546,7 @@ func TestUpdateIdentifiers_NoPreviousConfiguration(t *testing.T) {
 			}
 		case kubernetes.ConfigMapsURI:
 			assert.Equal(t, r.Method, http.MethodPost)
-			buf, err := ioutil.ReadAll(r.Body)
+			buf, err := io.ReadAll(r.Body)
 			assert.NoError(t, err)
 			assert.Contains(t, string(buf), `"name":"vmware-telemetry-identifiers"`)
 			identifiersCreated = true
@@ -602,7 +602,7 @@ func TestUpdateIdentifiers_UpdateOnlyChangedIdentifiers(t *testing.T) {
 			}
 		case kubernetes.SharedIdsConfigMapURI:
 			if r.Method == http.MethodPut {
-				buf, err := ioutil.ReadAll(r.Body)
+				buf, err := io.ReadAll(r.Body)
 				assert.NoError(t, err)
 				assert.Contains(t, string(buf), `"data":{"key-1":"val-1","key-2":"val-2","key-3":"val-3"`)
 				identifiersUpdated = true
