@@ -590,8 +590,8 @@ func (c *TkgClient) validateCompatibilityWithTMC(regionalClusterClient clustercl
 
 // upgradeTelemetryImage will upgrade the telemetry image if the management-cluster is opted into telemetry
 // additional labels set by the user using the CLI will be preserved (such as: isProd or customer identification)
-func (c *TkgClient) upgradeTelemetryImageIfExists(regionalClusterClient clusterclient.Client, context region.RegionContext) error {
-	CEIPJobExists, err := regionalClusterClient.HasCEIPTelemetryJob(context.ClusterName)
+func (c *TkgClient) upgradeTelemetryImageIfExists(regionalClusterClient clusterclient.Client, ctx region.RegionContext) error {
+	CEIPJobExists, err := regionalClusterClient.HasCEIPTelemetryJob(ctx.ClusterName)
 	if err != nil {
 		return errors.Wrap(err, "unable to determine if telemetry cron job is installed already")
 	}
@@ -604,12 +604,12 @@ func (c *TkgClient) upgradeTelemetryImageIfExists(regionalClusterClient clusterc
 		}
 
 		log.Info("Upgrading management cluster telemetry image...")
-		//telemetry command: /tkg-telemetry <sonobuoy bin path> <datastore-url> <labels>
+		// telemetry command: /tkg-telemetry <sonobuoy bin path> <datastore-url> <labels>
 		command := telemetryJob.Spec.JobTemplate.Spec.Template.Spec.Containers[0].Command
-		dsUrl := command[2]
-		isProd := !strings.Contains(dsUrl, "stg")
+		dsURL := command[2]
+		isProd := !strings.Contains(dsURL, "stg")
 		labels := strings.Split(command[3], "--labels=")[1]
-		err = c.DoSetCEIPParticipation(regionalClusterClient, context, true, strconv.FormatBool(isProd), labels)
+		err = c.DoSetCEIPParticipation(regionalClusterClient, ctx, true, strconv.FormatBool(isProd), labels)
 		if err != nil {
 			return errors.Wrap(err, "Failed to upgrade telemetry image")
 		}
