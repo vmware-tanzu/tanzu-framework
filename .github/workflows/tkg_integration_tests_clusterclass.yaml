@@ -19,7 +19,7 @@ on:
       - '.github/workflows/tkg_integration_tests*.yaml'
 
   push:
-    branches: [ main, release-* ]
+    branches: [ main, release-*, package-based-lcm* ]
     paths:
     - 'pkg/v1/tkg/**'
     - 'pkg/v1/tkr/**'
