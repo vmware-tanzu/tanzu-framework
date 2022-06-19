@@ -1,28 +1,36 @@
 apiVersion: vendir.k14s.io/v1alpha1
 kind: Config
 directories:
-- path: ytt/vendir/vsphere_cpi/_ytt_lib
+# - path: ytt/vendir/vsphere_cpi/_ytt_lib
+#   contents:
+#   - path: .
+#     git:
+#       url: git@github.com:vmware-tanzu/community-edition.git
+#       ref: 0fa3055c5cddf67f8c23edea420575cb4eb7d5d8
+#     includePaths:
+#     - addons/packages/vsphere-cpi/1.22.5/bundle/config/**/*
+# - path: ytt/vendir/cni/_ytt_lib
+#   contents:
+#   - path: .
+#     git:
+#       url: git@github.com:vmware-tanzu/community-edition.git
+#       ref: d420c7406657c4e555918b31f1bd771af85ba774
+#     includePaths:
+#     - addons/packages/antrea/1.5.2/bundle/config/**/*
+#     - addons/packages/calico/3.22.1/bundle/config/**/*
+# - path: ytt/vendir/kapp-controller/_ytt_lib
+#   contents:
+#   - path: .
+#     git:
+#       url: git@github.com:vmware-tanzu/community-edition.git
+#       ref: f74f471e03ed2d026fbf8083c245b01f659602e8
+#     includePaths:
+#     - addons/packages/kapp-controller/0.34.0/bundle/config/**/*
+- path: ytt/vendir/csi/_ytt_lib
   contents:
   - path: .
     git:
-      url: git@github.com:vmware-tanzu/community-edition.git
-      ref: 0fa3055c5cddf67f8c23edea420575cb4eb7d5d8
+      url: git@github.com:xiaoping8385/community-edition.git
+      ref: 47c7cf0db523257275441111d644121319de67ca
     includePaths:
-    - addons/packages/vsphere-cpi/1.22.5/bundle/config/**/*
-- path: ytt/vendir/cni/_ytt_lib
-  contents:
-  - path: .
-    git:
-      url: git@github.com:vmware-tanzu/community-edition.git
-      ref: d420c7406657c4e555918b31f1bd771af85ba774
-    includePaths:
-    - addons/packages/antrea/1.5.2/bundle/config/**/*
-    - addons/packages/calico/3.22.1/bundle/config/**/*
-- path: ytt/vendir/kapp-controller/_ytt_lib
-  contents:
-  - path: .
-    git:
-      url: git@github.com:vmware-tanzu/community-edition.git
-      ref: f74f471e03ed2d026fbf8083c245b01f659602e8
-    includePaths:
-    - addons/packages/kapp-controller/0.34.0/bundle/config/**/*
+    - addons/packages/azuredisk-csi/1.19.0/bundle/config/**/*

@@ -2,26 +2,10 @@ apiVersion: vendir.k14s.io/v1alpha1
 directories:
 - contents:
   - git:
-      commitTitle: Add new flags insecure and remoteAuthEnabled (#3152)...
-      sha: 0fa3055c5cddf67f8c23edea420575cb4eb7d5d8
+      commitTitle: add azuredisk csi 1.19.0
+      sha: 47c7cf0db523257275441111d644121319de67ca
       tags:
-      - v0.11.0-dev.1-120-g0fa3055c
+      - v0.13.0-dev.2-41-g47c7cf0d
     path: .
-  path: ytt/vendir/vsphere_cpi/_ytt_lib
-- contents:
-  - git:
-      commitTitle: Adding Antrea CNI package version 1.5.2
-      sha: d420c7406657c4e555918b31f1bd771af85ba774
-      tags:
-      - v0.13.0-dev.1-223-gd420c740
-    path: .
-  path: ytt/vendir/cni/_ytt_lib
-- contents:
-  - git:
-      commitTitle: bump kapp-controller to v0.34.0 (#3592)
-      sha: f74f471e03ed2d026fbf8083c245b01f659602e8
-      tags:
-      - v0.12.0-dev.1-27-gf74f471e
-    path: .
-  path: ytt/vendir/kapp-controller/_ytt_lib
+  path: ytt/vendir/csi/_ytt_lib
 kind: LockConfig
