@@ -4,6 +4,8 @@
 package tkgctl
 
 import (
+	"context"
+	"fmt"
 	"path/filepath"
 	"strconv"
 	"strings"
@@ -181,18 +183,15 @@ func (t *tkgctl) processWorkloadClusterInputFile(cc *CreateClusterOptions, isTKG
 
 // validateTKGSClusterClassFeatureGate validates the TKGS clusterclass feature gate state
 func (t *tkgctl) validateTKGSClusterClassFeatureGate(isInputFileClusterClassBased, isTKGSCluster bool) error {
-	/*
-		// TODO (chandrareddyp): We have disabled it because the feature gate is not fully implemented in TKGS
-		if t.tkgClient.IsFeatureActivated(config.FeatureFlagPackageBasedLCM) && isInputFileClusterClassBased && isTKGSCluster {
-			isFeatureActivated, err := t.featureGateHelper.FeatureActivatedInNamespace(context.Background(), constants.CCFeature, constants.TKGSClusterClassNamespace)
-			if err != nil {
-				return errors.Wrap(err, fmt.Sprintf("error while checking feature '%v' status in namespace '%v'", constants.CCFeature, constants.TKGSClusterClassNamespace))
-			}
-			if !isFeatureActivated {
-				return fmt.Errorf("vSphere with Tanzu environment detected, however, the feature '%v' is not activated in '%v' namespace ", constants.CCFeature, constants.TKGSClusterClassNamespace)
-			}
+	if t.tkgClient.IsFeatureActivated(config.FeatureFlagPackageBasedLCM) && isInputFileClusterClassBased && isTKGSCluster {
+		isFeatureActivated, err := t.featureGateHelper.FeatureActivatedInNamespace(context.Background(), constants.CCFeature, constants.TKGSClusterClassNamespace)
+		if err != nil {
+			return errors.Wrap(err, fmt.Sprintf(constants.ErrorMsgFeatureGateStatus, constants.CCFeature, constants.TKGSClusterClassNamespace))
 		}
-	*/
+		if !isFeatureActivated {
+			return fmt.Errorf(constants.ErrorMsgFeatureGateNotActivated, constants.CCFeature, constants.TKGSClusterClassNamespace)
+		}
+	}
 	return nil
 }
 
