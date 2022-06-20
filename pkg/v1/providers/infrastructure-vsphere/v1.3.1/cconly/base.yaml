@@ -75,11 +75,6 @@ metadata:
 spec:
   template:
     spec:
-      machineTemplate:
-        infrastructureRef:
-          apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
-          kind: VSphereMachineTemplate
-          name: 'tkg-vsphere-control-plane'
       kubeadmConfigSpec:
         useExperimentalRetryJoin: true
         clusterConfiguration:
@@ -161,7 +156,8 @@ spec:
       - echo "127.0.0.1   localhost" >>/etc/hosts
       - echo "127.0.0.1   {{ ds.meta_data.hostname }}" >>/etc/hosts
       - echo "{{ ds.meta_data.hostname }}" >/etc/hostname
-      postKubeadmCommands: []
+      postKubeadmCommands:
+      - echo "running postKubeadmCommands…"
       files:
       - path: /tmp/empty.txt
         owner: "root:root"
@@ -202,7 +198,6 @@ spec:
         kind: VSphereMachineTemplate
         apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
         name: 'tkg-vsphere-control-plane'
-    machineHealthCheck:
   infrastructure:
     ref:
       apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
@@ -212,7 +207,6 @@ spec:
   workers:
     machineDeployments:
     - class: tkg-worker
-      machineHealthCheck:
       template:
         bootstrap:
           ref:
@@ -227,7 +221,6 @@ spec:
             name: 'tkg-vsphere-worker'
             namespace: #@ data.values.NAMESPACE
     - class: tkg-worker-windows
-      machineHealthCheck:
       template:
         bootstrap:
           ref:
@@ -712,7 +705,7 @@ spec:
                     value: "20"
                   - name: vip_retryperiod
                     value: "4"
-                  image: {{(index .TKR_DATA .builtin.controlPlane.version).kubernetesSpec.imageRepository}}/kube-vip:{{(index (index .TKR_DATA .builtin.controlPlane.version).kubernetesSpec "kube-vip").imageTag}}
+                  image: {{(index (index .TKR_DATA .builtin.controlPlane.version).kubernetesSpec "kube-vip").imageRepository}}/kube-vip:{{(index (index .TKR_DATA .builtin.controlPlane.version).kubernetesSpec "kube-vip").imageTag}}
                   imagePullPolicy: IfNotPresent
                   name: kube-vip
                   resources: {}
@@ -749,14 +742,14 @@ spec:
           template: |
             devices:
             - networkName: {{ .vcenter.network }}
-            {{ if .controlPlane.network.nameservers -}}
-              nameservers:
-              {{- range .controlPlane.network.nameservers }}
-            - {{ . }}
+              {{ if .controlPlane.network.nameservers -}}
+                nameservers:
+                {{- range .controlPlane.network.nameservers }}
+              - {{ . }}
+                {{- end }}
               {{- end }}
-            {{- end }}
-            {{ if list "IPv4" "DualStack" | has .builtin.cluster.network.ipFamily -}} dhcp4: true {{- end }}
-            {{ if list "IPv6" "DualStack" | has .builtin.cluster.network.ipFamily -}} dhcp6: true {{- end }}
+              {{ if list "IPv4" "DualStack" | has .builtin.cluster.network.ipFamily -}} dhcp4: true {{- end }}
+              {{ if list "IPv6" "DualStack" | has .builtin.cluster.network.ipFamily -}} dhcp6: true {{- end }}
     - selector:
         apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
         kind: VSphereMachineTemplate
@@ -772,14 +765,14 @@ spec:
           template: |
             devices:
             - networkName: {{ .vcenter.network }}
-            {{ if .worker.network.nameservers -}}
-              nameservers:
-              {{- range .worker.network.nameservers }}
-            - {{ . }}
+              {{ if .worker.network.nameservers -}}
+                nameservers:
+                {{- range .worker.network.nameservers }}
+              - {{ . }}
+                {{- end }}
               {{- end }}
-            {{- end }}
-            {{ if list "IPv4" "DualStack" | has .builtin.cluster.network.ipFamily -}} dhcp4: true {{- end }}
-            {{ if list "IPv6" "DualStack" | has .builtin.cluster.network.ipFamily -}} dhcp6: true {{- end }}
+              {{ if list "IPv4" "DualStack" | has .builtin.cluster.network.ipFamily -}} dhcp4: true {{- end }}
+              {{ if list "IPv6" "DualStack" | has .builtin.cluster.network.ipFamily -}} dhcp6: true {{- end }}
   - name: clusterApiServerPort
     enabledIf: '{{ not (empty .apiServerPort) }}'
     definitions:
@@ -892,13 +885,15 @@ spec:
           template: |
             {{ $first := true }}
             {{- range $key, $val := (index .TKR_DATA .builtin.controlPlane.version).labels }}
+            {{- if regexMatch "^(?:[a-zA-z])(?:[-\\w\\.]*[a-zA-z])$" $val }}
             {{- if $first }}
               {{- $first = false }}
             {{- else -}}
               ,
             {{- end }}
             {{- $key -}} = {{- $val }}
-            {{- end}}
+            {{- end }}
+            {{- end }}
     - selector:
         apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
         kind: KubeadmConfigTemplate
@@ -914,13 +909,15 @@ spec:
           template: |
             {{ $first := true }}
             {{- range $key, $val := (index .TKR_DATA .builtin.machineDeployment.version).labels }}
+            {{- if regexMatch "^(?:[a-zA-z])(?:[-\\w\\.]*[a-zA-z])$" $val }}
             {{- if $first }}
               {{- $first = false }}
             {{- else -}}
               ,
             {{- end }}
             {{- $key -}} = {{- $val }}
-            {{- end}}
+            {{- end }}
+            {{- end }}
             {{- if .nodePoolLabels -}}
               ,
               {{- $first := true }}

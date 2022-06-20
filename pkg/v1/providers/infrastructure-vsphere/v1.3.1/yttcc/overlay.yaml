@@ -1,7 +1,6 @@
 #@ load("@ytt:overlay", "overlay")
 #@ load("@ytt:data", "data")
 
-
 #@ load("lib/helpers.star", "get_bom_data_for_tkr_name", "get_default_tkg_bom_data", "kubeadm_image_repo", "get_image_repo_for_component", "get_vsphere_thumbprint")
 
 #@ load("lib/validate.star", "validate_configuration")
@@ -30,8 +29,6 @@ metadata:
     cluster-role.tkg.tanzu.vmware.com/(@= data.values.TKG_CLUSTER_ROLE @): ""
     #@ end
     tkg.tanzu.vmware.com/cluster-name: #@ data.values.CLUSTER_NAME
-    #@overlay/match missing_ok=True
-    tanzuKubernetesRelease: #@ data.values.KUBERNETES_RELEASE
 spec:
   clusterNetwork:
     pods:
@@ -43,9 +40,15 @@ spec:
   topology:
     class: #@ data.values.CLUSTER_CLASS
     #! VVV TODO(vui) compute
-    version: #@ data.values.KUBERNETES_VERSION
+    #! version: #@ data.values.KUBERNETES_VERSION
+    #! hack to match up tkr
+    version: #@ "{}-tkg.1-zshippable".format(data.values.KUBERNETES_VERSION)
     controlPlane:
       replicas: #@ data.values.CONTROL_PLANE_MACHINE_COUNT
+      #@overlay/match missing_ok=True
+      metadata:
+        annotations:
+          run.tanzu.vmware.com/resolve-os-image: image-type=ova,os-name=photon
     workers:
       machineDeployments:
       #@ if not data.values.IS_WINDOWS_WORKLOAD_CLUSTER:
@@ -54,6 +57,10 @@ spec:
         name: md-0
         #@overlay/match missing_ok=True
         replicas: #@ data.values.WORKER_MACHINE_COUNT
+        #@overlay/match missing_ok=True
+        metadata:
+          annotations:
+            run.tanzu.vmware.com/resolve-os-image: image-type=ova,os-name=photon
         #@ if data.values.VSPHERE_AZ_0:
         #@overlay/match missing_ok=True
         failureDomain: #@ data.values.VSPHERE_AZ_0
@@ -63,6 +70,10 @@ spec:
       - class: tkg-worker
         name: md-1
         replicas: #@ data.values.WORKER_MACHINE_COUNT_1
+        #@overlay/match missing_ok=True
+        metadata:
+          annotations:
+            run.tanzu.vmware.com/resolve-os-image: image-type=ova,os-name=photon
         #@ if data.values.VSPHERE_AZ_1:
         failureDomain: #@ data.values.VSPHERE_AZ_1
         #@ end
@@ -70,6 +81,10 @@ spec:
       - class: tkg-worker
         name: md-2
         replicas: #@ data.values.WORKER_MACHINE_COUNT_2
+        #@overlay/match missing_ok=True
+        metadata:
+          annotations:
+            run.tanzu.vmware.com/resolve-os-image: image-type=ova,os-name=photon
         #@ if data.values.VSPHERE_AZ_2:
         failureDomain: #@ data.values.VSPHERE_AZ_2
         #@ end
@@ -80,6 +95,11 @@ spec:
       - class: tkg-worker-windows
         name: md-0
         replicas: #@ data.values.WORKER_MACHINE_COUNT
+        #@overlay/match missing_ok=True
+        metadata:
+          annotations:
+            #! VVV TODO(tenczar) os-name handling
+            run.tanzu.vmware.com/resolve-os-image: image-type=ova,os-name=windows
       #@ if data.values.CLUSTER_PLAN == "prodcc":
       #@overlay/append
       - class: tkg-worker-windows
@@ -88,6 +108,11 @@ spec:
         #@ if data.values.VSPHERE_AZ_1:
         failureDomain: #@ data.values.VSPHERE_AZ_1
         #@ end
+        #@overlay/match missing_ok=True
+        metadata:
+          annotations:
+            #! VVV TODO(tenczar) os-name handling
+            run.tanzu.vmware.com/resolve-os-image: image-type=ova,os-name=windows
       #@overlay/append
       - class: tkg-worker-windows
         name: md-2
@@ -95,6 +120,10 @@ spec:
         #@ if data.values.VSPHERE_AZ_2:
         failureDomain: #@ data.values.VSPHERE_AZ_2
         #@ end
+        metadata:
+          annotations:
+            #! VVV TODO(tenczar) os-name handling
+            run.tanzu.vmware.com/resolve-os-image: image-type=ova,os-name=windows
       #@ end
       #@ end
     #@overlay/match missing_ok=True
