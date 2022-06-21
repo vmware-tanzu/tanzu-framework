@@ -1,0 +1,40 @@
+#@ load("@ytt:overlay", "overlay")
+#@ load("@ytt:yaml", "yaml")
+#@ load("@ytt:data", "data")
+
+---
+apiVersion: cluster.x-k8s.io/v1beta1
+kind: ClusterClass
+metadata:
+  name: tkg-oci-clusterclass
+  namespace: default
+spec:
+  controlPlane:
+    ref:
+      apiVersion: controlplane.cluster.x-k8s.io/v1beta1
+      kind: KubeadmControlPlaneTemplate
+      name: tkg-oci-kcp
+    machineInfrastructure:
+      ref:
+        kind: OCIMachineTemplate
+        apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+        name: tkg-controlplane-oci-template
+  infrastructure:
+    ref:
+      apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+      kind: OCIClusterTemplate
+      name: tkg-oci-cluster-template
+  workers:
+    machineDeployments:
+      - class: tkg-worker
+        template:
+          bootstrap:
+            ref:
+              apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
+              kind: KubeadmConfigTemplate
+              name: tkg-oci-bootstrap-worker-template
+          infrastructure:
+            ref:
+              apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+              kind: OCIMachineTemplate
+              name: tkg-oci-worker-template
