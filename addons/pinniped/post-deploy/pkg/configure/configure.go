@@ -178,10 +178,14 @@ func TKGAuthentication(c Clients) error {
 	ctx := context.Background()
 
 	inspector := inspect.Inspector{K8sClientset: c.K8SClientset, Context: ctx}
-	var tkgMetadata *inspect.TKGMetadata
-	if tkgMetadata, err = inspector.GetTKGMetadata(); err != nil {
-		zap.S().Error(err)
-		return err
+	tkgMetadata := &inspect.TKGMetadata{}
+	if len(vars.JWTAuthenticatorAudience) == 0 {
+		if tkgMetadata, err = inspector.GetTKGMetadata(); err != nil {
+			zap.S().Error(err)
+			return err
+		}
+	} else {
+		tkgMetadata.Cluster.Type = constants.TKGWorkloadClusterType
 	}
 	// ensure the required resources are up and running before going to configure them
 	ready, err := ensureResources(ctx, c, tkgMetadata.Cluster.Type == "management")
