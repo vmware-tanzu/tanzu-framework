@@ -1,0 +1,10 @@
+#@data/values-schema
+---
+
+capociControllerManager:
+  #@schema/desc "Configures the HTTP_PROXY environment variable on capoci-controller-manager."
+  httpProxy: ""
+  #@schema/desc "Configures the HTTPS_PROXY environment variable on capoci-controller-manager."
+  httpsProxy: ""
+  #@schema/desc "Configures the NO_PROXY environment variable on capoci-controller-manager."
+  noProxy: ""
