@@ -86,45 +86,46 @@ func getPackageDetailsFromCBS(CBSRefName string) (string, string, string, error)
 	return pkgShortName, pkgName, pkgVersion, nil
 }
 
-func checkPackageInstalls(ctx context.Context, mccl, wccl client.Client, mcClusterName, wcClusterName string, testPkgName string) error {
-	var (
-		err          error
-		pkgShortName string
-		pkgName      string
-		pkgVersion   string
-	)
+func checkClusterCBS(ctx context.Context, mccl, wccl client.Client, mcClusterName, wcClusterName string) error {
+	var err error
 
 	// Get ClusterBootstrap and return error if not found
 	clusterBootstrap := getClusterBootstrap(ctx, mccl, constants.TkgNamespace, mcClusterName)
 
 	// packageInstall name for for both management and workload clusters should follow the <cluster name>-<addon short name>
 	// packageInstall name and version should match info in clusterBootstrap for all packages, format is <package name>.<package version>
-	switch {
-	case testPkgName == "CNI":
-		pkgShortName, pkgName, pkgVersion, err = getPackageDetailsFromCBS(clusterBootstrap.Spec.CNI.RefName)
-		Expect(err).NotTo(HaveOccurred())
-	case testPkgName == "CSI":
-		pkgShortName, pkgName, pkgVersion, err = getPackageDetailsFromCBS(clusterBootstrap.Spec.CSI.RefName)
-		Expect(err).NotTo(HaveOccurred())
-	case testPkgName == "CPI":
-		pkgShortName, pkgName, pkgVersion, err = getPackageDetailsFromCBS(clusterBootstrap.Spec.CPI.RefName)
-		Expect(err).NotTo(HaveOccurred())
-	case testPkgName == "Kapp":
-		pkgShortName, pkgName, pkgVersion, err = getPackageDetailsFromCBS(clusterBootstrap.Spec.Kapp.RefName)
-		Expect(err).NotTo(HaveOccurred())
-	case testPkgName == "metrics-server":
-		pkgShortName, pkgName, pkgVersion, err = getPackageDetailsFromCBS(clusterBootstrap.Spec.AdditionalPackages[0].RefName)
-		Expect(err).NotTo(HaveOccurred())
-	case testPkgName == "secretgen-controller":
-		pkgShortName, pkgName, pkgVersion, err = getPackageDetailsFromCBS(clusterBootstrap.Spec.AdditionalPackages[1].RefName)
-		Expect(err).NotTo(HaveOccurred())
-	case testPkgName == "pinniped":
-		pkgShortName, pkgName, pkgVersion, err = getPackageDetailsFromCBS(clusterBootstrap.Spec.AdditionalPackages[2].RefName)
-		Expect(err).NotTo(HaveOccurred())
-	}
+	// get package details from clusterBootstrap
+	cniPkgShortName, cniPkgName, cniPkgVersion, err := getPackageDetailsFromCBS(clusterBootstrap.Spec.CNI.RefName)
+	Expect(err).NotTo(HaveOccurred())
+	csiPkgShortName, csiPkgName, csiPkgVersion, err := getPackageDetailsFromCBS(clusterBootstrap.Spec.CSI.RefName)
+	Expect(err).NotTo(HaveOccurred())
+	cpiPkgShortName, cpiPkgName, cpiPkgVersion, err := getPackageDetailsFromCBS(clusterBootstrap.Spec.CPI.RefName)
+	Expect(err).NotTo(HaveOccurred())
+	kappPkgShortName, kappPkgName, kappPkgVersion, err := getPackageDetailsFromCBS(clusterBootstrap.Spec.Kapp.RefName)
+	Expect(err).NotTo(HaveOccurred())
+	msPkgShortName, msPkgName, msPkgVersion, err := getPackageDetailsFromCBS(clusterBootstrap.Spec.AdditionalPackages[0].RefName)
+	Expect(err).NotTo(HaveOccurred())
+	scPkgShortName, scPkgName, scPkgVersion, err := getPackageDetailsFromCBS(clusterBootstrap.Spec.AdditionalPackages[1].RefName)
+	Expect(err).NotTo(HaveOccurred())
+	pdPkgShortName, pdPkgName, pdPkgVersion, err := getPackageDetailsFromCBS(clusterBootstrap.Spec.AdditionalPackages[1].RefName)
+	Expect(err).NotTo(HaveOccurred())
 
-	pkgiName := addonutil.GeneratePackageInstallName(wcClusterName, pkgShortName)
+	// verify clusterBootstrap details matches package install on workload cluster
+	verifyPackageInstall(ctx, wccl, wcClusterName, cniPkgShortName, cniPkgName, cniPkgVersion)
+	verifyPackageInstall(ctx, wccl, wcClusterName, csiPkgShortName, csiPkgName, csiPkgVersion)
+	verifyPackageInstall(ctx, wccl, wcClusterName, cpiPkgShortName, cpiPkgName, cpiPkgVersion)
+	verifyPackageInstall(ctx, wccl, wcClusterName, kappPkgShortName, kappPkgName, kappPkgVersion)
+	verifyPackageInstall(ctx, wccl, wcClusterName, msPkgShortName, msPkgName, msPkgVersion)
+	verifyPackageInstall(ctx, wccl, wcClusterName, scPkgShortName, scPkgName, scPkgVersion)
+	verifyPackageInstall(ctx, wccl, wcClusterName, pdPkgShortName, pdPkgName, pdPkgVersion)
+
+	return nil
+}
+
+func verifyPackageInstall(ctx context.Context, wccl client.Client, clusterName, pkgShortName, pkgName, pkgVersion string) {
+	pkgiName := addonutil.GeneratePackageInstallName(clusterName, pkgShortName)
 	pkgi := getPackageInstall(ctx, wccl, constants.TkgNamespace, pkgiName)
+
 	// check package install reconcile status is succeed
 	Expect(pkgi.Status.GenericStatus.Conditions[0].Type).Should(Equal(kappctrl.ReconcileSucceeded))
 	Expect(pkgi.Status.GenericStatus.Conditions[0].Status).Should(Equal(corev1.ConditionTrue))
@@ -134,6 +135,4 @@ func checkPackageInstalls(ctx context.Context, mccl, wccl client.Client, mcClust
 
 	// Verify package version match between clusterBootstrap and packageInstall
 	Expect(pkgVersion).Should(Equal(pkgi.Spec.PackageRef.VersionSelection.Constraints))
-
-	return nil
 }
