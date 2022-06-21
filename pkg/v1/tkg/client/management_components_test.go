@@ -22,7 +22,7 @@ var _ = Describe("Unit tests for GetUserConfigVariableValueMap", func() {
 		tkgClient                *TkgClient
 		configFilePath           string
 		configFileData           string
-		userProviderConfigValues map[string]string
+		userProviderConfigValues map[string]interface{}
 		rw                       tkgconfigreaderwriter.TKGConfigReaderWriter
 	)
 
@@ -32,6 +32,10 @@ var _ = Describe("Unit tests for GetUserConfigVariableValueMap", func() {
 ---
 ABC:
 PQR: ""
+Test1:
+Test2:
+Test3:
+Test4:
 `
 	sampleConfigFileData2 := ``
 
@@ -49,11 +53,19 @@ PQR: ""
 		BeforeEach(func() {
 			configFileData = sampleConfigFileData1
 			rw.Set("ABC", "abc-value")
+			rw.Set("Test1", "true")
+			rw.Set("Test2", "null")
+			rw.Set("Test3", "1")
+			rw.Set("Test4", "1.2")
 		})
 		It("returns userProviderConfigValues with ABC", func() {
 			Expect(err).NotTo(HaveOccurred())
-			Expect(len(userProviderConfigValues)).To(Equal(1))
+			Expect(len(userProviderConfigValues)).To(Equal(5))
 			Expect(userProviderConfigValues["ABC"]).To(Equal("abc-value"))
+			Expect(userProviderConfigValues["Test1"]).To(Equal(true))
+			Expect(userProviderConfigValues["Test2"]).To(BeNil())
+			Expect(userProviderConfigValues["Test3"]).To(Equal(uint64(1)))
+			Expect(userProviderConfigValues["Test4"]).To(Equal(1.2))
 		})
 	})
 

@@ -24,6 +24,7 @@ import (
 	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/util/retry"
+	"k8s.io/utils/pointer"
 	clusterapiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
 	clusterapiutil "sigs.k8s.io/cluster-api/util"
 	clusterapipatchutil "sigs.k8s.io/cluster-api/util/patch"
@@ -953,44 +954,42 @@ func (r *ClusterBootstrapReconciler) createOrPatchPackageInstallSecret(cluster *
 		for k, v := range patchedSecret.Data {
 			remoteSecret.Data[k] = v
 		}
-		// TODO: remove when the packages are ready https://github.com/vmware-tanzu/tanzu-framework/issues/2252
-		if r.Config.EnableTKGSUpgrade {
-			// Add TKR NodeSelector info if it's a TKGS cluster
-			infraRef, err := util.GetInfraProvider(cluster)
+
+		// Add TKR NodeSelector info if it's a TKGS cluster
+		infraRef, err := util.GetInfraProvider(cluster)
+		if err != nil {
+			return err
+		}
+		if infraRef == tkgconstants.InfrastructureProviderVSphere {
+			ok, err := util.IsTKGSCluster(r.context, r.dynamicClient, r.cachedDiscoveryClient, cluster)
 			if err != nil {
 				return err
 			}
-			if infraRef == tkgconstants.InfrastructureProviderVSphere {
-				ok, err := util.IsTKGSCluster(r.context, r.dynamicClient, r.cachedDiscoveryClient, cluster)
+			if ok {
+				upgradeDataValues := addontypes.TKGSDataValues{
+					NodeSelector: addontypes.NodeSelector{
+						TanzuKubernetesRelease: cluster.Labels[constants.TKRLabelClassyClusters],
+					},
+					Deployment: addontypes.DeploymentUpdateInfo{
+						UpdateStrategy: constants.TKGSDeploymentUpdateStrategy,
+						RollingUpdate: &addontypes.RollingUpdateInfo{
+							MaxSurge:       constants.TKGSDeploymentUpdateMaxSurge,
+							MaxUnavailable: constants.TKGSDeploymentUpdateMaxUnavailable,
+						},
+					},
+					Daemonset: addontypes.DaemonsetUpdateInfo{
+						UpdateStrategy: constants.TKGSDaemonsetUpdateStrategy,
+					},
+				}
+				TKRDataValueYamlBytes, err := yaml.Marshal(upgradeDataValues)
 				if err != nil {
 					return err
 				}
-				if ok {
-					upgradeDataValues := addontypes.TKGSDataValues{
-						NodeSelector: addontypes.NodeSelector{
-							TanzuKubernetesRelease: cluster.Labels[constants.TKRLabelClassyClusters],
-						},
-						Deployment: addontypes.DeploymentUpdateInfo{
-							UpdateStrategy: constants.TKGSDeploymentUpdateStrategy,
-							RollingUpdate: &addontypes.RollingUpdateInfo{
-								MaxSurge:       constants.TKGSDeploymentUpdateMaxSurge,
-								MaxUnavailable: constants.TKGSDeploymentUpdateMaxUnavailable,
-							},
-						},
-						Daemonset: addontypes.DaemonsetUpdateInfo{
-							UpdateStrategy: constants.TKGSDaemonsetUpdateStrategy,
-						},
-					}
-					TKRDataValueYamlBytes, err := yaml.Marshal(upgradeDataValues)
-					if err != nil {
-						return err
-					}
-					remoteSecret.Data[constants.TKGSDataValueFileName] = TKRDataValueYamlBytes
+				remoteSecret.Data[constants.TKGSDataValueFileName] = TKRDataValueYamlBytes
 
-					r.Log.Info(fmt.Sprintf("added TKGS data values to secret %s/%s", remoteSecret.Namespace, remoteSecret.Name))
-				} else {
-					r.Log.Info(fmt.Sprintf("skip adding TKGS data values to secret %s/%s because %s/%s is not a TKGS cluster", remoteSecret.Namespace, remoteSecret.Name, cluster.Namespace, cluster.Name))
-				}
+				r.Log.Info(fmt.Sprintf("added TKGS data values to secret %s/%s", remoteSecret.Namespace, remoteSecret.Name))
+			} else {
+				r.Log.Info(fmt.Sprintf("skip adding TKGS data values to secret %s/%s because %s/%s is not a TKGS cluster", remoteSecret.Namespace, remoteSecret.Name, cluster.Namespace, cluster.Name))
 			}
 		}
 
@@ -1096,64 +1095,85 @@ func (r *ClusterBootstrapReconciler) watchProvider(providerRef *corev1.TypedLoca
 // - string: The secret name which references to the Secret CR on mgmt cluster under a particular cluster namespace.
 // - error: whether there is error when getting the secret name.
 func (r *ClusterBootstrapReconciler) GetDataValueSecretNameFromBootstrapPackage(cbPkg *runtanzuv1alpha3.ClusterBootstrapPackage, cluster *clusterapiv1beta1.Cluster) (string, error) {
-	// When valuesFrom is nil, we interpret it as no data values are needed for the package installation.
-	if cbPkg.ValuesFrom == nil {
-		r.Log.Info(fmt.Sprintf("no data values are provided to the ClusterBootstrapPackage.ValuesFrom field. ClusterBootstrapPackage.RefName: %s", cbPkg.RefName))
-		return "", nil
+	var (
+		packageRefName string
+		err            error
+	)
+
+	packageRefName, _, err = util.GetPackageMetadata(r.context, r.aggregatedAPIResourcesClient, cbPkg.RefName, cluster.Namespace)
+	if packageRefName == "" || err != nil {
+		// Package.Spec.RefName and Package.Spec.Version are required fields for Package CR. We do not expect them to be
+		// empty and error should not happen when fetching them from a Package CR.
+		r.Log.Error(err, fmt.Sprintf("unable to fetch Package.Spec.RefName or Package.Spec.Version from Package %s/%s",
+			cluster.Namespace, cbPkg.RefName))
+		return "", err
 	}
 
-	if cbPkg.ValuesFrom.Inline != nil {
-		packageRefName, _, err := util.GetPackageMetadata(r.context, r.aggregatedAPIResourcesClient, cbPkg.RefName, cluster.Namespace)
-		if packageRefName == "" || err != nil {
-			// Package.Spec.RefName and Package.Spec.Version are required fields for Package CR. We do not expect them to be
-			// empty and error should not happen when fetching them from a Package CR.
-			r.Log.Error(err, fmt.Sprintf("unable to fetch Package.Spec.RefName or Package.Spec.Version from Package %s/%s",
-				cluster.Namespace, cbPkg.RefName))
-			return "", err
+	if cbPkg.ValuesFrom != nil {
+		if cbPkg.ValuesFrom.Inline != nil {
+			packageSecretName := util.GeneratePackageSecretName(cluster.Name, packageRefName)
+			secret := &corev1.Secret{}
+			key := client.ObjectKey{Namespace: cluster.Namespace, Name: packageSecretName}
+			if err = r.Get(r.context, key, secret); err != nil {
+				r.Log.Error(err, "unable to fetch secret for package with inline config", "objectkey", key)
+				return "", err
+			}
+			return packageSecretName, nil
 		}
-		packageSecretName := util.GeneratePackageSecretName(cluster.Name, packageRefName)
-		secret := &corev1.Secret{}
-		key := client.ObjectKey{Namespace: cluster.Namespace, Name: packageSecretName}
-		if err := r.Get(r.context, key, secret); err != nil {
-			r.Log.Error(err, "unable to fetch secret for package with inline config", "objectkey", key)
-			return "", err
-		}
-		return packageSecretName, nil
-	}
 
-	if cbPkg.ValuesFrom.SecretRef != "" {
-		return cbPkg.ValuesFrom.SecretRef, nil
-	}
+		if cbPkg.ValuesFrom.SecretRef != "" {
+			return cbPkg.ValuesFrom.SecretRef, nil
+		}
 
-	if cbPkg.ValuesFrom.ProviderRef != nil {
-		gvr, err := r.getGVR(schema.GroupKind{Group: *cbPkg.ValuesFrom.ProviderRef.APIGroup, Kind: cbPkg.ValuesFrom.ProviderRef.Kind})
+		if cbPkg.ValuesFrom.ProviderRef != nil {
+			gvr, err := r.getGVR(schema.GroupKind{Group: *cbPkg.ValuesFrom.ProviderRef.APIGroup, Kind: cbPkg.ValuesFrom.ProviderRef.Kind})
+			if err != nil {
+				r.Log.Error(err, "unable to get GVR")
+				return "", err
+			}
+			provider, err := r.dynamicClient.Resource(*gvr).Namespace(cluster.Namespace).Get(r.context, cbPkg.ValuesFrom.ProviderRef.Name, metav1.GetOptions{}, "status")
+			if err != nil {
+				r.Log.Error(err, "unable to fetch provider", "GVR", gvr)
+				return "", err
+			}
+			secretName, found, err := unstructured.NestedString(provider.UnstructuredContent(), "status", "secretRef")
+			if err != nil {
+				r.Log.Error(err, "unable to fetch secretRef in provider", "GVR", gvr)
+				return "", err
+			}
+			if !found {
+				// In this case, we expect the secretRef to be present under status subresource and its value gets updated by
+				// the corresponding controller. However, the config controller might not create the secret in time.
+				r.Log.Info("provider status does not have secretRef", "GVR", gvr)
+				return "", nil
+			}
+			return secretName, nil
+		}
+	} else { // if cbPkg.ValuesFrom == nil
+		// When valuesFrom is nil, we still need to create data values secret for vsphere infrastructure in TKGs
+		infraRef, err := util.GetInfraProvider(cluster)
 		if err != nil {
-			r.Log.Error(err, "unable to get GVR")
 			return "", err
 		}
-		provider, err := r.dynamicClient.Resource(*gvr).Namespace(cluster.Namespace).Get(r.context, cbPkg.ValuesFrom.ProviderRef.Name, metav1.GetOptions{}, "status")
-		if err != nil {
-			r.Log.Error(err, "unable to fetch provider", "GVR", gvr)
-			return "", err
+		if infraRef == tkgconstants.InfrastructureProviderVSphere {
+			ok, err := util.IsTKGSCluster(r.context, r.dynamicClient, r.cachedDiscoveryClient, cluster)
+			if err != nil {
+				return "", err
+			}
+			if ok {
+				packageSecretName, err := r.generateSecretForPackagesWithEmptyValuesFrom(cbPkg, cluster, packageRefName)
+				if err != nil {
+					return "", err
+				}
+				return packageSecretName, nil
+			}
 		}
-		secretName, found, err := unstructured.NestedString(provider.UnstructuredContent(), "status", "secretRef")
-		if err != nil {
-			r.Log.Error(err, "unable to fetch secretRef in provider", "GVR", gvr)
-			return "", err
-		}
-		if !found {
-			// In this case, we expect the secretRef to be present under status subresource and its value gets updated by
-			// the corresponding controller. However, the config controller might not create the secret in time.
-			r.Log.Info("provider status does not have secretRef", "GVR", gvr)
-			return "", nil
-		}
-		return secretName, nil
 	}
 
 	// When valuesFrom is not nil, but either valuesFrom.Inline, valuesFrom.SecretRef, or valuesFrom.providerRef is empty or nil,
 	// we interpret it as the data value secret for that package has not been available yet. One of those three fields needs
 	// to be provided either by the user or the controller.
-	err := fmt.Errorf("unable to get the data value secret name from the ClusterBootstrapPackage.ValuesFrom field. "+
+	err = fmt.Errorf("unable to get the data value secret name from the ClusterBootstrapPackage.ValuesFrom field. "+
 		"ClusterBootstrapPackage.RefName: %s. One of the fields under ClusterBootstrapPackage.ValuesFrom is empty or nil",
 		cbPkg.RefName)
 	// The message in err object has sufficient information
@@ -1379,4 +1399,47 @@ func (r *ClusterBootstrapReconciler) removeAdditionalPackageInstalls(remoteClien
 		}
 	}
 	return nil
+}
+
+func (r *ClusterBootstrapReconciler) generateSecretForPackagesWithEmptyValuesFrom(cbPkg *runtanzuv1alpha3.ClusterBootstrapPackage, cluster *clusterapiv1beta1.Cluster, packageRefName string) (string, error) {
+	clusterBootstrap := &runtanzuv1alpha3.ClusterBootstrap{}
+	if err := r.Client.Get(r.context, client.ObjectKeyFromObject(cluster), clusterBootstrap); err != nil {
+		return "", err
+	}
+
+	packageSecret := &corev1.Secret{}
+	packageSecret.Name = util.GeneratePackageSecretName(cluster.Name, packageRefName)
+	packageSecret.Namespace = cluster.Namespace
+
+	if _, err := controllerutil.CreateOrPatch(r.context, r.Client, packageSecret, func() error {
+		packageSecret.Data = map[string][]byte{}
+
+		packageSecret.OwnerReferences = []metav1.OwnerReference{
+			{
+				APIVersion: clusterapiv1beta1.GroupVersion.String(),
+				Kind:       cluster.Kind,
+				Name:       cluster.Name,
+				UID:        cluster.UID,
+			},
+			{
+				APIVersion:         runtanzuv1alpha3.GroupVersion.String(),
+				Kind:               "ClusterBootstrap",
+				Name:               clusterBootstrap.Name,
+				UID:                clusterBootstrap.UID,
+				Controller:         pointer.BoolPtr(true),
+				BlockOwnerDeletion: pointer.BoolPtr(true),
+			},
+		}
+
+		// Set secret.Type to ClusterBootstrapManagedSecret to enable clusterbootstrap_controller to Watch these secrets
+		packageSecret.Type = constants.ClusterBootstrapManagedSecret
+
+		return nil
+	}); err != nil {
+		r.Log.Error(err, "error creating or patching addon package secret")
+		return "", err
+	}
+
+	r.Log.Info(fmt.Sprintf("created secret %v for ClusterBootstrapPackage.RefName: %s", packageSecret.Name, cbPkg.RefName))
+	return packageSecret.Name, nil
 }

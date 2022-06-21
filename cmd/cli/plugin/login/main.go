@@ -1,10 +1,12 @@
-// Copyright 2021 VMware, Inc. All Rights Reserved.
+// Copyright 2021-2022 VMware, Inc. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
 package main
 
 import (
+	"crypto/tls"
 	"fmt"
+	"net/http"
 	"net/url"
 	"os"
 	"sort"
@@ -21,6 +23,7 @@ import (
 	configv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/config/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/auth/csp"
 	tkgauth "github.com/vmware-tanzu/tanzu-framework/pkg/v1/auth/tkg"
+	wcpauth "github.com/vmware-tanzu/tanzu-framework/pkg/v1/auth/wcp"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/command/plugin"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/component"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/pluginmanager"
@@ -296,9 +299,12 @@ func createServerWithKubeconfig() (server *configv1alpha1.Server, err error) {
 		err = fmt.Errorf("server %q already exists", name)
 		return
 	}
+
+	endpointType := configv1alpha1.ManagementClusterServerType
+
 	server = &configv1alpha1.Server{
 		Name: name,
-		Type: configv1alpha1.ManagementClusterServerType,
+		Type: endpointType,
 		ManagementClusterOpts: &configv1alpha1.ManagementClusterServer{
 			Path:     kubeConfig,
 			Context:  kubecontext,
@@ -348,11 +354,31 @@ func createServerWithEndpoint() (server *configv1alpha1.Server, err error) {
 			GlobalOpts: &configv1alpha1.GlobalServer{Endpoint: sanitizeEndpoint(endpoint)},
 		}
 	} else {
-		kubeConfig, kubecontext, err = tkgauth.KubeconfigWithPinnipedAuthLoginPlugin(endpoint, nil)
+		// While this would add an extra HTTP round trip, it avoids the need to
+		// add extra provider specific login flags.
+		isVSphereSupervisor, err := wcpauth.IsVSphereSupervisor(endpoint, getDiscoveryHTTPClient())
+		// Fall back to assuming non vSphere supervisor.
 		if err != nil {
-			log.Fatalf("Error creating kubeconfig with tanzu pinniped-auth login plugin: %v", err)
-			return nil, err
+			// IsSupervisorClusterIgnorePort only returns an error if the
+			// underlying HTTP GET returned one. Non-200 responses will return
+			// nil errors.
+			log.Warning("Unable to determine if endpoint was a vSphere Supervisor")
 		}
+		if isVSphereSupervisor {
+			log.Info("Detected a vSphere Supervisor being used")
+			kubeConfig, kubecontext, err = vSphereSupervisorLogin(endpoint)
+			if err != nil {
+				log.Fatalf("Error logging in to vSphere Supervisor: %v", err)
+				return nil, err
+			}
+		} else {
+			kubeConfig, kubecontext, err = tkgauth.KubeconfigWithPinnipedAuthLoginPlugin(endpoint, nil, tkgauth.DiscoveryStrategy{ClusterInfoConfigMap: tkgauth.DefaultClusterInfoConfigMap})
+			if err != nil {
+				log.Fatalf("Error creating kubeconfig with tanzu pinniped-auth login plugin: %v", err)
+				return nil, err
+			}
+		}
+
 		server = &configv1alpha1.Server{
 			Name: name,
 			Type: configv1alpha1.ManagementClusterServerType,
@@ -457,6 +483,7 @@ func managementClusterLogin(s *configv1alpha1.Server) error {
 		if err != nil {
 			return err
 		}
+		// XXX s.Name isn't necessarily a kubeconfig?
 		log.Successf("successfully logged in to management cluster using the kubeconfig %s", s.Name)
 		return nil
 	}
@@ -478,4 +505,27 @@ func getDefaultKubeconfigPath() string {
 		kubeConfigFilename = clientcmd.RecommendedHomeFile
 	}
 	return kubeConfigFilename
+}
+
+func getDiscoveryHTTPClient() *http.Client {
+	// XXX: Insecure, but follows the existing tanzu login discovery patterns. If
+	// there's something tracking not TOFUing, it might be good to follow that
+	// eventually.
+	tr := &http.Transport{
+		// #nosec
+		TLSClientConfig:     &tls.Config{InsecureSkipVerify: true},
+		Proxy:               http.ProxyFromEnvironment,
+		TLSHandshakeTimeout: 5 * time.Second,
+	}
+	return &http.Client{Transport: tr}
+}
+
+func vSphereSupervisorLogin(endpoint string) (mergeFilePath, currentContext string, err error) {
+	port := 443
+	kubeConfig, kubecontext, err := tkgauth.KubeconfigWithPinnipedAuthLoginPlugin(endpoint, nil, tkgauth.DiscoveryStrategy{DiscoveryPort: &port, ClusterInfoConfigMap: wcpauth.SupervisorVIPConfigMapName})
+	if err != nil {
+		log.Fatalf("Error creating kubeconfig with tanzu pinniped-auth login plugin: %v", err)
+		return "", "", err
+	}
+	return kubeConfig, kubecontext, err
 }

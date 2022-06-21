@@ -1,4 +1,4 @@
-// Copyright 2021 VMware, Inc. All Rights Reserved.
+// Copyright 2021-2022 VMware, Inc. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
 package client
@@ -52,6 +52,7 @@ func (c *TkgClient) GetClusterPinnipedInfo(options GetClusterPinnipedInfoOptions
 		return nil, errors.Wrap(err, "error determining 'Tanzu Kubernetes Cluster service for vSphere' management cluster")
 	}
 	if isPacific {
+		// XXX: Override this path? (is there existing work to remove these pacific specific conditionals?)
 		return nil, errors.New("getting pinniped information not supported for 'Tanzu Kubernetes Cluster service for vSphere' cluster")
 	}
 
@@ -75,7 +76,7 @@ func (c *TkgClient) GetWCClusterPinnipedInfo(regionalClusterClient clusterclient
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get management cluster information")
 	}
-	managementClusterPinnipedInfo, err := utils.GetPinnipedInfoFromCluster(mcClusterInfo)
+	managementClusterPinnipedInfo, err := utils.GetPinnipedInfoFromCluster(mcClusterInfo, nil)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get pinniped-info from management cluster")
 	}
@@ -83,7 +84,7 @@ func (c *TkgClient) GetWCClusterPinnipedInfo(regionalClusterClient clusterclient
 		return nil, errors.New("failed to get pinniped-info from management cluster")
 	}
 
-	workloadClusterPinnipedInfo, err := utils.GetPinnipedInfoFromCluster(wcClusterInfo)
+	workloadClusterPinnipedInfo, err := utils.GetPinnipedInfoFromCluster(wcClusterInfo, nil)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get pinniped-info from workload cluster")
 	}
@@ -112,7 +113,7 @@ func (c *TkgClient) GetMCClusterPinnipedInfo(regionalClusterClient clusterclient
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get cluster information")
 	}
-	pinnipedInfo, err := utils.GetPinnipedInfoFromCluster(clusterInfo)
+	pinnipedInfo, err := utils.GetPinnipedInfoFromCluster(clusterInfo, nil)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get pinniped-info from cluster")
 	}

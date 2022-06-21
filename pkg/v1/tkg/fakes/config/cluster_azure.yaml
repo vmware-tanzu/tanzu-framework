@@ -1,0 +1,167 @@
+apiVersion: cluster.x-k8s.io/v1beta1
+kind: Cluster
+metadata:
+  annotations:
+    osInfo: ubuntu,18.04,amd64
+  labels:
+    tanzuKubernetesRelease: v0.0.0---marketplace-image
+    tkg.tanzu.vmware.com/cluster-name: testcluster
+  name: azure-workload-cluster1
+  namespace: namespace-test1
+spec:
+  clusterNetwork:
+    pods:
+      cidrBlocks: #CLUSTER_CIDR
+        - 10.10.10.10/18
+    services:
+      cidrBlocks: #SERVICE_CIDR
+        - 10.10.10.10/16
+  topology:
+    class: tkg-azure-default #CLUSTER_CLASS
+    controlPlane:
+      replicas: 5 #CONTROL_PLANE_MACHINE_COUNT
+    variables:
+      - name: network
+        value:
+          ipv6Primary: false #TKG_IP_FAMILY (if true expect TKG_IP_FAMILY="ipv6,ipv4")
+          proxy: #TKG_HTTP_PROXY_ENABLED (under this if any value is not null then set TKG_HTTP_PROXY_ENABLED)
+            httpProxy: http://10.0.200.100 #TKG_HTTP_PROXY
+            httpsProxy: http://10.0.200.100 #TKG_HTTPS_PROXY
+            noProxy: #TKG_NO_PROXY
+              - 127.0.0.1
+              - 100.64.0.0/18
+              - 10.0.0.0/16
+              - 169.254.0.0/16
+              - .svc.cluster.local
+              - .svc
+              - localhost
+          vnet:
+            cidrBlocks: #AZURE_VNET_CIDR
+              - 10.0.0.0/8
+              - 10.0.0.0/16
+            name: azure-vnet-name #AZURE_VNET_NAME
+            resourceGroup: azure-vnet-resource-group #AZURE_VNET_RESOURCE_GROUP
+      - name: imageRepository
+        value:
+          host: imageRepositoryHost #TKG_CUSTOM_IMAGE_REPOSITORY
+          tlsCertificateValidation: true #TKG_CUSTOM_IMAGE_REPOSITORY_SKIP_TLS_VERIFY
+      - name: clusterRole #TKG_CLUSTER_ROLE
+        value: workload
+      - name: auditLogging
+        value:
+          enabled: false #ENABLE_AUDIT_LOGGING
+      - name: trust
+        value:
+          - name: proxy
+            data: trust.proxy.val #TKG_PROXY_CA_CERT
+          - name: imageRepository
+            data: trust.imageRepository.val #TKG_CUSTOM_IMAGE_REPOSITORY_CA_CERTIFICATE
+      - name: apiServerPort
+        value: 9090 #CLUSTER_API_SERVER_PORT
+      - name: location #AZURE_LOCATION
+        value: westus
+      - name: resourceGroup #AZURE_RESOURCE_GROUP
+        value: ""
+      - name: subscriptionID #AZURE_SUBSCRIPTION_ID
+        value: 6c2a2ce1-649f-9d9k-a19c-c729h3cf6126
+      - name: environment #AZURE_ENVIRONMENT
+        value: AzurePublicCloud
+      - name: sshPublicKey #AZURE_SSH_PUBLIC_KEY_B64
+        value: c3NoLXJzYSBB
+      - name: frontendPrivateIP #AZURE_FRONTEND_PRIVATE_IP
+        value: 22.22.22.22
+      - name: customTags #AZURE_CUSTOM_TAGS
+        value: azureCustomTagsValue
+      - name: acceleratedNetworking #AZURE_ENABLE_ACCELERATED_NETWORKING
+        value:
+          enabled: true
+      - name: privateCluster #AZURE_ENABLE_PRIVATE_CLUSTER
+        value:
+          enabled: false
+      - name: identityRef
+        value:
+          name: test-identity1 #AZURE_IDENTITY_NAME
+          namespace: test-ns1 #AZURE_IDENTITY_NAMESPACE
+      - name: controlPlane
+        value:
+          vmSize: i3.xlarge #AZURE_CONTROL_PLANE_MACHINE_TYPE
+          dataDisks:
+            - sizeGiB: 256 #AZURE_CONTROL_PLANE_DATA_DISK_SIZE_GIB
+          osDisk:
+            sizeGiB: 128 #AZURE_CONTROL_PLANE_OS_DISK_SIZE_GIB
+            storageAccountType: Premium_LRS #AZURE_CONTROL_PLANE_OS_DISK_STORAGE_ACCOUNT_TYPE
+          subnet:
+            name: subnetName #AZURE_CONTROL_PLANE_SUBNET_NAME
+            cidr: 10.0.0.0/24 #AZURE_CONTROL_PLANE_SUBNET_CIDR
+            securityGroup: SecurityGroup #AZURE_CONTROL_PLANE_SUBNET_SECURITY_GROUP
+          outboundLB:
+            enabled: true #AZURE_ENABLE_CONTROL_PLANE_OUTBOUND_LB
+            frontendIPCount: 3 #AZURE_CONTROL_PLANE_OUTBOUND_LB_FRONTEND_IP_COUNT
+      - name: worker
+        value:
+          vmSize: m5.xlarge #AZURE_NODE_MACHINE_TYPE
+          osDisk:
+            sizeGiB: 128 #AZURE_NODE_OS_DISK_SIZE_GIB
+            storageAccountType: Premium_LRS #AZURE_NODE_OS_DISK_STORAGE_ACCOUNT_TYPE
+          dataDisks:
+            - sizeGiB: 256 #AZURE_NODE_DATA_DISK_SIZE_GIB
+          subnet:
+            name: workerSubnetName #AZURE_NODE_SUBNET_NAME
+            cidr: 10.1.0.0/16 #AZURE_NODE_SUBNET_CIDR
+            securityGroup: SecurityGroup #AZURE_NODE_SUBNET_SECURITY_GROUP
+          outboundLB:
+            enabled: true #AZURE_ENABLE_NODE_OUTBOUND_LB
+            frontendIPCount: 1 #AZURE_NODE_OUTBOUND_LB_FRONTEND_IP_COUNT
+            idleTimeoutInMinutes: 8 #AZURE_NODE_OUTBOUND_LB_IDLE_TIMEOUT_IN_MINUTES
+
+      - name: TKR_DATA
+        value:
+          v1.23.5+vmware.1:
+            kubernetesSpec:
+              coredns:
+                imageTag: v1.8.6_vmware.5
+              etcd:
+                imageTag: v3.5.2_vmware.4
+              imageRepository: projects.registry.vmware.com/tkg
+              version: v1.23.5+vmware.1
+            labels:
+              os-arch: amd64
+              os-name: ubuntu
+              os-type: linux
+            osImageRef:
+              offer: dummy-offer
+              publisher: dummy-publisher
+              sku: dummy-sku
+              thirdPartyImage: dummy-third-party-image
+              version: dummy-version
+    version: v1.23.5+vmware.1 #KUBERNETES_VERSION
+
+    workers:
+      machineDeployments:
+        - class: tkg-worker
+          failureDomain: us-east-1a #AZURE_NODE_AZ
+          metadata:
+            annotations:
+              run.tanzu.vmware.com/resolve-os-image: ami-region=us-east-1,os-name=ubuntu
+          name: md-0
+          replicas: 1 #WORKER_MACHINE_COUNT_0
+        - class: tkg-worker
+          failureDomain: us-east-1b #AZURE_NODE_AZ_1
+          name: md-1
+          replicas: 2 #WORKER_MACHINE_COUNT_1
+          variables:
+            overrides:
+              - name: worker
+                value:
+                  vmSize: worker1 # NODE_MACHINE_TYPE_1
+        - class: tkg-worker
+          failureDomain: us-east-1c #AZURE_NODE_AZ_2
+          name: md-2
+          replicas: 3 #WORKER_MACHINE_COUNT_2
+          variables:
+            overrides:
+              - name: worker
+                value:
+                  vmSize: worker2 # NODE_MACHINE_TYPE_2
+---
+

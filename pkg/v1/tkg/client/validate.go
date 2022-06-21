@@ -1481,14 +1481,17 @@ func (c *TkgClient) EncodeAWSCredentialsAndGetClient(clusterClient clusterclient
 
 // ValidatePacificVersionWithCLI validate Pacific TKC API version with cli version
 func (c *TkgClient) ValidatePacificVersionWithCLI(regionalClusterClient clusterclient.Client) error {
-	tkcAPIVersion, err := regionalClusterClient.GetPacificTKCAPIVersion()
-	if err != nil {
-		return errors.Wrap(err, "error determining the Tanzu Kubernetes Cluster API version")
-	}
-	if tkcAPIVersion != constants.DefaultPacificClusterAPIVersion {
-		return errors.Errorf("Only %q Tanzu Kubernetes Cluster API version is supported by current version of Tanzu CLI. Please upgrade 'Tanzu Kubernetes Cluster service for vSphere' to latest version if you are using older version",
-			constants.DefaultPacificClusterAPIVersion)
-	}
+	/*
+		TODO: (chandrareddyp) we need revisit below API Version validation, for now we disabled it.
+		tkcAPIVersion, err := regionalClusterClient.GetPacificTKCAPIVersion()
+		if err != nil {
+			return errors.Wrap(err, "error determining the Tanzu Kubernetes Cluster API version")
+		}
+		if tkcAPIVersion != constants.DefaultPacificClusterAPIVersion {
+			return errors.Errorf("Only %q Tanzu Kubernetes Cluster API version is supported by current version of Tanzu CLI. Please upgrade 'Tanzu Kubernetes Cluster service for vSphere' to latest version if you are using older version",
+				constants.DefaultPacificClusterAPIVersion)
+		}
+	*/
 	return nil
 }
 
@@ -1556,10 +1559,14 @@ func (c *TkgClient) getFullTKGNoProxy(providerName string) (string, error) {
 	noProxyMap[constants.LocalHostIP] = true
 
 	if serviceCIDR, _ := c.TKGConfigReaderWriter().Get(constants.ConfigVariableServiceCIDR); serviceCIDR != "" {
-		noProxyMap[serviceCIDR] = true
+		for _, np := range strings.Split(serviceCIDR, ",") {
+			noProxyMap[np] = true
+		}
 	}
 	if clusterCIDR, _ := c.TKGConfigReaderWriter().Get(constants.ConfigVariableClusterCIDR); clusterCIDR != "" {
-		noProxyMap[clusterCIDR] = true
+		for _, np := range strings.Split(clusterCIDR, ",") {
+			noProxyMap[np] = true
+		}
 	}
 	if ipfamily, _ := c.TKGConfigReaderWriter().Get(constants.ConfigVariableIPFamily); ipfamily == constants.IPv6Family {
 		noProxyMap[constants.LocalHostIPv6] = true
@@ -1570,7 +1577,18 @@ func (c *TkgClient) getFullTKGNoProxy(providerName string) (string, error) {
 			noProxyMap[np] = true
 		}
 	}
-	// below provider specific no proxies has not been checked into tkg-cli-providers yet
+	// update provider specific no proxies has not been checked into tkg-cli-providers yet
+	err := c.updateProviderSpecificNoProxy(providerName, noProxyMap)
+
+	noProxyList := []string{}
+	for np := range noProxyMap {
+		noProxyList = append(noProxyList, np)
+	}
+	return strings.Join(noProxyList, ","), err
+}
+
+// updateProviderSpecificNoProxy updates provider specific no proxies to given input map
+func (c *TkgClient) updateProviderSpecificNoProxy(providerName string, noProxyMap map[string]bool) error {
 	switch providerName {
 	case constants.InfrastructureProviderAWS:
 		if vpcCIDR, _ := c.TKGConfigReaderWriter().Get(constants.ConfigVariableAWSVPCCIDR); vpcCIDR != "" {
@@ -1579,7 +1597,9 @@ func (c *TkgClient) getFullTKGNoProxy(providerName string) (string, error) {
 		noProxyMap[constants.LinkLocalAddress] = true
 	case constants.InfrastructureProviderAzure:
 		if vnetCIDR, _ := c.TKGConfigReaderWriter().Get(constants.ConfigVariableAzureVnetCidr); vnetCIDR != "" {
-			noProxyMap[vnetCIDR] = true
+			for _, np := range strings.Split(vnetCIDR, ",") {
+				noProxyMap[np] = true
+			}
 		}
 		noProxyMap[constants.LinkLocalAddress] = true
 		noProxyMap[constants.AzurePublicVIP] = true
@@ -1587,18 +1607,11 @@ func (c *TkgClient) getFullTKGNoProxy(providerName string) (string, error) {
 		var dockerBridgeCidr string
 		var err error
 		if dockerBridgeCidr, err = getDockerBridgeNetworkCidr(); err != nil {
-			return "", err
+			return err
 		}
 		noProxyMap[dockerBridgeCidr] = true
 	}
-
-	noProxyList := []string{}
-
-	for np := range noProxyMap {
-		noProxyList = append(noProxyList, np)
-	}
-
-	return strings.Join(noProxyList, ","), nil
+	return nil
 }
 
 func (c *TkgClient) configureVsphereCredentialsFromCluster(clusterClient clusterclient.Client) error {

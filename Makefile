@@ -23,7 +23,6 @@ TOOLS_BIN_DIR := $(TOOLS_DIR)/bin
 BIN_DIR := bin
 ADDONS_DIR := addons
 YTT_TESTS_DIR := pkg/v1/providers/tests
-PACKAGE_TOOLING_DIR := hack/packages/package-tools
 PACKAGES_SCRIPTS_DIR := $(abspath hack/packages/scripts)
 UI_DIR := pkg/v1/tkg/web
 GO_MODULES=$(shell find . -path "*/go.mod" | grep -v "^./pinniped" | xargs -I _ dirname _)
@@ -152,10 +151,10 @@ help: ## Display this help (default)
 
 all: manager ui-build build-cli
 
-manager: generate fmt vet ## Build manager binary
+manager: generate ## Build manager binary
 	$(GO) build -ldflags "$(LD_FLAGS)" -o bin/manager main.go
 
-run: generate fmt vet manifests ## Run against the configured Kubernetes cluster in ~/.kube/config
+run: generate manifests ## Run against the configured Kubernetes cluster in ~/.kube/config
 	$(GO) run -ldflags "$(LD_FLAGS)" ./main.go
 
 install: manifests tools ## Install CRDs into a cluster
@@ -472,7 +471,7 @@ release-%: ## Create release for a platform
 ## --------------------------------------
 
 .PHONY: test
-test: generate fmt vet manifests build-cli-mocks ## Run tests
+test: generate manifests build-cli-mocks ## Run tests
 	## Skip running TKG integration tests
 	$(MAKE) ytt -C $(TOOLS_DIR)
 
@@ -486,7 +485,8 @@ test: generate fmt vet manifests build-cli-mocks ## Run tests
 	echo "... ytt cluster template verification complete!"
 
 	echo "Verifying package tests..."
-	find ./packages/ -name "test" -type d -exec sh -c "cd {} && $(GO) test -coverprofile coverage2.txt -v -timeout 120s  ./..." \;
+	find ./packages/ -name "test" -type d | \
+		xargs -n1  -I {} bash -c 'cd {} && PATH=$(abspath hack/tools/bin):"$(PATH)" $(GO) test -coverprofile coverage2.txt -v -timeout 120s ./...' \;
 	echo "... package tests complete!"
 
 	PATH=$(abspath hack/tools/bin):"$(PATH)" $(GO) test -coverprofile coverage3.txt -v `go list ./... | grep -v github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/test`
@@ -506,9 +506,6 @@ test-cli: build-cli-mocks ## Run tests
 fmt: tools ## Run goimports
 	$(GOIMPORTS) -w -local github.com/vmware-tanzu ./
 
-vet: ## Run go vet
-	$(GO) vet ./...
-
 lint: tools go-lint doc-lint misspell yamllint ## Run linting and misspell checks
 	# Check licenses in shell scripts and Makefiles
 	hack/check-license.sh
@@ -527,8 +524,14 @@ go-lint: tools ## Run linting of go source
 		popd; \
 	done
 
-	# Linting for package tooling
-	cd $(PACKAGE_TOOLING_DIR); $(GOLANGCI_LINT) run -v
+	# Prevent use of deprecated ioutils module
+	@CHECK=$$(grep -r --include="*.go" --exclude-dir="pinniped" --exclude="zz_generated*" ioutil .); \
+	if [ -n "$${CHECK}" ]; then \
+		echo "ioutil is deprecated, use io or os replacements"; \
+		echo "https://go.dev/doc/go1.16#ioutil"; \
+		echo "$${CHECK}"; \
+		exit 1; \
+	fi
 
 doc-lint: tools ## Run linting checks for docs
 	$(VALE) --config=.vale/config.ini --glob='*.md' ./
@@ -548,6 +551,8 @@ modules: ## Runs go mod to ensure modules are up to date.
 
 .PHONY: verify
 verify: modules ## Run all verification scripts
+verify: ## Run all verification scripts
+	./packages/tkg-clusterclass/hack/sync-cc.sh
 	./hack/verify-dirty.sh
 
 .PHONY: clean-catalog-cache
@@ -705,7 +710,7 @@ e2e-tkgpackageclient-docker: $(GINKGO) generate-embedproviders ## Run ginkgo tkg
 # These are the components in this repo that need to have a docker image built.
 # This variable refers to directory paths that contain a Makefile with `docker-build`, `docker-publish` and
 # `kbld-image-replace` targets that can build and push a docker image for that component.
-COMPONENTS :=  \
+COMPONENTS ?=  \
   pkg/v2/tkr/controller/tkr-source \
   pkg/v2/tkr/controller/tkr-status \
   pkg/v1/sdk/features \

@@ -1,4 +1,4 @@
-// Copyright 2021 VMware, Inc. All Rights Reserved.
+// Copyright 2021-2022 VMware, Inc. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
 package tkgauth
@@ -41,8 +41,11 @@ const (
 	// TanzuKubeconfigFile is the name the of the kubeconfig file
 	TanzuKubeconfigFile = "config"
 
-	// DefaultPinnipedLoginTimeout default login timeout
+	// DefaultPinnipedLoginTimeout is the default login timeout
 	DefaultPinnipedLoginTimeout = time.Minute
+
+	// DefaultClusterInfoConfigMap is the default ConfigMap looked up in the kube-public namespace when generating a kubeconfig.
+	DefaultClusterInfoConfigMap = "cluster-info"
 )
 
 // KubeConfigOptions contains the kubeconfig options
@@ -50,15 +53,23 @@ type KubeConfigOptions struct {
 	MergeFilePath string
 }
 
+// A DiscoveryStrategy contains information about how various discovery
+// information should be looked up from an endpoint when setting up a
+// kubeconfig.
+type DiscoveryStrategy struct {
+	DiscoveryPort        *int
+	ClusterInfoConfigMap string
+}
+
 // KubeconfigWithPinnipedAuthLoginPlugin prepares the kubeconfig with tanzu pinniped-auth login as client-go exec plugin
-func KubeconfigWithPinnipedAuthLoginPlugin(endpoint string, options *KubeConfigOptions) (mergeFilePath, currentContext string, err error) {
-	clusterInfo, err := tkgutils.GetClusterInfoFromCluster(endpoint)
+func KubeconfigWithPinnipedAuthLoginPlugin(endpoint string, options *KubeConfigOptions, discoveryStrategy DiscoveryStrategy) (mergeFilePath, currentContext string, err error) {
+	clusterInfo, err := tkgutils.GetClusterInfoFromCluster(endpoint, discoveryStrategy.ClusterInfoConfigMap)
 	if err != nil {
 		err = errors.Wrap(err, "failed to get cluster-info")
 		return
 	}
 
-	pinnipedInfo, err := tkgutils.GetPinnipedInfoFromCluster(clusterInfo)
+	pinnipedInfo, err := tkgutils.GetPinnipedInfoFromCluster(clusterInfo, discoveryStrategy.DiscoveryPort)
 	if err != nil {
 		err = errors.Wrap(err, "failed to get pinniped-info")
 		return
@@ -152,13 +163,18 @@ func GetPinnipedKubeconfig(cluster *clientcmdapi.Cluster, pinnipedInfo *tkgutils
 	execConfig.Command = "tanzu"
 	execConfig.Args = append([]string{"pinniped-auth", "login"}, execConfig.Args...)
 
+	conciergeEndpoint := pinnipedInfo.Data.ConciergeEndpoint
+	if conciergeEndpoint == "" {
+		conciergeEndpoint = cluster.Server
+	}
+
 	// configure concierge
 	execConfig.Args = append(execConfig.Args,
 		"--enable-concierge",
 		"--concierge-authenticator-name="+ConciergeAuthenticatorName,
 		"--concierge-authenticator-type="+ConciergeAuthenticatorType,
 		"--concierge-is-cluster-scoped="+strconv.FormatBool(pinnipedInfo.Data.ConciergeIsClusterScoped),
-		"--concierge-endpoint="+cluster.Server,
+		"--concierge-endpoint="+conciergeEndpoint,
 		"--concierge-ca-bundle-data="+base64.StdEncoding.EncodeToString(cluster.CertificateAuthorityData),
 		"--issuer="+pinnipedInfo.Data.Issuer, // configure OIDC
 		"--scopes="+PinnipedOIDCScopes,

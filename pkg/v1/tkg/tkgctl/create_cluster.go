@@ -57,14 +57,11 @@ func (t *tkgctl) CreateCluster(cc CreateClusterOptions) error {
 	if cc.GenerateOnly {
 		return t.ConfigCluster(cc)
 	}
-	isInputFileClusterClassBased := false
-	isTKGSCluster := false
-	var err error
-	isInputFileClusterClassBased, err = t.processWorkloadClusterInputFile(&cc)
+	isTKGSCluster, err := t.tkgClient.IsPacificManagementCluster()
 	if err != nil {
-		return err
+		return errors.Wrap(err, "unable to determine if management cluster is on vSphere with Tanzu")
 	}
-	isTKGSCluster, err = t.processManagementClusterForTKGSCluster(isInputFileClusterClassBased)
+	isInputFileClusterClassBased, err := t.processWorkloadClusterInputFile(&cc, isTKGSCluster)
 	if err != nil {
 		return err
 	}
@@ -95,11 +92,10 @@ func (t *tkgctl) CreateCluster(cc CreateClusterOptions) error {
 
 	defer t.restoreAfterSettingTimeout(cc.Timeout)()
 
-	options, err := t.getCreateClusterOptions(cc.ClusterName, &cc)
+	options, err := t.getCreateClusterOptions(cc.ClusterName, &cc, isInputFileClusterClassBased)
 	if err != nil {
 		return err
 	}
-	options.IsInputFileClusterClassBased = isInputFileClusterClassBased
 
 	if isTKGSCluster {
 		// For TKGS kubernetesVersion will be same as TkrVersion
@@ -146,57 +142,65 @@ func (t *tkgctl) processManagementClusterInputFile(ir *InitRegionOptions) (bool,
 			return isInputFileClusterClassBased, err
 		}
 		if isInputFileClusterClassBased {
-			t.processCClusterObjectForConfigurationVariables(clusterobj)
-			t.overrideManagementClusterOptionsWithCClusterConfigurationValues(ir)
+			err = t.processClusterObjectForConfigurationVariables(clusterobj)
+			if err != nil {
+				return isInputFileClusterClassBased, err
+			}
+			t.overrideManagementClusterOptionsWithLatestEnvironmentConfigurationValues(ir)
 		}
 	}
 	return isInputFileClusterClassBased, nil
 }
 
-func (t *tkgctl) processWorkloadClusterInputFile(cc *CreateClusterOptions) (bool, error) {
+func (t *tkgctl) processWorkloadClusterInputFile(cc *CreateClusterOptions, isTKGSCluster bool) (bool, error) {
 	var clusterobj unstructured.Unstructured
 	var err error
 	isInputFileClusterClassBased := false
-
 	if t.tkgClient.IsFeatureActivated(config.FeatureFlagPackageBasedLCM) {
 		isInputFileClusterClassBased, clusterobj, err = t.checkIfInputFileIsClusterClassBased(cc.ClusterConfigFile)
 		if err != nil {
 			return isInputFileClusterClassBased, err
 		}
 		if isInputFileClusterClassBased {
-			t.processCClusterObjectForConfigurationVariables(clusterobj)
-			t.overrideClusterOptionsWithCClusterConfigurationValues(cc)
+			if isTKGSCluster {
+				t.TKGConfigReaderWriter().Set(constants.ConfigVariableClusterName, clusterobj.GetName())
+				t.TKGConfigReaderWriter().Set(constants.ConfigVariableNamespace, clusterobj.GetNamespace())
+			} else {
+				err = t.processClusterObjectForConfigurationVariables(clusterobj)
+				if err != nil {
+					return isInputFileClusterClassBased, err
+				}
+			}
+			t.overrideClusterOptionsWithLatestEnvironmentConfigurationValues(cc)
 		}
+	}
+	err = t.validateTKGSClusterClassFeatureGate(isInputFileClusterClassBased, isTKGSCluster)
+	if err != nil {
+		return isInputFileClusterClassBased, err
 	}
 	return isInputFileClusterClassBased, nil
 }
 
-func (t *tkgctl) processManagementClusterForTKGSCluster(isInputFileClusterClassBased bool) (bool, error) {
-	isTKGSCluster, err := t.tkgClient.IsPacificManagementCluster()
-	if err != nil {
-		return isTKGSCluster, errors.Wrap(err, "unable to determine if management cluster is on vSphere with Tanzu")
-	}
-
-	if t.tkgClient.IsFeatureActivated(config.FeatureFlagPackageBasedLCM) {
-		if isInputFileClusterClassBased && isTKGSCluster {
-			isFeatureActivated, err := t.featureGateHelper.FeatureActivatedInNamespace(context.Background(), constants.CCFeature, constants.TKGSClusterClassNamespace)
-			if err != nil {
-				return isTKGSCluster, errors.Wrap(err, fmt.Sprintf("error while checking feature '%v' status in namespace '%v'", constants.CCFeature, constants.TKGSClusterClassNamespace))
-			}
-			if !isFeatureActivated {
-				return isTKGSCluster, fmt.Errorf("vSphere with Tanzu environment detected, however, the feature '%v' is not activated in '%v' namespace ", constants.CCFeature, constants.TKGSClusterClassNamespace)
-			}
+// validateTKGSClusterClassFeatureGate validates the TKGS clusterclass feature gate state
+func (t *tkgctl) validateTKGSClusterClassFeatureGate(isInputFileClusterClassBased, isTKGSCluster bool) error {
+	if t.tkgClient.IsFeatureActivated(config.FeatureFlagPackageBasedLCM) && isInputFileClusterClassBased && isTKGSCluster {
+		isFeatureActivated, err := t.featureGateHelper.FeatureActivatedInNamespace(context.Background(), constants.CCFeature, constants.TKGSClusterClassNamespace)
+		if err != nil {
+			return errors.Wrap(err, fmt.Sprintf(constants.ErrorMsgFeatureGateStatus, constants.CCFeature, constants.TKGSClusterClassNamespace))
+		}
+		if !isFeatureActivated {
+			return fmt.Errorf(constants.ErrorMsgFeatureGateNotActivated, constants.CCFeature, constants.TKGSClusterClassNamespace)
 		}
 	}
-	return isTKGSCluster, nil
+	return nil
 }
 
-func (t *tkgctl) getCreateClusterOptions(name string, cc *CreateClusterOptions) (client.CreateClusterOptions, error) {
+func (t *tkgctl) getCreateClusterOptions(name string, cc *CreateClusterOptions, isInputFileClusterClassBased bool) (client.CreateClusterOptions, error) {
 	providerRepositorySource := &clusterctl.ProviderRepositorySourceOptions{
 		InfrastructureProvider: cc.InfrastructureProvider,
 		Flavor:                 cc.Plan,
 	}
-	if cc.Plan == "" {
+	if !isInputFileClusterClassBased && cc.Plan == "" {
 		return client.CreateClusterOptions{}, errors.New("required config variable 'CLUSTER_PLAN' not set")
 	}
 
@@ -224,14 +228,15 @@ func (t *tkgctl) getCreateClusterOptions(name string, cc *CreateClusterOptions) 
 	}
 
 	return client.CreateClusterOptions{
-		ClusterConfigOptions:        configOptions,
-		NodeSizeOptions:             nodeSizeOptions,
-		CniType:                     cc.CniType,
-		VsphereControlPlaneEndpoint: cc.VsphereControlPlaneEndpoint,
-		ClusterOptionsEnableList:    clusterOptionsEnableList,
-		Edition:                     cc.Edition,
-		IsWindowsWorkloadCluster:    cc.IsWindowsWorkloadCluster,
-		ClusterConfigFile:           cc.ClusterConfigFile,
+		ClusterConfigOptions:         configOptions,
+		NodeSizeOptions:              nodeSizeOptions,
+		CniType:                      cc.CniType,
+		VsphereControlPlaneEndpoint:  cc.VsphereControlPlaneEndpoint,
+		ClusterOptionsEnableList:     clusterOptionsEnableList,
+		Edition:                      cc.Edition,
+		IsWindowsWorkloadCluster:     cc.IsWindowsWorkloadCluster,
+		ClusterConfigFile:            cc.ClusterConfigFile,
+		IsInputFileClusterClassBased: isInputFileClusterClassBased,
 	}, nil
 }
 

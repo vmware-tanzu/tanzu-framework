@@ -762,14 +762,14 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 		})
 	})
 
-	When("ClusterBootstrap is paused", func() {
+	When("cluster is created from clusterBootstrapTemplate", func() {
 		BeforeEach(func() {
 			clusterName = "test-cluster-tcbt-2"
 			clusterNamespace = "cluster-namespace-2"
 			clusterResourceFilePath = "testdata/test-cluster-bootstrap-2.yaml"
 		})
 		Context("from a ClusterBootstrapTemplate", func() {
-			It("should block ClusterBootstrap reconciliation if it is paused", func() {
+			It("should perform ClusterBootstrap reconciliation & block reconciliation if ClusterBootstrap gets paused", func() {
 
 				By("verifying CAPI cluster is created properly")
 				cluster := &clusterapiv1beta1.Cluster{}
@@ -792,6 +792,49 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 					}
 					return false
 				}, waitTimeout, pollingInterval).Should(BeTrue())
+
+				By("should create secret for packages with empty valuesFrom & corresponding data values secret in workload cluster.", func() {
+					remoteClient, err := util.GetClusterClient(ctx, k8sClient, scheme, clusterapiutil.ObjectKey(cluster))
+					Expect(err).NotTo(HaveOccurred())
+					Expect(remoteClient).NotTo(BeNil())
+
+					clusterBootstrapPackages := []*runtanzuv1alpha3.ClusterBootstrapPackage{
+						clusterBootstrap.Spec.CNI,
+						clusterBootstrap.Spec.CPI,
+						clusterBootstrap.Spec.CSI,
+						clusterBootstrap.Spec.Kapp,
+					}
+					clusterBootstrapPackages = append(clusterBootstrapPackages, clusterBootstrap.Spec.AdditionalPackages...)
+					for _, pkg := range clusterBootstrapPackages {
+						if pkg == nil || pkg.ValuesFrom != nil {
+							continue
+						}
+
+						localSecret := &corev1.Secret{}
+						Eventually(func() bool {
+							if err := k8sClient.Get(ctx,
+								client.ObjectKey{
+									Namespace: clusterNamespace,
+									Name:      util.GeneratePackageSecretName(cluster.Name, pkg.RefName),
+								}, localSecret); err != nil {
+								return false
+							}
+							return true
+						}, waitTimeout, pollingInterval).Should(BeTrue())
+
+						remoteSecret := &corev1.Secret{}
+						Eventually(func() bool {
+							if err := remoteClient.Get(ctx,
+								client.ObjectKey{
+									Namespace: constants.TKGSystemNS,
+									Name:      util.GenerateDataValueSecretName(cluster.Name, foobar2CarvelPackageRefName),
+								}, remoteSecret); err != nil {
+								return false
+							}
+							return true
+						}, waitTimeout, pollingInterval).Should(BeTrue())
+					}
+				})
 
 				By("Should have remote secret value same as foobar1secret secret value and should have created TKGS data values")
 				remoteClient, err := util.GetClusterClient(ctx, k8sClient, scheme, clusterapiutil.ObjectKey(cluster))
@@ -818,8 +861,8 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 					}
 					fmt.Println(string(valueTexts))
 					Expect(strings.Contains(string(valueTexts), "nodeSelector:\n    run.tanzu.vmware.com/tkr: v1.22.4")).To(BeTrue())
-					Expect(strings.Contains(string(valueTexts), "deployment:\n    updateStrategy: rollingUpdate")).To(BeTrue())
-					Expect(strings.Contains(string(valueTexts), "daemonset:\n    updateStrategy: onDelete")).To(BeTrue())
+					Expect(strings.Contains(string(valueTexts), "deployment:\n    updateStrategy: RollingUpdate")).To(BeTrue())
+					Expect(strings.Contains(string(valueTexts), "daemonset:\n    updateStrategy: OnDelete")).To(BeTrue())
 					Expect(strings.Contains(string(valueTexts), "maxUnavailable: 0")).To(BeTrue())
 					Expect(strings.Contains(string(valueTexts), "maxSurge: 1")).To(BeTrue())
 					return true
@@ -829,6 +872,7 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 				clusterBootstrap.Spec.Paused = true
 				Expect(k8sClient.Update(ctx, clusterBootstrap)).To(Succeed())
 
+				// should block ClusterBootstrap reconciliation if it is paused
 				By("Should not reconcile foobar1secret secret change", func() {
 					// Get secretRef
 					Expect(k8sClient.Get(ctx, client.ObjectKey{Namespace: clusterNamespace, Name: fmt.Sprintf("%s-foobar1-package", clusterName)}, s)).To(Succeed())
@@ -848,7 +892,6 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 						return true
 					}, waitTimeout, pollingInterval).Should(BeTrue())
 				})
-
 			})
 		})
 	})
