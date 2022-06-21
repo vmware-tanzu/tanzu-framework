@@ -11,7 +11,7 @@ metadata:
 spec:
   artifacts:
     #@yaml/text-templated-strings
-    (@= data.values.feature.version @):
+    (@= data.values.telemetry.version @):
       - arch: amd64
         image: tanzu-cli-plugins/telemetry-darwin-amd64:latest
         os: darwin
@@ -26,4 +26,4 @@ spec:
         type: oci
   description: Configure cluster-wide telemetry settings
   optional: false
-  recommendedVersion: #@ data.values.feature.version
+  recommendedVersion: #@ data.values.telemetry.version
