@@ -17,8 +17,13 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/pluginmanager"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/signals"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/config"
 )
+
+// interruptTimeout determines how long the Tanzu CLI will wait after a SIGTERM
+// or SIGINT system signal before killing plugins.
+const interruptTimeout = 30 * time.Second
 
 // RootCmd is the core root Tanzu command
 var RootCmd = &cobra.Command{
@@ -81,8 +86,9 @@ func NewRootCmd() (*cobra.Command, error) {
 		}
 	}
 
+	ctx := signals.SetupSignalHandlerWithTimeout(interruptTimeout)
 	for _, plugin := range plugins {
-		RootCmd.AddCommand(cli.GetCmd(plugin))
+		RootCmd.AddCommand(cli.GetCmd(ctx, plugin))
 	}
 
 	duplicateAliasWarning()

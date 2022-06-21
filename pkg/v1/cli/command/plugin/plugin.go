@@ -4,6 +4,8 @@
 package plugin
 
 import (
+	"context"
+
 	"github.com/spf13/cobra"
 
 	cliv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
@@ -13,6 +15,7 @@ import (
 // Plugin is a Tanzu CLI plugin.
 type Plugin struct {
 	Cmd *cobra.Command
+	Ctx context.Context
 }
 
 // NewPlugin creates an instance of Plugin.
@@ -29,6 +32,11 @@ func NewPlugin(descriptor *cliv1alpha1.PluginDescriptor) (*Plugin, error) {
 	p.Cmd.AddCommand(genDocsCmd)
 	p.Cmd.AddCommand(newPostInstallCmd(descriptor))
 	return p, nil
+}
+
+// AddContext allows plugins to be executed with a context.
+func (p *Plugin) AddContext(ctx context.Context) {
+	p.Ctx = ctx
 }
 
 // NewPluginFromFile create a new instance of Plugin from a file descriptor.
@@ -51,5 +59,9 @@ func (p *Plugin) AddCommands(commands ...*cobra.Command) {
 
 // Execute executes the plugin.
 func (p *Plugin) Execute() error {
+	if p.Ctx != nil {
+		return p.Cmd.ExecuteContext(p.Ctx)
+	}
+
 	return p.Cmd.Execute()
 }

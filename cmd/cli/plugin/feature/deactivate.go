@@ -4,7 +4,6 @@
 package main
 
 import (
-	"context"
 	"fmt"
 
 	"github.com/spf13/cobra"
@@ -27,10 +26,7 @@ var FeatureDeactivateCmd = &cobra.Command{
 			return fmt.Errorf("couldn't get a featureGateRunner: %w", err)
 		}
 
-		ctx, cancel := context.WithTimeout(context.Background(), contextTimeout)
-		defer cancel()
-
-		if err := featureGateClient.DeactivateFeature(ctx, featureName, featuregate); err != nil {
+		if err := featureGateClient.DeactivateFeature(cmd.Context(), featureName, featuregate); err != nil {
 			return fmt.Errorf("couldn't deactivate feature %s: %w", featureName, err)
 		}
 		cmd.Printf("Feature %s Deactivated", featureName)

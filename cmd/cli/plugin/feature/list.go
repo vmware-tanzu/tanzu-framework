@@ -57,8 +57,7 @@ func featureList(cmd *cobra.Command, _ []string) error {
 		return fmt.Errorf("couldn't get featureGateRunner: %w", err)
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), contextTimeout)
-	defer cancel()
+	ctx := cmd.Context()
 
 	gate, err := featureGateClient.GetFeatureGate(ctx, featuregate)
 	if crClient.IgnoreNotFound(err) != nil {
