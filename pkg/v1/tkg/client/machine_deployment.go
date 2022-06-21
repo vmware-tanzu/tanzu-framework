@@ -102,10 +102,6 @@ func (c *TkgClient) SetMachineDeployment(options *SetMachineDeploymentOptions) e
 		return errors.Wrap(err, "error determining Tanzu Kubernetes Cluster service for vSphere management cluster ")
 	}
 	if isPacific {
-		err := c.ValidatePacificVersionWithCLI(clusterClient)
-		if err != nil {
-			return err
-		}
 		return c.SetNodePoolsForPacificCluster(clusterClient, options)
 	}
 	return DoSetMachineDeployment(clusterClient, options)
@@ -306,10 +302,6 @@ func (c *TkgClient) DeleteMachineDeployment(options DeleteMachineDeploymentOptio
 		return errors.Wrap(err, "error determining Tanzu Kubernetes Cluster service for vSphere management cluster ")
 	}
 	if isPacific {
-		err := c.ValidatePacificVersionWithCLI(clusterClient)
-		if err != nil {
-			return err
-		}
 		return c.DeleteNodePoolForPacificCluster(clusterClient, options)
 	}
 	return DoDeleteMachineDeployment(clusterClient, &options)

@@ -139,10 +139,6 @@ func (c *TkgClient) UpgradeCluster(options *UpgradeClusterOptions) error {
 		return errors.Wrap(err, "error determining 'Tanzu Kubernetes Cluster service for vSphere' management cluster")
 	}
 	if isPacific {
-		err := c.ValidatePacificVersionWithCLI(regionalClusterClient)
-		if err != nil {
-			return err
-		}
 		return c.DoPacificClusterUpgrade(regionalClusterClient, options)
 	}
 
