@@ -347,3 +347,66 @@ var _ = Describe("VSphereCPIConfig Reconciler", func() {
 		})
 	})
 })
+
+var _ = Describe("VSphereCPIConfig Reconciler multi clusters", func() {
+	var (
+		clusterName             string
+		clusterResourceFilePath string
+	)
+
+	JustBeforeEach(func() {
+		By("Creating cluster and VSphereCPIConfig resources")
+		f, err := os.Open(clusterResourceFilePath)
+		Expect(err).ToNot(HaveOccurred())
+		defer f.Close()
+		err = testutil.CreateResources(f, cfg, dynamicClient)
+		Expect(err).ToNot(HaveOccurred())
+	})
+
+	Context("in paravirtual mode, but two clusters have same name under different namespace", func() {
+		anotherClusterNamespace := "another-ns"
+
+		// covers the issue https://github.com/vmware-tanzu/tanzu-framework/issues/2714
+		// it was triggered when two clusters with the same name, but under different namespaces
+		BeforeEach(func() {
+			clusterName = "test-cluster-cpi-paravirtual"
+			clusterResourceFilePath = "testdata/test-vsphere-cpi-paravirtual-clusters-same-name.yaml"
+		})
+
+		It("should select vSphereCluster with right namespace", func() {
+			Eventually(func() error {
+				selectedClusterKey := client.ObjectKey{
+					Name:      clusterName,
+					Namespace: clusterNamespace,
+				}
+				notSelectedClusterKey := client.ObjectKey{
+					Name:      clusterName,
+					Namespace: anotherClusterNamespace,
+				}
+
+				selectedCluster := &capvvmwarev1beta1.VSphereCluster{}
+				notSelectedCluster := &capvvmwarev1beta1.VSphereCluster{}
+				var err error
+
+				if err = k8sClient.Get(ctx, selectedClusterKey, selectedCluster); err != nil {
+					return err
+				}
+
+				if err = k8sClient.Get(ctx, notSelectedClusterKey, notSelectedCluster); err != nil {
+					return err
+				}
+				serviceAccount := &capvvmwarev1beta1.ProviderServiceAccount{}
+				serviceAccountKey := client.ObjectKey{
+					Namespace: clusterNamespace,
+					Name:      fmt.Sprintf("%s-ccm", clusterName),
+				}
+				if err := k8sClient.Get(ctx, serviceAccountKey, serviceAccount); err != nil {
+					return err
+				}
+				Expect(serviceAccount.ObjectMeta.OwnerReferences).ToNot(BeEmpty())
+				Expect(serviceAccount.ObjectMeta.OwnerReferences[0].UID).To(Equal(selectedCluster.ObjectMeta.UID))
+				return nil
+			}).Should(Succeed())
+		})
+	})
+})
