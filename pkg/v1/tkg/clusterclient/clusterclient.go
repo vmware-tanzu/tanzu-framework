@@ -669,7 +669,7 @@ func verifyKubernetesUpgradeForCPNodes(clusterStatusInfo *ClusterStatusInfo, new
 			conditions.GetReason(clusterObj, capi.ControlPlaneReadyCondition), conditions.GetMessage(clusterObj, capi.ControlPlaneReadyCondition))
 	}
 
-	if clusterStatusInfo.KubernetesVersion != newK8sVersion {
+	if clusterStatusInfo.KubernetesVersion != "" && clusterStatusInfo.KubernetesVersion != newK8sVersion {
 		return errors.Errorf("waiting for kubernetes version update, current kubernetes version %s but expecting %s", clusterStatusInfo.KubernetesVersion, newK8sVersion)
 	}
 
@@ -702,7 +702,7 @@ func verifyKubernetesUpgradeForWorkerNodes(clusterStatusInfo *ClusterStatusInfo,
 
 	unupgradedMachineList := []string{}
 	for i := range clusterStatusInfo.WorkerMachineObjects {
-		if clusterStatusInfo.WorkerMachineObjects[i].Spec.Version == nil || *clusterStatusInfo.WorkerMachineObjects[i].Spec.Version != newK8sVersion {
+		if clusterStatusInfo.WorkerMachineObjects[i].Spec.Version == nil || !strings.HasPrefix(newK8sVersion, *clusterStatusInfo.WorkerMachineObjects[i].Spec.Version) {
 			unupgradedMachineList = append(unupgradedMachineList, clusterStatusInfo.WorkerMachineObjects[i].Name)
 		}
 	}
