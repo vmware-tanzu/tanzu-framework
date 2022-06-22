@@ -2,6 +2,7 @@ apiVersion: providers.tanzu.vmware.com/v1alpha1
 kind: TemplateDefinition
 spec:
   paths:
+    - path: providers/yttcb
     - path: providers/infrastructure-aws/v1.2.0/yttcc
     - path: providers/infrastructure-aws/yttcc
     - path: providers/yttcc
