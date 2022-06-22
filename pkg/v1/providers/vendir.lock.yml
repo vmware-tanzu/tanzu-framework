@@ -24,4 +24,12 @@ directories:
       - v0.12.0-dev.1-27-gf74f471e
     path: .
   path: ytt/vendir/kapp-controller/_ytt_lib
+- contents:
+  - git:
+      commitTitle: add aws ebs csi driver
+      sha: f0f7a2b5381c927de2a8f29ebfc1fea9d62c60f9
+      tags:
+      - v0.13.0-dev.2-10-gf0f7a2b5
+    path: .
+  path: ytt/vendir/csi/_ytt_lib
 kind: LockConfig

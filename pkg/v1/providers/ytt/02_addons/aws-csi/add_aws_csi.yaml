@@ -1,0 +1,25 @@
+#@ load("@ytt:data", "data")
+#@ load("@ytt:yaml", "yaml")
+#@ load("/lib/helpers.star", "ValuesFormatStr",)
+#@ load("/vendir/csi/csi.lib.yaml", "csi_aws_ebs_lib")
+#@ load("ebs/aws-ebs-csi_data.lib.yaml", "ebsdatavalues")
+
+#@ if data.values.PROVIDER_TYPE == "aws" and not data.values.IS_WINDOWS_WORKLOAD_CLUSTER:
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: #@ "{}-aws-ebs-csi-addon".format(data.values.CLUSTER_NAME)
+  namespace: #@ data.values.NAMESPACE
+  labels:
+    tkg.tanzu.vmware.com/addon-name: "aws-ebs-csi"
+    tkg.tanzu.vmware.com/cluster-name: #@ data.values.CLUSTER_NAME
+    #@ if data.values.TKG_CLUSTER_ROLE != "workload":
+    clusterctl.cluster.x-k8s.io/move: ""
+    #@ end
+  annotations:
+    tkg.tanzu.vmware.com/addon-type: "csi/aws-ebs-csi"
+type: tkg.tanzu.vmware.com/addon
+stringData:
+  value: #@ yaml.encode(csi_aws_ebs_lib.with_data_values(ebsdatavalues()).eval())
+#@ end
