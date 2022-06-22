@@ -38,6 +38,9 @@ const (
 	// TKRLabelLegacyClusters is the TKR label for legacy clusters
 	TKRLableLegacyClusters = "run.tanzu.vmware.com/legacy-tkr"
 
+	// TKGAnnotationTemplateConfig is the TKG annotation for addon config CRs used by ClusterBootstrapTemplate
+	TKGAnnotationTemplateConfig = "tkg.tanzu.vmware.com/template-config"
+
 	// TKGBomContent is the TKG BOM content.
 	TKGBomContent = "bomContent"
 

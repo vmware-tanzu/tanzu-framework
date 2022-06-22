@@ -91,7 +91,14 @@ func (r *VSphereCPIConfigReconciler) Reconcile(ctx context.Context, req ctrl.Req
 		return ctrl.Result{}, err
 	}
 
+	// deep copy CPIConfig to avoid issues if in the future other controllers where interacting with the same copy
 	cpiConfig = cpiConfig.DeepCopy()
+
+	// skip reconciliation for CPIConfig CR used as template
+	if _, ok := cpiConfig.Annotations[constants.TKGAnnotationTemplateConfig]; ok {
+		return ctrl.Result{}, nil
+	}
+
 	cluster, err := r.getOwnerCluster(ctx, cpiConfig)
 	if cluster == nil {
 		return ctrl.Result{}, err // no need to requeue if cluster is not found

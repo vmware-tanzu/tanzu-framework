@@ -60,6 +60,11 @@ func (r *CalicoConfigReconciler) Reconcile(ctx context.Context, req ctrl.Request
 	// deep copy CalicoConfig to avoid issues if in the future other controllers where interacting with the same copy
 	calicoConfig = calicoConfig.DeepCopy()
 
+	// skip reconciliation for CalicoConfig CR used as template
+	if _, ok := calicoConfig.Annotations[constants.TKGAnnotationTemplateConfig]; ok {
+		return ctrl.Result{}, nil
+	}
+
 	// config resources are expected to have the same name as the cluster. However, we ideally try to read the cluster name from the owner reference of the addon config object
 	clusterNamespacedName := req.NamespacedName
 	cluster := &clusterapiv1beta1.Cluster{}

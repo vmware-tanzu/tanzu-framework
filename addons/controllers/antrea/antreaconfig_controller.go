@@ -62,6 +62,11 @@ func (r *AntreaConfigReconciler) Reconcile(ctx context.Context, req ctrl.Request
 	// deep copy AntreaConfig to avoid issues if in the future other controllers where interacting with the same copy
 	antreaConfig = antreaConfig.DeepCopy()
 
+	// skip reconciliation for AntreaConfig CR used as template
+	if _, ok := antreaConfig.Annotations[constants.TKGAnnotationTemplateConfig]; ok {
+		return ctrl.Result{}, nil
+	}
+
 	// get the parent cluster name from owner reference
 	// if the owner reference doesn't exist, use the same name as config CRD
 	clusterNamespacedName := req.NamespacedName

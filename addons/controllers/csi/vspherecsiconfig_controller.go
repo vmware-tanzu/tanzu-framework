@@ -149,6 +149,14 @@ func (r *VSphereCSIConfigReconciler) Reconcile(ctx context.Context, req ctrl.Req
 		return ctrl.Result{}, err
 	}
 
+	// deep copy CSIConfig to avoid issues if in the future other controllers where interacting with the same copy
+	vcsiConfig = vcsiConfig.DeepCopy()
+
+	// skip reconciliation for CSIConfig CR used as template
+	if _, ok := vcsiConfig.Annotations[constants.TKGAnnotationTemplateConfig]; ok {
+		return ctrl.Result{}, nil
+	}
+
 	cluster, err := r.getOwnerCluster(ctx, vcsiConfig)
 	if cluster == nil {
 		return ctrl.Result{RequeueAfter: 20 * time.Second}, err // retry until corresponding cluster is found

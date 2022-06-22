@@ -57,6 +57,11 @@ func (r *KappControllerConfigReconciler) Reconcile(ctx context.Context, req ctrl
 	// Deepcopy to prevent client-go cache conflict
 	kappControllerConfig = kappControllerConfig.DeepCopy()
 
+	// skip reconciliation for KappControllerConfig CR used as template
+	if _, ok := kappControllerConfig.Annotations[constants.TKGAnnotationTemplateConfig]; ok {
+		return ctrl.Result{}, nil
+	}
+
 	// get the parent cluster name from owner reference
 	// if the owner reference doesn't exist, use the same name as config CR
 	clusterNamespacedName := req.NamespacedName
