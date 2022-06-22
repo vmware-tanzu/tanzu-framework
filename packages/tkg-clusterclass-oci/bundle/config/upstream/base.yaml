@@ -1,0 +1,264 @@
+#@ load("@ytt:overlay", "overlay")
+#@ load("@ytt:yaml", "yaml")
+#@ load("@ytt:data", "data")
+
+apiVersion: cluster.x-k8s.io/v1beta1
+kind: ClusterClass
+metadata:
+  name: tkg-oci-default
+  namespace: #@ data.values.NAMESPACE
+spec:
+  controlPlane:
+    ref:
+      apiVersion: controlplane.cluster.x-k8s.io/v1beta1
+      kind: KubeadmControlPlaneTemplate
+      name: tkg-kcp
+    machineInfrastructure:
+      ref:
+        apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+        kind: OCIMachineTemplate
+        name: tkg-controlplane-oci-template
+  workers:
+    machineDeployments:
+      - class: tkg-worker
+        template:
+          bootstrap:
+            ref:
+              apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
+              kind: KubeadmConfigTemplate
+              name: tkg-bootstrap-template
+          infrastructure:
+            ref:
+              apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+              kind: OCIMachineTemplate
+              name: tkg-oci-template
+  infrastructure:
+    ref:
+      apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+      kind: OCIClusterTemplate
+      name: oci-cluster-template
+  variables:
+    - name: ssh_authorized_keys
+      required: false
+      schema:
+        openAPIV3Schema:
+          type: string
+          default: default
+    - name: compartmentId
+      required: true
+      schema:
+        openAPIV3Schema:
+          type: string
+    - name: imageId
+      required: true
+      schema:
+        openAPIV3Schema:
+          type: string
+    - name: shape
+      required: false
+      schema:
+        openAPIV3Schema:
+          type: string
+          default: VM.Standard.E4.Flex
+    - name: ocpus
+      required: false
+      schema:
+        openAPIV3Schema:
+          type: string
+          default: "1"
+    - name: isPvEncryptionInTransitEnabled
+      required: false
+      schema:
+        openAPIV3Schema:
+          type: boolean
+          default: true
+  patches:
+    - name: compartmentId
+      definitions:
+        - selector:
+            apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+            kind: OCIClusterTemplate
+            matchResources:
+              infrastructureCluster: true
+          jsonPatches:
+            - op: add
+              path: "/spec/template/spec/compartmentId"
+              valueFrom:
+                variable: compartmentId
+    - name: sshAuthorizedKeys
+      definitions:
+        - selector:
+            apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+            kind: OCIMachineTemplate
+            matchResources:
+              controlPlane: true
+              machineDeploymentClass:
+                names:
+                  - worker
+          jsonPatches:
+            - op: add
+              path: "/spec/template/spec/metadata/ssh_authorized_keys"
+              valueFrom:
+                variable: ssh_authorized_keys
+    - name: shape
+      definitions:
+        - selector:
+            apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+            kind: OCIMachineTemplate
+            matchResources:
+              controlPlane: true
+              machineDeploymentClass:
+                names:
+                  - worker
+          jsonPatches:
+            - op: replace
+              path: "/spec/template/spec/shape"
+              valueFrom:
+                variable: shape
+    - name: imageId
+      definitions:
+        - selector:
+            apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+            kind: OCIMachineTemplate
+            matchResources:
+              controlPlane: true
+              machineDeploymentClass:
+                names:
+                  - worker
+          jsonPatches:
+            - op: add
+              path: "/spec/template/spec/imageId"
+              valueFrom:
+                variable: imageId
+    - name: isPvEncryptionInTransitEnabled
+      definitions:
+        - selector:
+            apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+            kind: OCIMachineTemplate
+            matchResources:
+              controlPlane: true
+              machineDeploymentClass:
+                names:
+                  - worker
+          jsonPatches:
+            - op: add
+              path: "/spec/template/spec/isPvEncryptionInTransitEnabled"
+              valueFrom:
+                variable: isPvEncryptionInTransitEnabled
+    - name: ocpus
+      definitions:
+        - selector:
+            apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+            kind: OCIMachineTemplate
+            matchResources:
+              controlPlane: true
+              machineDeploymentClass:
+                names:
+                  - worker
+          jsonPatches:
+            - op: add
+              path: /spec/template/spec/shapeConfig/ocpus
+              valueFrom:
+                variable: ocpus
+    - name: apiServerBindPort
+      enabledIf: '{{ not (empty .apiServerPort) }}'
+      definitions:
+        - selector:
+            apiVersion: controlplane.cluster.x-k8s.io/v1beta1
+            kind: KubeadmControlPlaneTemplate
+            matchResources:
+              controlPlane: true
+          jsonPatches:
+            - op: add
+              path: /spec/template/spec/kubeadmConfigSpec/initConfiguration/localAPIEndpoint
+              valueFrom:
+                template: |
+                  advertiseAddress: '0.0.0.0'
+                  bindPort: {{ .apiServerPort }}
+            - op: add
+              path: /spec/template/spec/kubeadmConfigSpec/joinConfiguration/controlPlane
+              valueFrom:
+                template: |
+                  localAPIEndpoint:
+                    advertiseAddress: '0.0.0.0'
+                    bindPort: {{ .apiServerPort }}
+---
+apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+kind: OCIClusterTemplate
+metadata:
+  name: oci-cluster-template
+  namespace: #@ data.values.NAMESPACE
+spec:
+  template:
+    spec: {}
+---
+kind: KubeadmControlPlaneTemplate
+apiVersion: controlplane.cluster.x-k8s.io/v1beta1
+metadata:
+  name: tkg-kcp
+  namespace: #@ data.values.NAMESPACE
+spec:
+  template:
+    spec:
+      kubeadmConfigSpec:
+        clusterConfiguration:
+          apiServer:
+            certSANs: [ localhost, 127.0.0.1 ]
+          dns: { }
+          etcd: { }
+          networking: { }
+          scheduler: { }
+        initConfiguration:
+          nodeRegistration:
+            criSocket: /var/run/containerd/containerd.sock
+            kubeletExtraArgs:
+              cloud-provider: external
+              provider-id: oci://{{ ds["id"] }}
+        joinConfiguration:
+          discovery: { }
+          nodeRegistration:
+            criSocket: /var/run/containerd/containerd.sock
+            kubeletExtraArgs:
+              cloud-provider: external
+              provider-id: oci://{{ ds["id"] }}
+---
+apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+kind: OCIMachineTemplate
+metadata:
+  name: tkg-controlplane-oci-template
+  namespace: #@ data.values.NAMESPACE
+spec:
+  template:
+    spec:
+      # will be replaced by shape variable defined above
+      shape: VM.Standard.E4.Flex
+      metadata: {}
+      shapeConfig: {}
+
+---
+apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+kind: OCIMachineTemplate
+metadata:
+  name: tkg-oci-template
+  namespace: #@ data.values.NAMESPACE
+spec:
+  template:
+    spec:
+      # will be replaced by shape variable defined above
+      shape: VM.Standard.E4.Flex
+      metadata: {}
+      shapeConfig: {}
+---
+apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
+kind: KubeadmConfigTemplate
+metadata:
+  name: worker-bootstrap-template
+  namespace: #@ data.values.NAMESPACE
+spec:
+  template:
+    spec:
+      joinConfiguration:
+        nodeRegistration:
+          kubeletExtraArgs:
+            cloud-provider: external
+            provider-id: oci://{{ ds["id"] }}
