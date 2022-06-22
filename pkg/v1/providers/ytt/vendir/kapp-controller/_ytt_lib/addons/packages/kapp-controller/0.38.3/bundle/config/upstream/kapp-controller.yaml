@@ -145,6 +145,22 @@ spec:
                   these requirements will not be verified by kapp-controller on installation.
                   (optional; string)'
                 type: string
+              includedSoftware:
+                description: IncludedSoftware can be used to show the software contents
+                  of a Package. This is especially useful if the underlying versions
+                  do not match the Package version
+                items:
+                  description: IncludedSoftware contains the underlying Software Contents
+                    of a Package
+                  properties:
+                    description:
+                      type: string
+                    displayName:
+                      type: string
+                    version:
+                      type: string
+                  type: object
+                type: array
               licenses:
                 description: Description of the licenses that apply to the package
                   software (optional; Array of strings)
@@ -720,7 +736,6 @@ spec:
   group: kappctrl.k14s.io
   names:
     categories:
-    - all
     - carvel
     kind: App
     listKind: AppList
@@ -1261,7 +1276,6 @@ spec:
             properties:
               conditions:
                 items:
-                  description: TODO rename to Condition
                   properties:
                     message:
                       description: Human-readable message indicating details about
@@ -1276,6 +1290,7 @@ spec:
                     status:
                       type: string
                     type:
+                      description: ConditionType represents reconciler state
                       type: string
                   required:
                   - status
@@ -1377,7 +1392,6 @@ spec:
   group: packaging.carvel.dev
   names:
     categories:
-    - all
     - carvel
     kind: PackageInstall
     listKind: PackageInstallList
@@ -1503,7 +1517,6 @@ spec:
             properties:
               conditions:
                 items:
-                  description: TODO rename to Condition
                   properties:
                     message:
                       description: Human-readable message indicating details about
@@ -1518,6 +1531,7 @@ spec:
                     status:
                       type: string
                     type:
+                      description: ConditionType represents reconciler state
                       type: string
                   required:
                   - status
@@ -1561,7 +1575,6 @@ spec:
   group: packaging.carvel.dev
   names:
     categories:
-    - all
     - carvel
     kind: PackageRepository
     listKind: PackageRepositoryList
@@ -1794,7 +1807,6 @@ spec:
             properties:
               conditions:
                 items:
-                  description: TODO rename to Condition
                   properties:
                     message:
                       description: Human-readable message indicating details about
@@ -1809,6 +1821,7 @@ spec:
                     status:
                       type: string
                     type:
+                      description: ConditionType represents reconciler state
                       type: string
                   required:
                   - status
@@ -1890,7 +1903,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   annotations:
-    kapp-controller.carvel.dev/version: v0.34.0
+    kapp-controller.carvel.dev/version: v0.38.3
     kbld.k14s.io/images: |
       - origins:
         - local:
@@ -1898,10 +1911,10 @@ metadata:
         - git:
             dirty: false
             remoteURL: https://github.com/vmware-tanzu/carvel-kapp-controller
-            sha: 79cbbd3a2af3b7118ea96a30f4dde6080b015d59
+            sha: 1d376ccc7312c0f8b7ccf98dd298b5bb1fa58ff4
             tags:
-            - v0.34.0
-        url: ghcr.io/vmware-tanzu/carvel-kapp-controller@sha256:d05863e678ea384a55f1315e322c0a8d2f80b571c3418d807921e0eb4cb498ff
+            - v0.38.3
+        url: ghcr.io/vmware-tanzu/carvel-kapp-controller@sha256:2800ee62755d2c692a27d91c5de4c079868c4ea619dd516cfd58373219cb4062
   name: kapp-controller
   namespace: kapp-controller
 spec:
@@ -1922,18 +1935,43 @@ spec:
         env:
         - name: KAPPCTRL_MEM_TMP_DIR
           value: /etc/kappctrl-mem-tmp
+        - name: KAPPCTRL_SIDECAREXEC_SOCK
+          value: /etc/kappctrl-mem-tmp/sidecarexec.sock
         - name: KAPPCTRL_SYSTEM_NAMESPACE
           valueFrom:
             fieldRef:
               fieldPath: metadata.namespace
         - name: KAPPCTRL_API_PORT
           value: "10350"
-        image: ghcr.io/vmware-tanzu/carvel-kapp-controller@sha256:d05863e678ea384a55f1315e322c0a8d2f80b571c3418d807921e0eb4cb498ff
+        image: ghcr.io/vmware-tanzu/carvel-kapp-controller@sha256:2800ee62755d2c692a27d91c5de4c079868c4ea619dd516cfd58373219cb4062
         name: kapp-controller
         ports:
         - containerPort: 10350
           name: api
           protocol: TCP
+        resources:
+          requests:
+            cpu: 120m
+            memory: 100Mi
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - all
+          readOnlyRootFilesystem: true
+          runAsNonRoot: true
+        volumeMounts:
+        - mountPath: /etc/kappctrl-mem-tmp
+          name: template-fs
+        - mountPath: /home/kapp-controller
+          name: home
+      - command:
+        - /kapp-controller-sidecarexec
+        env:
+        - name: KAPPCTRL_SIDECAREXEC_SOCK
+          value: /etc/kappctrl-mem-tmp/sidecarexec.sock
+        image: ghcr.io/vmware-tanzu/carvel-kapp-controller@sha256:2800ee62755d2c692a27d91c5de4c079868c4ea619dd516cfd58373219cb4062
+        name: kapp-controller-sidecarexec
         resources:
           requests:
             cpu: 120m
@@ -1950,6 +1988,8 @@ spec:
           name: template-fs
         - mountPath: /home/kapp-controller
           name: home
+        - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+          name: empty-sa
       serviceAccount: kapp-controller-sa
       volumes:
       - emptyDir:
@@ -1958,6 +1998,8 @@ spec:
       - emptyDir:
           medium: Memory
         name: home
+      - emptyDir: {}
+        name: empty-sa
 ---
 apiVersion: v1
 kind: ServiceAccount
@@ -1986,6 +2028,12 @@ rules:
   verbs:
   - get
 - apiGroups:
+  - ""
+  resources:
+  - serviceaccounts/token
+  verbs:
+  - create
+- apiGroups:
   - kappctrl.k14s.io
   resources:
   - apps
@@ -1997,6 +2045,7 @@ rules:
   resources:
   - packageinstalls
   - packageinstalls/status
+  - packageinstalls/finalizers
   verbs:
   - '*'
 - apiGroups:
