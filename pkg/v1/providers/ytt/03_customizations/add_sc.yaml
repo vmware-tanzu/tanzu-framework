@@ -1,6 +1,7 @@
 #@ load("@ytt:overlay", "overlay")
 #@ load("@ytt:data", "data")
 #@ load("@ytt:yaml", "yaml")
+#@ load("/lib/helpers.star", "enable_csi_driver")
 
 
 #@ def aws_storage_class():
@@ -11,7 +12,11 @@ metadata:
   name: default
   annotations:
     storageclass.kubernetes.io/is-default-class: "true"
+#@ if enable_csi_driver():
+provisioner: ebs.csi.aws.com
+#@ else:
 provisioner: kubernetes.io/aws-ebs
+#@ end
 allowVolumeExpansion: true
 #@ end
 
@@ -43,7 +48,11 @@ metadata:
     storageclass.kubernetes.io/is-default-class: "true"
   labels:
     kubernetes.io/cluster-service: "true"
+#@ if enable_csi_driver():
+provisioner: disk.csi.azure.com
+#@ else:
 provisioner: kubernetes.io/azure-disk
+#@ end
 allowVolumeExpansion: true
 parameters:
   kind: Managed
