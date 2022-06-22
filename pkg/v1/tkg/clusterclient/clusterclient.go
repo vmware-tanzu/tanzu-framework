@@ -2352,6 +2352,17 @@ func (c *client) IsClusterClassBased(clusterName, namespace string) (bool, error
 	if clusterObj.Spec.Topology == nil || clusterObj.Spec.Topology.Class == "" {
 		return false, nil
 	}
+
+	// Make sure that Cluster resource doesn't have ownerRef indicating that other
+	// resource is managing this Cluster resource. When cluster is created through
+	// TKC API, the cluster resource will have ownerRef set
+	ownerRefs := clusterObj.GetOwnerReferences()
+	for i := range ownerRefs {
+		if ownerRefs[i].Kind == constants.KindTanzuKubernetesCluster {
+			return false, nil
+		}
+	}
+
 	return true, nil
 }
 

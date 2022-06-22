@@ -2670,6 +2670,26 @@ var _ = Describe("Cluster Client", func() {
 				Expect(isClusterClassBased).To(Equal(true))
 			})
 		})
+		Context("When cluster has ownerReference set", func() {
+			JustBeforeEach(func() {
+				clientset.GetCalls(func(ctx context.Context, namespace types.NamespacedName, cluster crtclient.Object) error {
+					tkcOwnerReference := metav1.OwnerReference{
+						Kind: "TanzuKubernetesCluster",
+					}
+					topology := &capi.Topology{
+						Class: "fake-cluster-class",
+					}
+					cluster.(*capi.Cluster).Spec.Topology = topology
+					cluster.(*capi.Cluster).ObjectMeta.OwnerReferences = append(cluster.(*capi.Cluster).ObjectMeta.OwnerReferences, tkcOwnerReference)
+					return nil
+				})
+				isClusterClassBased, err = clstClient.IsClusterClassBased("fake-clusterName", "fake-namespace")
+			})
+			It("should not return an error and isClusterClassBased to be false", func() {
+				Expect(err).NotTo(HaveOccurred())
+				Expect(isClusterClassBased).To(Equal(false))
+			})
+		})
 		Context("When cluster.spec.topology field is not defined", func() {
 			JustBeforeEach(func() {
 				clientset.GetCalls(func(ctx context.Context, namespace types.NamespacedName, cluster crtclient.Object) error {
