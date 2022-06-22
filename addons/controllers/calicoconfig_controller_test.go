@@ -24,6 +24,7 @@ const (
 	testClusterCalico2 = "test-cluster-calico-2"
 	testDataCalico1    = "testdata/test-calico-1.yaml"
 	testDataCalico2    = "testdata/test-calico-2.yaml"
+	testDataCalicoTemplateConfig1    = "testdata/test-calico-template-config-1.yaml"
 )
 
 var _ = Describe("CalicoConfig Reconciler and Webhooks", func() {
@@ -221,4 +222,24 @@ var _ = Describe("CalicoConfig Reconciler and Webhooks", func() {
 		})
 	})
 
+	Context("Reconcile CalicoConfig used as template", func() {
+
+		BeforeEach(func() {
+			clusterName = testClusterCalico1
+			clusterResourceFilePath = testDataCalicoTemplateConfig1
+		})
+
+		It("Should skip the reconciliation", func() {
+
+			key := client.ObjectKey{
+				Namespace: "default",
+				Name:      clusterName,
+			}
+			config := &cniv1alpha1.CalicoConfig{}
+			Expect(k8sClient.Get(ctx, key, config)).To(Succeed())
+
+			By("OwnerReferences is not set")
+			Expect(len(config.OwnerReferences)).Should(Equal(0))
+		})
+	})
 })

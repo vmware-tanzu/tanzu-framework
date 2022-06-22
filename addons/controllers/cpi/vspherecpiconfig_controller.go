@@ -91,10 +91,10 @@ func (r *VSphereCPIConfigReconciler) Reconcile(ctx context.Context, req ctrl.Req
 		return ctrl.Result{}, err
 	}
 
-	// deep copy CPIConfig to avoid issues if in the future other controllers where interacting with the same copy
+	// deep copy VSphereCPIConfig to avoid issues if in the future other controllers where interacting with the same copy
 	cpiConfig = cpiConfig.DeepCopy()
 
-	// skip reconciliation for CPIConfig CR used as template
+	// skip reconciliation for VSphereCPIConfig CR used as template
 	if _, ok := cpiConfig.Annotations[constants.TKGAnnotationTemplateConfig]; ok {
 		return ctrl.Result{}, nil
 	}

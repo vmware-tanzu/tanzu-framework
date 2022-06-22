@@ -352,6 +352,27 @@ var _ = Describe("VSphereCPIConfig Reconciler", func() {
 			})
 		})
 	})
+
+	Context("Reconcile VSphereCPIConfig used as template", func() {
+
+		BeforeEach(func() {
+			clusterName = "test-cluster-cpi"
+			clusterResourceFilePath = "testdata/test-vsphere-cpi-template-config.yaml"
+		})
+
+		It("Should skip the reconciliation", func() {
+
+			key := client.ObjectKey{
+				Namespace: "default",
+				Name:      clusterName,
+			}
+			config := &cpiv1alpha1.VSphereCPIConfig{}
+			Expect(k8sClient.Get(ctx, key, config)).To(Succeed())
+
+			By("OwnerReferences is not set")
+			Expect(len(config.OwnerReferences)).Should(Equal(0))
+		})
+	})
 })
 
 var _ = Describe("VSphereCPIConfig Reconciler with existing endpoint from LB service", func() {

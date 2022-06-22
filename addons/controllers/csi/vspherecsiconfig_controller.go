@@ -149,10 +149,10 @@ func (r *VSphereCSIConfigReconciler) Reconcile(ctx context.Context, req ctrl.Req
 		return ctrl.Result{}, err
 	}
 
-	// deep copy CSIConfig to avoid issues if in the future other controllers where interacting with the same copy
+	// deep copy VSphereCSIConfig to avoid issues if in the future other controllers where interacting with the same copy
 	vcsiConfig = vcsiConfig.DeepCopy()
 
-	// skip reconciliation for CSIConfig CR used as template
+	// skip reconciliation for VSphereCSIConfig CR used as template
 	if _, ok := vcsiConfig.Annotations[constants.TKGAnnotationTemplateConfig]; ok {
 		return ctrl.Result{}, nil
 	}

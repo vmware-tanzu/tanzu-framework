@@ -1,0 +1,11 @@
+---
+apiVersion: cpi.tanzu.vmware.com/v1alpha1
+kind: VSphereCPIConfig
+metadata:
+  name: test-cluster-cpi
+  namespace: default
+  annotations:
+    tkg.tanzu.vmware.com/template-config: "true"
+spec:
+  vsphereCPI:
+    mode: vsphereCPI
