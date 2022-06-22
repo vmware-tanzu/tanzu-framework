@@ -62,15 +62,6 @@ const (
 	// Pinniped is the package label value for pinniped
 	pinnipedPackageLabel = "pinniped"
 
-	// pinnipedInfoConfigMapName is the name of the Pinniped Info Configmap
-	pinnipedInfoConfigMapName = "pinniped-info"
-
-	// Issuer is the key for "issuer" field in the Pinniped Info Configmap
-	issuerKey = "issuer"
-
-	// issuerCABundleKey is the key for "issuer_ca_bundle_data" field in the Pinniped Info Configmap
-	issuerCABundleKey = "issuer_ca_bundle_data"
-
 	// supervisorCABundleKey is the key for "supervisor_ca_bundle_data" field in the Pinniped ClusterBootstrap secret
 	supervisorCABundleKey = "supervisor_ca_bundle_data"
 
@@ -79,9 +70,6 @@ const (
 
 	// identityManagementTypeKey is the key for "identity_management_type" field in the Pinniped ClusterBootstrap secret
 	identityManagementTypeKey = "identity_management_type"
-
-	// kubePublicNamespace is the `kube-public` namespace
-	kubePublicNamespace = "kube-public"
 
 	// tkgManagementLabel is the label associated with a TKG management cluster
 	tkgManagementLabel = "cluster-role.tkg.tanzu.vmware.com/management"

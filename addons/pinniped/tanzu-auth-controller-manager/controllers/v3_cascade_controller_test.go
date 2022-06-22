@@ -14,6 +14,7 @@ import (
 	clusterapiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
+	"github.com/vmware-tanzu/tanzu-framework/addons/pinniped/tanzu-auth-controller-manager/pkg/pinnipedinfo"
 	tkgconstants "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
 )
 
@@ -236,8 +237,8 @@ var _ = Describe("Controller", func() {
 					Name:      "pinniped-info",
 				},
 				Data: map[string]string{
-					issuerKey:         "tuna.io",
-					issuerCABundleKey: "ball-of-fluff",
+					pinnipedinfo.IssuerKey:         "tuna.io",
+					pinnipedinfo.IssuerCABundleKey: "ball-of-fluff",
 				},
 			}
 
@@ -325,8 +326,8 @@ var _ = Describe("Controller", func() {
 			BeforeEach(func() {
 				createObject(ctx, configMap)
 				configMapCopy = configMap.DeepCopy()
-				configMapCopy.Data[issuerKey] = "cats.meow"
-				configMapCopy.Data[issuerCABundleKey] = "secret-blanket"
+				configMapCopy.Data[pinnipedinfo.IssuerKey] = "cats.meow"
+				configMapCopy.Data[pinnipedinfo.IssuerCABundleKey] = "secret-blanket"
 				updateObject(ctx, configMapCopy)
 			})
 
@@ -342,8 +343,8 @@ var _ = Describe("Controller", func() {
 			BeforeEach(func() {
 				configMapCopy = configMap.DeepCopy()
 				configMapCopy.Data["fakeData"] = "fake"
-				delete(configMapCopy.Data, issuerKey)
-				delete(configMapCopy.Data, issuerCABundleKey)
+				delete(configMapCopy.Data, pinnipedinfo.IssuerKey)
+				delete(configMapCopy.Data, pinnipedinfo.IssuerCABundleKey)
 				createObject(ctx, configMapCopy)
 			})
 
@@ -377,8 +378,8 @@ var _ = Describe("Controller", func() {
 				createObject(ctx, configMap)
 				configMapCopy = configMap.DeepCopy()
 				configMapCopy.Namespace = pinnipedNamespace
-				configMapCopy.Data[issuerKey] = "lionel.cat"
-				configMapCopy.Data[issuerCABundleKey] = "catdog"
+				configMapCopy.Data[pinnipedinfo.IssuerKey] = "lionel.cat"
+				configMapCopy.Data[pinnipedinfo.IssuerCABundleKey] = "catdog"
 				createObject(ctx, configMapCopy)
 			})
 
@@ -400,8 +401,8 @@ var _ = Describe("Controller", func() {
 				configMapCopy = configMap.DeepCopy()
 				configMapCopy.Name = "kitties"
 				configMapCopy.Data = make(map[string]string)
-				configMapCopy.Data[issuerKey] = "pumpkin.me"
-				configMapCopy.Data[issuerCABundleKey] = "punkiest"
+				configMapCopy.Data[pinnipedinfo.IssuerKey] = "pumpkin.me"
+				configMapCopy.Data[pinnipedinfo.IssuerCABundleKey] = "punkiest"
 				createObject(ctx, configMapCopy)
 			})
 
