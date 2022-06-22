@@ -1,0 +1,8 @@
+#@ load("@ytt:data", "data")
+#@ load("@ytt:yaml", "yaml")
+#@ load("/lib/helpers.star", "get_bom_data_for_tkr_name", "tkg_image_repo", "get_image_repo_for_component")
+
+#@ def ebsdatavalues():
+awsEBSCSIDriver:
+  namespace: kube-system
+#@ end

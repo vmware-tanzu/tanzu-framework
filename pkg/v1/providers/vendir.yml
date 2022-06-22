@@ -1,28 +1,35 @@
 apiVersion: vendir.k14s.io/v1alpha1
-kind: Config
 directories:
-- path: ytt/vendir/vsphere_cpi/_ytt_lib
-  contents:
-  - path: .
-    git:
-      url: git@github.com:vmware-tanzu/community-edition.git
-      ref: 0fa3055c5cddf67f8c23edea420575cb4eb7d5d8
-    includePaths:
-    - addons/packages/vsphere-cpi/1.22.5/bundle/config/**/*
-- path: ytt/vendir/cni/_ytt_lib
-  contents:
-  - path: .
-    git:
-      url: git@github.com:vmware-tanzu/community-edition.git
-      ref: d420c7406657c4e555918b31f1bd771af85ba774
-    includePaths:
-    - addons/packages/antrea/1.5.2/bundle/config/**/*
-    - addons/packages/calico/3.22.1/bundle/config/**/*
-- path: ytt/vendir/kapp-controller/_ytt_lib
-  contents:
-  - path: .
-    git:
-      url: git@github.com:vmware-tanzu/community-edition.git
-      ref: 5e43d627bdd25ebca3f5c30ce72331f1543a0eba
-    includePaths:
-    - addons/packages/kapp-controller/0.38.3/bundle/config/**/*
+- contents:
+  - git:
+      commitTitle: Add new flags insecure and remoteAuthEnabled (#3152)...
+      sha: 0fa3055c5cddf67f8c23edea420575cb4eb7d5d8
+      tags:
+      - v0.10.0-120-g0fa3055c
+    path: .
+  path: ytt/vendir/vsphere_cpi/_ytt_lib
+- contents:
+  - git:
+      commitTitle: bump aws ebs csi driver to 1.8.0 (#4909)
+      sha: bbc123db82e9bf07ef3472c5e335317c392d9d31
+      tags:
+      - v0.13.0-dev.2-109-gbbc123db
+    path: .
+  path: ytt/vendir/cni/_ytt_lib
+- contents:
+  - git:
+      commitTitle: 'packages: kapp-controller 0.38.3 (#4853)...'
+      sha: 5e43d627bdd25ebca3f5c30ce72331f1543a0eba
+      tags:
+      - v0.13.0-dev.2-69-g5e43d627
+    path: .
+  path: ytt/vendir/kapp-controller/_ytt_lib
+- contents:
+  - git:
+      commitTitle: update aws ebs csi driver shcema (#4984)
+      sha: 01aacda03bf9e49bce0ddafc1d98ceffaa20fd8e
+      tags:
+      - v0.13.0-dev.2-149-g01aacda0
+    path: .
+  path: ytt/vendir/csi/_ytt_lib
+kind: LockConfig
