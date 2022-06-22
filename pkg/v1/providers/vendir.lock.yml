@@ -10,10 +10,10 @@ directories:
   path: ytt/vendir/vsphere_cpi/_ytt_lib
 - contents:
   - git:
-      commitTitle: update to latest pushed package
-      sha: 1c9866f25c9cd781e957d8f406e3dddca6541e9b
+      commitTitle: 'packages: kapp-controller 0.38.3 (#4853)...'
+      sha: 5e43d627bdd25ebca3f5c30ce72331f1543a0eba
       tags:
-      - v0.13.0-dev.2-66-g1c9866f2
+      - v0.13.0-dev.2-69-g5e43d627
     path: .
   path: ytt/vendir/kapp-controller/_ytt_lib
 kind: LockConfig
