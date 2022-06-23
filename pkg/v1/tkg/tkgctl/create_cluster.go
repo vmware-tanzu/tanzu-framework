@@ -153,26 +153,24 @@ func (t *tkgctl) processManagementClusterInputFile(ir *InitRegionOptions) (bool,
 }
 
 func (t *tkgctl) processWorkloadClusterInputFile(cc *CreateClusterOptions, isTKGSCluster bool) (bool, error) {
-	var clusterobj unstructured.Unstructured
-	var err error
-	isInputFileClusterClassBased := false
-	if t.tkgClient.IsFeatureActivated(config.FeatureFlagPackageBasedLCM) {
-		isInputFileClusterClassBased, clusterobj, err = t.checkIfInputFileIsClusterClassBased(cc.ClusterConfigFile)
-		if err != nil {
-			return isInputFileClusterClassBased, err
-		}
-		if isInputFileClusterClassBased {
-			if isTKGSCluster {
-				t.TKGConfigReaderWriter().Set(constants.ConfigVariableClusterName, clusterobj.GetName())
-				t.TKGConfigReaderWriter().Set(constants.ConfigVariableNamespace, clusterobj.GetNamespace())
-			} else {
-				err = t.processClusterObjectForConfigurationVariables(clusterobj)
-				if err != nil {
-					return isInputFileClusterClassBased, err
-				}
+	isInputFileClusterClassBased, clusterobj, err := t.checkIfInputFileIsClusterClassBased(cc.ClusterConfigFile)
+	if err != nil {
+		return isInputFileClusterClassBased, err
+	}
+	if isInputFileClusterClassBased {
+		if isTKGSCluster {
+			t.TKGConfigReaderWriter().Set(constants.ConfigVariableClusterName, clusterobj.GetName())
+			t.TKGConfigReaderWriter().Set(constants.ConfigVariableNamespace, clusterobj.GetNamespace())
+		} else {
+			err = t.processClusterObjectForConfigurationVariables(clusterobj)
+			if err != nil {
+				return isInputFileClusterClassBased, err
 			}
-			t.overrideClusterOptionsWithLatestEnvironmentConfigurationValues(cc)
 		}
+		t.overrideClusterOptionsWithLatestEnvironmentConfigurationValues(cc)
+	}
+	if isInputFileClusterClassBased && !t.tkgClient.IsFeatureActivated(config.FeatureFlagPackageBasedLCM) {
+		return isInputFileClusterClassBased, fmt.Errorf(constants.ErrorMsgCClassInputFeatureFlagDisabled, config.FeatureFlagPackageBasedLCM)
 	}
 	err = t.validateTKGSClusterClassFeatureGate(isInputFileClusterClassBased, isTKGSCluster)
 	if err != nil {

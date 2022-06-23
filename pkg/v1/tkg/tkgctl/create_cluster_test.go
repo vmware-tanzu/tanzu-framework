@@ -11,6 +11,7 @@ import (
 	. "github.com/onsi/gomega"
 	"github.com/pkg/errors"
 
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/config"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/fakes"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/region"
@@ -672,25 +673,31 @@ var _ = Describe("Clusterclass FeatureGate specific use cases", func() {
 			// Make sure its ClusterClass use case.
 			cname, _ := tkgctlClient.tkgConfigReaderWriter.Get("CLUSTER_NAME")
 			Expect(cname).To(Equal("cc01"))
+			ns, _ := tkgctlClient.tkgConfigReaderWriter.Get(constants.ConfigVariableNamespace)
+			Expect(ns).To(Equal("ns01"))
 		})
-		It("Expect empty cluster name when feature flag (config.FeatureFlagPackageBasedLCM) not enabled, input Cluster file is not processed:", func() {
+		It("Expect error when feature flag (config.FeatureFlagPackageBasedLCM) not enabled but CClass input file and TKGS Cluster ", func() {
 			fg.FeatureActivatedInNamespaceReturns(true, nil)
 			tkgClient.IsPacificManagementClusterReturnsOnCall(0, true, nil)
 			tkgClient.GetCurrentRegionContextReturns(regionContext, nil)
 			tkgClient.IsFeatureActivatedReturns(false)
 			tkgClient.CreateClusterReturnsOnCall(0, false, nil)
 
-			_ = tkgctlClient.CreateCluster(options)
-			// Make sure call completed till end
+			err := tkgctlClient.CreateCluster(options)
+			expectedErrMsg := fmt.Sprintf(constants.ErrorMsgCClassInputFeatureFlagDisabled, config.FeatureFlagPackageBasedLCM)
+			Expect(err.Error()).To(ContainSubstring(expectedErrMsg))
+			// Make sure call not completed till end
 			c := tkgClient.CreateClusterCallCount()
-			Expect(1).To(Equal(c))
+			Expect(0).To(Equal(c))
 			// Make sure its TKGs system.
 			pc := tkgClient.IsPacificManagementClusterCallCount()
 			Expect(1).To(Equal(pc))
 			// As feature flag (config.FeatureFlagPackageBasedLCM) is not enabled, the input cluster1_clusterOnly.yaml file not processed,
 			// so cname is empty only.
-			cname, _ := tkgctlClient.tkgConfigReaderWriter.Get("CLUSTER_NAME")
-			Expect(cname).To(Equal(""))
+			cname, _ := tkgctlClient.tkgConfigReaderWriter.Get(constants.ConfigVariableClusterName)
+			Expect(cname).To(Equal("cc01"))
+			ns, _ := tkgctlClient.tkgConfigReaderWriter.Get(constants.ConfigVariableNamespace)
+			Expect(ns).To(Equal("ns01"))
 		})
 		It("Return error when Feature constants.CCFeature is disabled in featuregate", func() {
 			fg.FeatureActivatedInNamespaceReturns(false, nil)

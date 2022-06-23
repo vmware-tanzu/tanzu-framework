@@ -15,6 +15,8 @@ const (
 	ErrorMsgFeatureGateNotActivated = "vSphere with Tanzu environment detected, however, the feature '%v' is not activated in '%v' namespace"
 	ErrorMsgFeatureGateStatus       = "error while checking feature '%v' status in namespace '%v'"
 
+	ErrorMsgCClassInputFeatureFlagDisabled = "Input file is cluster class based but CLI feature flag '%v' is disabled, make sure its enabled to create cluster class based cluster"
+
 	PacificGCMControllerDeployment = "vmware-system-tkg-controller-manager"
 	PacificGCMControllerNamespace  = "vmware-system-tkg"
 	// PacificClusterKind vsphere-pacific provider work load cluster kind
