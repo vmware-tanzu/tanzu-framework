@@ -26,7 +26,6 @@ import (
 	runtanzuv1alpha3 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
 	tkgconstants "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
 
-	"github.com/go-logr/logr"
 	corev1 "k8s.io/api/core/v1"
 	rbacv1 "k8s.io/api/rbac/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
@@ -169,7 +168,7 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 
 				By("packageinstall should have been created for each additional package in the clusterBoostrap")
 				Expect(hasPackageInstalls(ctx, k8sClient, cluster, constants.TKGSystemNS,
-					clusterBootstrap.Spec.AdditionalPackages, logr.Logger{})).To(BeTrue())
+					clusterBootstrap.Spec.AdditionalPackages, setupLog)).To(BeTrue())
 
 				By("packageinstalls for core packages should not have owner references")
 				var corePackages []*runtanzuv1alpha3.ClusterBootstrapPackage
@@ -726,10 +725,10 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 
 				By("instacllpackages for additional packages should have been removed.")
 				Expect(hasPackageInstalls(ctx, k8sClient, cluster, constants.TKGSystemNS,
-					clusterBootstrap.Spec.AdditionalPackages, logr.Logger{})).To(BeTrue())
+					clusterBootstrap.Spec.AdditionalPackages, setupLog)).To(BeTrue())
 				Eventually(func() bool {
 					return hasPackageInstalls(ctx, k8sClient, cluster, constants.TKGSystemNS,
-						clusterBootstrap.Spec.AdditionalPackages, logr.Logger{})
+						clusterBootstrap.Spec.AdditionalPackages, setupLog)
 				}, waitTimeout, pollingInterval).Should(BeFalse())
 
 				By("finalizer should be removed from clusterboostrap")
