@@ -141,7 +141,7 @@ func (r *AddonReconciler) BOMConfigMapToClusters(o client.Object) []ctrl.Request
 		return nil
 	}
 
-	tkr, err := util.GetTKRByName(context.TODO(), r.Client, tkrName)
+	tkr, err := util.GetTKRByNameV1Alpha1(context.TODO(), r.Client, tkrName)
 	if err != nil || tkr == nil {
 		log.Error(err, "Error getting TKr", constants.TKRNameLogKey, tkrName)
 		return nil
@@ -149,7 +149,7 @@ func (r *AddonReconciler) BOMConfigMapToClusters(o client.Object) []ctrl.Request
 
 	clusters, err := util.GetClustersByTKR(context.TODO(), r.Client, tkr)
 	if err != nil {
-		log.Error(err, "Error getting clusters using TKr", constants.TKRNameLogKey, tkr.Name)
+		log.Error(err, "Error getting clusters using TKr", constants.TKRNameLogKey, tkr.GetName())
 		return nil
 	}
 
