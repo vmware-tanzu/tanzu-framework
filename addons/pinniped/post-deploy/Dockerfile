@@ -1,3 +1,5 @@
+# syntax=docker/dockerfile:1.4
+
 # Copyright 2021 VMware, Inc. All Rights Reserved.
 # SPDX-License-Identifier: Apache-2.0
 
@@ -14,7 +16,9 @@ WORKDIR /workspace
 COPY tanzu-auth-controller-manager tanzu-auth-controller-manager
 COPY post-deploy/go.mod post-deploy/go.mod
 COPY post-deploy/go.sum post-deploy/go.sum
-RUN cd post-deploy && go mod download
+RUN  --mount=type=cache,target=/root/.local/share/golang \
+  --mount=type=cache,target=/go/pkg/mod \
+  cd post-deploy && go mod download
 
 # Copy the source
 COPY post-deploy/cmd/ post-deploy/cmd/
@@ -22,7 +26,10 @@ COPY post-deploy/pkg/ post-deploy/pkg/
 COPY post-deploy/Makefile post-deploy/Makefile
 #COPY .git/ .git/
 
-RUN make native -C post-deploy
+RUN --mount=type=cache,target=/root/.cache/go-build \
+  --mount=type=cache,target=/go/pkg/mod \
+  --mount=type=cache,target=/root/.local/share/golang \
+  make native -C post-deploy
 
 FROM gcr.io/distroless/static:nonroot
 WORKDIR /
