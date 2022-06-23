@@ -549,3 +549,36 @@ func (c *client) ListCloudFormationStacks() ([]string, error) {
 
 	return res, nil
 }
+
+type KeyPair struct {
+	// ID is the key pair's ID.
+	ID string
+	// Name is the name of the key pair.
+	Name string
+	// Thumbprint is the key pairs thumbprint.
+	Thumbprint string
+}
+
+// ListEC2KeyPairs will get a list of defined key pairs for the current region.
+func (c *client) ListEC2KeyPairs() ([]*KeyPair, error) {
+	if c.session == nil {
+		return nil, errors.New("uninitialized aws client")
+	}
+	svc := ec2.New(c.session)
+
+	results, err := svc.DescribeKeyPairs(&ec2.DescribeKeyPairsInput{})
+	if err != nil {
+		return nil, errors.Wrap(err, "cannot get the list of vpcs under current account")
+	}
+
+	vpcs := []*KeyPair{}
+	for _, pair := range results.KeyPairs {
+		vpcs = append(vpcs, &KeyPair{
+			ID:         *pair.KeyPairId,
+			Name:       *pair.KeyName,
+			Thumbprint: *pair.KeyFingerprint,
+		})
+	}
+
+	return vpcs, nil
+}

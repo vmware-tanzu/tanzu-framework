@@ -94,6 +94,18 @@ type AWSClient struct {
 		result1 []string
 		result2 error
 	}
+	ListEC2KeyPairsStub        func() ([]*aws.KeyPair, error)
+	listEC2KeyPairsMutex       sync.RWMutex
+	listEC2KeyPairsArgsForCall []struct {
+	}
+	listEC2KeyPairsReturns struct {
+		result1 []*aws.KeyPair
+		result2 error
+	}
+	listEC2KeyPairsReturnsOnCall map[int]struct {
+		result1 []*aws.KeyPair
+		result2 error
+	}
 	ListInstanceTypesStub        func(string) ([]string, error)
 	listInstanceTypesMutex       sync.RWMutex
 	listInstanceTypesArgsForCall []struct {
@@ -568,6 +580,62 @@ func (fake *AWSClient) ListCloudFormationStacksReturnsOnCall(i int, result1 []st
 	}{result1, result2}
 }
 
+func (fake *AWSClient) ListEC2KeyPairs() ([]*aws.KeyPair, error) {
+	fake.listEC2KeyPairsMutex.Lock()
+	ret, specificReturn := fake.listEC2KeyPairsReturnsOnCall[len(fake.listEC2KeyPairsArgsForCall)]
+	fake.listEC2KeyPairsArgsForCall = append(fake.listEC2KeyPairsArgsForCall, struct {
+	}{})
+	stub := fake.ListEC2KeyPairsStub
+	fakeReturns := fake.listEC2KeyPairsReturns
+	fake.recordInvocation("ListEC2KeyPairs", []interface{}{})
+	fake.listEC2KeyPairsMutex.Unlock()
+	if stub != nil {
+		return stub()
+	}
+	if specificReturn {
+		return ret.result1, ret.result2
+	}
+	return fakeReturns.result1, fakeReturns.result2
+}
+
+func (fake *AWSClient) ListEC2KeyPairsCallCount() int {
+	fake.listEC2KeyPairsMutex.RLock()
+	defer fake.listEC2KeyPairsMutex.RUnlock()
+	return len(fake.listEC2KeyPairsArgsForCall)
+}
+
+func (fake *AWSClient) ListEC2KeyPairsCalls(stub func() ([]*aws.KeyPair, error)) {
+	fake.listEC2KeyPairsMutex.Lock()
+	defer fake.listEC2KeyPairsMutex.Unlock()
+	fake.ListEC2KeyPairsStub = stub
+}
+
+func (fake *AWSClient) ListEC2KeyPairsReturns(result1 []*aws.KeyPair, result2 error) {
+	fake.listEC2KeyPairsMutex.Lock()
+	defer fake.listEC2KeyPairsMutex.Unlock()
+	fake.ListEC2KeyPairsStub = nil
+	fake.listEC2KeyPairsReturns = struct {
+		result1 []*aws.KeyPair
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *AWSClient) ListEC2KeyPairsReturnsOnCall(i int, result1 []*aws.KeyPair, result2 error) {
+	fake.listEC2KeyPairsMutex.Lock()
+	defer fake.listEC2KeyPairsMutex.Unlock()
+	fake.ListEC2KeyPairsStub = nil
+	if fake.listEC2KeyPairsReturnsOnCall == nil {
+		fake.listEC2KeyPairsReturnsOnCall = make(map[int]struct {
+			result1 []*aws.KeyPair
+			result2 error
+		})
+	}
+	fake.listEC2KeyPairsReturnsOnCall[i] = struct {
+		result1 []*aws.KeyPair
+		result2 error
+	}{result1, result2}
+}
+
 func (fake *AWSClient) ListInstanceTypes(arg1 string) ([]string, error) {
 	fake.listInstanceTypesMutex.Lock()
 	ret, specificReturn := fake.listInstanceTypesReturnsOnCall[len(fake.listInstanceTypesArgsForCall)]
@@ -878,6 +946,8 @@ func (fake *AWSClient) Invocations() map[string][][]interface{} {
 	defer fake.listAvailabilityZonesMutex.RUnlock()
 	fake.listCloudFormationStacksMutex.RLock()
 	defer fake.listCloudFormationStacksMutex.RUnlock()
+	fake.listEC2KeyPairsMutex.RLock()
+	defer fake.listEC2KeyPairsMutex.RUnlock()
 	fake.listInstanceTypesMutex.RLock()
 	defer fake.listInstanceTypesMutex.RUnlock()
 	fake.listRegionsByUserMutex.RLock()

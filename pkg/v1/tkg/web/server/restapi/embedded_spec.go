@@ -473,6 +473,44 @@ func init() {
         }
       }
     },
+    "/api/provider/aws/keypair": {
+      "get": {
+        "tags": [
+          "aws"
+        ],
+        "summary": "Retrieve AWS key pairs",
+        "operationId": "getAWSKeyPairs",
+        "responses": {
+          "200": {
+            "description": "Successful retrieval of AWS key pairs",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/AWSKeyPair"
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "Incorrect credentials",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
     "/api/providers": {
       "get": {
         "tags": [
@@ -2492,6 +2530,20 @@ func init() {
           "type": "string"
         },
         "name": {
+          "type": "string"
+        }
+      }
+    },
+    "AWSKeyPair": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "thumbprint": {
           "type": "string"
         }
       }
@@ -4105,6 +4157,44 @@ func init() {
         }
       }
     },
+    "/api/provider/aws/keypair": {
+      "get": {
+        "tags": [
+          "aws"
+        ],
+        "summary": "Retrieve AWS key pairs",
+        "operationId": "getAWSKeyPairs",
+        "responses": {
+          "200": {
+            "description": "Successful retrieval of AWS key pairs",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/AWSKeyPair"
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "Incorrect credentials",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
     "/api/providers": {
       "get": {
         "tags": [
@@ -6124,6 +6214,20 @@ func init() {
           "type": "string"
         },
         "name": {
+          "type": "string"
+        }
+      }
+    },
+    "AWSKeyPair": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "thumbprint": {
           "type": "string"
         }
       }

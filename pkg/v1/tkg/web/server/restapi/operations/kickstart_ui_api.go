@@ -99,6 +99,9 @@ func NewKickstartUIAPI(spec *loads.Document) *KickstartUIAPI {
 		AwsGetAWSCredentialProfilesHandler: aws.GetAWSCredentialProfilesHandlerFunc(func(params aws.GetAWSCredentialProfilesParams) middleware.Responder {
 			return middleware.NotImplemented("operation AwsGetAWSCredentialProfiles has not yet been implemented")
 		}),
+		AwsGetAWSKeyPairsHandler: aws.GetAWSKeyPairsHandlerFunc(func(params aws.GetAWSKeyPairsParams) middleware.Responder {
+			return middleware.NotImplemented("operation AwsGetAWSKeyPairs has not yet been implemented")
+		}),
 		AwsGetAWSNodeTypesHandler: aws.GetAWSNodeTypesHandlerFunc(func(params aws.GetAWSNodeTypesParams) middleware.Responder {
 			return middleware.NotImplemented("operation AwsGetAWSNodeTypes has not yet been implemented")
 		}),
@@ -287,6 +290,8 @@ type KickstartUIAPI struct {
 	AwsGetAWSAvailabilityZonesHandler aws.GetAWSAvailabilityZonesHandler
 	// AwsGetAWSCredentialProfilesHandler sets the operation handler for the get a w s credential profiles operation
 	AwsGetAWSCredentialProfilesHandler aws.GetAWSCredentialProfilesHandler
+	// AwsGetAWSKeyPairsHandler sets the operation handler for the get a w s key pairs operation
+	AwsGetAWSKeyPairsHandler aws.GetAWSKeyPairsHandler
 	// AwsGetAWSNodeTypesHandler sets the operation handler for the get a w s node types operation
 	AwsGetAWSNodeTypesHandler aws.GetAWSNodeTypesHandler
 	// AwsGetAWSOSImagesHandler sets the operation handler for the get a w s o s images operation
@@ -498,6 +503,10 @@ func (o *KickstartUIAPI) Validate() error {
 
 	if o.AwsGetAWSCredentialProfilesHandler == nil {
 		unregistered = append(unregistered, "aws.GetAWSCredentialProfilesHandler")
+	}
+
+	if o.AwsGetAWSKeyPairsHandler == nil {
+		unregistered = append(unregistered, "aws.GetAWSKeyPairsHandler")
 	}
 
 	if o.AwsGetAWSNodeTypesHandler == nil {
@@ -846,6 +855,11 @@ func (o *KickstartUIAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/api/providers/aws/profiles"] = aws.NewGetAWSCredentialProfiles(o.context, o.AwsGetAWSCredentialProfilesHandler)
+
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/api/provider/aws/keypair"] = aws.NewGetAWSKeyPairs(o.context, o.AwsGetAWSKeyPairsHandler)
 
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
