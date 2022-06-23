@@ -1,8 +1,10 @@
 # ClusterClass Support
 
-Documentation for cluster LCM using ClusterClass.
+This is a collection of documents related to ClusterClass-based Cluster Lifecycle Management
 
 ## Table of Contents
 
-* [ClusterClass Support](cluster-class-support.md)
-* ClusterClass Developer Overview (To be added)
+* [Overview](cluster-class-support.md)
+* [Mapping legacy configuration values to ClusterClass fields/variables](clusterclass/legacy-to-cc-variable-mapping.md)
+* [ClusterClass based management cluster creation](../tkgctl/management-cluster-using-clusterclass.md)
+* [ClusterClass Developer Tips](cluster-class-dev.md)
