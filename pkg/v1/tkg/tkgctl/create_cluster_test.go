@@ -23,13 +23,14 @@ import (
 const fakeTKRVersion = "1.19.0+vmware.1-tkg.1"
 const configFilePath = "../fakes/config/config.yaml"
 
-const classInputFileAws = "../fakes/config/cluster_aws.yaml"
-const classInputFileAwsIncorrectClass = "../fakes/config/cluster_aws_incorrectClass.yaml"
-const classInputFileAwsEmptyClass = "../fakes/config/cluster_aws_emptyClass.yaml"
-const clusterInputFileMultipleObjectsAws = "../fakes/config/cluster_aws_multipleObjects.yaml"
-const classInputFileAzure = "../fakes/config/cluster_azure.yaml"
-const classInputFileVsphere = "../fakes/config/cluster_vsphere.yaml"
-const classInputFileTKGS = "../fakes/config/cluster_tkgs.yaml"
+const inputFileAws = "../fakes/config/cluster_aws.yaml"
+const inputFileAwsIncorrectClass = "../fakes/config/cluster_aws_incorrectClass.yaml"
+const inputFileAwsEmptyClass = "../fakes/config/cluster_aws_emptyClass.yaml"
+const inputFileMultipleObjectsAws = "../fakes/config/cluster_aws_multipleObjects.yaml"
+const inputFileAzure = "../fakes/config/cluster_azure.yaml"
+const inputFileVsphere = "../fakes/config/cluster_vsphere.yaml"
+const inputFileTKGS_ClusterClass = "../fakes/config/cluster_tkgs.yaml"
+const inputFileTKGS_TKC = "../fakes/config/cluster_tkgs_tkc.yaml"
 const inputFileLegacy = "../fakes/config/cluster1_config.yaml"
 
 var testingDir string
@@ -38,6 +39,7 @@ var _ = Describe("Unit tests for create cluster", func() {
 	var (
 		options   CreateClusterOptions
 		tkgClient *fakes.Client
+		fg        *fakes.FakeFeatureGateHelper
 	)
 
 	BeforeSuite(createTempDirectory)
@@ -55,6 +57,7 @@ var _ = Describe("Unit tests for create cluster", func() {
 				SkipPrompt:             true,
 				Edition:                "tkg",
 			}
+			fg = &fakes.FakeFeatureGateHelper{}
 		})
 		It("Namespace is taken from the context when no -n flag is specified", func() {
 			kubeConfigPath := getConfigFilePath()
@@ -74,7 +77,9 @@ var _ = Describe("Unit tests for create cluster", func() {
 				kubeconfig:             kubeConfigPath,
 				tkgConfigReaderWriter:  tkgConfigReaderWriter,
 				tkgConfigUpdaterClient: tkgconfigupdater.New(testingDir, nil, tkgConfigReaderWriter),
+				featureGateHelper:      fg,
 			}
+			fg.FeatureActivatedInNamespaceReturns(true, nil)
 
 			err = tkgctlClient.CreateCluster(options)
 			Expect(err).NotTo(HaveOccurred())
@@ -96,8 +101,9 @@ var _ = Describe("Unit tests for create cluster", func() {
 				kubeconfig:             kubeConfigPath,
 				tkgConfigReaderWriter:  tkgConfigReaderWriter,
 				tkgConfigUpdaterClient: tkgconfigupdater.New(testingDir, nil, tkgConfigReaderWriter),
+				featureGateHelper:      fg,
 			}
-
+			fg.FeatureActivatedInNamespaceReturns(true, nil)
 			options.Namespace = "custom-namespace"
 			err = tkgctlClient.CreateCluster(options)
 			Expect(err).NotTo(HaveOccurred())
@@ -243,7 +249,7 @@ var _ = Describe("Unit tests for (AWS)  cluster_aws.yaml as input file for 'tanz
 				TkrVersion:             fakeTKRVersion,
 				SkipPrompt:             true,
 				Edition:                "tkg",
-				ClusterConfigFile:      classInputFileAws,
+				ClusterConfigFile:      inputFileAws,
 			}
 		})
 		It("Environment should be updated with legacy variables and CreateClusterOptions updated with Cluster attribute values:", func() {
@@ -326,7 +332,7 @@ var _ = Describe("Unit tests for (AWS)  cluster_aws.yaml as input file for 'tanz
 			// Process input cluster yaml file, this should process input cluster yaml file
 			// and update the environment with legacy name and values
 			// most of cluster yaml attributes are mapped to legacy variable for more look this - constants.ClusterToLegacyVariablesMapAws
-			options.ClusterConfigFile = clusterInputFileMultipleObjectsAws
+			options.ClusterConfigFile = inputFileMultipleObjectsAws
 			IsInputFileClusterClassBased, err := ctl.processWorkloadClusterInputFile(&options, isTKGSCluster)
 			Expect(IsInputFileClusterClassBased).Should(BeTrue())
 			Expect(err).To(BeNil())
@@ -351,13 +357,13 @@ var _ = Describe("Unit tests for (AWS)  cluster_aws.yaml as input file for 'tanz
 			// Process input cluster.yaml file, this should process input cluster.yaml file
 			// and update the environment with legacy name and values
 			// most of cluster.yaml attributes are mapped to legacy variable for more look this - constants.clusterToLegacyVariablesMapAws
-			options.ClusterConfigFile = classInputFileAwsEmptyClass
+			options.ClusterConfigFile = inputFileAwsEmptyClass
 			_, err := ctl.processWorkloadClusterInputFile(&options, isTKGSCluster)
 			Expect(fmt.Sprint(err)).To(Equal(constants.TopologyClassIncorrectValueErrMsg))
 		})
 
 		It("When Input file is aws clusterclass.yaml file, but in-correct spec.topology.class name:", func() {
-			options.ClusterConfigFile = classInputFileAwsIncorrectClass
+			options.ClusterConfigFile = inputFileAwsIncorrectClass
 			IsInputFileClusterClassBased, err := ctl.processWorkloadClusterInputFile(&options, isTKGSCluster)
 			Expect(IsInputFileClusterClassBased).Should(BeTrue())
 			Expect(fmt.Sprint(err)).To(Equal(constants.TopologyClassIncorrectValueErrMsg))
@@ -414,7 +420,7 @@ var _ = Describe("Unit tests for - (Vsphere) - cluster_vsphere.yaml as input fil
 				TkrVersion:             fakeTKRVersion,
 				SkipPrompt:             true,
 				Edition:                "tkg",
-				ClusterConfigFile:      classInputFileVsphere,
+				ClusterConfigFile:      inputFileVsphere,
 			}
 		})
 		It("Environment should be updated with legacy variables with input cluster attribute values:", func() {
@@ -519,7 +525,7 @@ var _ = Describe("Unit tests for - (Azure) - cluster_azure.yaml as input file fo
 				TkrVersion:             fakeTKRVersion,
 				SkipPrompt:             true,
 				Edition:                "tkg",
-				ClusterConfigFile:      classInputFileAzure,
+				ClusterConfigFile:      inputFileAzure,
 			}
 		})
 		It("Environment should be updated with legacy variables with input cluster attribute values:", func() {
@@ -592,7 +598,7 @@ var _ = Describe("TKGS Cluster - cluster_tkgs.yaml as input file for 'tanzu clus
 				TkrVersion:             fakeTKRVersion,
 				SkipPrompt:             true,
 				Edition:                "tkg",
-				ClusterConfigFile:      classInputFileTKGS,
+				ClusterConfigFile:      inputFileTKGS_ClusterClass,
 			}
 		})
 		It("Environment should be updated with legacy variables with input cluster attribute values:", func() {
@@ -636,13 +642,13 @@ var _ = Describe("Clusterclass FeatureGate specific use cases", func() {
 				TkrVersion:             fakeTKRVersion,
 				SkipPrompt:             true,
 				Edition:                "tkg",
-				ClusterConfigFile:      classInputFileTKGS,
+				ClusterConfigFile:      inputFileTKGS_ClusterClass,
 			}
 			fg = &fakes.FakeFeatureGateHelper{}
-			kubeConfigPath := classInputFileTKGS
+			kubeConfigPath := inputFileTKGS_ClusterClass
 			regionContext = region.RegionContext{
 				ContextName:    "queen-anne-context",
-				SourceFilePath: classInputFileTKGS,
+				SourceFilePath: inputFileTKGS_ClusterClass,
 			}
 			tkgConfigReaderWriter, _ := tkgconfigreaderwriter.NewReaderWriterFromConfigFile(configFilePath, configFilePath)
 			tkgConfigReaderWriter.Set(constants.ConfigVariableClusterPlan, "dev")
@@ -692,12 +698,6 @@ var _ = Describe("Clusterclass FeatureGate specific use cases", func() {
 			// Make sure its TKGs system.
 			pc := tkgClient.IsPacificManagementClusterCallCount()
 			Expect(1).To(Equal(pc))
-			// As feature flag (config.FeatureFlagPackageBasedLCM) is not enabled, the input cluster1_clusterOnly.yaml file not processed,
-			// so cname is empty only.
-			cname, _ := tkgctlClient.tkgConfigReaderWriter.Get(constants.ConfigVariableClusterName)
-			Expect(cname).To(Equal("cc01"))
-			ns, _ := tkgctlClient.tkgConfigReaderWriter.Get(constants.ConfigVariableNamespace)
-			Expect(ns).To(Equal("ns01"))
 		})
 		It("Return error when Feature constants.CCFeature is disabled in featuregate", func() {
 			fg.FeatureActivatedInNamespaceReturns(false, nil)
@@ -708,7 +708,7 @@ var _ = Describe("Clusterclass FeatureGate specific use cases", func() {
 
 			// feature flag (config.FeatureFlagPackageBasedLCM) activated, its clusterclass input file, but "clusterclass" feature in FeatureGate is disabled, so throws error
 			err := tkgctlClient.CreateCluster(options)
-			expectedErrMsg := fmt.Sprintf(constants.ErrorMsgFeatureGateNotActivated, constants.CCFeature, constants.TKGSClusterClassNamespace)
+			expectedErrMsg := fmt.Sprintf(constants.ErrorMsgFeatureGateNotActivated, constants.ClusterClassFeature, constants.TKGSClusterClassNamespace)
 			Expect(err.Error()).To(ContainSubstring(expectedErrMsg))
 		})
 
@@ -722,9 +722,117 @@ var _ = Describe("Clusterclass FeatureGate specific use cases", func() {
 
 			// but throws error for the FeatureGate api, so we expect error here.
 			err := tkgctlClient.CreateCluster(options)
-			errorMsg = fmt.Sprintf(constants.ErrorMsgFeatureGateStatus, constants.CCFeature, constants.TKGSClusterClassNamespace)
+			errorMsg = fmt.Sprintf(constants.ErrorMsgFeatureGateStatus, constants.ClusterClassFeature, constants.TKGSClusterClassNamespace)
 			// as FeatureGate api throws error, we expect error.
 			Expect(err.Error()).To(ContainSubstring(errorMsg))
+		})
+	})
+	Context("TKGS TKC based cluster creation", func() {
+		BeforeEach(func() {
+			options = CreateClusterOptions{
+				ClusterName:            "test-cluster",
+				Plan:                   "devcc",
+				InfrastructureProvider: "",
+				Namespace:              "",
+				GenerateOnly:           false,
+				TkrVersion:             fakeTKRVersion,
+				SkipPrompt:             true,
+				Edition:                "tkg",
+				ClusterConfigFile:      inputFileTKGS_TKC,
+			}
+			fg = &fakes.FakeFeatureGateHelper{}
+			kubeConfigPath := inputFileTKGS_TKC
+			regionContext = region.RegionContext{
+				ContextName:    "queen-anne-context",
+				SourceFilePath: inputFileTKGS_TKC,
+			}
+			tkgConfigReaderWriter, _ := tkgconfigreaderwriter.NewReaderWriterFromConfigFile(configFilePath, configFilePath)
+			tkgConfigReaderWriter.Set(constants.ConfigVariableClusterPlan, "dev")
+			tkgClient = &fakes.Client{}
+			tkgctlClient = &tkgctl{
+				configDir:              testingDir,
+				tkgClient:              tkgClient,
+				kubeconfig:             kubeConfigPath,
+				tkgConfigReaderWriter:  tkgConfigReaderWriter,
+				tkgConfigUpdaterClient: tkgconfigupdater.New(testingDir, nil, tkgConfigReaderWriter),
+				featureGateHelper:      fg,
+			}
+		})
+		It("When feature flag (config.FeatureFlagPackageBasedLCM) enabled, input TKC file is processed:", func() {
+			fg.FeatureActivatedInNamespaceReturns(true, nil)
+			tkgClient.IsPacificManagementClusterReturnsOnCall(0, true, nil)
+			tkgClient.GetCurrentRegionContextReturns(regionContext, nil)
+			tkgClient.IsFeatureActivatedReturns(true)
+			tkgClient.CreateClusterReturnsOnCall(0, false, nil)
+
+			_ = tkgctlClient.CreateCluster(options)
+			// Make sure call completed till end
+			c := tkgClient.CreateClusterCallCount()
+			Expect(1).To(Equal(c))
+			// Make sure its TKGs system.
+			pc := tkgClient.IsPacificManagementClusterCallCount()
+			Expect(1).To(Equal(pc))
+			// Make sure its ClusterClass use case.
+			cname, _ := tkgctlClient.tkgConfigReaderWriter.Get("CLUSTER_NAME")
+			Expect(cname).To(Equal("tkc-01"))
+			ns, _ := tkgctlClient.tkgConfigReaderWriter.Get(constants.ConfigVariableNamespace)
+			Expect(ns).To(Equal("ns01"))
+		})
+		It("Expect to complete CreateCluster call even feature flag (config.FeatureFlagPackageBasedLCM) not enabled, TKC input file ", func() {
+			fg.FeatureActivatedInNamespaceReturns(true, nil)
+			tkgClient.IsPacificManagementClusterReturnsOnCall(0, true, nil)
+			tkgClient.GetCurrentRegionContextReturns(regionContext, nil)
+			tkgClient.IsFeatureActivatedReturns(false)
+			tkgClient.CreateClusterReturnsOnCall(0, false, nil)
+
+			_ = tkgctlClient.CreateCluster(options)
+
+			// Make sure call not completed till end
+			c := tkgClient.CreateClusterCallCount()
+			Expect(1).To(Equal(c))
+			// Make sure its TKGs system.
+			pc := tkgClient.IsPacificManagementClusterCallCount()
+			Expect(1).To(Equal(pc))
+
+			cname, _ := tkgctlClient.tkgConfigReaderWriter.Get(constants.ConfigVariableClusterName)
+			Expect(cname).To(Equal("tkc-01"))
+			ns, _ := tkgctlClient.tkgConfigReaderWriter.Get(constants.ConfigVariableNamespace)
+			Expect(ns).To(Equal("ns01"))
+		})
+		It("Return error when Feature constants.TKCAPIFeature is disabled in TKGS featuregate", func() {
+			fg.FeatureActivatedInNamespaceReturns(false, nil)
+			tkgClient.IsPacificManagementClusterReturnsOnCall(0, true, nil)
+			tkgClient.GetCurrentRegionContextReturns(regionContext, nil)
+			tkgClient.IsFeatureActivatedReturns(true)
+			tkgClient.CreateClusterReturnsOnCall(0, false, nil)
+
+			// feature flag (config.FeatureFlagPackageBasedLCM) activated, its clusterclass input file, but "clusterclass" feature in FeatureGate is disabled, so throws error
+			err := tkgctlClient.CreateCluster(options)
+			expectedErrMsg := fmt.Sprintf(constants.ErrorMsgFeatureGateNotActivated, constants.TKCAPIFeature, constants.TKGSTKCAPINamespace)
+			Expect(err.Error()).To(ContainSubstring(expectedErrMsg))
+		})
+
+		It("create cluster even when tkc-api featuregate api throws error", func() {
+			errorMsg := "error while checking feature status in featuregate"
+			fg.FeatureActivatedInNamespaceReturns(true, fmt.Errorf(errorMsg))
+			tkgClient.IsPacificManagementClusterReturnsOnCall(0, true, nil)
+			tkgClient.GetCurrentRegionContextReturns(regionContext, nil)
+			tkgClient.IsFeatureActivatedReturns(true)
+			tkgClient.CreateClusterReturnsOnCall(0, false, nil)
+
+			// but throws error for the FeatureGate api, so we expect error here.
+			_ = tkgctlClient.CreateCluster(options)
+			// Make sure call not completed till end
+			c := tkgClient.CreateClusterCallCount()
+			Expect(1).To(Equal(c))
+			// Make sure its TKGs system.
+			pc := tkgClient.IsPacificManagementClusterCallCount()
+			Expect(1).To(Equal(pc))
+
+			cname, _ := tkgctlClient.tkgConfigReaderWriter.Get(constants.ConfigVariableClusterName)
+			Expect(cname).To(Equal("tkc-01"))
+			ns, _ := tkgctlClient.tkgConfigReaderWriter.Get(constants.ConfigVariableNamespace)
+			Expect(ns).To(Equal("ns01"))
 		})
 	})
 })

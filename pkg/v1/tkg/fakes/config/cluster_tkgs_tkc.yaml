@@ -1,0 +1,15 @@
+NAMESPACE: ns01
+CLUSTER_CIDR: 100.96.0.0/11
+CLUSTER_NAME: tkc-01
+CLUSTER_PLAN: dev
+INFRASTRUCTURE_PROVIDER: tkg-service-vsphere
+OS_ARCH: amd64
+OS_NAME: ubuntu
+OS_VERSION: "20.04"
+SERVICE_CIDR: 100.64.0.0/13
+SERVICE_DOMAIN: "cluster.local"
+CONTROL_PLANE_STORAGE_CLASS: "wcpglobal-storage-profile"
+WORKER_STORAGE_CLASS: "wcpglobal-storage-profile"
+CONTROL_PLANE_VM_CLASS: "best-effort-xsmall"
+WORKER_VM_CLASS: "best-effort-xsmall"
+NODE_POOL_0_NAME: "workers-name-overwrite"

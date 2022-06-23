@@ -158,6 +158,9 @@ func (t *tkgctl) processWorkloadClusterInputFile(cc *CreateClusterOptions, isTKG
 		return isInputFileClusterClassBased, err
 	}
 	if isInputFileClusterClassBased {
+		if !t.tkgClient.IsFeatureActivated(config.FeatureFlagPackageBasedLCM) {
+			return isInputFileClusterClassBased, fmt.Errorf(constants.ErrorMsgCClassInputFeatureFlagDisabled, config.FeatureFlagPackageBasedLCM)
+		}
 		if isTKGSCluster {
 			t.TKGConfigReaderWriter().Set(constants.ConfigVariableClusterName, clusterobj.GetName())
 			t.TKGConfigReaderWriter().Set(constants.ConfigVariableNamespace, clusterobj.GetNamespace())
@@ -169,25 +172,33 @@ func (t *tkgctl) processWorkloadClusterInputFile(cc *CreateClusterOptions, isTKG
 		}
 		t.overrideClusterOptionsWithLatestEnvironmentConfigurationValues(cc)
 	}
-	if isInputFileClusterClassBased && !t.tkgClient.IsFeatureActivated(config.FeatureFlagPackageBasedLCM) {
-		return isInputFileClusterClassBased, fmt.Errorf(constants.ErrorMsgCClassInputFeatureFlagDisabled, config.FeatureFlagPackageBasedLCM)
-	}
-	err = t.validateTKGSClusterClassFeatureGate(isInputFileClusterClassBased, isTKGSCluster)
-	if err != nil {
-		return isInputFileClusterClassBased, err
+	if isTKGSCluster {
+		err = t.validateTKGSFeatureGateStatus(isInputFileClusterClassBased)
+		if err != nil {
+			return isInputFileClusterClassBased, err
+		}
 	}
 	return isInputFileClusterClassBased, nil
 }
 
-// validateTKGSClusterClassFeatureGate validates the TKGS clusterclass feature gate state
-func (t *tkgctl) validateTKGSClusterClassFeatureGate(isInputFileClusterClassBased, isTKGSCluster bool) error {
-	if t.tkgClient.IsFeatureActivated(config.FeatureFlagPackageBasedLCM) && isInputFileClusterClassBased && isTKGSCluster {
-		isFeatureActivated, err := t.featureGateHelper.FeatureActivatedInNamespace(context.Background(), constants.CCFeature, constants.TKGSClusterClassNamespace)
+// validateTKGSFeatureGateStatus validates the TKGS featuregate status for a specific feature
+func (t *tkgctl) validateTKGSFeatureGateStatus(isInputFileClusterClassBased bool) error {
+	if isInputFileClusterClassBased {
+		isClusterClassFeatureActivated, err := t.featureGateHelper.FeatureActivatedInNamespace(context.Background(), constants.ClusterClassFeature, constants.TKGSClusterClassNamespace)
 		if err != nil {
-			return errors.Wrap(err, fmt.Sprintf(constants.ErrorMsgFeatureGateStatus, constants.CCFeature, constants.TKGSClusterClassNamespace))
+			return errors.Wrap(err, fmt.Sprintf(constants.ErrorMsgFeatureGateStatus, constants.ClusterClassFeature, constants.TKGSClusterClassNamespace))
 		}
-		if !isFeatureActivated {
-			return fmt.Errorf(constants.ErrorMsgFeatureGateNotActivated, constants.CCFeature, constants.TKGSClusterClassNamespace)
+		if !isClusterClassFeatureActivated {
+			return fmt.Errorf(constants.ErrorMsgFeatureGateNotActivated, constants.ClusterClassFeature, constants.TKGSClusterClassNamespace)
+		}
+	} else {
+		isTKCFeatureActivated, err := t.featureGateHelper.FeatureActivatedInNamespace(context.Background(), constants.TKCAPIFeature, constants.TKGSTKCAPINamespace)
+		if err != nil {
+			//ignore the error, because the supervisor could be vSphere7 based (which does not support tkc-api featuregate)
+			return nil
+		}
+		if !isTKCFeatureActivated {
+			return fmt.Errorf(constants.ErrorMsgFeatureGateNotActivated, constants.TKCAPIFeature, constants.TKGSTKCAPINamespace)
 		}
 	}
 	return nil
@@ -367,11 +378,12 @@ func (t *tkgctl) configureCreateClusterOptionsFromConfigFile(cc *CreateClusterOp
 
 	if cc.Namespace == "" {
 		namespace, err := t.TKGConfigReaderWriter().Get(constants.ConfigVariableNamespace)
-		log.V(1).Infof("Using namespace from config: %s", cc.Namespace)
 		if err == nil {
 			cc.Namespace = namespace
+			log.V(1).Infof("Using namespace from config: %s", cc.Namespace)
 		} else {
 			cc.Namespace = constants.DefaultNamespace
+			log.V(1).Infof("Using namespace: %s", cc.Namespace)
 		}
 	}
 
