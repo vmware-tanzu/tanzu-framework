@@ -20,7 +20,10 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 )
 
+var metricsAddr string
+
 func main() {
+	flag.StringVar(&metricsAddr, "metrics-bind-addr", ":8080", "The address the metric endpoint binds to.")
 	disableCascadeV1alpha1 := flag.Bool("disable-cascade-v1alpha1", false, "whether to disable the v1alpha1 control loop")
 	klog.InitFlags(nil)
 	flag.Parse()
@@ -48,7 +51,8 @@ func reallyMain(setupLog logr.Logger, disableCascadeV1alpha1 bool) error {
 
 	// Create manager to run our controller.
 	manager, err := ctrl.NewManager(ctrl.GetConfigOrDie(), ctrl.Options{
-		Scheme: scheme,
+		MetricsBindAddress: metricsAddr,
+		Scheme:             scheme,
 	})
 	if err != nil {
 		return fmt.Errorf("unable to start manager: %w", err)
