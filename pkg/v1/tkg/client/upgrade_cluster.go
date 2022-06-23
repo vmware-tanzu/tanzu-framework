@@ -117,7 +117,7 @@ type ClusterUpgradeInfo struct {
 // 5. Wait for k8s version to be updated for the cluster
 // 6. Patch MachineDeployment object to upgrade worker nodes
 // 7. Wait for k8s version to be updated for all worker nodes
-func (c *TkgClient) UpgradeCluster(options *UpgradeClusterOptions) error { // nolint:funlen,gocyclo
+func (c *TkgClient) UpgradeCluster(options *UpgradeClusterOptions) error {
 	if options == nil {
 		return errors.New("invalid upgrade cluster options nil")
 	}
@@ -177,7 +177,21 @@ func (c *TkgClient) UpgradeCluster(options *UpgradeClusterOptions) error { // no
 		}
 	}
 
-	err = c.addKubernetesReleaseLabel(regionalClusterClient, options)
+	// Check if Cluster is ClusterClass based cluster or not
+	isClusterClassBased, err := regionalClusterClient.IsClusterClassBased(options.ClusterName, options.Namespace)
+	if err != nil {
+		return errors.Wrap(err, "unable to determine cluster type")
+	}
+
+	// If cluster is ClusterClass based cluster upgrade the cluster with different path
+	if isClusterClassBased {
+		return c.DoClassyClusterUpgrade(regionalClusterClient, currentClusterClient, options)
+	}
+	return c.DoLegacyClusterUpgrade(regionalClusterClient, currentClusterClient, options)
+}
+
+func (c *TkgClient) DoLegacyClusterUpgrade(regionalClusterClient, currentClusterClient clusterclient.Client, options *UpgradeClusterOptions) error {
+	err := c.addKubernetesReleaseLabel(regionalClusterClient, options)
 	if err != nil {
 		return errors.Wrapf(err, "unable to patch the cluster object with TanzuKubernetesRelease label")
 	}

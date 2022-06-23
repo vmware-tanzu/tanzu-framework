@@ -16,8 +16,14 @@ spec:
     #! TODO: check out the spec of other packages, such as addons-manager-v1 for resource limits, etc.
     #! we probably want to flesh this out.
     spec:
+      #@ if/end hasattr(data.values.deployment, 'nodeSelector') and data.values.deployment.nodeSelector:
+      nodeSelector: #@ data.values.deployment.nodeSelector
       serviceAccountName: tanzu-auth-controller-manager-sa
       containers:
       - image: #@ data.values.controller.image
         name: tanzu-auth-controller-manager
-        args: ["--disable-cascade-v1alpha1"]
+        args: ["--disable-cascade-v1alpha1", "--metrics-bind-addr=0"]
+      #@ if/end data.values.deployment.hostNetwork:
+      hostNetwork: true
+      #@ if/end hasattr(data.values.deployment, 'tolerations') and data.values.deployment.tolerations:
+      tolerations: #@ data.values.deployment.tolerations
