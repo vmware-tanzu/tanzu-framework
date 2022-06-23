@@ -1,3 +1,5 @@
+# syntax=docker/dockerfile:1.4
+
 # Copyright 2021 VMware, Inc. All Rights Reserved.
 # SPDX-License-Identifier: Apache-2.0
 
@@ -22,7 +24,10 @@ COPY post-deploy/pkg/ post-deploy/pkg/
 COPY post-deploy/Makefile post-deploy/Makefile
 #COPY .git/ .git/
 
-RUN make native -C post-deploy
+RUN --mount=type=cache,target=/root/.cache/go-build \
+  --mount=type=cache,target=/go/pkg/mod \
+  --mount=type=cache,target=/root/.local/share/golang \
+  make native -C post-deploy
 
 FROM gcr.io/distroless/static:nonroot
 WORKDIR /
