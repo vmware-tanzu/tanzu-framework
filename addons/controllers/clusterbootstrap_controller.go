@@ -618,10 +618,13 @@ func (r *ClusterBootstrapReconciler) createOrPatchKappPackageInstall(clusterBoot
 		if err != nil {
 			return err
 		}
-		pkgi.Spec.Values = []kapppkgiv1alpha1.PackageInstallValues{
-			{SecretRef: &kapppkgiv1alpha1.PackageInstallValuesSecretRef{
-				Name: secret.Name},
-			},
+
+		if secret != nil {
+			pkgi.Spec.Values = []kapppkgiv1alpha1.PackageInstallValues{
+				{SecretRef: &kapppkgiv1alpha1.PackageInstallValuesSecretRef{
+					Name: secret.Name},
+				},
+			}
 		}
 
 		return nil
