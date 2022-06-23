@@ -4,10 +4,13 @@
 package controllers
 
 import (
+	"bytes"
 	"context"
+	"io"
 	"os"
 	"path"
 	"path/filepath"
+	"strings"
 	"testing"
 	"time"
 
@@ -93,6 +96,8 @@ var (
 	tmpDir                string
 	webhookCertDetails    testutil.WebhookCertificatesDetails
 	webhookSelectorString string
+	configCRDBasesPath    = filepath.Join("..", "..", "config", "crd", "bases")
+	localCRDPath          = filepath.Join("testdata", "internal-crds")
 )
 
 func TestAddonController(t *testing.T) {
@@ -124,10 +129,32 @@ var _ = BeforeSuite(func(done Done) {
 	Expect(err).NotTo(HaveOccurred())
 	Expect(externalCRDPaths).ToNot(BeEmpty())
 	testEnv.CRDDirectoryPaths = externalCRDPaths
+
+	// copy "../..config/crd/bases" into a local directory "testdata/internal-crds", while excluding "tanzukubernetesreleases" CRD file, which its v1alpha3 version is already included in "testdata/dependency/crd" directory
+	err = setupLocalCRDDirectory(localCRDPath)
+	Expect(err).NotTo(HaveOccurred())
+
+	files, err := os.ReadDir(configCRDBasesPath)
+	Expect(err).ToNot(HaveOccurred())
+	for _, f := range files {
+		if !strings.Contains(f.Name(), "tanzukubernetesreleases") {
+			data, err := os.ReadFile(filepath.Join(configCRDBasesPath, f.Name()))
+			Expect(err).ToNot(HaveOccurred())
+
+			destFilePath := filepath.Join(localCRDPath, f.Name())
+			destFile, err := os.OpenFile(destFilePath, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0755)
+			Expect(err).NotTo(HaveOccurred())
+
+			_, err = io.Copy(destFile, bytes.NewReader(data))
+			Expect(err).NotTo(HaveOccurred())
+			destFile.Close()
+		}
+	}
+
 	// If it is not possible to include the parent repo that contains the CRD yaml file, manually add the CRD definition file into testdata/dependency/crd
 	// For example, virtualmachines CRD is in repo vm-operator, but introducing vm-operator would cause dependency conflict in go.mod, therefore the CRD file is manually ported in
 	testEnv.CRDDirectoryPaths = append(testEnv.CRDDirectoryPaths,
-		filepath.Join("..", "..", "config", "crd", "bases"), filepath.Join("testdata"), filepath.Join("testdata", "dependency", "crd"))
+		localCRDPath, filepath.Join("testdata"), filepath.Join("testdata", "dependency", "crd"))
 	testEnv.ErrorIfCRDPathMissing = true
 
 	cfg, err = testEnv.Start()
@@ -397,4 +424,28 @@ var _ = AfterSuite(func() {
 	cancel()
 	err = testEnv.Stop()
 	Expect(err).ToNot(HaveOccurred())
+
+	err = removeLocalCRDDirectory(localCRDPath)
+	Expect(err).ToNot(HaveOccurred())
 })
+
+func setupLocalCRDDirectory(path string) error {
+	_, err := os.Stat(path)
+	if err != nil {
+		if os.IsNotExist(err) {
+			if err := os.MkdirAll(path, os.ModePerm); err != nil {
+				return err
+			}
+		} else {
+			return err
+		}
+	}
+	return nil
+}
+
+func removeLocalCRDDirectory(path string) error {
+	if err := os.RemoveAll(path); err != nil {
+		return err
+	}
+	return nil
+}

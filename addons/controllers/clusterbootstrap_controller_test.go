@@ -538,6 +538,7 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 					cluster = &clusterapiv1beta1.Cluster{}
 					Expect(k8sClient.Get(ctx, client.ObjectKey{Namespace: clusterNamespace, Name: clusterName}, cluster)).To(Succeed())
 					cluster.Labels[constants.TKRLabelClassyClusters] = newTKRVersion
+
 					// Mock cluster pause mutating webhook
 					cluster.Spec.Paused = true
 					if cluster.Annotations == nil {
@@ -556,7 +557,8 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 						// Validate CNI
 						cni := upgradedClusterBootstrap.Spec.CNI
 						Expect(strings.HasPrefix(cni.RefName, "antrea")).To(BeTrue())
-						Expect(cni.RefName).To(Equal("antrea.tanzu.vmware.com.1.2.3--vmware.4-tkg.2-advanced-zshippable"))
+						// Note: The value of CNI has been bumped to the one in TKR after cluster upgrade
+						Expect(cni.RefName).To(Equal("antrea.tanzu.vmware.com.1.5.2--vmware.3-tkg.1-advanced-zshippable"))
 						Expect(*cni.ValuesFrom.ProviderRef.APIGroup).To(Equal("cni.tanzu.vmware.com"))
 						Expect(cni.ValuesFrom.ProviderRef.Kind).To(Equal("AntreaConfig"))
 						Expect(cni.ValuesFrom.ProviderRef.Name).To(Equal(fmt.Sprintf("%s-antrea-package", clusterName)))

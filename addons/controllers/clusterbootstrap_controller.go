@@ -159,7 +159,7 @@ func (r *ClusterBootstrapReconciler) Reconcile(ctx context.Context, req ctrl.Req
 		return ctrl.Result{}, nil
 	}
 
-	tkr, err := util.GetTKRByName(r.context, r.Client, tkrName)
+	tkr, err := util.GetTKRByNameV1Alpha3(r.context, r.Client, tkrName)
 	if err != nil {
 		log.Error(err, "unable to fetch TKR object", "name", tkrName)
 		return ctrl.Result{}, err
@@ -474,9 +474,15 @@ func (r *ClusterBootstrapReconciler) mergeClusterBootstrapPackagesWithTemplate(
 		log.Info("no CNI package specified in ClusterBootstarp, should not happen. Continue with CNI in ClusterBootstrapTemplate of new TKR")
 		updatedClusterBootstrap.Spec.CNI = clusterBootstrapTemplate.Spec.CNI.DeepCopy()
 	} else {
-		// We don't allow change to the CNI selection once it starts running
+		// We don't allow change to the CNI selection once it starts running, however we allow version bump
+		//TODO: check correctness of the following statement, as we still allow version bump
 		// ClusterBootstrap webhook will make sure the package RefName always match the original CNI
-		updatedClusterBootstrap.Spec.CNI.RefName = clusterBootstrapTemplate.Spec.CNI.RefName
+		updatedCNI, cniNamePrefix, err := util.GetBootstrapPackageNameFromTKR(r.context, r.Client, updatedClusterBootstrap.Spec.CNI.RefName, cluster)
+		if err != nil {
+			errorMsg := fmt.Sprintf("unable to find any CNI bootstrap package prefixed with '%s' for ClusterBootstrap %s/%s in TKR", cniNamePrefix, cluster.Name, cluster.Namespace)
+			return nil, errors.Wrap(err, errorMsg)
+		}
+		updatedClusterBootstrap.Spec.CNI.RefName = updatedCNI
 	}
 
 	if updatedClusterBootstrap.Spec.Kapp == nil {
