@@ -1,3 +1,5 @@
+# syntax=docker/dockerfile:1.4
+
 # Copyright 2021 VMware, Inc. All Rights Reserved.
 # SPDX-License-Identifier: Apache-2.0
 
@@ -13,14 +15,16 @@ WORKDIR /workspace
 # Copy the Go Modules manifests
 COPY go.mod go.mod
 COPY go.sum go.sum
+
 COPY apis/ apis/
-RUN  go mod download
+
 # cache deps before building and copying source so that we don't need to re-download as much
 # and so that source changes don't invalidate our downloaded layer
+RUN --mount=type=cache,target=/root/.local/share/golang \
+  --mount=type=cache,target=/go/pkg/mod \
+  go mod download
 
 
-# Copy the go source
-COPY apis/ apis/
 COPY pkg/v1/tkr/controllers/ pkg/v1/tkr/controllers/
 COPY pkg/v1/tkr/main.go pkg/v1/tkr/main.go
 COPY pkg/v1/tkr/pkg/ pkg/v1/tkr/pkg/
@@ -29,7 +33,10 @@ COPY pkg/v1/tkr/pkg/ pkg/v1/tkr/pkg/
 # Build
 ARG LD_FLAGS
 ENV LD_FLAGS="$LD_FLAGS "'-extldflags "-static"'
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 GO111MODULE=on go build -a -ldflags "$LD_FLAGS" -o manager pkg/v1/tkr/main.go
+RUN --mount=type=cache,target=/root/.cache/go-build \
+  --mount=type=cache,target=/go/pkg/mod \
+  --mount=type=cache,target=/root/.local/share/golang \
+  CGO_ENABLED=0 GOOS=linux GOARCH=amd64 GO111MODULE=on go build -ldflags "$LD_FLAGS" -o manager pkg/v1/tkr/main.go
 
 # Use distroless as minimal base image to package the manager binary
 # Refer to https://github.com/GoogleContainerTools/distroless for more details
