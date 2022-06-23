@@ -160,17 +160,17 @@ type AntreaFeatureGates struct {
 	// Flag to enable/disable antrea IPAM
 	// +kubebuilder:validation:Optional
 	// +kubebuilder:default:=false
-	AntreaIPAM bool `yaml:"AntreaIPAM,omitempty"`
+	AntreaIPAM bool `json:"AntreaIPAM,omitempty"`
 
 	// Flag to enable/disable service external IP
 	// +kubebuilder:validation:Optional
 	// +kubebuilder:default:=false
-	ServiceExternalIP bool `yaml:"ServiceExternalIP,omitempty"`
+	ServiceExternalIP bool `json:"ServiceExternalIP,omitempty"`
 
 	// Flag to enable/disable multicast
 	// +kubebuilder:validation:Optional
 	// +kubebuilder:default:=false
-	Multicast bool `yaml:"Multicast,omitempty"`
+	Multicast bool `json:"Multicast,omitempty"`
 }
 
 // AntreaConfigStatus defines the observed state of AntreaConfig
