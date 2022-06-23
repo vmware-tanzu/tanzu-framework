@@ -24,6 +24,7 @@ import (
 
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/util"
+	"github.com/vmware-tanzu/tanzu-framework/addons/predicates"
 	cniv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cni/v1alpha1"
 )
 
@@ -62,11 +63,6 @@ func (r *AntreaConfigReconciler) Reconcile(ctx context.Context, req ctrl.Request
 	// deep copy AntreaConfig to avoid issues if in the future other controllers where interacting with the same copy
 	antreaConfig = antreaConfig.DeepCopy()
 
-	// skip reconciliation for AntreaConfig CR used as template
-	if _, ok := antreaConfig.Annotations[constants.TKGAnnotationTemplateConfig]; ok {
-		return ctrl.Result{}, nil
-	}
-
 	// get the parent cluster name from owner reference
 	// if the owner reference doesn't exist, use the same name as config CRD
 	clusterNamespacedName := req.NamespacedName
@@ -102,6 +98,7 @@ func (r *AntreaConfigReconciler) SetupWithManager(ctx context.Context, mgr ctrl.
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&cniv1alpha1.AntreaConfig{}).
 		WithOptions(options).
+		WithEventFilter(predicates.ConfigOfKindWithoutAnnotation(constants.TKGAnnotationTemplateConfig, constants.AntreaConfigKind, r.Log)).
 		Complete(r)
 }
 

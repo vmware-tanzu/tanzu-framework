@@ -27,6 +27,7 @@ import (
 
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/util"
+	"github.com/vmware-tanzu/tanzu-framework/addons/predicates"
 	cpiv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cpi/v1alpha1"
 )
 
@@ -93,11 +94,6 @@ func (r *VSphereCPIConfigReconciler) Reconcile(ctx context.Context, req ctrl.Req
 
 	// deep copy VSphereCPIConfig to avoid issues if in the future other controllers where interacting with the same copy
 	cpiConfig = cpiConfig.DeepCopy()
-
-	// skip reconciliation for VSphereCPIConfig CR used as template
-	if _, ok := cpiConfig.Annotations[constants.TKGAnnotationTemplateConfig]; ok {
-		return ctrl.Result{}, nil
-	}
 
 	cluster, err := r.getOwnerCluster(ctx, cpiConfig)
 	if cluster == nil {
@@ -245,5 +241,6 @@ func (r *VSphereCPIConfigReconciler) SetupWithManager(_ context.Context, mgr ctr
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&cpiv1alpha1.VSphereCPIConfig{}).
 		WithOptions(options).
+		WithEventFilter(predicates.ConfigOfKindWithoutAnnotation(constants.TKGAnnotationTemplateConfig, constants.VSphereCPIConfigKind, r.Log)).
 		Complete(r)
 }

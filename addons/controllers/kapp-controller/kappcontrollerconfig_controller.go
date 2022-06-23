@@ -26,6 +26,7 @@ import (
 
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/util"
+	"github.com/vmware-tanzu/tanzu-framework/addons/predicates"
 	runv1alpha3 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
 )
 
@@ -56,11 +57,6 @@ func (r *KappControllerConfigReconciler) Reconcile(ctx context.Context, req ctrl
 	}
 	// Deepcopy to prevent client-go cache conflict
 	kappControllerConfig = kappControllerConfig.DeepCopy()
-
-	// skip reconciliation for KappControllerConfig CR used as template
-	if _, ok := kappControllerConfig.Annotations[constants.TKGAnnotationTemplateConfig]; ok {
-		return ctrl.Result{}, nil
-	}
 
 	// get the parent cluster name from owner reference
 	// if the owner reference doesn't exist, use the same name as config CR
@@ -101,6 +97,7 @@ func (r *KappControllerConfigReconciler) SetupWithManager(ctx context.Context, m
 			handler.EnqueueRequestsFromMapFunc(r.ClusterToKappControllerConfig),
 		).
 		WithOptions(options).
+		WithEventFilter(predicates.ConfigOfKindWithoutAnnotation(constants.TKGAnnotationTemplateConfig, constants.KappControllerConfigKind, r.Log)).
 		Complete(r)
 }
 
