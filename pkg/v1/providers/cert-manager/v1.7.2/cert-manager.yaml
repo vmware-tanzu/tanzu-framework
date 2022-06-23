@@ -5084,7 +5084,6 @@ spec:
     spec:
       serviceAccountName: cert-manager
       securityContext:
-        
         runAsNonRoot: true
       containers:
         - name: cert-manager
