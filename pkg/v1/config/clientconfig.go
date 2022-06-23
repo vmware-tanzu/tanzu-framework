@@ -96,7 +96,6 @@ var (
 		FeatureFlagClusterCustomNameservers:                   false,
 		FeatureFlagManagementClusterNetworkSeparation:         false,
 		FeatureFlagAwsInstanceTypesExcludeArm:                 true,
-		FeatureFlagPackageBasedLCM:                            false,
 		FeatureFlagTKRVersionV1Alpha3:                         false,
 		FeatureFlagPackagePluginKctrlCommandTree:              false,
 	}
