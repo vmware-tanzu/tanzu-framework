@@ -14,11 +14,16 @@ import (
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	"k8s.io/apimachinery/pkg/runtime"
+
 	"sigs.k8s.io/cluster-api/util"
 
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/test/framework"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgctl"
+
+	pkgiv1alpha1 "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/packaging/v1alpha1"
+	runtanzuv1alpha3 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
 )
 
 type E2ECommonSpecInput struct {
@@ -149,6 +154,41 @@ func E2ECommonSpec(context context.Context, inputGetter func() E2ECommonSpecInpu
 
 		By(fmt.Sprintf("Waiting for workload cluster %q nodes to be up and running", clusterName))
 		framework.WaitForNodes(framework.NewClusterProxy(clusterName, tempFilePath, ""), 2)
+
+		if input.E2EConfig.ManagementClusterOptions.Plan == "devcc" {
+			By(fmt.Sprintf("Generating credentials for management cluster %q", input.E2EConfig.ManagementClusterName))
+			mngkubeConfigFileName := input.E2EConfig.ManagementClusterName + ".kubeconfig"
+			mngtempFilePath := filepath.Join(os.TempDir(), mngkubeConfigFileName)
+			err = tkgCtlClient.GetCredentials(tkgctl.GetWorkloadClusterCredentialsOptions{
+				ClusterName: input.E2EConfig.ManagementClusterName,
+				Namespace:   "tkg-system",
+				ExportFile:  mngtempFilePath,
+			})
+			Expect(err).To(BeNil())
+
+			mngscheme := runtime.NewScheme()
+			err = pkgiv1alpha1.AddToScheme(mngscheme)
+			Expect(err).NotTo(HaveOccurred())
+			err = runtanzuv1alpha3.AddToScheme(mngscheme)
+			Expect(err).NotTo(HaveOccurred())
+
+			// create k8sclient for management cluster
+			mngclient, err := createClientFromKubeconfig(mngtempFilePath, mngscheme)
+			Expect(err).ToNot(HaveOccurred(), "Failed to create management cluster client")
+
+			By(fmt.Sprintf("Verify addon packages on workload cluster %q matches clusterBootstrap info on management cluster", clusterName))
+			wlcscheme := runtime.NewScheme()
+			err = pkgiv1alpha1.AddToScheme(wlcscheme)
+			Expect(err).NotTo(HaveOccurred())
+
+			// create k8sclient for workload cluster
+			wlcclient, err := createClientFromKubeconfig(tempFilePath, wlcscheme)
+			Expect(err).ToNot(HaveOccurred(), "Failed to create workload cluster client")
+
+			// check package information in clusterBootstrap
+			err = checkClusterCBS(context, mngclient, wlcclient, input.E2EConfig.ManagementClusterName, clusterName, input.E2EConfig.InfrastructureName)
+			Expect(err).To(BeNil())
+		}
 
 		By(fmt.Sprintf("Deleting workload cluster %q", clusterName))
 		err = tkgCtlClient.DeleteCluster(tkgctl.DeleteClustersOptions{
