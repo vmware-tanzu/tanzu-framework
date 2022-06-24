@@ -73,3 +73,13 @@ func (set StringSet) Union(sets ...StringSet) StringSet {
 	}
 	return r
 }
+
+func (set StringSet) Slice() []string {
+	r := make([]string, len(set))
+	i := 0
+	for key := range set {
+		r[i] = key
+		i++
+	}
+	return r
+}
