@@ -28,7 +28,7 @@ var prepareCmd = &cobra.Command{
 	RunE:  runPrepare,
 }
 
-//go:embed config/carvelTools-config.yaml
+//go:embed config/carvel-tools-config.yaml
 var carvelTools []byte
 
 var clean bool
