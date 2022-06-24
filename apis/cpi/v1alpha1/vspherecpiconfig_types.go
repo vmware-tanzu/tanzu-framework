@@ -152,7 +152,10 @@ type NonParavirtualConfig struct {
 }
 
 type ParavirtualConfig struct {
-	// All configurations for paravirtual mode will be derived
+	// A flag that enables pod routing by Antrea NSX for paravirtual mode
+	// +kubebuilder:validation:Optional
+	// +kubebuilder:default:=false
+	AntreaNSXPodRoutingEnabled *bool `json:"antreaNSXPodRoutingEnabled,omitempty"`
 }
 
 type VSphereCPI struct {

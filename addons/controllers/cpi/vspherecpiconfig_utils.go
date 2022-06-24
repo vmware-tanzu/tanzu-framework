@@ -176,7 +176,9 @@ func (r *VSphereCPIConfigReconciler) mapCPIConfigToDataValuesNonParavirtual( // 
 }
 
 // mapCPIConfigToDataValuesParavirtual generates CPI data values for paravirtual modes
-func (r *VSphereCPIConfigReconciler) mapCPIConfigToDataValuesParavirtual(ctx context.Context, _ *cpiv1alpha1.VSphereCPIConfig, cluster *clusterapiv1beta1.Cluster) (VSphereCPIDataValues, error) {
+func (r *VSphereCPIConfigReconciler) mapCPIConfigToDataValuesParavirtual(ctx context.Context, cpiConfig *cpiv1alpha1.VSphereCPIConfig, cluster *clusterapiv1beta1.Cluster) (VSphereCPIDataValues, error) {
+	c := cpiConfig.Spec.VSphereCPI.ParavirtualConfig
+
 	d := &VSphereCPIParaVirtDataValues{}
 	d.Mode = VSphereCPIParavirtualMode
 
@@ -185,6 +187,10 @@ func (r *VSphereCPIConfigReconciler) mapCPIConfigToDataValuesParavirtual(ctx con
 	d.ClusterKind = cluster.GroupVersionKind().Kind
 	d.ClusterName = cluster.ObjectMeta.Name
 	d.ClusterUID = string(cluster.ObjectMeta.UID)
+
+	if c != nil && c.AntreaNSXPodRoutingEnabled != nil {
+		d.AntreaNSXPodRoutingEnabled = *c.AntreaNSXPodRoutingEnabled
+	}
 
 	address, port, err := r.getSupervisorAPIServerAddress(ctx)
 	if err != nil {
