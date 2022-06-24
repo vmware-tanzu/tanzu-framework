@@ -66,7 +66,7 @@ func isValidLocalObjectRef(localObjRef map[string]interface{}) bool {
 }
 
 // GetGVRForGroupKind returns a GroupVersionResource for a GroupKind
-func GetGVRForGroupKind(gk schema.GroupKind, discoveryClient discovery.DiscoveryInterface) (*schema.GroupVersionResource, error) {
+func GetGVRForGroupKind(gk schema.GroupKind, discoveryClient discovery.CachedDiscoveryInterface) (*schema.GroupVersionResource, error) {
 	apiResourceList, err := discoveryClient.ServerPreferredResources()
 	if err != nil {
 		return nil, err
