@@ -5,10 +5,11 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/client-go/discovery"
 	cacheddiscovery "k8s.io/client-go/discovery/cached/memory"
+
+	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
 )
 
 type GVRHelper interface {
