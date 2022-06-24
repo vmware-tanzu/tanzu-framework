@@ -268,6 +268,7 @@ var _ = Describe("VSphereCPIConfig Reconciler", func() {
 				Expect(strings.Contains(secretData, "datacenter:")).Should(BeFalse())
 				Expect(strings.Contains(secretData, "server:")).Should(BeFalse())
 				Expect(strings.Contains(secretData, "nsxt:")).Should(BeFalse())
+				Expect(strings.Contains(secretData, "antreaNSXPodRoutingEnabled: true")).Should(BeTrue())
 
 				return true
 			}, waitTimeout, pollingInterval).Should(BeTrue())

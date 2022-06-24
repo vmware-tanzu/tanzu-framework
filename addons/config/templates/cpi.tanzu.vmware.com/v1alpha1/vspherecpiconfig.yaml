@@ -18,6 +18,5 @@ metadata:
 spec:
   vsphereCPI:
     mode: vsphereParavirtualCPI
-    nsxt:
-      podRoutingEnabled: true
+    antreaNSXPodRoutingEnabled: true
 #@ end
