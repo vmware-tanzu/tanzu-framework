@@ -394,7 +394,6 @@ var _ = Describe("cluster.Webhook", func() {
 						tkrData := TKRData{}
 						tkrData[tkr.Spec.Kubernetes.Version] = tkrDataValue(tkr, osImage)
 						Expect(topology.SetVariable(cluster, VarTKRData, tkrData)).To(Succeed())
-
 					})
 
 					It("should not resolve the ControlPlane", func() {
@@ -402,6 +401,18 @@ var _ = Describe("cluster.Webhook", func() {
 						err := cw.ResolveAndSetMetadata(cluster, clusterClass)
 						Expect(err).ToNot(HaveOccurred())
 						Expect(cluster.Spec.Topology).To(Equal(clusterTopology0))
+					})
+
+					When("full TKR version is specified in Cluster topology.version", func() {
+						BeforeEach(func() {
+							cluster.Spec.Topology.Version = tkr.Spec.Version
+						})
+
+						It("should replace the value in Cluster topology.version with TKR k8s version", func() {
+							err := cw.ResolveAndSetMetadata(cluster, clusterClass)
+							Expect(err).ToNot(HaveOccurred())
+							Expect(cluster.Spec.Topology.Version).To(Equal(tkr.Spec.Kubernetes.Version))
+						})
 					})
 				})
 
