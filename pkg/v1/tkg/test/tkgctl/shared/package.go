@@ -10,14 +10,13 @@ import (
 	"time"
 
 	. "github.com/onsi/gomega"
-	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
-
 	corev1 "k8s.io/api/core/v1"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
-
 	"k8s.io/client-go/tools/clientcmd"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	kappctrl "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/kappctrl/v1alpha1"
 	kapppkgiv1alpha1 "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/packaging/v1alpha1"
@@ -135,4 +134,27 @@ func verifyPackageInstall(ctx context.Context, wccl client.Client, clusterName, 
 
 	// Verify package version match between clusterBootstrap and packageInstall
 	Expect(pkgVersion).Should(Equal(pkgi.Spec.PackageRef.VersionSelection.Constraints))
+}
+
+func objectExists(ctx context.Context, k8sClient client.Client, namespace, name string, obj client.Object) bool {
+	err := k8sClient.Get(ctx, client.ObjectKey{Namespace: namespace, Name: name}, obj)
+	if apierrors.IsNotFound(err) {
+		return false
+	}
+	return true
+}
+
+type clusterResource struct {
+	name      string
+	namespace string
+	obj       client.Object
+}
+
+func clustertResourcesDeleted(ctx context.Context, k8sClient client.Client, clusterResources []clusterResource) bool {
+	for _, r := range clusterResources {
+		if objectExists(ctx, k8sClient, r.namespace, r.name, r.obj) {
+			return false
+		}
+	}
+	return true
 }

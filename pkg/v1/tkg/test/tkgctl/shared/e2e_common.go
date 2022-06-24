@@ -7,9 +7,11 @@ package shared
 import (
 	"context"
 	"fmt"
+	corev1 "k8s.io/api/core/v1"
 	"math/rand"
 	"os"
 	"path/filepath"
+	clusterapiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
 	"time"
 
 	. "github.com/onsi/ginkgo"
@@ -195,6 +197,18 @@ func E2ECommonSpec(context context.Context, inputGetter func() E2ECommonSpecInpu
 			SkipPrompt:  true,
 		})
 		Expect(err).To(BeNil())
+
+		By(fmt.Sprintf("Verify workload cluster resources have been deleted"))
+		clusterResources := []clusterResource{
+			{namespace: namespace, name: clusterName, obj: &clusterapiv1beta1.Cluster{}},
+			{namespace: namespace, name: clusterName, obj: &runtanzuv1alpha3.ClusterBootstrap{}},
+			{namespace: namespace, name: clusterName + "-kubeconfig", obj: &corev1.Secret{}},
+			{namespace: namespace, name: clusterName + "-kapp-controller", obj: &kapppkgiv1alpha1.PackageInstall{}},
+			{namespace: constants.TkgNamespace, name: clusterName + "-kapp-controller-data-values", obj: &corev1.Secret{}},
+		}
+		Eventually(func() bool {
+			return clustertResourcesDeleted(context, mngclient, clusterResources)
+		}, waitTimeout, pollingInterval).Should(BeTrue())
 
 		By("Test successful !")
 	})
