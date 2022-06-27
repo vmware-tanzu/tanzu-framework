@@ -1262,6 +1262,7 @@ func (r *ClusterBootstrapReconciler) reconcileClusterProxyAndNetworkSettings(clu
 }
 
 func (r *ClusterBootstrapReconciler) makeClusterIsReadyForDeletion(cluster *clusterapiv1beta1.Cluster, remoteClient client.Client, log logr.Logger) (bool, error) {
+	log.Info("preparing cluster for deletion")
 	clusterBootstrap := &runtanzuv1alpha3.ClusterBootstrap{}
 	err := r.Client.Get(r.context, client.ObjectKeyFromObject(cluster), clusterBootstrap)
 	if err != nil && !apierrors.IsNotFound(err) {
@@ -1273,6 +1274,7 @@ func (r *ClusterBootstrapReconciler) makeClusterIsReadyForDeletion(cluster *clus
 	}
 
 	if hasPackageInstalls(r.context, remoteClient, cluster, r.Config.SystemNamespace, clusterBootstrap.Spec.AdditionalPackages, log) {
+		log.Info("cluster has additional packageInstalls that need to be deleted")
 		err = r.removeAdditionalPackageInstalls(remoteClient, cluster, clusterBootstrap, log)
 		if err != nil {
 			return false, err
@@ -1320,15 +1322,27 @@ func (r *ClusterBootstrapReconciler) reconcileDelete(cluster *clusterapiv1beta1.
 	okToRemoveFinalizers := false
 	var err error
 
-	remoteClient, err := util.GetClusterClient(r.context, r.Client, r.Scheme, clusterapiutil.ObjectKey(cluster))
+	log.Info("reconciling cluster delete")
+	existingCluster := &clusterapiv1beta1.Cluster{}
+	err = r.Client.Get(r.context, client.ObjectKeyFromObject(cluster), existingCluster)
+	if apierrors.IsNotFound(err) {
+		log.Info("cluster not found. Skipping reconciling")
+		return ctrl.Result{}, nil
+	}
 	if err != nil {
-		return ctrl.Result{RequeueAfter: constants.RequeueAfterDuration}, fmt.Errorf("failed to get remote cluster client: %w", err)
+		log.Error(err, "failed to lookup cluster")
+		return ctrl.Result{RequeueAfter: constants.RequeueAfterDuration}, err
 	}
 
 	timeOutReached := time.Now().After(cluster.GetDeletionTimestamp().Add(r.Config.ClusterDeleteTimeout))
 	if timeOutReached {
+		log.Info("cluster delete reconcile timeout reached. Proceeding with cluster deletion")
 		okToRemoveFinalizers = true
 	} else {
+		remoteClient, err := util.GetClusterClient(r.context, r.Client, r.Scheme, clusterapiutil.ObjectKey(cluster))
+		if err != nil {
+			return ctrl.Result{RequeueAfter: constants.RequeueAfterDuration}, fmt.Errorf("failed to get remote cluster client: %w", err)
+		}
 		okToRemoveFinalizers, err = r.makeClusterIsReadyForDeletion(cluster, remoteClient, log)
 		if err != nil {
 			return ctrl.Result{}, err
@@ -1336,9 +1350,11 @@ func (r *ClusterBootstrapReconciler) reconcileDelete(cluster *clusterapiv1beta1.
 	}
 
 	if !okToRemoveFinalizers {
+		log.Info("cluster is not ready for deletion")
 		return ctrl.Result{RequeueAfter: constants.RequeueAfterDuration}, nil
 	}
 
+	log.Info("cluster ready for deletion. Removing finalizers")
 	if err = r.removeFinalizersFromClusterResources(cluster, log); err != nil {
 		return ctrl.Result{Requeue: true}, nil
 	}
@@ -1359,14 +1375,15 @@ func hasPackageInstalls(ctx context.Context, remoteClient client.Client,
 
 	for _, pkg := range packages {
 		pkgInstallName := util.GeneratePackageInstallName(cluster.Name, pkg.RefName)
-		if packageInstallExists(ctx, pkgInstallName, namespace, remoteClient, log) {
+		if packageInstallExistsAndCanBeDeleted(ctx, pkgInstallName, namespace, remoteClient, log) {
+			log.Info("found " + pkgInstallName + " packageInstall on cluster")
 			return true
 		}
 	}
 	return false
 }
 
-func packageInstallExists(ctx context.Context, pkgInstallName, pkgInstallNamespace string,
+func packageInstallExistsAndCanBeDeleted(ctx context.Context, pkgInstallName, pkgInstallNamespace string,
 	remoteClient client.Client, log logr.Logger) bool {
 
 	pkgInstall := &kapppkgiv1alpha1.PackageInstall{}
@@ -1374,15 +1391,21 @@ func packageInstallExists(ctx context.Context, pkgInstallName, pkgInstallNamespa
 		if apierrors.IsNotFound(err) {
 			return false
 		}
-		log.Error(err, "could not verify if package install is present")
+		log.Error(err, "could not verify status of "+pkgInstallNamespace+"/"+pkgInstallName)
 		return true
+	}
+	for _, condition := range pkgInstall.Status.Conditions {
+		if condition.Type == kappctrlv1alpha1.DeleteFailed {
+			log.Info("ignoring " + pkgInstallNamespace + "/" + pkgInstallName + " packageInstall because it is in  " + string(kappctrlv1alpha1.DeleteFailed) + " state. ")
+			return false
+		}
 	}
 	return true
 }
 
 func (r *ClusterBootstrapReconciler) removeAdditionalPackageInstalls(remoteClient client.Client, cluster *clusterapiv1beta1.Cluster, clusterBootstrap *runtanzuv1alpha3.ClusterBootstrap, log logr.Logger) error {
 	// Removes all additional package install CRs from the cluster
-
+	log.Info("queueing additional packageInstalls for deletion")
 	err := r.Client.Get(r.context, client.ObjectKeyFromObject(cluster), clusterBootstrap)
 	if err != nil {
 		return err
