@@ -104,21 +104,9 @@ func checkClusterCBS(ctx context.Context, mccl, wccl client.Client, mcClusterNam
 	if clusterBootstrap.Spec.AdditionalPackages != nil {
 		// validate additional packages
 		for _, additionalPkg := range clusterBootstrap.Spec.AdditionalPackages {
-			if additionalPkg.RefName == "metrics-server.tanzu.vmware.com.0.5.1+vmware.1-tkg.2-zshippable" {
-				msPkgShortName, msPkgName, msPkgVersion, err := getPackageDetailsFromCBS(additionalPkg.RefName)
-				Expect(err).NotTo(HaveOccurred())
-				verifyPackageInstall(ctx, wccl, wcClusterName, msPkgShortName, msPkgName, msPkgVersion)
-			}
-			if additionalPkg.RefName == "secretgen-controller.tanzu.vmware.com.0.8.0+vmware.1-tkg.1-zshippable" {
-				scPkgShortName, scPkgName, scPkgVersion, err := getPackageDetailsFromCBS(additionalPkg.RefName)
-				Expect(err).NotTo(HaveOccurred())
-				verifyPackageInstall(ctx, wccl, wcClusterName, scPkgShortName, scPkgName, scPkgVersion)
-			}
-			if additionalPkg.RefName == "pinniped.tanzu.vmware.com.0.12.1+vmware.1-tkg.1-zshippable" {
-				pdPkgShortName, pdPkgName, pdPkgVersion, err := getPackageDetailsFromCBS(additionalPkg.RefName)
-				Expect(err).NotTo(HaveOccurred())
-				verifyPackageInstall(ctx, wccl, wcClusterName, pdPkgShortName, pdPkgName, pdPkgVersion)
-			}
+			pkgShortName, pkgName, pkgVersion, err := getPackageDetailsFromCBS(additionalPkg.RefName)
+			Expect(err).NotTo(HaveOccurred())
+			verifyPackageInstall(ctx, wccl, wcClusterName, pkgShortName, pkgName, pkgVersion)
 		}
 	}
 
