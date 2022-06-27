@@ -6,3 +6,6 @@ deployment:
   hostNetwork: true
   nodeSelector: null
   tolerations: []
+rbac:
+  #! PSP resource names capabilities controller should use in its ClusterRole rules.
+  podSecurityPolicyNames: []
