@@ -157,7 +157,7 @@ var _ = Describe("KappControllerConfig Reconciler", func() {
 		It("Should skip the reconciliation", func() {
 
 			key := client.ObjectKey{
-				Namespace: "default",
+				Namespace: addonNamespace,
 				Name:      kappConfigCRName,
 			}
 			config := &runv1alpha3.KappControllerConfig{}

@@ -20,11 +20,11 @@ import (
 )
 
 const (
-	testClusterCalico1 = "test-cluster-calico-1"
-	testClusterCalico2 = "test-cluster-calico-2"
-	testDataCalico1    = "testdata/test-calico-1.yaml"
-	testDataCalico2    = "testdata/test-calico-2.yaml"
-	testDataCalicoTemplateConfig1    = "testdata/test-calico-template-config-1.yaml"
+	testClusterCalico1            = "test-cluster-calico-1"
+	testClusterCalico2            = "test-cluster-calico-2"
+	testDataCalico1               = "testdata/test-calico-1.yaml"
+	testDataCalico2               = "testdata/test-calico-2.yaml"
+	testDataCalicoTemplateConfig1 = "testdata/test-calico-template-config-1.yaml"
 )
 
 var _ = Describe("CalicoConfig Reconciler and Webhooks", func() {
@@ -232,7 +232,7 @@ var _ = Describe("CalicoConfig Reconciler and Webhooks", func() {
 		It("Should skip the reconciliation", func() {
 
 			key := client.ObjectKey{
-				Namespace: "default",
+				Namespace: addonNamespace,
 				Name:      clusterName,
 			}
 			config := &cniv1alpha1.CalicoConfig{}

@@ -4,8 +4,6 @@
 package predicates
 
 import (
-	"testing"
-
 	"github.com/go-logr/logr"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -16,18 +14,13 @@ import (
 	cniv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cni/v1alpha1"
 )
 
-func TestAddonConfigPredicate(t *testing.T) {
-	RegisterFailHandler(Fail)
-	RunSpecs(t, "addon config predicate unit tests")
-}
-
 var _ = Describe("Addon config annotation predicate", func() {
 	Context("predicate: processIfConfigOfKindWithoutAnnotation()", func() {
 		var (
 			antreaConfigObj *cniv1alpha1.AntreaConfig
-			configKind string
-			logger logr.Logger
-			result bool
+			configKind      string
+			logger          logr.Logger
+			result          bool
 		)
 
 		BeforeEach(func() {
@@ -35,9 +28,9 @@ var _ = Describe("Addon config annotation predicate", func() {
 			antreaConfigObj = &cniv1alpha1.AntreaConfig{
 				TypeMeta: metav1.TypeMeta{Kind: constants.AntreaConfigKind},
 				ObjectMeta: metav1.ObjectMeta{
-					Name: "test-config-name",
+					Name:      "test-config-name",
 					Namespace: "test-ns",
-					Annotations: map[string]string {
+					Annotations: map[string]string{
 						constants.TKGAnnotationTemplateConfig: "true",
 					}},
 			}

@@ -28,9 +28,9 @@ const (
 	testTKRLabel          = "v1.22.3"
 )
 
-func TestTKRTestUnit(t *testing.T) {
+func TestPredicates(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "predicates/TKR Unit Tests")
+	RunSpecs(t, "predicates unit tests")
 }
 
 var _ = Describe("Cluster Label Check", func() {

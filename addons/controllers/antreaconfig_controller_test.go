@@ -28,9 +28,9 @@ var _ = Describe("AntreaConfig Reconciler and Webhooks", func() {
 	)
 
 	const (
-		antreaManifestsTestFile1 = "testdata/antrea-test-1.yaml"
+		antreaManifestsTestFile1               = "testdata/antrea-test-1.yaml"
 		antreaTemplateConfigManifestsTestFile1 = "testdata/antrea-test-template-config-1.yaml"
-		antreaTestCluster1       = "test-cluster-4"
+		antreaTestCluster1                     = "test-cluster-4"
 	)
 
 	JustBeforeEach(func() {
@@ -195,7 +195,7 @@ var _ = Describe("AntreaConfig Reconciler and Webhooks", func() {
 		It("Should skip the reconciliation", func() {
 
 			key := client.ObjectKey{
-				Namespace: "default",
+				Namespace: addonNamespace,
 				Name:      configCRName,
 			}
 			config := &cniv1alpha1.AntreaConfig{}

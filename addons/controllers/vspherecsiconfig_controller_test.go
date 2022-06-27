@@ -364,17 +364,14 @@ var _ = Describe("VSphereCSIConfig Reconciler", func() {
 	Context("Reconcile VSphereCSIConfig used as template", func() {
 
 		BeforeEach(func() {
-			clusterName = "test-cluster-csi"
+			clusterName = "test-cluster-csi-template"
 			clusterResourceFilePath = "testdata/test-vsphere-csi-template-config.yaml"
 			enduringResourcesFilePath = ""
 		})
 
 		It("Should skip the reconciliation", func() {
 
-			key := client.ObjectKey{
-				Namespace: "default",
-				Name:      clusterName,
-			}
+			key.Namespace = addonNamespace
 			config := &csiv1alpha1.VSphereCSIConfig{}
 			Expect(k8sClient.Get(ctx, key, config)).To(Succeed())
 

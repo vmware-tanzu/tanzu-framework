@@ -356,16 +356,13 @@ var _ = Describe("VSphereCPIConfig Reconciler", func() {
 	Context("Reconcile VSphereCPIConfig used as template", func() {
 
 		BeforeEach(func() {
-			clusterName = "test-cluster-cpi"
+			clusterName = "test-cluster-cpi-template"
 			clusterResourceFilePath = "testdata/test-vsphere-cpi-template-config.yaml"
 		})
 
 		It("Should skip the reconciliation", func() {
 
-			key := client.ObjectKey{
-				Namespace: "default",
-				Name:      clusterName,
-			}
+			key.Namespace = addonNamespace
 			config := &cpiv1alpha1.VSphereCPIConfig{}
 			Expect(k8sClient.Get(ctx, key, config)).To(Succeed())
 
