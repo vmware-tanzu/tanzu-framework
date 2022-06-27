@@ -11,27 +11,30 @@ import (
 )
 
 // ConfigOfKindWithoutAnnotation checks if the config is of the given Kind and does not have the given annotation
-func ConfigOfKindWithoutAnnotation(annotation string, configKind string, logger logr.Logger) predicate.Funcs {
+func ConfigOfKindWithoutAnnotation(annotation, configKind, namespace string, logger logr.Logger) predicate.Funcs {
 	return predicate.Funcs{
 		UpdateFunc: func(e event.UpdateEvent) bool {
-			return processIfConfigOfKindWithoutAnnotation(annotation, configKind, e.ObjectNew, logger.WithValues("predicate", "updateEvent"))
+			return processIfConfigOfKindWithoutAnnotation(annotation, configKind, namespace, e.ObjectNew, logger.WithValues("predicate", "updateEvent"))
 		},
 		CreateFunc: func(e event.CreateEvent) bool {
-			return processIfConfigOfKindWithoutAnnotation(annotation, configKind, e.Object, logger.WithValues("predicate", "createEvent"))
+			return processIfConfigOfKindWithoutAnnotation(annotation, configKind, namespace, e.Object, logger.WithValues("predicate", "createEvent"))
 		},
 		DeleteFunc: func(e event.DeleteEvent) bool {
-			return processIfConfigOfKindWithoutAnnotation(annotation, configKind, e.Object, logger.WithValues("predicate", "deleteEvent"))
+			return processIfConfigOfKindWithoutAnnotation(annotation, configKind, namespace, e.Object, logger.WithValues("predicate", "deleteEvent"))
 		},
 		GenericFunc: func(e event.GenericEvent) bool {
-			return processIfConfigOfKindWithoutAnnotation(annotation, configKind, e.Object, logger.WithValues("predicate", "genericEvent"))
+			return processIfConfigOfKindWithoutAnnotation(annotation, configKind, namespace, e.Object, logger.WithValues("predicate", "genericEvent"))
 		},
 	}
 }
 
-// processIfConfigOfKindWithoutAnnotation determines if the input object is of the specified Kind without the
-// given annotation. For input objects do not match with the specified Kind, it returns true.
-func processIfConfigOfKindWithoutAnnotation(annotation string, configKind string, obj client.Object, logger logr.Logger) bool {
+// processIfConfigOfKindWithoutAnnotation determines if the input object is of the specified Kind in the given namespace
+// without the given annotation. For input objects do not match with the specified Kind or not in the given namespace, it returns true.
+func processIfConfigOfKindWithoutAnnotation(annotation, configKind, namespace string, obj client.Object, logger logr.Logger) bool {
 	if kind := obj.GetObjectKind().GroupVersionKind().Kind; kind != configKind {
+		return true
+	}
+	if obj.GetNamespace() != namespace {
 		return true
 	}
 

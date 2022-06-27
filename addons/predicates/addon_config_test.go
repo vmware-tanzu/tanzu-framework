@@ -19,17 +19,19 @@ var _ = Describe("Addon config annotation predicate", func() {
 		var (
 			antreaConfigObj *cniv1alpha1.AntreaConfig
 			configKind      string
+			namespace       string
 			logger          logr.Logger
 			result          bool
 		)
 
 		BeforeEach(func() {
+			namespace = "test-ns"
 			logger = ctrl.Log.WithName("processIfConfigOfKindWithoutAnnotation")
 			antreaConfigObj = &cniv1alpha1.AntreaConfig{
 				TypeMeta: metav1.TypeMeta{Kind: constants.AntreaConfigKind},
 				ObjectMeta: metav1.ObjectMeta{
 					Name:      "test-config-name",
-					Namespace: "test-ns",
+					Namespace: namespace,
 					Annotations: map[string]string{
 						constants.TKGAnnotationTemplateConfig: "true",
 					}},
@@ -39,7 +41,7 @@ var _ = Describe("Addon config annotation predicate", func() {
 
 		When("input config matches with specified Kind and has the annotation", func() {
 			BeforeEach(func() {
-				result = processIfConfigOfKindWithoutAnnotation(constants.TKGAnnotationTemplateConfig, configKind, antreaConfigObj, logger)
+				result = processIfConfigOfKindWithoutAnnotation(constants.TKGAnnotationTemplateConfig, configKind, namespace, antreaConfigObj, logger)
 			})
 
 			It("should return false", func() {
@@ -50,7 +52,7 @@ var _ = Describe("Addon config annotation predicate", func() {
 		When("input config does not have the specified annotation", func() {
 			BeforeEach(func() {
 				delete(antreaConfigObj.Annotations, constants.TKGAnnotationTemplateConfig)
-				result = processIfConfigOfKindWithoutAnnotation(constants.TKGAnnotationTemplateConfig, configKind, antreaConfigObj, logger)
+				result = processIfConfigOfKindWithoutAnnotation(constants.TKGAnnotationTemplateConfig, configKind, namespace, antreaConfigObj, logger)
 			})
 
 			It("should return true", func() {
@@ -61,7 +63,7 @@ var _ = Describe("Addon config annotation predicate", func() {
 		When("input config's annotations is nil", func() {
 			BeforeEach(func() {
 				antreaConfigObj.Annotations = nil
-				result = processIfConfigOfKindWithoutAnnotation(constants.TKGAnnotationTemplateConfig, configKind, antreaConfigObj, logger)
+				result = processIfConfigOfKindWithoutAnnotation(constants.TKGAnnotationTemplateConfig, configKind, namespace, antreaConfigObj, logger)
 			})
 
 			It("should return true", func() {
@@ -72,7 +74,17 @@ var _ = Describe("Addon config annotation predicate", func() {
 		When("input config does not match with the given Kind", func() {
 			BeforeEach(func() {
 				configKind = constants.CalicoConfigKind
-				result = processIfConfigOfKindWithoutAnnotation(constants.TKGAnnotationTemplateConfig, configKind, antreaConfigObj, logger)
+				result = processIfConfigOfKindWithoutAnnotation(constants.TKGAnnotationTemplateConfig, configKind, namespace, antreaConfigObj, logger)
+			})
+
+			It("should return true", func() {
+				Expect(result).To(BeTrue())
+			})
+		})
+
+		When("input config is not in the given namespace", func() {
+			BeforeEach(func() {
+				result = processIfConfigOfKindWithoutAnnotation(constants.TKGAnnotationTemplateConfig, configKind, "another-ns", antreaConfigObj, logger)
 			})
 
 			It("should return true", func() {

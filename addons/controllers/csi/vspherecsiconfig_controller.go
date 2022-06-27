@@ -32,6 +32,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/predicate"
 	"sigs.k8s.io/controller-runtime/pkg/source"
 
+	addonconfig "github.com/vmware-tanzu/tanzu-framework/addons/pkg/config"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/util"
 	"github.com/vmware-tanzu/tanzu-framework/addons/predicates"
@@ -43,6 +44,7 @@ type VSphereCSIConfigReconciler struct {
 	client.Client
 	Log    logr.Logger
 	Scheme *runtime.Scheme
+	Config addonconfig.VSphereCSIConfigControllerConfig
 }
 
 var providerServiceAccountRBACRules = []rbacv1.PolicyRule{
@@ -95,7 +97,7 @@ func (r *VSphereCSIConfigReconciler) SetupWithManager(_ context.Context, mgr ctr
 	c, err := ctrl.NewControllerManagedBy(mgr).
 		For(&csiv1alpha1.VSphereCSIConfig{}).
 		WithOptions(options).
-		WithEventFilter(predicates.ConfigOfKindWithoutAnnotation(constants.TKGAnnotationTemplateConfig, constants.VSphereCSIConfigKind, r.Log)).
+		WithEventFilter(predicates.ConfigOfKindWithoutAnnotation(constants.TKGAnnotationTemplateConfig, constants.VSphereCSIConfigKind, r.Config.SystemNamespace, r.Log)).
 		Build(r)
 	if err != nil {
 		return errors.Wrap(err, "failed to setup vspherecsiconfig controller")
@@ -324,8 +326,8 @@ func (r *VSphereCSIConfigReconciler) ConfigMapToVSphereCSIConfig(o client.Object
 	_ = r.List(context.Background(), configs)
 	requests := []ctrl.Request{}
 	for i := 0; i < len(configs.Items); i++ {
-		// skip template vSphereCSIConfig CRs
-		if _, ok := configs.Items[i].Annotations[constants.TKGAnnotationTemplateConfig]; ok {
+		// avoid enqueuing reconcile requests for template vSphereCSIConfig CRs in event handler of ConfigMap CR
+		if _, ok := configs.Items[i].Annotations[constants.TKGAnnotationTemplateConfig]; ok && configs.Items[i].Namespace == r.Config.SystemNamespace {
 			continue
 		}
 		if configs.Items[i].Spec.VSphereCSI.Mode == VSphereCSIParavirtualMode {

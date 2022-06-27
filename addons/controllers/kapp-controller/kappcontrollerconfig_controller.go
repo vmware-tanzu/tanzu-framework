@@ -24,6 +24,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/handler"
 	"sigs.k8s.io/controller-runtime/pkg/source"
 
+	addonconfig "github.com/vmware-tanzu/tanzu-framework/addons/pkg/config"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/util"
 	"github.com/vmware-tanzu/tanzu-framework/addons/predicates"
@@ -35,6 +36,7 @@ type KappControllerConfigReconciler struct {
 	client.Client
 	Log    logr.Logger
 	Scheme *runtime.Scheme
+	Config addonconfig.KappControllerConfigControllerConfig
 }
 
 //+kubebuilder:rbac:groups=run.tanzu.vmware.com,resources=kappcontrollerconfigs,verbs=get;list;watch;create;update;patch;delete
@@ -97,7 +99,7 @@ func (r *KappControllerConfigReconciler) SetupWithManager(ctx context.Context, m
 			handler.EnqueueRequestsFromMapFunc(r.ClusterToKappControllerConfig),
 		).
 		WithOptions(options).
-		WithEventFilter(predicates.ConfigOfKindWithoutAnnotation(constants.TKGAnnotationTemplateConfig, constants.KappControllerConfigKind, r.Log)).
+		WithEventFilter(predicates.ConfigOfKindWithoutAnnotation(constants.TKGAnnotationTemplateConfig, constants.KappControllerConfigKind, r.Config.SystemNamespace, r.Log)).
 		Complete(r)
 }
 

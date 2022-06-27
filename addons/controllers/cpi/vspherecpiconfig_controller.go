@@ -25,6 +25,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/controller"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 
+	addonconfig "github.com/vmware-tanzu/tanzu-framework/addons/pkg/config"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/util"
 	"github.com/vmware-tanzu/tanzu-framework/addons/predicates"
@@ -36,6 +37,7 @@ type VSphereCPIConfigReconciler struct {
 	client.Client
 	Log    logr.Logger
 	Scheme *runtime.Scheme
+	Config addonconfig.VSphereCPIConfigControllerConfig
 }
 
 var providerServiceAccountRBACRules = []rbacv1.PolicyRule{
@@ -241,6 +243,6 @@ func (r *VSphereCPIConfigReconciler) SetupWithManager(_ context.Context, mgr ctr
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&cpiv1alpha1.VSphereCPIConfig{}).
 		WithOptions(options).
-		WithEventFilter(predicates.ConfigOfKindWithoutAnnotation(constants.TKGAnnotationTemplateConfig, constants.VSphereCPIConfigKind, r.Log)).
+		WithEventFilter(predicates.ConfigOfKindWithoutAnnotation(constants.TKGAnnotationTemplateConfig, constants.VSphereCPIConfigKind, r.Config.SystemNamespace, r.Log)).
 		Complete(r)
 }
