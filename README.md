@@ -1,5 +1,10 @@
 # Tanzu Framework
 
+[![Main](https://github.com/vmware-tanzu/tanzu-framework/actions/workflows/main.yaml/badge.svg?branch=main)](https://github.com/vmware-tanzu/tanzu-framework/actions/workflows/main.yaml)
+[![Plugin Tests](https://github.com/vmware-tanzu/tanzu-framework/actions/workflows/plugin_tests.yaml/badge.svg?branch=main)](https://github.com/vmware-tanzu/tanzu-framework/actions/workflows/plugin_tests.yaml)
+[![TKG Integration Tests](https://github.com/vmware-tanzu/tanzu-framework/actions/workflows/tkg_integration_tests.yaml/badge.svg?branch=main)](https://github.com/vmware-tanzu/tanzu-framework/actions/workflows/tkg_integration_tests.yaml)
+[![TKG Package Plugin Integration Tests](https://github.com/vmware-tanzu/tanzu-framework/actions/workflows/tkgpackage_integration_test.yaml/badge.svg?branch=main)](https://github.com/vmware-tanzu/tanzu-framework/actions/workflows/tkgpackage_integration_test.yaml)
+
 [![Go Reference](https://pkg.go.dev/badge/github.com/vmware-tanzu/tanzu-framework.svg)](https://pkg.go.dev/github.com/vmware-tanzu/tanzu-framework)
 
 ## Overview
