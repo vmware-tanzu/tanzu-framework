@@ -1139,6 +1139,8 @@ func (r *ClusterBootstrapReconciler) GetDataValueSecretNameFromBootstrapPackage(
 				return packageSecretName, nil
 			}
 		}
+		// cbPkg.ValuesFrom is nil and not TKGS
+		return "", nil
 	}
 
 	// When valuesFrom is not nil, but either valuesFrom.Inline, valuesFrom.SecretRef, or valuesFrom.providerRef is empty or nil,
