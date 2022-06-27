@@ -48,6 +48,11 @@ spec:
             properties:
               vsphereCPI:
                 properties:
+                  antreaNSXPodRoutingEnabled:
+                    default: false
+                    description: A flag that enables pod routing by Antrea NSX for
+                      paravirtual mode
+                    type: boolean
                   datacenter:
                     description: The datacenter in which VMs are created/located
                     type: string

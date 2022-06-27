@@ -52,25 +52,25 @@ type antreaConfigDataValue struct {
 	ServiceCIDR             string              `yaml:"serviceCIDR,omitempty"`
 	ServiceCIDRv6           string              `yaml:"serviceCIDRv6,omitempty"`
 	TrafficEncapMode        string              `yaml:"trafficEncapMode,omitempty"`
-	NoSNAT                  bool                `yaml:"noSNAT,omitempty"`
-	DisableUDPTunnelOffload bool                `yaml:"disableUdpTunnelOffload,omitempty"`
+	NoSNAT                  bool                `yaml:"noSNAT"`
+	DisableUDPTunnelOffload bool                `yaml:"disableUdpTunnelOffload"`
 	DefaultMTU              string              `yaml:"defaultMTU,omitempty"`
 	TLSCipherSuites         string              `yaml:"tlsCipherSuites,omitempty"`
 	FeatureGates            antreaFeatureGates  `yaml:"featureGates,omitempty"`
 }
 
 type antreaFeatureGates struct {
-	AntreaProxy        bool `yaml:"AntreaProxy,omitempty"`
-	EndpointSlice      bool `yaml:"EndpointSlice,omitempty"`
-	AntreaPolicy       bool `yaml:"AntreaPolicy,omitempty"`
-	FlowExporter       bool `yaml:"FlowExporter,omitempty"`
-	Egress             bool `yaml:"Egress,omitempty"`
-	NodePortLocal      bool `yaml:"NodePortLocal,omitempty"`
-	AntreaTraceflow    bool `yaml:"AntreaTraceflow,omitempty"`
-	NetworkPolicyStats bool `yaml:"NetworkPolicyStats,omitempty"`
-	AntreaIPAM         bool `yaml:"AntreaIPAM,omitempty"`
-	ServiceExternalIP  bool `yaml:"ServiceExternalIP,omitempty"`
-	Multicast          bool `yaml:"Multicast,omitempty"`
+	AntreaProxy        bool `yaml:"AntreaProxy"`
+	EndpointSlice      bool `yaml:"EndpointSlice"`
+	AntreaPolicy       bool `yaml:"AntreaPolicy"`
+	FlowExporter       bool `yaml:"FlowExporter"`
+	Egress             bool `yaml:"Egress"`
+	NodePortLocal      bool `yaml:"NodePortLocal"`
+	AntreaTraceflow    bool `yaml:"AntreaTraceflow"`
+	NetworkPolicyStats bool `yaml:"NetworkPolicyStats"`
+	AntreaIPAM         bool `yaml:"AntreaIPAM"`
+	ServiceExternalIP  bool `yaml:"ServiceExternalIP"`
+	Multicast          bool `yaml:"Multicast"`
 }
 
 func mapAntreaConfigSpec(cluster *clusterapiv1beta1.Cluster, config *cniv1alpha1.AntreaConfig) (*antreaConfigSpec, error) {

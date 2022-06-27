@@ -65,6 +65,22 @@ spec:
                 properties:
                   config:
                     properties:
+                      antreaProxy:
+                        description: Specifies AntreaProxy related configuration.
+                        properties:
+                          enabled:
+                            type: boolean
+                          nodePortAddresses:
+                            items:
+                              type: string
+                            type: array
+                          proxyLoadBalancerIPs:
+                            type: boolean
+                          skipServices:
+                            items:
+                              type: string
+                            type: array
+                        type: object
                       defaultMTU:
                         default: ""
                         description: Default MTU to use for the host gateway interface
@@ -76,24 +92,36 @@ spec:
                         description: Disable UDP tunnel offload feature on default
                           NIC
                         type: boolean
+                      egress:
+                        description: Specifies Egress related configuration.
+                        properties:
+                          exceptCIDRs:
+                            items:
+                              type: string
+                            type: array
+                        type: object
                       featureGates:
                         description: FeatureGates is a map of feature names to flags
                           that enable or disable experimental features
                         properties:
+                          AntreaIPAM:
+                            default: false
+                            description: Flag to enable/disable antrea IPAM
+                            type: boolean
                           AntreaPolicy:
                             default: true
                             description: Flag to enable/disable antrea policy
                             type: boolean
                           AntreaProxy:
-                            default: false
+                            default: true
                             description: Flag to enable/disable antrea proxy
                             type: boolean
                           AntreaTraceflow:
-                            default: false
+                            default: true
                             description: Flag to enable/disable antrea traceflow
                             type: boolean
                           Egress:
-                            default: false
+                            default: true
                             description: Flag to enable/disable SNAT IPs of Pod egress
                               traffic
                             type: boolean
@@ -107,21 +135,51 @@ spec:
                             default: false
                             description: Flag to enable/disable flow exporter
                             type: boolean
+                          Multicast:
+                            default: false
+                            description: Flag to enable/disable multicast
+                            type: boolean
                           NetworkPolicyStats:
                             default: false
                             description: Flag to enable/disable network policy stats
                             type: boolean
                           NodePortLocal:
-                            default: false
+                            default: true
                             description: Flag to enable/disable NodePortLocal feature
                               to make the pods reachable externally through NodePort
                             type: boolean
+                          ServiceExternalIP:
+                            default: false
+                            description: Flag to enable/disable service external IP
+                            type: boolean
                         type: object
+                      kubeAPIServerOverride:
+                        default: encap
+                        description: The traffic encapsulation mode. One of the following
+                          options => encap, noEncap, hybrid, networkPolicyOnly
+                        enum:
+                        - encap
+                        - noEncap
+                        - hybrid
+                        - networkPolicyOnly
+                        type: string
+                      multicastInterface:
+                        description: The names of the interfaces on Nodes that are
+                          used to forward multicast traffic.
+                        type: string
                       noSNAT:
                         default: false
                         description: Flag to enable/disable SNAT for the egress traffic
                           from a Pod to the external network
                         type: boolean
+                      nodePortLocal:
+                        description: Specifies NodePortLocal related configuration.
+                        properties:
+                          enabled:
+                            type: boolean
+                          portRange:
+                            type: string
+                        type: object
                       tlsCipherSuites:
                         default: TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,TLS_RSA_WITH_AES_256_GCM_SHA384
                         description: List of allowed cipher suites. If omitted, the
@@ -137,6 +195,22 @@ spec:
                         - hybrid
                         - networkPolicyOnly
                         type: string
+                      transportInterface:
+                        description: The name of the interface on Node which is used
+                          for tunneling or routing.
+                        type: string
+                      transportInterfaceCIDRs:
+                        description: The network CIDRs of the interface on Node which
+                          is used for tunneling or routing.
+                        items:
+                          type: string
+                        type: array
+                      wireGuard:
+                        description: Specifies WireGuard related configuration.
+                        properties:
+                          port:
+                            type: integer
+                        type: object
                     type: object
                 type: object
             type: object

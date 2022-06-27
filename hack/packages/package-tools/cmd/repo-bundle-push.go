@@ -96,10 +96,17 @@ func runRepoBundlePush(cmd *cobra.Command, args []string) error {
 
 	sha256 := strings.Split(bundleLock.Bundle.Image, ":")[1]
 
+	// write the ytt lib to a temp file and delete it later
+	packageHelpersLibFile, err := getTempPackageHelpersLib(packageHelpersLib)
+	if err != nil {
+		return err
+	}
+	defer os.Remove(packageHelpersLibFile)
+
 	yttCmd := exec.Command(
 		filepath.Join(toolsBinDir, "ytt"),
-		"-f", filepath.Join(projectRootDir, "hack", "packages", "templates", "repo-utils", "packagerepo-tmpl.yaml"),
-		"-f", filepath.Join(projectRootDir, "hack", "packages", "templates", "repo-utils", "package-helpers.lib.yaml"),
+		"-f-",
+		"-f", packageHelpersLibFile,
 		"-f", filepath.Join(projectRootDir, constants.PackageValuesSha256FilePath),
 		"-v", "packageRepository="+packageRepository,
 		"-v", "registry="+registry,
@@ -115,6 +122,15 @@ func runRepoBundlePush(cmd *cobra.Command, args []string) error {
 	var errBytes bytes.Buffer
 	yttCmd.Stdout = outfile
 	yttCmd.Stderr = &errBytes
+	yttCmdStdin, err := yttCmd.StdinPipe()
+	if err != nil {
+		return fmt.Errorf("couldn't run ytt command to generate PackageRepository CR: %w", err)
+	}
+	_, err = yttCmdStdin.Write([]byte(packageRepoTemplate))
+	if err != nil {
+		return fmt.Errorf("couldn't run ytt command to generate PackageRepository CR: %w", err)
+	}
+	yttCmdStdin.Close()
 
 	if err = yttCmd.Run(); err != nil {
 		return fmt.Errorf("couldn't generate PackageRepository CR: %s", errBytes.String())

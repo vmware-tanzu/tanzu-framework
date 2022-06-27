@@ -2349,7 +2349,7 @@ func (c *client) IsClusterClassBased(clusterName, namespace string) (bool, error
 	if err := c.GetResource(clusterObj, clusterName, namespace, nil, nil); err != nil {
 		return false, err
 	}
-	if clusterObj.Spec.Topology.Class == "" {
+	if clusterObj.Spec.Topology == nil || clusterObj.Spec.Topology.Class == "" {
 		return false, nil
 	}
 	return true, nil
