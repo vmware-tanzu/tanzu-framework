@@ -1,7 +1,7 @@
 apiVersion: cluster.x-k8s.io/v1beta1
 kind: Cluster
 metadata:
-  name: test-cluster-cpi-paravirtual
+  name: test-cluster-cpi-paravirtual-with-endpoint
   namespace: default
 spec:
   infrastructureRef:
@@ -13,7 +13,7 @@ spec:
 apiVersion: cpi.tanzu.vmware.com/v1alpha1
 kind: VSphereCPIConfig
 metadata:
-  name: test-cluster-cpi-paravirtual
+  name: test-cluster-cpi-paravirtual-with-endpoint
   namespace: default
 spec:
   vsphereCPI:
@@ -24,9 +24,9 @@ apiVersion: vmware.infrastructure.cluster.x-k8s.io/v1beta1
 kind: VSphereCluster
 metadata:
   labels:
-    cluster.x-k8s.io/cluster-name: test-cluster-cpi-paravirtual
+    cluster.x-k8s.io/cluster-name: test-cluster-cpi-paravirtual-with-endpoint
     topology.cluster.x-k8s.io/owned: ""
-  name: test-cluster-cpi-paravirtual-kl5tl
+  name: test-cluster-cpi-paravirtual-with-endpoint
   namespace: default
 spec:
   controlPlaneEndpoint:
