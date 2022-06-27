@@ -203,7 +203,7 @@ func (r *VSphereCPIConfigReconciler) reconcileVSphereCPIConfigNormal(ctx context
 		}
 		labelSelector := labels.NewSelector()
 		labelSelector = labelSelector.Add(*labelMatch)
-		if err := r.Client.List(ctx, vsphereClusters, &client.ListOptions{LabelSelector: labelSelector}); err != nil {
+		if err := r.Client.List(ctx, vsphereClusters, &client.ListOptions{LabelSelector: labelSelector, Namespace: cluster.Namespace}); err != nil {
 			r.Log.Error(err, "error retrieving clusters")
 			return err
 		}

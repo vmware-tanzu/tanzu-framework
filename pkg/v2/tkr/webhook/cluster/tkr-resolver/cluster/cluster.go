@@ -151,7 +151,7 @@ func (cw *Webhook) filterOSImageQuery(tkr *runv1.TanzuKubernetesRelease, tkrData
 			if osImageName, ok := tkrDataValue.Labels[runv1.LabelOSImage]; ok {
 				if osImage := cw.TKRResolver.Get(osImageName, &runv1.OSImage{}).(*runv1.OSImage); osImage != nil {
 					// Found TKR and OSImage. Now, see if they match the provided version and selectors.
-					if version.Prefixes(version.Label(tkr.Spec.Version)).Has(version.Label(osImageQuery.K8sVersionPrefix)) &&
+					if version.Prefixes(version.Label(tkr.Spec.Kubernetes.Version)).Has(version.Label(osImageQuery.K8sVersionPrefix)) &&
 						osImageQuery.TKRSelector.Matches(labels.Set(tkr.Labels)) &&
 						osImageQuery.OSImageSelector.Matches(labels.Set(osImage.Labels)) {
 						return nil // indicating we don't need to resolve: already have matching TKR and OSImage

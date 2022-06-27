@@ -154,3 +154,15 @@ func getEnvArrayFromMap(env map[string]string) []string {
 	}
 	return arrEnv
 }
+
+func getTempPackageHelpersLib(lib string) (string, error) {
+	tempDir, err := os.MkdirTemp(os.TempDir(), "package-helpers.lib-")
+	if err != nil {
+		return "", fmt.Errorf("cannot create temporary directory: %w", err)
+	}
+	tempFileName := filepath.Join(tempDir, "package-helpers.lib.yaml")
+	if err := os.WriteFile(tempFileName, []byte(lib), 0755); err != nil {
+		return "", err
+	}
+	return tempFileName, nil
+}

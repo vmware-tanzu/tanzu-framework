@@ -1,0 +1,13 @@
+tools:
+  - name: ytt
+    version: v0.40.0
+    url: https://github.com/vmware-tanzu/carvel-ytt/releases/download/{{ .VERSION }}/ytt-{{ .OS }}-{{ .ARCH }}
+  - name: kbld
+    version: v0.31.0
+    url: https://github.com/vmware-tanzu/carvel-kbld/releases/download/{{ .VERSION }}/kbld-{{ .OS }}-{{ .ARCH }}
+  - name: vendir
+    version: v0.23.0
+    url: https://github.com/vmware-tanzu/carvel-vendir/releases/download/{{ .VERSION }}/vendir-{{ .OS }}-{{ .ARCH }}
+  - name: imgpkg
+    version: v0.11.0
+    url: https://github.com/vmware-tanzu/carvel-imgpkg/releases/download/{{ .VERSION }}/imgpkg-{{ .OS }}-{{ .ARCH }}
