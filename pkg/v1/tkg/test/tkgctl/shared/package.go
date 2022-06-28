@@ -26,7 +26,7 @@ import (
 )
 
 const (
-	waitTimeout     = time.Second * 90
+	waitTimeout     = time.Second * 180
 	pollingInterval = time.Second * 2
 )
 
