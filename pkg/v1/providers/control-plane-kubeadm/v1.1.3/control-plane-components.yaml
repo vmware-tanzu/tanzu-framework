@@ -4311,6 +4311,14 @@ spec:
       - name: cert
         secret:
           secretName: capi-kubeadm-control-plane-webhook-service-cert
+      affinity:
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - preference:
+              matchExpressions:
+              - key: node-role.kubernetes.io/control-plane
+                operator: DoesNotExist
+            weight: 100
 ---
 apiVersion: cert-manager.io/v1
 kind: Certificate
