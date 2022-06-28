@@ -360,4 +360,23 @@ var _ = Describe("VSphereCSIConfig Reconciler", func() {
 			}, waitTimeout, pollingInterval).Should(Succeed())
 		})
 	})
+
+	Context("Reconcile VSphereCSIConfig used as template", func() {
+
+		BeforeEach(func() {
+			clusterName = "test-cluster-csi-template"
+			clusterResourceFilePath = "testdata/test-vsphere-csi-template-config.yaml"
+			enduringResourcesFilePath = ""
+		})
+
+		It("Should skip the reconciliation", func() {
+
+			key.Namespace = addonNamespace
+			config := &csiv1alpha1.VSphereCSIConfig{}
+			Expect(k8sClient.Get(ctx, key, config)).To(Succeed())
+
+			By("OwnerReferences is not set")
+			Expect(len(config.OwnerReferences)).Should(Equal(0))
+		})
+	})
 })

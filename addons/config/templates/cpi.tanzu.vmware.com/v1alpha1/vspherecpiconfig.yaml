@@ -5,6 +5,8 @@ kind: VSphereCPIConfig
 metadata:
   name: #@ data.values.TKR_VERSION
   namespace: #@ data.values.GLOBAL_NAMESPACE
+  annotations:
+    tkg.tanzu.vmware.com/template-config: "true"
 spec:
   vsphereCPI:
     mode: #@ "vsphereCPI" if data.values.IAAS != "tkgs" else "vsphereParavirtualCPI"

@@ -1,10 +1,11 @@
+---
 apiVersion: csi.tanzu.vmware.com/v1alpha1
 kind: VSphereCSIConfig
 metadata:
-  name: v1.23.3---vmware.1-tkg.1
+  name: test-cluster-csi-template
   namespace: tkg-system
   annotations:
     tkg.tanzu.vmware.com/template-config: "true"
 spec:
   vsphereCSI:
-    mode: vsphereParavirtualCSI
+    mode: vsphereCSI

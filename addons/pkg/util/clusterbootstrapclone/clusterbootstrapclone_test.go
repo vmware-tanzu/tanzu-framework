@@ -149,13 +149,17 @@ var _ = Describe("ClusterbootstrapClone", func() {
 			Expect(createdOrUpdatedProvider).To(BeNil())
 		})
 		It("should create the new provider successfully", func() {
-			fakeDynamicClient = dynamicfake.NewSimpleDynamicClient(scheme, constructFakeAntreaConfig())
+			antreaConfig := constructFakeAntreaConfig()
+			fakeDynamicClient = dynamicfake.NewSimpleDynamicClient(scheme, antreaConfig)
 			helper.DynamicClient = fakeDynamicClient
 
 			createdOrUpdatedProvider, err := helper.cloneProviderRef(cluster, antreaClusterbootstrapPackage, fakeAntreaCarvelPkgRefName, fakeSourceNamespace)
 			Expect(err).NotTo(HaveOccurred())
 			Expect(createdOrUpdatedProvider.GetName()).To(Equal(fmt.Sprintf("%s-%s-package", cluster.Name, "antrea")))
 			Expect(createdOrUpdatedProvider.GetNamespace()).To(Equal(cluster.Namespace))
+			// previous annotations should be removed after clone
+			Expect(antreaConfig.Annotations).Should(HaveKey(constants.TKGAnnotationTemplateConfig))
+			Expect(createdOrUpdatedProvider.GetAnnotations()).ShouldNot(HaveKey(constants.TKGAnnotationTemplateConfig))
 		})
 	})
 
@@ -737,6 +741,9 @@ func constructFakeAntreaConfig() *antreaconfigv1alpha1.AntreaConfig {
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "fake-antreaconfig",
 			Namespace: "fake-ns",
+			Annotations: map[string]string{
+				constants.TKGAnnotationTemplateConfig: "true",
+			},
 		},
 		Spec: antreaconfigv1alpha1.AntreaConfigSpec{
 			Antrea: antreaconfigv1alpha1.Antrea{

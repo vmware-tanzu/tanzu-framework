@@ -232,6 +232,8 @@ func enableClusterBootstrapAndConfigControllers(ctx context.Context, mgr ctrl.Ma
 		Client: mgr.GetClient(),
 		Log:    ctrl.Log.WithName("CalicoConfigController"),
 		Scheme: mgr.GetScheme(),
+		Config: addonconfig.CalicoConfigControllerConfig{
+			ConfigControllerConfig: addonconfig.ConfigControllerConfig{SystemNamespace: flags.addonNamespace}},
 	}).SetupWithManager(ctx, mgr, controller.Options{MaxConcurrentReconciles: 1}); err != nil {
 		setupLog.Error(err, "unable to create CalicoConfigController", "controller", "calico")
 		os.Exit(1)
@@ -241,6 +243,8 @@ func enableClusterBootstrapAndConfigControllers(ctx context.Context, mgr ctrl.Ma
 		Client: mgr.GetClient(),
 		Log:    ctrl.Log.WithName("AntreaConfigController"),
 		Scheme: mgr.GetScheme(),
+		Config: addonconfig.AntreaConfigControllerConfig{
+			ConfigControllerConfig: addonconfig.ConfigControllerConfig{SystemNamespace: flags.addonNamespace}},
 	}).SetupWithManager(ctx, mgr, controller.Options{MaxConcurrentReconciles: 1}); err != nil {
 		setupLog.Error(err, "unable to create AntreaConfigController", "controller", "antrea")
 		os.Exit(1)
@@ -249,6 +253,8 @@ func enableClusterBootstrapAndConfigControllers(ctx context.Context, mgr ctrl.Ma
 		Client: mgr.GetClient(),
 		Log:    ctrl.Log.WithName("KappControllerConfig"),
 		Scheme: mgr.GetScheme(),
+		Config: addonconfig.KappControllerConfigControllerConfig{
+			ConfigControllerConfig: addonconfig.ConfigControllerConfig{SystemNamespace: flags.addonNamespace}},
 	}).SetupWithManager(ctx, mgr, controller.Options{MaxConcurrentReconciles: 1}); err != nil {
 		setupLog.Error(err, "unable to create KappControllerConfig", "controller", "kapp")
 		os.Exit(1)
@@ -257,6 +263,8 @@ func enableClusterBootstrapAndConfigControllers(ctx context.Context, mgr ctrl.Ma
 		Client: mgr.GetClient(),
 		Log:    ctrl.Log.WithName("VSphereCPIConfig"),
 		Scheme: mgr.GetScheme(),
+		Config: addonconfig.VSphereCPIConfigControllerConfig{
+			ConfigControllerConfig: addonconfig.ConfigControllerConfig{SystemNamespace: flags.addonNamespace}},
 	}).SetupWithManager(ctx, mgr, controller.Options{MaxConcurrentReconciles: 1}); err != nil {
 		setupLog.Error(err, "unable to create CPIConfigController", "controller", "vspherecpi")
 		os.Exit(1)
@@ -266,6 +274,8 @@ func enableClusterBootstrapAndConfigControllers(ctx context.Context, mgr ctrl.Ma
 		Client: mgr.GetClient(),
 		Log:    ctrl.Log.WithName("VSphereCSIConfig"),
 		Scheme: mgr.GetScheme(),
+		Config: addonconfig.VSphereCSIConfigControllerConfig{
+			ConfigControllerConfig: addonconfig.ConfigControllerConfig{SystemNamespace: flags.addonNamespace}},
 	}).SetupWithManager(ctx, mgr, controller.Options{MaxConcurrentReconciles: 1}); err != nil {
 		setupLog.Error(err, "unable to create CSIConfigController", "controller", "vspherecsi")
 		os.Exit(1)

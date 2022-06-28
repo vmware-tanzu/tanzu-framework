@@ -9,6 +9,11 @@ import (
 	"time"
 
 	clusterapiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
+
+	cniv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cni/v1alpha1"
+	cpiv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cpi/v1alpha1"
+	csiv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/csi/v1alpha1"
+	runv1alpha3 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
 )
 
 const (
@@ -37,6 +42,9 @@ const (
 
 	// TKRLabelLegacyClusters is the TKR label for legacy clusters
 	TKRLableLegacyClusters = "run.tanzu.vmware.com/legacy-tkr"
+
+	// TKGAnnotationTemplateConfig is the TKG annotation for addon config CRs used by ClusterBootstrapTemplate
+	TKGAnnotationTemplateConfig = "tkg.tanzu.vmware.com/template-config"
 
 	// TKGBomContent is the TKG BOM content.
 	TKGBomContent = "bomContent"
@@ -220,5 +228,22 @@ const (
 	CAPVClusterRoleAggregationRuleLabelSelectorValue = "true"
 )
 
-// ClusterKind is the Kind for cluster-api Cluster object
-var ClusterKind = reflect.TypeOf(clusterapiv1beta1.Cluster{}).Name()
+var (
+	// ClusterKind is the Kind for cluster-api Cluster object
+	ClusterKind = reflect.TypeOf(clusterapiv1beta1.Cluster{}).Name()
+
+	// AntreaConfigKind is the Kind for cni AntreaConfig object
+	AntreaConfigKind = reflect.TypeOf(cniv1alpha1.AntreaConfig{}).Name()
+
+	// CalicoConfigKind is the Kind for cni CalicoConfig object
+	CalicoConfigKind = reflect.TypeOf(cniv1alpha1.CalicoConfig{}).Name()
+
+	// VSphereCSIConfigKind is the Kind for csi VSphereCSIConfig object
+	VSphereCSIConfigKind = reflect.TypeOf(csiv1alpha1.VSphereCSIConfig{}).Name()
+
+	// VSphereCPIConfigKind is the Kind for cpi VSphereCPIConfig object
+	VSphereCPIConfigKind = reflect.TypeOf(cpiv1alpha1.VSphereCPIConfig{}).Name()
+
+	// KappControllerConfigKind is the Kind for KappControllerConfig object
+	KappControllerConfigKind = reflect.TypeOf(runv1alpha3.KappControllerConfig{}).Name()
+)
