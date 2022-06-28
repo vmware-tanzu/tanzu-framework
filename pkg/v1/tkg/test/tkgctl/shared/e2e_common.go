@@ -155,7 +155,7 @@ func E2ECommonSpec(context context.Context, inputGetter func() E2ECommonSpecInpu
 		By(fmt.Sprintf("Waiting for workload cluster %q nodes to be up and running", clusterName))
 		framework.WaitForNodes(framework.NewClusterProxy(clusterName, tempFilePath, ""), 2)
 
-		if input.E2EConfig.ManagementClusterOptions.Plan == "devcc" {
+		if input.Plan == "devcc" {
 			By(fmt.Sprintf("Generating credentials for management cluster %q", input.E2EConfig.ManagementClusterName))
 			mngkubeConfigFileName := input.E2EConfig.ManagementClusterName + ".kubeconfig"
 			mngtempFilePath := filepath.Join(os.TempDir(), mngkubeConfigFileName)
