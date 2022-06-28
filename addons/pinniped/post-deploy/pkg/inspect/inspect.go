@@ -49,13 +49,15 @@ type TKGMetadata struct {
 		      configmapRef:
 		        name: tkg-bom
 	*/
-	Cluster struct {
-		Name           string `yaml:"name"`
-		Type           string `yaml:"type"`
-		Infrastructure struct {
-			Provider string `yaml:"provider"`
-		} `yaml:"infrastructure"`
-	} `yaml:"cluster"`
+	Cluster TKGMetadataCluster `yaml:"cluster"`
+}
+
+type TKGMetadataCluster struct {
+	Name           string `yaml:"name"`
+	Type           string `yaml:"type"`
+	Infrastructure struct {
+		Provider string `yaml:"provider"`
+	} `yaml:"infrastructure"`
 }
 
 // ClusterInfo contains information about the cluster.
