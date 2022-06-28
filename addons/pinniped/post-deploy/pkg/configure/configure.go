@@ -7,6 +7,7 @@ package configure
 import (
 	"context"
 	"encoding/base64"
+	stdliberrors "errors"
 	"fmt"
 	"net/url"
 	"strings"
@@ -178,10 +179,40 @@ func TKGAuthentication(c Clients) error {
 	ctx := context.Background()
 
 	inspector := inspect.Inspector{K8sClientset: c.K8SClientset, Context: ctx}
-	var tkgMetadata *inspect.TKGMetadata
-	if tkgMetadata, err = inspector.GetTKGMetadata(); err != nil {
-		zap.S().Error(err)
-		return err
+
+	// In classy clusters, the tkg-metadata CM is not currently created. We only use
+	// this CM for 1) cluster name and 2) cluster type. As a hack, let's skip reading
+	// this CM if we configure the cluster audience directly via a command line flag,
+	// because the flag tells us 1) what our audience is (so we don't have to use the
+	// cluster name) and 2) the cluster type (workload, since we don't pass this flag
+	// on the management cluster).
+	tkgMetadata := &inspect.TKGMetadata{}
+	// if passed as a flag, we don't need the tkg-metadata cm
+	if len(vars.JWTAuthenticatorAudience) == 0 {
+		if tkgMetadata, err = inspector.GetTKGMetadata(); err != nil {
+			// lets log it, but try getting what we need from an annotation on the node
+			zap.S().Error(err)
+			nodes, listError := c.K8SClientset.CoreV1().Nodes().List(ctx, metav1.ListOptions{})
+			if listError != nil {
+				zap.S().Error(listError)
+				// if we can't list nodes, we don't have an alternative course of action at this point.
+				// fail hard. this is an unexpected fail state. we could look into alternatives such as:
+				// - get the kube-system namespace for the cluster and use its UID
+				// - simply generate another random string
+				return listError
+			}
+			if len(nodes.Items) == 0 {
+				zap.S().Error("no nodes available to read cluster-name annotation")
+				return stdliberrors.New("no nodes available to read cluster-name annotation")
+			} else {
+				zap.S().Info("Successfully listed Nodes")
+				// cluster-api provides cluster-name annotation on nodes
+				node := nodes.Items[0]
+				tkgMetadata.Cluster.Name = node.Annotations["cluster.x-k8s.io/cluster-name"]
+			}
+		}
+	} else {
+		tkgMetadata.Cluster.Type = constants.TKGWorkloadClusterType
 	}
 	// ensure the required resources are up and running before going to configure them
 	ready, err := ensureResources(ctx, c, tkgMetadata.Cluster.Type == "management")
