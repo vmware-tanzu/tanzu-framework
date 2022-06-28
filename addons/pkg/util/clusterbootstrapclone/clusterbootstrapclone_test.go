@@ -284,6 +284,47 @@ var _ = Describe("ClusterbootstrapClone", func() {
 		})
 	})
 
+	Context("Verify HandleExistingClusterBootstrap()", func() {
+		var (
+			clusterbootstrapTemplate *v1alpha3.ClusterBootstrapTemplate
+		)
+		BeforeEach(func() {
+			cluster = constructFakeCluster()
+			clusterbootstrapTemplate = constructFakeClusterBootstrapTemplate()
+		})
+		It("should return clusterbootstrap without error", func() {
+
+			clusterBootstrap := constructFakeEmptyClusterBootstrap()
+			clusterBootstrap.SetAnnotations(map[string]string{
+				constants.AddCBMissingFieldsAnnotationKey: clusterbootstrapTemplate.Name,
+			})
+			clusterBootstrap.Spec = &v1alpha3.ClusterBootstrapTemplateSpec{
+				CNI: &v1alpha3.ClusterBootstrapPackage{
+					RefName: clusterbootstrapTemplate.Spec.CNI.RefName,
+				},
+				CSI: &v1alpha3.ClusterBootstrapPackage{
+					RefName: clusterbootstrapTemplate.Spec.CSI.RefName,
+				},
+			}
+			prepareCarvelPackages(fakeClient, cluster.Namespace)
+			Expect(fakeClient.Create(context.TODO(), clusterbootstrapTemplate)).To(Succeed())
+			Expect(fakeClient.Create(context.TODO(), clusterBootstrap)).To(Succeed())
+
+			clusterBootstrap, err := helper.HandleExistingClusterBootstrap(clusterBootstrap, cluster, clusterbootstrapTemplate.Name, clusterbootstrapTemplate.Namespace)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(clusterBootstrap).NotTo(BeNil())
+
+			// OwnerReference is supposed to be set
+			Expect(clusterBootstrap.OwnerReferences).NotTo(BeEmpty())
+			// ValuesFrom is supposed to be added
+			Expect(clusterBootstrap.Spec.CNI.ValuesFrom).NotTo(BeNil())
+			Expect(clusterBootstrap.Spec.CSI.ValuesFrom).NotTo(BeNil())
+			// Status.ResolvedTKR is supposed to be set
+			Expect(clusterBootstrap.Status.ResolvedTKR).To(Equal(clusterbootstrapTemplate.Name))
+		})
+
+	})
+
 	Context("Verify CreateClusterBootstrapFromTemplate()", func() {
 		var (
 			clusterbootstrapTemplate *v1alpha3.ClusterBootstrapTemplate
@@ -479,7 +520,7 @@ var _ = Describe("ClusterbootstrapClone", func() {
 						},
 					},
 					AdditionalPackages: []*v1alpha3.ClusterBootstrapPackage{
-						{RefName: fakePinnipedCBPackageRefName, ValuesFrom: &v1alpha3.ValuesFrom{Inline: map[string]interface{}{"identity_management_type": "oidc"}}},
+						{RefName: fakePinnipedCBPackageRefName},
 					},
 				},
 			}

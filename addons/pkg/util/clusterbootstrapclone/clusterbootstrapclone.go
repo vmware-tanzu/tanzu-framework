@@ -113,8 +113,8 @@ func getFullyQualifiedCBPackageRefName(tkr *runtanzuv1alpha3.TanzuKubernetesRele
 func (h *Helper) AddMissingSpecFieldsFromTemplate(clusterBootstrapTemplate *runtanzuv1alpha3.ClusterBootstrapTemplate,
 	clusterBootstrap *runtanzuv1alpha3.ClusterBootstrap, keysToSkip map[string]interface{}) error {
 
-	h.Logger.Info("adding the missing spec fields ClusterBootstrap %s/%s from ClusterBootstrapTemplate %s/%s",
-		clusterBootstrap.Namespace, clusterBootstrap.Name, clusterBootstrapTemplate.Namespace, clusterBootstrapTemplate.Name)
+	h.Logger.Info(fmt.Sprintf("adding the missing spec fields of ClusterBootstrap %s/%s from ClusterBootstrapTemplate %s/%s",
+		clusterBootstrap.Namespace, clusterBootstrap.Name, clusterBootstrapTemplate.Namespace, clusterBootstrapTemplate.Name))
 
 	converter := runtime.DefaultUnstructuredConverter
 	var copyFrom map[string]interface{}
@@ -136,6 +136,8 @@ func (h *Helper) AddMissingSpecFieldsFromTemplate(clusterBootstrapTemplate *runt
 		return err
 	}
 	clusterBootstrap.Spec = updatedTemplateSpec
+	h.Logger.Info(fmt.Sprintf("added the missing spec fields of ClusterBootstrap %s/%s from ClusterBootstrapTemplate %s/%s",
+		clusterBootstrap.Namespace, clusterBootstrap.Name, clusterBootstrapTemplate.Namespace, clusterBootstrapTemplate.Name))
 	return nil
 }
 
@@ -205,6 +207,7 @@ func addMissingFields(copyFrom, destination, keysToSkip map[string]interface{}) 
 						  - {refName: a}
 						  - {refName: c, valuesFrom: {...}}
 						  - {refName: d}
+
 						After addMissingFields(cbTemplate, cb, nil), we expect to get the following result in ClusterBootstrap:
 						  - {refName: a, valuesFrom: {...}}
 						  - {refName: b, valuesFrom: {...}}
@@ -224,11 +227,17 @@ func addMissingFields(copyFrom, destination, keysToSkip map[string]interface{}) 
 						// e.g., {refName: a, valuesFrom: {...}} and {refName: a} matches
 						if itemMapInFrom["refName"].(string) == itemMapInTarget["refName"].(string) {
 							foundMatch = true
-							if err := addMissingFields(itemMapInFrom, itemMapInTarget, keysToSkip); err != nil {
-								return err
+							copiedVal, _, copyErr := unstructured.NestedFieldCopy(itemMapInFrom)
+							if copyErr != nil {
+								return copyErr
 							}
-							if removeErr := removeFields(itemMapInTarget, keysToSkip); removeErr != nil {
+							// unstructured.NestedFieldCopy() copies all fields, but we need to delete some fields which are meant
+							// to be skipped.
+							if removeErr := removeFields(copiedVal.(map[string]interface{}), keysToSkip); removeErr != nil {
 								return removeErr
+							}
+							if err := addMissingFields(copiedVal.(map[string]interface{}), itemMapInTarget, keysToSkip); err != nil {
+								return err
 							}
 							updatedSlice = append(updatedSlice, itemMapInTarget)
 							break // we expect only one match
@@ -236,10 +245,16 @@ func addMissingFields(copyFrom, destination, keysToSkip map[string]interface{}) 
 					}
 					// If there is no match, we simply add the new slice item to the final slice
 					if !foundMatch {
-						if removeErr := removeFields(itemMapInFrom, keysToSkip); removeErr != nil {
+						copiedVal, _, copyErr := unstructured.NestedFieldCopy(itemMapInFrom)
+						if copyErr != nil {
+							return copyErr
+						}
+						// unstructured.NestedFieldCopy() copies all fields, but we need to delete some fields which are meant
+						// to be skipped.
+						if removeErr := removeFields(copiedVal.(map[string]interface{}), keysToSkip); removeErr != nil {
 							return removeErr
 						}
-						updatedSlice = append(updatedSlice, itemMapInFrom)
+						updatedSlice = append(updatedSlice, copiedVal)
 					}
 				}
 				destination[keyInFrom] = updatedSlice
@@ -294,9 +309,45 @@ func (h *Helper) HandleExistingClusterBootstrap(clusterBootstrap *runtanzuv1alph
 			if err := h.K8sClient.Get(h.Ctx, client.ObjectKey{Namespace: systemNamespace, Name: clusterBootstrapTemplateName}, clusterBootstrapTemplate); err != nil {
 				return nil, err
 			}
+
+			// Update the packages slice to make it only contains the ones we want the rest of the code to do the cloning.
+			// For cloning, we only care about the ClusterBootstrap packages which have no valuesFrom originally. The missing
+			// valuesFrom field will be added by AddMissingSpecFieldsFromTemplate() in few lines below, and we want to clone
+			// those packages from system namespace.
+			var nilValuesFromPackages []*runtanzuv1alpha3.ClusterBootstrapPackage
+			for _, cbPackage := range packages {
+				if cbPackage != nil && cbPackage.ValuesFrom == nil {
+					nilValuesFromPackages = append(nilValuesFromPackages, cbPackage)
+				}
+			}
+
 			if err := h.AddMissingSpecFieldsFromTemplate(clusterBootstrapTemplate, clusterBootstrap, nil); err != nil {
+				h.Logger.Error(err, fmt.Sprintf("unable to add missing spec fields of ClusterBootstrap %s/%s from ClusterBootstrapTemplate %s/%s",
+					clusterBootstrap.Namespace, clusterBootstrap.Name, clusterBootstrapTemplate.Namespace, clusterBootstrapTemplate.Name))
 				return nil, err
 			}
+
+			// AddMissingSpecFieldsFromTemplate() updates clusterBootstrap.Spec, it holds the updated pointers now.
+			// Declaring updatedCBPackages is to compare with original nilValuesFromPackages and figure out which packages
+			// need to be cloned.
+			updatedCBPackages := append([]*runtanzuv1alpha3.ClusterBootstrapPackage{
+				clusterBootstrap.Spec.CNI,
+				clusterBootstrap.Spec.CPI,
+				clusterBootstrap.Spec.CSI,
+				clusterBootstrap.Spec.Kapp,
+			}, clusterBootstrap.Spec.AdditionalPackages...)
+
+			var packagesToBeCloned []*runtanzuv1alpha3.ClusterBootstrapPackage
+			for _, nilValuesFromPackage := range nilValuesFromPackages {
+				for _, updatedCBPackage := range updatedCBPackages {
+					// If the nilValuesFromPackage has been filled by AddMissingSpecFieldsFromTemplate(), it is the package
+					// we want to record and do cloning.
+					if updatedCBPackage != nil && updatedCBPackage.ValuesFrom != nil && updatedCBPackage.RefName == nilValuesFromPackage.RefName {
+						packagesToBeCloned = append(packagesToBeCloned, updatedCBPackage)
+					}
+				}
+			}
+			packages = packagesToBeCloned
 		}
 	}
 
@@ -306,23 +357,21 @@ func (h *Helper) HandleExistingClusterBootstrap(clusterBootstrap *runtanzuv1alph
 		return nil, err
 	}
 
-	// Using controllerutil.CreateOrPatch() to patch the ClusterBootstrap CR.
-	// TODO: Revisit if using client.Patch() is better
-	if _, err := controllerutil.CreateOrPatch(h.Ctx, h.K8sClient, clusterBootstrap, func() error {
-		clusterBootstrap.OwnerReferences = []metav1.OwnerReference{
-			{
-				APIVersion:         clusterapiv1beta1.GroupVersion.String(),
-				Kind:               cluster.Kind,
-				Name:               cluster.Name,
-				UID:                cluster.UID,
-				Controller:         pointer.BoolPtr(true),
-				BlockOwnerDeletion: pointer.BoolPtr(true),
-			},
-		}
-		// controllerutil.CreateOrPatch() updates the status subresource as well
-		clusterBootstrap.Status.ResolvedTKR = tkrName
-		return nil
-	}); err != nil {
+	clusterBootstrap.OwnerReferences = []metav1.OwnerReference{
+		{
+			APIVersion:         clusterapiv1beta1.GroupVersion.String(),
+			Kind:               cluster.Kind,
+			Name:               cluster.Name,
+			UID:                cluster.UID,
+			Controller:         pointer.BoolPtr(true),
+			BlockOwnerDeletion: pointer.BoolPtr(true),
+		},
+	}
+	if err := h.K8sClient.Update(h.Ctx, clusterBootstrap); err != nil {
+		return nil, err
+	}
+	clusterBootstrap.Status.ResolvedTKR = tkrName
+	if err := h.K8sClient.Status().Update(h.Ctx, clusterBootstrap); err != nil {
 		return nil, err
 	}
 

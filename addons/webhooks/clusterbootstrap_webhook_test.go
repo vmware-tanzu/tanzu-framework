@@ -83,6 +83,7 @@ var _ = Describe("ClusterbootstrapWebhook", func() {
 			Expect(clusterBootstrap.Spec.CSI.RefName).To(Equal(clusterBootstrapTemplate.Spec.CSI.RefName))
 			Expect(clusterBootstrap.Spec.AdditionalPackages).NotTo(BeNil())
 			Expect(len(clusterBootstrap.Spec.AdditionalPackages)).To(Equal(len(clusterBootstrapTemplate.Spec.AdditionalPackages)))
+			Expect(clusterBootstrap.Annotations[constants.AddCBMissingFieldsAnnotationKey]).To(Equal(tkrName))
 		})
 		It("should add defaults ONLY to the missing fields when the ClusterBootstrap CR has the predefined annotation", func() {
 			// Create a ClusterBootstrap with empty spec
@@ -105,7 +106,7 @@ var _ = Describe("ClusterbootstrapWebhook", func() {
 						},
 					},
 					AdditionalPackages: []*runv1alpha3.ClusterBootstrapPackage{
-						{RefName: additionalCBPackageRefName, ValuesFrom: &runv1alpha3.ValuesFrom{Inline: map[string]interface{}{"identity_management_type": "ldap"}}},
+						{RefName: additionalCBPackageRefName},
 					},
 				},
 			}
