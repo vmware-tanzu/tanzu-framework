@@ -21,13 +21,14 @@ import (
 
 	kappctrl "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/kappctrl/v1alpha1"
 	kapppkgiv1alpha1 "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/packaging/v1alpha1"
+
 	addonutil "github.com/vmware-tanzu/tanzu-framework/addons/pkg/util"
 	runtanzuv1alpha3 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
 )
 
 const (
-	waitTimeout     = time.Second * 180
-	pollingInterval = time.Second * 2
+	waitTimeout     = time.Minute * 10
+	pollingInterval = time.Second * 30
 )
 
 // create cluster client from kubeconfig
@@ -129,8 +130,11 @@ func verifyPackageInstall(ctx context.Context, wccl client.Client, clusterName, 
 	pkgi := getPackageInstall(ctx, wccl, constants.TkgNamespace, pkgiName)
 
 	// check package install reconcile status is succeed
-	Expect(pkgi.Status.GenericStatus.Conditions[0].Type).Should(Equal(kappctrl.ReconcileSucceeded))
-	Expect(pkgi.Status.GenericStatus.Conditions[0].Status).Should(Equal(corev1.ConditionTrue))
+	Eventually(func() bool {
+		Expect(pkgi.Status.GenericStatus.Conditions[0].Type).Should(Equal(kappctrl.ReconcileSucceeded))
+		Expect(pkgi.Status.GenericStatus.Conditions[0].Status).Should(Equal(corev1.ConditionTrue))
+		return true
+	}, waitTimeout, pollingInterval).Should(BeTrue())
 
 	// Verify package name match between clusterBootstrap and packageInstall
 	Expect(pkgName).Should(Equal(pkgi.Spec.PackageRef.RefName))
