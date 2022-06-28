@@ -26,7 +26,7 @@ import (
 )
 
 const (
-	waitTimeout     = time.Second * 180
+	waitTimeout     = time.Minute * 10
 	pollingInterval = time.Second * 2
 )
 
@@ -129,8 +129,11 @@ func verifyPackageInstall(ctx context.Context, wccl client.Client, clusterName, 
 	pkgi := getPackageInstall(ctx, wccl, constants.TkgNamespace, pkgiName)
 
 	// check package install reconcile status is succeed
-	Expect(pkgi.Status.GenericStatus.Conditions[0].Type).Should(Equal(kappctrl.ReconcileSucceeded))
-	Expect(pkgi.Status.GenericStatus.Conditions[0].Status).Should(Equal(corev1.ConditionTrue))
+	Eventually(func() bool {
+		Expect(pkgi.Status.GenericStatus.Conditions[0].Type).Should(Equal(kappctrl.ReconcileSucceeded))
+		Expect(pkgi.Status.GenericStatus.Conditions[0].Status).Should(Equal(corev1.ConditionTrue))
+		return true
+	}, waitTimeout, pollingInterval).Should(BeTrue())
 
 	// Verify package name match between clusterBootstrap and packageInstall
 	Expect(pkgName).Should(Equal(pkgi.Spec.PackageRef.RefName))
