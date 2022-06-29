@@ -1479,22 +1479,6 @@ func (c *TkgClient) EncodeAWSCredentialsAndGetClient(clusterClient clusterclient
 	return awsClient, nil
 }
 
-// ValidatePacificVersionWithCLI validate Pacific TKC API version with cli version
-func (c *TkgClient) ValidatePacificVersionWithCLI(regionalClusterClient clusterclient.Client) error {
-	/*
-		TODO: (chandrareddyp) we need revisit below API Version validation, for now we disabled it.
-		tkcAPIVersion, err := regionalClusterClient.GetPacificTKCAPIVersion()
-		if err != nil {
-			return errors.Wrap(err, "error determining the Tanzu Kubernetes Cluster API version")
-		}
-		if tkcAPIVersion != constants.DefaultPacificClusterAPIVersion {
-			return errors.Errorf("Only %q Tanzu Kubernetes Cluster API version is supported by current version of Tanzu CLI. Please upgrade 'Tanzu Kubernetes Cluster service for vSphere' to latest version if you are using older version",
-				constants.DefaultPacificClusterAPIVersion)
-		}
-	*/
-	return nil
-}
-
 // ConfigureAndValidateHTTPProxyConfiguration configures and validates http proxy configuration
 func (c *TkgClient) ConfigureAndValidateHTTPProxyConfiguration(infrastructureName string) error {
 	c.SetDefaultProxySettings()

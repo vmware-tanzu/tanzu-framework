@@ -61,10 +61,6 @@ func (c *TkgClient) DoScaleCluster(clusterClient clusterclient.Client, options *
 		return errors.Wrap(err, "error determining Tanzu Kubernetes Grid service for vSphere management cluster ")
 	}
 	if isPacific {
-		err := c.ValidatePacificVersionWithCLI(clusterClient)
-		if err != nil {
-			return err
-		}
 		return c.ScalePacificCluster(options, clusterClient)
 	}
 
