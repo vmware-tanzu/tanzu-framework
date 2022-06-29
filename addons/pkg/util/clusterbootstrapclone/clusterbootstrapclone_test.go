@@ -540,6 +540,43 @@ var _ = Describe("ClusterbootstrapClone", func() {
 				Expect(updatedClusterBootstrap.Spec.AdditionalPackages[idx].ValuesFrom).To(BeNil())
 			}
 		})
+
+		It("should not add the fields which are meant to be skipped in additionalPackages", func() {
+			antreaAPIGroup := antreaconfigv1alpha1.GroupVersion.Group
+			fakeCPIClusterBootstrapPackage := constructFakeClusterBootstrapPackageWithSecretRef()
+			fakeCSIClusterBootstrapPackage := constructFakeClusterBootstrapPackageWithInlineRef()
+			// Update fakeClusterBootstrapTemplate by adding a fake CPI and CSI package
+			fakeClusterBootstrapTemplate.Spec.CPI = fakeCPIClusterBootstrapPackage
+			fakeClusterBootstrapTemplate.Spec.CSI = fakeCSIClusterBootstrapPackage
+
+			clusterBootstrap := &v1alpha3.ClusterBootstrap{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      "fake-clusterbootstrap",
+					Namespace: "fake-cluster-ns",
+					UID:       "uid",
+				},
+				Spec: &v1alpha3.ClusterBootstrapTemplateSpec{
+					// We do not expect this part to be overwritten to be what fakeClusterBootstrapTemplate has
+					CNI: &v1alpha3.ClusterBootstrapPackage{
+						RefName: "foo-antrea-clusterbootstrarp-package",
+						ValuesFrom: &v1alpha3.ValuesFrom{
+							ProviderRef: &corev1.TypedLocalObjectReference{
+								APIGroup: &antreaAPIGroup,
+								Kind:     "AntreaConfig",
+								Name:     "fooAntreaConfig",
+							},
+						},
+					},
+				},
+			}
+
+			err := helper.AddMissingSpecFieldsFromTemplate(fakeClusterBootstrapTemplate, clusterBootstrap, map[string]interface{}{"valuesFrom": nil})
+			Expect(err).NotTo(HaveOccurred())
+			for _, additionalPackage := range clusterBootstrap.Spec.AdditionalPackages {
+				Expect(additionalPackage.RefName).NotTo(BeEmpty())
+				Expect(additionalPackage.ValuesFrom).To(BeNil())
+			}
+		})
 	})
 
 	Context("Verify CompleteCBPackageRefNamesFromTKR()", func() {

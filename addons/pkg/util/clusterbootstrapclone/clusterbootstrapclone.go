@@ -156,6 +156,7 @@ func addMissingFields(copyFrom, destination, keysToSkip map[string]interface{}) 
 			if valueInFrom != nil {
 				valueInFromType := reflect.TypeOf(valueInFrom)
 				if valueInFromType.Kind() == reflect.Map {
+					// If the valueInFrom is a map, we copy it directly.
 					copiedVal, _, copyErr := unstructured.NestedFieldCopy(valueInFrom.(map[string]interface{}))
 					if copyErr != nil {
 						return copyErr
@@ -166,12 +167,33 @@ func addMissingFields(copyFrom, destination, keysToSkip map[string]interface{}) 
 						return removeErr
 					}
 					destination[keyInFrom] = copiedVal
+				} else if valueInFromType.Kind() == reflect.Slice {
+					// If the valueInFrom is a slice, e.g., additionalPackages from a ClusterBootstrapTemplate, we iterate
+					// on each item of the slice and make a copy of it.
+					var copiedSlice []interface{}
+					for _, sliceItemInFrom := range valueInFrom.([]interface{}) {
+						if reflect.TypeOf(sliceItemInFrom).Kind() == reflect.Map {
+							// Instantiate an empty map and invoke addMissingFields() to add missing fields into it. Logically,
+							// this is doing a copy of the slice item and remove the keys which are meant to be skipped.
+							copiedMap := make(map[string]interface{})
+							if copyErr := addMissingFields(sliceItemInFrom.(map[string]interface{}), copiedMap, keysToSkip); copyErr != nil {
+								return copyErr
+							}
+							copiedSlice = append(copiedSlice, copiedMap)
+						} else {
+							// TODO: The following line is doing a shallow copy, we might want to revisit in the future.
+							// https://github.com/vmware-tanzu/tanzu-framework/issues/2785
+							copiedSlice = append(copiedSlice, sliceItemInFrom)
+						}
+					}
+					destination[keyInFrom] = copiedSlice
 				} else {
 					// TODO: Handle the primitive pointer, e.g., *int. Ideally we need to make a copy of the pointer
 					// instead of reassigning directly. It is a shallow copy with current approach, copyFrom and destination
 					// share the same underlying data. We are good at the moment because this function is internally
 					// used for handling ClusterBootstrapTemplateSpec which does not have any primitive pointers in its
 					// API definition.
+					// https://github.com/vmware-tanzu/tanzu-framework/issues/2785
 					destination[keyInFrom] = valueInFrom
 				}
 			}

@@ -123,10 +123,11 @@ var _ = Describe("ClusterbootstrapWebhook", func() {
 			Expect(clusterBootstrap.Spec.CSI.ValuesFrom.Inline["foo"]).To(Equal("bar"))
 			// Existing additionalPackages should not be touched, the ones in ClusterBootstrapTemplate will be added
 			Expect(clusterBootstrap.Spec.AdditionalPackages).NotTo(BeNil())
-			Expect(len(clusterBootstrap.Spec.AdditionalPackages)).To(Equal(len(clusterBootstrapTemplate.Spec.AdditionalPackages)))
+			// One additional package from original clusterBootstrap, another one will be added from clusterBootstrapTemplate
+			Expect(len(clusterBootstrap.Spec.AdditionalPackages)).To(Equal(2))
 			for idx, _ := range clusterBootstrap.Spec.AdditionalPackages {
 				Expect(clusterBootstrap.Spec.AdditionalPackages[idx].RefName).To(Equal(clusterBootstrapTemplate.Spec.AdditionalPackages[idx].RefName))
-				// IMPORTANT: With the new contract, valuesFrom fields will be removed from webhook. ClusterBootstrap Controller
+				// IMPORTANT: With the new contract, valuesFrom fields will be removed by webhook. ClusterBootstrap Controller
 				// will be adding it back after the corresponding ClusterBootstrap Packages are cloned.
 				Expect(clusterBootstrap.Spec.AdditionalPackages[idx].ValuesFrom).To(BeNil())
 			}
