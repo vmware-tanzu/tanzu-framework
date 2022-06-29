@@ -19,8 +19,6 @@ import (
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
-	"k8s.io/client-go/discovery"
-	cacheddiscovery "k8s.io/client-go/discovery/cached/memory"
 	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/util/retry"
@@ -67,12 +65,10 @@ type ClusterBootstrapReconciler struct {
 	controller    controller.Controller
 	dynamicClient dynamic.Interface
 	// on demand dynamic watches for provider refs
-	providerWatches map[string]client.Object
-	// discovery client for looking up api-resources and preferred versions
-	cachedDiscoveryClient discovery.CachedDiscoveryInterface
-	// cache for resolved api-resources so that look up is fast (cleared periodically)
-	providerGVR                  map[schema.GroupKind]*schema.GroupVersionResource
+	providerWatches              map[string]client.Object
 	aggregatedAPIResourcesClient client.Client
+	// helper for looking up api-resources and getting preferred versions
+	gvrHelper util.GVRHelper
 }
 
 // NewClusterBootstrapReconciler returns a reconciler for ClusterBootstrap
@@ -123,11 +119,8 @@ func (r *ClusterBootstrapReconciler) SetupWithManager(ctx context.Context, mgr c
 	r.dynamicClient = dynClient
 	r.providerWatches = make(map[string]client.Object)
 
-	r.providerGVR = make(map[schema.GroupKind]*schema.GroupVersionResource)
 	clientset := kubernetes.NewForConfigOrDie(mgr.GetConfig())
-	r.cachedDiscoveryClient = cacheddiscovery.NewMemCacheClient(clientset.Discovery())
-
-	go r.periodicGVRCachesClean()
+	r.gvrHelper = util.NewGVRHelper(ctx, clientset.DiscoveryClient)
 
 	r.aggregatedAPIResourcesClient, err = client.New(mgr.GetConfig(), client.Options{Scheme: mgr.GetScheme()})
 	if err != nil {
@@ -392,7 +385,7 @@ func (r *ClusterBootstrapReconciler) createOrPatchClusterBootstrapFromTemplate(c
 	}
 
 	clusterBootstrapHelper := clusterbootstrapclone.NewHelper(
-		r.context, r.Client, r.aggregatedAPIResourcesClient, r.dynamicClient, r.cachedDiscoveryClient, r.Log)
+		r.context, r.Client, r.aggregatedAPIResourcesClient, r.dynamicClient, r.gvrHelper, r.Log)
 	if clusterBootstrap.UID == "" {
 		log.Info("ClusterBootstrap for cluster does not exist, cloning from template")
 		return clusterBootstrapHelper.CreateClusterBootstrapFromTemplate(clusterBootstrapTemplate, cluster, tkrName)
@@ -967,7 +960,7 @@ func (r *ClusterBootstrapReconciler) createOrPatchPackageInstallSecret(cluster *
 			return err
 		}
 		if infraRef == tkgconstants.InfrastructureProviderVSphere {
-			ok, err := util.IsTKGSCluster(r.context, r.dynamicClient, r.cachedDiscoveryClient, cluster)
+			ok, err := util.IsTKGSCluster(r.context, r.dynamicClient, r.gvrHelper.GetDiscoveryClient(), cluster)
 			if err != nil {
 				return err
 			}
@@ -1028,34 +1021,6 @@ func patchSecretWithLabels(secret *corev1.Secret, pkgName, clusterName string) b
 	return updateLabels
 }
 
-// getGVR returns a GroupVersionResource for a GroupKind
-func (r *ClusterBootstrapReconciler) getGVR(gk schema.GroupKind) (*schema.GroupVersionResource, error) {
-	if gvr, ok := r.providerGVR[gk]; ok {
-		return gvr, nil
-	}
-	gvr, err := util.GetGVRForGroupKind(gk, r.cachedDiscoveryClient)
-	if err != nil {
-		return nil, err
-	}
-	r.providerGVR[gk] = gvr
-	return nil, fmt.Errorf("unable to find server preferred resource %s/%s", gk.Group, gk.Kind)
-}
-
-// periodicGVRCachesClean invalidates caches used for GVR lookup
-func (r *ClusterBootstrapReconciler) periodicGVRCachesClean() {
-	ticker := time.NewTicker(constants.DiscoveryCacheInvalidateInterval)
-	for {
-		select {
-		case <-r.context.Done():
-			ticker.Stop()
-			return
-		case <-ticker.C:
-			r.cachedDiscoveryClient.Invalidate()
-			r.providerGVR = make(map[schema.GroupKind]*schema.GroupVersionResource)
-		}
-	}
-}
-
 // watchProvider will set a watch on the Type indicated by providerRef if not already watching
 func (r *ClusterBootstrapReconciler) watchProvider(providerRef *corev1.TypedLocalObjectReference, namespace string, log logr.Logger) error {
 	if providerRef == nil {
@@ -1067,7 +1032,7 @@ func (r *ClusterBootstrapReconciler) watchProvider(providerRef *corev1.TypedLoca
 		return nil
 	}
 
-	gvr, err := r.getGVR(schema.GroupKind{Group: *providerRef.APIGroup, Kind: providerRef.Kind})
+	gvr, err := r.gvrHelper.GetGVR(schema.GroupKind{Group: *providerRef.APIGroup, Kind: providerRef.Kind})
 	if err != nil {
 		log.Error(err, "failed to getGVR")
 		return err
@@ -1132,7 +1097,7 @@ func (r *ClusterBootstrapReconciler) GetDataValueSecretNameFromBootstrapPackage(
 		}
 
 		if cbPkg.ValuesFrom.ProviderRef != nil {
-			gvr, err := r.getGVR(schema.GroupKind{Group: *cbPkg.ValuesFrom.ProviderRef.APIGroup, Kind: cbPkg.ValuesFrom.ProviderRef.Kind})
+			gvr, err := r.gvrHelper.GetGVR(schema.GroupKind{Group: *cbPkg.ValuesFrom.ProviderRef.APIGroup, Kind: cbPkg.ValuesFrom.ProviderRef.Kind})
 			if err != nil {
 				r.Log.Error(err, "unable to get GVR")
 				return "", err
@@ -1162,7 +1127,7 @@ func (r *ClusterBootstrapReconciler) GetDataValueSecretNameFromBootstrapPackage(
 			return "", err
 		}
 		if infraRef == tkgconstants.InfrastructureProviderVSphere {
-			ok, err := util.IsTKGSCluster(r.context, r.dynamicClient, r.cachedDiscoveryClient, cluster)
+			ok, err := util.IsTKGSCluster(r.context, r.dynamicClient, r.gvrHelper.GetDiscoveryClient(), cluster)
 			if err != nil {
 				return "", err
 			}
@@ -1174,6 +1139,8 @@ func (r *ClusterBootstrapReconciler) GetDataValueSecretNameFromBootstrapPackage(
 				return packageSecretName, nil
 			}
 		}
+		// cbPkg.ValuesFrom is nil and not TKGS
+		return "", nil
 	}
 
 	// When valuesFrom is not nil, but either valuesFrom.Inline, valuesFrom.SecretRef, or valuesFrom.providerRef is empty or nil,
