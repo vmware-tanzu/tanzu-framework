@@ -3,6 +3,18 @@ kind: VSphereCPIConfig
 metadata:
   name: v1.23.3---vmware.1-tkg.1
   namespace: tkg-system
+  annotations:
+    tkg.tanzu.vmware.com/template-config: "true"
 spec:
   vsphereCPI:
     mode: vsphereParavirtualCPI
+---
+apiVersion: cpi.tanzu.vmware.com/v1alpha1
+kind: VSphereCPIConfig
+metadata:
+  name: v1.23.3---vmware.1-tkg.1-routable
+  namespace: tkg-system
+spec:
+  vsphereCPI:
+    mode: vsphereParavirtualCPI
+    antreaNSXPodRoutingEnabled: true

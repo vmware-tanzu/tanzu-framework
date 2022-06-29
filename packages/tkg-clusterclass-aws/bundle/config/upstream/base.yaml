@@ -209,7 +209,6 @@ spec:
         properties:
           host:
             type: string
-            format: uri
           tlsCertificateValidation:
             type: boolean
             default: true
@@ -1028,7 +1027,9 @@ spec:
     spec:
       kubeadmConfigSpec:
         files: []
-        preKubeadmCommands: []
+        preKubeadmCommands:
+        #! Ensure a non-empty preKubeadmCommands array is present to facilitate patching
+        - echo "running preKubeadmCommands…"
         useExperimentalRetryJoin: true
         clusterConfiguration:
           apiServer:

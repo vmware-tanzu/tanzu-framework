@@ -12,6 +12,7 @@ tanzuAddonsManager:
     tolerations: []
     webhookServerPort: 9865
     healthzPort: 18316
+    metricsBindAddress: "localhost:18317"
   featureGates:
     clusterBootstrapController: false
     packageInstallStatus: false

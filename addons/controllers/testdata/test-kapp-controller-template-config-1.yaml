@@ -1,0 +1,32 @@
+---
+apiVersion: run.tanzu.vmware.com/v1alpha3
+kind: KappControllerConfig
+metadata:
+  name: test-kapp-controller-1
+  namespace: tkg-system
+  annotations:
+    tkg.tanzu.vmware.com/template-config: "true"
+spec:
+  namespace: test-ns
+  kappController:
+    createNamespace: true
+    globalNamespace: tanzu-package-repo-global
+    deployment:
+      concurrency: 4
+      hostNetwork: true
+      priorityClassName: system-cluster-critical
+      apiPort: 10100
+      metricsBindAddress: "0"
+      tolerations:
+        - key: CriticalAddonsOnly
+          operator: Exists
+        - effect: NoSchedule
+          key: node-role.kubernetes.io/master
+        - effect: NoSchedule
+          key: node.kubernetes.io/not-ready
+        - effect: NoSchedule
+          key: node.cloudprovider.kubernetes.io/uninitialized
+          value: "true"
+    config:
+      httpProxy: "overwrite.foo.com"
+      dangerousSkipTLSVerify: "registry1,registry2"

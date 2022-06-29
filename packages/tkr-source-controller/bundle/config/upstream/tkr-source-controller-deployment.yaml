@@ -44,7 +44,7 @@ spec:
             memory: 200Mi
           requests:
             cpu: 100m
-            memory: 40Mi
+            memory: 100Mi
       serviceAccount: tkr-source-controller-manager-sa
       terminationGracePeriodSeconds: 10
 

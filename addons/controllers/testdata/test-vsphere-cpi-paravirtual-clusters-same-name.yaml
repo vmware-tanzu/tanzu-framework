@@ -1,0 +1,51 @@
+apiVersion: cluster.x-k8s.io/v1beta1
+kind: Cluster
+metadata:
+  name: test-cluster-cpi-paravirtual-same-name
+  namespace: default
+spec:
+  infrastructureRef:
+    kind: VSphereCluster
+  clusterNetwork:
+    pods:
+      cidrBlocks: [ "192.168.0.0/16","fd00:100:96::/48" ]
+---
+apiVersion: cpi.tanzu.vmware.com/v1alpha1
+kind: VSphereCPIConfig
+metadata:
+  name: test-cluster-cpi-paravirtual-same-name
+  namespace: default
+spec:
+  vsphereCPI:
+    mode: vsphereParavirtualCPI
+---
+apiVersion: vmware.infrastructure.cluster.x-k8s.io/v1beta1
+kind: VSphereCluster
+metadata:
+  labels:
+    cluster.x-k8s.io/cluster-name: test-cluster-cpi-paravirtual-same-name
+    topology.cluster.x-k8s.io/owned: ""
+  name: test-cluster-cpi-paravirtual-same-name
+  namespace: default
+spec:
+  controlPlaneEndpoint:
+    host: 192.168.116.1
+    port: 6443
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: another-ns
+---
+apiVersion: vmware.infrastructure.cluster.x-k8s.io/v1beta1
+kind: VSphereCluster
+metadata:
+  labels:
+    cluster.x-k8s.io/cluster-name: test-cluster-cpi-paravirtual-same-name
+    topology.cluster.x-k8s.io/owned: ""
+  name: test-cluster-cpi-paravirtual-same-name
+  namespace: another-ns
+spec:
+  controlPlaneEndpoint:
+    host: 192.168.116.2
+    port: 6443

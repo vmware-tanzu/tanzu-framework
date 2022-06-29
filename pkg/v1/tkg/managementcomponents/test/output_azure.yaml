@@ -1,0 +1,33 @@
+metadata:
+    infraProvider: azure
+configvalues:
+    PROVIDER_TYPE: azure
+frameworkPackage:
+    versionConstraints: v0.21.0
+    featureGatesPackageValues:
+        versionConstraints: v0.21.0
+    tkrServicePackageValues:
+        versionConstraints: v0.21.0
+    clipluginsPackageValues:
+        versionConstraints: v0.21.0
+    addonsManagerPackageValues:
+        versionConstraints: v0.21.0
+        tanzuAddonsManager:
+            featureGates:
+                clusterBootstrapController: true
+    tanzuAuthPackageValues:
+        versionConstraints: v0.21.0
+clusterclassPackage:
+    versionConstraints: v0.21.0
+    clusterclassInfraPackageValues:
+        versionConstraints: v0.21.0
+tkrSourceControllerPackage:
+    versionConstraints: v0.21.0
+    tkrSourceControllerPackageValues:
+        versionConstraints: v0.21.0
+        bomImagePath: fake.custom.repo/tkr-bom
+        bomMetadataImagePath: fake.custom.repo/fake-path/tkr-compatibility
+        tkrRepoImagePath: fake.custom.repo/tkr-repository-azure
+        defaultCompatibleTKR: v1.23.5+vmware.1-tkg.1-fake
+coreManagementPluginsPackage:
+    versionConstraints: v0.21.0

@@ -7,33 +7,29 @@ import (
 	"context"
 	"fmt"
 
-	openapiv2 "github.com/googleapis/gnostic/openapiv2"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-
-	kapppkgv1alpha1 "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apiserver/apis/datapackaging/v1alpha1"
-	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
-	addontypes "github.com/vmware-tanzu/tanzu-framework/addons/pkg/types"
-	antreaconfigv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cni/v1alpha1"
-	vspherecpiv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cpi/v1alpha1"
-	"github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
-
 	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/util/json"
-	"k8s.io/apimachinery/pkg/version"
-	clientgodiscovery "k8s.io/client-go/discovery"
 	dynamicfake "k8s.io/client-go/dynamic/fake"
 	k8sfake "k8s.io/client-go/kubernetes/fake"
-	"k8s.io/client-go/rest"
 	clusterapiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	controllreruntimefake "sigs.k8s.io/controller-runtime/pkg/client/fake"
 	k8syaml "sigs.k8s.io/yaml"
+
+	kapppkgv1alpha1 "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apiserver/apis/datapackaging/v1alpha1"
+	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
+	addontypes "github.com/vmware-tanzu/tanzu-framework/addons/pkg/types"
+	"github.com/vmware-tanzu/tanzu-framework/addons/test/testutil"
+	antreaconfigv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cni/v1alpha1"
+	vspherecpiv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cpi/v1alpha1"
+	"github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
 )
 
 var (
@@ -49,7 +45,7 @@ var _ = Describe("ClusterbootstrapClone", func() {
 		fakeClient                    client.Client
 		fakeClientSet                 *k8sfake.Clientset
 		fakeDynamicClient             *dynamicfake.FakeDynamicClient
-		fakeDiscovery                 *ClusterbootstrapFakeDiscovery
+		fakeDiscovery                 *testutil.FakeDiscovery
 		scheme                        *runtime.Scheme
 		cluster                       *clusterapiv1beta1.Cluster
 		antreaClusterbootstrapPackage *v1alpha3.ClusterBootstrapPackage
@@ -66,9 +62,9 @@ var _ = Describe("ClusterbootstrapClone", func() {
 
 		fakeClient = controllreruntimefake.NewClientBuilder().WithScheme(scheme).Build()
 		fakeClientSet = k8sfake.NewSimpleClientset()
-		fakeDiscovery = &ClusterbootstrapFakeDiscovery{
-			fakeClientSet.Discovery(),
-			[]*metav1.APIResourceList{
+		fakeDiscovery = &testutil.FakeDiscovery{
+			FakeDiscovery: fakeClientSet.Discovery(),
+			Resources: []*metav1.APIResourceList{
 				{
 					GroupVersion: corev1.SchemeGroupVersion.String(),
 					APIResources: []metav1.APIResource{
@@ -89,12 +85,13 @@ var _ = Describe("ClusterbootstrapClone", func() {
 				},
 			},
 		}
+		gvrHelper := &testutil.FakeGVRHelper{DiscoveryClient: fakeDiscovery}
 		helper = &Helper{
 			Ctx:                         context.TODO(),
 			K8sClient:                   fakeClient,
 			AggregateAPIResourcesClient: fakeClient,
 			DynamicClient:               fakeDynamicClient,
-			DiscoveryClient:             fakeDiscovery,
+			GVRHelper:                   gvrHelper,
 			Logger:                      ctrl.Log.WithName("clusterbootstrap_test"),
 		}
 	})
@@ -149,13 +146,17 @@ var _ = Describe("ClusterbootstrapClone", func() {
 			Expect(createdOrUpdatedProvider).To(BeNil())
 		})
 		It("should create the new provider successfully", func() {
-			fakeDynamicClient = dynamicfake.NewSimpleDynamicClient(scheme, constructFakeAntreaConfig())
+			antreaConfig := constructFakeAntreaConfig()
+			fakeDynamicClient = dynamicfake.NewSimpleDynamicClient(scheme, antreaConfig)
 			helper.DynamicClient = fakeDynamicClient
 
 			createdOrUpdatedProvider, err := helper.cloneProviderRef(cluster, antreaClusterbootstrapPackage, fakeAntreaCarvelPkgRefName, fakeSourceNamespace)
 			Expect(err).NotTo(HaveOccurred())
 			Expect(createdOrUpdatedProvider.GetName()).To(Equal(fmt.Sprintf("%s-%s-package", cluster.Name, "antrea")))
 			Expect(createdOrUpdatedProvider.GetNamespace()).To(Equal(cluster.Namespace))
+			// previous annotations should be removed after clone
+			Expect(antreaConfig.Annotations).Should(HaveKey(constants.TKGAnnotationTemplateConfig))
+			Expect(createdOrUpdatedProvider.GetAnnotations()).ShouldNot(HaveKey(constants.TKGAnnotationTemplateConfig))
 		})
 	})
 
@@ -909,6 +910,9 @@ func constructFakeAntreaConfig() *antreaconfigv1alpha1.AntreaConfig {
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "fake-antreaconfig",
 			Namespace: "fake-ns",
+			Annotations: map[string]string{
+				constants.TKGAnnotationTemplateConfig: "true",
+			},
 		},
 		Spec: antreaconfigv1alpha1.AntreaConfigSpec{
 			Antrea: antreaconfigv1alpha1.Antrea{
@@ -924,56 +928,4 @@ func assertTwoMapsShouldEqual(left, right map[string]interface{}) {
 		Expect(exist).To(BeTrue())
 		Expect(valueFromLeft).To(Equal(valueFromRight))
 	}
-}
-
-// ClusterbootstrapFakeDiscovery customize the behavior of fake client-go FakeDiscovery.ServerPreferredResources to return
-// a customized APIResourceList.
-// The client-go FakeDiscovery.ServerPreferredResources is hardcoded to return nil.
-// https://github.com/kubernetes/client-go/blob/master/discovery/fake/discovery.go#L85
-type ClusterbootstrapFakeDiscovery struct {
-	fakeDiscovery clientgodiscovery.DiscoveryInterface
-	resources     []*metav1.APIResourceList
-}
-
-func (c ClusterbootstrapFakeDiscovery) RESTClient() rest.Interface {
-	return c.fakeDiscovery.RESTClient()
-}
-
-func (c ClusterbootstrapFakeDiscovery) ServerGroups() (*metav1.APIGroupList, error) {
-	return c.fakeDiscovery.ServerGroups()
-}
-
-func (c ClusterbootstrapFakeDiscovery) ServerGroupsAndResources() ([]*metav1.APIGroup, []*metav1.APIResourceList, error) {
-	return c.fakeDiscovery.ServerGroupsAndResources()
-}
-
-func (c ClusterbootstrapFakeDiscovery) ServerVersion() (*version.Info, error) {
-	return c.fakeDiscovery.ServerVersion()
-}
-
-func (c ClusterbootstrapFakeDiscovery) OpenAPISchema() (*openapiv2.Document, error) {
-	return c.fakeDiscovery.OpenAPISchema()
-}
-
-func (c ClusterbootstrapFakeDiscovery) getFakeServerPreferredResources() []*metav1.APIResourceList {
-	return c.resources
-}
-
-func (c ClusterbootstrapFakeDiscovery) ServerResourcesForGroupVersion(groupVersion string) (*metav1.APIResourceList, error) {
-	return c.fakeDiscovery.ServerResourcesForGroupVersion(groupVersion)
-}
-
-// Having nolint below to get rid of the complaining on the deprecation of ServerResources. We have to have the following
-// function to customize the DiscoveryInterface
-//nolint:staticcheck
-func (c ClusterbootstrapFakeDiscovery) ServerResources() ([]*metav1.APIResourceList, error) {
-	return c.fakeDiscovery.ServerResources()
-}
-
-func (c ClusterbootstrapFakeDiscovery) ServerPreferredResources() ([]*metav1.APIResourceList, error) {
-	return c.getFakeServerPreferredResources(), nil
-}
-
-func (c ClusterbootstrapFakeDiscovery) ServerPreferredNamespacedResources() ([]*metav1.APIResourceList, error) {
-	return c.fakeDiscovery.ServerPreferredNamespacedResources()
 }

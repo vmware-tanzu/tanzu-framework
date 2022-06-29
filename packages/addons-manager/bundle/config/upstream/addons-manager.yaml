@@ -337,7 +337,7 @@ spec:
       nodeSelector: #@ data.values.tanzuAddonsManager.deployment.nodeSelector
       containers:
       - args:
-        - --metrics-bind-addr=0
+        - #@ "--metrics-bind-addr={}".format(data.values.tanzuAddonsManager.deployment.metricsBindAddress)
         - --leader-elect=false
         - #@ "--health-addr=:{}".format(data.values.tanzuAddonsManager.deployment.healthzPort)
         - #@ "--webhook-server-port={}".format(data.values.tanzuAddonsManager.deployment.webhookServerPort)

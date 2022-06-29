@@ -99,7 +99,11 @@ type addonFlags struct {
 
 func parseAddonFlags(addonFlags *addonFlags) {
 	// controller configurations
-	flag.StringVar(&addonFlags.metricsAddr, "metrics-bind-addr", ":8080", "The address the metric endpoint binds to.")
+
+	// Bind metrics endpoint to localhost, following the pattern in cluster-api projects where they moved away from kube-rbac-proxy for just guarding metrics endpoint.
+	// see https://github.com/kubernetes-sigs/cluster-api/issues/4679 and https://github.com/kubernetes-sigs/cluster-api/issues/4325
+	// 18317 is an available port in Supervisor cluster
+	flag.StringVar(&addonFlags.metricsAddr, "metrics-bind-addr", "localhost:18317", "The address the metric endpoint binds to.")
 	flag.BoolVar(&addonFlags.enableLeaderElection, "leader-elect", false,
 		"Enable leader election for controller manager. "+
 			"Enabling this will ensure there is only one active controller manager.")
@@ -228,6 +232,8 @@ func enableClusterBootstrapAndConfigControllers(ctx context.Context, mgr ctrl.Ma
 		Client: mgr.GetClient(),
 		Log:    ctrl.Log.WithName("CalicoConfigController"),
 		Scheme: mgr.GetScheme(),
+		Config: addonconfig.CalicoConfigControllerConfig{
+			ConfigControllerConfig: addonconfig.ConfigControllerConfig{SystemNamespace: flags.addonNamespace}},
 	}).SetupWithManager(ctx, mgr, controller.Options{MaxConcurrentReconciles: 1}); err != nil {
 		setupLog.Error(err, "unable to create CalicoConfigController", "controller", "calico")
 		os.Exit(1)
@@ -237,6 +243,8 @@ func enableClusterBootstrapAndConfigControllers(ctx context.Context, mgr ctrl.Ma
 		Client: mgr.GetClient(),
 		Log:    ctrl.Log.WithName("AntreaConfigController"),
 		Scheme: mgr.GetScheme(),
+		Config: addonconfig.AntreaConfigControllerConfig{
+			ConfigControllerConfig: addonconfig.ConfigControllerConfig{SystemNamespace: flags.addonNamespace}},
 	}).SetupWithManager(ctx, mgr, controller.Options{MaxConcurrentReconciles: 1}); err != nil {
 		setupLog.Error(err, "unable to create AntreaConfigController", "controller", "antrea")
 		os.Exit(1)
@@ -245,6 +253,8 @@ func enableClusterBootstrapAndConfigControllers(ctx context.Context, mgr ctrl.Ma
 		Client: mgr.GetClient(),
 		Log:    ctrl.Log.WithName("KappControllerConfig"),
 		Scheme: mgr.GetScheme(),
+		Config: addonconfig.KappControllerConfigControllerConfig{
+			ConfigControllerConfig: addonconfig.ConfigControllerConfig{SystemNamespace: flags.addonNamespace}},
 	}).SetupWithManager(ctx, mgr, controller.Options{MaxConcurrentReconciles: 1}); err != nil {
 		setupLog.Error(err, "unable to create KappControllerConfig", "controller", "kapp")
 		os.Exit(1)
@@ -253,6 +263,8 @@ func enableClusterBootstrapAndConfigControllers(ctx context.Context, mgr ctrl.Ma
 		Client: mgr.GetClient(),
 		Log:    ctrl.Log.WithName("VSphereCPIConfig"),
 		Scheme: mgr.GetScheme(),
+		Config: addonconfig.VSphereCPIConfigControllerConfig{
+			ConfigControllerConfig: addonconfig.ConfigControllerConfig{SystemNamespace: flags.addonNamespace}},
 	}).SetupWithManager(ctx, mgr, controller.Options{MaxConcurrentReconciles: 1}); err != nil {
 		setupLog.Error(err, "unable to create CPIConfigController", "controller", "vspherecpi")
 		os.Exit(1)
@@ -262,6 +274,8 @@ func enableClusterBootstrapAndConfigControllers(ctx context.Context, mgr ctrl.Ma
 		Client: mgr.GetClient(),
 		Log:    ctrl.Log.WithName("VSphereCSIConfig"),
 		Scheme: mgr.GetScheme(),
+		Config: addonconfig.VSphereCSIConfigControllerConfig{
+			ConfigControllerConfig: addonconfig.ConfigControllerConfig{SystemNamespace: flags.addonNamespace}},
 	}).SetupWithManager(ctx, mgr, controller.Options{MaxConcurrentReconciles: 1}); err != nil {
 		setupLog.Error(err, "unable to create CSIConfigController", "controller", "vspherecsi")
 		os.Exit(1)

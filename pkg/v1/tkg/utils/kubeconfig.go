@@ -1,4 +1,4 @@
-// Copyright 2021 VMware, Inc. All Rights Reserved.
+// Copyright 2021-2022 VMware, Inc. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
 package utils
@@ -7,6 +7,7 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 	"net/url"
@@ -16,6 +17,13 @@ import (
 	"github.com/pkg/errors"
 	"k8s.io/client-go/tools/clientcmd"
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
+
+	netutil "github.com/vmware-tanzu/tanzu-framework/pkg/v1/util/net"
+)
+
+const (
+	KubePublicNamespace       = "kube-public"
+	PinnipedInfoConfigMapName = "pinniped-info"
 )
 
 // PinnipedConfigMapInfo defines the fields of pinniped-info configMap
@@ -26,6 +34,7 @@ type PinnipedConfigMapInfo struct {
 		ClusterName              string `json:"cluster_name" yaml:"cluster_name"`
 		Issuer                   string `json:"issuer" yaml:"issuer"`
 		IssuerCABundle           string `json:"issuer_ca_bundle_data" yaml:"issuer_ca_bundle_data"`
+		ConciergeEndpoint        string `json:"concierge_endpoint" yaml:"concierge_endpoint"`
 		ConciergeIsClusterScoped bool   `json:"concierge_is_cluster_scoped,string" yaml:"concierge_is_cluster_scoped"`
 	}
 }
@@ -83,7 +92,7 @@ func GetClusterServerFromKubeconfigAndContext(kubeConfigPath, context string) (s
 }
 
 // GetClusterInfoFromCluster gets the cluster Info by accessing the cluster-info configMap in kube-public namespace
-func GetClusterInfoFromCluster(clusterAPIServerURL string) (*clientcmdapi.Cluster, error) {
+func GetClusterInfoFromCluster(clusterAPIServerURL, configmapName string) (*clientcmdapi.Cluster, error) {
 	clusterAPIServerURL = strings.TrimSpace(clusterAPIServerURL)
 	if !strings.HasPrefix(clusterAPIServerURL, "https://") && !strings.HasPrefix(clusterAPIServerURL, "http://") {
 		clusterAPIServerURL = "https://" + clusterAPIServerURL
@@ -94,7 +103,7 @@ func GetClusterInfoFromCluster(clusterAPIServerURL string) (*clientcmdapi.Cluste
 	}
 
 	clusterAPIServerURL = strings.TrimRight(clusterAPIServerURL, " /")
-	clusterInfoURL := clusterAPIServerURL + "/api/v1/namespaces/kube-public/configmaps/cluster-info"
+	clusterInfoURL := clusterAPIServerURL + fmt.Sprintf("/api/v1/namespaces/%s/configmaps/%s", KubePublicNamespace, configmapName)
 	//nolint:noctx
 	req, _ := http.NewRequest("GET", clusterInfoURL, http.NoBody)
 	// To get the cluster ca certificate first time, we need to use skip verify the server certificate,
@@ -148,9 +157,19 @@ func GetClusterInfoFromCluster(clusterAPIServerURL string) (*clientcmdapi.Cluste
 }
 
 // GetPinnipedInfoFromCluster gets the Pinniped Info by accessing the pinniped-info configMap in kube-public namespace
-func GetPinnipedInfoFromCluster(clusterInfo *clientcmdapi.Cluster) (*PinnipedConfigMapInfo, error) {
+// 'discoveryPort' is used to optionally override the port used for discovery. This may be needed on setups that expose
+// discovery information to unauthenticated users on a different port (for instance, to avoid the need to anonymous auth
+// on the apiserver). By default, the endpoint from the cluster-info is used.
+func GetPinnipedInfoFromCluster(clusterInfo *clientcmdapi.Cluster, discoveryPort *int) (*PinnipedConfigMapInfo, error) {
 	endpoint := strings.TrimRight(clusterInfo.Server, " /")
-	pinnipedInfoURL := endpoint + "/api/v1/namespaces/kube-public/configmaps/pinniped-info"
+	var err error
+	if discoveryPort != nil {
+		endpoint, err = netutil.SetPort(clusterInfo.Server, *discoveryPort)
+		if err != nil {
+			return nil, errors.Wrap(err, "failed to override discovery port")
+		}
+	}
+	pinnipedInfoURL := endpoint + fmt.Sprintf("/api/v1/namespaces/%s/configmaps/pinniped-info", KubePublicNamespace)
 	//nolint:noctx
 	req, _ := http.NewRequest("GET", pinnipedInfoURL, http.NoBody)
 	pool := x509.NewCertPool()
@@ -176,7 +195,7 @@ func GetPinnipedInfoFromCluster(clusterInfo *clientcmdapi.Cluster) (*PinnipedCon
 		if response.StatusCode == http.StatusNotFound {
 			return nil, nil
 		}
-		return nil, errors.New("failed to get pinniped-info from the cluster")
+		return nil, fmt.Errorf("failed to get pinniped-info from the cluster. Status code: %+v", response.StatusCode)
 	}
 
 	responseBody, err := io.ReadAll(response.Body)

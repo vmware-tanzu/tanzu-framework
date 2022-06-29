@@ -2616,6 +2616,74 @@ var _ = Describe("Cluster Client", func() {
 			})
 		})
 	})
+
+	Describe("Unit tests for IsClusterClassBased", func() {
+		var isClusterClassBased bool
+
+		BeforeEach(func() {
+			reInitialize()
+			kubeConfigPath := getConfigFilePath("config1.yaml")
+			clstClient, err = NewClient(kubeConfigPath, "", clusterClientOptions)
+			Expect(err).NotTo(HaveOccurred())
+		})
+		Context("When clientset Get api return error", func() {
+			JustBeforeEach(func() {
+				clientset.GetReturns(errors.New("fake-error"))
+				isClusterClassBased, err = clstClient.IsClusterClassBased("fake-clusterName", "fake-namespace")
+			})
+			It("should return an error", func() {
+				Expect(err).To(HaveOccurred())
+				Expect(isClusterClassBased).To(Equal(false))
+				Expect(err.Error()).To(ContainSubstring("fake-error"))
+			})
+		})
+		Context("When cluster is not using ClusterClass", func() {
+			JustBeforeEach(func() {
+				clientset.GetCalls(func(ctx context.Context, namespace types.NamespacedName, cluster crtclient.Object) error {
+					topology := &capi.Topology{
+						Class: "",
+					}
+					cluster.(*capi.Cluster).Spec.Topology = topology
+					return nil
+				})
+
+				isClusterClassBased, err = clstClient.IsClusterClassBased("fake-clusterName", "fake-namespace")
+			})
+			It("should not return an error and isClusterClassBased to be false", func() {
+				Expect(err).NotTo(HaveOccurred())
+				Expect(isClusterClassBased).To(Equal(false))
+			})
+		})
+		Context("When cluster is using ClusterClass", func() {
+			JustBeforeEach(func() {
+				clientset.GetCalls(func(ctx context.Context, namespace types.NamespacedName, cluster crtclient.Object) error {
+					topology := &capi.Topology{
+						Class: "fake-cluster-class",
+					}
+					cluster.(*capi.Cluster).Spec.Topology = topology
+					return nil
+				})
+				isClusterClassBased, err = clstClient.IsClusterClassBased("fake-clusterName", "fake-namespace")
+			})
+			It("should not return an error and isClusterClassBased to be true", func() {
+				Expect(err).NotTo(HaveOccurred())
+				Expect(isClusterClassBased).To(Equal(true))
+			})
+		})
+		Context("When cluster.spec.topology field is not defined", func() {
+			JustBeforeEach(func() {
+				clientset.GetCalls(func(ctx context.Context, namespace types.NamespacedName, cluster crtclient.Object) error {
+					return nil
+				})
+				isClusterClassBased, err = clstClient.IsClusterClassBased("fake-clusterName", "fake-namespace")
+			})
+			It("should not return an error and isClusterClassBased to be false", func() {
+				Expect(err).NotTo(HaveOccurred())
+				Expect(isClusterClassBased).To(Equal(false))
+			})
+		})
+	})
+
 })
 
 func createTempDirectory() {

@@ -187,7 +187,7 @@ type Client interface {
 	// GetCurrentClusterName returns the current clusterName based on current context from kubeconfig file
 	// If context parameter is not empty, then return clusterName corresponding to the context
 	GetCurrentClusterName(context string) (string, error)
-	// GetCurrentKubeContext returns the current kube xontext
+	// GetCurrentKubeContext returns the current kube context
 	GetCurrentKubeContext() (string, error)
 	// IsRegionalCluster() checks if the current kube context point to a management cluster
 	IsRegionalCluster() error
@@ -321,6 +321,8 @@ type Client interface {
 	ListCLIPluginResources() ([]cliv1alpha1.CLIPlugin, error)
 	// VerifyCLIPluginCRD returns true if CRD exists else return false
 	VerifyCLIPluginCRD() (bool, error)
+	// IsClusterClassBased check whether cluster is ClusterClass based or not
+	IsClusterClassBased(clusterName, namespace string) (bool, error)
 }
 
 // PollOptions is options for polling
@@ -2339,6 +2341,18 @@ func (c *client) ListCLIPluginResources() ([]cliv1alpha1.CLIPlugin, error) {
 		return nil, err
 	}
 	return cliPlugins.Items, nil
+}
+
+// IsClusterClassBased check whether cluster is ClusterClass based or not
+func (c *client) IsClusterClassBased(clusterName, namespace string) (bool, error) {
+	clusterObj := &capi.Cluster{}
+	if err := c.GetResource(clusterObj, clusterName, namespace, nil, nil); err != nil {
+		return false, err
+	}
+	if clusterObj.Spec.Topology == nil || clusterObj.Spec.Topology.Class == "" {
+		return false, nil
+	}
+	return true, nil
 }
 
 // Options provides way to customize creation of clusterClient

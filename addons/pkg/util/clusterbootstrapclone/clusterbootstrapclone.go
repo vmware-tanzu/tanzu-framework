@@ -18,7 +18,6 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/types"
-	"k8s.io/client-go/discovery"
 	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/util/retry"
 	"k8s.io/utils/pointer"
@@ -38,14 +37,14 @@ type Helper struct {
 	K8sClient                   client.Client
 	AggregateAPIResourcesClient client.Client
 	DynamicClient               dynamic.Interface
-	DiscoveryClient             discovery.DiscoveryInterface
+	GVRHelper                   util.GVRHelper
 	Logger                      logr.Logger
 }
 
 // NewHelper instantiates a new helper instance
 func NewHelper(ctx context.Context, k8sClient client.Client, aggregateAPIResourcesClient client.Client,
 	dynamicClient dynamic.Interface,
-	cachedDiscoveryClient discovery.CachedDiscoveryInterface,
+	gvrHelper util.GVRHelper,
 	logger logr.Logger) *Helper {
 
 	return &Helper{
@@ -53,7 +52,7 @@ func NewHelper(ctx context.Context, k8sClient client.Client, aggregateAPIResourc
 		K8sClient:                   k8sClient,
 		AggregateAPIResourcesClient: aggregateAPIResourcesClient,
 		DynamicClient:               dynamicClient,
-		DiscoveryClient:             cachedDiscoveryClient,
+		GVRHelper:                   gvrHelper,
 		Logger:                      logger,
 	}
 }
@@ -659,7 +658,7 @@ func (h *Helper) cloneProviderRef(
 
 	var newProvider *unstructured.Unstructured
 	var createdOrUpdatedProvider *unstructured.Unstructured
-	gvr, err := util.GetGVRForGroupKind(schema.GroupKind{Group: *cbPkg.ValuesFrom.ProviderRef.APIGroup, Kind: cbPkg.ValuesFrom.ProviderRef.Kind}, h.DiscoveryClient)
+	gvr, err := h.GVRHelper.GetGVR(schema.GroupKind{Group: *cbPkg.ValuesFrom.ProviderRef.APIGroup, Kind: cbPkg.ValuesFrom.ProviderRef.Kind})
 	if err != nil {
 		h.Logger.Error(err, "failed to getGVR")
 		return nil, err
@@ -745,7 +744,7 @@ func (h *Helper) cloneEmbeddedLocalObjectRef(cluster *clusterapiv1beta1.Cluster,
 	h.Logger.Info(fmt.Sprintf("cloning the embedded local object references within provider: %s with name: %s from"+
 		" %s namespace to %s namespace", provider.GroupVersionKind().String(), provider.GetName(), provider.GetNamespace(), cluster.Namespace))
 	for groupKind, resourceNames := range groupKindNamesMap {
-		gvr, err := util.GetGVRForGroupKind(groupKind, h.DiscoveryClient)
+		gvr, err := h.GVRHelper.GetGVR(groupKind)
 		if err != nil {
 			// error has been logged within getGVR()
 			return err
@@ -830,7 +829,7 @@ func (h *Helper) EnsureOwnerRef(clusterBootstrap *runtanzuv1alpha3.ClusterBootst
 		}
 	}
 	for _, provider := range providers {
-		gvr, err := util.GetGVRForGroupKind(provider.GroupVersionKind().GroupKind(), h.DiscoveryClient)
+		gvr, err := h.GVRHelper.GetGVR(provider.GroupVersionKind().GroupKind())
 		if err != nil {
 			h.Logger.Error(err, fmt.Sprintf("unable to get GVR of provider %s/%s", provider.GetNamespace(), provider.GetName()))
 			return err
