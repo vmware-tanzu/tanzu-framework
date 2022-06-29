@@ -37,6 +37,7 @@ frameworkPackage:
       namespace: tkg-system
       createNamespace: false
       deployment:
+        leaderElection: false
         hostNetwork: true
         priorityClassName: system-cluster-critical
         nodeSelector: null

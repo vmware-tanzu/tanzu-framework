@@ -338,7 +338,7 @@ spec:
       containers:
       - args:
         - #@ "--metrics-bind-addr={}".format(data.values.tanzuAddonsManager.deployment.metricsBindAddress)
-        - --leader-elect=false
+        - #@ "--leader-elect={}".format(data.values.tanzuAddonsManager.deployment.leaderElection)
         - #@ "--health-addr=:{}".format(data.values.tanzuAddonsManager.deployment.healthzPort)
         - #@ "--webhook-server-port={}".format(data.values.tanzuAddonsManager.deployment.webhookServerPort)
         - #@ "--addon-namespace={}".format(data.values.tanzuAddonsManager.namespace)
