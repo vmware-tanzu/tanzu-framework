@@ -387,8 +387,17 @@ func (r *ClusterBootstrapReconciler) createOrPatchClusterBootstrapFromTemplate(c
 	clusterBootstrapHelper := clusterbootstrapclone.NewHelper(
 		r.context, r.Client, r.aggregatedAPIResourcesClient, r.dynamicClient, r.gvrHelper, r.Log)
 	if clusterBootstrap.UID == "" {
-		log.Info("ClusterBootstrap for cluster does not exist, cloning from template")
+		// When ClusterBootstrap.UID is empty, that means this is the ClusterBootstrap CR about to be created by clusterbootstrap_controller.
+		// And clusterBootstrap.Status.ResolvedTKR will be updated accordingly.
+		log.Info(fmt.Sprintf("ClusterBootstrap for cluster %s/%s does not exist, creating from template %s/%s",
+			cluster.Namespace, cluster.Name, clusterBootstrapTemplate.Namespace, clusterBootstrapTemplate.Name))
 		return clusterBootstrapHelper.CreateClusterBootstrapFromTemplate(clusterBootstrapTemplate, cluster, tkrName)
+	} else if clusterBootstrap.Status.ResolvedTKR == "" {
+		// Possible cases fall into this block:
+		// 1. ClusterBootstrap CR has been created by clusterbootstrap_controller in first reconciliation but errored out before clusterBootstrap.Status was set. The clusterbootstrap_controller reconciles again.
+		// 2. ClusterBootstrap CR is created by third party(e.g. Tanzu CLI). The clusterbootstrap_controller catches the event and reconciles.
+		log.Info(fmt.Sprintf("Handling existing ClusterBootstrap %s/%s", clusterBootstrap.Namespace, clusterBootstrap.Name))
+		return clusterBootstrapHelper.HandleExistingClusterBootstrap(clusterBootstrap, cluster, tkrName, r.Config.SystemNamespace)
 	}
 	// Handle ClusterBootstrap update when TKR version of the cluster is upgraded
 	if tkrName != clusterBootstrap.Status.ResolvedTKR {
