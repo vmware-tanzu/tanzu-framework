@@ -5,15 +5,15 @@ directories:
       commitTitle: Add new flags insecure and remoteAuthEnabled (#3152)...
       sha: 0fa3055c5cddf67f8c23edea420575cb4eb7d5d8
       tags:
-      - v0.11.0-dev.1-120-g0fa3055c
+      - v0.10.0-120-g0fa3055c
     path: .
   path: ytt/vendir/vsphere_cpi/_ytt_lib
 - contents:
   - git:
-      commitTitle: Adding Antrea CNI package version 1.5.2
-      sha: d420c7406657c4e555918b31f1bd771af85ba774
+      commitTitle: bump aws ebs csi driver to 1.8.0 (#4909)
+      sha: bbc123db82e9bf07ef3472c5e335317c392d9d31
       tags:
-      - v0.13.0-dev.1-223-gd420c740
+      - v0.13.0-dev.2-109-gbbc123db
     path: .
   path: ytt/vendir/cni/_ytt_lib
 - contents:
@@ -21,15 +21,15 @@ directories:
       commitTitle: bump kapp-controller to v0.34.0 (#3592)
       sha: f74f471e03ed2d026fbf8083c245b01f659602e8
       tags:
-      - v0.12.0-dev.1-27-gf74f471e
+      - v0.11.0-rc.2-30-gf74f471e
     path: .
   path: ytt/vendir/kapp-controller/_ytt_lib
 - contents:
   - git:
-      commitTitle: add aws ebs csi driver
-      sha: f0f7a2b5381c927de2a8f29ebfc1fea9d62c60f9
+      commitTitle: bump aws ebs csi driver to 1.8.0 (#4909)
+      sha: bbc123db82e9bf07ef3472c5e335317c392d9d31
       tags:
-      - v0.13.0-dev.2-10-gf0f7a2b5
+      - v0.13.0-dev.2-109-gbbc123db
     path: .
   path: ytt/vendir/csi/_ytt_lib
 kind: LockConfig

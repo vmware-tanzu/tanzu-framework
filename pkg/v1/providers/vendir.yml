@@ -14,7 +14,7 @@ directories:
   - path: .
     git:
       url: git@github.com:vmware-tanzu/community-edition.git
-      ref: d420c7406657c4e555918b31f1bd771af85ba774
+      ref: bbc123db82e9bf07ef3472c5e335317c392d9d31
     includePaths:
     - addons/packages/antrea/1.5.2/bundle/config/**/*
     - addons/packages/calico/3.22.1/bundle/config/**/*
@@ -30,7 +30,7 @@ directories:
   contents:
   - path: .
     git:
-      url: git@github.com:jeffwubj/community-edition.git
-      ref: f0f7a2b5381c927de2a8f29ebfc1fea9d62c60f9
+      url: git@github.com:vmware-tanzu/community-edition.git
+      ref: bbc123db82e9bf07ef3472c5e335317c392d9d31
     includePaths:
-    - addons/packages/aws-ebs-csi-driver/1.6.2/bundle/config/**/*
+    - addons/packages/aws-ebs-csi-driver/1.8.0/bundle/config/**/*
