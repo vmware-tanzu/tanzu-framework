@@ -247,7 +247,16 @@ var _ = Describe("Validate", func() {
 					})
 				})
 				Context("when CLUSTER_CIDR is undefined", func() {
-					It("should set the default CIDR", func() {
+					It("should not set the default CIDR if ConfigVariableEnableTKGSRoutablePod is enabled", func() {
+						os.Setenv(constants.ConfigVariableEnableTKGSRoutablePod, "TRUE")
+						validationError := tkgClient.ConfigureAndValidateManagementClusterConfiguration(initRegionOptions, true)
+						Expect(validationError).NotTo(HaveOccurred())
+						cidr, _ := tkgConfigReaderWriter.Get(constants.ConfigVariableClusterCIDR)
+						Expect(cidr).To(Equal(""))
+						os.Setenv(constants.ConfigVariableEnableTKGSRoutablePod, "")
+					})
+
+					It("should set the default CIDR if ConfigVariableEnableTKGSRoutablePod is not enabled", func() {
 						validationError := tkgClient.ConfigureAndValidateManagementClusterConfiguration(initRegionOptions, true)
 						Expect(validationError).NotTo(HaveOccurred())
 						cidr, _ := tkgConfigReaderWriter.Get(constants.ConfigVariableClusterCIDR)
@@ -431,7 +440,16 @@ var _ = Describe("Validate", func() {
 					})
 				})
 				Context("when CLUSTER_CIDR is undefined", func() {
-					It("should set the default CIDR", func() {
+					It("should not set the default CIDR if ConfigVariableEnableTKGSRoutablePod is enabled", func() {
+						os.Setenv(constants.ConfigVariableEnableTKGSRoutablePod, "TRUE")
+						validationError := tkgClient.ConfigureAndValidateManagementClusterConfiguration(initRegionOptions, true)
+						Expect(validationError).NotTo(HaveOccurred())
+						cidr, _ := tkgConfigReaderWriter.Get(constants.ConfigVariableClusterCIDR)
+						Expect(cidr).To(Equal(""))
+						os.Setenv(constants.ConfigVariableEnableTKGSRoutablePod, "")
+					})
+
+					It("should set the default CIDR if ConfigVariableEnableTKGSRoutablePod is not enabled", func() {
 						validationError := tkgClient.ConfigureAndValidateManagementClusterConfiguration(initRegionOptions, true)
 						Expect(validationError).NotTo(HaveOccurred())
 						cidr, _ := tkgConfigReaderWriter.Get(constants.ConfigVariableClusterCIDR)
@@ -592,7 +610,16 @@ var _ = Describe("Validate", func() {
 				})
 
 				Context("when CLUSTER_CIDR is undefined", func() {
-					It("should set the default CIDR", func() {
+					It("should not set the default CIDR if ConfigVariableEnableTKGSRoutablePod is enabled", func() {
+						os.Setenv(constants.ConfigVariableEnableTKGSRoutablePod, "TRUE")
+						validationError := tkgClient.ConfigureAndValidateManagementClusterConfiguration(initRegionOptions, true)
+						Expect(validationError).NotTo(HaveOccurred())
+						cidr, _ := tkgConfigReaderWriter.Get(constants.ConfigVariableClusterCIDR)
+						Expect(cidr).To(Equal(""))
+						os.Setenv(constants.ConfigVariableEnableTKGSRoutablePod, "")
+					})
+
+					It("should set the default CIDR if ConfigVariableEnableTKGSRoutablePod is not enabled", func() {
 						validationError := tkgClient.ConfigureAndValidateManagementClusterConfiguration(initRegionOptions, true)
 						Expect(validationError).NotTo(HaveOccurred())
 						cidr, _ := tkgConfigReaderWriter.Get(constants.ConfigVariableClusterCIDR)
@@ -667,7 +694,16 @@ var _ = Describe("Validate", func() {
 				})
 
 				Context("when CLUSTER_CIDR is undefined", func() {
-					It("should set the default CIDR", func() {
+					It("should not set the default CIDR if ConfigVariableEnableTKGSRoutablePod is enabled", func() {
+						os.Setenv(constants.ConfigVariableEnableTKGSRoutablePod, "TRUE")
+						validationError := tkgClient.ConfigureAndValidateManagementClusterConfiguration(initRegionOptions, true)
+						Expect(validationError).NotTo(HaveOccurred())
+						cidr, _ := tkgConfigReaderWriter.Get(constants.ConfigVariableClusterCIDR)
+						Expect(cidr).To(Equal(""))
+						os.Setenv(constants.ConfigVariableEnableTKGSRoutablePod, "")
+					})
+
+					It("should set the default CIDR if ConfigVariableEnableTKGSRoutablePod is not enabled", func() {
 						validationError := tkgClient.ConfigureAndValidateManagementClusterConfiguration(initRegionOptions, true)
 						Expect(validationError).NotTo(HaveOccurred())
 						cidr, _ := tkgConfigReaderWriter.Get(constants.ConfigVariableClusterCIDR)
