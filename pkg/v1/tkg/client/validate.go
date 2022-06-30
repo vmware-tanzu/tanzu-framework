@@ -115,8 +115,14 @@ func (c *TkgClient) DownloadBomFile(tkrName string) error {
 		return errors.Wrap(err, "unable to get cluster client while listing tkg clusters")
 	}
 
+	namespace := constants.TkrNamespace
+	if config.IsFeatureActivated(config.FeatureFlagPackageBasedLCM) {
+		//TODO: After CLI fully support package based LCM, "constants.TkrNamespace" should be updated to "tkg-system"
+		namespace = "tkg-system"
+	}
+
 	tkrConfigMap := &corev1.ConfigMap{}
-	if err := regionalClusterClient.GetResource(tkrConfigMap, tkrName, constants.TkrNamespace, nil, nil); err != nil {
+	if err := regionalClusterClient.GetResource(tkrConfigMap, tkrName, namespace, nil, nil); err != nil {
 		if apierrors.IsNotFound(err) {
 			return errors.Errorf("ConfigMap for TKr name %q not available to download bom", tkrName)
 		}

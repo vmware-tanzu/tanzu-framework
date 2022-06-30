@@ -217,6 +217,7 @@ jobs:
           AWS_REGION: "us-west-2"
           _MANAGEMENT_PACKAGE_REPO_IMAGE: ${{ steps.set_registry.outputs.registry }}/tanzu_framework/github-actions/${{ steps.extract_reg_dir.outputs.regdir }}/management:v0.21.0
           _MANAGEMENT_PACKAGE_VERSION: "0.21.0"
+          TKG_CUSTOM_IMAGE_REPOSITORY: "projects-stg.registry.vmware.com/tkg"
 
       - name: Cleanup AWS resources
         if: ${{ always() }}
