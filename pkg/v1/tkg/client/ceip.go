@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/pkg/errors"
+	"golang.org/x/mod/semver"
 	clusterctlv1 "sigs.k8s.io/cluster-api/cmd/clusterctl/api/v1alpha3"
 
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/clusterclient"
@@ -45,9 +46,16 @@ func (c *TkgClient) SetCEIPParticipation(ceipOptIn bool, isProd, labels string) 
 		return errors.Wrap(err, "unable to get cluster client while setting CEIP participation")
 	}
 
-	err = c.DoSetCEIPParticipation(clusterClient, context, ceipOptIn, isProd, labels)
+	ok, err := c.ShouldManageCEIP(clusterClient, context)
 	if err != nil {
 		return err
+	}
+
+	if ok {
+		err = c.DoSetCEIPParticipation(clusterClient, context, ceipOptIn, isProd, labels)
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil
@@ -63,6 +71,7 @@ func (c *TkgClient) DoSetCEIPParticipation(clusterClient clusterclient.Client, c
 	if err != nil {
 		return errors.Wrap(err, "unable to get cluster name")
 	}
+
 	optStatus := ""
 	if ceipOptIn {
 		optStatus = CeipOptInStatus
@@ -150,4 +159,29 @@ func (c *TkgClient) DoGetCEIPParticipation(clusterClient clusterclient.Client, c
 		ClusterName: clusterName,
 		CeipStatus:  ceipStatus,
 	}, nil
+}
+
+// ShouldManageCEIP determines if TKG should be managing CEIP
+// starting in TKG v1.6.0, the telemetry cron job will be configured by the tanzu telemetry plugin, and not the CEIP command
+// the telemetry cron job will now also actively check CEIP participation status, and must always be installed
+// the CEIP command will still be used to fix clusters v1.6.0+ that are in a bad state and are missing the cron job
+func (c *TkgClient) ShouldManageCEIP(clusterClient clusterclient.Client, ctx region.RegionContext) (bool, error) {
+	clusterName, err := clusterClient.GetCurrentClusterName(ctx.ContextName)
+	if err != nil {
+		return false, errors.Wrap(err, "unable to get cluster name")
+	}
+	ver, err := clusterClient.GetManagementClusterTKGVersion(clusterName, TKGsystemNamespace)
+	if err != nil {
+		return false, errors.Wrap(err, "unable to get management cluster version")
+	}
+	CEIPJobExists, err := clusterClient.HasCEIPTelemetryJob(clusterName)
+	if err != nil {
+		return false, errors.Wrap(err, "unable to determine if telemetry cron job is installed already")
+	}
+
+	if semver.Compare(ver, "v1.6.0") >= 0 && CEIPJobExists {
+		log.Info("tanzu management-cluster ceip-participation is deprecated on TKG 1.6 and beyond - please use tanzu telemetry update --ceip-opt-out/in to manage CEIP settings")
+		return false, nil
+	}
+	return true, nil
 }

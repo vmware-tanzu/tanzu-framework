@@ -41,6 +41,7 @@ var _ = Describe("Unit tests for ceip", func() {
 			regionalClusterClient.RemoveCEIPTelemetryJobReturns(nil)
 			regionalClusterClient.AddCEIPTelemetryJobReturns(nil)
 			regionalClusterClient.GetRegionalClusterDefaultProviderNameReturns("aws:v0.5.5", nil)
+			regionalClusterClient.GetManagementClusterTKGVersionReturns("v1.5.0", nil)
 		})
 
 		Context("When opt-ing out of CEIP", func() {
@@ -172,6 +173,106 @@ var _ = Describe("Unit tests for ceip", func() {
 			It("should return correct status", func() {
 				Expect(ceipStatus.CeipStatus).To(Equal(CeipPacificCluster))
 				Expect(ceipStatus.ClusterName).To(Equal(clusterName))
+			})
+		})
+	})
+
+	Describe("ShouldManageCEIP", func() {
+		BeforeEach(func() {
+			regionalClusterClient.GetRegionalClusterDefaultProviderNameReturns("aws:v0.5.5", nil)
+			regionalClusterClient.IsPacificRegionalClusterReturns(false, nil)
+		})
+
+		Context("When cluster version is v1.6.0", func() {
+			BeforeEach(func() {
+				regionalClusterClient.GetManagementClusterTKGVersionReturns("v1.6.0", nil)
+			})
+
+			Context("cluster has the telemetry cron job already installed", func() {
+				JustBeforeEach(func() {
+					regionalClusterClient.GetResourceReturns(nil)
+					regionalClusterClient.HasCEIPTelemetryJobReturns(true, nil)
+				})
+
+				It("should not interact with the telemetry job", func() {
+					shouldManage, err := tkgClient.ShouldManageCEIP(regionalClusterClient, context)
+					Expect(err).NotTo(HaveOccurred())
+					Expect(shouldManage).To(BeFalse())
+				})
+			})
+
+			Context("cluster is missing the telemetry cron job", func() {
+				JustBeforeEach(func() {
+					regionalClusterClient.HasCEIPTelemetryJobReturns(false, nil)
+				})
+
+				It("should manage the telemetry job", func() {
+					shouldManage, err := tkgClient.ShouldManageCEIP(regionalClusterClient, context)
+					Expect(err).NotTo(HaveOccurred())
+					Expect(shouldManage).To(BeTrue())
+				})
+			})
+		})
+
+		Context("When cluster version is newer than v1.6.0", func() {
+			BeforeEach(func() {
+				regionalClusterClient.GetManagementClusterTKGVersionReturns("v1.6.0", nil)
+			})
+
+			Context("cluster has the telemetry cron job already installed", func() {
+				JustBeforeEach(func() {
+					regionalClusterClient.GetResourceReturns(nil)
+					regionalClusterClient.HasCEIPTelemetryJobReturns(true, nil)
+				})
+
+				It("should not interact with the telemetry job", func() {
+					shouldManage, err := tkgClient.ShouldManageCEIP(regionalClusterClient, context)
+					Expect(err).NotTo(HaveOccurred())
+					Expect(shouldManage).To(BeFalse())
+				})
+			})
+
+			Context("cluster is missing the telemetry cron job", func() {
+				JustBeforeEach(func() {
+					regionalClusterClient.HasCEIPTelemetryJobReturns(false, nil)
+				})
+
+				It("should manage the telemetry job", func() {
+					shouldManage, err := tkgClient.ShouldManageCEIP(regionalClusterClient, context)
+					Expect(err).NotTo(HaveOccurred())
+					Expect(shouldManage).To(BeTrue())
+				})
+			})
+		})
+
+		Context("When cluster version is older than v1.6.0", func() {
+			BeforeEach(func() {
+				regionalClusterClient.GetManagementClusterTKGVersionReturns("v1.5.2", nil)
+			})
+
+			Context("cluster has the telemetry cron job already installed", func() {
+				JustBeforeEach(func() {
+					regionalClusterClient.GetResourceReturns(nil)
+					regionalClusterClient.HasCEIPTelemetryJobReturns(true, nil)
+				})
+
+				It("should not interact with the telemetry job", func() {
+					shouldManage, err := tkgClient.ShouldManageCEIP(regionalClusterClient, context)
+					Expect(err).NotTo(HaveOccurred())
+					Expect(shouldManage).To(BeTrue())
+				})
+			})
+
+			Context("cluster is missing the telemetry cron job", func() {
+				JustBeforeEach(func() {
+					regionalClusterClient.HasCEIPTelemetryJobReturns(false, nil)
+				})
+
+				It("should add the job to the cluster", func() {
+					shouldManage, err := tkgClient.ShouldManageCEIP(regionalClusterClient, context)
+					Expect(err).NotTo(HaveOccurred())
+					Expect(shouldManage).To(BeTrue())
+				})
 			})
 		})
 	})
