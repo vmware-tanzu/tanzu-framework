@@ -288,4 +288,7 @@ const (
 	ConfigVariableKubevipLoadbalancerCIDRs    = "KUBEVIP_LOADBALANCER_CIDRS"
 	ConfigVariableKubevipLoadbalancerIPRanges = "KUBEVIP_LOADBALANCER_IP_RANGES"
 	ConfigVariableFeatureFlagPackageBasedCC   = "FEATURE_FLAG_PACKAGE_BASED_CC"
+
+	// Config variable for enabling tkgs routable pod feature
+	ConfigVariableEnableTKGSRoutablePod = "ENABLE_TKGS_ROUTABLE_POD"
 )
