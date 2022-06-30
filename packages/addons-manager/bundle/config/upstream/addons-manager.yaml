@@ -114,6 +114,99 @@ rules:
   - watch
   - update
   - patch
+#! permissions required by VsphereCPIConfig and VSphereCSIConfig controller to create ClusterRole for CAPV to reconcile ProviderServiceAccount
+- apiGroups:
+  - vmoperator.vmware.com
+  resources:
+  - virtualmachineservices
+  - virtualmachineservices/status
+  verbs:
+  - get
+  - create
+  - update
+  - patch
+  - delete
+- apiGroups:
+  - vmoperator.vmware.com
+  resources:
+  - virtualmachines
+  - virtualmachines/status
+  verbs:
+  - get
+  - list
+  - watch
+  - update
+  - patch
+- apiGroups:
+  - nsx.vmware.com
+  resources:
+  - ippools
+  - ippools/status
+  verbs:
+  - get
+  - create
+  - update
+  - list
+  - patch
+  - delete
+  - watch
+- apiGroups:
+  - nsx.vmware.com
+  resources:
+  - routesets
+  - routesets/status
+  verbs:
+  - get
+  - create
+  - update
+  - list
+  - patch
+  - delete
+- apiGroups:
+  - cns.vmware.com
+  resources:
+  - cnsvolumemetadatas
+  - cnsfileaccessconfigs
+  verbs:
+  - get
+  - list
+  - watch
+  - update
+  - create
+  - delete
+- apiGroups:
+  - cns.vmware.com
+  resources:
+  - cnscsisvfeaturestates
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - ""
+  resources:
+  - persistentvolumeclaims
+  verbs:
+  - get
+  - list
+  - watch
+  - update
+  - create
+  - delete
+- apiGroups:
+  - ""
+  resources:
+  - persistentvolumeclaims/status
+  verbs:
+  - get
+  - update
+  - patch
+- apiGroups:
+  - ""
+  resources:
+  - events
+  verbs:
+  - list
 #! permissions are required for addons-manager to create/update resources in the ProviderRef which are dynamic.
 - apiGroups: ['*']
   resources: ['*']
@@ -244,7 +337,7 @@ spec:
       nodeSelector: #@ data.values.tanzuAddonsManager.deployment.nodeSelector
       containers:
       - args:
-        - --metrics-bind-addr=0
+        - #@ "--metrics-bind-addr={}".format(data.values.tanzuAddonsManager.deployment.metricsBindAddress)
         - --leader-elect=false
         - #@ "--health-addr=:{}".format(data.values.tanzuAddonsManager.deployment.healthzPort)
         - #@ "--webhook-server-port={}".format(data.values.tanzuAddonsManager.deployment.webhookServerPort)

@@ -71,6 +71,7 @@ type VSphereCPIParaVirtDataValues struct {
 	ClusterUID                 string `yaml:"clusterUID"`
 	SupervisorMasterEndpointIP string `yaml:"supervisorMasterEndpointIP"`
 	SupervisorMasterPort       string `yaml:"supervisorMasterPort"`
+	AntreaNSXPodRoutingEnabled bool   `yaml:"antreaNSXPodRoutingEnabled"`
 }
 
 func (v *VSphereCPIParaVirtDataValues) Serialize() ([]byte, error) {

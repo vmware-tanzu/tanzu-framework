@@ -72,6 +72,39 @@ repositories:
         version: latest
         #! Gets replaced with imgpkg sha256 at build, this should be name:version
         sha256: "tkg-clusterclass:latest"
+      - name: tkg-autoscaler
+        displayName: tkg-autoscaler
+        #! Relative path to package bundle
+        path: packages/tkg-autoscaler
+        domain: tanzu.vmware.com
+        version: v1.21.0
+        #! Gets replaced with imgpkg sha256 at build, this should be name:version
+        sha256: "tkg-autoscaler:latest"
+        skipVersionOverride: true
+        env:
+          AUTOSCALER_IMAGE: projects-stg.registry.vmware.com\/tkg\/cluster-autoscaler:v1.21.0_vmware.1
+      - name: tkg-autoscaler
+        displayName: tkg-autoscaler
+        #! Relative path to package bundle
+        path: packages/tkg-autoscaler
+        domain: tanzu.vmware.com
+        version: v1.22.0
+        #! Gets replaced with imgpkg sha256 at build, this should be name:version
+        sha256: "tkg-autoscaler:latest"
+        skipVersionOverride: true
+        env:
+          AUTOSCALER_IMAGE: projects-stg.registry.vmware.com\/tkg\/cluster-autoscaler:v1.22.0_vmware.1
+      - name: tkg-autoscaler
+        displayName: tkg-autoscaler
+        #! Relative path to package bundle
+        path: packages/tkg-autoscaler
+        domain: tanzu.vmware.com
+        version: v1.23.0
+        #! Gets replaced with imgpkg sha256 at build, this should be name:version
+        sha256: "tkg-autoscaler:latest"
+        skipVersionOverride: true
+        env:
+          AUTOSCALER_IMAGE: projects-stg.registry.vmware.com\/tkg\/cluster-autoscaler:v1.23.0_vmware.1
       - name: tkg-clusterclass-docker
         displayName: tkg-clusterclass-docker
         #! Relative path to package bundle
@@ -155,7 +188,7 @@ repositories:
       - name: tkr-source-controller
         displayName: tkr-source-controller
         #! Relative path to package bundle
-        path: packages/management/tkr-source-controller
+        path: packages/tkr-source-controller
         domain: tanzu.vmware.com
         version: latest
         #! Gets replaced with imgpkg sha256 at build, this should be name:version
@@ -188,3 +221,9 @@ repositories:
         domain: tanzu.vmware.com
         version: latest
         sha256: "capabilities:latest"
+      - name: tkg-storageclass
+        displayName: tkg-storageclass
+        path: packages/standalone/tkg-storageclass
+        domain: tanzu.vmware.com
+        version: latest
+        sha256: "tkg-storageclass:latest"

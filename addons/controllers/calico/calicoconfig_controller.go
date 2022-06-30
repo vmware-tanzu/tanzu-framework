@@ -23,8 +23,10 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/controller"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 
+	addonconfig "github.com/vmware-tanzu/tanzu-framework/addons/pkg/config"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/util"
+	"github.com/vmware-tanzu/tanzu-framework/addons/predicates"
 	cniv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cni/v1alpha1"
 )
 
@@ -34,6 +36,7 @@ type CalicoConfigReconciler struct {
 	Log    logr.Logger
 	Scheme *runtime.Scheme
 	Ctx    context.Context
+	Config addonconfig.CalicoConfigControllerConfig
 }
 
 //+kubebuilder:rbac:groups=cni.tanzu.vmware.com,resources=calicoconfigs,verbs=get;list;watch;create;update;patch;delete
@@ -95,6 +98,7 @@ func (r *CalicoConfigReconciler) SetupWithManager(ctx context.Context, mgr ctrl.
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&cniv1alpha1.CalicoConfig{}).
 		WithOptions(options).
+		WithEventFilter(predicates.ConfigOfKindWithoutAnnotation(constants.TKGAnnotationTemplateConfig, constants.CalicoConfigKind, r.Config.SystemNamespace, r.Log)).
 		Complete(r)
 }
 

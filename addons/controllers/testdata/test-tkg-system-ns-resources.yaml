@@ -21,7 +21,22 @@ spec:
     version: v1.23.3
     imageRepository: foo
   osImages: []
-  bootstrapPackages: []
+  bootstrapPackages:
+  - name: antrea.tanzu.vmware.com.1.5.2--vmware.3-tkg.1-advanced-zshippable
+---
+  apiVersion: run.tanzu.vmware.com/v1alpha3
+  kind: TanzuKubernetesRelease
+  metadata:
+    name: v1.12.1
+    labels:
+      run.tanzu.vmware.com/legacy-tkr: ""
+  spec:
+    version: v1.12.1
+    kubernetes:
+      version: v1.12.1
+      imageRepository: foo
+    osImages: [ ]
+    bootstrapPackages: [ ]
 ---
 apiVersion: run.tanzu.vmware.com/v1alpha3
 kind: ClusterBootstrapTemplate
@@ -773,3 +788,39 @@ spec:
   valuesSchema:
     openAPIv3:
       title: antrea.tanzu.vmware.com.0.13.3+vmware.1-tkg.1 values schema
+---
+apiVersion: data.packaging.carvel.dev/v1alpha1
+kind: Package
+metadata:
+  name: antrea.tanzu.vmware.com.1.5.2--vmware.3-tkg.1-advanced-zshippable
+  namespace: tkg-system
+spec:
+  refName: antrea.tanzu.vmware.com
+  version: 1.5.2+vmware.3-tkg.1-advanced-zshippable
+  releaseNotes: antrea 1.5.3 https://github.com/antrea-io/antrea/releases/tag/v1.5.2
+  licenses:
+    - 'VMware’s End User License Agreement (Underlying OSS license: Apache License 2.0)'
+  template:
+    spec:
+      fetch:
+        - imgpkgBundle:
+            image: projects-stg.registry.vmware.com/tkg/tkgextensions-dev/packages/core/antrea:1.5.2+vmware.3-tkg.1-advanced-zshippable
+      template:
+        - ytt:
+            paths:
+              - config/
+            ignoreUnknownComments: true
+        - kbld:
+            paths:
+              - '-'
+              - .imgpkg/images.yml
+      deploy:
+        - kapp:
+            rawOptions:
+              - --wait-timeout=30s
+              - --kube-api-qps=20
+              - --kube-api-burst=30
+  releasedAt: "2021-12-20T10:59:32Z"
+  valuesSchema:
+    openAPIv3:
+      title: antrea.tanzu.vmware.com.1.5.2+vmware.3-tkg.1-advanced-zshippable values schema

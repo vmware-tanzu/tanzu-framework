@@ -32,6 +32,7 @@ addonsManagerPackageValues:
       tolerations: []
       webhookServerPort: 9865
       healthzPort: 18316
+      metricsBindAddress: "localhost:18317"
     featureGates:
       clusterBootstrapController: false
       packageInstallStatus: false
@@ -39,7 +40,12 @@ clipluginsPackageValues:
   namespace:
   versionConstraints:
 tanzuAuthPackageValues:
-  namespace: tanzu-auth
   versionConstraints:
+  createNamespace: true
+  namespace: tanzu-auth
   controller:
-    image: ""
+    image: tanzu-auth-controller-manager:latest
+  deployment:
+    hostNetwork: true
+    nodeSelector: null
+    tolerations: []

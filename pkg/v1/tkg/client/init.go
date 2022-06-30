@@ -78,7 +78,7 @@ func (c *TkgClient) InitRegionDryRun(options *InitRegionOptions) ([]byte, error)
 		err                 error
 	)
 	// Obtain management cluster configuration of a provided flavor
-	if regionalConfigBytes, options.ClusterName, err = c.BuildRegionalClusterConfiguration(options); err != nil {
+	if regionalConfigBytes, options.ClusterName, _, err = c.BuildRegionalClusterConfiguration(options); err != nil {
 		return nil, errors.Wrap(err, "unable to build management cluster configuration")
 	}
 
@@ -95,6 +95,7 @@ func (c *TkgClient) InitRegion(options *InitRegionOptions) error { //nolint:funl
 	var bootstrapClusterName string
 	var regionContext region.RegionContext
 	var filelock *fslock.Lock
+	var configFilePath string
 
 	bootstrapClusterKubeconfigPath, err := getTKGKubeConfigPath(false)
 	if err != nil {
@@ -171,17 +172,15 @@ func (c *TkgClient) InitRegion(options *InitRegionOptions) error { //nolint:funl
 	log.SendProgressUpdate(statusRunning, StepGenerateClusterConfiguration, InitRegionSteps)
 	log.Info("Generating cluster configuration...")
 
-	// Obtain management cluster configuration of a provided flavor
-	if regionalConfigBytes, options.ClusterName, err = c.BuildRegionalClusterConfiguration(options); err != nil {
-		return errors.Wrap(err, "unable to build management cluster configuration")
-	}
-
 	log.SendProgressUpdate(statusRunning, StepSetupBootstrapCluster, InitRegionSteps)
 	log.Info("Setting up bootstrapper...")
 	// Ensure bootstrap cluster and copy boostrap cluster kubeconfig to ~/kube-tkg directory
 	if bootstrapClusterName, err = c.ensureKindCluster(options.Kubeconfig, options.UseExistingCluster, bootstrapClusterKubeconfigPath); err != nil {
 		return errors.Wrap(err, "unable to create bootstrap cluster")
 	}
+
+	// Configure kubeconfig as part of options as bootstrap cluster kubeconfig
+	options.Kubeconfig = bootstrapClusterKubeconfigPath
 
 	isBootstrapClusterCreated = true
 	log.Infof("Bootstrapper created. Kubeconfig: %s", bootstrapClusterKubeconfigPath)
@@ -193,6 +192,13 @@ func (c *TkgClient) InitRegion(options *InitRegionOptions) error { //nolint:funl
 	// configure variables required to deploy providers
 	if err := c.configureVariablesForProvidersInstallation(nil); err != nil {
 		return errors.Wrap(err, "unable to configure variables for provider installation")
+	}
+
+	// If clusterclass feature flag is enabled then deploy kapp-controller
+	if config.IsFeatureActivated(config.FeatureFlagPackageBasedLCM) {
+		if err = c.InstallOrUpgradeKappController(bootstrapClusterKubeconfigPath, ""); err != nil {
+			return errors.Wrap(err, "unable to install kapp-controller to bootstrap cluster")
+		}
 	}
 
 	log.SendProgressUpdate(statusRunning, StepInstallProvidersOnBootstrapCluster, InitRegionSteps)
@@ -208,6 +214,12 @@ func (c *TkgClient) InitRegion(options *InitRegionOptions) error { //nolint:funl
 			return errors.Wrap(err, "unable to install management components to bootstrap cluster")
 		}
 	}
+
+	// Obtain management cluster configuration of a provided flavor
+	if regionalConfigBytes, options.ClusterName, configFilePath, err = c.BuildRegionalClusterConfiguration(options); err != nil {
+		return errors.Wrap(err, "unable to build management cluster configuration")
+	}
+	log.Infof("ClusterClass based management cluster config file has been generated and stored at: '%v'", configFilePath)
 
 	isStartedRegionalClusterCreation = true
 
@@ -269,6 +281,13 @@ func (c *TkgClient) InitRegion(options *InitRegionOptions) error { //nolint:funl
 	regionalClusterClient, err := clusterclient.NewClient(regionalClusterKubeconfigPath, kubeContext, clusterclient.Options{OperationTimeout: c.timeout})
 	if err != nil {
 		return errors.Wrap(err, "unable to get management cluster client")
+	}
+
+	// If clusterclass feature flag is enabled then deploy kapp-controller
+	if config.IsFeatureActivated(config.FeatureFlagPackageBasedLCM) {
+		if err = c.InstallOrUpgradeKappController(regionalClusterKubeconfigPath, kubeContext); err != nil {
+			return errors.Wrap(err, "unable to install kapp-controller to management cluster")
+		}
 	}
 
 	log.SendProgressUpdate(statusRunning, StepInstallProvidersOnRegionalCluster, InitRegionSteps)
@@ -346,14 +365,21 @@ func (c *TkgClient) InitRegion(options *InitRegionOptions) error { //nolint:funl
 		}
 	}
 
-	log.Info("Waiting for additional components to be up and running...")
-	if err := c.WaitForAddonsDeployments(regionalClusterClient); err != nil {
-		return err
+	if !config.IsFeatureActivated(config.FeatureFlagPackageBasedLCM) {
+		log.Info("Waiting for additional components to be up and running...")
+		if err := c.WaitForAddonsDeployments(regionalClusterClient); err != nil {
+			return err
+		}
 	}
 
-	log.Info("Waiting for packages to be up and running...")
-	if err := c.WaitForPackages(regionalClusterClient, regionalClusterClient, options.ClusterName, targetClusterNamespace, true); err != nil {
-		log.Warningf("Warning: Management cluster is created successfully, but some packages are failing. %v", err)
+	// Wait for packages if the feature-flag is disabled
+	// We do not need to wait for packages as we have already installed and waited for all
+	// packages to be deployed during tkg package installation
+	if !config.IsFeatureActivated(config.FeatureFlagPackageBasedLCM) {
+		log.Info("Waiting for packages to be up and running...")
+		if err := c.WaitForPackages(regionalClusterClient, regionalClusterClient, options.ClusterName, targetClusterNamespace, true); err != nil {
+			log.Warningf("Warning: Management cluster is created successfully, but some packages are failing. %v", err)
+		}
 	}
 
 	log.Infof("You can now access the management cluster %s by running 'kubectl config use-context %s'", options.ClusterName, kubeContext)
@@ -563,9 +589,11 @@ func generateRegionalClusterName(infrastructureProvider, kubeContext string) str
 }
 
 // BuildRegionalClusterConfiguration build management cluster configuration
-func (c *TkgClient) BuildRegionalClusterConfiguration(options *InitRegionOptions) ([]byte, string, error) {
+// returns cluster-configuration bytes, clustername, configFilePath, error if present
+func (c *TkgClient) BuildRegionalClusterConfiguration(options *InitRegionOptions) ([]byte, string, string, error) {
 	var bytes []byte
 	var err error
+	var configFilePath string
 
 	if options.ClusterName == "" {
 		options.ClusterName = generateRegionalClusterName(options.InfrastructureProvider, "")
@@ -575,6 +603,8 @@ func (c *TkgClient) BuildRegionalClusterConfiguration(options *InitRegionOptions
 	if namespace == "" {
 		namespace = defaultTkgNamespace
 	}
+
+	SetClusterClass(c.TKGConfigReaderWriter())
 
 	controlPlaneMachineCount, workerMachineCount := c.getMachineCountForMC(options.Plan)
 
@@ -590,15 +620,28 @@ func (c *TkgClient) BuildRegionalClusterConfiguration(options *InitRegionOptions
 		ClusterName:              options.ClusterName,
 		ControlPlaneMachineCount: swag.Int64(int64(controlPlaneMachineCount)),
 		WorkerMachineCount:       swag.Int64(int64(workerMachineCount)),
+		YamlProcessor:            yamlprocessor.NewYttProcessorWithConfigDir(c.tkgConfigDir),
 	}
 
-	if !options.DisableYTT {
-		clusterConfigOptions.YamlProcessor = yamlprocessor.NewYttProcessorWithConfigDir(c.tkgConfigDir)
+	if options.IsInputFileClusterClassBased {
+		bytes, err = getContentFromInputFile(options.ClusterConfigFile)
+	} else {
+		bytes, err = c.getClusterConfigurationBytes(&clusterConfigOptions, clusterConfigOptions.ProviderRepositorySource.InfrastructureProvider, true, false)
+		if err != nil {
+			return bytes, options.ClusterName, "", err
+		}
+		clusterConfigDir, err := c.tkgConfigPathsClient.GetClusterConfigurationDirectory()
+		if err != nil {
+			return bytes, options.ClusterName, "", err
+		}
+		configFilePath = filepath.Join(clusterConfigDir, fmt.Sprintf("%s.yaml", options.ClusterName))
+		err = utils.SaveFile(configFilePath, bytes)
+		if err != nil {
+			return bytes, options.ClusterName, "", err
+		}
 	}
 
-	bytes, err = c.getClusterConfiguration(&clusterConfigOptions, true, clusterConfigOptions.ProviderRepositorySource.InfrastructureProvider, false)
-
-	return bytes, options.ClusterName, err
+	return bytes, options.ClusterName, configFilePath, err
 }
 
 type waitForProvidersOptions struct {

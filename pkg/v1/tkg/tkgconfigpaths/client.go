@@ -24,6 +24,9 @@ type Client interface {
 	// GetTKGProvidersDirectory returns path to tkg config directory "$HOME/.tkg/providers"
 	GetTKGProvidersDirectory() (string, error)
 
+	// GetTKGProvidersCheckSumPath returns path to the providers checksum file
+	GetTKGProvidersCheckSumPath() (string, error)
+
 	// GetTKGCompatibilityDirectory returns path to tkg compatibility directory "<TKGConfigDirectory>/compatibility"
 	GetTKGCompatibilityDirectory() (string, error)
 
@@ -52,4 +55,7 @@ type Client interface {
 
 	// GetLogDirectory returns the directory path where log files should be stored by default.
 	GetLogDirectory() (string, error)
+
+	// GetClusterConfigurationDirectory returns the directory path where cluster configuration files will be stored
+	GetClusterConfigurationDirectory() (string, error)
 }

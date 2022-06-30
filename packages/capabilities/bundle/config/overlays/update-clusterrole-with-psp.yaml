@@ -1,0 +1,25 @@
+#@ load("@ytt:overlay", "overlay")
+#@ load("@ytt:data", "data")
+
+#@ def parse_resource_psp_names(rbac):
+#@   if not hasattr(rbac, "podSecurityPolicyNames") or rbac.podSecurityPolicyNames == None:
+#@     return []
+#@   end
+#@   return rbac.podSecurityPolicyNames
+#@ end
+
+#@ pspNames = parse_resource_psp_names(data.values.rbac)
+
+#@ if pspNames:
+#@overlay/match by=overlay.subset({"kind": "ClusterRole", "metadata": {"name": "tanzu-capabilities-manager-clusterrole"}}),expects="1+"
+---
+rules:
+  #@overlay/append
+  - apiGroups:
+      - policy
+    resources:
+      - podsecuritypolicies
+    verbs:
+      - use
+    resourceNames: #@ pspNames
+#@ end

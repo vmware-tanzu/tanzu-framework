@@ -35,13 +35,41 @@ type ClusterBootstrapControllerConfig struct {
 	SystemNamespace string
 	// The maximum amount of time that will be spent trying to clean resources before cluster deletion is allowed to proceed.
 	ClusterDeleteTimeout time.Duration
-	// TODO: remove when the packages are ready https://github.com/vmware-tanzu/tanzu-framework/issues/2252
-	// A feature flag to enable TKGS cluster upgrade flow, which will add nodeSelector and updateStrategy related info into data value secrets
-	EnableTKGSUpgrade bool
 }
 
 // PackageInstallStatusControllerConfig contains configuration information related to PackageInstallStatus
 type PackageInstallStatusControllerConfig struct {
 	// The namespace where the bootstrap objects will be created, i.e., tkg-system
 	SystemNamespace string
+}
+
+// ConfigControllerConfig contains common configuration information of config controller
+type ConfigControllerConfig struct {
+	// The namespace where the template config objects will be created, i.e., tkg-system
+	SystemNamespace string
+}
+
+// AntreaConfigControllerConfig contains configuration information of AntreaConfig controller
+type AntreaConfigControllerConfig struct {
+	ConfigControllerConfig
+}
+
+// CalicoConfigControllerConfig contains configuration information of CalicoConfig controller
+type CalicoConfigControllerConfig struct {
+	ConfigControllerConfig
+}
+
+// KappControllerConfigControllerConfig contains configuration information of KappControllerConfig controller
+type KappControllerConfigControllerConfig struct {
+	ConfigControllerConfig
+}
+
+// VSphereCPIConfigControllerConfig contains configuration information of VSphereCPIConfig controller
+type VSphereCPIConfigControllerConfig struct {
+	ConfigControllerConfig
+}
+
+// VSphereCSIConfigControllerConfig contains configuration information of VSphereCSIConfig controller
+type VSphereCSIConfigControllerConfig struct {
+	ConfigControllerConfig
 }

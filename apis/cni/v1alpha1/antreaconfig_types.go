@@ -7,6 +7,8 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
+type AntreaProxyNodePortAddress []string
+
 // AntreaConfigSpec defines the desired state of AntreaConfig
 type AntreaConfigSpec struct {
 	Antrea Antrea `json:"antrea,omitempty"`
@@ -16,7 +18,73 @@ type Antrea struct {
 	AntreaConfigDataValue AntreaConfigDataValue `json:"config,omitempty"`
 }
 
+type AntreaEgress struct {
+	//+ kubebuilder:validation:Optional
+	EgressExceptCIDRs []string `json:"exceptCIDRs,omitempty"`
+}
+
+type AntreaNodePortLocal struct {
+	//+ kubebuilder:validation:Optional
+	Enabled bool `json:"enabled,omitempty"`
+
+	//+ kubebuilder:validation:Optional
+	PortRange string `json:"portRange,omitempty"`
+}
+
+type AntreaProxy struct {
+	//+ kubebuilder:validation:Optional
+	ProxyAll bool `json:"enabled,omitempty"`
+
+	//+ kubebuilder:validation:Optional
+	NodePortAddresses []string `json:"nodePortAddresses,omitempty"`
+
+	//+ kubebuilder:validation:Optional
+	SkipServices []string `json:"skipServices,omitempty"`
+
+	//+ kubebuilder:validation:Optional
+	ProxyLoadBalancerIPs bool `json:"proxyLoadBalancerIPs,omitempty"`
+}
+
+type AntreaWireGuard struct {
+	//+ kubebuilder:validation:Optional
+	Port int `json:"port,omitempty"`
+}
+
 type AntreaConfigDataValue struct {
+	// Specifies Egress related configuration.
+	// +kubebuilder:validation:Optional
+	Egress AntreaEgress `json:"egress,omitempty"`
+
+	// Specifies NodePortLocal related configuration.
+	// +kubebuilder:validation:Optional
+	NodePortLocal AntreaNodePortLocal `json:"nodePortLocal,omitempty"`
+
+	// Specifies AntreaProxy related configuration.
+	// +kubebuilder:validation:Optional
+	AntreaProxy AntreaProxy `json:"antreaProxy,omitempty"`
+
+	// Specifies WireGuard related configuration.
+	// +kubebuilder:validation:Optional
+	WireGuard AntreaWireGuard `json:"wireGuard,omitempty"`
+
+	// The name of the interface on Node which is used for tunneling or routing.
+	// +kubebuilder:validation:Optional
+	TransportInterface string `json:"transportInterface,omitempty"`
+
+	// The network CIDRs of the interface on Node which is used for tunneling or routing.
+	// +kubebuilder:validation:Optional
+	TransportInterfaceCIDRs []string `json:"transportInterfaceCIDRs,omitempty"`
+
+	// The names of the interfaces on Nodes that are used to forward multicast traffic.
+	// +kubebuilder:validation:Optional
+	MulticastInterface string `json:"multicastInterface,omitempty"`
+
+	// The traffic encapsulation mode. One of the following options => encap, noEncap, hybrid, networkPolicyOnly
+	// +kubebuilder:validation:Optional
+	// +kubebuilder:validation:Enum="encap";"noEncap";"hybrid";"networkPolicyOnly"
+	// +kubebuilder:default:=encap
+	KubeAPIServerOverride string `json:"kubeAPIServerOverride,omitempty"`
+
 	// The traffic encapsulation mode. One of the following options => encap, noEncap, hybrid, networkPolicyOnly
 	// +kubebuilder:validation:Optional
 	// +kubebuilder:validation:Enum="encap";"noEncap";"hybrid";"networkPolicyOnly"
@@ -51,7 +119,7 @@ type AntreaConfigDataValue struct {
 type AntreaFeatureGates struct {
 	// Flag to enable/disable antrea proxy
 	// +kubebuilder:validation:Optional
-	// +kubebuilder:default:=false
+	// +kubebuilder:default:=true
 	AntreaProxy bool `json:"AntreaProxy,omitempty"`
 
 	// Flag to enable/disable EndpointSlice support in AntreaProxy. If AntreaProxy is not enabled, this flag will not take effect
@@ -71,23 +139,38 @@ type AntreaFeatureGates struct {
 
 	// Flag to enable/disable SNAT IPs of Pod egress traffic
 	// +kubebuilder:validation:Optional
-	// +kubebuilder:default:=false
+	// +kubebuilder:default:=true
 	Egress bool `json:"Egress,omitempty"`
 
 	// Flag to enable/disable NodePortLocal feature to make the pods reachable externally through NodePort
 	// +kubebuilder:validation:Optional
-	// +kubebuilder:default:=false
+	// +kubebuilder:default:=true
 	NodePortLocal bool `json:"NodePortLocal,omitempty"`
 
 	// Flag to enable/disable antrea traceflow
 	// +kubebuilder:validation:Optional
-	// +kubebuilder:default:=false
+	// +kubebuilder:default:=true
 	AntreaTraceflow bool `json:"AntreaTraceflow,omitempty"`
 
 	// Flag to enable/disable network policy stats
 	// +kubebuilder:validation:Optional
 	// +kubebuilder:default:=false
 	NetworkPolicyStats bool `json:"NetworkPolicyStats,omitempty"`
+
+	// Flag to enable/disable antrea IPAM
+	// +kubebuilder:validation:Optional
+	// +kubebuilder:default:=false
+	AntreaIPAM bool `json:"AntreaIPAM,omitempty"`
+
+	// Flag to enable/disable service external IP
+	// +kubebuilder:validation:Optional
+	// +kubebuilder:default:=false
+	ServiceExternalIP bool `json:"ServiceExternalIP,omitempty"`
+
+	// Flag to enable/disable multicast
+	// +kubebuilder:validation:Optional
+	// +kubebuilder:default:=false
+	Multicast bool `json:"Multicast,omitempty"`
 }
 
 // AntreaConfigStatus defines the observed state of AntreaConfig

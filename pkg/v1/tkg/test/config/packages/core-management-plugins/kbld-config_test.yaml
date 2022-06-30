@@ -1,0 +1,23 @@
+apiVersion: kbld.k14s.io/v1alpha1
+kind: Config
+overrides:
+  - image: tanzu-cli-plugins/cluster-linux-amd64:latest
+    newImage: gcr.io/eminent-nation-87317/tkg/test12/tanzu-cli-plugins/cluster-linux-amd64:latest
+  - image: tanzu-cli-plugins/kubernetes-release-linux-amd64:latest
+    newImage: gcr.io/eminent-nation-87317/tkg/test12/tanzu-cli-plugins/kubernetes-release-linux-amd64:latest
+  - image: tanzu-cli-plugins/feature-linux-amd64:latest
+    newImage: gcr.io/eminent-nation-87317/tkg/test12/tanzu-cli-plugins/feature-linux-amd64:latest
+
+  - image: tanzu-cli-plugins/cluster-darwin-amd64:latest
+    newImage: gcr.io/eminent-nation-87317/tkg/test12/tanzu-cli-plugins/cluster-darwin-amd64:latest
+  - image: tanzu-cli-plugins/kubernetes-release-darwin-amd64:latest
+    newImage: gcr.io/eminent-nation-87317/tkg/test12/tanzu-cli-plugins/kubernetes-release-darwin-amd64:latest
+  - image: tanzu-cli-plugins/feature-darwin-amd64:latest
+    newImage: gcr.io/eminent-nation-87317/tkg/test12/tanzu-cli-plugins/feature-darwin-amd64:latest
+
+  - image: tanzu-cli-plugins/cluster-windows-amd64:latest
+    newImage: gcr.io/eminent-nation-87317/tkg/test12/tanzu-cli-plugins/cluster-windows-amd64:latest
+  - image: tanzu-cli-plugins/kubernetes-release-windows-amd64:latest
+    newImage: gcr.io/eminent-nation-87317/tkg/test12/tanzu-cli-plugins/kubernetes-release-windows-amd64:latest
+  - image: tanzu-cli-plugins/feature-windows-amd64:latest
+    newImage: gcr.io/eminent-nation-87317/tkg/test12/tanzu-cli-plugins/feature-windows-amd64:latest

@@ -7,7 +7,6 @@ import (
 	"os"
 	"time"
 
-	"github.com/go-logr/logr"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	corev1 "k8s.io/api/core/v1"
@@ -147,7 +146,7 @@ var _ = Describe("Machine Reconciler", func() {
 			err := k8sClient.List(ctx, pkgInstallsList)
 			Expect(err).ToNot(HaveOccurred())
 			Expect(hasPackageInstalls(ctx, k8sClient, cluster, addonNamespace,
-				clusterBootstrap.Spec.AdditionalPackages, logr.Logger{})).To(BeTrue())
+				clusterBootstrap.Spec.AdditionalPackages, setupLog)).To(BeTrue())
 
 			By("Cluster deletion with foreground propagation policy")
 			deletePropagation := metav1.DeletePropagationForeground
@@ -156,11 +155,11 @@ var _ = Describe("Machine Reconciler", func() {
 
 			By("Results on additionalPackageInstalls being removed.")
 			Expect(hasPackageInstalls(ctx, k8sClient, cluster, addonNamespace,
-				clusterBootstrap.Spec.AdditionalPackages, logr.Logger{})).To(BeTrue())
+				clusterBootstrap.Spec.AdditionalPackages, setupLog)).To(BeTrue())
 			Expect(err).ToNot(HaveOccurred())
 			Eventually(func() bool {
 				return hasPackageInstalls(ctx, k8sClient, cluster, addonNamespace,
-					clusterBootstrap.Spec.AdditionalPackages, logr.Logger{})
+					clusterBootstrap.Spec.AdditionalPackages, setupLog)
 			}, waitTimeout, pollingInterval).Should(BeFalse())
 			Eventually(func() bool {
 				err := k8sClient.Get(ctx, client.ObjectKeyFromObject(cluster), clusterBootstrap)

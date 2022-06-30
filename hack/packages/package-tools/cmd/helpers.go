@@ -28,23 +28,32 @@ func readPackageValues(projectRootDir string) (PackageValues, error) {
 	return packageValues, nil
 }
 
-// getPackageFromPackageValues returns the package definition from the package-values.yaml file.
-func getPackageFromPackageValues(projectRootDir, packageName string) (Package, error) {
+// getPackageFromPackageValues returns the list of package definition from the package-values.yaml file.
+func getPackageFromPackageValues(projectRootDir, packageName string) ([]Package, error) {
 	packageValues, err := readPackageValues(projectRootDir)
 	if err != nil {
-		return Package{}, err
+		return []Package{}, err
 	}
 
+	matchingPackages := []Package{}
 	for i := range packageValues.Repositories {
 		packages := packageValues.Repositories[i].Packages
-		for _, pkg := range packages {
-			if pkg.Name == packageName {
-				return pkg, nil
+		for i := range packages {
+			if packages[i].Name == packageName {
+				if packages[i].Version == version {
+					return []Package{packages[i]}, nil
+				}
+				matchingPackages = append(matchingPackages, packages[i])
 			}
 		}
 	}
 
-	return Package{}, fmt.Errorf("package %q not found in %s", packageName, constants.PackageValuesFilePath)
+	// Found packages but no matching version found, returning all matching package
+	if len(matchingPackages) >= 1 {
+		return matchingPackages, nil
+	}
+
+	return []Package{}, fmt.Errorf("package %q not found in %s", packageName, constants.PackageValuesFilePath)
 }
 
 // filterPackageRepos returns a list of repos that should be generated.
@@ -74,8 +83,8 @@ func filterPackageRepos(pkgVals PackageValues) ([]string, error) {
 
 // packagesContains checks if a package is in the given collection of packages.
 func packagesContains(packagesList []Package, pkg string) bool {
-	for _, p := range packagesList {
-		if p.Name == pkg {
+	for i := range packagesList {
+		if packagesList[i].Name == pkg {
 			return true
 		}
 	}
@@ -89,6 +98,23 @@ type formattedVersion struct {
 }
 
 func formatVersion(pkg *Package, concatenator string) formattedVersion {
+	if pkg != nil && pkg.SkipVersionOverride {
+		fv := formattedVersion{
+			version:      pkg.Version,
+			noV:          getPackageVersion(pkg.Version),
+			concatenator: concatenator,
+			subVersion:   pkg.PackageSubVersion,
+		}
+
+		fv.concat = fv.version
+		fv.concatNoV = fv.noV
+		if fv.subVersion != "" {
+			fv.concat = fv.version + concatenator + fv.subVersion
+			fv.concatNoV = fv.noV + concatenator + fv.subVersion
+		}
+		return fv
+	}
+
 	fv := formattedVersion{
 		version:      version,
 		noV:          getPackageVersion(version),
@@ -119,4 +145,24 @@ func getPackageVersion(version string) string {
 		pkgVersion = version[1:]
 	}
 	return pkgVersion
+}
+
+func getEnvArrayFromMap(env map[string]string) []string {
+	var arrEnv []string
+	for k, v := range env {
+		arrEnv = append(arrEnv, fmt.Sprintf("%s=%s", k, v))
+	}
+	return arrEnv
+}
+
+func getTempPackageHelpersLib(lib string) (string, error) {
+	tempDir, err := os.MkdirTemp(os.TempDir(), "package-helpers.lib-")
+	if err != nil {
+		return "", fmt.Errorf("cannot create temporary directory: %w", err)
+	}
+	tempFileName := filepath.Join(tempDir, "package-helpers.lib.yaml")
+	if err := os.WriteFile(tempFileName, []byte(lib), 0755); err != nil {
+		return "", err
+	}
+	return tempFileName, nil
 }

@@ -46,39 +46,41 @@ type ClusterConfigOptions clusterctl.GetClusterTemplateOptions
 // CreateClusterOptions contains options required to create a cluster
 type CreateClusterOptions struct {
 	ClusterConfigOptions
-	TKRVersion                  string
-	NodeSizeOptions             NodeSizeOptions
-	CniType                     string
-	ClusterOptionsEnableList    []string
-	VsphereControlPlaneEndpoint string
-	SkipValidation              bool
-	IsWindowsWorkloadCluster    bool
-	ClusterType                 TKGClusterType
-	Edition                     string
+	TKRVersion                   string
+	NodeSizeOptions              NodeSizeOptions
+	CniType                      string
+	ClusterOptionsEnableList     []string
+	VsphereControlPlaneEndpoint  string
+	SkipValidation               bool
+	IsWindowsWorkloadCluster     bool
+	ClusterType                  TKGClusterType
+	Edition                      string
+	IsInputFileClusterClassBased bool
+	ClusterConfigFile            string
 }
 
 // InitRegionOptions contains options supported by InitRegion
 type InitRegionOptions struct {
-	NodeSizeOptions             NodeSizeOptions
-	ClusterConfigFile           string
-	Kubeconfig                  string
-	Plan                        string
-	ClusterName                 string
-	CoreProvider                string
-	BootstrapProvider           string
-	InfrastructureProvider      string
-	ControlPlaneProvider        string
-	Namespace                   string
-	CniType                     string
-	VsphereControlPlaneEndpoint string
-	Edition                     string
-	Annotations                 map[string]string
-	Labels                      map[string]string
-	FeatureFlags                map[string]string
-	LaunchUI                    bool
-	DisableYTT                  bool
-	CeipOptIn                   bool
-	UseExistingCluster          bool
+	NodeSizeOptions              NodeSizeOptions
+	ClusterConfigFile            string
+	Kubeconfig                   string
+	Plan                         string
+	ClusterName                  string
+	CoreProvider                 string
+	BootstrapProvider            string
+	InfrastructureProvider       string
+	ControlPlaneProvider         string
+	Namespace                    string
+	CniType                      string
+	VsphereControlPlaneEndpoint  string
+	Edition                      string
+	Annotations                  map[string]string
+	Labels                       map[string]string
+	FeatureFlags                 map[string]string
+	LaunchUI                     bool
+	CeipOptIn                    bool
+	UseExistingCluster           bool
+	IsInputFileClusterClassBased bool
 }
 
 // DeleteRegionOptions contains options supported by DeleteRegion
@@ -113,8 +115,9 @@ type Client interface {
 	// and validates k8s version format is valid semantic version
 	ConfigureAndValidateTkrVersion(tkrVersion string) (string, string, error)
 	// CreateCluster creates a workload cluster based on a cluster template
-	// generated from the provided options
-	CreateCluster(options *CreateClusterOptions, waitForCluster bool) error
+	// generated from the provided options. Returns whether cluster creation was attempted
+	// information along with error information
+	CreateCluster(options *CreateClusterOptions, waitForCluster bool) (attempedClusterCreation bool, err error)
 	// CreateAWSCloudFormationStack create aws cloud formation stack
 	CreateAWSCloudFormationStack() error
 	// DeleteRegion deletes management cluster via a self-provisioned kind cluster

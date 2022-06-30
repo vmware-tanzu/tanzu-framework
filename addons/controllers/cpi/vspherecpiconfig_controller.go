@@ -25,8 +25,10 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/controller"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 
+	addonconfig "github.com/vmware-tanzu/tanzu-framework/addons/pkg/config"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/util"
+	"github.com/vmware-tanzu/tanzu-framework/addons/predicates"
 	cpiv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cpi/v1alpha1"
 )
 
@@ -35,6 +37,7 @@ type VSphereCPIConfigReconciler struct {
 	client.Client
 	Log    logr.Logger
 	Scheme *runtime.Scheme
+	Config addonconfig.VSphereCPIConfigControllerConfig
 }
 
 var providerServiceAccountRBACRules = []rbacv1.PolicyRule{
@@ -60,6 +63,16 @@ var providerServiceAccountRBACRules = []rbacv1.PolicyRule{
 	},
 }
 
+// VsphereCPIProviderServiceAccountAggregatedClusterRole is the cluster role to assign permissions to capv provider
+var vsphereCPIProviderServiceAccountAggregatedClusterRole = &rbacv1.ClusterRole{
+	ObjectMeta: metav1.ObjectMeta{
+		Name: constants.VsphereCPIProviderServiceAccountAggregatedClusterRole,
+		Labels: map[string]string{
+			constants.CAPVClusterRoleAggregationRuleLabelSelectorKey: constants.CAPVClusterRoleAggregationRuleLabelSelectorValue,
+		},
+	},
+}
+
 //+kubebuilder:rbac:groups=cpi.tanzu.vmware.com,resources=vspherecpiconfigs,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups=cpi.tanzu.vmware.com,resources=vspherecpiconfigs/status,verbs=get;update;patch
 //+kubebuilder:rbac:groups=vmware.infrastructure.cluster.x-k8s.io,resources=providerserviceaccounts,verbs=get;create;list;watch;update;patch
@@ -81,7 +94,9 @@ func (r *VSphereCPIConfigReconciler) Reconcile(ctx context.Context, req ctrl.Req
 		return ctrl.Result{}, err
 	}
 
+	// deep copy VSphereCPIConfig to avoid issues if in the future other controllers where interacting with the same copy
 	cpiConfig = cpiConfig.DeepCopy()
+
 	cluster, err := r.getOwnerCluster(ctx, cpiConfig)
 	if cluster == nil {
 		return ctrl.Result{}, err // no need to requeue if cluster is not found
@@ -175,12 +190,13 @@ func (r *VSphereCPIConfigReconciler) reconcileVSphereCPIConfigNormal(ctx context
 	if *cpiConfig.Spec.VSphereCPI.Mode == VSphereCPIParavirtualMode {
 		// create an aggregated cluster role RBAC that will be inherited by CAPV (https://kubernetes.io/docs/reference/access-authn-authz/rbac/#aggregated-clusterroles)
 		// CAPV needs to hold these rules before it can grant it to serviceAccount for CPI
-		_, err := controllerutil.CreateOrPatch(ctx, r.Client, constants.CAPVAggregatedClusterRole, func() error {
-			constants.CAPVAggregatedClusterRole.Rules = providerServiceAccountRBACRules
+
+		_, err := controllerutil.CreateOrPatch(ctx, r.Client, vsphereCPIProviderServiceAccountAggregatedClusterRole, func() error {
+			vsphereCPIProviderServiceAccountAggregatedClusterRole.Rules = providerServiceAccountRBACRules
 			return nil
 		})
 		if err != nil {
-			r.Log.Error(err, "Error creating or patching cluster role", "name", constants.ProviderServiceAccountAggregatedClusterRole)
+			r.Log.Error(err, "Error creating or patching cluster role", "name", vsphereCPIProviderServiceAccountAggregatedClusterRole)
 			return err
 		}
 
@@ -192,7 +208,7 @@ func (r *VSphereCPIConfigReconciler) reconcileVSphereCPIConfigNormal(ctx context
 		}
 		labelSelector := labels.NewSelector()
 		labelSelector = labelSelector.Add(*labelMatch)
-		if err := r.Client.List(ctx, vsphereClusters, &client.ListOptions{LabelSelector: labelSelector}); err != nil {
+		if err := r.Client.List(ctx, vsphereClusters, &client.ListOptions{LabelSelector: labelSelector, Namespace: cluster.Namespace}); err != nil {
 			r.Log.Error(err, "error retrieving clusters")
 			return err
 		}
@@ -227,5 +243,6 @@ func (r *VSphereCPIConfigReconciler) SetupWithManager(_ context.Context, mgr ctr
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&cpiv1alpha1.VSphereCPIConfig{}).
 		WithOptions(options).
+		WithEventFilter(predicates.ConfigOfKindWithoutAnnotation(constants.TKGAnnotationTemplateConfig, constants.VSphereCPIConfigKind, r.Config.SystemNamespace, r.Log)).
 		Complete(r)
 }

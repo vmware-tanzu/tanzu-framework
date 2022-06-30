@@ -95,13 +95,15 @@ type addonFlags struct {
 	ipFamilyClusterVarName          string
 	featureGateClusterBootstrap     bool
 	featureGatePackageInstallStatus bool
-	// TODO: remove when the packages are ready https://github.com/vmware-tanzu/tanzu-framework/issues/2252
-	featureGateTKGSUpgrade bool
 }
 
 func parseAddonFlags(addonFlags *addonFlags) {
 	// controller configurations
-	flag.StringVar(&addonFlags.metricsAddr, "metrics-bind-addr", ":8080", "The address the metric endpoint binds to.")
+
+	// Bind metrics endpoint to localhost, following the pattern in cluster-api projects where they moved away from kube-rbac-proxy for just guarding metrics endpoint.
+	// see https://github.com/kubernetes-sigs/cluster-api/issues/4679 and https://github.com/kubernetes-sigs/cluster-api/issues/4325
+	// 18317 is an available port in Supervisor cluster
+	flag.StringVar(&addonFlags.metricsAddr, "metrics-bind-addr", "localhost:18317", "The address the metric endpoint binds to.")
 	flag.BoolVar(&addonFlags.enableLeaderElection, "leader-elect", false,
 		"Enable leader election for controller manager. "+
 			"Enabling this will ensure there is only one active controller manager.")
@@ -125,8 +127,6 @@ func parseAddonFlags(addonFlags *addonFlags) {
 	flag.StringVar(&addonFlags.ipFamilyClusterVarName, "ip-family-cluster-var-name", constants.DefaultIPFamilyClusterClassVarName, "IP family setting cluster variable name")
 	flag.BoolVar(&addonFlags.featureGateClusterBootstrap, "feature-gate-cluster-bootstrap", false, "Feature gate to enable clusterbootstap and addonconfig controllers that rely on TKR v1alphav3")
 	flag.BoolVar(&addonFlags.featureGatePackageInstallStatus, "feature-gate-package-install-status", false, "Feature gate to enable packageinstallstatus controller")
-	// TODO: remove when the packages are ready https://github.com/vmware-tanzu/tanzu-framework/issues/2252
-	flag.BoolVar(&addonFlags.featureGateTKGSUpgrade, "feature-gate-tkgs-upgrade", false, "Feature gate to enable TKGS clusters upgrade flow")
 
 	flag.Parse()
 }
@@ -232,6 +232,8 @@ func enableClusterBootstrapAndConfigControllers(ctx context.Context, mgr ctrl.Ma
 		Client: mgr.GetClient(),
 		Log:    ctrl.Log.WithName("CalicoConfigController"),
 		Scheme: mgr.GetScheme(),
+		Config: addonconfig.CalicoConfigControllerConfig{
+			ConfigControllerConfig: addonconfig.ConfigControllerConfig{SystemNamespace: flags.addonNamespace}},
 	}).SetupWithManager(ctx, mgr, controller.Options{MaxConcurrentReconciles: 1}); err != nil {
 		setupLog.Error(err, "unable to create CalicoConfigController", "controller", "calico")
 		os.Exit(1)
@@ -241,6 +243,8 @@ func enableClusterBootstrapAndConfigControllers(ctx context.Context, mgr ctrl.Ma
 		Client: mgr.GetClient(),
 		Log:    ctrl.Log.WithName("AntreaConfigController"),
 		Scheme: mgr.GetScheme(),
+		Config: addonconfig.AntreaConfigControllerConfig{
+			ConfigControllerConfig: addonconfig.ConfigControllerConfig{SystemNamespace: flags.addonNamespace}},
 	}).SetupWithManager(ctx, mgr, controller.Options{MaxConcurrentReconciles: 1}); err != nil {
 		setupLog.Error(err, "unable to create AntreaConfigController", "controller", "antrea")
 		os.Exit(1)
@@ -249,6 +253,8 @@ func enableClusterBootstrapAndConfigControllers(ctx context.Context, mgr ctrl.Ma
 		Client: mgr.GetClient(),
 		Log:    ctrl.Log.WithName("KappControllerConfig"),
 		Scheme: mgr.GetScheme(),
+		Config: addonconfig.KappControllerConfigControllerConfig{
+			ConfigControllerConfig: addonconfig.ConfigControllerConfig{SystemNamespace: flags.addonNamespace}},
 	}).SetupWithManager(ctx, mgr, controller.Options{MaxConcurrentReconciles: 1}); err != nil {
 		setupLog.Error(err, "unable to create KappControllerConfig", "controller", "kapp")
 		os.Exit(1)
@@ -257,6 +263,8 @@ func enableClusterBootstrapAndConfigControllers(ctx context.Context, mgr ctrl.Ma
 		Client: mgr.GetClient(),
 		Log:    ctrl.Log.WithName("VSphereCPIConfig"),
 		Scheme: mgr.GetScheme(),
+		Config: addonconfig.VSphereCPIConfigControllerConfig{
+			ConfigControllerConfig: addonconfig.ConfigControllerConfig{SystemNamespace: flags.addonNamespace}},
 	}).SetupWithManager(ctx, mgr, controller.Options{MaxConcurrentReconciles: 1}); err != nil {
 		setupLog.Error(err, "unable to create CPIConfigController", "controller", "vspherecpi")
 		os.Exit(1)
@@ -266,6 +274,8 @@ func enableClusterBootstrapAndConfigControllers(ctx context.Context, mgr ctrl.Ma
 		Client: mgr.GetClient(),
 		Log:    ctrl.Log.WithName("VSphereCSIConfig"),
 		Scheme: mgr.GetScheme(),
+		Config: addonconfig.VSphereCSIConfigControllerConfig{
+			ConfigControllerConfig: addonconfig.ConfigControllerConfig{SystemNamespace: flags.addonNamespace}},
 	}).SetupWithManager(ctx, mgr, controller.Options{MaxConcurrentReconciles: 1}); err != nil {
 		setupLog.Error(err, "unable to create CSIConfigController", "controller", "vspherecsi")
 		os.Exit(1)
@@ -292,8 +302,6 @@ func enableClusterBootstrapAndConfigControllers(ctx context.Context, mgr ctrl.Ma
 			PkgiClusterRoleBinding:      constants.PackageInstallClusterRoleBinding,
 			PkgiSyncPeriod:              flags.syncPeriod,
 			ClusterDeleteTimeout:        flags.clusterDeleteTimeout,
-			// TODO: remove when the packages are ready https://github.com/vmware-tanzu/tanzu-framework/issues/2252
-			EnableTKGSUpgrade: flags.featureGateTKGSUpgrade,
 		},
 	)
 	if err := bootstrapReconciler.SetupWithManager(ctx, mgr, controller.Options{MaxConcurrentReconciles: 1}); err != nil {
@@ -345,7 +353,7 @@ func enableWebhooks(ctx context.Context, mgr ctrl.Manager, flags *addonFlags) {
 		setupLog.Error(err, "unable to create clusterbootstrapTemplate webhook", "webhook", "clusterbootstraptemplate")
 		os.Exit(1)
 	}
-	clusterPauseWebhook := webhooks.ClusterPause{Client: mgr.GetClient()}
+	clusterPauseWebhook := addonwebhooks.ClusterPause{Client: mgr.GetClient()}
 	if err := clusterPauseWebhook.SetupWebhookWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to set up webhooks", "webhook", "clusterpause")
 		os.Exit(1)

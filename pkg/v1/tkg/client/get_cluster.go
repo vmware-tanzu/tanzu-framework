@@ -57,10 +57,6 @@ func (c *TkgClient) ListTKGClusters(options ListTKGClustersOptions) ([]ClusterIn
 		return nil, errors.Wrap(err, "error determining 'Tanzu Kubernetes Cluster service for vSphere' management cluster")
 	}
 	if isPacific {
-		err := c.ValidatePacificVersionWithCLI(regionalClusterClient)
-		if err != nil {
-			return nil, err
-		}
 		return c.GetClusterObjectsForPacific(regionalClusterClient, "", listOptions)
 	}
 

@@ -43,6 +43,7 @@ frameworkPackage:
         tolerations: []
         webhookServerPort: 9865
         healthzPort: 18316
+        metricsBindAddress: "localhost:18317"
       featureGates:
         clusterBootstrapController: false
         packageInstallStatus: false
@@ -53,7 +54,7 @@ frameworkPackage:
     namespace: tanzu-auth
     versionConstraints:
     controller:
-      image: ""
+      image: tanzu-auth-controller-manager:latest
 
 clusterclassPackage:
   namespaceForPackageInstallation: tkg-system
@@ -71,6 +72,7 @@ tkrSourceControllerPackage:
     bomImagePath:
     bomMetadataImagePath:
     tkrRepoImagePath:
+    defaultCompatibleTKR:
     skipVerifyRegistryCert: false
     initialDiscoverFrequency: 60
     continuousDiscoverFrequency: 600
@@ -81,3 +83,9 @@ tkrSourceControllerPackage:
       httpProxy:
       httpsProxy:
       noProxy:
+
+coreManagementPluginsPackage:
+  namespaceForPackageInstallation: tkg-system
+  versionConstraints:
+  coreManagementPluginsPackageValues:
+    deployCLIPluginCRD: false

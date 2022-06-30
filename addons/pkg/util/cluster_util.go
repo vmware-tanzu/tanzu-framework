@@ -77,7 +77,7 @@ func GetClustersByTKR(ctx context.Context, c client.Client, tkr *runtanzuv1alpha
 
 	clustersList := &clusterv1beta1.ClusterList{}
 
-	if err := c.List(ctx, clustersList, client.MatchingLabels{constants.TKRLabel: tkr.Name}); err != nil {
+	if err := c.List(ctx, clustersList, client.MatchingLabels{constants.TKRLabel: tkr.GetName()}); err != nil {
 		return nil, err
 	}
 
@@ -221,7 +221,7 @@ func IsTKGSCluster(ctx context.Context, dynamicClient dynamic.Interface, discove
 		listOptions := metav1.ListOptions{
 			LabelSelector: tkgconstants.CAPVClusterSelectorKey + "=" + cluster.Name,
 		}
-		virtualMachineList, err := dynamicClient.Resource(virtualMachineGVR).List(ctx, listOptions)
+		virtualMachineList, err := dynamicClient.Resource(virtualMachineGVR).Namespace(cluster.Namespace).List(ctx, listOptions)
 		if err != nil {
 			if apierrors.IsNotFound(err) {
 				return false, nil

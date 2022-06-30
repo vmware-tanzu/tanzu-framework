@@ -9,6 +9,7 @@ on:
     paths:
     - 'pkg/v1/tkg/**'
     - 'pkg/v1/providers/**'
+    - '.github/workflows/providers.yaml'
 
 jobs:
   build:
@@ -30,6 +31,16 @@ jobs:
         go-version: '1.17'
       id: go
 
+    - name: go cache
+      uses: actions/cache@v3
+      with:
+        path: |
+          ~/.cache/go-build
+          ~/go/pkg/mod
+        key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+        restore-keys: |
+          ${{ runner.os }}-go-
+
     - name: Extract PR Info
       shell: bash
       run: |
@@ -43,9 +54,13 @@ jobs:
         mkdir -p bin
         wget -q https://storage.googleapis.com/tkg-cli-builds/bin/pict.linux -O bin/pict
         chmod +x bin/pict
+        wget -q https://storage.googleapis.com/tkg-cli-builds/bin/clusterctl -O bin/clusterctl
+        chmod +x bin/clusterctl
         wget -q https://github.com/vmware-tanzu/carvel-ytt/releases/download/v0.30.0/ytt-linux-amd64 -O bin/ytt
         chmod +x bin/ytt
         echo "$PWD/bin" >> $GITHUB_PATH
+        sudo apt-get update -y
+        sudo apt-get install -y wdiff
 
     - name: Run clustergen verification tests
       run: |
@@ -54,7 +69,7 @@ jobs:
         echo BASEBRANCH=${{ steps.extract_pr.outputs.basebranch }}
         env BASEBRANCH=${{ steps.extract_pr.outputs.basebranch }}
         status=$(test -s ./pkg/v1/providers/tests/clustergen/testdata/clustergen.diff.txt; echo $?)
-        CLI_REPO=$PWD ./hack/clustergen/ci-validate-clustergen.sh ${{ steps.extract_pr.outputs.branch }} ${{ steps.extract_pr.outputs.basebranch }}
+        CLUSTERCTL=clusterctl CLI_REPO=$PWD ./hack/clustergen/ci-validate-clustergen.sh ${{ steps.extract_pr.outputs.branch }} ${{ steps.extract_pr.outputs.basebranch }}
         echo "##[set-output name=diffstatus;]$status"
         echo $status > ./pkg/v1/providers/tests/clustergen/testdata/clustergen.status
         echo ${{ steps.extract_pr.outputs.prnum }} > ./pkg/v1/providers/tests/clustergen/testdata/prnum
@@ -68,4 +83,6 @@ jobs:
            ./pkg/v1/providers/tests/clustergen/testdata/prnum
            ./pkg/v1/providers/tests/clustergen/testdata/clustergen.status
            ./pkg/v1/providers/tests/clustergen/testdata/clustergen.diff.txt
+           ./pkg/v1/providers/tests/clustergen/testdata/clustergen_cc.diff.txt
+           ./pkg/v1/providers/tests/clustergen/testdata/clustergen_noncc_vs_cc.diff.txt
            ./pkg/v1/providers/tests/clustergen/testdata/clustergen.html

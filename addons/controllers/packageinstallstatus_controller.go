@@ -11,6 +11,8 @@ import (
 
 	"github.com/go-logr/logr"
 	"github.com/pkg/errors"
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -142,7 +144,7 @@ func (r *PackageInstallStatusReconciler) Reconcile(_ context.Context, req reconc
 		return ctrl.Result{}, nil
 	}
 
-	tkr, err := util.GetTKRByName(r.ctx, r.Client, tkrName)
+	tkr, err := util.GetTKRByNameV1Alpha3(r.ctx, r.Client, tkrName)
 	if err != nil {
 		return ctrl.Result{}, errors.Wrapf(err, "unable to fetch TKR object '%s'", tkrName)
 	}
@@ -294,8 +296,9 @@ func (r *PackageInstallStatusReconciler) reconcileClusterBootstrapStatus(
 	}
 
 	// we populate 'Message' with Carvel's PackageInstall 'UsefulErrorMessage' field as it contains more detailed information in case of an error
+	title := cases.Title(language.Und)
 	condition := clusterapiv1beta1.Condition{
-		Type: clusterapiv1beta1.ConditionType(strings.Title(pkgShortname)) + "-" +
+		Type: clusterapiv1beta1.ConditionType(title.String(pkgShortname)) + "-" +
 			clusterapiv1beta1.ConditionType(pkgiCondition.Type),
 		Status:             pkgiCondition.Status,
 		Message:            util.GetKappUsefulErrorMessage(pkgi.Status.UsefulErrorMessage),
@@ -309,7 +312,7 @@ func (r *PackageInstallStatusReconciler) reconcileClusterBootstrapStatus(
 	// to only consider condition types' prefix (pkgi name) rather than the full condition type for condition's equality check and custom comparison logic is net implemented in CAPI's condition util Set() as of now
 	var conditionExists bool
 	for i, existingCond := range clusterBootstrap.Status.Conditions {
-		if !strings.Contains(string(existingCond.Type), strings.Title(pkgShortname)) {
+		if !strings.Contains(string(existingCond.Type), title.String(pkgShortname)) {
 			continue
 		}
 		conditionExists = true
@@ -328,7 +331,7 @@ func (r *PackageInstallStatusReconciler) reconcileClusterBootstrapStatus(
 func (r *PackageInstallStatusReconciler) removeConditionIfExistsForPkgName(clusterBootstrap *runtanzuv1alpha3.ClusterBootstrap, pkgRefName string) {
 	for i, existingCond := range clusterBootstrap.Status.Conditions {
 		pkgShortname := strings.Split(pkgRefName, ".")[0]
-		if strings.Contains(string(existingCond.Type), strings.Title(pkgShortname)) {
+		if strings.Contains(string(existingCond.Type), cases.Title(language.Und).String(pkgShortname)) {
 			clusterBootstrap.Status.Conditions = append(clusterBootstrap.Status.Conditions[:i], clusterBootstrap.Status.Conditions[i+1:]...)
 		}
 	}

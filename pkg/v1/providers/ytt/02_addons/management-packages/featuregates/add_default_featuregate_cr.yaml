@@ -14,7 +14,7 @@ spec:
 
 #@ if data.values.TKG_CLUSTER_ROLE != "workload" and data.values.PROVIDER_TYPE != "tkg-service-vsphere":
 ---
-apiVersion: addons.cluster.x-k8s.io/v1alpha3
+apiVersion: addons.cluster.x-k8s.io/v1beta1
 kind: ClusterResourceSet
 metadata:
   name: #@ "{}-featuregates-default-resource".format(data.values.CLUSTER_NAME)

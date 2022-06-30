@@ -689,6 +689,51 @@ var _ = Describe("r.Reconcile()", func() {
 	})
 })
 
+var _ = Describe("r.compatibilityMetadata()", func() {
+	var (
+		fakeRegistry *fakes.Registry
+		fakeClient   client.Client
+		scheme       *runtime.Scheme
+		objects      []runtime.Object
+		r            reconciler
+	)
+
+	JustBeforeEach(func() {
+		scheme = runtime.NewScheme()
+		addToScheme(scheme)
+		fakeClient = fake.NewClientBuilder().WithScheme(scheme).WithRuntimeObjects(objects...).Build()
+		r = reconciler{
+			registry:                   fakeRegistry,
+			ctx:                        context.Background(),
+			client:                     fakeClient,
+			log:                        ctrllog.Log,
+			scheme:                     scheme,
+			compatibilityMetadataImage: "",
+		}
+	})
+
+	BeforeEach(func() {
+		fakeRegistry = &fakes.Registry{}
+		fakeRegistry.ListImageTagsReturnsOnCall(0, []string{"v1"}, nil)
+		fakeRegistry.GetFileReturnsOnCall(0, metadataContent, nil)
+	})
+
+	It("should correctly parse bom-metadata", func() {
+		err := r.reconcileBOMMetadataCM(r.ctx)
+		Expect(err).ToNot(HaveOccurred())
+
+		cm := &corev1.ConfigMap{}
+		Expect(r.client.Get(r.ctx,
+			client.ObjectKey{Namespace: constants.TKRNamespace, Name: constants.BOMMetadataConfigMapName},
+			cm)).To(Succeed())
+		Expect(normalizeYAML(cm.BinaryData[constants.BOMMetadataCompatibilityKey])).To(Equal(normalizeYAML(metadataContent)))
+
+		compatibilityMetadata, err := r.compatibilityMetadata(r.ctx)
+		Expect(err).ToNot(HaveOccurred())
+		Expect(compatibilityMetadata.ManagementClusterVersions).ToNot(BeEmpty())
+	})
+})
+
 type clientErrOnGetCluster struct {
 	client.Client
 	err error

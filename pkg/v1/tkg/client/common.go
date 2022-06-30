@@ -6,6 +6,7 @@ package client
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"os/exec"
 	"strconv"
 	"strings"
@@ -15,6 +16,11 @@ import (
 	"k8s.io/apimachinery/pkg/util/validation"
 	"k8s.io/apimachinery/pkg/util/version"
 	apimachineryversion "k8s.io/apimachinery/pkg/version"
+
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/config"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/log"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfigreaderwriter"
 )
 
 var vsphereVersionMinimumRequirement = []int{6, 7, 0}
@@ -25,6 +31,27 @@ var vsphereBuildMinimumRequirement = 14367737
 type kubectlVersion struct { //nolint
 	ClientVersion *apimachineryversion.Info `json:"clientVersion,omitempty"`
 	ServerVersion *apimachineryversion.Info `json:"serverVersion,omitempty"`
+}
+
+type ClusterClassSelector interface {
+	Select(config tkgconfigreaderwriter.TKGConfigReaderWriter) string
+}
+
+type GivenClusterClassSelector struct{}
+type ProviderBasedClusterClassSelector struct{}
+
+func (GivenClusterClassSelector) Select(rw tkgconfigreaderwriter.TKGConfigReaderWriter) string {
+	ret, _ := rw.Get(constants.ConfigVariableClusterClass)
+
+	return ret
+}
+
+func (ProviderBasedClusterClassSelector) Select(rw tkgconfigreaderwriter.TKGConfigReaderWriter) string {
+	if provider, err := rw.Get(constants.ConfigVariableProviderType); err == nil && provider != "" {
+		return fmt.Sprintf("tkg-%s-default", provider)
+	}
+
+	return ""
 }
 
 // ParseProviderName defines a utility function that parses the abbreviated syntax for name[:version]
@@ -245,4 +272,60 @@ func (c *TkgClient) validateKubectlPrerequisites() error { //nolint
 // ConfigureTimeout updates/configures timeout already set in the tkgClient
 func (c *TkgClient) ConfigureTimeout(timeout time.Duration) {
 	c.timeout = timeout
+}
+
+// SetClusterClass sets the value of CLUSTER_CLASS based on an array of selectors.
+// Uses the first non empty name provided by a selector.
+func SetClusterClass(rw tkgconfigreaderwriter.TKGConfigReaderWriter) {
+	clusterClassSelectors := []ClusterClassSelector{
+		GivenClusterClassSelector{},
+		ProviderBasedClusterClassSelector{},
+	}
+
+	for _, selector := range clusterClassSelectors {
+		if name := selector.Select(rw); name != "" {
+			rw.Set(constants.ConfigVariableClusterClass, name)
+			break
+		}
+	}
+}
+
+func (c *TkgClient) isCustomOverlayPresent() (bool, error) {
+	var providersChecksum, prePopulatedChecksumFromFile string
+	var err error
+
+	if providersChecksum, err = c.tkgConfigUpdaterClient.GetProvidersChecksum(); err != nil {
+		return false, err
+	}
+
+	if prePopulatedChecksumFromFile, err = c.tkgConfigUpdaterClient.GetPopulatedProvidersChecksumFromFile(); err != nil {
+		return false, err
+	}
+
+	return providersChecksum == "" || providersChecksum != prePopulatedChecksumFromFile, nil
+}
+
+func (c *TkgClient) ShouldDeployClusterClassBasedCluster(isManagementCluster bool) (bool, error) {
+	var isCustomOverlayPresent bool
+	var err error
+
+	if isCustomOverlayPresent, err = c.isCustomOverlayPresent(); err != nil {
+		return false, err
+	}
+
+	featureFlagPackageBasedLCMEnabled := config.IsFeatureActivated(config.FeatureFlagPackageBasedLCM)
+
+	// If `package-based-lcm` featureflag is enabled and deploying management cluster
+	// Always use ClusterClass based Cluster deployment
+	if featureFlagPackageBasedLCMEnabled && isManagementCluster {
+		if isCustomOverlayPresent {
+			log.Warning("Warning: It seems like you have done some customizations to the template overlays. However, CLI might ignore those customizations when creating management-cluster.")
+		}
+		return true, nil
+	}
+
+	deployClusterClassBasedCluster := config.IsFeatureActivated(config.FeatureFlagPackageBasedLCM) &&
+		(config.IsFeatureActivated(config.FeatureFlagForceDeployClusterWithClusterClass) || !isCustomOverlayPresent)
+
+	return deployClusterClassBasedCluster, nil
 }

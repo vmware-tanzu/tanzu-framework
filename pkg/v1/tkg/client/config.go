@@ -88,7 +88,7 @@ func (c *TkgClient) GetClusterConfiguration(options *CreateClusterOptions) ([]by
 		return nil, err
 	}
 
-	return c.getClusterConfiguration(&options.ClusterConfigOptions, false, infraProviderName, options.IsWindowsWorkloadCluster)
+	return c.getClusterConfigurationBytes(&options.ClusterConfigOptions, infraProviderName, false, options.IsWindowsWorkloadCluster)
 }
 
 func (c *TkgClient) configureAndValidateConfiguration(options *CreateClusterOptions, regionalClusterClient clusterclient.Client, skipValidation bool) error {
@@ -115,6 +115,9 @@ func (c *TkgClient) getClusterConfiguration(options *ClusterConfigOptions, isMan
 	if err != nil {
 		return nil, err
 	}
+
+	// Sets cluster class value.
+	SetClusterClass(c.TKGConfigReaderWriter())
 
 	// need to provide clusterctl the worker count for md0 and not the full worker-machine-count value.
 	workerCounts, err := c.DistributeMachineDeploymentWorkers(*options.WorkerMachineCount, options.ProviderRepositorySource.Flavor == constants.PlanProd, isManagementCluster, infraProviderName, isWindowsWorkloadCluster)

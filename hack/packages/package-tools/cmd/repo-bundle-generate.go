@@ -5,6 +5,7 @@ package cmd
 
 import (
 	"bytes"
+	_ "embed" // required to embed file
 	"fmt"
 	"os"
 	"os/exec"
@@ -38,6 +39,21 @@ func init() {
 	repoBundleGenerateCmd.MarkFlagRequired("registry")   //nolint: errcheck
 	repoBundleGenerateCmd.MarkFlagRequired("version")    //nolint: errcheck
 }
+
+//go:embed templates/images-tmpl.yaml
+var imagesLockTemplate string
+
+//go:embed templates/package-helpers.lib.yaml
+var packageHelpersLib string
+
+//go:embed templates/package-cr-overlay.yaml
+var packageCrOverlay string
+
+//go:embed templates/package-metadata-cr-overlay.yaml
+var packageMetadataCrOverlay string
+
+//go:embed templates/packagerepo-tmpl.yaml
+var packageRepoTemplate string
 
 func runRepoBundleGenerate(cmd *cobra.Command, args []string) error {
 	if err := validateRepoBundleGenerateFlags(); err != nil {
@@ -91,12 +107,13 @@ func generatePackageBundlesSha256(projectRootDir, localRegistry string) error {
 		return fmt.Errorf("repository not found %s", packageRepository)
 	}
 
-	for i, pkg := range repository.Packages {
+	for i := range repository.Packages {
+		pkg := repository.Packages[i]
 		formattedVer := formatVersion(&repository.Packages[i], "_")
 		packagePath := filepath.Join(projectRootDir, "packages", pkg.Name)
 		toolsBinDir := filepath.Join(projectRootDir, constants.ToolsBinDirPath)
 
-		if err := utils.RunMakeTarget(packagePath, "configure-package"); err != nil {
+		if err := utils.RunMakeTarget(packagePath, "configure-package", getEnvArrayFromMap(pkg.Env)...); err != nil {
 			return err
 		}
 
@@ -168,11 +185,18 @@ func generateRepoBundle(projectRootDir string) error {
 
 	toolsBinDir := filepath.Join(projectRootDir, constants.ToolsBinDirPath)
 
+	// write the ytt lib to a temp file and delete it later
+	packageHelpersLibFile, err := getTempPackageHelpersLib(packageHelpersLib)
+	if err != nil {
+		return err
+	}
+	defer os.Remove(packageHelpersLibFile)
+
 	// generate repo bundle image lock output file
 	yttCmd := exec.Command(
 		filepath.Join(toolsBinDir, "ytt"),
-		"-f", filepath.Join(projectRootDir, "hack", "packages", "templates", "repo-utils", "images-tmpl.yaml"),
-		"-f", filepath.Join(projectRootDir, "hack", "packages", "templates", "repo-utils", "package-helpers.lib.yaml"),
+		"-f-",
+		"-f", packageHelpersLibFile,
 		"-f", packageValuesFile,
 		"-v", "packageRepository="+packageRepository,
 		"-v", "registry="+registry,
@@ -187,6 +211,16 @@ func generateRepoBundle(projectRootDir string) error {
 	var errBytes bytes.Buffer
 	yttCmd.Stdout = outfile
 	yttCmd.Stderr = &errBytes
+
+	yttCmdStdin, err := yttCmd.StdinPipe()
+	if err != nil {
+		return fmt.Errorf("couldn't run ytt command to generate imgpkg lock output file for repo bundle: %w", err)
+	}
+	_, err = yttCmdStdin.Write([]byte(imagesLockTemplate))
+	if err != nil {
+		return fmt.Errorf("couldn't run ytt command to generate imgpkg lock output file for repo bundle: %w", err)
+	}
+	yttCmdStdin.Close()
 
 	if err = yttCmd.Run(); err != nil {
 		return fmt.Errorf("couldn't generate the image lock output file: %s", errBytes.String())
@@ -227,19 +261,26 @@ func generateRepoBundle(projectRootDir string) error {
 
 func generatePackageCR(projectRootDir, toolsBinDir, registry, packageArtifactDirectory, packageValuesFile string, pkg *Package) error {
 	// package values file
-	fmt.Printf("Generating Package CR for package %q...\n", pkg.Name)
+	fmt.Printf("Generating Package CR for package '%s:%s'...\n", pkg.Name, pkg.Version)
 	if err := utils.CreateDir(filepath.Join(packageArtifactDirectory, pkg.Name+"."+pkg.Domain)); err != nil {
 		return err
 	}
 
 	formattedVer := formatVersion(pkg, "+")
 
+	// write the ytt lib to a temp file and delete it later
+	packageHelpersLibFile, err := getTempPackageHelpersLib(packageHelpersLib)
+	if err != nil {
+		return err
+	}
+	defer os.Remove(packageHelpersLibFile)
+
 	// generate Package CR and write it to a file
 	packageYttCmd := exec.Command(
 		filepath.Join(toolsBinDir, "ytt"),
+		"-f-",
 		"-f", filepath.Join(projectRootDir, "packages", pkg.Name, "package.yaml"),
-		"-f", filepath.Join(projectRootDir, "hack", "packages", "templates", "repo-utils", "package-cr-overlay.yaml"),
-		"-f", filepath.Join(projectRootDir, "hack", "packages", "templates", "repo-utils", "package-helpers.lib.yaml"),
+		"-f", packageHelpersLibFile,
 		"-f", packageValuesFile,
 		"-v", "packageRepository="+packageRepository,
 		"-v", "packageName="+pkg.Name,
@@ -260,6 +301,16 @@ func generatePackageCR(projectRootDir, toolsBinDir, registry, packageArtifactDir
 	packageYttCmd.Stdout = packageFile
 	packageYttCmd.Stderr = &packageYttCmdErrBytes
 
+	packageYttCmdStdin, err := packageYttCmd.StdinPipe()
+	if err != nil {
+		return fmt.Errorf("couldn't run ytt command to generate Package CR for repo bundle: %w", err)
+	}
+	_, err = packageYttCmdStdin.Write([]byte(packageCrOverlay))
+	if err != nil {
+		return fmt.Errorf("couldn't run ytt command to generate Package CR for repo bundle: %w", err)
+	}
+	packageYttCmdStdin.Close()
+
 	err = packageYttCmd.Run()
 	if err != nil {
 		return fmt.Errorf("couldn't generate Package CR %s: %s", pkg.Name, packageYttCmdErrBytes.String())
@@ -268,8 +319,8 @@ func generatePackageCR(projectRootDir, toolsBinDir, registry, packageArtifactDir
 	// generate PacakageMetadata CR and write it to a file
 	packageMetadataYttCmd := exec.Command(
 		filepath.Join(toolsBinDir, "ytt"), "-f", filepath.Join(projectRootDir, "packages", pkg.Name, "metadata.yaml"),
-		"-f", filepath.Join(projectRootDir, "hack", "packages", "templates", "repo-utils", "package-metadata-cr-overlay.yaml"),
-		"-f", filepath.Join(projectRootDir, "hack", "packages", "templates", "repo-utils", "package-helpers.lib.yaml"),
+		"-f-",
+		"-f", packageHelpersLibFile,
 		"-f", packageValuesFile,
 		"-v", "packageRepository="+packageRepository,
 		"-v", "packageName="+pkg.Name,
@@ -286,6 +337,15 @@ func generatePackageCR(projectRootDir, toolsBinDir, registry, packageArtifactDir
 	packageMetadataYttCmd.Stdout = metadataFile
 	packageMetadataYttCmd.Stderr = &packageMetadataYttCmdErrBytes
 
+	packageMetadataYttCmdStdin, err := packageMetadataYttCmd.StdinPipe()
+	if err != nil {
+		return fmt.Errorf("couldn't run ytt command to generate PackageMetadata CR for repo bundle: %w", err)
+	}
+	_, err = packageMetadataYttCmdStdin.Write([]byte(packageMetadataCrOverlay))
+	if err != nil {
+		return fmt.Errorf("couldn't run ytt command to generate PackageMetadata CR for repo bundle: %w", err)
+	}
+	packageMetadataYttCmdStdin.Close()
 	err = packageMetadataYttCmd.Run()
 	if err != nil {
 		return fmt.Errorf("couldn't generate PackageMetadata CR %s: %s", pkg.Name, packageMetadataYttCmdErrBytes.String())

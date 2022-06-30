@@ -1,0 +1,49 @@
+---
+apiVersion: cni.tanzu.vmware.com/v1alpha1
+kind: AntreaConfig
+metadata:
+  name: test-cluster-4
+  namespace: tkg-system
+  annotations:
+    tkg.tanzu.vmware.com/template-config: "true"
+spec:
+  antrea:
+    config:
+      egress:
+        exceptCIDRs: []
+      nodePortLocal:
+        enabled: true
+        portRange: 61000-62000
+      antreaProxy:
+        proxyAll: false
+        nodePortAddresses: []
+        skipServices: []
+        proxyLoadBalancerIPs: false
+      kubeAPIServerOverride: null
+      transportInterface: null
+      transportInterfaceCIDRs: []
+      multicastInterfaces: []
+      tunnelType: geneve
+      trafficEncryptionMode: none
+      wireGuard:
+        port: 51820
+      serviceCIDR: 10.96.0.0/12
+      serviceCIDRv6: null
+      enableUsageReporting: false
+      trafficEncapMode: encap
+      noSNAT: false
+      disableUdpTunnelOffload: false
+      defaultMTU: ""
+      tlsCipherSuites: TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,TLS_RSA_WITH_AES_256_GCM_SHA384
+      featureGates:
+        AntreaProxy: true
+        EndpointSlice: false
+        AntreaPolicy: true
+        FlowExporter: false
+        Egress: false
+        NodePortLocal: true
+        AntreaTraceflow: false
+        NetworkPolicyStats: false
+        AntreaIPAM: false
+        ServiceExternalIP: false
+        Multicast: false

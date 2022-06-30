@@ -8,9 +8,12 @@ import (
 	"reflect"
 	"time"
 
-	rbacv1 "k8s.io/api/rbac/v1"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	clusterapiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
+
+	cniv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cni/v1alpha1"
+	cpiv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cpi/v1alpha1"
+	csiv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/csi/v1alpha1"
+	runv1alpha3 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
 )
 
 const (
@@ -36,6 +39,12 @@ const (
 
 	// TKRLabelClassyClusters is the TKR label for the clusters created using cluster-class
 	TKRLabelClassyClusters = "run.tanzu.vmware.com/tkr"
+
+	// TKRLabelLegacyClusters is the TKR label for legacy clusters
+	TKRLableLegacyClusters = "run.tanzu.vmware.com/legacy-tkr"
+
+	// TKGAnnotationTemplateConfig is the TKG annotation for addon config CRs used by ClusterBootstrapTemplate
+	TKGAnnotationTemplateConfig = "tkg.tanzu.vmware.com/template-config"
 
 	// TKGBomContent is the TKG BOM content.
 	TKGBomContent = "bomContent"
@@ -68,7 +77,7 @@ const (
 	TKGCorePackageRepositoryImageName = "tanzuCorePackageRepositoryImage"
 
 	// TKGSDeploymentUpdateStrategy is the update strategy used by TKGS deployments
-	TKGSDeploymentUpdateStrategy = "rollingUpdate"
+	TKGSDeploymentUpdateStrategy = "RollingUpdate"
 
 	// TKGSDeploymentUpdateMaxSurge is the MaxSurge used by TKGS deployments rollingUpdate
 	TKGSDeploymentUpdateMaxSurge = 1
@@ -77,7 +86,7 @@ const (
 	TKGSDeploymentUpdateMaxUnavailable = 0
 
 	// TKGSDaemonsetUpdateStrategy is the update strategy used by TKGS daemonsets
-	TKGSDaemonsetUpdateStrategy = "onDelete"
+	TKGSDaemonsetUpdateStrategy = "OnDelete"
 
 	/* log key section */
 
@@ -180,8 +189,8 @@ const (
 	// WebhookCertDir is the directory where the certificate and key are stored for webhook server TLS handshake
 	WebhookCertDir = "/tmp/k8s-webhook-server/serving-certs"
 
-	// WebhookCertManagementFrequency is how often the the certificates for webhook server TLS are managed
-	WebhookCertManagementFrequency = time.Second * 60
+	// WebhookCertManagementFrequency is how often the certificates for webhook server TLS are managed
+	WebhookCertManagementFrequency = time.Minute * 60
 
 	// WebhookCertLifeTime is how long the webhook server TLS certificates are good for
 	WebhookCertLifeTime = time.Hour * 24 * 7
@@ -206,8 +215,11 @@ const (
 	// logic
 	AddCBMissingFieldsAnnotationKey = "tkg.tanzu.vmware.com/add-missing-fields-from-tkr"
 
-	// ProviderServiceAccountAggregatedClusterRole is the name of ClusterRole created by controllers that use ProviderServiceAccount
-	ProviderServiceAccountAggregatedClusterRole = "tanzu-addons-manager-providerserviceaccount-aggregatedrole"
+	// VsphereCPIProviderServiceAccountAggregatedClusterRole is the name of ClusterRole created by controllers that use ProviderServiceAccount
+	VsphereCPIProviderServiceAccountAggregatedClusterRole = "addons-vsphere-cpi-providerserviceaccount-aggregatedrole"
+
+	// VsphereCSIProviderServiceAccountAggregatedClusterRole is the name of ClusterRole created by controllers that use ProviderServiceAccount
+	VsphereCSIProviderServiceAccountAggregatedClusterRole = "addons-vsphere-csi-providerserviceaccount-aggregatedrole"
 
 	// CAPVClusterRoleAggregationRuleLabelSelectorKey is the label selector key used by aggregation rule in CAPV ClusterRole
 	CAPVClusterRoleAggregationRuleLabelSelectorKey = "capv.infrastucture.cluster.x-k8s.io/aggregate-to-manager"
@@ -216,15 +228,22 @@ const (
 	CAPVClusterRoleAggregationRuleLabelSelectorValue = "true"
 )
 
-// ClusterKind is the Kind for cluster-api Cluster object
-var ClusterKind = reflect.TypeOf(clusterapiv1beta1.Cluster{}).Name()
+var (
+	// ClusterKind is the Kind for cluster-api Cluster object
+	ClusterKind = reflect.TypeOf(clusterapiv1beta1.Cluster{}).Name()
 
-// CAPVAggregatedClusterRole is the cluster role to assign permissions to capv provider
-var CAPVAggregatedClusterRole = &rbacv1.ClusterRole{
-	ObjectMeta: metav1.ObjectMeta{
-		Name: ProviderServiceAccountAggregatedClusterRole,
-		Labels: map[string]string{
-			CAPVClusterRoleAggregationRuleLabelSelectorKey: CAPVClusterRoleAggregationRuleLabelSelectorValue,
-		},
-	},
-}
+	// AntreaConfigKind is the Kind for cni AntreaConfig object
+	AntreaConfigKind = reflect.TypeOf(cniv1alpha1.AntreaConfig{}).Name()
+
+	// CalicoConfigKind is the Kind for cni CalicoConfig object
+	CalicoConfigKind = reflect.TypeOf(cniv1alpha1.CalicoConfig{}).Name()
+
+	// VSphereCSIConfigKind is the Kind for csi VSphereCSIConfig object
+	VSphereCSIConfigKind = reflect.TypeOf(csiv1alpha1.VSphereCSIConfig{}).Name()
+
+	// VSphereCPIConfigKind is the Kind for cpi VSphereCPIConfig object
+	VSphereCPIConfigKind = reflect.TypeOf(cpiv1alpha1.VSphereCPIConfig{}).Name()
+
+	// KappControllerConfigKind is the Kind for KappControllerConfig object
+	KappControllerConfigKind = reflect.TypeOf(runv1alpha3.KappControllerConfig{}).Name()
+)

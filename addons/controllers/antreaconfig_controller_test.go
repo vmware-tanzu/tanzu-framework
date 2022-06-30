@@ -28,8 +28,9 @@ var _ = Describe("AntreaConfig Reconciler and Webhooks", func() {
 	)
 
 	const (
-		antreaManifestsTestFile1 = "testdata/antrea-test-1.yaml"
-		antreaTestCluster1       = "test-cluster-4"
+		antreaManifestsTestFile1               = "testdata/antrea-test-1.yaml"
+		antreaTemplateConfigManifestsTestFile1 = "testdata/antrea-test-template-config-1.yaml"
+		antreaTestCluster1                     = "test-cluster-4"
 	)
 
 	JustBeforeEach(func() {
@@ -109,6 +110,9 @@ var _ = Describe("AntreaConfig Reconciler and Webhooks", func() {
 				Expect(config.Spec.Antrea.AntreaConfigDataValue.FeatureGates.AntreaTraceflow).Should(Equal(false))
 				Expect(config.Spec.Antrea.AntreaConfigDataValue.FeatureGates.AntreaPolicy).Should(Equal(true))
 				Expect(config.Spec.Antrea.AntreaConfigDataValue.FeatureGates.FlowExporter).Should(Equal(false))
+				Expect(config.Spec.Antrea.AntreaConfigDataValue.FeatureGates.AntreaIPAM).Should(Equal(false))
+				Expect(config.Spec.Antrea.AntreaConfigDataValue.FeatureGates.ServiceExternalIP).Should(Equal(false))
+				Expect(config.Spec.Antrea.AntreaConfigDataValue.FeatureGates.Multicast).Should(Equal(false))
 
 				return true
 			}, waitTimeout, pollingInterval).Should(BeTrue())
@@ -181,6 +185,27 @@ var _ = Describe("AntreaConfig Reconciler and Webhooks", func() {
 
 	})
 
+	Context("Reconcile AntreaConfig used as template", func() {
+
+		BeforeEach(func() {
+			configCRName = antreaTestCluster1
+			clusterResourceFilePath = antreaTemplateConfigManifestsTestFile1
+		})
+
+		It("Should skip the reconciliation", func() {
+
+			key := client.ObjectKey{
+				Namespace: addonNamespace,
+				Name:      configCRName,
+			}
+			config := &cniv1alpha1.AntreaConfig{}
+			Expect(k8sClient.Get(ctx, key, config)).To(Succeed())
+
+			By("OwnerReferences is not set")
+			Expect(len(config.OwnerReferences)).Should(Equal(0))
+		})
+	})
+
 	Context("Mutating webhooks for AntreaConfig", func() {
 
 		BeforeEach(func() {
@@ -202,5 +227,4 @@ var _ = Describe("AntreaConfig Reconciler and Webhooks", func() {
 			Expect(k8sClient.Update(ctx, config)).ToNot(Succeed())
 		})
 	})
-
 })

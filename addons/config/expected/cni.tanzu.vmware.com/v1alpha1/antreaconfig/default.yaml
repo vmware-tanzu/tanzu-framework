@@ -3,6 +3,8 @@ kind: AntreaConfig
 metadata:
   name: v1.23.3---vmware.1-tkg.1
   namespace: tkg-system
+  annotations:
+    tkg.tanzu.vmware.com/template-config: "true"
 spec:
   antrea:
     config:
@@ -24,6 +26,8 @@ kind: AntreaConfig
 metadata:
   name: v1.23.3---vmware.1-tkg.1-routable
   namespace: tkg-system
+  annotations:
+    tkg.tanzu.vmware.com/template-config: "true"
 spec:
   antrea:
     config:

@@ -4,6 +4,7 @@
 package controllers
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"regexp"
@@ -14,6 +15,7 @@ import (
 	. "github.com/onsi/gomega"
 	v1 "k8s.io/api/core/v1"
 	rbacv1 "k8s.io/api/rbac/v1"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/intstr"
 	capvv1beta1 "sigs.k8s.io/cluster-api-provider-vsphere/apis/v1beta1"
@@ -70,6 +72,36 @@ func newTestSupervisorLBServiceStatus() v1.ServiceStatus {
 	}
 }
 
+func newClusterInfoConfigMap() *v1.ConfigMap {
+	return &v1.ConfigMap{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      controllers.ConfigMapClusterInfo,
+			Namespace: metav1.NamespacePublic,
+		},
+		Data: map[string]string{
+			"kubeconfig": `apiVersion: v1
+clusters:
+- cluster:
+    certificate-authority-data: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUN5RENDQWJDZ0F3SUJBZ0lCQURBTkJna3Foa2lHOXcwQkFRc0ZBREFWTVJNd0VRWURWUVFERXdwcmRXSmwKY201bGRHVnpNQjRYRFRJeU1ETXlOVEExTkRNd01Wb1hEVE15TURNeU1qQTFORE13TVZvd0ZURVRNQkVHQTFVRQpBeE1LYTNWaVpYSnVaWFJsY3pDQ0FTSXdEUVlKS29aSWh2Y05BUUVCQlFBRGdnRVBBRENDQVFvQ2dnRUJBT25TClZOTlFzb043bExlekdxcmFpb01EOHJDeU9JSDFVVnJqT0x3YWp5UXZQeHRaYjdRdE9DRTJia282RytJcFJlQzYKZ3hIZi9aQi83VXNvTzVqaXpvcWpJUVpsdjZzSm9zR0I0c1Q4NG9hTGtIT21ISEU5a0w5U09Wa1FuT2J5ZWUzNApFaExnUHZWb1pKc05xMTRVWXJsS1R1dnBxNGhpY2pNU1Vua3ZpQmtiY3BCL0oxaUpBbXpIV2tnSkdlSk5HYTNnCk1lSXUxSzJVZ1I3NWp5bkpJSUsvdHFOMyt3VGl1TEcyNDhzZkVCY29pSWFYNTdoQ0E3d0hKR3RaZVJDQmlhNTAKc2JqbFFGd0hEblJldjBPZlNxeE4wZVE3ZVZwQ1NKWWFIQWtmc0t4ZXBSNXNTMnRrRFBVMlg4cHNmcEVQZGdwaApXUS9MN1JiYWdvbE91VkRzdkdVQ0F3RUFBYU1qTUNFd0RnWURWUjBQQVFIL0JBUURBZ0trTUE4R0ExVWRFd0VCCi93UUZNQU1CQWY4d0RRWUpLb1pJaHZjTkFRRUxCUUFEZ2dFQkFCZmp0dFp6NDNwU3NUelM5ZVFzK0lkL3VjOVcKZkxWL2VCMXhOaUJWbXN6MUNsZldaZ1VIeWFsZ1RtRTlHdGtQVnhja2pSczNXQ0hlRUY4N1psOENobEFFMnFrZwpRcE5BVDMyM3RpOVk1TWk3bWZvOFl2OXdOL0ZPNzRwbnB2OElUVXpoRVlJaGxUZFYrd3RmWHUvTmNzN1Z0akNBCkNWNnExeU5lbG05eU9CVW51RElRNVo0L1AvYXFLRDFzSXNCSFJZZVU3SzVEaklSTGNpN3gvb2dlQ2F0ZVowNFoKeWExd2NXVXB3SnNpaGxIOCtHUkJkZ2h1RzZ4aC9ka1JhNmRLbHpYdVRManpsdVYyRUp6N29hZGthSUUybzM3RQpoazZ2aERBc1JHSCtCdnJtcFZJYjNsYTVGbDZHRkd2VElKMGFNT0pMTTVFa3pHNFlUeWpNRi9qK3Joaz0KLS0tLS1FTkQgQ0VSVElGSUNBVEUtLS0tLQo=
+    server: https://172.17.0.3:6773
+  name: ""
+contexts: null
+current-context: ""
+kind: Config
+preferences: {}
+users: null`,
+		},
+	}
+}
+
+func tryCreateIfNotExists(ctx context.Context, client client.Client, object client.Object) error {
+	err := client.Create(ctx, object)
+	if apierrors.IsAlreadyExists(err) {
+		return nil
+	}
+	return err
+}
+
 func getSecretDataValuesForCluster(clusterName string) (string, error) {
 	secret := &v1.Secret{}
 	secretKey := client.ObjectKey{
@@ -118,7 +150,6 @@ var _ = Describe("VSphereCPIConfig Reconciler", func() {
 	Context("reconcile VSphereCPIConfig manifests in non-paravirtual mode", func() {
 		BeforeEach(func() {
 			clusterName = "test-cluster-cpi"
-			vsphereClusterName = "test-cluster-cpi-paravirtual-kl5tl"
 			clusterResourceFilePath = "testdata/test-vsphere-cpi-non-paravirtual.yaml"
 		})
 
@@ -241,8 +272,11 @@ var _ = Describe("VSphereCPIConfig Reconciler", func() {
 		BeforeEach(func() {
 			clusterName = "test-cluster-cpi-paravirtual"
 			clusterResourceFilePath = "testdata/test-vsphere-cpi-paravirtual.yaml"
+
+			Expect(tryCreateIfNotExists(ctx, k8sClient, newClusterInfoConfigMap())).Should(Succeed())
 		})
-		It("Should reconcile VSphereCPIConfig and create data values secret for VSphereCPIConfig on management cluster", func() {
+		It("Should reconcile VSphereCPIConfig", func() {
+			By("create data values secret for VSphereCPIConfig on management cluster")
 			// the data values secret should be generated
 			Eventually(func() bool {
 				secretData, err := getSecretDataValuesForCluster(clusterName)
@@ -268,6 +302,7 @@ var _ = Describe("VSphereCPIConfig Reconciler", func() {
 				Expect(strings.Contains(secretData, "datacenter:")).Should(BeFalse())
 				Expect(strings.Contains(secretData, "server:")).Should(BeFalse())
 				Expect(strings.Contains(secretData, "nsxt:")).Should(BeFalse())
+				Expect(strings.Contains(secretData, "antreaNSXPodRoutingEnabled: true")).Should(BeTrue())
 
 				return true
 			}, waitTimeout, pollingInterval).Should(BeTrue())
@@ -281,9 +316,8 @@ var _ = Describe("VSphereCPIConfig Reconciler", func() {
 				Expect(config.Status.SecretRef).To(Equal(fmt.Sprintf("%s-%s-data-values", clusterName, constants.CPIAddonName)))
 				return true
 			})
-		})
 
-		It("Should reconcile ProviderServiceAccount", func() {
+			By("create ProviderServiceAccount")
 			serviceAccount := &capvvmwarev1beta1.ProviderServiceAccount{}
 			Eventually(func() bool {
 				serviceAccountKey := client.ObjectKey{
@@ -300,13 +334,12 @@ var _ = Describe("VSphereCPIConfig Reconciler", func() {
 				Expect(serviceAccount.Spec.TargetSecretName).To(Equal("cloud-provider-creds"))
 				return true
 			})
-		})
 
-		It("Should reconcile aggregated cluster role", func() {
+			By("create aggregated cluster role")
 			clusterRole := &rbacv1.ClusterRole{}
 			Eventually(func() bool {
 				key := client.ObjectKey{
-					Name: constants.ProviderServiceAccountAggregatedClusterRole,
+					Name: constants.VsphereCPIProviderServiceAccountAggregatedClusterRole,
 				}
 				if err := k8sClient.Get(ctx, key, clusterRole); err != nil {
 					return false
@@ -314,36 +347,140 @@ var _ = Describe("VSphereCPIConfig Reconciler", func() {
 				Expect(clusterRole.Labels).To(Equal(map[string]string{
 					constants.CAPVClusterRoleAggregationRuleLabelSelectorKey: constants.CAPVClusterRoleAggregationRuleLabelSelectorValue,
 				}))
-				Expect(clusterRole.Rules).To(HaveLen(5))
+				Expect(clusterRole.Rules).To(HaveLen(4))
 				return true
 			})
 		})
+	})
 
-		When("Headless service and endpoints already exists", func() {
-			var svc *v1.Service
-			BeforeEach(func() {
-				svc = newTestSupervisorLBService()
-				Expect(k8sClient.Create(ctx, svc)).To(Succeed())
-				svc.Status = newTestSupervisorLBServiceStatus()
-				Expect(k8sClient.Status().Update(ctx, svc)).To(Succeed())
-			})
+	Context("Reconcile VSphereCPIConfig used as template", func() {
 
-			AfterEach(func() {
-				Expect(k8sClient.Delete(ctx, svc)).To(Succeed())
-			})
+		BeforeEach(func() {
+			clusterName = "test-cluster-cpi-template"
+			clusterResourceFilePath = "testdata/test-vsphere-cpi-template-config.yaml"
+		})
 
-			It("Should use headless service's endpoints", func() {
-				Eventually(func() bool {
-					secretData, err := getSecretDataValuesForCluster(clusterName)
-					// allow some time for data value secret to be generated
-					if err != nil {
-						return false
-					}
-					Expect(strings.Contains(secretData, "supervisorMasterEndpointIP: "+testSupervisorAPIServerVIP)).Should(BeTrue())
-					Expect(strings.Contains(secretData, "supervisorMasterPort: \""+strconv.Itoa(testSupervisorAPIServerPort)+"\"")).Should(BeTrue())
-					return true
-				}).Should(BeTrue())
-			})
+		It("Should skip the reconciliation", func() {
+
+			key.Namespace = addonNamespace
+			config := &cpiv1alpha1.VSphereCPIConfig{}
+			Expect(k8sClient.Get(ctx, key, config)).To(Succeed())
+
+			By("OwnerReferences is not set")
+			Expect(len(config.OwnerReferences)).Should(Equal(0))
+		})
+	})
+})
+
+var _ = Describe("VSphereCPIConfig Reconciler with existing endpoint from LB service", func() {
+	var (
+		clusterName             string
+		clusterResourceFilePath string
+	)
+
+	JustBeforeEach(func() {
+		By("Creating cluster and VSphereCPIConfig resources")
+		f, err := os.Open(clusterResourceFilePath)
+		Expect(err).ToNot(HaveOccurred())
+		defer f.Close()
+		err = testutil.CreateResources(f, cfg, dynamicClient)
+		Expect(err).ToNot(HaveOccurred())
+	})
+
+	Context("reconcile VSphereCPIConfig manifests in paravirtual mode, with existing endpoint", func() {
+		var svc *v1.Service
+
+		BeforeEach(func() {
+			clusterName = "test-cluster-cpi-paravirtual-with-endpoint"
+			clusterResourceFilePath = "testdata/test-vsphere-cpi-paravirtual-with-endpoint.yaml"
+
+			svc = newTestSupervisorLBService()
+			Expect(k8sClient.Create(ctx, svc)).To(Succeed())
+			svc.Status = newTestSupervisorLBServiceStatus()
+			Expect(k8sClient.Status().Update(ctx, svc)).To(Succeed())
+		})
+
+		AfterEach(func() {
+			Expect(k8sClient.Delete(ctx, svc)).To(Succeed())
+		})
+
+		It("uses headless service's endpoints", func() {
+			Eventually(func() bool {
+				secretData, err := getSecretDataValuesForCluster(clusterName)
+				// allow some time for data value secret to be generated
+				if err != nil {
+					return false
+				}
+				Expect(strings.Contains(secretData, "supervisorMasterEndpointIP: "+testSupervisorAPIServerVIP)).Should(BeTrue())
+				Expect(strings.Contains(secretData, "supervisorMasterPort: \""+strconv.Itoa(testSupervisorAPIServerPort)+"\"")).Should(BeTrue())
+				return true
+			}).Should(BeTrue())
+		})
+	})
+
+})
+
+var _ = Describe("VSphereCPIConfig Reconciler multi clusters", func() {
+	var (
+		clusterName             string
+		clusterResourceFilePath string
+	)
+
+	JustBeforeEach(func() {
+		By("Creating cluster and VSphereCPIConfig resources")
+		f, err := os.Open(clusterResourceFilePath)
+		Expect(err).ToNot(HaveOccurred())
+		defer f.Close()
+		err = testutil.CreateResources(f, cfg, dynamicClient)
+		Expect(err).ToNot(HaveOccurred())
+	})
+
+	Context("in paravirtual mode, but two clusters have same name under different namespace", func() {
+		anotherClusterNamespace := "another-ns"
+
+		// covers the issue https://github.com/vmware-tanzu/tanzu-framework/issues/2714
+		// it was triggered when two clusters with the same name, but under different namespaces
+		BeforeEach(func() {
+			clusterName = "test-cluster-cpi-paravirtual-same-name"
+			clusterResourceFilePath = "testdata/test-vsphere-cpi-paravirtual-clusters-same-name.yaml"
+
+			Expect(tryCreateIfNotExists(ctx, k8sClient, newClusterInfoConfigMap())).Should(Succeed())
+		})
+
+		It("should select vSphereCluster with right namespace", func() {
+			Eventually(func() error {
+				selectedClusterKey := client.ObjectKey{
+					Name:      clusterName,
+					Namespace: clusterNamespace,
+				}
+				notSelectedClusterKey := client.ObjectKey{
+					Name:      clusterName,
+					Namespace: anotherClusterNamespace,
+				}
+
+				selectedCluster := &capvvmwarev1beta1.VSphereCluster{}
+				notSelectedCluster := &capvvmwarev1beta1.VSphereCluster{}
+				var err error
+
+				if err = k8sClient.Get(ctx, selectedClusterKey, selectedCluster); err != nil {
+					return err
+				}
+
+				if err = k8sClient.Get(ctx, notSelectedClusterKey, notSelectedCluster); err != nil {
+					return err
+				}
+				serviceAccount := &capvvmwarev1beta1.ProviderServiceAccount{}
+				serviceAccountKey := client.ObjectKey{
+					Namespace: clusterNamespace,
+					Name:      fmt.Sprintf("%s-ccm", clusterName),
+				}
+				if err := k8sClient.Get(ctx, serviceAccountKey, serviceAccount); err != nil {
+					return err
+				}
+				Expect(serviceAccount.ObjectMeta.OwnerReferences).ToNot(BeEmpty())
+				Expect(serviceAccount.ObjectMeta.OwnerReferences[0].UID).To(Equal(selectedCluster.ObjectMeta.UID))
+				return nil
+			}).Should(Succeed())
 		})
 	})
 })

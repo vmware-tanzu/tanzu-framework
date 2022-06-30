@@ -26,7 +26,6 @@ import (
 	runtanzuv1alpha3 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
 	tkgconstants "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
 
-	"github.com/go-logr/logr"
 	corev1 "k8s.io/api/core/v1"
 	rbacv1 "k8s.io/api/rbac/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
@@ -54,6 +53,7 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 		foobar1CarvelPackageRefName = "foobar1.example.com"
 		foobar1CarvelPackageName    = "foobar1.example.com.1.17.2"
 		foobar2CarvelPackageRefName = "foobar2.example.com"
+		foobar                      = "foobar"
 	)
 
 	JustBeforeEach(func() {
@@ -168,7 +168,7 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 
 				By("packageinstall should have been created for each additional package in the clusterBoostrap")
 				Expect(hasPackageInstalls(ctx, k8sClient, cluster, constants.TKGSystemNS,
-					clusterBootstrap.Spec.AdditionalPackages, logr.Logger{})).To(BeTrue())
+					clusterBootstrap.Spec.AdditionalPackages, setupLog)).To(BeTrue())
 
 				By("packageinstalls for core packages should not have owner references")
 				var corePackages []*runtanzuv1alpha3.ClusterBootstrapPackage
@@ -336,7 +336,7 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 					s.Name = util.GenerateDataValueSecretName(clusterName, foobarCarvelPackageRefName)
 					s.Namespace = clusterNamespace
 					s.Data = map[string][]byte{}
-					s.Data["values.yaml"] = []byte("foobar")
+					s.Data["values.yaml"] = []byte(foobar)
 					Expect(k8sClient.Create(ctx, s)).To(Succeed())
 
 					Expect(unstructured.SetNestedField(object.Object, s.Name, "status", "secretRef")).To(Succeed())
@@ -349,7 +349,7 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 						if err := k8sClient.Get(ctx, client.ObjectKey{Namespace: constants.TKGSystemNS, Name: util.GenerateDataValueSecretName(clusterName, foobarCarvelPackageRefName)}, s); err != nil {
 							return false
 						}
-						if string(s.Data["values.yaml"]) != "foobar" {
+						if string(s.Data["values.yaml"]) != foobar {
 							return false
 						}
 
@@ -470,6 +470,7 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 					return true
 				}, waitTimeout, pollingInterval).Should(BeTrue())
 				Expect(remotePkgi.Spec.PackageRef.RefName).To(Equal(pkg.Spec.RefName))
+				Expect(remotePkgi.Spec.SyncPeriod.Seconds()).To(Equal(constants.PackageInstallSyncPeriod.Seconds()))
 				Expect(len(remotePkgi.Spec.Values)).NotTo(BeZero())
 				Expect(remotePkgi.Spec.Values[0].SecretRef.Name).To(Equal(util.GenerateDataValueSecretName(cluster.Name, pkg.Spec.RefName)))
 				Expect(remotePkgi.Annotations).ShouldNot(BeNil())
@@ -536,6 +537,7 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 					cluster = &clusterapiv1beta1.Cluster{}
 					Expect(k8sClient.Get(ctx, client.ObjectKey{Namespace: clusterNamespace, Name: clusterName}, cluster)).To(Succeed())
 					cluster.Labels[constants.TKRLabelClassyClusters] = newTKRVersion
+
 					// Mock cluster pause mutating webhook
 					cluster.Spec.Paused = true
 					if cluster.Annotations == nil {
@@ -554,7 +556,8 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 						// Validate CNI
 						cni := upgradedClusterBootstrap.Spec.CNI
 						Expect(strings.HasPrefix(cni.RefName, "antrea")).To(BeTrue())
-						Expect(cni.RefName).To(Equal("antrea.tanzu.vmware.com.1.2.3--vmware.4-tkg.2-advanced-zshippable"))
+						// Note: The value of CNI has been bumped to the one in TKR after cluster upgrade
+						Expect(cni.RefName).To(Equal("antrea.tanzu.vmware.com.1.5.2--vmware.3-tkg.1-advanced-zshippable"))
 						Expect(*cni.ValuesFrom.ProviderRef.APIGroup).To(Equal("cni.tanzu.vmware.com"))
 						Expect(cni.ValuesFrom.ProviderRef.Kind).To(Equal("AntreaConfig"))
 						Expect(cni.ValuesFrom.ProviderRef.Name).To(Equal(fmt.Sprintf("%s-antrea-package", clusterName)))
@@ -722,10 +725,10 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 
 				By("instacllpackages for additional packages should have been removed.")
 				Expect(hasPackageInstalls(ctx, k8sClient, cluster, constants.TKGSystemNS,
-					clusterBootstrap.Spec.AdditionalPackages, logr.Logger{})).To(BeTrue())
+					clusterBootstrap.Spec.AdditionalPackages, setupLog)).To(BeTrue())
 				Eventually(func() bool {
 					return hasPackageInstalls(ctx, k8sClient, cluster, constants.TKGSystemNS,
-						clusterBootstrap.Spec.AdditionalPackages, logr.Logger{})
+						clusterBootstrap.Spec.AdditionalPackages, setupLog)
 				}, waitTimeout, pollingInterval).Should(BeFalse())
 
 				By("finalizer should be removed from clusterboostrap")
@@ -760,14 +763,14 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 		})
 	})
 
-	When("ClusterBootstrap is paused", func() {
+	When("cluster is created from clusterBootstrapTemplate", func() {
 		BeforeEach(func() {
 			clusterName = "test-cluster-tcbt-2"
 			clusterNamespace = "cluster-namespace-2"
 			clusterResourceFilePath = "testdata/test-cluster-bootstrap-2.yaml"
 		})
 		Context("from a ClusterBootstrapTemplate", func() {
-			It("should block ClusterBootstrap reconciliation if it is paused", func() {
+			It("should perform ClusterBootstrap reconciliation & block reconciliation if ClusterBootstrap gets paused", func() {
 
 				By("verifying CAPI cluster is created properly")
 				cluster := &clusterapiv1beta1.Cluster{}
@@ -790,6 +793,49 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 					}
 					return false
 				}, waitTimeout, pollingInterval).Should(BeTrue())
+
+				By("should create secret for packages with empty valuesFrom & corresponding data values secret in workload cluster.", func() {
+					remoteClient, err := util.GetClusterClient(ctx, k8sClient, scheme, clusterapiutil.ObjectKey(cluster))
+					Expect(err).NotTo(HaveOccurred())
+					Expect(remoteClient).NotTo(BeNil())
+
+					clusterBootstrapPackages := []*runtanzuv1alpha3.ClusterBootstrapPackage{
+						clusterBootstrap.Spec.CNI,
+						clusterBootstrap.Spec.CPI,
+						clusterBootstrap.Spec.CSI,
+						clusterBootstrap.Spec.Kapp,
+					}
+					clusterBootstrapPackages = append(clusterBootstrapPackages, clusterBootstrap.Spec.AdditionalPackages...)
+					for _, pkg := range clusterBootstrapPackages {
+						if pkg == nil || pkg.ValuesFrom != nil {
+							continue
+						}
+
+						localSecret := &corev1.Secret{}
+						Eventually(func() bool {
+							if err := k8sClient.Get(ctx,
+								client.ObjectKey{
+									Namespace: clusterNamespace,
+									Name:      util.GeneratePackageSecretName(cluster.Name, pkg.RefName),
+								}, localSecret); err != nil {
+								return false
+							}
+							return true
+						}, waitTimeout, pollingInterval).Should(BeTrue())
+
+						remoteSecret := &corev1.Secret{}
+						Eventually(func() bool {
+							if err := remoteClient.Get(ctx,
+								client.ObjectKey{
+									Namespace: constants.TKGSystemNS,
+									Name:      util.GenerateDataValueSecretName(cluster.Name, foobar2CarvelPackageRefName),
+								}, remoteSecret); err != nil {
+								return false
+							}
+							return true
+						}, waitTimeout, pollingInterval).Should(BeTrue())
+					}
+				})
 
 				By("Should have remote secret value same as foobar1secret secret value and should have created TKGS data values")
 				remoteClient, err := util.GetClusterClient(ctx, k8sClient, scheme, clusterapiutil.ObjectKey(cluster))
@@ -816,8 +862,8 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 					}
 					fmt.Println(string(valueTexts))
 					Expect(strings.Contains(string(valueTexts), "nodeSelector:\n    run.tanzu.vmware.com/tkr: v1.22.4")).To(BeTrue())
-					Expect(strings.Contains(string(valueTexts), "deployment:\n    updateStrategy: rollingUpdate")).To(BeTrue())
-					Expect(strings.Contains(string(valueTexts), "daemonset:\n    updateStrategy: onDelete")).To(BeTrue())
+					Expect(strings.Contains(string(valueTexts), "deployment:\n    updateStrategy: RollingUpdate")).To(BeTrue())
+					Expect(strings.Contains(string(valueTexts), "daemonset:\n    updateStrategy: OnDelete")).To(BeTrue())
 					Expect(strings.Contains(string(valueTexts), "maxUnavailable: 0")).To(BeTrue())
 					Expect(strings.Contains(string(valueTexts), "maxSurge: 1")).To(BeTrue())
 					return true
@@ -827,6 +873,7 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 				clusterBootstrap.Spec.Paused = true
 				Expect(k8sClient.Update(ctx, clusterBootstrap)).To(Succeed())
 
+				// should block ClusterBootstrap reconciliation if it is paused
 				By("Should not reconcile foobar1secret secret change", func() {
 					// Get secretRef
 					Expect(k8sClient.Get(ctx, client.ObjectKey{Namespace: clusterNamespace, Name: fmt.Sprintf("%s-foobar1-package", clusterName)}, s)).To(Succeed())
@@ -846,7 +893,6 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 						return true
 					}, waitTimeout, pollingInterval).Should(BeTrue())
 				})
-
 			})
 		})
 	})
@@ -922,6 +968,22 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 		})
 	})
 
+	When("Legacy cluster is created", func() {
+		BeforeEach(func() {
+			clusterName = "test-cluster-legacy"
+			clusterNamespace = "legacy-namespace"
+			clusterResourceFilePath = "testdata/test-cluster-legacy.yaml"
+		})
+		Context("and clusterboostrap template does not exists", func() {
+			It("clusterbootstrap controller should not attempt to reconcile it", func() {
+				By("verifying CAPI cluster is created properly")
+				cluster := &clusterapiv1beta1.Cluster{}
+				Expect(k8sClient.Get(ctx, client.ObjectKey{Namespace: clusterNamespace, Name: clusterName}, cluster)).To(Succeed())
+				cluster.Status.Phase = string(clusterapiv1beta1.ClusterPhaseProvisioned)
+				Expect(k8sClient.Status().Update(ctx, cluster)).To(Succeed())
+			})
+		})
+	})
 })
 
 func assertSecretContains(ctx context.Context, k8sClient client.Client, namespace, name string, secretContent map[string][]byte) {

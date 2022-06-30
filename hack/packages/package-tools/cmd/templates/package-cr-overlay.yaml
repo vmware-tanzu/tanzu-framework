@@ -1,0 +1,97 @@
+#@ load("@ytt:data", "data")
+#@ load("@ytt:overlay", "overlay")
+#@ load("package-helpers.lib.yaml", "get_package_repository", "get_package", "get_package_spec")
+
+#@ package_repository = get_package_repository(data.values.packageRepository, data.values.packageName)
+#@ package = get_package(package_repository, data.values.packageName)
+#@ packageSpec = get_package_spec(package_repository, package)
+#@ skipVersionOverride = hasattr(package, "skipVersionOverride") and package.skipVersionOverride
+
+#@ if not hasattr(package, "packageSubVersion") and data.values.subVersion == "":
+#@  if package.version == "latest" or skipVersionOverride:
+#@    packageVersion = data.values.version
+#@  else:
+#@    packageVersion = package.version
+#@  end
+#@ else:
+#@  subVersion = data.values.subVersion
+#@  if subVersion == "":
+#@    subVersion = package.packageSubVersion
+#@  end
+#@  if package.version == "latest" or skipVersionOverride:
+#@    packageVersion = data.values.version + "+" + subVersion
+#@  else:
+#@    packageVersion = package.version + "+" + subVersion
+#@  end
+#@ end
+
+#@ if not hasattr(package, "packageSubVersion") and data.values.subVersion == "":
+#@  if package.version == "latest" or skipVersionOverride:
+#@    imagePackageVersion = "v" + data.values.version
+#@  else:
+#@    imagePackageVersion = "v" + package.version
+#@  end
+#@ else:
+#@  subVersion = data.values.subVersion
+#@  if subVersion == "":
+#@    subVersion = package.packageSubVersion
+#@  end
+#@  if package.version == "latest" or skipVersionOverride:
+#@    imagePackageVersion = "v" + data.values.version + "_" + subVersion
+#@  else:
+#@    imagePackageVersion = "v" + package.version + "_" + subVersion
+#@  end
+#@ end
+
+#@ packageLicense = "VMware’s End User License Agreement (Underlying OSS license: Apache License 2.0)"
+
+#@overlay/match by=overlay.subset({"kind":"Package"}),expects=1
+---
+metadata:
+  name: #@ "{}.{}.{}".format(package.name, package_repository.domain, packageVersion)
+  #@overlay/match expects="0+"
+  #@overlay/remove
+  namespace: ""
+spec:
+  refName: #@ "{}.{}".format(package.name, package_repository.domain)
+  version: #@ packageVersion
+  #@overlay/match when=0
+  releasedAt: #@ data.values.timestamp
+  #@overlay/match missing_ok=True
+  #@overlay/replace
+  licenses:
+    -  #@ packageLicense
+  template:
+    spec:
+      #@ if/end packageSpec:
+      #@overlay/match missing_ok=True
+      #@overlay/remove
+      syncPeriod:
+      fetch:
+        #@overlay/match by=overlay.index(0)
+        - imgpkgBundle:
+            image: #@ "{}/{}:{}".format(data.values.registry, package.name, imagePackageVersion)
+      template:
+        #@overlay/match by=overlay.index(0)
+        - ytt:
+            #@overlay/match missing_ok=True
+            ignoreUnknownComments: true
+      deploy:
+        #@overlay/match by=overlay.index(0)
+        - kapp:
+            #@ if packageSpec:
+            #@overlay/match missing_ok=True
+            rawOptions:
+              #@overlay/match by=lambda indexOrKey, left, right: "wait-timeout" in left, missing_ok=True
+              -  #@ "--wait-timeout={}".format(packageSpec.deploy.kappWaitTimeout)
+              #@overlay/match by=lambda indexOrKey, left, right: "kube-api-qps" in left, missing_ok=True
+              -  #@ "--kube-api-qps={}".format(packageSpec.deploy.kubeAPIQPS)
+              #@overlay/match by=lambda indexOrKey, left, right: "kube-api-burst" in left, missing_ok=True
+              -  #@ "--kube-api-burst={}".format(packageSpec.deploy.kubeAPIBurst)
+                #@ end
+              #@overlay/match missing_ok=True
+  valuesSchema:
+    #@overlay/match missing_ok=True
+    openAPIv3:
+      #@overlay/match missing_ok=True
+      title: #@ "{}.{}.{} values schema".format(package.name, package_repository.domain, packageVersion)

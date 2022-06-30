@@ -22,6 +22,31 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/utils"
 )
 
+func (c *TkgClient) InstallOrUpgradeKappController(kubeconfig, kubecontext string) error {
+	// Get kapp-controller configuration file
+	kappControllerConfigFile, err := c.getKappControllerConfigFile()
+	if err != nil {
+		return err
+	}
+
+	clusterClient, err := clusterclient.NewClient(kubeconfig, kubecontext, clusterclient.Options{})
+	if err != nil {
+		return errors.Wrap(err, "unable to get cluster client")
+	}
+
+	kappControllerOptions := managementcomponents.KappControllerOptions{
+		KappControllerConfigFile:       kappControllerConfigFile,
+		KappControllerInstallNamespace: constants.TkgNamespace,
+	}
+	err = managementcomponents.InstallKappController(clusterClient, kappControllerOptions)
+
+	// Remove intermediate config files if err is empty
+	if err == nil {
+		os.Remove(kappControllerConfigFile)
+	}
+	return err
+}
+
 // InstallOrUpgradeManagementComponents install management components to the cluster
 func (c *TkgClient) InstallOrUpgradeManagementComponents(kubeconfig, kubecontext string, upgrade bool) error {
 	managementPackageRepoImage, err := c.tkgBomClient.GetManagementPackageRepositoryImage()
@@ -29,10 +54,7 @@ func (c *TkgClient) InstallOrUpgradeManagementComponents(kubeconfig, kubecontext
 		return errors.Wrap(err, "unable to get management package repository image")
 	}
 
-	managementPackageVersion, err := c.tkgBomClient.GetManagementPackagesVersion()
-	if err != nil {
-		return errors.Wrap(err, "unable to get version of management packages")
-	}
+	managementPackageVersion := ""
 
 	// Override management package repository image if specified as part of below environment variable
 	// NOTE: this override is only for testing purpose and we don't expect this to be used in production scenario
@@ -44,7 +66,7 @@ func (c *TkgClient) InstallOrUpgradeManagementComponents(kubeconfig, kubecontext
 	// Override the version to use for management packages if specified as part of below environment variable
 	// NOTE: this override is only for testing purpose and we don't expect this to be used in production scenario
 	mpVersion := os.Getenv("_MANAGEMENT_PACKAGE_VERSION")
-	if mprImage != "" {
+	if mpVersion != "" {
 		managementPackageVersion = mpVersion
 	}
 
@@ -56,20 +78,10 @@ func (c *TkgClient) InstallOrUpgradeManagementComponents(kubeconfig, kubecontext
 		return err
 	}
 
-	// Get kapp-controller configuration file
-	kappControllerConfigFile, err := c.getKappControllerConfigFile()
-	if err != nil {
-		return err
-	}
-
 	managementcomponentsInstallOptions := managementcomponents.ManagementComponentsInstallOptions{
 		ClusterOptions: managementcomponents.ClusterOptions{
 			Kubeconfig:  kubeconfig,
 			Kubecontext: kubecontext,
-		},
-		KappControllerOptions: managementcomponents.KappControllerOptions{
-			KappControllerConfigFile:       kappControllerConfigFile,
-			KappControllerInstallNamespace: "tkg-system",
 		},
 		ManagementPackageRepositoryOptions: managementcomponents.ManagementPackageRepositoryOptions{
 			ManagementPackageRepoImage: managementPackageRepoImage,
@@ -84,14 +96,13 @@ func (c *TkgClient) InstallOrUpgradeManagementComponents(kubeconfig, kubecontext
 	// Remove intermediate config files if err is empty
 	if err == nil {
 		os.Remove(tkgPackageValuesFile)
-		os.Remove(kappControllerConfigFile)
 	}
 
 	return err
 }
 
 func (c *TkgClient) getTKGPackageConfigValuesFile(managementPackageVersion, kubeconfig, kubecontext string, upgrade bool) (string, error) {
-	var userProviderConfigValues map[string]string
+	var userProviderConfigValues map[string]interface{}
 	var err error
 
 	if upgrade {
@@ -104,7 +115,12 @@ func (c *TkgClient) getTKGPackageConfigValuesFile(managementPackageVersion, kube
 		return "", err
 	}
 
-	valuesFile, err := managementcomponents.GetTKGPackageConfigValuesFileFromUserConfig(managementPackageVersion, userProviderConfigValues)
+	tkgBomConfig, err := c.tkgBomClient.GetDefaultTkgBOMConfiguration()
+	if err != nil {
+		return "", err
+	}
+
+	valuesFile, err := managementcomponents.GetTKGPackageConfigValuesFileFromUserConfig(managementPackageVersion, userProviderConfigValues, tkgBomConfig)
 	if err != nil {
 		return "", err
 	}
@@ -112,7 +128,7 @@ func (c *TkgClient) getTKGPackageConfigValuesFile(managementPackageVersion, kube
 	return valuesFile, nil
 }
 
-func (c *TkgClient) getUserConfigVariableValueMap() (map[string]string, error) {
+func (c *TkgClient) getUserConfigVariableValueMap() (map[string]interface{}, error) {
 	path, err := c.tkgConfigPathsClient.GetConfigDefaultsFilePath()
 	if err != nil {
 		return nil, err
@@ -121,7 +137,7 @@ func (c *TkgClient) getUserConfigVariableValueMap() (map[string]string, error) {
 	return c.GetUserConfigVariableValueMap(path, c.TKGConfigReaderWriter())
 }
 
-func (c *TkgClient) getUserConfigVariableValueMapForUpgrade(kubeconfig, kubecontext string) (map[string]string, error) {
+func (c *TkgClient) getUserConfigVariableValueMapForUpgrade(kubeconfig, kubecontext string) (map[string]interface{}, error) {
 	clusterClient, err := clusterclient.NewClient(kubeconfig, kubecontext, clusterclient.Options{})
 	if err != nil {
 		return nil, errors.Wrap(err, "unable to get cluster client")
@@ -268,7 +284,7 @@ func GetKappControllerConfigValuesFile(userConfigValuesFile, kappControllerValue
 // file to provide a source of keys to filter for the valid user provided values.
 // For example, this function uses config_default.yaml filepath to find relevant config variables
 // and returns the config map of user provided variable among all applicable config variables
-func (c *TkgClient) GetUserConfigVariableValueMap(configDefaultFilePath string, rw tkgconfigreaderwriter.TKGConfigReaderWriter) (map[string]string, error) {
+func (c *TkgClient) GetUserConfigVariableValueMap(configDefaultFilePath string, rw tkgconfigreaderwriter.TKGConfigReaderWriter) (map[string]interface{}, error) {
 	bytes, err := os.ReadFile(configDefaultFilePath)
 	if err != nil {
 		return nil, err
@@ -279,10 +295,10 @@ func (c *TkgClient) GetUserConfigVariableValueMap(configDefaultFilePath string, 
 		return nil, err
 	}
 
-	userProvidedConfigValues := map[string]string{}
+	userProvidedConfigValues := map[string]interface{}{}
 	for _, k := range variables {
 		if v, e := rw.Get(k); e == nil {
-			userProvidedConfigValues[k] = v
+			userProvidedConfigValues[k] = utils.Convert(v)
 		}
 	}
 

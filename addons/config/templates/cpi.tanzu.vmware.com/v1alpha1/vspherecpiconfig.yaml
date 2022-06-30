@@ -5,6 +5,20 @@ kind: VSphereCPIConfig
 metadata:
   name: #@ data.values.TKR_VERSION
   namespace: #@ data.values.GLOBAL_NAMESPACE
+  annotations:
+    tkg.tanzu.vmware.com/template-config: "true"
 spec:
   vsphereCPI:
     mode: #@ "vsphereCPI" if data.values.IAAS != "tkgs" else "vsphereParavirtualCPI"
+---
+#@ if data.values.IAAS == "tkgs":
+apiVersion: cpi.tanzu.vmware.com/v1alpha1
+kind: VSphereCPIConfig
+metadata:
+  name: #@ "{}-routable".format(data.values.TKR_VERSION)
+  namespace: #@ data.values.GLOBAL_NAMESPACE
+spec:
+  vsphereCPI:
+    mode: vsphereParavirtualCPI
+    antreaNSXPodRoutingEnabled: true
+#@ end
