@@ -48,6 +48,16 @@ antrea:
         - ""
       #@schema/desc "Load-balance traffic destined to the External IPs of LoadBalancer services."
       proxyLoadBalancerIPs: false
+    #@schema/desc "FlowExporter related configuration options."
+    flowExporter:
+      #@schema/desc "Provide the IPFIX collector address as a string."
+      collectorAddress: ""
+      #@schema/desc "Provide flow poll interval as a duration string."
+      pollInterval: ""
+      #@schema/desc "Provide the active flow export timeout."
+      activeFlowTimeout: ""
+      #@schema/desc "Provide the idle flow export timeout."
+      idleFlowTimeout: ""
     #@schema/desc "Provide the address of Kubernetes apiserver."
     #@schema/nullable
     kubeAPIServerOverride: ""

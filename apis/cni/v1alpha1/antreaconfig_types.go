@@ -45,6 +45,20 @@ type AntreaProxy struct {
 	ProxyLoadBalancerIPs bool `json:"proxyLoadBalancerIPs,omitempty"`
 }
 
+type AntreaFlowExporter struct {
+	//+ kubebuilder:validation:Optional
+	CollectorAddress string `json:"collectorAddress,omitempty"`
+
+	//+ kubebuilder:validation:Optional
+	PollInterval string `json:"pollInterval,omitempty"`
+
+	//+ kubebuilder:validation:Optional
+	ActiveFlowTimeout string `json:"activeFlowTimeout,omitempty"`
+
+	//+ kubebuilder:validation:Optional
+	IdleFlowTimeout string `json:"idleFlowTimeout,omitempty"`
+}
+
 type AntreaWireGuard struct {
 	//+ kubebuilder:validation:Optional
 	Port int `json:"port,omitempty"`
@@ -62,6 +76,10 @@ type AntreaConfigDataValue struct {
 	// Specifies AntreaProxy related configuration.
 	// +kubebuilder:validation:Optional
 	AntreaProxy AntreaProxy `json:"antreaProxy,omitempty"`
+
+	// Specifies FlowExporter related configuration.
+	// +kubebuilder:validation:Optional
+	AntreaFlowExporter AntreaFlowExporter `json:"flowExporter,omitempty"`
 
 	// Specifies WireGuard related configuration.
 	// +kubebuilder:validation:Optional

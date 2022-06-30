@@ -37,6 +37,13 @@ type antreaProxy struct {
 	ProxyLoadBalancerIPs bool     `yaml:"proxyLoadBalancerIPs,omitempty"`
 }
 
+type antreaFlowExporter struct {
+	CollectorAddress  string `yaml:"collectorAddress,omitempty"`
+	PollInterval      string `yaml:"pollInterval,omitempty"`
+	ActiveFlowTimeout string `yaml:"activeFlowTimeout,omitempty"`
+	IdleFlowTimeout   string `yaml:"idleFlowTimeout,omitempty"`
+}
+
 type antreaWireGuard struct {
 	Port int `yaml:"port,omitempty"`
 }
@@ -45,6 +52,7 @@ type antreaConfigDataValue struct {
 	Egress                  antreaEgress        `yaml:"egress,omitempty"`
 	NodePortLocal           antreaNodePortLocal `yaml:"nodePortLocal,omitempty"`
 	AntreaProxy             antreaProxy         `yaml:"antreaProxy,omitempty"`
+	FlowExporter            antreaFlowExporter  `yaml:"flowExporter,omitempty"`
 	WireGuard               antreaWireGuard     `yaml:"wireGuard,omitempty"`
 	transportInterface      string              `yaml:"transportInterface,omitempty"`
 	transportInterfaceCIDRs []string            `yaml:"transportInterfaceCIDRs,omitempty"`
@@ -101,6 +109,10 @@ func mapAntreaConfigSpec(cluster *clusterapiv1beta1.Cluster, config *cniv1alpha1
 	configSpec.Antrea.AntreaConfigDataValue.AntreaProxy.NodePortAddresses = config.Spec.Antrea.AntreaConfigDataValue.AntreaProxy.NodePortAddresses
 	configSpec.Antrea.AntreaConfigDataValue.AntreaProxy.SkipServices = config.Spec.Antrea.AntreaConfigDataValue.AntreaProxy.SkipServices
 	configSpec.Antrea.AntreaConfigDataValue.AntreaProxy.ProxyLoadBalancerIPs = config.Spec.Antrea.AntreaConfigDataValue.AntreaProxy.ProxyLoadBalancerIPs
+	configSpec.Antrea.AntreaConfigDataValue.FlowExporter.CollectorAddress = config.Spec.Antrea.AntreaConfigDataValue.AntreaFlowExporter.CollectorAddress
+	configSpec.Antrea.AntreaConfigDataValue.FlowExporter.PollInterval = config.Spec.Antrea.AntreaConfigDataValue.AntreaFlowExporter.PollInterval
+	configSpec.Antrea.AntreaConfigDataValue.FlowExporter.ActiveFlowTimeout = config.Spec.Antrea.AntreaConfigDataValue.AntreaFlowExporter.ActiveFlowTimeout
+	configSpec.Antrea.AntreaConfigDataValue.FlowExporter.IdleFlowTimeout = config.Spec.Antrea.AntreaConfigDataValue.AntreaFlowExporter.IdleFlowTimeout
 	configSpec.Antrea.AntreaConfigDataValue.WireGuard.Port = config.Spec.Antrea.AntreaConfigDataValue.WireGuard.Port
 	configSpec.Antrea.AntreaConfigDataValue.transportInterface = config.Spec.Antrea.AntreaConfigDataValue.TransportInterface
 	configSpec.Antrea.AntreaConfigDataValue.transportInterfaceCIDRs = config.Spec.Antrea.AntreaConfigDataValue.TransportInterfaceCIDRs

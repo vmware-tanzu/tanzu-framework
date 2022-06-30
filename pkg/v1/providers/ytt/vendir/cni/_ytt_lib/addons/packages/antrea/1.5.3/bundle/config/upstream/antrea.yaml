@@ -3519,6 +3519,7 @@ rules:
   - /ovstracing
   - /podinterfaces
   - /featuregates
+  - /serviceexternalip
   verbs:
   - get
 ---
@@ -3567,12 +3568,6 @@ rules:
   - get
   - watch
   - list
-- apiGroups:
-  - ""
-  resources:
-  - services/status
-  verbs:
-  - update
 - apiGroups:
   - discovery.k8s.io
   resources:
@@ -3814,7 +3809,7 @@ rules:
 - apiGroups:
   - ""
   resourceNames:
-  - antrea-config-2dd957m7fk
+  - antrea-config-f5d8g47b88
   resources:
   - configmaps
   verbs:
@@ -4153,7 +4148,7 @@ data:
     #  NetworkPolicyStats: true
 
     # Enable controlling SNAT IPs of Pod egress traffic.
-    #  Egress: false
+    #  Egress: true
 
     # Enable flexible IPAM mode for Antrea. This mode allows to assign IP Ranges to Namespaces,
     # Deployments and StatefulSets via IP Pool annotation.
@@ -4384,7 +4379,7 @@ data:
     #  NetworkPolicyStats: true
 
     # Enable controlling SNAT IPs of Pod egress traffic.
-    #  Egress: false
+    #  Egress: true
 
     # Run Kubernetes NodeIPAMController with Antrea.
     #  NodeIPAM: false
@@ -4466,7 +4461,7 @@ metadata:
   annotations: {}
   labels:
     app: antrea
-  name: antrea-config-2dd957m7fk
+  name: antrea-config-f5d8g47b88
   namespace: kube-system
 ---
 apiVersion: v1
@@ -4537,8 +4532,8 @@ spec:
             fieldRef:
               fieldPath: spec.serviceAccountName
         - name: ANTREA_CONFIG_MAP_NAME
-          value: antrea-config-2dd957m7fk
-        image: antrea/antrea-ubuntu:v1.5.2
+          value: antrea-config-f5d8g47b88
+        image: antrea/antrea-ubuntu:v1.5.3
         imagePullPolicy: IfNotPresent
         livenessProbe:
           failureThreshold: 5
@@ -4586,9 +4581,11 @@ spec:
         operator: Exists
       - effect: NoSchedule
         key: node-role.kubernetes.io/master
+      - effect: NoSchedule
+        key: node-role.kubernetes.io/control-plane
       volumes:
       - configMap:
-          name: antrea-config-2dd957m7fk
+          name: antrea-config-f5d8g47b88
         name: antrea-config
       - name: antrea-controller-tls
         secret:
@@ -4736,7 +4733,7 @@ spec:
           valueFrom:
             fieldRef:
               fieldPath: spec.nodeName
-        image: antrea/antrea-ubuntu:v1.5.2
+        image: antrea/antrea-ubuntu:v1.5.3
         imagePullPolicy: IfNotPresent
         livenessProbe:
           exec:
@@ -4797,7 +4794,7 @@ spec:
         - --log_file_max_num=4
         command:
         - start_ovs
-        image: antrea/antrea-ubuntu:v1.5.2
+        image: antrea/antrea-ubuntu:v1.5.3
         imagePullPolicy: IfNotPresent
         livenessProbe:
           exec:
@@ -4832,7 +4829,7 @@ spec:
       initContainers:
       - command:
         - install_cni
-        image: antrea/antrea-ubuntu:v1.5.2
+        image: antrea/antrea-ubuntu:v1.5.3
         imagePullPolicy: IfNotPresent
         name: install-cni
         resources:
@@ -4866,7 +4863,7 @@ spec:
           valueFrom:
             fieldRef:
               fieldPath: spec.nodeName
-        image: antrea/antrea-ubuntu:v1.5.2
+        image: antrea/antrea-ubuntu:v1.5.3
         imagePullPolicy: IfNotPresent
         name: antrea-agent-tweaker
         resources:
@@ -4893,7 +4890,7 @@ spec:
         operator: Exists
       volumes:
       - configMap:
-          name: antrea-config-2dd957m7fk
+          name: antrea-config-f5d8g47b88
         name: antrea-config
       - configMap:
           name: antrea-agent-tweaker-g56hc6fh8t
