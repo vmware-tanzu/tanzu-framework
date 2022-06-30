@@ -41,7 +41,7 @@ export const LoadBalancerStepMapping: StepMapping = {
             name: LoadBalancerField.CLUSTER_LABELS,
             label: 'CLUSTER LABELS (OPTIONAL)',
             controlType: ControlType.FormArray,
-            displayFunction: labels => labels.map(label => `${label.key} : ${label.value}`).join(', '),
+            displayFunction: labels => labels.filter(label => label.key).map(label => `${label.key} : ${label.value}`).join(', '),
             children: [
                 {
                     name: 'key',
