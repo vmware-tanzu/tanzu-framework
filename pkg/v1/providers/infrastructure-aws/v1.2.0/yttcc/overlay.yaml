@@ -65,14 +65,18 @@ spec:
         failureDomain: #@ default_az_0
         metadata:
           annotations:
-            #! VVV TODO(vui) os-name handling
-            run.tanzu.vmware.com/resolve-os-image: #@ "ami-region={},os-name=ubuntu".format(data.values.AWS_REGION)
+            #! VVV TODO(tenczar) os-version handling (also handle empty values?)
+            run.tanzu.vmware.com/resolve-os-image: #@ "ami-region={},os-name={},os-arch={}".format(data.values.AWS_REGION, data.values.OS_NAME, data.values.OS_ARCH)
       #@ if data.values.CLUSTER_PLAN == "prodcc":
       #@overlay/append
       - class: tkg-worker
         name: md-1
         replicas: #@ data.values.WORKER_MACHINE_COUNT_1
         failureDomain: #@ default_az_1
+        metadata:
+          annotations:
+            #! VVV TODO(tenczar) os-version handling (also handle empty values?)
+            run.tanzu.vmware.com/resolve-os-image: #@ "ami-region={},os-name={},os-arch={}".format(data.values.AWS_REGION, data.values.OS_NAME, data.values.OS_ARCH)
         #@ if data.values.NODE_MACHINE_TYPE_1:
         variables:
           overrides:
@@ -85,6 +89,10 @@ spec:
         name: md-2
         replicas: #@ data.values.WORKER_MACHINE_COUNT_2
         failureDomain: #@ default_az_2
+        metadata:
+          annotations:
+            #! VVV TODO(tenczar) os-version handling (also handle empty values?)
+            run.tanzu.vmware.com/resolve-os-image: #@ "ami-region={},os-name={},os-arch={}".format(data.values.AWS_REGION, data.values.OS_NAME, data.values.OS_ARCH)
         #@ if data.values.NODE_MACHINE_TYPE_2:
         variables:
           overrides:
