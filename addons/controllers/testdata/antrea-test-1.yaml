@@ -38,6 +38,11 @@ spec:
         nodePortAddresses: []
         skipServices: []
         proxyLoadBalancerIPs: false
+      flowExporter:
+        collectorAddress: "flow-aggregator.flow-aggregator.svc:4739:tls"
+        pollInterval: "5s"
+        activeFlowTimeout: "30s"
+        idleFlowTimeout: "15s"
       kubeAPIServerOverride: null
       transportInterface: null
       transportInterfaceCIDRs: []

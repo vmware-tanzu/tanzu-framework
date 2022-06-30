@@ -10,10 +10,10 @@ directories:
   path: ytt/vendir/vsphere_cpi/_ytt_lib
 - contents:
   - git:
-      commitTitle: Remove ioutil usage (#4790)...
-      sha: bf5eab6554a4393890cb6d9ccbde4e1ecacc9b63
+      commitTitle: Fix Antrea 1.5.3 parameters (#4966)
+      sha: f0774ead4e7f39dcb83e82444dd7f046d42b2dd6
       tags:
-      - v0.13.0-dev.2-73-gbf5eab65
+      - v0.13.0-dev.2-139-gf0774ead
     path: .
   path: ytt/vendir/cni/_ytt_lib
 - contents:
