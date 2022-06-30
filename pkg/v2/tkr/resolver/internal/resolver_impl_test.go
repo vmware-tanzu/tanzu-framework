@@ -13,6 +13,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/util/rand"
+	"sigs.k8s.io/cluster-api/util/conditions"
 
 	runv1 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v2/tkr/resolver/data"
@@ -93,6 +94,21 @@ var _ = Describe("Cache implementation", func() {
 			Expect(r1.cache.osImages).To(Equal(r.cache.osImages))
 			Expect(r1.cache.tkrToOSImages).To(Equal(r.cache.tkrToOSImages))
 			Expect(r1.cache.osImageToTKRs).To(Equal(r.cache.osImageToTKRs))
+		})
+
+		It("should set Ready condition correctly", func() {
+			for _, tkr := range tkrs {
+				unwantedLabels := []string{runv1.LabelIncompatible, runv1.LabelDeactivated, runv1.LabelInvalid}
+				ready := true
+				for _, label := range unwantedLabels {
+					if labels.Set(tkr.Labels).Has(label) {
+						ready = false
+						break
+					}
+				}
+				Expect(conditions.IsTrue(tkr, runv1.ConditionReady)).To(Equal(ready))
+				Expect(conditions.IsFalse(tkr, runv1.ConditionReady)).To(Equal(!ready))
+			}
 		})
 
 		It("should add TKRs and OSImages to the cache", func() {

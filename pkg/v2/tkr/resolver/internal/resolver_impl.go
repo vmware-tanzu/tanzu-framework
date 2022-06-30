@@ -5,10 +5,12 @@
 package internal
 
 import (
+	"strings"
 	"sync"
 
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/selection"
+	clusterv1 "sigs.k8s.io/cluster-api/api/v1beta1"
 	"sigs.k8s.io/cluster-api/util/conditions"
 
 	runv1 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
@@ -173,6 +175,18 @@ func (cache *cache) augmentTKR(tkr *runv1.TanzuKubernetesRelease) {
 
 	ensureLabel(tkr.Labels, runv1.LabelIncompatible, conditions.IsFalse(tkr, runv1.ConditionCompatible))
 	ensureLabel(tkr.Labels, runv1.LabelInvalid, conditions.IsFalse(tkr, runv1.ConditionValid))
+	setReadyCondition(tkr)
+}
+
+func setReadyCondition(tkr *runv1.TanzuKubernetesRelease) {
+	unwantedLabels := []string{runv1.LabelIncompatible, runv1.LabelDeactivated, runv1.LabelInvalid}
+	for _, label := range unwantedLabels {
+		if labels.Set(tkr.Labels).Has(label) {
+			conditions.MarkFalse(tkr, runv1.ConditionReady, strings.Title(label), clusterv1.ConditionSeverityWarning, label)
+			return
+		}
+	}
+	conditions.MarkTrue(tkr, runv1.ConditionReady)
 }
 
 func ensureLabel(ls labels.Set, label string, shouldSet bool) {
