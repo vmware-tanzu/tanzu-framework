@@ -230,7 +230,7 @@ metadata:
 spec:
   template:
     spec:
-      # will be replaced by shape variable defined above
+      #! will be replaced by shape variable defined above
       shape: VM.Standard.E4.Flex
       metadata: {}
       shapeConfig: {}
@@ -244,7 +244,7 @@ metadata:
 spec:
   template:
     spec:
-      # will be replaced by shape variable defined above
+      #! will be replaced by shape variable defined above
       shape: VM.Standard.E4.Flex
       metadata: {}
       shapeConfig: {}
