@@ -6,11 +6,13 @@ package client
 import (
 	"context"
 	"fmt"
+	"strconv"
 	"strings"
 	"time"
 
 	"github.com/pkg/errors"
 	"golang.org/x/sync/errgroup"
+	betav1 "k8s.io/api/batch/v1beta1"
 	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/util/version"
@@ -147,6 +149,12 @@ func (c *TkgClient) UpgradeManagementCluster(options *UpgradeClusterOptions) err
 	if err != nil {
 		return errors.Wrap(err, "unable to upgrade management cluster")
 	}
+
+	err = c.upgradeTelemetryImageIfExists(regionalClusterClient, currentRegion)
+	if err != nil {
+		return err
+	}
+
 	// Patch management cluster with the TKG version
 	err = regionalClusterClient.PatchClusterObjectWithTKGVersion(options.ClusterName, options.Namespace, c.tkgBomClient.GetCurrentTKGVersion())
 	if err != nil {
@@ -578,4 +586,36 @@ func (c *TkgClient) validateCompatibilityWithTMC(regionalClusterClient clustercl
 	}
 
 	return errors.Errorf(ErrorBlockUpgradeTMCIncompatible, tkgVersion)
+}
+
+// upgradeTelemetryImage will upgrade the telemetry image if the management-cluster is opted into telemetry
+// additional labels set by the user using the CLI will be preserved (such as: isProd or customer identification)
+func (c *TkgClient) upgradeTelemetryImageIfExists(regionalClusterClient clusterclient.Client, ctx region.RegionContext) error {
+	CEIPJobExists, err := regionalClusterClient.HasCEIPTelemetryJob(ctx.ClusterName)
+	if err != nil {
+		return errors.Wrap(err, "unable to determine if telemetry cron job is installed already")
+	}
+
+	if CEIPJobExists {
+		telemetryJob := &betav1.CronJob{}
+		err := regionalClusterClient.GetResource(telemetryJob, "tkg-telemetry", "tkg-system-telemetry", nil, nil)
+		if err != nil {
+			return errors.Wrap(err, "Failed to determine if telemetry job is installed or not")
+		}
+
+		log.Info("Upgrading management cluster telemetry image...")
+		// telemetry command: /tkg-telemetry <sonobuoy bin path> <datastore-url> <labels>
+		command := telemetryJob.Spec.JobTemplate.Spec.Template.Spec.Containers[0].Command
+		dsURL := command[2]
+		isProd := !strings.Contains(dsURL, "stg")
+		labels := strings.Split(command[3], "--labels=")[1]
+		err = c.DoSetCEIPParticipation(regionalClusterClient, ctx, true, strconv.FormatBool(isProd), labels)
+		if err != nil {
+			return errors.Wrap(err, "Failed to upgrade telemetry image")
+		}
+	} else {
+		log.Info("management cluster is opted out of telemetry - skipping telemetry image upgrade")
+	}
+
+	return nil
 }

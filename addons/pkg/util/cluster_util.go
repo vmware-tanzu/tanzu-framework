@@ -221,7 +221,7 @@ func IsTKGSCluster(ctx context.Context, dynamicClient dynamic.Interface, discove
 		listOptions := metav1.ListOptions{
 			LabelSelector: tkgconstants.CAPVClusterSelectorKey + "=" + cluster.Name,
 		}
-		virtualMachineList, err := dynamicClient.Resource(virtualMachineGVR).List(ctx, listOptions)
+		virtualMachineList, err := dynamicClient.Resource(virtualMachineGVR).Namespace(cluster.Namespace).List(ctx, listOptions)
 		if err != nil {
 			if apierrors.IsNotFound(err) {
 				return false, nil

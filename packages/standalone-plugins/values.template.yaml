@@ -12,3 +12,5 @@ pinnipedauth:
   version: VERSION
 secret:
   version: VERSION
+telemetry:
+  version: VERSION

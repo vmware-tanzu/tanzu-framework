@@ -38,10 +38,6 @@ func (c *TkgClient) GetKubernetesVersions() (*KubernetesVersionsInfo, error) {
 func (c *TkgClient) DoGetTanzuKubernetesReleases(regionalClusterClient clusterclient.Client) (*KubernetesVersionsInfo, error) {
 	isPacific, err := regionalClusterClient.IsPacificRegionalCluster()
 	if err == nil && isPacific {
-		err := c.ValidatePacificVersionWithCLI(regionalClusterClient)
-		if err != nil {
-			return nil, err
-		}
 		availablek8sVersions, err := regionalClusterClient.GetPacificTanzuKubernetesReleases()
 		if err != nil {
 			return nil, errors.Wrap(err, "failed to get supported kubernetes release versions for vSphere with Kubernetes clusters")

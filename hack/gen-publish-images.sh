@@ -104,7 +104,9 @@ done
 
 # Iterate through TKR BoM file to create the complete Image name
 # and then pull, retag and push image to custom registry.
-list=$(imgpkg  tag  list -i ${actualImageRepository}/tkr-bom)
+# DOWNLOAD_TKRS is a space separated list of TKR names, as stored in registry
+# when set, the tkr-bom will be ignored.
+list=${DOWNLOAD_TKRS:-$(imgpkg  tag  list -i ${actualImageRepository}/tkr-bom)}
 for imageTag in ${list}; do
   if [[ ${imageTag} == v* ]]; then
     TKR_BOM_FILE="tkr-bom-${imageTag//_/+}.yaml"

@@ -3,6 +3,14 @@
 #@overlay/replace
 ---
 namespace: tkg-system
+nodeSelector: null
+deployment:
+  updateStrategy: null
+  rollingUpdate:
+    maxUnavailable: null
+    maxSurge: null
+daemonset:
+  updateStrategy: null
 kappController:
   namespace: tkg-system
   createNamespace: true

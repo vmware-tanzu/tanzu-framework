@@ -12,4 +12,8 @@ directories:
   - manual: {}
     path: tanzu-capabilities-controller-manager.yaml
   path: bundle/config/upstream
+- contents:
+  - manual: {}
+    path: update-clusterrole-with-psp.yaml
+  path: bundle/config/overlays
 kind: LockConfig

@@ -7,33 +7,29 @@ import (
 	"context"
 	"fmt"
 
-	openapiv2 "github.com/googleapis/gnostic/openapiv2"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-
-	kapppkgv1alpha1 "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apiserver/apis/datapackaging/v1alpha1"
-	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
-	addontypes "github.com/vmware-tanzu/tanzu-framework/addons/pkg/types"
-	antreaconfigv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cni/v1alpha1"
-	vspherecpiv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cpi/v1alpha1"
-	"github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
-
 	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/util/json"
-	"k8s.io/apimachinery/pkg/version"
-	clientgodiscovery "k8s.io/client-go/discovery"
 	dynamicfake "k8s.io/client-go/dynamic/fake"
 	k8sfake "k8s.io/client-go/kubernetes/fake"
-	"k8s.io/client-go/rest"
 	clusterapiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	controllreruntimefake "sigs.k8s.io/controller-runtime/pkg/client/fake"
 	k8syaml "sigs.k8s.io/yaml"
+
+	kapppkgv1alpha1 "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apiserver/apis/datapackaging/v1alpha1"
+	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
+	addontypes "github.com/vmware-tanzu/tanzu-framework/addons/pkg/types"
+	"github.com/vmware-tanzu/tanzu-framework/addons/test/testutil"
+	antreaconfigv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cni/v1alpha1"
+	vspherecpiv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cpi/v1alpha1"
+	"github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
 )
 
 var (
@@ -49,7 +45,7 @@ var _ = Describe("ClusterbootstrapClone", func() {
 		fakeClient                    client.Client
 		fakeClientSet                 *k8sfake.Clientset
 		fakeDynamicClient             *dynamicfake.FakeDynamicClient
-		fakeDiscovery                 *ClusterbootstrapFakeDiscovery
+		fakeDiscovery                 *testutil.FakeDiscovery
 		scheme                        *runtime.Scheme
 		cluster                       *clusterapiv1beta1.Cluster
 		antreaClusterbootstrapPackage *v1alpha3.ClusterBootstrapPackage
@@ -66,9 +62,9 @@ var _ = Describe("ClusterbootstrapClone", func() {
 
 		fakeClient = controllreruntimefake.NewClientBuilder().WithScheme(scheme).Build()
 		fakeClientSet = k8sfake.NewSimpleClientset()
-		fakeDiscovery = &ClusterbootstrapFakeDiscovery{
-			fakeClientSet.Discovery(),
-			[]*metav1.APIResourceList{
+		fakeDiscovery = &testutil.FakeDiscovery{
+			FakeDiscovery: fakeClientSet.Discovery(),
+			Resources: []*metav1.APIResourceList{
 				{
 					GroupVersion: corev1.SchemeGroupVersion.String(),
 					APIResources: []metav1.APIResource{
@@ -89,12 +85,13 @@ var _ = Describe("ClusterbootstrapClone", func() {
 				},
 			},
 		}
+		gvrHelper := &testutil.FakeGVRHelper{DiscoveryClient: fakeDiscovery}
 		helper = &Helper{
 			Ctx:                         context.TODO(),
 			K8sClient:                   fakeClient,
 			AggregateAPIResourcesClient: fakeClient,
 			DynamicClient:               fakeDynamicClient,
-			DiscoveryClient:             fakeDiscovery,
+			GVRHelper:                   gvrHelper,
 			Logger:                      ctrl.Log.WithName("clusterbootstrap_test"),
 		}
 	})
@@ -149,13 +146,17 @@ var _ = Describe("ClusterbootstrapClone", func() {
 			Expect(createdOrUpdatedProvider).To(BeNil())
 		})
 		It("should create the new provider successfully", func() {
-			fakeDynamicClient = dynamicfake.NewSimpleDynamicClient(scheme, constructFakeAntreaConfig())
+			antreaConfig := constructFakeAntreaConfig()
+			fakeDynamicClient = dynamicfake.NewSimpleDynamicClient(scheme, antreaConfig)
 			helper.DynamicClient = fakeDynamicClient
 
 			createdOrUpdatedProvider, err := helper.cloneProviderRef(cluster, antreaClusterbootstrapPackage, fakeAntreaCarvelPkgRefName, fakeSourceNamespace)
 			Expect(err).NotTo(HaveOccurred())
 			Expect(createdOrUpdatedProvider.GetName()).To(Equal(fmt.Sprintf("%s-%s-package", cluster.Name, "antrea")))
 			Expect(createdOrUpdatedProvider.GetNamespace()).To(Equal(cluster.Namespace))
+			// previous annotations should be removed after clone
+			Expect(antreaConfig.Annotations).Should(HaveKey(constants.TKGAnnotationTemplateConfig))
+			Expect(createdOrUpdatedProvider.GetAnnotations()).ShouldNot(HaveKey(constants.TKGAnnotationTemplateConfig))
 		})
 	})
 
@@ -284,6 +285,47 @@ var _ = Describe("ClusterbootstrapClone", func() {
 		})
 	})
 
+	Context("Verify HandleExistingClusterBootstrap()", func() {
+		var (
+			clusterbootstrapTemplate *v1alpha3.ClusterBootstrapTemplate
+		)
+		BeforeEach(func() {
+			cluster = constructFakeCluster()
+			clusterbootstrapTemplate = constructFakeClusterBootstrapTemplate()
+		})
+		It("should return clusterbootstrap without error", func() {
+
+			clusterBootstrap := constructFakeEmptyClusterBootstrap()
+			clusterBootstrap.SetAnnotations(map[string]string{
+				constants.AddCBMissingFieldsAnnotationKey: clusterbootstrapTemplate.Name,
+			})
+			clusterBootstrap.Spec = &v1alpha3.ClusterBootstrapTemplateSpec{
+				CNI: &v1alpha3.ClusterBootstrapPackage{
+					RefName: clusterbootstrapTemplate.Spec.CNI.RefName,
+				},
+				CSI: &v1alpha3.ClusterBootstrapPackage{
+					RefName: clusterbootstrapTemplate.Spec.CSI.RefName,
+				},
+			}
+			prepareCarvelPackages(fakeClient, cluster.Namespace)
+			Expect(fakeClient.Create(context.TODO(), clusterbootstrapTemplate)).To(Succeed())
+			Expect(fakeClient.Create(context.TODO(), clusterBootstrap)).To(Succeed())
+
+			clusterBootstrap, err := helper.HandleExistingClusterBootstrap(clusterBootstrap, cluster, clusterbootstrapTemplate.Name, clusterbootstrapTemplate.Namespace)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(clusterBootstrap).NotTo(BeNil())
+
+			// OwnerReference is supposed to be set
+			Expect(clusterBootstrap.OwnerReferences).NotTo(BeEmpty())
+			// ValuesFrom is supposed to be added
+			Expect(clusterBootstrap.Spec.CNI.ValuesFrom).NotTo(BeNil())
+			Expect(clusterBootstrap.Spec.CSI.ValuesFrom).NotTo(BeNil())
+			// Status.ResolvedTKR is supposed to be set
+			Expect(clusterBootstrap.Status.ResolvedTKR).To(Equal(clusterbootstrapTemplate.Name))
+		})
+
+	})
+
 	Context("Verify CreateClusterBootstrapFromTemplate()", func() {
 		var (
 			clusterbootstrapTemplate *v1alpha3.ClusterBootstrapTemplate
@@ -298,6 +340,12 @@ var _ = Describe("ClusterbootstrapClone", func() {
 			clusterbootstrap, err := helper.CreateClusterBootstrapFromTemplate(clusterbootstrapTemplate, cluster, "fake-tkr-name")
 			Expect(err).NotTo(HaveOccurred())
 			Expect(clusterbootstrap).NotTo(BeNil())
+
+			Expect(clusterbootstrap.Spec.CNI.RefName).To(Equal(clusterbootstrapTemplate.Spec.CNI.RefName))
+			Expect(clusterbootstrap.Spec.CNI.ValuesFrom).NotTo(BeNil())
+			Expect(clusterbootstrap.Spec.CSI.RefName).To(Equal(clusterbootstrapTemplate.Spec.CSI.RefName))
+			Expect(clusterbootstrap.Spec.CSI.ValuesFrom).NotTo(BeNil())
+
 			Expect(len(clusterbootstrap.OwnerReferences)).To(Equal(1))
 			Expect(clusterbootstrap.Status.ResolvedTKR).To(Equal("fake-tkr-name"))
 		})
@@ -319,7 +367,7 @@ var _ = Describe("ClusterbootstrapClone", func() {
 				Spec: &v1alpha3.ClusterBootstrapTemplateSpec{},
 			}
 
-			err := helper.AddMissingSpecFieldsFromTemplate(fakeClusterBootstrapTemplate, clusterBootstrap)
+			err := helper.AddMissingSpecFieldsFromTemplate(fakeClusterBootstrapTemplate, clusterBootstrap, nil)
 			Expect(err).NotTo(HaveOccurred())
 			updatedClusterBootstrap := clusterBootstrap
 			Expect(updatedClusterBootstrap.Spec).NotTo(BeNil())
@@ -379,7 +427,7 @@ var _ = Describe("ClusterbootstrapClone", func() {
 				},
 			}
 
-			err := helper.AddMissingSpecFieldsFromTemplate(fakeClusterBootstrapTemplate, clusterBootstrap)
+			err := helper.AddMissingSpecFieldsFromTemplate(fakeClusterBootstrapTemplate, clusterBootstrap, nil)
 			Expect(err).NotTo(HaveOccurred())
 			updatedClusterBootstrap := clusterBootstrap
 			Expect(updatedClusterBootstrap.Spec.CNI).NotTo(BeNil())
@@ -393,17 +441,142 @@ var _ = Describe("ClusterbootstrapClone", func() {
 			// CPI should be added to updatedClusterBootstrap
 			Expect(updatedClusterBootstrap.Spec.CPI).NotTo(BeNil())
 			Expect(updatedClusterBootstrap.Spec.CPI.ValuesFrom.SecretRef).To(Equal(fakeCPIClusterBootstrapPackage.ValuesFrom.SecretRef))
-			// CSI should be added to updatedClusterBootstrap
-			Expect(updatedClusterBootstrap.Spec.CSI).NotTo(BeNil())
-			assertTwoMapsShouldEqual(updatedClusterBootstrap.Spec.CPI.ValuesFrom.Inline, fakeCSIClusterBootstrapPackage.ValuesFrom.Inline)
 			// The ClusterBootstrapPackage not set in fakeClusterBootstrapTemplate. They should not be copied
 			Expect(updatedClusterBootstrap.Spec.Kapp).To(BeNil())
-			// The ClusterBootstrapPackage has only 1 additional package, however the fakeClusterBootstrapTemplate has 2
-			// We should not change the user intention to make the additional packages 2 in this case. If users want to
-			// derive all additional packages from ClusterBootstrapTemplate, they should not specify this field.
-			Expect(len(updatedClusterBootstrap.Spec.AdditionalPackages)).To(Equal(1))
-			Expect(updatedClusterBootstrap.Spec.AdditionalPackages[0].RefName).To(Equal(fakePinnipedCBPackageRefName))
-			Expect(updatedClusterBootstrap.Spec.AdditionalPackages[0].ValuesFrom.Inline["identity_management_type"]).To(Equal("oidc"))
+			Expect(len(updatedClusterBootstrap.Spec.AdditionalPackages)).To(Equal(len(fakeClusterBootstrapTemplate.Spec.AdditionalPackages)))
+			for idx, _ := range updatedClusterBootstrap.Spec.AdditionalPackages {
+				Expect(updatedClusterBootstrap.Spec.AdditionalPackages[idx].RefName).To(Equal(fakeClusterBootstrapTemplate.Spec.AdditionalPackages[idx].RefName))
+				Expect(updatedClusterBootstrap.Spec.AdditionalPackages[idx].ValuesFrom).To(Equal(fakeClusterBootstrapTemplate.Spec.AdditionalPackages[idx].ValuesFrom))
+			}
+		})
+
+		It("should add valuesFrom back if not specified in ClusterBootstrap", func() {
+			fakeCSIClusterBootstrapPackage := constructFakeClusterBootstrapPackageWithInlineRef()
+			// Update fakeClusterBootstrapTemplate by adding a fake CSI package
+			fakeClusterBootstrapTemplate.Spec.CSI = fakeCSIClusterBootstrapPackage
+
+			clusterBootstrap := &v1alpha3.ClusterBootstrap{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      "fake-clusterbootstrap",
+					Namespace: "fake-cluster-ns",
+					UID:       "uid",
+				},
+				Spec: &v1alpha3.ClusterBootstrapTemplateSpec{
+					CSI: &v1alpha3.ClusterBootstrapPackage{
+						RefName: "foo-vsphere-csi-clusterbootstrarp-package",
+					},
+					AdditionalPackages: []*v1alpha3.ClusterBootstrapPackage{
+						{RefName: fakePinnipedCBPackageRefName},
+					},
+				},
+			}
+			err := helper.AddMissingSpecFieldsFromTemplate(fakeClusterBootstrapTemplate, clusterBootstrap, nil)
+			Expect(err).NotTo(HaveOccurred())
+			updatedClusterBootstrap := clusterBootstrap
+
+			// CNI exists in fakeClusterBootstrapTemplate, it should be added back
+			Expect(updatedClusterBootstrap.Spec.CNI).NotTo(BeNil())
+			// CSI in fakeClusterBootstrapTemplate has valuesFrom, so valuesFrom should be added back
+			Expect(updatedClusterBootstrap.Spec.CSI.ValuesFrom).NotTo(BeNil())
+			Expect(updatedClusterBootstrap.Spec.CSI.ValuesFrom.Inline).NotTo(BeNil())
+			assertTwoMapsShouldEqual(updatedClusterBootstrap.Spec.CSI.ValuesFrom.Inline, fakeClusterBootstrapTemplate.Spec.CSI.ValuesFrom.Inline)
+
+			Expect(len(updatedClusterBootstrap.Spec.AdditionalPackages)).To(Equal(len(fakeClusterBootstrapTemplate.Spec.AdditionalPackages)))
+			for idx, _ := range updatedClusterBootstrap.Spec.AdditionalPackages {
+				Expect(updatedClusterBootstrap.Spec.AdditionalPackages[idx].RefName).To(Equal(fakeClusterBootstrapTemplate.Spec.AdditionalPackages[idx].RefName))
+				Expect(updatedClusterBootstrap.Spec.AdditionalPackages[idx].ValuesFrom).To(Equal(fakeClusterBootstrapTemplate.Spec.AdditionalPackages[idx].ValuesFrom))
+			}
+		})
+
+		It("should not add the fields which are meant to be skipped", func() {
+			antreaAPIGroup := antreaconfigv1alpha1.GroupVersion.Group
+			fakeCPIClusterBootstrapPackage := constructFakeClusterBootstrapPackageWithSecretRef()
+			fakeCSIClusterBootstrapPackage := constructFakeClusterBootstrapPackageWithInlineRef()
+			// Update fakeClusterBootstrapTemplate by adding a fake CPI and CSI package
+			fakeClusterBootstrapTemplate.Spec.CPI = fakeCPIClusterBootstrapPackage
+			fakeClusterBootstrapTemplate.Spec.CSI = fakeCSIClusterBootstrapPackage
+
+			clusterBootstrap := &v1alpha3.ClusterBootstrap{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      "fake-clusterbootstrap",
+					Namespace: "fake-cluster-ns",
+					UID:       "uid",
+				},
+				Spec: &v1alpha3.ClusterBootstrapTemplateSpec{
+					// We do not expect this part to be overwritten to be what fakeClusterBootstrapTemplate has
+					CNI: &v1alpha3.ClusterBootstrapPackage{
+						RefName: "foo-antrea-clusterbootstrarp-package",
+						ValuesFrom: &v1alpha3.ValuesFrom{
+							ProviderRef: &corev1.TypedLocalObjectReference{
+								APIGroup: &antreaAPIGroup,
+								Kind:     "AntreaConfig",
+								Name:     "fooAntreaConfig",
+							},
+						},
+					},
+					CSI: &v1alpha3.ClusterBootstrapPackage{
+						RefName: "foo-vsphere-csi-clusterbootstrarp-package",
+						ValuesFrom: &v1alpha3.ValuesFrom{
+							Inline: map[string]interface{}{"should-not-be-updated": true},
+						},
+					},
+					AdditionalPackages: []*v1alpha3.ClusterBootstrapPackage{
+						{RefName: fakePinnipedCBPackageRefName},
+					},
+				},
+			}
+
+			err := helper.AddMissingSpecFieldsFromTemplate(fakeClusterBootstrapTemplate, clusterBootstrap, map[string]interface{}{"valuesFrom": nil})
+			Expect(err).NotTo(HaveOccurred())
+			updatedClusterBootstrap := clusterBootstrap
+			// CPI should be added to updatedClusterBootstrap
+			Expect(updatedClusterBootstrap.Spec.CPI).NotTo(BeNil())
+			// CPI's valuesFrom should be skipped
+			Expect(updatedClusterBootstrap.Spec.CPI.ValuesFrom).To(BeNil())
+			Expect(updatedClusterBootstrap.Spec.CPI.RefName).To(Equal(fakeClusterBootstrapTemplate.Spec.CPI.RefName))
+
+			Expect(len(updatedClusterBootstrap.Spec.AdditionalPackages)).To(Equal(len(fakeClusterBootstrapTemplate.Spec.AdditionalPackages)))
+			for idx, _ := range updatedClusterBootstrap.Spec.AdditionalPackages {
+				Expect(updatedClusterBootstrap.Spec.AdditionalPackages[idx].RefName).To(Equal(fakeClusterBootstrapTemplate.Spec.AdditionalPackages[idx].RefName))
+				Expect(updatedClusterBootstrap.Spec.AdditionalPackages[idx].ValuesFrom).To(BeNil())
+			}
+		})
+
+		It("should not add the fields which are meant to be skipped in additionalPackages", func() {
+			antreaAPIGroup := antreaconfigv1alpha1.GroupVersion.Group
+			fakeCPIClusterBootstrapPackage := constructFakeClusterBootstrapPackageWithSecretRef()
+			fakeCSIClusterBootstrapPackage := constructFakeClusterBootstrapPackageWithInlineRef()
+			// Update fakeClusterBootstrapTemplate by adding a fake CPI and CSI package
+			fakeClusterBootstrapTemplate.Spec.CPI = fakeCPIClusterBootstrapPackage
+			fakeClusterBootstrapTemplate.Spec.CSI = fakeCSIClusterBootstrapPackage
+
+			clusterBootstrap := &v1alpha3.ClusterBootstrap{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      "fake-clusterbootstrap",
+					Namespace: "fake-cluster-ns",
+					UID:       "uid",
+				},
+				Spec: &v1alpha3.ClusterBootstrapTemplateSpec{
+					// We do not expect this part to be overwritten to be what fakeClusterBootstrapTemplate has
+					CNI: &v1alpha3.ClusterBootstrapPackage{
+						RefName: "foo-antrea-clusterbootstrarp-package",
+						ValuesFrom: &v1alpha3.ValuesFrom{
+							ProviderRef: &corev1.TypedLocalObjectReference{
+								APIGroup: &antreaAPIGroup,
+								Kind:     "AntreaConfig",
+								Name:     "fooAntreaConfig",
+							},
+						},
+					},
+				},
+			}
+
+			err := helper.AddMissingSpecFieldsFromTemplate(fakeClusterBootstrapTemplate, clusterBootstrap, map[string]interface{}{"valuesFrom": nil})
+			Expect(err).NotTo(HaveOccurred())
+			for _, additionalPackage := range clusterBootstrap.Spec.AdditionalPackages {
+				Expect(additionalPackage.RefName).NotTo(BeEmpty())
+				Expect(additionalPackage.ValuesFrom).To(BeNil())
+			}
 		})
 	})
 
@@ -737,6 +910,9 @@ func constructFakeAntreaConfig() *antreaconfigv1alpha1.AntreaConfig {
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "fake-antreaconfig",
 			Namespace: "fake-ns",
+			Annotations: map[string]string{
+				constants.TKGAnnotationTemplateConfig: "true",
+			},
 		},
 		Spec: antreaconfigv1alpha1.AntreaConfigSpec{
 			Antrea: antreaconfigv1alpha1.Antrea{
@@ -752,56 +928,4 @@ func assertTwoMapsShouldEqual(left, right map[string]interface{}) {
 		Expect(exist).To(BeTrue())
 		Expect(valueFromLeft).To(Equal(valueFromRight))
 	}
-}
-
-// ClusterbootstrapFakeDiscovery customize the behavior of fake client-go FakeDiscovery.ServerPreferredResources to return
-// a customized APIResourceList.
-// The client-go FakeDiscovery.ServerPreferredResources is hardcoded to return nil.
-// https://github.com/kubernetes/client-go/blob/master/discovery/fake/discovery.go#L85
-type ClusterbootstrapFakeDiscovery struct {
-	fakeDiscovery clientgodiscovery.DiscoveryInterface
-	resources     []*metav1.APIResourceList
-}
-
-func (c ClusterbootstrapFakeDiscovery) RESTClient() rest.Interface {
-	return c.fakeDiscovery.RESTClient()
-}
-
-func (c ClusterbootstrapFakeDiscovery) ServerGroups() (*metav1.APIGroupList, error) {
-	return c.fakeDiscovery.ServerGroups()
-}
-
-func (c ClusterbootstrapFakeDiscovery) ServerGroupsAndResources() ([]*metav1.APIGroup, []*metav1.APIResourceList, error) {
-	return c.fakeDiscovery.ServerGroupsAndResources()
-}
-
-func (c ClusterbootstrapFakeDiscovery) ServerVersion() (*version.Info, error) {
-	return c.fakeDiscovery.ServerVersion()
-}
-
-func (c ClusterbootstrapFakeDiscovery) OpenAPISchema() (*openapiv2.Document, error) {
-	return c.fakeDiscovery.OpenAPISchema()
-}
-
-func (c ClusterbootstrapFakeDiscovery) getFakeServerPreferredResources() []*metav1.APIResourceList {
-	return c.resources
-}
-
-func (c ClusterbootstrapFakeDiscovery) ServerResourcesForGroupVersion(groupVersion string) (*metav1.APIResourceList, error) {
-	return c.fakeDiscovery.ServerResourcesForGroupVersion(groupVersion)
-}
-
-// Having nolint below to get rid of the complaining on the deprecation of ServerResources. We have to have the following
-// function to customize the DiscoveryInterface
-//nolint:staticcheck
-func (c ClusterbootstrapFakeDiscovery) ServerResources() ([]*metav1.APIResourceList, error) {
-	return c.fakeDiscovery.ServerResources()
-}
-
-func (c ClusterbootstrapFakeDiscovery) ServerPreferredResources() ([]*metav1.APIResourceList, error) {
-	return c.getFakeServerPreferredResources(), nil
-}
-
-func (c ClusterbootstrapFakeDiscovery) ServerPreferredNamespacedResources() ([]*metav1.APIResourceList, error) {
-	return c.fakeDiscovery.ServerPreferredNamespacedResources()
 }

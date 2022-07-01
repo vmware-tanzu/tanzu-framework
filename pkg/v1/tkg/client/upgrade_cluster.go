@@ -50,6 +50,7 @@ type UpgradeClusterOptions struct {
 	IsRegionalCluster   bool
 	SkipAddonUpgrade    bool
 	SkipPrompt          bool
+	IsTKGSCluster       bool
 	// Tanzu edition (either tce or tkg)
 	Edition string
 }
@@ -134,15 +135,14 @@ func (c *TkgClient) UpgradeCluster(options *UpgradeClusterOptions) error {
 		return errors.Wrap(err, "unable to get cluster client while upgrading cluster")
 	}
 
-	isPacific, err := regionalClusterClient.IsPacificRegionalCluster()
+	// Check if Cluster is ClusterClass based cluster or not
+	isClusterClassBased, err := regionalClusterClient.IsClusterClassBased(options.ClusterName, options.Namespace)
 	if err != nil {
-		return errors.Wrap(err, "error determining 'Tanzu Kubernetes Cluster service for vSphere' management cluster")
+		return errors.Wrap(err, "unable to determine cluster type")
 	}
-	if isPacific {
-		err := c.ValidatePacificVersionWithCLI(regionalClusterClient)
-		if err != nil {
-			return err
-		}
+
+	// If this is TKGS cluster and using TKC API then upgrade using legacy TKC based approach
+	if options.IsTKGSCluster && !isClusterClassBased {
 		return c.DoPacificClusterUpgrade(regionalClusterClient, options)
 	}
 
@@ -154,12 +154,6 @@ func (c *TkgClient) UpgradeCluster(options *UpgradeClusterOptions) error {
 		}
 		options.ClusterName = clusterName
 		options.Namespace = namespace
-	} else {
-		log.Info("Validating configuration...")
-		err = c.ValidateSupportOfK8sVersionForManagmentCluster(regionalClusterClient, options.KubernetesVersion, false)
-		if err != nil {
-			return errors.Wrap(err, "validation error")
-		}
 	}
 
 	if options.Namespace == "" {
@@ -169,18 +163,12 @@ func (c *TkgClient) UpgradeCluster(options *UpgradeClusterOptions) error {
 	var currentClusterClient clusterclient.Client
 	if options.IsRegionalCluster {
 		currentClusterClient = regionalClusterClient
-	} else {
+	} else if !options.IsTKGSCluster {
 		log.V(4).Info("Creating workload cluster client...")
 		currentClusterClient, err = c.getWorkloadClusterClient(options.ClusterName, options.Namespace)
 		if err != nil {
 			return errors.Wrap(err, "unable to get workload cluster client")
 		}
-	}
-
-	// Check if Cluster is ClusterClass based cluster or not
-	isClusterClassBased, err := regionalClusterClient.IsClusterClassBased(options.ClusterName, options.Namespace)
-	if err != nil {
-		return errors.Wrap(err, "unable to determine cluster type")
 	}
 
 	// If cluster is ClusterClass based cluster upgrade the cluster with different path

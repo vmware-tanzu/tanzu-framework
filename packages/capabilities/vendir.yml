@@ -15,3 +15,7 @@ directories:
         manual: {}
       - path: tanzu-capabilities-controller-manager.yaml
         manual: {}
+  - path: bundle/config/overlays
+    contents:
+      - path: update-clusterrole-with-psp.yaml
+        manual: {}
