@@ -568,13 +568,13 @@ func (h *Helper) createSecretFromInline(
 			},
 		}
 
-		inlineSecret.Data = map[string][]byte{}
+		inlineSecret.StringData = make(map[string]string)
 		inlineConfigYamlBytes, err := yaml.Marshal(cbPkg.ValuesFrom.Inline)
 		if err != nil {
 			h.Logger.Error(err, "unable to marshal inline ValuesFrom")
 			return err
 		}
-		inlineSecret.Data[constants.TKGDataValueFileName] = inlineConfigYamlBytes
+		inlineSecret.StringData[constants.TKGDataValueFileName] = string(inlineConfigYamlBytes)
 
 		// Add cluster and package labels to cloned secrets
 		inlineSecret.Labels = map[string]string{}

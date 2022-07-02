@@ -240,7 +240,7 @@ func (r *VSphereCSIConfigReconciler) reconcileVSphereCSIConfigNormal(ctx context
 	secret.SetOwnerReferences([]metav1.OwnerReference{ownerRef})
 
 	mutateFn := func() error {
-		secret.Data = make(map[string][]byte)
+		secret.StringData = make(map[string]string)
 		dvs, err := r.mapVSphereCSIConfigToDataValues(ctx, csiCfg, cluster)
 		if err != nil {
 			logger.Error(err, "Error while mapping VSphereCSIConfig to data values")
@@ -251,7 +251,7 @@ func (r *VSphereCSIConfigReconciler) reconcileVSphereCSIConfigNormal(ctx context
 			logger.Error(err, "Error marshaling CSI config data values to yaml")
 			return err
 		}
-		secret.Data[constants.TKGDataValueFileName] = yamlBytes
+		secret.StringData[constants.TKGDataValueFileName] = string(yamlBytes)
 		return nil
 	}
 

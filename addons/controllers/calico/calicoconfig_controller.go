@@ -189,7 +189,7 @@ func (r *CalicoConfigReconciler) ReconcileCalicoDataValuesSecret(
 	}
 
 	calicoDataValuesSecretMutateFn := func() error {
-		calicoDataValuesSecret.Data = make(map[string][]byte)
+		calicoDataValuesSecret.StringData = make(map[string]string)
 
 		calicoConfigYaml, err := mapCalicoConfigSpec(cluster, calicoConfig)
 		if err != nil {
@@ -201,7 +201,7 @@ func (r *CalicoConfigReconciler) ReconcileCalicoDataValuesSecret(
 			r.Log.Error(err, "Error marshaling CalicoConfig to Yaml")
 			return err
 		}
-		calicoDataValuesSecret.Data[constants.TKGDataValueFileName] = dataValueYamlBytes
+		calicoDataValuesSecret.StringData[constants.TKGDataValueFileName] = string(dataValueYamlBytes)
 		return nil
 	}
 
