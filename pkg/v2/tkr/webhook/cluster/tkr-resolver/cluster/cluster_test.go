@@ -398,6 +398,7 @@ var _ = Describe("cluster.Webhook", func() {
 
 					It("should not resolve the ControlPlane", func() {
 						clusterTopology0 := cluster.Spec.Topology.DeepCopy()
+						clusterTopology0.Version = tkr.Spec.Kubernetes.Version // expect topology.version == the TKR Kubernetes version
 						err := cw.ResolveAndSetMetadata(cluster, clusterClass)
 						Expect(err).ToNot(HaveOccurred())
 						Expect(cluster.Spec.Topology).To(Equal(clusterTopology0))
@@ -412,6 +413,20 @@ var _ = Describe("cluster.Webhook", func() {
 							err := cw.ResolveAndSetMetadata(cluster, clusterClass)
 							Expect(err).ToNot(HaveOccurred())
 							Expect(cluster.Spec.Topology.Version).To(Equal(tkr.Spec.Kubernetes.Version))
+						})
+					})
+
+					When("a prefix of the K8s version is specified in Cluster topology.version", func() {
+						BeforeEach(func() {
+							cluster.Spec.Topology.Version = k8sVersionPrefix
+						})
+
+						repeat(100, func() { // make sure we hit a prefix shorter than the version
+							It("should replace the value in Cluster topology.version with TKR k8s version", func() {
+								err := cw.ResolveAndSetMetadata(cluster, clusterClass)
+								Expect(err).ToNot(HaveOccurred())
+								Expect(cluster.Spec.Topology.Version).To(Equal(tkr.Spec.Kubernetes.Version))
+							})
 						})
 					})
 				})
