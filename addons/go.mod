@@ -69,6 +69,7 @@ require (
 	github.com/apparentlymart/go-cidr v1.1.0 // indirect
 	github.com/asaskevich/govalidator v0.0.0-20210307081110-f21760c49a8d // indirect
 	github.com/aunum/log v0.0.0-20200821225356-38d2e2c8b489 // indirect
+	github.com/avinetworks/sdk v0.0.0-20201123134013-c157ef55b6f7 // indirect
 	github.com/aws/amazon-vpc-cni-k8s v1.10.1 // indirect
 	github.com/aws/aws-sdk-go v1.40.56 // indirect
 	github.com/awslabs/goformation/v4 v4.19.5 // indirect
@@ -119,6 +120,7 @@ require (
 	github.com/gobuffalo/flect v0.2.4 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/golang-jwt/jwt/v4 v4.0.0 // indirect
+	github.com/golang/glog v1.0.0 // indirect
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/google/cel-go v0.10.0 // indirect

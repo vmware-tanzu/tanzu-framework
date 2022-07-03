@@ -245,12 +245,28 @@ const (
 	// Windows specific variables
 	ConfigVariableIsWindowsWorkloadCluster = "IS_WINDOWS_WORKLOAD_CLUSTER"
 
-	// AVI specific variables
-	ConfigVariableAviManagementClusterServiceEngineGroup         = "AVI_MANAGEMENT_CLUSTER_SERVICE_ENGINE_GROUP"
-	ConfigVariableAviControlPlaneNetwork                         = "AVI_CONTROL_PLANE_NETWORK"
-	ConfigVariableAviControlPlaneNetworkCidr                     = "AVI_CONTROL_PLANE_NETWORK_CIDR"
+	// AVI aka. NSX Advanced Load Balancer specific variables
+	ConfigVariableAviEnable = "AVI_ENABLE"
+
+	ConfigVariableAviControllerAddress  = "AVI_CONTROLLER"
+	ConfigVariableAviControllerVersion  = "AVI_CONTROLLER_VERSION"
+	ConfigVariableAviControllerUsername = "AVI_USERNAME"
+	ConfigVariableAviControllerPassword = "AVI_PASSWORD"
+	ConfigVariableAviControllerCA       = "AVI_CA_DATA_B64"
+
+	ConfigVariableAviCloudName                           = "AVI_CLOUD_NAME"
+	ConfigVariableAviServiceEngineGroup                  = "AVI_SERVICE_ENGINE_GROUP"
+	ConfigVariableAviManagementClusterServiceEngineGroup = "AVI_MANAGEMENT_CLUSTER_SERVICE_ENGINE_GROUP"
+
+	ConfigVariableAviDataPlaneNetworkName    = "AVI_DATA_NETWORK"
+	ConfigVariableAviDataPlaneNetworkCIDR    = "AVI_DATA_NETWORK_CIDR"
+	ConfigVariableAviControlPlaneNetworkName = "AVI_CONTROL_PLANE_NETWORK"
+	ConfigVariableAviControlPlaneNetworkCIDR = "AVI_CONTROL_PLANE_NETWORK_CIDR"
+
+	ConfigVariableAviManagementClusterDataPlaneNetworkName       = "AVI_MANAGEMENT_CLUSTER_VIP_NETWORK_NAME"
+	ConfigVariableAviManagementClusterDataPlaneNetworkCIDR       = "AVI_MANAGEMENT_CLUSTER_VIP_NETWORK_CIDR"
 	ConfigVariableAviManagementClusterControlPlaneVipNetworkName = "AVI_MANAGEMENT_CLUSTER_CONTROL_PLANE_VIP_NETWORK_NAME"
-	ConfigVariableAviManagementClusterControlPlaneVipNetworkCidr = "AVI_MANAGEMENT_CLUSTER_CONTROL_PLANE_VIP_NETWORK_CIDR"
+	ConfigVariableAviManagementClusterControlPlaneVipNetworkCIDR = "AVI_MANAGEMENT_CLUSTER_CONTROL_PLANE_VIP_NETWORK_CIDR"
 
 	ConfigVariableFeatureFlagPackageBasedLCM = "FEATURE_FLAG_PACKAGE_BASED_LCM"
 )

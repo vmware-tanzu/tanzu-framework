@@ -17,19 +17,26 @@ type Client interface {
 	GetClouds() ([]*avi_models.AviCloud, error)
 	GetServiceEngineGroups() ([]*avi_models.AviServiceEngineGroup, error)
 	GetVipNetworks() ([]*avi_models.AviVipNetwork, error)
+
+	GetCloudByName(name string) (*models.Cloud, error)
+	GetServiceEngineGroupByName(name string) (*models.ServiceEngineGroup, error)
+	GetVipNetworkByName(name string) (*models.Network, error)
 }
 
 // MiniCloudClient defines a subset of the methods implemented by Cloud
 type MiniCloudClient interface {
 	GetAll(options ...session.ApiOptionsParams) ([]*models.Cloud, error)
+	GetByName(name string, options ...session.ApiOptionsParams) (*models.Cloud, error)
 }
 
 // MiniServiceEngineGroupClient defines a subset of the methods implemented by Cloud
 type MiniServiceEngineGroupClient interface {
 	GetAll(options ...session.ApiOptionsParams) ([]*models.ServiceEngineGroup, error)
+	GetByName(name string, options ...session.ApiOptionsParams) (*models.ServiceEngineGroup, error)
 }
 
 // MiniNetworkClient defines a subset of the methods implemented by Network
 type MiniNetworkClient interface {
 	GetAll(options ...session.ApiOptionsParams) ([]*models.Network, error)
+	GetByName(name string, options ...session.ApiOptionsParams) (*models.Network, error)
 }
