@@ -94,7 +94,7 @@ spec:
               controlPlane: true
               machineDeploymentClass:
                 names:
-                  - worker
+                  - tkg-worker
           jsonPatches:
             - op: add
               path: "/spec/template/spec/metadata/ssh_authorized_keys"
@@ -109,7 +109,7 @@ spec:
               controlPlane: true
               machineDeploymentClass:
                 names:
-                  - worker
+                  - tkg-worker
           jsonPatches:
             - op: replace
               path: "/spec/template/spec/shape"
@@ -124,7 +124,7 @@ spec:
               controlPlane: true
               machineDeploymentClass:
                 names:
-                  - worker
+                  - tkg-worker
           jsonPatches:
             - op: add
               path: "/spec/template/spec/imageId"
@@ -139,7 +139,7 @@ spec:
               controlPlane: true
               machineDeploymentClass:
                 names:
-                  - worker
+                  - tkg-worker
           jsonPatches:
             - op: add
               path: "/spec/template/spec/isPvEncryptionInTransitEnabled"
@@ -154,7 +154,7 @@ spec:
               controlPlane: true
               machineDeploymentClass:
                 names:
-                  - worker
+                  - tkg-worker
           jsonPatches:
             - op: add
               path: /spec/template/spec/shapeConfig/ocpus
