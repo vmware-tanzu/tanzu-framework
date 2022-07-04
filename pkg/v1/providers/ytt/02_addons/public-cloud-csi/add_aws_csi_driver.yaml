@@ -9,7 +9,7 @@
 apiVersion: v1
 kind: Secret
 metadata:
-  name: #@ "{}-aws-ebs-csi-addon".format(data.values.CLUSTER_NAME)
+  name: #@ "{}-aws-ebs-csi-driver-addon".format(data.values.CLUSTER_NAME)
   namespace: #@ data.values.NAMESPACE
   labels:
     tkg.tanzu.vmware.com/addon-name: "aws-ebs-csi-driver"
