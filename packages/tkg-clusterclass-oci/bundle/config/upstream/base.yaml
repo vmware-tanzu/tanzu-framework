@@ -26,12 +26,12 @@ spec:
             ref:
               apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
               kind: KubeadmConfigTemplate
-              name: tkg-bootstrap-template
+              name: tkg-oci-bootstrap-template
           infrastructure:
             ref:
               apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
               kind: OCIMachineTemplate
-              name: tkg-oci-template
+              name: tkg-oci-worker-template
   infrastructure:
     ref:
       apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
@@ -239,7 +239,7 @@ spec:
 apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
 kind: OCIMachineTemplate
 metadata:
-  name: tkg-oci-template
+  name: tkg-oci-worker-template
   namespace: #@ data.values.NAMESPACE
 spec:
   template:
@@ -252,7 +252,7 @@ spec:
 apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
 kind: KubeadmConfigTemplate
 metadata:
-  name: worker-bootstrap-template
+  name: tkg-oci-bootstrap-template
   namespace: #@ data.values.NAMESPACE
 spec:
   template:
