@@ -28,6 +28,7 @@ const (
 	defaultNodeMinCPU              = 2
 	cpuArm64                       = "arm64"
 	tanzuMissionControlPoliciesSID = "tmccloudvmwarecom"
+	tanzuEBSCSIPoliciesSID         = "tanzuebscsi"
 )
 
 type client struct {
@@ -295,7 +296,47 @@ func (c *client) GenerateBootstrapTemplate(i GenerateBootstrapTemplateInput) (*b
 	if !i.DisableTanzuMissionControlPermissions {
 		ensureTanzuMissionControlPermissions(&template)
 	}
+	ensureEBSCSiPermissions(&template)
 	return &template, nil
+}
+
+func ensureEBSCSiPermissions(t *bootstrap.Template) {
+	// WA https://github.com/kubernetes-sigs/cluster-api-provider-aws/issues/3527
+	// t.Spec.ControlPlane.EnableCSIPolicy = true not work
+	t.Spec.ControlPlane.ExtraStatements = ensureTanzuEBSCSIPermissionsForRole(t.Spec.ControlPlane.ExtraStatements)
+}
+
+func ensureTanzuEBSCSIPermissionsForRole(statements []iamv1.StatementEntry) []iamv1.StatementEntry {
+	ebscsiStatementEntry := iamv1.StatementEntry{
+		Sid:      tanzuEBSCSIPoliciesSID,
+		Effect:   iamv1.EffectAllow,
+		Resource: iamv1.Resources{iamv1.Any},
+		Action: iamv1.Actions{
+			"ec2:AttachVolume",
+			"ec2:CreateSnapshot",
+			"ec2:CreateTags",
+			"ec2:CreateVolume",
+			"ec2:DeleteSnapshot",
+			"ec2:DeleteTags",
+			"ec2:DeleteVolume",
+			"ec2:DescribeAvailabilityZones",
+			"ec2:DescribeInstances",
+			"ec2:DescribeSnapshots",
+			"ec2:DescribeTags",
+			"ec2:DescribeVolumes",
+			"ec2:DescribeVolumesModifications",
+			"ec2:DetachVolume",
+			"ec2:ModifyVolume",
+		},
+	}
+	for i, statementEntry := range statements {
+		if statementEntry.Sid == tanzuEBSCSIPoliciesSID {
+			statements[i] = ebscsiStatementEntry
+			return statements
+		}
+	}
+	statements = append(statements, ebscsiStatementEntry)
+	return statements
 }
 
 func ensureTanzuMissionControlPermissions(t *bootstrap.Template) {
