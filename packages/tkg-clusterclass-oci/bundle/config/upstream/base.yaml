@@ -195,22 +195,6 @@ spec:
         vcn:
           cidr: "10.0.0.0/16"
           subnets:
-            - cidr: 10.0.0.8/29
-              name: control-plane-endpoint
-              role: control-plane-endpoint
-              type: public
-            - cidr: 10.0.0.0/29
-              name: control-plane
-              role: control-plane
-              type: private
-            - cidr: 10.0.0.32/27
-              name: service-lb
-              role: service-lb
-              type: public
-            - cidr: 10.0.64.0/20
-              name: worker
-              role: worker
-              type: private
           networkSecurityGroups:
             - egressRules:
                 - egressRule:
