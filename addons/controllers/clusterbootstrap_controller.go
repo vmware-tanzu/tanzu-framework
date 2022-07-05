@@ -910,7 +910,7 @@ func (r *ClusterBootstrapReconciler) createOrPatchAddonResourcesOnRemote(cluster
 	return nil
 }
 
-func (r *ClusterBootstrapReconciler) patchSecretWithTKGSDataValueBytes(cluster *clusterapiv1beta1.Cluster, secret *corev1.Secret) error {
+func (r *ClusterBootstrapReconciler) patchSecretWithTKGSDataValues(cluster *clusterapiv1beta1.Cluster, secret *corev1.Secret) error {
 	// Add TKR NodeSelector info if it's a TKGS cluster
 	infraRef, err := util.GetInfraProvider(cluster)
 	if err != nil {
@@ -998,7 +998,7 @@ func (r *ClusterBootstrapReconciler) createOrPatchPackageInstallSecretForKapp(cl
 	}
 
 	dataValuesSecretMutateFn := func() error {
-		if err := r.patchSecretWithTKGSDataValueBytes(cluster, localSecret); err != nil {
+		if err := r.patchSecretWithTKGSDataValues(cluster, localSecret); err != nil {
 			return err
 		}
 		return nil
@@ -1017,8 +1017,11 @@ func (r *ClusterBootstrapReconciler) createOrPatchPackageInstallSecret(cluster *
 	cbpkg *runtanzuv1alpha3.ClusterBootstrapPackage, clusterClient client.Client) (*corev1.Secret, error) {
 
 	localSecret, err := r.getDataValueSecretFromBootstrapPackage(cluster, cbpkg)
-	if err != nil || localSecret == nil {
+	if err != nil {
 		return nil, err
+	}
+	if localSecret == nil {
+		return nil, nil
 	}
 
 	packageRefName, _, err := util.GetPackageMetadata(r.context, r.aggregatedAPIResourcesClient, cbpkg.RefName, cluster.Namespace)
@@ -1039,7 +1042,7 @@ func (r *ClusterBootstrapReconciler) createOrPatchPackageInstallSecret(cluster *
 			remoteSecret.StringData[k] = string(v)
 		}
 
-		if err := r.patchSecretWithTKGSDataValueBytes(cluster, remoteSecret); err != nil {
+		if err := r.patchSecretWithTKGSDataValues(cluster, remoteSecret); err != nil {
 			return err
 		}
 
