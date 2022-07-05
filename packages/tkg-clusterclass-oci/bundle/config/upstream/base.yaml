@@ -194,7 +194,6 @@ spec:
       networkSpec:
         vcn:
           cidr: "10.0.0.0/16"
-          name: "${CLUSTER_NAME}"
           subnets:
             - cidr: 10.0.0.8/29
               name: control-plane-endpoint
