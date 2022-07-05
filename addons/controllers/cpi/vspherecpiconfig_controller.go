@@ -165,7 +165,7 @@ func (r *VSphereCPIConfigReconciler) reconcileVSphereCPIConfigNormal(ctx context
 	secret.SetOwnerReferences([]metav1.OwnerReference{ownerReference})
 
 	mutateFn := func() error {
-		secret.Data = make(map[string][]byte)
+		secret.StringData = make(map[string]string)
 		cpiConfigSpec, err := r.mapCPIConfigToDataValues(ctx, cpiConfig, cluster)
 		if err != nil {
 			r.Log.Error(err, "Error while mapping VSphereCPIConfig to data values")
@@ -176,7 +176,7 @@ func (r *VSphereCPIConfigReconciler) reconcileVSphereCPIConfigNormal(ctx context
 			r.Log.Error(err, "Error marshaling VSphereCPIConfig to Yaml")
 			return err
 		}
-		secret.Data[constants.TKGDataValueFileName] = yamlBytes
+		secret.StringData[constants.TKGDataValueFileName] = string(yamlBytes)
 		r.Log.Info("Mutated VSphereCPIConfig data values")
 		return nil
 	}

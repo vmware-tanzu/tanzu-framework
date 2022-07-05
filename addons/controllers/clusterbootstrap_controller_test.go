@@ -311,9 +311,9 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 					// workload cluster under tkg-system namespace.
 					s := &corev1.Secret{}
 					Expect(k8sClient.Get(ctx, client.ObjectKey{Namespace: clusterNamespace, Name: fmt.Sprintf("%s-foobar1-package", cluster.Name)}, s)).To(Succeed())
-					s.Data["values.yaml"] = []byte("foobar1-updated")
+					s.StringData = make(map[string]string)
+					s.StringData["values.yaml"] = "foobar1-updated"
 					Expect(k8sClient.Update(ctx, s)).To(Succeed())
-
 					Eventually(func() bool {
 						s := &corev1.Secret{}
 						if err := k8sClient.Get(ctx, client.ObjectKey{Namespace: constants.TKGSystemNS, Name: util.GenerateDataValueSecretName(clusterName, foobar1CarvelPackageRefName)}, s); err != nil {
@@ -335,8 +335,8 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 					s := &corev1.Secret{}
 					s.Name = util.GenerateDataValueSecretName(clusterName, foobarCarvelPackageRefName)
 					s.Namespace = clusterNamespace
-					s.Data = map[string][]byte{}
-					s.Data["values.yaml"] = []byte(foobar)
+					s.StringData = map[string]string{}
+					s.StringData["values.yaml"] = string(foobar)
 					Expect(k8sClient.Create(ctx, s)).To(Succeed())
 
 					Expect(unstructured.SetNestedField(object.Object, s.Name, "status", "secretRef")).To(Succeed())
@@ -451,6 +451,9 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 							}, remoteSecret); err != nil {
 							return false
 						}
+						if clusterBootstrapPackage.ValuesFrom != nil {
+							Expect(remoteSecret.Data).To(HaveKey("values.yaml"))
+						}
 					}
 					return true
 				}, waitTimeout, pollingInterval).Should(BeTrue())
@@ -490,7 +493,8 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 							UID:        cluster.UID,
 						},
 					}
-					s.Data["values.yaml"] = []byte("foobar-updated")
+					s.StringData = make(map[string]string)
+					s.StringData["values.yaml"] = "foobar-updated"
 					Expect(k8sClient.Update(ctx, s)).To(Succeed())
 
 					Eventually(func() bool {
@@ -758,7 +762,6 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 					}
 					return controllerutil.ContainsFinalizer(clusterKubeConfigSecret, addontypes.AddonFinalizer)
 				}, waitTimeout, pollingInterval).Should(BeFalse())
-
 			})
 		})
 	})
@@ -834,6 +837,8 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 							}
 							return true
 						}, waitTimeout, pollingInterval).Should(BeTrue())
+
+						Expect(remoteSecret.Data).To(HaveKey(constants.TKGSDataValueFileName))
 					}
 				})
 
@@ -848,6 +853,8 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 					if err != nil {
 						return false
 					}
+					Expect(s.Data).To(HaveKey("values.yaml"))
+					Expect(s.Data).NotTo(HaveKey(constants.TKGSDataValueFileName))
 					err = remoteClient.Get(ctx, client.ObjectKey{Namespace: constants.TKGSystemNS, Name: util.GenerateDataValueSecretName(clusterName, foobar1CarvelPackageRefName)}, remoteSecret)
 					if err != nil {
 						return false
@@ -855,6 +862,8 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 					if string(s.Data["values.yaml"]) != string(remoteSecret.Data["values.yaml"]) {
 						return false
 					}
+					Expect(remoteSecret.Data).To(HaveKey("values.yaml"))
+					Expect(remoteSecret.Data).To(HaveKey(constants.TKGSDataValueFileName))
 					// TKGS data values should be added because cluster has related VirtualMachine
 					valueTexts, ok := remoteSecret.Data[constants.TKGSDataValueFileName]
 					if !ok {
@@ -877,7 +886,8 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 				By("Should not reconcile foobar1secret secret change", func() {
 					// Get secretRef
 					Expect(k8sClient.Get(ctx, client.ObjectKey{Namespace: clusterNamespace, Name: fmt.Sprintf("%s-foobar1-package", clusterName)}, s)).To(Succeed())
-					s.Data["values.yaml"] = []byte("values changed")
+					s.StringData = make(map[string]string)
+					s.StringData["values.yaml"] = "values changed"
 					Expect(k8sClient.Update(ctx, s)).To(Succeed())
 
 					// Wait 10 seconds in case reconciliation happens

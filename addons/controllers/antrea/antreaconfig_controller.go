@@ -194,7 +194,7 @@ func (r *AntreaConfigReconciler) ReconcileAntreaConfigDataValue(
 
 	antreaDataValuesSecretMutateFn := func() error {
 		antreaDataValuesSecret.Type = corev1.SecretTypeOpaque
-		antreaDataValuesSecret.Data = map[string][]byte{}
+		antreaDataValuesSecret.StringData = make(map[string]string)
 
 		// marshall the yaml contents
 		antreaConfigYaml, err := mapAntreaConfigSpec(cluster, antreaConfig)
@@ -208,7 +208,7 @@ func (r *AntreaConfigReconciler) ReconcileAntreaConfigDataValue(
 			return err
 		}
 
-		antreaDataValuesSecret.Data[constants.TKGDataValueFileName] = dataValueYamlBytes
+		antreaDataValuesSecret.StringData[constants.TKGDataValueFileName] = string(dataValueYamlBytes)
 
 		return nil
 	}

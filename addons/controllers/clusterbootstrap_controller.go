@@ -622,7 +622,7 @@ func (r *ClusterBootstrapReconciler) createOrPatchKappPackageInstall(clusterBoot
 			},
 		}
 		// Copy the kapp-controller secret in mgmt cluster to include the TKR nodeSelector info
-		secret, err := r.createOrPatchPackageInstallSecret(cluster, clusterBootstrap.Spec.Kapp, r.Client)
+		secret, err := r.createOrPatchPackageInstallSecretForKapp(cluster, clusterBootstrap.Spec.Kapp, r.Client)
 		if err != nil {
 			return err
 		}
@@ -910,10 +910,52 @@ func (r *ClusterBootstrapReconciler) createOrPatchAddonResourcesOnRemote(cluster
 	return nil
 }
 
-// createOrPatchPackageInstallSecret creates or patches the secret used for PackageInstall in a cluster
-func (r *ClusterBootstrapReconciler) createOrPatchPackageInstallSecret(cluster *clusterapiv1beta1.Cluster,
-	cbpkg *runtanzuv1alpha3.ClusterBootstrapPackage, clusterClient client.Client) (*corev1.Secret, error) {
+func (r *ClusterBootstrapReconciler) patchSecretWithTKGSDataValues(cluster *clusterapiv1beta1.Cluster, secret *corev1.Secret) error {
+	// Add TKR NodeSelector info if it's a TKGS cluster
+	infraRef, err := util.GetInfraProvider(cluster)
+	if err != nil {
+		return err
+	}
+	if infraRef == tkgconstants.InfrastructureProviderVSphere {
+		ok, err := util.IsTKGSCluster(r.context, r.dynamicClient, r.gvrHelper.GetDiscoveryClient(), cluster)
+		if err != nil {
+			return err
+		}
+		if ok {
+			upgradeDataValues := addontypes.TKGSDataValues{
+				NodeSelector: addontypes.NodeSelector{
+					TanzuKubernetesRelease: cluster.Labels[constants.TKRLabelClassyClusters],
+				},
+				Deployment: addontypes.DeploymentUpdateInfo{
+					UpdateStrategy: constants.TKGSDeploymentUpdateStrategy,
+					RollingUpdate: &addontypes.RollingUpdateInfo{
+						MaxSurge:       constants.TKGSDeploymentUpdateMaxSurge,
+						MaxUnavailable: constants.TKGSDeploymentUpdateMaxUnavailable,
+					},
+				},
+				Daemonset: addontypes.DaemonsetUpdateInfo{
+					UpdateStrategy: constants.TKGSDaemonsetUpdateStrategy,
+				},
+			}
+			TKRDataValueYamlBytes, err := yaml.Marshal(upgradeDataValues)
+			if err != nil {
+				return err
+			}
+			if secret.StringData == nil {
+				secret.StringData = make(map[string]string)
+			}
+			secret.StringData[constants.TKGSDataValueFileName] = string(TKRDataValueYamlBytes)
 
+			r.Log.Info(fmt.Sprintf("added TKGS data values to secret %s/%s", secret.Namespace, secret.Name))
+		} else {
+			r.Log.Info(fmt.Sprintf("skip adding TKGS data values to secret %s/%s because %s/%s is not a TKGS cluster", secret.Namespace, secret.Name, cluster.Namespace, cluster.Name))
+		}
+	}
+
+	return nil
+}
+
+func (r *ClusterBootstrapReconciler) getDataValueSecretFromBootstrapPackage(cluster *clusterapiv1beta1.Cluster, cbpkg *runtanzuv1alpha3.ClusterBootstrapPackage) (*corev1.Secret, error) {
 	secretName, err := r.GetDataValueSecretNameFromBootstrapPackage(cbpkg, cluster)
 	if err != nil {
 		// logging has been handled in GetDataValueSecretNameFromBootstrapPackage()
@@ -939,10 +981,47 @@ func (r *ClusterBootstrapReconciler) createOrPatchPackageInstallSecret(cluster *
 	patchedSecret := localSecret.DeepCopy()
 	if patchSecretWithLabels(patchedSecret, util.ParseStringForLabel(cbpkg.RefName), cluster.Name) {
 		if err := r.Patch(r.context, patchedSecret, client.MergeFrom(localSecret)); err != nil {
-			r.Log.Error(err, "unable to patch secret labels for ", "secret", localSecret.Name)
-			return nil, err
+			return nil, fmt.Errorf("unable to patch secret labels for secret '%s/%s': %w", localSecret.Namespace, localSecret.Name, err)
 		}
 		r.Log.Info(fmt.Sprintf("patched the secret %s/%s with package and cluster labels", localSecret.Namespace, localSecret.Name))
+	}
+
+	return patchedSecret, nil
+}
+
+func (r *ClusterBootstrapReconciler) createOrPatchPackageInstallSecretForKapp(cluster *clusterapiv1beta1.Cluster,
+	cbpkg *runtanzuv1alpha3.ClusterBootstrapPackage, clusterClient client.Client) (*corev1.Secret, error) {
+
+	localSecret, err := r.getDataValueSecretFromBootstrapPackage(cluster, cbpkg)
+	if err != nil {
+		return nil, err
+	}
+
+	dataValuesSecretMutateFn := func() error {
+		if err := r.patchSecretWithTKGSDataValues(cluster, localSecret); err != nil {
+			return err
+		}
+		return nil
+	}
+
+	_, err = controllerutil.CreateOrPatch(r.context, clusterClient, localSecret, dataValuesSecretMutateFn)
+	if err != nil {
+		r.Log.Error(err, "error creating or patching addon data values secret")
+		return nil, err
+	}
+	return localSecret, nil
+}
+
+// createOrPatchPackageInstallSecret creates or patches the secret used for PackageInstall in a cluster
+func (r *ClusterBootstrapReconciler) createOrPatchPackageInstallSecret(cluster *clusterapiv1beta1.Cluster,
+	cbpkg *runtanzuv1alpha3.ClusterBootstrapPackage, clusterClient client.Client) (*corev1.Secret, error) {
+
+	localSecret, err := r.getDataValueSecretFromBootstrapPackage(cluster, cbpkg)
+	if err != nil {
+		return nil, err
+	}
+	if localSecret == nil {
+		return nil, nil
 	}
 
 	packageRefName, _, err := util.GetPackageMetadata(r.context, r.aggregatedAPIResourcesClient, cbpkg.RefName, cluster.Namespace)
@@ -958,47 +1037,13 @@ func (r *ClusterBootstrapReconciler) createOrPatchPackageInstallSecret(cluster *
 	remoteSecret.Type = corev1.SecretTypeOpaque
 
 	dataValuesSecretMutateFn := func() error {
-		remoteSecret.Data = map[string][]byte{}
-		for k, v := range patchedSecret.Data {
-			remoteSecret.Data[k] = v
+		remoteSecret.StringData = make(map[string]string)
+		for k, v := range localSecret.Data {
+			remoteSecret.StringData[k] = string(v)
 		}
 
-		// Add TKR NodeSelector info if it's a TKGS cluster
-		infraRef, err := util.GetInfraProvider(cluster)
-		if err != nil {
+		if err := r.patchSecretWithTKGSDataValues(cluster, remoteSecret); err != nil {
 			return err
-		}
-		if infraRef == tkgconstants.InfrastructureProviderVSphere {
-			ok, err := util.IsTKGSCluster(r.context, r.dynamicClient, r.gvrHelper.GetDiscoveryClient(), cluster)
-			if err != nil {
-				return err
-			}
-			if ok {
-				upgradeDataValues := addontypes.TKGSDataValues{
-					NodeSelector: addontypes.NodeSelector{
-						TanzuKubernetesRelease: cluster.Labels[constants.TKRLabelClassyClusters],
-					},
-					Deployment: addontypes.DeploymentUpdateInfo{
-						UpdateStrategy: constants.TKGSDeploymentUpdateStrategy,
-						RollingUpdate: &addontypes.RollingUpdateInfo{
-							MaxSurge:       constants.TKGSDeploymentUpdateMaxSurge,
-							MaxUnavailable: constants.TKGSDeploymentUpdateMaxUnavailable,
-						},
-					},
-					Daemonset: addontypes.DaemonsetUpdateInfo{
-						UpdateStrategy: constants.TKGSDaemonsetUpdateStrategy,
-					},
-				}
-				TKRDataValueYamlBytes, err := yaml.Marshal(upgradeDataValues)
-				if err != nil {
-					return err
-				}
-				remoteSecret.Data[constants.TKGSDataValueFileName] = TKRDataValueYamlBytes
-
-				r.Log.Info(fmt.Sprintf("added TKGS data values to secret %s/%s", remoteSecret.Namespace, remoteSecret.Name))
-			} else {
-				r.Log.Info(fmt.Sprintf("skip adding TKGS data values to secret %s/%s because %s/%s is not a TKGS cluster", remoteSecret.Namespace, remoteSecret.Name, cluster.Namespace, cluster.Name))
-			}
 		}
 
 		return nil
@@ -1417,7 +1462,7 @@ func (r *ClusterBootstrapReconciler) generateSecretForPackagesWithEmptyValuesFro
 	packageSecret.Namespace = cluster.Namespace
 
 	if _, err := controllerutil.CreateOrPatch(r.context, r.Client, packageSecret, func() error {
-		packageSecret.Data = map[string][]byte{}
+		packageSecret.StringData = make(map[string]string)
 
 		packageSecret.OwnerReferences = []metav1.OwnerReference{
 			{

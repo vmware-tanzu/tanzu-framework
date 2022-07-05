@@ -188,7 +188,7 @@ func (r *KappControllerConfigReconciler) ReconcileKappControllerConfigDataValue(
 
 	dataValuesSecretMutateFn := func() error {
 		dataValuesSecret.Type = corev1.SecretTypeOpaque
-		dataValuesSecret.Data = map[string][]byte{}
+		dataValuesSecret.StringData = make(map[string]string)
 
 		// marshall the yaml contents
 		kappConfig, err := mapKappControllerConfigSpec(cluster, kappControllerConfig)
@@ -201,7 +201,7 @@ func (r *KappControllerConfigReconciler) ReconcileKappControllerConfigDataValue(
 			return err
 		}
 
-		dataValuesSecret.Data[constants.TKGDataValueFileName] = dataValueYamlBytes
+		dataValuesSecret.StringData[constants.TKGDataValueFileName] = string(dataValueYamlBytes)
 
 		return nil
 	}
