@@ -137,7 +137,7 @@ func (t *tkgctl) processManagementClusterInputFile(ir *InitRegionOptions) (bool,
 	isInputFileClusterClassBased := false
 
 	if t.tkgClient.IsFeatureActivated(config.FeatureFlagPackageBasedLCM) {
-		isInputFileClusterClassBased, clusterobj, err = t.checkIfInputFileIsClusterClassBased(ir.ClusterConfigFile)
+		isInputFileClusterClassBased, clusterobj, err = CheckIfInputFileIsClusterClassBased(ir.ClusterConfigFile)
 		if err != nil {
 			return isInputFileClusterClassBased, err
 		}
@@ -153,7 +153,7 @@ func (t *tkgctl) processManagementClusterInputFile(ir *InitRegionOptions) (bool,
 }
 
 func (t *tkgctl) processWorkloadClusterInputFile(cc *CreateClusterOptions, isTKGSCluster bool) (bool, error) {
-	isInputFileClusterClassBased, clusterobj, err := t.checkIfInputFileIsClusterClassBased(cc.ClusterConfigFile)
+	isInputFileClusterClassBased, clusterobj, err := CheckIfInputFileIsClusterClassBased(cc.ClusterConfigFile)
 	if err != nil {
 		return isInputFileClusterClassBased, err
 	}
