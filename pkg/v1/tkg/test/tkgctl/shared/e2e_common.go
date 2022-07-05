@@ -35,7 +35,7 @@ type E2ECommonSpecInput struct {
 	OtherConfigs    map[string]string
 }
 
-func E2ECommonSpec(context context.Context, inputGetter func() E2ECommonSpecInput) { //nolint:funlen
+func E2ECommonSpec(ctx context.Context, inputGetter func() E2ECommonSpecInput) { //nolint:funlen
 	var (
 		err          error
 		input        E2ECommonSpecInput
@@ -155,8 +155,10 @@ func E2ECommonSpec(context context.Context, inputGetter func() E2ECommonSpecInpu
 		By(fmt.Sprintf("Waiting for workload cluster %q nodes to be up and running", clusterName))
 		framework.WaitForNodes(framework.NewClusterProxy(clusterName, tempFilePath, ""), 2)
 
-		if input.Plan == "devcc" {
-			By(fmt.Sprintf("Generating credentials for management cluster %q", input.E2EConfig.ManagementClusterName))
+		// verify addons are deployed successfully if in AWS environment
+		if input.Plan == "devcc" || input.Plan == "prodcc" {
+
+			By(fmt.Sprintf("Get k8s client for management cluster %q", input.E2EConfig.ManagementClusterName))
 			mngkubeConfigFileName := input.E2EConfig.ManagementClusterName + ".kubeconfig"
 			mngtempFilePath := filepath.Join(os.TempDir(), mngkubeConfigFileName)
 			err = tkgCtlClient.GetCredentials(tkgctl.GetWorkloadClusterCredentialsOptions{
@@ -165,28 +167,23 @@ func E2ECommonSpec(context context.Context, inputGetter func() E2ECommonSpecInpu
 				ExportFile:  mngtempFilePath,
 			})
 			Expect(err).To(BeNil())
-
 			mngscheme := runtime.NewScheme()
 			err = pkgiv1alpha1.AddToScheme(mngscheme)
 			Expect(err).NotTo(HaveOccurred())
 			err = runtanzuv1alpha3.AddToScheme(mngscheme)
 			Expect(err).NotTo(HaveOccurred())
-
-			// create k8sclient for management cluster
 			mngclient, err := createClientFromKubeconfig(mngtempFilePath, mngscheme)
 			Expect(err).ToNot(HaveOccurred(), "Failed to create management cluster client")
 
-			By(fmt.Sprintf("Verify addon packages on workload cluster %q matches clusterBootstrap info on management cluster", clusterName))
+			By(fmt.Sprintf("Get k8s client for workload cluster %q", clusterName))
 			wlcscheme := runtime.NewScheme()
 			err = pkgiv1alpha1.AddToScheme(wlcscheme)
 			Expect(err).NotTo(HaveOccurred())
-
-			// create k8sclient for workload cluster
 			wlcclient, err := createClientFromKubeconfig(tempFilePath, wlcscheme)
 			Expect(err).ToNot(HaveOccurred(), "Failed to create workload cluster client")
 
-			// check package information in clusterBootstrap
-			err = checkClusterCBS(context, mngclient, wlcclient, input.E2EConfig.ManagementClusterName, clusterName, input.E2EConfig.InfrastructureName)
+			By(fmt.Sprintf("Verify addon packages on workload cluster %q matches clusterBootstrap info on management cluster %q", clusterName, input.E2EConfig.ManagementClusterName))
+			err = checkClusterCB(ctx, mngclient, wlcclient, input.E2EConfig.ManagementClusterName, clusterName, input.E2EConfig.InfrastructureName)
 			Expect(err).To(BeNil())
 		}
 
