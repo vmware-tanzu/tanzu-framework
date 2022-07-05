@@ -19,6 +19,7 @@ import (
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/types"
 	kerrors "k8s.io/apimachinery/pkg/util/errors"
+	"k8s.io/utils/pointer"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/builder"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -41,6 +42,7 @@ type Config struct {
 	ObjectType       client.Object
 	ObjectListType   client.ObjectList
 	SourceNamespace  string
+	DetectSrcNSRef   bool
 	SourceSelector   labels.Selector
 	TargetNSSelector labels.Selector
 }
@@ -177,7 +179,7 @@ func (r *Reconciler) propagate(ctx context.Context, targetNS string, sourceObj c
 		r.Log.Info("Creating object", "type", sourceObj.GetObjectKind().GroupVersionKind(),
 			"namespace", targetNS, "name", sourceObj.GetName())
 		targetObj.SetNamespace(targetNS)
-		if err := overwrite(targetObj, sourceObj); err != nil {
+		if err := r.overwrite(targetObj, sourceObj); err != nil {
 			return err
 		}
 		return r.Client.Create(ctx, targetObj)
@@ -197,22 +199,75 @@ func (r *Reconciler) propagate(ctx context.Context, targetNS string, sourceObj c
 	ps := patchset.New(r.Client)
 	ps.Add(targetObj)
 
-	if err := overwrite(targetObj, sourceObj); err != nil {
+	if err := r.overwrite(targetObj, sourceObj); err != nil {
 		return err
 	}
 	return ps.Apply(ctx)
 }
 
-func overwrite(targetObj, sourceObj client.Object) error {
+func (r *Reconciler) overwrite(targetObj, sourceObj client.Object) error {
 	orig := targetObj.DeepCopyObject().(client.Object)
 
-	if err := mergo.Merge(targetObj, sourceObj, mergo.WithOverwriteWithEmptyValue); err != nil {
-		return err
+	sourceObjWithSourceNSReplaced := sourceObj.DeepCopyObject().(client.Object)
+	if r.Config.DetectSrcNSRef {
+		stringValueReplacer{
+			old: r.Config.SourceNamespace,
+			new: targetObj.GetNamespace(),
+		}.Replace(sourceObjWithSourceNSReplaced)
 	}
 
+	if err := mergo.Merge(targetObj, sourceObjWithSourceNSReplaced, mergo.WithOverwriteWithEmptyValue); err != nil {
+		return err
+	}
 	restoreMeta(targetObj, orig)
 
 	return nil
+}
+
+type stringValueReplacer struct {
+	old string
+	new string
+}
+
+func (r stringValueReplacer) Replace(obj interface{}) {
+	v := reflect.ValueOf(obj)
+	r.replace(v)
+}
+
+func (r stringValueReplacer) replace(v reflect.Value) {
+	switch v.Kind() {
+	case reflect.Ptr:
+		r.replace(v.Elem())
+	case reflect.Interface:
+		r.replace(v.Elem())
+	case reflect.Map:
+		r.replaceMap(v)
+	case reflect.Struct:
+		for i := 0; i < v.NumField(); i++ {
+			r.replace(v.Field(i))
+		}
+	case reflect.String:
+		if v.CanSet() && v.String() == r.old {
+			v.SetString(r.new)
+		}
+	}
+}
+
+func (r stringValueReplacer) replaceMap(v reflect.Value) {
+	iter := v.MapRange()
+	for iter.Next() {
+		kv, vv := iter.Key(), iter.Value()
+		switch {
+		case vv.Kind() == reflect.String && vv.String() == r.old:
+			v.SetMapIndex(kv, reflect.ValueOf(r.new))
+		case vv.Kind() == reflect.Interface && vv.Elem().Kind() == reflect.String && vv.Elem().String() == r.old:
+			v.SetMapIndex(kv, reflect.ValueOf(r.new))
+		case vv.Kind() == reflect.Ptr && vv.Elem().Kind() == reflect.String && vv.Elem().String() == r.old:
+			v.SetMapIndex(kv, reflect.ValueOf(pointer.StringPtr(r.new)))
+		default:
+			r.replace(vv)
+		}
+	}
 }
 
 func restoreMeta(targetObj, orig client.Object) {

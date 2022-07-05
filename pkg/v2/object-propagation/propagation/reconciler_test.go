@@ -86,7 +86,8 @@ var _ = Describe("Reconciler", func() {
 				LabelSelector: "",
 			},
 			Target: config.Target{
-				NamespaceLabelSelector: "!cluster.x-k8s.io/provider",
+				NamespaceLabelSelector:      "!cluster.x-k8s.io/provider",
+				DetectAndReplaceSourceNSRef: true,
 			},
 		})
 	})
@@ -202,6 +203,12 @@ var _ = Describe("Reconciler", func() {
 						UID:       uuid.NewUUID(),
 					},
 					Spec: clusterv1.ClusterClassSpec{
+						Infrastructure: clusterv1.LocalObjectTemplate{Ref: &corev1.ObjectReference{
+							Kind:       "AwesomeInfraCluster",
+							Namespace:  nameNSTKGSystem,
+							Name:       "awesome-infra-cluster",
+							APIVersion: "run.tanzu.vmware.com/v1omega3",
+						}},
 						ControlPlane: clusterv1.ControlPlaneClass{
 							Metadata: clusterv1.ObjectMeta{Annotations: map[string]string{
 								runv1.AnnotationResolveTKR: "",
@@ -223,6 +230,9 @@ var _ = Describe("Reconciler", func() {
 					for _, ns := range []string{nameNSDefault, nameNSUser1} {
 						cc := &clusterv1.ClusterClass{}
 						Expect(r.Client.Get(ctx, client.ObjectKey{Namespace: ns, Name: cc0.Name}, cc)).To(Succeed())
+
+						Expect(cc.Spec.Infrastructure.Ref.Namespace).To(Equal(ns))
+						cc.Spec.Infrastructure.Ref.Namespace = cc0.Spec.Infrastructure.Ref.Namespace
 
 						restoreMeta(cc, cc0)
 						Expect(cc).To(Equal(cc0))
@@ -253,6 +263,9 @@ var _ = Describe("Reconciler", func() {
 					for _, ns := range []string{nameNSDefault, nameNSUser1} {
 						cc := &clusterv1.ClusterClass{}
 						Expect(r.Client.Get(ctx, client.ObjectKey{Namespace: ns, Name: cc0.Name}, cc)).To(Succeed())
+
+						Expect(cc.Spec.Infrastructure.Ref.Namespace).To(Equal(ns))
+						cc.Spec.Infrastructure.Ref.Namespace = cc0.Spec.Infrastructure.Ref.Namespace
 
 						restoreMeta(cc, cc0)
 						Expect(cc).To(Equal(cc0))

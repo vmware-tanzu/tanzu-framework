@@ -11,6 +11,9 @@ Each set of source objects is specified using:
 
 The target namespace is specified by a label selector, which may be empty ("").
 
+`target.detectAndReplaceSourceNSRef` can be used to indicate that references to the source namespace should be replaced
+with the target namespace.
+
 The controller reads configuration provided via `--input` CLI parameter (default: `/dev/stdin`).
 Example input:
 
@@ -22,6 +25,7 @@ Example input:
     labelSelector: 'run.tanzu.vmware.com/propagated'
   target:
     namespaceLabelSelector: '!cluster.x-k8s.io/provider'
+    detectAndReplaceSourceNSRef: true
 - source:
     apiVersion: v1
     kind: Secret

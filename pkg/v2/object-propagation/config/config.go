@@ -18,7 +18,8 @@ type Source struct {
 }
 
 type Target struct {
-	NamespaceLabelSelector string `json:"namespaceLabelSelector"`
+	NamespaceLabelSelector      string `json:"namespaceLabelSelector"`
+	DetectAndReplaceSourceNSRef bool   `json:"detectAndReplaceSourceNSRef"`
 }
 
 type Entry struct {
