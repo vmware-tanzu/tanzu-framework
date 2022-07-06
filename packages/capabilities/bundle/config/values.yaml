@@ -3,8 +3,8 @@
 
 namespace: tkg-system
 deployment:
-  hostNetwork: true
-  nodeSelector: null
+  hostNetwork: false
+  nodeSelector: {}
   tolerations: []
 rbac:
   #! PSP resource names capabilities controller should use in its ClusterRole rules.
