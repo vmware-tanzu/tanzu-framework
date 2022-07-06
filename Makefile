@@ -658,11 +658,21 @@ generate-package-config:
 			-f testcases/${apiGroup}/${version}/$(shell echo $(kind) | tr A-Z a-z)/$(or $(iaas),default).yaml \
 			-v TKR_VERSION=${tkr} -v GLOBAL_NAMESPACE=$(or $(namespace),"tkg-system") ;\
 
+.PHONY: generate-package-secret
+generate-package-secret: ## Generate the default package values secret. Usage: make generate-package-secret PACKAGE=pinniped tkr=v1.23.3---vmware.1-tkg.1 iaas=vsphere
+	@if [ -z "$(PACKAGE)" ]; then \
+		echo "PACKAGE argument required"; \
+		exit 1 ;\
+	fi
 
-.PHONY: generate-package-secret ## Generate the default pinniped addon secret. e.g. make generate-package-secret tkr=v1.23.3---vmware.1-tkg.1 iaas=vsphere
-generate-package-secret:
-	@./addons/pinniped/tanzu-auth-controller-manager/hack/generate-package-secret.sh -v tkr=${tkr} -v infrastructure_provider=${iaas}
-
+	@if [ $(PACKAGE) == 'pinniped' ]; then \
+	  ./addons/pinniped/tanzu-auth-controller-manager/hack/generate-package-secret.sh -v tkr=${tkr} -v infrastructure_provider=${iaas} ;\
+	elif [ $(PACKAGE) == 'capabilities' ]; then \
+	  ./pkg/v1/sdk/capabilities/hack/generate-package-secret.sh -v tkr=${tkr} ;\
+	else \
+	  echo "invalid PACKAGE: $(PACKAGE)" ;\
+	  exit 1 ;\
+	fi
 
 ## --------------------------------------
 ##@ Provider templates/overlays
