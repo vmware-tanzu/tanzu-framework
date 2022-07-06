@@ -6,6 +6,7 @@ package controllers
 import (
 	"context"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/go-logr/logr"
@@ -913,7 +914,7 @@ func (r *ClusterBootstrapReconciler) createOrPatchAddonResourcesOnRemote(cluster
 	return nil
 }
 
-func (r *ClusterBootstrapReconciler) patchSecretWithTKGSDataValues(cluster *clusterapiv1beta1.Cluster, secret *corev1.Secret) error {
+func (r *ClusterBootstrapReconciler) patchSecretWithTKGSDataValues(cluster *clusterapiv1beta1.Cluster, cbpkg *runtanzuv1alpha3.ClusterBootstrapPackage, secret *corev1.Secret) error {
 	// Add TKR NodeSelector info if it's a TKGS cluster
 	infraRef, err := util.GetInfraProvider(cluster)
 	if err != nil {
@@ -924,6 +925,7 @@ func (r *ClusterBootstrapReconciler) patchSecretWithTKGSDataValues(cluster *clus
 		if err != nil {
 			return err
 		}
+
 		if ok {
 			upgradeDataValues := addontypes.TKGSDataValues{
 				NodeSelector: addontypes.NodeSelector{
@@ -940,6 +942,13 @@ func (r *ClusterBootstrapReconciler) patchSecretWithTKGSDataValues(cluster *clus
 					UpdateStrategy: constants.TKGSDaemonsetUpdateStrategy,
 				},
 			}
+
+			if strings.HasPrefix(cbpkg.RefName, "kapp") {
+				upgradeDataValues.NodeSelector.NodeInfo = &addontypes.NodeInfo{
+					NodeRoleMaster: "",
+				}
+			}
+
 			TKRDataValueYamlBytes, err := yaml.Marshal(upgradeDataValues)
 			if err != nil {
 				return err
@@ -1005,7 +1014,7 @@ func (r *ClusterBootstrapReconciler) createOrPatchPackageInstallSecretForKapp(cl
 	}
 
 	dataValuesSecretMutateFn := func() error {
-		if err := r.patchSecretWithTKGSDataValues(cluster, localSecret); err != nil {
+		if err := r.patchSecretWithTKGSDataValues(cluster, cbpkg, localSecret); err != nil {
 			return err
 		}
 		return nil
@@ -1049,7 +1058,7 @@ func (r *ClusterBootstrapReconciler) createOrPatchPackageInstallSecret(cluster *
 			remoteSecret.StringData[k] = string(v)
 		}
 
-		if err := r.patchSecretWithTKGSDataValues(cluster, remoteSecret); err != nil {
+		if err := r.patchSecretWithTKGSDataValues(cluster, cbpkg, remoteSecret); err != nil {
 			return err
 		}
 
