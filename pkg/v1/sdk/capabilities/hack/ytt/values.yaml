@@ -1,0 +1,12 @@
+#@data/values
+#@overlay/match-child-defaults missing_ok=True
+---
+tkr: v0.0.0
+namespace: tkg-system
+deployment:
+  hostNetwork: true
+  nodeSelector: {}
+  tolerations: []
+rbac:
+  #! PSP resource names capabilities controller should use in its ClusterRole rules.
+  podSecurityPolicyNames: []
