@@ -24,7 +24,12 @@ var versionCmd = &cobra.Command{
 		"group": string(cliv1alpha1.SystemCmdGroup),
 	},
 	RunE: func(cmd *cobra.Command, args []string) error {
-		fmt.Printf("version: %s\nbuildDate: %s\nsha: %s\n", buildinfo.Version, buildinfo.Date, buildinfo.SHA)
+		versionString := fmt.Sprintf("version: %s", buildinfo.Version)
+		if len(buildinfo.CommunityEditionVersion) > 0 {
+			versionString = fmt.Sprintf("%s %s", versionString, fmt.Sprintf("(Community Edition %s)", buildinfo.CommunityEditionVersion))
+		}
+		fmt.Printf("%s\n", versionString)
+		fmt.Printf("buildDate: %s\nsha: %s\n", buildinfo.Date, buildinfo.SHA)
 		return nil
 	},
 }

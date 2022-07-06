@@ -6,3 +6,7 @@ package buildinfo
 // IsOfficialBuild is the flag that gets set to True if it is an official build being released.
 // Set by go build -ldflags "-X" flag
 var IsOfficialBuild string
+
+// CommunityEditionVersion is the flag that gets set when building using the community edition
+// Set by go build -ldflags "-X" flag
+var CommunityEditionVersion string
