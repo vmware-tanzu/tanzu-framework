@@ -26,6 +26,7 @@ jobs:
           sudo rm -rf /home/tanzu/.cache
           sudo rm -rf /home/tanzu/.kube
           sudo rm -rf /home/tanzu/.local/share/tanzu-cli/*
+          sudo sh -c 'find /tmp -type d -name "go-build*" -mtime +3 | xargs rm -rf'
 
     - name: Set up Go 1.x
       uses: actions/setup-go@v3
