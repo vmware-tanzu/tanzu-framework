@@ -323,6 +323,8 @@ type Client interface {
 	VerifyCLIPluginCRD() (bool, error)
 	// IsClusterClassBased check whether cluster is ClusterClass based or not
 	IsClusterClassBased(clusterName, namespace string) (bool, error)
+	// GetClusterStatusInfo returns the cluster status information
+	GetClusterStatusInfo(clusterName, namespace string, workloadClusterClient Client) ClusterStatusInfo
 }
 
 // PollOptions is options for polling

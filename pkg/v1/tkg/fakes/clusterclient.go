@@ -224,6 +224,19 @@ type ClusterClient struct {
 		result1 string
 		result2 error
 	}
+	GetClusterStatusInfoStub        func(string, string, clusterclient.Client) clusterclient.ClusterStatusInfo
+	getClusterStatusInfoMutex       sync.RWMutex
+	getClusterStatusInfoArgsForCall []struct {
+		arg1 string
+		arg2 string
+		arg3 clusterclient.Client
+	}
+	getClusterStatusInfoReturns struct {
+		result1 clusterclient.ClusterStatusInfo
+	}
+	getClusterStatusInfoReturnsOnCall map[int]struct {
+		result1 clusterclient.ClusterStatusInfo
+	}
 	GetCurrentClusterNameStub        func(string) (string, error)
 	getCurrentClusterNameMutex       sync.RWMutex
 	getCurrentClusterNameArgsForCall []struct {
@@ -2172,6 +2185,69 @@ func (fake *ClusterClient) GetClusterInfrastructureReturnsOnCall(i int, result1 
 		result1 string
 		result2 error
 	}{result1, result2}
+}
+
+func (fake *ClusterClient) GetClusterStatusInfo(arg1 string, arg2 string, arg3 clusterclient.Client) clusterclient.ClusterStatusInfo {
+	fake.getClusterStatusInfoMutex.Lock()
+	ret, specificReturn := fake.getClusterStatusInfoReturnsOnCall[len(fake.getClusterStatusInfoArgsForCall)]
+	fake.getClusterStatusInfoArgsForCall = append(fake.getClusterStatusInfoArgsForCall, struct {
+		arg1 string
+		arg2 string
+		arg3 clusterclient.Client
+	}{arg1, arg2, arg3})
+	stub := fake.GetClusterStatusInfoStub
+	fakeReturns := fake.getClusterStatusInfoReturns
+	fake.recordInvocation("GetClusterStatusInfo", []interface{}{arg1, arg2, arg3})
+	fake.getClusterStatusInfoMutex.Unlock()
+	if stub != nil {
+		return stub(arg1, arg2, arg3)
+	}
+	if specificReturn {
+		return ret.result1
+	}
+	return fakeReturns.result1
+}
+
+func (fake *ClusterClient) GetClusterStatusInfoCallCount() int {
+	fake.getClusterStatusInfoMutex.RLock()
+	defer fake.getClusterStatusInfoMutex.RUnlock()
+	return len(fake.getClusterStatusInfoArgsForCall)
+}
+
+func (fake *ClusterClient) GetClusterStatusInfoCalls(stub func(string, string, clusterclient.Client) clusterclient.ClusterStatusInfo) {
+	fake.getClusterStatusInfoMutex.Lock()
+	defer fake.getClusterStatusInfoMutex.Unlock()
+	fake.GetClusterStatusInfoStub = stub
+}
+
+func (fake *ClusterClient) GetClusterStatusInfoArgsForCall(i int) (string, string, clusterclient.Client) {
+	fake.getClusterStatusInfoMutex.RLock()
+	defer fake.getClusterStatusInfoMutex.RUnlock()
+	argsForCall := fake.getClusterStatusInfoArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3
+}
+
+func (fake *ClusterClient) GetClusterStatusInfoReturns(result1 clusterclient.ClusterStatusInfo) {
+	fake.getClusterStatusInfoMutex.Lock()
+	defer fake.getClusterStatusInfoMutex.Unlock()
+	fake.GetClusterStatusInfoStub = nil
+	fake.getClusterStatusInfoReturns = struct {
+		result1 clusterclient.ClusterStatusInfo
+	}{result1}
+}
+
+func (fake *ClusterClient) GetClusterStatusInfoReturnsOnCall(i int, result1 clusterclient.ClusterStatusInfo) {
+	fake.getClusterStatusInfoMutex.Lock()
+	defer fake.getClusterStatusInfoMutex.Unlock()
+	fake.GetClusterStatusInfoStub = nil
+	if fake.getClusterStatusInfoReturnsOnCall == nil {
+		fake.getClusterStatusInfoReturnsOnCall = make(map[int]struct {
+			result1 clusterclient.ClusterStatusInfo
+		})
+	}
+	fake.getClusterStatusInfoReturnsOnCall[i] = struct {
+		result1 clusterclient.ClusterStatusInfo
+	}{result1}
 }
 
 func (fake *ClusterClient) GetCurrentClusterName(arg1 string) (string, error) {
@@ -6634,6 +6710,8 @@ func (fake *ClusterClient) Invocations() map[string][][]interface{} {
 	defer fake.getClientSetMutex.RUnlock()
 	fake.getClusterInfrastructureMutex.RLock()
 	defer fake.getClusterInfrastructureMutex.RUnlock()
+	fake.getClusterStatusInfoMutex.RLock()
+	defer fake.getClusterStatusInfoMutex.RUnlock()
 	fake.getCurrentClusterNameMutex.RLock()
 	defer fake.getCurrentClusterNameMutex.RUnlock()
 	fake.getCurrentKubeContextMutex.RLock()
