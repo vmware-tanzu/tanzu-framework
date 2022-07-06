@@ -251,7 +251,7 @@ func generateRepoBundle(projectRootDir string) error {
 	// create tarball of repo bundle
 	tarballVersion := formatVersion(nil, "_").concat
 	tarBallPath := filepath.Join(projectRootDir, constants.RepoBundlesDir, packageRepository)
-	tarBallFileName := "tanzu-framework-" + packageRepository + "-repo-" + tarballVersion + ".tar.gz"
+	tarBallFileName := packageRepository + "-repo-" + tarballVersion + ".tar.gz"
 	if err := utils.CreateTarball(tarBallPath, tarBallFileName, tarBallPath); err != nil {
 		return fmt.Errorf("couldn't generate package bundle: %w", err)
 	}
