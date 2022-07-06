@@ -14,7 +14,6 @@ import (
 	. "github.com/onsi/gomega"
 	"sigs.k8s.io/cluster-api/util"
 
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/config"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/test/framework"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/test/framework/exec"
@@ -64,7 +63,7 @@ var _ = Describe("TKGS - Create workload cluster use cases", func() {
 			AfterEach(func() {
 				defer os.Remove(clusterConfigFile)
 			})
-			When("cluster class cli feature flag (features.global.package-based-lcm-beta) set true", func() {
+			When("cluster class cli feature flag (features.global.package-based-lcm-beta) is set to true", func() {
 				BeforeEach(func() {
 					//set the cli feature flag as true -  (features.global.package-based-lcm-beta)
 					Expect(framework.SetCliConfigFlag(CLI_CLUSTERCLASS_FLAG, "true")).To(Succeed(), "error while setting CLI ClusterClass flag")
@@ -81,7 +80,7 @@ var _ = Describe("TKGS - Create workload cluster use cases", func() {
 					Expect(err).To(BeNil())
 				})
 			})
-			When("cluster class cli feature flag (features.global.package-based-lcm-beta) set false", func() {
+			When("cluster class cli feature flag (features.global.package-based-lcm-beta) is set to false", func() {
 				BeforeEach(func() {
 					//set the cli feature flag as false -  (features.global.package-based-lcm-beta)
 					Expect(framework.SetCliConfigFlag(CLI_CLUSTERCLASS_FLAG, "false")).To(Succeed(), "error while setting CLI ClusterClass flag")
@@ -109,7 +108,7 @@ var _ = Describe("TKGS - Create workload cluster use cases", func() {
 			AfterEach(func() {
 				defer os.Remove(clusterConfigFile)
 			})
-			When("cluster class cli feature flag (features.global.package-based-lcm-beta) set true", func() {
+			When("cluster class cli feature flag (features.global.package-based-lcm-beta) is set to true", func() {
 				BeforeEach(func() {
 					//set the cli feature flag as true -  (features.global.package-based-lcm-beta)
 					Expect(framework.SetCliConfigFlag(CLI_CLUSTERCLASS_FLAG, "true")).To(Succeed(), "error while setting CLI ClusterClass flag")
@@ -126,7 +125,7 @@ var _ = Describe("TKGS - Create workload cluster use cases", func() {
 					Expect(err).To(BeNil())
 				})
 			})
-			When("cluster class cli feature flag (features.global.package-based-lcm-beta) set false", func() {
+			When("cluster class cli feature flag (features.global.package-based-lcm-beta) is set to false", func() {
 				BeforeEach(func() {
 					//set the cli feature flag as false -  (features.global.package-based-lcm-beta)
 					Expect(framework.SetCliConfigFlag(CLI_CLUSTERCLASS_FLAG, "false")).To(Succeed(), "error while setting CLI ClusterClass flag")
@@ -152,7 +151,7 @@ var _ = Describe("TKGS - Create workload cluster use cases", func() {
 			Expect(cclusterFile).ToNot(BeEmpty(), fmt.Sprintf("the input cluster class based config file should not be empty, file path: %v", e2eConfig.WorkloadClusterOptions.ClusterClassFilePath))
 			clusterOptions.ClusterConfigFile = e2eConfig.WorkloadClusterOptions.ClusterClassFilePath
 		})
-		When("cluster class cli feature flag (features.global.package-based-lcm-beta) set true", func() {
+		When("cluster class cli feature flag (features.global.package-based-lcm-beta) is set to true", func() {
 			BeforeEach(func() {
 				//set the cli feature flag as true -  (features.global.package-based-lcm-beta)
 				Expect(framework.SetCliConfigFlag(CLI_CLUSTERCLASS_FLAG, "true")).To(Succeed(), "error while setting CLI feature flag")
@@ -170,17 +169,26 @@ var _ = Describe("TKGS - Create workload cluster use cases", func() {
 				Expect(err).To(BeNil())
 			})
 		})
-		When("cluster class cli feature flag (features.global.package-based-lcm-beta) set false", func() {
+		When("cluster class cli feature flag (features.global.package-based-lcm-beta) is set to false", func() {
 			BeforeEach(func() {
 				//set the cli feature flag as false -  (features.global.package-based-lcm-beta)
 				Expect(framework.SetCliConfigFlag(CLI_CLUSTERCLASS_FLAG, "false")).To(Succeed(), "error while setting CLI ClusterClass flag")
 				tkgctlClient, err = tkgctl.New(tkgctlOptions)
 				Expect(err).To(BeNil())
 			})
-			It("should return error", func() {
-				By(fmt.Sprintf("creating Cluster class based workload cluster, cli feature flag is disabled"))
-				err = tkgctlClient.CreateCluster(clusterOptions)
-				Expect(err.Error()).To(ContainSubstring(fmt.Sprintf(constants.ErrorMsgCClassInputFeatureFlagDisabled, config.FeatureFlagPackageBasedLCM)))
+			It("should return success or error based on the ClusterClass feature-gate status on the Supervisor", func() {
+				featureGateHelper := tkgctlClient.FeatureGateHelper()
+				isClusterClassFeatureActivated, _ := featureGateHelper.FeatureActivatedInNamespace(context.Background(), constants.ClusterClassFeature, constants.TKGSClusterClassNamespace)
+				if isClusterClassFeatureActivated {
+					By(fmt.Sprintf("creating Cluster class based workload cluster, ClusterClass feature-gate is activated"))
+					err = tkgctlClient.CreateCluster(clusterOptions)
+					Expect(err).To(BeNil())
+				} else {
+					By(fmt.Sprintf("creating Cluster class based workload cluster, ClusterClass feature-gate is deactivated"))
+					err = tkgctlClient.CreateCluster(clusterOptions)
+					Expect(err).NotTo(BeNil())
+					Expect(err.Error()).To(ContainSubstring(fmt.Sprintf(constants.ErrorMsgFeatureGateNotActivated, constants.ClusterClassFeature, constants.TKGSClusterClassNamespace)))
+				}
 			})
 		})
 	})
