@@ -1011,7 +1011,7 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 			}
 		})
 		Context("controller should not crash", func() {
-			It("and create pacakge install for kapp ", func() {
+			It("and create package install for kapp ", func() {
 				By("setting cluster phase to provisioned")
 				cluster := &clusterapiv1beta1.Cluster{}
 				Expect(k8sClient.Get(ctx, client.ObjectKey{Namespace: clusterNamespace, Name: clusterName}, cluster)).To(Succeed())

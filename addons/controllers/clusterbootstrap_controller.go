@@ -633,7 +633,7 @@ func (r *ClusterBootstrapReconciler) createOrPatchKappPackageInstall(clusterBoot
 				},
 			}
 		} else {
-			r.Log.Info("[Warning]: Empty secret for kapp-controller package. Either kappcontrollerconfig_controller has not reconciled yet or "+
+			r.Log.Info("[Warning]: Empty secret for kapp-controller package. Either KappControllerConfig controller has not reconciled yet or "+
 				"ClusterBootstrap is mis-configured with an incorrect clusterBootstrap.Spec.Kapp.ValuesFrom",
 				"clusterBootstrap", clusterBootstrap.Name, "namespace", clusterBootstrap.Namespace)
 		}
