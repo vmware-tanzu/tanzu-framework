@@ -626,10 +626,16 @@ func (r *ClusterBootstrapReconciler) createOrPatchKappPackageInstall(clusterBoot
 		if err != nil {
 			return err
 		}
-		pkgi.Spec.Values = []kapppkgiv1alpha1.PackageInstallValues{
-			{SecretRef: &kapppkgiv1alpha1.PackageInstallValuesSecretRef{
-				Name: secret.Name},
-			},
+		if secret != nil {
+			pkgi.Spec.Values = []kapppkgiv1alpha1.PackageInstallValues{
+				{SecretRef: &kapppkgiv1alpha1.PackageInstallValuesSecretRef{
+					Name: secret.Name},
+				},
+			}
+		} else {
+			r.Log.Info("[Warning]: Empty secret for kapp-controller package. Either kappcontrollerconfig_controller has not reconciled yet or "+
+				"ClusterBootstrap is mis-configured with an incorrect clusterBootstrap.Spec.Kapp.ValuesFrom",
+				"clusterBootstrap", clusterBootstrap.Name, "namespace", clusterBootstrap.Namespace)
 		}
 
 		return nil
@@ -995,6 +1001,10 @@ func (r *ClusterBootstrapReconciler) createOrPatchPackageInstallSecretForKapp(cl
 	localSecret, err := r.getDataValueSecretFromBootstrapPackage(cluster, cbpkg)
 	if err != nil {
 		return nil, err
+	}
+	//controller hasn't finished reconciling
+	if localSecret == nil {
+		return nil, nil
 	}
 
 	dataValuesSecretMutateFn := func() error {
