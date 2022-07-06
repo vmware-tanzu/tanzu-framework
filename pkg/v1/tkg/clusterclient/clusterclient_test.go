@@ -2617,6 +2617,100 @@ var _ = Describe("Cluster Client", func() {
 		})
 	})
 
+	Describe("Delete cluster", func() {
+		var server *ghttp.Server
+		var discoveryClient *discovery.DiscoveryClient
+		BeforeEach(func() {
+			reInitialize()
+			server = ghttp.NewServer()
+			server.AppendHandlers(
+				ghttp.CombineHandlers(
+					ghttp.VerifyRequest("GET", "/version"),
+					ghttp.RespondWith(http.StatusOK, "{\"major\": \"1\",\"minor\": \"17+\"}"),
+				),
+				ghttp.CombineHandlers(
+					ghttp.VerifyRequest("GET", "/apis/run.tanzu.vmware.com"),
+					ghttp.RespondWith(http.StatusOK, "{\"preferredVersion\": {\"groupVersion\": \"run.tanzu.vmware.com/v1alpha1\"}}"),
+				),
+				ghttp.CombineHandlers(
+					ghttp.VerifyRequest("GET", "/apis/run.tanzu.vmware.com/v1alpha1"),
+					ghttp.RespondWith(http.StatusOK, "{\"resources\": [ {\"kind\": \"TanzuKubernetesCluster\"}]}"),
+				),
+			)
+			discoveryClient = discovery.NewDiscoveryClientForConfigOrDie(&restclient.Config{Host: server.URL()})
+			discoveryClientFactory.NewDiscoveryClientForConfigReturns(discoveryClient, nil)
+			kubeConfigPath := getConfigFilePath("config1.yaml")
+			clstClient, err = NewClient(kubeConfigPath, "", clusterClientOptions)
+			Expect(err).NotTo(HaveOccurred())
+
+		})
+		AfterEach(func() {
+			server.Close()
+		})
+
+		Context("When failed to determine the cluster type (IsClusterClassBased() returns error)", func() {
+			JustBeforeEach(func() {
+				clientset.GetReturns(errors.New("fake-error"))
+				err = clstClient.DeleteCluster("fake-clusterName", "fake-namespace")
+			})
+			It("should return an error", func() {
+				Expect(err).To(HaveOccurred())
+				Expect(err.Error()).To(ContainSubstring("fake-error"))
+				Expect(err.Error()).To(ContainSubstring("unable to determine cluster type"))
+			})
+		})
+		Context("When management cluster is TKGS supervisor and cluster is not ClusterClass based", func() {
+			var tkc tkgsv1alpha2.TanzuKubernetesCluster
+			JustBeforeEach(func() {
+				clientset.GetCalls(func(ctx context.Context, namespace types.NamespacedName, obj crtclient.Object) error {
+					switch o := obj.(type) {
+					case *tkgsv1alpha2.TanzuKubernetesCluster:
+						tkc = getDummyPacificCluster()
+						o.DeepCopyInto(&tkc)
+					case *capi.Cluster:
+						topology := &capi.Topology{
+							Class: "",
+						}
+						o.Spec.Topology = topology
+					}
+					return nil
+				})
+
+				err = clstClient.DeleteCluster("fake-clusterName", "fake-namespace")
+			})
+			It("should not return an error and the TKC cluster object should be deleted", func() {
+				Expect(err).NotTo(HaveOccurred())
+				_, tkcRecvd, _ := clientset.DeleteArgsForCall(0)
+				Expect(*tkcRecvd.(*tkgsv1alpha2.TanzuKubernetesCluster)).To(Equal(tkc))
+			})
+		})
+		Context("When management cluster is TKGS supervisor and cluster is ClusterClass based", func() {
+			var tkc tkgsv1alpha2.TanzuKubernetesCluster
+			JustBeforeEach(func() {
+				clientset.GetCalls(func(ctx context.Context, namespace types.NamespacedName, obj crtclient.Object) error {
+					switch o := obj.(type) {
+					case *tkgsv1alpha2.TanzuKubernetesCluster:
+						tkc = getDummyPacificCluster()
+						o.DeepCopyInto(&tkc)
+					case *capi.Cluster:
+						topology := &capi.Topology{
+							Class: "fake-cluster-class",
+						}
+						o.Spec.Topology = topology
+					}
+					return nil
+				})
+
+				err = clstClient.DeleteCluster("fake-clusterName", "fake-namespace")
+			})
+			It("should not return an error and the cluster object should be deleted", func() {
+				Expect(err).NotTo(HaveOccurred())
+				_, obj, _ := clientset.DeleteArgsForCall(0)
+				Expect(obj.(*capi.Cluster)).ToNot(BeNil())
+			})
+		})
+
+	})
 	Describe("Unit tests for IsClusterClassBased", func() {
 		var isClusterClassBased bool
 
