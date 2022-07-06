@@ -6,7 +6,6 @@ package shared
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"math/rand"
 	"path/filepath"
@@ -16,6 +15,7 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
+	"github.com/pkg/errors"
 	batchv1 "k8s.io/api/batch/v1"
 	"k8s.io/api/batch/v1beta1"
 	v1 "k8s.io/api/core/v1"
@@ -174,7 +174,7 @@ func verifyTelemetryJobRunning(context context.Context, mcProxy *framework.Clust
 		}
 		return true, nil
 	}); err != nil {
-		return err
+		return errors.Wrap(err, "unable to find telemetry cronjob")
 	}
 
 	// check to see if any telemetry pod gets created within pollTimeout time interval
@@ -192,7 +192,7 @@ func verifyTelemetryJobRunning(context context.Context, mcProxy *framework.Clust
 		}
 		return true, nil
 	}); err != nil {
-		return err
+		return errors.Wrap(err, "error while waiting for telemetry pods to be available")
 	}
 
 	// check to make sure that the telemetry pods are in either of "Running" or "Succeeded" phases
@@ -211,7 +211,7 @@ func verifyTelemetryJobRunning(context context.Context, mcProxy *framework.Clust
 		}
 		return true, nil
 	}); err != nil {
-		return err
+		return errors.Wrap(err, "telemetry job is not running")
 	}
 
 	// returning the telemetry cron job schedule back to "0 */6 * * *"
@@ -222,7 +222,7 @@ func verifyTelemetryJobRunning(context context.Context, mcProxy *framework.Clust
 	cronJobToUpdate = cronJob.DeepCopy()
 	cronJobToUpdate.Spec.Schedule = "0 */6 * * *"
 	if err = client.Update(context, cronJobToUpdate); err != nil {
-		return err
+		return errors.Wrap(err, "error while resetting the schedule interval for cronjob")
 	}
 
 	log.Info("successfully verified that telemetry job and pods are running")
