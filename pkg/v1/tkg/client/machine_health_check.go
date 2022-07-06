@@ -89,6 +89,11 @@ func (c *TkgClient) DeleteMachineHealthCheck(options MachineHealthCheckOptions) 
 	if err != nil {
 		return err
 	}
+
+	if cluster.Spec.Topology != nil {
+		return errors.New("deleting machine health checks on clusterclass based clusters is not supported")
+	}
+
 	if options.Namespace == "" {
 		options.Namespace = cluster.Namespace
 		log.Infof("use %s as default namespace", options.Namespace)
@@ -230,6 +235,11 @@ func (c *TkgClient) SetMachineHealthCheck(options *SetMachineHealthCheckOptions)
 	if err != nil {
 		return err
 	}
+
+	if cluster.Spec.Topology != nil {
+		return errors.New("setting machine health checks on clusterclass based clusters is not supported")
+	}
+
 	if options.Namespace == "" {
 		options.Namespace = cluster.Namespace
 		log.Infof("use %s as default namespace", options.Namespace)

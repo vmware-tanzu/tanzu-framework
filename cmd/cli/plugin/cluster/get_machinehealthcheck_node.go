@@ -13,6 +13,7 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/apis/config/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/config"
 
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/client"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgctl"
 )
 
@@ -60,7 +61,7 @@ func runGetMachineHealthCheckNode(server *v1alpha1.Server, clusterName string) e
 		ClusterName:            clusterName,
 		Namespace:              getMHCNode.namespace,
 		MachineHealthCheckName: getMHCNode.machinehealthCheckName,
-		MatchLabel:             nodePoolLabel,
+		MatchLabel:             "",
 	}
 
 	mhcList, err := tkgctlClient.GetMachineHealthCheck(options)
@@ -68,7 +69,16 @@ func runGetMachineHealthCheckNode(server *v1alpha1.Server, clusterName string) e
 		return err
 	}
 
-	bytes, err := json.MarshalIndent(mhcList, "", "    ")
+	var filtered []client.MachineHealthCheck
+	for i := range mhcList {
+		if _, ok := mhcList[i].Spec.Selector.MatchLabels[nodePoolLabel]; ok {
+			filtered = append(filtered, mhcList[i])
+		} else if _, ok := mhcList[i].Spec.Selector.MatchLabels[machineDeploymentLabel]; ok {
+			filtered = append(filtered, mhcList[i])
+		}
+	}
+
+	bytes, err := json.MarshalIndent(filtered, "", "    ")
 	if err != nil {
 		return errors.Wrap(err, "error marshaling the list of MachineHealthCheck objects")
 	}
