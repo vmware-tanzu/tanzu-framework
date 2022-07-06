@@ -1522,8 +1522,12 @@ func (c *client) ListClusters(namespace string) ([]capi.Cluster, error) {
 }
 
 func (c *client) DeleteCluster(clusterName, namespace string) error {
+	isCCBasedCluster, err := c.IsClusterClassBased(clusterName, namespace)
+	if err != nil {
+		return errors.Wrap(err, "unable to determine cluster type")
+	}
 	isPacific, err := c.IsPacificRegionalCluster()
-	if err == nil && isPacific {
+	if err == nil && isPacific && !isCCBasedCluster {
 		tkcObj, err := c.GetPacificClusterObject(clusterName, namespace)
 		if err != nil {
 			errString := fmt.Sprintf("failed to get cluster object for delete: %s", err.Error())
@@ -1531,7 +1535,6 @@ func (c *client) DeleteCluster(clusterName, namespace string) error {
 		}
 		return c.DeleteResource(tkcObj)
 	}
-
 	clusterObject := &capi.Cluster{}
 	clusterObject.Name = clusterName
 	clusterObject.Namespace = namespace
