@@ -200,11 +200,11 @@ func (r *Reconciler) findUpdateVersion(tkr *runv1.TanzuKubernetesRelease, cluste
 }
 
 func resolvedTKRVersions(currentTKR *runv1.TanzuKubernetesRelease, tkrResult data.Result) ([]string, error) {
+	currentTKRVersion, _ := version.ParseSemantic(currentTKR.Spec.Version)
 	var result []string
 	for _, tkrs := range tkrResult.ControlPlane.TKRsByK8sVersion {
 		for _, tkr := range tkrs {
 			tkrVersion, _ := version.ParseSemantic(tkr.Spec.Version)
-			currentTKRVersion, _ := version.ParseSemantic(currentTKR.Spec.Version)
 			if currentTKRVersion.LessThan(tkrVersion) {
 				result = append(result, tkr.Spec.Version)
 			}
