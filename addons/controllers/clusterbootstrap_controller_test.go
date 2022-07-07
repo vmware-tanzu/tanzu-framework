@@ -994,6 +994,41 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 			})
 		})
 	})
+
+	When("Cluster with no valuesFrom for kapp-controller", func() {
+		BeforeEach(func() {
+			clusterName = "test-cluster-4"
+			clusterNamespace = "cluster-namespace-4"
+			clusterResourceFilePath = "testdata/test-cluster-bootstrap-4.yaml"
+			ns := &corev1.Namespace{
+				ObjectMeta: metav1.ObjectMeta{
+					Name: clusterNamespace,
+				},
+			}
+			err := k8sClient.Create(ctx, ns)
+			if err != nil {
+				Expect(apierrors.IsAlreadyExists(err)).To(BeTrue())
+			}
+		})
+		Context("controller should not crash", func() {
+			It("and create package install for kapp ", func() {
+				By("setting cluster phase to provisioned")
+				cluster := &clusterapiv1beta1.Cluster{}
+				Expect(k8sClient.Get(ctx, client.ObjectKey{Namespace: clusterNamespace, Name: clusterName}, cluster)).To(Succeed())
+				cluster.Status.Phase = string(clusterapiv1beta1.ClusterPhaseProvisioned)
+				Expect(k8sClient.Status().Update(ctx, cluster)).To(Succeed())
+
+				pkgiName := util.GeneratePackageInstallName(clusterName, "kapp-controller.tanzu.vmware.com.0.31.0")
+				pkgi := &kapppkgiv1alpha1.PackageInstall{}
+				Eventually(func() bool {
+					if err := k8sClient.Get(ctx, client.ObjectKey{Namespace: clusterNamespace, Name: pkgiName}, pkgi); err != nil {
+						return false
+					}
+					return true
+				}, waitTimeout, pollingInterval).Should(BeTrue())
+			})
+		})
+	})
 })
 
 func assertSecretContains(ctx context.Context, k8sClient client.Client, namespace, name string, secretContent map[string][]byte) {
