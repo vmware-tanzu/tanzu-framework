@@ -19,6 +19,10 @@ import (
 const (
 	/* Addon constants section */
 
+	// AddonControllerManagerLeaderElectionResourceName is the name of the resource that leader election of
+	// addons controller manager will use for holding the leader lock.
+	AddonControllerManagerLeaderElectionResourceName = "tanzu-addons-manager-leader-lock"
+
 	// CalicoAddonName is name of the Calico addon
 	CalicoAddonName = "calico"
 

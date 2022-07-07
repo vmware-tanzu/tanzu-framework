@@ -324,7 +324,11 @@ metadata:
   name: tanzu-addons-controller-manager
   namespace: #@ data.values.tanzuAddonsManager.namespace
 spec:
+  #@ if data.values.tanzuAddonsManager.deployment.leaderElection:
+  replicas: #@ data.values.tanzuAddonsManager.deployment.replicas
+  #@ else:
   replicas: 1
+  #@ end
   selector:
     matchLabels:
       app: tanzu-addons-manager
@@ -338,7 +342,7 @@ spec:
       containers:
       - args:
         - #@ "--metrics-bind-addr={}".format(data.values.tanzuAddonsManager.deployment.metricsBindAddress)
-        - --leader-elect=false
+        - #@ "--leader-elect={}".format(data.values.tanzuAddonsManager.deployment.leaderElection)
         - #@ "--health-addr=:{}".format(data.values.tanzuAddonsManager.deployment.healthzPort)
         - #@ "--webhook-server-port={}".format(data.values.tanzuAddonsManager.deployment.webhookServerPort)
         - #@ "--addon-namespace={}".format(data.values.tanzuAddonsManager.namespace)
