@@ -15,6 +15,7 @@ frameworkPackage:
         tanzuAddonsManager:
             featureGates:
                 clusterBootstrapController: true
+                packageInstallStatus: true
     tanzuAuthPackageValues:
         versionConstraints: v0.21.0
 clusterclassPackage:

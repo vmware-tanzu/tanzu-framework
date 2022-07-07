@@ -62,6 +62,7 @@ func GetTKGPackageConfigValuesFileFromUserConfig(managementPackageVersion string
 				TanzuAddonsManager: TanzuAddonsManager{
 					FeatureGates: AddonsFeatureGates{
 						ClusterBootstrapController: true,
+						PackageInstallStatus:       true,
 					},
 				},
 			},
