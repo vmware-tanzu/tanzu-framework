@@ -25,7 +25,11 @@ directories:
       url: git@github.com:vmware-tanzu/community-edition.git
       ref: 5e43d627bdd25ebca3f5c30ce72331f1543a0eba
     includePaths:
+<<<<<<< HEAD
     - addons/packages/kapp-controller/0.38.3/bundle/config/**/*
+=======
+    - addons/packages/kapp-controller/0.34.0/bundle/config/**/*
+>>>>>>> add http proxy and replica values
 - path: ytt/vendir/csi/_ytt_lib
   contents:
   - path: .
