@@ -8,10 +8,9 @@ import (
 	"fmt"
 	"time"
 
-	"gopkg.in/yaml.v3"
-
 	"github.com/go-logr/logr"
 	"github.com/pkg/errors"
+	"gopkg.in/yaml.v3"
 	corev1 "k8s.io/api/core/v1"
 	rbacv1 "k8s.io/api/rbac/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
@@ -21,7 +20,6 @@ import (
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/kubernetes"
-	"k8s.io/client-go/util/retry"
 	"k8s.io/utils/pointer"
 	clusterapiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
 	clusterapiutil "sigs.k8s.io/cluster-api/util"
@@ -298,7 +296,7 @@ func (r *ClusterBootstrapReconciler) createOrPatchResourcesForAdditionalPackages
 }
 
 func (r *ClusterBootstrapReconciler) addFinalizersToClusterResources(cluster *clusterapiv1beta1.Cluster, log logr.Logger) error {
-	err := r.addFinalizer(cluster)
+	err := r.addFinalizer(cluster, cluster.DeepCopy())
 	if err != nil {
 		log.Error(err, "failed to add finalizer to cluster ")
 		return err
@@ -310,7 +308,7 @@ func (r *ClusterBootstrapReconciler) addFinalizersToClusterResources(cluster *cl
 	if err != nil {
 		return err
 	}
-	err = r.addFinalizer(clusterKubeConfigSecret)
+	err = r.addFinalizer(clusterKubeConfigSecret, clusterKubeConfigSecret.DeepCopy())
 	if err != nil {
 		log.Error(err, "failed to add finalizer to cluster kubeconfig secret")
 		return err
@@ -321,7 +319,7 @@ func (r *ClusterBootstrapReconciler) addFinalizersToClusterResources(cluster *cl
 	if err != nil {
 		return err
 	}
-	err = r.addFinalizer(clusterBootstrap)
+	err = r.addFinalizer(clusterBootstrap, clusterBootstrap.DeepCopy())
 	if err != nil {
 		log.Error(err, "failed to add finalizer to clusterboostrap")
 		return err
@@ -330,11 +328,10 @@ func (r *ClusterBootstrapReconciler) addFinalizersToClusterResources(cluster *cl
 	return nil
 }
 
-func (r *ClusterBootstrapReconciler) addFinalizer(o client.Object) error {
-	controllerutil.AddFinalizer(o, addontypes.AddonFinalizer)
-	return retry.RetryOnConflict(retry.DefaultRetry, func() error {
-		return r.Client.Update(r.context, o)
-	})
+func (r *ClusterBootstrapReconciler) addFinalizer(o client.Object, deepCopy client.Object) error {
+	controllerutil.AddFinalizer(deepCopy, addontypes.AddonFinalizer)
+	return r.Client.Patch(r.context, deepCopy, client.MergeFrom(o))
+
 }
 
 // handleClusterUnpause unpauses the cluster if the cluster pause annotation is set by cluster pause webhook (cluster has "tkg.tanzu.vmware.com/paused" annotation)
@@ -1308,30 +1305,31 @@ func (r *ClusterBootstrapReconciler) makeClusterIsReadyForDeletion(cluster *clus
 func (r *ClusterBootstrapReconciler) removeFinalizersFromClusterResources(cluster *clusterapiv1beta1.Cluster, log logr.Logger) error {
 	clusterBootstrap := &runtanzuv1alpha3.ClusterBootstrap{}
 	err := r.Client.Get(r.context, client.ObjectKeyFromObject(cluster), clusterBootstrap)
-	if err != nil && !apierrors.IsNotFound(err) {
-		log.Error(err, "failed to lookup clusterbootstrap")
-		return err
-	}
-	if !apierrors.IsNotFound(err) {
-		err = r.removeFinalizer(clusterBootstrap)
+	if err == nil {
+		log.Info("removing finalizer for clusterbootstrap")
+		err = r.removeFinalizer(clusterBootstrap, clusterBootstrap.DeepCopy())
 		if err != nil {
 			return err
 		}
+	} else if err != nil && !apierrors.IsNotFound(err) {
+		log.Error(err, "failed to lookup clusterbootstrap")
+		return err
 	}
 
 	clusterKubeConfigSecret := &corev1.Secret{}
 	key := client.ObjectKey{Namespace: cluster.Namespace, Name: secretutil.Name(cluster.Name, secretutil.Kubeconfig)}
 	err = r.Client.Get(r.context, key, clusterKubeConfigSecret)
 	if err == nil {
-		err = r.removeFinalizer(clusterKubeConfigSecret)
+		log.Info("removing finalizer for kubeconfig secret")
+		err = r.removeFinalizer(clusterKubeConfigSecret, clusterKubeConfigSecret.DeepCopy())
 		if err != nil {
 			return err
 		}
 	} else if !apierrors.IsNotFound(err) {
 		return err
 	}
-
-	err = r.removeFinalizer(cluster)
+	log.Info("removing finalizer for cluster")
+	err = r.removeFinalizer(cluster, cluster.DeepCopy())
 	if err != nil {
 		return err
 	}
@@ -1377,17 +1375,20 @@ func (r *ClusterBootstrapReconciler) reconcileDelete(cluster *clusterapiv1beta1.
 
 	log.Info("cluster ready for deletion. Removing finalizers")
 	if err = r.removeFinalizersFromClusterResources(cluster, log); err != nil {
-		return ctrl.Result{Requeue: true}, nil
+		log.Error(err, "unable to remove finalizers")
+		return ctrl.Result{}, err
 	}
 
 	return ctrl.Result{}, nil
 }
 
-func (r *ClusterBootstrapReconciler) removeFinalizer(o client.Object) error {
-	controllerutil.RemoveFinalizer(o, addontypes.AddonFinalizer)
-	return retry.RetryOnConflict(retry.DefaultRetry, func() error {
-		return r.Client.Update(r.context, o)
-	})
+func (r *ClusterBootstrapReconciler) removeFinalizer(o client.Object, deepCopy client.Object) error {
+	if controllerutil.ContainsFinalizer(deepCopy, addontypes.AddonFinalizer) {
+		controllerutil.RemoveFinalizer(deepCopy, addontypes.AddonFinalizer)
+		return r.Client.Patch(r.context, deepCopy, client.MergeFrom(o))
+	}
+	return nil
+
 }
 
 func hasPackageInstalls(ctx context.Context, remoteClient client.Client,
