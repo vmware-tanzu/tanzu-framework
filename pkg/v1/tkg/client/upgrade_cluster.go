@@ -135,17 +135,6 @@ func (c *TkgClient) UpgradeCluster(options *UpgradeClusterOptions) error {
 		return errors.Wrap(err, "unable to get cluster client while upgrading cluster")
 	}
 
-	// Check if Cluster is ClusterClass based cluster or not
-	isClusterClassBased, err := regionalClusterClient.IsClusterClassBased(options.ClusterName, options.Namespace)
-	if err != nil {
-		return errors.Wrap(err, "unable to determine cluster type")
-	}
-
-	// If this is TKGS cluster and using TKC API then upgrade using legacy TKC based approach
-	if options.IsTKGSCluster && !isClusterClassBased {
-		return c.DoPacificClusterUpgrade(regionalClusterClient, options)
-	}
-
 	// get the management cluster name and namespace in case of management cluster upgrade
 	if options.IsRegionalCluster {
 		clusterName, namespace, err := c.getRegionalClusterNameAndNamespace(regionalClusterClient)
@@ -158,6 +147,17 @@ func (c *TkgClient) UpgradeCluster(options *UpgradeClusterOptions) error {
 
 	if options.Namespace == "" {
 		options.Namespace = constants.DefaultNamespace
+	}
+
+	// Check if Cluster is ClusterClass based cluster or not
+	isClusterClassBased, err := regionalClusterClient.IsClusterClassBased(options.ClusterName, options.Namespace)
+	if err != nil {
+		return errors.Wrap(err, "unable to determine cluster type")
+	}
+
+	// If this is TKGS cluster and using TKC API then upgrade using legacy TKC based approach
+	if options.IsTKGSCluster && !isClusterClassBased {
+		return c.DoPacificClusterUpgrade(regionalClusterClient, options)
 	}
 
 	var currentClusterClient clusterclient.Client
