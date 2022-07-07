@@ -5,8 +5,10 @@
 package tkgs
 
 import (
+	"bytes"
 	"context"
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 
@@ -20,6 +22,8 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/test/framework/exec"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgctl"
 )
+
+const TKC_KIND = "kind: TanzuKubernetesCluster"
 
 var _ = Describe("TKGS - Create workload cluster use cases", func() {
 	var (
@@ -80,6 +84,32 @@ var _ = Describe("TKGS - Create workload cluster use cases", func() {
 					err = tkgctlClient.DeleteCluster(deleteClusterOptions)
 					Expect(err).To(BeNil())
 				})
+				When("dry-run enabled", func() {
+					BeforeEach(func() {
+						// set dry-run mode
+						clusterOptions.GenerateOnly = true
+					})
+					It("should give TKC configuration as output", func() {
+						By(fmt.Sprintf("creating TKC workload cluster %v in namespace: %v in dry-run mode, cli feature flag is enabled", e2eConfig.WorkloadClusterOptions.ClusterName, e2eConfig.WorkloadClusterOptions.Namespace))
+						stdoutOld := os.Stdout
+						r, w, _ := os.Pipe()
+						defer r.Close()
+						defer w.Close()
+						os.Stdout = w
+
+						err = tkgctlClient.CreateCluster(clusterOptions)
+						Expect(err).To(BeNil())
+
+						w.Close()
+						os.Stdout = stdoutOld
+						var buf bytes.Buffer
+						io.Copy(&buf, r)
+						r.Close()
+						str := buf.String()
+						Expect(str).To(ContainSubstring(TKC_KIND))
+						Expect(str).To(ContainSubstring("name: " + e2eConfig.WorkloadClusterOptions.ClusterName))
+					})
+				})
 			})
 			When("cluster class cli feature flag (features.global.package-based-lcm-beta) set false", func() {
 				BeforeEach(func() {
@@ -96,6 +126,32 @@ var _ = Describe("TKGS - Create workload cluster use cases", func() {
 					By(fmt.Sprintf("deleting TKC workload cluster %v in namespace: %v", e2eConfig.WorkloadClusterOptions.ClusterName, e2eConfig.WorkloadClusterOptions.Namespace))
 					err = tkgctlClient.DeleteCluster(deleteClusterOptions)
 					Expect(err).To(BeNil())
+				})
+				When("dry-run enabled", func() {
+					BeforeEach(func() {
+						// set dry-run mode
+						clusterOptions.GenerateOnly = true
+					})
+					It("should give TKC configuration as output", func() {
+						By(fmt.Sprintf("creating TKC workload cluster %v in namespace: %v in dry-run mode, cli feature flag is disabled", e2eConfig.WorkloadClusterOptions.ClusterName, e2eConfig.WorkloadClusterOptions.Namespace))
+						stdoutOld := os.Stdout
+						r, w, _ := os.Pipe()
+						defer r.Close()
+						defer w.Close()
+						os.Stdout = w
+
+						err = tkgctlClient.CreateCluster(clusterOptions)
+						Expect(err).To(BeNil())
+
+						w.Close()
+						os.Stdout = stdoutOld
+						var buf bytes.Buffer
+						io.Copy(&buf, r)
+						r.Close()
+						str := buf.String()
+						Expect(str).To(ContainSubstring(TKC_KIND))
+						Expect(str).To(ContainSubstring("name: " + e2eConfig.WorkloadClusterOptions.ClusterName))
+					})
 				})
 			})
 		})
