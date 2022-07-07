@@ -26,6 +26,7 @@ addonsManagerPackageValues:
     namespace: tkg-system
     createNamespace: false
     deployment:
+      replicas: 2
       leaderElection: false
       hostNetwork: true
       priorityClassName: system-cluster-critical

@@ -6,6 +6,7 @@ tanzuAddonsManager:
   namespace: tkg-system
   createNamespace: true
   deployment:
+    replicas: 2
     leaderElection: false
     hostNetwork: true
     priorityClassName: null
