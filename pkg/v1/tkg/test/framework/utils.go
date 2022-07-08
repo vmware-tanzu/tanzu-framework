@@ -4,6 +4,7 @@
 package framework
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -12,7 +13,9 @@ import (
 	"time"
 
 	"gopkg.in/yaml.v2"
+	clusterv1 "sigs.k8s.io/cluster-api/api/v1beta1"
 	"sigs.k8s.io/cluster-api/util"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	. "github.com/onsi/ginkgo" // nolint:stylecheck
 	"github.com/pkg/errors"
@@ -59,6 +62,24 @@ func WaitForNodes(proxy *ClusterProxy, desiredCount int) {
 	}
 
 	Fail(fmt.Sprintf("Timed out waiting for nodes count to reach %q", desiredCount))
+}
+
+// GetClusterClass returns ClusterClass used by the Cluster
+func GetClusterClass(proxy *ClusterProxy, clusterName string, namespace string) (string, error) {
+	var err error
+	c := proxy.GetClient()
+	cluster := &clusterv1.Cluster{}
+
+	err = c.Get(context.Background(), client.ObjectKey{Namespace: namespace, Name: clusterName}, cluster)
+	if err != nil {
+		return "", err
+	}
+
+	if cluster.Spec.Topology == nil {
+		return "", nil
+	}
+
+	return cluster.Spec.Topology.Class, nil
 }
 
 // GetTempClusterConfigFile gets temporary config file

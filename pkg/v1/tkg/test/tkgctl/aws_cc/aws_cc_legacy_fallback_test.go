@@ -12,9 +12,9 @@ import (
 	. "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/test/tkgctl/shared"
 )
 
-var _ = Describe("Functional tests for aws (clusterclass) - Antrea", func() {
-	E2ECommonSpec(context.TODO(), func() E2ECommonSpecInput {
-		return E2ECommonSpecInput{
+var _ = Describe("Functional tests for fallback legacy creation handling", func() {
+	E2ELegacyFallbackSpec(context.TODO(), func() E2ELegacyFallbackSpecInput {
+		return E2ELegacyFallbackSpecInput{
 			E2EConfig:       e2eConfig,
 			ArtifactsFolder: artifactsFolder,
 			Cni:             "antrea",
