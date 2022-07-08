@@ -14,8 +14,9 @@ import (
 
 // ListTKGClustersOptions contains options supported by ListClusters
 type ListTKGClustersOptions struct {
-	Namespace string
-	IncludeMC bool
+	Namespace                          string
+	IncludeMC                          bool
+	IsTKGSClusterClassFeatureActivated bool
 }
 
 // ClusterInfo defines the fields of get cluster output
@@ -56,7 +57,8 @@ func (c *TkgClient) ListTKGClusters(options ListTKGClustersOptions) ([]ClusterIn
 	if err != nil {
 		return nil, errors.Wrap(err, "error determining 'Tanzu Kubernetes Cluster service for vSphere' management cluster")
 	}
-	if isPacific {
+
+	if isPacific && !options.IsTKGSClusterClassFeatureActivated {
 		return c.GetClusterObjectsForPacific(regionalClusterClient, "", listOptions)
 	}
 
