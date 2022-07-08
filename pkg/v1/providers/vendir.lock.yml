@@ -10,10 +10,18 @@ directories:
   path: ytt/vendir/vsphere_cpi/_ytt_lib
 - contents:
   - git:
-      commitTitle: 'packages: kapp-controller 0.38.3 (#4853)...'
-      sha: 5e43d627bdd25ebca3f5c30ce72331f1543a0eba
+      commitTitle: Remove ioutil usage (#4790)...
+      sha: bf5eab6554a4393890cb6d9ccbde4e1ecacc9b63
       tags:
-      - v0.13.0-dev.2-69-g5e43d627
+      - v0.13.0-dev.2-73-gbf5eab65
+    path: .
+  path: ytt/vendir/cni/_ytt_lib
+- contents:
+  - git:
+      commitTitle: add kapp-controller 0.38.4 (#4988)...
+      sha: 93347cfd85455c47fc7670d16abe652e1209dab9
+      tags:
+      - v0.13.0-dev.2-152-g93347cfd
     path: .
   path: ytt/vendir/kapp-controller/_ytt_lib
 kind: LockConfig
