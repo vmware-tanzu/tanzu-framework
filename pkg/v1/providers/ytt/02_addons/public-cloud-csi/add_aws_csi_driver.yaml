@@ -1,7 +1,6 @@
 #@ load("@ytt:data", "data")
 #@ load("@ytt:yaml", "yaml")
 #@ load("/lib/helpers.star", "ValuesFormatStr",)
-#@ load("/vendir/csi/csi.lib.yaml", "csi_aws_ebs_csi_driver_lib")
 #@ load("ebs/aws-ebs-csi-driver_data.lib.yaml", "ebsdatavalues")
 
 #@ if data.values.PROVIDER_TYPE == "aws" and not data.values.IS_WINDOWS_WORKLOAD_CLUSTER:
@@ -21,5 +20,5 @@ metadata:
     tkg.tanzu.vmware.com/addon-type: "csi/aws-ebs-csi-driver"
 type: tkg.tanzu.vmware.com/addon
 stringData:
-  value: #@ yaml.encode(csi_aws_ebs_csi_driver_lib.with_data_values(ebsdatavalues()).eval())
+  values.yaml: #@ ValuesFormatStr.format(yaml.encode(ebsdatavalues()))
 #@ end

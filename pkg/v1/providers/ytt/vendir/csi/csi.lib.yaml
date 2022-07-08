@@ -1,4 +1,0 @@
-#@ load("@ytt:library", "library")
-
-#@ csi_aws_ebs_csi_driver_lib = library.get("addons/packages/aws-ebs-csi-driver/1.8.0/bundle/config")
-#@ csi_azuredisk_csi_driver_lib = library.get("addons/packages/azuredisk-csi-driver/1.19.0/bundle/config")
