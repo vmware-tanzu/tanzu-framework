@@ -5,21 +5,27 @@ package main
 
 import (
 	"fmt"
+	"sort"
 	"strings"
 	"time"
 
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
-
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgctl"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/utils"
+	capiv1 "sigs.k8s.io/cluster-api/api/v1beta1"
+	capiconditions "sigs.k8s.io/cluster-api/util/conditions"
 
 	"github.com/vmware-tanzu/tanzu-framework/apis/config/v1alpha1"
 	runv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha1"
+	runv1 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/config"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/clusterclient"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/log"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgctl"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/utils"
 	tkrutils "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkr/pkg/utils"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v2/tkr/util/topology"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v2/tkr/util/version"
 )
 
 type upgradeClustersOptions struct {
@@ -32,6 +38,10 @@ type upgradeClustersOptions struct {
 	osArch              string
 	vSphereTemplateName string
 }
+
+const (
+	LegacyClusterTKRLabel = "tanzuKubernetesRelease"
+)
 
 var uc = &upgradeClustersOptions{}
 
@@ -152,6 +162,14 @@ func getValidTkrVersionFromTkrForUpgrade(tkgctlClient tkgctl.TKGClient, clusterC
 	tkrs, err := clusterClient.GetTanzuKubernetesReleases("")
 	if err != nil {
 		return "", err
+	}
+
+	// TODO: update this condition after CLI fully support the package based LCM.
+	// Since CLI should support the pre package-based-lcm where the updatesAvailable condition was part of
+	// TKRs, code checking the TKRs for available upgrade should remain.
+	cluster, err := getClusterResource(clusterClient, clusterName, uc.namespace)
+	if err == nil && capiconditions.Has(cluster, runv1.ConditionUpdatesAvailable) {
+		return getValidTKRVersionFromClusterForUpgrade(cluster, uc.tkrName)
 	}
 
 	tkrForUpgrade, err := getMatchingTkrForTkrName(tkrs, uc.tkrName)
@@ -323,13 +341,62 @@ func getTKRNamesFromTKRs(tkrs []runv1alpha1.TanzuKubernetesRelease) []string {
 func getClusterTKRNameFromClusterLabels(clusterLabels map[string]string) (string, error) {
 	tkrLabelExists := false
 	tkrName := ""
-	// TODO: Once the TKGs and TKGm label for TKR are same, update this
-	tkrName, tkrLabelExists = clusterLabels["run.tanzu.vmware.com/tkr"] // TKGs
+	tkrName, tkrLabelExists = clusterLabels[runv1.LabelTKR]
 	if !tkrLabelExists {
-		tkrName, tkrLabelExists = clusterLabels["tanzuKubernetesRelease"] // TKGm
+		tkrName, tkrLabelExists = clusterLabels[LegacyClusterTKRLabel] // legacy TKGm
 	}
 	if !tkrLabelExists {
 		return "", errors.New("failed to get cluster TKr name from cluster labels")
 	}
 	return tkrName, nil
+}
+
+func getValidTKRVersionFromClusterForUpgrade(cluster *capiv1.Cluster, tkrName string) (string, error) {
+	tkrVersion := strings.ReplaceAll(tkrName, "---", "+")
+	// If the existing TKR on the cluster and the one requested are same
+	// continue the upgrade using the given TKR
+	if clusterTKR, err := getClusterTKRNameFromClusterLabels(cluster.Labels); err == nil && clusterTKR == tkrName {
+		return tkrVersion, nil
+	}
+
+	updates := topology.AvailableUpgrades(cluster)
+	if len(updates) == 0 {
+		return "", errors.Errorf("no available upgrades for cluster '%s', namespace '%s'", cluster.Name, cluster.Namespace)
+	}
+
+	matchingUpdates := updates.Filter(func(tv string) bool {
+		return version.Prefixes(tv).Has(tkrVersion)
+	})
+	if len(matchingUpdates) == 0 {
+		updateNames := updates.Map(func(tv string) string {
+			return strings.ReplaceAll(tv, "+", "---")
+		})
+		return "", errors.Errorf("cluster cannot be upgraded, no compatible upgrades found matching the TKR name/prefix '%s', available compatible upgrades %s", tkrName, updateNames.Slice())
+	}
+	return latestTkrVersion(matchingUpdates.Slice()), nil
+}
+
+func getClusterResource(clusterClient clusterclient.Client, clusterName, clusterNamespace string) (*capiv1.Cluster, error) {
+	if clusterNamespace == "" {
+		clusterNamespace = constants.DefaultNamespace
+	}
+	cluster := &capiv1.Cluster{}
+	err := clusterClient.GetResource(cluster, clusterName, clusterNamespace, nil, nil)
+	if err != nil {
+		return nil, errors.Wrapf(err, "unable to get cluster %q from namespace %q", clusterName, clusterNamespace)
+	}
+	return cluster, nil
+}
+
+// latestTkrVersion returns the latest version
+// pre-req versions should not be empty and versions are valid semantic versions
+func latestTkrVersion(versions []string) string {
+	sort.Slice(versions, func(i, j int) bool {
+		vi, _ := version.ParseSemantic(versions[i])
+		vj, _ := version.ParseSemantic(versions[j])
+		return vi.LessThan(vj)
+	})
+
+	log.V(4).Infof("Using the TKr version '%s' ", versions[len(versions)-1])
+	return versions[len(versions)-1]
 }

@@ -5,13 +5,21 @@ package main
 
 import (
 	"fmt"
+	"strings"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	"github.com/pkg/errors"
+
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/clusterclient"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/fakes"
 
 	corev1 "k8s.io/api/core/v1"
+	clusterv1 "sigs.k8s.io/cluster-api/api/v1beta1"
 
 	runv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha1"
+	runv1alpha3 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
 )
 
 var _ = Describe("getValidTKRVersionForUpgradeGivenTKRNamePrefix", func() {
@@ -300,3 +308,156 @@ var _ = Describe("getValidTKRVersionForUpgradeGivenFullTKRName", func() {
 	})
 
 })
+
+var _ = Describe("getValidTKRVersionFromClusterForUpgrade", func() {
+	var (
+		latestTKRVersion string
+		err              error
+		cluster          *clusterv1.Cluster
+		tkrNamePrefix    string
+	)
+	const (
+		TkrVersionPrefix_v1_18    = "v1.18"    //nolint
+		TkrVersionPrefix_v1_18_20 = "v1.18.20" //nolint
+	)
+	JustBeforeEach(func() {
+		latestTKRVersion, err = getValidTKRVersionFromClusterForUpgrade(cluster, tkrNamePrefix)
+	})
+
+	Context("when TKR associated with user provided TKR prefix name is not in the list of TKRs supported by cluster for upgrade", func() {
+
+		BeforeEach(func() {
+			availableUpdates := fmt.Sprintf("[%s %s %s]", "v1.18.18+vmware.1-tkg.2", "v1.18.8+vmware.1-tkg.1", "v1.18.14+vmware.1-tkg.1-rc.1")
+			cluster = getFakeCluster("fake-cluster", availableUpdates)
+			tkrNamePrefix = TkrVersionPrefix_v1_18_20
+		})
+		It("should return error", func() {
+			Expect(err).To(HaveOccurred())
+			Expect(err.Error()).To(ContainSubstring(fmt.Sprintf("no compatible upgrades found matching the TKR name/prefix '%s'", tkrNamePrefix)))
+		})
+	})
+
+	Context("when existing TKR associated with cluster and user provided TKR is same and though no new upgrades are available for cluster to upgrade, it should return provided TKR", func() {
+
+		BeforeEach(func() {
+			clusterLabels := map[string]string{
+				runv1alpha3.LabelTKR: "v1.18.17---vmware.1-tkg.2",
+			}
+			cluster = getFakeCluster("fake-cluster", "")
+			cluster.Labels = clusterLabels
+			tkrNamePrefix = "v1.18.17---vmware.1-tkg.2"
+		})
+		It("should return TKR name provided by user", func() {
+			Expect(err).ToNot(HaveOccurred())
+			Expect(latestTKRVersion).To(Equal(strings.ReplaceAll(tkrNamePrefix, "---", "+")))
+		})
+	})
+
+	Context("when TKR associated with user provided TKR prefix name is in the list of TKRs supported by cluster for upgrade", func() {
+
+		BeforeEach(func() {
+			availableUpdates := fmt.Sprintf("[%s %s %s]", "v1.18.18+vmware.1-tkg.2", "v1.18.8+vmware.1-tkg.1", "v1.18.14+vmware.1-tkg.1-rc.1")
+			cluster = getFakeCluster("fake-cluster", availableUpdates)
+			tkrNamePrefix = TkrVersionPrefix_v1_18
+		})
+		It("should return the latest version of TKR whose name prefix matches with the user provided TKR prefix name", func() {
+			Expect(err).ToNot(HaveOccurred())
+			Expect(latestTKRVersion).To(Equal("v1.18.18+vmware.1-tkg.2"))
+		})
+	})
+	Context("when TKR associated with user provided TKR name is in the list of TKRs supported by cluster for upgrade", func() {
+
+		BeforeEach(func() {
+			availableUpdates := fmt.Sprintf("[%s %s %s]", "v1.18.18+vmware.1-tkg.2", "v1.18.8+vmware.1-tkg.1", "v1.18.14+vmware.1-tkg.1-rc.1")
+			cluster = getFakeCluster("fake-cluster", availableUpdates)
+			tkrNamePrefix = "v1.18.14---vmware.1-tkg.1-rc.1"
+		})
+		It("should return the version of user provided TKR name", func() {
+			Expect(err).ToNot(HaveOccurred())
+			Expect(latestTKRVersion).To(Equal("v1.18.14+vmware.1-tkg.1-rc.1"))
+		})
+	})
+	Context("when user provided TKR prefix name but the cluster doesn't have any updates available", func() {
+
+		BeforeEach(func() {
+			cluster = getFakeCluster("fake-cluster", "")
+			cluster.Namespace = "fake-namespace"
+			tkrNamePrefix = TkrVersionPrefix_v1_18
+		})
+		It("should return error", func() {
+			Expect(err).To(HaveOccurred())
+			Expect(err.Error()).To(ContainSubstring(fmt.Sprintf("no available upgrades for cluster '%s', namespace '%s'", cluster.Name, cluster.Namespace)))
+		})
+	})
+})
+
+var _ = Describe("getClusterResource", func() {
+	var (
+		err           error
+		clusterName   string
+		namespace     string
+		clusterClient *fakes.ClusterClient
+		cluster       *clusterv1.Cluster
+	)
+	BeforeEach(func() {
+		clusterClient = &fakes.ClusterClient{}
+		clusterName = "fake-cluster"
+		namespace = "fake-namespace"
+	})
+
+	JustBeforeEach(func() {
+		cluster, err = getClusterResource(clusterClient, clusterName, namespace)
+	})
+
+	Context("when resource is not found ", func() {
+
+		BeforeEach(func() {
+			namespace = ""
+			clusterClient.GetResourceReturns(errors.New("fake list resource error"))
+		})
+		It("should return error", func() {
+			Expect(err).To(HaveOccurred())
+			Expect(err.Error()).To(ContainSubstring(fmt.Sprintf("unable to get cluster %q from namespace %q", clusterName, constants.DefaultNamespace)))
+			Expect(cluster).To(BeNil())
+		})
+	})
+	Context("when resource is found ", func() {
+
+		BeforeEach(func() {
+			namespace = "fake-namespace"
+			clusterClient.GetResourceCalls(func(c interface{}, name, namespace string, pv clusterclient.PostVerifyrFunc, opt *clusterclient.PollOptions) error {
+				cc := c.(*clusterv1.Cluster)
+				fc := getFakeCluster(clusterName, "")
+				*cc = *fc
+				return nil
+			})
+		})
+		It("should not return error", func() {
+			Expect(err).ToNot(HaveOccurred())
+			Expect(cluster).ToNot(BeNil())
+		})
+	})
+})
+
+func getFakeCluster(name, updatesAvailablesMsg string) *clusterv1.Cluster {
+	cluster := &clusterv1.Cluster{}
+	cluster.Name = name
+	if len(updatesAvailablesMsg) == 0 {
+		cluster.Status.Conditions = []clusterv1.Condition{
+			{
+				Type:   clusterv1.ConditionType(runv1alpha3.ConditionUpdatesAvailable),
+				Status: corev1.ConditionFalse,
+				Reason: "AlreadyUptoDate",
+			},
+		}
+	} else {
+		cluster.Status.Conditions = []clusterv1.Condition{
+			{
+				Type:    clusterv1.ConditionType(runv1alpha3.ConditionUpdatesAvailable),
+				Status:  corev1.ConditionTrue,
+				Message: updatesAvailablesMsg,
+			},
+		}
+	}
+	return cluster
+}
