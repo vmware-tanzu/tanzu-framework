@@ -158,7 +158,7 @@ func (t *tkgctl) processWorkloadClusterInputFile(cc *CreateClusterOptions, isTKG
 		return isInputFileClusterClassBased, err
 	}
 	if isInputFileClusterClassBased {
-		if !t.tkgClient.IsFeatureActivated(config.FeatureFlagPackageBasedLCM) {
+		if !isTKGSCluster && !t.tkgClient.IsFeatureActivated(config.FeatureFlagPackageBasedLCM) {
 			return isInputFileClusterClassBased, fmt.Errorf(constants.ErrorMsgCClassInputFeatureFlagDisabled, config.FeatureFlagPackageBasedLCM)
 		}
 		if isTKGSCluster {

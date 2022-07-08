@@ -11,7 +11,6 @@ import (
 	. "github.com/onsi/gomega"
 	"github.com/pkg/errors"
 
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/config"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/fakes"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/region"
@@ -682,7 +681,23 @@ var _ = Describe("Clusterclass FeatureGate specific use cases", func() {
 			ns, _ := tkgctlClient.tkgConfigReaderWriter.Get(constants.ConfigVariableNamespace)
 			Expect(ns).To(Equal("ns01"))
 		})
-		It("Expect error when feature flag (config.FeatureFlagPackageBasedLCM) not enabled but CClass input file and TKGS Cluster ", func() {
+		It("Expect error when feature flag (config.FeatureFlagPackageBasedLCM) not enabled and CC feature is disabled but CClass input file and TKGS Cluster ", func() {
+			fg.FeatureActivatedInNamespaceReturns(false, nil)
+			tkgClient.IsPacificManagementClusterReturnsOnCall(0, true, nil)
+			tkgClient.GetCurrentRegionContextReturns(regionContext, nil)
+			tkgClient.IsFeatureActivatedReturns(false)
+			tkgClient.CreateClusterReturnsOnCall(0, false, nil)
+
+			err := tkgctlClient.CreateCluster(options)
+			Expect(err.Error()).To(ContainSubstring("vSphere with Tanzu environment detected, however, the feature 'vmware-system-tkg-clusterclass' is not activated in 'vmware-system-tkg' namespace"))
+			// Make sure call not completed till end
+			c := tkgClient.CreateClusterCallCount()
+			Expect(0).To(Equal(c))
+			// Make sure its TKGs system.
+			pc := tkgClient.IsPacificManagementClusterCallCount()
+			Expect(1).To(Equal(pc))
+		})
+		It("Should be able to create cluster when feature flag (config.FeatureFlagPackageBasedLCM) disabled and CC feature is enabled on supervisor cluster but CClass input file and TKGS Cluster ", func() {
 			fg.FeatureActivatedInNamespaceReturns(true, nil)
 			tkgClient.IsPacificManagementClusterReturnsOnCall(0, true, nil)
 			tkgClient.GetCurrentRegionContextReturns(regionContext, nil)
@@ -690,14 +705,7 @@ var _ = Describe("Clusterclass FeatureGate specific use cases", func() {
 			tkgClient.CreateClusterReturnsOnCall(0, false, nil)
 
 			err := tkgctlClient.CreateCluster(options)
-			expectedErrMsg := fmt.Sprintf(constants.ErrorMsgCClassInputFeatureFlagDisabled, config.FeatureFlagPackageBasedLCM)
-			Expect(err.Error()).To(ContainSubstring(expectedErrMsg))
-			// Make sure call not completed till end
-			c := tkgClient.CreateClusterCallCount()
-			Expect(0).To(Equal(c))
-			// Make sure its TKGs system.
-			pc := tkgClient.IsPacificManagementClusterCallCount()
-			Expect(1).To(Equal(pc))
+			Expect(err).NotTo(HaveOccurred())
 		})
 		It("Return error when Feature constants.CCFeature is disabled in featuregate", func() {
 			fg.FeatureActivatedInNamespaceReturns(false, nil)
