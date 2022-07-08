@@ -3,6 +3,7 @@ package util
 import (
 	"context"
 	"fmt"
+	"sync"
 	"time"
 
 	"k8s.io/apimachinery/pkg/runtime/schema"
@@ -18,6 +19,8 @@ type GVRHelper interface {
 }
 
 type gvrHelper struct {
+	lock sync.Mutex
+
 	cachedDiscoveryClient discovery.CachedDiscoveryInterface
 	cachedLookups         map[schema.GroupKind]*schema.GroupVersionResource
 	context               context.Context
@@ -36,6 +39,9 @@ func NewGVRHelper(ctx context.Context, discoveryClient discovery.DiscoveryInterf
 
 // GetGVR returns a GroupVersionResource for a GroupKind
 func (g *gvrHelper) GetGVR(gk schema.GroupKind) (*schema.GroupVersionResource, error) {
+	g.lock.Lock()
+	defer g.lock.Unlock()
+
 	if gvr, ok := g.cachedLookups[gk]; ok {
 		return gvr, nil
 	}
@@ -60,8 +66,13 @@ func (g *gvrHelper) periodicGVRCachesClean() {
 			ticker.Stop()
 			return
 		case <-ticker.C:
-			g.cachedDiscoveryClient.Invalidate()
-			g.cachedLookups = make(map[schema.GroupKind]*schema.GroupVersionResource)
+			func() {
+				g.lock.Lock()
+				defer g.lock.Unlock()
+
+				g.cachedDiscoveryClient.Invalidate()
+				g.cachedLookups = make(map[schema.GroupKind]*schema.GroupVersionResource)
+			}()
 		}
 	}
 }

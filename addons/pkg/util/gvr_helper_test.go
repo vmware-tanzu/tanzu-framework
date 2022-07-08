@@ -2,6 +2,7 @@ package util_test
 
 import (
 	"context"
+	"sync"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -93,6 +94,31 @@ var _ = Describe("GVRHelper", func() {
 			Expect(err).ToNot(HaveOccurred())
 			Expect(*found).To(Equal(antreaGVR))
 
+		})
+
+		It("should not crash in concurrent use", func() {
+			group := "cni.tanzu.vmware.com"
+			version := "v1alpha1"
+			resource := "antreaconfigs"
+			antreaGVR := schema.GroupVersionResource{Group: group, Version: version, Resource: resource}
+
+			var found0, found1 *schema.GroupVersionResource
+			var err0, err1 error
+			wg := sync.WaitGroup{}
+			wg.Add(2)
+			go func() {
+				found0, err0 = gvrHelper.GetGVR(schema.GroupKind{Group: "cni.tanzu.vmware.com", Kind: "AntreaConfig"})
+				wg.Done()
+			}()
+			go func() {
+				found1, err1 = gvrHelper.GetGVR(schema.GroupKind{Group: "cni.tanzu.vmware.com", Kind: "AntreaConfig"})
+				wg.Done()
+			}()
+			wg.Wait()
+			Expect(err0).ToNot(HaveOccurred())
+			Expect(*found0).To(Equal(antreaGVR))
+			Expect(err1).ToNot(HaveOccurred())
+			Expect(*found1).To(Equal(antreaGVR))
 		})
 	})
 
