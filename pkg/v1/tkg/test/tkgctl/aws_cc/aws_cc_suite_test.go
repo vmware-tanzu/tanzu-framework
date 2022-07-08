@@ -55,7 +55,7 @@ func TestE2E(t *testing.T) {
 	RegisterFailHandler(Fail)
 	junitPath := filepath.Join(artifactsFolder, "junit", fmt.Sprintf("junit.e2e_suite.%d.xml", config.GinkgoConfig.ParallelNode))
 	junitReporter := reporters.NewJUnitReporter(junitPath)
-	RunSpecsWithDefaultAndCustomReporters(t, "tkgctl-vsphere-e2e", []Reporter{junitReporter})
+	RunSpecsWithDefaultAndCustomReporters(t, "tkgctl-aws-cc-e2e", []Reporter{junitReporter})
 }
 
 var _ = SynchronizedBeforeSuite(func() []byte {
@@ -110,6 +110,11 @@ var _ = SynchronizedBeforeSuite(func() []byte {
 
 	// create management cluster
 	if !e2eConfig.UseExistingCluster {
+		// TODO(vuil): Remove this temporary workaround (to populate the TKr  BOM config map in tkr-system namespace)
+		// once https://github.com/vmware-tanzu/tanzu-framework/issues/2891 is fixed
+		tkrURLToApply := "https://gist.githubusercontent.com/vuil/c10295e438b6b7c7232192999dac2cd8/raw/e592364eecde64ab941eed71af7239ce9c8295b7/v1.23.5---vmware.1-tkg.1-zshippable-configmap.yaml"
+		os.Setenv("_ADDITIONAL_MANAGEMENT_COMPONENT_CONFIGURATION_FILE", tkrURLToApply)
+
 		err := cli.Init(tkgctl.InitRegionOptions{
 			ClusterConfigFile: e2eConfig.TkgClusterConfigPath,
 

@@ -52,7 +52,7 @@ func TestE2E(t *testing.T) {
 	RegisterFailHandler(Fail)
 	junitPath := filepath.Join(artifactsFolder, "junit", fmt.Sprintf("junit.e2e_suite.%d.xml", config.GinkgoConfig.ParallelNode))
 	junitReporter := reporters.NewJUnitReporter(junitPath)
-	RunSpecsWithDefaultAndCustomReporters(t, "tkgctl-vsphere-e2e", []Reporter{junitReporter})
+	RunSpecsWithDefaultAndCustomReporters(t, "tkgctl-aws-e2e", []Reporter{junitReporter})
 }
 
 var _ = SynchronizedBeforeSuite(func() []byte {
