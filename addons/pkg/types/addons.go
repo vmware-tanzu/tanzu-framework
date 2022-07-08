@@ -73,13 +73,7 @@ type TKGSDataValues struct {
 
 // NodeSelector contains the nodeSelector information
 type NodeSelector struct {
-	TanzuKubernetesRelease string    `yaml:"run.tanzu.vmware.com/tkr"`
-	NodeInfo               *NodeInfo `yaml:",inline"`
-}
-
-// NodeInfo contains information about the node
-type NodeInfo struct {
-	NodeRoleMaster string `yaml:"node-role.kubernetes.io/master"`
+	TanzuKubernetesRelease string `yaml:"run.tanzu.vmware.com/tkr"`
 }
 
 // DeploymentUpdateInfo contains the deployment update strategy information

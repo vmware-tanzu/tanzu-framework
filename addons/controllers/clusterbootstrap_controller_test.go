@@ -48,13 +48,12 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 
 	// Constants defined in testdata manifests
 	const (
-		foobarCarvelPackageRefName   = "foobar.example.com"
-		foobarCarvelPackageName      = "foobar.example.com.1.17.2"
-		foobar1CarvelPackageRefName  = "foobar1.example.com"
-		foobar1CarvelPackageName     = "foobar1.example.com.1.17.2"
-		foobar2CarvelPackageRefName  = "foobar2.example.com"
-		foobar                       = "foobar"
-		kappControllerPackageRefName = "kapp-controller.tanzu.vmware.com.0.30.3"
+		foobarCarvelPackageRefName  = "foobar.example.com"
+		foobarCarvelPackageName     = "foobar.example.com.1.17.2"
+		foobar1CarvelPackageRefName = "foobar1.example.com"
+		foobar1CarvelPackageName    = "foobar1.example.com.1.17.2"
+		foobar2CarvelPackageRefName = "foobar2.example.com"
+		foobar                      = "foobar"
 	)
 
 	JustBeforeEach(func() {
@@ -872,29 +871,6 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 					}
 					fmt.Println(string(valueTexts))
 					Expect(strings.Contains(string(valueTexts), "nodeSelector:\n    run.tanzu.vmware.com/tkr: v1.22.4")).To(BeTrue())
-					Expect(strings.Contains(string(valueTexts), "deployment:\n    updateStrategy: RollingUpdate")).To(BeTrue())
-					Expect(strings.Contains(string(valueTexts), "daemonset:\n    updateStrategy: OnDelete")).To(BeTrue())
-					Expect(strings.Contains(string(valueTexts), "maxUnavailable: 0")).To(BeTrue())
-					Expect(strings.Contains(string(valueTexts), "maxSurge: 1")).To(BeTrue())
-					return true
-				}, waitTimeout, pollingInterval).Should(BeTrue())
-
-				By("Should have local data value secret for kapp controller and should have created TKGS data values and master node selector")
-				s = &corev1.Secret{}
-				Eventually(func() bool {
-					err = remoteClient.Get(ctx, client.ObjectKey{Namespace: clusterNamespace, Name: util.GenerateDataValueSecretName(clusterName, kappControllerPackageRefName)}, s)
-					if err != nil {
-						return false
-					}
-					Expect(s.Data).To(HaveKey("values.yaml"))
-					Expect(s.Data).To(HaveKey(constants.TKGSDataValueFileName))
-					// TKGS data values should be added because cluster has related VirtualMachine
-					valueTexts, ok := s.Data[constants.TKGSDataValueFileName]
-					if !ok {
-						return false
-					}
-					fmt.Println(string(valueTexts))
-					Expect(strings.Contains(string(valueTexts), "nodeSelector:\n    run.tanzu.vmware.com/tkr: v1.22.4\n    node-role.kubernetes.io/master: \"\"")).To(BeTrue())
 					Expect(strings.Contains(string(valueTexts), "deployment:\n    updateStrategy: RollingUpdate")).To(BeTrue())
 					Expect(strings.Contains(string(valueTexts), "daemonset:\n    updateStrategy: OnDelete")).To(BeTrue())
 					Expect(strings.Contains(string(valueTexts), "maxUnavailable: 0")).To(BeTrue())
