@@ -8,11 +8,13 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"time"
 
 	. "github.com/onsi/gomega" // nolint:stylecheck
 	"github.com/pkg/errors"
 	"sigs.k8s.io/yaml"
 
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/clusterclient"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfigupdater"
 )
@@ -199,7 +201,7 @@ func (c *E2EConfig) SaveTkgConfigVariables() error {
 	return nil
 }
 
-// SaveWorkloadClusterOptions saves the config variables from e2e config to the TKG config file
+// SaveWorkloadClusterOptions saves the config variables from E2EConfig.WorkloadClusterOptions config to the given input file path
 func (c *E2EConfig) SaveWorkloadClusterOptions(clusterConfigFile string) error {
 	workloadOptionsStr, err := yaml.Marshal(c.WorkloadClusterOptions)
 	if err != nil {
@@ -235,4 +237,24 @@ func (c *E2EConfig) SaveWorkloadClusterOptions(clusterConfigFile string) error {
 	}
 
 	return nil
+}
+
+// isTKGSCluster validates given kube config is tkgs cluster or not
+func (c *E2EConfig) isTKGSCluster() bool {
+	clusterclient := GetClusterclient(c.TKGSKubeconfigPath, c.TKGSKubeconfigContext)
+	isTKGS, err := clusterclient.IsPacificRegionalCluster()
+	Expect(err).To(BeNil(), "error while checking cluster type with give kubeconfig: %s and context: %s", c.TKGSKubeconfigPath, c.TKGSKubeconfigContext)
+	return isTKGS
+}
+
+// GetClusterclient creates and returns clusterclient for given kube config file
+func GetClusterclient(kubeconfigPath, context string) clusterclient.Client {
+	clusterclientOptions := clusterclient.Options{
+		GetClientInterval: 1 * time.Second,
+		GetClientTimeout:  3 * time.Second,
+		OperationTimeout:  constants.DefaultLongRunningOperationTimeout,
+	}
+	clusterClient, err := clusterclient.NewClient(kubeconfigPath, context, clusterclientOptions)
+	Expect(err).To(BeNil(), "failed to create clusterclient with give kubeconfig: %s and context: %s", kubeconfigPath, context)
+	return clusterClient
 }
