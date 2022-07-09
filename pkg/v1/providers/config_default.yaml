@@ -539,59 +539,64 @@ LDAP_ROOT_CA_DATA_B64:
 #! ---------------------------------------------------------------------
 #! AVI NSX Advanced Loader Balancer configuration
 #! ---------------------------------------------------------------------
-#! Where to use Avi aka. NSX Advanced Loader Balancer
+#! Whether to use Avi aka. NSX Advanced Loader Balancer or not
 AVI_ENABLE: false
 
-#! Settings for Avi, aka. NSX Advanced Loader Balancer
+#! Whether to use Avi aka. NSX Advanced Loader Balancer to provide clusters'
+#! control plane nodes load balancing or not
+AVI_CONTROL_PLANE_HA_PROVIDER: false
+
+#! Settings for Avi aka. NSX Advanced Loader Balancer controller
+
+#! Avi aka. NSX Advanced Loader Balancer's controller ip or FQDN
+AVI_CONTROLLER:
+AVI_CONTROLLER_VERSION: 20.1.7
+AVI_USERNAME: ""
+AVI_PASSWORD: ""
+#! The cerficiate used to access Avi aka. NSX Advanced Loader Balancer's controller, need to be base64 encoded
+AVI_CA_DATA_B64: ""
+#! Which infrastructure cloud will be used for TKG, currently support two type clouds: vcenter|NSX-T
+AVI_CLOUD_NAME:
+#! t1 router specifies the path for NSX Advanced Loader Balancer backend network, only applies when configure NSX ALB to NSX-T cloud
+AVI_NSXT_T1LR:
+
+
+#!  Settings for workload clusters' load balancer VIP networks:
+AVI_DATA_NETWORK:
+AVI_DATA_NETWORK_CIDR:
+AVI_CONTROL_PLANE_NETWORK:
+AVI_CONTROL_PLANE_NETWORK_CIDR:
+AVI_SERVICE_ENGINE_GROUP:
+
+
+#! Settings for management cluster's load balancer VIP networks:
+#! All fields in this section are optional, if leave them empty,
+#! management cluster will use the same load balancer VIP network
+#! configurations as workload clusters
+AVI_MANAGEMENT_CLUSTER_VIP_NETWORK_NAME:
+AVI_MANAGEMENT_CLUSTER_VIP_NETWORK_CIDR:
+AVI_MANAGEMENT_CLUSTER_CONTROL_PLANE_VIP_NETWORK_NAME:
+AVI_MANAGEMENT_CLUSTER_CONTROL_PLANE_VIP_NETWORK_CIDR:
+AVI_MANAGEMENT_CLUSTER_SERVICE_ENGINE_GROUP:
+
+
+#! Settings for ako-operator components
 AVI_NAMESPACE: "tkg-system-networking"
 AVI_DISABLE_INGRESS_CLASS: true
 AVI_AKO_IMAGE_PULL_POLICY: IfNotPresent
 AVI_ADMIN_CREDENTIAL_NAME: avi-controller-credentials
 AVI_CA_NAME: avi-controller-ca
-AVI_CONTROLLER_VERSION: 20.1.3
-
-AVI_CONTROLLER:
-AVI_USERNAME: ""
-AVI_PASSWORD: ""
-AVI_CLOUD_NAME:
-AVI_SERVICE_ENGINE_GROUP:
-#! t1 router specifies the path for NSX Advanced Loader Balancer backend network,
-#! only applies when configure NSX ALB to NSX-T cloud.
-AVI_NSXT_T1LR:
-
-#! WARNING: service engine group separation support is not enabled (because it is under development).
-#! To use a different service engine group in the management cluster, set AVI_MANAGEMENT_CLUSTER_SERVICE_ENGINE_GROUP variable to the management cluster service engine group
-AVI_MANAGEMENT_CLUSTER_SERVICE_ENGINE_GROUP:
-AVI_DATA_NETWORK:
-AVI_DATA_NETWORK_CIDR:
-
-#! WARNING: workload cluster network separation support is not enabled (because it is under development).
-#! To use a different control plane network in the workload cluster:
-#! set AVI_CONTROL_PLANE_NETWORK variable to name of the control plane network in the workload cluster
-#! set AVI_CONTROL_PLANE_NETWORK_CIDR variable to cidr of the control plane network in the workload cluster
-AVI_CONTROL_PLANE_NETWORK:
-AVI_CONTROL_PLANE_NETWORK_CIDR:
-
-AVI_MANAGEMENT_CLUSTER_VIP_NETWORK_NAME:
-AVI_MANAGEMENT_CLUSTER_VIP_NETWORK_CIDR:
-
-#! WARNING: management cluster network separation support is not enabled (because it is under development).
-#! To use a different control plane network in the management cluster:
-#! set AVI_MANAGEMENT_CLUSTER_CONTROL_PLANE_VIP_NETWORK_NAME variable to name of the control plane network in the management cluster
-#! set AVI_MANAGEMENT_CLUSTER_CONTROL_PLANE_VIP_NETWORK_CIDR variable to cidr of the control plane network in the management cluster
-AVI_MANAGEMENT_CLUSTER_CONTROL_PLANE_VIP_NETWORK_NAME:
-AVI_MANAGEMENT_CLUSTER_CONTROL_PLANE_VIP_NETWORK_CIDR:
-
-AVI_CA_DATA_B64: ""
+#! AVI_LABELS specify default install-ako-for-all cluster selector matching labels
 AVI_LABELS:
 
+
+#!  Settings for NSX Advanced Loader Balancer L7 load balancing configurations, which requires NSX Advanced Loader Balancer Enterprise license tier
 AVI_DISABLE_STATIC_ROUTE_SYNC: true
 AVI_INGRESS_DEFAULT_INGRESS_CONTROLLER: false
 AVI_INGRESS_SHARD_VS_SIZE: ""
 AVI_INGRESS_SERVICE_TYPE: ""
 AVI_INGRESS_NODE_NETWORK_LIST: ""
 
-AVI_CONTROL_PLANE_HA_PROVIDER: false
 
 #! ---------------------------------------------------------------------
 #! Antrea CNI configuration
