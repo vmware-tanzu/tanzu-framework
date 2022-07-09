@@ -3,7 +3,8 @@
 #@overlay/replace
 ---
 namespace: tkg-system
-nodeSelector: null
+nodeSelector:
+  node-role.kubernetes.io/master: ""
 deployment:
   updateStrategy: null
   rollingUpdate:
