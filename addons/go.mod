@@ -41,7 +41,7 @@ require (
 require (
 	cloud.google.com/go v0.99.0 // indirect
 	cloud.google.com/go/storage v1.18.2 // indirect
-	github.com/Azure/azure-sdk-for-go v58.1.0+incompatible // indirect
+	github.com/Azure/azure-sdk-for-go v66.0.0+incompatible // indirect
 	github.com/Azure/go-autorest v14.2.0+incompatible // indirect
 	github.com/Azure/go-autorest/autorest v0.11.23 // indirect
 	github.com/Azure/go-autorest/autorest/adal v0.9.18 // indirect
