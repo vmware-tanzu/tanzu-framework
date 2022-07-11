@@ -6,6 +6,7 @@ package tkgctl
 import (
 	"context"
 	"fmt"
+	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
@@ -54,9 +55,6 @@ type CreateClusterOptions struct {
 //nolint:gocritic
 // CreateCluster create tkg cluster
 func (t *tkgctl) CreateCluster(cc CreateClusterOptions) error {
-	if cc.GenerateOnly {
-		return t.ConfigCluster(cc)
-	}
 	isTKGSCluster, err := t.tkgClient.IsPacificManagementCluster()
 	if err != nil {
 		return errors.Wrap(err, "unable to determine if management cluster is on vSphere with Tanzu")
@@ -64,6 +62,18 @@ func (t *tkgctl) CreateCluster(cc CreateClusterOptions) error {
 	isInputFileClusterClassBased, err := t.processWorkloadClusterInputFile(&cc, isTKGSCluster)
 	if err != nil {
 		return err
+	}
+
+	if cc.GenerateOnly && isInputFileClusterClassBased {
+		if config, err := os.ReadFile(cc.ClusterConfigFile); err == nil {
+			_, err = os.Stdout.Write(config)
+			return err
+		} else {
+			return err
+		}
+	}
+	if cc.GenerateOnly {
+		return t.ConfigCluster(cc)
 	}
 
 	cc.ClusterConfigFile, err = t.ensureClusterConfigFile(cc.ClusterConfigFile)
