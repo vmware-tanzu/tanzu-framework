@@ -660,10 +660,24 @@ rules:
   - patch
   - delete
 ---
+aggregationRule:
+  clusterRoleSelectors:
+  - matchLabels:
+      capv.infrastucture.cluster.x-k8s.io/aggregate-to-manager: "true"
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
   labels:
+    cluster.x-k8s.io/provider: infrastructure-vsphere
+    cluster.x-k8s.io/v1beta1: v1beta1
+  name: capv-aggregated-manager-role
+rules: []
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    capv.infrastucture.cluster.x-k8s.io/aggregate-to-manager: "true"
     cluster.x-k8s.io/aggregate-to-manager: "true"
     cluster.x-k8s.io/provider: infrastructure-vsphere
     cluster.x-k8s.io/v1beta1: v1beta1
@@ -762,15 +776,6 @@ rules:
   - services/status
   verbs:
   - get
-- apiGroups:
-  - bootstrap.cluster.x-k8s.io
-  resources:
-  - kubeadmconfigtemplates
-  verbs:
-  - delete
-  - get
-  - list
-  - watch
 - apiGroups:
   - cluster.x-k8s.io
   resources:
@@ -1061,6 +1066,18 @@ rules:
 - apiGroups:
   - vmware.infrastructure.cluster.x-k8s.io
   resources:
+  - vsphereclustertemplates
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - vmware.infrastructure.cluster.x-k8s.io
+  resources:
   - vspheremachines
   verbs:
   - create
@@ -1126,7 +1143,7 @@ metadata:
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: capv-manager-role
+  name: capv-aggregated-manager-role
 subjects:
 - kind: ServiceAccount
   name: default
@@ -1190,6 +1207,17 @@ spec:
         - --enable-leader-election
         - --logtostderr
         - --v=4
+        env:
+        - name: SERVICE_ACCOUNTS_CM_NAMESPACE
+          value: ${SERVICE_ACCOUNTS_CM_NAMESPACE}
+        - name: SERVICE_ACCOUNTS_CM_NAME
+          value: ${SERVICE_ACCOUNTS_CM_NAME}
+        - name: HTTP_PROXY
+          value: ${TKG_HTTP_PROXY}
+        - name: HTTPS_PROXY
+          value: ${TKG_HTTPS_PROXY}
+        - name: NO_PROXY
+          value: ${TKG_NO_PROXY}
         image: registry.tkg.vmware.run/cluster-api/cluster-api-vsphere-controller:${CAPV_CONTROLLER_IMAGE_TAG}
         imagePullPolicy: IfNotPresent
         livenessProbe:
@@ -1215,13 +1243,6 @@ spec:
         - mountPath: /etc/capv
           name: manager-bootstrap-credentials
           readOnly: true
-        env:
-        - name: HTTP_PROXY
-          value: ${TKG_HTTP_PROXY}
-        - name: HTTPS_PROXY
-          value: ${TKG_HTTPS_PROXY}
-        - name: NO_PROXY
-          value: ${TKG_NO_PROXY}
       terminationGracePeriodSeconds: 10
       tolerations:
       - effect: NoSchedule

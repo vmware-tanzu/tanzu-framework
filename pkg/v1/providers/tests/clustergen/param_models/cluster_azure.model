@@ -12,7 +12,7 @@ WORKER_MACHINE_COUNT: "NA","1","3","5"
 
 _CNAME: "testcluster"
 _PLAN: "dev", "prod"
-_INFRA: "azure:v1.2.1"
+_INFRA: "azure:v1.4.0"
 
 NODE_STARTUP_TIMEOUT: "20m"
 
