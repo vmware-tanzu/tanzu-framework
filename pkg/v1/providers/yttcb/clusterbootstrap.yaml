@@ -85,6 +85,8 @@ spec:
   calico:
     config:
       vethMTU: 0
+      #@ if/end data.values.PROVIDER_TYPE != "docker":
+      skipCNIBinaries: true
 #@ end
 ---
 #@ if vspherecpi_configs_exist() and data.values.PROVIDER_TYPE == "vsphere" and not data.values.IS_WINDOWS_WORKLOAD_CLUSTER:
