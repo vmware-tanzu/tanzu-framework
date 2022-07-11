@@ -162,6 +162,8 @@ spec:
   replicas: ${WORKER_MACHINE_COUNT}
   selector:
     matchLabels: null
+  strategy:
+    type: RollingUpdate
   template:
     metadata:
       labels:

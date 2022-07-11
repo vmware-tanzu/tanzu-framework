@@ -3,7 +3,7 @@
 #@ load("@ytt:json", "json")
 #@ load("@ytt:base64", "base64")
 
-#@ load("lib/helpers.star", "get_bom_data_for_tkr_name", "kubeadm_image_repo", "get_azure_image")
+#@ load("lib/helpers.star", "get_bom_data_for_tkr_name", "kubeadm_image_repo", "get_azure_image", "verify_and_configure_machine_deployment_rollout_strategy")
 #@ load("lib/validate.star", "validate_configuration")
 
 #@ validate_configuration("azure")
@@ -249,6 +249,8 @@ metadata:
 spec:
   clusterName: #@ data.values.CLUSTER_NAME
   replicas: #@ data.values.WORKER_MACHINE_COUNT_0
+  strategy:
+    type: #@ verify_and_configure_machine_deployment_rollout_strategy(data.values.WORKER_ROLLOUT_STRATEGY)
   template:
     metadata:
       labels:

@@ -143,6 +143,8 @@ spec:
   replicas: ${WORKER_MACHINE_COUNT}
   selector:
     matchLabels:
+  strategy:
+    type: RollingUpdate
   template:
     metadata:
       labels:
