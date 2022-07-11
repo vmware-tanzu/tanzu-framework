@@ -86,6 +86,12 @@ type VSphereConfig struct {
 	AviControlPlaneEndpointProvider    string `yaml:"AVI_CONTROL_PLANE_HA_PROVIDER,omitempty"`
 	AviManagementClusterVipNetworkName string `yaml:"AVI_MANAGEMENT_CLUSTER_VIP_NETWORK_NAME"`
 	AviManagementClusterVipNetworkCidr string `yaml:"AVI_MANAGEMENT_CLUSTER_VIP_NETWORK_CIDR"`
+	VSphereWorkerPCIDevices            string `yaml:"VSPHERE_WORKER_PCI_DEVICES"`
+	VSphereControlPlanePCIDevices      string `yaml:"VSPHERE_CONTROL_PLANE_PCI_DEVICES"`
+	WorkerRolloutStrategy              string `yaml:"WORKER_ROLLOUT_STRATEGY"`
+	VSphereControlPlaneCustomVMXKeys   string `yaml:"VSPHERE_CONTROL_PLANE_CUSTOM_VMX_KEYS""`
+	VSphereWorkerCustomVMXKeys         string `yaml:"VSPHERE_WORKER_CUSTOM_VMX_KEYS"`
+	VSphereIgnorePCIDevicesAllowList   string `yaml:"VSPHERE_IGNORE_PCI_DEVICES_ALLOW_LIST"`
 	IDPConfig                          `yaml:",inline"`
 	OsInfo                             `yaml:",inline"`
 }

@@ -1,6 +1,6 @@
 #@ load("@ytt:overlay", "overlay")
 #@ load("@ytt:data", "data")
-#@ load("lib/helpers.star", "get_bom_data_for_tkr_name", "kubeadm_image_repo", "get_az_from_region")
+#@ load("lib/helpers.star", "get_bom_data_for_tkr_name", "kubeadm_image_repo", "get_az_from_region", "verify_and_configure_machine_deployment_rollout_strategy")
 #@ load("lib/validate.star", "validate_configuration")
 
 #@ validate_configuration("aws")
@@ -188,6 +188,8 @@ spec:
   replicas: #@ data.values.WORKER_MACHINE_COUNT_0
   selector:
     matchLabels: null
+  strategy:
+    type: #@ verify_and_configure_machine_deployment_rollout_strategy(data.values.WORKER_ROLLOUT_STRATEGY)
   template:
     metadata:
       labels:
