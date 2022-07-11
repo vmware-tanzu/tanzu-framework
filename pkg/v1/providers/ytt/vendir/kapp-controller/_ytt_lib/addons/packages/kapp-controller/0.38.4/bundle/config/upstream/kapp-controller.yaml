@@ -1903,7 +1903,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   annotations:
-    kapp-controller.carvel.dev/version: v0.38.3
+    kapp-controller.carvel.dev/version: v0.38.4
     kbld.k14s.io/images: |
       - origins:
         - local:
@@ -1911,10 +1911,10 @@ metadata:
         - git:
             dirty: false
             remoteURL: https://github.com/vmware-tanzu/carvel-kapp-controller
-            sha: 1d376ccc7312c0f8b7ccf98dd298b5bb1fa58ff4
+            sha: cf8fc08cafd1893f5a9006cfdfbd3d1c42878941
             tags:
-            - v0.38.3
-        url: ghcr.io/vmware-tanzu/carvel-kapp-controller@sha256:2800ee62755d2c692a27d91c5de4c079868c4ea619dd516cfd58373219cb4062
+            - v0.38.4
+        url: ghcr.io/vmware-tanzu/carvel-kapp-controller@sha256:fb1345342c98fb1f88ffdc3a4ec35228404abff0c528fabf7bead33a2564854c
   name: kapp-controller
   namespace: kapp-controller
 spec:
@@ -1943,7 +1943,7 @@ spec:
               fieldPath: metadata.namespace
         - name: KAPPCTRL_API_PORT
           value: "10350"
-        image: ghcr.io/vmware-tanzu/carvel-kapp-controller@sha256:2800ee62755d2c692a27d91c5de4c079868c4ea619dd516cfd58373219cb4062
+        image: ghcr.io/vmware-tanzu/carvel-kapp-controller@sha256:fb1345342c98fb1f88ffdc3a4ec35228404abff0c528fabf7bead33a2564854c
         name: kapp-controller
         ports:
         - containerPort: 10350
@@ -1970,7 +1970,7 @@ spec:
         env:
         - name: KAPPCTRL_SIDECAREXEC_SOCK
           value: /etc/kappctrl-mem-tmp/sidecarexec.sock
-        image: ghcr.io/vmware-tanzu/carvel-kapp-controller@sha256:2800ee62755d2c692a27d91c5de4c079868c4ea619dd516cfd58373219cb4062
+        image: ghcr.io/vmware-tanzu/carvel-kapp-controller@sha256:fb1345342c98fb1f88ffdc3a4ec35228404abff0c528fabf7bead33a2564854c
         name: kapp-controller-sidecarexec
         resources:
           requests:
