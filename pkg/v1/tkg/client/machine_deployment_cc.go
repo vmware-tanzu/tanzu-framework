@@ -104,6 +104,21 @@ func DoSetMachineDeploymentCC(clusterClient clusterclient.Client, cluster *capi.
 		nodeLabelsVar.Value.Raw = output
 	}
 
+	if options.Taints != nil {
+		nodeTaintsVar := getClusterVariableByName("nodePoolTaints", base.Variables.Overrides)
+		if nodeTaintsVar == nil {
+			nodeTaintsVar = &capi.ClusterVariable{
+				Name:  "nodePoolTaints",
+				Value: v1.JSON{},
+			}
+			base.Variables.Overrides = append(base.Variables.Overrides, *nodeTaintsVar)
+			nodeTaintsVar = &base.Variables.Overrides[len(base.Variables.Overrides)-1]
+		}
+
+		output, _ := json.Marshal(options.Taints)
+		nodeTaintsVar.Value.Raw = output
+	}
+
 	if update != nil {
 		return clusterClient.UpdateResource(cluster, options.ClusterName, options.Namespace)
 	}
@@ -137,6 +152,54 @@ func createNewMachineDeployment(clusterClient clusterclient.Client, cluster *cap
 
 	if options.AZ != "" {
 		base.FailureDomain = &options.AZ
+	}
+
+	if options.VMClass != "" {
+		var vmClassVariable = getClusterVariableByName("vmClass", base.Variables.Overrides)
+		if vmClassVariable == nil {
+			vmClassVariable = getClusterVariableByName("vmClass", cluster.Spec.Topology.Variables).DeepCopy()
+			base.Variables.Overrides = append(base.Variables.Overrides, *vmClassVariable)
+			vmClassVariable = &base.Variables.Overrides[len(base.Variables.Overrides)-1]
+		}
+
+		output, _ := json.Marshal(options.VMClass)
+		vmClassVariable.Value.Raw = output
+	}
+
+	if options.StorageClass != "" {
+		var storageClassVariable = getClusterVariableByName("storageClass", base.Variables.Overrides)
+		if storageClassVariable == nil {
+			storageClassVariable = getClusterVariableByName("storageClass", cluster.Spec.Topology.Variables).DeepCopy()
+			base.Variables.Overrides = append(base.Variables.Overrides, *storageClassVariable)
+			storageClassVariable = &base.Variables.Overrides[len(base.Variables.Overrides)-1]
+		}
+
+		output, _ := json.Marshal(options.StorageClass)
+		storageClassVariable.Value.Raw = output
+	}
+
+	if options.Volumes != nil {
+		var volumesVariable = getClusterVariableByName("nodePoolVolumes", base.Variables.Overrides)
+		if volumesVariable == nil {
+			volumesVariable = getClusterVariableByName("nodePoolVolumes", cluster.Spec.Topology.Variables).DeepCopy()
+			base.Variables.Overrides = append(base.Variables.Overrides, *volumesVariable)
+			volumesVariable = &base.Variables.Overrides[len(base.Variables.Overrides)-1]
+		}
+
+		var volumes []map[string]interface{}
+
+		for _, vol := range *options.Volumes {
+			volumes = append(volumes, map[string]interface{}{
+				"mountPath": vol.MountPath,
+				"name":      vol.Name,
+				"capacity": map[string]interface{}{
+					"storage": vol.Capacity.Storage(),
+				},
+			})
+		}
+
+		output, _ := json.Marshal(volumes)
+		volumesVariable.Value.Raw = output
 	}
 
 	if err := setVSphereWorkerOptions(options, base, cluster); err != nil {

@@ -584,20 +584,15 @@ var _ = Describe("SetMachineDeploymentCC", func() {
 						},
 					},
 				})
-				expectedLabels, _ := json.Marshal([]map[string]string{
-					{
-						"os": "ubuntu",
-					},
-					{
-						"arch": "amd64",
-					},
-				})
 				clusterInterface, _, _, _ := regionalClusterClient.UpdateResourceArgsForCall(0)
 				actual, ok := clusterInterface.(*capi.Cluster)
 				Expect(ok).To(BeTrue())
 				Expect(len(actual.Spec.Topology.Workers.MachineDeployments)).To(Equal(3))
 				Expect(len(actual.Spec.Topology.Workers.MachineDeployments[2].Variables.Overrides)).To(Equal(3))
-				Expect(actual.Spec.Topology.Workers.MachineDeployments[2].Variables.Overrides[0].Value.Raw).To(Equal(expectedLabels))
+				var actualLabels []map[string]string
+				err = json.Unmarshal(actual.Spec.Topology.Workers.MachineDeployments[2].Variables.Overrides[0].Value.Raw, &actualLabels)
+				Expect(err).ToNot(HaveOccurred())
+				Expect(len(actualLabels)).To(Equal(2))
 				Expect(actual.Spec.Topology.Workers.MachineDeployments[2].Variables.Overrides[1].Value.Raw).To(Equal(expected))
 
 				expectedVcenter, _ := json.Marshal(map[string]interface{}{
