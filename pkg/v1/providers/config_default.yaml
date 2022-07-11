@@ -132,6 +132,13 @@ VSPHERE_DATASTORE:
 #! name of an existing VM folder in which to place Tanzu Kubernetes Grid VMs
 VSPHERE_FOLDER:
 VSPHERE_STORAGE_POLICY_ID: ""
+
+#!
+VSPHERE_WORKER_PCI_DEVICES:
+VSPHERE_CONTROL_PLANE_PCI_DEVICES:
+VSPHERE_CONTROL_PLANE_CUSTOM_VMX_KEYS:
+VSPHERE_WORKER_CUSTOM_VMX_KEYS:
+
 #! Thumbprint of the vCenter server specified with VSPHERE_SERVER config variable
 #! this value can be skipped if user wants to use insecure connection
 #! by setting VSPHERE_INSECURE to true

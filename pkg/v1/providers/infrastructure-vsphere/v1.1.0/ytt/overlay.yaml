@@ -1,6 +1,7 @@
 #@ load("@ytt:overlay", "overlay")
 #@ load("@ytt:data", "data")
 #@ load("@ytt:regexp", "regexp")
+#@ load("@ytt:assert", "assert")
 
 
 #@ load("lib/helpers.star", "get_bom_data_for_tkr_name", "get_default_tkg_bom_data", "kubeadm_image_repo", "get_image_repo_for_component", "get_vsphere_thumbprint", "get_tkr_version_from_tkr_name")
@@ -8,6 +9,24 @@
 #@ load("lib/validate.star", "validate_configuration")
 #@ load("@ytt:yaml", "yaml")
 #@ validate_configuration("vsphere")
+
+#@ def get_pci_devices(pciDevicesString):
+#@   for val in pciDevicesString.split(','):
+#@     if len(val) <= 0:
+#@        assert.fail("given labels string \""+pciDevicesString+"\" must be in the  \"vendorID:deviceID,vendorID:deviceID,..\" format ")
+#@      end
+#@     kv = val.split(':')
+#@     if kv[0] not in ["10DE"] or kv[1] not in ["1EB8"]:
+#@        assert.fail("given DeviceId or VendorId not supported")
+#@     end
+#@     if len(kv) != 2:
+#@        assert.fail("given labels string \""+pciDevicesString+"\" must be in the  \"vendorID:deviceID,vendorID:deviceID,..\" format ")
+#@      end
+- vendorID: #@ kv[0]
+  deviceID: #@ kv[1]
+#@ end
+#@ end
+
 
 #! The compare_semver_versions function compares the major, minor, patch
 #! numbers of two versions. It returns 1 if a > b, 0 if a == b, -1 if a < b.
@@ -186,6 +205,12 @@ spec:
           dhcp4: true
           #@ end
       numCPUs: #@ data.values.VSPHERE_CONTROL_PLANE_NUM_CPUS
+#@ if data.values.VSPHERE_CONTROL_PLANE_PCI_DEVICES != "" and data.values.VSPHERE_CONTROL_PLANE_PCI_DEVICES != None:
+      #@overlay/replace
+      pciDevices: #@ get_pci_devices(data.values.VSPHERE_CONTROL_PLANE_PCI_DEVICES)
+#@ end
+      #@overlay/replace
+      customVMXKeys: #@ data.values.VSPHERE_CONTROL_PLANE_CUSTOM_VMX_KEYS
       resourcePool: #@ data.values.VSPHERE_RESOURCE_POOL
       server: #@ data.values.VSPHERE_SERVER
       template: #@ data.values.VSPHERE_TEMPLATE
@@ -226,6 +251,12 @@ spec:
           dhcp4: true
           #@ end
       numCPUs: #@ data.values.VSPHERE_WORKER_NUM_CPUS
+#@ if data.values.VSPHERE_WORKER_PCI_DEVICES != "" and data.values.VSPHERE_WORKER_PCI_DEVICES != None:
+      #@overlay/replace
+      pciDevices: #@ get_pci_devices(data.values.VSPHERE_WORKER_PCI_DEVICES)
+#@ end
+      #@overlay/replace
+      customVMXKeys: #@ data.values.VSPHERE_WORKER_CUSTOM_VMX_KEYS
       resourcePool: #@ data.values.VSPHERE_RESOURCE_POOL
       server: #@ data.values.VSPHERE_SERVER
       template: #@ data.values.VSPHERE_TEMPLATE

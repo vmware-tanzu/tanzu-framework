@@ -61,6 +61,8 @@ spec:
           networkName: '${ VSPHERE_NETWORK }'
       numCPUs: ${ VSPHERE_CONTROL_PLANE_NUM_CPUS }
       resourcePool: '${ VSPHERE_RESOURCE_POOL }'
+      pciDevices: ""
+      customVMXKeys: ""
       server: '${ VSPHERE_SERVER }'
       template: '${ VSPHERE_TEMPLATE }'
 ---
@@ -87,6 +89,8 @@ spec:
           networkName: '${ VSPHERE_NETWORK }'
       numCPUs: ${ VSPHERE_WORKER_NUM_CPUS }
       resourcePool: '${ VSPHERE_RESOURCE_POOL }'
+      pciDevices: ""
+      customVMXKeys: ""
       server: '${ VSPHERE_SERVER }'
       template: '${ VSPHERE_TEMPLATE }'
 ---
