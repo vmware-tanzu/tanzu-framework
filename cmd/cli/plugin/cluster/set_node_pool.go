@@ -14,6 +14,7 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/apis/config/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/config"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/client"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/log"
 )
 
 type clusterSetNodePoolCmdOptions struct {
@@ -76,5 +77,9 @@ func SetNodePool(server *v1alpha1.Server, clusterName string) error {
 		NodePool:    nodePool,
 	}
 
-	return tkgctlClient.SetMachineDeployment(&options)
+	err = tkgctlClient.SetMachineDeployment(&options)
+	if err == nil {
+		log.Infof("Cluster update for node pool '%s' completed successfully", options.Name)
+	}
+	return err
 }

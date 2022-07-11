@@ -11,6 +11,7 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/config"
 
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/client"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/log"
 )
 
 type deleteNodePoolOptions struct {
@@ -59,5 +60,11 @@ func runDeleteNodePool(server *v1alpha1.Server, clusterName string) error {
 		Namespace:   deleteNP.namespace,
 		Name:        deleteNP.nodePoolName,
 	}
-	return tkgctlClient.DeleteMachineDeployment(options)
+
+	err = tkgctlClient.DeleteMachineDeployment(options)
+	if err == nil {
+		log.Infof("Node pool '%s' is being deleted", options.Name)
+	}
+
+	return err
 }

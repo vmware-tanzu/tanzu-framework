@@ -99,20 +99,24 @@ func (c *TkgClient) SetMachineDeployment(options *SetMachineDeploymentOptions) e
 		return errors.Wrap(err, "Unable to create clusterclient")
 	}
 
+	ccBased, err := clusterClient.IsClusterClassBased(options.ClusterName, options.Namespace)
+	if err != nil {
+		return errors.Wrap(err, "unable to determine if cluster is clusterclass based")
+	}
+	if ccBased {
+		var cluster capi.Cluster
+		if err = clusterClient.GetResource(&cluster, options.ClusterName, options.Namespace, nil, nil); err != nil {
+			return errors.Wrap(err, "Unable to retrieve cluster resource")
+		}
+		return DoSetMachineDeploymentCC(clusterClient, &cluster, options)
+	}
+
 	isPacific, err := clusterClient.IsPacificRegionalCluster()
 	if err != nil {
 		return errors.Wrap(err, "error determining Tanzu Kubernetes Cluster service for vSphere management cluster ")
 	}
 	if isPacific {
 		return c.SetNodePoolsForPacificCluster(clusterClient, options)
-	}
-
-	var cluster capi.Cluster
-	if err = clusterClient.GetResource(&cluster, options.ClusterName, options.Namespace, nil, nil); err != nil {
-		return errors.Wrap(err, "Unable to retrieve cluster resource")
-	}
-	if cluster.Spec.Topology != nil {
-		return DoSetMachineDeploymentCC(clusterClient, &cluster, options)
 	}
 
 	return DoSetMachineDeployment(clusterClient, options)
@@ -308,20 +312,24 @@ func (c *TkgClient) DeleteMachineDeployment(options DeleteMachineDeploymentOptio
 		return errors.Wrap(err, "Unable to create clusterclient")
 	}
 
+	ccBased, err := clusterClient.IsClusterClassBased(options.ClusterName, options.Namespace)
+	if err != nil {
+		return errors.Wrap(err, "unable to determine if cluster is clusterclass based")
+	}
+	if ccBased {
+		var cluster capi.Cluster
+		if err = clusterClient.GetResource(&cluster, options.ClusterName, options.Namespace, nil, nil); err != nil {
+			return errors.Wrap(err, "Unable to retrieve cluster resource")
+		}
+		return DoDeleteMachineDeploymentCC(clusterClient, &cluster, &options)
+	}
+
 	isPacific, err := clusterClient.IsPacificRegionalCluster()
 	if err != nil {
 		return errors.Wrap(err, "error determining Tanzu Kubernetes Cluster service for vSphere management cluster ")
 	}
 	if isPacific {
 		return c.DeleteNodePoolForPacificCluster(clusterClient, options)
-	}
-
-	var cluster capi.Cluster
-	if err = clusterClient.GetResource(&cluster, options.ClusterName, options.Namespace, nil, nil); err != nil {
-		return errors.Wrap(err, "Unable to retrieve cluster resource")
-	}
-	if cluster.Spec.Topology != nil {
-		return DoDeleteMachineDeploymentCC(clusterClient, &cluster, &options)
 	}
 
 	return DoDeleteMachineDeployment(clusterClient, &options)
@@ -478,12 +486,47 @@ func (c *TkgClient) GetMachineDeployments(options GetMachineDeploymentOptions) (
 		return nil, errors.Wrap(err, "Unable to create clusterclient")
 	}
 
-	var cluster capi.Cluster
-	if err = clusterClient.GetResource(&cluster, options.ClusterName, options.Namespace, nil, nil); err != nil {
-		return nil, errors.Wrap(err, "Unable to retrieve cluster resources")
+	ccBased, err := clusterClient.IsClusterClassBased(options.ClusterName, options.Namespace)
+	if err != nil {
+		return nil, errors.Wrap(err, "unable to determine if cluster is clusterclass based")
 	}
-	if cluster.Spec.Topology != nil {
+	if ccBased {
+		var cluster capi.Cluster
+		if err = clusterClient.GetResource(&cluster, options.ClusterName, options.Namespace, nil, nil); err != nil {
+			return nil, errors.Wrap(err, "Unable to retrieve cluster resources")
+		}
 		return DoGetMachineDeploymentsCC(clusterClient, &cluster, &options)
+	}
+
+	isPacific, err := clusterClient.IsPacificRegionalCluster()
+	if err != nil {
+		return nil, errors.Wrap(err, "error determining Tanzu Kubernetes Cluster service for vSphere management cluster ")
+	}
+	if isPacific {
+		pacificMds, err := c.GetPacificMachineDeployments(options)
+		if err != nil {
+			return nil, err
+		}
+
+		var mds []capi.MachineDeployment
+		for i := range pacificMds {
+			newMd := capi.MachineDeployment{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      getNodePoolNameFromMDName(options.ClusterName, pacificMds[i].Name),
+					Namespace: pacificMds[i].Namespace,
+				},
+				Status: capi.MachineDeploymentStatus{
+					Replicas:            pacificMds[i].Status.Replicas,
+					UpdatedReplicas:     pacificMds[i].Status.UpdatedReplicas,
+					ReadyReplicas:       pacificMds[i].Status.ReadyReplicas,
+					AvailableReplicas:   pacificMds[i].Status.AvailableReplicas,
+					UnavailableReplicas: pacificMds[i].Status.UnavailableReplicas,
+					Phase:               pacificMds[i].Status.Phase,
+				},
+			}
+			mds = append(mds, newMd)
+		}
+		return mds, nil
 	}
 
 	return DoGetMachineDeployments(clusterClient, &options)
@@ -696,6 +739,18 @@ func NormalizeNodePoolName(workers []capi.MachineDeployment, clusterName string)
 	}
 
 	return workers, nil
+}
+
+func getNodePoolNameFromMDName(clusterName, mdName string) string {
+	// Pacific(TKGS) creates a corresponding MachineDeployment for a nodepool in
+	// the format {tkc-clustername}-{nodepool-name}-{randomstring}
+	trimmedName := strings.TrimPrefix(mdName, fmt.Sprintf("%s-", clusterName))
+	lastHypenIdx := strings.LastIndex(trimmedName, "-")
+	if lastHypenIdx == -1 {
+		return ""
+	}
+	nodepoolName := trimmedName[:lastHypenIdx]
+	return nodepoolName
 }
 
 func updateAzureSecret(kcTemplate *v1beta1.KubeadmConfigTemplate, machineTemplateName string) {
