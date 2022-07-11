@@ -33,8 +33,8 @@ require (
 	k8s.io/apimachinery v0.24.1
 	k8s.io/client-go v0.24.1
 	k8s.io/klog/v2 v2.60.1
-	sigs.k8s.io/cluster-api v1.1.3
-	sigs.k8s.io/controller-runtime v0.11.1
+	sigs.k8s.io/cluster-api v1.1.5
+	sigs.k8s.io/controller-runtime v0.11.2
 )
 
 require (
@@ -104,4 +104,4 @@ replace go.pinniped.dev/generated/1.20/apis => go.pinniped.dev/generated/1.19/ap
 
 replace github.com/vmware-tanzu/tanzu-framework/addons/pinniped/tanzu-auth-controller-manager => ../tanzu-auth-controller-manager
 
-replace sigs.k8s.io/cluster-api => sigs.k8s.io/cluster-api v1.1.3
+replace sigs.k8s.io/cluster-api => sigs.k8s.io/cluster-api v1.1.5

@@ -3,8 +3,8 @@ kind: TemplateDefinition
 spec:
   paths:
     - path: providers/yttcb
-    - path: providers/infrastructure-vsphere/v1.1.0/yttcc
-    - path: providers/infrastructure-vsphere/yttcc
+    - path: providers/infrastructure-azure/v1.4.0/yttcc
+    - path: providers/infrastructure-azure/yttcc
     - path: providers/yttcc
     - path: bom
       filemark: text-plain
