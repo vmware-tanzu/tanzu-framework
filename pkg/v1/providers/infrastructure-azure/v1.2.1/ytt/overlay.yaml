@@ -249,6 +249,8 @@ metadata:
 spec:
   clusterName: #@ data.values.CLUSTER_NAME
   replicas: #@ data.values.WORKER_MACHINE_COUNT_0
+  strategy:
+    type: #@ data.values.WORKER_ROLLOUT_STRATEGY
   template:
     metadata:
       labels:

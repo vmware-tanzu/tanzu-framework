@@ -255,6 +255,8 @@ spec:
   selector:
     matchLabels:
       cluster.x-k8s.io/cluster-name: '${ CLUSTER_NAME }'
+  strategy:
+    type: RollingUpdate
   template:
     metadata:
       labels:

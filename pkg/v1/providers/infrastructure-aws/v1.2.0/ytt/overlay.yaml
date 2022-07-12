@@ -188,6 +188,8 @@ spec:
   replicas: #@ data.values.WORKER_MACHINE_COUNT_0
   selector:
     matchLabels: null
+  strategy:
+    type: #@ data.values.WORKER_ROLLOUT_STRATEGY
   template:
     metadata:
       labels:

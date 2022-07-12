@@ -4,29 +4,45 @@
 #@ load("@ytt:assert", "assert")
 
 
+#@ valid_pci_deviceid = ["1EB8"]
+
+#@ valid_pci_vendorid = ["10DE"]
+
 #@ load("lib/helpers.star", "get_bom_data_for_tkr_name", "get_default_tkg_bom_data", "kubeadm_image_repo", "get_image_repo_for_component", "get_vsphere_thumbprint", "get_tkr_version_from_tkr_name")
 
 #@ load("lib/validate.star", "validate_configuration")
 #@ load("@ytt:yaml", "yaml")
 #@ validate_configuration("vsphere")
 
-#@ def get_pci_devices(pciDevicesString):
+#@ def get_pci_devices(pciDevicesString, pciIgnorepciDeviceValidation):
 #@   for val in pciDevicesString.split(','):
 #@     if len(val) <= 0:
 #@        assert.fail("given labels string \""+pciDevicesString+"\" must be in the  \"vendorID:deviceID,vendorID:deviceID,..\" format ")
 #@      end
 #@     kv = val.split(':')
-#@     if kv[0] not in ["10DE"] or kv[1] not in ["1EB8"]:
-#@        assert.fail("given DeviceId or VendorId not supported")
-#@     end
 #@     if len(kv) != 2:
 #@        assert.fail("given labels string \""+pciDevicesString+"\" must be in the  \"vendorID:deviceID,vendorID:deviceID,..\" format ")
 #@      end
+#@     if not pciIgnorepciDeviceValidation and (kv[0] not in valid_pci_vendorid or kv[1] not in valid_pci_deviceid):
+#@         assert.fail("Given DeviceId or VendorId not supported.")
+#@     end
+
 - vendorID: #@ kv[0]
   deviceID: #@ kv[1]
 #@ end
 #@ end
 
+#@ def get_custom_keys(keyValueString):
+#@   customKeys = dict()
+#@   for val in keyValueString.split(','):
+#@     kv = val.split('=')
+#@     if len(kv) != 2:
+#@       assert.fail("Given input is not in correct format")
+#@     end
+#@     customKeys[kv[0]] = kv[1]
+#@ end
+#@  return customKeys
+#@ end
 
 #! The compare_semver_versions function compares the major, minor, patch
 #! numbers of two versions. It returns 1 if a > b, 0 if a == b, -1 if a < b.
@@ -207,10 +223,12 @@ spec:
       numCPUs: #@ data.values.VSPHERE_CONTROL_PLANE_NUM_CPUS
 #@ if data.values.VSPHERE_CONTROL_PLANE_PCI_DEVICES != "" and data.values.VSPHERE_CONTROL_PLANE_PCI_DEVICES != None:
       #@overlay/replace
-      pciDevices: #@ get_pci_devices(data.values.VSPHERE_CONTROL_PLANE_PCI_DEVICES)
+      pciDevices: #@ get_pci_devices(data.values.VSPHERE_CONTROL_PLANE_PCI_DEVICES, data.values.VSPHERE_IGNORE_PCI_DEVICES_ALLOW_LIST)
 #@ end
+#@ if data.values.VSPHERE_CONTROL_PLANE_CUSTOM_VMX_KEYS != "" and data.values.VSPHERE_CONTROL_PLANE_CUSTOM_VMX_KEYS != None:
       #@overlay/replace
-      customVMXKeys: #@ data.values.VSPHERE_CONTROL_PLANE_CUSTOM_VMX_KEYS
+      customVMXKeys: #@ get_custom_keys(data.values.VSPHERE_CONTROL_PLANE_CUSTOM_VMX_KEYS)
+#@ end
       resourcePool: #@ data.values.VSPHERE_RESOURCE_POOL
       server: #@ data.values.VSPHERE_SERVER
       template: #@ data.values.VSPHERE_TEMPLATE
@@ -253,10 +271,12 @@ spec:
       numCPUs: #@ data.values.VSPHERE_WORKER_NUM_CPUS
 #@ if data.values.VSPHERE_WORKER_PCI_DEVICES != "" and data.values.VSPHERE_WORKER_PCI_DEVICES != None:
       #@overlay/replace
-      pciDevices: #@ get_pci_devices(data.values.VSPHERE_WORKER_PCI_DEVICES)
+      pciDevices: #@ get_pci_devices(data.values.VSPHERE_WORKER_PCI_DEVICES, data.values.VSPHERE_IGNORE_PCI_DEVICES_ALLOW_LIST)
 #@ end
+#@ if data.values.VSPHERE_WORKER_CUSTOM_VMX_KEYS != "" and data.values.VSPHERE_WORKER_CUSTOM_VMX_KEYS != None:
       #@overlay/replace
-      customVMXKeys: #@ data.values.VSPHERE_WORKER_CUSTOM_VMX_KEYS
+      customVMXKeys: #@ get_custom_keys(data.values.VSPHERE_WORKER_CUSTOM_VMX_KEYS)
+#@ end
       resourcePool: #@ data.values.VSPHERE_RESOURCE_POOL
       server: #@ data.values.VSPHERE_SERVER
       template: #@ data.values.VSPHERE_TEMPLATE
@@ -411,6 +431,10 @@ spec:
   selector:
     matchLabels:
       cluster.x-k8s.io/cluster-name: #@ data.values.CLUSTER_NAME
+  #@ if data.values.WORKER_ROLLOUT_STRATEGY:
+  strategy:
+    type: #@ data.values.WORKER_ROLLOUT_STRATEGY
+    #@ end
   template:
     metadata:
       labels:
