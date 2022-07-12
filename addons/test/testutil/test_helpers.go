@@ -10,10 +10,10 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"os/exec"
 	"path/filepath"
-	"strings"
 	"time"
+
+	"golang.org/x/tools/go/packages"
 
 	"github.com/onsi/ginkgo"
 	adminregv1 "k8s.io/api/admissionregistration/v1"
@@ -25,6 +25,7 @@ import (
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/serializer/yaml"
+	utilerrors "k8s.io/apimachinery/pkg/util/errors"
 
 	"k8s.io/apimachinery/pkg/util/wait"
 	yamlutil "k8s.io/apimachinery/pkg/util/yaml"
@@ -266,19 +267,26 @@ func getResource(decoder *yamlutil.YAMLOrJSONDecoder, mapper meta.RESTMapper, dy
 
 // GetExternalCRDPaths gets paths for external CRDs by introspecting versions of the go dependencies
 func GetExternalCRDPaths(externalDeps map[string][]string) ([]string, error) {
-	var crdPaths []string
-	gopath, err := exec.Command("go", "env", "GOPATH").Output()
-	if err != nil {
-		return crdPaths, err
+	packageConfig := &packages.Config{
+		Mode: packages.NeedModule,
 	}
+	var crdPaths []string
 	for dep, crdDirs := range externalDeps {
-		depPath, err := exec.Command("go", "list", "-m", "-f", "{{ .Path }}@{{ .Version }}", dep).Output()
-		if err != nil {
-			return crdPaths, err
-		}
 		for _, crdDir := range crdDirs {
-			crdPaths = append(crdPaths, filepath.Join(strings.TrimSuffix(string(gopath), "\n"),
-				"pkg", "mod", strings.TrimSuffix(string(depPath), "\n"), crdDir))
+			pkgs, err := packages.Load(packageConfig, dep)
+			if err != nil {
+				return nil, err
+			}
+
+			pkg := pkgs[0]
+			if pkg.Errors != nil {
+				errs := []error{}
+				for _, err := range pkg.Errors {
+					errs = append(errs, err)
+				}
+				return nil, utilerrors.NewAggregate(errs)
+			}
+			crdPaths = append(crdPaths, filepath.Join(pkg.Module.Dir, crdDir))
 		}
 	}
 
