@@ -10,8 +10,9 @@ import (
 )
 
 const (
-	controlPlaneLabel = "cluster.x-k8s.io/control-plane"
-	nodePoolLabel     = "node-pool"
+	controlPlaneLabel      = "cluster.x-k8s.io/control-plane"
+	nodePoolLabel          = "node-pool"
+	machineDeploymentLabel = "topology.cluster.x-k8s.io/deployment-name"
 )
 
 var machineHealthCheckCmd = &cobra.Command{

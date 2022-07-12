@@ -79,6 +79,10 @@ func init() {
 type addonFlags struct {
 	metricsAddr                     string
 	enableLeaderElection            bool
+	leaderElectionID                string
+	leaderElectionLeaseDuration     time.Duration
+	leaderElectionRenewDeadline     time.Duration
+	leaderElectionRetryPeriod       time.Duration
 	clusterConcurrency              int
 	syncPeriod                      time.Duration
 	appSyncPeriod                   time.Duration
@@ -107,6 +111,14 @@ func parseAddonFlags(addonFlags *addonFlags) {
 	flag.BoolVar(&addonFlags.enableLeaderElection, "leader-elect", false,
 		"Enable leader election for controller manager. "+
 			"Enabling this will ensure there is only one active controller manager.")
+	flag.StringVar(&addonFlags.leaderElectionID, "leader-elect-id", constants.AddonControllerManagerLeaderElectionResourceName,
+		"The name of the resource that leader election will use for holding the leader lock.")
+	flag.DurationVar(&addonFlags.leaderElectionLeaseDuration, "leader-elect-lease-duration", 15*time.Second,
+		"Interval at which non-leader candidates will wait to force acquire leadership")
+	flag.DurationVar(&addonFlags.leaderElectionRenewDeadline, "leader-elect-renew-deadline", 10*time.Second,
+		"Duration that the leading controller manager will retry refreshing leadership before giving up")
+	flag.DurationVar(&addonFlags.leaderElectionRetryPeriod, "leader-elect-retry-period", 2*time.Second,
+		"Duration the LeaderElector clients should wait between tries of actions")
 	flag.IntVar(&addonFlags.clusterConcurrency, "cluster-concurrency", 10,
 		"Number of clusters to process simultaneously")
 	flag.DurationVar(&addonFlags.syncPeriod, "sync-period", 10*time.Minute,
@@ -170,7 +182,10 @@ func main() {
 		Port:                   flags.webhookServerPort,
 		CertDir:                constants.WebhookCertDir,
 		LeaderElection:         flags.enableLeaderElection,
-		LeaderElectionID:       "5832a104.run.tanzu.addons",
+		LeaderElectionID:       flags.leaderElectionID,
+		LeaseDuration:          &flags.leaderElectionLeaseDuration,
+		RenewDeadline:          &flags.leaderElectionRenewDeadline,
+		RetryPeriod:            &flags.leaderElectionRetryPeriod,
 		SyncPeriod:             &flags.syncPeriod,
 		HealthProbeBindAddress: flags.healthdAddr,
 	})
@@ -232,6 +247,8 @@ func enableClusterBootstrapAndConfigControllers(ctx context.Context, mgr ctrl.Ma
 		Client: mgr.GetClient(),
 		Log:    ctrl.Log.WithName("CalicoConfigController"),
 		Scheme: mgr.GetScheme(),
+		Config: addonconfig.CalicoConfigControllerConfig{
+			ConfigControllerConfig: addonconfig.ConfigControllerConfig{SystemNamespace: flags.addonNamespace}},
 	}).SetupWithManager(ctx, mgr, controller.Options{MaxConcurrentReconciles: 1}); err != nil {
 		setupLog.Error(err, "unable to create CalicoConfigController", "controller", "calico")
 		os.Exit(1)
@@ -241,6 +258,8 @@ func enableClusterBootstrapAndConfigControllers(ctx context.Context, mgr ctrl.Ma
 		Client: mgr.GetClient(),
 		Log:    ctrl.Log.WithName("AntreaConfigController"),
 		Scheme: mgr.GetScheme(),
+		Config: addonconfig.AntreaConfigControllerConfig{
+			ConfigControllerConfig: addonconfig.ConfigControllerConfig{SystemNamespace: flags.addonNamespace}},
 	}).SetupWithManager(ctx, mgr, controller.Options{MaxConcurrentReconciles: 1}); err != nil {
 		setupLog.Error(err, "unable to create AntreaConfigController", "controller", "antrea")
 		os.Exit(1)
@@ -249,6 +268,8 @@ func enableClusterBootstrapAndConfigControllers(ctx context.Context, mgr ctrl.Ma
 		Client: mgr.GetClient(),
 		Log:    ctrl.Log.WithName("KappControllerConfig"),
 		Scheme: mgr.GetScheme(),
+		Config: addonconfig.KappControllerConfigControllerConfig{
+			ConfigControllerConfig: addonconfig.ConfigControllerConfig{SystemNamespace: flags.addonNamespace}},
 	}).SetupWithManager(ctx, mgr, controller.Options{MaxConcurrentReconciles: 1}); err != nil {
 		setupLog.Error(err, "unable to create KappControllerConfig", "controller", "kapp")
 		os.Exit(1)
@@ -257,6 +278,8 @@ func enableClusterBootstrapAndConfigControllers(ctx context.Context, mgr ctrl.Ma
 		Client: mgr.GetClient(),
 		Log:    ctrl.Log.WithName("VSphereCPIConfig"),
 		Scheme: mgr.GetScheme(),
+		Config: addonconfig.VSphereCPIConfigControllerConfig{
+			ConfigControllerConfig: addonconfig.ConfigControllerConfig{SystemNamespace: flags.addonNamespace}},
 	}).SetupWithManager(ctx, mgr, controller.Options{MaxConcurrentReconciles: 1}); err != nil {
 		setupLog.Error(err, "unable to create CPIConfigController", "controller", "vspherecpi")
 		os.Exit(1)
@@ -266,6 +289,8 @@ func enableClusterBootstrapAndConfigControllers(ctx context.Context, mgr ctrl.Ma
 		Client: mgr.GetClient(),
 		Log:    ctrl.Log.WithName("VSphereCSIConfig"),
 		Scheme: mgr.GetScheme(),
+		Config: addonconfig.VSphereCSIConfigControllerConfig{
+			ConfigControllerConfig: addonconfig.ConfigControllerConfig{SystemNamespace: flags.addonNamespace}},
 	}).SetupWithManager(ctx, mgr, controller.Options{MaxConcurrentReconciles: 1}); err != nil {
 		setupLog.Error(err, "unable to create CSIConfigController", "controller", "vspherecsi")
 		os.Exit(1)

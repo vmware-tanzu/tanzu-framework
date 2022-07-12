@@ -18,7 +18,7 @@ metadata:
   name: tkg-telemetry-cluster-role
 rules:
   - apiGroups: [""]
-    resources: ["secrets", "namespaces"]
+    resources: ["secrets", "namespaces", "configmaps"]
     verbs: ["get", "list"]
   - apiGroups: ["cluster.x-k8s.io"]
     resources: ["clusters", "machinedeployments"]

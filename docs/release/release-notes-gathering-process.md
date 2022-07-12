@@ -12,7 +12,7 @@ notes for Tanzu Framework.
 The simplest way to install the release-notes CLI is via `go install`:
 
 ```sh
-go install k8s.io/release/cmd/release-notes@latest
+go install k8s.io/release/cmd/release-notes@v0.13.0
 ```
 
 ## Usage

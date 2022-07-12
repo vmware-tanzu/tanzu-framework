@@ -22,6 +22,8 @@ spec:
       containers:
       #@overlay/match by=overlay.subset({"name":"kapp-controller"})
       - image: #@ "{}/{}:{}".format(get_image_repo_for_component(bomData.components["kapp-controller"][0].images.kappControllerImage), bomData.components["kapp-controller"][0].images.kappControllerImage.imagePath, bomData.components["kapp-controller"][0].images.kappControllerImage.tag)
+      #@overlay/match by=overlay.subset({"name":"kapp-controller-sidecarexec"})
+      - image: #@ "{}/{}:{}".format(get_image_repo_for_component(bomData.components["kapp-controller"][0].images.kappControllerImage), bomData.components["kapp-controller"][0].images.kappControllerImage.imagePath, bomData.components["kapp-controller"][0].images.kappControllerImage.tag)
       #@overlay/match missing_ok=True
       initContainers:
       #@overlay/match by=overlay.subset({"name":"init-kapp-controller"}), missing_ok=True

@@ -8,12 +8,17 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
+	"strings"
 	"time"
 
 	"gopkg.in/yaml.v2"
 	"sigs.k8s.io/cluster-api/util"
 
 	. "github.com/onsi/ginkgo" // nolint:stylecheck
+	"github.com/pkg/errors"
+
+	configv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/config/v1alpha1"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/config"
 )
 
 // CreateClusterOptions represent options to create a TKG cluster
@@ -151,4 +156,39 @@ func GetTempClusterConfigFile(clusterConfigFile string, options *CreateClusterOp
 	}
 
 	return configFilePath, nil
+}
+
+//SetCliConfigFlag sets cli flag
+func SetCliConfigFlag(flagName string, value string) error {
+	cfg, err := config.GetClientConfig()
+	if err != nil {
+		return err
+	}
+	paramArray := strings.Split(flagName, ".")
+	err = SetFeatures(cfg, paramArray, value)
+	if err != nil {
+		return err
+	}
+	return config.StoreClientConfig(cfg)
+}
+
+//SetFeatures sets flags in given ClientConfig
+func SetFeatures(cfg *configv1alpha1.ClientConfig, paramArray []string, value string) error {
+	if len(paramArray) != 3 {
+		return errors.New("unable to parse config path parameter into three parts [" + strings.Join(paramArray, ".") + "]  (was expecting 'features.<plugin>.<feature>'")
+	}
+	plugin := paramArray[1]
+	featureName := paramArray[2]
+
+	if cfg.ClientOptions == nil {
+		cfg.ClientOptions = &configv1alpha1.ClientOptions{}
+	}
+	if cfg.ClientOptions.Features == nil {
+		cfg.ClientOptions.Features = make(map[string]configv1alpha1.FeatureMap)
+	}
+	if cfg.ClientOptions.Features[plugin] == nil {
+		cfg.ClientOptions.Features[plugin] = configv1alpha1.FeatureMap{}
+	}
+	cfg.ClientOptions.Features[plugin][featureName] = value
+	return nil
 }

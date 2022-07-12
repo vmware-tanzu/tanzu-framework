@@ -83,7 +83,7 @@ type VSphereConfig struct {
 	AviLabels                          string `yaml:"AVI_LABELS"`
 	AviEnable                          string `yaml:"AVI_ENABLE"`
 	EnableAuditLogging                 string `yaml:"ENABLE_AUDIT_LOGGING"`
-	AviControlPlaneEndpointProvider    string `yaml:"AVI_CONTROL_PLANE_HA_PROVIDER"`
+	AviControlPlaneEndpointProvider    string `yaml:"AVI_CONTROL_PLANE_HA_PROVIDER,omitempty"`
 	AviManagementClusterVipNetworkName string `yaml:"AVI_MANAGEMENT_CLUSTER_VIP_NETWORK_NAME"`
 	AviManagementClusterVipNetworkCidr string `yaml:"AVI_MANAGEMENT_CLUSTER_VIP_NETWORK_CIDR"`
 	IDPConfig                          `yaml:",inline"`
@@ -107,6 +107,8 @@ func (c *client) NewVSphereConfig(params *models.VsphereRegionalClusterParams) (
 		ControlPlaneEndpoint: params.ControlPlaneEndpoint,
 		IPFamily:             params.IPFamily,
 		HTTPProxyEnabled:     falseConst,
+
+		AviControlPlaneEndpointProvider: falseConst,
 	}
 	if params.Os != nil {
 		if params.Os.OsInfo != nil {
@@ -219,7 +221,6 @@ func (c *client) NewVSphereConfig(params *models.VsphereRegionalClusterParams) (
 		res.AviLabels = mapToYamlStr(params.AviConfig.Labels)
 		res.AviEnable = trueConst
 
-		res.AviControlPlaneEndpointProvider = falseConst
 		if params.AviConfig.ControlPlaneHaProvider {
 			res.AviControlPlaneEndpointProvider = trueConst
 		}

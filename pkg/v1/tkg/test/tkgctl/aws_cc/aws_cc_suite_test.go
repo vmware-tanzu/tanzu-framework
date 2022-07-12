@@ -18,6 +18,8 @@ import (
 	"github.com/onsi/ginkgo/reporters"
 	. "github.com/onsi/gomega"
 
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/clusterclient"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/managementcomponents"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgctl"
 
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/test/framework"
@@ -58,6 +60,8 @@ func TestE2E(t *testing.T) {
 
 var _ = SynchronizedBeforeSuite(func() []byte {
 	// Before all parallel nodes
+
+	var mcClusterClient clusterclient.Client
 
 	Expect(e2eConfigPath).To(BeAnExistingFile(), "e2e config file is either not set or invalid")
 	Expect(os.MkdirAll(artifactsFolder, 0o700)).To(Succeed(), "Can't create artifacts directory %q", artifactsFolder)
@@ -123,13 +127,28 @@ var _ = SynchronizedBeforeSuite(func() []byte {
 		Expect(err).To(BeNil())
 
 		kubeConfigFileName := e2eConfig.ManagementClusterName + ".kubeconfig"
-		defer os.Remove(kubeConfigFileName)
-		tempFilePath := filepath.Join(os.TempDir(), kubeConfigFileName)
+		mcKubeconfigFile := filepath.Join(os.TempDir(), kubeConfigFileName)
+		mcKubecontext := e2eConfig.ManagementClusterName + "-admin@" + e2eConfig.ManagementClusterName
+		defer os.Remove(mcKubeconfigFile)
 		err = cli.GetCredentials(tkgctl.GetWorkloadClusterCredentialsOptions{
 			ClusterName: e2eConfig.ManagementClusterName,
 			Namespace:   "tkg-system",
-			ExportFile:  tempFilePath,
+			ExportFile:  mcKubeconfigFile,
 		})
+		Expect(err).To(BeNil())
+
+		// Create management-cluster client
+		mcClusterClient, err = clusterclient.NewClient(mcKubeconfigFile, mcKubecontext, clusterclient.Options{})
+		Expect(err).To(BeNil())
+
+		//Should verify management cluster is created using default ClusterClass
+		clusterInfo := mcClusterClient.GetClusterStatusInfo(e2eConfig.ManagementClusterName, "tkg-system", nil)
+		Expect(clusterInfo.ClusterObject).NotTo(BeNil())
+		Expect(clusterInfo.ClusterObject.Spec.Topology).NotTo(BeNil())
+		Expect(clusterInfo.ClusterObject.Spec.Topology.Class).To(Equal("tkg-" + e2eConfig.InfrastructureName + "-default"))
+
+		// Should verify all management packages are deployed and reconciled successfully
+		err = managementcomponents.WaitForManagementPackages(mcClusterClient, 2*time.Minute)
 		Expect(err).To(BeNil())
 	}
 

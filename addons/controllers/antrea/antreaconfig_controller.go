@@ -22,8 +22,10 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/controller"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 
+	addonconfig "github.com/vmware-tanzu/tanzu-framework/addons/pkg/config"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/util"
+	"github.com/vmware-tanzu/tanzu-framework/addons/predicates"
 	cniv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cni/v1alpha1"
 )
 
@@ -32,6 +34,7 @@ type AntreaConfigReconciler struct {
 	client.Client
 	Log    logr.Logger
 	Scheme *runtime.Scheme
+	Config addonconfig.AntreaConfigControllerConfig
 }
 
 // +kubebuilder:rbac:groups=addons.tanzu.vmware.com,resources=antreaconfigs,verbs=get;list;watch;create;update;patch;delete
@@ -97,6 +100,7 @@ func (r *AntreaConfigReconciler) SetupWithManager(ctx context.Context, mgr ctrl.
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&cniv1alpha1.AntreaConfig{}).
 		WithOptions(options).
+		WithEventFilter(predicates.ConfigOfKindWithoutAnnotation(constants.TKGAnnotationTemplateConfig, constants.AntreaConfigKind, r.Config.SystemNamespace, r.Log)).
 		Complete(r)
 }
 
@@ -190,7 +194,7 @@ func (r *AntreaConfigReconciler) ReconcileAntreaConfigDataValue(
 
 	antreaDataValuesSecretMutateFn := func() error {
 		antreaDataValuesSecret.Type = corev1.SecretTypeOpaque
-		antreaDataValuesSecret.Data = map[string][]byte{}
+		antreaDataValuesSecret.StringData = make(map[string]string)
 
 		// marshall the yaml contents
 		antreaConfigYaml, err := mapAntreaConfigSpec(cluster, antreaConfig)
@@ -204,7 +208,7 @@ func (r *AntreaConfigReconciler) ReconcileAntreaConfigDataValue(
 			return err
 		}
 
-		antreaDataValuesSecret.Data[constants.TKGDataValueFileName] = dataValueYamlBytes
+		antreaDataValuesSecret.StringData[constants.TKGDataValueFileName] = string(dataValueYamlBytes)
 
 		return nil
 	}

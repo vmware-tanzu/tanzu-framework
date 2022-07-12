@@ -88,6 +88,13 @@ func (wh *ClusterBootstrap) Default(ctx context.Context, obj runtime.Object) err
 		return apierrors.NewBadRequest(fmt.Sprintf("expected a ClusterBootstrap but got a %T", obj))
 	}
 
+	// If the clusterBootstrap has ownerReferences set, that means it has been reconciled by clusterbootstrap_controller
+	// already. We do not want to mutate the clusterBootstrap CR in this case because it might disrupt the changes clusterbootstrap_controller
+	// has put on clusterBootstrap.
+	if clusterBootstrap.OwnerReferences != nil && len(clusterBootstrap.OwnerReferences) != 0 {
+		return nil
+	}
+
 	var tkrName string
 	var annotationExist bool
 	if clusterBootstrap.Annotations != nil {
@@ -130,8 +137,11 @@ func (wh *ClusterBootstrap) Default(ctx context.Context, obj runtime.Object) err
 		clusterbootstraplog.Error(err, "unable to complete the RefNames for ClusterBootstrapPackages due to errors")
 		return err
 	}
-	// Attempt to add defaults to the missing fields of ClusterBootstrap
-	if err := helper.AddMissingSpecFieldsFromTemplate(clusterBootstrapTemplate, clusterBootstrap); err != nil {
+	// Attempt to add defaults to the missing fields of ClusterBootstrap. The valuesFrom fields will be skipped because of:
+	// At the time when a ClusterBootstrap CR gets created by third party(e.g. Tanzu CLI), the valuesFrom.ProviderRef
+	// and valuesFrom.SecretRef might not be cloned into cluster namespace yet. If we keep valuesFrom fields, validation
+	// webhook will complain that providerRef or secretRef is missing. The valuesFrom will be added back by the clusterbootstrap_controller.
+	if err := helper.AddMissingSpecFieldsFromTemplate(clusterBootstrapTemplate, clusterBootstrap, map[string]interface{}{"valuesFrom": nil}); err != nil {
 		clusterbootstraplog.Error(err, fmt.Sprintf("unable to add defaults to the missing fields of ClusterBootstrap %s/%s",
 			clusterBootstrap.Namespace, clusterBootstrap.Name))
 		return err
@@ -332,6 +342,13 @@ func (wh *ClusterBootstrap) ValidateUpdate(ctx context.Context, oldObj, newObj r
 	if !ok {
 		return apierrors.NewBadRequest(fmt.Sprintf("expected a ClusterBootstrap but got a %T", oldObj))
 	}
+
+	//don't validate object if being deleted
+	if !oldClusterBootstrap.GetDeletionTimestamp().IsZero() {
+		clusterbootstraplog.Info("object being deleted, ignore validation", "name", oldClusterBootstrap.Name)
+		return nil
+	}
+
 	clusterbootstraplog.Info("validate update", "name", newClusterBootstrap.Name)
 
 	var allErrs field.ErrorList

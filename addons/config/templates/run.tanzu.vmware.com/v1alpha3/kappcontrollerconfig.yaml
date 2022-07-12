@@ -5,6 +5,8 @@ kind: KappControllerConfig
 metadata:
   name: #@ data.values.TKR_VERSION
   namespace: #@ data.values.GLOBAL_NAMESPACE
+  annotations:
+    tkg.tanzu.vmware.com/template-config: "true"
 spec:
   namespace: #@ data.values.GLOBAL_NAMESPACE
   kappController:

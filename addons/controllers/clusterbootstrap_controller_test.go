@@ -26,7 +26,6 @@ import (
 	runtanzuv1alpha3 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
 	tkgconstants "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
 
-	"github.com/go-logr/logr"
 	corev1 "k8s.io/api/core/v1"
 	rbacv1 "k8s.io/api/rbac/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
@@ -169,7 +168,7 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 
 				By("packageinstall should have been created for each additional package in the clusterBoostrap")
 				Expect(hasPackageInstalls(ctx, k8sClient, cluster, constants.TKGSystemNS,
-					clusterBootstrap.Spec.AdditionalPackages, logr.Logger{})).To(BeTrue())
+					clusterBootstrap.Spec.AdditionalPackages, setupLog)).To(BeTrue())
 
 				By("packageinstalls for core packages should not have owner references")
 				var corePackages []*runtanzuv1alpha3.ClusterBootstrapPackage
@@ -312,9 +311,9 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 					// workload cluster under tkg-system namespace.
 					s := &corev1.Secret{}
 					Expect(k8sClient.Get(ctx, client.ObjectKey{Namespace: clusterNamespace, Name: fmt.Sprintf("%s-foobar1-package", cluster.Name)}, s)).To(Succeed())
-					s.Data["values.yaml"] = []byte("foobar1-updated")
+					s.StringData = make(map[string]string)
+					s.StringData["values.yaml"] = "foobar1-updated"
 					Expect(k8sClient.Update(ctx, s)).To(Succeed())
-
 					Eventually(func() bool {
 						s := &corev1.Secret{}
 						if err := k8sClient.Get(ctx, client.ObjectKey{Namespace: constants.TKGSystemNS, Name: util.GenerateDataValueSecretName(clusterName, foobar1CarvelPackageRefName)}, s); err != nil {
@@ -336,8 +335,8 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 					s := &corev1.Secret{}
 					s.Name = util.GenerateDataValueSecretName(clusterName, foobarCarvelPackageRefName)
 					s.Namespace = clusterNamespace
-					s.Data = map[string][]byte{}
-					s.Data["values.yaml"] = []byte(foobar)
+					s.StringData = map[string]string{}
+					s.StringData["values.yaml"] = string(foobar)
 					Expect(k8sClient.Create(ctx, s)).To(Succeed())
 
 					Expect(unstructured.SetNestedField(object.Object, s.Name, "status", "secretRef")).To(Succeed())
@@ -452,6 +451,9 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 							}, remoteSecret); err != nil {
 							return false
 						}
+						if clusterBootstrapPackage.ValuesFrom != nil {
+							Expect(remoteSecret.Data).To(HaveKey("values.yaml"))
+						}
 					}
 					return true
 				}, waitTimeout, pollingInterval).Should(BeTrue())
@@ -491,7 +493,8 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 							UID:        cluster.UID,
 						},
 					}
-					s.Data["values.yaml"] = []byte("foobar-updated")
+					s.StringData = make(map[string]string)
+					s.StringData["values.yaml"] = "foobar-updated"
 					Expect(k8sClient.Update(ctx, s)).To(Succeed())
 
 					Eventually(func() bool {
@@ -726,10 +729,10 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 
 				By("instacllpackages for additional packages should have been removed.")
 				Expect(hasPackageInstalls(ctx, k8sClient, cluster, constants.TKGSystemNS,
-					clusterBootstrap.Spec.AdditionalPackages, logr.Logger{})).To(BeTrue())
+					clusterBootstrap.Spec.AdditionalPackages, setupLog)).To(BeTrue())
 				Eventually(func() bool {
 					return hasPackageInstalls(ctx, k8sClient, cluster, constants.TKGSystemNS,
-						clusterBootstrap.Spec.AdditionalPackages, logr.Logger{})
+						clusterBootstrap.Spec.AdditionalPackages, setupLog)
 				}, waitTimeout, pollingInterval).Should(BeFalse())
 
 				By("finalizer should be removed from clusterboostrap")
@@ -759,7 +762,6 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 					}
 					return controllerutil.ContainsFinalizer(clusterKubeConfigSecret, addontypes.AddonFinalizer)
 				}, waitTimeout, pollingInterval).Should(BeFalse())
-
 			})
 		})
 	})
@@ -835,6 +837,8 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 							}
 							return true
 						}, waitTimeout, pollingInterval).Should(BeTrue())
+
+						Expect(remoteSecret.Data).To(HaveKey(constants.TKGSDataValueFileName))
 					}
 				})
 
@@ -849,6 +853,8 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 					if err != nil {
 						return false
 					}
+					Expect(s.Data).To(HaveKey("values.yaml"))
+					Expect(s.Data).NotTo(HaveKey(constants.TKGSDataValueFileName))
 					err = remoteClient.Get(ctx, client.ObjectKey{Namespace: constants.TKGSystemNS, Name: util.GenerateDataValueSecretName(clusterName, foobar1CarvelPackageRefName)}, remoteSecret)
 					if err != nil {
 						return false
@@ -856,6 +862,8 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 					if string(s.Data["values.yaml"]) != string(remoteSecret.Data["values.yaml"]) {
 						return false
 					}
+					Expect(remoteSecret.Data).To(HaveKey("values.yaml"))
+					Expect(remoteSecret.Data).To(HaveKey(constants.TKGSDataValueFileName))
 					// TKGS data values should be added because cluster has related VirtualMachine
 					valueTexts, ok := remoteSecret.Data[constants.TKGSDataValueFileName]
 					if !ok {
@@ -878,7 +886,8 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 				By("Should not reconcile foobar1secret secret change", func() {
 					// Get secretRef
 					Expect(k8sClient.Get(ctx, client.ObjectKey{Namespace: clusterNamespace, Name: fmt.Sprintf("%s-foobar1-package", clusterName)}, s)).To(Succeed())
-					s.Data["values.yaml"] = []byte("values changed")
+					s.StringData = make(map[string]string)
+					s.StringData["values.yaml"] = "values changed"
 					Expect(k8sClient.Update(ctx, s)).To(Succeed())
 
 					// Wait 10 seconds in case reconciliation happens
@@ -982,6 +991,41 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 				Expect(k8sClient.Get(ctx, client.ObjectKey{Namespace: clusterNamespace, Name: clusterName}, cluster)).To(Succeed())
 				cluster.Status.Phase = string(clusterapiv1beta1.ClusterPhaseProvisioned)
 				Expect(k8sClient.Status().Update(ctx, cluster)).To(Succeed())
+			})
+		})
+	})
+
+	When("Cluster with no valuesFrom for kapp-controller", func() {
+		BeforeEach(func() {
+			clusterName = "test-cluster-4"
+			clusterNamespace = "cluster-namespace-4"
+			clusterResourceFilePath = "testdata/test-cluster-bootstrap-4.yaml"
+			ns := &corev1.Namespace{
+				ObjectMeta: metav1.ObjectMeta{
+					Name: clusterNamespace,
+				},
+			}
+			err := k8sClient.Create(ctx, ns)
+			if err != nil {
+				Expect(apierrors.IsAlreadyExists(err)).To(BeTrue())
+			}
+		})
+		Context("controller should not crash", func() {
+			It("and create package install for kapp ", func() {
+				By("setting cluster phase to provisioned")
+				cluster := &clusterapiv1beta1.Cluster{}
+				Expect(k8sClient.Get(ctx, client.ObjectKey{Namespace: clusterNamespace, Name: clusterName}, cluster)).To(Succeed())
+				cluster.Status.Phase = string(clusterapiv1beta1.ClusterPhaseProvisioned)
+				Expect(k8sClient.Status().Update(ctx, cluster)).To(Succeed())
+
+				pkgiName := util.GeneratePackageInstallName(clusterName, "kapp-controller.tanzu.vmware.com.0.31.0")
+				pkgi := &kapppkgiv1alpha1.PackageInstall{}
+				Eventually(func() bool {
+					if err := k8sClient.Get(ctx, client.ObjectKey{Namespace: clusterNamespace, Name: pkgiName}, pkgi); err != nil {
+						return false
+					}
+					return true
+				}, waitTimeout, pollingInterval).Should(BeTrue())
 			})
 		})
 	})

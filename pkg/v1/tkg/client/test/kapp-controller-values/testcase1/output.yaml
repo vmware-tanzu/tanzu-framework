@@ -3,6 +3,15 @@
 #@overlay/replace
 ---
 namespace: tkg-system
+nodeSelector:
+  node-role.kubernetes.io/master: ""
+deployment:
+  updateStrategy: null
+  rollingUpdate:
+    maxUnavailable: null
+    maxSurge: null
+daemonset:
+  updateStrategy: null
 kappController:
   namespace: tkg-system
   createNamespace: true

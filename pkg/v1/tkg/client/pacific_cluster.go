@@ -35,10 +35,6 @@ func (c *TkgClient) GetPacificClusterObject(clusterName, namespace string) (*tkg
 		return nil, errors.New("the management cluster is not 'Tanzu Kubernetes Cluster service for vSphere' management cluster")
 	}
 
-	err = c.ValidatePacificVersionWithCLI(regionalClusterClient)
-	if err != nil {
-		return nil, err
-	}
 	return regionalClusterClient.GetPacificClusterObject(clusterName, namespace)
 }
 

@@ -7,6 +7,7 @@ package clusterstatus
 import (
 	"context"
 	"fmt"
+	"sort"
 	"strings"
 
 	"github.com/go-logr/logr"
@@ -30,8 +31,10 @@ import (
 	runv1 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/util/patchset"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v2/tkr/resolver"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v2/tkr/resolver/data"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v2/tkr/util/resolution"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v2/tkr/util/topology"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v2/tkr/util/version"
 )
 
 type Reconciler struct {
@@ -163,8 +166,7 @@ func (r *Reconciler) calculateAndSetUpdatesAvailable(ctx context.Context, cluste
 }
 
 func (r *Reconciler) updatesAvailable(tkr *runv1.TanzuKubernetesRelease, cluster *clusterv1.Cluster, clusterClass *clusterv1.ClusterClass) ([]string, error) {
-	result := make([]string, 0, 2)
-
+	var result []string
 	sv, err := utilversion.ParseSemantic(tkr.Spec.Kubernetes.Version)
 	if err != nil {
 		return nil, err
@@ -175,32 +177,45 @@ func (r *Reconciler) updatesAvailable(tkr *runv1.TanzuKubernetesRelease, cluster
 		vLabelMinor(major, minor),
 		vLabelMinor(major, minor+1),
 	} {
-		updateVersion, err := r.findUpdateVersion(tkr, cluster, clusterClass, versionPrefix)
+		updateVersions, err := r.findUpdateVersion(tkr, cluster, clusterClass, versionPrefix)
 		if err != nil {
 			return nil, err
 		}
-		if updateVersion != "" {
-			result = append(result, updateVersion)
-		}
+		result = append(result, updateVersions...)
 	}
 
 	return result, nil
 }
 
-func (r *Reconciler) findUpdateVersion(tkr *runv1.TanzuKubernetesRelease, cluster *clusterv1.Cluster, clusterClass *clusterv1.ClusterClass, versionPrefix string) (string, error) {
+func (r *Reconciler) findUpdateVersion(tkr *runv1.TanzuKubernetesRelease, cluster *clusterv1.Cluster, clusterClass *clusterv1.ClusterClass, versionPrefix string) ([]string, error) {
 	query, err := resolution.ConstructQuery(versionPrefix, cluster, clusterClass)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 	tkrResult := r.TKRResolver.Resolve(*query)
 	if tkrResult.ControlPlane.K8sVersion != "" && tkrResult.ControlPlane.TKRName != tkr.Name {
-		if tkrResult.ControlPlane.K8sVersion == cluster.Spec.Topology.Version {
-			resolvedTKR := tkrResult.ControlPlane.TKRsByK8sVersion[tkrResult.ControlPlane.K8sVersion][tkrResult.ControlPlane.TKRName]
-			return resolvedTKR.Spec.Version, nil
-		}
-		return tkrResult.ControlPlane.K8sVersion, nil
+		return resolvedTKRVersions(tkr, tkrResult)
 	}
-	return "", nil
+	return nil, nil
+}
+
+func resolvedTKRVersions(currentTKR *runv1.TanzuKubernetesRelease, tkrResult data.Result) ([]string, error) {
+	currentTKRVersion, _ := version.ParseSemantic(currentTKR.Spec.Version)
+	var result []string
+	for _, tkrs := range tkrResult.ControlPlane.TKRsByK8sVersion {
+		for _, tkr := range tkrs {
+			tkrVersion, _ := version.ParseSemantic(tkr.Spec.Version)
+			if currentTKRVersion.LessThan(tkrVersion) {
+				result = append(result, tkr.Spec.Version)
+			}
+		}
+	}
+	sort.Slice(result, func(i, j int) bool {
+		vi, _ := version.ParseSemantic(result[i])
+		vj, _ := version.ParseSemantic(result[j])
+		return vi.LessThan(vj)
+	})
+	return result, nil
 }
 
 func vLabelMinor(major, minor uint) string {

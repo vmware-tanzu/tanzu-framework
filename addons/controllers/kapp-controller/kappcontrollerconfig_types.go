@@ -18,6 +18,12 @@ import (
 type kappControllerConfigSpec struct {
 	Namespace      string         `yaml:"namespace,omitempty"`
 	KappController kappController `yaml:"kappController,omitempty"`
+	NodeSelector   NodeSelector   `yaml:"nodeSelector"`
+}
+
+// NodeSelector contains the nodeSelector information
+type NodeSelector struct {
+	NodeRoleMaster string `yaml:"node-role.kubernetes.io/master"`
 }
 
 type kappController struct {
@@ -115,6 +121,8 @@ func mapKappControllerConfigSpec(cluster *clusterapiv1beta1.Cluster, config *run
 	if configSpec.KappController.Config.DangerousSkipTLSVerify != "" {
 		configSpec.KappController.Config.DangerousSkipTLSVerify = config.Spec.KappController.Config.DangerousSkipTLSVerify
 	}
+
+	configSpec.NodeSelector = NodeSelector{NodeRoleMaster: ""}
 
 	return configSpec, nil
 }

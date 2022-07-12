@@ -21,6 +21,11 @@ import (
 	netutil "github.com/vmware-tanzu/tanzu-framework/pkg/v1/util/net"
 )
 
+const (
+	KubePublicNamespace       = "kube-public"
+	PinnipedInfoConfigMapName = "pinniped-info"
+)
+
 // PinnipedConfigMapInfo defines the fields of pinniped-info configMap
 type PinnipedConfigMapInfo struct {
 	Kind    string `json:"kind" yaml:"kind"`
@@ -98,8 +103,7 @@ func GetClusterInfoFromCluster(clusterAPIServerURL, configmapName string) (*clie
 	}
 
 	clusterAPIServerURL = strings.TrimRight(clusterAPIServerURL, " /")
-	clusterInfoURL := clusterAPIServerURL + fmt.Sprintf("/api/v1/namespaces/kube-public/configmaps/%s", configmapName)
-
+	clusterInfoURL := clusterAPIServerURL + fmt.Sprintf("/api/v1/namespaces/%s/configmaps/%s", KubePublicNamespace, configmapName)
 	//nolint:noctx
 	req, _ := http.NewRequest("GET", clusterInfoURL, http.NoBody)
 	// To get the cluster ca certificate first time, we need to use skip verify the server certificate,
@@ -165,7 +169,7 @@ func GetPinnipedInfoFromCluster(clusterInfo *clientcmdapi.Cluster, discoveryPort
 			return nil, errors.Wrap(err, "failed to override discovery port")
 		}
 	}
-	pinnipedInfoURL := endpoint + "/api/v1/namespaces/kube-public/configmaps/pinniped-info"
+	pinnipedInfoURL := endpoint + fmt.Sprintf("/api/v1/namespaces/%s/configmaps/pinniped-info", KubePublicNamespace)
 	//nolint:noctx
 	req, _ := http.NewRequest("GET", pinnipedInfoURL, http.NoBody)
 	pool := x509.NewCertPool()
@@ -191,7 +195,7 @@ func GetPinnipedInfoFromCluster(clusterInfo *clientcmdapi.Cluster, discoveryPort
 		if response.StatusCode == http.StatusNotFound {
 			return nil, nil
 		}
-		return nil, errors.New("failed to get pinniped-info from the cluster")
+		return nil, fmt.Errorf("failed to get pinniped-info from the cluster. Status code: %+v", response.StatusCode)
 	}
 
 	responseBody, err := io.ReadAll(response.Body)

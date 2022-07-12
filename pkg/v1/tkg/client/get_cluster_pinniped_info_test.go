@@ -20,6 +20,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/tools/clientcmd"
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
 	capi "sigs.k8s.io/cluster-api/api/v1beta1"
@@ -57,6 +58,7 @@ var _ = Describe("Unit tests for get cluster pinniped info", func() {
 		conciergeIsClusterScopedWLCluster bool
 		servCert                          *x509.Certificate
 		clusterPinnipedInfo               *ClusterPinnipedInfo
+		isPacific                         bool
 	)
 
 	var (
@@ -126,7 +128,7 @@ var _ = Describe("Unit tests for get cluster pinniped info", func() {
 			BeforeEach(func() {
 				// create a fake controller-runtime cluster with the []runtime.Object mentioned with createClusterOptions
 				fakeClientSet = fake.NewClientBuilder().WithScheme(scheme).WithRuntimeObjects(
-					createFakeClusterRefObjects(mgmtClusterName, searchNamespace, endpoint, "invalid kubeconfig")...).Build()
+					createFakeClusterRefObjects(mgmtClusterName, searchNamespace, "some-uid", endpoint, "invalid kubeconfig")...).Build()
 			})
 			It("should return an error", func() {
 				Expect(err).To(HaveOccurred())
@@ -137,7 +139,7 @@ var _ = Describe("Unit tests for get cluster pinniped info", func() {
 			BeforeEach(func() {
 				// create a fake controller-runtime cluster with the []runtime.Object mentioned with createClusterOptions
 				fakeClientSet = fake.NewClientBuilder().WithScheme(scheme).WithRuntimeObjects(
-					createFakeClusterRefObjects(mgmtClusterName, searchNamespace, endpoint, readFile(kubeconfig))...).Build()
+					createFakeClusterRefObjects(mgmtClusterName, searchNamespace, "some-uid", endpoint, readFile(kubeconfig))...).Build()
 				tlsServer.AppendHandlers(
 					ghttp.CombineHandlers(
 						ghttp.VerifyRequest("GET", "/api/v1/namespaces/kube-public/configmaps/pinniped-info"),
@@ -165,7 +167,7 @@ var _ = Describe("Unit tests for get cluster pinniped info", func() {
 				})
 				// create a fake controller-runtime cluster with the []runtime.Object mentioned with createClusterOptions
 				fakeClientSet = fake.NewClientBuilder().WithScheme(scheme).WithRuntimeObjects(
-					createFakeClusterRefObjects(mgmtClusterName, searchNamespace, endpoint, readFile(kubeconfig))...).Build()
+					createFakeClusterRefObjects(mgmtClusterName, searchNamespace, "some-uid", endpoint, readFile(kubeconfig))...).Build()
 				tlsServer.AppendHandlers(
 					ghttp.CombineHandlers(
 						ghttp.VerifyRequest("GET", "/api/v1/namespaces/kube-public/configmaps/pinniped-info"),
@@ -176,6 +178,7 @@ var _ = Describe("Unit tests for get cluster pinniped info", func() {
 			It("should return the cluster pinniped information successfully", func() {
 				Expect(err).ToNot(HaveOccurred())
 				Expect(clusterPinnipedInfo.ClusterName).To(Equal(mgmtClusterName))
+				Expect(clusterPinnipedInfo.ClusterAudience).To(BeNil())
 				Expect(clusterPinnipedInfo.ClusterInfo.Server).To(Equal(endpoint))
 				Expect(clusterPinnipedInfo.PinnipedInfo.Data.Issuer).To(Equal(issuer))
 				Expect(clusterPinnipedInfo.PinnipedInfo.Data.IssuerCABundle).To(Equal(issuerCA))
@@ -200,7 +203,7 @@ var _ = Describe("Unit tests for get cluster pinniped info", func() {
 				Namespace:           constants.DefaultNamespace,
 				IsManagementCluster: false,
 			}
-			clusterPinnipedInfo, err = tkgClient.GetWCClusterPinnipedInfo(regionalClusterClient, region, options)
+			clusterPinnipedInfo, err = tkgClient.GetWCClusterPinnipedInfo(regionalClusterClient, region, options, isPacific)
 		})
 
 		Context("When workload cluster is not found", func() {
@@ -218,44 +221,19 @@ var _ = Describe("Unit tests for get cluster pinniped info", func() {
 				searchNamespace = constants.DefaultNamespace
 				// create a fake controller-runtime cluster with the []runtime.Object mentioned with createClusterOptions
 				fakeClientSet = fake.NewClientBuilder().WithScheme(scheme).WithRuntimeObjects(
-					createFakeClusterRefObjects("fake-workload-cluster", searchNamespace, endpoint, "invalid kubeconfig")...).Build()
+					createFakeClusterRefObjects("fake-workload-cluster", searchNamespace, "some-uid", endpoint, "invalid kubeconfig")...).Build()
 			})
 			It("should return an error", func() {
 				Expect(err).To(HaveOccurred())
 				Expect(err.Error()).To(HavePrefix("failed to get workload cluster information: failed to load the kubeconfig: couldn't get version/kind; json parse error"))
 			})
 		})
-		Context("When management cluster is not found", func() {
-			BeforeEach(func() {
-				searchNamespace = constants.DefaultNamespace
-				// create a fake controller-runtime cluster with the []runtime.Object mentioned with createClusterOptions
-				fakeClientSet = fake.NewClientBuilder().WithScheme(scheme).WithRuntimeObjects(
-					createFakeClusterRefObjects(wlClusterName, searchNamespace, endpoint, readFile(wlKubeconfig))...).Build()
-			})
-			It("should return an error", func() {
-				Expect(err).To(HaveOccurred())
-				Expect(err.Error()).To(Equal(`failed to get management cluster information: failed to get kubeconfig for cluster tkg-system/fake-mgmt-cluster: secrets "fake-mgmt-cluster-kubeconfig" not found`))
-			})
-		})
-		Context("When management cluster kubeconfig is invalid", func() {
-			BeforeEach(func() {
-				var clusterRefs []runtime.Object
-				clusterRefs = append(clusterRefs, createFakeClusterRefObjects(wlClusterName, "default", wlClusterEndpoint, readFile(wlKubeconfig))...)
-				clusterRefs = append(clusterRefs, createFakeClusterRefObjects(mgmtClusterName, searchNamespace, endpoint, "invalid kubeconfig")...)
-				// create a fake controller-runtime cluster with the []runtime.Object mentioned with createClusterOptions
-				fakeClientSet = fake.NewClientBuilder().WithScheme(scheme).WithRuntimeObjects(clusterRefs...).Build()
-			})
-			It("should return an error", func() {
-				Expect(err).To(HaveOccurred())
-				Expect(err.Error()).To(HavePrefix("failed to get management cluster information: failed to load the kubeconfig: couldn't get version/kind; json parse error"))
-			})
-		})
 
 		Context("When management cluster pinniped-info configmap is not present in kube-public namespace", func() {
 			BeforeEach(func() {
 				var clusterRefs []runtime.Object
-				clusterRefs = append(clusterRefs, createFakeClusterRefObjects(wlClusterName, "default", wlClusterEndpoint, readFile(wlKubeconfig))...)
-				clusterRefs = append(clusterRefs, createFakeClusterRefObjects(mgmtClusterName, searchNamespace, endpoint, readFile(kubeconfig))...)
+				clusterRefs = append(clusterRefs, createFakeClusterRefObjects(wlClusterName, "default", "some-uid", wlClusterEndpoint, readFile(wlKubeconfig))...)
+				clusterRefs = append(clusterRefs, createFakeClusterRefObjects(mgmtClusterName, "some-uid", searchNamespace, endpoint, readFile(kubeconfig))...)
 				searchNamespace = constants.DefaultNamespace
 				// create a fake controller-runtime cluster with the []runtime.Object mentioned with createClusterOptions
 				fakeClientSet = fake.NewClientBuilder().WithScheme(scheme).WithRuntimeObjects(clusterRefs...).Build()
@@ -274,28 +252,26 @@ var _ = Describe("Unit tests for get cluster pinniped info", func() {
 
 		Context("When WL cluster pinniped-info configmap is not present in kube-public namespace", func() {
 			BeforeEach(func() {
-				var pinnipedInfo string
 				var clusterRefs []runtime.Object
-				clusterRefs = append(clusterRefs, createFakeClusterRefObjects(wlClusterName, "default", wlClusterEndpoint, readFile(wlKubeconfig))...)
-				clusterRefs = append(clusterRefs, createFakeClusterRefObjects(mgmtClusterName, searchNamespace, endpoint, readFile(kubeconfig))...)
+				clusterRefs = append(clusterRefs, createFakeClusterRefObjects(wlClusterName, "default", "some-uid", wlClusterEndpoint, readFile(wlKubeconfig))...)
+				clusterRefs = append(clusterRefs, createFakeClusterRefObjects(mgmtClusterName, searchNamespace, "some-uid", endpoint, readFile(kubeconfig))...)
 				issuer = fakeIssuer
 				issuerCA = fakeCAData
 				conciergeIsClusterScoped = false
-				pinnipedInfo = fakehelper.GetFakePinnipedInfo(fakehelper.PinnipedInfo{
+				pinnipedInfoCM := fakehelper.PinnipedInfo{
 					ClusterName:              mgmtClusterName,
 					Issuer:                   issuer,
 					IssuerCABundleData:       issuerCA,
 					ConciergeIsClusterScoped: conciergeIsClusterScoped,
-				})
+				}
+				// Put fake pinniped-info in management cluster.
+				pinnipedInfoConfigMap := getPinnipedInfoConfigMapObjectFromPinnipedInfo(pinnipedInfoCM)
+
+				clusterRefs = append(clusterRefs, pinnipedInfoConfigMap)
+
 				searchNamespace = constants.DefaultNamespace
 				// create a fake controller-runtime cluster with the []runtime.Object mentioned with createClusterOptions
 				fakeClientSet = fake.NewClientBuilder().WithScheme(scheme).WithRuntimeObjects(clusterRefs...).Build()
-				tlsServer.AppendHandlers(
-					ghttp.CombineHandlers(
-						ghttp.VerifyRequest("GET", "/api/v1/namespaces/kube-public/configmaps/pinniped-info"),
-						ghttp.RespondWith(http.StatusOK, pinnipedInfo),
-					),
-				)
 
 				tlsServerWLCluster.AppendHandlers(
 					ghttp.CombineHandlers(
@@ -307,6 +283,7 @@ var _ = Describe("Unit tests for get cluster pinniped info", func() {
 			It("should not return an error and utilize management cluster pinniped info", func() {
 				Expect(err).ToNot(HaveOccurred())
 				Expect(clusterPinnipedInfo.ClusterName).To(Equal(wlClusterName))
+				Expect(clusterPinnipedInfo.ClusterAudience).To(BeNil())
 				Expect(clusterPinnipedInfo.ClusterInfo.Server).To(Equal(wlClusterEndpoint))
 				Expect(clusterPinnipedInfo.PinnipedInfo.Data.Issuer).To(Equal(issuer))
 				Expect(clusterPinnipedInfo.PinnipedInfo.Data.IssuerCABundle).To(Equal(issuerCA))
@@ -317,28 +294,22 @@ var _ = Describe("Unit tests for get cluster pinniped info", func() {
 
 		Context("When WL cluster pinniped-info configmap is present and malformed in kube-public namespace", func() {
 			BeforeEach(func() {
-				var pinnipedInfo string
 				var clusterRefs []runtime.Object
-				clusterRefs = append(clusterRefs, createFakeClusterRefObjects(wlClusterName, "default", wlClusterEndpoint, readFile(wlKubeconfig))...)
-				clusterRefs = append(clusterRefs, createFakeClusterRefObjects(mgmtClusterName, searchNamespace, endpoint, readFile(kubeconfig))...)
+				clusterRefs = append(clusterRefs, createFakeClusterRefObjects(wlClusterName, "default", "some-uid", wlClusterEndpoint, readFile(wlKubeconfig))...)
+				clusterRefs = append(clusterRefs, createFakeClusterRefObjects(mgmtClusterName, searchNamespace, "some-uid", endpoint, readFile(kubeconfig))...)
 				issuer = fakeIssuer
 				issuerCA = fakeCAData
 				conciergeIsClusterScoped = false
-				pinnipedInfo = fakehelper.GetFakePinnipedInfo(fakehelper.PinnipedInfo{
+				pinnipedInfoCM := fakehelper.PinnipedInfo{
 					ClusterName:              mgmtClusterName,
 					Issuer:                   issuer,
 					IssuerCABundleData:       issuerCA,
 					ConciergeIsClusterScoped: conciergeIsClusterScoped,
-				})
+				}
+				clusterRefs = append(clusterRefs, getPinnipedInfoConfigMapObjectFromPinnipedInfo(pinnipedInfoCM))
 				searchNamespace = constants.DefaultNamespace
 				// create a fake controller-runtime cluster with the []runtime.Object mentioned with createClusterOptions
 				fakeClientSet = fake.NewClientBuilder().WithScheme(scheme).WithRuntimeObjects(clusterRefs...).Build()
-				tlsServer.AppendHandlers(
-					ghttp.CombineHandlers(
-						ghttp.VerifyRequest("GET", "/api/v1/namespaces/kube-public/configmaps/pinniped-info"),
-						ghttp.RespondWith(http.StatusOK, pinnipedInfo),
-					),
-				)
 
 				tlsServerWLCluster.AppendHandlers(
 					ghttp.CombineHandlers(
@@ -355,32 +326,27 @@ var _ = Describe("Unit tests for get cluster pinniped info", func() {
 
 		Context("When cluster-info and pinniped-info configmap are present in kube-public namespace", func() {
 			BeforeEach(func() {
-				var pinnipedInfo string
 				var clusterRefs []runtime.Object
-				clusterRefs = append(clusterRefs, createFakeClusterRefObjects(wlClusterName, "default", wlClusterEndpoint, readFile(wlKubeconfig))...)
-				clusterRefs = append(clusterRefs, createFakeClusterRefObjects(mgmtClusterName, searchNamespace, endpoint, readFile(kubeconfig))...)
+				clusterRefs = append(clusterRefs, createFakeClusterRefObjects(wlClusterName, "default", "some-uid", wlClusterEndpoint, readFile(wlKubeconfig))...)
+				clusterRefs = append(clusterRefs, createFakeClusterRefObjects(mgmtClusterName, searchNamespace, "some-uid", endpoint, readFile(kubeconfig))...)
 				issuer = fakeIssuer
 				issuerCA = fakeCAData
 				conciergeIsClusterScoped = false
 				conciergeIsClusterScopedWLCluster = true
-				pinnipedInfo = fakehelper.GetFakePinnipedInfo(fakehelper.PinnipedInfo{
+				pinnipedInfoCM := fakehelper.PinnipedInfo{
 					ClusterName:              mgmtClusterName,
 					Issuer:                   issuer,
 					IssuerCABundleData:       issuerCA,
 					ConciergeIsClusterScoped: conciergeIsClusterScoped,
-				})
+				}
+				clusterRefs = append(clusterRefs, getPinnipedInfoConfigMapObjectFromPinnipedInfo(pinnipedInfoCM))
+
 				pinnipedInfoWorkloadCluster := fakehelper.GetFakePinnipedInfo(fakehelper.PinnipedInfo{
 					ConciergeIsClusterScoped: conciergeIsClusterScopedWLCluster,
 				})
 				searchNamespace = constants.DefaultNamespace
 				// create a fake controller-runtime cluster with the []runtime.Object mentioned with createClusterOptions
 				fakeClientSet = fake.NewClientBuilder().WithScheme(scheme).WithRuntimeObjects(clusterRefs...).Build()
-				tlsServer.AppendHandlers(
-					ghttp.CombineHandlers(
-						ghttp.VerifyRequest("GET", "/api/v1/namespaces/kube-public/configmaps/pinniped-info"),
-						ghttp.RespondWith(http.StatusOK, pinnipedInfo),
-					),
-				)
 
 				tlsServerWLCluster.AppendHandlers(
 					ghttp.CombineHandlers(
@@ -392,6 +358,54 @@ var _ = Describe("Unit tests for get cluster pinniped info", func() {
 			It("should return the cluster pinniped information successfully", func() {
 				Expect(err).ToNot(HaveOccurred())
 				Expect(clusterPinnipedInfo.ClusterName).To(Equal(wlClusterName))
+				Expect(clusterPinnipedInfo.ClusterAudience).To(BeNil())
+				Expect(clusterPinnipedInfo.ClusterInfo.Server).To(Equal(wlClusterEndpoint))
+				Expect(clusterPinnipedInfo.PinnipedInfo.Data.Issuer).To(Equal(issuer))
+				Expect(clusterPinnipedInfo.PinnipedInfo.Data.IssuerCABundle).To(Equal(issuerCA))
+				Expect(clusterPinnipedInfo.PinnipedInfo.Data.ConciergeIsClusterScoped).To(Equal(conciergeIsClusterScopedWLCluster))
+			})
+		})
+
+		Context("When we are talking to a pacific cluster", func() {
+			const wlClusterUID = "some-pacific-cluster-uid"
+
+			BeforeEach(func() {
+				isPacific = true
+
+				var clusterRefs []runtime.Object
+				clusterRefs = append(clusterRefs, createFakeClusterRefObjects(wlClusterName, "default", wlClusterUID, wlClusterEndpoint, readFile(wlKubeconfig))...)
+				clusterRefs = append(clusterRefs, createFakeClusterRefObjects(mgmtClusterName, searchNamespace, "some-uid", endpoint, readFile(kubeconfig))...)
+				issuer = fakeIssuer
+				issuerCA = fakeCAData
+				conciergeIsClusterScoped = false
+				conciergeIsClusterScopedWLCluster = true
+				pinnipedInfoCM := fakehelper.PinnipedInfo{
+					ClusterName:              mgmtClusterName,
+					Issuer:                   issuer,
+					IssuerCABundleData:       issuerCA,
+					ConciergeIsClusterScoped: conciergeIsClusterScoped,
+				}
+				clusterRefs = append(clusterRefs, getPinnipedInfoConfigMapObjectFromPinnipedInfo(pinnipedInfoCM))
+
+				pinnipedInfoWorkloadCluster := fakehelper.GetFakePinnipedInfo(fakehelper.PinnipedInfo{
+					ConciergeIsClusterScoped: conciergeIsClusterScopedWLCluster,
+				})
+				searchNamespace = constants.DefaultNamespace
+				// create a fake controller-runtime cluster with the []runtime.Object mentioned with createClusterOptions
+				fakeClientSet = fake.NewClientBuilder().WithScheme(scheme).WithRuntimeObjects(clusterRefs...).Build()
+
+				tlsServerWLCluster.AppendHandlers(
+					ghttp.CombineHandlers(
+						ghttp.VerifyRequest("GET", "/api/v1/namespaces/kube-public/configmaps/pinniped-info"),
+						ghttp.RespondWith(http.StatusOK, pinnipedInfoWorkloadCluster),
+					),
+				)
+			})
+			It("should return the cluster pinniped information successfully with a special audience", func() {
+				wantClusterAudience := fmt.Sprintf("%s-%s", wlClusterName, wlClusterUID)
+				Expect(err).ToNot(HaveOccurred())
+				Expect(clusterPinnipedInfo.ClusterName).To(Equal(wlClusterName))
+				Expect(clusterPinnipedInfo.ClusterAudience).To(Equal(&wantClusterAudience))
 				Expect(clusterPinnipedInfo.ClusterInfo.Server).To(Equal(wlClusterEndpoint))
 				Expect(clusterPinnipedInfo.PinnipedInfo.Data.Issuer).To(Equal(issuer))
 				Expect(clusterPinnipedInfo.PinnipedInfo.Data.IssuerCABundle).To(Equal(issuerCA))
@@ -422,7 +436,7 @@ func getFakeKubeConfigFilePathWithServer(testingDir, endpoint, clustername strin
 }
 
 // TODO: Should be merged to pkg/fakes/helpers/fakeobjectcreator.go
-func createFakeClusterRefObjects(name, namespace, endpoint, kubeconfig string) []runtime.Object {
+func createFakeClusterRefObjects(name, namespace, uid, endpoint, kubeconfig string) []runtime.Object {
 	u, _ := url.Parse(endpoint)
 	host, port, _ := net.SplitHostPort(u.Host)
 	portInt32, _ := strconv.ParseInt(port, 10, 32)
@@ -436,6 +450,7 @@ func createFakeClusterRefObjects(name, namespace, endpoint, kubeconfig string) [
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      name,
 			Namespace: namespace,
+			UID:       types.UID(uid),
 		},
 
 		Spec: capi.ClusterSpec{
@@ -472,4 +487,19 @@ func readFile(path string) string {
 	data, err := os.ReadFile(path)
 	ExpectWithOffset(1, err).NotTo(HaveOccurred())
 	return string(data)
+}
+
+func getPinnipedInfoConfigMapObjectFromPinnipedInfo(pinnipedInfoCM fakehelper.PinnipedInfo) *corev1.ConfigMap {
+	return &corev1.ConfigMap{
+		ObjectMeta: metav1.ObjectMeta{
+			Namespace: "kube-public",
+			Name:      "pinniped-info",
+		},
+		Data: map[string]string{
+			"cluster_name":                pinnipedInfoCM.ClusterName,
+			"issuer":                      pinnipedInfoCM.Issuer,
+			"issuer_ca_bundle_data":       pinnipedInfoCM.IssuerCABundleData,
+			"concierge_is_cluster_scoped": strconv.FormatBool(pinnipedInfoCM.ConciergeIsClusterScoped),
+		},
+	}
 }

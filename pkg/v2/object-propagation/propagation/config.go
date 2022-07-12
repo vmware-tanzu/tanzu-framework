@@ -26,6 +26,7 @@ func NewConfig(configEntry *config.Entry) *Config {
 		SourceNamespace: configEntry.Source.Namespace,
 		ObjectType:      sourceObject,
 		ObjectListType:  sourceObjectList,
+		DetectSrcNSRef:  configEntry.Target.DetectAndReplaceSourceNSRef,
 	}
 
 	for _, s := range []struct {

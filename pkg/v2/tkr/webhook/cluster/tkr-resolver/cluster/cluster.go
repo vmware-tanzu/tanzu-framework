@@ -151,7 +151,7 @@ func (cw *Webhook) filterOSImageQuery(tkr *runv1.TanzuKubernetesRelease, tkrData
 			if osImageName, ok := tkrDataValue.Labels[runv1.LabelOSImage]; ok {
 				if osImage := cw.TKRResolver.Get(osImageName, &runv1.OSImage{}).(*runv1.OSImage); osImage != nil {
 					// Found TKR and OSImage. Now, see if they match the provided version and selectors.
-					if version.Prefixes(version.Label(tkr.Spec.Kubernetes.Version)).Has(version.Label(osImageQuery.K8sVersionPrefix)) &&
+					if version.Prefixes(version.Label(tkr.Spec.Version)).Has(version.Label(osImageQuery.K8sVersionPrefix)) &&
 						osImageQuery.TKRSelector.Matches(labels.Set(tkr.Labels)) &&
 						osImageQuery.OSImageSelector.Matches(labels.Set(osImage.Labels)) {
 						return nil // indicating we don't need to resolve: already have matching TKR and OSImage
@@ -213,14 +213,17 @@ func (cw *Webhook) setTKRData(result data.Result, cluster *clusterv1.Cluster) er
 		}
 
 		getMap(&cluster.Labels)[runv1.LabelTKR] = result.ControlPlane.TKRName
-		cluster.Spec.Topology.Version = result.ControlPlane.K8sVersion
-
 		tkrData[result.ControlPlane.K8sVersion] = tkrDataValueForResult(result.ControlPlane)
 
 		if err := topology.SetVariable(cluster, VarTKRData, tkrData); err != nil {
 			return err
 		}
 	}
+	tkr := cw.getTKR(cluster)
+	if tkr == nil {
+		return errors.Errorf("the TKR is no longer available: '%s'", cluster.Labels[runv1.LabelTKR])
+	}
+	cluster.Spec.Topology.Version = tkr.Spec.Kubernetes.Version
 
 	for i, osImageResult := range result.MachineDeployments {
 		if osImageResult != nil {
@@ -317,9 +320,6 @@ func success(req *admission.Request, cluster *clusterv1.Cluster) admission.Respo
 }
 
 func (cw *Webhook) getTKR(cluster *clusterv1.Cluster) *runv1.TanzuKubernetesRelease {
-	if cluster.Labels == nil {
-		return nil
-	}
 	tkrName, exists := cluster.Labels[runv1.LabelTKR]
 	if !exists {
 		return nil

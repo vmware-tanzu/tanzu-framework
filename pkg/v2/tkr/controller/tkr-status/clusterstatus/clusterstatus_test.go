@@ -137,7 +137,7 @@ var _ = Describe("clusterstatus.Reconciler", func() {
 							_, err := r.Reconcile(context.Background(), ctrl.Request{NamespacedName: util.ObjectKey(cluster)})
 							Expect(err).ToNot(HaveOccurred())
 
-							currentVersion, err := version.ParseSemantic(cluster.Spec.Topology.Version)
+							currentVersion, err := version.ParseSemantic(tkr.Spec.Version)
 							Expect(err).ToNot(HaveOccurred())
 
 							cluster1 := &clusterv1.Cluster{}
@@ -155,7 +155,8 @@ var _ = Describe("clusterstatus.Reconciler", func() {
 								for _, updateVersionStr := range updateVersions {
 									updateVersion, err := version.ParseSemantic(updateVersionStr)
 									Expect(err).ToNot(HaveOccurred())
-									Expect(currentVersion.LessThan(updateVersion)).To(BeTrue())
+									Expect(currentVersion.LessThan(updateVersion)).To(BeTrue(), "currentVersion '%s' should be less than updateVersion '%s'", currentVersion, updateVersion)
+									Expect(r.TKRResolver.Get(tkrName(updateVersionStr), &runv1.TanzuKubernetesRelease{})).ToNot(BeNil(), "TKR version: '%s'", updateVersionStr)
 								}
 							case corev1.ConditionFalse:
 								Expect(uaCond.Message).To(BeEmpty())
@@ -168,6 +169,10 @@ var _ = Describe("clusterstatus.Reconciler", func() {
 	})
 
 })
+
+func tkrName(v string) string {
+	return strings.ReplaceAll(v, "+", "---")
+}
 
 func initScheme() *runtime.Scheme {
 	scheme := runtime.NewScheme()

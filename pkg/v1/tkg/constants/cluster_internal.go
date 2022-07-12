@@ -9,11 +9,15 @@ const (
 	KindCluster                     = "Cluster"
 	KindTanzuKubernetesCluster      = "TanzuKubernetesCluster"
 	KindClusterClass                = "ClusterClass"
-	CCFeature                       = "vmware-system-tkg-clusterclass"
+	ClusterClassFeature             = "vmware-system-tkg-clusterclass"
+	TKCAPIFeature                   = "vmware-system-tkg-tkc-api"
 	TKGSClusterClassNamespace       = "vmware-system-tkg"
+	TKGSTKCAPINamespace             = "vmware-system-tkg"
 	TKGStkcapiNamespace             = "vmware-system-tkg"
 	ErrorMsgFeatureGateNotActivated = "vSphere with Tanzu environment detected, however, the feature '%v' is not activated in '%v' namespace"
 	ErrorMsgFeatureGateStatus       = "error while checking feature '%v' status in namespace '%v'"
+
+	ErrorMsgCClassInputFeatureFlagDisabled = "Input file is cluster class based but CLI feature flag '%v' is disabled, make sure its enabled to create cluster class based cluster"
 
 	PacificGCMControllerDeployment = "vmware-system-tkg-controller-manager"
 	PacificGCMControllerNamespace  = "vmware-system-tkg"
@@ -82,6 +86,7 @@ const (
 // infrastructure provider name constants
 const (
 	InfrastructureProviderVSphere = "vsphere"
+	InfrastructureProviderTkgs    = "tkgs"
 	InfrastructureProviderAWS     = "aws"
 	InfrastructureProviderAzure   = "azure"
 	InfrastructureProviderDocker  = "docker"
@@ -89,6 +94,7 @@ const (
 
 var InfrastructureProviders = map[string]bool{
 	InfrastructureProviderVSphere: true,
+	InfrastructureProviderTkgs:    true,
 	InfrastructureProviderAWS:     true,
 	InfrastructureProviderAzure:   true,
 	InfrastructureProviderDocker:  true,

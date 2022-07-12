@@ -37,7 +37,7 @@ type MachineReconciler struct {
 	ctx        context.Context
 }
 
-const PreTerminateAddonsAnnotationPrefix = clusterapiv1beta1.PreTerminateDeleteHookAnnotationPrefix + "tkg.tanzu.vmware.com/addons"
+const PreTerminateAddonsAnnotationPrefix = clusterapiv1beta1.PreTerminateDeleteHookAnnotationPrefix + "/tkg.tanzu.vmware.com"
 const PreTerminateAddonsAnnotationValue = "tkg.tanzu.vmware.com/addons"
 const requestRequeTime = time.Second * 5
 

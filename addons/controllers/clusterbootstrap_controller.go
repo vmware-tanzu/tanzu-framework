@@ -8,10 +8,9 @@ import (
 	"fmt"
 	"time"
 
-	"gopkg.in/yaml.v3"
-
 	"github.com/go-logr/logr"
 	"github.com/pkg/errors"
+	"gopkg.in/yaml.v3"
 	corev1 "k8s.io/api/core/v1"
 	rbacv1 "k8s.io/api/rbac/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
@@ -19,11 +18,8 @@ import (
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
-	"k8s.io/client-go/discovery"
-	cacheddiscovery "k8s.io/client-go/discovery/cached/memory"
 	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/kubernetes"
-	"k8s.io/client-go/util/retry"
 	"k8s.io/utils/pointer"
 	clusterapiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
 	clusterapiutil "sigs.k8s.io/cluster-api/util"
@@ -67,12 +63,10 @@ type ClusterBootstrapReconciler struct {
 	controller    controller.Controller
 	dynamicClient dynamic.Interface
 	// on demand dynamic watches for provider refs
-	providerWatches map[string]client.Object
-	// discovery client for looking up api-resources and preferred versions
-	cachedDiscoveryClient discovery.CachedDiscoveryInterface
-	// cache for resolved api-resources so that look up is fast (cleared periodically)
-	providerGVR                  map[schema.GroupKind]*schema.GroupVersionResource
+	providerWatches              map[string]client.Object
 	aggregatedAPIResourcesClient client.Client
+	// helper for looking up api-resources and getting preferred versions
+	gvrHelper util.GVRHelper
 }
 
 // NewClusterBootstrapReconciler returns a reconciler for ClusterBootstrap
@@ -123,11 +117,8 @@ func (r *ClusterBootstrapReconciler) SetupWithManager(ctx context.Context, mgr c
 	r.dynamicClient = dynClient
 	r.providerWatches = make(map[string]client.Object)
 
-	r.providerGVR = make(map[schema.GroupKind]*schema.GroupVersionResource)
 	clientset := kubernetes.NewForConfigOrDie(mgr.GetConfig())
-	r.cachedDiscoveryClient = cacheddiscovery.NewMemCacheClient(clientset.Discovery())
-
-	go r.periodicGVRCachesClean()
+	r.gvrHelper = util.NewGVRHelper(ctx, clientset.DiscoveryClient)
 
 	r.aggregatedAPIResourcesClient, err = client.New(mgr.GetConfig(), client.Options{Scheme: mgr.GetScheme()})
 	if err != nil {
@@ -305,7 +296,7 @@ func (r *ClusterBootstrapReconciler) createOrPatchResourcesForAdditionalPackages
 }
 
 func (r *ClusterBootstrapReconciler) addFinalizersToClusterResources(cluster *clusterapiv1beta1.Cluster, log logr.Logger) error {
-	err := r.addFinalizer(cluster)
+	err := r.addFinalizer(cluster, cluster.DeepCopy())
 	if err != nil {
 		log.Error(err, "failed to add finalizer to cluster ")
 		return err
@@ -317,7 +308,7 @@ func (r *ClusterBootstrapReconciler) addFinalizersToClusterResources(cluster *cl
 	if err != nil {
 		return err
 	}
-	err = r.addFinalizer(clusterKubeConfigSecret)
+	err = r.addFinalizer(clusterKubeConfigSecret, clusterKubeConfigSecret.DeepCopy())
 	if err != nil {
 		log.Error(err, "failed to add finalizer to cluster kubeconfig secret")
 		return err
@@ -328,7 +319,7 @@ func (r *ClusterBootstrapReconciler) addFinalizersToClusterResources(cluster *cl
 	if err != nil {
 		return err
 	}
-	err = r.addFinalizer(clusterBootstrap)
+	err = r.addFinalizer(clusterBootstrap, clusterBootstrap.DeepCopy())
 	if err != nil {
 		log.Error(err, "failed to add finalizer to clusterboostrap")
 		return err
@@ -337,11 +328,10 @@ func (r *ClusterBootstrapReconciler) addFinalizersToClusterResources(cluster *cl
 	return nil
 }
 
-func (r *ClusterBootstrapReconciler) addFinalizer(o client.Object) error {
-	controllerutil.AddFinalizer(o, addontypes.AddonFinalizer)
-	return retry.RetryOnConflict(retry.DefaultRetry, func() error {
-		return r.Client.Update(r.context, o)
-	})
+func (r *ClusterBootstrapReconciler) addFinalizer(o client.Object, deepCopy client.Object) error {
+	controllerutil.AddFinalizer(deepCopy, addontypes.AddonFinalizer)
+	return r.Client.Patch(r.context, deepCopy, client.MergeFrom(o))
+
 }
 
 // handleClusterUnpause unpauses the cluster if the cluster pause annotation is set by cluster pause webhook (cluster has "tkg.tanzu.vmware.com/paused" annotation)
@@ -392,10 +382,19 @@ func (r *ClusterBootstrapReconciler) createOrPatchClusterBootstrapFromTemplate(c
 	}
 
 	clusterBootstrapHelper := clusterbootstrapclone.NewHelper(
-		r.context, r.Client, r.aggregatedAPIResourcesClient, r.dynamicClient, r.cachedDiscoveryClient, r.Log)
+		r.context, r.Client, r.aggregatedAPIResourcesClient, r.dynamicClient, r.gvrHelper, r.Log)
 	if clusterBootstrap.UID == "" {
-		log.Info("ClusterBootstrap for cluster does not exist, cloning from template")
+		// When ClusterBootstrap.UID is empty, that means this is the ClusterBootstrap CR about to be created by clusterbootstrap_controller.
+		// And clusterBootstrap.Status.ResolvedTKR will be updated accordingly.
+		log.Info(fmt.Sprintf("ClusterBootstrap for cluster %s/%s does not exist, creating from template %s/%s",
+			cluster.Namespace, cluster.Name, clusterBootstrapTemplate.Namespace, clusterBootstrapTemplate.Name))
 		return clusterBootstrapHelper.CreateClusterBootstrapFromTemplate(clusterBootstrapTemplate, cluster, tkrName)
+	} else if clusterBootstrap.Status.ResolvedTKR == "" {
+		// Possible cases fall into this block:
+		// 1. ClusterBootstrap CR has been created by clusterbootstrap_controller in first reconciliation but errored out before clusterBootstrap.Status was set. The clusterbootstrap_controller reconciles again.
+		// 2. ClusterBootstrap CR is created by third party(e.g. Tanzu CLI). The clusterbootstrap_controller catches the event and reconciles.
+		log.Info(fmt.Sprintf("Handling existing ClusterBootstrap %s/%s", clusterBootstrap.Namespace, clusterBootstrap.Name))
+		return clusterBootstrapHelper.HandleExistingClusterBootstrap(clusterBootstrap, cluster, tkrName, r.Config.SystemNamespace)
 	}
 	// Handle ClusterBootstrap update when TKR version of the cluster is upgraded
 	if tkrName != clusterBootstrap.Status.ResolvedTKR {
@@ -620,14 +619,20 @@ func (r *ClusterBootstrapReconciler) createOrPatchKappPackageInstall(clusterBoot
 			},
 		}
 		// Copy the kapp-controller secret in mgmt cluster to include the TKR nodeSelector info
-		secret, err := r.createOrPatchPackageInstallSecret(cluster, clusterBootstrap.Spec.Kapp, r.Client)
+		secret, err := r.createOrPatchPackageInstallSecretForKapp(cluster, clusterBootstrap.Spec.Kapp, r.Client)
 		if err != nil {
 			return err
 		}
-		pkgi.Spec.Values = []kapppkgiv1alpha1.PackageInstallValues{
-			{SecretRef: &kapppkgiv1alpha1.PackageInstallValuesSecretRef{
-				Name: secret.Name},
-			},
+		if secret != nil {
+			pkgi.Spec.Values = []kapppkgiv1alpha1.PackageInstallValues{
+				{SecretRef: &kapppkgiv1alpha1.PackageInstallValuesSecretRef{
+					Name: secret.Name},
+				},
+			}
+		} else {
+			r.Log.Info("[Warning]: Empty secret for kapp-controller package. Either KappControllerConfig controller has not reconciled yet or "+
+				"ClusterBootstrap is mis-configured with an incorrect clusterBootstrap.Spec.Kapp.ValuesFrom",
+				"clusterBootstrap", clusterBootstrap.Name, "namespace", clusterBootstrap.Namespace)
 		}
 
 		return nil
@@ -908,10 +913,52 @@ func (r *ClusterBootstrapReconciler) createOrPatchAddonResourcesOnRemote(cluster
 	return nil
 }
 
-// createOrPatchPackageInstallSecret creates or patches the secret used for PackageInstall in a cluster
-func (r *ClusterBootstrapReconciler) createOrPatchPackageInstallSecret(cluster *clusterapiv1beta1.Cluster,
-	cbpkg *runtanzuv1alpha3.ClusterBootstrapPackage, clusterClient client.Client) (*corev1.Secret, error) {
+func (r *ClusterBootstrapReconciler) patchSecretWithTKGSDataValues(cluster *clusterapiv1beta1.Cluster, secret *corev1.Secret) error {
+	// Add TKR NodeSelector info if it's a TKGS cluster
+	infraRef, err := util.GetInfraProvider(cluster)
+	if err != nil {
+		return err
+	}
+	if infraRef == tkgconstants.InfrastructureProviderVSphere {
+		ok, err := util.IsTKGSCluster(r.context, r.dynamicClient, r.gvrHelper.GetDiscoveryClient(), cluster)
+		if err != nil {
+			return err
+		}
+		if ok {
+			upgradeDataValues := addontypes.TKGSDataValues{
+				NodeSelector: addontypes.NodeSelector{
+					TanzuKubernetesRelease: cluster.Labels[constants.TKRLabelClassyClusters],
+				},
+				Deployment: addontypes.DeploymentUpdateInfo{
+					UpdateStrategy: constants.TKGSDeploymentUpdateStrategy,
+					RollingUpdate: &addontypes.RollingUpdateInfo{
+						MaxSurge:       constants.TKGSDeploymentUpdateMaxSurge,
+						MaxUnavailable: constants.TKGSDeploymentUpdateMaxUnavailable,
+					},
+				},
+				Daemonset: addontypes.DaemonsetUpdateInfo{
+					UpdateStrategy: constants.TKGSDaemonsetUpdateStrategy,
+				},
+			}
+			TKRDataValueYamlBytes, err := yaml.Marshal(upgradeDataValues)
+			if err != nil {
+				return err
+			}
+			if secret.StringData == nil {
+				secret.StringData = make(map[string]string)
+			}
+			secret.StringData[constants.TKGSDataValueFileName] = string(TKRDataValueYamlBytes)
 
+			r.Log.Info(fmt.Sprintf("added TKGS data values to secret %s/%s", secret.Namespace, secret.Name))
+		} else {
+			r.Log.Info(fmt.Sprintf("skip adding TKGS data values to secret %s/%s because %s/%s is not a TKGS cluster", secret.Namespace, secret.Name, cluster.Namespace, cluster.Name))
+		}
+	}
+
+	return nil
+}
+
+func (r *ClusterBootstrapReconciler) getDataValueSecretFromBootstrapPackage(cluster *clusterapiv1beta1.Cluster, cbpkg *runtanzuv1alpha3.ClusterBootstrapPackage) (*corev1.Secret, error) {
 	secretName, err := r.GetDataValueSecretNameFromBootstrapPackage(cbpkg, cluster)
 	if err != nil {
 		// logging has been handled in GetDataValueSecretNameFromBootstrapPackage()
@@ -937,10 +984,51 @@ func (r *ClusterBootstrapReconciler) createOrPatchPackageInstallSecret(cluster *
 	patchedSecret := localSecret.DeepCopy()
 	if patchSecretWithLabels(patchedSecret, util.ParseStringForLabel(cbpkg.RefName), cluster.Name) {
 		if err := r.Patch(r.context, patchedSecret, client.MergeFrom(localSecret)); err != nil {
-			r.Log.Error(err, "unable to patch secret labels for ", "secret", localSecret.Name)
-			return nil, err
+			return nil, fmt.Errorf("unable to patch secret labels for secret '%s/%s': %w", localSecret.Namespace, localSecret.Name, err)
 		}
 		r.Log.Info(fmt.Sprintf("patched the secret %s/%s with package and cluster labels", localSecret.Namespace, localSecret.Name))
+	}
+
+	return patchedSecret, nil
+}
+
+func (r *ClusterBootstrapReconciler) createOrPatchPackageInstallSecretForKapp(cluster *clusterapiv1beta1.Cluster,
+	cbpkg *runtanzuv1alpha3.ClusterBootstrapPackage, clusterClient client.Client) (*corev1.Secret, error) {
+
+	localSecret, err := r.getDataValueSecretFromBootstrapPackage(cluster, cbpkg)
+	if err != nil {
+		return nil, err
+	}
+	//controller hasn't finished reconciling
+	if localSecret == nil {
+		return nil, nil
+	}
+
+	dataValuesSecretMutateFn := func() error {
+		if err := r.patchSecretWithTKGSDataValues(cluster, localSecret); err != nil {
+			return err
+		}
+		return nil
+	}
+
+	_, err = controllerutil.CreateOrPatch(r.context, clusterClient, localSecret, dataValuesSecretMutateFn)
+	if err != nil {
+		r.Log.Error(err, "error creating or patching addon data values secret")
+		return nil, err
+	}
+	return localSecret, nil
+}
+
+// createOrPatchPackageInstallSecret creates or patches the secret used for PackageInstall in a cluster
+func (r *ClusterBootstrapReconciler) createOrPatchPackageInstallSecret(cluster *clusterapiv1beta1.Cluster,
+	cbpkg *runtanzuv1alpha3.ClusterBootstrapPackage, clusterClient client.Client) (*corev1.Secret, error) {
+
+	localSecret, err := r.getDataValueSecretFromBootstrapPackage(cluster, cbpkg)
+	if err != nil {
+		return nil, err
+	}
+	if localSecret == nil {
+		return nil, nil
 	}
 
 	packageRefName, _, err := util.GetPackageMetadata(r.context, r.aggregatedAPIResourcesClient, cbpkg.RefName, cluster.Namespace)
@@ -956,47 +1044,13 @@ func (r *ClusterBootstrapReconciler) createOrPatchPackageInstallSecret(cluster *
 	remoteSecret.Type = corev1.SecretTypeOpaque
 
 	dataValuesSecretMutateFn := func() error {
-		remoteSecret.Data = map[string][]byte{}
-		for k, v := range patchedSecret.Data {
-			remoteSecret.Data[k] = v
+		remoteSecret.StringData = make(map[string]string)
+		for k, v := range localSecret.Data {
+			remoteSecret.StringData[k] = string(v)
 		}
 
-		// Add TKR NodeSelector info if it's a TKGS cluster
-		infraRef, err := util.GetInfraProvider(cluster)
-		if err != nil {
+		if err := r.patchSecretWithTKGSDataValues(cluster, remoteSecret); err != nil {
 			return err
-		}
-		if infraRef == tkgconstants.InfrastructureProviderVSphere {
-			ok, err := util.IsTKGSCluster(r.context, r.dynamicClient, r.cachedDiscoveryClient, cluster)
-			if err != nil {
-				return err
-			}
-			if ok {
-				upgradeDataValues := addontypes.TKGSDataValues{
-					NodeSelector: addontypes.NodeSelector{
-						TanzuKubernetesRelease: cluster.Labels[constants.TKRLabelClassyClusters],
-					},
-					Deployment: addontypes.DeploymentUpdateInfo{
-						UpdateStrategy: constants.TKGSDeploymentUpdateStrategy,
-						RollingUpdate: &addontypes.RollingUpdateInfo{
-							MaxSurge:       constants.TKGSDeploymentUpdateMaxSurge,
-							MaxUnavailable: constants.TKGSDeploymentUpdateMaxUnavailable,
-						},
-					},
-					Daemonset: addontypes.DaemonsetUpdateInfo{
-						UpdateStrategy: constants.TKGSDaemonsetUpdateStrategy,
-					},
-				}
-				TKRDataValueYamlBytes, err := yaml.Marshal(upgradeDataValues)
-				if err != nil {
-					return err
-				}
-				remoteSecret.Data[constants.TKGSDataValueFileName] = TKRDataValueYamlBytes
-
-				r.Log.Info(fmt.Sprintf("added TKGS data values to secret %s/%s", remoteSecret.Namespace, remoteSecret.Name))
-			} else {
-				r.Log.Info(fmt.Sprintf("skip adding TKGS data values to secret %s/%s because %s/%s is not a TKGS cluster", remoteSecret.Namespace, remoteSecret.Name, cluster.Namespace, cluster.Name))
-			}
 		}
 
 		return nil
@@ -1028,34 +1082,6 @@ func patchSecretWithLabels(secret *corev1.Secret, pkgName, clusterName string) b
 	return updateLabels
 }
 
-// getGVR returns a GroupVersionResource for a GroupKind
-func (r *ClusterBootstrapReconciler) getGVR(gk schema.GroupKind) (*schema.GroupVersionResource, error) {
-	if gvr, ok := r.providerGVR[gk]; ok {
-		return gvr, nil
-	}
-	gvr, err := util.GetGVRForGroupKind(gk, r.cachedDiscoveryClient)
-	if err != nil {
-		return nil, err
-	}
-	r.providerGVR[gk] = gvr
-	return nil, fmt.Errorf("unable to find server preferred resource %s/%s", gk.Group, gk.Kind)
-}
-
-// periodicGVRCachesClean invalidates caches used for GVR lookup
-func (r *ClusterBootstrapReconciler) periodicGVRCachesClean() {
-	ticker := time.NewTicker(constants.DiscoveryCacheInvalidateInterval)
-	for {
-		select {
-		case <-r.context.Done():
-			ticker.Stop()
-			return
-		case <-ticker.C:
-			r.cachedDiscoveryClient.Invalidate()
-			r.providerGVR = make(map[schema.GroupKind]*schema.GroupVersionResource)
-		}
-	}
-}
-
 // watchProvider will set a watch on the Type indicated by providerRef if not already watching
 func (r *ClusterBootstrapReconciler) watchProvider(providerRef *corev1.TypedLocalObjectReference, namespace string, log logr.Logger) error {
 	if providerRef == nil {
@@ -1067,7 +1093,7 @@ func (r *ClusterBootstrapReconciler) watchProvider(providerRef *corev1.TypedLoca
 		return nil
 	}
 
-	gvr, err := r.getGVR(schema.GroupKind{Group: *providerRef.APIGroup, Kind: providerRef.Kind})
+	gvr, err := r.gvrHelper.GetGVR(schema.GroupKind{Group: *providerRef.APIGroup, Kind: providerRef.Kind})
 	if err != nil {
 		log.Error(err, "failed to getGVR")
 		return err
@@ -1132,7 +1158,7 @@ func (r *ClusterBootstrapReconciler) GetDataValueSecretNameFromBootstrapPackage(
 		}
 
 		if cbPkg.ValuesFrom.ProviderRef != nil {
-			gvr, err := r.getGVR(schema.GroupKind{Group: *cbPkg.ValuesFrom.ProviderRef.APIGroup, Kind: cbPkg.ValuesFrom.ProviderRef.Kind})
+			gvr, err := r.gvrHelper.GetGVR(schema.GroupKind{Group: *cbPkg.ValuesFrom.ProviderRef.APIGroup, Kind: cbPkg.ValuesFrom.ProviderRef.Kind})
 			if err != nil {
 				r.Log.Error(err, "unable to get GVR")
 				return "", err
@@ -1162,7 +1188,7 @@ func (r *ClusterBootstrapReconciler) GetDataValueSecretNameFromBootstrapPackage(
 			return "", err
 		}
 		if infraRef == tkgconstants.InfrastructureProviderVSphere {
-			ok, err := util.IsTKGSCluster(r.context, r.dynamicClient, r.cachedDiscoveryClient, cluster)
+			ok, err := util.IsTKGSCluster(r.context, r.dynamicClient, r.gvrHelper.GetDiscoveryClient(), cluster)
 			if err != nil {
 				return "", err
 			}
@@ -1174,6 +1200,8 @@ func (r *ClusterBootstrapReconciler) GetDataValueSecretNameFromBootstrapPackage(
 				return packageSecretName, nil
 			}
 		}
+		// cbPkg.ValuesFrom is nil and not TKGS
+		return "", nil
 	}
 
 	// When valuesFrom is not nil, but either valuesFrom.Inline, valuesFrom.SecretRef, or valuesFrom.providerRef is empty or nil,
@@ -1262,6 +1290,7 @@ func (r *ClusterBootstrapReconciler) reconcileClusterProxyAndNetworkSettings(clu
 }
 
 func (r *ClusterBootstrapReconciler) makeClusterIsReadyForDeletion(cluster *clusterapiv1beta1.Cluster, remoteClient client.Client, log logr.Logger) (bool, error) {
+	log.Info("preparing cluster for deletion")
 	clusterBootstrap := &runtanzuv1alpha3.ClusterBootstrap{}
 	err := r.Client.Get(r.context, client.ObjectKeyFromObject(cluster), clusterBootstrap)
 	if err != nil && !apierrors.IsNotFound(err) {
@@ -1273,6 +1302,7 @@ func (r *ClusterBootstrapReconciler) makeClusterIsReadyForDeletion(cluster *clus
 	}
 
 	if hasPackageInstalls(r.context, remoteClient, cluster, r.Config.SystemNamespace, clusterBootstrap.Spec.AdditionalPackages, log) {
+		log.Info("cluster has additional packageInstalls that need to be deleted")
 		err = r.removeAdditionalPackageInstalls(remoteClient, cluster, clusterBootstrap, log)
 		if err != nil {
 			return false, err
@@ -1285,30 +1315,31 @@ func (r *ClusterBootstrapReconciler) makeClusterIsReadyForDeletion(cluster *clus
 func (r *ClusterBootstrapReconciler) removeFinalizersFromClusterResources(cluster *clusterapiv1beta1.Cluster, log logr.Logger) error {
 	clusterBootstrap := &runtanzuv1alpha3.ClusterBootstrap{}
 	err := r.Client.Get(r.context, client.ObjectKeyFromObject(cluster), clusterBootstrap)
-	if err != nil && !apierrors.IsNotFound(err) {
-		log.Error(err, "failed to lookup clusterbootstrap")
-		return err
-	}
-	if !apierrors.IsNotFound(err) {
-		err = r.removeFinalizer(clusterBootstrap)
+	if err == nil {
+		log.Info("removing finalizer for clusterbootstrap")
+		err = r.removeFinalizer(clusterBootstrap, clusterBootstrap.DeepCopy())
 		if err != nil {
 			return err
 		}
+	} else if err != nil && !apierrors.IsNotFound(err) {
+		log.Error(err, "failed to lookup clusterbootstrap")
+		return err
 	}
 
 	clusterKubeConfigSecret := &corev1.Secret{}
 	key := client.ObjectKey{Namespace: cluster.Namespace, Name: secretutil.Name(cluster.Name, secretutil.Kubeconfig)}
 	err = r.Client.Get(r.context, key, clusterKubeConfigSecret)
 	if err == nil {
-		err = r.removeFinalizer(clusterKubeConfigSecret)
+		log.Info("removing finalizer for kubeconfig secret")
+		err = r.removeFinalizer(clusterKubeConfigSecret, clusterKubeConfigSecret.DeepCopy())
 		if err != nil {
 			return err
 		}
 	} else if !apierrors.IsNotFound(err) {
 		return err
 	}
-
-	err = r.removeFinalizer(cluster)
+	log.Info("removing finalizer for cluster")
+	err = r.removeFinalizer(cluster, cluster.DeepCopy())
 	if err != nil {
 		return err
 	}
@@ -1320,15 +1351,27 @@ func (r *ClusterBootstrapReconciler) reconcileDelete(cluster *clusterapiv1beta1.
 	okToRemoveFinalizers := false
 	var err error
 
-	remoteClient, err := util.GetClusterClient(r.context, r.Client, r.Scheme, clusterapiutil.ObjectKey(cluster))
+	log.Info("reconciling cluster delete")
+	existingCluster := &clusterapiv1beta1.Cluster{}
+	err = r.Client.Get(r.context, client.ObjectKeyFromObject(cluster), existingCluster)
+	if apierrors.IsNotFound(err) {
+		log.Info("cluster not found. Skipping reconciling")
+		return ctrl.Result{}, nil
+	}
 	if err != nil {
-		return ctrl.Result{RequeueAfter: constants.RequeueAfterDuration}, fmt.Errorf("failed to get remote cluster client: %w", err)
+		log.Error(err, "failed to lookup cluster")
+		return ctrl.Result{RequeueAfter: constants.RequeueAfterDuration}, err
 	}
 
 	timeOutReached := time.Now().After(cluster.GetDeletionTimestamp().Add(r.Config.ClusterDeleteTimeout))
 	if timeOutReached {
+		log.Info("cluster delete reconcile timeout reached. Proceeding with cluster deletion")
 		okToRemoveFinalizers = true
 	} else {
+		remoteClient, err := util.GetClusterClient(r.context, r.Client, r.Scheme, clusterapiutil.ObjectKey(cluster))
+		if err != nil {
+			return ctrl.Result{RequeueAfter: constants.RequeueAfterDuration}, fmt.Errorf("failed to get remote cluster client: %w", err)
+		}
 		okToRemoveFinalizers, err = r.makeClusterIsReadyForDeletion(cluster, remoteClient, log)
 		if err != nil {
 			return ctrl.Result{}, err
@@ -1336,21 +1379,26 @@ func (r *ClusterBootstrapReconciler) reconcileDelete(cluster *clusterapiv1beta1.
 	}
 
 	if !okToRemoveFinalizers {
+		log.Info("cluster is not ready for deletion")
 		return ctrl.Result{RequeueAfter: constants.RequeueAfterDuration}, nil
 	}
 
+	log.Info("cluster ready for deletion. Removing finalizers")
 	if err = r.removeFinalizersFromClusterResources(cluster, log); err != nil {
-		return ctrl.Result{Requeue: true}, nil
+		log.Error(err, "unable to remove finalizers")
+		return ctrl.Result{}, err
 	}
 
 	return ctrl.Result{}, nil
 }
 
-func (r *ClusterBootstrapReconciler) removeFinalizer(o client.Object) error {
-	controllerutil.RemoveFinalizer(o, addontypes.AddonFinalizer)
-	return retry.RetryOnConflict(retry.DefaultRetry, func() error {
-		return r.Client.Update(r.context, o)
-	})
+func (r *ClusterBootstrapReconciler) removeFinalizer(o client.Object, deepCopy client.Object) error {
+	if controllerutil.ContainsFinalizer(deepCopy, addontypes.AddonFinalizer) {
+		controllerutil.RemoveFinalizer(deepCopy, addontypes.AddonFinalizer)
+		return r.Client.Patch(r.context, deepCopy, client.MergeFrom(o))
+	}
+	return nil
+
 }
 
 func hasPackageInstalls(ctx context.Context, remoteClient client.Client,
@@ -1359,14 +1407,15 @@ func hasPackageInstalls(ctx context.Context, remoteClient client.Client,
 
 	for _, pkg := range packages {
 		pkgInstallName := util.GeneratePackageInstallName(cluster.Name, pkg.RefName)
-		if packageInstallExists(ctx, pkgInstallName, namespace, remoteClient, log) {
+		if packageInstallExistsAndCanBeDeleted(ctx, pkgInstallName, namespace, remoteClient, log) {
+			log.Info("found " + pkgInstallName + " packageInstall on cluster")
 			return true
 		}
 	}
 	return false
 }
 
-func packageInstallExists(ctx context.Context, pkgInstallName, pkgInstallNamespace string,
+func packageInstallExistsAndCanBeDeleted(ctx context.Context, pkgInstallName, pkgInstallNamespace string,
 	remoteClient client.Client, log logr.Logger) bool {
 
 	pkgInstall := &kapppkgiv1alpha1.PackageInstall{}
@@ -1374,15 +1423,21 @@ func packageInstallExists(ctx context.Context, pkgInstallName, pkgInstallNamespa
 		if apierrors.IsNotFound(err) {
 			return false
 		}
-		log.Error(err, "could not verify if package install is present")
+		log.Error(err, "could not verify status of "+pkgInstallNamespace+"/"+pkgInstallName)
 		return true
+	}
+	for _, condition := range pkgInstall.Status.Conditions {
+		if condition.Type == kappctrlv1alpha1.DeleteFailed {
+			log.Info("ignoring " + pkgInstallNamespace + "/" + pkgInstallName + " packageInstall because it is in  " + string(kappctrlv1alpha1.DeleteFailed) + " state. ")
+			return false
+		}
 	}
 	return true
 }
 
 func (r *ClusterBootstrapReconciler) removeAdditionalPackageInstalls(remoteClient client.Client, cluster *clusterapiv1beta1.Cluster, clusterBootstrap *runtanzuv1alpha3.ClusterBootstrap, log logr.Logger) error {
 	// Removes all additional package install CRs from the cluster
-
+	log.Info("queueing additional packageInstalls for deletion")
 	err := r.Client.Get(r.context, client.ObjectKeyFromObject(cluster), clusterBootstrap)
 	if err != nil {
 		return err
@@ -1418,7 +1473,7 @@ func (r *ClusterBootstrapReconciler) generateSecretForPackagesWithEmptyValuesFro
 	packageSecret.Namespace = cluster.Namespace
 
 	if _, err := controllerutil.CreateOrPatch(r.context, r.Client, packageSecret, func() error {
-		packageSecret.Data = map[string][]byte{}
+		packageSecret.StringData = make(map[string]string)
 
 		packageSecret.OwnerReferences = []metav1.OwnerReference{
 			{

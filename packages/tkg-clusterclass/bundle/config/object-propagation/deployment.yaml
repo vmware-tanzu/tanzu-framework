@@ -1,0 +1,152 @@
+#@ load("@ytt:data", "data")
+#@ load("@ytt:yaml", "yaml")
+
+#@ def getObjectPropagationConfig():
+
+#! generic resources from CAPI
+- source:
+    apiVersion: cluster.x-k8s.io/v1beta1
+    kind: ClusterClass
+    namespace: #@ data.values.namespaceForPackageInstallation
+    labelSelector: ''
+  target:
+    namespaceLabelSelector: ''
+    detectAndReplaceSourceNSRef: true
+- source:
+    apiVersion: controlplane.cluster.x-k8s.io/v1beta1
+    kind: KubeadmControlPlaneTemplate
+    namespace: #@ data.values.namespaceForPackageInstallation
+    labelSelector: ''
+  target:
+    namespaceLabelSelector: ''
+    detectAndReplaceSourceNSRef: true
+- source:
+    apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
+    kind: KubeadmConfigTemplate
+    namespace: #@ data.values.namespaceForPackageInstallation
+    labelSelector: ''
+  target:
+    namespaceLabelSelector: ''
+    detectAndReplaceSourceNSRef: true
+
+#@ if data.values.clusterclassInfraPackageValues.infraProvider == "aws":
+#! AWS infra specific resources
+- source:
+    apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+    kind: AWSClusterTemplate
+    namespace: #@ data.values.namespaceForPackageInstallation
+    labelSelector: ''
+  target:
+    namespaceLabelSelector: ''
+    detectAndReplaceSourceNSRef: true
+- source:
+    apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+    kind: AWSMachineTemplate
+    namespace: #@ data.values.namespaceForPackageInstallation
+    labelSelector: ''
+  target:
+    namespaceLabelSelector: ''
+    detectAndReplaceSourceNSRef: true
+#@ end
+
+#@ if data.values.clusterclassInfraPackageValues.infraProvider == "azure":
+#! Azure infra specific resources
+- source:
+    apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+    kind: AzureClusterTemplate
+    namespace: #@ data.values.namespaceForPackageInstallation
+    labelSelector: ''
+  target:
+    namespaceLabelSelector: ''
+    detectAndReplaceSourceNSRef: true
+- source:
+    apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+    kind: AzureMachineTemplate
+    namespace: #@ data.values.namespaceForPackageInstallation
+    labelSelector: ''
+  target:
+    namespaceLabelSelector: ''
+    detectAndReplaceSourceNSRef: true
+#@ end
+
+#@ if data.values.clusterclassInfraPackageValues.infraProvider == "vsphere":
+#! vSphere infra specific resources
+- source:
+    apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+    kind: VSphereClusterTemplate
+    namespace: #@ data.values.namespaceForPackageInstallation
+    labelSelector: ''
+  target:
+    namespaceLabelSelector: ''
+    detectAndReplaceSourceNSRef: true
+- source:
+    apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+    kind: VSphereMachineTemplate
+    namespace: #@ data.values.namespaceForPackageInstallation
+    labelSelector: ''
+  target:
+    namespaceLabelSelector: ''
+    detectAndReplaceSourceNSRef: true
+#@ end
+
+#@ end
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: object-propagation-config
+  namespace: #@ data.values.namespaceForPackageInstallation
+  annotations:
+    kapp.k14s.io/change-group: "object-propagation-controller.tanzu.vmware.com/ConfigMap"
+data:
+  configData: #@ yaml.encode(getObjectPropagationConfig())
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: object-propagation-controller
+  name: object-propagation-controller-manager
+  namespace: #@ data.values.namespaceForPackageInstallation
+  annotations:
+    kapp.k14s.io/change-rule.0: "upsert after upserting object-propagation-controller.tanzu.vmware.com/ClusterRoleBinding"
+    kapp.k14s.io/change-rule.1: "delete before deleting object-propagation-controller.tanzu.vmware.com/ClusterRoleBinding"
+    kapp.k14s.io/change-rule.2: "upsert after upserting object-propagation-controller.tanzu.vmware.com/ConfigMap"
+    kapp.k14s.io/change-rule.3: "delete before deleting object-propagation-controller.tanzu.vmware.com/ConfigMap"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: object-propagation-controller
+  template:
+    metadata:
+      labels:
+        app: object-propagation-controller
+    spec:
+      containers:
+      - image: object-propagation-controller:latest
+        imagePullPolicy: IfNotPresent
+        name: manager
+        command:
+        - /manager
+        args:
+        - --metrics-bind-addr=0
+        - --input=/dev/config/object-propagation-controller.config
+        resources:
+          limits:
+            cpu: 100m
+            memory: 200Mi
+          requests:
+            cpu: 100m
+            memory: 40Mi
+        volumeMounts:
+          - name: config-mnt
+            mountPath: /dev/config/object-propagation-controller.config
+            subPath: configData
+      serviceAccount: object-propagation-controller-manager-sa
+      terminationGracePeriodSeconds: 10
+      volumes:
+      - name: config-mnt
+        configMap:
+          name: object-propagation-config

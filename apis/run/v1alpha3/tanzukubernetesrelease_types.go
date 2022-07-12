@@ -12,6 +12,7 @@ import (
 const (
 	ConditionCompatible = "Compatible"
 	ConditionValid      = "Valid"
+	ConditionReady      = "Ready"
 
 	ConditionUpdatesAvailable = "UpdatesAvailable"
 
@@ -99,6 +100,7 @@ type TanzuKubernetesReleaseStatus struct {
 // +kubebuilder:resource:path=tanzukubernetesreleases,scope=Cluster,shortName=tkr
 // +kubebuilder:subresource:status
 // +kubebuilder:printcolumn:name="Version",type=string,JSONPath=.spec.version
+// +kubebuilder:printcolumn:name="Ready",type=string,JSONPath=.status.conditions[?(@.type=='Ready')].status
 // +kubebuilder:printcolumn:name="Compatible",type=string,JSONPath=.status.conditions[?(@.type=='Compatible')].status
 // +kubebuilder:printcolumn:name="Created",type="date",JSONPath=.metadata.creationTimestamp
 type TanzuKubernetesRelease struct {

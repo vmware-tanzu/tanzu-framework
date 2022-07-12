@@ -6,6 +6,7 @@ package tkgctl
 import (
 	"context"
 	"fmt"
+	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
@@ -54,9 +55,6 @@ type CreateClusterOptions struct {
 //nolint:gocritic
 // CreateCluster create tkg cluster
 func (t *tkgctl) CreateCluster(cc CreateClusterOptions) error {
-	if cc.GenerateOnly {
-		return t.ConfigCluster(cc)
-	}
 	isTKGSCluster, err := t.tkgClient.IsPacificManagementCluster()
 	if err != nil {
 		return errors.Wrap(err, "unable to determine if management cluster is on vSphere with Tanzu")
@@ -64,6 +62,18 @@ func (t *tkgctl) CreateCluster(cc CreateClusterOptions) error {
 	isInputFileClusterClassBased, err := t.processWorkloadClusterInputFile(&cc, isTKGSCluster)
 	if err != nil {
 		return err
+	}
+
+	if cc.GenerateOnly && isInputFileClusterClassBased {
+		if config, err := os.ReadFile(cc.ClusterConfigFile); err == nil {
+			_, err = os.Stdout.Write(config)
+			return err
+		} else {
+			return err
+		}
+	}
+	if cc.GenerateOnly {
+		return t.ConfigCluster(cc)
 	}
 
 	cc.ClusterConfigFile, err = t.ensureClusterConfigFile(cc.ClusterConfigFile)
@@ -137,7 +147,7 @@ func (t *tkgctl) processManagementClusterInputFile(ir *InitRegionOptions) (bool,
 	isInputFileClusterClassBased := false
 
 	if t.tkgClient.IsFeatureActivated(config.FeatureFlagPackageBasedLCM) {
-		isInputFileClusterClassBased, clusterobj, err = t.checkIfInputFileIsClusterClassBased(ir.ClusterConfigFile)
+		isInputFileClusterClassBased, clusterobj, err = CheckIfInputFileIsClusterClassBased(ir.ClusterConfigFile)
 		if err != nil {
 			return isInputFileClusterClassBased, err
 		}
@@ -153,43 +163,52 @@ func (t *tkgctl) processManagementClusterInputFile(ir *InitRegionOptions) (bool,
 }
 
 func (t *tkgctl) processWorkloadClusterInputFile(cc *CreateClusterOptions, isTKGSCluster bool) (bool, error) {
-	var clusterobj unstructured.Unstructured
-	var err error
-	isInputFileClusterClassBased := false
-	if t.tkgClient.IsFeatureActivated(config.FeatureFlagPackageBasedLCM) {
-		isInputFileClusterClassBased, clusterobj, err = t.checkIfInputFileIsClusterClassBased(cc.ClusterConfigFile)
+	isInputFileClusterClassBased, clusterobj, err := CheckIfInputFileIsClusterClassBased(cc.ClusterConfigFile)
+	if err != nil {
+		return isInputFileClusterClassBased, err
+	}
+	if isInputFileClusterClassBased {
+		if !isTKGSCluster && !t.tkgClient.IsFeatureActivated(config.FeatureFlagPackageBasedLCM) {
+			return isInputFileClusterClassBased, fmt.Errorf(constants.ErrorMsgCClassInputFeatureFlagDisabled, config.FeatureFlagPackageBasedLCM)
+		}
+		if isTKGSCluster {
+			t.TKGConfigReaderWriter().Set(constants.ConfigVariableClusterName, clusterobj.GetName())
+			t.TKGConfigReaderWriter().Set(constants.ConfigVariableNamespace, clusterobj.GetNamespace())
+		} else {
+			err = t.processClusterObjectForConfigurationVariables(clusterobj)
+			if err != nil {
+				return isInputFileClusterClassBased, err
+			}
+		}
+		t.overrideClusterOptionsWithLatestEnvironmentConfigurationValues(cc)
+	}
+	if isTKGSCluster {
+		err = t.validateTKGSFeatureGateStatus(isInputFileClusterClassBased)
 		if err != nil {
 			return isInputFileClusterClassBased, err
 		}
-		if isInputFileClusterClassBased {
-			if isTKGSCluster {
-				t.TKGConfigReaderWriter().Set(constants.ConfigVariableClusterName, clusterobj.GetName())
-				t.TKGConfigReaderWriter().Set(constants.ConfigVariableNamespace, clusterobj.GetNamespace())
-			} else {
-				err = t.processClusterObjectForConfigurationVariables(clusterobj)
-				if err != nil {
-					return isInputFileClusterClassBased, err
-				}
-			}
-			t.overrideClusterOptionsWithLatestEnvironmentConfigurationValues(cc)
-		}
-	}
-	err = t.validateTKGSClusterClassFeatureGate(isInputFileClusterClassBased, isTKGSCluster)
-	if err != nil {
-		return isInputFileClusterClassBased, err
 	}
 	return isInputFileClusterClassBased, nil
 }
 
-// validateTKGSClusterClassFeatureGate validates the TKGS clusterclass feature gate state
-func (t *tkgctl) validateTKGSClusterClassFeatureGate(isInputFileClusterClassBased, isTKGSCluster bool) error {
-	if t.tkgClient.IsFeatureActivated(config.FeatureFlagPackageBasedLCM) && isInputFileClusterClassBased && isTKGSCluster {
-		isFeatureActivated, err := t.featureGateHelper.FeatureActivatedInNamespace(context.Background(), constants.CCFeature, constants.TKGSClusterClassNamespace)
+// validateTKGSFeatureGateStatus validates the TKGS featuregate status for a specific feature
+func (t *tkgctl) validateTKGSFeatureGateStatus(isInputFileClusterClassBased bool) error {
+	if isInputFileClusterClassBased {
+		isClusterClassFeatureActivated, err := t.featureGateHelper.FeatureActivatedInNamespace(context.Background(), constants.ClusterClassFeature, constants.TKGSClusterClassNamespace)
 		if err != nil {
-			return errors.Wrap(err, fmt.Sprintf(constants.ErrorMsgFeatureGateStatus, constants.CCFeature, constants.TKGSClusterClassNamespace))
+			return errors.Wrap(err, fmt.Sprintf(constants.ErrorMsgFeatureGateStatus, constants.ClusterClassFeature, constants.TKGSClusterClassNamespace))
 		}
-		if !isFeatureActivated {
-			return fmt.Errorf(constants.ErrorMsgFeatureGateNotActivated, constants.CCFeature, constants.TKGSClusterClassNamespace)
+		if !isClusterClassFeatureActivated {
+			return fmt.Errorf(constants.ErrorMsgFeatureGateNotActivated, constants.ClusterClassFeature, constants.TKGSClusterClassNamespace)
+		}
+	} else {
+		isTKCFeatureActivated, err := t.featureGateHelper.FeatureActivatedInNamespace(context.Background(), constants.TKCAPIFeature, constants.TKGSTKCAPINamespace)
+		if err != nil {
+			//ignore the error, because the supervisor could be vSphere7 based (which does not support tkc-api featuregate)
+			return nil
+		}
+		if !isTKCFeatureActivated {
+			return fmt.Errorf(constants.ErrorMsgFeatureGateNotActivated, constants.TKCAPIFeature, constants.TKGSTKCAPINamespace)
 		}
 	}
 	return nil
@@ -369,11 +388,12 @@ func (t *tkgctl) configureCreateClusterOptionsFromConfigFile(cc *CreateClusterOp
 
 	if cc.Namespace == "" {
 		namespace, err := t.TKGConfigReaderWriter().Get(constants.ConfigVariableNamespace)
-		log.V(1).Infof("Using namespace from config: %s", cc.Namespace)
 		if err == nil {
 			cc.Namespace = namespace
+			log.V(1).Infof("Using namespace from config: %s", cc.Namespace)
 		} else {
 			cc.Namespace = constants.DefaultNamespace
+			log.V(1).Infof("Using namespace: %s", cc.Namespace)
 		}
 	}
 

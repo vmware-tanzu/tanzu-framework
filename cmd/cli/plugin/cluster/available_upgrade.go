@@ -5,18 +5,24 @@ package main
 
 import (
 	"fmt"
+	"io"
 	"time"
 
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
+	capiv1 "sigs.k8s.io/cluster-api/api/v1beta1"
+	capiconditions "sigs.k8s.io/cluster-api/util/conditions"
 
 	configv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/config/v1alpha1"
+	runv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha1"
+	runv1 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/component"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/config"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/client"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/clusterclient"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgctl"
 	tkrutils "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkr/pkg/utils"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v2/tkr/util/topology"
 )
 
 var availableUpgradesCmd = &cobra.Command{
@@ -52,23 +58,30 @@ func availableUpgrades(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-
 	if server.IsGlobal() {
 		return errors.New("getting available upgrades with a global server is not implemented yet")
 	}
-	clusterName := args[0]
-	clusterTKRName, err := getClusterTKRName(server, clusterName, au.namespace)
-	if err != nil {
-		return err
-	}
-
 	clusterClientOptions := clusterclient.Options{GetClientInterval: 2 * time.Second, GetClientTimeout: 5 * time.Second}
 	clusterClient, err := clusterclient.NewClient(server.ManagementClusterOpts.Path, server.ManagementClusterOpts.Context, clusterClientOptions)
 	if err != nil {
 		return err
 	}
 
+	clusterName := args[0]
 	tkrs, err := clusterClient.GetTanzuKubernetesReleases("")
+	if err != nil {
+		return err
+	}
+
+	// TODO: update this condition after CLI fully support the package based LCM.
+	// Since CLI should support the pre package-based-lcm where the updatesAvailable condition was part of
+	// TKRs, code checking the TKRs for available upgrade should remain.
+	cluster, err := getClusterResource(clusterClient, clusterName, au.namespace)
+	if err == nil && capiconditions.Has(cluster, runv1.ConditionUpdatesAvailable) {
+		return availableUpgradesFromCluster(cluster, tkrs, cmd.OutOrStdout())
+	}
+
+	clusterTKRName, err := getClusterTKRName(server, clusterName, au.namespace)
 	if err != nil {
 		return err
 	}
@@ -144,4 +157,22 @@ func getClusterTKRName(server *configv1alpha1.Server, clusterName, namespace str
 		return "", errors.Wrap(err, "failed to get cluster TKr name from clusters Information")
 	}
 	return clusterTkrVersion, nil
+}
+
+func availableUpgradesFromCluster(cluster *capiv1.Cluster, tkrs []runv1alpha1.TanzuKubernetesRelease, cmdOut io.Writer) error {
+	updates := topology.AvailableUpgrades(cluster)
+	if len(updates) == 0 {
+		fmt.Printf("no available upgrades for cluster '%s', namespace '%s'", cluster.Name, cluster.Namespace)
+		return nil
+	}
+
+	t := component.NewOutputWriter(cmdOut, "table", "NAME", "VERSION", "COMPATIBLE")
+	for i := range tkrs {
+		if _, ok := updates[tkrs[i].Spec.Version]; !ok {
+			continue
+		}
+		t.AddRow(tkrs[i].Name, tkrs[i].Spec.Version, "True")
+	}
+	t.Render()
+	return nil
 }

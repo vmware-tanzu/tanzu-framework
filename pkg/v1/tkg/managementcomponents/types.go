@@ -51,6 +51,7 @@ type ClusterClassPackage struct {
 
 type AddonsFeatureGates struct {
 	ClusterBootstrapController bool `yaml:"clusterBootstrapController,omitempty"`
+	PackageInstallStatus       bool `yaml:"packageInstallStatus,omitempty"`
 }
 
 type TanzuAddonsManager struct {

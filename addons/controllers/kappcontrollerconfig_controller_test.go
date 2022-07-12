@@ -147,4 +147,24 @@ var _ = Describe("KappControllerConfig Reconciler", func() {
 
 	})
 
+	Context("Reconcile KappControllerConfig used as template", func() {
+
+		BeforeEach(func() {
+			kappConfigCRName = "test-kapp-controller-1"
+			clusterResourceFilePath = "testdata/test-kapp-controller-template-config-1.yaml"
+		})
+
+		It("Should skip the reconciliation", func() {
+
+			key := client.ObjectKey{
+				Namespace: addonNamespace,
+				Name:      kappConfigCRName,
+			}
+			config := &runv1alpha3.KappControllerConfig{}
+			Expect(k8sClient.Get(ctx, key, config)).To(Succeed())
+
+			By("OwnerReferences is not set")
+			Expect(len(config.OwnerReferences)).Should(Equal(0))
+		})
+	})
 })

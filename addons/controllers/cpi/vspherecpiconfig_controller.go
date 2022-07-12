@@ -25,8 +25,10 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/controller"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 
+	addonconfig "github.com/vmware-tanzu/tanzu-framework/addons/pkg/config"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/util"
+	"github.com/vmware-tanzu/tanzu-framework/addons/predicates"
 	cpiv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cpi/v1alpha1"
 )
 
@@ -35,6 +37,7 @@ type VSphereCPIConfigReconciler struct {
 	client.Client
 	Log    logr.Logger
 	Scheme *runtime.Scheme
+	Config addonconfig.VSphereCPIConfigControllerConfig
 }
 
 var providerServiceAccountRBACRules = []rbacv1.PolicyRule{
@@ -91,7 +94,9 @@ func (r *VSphereCPIConfigReconciler) Reconcile(ctx context.Context, req ctrl.Req
 		return ctrl.Result{}, err
 	}
 
+	// deep copy VSphereCPIConfig to avoid issues if in the future other controllers where interacting with the same copy
 	cpiConfig = cpiConfig.DeepCopy()
+
 	cluster, err := r.getOwnerCluster(ctx, cpiConfig)
 	if cluster == nil {
 		return ctrl.Result{}, err // no need to requeue if cluster is not found
@@ -160,7 +165,7 @@ func (r *VSphereCPIConfigReconciler) reconcileVSphereCPIConfigNormal(ctx context
 	secret.SetOwnerReferences([]metav1.OwnerReference{ownerReference})
 
 	mutateFn := func() error {
-		secret.Data = make(map[string][]byte)
+		secret.StringData = make(map[string]string)
 		cpiConfigSpec, err := r.mapCPIConfigToDataValues(ctx, cpiConfig, cluster)
 		if err != nil {
 			r.Log.Error(err, "Error while mapping VSphereCPIConfig to data values")
@@ -171,7 +176,7 @@ func (r *VSphereCPIConfigReconciler) reconcileVSphereCPIConfigNormal(ctx context
 			r.Log.Error(err, "Error marshaling VSphereCPIConfig to Yaml")
 			return err
 		}
-		secret.Data[constants.TKGDataValueFileName] = yamlBytes
+		secret.StringData[constants.TKGDataValueFileName] = string(yamlBytes)
 		r.Log.Info("Mutated VSphereCPIConfig data values")
 		return nil
 	}
@@ -238,5 +243,6 @@ func (r *VSphereCPIConfigReconciler) SetupWithManager(_ context.Context, mgr ctr
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&cpiv1alpha1.VSphereCPIConfig{}).
 		WithOptions(options).
+		WithEventFilter(predicates.ConfigOfKindWithoutAnnotation(constants.TKGAnnotationTemplateConfig, constants.VSphereCPIConfigKind, r.Config.SystemNamespace, r.Log)).
 		Complete(r)
 }

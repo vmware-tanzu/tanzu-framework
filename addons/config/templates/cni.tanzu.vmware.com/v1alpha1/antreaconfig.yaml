@@ -5,6 +5,8 @@ kind: AntreaConfig
 metadata:
   name: #@ data.values.TKR_VERSION
   namespace: #@ data.values.GLOBAL_NAMESPACE
+  annotations:
+    tkg.tanzu.vmware.com/template-config: "true"
 spec:
   antrea:
     config:
@@ -26,6 +28,8 @@ kind: AntreaConfig
 metadata:
   name: #@ "{}-routable".format(data.values.TKR_VERSION)
   namespace: #@ data.values.GLOBAL_NAMESPACE
+  annotations:
+    tkg.tanzu.vmware.com/template-config: "true"
 spec:
   antrea:
     config:

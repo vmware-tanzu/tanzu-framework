@@ -88,6 +88,7 @@ func (t *tkgctl) UpgradeCluster(options UpgradeClusterOptions) error {
 		OSVersion:           options.OSVersion,
 		OSArch:              options.OSArch,
 		Edition:             options.Edition,
+		IsTKGSCluster:       isPacific,
 	}
 	err = t.tkgClient.UpgradeCluster(&upgradeClusterOption)
 	if err != nil {
