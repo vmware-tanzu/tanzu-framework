@@ -27,6 +27,17 @@
 #@ end
 #@ end
 
+#@ def get_custom_keys(keyValueString):
+#@   customKeys = dict()
+#@   for val in keyValueString.split(','):
+#@     kv = val.split('=')
+#@     if len(kv) != 2:
+#@       assert.fail("Given input is not in correct format")
+#@     end
+#@     customKeys[kv[0]] = kv[1]
+#@ end
+#@  return customKeys
+#@ end
 
 #! The compare_semver_versions function compares the major, minor, patch
 #! numbers of two versions. It returns 1 if a > b, 0 if a == b, -1 if a < b.
@@ -209,8 +220,10 @@ spec:
       #@overlay/replace
       pciDevices: #@ get_pci_devices(data.values.VSPHERE_CONTROL_PLANE_PCI_DEVICES)
 #@ end
+#@ if data.values.VSPHERE_CONTROL_PLANE_CUSTOM_VMX_KEYS != "" and data.values.VSPHERE_CONTROL_PLANE_CUSTOM_VMX_KEYS != None:
       #@overlay/replace
-      customVMXKeys: #@ data.values.VSPHERE_CONTROL_PLANE_CUSTOM_VMX_KEYS
+      customVMXKeys: #@ get_custom_keys(data.values.VSPHERE_CONTROL_PLANE_CUSTOM_VMX_KEYS)
+#@ end
       resourcePool: #@ data.values.VSPHERE_RESOURCE_POOL
       server: #@ data.values.VSPHERE_SERVER
       template: #@ data.values.VSPHERE_TEMPLATE
@@ -255,8 +268,10 @@ spec:
       #@overlay/replace
       pciDevices: #@ get_pci_devices(data.values.VSPHERE_WORKER_PCI_DEVICES)
 #@ end
+#@ if data.values.VSPHERE_WORKER_CUSTOM_VMX_KEYS != "" and data.values.VSPHERE_WORKER_CUSTOM_VMX_KEYS != None:
       #@overlay/replace
-      customVMXKeys: #@ data.values.VSPHERE_WORKER_CUSTOM_VMX_KEYS
+      customVMXKeys: #@ get_custom_keys(data.values.VSPHERE_WORKER_CUSTOM_VMX_KEYS)
+#@ end
       resourcePool: #@ data.values.VSPHERE_RESOURCE_POOL
       server: #@ data.values.VSPHERE_SERVER
       template: #@ data.values.VSPHERE_TEMPLATE
