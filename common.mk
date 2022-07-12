@@ -63,3 +63,52 @@ SELINUX_ENABLED := $(shell cat /sys/fs/selinux/enforce 2> /dev/null || echo 0)
 ifeq ($(SELINUX_ENABLED),1)
   DOCKER_VOL_OPTS?=:z
 endif
+
+
+# Directories
+TOOLS_DIR := $(abspath $(ROOT_DIR)/hack/tools)
+TOOLS_BIN_DIR := $(TOOLS_DIR)/bin
+
+
+# Add tooling binaries here and in hack/tools/Makefile
+CONTROLLER_GEN     := $(TOOLS_BIN_DIR)/controller-gen
+GOLANGCI_LINT      := $(TOOLS_BIN_DIR)/golangci-lint
+GOIMPORTS          := $(TOOLS_BIN_DIR)/goimports
+GOBINDATA          := $(TOOLS_BIN_DIR)/gobindata
+KUBEBUILDER        := $(TOOLS_BIN_DIR)/kubebuilder
+KUSTOMIZE          := $(TOOLS_BIN_DIR)/kustomize
+YTT                := $(TOOLS_BIN_DIR)/ytt
+KBLD               := $(TOOLS_BIN_DIR)/kbld
+VENDIR             := $(TOOLS_BIN_DIR)/vendir
+IMGPKG             := $(TOOLS_BIN_DIR)/imgpkg
+KAPP               := $(TOOLS_BIN_DIR)/kapp
+KUBEVAL            := $(TOOLS_BIN_DIR)/kubeval
+GINKGO             := $(TOOLS_BIN_DIR)/ginkgo
+VALE               := $(TOOLS_BIN_DIR)/vale
+YQ                 := $(TOOLS_BIN_DIR)/yq
+CONVERSION_GEN     := $(TOOLS_BIN_DIR)/conversion-gen
+TOOLING_BINARIES   := $(CONTROLLER_GEN) $(GOLANGCI_LINT) $(YTT) $(KBLD) $(VENDIR) $(IMGPKG) $(KAPP) $(KUBEVAL) $(KUSTOMIZE) $(GOIMPORTS) $(GOBINDATA) $(GINKGO) $(VALE) $(YQ) $(CONVERSION_GEN)
+
+## --------------------------------------
+##@ API/controller building and generation
+## --------------------------------------
+
+help: ## Display this help (default)
+	@awk 'BEGIN {FS = ":.*##"; printf "\nUsage:\n  make \033[36m<target>\033[0m\n"} /^[0-9a-zA-Z_-]+:.*?##/ { printf "  \033[36m%-28s\033[0m %s\n", $$1, $$2 } /^##@/ { printf "\n\033[1m\033[32m%s\033[0m\n", substr($$0, 5) } ' $(MAKEFILE_LIST)
+
+
+## --------------------------------------
+##@ Tooling Binaries
+## --------------------------------------
+
+tools: $(TOOLING_BINARIES) ## Build tooling binaries
+.PHONY: $(TOOLING_BINARIES)
+$(TOOLING_BINARIES):
+	make -C $(TOOLS_DIR) $(@F)
+
+generate-controller-code: $(CONTROLLER_GEN) $(GOIMPORTS) ## Generate code via controller-gen
+	$(CONTROLLER_GEN) object:headerFile="$(ROOT_DIR)/hack/boilerplate.go.txt",year=$(shell date +%Y) paths="./..."
+	$(MAKE) fmt
+
+fmt: $(GOIMPORTS) ## Run goimports
+	$(GOIMPORTS) -w -local github.com/vmware-tanzu ./
