@@ -46,6 +46,10 @@ func E2ELegacyFallbackSpec(context context.Context, inputGetter func() E2ELegacy
 
 	Context("When there are modifications in the provider overlays", func() {
 		BeforeEach(func() { //nolint:dupl
+			if os.Getenv("RUN_FULL_INTEG_TEST") != "1" {
+				Skip("Skip legacy fallback creation tests")
+			}
+
 			namespace = constants.DefaultNamespace
 			input = inputGetter()
 			if input.Namespace != "" {
