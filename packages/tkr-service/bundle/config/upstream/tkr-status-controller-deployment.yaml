@@ -28,6 +28,7 @@ spec:
             - /manager
           args:
             - --metrics-bind-addr=0
+            - #@ "--namespace={}".format(data.values.namespace)
           resources:
             limits:
               cpu: 100m
