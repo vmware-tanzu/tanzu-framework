@@ -14,7 +14,7 @@ retract [v1.4.0-pre-alpha-1, v1.4.0-pre-alpha-2]
 require (
 	cloud.google.com/go/storage v1.18.2
 	github.com/AlecAivazis/survey/v2 v2.1.1
-	github.com/Azure/azure-sdk-for-go v58.1.0+incompatible
+	github.com/Azure/azure-sdk-for-go v66.0.0+incompatible
 	github.com/Azure/go-autorest/autorest v0.11.23
 	github.com/Azure/go-autorest/autorest/azure/auth v0.5.10
 	github.com/Jeffail/gabs v1.4.0
@@ -88,7 +88,6 @@ require (
 	github.com/vmware-tanzu/carvel-secretgen-controller v0.5.0
 	github.com/vmware-tanzu/carvel-vendir v0.26.0
 	github.com/vmware-tanzu/carvel-ytt v0.40.0
-	github.com/vmware-tanzu/tanzu-framework/addons v0.0.0-20220624011133-a2cd9c363200
 	github.com/vmware/govmomi v0.27.1
 	github.com/yalp/jsonpath v0.0.0-20180802001716-5cc68e5049a0
 	go.uber.org/multierr v1.6.0
@@ -97,6 +96,7 @@ require (
 	golang.org/x/oauth2 v0.0.0-20220309155454-6242fa91716a
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
 	golang.org/x/term v0.0.0-20210927222741-03fcf44c2211
+	golang.org/x/text v0.3.7
 	gomodules.xyz/jsonpatch/v2 v2.2.0
 	google.golang.org/api v0.62.0
 	google.golang.org/grpc v1.44.0
@@ -238,14 +238,12 @@ require (
 	github.com/vbatts/tar-split v0.11.2 // indirect
 	github.com/vito/go-interact v0.0.0-20171111012221-fa338ed9e9ec // indirect
 	github.com/vmware-tanzu/carvel-imgpkg v0.23.1 // indirect
-	github.com/vmware-tanzu/vm-operator-api v0.1.4-0.20211202185235-43eb44c09ecd // indirect
 	go.mongodb.org/mongo-driver v1.1.2 // indirect
 	go.opencensus.io v0.23.0 // indirect
 	go.uber.org/atomic v1.9.0 // indirect
 	go.uber.org/zap v1.19.1 // indirect
 	golang.org/x/crypto v0.0.0-20220411220226-7b82a4e95df4 // indirect
 	golang.org/x/sys v0.0.0-20220319134239-a9b59b0215f8 // indirect
-	golang.org/x/text v0.3.7 // indirect
 	golang.org/x/time v0.0.0-20220224211638-0e9765cccd65 // indirect
 	golang.org/x/tools v0.1.10 // indirect
 	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1 // indirect
