@@ -94,17 +94,13 @@ var _ = Describe("PCI Passthrough", func() {
 		})
 
 		It("throws error when the input format is invalid", func() {
-			value.Set("VSPHERE_WORKER_PCI_DEVICES", "a:b;c;d")
-			_, err := ytt.RenderYTTTemplate(ytt.CommandOptions{}, paths, value.toReader())
-			Expect(err).To(HaveOccurred())
+			invalidValues := []string{"a:b;c;d", "sometext", "1001:1001,2000:2001;400:300"}
 
-			value.Set("VSPHERE_WORKER_PCI_DEVICES", "sometext")
-			_, err = ytt.RenderYTTTemplate(ytt.CommandOptions{}, paths, value.toReader())
-			Expect(err).To(HaveOccurred())
-
-			value.Set("VSPHERE_WORKER_PCI_DEVICES", "1001:1001,2000:2001;400:300")
-			_, err = ytt.RenderYTTTemplate(ytt.CommandOptions{}, paths, value.toReader())
-			Expect(err).To(HaveOccurred())
+			for _, invalidValueTestCase := range invalidValues {
+				value.Set("VSPHERE_WORKER_PCI_DEVICES", invalidValueTestCase)
+				_, err := ytt.RenderYTTTemplate(ytt.CommandOptions{}, paths, value.toReader())
+				Expect(err).To(HaveOccurred())
+			}
 		})
 
 		It("throws error when the vendor devices are invalid", func() {
@@ -117,34 +113,24 @@ var _ = Describe("PCI Passthrough", func() {
 		It("succeeds when the vendor devices are valid", func() {
 			value.Set("VSPHERE_WORKER_PCI_DEVICES", "10DE:1EB8")
 			value.Set("VSPHERE_CONTROL_PLANE_PCI_DEVICES", "10DE:1EB8")
+
 			output, err := ytt.RenderYTTTemplate(ytt.CommandOptions{}, paths, value.toReader())
 			Expect(err).NotTo(HaveOccurred())
 
-			vsphereMachineTemplates, err := matchers.FindDocsMatchingYAMLPath(output, map[string]string{
-				"$.kind":          "VSphereMachineTemplate",
-				"$.metadata.name": "test-cluster-worker",
-			})
+			clusterTypes := []string{"worker", "control-plane"}
+			for _, clusterType := range clusterTypes {
+				vsphereMachineTemplates, err := matchers.FindDocsMatchingYAMLPath(output, map[string]string{
+					"$.kind":          "VSphereMachineTemplate",
+					"$.metadata.name": fmt.Sprintf("test-cluster-%s", clusterType),
+				})
 
-			Expect(err).NotTo(HaveOccurred())
-			Expect(len(vsphereMachineTemplates)).NotTo(Equal(0))
+				Expect(err).NotTo(HaveOccurred())
+				Expect(len(vsphereMachineTemplates)).NotTo(Equal(0))
 
-			for _, vsphereMachineTemplate := range vsphereMachineTemplates {
-				fmt.Println(vsphereMachineTemplate)
-				Expect(vsphereMachineTemplate).To(matchers.HaveYAMLPathWithValue("$.spec.template.spec.pciDevices[0].vendorID", "10DE"))
-				Expect(vsphereMachineTemplate).To(matchers.HaveYAMLPathWithValue("$.spec.template.spec.pciDevices[0].deviceID", "1EB8"))
-			}
-
-			vsphereMachineTemplates, err = matchers.FindDocsMatchingYAMLPath(output, map[string]string{
-				"$.kind":          "VSphereMachineTemplate",
-				"$.metadata.name": "test-cluster-control-plane",
-			})
-
-			Expect(err).NotTo(HaveOccurred())
-			Expect(len(vsphereMachineTemplates)).NotTo(Equal(0))
-
-			for _, vsphereMachineTemplate := range vsphereMachineTemplates {
-				Expect(vsphereMachineTemplate).To(matchers.HaveYAMLPathWithValue("$.spec.template.spec.pciDevices[0].vendorID", "10DE"))
-				Expect(vsphereMachineTemplate).To(matchers.HaveYAMLPathWithValue("$.spec.template.spec.pciDevices[0].deviceID", "1EB8"))
+				for _, vsphereMachineTemplate := range vsphereMachineTemplates {
+					Expect(vsphereMachineTemplate).To(matchers.HaveYAMLPathWithValue("$.spec.template.spec.pciDevices[0].vendorID", "10DE"))
+					Expect(vsphereMachineTemplate).To(matchers.HaveYAMLPathWithValue("$.spec.template.spec.pciDevices[0].deviceID", "1EB8"))
+				}
 			}
 		})
 
@@ -165,7 +151,6 @@ var _ = Describe("PCI Passthrough", func() {
 				Expect(len(vsphereMachineTemplates)).NotTo(Equal(0))
 
 				for _, vsphereMachineTemplate := range vsphereMachineTemplates {
-					fmt.Println(vsphereMachineTemplate)
 					Expect(vsphereMachineTemplate).To(matchers.HaveYAMLPathWithValue("$.spec.template.spec.pciDevices[0].vendorID", "a"))
 					Expect(vsphereMachineTemplate).To(matchers.HaveYAMLPathWithValue("$.spec.template.spec.pciDevices[0].deviceID", "b"))
 					Expect(vsphereMachineTemplate).To(matchers.HaveYAMLPathWithValue("$.spec.template.spec.pciDevices[1].vendorID", "c"))
@@ -191,26 +176,19 @@ var _ = Describe("PCI Passthrough", func() {
 
 	})
 
-	When("WORKER_ROLLOUT_STRATEGY is given wrong input value", func() {
+	When("WORKER_ROLLOUT_STRATEGY is set", func() {
 		var value yttValues
 		BeforeEach(func() {
 			value = baseVal.DeepCopy()
 		})
 
-		It("should return validation error", func() {
+		It("should return validation error if the input is invalid", func() {
 			value.Set("WORKER_ROLLOUT_STRATEGY", "somerandomvalue")
 			_, err := ytt.RenderYTTTemplate(ytt.CommandOptions{}, paths, value.toReader())
 			Expect(err).To(HaveOccurred())
 		})
-	})
 
-	When("WORKER_ROLLOUT_STRATEGY is given correct input value", func() {
-		var value yttValues
-		BeforeEach(func() {
-			value = baseVal.DeepCopy()
-		})
-
-		It("should set MachineDeployment strategy type to correct value", func() {
+		It("should set MachineDeployment strategy type to correct value if the input is valid", func() {
 			validValues := []string{"OnDelete, RollingUpdate"}
 			for _, validValue := range validValues {
 				value.Set("WORKER_ROLLOUT_STRATEGY", validValue)
