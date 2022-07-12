@@ -46,7 +46,8 @@ test: fmt vet template-tests ## Run Tests
 
 .PHONY: test-verbose
 test-verbose: ## Verbose tests with streaming output for debugging
-	ginkgo -v ./...
+	$(MAKE) kubebuilder -C ${ROOT_DIR}$(TOOLS_DIR)
+	KUBEBUILDER_ASSETS=${ROOT_DIR}$(KUBEBUILDER_BIN_DIR) ginkgo -v ./... -timeout 60m -coverprofile coverage.txt -v 2
 
 .PHONY: template-tests
 template-tests: ## Sanity tests to verify the addon config CR templates
