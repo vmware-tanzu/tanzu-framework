@@ -69,6 +69,24 @@ func (r *Reconciler) SetupWithManager(mgr manager.Manager) error {
 		Complete(r)
 }
 
+func tkrOSImages(o client.Object) []string {
+	tkr := o.(*runv1.TanzuKubernetesRelease)
+	result := make([]string, len(tkr.Spec.OSImages))
+	for i, osImageRef := range tkr.Spec.OSImages {
+		result[i] = osImageRef.Name
+	}
+	return result
+}
+
+func tkrBootstrapPackages(o client.Object) []string {
+	tkr := o.(*runv1.TanzuKubernetesRelease)
+	result := make([]string, len(tkr.Spec.BootstrapPackages))
+	for i, pkgRef := range tkr.Spec.BootstrapPackages {
+		result[i] = pkgRef.Name
+	}
+	return result
+}
+
 func (r *Reconciler) osImageToTKRs(object client.Object) []reconcile.Request {
 	osImage := object.(*runv1.OSImage)
 
@@ -121,24 +139,6 @@ func (r *Reconciler) cbtToTKRs(object client.Object) []reconcile.Request {
 
 	r.Log.Info("Enque TKR for CBT", "name", object.GetName())
 	return []ctrl.Request{{NamespacedName: types.NamespacedName{Name: object.GetName()}}}
-}
-
-func tkrOSImages(o client.Object) []string {
-	tkr := o.(*runv1.TanzuKubernetesRelease)
-	result := make([]string, len(tkr.Spec.OSImages))
-	for i, osImageRef := range tkr.Spec.OSImages {
-		result[i] = osImageRef.Name
-	}
-	return result
-}
-
-func tkrBootstrapPackages(o client.Object) []string {
-	tkr := o.(*runv1.TanzuKubernetesRelease)
-	result := make([]string, len(tkr.Spec.BootstrapPackages))
-	for i, pkgRef := range tkr.Spec.BootstrapPackages {
-		result[i] = pkgRef.Name
-	}
-	return result
 }
 
 func (r *Reconciler) Reconcile(ctx context.Context, req ctrl.Request) (result ctrl.Result, retErr error) {

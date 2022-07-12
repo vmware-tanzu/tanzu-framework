@@ -88,6 +88,10 @@ func ChooseTKR(tkrs data.TKRs) *runv1.TanzuKubernetesRelease {
 	return ks[rand.Intn(len(ks))]
 }
 
+func ChooseOSImage(tkr *runv1.TanzuKubernetesRelease, osImages data.OSImages) *runv1.OSImage {
+	return osImages[tkr.Spec.OSImages[rand.Intn(len(tkr.Spec.OSImages))].Name]
+}
+
 func GenOSImages(k8sVersions []string, numOSImages int) data.OSImages {
 	result := make(data.OSImages, numOSImages)
 	for range make([]struct{}, numOSImages) {

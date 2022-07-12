@@ -14,10 +14,12 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/apimachinery/pkg/util/rand"
 	"k8s.io/apimachinery/pkg/util/uuid"
 	clientgoscheme "k8s.io/client-go/kubernetes/scheme"
 	"sigs.k8s.io/cluster-api/util/conditions"
+	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/client/fake"
 
@@ -75,9 +77,6 @@ var _ = Describe("tkr-status/tkr.Reconciler", func() {
 	JustBeforeEach(func() {
 		tkrResolver := resolver.New()
 		scheme := initScheme()
-		for _, o := range objects {
-			tkrResolver.Add(o)
-		}
 		c = uidSetter{fake.NewClientBuilder().WithScheme(scheme).WithObjects(objects...).Build()}
 		r = &Reconciler{
 			Client: c,
@@ -85,6 +84,39 @@ var _ = Describe("tkr-status/tkr.Reconciler", func() {
 			Log:    logr.Discard(),
 			Config: Config{Namespace: ns},
 		}
+	})
+
+	Describe("r.Reconcile()", func() {
+		It("should complete without errors and set Valid and Ready conditions", func() {
+			tkrName := tkr.Name
+			result, err := r.Reconcile(ctx, ctrl.Request{NamespacedName: types.NamespacedName{Name: tkrName}})
+			Expect(err).ToNot(HaveOccurred())
+			Expect(result).To(Equal(ctrl.Result{}))
+
+			tkr := &runv1.TanzuKubernetesRelease{}
+			Expect(r.Client.Get(ctx, client.ObjectKey{Name: tkrName}, tkr)).To(Succeed())
+
+			Expect(conditions.Get(tkr, runv1.ConditionValid)).ToNot(BeNil())
+			Expect(conditions.Get(tkr, runv1.ConditionReady)).ToNot(BeNil())
+		})
+	})
+
+	Describe("tkrOSImages()", func() {
+		It("should return names of OSImages listed by the TKR", func() {
+			osImageNames := tkrOSImages(tkr)
+			for _, osImageRef := range tkr.Spec.OSImages {
+				Expect(osImageNames).To(ContainElement(osImageRef.Name))
+			}
+		})
+	})
+
+	Describe("tkrBootstrapPackages()", func() {
+		It("should return names of OSImages listed by the TKR", func() {
+			pkgNames := tkrBootstrapPackages(tkr)
+			for _, pkgRef := range tkr.Spec.BootstrapPackages {
+				Expect(pkgNames).To(ContainElement(pkgRef.Name))
+			}
+		})
 	})
 
 	Describe("checkTKRVersion()", func() {
@@ -109,14 +141,20 @@ var _ = Describe("tkr-status/tkr.Reconciler", func() {
 					Expect(err.Reason()).To(Equal(expectedReason))
 					Expect(cond.Status).To(Equal(corev1.ConditionFalse))
 					Expect(cond.Reason).To(Equal(expectedReason))
-					return
 				}
-				Expect(cond.Status).To(Equal(corev1.ConditionTrue))
 			})
 		})
 	})
 
 	Describe("r.checkOSImages()", func() {
+		JustBeforeEach(func() {
+			for _, osImageRef := range tkr.Spec.OSImages {
+				if osImage, exists := osImages[osImageRef.Name]; exists {
+					r.Cache.Add(osImage)
+				}
+			}
+		})
+
 		When("no changes are made to generated TKRs", func() {
 			repeat(10, func() {
 				It("should not return errors", func() {
@@ -175,6 +213,14 @@ var _ = Describe("tkr-status/tkr.Reconciler", func() {
 	})
 
 	Describe("r.checkBootstrapPackages()", func() {
+		JustBeforeEach(func() {
+			for _, osImageRef := range tkr.Spec.OSImages {
+				if osImage, exists := osImages[osImageRef.Name]; exists {
+					r.Cache.Add(osImage)
+				}
+			}
+		})
+
 		When("no changes are made to generated TKRs", func() {
 			repeat(100, func() {
 				It("should not return errors", func() {
@@ -210,6 +256,14 @@ var _ = Describe("tkr-status/tkr.Reconciler", func() {
 	})
 
 	Describe("r.checkClusterBootstrapTemplate()", func() {
+		JustBeforeEach(func() {
+			for _, osImageRef := range tkr.Spec.OSImages {
+				if osImage, exists := osImages[osImageRef.Name]; exists {
+					r.Cache.Add(osImage)
+				}
+			}
+		})
+
 		When("no changes are made to generated TKRs", func() {
 			It("should not return errors", func() {
 				Expect(r.checkClusterBootstrapTemplate(ctx, tkr)).To(Succeed(), "generated TKRs are expected to be valid")
