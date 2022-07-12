@@ -66,7 +66,7 @@
     "axios": "^0.24.0",
     "codelyzer": "^5.1.2",
     "html-frontmatter": "^1.6.1",
-    "is-ip": "^3.1.0",
+    "is-ip": "^4.0.0",
     "jasmine-core": "^4.0.1",
     "jasmine-spec-reporter": "^4.2.1",
     "karma": "^6.3.14",
