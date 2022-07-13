@@ -59,6 +59,7 @@ import (
 	runtanzuv1alpha3 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/webhooks"
 	vmoperatorv1alpha1 "github.com/vmware-tanzu/vm-operator-api/api/v1alpha1"
+	topologyv1alpha1 "github.com/vmware-tanzu/vm-operator/external/tanzu-topology/api/v1alpha1"
 )
 
 // These tests use Ginkgo (BDD-style Go testing framework). Refer to
@@ -204,6 +205,9 @@ var _ = BeforeSuite(func(done Done) {
 
 	err = vmoperatorv1alpha1.AddToScheme(scheme)
 	Expect(err).ToNot(HaveOccurred())
+
+	err = topologyv1alpha1.AddToScheme(scheme)
+	Expect(err).NotTo(HaveOccurred())
 
 	k8sClient, err = client.New(cfg, client.Options{Scheme: scheme})
 	Expect(err).ToNot(HaveOccurred())
