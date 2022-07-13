@@ -1898,19 +1898,11 @@ github.com/vmware-tanzu/carvel-vendir v0.26.0/go.mod h1:JcuNNVONFbZTbm/GjtGiWUfF
 github.com/vmware-tanzu/carvel-ytt v0.40.0 h1:WUWTtwvfqV9CN9v207oDt2xfhmuWHGwc4MMaXJAqIEE=
 github.com/vmware-tanzu/carvel-ytt v0.40.0/go.mod h1:crDcKbS1GM4Q34puoVxdrajWOXrxjOxvUCwtsNV5Etc=
 github.com/vmware-tanzu/net-operator-api v0.0.0-20210401185409-b0dc6c297707/go.mod h1:pDB0pUiFYufuP3lUkQX9fZ67PYnKvqBpDcJN3mSrw5U=
-<<<<<<< HEAD
-<<<<<<< HEAD
 github.com/vmware-tanzu/tanzu-framework v0.9.0/go.mod h1:/w15et0yuaRjyeLeHSb2KxnLGg/NHHZ0k8xopIullPI=
 github.com/vmware-tanzu/tanzu-framework/addons v0.0.0-20220624011133-a2cd9c363200 h1:2Mu/GOpBMgfT8tpIMcPFeX/UIFSjeFdPrW2//9pjXnw=
 github.com/vmware-tanzu/tanzu-framework/addons v0.0.0-20220624011133-a2cd9c363200/go.mod h1:p5tLg/eDN8OWjSkwBeiBY1jqGoOcRc0KYb6t6+7M6xU=
-=======
 github.com/vmware-tanzu/tanzu-framework/test/pkg v0.0.0-20220630184124-bcfb194dec6e h1:P8QpDe3tNFbOjEkuK4VbPuRsUl+wE18DhJ7en9Y2C7I=
 github.com/vmware-tanzu/tanzu-framework/test/pkg v0.0.0-20220630184124-bcfb194dec6e/go.mod h1:qsJwrQYSlxw9yh3SppNXDWYY7l4HXONxGB8IzFDm+M4=
->>>>>>> fix for borkage
-=======
-github.com/vmware-tanzu/tanzu-framework/test/pkg v0.0.0-20220630184124-bcfb194dec6e h1:P8QpDe3tNFbOjEkuK4VbPuRsUl+wE18DhJ7en9Y2C7I=
-github.com/vmware-tanzu/tanzu-framework/test/pkg v0.0.0-20220630184124-bcfb194dec6e/go.mod h1:qsJwrQYSlxw9yh3SppNXDWYY7l4HXONxGB8IzFDm+M4=
->>>>>>> b210e3f22aede63415e318c9121492307a09a8da
 github.com/vmware-tanzu/vm-operator-api v0.1.4-0.20211029224930-6ec913d11bff/go.mod h1:mubK0QMyaA2TbeAmGsu2GVfiqDFppNUAUqoMPoKFgzM=
 github.com/vmware-tanzu/vm-operator-api v0.1.4-0.20211202185235-43eb44c09ecd h1:BXz4aAPzRAYD8x8LEhjEsmvTj9mCvesnr4ApT1Ay4YY=
 github.com/vmware-tanzu/vm-operator-api v0.1.4-0.20211202185235-43eb44c09ecd/go.mod h1:mubK0QMyaA2TbeAmGsu2GVfiqDFppNUAUqoMPoKFgzM=
@@ -2771,13 +2763,7 @@ gopkg.in/yaml.v2 v2.4.0 h1:D8xgwECY7CYvx+Y2n4sBz93Jn9JRvxdiyyo8CTfuKaY=
 gopkg.in/yaml.v2 v2.4.0/go.mod h1:RDklbk79AGWmwhnvt/jBztapEOGDOx6ZbXqjP6csGnQ=
 gopkg.in/yaml.v3 v3.0.0-20190905181640-827449938966/go.mod h1:K4uyk7z7BCEPqu6E+C64Yfv1cQ7kz7rIZviUmN+EgEM=
 gopkg.in/yaml.v3 v3.0.0-20191026110619-0b21df46bc1d/go.mod h1:K4uyk7z7BCEPqu6E+C64Yfv1cQ7kz7rIZviUmN+EgEM=
-<<<<<<< HEAD
-<<<<<<< HEAD
 gopkg.in/yaml.v3 v3.0.0-20200121175148-a6ecf24a6d71/go.mod h1:K4uyk7z7BCEPqu6E+C64Yfv1cQ7kz7rIZviUmN+EgEM=
-=======
->>>>>>> fix for borkage
-=======
->>>>>>> b210e3f22aede63415e318c9121492307a09a8da
 gopkg.in/yaml.v3 v3.0.0-20200313102051-9f266ea9e77c/go.mod h1:K4uyk7z7BCEPqu6E+C64Yfv1cQ7kz7rIZviUmN+EgEM=
 gopkg.in/yaml.v3 v3.0.0-20200615113413-eeeca48fe776/go.mod h1:K4uyk7z7BCEPqu6E+C64Yfv1cQ7kz7rIZviUmN+EgEM=
 gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b h1:h8qDotaEPuJATrMmW04NCwg7v22aHH28wwpauUhK9Oo=

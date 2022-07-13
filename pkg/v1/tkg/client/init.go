@@ -572,6 +572,7 @@ func (c *TkgClient) configureImageTagsForProviderInstallation() error {
 	configImageTag(constants.ConfigVariableInternalCAPAManagerImageTag, "cluster_api_aws", "capaControllerImage")
 	configImageTag(constants.ConfigVariableInternalCAPVManagerImageTag, "cluster_api_vsphere", "capvControllerImage")
 	configImageTag(constants.ConfigVariableInternalCAPZManagerImageTag, "cluster-api-provider-azure", "capzControllerImage")
+	configImageTag(constants.ConfigVariableInternalCAPOCIManagerImageTag, "cluster-api-provider-oci", "capociControllerImage")
 	configImageTag(constants.ConfigVariableInternalNMIImageTag, "aad-pod-identity", "nmiImage")
 
 	return nil
