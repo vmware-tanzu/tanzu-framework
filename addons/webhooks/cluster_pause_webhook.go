@@ -15,8 +15,10 @@ import (
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/webhook"
 
+	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
+	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/util"
 	"github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
+	tkgconstants "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
 )
 
 var clusterpauselog = logf.Log.WithName("cluster-pause-webhook")
@@ -25,7 +27,7 @@ var clusterpauselog = logf.Log.WithName("cluster-pause-webhook")
 
 // ClusterPause implements a validating and defaulting webhook for Cluster.
 type ClusterPause struct {
-	Client client.Reader
+	Client client.Client
 }
 
 // SetupWebhookWithManager sets up Cluster webhooks.
@@ -73,6 +75,20 @@ func (wh *ClusterPause) Default(ctx context.Context, obj runtime.Object) error {
 		currentTkrVersion, tkrLabelFound = currentCluster.Labels[v1alpha3.LabelTKR]
 	}
 
+	// want to verify the current TKR object (before upgrade) is not a legacy one
+	if tkrLabelFound && currentTkrVersion != "" {
+		tkr, err := util.GetTKRByNameV1Alpha3(ctx, wh.Client, currentTkrVersion)
+		if err != nil {
+			clusterpauselog.Error(err, "unable to fetch TKR object", "name", currentTkrVersion)
+			return err
+		}
+		if tkr != nil && tkr.Labels != nil {
+			if _, ok := tkr.Labels[constants.TKRLableLegacyClusters]; ok {
+				return nil
+			}
+		}
+	}
+
 	// Add pause to cluster if the cluster.Labels["run.tanzu.vmware.com/tkr"] changes
 	// The cluster pause state will be unset by ClusterBootstrap controller after it rolls out package updates
 	if currentCluster.Labels == nil || !tkrLabelFound || currentTkrVersion != tkrVersion {
@@ -81,8 +97,8 @@ func (wh *ClusterPause) Default(ctx context.Context, obj runtime.Object) error {
 			cluster.Annotations = map[string]string{}
 		}
 		// Use the desired TKR version as label value, ClusterBootstrap will unset
-		cluster.Annotations[constants.ClusterPauseLabel] = tkrVersion
-		clusterpauselog.Info(fmt.Sprintf("set '%s' annotation to '%s' for cluster '%s'", constants.ClusterPauseLabel, tkrVersion, cluster.Name))
+		cluster.Annotations[tkgconstants.ClusterPauseLabel] = tkrVersion
+		clusterpauselog.Info(fmt.Sprintf("set '%s' annotation to '%s' for cluster '%s'", tkgconstants.ClusterPauseLabel, tkrVersion, cluster.Name))
 	}
 
 	return nil
