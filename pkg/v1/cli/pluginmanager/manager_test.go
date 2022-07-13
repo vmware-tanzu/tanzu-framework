@@ -430,7 +430,8 @@ func fakeExecCommand(command string, args ...string) *exec.Cmd {
 	cs = append(cs, args...)
 	cmd := exec.Command(os.Args[0], cs...) //nolint:gosec
 	tc := "TEST_CASE=" + testCase
-	cmd.Env = []string{"GO_WANT_HELPER_PROCESS=1", tc}
+	home := "HOME=" + os.Getenv("HOME")
+	cmd.Env = []string{"GO_WANT_HELPER_PROCESS=1", tc, home}
 	return cmd
 }
 
@@ -479,6 +480,11 @@ func setupLocalDistoForTesting() func() {
 		log.Fatal(err, "unable to create temporary directory")
 	}
 
+	tmpHomeDir, err := os.MkdirTemp(os.TempDir(), "home")
+	if err != nil {
+		log.Fatal(err, "unable to create temporary home directory")
+	}
+
 	config.DefaultStandaloneDiscoveryType = "local"
 	config.DefaultStandaloneDiscoveryLocalPath = "default"
 
@@ -488,6 +494,7 @@ func setupLocalDistoForTesting() func() {
 
 	tkgConfigFile := filepath.Join(tmpDir, "tanzu_config.yaml")
 	os.Setenv("TANZU_CONFIG", tkgConfigFile)
+	os.Setenv("HOME", tmpHomeDir)
 
 	err = copy.Copy(filepath.Join("test", "local"), common.DefaultLocalPluginDistroDir)
 	if err != nil {

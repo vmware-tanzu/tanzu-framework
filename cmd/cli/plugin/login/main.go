@@ -90,12 +90,7 @@ func main() {
 
 func login(cmd *cobra.Command, args []string) (err error) {
 	cfg, err := config.GetClientConfig()
-	if _, ok := err.(*config.ClientConfigNotExistError); ok {
-		cfg, err = config.NewClientConfig()
-		if err != nil {
-			return err
-		}
-	} else if err != nil {
+	if err != nil {
 		return err
 	}
 

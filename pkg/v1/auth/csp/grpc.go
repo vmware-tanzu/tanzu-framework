@@ -82,6 +82,12 @@ func (c *configSource) Token() (*oauth2.Token, error) {
 	g.GlobalOpts.Auth.AccessToken = token.AccessToken
 	g.GlobalOpts.Auth.IDToken = token.IDToken
 
+	// Acquire tanzu config lock
+	config.AcquireTanzuConfigLock()
+	defer config.ReleaseTanzuConfigLock()
+
+	// TODO: Add Read/Write locking mechanism before updating the configuration
+	// Currently we are only acquiring the lock while updating the configuration
 	if err := config.StoreClientConfig(c.ClientConfig); err != nil {
 		return nil, err
 	}
