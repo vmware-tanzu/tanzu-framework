@@ -5,7 +5,7 @@ include ../common.mk
 
 .DEFAULT_GOAL := help
 
-ROOT_DIR	:= $(dir $(shell pwd))
+ADDONS_DIR	:= $(dir $(shell pwd))
 
 # Active module mode, as we use go modules to manage dependencies
 export GO111MODULE := on
@@ -24,9 +24,7 @@ else
 endif
 
 # Directories
-BIN_DIR       := bin
-TOOLS_DIR := hack/tools
-TOOLS_BIN_DIR := $(TOOLS_DIR)/bin
+BIN_DIR := bin
 KUBEBUILDER_BIN_DIR := $(TOOLS_BIN_DIR)/kubebuilder/bin
 
 export PATH := $(abspath $(BIN_DIR)):$(PATH)
@@ -38,20 +36,13 @@ MANAGER       := $(BIN_DIR)/manager
 all: test manager ## Tests and builds the binaries
 
 ## --------------------------------------
-## Help
-## --------------------------------------
-
-help: ## Display this help
-	@awk 'BEGIN {FS = ":.*##"; printf "\nUsage:\n  make \033[36m<target>\033[0m\n"} /^[a-zA-Z_-]+:.*?##/ { printf "  \033[36m%-15s\033[0m %s\n", $$1, $$2 } /^##@/ { printf "\n\033[1m%s\033[0m\n", substr($$0, 5) } ' $(MAKEFILE_LIST)
-
-## --------------------------------------
 ## Testing
 ## --------------------------------------
 
 .PHONY: test
 test: fmt vet template-tests ## Run Tests
-	$(MAKE) kubebuilder -C ${ROOT_DIR}$(TOOLS_DIR)
-	KUBEBUILDER_ASSETS=${ROOT_DIR}$(KUBEBUILDER_BIN_DIR) go test ./... -timeout 60m -coverprofile coverage.txt -v 2
+	$(MAKE) kubebuilder -C $(TOOLS_DIR)
+	KUBEBUILDER_ASSETS=$(KUBEBUILDER_BIN_DIR) go test ./... -timeout 60m -coverprofile coverage.txt -v 2
 
 .PHONY: test-verbose
 test-verbose: ## Verbose tests with streaming output for debugging
@@ -60,6 +51,7 @@ test-verbose: ## Verbose tests with streaming output for debugging
 .PHONY: template-tests
 template-tests: ## Sanity tests to verify the addon config CR templates
 	./config/hack/test.sh verifyAllAddonConfigTemplates
+
 ## --------------------------------------
 ## Binaries
 ## --------------------------------------
@@ -75,10 +67,6 @@ manager: fmt vet manager-binary ## Build manager binary
 ## --------------------------------------
 ## Linting and fixing linter errors
 ## --------------------------------------
-
-.PHONY: fmt
-fmt: ## Fmt codebase
-	go fmt ./...
 
 .PHONY: vet
 vet: ## Vet codebase

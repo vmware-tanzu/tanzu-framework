@@ -22,6 +22,7 @@ artifacts-admin
 test/cli/mock/artifacts*
 tanzu
 addons/artifacts
+addons/controllers/testdata/internal-crds
 pinniped/
 !addons/pinniped/
 
@@ -39,6 +40,7 @@ hack/providers-sync-tools/**/build
 
 # Output of the go coverage tool, specifically when used with LiteIDE
 *.out
+coverage.txt
 
 # Kubernetes Generated files - skip generated files, except for vendored files
 

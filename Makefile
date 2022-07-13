@@ -27,25 +27,6 @@ PACKAGES_SCRIPTS_DIR := $(abspath hack/packages/scripts)
 UI_DIR := pkg/v1/tkg/web
 GO_MODULES=$(shell find . -path "*/go.mod" | grep -v "^./pinniped" | xargs -I _ dirname _)
 
-# Add tooling binaries here and in hack/tools/Makefile
-CONTROLLER_GEN     := $(TOOLS_BIN_DIR)/controller-gen
-GOLANGCI_LINT      := $(TOOLS_BIN_DIR)/golangci-lint
-GOIMPORTS          := $(TOOLS_BIN_DIR)/goimports
-GOBINDATA          := $(TOOLS_BIN_DIR)/gobindata
-KUBEBUILDER        := $(TOOLS_BIN_DIR)/kubebuilder
-KUSTOMIZE          := $(TOOLS_BIN_DIR)/kustomize
-YTT                := $(TOOLS_BIN_DIR)/ytt
-KBLD               := $(TOOLS_BIN_DIR)/kbld
-VENDIR             := $(TOOLS_BIN_DIR)/vendir
-IMGPKG             := $(TOOLS_BIN_DIR)/imgpkg
-KAPP               := $(TOOLS_BIN_DIR)/kapp
-KUBEVAL            := $(TOOLS_BIN_DIR)/kubeval
-GINKGO             := $(TOOLS_BIN_DIR)/ginkgo
-VALE               := $(TOOLS_BIN_DIR)/vale
-YQ                 := $(TOOLS_BIN_DIR)/yq
-CONVERSION_GEN     := $(TOOLS_BIN_DIR)/conversion-gen
-TOOLING_BINARIES   := $(CONTROLLER_GEN) $(GOLANGCI_LINT) $(YTT) $(KBLD) $(VENDIR) $(IMGPKG) $(KAPP) $(KUBEVAL) $(KUSTOMIZE) $(GOIMPORTS) $(GOBINDATA) $(GINKGO) $(VALE) $(YQ) $(CONVERSION_GEN)
-
 PINNIPED_GIT_REPOSITORY = https://github.com/vmware-tanzu/pinniped.git
 PINNIPED_VERSIONS = v0.4.4 v0.12.1
 
@@ -142,12 +123,6 @@ export XDG_CACHE_HOME
 export XDG_CONFIG_HOME
 export OCI_REGISTRY
 
-## --------------------------------------
-##@ API/controller building and generation
-## --------------------------------------
-
-help: ## Display this help (default)
-	@awk 'BEGIN {FS = ":.*##"; printf "\nUsage:\n  make \033[36m<target>\033[0m\n"} /^[0-9a-zA-Z_-]+:.*?##/ { printf "  \033[36m%-28s\033[0m %s\n", $$1, $$2 } /^##@/ { printf "\n\033[1m\033[32m%s\033[0m\n", substr($$0, 5) } ' $(MAKEFILE_LIST)
 
 all: manager ui-build build-cli
 
@@ -176,18 +151,10 @@ manifests: tools ## Generate manifests e.g. CRD, RBAC etc.
 generate-go: $(COUNTERFEITER) ## Generate code via go generate.
 	PATH=$(abspath hack/tools/bin):"$(PATH)" go generate ./...
 
-generate: tools ## Generate code via controller-gen
-	$(CONTROLLER_GEN) object:headerFile="hack/boilerplate.go.txt",year=$(shell date +%Y) paths="./..."
-	$(MAKE) fmt
-
-## --------------------------------------
-##@ Tooling Binaries
-## --------------------------------------
-
-tools: $(TOOLING_BINARIES) ## Build tooling binaries
-.PHONY: $(TOOLING_BINARIES)
-$(TOOLING_BINARIES):
-	make -C $(TOOLS_DIR) $(@F)
+generate: tools ## Generate code (legacy)
+	$(MAKE) generate-controller-code
+	$(MAKE) -C apis/cpi generate-controller-code
+	$(MAKE) -C apis/cni generate-controller-code
 
 ## --------------------------------------
 ##@ Version
@@ -503,9 +470,6 @@ test: generate manifests build-cli-mocks ## Run tests
 test-cli: build-cli-mocks ## Run tests
 	$(GO) test ./pkg/v1/cli/... ./pkg/v1/auth/... ./pkg/v1/builder/... ./pkg/v1/config/... ./pkg/v1/encoding/... ./pkg/v1/grpc/...
 
-fmt: tools ## Run goimports
-	$(GOIMPORTS) -w -local github.com/vmware-tanzu ./
-
 lint: tools go-lint doc-lint misspell yamllint ## Run linting and misspell checks
 	# Check licenses in shell scripts and Makefiles
 	hack/check-license.sh
@@ -658,11 +622,21 @@ generate-package-config:
 			-f testcases/${apiGroup}/${version}/$(shell echo $(kind) | tr A-Z a-z)/$(or $(iaas),default).yaml \
 			-v TKR_VERSION=${tkr} -v GLOBAL_NAMESPACE=$(or $(namespace),"tkg-system") ;\
 
+.PHONY: generate-package-secret
+generate-package-secret: ## Generate the default package values secret. Usage: make generate-package-secret PACKAGE=pinniped tkr=v1.23.3---vmware.1-tkg.1 iaas=vsphere
+	@if [ -z "$(PACKAGE)" ]; then \
+		echo "PACKAGE argument required"; \
+		exit 1 ;\
+	fi
 
-.PHONY: generate-package-secret ## Generate the default pinniped addon secret. e.g. make generate-package-secret tkr=v1.23.3---vmware.1-tkg.1 iaas=vsphere
-generate-package-secret:
-	@./addons/pinniped/tanzu-auth-controller-manager/hack/generate-package-secret.sh -v tkr=${tkr} -v infrastructure_provider=${iaas}
-
+	@if [ $(PACKAGE) == 'pinniped' ]; then \
+	  ./addons/pinniped/tanzu-auth-controller-manager/hack/generate-package-secret.sh -v tkr=${tkr} -v infrastructure_provider=${iaas} ;\
+	elif [ $(PACKAGE) == 'capabilities' ]; then \
+	  ./pkg/v1/sdk/capabilities/hack/generate-package-secret.sh -v tkr=${tkr} ;\
+	else \
+	  echo "invalid PACKAGE: $(PACKAGE)" ;\
+	  exit 1 ;\
+	fi
 
 ## --------------------------------------
 ##@ Provider templates/overlays
