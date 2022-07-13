@@ -61,7 +61,7 @@
     "@angular/language-service": "^12.2.13",
     "@types/jasmine": "^4.0.3",
     "@types/jasminewd2": "^2.0.8",
-    "@types/node": "^12.11.1",
+    "@types/node": "^18.0.3",
     "api-client-generator": "^4.7.1",
     "axios": "^0.24.0",
     "codelyzer": "^5.1.2",
