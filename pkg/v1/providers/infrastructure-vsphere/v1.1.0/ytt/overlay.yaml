@@ -8,11 +8,22 @@
 
 #@ valid_pci_vendorid = ["10DE"]
 
+#@ strateg_type = ["OnDelete", "RollingUpdate"]
+
 #@ load("lib/helpers.star", "get_bom_data_for_tkr_name", "get_default_tkg_bom_data", "kubeadm_image_repo", "get_image_repo_for_component", "get_vsphere_thumbprint", "get_tkr_version_from_tkr_name")
 
 #@ load("lib/validate.star", "validate_configuration")
 #@ load("@ytt:yaml", "yaml")
 #@ validate_configuration("vsphere")
+
+#@ def verify_and_configure_strategy(strategytype):
+#@   if strategytype not in strateg_type:
+#@     assert.fail("Invalid Strategy type  \""+strategytype+"\", it must be OnDelete or RollingUpdate")
+#@   end
+#@   return strategytype
+#@ end
+
+
 
 #@ def get_pci_devices(pciDevicesString, pciIgnorepciDeviceValidation):
 #@   for val in pciDevicesString.split(','):
@@ -433,7 +444,7 @@ spec:
       cluster.x-k8s.io/cluster-name: #@ data.values.CLUSTER_NAME
   #@ if data.values.WORKER_ROLLOUT_STRATEGY:
   strategy:
-    type: #@ data.values.WORKER_ROLLOUT_STRATEGY
+    type: #@ verify_and_configure_strategy(data.values.WORKER_ROLLOUT_STRATEGY)
     #@ end
   template:
     metadata:

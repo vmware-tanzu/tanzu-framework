@@ -10,6 +10,8 @@
 
 #@ bomDataForK8sVersion = get_bom_data_for_tkr_name()
 
+#@ strateg_type = ["OnDelete", "RollingUpdate"]
+
 #@ def get_custom_tags():
 #@ tags = {}
 #@ custom_tags = data.values.AZURE_CUSTOM_TAGS.split(",") if data.values.AZURE_CUSTOM_TAGS else []
@@ -35,6 +37,14 @@
 #@
 #@ return data.values.AZURE_IDENTITY_NAMESPACE
 #@ end
+
+#@ def verify_and_configure_strategy(strategytype):
+#@   if strategytype not in strateg_type:
+#@     assert.fail("Invalid Strategy type  \""+strategytype+"\", it must be OnDelete or RollingUpdate")
+#@   end
+#@   return strategytype
+#@ end
+
 
 #@overlay/match by=overlay.subset({"kind":"Cluster"})
 ---
@@ -250,7 +260,7 @@ spec:
   clusterName: #@ data.values.CLUSTER_NAME
   replicas: #@ data.values.WORKER_MACHINE_COUNT_0
   strategy:
-    type: #@ data.values.WORKER_ROLLOUT_STRATEGY
+    type: #@ verify_and_configure_strategy(data.values.WORKER_ROLLOUT_STRATEGY)
   template:
     metadata:
       labels:

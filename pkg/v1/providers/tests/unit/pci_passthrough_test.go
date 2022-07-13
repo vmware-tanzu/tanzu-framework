@@ -211,7 +211,7 @@ var _ = Describe("PCI Passthrough", func() {
 		})
 
 		It("should set MachineDeployment strategy type to correct value", func() {
-			validValues := []string{"OnDelete, RollingUpdate"}
+			validValues := []string{"OnDelete", "RollingUpdate"}
 			for _, validValue := range validValues {
 				value.Set("WORKER_ROLLOUT_STRATEGY", validValue)
 				output, err := ytt.RenderYTTTemplate(ytt.CommandOptions{}, paths, value.toReader())
