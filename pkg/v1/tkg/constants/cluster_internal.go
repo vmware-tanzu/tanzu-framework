@@ -99,6 +99,8 @@ var InfrastructureProviders = map[string]bool{
 	InfrastructureProviderAWS:     true,
 	InfrastructureProviderAzure:   true,
 	InfrastructureProviderDocker:  true,
+	InfrastructureProviderOCI:     true,
+
 }
 
 // machine template name constants

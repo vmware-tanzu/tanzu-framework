@@ -288,6 +288,7 @@ func (c *TkgClient) GenerateProvidersUpgradeOptions(pUpgradeInfo *providersUpgra
 			puo.ControlPlaneProviders = append(puo.ControlPlaneProviders, instanceVersion)
 		case clusterctlv1.InfrastructureProviderType:
 			puo.InfrastructureProviders = append(puo.InfrastructureProviders, instanceVersion)
+
 		default:
 			return nil, errors.Errorf("unknown provider type: %s", pUpgradeInfo.providers[i].Type)
 		}

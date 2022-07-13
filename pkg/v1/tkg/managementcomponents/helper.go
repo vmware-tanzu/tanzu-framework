@@ -30,6 +30,7 @@ func GetTKGPackageConfigValuesFileFromUserConfig(managementPackageVersion string
 	// that fetches these values from tkg-bom(for bom related urls) and set the TKR source controller package values
 	var tkrRepoImagePath string
 	providerType := userProviderConfigValues[constants.ConfigVariableProviderType]
+	fmt.Printf("provider type is %v\n", providerType)
 	switch providerType {
 	case constants.InfrastructureProviderVSphere:
 		tkrRepoImagePath = fmt.Sprintf("%s/%s", tkgBomConfig.ImageConfig.ImageRepository, tkgBomConfig.TKRPackageRepo.VSphereNonparavirt)
