@@ -304,6 +304,7 @@ spec:
             cloud-provider: external
             register-with-taints: os=windows:NoSchedule
           name: '{{ ds.meta_data.hostname }}'
+      #@ if data.values.CNI == 'antrea':
       files:
       - path: 'C:\Temp\antrea.ps1'
         content: |
@@ -386,10 +387,10 @@ spec:
           # TODO:
           #   Install-AntreaAgent is too heavy, since Kubernetes and Antrea binaries have already been pre-installed, we don't
           #   depend on Install-AntreaAgent to downloading them, KubernetesVersion and AntreaVersion are not used anymore, will
-          #   refine the invoke of Install-AntreaAgent in the future. Keep AntreaVersion for 1.2.3, guessing latest from the script
+          #   refine the invoke of Install-AntreaAgent in the future. Keep AntreaVersion for 1.5.2, guessing latest from the script
           #   on this version is breaking the installation.
           Import-Module C:\k\antrea\helper.psm1
-          & Install-AntreaAgent -KubernetesHome "C:\k" -KubeConfig "C:\etc\kubernetes\kubelet.conf" -AntreaHome "C:\k\antrea" -AntreaVersion "v1.2.3"
+          & Install-AntreaAgent -KubernetesHome "C:\k" -KubeConfig "C:\etc\kubernetes\kubelet.conf" -AntreaHome "C:\k\antrea" -AntreaVersion "v1.5.2"
           New-KubeProxyServiceInterface
           & C:\k\antrea\Install-OVS.ps1 -ImportCertificate $false -LocalFile C:\k\antrea\ovs-win64.zip
           Set-NetFirewallProfile -Profile Domain,Public,Private -Enabled False
@@ -408,6 +409,7 @@ spec:
           start-service antrea-agent
       postKubeadmCommands:
       - powershell C:/Temp/antrea.ps1 -ExecutionPolicy Bypass
+      #@ end
       users:
       #@overlay/match by=overlay.index(0)
       #@overlay/replace
