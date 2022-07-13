@@ -24,7 +24,6 @@ import (
 )
 
 const CLI_CLUSTERCLASS_FLAG = "features.global.package-based-lcm-beta"
-const TKGS_SETTINGS_FILE = "/Users/cpamuluri/tkg/tasks/uTKG-Testing/TKGS-tests/tkgs-inegration-tests/tanzu-framework/pkg/v1/tkg/test/config/config.yaml"
 
 var (
 	// path to the e2e config file
@@ -32,7 +31,15 @@ var (
 	// path to store test artifacts
 	artifactsFolder string
 	// config read from e2eConfigPath to be used in the tests
-	e2eConfig *framework.E2EConfig
+	e2eConfig                      *framework.E2EConfig
+	logsDir                        string
+	err                            error
+	deleteClusterOptions           tkgctl.DeleteClustersOptions
+	clusterOptions                 tkgctl.CreateClusterOptions
+	tkgctlOptions                  tkgctl.Options
+	tkgctlClient                   tkgctl.TKGClient
+	isClusterClassFeatureActivated bool
+	isTKCAPIFeatureActivated       bool
 )
 
 func TestE2E(t *testing.T) {
@@ -67,6 +74,32 @@ var _ = SynchronizedBeforeSuite(func() []byte {
 
 	Expect(ValidateTKGSConf(e2eConfig)).To(Succeed(), "e2e test configuration is not valid")
 
+	logsDir = filepath.Join(artifactsFolder, "logs")
+	tkgctlOptions = tkgctl.Options{
+		ConfigDir:   e2eConfig.TkgConfigDir,
+		KubeConfig:  e2eConfig.TKGSKubeconfigPath,
+		KubeContext: e2eConfig.TKGSKubeconfigContext,
+		LogOptions: tkgctl.LoggingOptions{
+			File:      filepath.Join(logsDir, "tkgs-create-wc.log"),
+			Verbosity: e2eConfig.TkgCliLogLevel,
+		},
+	}
+	clusterOptions = tkgctl.CreateClusterOptions{
+		Edition:    "tkg",
+		SkipPrompt: true,
+		Plan:       "dev",
+	}
+	tkgctlClient, err = tkgctl.New(tkgctlOptions)
+	var isTKGS bool
+	isTKGS, err = tkgctlClient.IsPacificRegionalCluster()
+	Expect(err).ShouldNot(HaveOccurred(), fmt.Sprintf("failed to connect cluster with given input kube config file:%v and context:%v, reason: %v", e2eConfig.TKGSKubeconfigPath, e2eConfig.TKGSKubeconfigContext, err))
+	Expect(isTKGS).To(Equal(true), fmt.Sprintf("the input kube config file:%v with given context:%v is not TKGS cluster", e2eConfig.TKGSKubeconfigPath, e2eConfig.TKGSKubeconfigContext))
+
+	featureGateHelper := tkgctlClient.FeatureGateHelper()
+	isClusterClassFeatureActivated, _ = featureGateHelper.FeatureActivatedInNamespace(context.Background(), constants.ClusterClassFeature, constants.TKGSClusterClassNamespace)
+	isTKCAPIFeatureActivated, _ = featureGateHelper.FeatureActivatedInNamespace(context.Background(), constants.TKCAPIFeature, constants.TKGSTKCAPINamespace)
+	By(fmt.Sprintf("in the tkgs cluster the %v feature is %v, and the %v feature is %v", constants.ClusterClassFeature, isClusterClassFeatureActivated, constants.TKCAPIFeature, isTKCAPIFeatureActivated))
+
 	return []byte(
 		strings.Join([]string{
 			artifactsFolder,
@@ -94,6 +127,17 @@ func ValidateTKGSConf(c *framework.E2EConfig) error {
 	return nil
 }
 
+func ValidateClusterClassConfigFile(clusterclassConfigFilePath string) (string, string) {
+	By(fmt.Sprintf("validating input cluster class based config file:%v", clusterclassConfigFilePath))
+	cclusterFile, err := os.ReadFile(clusterclassConfigFilePath)
+	Expect(err).ToNot(HaveOccurred(), fmt.Sprintf("failed to read the input cluster class based config file from: %v", clusterclassConfigFilePath))
+	Expect(cclusterFile).ToNot(BeEmpty(), fmt.Sprintf("the input cluster class based config file should not be empty, file path: %v", clusterclassConfigFilePath))
+	isCC, ccObject, err := tkgctl.CheckIfInputFileIsClusterClassBased(e2eConfig.WorkloadClusterOptions.ClusterClassFilePath)
+	Expect(err).ShouldNot(HaveOccurred(), fmt.Sprintf("failed to process cluster class input config file, reason: %v", err))
+	Expect(isCC).To(Equal(true), fmt.Sprintf("input cluster class based config file is not cluster class based, does not have Cluster object."))
+	return ccObject.GetName(), ccObject.GetNamespace()
+}
+
 func getDeleteClustersOptions(e2eConfig *framework.E2EConfig) tkgctl.DeleteClustersOptions {
 	return tkgctl.DeleteClustersOptions{
 		ClusterName: e2eConfig.WorkloadClusterOptions.ClusterName,
@@ -102,6 +146,8 @@ func getDeleteClustersOptions(e2eConfig *framework.E2EConfig) tkgctl.DeleteClust
 	}
 }
 
+// createClusterConfigFile return temporary cluster config file
+// it creates the temporary cluster config file by taking user inputs from the input config file
 func createClusterConfigFile(e2eConfig *framework.E2EConfig) string {
 	options := framework.CreateClusterOptions{}
 	clusterConfigFile, err := framework.GetTempClusterConfigFile(e2eConfig.TkgClusterConfigPath, &options)
