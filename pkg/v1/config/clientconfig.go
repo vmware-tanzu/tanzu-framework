@@ -336,7 +336,10 @@ func GetClientConfig() (cfg *configv1alpha1.ClientConfig, err error) {
 	}
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> f244de9f (Use fslock to lock when reading the tanzu config file for update (#2882))
 	addedDefaultDiscovery := populateDefaultStandaloneDiscovery(&c)
 	addedFeatureFlags := addDefaultFeatureFlagsIfMissing(&c, DefaultCliFeatureFlags)
 	addedEdition := addDefaultEditionIfMissing(&c)
@@ -352,7 +355,12 @@ func GetClientConfig() (cfg *configv1alpha1.ClientConfig, err error) {
 		_ = StoreClientConfig(&c)
 	}
 
+<<<<<<< HEAD
 >>>>>>> 4435e9cb (CLI: Add context types in client config)
+=======
+=======
+>>>>>>> 74109cf6 (Use fslock to lock when reading the tanzu config file for update (#2882))
+>>>>>>> f244de9f (Use fslock to lock when reading the tanzu config file for update (#2882))
 	return &c, nil
 }
 
