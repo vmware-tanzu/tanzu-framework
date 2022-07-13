@@ -17,6 +17,7 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfigbom"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/utils"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/log"
 )
 
 const (
@@ -31,6 +32,7 @@ func GetTKGPackageConfigValuesFileFromUserConfig(managementPackageVersion string
 	var tkrRepoImagePath string
 	providerType := userProviderConfigValues[constants.ConfigVariableProviderType]
 	fmt.Printf("provider type is %v\n", providerType)
+	log.V(3).Info("provider type is", "provider", providerType)
 	switch providerType {
 	case constants.InfrastructureProviderVSphere:
 		tkrRepoImagePath = fmt.Sprintf("%s/%s", tkgBomConfig.ImageConfig.ImageRepository, tkgBomConfig.TKRPackageRepo.VSphereNonparavirt)
