@@ -60,6 +60,18 @@ With the [context-aware plugin discovery](/docs/design/context-aware-plugin-disc
 
 NOTE: We are working on enhancing this user experience by publishing admin artifacts as OCI image discovery source as well. More details is in [this issue](https://github.com/vmware-tanzu/tanzu-framework/issues/1376).
 
+### Context
+
+Context is an isolated scope of relevant client-side configurations for a combination of user identity and server identity. There can be multiple contexts for the same combination of `(user, server)`. Previously, this was referred to as `Server` in the Tanzu CLI. Going forward we shall refer to them as `Context` to be explicit.
+
+If a plugin wants to access the context it should use the [provided libraries](/pkg/v1/config/context.go) for forwards compatibility. For example, to get the current active context use the below snippet:
+
+```go
+ctx, err := config.GetCurrentContext(v1alpha1.CtxTypeK8s)
+```
+
+**Note:** Until version `v1.0.0`, the Tanzu CLI will ensure backwards compatibility between `Server` and `Context`.
+
 ### Plugin Discovery Source
 
 Discovery is the interface to fetch the list of available plugins, their supported versions and how to download them either standalone or scoped to a context(server). E.g., the CLIPlugin resource in a management cluster, OCI based plugin discovery for standalone plugins, a similar REST API etc. provides the list of available plugins and details about the supported versions. Having a separate interface for discovery helps to decouple discovery (which is usually tied to a server or user identity) from distribution (which can be shared).
