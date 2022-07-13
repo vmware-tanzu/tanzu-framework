@@ -22,6 +22,7 @@ import (
 	"github.com/imdario/mergo"
 	"github.com/pkg/errors"
 	"github.com/yalp/jsonpath"
+	"gopkg.in/yaml.v3"
 	appsv1 "k8s.io/api/apps/v1"
 	betav1 "k8s.io/api/batch/v1beta1"
 	corev1 "k8s.io/api/core/v1"
@@ -30,7 +31,9 @@ import (
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
+	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/selection"
 	"k8s.io/apimachinery/pkg/types"
 	kerrors "k8s.io/apimachinery/pkg/util/errors"
 	"k8s.io/apimachinery/pkg/util/sets"
@@ -325,6 +328,8 @@ type Client interface {
 	IsClusterClassBased(clusterName, namespace string) (bool, error)
 	// GetClusterStatusInfo returns the cluster status information
 	GetClusterStatusInfo(clusterName, namespace string, workloadClusterClient Client) ClusterStatusInfo
+	// GetCLIPluginImageRepositoryOverride returns map of image repository override
+	GetCLIPluginImageRepositoryOverride() (map[string]string, error)
 }
 
 // PollOptions is options for polling
@@ -2346,6 +2351,39 @@ func (c *client) ListCLIPluginResources() ([]cliv1alpha1.CLIPlugin, error) {
 		return nil, err
 	}
 	return cliPlugins.Items, nil
+}
+
+// GetCLIPluginImageRepositoryOverride returns map of image repository override
+func (c *client) GetCLIPluginImageRepositoryOverride() (map[string]string, error) {
+	cmList := &corev1.ConfigMapList{}
+
+	labelMatch, _ := labels.NewRequirement(constants.CLIPluginImageRepositoryOverrideLabel, selection.Exists, []string{})
+	labelSelector := labels.NewSelector()
+	labelSelector = labelSelector.Add(*labelMatch)
+
+	err := c.ListResources(cmList, &crtclient.ListOptions{Namespace: constants.TanzuCLISystemNamespace, LabelSelector: labelSelector})
+	if err != nil {
+		return nil, err
+	}
+
+	imageRepoMap := make(map[string]string)
+
+	for _, cm := range cmList.Items {
+		mapString, ok := cm.Data["imageRepoMap"]
+		if !ok {
+			continue
+		}
+		irm := make(map[string]string)
+		err = yaml.Unmarshal([]byte(mapString), &irm)
+		for k, v := range irm {
+			if _, exists := imageRepoMap[k]; exists {
+				return nil, errors.Errorf("multiple references of image repository %q found while doing image repository override", k)
+			}
+			imageRepoMap[k] = v
+		}
+	}
+
+	return imageRepoMap, nil
 }
 
 // IsClusterClassBased check whether cluster is ClusterClass based or not

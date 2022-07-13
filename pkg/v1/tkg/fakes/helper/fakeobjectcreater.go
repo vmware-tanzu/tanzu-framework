@@ -586,6 +586,23 @@ func GetFakePinnipedInfo(pinnipedInfo PinnipedInfo) string {
 
 // NewCLIPlugin returns new NewCLIPlugin object
 func NewCLIPlugin(options TestCLIPluginOption) v1alpha1.CLIPlugin {
+	artifacts := []v1alpha1.Artifact{
+		{
+			Image: "fake.image.repo.com/tkg/plugin/test-darwin-plugin:v1.4.0",
+			OS:    "darwin",
+			Arch:  "amd64",
+		},
+		{
+			Image: "fake.image.repo.com/tkg/plugin/test-linux-plugin:v1.4.0",
+			OS:    "linux",
+			Arch:  "amd64",
+		},
+		{
+			Image: "fake.image.repo.com/tkg/plugin/test-windows-plugin:v1.4.0",
+			OS:    "windows",
+			Arch:  "amd64",
+		},
+	}
 	cliplugin := v1alpha1.CLIPlugin{
 		ObjectMeta: metav1.ObjectMeta{
 			Name: options.Name,
@@ -593,6 +610,9 @@ func NewCLIPlugin(options TestCLIPluginOption) v1alpha1.CLIPlugin {
 		Spec: v1alpha1.CLIPluginSpec{
 			Description:        options.Description,
 			RecommendedVersion: options.RecommendedVersion,
+			Artifacts: map[string]v1alpha1.ArtifactList{
+				"v1.0.0": artifacts,
+			},
 		},
 	}
 	return cliplugin

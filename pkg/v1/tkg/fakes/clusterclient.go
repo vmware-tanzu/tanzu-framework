@@ -202,6 +202,18 @@ type ClusterClient struct {
 		result1 v1.ConfigMap
 		result2 error
 	}
+	GetCLIPluginImageRepositoryOverrideStub        func() (map[string]string, error)
+	getCLIPluginImageRepositoryOverrideMutex       sync.RWMutex
+	getCLIPluginImageRepositoryOverrideArgsForCall []struct {
+	}
+	getCLIPluginImageRepositoryOverrideReturns struct {
+		result1 map[string]string
+		result2 error
+	}
+	getCLIPluginImageRepositoryOverrideReturnsOnCall map[int]struct {
+		result1 map[string]string
+		result2 error
+	}
 	GetClientSetStub        func() clusterclient.CrtClient
 	getClientSetMutex       sync.RWMutex
 	getClientSetArgsForCall []struct {
@@ -2074,6 +2086,62 @@ func (fake *ClusterClient) GetBomConfigMapReturnsOnCall(i int, result1 v1.Config
 	}
 	fake.getBomConfigMapReturnsOnCall[i] = struct {
 		result1 v1.ConfigMap
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *ClusterClient) GetCLIPluginImageRepositoryOverride() (map[string]string, error) {
+	fake.getCLIPluginImageRepositoryOverrideMutex.Lock()
+	ret, specificReturn := fake.getCLIPluginImageRepositoryOverrideReturnsOnCall[len(fake.getCLIPluginImageRepositoryOverrideArgsForCall)]
+	fake.getCLIPluginImageRepositoryOverrideArgsForCall = append(fake.getCLIPluginImageRepositoryOverrideArgsForCall, struct {
+	}{})
+	stub := fake.GetCLIPluginImageRepositoryOverrideStub
+	fakeReturns := fake.getCLIPluginImageRepositoryOverrideReturns
+	fake.recordInvocation("GetCLIPluginImageRepositoryOverride", []interface{}{})
+	fake.getCLIPluginImageRepositoryOverrideMutex.Unlock()
+	if stub != nil {
+		return stub()
+	}
+	if specificReturn {
+		return ret.result1, ret.result2
+	}
+	return fakeReturns.result1, fakeReturns.result2
+}
+
+func (fake *ClusterClient) GetCLIPluginImageRepositoryOverrideCallCount() int {
+	fake.getCLIPluginImageRepositoryOverrideMutex.RLock()
+	defer fake.getCLIPluginImageRepositoryOverrideMutex.RUnlock()
+	return len(fake.getCLIPluginImageRepositoryOverrideArgsForCall)
+}
+
+func (fake *ClusterClient) GetCLIPluginImageRepositoryOverrideCalls(stub func() (map[string]string, error)) {
+	fake.getCLIPluginImageRepositoryOverrideMutex.Lock()
+	defer fake.getCLIPluginImageRepositoryOverrideMutex.Unlock()
+	fake.GetCLIPluginImageRepositoryOverrideStub = stub
+}
+
+func (fake *ClusterClient) GetCLIPluginImageRepositoryOverrideReturns(result1 map[string]string, result2 error) {
+	fake.getCLIPluginImageRepositoryOverrideMutex.Lock()
+	defer fake.getCLIPluginImageRepositoryOverrideMutex.Unlock()
+	fake.GetCLIPluginImageRepositoryOverrideStub = nil
+	fake.getCLIPluginImageRepositoryOverrideReturns = struct {
+		result1 map[string]string
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *ClusterClient) GetCLIPluginImageRepositoryOverrideReturnsOnCall(i int, result1 map[string]string, result2 error) {
+	fake.getCLIPluginImageRepositoryOverrideMutex.Lock()
+	defer fake.getCLIPluginImageRepositoryOverrideMutex.Unlock()
+	fake.GetCLIPluginImageRepositoryOverrideStub = nil
+	if fake.getCLIPluginImageRepositoryOverrideReturnsOnCall == nil {
+		fake.getCLIPluginImageRepositoryOverrideReturnsOnCall = make(map[int]struct {
+			result1 map[string]string
+			result2 error
+		})
+	}
+	fake.getCLIPluginImageRepositoryOverrideReturnsOnCall[i] = struct {
+		result1 map[string]string
 		result2 error
 	}{result1, result2}
 }
@@ -6706,6 +6774,8 @@ func (fake *ClusterClient) Invocations() map[string][][]interface{} {
 	defer fake.getAzureCredentialsFromSecretMutex.RUnlock()
 	fake.getBomConfigMapMutex.RLock()
 	defer fake.getBomConfigMapMutex.RUnlock()
+	fake.getCLIPluginImageRepositoryOverrideMutex.RLock()
+	defer fake.getCLIPluginImageRepositoryOverrideMutex.RUnlock()
 	fake.getClientSetMutex.RLock()
 	defer fake.getClientSetMutex.RUnlock()
 	fake.getClusterInfrastructureMutex.RLock()

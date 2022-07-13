@@ -146,6 +146,8 @@ const (
 	ClusterPauseLabel = "tkg.tanzu.vmware.com/paused"
 	// PackageTypeLabel is the label on the PackageInstall which mentions type of the package
 	PackageTypeLabel = "tkg.tanzu.vmware.com/package-type"
+	// CLIPluginImageRepositoryOverrideLabel is the label on the configmap which specifies CLIPlugin image repository override
+	CLIPluginImageRepositoryOverrideLabel = "cli.tanzu.vmware.com/cliplugin-image-repository-override"
 )
 
 // TKG management package related constants
@@ -154,4 +156,8 @@ const (
 	TKGManagementPackageInstallName    = "tkg-pkg"
 	TKGManagementPackageRepositoryName = "tanzu-management"
 	PackageTypeManagement              = "management"
+)
+
+const (
+	TanzuCLISystemNamespace = "tanzu-cli-system"
 )
