@@ -90,6 +90,7 @@ const (
 	InfrastructureProviderAWS     = "aws"
 	InfrastructureProviderAzure   = "azure"
 	InfrastructureProviderDocker  = "docker"
+	InfrastructureProviderOCI     = "oci"
 )
 
 var InfrastructureProviders = map[string]bool{

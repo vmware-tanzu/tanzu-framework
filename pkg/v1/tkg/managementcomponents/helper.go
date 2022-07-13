@@ -10,8 +10,6 @@ import (
 	"path/filepath"
 	"time"
 
-	"gopkg.in/yaml.v3"
-
 	"github.com/pkg/errors"
 
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
@@ -36,6 +34,8 @@ func GetTKGPackageConfigValuesFileFromUserConfig(managementPackageVersion string
 	case constants.InfrastructureProviderAWS:
 		tkrRepoImagePath = fmt.Sprintf("%s/%s", tkgBomConfig.ImageConfig.ImageRepository, tkgBomConfig.TKRPackageRepo.AWS)
 	case constants.InfrastructureProviderAzure:
+		tkrRepoImagePath = fmt.Sprintf("%s/%s", tkgBomConfig.ImageConfig.ImageRepository, tkgBomConfig.TKRPackageRepo.Azure)
+	case constants.InfrastructureProviderOCI:
 		tkrRepoImagePath = fmt.Sprintf("%s/%s", tkgBomConfig.ImageConfig.ImageRepository, tkgBomConfig.TKRPackageRepo.Azure)
 	default:
 		return "", errors.Errorf("unknown provider type %q", providerType)
