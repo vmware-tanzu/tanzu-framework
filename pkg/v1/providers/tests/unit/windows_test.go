@@ -31,6 +31,8 @@ var _ = Describe("Windows Ytt Templating", func() {
 			filepath.Join(yamlRoot, "ytt", "03_customizations", "02_avi", "ako-deployment.lib.yaml"),
 			//filepath.Join(YAML_ROOT, "provider-bundle", "providers", "ytt", "02_addons", "cpi", "cpi_addon_data.lib.yaml"),
 			filepath.Join(yamlRoot, "ytt", "03_customizations", "03_windows"),
+			filepath.Join(yamlRoot, "ytt", "03_customizations", "registry_ca_cert.yaml"),
+			filepath.Join(yamlRoot, "ytt", "03_customizations", "registry_skip_tls_verify.yaml"),
 			filepath.Join(yamlRoot, "ytt"), // lib/helpers.star, lib/config_variable_association.star, lib/validate.star
 		}
 	})
