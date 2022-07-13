@@ -35,7 +35,7 @@ func GetTKGPackageConfigValuesFileFromUserConfig(managementPackageVersion string
 		tkrRepoImagePath = fmt.Sprintf("%s/%s", tkgBomConfig.ImageConfig.ImageRepository, tkgBomConfig.TKRPackageRepo.AWS)
 	case constants.InfrastructureProviderAzure:
 		tkrRepoImagePath = fmt.Sprintf("%s/%s", tkgBomConfig.ImageConfig.ImageRepository, tkgBomConfig.TKRPackageRepo.Azure)
-	case constants.InfrastructureProviderAzure:
+	case constants.InfrastructureProviderOCI:
 		tkrRepoImagePath = fmt.Sprintf("%s/%s", tkgBomConfig.ImageConfig.ImageRepository, tkgBomConfig.TKRPackageRepo.Azure)
 	default:
 		return "", errors.Errorf("unknown provider type %q", providerType)
