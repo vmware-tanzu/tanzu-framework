@@ -1879,10 +1879,7 @@ github.com/vishvananda/netns v0.0.0-20191106174202-0a2b9b5464df/go.mod h1:JP3t17
 github.com/vishvananda/netns v0.0.0-20200728191858-db3c7e526aae/go.mod h1:DD4vA1DwXk04H54A1oHXtwZmA0grkVMdPxx/VGLCah0=
 github.com/vito/go-interact v0.0.0-20171111012221-fa338ed9e9ec h1:Klu98tQ9Z1t23gvC7p7sCmvxkZxLhBHLNyrUPsWsYFg=
 github.com/vito/go-interact v0.0.0-20171111012221-fa338ed9e9ec/go.mod h1:wPlfmglZmRWMYv/qJy3P+fK/UnoQB5ISk4txfNd9tDo=
-<<<<<<< HEAD
-=======
 github.com/vmware-labs/yaml-jsonpath v0.3.2 h1:/5QKeCBGdsInyDCyVNLbXyilb61MXGi9NP674f9Hobk=
->>>>>>> fix for borkage
 github.com/vmware-labs/yaml-jsonpath v0.3.2/go.mod h1:U6whw1z03QyqgWdgXxvVnQ90zN1BWz5V+51Ewf8k+rQ=
 github.com/vmware-tanzu/carvel-imgpkg v0.23.1 h1:sUHDtnvcIMMcY/Pudym6DJ0kv7+uyMCAqQby0SLnQVs=
 github.com/vmware-tanzu/carvel-imgpkg v0.23.1/go.mod h1:2XNe+P0MDgya0FPEMOVZLAXku05VZhccVdDcXChhvy8=
@@ -1902,6 +1899,7 @@ github.com/vmware-tanzu/carvel-ytt v0.40.0 h1:WUWTtwvfqV9CN9v207oDt2xfhmuWHGwc4M
 github.com/vmware-tanzu/carvel-ytt v0.40.0/go.mod h1:crDcKbS1GM4Q34puoVxdrajWOXrxjOxvUCwtsNV5Etc=
 github.com/vmware-tanzu/net-operator-api v0.0.0-20210401185409-b0dc6c297707/go.mod h1:pDB0pUiFYufuP3lUkQX9fZ67PYnKvqBpDcJN3mSrw5U=
 <<<<<<< HEAD
+<<<<<<< HEAD
 github.com/vmware-tanzu/tanzu-framework v0.9.0/go.mod h1:/w15et0yuaRjyeLeHSb2KxnLGg/NHHZ0k8xopIullPI=
 github.com/vmware-tanzu/tanzu-framework/addons v0.0.0-20220624011133-a2cd9c363200 h1:2Mu/GOpBMgfT8tpIMcPFeX/UIFSjeFdPrW2//9pjXnw=
 github.com/vmware-tanzu/tanzu-framework/addons v0.0.0-20220624011133-a2cd9c363200/go.mod h1:p5tLg/eDN8OWjSkwBeiBY1jqGoOcRc0KYb6t6+7M6xU=
@@ -1909,6 +1907,10 @@ github.com/vmware-tanzu/tanzu-framework/addons v0.0.0-20220624011133-a2cd9c36320
 github.com/vmware-tanzu/tanzu-framework/test/pkg v0.0.0-20220630184124-bcfb194dec6e h1:P8QpDe3tNFbOjEkuK4VbPuRsUl+wE18DhJ7en9Y2C7I=
 github.com/vmware-tanzu/tanzu-framework/test/pkg v0.0.0-20220630184124-bcfb194dec6e/go.mod h1:qsJwrQYSlxw9yh3SppNXDWYY7l4HXONxGB8IzFDm+M4=
 >>>>>>> fix for borkage
+=======
+github.com/vmware-tanzu/tanzu-framework/test/pkg v0.0.0-20220630184124-bcfb194dec6e h1:P8QpDe3tNFbOjEkuK4VbPuRsUl+wE18DhJ7en9Y2C7I=
+github.com/vmware-tanzu/tanzu-framework/test/pkg v0.0.0-20220630184124-bcfb194dec6e/go.mod h1:qsJwrQYSlxw9yh3SppNXDWYY7l4HXONxGB8IzFDm+M4=
+>>>>>>> b210e3f22aede63415e318c9121492307a09a8da
 github.com/vmware-tanzu/vm-operator-api v0.1.4-0.20211029224930-6ec913d11bff/go.mod h1:mubK0QMyaA2TbeAmGsu2GVfiqDFppNUAUqoMPoKFgzM=
 github.com/vmware-tanzu/vm-operator-api v0.1.4-0.20211202185235-43eb44c09ecd h1:BXz4aAPzRAYD8x8LEhjEsmvTj9mCvesnr4ApT1Ay4YY=
 github.com/vmware-tanzu/vm-operator-api v0.1.4-0.20211202185235-43eb44c09ecd/go.mod h1:mubK0QMyaA2TbeAmGsu2GVfiqDFppNUAUqoMPoKFgzM=
@@ -2770,9 +2772,12 @@ gopkg.in/yaml.v2 v2.4.0/go.mod h1:RDklbk79AGWmwhnvt/jBztapEOGDOx6ZbXqjP6csGnQ=
 gopkg.in/yaml.v3 v3.0.0-20190905181640-827449938966/go.mod h1:K4uyk7z7BCEPqu6E+C64Yfv1cQ7kz7rIZviUmN+EgEM=
 gopkg.in/yaml.v3 v3.0.0-20191026110619-0b21df46bc1d/go.mod h1:K4uyk7z7BCEPqu6E+C64Yfv1cQ7kz7rIZviUmN+EgEM=
 <<<<<<< HEAD
+<<<<<<< HEAD
 gopkg.in/yaml.v3 v3.0.0-20200121175148-a6ecf24a6d71/go.mod h1:K4uyk7z7BCEPqu6E+C64Yfv1cQ7kz7rIZviUmN+EgEM=
 =======
 >>>>>>> fix for borkage
+=======
+>>>>>>> b210e3f22aede63415e318c9121492307a09a8da
 gopkg.in/yaml.v3 v3.0.0-20200313102051-9f266ea9e77c/go.mod h1:K4uyk7z7BCEPqu6E+C64Yfv1cQ7kz7rIZviUmN+EgEM=
 gopkg.in/yaml.v3 v3.0.0-20200615113413-eeeca48fe776/go.mod h1:K4uyk7z7BCEPqu6E+C64Yfv1cQ7kz7rIZviUmN+EgEM=
 gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b h1:h8qDotaEPuJATrMmW04NCwg7v22aHH28wwpauUhK9Oo=
