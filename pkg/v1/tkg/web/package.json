@@ -35,7 +35,7 @@
     "@clr/icons": "^12.0.7",
     "@clr/ui": "^12.0.7",
     "@ctrl/ngx-codemirror": "2.2.1",
-    "@rxweb/reactive-form-validators": "^2.1.6",
+    "@rxweb/reactive-form-validators": "^2.1.7",
     "@types/lodash": "^4.14.170",
     "@webcomponents/custom-elements": "1.3.2",
     "@webcomponents/webcomponentsjs": "^2.6.0",
