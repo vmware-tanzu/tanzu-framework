@@ -225,11 +225,12 @@ func setAvailablePluginsStatus(availablePlugins []plugin.Discovered, installedPl
 		for j := range availablePlugins {
 			if installedPluginDesc[i].Name == availablePlugins[j].Name {
 				// Match found, Check for update available and update status
-				if installedPluginDesc[i].Version == availablePlugins[j].RecommendedVersion {
+				if installedPluginDesc[i].DiscoveredRecommendedVersion == availablePlugins[j].RecommendedVersion {
 					availablePlugins[j].Status = common.PluginStatusInstalled
 				} else {
 					availablePlugins[j].Status = common.PluginStatusUpdateAvailable
 				}
+				availablePlugins[j].InstalledVersion = installedPluginDesc[i].Version
 			}
 		}
 	}
@@ -435,6 +436,7 @@ func installOrUpgradePlugin(serverName string, p *plugin.Discovered, version str
 	}
 	descriptor.InstallationPath = pluginPath
 	descriptor.Discovery = p.Source
+	descriptor.DiscoveredRecommendedVersion = p.RecommendedVersion
 
 	c, err := catalog.NewContextCatalog(serverName)
 	if err != nil {

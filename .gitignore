@@ -39,6 +39,7 @@ hack/providers-sync-tools/**/build
 *.test
 
 # Output of the go coverage tool, specifically when used with LiteIDE
+coverage.txt
 *.out
 coverage.txt
 

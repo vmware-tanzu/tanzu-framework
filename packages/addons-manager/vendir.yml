@@ -44,7 +44,7 @@ directories:
       - path: cpi.tanzu.vmware.com_vspherecpiconfigs.yaml
         git:
           url: git@github.com:vmware-tanzu/tanzu-framework.git
-          ref: 59a1bc05c28c912054b03043a7009c4aa45243a9
+          ref: 79a847c7454c6d64737e92c7e8dc062f3171f52b
         newRootPath: config/crd/bases/cpi.tanzu.vmware.com_vspherecpiconfigs.yaml
         includePaths:
           - config/crd/bases/cpi.tanzu.vmware.com_vspherecpiconfigs.yaml

@@ -83,6 +83,11 @@ var setConfigCmd = &cobra.Command{
 		if len(args) > 2 {
 			return errors.Errorf("only path and value are allowed")
 		}
+
+		// Acquire tanzu config lock
+		config.AcquireTanzuConfigLock()
+		defer config.ReleaseTanzuConfigLock()
+
 		cfg, err := config.GetClientConfig()
 		if err != nil {
 			return err
@@ -201,6 +206,10 @@ var initConfigCmd = &cobra.Command{
 	Use:   "init",
 	Short: "Initialize config with defaults",
 	RunE: func(cmd *cobra.Command, args []string) error {
+		// Acquire tanzu config lock
+		config.AcquireTanzuConfigLock()
+		defer config.ReleaseTanzuConfigLock()
+
 		cfg, err := config.GetClientConfig()
 		if err != nil {
 			return err
@@ -325,6 +334,11 @@ var unsetConfigCmd = &cobra.Command{
 		if len(args) > 1 {
 			return errors.Errorf("only path is allowed")
 		}
+
+		// Acquire tanzu config lock
+		config.AcquireTanzuConfigLock()
+		defer config.ReleaseTanzuConfigLock()
+
 		cfg, err := config.GetClientConfig()
 		if err != nil {
 			return err

@@ -87,7 +87,7 @@ var listPluginCmd = &cobra.Command{
 			data := [][]string{}
 			for _, p := range availablePlugins {
 				data = append(data, []string{p.Name, p.Description, p.Scope,
-					p.Source, p.RecommendedVersion, p.Status})
+					p.Source, getInstalledElseAvailablePluginVersion(p), p.Status})
 			}
 
 			output := component.NewOutputWriter(cmd.OutOrStdout(), outputFormat, "Name", "Description", "Scope", "Discovery", "Version", "Status")
@@ -447,4 +447,14 @@ func getRepositories() *cli.MultiRepo {
 	}
 
 	return cli.NewMultiRepo(cli.LoadRepositories(cfg)...)
+}
+
+// getInstalledElseAvailablePluginVersion return installed plugin version if plugin is installed
+// if not installed it returns available recommanded plugin version
+func getInstalledElseAvailablePluginVersion(p plugin.Discovered) string {
+	installedOrAvailableVersion := p.InstalledVersion
+	if installedOrAvailableVersion == "" {
+		installedOrAvailableVersion = p.RecommendedVersion
+	}
+	return installedOrAvailableVersion
 }

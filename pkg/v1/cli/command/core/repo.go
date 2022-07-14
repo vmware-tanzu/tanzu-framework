@@ -68,6 +68,10 @@ var addRepoCmd = &cobra.Command{
 	Use:   "add",
 	Short: "Add a repository",
 	RunE: func(cmd *cobra.Command, args []string) error {
+		// Acquire tanzu config lock
+		config.AcquireTanzuConfigLock()
+		defer config.ReleaseTanzuConfigLock()
+
 		cfg, err := config.GetClientConfig()
 		if err != nil {
 			return err
@@ -110,6 +114,11 @@ var updateRepoCmd = &cobra.Command{
 	Args:  cobra.ExactArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		repoName := args[0]
+
+		// Acquire tanzu config lock
+		config.AcquireTanzuConfigLock()
+		defer config.ReleaseTanzuConfigLock()
+
 		cfg, err := config.GetClientConfig()
 		if err != nil {
 			return err
@@ -153,6 +162,11 @@ var deleteRepoCmd = &cobra.Command{
 	Args:  cobra.ExactArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) (err error) {
 		repoName := args[0]
+
+		// Acquire tanzu config lock
+		config.AcquireTanzuConfigLock()
+		defer config.ReleaseTanzuConfigLock()
+
 		cfg, err := config.GetClientConfig()
 		if err != nil {
 			return err

@@ -181,6 +181,10 @@ func GetTempClusterConfigFile(clusterConfigFile string, options *CreateClusterOp
 
 //SetCliConfigFlag sets cli flag
 func SetCliConfigFlag(flagName string, value string) error {
+	// Acquire tanzu config lock
+	config.AcquireTanzuConfigLock()
+	defer config.ReleaseTanzuConfigLock()
+
 	cfg, err := config.GetClientConfig()
 	if err != nil {
 		return err

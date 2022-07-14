@@ -265,8 +265,8 @@ func (t *tkgctl) TKGConfigReaderWriter() tkgconfigreaderwriter.TKGConfigReaderWr
 }
 
 // FeatureGateHelper returns feature gate helper to query feature gate
-func (t *tkgctl) FeatureGateHelper() featureGateHelper {
-	return t.FeatureGateHelper()
+func (t *tkgctl) FeatureGateHelper() FeatureGateHelper {
+	return t.featureGateHelper
 }
 
 func ensureConfigImages(configDir string, tkgConfigUpdater tkgconfigupdater.Client) error {

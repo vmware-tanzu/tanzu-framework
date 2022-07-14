@@ -21,6 +21,11 @@ type Discovered struct {
 	// https://semver.org/. E.g., 2.0.1
 	RecommendedVersion string
 
+	// InstalledVersion is the version that Tanzu CLI should use if available.
+	// The value should be a valid semantic version as defined in
+	// https://semver.org/. E.g., 2.0.1
+	InstalledVersion string
+
 	// SupportedVersions determines the list of supported CLI plugin versions.
 	// The values are sorted in the semver prescribed order as defined in
 	// https://github.com/Masterminds/semver#sorting-semantic-versions.
