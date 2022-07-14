@@ -162,8 +162,8 @@ func (r *ClusterBootstrapReconciler) Reconcile(ctx context.Context, req ctrl.Req
 		return ctrl.Result{}, nil
 	}
 
-	if _, labelFound := tkr.Labels[constants.TKRLableLegacyClusters]; labelFound {
-		log.Info("Skipping reconciling due to tkr label", "name", tkrName, "label", constants.TKRLableLegacyClusters)
+	if _, labelFound := tkr.Labels[constants.TKRLabelLegacyClusters]; labelFound {
+		log.Info("Skipping reconciling due to tkr label", "name", tkrName, "label", constants.TKRLabelLegacyClusters)
 		return ctrl.Result{}, nil
 	}
 

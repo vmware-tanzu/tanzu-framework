@@ -30,3 +30,15 @@ webhooks:
           - clusters
     sideEffects: None
     timeoutSeconds: 10
+---
+  apiVersion: run.tanzu.vmware.com/v1alpha3
+  kind: TanzuKubernetesRelease
+  metadata:
+    name: v1.19.3---vmware.1
+  spec:
+    version: v1.19.3+vmware.1
+    kubernetes:
+      version: v1.19.3+vmware.1
+      imageRepository: foo
+    osImages: [ ]
+    bootstrapPackages: [ ]

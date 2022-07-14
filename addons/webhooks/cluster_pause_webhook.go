@@ -15,8 +15,10 @@ import (
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/webhook"
 
+	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
+	runtanzuv1alpha3 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
+	tkgconstants "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
 )
 
 var clusterpauselog = logf.Log.WithName("cluster-pause-webhook")
@@ -25,7 +27,7 @@ var clusterpauselog = logf.Log.WithName("cluster-pause-webhook")
 
 // ClusterPause implements a validating and defaulting webhook for Cluster.
 type ClusterPause struct {
-	Client client.Reader
+	Client client.Client
 }
 
 // SetupWebhookWithManager sets up Cluster webhooks.
@@ -40,6 +42,7 @@ var (
 	_              webhook.CustomDefaulter = &ClusterPause{}
 	cluster                                = &clusterv1.Cluster{}
 	currentCluster                         = &clusterv1.Cluster{}
+	currentTKR                             = &runtanzuv1alpha3.TanzuKubernetesRelease{}
 )
 
 // Default satisfies the defaulting webhook interface.
@@ -73,6 +76,22 @@ func (wh *ClusterPause) Default(ctx context.Context, obj runtime.Object) error {
 		currentTkrVersion, tkrLabelFound = currentCluster.Labels[v1alpha3.LabelTKR]
 	}
 
+	// want to verify the current TKR object (before upgrade) is not a legacy one
+	if tkrLabelFound && currentTkrVersion != "" {
+		if err := wh.Client.Get(ctx, client.ObjectKey{Name: currentTkrVersion}, currentTKR); err != nil {
+			if apierrors.IsNotFound(err) {
+				return nil
+			}
+			clusterpauselog.Error(err, "unable to fetch TKR object", "name", currentTkrVersion)
+			return err
+		}
+		if currentTKR != nil && currentTKR.Labels != nil {
+			if _, ok := currentTKR.Labels[constants.TKRLabelLegacyClusters]; ok {
+				return nil
+			}
+		}
+	}
+
 	// Add pause to cluster if the cluster.Labels["run.tanzu.vmware.com/tkr"] changes
 	// The cluster pause state will be unset by ClusterBootstrap controller after it rolls out package updates
 	if currentCluster.Labels == nil || !tkrLabelFound || currentTkrVersion != tkrVersion {
@@ -81,8 +100,8 @@ func (wh *ClusterPause) Default(ctx context.Context, obj runtime.Object) error {
 			cluster.Annotations = map[string]string{}
 		}
 		// Use the desired TKR version as label value, ClusterBootstrap will unset
-		cluster.Annotations[constants.ClusterPauseLabel] = tkrVersion
-		clusterpauselog.Info(fmt.Sprintf("set '%s' annotation to '%s' for cluster '%s'", constants.ClusterPauseLabel, tkrVersion, cluster.Name))
+		cluster.Annotations[tkgconstants.ClusterPauseLabel] = tkrVersion
+		clusterpauselog.Info(fmt.Sprintf("set '%s' annotation to '%s' for cluster '%s'", tkgconstants.ClusterPauseLabel, tkrVersion, cluster.Name))
 	}
 
 	return nil
