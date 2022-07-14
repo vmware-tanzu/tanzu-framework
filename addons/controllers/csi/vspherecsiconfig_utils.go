@@ -71,7 +71,7 @@ func (r *VSphereCSIConfigReconciler) mapVSphereCSIConfigToDataValuesParavirtual(
 	}
 
 	var err error
-	dvs.VSpherePVCSI.Zone, err = r.HasValidAZ(ctx)
+	dvs.VSpherePVCSI.Zone, err = r.isStretchedSupervisorCluster(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -369,7 +369,8 @@ func (r *VSphereCSIConfigReconciler) getNumberOfControlPlaneNodes(ctx context.Co
 }
 
 // Return true if Valid Availability Zones are present
-func (r *VSphereCSIConfigReconciler) HasValidAZ(ctx context.Context) (bool, error) {
+// i.e. if the cluster is Stretch Supervisor
+func (r *VSphereCSIConfigReconciler) isStretchedSupervisorCluster(ctx context.Context) (bool, error) {
 	azList := &topologyv1alpha1.AvailabilityZoneList{}
 
 	err := r.Client.List(ctx, azList)
