@@ -87,7 +87,7 @@ data:
   defaultIngController: #@ "{}".format(data.values.AVI_INGRESS_DEFAULT_INGRESS_CONTROLLER).lower()
   logLevel: "WARN"
   deleteConfig: "false"
-  serviceType:  NodePort
+  serviceType: NodePort
 #@ if data.values.AVI_NSXT_T1LR:
   nsxtT1LR: #@ data.values.AVI_NSXT_T1LR
 #@ end
