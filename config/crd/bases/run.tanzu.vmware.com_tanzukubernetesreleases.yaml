@@ -3,7 +3,7 @@ apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
   annotations:
-    controller-gen.kubebuilder.io/version: v0.8.0
+    controller-gen.kubebuilder.io/version: v0.9.2
   creationTimestamp: null
   name: tanzukubernetesreleases.run.tanzu.vmware.com
 spec:
@@ -117,6 +117,7 @@ spec:
                     description: 'UID of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#uids'
                     type: string
                 type: object
+                x-kubernetes-map-type: atomic
               repository:
                 description: Repository is the container image repository for Kubernetes
                   core images, such as kube-apiserver, kube-proxy, etc. It MUST be
@@ -290,6 +291,7 @@ spec:
                     description: 'UID of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#uids'
                     type: string
                 type: object
+                x-kubernetes-map-type: atomic
               repository:
                 description: Repository is the container image repository for Kubernetes
                   core images, such as kube-apiserver, kube-proxy, etc. It MUST be
@@ -406,6 +408,7 @@ spec:
                         TODO: Add other useful fields. apiVersion, kind, uid?'
                       type: string
                   type: object
+                  x-kubernetes-map-type: atomic
                 type: array
               kubernetes:
                 description: Kubernetes is Kubernetes
@@ -486,6 +489,7 @@ spec:
                         TODO: Add other useful fields. apiVersion, kind, uid?'
                       type: string
                   type: object
+                  x-kubernetes-map-type: atomic
                 type: array
               version:
                 description: Version is the fully qualified Semantic Versioning conformant
@@ -550,9 +554,3 @@ spec:
     storage: false
     subresources:
       status: {}
-status:
-  acceptedNames:
-    kind: ""
-    plural: ""
-  conditions: []
-  storedVersions: []
