@@ -214,7 +214,7 @@ var _ = Describe("ClusterPause Webhook", func() {
 					TypeMeta:   metav1.TypeMeta{Kind: "Cluster"},
 					ObjectMeta: metav1.ObjectMeta{Name: testClusterName, Namespace: testNamespace, Labels: map[string]string{v1alpha3.LabelTKR: "1.23.5"}},
 				}
-				currentTKR.Labels = map[string]string{constants.TKRLabelClassyClusters: ""}
+				currentTKR.Labels = map[string]string{constants.TKRLabelLegacyClusters: ""}
 				crtCtl = &fakes.CRTClusterClient{}
 				wh = &ClusterPause{Client: crtCtl}
 				err = wh.Default(ctx, input)
@@ -233,7 +233,7 @@ var _ = Describe("ClusterPause Webhook", func() {
 					TypeMeta:   metav1.TypeMeta{Kind: "Cluster"},
 					ObjectMeta: metav1.ObjectMeta{Name: testClusterName, Namespace: testNamespace, Labels: map[string]string{v1alpha3.LabelTKR: "1.23.5"}},
 				}
-				currentTKR.Labels = map[string]string{constants.TKRLabelClassyClusters: ""}
+				currentTKR.Labels = map[string]string{constants.TKRLabelLegacyClusters: ""}
 				currentTKR.Name = testTKRName
 				crtCtl = &fakes.CRTClusterClient{}
 				crtCtl.GetReturns(apierrors.NewNotFound(schema.GroupResource{Resource: "TanzuKubernetesRelease"}, testClusterName))
@@ -254,7 +254,7 @@ var _ = Describe("ClusterPause Webhook", func() {
 					TypeMeta:   metav1.TypeMeta{Kind: "Cluster"},
 					ObjectMeta: metav1.ObjectMeta{Name: testClusterName, Namespace: testNamespace, Labels: map[string]string{v1alpha3.LabelTKR: "1.23.5"}},
 				}
-				currentTKR.Labels = map[string]string{constants.TKRLabelClassyClusters: ""}
+				currentTKR.Labels = map[string]string{constants.TKRLabelLegacyClusters: ""}
 				currentTKR.Name = testTKRName
 				crtCtl = &fakes.CRTClusterClient{}
 				crtCtl.GetReturns(errors.New("some error"))
