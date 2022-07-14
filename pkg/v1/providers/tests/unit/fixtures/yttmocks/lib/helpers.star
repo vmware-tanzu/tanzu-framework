@@ -1,4 +1,16 @@
 load("@ytt:struct", "struct")
+load("@ytt:assert", "assert")
+
+valid_md_rollout_strategy_types = ["OnDelete", "RollingUpdate"]
+
+# verify_and_configure_machine_deployment_rollout_strategy, verify strategy type input against allowed type and return type if correct.
+def verify_and_configure_machine_deployment_rollout_strategy(strategy_type):
+   if strategy_type not in valid_md_rollout_strategy_types:
+      strs = ", ".join(valid_md_rollout_strategy_types)
+      assert.fail("Invalid Strategy type, Allowed values: \""+strs+"\"")
+   end
+   return strategy_type
+end
 
 def get_bom_data_for_tkr_name():
     return struct.encode({

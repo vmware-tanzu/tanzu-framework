@@ -1,6 +1,6 @@
 #@ load("@ytt:overlay", "overlay")
 #@ load("@ytt:data", "data")
-#@ load("lib/helpers.star", "get_bom_data_for_tkr_name", "kubeadm_image_repo", "get_az_from_region")
+#@ load("lib/helpers.star", "get_bom_data_for_tkr_name", "kubeadm_image_repo", "get_az_from_region", "verify_and_configure_machine_deployment_rollout_strategy")
 #@ load("lib/validate.star", "validate_configuration")
 
 #@ validate_configuration("aws")
@@ -8,16 +8,6 @@
 #@ bomDataForK8sVersion = get_bom_data_for_tkr_name()
 
 #@ default_az_0 = get_az_from_region(data.values.AWS_REGION, data.values.AWS_NODE_AZ, "a")
-
-#@ strateg_type = ["OnDelete", "RollingUpdate"]
-
-
-#@ def verify_and_configure_strategy(strategytype):
-#@   if strategytype not in strateg_type:
-#@     assert.fail("Invalid Strategy type  \""+strategytype+"\", it must be OnDelete or RollingUpdate")
-#@   end
-#@   return strategytype
-#@ end
 
 #@overlay/match by=overlay.subset({"kind":"Cluster"})
 ---
@@ -199,7 +189,7 @@ spec:
   selector:
     matchLabels: null
   strategy:
-    type: #@ verify_and_configure_strategy(data.values.WORKER_ROLLOUT_STRATEGY)
+    type: #@ verify_and_configure_machine_deployment_rollout_strategy(data.values.WORKER_ROLLOUT_STRATEGY)
   template:
     metadata:
       labels:

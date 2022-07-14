@@ -2,8 +2,9 @@ package unit
 
 import (
 	"fmt"
-	"github.com/vmware-tanzu/tanzu-framework/test/pkg/matchers"
 	"path/filepath"
+
+	"github.com/vmware-tanzu/tanzu-framework/test/pkg/matchers"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -48,43 +49,6 @@ var _ = Describe("PCI Passthrough", func() {
 			"VSPHERE_INSECURE":           "true",
 			"CLUSTER_CIDR":               "192.168.1.0/16",
 		}
-	})
-
-	When("basic values are provided", func() {
-		It("renders without error", func() {
-			_, err := ytt.RenderYTTTemplate(ytt.CommandOptions{}, paths, baseVal.toReader())
-			Expect(err).NotTo(HaveOccurred())
-		})
-
-		It("has no PCI devices in worker VSphereMachineTemplate", func() {
-			output, _ := ytt.RenderYTTTemplate(ytt.CommandOptions{}, paths, baseVal.toReader())
-			vsphereMachineTemplates, err := matchers.FindDocsMatchingYAMLPath(output, map[string]string{
-				"$.kind":          "VSphereMachineTemplate",
-				"$.metadata.name": "test-cluster-worker",
-			})
-
-			Expect(err).NotTo(HaveOccurred())
-			Expect(len(vsphereMachineTemplates)).NotTo(Equal(0))
-
-			for _, vsphereMachineTemplate := range vsphereMachineTemplates {
-				Expect(vsphereMachineTemplate).To(matchers.HaveYAMLPathWithValue("$.spec.template.spec.pciDevices", ""))
-			}
-		})
-
-		It("has no PCI devices in control-plane VSphereMachineTemplate", func() {
-			output, _ := ytt.RenderYTTTemplate(ytt.CommandOptions{}, paths, baseVal.toReader())
-			vsphereMachineTemplates, err := matchers.FindDocsMatchingYAMLPath(output, map[string]string{
-				"$.kind":          "VSphereMachineTemplate",
-				"$.metadata.name": "test-cluster-control-plane",
-			})
-
-			Expect(err).NotTo(HaveOccurred())
-			Expect(len(vsphereMachineTemplates)).NotTo(Equal(0))
-
-			for _, vsphereMachineTemplate := range vsphereMachineTemplates {
-				Expect(vsphereMachineTemplate).To(matchers.HaveYAMLPathWithValue("$.spec.template.spec.pciDevices", ""))
-			}
-		})
 	})
 
 	When("VSPHERE_WORKER_PCI_DEVICES and VSPHERE_CONTROL_PLANE_PCI_DEVICES are set", func() {

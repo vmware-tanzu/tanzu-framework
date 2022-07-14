@@ -6,6 +6,17 @@ TKGProductName = "VMware Tanzu Kubernetes Grid"
 # kapp-controller requires the data values for addons to have this header to indicate its a data value
 ValuesFormatStr = "#@data/values\n#@overlay/match-child-defaults missing_ok=True\n---\n{}"
 
+valid_md_rollout_strategy_types = ["OnDelete", "RollingUpdate"]
+
+# verify_and_configure_machine_deployment_rollout_strategy, verify strategy type input against allowed type and return type if correct.
+def verify_and_configure_machine_deployment_rollout_strategy(strategy_type):
+   if strategy_type not in valid_md_rollout_strategy_types:
+      strs = ", ".join(valid_md_rollout_strategy_types)
+      assert.fail("Invalid Strategy type, Allowed values: \""+strs+"\"")
+   end
+   return strategy_type
+end
+
 def get_tkr_name_from_k8s_version(k8s_version):
    strs = k8s_version.split("+")
    return strs[0] + "---" + strs[1]
