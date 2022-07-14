@@ -86,7 +86,7 @@ func (wh *ClusterPause) Default(ctx context.Context, obj runtime.Object) error {
 			return err
 		}
 		if currentTKR != nil && currentTKR.Labels != nil {
-			if _, ok := currentTKR.Labels[constants.TKRLableLegacyClusters]; ok {
+			if _, ok := currentTKR.Labels[constants.TKRLabelClassyClusters]; ok {
 				return nil
 			}
 		}
