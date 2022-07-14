@@ -110,7 +110,7 @@ func waitForCertificateToBeReady(ctx context.Context, clusterName string, certNa
 		u.SetGroupVersionKind(schema.GroupVersionKind{
 			Group:   "cert-manager.io",
 			Kind:    "Certificate",
-			Version: "v1alpha2",
+			Version: "v1",
 		})
 		err := crClient.Get(ctx, crtclient.ObjectKey{
 			Namespace: namespace,
