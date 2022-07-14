@@ -16,8 +16,8 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/webhook"
 
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
-	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/util"
 	"github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
+	runtanzuv1alpha3 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
 	tkgconstants "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
 )
 
@@ -42,6 +42,7 @@ var (
 	_              webhook.CustomDefaulter = &ClusterPause{}
 	cluster                                = &clusterv1.Cluster{}
 	currentCluster                         = &clusterv1.Cluster{}
+	currentTKR                             = &runtanzuv1alpha3.TanzuKubernetesRelease{}
 )
 
 // Default satisfies the defaulting webhook interface.
@@ -77,13 +78,15 @@ func (wh *ClusterPause) Default(ctx context.Context, obj runtime.Object) error {
 
 	// want to verify the current TKR object (before upgrade) is not a legacy one
 	if tkrLabelFound && currentTkrVersion != "" {
-		tkr, err := util.GetTKRByNameV1Alpha3(ctx, wh.Client, currentTkrVersion)
-		if err != nil {
+		if err := wh.Client.Get(ctx, client.ObjectKey{Name: currentTkrVersion}, currentTKR); err != nil {
+			if apierrors.IsNotFound(err) {
+				return nil
+			}
 			clusterpauselog.Error(err, "unable to fetch TKR object", "name", currentTkrVersion)
 			return err
 		}
-		if tkr != nil && tkr.Labels != nil {
-			if _, ok := tkr.Labels[constants.TKRLableLegacyClusters]; ok {
+		if currentTKR != nil && currentTKR.Labels != nil {
+			if _, ok := currentTKR.Labels[constants.TKRLableLegacyClusters]; ok {
 				return nil
 			}
 		}
