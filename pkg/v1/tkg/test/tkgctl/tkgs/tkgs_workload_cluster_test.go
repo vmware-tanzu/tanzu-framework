@@ -11,6 +11,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"time"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -25,7 +26,11 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgctl"
 )
 
-const TKC_KIND = "kind: TanzuKubernetesCluster"
+const (
+	TKC_KIND        = "kind: TanzuKubernetesCluster"
+	waitTimeout     = time.Minute * 10
+	pollingInterval = time.Second * 30
+)
 
 var _ = Describe("TKGS - Create workload cluster use cases", func() {
 	Context("when input file is legacy config file (TKC cluster)", func() {
@@ -191,18 +196,19 @@ func createLegacyClusterTest(tkgctlClient tkgctl.TKGClient, deleteClusterOptions
 		Expect(err).To(BeNil())
 		if isClusterClassFeatureActivated {
 			By(fmt.Sprintf("Get k8s client for management cluster %q", e2eConfig.ManagementClusterName))
-			mngkubeConfigFileName := e2eConfig.ManagementClusterName + ".kubeconfig"
-			mngtempFilePath := filepath.Join(os.TempDir(), mngkubeConfigFileName)
-			err = tkgctlClient.GetCredentials(tkgctl.GetWorkloadClusterCredentialsOptions{
-				ClusterName: e2eConfig.ManagementClusterName,
-				Namespace:   "tkg-system",
-				ExportFile:  mngtempFilePath,
-			})
-			Expect(err).To(BeNil())
-
-			mngclient, mngDynamicClient, mngAggregatedAPIResourcesClient, mngDiscoveryClient, err := getClients(ctx, mngtempFilePath)
+			mngclient, mngDynamicClient, mngAggregatedAPIResourcesClient, mngDiscoveryClient, err := getClients(ctx, e2eConfig.TKGSKubeconfigPath)
 			Expect(err).NotTo(HaveOccurred())
 			mngClient = mngclient
+
+			By(fmt.Sprintf("Generating credentials for workload cluster %q", clusterName))
+			kubeConfigFileName := clusterName + ".kubeconfig"
+			tempFilePath := filepath.Join(os.TempDir(), kubeConfigFileName)
+			err = tkgctlClient.GetCredentials(tkgctl.GetWorkloadClusterCredentialsOptions{
+				ClusterName: clusterName,
+				Namespace:   namespace,
+				ExportFile:  tempFilePath,
+			})
+			Expect(err).To(BeNil())
 
 			By(fmt.Sprintf("Get k8s client for workload cluster %q", clusterName))
 			wlcClient, _, _, _, err := getClients(ctx, tempFilePath)
@@ -212,11 +218,11 @@ func createLegacyClusterTest(tkgctlClient tkgctl.TKGClient, deleteClusterOptions
 			err = checkClusterCB(ctx, mngclient, wlcClient, e2eConfig.ManagementClusterName, constants.TkgNamespace, clusterName, namespace, e2eConfig.InfrastructureName, false)
 			Expect(err).To(BeNil())
 
-			By(fmt.Sprintf("Verify addon packages on workload cluster %q matches clusterBootstrap info on management cluster %q", clusterName, input.E2EConfig.ManagementClusterName))
+			By(fmt.Sprintf("Verify addon packages on workload cluster %q matches clusterBootstrap info on management cluster %q", clusterName, e2eConfig.ManagementClusterName))
 			err = checkClusterCB(ctx, mngclient, wlcClient, e2eConfig.ManagementClusterName, constants.TkgNamespace, clusterName, namespace, e2eConfig.InfrastructureName, false)
 			Expect(err).To(BeNil())
 
-			By(fmt.Sprintf("Get management cluster resources created by addons-manager for workload cluster %q on management cluster %q", clusterName, input.E2EConfig.ManagementClusterName))
+			By(fmt.Sprintf("Get management cluster resources created by addons-manager for workload cluster %q on management cluster %q", clusterName, e2eConfig.ManagementClusterName))
 			clusterResources, err = getManagementClusterResources(ctx, mngclient, mngDynamicClient, mngAggregatedAPIResourcesClient, mngDiscoveryClient, namespace, clusterName, e2eConfig.InfrastructureName)
 			Expect(err).NotTo(HaveOccurred())
 		}
