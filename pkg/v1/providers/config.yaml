@@ -14,6 +14,9 @@ providers:
 - name: tkg-service-vsphere
   url: providers/infrastructure-tkg-service-vsphere/v1.1.0/unused.yaml
   type: InfrastructureProvider
+- name: oci
+  url: providers/infrastructure-oci/v0.3.0/infrastructure-components.yaml
+  type: InfrastructureProvider
 - name: kubeadm
   url: providers/bootstrap-kubeadm/v1.1.5/bootstrap-components.yaml
   type: BootstrapProvider

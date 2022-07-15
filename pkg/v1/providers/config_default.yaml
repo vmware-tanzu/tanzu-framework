@@ -688,6 +688,19 @@ FEATURE_FLAG_PACKAGE_BASED_LCM:
 TKR_DATA:
 
 #! ---------------------------------------------------------------------
+#! Settings for OCI infrastructure provider
+#! ---------------------------------------------------------------------
+OCI_CONTROL_PLANE_MACHINE_TYPE: "VM.Standard.E4.Flex"
+OCI_CONTROL_PLANE_MACHINE_TYPE_OCPUS: "1"
+OCI_CONTROL_PLANE_PV_TRANSIT_ENCRYPTION: true
+OCI_NODE_MACHINE_TYPE: "VM.Standard.E4.Flex"
+OCI_NODE_MACHINE_TYPE_OCPUS: "1"
+OCI_NODE_PV_TRANSIT_ENCRYPTION: true
+OCI_IMAGE_ID:
+OCI_COMPARTMENT_ID:
+OCI_SSH_KEY:
+
+#! ---------------------------------------------------------------------
 #! BoM file processing, internal use only
 #! ---------------------------------------------------------------------
 

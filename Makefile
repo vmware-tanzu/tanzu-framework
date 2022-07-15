@@ -518,6 +518,10 @@ modules: ## Runs go mod to ensure modules are up to date.
 		popd; \
 	done
 
+.PHONY: sync-clusterclasses
+sync-clusterclasses: ## Sync cluster classes
+	./packages/tkg-clusterclass/hack/sync-cc.sh
+
 .PHONY: verify
 verify: modules ## Run all verification scripts
 verify: ## Run all verification scripts

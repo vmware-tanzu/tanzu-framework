@@ -1,0 +1,14 @@
+apiVersion: vendir.k14s.io/v1alpha1
+kind: Config
+minimumRequiredVersion: 0.12.0
+directories:
+  - path: bundle/config/upstream
+    contents:
+      - path: .
+        githubRelease:
+          slug: oracle/cluster-api-provider-oci
+          tag: v0.3.0
+          disableAutoChecksumValidation: true
+        includePaths:
+          - infrastructure-components.yaml
+          - metadata.yaml

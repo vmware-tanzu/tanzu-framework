@@ -5,16 +5,15 @@
 
 set -euo pipefail
 
-SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
 PROVIDERS_DIR=${SCRIPT_DIR}/../../../pkg/v1/providers
 PKGS_DIR=${SCRIPT_DIR}/../..
-BINNAME="$( basename "${BASH_SOURCE[0]}" )"
+BINNAME="$(basename "${BASH_SOURCE[0]}")"
 
-infras="aws vsphere azure" # TODO: add docker
+infras="aws vsphere azure oci" # TODO: add docker
 
 for infra in $infras; do
-   ls ${PROVIDERS_DIR}/infrastructure-${infra}/v*/cconly/*
-   rm ${PKGS_DIR}/tkg-clusterclass-${infra}/bundle/config/upstream/*
-   cp ${PROVIDERS_DIR}/infrastructure-${infra}/v*/cconly/* ${PKGS_DIR}/tkg-clusterclass-${infra}/bundle/config/upstream/
+  ls ${PROVIDERS_DIR}/infrastructure-${infra}/v*/cconly/*
+  rm ${PKGS_DIR}/tkg-clusterclass-${infra}/bundle/config/upstream/*
+  cp ${PROVIDERS_DIR}/infrastructure-${infra}/v*/cconly/* ${PKGS_DIR}/tkg-clusterclass-${infra}/bundle/config/upstream/
 done
-
