@@ -14,7 +14,11 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgctl"
 )
 
-const TKC_KIND = "kind: TanzuKubernetesCluster"
+const (
+	TKC_KIND  = "kind: TanzuKubernetesCluster"
+	cniAntrea = "antrea"
+	cniCalico = "calico"
+)
 
 var _ = Describe("TKGS ClusterClass based workload cluster tests", func() {
 	var (
@@ -32,7 +36,7 @@ var _ = Describe("TKGS ClusterClass based workload cluster tests", func() {
 		err = tkgctlClient.CreateCluster(clusterOptions)
 	})
 
-	Context("when input file is cluster class based", func() {
+	Context("when input file is cluster class based with CNI Antrea", func() {
 		BeforeEach(func() {
 			clusterName, namespace = ValidateClusterClassConfigFile(e2eConfig.WorkloadClusterOptions.ClusterClassFilePath)
 			e2eConfig.WorkloadClusterOptions.Namespace = namespace
@@ -41,10 +45,38 @@ var _ = Describe("TKGS ClusterClass based workload cluster tests", func() {
 			clusterOptions.ClusterConfigFile = e2eConfig.WorkloadClusterOptions.ClusterClassFilePath
 			clusterOptions.ClusterName = e2eConfig.WorkloadClusterOptions.ClusterName
 			clusterOptions.Namespace = e2eConfig.WorkloadClusterOptions.Namespace
+			clusterOptions.CniType = cniAntrea
 		})
 
 		AfterEach(func() {
 			err = tkgctlClient.DeleteCluster(deleteClusterOptions)
+		})
+
+		It("should successfully create a cluster", func() {
+			Expect(err).ToNot(HaveOccurred())
+		})
+	})
+
+	Context("when input file is cluster class based with CNI Calico", func() {
+		BeforeEach(func() {
+			clusterName, namespace = ValidateClusterClassConfigFile(e2eConfig.WorkloadClusterOptions.ClusterClassFilePath)
+			e2eConfig.WorkloadClusterOptions.Namespace = namespace
+			e2eConfig.WorkloadClusterOptions.ClusterName = clusterName
+			deleteClusterOptions = getDeleteClustersOptions(e2eConfig)
+			clusterOptions.ClusterName = e2eConfig.WorkloadClusterOptions.ClusterName
+			clusterOptions.Namespace = e2eConfig.WorkloadClusterOptions.Namespace
+			clusterOptions.CniType = cniCalico
+			// use a temporary cluster class config file with CalicoConfig and ClusterBoostrap resources to
+			// customize the CNI option as Calico
+			clusterOptions.ClusterConfigFile = getCalicoCNIClusterClassFile(e2eConfig)
+		})
+
+		AfterEach(func() {
+			err = tkgctlClient.DeleteCluster(deleteClusterOptions)
+			clusterOptions.CniType = cniAntrea
+			// remove the temporary cluster config file
+			os.Remove(clusterOptions.ClusterConfigFile)
+			clusterOptions.ClusterConfigFile = e2eConfig.WorkloadClusterOptions.ClusterClassFilePath
 		})
 
 		It("should successfully create a cluster", func() {

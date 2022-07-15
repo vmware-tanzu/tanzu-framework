@@ -17,7 +17,11 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgctl"
 )
 
-const TKC_KIND = "kind: TanzuKubernetesCluster"
+const (
+	TKC_KIND  = "kind: TanzuKubernetesCluster"
+	cniAntrea = "antrea"
+	cniCalico = "calico"
+)
 
 var _ = Describe("TKGS - Create TKC based workload cluster tests", func() {
 	var (
@@ -46,13 +50,31 @@ var _ = Describe("TKGS - Create TKC based workload cluster tests", func() {
 		AfterEach(func() {
 			defer os.Remove(clusterOptions.ClusterConfigFile)
 		})
+
 		Context("when cluster Plan is dev", func() {
 			BeforeEach(func() {
 				e2eConfig.WorkloadClusterOptions.ClusterPlan = "dev"
 			})
-			When("create cluster is invoked", func() {
+
+			When("create cluster is invoked with CNI Antrea", func() {
+				BeforeEach(func() {
+					clusterOptions.CniType = cniAntrea
+				})
 				AfterEach(func() {
 					err = tkgctlClient.DeleteCluster(deleteClusterOptions)
+				})
+				It("should create TKC Workload Cluster and delete it", func() {
+					Expect(err).To(BeNil())
+				})
+			})
+
+			When("create cluster is invoked with CNI Calico", func() {
+				BeforeEach(func() {
+					clusterOptions.CniType = cniCalico
+				})
+				AfterEach(func() {
+					err = tkgctlClient.DeleteCluster(deleteClusterOptions)
+					clusterOptions.CniType = cniAntrea
 				})
 				It("should create TKC Workload Cluster and delete it", func() {
 					Expect(err).To(BeNil())
@@ -82,15 +104,32 @@ var _ = Describe("TKGS - Create TKC based workload cluster tests", func() {
 				})
 			})
 		})
+
 		Context("when cluster Plan is prod", func() {
 			BeforeEach(func() {
 				clusterOptions.Plan = "prod"
 				clusterOptions.GenerateOnly = false
 			})
 
-			When("create cluster is invoked", func() {
+			When("create cluster is invoked with CNI Antrea", func() {
+				BeforeEach(func() {
+					clusterOptions.CniType = cniAntrea
+				})
 				AfterEach(func() {
 					err = tkgctlClient.DeleteCluster(deleteClusterOptions)
+				})
+				It("should create TKC Workload Cluster and delete it", func() {
+					Expect(err).To(BeNil())
+				})
+			})
+
+			When("create cluster is invoked with CNI Calico", func() {
+				BeforeEach(func() {
+					clusterOptions.CniType = cniCalico
+				})
+				AfterEach(func() {
+					err = tkgctlClient.DeleteCluster(deleteClusterOptions)
+					clusterOptions.CniType = cniAntrea
 				})
 				It("should create TKC Workload Cluster and delete it", func() {
 					Expect(err).To(BeNil())
