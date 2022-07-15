@@ -335,11 +335,6 @@ func GetClientConfig() (cfg *configv1alpha1.ClientConfig, err error) {
 		return nil, errors.Wrap(err, "could not decode config file")
 	}
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
->>>>>>> f244de9f (Use fslock to lock when reading the tanzu config file for update (#2882))
 	addedDefaultDiscovery := populateDefaultStandaloneDiscovery(&c)
 	addedFeatureFlags := addDefaultFeatureFlagsIfMissing(&c, DefaultCliFeatureFlags)
 	addedEdition := addDefaultEditionIfMissing(&c)
@@ -354,13 +349,6 @@ func GetClientConfig() (cfg *configv1alpha1.ClientConfig, err error) {
 	if addedFeatureFlags || addedDefaultDiscovery || addedEdition || addedCompatabilityFile || addedBomRepo || addedContexts {
 		_ = StoreClientConfig(&c)
 	}
-
-<<<<<<< HEAD
->>>>>>> 4435e9cb (CLI: Add context types in client config)
-=======
-=======
->>>>>>> 74109cf6 (Use fslock to lock when reading the tanzu config file for update (#2882))
->>>>>>> f244de9f (Use fslock to lock when reading the tanzu config file for update (#2882))
 	return &c, nil
 }
 
@@ -772,6 +760,19 @@ func GetDiscoverySources(serverName string) []configv1alpha1.PluginDiscovery {
 		}
 		discoverySources = append(discoverySources, defaultClusterK8sDiscovery)
 	}
+
+	// current server type is TMC
+	if server.Type == configv1alpha1.GlobalServerType {
+		defaultTMCDiscovery := configv1alpha1.PluginDiscovery{
+			REST: &configv1alpha1.GenericRESTDiscovery{
+				Name:     serverName,
+				Endpoint: server.GlobalOpts.Endpoint,
+				BasePath: "/v1alpha1/system/binaries/plugins",
+			},
+		}
+		discoverySources = append(discoverySources, defaultTMCDiscovery)
+	}
+
 	return discoverySources
 }
 

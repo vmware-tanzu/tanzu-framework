@@ -266,6 +266,14 @@ type GCPPluginRepository struct {
 	RootPath string `json:"rootPath,omitempty" yaml:"rootPath"`
 }
 
+// S3PluginRepository is a CLI plugin aws s3 block storage.
+type S3PluginRepository struct {
+	// Bucket is the bucket name in S3.
+	Bucket string `json:"bucket"`
+	// BasePath within the bucket.
+	BasePath string `json:"basePath"`
+}
+
 // +kubebuilder:object:root=true
 
 // ClientConfig is the Schema for the configs API
