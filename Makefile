@@ -142,11 +142,10 @@ deploy: manifests tools ## Deploy controller in the configured Kubernetes cluste
 	cd config/manager && kustomize edit set image controller=${IMG}
 	kustomize build config/default | kubectl apply -f -
 
-manifests: tools ## Generate manifests e.g. CRD, RBAC etc.
-	$(CONTROLLER_GEN) \
-		$(CRD_OPTIONS) \
-		paths=./apis/... \
-		output:crd:artifacts:config=config/crd/bases
+manifests: ## Generate manifests e.g. CRD, RBAC etc.
+	$(MAKE) generate-manifests CONTROLLER_GEN_SRC=./apis/...
+	$(MAKE) -C apis/cpi generate-manifests CONTROLLER_GEN_SRC=./...
+	$(MAKE) -C apis/cni generate-manifests CONTROLLER_GEN_SRC=./...
 
 generate-go: $(COUNTERFEITER) ## Generate code via go generate.
 	PATH=$(abspath hack/tools/bin):"$(PATH)" go generate ./...
