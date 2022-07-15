@@ -296,6 +296,19 @@ spec:
       openAPIV3Schema:
         type: string
         default: ""
+  - name: nodePoolLabels
+    required: false
+    schema:
+      openAPIV3Schema:
+        type: array
+        items:
+          type: object
+          properties:
+            key:
+              type: string
+            values:
+              type: string
+        default: []
   - name: TKR_DATA
     required: false
     schema:
@@ -707,7 +720,7 @@ spec:
           template: |
             frontendIPsCount: {{ .worker.outboundLB.frontendIPCount }}
             idleTimeoutInMinutes: {{ .worker.outboundLB.idleTimeoutInMinutes }}
-  - name: workerLabels
+  - name: nodeLabels
     definitions:
     - selector:
         apiVersion: controlplane.cluster.x-k8s.io/v1beta1
@@ -748,7 +761,19 @@ spec:
               ,
             {{- end }}
             {{- $key -}} = {{- $val }}
-            {{- end }}
+            {{- end}}
+            {{- if .nodePoolLabels -}}
+              ,
+              {{- $first := true }}
+              {{- range .nodePoolLabels }}
+                {{- if $first }}
+                  {{- $first = false }}
+                {{- else -}}
+                  ,
+                {{- end }}
+                {{- .key -}} = {{- .value -}}
+              {{ end }}
+            {{ end }}
   - name: httpProxy
     enabledIf: '{{ not (empty .network.proxy) }}'
     definitions:
