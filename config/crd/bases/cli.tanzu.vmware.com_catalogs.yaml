@@ -66,6 +66,10 @@ spec:
                 digest:
                   description: Digest is the SHA256 hash of the plugin binary.
                   type: string
+                discoveredRecommendedVersion:
+                  description: DiscoveredRecommendedVersion specifies the recommended
+                    version of the plugin that was discovered
+                  type: string
                 discovery:
                   description: Discovery is the name of the discovery from where this
                     plugin is discovered.
@@ -102,6 +106,7 @@ spec:
               - completionType
               - description
               - digest
+              - discoveredRecommendedVersion
               - discovery
               - docURL
               - group
@@ -156,6 +161,10 @@ spec:
                 digest:
                   description: Digest is the SHA256 hash of the plugin binary.
                   type: string
+                discoveredRecommendedVersion:
+                  description: DiscoveredRecommendedVersion specifies the recommended
+                    version of the plugin that was discovered
+                  type: string
                 discovery:
                   description: Discovery is the name of the discovery from where this
                     plugin is discovered.
@@ -192,6 +201,7 @@ spec:
               - completionType
               - description
               - digest
+              - discoveredRecommendedVersion
               - discovery
               - docURL
               - group
