@@ -2798,6 +2798,59 @@ var _ = Describe("Cluster Client", func() {
 		})
 	})
 
+	Describe("Unit tests for GetCLIPluginImageRepositoryOverride", func() {
+		var imageRepoMap map[string]string
+
+		BeforeEach(func() {
+			reInitialize()
+			kubeConfigPath := getConfigFilePath("config1.yaml")
+			clstClient, err = NewClient(kubeConfigPath, "", clusterClientOptions)
+			Expect(err).NotTo(HaveOccurred())
+		})
+		Context("When clientset List api return error", func() {
+			JustBeforeEach(func() {
+				clientset.ListReturns(errors.New("fake-error"))
+				imageRepoMap, err = clstClient.GetCLIPluginImageRepositoryOverride()
+			})
+			It("should return an error", func() {
+				Expect(err).To(HaveOccurred())
+				Expect(err.Error()).To(ContainSubstring("fake-error"))
+			})
+		})
+		Context("When clientset List returns configmap", func() {
+			JustBeforeEach(func() {
+				imageRepoMapString := `staging.repo.com: stage.custom.repo.com
+prod.repo.com: prod.custom.repo.com`
+				configMap := corev1.ConfigMap{
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      "image-repository-override",
+						Namespace: constants.TanzuCLISystemNamespace,
+						Labels: map[string]string{
+							"cli.tanzu.vmware.com/cliplugin-image-repository-override": "",
+						},
+					},
+					Data: map[string]string{
+						"imageRepoMap": imageRepoMapString,
+					},
+				}
+				clientset.ListCalls(func(ctx context.Context, o crtclient.ObjectList, opts ...crtclient.ListOption) error {
+					switch o := o.(type) {
+					case *corev1.ConfigMapList:
+						o.Items = append(o.Items, configMap)
+					}
+					return nil
+				})
+				imageRepoMap, err = clstClient.GetCLIPluginImageRepositoryOverride()
+			})
+			It("should not return an error and should return correct imageRepository map", func() {
+				Expect(err).NotTo(HaveOccurred())
+				Expect(len(imageRepoMap)).To(Equal(2))
+				Expect(imageRepoMap["staging.repo.com"]).To(Equal("stage.custom.repo.com"))
+				Expect(imageRepoMap["prod.repo.com"]).To(Equal("prod.custom.repo.com"))
+			})
+		})
+	})
+
 })
 
 func createTempDirectory() {
