@@ -89,3 +89,32 @@ The Tanzu CLI is an amalgamation of all the Tanzu infrastructure elements under 
 This feature is gated by `features.global.context-aware-cli-for-plugins` CLI feature flag and can be turned on/off as described [here](../cli/config-features.md). When this feature is enabled, the CLI will not honor plugins installed prior to this feature being enabled, instead users will need to install plugins again with either `tanzu plugin install <plugin_name>` or `tanzu plugin sync`.
 
 For more detailed information on these design check out this [doc](../design/context-aware-plugin-discovery.md)
+
+### Troubleshooting
+
+#### Errors building docker images on RHEL/Fedora with "failed to solve with frontend dockerfile.v0"
+
+When building on Fedora, you may see the following error:
+
+``` shell
+➜ docker build .
+[+] Building 5.1s (4/4) FINISHED
+ => [internal] load build definition from Dockerfile 0.1s
+ => => transferring dockerfile: 1.43kB 0.0s
+ => [internal] load .dockerignore 0.2s
+ => => transferring context: 2B 0.0s
+ => resolve image config for docker.io/docker/dockerfile:1.4 1.7s
+ => docker-image://docker.io/docker/dockerfile:1.4@sha256:443aab4ca21183e069e7d8b2dc68006594f40bddf1b15bbd83f5137bd93e80e2 2.7s
+ => => resolve docker.io/docker/dockerfile:1.4@sha256:443aab4ca21183e069e7d8b2dc68006594f40bddf1b15bbd83f5137bd93e80e2 0.1s
+ => => sha256:24d064a369eda7bc7839b6c1c227eac7212d06ca09a8235a4bed467f8acf180d 528B / 528B 0.0s
+ => => sha256:84495a15555de1a8f4738f58268fa8949547068198f8d0fa2a3e3a693d7f923f 2.37kB / 2.37kB 0.0s
+ => => sha256:09768fef35f2ee387f57e401ae685727d12d1c70c6fd8545a422850167bf1940 9.94MB / 9.94MB 2.1s
+ => => sha256:443aab4ca21183e069e7d8b2dc68006594f40bddf1b15bbd83f5137bd93e80e2 2.00kB / 2.00kB 0.0s
+ => => extracting sha256:09768fef35f2ee387f57e401ae685727d12d1c70c6fd8545a422850167bf1940 0.2s
+failed to solve with frontend dockerfile.v0: failed to solve with frontend gateway.v0: exit code: 1
+```
+
+Tanzu Framework uses buildkit to build Docker images in order to speed up builds. Unfortunately, there are unresolved issues with SELinux and Docker
+Buildkit, and SELinux must be currently set to permissive with `sudo setenforce 0`.
+
+See [this upstream issue](https://github.com/moby/buildkit/issues/2295) for more information.
