@@ -44,6 +44,7 @@ import (
 
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/fakes"
 	fakehelper "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/fakes/helper"
+	topologyv1alpha1 "github.com/vmware-tanzu/vm-operator/external/tanzu-topology/api/v1alpha1"
 )
 
 var (
@@ -76,6 +77,7 @@ func init() {
 	_ = capav1beta1.AddToScheme(scheme)
 	_ = capzv1beta1.AddToScheme(scheme)
 	_ = capvv1beta1.AddToScheme(scheme)
+	_ = topologyv1alpha1.AddToScheme(scheme)
 }
 
 var _ = Describe("CheckInfrastructureVersion", func() {
