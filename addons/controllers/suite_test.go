@@ -6,6 +6,7 @@ package controllers
 import (
 	"bytes"
 	"context"
+	"fmt"
 	"io"
 	"os"
 	"path"
@@ -204,9 +205,11 @@ var _ = BeforeSuite(func(done Done) {
 	Expect(err).NotTo(HaveOccurred())
 
 	err = vmoperatorv1alpha1.AddToScheme(scheme)
+	fmt.Println("VM Operator is added to the scheme", scheme)
 	Expect(err).ToNot(HaveOccurred())
 
 	err = topologyv1alpha1.AddToScheme(scheme)
+	fmt.Println("Topology is added to the scheme", scheme)
 	Expect(err).NotTo(HaveOccurred())
 
 	k8sClient, err = client.New(cfg, client.Options{Scheme: scheme})
