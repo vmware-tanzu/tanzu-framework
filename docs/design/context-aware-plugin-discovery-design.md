@@ -531,6 +531,31 @@ To install the plugin with local source, download the plugin `tar.gz` from the r
     secret              Tanzu secret management                                            Standalone  default    v0.13.0-dev  not installed
   ```
 
+### Image Repository Override for OCI distribution with K8s discovery
+
+- Allow registry override for installation of context-scoped plugins with `tanzu plugin install` or `tanzu plugin sync` when talking to management-cluster even if the CLIPlugin resources are pointing to different image registry.
+
+- This is supported for context-scoped plugins which are using OCI based distribution and are getting discovered using K8s discovery.
+
+- To do this type of override of image repository, admin needs to create a ConfigMap in `tanzu-cli-system` namespace with `cli.tanzu.vmware.com/cliplugin-image-repository-override: ""` label on the management cluster will following details:
+
+```yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: context-plugin-repository-override
+  namespace: tanzu-cli-system
+  labels:
+    cli.tanzu.vmware.com/cliplugin-image-repository-override: ""
+data:
+  imageRepoMap: |-
+    projects.registry.vmware.com/tkg: private.custom.repo.com/tkg
+```
+
+- Also make sure that all logged in users have permission to read this ConfigMap.
+
+- Tanzu CLI will read this ConfigMap and while downloading context-scoped plugins it can update the image repository references accordingly.
+
 ## Open Issues
 
 Below mentioned issue track all work related to API-driven plugin discovery and context aware tanzu cli:
