@@ -779,9 +779,11 @@ func getAzureImage(azureImage *tkgconfigbom.AzureInfo) *capzv1beta1.Image {
 	if isMarketplaceImage(azureImage) {
 		return &capzv1beta1.Image{
 			Marketplace: &capzv1beta1.AzureMarketplaceImage{
-				Publisher:       azureImage.Publisher,
-				Offer:           azureImage.Offer,
-				SKU:             azureImage.Sku,
+				ImagePlan: capzv1beta1.ImagePlan{
+					Publisher: azureImage.Publisher,
+					Offer:     azureImage.Offer,
+					SKU:       azureImage.Sku,
+				},
 				Version:         azureImage.Version,
 				ThirdPartyImage: azureImage.ThirdPartyImage,
 			},

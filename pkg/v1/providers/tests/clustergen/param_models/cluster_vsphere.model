@@ -16,7 +16,7 @@ NODE_MACHINE_TYPE: "NA","m5.large"
 _TKG_CLUSTER_FORCE_ROLE: "NA", "management"
 _CNAME: "testcluster", "c1", "really-long-cluster-name-with-hyphen"
 _PLAN: "dev", "prod"
-_INFRA: "vsphere:v1.1.0"
+_INFRA: "vsphere:v1.3.1"
 
 BASTION_HOST_ENABLED: "true"
 NODE_STARTUP_TIMEOUT: "20m"
@@ -103,3 +103,13 @@ BUILD_EDITION: "tkg", "tce"
 ### Windows overlay parameters...
 IS_WINDOWS_WORKLOAD_CLUSTER: "false", "true"
 VSPHERE_WINDOWS_TEMPLATE: "windows-2019-kube-1.21.2"
+
+VSPHERE_IGNORE_PCI_DEVICES_ALLOW_LIST: "NA", "true", "false"
+VSPHERE_WORKER_PCI_DEVICES: "NA", "a:b<comma>c:d", "10DE:1EB8"
+VSPHERE_CONTROL_PLANE_PCI_DEVICES: "NA", "10DE:1EB8", "a:b<comma>c:d"
+WORKER_ROLLOUT_STRATEGY: "OnDelete", "RollingUpdate"
+VSPHERE_CONTROL_PLANE_CUSTOM_VMX_KEYS: "NA", "pciPassthru.a=b<comma>pciPassthru.c=d"
+VSPHERE_WORKER_CUSTOM_VMX_KEYS: "NA", "pciPassthru.a=b<comma>pciPassthru.c=d"
+
+IF [VSPHERE_IGNORE_PCI_DEVICES_ALLOW_LIST] in {"\"false\"", "\"NA\""} THEN [VSPHERE_WORKER_PCI_DEVICES] = "\"10DE:1EB8\"";
+IF [VSPHERE_IGNORE_PCI_DEVICES_ALLOW_LIST] in {"\"false\"", "\"NA\""} THEN [VSPHERE_CONTROL_PLANE_PCI_DEVICES] = "\"10DE:1EB8\"";

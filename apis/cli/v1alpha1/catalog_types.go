@@ -146,6 +146,9 @@ type PluginDescriptor struct {
 	// Status is the current plugin installation status
 	Status string `json:"status"`
 
+	// DiscoveredRecommendedVersion specifies the recommended version of the plugin that was discovered
+	DiscoveredRecommendedVersion string `json:"discoveredRecommendedVersion"`
+
 	// PostInstallHook is function to be run post install of a plugin.
 	PostInstallHook Hook `json:"-" yaml:"-"`
 }

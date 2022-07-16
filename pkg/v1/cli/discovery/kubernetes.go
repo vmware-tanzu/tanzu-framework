@@ -4,12 +4,15 @@
 package discovery
 
 import (
+	"strings"
 	"time"
 
 	"github.com/aunum/log"
 	"github.com/pkg/errors"
 
+	cliv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/common"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/distribution"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/plugin"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/clusterclient"
 )
@@ -89,9 +92,14 @@ func (k *KubernetesDiscovery) GetDiscoveredPlugins(clusterClient clusterclient.C
 		return nil, err
 	}
 
+	imageRepositoryOverride, err := clusterClient.GetCLIPluginImageRepositoryOverride()
+	if err != nil {
+		log.Debugf("unable to get image repository override information for some of the plugins. Error: %v", err)
+	}
+
 	// Convert all CLIPlugin resources to Discovered object
 	for i := range cliplugins {
-		dp, err := DiscoveredFromK8sV1alpha1(&cliplugins[i])
+		dp, err := DiscoveredFromK8sV1alpha1WithImageRepositoryOverride(&cliplugins[i], imageRepositoryOverride)
 		if err != nil {
 			return nil, err
 		}
@@ -106,4 +114,45 @@ func (k *KubernetesDiscovery) GetDiscoveredPlugins(clusterClient clusterclient.C
 // Type of the repository.
 func (k *KubernetesDiscovery) Type() string {
 	return common.DiscoveryTypeKubernetes
+}
+
+// DiscoveredFromK8sV1alpha1WithImageRepositoryOverride returns discovered plugin object from k8sV1alpha1
+func DiscoveredFromK8sV1alpha1WithImageRepositoryOverride(p *cliv1alpha1.CLIPlugin, imageRepoOverride map[string]string) (plugin.Discovered, error) {
+	// Update artifacts based on image repository override if applicable
+	UpdateArtifactsBasedOnImageRepositoryOverride(p, imageRepoOverride)
+
+	dp := plugin.Discovered{
+		Name:               p.Name,
+		Description:        p.Spec.Description,
+		RecommendedVersion: p.Spec.RecommendedVersion,
+		Optional:           p.Spec.Optional,
+	}
+	dp.SupportedVersions = make([]string, 0)
+	for v := range p.Spec.Artifacts {
+		dp.SupportedVersions = append(dp.SupportedVersions, v)
+	}
+	if err := SortVersions(dp.SupportedVersions); err != nil {
+		return dp, errors.Wrapf(err, "error parsing supported versions for plugin %s", p.Name)
+	}
+
+	dp.Distribution = distribution.ArtifactsFromK8sV1alpha1(p.Spec.Artifacts)
+	return dp, nil
+}
+
+// UpdateArtifactsBasedOnImageRepositoryOverride updates artifacts based on image repository override
+func UpdateArtifactsBasedOnImageRepositoryOverride(p *cliv1alpha1.CLIPlugin, imageRepoOverride map[string]string) {
+	replaceImageRepository := func(a *cliv1alpha1.Artifact) {
+		if a.Image != "" {
+			for originalRepo, overrideRepo := range imageRepoOverride {
+				if strings.HasPrefix(a.Image, originalRepo) {
+					a.Image = strings.Replace(a.Image, originalRepo, overrideRepo, 1)
+				}
+			}
+		}
+	}
+	for i := range p.Spec.Artifacts {
+		for j := range p.Spec.Artifacts[i] {
+			replaceImageRepository(&p.Spec.Artifacts[i][j])
+		}
+	}
 }

@@ -17,7 +17,7 @@ import (
 )
 
 const (
-	capvVersion = "v1.1.0"
+	capvVersion = "v1.3.1"
 	yamlRoot    = "../../"
 )
 

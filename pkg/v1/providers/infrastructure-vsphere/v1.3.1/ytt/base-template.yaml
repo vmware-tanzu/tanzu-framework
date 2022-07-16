@@ -1,0 +1,281 @@
+---
+apiVersion: cluster.x-k8s.io/v1beta1
+kind: Cluster
+metadata:
+  name: '${ CLUSTER_NAME }'
+  namespace: '${ NAMESPACE }'
+  labels:
+    tkg.tanzu.vmware.com/cluster-name: '${ CLUSTER_NAME }'
+spec:
+  clusterNetwork:
+    pods:
+      cidrBlocks:
+      - '${ CLUSTER_CIDR}'
+    services:
+      cidrBlocks:
+      - '${ SERVICE_CIDR }'
+  controlPlaneRef:
+    apiVersion: controlplane.cluster.x-k8s.io/v1beta1
+    kind: KubeadmControlPlane
+    name: '${ CLUSTER_NAME }-control-plane'
+  infrastructureRef:
+    apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+    kind: VSphereCluster
+    name: '${ CLUSTER_NAME }'
+---
+apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+kind: VSphereCluster
+metadata:
+  name: '${ CLUSTER_NAME }'
+  namespace: '${ NAMESPACE }'
+spec:
+  controlPlaneEndpoint:
+    host: '${ VSPHERE_CONTROL_PLANE_ENDPOINT }'
+    port: 6443
+  identityRef:
+    kind: Secret
+    name: '${ CLUSTER_NAME }'
+  thumbprint: '${ VSPHERE_TLS_THUMBPRINT }'
+  server: '${ VSPHERE_SERVER }'
+---
+apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+kind: VSphereMachineTemplate
+metadata:
+  name: '${ CLUSTER_NAME }-control-plane'
+  namespace: '${ NAMESPACE }'
+  annotations:
+    vmTemplateMoid: '${ VSPHERE_TEMPLATE_MOID }'
+spec:
+  template:
+    spec:
+      cloneMode: '${ VSPHERE_CLONE_MODE }'
+      datacenter: '${ VSPHERE_DATACENTER }'
+      datastore: '${ VSPHERE_DATASTORE }'
+      storagePolicyName: '${ VSPHERE_STORAGE_POLICY_ID }'
+      diskGiB: ${VSPHERE_CONTROL_PLANE_DISK_GIB}
+      folder: '${ VSPHERE_FOLDER }'
+      memoryMiB: ${VSPHERE_CONTROL_PLANE_MEM_MIB}
+      network:
+        devices:
+        - dhcp4: true
+          networkName: '${ VSPHERE_NETWORK }'
+      numCPUs: ${ VSPHERE_CONTROL_PLANE_NUM_CPUS }
+      resourcePool: '${ VSPHERE_RESOURCE_POOL }'
+      server: '${ VSPHERE_SERVER }'
+      template: '${ VSPHERE_TEMPLATE }'
+---
+apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+kind: VSphereMachineTemplate
+metadata:
+  name: '${ CLUSTER_NAME }-worker'
+  namespace: '${ NAMESPACE }'
+  annotations:
+    vmTemplateMoid: '${ VSPHERE_TEMPLATE_MOID }'
+spec:
+  template:
+    spec:
+      cloneMode: '${ VSPHERE_CLONE_MODE }'
+      datacenter: '${ VSPHERE_DATACENTER }'
+      datastore: '${ VSPHERE_DATASTORE }'
+      storagePolicyName: '${ VSPHERE_STORAGE_POLICY_ID }'
+      diskGiB: ${VSPHERE_WORKER_DISK_GIB}
+      folder: '${ VSPHERE_FOLDER }'
+      memoryMiB: ${VSPHERE_WORKER_MEM_MIB}
+      network:
+        devices:
+        - dhcp4: true
+          networkName: '${ VSPHERE_NETWORK }'
+      numCPUs: ${ VSPHERE_WORKER_NUM_CPUS }
+      resourcePool: '${ VSPHERE_RESOURCE_POOL }'
+      server: '${ VSPHERE_SERVER }'
+      template: '${ VSPHERE_TEMPLATE }'
+---
+apiVersion: controlplane.cluster.x-k8s.io/v1beta1
+kind: KubeadmControlPlane
+metadata:
+  name: '${ CLUSTER_NAME }-control-plane'
+  namespace: '${ NAMESPACE }'
+spec:
+  machineTemplate:
+    infrastructureRef:
+      apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+      kind: VSphereMachineTemplate
+      name: '${ CLUSTER_NAME }-control-plane'
+  kubeadmConfigSpec:
+    useExperimentalRetryJoin: true
+    clusterConfiguration:
+      imageRepository: '${ _TKG_K8S_IMAGE_REPOSITORY }'
+      etcd:
+        local:
+          dataDir: /var/lib/etcd
+          imageRepository: '${ _TKG_ETCD_IMAGE_REPOSITORY }'
+          imageTag: '${ _TKG_ETCD_IMAGE_TAG }'
+          extraArgs:
+            cipher-suites: TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
+      dns:
+        imageRepository: '${ _TKG_COREDNS_IMAGE_REPOSITORY }'
+        imageTag: '${ _TKG_COREDNS_IMAGE_TAG }'
+      apiServer:
+        timeoutForControlPlane: "8m0s"
+        extraArgs:
+          cloud-provider: external
+          tls-cipher-suites: TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
+      controllerManager:
+        extraArgs:
+          cloud-provider: external
+          tls-cipher-suites: TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
+      scheduler:
+        extraArgs:
+          tls-cipher-suites: TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
+    files:
+    - content: |
+        apiVersion: v1
+        kind: Pod
+        metadata:
+          creationTimestamp: null
+          name: kube-vip
+          namespace: kube-system
+        spec:
+          containers:
+          - args:
+            - manager
+            env:
+            - name: cp_enable
+              value: "true"
+            - name: vip_arp
+              value: "true"
+            - name: vip_leaderelection
+              value: "true"
+            - name: address
+              value: '${ VSPHERE_CONTROL_PLANE_ENDPOINT }'
+            - name: vip_interface
+              value: '${ VIP_NETWORK_INTERFACE }'
+            - name: vip_leaseduration
+              value: "30"
+            - name: vip_renewdeadline
+              value: "20"
+            - name: vip_retryperiod
+              value: "4"
+            image: '${ _TKG_KUBE_VIP_IMAGE }'
+            imagePullPolicy: IfNotPresent
+            name: kube-vip
+            resources: {}
+            securityContext:
+              capabilities:
+                add:
+                - NET_ADMIN
+                - NET_RAW
+            volumeMounts:
+            - mountPath: /etc/kubernetes/admin.conf
+              name: kubeconfig
+          hostNetwork: true
+          hostAliases:
+          - hostnames:
+            - kubernetes
+            ip: 127.0.0.1
+          volumes:
+          - hostPath:
+              path: /etc/kubernetes/admin.conf
+              type: FileOrCreate
+            name: kubeconfig
+        status: {}
+      owner: root:root
+      path: /etc/kubernetes/manifests/kube-vip.yaml
+    initConfiguration:
+      nodeRegistration:
+        criSocket: /var/run/containerd/containerd.sock
+        kubeletExtraArgs:
+          cloud-provider: external
+          tls-cipher-suites: TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
+        name: '{{ ds.meta_data.hostname }}'
+    joinConfiguration:
+      nodeRegistration:
+        criSocket: /var/run/containerd/containerd.sock
+        kubeletExtraArgs:
+          cloud-provider: external
+          tls-cipher-suites: TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
+        name: '{{ ds.meta_data.hostname }}'
+    preKubeadmCommands:
+    - hostname "{{ ds.meta_data.hostname }}"
+    - echo "::1         ipv6-localhost ipv6-loopback" >/etc/hosts
+    - echo "127.0.0.1   localhost" >>/etc/hosts
+    - echo "127.0.0.1   {{ ds.meta_data.hostname }}" >>/etc/hosts
+    - echo "{{ ds.meta_data.hostname }}" >/etc/hostname
+    users:
+    - name: capv
+      sshAuthorizedKeys:
+      - '${ VSPHERE_SSH_AUTHORIZED_KEY }'
+      sudo: ALL=(ALL) NOPASSWD:ALL
+  replicas: ${ CONTROL_PLANE_MACHINE_COUNT }
+  version: '${ KUBERNETES_VERSION }'
+---
+apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
+kind: KubeadmConfigTemplate
+metadata:
+  name: '${ CLUSTER_NAME }-md-0'
+  namespace: '${ NAMESPACE }'
+spec:
+  template:
+    spec:
+      useExperimentalRetryJoin: true
+      joinConfiguration:
+        nodeRegistration:
+          criSocket: /var/run/containerd/containerd.sock
+          kubeletExtraArgs:
+            cloud-provider: external
+            tls-cipher-suites: TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
+          name: '{{ ds.meta_data.hostname }}'
+      preKubeadmCommands:
+      - hostname "{{ ds.meta_data.hostname }}"
+      - echo "::1         ipv6-localhost ipv6-loopback" >/etc/hosts
+      - echo "127.0.0.1   localhost" >>/etc/hosts
+      - echo "127.0.0.1   {{ ds.meta_data.hostname }}" >>/etc/hosts
+      - echo "{{ ds.meta_data.hostname }}" >/etc/hostname
+      files: []
+      users:
+      - name: capv
+        sshAuthorizedKeys:
+        - '${ VSPHERE_SSH_AUTHORIZED_KEY }'
+        sudo: ALL=(ALL) NOPASSWD:ALL
+---
+apiVersion: cluster.x-k8s.io/v1beta1
+kind: MachineDeployment
+metadata:
+  labels:
+    cluster.x-k8s.io/cluster-name: '${ CLUSTER_NAME }'
+  name: '${ CLUSTER_NAME }-md-0'
+  namespace: '${ NAMESPACE }'
+spec:
+  clusterName: '${ CLUSTER_NAME }'
+  replicas: ${ WORKER_MACHINE_COUNT }
+  selector:
+    matchLabels:
+      cluster.x-k8s.io/cluster-name: '${ CLUSTER_NAME }'
+  strategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        cluster.x-k8s.io/cluster-name: '${ CLUSTER_NAME }'
+        node-pool: "${CLUSTER_NAME}-worker-pool"
+    spec:
+      bootstrap:
+        configRef:
+          apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
+          kind: KubeadmConfigTemplate
+          name: '${ CLUSTER_NAME }-md-0'
+      clusterName: '${ CLUSTER_NAME }'
+      infrastructureRef:
+        apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+        kind: VSphereMachineTemplate
+        name: '${ CLUSTER_NAME }-worker'
+      version: '${ KUBERNETES_VERSION }'
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: '${ CLUSTER_NAME }'
+  namespace: '${ NAMESPACE }'
+stringData:
+  username: '${ VSPHERE_USERNAME }'
+  password: '${ VSPHERE_PASSWORD }'

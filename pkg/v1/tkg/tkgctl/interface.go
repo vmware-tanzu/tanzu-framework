@@ -94,5 +94,5 @@ type TKGClient interface {
 	// Note: This would be soon deprecated after TKGS and TKGm adopt the clusterclass
 	GetPacificMachineDeployments(options client.GetMachineDeploymentOptions) ([]capiv1alpha3.MachineDeployment, error)
 	// FeatureGateHelper returns feature gate helper to query feature gate
-	FeatureGateHelper() featureGateHelper
+	FeatureGateHelper() FeatureGateHelper
 }

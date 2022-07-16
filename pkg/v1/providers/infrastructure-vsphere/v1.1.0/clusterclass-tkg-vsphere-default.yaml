@@ -1,6 +1,0 @@
-apiVersion: providers.tanzu.vmware.com/v1alpha1
-kind: TemplateDefinition
-spec:
-  paths:
-    - path: providers/infrastructure-vsphere/v1.1.0/cconly
-    - path: providers/config_default.yaml

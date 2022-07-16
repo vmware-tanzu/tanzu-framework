@@ -1,28 +1,28 @@
 providers:
 - name: cluster-api
-  url: providers/cluster-api/v1.1.3/core-components.yaml
+  url: providers/cluster-api/v1.1.5/core-components.yaml
   type: CoreProvider
 - name: aws
   url: providers/infrastructure-aws/v1.2.0/infrastructure-components.yaml
   type: InfrastructureProvider
 - name: vsphere
-  url: providers/infrastructure-vsphere/v1.1.0/infrastructure-components.yaml
+  url: providers/infrastructure-vsphere/v1.3.1/infrastructure-components.yaml
   type: InfrastructureProvider
 - name: azure
-  url: providers/infrastructure-azure/v1.2.1/infrastructure-components.yaml
+  url: providers/infrastructure-azure/v1.4.0/infrastructure-components.yaml
   type: InfrastructureProvider
 - name: tkg-service-vsphere
   url: providers/infrastructure-tkg-service-vsphere/v1.1.0/unused.yaml
   type: InfrastructureProvider
 - name: kubeadm
-  url: providers/bootstrap-kubeadm/v1.1.3/bootstrap-components.yaml
+  url: providers/bootstrap-kubeadm/v1.1.5/bootstrap-components.yaml
   type: BootstrapProvider
 - name: kubeadm
-  url: providers/control-plane-kubeadm/v1.1.3/control-plane-components.yaml
+  url: providers/control-plane-kubeadm/v1.1.5/control-plane-components.yaml
   type: ControlPlaneProvider
 - name: docker
-  url: providers/infrastructure-docker/v1.1.3/infrastructure-components.yaml
+  url: providers/infrastructure-docker/v1.1.5/infrastructure-components.yaml
   type: InfrastructureProvider
 cert-manager:
-  url: providers/cert-manager/v1.5.3/cert-manager.yaml
-  version: "v1.5.3"
+  url: providers/cert-manager/v1.7.2/cert-manager.yaml
+  version: "v1.7.2"

@@ -119,11 +119,12 @@ var _ = BeforeSuite(func(done Done) {
 		ErrorIfCRDPathMissing: true,
 	}
 
+	// For each dependency, a real module containing go files should be passed in.
 	externalDeps := map[string][]string{
-		"sigs.k8s.io/cluster-api": {"config/crd/bases",
+		"sigs.k8s.io/cluster-api/api/v1beta1": {"config/crd/bases",
 			"controlplane/kubeadm/config/crd/bases"},
-		"github.com/vmware-tanzu/carvel-kapp-controller": {"config/crds.yml"},
-		"sigs.k8s.io/cluster-api-provider-vsphere":       {"config/default/crd/bases", "config/supervisor/crd"},
+		"github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/packaging/v1alpha1": {"config/crds.yml"},
+		"sigs.k8s.io/cluster-api-provider-vsphere/apis/v1beta1":                      {"config/default/crd/bases", "config/supervisor/crd"},
 	}
 
 	externalCRDPaths, err := testutil.GetExternalCRDPaths(externalDeps)

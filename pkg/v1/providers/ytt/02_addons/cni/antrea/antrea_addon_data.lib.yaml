@@ -52,6 +52,11 @@ antrea:
       nodePortAddresses: #@ split_comma_values(data.values.ANTREA_PROXY_NODEPORT_ADDRS)
       skipServices: #@ split_comma_values(data.values.ANTREA_PROXY_SKIP_SERVICES)
       proxyLoadBalancerIPs: #@ data.values.ANTREA_PROXY_LOAD_BALANCER_IPS
+    flowExporter:
+      collectorAddress: #@ data.values.ANTREA_FLOWEXPORTER_COLLECTOR_ADDRESS
+      pollInterval: #@ data.values.ANTREA_FLOWEXPORTER_POLL_INTERVAL
+      activeFlowTimeout: #@ data.values.ANTREA_FLOWEXPORTER_ACTIVE_TIMEOUT
+      idleFlowTimeout: #@ data.values.ANTREA_FLOWEXPORTER_IDLE_TIMEOUT
     kubeAPIServerOverride: #@ data.values.ANTREA_KUBE_APISERVER_OVERRIDE
     transportInterface: #@ data.values.ANTREA_TRANSPORT_INTERFACE
     transportInterfaceCIDRs: #@ split_comma_values(data.values.ANTREA_TRANSPORT_INTERFACE_CIDRS)

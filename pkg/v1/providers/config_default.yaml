@@ -132,6 +132,29 @@ VSPHERE_DATASTORE:
 #! name of an existing VM folder in which to place Tanzu Kubernetes Grid VMs
 VSPHERE_FOLDER:
 VSPHERE_STORAGE_POLICY_ID: ""
+
+#! Device and vendor ids for GPU PCI passthrough support
+#! VSPHERE_WORKER_PCI_DEVICES, if set will configure PCI passthrough on all worker machines
+#! VSPHERE_WORKER_PCI_DEVICES must be specified in the format <vendor_id>:<device_id>
+#! e.g. VSPHERE_WORKER_PCI_DEVICES: "10DE:1EB8"
+VSPHERE_WORKER_PCI_DEVICES:
+#! VSPHERE_CONTROL_PLANE_PCI_DEVICES, if set will configure PCI passthrough on all control plane machines
+#! VSPHERE_CONTROL_PLANE_PCI_DEVICES must be specified in the format <vendor_id>:<device_id>
+#! e.g. VSPHERE_CONTROL_PLANE_PCI_DEVICES: "10DE:1EB8"
+VSPHERE_CONTROL_PLANE_PCI_DEVICES:
+#! VSPHERE_IGNORE_PCI_DEVICES_ALLOW_LIST, if set to true will allow other PCI devices to be passed through
+#! other than NVIDIA T4 (i.e. "10DE:1EB8")
+VSPHERE_IGNORE_PCI_DEVICES_ALLOW_LIST:
+#! VSPHERE_CONTROL_PLANE_CUSTOM_VMX_KEYS, if set will set custom VMX keys on all control plane machines
+#! Keys must be set in the form <Key1>=<Value1>,<Key2>=<Value2>
+VSPHERE_CONTROL_PLANE_CUSTOM_VMX_KEYS:
+#! VSPHERE_WORKER_CUSTOM_VMX_KEYS, if set will set custom VMX keys on all worker machines
+#! Keys must be set in the form <Key1>=<Value1>,<Key2>=<Value2>
+VSPHERE_WORKER_CUSTOM_VMX_KEYS:
+#! WORKER_ROLLOUT_STRATEGY configures the MachineDeployment rollout strategy. If set to OnDelete,
+#! on updates, the existing worker machines will be deleted *first* before the replacement worker machines are created.
+WORKER_ROLLOUT_STRATEGY: "RollingUpdate"
+
 #! Thumbprint of the vCenter server specified with VSPHERE_SERVER config variable
 #! this value can be skipped if user wants to use insecure connection
 #! by setting VSPHERE_INSECURE to true
@@ -550,7 +573,7 @@ AVI_CONTROL_PLANE_HA_PROVIDER: false
 
 #! Avi aka. NSX Advanced Loader Balancer's controller ip or FQDN
 AVI_CONTROLLER:
-AVI_CONTROLLER_VERSION: 20.1.7
+AVI_CONTROLLER_VERSION: 20.1.3
 AVI_USERNAME: ""
 AVI_PASSWORD: ""
 #! The cerficiate used to access Avi aka. NSX Advanced Loader Balancer's controller, need to be base64 encoded
@@ -611,6 +634,10 @@ ANTREA_PROXY_ALL: false
 ANTREA_PROXY_NODEPORT_ADDRS: ""
 ANTREA_PROXY_SKIP_SERVICES: ""
 ANTREA_PROXY_LOAD_BALANCER_IPS: false
+ANTREA_FLOWEXPORTER_COLLECTOR_ADDRESS: "flow-aggregator.flow-aggregator.svc:4739:tls"
+ANTREA_FLOWEXPORTER_POLL_INTERVAL: "5s"
+ANTREA_FLOWEXPORTER_ACTIVE_TIMEOUT: "30s"
+ANTREA_FLOWEXPORTER_IDLE_TIMEOUT: "15s"
 ANTREA_KUBE_APISERVER_OVERRIDE:
 ANTREA_TRANSPORT_INTERFACE:
 ANTREA_TRANSPORT_INTERFACE_CIDRS: ""

@@ -1,10 +1,22 @@
 load("@ytt:data", "data")
 load("@ytt:assert", "assert")
+load("@ytt:regexp", "regexp")
 
 TKGSProductName = "VMware Tanzu Kubernetes Grid Service for vSphere"
 TKGProductName = "VMware Tanzu Kubernetes Grid"
 # kapp-controller requires the data values for addons to have this header to indicate its a data value
 ValuesFormatStr = "#@data/values\n#@overlay/match-child-defaults missing_ok=True\n---\n{}"
+
+valid_md_rollout_strategy_types = ["OnDelete", "RollingUpdate"]
+
+# verify_and_configure_machine_deployment_rollout_strategy, verify strategy type input against allowed type and return type if correct.
+def verify_and_configure_machine_deployment_rollout_strategy(strategy_type):
+   if strategy_type not in valid_md_rollout_strategy_types:
+      strs = ", ".join(valid_md_rollout_strategy_types)
+      assert.fail("Invalid Strategy type, Allowed values: \""+strs+"\"")
+   end
+   return strategy_type
+end
 
 def get_tkr_name_from_k8s_version(k8s_version):
    strs = k8s_version.split("+")
@@ -327,4 +339,25 @@ def get_labels_map_from_string(labelString):
     labelMap.update({kv[0]: kv[1]})
    end
    return labelMap
+end
+
+def compare_semver_versions(a, b):
+  a_array = regexp.replace("v?(\d+\.\d+\.\d+).*", a, "$1").split(".")
+  b_array = regexp.replace("v?(\d+\.\d+\.\d+).*", b, "$1").split(".")
+  for i in range(len(a_array)):
+    if int(a_array[i]) > int(b_array[i]):
+      return 1
+    elif int(a_array[i]) < int(b_array[i]):
+      return -1
+    end
+  end
+  return 0
+end
+
+def enable_csi_driver():
+  tkrVersion = get_tkr_version_from_tkr_name(data.values.KUBERNETES_RELEASE)
+  if compare_semver_versions(tkrVersion, "v1.23.0") >= 0:
+     return True
+  end
+  return False
 end

@@ -1,0 +1,11 @@
+apiVersion: providers.tanzu.vmware.com/v1alpha1
+kind: TemplateDefinition
+spec:
+  paths:
+    - path: providers/yttcb
+    - path: providers/infrastructure-azure/v1.4.0/yttcc
+    - path: providers/infrastructure-azure/yttcc
+    - path: providers/yttcc
+    - path: bom
+      filemark: text-plain
+    - path: providers/config_default.yaml

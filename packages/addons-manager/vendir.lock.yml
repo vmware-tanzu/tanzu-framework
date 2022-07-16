@@ -34,10 +34,10 @@ directories:
       - v0.22.0-dev-67-g59a1bc05
     path: run.tanzu.vmware.com_kappcontrollerconfigs.yaml
   - git:
-      commitTitle: Update SkipCNIBinaries param to CalicoConfig (#2416)
-      sha: 59a1bc05c28c912054b03043a7009c4aa45243a9
+      commitTitle: Rewrite GetExternalCRDPaths test helper to use go tools package...
+      sha: 79a847c7454c6d64737e92c7e8dc062f3171f52b
       tags:
-      - v0.22.0-dev-67-g59a1bc05
+      - v0.25.0-dev-32-g79a847c7
     path: cpi.tanzu.vmware.com_vspherecpiconfigs.yaml
   - git:
       commitTitle: Update SkipCNIBinaries param to CalicoConfig (#2416)

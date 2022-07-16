@@ -1,0 +1,10 @@
+apiVersion: providers.tanzu.vmware.com/v1alpha1
+kind: TemplateDefinition
+spec:
+  paths:
+    - path: providers/infrastructure-vsphere/v1.3.1/ytt
+    - path: providers/infrastructure-vsphere/ytt
+    - path: providers/ytt
+    - path: bom
+      filemark: text-plain
+    - path: providers/config_default.yaml

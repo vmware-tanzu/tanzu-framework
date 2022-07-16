@@ -1,0 +1,473 @@
+#@ load("@ytt:overlay", "overlay")
+#@ load("@ytt:data", "data")
+#@ load("@ytt:regexp", "regexp")
+#@ load("@ytt:assert", "assert")
+
+
+#@ valid_pci_deviceids = ["1EB8"]
+
+#@ valid_pci_vendorids = ["10DE"]
+
+
+#@ load("lib/helpers.star", "get_bom_data_for_tkr_name", "get_default_tkg_bom_data", "kubeadm_image_repo", "get_image_repo_for_component", "get_vsphere_thumbprint", "get_tkr_version_from_tkr_name", "verify_and_configure_machine_deployment_rollout_strategy")
+
+#@ load("lib/validate.star", "validate_configuration")
+#@ load("@ytt:yaml", "yaml")
+#@ validate_configuration("vsphere")
+
+
+#@ def get_pci_devices(pciDevicesString, pciIgnorepciDeviceValidation):
+#@   pciDevices = list()
+#@   for val in pciDevicesString.split(','):
+#@     if len(val) <= 0:
+#@        assert.fail("given labels string \""+pciDevicesString+"\" must be in the  \"vendorID:deviceID,vendorID:deviceID,..\" format ")
+#@      end
+#@     kv = val.split(':')
+#@     if len(kv) != 2:
+#@        assert.fail("given labels string \""+pciDevicesString+"\" must be in the  \"vendorID:deviceID,vendorID:deviceID,..\" format ")
+#@      end
+#@     if not pciIgnorepciDeviceValidation and (kv[0] not in valid_pci_vendorids or kv[1] not in valid_pci_deviceids):
+#@         devices = ", ".join(valid_pci_deviceids)
+#@         vendors = ", ".join(valid_pci_vendorids)
+#@         assert.fail("Given DeviceId or VendorId not supported., Supported Device ids: \""+devices+"\" , Vendor ids: \""+vendors+"\"")
+#@     end
+#@     idPair = dict()
+#@     idPair["deviceID"] = kv[1]
+#@     idPair["vendorID"] = kv[0]
+#@     pciDevices.append(idPair)
+#@ end
+#@ return pciDevices
+#@ end
+
+
+#@ def get_custom_keys(keyValueString):
+#@   customKeys = dict()
+#@   for val in keyValueString.split(','):
+#@     kv = val.split('=')
+#@     if len(kv) != 2:
+#@       assert.fail("Given input is not in correct format")
+#@     end
+#@     customKeys[kv[0]] = kv[1]
+#@ end
+#@  return customKeys
+#@ end
+
+#! The compare_semver_versions function compares the major, minor, patch
+#! numbers of two versions. It returns 1 if a > b, 0 if a == b, -1 if a < b.
+#! Anything after the patch number is ignored. a and b must be in the
+#! form of v<X>.<Y>.<Z>[+build-info]
+#@ def compare_semver_versions(a, b):
+#@   a_array = regexp.replace("v?(\d+\.\d+\.\d+).*", a, "$1").split(".")
+#@   b_array = regexp.replace("v?(\d+\.\d+\.\d+).*", b, "$1").split(".")
+#@   for i in range(len(a_array)):
+#@     if int(a_array[i]) > int(b_array[i]):
+#@       return 1
+#@     elif int(a_array[i]) < int(b_array[i]):
+#@       return -1
+#@     end
+#@   end
+#@   return 0
+#@ end
+
+#@ bomDataForK8sVersion = get_bom_data_for_tkr_name()
+#@ bomData = get_default_tkg_bom_data()
+#@ tkrVersion = get_tkr_version_from_tkr_name(data.values.KUBERNETES_RELEASE)
+
+#@ if not data.values.IS_WINDOWS_WORKLOAD_CLUSTER:
+
+#@ def kube_vip_pod():
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  creationTimestamp: null
+  name: kube-vip
+  namespace: kube-system
+spec:
+  containers:
+  - args:
+    - manager
+    env:
+    - name: cp_enable
+      value: "true"
+    - name: vip_arp
+      value: "true"
+    - name: vip_leaderelection
+      value: "true"
+    - name: address
+      value: #@ data.values.VSPHERE_CONTROL_PLANE_ENDPOINT
+    #@ if (not data.values.AVI_CONTROL_PLANE_HA_PROVIDER) and data.values.CLUSTER_API_SERVER_PORT:
+    - name: port
+      value: #@ "{}".format(data.values.CLUSTER_API_SERVER_PORT)
+    #@ end
+    - name: vip_interface
+      value:  #@ data.values.VIP_NETWORK_INTERFACE
+    - name: vip_leaseduration
+      value: "30"
+    - name: vip_renewdeadline
+      value: "20"
+    - name: vip_retryperiod
+      value: "4"
+    image: #@ "{}/{}:{}".format(get_image_repo_for_component(bomData.components["kube-vip"][0].images.kubeVipImage), bomData.components["kube-vip"][0].images.kubeVipImage.imagePath, bomData.components["kube-vip"][0].images.kubeVipImage.tag)
+    imagePullPolicy: IfNotPresent
+    name: kube-vip
+    resources: {}
+    securityContext:
+      capabilities:
+        add:
+        - NET_ADMIN
+        - NET_RAW
+    volumeMounts:
+    - mountPath: /etc/kubernetes/admin.conf
+      name: kubeconfig
+  hostNetwork: true
+  hostAliases:
+  - hostnames:
+    - kubernetes
+    ip: 127.0.0.1
+  volumes:
+  - hostPath:
+      path: /etc/kubernetes/admin.conf
+      type: FileOrCreate
+    name: kubeconfig
+status: {}
+#@ end
+
+#@overlay/match by=overlay.subset({"kind":"Cluster"})
+---
+apiVersion: cluster.x-k8s.io/v1beta1
+kind: Cluster
+metadata:
+  name: #@ data.values.CLUSTER_NAME
+  #@ if data.values.VSPHERE_CONTROL_PLANE_ENDPOINT:
+  #@overlay/match missing_ok=True
+  annotations:
+    tkg.tanzu.vmware.com/cluster-controlplane-endpoint: #@ data.values.VSPHERE_CONTROL_PLANE_ENDPOINT
+  #@ end
+  labels:
+    #@overlay/match missing_ok=True
+    #@yaml/text-templated-strings
+    #@ if data.values.TKG_CLUSTER_ROLE != "workload":
+    cluster-role.tkg.tanzu.vmware.com/(@= data.values.TKG_CLUSTER_ROLE @): ""
+    #@ end
+    tkg.tanzu.vmware.com/cluster-name: #@ data.values.CLUSTER_NAME
+    #@overlay/match missing_ok=True
+    tanzuKubernetesRelease: #@ data.values.KUBERNETES_RELEASE
+spec:
+  infrastructureRef:
+    name: #@ data.values.CLUSTER_NAME
+  controlPlaneRef:
+    name: #@ "{}-control-plane".format(data.values.CLUSTER_NAME)
+  clusterNetwork:
+    #@ if (not data.values.AVI_CONTROL_PLANE_HA_PROVIDER) and data.values.CLUSTER_API_SERVER_PORT:
+    #@overlay/match missing_ok=True
+    apiServerPort: #@ data.values.CLUSTER_API_SERVER_PORT
+    #@ end
+    pods:
+      #@overlay/replace
+      cidrBlocks: #@ data.values.CLUSTER_CIDR.split(",")
+    services:
+      #@overlay/replace
+      cidrBlocks: #@ data.values.SERVICE_CIDR.split(",")
+
+#@overlay/match by=overlay.subset({"kind":"VSphereCluster"})
+---
+apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+kind: VSphereCluster
+metadata:
+  name: #@ data.values.CLUSTER_NAME
+spec:
+  #@ if not data.values.AVI_CONTROL_PLANE_HA_PROVIDER:
+  controlPlaneEndpoint:
+    host: #@ data.values.VSPHERE_CONTROL_PLANE_ENDPOINT
+    #@ if data.values.CLUSTER_API_SERVER_PORT:
+    port: #@ data.values.CLUSTER_API_SERVER_PORT
+    #@ end
+  #@ else:
+  #@overlay/remove
+  controlPlaneEndpoint:
+  #@ end
+  thumbprint: #@ get_vsphere_thumbprint()
+  server: #@ data.values.VSPHERE_SERVER
+  identityRef:
+    kind: Secret
+    name: #@ data.values.CLUSTER_NAME
+
+#@overlay/match by=overlay.subset({"kind": "VSphereMachineTemplate", "metadata":{"name": "${ CLUSTER_NAME }-control-plane"}})
+---
+apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+kind: VSphereMachineTemplate
+metadata:
+  name: #@ "{}-control-plane".format(data.values.CLUSTER_NAME)
+  #@overlay/match missing_ok=True
+  annotations:
+    vmTemplateMoid: #@ data.values.VSPHERE_TEMPLATE_MOID
+spec:
+  template:
+    spec:
+      cloneMode:  #@ data.values.VSPHERE_CLONE_MODE
+      datacenter: #@ data.values.VSPHERE_DATACENTER
+      datastore: #@ data.values.VSPHERE_DATASTORE
+      storagePolicyName: #@ data.values.VSPHERE_STORAGE_POLICY_ID
+      diskGiB: #@ data.values.VSPHERE_CONTROL_PLANE_DISK_GIB
+      folder: #@ data.values.VSPHERE_FOLDER
+      memoryMiB: #@ data.values.VSPHERE_CONTROL_PLANE_MEM_MIB
+      network:
+        devices:
+        #@overlay/match by=overlay.index(0)
+        #@overlay/replace
+        - networkName: #@ data.values.VSPHERE_NETWORK
+          #@ if data.values.CONTROL_PLANE_NODE_NAMESERVERS:
+          nameservers: #@ data.values.CONTROL_PLANE_NODE_NAMESERVERS.replace(" ", "").split(",")
+          #@ end
+          #@ if data.values.TKG_IP_FAMILY == "ipv6":
+          dhcp6: true
+          #@ elif data.values.TKG_IP_FAMILY in ["ipv4,ipv6", "ipv6,ipv4"]:
+          dhcp4: true
+          dhcp6: true
+          #@ else:
+          dhcp4: true
+          #@ end
+      numCPUs: #@ data.values.VSPHERE_CONTROL_PLANE_NUM_CPUS
+#@ if data.values.VSPHERE_CONTROL_PLANE_PCI_DEVICES != "" and data.values.VSPHERE_CONTROL_PLANE_PCI_DEVICES != None:
+      #@overlay/match missing_ok=True
+      pciDevices: #@ get_pci_devices(data.values.VSPHERE_CONTROL_PLANE_PCI_DEVICES, data.values.VSPHERE_IGNORE_PCI_DEVICES_ALLOW_LIST)
+#@ end
+#@ if data.values.VSPHERE_CONTROL_PLANE_CUSTOM_VMX_KEYS != "" and data.values.VSPHERE_CONTROL_PLANE_CUSTOM_VMX_KEYS != None:
+      #@overlay/match missing_ok=True
+      customVMXKeys: #@ get_custom_keys(data.values.VSPHERE_CONTROL_PLANE_CUSTOM_VMX_KEYS)
+#@ end
+      resourcePool: #@ data.values.VSPHERE_RESOURCE_POOL
+      server: #@ data.values.VSPHERE_SERVER
+      template: #@ data.values.VSPHERE_TEMPLATE
+
+#@overlay/match by=overlay.subset({"kind": "VSphereMachineTemplate", "metadata":{"name": "${ CLUSTER_NAME }-worker"}})
+---
+apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+kind: VSphereMachineTemplate
+metadata:
+  name: #@ "{}-worker".format(data.values.CLUSTER_NAME)
+  #@overlay/match missing_ok=True
+  annotations:
+    vmTemplateMoid: #@ data.values.VSPHERE_TEMPLATE_MOID
+spec:
+  template:
+    spec:
+      cloneMode:  #@ data.values.VSPHERE_CLONE_MODE
+      datacenter: #@ data.values.VSPHERE_DATACENTER
+      datastore: #@ data.values.VSPHERE_DATASTORE
+      storagePolicyName: #@ data.values.VSPHERE_STORAGE_POLICY_ID
+      diskGiB: #@ data.values.VSPHERE_WORKER_DISK_GIB
+      folder: #@ data.values.VSPHERE_FOLDER
+      memoryMiB: #@ data.values.VSPHERE_WORKER_MEM_MIB
+      network:
+        devices:
+        #@overlay/match by=overlay.index(0)
+        #@overlay/replace
+        - networkName: #@ data.values.VSPHERE_NETWORK
+          #@ if data.values.WORKER_NODE_NAMESERVERS:
+          nameservers: #@ data.values.WORKER_NODE_NAMESERVERS.replace(" ", "").split(",")
+          #@ end
+          #@ if data.values.TKG_IP_FAMILY == "ipv6":
+          dhcp6: true
+          #@ elif data.values.TKG_IP_FAMILY in ["ipv4,ipv6", "ipv6,ipv4"]:
+          dhcp4: true
+          dhcp6: true
+          #@ else:
+          dhcp4: true
+          #@ end
+      numCPUs: #@ data.values.VSPHERE_WORKER_NUM_CPUS
+#@ if data.values.VSPHERE_WORKER_PCI_DEVICES != "" and data.values.VSPHERE_WORKER_PCI_DEVICES != None:
+      #@overlay/match missing_ok=True
+      pciDevices: #@ get_pci_devices(data.values.VSPHERE_WORKER_PCI_DEVICES, data.values.VSPHERE_IGNORE_PCI_DEVICES_ALLOW_LIST)
+#@ end
+#@ if data.values.VSPHERE_WORKER_CUSTOM_VMX_KEYS != "" and data.values.VSPHERE_WORKER_CUSTOM_VMX_KEYS != None:
+      #@overlay/match missing_ok=True
+      customVMXKeys: #@ get_custom_keys(data.values.VSPHERE_WORKER_CUSTOM_VMX_KEYS)
+#@ end
+      resourcePool: #@ data.values.VSPHERE_RESOURCE_POOL
+      server: #@ data.values.VSPHERE_SERVER
+      template: #@ data.values.VSPHERE_TEMPLATE
+
+#@overlay/match by=overlay.subset({"kind":"KubeadmControlPlane"})
+---
+apiVersion: controlplane.cluster.x-k8s.io/v1beta1
+kind: KubeadmControlPlane
+metadata:
+  name: #@ "{}-control-plane".format(data.values.CLUSTER_NAME)
+spec:
+  machineTemplate:
+    infrastructureRef:
+      apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+      kind: VSphereMachineTemplate
+      name: #@ "{}-control-plane".format(data.values.CLUSTER_NAME)
+  kubeadmConfigSpec:
+    initConfiguration:
+      #@ if (not data.values.AVI_CONTROL_PLANE_HA_PROVIDER) and data.values.CLUSTER_API_SERVER_PORT:
+      #@overlay/match missing_ok=True
+      localAPIEndpoint:
+        #@ if data.values.TKG_IP_FAMILY in ["ipv6", "ipv6,ipv4"]:
+        advertiseAddress: '::/0'
+        #@ else:
+        advertiseAddress: '0.0.0.0'
+        #@ end
+        bindPort: #@ data.values.CLUSTER_API_SERVER_PORT
+      #@ end
+    joinConfiguration:
+      #@ if (not data.values.AVI_CONTROL_PLANE_HA_PROVIDER) and data.values.CLUSTER_API_SERVER_PORT:
+      #@overlay/match missing_ok=True
+      controlPlane:
+        localAPIEndpoint:
+          #@ if data.values.TKG_IP_FAMILY in ["ipv6", "ipv6,ipv4"]:
+          advertiseAddress: '::/0'
+          #@ else:
+          advertiseAddress: '0.0.0.0'
+          #@ end
+          bindPort: #@ data.values.CLUSTER_API_SERVER_PORT
+      #@ end
+    clusterConfiguration:
+      imageRepository: #@ kubeadm_image_repo(bomDataForK8sVersion.kubeadmConfigSpec.imageRepository)
+      etcd:
+        local:
+          imageRepository: #@ kubeadm_image_repo(bomDataForK8sVersion.kubeadmConfigSpec.etcd.local.imageRepository)
+          imageTag: #@ bomDataForK8sVersion.kubeadmConfigSpec.etcd.local.imageTag
+          #@ if getattr(bomDataForK8sVersion.kubeadmConfigSpec.etcd.local, "extraArgs", None) != None:
+          #@overlay/match missing_ok=True
+          extraArgs:
+            #@ for key in bomDataForK8sVersion.kubeadmConfigSpec.etcd.local["extraArgs"]:
+            #@overlay/match missing_ok=True
+            #@yaml/text-templated-strings
+            (@= key @): #@ "{}".format(bomDataForK8sVersion.kubeadmConfigSpec.etcd.local["extraArgs"][key]).lower()
+            #@ end
+          #@ end
+      dns:
+        imageRepository: #@ kubeadm_image_repo(bomDataForK8sVersion.kubeadmConfigSpec.dns.imageRepository)
+        imageTag: #@ bomDataForK8sVersion.kubeadmConfigSpec.dns.imageTag
+      #@ if data.values.TKG_IP_FAMILY == "ipv6,ipv4":
+      apiServer:
+        extraArgs:
+          #@overlay/match missing_ok=True
+          advertise-address: #@ data.values.VSPHERE_CONTROL_PLANE_ENDPOINT
+          #@overlay/match missing_ok=True
+          bind-address: "::"
+      controllerManager:
+        extraArgs:
+          #@overlay/match missing_ok=True
+          bind-address: "::"
+      scheduler:
+        extraArgs:
+          #@overlay/match missing_ok=True
+          bind-address: "::"
+      #@ end
+    files:
+    #@ if not data.values.AVI_CONTROL_PLANE_HA_PROVIDER:
+    #@overlay/match by=overlay.index(0)
+    - content: #@ yaml.encode(kube_vip_pod())
+    #@ else:
+    #@overlay/match by=overlay.index(0)
+    #@overlay/remove
+    - content:
+    #@ end
+    #@ if data.values.TKG_IP_FAMILY in ["ipv6", "ipv6,ipv4"] and compare_semver_versions(tkrVersion, "v1.22.8") >= 0:
+    #@overlay/append
+    - content: ""
+      owner: root:root
+      path: /etc/sysconfig/kubelet
+      permissions: "0640"
+    #@ end
+    users:
+    #@overlay/match by=overlay.index(0)
+    #@overlay/replace
+    - name: capv
+      sshAuthorizedKeys:
+      - #@ data.values.VSPHERE_SSH_AUTHORIZED_KEY
+      sudo: ALL=(ALL) NOPASSWD:ALL
+    #! TODO: we can remove this block once we are consuming a version of containerd with this change: https://github.com/containerd/containerd/pull/5145
+    #@ if data.values.TKG_IP_FAMILY == "ipv6":
+    #@overlay/match missing_ok=True
+    postKubeadmCommands:
+    #@overlay/append
+    - sed -i '/listen-client-urls/ s/$/,https:\/\/127.0.0.1:2379/' /etc/kubernetes/manifests/etcd.yaml
+    #@ end
+    #! When using kube-vip as the control plane endpoint provider with IPv6 as
+    #! the primary IP family, set --node-ip on kubelet so that host network pods
+    #! do not get the kube-vip address as their pod IP.
+    #! See: https://github.com/vmware-tanzu/tanzu-framework/issues/2098
+    #@ if not data.values.AVI_CONTROL_PLANE_HA_PROVIDER and data.values.TKG_IP_FAMILY in ["ipv6", "ipv6,ipv4"] and compare_semver_versions(tkrVersion, "v1.22.8") >= 0:
+    preKubeadmCommands:
+    #@overlay/append
+    - echo "KUBELET_EXTRA_ARGS=--node-ip=$(ip -6 -json addr show dev eth0 scope global | jq -r .[0].addr_info[0].local)" >> /etc/sysconfig/kubelet
+    #@ end
+  replicas: #@ data.values.CONTROL_PLANE_MACHINE_COUNT
+  version: #@ data.values.KUBERNETES_VERSION
+
+#@overlay/match by=overlay.subset({"kind":"KubeadmConfigTemplate", "metadata":{"name": "${ CLUSTER_NAME }-md-0"}})
+---
+apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
+kind: KubeadmConfigTemplate
+metadata:
+  name: #@ "{}-md-0".format(data.values.CLUSTER_NAME)
+spec:
+  template:
+    spec:
+      #@ if data.values.TKG_IP_FAMILY == "ipv6,ipv4":
+      joinConfiguration:
+        nodeRegistration:
+          kubeletExtraArgs:
+            #@overlay/match missing_ok=True
+            node-ip: "::"
+      #@ end
+      users:
+      #@overlay/match by=overlay.index(0)
+      #@overlay/replace
+      - name: capv
+        sshAuthorizedKeys:
+        - #@ data.values.VSPHERE_SSH_AUTHORIZED_KEY
+        sudo: ALL=(ALL) NOPASSWD:ALL
+
+#@overlay/match by=overlay.subset({"kind":"MachineDeployment", "metadata":{"name": "${ CLUSTER_NAME }-md-0"}})
+---
+apiVersion: cluster.x-k8s.io/v1beta1
+kind: MachineDeployment
+metadata:
+  labels:
+    cluster.x-k8s.io/cluster-name: #@ data.values.CLUSTER_NAME
+  name: #@ "{}-md-0".format(data.values.CLUSTER_NAME)
+spec:
+  clusterName: #@ data.values.CLUSTER_NAME
+  replicas: #@ data.values.WORKER_MACHINE_COUNT
+  selector:
+    matchLabels:
+      cluster.x-k8s.io/cluster-name: #@ data.values.CLUSTER_NAME
+  #@ if data.values.WORKER_ROLLOUT_STRATEGY:
+  strategy:
+    type: #@ verify_and_configure_machine_deployment_rollout_strategy(data.values.WORKER_ROLLOUT_STRATEGY)
+    #@ end
+  template:
+    metadata:
+      labels:
+        cluster.x-k8s.io/cluster-name: #@ data.values.CLUSTER_NAME
+        node-pool: #@ "{}-worker-pool".format(data.values.CLUSTER_NAME)
+    spec:
+      bootstrap:
+        configRef:
+          name: #@ "{}-md-0".format(data.values.CLUSTER_NAME)
+      clusterName: #@ data.values.CLUSTER_NAME
+      infrastructureRef:
+        name: #@ "{}-worker".format(data.values.CLUSTER_NAME)
+      version: #@ data.values.KUBERNETES_VERSION
+      #@overlay/match missing_ok=True
+      #@ if data.values.VSPHERE_AZ_0:
+      failureDomain: #@ data.values.VSPHERE_AZ_0
+      #@ end
+
+#@overlay/match by=overlay.subset({"kind": "Secret", "metadata":{"name": "${ CLUSTER_NAME }"}})
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: #@ data.values.CLUSTER_NAME
+stringData:
+  username: #@ data.values.VSPHERE_USERNAME
+  password: #@ data.values.VSPHERE_PASSWORD
+#@ end

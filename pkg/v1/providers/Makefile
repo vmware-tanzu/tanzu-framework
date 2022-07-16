@@ -28,7 +28,12 @@ IMAGE_REPO ?= vmware.io
 PROVIDER_TEMPLATE_IMG_TAG ?= latest
 
 
-FILES_TO_IGNORE='.env\|.idea\|.git\|.github\|hack\|.yamllint\|.gitlab\|Makefile\|provider-bundle\|tests\|README.md\|client\|go.mod\|go.sum\|providers.sha256sum|\Dockerfile.templates'
+FILES_TO_IGNORE?=.env .idea .git .github hack .yamllint .gitlab Makefile provider-bundle tests README.md client go.mod go.sum providers.sha256sum Dockerfile.templates
+ifeq ($(EXCLUDE_CLUSTER_CLASS_FILES), true)
+FILES_TO_IGNORE+=yttcc yttcb cconly cc.yaml
+endif
+FILES_TO_IGNORE_REGEX=$(subst $(space) ,\|,$(FILES_TO_IGNORE))
+
 
 help:  ## Display this help
 	@awk 'BEGIN {FS = ":.*##"; printf "\nUsage:\n  make \033[36m<target>\033[0m\n"} /^[a-zA-Z_-]+:.*?##/ { printf "  \033[36m%-15s\033[0m %s\n", $$1, $$2 } /^##@/ { printf "\n\033[1m%s\033[0m\n", substr($$0, 5) } ' $(MAKEFILE_LIST)
@@ -62,7 +67,7 @@ clean-providers: ## cleans provider-bundle
 
 setup-provider-for-generation: clean-providers
 	# using temporary directory to extract all files which needs to bundle
-	find . -type f | grep -v ${FILES_TO_IGNORE} | xargs tar cf - -T - | tar -C ${PROVIDER_BUNDLE_DIR} -x
+	find . -type f | grep -v "${FILES_TO_IGNORE_REGEX}" | xargs tar cf - -T - | tar -C ${PROVIDER_BUNDLE_DIR} -x
 
 .PHONY: generate-provider-bundle-zip
 generate-provider-bundle-zip: setup-provider-for-generation ## generates provider zip bundle

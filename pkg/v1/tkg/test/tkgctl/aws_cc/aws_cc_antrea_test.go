@@ -20,6 +20,7 @@ var _ = Describe("Functional tests for aws (clusterclass) - Antrea", func() {
 			Cni:             "antrea",
 			Plan:            "dev",
 			Namespace:       "tkg-system",
+			OtherConfigs:    map[string]string{"clusterclass": "true"},
 		}
 	})
 })

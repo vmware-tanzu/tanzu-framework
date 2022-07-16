@@ -12,18 +12,15 @@ import (
 	"path/filepath"
 	"time"
 
+	"sigs.k8s.io/cluster-api/util"
+	"sigs.k8s.io/controller-runtime/pkg/client"
+
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	"k8s.io/apimachinery/pkg/runtime"
-
-	"sigs.k8s.io/cluster-api/util"
 
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/test/framework"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgctl"
-
-	pkgiv1alpha1 "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/packaging/v1alpha1"
-	runtanzuv1alpha3 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
 )
 
 type E2ECommonSpecInput struct {
@@ -155,36 +152,54 @@ func E2ECommonSpec(ctx context.Context, inputGetter func() E2ECommonSpecInput) {
 		By(fmt.Sprintf("Waiting for workload cluster %q nodes to be up and running", clusterName))
 		framework.WaitForNodes(framework.NewClusterProxy(clusterName, tempFilePath, ""), 2)
 
-		// verify addons are deployed successfully if in AWS environment
-		if input.Plan == "devcc" || input.Plan == "prodcc" {
+		var (
+			mngClient        client.Client
+			clusterResources []clusterResource
+		)
 
-			By(fmt.Sprintf("Get k8s client for management cluster %q", input.E2EConfig.ManagementClusterName))
-			mngkubeConfigFileName := input.E2EConfig.ManagementClusterName + ".kubeconfig"
-			mngtempFilePath := filepath.Join(os.TempDir(), mngkubeConfigFileName)
-			err = tkgCtlClient.GetCredentials(tkgctl.GetWorkloadClusterCredentialsOptions{
-				ClusterName: input.E2EConfig.ManagementClusterName,
-				Namespace:   "tkg-system",
-				ExportFile:  mngtempFilePath,
-			})
-			Expect(err).To(BeNil())
-			mngscheme := runtime.NewScheme()
-			err = pkgiv1alpha1.AddToScheme(mngscheme)
-			Expect(err).NotTo(HaveOccurred())
-			err = runtanzuv1alpha3.AddToScheme(mngscheme)
-			Expect(err).NotTo(HaveOccurred())
-			mngclient, err := createClientFromKubeconfig(mngtempFilePath, mngscheme)
-			Expect(err).ToNot(HaveOccurred(), "Failed to create management cluster client")
+		// verify addons are deployed successfully in clusterclass mode
+		if input.OtherConfigs != nil {
+			if isClusterClass, ok := input.OtherConfigs["clusterclass"]; ok && isClusterClass == "true" {
+				var infrastructureName string
+				pacificCluster, err := tkgCtlClient.IsPacificRegionalCluster()
+				Expect(err).NotTo(HaveOccurred())
+				if pacificCluster {
+					infrastructureName = "TKGS"
+				} else {
+					infrastructureName = input.E2EConfig.InfrastructureName
+				}
 
-			By(fmt.Sprintf("Get k8s client for workload cluster %q", clusterName))
-			wlcscheme := runtime.NewScheme()
-			err = pkgiv1alpha1.AddToScheme(wlcscheme)
-			Expect(err).NotTo(HaveOccurred())
-			wlcclient, err := createClientFromKubeconfig(tempFilePath, wlcscheme)
-			Expect(err).ToNot(HaveOccurred(), "Failed to create workload cluster client")
+				By(fmt.Sprintf("Get k8s client for management cluster %q", input.E2EConfig.ManagementClusterName))
+				mngkubeConfigFileName := input.E2EConfig.ManagementClusterName + ".kubeconfig"
+				mngtempFilePath := filepath.Join(os.TempDir(), mngkubeConfigFileName)
+				err = tkgCtlClient.GetCredentials(tkgctl.GetWorkloadClusterCredentialsOptions{
+					ClusterName: input.E2EConfig.ManagementClusterName,
+					Namespace:   "tkg-system",
+					ExportFile:  mngtempFilePath,
+				})
+				Expect(err).To(BeNil())
 
-			By(fmt.Sprintf("Verify addon packages on workload cluster %q matches clusterBootstrap info on management cluster %q", clusterName, input.E2EConfig.ManagementClusterName))
-			err = checkClusterCB(ctx, mngclient, wlcclient, input.E2EConfig.ManagementClusterName, clusterName, input.E2EConfig.InfrastructureName)
-			Expect(err).To(BeNil())
+				By(fmt.Sprintf("Get k8s client for management cluster %q", clusterName))
+				mngclient, mngDynamicClient, mngAggregatedAPIResourcesClient, mngDiscoveryClient, err := getClients(ctx, mngtempFilePath)
+				Expect(err).NotTo(HaveOccurred())
+				mngClient = mngclient
+
+				By(fmt.Sprintf("Get k8s client for workload cluster %q", clusterName))
+				wlcClient, _, _, _, err := getClients(ctx, tempFilePath)
+				Expect(err).NotTo(HaveOccurred())
+
+				By(fmt.Sprintf("Verify addon packages on management cluster %q matches clusterBootstrap info on management cluster %q", input.E2EConfig.ManagementClusterName, input.E2EConfig.ManagementClusterName))
+				err = checkClusterCB(ctx, mngclient, wlcClient, input.E2EConfig.ManagementClusterName, constants.TkgNamespace, "", "", infrastructureName, true)
+				Expect(err).To(BeNil())
+
+				By(fmt.Sprintf("Verify addon packages on workload cluster %q matches clusterBootstrap info on management cluster %q", clusterName, input.E2EConfig.ManagementClusterName))
+				err = checkClusterCB(ctx, mngclient, wlcClient, input.E2EConfig.ManagementClusterName, constants.TkgNamespace, clusterName, namespace, infrastructureName, false)
+				Expect(err).To(BeNil())
+
+				By(fmt.Sprintf("Get management cluster resources created by addons-manager for workload cluster %q on management cluster %q", clusterName, input.E2EConfig.ManagementClusterName))
+				clusterResources, err = getManagementClusterResources(ctx, mngclient, mngDynamicClient, mngAggregatedAPIResourcesClient, mngDiscoveryClient, namespace, clusterName, infrastructureName)
+				Expect(err).NotTo(HaveOccurred())
+			}
 		}
 
 		By(fmt.Sprintf("Deleting workload cluster %q", clusterName))
@@ -194,6 +209,16 @@ func E2ECommonSpec(ctx context.Context, inputGetter func() E2ECommonSpecInput) {
 			SkipPrompt:  true,
 		})
 		Expect(err).To(BeNil())
+
+		// verify addon resources are deleted successfully in clusterclass mode
+		if input.OtherConfigs != nil {
+			if isClusterClass, ok := input.OtherConfigs["clusterclass"]; ok && isClusterClass == "true" {
+				By(fmt.Sprintf("Verify workload cluster %q resources have been deleted", clusterName))
+				Eventually(func() bool {
+					return clusterResourcesDeleted(ctx, mngClient, clusterResources)
+				}, waitTimeout, pollingInterval).Should(BeTrue())
+			}
+		}
 
 		By("Test successful !")
 	})

@@ -104,6 +104,10 @@ var addDiscoverySourceCmd = &cobra.Command{
     tanzu plugin source add --name standalone-oci --type oci --uri projects.registry.vmware.com/tkg/tanzu-plugins/standalone:latest`,
 
 	RunE: func(cmd *cobra.Command, args []string) error {
+		// Acquire tanzu config lock
+		config.AcquireTanzuConfigLock()
+		defer config.ReleaseTanzuConfigLock()
+
 		cfg, err := config.GetClientConfig()
 		if err != nil {
 			return err
@@ -143,6 +147,11 @@ var updateDiscoverySourceCmd = &cobra.Command{
 
 	RunE: func(cmd *cobra.Command, args []string) error {
 		discoveryName := args[0]
+
+		// Acquire tanzu config lock
+		config.AcquireTanzuConfigLock()
+		defer config.ReleaseTanzuConfigLock()
+
 		cfg, err := config.GetClientConfig()
 		if err != nil {
 			return err
@@ -179,6 +188,11 @@ var deleteDiscoverySourceCmd = &cobra.Command{
     tanzu plugin discovery delete standalone-oci`,
 	RunE: func(cmd *cobra.Command, args []string) (err error) {
 		discoveryName := args[0]
+
+		// Acquire tanzu config lock
+		config.AcquireTanzuConfigLock()
+		defer config.ReleaseTanzuConfigLock()
+
 		cfg, err := config.GetClientConfig()
 		if err != nil {
 			return err

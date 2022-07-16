@@ -5,16 +5,17 @@ package controllers
 
 import (
 	"context"
-	"os/exec"
 	"path/filepath"
-	"strings"
 	"testing"
+
+	"golang.org/x/tools/go/packages"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	corev1 "k8s.io/api/core/v1"
+	utilerrors "k8s.io/apimachinery/pkg/util/errors"
 	"k8s.io/client-go/kubernetes/scheme"
 	clusterapiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -103,23 +104,30 @@ var _ = AfterSuite(func() {
 
 func getExternalCRDPaths() ([]string, error) {
 	externalDeps := map[string][]string{
-		"sigs.k8s.io/cluster-api": {"config/crd/bases",
+		"sigs.k8s.io/cluster-api/api/v1beta1": {"config/crd/bases",
 			"controlplane/kubeadm/config/crd/bases"},
 	}
 
-	var crdPaths []string
-	gopath, err := exec.Command("go", "env", "GOPATH").Output()
-	if err != nil {
-		return crdPaths, err
+	packageConfig := &packages.Config{
+		Mode: packages.NeedModule,
 	}
+
+	var crdPaths []string
 	for dep, crdDirs := range externalDeps {
-		depPath, err := exec.Command("go", "list", "-m", "-f", "{{ .Path }}@{{ .Version }}", dep).Output()
-		if err != nil {
-			return crdPaths, err
-		}
 		for _, crdDir := range crdDirs {
-			crdPaths = append(crdPaths, filepath.Join(strings.TrimSuffix(string(gopath), "\n"),
-				"pkg", "mod", strings.TrimSuffix(string(depPath), "\n"), crdDir))
+			pkgs, err := packages.Load(packageConfig, dep)
+			if err != nil {
+				return nil, err
+			}
+			pkg := pkgs[0]
+			if pkg.Errors != nil {
+				errs := []error{}
+				for _, err := range pkg.Errors {
+					errs = append(errs, err)
+				}
+				return nil, utilerrors.NewAggregate(errs)
+			}
+			crdPaths = append(crdPaths, filepath.Join(pkg.Module.Dir, crdDir))
 		}
 	}
 

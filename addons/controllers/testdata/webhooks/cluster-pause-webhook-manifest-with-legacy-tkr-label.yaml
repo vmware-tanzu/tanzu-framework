@@ -1,0 +1,14 @@
+---
+apiVersion: run.tanzu.vmware.com/v1alpha3
+kind: TanzuKubernetesRelease
+metadata:
+  name: v1.20.1---vmware.1
+  labels:
+    run.tanzu.vmware.com/legacy-tkr: ""
+spec:
+  version: v1.20.1+vmware.1
+  kubernetes:
+    version: v1.20.1+vmware.1
+    imageRepository: foo
+  osImages: [ ]
+  bootstrapPackages: [ ]

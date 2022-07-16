@@ -7,6 +7,8 @@ GOHOSTOS ?= $(shell go env GOHOSTOS)
 GOHOSTARCH ?= $(shell go env GOHOSTARCH)
 
 ROOT_DIR := $(shell git rev-parse --show-toplevel)
+RELATIVE_ROOT ?= .
+CONTROLLER_GEN_SRC ?= "./..."
 
 # Get the currently used golang install path (in GOPATH/bin, unless GOBIN is set)
 ifeq (,$(shell go env GOBIN))
@@ -105,8 +107,11 @@ $(TOOLING_BINARIES):
 	make -C $(TOOLS_DIR) $(@F)
 
 generate-controller-code: $(CONTROLLER_GEN) $(GOIMPORTS) ## Generate code via controller-gen
-	$(CONTROLLER_GEN) object:headerFile="$(ROOT_DIR)/hack/boilerplate.go.txt",year=$(shell date +%Y) paths="./..."
+	$(CONTROLLER_GEN) $(GENERATOR) object:headerFile="$(ROOT_DIR)/hack/boilerplate.go.txt",year=$(shell date +%Y) paths="$(CONTROLLER_GEN_SRC)" $(OPTIONS)
 	$(MAKE) fmt
+
+generate-manifests:
+	$(MAKE) generate-controller-code GENERATOR=crd OPTIONS="output:crd:artifacts:config=$(RELATIVE_ROOT)/config/crd/bases" CONTROLLER_GEN_SRC=$(CONTROLLER_GEN_SRC)
 
 fmt: $(GOIMPORTS) ## Run goimports
 	$(GOIMPORTS) -w -local github.com/vmware-tanzu ./
