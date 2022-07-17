@@ -290,6 +290,7 @@ var _ = Describe("VSphereCSIConfig Reconciler", func() {
 			}
 			k8sClient.Create(ctx, availabilityzones)
 		})
+
 		It("Should reconcile VSphereCSIConfig and create data values secret for VSphereCSIConfig on management cluster", func() {
 			// the data values secret should be generated
 			secret := &v1.Secret{}
