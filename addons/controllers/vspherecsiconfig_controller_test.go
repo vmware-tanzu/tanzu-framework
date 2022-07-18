@@ -8,8 +8,7 @@ import (
 	"os"
 	"regexp"
 	"strings"
-
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"time"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -22,7 +21,6 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/addons/test/testutil"
 	csiv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/csi/v1alpha1"
-	topologyv1alpha1 "github.com/vmware-tanzu/vm-operator/external/tanzu-topology/api/v1alpha1"
 )
 
 var _ = Describe("VSphereCSIConfig Reconciler", func() {
@@ -278,17 +276,6 @@ var _ = Describe("VSphereCSIConfig Reconciler", func() {
 			clusterName = "test-cluster-pv-csi"
 			clusterResourceFilePath = "testdata/test-vsphere-csi-paravirtual.yaml"
 			enduringResourcesFilePath = "testdata/vmware-csi-system-ns.yaml"
-
-			// Create availability zones
-			availabilityzones := &topologyv1alpha1.AvailabilityZone{
-				TypeMeta: metav1.TypeMeta{},
-				ObjectMeta: metav1.ObjectMeta{
-					Name: "test-az",
-				},
-				Spec:   topologyv1alpha1.AvailabilityZoneSpec{},
-				Status: topologyv1alpha1.AvailabilityZoneStatus{},
-			}
-			k8sClient.Create(ctx, availabilityzones)
 		})
 
 		It("Should reconcile VSphereCSIConfig and create data values secret for VSphereCSIConfig on management cluster", func() {
@@ -316,7 +303,6 @@ var _ = Describe("VSphereCSIConfig Reconciler", func() {
 				Expect(strings.Contains(secretData, "state1: value1")).Should(BeTrue())
 				Expect(strings.Contains(secretData, "state2: value2")).Should(BeTrue())
 				Expect(strings.Contains(secretData, "state3: value3")).Should(BeTrue())
-				Expect(strings.Contains(secretData, "zone: true")).Should(BeTrue())
 
 				return nil
 			}, waitTimeout, pollingInterval).Should(Succeed())
@@ -335,6 +321,68 @@ var _ = Describe("VSphereCSIConfig Reconciler", func() {
 					return fmt.Errorf("VSphereConfig status not yet updated: %v", configKey)
 				}
 				Expect(*config.Status.SecretRef).To(Equal(fmt.Sprintf("%s-%s-data-values", clusterName, constants.PVCSIAddonName)))
+				return nil
+			}, waitTimeout, pollingInterval).Should(Succeed())
+		})
+
+		It("Should reconcile VSphereCSIConfig and return zone as false", func() {
+
+			// Create availability zone with name test-az
+			availabilityzoneName := "vmware-system-legacy"
+			testutil.CreateAvailabilityZones(ctx, k8sClient, availabilityzoneName)
+			// Wait for the secret to get updated
+			time.Sleep(30 * time.Second)
+
+			secret := &v1.Secret{}
+			Eventually(func() error {
+				secretKey := client.ObjectKey{
+					Namespace: clusterNamespace,
+					Name:      fmt.Sprintf("%s-%s-data-values", clusterName, constants.PVCSIAddonName),
+				}
+				if err := k8sClient.Get(ctx, secretKey, secret); err != nil {
+					return fmt.Errorf("Failed to get Secret '%v': '%v'", secretKey, err)
+				}
+				secretData := string(secret.Data["values.yaml"])
+				fmt.Println(secretData) // debug dump
+				Expect(len(secretData)).Should(Not(BeZero()))
+				Expect(strings.Contains(secretData, "vspherePVCSI:")).Should(BeTrue())
+				Expect(strings.Contains(secretData, "cluster_name: test-cluster-pv-csi")).Should(BeTrue())
+				match, _ := regexp.MatchString("cluster_uid: [a-z0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{12}", secretData)
+				Expect(match).Should(BeTrue())
+
+				Expect(strings.Contains(secretData, "zone: false")).Should(BeTrue())
+
+				return nil
+			}, waitTimeout, pollingInterval).Should(Succeed())
+		})
+
+		It("Should reconcile VSphereCSIConfig and return zone as true", func() {
+
+			// Create availability zone with name test-az
+			availabilityzoneName := "test-az"
+			testutil.CreateAvailabilityZones(ctx, k8sClient, availabilityzoneName)
+			// Wait for the secret to get updated
+			time.Sleep(30 * time.Second)
+
+			secret := &v1.Secret{}
+			Eventually(func() error {
+				secretKey := client.ObjectKey{
+					Namespace: clusterNamespace,
+					Name:      fmt.Sprintf("%s-%s-data-values", clusterName, constants.PVCSIAddonName),
+				}
+				if err := k8sClient.Get(ctx, secretKey, secret); err != nil {
+					return fmt.Errorf("Failed to get Secret '%v': '%v'", secretKey, err)
+				}
+				secretData := string(secret.Data["values.yaml"])
+				fmt.Println(secretData) // debug dump
+				Expect(len(secretData)).Should(Not(BeZero()))
+				Expect(strings.Contains(secretData, "vspherePVCSI:")).Should(BeTrue())
+				Expect(strings.Contains(secretData, "cluster_name: test-cluster-pv-csi")).Should(BeTrue())
+				match, _ := regexp.MatchString("cluster_uid: [a-z0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{12}", secretData)
+				Expect(match).Should(BeTrue())
+
+				Expect(strings.Contains(secretData, "zone: true")).Should(BeTrue())
+
 				return nil
 			}, waitTimeout, pollingInterval).Should(Succeed())
 		})
