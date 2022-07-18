@@ -8,11 +8,12 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	topologyv1alpha1 "github.com/vmware-tanzu/vm-operator/external/tanzu-topology/api/v1alpha1"
 	"io"
 	"os"
 	"path/filepath"
 	"time"
+
+	topologyv1alpha1 "github.com/vmware-tanzu/vm-operator/external/tanzu-topology/api/v1alpha1"
 
 	"golang.org/x/tools/go/packages"
 
