@@ -39,7 +39,7 @@ func (r *VSphereCSIConfigReconciler) mapVSphereCSIConfigToDataValues(ctx context
 	default:
 		break
 	}
-	//TODO: implement validation webhook to prevent this https://github.com/vmware-tanzu/tanzu-framework/issues/2087
+	// TODO: implement validation webhook to prevent this https://github.com/vmware-tanzu/tanzu-framework/issues/2087
 	return nil, errors.Errorf("Invalid CSI mode '%s', must either be '%s' or '%s'",
 		vcsiConfig.Spec.VSphereCSI.Mode, VSphereCSIParavirtualMode, VSphereCSINonParavirtualMode)
 }
@@ -49,6 +49,8 @@ func (r *VSphereCSIConfigReconciler) mapVSphereCSIConfigToDataValuesParavirtual(
 
 	dvs := &DataValues{}
 	dvs.VSpherePVCSI = &DataValuesVSpherePVCSI{}
+	dvs.VSpherePVCSI.ClusterAPIVersion = cluster.GroupVersionKind().GroupVersion().String()
+	dvs.VSpherePVCSI.ClusterKind = cluster.GroupVersionKind().Kind
 	dvs.VSpherePVCSI.ClusterName = cluster.Name
 	dvs.VSpherePVCSI.ClusterUID = string(cluster.UID)
 	// default values from https://github.com/vmware-tanzu/community-edition/blob/main/addons/packages/vsphere-pv-csi/2.4.1/bundle/config/values.yaml
