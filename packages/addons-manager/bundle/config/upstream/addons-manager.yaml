@@ -329,6 +329,9 @@ spec:
   #@ else:
   replicas: 1
   #@ end
+  strategy:
+    rollingUpdate:
+      maxUnavailable: 1
   selector:
     matchLabels:
       app: tanzu-addons-manager
