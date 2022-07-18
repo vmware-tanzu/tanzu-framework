@@ -18,6 +18,7 @@ type DataValuesVSpherePVCSI struct {
 	SupervisorMasterEndpointHostname string            `yaml:"supervisor_master_endpoint_hostname"`
 	SupervisorMasterPort             int32             `yaml:"supervisor_master_port"`
 	FeatureStates                    map[string]string `yaml:"feature_states,omitempty"`
+	Zone                             bool              `yaml:"zone"`
 }
 
 type DataValuesVSphereCSI struct {

@@ -665,9 +665,9 @@ func (c *client) GetManagementPackageRepositoryImage() (string, error) {
 		return "", errors.New("unable to find 'tanzu-framework-management-packages' component in BoM file")
 	}
 
-	tfmprImage, ok := tfmpComponent[0].Images["tanzuFrameworkManagementPackageRepositoryImage"]
+	tfmprImage, ok := tfmpComponent[0].Images["tanzuFrameworkManagementPackageRepositoryImageUTKG"]
 	if !ok || tfmprImage == nil {
-		return "", errors.New("unable to find 'tanzuFrameworkManagementPackageRepositoryImage' image in BoM file")
+		return "", errors.New("unable to find 'tanzuFrameworkManagementPackageRepositoryImageUTKG' image in BoM file")
 	}
 
 	repository := bomConfiguration.ImageConfig.ImageRepository

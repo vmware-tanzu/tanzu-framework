@@ -48,6 +48,7 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/buildinfo"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/webhooks"
 	vmoperatorv1alpha1 "github.com/vmware-tanzu/vm-operator-api/api/v1alpha1"
+	topologyv1alpha1 "github.com/vmware-tanzu/vm-operator/external/tanzu-topology/api/v1alpha1"
 )
 
 var (
@@ -72,6 +73,7 @@ func init() {
 	_ = capvv1beta1.AddToScheme(scheme)
 	_ = capvvmwarev1beta1.AddToScheme(scheme)
 	_ = vmoperatorv1alpha1.AddToScheme(scheme)
+	_ = topologyv1alpha1.AddToScheme(scheme)
 
 	// +kubebuilder:scaffold:scheme
 }

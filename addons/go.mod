@@ -22,6 +22,7 @@ require (
 	github.com/vmware-tanzu/tanzu-framework/apis/cni v0.0.0-00010101000000-000000000000
 	github.com/vmware-tanzu/tanzu-framework/apis/cpi v0.0.0-00010101000000-000000000000
 	github.com/vmware-tanzu/vm-operator-api v0.1.4-0.20211202185235-43eb44c09ecd
+	github.com/vmware-tanzu/vm-operator/external/tanzu-topology v0.0.0-20211209213435-0f4ab286f64f
 	golang.org/x/text v0.3.7
 	golang.org/x/tools v0.1.10
 	gopkg.in/yaml.v2 v2.4.0
