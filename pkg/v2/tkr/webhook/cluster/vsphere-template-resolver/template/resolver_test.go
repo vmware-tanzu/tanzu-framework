@@ -486,7 +486,7 @@ var _ = Describe("Webhook", func() {
 			It("should return a no-op admission allowed response because tkr-resolution has not yet happened.", func() {
 				Expect(response).ToNot(BeNil())
 				Expect(response.AdmissionResponse.Allowed).To(BeTrue())
-				Expect(string(response.AdmissionResponse.Result.Reason)).To(Equal("tkr resolution incomplete, no-op"))
+				Expect(string(response.AdmissionResponse.Result.Reason)).To(Equal("template resolution skipped because tkr resolution incomplete (label not set)"))
 			})
 		})
 		When("the topology version does not match the version in tkr label", func() {
@@ -496,7 +496,7 @@ var _ = Describe("Webhook", func() {
 			It("should return a no-op admission allowed response because tkr-resolution has not yet happened", func() {
 				Expect(response).ToNot(BeNil())
 				Expect(response.AdmissionResponse.Allowed).To(BeTrue())
-				Expect(string(response.AdmissionResponse.Result.Reason)).To(Equal("tkr version does not match topology version, no-op"))
+				Expect(string(response.AdmissionResponse.Result.Reason)).To(Equal("template resolution skipped because tkr version v1.22.3+vmware.1-rest-does-not-matter does not match topology version foo, no-op"))
 			})
 		})
 		When("there are no ovas to resolve because there are no tkr datas", func() {

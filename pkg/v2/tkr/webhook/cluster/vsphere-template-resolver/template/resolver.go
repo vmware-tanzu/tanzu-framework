@@ -72,13 +72,13 @@ func (cw *Webhook) resolve(ctx context.Context, cluster *clusterv1.Cluster) *adm
 	tkrLabel, ok := cluster.Labels[v1alpha3.LabelTKR]
 	if !ok {
 		// tkr resolution (tkr-resolver webhook) not yet finished, skip.
-		return createRespPtr(admission.Allowed("tkr resolution incomplete, no-op"))
+		return createRespPtr(admission.Allowed("template resolution skipped because tkr resolution incomplete (label not set)"))
 	}
 
 	if !strings.HasPrefix(tkrLabel, topology.Version) {
 		// Resolved tkr label is different from topology version.
 		// tkr resolution is possibly not yet complete for this topology version
-		return createRespPtr(admission.Allowed("tkr version does not match topology version, no-op"))
+		return createRespPtr(admission.Allowed(fmt.Sprintf("template resolution skipped because tkr version %v does not match topology version %v, no-op", tkrLabel, topology.Version)))
 	}
 
 	// Get TKR Data variable for control plane and populate query.
@@ -255,6 +255,7 @@ func (cw *Webhook) processResult(result templateresolver.Result, cluster *cluste
 			}
 		}
 	}
+	cw.Log.Info(fmt.Sprintf("tkr resolution complete for topology %v", topologyVersion))
 	return nil
 }
 
@@ -278,9 +279,12 @@ func (cw *Webhook) getVCClient(ctx context.Context, cluster *clusterv1.Cluster) 
 	clusterName, clusterNamespace := cluster.Name, cluster.Namespace
 
 	secret := &corev1.Secret{}
-	err := c.Get(ctx, client.ObjectKey{Name: clusterName, Namespace: clusterNamespace}, secret)
+	objKey := client.ObjectKey{Name: clusterName, Namespace: clusterNamespace}
+	cw.Log.Info("Getting secret for VC Client", "key", objKey)
+
+	err := c.Get(ctx, objKey, secret)
 	if err != nil {
-		return templateresolver.VSphereContext{}, errors.Wrap(err, "could not get secret")
+		return templateresolver.VSphereContext{}, errors.Wrap(err, fmt.Sprintf("could not get secret for key: %v", objKey))
 	}
 	username, password := secret.Data["username"], secret.Data["password"]
 
@@ -290,9 +294,11 @@ func (cw *Webhook) getVCClient(ctx context.Context, cluster *clusterv1.Cluster) 
 		client.InNamespace(clusterNamespace),
 		client.MatchingLabels(map[string]string{capi.ClusterLabelName: clusterName}),
 	}
+
+	cw.Log.Info("List with query", "selectors", selectors)
 	err = c.List(ctx, kcpList, selectors...)
 	if err != nil {
-		return templateresolver.VSphereContext{}, errors.Wrap(err, "could not list KubeadmControlPlane")
+		return templateresolver.VSphereContext{}, errors.Wrap(err, fmt.Sprintf("could not list KubeadmControlPlane with selectors: %v", selectors))
 	}
 	// There should only be one.
 	if len(kcpList.Items) != 1 {
@@ -304,13 +310,17 @@ func (cw *Webhook) getVCClient(ctx context.Context, cluster *clusterv1.Cluster) 
 	kcp := &kcpList.Items[0]
 	vsphereMachineTemplateName := kcp.Spec.MachineTemplate.InfrastructureRef.Name
 	vsphereMachineTemplate := &capvv1beta1.VSphereMachineTemplate{}
-	err = c.Get(ctx, client.ObjectKey{Name: vsphereMachineTemplateName, Namespace: clusterNamespace}, vsphereMachineTemplate)
+	vmTemplateKey := client.ObjectKey{Name: vsphereMachineTemplateName, Namespace: clusterNamespace}
+	cw.Log.Info("Getting vsphere Machine template", "key", vmTemplateKey)
+	err = c.Get(ctx, vmTemplateKey, vsphereMachineTemplate)
 	if err != nil {
-		return templateresolver.VSphereContext{}, errors.Wrap(err, "could not get VSphereMachineTemplate")
+		return templateresolver.VSphereContext{}, errors.Wrap(err, fmt.Sprintf("could not get VSphereMachineTemplate with key %v", vmTemplateKey))
 	}
 
 	vsphereServer := vsphereMachineTemplate.Spec.Template.Spec.Server
 	dcName := vsphereMachineTemplate.Spec.Template.Spec.Datacenter
+
+	cw.Log.Info("Successfully retrieved vSphere context", vsphereServer, dcName)
 	return templateresolver.VSphereContext{
 		Username:           string(username),
 		Password:           string(password),

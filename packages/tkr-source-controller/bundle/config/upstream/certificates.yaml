@@ -15,7 +15,7 @@ apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
   labels:
-  name: vsphere-template-resolver-webhook-serving-cert
+  name: vsphere-template-resolver-cluster-webhook-serving-cert
   namespace: #@ data.values.namespace
   annotations:
     kapp.k14s.io/change-group: "tkr-source-controller.tanzu.vmware.com/certificate"
@@ -23,9 +23,9 @@ metadata:
     kapp.k14s.io/change-rule.1: "delete before deleting tkr-source-controller.tanzu.vmware.com/issuer"
 spec:
   dnsNames:
-  - #@ "vsphere-template-resolver-webhook-service.{}.svc".format(data.values.namespace)
-  - #@ "vsphere-template-resolver-webhook-service-cert.{}.svc.cluster.local".format(data.values.namespace)
+  - #@ "vsphere-template-resolver-cluster-webhook-service.{}.svc".format(data.values.namespace)
+  - #@ "vsphere-template-resolver-cluster-webhook-service-cert.{}.svc.cluster.local".format(data.values.namespace)
   issuerRef:
     kind: Issuer
     name:  tkr-source-controller-selfsigned-issuer
-  secretName: vsphere-template-resolver-webhook-service-cert
+  secretName: vsphere-template-resolver-cluster-webhook-service-cert

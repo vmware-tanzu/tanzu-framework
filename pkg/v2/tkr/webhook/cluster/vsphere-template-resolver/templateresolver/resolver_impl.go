@@ -41,10 +41,14 @@ func (r *Resolver) GetVSphereEndpoint(svrContext VSphereContext) (vc.Client, err
 		return nil, errors.Wrap(err, "failed to parse vc host")
 	}
 	vcURL.Path = "/sdk"
+
+	r.Log.Info(fmt.Sprintf("Creating client with endpoint: %v", vcURL))
 	vcClient, err := vc.NewClient(vcURL, svrContext.TLSThumbprint, svrContext.InsecureSkipVerify)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to create vc client")
 	}
+
+	r.Log.Info("Logging into vSphere")
 	_, err = vcClient.Login(context.TODO(), svrContext.Username, svrContext.Password)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to login to vSphere")
