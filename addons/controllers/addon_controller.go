@@ -39,6 +39,7 @@ import (
 	addonpredicates "github.com/vmware-tanzu/tanzu-framework/addons/predicates"
 	runtanzuv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha1"
 	bomtypes "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkr/pkg/types"
+	topologyv1alpha1 "github.com/vmware-tanzu/vm-operator/external/tanzu-topology/api/v1alpha1"
 )
 
 const (
@@ -570,6 +571,9 @@ func GetExternalCRDs() map[schema.GroupVersion]*sets.String {
 
 	kapppkgv1alpha1Resources := sets.NewString("packageinstalls", "packagerepositories")
 	crds[kapppkg.SchemeGroupVersion] = &kapppkgv1alpha1Resources
+
+	topologyv1alpha1Resources := sets.NewString("availabilityzones")
+	crds[topologyv1alpha1.GroupVersion] = &topologyv1alpha1Resources
 
 	return crds
 }

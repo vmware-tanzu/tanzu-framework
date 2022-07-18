@@ -34,6 +34,7 @@ const (
 	VSphereCSIMaxDeploymentReplicas     = 3
 	VSphereCSIFeatureStateNamespace     = VSphereSystemCSINamepace
 	VSphereCSIFeatureStateConfigMapName = "csi-feature-states"
+	LegacyZoneName                      = "vmware-system-legacy"
 )
 
 const (

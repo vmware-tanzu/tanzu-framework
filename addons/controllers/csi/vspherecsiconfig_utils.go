@@ -23,6 +23,7 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
 	pkgtypes "github.com/vmware-tanzu/tanzu-framework/addons/pkg/types"
 	csiv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/csi/v1alpha1"
+	topologyv1alpha1 "github.com/vmware-tanzu/vm-operator/external/tanzu-topology/api/v1alpha1"
 )
 
 // mapVSphereCSIConfigToDataValues maps VSphereCSIConfig CR to data values
@@ -67,6 +68,12 @@ func (r *VSphereCSIConfigReconciler) mapVSphereCSIConfigToDataValuesParavirtual(
 		for k, v := range featureStatesCM.Data {
 			dvs.VSpherePVCSI.FeatureStates[k] = v
 		}
+	}
+
+	var err error
+	dvs.VSpherePVCSI.Zone, err = r.isStretchedSupervisorCluster(ctx)
+	if err != nil {
+		return nil, err
 	}
 
 	return dvs, nil
@@ -359,4 +366,29 @@ func (r *VSphereCSIConfigReconciler) getNumberOfControlPlaneNodes(ctx context.Co
 			name, namespace, err)
 	}
 	return *kcp.Spec.Replicas, nil
+}
+
+// Return true if Valid Availability Zones are present
+// i.e. if the cluster is Stretch Supervisor
+func (r *VSphereCSIConfigReconciler) isStretchedSupervisorCluster(ctx context.Context) (bool, error) {
+	azList := &topologyv1alpha1.AvailabilityZoneList{}
+
+	err := r.Client.List(ctx, azList)
+	if err != nil {
+		return false, err
+	}
+
+	if len(azList.Items) == 0 {
+		return false, nil
+	}
+
+	if len(azList.Items) == 1 {
+		// by default every cluster contains legacy availability zone,
+		// if only the legacy AZ is present, return false
+		if azList.Items[0].Name == LegacyZoneName {
+			return false, nil
+		}
+	}
+
+	return true, nil
 }
