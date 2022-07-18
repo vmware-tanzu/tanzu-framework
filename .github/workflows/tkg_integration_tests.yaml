@@ -202,6 +202,7 @@ jobs:
       if: ${{ always() && env.azure_client_id != '' }}
       with:
         creds: '{"clientId":"${{ secrets.AZURE_CLIENT_ID_SAIB }}","clientSecret":"${{ secrets.AZURE_CLIENT_SECRET_SAIB }}","subscriptionId":"${{ secrets.AZURE_SUBSCRIPTION_ID_SAIB }}","tenantId":"${{ secrets.AZURE_TENANT_ID_SAIB }}"}'
+        #creds: ${{ secrets.AZURE_CREDS }}
 
     - name: Cleanup Azure resources
       if: ${{ always() }}
