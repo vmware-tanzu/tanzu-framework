@@ -10,6 +10,8 @@ type DataValues struct {
 }
 
 type DataValuesVSpherePVCSI struct {
+	ClusterAPIVersion                string            `yaml:"clusterAPIVersion"`
+	ClusterKind                      string            `yaml:"clusterKind"`
 	ClusterName                      string            `yaml:"cluster_name"`
 	ClusterUID                       string            `yaml:"cluster_uid"`
 	Namespace                        string            `yaml:"namespace"`

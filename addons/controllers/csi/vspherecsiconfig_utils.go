@@ -19,10 +19,11 @@ import (
 	capictrlpkubeadmv1beta1 "sigs.k8s.io/cluster-api/controlplane/kubeadm/api/v1beta1"
 	"sigs.k8s.io/controller-runtime/pkg/log"
 
+	csiv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/csi/v1alpha1"
+
 	cutil "github.com/vmware-tanzu/tanzu-framework/addons/controllers/utils"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
 	pkgtypes "github.com/vmware-tanzu/tanzu-framework/addons/pkg/types"
-	csiv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/csi/v1alpha1"
 )
 
 // mapVSphereCSIConfigToDataValues maps VSphereCSIConfig CR to data values
@@ -38,7 +39,7 @@ func (r *VSphereCSIConfigReconciler) mapVSphereCSIConfigToDataValues(ctx context
 	default:
 		break
 	}
-	//TODO: implement validation webhook to prevent this https://github.com/vmware-tanzu/tanzu-framework/issues/2087
+	// TODO: implement validation webhook to prevent this https://github.com/vmware-tanzu/tanzu-framework/issues/2087
 	return nil, errors.Errorf("Invalid CSI mode '%s', must either be '%s' or '%s'",
 		vcsiConfig.Spec.VSphereCSI.Mode, VSphereCSIParavirtualMode, VSphereCSINonParavirtualMode)
 }
@@ -48,6 +49,8 @@ func (r *VSphereCSIConfigReconciler) mapVSphereCSIConfigToDataValuesParavirtual(
 
 	dvs := &DataValues{}
 	dvs.VSpherePVCSI = &DataValuesVSpherePVCSI{}
+	dvs.VSpherePVCSI.ClusterAPIVersion = cluster.GroupVersionKind().GroupVersion().String()
+	dvs.VSpherePVCSI.ClusterKind = cluster.GroupVersionKind().Kind
 	dvs.VSpherePVCSI.ClusterName = cluster.Name
 	dvs.VSpherePVCSI.ClusterUID = string(cluster.UID)
 	// default values from https://github.com/vmware-tanzu/community-edition/blob/main/addons/packages/vsphere-pv-csi/2.4.1/bundle/config/values.yaml
