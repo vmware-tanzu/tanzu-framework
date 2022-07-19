@@ -16,6 +16,8 @@ import (
 // Default Standalone Discovery configuration
 // Value of this variables gets assigned during build time
 var (
+	// DefaultAllowedPluginRepositories this can be comma separated list of allowed registries
+	DefaultAllowedPluginRepositories     = ""
 	DefaultStandaloneDiscoveryRepository = ""
 	DefaultStandaloneDiscoveryImagePath  = ""
 	DefaultStandaloneDiscoveryImageTag   = ""
@@ -103,9 +105,11 @@ func GetDefaultStandaloneDiscoveryLocalPath() string {
 func GetTrustedRegistries() []string {
 	var trustedRegistries []string
 
-	// Add default registry to trusted registries
-	if DefaultStandaloneDiscoveryRepository != "" {
-		trustedRegistries = append(trustedRegistries, DefaultStandaloneDiscoveryRepository)
+	// Add default allowed registries to trusted registries
+	if DefaultAllowedPluginRepositories != "" {
+		for _, r := range strings.Split(DefaultAllowedPluginRepositories, ",") {
+			trustedRegistries = append(trustedRegistries, strings.TrimSpace(r))
+		}
 	}
 
 	// If custom image repository is defined add it to the list of trusted registries

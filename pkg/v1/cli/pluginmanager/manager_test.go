@@ -634,16 +634,24 @@ func Test_VerifyRegistry(t *testing.T) {
 	assert.Nil(err)
 	err = configureAndTestVerifyRegistry(testImage, "", "", "fake.repo.com/image,fake.repo.com")
 	assert.Nil(err)
+
+	testImage = "fake1.repo.com/image:v1.0.0"
+	err = configureAndTestVerifyRegistry(testImage, "fake.repo.com/image", "", "")
+	assert.NotNil(err)
+	err = configureAndTestVerifyRegistry(testImage, "fake.repo.com/image,fake1.repo.com/image", "", "")
+	assert.Nil(err)
+	err = configureAndTestVerifyRegistry(testImage, "fake1.repo.com/image", "", "")
+	assert.Nil(err)
 }
 
 func configureAndTestVerifyRegistry(testImage, defaultRegistry, customImageRepository, allowedRegistries string) error { //nolint:unparam
-	config.DefaultStandaloneDiscoveryRepository = defaultRegistry
+	config.DefaultAllowedPluginRepositories = defaultRegistry
 	os.Setenv(constants.ConfigVariableCustomImageRepository, customImageRepository)
 	os.Setenv(constants.AllowedRegistries, allowedRegistries)
 
 	err := verifyRegistry(testImage)
 
-	config.DefaultStandaloneDiscoveryRepository = ""
+	config.DefaultAllowedPluginRepositories = ""
 	os.Setenv(constants.ConfigVariableCustomImageRepository, "")
 	os.Setenv(constants.AllowedRegistries, "")
 	return err
