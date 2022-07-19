@@ -202,7 +202,7 @@ var _ = Describe("Webhook", func() {
 						Spec: controlplanev1.KubeadmControlPlaneSpec{
 							MachineTemplate: controlplanev1.KubeadmControlPlaneMachineTemplate{
 								InfrastructureRef: corev1.ObjectReference{
-									Name: "doesn't-matter",
+									Name: "infra-name-doesn't-matter",
 								},
 							},
 						},
@@ -350,7 +350,7 @@ var _ = Describe("Webhook", func() {
 					Spec: controlplanev1.KubeadmControlPlaneSpec{
 						MachineTemplate: controlplanev1.KubeadmControlPlaneMachineTemplate{
 							InfrastructureRef: corev1.ObjectReference{
-								Name: "doesn't-matter",
+								Name: "infra-name-doesn't-matter",
 							},
 						},
 					},
@@ -519,7 +519,7 @@ var _ = Describe("Webhook", func() {
 			It("should return a an error", func() {
 				Expect(response).ToNot(BeNil())
 				Expect(response.AdmissionResponse.Allowed).To(BeFalse())
-				Expect(response.AdmissionResponse.Result.Message).To(Equal("could not get secret: Error while getting secret"))
+				Expect(response.AdmissionResponse.Result.Message).To(Equal("could not get secret for key: clusterNamespace/cluster: Error while getting secret"))
 			})
 		})
 		When("there is an error Getting vsphereMachineTemplate", func() {
@@ -532,7 +532,7 @@ var _ = Describe("Webhook", func() {
 			It("should return an error", func() {
 				Expect(response).ToNot(BeNil())
 				Expect(response.AdmissionResponse.Allowed).To(BeFalse())
-				Expect(response.AdmissionResponse.Result.Message).To(Equal("could not get VSphereMachineTemplate: Error while getting vsphereMachineTemplate"))
+				Expect(response.AdmissionResponse.Result.Message).To(ContainSubstring("could not get VSphereMachineTemplate with key clusterNamespace/infra-name-doesn't-matter: Error while getting vsphereMachineTemplate"))
 			})
 		})
 		When("there is an error listing KubeadmControlPlaneList", func() {
@@ -545,7 +545,7 @@ var _ = Describe("Webhook", func() {
 			It("should return an error", func() {
 				Expect(response).ToNot(BeNil())
 				Expect(response.AdmissionResponse.Allowed).To(BeFalse())
-				Expect(response.AdmissionResponse.Result.Message).To(Equal("could not list KubeadmControlPlane: Error while getting KubeadmControlPlaneList"))
+				Expect(response.AdmissionResponse.Result.Message).To(ContainSubstring("could not list KubeadmControlPlane with selectors: [clusterNamespace map[cluster.x-k8s.io/cluster-name:cluster]]: Error while getting KubeadmControlPlaneList"))
 			})
 		})
 		When("there is are no items in KubeadmControlPlaneList", func() {
@@ -556,7 +556,7 @@ var _ = Describe("Webhook", func() {
 			It("should return an error", func() {
 				Expect(response).ToNot(BeNil())
 				Expect(response.AdmissionResponse.Allowed).To(BeFalse())
-				Expect(response.AdmissionResponse.Result.Message).To(Equal("zero or multiple KCP objects found for the given cluster, 0 cluster clusterNamespace"))
+				Expect(response.AdmissionResponse.Result.Message).To(ContainSubstring("zero or multiple KCP objects found for the given cluster, 0 cluster clusterNamespace"))
 			})
 		})
 		When("there is an error getting vsphere endpoint", func() {
