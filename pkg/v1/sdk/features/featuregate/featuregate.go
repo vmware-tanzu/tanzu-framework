@@ -83,23 +83,23 @@ func ComputeFeatureStates(featureGateSpec configv1alpha1.FeatureGateSpec, featur
 	return activated, deactivated, unavailable
 }
 
-// FeatureActivatedInNamespace returns true only if all of the features specified are activated in the namespace.
+// FeatureActivatedInNamespace returns true only if the feature is activated in the namespace.
 func FeatureActivatedInNamespace(ctx context.Context, c client.Client, namespace, feature string) (bool, error) {
-	selector := metav1.LabelSelector{
-		MatchExpressions: []metav1.LabelSelectorRequirement{
-			{Key: "kubernetes.io/metadata.name", Operator: metav1.LabelSelectorOpIn, Values: []string{namespace}},
-		},
-	}
-	return FeaturesActivatedInNamespacesMatchingSelector(ctx, c, selector, []string{feature})
+	return featuresActivated(ctx, c, []string{namespace}, []string{feature})
 }
 
 // FeaturesActivatedInNamespacesMatchingSelector returns true only if all the features specified are activated in every namespace matched by the selector.
+// Note the client passed in must have appropriate RBAC to list namespaces in order to apply the selector.
 func FeaturesActivatedInNamespacesMatchingSelector(ctx context.Context, c client.Client, namespaceSelector metav1.LabelSelector, features []string) (bool, error) {
 	namespaces, err := featureutil.NamespacesMatchingSelector(ctx, c, &namespaceSelector)
 	if err != nil {
 		return false, err
 	}
+	return featuresActivated(ctx, c, namespaces, features)
+}
 
+// featuresActivated returns true only if all the features specified are activated in each input namespace.
+func featuresActivated(ctx context.Context, c client.Client, namespaces, features []string) (bool, error) {
 	// If no namespaces are matched or no features specified, return false.
 	if len(namespaces) == 0 || len(features) == 0 {
 		return false, nil

@@ -305,3 +305,115 @@ func TestFeaturesActivatedInNamespacesMatchingSelector(t *testing.T) {
 		})
 	}
 }
+
+func TestFeatureActivatedInNamespace(t *testing.T) {
+	scheme, err := configv1alpha1.SchemeBuilder.Build()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := k8sscheme.AddToScheme(scheme); err != nil {
+		t.Fatal(err)
+	}
+
+	newNamespace := func(name string) *corev1.Namespace {
+		return &corev1.Namespace{ObjectMeta: metav1.ObjectMeta{Name: name, Labels: map[string]string{"kubernetes.io/metadata.name": name}}}
+	}
+
+	newFeatureGate := func(name string, namespaces, activated, deactivated, unavailable []string) *configv1alpha1.FeatureGate {
+		return &configv1alpha1.FeatureGate{
+			ObjectMeta: metav1.ObjectMeta{
+				Name: name,
+			},
+			Status: configv1alpha1.FeatureGateStatus{
+				Namespaces:          namespaces,
+				ActivatedFeatures:   activated,
+				DeactivatedFeatures: deactivated,
+				UnavailableFeatures: unavailable,
+			}}
+	}
+
+	testCases := []struct {
+		description     string
+		existingObjects []runtime.Object
+		namespace       string
+		feature         string
+		want            bool
+		err             string
+	}{
+		{
+			description: "Namespace exists and is gated and feature is activated",
+			existingObjects: []runtime.Object{
+				newNamespace("tkg-system"),
+				newFeatureGate("tkg", []string{"tkg-system"}, []string{"one", "two"}, []string{"three", "four"}, []string{"five", "six"}),
+			},
+			namespace: "tkg-system",
+			feature:   "one",
+			want:      true,
+			err:       "",
+		},
+		{
+			description: "Namespace exists and is gated and feature is deactivated",
+			existingObjects: []runtime.Object{
+				newNamespace("tkg-system"),
+				newFeatureGate("tkg", []string{"tkg-system"}, []string{"one", "two"}, []string{"three", "four"}, []string{"five", "six"}),
+			},
+			namespace: "tkg-system",
+			feature:   "three",
+			want:      false,
+			err:       "",
+		},
+		{
+			description: "Namespace does not exist but feature exists",
+			existingObjects: []runtime.Object{
+				newNamespace("kube-system"),
+				newFeatureGate("tkg", []string{"kube-system"}, []string{"one", "two"}, []string{"three", "four"}, []string{"five", "six"}),
+			},
+			namespace: "tkg-system",
+			feature:   "one",
+			want:      false,
+			err:       "",
+		},
+		{
+			description: "Namespace exists and is gated but feature does not exist",
+			existingObjects: []runtime.Object{
+				newNamespace("tkg-system"),
+				newFeatureGate("tkg", []string{"tkg-system"}, []string{"one", "two"}, []string{"three", "four"}, []string{"five", "six"}),
+			},
+			namespace: "tkg-system",
+			feature:   "does-not-exist",
+			want:      false,
+			err:       "",
+		},
+		{
+			description: "Namespace does not exist and feature does not exist",
+			existingObjects: []runtime.Object{
+				newNamespace("tkg-system"),
+				newFeatureGate("tkg", []string{"tkg-system"}, []string{"one", "two"}, []string{"three", "four"}, []string{"five", "six"}),
+			},
+			namespace: "does-not-exist",
+			feature:   "does-not-exist",
+			want:      false,
+			err:       "",
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.description, func(t *testing.T) {
+			fakeClient := fake.NewClientBuilder().WithScheme(scheme).WithRuntimeObjects(tc.existingObjects...).Build()
+			got, err := FeatureActivatedInNamespace(context.Background(), fakeClient, tc.namespace, tc.feature)
+			if err != nil {
+				if tc.err == "" {
+					t.Errorf("no error string specified, but got error: %v", err)
+				}
+				if !strings.Contains(err.Error(), tc.err) {
+					t.Errorf("error string=%q doesn't match partial=%q", tc.err, err)
+				}
+			} else if tc.err != "" {
+				t.Errorf("error string=%q specified but error not found", tc.err)
+			}
+			if got != tc.want {
+				t.Errorf("feature activation: got %t, want %t", got, tc.want)
+			}
+		})
+	}
+}
