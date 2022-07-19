@@ -30,9 +30,9 @@ import (
 
 	"github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/fakes"
+	fakeresolver "github.com/vmware-tanzu/tanzu-framework/pkg/v2/tkr/util/fakes"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v2/tkr/util/topology"
 	resolver_cluster "github.com/vmware-tanzu/tanzu-framework/pkg/v2/tkr/webhook/cluster/tkr-resolver/cluster"
-	fakeresolver "github.com/vmware-tanzu/tanzu-framework/pkg/v2/tkr/webhook/cluster/vsphere-template-resolver/fakes"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v2/tkr/webhook/cluster/vsphere-template-resolver/templateresolver"
 )
 
@@ -424,7 +424,6 @@ var _ = Describe("Webhook", func() {
 
 				Expect(fakeClient.GetCallCount()).To(Equal(2))
 				Expect(fakeClient.ListCallCount()).To(Equal(1))
-				Expect(fakeResolver.InjectVCClientCallCount()).To(Equal(1))
 				Expect(fakeResolver.GetVSphereEndpointCallCount()).To(Equal(1))
 				Expect(fakeResolver.ResolveCallCount()).To(Equal(1))
 			})
@@ -462,7 +461,6 @@ var _ = Describe("Webhook", func() {
 
 				Expect(fakeClient.GetCallCount()).To(Equal(2))
 				Expect(fakeClient.ListCallCount()).To(Equal(1))
-				Expect(fakeResolver.InjectVCClientCallCount()).To(Equal(1))
 				Expect(fakeResolver.GetVSphereEndpointCallCount()).To(Equal(1))
 				Expect(fakeResolver.ResolveCallCount()).To(Equal(1))
 			})

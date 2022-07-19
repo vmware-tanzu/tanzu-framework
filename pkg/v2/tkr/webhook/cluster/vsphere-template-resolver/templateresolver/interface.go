@@ -15,8 +15,7 @@ import (
 // TemplateResolver resolves vSphere templates
 type TemplateResolver interface {
 	// Resolve returns VM template path and MOIDs satisfying query constraints.
-	Resolve(svrContext VSphereContext, query Query) Result
-	InjectVCClient(vcClient vc.Client)
+	Resolve(svrContext VSphereContext, query Query, vcClient vc.Client) Result
 	GetVSphereEndpoint(svrContext VSphereContext) (vc.Client, error)
 }
 

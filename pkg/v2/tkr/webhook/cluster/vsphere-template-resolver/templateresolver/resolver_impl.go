@@ -18,16 +18,11 @@ import (
 )
 
 type Resolver struct {
-	VCClient vc.Client
-	Log      logr.Logger
+	Log logr.Logger
 }
 
 func NewResolver(log logr.Logger) *Resolver {
 	return &Resolver{Log: log}
-}
-
-func (r *Resolver) InjectVCClient(vcClient vc.Client) {
-	r.VCClient = vcClient
 }
 
 // getVSphereEndpoint gets vsphere client based on credentials set in config variables
@@ -59,7 +54,7 @@ func (r *Resolver) GetVSphereEndpoint(svrContext VSphereContext) (vc.Client, err
 // Resolve queries VC for template resolution of the OVAs from the input query.
 // It is guaranteed that every `TemplateQuery` in the input `query` will contain a corresponding entry in the result.
 // If a TemplateQuery in the input was empty (has a zero-length OVA Version), the corresponding result for that query will be an empty `OVATemplateResult`.
-func (r *Resolver) Resolve(svrContext VSphereContext, query Query) Result {
+func (r *Resolver) Resolve(svrContext VSphereContext, query Query, vcClient vc.Client) Result {
 	var err error
 	// 1. Find the union of the non-empty OVAVersion to be queried in vSphere(both control-plane and MDs)
 	ovas := []*types.VSphereVirtualMachine{}
@@ -69,7 +64,7 @@ func (r *Resolver) Resolve(svrContext VSphereContext, query Query) Result {
 	// Query VC to get templates for OVAs.
 	if len(ovas) > 0 {
 		// Only query if there are non-empty queries to resolve.
-		ovas, err = r.getVirtualMachineTemplateForOVAs(ovas, svrContext.DataCenter)
+		ovas, err = r.getVirtualMachineTemplateForOVAs(ovas, svrContext.DataCenter, vcClient)
 		if err != nil {
 			return Result{UsefulErrorMessage: err.Error()}
 		}
@@ -110,15 +105,15 @@ func fillVSphereVitrualMachine(ovas []*types.VSphereVirtualMachine, queries []*T
 // getVirtualMachineTemplateForOVAs queries VC and retrieves the corresponding VM templates for each OVA version in the input parameter `ova`.
 // It updates the template path and moid in the input if a corresponding entry is found.
 // Returns the updated input VMs.
-func (r *Resolver) getVirtualMachineTemplateForOVAs(inputVMs []*tkgtypes.VSphereVirtualMachine, dc string) ([]*tkgtypes.VSphereVirtualMachine, error) {
+func (r *Resolver) getVirtualMachineTemplateForOVAs(inputVMs []*tkgtypes.VSphereVirtualMachine, dc string, vcClient vc.Client) ([]*tkgtypes.VSphereVirtualMachine, error) {
 	// We need DC MOID to query VMs.
-	dcMOID, err := r.VCClient.FindDataCenter(context.TODO(), dc)
+	dcMOID, err := vcClient.FindDataCenter(context.TODO(), dc)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get the datacenter MOID")
 	}
 
 	// Get all vcVMs.
-	vcVMs, err := r.VCClient.GetVirtualMachineImages(context.TODO(), dcMOID)
+	vcVMs, err := vcClient.GetVirtualMachineImages(context.TODO(), dcMOID)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get K8s VM templates")
 	}

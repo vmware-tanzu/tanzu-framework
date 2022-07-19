@@ -106,14 +106,13 @@ func (cw *Webhook) resolve(ctx context.Context, cluster *clusterv1.Cluster) *adm
 	if err != nil {
 		return createRespPtr(admission.Errored(http.StatusBadRequest, err))
 	}
-	resolver.InjectVCClient(vc)
 
 	query := templateresolver.Query{
 		ControlPlane:       controlPlaneQuery,
 		MachineDeployments: mdQuery,
 	}
 	// Query for template resolution
-	result := resolver.Resolve(vSphereContext, query)
+	result := resolver.Resolve(vSphereContext, query, vc)
 	if result.UsefulErrorMessage != "" {
 		// If there are any useful error messages, deny request.
 		return createRespPtr(admission.Denied(result.UsefulErrorMessage))

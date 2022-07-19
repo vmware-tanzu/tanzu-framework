@@ -95,7 +95,6 @@ var _ = Describe("Resolver", func() {
 			}, nil)
 
 			resolver = New(ctrllog.Log)
-			resolver.InjectVCClient(vcClient)
 
 			query = Query{}
 			dcInContext = "vc-datacenter"
@@ -126,7 +125,7 @@ var _ = Describe("Resolver", func() {
 					}
 				})
 				It("should resolve the query and return only a filled controlPlane result.", func() {
-					result := resolver.Resolve(vSphereContext, query)
+					result := resolver.Resolve(vSphereContext, query, vcClient)
 					Expect(result.ControlPlane).To(Not(BeNil()))
 					Expect(result.MachineDeployments).To(Equal((&OVATemplateResult{})))
 					Expect(result.ControlPlane).To(Equal(expectedOvaTemplateResult))
@@ -153,7 +152,7 @@ var _ = Describe("Resolver", func() {
 					}
 				})
 				It("should resolve the query and return only a filled machineDeployments result.", func() {
-					result := resolver.Resolve(vSphereContext, query)
+					result := resolver.Resolve(vSphereContext, query, vcClient)
 					Expect(result.ControlPlane).To(Equal((&OVATemplateResult{})))
 					Expect(result.MachineDeployments).To(Not(BeNil()))
 					Expect(result.MachineDeployments).To(Equal(expectedOvaTemplateResult))
@@ -241,7 +240,7 @@ var _ = Describe("Resolver", func() {
 					}
 				})
 				It("should resolve the query and add template path and return the correct CP and MD results.", func() {
-					result := resolver.Resolve(vSphereContext, query)
+					result := resolver.Resolve(vSphereContext, query, vcClient)
 					Expect(result.ControlPlane).To(Equal(expectedCP))
 					Expect(result.MachineDeployments).To(Equal(expectedMD))
 				})
@@ -270,7 +269,7 @@ var _ = Describe("Resolver", func() {
 					}
 				})
 				It("should fail to resolve the query as no templates found, and return a useful error message", func() {
-					result := resolver.Resolve(vSphereContext, query)
+					result := resolver.Resolve(vSphereContext, query, vcClient)
 					Expect(result.ControlPlane).To(BeNil())
 					Expect(result.MachineDeployments).To(BeNil())
 					Expect(result.UsefulErrorMessage).ToNot(BeNil())
@@ -295,7 +294,7 @@ var _ = Describe("Resolver", func() {
 					}
 				})
 				It("should fail to resolve the query and return a useful error message", func() {
-					result := resolver.Resolve(vSphereContext, query)
+					result := resolver.Resolve(vSphereContext, query, vcClient)
 					Expect(result.ControlPlane).To(BeNil())
 					Expect(result.MachineDeployments).To(BeNil())
 					Expect(result.UsefulErrorMessage).ToNot(BeNil())
@@ -318,7 +317,7 @@ var _ = Describe("Resolver", func() {
 					}
 				})
 				It("should fail to resolve the query and return a useful error message", func() {
-					result := resolver.Resolve(vSphereContext, query)
+					result := resolver.Resolve(vSphereContext, query, vcClient)
 					Expect(result.ControlPlane).To(BeNil())
 					Expect(result.MachineDeployments).To(BeNil())
 					Expect(result.UsefulErrorMessage).ToNot(BeNil())
@@ -355,7 +354,7 @@ var _ = Describe("Resolver", func() {
 				}
 			})
 			It("should return a useful error message", func() {
-				result := resolver.Resolve(vSphereContext, query)
+				result := resolver.Resolve(vSphereContext, query, vcClient)
 				Expect(result.UsefulErrorMessage).To(Equal(("failed to get the datacenter MOID: some error")))
 				Expect(result.ControlPlane).To(BeNil())
 				Expect(result.MachineDeployments).To(BeNil())
@@ -378,7 +377,7 @@ var _ = Describe("Resolver", func() {
 				}
 			})
 			It("should return a useful error message", func() {
-				result := resolver.Resolve(vSphereContext, query)
+				result := resolver.Resolve(vSphereContext, query, vcClient)
 				Expect(result.UsefulErrorMessage).To(Equal(("failed to get K8s VM templates: some error")))
 				Expect(result.ControlPlane).To(BeNil())
 				Expect(result.MachineDeployments).To(BeNil())

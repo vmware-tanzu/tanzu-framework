@@ -22,16 +22,12 @@ type TemplateResolver struct {
 		result1 vc.Client
 		result2 error
 	}
-	InjectVCClientStub        func(vc.Client)
-	injectVCClientMutex       sync.RWMutex
-	injectVCClientArgsForCall []struct {
-		arg1 vc.Client
-	}
-	ResolveStub        func(templateresolver.VSphereContext, templateresolver.Query) templateresolver.Result
+	ResolveStub        func(templateresolver.VSphereContext, templateresolver.Query, vc.Client) templateresolver.Result
 	resolveMutex       sync.RWMutex
 	resolveArgsForCall []struct {
 		arg1 templateresolver.VSphereContext
 		arg2 templateresolver.Query
+		arg3 vc.Client
 	}
 	resolveReturns struct {
 		result1 templateresolver.Result
@@ -107,51 +103,20 @@ func (fake *TemplateResolver) GetVSphereEndpointReturnsOnCall(i int, result1 vc.
 	}{result1, result2}
 }
 
-func (fake *TemplateResolver) InjectVCClient(arg1 vc.Client) {
-	fake.injectVCClientMutex.Lock()
-	fake.injectVCClientArgsForCall = append(fake.injectVCClientArgsForCall, struct {
-		arg1 vc.Client
-	}{arg1})
-	stub := fake.InjectVCClientStub
-	fake.recordInvocation("InjectVCClient", []interface{}{arg1})
-	fake.injectVCClientMutex.Unlock()
-	if stub != nil {
-		fake.InjectVCClientStub(arg1)
-	}
-}
-
-func (fake *TemplateResolver) InjectVCClientCallCount() int {
-	fake.injectVCClientMutex.RLock()
-	defer fake.injectVCClientMutex.RUnlock()
-	return len(fake.injectVCClientArgsForCall)
-}
-
-func (fake *TemplateResolver) InjectVCClientCalls(stub func(vc.Client)) {
-	fake.injectVCClientMutex.Lock()
-	defer fake.injectVCClientMutex.Unlock()
-	fake.InjectVCClientStub = stub
-}
-
-func (fake *TemplateResolver) InjectVCClientArgsForCall(i int) vc.Client {
-	fake.injectVCClientMutex.RLock()
-	defer fake.injectVCClientMutex.RUnlock()
-	argsForCall := fake.injectVCClientArgsForCall[i]
-	return argsForCall.arg1
-}
-
-func (fake *TemplateResolver) Resolve(arg1 templateresolver.VSphereContext, arg2 templateresolver.Query) templateresolver.Result {
+func (fake *TemplateResolver) Resolve(arg1 templateresolver.VSphereContext, arg2 templateresolver.Query, arg3 vc.Client) templateresolver.Result {
 	fake.resolveMutex.Lock()
 	ret, specificReturn := fake.resolveReturnsOnCall[len(fake.resolveArgsForCall)]
 	fake.resolveArgsForCall = append(fake.resolveArgsForCall, struct {
 		arg1 templateresolver.VSphereContext
 		arg2 templateresolver.Query
-	}{arg1, arg2})
+		arg3 vc.Client
+	}{arg1, arg2, arg3})
 	stub := fake.ResolveStub
 	fakeReturns := fake.resolveReturns
-	fake.recordInvocation("Resolve", []interface{}{arg1, arg2})
+	fake.recordInvocation("Resolve", []interface{}{arg1, arg2, arg3})
 	fake.resolveMutex.Unlock()
 	if stub != nil {
-		return stub(arg1, arg2)
+		return stub(arg1, arg2, arg3)
 	}
 	if specificReturn {
 		return ret.result1
@@ -165,17 +130,17 @@ func (fake *TemplateResolver) ResolveCallCount() int {
 	return len(fake.resolveArgsForCall)
 }
 
-func (fake *TemplateResolver) ResolveCalls(stub func(templateresolver.VSphereContext, templateresolver.Query) templateresolver.Result) {
+func (fake *TemplateResolver) ResolveCalls(stub func(templateresolver.VSphereContext, templateresolver.Query, vc.Client) templateresolver.Result) {
 	fake.resolveMutex.Lock()
 	defer fake.resolveMutex.Unlock()
 	fake.ResolveStub = stub
 }
 
-func (fake *TemplateResolver) ResolveArgsForCall(i int) (templateresolver.VSphereContext, templateresolver.Query) {
+func (fake *TemplateResolver) ResolveArgsForCall(i int) (templateresolver.VSphereContext, templateresolver.Query, vc.Client) {
 	fake.resolveMutex.RLock()
 	defer fake.resolveMutex.RUnlock()
 	argsForCall := fake.resolveArgsForCall[i]
-	return argsForCall.arg1, argsForCall.arg2
+	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3
 }
 
 func (fake *TemplateResolver) ResolveReturns(result1 templateresolver.Result) {
@@ -206,8 +171,6 @@ func (fake *TemplateResolver) Invocations() map[string][][]interface{} {
 	defer fake.invocationsMutex.RUnlock()
 	fake.getVSphereEndpointMutex.RLock()
 	defer fake.getVSphereEndpointMutex.RUnlock()
-	fake.injectVCClientMutex.RLock()
-	defer fake.injectVCClientMutex.RUnlock()
 	fake.resolveMutex.RLock()
 	defer fake.resolveMutex.RUnlock()
 	copiedInvocations := map[string][][]interface{}{}
