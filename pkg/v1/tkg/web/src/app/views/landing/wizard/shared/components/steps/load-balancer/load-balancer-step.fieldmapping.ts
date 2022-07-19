@@ -10,6 +10,14 @@ export enum LoadBalancerField {
     MANAGEMENT_CLUSTER_NETWORK_NAME = 'managementClusterNetworkName',
     NETWORK_CIDR = 'networkCIDR',
     NETWORK_NAME = 'networkName',
+
+    MANAGEMENT_CLUSTER_SERVICE_ENGINE_GROUP_NAME = 'managementClusterServiceEngineGroupName',
+    MANAGEMENT_CLUSTER_CONTROL_PLANE_VIP_NETWORK_NAME = 'managementClusterControlPlaneVipNetworkName',
+    MANAGEMENT_CLUSTER_CONTROL_PLANE_VIP_NETWORK_CIDR = 'managementClusterControlPlaneVipNetworkCIDR',
+
+    WORKLOAD_CLUSTER_CONTROL_PLANE_VIP_NETWORK_NAME = 'workloadClusterControlPlaneVipNetworkName',
+    WORKLOAD_CLUSTER_CONTROL_PLANE_VIP_NETWORK_CIDR = 'workloadClusterControlPlaneVipNetworkCIDR',
+
     NEW_LABEL_KEY = 'newLabelKey',
     NEW_LABEL_VALUE = 'newLabelValue',
     PASSWORD = 'password',
@@ -26,17 +34,38 @@ export const LoadBalancerStepMapping: StepMapping = {
         },
         {name: LoadBalancerField.USERNAME, label: 'USERNAME'},
         {name: LoadBalancerField.PASSWORD, mask: true, label: 'PASSWORD'},
+        {name: LoadBalancerField.CONTROLLER_CERT, doNotAutoSave: true, label: 'CONTROLLER CERTIFICATE AUTHORITY'},
         {name: LoadBalancerField.CLOUD_NAME, label: 'CLOUD NAME'},
         {name: LoadBalancerField.SERVICE_ENGINE_GROUP_NAME, label: 'SERVICE ENGINE GROUP NAME'},
-        {name: LoadBalancerField.MANAGEMENT_CLUSTER_NETWORK_NAME, label: 'MANAGEMENT VIP NETWORK NAME'},
+        {name: LoadBalancerField.NETWORK_NAME, label: 'WORKLOAD CLUSTER - DATA PLANE VIP NETWORK NAME'},
+        {name: LoadBalancerField.NETWORK_CIDR, label: 'WORKLOAD CLUSTER - DATA PLANE VIP NETWORK CIDR'},
+        {
+            name: LoadBalancerField.WORKLOAD_CLUSTER_CONTROL_PLANE_VIP_NETWORK_NAME,
+            label: 'WORKLOAD CLUSTER - CONTROL PLANE VIP NETWORK NAME'
+        },
+        {
+            name: LoadBalancerField.WORKLOAD_CLUSTER_CONTROL_PLANE_VIP_NETWORK_CIDR,
+            label: 'WORKLOAD CLUSTER - CONTROL PLANE VIP NETWORK CIDR'
+        },
+        {
+            name: LoadBalancerField.MANAGEMENT_CLUSTER_SERVICE_ENGINE_GROUP_NAME,
+            label: 'MANAGEMENT CLUSTER - SERVICE ENGINE GROUP NAME'
+        },
+        {
+            name: LoadBalancerField.MANAGEMENT_CLUSTER_NETWORK_NAME,
+            label: 'MANAGEMENT CLUSTER - DATA PLANE VIP NETWORK NAME'},
         {
             name: LoadBalancerField.MANAGEMENT_CLUSTER_NETWORK_CIDR,
-            validators: [SimpleValidator.IS_VALID_IP_NETWORK_SEGMENT],
-            label: 'MANAGEMENT VIP NETWORK CIDR'
+            label: 'MANAGEMENT CLUSTER - DATA PLANE VIP NETWORK CIDR'
         },
-        {name: LoadBalancerField.NETWORK_NAME, label: 'WORKLOAD VIP NETWORK NAME'},
-        {name: LoadBalancerField.NETWORK_CIDR, label: 'WORKLOAD VIP NETWORK CIDR'},
-        {name: LoadBalancerField.CONTROLLER_CERT, doNotAutoSave: true, label: 'CONTROLLER CERTIFICATE AUTHORITY'},
+        {
+            name: LoadBalancerField.MANAGEMENT_CLUSTER_CONTROL_PLANE_VIP_NETWORK_NAME,
+            label: 'MANAGEMENT CLUSTER - CONTROL PLANE VIP NETWORK NAME'
+        },
+        {
+            name: LoadBalancerField.MANAGEMENT_CLUSTER_CONTROL_PLANE_VIP_NETWORK_CIDR,
+            label: 'MANAGEMENT CLUSTER - CONTROL PLANE VIP NETWORK CIDR'
+        },
         {
             name: LoadBalancerField.CLUSTER_LABELS,
             label: 'CLUSTER LABELS (OPTIONAL)',

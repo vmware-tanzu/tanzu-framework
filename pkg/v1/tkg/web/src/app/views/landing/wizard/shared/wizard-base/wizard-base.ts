@@ -521,6 +521,7 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Wiz
 
         const loadBalancerLabels = this.getFieldValue(WizardForm.LOADBALANCER, LoadBalancerField.CLUSTER_LABELS);
 
+        // TODO: refactor by moving to vsphere-wizard.component
         payload.aviConfig = {
             'controller': this.getFieldValue(WizardForm.LOADBALANCER, LoadBalancerField.CONTROLLER_HOST),
             'username': this.getFieldValue(WizardForm.LOADBALANCER, LoadBalancerField.USERNAME),
@@ -531,6 +532,10 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Wiz
             'network': {
                 'name': this.getFieldValue(WizardForm.LOADBALANCER, LoadBalancerField.NETWORK_NAME),
                 'cidr': this.getFieldValue(WizardForm.LOADBALANCER, LoadBalancerField.NETWORK_CIDR)
+            },
+            'controlPlaneNetwork': {
+                'name': this.getFieldValue(WizardForm.LOADBALANCER, LoadBalancerField.WORKLOAD_CLUSTER_CONTROL_PLANE_VIP_NETWORK_NAME),
+                'cidr': this.getFieldValue(WizardForm.LOADBALANCER, LoadBalancerField.WORKLOAD_CLUSTER_CONTROL_PLANE_VIP_NETWORK_CIDR)
             },
             'labels': this.arrayOfObjectsToObject<{ key: string, value: string }>(
                 loadBalancerLabels,
@@ -704,8 +709,13 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Wiz
             this.storeFieldString(WizardForm.LOADBALANCER, LoadBalancerField.CLOUD_NAME, payload.aviConfig.cloud);
             this.storeFieldString(WizardForm.LOADBALANCER, LoadBalancerField.SERVICE_ENGINE_GROUP_NAME, payload.aviConfig.service_engine);
             this.storeFieldString(WizardForm.LOADBALANCER, LoadBalancerField.CONTROLLER_CERT, payload.aviConfig.ca_cert);
-            this.storeFieldString(WizardForm.LOADBALANCER, LoadBalancerField.NETWORK_NAME, payload.aviConfig.network.name);
-            this.storeFieldString(WizardForm.LOADBALANCER, LoadBalancerField.NETWORK_CIDR, payload.aviConfig.network.cidr);
+            this.storeFieldString(WizardForm.LOADBALANCER, LoadBalancerField.NETWORK_NAME, payload.aviConfig?.network?.name);
+            this.storeFieldString(WizardForm.LOADBALANCER, LoadBalancerField.NETWORK_CIDR, payload.aviConfig?.network?.cidr);
+            this.storeFieldString(WizardForm.LOADBALANCER, LoadBalancerField.WORKLOAD_CLUSTER_CONTROL_PLANE_VIP_NETWORK_NAME,
+                payload.aviConfig?.controlPlaneNetwork?.name);
+            this.storeFieldString(WizardForm.LOADBALANCER, LoadBalancerField.WORKLOAD_CLUSTER_CONTROL_PLANE_VIP_NETWORK_CIDR,
+                payload.aviConfig?.controlPlaneNetwork?.cidr);
+
             const arrayOfObjects: Label[] = this.objectToArrayOfObjects(payload.aviConfig.labels);
             const fieldMapping: FieldMapping = LoadBalancerStepMapping.fieldMappings
                 .find(field => field.name === LoadBalancerField.CLUSTER_LABELS);

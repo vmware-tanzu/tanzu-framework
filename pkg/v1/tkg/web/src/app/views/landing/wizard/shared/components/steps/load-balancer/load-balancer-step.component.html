@@ -130,139 +130,302 @@
                 <clr-control-error>Selecting a cloud name is required</clr-control-error>
             </clr-datalist-container>
         </div>
-        <div class="clr-col-12 clr-col-sm-6 clr-col-lg-6">
-            <clr-datalist-container>
-                <label i18n="service engine group name label" class="clr-col-lg-12 clr-col-12"
-                       [class.label-disabled]="!connected">
-                    {{htmlFieldLabels['serviceEngineGroupName']}}
-                    <clr-tooltip>
-                        <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
-                        <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
-                            <span>
-                                Select a service engine group name.
-                            </span>
-                        </clr-tooltip-content>
-                    </clr-tooltip>
-                </label>
-                <input clrDatalistInput name="serviceEngineGroupName" formControlName="serviceEngineGroupName"
-                       list="serviceEngineGroupNameList"/>
-                <datalist id="serviceEngineGroupNameList">
-                    <option *ngFor="let seg of serviceEngineGroupsFiltered" [value]="seg.name">{{seg.name}}</option>
-                </datalist>
-                <!-- Add a empty helper to avoid accessibility aria-describeby issue -->
-                <clr-control-helper></clr-control-helper>
-                <clr-control-error>Selecting a service engine group name is required</clr-control-error>
-            </clr-datalist-container>
-        </div>
     </div>
 
-    <div class="clr-row" *featureToggle="'!management-cluster.standalone-cluster-mode'">
-        <div class="clr-col-12 clr-col-sm-6 clr-col-lg-6">
-            <clr-datalist-container>>
-                <label i18n="network name label" class="clr-col-lg-12 clr-col-12" [class.label-disabled]="!connected">
-                    {{htmlFieldLabels['networkName']}}
-                    <clr-tooltip>
-                        <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
-                        <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
-                            Choose a VIP network name for workload clusters' workload load balancers.
-                        </clr-tooltip-content>
-                    </clr-tooltip>
-                </label>
-                <input clrDatalistInput name="networkName" formControlName="networkName" list="networkNameList"/>
-                <datalist id="networkNameList">
-                    <option *ngFor="let npc of vipNetworksPerCloud" [value]="npc.name">{{npc.name}}</option>
-                </datalist>
-                <!-- Add a empty helper to avoid accessibility aria-describeby issue -->
-                <clr-control-helper></clr-control-helper>
-                <clr-control-error>Selecting a VIP network name is required</clr-control-error>
-            </clr-datalist-container>
-        </div>
+    <div class="clr-row">
+        <div class="clr-col-12 clr-col-sm-12 clr-col-lg-12">
+            <div class="card">
+                <div class="card-header">Workload Cluster</div>
+                <div class="card-block">
+                    <div class="card-text">
+                        <div class="clr-row">
+                            <div class="clr-col-12 clr-col-sm-6 clr-col-lg-6">
+                                <clr-datalist-container>
+                                    <label i18n="service engine group name label" class="clr-col-lg-12 clr-col-12"
+                                           [class.label-disabled]="!connected">
+                                        {{htmlFieldLabels['serviceEngineGroupName']}}
+                                        <clr-tooltip>
+                                            <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
+                                            <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
+                                    <span>
+                                        Select a workload cluster service engine group name.
+                                    </span>
+                                            </clr-tooltip-content>
+                                        </clr-tooltip>
+                                    </label>
+                                    <input clrDatalistInput name="serviceEngineGroupName" formControlName="serviceEngineGroupName"
+                                           list="serviceEngineGroupNameList"/>
+                                    <datalist id="serviceEngineGroupNameList">
+                                        <option *ngFor="let seg of serviceEngineGroupsFiltered" [value]="seg.name">{{seg.name}}</option>
+                                    </datalist>
+                                    <!-- Add a empty helper to avoid accessibility aria-describeby issue -->
+                                    <clr-control-helper></clr-control-helper>
+                                    <clr-control-error>Selecting a workload cluster service engine group name is required</clr-control-error>
+                                </clr-datalist-container>
+                            </div>
+                        </div>
 
-        <div class="clr-col-12 clr-col-sm-6 clr-col-lg-6">
-            <clr-datalist-container>
-                <label i18n="network CIDR label" class="clr-col-lg-12 clr-col-12" [class.label-disabled]="!connected">
-                    {{htmlFieldLabels['networkCIDR']}}
-                    <clr-tooltip>
-                        <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
-                        <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
-                            Select a VIP network CIDR for workload clusters' workload load balancers.
-                        </clr-tooltip-content>
-                    </clr-tooltip>
-                </label>
-                <input clrDatalistInput name="networkCIDR" formControlName="networkCIDR" list="networkCIDRList"/>
-                <datalist id="networkCIDRList">
-                    <option *ngFor="let spn of subnetsPerNetwork" [value]="spn.subnet">{{spn.subnet}}</option>
-                </datalist>
-                <!-- Add a empty helper to avoid accessibility aria-describeby issue -->
-                <clr-control-helper></clr-control-helper>
-                <clr-control-error>Selecting a VIP network CIDR is required</clr-control-error>
-            </clr-datalist-container>
+                        <div class="clr-row" *featureToggle="'!management-cluster.standalone-cluster-mode'">
+                            <div class="clr-col-12 clr-col-sm-6 clr-col-lg-6">
+                                <clr-datalist-container>>
+                                    <label i18n="network name label" class="clr-col-lg-12 clr-col-12" [class.label-disabled]="!connected">
+                                        {{htmlFieldLabels['networkName']}}
+                                        <clr-tooltip>
+                                            <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
+                                            <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
+                                                Choose a data plane VIP network name for workload clusters' workload load balancers.
+                                            </clr-tooltip-content>
+                                        </clr-tooltip>
+                                    </label>
+                                    <input clrDatalistInput name="networkName" formControlName="networkName" list="networkNameList"/>
+                                    <datalist id="networkNameList">
+                                        <option *ngFor="let npc of vipNetworksPerCloud" [value]="npc.name">{{npc.name}}</option>
+                                    </datalist>
+                                    <!-- Add a empty helper to avoid accessibility aria-describeby issue -->
+                                    <clr-control-helper></clr-control-helper>
+                                    <clr-control-error>Selecting a data plane VIP network name is required</clr-control-error>
+                                </clr-datalist-container>
+                            </div>
+
+                            <div class="clr-col-12 clr-col-sm-6 clr-col-lg-6">
+                                <clr-datalist-container>
+                                    <label i18n="network CIDR label" class="clr-col-lg-12 clr-col-12" [class.label-disabled]="!connected">
+                                        {{htmlFieldLabels['networkCIDR']}}
+                                        <clr-tooltip>
+                                            <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
+                                            <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
+                                                Select a data plane VIP network CIDR for workload clusters' workload load balancers.
+                                            </clr-tooltip-content>
+                                        </clr-tooltip>
+                                    </label>
+                                    <input clrDatalistInput name="networkCIDR" formControlName="networkCIDR" list="networkCIDRList"/>
+                                    <datalist id="networkCIDRList">
+                                        <option *ngFor="let spn of subnetsPerNetwork" [value]="spn.subnet">{{spn.subnet}}</option>
+                                    </datalist>
+                                    <!-- Add a empty helper to avoid accessibility aria-describeby issue -->
+                                    <clr-control-helper></clr-control-helper>
+                                    <clr-control-error>Selecting a data plane VIP network CIDR is required</clr-control-error>
+                                </clr-datalist-container>
+                            </div>
+                        </div>
+
+                        <div class="clr-row" *featureToggle="'!management-cluster.standalone-cluster-mode'">
+                            <div class="clr-col-12 clr-col-sm-6 clr-col-lg-6">
+                                <clr-datalist-container>>
+                                    <label i18n="network name label" class="clr-col-lg-12 clr-col-12" [class.label-disabled]="!connected">
+                                        {{htmlFieldLabels['workloadClusterControlPlaneVipNetworkName']}}
+                                        <clr-tooltip>
+                                            <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
+                                            <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
+                                                Choose a control plane VIP network name for workload clusters' workload load balancers.
+                                            </clr-tooltip-content>
+                                        </clr-tooltip>
+                                    </label>
+                                    <input clrDatalistInput name="workloadClusterControlPlaneVipNetworkName"
+                                           formControlName="workloadClusterControlPlaneVipNetworkName" list="controlPlaneNetworkNameList"/>
+                                    <datalist id="controlPlaneNetworkNameList">
+                                        <option *ngFor="let npc of vipNetworksPerCloud" [value]="npc.name">{{npc.name}}</option>
+                                    </datalist>
+                                    <!-- Add a empty helper to avoid accessibility aria-describeby issue -->
+                                    <clr-control-helper></clr-control-helper>
+                                    <clr-control-error>Selecting a control plane VIP network name is required</clr-control-error>
+                                </clr-datalist-container>
+                            </div>
+
+                            <div class="clr-col-12 clr-col-sm-6 clr-col-lg-6">
+                                <clr-datalist-container>
+                                    <label i18n="network CIDR label" class="clr-col-lg-12 clr-col-12" [class.label-disabled]="!connected">
+                                        {{htmlFieldLabels['workloadClusterControlPlaneVipNetworkCIDR']}}
+                                        <clr-tooltip>
+                                            <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
+                                            <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
+                                                Select a control plane VIP network CIDR for workload clusters' workload load balancers.
+                                            </clr-tooltip-content>
+                                        </clr-tooltip>
+                                    </label>
+                                    <input clrDatalistInput name="workloadClusterControlPlaneVipNetworkCIDR"
+                                           formControlName="workloadClusterControlPlaneVipNetworkCIDR" list="controlPlaneNetworkCIDRList"/>
+                                    <datalist id="controlPlaneNetworkCIDRList">
+                                        <option *ngFor="let spn of subnetsPerNetwork" [value]="spn.subnet">{{spn.subnet}}</option>
+                                    </datalist>
+                                    <!-- Add a empty helper to avoid accessibility aria-describeby issue -->
+                                    <clr-control-helper></clr-control-helper>
+                                    <clr-control-error>Selecting a control plane VIP network CIDR is required</clr-control-error>
+                                </clr-datalist-container>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
     <div class="clr-row">
-        <div class="clr-col-6">
-            <clr-datalist-container [class.label-disabled]="!connected">
-                <label i18n="Cluster Network Name label" class="clr-col-lg-12 clr-col-12">
-                    {{htmlFieldLabels['managementClusterNetworkName']}}
-                    <clr-tooltip>
-                        <clr-icon clrTooltipTrigger shape="info-circle" size="22"></clr-icon>
-                        <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
-                            <span *featureToggle="'management-cluster.standalone-cluster-mode'">
-                                Choose a {{ clusterTypeDescriptorTitleCase }} Cluster VIP Network Name.
-                            </span>
-                            <span *featureToggle="'!management-cluster.standalone-cluster-mode'">
-                                Choose a VIP network name for management cluster and workload clusters' control plane.
-                            </span>
-                        </clr-tooltip-content>
-                    </clr-tooltip>
-                </label>
-                <input clrDatalistInput name="managementClusterNetworkName"
-                       formControlName="managementClusterNetworkName" list="managementClusterNetworkNameList"/>
-                <datalist id="managementClusterNetworkNameList">
-                    <option *ngFor="let mcnn of vipNetworksPerCloud" [value]="mcnn.name">{{mcnn.name}}</option>
-                </datalist>
-                <clr-control-error *featureToggle="'management-cluster.standalone-cluster-mode'">Selecting a Standalone
-                    Cluster VIP Network Name is required
-                </clr-control-error>
-                <clr-control-error *featureToggle="'!management-cluster.standalone-cluster-mode'">Selecting a Management
-                    VIP Network Name is required
-                </clr-control-error>
-            </clr-datalist-container>
-        </div>
+        <div class="clr-col-12 clr-col-sm-12 clr-col-lg-12">
+            <div class="card">
+                <div class="card-header">Management Cluster</div>
+                <div class="card-block">
+                    <div class="card-text">
+                        <div class="clr-row">
+                            <div class="clr-col-12 clr-col-sm-6 clr-col-lg-6">
+                                <clr-datalist-container>
+                                    <label i18n="service engine group name label" class="clr-col-lg-12 clr-col-12"
+                                           [class.label-disabled]="!connected">
+                                        {{htmlFieldLabels['managementClusterServiceEngineGroupName']}}
+                                        <clr-tooltip>
+                                            <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
+                                            <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
+                                            <span>
+                                                Select a management cluster service engine group name.
+                                            </span>
+                                            </clr-tooltip-content>
+                                        </clr-tooltip>
+                                    </label>
+                                    <input clrDatalistInput name="managementClusterServiceEngineGroupName" formControlName="managementClusterServiceEngineGroupName"
+                                           list="managementClusterServiceEngineGroupNameList"/>
+                                    <datalist id="managementClusterServiceEngineGroupNameList">
+                                        <option *ngFor="let seg of serviceEngineGroupsFiltered" [value]="seg.name">{{seg.name}}</option>
+                                    </datalist>
+                                    <!-- Add a empty helper to avoid accessibility aria-describeby issue -->
+                                    <clr-control-helper></clr-control-helper>
+                                    <clr-control-error>Selecting a management cluster service engine group name is required</clr-control-error>
+                                </clr-datalist-container>
+                            </div>
+                        </div>
+                        <div class="clr-row">
+                            <div class="clr-col-6">
+                                <clr-datalist-container [class.label-disabled]="!connected">
+                                    <label i18n="Cluster Network Name label" class="clr-col-lg-12 clr-col-12">
+                                        {{htmlFieldLabels['managementClusterNetworkName']}}
+                                        <clr-tooltip>
+                                            <clr-icon clrTooltipTrigger shape="info-circle" size="22"></clr-icon>
+                                            <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
+                                            <span *featureToggle="'management-cluster.standalone-cluster-mode'">
+                                                Choose a {{ clusterTypeDescriptorTitleCase }} Cluster Data Plane VIP Network Name.
+                                            </span>
+                                            <span *featureToggle="'!management-cluster.standalone-cluster-mode'">
+                                                Choose a data plane VIP network name for management cluster and workload clusters' control plane.
+                                            </span>
+                                            </clr-tooltip-content>
+                                        </clr-tooltip>
+                                    </label>
+                                    <input clrDatalistInput name="managementClusterNetworkName"
+                                           formControlName="managementClusterNetworkName" list="managementClusterNetworkNameList"/>
+                                    <datalist id="managementClusterNetworkNameList">
+                                        <option *ngFor="let mcnn of vipNetworksPerCloud" [value]="mcnn.name">{{mcnn.name}}</option>
+                                    </datalist>
+                                    <clr-control-error *featureToggle="'management-cluster.standalone-cluster-mode'">Selecting a Standalone
+                                        Cluster VIP Network Name is required
+                                    </clr-control-error>
+                                    <clr-control-error *featureToggle="'!management-cluster.standalone-cluster-mode'">Selecting a Management
+                                        VIP Network Name is required
+                                    </clr-control-error>
+                                </clr-datalist-container>
+                            </div>
 
-        <div class="clr-col-6">
-            <clr-datalist-container>
-                <label i18n="Cluster Network CIDR label" class="clr-col-lg-12 clr-col-12"
-                       [class.label-disabled]="!connected">
-                    {{htmlFieldLabels['managementClusterNetworkCIDR']}}
-                    <clr-tooltip>
-                        <clr-icon clrTooltipTrigger shape="info-circle" size="22"></clr-icon>
-                        <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
-                            <span *featureToggle="'management-cluster.standalone-cluster-mode'">
-                                Select a {{ clusterTypeDescriptorTitleCase }} Cluster VIP Network CIDR.
-                            </span>
-                            <span *featureToggle="'!management-cluster.standalone-cluster-mode'">
-                                Select a VIP network CIDR for management cluster and workload clusters' control plane.
-                            </span>
-                        </clr-tooltip-content>
-                    </clr-tooltip>
-                </label>
-                <input clrDatalistInput name="managementClusterNetworkCIDR"
-                       formControlName="managementClusterNetworkCIDR"
-                       list="managementClusterNetworkCIDRList"/>
-                <datalist id="managementClusterNetworkCIDRList">
-                    <option aria-label="blank" title="blank"></option>
-                    <option *ngFor="let mcnc of subnetsPerManagementNetwork"
-                            [value]="mcnc.subnet">{{mcnc.subnet}}</option>
-                </datalist>
-                <clr-control-error *featureToggle="'management-cluster.standalone-cluster-mode'">Selecting a Standalone
-                    Cluster VIP Network CIDR is required
-                </clr-control-error>
-                <clr-control-error *featureToggle="'!management-cluster.standalone-cluster-mode'">Selecting a Management
-                    VIP Network CIDR is required
-                </clr-control-error>
-            </clr-datalist-container>
+                            <div class="clr-col-6">
+                                <clr-datalist-container>
+                                    <label i18n="Cluster Network CIDR label" class="clr-col-lg-12 clr-col-12"
+                                           [class.label-disabled]="!connected">
+                                        {{htmlFieldLabels['managementClusterNetworkCIDR']}}
+                                        <clr-tooltip>
+                                            <clr-icon clrTooltipTrigger shape="info-circle" size="22"></clr-icon>
+                                            <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
+                                            <span *featureToggle="'management-cluster.standalone-cluster-mode'">
+                                                Select a {{ clusterTypeDescriptorTitleCase }} Cluster Data Plane VIP Network CIDR.
+                                            </span>
+                                            <span *featureToggle="'!management-cluster.standalone-cluster-mode'">
+                                                Select a data plane VIP network CIDR for management cluster and workload clusters' control plane.
+                                            </span>
+                                            </clr-tooltip-content>
+                                        </clr-tooltip>
+                                    </label>
+                                    <input clrDatalistInput name="managementClusterNetworkCIDR"
+                                           formControlName="managementClusterNetworkCIDR"
+                                           list="managementClusterNetworkCIDRList"/>
+                                    <datalist id="managementClusterNetworkCIDRList">
+                                        <option aria-label="blank" title="blank"></option>
+                                        <option *ngFor="let mcnc of subnetsPerManagementNetwork"
+                                                [value]="mcnc.subnet">{{mcnc.subnet}}</option>
+                                    </datalist>
+                                    <clr-control-error *featureToggle="'management-cluster.standalone-cluster-mode'">Selecting a Standalone
+                                        Cluster Data Plane VIP Network CIDR is required
+                                    </clr-control-error>
+                                    <clr-control-error *featureToggle="'!management-cluster.standalone-cluster-mode'">Selecting a Management
+                                        Data Plane VIP Network CIDR is required
+                                    </clr-control-error>
+                                </clr-datalist-container>
+                            </div>
+                        </div>
+
+                        <div class="clr-row">
+                            <div class="clr-col-6">
+                                <clr-datalist-container [class.label-disabled]="!connected">
+                                    <label i18n="Cluster Network Name label" class="clr-col-lg-12 clr-col-12">
+                                        {{htmlFieldLabels['managementClusterControlPlaneVipNetworkName']}}
+                                        <clr-tooltip>
+                                            <clr-icon clrTooltipTrigger shape="info-circle" size="22"></clr-icon>
+                                            <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
+                                            <span *featureToggle="'management-cluster.standalone-cluster-mode'">
+                                                Choose a {{ clusterTypeDescriptorTitleCase }} Cluster Control Plane VIP Network Name.
+                                            </span>
+                                            <span *featureToggle="'!management-cluster.standalone-cluster-mode'">
+                                                Choose a control plane VIP network name for management cluster and workload clusters' control plane.
+                                            </span>
+                                            </clr-tooltip-content>
+                                        </clr-tooltip>
+                                    </label>
+                                    <input clrDatalistInput name="managementClusterControlPlaneVipNetworkName"
+                                           formControlName="managementClusterControlPlaneVipNetworkName" list="managementClusterControlPlaneVipNetworkNameList"/>
+                                    <datalist id="managementClusterControlPlaneVipNetworkNameList">
+                                        <option *ngFor="let mcnn of vipNetworksPerCloud" [value]="mcnn.name">{{mcnn.name}}</option>
+                                    </datalist>
+                                    <clr-control-error *featureToggle="'management-cluster.standalone-cluster-mode'">Selecting a Standalone
+                                        Cluster Control Plane VIP Network Name is required
+                                    </clr-control-error>
+                                    <clr-control-error *featureToggle="'!management-cluster.standalone-cluster-mode'">Selecting a Management
+                                        Control Plane VIP Network Name is required
+                                    </clr-control-error>
+                                </clr-datalist-container>
+                            </div>
+
+                            <div class="clr-col-6">
+                                <clr-datalist-container>
+                                    <label i18n="Cluster Network CIDR label" class="clr-col-lg-12 clr-col-12"
+                                           [class.label-disabled]="!connected">
+                                        {{htmlFieldLabels['managementClusterControlPlaneVipNetworkCIDR']}}
+                                        <clr-tooltip>
+                                            <clr-icon clrTooltipTrigger shape="info-circle" size="22"></clr-icon>
+                                            <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
+                                            <span *featureToggle="'management-cluster.standalone-cluster-mode'">
+                                                Select a {{ clusterTypeDescriptorTitleCase }} Cluster Control Plane VIP Network CIDR.
+                                            </span>
+                                            <span *featureToggle="'!management-cluster.standalone-cluster-mode'">
+                                                Select a control plane VIP network CIDR for management cluster and workload clusters' control plane.
+                                            </span>
+                                            </clr-tooltip-content>
+                                        </clr-tooltip>
+                                    </label>
+                                    <input clrDatalistInput name="managementClusterControlPlaneVipNetworkCIDR"
+                                           formControlName="managementClusterControlPlaneVipNetworkCIDR"
+                                           list="managementClusterControlPlaneVipNetworkCIDRList"/>
+                                    <datalist id="managementClusterControlPlaneVipNetworkCIDRList">
+                                        <option aria-label="blank" title="blank"></option>
+                                        <option *ngFor="let mcnc of subnetsPerManagementNetwork"
+                                                [value]="mcnc.subnet">{{mcnc.subnet}}</option>
+                                    </datalist>
+                                    <clr-control-error *featureToggle="'management-cluster.standalone-cluster-mode'">Selecting a Standalone
+                                        Cluster Control Plane VIP Network CIDR is required
+                                    </clr-control-error>
+                                    <clr-control-error *featureToggle="'!management-cluster.standalone-cluster-mode'">Selecting a Management
+                                        Control Plane VIP Network CIDR is required
+                                    </clr-control-error>
+                                </clr-datalist-container>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 

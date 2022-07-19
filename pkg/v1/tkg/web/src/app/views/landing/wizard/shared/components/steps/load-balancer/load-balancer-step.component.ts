@@ -236,18 +236,39 @@ export class SharedLoadBalancerStepComponent extends StepFormDirective implement
     }
 
     /**
+     * Default a value to management cluster service engine group name, if not set.
+     */
+    onSelectWorkloadClusterServiceEngineGroupName(serviceEngineGroupName: string): void {
+        if (!this.formGroup.get(LoadBalancerField.MANAGEMENT_CLUSTER_SERVICE_ENGINE_GROUP_NAME).value) {
+            this.formGroup.get(LoadBalancerField.MANAGEMENT_CLUSTER_SERVICE_ENGINE_GROUP_NAME).setValue(serviceEngineGroupName)
+        }
+    }
+
+    /**
      * Return all the configured subnets for the selected vip network.
      */
     onSelectVipNetwork(networkName: string): void {
         this.selectedNetworkName = networkName;
         if (!this.formGroup.get(LoadBalancerField.MANAGEMENT_CLUSTER_NETWORK_NAME).value) {
+            this.formGroup.get(LoadBalancerField.MANAGEMENT_CLUSTER_NETWORK_NAME).setValue(networkName)
         }
-        this.formGroup.get(LoadBalancerField.MANAGEMENT_CLUSTER_NETWORK_NAME).setValue(networkName)
+        if (!this.formGroup.get(LoadBalancerField.MANAGEMENT_CLUSTER_CONTROL_PLANE_VIP_NETWORK_NAME).value) {
+            this.formGroup.get(LoadBalancerField.MANAGEMENT_CLUSTER_CONTROL_PLANE_VIP_NETWORK_NAME).setValue(networkName)
+        }
+        if (!this.formGroup.get(LoadBalancerField.WORKLOAD_CLUSTER_CONTROL_PLANE_VIP_NETWORK_NAME).value) {
+            this.formGroup.get(LoadBalancerField.WORKLOAD_CLUSTER_CONTROL_PLANE_VIP_NETWORK_NAME).setValue(networkName)
+        }
     }
 
     onSelectVipCIDR(cidr: string): void {
         if (!this.formGroup.get(LoadBalancerField.MANAGEMENT_CLUSTER_NETWORK_CIDR).value) {
             this.formGroup.get(LoadBalancerField.MANAGEMENT_CLUSTER_NETWORK_CIDR).setValue(cidr);
+        }
+        if (!this.formGroup.get(LoadBalancerField.MANAGEMENT_CLUSTER_CONTROL_PLANE_VIP_NETWORK_CIDR).value) {
+            this.formGroup.get(LoadBalancerField.MANAGEMENT_CLUSTER_CONTROL_PLANE_VIP_NETWORK_CIDR).setValue(cidr);
+        }
+        if (!this.formGroup.get(LoadBalancerField.WORKLOAD_CLUSTER_CONTROL_PLANE_VIP_NETWORK_CIDR).value) {
+            this.formGroup.get(LoadBalancerField.WORKLOAD_CLUSTER_CONTROL_PLANE_VIP_NETWORK_CIDR).setValue(cidr);
         }
     }
 
@@ -263,26 +284,54 @@ export class SharedLoadBalancerStepComponent extends StepFormDirective implement
     toggleValidators(validate: boolean) {
         if (validate === true) {
             this.resurrectField(LoadBalancerField.CLOUD_NAME, [Validators.required],
-                this.getStoredValue(LoadBalancerField.CLOUD_NAME, this.supplyStepMapping(), ''));
+            this.getStoredValue(LoadBalancerField.CLOUD_NAME, this.supplyStepMapping(), ''));
             this.resurrectField(LoadBalancerField.SERVICE_ENGINE_GROUP_NAME, [Validators.required],
-                this.getStoredValue(LoadBalancerField.SERVICE_ENGINE_GROUP_NAME, this.supplyStepMapping(), ''));
-            if (!this.modeClusterStandalone) {
-                this.resurrectField(LoadBalancerField.NETWORK_NAME, [Validators.required],
-                    this.getStoredValue(LoadBalancerField.NETWORK_NAME, this.supplyStepMapping(), ''));
-                this.resurrectField(LoadBalancerField.NETWORK_CIDR, [
-                    Validators.required,
-                    this.validationService.noWhitespaceOnEnds(),
-                    this.ipFamily === IpFamilyEnum.IPv4 ?
-                        this.validationService.isValidIpNetworkSegment() : this.validationService.isValidIpv6NetworkSegment()
-                ], this.getStoredValue(LoadBalancerField.NETWORK_CIDR, this.supplyStepMapping(), ''));
-            }
+            this.getStoredValue(LoadBalancerField.SERVICE_ENGINE_GROUP_NAME, this.supplyStepMapping(), ''));
+            this.resurrectField(LoadBalancerField.NETWORK_NAME, [Validators.required],
+            this.getStoredValue(LoadBalancerField.NETWORK_NAME, this.supplyStepMapping(), ''));
+            this.resurrectField(LoadBalancerField.WORKLOAD_CLUSTER_CONTROL_PLANE_VIP_NETWORK_NAME, [Validators.required],
+            this.getStoredValue(LoadBalancerField.WORKLOAD_CLUSTER_CONTROL_PLANE_VIP_NETWORK_NAME, this.supplyStepMapping(), ''));
+            this.resurrectField(LoadBalancerField.NETWORK_CIDR, [
+                Validators.required,
+                this.validationService.noWhitespaceOnEnds(),
+                this.ipFamily === IpFamilyEnum.IPv4 ?
+                    this.validationService.isValidIpNetworkSegment() : this.validationService.isValidIpv6NetworkSegment()
+            ], this.getStoredValue(LoadBalancerField.NETWORK_CIDR, this.supplyStepMapping(), ''));
+            this.resurrectField(LoadBalancerField.WORKLOAD_CLUSTER_CONTROL_PLANE_VIP_NETWORK_CIDR, [
+                Validators.required,
+                this.validationService.noWhitespaceOnEnds(),
+                this.ipFamily === IpFamilyEnum.IPv4 ?
+                    this.validationService.isValidIpNetworkSegment() : this.validationService.isValidIpv6NetworkSegment()
+            ], this.getStoredValue(LoadBalancerField.WORKLOAD_CLUSTER_CONTROL_PLANE_VIP_NETWORK_CIDR, this.supplyStepMapping(), ''));
+
+            this.resurrectField(LoadBalancerField.MANAGEMENT_CLUSTER_CONTROL_PLANE_VIP_NETWORK_NAME, [Validators.required],
+            this.getStoredValue(LoadBalancerField.MANAGEMENT_CLUSTER_CONTROL_PLANE_VIP_NETWORK_NAME, this.supplyStepMapping(), ''));
+            this.resurrectField(LoadBalancerField.MANAGEMENT_CLUSTER_NETWORK_NAME, [Validators.required],
+            this.getStoredValue(LoadBalancerField.MANAGEMENT_CLUSTER_NETWORK_NAME, this.supplyStepMapping(), ''));
+            this.resurrectField(LoadBalancerField.MANAGEMENT_CLUSTER_CONTROL_PLANE_VIP_NETWORK_CIDR, [
+                Validators.required,
+                this.validationService.noWhitespaceOnEnds(),
+                this.ipFamily === IpFamilyEnum.IPv4 ?
+                    this.validationService.isValidIpNetworkSegment() : this.validationService.isValidIpv6NetworkSegment()
+            ], this.getStoredValue(LoadBalancerField.MANAGEMENT_CLUSTER_CONTROL_PLANE_VIP_NETWORK_CIDR, this.supplyStepMapping(), ''));
+            this.resurrectField(LoadBalancerField.MANAGEMENT_CLUSTER_NETWORK_CIDR, [
+                Validators.required,
+                this.validationService.noWhitespaceOnEnds(),
+                this.ipFamily === IpFamilyEnum.IPv4 ?
+                    this.validationService.isValidIpNetworkSegment() : this.validationService.isValidIpv6NetworkSegment()
+            ], this.getStoredValue(LoadBalancerField.MANAGEMENT_CLUSTER_NETWORK_CIDR, this.supplyStepMapping(), ''));
         } else {
             this.disarmField(LoadBalancerField.CLOUD_NAME, true);
             this.disarmField(LoadBalancerField.SERVICE_ENGINE_GROUP_NAME, true);
-            if (!this.modeClusterStandalone) {
-                this.disarmField(LoadBalancerField.NETWORK_NAME, true);
-                this.disarmField(LoadBalancerField.NETWORK_CIDR, true);
-            }
+            this.disarmField(LoadBalancerField.MANAGEMENT_CLUSTER_SERVICE_ENGINE_GROUP_NAME, true);
+            this.disarmField(LoadBalancerField.NETWORK_NAME, true);
+            this.disarmField(LoadBalancerField.NETWORK_CIDR, true);
+            this.disarmField(LoadBalancerField.WORKLOAD_CLUSTER_CONTROL_PLANE_VIP_NETWORK_NAME, true);
+            this.disarmField(LoadBalancerField.WORKLOAD_CLUSTER_CONTROL_PLANE_VIP_NETWORK_CIDR, true);
+            this.disarmField(LoadBalancerField.MANAGEMENT_CLUSTER_NETWORK_NAME, true);
+            this.disarmField(LoadBalancerField.MANAGEMENT_CLUSTER_NETWORK_CIDR, true);
+            this.disarmField(LoadBalancerField.MANAGEMENT_CLUSTER_CONTROL_PLANE_VIP_NETWORK_NAME, true);
+            this.disarmField(LoadBalancerField.MANAGEMENT_CLUSTER_CONTROL_PLANE_VIP_NETWORK_CIDR, true);
         }
     }
 
@@ -321,12 +370,8 @@ export class SharedLoadBalancerStepComponent extends StepFormDirective implement
                 .subscribe(() => {
                     if (this.connected) {
                         this.connected = false;
-                        this.disarmField(LoadBalancerField.CLOUD_NAME, true);
                         this.clouds = [];
-                        this.disarmField(LoadBalancerField.SERVICE_ENGINE_GROUP_NAME, true);
                         this.serviceEngineGroups = [];
-                        this.disarmField(LoadBalancerField.NETWORK_CIDR, true);
-                        this.disarmField(LoadBalancerField.MANAGEMENT_CLUSTER_NETWORK_CIDR, true);
 
                         // If connection cleared, toggle validators OFF
                         this.toggleValidators(false);
@@ -342,8 +387,9 @@ export class SharedLoadBalancerStepComponent extends StepFormDirective implement
             this.onSelectCloud(this.selectedCloudName);
         });
 
-        this.registerOnValueChange("networkName", this.onSelectVipNetwork.bind(this));
-        this.registerOnValueChange("networkCIDR", this.onSelectVipCIDR.bind(this));
+        this.registerOnValueChange(LoadBalancerField.NETWORK_NAME, this.onSelectVipNetwork.bind(this));
+        this.registerOnValueChange(LoadBalancerField.NETWORK_CIDR, this.onSelectVipCIDR.bind(this));
+        this.registerOnValueChange(LoadBalancerField.SERVICE_ENGINE_GROUP_NAME, this.onSelectWorkloadClusterServiceEngineGroupName.bind(this));
         this.registerOnValueChange(LoadBalancerField.MANAGEMENT_CLUSTER_NETWORK_NAME, this.onSelectManagementNetwork.bind(this));
         this.registerOnIpFamilyChange(LoadBalancerField.NETWORK_CIDR, [], []);
         this.registerOnIpFamilyChange(LoadBalancerField.MANAGEMENT_CLUSTER_NETWORK_CIDR, [
@@ -365,13 +411,6 @@ export class SharedLoadBalancerStepComponent extends StepFormDirective implement
     }
 
     private createStepMapping(): StepMapping {
-        const result = LoadBalancerStepMapping;
-        const managementClusterNetworkNameMapping = AppServices.fieldMapUtilities.getFieldMapping('managementClusterNetworkName', result);
-        const managementClusterNetworkCidrMapping = AppServices.fieldMapUtilities.getFieldMapping('managementClusterNetworkCIDR', result);
-        if (this.modeClusterStandalone) {
-            managementClusterNetworkNameMapping.label = 'STANDALONE CLUSTER VIP NETWORK NAME';
-            managementClusterNetworkCidrMapping.label = 'STANDALONE CLUSTER VIP NETWORK CIDR';
-        }
-        return result;
+        return LoadBalancerStepMapping;
     }
 }
