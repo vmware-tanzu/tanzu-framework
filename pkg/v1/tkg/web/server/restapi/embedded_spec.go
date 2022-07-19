@@ -2699,6 +2699,9 @@ func init() {
         "controlPlaneHaProvider": {
           "type": "boolean"
         },
+        "controlPlaneNetwork": {
+          "$ref": "#/definitions/AviNetworkParams"
+        },
         "controller": {
           "type": "string"
         },
@@ -2708,10 +2711,19 @@ func init() {
             "type": "string"
           }
         },
+        "managementClusterControlPlaneVipNetworkCidr": {
+          "type": "string"
+        },
+        "managementClusterControlPlaneVipNetworkName": {
+          "type": "string"
+        },
         "managementClusterVipNetworkCidr": {
           "type": "string"
         },
         "managementClusterVipNetworkName": {
+          "type": "string"
+        },
+        "management_cluster_service_engine": {
           "type": "string"
         },
         "network": {
@@ -6331,6 +6343,9 @@ func init() {
         "controlPlaneHaProvider": {
           "type": "boolean"
         },
+        "controlPlaneNetwork": {
+          "$ref": "#/definitions/AviNetworkParams"
+        },
         "controller": {
           "type": "string"
         },
@@ -6340,10 +6355,19 @@ func init() {
             "type": "string"
           }
         },
+        "managementClusterControlPlaneVipNetworkCidr": {
+          "type": "string"
+        },
+        "managementClusterControlPlaneVipNetworkName": {
+          "type": "string"
+        },
         "managementClusterVipNetworkCidr": {
           "type": "string"
         },
         "managementClusterVipNetworkName": {
+          "type": "string"
+        },
+        "management_cluster_service_engine": {
           "type": "string"
         },
         "network": {
