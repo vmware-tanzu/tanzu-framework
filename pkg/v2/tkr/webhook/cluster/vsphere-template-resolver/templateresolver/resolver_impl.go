@@ -58,8 +58,8 @@ func (r *Resolver) Resolve(svrContext VSphereContext, query Query, vcClient vc.C
 	var err error
 	// 1. Find the union of the non-empty OVAVersion to be queried in vSphere(both control-plane and MDs)
 	ovas := []*types.VSphereVirtualMachine{}
-	ovas = fillVSphereVitrualMachine(ovas, query.ControlPlane)
-	ovas = fillVSphereVitrualMachine(ovas, query.MachineDeployments)
+	ovas = fillVSphereVirtualMachine(ovas, query.ControlPlane)
+	ovas = fillVSphereVirtualMachine(ovas, query.MachineDeployments)
 
 	// Query VC to get templates for OVAs.
 	if len(ovas) > 0 {
@@ -85,9 +85,9 @@ func (r *Resolver) Resolve(svrContext VSphereContext, query Query, vcClient vc.C
 	return result
 }
 
-// fillVSphereVitrualMachine returns an appended slice of `VSphereVirtualMachine` with OVA and OSInfo populated.
+// fillVSphereVirtualMachine returns an appended slice of `VSphereVirtualMachine` with OVA and OSInfo populated.
 // A `VSphereVirtualMachine` will not be added for entries with empty queries (If the OVA Version is empty).
-func fillVSphereVitrualMachine(ovas []*types.VSphereVirtualMachine, queries []*TemplateQuery) []*types.VSphereVirtualMachine {
+func fillVSphereVirtualMachine(ovas []*types.VSphereVirtualMachine, queries []*TemplateQuery) []*types.VSphereVirtualMachine {
 	for _, query := range queries {
 		if len(query.OVAVersion) > 0 {
 			ovas = append(ovas, &types.VSphereVirtualMachine{
