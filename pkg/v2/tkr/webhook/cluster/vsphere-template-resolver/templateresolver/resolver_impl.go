@@ -13,7 +13,6 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/types"
-	tkgtypes "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/types"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/vc"
 )
 
@@ -105,7 +104,7 @@ func fillVSphereVirtualMachine(ovas []*types.VSphereVirtualMachine, queries []*T
 // getVirtualMachineTemplateForOVAs queries VC and retrieves the corresponding VM templates for each OVA version in the input parameter `ova`.
 // It updates the template path and moid in the input if a corresponding entry is found.
 // Returns the updated input VMs.
-func (r *Resolver) getVirtualMachineTemplateForOVAs(inputVMs []*tkgtypes.VSphereVirtualMachine, dc string, vcClient vc.Client) ([]*tkgtypes.VSphereVirtualMachine, error) {
+func (r *Resolver) getVirtualMachineTemplateForOVAs(inputVMs []*types.VSphereVirtualMachine, dc string, vcClient vc.Client) ([]*types.VSphereVirtualMachine, error) {
 	// We need DC MOID to query VMs.
 	dcMOID, err := vcClient.FindDataCenter(context.TODO(), dc)
 	if err != nil {
@@ -125,7 +124,7 @@ func (r *Resolver) getVirtualMachineTemplateForOVAs(inputVMs []*tkgtypes.VSphere
 // updateTemplateDetailsInVMs will iterate through the input VMs and try to find one with a matching OVA Version in the VC VMs.
 // If there is a matching VM, the template path and MOID will be copied over.
 // Returns the updates input VMs.
-func updateTemplateDetailsInVMs(inputVMs []*tkgtypes.VSphereVirtualMachine, vcVMs []*tkgtypes.VSphereVirtualMachine) ([]*tkgtypes.VSphereVirtualMachine, error) {
+func updateTemplateDetailsInVMs(inputVMs []*types.VSphereVirtualMachine, vcVMs []*types.VSphereVirtualMachine) ([]*types.VSphereVirtualMachine, error) {
 	noMatches := []string{}
 	for i, inputVM := range inputVMs {
 		nonTemplateVMs := []string{}
