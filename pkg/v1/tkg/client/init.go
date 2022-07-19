@@ -109,19 +109,23 @@ func (c *TkgClient) InitRegion(options *InitRegionOptions) error { //nolint:funl
 		if regionContext != (region.RegionContext{}) {
 			filelock, err = utils.GetFileLockWithTimeOut(filepath.Join(c.tkgConfigDir, constants.LocalTanzuFileLock), utils.DefaultLockTimeout)
 			if err != nil {
+				// The cluster is created, but we haven't been able to complete the final steps. Just warn about this
+				// and move on.
 				log.Warningf("cannot acquire lock for updating management cluster configuration, %s", err.Error())
-			}
-			err := c.regionManager.SaveRegionContext(regionContext)
-			if err != nil {
-				log.Warningf("Unable to persist management cluster %s info to tkg config", regionContext.ClusterName)
-			}
+			} else {
+				defer func() {
+					if err := filelock.Unlock(); err != nil {
+						log.Warningf("unable to release lock for updating management cluster configuration, %s", err.Error())
+					}
+				}()
 
-			err = c.regionManager.SetCurrentContext(regionContext.ClusterName, regionContext.ContextName)
-			if err != nil {
-				log.Warningf("Unable to use context %s as current tkg context", regionContext.ContextName)
-			}
-			if err := filelock.Unlock(); err != nil {
-				log.Warningf("unable to release lock for updating management cluster configuration, %s", err.Error())
+				if err := c.regionManager.SaveRegionContext(regionContext); err != nil {
+					log.Warningf("Unable to persist management cluster %s info to tkg config", regionContext.ClusterName)
+				}
+
+				if err := c.regionManager.SetCurrentContext(regionContext.ClusterName, regionContext.ContextName); err != nil {
+					log.Warningf("Unable to use context %s as current tkg context", regionContext.ContextName)
+				}
 			}
 		}
 
