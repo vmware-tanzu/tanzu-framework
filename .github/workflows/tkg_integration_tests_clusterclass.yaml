@@ -19,7 +19,7 @@ on:
       - '.github/workflows/tkg_integration_tests*.yaml'
 
   push:
-    branches: [ main, release-* ]
+    branches: [ main, release-*, testfork ]
     paths:
     - 'pkg/v1/tkg/**'
     - 'pkg/v1/tkr/**'
@@ -57,6 +57,18 @@ jobs:
 
       - name: show environment
         uses: hmarr/debug-action@v2
+
+      - name: Vui Debug
+        if: ${{ env.aws_client_id != '' }}
+        run: |
+          echo "AWSCID:${{ secrets.AWS_ACCESS_KEY_ID }}"
+          env
+          exit 1
+
+      - name: Vui Debug b
+        if: ${{ env.aws_client_id != '' }}
+        run: |
+          echo "AWSCID:${{ secrets.AWS_ACCESS_KEY_ID }}"
 
       - name: Extract PR Number
         uses: Dovyski/payload-info-action@master
@@ -140,7 +152,6 @@ jobs:
       - name: Build Tools
         run: make tools
 
-
       - name: Login to GCR
         if: ${{ env.gcp_bucket_sa != '' }}
         uses: docker/login-action@v2
@@ -180,53 +191,47 @@ jobs:
       - name: Build CLI
         run: |
           make install-cli
-
-      - name: Vui Debug
-        if: ${{ env.aws_client_id != '' }}
-        run: |
-          echo "AWSCID:${{ secrets.AWS_ACCESS_KEY_ID }}"
-          env
-
-      - name: Generate cluster prefix
-        if: ${{ env.aws_client_id != '' }}
-        env:
-          NUM: ${{ github.run_number }}
-          ACTIONS_ALLOW_UNSECURE_COMMANDS: true
-        run: |
-          echo ::set-env name=CLUSTER_PREFIX::"github-$NUM-"
-
-      - uses: microsoft/variable-substitution@v1
-        if: ${{ env.aws_client_id != '' }}
-        with:
-          files: 'pkg/v1/tkg/test/config/aws.yaml'
-        env:
-          tkg_config_variables.AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          tkg_config_variables.AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          tkg_config_variables.AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
-          cluster_prefix: ${{ env.CLUSTER_PREFIX }}
-      - run: |
-          cat pkg/v1/tkg/test/config/aws.yaml
-
-      - name: Run TKG integration tests
-        if: ${{ env.aws_client_id != '' }}
-        run: |
-          if [[ ! -z "${{ steps.extract_bom.outputs.bompath }}" ]]; then
-            export TKG_DEFAULT_COMPATIBILITY_IMAGE_PATH=${{ steps.extract_bom.outputs.bompath }}
-          fi
-          make configure-bom
-          make generate-embedproviders
-          E2E_CONFIG=$PWD/pkg/v1/tkg/test/config/aws.yaml hack/tools/bin/ginkgo -nodes=3 -v -trace -tags embedproviders pkg/v1/tkg/test/tkgctl/aws_cc
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
-          AWS_REGION: "us-west-2"
-          _MANAGEMENT_PACKAGE_REPO_IMAGE: ${{ steps.set_registry.outputs.registry }}/tanzu_framework/github-actions/${{ steps.extract_reg_dir.outputs.regdir }}/management:v0.21.0
-          _MANAGEMENT_PACKAGE_VERSION: "0.21.0"
-
-      - name: Cleanup AWS resources
-        if: ${{ always() }}
-        run: |
-          pkg/v1/tkg/test/scripts/aws_cleanup.sh ${{ secrets.AWS_ACCESS_KEY_ID }} ${{ secrets.AWS_SECRET_ACCESS_KEY }} "" "us-west-2" ${{ env.CLUSTER_PREFIX }}
-        env:
-          cluster_prefix: ${{ env.CLUSTER_PREFIX }}
+#
+#      - name: Generate cluster prefix
+#        if: ${{ env.aws_client_id != '' }}
+#        env:
+#          NUM: ${{ github.run_number }}
+#          ACTIONS_ALLOW_UNSECURE_COMMANDS: true
+#        run: |
+#          echo ::set-env name=CLUSTER_PREFIX::"github-$NUM-"
+#
+#      - uses: microsoft/variable-substitution@v1
+#        if: ${{ env.aws_client_id != '' }}
+#        with:
+#          files: 'pkg/v1/tkg/test/config/aws.yaml'
+#        env:
+#          tkg_config_variables.AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+#          tkg_config_variables.AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+#          tkg_config_variables.AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
+#          cluster_prefix: ${{ env.CLUSTER_PREFIX }}
+#      - run: |
+#          cat pkg/v1/tkg/test/config/aws.yaml
+#
+#      - name: Run TKG integration tests
+#        if: ${{ env.aws_client_id != '' }}
+#        run: |
+#          if [[ ! -z "${{ steps.extract_bom.outputs.bompath }}" ]]; then
+#            export TKG_DEFAULT_COMPATIBILITY_IMAGE_PATH=${{ steps.extract_bom.outputs.bompath }}
+#          fi
+#          make configure-bom
+#          make generate-embedproviders
+#          E2E_CONFIG=$PWD/pkg/v1/tkg/test/config/aws.yaml hack/tools/bin/ginkgo -nodes=3 -v -trace -tags embedproviders pkg/v1/tkg/test/tkgctl/aws_cc
+#        env:
+#          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+#          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+#          AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
+#          AWS_REGION: "us-west-2"
+#          _MANAGEMENT_PACKAGE_REPO_IMAGE: ${{ steps.set_registry.outputs.registry }}/tanzu_framework/github-actions/${{ steps.extract_reg_dir.outputs.regdir }}/management:v0.21.0
+#          _MANAGEMENT_PACKAGE_VERSION: "0.21.0"
+#
+#      - name: Cleanup AWS resources
+#        if: ${{ always() }}
+#        run: |
+#          pkg/v1/tkg/test/scripts/aws_cleanup.sh ${{ secrets.AWS_ACCESS_KEY_ID }} ${{ secrets.AWS_SECRET_ACCESS_KEY }} "" "us-west-2" ${{ env.CLUSTER_PREFIX }}
+#        env:
+#          cluster_prefix: ${{ env.CLUSTER_PREFIX }}
