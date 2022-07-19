@@ -6,14 +6,11 @@ package constants
 
 // cluster related constants used internally
 const (
-	KindCluster                = "Cluster"
-	KindTanzuKubernetesCluster = "TanzuKubernetesCluster"
-	KindClusterClass           = "ClusterClass"
-	ClusterClassFeature        = "vmware-system-tkg-clusterclass"
-	TKCAPIFeature              = "vmware-system-tkg-tkc-api"
-	TKGSClusterClassNamespace  = "vmware-system-tkg"
-	TKGSTKCAPINamespace        = "vmware-system-tkg"
-	TKGStkcapiNamespace        = "vmware-system-tkg"
+	ClusterClassFeature       = "vmware-system-tkg-clusterclass"
+	TKCAPIFeature             = "vmware-system-tkg-tkc-api"
+	TKGSClusterClassNamespace = "vmware-system-tkg"
+	TKGSTKCAPINamespace       = "vmware-system-tkg"
+	TKGStkcapiNamespace       = "vmware-system-tkg"
 
 	ErrorMsgFeatureGateNotActivated = "vSphere with Tanzu environment detected, however, the feature '%v' is not activated in '%v' namespace"
 	ErrorMsgFeatureGateStatus       = "error while checking feature '%v' status in namespace '%v'"
@@ -103,14 +100,6 @@ var InfrastructureProviders = map[string]bool{
 	InfrastructureProviderDocker:  true,
 }
 
-// machine template name constants
-const (
-	VSphereMachineTemplate = "VSphereMachineTemplate"
-	AWSMachineTemplate     = "AWSMachineTemplate"
-	AzureMachineTemplate   = "AzureMachineTemplate"
-	DockerMachineTemplate  = "DockerMachineTemplate"
-)
-
 const (
 	// InfrastructureRefVSphere is the vSphere infrastructure
 	InfrastructureRefVSphere = "VSphereCluster"
@@ -151,6 +140,9 @@ const (
 	PackageTypeLabel = "tkg.tanzu.vmware.com/package-type"
 	// CLIPluginImageRepositoryOverrideLabel is the label on the configmap which specifies CLIPlugin image repository override
 	CLIPluginImageRepositoryOverrideLabel = "cli.tanzu.vmware.com/cliplugin-image-repository-override"
+	//KappController labels
+	KappControllerAppLabel         = "kapp.k14s.io/app"
+	KappControllerAssociationLabel = "kapp.k14s.io/association"
 )
 
 // TKG management package related constants
@@ -166,4 +158,33 @@ const AviControllerVersionRegex = `^\d+(\.\d+)*$`
 
 const (
 	TanzuCLISystemNamespace = "tanzu-cli-system"
+)
+
+// Kind constants
+const (
+	KindCluster                     = "Cluster"
+	KindTanzuKubernetesCluster      = "TanzuKubernetesCluster"
+	KindClusterClass                = "ClusterClass"
+	KindKubeadmControlPlaneTemplate = "KubeadmControlPlaneTemplate"
+	KindKubeadmConfigTemplate       = "KubeadmConfigTemplate"
+	KindAWSClusterTemplate          = "AWSClusterTemplate"
+	KindAWSMachineTemplate          = "AWSMachineTemplate"
+	KindAzureClusterTemplate        = "AzureClusterTemplate"
+	KindAzureMachineTemplate        = "AzureMachineTemplate"
+	KindVSphereClusterTemplate      = "VSphereClusterTemplate"
+	KindVSphereMachineTemplate      = "VSphereMachineTemplate"
+	KindDockerMachineTemplate       = "DockerMachineTemplate"
+)
+
+// Resources constants
+const (
+	ResourceClusterClass                = "clusterclasses"
+	ResourceKubeadmControlPlaneTemplate = "kubeadmcontrolplanetemplates"
+	ResourceKubeadmConfigTemplate       = "kubeadmconfigtemplates"
+	ResourceAWSClusterTemplate          = "awsclustertemplates"
+	ResourceAWSMachineTemplate          = "awsmachinetemplates"
+	ResourceAzureClusterTemplate        = "azureclustertemplates"
+	ResourceAzureMachineTemplate        = "azuremachinetemplates"
+	ResourceVSphereClusterTemplate      = "vsphereclustertemplates"
+	ResourceVSphereMachineTemplate      = "vspheremachinetemplates"
 )

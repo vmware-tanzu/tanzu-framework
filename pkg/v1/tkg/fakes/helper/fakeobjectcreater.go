@@ -264,11 +264,11 @@ func NewInfrastructureTemplates(options TestAllClusterComponentOptions) []runtim
 // NewInfrastructureMachineTemplate returns new Machine template based on infa
 func NewInfrastructureMachineTemplate(templateOptions TestObject) runtime.Object {
 	switch templateOptions.Kind {
-	case constants.VSphereMachineTemplate:
+	case constants.KindVSphereMachineTemplate:
 		return NewVSphereMachineTemplate(templateOptions)
-	case constants.AWSMachineTemplate:
+	case constants.KindAWSMachineTemplate:
 		return NewAWSMachineTemplate(templateOptions)
-	case constants.AzureMachineTemplate:
+	case constants.KindAzureMachineTemplate:
 		return NewAzureMachineTemplate(templateOptions)
 	default:
 		return nil

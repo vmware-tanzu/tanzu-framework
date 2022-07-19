@@ -210,7 +210,7 @@ var _ = Describe("Unit tests for upgrading legacy cluster", func() {
 			currentK8sVersion = "v1.17.3+vmware.2" // nolint:goconst
 			setupBomFile("../fakes/config/bom/tkg-bom-v1.3.1.yaml", testingDir)
 			setupBomFile("../fakes/config/bom/tkr-bom-v1.18.0+vmware.1-tkg.2.yaml", testingDir)
-			regionalClusterClient.GetKCPObjectForClusterReturns(getDummyKCP(constants.VSphereMachineTemplate), nil)
+			regionalClusterClient.GetKCPObjectForClusterReturns(getDummyKCP(constants.KindVSphereMachineTemplate), nil)
 			regionalClusterClient.GetResourceReturns(nil)
 			regionalClusterClient.PatchResourceReturns(nil)
 			regionalClusterClient.WaitK8sVersionUpdateForWorkerNodesReturns(nil)
@@ -233,7 +233,7 @@ var _ = Describe("Unit tests for upgrading legacy cluster", func() {
 
 		Context("When environment is Vsphere", func() {
 			BeforeEach(func() {
-				regionalClusterClient.GetKCPObjectForClusterReturns(getDummyKCP(constants.VSphereMachineTemplate), nil)
+				regionalClusterClient.GetKCPObjectForClusterReturns(getDummyKCP(constants.KindVSphereMachineTemplate), nil)
 			})
 
 			Context("When get/verification of vsphere template fails", func() {
@@ -275,7 +275,7 @@ var _ = Describe("Unit tests for upgrading legacy cluster", func() {
 			})
 			Context("template upgrade is not required", func() {
 				BeforeEach(func() {
-					dummyKcp := getDummyKCP(constants.VSphereMachineTemplate)
+					dummyKcp := getDummyKCP(constants.KindVSphereMachineTemplate)
 					dummyKcp.Spec.Version = newK8sVersion
 					regionalClusterClient.GetKCPObjectForClusterReturns(dummyKcp, nil)
 					dummyMd := getDummyMD()
@@ -310,7 +310,7 @@ var _ = Describe("Unit tests for upgrading legacy cluster", func() {
 
 		Context("When environment is AWS", func() {
 			BeforeEach(func() {
-				regionalClusterClient.GetKCPObjectForClusterReturns(getDummyKCP(constants.AWSMachineTemplate), nil)
+				regionalClusterClient.GetKCPObjectForClusterReturns(getDummyKCP(constants.KindAWSMachineTemplate), nil)
 				regionalClusterClient.GetResourceCalls(func(resourceReference interface{}, resourceName, namespace string, postVerify clusterclient.PostVerifyrFunc, pollOptions *clusterclient.PollOptions) error {
 					clusterObj, ok := resourceReference.(*capav1beta1.AWSCluster)
 					if !ok {
@@ -417,7 +417,7 @@ var _ = Describe("Unit tests for upgrading legacy cluster", func() {
 
 		Context("When environment is Azure", func() {
 			BeforeEach(func() {
-				regionalClusterClient.GetKCPObjectForClusterReturns(getDummyKCP(constants.AzureMachineTemplate), nil)
+				regionalClusterClient.GetKCPObjectForClusterReturns(getDummyKCP(constants.KindAzureMachineTemplate), nil)
 				regionalClusterClient.GetResourceCalls(func(resourceReference interface{}, resourceName, namespace string, postVerify clusterclient.PostVerifyrFunc, pollOptions *clusterclient.PollOptions) error {
 					return nil
 				})
@@ -641,7 +641,7 @@ var _ = Describe("When upgrading cluster with fake controller runtime client", f
 					Replicas:        3,
 					K8sVersion:      "v1.18.2+vmware.1",
 					InfrastructureTemplate: fakehelper.TestObject{
-						Kind:      constants.VSphereMachineTemplate,
+						Kind:      constants.KindVSphereMachineTemplate,
 						Name:      "cluster-1-control-plane",
 						Namespace: constants.DefaultNamespace,
 					},
@@ -652,7 +652,7 @@ var _ = Describe("When upgrading cluster with fake controller runtime client", f
 					UpdatedReplicas: 3,
 					Replicas:        3,
 					InfrastructureTemplate: fakehelper.TestObject{
-						Kind:      constants.VSphereMachineTemplate,
+						Kind:      constants.KindVSphereMachineTemplate,
 						Name:      "cluster-1-md-0",
 						Namespace: constants.DefaultNamespace,
 					},
@@ -771,7 +771,7 @@ var _ = Describe("When upgrading cluster with fake controller runtime client", f
 			})
 			Context("Testing the KCP modifier helper function", func() {
 				It("Updates the KCP object with increased timeouts", func() {
-					currentKCP := getDummyKCP(constants.VSphereMachineTemplate)
+					currentKCP := getDummyKCP(constants.KindVSphereMachineTemplate)
 					newKCP, err := tkgClient.UpdateKCPObjectWithIncreasedKubeVip(currentKCP)
 
 					Expect(err).To(BeNil())
@@ -815,7 +815,7 @@ var _ = Describe("When upgrading cluster with fake controller runtime client", f
 					Replicas:        3,
 					K8sVersion:      "v1.18.2+vmware.1",
 					InfrastructureTemplate: fakehelper.TestObject{
-						Kind:      constants.VSphereMachineTemplate,
+						Kind:      constants.KindVSphereMachineTemplate,
 						Name:      "cluster-1-control-plane",
 						Namespace: constants.DefaultNamespace,
 					},
@@ -826,7 +826,7 @@ var _ = Describe("When upgrading cluster with fake controller runtime client", f
 					UpdatedReplicas: 3,
 					Replicas:        3,
 					InfrastructureTemplate: fakehelper.TestObject{
-						Kind:      constants.VSphereMachineTemplate,
+						Kind:      constants.KindVSphereMachineTemplate,
 						Name:      "cluster-1-md-0",
 						Namespace: constants.DefaultNamespace,
 					},

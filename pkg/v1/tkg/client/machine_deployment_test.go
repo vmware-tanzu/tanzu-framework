@@ -436,7 +436,7 @@ var _ = Describe("Machine Deployment", func() {
 									},
 								},
 								InfrastructureRef: corev1.ObjectReference{
-									Kind: constants.VSphereMachineTemplate,
+									Kind: constants.KindVSphereMachineTemplate,
 									Name: "test-cluster-np-1-mt",
 								},
 							},
@@ -456,7 +456,7 @@ var _ = Describe("Machine Deployment", func() {
 									},
 								},
 								InfrastructureRef: corev1.ObjectReference{
-									Kind: constants.VSphereMachineTemplate,
+									Kind: constants.KindVSphereMachineTemplate,
 									Name: "test-cluster-np-2-mt",
 								},
 							},
@@ -476,7 +476,7 @@ var _ = Describe("Machine Deployment", func() {
 									},
 								},
 								InfrastructureRef: corev1.ObjectReference{
-									Kind: constants.VSphereMachineTemplate,
+									Kind: constants.KindVSphereMachineTemplate,
 									Name: "test-cluster-np-3-mt",
 								},
 							},
@@ -690,7 +690,7 @@ var _ = Describe("Machine Deployment", func() {
 				})
 				When("there is an error deleting the machine deployment", func() {
 					BeforeEach(func() {
-						md1.Spec.Template.Spec.InfrastructureRef.Kind = constants.AWSMachineTemplate
+						md1.Spec.Template.Spec.InfrastructureRef.Kind = constants.KindAWSMachineTemplate
 						clusterClient.GetMDObjectForClusterReturns([]capi.MachineDeployment{md1, md2, md3}, nil)
 						callIndex := 0
 						clusterClient.GetResourceStub = func(obj interface{}, name, namespace string, postVerifyFn clusterclient.PostVerifyrFunc, pollOptions *clusterclient.PollOptions) error {
@@ -717,7 +717,7 @@ var _ = Describe("Machine Deployment", func() {
 				})
 				When("there is an error deleting the machine template", func() {
 					BeforeEach(func() {
-						md1.Spec.Template.Spec.InfrastructureRef.Kind = constants.AWSMachineTemplate
+						md1.Spec.Template.Spec.InfrastructureRef.Kind = constants.KindAWSMachineTemplate
 						clusterClient.GetMDObjectForClusterReturns([]capi.MachineDeployment{md1, md2, md3}, nil)
 						callIndex := 0
 						clusterClient.GetResourceStub = func(obj interface{}, name, namespace string, postVerifyFn clusterclient.PostVerifyrFunc, pollOptions *clusterclient.PollOptions) error {
@@ -745,7 +745,7 @@ var _ = Describe("Machine Deployment", func() {
 				})
 				When("there is an error deleting the kubeadmconfig template", func() {
 					BeforeEach(func() {
-						md1.Spec.Template.Spec.InfrastructureRef.Kind = constants.AWSMachineTemplate
+						md1.Spec.Template.Spec.InfrastructureRef.Kind = constants.KindAWSMachineTemplate
 						clusterClient.GetMDObjectForClusterReturns([]capi.MachineDeployment{md1, md2, md3}, nil)
 						callIndex := 0
 						clusterClient.GetResourceStub = func(obj interface{}, name, namespace string, postVerifyFn clusterclient.PostVerifyrFunc, pollOptions *clusterclient.PollOptions) error {
@@ -774,7 +774,7 @@ var _ = Describe("Machine Deployment", func() {
 				})
 				When("the node pool is deleted successfully", func() {
 					BeforeEach(func() {
-						md1.Spec.Template.Spec.InfrastructureRef.Kind = constants.AWSMachineTemplate
+						md1.Spec.Template.Spec.InfrastructureRef.Kind = constants.KindAWSMachineTemplate
 						clusterClient.GetMDObjectForClusterReturns([]capi.MachineDeployment{md1, md2, md3}, nil)
 						callIndex := 0
 						clusterClient.GetResourceStub = func(obj interface{}, name, namespace string, postVerifyFn clusterclient.PostVerifyrFunc, pollOptions *clusterclient.PollOptions) error {
@@ -827,7 +827,7 @@ var _ = Describe("Machine Deployment", func() {
 				})
 				When("there is an error deleting the machine deployment", func() {
 					BeforeEach(func() {
-						md1.Spec.Template.Spec.InfrastructureRef.Kind = constants.AzureMachineTemplate
+						md1.Spec.Template.Spec.InfrastructureRef.Kind = constants.KindAzureMachineTemplate
 						clusterClient.GetMDObjectForClusterReturns([]capi.MachineDeployment{md1, md2, md3}, nil)
 						callIndex := 0
 						clusterClient.GetResourceStub = func(obj interface{}, name, namespace string, postVerifyFn clusterclient.PostVerifyrFunc, pollOptions *clusterclient.PollOptions) error {
@@ -854,7 +854,7 @@ var _ = Describe("Machine Deployment", func() {
 				})
 				When("there is an error deleting the machine template", func() {
 					BeforeEach(func() {
-						md1.Spec.Template.Spec.InfrastructureRef.Kind = constants.AzureMachineTemplate
+						md1.Spec.Template.Spec.InfrastructureRef.Kind = constants.KindAzureMachineTemplate
 						clusterClient.GetMDObjectForClusterReturns([]capi.MachineDeployment{md1, md2, md3}, nil)
 						callIndex := 0
 						clusterClient.GetResourceStub = func(obj interface{}, name, namespace string, postVerifyFn clusterclient.PostVerifyrFunc, pollOptions *clusterclient.PollOptions) error {
@@ -882,7 +882,7 @@ var _ = Describe("Machine Deployment", func() {
 				})
 				When("there is an error deleting the kubeadmconfig template", func() {
 					BeforeEach(func() {
-						md1.Spec.Template.Spec.InfrastructureRef.Kind = constants.AzureMachineTemplate
+						md1.Spec.Template.Spec.InfrastructureRef.Kind = constants.KindAzureMachineTemplate
 						clusterClient.GetMDObjectForClusterReturns([]capi.MachineDeployment{md1, md2, md3}, nil)
 						callIndex := 0
 						clusterClient.GetResourceStub = func(obj interface{}, name, namespace string, postVerifyFn clusterclient.PostVerifyrFunc, pollOptions *clusterclient.PollOptions) error {
@@ -911,7 +911,7 @@ var _ = Describe("Machine Deployment", func() {
 				})
 				When("the node pool is deleted successfully", func() {
 					BeforeEach(func() {
-						md1.Spec.Template.Spec.InfrastructureRef.Kind = constants.AzureMachineTemplate
+						md1.Spec.Template.Spec.InfrastructureRef.Kind = constants.KindAzureMachineTemplate
 						clusterClient.GetMDObjectForClusterReturns([]capi.MachineDeployment{md1, md2, md3}, nil)
 						callIndex := 0
 						clusterClient.GetResourceStub = func(obj interface{}, name, namespace string, postVerifyFn clusterclient.PostVerifyrFunc, pollOptions *clusterclient.PollOptions) error {
@@ -964,7 +964,7 @@ var _ = Describe("Machine Deployment", func() {
 				})
 				When("there is an error deleting the machine deployment", func() {
 					BeforeEach(func() {
-						md1.Spec.Template.Spec.InfrastructureRef.Kind = constants.DockerMachineTemplate
+						md1.Spec.Template.Spec.InfrastructureRef.Kind = constants.KindDockerMachineTemplate
 						clusterClient.GetMDObjectForClusterReturns([]capi.MachineDeployment{md1, md2, md3}, nil)
 						callIndex := 0
 						clusterClient.GetResourceStub = func(obj interface{}, name, namespace string, postVerifyFn clusterclient.PostVerifyrFunc, pollOptions *clusterclient.PollOptions) error {
@@ -991,7 +991,7 @@ var _ = Describe("Machine Deployment", func() {
 				})
 				When("there is an error deleting the machine template", func() {
 					BeforeEach(func() {
-						md1.Spec.Template.Spec.InfrastructureRef.Kind = constants.DockerMachineTemplate
+						md1.Spec.Template.Spec.InfrastructureRef.Kind = constants.KindDockerMachineTemplate
 						clusterClient.GetMDObjectForClusterReturns([]capi.MachineDeployment{md1, md2, md3}, nil)
 						callIndex := 0
 						clusterClient.GetResourceStub = func(obj interface{}, name, namespace string, postVerifyFn clusterclient.PostVerifyrFunc, pollOptions *clusterclient.PollOptions) error {
@@ -1019,7 +1019,7 @@ var _ = Describe("Machine Deployment", func() {
 				})
 				When("there is an error deleting the kubeadmconfig template", func() {
 					BeforeEach(func() {
-						md1.Spec.Template.Spec.InfrastructureRef.Kind = constants.DockerMachineTemplate
+						md1.Spec.Template.Spec.InfrastructureRef.Kind = constants.KindDockerMachineTemplate
 						clusterClient.GetMDObjectForClusterReturns([]capi.MachineDeployment{md1, md2, md3}, nil)
 						callIndex := 0
 						clusterClient.GetResourceStub = func(obj interface{}, name, namespace string, postVerifyFn clusterclient.PostVerifyrFunc, pollOptions *clusterclient.PollOptions) error {
@@ -1048,7 +1048,7 @@ var _ = Describe("Machine Deployment", func() {
 				})
 				When("the node pool is deleted successfully", func() {
 					BeforeEach(func() {
-						md1.Spec.Template.Spec.InfrastructureRef.Kind = constants.DockerMachineTemplate
+						md1.Spec.Template.Spec.InfrastructureRef.Kind = constants.KindDockerMachineTemplate
 						clusterClient.GetMDObjectForClusterReturns([]capi.MachineDeployment{md1, md2, md3}, nil)
 						callIndex := 0
 						clusterClient.GetResourceStub = func(obj interface{}, name, namespace string, postVerifyFn clusterclient.PostVerifyrFunc, pollOptions *clusterclient.PollOptions) error {
@@ -1319,7 +1319,7 @@ var _ = Describe("Machine Deployment", func() {
 									},
 									InfrastructureRef: corev1.ObjectReference{
 										Name: "test-cluster-np-1-mt",
-										Kind: constants.VSphereMachineTemplate,
+										Kind: constants.KindVSphereMachineTemplate,
 									},
 								},
 							},
@@ -1462,7 +1462,7 @@ var _ = Describe("Machine Deployment", func() {
 									},
 									InfrastructureRef: corev1.ObjectReference{
 										Name: "test-cluster-np-1-mt",
-										Kind: constants.AWSMachineTemplate,
+										Kind: constants.KindAWSMachineTemplate,
 									},
 									FailureDomain: &az,
 								},
@@ -1475,7 +1475,7 @@ var _ = Describe("Machine Deployment", func() {
 					md3.Spec.Template.Labels = map[string]string{
 						"existing": "md3",
 					}
-					md3.Spec.Template.Spec.InfrastructureRef.Kind = constants.AWSMachineTemplate
+					md3.Spec.Template.Spec.InfrastructureRef.Kind = constants.KindAWSMachineTemplate
 					md3.Spec.Selector.MatchLabels = map[string]string{}
 					clusterClient.GetMDObjectForClusterReturns([]capi.MachineDeployment{md1, md3}, nil)
 					awsMachineTemplate = aws.AWSMachineTemplate{
@@ -1603,7 +1603,7 @@ var _ = Describe("Machine Deployment", func() {
 									},
 									InfrastructureRef: corev1.ObjectReference{
 										Name: "test-cluster-np-1-mt",
-										Kind: constants.AzureMachineTemplate,
+										Kind: constants.KindAzureMachineTemplate,
 									},
 									FailureDomain: &az,
 								},

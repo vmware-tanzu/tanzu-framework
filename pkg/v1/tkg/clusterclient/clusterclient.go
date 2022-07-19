@@ -33,6 +33,7 @@ import (
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/selection"
 	"k8s.io/apimachinery/pkg/types"
 	kerrors "k8s.io/apimachinery/pkg/util/errors"
@@ -333,6 +334,8 @@ type Client interface {
 	GetCLIPluginImageRepositoryOverride() (map[string]string, error)
 	// VerifyExistenceOfCRD returns true if CRD exists else return false
 	VerifyExistenceOfCRD(resourceName, resourceGroup string) (bool, error)
+	// RemoveMatchingLabelsFromResources removes matching labels for specified resource types
+	RemoveMatchingLabelsFromResources(gvk schema.GroupVersionKind, namespace string, labelsToBeDeleted []string) error
 }
 
 // PollOptions is options for polling
@@ -1361,7 +1364,7 @@ func (c *client) GetKubeConfigForCluster(clusterName, namespace string, pollOpti
 		}
 
 		// If this does not get applied on macOS and with the docker provider then stalling occurs
-		if infraProvider == constants.DockerMachineTemplate {
+		if infraProvider == constants.KindDockerMachineTemplate {
 			// get the docker client with environment options
 			ctx := context.Background()
 			cli, err := dockerclient.NewClientWithOpts(dockerclient.FromEnv)
@@ -2428,6 +2431,35 @@ func (c *client) IsClusterClassBased(clusterName, namespace string) (bool, error
 	}
 
 	return true, nil
+}
+
+func (c *client) RemoveMatchingLabelsFromResources(gvk schema.GroupVersionKind, namespace string, labelsToBeDeleted []string) error {
+	resource := &unstructured.UnstructuredList{}
+	resource.SetGroupVersionKind(schema.GroupVersionKind{
+		Group:   gvk.Group,
+		Kind:    fmt.Sprintf("%sList", gvk.Kind),
+		Version: gvk.Version,
+	})
+
+	err := c.ListResources(resource, &crtclient.ListOptions{Namespace: namespace})
+	if err != nil {
+		return err
+	}
+
+	for _, item := range resource.Items {
+		obj := &item
+		labels := obj.GetLabels()
+		for _, key := range labelsToBeDeleted {
+			delete(labels, key)
+		}
+
+		obj.SetLabels(labels)
+		err = c.UpdateResource(obj, obj.GetName(), obj.GetNamespace())
+		if err != nil {
+			return errors.Wrap(err, "error while updating labels")
+		}
+	}
+	return nil
 }
 
 // Options provides way to customize creation of clusterClient

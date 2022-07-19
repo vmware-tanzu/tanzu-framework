@@ -593,13 +593,13 @@ func (c *TkgClient) createInfrastructureTemplateForUpgrade(regionalClusterClient
 	}
 
 	switch kcp.Spec.MachineTemplate.InfrastructureRef.Kind {
-	case constants.VSphereMachineTemplate:
+	case constants.KindVSphereMachineTemplate:
 		return c.createVsphereInfrastructureTemplateForUpgrade(regionalClusterClient, kcp, clusterUpgradeConfig)
-	case constants.AWSMachineTemplate:
+	case constants.KindAWSMachineTemplate:
 		return c.createAWSInfrastructureTemplateForUpgrade(regionalClusterClient, kcp, clusterUpgradeConfig)
-	case constants.AzureMachineTemplate:
+	case constants.KindAzureMachineTemplate:
 		return c.createAzureInfrastructureTemplateForUpgrade(regionalClusterClient, kcp, clusterUpgradeConfig)
-	case constants.DockerMachineTemplate:
+	case constants.KindDockerMachineTemplate:
 		return c.createCAPDInfrastructureTemplateForUpgrade(regionalClusterClient, kcp, clusterUpgradeConfig)
 	default:
 		return errors.New("infrastructure template associated with KubeadmControlPlane object is invalid")
@@ -1095,7 +1095,7 @@ func (c *TkgClient) PatchKubernetesVersionToKubeadmControlPlane(regionalClusterC
 
 	var newKCP *capikubeadmv1beta1.KubeadmControlPlane
 	// If iaas == vsphere, attempt increasing kube-vip parameters
-	if currentKCP.Spec.MachineTemplate.InfrastructureRef.Kind == constants.VSphereMachineTemplate {
+	if currentKCP.Spec.MachineTemplate.InfrastructureRef.Kind == constants.KindVSphereMachineTemplate {
 		log.V(6).Infof("Kind %s", currentKCP.Spec.MachineTemplate.InfrastructureRef.Kind)
 		newKCP, _ = c.UpdateKCPObjectWithIncreasedKubeVip(currentKCP)
 		if newKCP != nil {
@@ -1382,13 +1382,13 @@ func (c *TkgClient) configureOSOptionsForUpgrade(regionalClusterClient clustercl
 
 			provider := ""
 			switch kcp.Spec.MachineTemplate.InfrastructureRef.Name {
-			case constants.VSphereMachineTemplate:
+			case constants.KindVSphereMachineTemplate:
 				provider = constants.InfrastructureProviderVSphere
-			case constants.AWSMachineTemplate:
+			case constants.KindAWSMachineTemplate:
 				provider = constants.InfrastructureProviderAWS
-			case constants.AzureMachineTemplate:
+			case constants.KindAzureMachineTemplate:
 				provider = constants.InfrastructureProviderAzure
-			case constants.DockerMachineTemplate:
+			case constants.KindDockerMachineTemplate:
 			}
 
 			osInfo := tkgconfighelper.GetDefaultOsOptionsForTKG12(provider)
