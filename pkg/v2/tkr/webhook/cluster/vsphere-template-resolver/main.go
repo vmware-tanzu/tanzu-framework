@@ -22,7 +22,6 @@ import (
 	runv1 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/buildinfo"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v2/tkr/webhook/cluster/vsphere-template-resolver/template"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v2/tkr/webhook/cluster/vsphere-template-resolver/templateresolver"
 )
 
 var (
@@ -69,8 +68,6 @@ func main() {
 		os.Exit(1)
 	}
 
-	templateResolver := templateresolver.New(ctrl.Log)
-
 	// Setup webhooks
 	setupLog.Info("setting up webhook server")
 	hookServer := mgr.GetWebhookServer()
@@ -78,9 +75,8 @@ func main() {
 	setupLog.Info("registering webhooks to the webhook server")
 	hookServer.Register("/resolve-template", &webhook.Admission{
 		Handler: &template.Webhook{
-			Log:              mgr.GetLogger().WithName("handler.Cluster"),
-			TemplateResolver: templateResolver,
-			Client:           mgr.GetClient(),
+			Log:    mgr.GetLogger().WithName("handler.Cluster"),
+			Client: mgr.GetClient(),
 		},
 	})
 

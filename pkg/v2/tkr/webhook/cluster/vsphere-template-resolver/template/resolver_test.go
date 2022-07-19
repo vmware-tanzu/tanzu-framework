@@ -62,11 +62,9 @@ var _ = Describe("Webhook", func() {
 		)
 		BeforeEach(func() {
 			clusterObj = nil
-			templateResolver := templateresolver.New(ctrllog.Log)
 			cw = Webhook{
-				Log:              ctrllog.Log,
-				Client:           nil,
-				TemplateResolver: templateResolver,
+				Log:    ctrllog.Log,
+				Client: nil,
 			}
 			decoder, err := admission.NewDecoder(scheme.Scheme)
 			Expect(err).NotTo(HaveOccurred())

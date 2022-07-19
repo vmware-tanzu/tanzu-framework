@@ -34,10 +34,9 @@ const (
 )
 
 type Webhook struct {
-	TemplateResolver templateresolver.TemplateResolver
-	Log              logr.Logger
-	Client           client.Client
-	decoder          *admission.Decoder
+	Log     logr.Logger
+	Client  client.Client
+	decoder *admission.Decoder
 }
 
 var newResolverFunc = templateresolver.New
