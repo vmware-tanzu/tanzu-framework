@@ -1846,9 +1846,10 @@ func (c *TkgClient) ConfigureAndValidateAviConfiguration() error {
 	if aviEnable == "" || aviEnable == "false" {
 		return nil
 	}
-
+	// init avi client
+	aviClient := avi.New()
 	// if avi is enabled, then should verify following required fields
-	aviClient, err := c.ValidateAviControllerAccount()
+	err := c.ValidateAviControllerAccount(aviClient)
 	if err != nil {
 		return customAviConfigurationError(err, "avi controller account")
 	}
@@ -1859,7 +1860,7 @@ func (c *TkgClient) ConfigureAndValidateAviConfiguration() error {
 		return customAviConfigurationError(err, constants.ConfigVariableAviServiceEngineGroup)
 	}
 	if err = c.ValidateAviDataPlaneNetwork(aviClient); err != nil {
-		return customAviConfigurationError(err, "<"+constants.ConfigVariableAviDataPlaneNetworkName+","+constants.ConfigVariableAviDataPlaneNetworkCIDR+">")
+		return customAviConfigurationError(err, fmt.Sprintf("<%s,%s>", constants.ConfigVariableAviDataPlaneNetworkName, constants.ConfigVariableAviDataPlaneNetworkCIDR))
 	}
 
 	// validate following optional fields if configured
@@ -1870,40 +1871,39 @@ func (c *TkgClient) ConfigureAndValidateAviConfiguration() error {
 		return customAviConfigurationError(err, constants.ConfigVariableAviManagementClusterServiceEngineGroup)
 	}
 	if err = c.ValidateAviControlPlaneNetwork(aviClient); err != nil {
-		return customAviConfigurationError(err, "<"+constants.ConfigVariableAviControlPlaneNetworkName+","+constants.ConfigVariableAviControlPlaneNetworkCIDR+">")
+		return customAviConfigurationError(err, fmt.Sprintf("<%s,%s>", constants.ConfigVariableAviControlPlaneNetworkName, constants.ConfigVariableAviControlPlaneNetworkCIDR))
 	}
 	if err = c.ValidateAviManagementClusterDataPlaneNetwork(aviClient); err != nil {
-		return customAviConfigurationError(err, "<"+constants.ConfigVariableAviManagementClusterDataPlaneNetworkName+","+constants.ConfigVariableAviManagementClusterDataPlaneNetworkCIDR+">")
+		return customAviConfigurationError(err, fmt.Sprintf("<%s,%s>", constants.ConfigVariableAviManagementClusterDataPlaneNetworkName, constants.ConfigVariableAviManagementClusterDataPlaneNetworkCIDR))
 	}
 	if err = c.ValidateAviManagementClusterControlPlaneNetwork(aviClient); err != nil {
-		return customAviConfigurationError(err, "<"+constants.ConfigVariableAviManagementClusterControlPlaneVipNetworkName+","+constants.ConfigVariableAviManagementClusterControlPlaneVipNetworkCIDR+">")
+		return customAviConfigurationError(err, fmt.Sprintf("<%s,%s>", constants.ConfigVariableAviManagementClusterControlPlaneVipNetworkName, constants.ConfigVariableAviManagementClusterControlPlaneVipNetworkCIDR))
 	}
 	return nil
 }
 
 // ValidateAviControllerAccount validates if provide avi credentials are able to connect to avi controller or not
-func (c *TkgClient) ValidateAviControllerAccount() (avi.Client, error) {
+func (c *TkgClient) ValidateAviControllerAccount(aviClient avi.Client) error {
 	aviController, err := c.TKGConfigReaderWriter().Get(constants.ConfigVariableAviControllerAddress)
 	if err != nil {
-		return nil, err
+		return err
 	}
 	aviUserName, err := c.TKGConfigReaderWriter().Get(constants.ConfigVariableAviControllerUsername)
 	if err != nil {
-		return nil, err
+		return err
 	}
 	aviPassword, err := c.TKGConfigReaderWriter().Get(constants.ConfigVariableAviControllerPassword)
 	if err != nil {
-		return nil, err
+		return err
 	}
 	aviCAEncoded, err := c.TKGConfigReaderWriter().Get(constants.ConfigVariableAviControllerCA)
 	if err != nil {
-		return nil, err
+		return err
 	}
 	aviCA, err := base64.StdEncoding.DecodeString(aviCAEncoded)
 	if err != nil {
-		return nil, err
+		return err
 	}
-	aviClient := avi.New()
 	// validate avi controller account
 	aviControllerParams := &models.AviControllerParams{
 		Username: aviUserName,
@@ -1914,12 +1914,12 @@ func (c *TkgClient) ValidateAviControllerAccount() (avi.Client, error) {
 	}
 	authed, err := aviClient.VerifyAccount(aviControllerParams)
 	if err != nil {
-		return nil, err
+		return err
 	}
 	if !authed {
-		return nil, errors.Errorf("unable to authenticate avi controller due to incorrect credentials")
+		return errors.Errorf("unable to authenticate avi controller due to incorrect credentials")
 	}
-	return aviClient, nil
+	return nil
 }
 
 // ValidateAVIControllerVersion validates AVI controller version format, it shoulde be something like 20.1.7

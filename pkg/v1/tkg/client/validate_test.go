@@ -20,6 +20,7 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/fakes"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfigbom"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfigreaderwriter"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/web/server/models"
 
 	clusterctl "sigs.k8s.io/cluster-api/cmd/clusterctl/client"
 )
@@ -1107,41 +1108,96 @@ var _ = Describe("Validate", func() {
 			AfterEach(func() {
 				mockCtrl.Finish()
 			})
+			When("avi is not enabled", func() {
+				It("should skip avi validation", func() {
+					err := tkgClient.ConfigureAndValidateAviConfiguration()
+					Expect(err).ShouldNot(HaveOccurred())
+				})
+				It("should skip avi validation", func() {
+					tkgConfigReaderWriter.Set(constants.ConfigVariableAviEnable, "false")
+					err := tkgClient.ConfigureAndValidateAviConfiguration()
+					Expect(err).ShouldNot(HaveOccurred())
+				})
+			})
+
 			When("validate avi account", func() {
 				It("should throw error if not set AVI_CONTROLLER", func() {
-					aviClient, err := tkgClient.ValidateAviControllerAccount()
+					err := tkgClient.ValidateAviControllerAccount(mockClient)
 					Expect(err).Should(HaveOccurred())
-					Expect(aviClient).Should(BeNil())
 				})
 				It("should throw error if not set AVI_USERNAME", func() {
 					tkgConfigReaderWriter.Set(constants.ConfigVariableAviControllerAddress, "10.10.10.1")
-					aviClient, err := tkgClient.ValidateAviControllerAccount()
+					err := tkgClient.ValidateAviControllerAccount(mockClient)
 					Expect(err).Should(HaveOccurred())
-					Expect(aviClient).Should(BeNil())
 				})
 				It("should throw error if not set AVI_PASSWORD", func() {
 					tkgConfigReaderWriter.Set(constants.ConfigVariableAviControllerAddress, "10.10.10.1")
 					tkgConfigReaderWriter.Set(constants.ConfigVariableAviControllerUsername, "test-user")
-					aviClient, err := tkgClient.ValidateAviControllerAccount()
+					err := tkgClient.ValidateAviControllerAccount(mockClient)
 					Expect(err).Should(HaveOccurred())
-					Expect(aviClient).Should(BeNil())
 				})
 				It("should throw error if not set AVI_CA_DATA_B64", func() {
 					tkgConfigReaderWriter.Set(constants.ConfigVariableAviControllerAddress, "10.10.10.1")
 					tkgConfigReaderWriter.Set(constants.ConfigVariableAviControllerUsername, "test-user")
 					tkgConfigReaderWriter.Set(constants.ConfigVariableAviControllerPassword, "test-password")
-					aviClient, err := tkgClient.ValidateAviControllerAccount()
+					err := tkgClient.ValidateAviControllerAccount(mockClient)
 					Expect(err).Should(HaveOccurred())
-					Expect(aviClient).Should(BeNil())
 				})
 				It("should throw error if AVI_CA_DATA_B64 format error", func() {
 					tkgConfigReaderWriter.Set(constants.ConfigVariableAviControllerAddress, "10.10.10.1")
 					tkgConfigReaderWriter.Set(constants.ConfigVariableAviControllerUsername, "test-user")
 					tkgConfigReaderWriter.Set(constants.ConfigVariableAviControllerPassword, "test-password")
 					tkgConfigReaderWriter.Set(constants.ConfigVariableAviControllerCA, "adacad")
-					aviClient, err := tkgClient.ValidateAviControllerAccount()
+					err := tkgClient.ValidateAviControllerAccount(mockClient)
 					Expect(err).Should(HaveOccurred())
-					Expect(aviClient).Should(BeNil())
+				})
+				It("should throw error if call AVI controller API error", func() {
+					tkgConfigReaderWriter.Set(constants.ConfigVariableAviControllerAddress, "10.10.10.1")
+					tkgConfigReaderWriter.Set(constants.ConfigVariableAviControllerUsername, "test-user")
+					tkgConfigReaderWriter.Set(constants.ConfigVariableAviControllerPassword, "test-password")
+					tkgConfigReaderWriter.Set(constants.ConfigVariableAviControllerCA, "dGVzdC1jYQ==")
+					aviControllerParams := &models.AviControllerParams{
+						Username: "test-user",
+						Password: "test-password",
+						Host:     "10.10.10.1",
+						Tenant:   "admin",
+						CAData:   string("test-ca"),
+					}
+					mockClient.EXPECT().VerifyAccount(aviControllerParams).Return(false, errors.New("call avi controller api issue")).Times(1)
+					err := tkgClient.ValidateAviControllerAccount(mockClient)
+					Expect(err).Should(HaveOccurred())
+				})
+				It("should throw error if using wrong credentials", func() {
+					tkgConfigReaderWriter.Set(constants.ConfigVariableAviControllerAddress, "10.10.10.1")
+					tkgConfigReaderWriter.Set(constants.ConfigVariableAviControllerUsername, "test-user")
+					tkgConfigReaderWriter.Set(constants.ConfigVariableAviControllerPassword, "test-wrong-password")
+					tkgConfigReaderWriter.Set(constants.ConfigVariableAviControllerCA, "dGVzdC1jYQ==")
+					aviControllerParams := &models.AviControllerParams{
+						Username: "test-user",
+						Password: "test-wrong-password",
+						Host:     "10.10.10.1",
+						Tenant:   "admin",
+						CAData:   string("test-ca"),
+					}
+					mockClient.EXPECT().VerifyAccount(aviControllerParams).Return(false, nil).Times(1)
+					err := tkgClient.ValidateAviControllerAccount(mockClient)
+					Expect(err).Should(HaveOccurred())
+				})
+				It("should pass if provide correct configurations", func() {
+					tkgConfigReaderWriter.Set(constants.ConfigVariableAviControllerAddress, "10.10.10.1")
+					tkgConfigReaderWriter.Set(constants.ConfigVariableAviControllerUsername, "test-user")
+					tkgConfigReaderWriter.Set(constants.ConfigVariableAviControllerPassword, "test-password")
+					tkgConfigReaderWriter.Set(constants.ConfigVariableAviControllerCA, "dGVzdC1jYQ==")
+					aviControllerParams := &models.AviControllerParams{
+						Username: "test-user",
+						Password: "test-password",
+						Host:     "10.10.10.1",
+						Tenant:   "admin",
+						CAData:   string("test-ca"),
+					}
+					mockClient.EXPECT().VerifyAccount(aviControllerParams).Return(true, nil).Times(1)
+					err := tkgClient.ValidateAviControllerAccount(mockClient)
+					Expect(err).ShouldNot(HaveOccurred())
 				})
 			})
 			When("validate avi version", func() {
