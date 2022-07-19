@@ -44,56 +44,61 @@ type VSphereConfig struct {
 	ClusterPlan            string `yaml:"CLUSTER_PLAN,omitempty"`
 	CeipParticipation      string `yaml:"ENABLE_CEIP_PARTICIPATION,omitempty"`
 
-	K8sVersion                         string `yaml:"KUBERNETES_VERSION,omitempty"`
-	IPFamily                           string `yaml:"TKG_IP_FAMILY,omitempty"`
-	Server                             string `yaml:"VSPHERE_SERVER,omitempty"`
-	Username                           string `yaml:"VSPHERE_USERNAME,omitempty"`
-	Password                           string `yaml:"VSPHERE_PASSWORD,omitempty"`
-	VSphereInsecure                    string `yaml:"VSPHERE_INSECURE,omitempty"`
-	Datacenter                         string `yaml:"VSPHERE_DATACENTER,omitempty"`
-	Datastore                          string `yaml:"VSPHERE_DATASTORE,omitempty"`
-	Network                            string `yaml:"VSPHERE_NETWORK,omitempty"`
-	ResourcePool                       string `yaml:"VSPHERE_RESOURCE_POOL,omitempty"`
-	Folder                             string `yaml:"VSPHERE_FOLDER,omitempty"`
-	ControlPlaneDiskGIB                string `yaml:"VSPHERE_CONTROL_PLANE_DISK_GIB,omitempty"`
-	ControlPlaneCPUs                   string `yaml:"VSPHERE_CONTROL_PLANE_NUM_CPUS,omitempty"`
-	ControlPlaneMemory                 string `yaml:"VSPHERE_CONTROL_PLANE_MEM_MIB,omitempty"`
-	WorkerDiskGIB                      string `yaml:"VSPHERE_WORKER_DISK_GIB,omitempty"`
-	WorkerCPUs                         string `yaml:"VSPHERE_WORKER_NUM_CPUS,omitempty"`
-	WorkerMemory                       string `yaml:"VSPHERE_WORKER_MEM_MIB,omitempty"`
-	SSHKey                             string `yaml:"VSPHERE_SSH_AUTHORIZED_KEY,omitempty"`
-	ServiceCIDR                        string `yaml:"SERVICE_CIDR,omitempty"`
-	ClusterCIDR                        string `yaml:"CLUSTER_CIDR,omitempty"`
-	ServiceDomain                      string `yaml:"SERVICE_DOMAIN,omitempty"`
-	MachineHealthCheckEnabled          string `yaml:"ENABLE_MHC"`
-	ControlPlaneEndpoint               string `yaml:"VSPHERE_CONTROL_PLANE_ENDPOINT"`
-	VSphereTLSThumbprint               string `yaml:"VSPHERE_TLS_THUMBPRINT"`
-	ClusterHTTPProxy                   string `yaml:"TKG_HTTP_PROXY,omitempty"`
-	ClusterHTTPSProxy                  string `yaml:"TKG_HTTPS_PROXY,omitempty"`
-	ClusterNoProxy                     string `yaml:"TKG_NO_PROXY,omitempty"`
-	HTTPProxyEnabled                   string `yaml:"TKG_HTTP_PROXY_ENABLED"`
-	AviController                      string `yaml:"AVI_CONTROLLER"`
-	AviUsername                        string `yaml:"AVI_USERNAME"`
-	AviPassword                        string `yaml:"AVI_PASSWORD"`
-	AviCloudName                       string `yaml:"AVI_CLOUD_NAME"`
-	AviServiceEngine                   string `yaml:"AVI_SERVICE_ENGINE_GROUP"`
-	AviDataNetwork                     string `yaml:"AVI_DATA_NETWORK"`
-	AviDataNetworkCIDR                 string `yaml:"AVI_DATA_NETWORK_CIDR"`
-	AviCAData                          string `yaml:"AVI_CA_DATA_B64"`
-	AviLabels                          string `yaml:"AVI_LABELS"`
-	AviEnable                          string `yaml:"AVI_ENABLE"`
-	EnableAuditLogging                 string `yaml:"ENABLE_AUDIT_LOGGING"`
-	AviControlPlaneEndpointProvider    string `yaml:"AVI_CONTROL_PLANE_HA_PROVIDER,omitempty"`
-	AviManagementClusterVipNetworkName string `yaml:"AVI_MANAGEMENT_CLUSTER_VIP_NETWORK_NAME"`
-	AviManagementClusterVipNetworkCidr string `yaml:"AVI_MANAGEMENT_CLUSTER_VIP_NETWORK_CIDR"`
-	VSphereWorkerPCIDevices            string `yaml:"VSPHERE_WORKER_PCI_DEVICES"`
-	VSphereControlPlanePCIDevices      string `yaml:"VSPHERE_CONTROL_PLANE_PCI_DEVICES"`
-	WorkerRolloutStrategy              string `yaml:"WORKER_ROLLOUT_STRATEGY"`
-	VSphereControlPlaneCustomVMXKeys   string `yaml:"VSPHERE_CONTROL_PLANE_CUSTOM_VMX_KEYS""`
-	VSphereWorkerCustomVMXKeys         string `yaml:"VSPHERE_WORKER_CUSTOM_VMX_KEYS"`
-	VSphereIgnorePCIDevicesAllowList   string `yaml:"VSPHERE_IGNORE_PCI_DEVICES_ALLOW_LIST"`
-	IDPConfig                          `yaml:",inline"`
-	OsInfo                             `yaml:",inline"`
+	K8sVersion                                     string `yaml:"KUBERNETES_VERSION,omitempty"`
+	IPFamily                                       string `yaml:"TKG_IP_FAMILY,omitempty"`
+	Server                                         string `yaml:"VSPHERE_SERVER,omitempty"`
+	Username                                       string `yaml:"VSPHERE_USERNAME,omitempty"`
+	Password                                       string `yaml:"VSPHERE_PASSWORD,omitempty"`
+	VSphereInsecure                                string `yaml:"VSPHERE_INSECURE,omitempty"`
+	Datacenter                                     string `yaml:"VSPHERE_DATACENTER,omitempty"`
+	Datastore                                      string `yaml:"VSPHERE_DATASTORE,omitempty"`
+	Network                                        string `yaml:"VSPHERE_NETWORK,omitempty"`
+	ResourcePool                                   string `yaml:"VSPHERE_RESOURCE_POOL,omitempty"`
+	Folder                                         string `yaml:"VSPHERE_FOLDER,omitempty"`
+	ControlPlaneDiskGIB                            string `yaml:"VSPHERE_CONTROL_PLANE_DISK_GIB,omitempty"`
+	ControlPlaneCPUs                               string `yaml:"VSPHERE_CONTROL_PLANE_NUM_CPUS,omitempty"`
+	ControlPlaneMemory                             string `yaml:"VSPHERE_CONTROL_PLANE_MEM_MIB,omitempty"`
+	WorkerDiskGIB                                  string `yaml:"VSPHERE_WORKER_DISK_GIB,omitempty"`
+	WorkerCPUs                                     string `yaml:"VSPHERE_WORKER_NUM_CPUS,omitempty"`
+	WorkerMemory                                   string `yaml:"VSPHERE_WORKER_MEM_MIB,omitempty"`
+	SSHKey                                         string `yaml:"VSPHERE_SSH_AUTHORIZED_KEY,omitempty"`
+	ServiceCIDR                                    string `yaml:"SERVICE_CIDR,omitempty"`
+	ClusterCIDR                                    string `yaml:"CLUSTER_CIDR,omitempty"`
+	ServiceDomain                                  string `yaml:"SERVICE_DOMAIN,omitempty"`
+	MachineHealthCheckEnabled                      string `yaml:"ENABLE_MHC"`
+	ControlPlaneEndpoint                           string `yaml:"VSPHERE_CONTROL_PLANE_ENDPOINT"`
+	VSphereTLSThumbprint                           string `yaml:"VSPHERE_TLS_THUMBPRINT"`
+	ClusterHTTPProxy                               string `yaml:"TKG_HTTP_PROXY,omitempty"`
+	ClusterHTTPSProxy                              string `yaml:"TKG_HTTPS_PROXY,omitempty"`
+	ClusterNoProxy                                 string `yaml:"TKG_NO_PROXY,omitempty"`
+	HTTPProxyEnabled                               string `yaml:"TKG_HTTP_PROXY_ENABLED"`
+	AviController                                  string `yaml:"AVI_CONTROLLER"`
+	AviUsername                                    string `yaml:"AVI_USERNAME"`
+	AviPassword                                    string `yaml:"AVI_PASSWORD"`
+	AviCloudName                                   string `yaml:"AVI_CLOUD_NAME"`
+	AviServiceEngine                               string `yaml:"AVI_SERVICE_ENGINE_GROUP"`
+	AviDataNetwork                                 string `yaml:"AVI_DATA_NETWORK"`
+	AviDataNetworkCIDR                             string `yaml:"AVI_DATA_NETWORK_CIDR"`
+	AviControlPlaneNetwork                         string `yaml:"AVI_CONTROL_PLANE_NETWORK"`
+	AviControlPlaneNetworkCIDR                     string `yaml:"AVI_CONTROL_PLANE_NETWORK_CIDR"`
+	AviCAData                                      string `yaml:"AVI_CA_DATA_B64"`
+	AviLabels                                      string `yaml:"AVI_LABELS"`
+	AviEnable                                      string `yaml:"AVI_ENABLE"`
+	EnableAuditLogging                             string `yaml:"ENABLE_AUDIT_LOGGING"`
+	AviControlPlaneEndpointProvider                string `yaml:"AVI_CONTROL_PLANE_HA_PROVIDER,omitempty"`
+	AviManagementClusterServiceEngine              string `yaml:"AVI_MANAGEMENT_CLUSTER_SERVICE_ENGINE_GROUP"`
+	AviManagementClusterVipNetworkName             string `yaml:"AVI_MANAGEMENT_CLUSTER_VIP_NETWORK_NAME"`
+	AviManagementClusterVipNetworkCidr             string `yaml:"AVI_MANAGEMENT_CLUSTER_VIP_NETWORK_CIDR"`
+	AviManagementClusterControlPlaneVipNetworkName string `yaml:"AVI_MANAGEMENT_CLUSTER_CONTROL_PLANE_VIP_NETWORK_NAME"`
+	AviManagementClusterControlPlaneVipNetworkCIDR string `yaml:"AVI_MANAGEMENT_CLUSTER_CONTROL_PLANE_VIP_NETWORK_CIDR"`
+	VSphereWorkerPCIDevices                        string `yaml:"VSPHERE_WORKER_PCI_DEVICES"`
+	VSphereControlPlanePCIDevices                  string `yaml:"VSPHERE_CONTROL_PLANE_PCI_DEVICES"`
+	WorkerRolloutStrategy                          string `yaml:"WORKER_ROLLOUT_STRATEGY"`
+	VSphereControlPlaneCustomVMXKeys               string `yaml:"VSPHERE_CONTROL_PLANE_CUSTOM_VMX_KEYS""`
+	VSphereWorkerCustomVMXKeys                     string `yaml:"VSPHERE_WORKER_CUSTOM_VMX_KEYS"`
+	VSphereIgnorePCIDevicesAllowList               string `yaml:"VSPHERE_IGNORE_PCI_DEVICES_ALLOW_LIST"`
+	IDPConfig                                      `yaml:",inline"`
+	OsInfo                                         `yaml:",inline"`
 }
 
 // NewVSphereConfig generates TKG config for vsphere
@@ -221,9 +226,16 @@ func (c *client) NewVSphereConfig(params *models.VsphereRegionalClusterParams) (
 		res.AviPassword = params.AviConfig.Password
 		res.AviCAData = base64.StdEncoding.EncodeToString([]byte(params.AviConfig.CaCert))
 		res.AviServiceEngine = params.AviConfig.ServiceEngine
+		res.AviManagementClusterServiceEngine = params.AviConfig.ManagementClusterServiceEngine
 		res.AviCloudName = params.AviConfig.Cloud
-		res.AviDataNetwork = params.AviConfig.Network.Name
-		res.AviDataNetworkCIDR = params.AviConfig.Network.Cidr
+		if params.AviConfig.Network != nil {
+			res.AviDataNetwork = params.AviConfig.Network.Name
+			res.AviDataNetworkCIDR = params.AviConfig.Network.Cidr
+		}
+		if params.AviConfig.ControlPlaneNetwork != nil {
+			res.AviControlPlaneNetwork = params.AviConfig.ControlPlaneNetwork.Name
+			res.AviControlPlaneNetworkCIDR = params.AviConfig.ControlPlaneNetwork.Cidr
+		}
 		res.AviLabels = mapToYamlStr(params.AviConfig.Labels)
 		res.AviEnable = trueConst
 
@@ -232,6 +244,8 @@ func (c *client) NewVSphereConfig(params *models.VsphereRegionalClusterParams) (
 		}
 		res.AviManagementClusterVipNetworkName = params.AviConfig.ManagementClusterVipNetworkName
 		res.AviManagementClusterVipNetworkCidr = params.AviConfig.ManagementClusterVipNetworkCidr
+		res.AviManagementClusterControlPlaneVipNetworkName = params.AviConfig.ManagementClusterControlPlaneVipNetworkName
+		res.AviManagementClusterControlPlaneVipNetworkCIDR = params.AviConfig.ManagementClusterControlPlaneVipNetworkCidr
 	}
 
 	return res, nil
@@ -298,13 +312,20 @@ func (c *client) CreateVSphereParams(vConfig *VSphereConfig) (params *models.Vsp
 			Labels:                          yamlStringToMap(vConfig.AviLabels),
 			ManagementClusterVipNetworkCidr: vConfig.AviManagementClusterVipNetworkCidr,
 			ManagementClusterVipNetworkName: vConfig.AviManagementClusterVipNetworkName,
+			ManagementClusterControlPlaneVipNetworkName: vConfig.AviManagementClusterControlPlaneVipNetworkName,
+			ManagementClusterControlPlaneVipNetworkCidr: vConfig.AviManagementClusterControlPlaneVipNetworkCIDR,
 			Network: &models.AviNetworkParams{
 				Cidr: vConfig.AviDataNetworkCIDR,
 				Name: vConfig.AviDataNetwork,
 			},
-			Password:      vConfig.AviPassword,
-			ServiceEngine: vConfig.AviServiceEngine,
-			Username:      vConfig.AviUsername,
+			ControlPlaneNetwork: &models.AviNetworkParams{
+				Cidr: vConfig.AviControlPlaneNetworkCIDR,
+				Name: vConfig.AviControlPlaneNetwork,
+			},
+			Password:                       vConfig.AviPassword,
+			ServiceEngine:                  vConfig.AviServiceEngine,
+			ManagementClusterServiceEngine: vConfig.AviManagementClusterServiceEngine,
+			Username:                       vConfig.AviUsername,
 		}
 	}
 	return params, nil
