@@ -123,6 +123,9 @@ func (r *VSphereCSIConfigReconciler) SetupWithManager(_ context.Context, mgr ctr
 			VSphereCSIFeatureStateConfigMapName)
 	}
 
+	// (deliberate decision): There is no watch on AvailabilityZone in vspherecsiconfig_controller so any change to it will not trigger reconcile
+	// of resources. Based on discussions with TKGS team, availability zone is created at supervisor cluster init time
+	// and does not really change after that.
 	return nil
 }
 
