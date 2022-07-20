@@ -812,6 +812,15 @@ var _ = Describe("NewVsphereConfig", func() {
 					Cidr: "10.0.0.0/16",
 					Name: "avi-network-name",
 				},
+				ControlPlaneNetwork: &models.AviNetworkParams{
+					Cidr: "10.0.0.1/16",
+					Name: "avi-cp-network-name",
+				},
+				ManagementClusterServiceEngine:              "mc-service-engine",
+				ManagementClusterControlPlaneVipNetworkCidr: "10.0.0.2/16",
+				ManagementClusterControlPlaneVipNetworkName: "avi-mc-cp-network-name",
+				ManagementClusterVipNetworkCidr:             "10.0.0.3/16",
+				ManagementClusterVipNetworkName:             "avi-mc-dp-network-name",
 			},
 		}
 	)
@@ -823,6 +832,22 @@ var _ = Describe("NewVsphereConfig", func() {
 			client = newForTesting("../fakes/config/config.yaml", testingDir, defaultBoMFilepath)
 			_, err = client.NewVSphereConfig(params)
 			Expect(err).ToNot(HaveOccurred())
+		})
+		It("should have correct values", func() {
+			setupBomFile("../fakes/config/bom/tkr-bom-v1.18.0+vmware.1-tkg.2.yaml", testingDir)
+
+			client = newForTesting("../fakes/config/config.yaml", testingDir, defaultBoMFilepath)
+			config, _ := client.NewVSphereConfig(params)
+			Expect(config.AviServiceEngine).To(Equal("service-engine"))
+			Expect(config.AviDataNetwork).To(Equal("avi-network-name"))
+			Expect(config.AviDataNetworkCIDR).To(Equal("10.0.0.0/16"))
+			Expect(config.AviControlPlaneNetwork).To(Equal("avi-cp-network-name"))
+			Expect(config.AviControlPlaneNetworkCIDR).To(Equal("10.0.0.1/16"))
+			Expect(config.AviManagementClusterServiceEngine).To(Equal("mc-service-engine"))
+			Expect(config.AviManagementClusterVipNetworkName).To(Equal("avi-mc-dp-network-name"))
+			Expect(config.AviManagementClusterVipNetworkCidr).To(Equal("10.0.0.3/16"))
+			Expect(config.AviManagementClusterControlPlaneVipNetworkName).To(Equal("avi-mc-cp-network-name"))
+			Expect(config.AviManagementClusterControlPlaneVipNetworkCIDR).To(Equal("10.0.0.2/16"))
 		})
 	})
 })
