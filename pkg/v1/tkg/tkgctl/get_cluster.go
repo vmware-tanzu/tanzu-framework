@@ -57,3 +57,19 @@ func (t *tkgctl) GetClusters(options ListTKGClustersOptions) ([]client.ClusterIn
 
 	return clusters, nil
 }
+
+func (t *tkgctl) IsClusterExists(clustername, namespace string) (bool, error) {
+	clusters, err := t.GetClusters(ListTKGClustersOptions{
+		Namespace: namespace,
+		IncludeMC: true,
+	})
+	if err != nil {
+		return false, err
+	}
+	for _, cluster := range clusters {
+		if cluster.Name == clustername && cluster.Namespace == namespace {
+			return true, nil
+		}
+	}
+	return false, nil
+}

@@ -63,7 +63,6 @@ func (t *tkgctl) CreateCluster(cc CreateClusterOptions) error {
 	if err != nil {
 		return err
 	}
-
 	if cc.GenerateOnly && isInputFileClusterClassBased {
 		if config, err := os.ReadFile(cc.ClusterConfigFile); err == nil {
 			_, err = os.Stdout.Write(config)
@@ -84,6 +83,14 @@ func (t *tkgctl) CreateCluster(cc CreateClusterOptions) error {
 	// configures missing create cluster options from config file variables
 	if err := t.configureCreateClusterOptionsFromConfigFile(&cc); err != nil {
 		return err
+	}
+
+	isClusterExists := false
+	isClusterExists, err = t.IsClusterExists(cc.ClusterName, cc.Namespace)
+	if err != nil {
+		return errors.Wrap(err, constants.ErrorMsgClusterListError)
+	} else if isClusterExists {
+		return fmt.Errorf(constants.ErrorMsgClusterExistsAlready, cc.ClusterName)
 	}
 
 	if logPath, err := t.getAuditLogPath(cc.ClusterName); err == nil {
