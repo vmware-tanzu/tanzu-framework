@@ -8,16 +8,17 @@ labels: needs-triage, kind/bug
 
 **Affected product area (please put an X in all that apply)**
 
-- [ ] APIs
-- [ ] Addons
-- [ ] CLI
-- [ ] Docs
-- [ ] IAM
-- [ ] Installation
-- [ ] Plugin
-- [ ] Security
-- [ ] Test and Release
-- [ ] User Experience
+- ( ) APIs
+- ( ) Addons
+- ( ) CLI
+- ( ) Docs
+- ( ) IAM
+- ( ) Installation
+- ( ) Plugin
+- ( ) Security
+- ( ) Test and Release
+- ( ) User Experience
+- ( ) Developer Experience
 
 **Expected behavior**
 

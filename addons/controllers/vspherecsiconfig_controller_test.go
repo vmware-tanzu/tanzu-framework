@@ -8,15 +8,17 @@ import (
 	"os"
 	"regexp"
 	"strings"
-	"time"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	v1 "k8s.io/api/core/v1"
 	rbacv1 "k8s.io/api/rbac/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	capvvmwarev1beta1 "sigs.k8s.io/cluster-api-provider-vsphere/apis/vmware/v1beta1"
 	clusterapiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+
+	topologyv1alpha1 "github.com/vmware-tanzu/vm-operator/external/tanzu-topology/api/v1alpha1"
 
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/addons/test/testutil"
@@ -272,10 +274,26 @@ var _ = Describe("VSphereCSIConfig Reconciler", func() {
 	})
 
 	Context("reconcile VSphereCSIConfig manifests in paravirtual mode", func() {
+		var availabilityZone *topologyv1alpha1.AvailabilityZone
 		BeforeEach(func() {
+			// (deliberate decision): There is no watch on AvailabilityZone in vspherecsiconfig_controller so any change to it will not trigger reconcile
+			// of resources. Based on discussions with TKGS team, availability zone is created at supervisor cluster init time
+			// and does not really change after that. The test will only check for the presence of non legacy availability
+			// zone and set zone to true
+			availabilityZone = &topologyv1alpha1.AvailabilityZone{
+				ObjectMeta: metav1.ObjectMeta{
+					Name: "test-az",
+				},
+			}
+
+			Expect(k8sClient.Create(ctx, availabilityZone)).Should(Succeed())
 			clusterName = "test-cluster-pv-csi"
 			clusterResourceFilePath = "testdata/test-vsphere-csi-paravirtual.yaml"
 			enduringResourcesFilePath = "testdata/vmware-csi-system-ns.yaml"
+		})
+
+		AfterEach(func() {
+			Expect(k8sClient.Delete(ctx, availabilityZone)).Should(Succeed())
 		})
 
 		It("Should reconcile VSphereCSIConfig and create data values secret for VSphereCSIConfig on management cluster", func() {
@@ -325,13 +343,7 @@ var _ = Describe("VSphereCSIConfig Reconciler", func() {
 			}, waitTimeout, pollingInterval).Should(Succeed())
 		})
 
-		It("Should reconcile VSphereCSIConfig and return zone as false", func() {
-
-			// Create availability zone with name test-az
-			availabilityzoneName := "vmware-system-legacy"
-			testutil.CreateAvailabilityZones(ctx, k8sClient, availabilityzoneName)
-			// Wait for the secret to get updated
-			time.Sleep(30 * time.Second)
+		It("Should reconcile VSphereCSIConfig and return zone correctly", func() {
 
 			secret := &v1.Secret{}
 			Eventually(func() error {
@@ -343,44 +355,11 @@ var _ = Describe("VSphereCSIConfig Reconciler", func() {
 					return fmt.Errorf("Failed to get Secret '%v': '%v'", secretKey, err)
 				}
 				secretData := string(secret.Data["values.yaml"])
-				fmt.Println(secretData) // debug dump
 				Expect(len(secretData)).Should(Not(BeZero()))
 				Expect(strings.Contains(secretData, "vspherePVCSI:")).Should(BeTrue())
 				Expect(strings.Contains(secretData, "cluster_name: test-cluster-pv-csi")).Should(BeTrue())
 				match, _ := regexp.MatchString("cluster_uid: [a-z0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{12}", secretData)
 				Expect(match).Should(BeTrue())
-
-				Expect(strings.Contains(secretData, "zone: false")).Should(BeTrue())
-
-				return nil
-			}, waitTimeout, pollingInterval).Should(Succeed())
-		})
-
-		It("Should reconcile VSphereCSIConfig and return zone as true", func() {
-
-			// Create availability zone with name test-az
-			availabilityzoneName := "test-az"
-			testutil.CreateAvailabilityZones(ctx, k8sClient, availabilityzoneName)
-			// Wait for the secret to get updated
-			time.Sleep(30 * time.Second)
-
-			secret := &v1.Secret{}
-			Eventually(func() error {
-				secretKey := client.ObjectKey{
-					Namespace: clusterNamespace,
-					Name:      fmt.Sprintf("%s-%s-data-values", clusterName, constants.PVCSIAddonName),
-				}
-				if err := k8sClient.Get(ctx, secretKey, secret); err != nil {
-					return fmt.Errorf("Failed to get Secret '%v': '%v'", secretKey, err)
-				}
-				secretData := string(secret.Data["values.yaml"])
-				fmt.Println(secretData) // debug dump
-				Expect(len(secretData)).Should(Not(BeZero()))
-				Expect(strings.Contains(secretData, "vspherePVCSI:")).Should(BeTrue())
-				Expect(strings.Contains(secretData, "cluster_name: test-cluster-pv-csi")).Should(BeTrue())
-				match, _ := regexp.MatchString("cluster_uid: [a-z0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{12}", secretData)
-				Expect(match).Should(BeTrue())
-
 				Expect(strings.Contains(secretData, "zone: true")).Should(BeTrue())
 
 				return nil
