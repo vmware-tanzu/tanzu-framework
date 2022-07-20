@@ -7,6 +7,8 @@ directories:
       - manual: {}
         path: rbac.yaml
       - manual: {}
+        path: default-compatible-tkr.yaml
+      - manual: {}
         path: tkr-source-controller-deployment.yaml
   - path: bundle/config/overlays
     contents:

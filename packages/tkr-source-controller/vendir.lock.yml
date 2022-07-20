@@ -1,9 +1,10 @@
 apiVersion: vendir.k14s.io/v1alpha1
-kind: LockConfig
 directories:
 - contents:
   - manual: {}
     path: rbac.yaml
+  - manual: {}
+    path: default-compatible-tkr.yaml
   - manual: {}
     path: tkr-source-controller-deployment.yaml
   path: bundle/config/upstream
@@ -11,4 +12,4 @@ directories:
   - manual: {}
     path: overlay-tkr-source-controller.yaml
   path: bundle/config/overlays
-
+kind: LockConfig
