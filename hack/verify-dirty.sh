@@ -22,9 +22,24 @@ if ! (git diff --quiet HEAD -- . "${ignore_file}" "${ignore_file_ui_bindata}"); 
    git diff --name-only HEAD -- . "${ignore_file}" "${ignore_file_ui_bindata}" | awk '{print "- " $0}'
    echo -e "\nDiff:"
    git --no-pager diff  HEAD -- . "${ignore_file}" "${ignore_file_ui_bindata}"
-   exit 1
+#   exit 1
 else
    echo "OK"
+fi
+
+
+echo
+echo "#############################"
+echo "Verify make package-vendir-sync..."
+echo "#############################"
+make package-vendir-sync
+if ! (git diff --quiet HEAD -- . "${ignore_file}" "${ignore_file_ui_bindata}"); then
+  echo "FAIL"
+  echo "'make package-vendir-sync' generated diffs!"
+  echo "Please verify if package CRD changes are intended and commit the diffs if so."
+  exit 1 
+else
+  echo "OK"
 fi
 
 
