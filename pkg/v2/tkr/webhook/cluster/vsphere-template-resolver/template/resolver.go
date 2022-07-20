@@ -13,10 +13,7 @@ import (
 
 	"github.com/go-logr/logr"
 	corev1 "k8s.io/api/core/v1"
-	capvv1beta1 "sigs.k8s.io/cluster-api-provider-vsphere/apis/v1beta1"
-	capi "sigs.k8s.io/cluster-api/api/v1beta1"
 	clusterv1 "sigs.k8s.io/cluster-api/api/v1beta1"
-	controlplanev1 "sigs.k8s.io/cluster-api/controlplane/kubeadm/api/v1beta1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/webhook/admission"
 	"sigs.k8s.io/kind/pkg/errors"
@@ -29,6 +26,7 @@ import (
 
 const (
 	varTKRData      = "TKR_DATA"
+	varVCenter      = "vcenter"
 	osImageTemplate = "template"
 	osImageMOID     = "moid"
 )
@@ -74,6 +72,9 @@ func (cw *Webhook) resolve(ctx context.Context, cluster *clusterv1.Cluster) *adm
 		return createRespPtr(admission.Allowed("template resolution skipped because tkr resolution incomplete (label not set)"))
 	}
 
+	// TODO: remove this
+	tkrLabel = strings.Replace(tkrLabel, "---", "+", -1)
+
 	if !strings.HasPrefix(tkrLabel, topology.Version) {
 		// Resolved tkr label is different from topology version.
 		// tkr resolution is possibly not yet complete for this topology version
@@ -96,7 +97,7 @@ func (cw *Webhook) resolve(ctx context.Context, cluster *clusterv1.Cluster) *adm
 		return createRespPtr(admission.Allowed("no queries to resolve, no-op"))
 	}
 
-	vSphereContext, err := cw.getVCClient(ctx, cluster)
+	vSphereContext, err := cw.getVSphereContext(ctx, cluster)
 	if err != nil {
 		return createRespPtr(admission.Errored(http.StatusBadRequest, err))
 	}
@@ -111,12 +112,16 @@ func (cw *Webhook) resolve(ctx context.Context, cluster *clusterv1.Cluster) *adm
 		ControlPlane:       controlPlaneQuery,
 		MachineDeployments: mdQuery,
 	}
+
+	cw.Log.Info("Template resolution query", "query", query)
 	// Query for template resolution
 	result := resolver.Resolve(vSphereContext, query, vc)
 	if result.UsefulErrorMessage != "" {
 		// If there are any useful error messages, deny request.
 		return createRespPtr(admission.Denied(result.UsefulErrorMessage))
 	}
+
+	cw.Log.Info("Template resolution result", "result", result)
 
 	return cw.processResult(result, cluster, cpTKRData, mdTKRDatas)
 }
@@ -191,7 +196,7 @@ func getMDTKRDataAndQueries(cluster *clusterv1.Cluster) ([]resolver_cluster.TKRD
 
 // populateTemplateQueryFromTKRData
 func populateTemplateQueryFromTKRData(templateQuery []*templateresolver.TemplateQuery, tkrDataValue *resolver_cluster.TKRDataValue, topologyVersion string) ([]*templateresolver.TemplateQuery, error) {
-	ovaVersion, ok := tkrDataValue.OSImageRef["ovaVersion"].(string)
+	ovaVersion, ok := tkrDataValue.OSImageRef["version"].(string)
 	if !ok {
 		return nil, fmt.Errorf("ova version is invalid or not found for topology version %v", topologyVersion)
 	}
@@ -237,7 +242,7 @@ func (cw *Webhook) processResult(result templateresolver.Result, cluster *cluste
 		if len(*result.MachineDeployments) != len(mdTKRDatas) {
 			// Every TKR_DATA must have a corresponding result element. A mismatch in this count indicates that there is something wrong.
 			err := errors.New(fmt.Sprintf("template resolution result counts [%v] do not match machine deployment counts [%v]", len(*result.MachineDeployments), len(mdTKRDatas)))
-			cw.Log.Error(err, "", *result.MachineDeployments, mdTKRDatas)
+			cw.Log.Error(err, "Mismatch in machine deployment and MD counts", "Machine deployments", *result.MachineDeployments, "MD TKR DATAs", mdTKRDatas)
 			return createRespPtr(admission.Errored(http.StatusInternalServerError, err))
 		}
 
@@ -253,7 +258,7 @@ func (cw *Webhook) processResult(result templateresolver.Result, cluster *cluste
 			}
 		}
 	}
-	cw.Log.Info(fmt.Sprintf("tkr resolution complete for topology %v", topologyVersion))
+	cw.Log.Info("tkr resolution complete for topology", "version", topologyVersion)
 	return nil
 }
 
@@ -271,7 +276,7 @@ func populateTKRDataFromResult(tkrDataValue *resolver_cluster.TKRDataValue, temp
 	tkrDataValue.OSImageRef[osImageMOID] = templateResult.TemplateMOID
 }
 
-func (cw *Webhook) getVCClient(ctx context.Context, cluster *clusterv1.Cluster) (templateresolver.VSphereContext, error) {
+func (cw *Webhook) getVSphereContext(ctx context.Context, cluster *clusterv1.Cluster) (templateresolver.VSphereContext, error) {
 	c := cw.Client
 	// Get Secret (cluster name in cluster namespace)
 	clusterName, clusterNamespace := cluster.Name, cluster.Namespace
@@ -286,46 +291,26 @@ func (cw *Webhook) getVCClient(ctx context.Context, cluster *clusterv1.Cluster) 
 	}
 	username, password := secret.Data["username"], secret.Data["password"]
 
-	// Get kubeadm control plane.
-	kcpList := &controlplanev1.KubeadmControlPlaneList{}
-	selectors := []client.ListOption{
-		client.InNamespace(clusterNamespace),
-		client.MatchingLabels(map[string]string{capi.ClusterLabelName: clusterName}),
-	}
-
-	cw.Log.Info("List with query", "selectors", selectors)
-	err = c.List(ctx, kcpList, selectors...)
+	var vcClusterVar VCenterClusterVar
+	err = util_topology.GetVariable(cluster, varVCenter, &vcClusterVar)
 	if err != nil {
-		return templateresolver.VSphereContext{}, errors.Wrap(err, fmt.Sprintf("could not list KubeadmControlPlane with selectors: %v", selectors))
-	}
-	// There should only be one.
-	if len(kcpList.Items) != 1 {
-		return templateresolver.VSphereContext{},
-			errors.Errorf("zero or multiple KCP objects found for the given cluster, %v %v %v", len(kcpList.Items), clusterName, clusterNamespace)
+		return templateresolver.VSphereContext{}, errors.Wrapf(err, "error parsing vcenter cluster variable")
 	}
 
-	// Get Other details from vsphereMachineTemplate.
-	kcp := &kcpList.Items[0]
-	vsphereMachineTemplateName := kcp.Spec.MachineTemplate.InfrastructureRef.Name
-	vsphereMachineTemplate := &capvv1beta1.VSphereMachineTemplate{}
-	vmTemplateKey := client.ObjectKey{Name: vsphereMachineTemplateName, Namespace: clusterNamespace}
-	cw.Log.Info("Getting vsphere Machine template", "key", vmTemplateKey)
-	err = c.Get(ctx, vmTemplateKey, vsphereMachineTemplate)
-	if err != nil {
-		return templateresolver.VSphereContext{}, errors.Wrap(err, fmt.Sprintf("could not get VSphereMachineTemplate with key %v", vmTemplateKey))
+	insecure := true
+	if vcClusterVar.TLSThumbprint != "" {
+		insecure = false
 	}
 
-	vsphereServer := vsphereMachineTemplate.Spec.Template.Spec.Server
-	dcName := vsphereMachineTemplate.Spec.Template.Spec.Datacenter
-
-	cw.Log.Info("Successfully retrieved vSphere context", vsphereServer, dcName)
+	// TODO(reviewers) / TODO(shashank): Is it ok to log this info below?
+	cw.Log.Info("Successfully retrieved vSphere context", "Server", vcClusterVar.Server, "datacenter", vcClusterVar.DataCenter, "tlsthumbprint", vcClusterVar.TLSThumbprint)
 	return templateresolver.VSphereContext{
 		Username:           string(username),
 		Password:           string(password),
-		Server:             vsphereServer,
-		DataCenter:         dcName,
-		TLSThumbprint:      "",
-		InsecureSkipVerify: true,
+		Server:             vcClusterVar.Server,
+		DataCenter:         vcClusterVar.DataCenter,
+		TLSThumbprint:      vcClusterVar.TLSThumbprint,
+		InsecureSkipVerify: insecure,
 	}, nil
 }
 

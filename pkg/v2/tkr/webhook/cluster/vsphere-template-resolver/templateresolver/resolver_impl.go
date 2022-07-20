@@ -118,13 +118,13 @@ func (r *Resolver) getVirtualMachineTemplateForOVAs(inputVMs []*types.VSphereVir
 	}
 
 	// Find VMs with matching ova versions, and update relevant fields.
-	return updateTemplateDetailsInVMs(inputVMs, vcVMs)
+	return r.updateTemplateDetailsInVMs(inputVMs, vcVMs)
 }
 
 // updateTemplateDetailsInVMs will iterate through the input VMs and try to find one with a matching OVA Version in the VC VMs.
 // If there is a matching VM, the template path and MOID will be copied over.
 // Returns the updates input VMs.
-func updateTemplateDetailsInVMs(inputVMs []*types.VSphereVirtualMachine, vcVMs []*types.VSphereVirtualMachine) ([]*types.VSphereVirtualMachine, error) {
+func (r *Resolver) updateTemplateDetailsInVMs(inputVMs []*types.VSphereVirtualMachine, vcVMs []*types.VSphereVirtualMachine) ([]*types.VSphereVirtualMachine, error) {
 	noMatches := []string{}
 	for i, inputVM := range inputVMs {
 		nonTemplateVMs := []string{}
@@ -146,6 +146,9 @@ func updateTemplateDetailsInVMs(inputVMs []*types.VSphereVirtualMachine, vcVMs [
 						templateFound = true
 						break
 					}
+				} else {
+					// TODO(shashank): Remove this after debugging
+					r.Log.Info("Found ova with matching version but different OS details", "ova version", ovaVersion, "input VM", inputVM, "actual vm", vm)
 				}
 			}
 		}
