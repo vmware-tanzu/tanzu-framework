@@ -1041,6 +1041,20 @@ type ClusterClient struct {
 		result1 bool
 		result2 error
 	}
+	VerifyExistenceOfCRDStub        func(string, string) (bool, error)
+	verifyExistenceOfCRDMutex       sync.RWMutex
+	verifyExistenceOfCRDArgsForCall []struct {
+		arg1 string
+		arg2 string
+	}
+	verifyExistenceOfCRDReturns struct {
+		result1 bool
+		result2 error
+	}
+	verifyExistenceOfCRDReturnsOnCall map[int]struct {
+		result1 bool
+		result2 error
+	}
 	WaitForAVIResourceCleanUpStub        func(string, string) error
 	waitForAVIResourceCleanUpMutex       sync.RWMutex
 	waitForAVIResourceCleanUpArgsForCall []struct {
@@ -6052,6 +6066,71 @@ func (fake *ClusterClient) VerifyCLIPluginCRDReturnsOnCall(i int, result1 bool, 
 	}{result1, result2}
 }
 
+func (fake *ClusterClient) VerifyExistenceOfCRD(arg1 string, arg2 string) (bool, error) {
+	fake.verifyExistenceOfCRDMutex.Lock()
+	ret, specificReturn := fake.verifyExistenceOfCRDReturnsOnCall[len(fake.verifyExistenceOfCRDArgsForCall)]
+	fake.verifyExistenceOfCRDArgsForCall = append(fake.verifyExistenceOfCRDArgsForCall, struct {
+		arg1 string
+		arg2 string
+	}{arg1, arg2})
+	stub := fake.VerifyExistenceOfCRDStub
+	fakeReturns := fake.verifyExistenceOfCRDReturns
+	fake.recordInvocation("VerifyExistenceOfCRD", []interface{}{arg1, arg2})
+	fake.verifyExistenceOfCRDMutex.Unlock()
+	if stub != nil {
+		return stub(arg1, arg2)
+	}
+	if specificReturn {
+		return ret.result1, ret.result2
+	}
+	return fakeReturns.result1, fakeReturns.result2
+}
+
+func (fake *ClusterClient) VerifyExistenceOfCRDCallCount() int {
+	fake.verifyExistenceOfCRDMutex.RLock()
+	defer fake.verifyExistenceOfCRDMutex.RUnlock()
+	return len(fake.verifyExistenceOfCRDArgsForCall)
+}
+
+func (fake *ClusterClient) VerifyExistenceOfCRDCalls(stub func(string, string) (bool, error)) {
+	fake.verifyExistenceOfCRDMutex.Lock()
+	defer fake.verifyExistenceOfCRDMutex.Unlock()
+	fake.VerifyExistenceOfCRDStub = stub
+}
+
+func (fake *ClusterClient) VerifyExistenceOfCRDArgsForCall(i int) (string, string) {
+	fake.verifyExistenceOfCRDMutex.RLock()
+	defer fake.verifyExistenceOfCRDMutex.RUnlock()
+	argsForCall := fake.verifyExistenceOfCRDArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2
+}
+
+func (fake *ClusterClient) VerifyExistenceOfCRDReturns(result1 bool, result2 error) {
+	fake.verifyExistenceOfCRDMutex.Lock()
+	defer fake.verifyExistenceOfCRDMutex.Unlock()
+	fake.VerifyExistenceOfCRDStub = nil
+	fake.verifyExistenceOfCRDReturns = struct {
+		result1 bool
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *ClusterClient) VerifyExistenceOfCRDReturnsOnCall(i int, result1 bool, result2 error) {
+	fake.verifyExistenceOfCRDMutex.Lock()
+	defer fake.verifyExistenceOfCRDMutex.Unlock()
+	fake.VerifyExistenceOfCRDStub = nil
+	if fake.verifyExistenceOfCRDReturnsOnCall == nil {
+		fake.verifyExistenceOfCRDReturnsOnCall = make(map[int]struct {
+			result1 bool
+			result2 error
+		})
+	}
+	fake.verifyExistenceOfCRDReturnsOnCall[i] = struct {
+		result1 bool
+		result2 error
+	}{result1, result2}
+}
+
 func (fake *ClusterClient) WaitForAVIResourceCleanUp(arg1 string, arg2 string) error {
 	fake.waitForAVIResourceCleanUpMutex.Lock()
 	ret, specificReturn := fake.waitForAVIResourceCleanUpReturnsOnCall[len(fake.waitForAVIResourceCleanUpArgsForCall)]
@@ -6902,6 +6981,8 @@ func (fake *ClusterClient) Invocations() map[string][][]interface{} {
 	defer fake.useContextMutex.RUnlock()
 	fake.verifyCLIPluginCRDMutex.RLock()
 	defer fake.verifyCLIPluginCRDMutex.RUnlock()
+	fake.verifyExistenceOfCRDMutex.RLock()
+	defer fake.verifyExistenceOfCRDMutex.RUnlock()
 	fake.waitForAVIResourceCleanUpMutex.RLock()
 	defer fake.waitForAVIResourceCleanUpMutex.RUnlock()
 	fake.waitForAutoscalerDeploymentMutex.RLock()
