@@ -147,9 +147,9 @@
                                         <clr-tooltip>
                                             <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                                             <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
-                                    <span>
-                                        Select a workload cluster service engine group name.
-                                    </span>
+                                            <span>
+                                                Select a workload cluster service engine group name.
+                                            </span>
                                             </clr-tooltip-content>
                                         </clr-tooltip>
                                     </label>
@@ -165,7 +165,7 @@
                             </div>
                         </div>
 
-                        <div class="clr-row" *featureToggle="'!management-cluster.standalone-cluster-mode'">
+                        <div class="clr-row">
                             <div class="clr-col-12 clr-col-sm-6 clr-col-lg-6">
                                 <clr-datalist-container>>
                                     <label i18n="network name label" class="clr-col-lg-12 clr-col-12" [class.label-disabled]="!connected">
@@ -173,7 +173,7 @@
                                         <clr-tooltip>
                                             <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                                             <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
-                                                Choose a data plane VIP network name for workload clusters' workload load balancers.
+                                                Select a data plane VIP network name for workload clusters.
                                             </clr-tooltip-content>
                                         </clr-tooltip>
                                     </label>
@@ -194,7 +194,7 @@
                                         <clr-tooltip>
                                             <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                                             <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
-                                                Select a data plane VIP network CIDR for workload clusters' workload load balancers.
+                                                Select a data plane VIP network CIDR for workload clusters.
                                             </clr-tooltip-content>
                                         </clr-tooltip>
                                     </label>
@@ -209,7 +209,7 @@
                             </div>
                         </div>
 
-                        <div class="clr-row" *featureToggle="'!management-cluster.standalone-cluster-mode'">
+                        <div class="clr-row">
                             <div class="clr-col-12 clr-col-sm-6 clr-col-lg-6">
                                 <clr-datalist-container>>
                                     <label i18n="network name label" class="clr-col-lg-12 clr-col-12" [class.label-disabled]="!connected">
@@ -217,7 +217,7 @@
                                         <clr-tooltip>
                                             <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                                             <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
-                                                Choose a control plane VIP network name for workload clusters' workload load balancers.
+                                                Select a control plane VIP network name for workload clusters.
                                             </clr-tooltip-content>
                                         </clr-tooltip>
                                     </label>
@@ -239,7 +239,7 @@
                                         <clr-tooltip>
                                             <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                                             <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
-                                                Select a control plane VIP network CIDR for workload clusters' workload load balancers.
+                                                Select a control plane VIP network CIDR for workload clusters.
                                             </clr-tooltip-content>
                                         </clr-tooltip>
                                     </label>
@@ -300,11 +300,8 @@
                                         <clr-tooltip>
                                             <clr-icon clrTooltipTrigger shape="info-circle" size="22"></clr-icon>
                                             <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
-                                            <span *featureToggle="'management-cluster.standalone-cluster-mode'">
-                                                Choose a {{ clusterTypeDescriptorTitleCase }} Cluster Data Plane VIP Network Name.
-                                            </span>
-                                            <span *featureToggle="'!management-cluster.standalone-cluster-mode'">
-                                                Choose a data plane VIP network name for management cluster and workload clusters' control plane.
+                                            <span>
+                                                Select a data plane VIP network name for management cluster.
                                             </span>
                                             </clr-tooltip-content>
                                         </clr-tooltip>
@@ -314,11 +311,8 @@
                                     <datalist id="managementClusterNetworkNameList">
                                         <option *ngFor="let mcnn of vipNetworksPerCloud" [value]="mcnn.name">{{mcnn.name}}</option>
                                     </datalist>
-                                    <clr-control-error *featureToggle="'management-cluster.standalone-cluster-mode'">Selecting a Standalone
-                                        Cluster VIP Network Name is required
-                                    </clr-control-error>
-                                    <clr-control-error *featureToggle="'!management-cluster.standalone-cluster-mode'">Selecting a Management
-                                        VIP Network Name is required
+                                    <clr-control-error>
+                                        Selecting a VIP Network Name is required
                                     </clr-control-error>
                                 </clr-datalist-container>
                             </div>
@@ -331,11 +325,8 @@
                                         <clr-tooltip>
                                             <clr-icon clrTooltipTrigger shape="info-circle" size="22"></clr-icon>
                                             <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
-                                            <span *featureToggle="'management-cluster.standalone-cluster-mode'">
-                                                Select a {{ clusterTypeDescriptorTitleCase }} Cluster Data Plane VIP Network CIDR.
-                                            </span>
-                                            <span *featureToggle="'!management-cluster.standalone-cluster-mode'">
-                                                Select a data plane VIP network CIDR for management cluster and workload clusters' control plane.
+                                            <span>
+                                                Select a data plane VIP network CIDR for management cluster.
                                             </span>
                                             </clr-tooltip-content>
                                         </clr-tooltip>
@@ -348,11 +339,8 @@
                                         <option *ngFor="let mcnc of subnetsPerManagementNetwork"
                                                 [value]="mcnc.subnet">{{mcnc.subnet}}</option>
                                     </datalist>
-                                    <clr-control-error *featureToggle="'management-cluster.standalone-cluster-mode'">Selecting a Standalone
-                                        Cluster Data Plane VIP Network CIDR is required
-                                    </clr-control-error>
-                                    <clr-control-error *featureToggle="'!management-cluster.standalone-cluster-mode'">Selecting a Management
-                                        Data Plane VIP Network CIDR is required
+                                    <clr-control-error>
+                                        Selecting a Data Plane VIP Network CIDR is required
                                     </clr-control-error>
                                 </clr-datalist-container>
                             </div>
@@ -366,11 +354,8 @@
                                         <clr-tooltip>
                                             <clr-icon clrTooltipTrigger shape="info-circle" size="22"></clr-icon>
                                             <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
-                                            <span *featureToggle="'management-cluster.standalone-cluster-mode'">
-                                                Choose a {{ clusterTypeDescriptorTitleCase }} Cluster Control Plane VIP Network Name.
-                                            </span>
-                                            <span *featureToggle="'!management-cluster.standalone-cluster-mode'">
-                                                Choose a control plane VIP network name for management cluster and workload clusters' control plane.
+                                            <span>
+                                                Choose a control plane VIP network name for management cluster.
                                             </span>
                                             </clr-tooltip-content>
                                         </clr-tooltip>
@@ -380,11 +365,8 @@
                                     <datalist id="managementClusterControlPlaneVipNetworkNameList">
                                         <option *ngFor="let mcnn of vipNetworksPerCloud" [value]="mcnn.name">{{mcnn.name}}</option>
                                     </datalist>
-                                    <clr-control-error *featureToggle="'management-cluster.standalone-cluster-mode'">Selecting a Standalone
-                                        Cluster Control Plane VIP Network Name is required
-                                    </clr-control-error>
-                                    <clr-control-error *featureToggle="'!management-cluster.standalone-cluster-mode'">Selecting a Management
-                                        Control Plane VIP Network Name is required
+                                    <clr-control-error>
+                                        Selecting a Control Plane VIP Network Name is required
                                     </clr-control-error>
                                 </clr-datalist-container>
                             </div>
@@ -397,11 +379,8 @@
                                         <clr-tooltip>
                                             <clr-icon clrTooltipTrigger shape="info-circle" size="22"></clr-icon>
                                             <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
-                                            <span *featureToggle="'management-cluster.standalone-cluster-mode'">
-                                                Select a {{ clusterTypeDescriptorTitleCase }} Cluster Control Plane VIP Network CIDR.
-                                            </span>
-                                            <span *featureToggle="'!management-cluster.standalone-cluster-mode'">
-                                                Select a control plane VIP network CIDR for management cluster and workload clusters' control plane.
+                                            <span>
+                                                Select a control plane VIP network CIDR for management cluster.
                                             </span>
                                             </clr-tooltip-content>
                                         </clr-tooltip>
@@ -414,11 +393,8 @@
                                         <option *ngFor="let mcnc of subnetsPerManagementNetwork"
                                                 [value]="mcnc.subnet">{{mcnc.subnet}}</option>
                                     </datalist>
-                                    <clr-control-error *featureToggle="'management-cluster.standalone-cluster-mode'">Selecting a Standalone
-                                        Cluster Control Plane VIP Network CIDR is required
-                                    </clr-control-error>
-                                    <clr-control-error *featureToggle="'!management-cluster.standalone-cluster-mode'">Selecting a Management
-                                        Control Plane VIP Network CIDR is required
+                                    <clr-control-error>
+                                        Selecting a Control Plane VIP Network CIDR is required
                                     </clr-control-error>
                                 </clr-datalist-container>
                             </div>
