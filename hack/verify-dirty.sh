@@ -30,6 +30,21 @@ fi
 
 echo
 echo "#############################"
+echo "Verify make package-vendir-sync..."
+echo "#############################"
+make package-vendir-sync
+if ! (git diff --quiet HEAD -- . "${ignore_file}" "${ignore_file_ui_bindata}"); then
+  echo "FAIL"
+  echo "'make package-vendir-sync' generated diffs!"
+  echo "Please verify if package CRD changes are intended and commit the diffs if so."
+  exit 1 
+else
+  echo "OK"
+fi
+
+
+echo
+echo "#############################"
 echo "Verify make configure-bom..."
 echo "#############################"
 make configure-bom
