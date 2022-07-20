@@ -2275,6 +2275,8 @@ definitions:
         type: string
       service_engine:
         type: string
+      management_cluster_service_engine:
+        type: string
       ca_cert:
         type: string
       labels:
@@ -2283,11 +2285,17 @@ definitions:
           type: string
       network:
         $ref: '#/definitions/AviNetworkParams'
+      controlPlaneNetwork:
+        $ref: '#/definitions/AviNetworkParams'
       controlPlaneHaProvider:
         type: boolean
       managementClusterVipNetworkName:
         type: string
       managementClusterVipNetworkCidr:
+        type: string
+      managementClusterControlPlaneVipNetworkName:
+        type: string
+      managementClusterControlPlaneVipNetworkCidr:
         type: string
 
   IdentityManagementConfig:

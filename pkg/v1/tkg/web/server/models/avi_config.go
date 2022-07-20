@@ -25,17 +25,29 @@ type AviConfig struct {
 	// control plane ha provider
 	ControlPlaneHaProvider bool `json:"controlPlaneHaProvider,omitempty"`
 
+	// control plane network
+	ControlPlaneNetwork *AviNetworkParams `json:"controlPlaneNetwork,omitempty"`
+
 	// controller
 	Controller string `json:"controller,omitempty"`
 
 	// labels
 	Labels map[string]string `json:"labels,omitempty"`
 
+	// management cluster control plane vip network cidr
+	ManagementClusterControlPlaneVipNetworkCidr string `json:"managementClusterControlPlaneVipNetworkCidr,omitempty"`
+
+	// management cluster control plane vip network name
+	ManagementClusterControlPlaneVipNetworkName string `json:"managementClusterControlPlaneVipNetworkName,omitempty"`
+
 	// management cluster vip network cidr
 	ManagementClusterVipNetworkCidr string `json:"managementClusterVipNetworkCidr,omitempty"`
 
 	// management cluster vip network name
 	ManagementClusterVipNetworkName string `json:"managementClusterVipNetworkName,omitempty"`
+
+	// management cluster service engine
+	ManagementClusterServiceEngine string `json:"management_cluster_service_engine,omitempty"`
 
 	// network
 	Network *AviNetworkParams `json:"network,omitempty"`
@@ -54,6 +66,10 @@ type AviConfig struct {
 func (m *AviConfig) Validate(formats strfmt.Registry) error {
 	var res []error
 
+	if err := m.validateControlPlaneNetwork(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateNetwork(formats); err != nil {
 		res = append(res, err)
 	}
@@ -61,6 +77,24 @@ func (m *AviConfig) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *AviConfig) validateControlPlaneNetwork(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.ControlPlaneNetwork) { // not required
+		return nil
+	}
+
+	if m.ControlPlaneNetwork != nil {
+		if err := m.ControlPlaneNetwork.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("controlPlaneNetwork")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 
