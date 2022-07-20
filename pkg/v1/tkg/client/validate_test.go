@@ -4,19 +4,23 @@
 package client_test
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"time"
 
+	"github.com/golang/mock/gomock"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
 	. "github.com/onsi/gomega"
 
+	aviMock "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/avi/mocks"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/client"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/fakes"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfigbom"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfigreaderwriter"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/web/server/models"
 
 	clusterctl "sigs.k8s.io/cluster-api/cmd/clusterctl/client"
 )
@@ -1092,48 +1096,291 @@ var _ = Describe("Validate", func() {
 			})
 		})
 
-		Context("Network Separation configuration and validation", func() {
-			It("should allow empty network separation configurations", func() {
-				validationError := tkgClient.ConfigureAndValidateManagementClusterConfiguration(initRegionOptions, true)
-				Expect(validationError).NotTo(HaveOccurred())
+		Context("ConfigureAndValidateAviConfiguration", func() {
+			var (
+				mockCtrl   *gomock.Controller
+				mockClient *aviMock.MockClient
+			)
+			BeforeEach(func() {
+				mockCtrl = gomock.NewController(GinkgoT())
+				mockClient = aviMock.NewMockClient(mockCtrl)
+			})
+			AfterEach(func() {
+				mockCtrl.Finish()
+			})
+			When("avi is not enabled", func() {
+				It("should skip avi validation", func() {
+					err := tkgClient.ConfigureAndValidateAviConfiguration()
+					Expect(err).ShouldNot(HaveOccurred())
+				})
+				It("should skip avi validation", func() {
+					tkgConfigReaderWriter.Set(constants.ConfigVariableAviEnable, "false")
+					err := tkgClient.ConfigureAndValidateAviConfiguration()
+					Expect(err).ShouldNot(HaveOccurred())
+				})
 			})
 
-			Context("Avi Management Cluster Service Engine Group", func() {
-				BeforeEach(func() {
-					featureFlagClient.IsConfigFeatureActivatedReturns(false, nil)
-					tkgConfigReaderWriter.Set(constants.ConfigVariableAviManagementClusterServiceEngineGroup, "SEG-1")
+			When("validate avi account", func() {
+				It("should throw error if not set AVI_CONTROLLER", func() {
+					err := tkgClient.ValidateAviControllerAccount(mockClient)
+					Expect(err).Should(HaveOccurred())
 				})
-
-				It("should return an error", func() {
-					validationError := tkgClient.ConfigureAndValidateManagementClusterConfiguration(initRegionOptions, true)
-					Expect(validationError).To(HaveOccurred())
-					Expect(validationError.Error()).To(ContainSubstring("option AVI_MANAGEMENT_CLUSTER_SERVICE_ENGINE_GROUP is set to \"SEG-1\", but network separation support is not enabled (because it is not fully functional). To enable network separation, run the command: tanzu config set features.management-cluster.network-separation-beta true"))
+				It("should throw error if not set AVI_USERNAME", func() {
+					tkgConfigReaderWriter.Set(constants.ConfigVariableAviControllerAddress, "10.10.10.1")
+					err := tkgClient.ValidateAviControllerAccount(mockClient)
+					Expect(err).Should(HaveOccurred())
+				})
+				It("should throw error if not set AVI_PASSWORD", func() {
+					tkgConfigReaderWriter.Set(constants.ConfigVariableAviControllerAddress, "10.10.10.1")
+					tkgConfigReaderWriter.Set(constants.ConfigVariableAviControllerUsername, "test-user")
+					err := tkgClient.ValidateAviControllerAccount(mockClient)
+					Expect(err).Should(HaveOccurred())
+				})
+				It("should throw error if not set AVI_CA_DATA_B64", func() {
+					tkgConfigReaderWriter.Set(constants.ConfigVariableAviControllerAddress, "10.10.10.1")
+					tkgConfigReaderWriter.Set(constants.ConfigVariableAviControllerUsername, "test-user")
+					tkgConfigReaderWriter.Set(constants.ConfigVariableAviControllerPassword, "test-password")
+					err := tkgClient.ValidateAviControllerAccount(mockClient)
+					Expect(err).Should(HaveOccurred())
+				})
+				It("should throw error if AVI_CA_DATA_B64 format error", func() {
+					tkgConfigReaderWriter.Set(constants.ConfigVariableAviControllerAddress, "10.10.10.1")
+					tkgConfigReaderWriter.Set(constants.ConfigVariableAviControllerUsername, "test-user")
+					tkgConfigReaderWriter.Set(constants.ConfigVariableAviControllerPassword, "test-password")
+					tkgConfigReaderWriter.Set(constants.ConfigVariableAviControllerCA, "adacad")
+					err := tkgClient.ValidateAviControllerAccount(mockClient)
+					Expect(err).Should(HaveOccurred())
+				})
+				It("should throw error if call AVI controller API error", func() {
+					tkgConfigReaderWriter.Set(constants.ConfigVariableAviControllerAddress, "10.10.10.1")
+					tkgConfigReaderWriter.Set(constants.ConfigVariableAviControllerUsername, "test-user")
+					tkgConfigReaderWriter.Set(constants.ConfigVariableAviControllerPassword, "test-password")
+					tkgConfigReaderWriter.Set(constants.ConfigVariableAviControllerCA, "dGVzdC1jYQ==")
+					aviControllerParams := &models.AviControllerParams{
+						Username: "test-user",
+						Password: "test-password",
+						Host:     "10.10.10.1",
+						Tenant:   "admin",
+						CAData:   string("test-ca"),
+					}
+					mockClient.EXPECT().VerifyAccount(aviControllerParams).Return(false, errors.New("call avi controller api issue")).Times(1)
+					err := tkgClient.ValidateAviControllerAccount(mockClient)
+					Expect(err).Should(HaveOccurred())
+				})
+				It("should throw error if using wrong credentials", func() {
+					tkgConfigReaderWriter.Set(constants.ConfigVariableAviControllerAddress, "10.10.10.1")
+					tkgConfigReaderWriter.Set(constants.ConfigVariableAviControllerUsername, "test-user")
+					tkgConfigReaderWriter.Set(constants.ConfigVariableAviControllerPassword, "test-wrong-password")
+					tkgConfigReaderWriter.Set(constants.ConfigVariableAviControllerCA, "dGVzdC1jYQ==")
+					aviControllerParams := &models.AviControllerParams{
+						Username: "test-user",
+						Password: "test-wrong-password",
+						Host:     "10.10.10.1",
+						Tenant:   "admin",
+						CAData:   string("test-ca"),
+					}
+					mockClient.EXPECT().VerifyAccount(aviControllerParams).Return(false, nil).Times(1)
+					err := tkgClient.ValidateAviControllerAccount(mockClient)
+					Expect(err).Should(HaveOccurred())
+				})
+				It("should pass if provide correct configurations", func() {
+					tkgConfigReaderWriter.Set(constants.ConfigVariableAviControllerAddress, "10.10.10.1")
+					tkgConfigReaderWriter.Set(constants.ConfigVariableAviControllerUsername, "test-user")
+					tkgConfigReaderWriter.Set(constants.ConfigVariableAviControllerPassword, "test-password")
+					tkgConfigReaderWriter.Set(constants.ConfigVariableAviControllerCA, "dGVzdC1jYQ==")
+					aviControllerParams := &models.AviControllerParams{
+						Username: "test-user",
+						Password: "test-password",
+						Host:     "10.10.10.1",
+						Tenant:   "admin",
+						CAData:   string("test-ca"),
+					}
+					mockClient.EXPECT().VerifyAccount(aviControllerParams).Return(true, nil).Times(1)
+					err := tkgClient.ValidateAviControllerAccount(mockClient)
+					Expect(err).ShouldNot(HaveOccurred())
 				})
 			})
-			Context("Avi Data Plane Network", func() {
-				BeforeEach(func() {
-					featureFlagClient.IsConfigFeatureActivatedReturns(false, nil)
-					tkgConfigReaderWriter.Set(constants.ConfigVariableAviControlPlaneNetwork, "VM Network")
-					tkgConfigReaderWriter.Set(constants.ConfigVariableAviControlPlaneNetworkCidr, "8.8.8.8/20")
+			When("validate avi version", func() {
+				It("should use default version if not set AVI_CONTROLLER_VERSION", func() {
+					err := tkgClient.ValidateAviControllerVersion()
+					Expect(err).ShouldNot(HaveOccurred())
 				})
-
-				It("should return an error", func() {
-					validationError := tkgClient.ConfigureAndValidateManagementClusterConfiguration(initRegionOptions, true)
-					Expect(validationError).To(HaveOccurred())
-					Expect(validationError.Error()).To(ContainSubstring("option AVI_CONTROL_PLANE_NETWORK is set to \"VM Network\", but network separation support is not enabled (because it is not fully functional). To enable network separation, run the command: tanzu config set features.management-cluster.network-separation-beta true"))
+				It("should throw error if version format is not correct", func() {
+					tkgConfigReaderWriter.Set(constants.ConfigVariableAviControllerVersion, "test.version")
+					err := tkgClient.ValidateAviControllerVersion()
+					Expect(err).Should(HaveOccurred())
+				})
+				It("should pass if version format is correct", func() {
+					tkgConfigReaderWriter.Set(constants.ConfigVariableAviControllerVersion, "20.1.7")
+					err := tkgClient.ValidateAviControllerVersion()
+					Expect(err).ShouldNot(HaveOccurred())
 				})
 			})
-			Context("Avi Control Plane Network", func() {
-				BeforeEach(func() {
-					featureFlagClient.IsConfigFeatureActivatedReturns(false, nil)
-					tkgConfigReaderWriter.Set(constants.ConfigVariableAviManagementClusterControlPlaneVipNetworkName, "VM Network")
-					tkgConfigReaderWriter.Set(constants.ConfigVariableAviManagementClusterControlPlaneVipNetworkCidr, "8.8.8.8/20")
+			When("validate avi cloud", func() {
+				It("should throw error if not set AVI_CLOUD_NAME", func() {
+					err := tkgClient.ValidateAviCloud(mockClient)
+					Expect(err).Should(HaveOccurred())
 				})
-
-				It("should return an error", func() {
-					validationError := tkgClient.ConfigureAndValidateManagementClusterConfiguration(initRegionOptions, true)
-					Expect(validationError).To(HaveOccurred())
-					Expect(validationError.Error()).To(ContainSubstring("option AVI_MANAGEMENT_CLUSTER_CONTROL_PLANE_VIP_NETWORK_NAME is set to \"VM Network\", but network separation support is not enabled (because it is not fully functional). To enable network separation, run the command: tanzu config set features.management-cluster.network-separation-beta true"))
+				It("should pass if cloud exists in avi controller", func() {
+					tkgConfigReaderWriter.Set(constants.ConfigVariableAviCloudName, "test-cloud")
+					mockClient.EXPECT().GetCloudByName("test-cloud").Return(nil, nil).Times(1)
+					err := tkgClient.ValidateAviCloud(mockClient)
+					Expect(err).ShouldNot(HaveOccurred())
+				})
+				It("should throw error if cloud not exists in avi controller", func() {
+					tkgConfigReaderWriter.Set(constants.ConfigVariableAviCloudName, "test-cloud")
+					mockClient.EXPECT().GetCloudByName("test-cloud").Return(nil, errors.New("test-cloud is not found")).Times(1)
+					err := tkgClient.ValidateAviCloud(mockClient)
+					Expect(err).Should(HaveOccurred())
+				})
+			})
+			When("validate avi service engine group", func() {
+				It("should throw error if not set AVI_SERVICE_ENGINE_GROUP", func() {
+					err := tkgClient.ValidateAviServiceEngineGroup(mockClient)
+					Expect(err).Should(HaveOccurred())
+				})
+				It("should pass if service engine group exists in avi controller", func() {
+					tkgConfigReaderWriter.Set(constants.ConfigVariableAviServiceEngineGroup, "test-seg")
+					mockClient.EXPECT().GetServiceEngineGroupByName("test-seg").Return(nil, nil).Times(1)
+					err := tkgClient.ValidateAviServiceEngineGroup(mockClient)
+					Expect(err).ShouldNot(HaveOccurred())
+				})
+				It("should throw error if service engine group not exists in avi controller", func() {
+					tkgConfigReaderWriter.Set(constants.ConfigVariableAviServiceEngineGroup, "test-seg")
+					mockClient.EXPECT().GetServiceEngineGroupByName("test-seg").Return(nil, errors.New("test-seg is not found")).Times(1)
+					err := tkgClient.ValidateAviServiceEngineGroup(mockClient)
+					Expect(err).Should(HaveOccurred())
+				})
+			})
+			When("validate avi management cluster service engine group", func() {
+				It("should just pass if not set AVI_MANAGEMENT_CLUSTER_SERVICE_ENGINE_GROUP", func() {
+					err := tkgClient.ValidateAviManagementClusterServiceEngineGroup(mockClient)
+					Expect(err).ShouldNot(HaveOccurred())
+				})
+				It("should pass if service engine group exists in avi controller", func() {
+					tkgConfigReaderWriter.Set(constants.ConfigVariableAviManagementClusterServiceEngineGroup, "test-mc-seg")
+					mockClient.EXPECT().GetServiceEngineGroupByName("test-mc-seg").Return(nil, nil).Times(1)
+					err := tkgClient.ValidateAviManagementClusterServiceEngineGroup(mockClient)
+					Expect(err).ShouldNot(HaveOccurred())
+				})
+				It("should throw error if service engine group not exists in avi controller", func() {
+					tkgConfigReaderWriter.Set(constants.ConfigVariableAviManagementClusterServiceEngineGroup, "test-mc-seg")
+					mockClient.EXPECT().GetServiceEngineGroupByName("test-mc-seg").Return(nil, errors.New("test-mc-seg is not found")).Times(1)
+					err := tkgClient.ValidateAviManagementClusterServiceEngineGroup(mockClient)
+					Expect(err).Should(HaveOccurred())
+				})
+			})
+			When("validate avi data plane network", func() {
+				It("should throw error if not set AVI_DATA_NETWORK", func() {
+					err := tkgClient.ValidateAviDataPlaneNetwork(mockClient)
+					Expect(err).Should(HaveOccurred())
+				})
+				It("should throw error if not set AVI_DATA_NETWORK_CIDR", func() {
+					tkgConfigReaderWriter.Set(constants.ConfigVariableAviDataPlaneNetworkName, "test-data-net")
+					err := tkgClient.ValidateAviDataPlaneNetwork(mockClient)
+					Expect(err).Should(HaveOccurred())
+				})
+				It("should pass if data plane network exists in avi controller and cidr format is valid", func() {
+					tkgConfigReaderWriter.Set(constants.ConfigVariableAviDataPlaneNetworkName, "test-data-net")
+					tkgConfigReaderWriter.Set(constants.ConfigVariableAviDataPlaneNetworkCIDR, "10.10.10.1/24")
+					mockClient.EXPECT().GetVipNetworkByName("test-data-net").Return(nil, nil).Times(1)
+					err := tkgClient.ValidateAviDataPlaneNetwork(mockClient)
+					Expect(err).ShouldNot(HaveOccurred())
+				})
+				It("should throw error if data plane network not exists in avi controller", func() {
+					tkgConfigReaderWriter.Set(constants.ConfigVariableAviDataPlaneNetworkName, "test-data-net")
+					tkgConfigReaderWriter.Set(constants.ConfigVariableAviDataPlaneNetworkCIDR, "10.10.10.1/24")
+					mockClient.EXPECT().GetVipNetworkByName("test-data-net").Return(nil, errors.New("test-data-net is not found")).Times(1)
+					err := tkgClient.ValidateAviDataPlaneNetwork(mockClient)
+					Expect(err).Should(HaveOccurred())
+				})
+				It("should throw error if data plane network CIDR format is not valid", func() {
+					tkgConfigReaderWriter.Set(constants.ConfigVariableAviDataPlaneNetworkName, "test-data-net")
+					tkgConfigReaderWriter.Set(constants.ConfigVariableAviDataPlaneNetworkCIDR, "10.10.10/test")
+					mockClient.EXPECT().GetVipNetworkByName("test-data-net").Return(nil, nil).Times(1)
+					err := tkgClient.ValidateAviDataPlaneNetwork(mockClient)
+					Expect(err).Should(HaveOccurred())
+				})
+			})
+			When("validate avi control plane network", func() {
+				It("should pass if not set AVI_CONTROL_PLANE_NETWORK", func() {
+					err := tkgClient.ValidateAviControlPlaneNetwork(mockClient)
+					Expect(err).ShouldNot(HaveOccurred())
+				})
+				It("should pass if control plane network exists in avi controller and cidr format is valid", func() {
+					tkgConfigReaderWriter.Set(constants.ConfigVariableAviControlPlaneNetworkName, "test-cp-net")
+					tkgConfigReaderWriter.Set(constants.ConfigVariableAviControlPlaneNetworkCIDR, "10.10.10.1/24")
+					mockClient.EXPECT().GetVipNetworkByName("test-cp-net").Return(nil, nil).Times(1)
+					err := tkgClient.ValidateAviControlPlaneNetwork(mockClient)
+					Expect(err).ShouldNot(HaveOccurred())
+				})
+				It("should throw error if control plane network not exists in avi controller", func() {
+					tkgConfigReaderWriter.Set(constants.ConfigVariableAviControlPlaneNetworkName, "test-cp-net")
+					tkgConfigReaderWriter.Set(constants.ConfigVariableAviControlPlaneNetworkCIDR, "10.10.10.1/24")
+					mockClient.EXPECT().GetVipNetworkByName("test-cp-net").Return(nil, errors.New("test-cp-net is not found")).Times(1)
+					err := tkgClient.ValidateAviControlPlaneNetwork(mockClient)
+					Expect(err).Should(HaveOccurred())
+				})
+				It("should throw error if control plane network CIDR format is not valid", func() {
+					tkgConfigReaderWriter.Set(constants.ConfigVariableAviControlPlaneNetworkName, "test-cp-net")
+					tkgConfigReaderWriter.Set(constants.ConfigVariableAviControlPlaneNetworkCIDR, "10.10.10/test")
+					mockClient.EXPECT().GetVipNetworkByName("test-cp-net").Return(nil, nil).Times(1)
+					err := tkgClient.ValidateAviControlPlaneNetwork(mockClient)
+					Expect(err).Should(HaveOccurred())
+				})
+			})
+			When("validate avi management cluster control plane network", func() {
+				It("should pass if not set AVI_MANAGEMENT_CLUSTER_CONTROL_PLANE_VIP_NETWORK_NAME", func() {
+					err := tkgClient.ValidateAviManagementClusterControlPlaneNetwork(mockClient)
+					Expect(err).ShouldNot(HaveOccurred())
+				})
+				It("should pass if management cluster control plane network exists in avi controller and cidr format is valid", func() {
+					tkgConfigReaderWriter.Set(constants.ConfigVariableAviManagementClusterControlPlaneVipNetworkName, "test-mc-cp-net")
+					tkgConfigReaderWriter.Set(constants.ConfigVariableAviManagementClusterControlPlaneVipNetworkCIDR, "10.10.10.1/24")
+					mockClient.EXPECT().GetVipNetworkByName("test-mc-cp-net").Return(nil, nil).Times(1)
+					err := tkgClient.ValidateAviManagementClusterControlPlaneNetwork(mockClient)
+					Expect(err).ShouldNot(HaveOccurred())
+				})
+				It("should throw error if management cluster control plane network not exists in avi controller", func() {
+					tkgConfigReaderWriter.Set(constants.ConfigVariableAviManagementClusterControlPlaneVipNetworkName, "test-mc-cp-net")
+					tkgConfigReaderWriter.Set(constants.ConfigVariableAviManagementClusterControlPlaneVipNetworkCIDR, "10.10.10.1/24")
+					mockClient.EXPECT().GetVipNetworkByName("test-mc-cp-net").Return(nil, errors.New("test-mc-cp-net is not found")).Times(1)
+					err := tkgClient.ValidateAviManagementClusterControlPlaneNetwork(mockClient)
+					Expect(err).Should(HaveOccurred())
+				})
+				It("should throw error if management cluster control plane network CIDR format is not valid", func() {
+					tkgConfigReaderWriter.Set(constants.ConfigVariableAviManagementClusterControlPlaneVipNetworkName, "test-mc-cp-net")
+					tkgConfigReaderWriter.Set(constants.ConfigVariableAviManagementClusterControlPlaneVipNetworkCIDR, "10.10.10/test")
+					mockClient.EXPECT().GetVipNetworkByName("test-mc-cp-net").Return(nil, nil).Times(1)
+					err := tkgClient.ValidateAviManagementClusterControlPlaneNetwork(mockClient)
+					Expect(err).Should(HaveOccurred())
+				})
+			})
+			When("validate avi management cluster data plane network", func() {
+				It("should pass if not set AVI_MANAGEMENT_CLUSTER_VIP_NETWORK_NAME", func() {
+					err := tkgClient.ValidateAviManagementClusterDataPlaneNetwork(mockClient)
+					Expect(err).ShouldNot(HaveOccurred())
+				})
+				It("should pass if management cluster data plane network exists in avi controller and cidr format is valid", func() {
+					tkgConfigReaderWriter.Set(constants.ConfigVariableAviManagementClusterDataPlaneNetworkName, "test-mc-data-net")
+					tkgConfigReaderWriter.Set(constants.ConfigVariableAviManagementClusterDataPlaneNetworkCIDR, "10.10.10.1/24")
+					mockClient.EXPECT().GetVipNetworkByName("test-mc-data-net").Return(nil, nil).Times(1)
+					err := tkgClient.ValidateAviManagementClusterDataPlaneNetwork(mockClient)
+					Expect(err).ShouldNot(HaveOccurred())
+				})
+				It("should throw error if management cluster data plane network not exists in avi controller", func() {
+					tkgConfigReaderWriter.Set(constants.ConfigVariableAviManagementClusterDataPlaneNetworkName, "test-mc-data-net")
+					tkgConfigReaderWriter.Set(constants.ConfigVariableAviManagementClusterDataPlaneNetworkCIDR, "10.10.10.1/24")
+					mockClient.EXPECT().GetVipNetworkByName("test-mc-data-net").Return(nil, errors.New("test-mc-data-net is not found")).Times(1)
+					err := tkgClient.ValidateAviManagementClusterDataPlaneNetwork(mockClient)
+					Expect(err).Should(HaveOccurred())
+				})
+				It("should throw error if management cluster control plane network CIDR format is not valid", func() {
+					tkgConfigReaderWriter.Set(constants.ConfigVariableAviManagementClusterDataPlaneNetworkName, "test-mc-data-net")
+					tkgConfigReaderWriter.Set(constants.ConfigVariableAviManagementClusterDataPlaneNetworkCIDR, "10.10.10/test")
+					mockClient.EXPECT().GetVipNetworkByName("test-mc-data-net").Return(nil, nil).Times(1)
+					err := tkgClient.ValidateAviManagementClusterDataPlaneNetwork(mockClient)
+					Expect(err).Should(HaveOccurred())
 				})
 			})
 		})

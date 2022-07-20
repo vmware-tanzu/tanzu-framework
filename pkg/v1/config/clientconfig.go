@@ -62,11 +62,6 @@ const (
 	// when creating a cluster.
 	FeatureFlagManagementClusterCustomNameservers = "features.management-cluster.custom-nameservers"
 	FeatureFlagClusterCustomNameservers           = "features.cluster.custom-nameservers"
-	// Network Separation feature flags determine whether it is permitted to
-	// provide the AVI_MANAGEMENT_CLUSTER_SERVICE_ENGINE_GROUP, AVI_CONTROL_PLANE_NETWORK, AVI_CONTROL_PLANE_NETWORK_CIDR,
-	// AVI_MANAGEMENT_CLUSTER_CONTROL_PLANE_VIP_NETWORK_NAME and AVI_MANAGEMENT_CLUSTER_CONTROL_PLANE_VIP_NETWORK_CIDR
-	// when creating a cluster.
-	FeatureFlagManagementClusterNetworkSeparation = "features.management-cluster.network-separation-beta"
 	// AWS Instance Types Exclude ARM feature flags determine whether instance types with processor architecture
 	// support of ARM should be included when discovering available AWS instance types. Setting feature flag to true
 	// filters out ARM supporting instance types; false allows ARM instance types to be included in results.
@@ -115,7 +110,6 @@ var (
 		FeatureFlagClusterDualStackIPv6Primary:                false,
 		FeatureFlagManagementClusterCustomNameservers:         false,
 		FeatureFlagClusterCustomNameservers:                   false,
-		FeatureFlagManagementClusterNetworkSeparation:         false,
 		FeatureFlagAwsInstanceTypesExcludeArm:                 true,
 		FeatureFlagTKRVersionV1Alpha3:                         false,
 		FeatureFlagPackagePluginKctrlCommandTree:              false,

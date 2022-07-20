@@ -158,6 +158,9 @@ const (
 	PackageTypeManagement              = "management"
 )
 
+// Avi aka. NSX Advanced LoadBalancer version regex expression
+const AviControllerVersionRegex = `^\d+(\.\d+)*$`
+
 const (
 	TanzuCLISystemNamespace = "tanzu-cli-system"
 )

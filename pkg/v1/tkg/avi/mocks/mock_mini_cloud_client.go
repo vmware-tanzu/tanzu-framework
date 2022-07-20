@@ -56,3 +56,23 @@ func (mr *MockMiniCloudClientMockRecorder) GetAll(arg0 ...interface{}) *gomock.C
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAll", reflect.TypeOf((*MockMiniCloudClient)(nil).GetAll), arg0...)
 }
+
+// GetByName mocks base method
+func (m *MockMiniCloudClient) GetByName(name string, options ...session.ApiOptionsParams) (*models.Cloud, error) {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{name}
+	for _, a := range options {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "GetByName", varargs...)
+	ret0, _ := ret[0].(*models.Cloud)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetByName indicates an expected call of GetByName
+func (mr *MockMiniCloudClientMockRecorder) GetByName(name interface{}, options ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{name}, options...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByName", reflect.TypeOf((*MockMiniCloudClient)(nil).GetByName), varargs...)
+}

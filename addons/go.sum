@@ -278,6 +278,7 @@ github.com/asaskevich/govalidator v0.0.0-20210307081110-f21760c49a8d h1:Byv0BzEl
 github.com/asaskevich/govalidator v0.0.0-20210307081110-f21760c49a8d/go.mod h1:WaHUgvxTVq04UNunO+XhnAqY/wQc+bxr74GqbsZ/Jqw=
 github.com/aunum/log v0.0.0-20200821225356-38d2e2c8b489 h1:DKOk8ZLAPnn4P/qTwGj5x5wAMqHmaE1oL4+nl1laIu8=
 github.com/aunum/log v0.0.0-20200821225356-38d2e2c8b489/go.mod h1:ze/JIQHfGKwpM8U2b39e8OH0KHt1ovEcjwPV3yfU+/c=
+github.com/avinetworks/sdk v0.0.0-20201123134013-c157ef55b6f7 h1:UpBQmQ1gKLi+i+/Dohoqk7FfuxlYQYveajqs1pk/CvA=
 github.com/avinetworks/sdk v0.0.0-20201123134013-c157ef55b6f7/go.mod h1:BcllDeAFx8PtaMrPxvvuCUo7NRS2x6w+3W17WFDu0sk=
 github.com/aws/amazon-vpc-cni-k8s v1.9.3/go.mod h1:FHKQKIQ4ylokY3vV54uwFgME0BRIYCHoxgFtXFdUPYY=
 github.com/aws/amazon-vpc-cni-k8s v1.10.1 h1:hFuId8HhDuB4GmeJCCrPPRlHHQljT9Hp8qY3wbS8i+o=
@@ -907,6 +908,7 @@ github.com/golang-jwt/jwt/v4 v4.0.0 h1:RAqyYixv1p7uEnocuy8P1nru5wprCh/MH2BIlW5z5
 github.com/golang-jwt/jwt/v4 v4.0.0/go.mod h1:/xlHOz8bRuivTWchD4jCa+NbatV+wEUSzwAxVc6locg=
 github.com/golang-sql/civil v0.0.0-20190719163853-cb61b32ac6fe/go.mod h1:8vg3r2VgvsThLBIFL93Qb5yWzgyZWhEmBwUJWevAkK0=
 github.com/golang/glog v0.0.0-20160126235308-23def4e6c14b/go.mod h1:SBH7ygxi8pfUlaOkMMuAQtPIUF8ecWP5IEl/CR7VP2Q=
+github.com/golang/glog v1.0.0 h1:nfP3RFugxnNRyKgeWd4oI1nYvXpxrx8ck8ZrcizshdQ=
 github.com/golang/glog v1.0.0/go.mod h1:EWib/APOK0SL3dFbYqvxE3UYd8E6s1ouQ7iEp/0LWV4=
 github.com/golang/groupcache v0.0.0-20160516000752-02826c3e7903/go.mod h1:cIg4eruTrX1D+g88fzRXU5OdNfaM+9IcxsU14FzY7Hc=
 github.com/golang/groupcache v0.0.0-20190129154638-5b532d6fd5ef/go.mod h1:cIg4eruTrX1D+g88fzRXU5OdNfaM+9IcxsU14FzY7Hc=
