@@ -11,6 +11,7 @@ import (
 	. "github.com/onsi/gomega"
 	"github.com/pkg/errors"
 
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/client"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/fakes"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/region"
@@ -674,7 +675,7 @@ var _ = Describe("Clusterclass FeatureGate specific use cases", func() {
 			Expect(1).To(Equal(c))
 			// Make sure its TKGs system.
 			pc := tkgClient.IsPacificManagementClusterCallCount()
-			Expect(1).To(Equal(pc))
+			Expect(2).To(Equal(pc))
 			// Make sure its ClusterClass use case.
 			cname, _ := tkgctlClient.tkgConfigReaderWriter.Get("CLUSTER_NAME")
 			Expect(cname).To(Equal("cc01"))
@@ -736,9 +737,13 @@ var _ = Describe("Clusterclass FeatureGate specific use cases", func() {
 		})
 	})
 	Context("TKGS TKC based cluster creation", func() {
+		var (
+			clustername = "tkc-01"
+			namespace   = "ns01"
+		)
 		BeforeEach(func() {
 			options = CreateClusterOptions{
-				ClusterName:            "test-cluster",
+				ClusterName:            clustername,
 				Plan:                   "devcc",
 				InfrastructureProvider: "",
 				Namespace:              "",
@@ -779,12 +784,12 @@ var _ = Describe("Clusterclass FeatureGate specific use cases", func() {
 			Expect(1).To(Equal(c))
 			// Make sure its TKGs system.
 			pc := tkgClient.IsPacificManagementClusterCallCount()
-			Expect(1).To(Equal(pc))
+			Expect(2).To(Equal(pc))
 			// Make sure its ClusterClass use case.
 			cname, _ := tkgctlClient.tkgConfigReaderWriter.Get("CLUSTER_NAME")
-			Expect(cname).To(Equal("tkc-01"))
+			Expect(cname).To(Equal(clustername))
 			ns, _ := tkgctlClient.tkgConfigReaderWriter.Get(constants.ConfigVariableNamespace)
-			Expect(ns).To(Equal("ns01"))
+			Expect(ns).To(Equal(namespace))
 		})
 		It("Expect to complete CreateCluster call even feature flag (config.FeatureFlagPackageBasedLCM) not enabled, TKC input file ", func() {
 			fg.FeatureActivatedInNamespaceReturns(true, nil)
@@ -800,12 +805,12 @@ var _ = Describe("Clusterclass FeatureGate specific use cases", func() {
 			Expect(1).To(Equal(c))
 			// Make sure its TKGs system.
 			pc := tkgClient.IsPacificManagementClusterCallCount()
-			Expect(1).To(Equal(pc))
+			Expect(2).To(Equal(pc))
 
 			cname, _ := tkgctlClient.tkgConfigReaderWriter.Get(constants.ConfigVariableClusterName)
-			Expect(cname).To(Equal("tkc-01"))
+			Expect(cname).To(Equal(clustername))
 			ns, _ := tkgctlClient.tkgConfigReaderWriter.Get(constants.ConfigVariableNamespace)
-			Expect(ns).To(Equal("ns01"))
+			Expect(ns).To(Equal(namespace))
 		})
 		It("Return error when Feature constants.TKCAPIFeature is disabled in TKGS featuregate", func() {
 			fg.FeatureActivatedInNamespaceReturns(false, nil)
@@ -835,12 +840,35 @@ var _ = Describe("Clusterclass FeatureGate specific use cases", func() {
 			Expect(1).To(Equal(c))
 			// Make sure its TKGs system.
 			pc := tkgClient.IsPacificManagementClusterCallCount()
-			Expect(1).To(Equal(pc))
+			Expect(2).To(Equal(pc))
 
 			cname, _ := tkgctlClient.tkgConfigReaderWriter.Get(constants.ConfigVariableClusterName)
-			Expect(cname).To(Equal("tkc-01"))
+			Expect(cname).To(Equal(clustername))
 			ns, _ := tkgctlClient.tkgConfigReaderWriter.Get(constants.ConfigVariableNamespace)
-			Expect(ns).To(Equal("ns01"))
+			Expect(ns).To(Equal(namespace))
+		})
+		It("return error when cluster already exists:", func() {
+			fg.FeatureActivatedInNamespaceReturns(true, nil)
+			tkgClient.IsPacificManagementClusterReturnsOnCall(0, true, nil)
+			tkgClient.ListTKGClustersReturns([]client.ClusterInfo{{Name: clustername, Namespace: namespace}, {Name: "my-cluster-2", Namespace: "my-system"}}, nil)
+			tkgClient.GetCurrentRegionContextReturns(regionContext, nil)
+			tkgClient.IsFeatureActivatedReturns(true)
+			tkgClient.CreateClusterReturnsOnCall(0, false, nil)
+
+			err := tkgctlClient.CreateCluster(options)
+			Expect(err).To(HaveOccurred())
+			Expect(err.Error()).To(ContainSubstring(fmt.Sprintf(constants.ErrorMsgClusterExistsAlready, clustername)))
+		})
+		It("return error when list cluster returns error:", func() {
+			fg.FeatureActivatedInNamespaceReturns(true, nil)
+			tkgClient.IsPacificManagementClusterReturnsOnCall(0, true, nil)
+			tkgClient.ListTKGClustersReturns(nil, errors.New("failed to list clusters"))
+			tkgClient.GetCurrentRegionContextReturns(regionContext, nil)
+			tkgClient.IsFeatureActivatedReturns(true)
+
+			err := tkgctlClient.CreateCluster(options)
+			Expect(err).To(HaveOccurred())
+			Expect(err.Error()).To(ContainSubstring(constants.ErrorMsgClusterListError))
 		})
 	})
 })

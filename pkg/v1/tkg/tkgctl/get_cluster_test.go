@@ -100,5 +100,59 @@ var _ = Describe("Unit test for get clusters", func() {
 			Expect(options.IsTKGSClusterClassFeatureActivated).To(BeTrue())
 		})
 	})
+})
 
+var _ = Describe("Unit test for IsClusterExists", func() {
+	var (
+		ctl               tkgctl
+		tkgClient         = &fakes.Client{}
+		featureGateHelper = &fakes.FakeFeatureGateHelper{}
+		clustername       = "my-cluster"
+		namespace         = "my-namespace"
+		isClusterExists   bool
+		err               error
+	)
+
+	JustBeforeEach(func() {
+		ctl = tkgctl{
+			configDir:         testingDir,
+			tkgClient:         tkgClient,
+			kubeconfig:        "./kube",
+			featureGateHelper: featureGateHelper,
+		}
+		isClusterExists, err = ctl.IsClusterExists(clustername, namespace)
+	})
+
+	Context("when list cluster returns error", func() {
+		BeforeEach(func() {
+			tkgClient.IsPacificManagementClusterReturns(false, nil)
+			tkgClient.ListTKGClustersReturns(nil, errors.New("failed to list clusters"))
+		})
+		It("should return an error", func() {
+			Expect(err).To(HaveOccurred())
+			Expect(err.Error()).To(ContainSubstring("failed to list clusters"))
+		})
+	})
+
+	Context("when given cluster exists", func() {
+		BeforeEach(func() {
+			tkgClient.IsPacificManagementClusterReturns(false, nil)
+			tkgClient.ListTKGClustersReturns([]client.ClusterInfo{{Name: clustername, Namespace: namespace}, {Name: "my-cluster-2", Namespace: "my-system"}}, nil)
+		})
+		It("should not return an error and cluster should exists", func() {
+			Expect(err).ToNot(HaveOccurred())
+			Expect(isClusterExists).To(BeTrue())
+		})
+	})
+
+	Context("when given cluster not exists", func() {
+		BeforeEach(func() {
+			tkgClient.IsPacificManagementClusterReturns(false, nil)
+			tkgClient.ListTKGClustersReturns([]client.ClusterInfo{{Name: "my-cluster-2", Namespace: "my-system"}}, nil)
+		})
+		It("should not return an error and cluster not exists", func() {
+			Expect(err).ToNot(HaveOccurred())
+			Expect(isClusterExists).To(BeFalse())
+		})
+	})
 })

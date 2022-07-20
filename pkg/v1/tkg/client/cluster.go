@@ -170,17 +170,6 @@ func (c *TkgClient) CreateCluster(options *CreateClusterOptions, waitForCluster 
 		}
 	}
 
-	clusters, err := regionalClusterClient.ListClusters("")
-	if err != nil {
-		return false, errors.Wrap(err, "unable to get list of workload clusters managed by current management cluster")
-	}
-
-	for i := range clusters {
-		if clusters[i].Name == options.ClusterName {
-			return false, errors.Errorf("cluster with name %s already exists, please specify another name", options.ClusterName)
-		}
-	}
-
 	log.Infof("Creating workload cluster '%s'...", options.ClusterName)
 	err = c.DoCreateCluster(regionalClusterClient, options.ClusterName, options.TargetNamespace, string(bytes))
 	if err != nil {
