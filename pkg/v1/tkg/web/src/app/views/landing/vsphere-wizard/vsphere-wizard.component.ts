@@ -105,6 +105,8 @@ export class VSphereWizardComponent extends WizardBaseDirective implements OnIni
     getPayload(): VsphereRegionalClusterParams {
         const payload: VsphereRegionalClusterParams = {};
         this.initPayloadWithCommons(payload);
+        const defaultAviNetworkName = payload.aviConfig?.network?.name;
+        const defaultAviNetworkCIDR = payload.aviConfig?.network?.cidr;
         const mappings = [
             ['ipFamily', VsphereForm.PROVIDER, VsphereField.PROVIDER_IP_FAMILY],
             ['datacenter', VsphereForm.PROVIDER, VsphereField.PROVIDER_DATA_CENTER],
@@ -142,18 +144,21 @@ export class VSphereWizardComponent extends WizardBaseDirective implements OnIni
         } else {
             payload.aviConfig['controlPlaneHaProvider'] = true;
         }
+
+        payload.aviConfig['managementClusterServiceEngineGroupName'] =
+            this.getFieldValue(WizardForm.LOADBALANCER, LoadBalancerField.MANAGEMENT_CLUSTER_SERVICE_ENGINE_GROUP_NAME);
+        payload.aviConfig['managementClusterControlPlaneVipNetworkName'] =
+            this.getFieldValue(WizardForm.LOADBALANCER, LoadBalancerField.MANAGEMENT_CLUSTER_CONTROL_PLANE_VIP_NETWORK_NAME) ??
+            defaultAviNetworkName;
+        payload.aviConfig['managementClusterControlPlaneVipNetworkCIDR'] =
+            this.getFieldValue(WizardForm.LOADBALANCER, LoadBalancerField.MANAGEMENT_CLUSTER_CONTROL_PLANE_VIP_NETWORK_CIDR) ??
+            defaultAviNetworkCIDR;
         payload.aviConfig['managementClusterVipNetworkName'] =
-            this.getFieldValue(WizardForm.LOADBALANCER, LoadBalancerField.MANAGEMENT_CLUSTER_NETWORK_NAME);
-        if (!payload.aviConfig['managementClusterVipNetworkName']) {
-            payload.aviConfig['managementClusterVipNetworkName'] =
-                this.getFieldValue(WizardForm.LOADBALANCER, LoadBalancerField.NETWORK_NAME);
-        }
+            this.getFieldValue(WizardForm.LOADBALANCER, LoadBalancerField.MANAGEMENT_CLUSTER_NETWORK_NAME) ??
+            defaultAviNetworkName;
         payload.aviConfig['managementClusterVipNetworkCidr'] =
-            this.getFieldValue(WizardForm.LOADBALANCER, LoadBalancerField.MANAGEMENT_CLUSTER_NETWORK_CIDR);
-        if (!payload.aviConfig['managementClusterVipNetworkCidr']) {
-            payload.aviConfig['managementClusterVipNetworkCidr'] =
-                this.getFieldValue(WizardForm.LOADBALANCER, LoadBalancerField.NETWORK_CIDR)
-        }
+            this.getFieldValue(WizardForm.LOADBALANCER, LoadBalancerField.MANAGEMENT_CLUSTER_NETWORK_CIDR) ??
+            defaultAviNetworkCIDR;
 
         return payload;
     }
@@ -206,23 +211,40 @@ export class VSphereWizardComponent extends WizardBaseDirective implements OnIni
         }
 
         if (payload.aviConfig !== undefined) {
-            const endpointProvider = payload.aviConfig['controlPlaneHaProvider'] ? NSX_ADVANCED_LOAD_BALANCER : KUBE_VIP;
+            const endpointProvider = payload.aviConfig.controlPlaneHaProvider ? NSX_ADVANCED_LOAD_BALANCER : KUBE_VIP;
             this.storeFieldString(VsphereForm.NODESETTING, VsphereField.NODESETTING_CONTROL_PLANE_ENDPOINT_PROVIDER, endpointProvider);
             // Set (or clear) the network name (based on whether it's different from the aviConfig value
-            const managementClusterVipNetworkName = payload.aviConfig['managementClusterVipNetworkName'];
+            const managementClusterVipNetworkName = payload.aviConfig.managementClusterVipNetworkName;
             let uiMcNetworkName = '';
             if (managementClusterVipNetworkName !== payload.aviConfig.network.name) {
-                uiMcNetworkName = payload.aviConfig['managementClusterVipNetworkName'];
+                uiMcNetworkName = payload.aviConfig.managementClusterVipNetworkName;
             }
-
             this.storeFieldString(WizardForm.LOADBALANCER, LoadBalancerField.MANAGEMENT_CLUSTER_NETWORK_NAME, uiMcNetworkName);
+            const managementClusterControlPlaneVipNetworkName = payload.aviConfig.managementClusterControlPlaneVipNetworkName;
+            let uiMcControlPlaneNetworkName = '';
+            if (managementClusterControlPlaneVipNetworkName !== payload.aviConfig.network.name) {
+                uiMcControlPlaneNetworkName = payload.aviConfig.managementClusterControlPlaneVipNetworkName;
+            }
+            this.storeFieldString(WizardForm.LOADBALANCER, LoadBalancerField.MANAGEMENT_CLUSTER_CONTROL_PLANE_VIP_NETWORK_NAME,
+                uiMcControlPlaneNetworkName);
             // Set (or clear) the CIDR setting (based on whether it's different from the aviConfig value
-            const managementClusterNetworkCIDR = payload.aviConfig['managementClusterVipNetworkCidr'];
+            const managementClusterNetworkCIDR = payload.aviConfig.managementClusterVipNetworkCidr;
             let uiMcCidr = '';
             if (managementClusterNetworkCIDR !== payload.aviConfig.network.cidr) {
                 uiMcCidr = managementClusterNetworkCIDR;
             }
-            this.storeFieldString(WizardForm.LOADBALANCER, LoadBalancerField.MANAGEMENT_CLUSTER_NETWORK_CIDR, uiMcCidr)
+            this.storeFieldString(WizardForm.LOADBALANCER, LoadBalancerField.MANAGEMENT_CLUSTER_NETWORK_CIDR, uiMcCidr);
+
+            const managementClusterControlPlaneNetworkCIDR = payload.aviConfig.managementClusterControlPlaneVipNetworkCidr;
+            let uiMcControlPlaneVipNetworkCidr = '';
+            if (managementClusterControlPlaneNetworkCIDR !== payload.aviConfig.network.cidr) {
+                uiMcControlPlaneVipNetworkCidr = managementClusterControlPlaneNetworkCIDR;
+            }
+            this.storeFieldString(WizardForm.LOADBALANCER, LoadBalancerField.MANAGEMENT_CLUSTER_CONTROL_PLANE_VIP_NETWORK_CIDR,
+                uiMcControlPlaneVipNetworkCidr);
+
+            this.storeFieldString(WizardForm.LOADBALANCER, LoadBalancerField.MANAGEMENT_CLUSTER_SERVICE_ENGINE_GROUP_NAME,
+                payload.aviConfig.management_cluster_service_engine);
         }
 
         this.storeFieldString('osImageForm', 'osImage', payload.os.moid, payload.os.name);
