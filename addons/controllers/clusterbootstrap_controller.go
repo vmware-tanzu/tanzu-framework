@@ -40,6 +40,7 @@ import (
 	kapppkgiv1alpha1 "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/packaging/v1alpha1"
 	kapppkgv1alpha1 "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apiserver/apis/datapackaging/v1alpha1"
 	versions "github.com/vmware-tanzu/carvel-vendir/pkg/vendir/versions/v1alpha1"
+
 	addonconfig "github.com/vmware-tanzu/tanzu-framework/addons/pkg/config"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
 	addontypes "github.com/vmware-tanzu/tanzu-framework/addons/pkg/types"
@@ -474,7 +475,7 @@ func (r *ClusterBootstrapReconciler) mergeClusterBootstrapPackagesWithTemplate(
 		updatedClusterBootstrap.Spec.CNI = clusterBootstrapTemplate.Spec.CNI.DeepCopy()
 	} else {
 		// We don't allow change to the CNI selection once it starts running, however we allow version bump
-		//TODO: check correctness of the following statement, as we still allow version bump
+		// TODO: check correctness of the following statement, as we still allow version bump
 		// ClusterBootstrap webhook will make sure the package RefName always match the original CNI
 		updatedCNI, cniNamePrefix, err := util.GetBootstrapPackageNameFromTKR(r.context, r.Client, updatedClusterBootstrap.Spec.CNI.RefName, cluster)
 		if err != nil {
@@ -938,6 +939,10 @@ func (r *ClusterBootstrapReconciler) patchSecretWithTKGSDataValues(cluster *clus
 				},
 				Daemonset: addontypes.DaemonsetUpdateInfo{
 					UpdateStrategy: constants.TKGSDaemonsetUpdateStrategy,
+					RollingUpdate: &addontypes.RollingUpdateInfo{
+						MaxSurge:       constants.TKGSDaemonSetUpdateMaxSurge,
+						MaxUnavailable: constants.TKGSDaemonSetUpdateMaxUnavailable,
+					},
 				},
 			}
 			TKRDataValueYamlBytes, err := yaml.Marshal(upgradeDataValues)
@@ -999,7 +1004,7 @@ func (r *ClusterBootstrapReconciler) createOrPatchPackageInstallSecretForKapp(cl
 	if err != nil {
 		return nil, err
 	}
-	//controller hasn't finished reconciling
+	// controller hasn't finished reconciling
 	if localSecret == nil {
 		return nil, nil
 	}

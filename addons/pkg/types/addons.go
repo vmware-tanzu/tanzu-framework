@@ -90,5 +90,6 @@ type RollingUpdateInfo struct {
 
 // DaemonsetUpdateInfo contains the daumonset update strategy information
 type DaemonsetUpdateInfo struct {
-	UpdateStrategy string `yaml:"updateStrategy,omitempty"`
+	UpdateStrategy string             `yaml:"updateStrategy,omitempty"`
+	RollingUpdate  *RollingUpdateInfo `yaml:"rollingUpdate,omitempty"`
 }

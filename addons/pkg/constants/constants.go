@@ -90,7 +90,13 @@ const (
 	TKGSDeploymentUpdateMaxUnavailable = 0
 
 	// TKGSDaemonsetUpdateStrategy is the update strategy used by TKGS daemonsets
-	TKGSDaemonsetUpdateStrategy = "OnDelete"
+	TKGSDaemonsetUpdateStrategy = "RollingUpgrade"
+
+	// TKGSDaemonsetUpdateMaxSurge is the MaxSurge used by TKGS daemonset rollingUpdate
+	TKGSDaemonSetUpdateMaxSurge = 1
+
+	// TKGSDaemonsetUpdateMaxUnavailable is the MaxUnavailableused by TKGS daemonset rollingUpdate
+	TKGSDaemonSetUpdateMaxUnavailable = 0
 
 	/* log key section */
 
