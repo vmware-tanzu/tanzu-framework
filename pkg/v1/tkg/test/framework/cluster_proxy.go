@@ -8,18 +8,17 @@ import (
 	"context"
 
 	. "github.com/onsi/gomega" // nolint:stylecheck
-	clusterv1 "sigs.k8s.io/cluster-api/api/v1beta1"
-
-	runv1 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
-
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
+	clusterv1 "sigs.k8s.io/cluster-api/api/v1beta1"
 	clusterctlv1 "sigs.k8s.io/cluster-api/cmd/clusterctl/api/v1alpha3"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+
+	runv1 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
 )
 
 // ClusterProxy hold information to connect to a cluster
