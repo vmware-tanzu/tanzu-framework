@@ -15,6 +15,7 @@ import (
 
 	kapppkgiv1alpha1 "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/packaging/v1alpha1"
 	kapppkgv1alpha1 "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apiserver/apis/datapackaging/v1alpha1"
+
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
 	addontypes "github.com/vmware-tanzu/tanzu-framework/addons/pkg/types"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/util"
@@ -872,7 +873,7 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 					fmt.Println(string(valueTexts))
 					Expect(strings.Contains(string(valueTexts), "nodeSelector:\n    run.tanzu.vmware.com/tkr: v1.22.4")).To(BeTrue())
 					Expect(strings.Contains(string(valueTexts), "deployment:\n    updateStrategy: RollingUpdate")).To(BeTrue())
-					Expect(strings.Contains(string(valueTexts), "daemonset:\n    updateStrategy: OnDelete")).To(BeTrue())
+					Expect(strings.Contains(string(valueTexts), "daemonset:\n    updateStrategy: RollingUpdate")).To(BeTrue())
 					Expect(strings.Contains(string(valueTexts), "maxUnavailable: 0")).To(BeTrue())
 					Expect(strings.Contains(string(valueTexts), "maxSurge: 1")).To(BeTrue())
 					return true
