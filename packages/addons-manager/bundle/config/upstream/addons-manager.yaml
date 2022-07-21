@@ -347,6 +347,7 @@ spec:
         - #@ "--metrics-bind-addr={}".format(data.values.tanzuAddonsManager.deployment.metricsBindAddress)
         - #@ "--leader-elect={}".format(data.values.tanzuAddonsManager.deployment.leaderElection)
         - #@ "--health-addr=:{}".format(data.values.tanzuAddonsManager.deployment.healthzPort)
+        - #@ "--cluster-delete-timeout={}".format(data.values.tanzuAddonsManager.deployment.clusterDeleteTimeout)
         - #@ "--webhook-server-port={}".format(data.values.tanzuAddonsManager.deployment.webhookServerPort)
         - #@ "--addon-namespace={}".format(data.values.tanzuAddonsManager.namespace)
         #@ if/end data.values.tanzuAddonsManager.featureGates.clusterBootstrapController:
