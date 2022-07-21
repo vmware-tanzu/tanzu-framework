@@ -7,15 +7,27 @@ import (
 	"os"
 	"time"
 
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
-	fakehelper "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/fakes/helper"
-
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	"github.com/pkg/errors"
 	"k8s.io/client-go/tools/clientcmd"
 
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/config"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
+	fakehelper "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/fakes/helper"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/utils"
 )
+
+type MockFeatureFlagClient struct {
+	FeatureValues map[string]bool
+}
+
+func (m *MockFeatureFlagClient) IsConfigFeatureActivated(featurePath string) (bool, error) {
+	if val, ok := m.FeatureValues[featurePath]; ok {
+		return val, nil
+	}
+	return false, errors.Errorf("missing key %s\n", featurePath)
+}
 
 var _ = Describe("Utils", func() {
 	var (
@@ -166,6 +178,82 @@ var _ = Describe("Utils", func() {
 			Expect(err).To(HaveOccurred())
 			Expect(err.Error()).To(Equal("unknown plan 'random'"))
 		})
+	})
+
+	Describe("ensureClusterTopologyConfiguration", func() {
+		var (
+			err               error
+			tkgClient         *TkgClient
+			featureFlagClient *MockFeatureFlagClient
+			value             string
+		)
+
+		BeforeEach(func() {
+			featureFlagClient = &MockFeatureFlagClient{map[string]bool{}}
+			tkgClient, err = createTKGClientOpts("../fakes/config/config.yaml", testingDir, "../fakes/config/bom/tkg-bom-v1.3.1.yaml", 2*time.Second, func(o Options) Options {
+				o.FeatureFlagClient = featureFlagClient
+				return o
+			})
+			Expect(err).NotTo(HaveOccurred())
+		})
+
+		Context("when feature flag is set to enable CC use", func() {
+			BeforeEach(func() {
+				featureFlagClient.FeatureValues[config.FeatureFlagPackageBasedLCM] = true
+			})
+
+			It("The cluster topology configuration is always set to true", func() {
+				tkgClient.ensureClusterTopologyConfiguration()
+				value, err = tkgClient.TKGConfigReaderWriter().Get(constants.ConfigVariableClusterTopology)
+				Expect(err).NotTo(HaveOccurred())
+				Expect(value).To(Equal("true"))
+
+				tkgClient.TKGConfigReaderWriter().Set(constants.ConfigVariableClusterTopology, "false")
+				tkgClient.ensureClusterTopologyConfiguration()
+				value, err = tkgClient.TKGConfigReaderWriter().Get(constants.ConfigVariableClusterTopology)
+				Expect(err).NotTo(HaveOccurred())
+				Expect(value).To(Equal("true"))
+
+				tkgClient.TKGConfigReaderWriter().Set(constants.ConfigVariableClusterTopology, "true")
+				tkgClient.ensureClusterTopologyConfiguration()
+				value, err = tkgClient.TKGConfigReaderWriter().Get(constants.ConfigVariableClusterTopology)
+				Expect(err).NotTo(HaveOccurred())
+				Expect(value).To(Equal("true"))
+			})
+		})
+
+		Context("when feature flag is set to not enable CC use", func() {
+			BeforeEach(func() {
+				featureFlagClient.FeatureValues[config.FeatureFlagPackageBasedLCM] = false
+			})
+
+			Context("when CLUSTER_TOPOLOGY is explicitly overridden", func() {
+				It("The retains the value", func() {
+					var value string
+					tkgClient.TKGConfigReaderWriter().Set(constants.ConfigVariableClusterTopology, "false")
+					tkgClient.ensureClusterTopologyConfiguration()
+					value, err = tkgClient.TKGConfigReaderWriter().Get(constants.ConfigVariableClusterTopology)
+					Expect(err).NotTo(HaveOccurred())
+					Expect(value).To(Equal("false"))
+
+					tkgClient.TKGConfigReaderWriter().Set(constants.ConfigVariableClusterTopology, "true")
+					tkgClient.ensureClusterTopologyConfiguration()
+					value, err = tkgClient.TKGConfigReaderWriter().Get(constants.ConfigVariableClusterTopology)
+					Expect(err).NotTo(HaveOccurred())
+					Expect(value).To(Equal("true"))
+				})
+			})
+
+			Context("when CLUSTER_TOPOLOGY is not previously set", func() {
+				It("The cluster topology configuration is set to false", func() {
+					tkgClient.ensureClusterTopologyConfiguration()
+					value, err = tkgClient.TKGConfigReaderWriter().Get(constants.ConfigVariableClusterTopology)
+					Expect(err).NotTo(HaveOccurred())
+					Expect(value).To(Equal("false"))
+				})
+			})
+		})
+
 	})
 
 })

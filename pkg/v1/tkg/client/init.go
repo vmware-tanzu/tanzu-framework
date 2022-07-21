@@ -149,6 +149,8 @@ func (c *TkgClient) InitRegion(options *InitRegionOptions) error { //nolint:funl
 		log.Infof("Using custom image repository: %s", customImageRepo)
 	}
 
+	c.ensureClusterTopologyConfiguration()
+
 	providerName, _, err := ParseProviderName(options.InfrastructureProvider)
 	if err != nil {
 		return errors.Wrap(err, "unable to parse provider name")
@@ -427,6 +429,7 @@ func (c *TkgClient) MoveObjects(fromKubeconfigPath, toKubeconfigPath, namespace 
 }
 
 func (c *TkgClient) ensureKindCluster(kubeconfig string, useExistingCluster bool, backupPath string) (string, error) {
+
 	// skip if using existing cluster
 	if useExistingCluster {
 		if kubeconfig == "" {

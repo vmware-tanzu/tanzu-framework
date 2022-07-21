@@ -23,6 +23,7 @@ import (
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
 	capi "sigs.k8s.io/cluster-api/api/v1alpha3"
 
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/config"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/log"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/utils"
@@ -424,4 +425,20 @@ func getCCPlanFromLegacyPlan(plan string) (string, error) {
 		return constants.PlanProdCC, nil
 	}
 	return "", errors.Errorf("unknown plan '%v'", plan)
+}
+
+// Sets the appropriate CAPI ClusterTopology configuration unless it has been explicitly overridden
+func (c *TkgClient) ensureClusterTopologyConfiguration() {
+	clusterTopologyValueToSet := "true"
+	if !c.IsFeatureActivated(config.FeatureFlagPackageBasedLCM) {
+		value, err := c.TKGConfigReaderWriter().Get(constants.ConfigVariableClusterTopology)
+		if err != nil {
+			clusterTopologyValueToSet = "false"
+		} else {
+			log.V(6).Infof("%v configuration already set to %q", constants.ConfigVariableClusterTopology, value)
+			return
+		}
+	}
+	log.V(6).Infof("Setting %v to %q", constants.ConfigVariableClusterTopology, clusterTopologyValueToSet)
+	c.TKGConfigReaderWriter().Set(constants.ConfigVariableClusterTopology, clusterTopologyValueToSet)
 }
