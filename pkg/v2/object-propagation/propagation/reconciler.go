@@ -242,6 +242,10 @@ func (r stringValueReplacer) replace(v reflect.Value) {
 		r.replace(v.Elem())
 	case reflect.Map:
 		r.replaceMap(v)
+	case reflect.Slice:
+		for i := 0; i < v.Len(); i++ {
+			r.replace(v.Index(i))
+		}
 	case reflect.Struct:
 		for i := 0; i < v.NumField(); i++ {
 			r.replace(v.Field(i))

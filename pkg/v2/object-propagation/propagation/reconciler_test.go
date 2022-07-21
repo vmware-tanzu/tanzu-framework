@@ -214,6 +214,20 @@ var _ = Describe("Reconciler", func() {
 								runv1.AnnotationResolveTKR: "",
 							}},
 						},
+						Workers: clusterv1.WorkersClass{
+							MachineDeployments: []clusterv1.MachineDeploymentClass{{
+								Template: clusterv1.MachineDeploymentClassTemplate{
+									Bootstrap: clusterv1.LocalObjectTemplate{
+										Ref: &corev1.ObjectReference{
+											Kind:       "AwesomeBootstrapTemplate",
+											Namespace:  nameNSTKGSystem,
+											Name:       "awesome-bootstrap-template",
+											APIVersion: "run.tanzu.vmware.com/v1omega3",
+										},
+									},
+								},
+							}},
+						},
 					},
 				}
 				objects = append(objects, cc0)
@@ -232,7 +246,9 @@ var _ = Describe("Reconciler", func() {
 						Expect(r.Client.Get(ctx, client.ObjectKey{Namespace: ns, Name: cc0.Name}, cc)).To(Succeed())
 
 						Expect(cc.Spec.Infrastructure.Ref.Namespace).To(Equal(ns))
-						cc.Spec.Infrastructure.Ref.Namespace = cc0.Spec.Infrastructure.Ref.Namespace
+						Expect(cc.Spec.Workers.MachineDeployments[0].Template.Bootstrap.Ref.Namespace).To(Equal(ns))
+						cc.Spec.Infrastructure.Ref.Namespace = cc0.Namespace
+						cc.Spec.Workers.MachineDeployments[0].Template.Bootstrap.Ref.Namespace = cc0.Namespace
 
 						restoreMeta(cc, cc0)
 						Expect(cc).To(Equal(cc0))
@@ -265,7 +281,9 @@ var _ = Describe("Reconciler", func() {
 						Expect(r.Client.Get(ctx, client.ObjectKey{Namespace: ns, Name: cc0.Name}, cc)).To(Succeed())
 
 						Expect(cc.Spec.Infrastructure.Ref.Namespace).To(Equal(ns))
-						cc.Spec.Infrastructure.Ref.Namespace = cc0.Spec.Infrastructure.Ref.Namespace
+						Expect(cc.Spec.Workers.MachineDeployments[0].Template.Bootstrap.Ref.Namespace).To(Equal(ns))
+						cc.Spec.Infrastructure.Ref.Namespace = cc0.Namespace
+						cc.Spec.Workers.MachineDeployments[0].Template.Bootstrap.Ref.Namespace = cc0.Namespace
 
 						restoreMeta(cc, cc0)
 						Expect(cc).To(Equal(cc0))
