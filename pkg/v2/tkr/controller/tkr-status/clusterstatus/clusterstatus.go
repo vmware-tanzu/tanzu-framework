@@ -177,6 +177,10 @@ func (r *Reconciler) updatesAvailable(ctx context.Context, tkrVersion *version.V
 	return result, nil
 }
 
+func vLabelMinor(major, minor uint) string {
+	return fmt.Sprintf("v%v.%v", major, minor)
+}
+
 func (r *Reconciler) findUpdateVersions(ctx context.Context, tkrVersion *version.Version, cluster *clusterv1.Cluster, clusterClass *clusterv1.ClusterClass, versionPrefix string) ([]string, error) {
 	if clusterClass == nil {
 		return r.legacyUpdateTKRVersions(ctx, tkrVersion, versionPrefix)
@@ -241,10 +245,6 @@ func resolvedTKRVersions(currentTKRVersion *version.Version, tkrResult data.Resu
 		return vi.LessThan(vj)
 	})
 	return result, nil
-}
-
-func vLabelMinor(major, minor uint) string {
-	return fmt.Sprintf("v%v.%v", major, minor)
 }
 
 func setUpdatesAvailable(cluster *clusterv1.Cluster, updates []string) {
