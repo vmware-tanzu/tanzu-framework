@@ -56,3 +56,23 @@ func (mr *MockMiniNetworkClientMockRecorder) GetAll(arg0 ...interface{}) *gomock
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAll", reflect.TypeOf((*MockMiniNetworkClient)(nil).GetAll), arg0...)
 }
+
+// GetByName mocks base method
+func (m *MockMiniNetworkClient) GetByName(name string, options ...session.ApiOptionsParams) (*models.Network, error) {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{name}
+	for _, a := range options {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "GetByName", varargs...)
+	ret0, _ := ret[0].(*models.Network)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetByName indicates an expected call of GetByName
+func (mr *MockMiniNetworkClientMockRecorder) GetByName(name interface{}, options ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{name}, options...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByName", reflect.TypeOf((*MockMiniNetworkClient)(nil).GetByName), varargs...)
+}

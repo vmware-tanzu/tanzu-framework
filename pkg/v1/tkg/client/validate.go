@@ -22,6 +22,7 @@ import (
 	clusterctlclient "sigs.k8s.io/cluster-api/cmd/clusterctl/client"
 
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/region"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/web/server/models"
 
 	"github.com/pkg/errors"
 	corev1 "k8s.io/api/core/v1"
@@ -29,6 +30,7 @@ import (
 	netutils "k8s.io/utils/net"
 
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/config"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/avi"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/aws"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/azure"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/clusterclient"
@@ -593,7 +595,7 @@ func (c *TkgClient) ConfigureAndValidateManagementClusterConfiguration(options *
 		return NewValidationError(ValidationErrorCode, err.Error())
 	}
 
-	if err = c.ConfigureAndValidateNetworkSeparationConfiguration(TkgLabelClusterRoleManagement); err != nil {
+	if err = c.ConfigureAndValidateAviConfiguration(); err != nil {
 		return NewValidationError(ValidationErrorCode, err.Error())
 	}
 
@@ -1837,34 +1839,202 @@ func getDockerBridgeNetworkCidr() (string, error) {
 	return networkCidr, nil
 }
 
-// ConfigureAndValidateNetworkSeparationConfiguration validates the configuration of network separation
-func (c *TkgClient) ConfigureAndValidateNetworkSeparationConfiguration(clusterRole string) error {
-	if err := c.validateNetworkSeparation(constants.ConfigVariableAviManagementClusterServiceEngineGroup, clusterRole); err != nil {
+// ConfigureAndValidateAVIConfiguration validates the configuration inputs of Avi aka. NSX Advanced Load Balancer
+func (c *TkgClient) ConfigureAndValidateAviConfiguration() error {
+	aviEnable, _ := c.TKGConfigReaderWriter().Get(constants.ConfigVariableAviEnable)
+	// ignoring error because AVI_ENABLE is an optional configuration
+	if aviEnable == "" || aviEnable == "false" {
+		return nil
+	}
+	// init avi client
+	aviClient := avi.New()
+	// if avi is enabled, then should verify following required fields
+	err := c.ValidateAviControllerAccount(aviClient)
+	if err != nil {
+		return customAviConfigurationError(err, "avi controller account")
+	}
+	if err = c.ValidateAviCloud(aviClient); err != nil {
+		return customAviConfigurationError(err, constants.ConfigVariableAviCloudName)
+	}
+	if err = c.ValidateAviServiceEngineGroup(aviClient); err != nil {
+		return customAviConfigurationError(err, constants.ConfigVariableAviServiceEngineGroup)
+	}
+	if err = c.ValidateAviDataPlaneNetwork(aviClient); err != nil {
+		return customAviConfigurationError(err, fmt.Sprintf("<%s,%s>", constants.ConfigVariableAviDataPlaneNetworkName, constants.ConfigVariableAviDataPlaneNetworkCIDR))
+	}
+
+	// validate following optional fields if configured
+	if err = c.ValidateAviControllerVersion(); err != nil {
+		return customAviConfigurationError(err, constants.ConfigVariableAviControllerVersion)
+	}
+	if err = c.ValidateAviManagementClusterServiceEngineGroup(aviClient); err != nil {
+		return customAviConfigurationError(err, constants.ConfigVariableAviManagementClusterServiceEngineGroup)
+	}
+	if err = c.ValidateAviControlPlaneNetwork(aviClient); err != nil {
+		return customAviConfigurationError(err, fmt.Sprintf("<%s,%s>", constants.ConfigVariableAviControlPlaneNetworkName, constants.ConfigVariableAviControlPlaneNetworkCIDR))
+	}
+	if err = c.ValidateAviManagementClusterDataPlaneNetwork(aviClient); err != nil {
+		return customAviConfigurationError(err, fmt.Sprintf("<%s,%s>", constants.ConfigVariableAviManagementClusterDataPlaneNetworkName, constants.ConfigVariableAviManagementClusterDataPlaneNetworkCIDR))
+	}
+	if err = c.ValidateAviManagementClusterControlPlaneNetwork(aviClient); err != nil {
+		return customAviConfigurationError(err, fmt.Sprintf("<%s,%s>", constants.ConfigVariableAviManagementClusterControlPlaneVipNetworkName, constants.ConfigVariableAviManagementClusterControlPlaneVipNetworkCIDR))
+	}
+	return nil
+}
+
+// ValidateAviControllerAccount validates if provide avi credentials are able to connect to avi controller or not
+func (c *TkgClient) ValidateAviControllerAccount(aviClient avi.Client) error {
+	aviController, err := c.TKGConfigReaderWriter().Get(constants.ConfigVariableAviControllerAddress)
+	if err != nil {
 		return err
 	}
-	if err := c.validateNetworkSeparation(constants.ConfigVariableAviControlPlaneNetwork, clusterRole); err != nil {
+	aviUserName, err := c.TKGConfigReaderWriter().Get(constants.ConfigVariableAviControllerUsername)
+	if err != nil {
 		return err
 	}
-	if err := c.validateNetworkSeparation(constants.ConfigVariableAviControlPlaneNetworkCidr, clusterRole); err != nil {
+	aviPassword, err := c.TKGConfigReaderWriter().Get(constants.ConfigVariableAviControllerPassword)
+	if err != nil {
 		return err
 	}
-	if err := c.validateNetworkSeparation(constants.ConfigVariableAviManagementClusterControlPlaneVipNetworkName, clusterRole); err != nil {
+	aviCAEncoded, err := c.TKGConfigReaderWriter().Get(constants.ConfigVariableAviControllerCA)
+	if err != nil {
 		return err
 	}
-	if err := c.validateNetworkSeparation(constants.ConfigVariableAviManagementClusterControlPlaneVipNetworkCidr, clusterRole); err != nil {
+	aviCA, err := base64.StdEncoding.DecodeString(aviCAEncoded)
+	if err != nil {
+		return err
+	}
+	// validate avi controller account
+	aviControllerParams := &models.AviControllerParams{
+		Username: aviUserName,
+		Password: aviPassword,
+		Host:     aviController,
+		Tenant:   "admin",
+		CAData:   string(aviCA),
+	}
+	authed, err := aviClient.VerifyAccount(aviControllerParams)
+	if err != nil {
+		return err
+	}
+	if !authed {
+		return errors.Errorf("unable to authenticate avi controller due to incorrect credentials")
+	}
+	return nil
+}
+
+// ValidateAVIControllerVersion validates AVI controller version format, it shoulde be something like 20.1.7
+func (c *TkgClient) ValidateAviControllerVersion() error {
+	aviVersion, _ := c.TKGConfigReaderWriter().Get(constants.ConfigVariableAviControllerVersion)
+	if aviVersion == "" {
+		return nil
+	}
+	var re = regexp.MustCompile(constants.AviControllerVersionRegex)
+	if !re.MatchString(aviVersion) {
+		return errors.Errorf("incorrect avi controller version format")
+	}
+	return nil
+}
+
+// ValidateAVICloud validates if configured cloud exists or not
+func (c *TkgClient) ValidateAviCloud(aviClient avi.Client) error {
+	aviCloud, err := c.TKGConfigReaderWriter().Get(constants.ConfigVariableAviCloudName)
+	if err != nil {
+		return err
+	}
+	if _, err = aviClient.GetCloudByName(aviCloud); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (c *TkgClient) validateNetworkSeparation(networkSeparationConfigVariable, clusterRole string) error {
-	// if not set Get will return an empty string
-	configValue, err := c.TKGConfigReaderWriter().Get(networkSeparationConfigVariable)
+// ValidateAVIManagementClusterServiceEngineGroup validates if configured service engine group exists or not
+func (c *TkgClient) ValidateAviServiceEngineGroup(aviClient avi.Client) error {
+	aviServiceEngineGroup, err := c.TKGConfigReaderWriter().Get(constants.ConfigVariableAviServiceEngineGroup)
 	if err != nil {
-		return nil
+		return err
 	}
-	if clusterRole == TkgLabelClusterRoleManagement && !c.IsFeatureActivated(config.FeatureFlagManagementClusterNetworkSeparation) {
-		return customNetworkSeparationFeatureFlagError(networkSeparationConfigVariable, configValue, config.FeatureFlagManagementClusterNetworkSeparation)
+	if _, err = aviClient.GetServiceEngineGroupByName(aviServiceEngineGroup); err != nil {
+		return err
+	}
+	return nil
+}
+
+// ValidateAVIManagementClusterServiceEngineGroup validates if configured management cluster service engine group exists or not
+func (c *TkgClient) ValidateAviManagementClusterServiceEngineGroup(aviClient avi.Client) error {
+	aviManagementClusterSEG, _ := c.TKGConfigReaderWriter().Get(constants.ConfigVariableAviManagementClusterServiceEngineGroup)
+	// this field is optional, only validates if it has value
+	if aviManagementClusterSEG != "" {
+		if _, err := aviClient.GetServiceEngineGroupByName(aviManagementClusterSEG); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+// ValidateAVIControlPlaneNetwork validates if workload clusters' data plane vip network is valid or not
+func (c *TkgClient) ValidateAviDataPlaneNetwork(aviClient avi.Client) error {
+	aviDataNetworkName, err := c.TKGConfigReaderWriter().Get(constants.ConfigVariableAviDataPlaneNetworkName)
+	if err != nil {
+		return err
+	}
+	aviDataNetworkCIDR, err := c.TKGConfigReaderWriter().Get(constants.ConfigVariableAviDataPlaneNetworkCIDR)
+	if err != nil {
+		return err
+	}
+	if err = c.ValidateAviNetwork(aviDataNetworkName, aviDataNetworkCIDR, aviClient); err != nil {
+		return err
+	}
+	return nil
+}
+
+// ValidateAVIControlPlaneNetwork validates if workload clusters' control plane vip network is valid or not
+func (c *TkgClient) ValidateAviControlPlaneNetwork(aviClient avi.Client) error {
+	aviControlPlaneNetworkName, _ := c.TKGConfigReaderWriter().Get(constants.ConfigVariableAviControlPlaneNetworkName)
+	aviControlPlaneNetworkCIDR, _ := c.TKGConfigReaderWriter().Get(constants.ConfigVariableAviControlPlaneNetworkCIDR)
+	// these field are optional, only validates if they have value
+	if aviControlPlaneNetworkName != "" {
+		if err := c.ValidateAviNetwork(aviControlPlaneNetworkName, aviControlPlaneNetworkCIDR, aviClient); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+// ValidateAVIManagementClusterDataPlaneNetwork checks if configured management cluster data plane vip network is valid or not
+func (c *TkgClient) ValidateAviManagementClusterDataPlaneNetwork(aviClient avi.Client) error {
+	aviManagementClusterDataPlaneNetworkName, _ := c.TKGConfigReaderWriter().Get(constants.ConfigVariableAviManagementClusterDataPlaneNetworkName)
+	aviManagementClusterDataPlaneNetworkCIDR, _ := c.TKGConfigReaderWriter().Get(constants.ConfigVariableAviManagementClusterDataPlaneNetworkCIDR)
+	// these field are optional, only validates if they have value
+	if aviManagementClusterDataPlaneNetworkName != "" {
+		if err := c.ValidateAviNetwork(aviManagementClusterDataPlaneNetworkName, aviManagementClusterDataPlaneNetworkCIDR, aviClient); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+// ValidateAVIManagementClusterControlPlaneNetwork checks if configured management cluster control plane vip network is valid or not
+func (c *TkgClient) ValidateAviManagementClusterControlPlaneNetwork(aviClient avi.Client) error {
+	aviManagementClusterControlPlaneNetworkName, _ := c.TKGConfigReaderWriter().Get(constants.ConfigVariableAviManagementClusterControlPlaneVipNetworkName)
+	aviManagementClusterControlPlaneNetworkCIDR, _ := c.TKGConfigReaderWriter().Get(constants.ConfigVariableAviManagementClusterControlPlaneVipNetworkCIDR)
+	// these field are optional, only validates if they have value
+	if aviManagementClusterControlPlaneNetworkName != "" {
+		if err := c.ValidateAviNetwork(aviManagementClusterControlPlaneNetworkName, aviManagementClusterControlPlaneNetworkCIDR, aviClient); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+// ValidateAVINetwork validates if the network can be found in AVI controller or not and the subnet CIDR format is correct or not
+func (c *TkgClient) ValidateAviNetwork(networkName, networkCIDR string, aviClient avi.Client) error {
+	_, err := aviClient.GetVipNetworkByName(networkName)
+	if err != nil {
+		return err
+	}
+	_, _, err = net.ParseCIDR(networkCIDR)
+	if err != nil {
+		return err
 	}
 	return nil
 }
@@ -1950,9 +2120,6 @@ func customNameserverFeatureFlagError(configVariable, nameservers, flagName stri
 		flagName)
 }
 
-func customNetworkSeparationFeatureFlagError(configVariable, value, flagName string) error {
-	return fmt.Errorf("option %s is set to %q, but network separation support is not enabled (because it is not fully functional). To enable network separation, run the command: tanzu config set %s true",
-		configVariable,
-		value,
-		flagName)
+func customAviConfigurationError(err error, configVariable string) error {
+	return errors.Wrapf(err, "nsx advanced load balancer configuration validation error, failed to validate %s", configVariable)
 }

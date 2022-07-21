@@ -6,16 +6,19 @@ package constants
 
 // cluster related constants used internally
 const (
-	KindCluster                     = "Cluster"
-	KindTanzuKubernetesCluster      = "TanzuKubernetesCluster"
-	KindClusterClass                = "ClusterClass"
-	ClusterClassFeature             = "vmware-system-tkg-clusterclass"
-	TKCAPIFeature                   = "vmware-system-tkg-tkc-api"
-	TKGSClusterClassNamespace       = "vmware-system-tkg"
-	TKGSTKCAPINamespace             = "vmware-system-tkg"
-	TKGStkcapiNamespace             = "vmware-system-tkg"
+	KindCluster                = "Cluster"
+	KindTanzuKubernetesCluster = "TanzuKubernetesCluster"
+	KindClusterClass           = "ClusterClass"
+	ClusterClassFeature        = "vmware-system-tkg-clusterclass"
+	TKCAPIFeature              = "vmware-system-tkg-tkc-api"
+	TKGSClusterClassNamespace  = "vmware-system-tkg"
+	TKGSTKCAPINamespace        = "vmware-system-tkg"
+	TKGStkcapiNamespace        = "vmware-system-tkg"
+
 	ErrorMsgFeatureGateNotActivated = "vSphere with Tanzu environment detected, however, the feature '%v' is not activated in '%v' namespace"
 	ErrorMsgFeatureGateStatus       = "error while checking feature '%v' status in namespace '%v'"
+	ErrorMsgClusterExistsAlready    = "cluster with name %s already exists, please specify another name"
+	ErrorMsgClusterListError        = "unable to get list of workload clusters managed by current management cluster"
 
 	ErrorMsgCClassInputFeatureFlagDisabled = "Input file is cluster class based but CLI feature flag '%v' is disabled, make sure its enabled to create cluster class based cluster"
 
@@ -157,6 +160,9 @@ const (
 	TKGManagementPackageRepositoryName = "tanzu-management"
 	PackageTypeManagement              = "management"
 )
+
+// Avi aka. NSX Advanced LoadBalancer version regex expression
+const AviControllerVersionRegex = `^\d+(\.\d+)*$`
 
 const (
 	TanzuCLISystemNamespace = "tanzu-cli-system"

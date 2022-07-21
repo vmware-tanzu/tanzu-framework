@@ -68,6 +68,9 @@ endif
 ifndef DEFAULT_STANDALONE_DISCOVERY_LOCAL_PATH
 DEFAULT_STANDALONE_DISCOVERY_LOCAL_PATH = "standalone"
 endif
+ifndef TANZU_PLUGINS_ALLOWED_IMAGE_REPOSITORIES
+TANZU_PLUGINS_ALLOWED_IMAGE_REPOSITORIES = "projects-stg.registry.vmware.com/tkg"
+endif
 
 # Package tooling related variables
 PACKAGE_VERSION ?= ${BUILD_VERSION}
@@ -93,6 +96,9 @@ endif
 
 ifneq ($(strip $(TKG_DEFAULT_IMAGE_REPOSITORY)),)
 LD_FLAGS += -X 'github.com/vmware-tanzu/tanzu-framework/pkg/v1/config.DefaultStandaloneDiscoveryRepository=$(TKG_DEFAULT_IMAGE_REPOSITORY)'
+endif
+ifneq ($(strip $(TANZU_PLUGINS_ALLOWED_IMAGE_REPOSITORIES)),)
+LD_FLAGS += -X 'github.com/vmware-tanzu/tanzu-framework/pkg/v1/config.DefaultAllowedPluginRepositories=$(TANZU_PLUGINS_ALLOWED_IMAGE_REPOSITORIES)'
 endif
 
 ifneq ($(strip $(ENABLE_CONTEXT_AWARE_PLUGIN_DISCOVERY)),)

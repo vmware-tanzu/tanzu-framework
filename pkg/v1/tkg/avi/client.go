@@ -12,10 +12,11 @@ import (
 	"time"
 
 	"github.com/avinetworks/sdk/go/clients"
+	"github.com/avinetworks/sdk/go/models"
 	"github.com/avinetworks/sdk/go/session"
 	"github.com/pkg/errors"
 
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/web/server/models"
+	avi_models "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/web/server/models"
 )
 
 // AviSessionTimeout is timeout for avi session
@@ -24,7 +25,7 @@ const pageSizeMax = "200"
 const aviDefaultTenant = "admin" // Per TKG-5862
 
 type client struct {
-	ControllerParams   *models.AviControllerParams
+	ControllerParams   *avi_models.AviControllerParams
 	Cloud              MiniCloudClient
 	ServiceEngineGroup MiniServiceEngineGroupClient
 	Network            MiniNetworkClient
@@ -43,7 +44,7 @@ func New() Client {
 // VerifyAccount verifies if the credentials are correct
 // It also setup the Cloud and SerivceEngineGroup services for later use
 // upon a successful authentication
-func (c *client) VerifyAccount(params *models.AviControllerParams) (bool, error) {
+func (c *client) VerifyAccount(params *avi_models.AviControllerParams) (bool, error) {
 	var aviClient *clients.AviClient
 	var err error
 
@@ -98,13 +99,13 @@ func (c *client) VerifyAccount(params *models.AviControllerParams) (bool, error)
 // GetClouds retrieves a cloud list from AVI controller through the REST API
 // This function depends on the presence of "Cloud" service that is
 // made available upon authentication with a Avi controller.
-func (c *client) GetClouds() ([]*models.AviCloud, error) {
+func (c *client) GetClouds() ([]*avi_models.AviCloud, error) {
 	if c.Cloud == nil {
 		return nil, errors.Errorf("unable to make API calls before authentication")
 	}
 
 	var page = 1
-	clouds := make([]*models.AviCloud, 0)
+	clouds := make([]*avi_models.AviCloud, 0)
 	for {
 		all, err := c.Cloud.GetAll(session.SetParams(map[string]string{"fields": "name,uuid", "page": strconv.Itoa(page), "page_size": pageSizeMax}))
 		if err != nil {
@@ -115,7 +116,7 @@ func (c *client) GetClouds() ([]*models.AviCloud, error) {
 		}
 
 		for _, c := range all {
-			clouds = append(clouds, &models.AviCloud{
+			clouds = append(clouds, &avi_models.AviCloud{
 				UUID:     *c.UUID,
 				Name:     *c.Name,
 				Location: *c.URL,
@@ -131,13 +132,13 @@ func (c *client) GetClouds() ([]*models.AviCloud, error) {
 // GetServiceEngineGroups retrieves a Service Engine Group list from AVI controller through the REST API
 // This function depends on the presence of "ServiceEngineGroup" service that is
 // made available upon authentication with a Avi controller.
-func (c *client) GetServiceEngineGroups() ([]*models.AviServiceEngineGroup, error) {
+func (c *client) GetServiceEngineGroups() ([]*avi_models.AviServiceEngineGroup, error) {
 	if c.ServiceEngineGroup == nil {
 		return nil, errors.Errorf("unable to make API calls before authentication")
 	}
 
 	var page = 1
-	serviceEngineGroups := make([]*models.AviServiceEngineGroup, 0)
+	serviceEngineGroups := make([]*avi_models.AviServiceEngineGroup, 0)
 
 	for {
 		all, err := c.ServiceEngineGroup.GetAll(session.SetParams(map[string]string{"fields": "name,uuid,cloud_ref", "page": strconv.Itoa(page), "page_size": pageSizeMax}))
@@ -149,7 +150,7 @@ func (c *client) GetServiceEngineGroups() ([]*models.AviServiceEngineGroup, erro
 		}
 
 		for _, seg := range all {
-			serviceEngineGroups = append(serviceEngineGroups, &models.AviServiceEngineGroup{
+			serviceEngineGroups = append(serviceEngineGroups, &avi_models.AviServiceEngineGroup{
 				UUID:     *seg.UUID,
 				Name:     *seg.Name,
 				Location: c.getCloudID(*seg.CloudRef),
@@ -164,13 +165,13 @@ func (c *client) GetServiceEngineGroups() ([]*models.AviServiceEngineGroup, erro
 // GetVipNetworks retrieves a Service Engine Group list from AVI controller through the REST API
 // This function depends on the presence of "ServiceEngineGroup" service that is
 // made available upon authentication with a Avi controller.
-func (c *client) GetVipNetworks() ([]*models.AviVipNetwork, error) {
+func (c *client) GetVipNetworks() ([]*avi_models.AviVipNetwork, error) {
 	if c.Network == nil {
 		return nil, errors.Errorf("unable to make API calls before authentication")
 	}
 
 	var page = 1
-	networks := make([]*models.AviVipNetwork, 0)
+	networks := make([]*avi_models.AviVipNetwork, 0)
 	for {
 		all, err := c.Network.GetAll(session.SetParams(map[string]string{"fields": "name,uuid,cloud_ref,configured_subnets", "page": strconv.Itoa(page), "page_size": pageSizeMax}))
 		if err != nil {
@@ -181,15 +182,15 @@ func (c *client) GetVipNetworks() ([]*models.AviVipNetwork, error) {
 		}
 
 		for _, seg := range all {
-			subnets := make([]*models.AviSubnet, 0)
+			subnets := make([]*avi_models.AviSubnet, 0)
 			for _, temp := range seg.ConfiguredSubnets {
-				subnets = append(subnets, &models.AviSubnet{
+				subnets = append(subnets, &avi_models.AviSubnet{
 					Subnet: *temp.Prefix.IPAddr.Addr + "/" + strconv.Itoa(int(*temp.Prefix.Mask)),
 					Family: *temp.Prefix.IPAddr.Type,
 				})
 			}
 
-			network := &models.AviVipNetwork{
+			network := &avi_models.AviVipNetwork{
 				UUID:            *seg.UUID,
 				Name:            *seg.Name,
 				Cloud:           c.getCloudID(*seg.CloudRef),
@@ -202,6 +203,18 @@ func (c *client) GetVipNetworks() ([]*models.AviVipNetwork, error) {
 		page++
 	}
 	return networks, nil
+}
+
+func (c *client) GetCloudByName(name string) (*models.Cloud, error) {
+	return c.Cloud.GetByName(name)
+}
+
+func (c *client) GetServiceEngineGroupByName(name string) (*models.ServiceEngineGroup, error) {
+	return c.ServiceEngineGroup.GetByName(name)
+}
+
+func (c *client) GetVipNetworkByName(name string) (*models.Network, error) {
+	return c.Network.GetByName(name)
 }
 
 // getCloudID extracts the cloud UUID from the cloudRef string,

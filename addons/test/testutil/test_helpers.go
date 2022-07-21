@@ -13,8 +13,6 @@ import (
 	"path/filepath"
 	"time"
 
-	topologyv1alpha1 "github.com/vmware-tanzu/vm-operator/external/tanzu-topology/api/v1alpha1"
-
 	"golang.org/x/tools/go/packages"
 
 	"github.com/onsi/ginkgo"
@@ -341,17 +339,4 @@ func SetupWebhookCertificates(ctx context.Context, k8sClient client.Client, k8sC
 		}
 	}
 	return nil
-}
-
-func CreateAvailabilityZones(ctx context.Context, k8sClient client.Client, availabilityzoneName string) {
-	// Create availability zones
-	availabilityzones := &topologyv1alpha1.AvailabilityZone{
-		TypeMeta: metav1.TypeMeta{},
-		ObjectMeta: metav1.ObjectMeta{
-			Name: availabilityzoneName,
-		},
-		Spec:   topologyv1alpha1.AvailabilityZoneSpec{},
-		Status: topologyv1alpha1.AvailabilityZoneStatus{},
-	}
-	k8sClient.Create(ctx, availabilityzones)
 }
