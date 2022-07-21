@@ -16,13 +16,13 @@ spec:
     preKubeadmCommands:
       #! For Photon OS
       #@overlay/append
-      - ! which rehash_ca_certificates.sh 2>/dev/null || rehash_ca_certificates.sh
+      - '! which rehash_ca_certificates.sh 2>/dev/null || rehash_ca_certificates.sh'
       #! For Ubuntu
       #@overlay/append
-      - ! which update-ca-certificates 2>/dev/null || (mv /etc/ssl/certs/tkg-custom-ca.pem /usr/local/share/ca-certificates/tkg-custom-ca.crt && update-ca-certificates)
+      - '! which update-ca-certificates 2>/dev/null || (mv /etc/ssl/certs/tkg-custom-ca.pem /usr/local/share/ca-certificates/tkg-custom-ca.crt && update-ca-certificates)'
       #! For Amazon
       #@overlay/append
-      - ! which update-ca-trust 2>/dev/null || (update-ca-trust force-enable && mv /etc/ssl/certs/tkg-custom-ca.pem /etc/pki/ca-trust/source/anchors/tkg-custom-ca.crt && update-ca-trust extract)
+      - '! which update-ca-trust 2>/dev/null || (update-ca-trust force-enable && mv /etc/ssl/certs/tkg-custom-ca.pem /etc/pki/ca-trust/source/anchors/tkg-custom-ca.crt && update-ca-trust extract)'
       #@overlay/append
       - systemctl restart containerd
     #@overlay/match missing_ok=True
@@ -43,13 +43,13 @@ spec:
       preKubeadmCommands:
         #! For Photon OS
         #@overlay/append
-        - ! which rehash_ca_certificates.sh 2>/dev/null || rehash_ca_certificates.sh
+        - '! which rehash_ca_certificates.sh 2>/dev/null || rehash_ca_certificates.sh'
         #! For Ubuntu
         #@overlay/append
-        - ! which update-ca-certificates 2>/dev/null || (mv /etc/ssl/certs/tkg-custom-ca.pem /usr/local/share/ca-certificates/tkg-custom-ca.crt && update-ca-certificates)
+        - '! which update-ca-certificates 2>/dev/null || (mv /etc/ssl/certs/tkg-custom-ca.pem /usr/local/share/ca-certificates/tkg-custom-ca.crt && update-ca-certificates)'
         #! For Amazon
         #@overlay/append
-        - ! which update-ca-trust 2>/dev/null || (update-ca-trust force-enable && mv /etc/ssl/certs/tkg-custom-ca.pem /etc/pki/ca-trust/source/anchors/tkg-custom-ca.crt && update-ca-trust extract)
+        - '! which update-ca-trust 2>/dev/null || (update-ca-trust force-enable && mv /etc/ssl/certs/tkg-custom-ca.pem /etc/pki/ca-trust/source/anchors/tkg-custom-ca.crt && update-ca-trust extract)'
         #@overlay/append
         - systemctl restart containerd
       #@overlay/match missing_ok=True

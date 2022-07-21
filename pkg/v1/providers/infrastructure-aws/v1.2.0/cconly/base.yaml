@@ -648,13 +648,13 @@ spec:
       jsonPatches:
       - op: add
         path: /spec/template/spec/kubeadmConfigSpec/preKubeadmCommands/-
-        value: ! which rehash_ca_certificates.sh 2>/dev/null || rehash_ca_certificates.sh
+        value: '! which rehash_ca_certificates.sh 2>/dev/null || rehash_ca_certificates.sh'
       - op: add
         path: /spec/template/spec/kubeadmConfigSpec/preKubeadmCommands/-
-        value: ! which update-ca-certificates 2>/dev/null || (mv /etc/ssl/certs/tkg-custom-ca.pem /usr/local/share/ca-certificates/tkg-custom-ca.crt && update-ca-certificates)
+        value: '! which update-ca-certificates 2>/dev/null || (mv /etc/ssl/certs/tkg-custom-ca.pem /usr/local/share/ca-certificates/tkg-custom-ca.crt && update-ca-certificates)'
       - op: add
         path: /spec/template/spec/kubeadmConfigSpec/preKubeadmCommands/-
-        value: ! which update-ca-trust 2>/dev/null || (update-ca-trust force-enable && mv /etc/ssl/certs/tkg-custom-ca.pem /etc/pki/ca-trust/source/anchors/tkg-custom-ca.crt && update-ca-trust extract)
+        value: '! which update-ca-trust 2>/dev/null || (update-ca-trust force-enable && mv /etc/ssl/certs/tkg-custom-ca.pem /etc/pki/ca-trust/source/anchors/tkg-custom-ca.crt && update-ca-trust extract)'
       - op: add
         path: /spec/template/spec/kubeadmConfigSpec/preKubeadmCommands/-
         value: systemctl restart containerd
@@ -682,13 +682,13 @@ spec:
       jsonPatches:
       - op: add
         path: /spec/template/spec/preKubeadmCommands/-
-        value: ! which rehash_ca_certificates.sh 2>/dev/null || rehash_ca_certificates.sh
+        value: '! which rehash_ca_certificates.sh 2>/dev/null || rehash_ca_certificates.sh'
       - op: add
         path: /spec/template/spec/preKubeadmCommands/-
-        value: ! which update-ca-certificates 2>/dev/null || (mv /etc/ssl/certs/tkg-custom-ca.pem /usr/local/share/ca-certificates/tkg-custom-ca.crt && update-ca-certificates)
+        value: '! which update-ca-certificates 2>/dev/null || (mv /etc/ssl/certs/tkg-custom-ca.pem /usr/local/share/ca-certificates/tkg-custom-ca.crt && update-ca-certificates)'
       - op: add
         path: /spec/template/spec/preKubeadmCommands/-
-        value: ! which update-ca-trust 2>/dev/null || (update-ca-trust force-enable && mv /etc/ssl/certs/tkg-custom-ca.pem /etc/pki/ca-trust/source/anchors/tkg-custom-ca.crt && update-ca-trust extract)
+        value: '! which update-ca-trust 2>/dev/null || (update-ca-trust force-enable && mv /etc/ssl/certs/tkg-custom-ca.pem /etc/pki/ca-trust/source/anchors/tkg-custom-ca.crt && update-ca-trust extract)'
       - op: add
         path: /spec/template/spec/preKubeadmCommands/-
         value: systemctl restart containerd
