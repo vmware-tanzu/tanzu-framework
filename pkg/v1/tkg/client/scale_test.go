@@ -359,3 +359,115 @@ var _ = Describe("Scale API", func() {
 		})
 	})
 })
+
+var _ = Describe("Scale API for ClusterClass", func() {
+	var (
+		err                   error
+		regionalClusterClient *fakes.ClusterClient
+		cluster               *v1beta1.Cluster
+		options               *ScaleClusterOptions
+	)
+
+	JustBeforeEach(func() {
+		err = DoScaleCCCluster(regionalClusterClient, cluster, options)
+	})
+
+	BeforeEach(func() {
+		cluster = &v1beta1.Cluster{
+			Spec: v1beta1.ClusterSpec{
+				Topology: &v1beta1.Topology{
+					ControlPlane: v1beta1.ControlPlaneTopology{
+						Replicas: func(i int32) *int32 { return &i }(1),
+					},
+					Workers: &v1beta1.WorkersTopology{
+						MachineDeployments: []v1beta1.MachineDeploymentTopology{
+							{
+								Name:     "md-0",
+								Replicas: func(i int32) *int32 { return &i }(1),
+							},
+							{
+								Name:     "md-1",
+								Replicas: func(i int32) *int32 { return &i }(1),
+							},
+							{
+								Name:     "md-2",
+								Replicas: func(i int32) *int32 { return &i }(1),
+							},
+						},
+					},
+				},
+			},
+		}
+		regionalClusterClient = &fakes.ClusterClient{}
+		regionalClusterClient.IsClusterClassBasedReturns(true, nil)
+	})
+
+	When("Scaling the controlPlane", func() {
+		BeforeEach(func() {
+			options = &ScaleClusterOptions{
+				ClusterName:       "test-cluster",
+				Namespace:         "test-ns",
+				ControlPlaneCount: 3,
+			}
+		})
+
+		It("Should update the control plane replica count", func() {
+			Expect(err).ToNot(HaveOccurred())
+
+			iCluster, clusterName, namespace, _ := regionalClusterClient.UpdateResourceArgsForCall(0)
+			Expect(clusterName).To(Equal("test-cluster"))
+			Expect(namespace).To(Equal("test-ns"))
+
+			actual, ok := iCluster.(*v1beta1.Cluster)
+			Expect(ok).To(BeTrue())
+			Expect(*actual.Spec.Topology.ControlPlane.Replicas).To(Equal(int32(3)))
+		})
+	})
+
+	When("Scaling workers without a node pool name", func() {
+		BeforeEach(func() {
+			options = &ScaleClusterOptions{
+				ClusterName: "test-cluster",
+				Namespace:   "test-ns",
+				WorkerCount: 4,
+			}
+		})
+
+		It("should round robin scale the machine deployments", func() {
+			Expect(err).ToNot(HaveOccurred())
+
+			iCluster, clusterName, namespace, _ := regionalClusterClient.UpdateResourceArgsForCall(0)
+			Expect(clusterName).To(Equal("test-cluster"))
+			Expect(namespace).To(Equal("test-ns"))
+
+			actual, ok := iCluster.(*v1beta1.Cluster)
+			Expect(ok).To(BeTrue())
+
+			Expect(*actual.Spec.Topology.Workers.MachineDeployments[0].Replicas).To(Equal(int32(2)))
+		})
+	})
+
+	When("Scaling workers with a node pool name", func() {
+		BeforeEach(func() {
+			options = &ScaleClusterOptions{
+				ClusterName:  "test-cluster",
+				Namespace:    "test-ns",
+				NodePoolName: "md-2",
+				WorkerCount:  4,
+			}
+		})
+
+		It("should update replicas on the name machine deployment", func() {
+			Expect(err).ToNot(HaveOccurred())
+
+			iCluster, clusterName, namespace, _ := regionalClusterClient.UpdateResourceArgsForCall(0)
+			Expect(clusterName).To(Equal("test-cluster"))
+			Expect(namespace).To(Equal("test-ns"))
+
+			actual, ok := iCluster.(*v1beta1.Cluster)
+			Expect(ok).To(BeTrue())
+
+			Expect(*actual.Spec.Topology.Workers.MachineDeployments[2].Replicas).To(Equal(int32(4)))
+		})
+	})
+})

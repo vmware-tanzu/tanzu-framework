@@ -9,6 +9,7 @@ import (
 
 	"github.com/pkg/errors"
 	kerrors "k8s.io/apimachinery/pkg/util/errors"
+	capi "sigs.k8s.io/cluster-api/api/v1beta1"
 
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/clusterclient"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
@@ -56,6 +57,18 @@ func (c *TkgClient) ScaleCluster(options ScaleClusterOptions) error {
 
 // DoScaleCluster performs the scale operation using the given clusterclient.Client
 func (c *TkgClient) DoScaleCluster(clusterClient clusterclient.Client, options *ScaleClusterOptions) error {
+	ccBased, err := clusterClient.IsClusterClassBased(options.ClusterName, options.Namespace)
+	if err != nil {
+		return errors.Wrap(err, "unable to determine if cluster is clusterclass based")
+	}
+	if ccBased {
+		var cluster capi.Cluster
+		if err := clusterClient.GetResource(&cluster, options.ClusterName, options.Namespace, nil, nil); err != nil {
+			return errors.Wrap(err, "Unable to retrieve cluster resource")
+		}
+		return DoScaleCCCluster(clusterClient, &cluster, options)
+	}
+
 	isPacific, err := clusterClient.IsPacificRegionalCluster()
 	if err != nil {
 		return errors.Wrap(err, "error determining Tanzu Kubernetes Grid service for vSphere management cluster ")
@@ -127,6 +140,44 @@ func (c *TkgClient) ScalePacificCluster(options *ScaleClusterOptions, clusterCli
 		return nil
 	}
 	return kerrors.NewAggregate(errList)
+}
+
+func DoScaleCCCluster(clusterClient clusterclient.Client, cluster *capi.Cluster, options *ScaleClusterOptions) error {
+	if options.ControlPlaneCount > 0 {
+		cluster.Spec.Topology.ControlPlane.Replicas = &options.ControlPlaneCount
+	}
+
+	mdFound := false
+	if options.NodePoolName != "" && options.WorkerCount > 0 {
+		for i := range cluster.Spec.Topology.Workers.MachineDeployments {
+			if cluster.Spec.Topology.Workers.MachineDeployments[i].Name == options.NodePoolName {
+				cluster.Spec.Topology.Workers.MachineDeployments[i].Replicas = &options.WorkerCount
+				mdFound = true
+				break
+			}
+		}
+
+		if !mdFound {
+			return errors.Errorf("Could not find node pool with name %s", options.NodePoolName)
+		}
+	}
+
+	if options.NodePoolName == "" && options.WorkerCount > 0 {
+		numMachineDeployments := int32(len(cluster.Spec.Topology.Workers.MachineDeployments))
+		if options.WorkerCount < numMachineDeployments {
+			return errors.Errorf("new worker count must be greater than or equal to the number of machine deployments. worker count: %d, machine deployment count: %d", options.WorkerCount, numMachineDeployments)
+		}
+
+		workersPerMD := options.WorkerCount / numMachineDeployments
+		leftoverWorkers := options.WorkerCount % numMachineDeployments
+		// each machine deployment gets scaled to have an approx equal number of replicas
+		for i := int32(0); i < numMachineDeployments; i++ {
+			workerCount := desiredWorkerCount(workersPerMD, leftoverWorkers, i)
+			cluster.Spec.Topology.Workers.MachineDeployments[i].Replicas = &workerCount
+		}
+	}
+
+	return clusterClient.UpdateResource(cluster, options.ClusterName, options.Namespace)
 }
 
 func (c *TkgClient) scaleWorkersDefault(clusterClient clusterclient.Client, options *ScaleClusterOptions) []error {
