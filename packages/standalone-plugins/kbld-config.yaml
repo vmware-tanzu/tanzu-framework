@@ -38,5 +38,9 @@ overrides:
   newImage: ""
 - image: tanzu-cli-plugins/secret-windows-amd64:latest
   newImage: ""
+- image: tanzu-cli-plugins/telemetry-linux-amd64:latest
+  newImage: ""
+- image: tanzu-cli-plugins/telemetry-darwin-amd64:latest
+  newImage: ""
 - image: tanzu-cli-plugins/telemetry-windows-amd64:latest
   newImage: ""

@@ -1,0 +1,46 @@
+apiVersion: data.packaging.carvel.dev/v1alpha1
+kind: Package
+metadata:
+  name: cluster-api-provider-oci.tanzu.vmware.com
+  namespace: cluster-api-provider-oci
+spec:
+  refName: cluster-api-provider-oci.tanzu.vmware.com
+  version: latest
+  licenses:
+    - "Apache 2.0"
+  template:
+    spec:
+      fetch:
+        - imgpkgBundle:
+            image: # Get this value by pushing to your OCI Registry
+      template:
+        - ytt:
+            paths:
+              - config/
+        - kbld:
+            paths:
+              - "-"
+              - .imgpkg/images.yml
+      deploy:
+        - kapp: {}
+  valuesSchema:
+    openAPIv3:
+      type: object
+      additionalProperties: false
+      properties:
+        capociControllerManager:
+          type: object
+          additionalProperties: false
+          properties:
+            httpProxy:
+              type: string
+              description: Configures the HTTP_PROXY environment variable on capoci-controller-manager.
+              default: ""
+            httpsProxy:
+              type: string
+              description: Configures the HTTPS_PROXY environment variable on capoci-controller-manager.
+              default: ""
+            noProxy:
+              type: string
+              description: Configures the NO_PROXY environment variable on capoci-controller-manager.
+              default: ""

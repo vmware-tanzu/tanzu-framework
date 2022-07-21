@@ -1,0 +1,29 @@
+apiVersion: cluster.x-k8s.io/v1beta1
+kind: Cluster
+metadata:
+  name: ${CLUSTER_NAME}
+  labels:
+    tkg.tanzu.vmware.com/cluster-name: '${ CLUSTER_NAME }'
+  annotations:
+    run.tanzu.vmware.com/resolve-tkr: ""
+spec:
+  clusterNetwork:
+    pods:
+      cidrBlocks: ["${CLUSTER_CIDR}"]
+    services:
+      cidrBlocks: ["${SERVICE_CIDR}"]
+  topology:
+    class: tkg-cluster-class-dev
+    version: v1.21.2
+    controlPlane:
+      replicas: ${CONTROL_PLANE_MACHINE_COUNT}
+      metadata:
+        annotations:
+    workers:
+      machineDeployments:
+      - class: tkg-worker
+        name: tkg-worker-pool
+        replicas: ${WORKER_MACHINE_COUNT}
+        metadata:
+          annotations:
+    variables:

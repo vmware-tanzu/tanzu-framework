@@ -11,19 +11,19 @@ load("/lib/helpers.star", "get_default_tkg_bom_data")
 def config_variable_association():
 
 return {
-"CLUSTER_NAME": ["vsphere", "aws", "azure", "tkg-service-vsphere", "docker"],
-"CLUSTER_PLAN": ["vsphere", "aws", "azure", "tkg-service-vsphere", "docker"],
-"NAMESPACE": ["vsphere", "aws", "azure", "tkg-service-vsphere", "docker"],
-"INFRASTRUCTURE_PROVIDER": ["vsphere", "aws", "azure", "docker"],
+"CLUSTER_NAME": ["vsphere", "aws", "azure", "tkg-service-vsphere", "docker", "oci"],
+"CLUSTER_PLAN": ["vsphere", "aws", "azure", "tkg-service-vsphere", "docker", "oci"],
+"NAMESPACE": ["vsphere", "aws", "azure", "tkg-service-vsphere", "docker", "oci"],
+"INFRASTRUCTURE_PROVIDER": ["vsphere", "aws", "azure", "docker", "oci"],
 "IS_WINDOWS_WORKLOAD_CLUSTER": ["vsphere"],
 
-"CLUSTER_API_SERVER_PORT": ["vsphere", "aws", "azure"],
+"CLUSTER_API_SERVER_PORT": ["vsphere", "aws", "azure", "oci"],
 
-"SIZE": ["vsphere", "aws", "azure", "docker"],
-"CONTROLPLANE_SIZE": ["vsphere", "aws", "azure", "docker"],
-"WORKER_SIZE": ["vsphere", "aws", "azure", "docker"],
+"SIZE": ["vsphere", "aws", "azure", "docker", "oci"],
+"CONTROLPLANE_SIZE": ["vsphere", "aws", "azure", "docker", "oci"],
+"WORKER_SIZE": ["vsphere", "aws", "azure", "docker", "oci"],
 
-"ENABLE_CEIP_PARTICIPATION": ["vsphere", "aws", "azure", "tkg-service-vsphere", "docker"],
+"ENABLE_CEIP_PARTICIPATION": ["vsphere", "aws", "azure", "tkg-service-vsphere", "docker", "oci"],
 "DEPLOY_TKG_ON_VSPHERE7": ["vsphere"],
 "ENABLE_TKGS_ON_VSPHERE7": ["vsphere"],
 
@@ -175,84 +175,84 @@ return {
 "OIDC_GROUPS_CLAIM": ["vsphere", "aws", "azure", "docker"],
 "OIDC_DEX_CA": ["vsphere", "aws", "azure", "docker"],
 
-"ENABLE_MHC": ["vsphere", "aws", "azure", "docker"],
-"ENABLE_MHC_WORKER_NODE": ["vsphere", "aws", "azure", "docker"],
-"ENABLE_MHC_CONTROL_PLANE": ["vsphere", "aws", "azure", "docker"],
-"MHC_UNKNOWN_STATUS_TIMEOUT": ["vsphere", "aws", "azure", "docker"],
-"MHC_FALSE_STATUS_TIMEOUT": ["vsphere", "aws", "azure", "docker"],
+"ENABLE_MHC": ["vsphere", "aws", "azure", "docker", "oci"],
+"ENABLE_MHC_WORKER_NODE": ["vsphere", "aws", "azure", "docker", "oci"],
+"ENABLE_MHC_CONTROL_PLANE": ["vsphere", "aws", "azure", "docker", "oci"],
+"MHC_UNKNOWN_STATUS_TIMEOUT": ["vsphere", "aws", "azure", "docker", "oci"],
+"MHC_FALSE_STATUS_TIMEOUT": ["vsphere", "aws", "azure", "docker", "oci"],
 
-"TKG_CUSTOM_IMAGE_REPOSITORY": ["vsphere", "aws", "azure", "docker"],
-"TKG_CUSTOM_IMAGE_REPOSITORY_SKIP_TLS_VERIFY": ["vsphere", "aws", "azure", "docker"],
-"TKG_CUSTOM_IMAGE_REPOSITORY_CA_CERTIFICATE": ["vsphere", "aws", "azure", "docker"],
+"TKG_CUSTOM_IMAGE_REPOSITORY": ["vsphere", "aws", "azure", "docker", "oci"],
+"TKG_CUSTOM_IMAGE_REPOSITORY_SKIP_TLS_VERIFY": ["vsphere", "aws", "azure", "docker", "oci"],
+"TKG_CUSTOM_IMAGE_REPOSITORY_CA_CERTIFICATE": ["vsphere", "aws", "azure", "docker", "oci"],
 
-"TKG_HTTP_PROXY": ["vsphere", "aws", "azure", "docker"],
-"TKG_HTTPS_PROXY": ["vsphere", "aws", "azure", "docker"],
-"TKG_NO_PROXY": ["vsphere", "aws", "azure", "docker"],
-"TKG_PROXY_CA_CERT": ["vsphere", "aws", "azure", "docker"],
+"TKG_HTTP_PROXY": ["vsphere", "aws", "azure", "docker", "oci"],
+"TKG_HTTPS_PROXY": ["vsphere", "aws", "azure", "docker", "oci"],
+"TKG_NO_PROXY": ["vsphere", "aws", "azure", "docker", "oci"],
+"TKG_PROXY_CA_CERT": ["vsphere", "aws", "azure", "docker", "oci"],
 
-"TKG_IP_FAMILY": ["vsphere", "aws", "azure", "docker"],
+"TKG_IP_FAMILY": ["vsphere", "aws", "azure", "docker", "oci"],
 
-"ENABLE_AUDIT_LOGGING": ["vsphere", "aws", "azure", "docker"],
+"ENABLE_AUDIT_LOGGING": ["vsphere", "aws", "azure", "docker", "oci"],
 
-"ENABLE_DEFAULT_STORAGE_CLASS": ["vsphere", "aws", "azure", "docker"],
+"ENABLE_DEFAULT_STORAGE_CLASS": ["vsphere", "aws", "azure", "docker", "oci"],
 
-"CLUSTER_CIDR": ["vsphere", "aws", "azure", "tkg-service-vsphere", "docker"],
-"SERVICE_CIDR": ["vsphere", "aws", "azure", "tkg-service-vsphere", "docker"],
-"NODE_STARTUP_TIMEOUT": ["vsphere", "aws", "azure", "docker"],
+"CLUSTER_CIDR": ["vsphere", "aws", "azure", "tkg-service-vsphere", "docker", "oci"],
+"SERVICE_CIDR": ["vsphere", "aws", "azure", "tkg-service-vsphere", "docker", "oci"],
+"NODE_STARTUP_TIMEOUT": ["vsphere", "aws", "azure", "docker", "oci"],
 
-"CONTROL_PLANE_MACHINE_COUNT": ["vsphere", "aws", "azure", "tkg-service-vsphere", "docker"],
-"WORKER_MACHINE_COUNT": ["vsphere", "aws", "azure", "tkg-service-vsphere", "docker"],
-"WORKER_MACHINE_COUNT_0": ["vsphere", "aws", "azure", "docker"],
-"WORKER_MACHINE_COUNT_1": ["vsphere", "aws", "azure", "docker"],
-"WORKER_MACHINE_COUNT_2": ["vsphere", "aws", "azure", "docker"],
+"CONTROL_PLANE_MACHINE_COUNT": ["vsphere", "aws", "azure", "tkg-service-vsphere", "docker", "oci"],
+"WORKER_MACHINE_COUNT": ["vsphere", "aws", "azure", "tkg-service-vsphere", "docker", "oci"],
+"WORKER_MACHINE_COUNT_0": ["vsphere", "aws", "azure", "docker", "oci"],
+"WORKER_MACHINE_COUNT_1": ["vsphere", "aws", "azure", "docker", "oci"],
+"WORKER_MACHINE_COUNT_2": ["vsphere", "aws", "azure", "docker", "oci"],
 
-"OS_NAME": ["vsphere", "aws", "azure", "docker"],
-"OS_VERSION": ["vsphere", "aws", "azure", "docker"],
-"OS_ARCH": ["vsphere", "aws", "azure", "docker"],
+"OS_NAME": ["vsphere", "aws", "azure", "docker", "oci"],
+"OS_VERSION": ["vsphere", "aws", "azure", "docker", "oci"],
+"OS_ARCH": ["vsphere", "aws", "azure", "docker", "oci"],
 
-"ENABLE_AUTOSCALER": ["vsphere", "aws", "azure", "docker"],
-"AUTOSCALER_MAX_NODES_TOTAL": ["vsphere", "aws", "azure", "docker"],
-"AUTOSCALER_SCALE_DOWN_DELAY_AFTER_ADD": ["vsphere", "aws", "azure", "docker"],
-"AUTOSCALER_SCALE_DOWN_DELAY_AFTER_DELETE": ["vsphere", "aws", "azure", "docker"],
-"AUTOSCALER_SCALE_DOWN_DELAY_AFTER_FAILURE": ["vsphere", "aws", "azure", "docker"],
-"AUTOSCALER_SCALE_DOWN_UNNEEDED_TIME": ["vsphere", "aws", "azure", "docker"],
-"AUTOSCALER_MAX_NODE_PROVISION_TIME": ["vsphere", "aws", "azure", "docker"],
-"AUTOSCALER_MIN_SIZE_0": ["vsphere", "aws", "azure", "docker"],
-"AUTOSCALER_MAX_SIZE_0": ["vsphere", "aws", "azure", "docker"],
-"AUTOSCALER_MIN_SIZE_1": ["vsphere", "aws", "azure", "docker"],
-"AUTOSCALER_MAX_SIZE_1": ["vsphere", "aws", "azure", "docker"],
-"AUTOSCALER_MIN_SIZE_2": ["vsphere", "aws", "azure", "docker"],
-"AUTOSCALER_MAX_SIZE_2": ["vsphere", "aws", "azure", "docker"],
+"ENABLE_AUTOSCALER": ["vsphere", "aws", "azure", "docker", "oci"],
+"AUTOSCALER_MAX_NODES_TOTAL": ["vsphere", "aws", "azure", "docker", "oci"],
+"AUTOSCALER_SCALE_DOWN_DELAY_AFTER_ADD": ["vsphere", "aws", "azure", "docker", "oci"],
+"AUTOSCALER_SCALE_DOWN_DELAY_AFTER_DELETE": ["vsphere", "aws", "azure", "docker", "oci"],
+"AUTOSCALER_SCALE_DOWN_DELAY_AFTER_FAILURE": ["vsphere", "aws", "azure", "docker", "oci"],
+"AUTOSCALER_SCALE_DOWN_UNNEEDED_TIME": ["vsphere", "aws", "azure", "docker", "oci"],
+"AUTOSCALER_MAX_NODE_PROVISION_TIME": ["vsphere", "aws", "azure", "docker", "oci"],
+"AUTOSCALER_MIN_SIZE_0": ["vsphere", "aws", "azure", "docker", "oci"],
+"AUTOSCALER_MAX_SIZE_0": ["vsphere", "aws", "azure", "docker", "oci"],
+"AUTOSCALER_MIN_SIZE_1": ["vsphere", "aws", "azure", "docker", "oci"],
+"AUTOSCALER_MAX_SIZE_1": ["vsphere", "aws", "azure", "docker", "oci"],
+"AUTOSCALER_MIN_SIZE_2": ["vsphere", "aws", "azure", "docker", "oci"],
+"AUTOSCALER_MAX_SIZE_2": ["vsphere", "aws", "azure", "docker", "oci"],
 
 "DOCKER_MACHINE_TEMPLATE_IMAGE": ["docker"],
 
-"IDENTITY_MANAGEMENT_TYPE": ["vsphere", "aws", "azure", "docker"],
-"CERT_DURATION": ["vsphere", "aws", "azure", "docker"],
-"CERT_RENEW_BEFORE": ["vsphere", "aws", "azure", "docker"],
-"OIDC_IDENTITY_PROVIDER_NAME": ["vsphere", "aws", "azure", "docker"],
-"OIDC_IDENTITY_PROVIDER_ISSUER_URL": ["vsphere", "aws", "azure", "docker"],
-"OIDC_IDENTITY_PROVIDER_CLIENT_ID": ["vsphere", "aws", "azure", "docker"],
-"OIDC_IDENTITY_PROVIDER_CLIENT_SECRET": ["vsphere", "aws", "azure", "docker"],
-"OIDC_IDENTITY_PROVIDER_SCOPES": ["vsphere", "aws", "azure", "docker"],
-"OIDC_IDENTITY_PROVIDER_USERNAME_CLAIM": ["vsphere", "aws", "azure", "docker"],
-"OIDC_IDENTITY_PROVIDER_GROUPS_CLAIM": ["vsphere", "aws", "azure", "docker"],
-"SUPERVISOR_ISSUER_URL": ["vsphere", "aws", "azure", "docker"],
-"SUPERVISOR_ISSUER_CA_BUNDLE_DATA_B64": ["vsphere", "aws", "azure", "docker"],
-"LDAP_BIND_DN": ["vsphere", "aws", "azure", "docker"],
-"LDAP_BIND_PASSWORD": ["vsphere", "aws", "azure", "docker"],
-"LDAP_HOST": ["vsphere", "aws", "azure", "docker"],
-"LDAP_USER_SEARCH_BASE_DN": ["vsphere", "aws", "azure", "docker"],
-"LDAP_USER_SEARCH_FILTER": ["vsphere", "aws", "azure", "docker"],
-"LDAP_USER_SEARCH_USERNAME": ["vsphere", "aws", "azure", "docker"],
-"LDAP_USER_SEARCH_ID_ATTRIBUTE": ["vsphere", "aws", "azure", "docker"],
-"LDAP_USER_SEARCH_EMAIL_ATTRIBUTE": ["vsphere", "aws", "azure", "docker"],
-"LDAP_USER_SEARCH_NAME_ATTRIBUTE": ["vsphere", "aws", "azure", "docker"],
-"LDAP_GROUP_SEARCH_BASE_DN": ["vsphere", "aws", "azure", "docker"],
-"LDAP_GROUP_SEARCH_FILTER": ["vsphere", "aws", "azure", "docker"],
-"LDAP_GROUP_SEARCH_USER_ATTRIBUTE": ["vsphere", "aws", "azure", "docker"],
-"LDAP_GROUP_SEARCH_GROUP_ATTRIBUTE": ["vsphere", "aws", "azure", "docker"],
-"LDAP_GROUP_SEARCH_NAME_ATTRIBUTE": ["vsphere", "aws", "azure", "docker"],
-"LDAP_ROOT_CA_DATA_B64": ["vsphere", "aws", "azure", "docker"],
+"IDENTITY_MANAGEMENT_TYPE": ["vsphere", "aws", "azure", "docker", "oci"],
+"CERT_DURATION": ["vsphere", "aws", "azure", "docker", "oci"],
+"CERT_RENEW_BEFORE": ["vsphere", "aws", "azure", "docker", "oci"],
+"OIDC_IDENTITY_PROVIDER_NAME": ["vsphere", "aws", "azure", "docker", "oci"],
+"OIDC_IDENTITY_PROVIDER_ISSUER_URL": ["vsphere", "aws", "azure", "docker", "oci"],
+"OIDC_IDENTITY_PROVIDER_CLIENT_ID": ["vsphere", "aws", "azure", "docker", "oci"],
+"OIDC_IDENTITY_PROVIDER_CLIENT_SECRET": ["vsphere", "aws", "azure", "docker", "oci"],
+"OIDC_IDENTITY_PROVIDER_SCOPES": ["vsphere", "aws", "azure", "docker", "oci"],
+"OIDC_IDENTITY_PROVIDER_USERNAME_CLAIM": ["vsphere", "aws", "azure", "docker", "oci"],
+"OIDC_IDENTITY_PROVIDER_GROUPS_CLAIM": ["vsphere", "aws", "azure", "docker", "oci"],
+"SUPERVISOR_ISSUER_URL": ["vsphere", "aws", "azure", "docker", "oci"],
+"SUPERVISOR_ISSUER_CA_BUNDLE_DATA_B64": ["vsphere", "aws", "azure", "docker", "oci"],
+"LDAP_BIND_DN": ["vsphere", "aws", "azure", "docker", "oci"],
+"LDAP_BIND_PASSWORD": ["vsphere", "aws", "azure", "docker", "oci"],
+"LDAP_HOST": ["vsphere", "aws", "azure", "docker", "oci"],
+"LDAP_USER_SEARCH_BASE_DN": ["vsphere", "aws", "azure", "docker", "oci"],
+"LDAP_USER_SEARCH_FILTER": ["vsphere", "aws", "azure", "docker", "oci"],
+"LDAP_USER_SEARCH_USERNAME": ["vsphere", "aws", "azure", "docker", "oci"],
+"LDAP_USER_SEARCH_ID_ATTRIBUTE": ["vsphere", "aws", "azure", "docker", "oci"],
+"LDAP_USER_SEARCH_EMAIL_ATTRIBUTE": ["vsphere", "aws", "azure", "docker", "oci"],
+"LDAP_USER_SEARCH_NAME_ATTRIBUTE": ["vsphere", "aws", "azure", "docker", "oci"],
+"LDAP_GROUP_SEARCH_BASE_DN": ["vsphere", "aws", "azure", "docker", "oci"],
+"LDAP_GROUP_SEARCH_FILTER": ["vsphere", "aws", "azure", "docker", "oci"],
+"LDAP_GROUP_SEARCH_USER_ATTRIBUTE": ["vsphere", "aws", "azure", "docker", "oci"],
+"LDAP_GROUP_SEARCH_GROUP_ATTRIBUTE": ["vsphere", "aws", "azure", "docker", "oci"],
+"LDAP_GROUP_SEARCH_NAME_ATTRIBUTE": ["vsphere", "aws", "azure", "docker", "oci"],
+"LDAP_ROOT_CA_DATA_B64": ["vsphere", "aws", "azure", "docker", "oci"],
 
 "AVI_ENABLE": ["vsphere"],
 "AVI_NAMESPACE": ["vsphere"],
@@ -278,19 +278,29 @@ return {
 "AVI_INGRESS_NODE_NETWORK_LIST": ["vsphere"],
 "AVI_CONTROL_PLANE_HA_PROVIDER": ["vsphere"],
 
-"ANTREA_NO_SNAT": ["vsphere", "aws", "azure", "docker"],
-"ANTREA_TRAFFIC_ENCAP_MODE": ["vsphere", "aws", "azure", "docker"],
-"ANTREA_PROXY": ["vsphere", "aws", "azure", "docker"],
-"ANTREA_ENDPOINTSLICE": ["vsphere", "aws", "azure", "docker"],
-"ANTREA_POLICY": ["vsphere", "aws", "azure", "docker"],
-"ANTREA_NODEPORTLOCAL": ["vsphere", "aws", "azure", "docker"],
-"ANTREA_TRACEFLOW": ["vsphere", "aws", "azure", "docker"],
-"ANTREA_DISABLE_UDP_TUNNEL_OFFLOAD": ["vsphere", "aws", "azure", "docker"],
+"ANTREA_NO_SNAT": ["vsphere", "aws", "azure", "docker", "oci"],
+"ANTREA_TRAFFIC_ENCAP_MODE": ["vsphere", "aws", "azure", "docker", "oci"],
+"ANTREA_PROXY": ["vsphere", "aws", "azure", "docker", "oci"],
+"ANTREA_ENDPOINTSLICE": ["vsphere", "aws", "azure", "docker", "oci"],
+"ANTREA_POLICY": ["vsphere", "aws", "azure", "docker", "oci"],
+"ANTREA_NODEPORTLOCAL": ["vsphere", "aws", "azure", "docker", "oci"],
+"ANTREA_TRACEFLOW": ["vsphere", "aws", "azure", "docker", "oci"],
+"ANTREA_DISABLE_UDP_TUNNEL_OFFLOAD": ["vsphere", "aws", "azure", "docker", "oci"],
 
-"PROVIDER_TYPE": ["vsphere", "aws", "azure", "tkg-service-vsphere", "docker"],
-"TKG_CLUSTER_ROLE": ["vsphere", "aws", "azure", "tkg-service-vsphere", "docker"],
-"TKG_VERSION": ["vsphere", "aws", "azure", "tkg-service-vsphere", "docker"],
-"CNI": ["vsphere", "aws", "azure", "docker"],
+"OCI_IMAGE_ID": ["oci"],
+"OCI_COMPARTMENT_ID": ["oci"],
+"OCI_NODE_MACHINE_TYPE": ["oci"],
+"OCI_NODE_MACHINE_TYPE_OCPUS": ["oci"],
+"OCI_SSH_KEY": ["oci"],
+"OCI_NODE_PV_TRANSIT_ENCRYPTION": ["oci"],
+"OCI_CONTROL_PLANE_MACHINE_TYPE": ["oci"],
+"OCI_CONTROL_PLANE_MACHINE_TYPE_OCPUS": ["oci"],
+"OCI_CONTROL_PLANE_PV_TRANSIT_ENCRYPTION": ["oci"],
+
+"PROVIDER_TYPE": ["vsphere", "aws", "azure", "tkg-service-vsphere", "docker", "oci"],
+"TKG_CLUSTER_ROLE": ["vsphere", "aws", "azure", "tkg-service-vsphere", "docker", "oci"],
+"TKG_VERSION": ["vsphere", "aws", "azure", "tkg-service-vsphere", "docker", "oci"],
+"CNI": ["vsphere", "aws", "azure", "docker", "oci"],
 "VSPHERE_VERSION": ["vsphere"],
 }
 
@@ -829,5 +839,28 @@ def get_vsphere_vars():
         vars["worker"] = worker
     end
 
+    return vars
+end
+
+def get_oci_vars():
+
+    simpleMapping = {}
+    simpleMapping["OCI_IMAGE_ID"] = "imageId"
+    simpleMapping["OCI_COMPARTMENT_ID"] = "compartmentId"
+    simpleMapping["OCI_SSH_KEY"] = "sshKey"
+    simpleMapping["OCI_NODE_MACHINE_TYPE"] = "nodeMachineShape"
+    simpleMapping["OCI_NODE_MACHINE_TYPE_OCPUS"] = "nodeMachineOcpus"
+    simpleMapping["OCI_NODE_PV_TRANSIT_ENCRYPTION"] = "nodePvTransitEncryption"
+    simpleMapping["OCI_CONTROL_PLANE_MACHINE_TYPE"] = "controlPlaneMachineShape"
+    simpleMapping["OCI_CONTROL_PLANE_MACHINE_TYPE_OCPUS"] = "controlPlaneMachineOcpus"
+    simpleMapping["OCI_CONTROL_PLANE_PV_TRANSIT_ENCRYPTION"] = "controlPlanePvTransitEncryption"
+
+    vars = get_cluster_variables()
+
+    for key in simpleMapping:
+        if data.values[key] != None:
+            vars[simpleMapping[key]] = data.values[key]
+        end
+    end
     return vars
 end

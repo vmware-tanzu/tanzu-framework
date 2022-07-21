@@ -85,20 +85,6 @@ type NSXT struct {
 	RootCAData *string `json:"rootCAData,omitempty"`
 }
 
-type Proxy struct {
-	// HTTP proxy setting
-	// +kubebuilder:validation:Optional
-	HTTPProxy *string `json:"http_proxy,omitempty"`
-
-	// HTTPS proxy setting
-	// +kubebuilder:validation:Optional
-	HTTPSProxy *string `json:"https_proxy,omitempty"`
-
-	// No-proxy setting
-	// +kubebuilder:validation:Optional
-	NoProxy *string `json:"no_proxy,omitempty"`
-}
-
 type NonParavirtualConfig struct {
 
 	// The IP address or FQDN of the vSphere endpoint

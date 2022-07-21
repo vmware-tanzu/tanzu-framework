@@ -1,0 +1,14 @@
+apiVersion: data.packaging.carvel.dev/v1alpha1
+kind: PackageMetadata
+metadata:
+  name: cluster-api-provider-oci.tanzu.vmware.com
+  namespace: cluster-api-provider-oci
+spec:
+  displayName: "cluster-api-provider-oci"
+  longDescription: "Cluster API Provider OCI provides consistent deployment and day 2 operations of 'self-managed' Kubernetes clusters on OCI"
+  shortDescription: "Cluster management for OCI"
+  providerName: VMware
+  maintainers:
+    - name: ""
+  categories:
+    - "cluster management"

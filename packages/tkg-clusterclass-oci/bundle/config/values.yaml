@@ -1,0 +1,15 @@
+#@data/values
+
+#@overlay/match-child-defaults missing_ok=True
+---
+
+#! User configurable values for tkg-clusterclass-oci
+
+ENABLE_MHC: true
+ENABLE_MHC_WORKER_NODE: true
+ENABLE_MHC_CONTROL_PLANE: true
+MHC_UNKNOWN_STATUS_TIMEOUT: 5m
+MHC_FALSE_STATUS_TIMEOUT: 12m
+NODE_STARTUP_TIMEOUT: 20m
+NAMESPACE: tkg-system
+CNI: antrea

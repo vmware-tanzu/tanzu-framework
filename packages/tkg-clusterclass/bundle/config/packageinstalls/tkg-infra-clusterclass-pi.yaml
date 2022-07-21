@@ -16,6 +16,9 @@
 #@ if data.values.clusterclassInfraPackageValues.infraProvider == "vsphere":
 #@   return "tkg-clusterclass-vsphere"
 #@ end
+#@ if data.values.clusterclassInfraPackageValues.infraProvider == "oci":
+#@   return "tkg-clusterclass-oci.tanzu.vmware.com"
+#@ end
 
 #@ end
 
@@ -32,6 +35,9 @@
 #@ end
 #@ if data.values.clusterclassInfraPackageValues.infraProvider == "vsphere":
 #@   return "tkg-clusterclass-vsphere.tanzu.vmware.com"
+#@ end
+#@ if data.values.clusterclassInfraPackageValues.infraProvider == "oci":
+#@   return "tkg-clusterclass-oci.tanzu.vmware.com"
 #@ end
 
 #@ end
