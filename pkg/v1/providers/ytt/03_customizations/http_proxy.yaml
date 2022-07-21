@@ -15,7 +15,7 @@
 #@ end
 
 #@ def exportEnvvar(key, val):
-#@ return "export {}={}".format(key, val)
+#@ return "export {}='{}'".format(key, val)
 #@ end
 
 #@ if data.values.TKG_HTTP_PROXY != "":
