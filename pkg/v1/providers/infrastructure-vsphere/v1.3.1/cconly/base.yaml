@@ -711,7 +711,7 @@ spec:
                     value: "20"
                   - name: vip_retryperiod
                     value: "4"
-                  image: {{(index .TKR_DATA .builtin.controlPlane.version).kubernetesSpec.imageRepository}}/kube-vip:{{(index (index .TKR_DATA .builtin.controlPlane.version).kubernetesSpec "kube-vip").imageTag}}
+                  image: {{(index (index .TKR_DATA .builtin.controlPlane.version).kubernetesSpec "kube-vip").imageRepository}}/kube-vip:{{(index (index .TKR_DATA .builtin.controlPlane.version).kubernetesSpec "kube-vip").imageTag}}
                   imagePullPolicy: IfNotPresent
                   name: kube-vip
                   resources: {}
