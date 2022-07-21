@@ -240,6 +240,9 @@ const (
 	ConfigVariableInternalCAPZManagerImageTag     = "CAPZ_CONTROLLER_IMAGE_TAG"
 	ConfigVariableInternalNMIImageTag             = "NMI_IMAGE_TAG"
 
+	// Other variables related to provider installation
+	ConfigVariableClusterTopology = "CLUSTER_TOPOLOGY"
+
 	ConfigVariablePackageInstallTimeout = "PACKAGE_INSTALL_TIMEOUT"
 
 	// Windows specific variables
