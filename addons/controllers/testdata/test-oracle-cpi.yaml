@@ -1,0 +1,31 @@
+apiVersion: cluster.x-k8s.io/v1beta1
+kind: Cluster
+metadata:
+  name: test-cluster-cpi
+  namespace: default
+spec:
+  infrastructureRef:
+    kind: OCICluster
+---
+apiVersion: cpi.tanzu.vmware.com/v1alpha1
+kind: OracleCPIConfig
+metadata:
+  name: test-cluster-cpi
+spec:
+  compartment: test-compartment
+  vcn: test-vcn
+  loadBalancer:
+    subnet1: ocid1.subnet.oc1.phx.aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+    subnet2: ocid1.subnet.oc1.phx.bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+    securityListManagementMode: Frontend
+---
+apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+kind: OCICluster
+metadata:
+  labels:
+    cluster.x-k8s.io/cluster-name: test-cluster-cpi-paravirtual
+    topology.cluster.x-k8s.io/owned: ""
+  name: test-cluster-cpi-paravirtual-kl5tl
+  namespace: default
+spec:
+  region: us-sanjose-1

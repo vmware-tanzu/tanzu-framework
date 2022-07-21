@@ -29,6 +29,9 @@ const (
 	// CPIAddonName is name of the cloud-provider-vsphere addon
 	CPIAddonName = "vsphere-cpi"
 
+	// OracleCPIAddonName is name of the Oracle CPI & CSI addon
+	OracleCPIAddonName = "oracle-cpi"
+
 	// PVCSIAddonName is name of the vsphere-pv-csi addon
 	PVCSIAddonName = "vsphere-pv-csi"
 
@@ -253,6 +256,9 @@ var (
 
 	// VSphereCPIConfigKind is the Kind for cpi VSphereCPIConfig object
 	VSphereCPIConfigKind = reflect.TypeOf(cpiv1alpha1.VSphereCPIConfig{}).Name()
+
+	// OracleCPIConfigKind is the Kind for cpi OracleCPIConfig object
+	OracleCPIConfigKind = reflect.TypeOf(cpiv1alpha1.OracleCPIConfig{}).Name()
 
 	// KappControllerConfigKind is the Kind for KappControllerConfig object
 	KappControllerConfigKind = reflect.TypeOf(runv1alpha3.KappControllerConfig{}).Name()

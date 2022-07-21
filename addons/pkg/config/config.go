@@ -69,6 +69,11 @@ type VSphereCPIConfigControllerConfig struct {
 	ConfigControllerConfig
 }
 
+// OracleCPIConfigControllerConfig contains configuration information of OracleCPIConfig controller
+type OracleCPIConfigControllerConfig struct {
+	ConfigControllerConfig
+}
+
 // VSphereCSIConfigControllerConfig contains configuration information of VSphereCSIConfig controller
 type VSphereCSIConfigControllerConfig struct {
 	ConfigControllerConfig

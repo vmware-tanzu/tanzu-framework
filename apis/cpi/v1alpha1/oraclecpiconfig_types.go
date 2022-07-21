@@ -79,7 +79,7 @@ type OracleCPIConfigStatus struct {
 //+kubebuilder:printcolumn:name="Name",type="string",JSONPath=".spec.namespace",description="The name of the oraclecpiconfigs"
 //+kubebuilder:printcolumn:name="Secret",type="string",JSONPath=".status.secretRef",description="Name of the kapp-controller data values secret"
 
-// OracleCPIConfig is the Schema for the VSphereCPIConfig API
+// OracleCPIConfig is the Schema for the OracleCPIConfig API
 type OracleCPIConfig struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`

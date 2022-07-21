@@ -10,6 +10,9 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/go-logr/logr"
+	"sigs.k8s.io/controller-runtime/pkg/client"
+
 	"github.com/pkg/errors"
 	v1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
@@ -351,12 +354,13 @@ func (r *VSphereCPIConfigReconciler) mapCPIConfigToProviderServiceAccountSpec(vs
 	}
 }
 
-// getOwnerCluster verifies that the VSphereCPIConfig has a cluster as its owner reference,
-// and returns the cluster. It tries to read the cluster name from the VSphereCPIConfig's owner reference objects.
-// If not there, we assume the owner cluster and VSphereCPIConfig always has the same name.
-func (r *VSphereCPIConfigReconciler) getOwnerCluster(ctx context.Context, cpiConfig *cpiv1alpha1.VSphereCPIConfig) (*clusterapiv1beta1.Cluster, error) {
+// getOwnerCluster verifies that the CPIConfig has a cluster as its owner reference,
+// and returns the cluster. It tries to read the cluster name from the CPIConfig's owner reference objects.
+// If not there, we assume the owner cluster and CPIConfig always has the same name.
+func getOwnerCluster(ctx context.Context, client client.Client, logger logr.Logger, cpiConfig client.Object) (*clusterapiv1beta1.Cluster, error) {
 	cluster := &clusterapiv1beta1.Cluster{}
-	clusterName := cpiConfig.Name
+	clusterName := cpiConfig.GetName()
+	clusterNamespace := cpiConfig.GetNamespace()
 
 	// retrieve the owner cluster for the VSphereCPIConfig object
 	for _, ownerRef := range cpiConfig.GetOwnerReferences() {
@@ -365,15 +369,15 @@ func (r *VSphereCPIConfigReconciler) getOwnerCluster(ctx context.Context, cpiCon
 			break
 		}
 	}
-	if err := r.Client.Get(ctx, types.NamespacedName{Namespace: cpiConfig.Namespace, Name: clusterName}, cluster); err != nil {
+	if err := client.Get(ctx, types.NamespacedName{Namespace: clusterNamespace, Name: clusterName}, cluster); err != nil {
 		if apierrors.IsNotFound(err) {
-			r.Log.Info(fmt.Sprintf("Cluster resource '%s/%s' not found", cpiConfig.Namespace, clusterName))
+			logger.Info(fmt.Sprintf("Cluster resource '%s/%s' not found", clusterNamespace, clusterName))
 			return nil, nil
 		}
-		r.Log.Error(err, fmt.Sprintf("Unable to fetch cluster '%s/%s'", cpiConfig.Namespace, clusterName))
+		logger.Error(err, fmt.Sprintf("Unable to fetch cluster '%s/%s'", clusterNamespace, clusterName))
 		return nil, err
 	}
-	r.Log.Info(fmt.Sprintf("Cluster resource '%s/%s' is successfully found", cpiConfig.Namespace, clusterName))
+	logger.Info(fmt.Sprintf("Cluster resource '%s/%s' is successfully found", clusterNamespace, clusterName))
 	return cluster, nil
 }
 
