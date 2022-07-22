@@ -336,7 +336,7 @@ end
 # get_labels_map_from_string constructs a map from given string of the format "key1=label1,key2=label2"
 def get_labels_map_from_string(labelString):
    labelMap = {}
-   for val in labelString.split(','):
+   for val in regexp.replace(" ", labelString, "").split(','):
     kv = val.split('=')
     if len(kv) != 2:
       assert.fail("given labels string \""+labelString+"\" must be in the  \"key1=label1,key2=label2\" format ")
