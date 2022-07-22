@@ -12,11 +12,11 @@ import (
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	"sigs.k8s.io/cluster-api/util"
-
+	cniv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cni/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/test/framework"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgctl"
+	"sigs.k8s.io/cluster-api/util"
 )
 
 const TKC_KIND = "kind: TanzuKubernetesCluster"
@@ -40,7 +40,7 @@ var _ = Describe("TKGS - Create workload cluster use cases", func() {
 			})
 			When("cluster class cli feature flag (features.global.package-based-lcm-beta) is set to true", func() {
 				BeforeEach(func() {
-					//set the cli feature flag as true -  (features.global.package-based-lcm-beta)
+					// set the cli feature flag as true -  (features.global.package-based-lcm-beta)
 					Expect(framework.SetCliConfigFlag(CLI_CLUSTERCLASS_FLAG, "true")).To(Succeed(), "error while setting CLI ClusterClass flag")
 					tkgctlClient, err = tkgctl.New(tkgctlOptions)
 					Expect(err).To(BeNil())
@@ -61,7 +61,7 @@ var _ = Describe("TKGS - Create workload cluster use cases", func() {
 			})
 			When("cluster class cli feature flag (features.global.package-based-lcm-beta) is set to false", func() {
 				BeforeEach(func() {
-					//set the cli feature flag as false -  (features.global.package-based-lcm-beta)
+					// set the cli feature flag as false -  (features.global.package-based-lcm-beta)
 					Expect(framework.SetCliConfigFlag(CLI_CLUSTERCLASS_FLAG, "false")).To(Succeed(), "error while setting CLI ClusterClass flag")
 					tkgctlClient, err = tkgctl.New(tkgctlOptions)
 					Expect(err).To(BeNil())
@@ -93,7 +93,7 @@ var _ = Describe("TKGS - Create workload cluster use cases", func() {
 			})
 			When("cluster class cli feature flag (features.global.package-based-lcm-beta) is set to true", func() {
 				BeforeEach(func() {
-					//set the cli feature flag as true -  (features.global.package-based-lcm-beta)
+					// set the cli feature flag as true -  (features.global.package-based-lcm-beta)
 					Expect(framework.SetCliConfigFlag(CLI_CLUSTERCLASS_FLAG, "true")).To(Succeed(), "error while setting CLI ClusterClass flag")
 					tkgctlClient, err = tkgctl.New(tkgctlOptions)
 					Expect(err).To(BeNil())
@@ -104,7 +104,7 @@ var _ = Describe("TKGS - Create workload cluster use cases", func() {
 			})
 			When("cluster class cli feature flag (features.global.package-based-lcm-beta) is set to false", func() {
 				BeforeEach(func() {
-					//set the cli feature flag as false -  (features.global.package-based-lcm-beta)
+					// set the cli feature flag as false -  (features.global.package-based-lcm-beta)
 					Expect(framework.SetCliConfigFlag(CLI_CLUSTERCLASS_FLAG, "false")).To(Succeed(), "error while setting CLI ClusterClass flag")
 					tkgctlClient, err = tkgctl.New(tkgctlOptions)
 					Expect(err).To(BeNil())
@@ -131,43 +131,128 @@ var _ = Describe("TKGS - Create workload cluster use cases", func() {
 		})
 		When("cluster class cli feature flag (features.global.package-based-lcm-beta) is set to true", func() {
 			BeforeEach(func() {
-				//set the cli feature flag as true -  (features.global.package-based-lcm-beta)
+				// set the cli feature flag as true -  (features.global.package-based-lcm-beta)
 				Expect(framework.SetCliConfigFlag(CLI_CLUSTERCLASS_FLAG, "true")).To(Succeed(), "error while setting CLI feature flag")
 				tkgctlClient, err = tkgctl.New(tkgctlOptions)
 				Expect(err).To(BeNil())
 			})
 			It("should return success or error based on the ClusterClass feature-gate status on the Supervisor", func() {
-				createClusterClassBasedClusterTest(tkgctlClient, deleteClusterOptions, true, clusterName, namespace)
+				createClusterClassBasedCluster(tkgctlClient, true, clusterName, namespace)
+				deleteClusterClassBasedCluster(tkgctlClient, deleteClusterOptions, clusterName, namespace)
 			})
 		})
 		When("cluster class cli feature flag (features.global.package-based-lcm-beta) is set to false", func() {
 			BeforeEach(func() {
-				//set the cli feature flag as false -  (features.global.package-based-lcm-beta)
+				// set the cli feature flag as false -  (features.global.package-based-lcm-beta)
 				Expect(framework.SetCliConfigFlag(CLI_CLUSTERCLASS_FLAG, "false")).To(Succeed(), "error while setting CLI ClusterClass flag")
 				tkgctlClient, err = tkgctl.New(tkgctlOptions)
 				Expect(err).To(BeNil())
 			})
 			It("should return success or error based on the ClusterClass feature-gate status on the Supervisor", func() {
-				createClusterClassBasedClusterTest(tkgctlClient, deleteClusterOptions, false, clusterName, namespace)
+				createClusterClassBasedCluster(tkgctlClient, false, clusterName, namespace)
+				deleteClusterClassBasedCluster(tkgctlClient, deleteClusterOptions, clusterName, namespace)
+			})
+		})
+		When("custom Cluster Bootstrap is used", func() {
+			BeforeEach(func() {
+				// Use the custom cluster bootstrap cluster class file to load the configuration
+				clusterName, namespace = ValidateClusterClassConfigFile(e2eConfig.WorkloadClusterOptions.ClusterClassCBFilePath)
+				e2eConfig.WorkloadClusterOptions.Namespace = namespace
+				e2eConfig.WorkloadClusterOptions.ClusterName = clusterName
+				deleteClusterOptions = getDeleteClustersOptions(e2eConfig)
+				clusterOptions.ClusterConfigFile = e2eConfig.WorkloadClusterOptions.ClusterClassCBFilePath
+				clusterOptions.ClusterName = e2eConfig.WorkloadClusterOptions.ClusterName
+				clusterOptions.Namespace = e2eConfig.WorkloadClusterOptions.Namespace
+
+				// set the cli feature flag as true -  (features.global.package-based-lcm-beta)
+				Expect(framework.SetCliConfigFlag(CLI_CLUSTERCLASS_FLAG, "true")).To(Succeed(), "error while setting CLI feature flag")
+				tkgctlClient, err = tkgctl.New(tkgctlOptions)
+				Expect(err).To(BeNil())
+			})
+			FIt("should return success or error based on the ClusterClass feature-gate status on the Supervisor", func() {
+
+				createClusterClassBasedCluster(tkgctlClient, true, clusterName, namespace)
+				/* Note: Currently not able to use CheckClusterCB function becuase the management cluster details required are not available
+
+				var clusterResources []shared.ClusterResource
+
+				By(fmt.Sprintf("Get k8s client for management cluster %q", clusterName))
+				mngkubeConfigFileName := clusterName + ".kubeconfig"
+				mngTempFilePath := filepath.Join(os.TempDir(), mngkubeConfigFileName)
+				err = tkgctlClient.GetCredentials(tkgctl.GetWorkloadClusterCredentialsOptions{
+					ClusterName: clusterName,
+					Namespace:   namespace,
+					ExportFile:  mngTempFilePath,
+				})
+				Expect(err).To(BeNil())
+
+				By(fmt.Sprintf("Get k8s client for management cluster %q", clusterName))
+				mngClient, mngDynamicClient, mngAggregatedAPIResourcesClient, mngDiscoveryClient, err := shared.GetClients(context.Background(), mngTempFilePath)
+				Expect(err).NotTo(HaveOccurred())
+
+				By(fmt.Sprintf("Generating credentials for workload cluster %q", e2eConfig.WorkloadClusterOptions.ClusterName))
+				wlcKubeConfigFileName := e2eConfig.WorkloadClusterOptions.ClusterName + ".kubeconfig"
+				wlcTempFilePath := filepath.Join(os.TempDir(), wlcKubeConfigFileName)
+				err = tkgctlClient.GetCredentials(tkgctl.GetWorkloadClusterCredentialsOptions{
+					ClusterName: clusterName,
+					Namespace:   namespace,
+					ExportFile:  wlcTempFilePath,
+				})
+				Expect(err).To(BeNil())
+
+				By(fmt.Sprintf("Get k8s client for workload cluster %q", clusterName))
+				wlcClient, _, _, _, err := shared.GetClients(context.Background(), wlcTempFilePath)
+				Expect(err).NotTo(HaveOccurred())
+
+				By(fmt.Sprintf("Verify addon packages on management cluster %q matches clusterBootstrap info on management cluster %q", clusterName, clusterName))
+				err = shared.CheckClusterCB(context.Background(), mngClient, wlcClient, clusterName, namespace, "", "", e2eConfig.InfrastructureName, true)
+				Expect(err).To(BeNil())
+
+				By(fmt.Sprintf("Verify addon packages on workload cluster %q matches clusterBootstrap info on management cluster %q", e2eConfig.WorkloadClusterOptions.ClusterName, clusterName))
+				err = shared.CheckClusterCB(context.Background(), mngClient, wlcClient, clusterName, namespace, clusterName, namespace, e2eConfig.InfrastructureName, false)
+				Expect(err).To(BeNil())
+
+				By(fmt.Sprintf("Get management cluster resources created by addons-manager for workload cluster %q on management cluster %q", e2eConfig.WorkloadClusterOptions.ClusterName, clusterName))
+				clusterResources, err = shared.GetManagementClusterResources(context.Background(), mngClient, mngDynamicClient, mngAggregatedAPIResourcesClient, mngDiscoveryClient, namespace, clusterName, e2eConfig.InfrastructureName)
+				Expect(err).NotTo(HaveOccurred())
+				Expect(clusterResources).ToNot(BeEmpty())
+				*/
+
+				clusterClient := framework.GetClusterclient(e2eConfig.TKGSKubeconfigPath, e2eConfig.TKGSKubeconfigContext)
+				config := &cniv1alpha1.AntreaConfig{}
+				err := clusterClient.GetResource(config, clusterName, namespace, nil, nil)
+				Expect(err).NotTo(BeNil())
+				Expect(config.Spec.Antrea.AntreaConfigDataValue.FeatureGates.AntreaTraceflow).Should(Equal(false))
+
+				deleteClusterClassBasedCluster(tkgctlClient, deleteClusterOptions, clusterName, namespace)
+
 			})
 		})
 	})
 })
 
 // createClusterClassBasedClusterTest creates and deletes (if created successfully) workload cluster
-func createClusterClassBasedClusterTest(tkgctlClient tkgctl.TKGClient, deleteClusterOptions tkgctl.DeleteClustersOptions, cliFlag bool, clusterName, namespace string) {
+func createClusterClassBasedCluster(tkgctlClient tkgctl.TKGClient, cliFlag bool, clusterName, namespace string) {
 	if isClusterClassFeatureActivated {
 		By(fmt.Sprintf("creating Cluster class based workload cluster, ClusterClass feature-gate is activated and cli feature flag set %v", cliFlag))
 		err = tkgctlClient.CreateCluster(clusterOptions)
-		Expect(err).To(BeNil())
-		By(fmt.Sprintf("deleting cluster class based workload cluster %v in namespace: %v", clusterName, namespace))
-		err = tkgctlClient.DeleteCluster(deleteClusterOptions)
 		Expect(err).To(BeNil())
 	} else {
 		By(fmt.Sprintf("creating Cluster class based workload cluster, ClusterClass feature-gate is deactivated and cli feature flag set %v", cliFlag))
 		err = tkgctlClient.CreateCluster(clusterOptions)
 		Expect(err).NotTo(BeNil())
 		Expect(err.Error()).To(ContainSubstring(fmt.Sprintf(constants.ErrorMsgFeatureGateNotActivated, constants.ClusterClassFeature, constants.TKGSClusterClassNamespace)))
+	}
+}
+
+// deleteClusterClassBasedCluster deletes workload cluster
+func deleteClusterClassBasedCluster(tkgctlClient tkgctl.TKGClient, deleteClusterOptions tkgctl.DeleteClustersOptions, clusterName, namespace string) {
+	if isClusterClassFeatureActivated {
+		By(fmt.Sprintf("deleting cluster class based workload cluster %v in namespace: %v", clusterName, namespace))
+		err = tkgctlClient.DeleteCluster(deleteClusterOptions)
+		Expect(err).To(BeNil())
+	} else {
+		// TODO: Delete cluster when feature is not activated
 	}
 }
 

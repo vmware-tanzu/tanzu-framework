@@ -89,6 +89,7 @@ require (
 	github.com/vmware-tanzu/carvel-secretgen-controller v0.5.0
 	github.com/vmware-tanzu/carvel-vendir v0.26.0
 	github.com/vmware-tanzu/carvel-ytt v0.40.0
+	github.com/vmware-tanzu/tanzu-framework/apis/cni v0.0.0-00010101000000-000000000000
 	github.com/vmware/govmomi v0.27.1
 	github.com/yalp/jsonpath v0.0.0-20180802001716-5cc68e5049a0
 	go.uber.org/multierr v1.6.0

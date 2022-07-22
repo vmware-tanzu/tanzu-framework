@@ -20,3 +20,4 @@ workload_cluster_options:
   WORKER_VM_CLASS: "best-effort-small"
   NODE_POOL_0_NAME: "workers-name-overwrite"
   CLUSTER_CLASS_FILE_PATH: /Users/clusterClass.yaml
+  CLUSTER_CLASS_CB_FILE_PATH: ../test/data/testdata/customClusterBootstrapAntrea.yaml
