@@ -11,6 +11,7 @@ import (
 	"path/filepath"
 
 	"github.com/spf13/cobra"
+	"golang.org/x/sync/errgroup"
 
 	"github.com/vmware-tanzu/tanzu-framework/hack/packages/package-tools/constants"
 	"github.com/vmware-tanzu/tanzu-framework/hack/packages/package-tools/utils"
@@ -50,33 +51,43 @@ func runPackageVendirSync(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("couldn't read packages directory: %w", err)
 	}
 
+	var g errgroup.Group
+
+outer:
 	for _, file := range files {
-		if file.IsDir() {
-			for _, repo := range pkgRepos {
-				if packagesContains(packageValues.Repositories[repo].Packages, file.Name()) {
-					fmt.Printf("Syncing package %s\n", file.Name())
-					packagePath := filepath.Join(packagesPath, file.Name())
-					if err := syncPackage(packagePath, toolsBinDir); err != nil {
+		if !file.IsDir() {
+			continue
+		}
+		for _, repo := range pkgRepos {
+			if packagesContains(packageValues.Repositories[repo].Packages, file.Name()) {
+				packagePath := filepath.Join(packagesPath, file.Name())
+
+				// Skip if vendir.yml doesn't exist in package.
+				if _, err := os.Stat(filepath.Join(packagePath, "vendir.yml")); err != nil {
+					if os.IsNotExist(err) {
+						fmt.Printf("No vendir.yml found in package %q. Skipping vendir sync...\n", file.Name())
+						continue outer
+					} else {
 						return err
 					}
 				}
+
+				fmt.Printf("Syncing package %q\n", file.Name())
+				g.Go(func() error {
+					return syncPackage(packagePath, toolsBinDir)
+				})
 			}
 		}
 	}
-	return nil
+	return g.Wait()
 }
 
 func syncPackage(packagePath, toolsBinDir string) error {
-	err := os.Chdir(packagePath)
-	if err != nil {
-		return fmt.Errorf("couldn't change to directory %s: %w", packagePath, err)
-	}
-
-	cmd := exec.Command(filepath.Join(toolsBinDir, "vendir"), "sync") // #nosec G204
+	cmd := exec.Command(filepath.Join(toolsBinDir, "vendir"), "sync", "--chdir", packagePath) // #nosec G204
 	var errBytes bytes.Buffer
 	cmd.Stderr = &errBytes
 	if err := cmd.Run(); err != nil {
-		return fmt.Errorf("couldn't vendir sync package: %s", errBytes.String())
+		return fmt.Errorf("couldn't vendir sync package %q: %s", filepath.Base(packagePath), errBytes.String())
 	}
 	return nil
 }
