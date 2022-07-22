@@ -221,6 +221,8 @@ func (r *Reconciler) overwrite(targetObj, sourceObj client.Object) error {
 	}
 	restoreMeta(targetObj, orig)
 
+	targetObj.SetOwnerReferences(nil)
+
 	return nil
 }
 
