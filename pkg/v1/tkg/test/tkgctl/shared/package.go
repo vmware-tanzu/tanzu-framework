@@ -267,7 +267,7 @@ func verifyClusterBootstrap(ctx context.Context, c client.Client, clusterBootstr
 		expectedClusterBootstrap.Spec.CNI.ValuesFrom.ProviderRef = &corev1.TypedLocalObjectReference{
 			APIGroup: &apiGroup,
 			Kind:     "CalicoConfig",
-			Name:     GeneratePackageSecretName(clusterBootstrap.Name, "calico"),
+			Name:     clusterBootstrap.Name,
 		}
 	}
 
