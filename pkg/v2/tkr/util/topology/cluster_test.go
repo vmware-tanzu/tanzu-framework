@@ -24,6 +24,8 @@ func TestClusterVariables(t *testing.T) {
 const (
 	varA = "A"
 	varB = "B"
+	varC = "C"
+	varD = "D"
 )
 
 type AData struct {
@@ -47,6 +49,8 @@ var _ = Describe("Cluster variable getters and setters", func() {
 		clusterClass.Spec.Variables = []clusterv1.ClusterClassVariable{
 			{Name: varA},
 			{Name: varB},
+			{Name: varC},
+			// D does not exist
 		}
 		cluster = &clusterv1.Cluster{
 			ObjectMeta: metav1.ObjectMeta{
@@ -79,10 +83,28 @@ var _ = Describe("Cluster variable getters and setters", func() {
 							Name:  varB,
 							Value: apiextensionsv1.JSON{Raw: []byte(`{"bar":"foo"}`)},
 						},
+						// C is not set
 					},
 				},
 			},
 		}
+	})
+
+	Describe("GetVariable()", func() {
+		When("the variable is not set", func() {
+			It("should set the target var to nil", func() {
+				data := &AData{}
+				Expect(GetVariable(cluster, varC, &data)).To(Succeed())
+				Expect(data).To(BeNil())
+			})
+		})
+		When("the variable does not exist", func() {
+			It("should set the target var to nil", func() {
+				data := &AData{}
+				Expect(GetVariable(cluster, varD, &data)).To(Succeed())
+				Expect(data).To(BeNil())
+			})
+		})
 	})
 
 	Describe("SetMDVariable()", func() {

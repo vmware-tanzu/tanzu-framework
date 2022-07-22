@@ -13,6 +13,7 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	"github.com/pkg/errors"
+	apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -68,6 +69,9 @@ var _ = Describe("cluster.Webhook", func() {
 		cw = &Webhook{
 			TKRResolver: tkrResolver,
 			Log:         logr.Discard(),
+			Config: Config{
+				CustomImageRepositoryCCVar: "imageRepository",
+			},
 		}
 
 		clusterClass = &clusterv1.ClusterClass{
@@ -78,6 +82,9 @@ var _ = Describe("cluster.Webhook", func() {
 		}
 		clusterClass.Spec.Variables = append(clusterClass.Spec.Variables, clusterv1.ClusterClassVariable{
 			Name: VarTKRData,
+		})
+		clusterClass.Spec.Variables = append(clusterClass.Spec.Variables, clusterv1.ClusterClassVariable{
+			Name: cw.Config.CustomImageRepositoryCCVar,
 		})
 		cluster = &clusterv1.Cluster{
 			ObjectMeta: metav1.ObjectMeta{
@@ -223,7 +230,7 @@ var _ = Describe("cluster.Webhook", func() {
 					BeforeEach(func() {
 						getMap(&cluster.Labels)[runv1.LabelTKR] = tkr.Name
 						tkrData := TKRData{}
-						tkrData[tkr.Spec.Kubernetes.Version] = tkrDataValue(tkr, osImage)
+						tkrData[tkr.Spec.Kubernetes.Version] = tkrDataValue("", tkr, osImage)
 						Expect(topology.SetVariable(cluster, VarTKRData, tkrData)).To(Succeed())
 					})
 
@@ -334,6 +341,10 @@ var _ = Describe("cluster.Webhook", func() {
 	})
 
 	Context("ResolveAndSetMetadata()", func() {
+		var (
+			customImageRepository = ""
+		)
+
 		When("'resolve-tkr' annotation is not present", func() {
 			It("should not do anything", func() {
 				cluster0 := cluster.DeepCopy()
@@ -370,6 +381,11 @@ var _ = Describe("cluster.Webhook", func() {
 				const uniqueRefField = "no-other-osimage-has-this"
 				BeforeEach(func() {
 					tkr = testdata.ChooseTKR(tkrs)
+					// make sure this TKR is resolved for this cluster
+					uniqueTKRLabel := rand.String(10)
+					getMap(&tkr.Labels)[uniqueTKRLabel] = ""
+					getMap(&cluster.Annotations)[runv1.AnnotationResolveTKR] = uniqueTKRLabel
+
 					osImage = osImages[tkr.Spec.OSImages[rand.Intn(len(tkr.Spec.OSImages))].Name]
 
 					conditions.MarkTrue(tkr, runv1.ConditionCompatible)
@@ -385,6 +401,14 @@ var _ = Describe("cluster.Webhook", func() {
 
 					cluster.Spec.Topology = &clusterv1.Topology{}
 					cluster.Spec.Topology.Version = k8sVersionPrefix
+
+					if rand.Intn(2) != 0 {
+						customImageRepository = rand.String(10)
+					}
+					cluster.Spec.Topology.Variables = []clusterv1.ClusterVariable{{
+						Name:  cw.Config.CustomImageRepositoryCCVar,
+						Value: apiextensionsv1.JSON{Raw: []byte(fmt.Sprintf(`{"host": "%s"}`, customImageRepository))},
+					}}
 					getMap(&cluster.Spec.Topology.ControlPlane.Metadata.Annotations)[runv1.AnnotationResolveOSImage] = osImageSelectorStr
 				})
 
@@ -392,7 +416,7 @@ var _ = Describe("cluster.Webhook", func() {
 					BeforeEach(func() {
 						getMap(&cluster.Labels)[runv1.LabelTKR] = tkr.Name
 						tkrData := TKRData{}
-						tkrData[tkr.Spec.Kubernetes.Version] = tkrDataValue(tkr, osImage)
+						tkrData[tkr.Spec.Kubernetes.Version] = tkrDataValue(customImageRepository, tkr, osImage)
 						Expect(topology.SetVariable(cluster, VarTKRData, tkrData)).To(Succeed())
 					})
 
@@ -432,14 +456,17 @@ var _ = Describe("cluster.Webhook", func() {
 				})
 
 				When("the TKR has been successfully resolved", func() {
-					It("should set TKR_DATA cluster variable", func() {
-						err := cw.ResolveAndSetMetadata(cluster, clusterClass)
-						Expect(err).ToNot(HaveOccurred())
-						var tkrData TKRData
-						Expect(topology.GetVariable(cluster, VarTKRData, &tkrData)).To(Succeed())
-						Expect(tkrData).ToNot(BeNil())
-						Expect(tkrData).To(HaveKey(tkr.Spec.Kubernetes.Version))
-						Expect(tkrData[tkr.Spec.Kubernetes.Version].KubernetesSpec).To(Equal(tkr.Spec.Kubernetes))
+					repeat(100, func() {
+						It("should set TKR_DATA cluster variable", func() {
+							err := cw.ResolveAndSetMetadata(cluster, clusterClass)
+							Expect(err).ToNot(HaveOccurred())
+							var tkrData TKRData
+							Expect(topology.GetVariable(cluster, VarTKRData, &tkrData)).To(Succeed())
+							Expect(tkrData).ToNot(BeNil())
+							Expect(tkrData).To(HaveKey(tkr.Spec.Kubernetes.Version))
+							Expect(tkrData[tkr.Spec.Kubernetes.Version].Labels[runv1.LabelTKR]).To(Equal(tkr.Name))
+							Expect(tkrData[tkr.Spec.Kubernetes.Version].KubernetesSpec).To(Equal(*withCustomImageRepository(customImageRepository, &tkr.Spec.Kubernetes)))
+						})
 					})
 				})
 
