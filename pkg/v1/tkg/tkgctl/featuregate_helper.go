@@ -7,8 +7,10 @@ import (
 	"context"
 
 	"github.com/vmware-tanzu/tanzu-framework/apis/config/v1alpha1"
+	configv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/config/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/sdk/features/featuregate"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/clusterclient"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
 )
 
 type featureGateHelper struct {
@@ -31,8 +33,42 @@ func newFeatureGateHelper(options *clusterclient.Options, contextName, kubeconfi
 
 // FeatureActivatedInNamespace gets and returns the status of the feature in namespace
 func (fg *featureGateHelper) FeatureActivatedInNamespace(reqContext context.Context, feature, namespace string) (bool, error) {
-	clusterClient, _ := clusterclient.NewClient(fg.kubeconfig, fg.contextName, fg.clusterClientOptions)
+	clusterClient, err := clusterclient.NewClient(fg.kubeconfig, fg.contextName, fg.clusterClientOptions)
+	if err != nil {
+		return false, err
+	}
 	scheme := clusterClient.GetClientSet().Scheme()
 	_ = v1alpha1.AddToScheme(scheme)
+
+	// If requested feature is `ClusterClassFeature` or `TKCAPIFeature` it gets decided on different criteria at the moment
+	// This is because we are unable to query Featuregates for the devops users on the TKGS clusters because of the permission restrictions
+	// TODO: Fix this logic to rely on actual featuregates once permission issue for the devops user has been resolved
+	switch feature {
+	case constants.ClusterClassFeature:
+		return fg.isClusterClassFeatureActivated(clusterClient, feature, namespace)
+	case constants.TKCAPIFeature:
+		return fg.isTKCFeatureActivated(clusterClient, feature, namespace)
+	}
+
 	return featuregate.FeatureActivatedInNamespace(reqContext, clusterClient.GetClientSet(), namespace, feature)
+}
+
+// isClusterClassFeatureActivated is decided based on the FeatureGate CRD is present or not
+// Currently, we are unable to query the featuregate for devops users because of the permission
+// restrictions on the clusters. Hence for TKGS cluster, we are relying on existence of Featuregate
+// API to decide ClusterClass feature is supported or not.
+// Assumption is only vSphere8 based TKGS clusters will have this featuregate API as well as support for
+// ClusterClass feature
+func (fg *featureGateHelper) isClusterClassFeatureActivated(clusterClient clusterclient.Client, feature, namespace string) (bool, error) {
+	isFeaturegateCRDExists, err := clusterClient.VerifyExistenceOfCRD("featuregates", configv1alpha1.GroupVersion.Group)
+	if err != nil {
+		return false, err
+	}
+	return isFeaturegateCRDExists, nil
+}
+
+// isTKCFeatureActivated returns true always for TKGS based cluster
+// Assumption is both vSphere7 and vSphere8 based TKGS will continue to support TKC based cluster creation
+func (fg *featureGateHelper) isTKCFeatureActivated(clusterClient clusterclient.Client, feature, namespace string) (bool, error) {
+	return true, nil
 }
