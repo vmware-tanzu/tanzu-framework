@@ -20,7 +20,7 @@ type Version struct {
 	buildMetadata BuildMetadata
 }
 
-func (v Version) String() string {
+func (v *Version) String() string {
 	return "v" + v.version.String()
 }
 
@@ -148,6 +148,13 @@ var plusReplacer = strings.NewReplacer("+", "---")
 // Label converts version string in SemVer format to label format.
 func Label(v string) string {
 	return "v" + plusReplacer.Replace(strings.TrimPrefix(v, "v"))
+}
+
+var dashReplacer = strings.NewReplacer("---", "+")
+
+// FromLabel converts label name to version string in SemVer format.
+func FromLabel(label string) string {
+	return "v" + dashReplacer.Replace(strings.TrimPrefix(label, "v"))
 }
 
 // WithV makes sure 'v' is prepended to the version string.

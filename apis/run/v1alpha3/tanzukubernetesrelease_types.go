@@ -16,7 +16,7 @@ const (
 
 	ConditionUpdatesAvailable = "UpdatesAvailable"
 
-	ReasonTKRNotFound     = "TKRNotFound"
+	ReasonCannotParseTKR  = "CannotParseTKR"
 	ReasonAlreadyUpToDate = "AlreadyUpToDate"
 
 	LabelIncompatible = "incompatible"

@@ -15,9 +15,9 @@ import (
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/fields"
 	"k8s.io/apimachinery/pkg/labels"
+	"k8s.io/apimachinery/pkg/selection"
 	"k8s.io/apimachinery/pkg/types"
 	kerrors "k8s.io/apimachinery/pkg/util/errors"
-	utilversion "k8s.io/apimachinery/pkg/util/version"
 	clusterv1 "sigs.k8s.io/cluster-api/api/v1beta1"
 	"sigs.k8s.io/cluster-api/util/conditions"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -37,6 +37,8 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v2/tkr/util/version"
 )
 
+const LegacyClusterTKRLabel = "tanzuKubernetesRelease"
+
 type Reconciler struct {
 	Log         logr.Logger
 	Client      client.Client
@@ -44,12 +46,10 @@ type Reconciler struct {
 	Context     context.Context
 }
 
-var hasTKRLabel = func() predicate.Predicate {
-	selector, _ := labels.Parse(runv1.LabelTKR)
-	return predicate.NewPredicateFuncs(func(o client.Object) bool {
-		return selector.Matches(labels.Set(o.GetLabels()))
-	})
-}()
+var hasTKRLabel = predicate.NewPredicateFuncs(func(o client.Object) bool {
+	ls := labels.Set(o.GetLabels())
+	return ls.Has(runv1.LabelTKR) || ls.Has(LegacyClusterTKRLabel)
+})
 
 const indexCanUpdateToVersion = ".index.canUpdateToVersion"
 
@@ -137,47 +137,37 @@ func (r *Reconciler) Reconcile(ctx context.Context, req ctrl.Request) (result ct
 }
 
 func (r *Reconciler) calculateAndSetUpdatesAvailable(ctx context.Context, cluster *clusterv1.Cluster) error {
+	tkrName := cluster.Labels[runv1.LabelTKR]
 	clusterClass, err := topology.GetClusterClass(ctx, r.Client, cluster)
 	if err != nil {
 		return err
 	}
 	if clusterClass == nil {
-		return nil // do not set UpdatesAvailable condition if clusterClass is not set
+		tkrName = cluster.Labels[LegacyClusterTKRLabel]
 	}
 
-	tkrName := cluster.Labels[runv1.LabelTKR]
-	tkr := r.TKRResolver.Get(tkrName, &runv1.TanzuKubernetesRelease{}).(*runv1.TanzuKubernetesRelease)
-	if tkr == nil {
-		conditions.MarkUnknown(cluster, runv1.ConditionUpdatesAvailable, runv1.ReasonTKRNotFound, "TKR '%s' is not found", tkrName)
+	tkrVersion, err := version.ParseSemantic(version.FromLabel(tkrName))
+	if err != nil {
+		conditions.MarkUnknown(cluster, runv1.ConditionUpdatesAvailable, runv1.ReasonCannotParseTKR, "Cannot parse TKR version from TKR name '%s': %s", tkrName, err)
 		return nil
 	}
-	updates, err := r.updatesAvailable(tkr, cluster, clusterClass)
+	updates, err := r.updatesAvailable(ctx, tkrVersion, cluster, clusterClass)
 	if err != nil {
 		return err
 	}
-	if len(updates) == 0 {
-		conditions.MarkFalse(cluster, runv1.ConditionUpdatesAvailable, runv1.ReasonAlreadyUpToDate, clusterv1.ConditionSeverityInfo, "")
-		return nil
-	}
-	updatesAvailableCondition := conditions.TrueCondition(runv1.ConditionUpdatesAvailable)
-	updatesAvailableCondition.Message = fmt.Sprintf("%v", updates)
-	conditions.Set(cluster, updatesAvailableCondition)
+	setUpdatesAvailable(cluster, updates)
 	return nil
 }
 
-func (r *Reconciler) updatesAvailable(tkr *runv1.TanzuKubernetesRelease, cluster *clusterv1.Cluster, clusterClass *clusterv1.ClusterClass) ([]string, error) {
+func (r *Reconciler) updatesAvailable(ctx context.Context, tkrVersion *version.Version, cluster *clusterv1.Cluster, clusterClass *clusterv1.ClusterClass) ([]string, error) {
 	var result []string
-	sv, err := utilversion.ParseSemantic(tkr.Spec.Kubernetes.Version)
-	if err != nil {
-		return nil, err
-	}
-	major, minor := sv.Major(), sv.Minor()
+	major, minor := tkrVersion.Major(), tkrVersion.Minor()
 
 	for _, versionPrefix := range []string{
 		vLabelMinor(major, minor),
 		vLabelMinor(major, minor+1),
 	} {
-		updateVersions, err := r.findUpdateVersion(tkr, cluster, clusterClass, versionPrefix)
+		updateVersions, err := r.findUpdateVersions(ctx, tkrVersion, cluster, clusterClass, versionPrefix)
 		if err != nil {
 			return nil, err
 		}
@@ -187,20 +177,59 @@ func (r *Reconciler) updatesAvailable(tkr *runv1.TanzuKubernetesRelease, cluster
 	return result, nil
 }
 
-func (r *Reconciler) findUpdateVersion(tkr *runv1.TanzuKubernetesRelease, cluster *clusterv1.Cluster, clusterClass *clusterv1.ClusterClass, versionPrefix string) ([]string, error) {
+func vLabelMinor(major, minor uint) string {
+	return fmt.Sprintf("v%v.%v", major, minor)
+}
+
+func (r *Reconciler) findUpdateVersions(ctx context.Context, tkrVersion *version.Version, cluster *clusterv1.Cluster, clusterClass *clusterv1.ClusterClass, versionPrefix string) ([]string, error) {
+	if clusterClass == nil {
+		return r.legacyUpdateTKRVersions(ctx, tkrVersion, versionPrefix)
+	}
+
 	query, err := resolution.ConstructQuery(versionPrefix, cluster, clusterClass)
 	if err != nil {
 		return nil, err
 	}
 	tkrResult := r.TKRResolver.Resolve(*query)
-	if tkrResult.ControlPlane.K8sVersion != "" && tkrResult.ControlPlane.TKRName != tkr.Name {
-		return resolvedTKRVersions(tkr, tkrResult)
+	if tkrResult.ControlPlane.K8sVersion != "" && tkrResult.ControlPlane.TKRName != version.Label(tkrVersion.String()) {
+		return resolvedTKRVersions(tkrVersion, tkrResult)
 	}
 	return nil, nil
 }
 
-func resolvedTKRVersions(currentTKR *runv1.TanzuKubernetesRelease, tkrResult data.Result) ([]string, error) {
-	currentTKRVersion, _ := version.ParseSemantic(currentTKR.Spec.Version)
+var activeAndCompatible = func() labels.Selector {
+	selector, err := labels.Parse("!deactivated,!incompatible")
+	if err != nil {
+		panic(err)
+	}
+	return selector
+}()
+
+func (r *Reconciler) legacyUpdateTKRVersions(ctx context.Context, currentTKRVersion *version.Version, versionPrefix string) ([]string, error) {
+	tkrList := &runv1.TanzuKubernetesReleaseList{}
+	hasVersionPrefix, _ := labels.NewRequirement(version.Label(versionPrefix), selection.Exists, nil)
+	doesNotHaveLabel, _ := labels.NewRequirement(version.Label(currentTKRVersion.String()), selection.DoesNotExist, nil)
+	selector := activeAndCompatible.Add(*hasVersionPrefix, *doesNotHaveLabel)
+	if err := r.Client.List(ctx, tkrList, client.MatchingLabelsSelector{Selector: selector}); err != nil {
+		return nil, errors.Wrapf(err, "error listing TKRs with version prefix '%s'", versionPrefix)
+	}
+	var result []string
+	for i := range tkrList.Items {
+		tkr := &tkrList.Items[i]
+		tkrVersion, _ := version.ParseSemantic(tkr.Spec.Version)
+		if currentTKRVersion.LessThan(tkrVersion) {
+			result = append(result, tkr.Spec.Version)
+		}
+	}
+	sort.Slice(result, func(i, j int) bool {
+		vi, _ := version.ParseSemantic(result[i])
+		vj, _ := version.ParseSemantic(result[j])
+		return vi.LessThan(vj)
+	})
+	return result, nil
+}
+
+func resolvedTKRVersions(currentTKRVersion *version.Version, tkrResult data.Result) ([]string, error) {
 	var result []string
 	for _, tkrs := range tkrResult.ControlPlane.TKRsByK8sVersion {
 		for _, tkr := range tkrs {
@@ -218,6 +247,12 @@ func resolvedTKRVersions(currentTKR *runv1.TanzuKubernetesRelease, tkrResult dat
 	return result, nil
 }
 
-func vLabelMinor(major, minor uint) string {
-	return fmt.Sprintf("v%v.%v", major, minor)
+func setUpdatesAvailable(cluster *clusterv1.Cluster, updates []string) {
+	if len(updates) == 0 {
+		conditions.MarkFalse(cluster, runv1.ConditionUpdatesAvailable, runv1.ReasonAlreadyUpToDate, clusterv1.ConditionSeverityInfo, "")
+		return
+	}
+	updatesAvailableCondition := conditions.TrueCondition(runv1.ConditionUpdatesAvailable)
+	updatesAvailableCondition.Message = fmt.Sprintf("%v", updates)
+	conditions.Set(cluster, updatesAvailableCondition)
 }

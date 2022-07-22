@@ -112,55 +112,48 @@ var _ = Describe("clusterstatus.Reconciler", func() {
 				const uniqueRefField = "no-other-osimage-has-this"
 				BeforeEach(func() {
 					tkr = testdata.ChooseTKR(tkrs)
-					osImage = osImages[tkr.Spec.OSImages[rand.Intn(len(tkr.Spec.OSImages))].Name]
-
-					conditions.MarkTrue(tkr, runv1.ConditionCompatible)
-					conditions.MarkTrue(tkr, runv1.ConditionValid)
-					osImage.Spec.Image.Ref[uniqueRefField] = true
-
-					osImageSelector = labels.Set(osImage.Labels).AsSelector()
-					osImageSelectorStr = osImageSelector.String()
-
-					cluster.Spec.Topology = &clusterv1.Topology{}
-					cluster.Spec.Topology.Class = clusterClass.Name
-					cluster.Spec.Topology.Version = tkr.Spec.Kubernetes.Version
-					getMap(&cluster.Spec.Topology.ControlPlane.Metadata.Annotations)[runv1.AnnotationResolveOSImage] = osImageSelectorStr
 				})
 
 				When("a Cluster refers to a TKR", func() {
 					BeforeEach(func() {
+						osImage = osImages[tkr.Spec.OSImages[rand.Intn(len(tkr.Spec.OSImages))].Name]
+
+						conditions.MarkTrue(tkr, runv1.ConditionCompatible)
+						conditions.MarkTrue(tkr, runv1.ConditionValid)
+						osImage.Spec.Image.Ref[uniqueRefField] = true
+
+						osImageSelector = labels.Set(osImage.Labels).AsSelector()
+						osImageSelectorStr = osImageSelector.String()
+
+						cluster.Spec.Topology = &clusterv1.Topology{}
+						cluster.Spec.Topology.Class = clusterClass.Name
+						cluster.Spec.Topology.Version = tkr.Spec.Kubernetes.Version
+						getMap(&cluster.Spec.Topology.ControlPlane.Metadata.Annotations)[runv1.AnnotationResolveOSImage] = osImageSelectorStr
+
 						getMap(&cluster.Labels)[runv1.LabelTKR] = tkr.Name
 					})
 
-					repeat(100, func() {
+					repeat(10, func() {
 						It("should set UpdatesAvailable condition", func() {
 							_, err := r.Reconcile(context.Background(), ctrl.Request{NamespacedName: util.ObjectKey(cluster)})
 							Expect(err).ToNot(HaveOccurred())
 
-							currentVersion, err := version.ParseSemantic(tkr.Spec.Version)
+							checkUpdatesAvailable(tkr, cluster)
+						})
+					})
+				})
+
+				When("a legacy-style Cluster refers to a TKR", func() {
+					BeforeEach(func() {
+						getMap(&cluster.Labels)[LegacyClusterTKRLabel] = tkr.Name
+					})
+
+					repeat(10, func() {
+						It("should set UpdatesAvailable condition", func() {
+							_, err := r.Reconcile(context.Background(), ctrl.Request{NamespacedName: util.ObjectKey(cluster)})
 							Expect(err).ToNot(HaveOccurred())
 
-							cluster1 := &clusterv1.Cluster{}
-							Expect(r.Client.Get(context.Background(), util.ObjectKey(cluster), cluster1)).To(Succeed())
-
-							uaCond := conditions.Get(cluster1, runv1.ConditionUpdatesAvailable)
-							Expect(uaCond).ToNot(BeNil())
-							Expect(uaCond.Status).ToNot(Equal(corev1.ConditionUnknown))
-							switch uaCond.Status {
-							case corev1.ConditionTrue:
-								Expect(uaCond.Message).To(HavePrefix("["))
-								Expect(uaCond.Message).To(HaveSuffix("]"))
-								updateVersions := strings.Split(uaCond.Message[1:len(uaCond.Message)-1], " ")
-								Expect(updateVersions).ToNot(BeEmpty())
-								for _, updateVersionStr := range updateVersions {
-									updateVersion, err := version.ParseSemantic(updateVersionStr)
-									Expect(err).ToNot(HaveOccurred())
-									Expect(currentVersion.LessThan(updateVersion)).To(BeTrue(), "currentVersion '%s' should be less than updateVersion '%s'", currentVersion, updateVersion)
-									Expect(r.TKRResolver.Get(tkrName(updateVersionStr), &runv1.TanzuKubernetesRelease{})).ToNot(BeNil(), "TKR version: '%s'", updateVersionStr)
-								}
-							case corev1.ConditionFalse:
-								Expect(uaCond.Message).To(BeEmpty())
-							}
+							checkUpdatesAvailable(tkr, cluster)
 						})
 					})
 				})
@@ -169,6 +162,38 @@ var _ = Describe("clusterstatus.Reconciler", func() {
 	})
 
 })
+
+func checkUpdatesAvailable(tkr *runv1.TanzuKubernetesRelease, cluster *clusterv1.Cluster) {
+	currentVersion, err := version.ParseSemantic(tkr.Spec.Version)
+	Expect(err).ToNot(HaveOccurred())
+
+	cluster1 := &clusterv1.Cluster{}
+	Expect(r.Client.Get(context.Background(), util.ObjectKey(cluster), cluster1)).To(Succeed())
+
+	uaCond := conditions.Get(cluster1, runv1.ConditionUpdatesAvailable)
+	Expect(uaCond).ToNot(BeNil())
+	Expect(uaCond.Status).ToNot(Equal(corev1.ConditionUnknown))
+	switch uaCond.Status {
+	case corev1.ConditionTrue:
+		Expect(uaCond.Message).To(HavePrefix("["))
+		Expect(uaCond.Message).To(HaveSuffix("]"))
+		updateVersions := strings.Split(uaCond.Message[1:len(uaCond.Message)-1], " ")
+		Expect(updateVersions).ToNot(BeEmpty())
+		lastUpdateVersion := currentVersion
+		for _, updateVersionStr := range updateVersions {
+			updateVersion, err := version.ParseSemantic(updateVersionStr)
+			Expect(err).ToNot(HaveOccurred())
+			Expect(currentVersion.LessThan(updateVersion)).To(BeTrue(), "currentVersion '%s' should be less than updateVersion '%s'", currentVersion, updateVersion)
+			Expect(updateVersion.Minor()).To(BeNumerically(">=", currentVersion.Minor()))
+			Expect(updateVersion.Minor() - currentVersion.Minor()).To(BeNumerically("<=", 1))
+			Expect(r.TKRResolver.Get(tkrName(updateVersionStr), &runv1.TanzuKubernetesRelease{})).ToNot(BeNil(), "TKR version: '%s'", updateVersionStr)
+			Expect(lastUpdateVersion.LessThan(updateVersion)).To(BeTrue(), "each next updateVersion '%s' should be greater than the previous '%s'", updateVersion, lastUpdateVersion)
+			lastUpdateVersion = updateVersion
+		}
+	case corev1.ConditionFalse:
+		Expect(uaCond.Message).To(BeEmpty())
+	}
+}
 
 func tkrName(v string) string {
 	return strings.ReplaceAll(v, "+", "---")
