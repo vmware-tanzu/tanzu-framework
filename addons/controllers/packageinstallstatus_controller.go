@@ -7,14 +7,12 @@ import (
 	"context"
 	"fmt"
 	"strings"
-	"time"
 
 	"github.com/go-logr/logr"
 	"github.com/pkg/errors"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	kerrors "k8s.io/apimachinery/pkg/util/errors"
 	clusterapiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
@@ -153,6 +151,9 @@ func (r *PackageInstallStatusReconciler) Reconcile(_ context.Context, req reconc
 		log.Info("TKR object not found", "name", tkrName)
 		return ctrl.Result{}, nil
 	}
+	if cluster.Status.Phase == string(clusterapiv1beta1.ClusterPhaseDeleting) || cluster.Status.Phase == string(clusterapiv1beta1.ClusterPhaseFailed) {
+		return ctrl.Result{}, nil
+	}
 
 	if cluster.Status.Phase != string(clusterapiv1beta1.ClusterPhaseProvisioned) {
 		log.Info(fmt.Sprintf("cluster %s/%s does not have status phase %s", cluster.Namespace, cluster.Name, clusterapiv1beta1.ClusterPhaseProvisioned))
@@ -171,7 +172,7 @@ func (r *PackageInstallStatusReconciler) Reconcile(_ context.Context, req reconc
 		clusterRole = clusterRoleWorkload
 		remoteClient, err := r.tracker.GetClient(r.ctx, clusterapiutil.ObjectKey(cluster))
 		if err != nil {
-			return ctrl.Result{RequeueAfter: constants.RequeueAfterDuration}, errors.Wrap(err, "error getting remote cluster's client")
+			return ctrl.Result{}, errors.Wrap(err, "error getting remote cluster's client")
 		}
 		clusterClient = remoteClient
 		log.Info("successfully got remoteClient")
@@ -204,11 +205,13 @@ func (r *PackageInstallStatusReconciler) reconcile(clusterClient client.Client, 
 	if err != nil {
 		return err
 	}
+	var errorList []error
 
 	defer func() {
 		log.Info("patching ClusterBootstrapStatus")
 		if err := patchHelper.Patch(r.ctx, clusterBootstrap); err != nil {
-			retErr = kerrors.NewAggregate([]error{retErr, errors.Wrap(err, "error patching ClusterBootstrapStatus")})
+			errorList = append(errorList, errors.Wrap(err, "error patching ClusterBootstrapStatus"))
+			retErr = kerrors.NewAggregate(errorList)
 		}
 		log.Info("Successfully patched ClusterBootstrapStatus")
 	}()
@@ -225,6 +228,7 @@ func (r *PackageInstallStatusReconciler) reconcile(clusterClient client.Client, 
 			continue
 		}
 		if err := r.reconcileClusterBootstrapStatus(clusterClient, clusterBootstrap, clusterObjKey, clusterRole, pkg.RefName, r.Config.SystemNamespace, log); err != nil {
+			errorList = append(errorList, err)
 			// in case of error, just log the error and continue with collecting PackageInstallStatus for other packages
 			// if a condition corresponding to the package is existing in the ClusterBootstrapStatus, we delete it as the corresponding pkgi or package resources do not exist for the package anymore
 			log.Error(err, fmt.Sprintf("failed to reconcile PackageInstallStatus for package '%s/%s'", r.Config.SystemNamespace, pkg.RefName))
@@ -236,6 +240,7 @@ func (r *PackageInstallStatusReconciler) reconcile(clusterClient client.Client, 
 	// it is installed under cluster.Namespace in the management cluster and should be handled separately
 	if clusterRole == clusterRoleWorkload && clusterBootstrap.Spec.Kapp != nil {
 		if err := r.reconcileClusterBootstrapStatus(r.Client, clusterBootstrap, clusterObjKey, clusterRole, clusterBootstrap.Spec.Kapp.RefName, cluster.Namespace, log); err != nil {
+			errorList = append(errorList, err)
 			// in case of error, just log the error and proceed with patching the ClusterBootstrapStatus for all packages in a single patch operation
 			// if a condition corresponding to the package is existing in the ClusterBootstrapStatus, we delete it as the corresponding pkgi or package resources do not exist for the package anymore
 			log.Error(err, fmt.Sprintf("failed to reconcile PackageInstallStatus for package '%s/%s'", cluster.Namespace, clusterBootstrap.Spec.Kapp.RefName))
@@ -243,7 +248,7 @@ func (r *PackageInstallStatusReconciler) reconcile(clusterClient client.Client, 
 		}
 	}
 
-	return nil
+	return retErr
 }
 
 // reconcileClusterBootstrapStatus reconciles clusterBootstrapStatus by setting conditions corresponding to all core/additional packages.
@@ -297,13 +302,13 @@ func (r *PackageInstallStatusReconciler) reconcileClusterBootstrapStatus(
 
 	// we populate 'Message' with Carvel's PackageInstall 'UsefulErrorMessage' field as it contains more detailed information in case of an error
 	title := cases.Title(language.Und)
+	// skip adding current timestamp as it frequently triggers downstream controller to go through the CB resource for no reason
 	condition := clusterapiv1beta1.Condition{
 		Type: clusterapiv1beta1.ConditionType(title.String(pkgShortname)) + "-" +
 			clusterapiv1beta1.ConditionType(pkgiCondition.Type),
-		Status:             pkgiCondition.Status,
-		Message:            util.GetKappUsefulErrorMessage(pkgi.Status.UsefulErrorMessage),
-		Reason:             pkgiCondition.Reason,
-		LastTransitionTime: metav1.NewTime(time.Now().UTC().Truncate(time.Second)),
+		Status:  pkgiCondition.Status,
+		Message: util.GetKappUsefulErrorMessage(pkgi.Status.UsefulErrorMessage),
+		Reason:  pkgiCondition.Reason,
 	}
 
 	// only add a new condition entry for the PackageInstall in the clusterBootstrapStatus in case it doesn't already exist.

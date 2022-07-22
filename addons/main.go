@@ -6,6 +6,8 @@ package main
 import (
 	"context"
 	"flag"
+	"net/http"
+	_ "net/http/pprof"
 	"os"
 	"path"
 	"time"
@@ -16,6 +18,7 @@ import (
 	"k8s.io/client-go/kubernetes"
 	clientgoscheme "k8s.io/client-go/kubernetes/scheme"
 	_ "k8s.io/client-go/plugin/pkg/client/auth"
+	"k8s.io/client-go/util/workqueue"
 	"k8s.io/klog/v2"
 	"k8s.io/klog/v2/klogr"
 	capvv1beta1 "sigs.k8s.io/cluster-api-provider-vsphere/apis/v1beta1"
@@ -24,6 +27,7 @@ import (
 	capiremote "sigs.k8s.io/cluster-api/controllers/remote"
 	controlplanev1beta1 "sigs.k8s.io/cluster-api/controlplane/kubeadm/api/v1beta1"
 	ctrl "sigs.k8s.io/controller-runtime"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller"
 	"sigs.k8s.io/controller-runtime/pkg/healthz"
 
@@ -101,6 +105,8 @@ type addonFlags struct {
 	ipFamilyClusterVarName          string
 	featureGateClusterBootstrap     bool
 	featureGatePackageInstallStatus bool
+	enablePprof                     bool
+	pprofBindAddress                string
 }
 
 func parseAddonFlags(addonFlags *addonFlags) {
@@ -141,6 +147,8 @@ func parseAddonFlags(addonFlags *addonFlags) {
 	flag.StringVar(&addonFlags.ipFamilyClusterVarName, "ip-family-cluster-var-name", constants.DefaultIPFamilyClusterClassVarName, "IP family setting cluster variable name")
 	flag.BoolVar(&addonFlags.featureGateClusterBootstrap, "feature-gate-cluster-bootstrap", false, "Feature gate to enable clusterbootstap and addonconfig controllers that rely on TKR v1alphav3")
 	flag.BoolVar(&addonFlags.featureGatePackageInstallStatus, "feature-gate-package-install-status", false, "Feature gate to enable packageinstallstatus controller")
+	flag.BoolVar(&addonFlags.enablePprof, "enable-pprof", false, "Enable pprof web server")
+	flag.StringVar(&addonFlags.pprofBindAddress, "pprof-bind-addr", ":18318", "Bind address of pprof web server if enabled")
 
 	flag.Parse()
 }
@@ -154,6 +162,16 @@ func main() {
 	setupLog.Info("Version", "version", buildinfo.Version, "buildDate", buildinfo.Date, "sha", buildinfo.SHA)
 
 	ctx := ctrl.SetupSignalHandler()
+
+	if flags.enablePprof {
+		go func() {
+			setupLog.Info("[Warn]: pprof web server enabled", "bindAddress", flags.pprofBindAddress)
+			if err := http.ListenAndServe(flags.pprofBindAddress, nil); err != nil {
+				setupLog.Error(err, "error binding to pprof-bind-addr")
+				os.Exit(1)
+			}
+		}()
+	}
 
 	crdwaiter := crdwait.CRDWaiter{
 		Ctx: ctx,
@@ -378,11 +396,17 @@ func enableWebhooks(ctx context.Context, mgr ctrl.Manager, flags *addonFlags) {
 }
 
 func enablePackageInstallStatusController(ctx context.Context, mgr ctrl.Manager, flags *addonFlags) {
-	// set up a ClusterCacheTracker to provide to PackageInstallStatus controller which requires a connection to remote clusters
-	// the informers/caches are created only for objects accessed through Get/List in the code.
-	// we only read Package and PackageInstall resources through our cached client, we let those two resource types to be cached and we don't add any resource type to the ClientUncachedObjects list
+	// Exclude kapppkg.PackageInstall and kappdatapkg.Package from tracker caches to prevent too many items
+	// being held in memory along with standard ConfigMap and Secret
 	l := ctrl.Log.WithName("remote").WithName("ClusterCacheTracker")
-	tracker, err := capiremote.NewClusterCacheTracker(mgr, capiremote.ClusterCacheTrackerOptions{Log: &l})
+	tracker, err := capiremote.NewClusterCacheTracker(mgr, capiremote.ClusterCacheTrackerOptions{Log: &l,
+		ClientUncachedObjects: []client.Object{
+			&corev1.ConfigMap{},
+			&corev1.Secret{},
+			&kapppkg.PackageInstall{},
+			&kappdatapkg.Package{},
+		},
+	})
 	if err != nil {
 		setupLog.Error(err, "unable to create cluster cache tracker")
 		os.Exit(1)
@@ -395,7 +419,7 @@ func enablePackageInstallStatusController(ctx context.Context, mgr ctrl.Manager,
 		Client:  mgr.GetClient(),
 		Log:     ctrl.Log.WithName("remote").WithName("ClusterCacheReconciler"),
 		Tracker: tracker,
-	}).SetupWithManager(ctx, mgr, controller.Options{MaxConcurrentReconciles: flags.clusterConcurrency}); err != nil {
+	}).SetupWithManager(ctx, mgr, controller.Options{MaxConcurrentReconciles: 1}); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "ClusterCacheReconciler")
 		os.Exit(1)
 	}
@@ -409,7 +433,16 @@ func enablePackageInstallStatusController(ctx context.Context, mgr ctrl.Manager,
 		},
 		tracker,
 	)
-	if err := pkgiStatusReconciler.SetupWithManager(ctx, mgr, controller.Options{MaxConcurrentReconciles: flags.clusterConcurrency}); err != nil {
+	// Use a custom rater limiter to do bigger backoffs for failures because updating status shouldn't overwhelm resource usage
+	if err := pkgiStatusReconciler.SetupWithManager(
+		ctx,
+		mgr,
+		controller.Options{
+			MaxConcurrentReconciles: 1,
+			RateLimiter: workqueue.NewItemExponentialFailureRateLimiter(
+				constants.PackageInstallStatusControllerRateLimitBaseDelay,
+				constants.PackageInstallStatusControllerRateLimitMaxDelay),
+		}); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "PackageInstallStatus")
 		os.Exit(1)
 	}
