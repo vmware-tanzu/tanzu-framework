@@ -290,6 +290,79 @@ var _ = Describe("Reconciler", func() {
 					}
 				})
 			})
+
+			When("the source object has non-empty ownerReferences", func() {
+				BeforeEach(func() {
+					cc0.SetOwnerReferences([]metav1.OwnerReference{{
+						APIVersion: "some.thing/v1omega3",
+						Kind:       "Something",
+						Name:       "some-thing",
+						UID:        uuid.NewUUID(),
+					}})
+				})
+
+				When("target objects are not found", func() {
+					It("should create the target object", func() {
+						_, err := r.Reconcile(ctx, ctrl.Request{NamespacedName: types.NamespacedName{
+							Namespace: cc0.Namespace,
+							Name:      cc0.Name,
+						}})
+						Expect(err).ToNot(HaveOccurred())
+
+						for _, ns := range []string{nameNSDefault, nameNSUser1} {
+							cc := &clusterv1.ClusterClass{}
+							Expect(r.Client.Get(ctx, client.ObjectKey{Namespace: ns, Name: cc0.Name}, cc)).To(Succeed())
+
+							Expect(cc.Spec.Infrastructure.Ref.Namespace).To(Equal(ns))
+							Expect(cc.Spec.Workers.MachineDeployments[0].Template.Bootstrap.Ref.Namespace).To(Equal(ns))
+							Expect(cc.OwnerReferences).To(BeNil())
+							cc.Spec.Infrastructure.Ref.Namespace = cc0.Namespace
+							cc.Spec.Workers.MachineDeployments[0].Template.Bootstrap.Ref.Namespace = cc0.Namespace
+							cc.OwnerReferences = cc0.OwnerReferences
+
+							restoreMeta(cc, cc0)
+							Expect(cc).To(Equal(cc0))
+						}
+					})
+				})
+
+				When("target objects exist (but may be different)", func() {
+					BeforeEach(func() {
+						for _, ns := range []string{nameNSDefault, nameNSUser1} {
+							objects = append(objects, &clusterv1.ClusterClass{
+								ObjectMeta: metav1.ObjectMeta{
+									Namespace: ns,
+									Name:      "cc0",
+									UID:       uuid.NewUUID(),
+								},
+							})
+						}
+					})
+
+					It("should patch the target object", func() {
+						_, err := r.Reconcile(ctx, ctrl.Request{NamespacedName: types.NamespacedName{
+							Namespace: cc0.Namespace,
+							Name:      cc0.Name,
+						}})
+						Expect(err).ToNot(HaveOccurred())
+
+						for _, ns := range []string{nameNSDefault, nameNSUser1} {
+							cc := &clusterv1.ClusterClass{}
+							Expect(r.Client.Get(ctx, client.ObjectKey{Namespace: ns, Name: cc0.Name}, cc)).To(Succeed())
+
+							Expect(cc.Spec.Infrastructure.Ref.Namespace).To(Equal(ns))
+							Expect(cc.Spec.Workers.MachineDeployments[0].Template.Bootstrap.Ref.Namespace).To(Equal(ns))
+							Expect(cc.OwnerReferences).To(BeNil())
+							cc.Spec.Infrastructure.Ref.Namespace = cc0.Namespace
+							cc.Spec.Workers.MachineDeployments[0].Template.Bootstrap.Ref.Namespace = cc0.Namespace
+							cc.OwnerReferences = cc0.OwnerReferences
+
+							restoreMeta(cc, cc0)
+							Expect(cc).To(Equal(cc0))
+						}
+					})
+				})
+			})
 		})
 	})
 
