@@ -16,6 +16,8 @@ import (
 	clusterctlv1 "sigs.k8s.io/cluster-api/cmd/clusterctl/api/v1alpha3"
 	controlplanev1 "sigs.k8s.io/cluster-api/controlplane/kubeadm/api/v1beta1"
 	expv1 "sigs.k8s.io/cluster-api/exp/api/v1beta1"
+
+	runv1 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
 )
 
 // AddDefaultSchemes adds the default schemes
@@ -50,4 +52,7 @@ func AddDefaultSchemes(scheme *runtime.Scheme) {
 
 	// Add the v1beta1 scheme
 	_ = v1beta1.AddToScheme(scheme)
+
+	// Add the run v1alpha3 scheme
+	_ = runv1.AddToScheme(scheme)
 }
