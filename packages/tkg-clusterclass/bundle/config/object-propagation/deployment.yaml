@@ -10,7 +10,7 @@
     namespace: #@ data.values.namespaceForPackageInstallation
     labelSelector: ''
   target:
-    namespaceLabelSelector: ''
+    namespaceLabelSelector: '!cluster.x-k8s.io/provider'
     detectAndReplaceSourceNSRef: true
 - source:
     apiVersion: controlplane.cluster.x-k8s.io/v1beta1
@@ -18,15 +18,15 @@
     namespace: #@ data.values.namespaceForPackageInstallation
     labelSelector: ''
   target:
-    namespaceLabelSelector: ''
+    namespaceLabelSelector: '!cluster.x-k8s.io/provider'
     detectAndReplaceSourceNSRef: true
 - source:
     apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
     kind: KubeadmConfigTemplate
     namespace: #@ data.values.namespaceForPackageInstallation
-    labelSelector: ''
+    labelSelector: '!topology.cluster.x-k8s.io/owned'
   target:
-    namespaceLabelSelector: ''
+    namespaceLabelSelector: '!cluster.x-k8s.io/provider'
     detectAndReplaceSourceNSRef: true
 
 #@ if data.values.clusterclassInfraPackageValues.infraProvider == "aws":
@@ -37,15 +37,15 @@
     namespace: #@ data.values.namespaceForPackageInstallation
     labelSelector: ''
   target:
-    namespaceLabelSelector: ''
+    namespaceLabelSelector: '!cluster.x-k8s.io/provider'
     detectAndReplaceSourceNSRef: true
 - source:
     apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
     kind: AWSMachineTemplate
     namespace: #@ data.values.namespaceForPackageInstallation
-    labelSelector: ''
+    labelSelector: '!topology.cluster.x-k8s.io/owned'
   target:
-    namespaceLabelSelector: ''
+    namespaceLabelSelector: '!cluster.x-k8s.io/provider'
     detectAndReplaceSourceNSRef: true
 #@ end
 
@@ -57,15 +57,15 @@
     namespace: #@ data.values.namespaceForPackageInstallation
     labelSelector: ''
   target:
-    namespaceLabelSelector: ''
+    namespaceLabelSelector: '!cluster.x-k8s.io/provider'
     detectAndReplaceSourceNSRef: true
 - source:
     apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
     kind: AzureMachineTemplate
     namespace: #@ data.values.namespaceForPackageInstallation
-    labelSelector: ''
+    labelSelector: '!topology.cluster.x-k8s.io/owned'
   target:
-    namespaceLabelSelector: ''
+    namespaceLabelSelector: '!cluster.x-k8s.io/provider'
     detectAndReplaceSourceNSRef: true
 #@ end
 
@@ -77,15 +77,15 @@
     namespace: #@ data.values.namespaceForPackageInstallation
     labelSelector: ''
   target:
-    namespaceLabelSelector: ''
+    namespaceLabelSelector: '!cluster.x-k8s.io/provider'
     detectAndReplaceSourceNSRef: true
 - source:
     apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
     kind: VSphereMachineTemplate
     namespace: #@ data.values.namespaceForPackageInstallation
-    labelSelector: ''
+    labelSelector: '!topology.cluster.x-k8s.io/owned'
   target:
-    namespaceLabelSelector: ''
+    namespaceLabelSelector: '!cluster.x-k8s.io/provider'
     detectAndReplaceSourceNSRef: true
 #@ end
 
