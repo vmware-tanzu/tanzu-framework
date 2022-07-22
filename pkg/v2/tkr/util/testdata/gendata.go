@@ -198,7 +198,14 @@ func GenTKR(osImagesByK8sVersion map[string]data.OSImages) *runv1.TanzuKubernete
 			Version:  v,
 			OSImages: OsImageRefs(RandNonEmptySubsetOfOSImages(osImagesByK8sVersion[k8sVersion])),
 			Kubernetes: runv1.KubernetesSpec{
-				Version: k8sVersion,
+				Version:         k8sVersion,
+				ImageRepository: rand.String(10),
+				Etcd: &runv1.ContainerImageInfo{
+					ImageTag: fmt.Sprintf("v1.%v.%v", rand.Intn(10), rand.Intn(10)),
+				},
+				CoreDNS: &runv1.ContainerImageInfo{
+					ImageTag: fmt.Sprintf("v1.%v.%v", rand.Intn(10), rand.Intn(10)),
+				},
 			},
 		},
 		Status: runv1.TanzuKubernetesReleaseStatus{

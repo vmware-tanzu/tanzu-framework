@@ -38,8 +38,10 @@ func main() {
 	var webhookCertDir string
 	var metricsAddr string
 	var webhookServerPort int
+	var customImageRepositoryCCVar string
 	flag.StringVar(&webhookCertDir, "webhook-cert-dir", "/tmp/k8s-webhook-server/serving-certs/", "Webhook cert directory.")
 	flag.StringVar(&metricsAddr, "metrics-bind-addr", ":8080", "The address the metric endpoint binds to.")
+	flag.StringVar(&customImageRepositoryCCVar, "custom-image-repository-cc-var", "imageRepository", "Custom imageRepository ClusterClass variable")
 	flag.IntVar(&webhookServerPort, "webhook-server-port", 9443, "The port that the webhook server serves at.")
 
 	opts := zap.Options{
@@ -97,6 +99,9 @@ func main() {
 			Log:         mgr.GetLogger().WithName("handler.Cluster"),
 			TKRResolver: tkrResolver,
 			Client:      mgr.GetClient(),
+			Config: cluster.Config{
+				CustomImageRepositoryCCVar: customImageRepositoryCCVar,
+			},
 		},
 	})
 

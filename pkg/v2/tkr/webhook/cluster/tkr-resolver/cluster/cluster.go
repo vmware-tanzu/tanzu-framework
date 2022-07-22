@@ -34,7 +34,12 @@ type Webhook struct {
 	TKRResolver resolver.CachingResolver
 	Log         logr.Logger
 	Client      client.Client
+	Config      Config
 	decoder     *admission.Decoder
+}
+
+type Config struct {
+	CustomImageRepositoryCCVar string
 }
 
 func (cw *Webhook) InjectDecoder(decoder *admission.Decoder) error {
@@ -202,10 +207,17 @@ func (e *errUnresolved) Error() string {
 	return sb.String()
 }
 
+type CustomImageRepository struct {
+	Host                     string `json:"host"`
+	TLSCertificateValidation bool   `json:"tlsCertificateValidation"`
+}
+
 // setTKRData sets cluster TKR resolution metadata based on result.
 // It also ensures OSImage labels and os-image-ref annotation are set on controlPlane and machineDeployment
 // if TKR resolution took place.
 func (cw *Webhook) setTKRData(result data.Result, cluster *clusterv1.Cluster) error {
+	customImageRepository := cw.customImageRepository(cluster)
+
 	if result.ControlPlane != nil {
 		tkrData, err := ensureTKRData(cluster)
 		if err != nil {
@@ -213,7 +225,7 @@ func (cw *Webhook) setTKRData(result data.Result, cluster *clusterv1.Cluster) er
 		}
 
 		getMap(&cluster.Labels)[runv1.LabelTKR] = result.ControlPlane.TKRName
-		tkrData[result.ControlPlane.K8sVersion] = tkrDataValueForResult(result.ControlPlane)
+		tkrData[result.ControlPlane.K8sVersion] = tkrDataValueForResult(customImageRepository, result.ControlPlane)
 
 		if err := topology.SetVariable(cluster, VarTKRData, tkrData); err != nil {
 			return err
@@ -232,7 +244,7 @@ func (cw *Webhook) setTKRData(result data.Result, cluster *clusterv1.Cluster) er
 				return err
 			}
 
-			tkrDataMD[osImageResult.K8sVersion] = tkrDataValueForResult(osImageResult)
+			tkrDataMD[osImageResult.K8sVersion] = tkrDataValueForResult(customImageRepository, osImageResult)
 
 			if err := topology.SetMDVariable(cluster, i, VarTKRData, tkrDataMD); err != nil {
 				return err
@@ -241,6 +253,20 @@ func (cw *Webhook) setTKRData(result data.Result, cluster *clusterv1.Cluster) er
 	}
 
 	return nil
+}
+
+func (cw *Webhook) customImageRepository(cluster *clusterv1.Cluster) string {
+	var customImageRepository *CustomImageRepository
+	if err := topology.GetVariable(cluster, cw.Config.CustomImageRepositoryCCVar, &customImageRepository); err != nil {
+		cw.Log.Error(err, "could not parse the custom imageRepository cluster variable",
+			"cluster", fmt.Sprintf("%s/%s", cluster.Namespace, cluster.Name),
+			"variable", cw.Config.CustomImageRepositoryCCVar)
+		return ""
+	}
+	if customImageRepository == nil {
+		return ""
+	}
+	return customImageRepository.Host
 }
 
 func ensureTKRData(cluster *clusterv1.Cluster) (TKRData, error) {
@@ -271,15 +297,15 @@ func ensureTKRDataMD(cluster *clusterv1.Cluster, i int) (TKRData, error) {
 	return tkrDataMD, nil
 }
 
-func tkrDataValueForResult(osImageResult *data.OSImageResult) *TKRDataValue {
+func tkrDataValueForResult(customImageRepository string, osImageResult *data.OSImageResult) *TKRDataValue {
 	for _, osImage := range osImageResult.OSImagesByTKR[osImageResult.TKRName] { // only one such OSImage
 		tkr := osImageResult.TKRsByK8sVersion[osImageResult.K8sVersion][osImageResult.TKRName]
-		return tkrDataValue(tkr, osImage)
+		return tkrDataValue(customImageRepository, tkr, osImage)
 	}
 	return nil // this should never happen
 }
 
-func tkrDataValue(tkr *runv1.TanzuKubernetesRelease, osImage *runv1.OSImage) *TKRDataValue {
+func tkrDataValue(customImageRepository string, tkr *runv1.TanzuKubernetesRelease, osImage *runv1.OSImage) *TKRDataValue {
 	ls := labels.Set{
 		runv1.LabelTKR:     tkr.Name,
 		runv1.LabelOSImage: osImage.Name,
@@ -294,10 +320,28 @@ func tkrDataValue(tkr *runv1.TanzuKubernetesRelease, osImage *runv1.OSImage) *TK
 	osimage.SetRefLabels(ls, osImage.Spec.Image.Type, osImage.Spec.Image.Ref)
 
 	return &TKRDataValue{
-		KubernetesSpec: tkr.Spec.Kubernetes,
+		KubernetesSpec: *withCustomImageRepository(customImageRepository, &tkr.Spec.Kubernetes),
 		OSImageRef:     osImage.Spec.Image.Ref,
 		Labels:         ls,
 	}
+}
+
+func withCustomImageRepository(customImageRepository string, k8sSpec *runv1.KubernetesSpec) *runv1.KubernetesSpec {
+	if customImageRepository != "" {
+		k8sSpec = k8sSpec.DeepCopy()
+		k8sSpec.ImageRepository = customImageRepository
+		for _, imageInfo := range []*runv1.ContainerImageInfo{
+			k8sSpec.CoreDNS,
+			k8sSpec.Etcd,
+			k8sSpec.Pause,
+			k8sSpec.KubeVIP,
+		} {
+			if imageInfo != nil {
+				imageInfo.ImageRepository = customImageRepository
+			}
+		}
+	}
+	return k8sSpec
 }
 
 // getMap returns the map (creates it first if the map is nil). mp has to be a pointer to the variable holding the map,
