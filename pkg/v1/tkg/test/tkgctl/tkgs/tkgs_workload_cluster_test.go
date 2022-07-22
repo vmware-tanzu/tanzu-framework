@@ -19,7 +19,11 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgctl"
 )
 
-const TKC_KIND = "kind: TanzuKubernetesCluster"
+const (
+	TKC_KIND  = "kind: TanzuKubernetesCluster"
+	cniAntrea = "antrea"
+	cniCalico = "calico"
+)
 
 var _ = Describe("TKGS - Create workload cluster use cases", func() {
 	Context("when input file is legacy config file (TKC cluster)", func() {
@@ -36,8 +40,10 @@ var _ = Describe("TKGS - Create workload cluster use cases", func() {
 				clusterOptions.ClusterConfigFile = createClusterConfigFile(e2eConfig)
 			})
 			AfterEach(func() {
+				clusterOptions.CniType = cniAntrea
 				defer os.Remove(clusterOptions.ClusterConfigFile)
 			})
+
 			When("cluster class cli feature flag (features.global.package-based-lcm-beta) is set to true", func() {
 				BeforeEach(func() {
 					//set the cli feature flag as true -  (features.global.package-based-lcm-beta)
@@ -45,9 +51,17 @@ var _ = Describe("TKGS - Create workload cluster use cases", func() {
 					tkgctlClient, err = tkgctl.New(tkgctlOptions)
 					Expect(err).To(BeNil())
 				})
-				It("should create TKC workload cluster and delete it", func() {
+
+				It("should create TKC workload cluster with CNI Antrea and delete it", func() {
+					clusterOptions.CniType = cniAntrea
 					createLegacyClusterTest(tkgctlClient, deleteClusterOptions, true, e2eConfig.WorkloadClusterOptions.ClusterName, e2eConfig.WorkloadClusterOptions.Namespace)
 				})
+
+				It("should create TKC workload cluster with CNI Calico and delete it", func() {
+					clusterOptions.CniType = cniCalico
+					createLegacyClusterTest(tkgctlClient, deleteClusterOptions, true, e2eConfig.WorkloadClusterOptions.ClusterName, e2eConfig.WorkloadClusterOptions.Namespace)
+				})
+
 				When("dry-run enabled", func() {
 					BeforeEach(func() {
 						// set dry-run mode
@@ -57,8 +71,8 @@ var _ = Describe("TKGS - Create workload cluster use cases", func() {
 						createLegacyClusterInDryRunModeTest(tkgctlClient, true, e2eConfig.WorkloadClusterOptions.ClusterName, e2eConfig.WorkloadClusterOptions.Namespace)
 					})
 				})
-
 			})
+
 			When("cluster class cli feature flag (features.global.package-based-lcm-beta) is set to false", func() {
 				BeforeEach(func() {
 					//set the cli feature flag as false -  (features.global.package-based-lcm-beta)
@@ -66,9 +80,11 @@ var _ = Describe("TKGS - Create workload cluster use cases", func() {
 					tkgctlClient, err = tkgctl.New(tkgctlOptions)
 					Expect(err).To(BeNil())
 				})
+
 				It("should create TKC Workload Cluster and delete it", func() {
 					createLegacyClusterTest(tkgctlClient, deleteClusterOptions, true, e2eConfig.WorkloadClusterOptions.ClusterName, e2eConfig.WorkloadClusterOptions.Namespace)
 				})
+
 				When("dry-run enabled", func() {
 					BeforeEach(func() {
 						// set dry-run mode
@@ -78,9 +94,9 @@ var _ = Describe("TKGS - Create workload cluster use cases", func() {
 						createLegacyClusterInDryRunModeTest(tkgctlClient, false, e2eConfig.WorkloadClusterOptions.ClusterName, e2eConfig.WorkloadClusterOptions.Namespace)
 					})
 				})
-
 			})
 		})
+
 		Context("when cluster Plan is prod", func() {
 			BeforeEach(func() {
 				e2eConfig.WorkloadClusterOptions.ClusterPlan = "prod"
@@ -89,8 +105,10 @@ var _ = Describe("TKGS - Create workload cluster use cases", func() {
 				clusterOptions.ClusterConfigFile = createClusterConfigFile(e2eConfig)
 			})
 			AfterEach(func() {
+				clusterOptions.CniType = cniAntrea
 				defer os.Remove(clusterOptions.ClusterConfigFile)
 			})
+
 			When("cluster class cli feature flag (features.global.package-based-lcm-beta) is set to true", func() {
 				BeforeEach(func() {
 					//set the cli feature flag as true -  (features.global.package-based-lcm-beta)
@@ -98,10 +116,18 @@ var _ = Describe("TKGS - Create workload cluster use cases", func() {
 					tkgctlClient, err = tkgctl.New(tkgctlOptions)
 					Expect(err).To(BeNil())
 				})
-				It("should create TKC workload cluster and delete it", func() {
+
+				It("should create TKC workload cluster with CNI Antrea and delete it", func() {
+					clusterOptions.CniType = cniAntrea
+					createLegacyClusterTest(tkgctlClient, deleteClusterOptions, true, e2eConfig.WorkloadClusterOptions.ClusterName, e2eConfig.WorkloadClusterOptions.Namespace)
+				})
+
+				It("should create TKC workload cluster with CNI Calico and delete it", func() {
+					clusterOptions.CniType = cniCalico
 					createLegacyClusterTest(tkgctlClient, deleteClusterOptions, true, e2eConfig.WorkloadClusterOptions.ClusterName, e2eConfig.WorkloadClusterOptions.Namespace)
 				})
 			})
+
 			When("cluster class cli feature flag (features.global.package-based-lcm-beta) is set to false", func() {
 				BeforeEach(func() {
 					//set the cli feature flag as false -  (features.global.package-based-lcm-beta)
@@ -109,12 +135,14 @@ var _ = Describe("TKGS - Create workload cluster use cases", func() {
 					tkgctlClient, err = tkgctl.New(tkgctlOptions)
 					Expect(err).To(BeNil())
 				})
+
 				It("should create TKC workload cluster and delete it", func() {
 					createLegacyClusterTest(tkgctlClient, deleteClusterOptions, false, e2eConfig.WorkloadClusterOptions.ClusterName, e2eConfig.WorkloadClusterOptions.Namespace)
 				})
 			})
 		})
 	})
+
 	Context("when input file is cluster class based", func() {
 		var (
 			clusterName string
@@ -127,8 +155,12 @@ var _ = Describe("TKGS - Create workload cluster use cases", func() {
 			deleteClusterOptions = getDeleteClustersOptions(e2eConfig)
 			clusterOptions.ClusterConfigFile = e2eConfig.WorkloadClusterOptions.ClusterClassFilePath
 			clusterOptions.ClusterName = e2eConfig.WorkloadClusterOptions.ClusterName
-			clusterOptions.Namespace = e2eConfig.WorkloadClusterOptions.ClusterName
+			clusterOptions.Namespace = e2eConfig.WorkloadClusterOptions.Namespace
 		})
+		AfterEach(func() {
+			clusterOptions.CniType = cniAntrea
+		})
+
 		When("cluster class cli feature flag (features.global.package-based-lcm-beta) is set to true", func() {
 			BeforeEach(func() {
 				//set the cli feature flag as true -  (features.global.package-based-lcm-beta)
@@ -136,10 +168,27 @@ var _ = Describe("TKGS - Create workload cluster use cases", func() {
 				tkgctlClient, err = tkgctl.New(tkgctlOptions)
 				Expect(err).To(BeNil())
 			})
-			It("should return success or error based on the ClusterClass feature-gate status on the Supervisor", func() {
+
+			It("should create TKC workload cluster with CNI Antrea and delete it", func() {
+				clusterOptions.CniType = cniAntrea
 				createClusterClassBasedClusterTest(tkgctlClient, deleteClusterOptions, true, clusterName, namespace)
 			})
+
+			It("should create TKC workload cluster with CNI Calico and delete it", func() {
+				// use a temporary cluster class config file with CalicoConfig and ClusterBoostrap resources to
+				// customize the CNI option as Calico on the created workload cluster
+				clusterOptions.CniType = cniCalico
+				clusterOptions.ClusterConfigFile = getCalicoCNIClusterClassFile(e2eConfig)
+
+				createClusterClassBasedClusterTest(tkgctlClient, deleteClusterOptions, true, clusterName, namespace)
+
+				if clusterOptions.ClusterConfigFile != e2eConfig.WorkloadClusterOptions.ClusterClassFilePath {
+					os.Remove(clusterOptions.ClusterConfigFile)
+					clusterOptions.ClusterConfigFile = e2eConfig.WorkloadClusterOptions.ClusterClassFilePath
+				}
+			})
 		})
+
 		When("cluster class cli feature flag (features.global.package-based-lcm-beta) is set to false", func() {
 			BeforeEach(func() {
 				//set the cli feature flag as false -  (features.global.package-based-lcm-beta)
@@ -147,6 +196,7 @@ var _ = Describe("TKGS - Create workload cluster use cases", func() {
 				tkgctlClient, err = tkgctl.New(tkgctlOptions)
 				Expect(err).To(BeNil())
 			})
+
 			It("should return success or error based on the ClusterClass feature-gate status on the Supervisor", func() {
 				createClusterClassBasedClusterTest(tkgctlClient, deleteClusterOptions, false, clusterName, namespace)
 			})

@@ -237,13 +237,14 @@ func (c *TkgClient) waitForClusterCreation(regionalClusterClient clusterclient.C
 
 	c.WaitForAutoscalerDeployment(regionalClusterClient, options.ClusterName, options.TargetNamespace)
 
-	workloadClusterClient, err := clusterclient.NewClient(workloadClusterKubeconfigPath, kubeContext, clusterclient.Options{OperationTimeout: 15 * time.Minute})
-	if err != nil {
-		return errors.Wrap(err, "unable to create workload cluster client")
-	}
-
 	if !isTKGSCluster {
 		log.Info("Waiting for addons installation...")
+
+		workloadClusterClient, err := clusterclient.NewClient(workloadClusterKubeconfigPath, kubeContext, clusterclient.Options{OperationTimeout: 15 * time.Minute})
+		if err != nil {
+			return errors.Wrap(err, "unable to create workload cluster client")
+		}
+
 		if err := c.WaitForAddons(waitForAddonsOptions{
 			regionalClusterClient: regionalClusterClient,
 			workloadClusterClient: workloadClusterClient,
