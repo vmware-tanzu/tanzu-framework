@@ -29,7 +29,8 @@ const (
 	TypeVirtualMachine  = "VirtualMachine"
 )
 
-//go:generate counterfeiter -o ../fakes/vcclient.go --fake-name VCClient . Client
+//go:generate ../../../../hack/tools/bin/counterfeiter -o ../fakes/vcclient.go --fake-name VCClient . Client
+// TODO(Shashank): Change this back to original.
 
 // Client represents a vCenter client
 type Client interface {

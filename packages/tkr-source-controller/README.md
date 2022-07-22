@@ -7,3 +7,4 @@ The tkr-source-controller management package provides the following services:
 ## Components
 
 * tkr-source-controller
+* vsphere-template-resolver-cluster-webhook

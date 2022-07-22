@@ -16,3 +16,5 @@ deployment:
   httpProxy:
   httpsProxy:
   noProxy:
+  #! If hostNetwork is set to true the below two ports should be different
+  vsphereTemplateResolverWebhookServerPort: 9443
