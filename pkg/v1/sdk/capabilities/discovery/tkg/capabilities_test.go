@@ -47,6 +47,42 @@ func TestHasNSX(t *testing.T) {
 	}
 }
 
+func TestIsTKGS(t *testing.T) {
+
+	discoveryClientWithTKC := func() (*DiscoveryClient, error) {
+		return newFakeDiscoveryClient(tanzuRunAPIResourceList, Scheme, nil)
+	}
+
+	discoveryClientWithoutTKC := func() (*DiscoveryClient, error) {
+		return newFakeDiscoveryClient([]*metav1.APIResourceList{}, Scheme, nil)
+	}
+
+	testCases := []struct {
+		description       string
+		discoveryClientFn func() (*DiscoveryClient, error)
+		errExpected       bool
+		want              bool
+	}{
+		{"TKGS exists", discoveryClientWithTKC, false, true},
+		{"TKGS does not exist", discoveryClientWithoutTKC, false, false},
+	}
+	for _, tc := range testCases {
+		t.Run(tc.description, func(t *testing.T) {
+			dc, err := tc.discoveryClientFn()
+			if err != nil {
+				t.Error(err)
+			}
+			got, err := dc.IsTKGS(context.Background())
+			if err != nil && !tc.errExpected {
+				t.Error(err)
+			}
+			if got != tc.want {
+				t.Errorf("got: %t, want %t", got, tc.want)
+			}
+		})
+	}
+}
+
 var clusterInfo = `
 cluster:
   name: tkg-cluster-wc-765
