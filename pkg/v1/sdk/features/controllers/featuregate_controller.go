@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/go-logr/logr"
+	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -73,11 +74,16 @@ func (r *FeatureGateReconciler) Reconcile(ctx context.Context, req ctrl.Request)
 func (r *FeatureGateReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&configv1alpha1.FeatureGate{}).
-		Watches(&source.Kind{Type: &configv1alpha1.Feature{}}, handler.EnqueueRequestsFromMapFunc(r.featureToFeatureGates)).
+		Watches(
+			&source.Kind{Type: &configv1alpha1.Feature{}},
+			handler.EnqueueRequestsFromMapFunc(r.toFeatureGateRequests)).
+		Watches(
+			&source.Kind{Type: &corev1.Namespace{}},
+			handler.EnqueueRequestsFromMapFunc(r.toFeatureGateRequests)).
 		Complete(r)
 }
 
-func (r *FeatureGateReconciler) featureToFeatureGates(o client.Object) []reconcile.Request {
+func (r *FeatureGateReconciler) toFeatureGateRequests(o client.Object) []reconcile.Request {
 	var requests []reconcile.Request
 
 	featuregates := &configv1alpha1.FeatureGateList{}
