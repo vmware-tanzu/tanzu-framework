@@ -14,3 +14,5 @@ directories:
         manual: {}
       - path: serviceaccount.yaml
         manual: {}
+      - path: values.yaml
+        manual: {}
