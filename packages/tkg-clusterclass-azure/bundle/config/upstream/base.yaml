@@ -771,7 +771,7 @@ spec:
                 {{- else -}}
                   ,
                 {{- end }}
-                {{- .key -}} = {{- .value -}}
+                {{- .key -}} = {{- .values -}}
               {{ end }}
             {{ end }}
   - name: httpProxy

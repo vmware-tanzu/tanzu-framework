@@ -7,8 +7,15 @@ tkg_config_variables:
   AWS_ACCESS_KEY_ID: ""
   AWS_SECRET_ACCESS_KEY: ""
   AWS_SESSION_TOKEN: ""
-  AWS_VPC_ID: "vpc-03676484fdfd6c784"
-  AWS_PUBLIC_SUBNET_ID: "subnet-0f0b20e006740cf31"
-  AWS_PRIVATE_SUBNET_ID: "subnet-0bcf9b62543c340ba"
+  AWS_VPC_ID: vpc-0646fa3e162e25d7c
+  AWS_NODE_AZ: us-west-2a
+  AWS_NODE_AZ_1: us-west-2b
+  AWS_NODE_AZ_2: us-west-2c
+  AWS_PUBLIC_SUBNET_ID: subnet-0f8ab2a59ca4a9eaa
+  AWS_PUBLIC_SUBNET_ID_1: subnet-070528750b5210211
+  AWS_PUBLIC_SUBNET_ID_2: subnet-0f2c058943223c0cd
+  AWS_PRIVATE_SUBNET_ID: subnet-00ad3a16aff223eae
+  AWS_PRIVATE_SUBNET_ID_1: subnet-05995487a3f29e741
+  AWS_PRIVATE_SUBNET_ID_2: subnet-016eb6a45203c010e
 management_cluster_options:
   plan: dev

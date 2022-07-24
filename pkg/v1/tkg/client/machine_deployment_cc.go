@@ -96,7 +96,8 @@ func DoSetMachineDeploymentCC(clusterClient clusterclient.Client, cluster *capi.
 
 		for k, v := range *options.Labels {
 			labels = append(labels, map[string]string{
-				k: v,
+				"key":    k,
+				"values": v,
 			})
 		}
 
