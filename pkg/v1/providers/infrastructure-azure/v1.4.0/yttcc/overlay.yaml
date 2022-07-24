@@ -81,6 +81,11 @@ spec:
     version: #@ data.values.KUBERNETES_VERSION
     controlPlane:
       replicas: #@ data.values.CONTROL_PLANE_MACHINE_COUNT
+      #@overlay/match missing_ok=True
+      metadata:
+        annotations:
+          #! VVV TODO(tenczar) os-name handling
+          run.tanzu.vmware.com/resolve-os-image: os-name=ubuntu,os-version=2004,azure-gallery=TKG_Gallery
     workers:
       machineDeployments:
       #@overlay/match by=overlay.index(0)
@@ -89,6 +94,11 @@ spec:
         replicas: #@ data.values.WORKER_MACHINE_COUNT_0
         #@overlay/match missing_ok=True
         failureDomain: #@ str(data.values.AZURE_NODE_AZ) or "1"
+        #@overlay/match missing_ok=True
+        metadata:
+          annotations:
+            #! VVV TODO(tenczar) os-name handling
+            run.tanzu.vmware.com/resolve-os-image: os-name=ubuntu,os-version=2004,azure-gallery=TKG_Gallery
       #@ if data.values.CLUSTER_PLAN == "prodcc":
       #@overlay/append
       - class: tkg-worker
