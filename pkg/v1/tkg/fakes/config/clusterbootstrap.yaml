@@ -1,0 +1,91 @@
+apiVersion: run.tanzu.vmware.com/v1alpha3
+kind: ClusterBootstrap
+metadata:
+  creationTimestamp: "2022-07-21T21:03:00Z"
+  finalizers:
+  - tkg.tanzu.vmware.com/addon
+  generation: 2
+  name: cc18
+  namespace: ns01
+  ownerReferences:
+  - apiVersion: cluster.x-k8s.io/v1beta1
+    blockOwnerDeletion: true
+    controller: true
+    kind: Cluster
+    name: cc18
+    uid: 0d3151d0-dbce-46f1-b580-5cd7a0b77488
+  resourceVersion: "4003994"
+  uid: be1e1877-9209-4202-8ab1-361eb67b9652
+spec:
+  additionalPackages:
+  - refName: guest-cluster-auth-service.tanzu.vmware.com.1.0.0+tkg.1-zshippable
+    valuesFrom:
+      secretRef: cc18-guest-cluster-auth-service-data-values
+  - refName: metrics-server.tanzu.vmware.com.0.6.1+vmware.1-tkg.1-zshippable
+  - refName: secretgen-controller.tanzu.vmware.com.0.9.1+vmware.1-tkg.1-zshippable
+  - refName: pinniped.tanzu.vmware.com.0.12.1+vmware.1-tkg.1-zshippable
+    valuesFrom:
+      secretRef: cc18-pinniped-package
+  - refName: capabilities.tanzu.vmware.com.0.25.0-dev-12-g9305a725+vmware.1
+  cni:
+    refName: antrea.tanzu.vmware.com.1.5.2+vmware.3-tkg.1-advanced-zshippable
+    valuesFrom:
+      providerRef:
+        apiGroup: cni.tanzu.vmware.com
+        kind: AntreaConfig
+        name: cc18-antrea-package
+  cpi:
+    refName: vsphere-cpi.tanzu.vmware.com.1.23.1+vmware.1-tkg.1-zshippable
+    valuesFrom:
+      providerRef:
+        apiGroup: cpi.tanzu.vmware.com
+        kind: VSphereCPIConfig
+        name: cc18-vsphere-cpi-package
+  csi:
+    refName: vsphere-pv-csi.tanzu.vmware.com.2.4.0+vmware.1-tkg.1-zshippable
+    valuesFrom:
+      providerRef:
+        apiGroup: csi.tanzu.vmware.com
+        kind: VSphereCSIConfig
+        name: cc18-vsphere-pv-csi-package
+  kapp:
+    refName: kapp-controller.tanzu.vmware.com.0.38.4+vmware.1-tkg.1-zshippable
+    valuesFrom:
+      providerRef:
+        apiGroup: run.tanzu.vmware.com
+        kind: KappControllerConfig
+        name: cc18-kapp-controller-package
+  paused: false
+status:
+  conditions:
+  - lastTransitionTime: "2022-07-21T21:09:57Z"
+    status: "True"
+    type: Antrea-ReconcileSucceeded
+  - lastTransitionTime: "2022-07-21T21:55:32Z"
+    message: |-
+      kapp: Error: waiting on reconcile deployment/tanzu-capabilities-controller-manager (apps/v1) namespace: tkg-system:
+        Finished unsuccessfully (Deployment is not progressing: ProgressDeadlineExceeded (message: ReplicaSet "tanzu-capabilities-controller-manager-67948789df" has timed out progressing.))
+    status: "True"
+    type: Capabilities-ReconcileFailed
+  - lastTransitionTime: "2022-07-21T21:07:11Z"
+    status: "True"
+    type: Guest-Cluster-Auth-Service-ReconcileSucceeded
+  - lastTransitionTime: "2022-07-21T21:08:43Z"
+    status: "True"
+    type: Kapp-Controller-ReconcileSucceeded
+  - lastTransitionTime: "2022-07-21T21:10:42Z"
+    status: "True"
+    type: Metrics-Server-ReconcileSucceeded
+  - lastTransitionTime: "2022-07-21T21:08:00Z"
+    status: "True"
+    type: Pinniped-ReconcileSucceeded
+  - lastTransitionTime: "2022-07-21T21:10:18Z"
+    status: "True"
+    type: Secretgen-Controller-ReconcileSucceeded
+  - lastTransitionTime: "2022-07-21T21:08:08Z"
+    status: "True"
+    type: Vsphere-Cpi-ReconcileSucceeded
+  - lastTransitionTime: "2022-07-21T21:09:11Z"
+    status: "True"
+    type: Vsphere-Pv-Csi-ReconcileSucceeded
+  resolvedTKR: v1.23.5---vmware.1-tkg.1-zshippable
