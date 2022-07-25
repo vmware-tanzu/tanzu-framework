@@ -20,6 +20,9 @@ import (
 	clusterctl "sigs.k8s.io/cluster-api/cmd/clusterctl/client"
 	crtclient "sigs.k8s.io/controller-runtime/pkg/client"
 
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+
+	kapppkgv1alpha1 "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apiserver/apis/datapackaging/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/config"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/clusterclient"
@@ -396,11 +399,11 @@ func (c *TkgClient) WaitForPackages(regionalClusterClient, currentClusterClient 
 
 	// From the addons secret get the names of package installs for each addon secret
 	// This is determined from the "tkg.tanzu.vmware.com/addon-name" label on the secret
-	packageInstallNames := []string{}
+	var packagesInstalled []kapppkgv1alpha1.Package
 
 	// Add tanzu-core-management-plugins packages to the list of packages to wait for management-cluster
 	if isRegionalCluster {
-		packageInstallNames = append(packageInstallNames, constants.CoreManagementPluginsPackageName)
+		packagesInstalled = append(packagesInstalled, kapppkgv1alpha1.Package{ObjectMeta: metav1.ObjectMeta{Name: constants.CoreManagementPluginsPackageName, Namespace: constants.TkgNamespace}})
 	}
 
 	for i := range secretList.Items {
@@ -408,39 +411,13 @@ func (c *TkgClient) WaitForPackages(regionalClusterClient, currentClusterClient 
 			if cn, exists := secretList.Items[i].Labels[constants.ClusterNameLabel]; exists && cn == clusterName {
 				if addonName, exists := secretList.Items[i].Labels[constants.AddonNameLabel]; exists {
 					if !utils.ContainsString(ListExcludePackageInstallsFromWait, addonName) {
-						packageInstallNames = append(packageInstallNames, addonName)
+						packagesInstalled = append(packagesInstalled, kapppkgv1alpha1.Package{ObjectMeta: metav1.ObjectMeta{Name: addonName, Namespace: constants.TkgNamespace}})
 					}
 				}
 			}
 		}
 	}
-
-	// Start waiting for all packages in parallel using group.Wait
-	// Note: As PackageInstall resources are created in the cluster itself
-	// we are using currentClusterClient which will point to correct cluster
-	group, _ := errgroup.WithContext(context.Background())
-
-	for _, packageName := range packageInstallNames {
-		pn := packageName
-		log.V(3).Warningf("Waiting for package: %s", pn)
-		group.Go(
-			func() error {
-				err := currentClusterClient.WaitForPackageInstall(pn, constants.TkgNamespace, c.getPackageInstallTimeoutFromConfig())
-				if err != nil {
-					log.V(3).Warningf("Failure while waiting for package '%s'", pn)
-				} else {
-					log.V(3).Infof("Successfully reconciled package: %s", pn)
-				}
-				return err
-			})
-	}
-
-	err = group.Wait()
-	if err != nil {
-		return errors.Wrap(err, "Failure while waiting for packages to be installed")
-	}
-
-	return nil
+	return WaitForPackagesInstallation(currentClusterClient, packagesInstalled, c.getPackageInstallTimeoutFromConfig())
 }
 
 func (c *TkgClient) getPackageInstallTimeoutFromConfig() time.Duration {

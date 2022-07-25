@@ -633,7 +633,7 @@ func (c *client) WaitForResourceDeletion(resourceReference interface{}, resource
 		return err
 	}
 
-	log.V(4).Infof("Waiting for %s resource of type %s to be deleted", resourceName, reflect.TypeOf(resourceReference))
+	log.V(4).Infof("waiting for %s resource of type %s to be deleted", resourceName, reflect.TypeOf(resourceReference))
 	_, err = c.poller.PollImmediateWithGetter(pollOptions.Interval, pollOptions.Timeout, func() (interface{}, error) {
 		getErr := c.get(resourceName, namespace, obj, postVerify)
 		if getErr != nil {
@@ -1197,7 +1197,7 @@ func (c *client) GetResource(resourceReference interface{}, resourceName, namesp
 	// if pollOptions are provided use the polling and wait for the result/error/timeout
 	// else use normal get
 	if pollOptions != nil {
-		log.V(4).Infof("Waiting for resource %s of type %s to be up and running", resourceName, reflect.TypeOf(resourceReference))
+		log.V(4).Infof("waiting for resource %s of type %s to be up and running", resourceName, reflect.TypeOf(resourceReference))
 		_, err = c.poller.PollImmediateWithGetter(pollOptions.Interval, pollOptions.Timeout, func() (interface{}, error) {
 			return nil, c.get(resourceName, namespace, obj, postVerify)
 		})
@@ -1231,7 +1231,7 @@ func (c *client) GetResourceList(resourceReference interface{}, clusterName, nam
 	// if pollOptions are provided use the polling and wait for the result/error/timeout
 	// else use normal list
 	if pollOptions != nil {
-		log.V(4).Infof("Waiting for resources type %s to be up and running", reflect.TypeOf(resourceReference))
+		log.V(4).Infof("waiting for resources type %s to be up and running", reflect.TypeOf(resourceReference))
 		_, err = c.poller.PollImmediateWithGetter(pollOptions.Interval, pollOptions.Timeout, func() (interface{}, error) {
 			return nil, c.list(clusterName, namespace, obj, postVerify)
 		})
@@ -1349,7 +1349,7 @@ func (c *client) GetSecretValue(secretName, key, namespace string, pollOptions *
 }
 
 func (c *client) GetKubeConfigForCluster(clusterName, namespace string, pollOptions *PollOptions) ([]byte, error) {
-	log.V(4).Info("Getting secret for cluster")
+	log.V(4).Info("getting secret for cluster")
 	clusterSecretName := fmt.Sprintf("%s-%s", clusterName, kubeConfigSecretSuffix)
 	kubeConfigBytes, err := c.GetSecretValue(clusterSecretName, kubeConfigDataField, namespace, pollOptions)
 	if err != nil {
