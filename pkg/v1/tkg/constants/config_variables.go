@@ -272,4 +272,7 @@ const (
 	ConfigVariableAviManagementClusterControlPlaneVipNetworkCIDR = "AVI_MANAGEMENT_CLUSTER_CONTROL_PLANE_VIP_NETWORK_CIDR"
 
 	ConfigVariableFeatureFlagPackageBasedLCM = "FEATURE_FLAG_PACKAGE_BASED_LCM"
+
+	// Config variable for enabling tkgs routable pod feature
+	ConfigVariableEnableTKGSRoutablePod = "ENABLE_TKGS_ROUTABLE_POD"
 )

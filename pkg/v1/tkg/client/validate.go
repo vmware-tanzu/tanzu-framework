@@ -1657,7 +1657,11 @@ func (c *TkgClient) configureAndValidateIPFamilyConfiguration(clusterRole string
 		return err
 	}
 	if clusterCIDRs == "" {
-		c.TKGConfigReaderWriter().Set(constants.ConfigVariableClusterCIDR, c.defaultClusterCIDR(ipFamily))
+		routablePodEnabled := os.Getenv(constants.ConfigVariableEnableTKGSRoutablePod)
+		//Skip auto-fill podcidr if tkgs routable pod feature is enabled
+		if routablePodEnabled != "TRUE" {
+			c.TKGConfigReaderWriter().Set(constants.ConfigVariableClusterCIDR, c.defaultClusterCIDR(ipFamily))
+		}
 	} else if err := c.validateCIDRsForIPFamily(constants.ConfigVariableClusterCIDR, clusterCIDRs, ipFamily); err != nil {
 		return err
 	}
