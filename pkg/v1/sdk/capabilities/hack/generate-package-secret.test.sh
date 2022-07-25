@@ -16,7 +16,7 @@ TEST_RESULT_1=$(./hack/generate-package-secret.sh)
 EXPECTED_1="apiVersion: v1
 kind: Secret
 metadata:
-  name: default-capabilities-config-v0.0.0
+  name: default-capabilities-package-config-v0.0.0
 stringData:
   values.yaml: |
     namespace: tkg-system
@@ -36,11 +36,11 @@ then
 fi
 
 # test with provided args
-TEST_RESULT_2=$(./hack/generate-package-secret.sh -v tkr=foo)
+TEST_RESULT_2=$(./hack/generate-package-secret.sh -v tkr=foo --data-value-yaml 'rbac.podSecurityPolicyNames=[test-psp,test-psp-two]')
 EXPECTED_2="apiVersion: v1
 kind: Secret
 metadata:
-  name: default-capabilities-config-foo
+  name: default-capabilities-package-config-foo
 stringData:
   values.yaml: |
     namespace: tkg-system
@@ -49,7 +49,9 @@ stringData:
       nodeSelector: {}
       tolerations: []
     rbac:
-      podSecurityPolicyNames: []"
+      podSecurityPolicyNames:
+      - test-psp
+      - test-psp-two"
 
 if [[ "${TEST_RESULT_2}" != "${EXPECTED_2}" ]]
 then
