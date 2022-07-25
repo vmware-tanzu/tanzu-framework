@@ -27,7 +27,6 @@ import (
 	capiremote "sigs.k8s.io/cluster-api/controllers/remote"
 	controlplanev1beta1 "sigs.k8s.io/cluster-api/controlplane/kubeadm/api/v1beta1"
 	ctrl "sigs.k8s.io/controller-runtime"
-	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller"
 	"sigs.k8s.io/controller-runtime/pkg/healthz"
 
@@ -396,17 +395,11 @@ func enableWebhooks(ctx context.Context, mgr ctrl.Manager, flags *addonFlags) {
 }
 
 func enablePackageInstallStatusController(ctx context.Context, mgr ctrl.Manager, flags *addonFlags) {
-	// Exclude kapppkg.PackageInstall and kappdatapkg.Package from tracker caches to prevent too many items
-	// being held in memory along with standard ConfigMap and Secret
+	// set up a ClusterCacheTracker to provide to PackageInstallStatus controller which requires a connection to remote clusters
+	// the informers/caches are created only for objects accessed through Get/List in the code.
+	// we only read PackageInstall resource through our cached client, by default the client excludes configmap and secret resources.
 	l := ctrl.Log.WithName("remote").WithName("ClusterCacheTracker")
-	tracker, err := capiremote.NewClusterCacheTracker(mgr, capiremote.ClusterCacheTrackerOptions{Log: &l,
-		ClientUncachedObjects: []client.Object{
-			&corev1.ConfigMap{},
-			&corev1.Secret{},
-			&kapppkg.PackageInstall{},
-			&kappdatapkg.Package{},
-		},
-	})
+	tracker, err := capiremote.NewClusterCacheTracker(mgr, capiremote.ClusterCacheTrackerOptions{Log: &l})
 	if err != nil {
 		setupLog.Error(err, "unable to create cluster cache tracker")
 		os.Exit(1)
