@@ -43,7 +43,9 @@ func E2ENodePoolSpec(context context.Context, inputGetter func() E2ENodePoolSpec
 		clusterName = input.E2EConfig.ClusterPrefix + "wc-" + util.RandomString(4) // nolint:gomnd
 
 		tkgCtlClient, err = tkgctl.New(tkgctl.Options{
-			ConfigDir: input.E2EConfig.TkgConfigDir,
+			ConfigDir:   input.E2EConfig.TkgConfigDir,
+			KubeConfig:  input.E2EConfig.TKGSKubeconfigPath,
+			KubeContext: input.E2EConfig.TKGSKubeconfigContext,
 			LogOptions: tkgctl.LoggingOptions{
 				File:      filepath.Join(logsDir, clusterName+".log"),
 				Verbosity: input.E2EConfig.TkgCliLogLevel,
@@ -68,13 +70,19 @@ func E2ENodePoolSpec(context context.Context, inputGetter func() E2ENodePoolSpec
 			}
 		}
 
-		clusterConfigFile, err := framework.GetTempClusterConfigFile(input.E2EConfig.TkgClusterConfigPath, &options)
-		Expect(err).To(BeNil())
+		var clusterConfigFile string
+		if input.E2EConfig.WorkloadClusterOptions.InfrastructureProvider == "tkg-service-vsphere" {
+			clusterConfigFile = input.E2EConfig.WorkloadClusterOptions.ClusterClassFilePath
+		} else {
+			clusterConfigFile, err = framework.GetTempClusterConfigFile(input.E2EConfig.TkgClusterConfigPath, &options)
+			Expect(err).To(BeNil())
+			defer os.Remove(clusterConfigFile)
+		}
 
-		defer os.Remove(clusterConfigFile)
 		err = tkgCtlClient.CreateCluster(tkgctl.CreateClusterOptions{
 			ClusterConfigFile: clusterConfigFile,
 			Edition:           "tkg",
+			SkipPrompt:        true,
 		})
 		Expect(err).To(BeNil())
 
