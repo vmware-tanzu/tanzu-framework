@@ -10,7 +10,7 @@ import (
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
-	uuid "github.com/google/uuid"
+	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
 	"github.com/tj/assert"
 	"golang.org/x/sync/errgroup"
@@ -79,7 +79,23 @@ func TestClientConfig(t *testing.T) {
 	require.Len(t, c.KnownServers, 2)
 	require.Equal(t, c.CurrentServer, "test1")
 
+	err = SetCurrentServer("test")
+	require.NoError(t, err)
+
+	c, err = GetClientConfig()
+	require.NoError(t, err)
+	require.Len(t, c.KnownServers, 2)
+	require.Equal(t, "test", c.CurrentServer)
+
 	err = RemoveServer("test")
+	require.NoError(t, err)
+
+	c, err = GetClientConfig()
+	require.NoError(t, err)
+	require.Len(t, c.KnownServers, 1)
+	require.Equal(t, "", c.CurrentServer)
+
+	err = PutServer(server1, true)
 	require.NoError(t, err)
 
 	c, err = GetClientConfig()
@@ -569,6 +585,8 @@ func configureTestDefaultStandaloneDiscoveryLocal() {
 	DefaultStandaloneDiscoveryLocalPath = "local/path"
 }
 
+<<<<<<< HEAD
+<<<<<<< HEAD
 func TestClientConfigUpdateInParallel(t *testing.T) {
 	assert := assert.New(t)
 	addServer := func(mcName string) error {
@@ -626,5 +644,127 @@ func TestClientConfigUpdateInParallel(t *testing.T) {
 	for testCounter := 1; testCounter <= 5; testCounter++ {
 		log.Infof("Running parallel test #%v", testCounter)
 		runTestInParallel()
+=======
+=======
+>>>>>>> f244de9f (Use fslock to lock when reading the tanzu config file for update (#2882))
+func TestEndpointFromContext(t *testing.T) {
+	tcs := []struct {
+		name     string
+		ctx      *configv1alpha1.Context
+		endpoint string
+		errStr   string
+	}{
+		{
+			name: "success k8s",
+			ctx: &configv1alpha1.Context{
+				Name: "test-mc",
+				Type: configv1alpha1.CtxTypeK8s,
+				ClusterOpts: &configv1alpha1.ClusterServer{
+					Endpoint:            "test-endpoint",
+					Path:                "test-path",
+					Context:             "test-context",
+					IsManagementCluster: true,
+				},
+			},
+		},
+		{
+			name: "success tmc current",
+			ctx: &configv1alpha1.Context{
+				Name: "test-tmc",
+				Type: configv1alpha1.CtxTypeTMC,
+				GlobalOpts: &configv1alpha1.GlobalServer{
+					Endpoint: "test-endpoint",
+				},
+			},
+		},
+		{
+			name: "failure",
+			ctx: &configv1alpha1.Context{
+				Name: "test-dummy",
+				Type: "dummy",
+				ClusterOpts: &configv1alpha1.ClusterServer{
+					Endpoint:            "test-endpoint",
+					Path:                "test-path",
+					Context:             "test-context",
+					IsManagementCluster: true,
+				},
+			},
+			errStr: "unknown server type \"dummy\"",
+		},
+	}
+
+	for _, tc := range tcs {
+		t.Run(tc.name, func(t *testing.T) {
+			endpoint, err := EndpointFromContext(tc.ctx)
+			if tc.errStr == "" {
+				assert.NoError(t, err)
+				assert.Equal(t, "test-endpoint", endpoint)
+			} else {
+				assert.EqualError(t, err, tc.errStr)
+			}
+		})
+<<<<<<< HEAD
+>>>>>>> 4435e9cb (CLI: Add context types in client config)
+=======
+=======
+func TestClientConfigUpdateInParallel(t *testing.T) {
+	assert := assert.New(t)
+	addServer := func(mcName string) error {
+		_, err := GetClientConfig()
+		if err != nil {
+			return err
+		}
+
+		s := &configv1alpha1.Server{
+			Name: mcName,
+			Type: configv1alpha1.ManagementClusterServerType,
+			ManagementClusterOpts: &configv1alpha1.ManagementClusterServer{
+				Context: "fake-context",
+				Path:    "fake-path",
+			},
+		}
+		err = AddServer(s, true)
+		if err != nil {
+			return err
+		}
+
+		_, err = GetClientConfig()
+		return err
+	}
+
+	// Creates temp configuration file and runs addServer in parallel
+	runTestInParallel := func() {
+		// Get the temp tanzu config file
+		f, err := os.CreateTemp("", "tanzu_config*")
+		assert.Nil(err)
+		os.Setenv("TANZU_CONFIG", f.Name())
+
+		// run addServer in parallel
+		parallelExecutionCounter := 100
+		group, _ := errgroup.WithContext(context.Background())
+		for i := 1; i <= parallelExecutionCounter; i++ {
+			id := i
+			group.Go(func() error {
+				return addServer(fmt.Sprintf("mc-%v", id))
+			})
+		}
+		err = group.Wait()
+		assert.Nil(err)
+
+		// Make sure that the configuration file is not corrupted
+		clientconfig, err := GetClientConfig()
+		assert.Nil(err)
+
+		// Make sure all expected servers are added to the knownServers list
+		assert.Equal(parallelExecutionCounter, len(clientconfig.KnownServers))
+	}
+
+	// Run the parallel tests of reading and updating the configuration file
+	// multiple times to make sure all the attempts are successful
+	for testCounter := 1; testCounter <= 5; testCounter++ {
+		log.Infof("Running parallel test #%v", testCounter)
+		runTestInParallel()
+>>>>>>> 74109cf6 (Use fslock to lock when reading the tanzu config file for update (#2882))
+>>>>>>> f244de9f (Use fslock to lock when reading the tanzu config file for update (#2882))
 	}
 }

@@ -54,6 +54,12 @@ var AdvancedGCPBucketRepository = configv1alpha1.GCPPluginRepository{
 	Name:       AdvancedRepositoryName,
 }
 
+// S3BucketDefaultRepository is the S3 bucket repository for TMC plugins.
+var S3BucketDefaultRepository = configv1alpha1.S3PluginRepository{
+	Bucket:   "tmc-cli",
+	BasePath: "tmc-plugins/artifacts",
+}
+
 // DefaultRepositories are the default repositories for the CLI.
 var DefaultRepositories []configv1alpha1.PluginRepository = []configv1alpha1.PluginRepository{
 	{
@@ -131,6 +137,10 @@ func getHTTPURIForGCPPluginRepository(repo configv1alpha1.GCPPluginRepository) s
 	return fmt.Sprintf("https://storage.googleapis.com/%s/", repo.BucketName)
 }
 
+func getHTTPURIForS3PluginRepository(repo configv1alpha1.S3PluginRepository) string {
+	return fmt.Sprintf("https://%s.s3-us-west-2.amazonaws.com/%s/", repo.Bucket, repo.BasePath)
+}
+
 // GetTrustedArtifactLocations returns the list of trusted URI prefixes that can
 // be trusted for downloading the CLIPlugins. Currently, this includes only the
 // "tanzu-cli-advanced-plugins" GCP bucket where TMC plugins are stored. Other
@@ -138,6 +148,7 @@ func getHTTPURIForGCPPluginRepository(repo configv1alpha1.GCPPluginRepository) s
 func GetTrustedArtifactLocations() []string {
 	trustedLocations := []string{
 		getHTTPURIForGCPPluginRepository(AdvancedGCPBucketRepository),
+		getHTTPURIForS3PluginRepository(S3BucketDefaultRepository),
 	}
 
 	return trustedLocations
