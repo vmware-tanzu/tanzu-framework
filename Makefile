@@ -637,7 +637,7 @@ generate-package-secret: ## Generate the default package values secret. Usage: m
 	@if [ $(PACKAGE) == 'pinniped' ]; then \
 	  ./addons/pinniped/tanzu-auth-controller-manager/hack/generate-package-secret.sh -v tkr=${tkr} -v infrastructure_provider=${iaas} ;\
 	elif [ $(PACKAGE) == 'capabilities' ]; then \
-	  ./pkg/v1/sdk/capabilities/hack/generate-package-secret.sh -v tkr=${tkr} ;\
+	  ./pkg/v1/sdk/capabilities/hack/generate-package-secret.sh -v tkr=${tkr} --data-value-yaml 'rbac.podSecurityPolicyNames=[${psp}]';\
 	else \
 	  echo "invalid PACKAGE: $(PACKAGE)" ;\
 	  exit 1 ;\
