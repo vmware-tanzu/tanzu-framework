@@ -10,6 +10,7 @@ import (
 	"math/rand"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"sigs.k8s.io/cluster-api/util"
@@ -18,9 +19,12 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
+	"github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha1"
+	runv1alpha3 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/test/framework"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgctl"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/utils"
 )
 
 type E2ECommonSpecInput struct {
@@ -222,4 +226,113 @@ func E2ECommonSpec(ctx context.Context, inputGetter func() E2ECommonSpecInput) {
 
 		By("Test successful !")
 	})
+}
+
+func getNextAvailableTkrVersion(tkgctlClient tkgctl.TKGClient, currentTkrVersion string) (string, error) {
+	var foundVersion string
+
+	tkrs, err := tkgctlClient.GetTanzuKubernetesReleases("")
+	if err != nil {
+		return "", err
+	}
+
+	for i := range tkrs {
+		if !isCompatible(tkrs[i]) {
+			continue
+		}
+
+		if _, exists := tkrs[i].Labels[runv1alpha3.LabelDeactivated]; exists {
+			continue
+		}
+
+		specVersionIsNewer, err := isNewerVMwareVersion(tkrs[i].Spec.Version, currentTkrVersion)
+		if err != nil {
+			return "", err
+		}
+		if specVersionIsNewer {
+			// if we don't already have a foundVersion we take spec.version
+			foundVersion, err = pickOlderVMwareVersion(foundVersion, tkrs[i].Spec.Version)
+			if err != nil {
+				return "", err
+			}
+		}
+	}
+
+	if foundVersion == "" {
+		return "", fmt.Errorf("no TKR version available for upgrade")
+	}
+
+	return foundVersion, nil
+}
+
+func isCompatible(tkr v1alpha1.TanzuKubernetesRelease) bool {
+	var compatible string
+	for _, condition := range tkr.Status.Conditions {
+		if condition.Type == runv1alpha3.ConditionCompatible {
+			compatible = string(condition.Status)
+			break
+		}
+	}
+	if !strings.EqualFold(compatible, "true") {
+		return false
+	}
+	return true
+}
+
+func isNewerVMwareVersion(versionA, versionB string) (bool, error) {
+	compareResult, err := utils.CompareVMwareVersionStrings(versionB, versionA)
+	if err != nil {
+		return false, err
+	}
+	if compareResult < 0 {
+		return true, nil
+	}
+	return false, nil
+}
+
+func pickOlderVMwareVersion(tkrVersionA, tkrVersionB string) (string, error) {
+	var returnValue string
+	if tkrVersionA == "" {
+		returnValue = tkrVersionB
+	} else {
+		compareResult, err := utils.CompareVMwareVersionStrings(tkrVersionA, tkrVersionB)
+		if err != nil {
+			return "", err
+		}
+		if compareResult > 0 {
+			returnValue = tkrVersionB
+		} else {
+			returnValue = tkrVersionA
+		}
+	}
+	return returnValue, nil
+}
+
+func getTkrVersion(tkgctlClient tkgctl.TKGClient, clusterName, clusterNamespace string) (string, error) {
+	cluster, err := tkgctlClient.GetClusters(tkgctl.ListTKGClustersOptions{Namespace: clusterNamespace,
+		ClusterName: clusterName})
+	if err != nil {
+		return "", err
+	}
+	if len(cluster) < 1 {
+		return "", nil
+	}
+	return cluster[0].K8sVersion, nil
+}
+
+// TestClusterUpgrade tests upgrading a workload cluster to next available tkr
+func TestClusterUpgrade(tkgctlClient tkgctl.TKGClient, clusterName, namespace string) {
+	By(fmt.Sprintf("Upgrade workload cluster %q in namespace %q", clusterName, namespace))
+	currentTkrVersion, err := getTkrVersion(tkgctlClient, clusterName, namespace)
+	Expect(err).ToNot(HaveOccurred())
+	nextAvailableTkrVersion, err := getNextAvailableTkrVersion(tkgctlClient, currentTkrVersion)
+	Expect(err).ToNot(HaveOccurred())
+	err = tkgctlClient.UpgradeCluster(tkgctl.UpgradeClusterOptions{
+		ClusterName: clusterName,
+		Namespace:   namespace,
+		TkrVersion:  nextAvailableTkrVersion,
+		SkipPrompt:  true,
+	})
+	Expect(err).ToNot(HaveOccurred())
+
 }
