@@ -94,13 +94,20 @@ func E2ECCMiscSpec(context context.Context, inputGetter func() E2ECommonSpecInpu
 
 		out := <-outChan
 
-		var clusterclass map[string]interface{}
-		yaml.NewDecoder(bytes.NewBufferString(out)).Decode(&clusterclass)
+		var obj map[string]interface{}
+		err = yaml.NewDecoder(bytes.NewBufferString(out)).Decode(&obj)
+		Expect(err).ToNot(HaveOccurred())
 
-		Expect(clusterclass["kind"]).To(Equal("ClusterClass"))
-
-		if metadata, ok := clusterclass["metadata"].(map[string]interface{}); ok {
-			Expect(metadata["name"]).To(Equal(fmt.Sprintf("tkg-%s-default", input.E2EConfig.InfrastructureName)))
+		if obj["kind"] == "ClusterClass" {
+			if metadata, ok := obj["metadata"].(map[string]interface{}); ok {
+				Expect(metadata["name"]).To(Equal(fmt.Sprintf("tkg-%s-default", input.E2EConfig.InfrastructureName)))
+			}
+		} else if obj["kind"] == "Cluster" {
+			if spec, ok := obj["spec"].(map[string]interface{}); ok {
+				if topology, ok := spec["topology"].(map[string]interface{}); ok {
+					Expect(topology["class"]).To(Equal(fmt.Sprintf("tkg-%s-default", input.E2EConfig.InfrastructureName)))
+				}
+			}
 		}
 
 		By("running cluster create dry-run with a cc config file")
