@@ -92,30 +92,31 @@ var _ = Describe("PackageInstallStatus Reconciler", func() {
 			clusterBootstrapGet(client.ObjectKeyFromObject(mngCluster))
 			clusterBootstrapGet(client.ObjectKeyFromObject(wlcCluster))
 
-			By("verifying un-managed packages do not update the 'Status.Conditions' for ClusterBootstrap")
-			// install unmanaged package into management cluster. Make sure ClusterBootstrap conditions does not get changed from un-managed package
-			installPackage(mngCluster.Name, "pkg.test.carvel.dev.1.0.0", mngCluster.Namespace)
+			//By("verifying un-managed packages do not update the 'Status.Conditions' for ClusterBootstrap")
+			//// install unmanaged package into management cluster. Make sure ClusterBootstrap conditions does not get changed from un-managed package
+			//installPackage(mngCluster.Name, "pkg.test.carvel.dev.1.0.0", mngCluster.Namespace)
+			//mngClusterBootstrap := clusterBootstrapGet(client.ObjectKeyFromObject(mngCluster))
+			//// Antrea is already installed into management cluster's tkg-system namespace
+			//Expect(len(mngClusterBootstrap.Status.Conditions)).Should(Equal(1))
+			//antreaCondType := "Antrea-" + clusterapiv1beta1.ConditionType(v1alpha1.ReconcileSucceeded)
+			//Expect(mngClusterBootstrap.Status.Conditions[0].Type).Should(Equal(antreaCondType))
+			//// install unmanaged package into workload cluster. Make sure cluster bootstrap conditions does not get changed fro un-managed package
+			//installPackage(wlcCluster.Name, "pkg.test.carvel.dev.1.0.0", wlcCluster.Namespace)
+			//wlcClusterBootstrap := clusterBootstrapGet(client.ObjectKeyFromObject(wlcCluster))
+			//Expect(len(wlcClusterBootstrap.Status.Conditions)).Should(Equal(0))
+
+			By("verifying ClusterBootstrap 'Status.Conditions' does not get updated when PackageInstall's summarized condition is Unknown")
+			// verify for management cluster
+			updatePkgInstallStatus(mngAntreaObjKey, "")
 			mngClusterBootstrap := clusterBootstrapGet(client.ObjectKeyFromObject(mngCluster))
 			// Antrea is already installed into management cluster's tkg-system namespace
 			Expect(len(mngClusterBootstrap.Status.Conditions)).Should(Equal(1))
 			antreaCondType := "Antrea-" + clusterapiv1beta1.ConditionType(v1alpha1.ReconcileSucceeded)
 			Expect(mngClusterBootstrap.Status.Conditions[0].Type).Should(Equal(antreaCondType))
-			// install unmanaged package into workload cluster. Make sure cluster bootstrap conditions does not get changed fro un-managed package
-			installPackage(wlcCluster.Name, "pkg.test.carvel.dev.1.0.0", wlcCluster.Namespace)
-			wlcClusterBootstrap := clusterBootstrapGet(client.ObjectKeyFromObject(wlcCluster))
-			Expect(len(wlcClusterBootstrap.Status.Conditions)).Should(Equal(0))
-
-			By("verifying ClusterBootstrap 'Status.Conditions' does not get updated when PackageInstall's summarized condition is Unknown")
-			// verify for management cluster
-			updatePkgInstallStatus(mngAntreaObjKey, "")
-			mngClusterBootstrap = clusterBootstrapGet(client.ObjectKeyFromObject(mngCluster))
-			// Antrea is already installed into management cluster's tkg-system namespace
-			Expect(len(mngClusterBootstrap.Status.Conditions)).Should(Equal(1))
-			Expect(mngClusterBootstrap.Status.Conditions[0].Type).Should(Equal(antreaCondType))
 			// verify for workload cluster
 			updatePkgInstallStatus(wlcAntreaObjKey, "")
 			updatePkgInstallStatus(wlcKappObjKey, "")
-			wlcClusterBootstrap = clusterBootstrapGet(client.ObjectKeyFromObject(wlcCluster))
+			wlcClusterBootstrap := clusterBootstrapGet(client.ObjectKeyFromObject(wlcCluster))
 			Expect(len(wlcClusterBootstrap.Status.Conditions)).Should(Equal(0))
 
 			By("verifying ClusterBootstrap 'Status.Conditions' gets updated for managed packages")
