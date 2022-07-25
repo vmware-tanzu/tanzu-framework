@@ -205,12 +205,13 @@ func (r *PackageInstallStatusReconciler) reconcile(clusterClient client.Client, 
 
 	var errorList []error
 
+	patchHelper, err := clusterapipatchutil.NewHelper(clusterBootstrap, r.Client)
+	if err != nil {
+		errorList = append(errorList, errors.Wrap(err, "error patching ClusterBootstrapStatus"))
+		retErr = kerrors.NewAggregate(errorList)
+	}
+
 	defer func() {
-		patchHelper, err := clusterapipatchutil.NewHelper(clusterBootstrap, r.Client)
-		if err != nil {
-			errorList = append(errorList, errors.Wrap(err, "error patching ClusterBootstrapStatus"))
-			retErr = kerrors.NewAggregate(errorList)
-		}
 		if err := patchHelper.Patch(r.ctx, clusterBootstrap); err != nil {
 			errorList = append(errorList, errors.Wrap(err, "error patching ClusterBootstrapStatus"))
 			retErr = kerrors.NewAggregate(errorList)
