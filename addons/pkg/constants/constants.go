@@ -230,6 +230,12 @@ const (
 
 	// CAPVClusterRoleAggregationRuleLabelSelectorValue is the label selector value used by aggregation rule in CAPV ClusterRole
 	CAPVClusterRoleAggregationRuleLabelSelectorValue = "true"
+
+	// PackageInstallStatusControllerRateLimitBaseDelay is the base delay for rate limiting error requeues in PackageInstallStatusController
+	PackageInstallStatusControllerRateLimitBaseDelay = time.Second * 10
+
+	// PackageInstallStatusControllerRateLimitMaxDelay is the maximum delay for rate limiting error requeues in PackageInstallStatusController
+	PackageInstallStatusControllerRateLimitMaxDelay = time.Minute * 30
 )
 
 var (

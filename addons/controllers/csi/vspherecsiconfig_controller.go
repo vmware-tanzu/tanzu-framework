@@ -259,7 +259,7 @@ func (r *VSphereCSIConfigReconciler) reconcileVSphereCSIConfigNormal(ctx context
 		return nil
 	}
 
-	opResult, err := controllerutil.CreateOrPatch(ctx, r.Client, secret, mutateFn)
+	_, err := controllerutil.CreateOrPatch(ctx, r.Client, secret, mutateFn)
 
 	if err != nil {
 		logger.Error(err, "Error creating or patching VSphereCSIConfig data values secret")
@@ -293,9 +293,6 @@ func (r *VSphereCSIConfigReconciler) reconcileVSphereCSIConfigNormal(ctx context
 			return ctrl.Result{}, err
 		}
 	}
-
-	logger.Info(fmt.Sprintf("'%s' the secret '%s'", opResult,
-		fmt.Sprintf("%s/%s", secret.Namespace, secret.Name)))
 
 	csiCfg.Status.SecretRef = &secret.Name
 
