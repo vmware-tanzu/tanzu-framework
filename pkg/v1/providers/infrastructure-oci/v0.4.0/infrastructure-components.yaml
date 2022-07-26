@@ -3142,7 +3142,7 @@ spec:
           env:
             - name: AUTH_CONFIG_DIR
               value: /etc/oci
-          image: ghcr.io/oracle/cluster-api-oci-controller:v0.4.0
+          image: ghcr.io/oracle/cluster-api-oci-controller:${CAPOCI_CONTROLLER_IMAGE_TAG}
           imagePullPolicy: IfNotPresent
           livenessProbe:
             httpGet:
