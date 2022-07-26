@@ -380,16 +380,10 @@ func (r *VSphereCSIConfigReconciler) isStretchedSupervisorCluster(ctx context.Co
 		return false, err
 	}
 
-	if len(azList.Items) == 0 {
+	if len(azList.Items) <= 1 {
+		// by default every non-stretched cluster contains a single zone,
+		// if there is only one AZ we assume it is non-stretched cluster
 		return false, nil
-	}
-
-	if len(azList.Items) == 1 {
-		// by default every cluster contains legacy availability zone,
-		// if only the legacy AZ is present, return false
-		if azList.Items[0].Name == LegacyZoneName {
-			return false, nil
-		}
 	}
 
 	return true, nil
