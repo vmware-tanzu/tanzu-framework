@@ -19,11 +19,12 @@ import (
 	capictrlpkubeadmv1beta1 "sigs.k8s.io/cluster-api/controlplane/kubeadm/api/v1beta1"
 	"sigs.k8s.io/controller-runtime/pkg/log"
 
+	topologyv1alpha1 "github.com/vmware-tanzu/vm-operator/external/tanzu-topology/api/v1alpha1"
+
 	cutil "github.com/vmware-tanzu/tanzu-framework/addons/controllers/utils"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
 	pkgtypes "github.com/vmware-tanzu/tanzu-framework/addons/pkg/types"
 	csiv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/csi/v1alpha1"
-	topologyv1alpha1 "github.com/vmware-tanzu/vm-operator/external/tanzu-topology/api/v1alpha1"
 )
 
 // mapVSphereCSIConfigToDataValues maps VSphereCSIConfig CR to data values
@@ -385,11 +386,9 @@ func (r *VSphereCSIConfigReconciler) isStretchedSupervisorCluster(ctx context.Co
 	}
 
 	if len(azList.Items) == 1 {
-		// by default every cluster contains legacy availability zone,
-		// if only the legacy AZ is present, return false
-		if azList.Items[0].Name == LegacyZoneName {
-			return false, nil
-		}
+		// by default every non-stretched cluster contains a single zone,
+		// if there is only one AZ we assume it is non-stretched cluster
+		return false, nil
 	}
 
 	return true, nil

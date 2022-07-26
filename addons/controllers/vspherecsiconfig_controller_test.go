@@ -274,26 +274,34 @@ var _ = Describe("VSphereCSIConfig Reconciler", func() {
 	})
 
 	Context("reconcile VSphereCSIConfig manifests in paravirtual mode", func() {
-		var availabilityZone *topologyv1alpha1.AvailabilityZone
+		var availabilityZone1, availabilityZone2 *topologyv1alpha1.AvailabilityZone
 		BeforeEach(func() {
 			// (deliberate decision): There is no watch on AvailabilityZone in vspherecsiconfig_controller so any change to it will not trigger reconcile
 			// of resources. Based on discussions with TKGS team, availability zone is created at supervisor cluster init time
 			// and does not really change after that. The test will only check for the presence of non legacy availability
 			// zone and set zone to true
-			availabilityZone = &topologyv1alpha1.AvailabilityZone{
+			availabilityZone1 = &topologyv1alpha1.AvailabilityZone{
 				ObjectMeta: metav1.ObjectMeta{
 					Name: "test-az",
 				},
 			}
 
-			Expect(k8sClient.Create(ctx, availabilityZone)).Should(Succeed())
+			availabilityZone1 = &topologyv1alpha1.AvailabilityZone{
+				ObjectMeta: metav1.ObjectMeta{
+					Name: "test-az-2",
+				},
+			}
+
+			Expect(k8sClient.Create(ctx, availabilityZone1)).Should(Succeed())
+			Expect(k8sClient.Create(ctx, availabilityZone2)).Should(Succeed())
 			clusterName = "test-cluster-pv-csi"
 			clusterResourceFilePath = "testdata/test-vsphere-csi-paravirtual.yaml"
 			enduringResourcesFilePath = "testdata/vmware-csi-system-ns.yaml"
 		})
 
 		AfterEach(func() {
-			Expect(k8sClient.Delete(ctx, availabilityZone)).Should(Succeed())
+			Expect(k8sClient.Delete(ctx, availabilityZone1)).Should(Succeed())
+			Expect(k8sClient.Delete(ctx, availabilityZone2)).Should(Succeed())
 		})
 
 		It("Should reconcile VSphereCSIConfig and create data values secret for VSphereCSIConfig on management cluster", func() {
