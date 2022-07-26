@@ -250,7 +250,7 @@ spec:
           properties:
             key:
               type: string
-            values:
+            value:
               type: string
         default: []
   - name: TKR_DATA
