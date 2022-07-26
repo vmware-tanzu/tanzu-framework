@@ -1,0 +1,10 @@
+#@data/values
+#@overlay/match-child-defaults missing_ok=True
+---
+tkrInfraMachineWebhook:
+  namespace: tkr-system
+  deployment:
+    envFieldMapConfigValue: |
+      id: spec.imageId
+  webhookConfig:
+    resources: ocimachines

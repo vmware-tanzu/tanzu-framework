@@ -1,0 +1,23 @@
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  labels:
+  name: tkr-infra-machine-webhook-selfsigned-issuer
+  namespace: tanzu-system
+spec:
+  selfSigned: {}
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  labels:
+  name: tkr-infra-machine-webhook-serving-cert
+  namespace: tanzu-system
+spec:
+  dnsNames:
+  - tkr-infra-machine-webhook-service.tanzu-system.svc
+  - tkr-infra-machine-webhook-service-cert.tanzu-system.svc.cluster.local
+  issuerRef:
+    kind: Issuer
+    name: tkr-infra-machine-webhook-selfsigned-issuer
+  secretName: tkr-infra-machine-webhook-service-cert

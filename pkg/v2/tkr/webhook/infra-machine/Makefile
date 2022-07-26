@@ -47,6 +47,7 @@ kbld-image-replace: ## Add newImage in kbld-config.yaml
 		go run main.go -kbld-config ../../../packages/tkr-aws-machine-webhook/kbld-config.yaml $(IMG_DEFAULT_NAME_TAG) $(IMG) && \
 		go run main.go -kbld-config ../../../packages/tkr-azure-machine-webhook/kbld-config.yaml $(IMG_DEFAULT_NAME_TAG) $(IMG) && \
 		go run main.go -kbld-config ../../../packages/tkr-docker-machine-webhook/kbld-config.yaml $(IMG_DEFAULT_NAME_TAG) $(IMG) && \
+		go run main.go -kbld-config ../../../packages/tkr-oracle-machine-webhook/kbld-config.yaml $(IMG_DEFAULT_NAME_TAG) $(IMG) && \
 		go run main.go -kbld-config ../../../packages/tkr-vsphere-machine-webhook/kbld-config.yaml $(IMG_DEFAULT_NAME_TAG) $(IMG)
 
 .PHONY: docker-image-names
