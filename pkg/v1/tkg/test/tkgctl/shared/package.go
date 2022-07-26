@@ -7,6 +7,8 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"os"
+	"path/filepath"
 
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
@@ -49,6 +51,7 @@ import (
 	runtanzuv1alpha3 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/log"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgctl"
 )
 
 const (
@@ -619,4 +622,47 @@ func GeneratePackageSecretName(clusterName, carvelPkgRefName string) string {
 // addonName is the short name of a Tanzu addon with which the PackageInstall CR is associated.
 func GeneratePackageInstallName(clusterName, addonName string) string {
 	return fmt.Sprintf("%s-%s", clusterName, strings.Split(addonName, ".")[0])
+}
+
+func CheckTKGSAddons(ctx context.Context, tkgctlClient tkgctl.TKGClient, managementClusterName, clusterName, namespace, KubeconfigPath, InfrastructureName string) (client.Client, []clusterResource, error) {
+	var (
+		mngClient        client.Client
+		clusterResources []clusterResource
+	)
+	By(fmt.Sprintf("Get k8s client for management cluster %q", managementClusterName))
+	mngclient, mngDynamicClient, mngAggregatedAPIResourcesClient, mngDiscoveryClient, err := getClients(ctx, KubeconfigPath)
+	Expect(err).NotTo(HaveOccurred())
+	mngClient = mngclient
+
+	By(fmt.Sprintf("Generating credentials for workload cluster %q", clusterName))
+	kubeConfigFileName := clusterName + ".kubeconfig"
+	tempFilePath := filepath.Join(os.TempDir(), kubeConfigFileName)
+	err = tkgctlClient.GetCredentials(tkgctl.GetWorkloadClusterCredentialsOptions{
+		ClusterName: clusterName,
+		Namespace:   namespace,
+		ExportFile:  tempFilePath,
+	})
+	Expect(err).To(BeNil())
+
+	By(fmt.Sprintf("Get k8s client for workload cluster %q", clusterName))
+	wlcClient, _, _, _, err := getClients(ctx, tempFilePath)
+	Expect(err).NotTo(HaveOccurred())
+
+	By(fmt.Sprintf("Verify addon packages on workload cluster %q matches clusterBootstrap info on management cluster %q", clusterName, managementClusterName))
+	err = checkClusterCB(ctx, mngclient, wlcClient, managementClusterName, constants.TkgNamespace, clusterName, namespace, InfrastructureName, false)
+	Expect(err).To(BeNil())
+
+	By(fmt.Sprintf("Verify addon packages on workload cluster %q matches clusterBootstrap info on management cluster %q", clusterName, managementClusterName))
+	err = checkClusterCB(ctx, mngclient, wlcClient, managementClusterName, constants.TkgNamespace, clusterName, namespace, InfrastructureName, false)
+	Expect(err).To(BeNil())
+
+	By(fmt.Sprintf("Get management cluster resources created by addons-manager for workload cluster %q on management cluster %q", clusterName, managementClusterName))
+	clusterResources, err = getManagementClusterResources(ctx, mngclient, mngDynamicClient, mngAggregatedAPIResourcesClient, mngDiscoveryClient, namespace, clusterName, InfrastructureName)
+	Expect(err).NotTo(HaveOccurred())
+
+	return mngClient, clusterResources, nil
+}
+
+func CheckTKGSAddonsResourcesDeleted(ctx context.Context, k8sClient client.Client, clusterResources []clusterResource) bool {
+	return clusterResourcesDeleted(ctx, k8sClient, clusterResources)
 }

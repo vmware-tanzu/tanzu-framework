@@ -10,19 +10,17 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"path/filepath"
 	"time"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
-	. "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/test/tkgctl/shared"
-
 	"sigs.k8s.io/cluster-api/util"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/client"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/test/framework"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/test/tkgctl/shared"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgctl"
 )
 
@@ -57,7 +55,7 @@ var _ = Describe("TKGS - Create workload cluster use cases", func() {
 					Expect(err).To(BeNil())
 				})
 				FIt("should create TKC workload cluster and delete it", func() {
-					createLegacyClusterTest(tkgctlClient, deleteClusterOptions, true, e2eConfig.WorkloadClusterOptions.ClusterName, e2eConfig.WorkloadClusterOptions.Namespace)
+					createLegacyClusterTest(tkgctlClient, deleteClusterOptions, true, e2eConfig.ManagementClusterName, e2eConfig.WorkloadClusterOptions.ClusterName, e2eConfig.WorkloadClusterOptions.Namespace, e2eConfig.TKGSKubeconfigPath, e2eConfig.InfrastructureName)
 				})
 				When("dry-run enabled", func() {
 					BeforeEach(func() {
@@ -78,7 +76,7 @@ var _ = Describe("TKGS - Create workload cluster use cases", func() {
 					Expect(err).To(BeNil())
 				})
 				It("should create TKC Workload Cluster and delete it", func() {
-					createLegacyClusterTest(tkgctlClient, deleteClusterOptions, true, e2eConfig.WorkloadClusterOptions.ClusterName, e2eConfig.WorkloadClusterOptions.Namespace)
+					createLegacyClusterTest(tkgctlClient, deleteClusterOptions, true, e2eConfig.ManagementClusterName, e2eConfig.WorkloadClusterOptions.ClusterName, e2eConfig.WorkloadClusterOptions.Namespace, e2eConfig.TKGSKubeconfigPath, e2eConfig.InfrastructureName)
 				})
 				When("dry-run enabled", func() {
 					BeforeEach(func() {
@@ -110,7 +108,7 @@ var _ = Describe("TKGS - Create workload cluster use cases", func() {
 					Expect(err).To(BeNil())
 				})
 				It("should create TKC workload cluster and delete it", func() {
-					createLegacyClusterTest(tkgctlClient, deleteClusterOptions, true, e2eConfig.WorkloadClusterOptions.ClusterName, e2eConfig.WorkloadClusterOptions.Namespace)
+					createLegacyClusterTest(tkgctlClient, deleteClusterOptions, true, e2eConfig.ManagementClusterName, e2eConfig.WorkloadClusterOptions.ClusterName, e2eConfig.WorkloadClusterOptions.Namespace, e2eConfig.TKGSKubeconfigPath, e2eConfig.InfrastructureName)
 				})
 			})
 			When("cluster class cli feature flag (features.global.package-based-lcm-beta) is set to false", func() {
@@ -121,7 +119,7 @@ var _ = Describe("TKGS - Create workload cluster use cases", func() {
 					Expect(err).To(BeNil())
 				})
 				It("should create TKC workload cluster and delete it", func() {
-					createLegacyClusterTest(tkgctlClient, deleteClusterOptions, false, e2eConfig.WorkloadClusterOptions.ClusterName, e2eConfig.WorkloadClusterOptions.Namespace)
+					createLegacyClusterTest(tkgctlClient, deleteClusterOptions, false, e2eConfig.ManagementClusterName, e2eConfig.WorkloadClusterOptions.ClusterName, e2eConfig.WorkloadClusterOptions.Namespace, e2eConfig.TKGSKubeconfigPath, e2eConfig.InfrastructureName)
 				})
 			})
 		})
@@ -148,7 +146,7 @@ var _ = Describe("TKGS - Create workload cluster use cases", func() {
 				Expect(err).To(BeNil())
 			})
 			It("should return success or error based on the ClusterClass feature-gate status on the Supervisor", func() {
-				createClusterClassBasedClusterTest(tkgctlClient, deleteClusterOptions, true, clusterName, namespace)
+				createClusterClassBasedClusterTest(tkgctlClient, deleteClusterOptions, true, e2eConfig.ManagementClusterName, clusterName, namespace, e2eConfig.TKGSKubeconfigPath, e2eConfig.InfrastructureName)
 			})
 		})
 		When("cluster class cli feature flag (features.global.package-based-lcm-beta) is set to false", func() {
@@ -159,54 +157,33 @@ var _ = Describe("TKGS - Create workload cluster use cases", func() {
 				Expect(err).To(BeNil())
 			})
 			It("should return success or error based on the ClusterClass feature-gate status on the Supervisor", func() {
-				createClusterClassBasedClusterTest(tkgctlClient, deleteClusterOptions, false, clusterName, namespace)
+				createClusterClassBasedClusterTest(tkgctlClient, deleteClusterOptions, false, e2eConfig.ManagementClusterName, clusterName, namespace, e2eConfig.TKGSKubeconfigPath, e2eConfig.InfrastructureName)
 			})
 		})
 	})
 })
 
+type tkgsClusterResource struct {
+	name      string
+	namespace string
+	obj       client.Object
+}
+
 // createClusterClassBasedClusterTest creates and deletes (if created successfully) workload cluster
-func createClusterClassBasedClusterTest(tkgctlClient tkgctl.TKGClient, deleteClusterOptions tkgctl.DeleteClustersOptions, cliFlag bool, clusterName, namespace string) {
+func createClusterClassBasedClusterTest(tkgctlClient tkgctl.TKGClient, deleteClusterOptions tkgctl.DeleteClustersOptions, cliFlag bool, managementClusterName, clusterName, namespace, kubeconfigPath, infrastructureName string) {
 	if isClusterClassFeatureActivated {
 		var (
-			mngClient        client.Client
-			clusterResources []clusterResource
-			ctx              context.Context
+			mngClient       client.Client
+			clusterResource []clusterResource
+			ctx             context.Context
 		)
 		By(fmt.Sprintf("creating Cluster class based workload cluster, ClusterClass feature-gate is activated and cli feature flag set %v", cliFlag))
 		err = tkgctlClient.CreateCluster(clusterOptions)
 		Expect(err).To(BeNil())
 
-		By(fmt.Sprintf("Get k8s client for management cluster %q", e2eConfig.ManagementClusterName))
-		mngclient, mngDynamicClient, mngAggregatedAPIResourcesClient, mngDiscoveryClient, err := getClients(ctx, e2eConfig.TKGSKubeconfigPath)
-		Expect(err).NotTo(HaveOccurred())
-		mngClient = mngclient
-
-		By(fmt.Sprintf("Generating credentials for workload cluster %q", clusterName))
-		kubeConfigFileName := clusterName + ".kubeconfig"
-		tempFilePath := filepath.Join(os.TempDir(), kubeConfigFileName)
-		err = tkgctlClient.GetCredentials(tkgctl.GetWorkloadClusterCredentialsOptions{
-			ClusterName: clusterName,
-			Namespace:   namespace,
-			ExportFile:  tempFilePath,
-		})
+		By(fmt.Sprintf("verifying addon packages status on cluster class based cluster %v", clusterName))
+		mngClient, clusterResource, err = shared.CheckTKGSAddons(ctx, tkgsClusterResource, managementClusterName, clusterName, namespace, kubeconfigPath, infrastructureName)
 		Expect(err).To(BeNil())
-
-		By(fmt.Sprintf("Get k8s client for workload cluster %q", clusterName))
-		wlcClient, _, _, _, err := getClients(ctx, tempFilePath)
-		Expect(err).NotTo(HaveOccurred())
-
-		By(fmt.Sprintf("Verify addon packages on workload cluster %q matches clusterBootstrap info on management cluster %q", clusterName, e2eConfig.ManagementClusterName))
-		err = checkClusterCB(ctx, mngclient, wlcClient, e2eConfig.ManagementClusterName, constants.TkgNamespace, clusterName, namespace, e2eConfig.InfrastructureName, false)
-		Expect(err).To(BeNil())
-
-		By(fmt.Sprintf("Verify addon packages on workload cluster %q matches clusterBootstrap info on management cluster %q", clusterName, e2eConfig.ManagementClusterName))
-		err = checkClusterCB(ctx, mngclient, wlcClient, e2eConfig.ManagementClusterName, constants.TkgNamespace, clusterName, namespace, e2eConfig.InfrastructureName, false)
-		Expect(err).To(BeNil())
-
-		By(fmt.Sprintf("Get management cluster resources created by addons-manager for workload cluster %q on management cluster %q", clusterName, e2eConfig.ManagementClusterName))
-		clusterResources, err = getManagementClusterResources(ctx, mngclient, mngDynamicClient, mngAggregatedAPIResourcesClient, mngDiscoveryClient, namespace, clusterName, e2eConfig.InfrastructureName)
-		Expect(err).NotTo(HaveOccurred())
 
 		By(fmt.Sprintf("deleting cluster class based workload cluster %v in namespace: %v", clusterName, namespace))
 		err = tkgctlClient.DeleteCluster(deleteClusterOptions)
@@ -214,7 +191,7 @@ func createClusterClassBasedClusterTest(tkgctlClient tkgctl.TKGClient, deleteClu
 
 		By(fmt.Sprintf("Verify workload cluster %q resources have been deleted", clusterName))
 		Eventually(func() bool {
-			return clusterResourcesDeleted(ctx, mngClient, clusterResources)
+			return shared.CheckTKGSAddonsResourcesDeleted(ctx, mngClient, clusterResource)
 		}, waitTimeout, pollingInterval).Should(BeTrue())
 	} else {
 		By(fmt.Sprintf("creating Cluster class based workload cluster, ClusterClass feature-gate is deactivated and cli feature flag set %v", cliFlag))
@@ -225,48 +202,20 @@ func createClusterClassBasedClusterTest(tkgctlClient tkgctl.TKGClient, deleteClu
 }
 
 // createLegacyClusterTest creates and deletes (if created successfully) workload cluster
-func createLegacyClusterTest(tkgctlClient tkgctl.TKGClient, deleteClusterOptions tkgctl.DeleteClustersOptions, cliFlag bool, clusterName, namespace string) {
+func createLegacyClusterTest(tkgctlClient tkgctl.TKGClient, deleteClusterOptions tkgctl.DeleteClustersOptions, cliFlag bool, managementClusterName, clusterName, namespace, kubeconfigPath, infrastructureName string) {
 	if isTKCAPIFeatureActivated {
 		var (
-			mngClient        client.Client
-			clusterResources []clusterResource
-			ctx              context.Context
+			mngClient       client.Client
+			clusterResource []tkgsClusterResource
+			ctx             context.Context
 		)
 		By(fmt.Sprintf("creating TKC workload cluster, TKC-API feature-gate is activated and cli feature flag set %v", cliFlag))
 		By(fmt.Sprintf("creating TKC workload cluster %v in namespace: %v, cli feature flag is %v", clusterName, namespace, cliFlag))
 		err = tkgctlClient.CreateCluster(clusterOptions)
 		Expect(err).To(BeNil())
 
-		By(fmt.Sprintf("Get k8s client for management cluster %q", e2eConfig.ManagementClusterName))
-		mngclient, mngDynamicClient, mngAggregatedAPIResourcesClient, mngDiscoveryClient, err := getClients(ctx, e2eConfig.TKGSKubeconfigPath)
-		Expect(err).NotTo(HaveOccurred())
-		mngClient = mngclient
-
-		By(fmt.Sprintf("Generating credentials for workload cluster %q", clusterName))
-		kubeConfigFileName := clusterName + ".kubeconfig"
-		tempFilePath := filepath.Join(os.TempDir(), kubeConfigFileName)
-		err = tkgctlClient.GetCredentials(tkgctl.GetWorkloadClusterCredentialsOptions{
-			ClusterName: clusterName,
-			Namespace:   namespace,
-			ExportFile:  tempFilePath,
-		})
-		Expect(err).To(BeNil())
-
-		By(fmt.Sprintf("Get k8s client for workload cluster %q", clusterName))
-		wlcClient, _, _, _, err := getClients(ctx, tempFilePath)
-		Expect(err).NotTo(HaveOccurred())
-
-		By(fmt.Sprintf("Verify addon packages on workload cluster %q matches clusterBootstrap info on management cluster %q", clusterName, e2eConfig.ManagementClusterName))
-		err = checkClusterCB(ctx, mngclient, wlcClient, e2eConfig.ManagementClusterName, constants.TkgNamespace, clusterName, namespace, e2eConfig.InfrastructureName, false)
-		Expect(err).To(BeNil())
-
-		By(fmt.Sprintf("Verify addon packages on workload cluster %q matches clusterBootstrap info on management cluster %q", clusterName, e2eConfig.ManagementClusterName))
-		err = checkClusterCB(ctx, mngclient, wlcClient, e2eConfig.ManagementClusterName, constants.TkgNamespace, clusterName, namespace, e2eConfig.InfrastructureName, false)
-		Expect(err).To(BeNil())
-
-		By(fmt.Sprintf("Get management cluster resources created by addons-manager for workload cluster %q on management cluster %q", clusterName, e2eConfig.ManagementClusterName))
-		clusterResources, err = getManagementClusterResources(ctx, mngclient, mngDynamicClient, mngAggregatedAPIResourcesClient, mngDiscoveryClient, namespace, clusterName, e2eConfig.InfrastructureName)
-		Expect(err).NotTo(HaveOccurred())
+		By(fmt.Sprintf("verifying addon packages status on cluster class based cluster %v", clusterName))
+		mngClient, clusterResource, err = shared.CheckTKGSAddons(ctx, tkgctlClient, managementClusterName, clusterName, namespace, kubeconfigPath, infrastructureName)
 
 		By(fmt.Sprintf("deleting TKC workload cluster %v in namespace: %v", clusterName, namespace))
 		err = tkgctlClient.DeleteCluster(deleteClusterOptions)
@@ -274,7 +223,7 @@ func createLegacyClusterTest(tkgctlClient tkgctl.TKGClient, deleteClusterOptions
 
 		By(fmt.Sprintf("Verify workload cluster %q resources have been deleted", clusterName))
 		Eventually(func() bool {
-			return clusterResourcesDeleted(ctx, mngClient, clusterResources)
+			return shared.CheckTKGSAddonsResourcesDeleted(ctx, mngClient, clusterResource)
 		}, waitTimeout, pollingInterval).Should(BeTrue())
 
 	} else {
