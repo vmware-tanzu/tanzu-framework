@@ -380,11 +380,7 @@ func (r *VSphereCSIConfigReconciler) isStretchedSupervisorCluster(ctx context.Co
 		return false, err
 	}
 
-	if len(azList.Items) == 0 {
-		return false, nil
-	}
-
-	if len(azList.Items) == 1 {
+	if len(azList.Items) <= 1 {
 		// by default every non-stretched cluster contains a single zone,
 		// if there is only one AZ we assume it is non-stretched cluster
 		return false, nil

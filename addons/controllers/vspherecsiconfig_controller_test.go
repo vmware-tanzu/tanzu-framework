@@ -286,7 +286,7 @@ var _ = Describe("VSphereCSIConfig Reconciler", func() {
 				},
 			}
 
-			availabilityZone1 = &topologyv1alpha1.AvailabilityZone{
+			availabilityZone2 = &topologyv1alpha1.AvailabilityZone{
 				ObjectMeta: metav1.ObjectMeta{
 					Name: "test-az-2",
 				},
