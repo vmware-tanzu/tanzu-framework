@@ -24,5 +24,5 @@ providers:
   url: providers/infrastructure-docker/v1.1.5/infrastructure-components.yaml
   type: InfrastructureProvider
 cert-manager:
-  url: providers/cert-manager/v1.7.2/cert-manager.yaml
-  version: "v1.7.2"
+  url: providers/cert-manager/v1.8.0/cert-manager.yaml
+  version: "v1.8.0"
