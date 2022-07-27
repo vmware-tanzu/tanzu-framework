@@ -9,6 +9,8 @@ import (
 	ctrlfake "sigs.k8s.io/controller-runtime/pkg/client/fake"
 
 	runv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha1"
+	runv1alpha2 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha2"
+	runv1alpha3 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/sdk/capabilities/discovery"
 )
 
@@ -30,6 +32,34 @@ var (
 					Kind:       "TanzuKubernetesCluster",
 					Group:      runv1alpha1.GroupVersion.Group,
 					Version:    runv1alpha1.GroupVersion.Version,
+					Namespaced: true,
+				},
+				{
+					Name:       "tanzukubernetesreleases",
+					Kind:       "TanzuKubernetesRelease",
+					Group:      runv1alpha2.GroupVersion.Group,
+					Version:    runv1alpha2.GroupVersion.Version,
+					Namespaced: true,
+				},
+				{
+					Name:       "tanzukubernetesclusters",
+					Kind:       "TanzuKubernetesCluster",
+					Group:      runv1alpha2.GroupVersion.Group,
+					Version:    runv1alpha2.GroupVersion.Version,
+					Namespaced: true,
+				},
+				{
+					Name:       "tanzukubernetesreleases",
+					Kind:       "TanzuKubernetesRelease",
+					Group:      runv1alpha3.GroupVersion.Group,
+					Version:    runv1alpha3.GroupVersion.Version,
+					Namespaced: true,
+				},
+				{
+					Name:       "tanzukubernetesclusters",
+					Kind:       "TanzuKubernetesCluster",
+					Group:      runv1alpha3.GroupVersion.Group,
+					Version:    runv1alpha3.GroupVersion.Version,
 					Namespaced: true,
 				},
 			},
