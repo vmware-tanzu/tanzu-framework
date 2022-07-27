@@ -17,6 +17,7 @@ import (
 	controlplanev1 "sigs.k8s.io/cluster-api/controlplane/kubeadm/api/v1beta1"
 	expv1 "sigs.k8s.io/cluster-api/exp/api/v1beta1"
 
+	kappcontrollerv1alpha1 "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apiserver/apis/datapackaging/v1alpha1"
 	runv1 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
 )
 
@@ -55,4 +56,7 @@ func AddDefaultSchemes(scheme *runtime.Scheme) {
 
 	// Add the run v1alpha3 scheme
 	_ = runv1.AddToScheme(scheme)
+
+	// Add the kapp controller v1alpha1 scheme
+	_ = kappcontrollerv1alpha1.AddToScheme(scheme)
 }

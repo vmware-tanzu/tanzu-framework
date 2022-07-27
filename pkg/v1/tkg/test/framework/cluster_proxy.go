@@ -18,6 +18,7 @@ import (
 	clusterctlv1 "sigs.k8s.io/cluster-api/cmd/clusterctl/api/v1alpha3"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
+	kappcontrollerv1alpha1 "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apiserver/apis/datapackaging/v1alpha1"
 	runv1 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
 )
 
@@ -118,6 +119,22 @@ func (p *ClusterProxy) GetProviderVersions(ctx context.Context) map[string]strin
 	return providersMap
 }
 
+// GetPackages gets the package objects in a namespace
+func (p *ClusterProxy) GetPackages(ctx context.Context, namespace string) []*kappcontrollerv1alpha1.Package {
+	c := p.GetClient()
+	packagesList := &kappcontrollerv1alpha1.PackageList{}
+	listOptions := &client.ListOptions{
+		Namespace: namespace,
+	}
+	err := c.List(ctx, packagesList, listOptions)
+	Expect(err).ToNot(HaveOccurred())
+	packages := make([]*kappcontrollerv1alpha1.Package, len(packagesList.Items))
+	for i := range packagesList.Items {
+		packages[i] = &packagesList.Items[i]
+	}
+	return packages
+}
+
 // GetTKRs gets the TKRs available in management cluster
 func (p *ClusterProxy) GetTKRs(ctx context.Context) []*runv1.TanzuKubernetesRelease {
 	c := p.GetClient()
@@ -129,7 +146,6 @@ func (p *ClusterProxy) GetTKRs(ctx context.Context) []*runv1.TanzuKubernetesRele
 	for i := range tkrList.Items {
 		tkrs = append(tkrs, &tkrList.Items[i])
 	}
-
 	return tkrs
 }
 
@@ -144,7 +160,6 @@ func (p *ClusterProxy) GetOSImages(ctx context.Context) []*runv1.OSImage {
 	for i := range osImageList.Items {
 		osImages[i] = &osImageList.Items[i]
 	}
-
 	return osImages
 }
 
@@ -158,7 +173,6 @@ func (p *ClusterProxy) GetCluster(ctx context.Context, clusterName, namespace st
 	}
 	err := c.Get(ctx, objKey, cluster)
 	Expect(err).ToNot(HaveOccurred())
-
 	return cluster
 }
 
@@ -172,7 +186,6 @@ func (p *ClusterProxy) GetClusterClass(ctx context.Context, clusterClassName, na
 	}
 	err := c.Get(ctx, objKey, cc)
 	Expect(err).ToNot(HaveOccurred())
-
 	return cc
 }
 func initScheme() *runtime.Scheme {
