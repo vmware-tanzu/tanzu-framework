@@ -12,6 +12,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
+	runv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/sdk/capabilities/discovery"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/test/tkgctl/shared"
 )
@@ -36,9 +37,11 @@ func (dc *DiscoveryClient) IsTKGm(ctx context.Context) (bool, error) {
 	return dc.HasInfrastructureProvider(ctx, InfrastructureProviderVsphere)
 }
 
-// IsTKGS returns true if the cluster is a TKGS cluster.
+// IsTKGS returns true if the cluster is a TKGS cluster. Checks for the existence of any TKC API version.
 func (dc *DiscoveryClient) IsTKGS(ctx context.Context) (bool, error) {
-	return dc.HasTanzuKubernetesClusterV1alpha1(ctx)
+	query := discovery.Group("tkc", runv1alpha1.GroupVersion.Group).
+		WithResource("tanzukubernetesclusters")
+	return dc.clusterQueryClient.PreparedQuery(query)()
 }
 
 // IsManagementCluster returns true if the cluster is a TKG management cluster.

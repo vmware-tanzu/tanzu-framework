@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 // nolint:typecheck,nolintlint
-package tkgs
+package tkgs_cc
 
 import (
 	"context"
@@ -17,6 +17,7 @@ import (
 	"github.com/onsi/ginkgo/reporters"
 	. "github.com/onsi/gomega"
 	"github.com/pkg/errors"
+	"sigs.k8s.io/cluster-api/util"
 
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/test/framework"
@@ -155,4 +156,28 @@ func createClusterConfigFile(e2eConfig *framework.E2EConfig) string {
 	err = e2eConfig.SaveWorkloadClusterOptions(clusterConfigFile)
 	Expect(err).To(BeNil())
 	return clusterConfigFile
+}
+
+// getCalicoCNIClusterClassFile return temporary Cluster Class config file with Calico CNI
+func getCalicoCNIClusterClassFile(e2eConfig *framework.E2EConfig) string {
+	clusterConfigFile := e2eConfig.WorkloadClusterOptions.ClusterClassFilePath
+
+	_, err := os.Stat(clusterConfigFile)
+	Expect(err).To(BeNil())
+
+	yamlFile, err := os.ReadFile(clusterConfigFile)
+	Expect(err).To(BeNil())
+
+	f, err := os.CreateTemp("", "temp_calico_cni_cluster_config_"+util.RandomString(4)+".yaml") // nolint:gomnd
+	Expect(err).To(BeNil())
+
+	_, err = f.Write([]byte(fmt.Sprintf(cniCalicoCBResource, e2eConfig.WorkloadClusterOptions.ClusterName,
+		e2eConfig.WorkloadClusterOptions.Namespace, e2eConfig.TkrVersion, e2eConfig.WorkloadClusterOptions.ClusterName,
+		e2eConfig.WorkloadClusterOptions.Namespace, e2eConfig.WorkloadClusterOptions.ClusterName) + string(yamlFile)))
+	Expect(err).To(BeNil())
+
+	calicoCNIClusterConfigFile, err := filepath.Abs(f.Name())
+	Expect(err).To(BeNil())
+
+	return calicoCNIClusterConfigFile
 }

@@ -33,6 +33,8 @@ HTTPS_PROXY=192.163.1.163:3128
 hack/tools/bin/ginkgo -v -trace pkg/v1/tkg/test/tkgctl/tkgs
 ```
 
+To run clusterclass based tests use `hack/tools/bin/ginkgo -v -trace pkg/v1/tkg/test/tkgctl/tkgs_cc` in place of the final line.
+
 ## Troubleshooting
 
 If you are running the CAPD based integration tests on an Apple system, it is recommended that Docker Desktop is allocated the following resources at
