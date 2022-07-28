@@ -4,13 +4,18 @@
 package main
 
 import (
+	"context"
 	"os"
+	"time"
 
 	"github.com/spf13/cobra"
 
 	tkrv1alpha1 "github.com/vmware-tanzu/tanzu-framework/cmd/cli/plugin/tkr/v1alpha1"
 	tkrv1alpha3 "github.com/vmware-tanzu/tanzu-framework/cmd/cli/plugin/tkr/v1alpha3"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/config"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/clusterclient"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgctl"
 
 	"github.com/aunum/log"
 
@@ -52,8 +57,9 @@ func main() {
 	}
 	p.Cmd.PersistentFlags().Int32VarP(&logLevel, "verbose", "v", 0, "Number for the log level verbosity(0-9)")
 	p.Cmd.PersistentFlags().StringVar(&logFile, "log-file", "", "Log file path")
-	// Add the right set of commands based on the feature flag
-	if config.IsFeatureActivated(config.FeatureFlagTKRVersionV1Alpha3) {
+
+	// Add the right set of commands based on the TKR API version
+	if isTKRAPIVersionV1Alpha3() {
 		tkrv1alpha3.LogFile = logFile
 		tkrv1alpha3.LogLevel = logLevel
 		p.AddCommands(v1alpha3CmdsList...)
@@ -65,4 +71,24 @@ func main() {
 	if err := p.Execute(); err != nil {
 		os.Exit(1)
 	}
+}
+
+// isTKRAPIVersionV1Alpha3 determines the TKR API version based on the management-cluster feature-gate
+func isTKRAPIVersionV1Alpha3() bool {
+	// If feature-flag is activated return true
+	if config.IsFeatureActivated(config.FeatureFlagTKRVersionV1Alpha3) {
+		return true
+	}
+
+	// else check the feature-gate on the management-cluster to determine the TKR API version
+	// if clusterclass feature-gate is enabled on the cluster, we can assume that TKR API v1alpha3 is available
+	server, err := config.GetCurrentServer()
+	if err != nil || server.IsGlobal() {
+		return false
+	}
+
+	clusterClientOptions := clusterclient.Options{GetClientInterval: 2 * time.Second, GetClientTimeout: 5 * time.Second}
+	fgHelper := tkgctl.NewFeatureGateHelper(&clusterClientOptions, server.ManagementClusterOpts.Context, server.ManagementClusterOpts.Path)
+	activated, _ := fgHelper.FeatureActivatedInNamespace(context.Background(), constants.ClusterClassFeature, constants.TKGSClusterClassNamespace)
+	return activated
 }
