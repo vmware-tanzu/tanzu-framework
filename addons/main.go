@@ -49,6 +49,7 @@ import (
 	runtanzuv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha1"
 	runtanzuv1alpha3 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/buildinfo"
+	tkgconstants "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/webhooks"
 	vmoperatorv1alpha1 "github.com/vmware-tanzu/vm-operator-api/api/v1alpha1"
 	topologyv1alpha1 "github.com/vmware-tanzu/vm-operator/external/tanzu-topology/api/v1alpha1"
@@ -352,9 +353,9 @@ func enableWebhooks(ctx context.Context, mgr ctrl.Manager, flags *addonFlags) {
 		K8sConfig:     mgr.GetConfig(),
 		CertPath:      certPath,
 		KeyPath:       keyPath,
-		Name:          constants.WebhookScrtName,
+		Name:          tkgconstants.WebhookScrtName,
 		ServiceName:   constants.WebhookServiceName,
-		LabelSelector: constants.AddonWebhookLabelKey + "=" + constants.AddonWebhookLabelValue,
+		LabelSelector: tkgconstants.AddonWebhookLabelKey + "=" + tkgconstants.AddonWebhookLabelValue,
 		Logger:        setupLog,
 		Namespace:     flags.addonNamespace,
 		RotationTime:  constants.WebhookCertLifeTime,

@@ -57,6 +57,7 @@ import (
 	csiv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/csi/v1alpha1"
 	runtanzuv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha1"
 	runtanzuv1alpha3 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
+	tkgconstants "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/webhooks"
 	vmoperatorv1alpha1 "github.com/vmware-tanzu/vm-operator-api/api/v1alpha1"
 	topologyv1alpha1 "github.com/vmware-tanzu/vm-operator/external/tanzu-topology/api/v1alpha1"
@@ -77,7 +78,6 @@ const (
 	addonImagePullPolicy                = "IfNotPresent"
 	corePackageRepoName                 = "core"
 	webhookServiceName                  = "tanzu-addons-manager-webhook-service"
-	webhookScrtName                     = "webhook-tls"
 	cniWebhookManifestFile              = "testdata/webhooks/test-antrea-calico-webhook-manifests.yaml"
 	clusterbootstrapWebhookManifestFile = "testdata/webhooks/clusterbootstrap-webhook-manifests.yaml"
 )
@@ -364,12 +364,12 @@ var _ = BeforeSuite(func(done Done) {
 	ns = &corev1.Namespace{ObjectMeta: metav1.ObjectMeta{Name: "tkg-system"}}
 	Expect(k8sClient.Create(context.TODO(), ns)).To(Succeed())
 
-	labelMatch, err := labels.NewRequirement(constants.AddonWebhookLabelKey, selection.Equals, []string{constants.AddonWebhookLabelValue})
+	labelMatch, err := labels.NewRequirement(tkgconstants.AddonWebhookLabelKey, selection.Equals, []string{tkgconstants.AddonWebhookLabelValue})
 	Expect(err).ToNot(HaveOccurred())
 	webhookSelector := labels.NewSelector()
 	webhookSelector = webhookSelector.Add(*labelMatch)
 	webhookSelectorString = webhookSelector.String()
-	_, err = webhooks.InstallNewCertificates(ctx, k8sConfig, certPath, keyPath, webhookScrtName, addonNamespace, webhookServiceName, webhookSelectorString)
+	_, err = webhooks.InstallNewCertificates(ctx, k8sConfig, certPath, keyPath, tkgconstants.WebhookScrtName, addonNamespace, webhookServiceName, webhookSelectorString)
 	Expect(err).ToNot(HaveOccurred())
 
 	// Set up the webhooks in the manager
@@ -412,7 +412,7 @@ var _ = BeforeSuite(func(done Done) {
 	webhookCertDetails = testutil.WebhookCertificatesDetails{
 		CertPath:           certPath,
 		KeyPath:            keyPath,
-		WebhookScrtName:    webhookScrtName,
+		WebhookScrtName:    tkgconstants.WebhookScrtName,
 		AddonNamespace:     addonNamespace,
 		WebhookServiceName: webhookServiceName,
 		LabelSelector:      webhookSelector,

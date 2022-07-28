@@ -202,15 +202,6 @@ const (
 	// WebhookServiceName is the name of the k8s service that serves the admission requests
 	WebhookServiceName = "tanzu-addons-manager-webhook-service"
 
-	// WebhookScrtName is the name of secret that holds certificates and key for webhook service
-	WebhookScrtName = "webhook-tls"
-
-	// AddonWebhookLabelKey is the key for the label for addon admission webhooks
-	AddonWebhookLabelKey = "tkg.tanzu.vmware.com/addon-webhooks"
-
-	// AddonWebhookLabelValue is the value for the label for addon admission webhooks
-	AddonWebhookLabelValue = "addon-webhooks"
-
 	// LocalObjectRefSuffix is the suffix of a field within the provider's CR. This suffix indicates that the field is a
 	// K8S typed local object reference
 	LocalObjectRefSuffix = "LocalObjRef"

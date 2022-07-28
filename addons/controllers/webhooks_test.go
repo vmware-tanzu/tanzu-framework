@@ -12,7 +12,7 @@ import (
 	cert2 "k8s.io/client-go/util/cert"
 	ctrl "sigs.k8s.io/controller-runtime"
 
-	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
+	tkgconstants "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/webhooks"
 )
 
@@ -37,9 +37,9 @@ var _ = Describe("when webhook TLS is being continuously managed", func() {
 				K8sConfig:     k8sConfig,
 				CertPath:      certPath,
 				KeyPath:       keyPath,
-				Name:          webhookScrtName,
+				Name:          tkgconstants.WebhookScrtName,
 				ServiceName:   webhookServiceName,
-				LabelSelector: constants.AddonWebhookLabelKey,
+				LabelSelector: tkgconstants.AddonWebhookLabelKey,
 				Logger:        setupLog,
 				Namespace:     addonNamespace,
 				RotationTime:  rotationTime,
@@ -76,7 +76,7 @@ var _ = Describe("when webhook TLS is being continuously managed", func() {
 				K8sConfig:     k8sConfig,
 				CertPath:      certPath,
 				KeyPath:       keyPath,
-				Name:          webhookScrtName,
+				Name:          tkgconstants.WebhookScrtName,
 				ServiceName:   webhookServiceName,
 				LabelSelector: webhookCertDetails.LabelSelector.String(),
 				Logger:        setupLog,
@@ -98,9 +98,9 @@ var _ = Describe("when webhook TLS is being continuously managed", func() {
 				K8sConfig:     k8sConfig,
 				CertPath:      certPath,
 				KeyPath:       keyPath,
-				Name:          webhookScrtName,
+				Name:          tkgconstants.WebhookScrtName,
 				ServiceName:   webhookServiceName,
-				LabelSelector: constants.AddonWebhookLabelKey,
+				LabelSelector: tkgconstants.AddonWebhookLabelKey,
 				Logger:        setupLog,
 				Namespace:     addonNamespace,
 				RotationTime:  rotationTime,
@@ -122,9 +122,9 @@ var _ = Describe("when webhook TLS is being continuously managed", func() {
 				K8sConfig:     k8sConfig,
 				CertPath:      certPath,
 				KeyPath:       keyPath,
-				Name:          webhookScrtName,
+				Name:          tkgconstants.WebhookScrtName,
 				ServiceName:   webhookServiceName,
-				LabelSelector: constants.AddonWebhookLabelKey,
+				LabelSelector: tkgconstants.AddonWebhookLabelKey,
 				Logger:        setupLog,
 				Namespace:     addonNamespace,
 				RotationTime:  rotationTime,

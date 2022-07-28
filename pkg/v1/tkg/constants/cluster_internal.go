@@ -76,6 +76,9 @@ const (
 	TKGDataValueFormatString = "#@data/values\n#@overlay/match-child-defaults missing_ok=True\n---\n"
 
 	CAPVClusterSelectorKey = "capv.vmware.com/cluster.name"
+
+	// WebhookScrtName is the name of secret that holds certificates and key for webhook service
+	WebhookScrtName = "webhook-tls"
 )
 
 // deployment plan constants
@@ -139,6 +142,10 @@ const (
 
 // addons related constants
 const (
+	// AddonWebhookLabelKey is the key for the label for addon admission webhooks
+	AddonWebhookLabelKey = "tkg.tanzu.vmware.com/addon-webhooks"
+	// AddonWebhookLabelValue is the value for the label for addon admission webhooks
+	AddonWebhookLabelValue = "addon-webhooks"
 	// AddonSecretType is the add on Secret type
 	AddonSecretType = "tkg.tanzu.vmware.com/addon" // nolint:gosec
 	// AddonNameLabel is the label on the Secret to indicate the name of addon to be installed

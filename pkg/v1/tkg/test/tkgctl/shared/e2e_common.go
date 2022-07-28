@@ -180,12 +180,12 @@ func E2ECommonSpec(ctx context.Context, inputGetter func() E2ECommonSpecInput) {
 				Expect(err).To(BeNil())
 
 				By(fmt.Sprintf("Get k8s client for management cluster %q", clusterName))
-				mngclient, mngDynamicClient, mngAggregatedAPIResourcesClient, mngDiscoveryClient, err := getClients(ctx, mngtempFilePath)
+				mngclient, mngDynamicClient, mngAggregatedAPIResourcesClient, mngDiscoveryClient, _, err := GetClients(ctx, mngtempFilePath)
 				Expect(err).NotTo(HaveOccurred())
 				mngClient = mngclient
 
 				By(fmt.Sprintf("Get k8s client for workload cluster %q", clusterName))
-				wlcClient, _, _, _, err := getClients(ctx, tempFilePath)
+				wlcClient, _, _, _, _, err := GetClients(ctx, tempFilePath)
 				Expect(err).NotTo(HaveOccurred())
 
 				By(fmt.Sprintf("Verify addon packages on management cluster %q matches clusterBootstrap info on management cluster %q", input.E2EConfig.ManagementClusterName, input.E2EConfig.ManagementClusterName))

@@ -13,6 +13,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/discovery"
 	clientgoscheme "k8s.io/client-go/kubernetes/scheme"
+	admissionregistrationv1 "k8s.io/client-go/kubernetes/typed/admissionregistration/v1"
 	capvv1beta1 "sigs.k8s.io/cluster-api-provider-vsphere/apis/v1beta1"
 	capvvmwarev1beta1 "sigs.k8s.io/cluster-api-provider-vsphere/apis/vmware/v1beta1"
 	controlplanev1beta1 "sigs.k8s.io/cluster-api/controlplane/kubeadm/api/v1beta1"
@@ -86,8 +87,8 @@ func createClientFromKubeconfig(exportFile string, scheme *runtime.Scheme) (clie
 	return client, nil
 }
 
-// getClients gets the various kubernetes clients
-func getClients(ctx context.Context, exportFile string) (k8sClient client.Client, dynamicClient dynamic.Interface, aggregatedAPIResourcesClient client.Client, discoveryClient discovery.DiscoveryInterface, err error) {
+// GetClients gets the various kubernetes clients
+func GetClients(ctx context.Context, exportFile string) (k8sClient client.Client, dynamicClient dynamic.Interface, aggregatedAPIResourcesClient client.Client, discoveryClient discovery.DiscoveryInterface, admissionRegistrationClient admissionregistrationv1.AdmissionregistrationV1Interface, err error) {
 	scheme := runtime.NewScheme()
 
 	_ = clientgoscheme.AddToScheme(scheme)
@@ -116,6 +117,7 @@ func getClients(ctx context.Context, exportFile string) (k8sClient client.Client
 
 	clientset := kubernetes.NewForConfigOrDie(restConfig)
 	discoveryClient = clientset.DiscoveryClient
+	admissionRegistrationClient = clientset.AdmissionregistrationV1()
 
 	aggregatedAPIResourcesClient, err = client.New(restConfig, client.Options{Scheme: scheme})
 	Expect(err).NotTo(HaveOccurred())
