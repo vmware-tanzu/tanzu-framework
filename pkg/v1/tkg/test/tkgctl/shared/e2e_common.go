@@ -154,7 +154,7 @@ func E2ECommonSpec(ctx context.Context, inputGetter func() E2ECommonSpecInput) {
 
 		var (
 			mngClient        client.Client
-			clusterResources []clusterResource
+			clusterResources []ClusterResource
 		)
 
 		// verify addons are deployed successfully in clusterclass mode

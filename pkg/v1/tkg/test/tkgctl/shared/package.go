@@ -474,14 +474,14 @@ func objectExists(ctx context.Context, k8sClient client.Client, namespace, name 
 	return true
 }
 
-type clusterResource struct {
+type ClusterResource struct {
 	name      string
 	namespace string
 	obj       client.Object
 }
 
 // clusterResourcesDeleted checks if all the cluster resources are deleted or not
-func clusterResourcesDeleted(ctx context.Context, k8sClient client.Client, clusterResources []clusterResource) bool {
+func clusterResourcesDeleted(ctx context.Context, k8sClient client.Client, clusterResources []ClusterResource) bool {
 	for _, r := range clusterResources {
 		log.Infof("Check if cluster resource of type %q kind %q name %q is deleted from namespace %q", reflect.TypeOf(r.obj), r.obj.GetObjectKind().GroupVersionKind().Kind, r.name, r.namespace)
 		if objectExists(ctx, k8sClient, r.namespace, r.name, r.obj) {
@@ -494,9 +494,9 @@ func clusterResourcesDeleted(ctx context.Context, k8sClient client.Client, clust
 /* getManagementClusterResources gets all the resources thats created by addons-manager plus
  * all the resources on which finalizer is added by addons-manager during a cluster creation.
  */
-func getManagementClusterResources(ctx context.Context, mccl client.Client, dynamicClient dynamic.Interface, aggregatedAPIResourcesClient client.Client, discoveryClient discovery.DiscoveryInterface, clusterNamespace, clusterName, infrastructureName string) ([]clusterResource, error) {
+func getManagementClusterResources(ctx context.Context, mccl client.Client, dynamicClient dynamic.Interface, aggregatedAPIResourcesClient client.Client, discoveryClient discovery.DiscoveryInterface, clusterNamespace, clusterName, infrastructureName string) ([]ClusterResource, error) {
 	// get ClusterBootstrap and return error if not found
-	clusterResources := []clusterResource{
+	clusterResources := []ClusterResource{
 		{namespace: clusterNamespace, name: clusterName, obj: &clusterapiv1beta1.Cluster{}},
 		{namespace: clusterNamespace, name: clusterName, obj: &runtanzuv1alpha3.ClusterBootstrap{}},
 		{namespace: clusterNamespace, name: clusterName + "-kubeconfig", obj: &corev1.Secret{}},
@@ -527,10 +527,10 @@ func getManagementClusterResources(ctx context.Context, mccl client.Client, dyna
 					return nil, err
 				}
 				packageSecretName := GeneratePackageSecretName(clusterName, packageRefName)
-				clusterResources = append(clusterResources, clusterResource{name: packageSecretName, namespace: clusterNamespace, obj: &corev1.Secret{}})
+				clusterResources = append(clusterResources, ClusterResource{name: packageSecretName, namespace: clusterNamespace, obj: &corev1.Secret{}})
 			}
 			if pkg.ValuesFrom.SecretRef != "" {
-				clusterResources = append(clusterResources, clusterResource{name: pkg.ValuesFrom.SecretRef, namespace: clusterNamespace, obj: &corev1.Secret{}})
+				clusterResources = append(clusterResources, ClusterResource{name: pkg.ValuesFrom.SecretRef, namespace: clusterNamespace, obj: &corev1.Secret{}})
 			}
 			if pkg.ValuesFrom.ProviderRef != nil {
 				gvr, err := gvrForGroupKind(discoveryClient, schema.GroupKind{Group: *pkg.ValuesFrom.ProviderRef.APIGroup, Kind: pkg.ValuesFrom.ProviderRef.Kind})
@@ -545,8 +545,8 @@ func getManagementClusterResources(ctx context.Context, mccl client.Client, dyna
 				if err != nil {
 					return nil, err
 				}
-				clusterResources = append(clusterResources, clusterResource{name: provider.GetName(), namespace: clusterNamespace, obj: provider})
-				clusterResources = append(clusterResources, clusterResource{name: secretName, namespace: clusterNamespace, obj: &corev1.Secret{}})
+				clusterResources = append(clusterResources, ClusterResource{name: provider.GetName(), namespace: clusterNamespace, obj: provider})
+				clusterResources = append(clusterResources, ClusterResource{name: secretName, namespace: clusterNamespace, obj: &corev1.Secret{}})
 			}
 		} else {
 			// In TKGS case a secret could be created to add nodeSelector, deployment/daemonset updateStrategies. Hence need to add that secret
@@ -556,7 +556,7 @@ func getManagementClusterResources(ctx context.Context, mccl client.Client, dyna
 					return nil, err
 				}
 				packageSecretName := GeneratePackageSecretName(clusterName, packageRefName)
-				clusterResources = append(clusterResources, clusterResource{name: packageSecretName, namespace: clusterNamespace, obj: &corev1.Secret{}})
+				clusterResources = append(clusterResources, ClusterResource{name: packageSecretName, namespace: clusterNamespace, obj: &corev1.Secret{}})
 			}
 		}
 	}
@@ -624,10 +624,10 @@ func GeneratePackageInstallName(clusterName, addonName string) string {
 	return fmt.Sprintf("%s-%s", clusterName, strings.Split(addonName, ".")[0])
 }
 
-func CheckTKGSAddons(ctx context.Context, tkgctlClient tkgctl.TKGClient, managementClusterName, clusterName, namespace, KubeconfigPath, InfrastructureName string) (client.Client, []clusterResource, error) {
+func CheckTKGSAddons(ctx context.Context, tkgctlClient tkgctl.TKGClient, managementClusterName, clusterName, namespace, KubeconfigPath, InfrastructureName string) (client.Client, []ClusterResource, error) {
 	var (
 		mngClient        client.Client
-		clusterResources []clusterResource
+		clusterResources []ClusterResource
 	)
 	By(fmt.Sprintf("Get k8s client for management cluster %q", managementClusterName))
 	mngclient, mngDynamicClient, mngAggregatedAPIResourcesClient, mngDiscoveryClient, err := getClients(ctx, KubeconfigPath)
@@ -663,6 +663,6 @@ func CheckTKGSAddons(ctx context.Context, tkgctlClient tkgctl.TKGClient, managem
 	return mngClient, clusterResources, nil
 }
 
-func CheckTKGSAddonsResourcesDeleted(ctx context.Context, k8sClient client.Client, clusterResources []clusterResource) bool {
+func CheckTKGSAddonsResourcesDeleted(ctx context.Context, k8sClient client.Client, clusterResources []ClusterResource) bool {
 	return clusterResourcesDeleted(ctx, k8sClient, clusterResources)
 }

@@ -163,18 +163,12 @@ var _ = Describe("TKGS - Create workload cluster use cases", func() {
 	})
 })
 
-type tkgsClusterResource struct {
-	name      string
-	namespace string
-	obj       client.Object
-}
-
 // createClusterClassBasedClusterTest creates and deletes (if created successfully) workload cluster
 func createClusterClassBasedClusterTest(tkgctlClient tkgctl.TKGClient, deleteClusterOptions tkgctl.DeleteClustersOptions, cliFlag bool, managementClusterName, clusterName, namespace, kubeconfigPath, infrastructureName string) {
 	if isClusterClassFeatureActivated {
 		var (
 			mngClient       client.Client
-			clusterResource []clusterResource
+			clusterResource []shared.ClusterResource
 			ctx             context.Context
 		)
 		By(fmt.Sprintf("creating Cluster class based workload cluster, ClusterClass feature-gate is activated and cli feature flag set %v", cliFlag))
@@ -182,7 +176,7 @@ func createClusterClassBasedClusterTest(tkgctlClient tkgctl.TKGClient, deleteClu
 		Expect(err).To(BeNil())
 
 		By(fmt.Sprintf("verifying addon packages status on cluster class based cluster %v", clusterName))
-		mngClient, clusterResource, err = shared.CheckTKGSAddons(ctx, tkgsClusterResource, managementClusterName, clusterName, namespace, kubeconfigPath, infrastructureName)
+		mngClient, clusterResource, err = shared.CheckTKGSAddons(ctx, tkgctlClient, managementClusterName, clusterName, namespace, kubeconfigPath, infrastructureName)
 		Expect(err).To(BeNil())
 
 		By(fmt.Sprintf("deleting cluster class based workload cluster %v in namespace: %v", clusterName, namespace))
@@ -206,7 +200,7 @@ func createLegacyClusterTest(tkgctlClient tkgctl.TKGClient, deleteClusterOptions
 	if isTKCAPIFeatureActivated {
 		var (
 			mngClient       client.Client
-			clusterResource []tkgsClusterResource
+			clusterResource []shared.ClusterResource
 			ctx             context.Context
 		)
 		By(fmt.Sprintf("creating TKC workload cluster, TKC-API feature-gate is activated and cli feature flag set %v", cliFlag))
