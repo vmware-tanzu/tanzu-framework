@@ -204,6 +204,7 @@ spec:
       controllerManager:
         extraArgs:
           cluster-name: #@ data.values.CLUSTER_NAME
+          configure-cloud-routes: "false"
     files:
       #@overlay/match by=overlay.index(0)
       #@overlay/replace
