@@ -90,9 +90,9 @@ var _ = SynchronizedBeforeSuite(func() []byte {
 		Plan:       "dev",
 	}
 	tkgctlClient, err = tkgctl.New(tkgctlOptions)
-	var isTKGS bool
-	isTKGS, err = tkgctlClient.IsPacificRegionalCluster()
 	Expect(err).ShouldNot(HaveOccurred(), fmt.Sprintf("failed to connect cluster with given input kube config file:%v and context:%v, reason: %v", e2eConfig.TKGSKubeconfigPath, e2eConfig.TKGSKubeconfigContext, err))
+	isTKGS, err := tkgctlClient.IsPacificRegionalCluster()
+	Expect(err).ShouldNot(HaveOccurred())
 	Expect(isTKGS).To(Equal(true), fmt.Sprintf("the input kube config file:%v with given context:%v is not TKGS cluster", e2eConfig.TKGSKubeconfigPath, e2eConfig.TKGSKubeconfigContext))
 
 	featureGateHelper := tkgctlClient.FeatureGateHelper()
