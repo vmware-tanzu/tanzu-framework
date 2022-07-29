@@ -179,7 +179,13 @@ func (c *TkgClient) UpgradeCluster(options *UpgradeClusterOptions) error {
 }
 
 func (c *TkgClient) DoLegacyClusterUpgrade(regionalClusterClient, currentClusterClient clusterclient.Client, options *UpgradeClusterOptions) error {
-	err := c.addKubernetesReleaseLabel(regionalClusterClient, options)
+	log.Info("Verifying kubernetes version...")
+	err := c.verifyK8sVersion(currentClusterClient, options.KubernetesVersion)
+	if err != nil {
+		return errors.Wrap(err, "kubernetes version verification failed")
+	}
+
+	err = c.addKubernetesReleaseLabel(regionalClusterClient, options)
 	if err != nil {
 		return errors.Wrapf(err, "unable to patch the cluster object with TanzuKubernetesRelease label")
 	}
@@ -296,12 +302,6 @@ func (c *TkgClient) DoPacificClusterUpgrade(regionalClusterClient clusterclient.
 // DoClusterUpgrade upgrades cluster
 func (c *TkgClient) DoClusterUpgrade(regionalClusterClient clusterclient.Client,
 	currentClusterClient clusterclient.Client, options *UpgradeClusterOptions) error {
-
-	log.Info("Verifying kubernetes version...")
-	err := c.verifyK8sVersion(currentClusterClient, options.KubernetesVersion)
-	if err != nil {
-		return errors.Wrap(err, "kubernetes version verification failed")
-	}
 
 	if err := c.configureOSOptionsForUpgrade(regionalClusterClient, options); err != nil {
 		return errors.Wrap(err, "error configuring os options during upgrade")
