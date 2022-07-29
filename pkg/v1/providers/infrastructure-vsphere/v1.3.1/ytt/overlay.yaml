@@ -20,11 +20,11 @@
 #@   pciDevices = list()
 #@   for val in pciDevicesString.split(','):
 #@     if len(val) <= 0:
-#@        assert.fail("given labels string \""+pciDevicesString+"\" must be in the  \"vendorID:deviceID,vendorID:deviceID,..\" format ")
+#@        assert.fail("given labels string \""+pciDevicesString+"\" must be in the  \"vendorId:deviceId,vendorId:deviceId,..\" format ")
 #@      end
 #@     kv = val.split(':')
 #@     if len(kv) != 2:
-#@        assert.fail("given labels string \""+pciDevicesString+"\" must be in the  \"vendorID:deviceID,vendorID:deviceID,..\" format ")
+#@        assert.fail("given labels string \""+pciDevicesString+"\" must be in the  \"vendorId:deviceId,vendorId:deviceId,..\" format ")
 #@      end
 #@     if not pciIgnorepciDeviceValidation and (kv[0] not in valid_pci_vendorids or kv[1] not in valid_pci_deviceids):
 #@         devices = ", ".join(valid_pci_deviceids)
@@ -32,8 +32,8 @@
 #@         assert.fail("Given DeviceId or VendorId not supported., Supported Device ids: \""+devices+"\" , Vendor ids: \""+vendors+"\"")
 #@     end
 #@     idPair = dict()
-#@     idPair["deviceID"] = kv[1]
-#@     idPair["vendorID"] = kv[0]
+#@     idPair["deviceId"] = kv[1]
+#@     idPair["vendorId"] = kv[0]
 #@     pciDevices.append(idPair)
 #@ end
 #@ return pciDevices
