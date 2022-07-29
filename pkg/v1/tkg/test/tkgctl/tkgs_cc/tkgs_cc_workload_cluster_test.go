@@ -17,6 +17,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/test/framework"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/test/tkgctl/shared"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgctl"
 )
@@ -32,6 +33,7 @@ var _ = Describe("TKGS ClusterClass based workload cluster tests", func() {
 		clusterName string
 		namespace   string
 		err         error
+		ctx         context.Context
 	)
 
 	BeforeEach(func() {
@@ -59,7 +61,8 @@ var _ = Describe("TKGS ClusterClass based workload cluster tests", func() {
 			err = tkgctlClient.DeleteCluster(deleteClusterOptions)
 		})
 
-		It("should successfully create a cluster", func() {
+		It("should successfully create a cluster and verify addons information", func() {
+			shared.CheckTKGSAddons(ctx, tkgctlClient, e2eConfig.TKGSKubeconfigContext, clusterName, namespace, e2eConfig.TKGSKubeconfigPath, constants.InfrastructureProviderTkgs)
 			Expect(err).ToNot(HaveOccurred())
 		})
 	})
@@ -86,7 +89,8 @@ var _ = Describe("TKGS ClusterClass based workload cluster tests", func() {
 			clusterOptions.ClusterConfigFile = e2eConfig.WorkloadClusterOptions.ClusterClassFilePath
 		})
 
-		It("should successfully create a cluster", func() {
+		It("should successfully create a cluster and verify addons information", func() {
+			shared.CheckTKGSAddons(ctx, tkgctlClient, e2eConfig.TKGSKubeconfigContext, clusterName, namespace, e2eConfig.TKGSKubeconfigPath, constants.InfrastructureProviderTkgs)
 			Expect(err).ToNot(HaveOccurred())
 		})
 	})
