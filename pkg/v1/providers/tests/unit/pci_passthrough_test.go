@@ -92,8 +92,8 @@ var _ = Describe("PCI Passthrough", func() {
 				Expect(len(vsphereMachineTemplates)).NotTo(Equal(0))
 
 				for _, vsphereMachineTemplate := range vsphereMachineTemplates {
-					Expect(vsphereMachineTemplate).To(matchers.HaveYAMLPathWithValue("$.spec.template.spec.pciDevices[0].vendorID", "10DE"))
-					Expect(vsphereMachineTemplate).To(matchers.HaveYAMLPathWithValue("$.spec.template.spec.pciDevices[0].deviceID", "1EB8"))
+					Expect(vsphereMachineTemplate).To(matchers.HaveYAMLPathWithValue("$.spec.template.spec.pciDevices[0].vendorId", "10DE"))
+					Expect(vsphereMachineTemplate).To(matchers.HaveYAMLPathWithValue("$.spec.template.spec.pciDevices[0].deviceId", "1EB8"))
 				}
 			}
 		})
@@ -115,10 +115,10 @@ var _ = Describe("PCI Passthrough", func() {
 				Expect(len(vsphereMachineTemplates)).NotTo(Equal(0))
 
 				for _, vsphereMachineTemplate := range vsphereMachineTemplates {
-					Expect(vsphereMachineTemplate).To(matchers.HaveYAMLPathWithValue("$.spec.template.spec.pciDevices[0].vendorID", "a"))
-					Expect(vsphereMachineTemplate).To(matchers.HaveYAMLPathWithValue("$.spec.template.spec.pciDevices[0].deviceID", "b"))
-					Expect(vsphereMachineTemplate).To(matchers.HaveYAMLPathWithValue("$.spec.template.spec.pciDevices[1].vendorID", "c"))
-					Expect(vsphereMachineTemplate).To(matchers.HaveYAMLPathWithValue("$.spec.template.spec.pciDevices[1].deviceID", "d"))
+					Expect(vsphereMachineTemplate).To(matchers.HaveYAMLPathWithValue("$.spec.template.spec.pciDevices[0].vendorId", "a"))
+					Expect(vsphereMachineTemplate).To(matchers.HaveYAMLPathWithValue("$.spec.template.spec.pciDevices[0].deviceId", "b"))
+					Expect(vsphereMachineTemplate).To(matchers.HaveYAMLPathWithValue("$.spec.template.spec.pciDevices[1].vendorId", "c"))
+					Expect(vsphereMachineTemplate).To(matchers.HaveYAMLPathWithValue("$.spec.template.spec.pciDevices[1].deviceId", "d"))
 				}
 
 				vsphereMachineTemplates, err = matchers.FindDocsMatchingYAMLPath(output, map[string]string{
@@ -130,10 +130,10 @@ var _ = Describe("PCI Passthrough", func() {
 				Expect(len(vsphereMachineTemplates)).NotTo(Equal(0))
 
 				for _, vsphereMachineTemplate := range vsphereMachineTemplates {
-					Expect(vsphereMachineTemplate).To(matchers.HaveYAMLPathWithValue("$.spec.template.spec.pciDevices[0].vendorID", "e"))
-					Expect(vsphereMachineTemplate).To(matchers.HaveYAMLPathWithValue("$.spec.template.spec.pciDevices[0].deviceID", "f"))
-					Expect(vsphereMachineTemplate).To(matchers.HaveYAMLPathWithValue("$.spec.template.spec.pciDevices[1].vendorID", "g"))
-					Expect(vsphereMachineTemplate).To(matchers.HaveYAMLPathWithValue("$.spec.template.spec.pciDevices[1].deviceID", "h"))
+					Expect(vsphereMachineTemplate).To(matchers.HaveYAMLPathWithValue("$.spec.template.spec.pciDevices[0].vendorId", "e"))
+					Expect(vsphereMachineTemplate).To(matchers.HaveYAMLPathWithValue("$.spec.template.spec.pciDevices[0].deviceId", "f"))
+					Expect(vsphereMachineTemplate).To(matchers.HaveYAMLPathWithValue("$.spec.template.spec.pciDevices[1].vendorId", "g"))
+					Expect(vsphereMachineTemplate).To(matchers.HaveYAMLPathWithValue("$.spec.template.spec.pciDevices[1].deviceId", "h"))
 				}
 			})
 		})
