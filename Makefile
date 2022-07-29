@@ -482,6 +482,10 @@ lint: tools go-lint doc-lint misspell yamllint ## Run linting and misspell check
 misspell:
 	hack/check/misspell.sh
 
+actionlint:
+	go install github.com/rhysd/actionlint/cmd/actionlint@latest
+	actionlint -shellcheck= -ignore 'property "clustergen" is not defined'
+
 yamllint:
 	hack/check/check-yaml.sh
 
