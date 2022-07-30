@@ -135,23 +135,18 @@ var _ = Describe("Unit tests for upgrading legacy cluster", func() {
 			SkipAddonUpgrade:  true,
 		}
 	})
-
-	Describe("When upgrading cluster", func() {
+	Describe(" Validate DoLegacyClusterUpgrade() block Kubernetes version downgrade", func() {
 		BeforeEach(func() {
 			newK8sVersion = "v1.18.0+vmware.1"     // nolint:goconst
 			currentK8sVersion = "v1.17.3+vmware.2" // nolint:goconst
 			setupBomFile("../fakes/config/bom/tkg-bom-v1.3.1.yaml", testingDir)
 			setupBomFile("../fakes/config/bom/tkr-bom-v1.18.0+vmware.1-tkg.2.yaml", testingDir)
-			regionalClusterClient.GetKCPObjectForClusterReturns(getDummyKCP(constants.VSphereMachineTemplate), nil)
 			regionalClusterClient.GetResourceReturns(nil)
 			regionalClusterClient.PatchResourceReturns(nil)
-			regionalClusterClient.WaitK8sVersionUpdateForWorkerNodesReturns(nil)
-			regionalClusterClient.WaitK8sVersionUpdateForCPNodesReturns(nil)
-			regionalClusterClient.GetMDObjectForClusterReturns(getDummyMD(), nil)
 			currentClusterClient.GetKubernetesVersionReturns(currentK8sVersion, nil)
 		})
 		JustBeforeEach(func() {
-			err = tkgClient.DoClusterUpgrade(regionalClusterClient, currentClusterClient, &upgradeClusterOptions)
+			err = tkgClient.DoLegacyClusterUpgrade(regionalClusterClient, currentClusterClient, &upgradeClusterOptions)
 		})
 		Context("When unable to get current k8s version of cluster", func() {
 			BeforeEach(func() {
@@ -160,16 +155,6 @@ var _ = Describe("Unit tests for upgrading legacy cluster", func() {
 			It("returns an error", func() {
 				Expect(err).To(HaveOccurred())
 				Expect(err.Error()).To(ContainSubstring("kubernetes version verification failed: unable to get current kubernetes version for the cluster"))
-			})
-		})
-		Context("When get current k8s version < new version of cluster only in +vmware.<version>", func() {
-			BeforeEach(func() {
-				upgradeClusterOptions.KubernetesVersion = "v1.18.0+vmware.1"
-				upgradeClusterOptions.TkrVersion = "v1.18.0+vmware.1-tkg.2"
-				currentClusterClient.GetKubernetesVersionReturns("v1.18.0+vmware.0", nil)
-			})
-			It("should not return an error", func() {
-				Expect(err).NotTo(HaveOccurred())
 			})
 		})
 		Context("When get current k8s version > new version of cluster only in +vmware.<version>", func() {
@@ -205,41 +190,36 @@ var _ = Describe("Unit tests for upgrading legacy cluster", func() {
 				Expect(err.Error()).To(ContainSubstring("attempted to upgrade kubernetes from v2.18.0+vmware.11 to v1.18.0+vmware.2. Kubernetes version downgrade is not allowed."))
 			})
 		})
-		Context("When get current k8s version == new version of cluster", func() {
+		Context("When get current k8s version < new version of cluster only in +vmware.<version> but TKR label update failed", func() {
 			BeforeEach(func() {
 				upgradeClusterOptions.KubernetesVersion = "v1.18.0+vmware.1"
 				upgradeClusterOptions.TkrVersion = "v1.18.0+vmware.1-tkg.2"
-				currentClusterClient.GetKubernetesVersionReturns("v1.18.0+vmware.1", nil)
-			})
-			It("should not return an error", func() {
-				Expect(err).NotTo(HaveOccurred())
-			})
-		})
-		Context("When get current k8s version < new version of cluster", func() {
-			BeforeEach(func() {
 				currentClusterClient.GetKubernetesVersionReturns("v1.18.0+vmware.0", nil)
+				regionalClusterClient.PatchClusterObjectWithPollOptionsReturns(errors.New("fake TKR patch error"))
 			})
-			It("should not return an error", func() {
-				Expect(err).NotTo(HaveOccurred())
+			It("should return an error", func() {
+				Expect(err).To(HaveOccurred())
+				Expect(err.Error()).To(ContainSubstring("fake TKR patch error"))
 			})
 		})
-		Context("When get current k8s version > new version of cluster", func() {
-			BeforeEach(func() {
-				currentClusterClient.GetKubernetesVersionReturns("v1.18.0+vmware.4", nil)
-			})
-			It("returns an error", func() {
-				Expect(err).To(HaveOccurred())
-				Expect(err.Error()).To(ContainSubstring("attempted to upgrade kubernetes from v1.18.0+vmware.4 to v1.18.0+vmware.1. Kubernetes version downgrade is not allowed."))
-			})
+	})
+
+	Describe("When upgrading cluster", func() {
+		BeforeEach(func() {
+			newK8sVersion = "v1.18.0+vmware.1"     // nolint:goconst
+			currentK8sVersion = "v1.17.3+vmware.2" // nolint:goconst
+			setupBomFile("../fakes/config/bom/tkg-bom-v1.3.1.yaml", testingDir)
+			setupBomFile("../fakes/config/bom/tkr-bom-v1.18.0+vmware.1-tkg.2.yaml", testingDir)
+			regionalClusterClient.GetKCPObjectForClusterReturns(getDummyKCP(constants.VSphereMachineTemplate), nil)
+			regionalClusterClient.GetResourceReturns(nil)
+			regionalClusterClient.PatchResourceReturns(nil)
+			regionalClusterClient.WaitK8sVersionUpdateForWorkerNodesReturns(nil)
+			regionalClusterClient.WaitK8sVersionUpdateForCPNodesReturns(nil)
+			regionalClusterClient.GetMDObjectForClusterReturns(getDummyMD(), nil)
+			currentClusterClient.GetKubernetesVersionReturns(currentK8sVersion, nil)
 		})
-		Context("When get current k8s version > new version of cluster", func() {
-			BeforeEach(func() {
-				currentClusterClient.GetKubernetesVersionReturns("v1.18.5+vmware.1", nil)
-			})
-			It("returns an error", func() {
-				Expect(err).To(HaveOccurred())
-				Expect(err.Error()).To(ContainSubstring("attempted to upgrade kubernetes from v1.18.5+vmware.1 to v1.18.0+vmware.1. Kubernetes version downgrade is not allowed."))
-			})
+		JustBeforeEach(func() {
+			err = tkgClient.DoClusterUpgrade(regionalClusterClient, currentClusterClient, &upgradeClusterOptions)
 		})
 		Context("When KCP object retrival fails from management cluster", func() {
 			BeforeEach(func() {
@@ -709,36 +689,7 @@ var _ = Describe("When upgrading cluster with fake controller runtime client", f
 		// 		Expect(err).NotTo(HaveOccurred())
 		// 	})
 		// })
-		Context("When get current k8s version > new version of cluster only in +vmware.<version>", func() {
-			BeforeEach(func() {
-				upgradeClusterOptions.KubernetesVersion = "v1.18.0+vmware.1"
-				currentClusterK8sVersion = "v1.18.0+vmware.2"
-			})
-			It("should return an error", func() {
-				Expect(err).To(HaveOccurred())
-				Expect(err.Error()).To(ContainSubstring("attempted to upgrade kubernetes from v1.18.0+vmware.2 to v1.18.0+vmware.1. Kubernetes version downgrade is not allowed."))
-			})
-		})
-		Context("When get current k8s version > new version of cluster only in +vmware.<version>", func() {
-			BeforeEach(func() {
-				upgradeClusterOptions.KubernetesVersion = "v1.18.0+vmware.2"
-				currentClusterK8sVersion = "v1.18.0+vmware.11"
-			})
-			It("should return an error", func() {
-				Expect(err).To(HaveOccurred())
-				Expect(err.Error()).To(ContainSubstring("attempted to upgrade kubernetes from v1.18.0+vmware.11 to v1.18.0+vmware.2. Kubernetes version downgrade is not allowed."))
-			})
-		})
-		Context("When get current k8s version > new version of cluster only in +vmware.<version>", func() {
-			BeforeEach(func() {
-				upgradeClusterOptions.KubernetesVersion = "v1.18.0+vmware.2"
-				currentClusterK8sVersion = "v2.18.0+vmware.11"
-			})
-			It("should return an error", func() {
-				Expect(err).To(HaveOccurred())
-				Expect(err.Error()).To(ContainSubstring("attempted to upgrade kubernetes from v2.18.0+vmware.11 to v1.18.0+vmware.2. Kubernetes version downgrade is not allowed."))
-			})
-		})
+
 		// Context("When get current k8s version == new version of cluster", func() {
 		// 	BeforeEach(func() {
 		// 		upgradeClusterOptions.KubernetesVersion = "v1.18.0+vmware.1"
@@ -756,24 +707,6 @@ var _ = Describe("When upgrading cluster with fake controller runtime client", f
 		// 		Expect(err).NotTo(HaveOccurred())
 		// 	})
 		// })
-		Context("When get current k8s version > new version of cluster", func() {
-			BeforeEach(func() {
-				currentClusterK8sVersion = "v1.18.0+vmware.4"
-			})
-			It("returns an error", func() {
-				Expect(err).To(HaveOccurred())
-				Expect(err.Error()).To(ContainSubstring("attempted to upgrade kubernetes from v1.18.0+vmware.4 to v1.18.0+vmware.1. Kubernetes version downgrade is not allowed."))
-			})
-		})
-		Context("When get current k8s version > new version of cluster", func() {
-			BeforeEach(func() {
-				currentClusterK8sVersion = "v1.18.5+vmware.1"
-			})
-			It("returns an error", func() {
-				Expect(err).To(HaveOccurred())
-				Expect(err.Error()).To(ContainSubstring("attempted to upgrade kubernetes from v1.18.5+vmware.1 to v1.18.0+vmware.1. Kubernetes version downgrade is not allowed."))
-			})
-		})
 
 		var _ = Describe("Test PatchKubernetesVersionToKubeadmControlPlane", func() {
 			Context("Testing EtcdExtraArgs parameter configuration", func() {
