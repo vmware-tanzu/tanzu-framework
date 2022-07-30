@@ -2,6 +2,7 @@
 #@ load("@ytt:yaml", "yaml")
 #@ load("@ytt:struct", "struct")
 #@ load("/lib/config_variable_association.star", "config_variable_association")
+#@ load("@ytt:regexp", "regexp")
 
 #@ list_skip_variable_from_storing = [
 #@  "VSPHERE_PASSWORD",
@@ -24,7 +25,7 @@
 #@ if configVariable not in list_skip_variable_from_storing and data.values.PROVIDER_TYPE in kvs[configVariable]:
 #@ value = data.values[configVariable]
 #@ if configVariable == "TKG_NO_PROXY":
-#@   no_proxy_list = data.values.TKG_NO_PROXY.split(",")
+#@   no_proxy_list = regexp.replace(" ", data.values.TKG_NO_PROXY, "").split(",")
 #@   value = ",".join(sorted(list(set(no_proxy_list))))
 #@ end
 
