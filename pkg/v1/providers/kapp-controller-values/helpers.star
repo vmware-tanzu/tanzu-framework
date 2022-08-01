@@ -26,7 +26,8 @@ def get_no_proxy():
     if data.values.TKG_NO_PROXY != "":
       full_no_proxy_list = data.values.TKG_NO_PROXY.split(",")
     end
-    if data.values.AWS_VPC_CIDR != "":
+    if data.values.PROVIDER_TYPE == "aws":
+      if data.values.AWS_VPC_CIDR != "":
         full_no_proxy_list.append(data.values.AWS_VPC_CIDR)
       end
       full_no_proxy_list.append("169.254.0.0/16")
