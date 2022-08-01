@@ -26,7 +26,7 @@
 #@ value = data.values[configVariable]
 #@ if configVariable == "TKG_NO_PROXY":
 #@   no_proxy_list = regexp.replace(" ", data.values.TKG_NO_PROXY, "").split(",")
-#@   value = ",".join(sorted(list(set(no_proxy_list))))
+#@   value = ",".join(list(set(no_proxy_list)))
 #@ end
 
 #@yaml/text-templated-strings

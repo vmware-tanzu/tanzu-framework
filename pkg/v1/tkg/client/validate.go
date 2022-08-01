@@ -1565,6 +1565,13 @@ func (c *TkgClient) getFullTKGNoProxy(providerName string) (string, error) {
 	}
 
 	if noProxy, _ := c.TKGConfigReaderWriter().Get(constants.TKGNoProxy); noProxy != "" {
+		// trim space
+		replaceSpacePattern := regexp.MustCompile(`\s+|\t+|\n+|\r+`)
+		noProxy = replaceSpacePattern.ReplaceAllString(noProxy, "")
+
+		if strings.Contains(noProxy, "*") {
+			return "", fmt.Errorf("Invalid string '*' in %s", constants.TKGNoProxy)
+		}
 		for _, np := range strings.Split(noProxy, ",") {
 			noProxyMap[np] = true
 		}
