@@ -14,9 +14,10 @@ import (
 
 var _ = Describe("Unit test for describe cluster", func() {
 	var (
-		ctl       tkgctl
-		tkgClient = &fakes.Client{}
-		ops       = DescribeTKGClustersOptions{
+		ctl               tkgctl
+		tkgClient         = &fakes.Client{}
+		featureGateHelper = &fakes.FakeFeatureGateHelper{}
+		ops               = DescribeTKGClustersOptions{
 			ClusterName: "my-cluster",
 			Namespace:   "",
 		}
@@ -25,15 +26,26 @@ var _ = Describe("Unit test for describe cluster", func() {
 
 	JustBeforeEach(func() {
 		ctl = tkgctl{
-			configDir:  testingDir,
-			tkgClient:  tkgClient,
-			kubeconfig: "./kube",
+			configDir:         testingDir,
+			tkgClient:         tkgClient,
+			kubeconfig:        "./kube",
+			featureGateHelper: featureGateHelper,
 		}
 		_, err = ctl.DescribeCluster(ops)
 	})
 
-	Context("when failed to list tkg clusters", func() {
+	Context("when failed to determine the management cluster is Pacific(TKGS) supervisor cluster ", func() {
 		BeforeEach(func() {
+			tkgClient.IsPacificManagementClusterReturns(false, errors.New("fake-error"))
+		})
+		It("should return an error", func() {
+			Expect(err).To(HaveOccurred())
+			Expect(err.Error()).To(ContainSubstring("unable to determine if management cluster is on vSphere with Tanzu"))
+		})
+	})
+	Context("when the management cluster is not Pacific(TKGS) supervisor cluster and failed to list tkg clusters", func() {
+		BeforeEach(func() {
+			tkgClient.IsPacificManagementClusterReturns(false, nil)
 			tkgClient.ListTKGClustersReturns(nil, errors.New("failed to list clusters"))
 		})
 		It("should return an error", func() {
@@ -41,8 +53,9 @@ var _ = Describe("Unit test for describe cluster", func() {
 		})
 	})
 
-	Context("when it is a failed management cluster", func() {
+	Context("when the management cluster is not Pacific(TKGS) supervisor cluster and it is a failed management cluster", func() {
 		BeforeEach(func() {
+			tkgClient.IsPacificManagementClusterReturns(false, nil)
 			tkgClient.ListTKGClustersReturns([]client.ClusterInfo{{Name: "my-cluster", Roles: []string{"management"}}}, nil)
 			tkgClient.IsManagementClusterAKindClusterReturns(true, nil)
 			tkgClient.DescribeClusterReturns(nil, nil, nil, nil)
@@ -52,13 +65,39 @@ var _ = Describe("Unit test for describe cluster", func() {
 		})
 	})
 
-	Context("when tkgClient failed to describe the cluster", func() {
+	Context("when the management cluster is not Pacific(TKGS) supervisor cluster and when tkgClient failed to describe the cluster", func() {
 		BeforeEach(func() {
+			tkgClient.IsPacificManagementClusterReturns(false, nil)
 			tkgClient.ListTKGClustersReturns([]client.ClusterInfo{{Name: "my-cluster", Roles: []string{"<none>"}}}, nil)
 			tkgClient.DescribeClusterReturns(nil, nil, nil, errors.New("failed to describe cluster"))
 		})
 		It("should return an error", func() {
 			Expect(err).To(HaveOccurred())
+		})
+	})
+	Context("when the management cluster is Pacific(TKGS) supervisor cluster with cluster class feature disabled and is able to list the clusters", func() {
+		BeforeEach(func() {
+			tkgClient.IsPacificManagementClusterReturns(true, nil)
+			featureGateHelper.FeatureActivatedInNamespaceReturns(true, nil)
+			tkgClient.ListTKGClustersReturns([]client.ClusterInfo{{Name: "my-cluster", Namespace: "default"}, {Name: "my-cluster-2", Namespace: "my-system"}}, nil)
+		})
+		It("should not return an error", func() {
+			Expect(err).ToNot(HaveOccurred())
+			options := tkgClient.ListTKGClustersArgsForCall(3)
+			Expect(options.IsTKGSClusterClassFeatureActivated).To(BeTrue())
+
+		})
+	})
+	Context("when the management cluster is Pacific(TKGS) supervisor cluster with cluster class feature enabled and is able to list the clusters", func() {
+		BeforeEach(func() {
+			tkgClient.IsPacificManagementClusterReturns(true, nil)
+			featureGateHelper.FeatureActivatedInNamespaceReturns(true, nil)
+			tkgClient.ListTKGClustersReturns([]client.ClusterInfo{{Name: "my-cluster", Namespace: "default"}, {Name: "my-cluster-2", Namespace: "my-system"}}, nil)
+		})
+		It("should not return an error", func() {
+			Expect(err).ToNot(HaveOccurred())
+			options := tkgClient.ListTKGClustersArgsForCall(3)
+			Expect(options.IsTKGSClusterClassFeatureActivated).To(BeTrue())
 		})
 	})
 })
