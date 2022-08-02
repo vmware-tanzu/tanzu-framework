@@ -7,6 +7,8 @@ kind: ClusterClass
 metadata:
   name: tkg-azure-default
   namespace: #@ data.values.NAMESPACE
+  annotations:
+    identifier.cc.vmware.com: tanzu-azure-default-0.0.1
 spec:
   controlPlane:
     ref:
