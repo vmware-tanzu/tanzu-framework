@@ -176,7 +176,7 @@ func New(options Options) (TKGClient, error) { //nolint:gocritic
 		tkgClient:                tkgClient,
 		providerGetter:           options.ProviderGetter,
 		tkgConfigReaderWriter:    allClients.ConfigClient.TKGConfigReaderWriter(),
-		featureGateHelper:        newFeatureGateHelper(&clusterClientOptions, options.KubeContext, options.KubeConfig),
+		featureGateHelper:        NewFeatureGateHelper(&clusterClientOptions, options.KubeContext, options.KubeConfig),
 	}, nil
 }
 
