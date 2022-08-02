@@ -48,7 +48,7 @@ type ClusterBootstrap struct {
 	aggregatedAPIResourcesClient client.Client
 	// cache for resolved api-resources so that look up is fast (cleared periodically)
 	providerGVR map[schema.GroupKind]*schema.GroupVersionResource
-    // mutex for GVR lookup and clearing
+	// mutex for GVR lookup and clearing
 	lock sync.Mutex
 }
 
