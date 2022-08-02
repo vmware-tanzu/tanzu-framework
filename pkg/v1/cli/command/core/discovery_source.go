@@ -229,8 +229,10 @@ func createDiscoverySource(dsType, dsName, uri string) (configv1alpha1.PluginDis
 		pluginDiscoverySource.Local = createLocalDiscoverySource(dsName, uri)
 	case common.DiscoveryTypeOCI:
 		pluginDiscoverySource.OCI = createOCIDiscoverySource(dsName, uri)
-	default:
+	case common.DiscoveryTypeGCP, common.DiscoveryTypeKubernetes, common.DiscoveryTypeREST:
 		return pluginDiscoverySource, errors.Errorf("discovery source type '%s' is not yet supported", dsType)
+	default:
+		return pluginDiscoverySource, errors.Errorf("unknown discovery source type '%s'", dsType)
 	}
 	return pluginDiscoverySource, nil
 }
