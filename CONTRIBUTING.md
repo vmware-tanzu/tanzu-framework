@@ -51,7 +51,7 @@ build and test your changes.
 When adding new functionality, or fixing bugs, add appropriate test coverage
 where possible. Different parts of the code base have different strategies and
 patterns for testing, some of which may be in flux at any point in time.
-Consider commenting on the issue to seek input or  or opening a draft pull
+Consider commenting on the issue to seek input or opening a draft pull
 request to seek feedback on approaches to testing a particular change.
 
 To build the project from source, please consider the docs on [local development](docs/dev/build.md).
@@ -84,19 +84,20 @@ understand the project better.
   that your change is getting large, break up your PR into small, logical
   commits. Consider breaking up large PRs into smaller PRs, if each of them
   can be useful on its own.
-* Have good commit messages. Please see [Commit Messages](#commit-messages)
+* Have good commit messages. Please see the [Commit Messages](#commit-messages)
   section for guidelines.
 * Pull requests *should* reference an existing issue and include a `Fixes #NNNN`
   or `Updates #NNNN` comment. Remember that `Fixes` will close the associated
   issue, and `Updates` will link the PR to it.
+* Pull requests should normally target the `main` branch.
 
 ### Getting your Pull Request Reviewed, Approved, and Merged
 
 Once a pull request has been opened, the following must take place before it is merged:
 
-* It needs the `ok-to-merge` label
+* It needs the `ok-to-merge` label.
 * It needs to pass all the checks.
-* It needs to be approved by a [CODEOWNER](https://github.com/vmware-tanzu/tanzu-framework/blob/main/CODEOWNERS) for all files changed
+* It needs to be approved by a [CODEOWNER](https://github.com/vmware-tanzu/tanzu-framework/blob/main/CODEOWNERS) for all files changed.
 
 While these steps will not always take place in the same order, the following describes the process for a typical pull request once it is opened:
 
@@ -104,11 +105,11 @@ While these steps will not always take place in the same order, the following de
 2. Assignee is added to pull request to ensure it gets proper attention throughout the process.
    Typically one of the CODEOWNERS will assign themselves, but they may choose to delegate to someone else.
 3. Triage adds `ok-to-merge` if the pull request is generally aligned with product goals and does not conflict with current milestones; otherwise they may add a comment and a `do-not-merge/*` label.
-4. Assignee may request others to do an initial review; anyone else may review
-5. Reviewers leave feedback
-6. Contributor updates pull request to address feedback
-7. Requested reviewer approves pull request
-8. Assignee approves pull request
+4. Assignee may request others to do an initial review; anyone else may review.
+5. Reviewers leave feedback.
+6. Contributor updates pull request to address feedback.
+7. Requested reviewer approves pull request.
+8. Assignee approves pull request.
 9. Assignee merges pull request or requests another member to merge it if necessary.
 
 During the review process itself, direct discussion among contributors and reviewers is encouraged.
@@ -131,7 +132,7 @@ no assignee or they themselves are unresponsive.
 Maintainers should prefer to merge pull requests with the [Squash and merge](https://help.github.com/en/github/collaborating-with-issues-and-pull-requests/about-pull-request-merges#squash-and-merge-your-pull-request-commits) option.
 This option is preferred for a number of reasons.
 First, it causes GitHub to insert the pull request number in the commit subject
-which makes it easier to track which PR changes landed in.
+which makes it easier to track which PR the changes landed in.
 Second, a one-to-one correspondence between pull requests and commits makes it
 easier to manage reverting changes.
 
