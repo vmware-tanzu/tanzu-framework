@@ -205,13 +205,13 @@ func DoSetMachineDeployment(clusterClient clusterclient.Client, options *SetMach
 		}
 
 		switch iaasType := baseMD.Spec.Template.Spec.InfrastructureRef.Kind; iaasType {
-		case constants.VSphereMachineTemplate:
+		case constants.KindVSphereMachineTemplate:
 			err = createVSphereMachineTemplate(clusterClient, &baseMD.Spec.Template.Spec.InfrastructureRef, machineTemplateName, options)
-		case constants.AWSMachineTemplate:
+		case constants.KindAWSMachineTemplate:
 			err = createAWSMachineTemplate(clusterClient, &baseMD.Spec.Template.Spec.InfrastructureRef, machineTemplateName, options)
-		case constants.AzureMachineTemplate:
+		case constants.KindAzureMachineTemplate:
 			err = createAzureMachineTemplate(clusterClient, &baseMD.Spec.Template.Spec.InfrastructureRef, machineTemplateName, options)
-		case constants.DockerMachineTemplate:
+		case constants.KindDockerMachineTemplate:
 			err = createDockerMachineTemplate(clusterClient, &baseMD.Spec.Template.Spec.InfrastructureRef, machineTemplateName, options)
 		default:
 			return errors.Errorf("unable to match MachineTemplate type: %s", iaasType)
@@ -378,7 +378,7 @@ func DoDeleteMachineDeployment(clusterClient clusterclient.Client, options *Dele
 	var deleteCmd func() error
 	var infraTemplateName string
 	switch machineKind := toDelete.Spec.Template.Spec.InfrastructureRef.Kind; machineKind {
-	case constants.VSphereMachineTemplate:
+	case constants.KindVSphereMachineTemplate:
 		var machineTemplate vsphere.VSphereMachineTemplate
 		infraTemplateName = toDelete.Spec.Template.Spec.InfrastructureRef.Name
 		err = retrieveMachineTemplate(clusterClient, infraTemplateName, options.Namespace, &machineTemplate)
@@ -388,7 +388,7 @@ func DoDeleteMachineDeployment(clusterClient clusterclient.Client, options *Dele
 		deleteCmd = func() error {
 			return clusterClient.DeleteResource(&machineTemplate)
 		}
-	case constants.AWSMachineTemplate:
+	case constants.KindAWSMachineTemplate:
 		var machineTemplate aws.AWSMachineTemplate
 		infraTemplateName = toDelete.Spec.Template.Spec.InfrastructureRef.Name
 		err = retrieveMachineTemplate(clusterClient, infraTemplateName, options.Namespace, &machineTemplate)
@@ -398,7 +398,7 @@ func DoDeleteMachineDeployment(clusterClient clusterclient.Client, options *Dele
 		deleteCmd = func() error {
 			return clusterClient.DeleteResource(&machineTemplate)
 		}
-	case constants.AzureMachineTemplate:
+	case constants.KindAzureMachineTemplate:
 		var machineTemplate azure.AzureMachineTemplate
 		infraTemplateName = toDelete.Spec.Template.Spec.InfrastructureRef.Name
 		err = retrieveMachineTemplate(clusterClient, infraTemplateName, options.Namespace, &machineTemplate)
@@ -408,7 +408,7 @@ func DoDeleteMachineDeployment(clusterClient clusterclient.Client, options *Dele
 		deleteCmd = func() error {
 			return clusterClient.DeleteResource(&machineTemplate)
 		}
-	case constants.DockerMachineTemplate:
+	case constants.KindDockerMachineTemplate:
 		var machineTemplate docker.DockerMachineTemplate
 		infraTemplateName = toDelete.Spec.Template.Spec.InfrastructureRef.Name
 		err = retrieveMachineTemplate(clusterClient, infraTemplateName, options.Namespace, &machineTemplate)

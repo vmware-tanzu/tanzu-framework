@@ -66,7 +66,7 @@ var _ = Describe("Unit tests for addons upgrade", func() {
 			setupBomFile("../fakes/config/bom/tkr-bom-v1.18.0+vmware.1-tkg.2.yaml", testingDir)
 			setupBomFile("../fakes/config/bom/tkg-bom-v1.3.1.yaml", testingDir)
 			regionalClusterClient.PatchResourceReturns(nil)
-			regionalClusterClient.GetKCPObjectForClusterReturns(getDummyKCP(constants.DockerMachineTemplate), nil)
+			regionalClusterClient.GetKCPObjectForClusterReturns(getDummyKCP(constants.KindDockerMachineTemplate), nil)
 			currentClusterClient.GetKubernetesVersionReturns(currentK8sVersion, nil)
 			regionalClusterClient.ListResourcesCalls(func(clusterList interface{}, options ...client.ListOption) error {
 				if clusterList, ok := clusterList.(*capiv1alpha3.ClusterList); ok {

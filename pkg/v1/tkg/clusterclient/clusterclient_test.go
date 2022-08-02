@@ -2851,6 +2851,148 @@ prod.repo.com: prod.custom.repo.com`
 		})
 	})
 
+	Describe("Unit tests for RemoveMatchingLabelsFromResources", func() {
+		var (
+			fakeClientSet     crtclient.Client
+			resources         []runtime.Object
+			labelsToBeDeleted []string
+		)
+		fakeclusterclass1 := &capi.ClusterClass{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      "fake-clusterclass-1",
+				Namespace: "fake-namespace",
+				Labels: map[string]string{
+					"key-foo": "value-foo",
+					"key-bar": "value-bar",
+				},
+			},
+			Spec: capi.ClusterClassSpec{
+				Variables: []capi.ClusterClassVariable{
+					{Name: "fake-variable-1"},
+				},
+			},
+		}
+		fakeclusterclass2 := &capi.ClusterClass{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      "fake-clusterclass-2",
+				Namespace: "fake-namespace",
+				Labels: map[string]string{
+					"key-foo":  "value-foo",
+					"key-bar":  "value-bar",
+					"key-test": "value-test",
+				},
+			},
+			Spec: capi.ClusterClassSpec{
+				Variables: []capi.ClusterClassVariable{
+					{Name: "fake-variable-2"},
+				},
+			},
+		}
+		fakeclusterclass3 := &capi.ClusterClass{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      "fake-clusterclass-3",
+				Namespace: "random-namespace",
+				Labels: map[string]string{
+					"key-foo":  "value-foo",
+					"key-bar":  "value-bar",
+					"key-test": "value-test",
+				},
+			},
+			Spec: capi.ClusterClassSpec{
+				Variables: []capi.ClusterClassVariable{
+					{Name: "fake-variable-3"},
+				},
+			},
+		}
+
+		JustBeforeEach(func() {
+			reInitialize()
+
+			fakeClientSet = fake.NewClientBuilder().WithScheme(scheme).WithRuntimeObjects(resources...).Build()
+			crtClientFactory.NewClientReturns(fakeClientSet, nil)
+
+			clusterClientOptions = NewOptions(poller, crtClientFactory, discoveryClientFactory, nil)
+			kubeConfigPath := getConfigFilePath("config1.yaml")
+			clstClient, err = NewClient(kubeConfigPath, "", clusterClientOptions)
+			Expect(err).NotTo(HaveOccurred())
+
+			clusterClassGVK := schema.GroupVersionKind{Group: capi.GroupVersion.Group, Version: capi.GroupVersion.Version, Kind: "ClusterClass"}
+			err = clstClient.RemoveMatchingLabelsFromResources(clusterClassGVK, "fake-namespace", labelsToBeDeleted)
+		})
+
+		Context("When matching objects not found", func() {
+			BeforeEach(func() {
+				resources = []runtime.Object{}
+				labelsToBeDeleted = []string{"key-foo"}
+			})
+			It("should not return error", func() {
+				Expect(err).NotTo(HaveOccurred())
+			})
+		})
+
+		Context("When matching object is found and matching labels are found", func() {
+			BeforeEach(func() {
+				resources = []runtime.Object{fakeclusterclass1}
+				labelsToBeDeleted = []string{"key-foo"}
+			})
+			It("should not return error", func() {
+				Expect(err).NotTo(HaveOccurred())
+			})
+			It("should remove the labels from the objects and should not update other spec of the objects", func() {
+				clusterClass := &capi.ClusterClass{}
+				err = clstClient.GetResource(clusterClass, "fake-clusterclass-1", "fake-namespace", nil, nil)
+				Expect(err).NotTo(HaveOccurred())
+
+				labels := clusterClass.GetLabels()
+				Expect(labels).To(HaveKey("key-bar"))
+				Expect(labels).NotTo(HaveKey("key-foo"))
+
+				Expect(len(clusterClass.Spec.Variables)).To(Equal(1))
+				Expect(clusterClass.Spec.Variables[0].Name).To(Equal("fake-variable-1"))
+			})
+		})
+
+		Context("When multiple matching objects are found and multiple labels are provided", func() {
+			BeforeEach(func() {
+				resources = []runtime.Object{fakeclusterclass1, fakeclusterclass2, fakeclusterclass3}
+				labelsToBeDeleted = []string{"key-foo", "key-bar"}
+			})
+			It("should not return error", func() {
+				Expect(err).NotTo(HaveOccurred())
+			})
+			It("should remove all provided labels from all the matching objects and should not update other spec of the objects", func() {
+				clusterClass := &capi.ClusterClass{}
+				err = clstClient.GetResource(clusterClass, "fake-clusterclass-1", "fake-namespace", nil, nil)
+				Expect(err).NotTo(HaveOccurred())
+				labels := clusterClass.GetLabels()
+				Expect(labels).NotTo(HaveKey("key-bar"))
+				Expect(labels).NotTo(HaveKey("key-foo"))
+				Expect(len(clusterClass.Spec.Variables)).To(Equal(1))
+				Expect(clusterClass.Spec.Variables[0].Name).To(Equal("fake-variable-1"))
+
+				clusterClass = &capi.ClusterClass{}
+				err = clstClient.GetResource(clusterClass, "fake-clusterclass-2", "fake-namespace", nil, nil)
+				Expect(err).NotTo(HaveOccurred())
+				labels = clusterClass.GetLabels()
+				Expect(labels).NotTo(HaveKey("key-bar"))
+				Expect(labels).NotTo(HaveKey("key-foo"))
+				Expect(labels).To(HaveKey("key-test"))
+				Expect(len(clusterClass.Spec.Variables)).To(Equal(1))
+				Expect(clusterClass.Spec.Variables[0].Name).To(Equal("fake-variable-2"))
+
+				clusterClass = &capi.ClusterClass{}
+				err = clstClient.GetResource(clusterClass, "fake-clusterclass-3", "random-namespace", nil, nil)
+				Expect(err).NotTo(HaveOccurred())
+				labels = clusterClass.GetLabels()
+				Expect(labels).To(HaveKey("key-bar"))
+				Expect(labels).To(HaveKey("key-foo"))
+				Expect(labels).To(HaveKey("key-test"))
+				Expect(len(clusterClass.Spec.Variables)).To(Equal(1))
+				Expect(clusterClass.Spec.Variables[0].Name).To(Equal("fake-variable-3"))
+			})
+		})
+	})
+
 })
 
 func createTempDirectory() {
