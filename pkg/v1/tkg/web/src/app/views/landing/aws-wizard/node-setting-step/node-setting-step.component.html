@@ -257,7 +257,8 @@
                         <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                         <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
                             <span>
-                                Select an AWS availability zone.
+                                Choose an AWS availability zone (AWS subregion). If using an existing VPC, selecting an
+                                availability zone first is required for retrieving existing public and private subnets.
                             </span>
                         </clr-tooltip-content>
                     </clr-tooltip>
@@ -296,8 +297,9 @@
                             <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                             <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
                                 <span>
-                                    Choose a VPC public subnet associated with the selected AWS availability zone. If no
-                                    option is available, please add a public subnet to this availability zone.
+                                    {{
+                                        getVpcSubnetTooltip('public')
+                                    }}
                                 </span>
                             </clr-tooltip-content>
                         </clr-tooltip>
@@ -315,7 +317,11 @@
                     </select>
                     <!-- Add a empty helper to avoid accessibility aria-describeby issue -->
                     <clr-control-helper></clr-control-helper>
-                    <clr-control-error>Selecting a VPC public subnet is required</clr-control-error>
+                    <clr-control-error>
+                        {{
+                            getVpcSubnetErrorMsg('public')
+                        }}
+                    </clr-control-error>
                 </clr-select-container>
             </div>
             <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
@@ -326,8 +332,9 @@
                             <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                             <clr-tooltip-content clrPosition="top-left" clrSize="lg" *clrIfOpen>
                                 <span>
-                                    Choose a VPC private subnet associated with the selected AWS availability zone. If no
-                                    option is available, please add a private subnet to this availability zone.
+                                    {{
+                                        getVpcSubnetTooltip('private')
+                                    }}
                                 </span>
                             </clr-tooltip-content>
                         </clr-tooltip>
@@ -345,7 +352,11 @@
                     </select>
                     <!-- Add a empty helper to avoid accessibility aria-describeby issue -->
                     <clr-control-helper></clr-control-helper>
-                    <clr-control-error>Selecting a VPC private subnet is required</clr-control-error>
+                    <clr-control-error>
+                        {{
+                            getVpcSubnetErrorMsg('private')
+                        }}
+                    </clr-control-error>
                 </clr-select-container>
             </div>
             <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4"></div>
@@ -392,7 +403,8 @@
                         <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                         <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
                             <span>
-                                Select an AWS availability zone.
+                                Choose an AWS availability zone (AWS subregion). If using an existing VPC, selecting an
+                                availability zone first is required for retrieving existing public and private subnets.
                             </span>
                         </clr-tooltip-content>
                     </clr-tooltip>
@@ -431,8 +443,9 @@
                             <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                             <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
                                 <span>
-                                    Choose a VPC public subnet associated with the selected AWS availability zone. If no
-                                    option is available, please add a public subnet to this availability zone.
+                                    {{
+                                        getVpcSubnetTooltip('public')
+                                    }}
                                 </span>
                             </clr-tooltip-content>
                         </clr-tooltip>
@@ -450,7 +463,11 @@
                     </select>
                     <!-- Add a empty helper to avoid accessibility aria-describeby issue -->
                     <clr-control-helper></clr-control-helper>
-                    <clr-control-error>Selecting a VPC public subnet is required</clr-control-error>
+                    <clr-control-error>
+                        {{
+                            getVpcSubnetErrorMsg('public')
+                        }}
+                    </clr-control-error>
                 </clr-select-container>
             </div>
             <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
@@ -461,8 +478,9 @@
                             <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                             <clr-tooltip-content clrPosition="top-left" clrSize="lg" *clrIfOpen>
                                 <span>
-                                    Choose a VPC private subnet associated with the selected AWS availability zone. If no
-                                    option is available, please add a private subnet to this availability zone.
+                                    {{
+                                        getVpcSubnetTooltip('private')
+                                    }}
                                 </span>
                             </clr-tooltip-content>
                         </clr-tooltip>
@@ -480,7 +498,11 @@
                     </select>
                     <!-- Add a empty helper to avoid accessibility aria-describeby issue -->
                     <clr-control-helper></clr-control-helper>
-                    <clr-control-error>Selecting a VPC private subnet is required</clr-control-error>
+                    <clr-control-error>
+                        {{
+                            getVpcSubnetErrorMsg('private')
+                        }}
+                    </clr-control-error>
                 </clr-select-container>
             </div>
             <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4"></div>
@@ -527,7 +549,8 @@
                         <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                         <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
                             <span>
-                                Select an AWS availability zone.
+                                Choose an AWS availability zone (AWS subregion). If using an existing VPC, selecting an
+                                availability zone first is required for retrieving existing public and private subnets.
                             </span>
                         </clr-tooltip-content>
                     </clr-tooltip>
@@ -566,8 +589,9 @@
                             <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                             <clr-tooltip-content clrPosition="top-right" clrSize="lg" *clrIfOpen>
                                 <span>
-                                    Choose a VPC public subnet associated with the selected AWS availability zone. If no
-                                    option is available, please add a public subnet to this availability zone.
+                                    {{
+                                        getVpcSubnetTooltip('public')
+                                    }}
                                 </span>
                             </clr-tooltip-content>
                         </clr-tooltip>
@@ -585,7 +609,11 @@
                     </select>
                     <!-- Add a empty helper to avoid accessibility aria-describeby issue -->
                     <clr-control-helper></clr-control-helper>
-                    <clr-control-error>Selecting a VPC public subnet is required</clr-control-error>
+                    <clr-control-error>
+                        {{
+                            getVpcSubnetErrorMsg('public')
+                        }}
+                    </clr-control-error>
                 </clr-select-container>
             </div>
             <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4">
@@ -596,8 +624,9 @@
                             <clr-icon aria-live="assertive" a11yTooltipTrigger shape="info-circle" size="22"></clr-icon>
                             <clr-tooltip-content clrPosition="top-left" clrSize="lg" *clrIfOpen>
                                 <span>
-                                    Choose a VPC private subnet associated with the selected AWS availability zone. If no
-                                    option is available, please add a private subnet to this availability zone.
+                                    {{
+                                        getVpcSubnetTooltip('private')
+                                    }}
                                 </span>
                             </clr-tooltip-content>
                         </clr-tooltip>
@@ -615,7 +644,11 @@
                     </select>
                     <!-- Add a empty helper to avoid accessibility aria-describeby issue -->
                     <clr-control-helper></clr-control-helper>
-                    <clr-control-error>Selecting a VPC private subnet is required</clr-control-error>
+                    <clr-control-error>
+                        {{
+                            getVpcSubnetErrorMsg('private')
+                        }}
+                    </clr-control-error>
                 </clr-select-container>
             </div>
             <div class="clr-col-12 clr-col-sm-6 clr-col-lg-4"></div>

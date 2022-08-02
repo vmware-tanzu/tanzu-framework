@@ -468,6 +468,17 @@ export class NodeSettingStepComponent extends NodeSettingStepDirective<string> i
         }
     }
 
+    getVpcSubnetTooltip(access: string): string {
+        return `Choose a VPC ${access} subnet associated with the selected AWS availability zone. If no
+            option is available, please add a ${access} subnet to this availability zone or create a new VPC in the
+            previous step.`;
+    }
+
+    getVpcSubnetErrorMsg(access: string): string {
+        return `Selecting a VPC ${access} subnet is required. If no subnets are available, please add a ${access} subnet to this
+            subregion or create a new VPC in the previous step.`;
+    }
+
     get isVpcTypeExisting(): boolean {
         return this.vpcType === VpcType.EXISTING;
     }
