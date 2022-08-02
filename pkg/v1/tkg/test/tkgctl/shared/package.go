@@ -140,16 +140,9 @@ func getPackagesFromCB(ctx context.Context, clusterBootstrap *runtanzuv1alpha3.C
 	packages = append(packages, kapppkgv1alpha1.Package{ObjectMeta: metav1.ObjectMeta{Name: cniPkgShortName, Namespace: systemNamespace},
 		Spec: kapppkgv1alpha1.PackageSpec{RefName: cniPkgName, Version: cniPkgVersion}})
 
-	// for tkgs, kapp controller is in the Supervisor cluster. For other infrastructure, it is in the workload cluster
-	if (infrastructureName == "tkgs" && isManagementCluster) || (infrastructureName != "tkgs" && !isManagementCluster) {
-		var kappPkgNamespace string
-		if isManagementCluster {
-			kappPkgNamespace = mcClusterNamespace
-		} else {
-			kappPkgNamespace = wcClusterNamespace
-		}
+	if !isManagementCluster {
 		kappPkgShortName, kappPkgName, kappPkgVersion := getPackageDetailsFromCBS(clusterBootstrap.Spec.Kapp.RefName)
-		packages = append(packages, kapppkgv1alpha1.Package{ObjectMeta: metav1.ObjectMeta{Name: kappPkgShortName, Namespace: kappPkgNamespace},
+		packages = append(packages, kapppkgv1alpha1.Package{ObjectMeta: metav1.ObjectMeta{Name: kappPkgShortName, Namespace: wcClusterNamespace},
 			Spec: kapppkgv1alpha1.PackageSpec{RefName: kappPkgName, Version: kappPkgVersion}})
 	}
 
