@@ -28,7 +28,8 @@ jobs:
         curl -o tanzu https://storage.googleapis.com/tanzu-cli/artifacts/core/latest/tanzu-core-linux_amd64 && \
           mv tanzu /usr/local/bin/tanzu && \
           chmod +x /usr/local/bin/tanzu
-        tanzu plugin repo add -b tanzu-cli-admin-plugins -n admin
+        tanzu plugin repo add -n admin -b tanzu-cli-admin-plugins -p artifacts-admin
+        tanzu plugin install builder
   
     - name: init
       run: make init
