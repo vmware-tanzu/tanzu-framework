@@ -1570,7 +1570,7 @@ func (c *TkgClient) getFullTKGNoProxy(providerName string) (string, error) {
 		noProxy = replaceSpacePattern.ReplaceAllString(noProxy, "")
 
 		if strings.Contains(noProxy, "*") {
-			return "", fmt.Errorf("Invalid string '*' in %s", constants.TKGNoProxy)
+			return "", fmt.Errorf("invalid string '*' in %s", constants.TKGNoProxy)
 		}
 		for _, np := range strings.Split(noProxy, ",") {
 			noProxyMap[np] = true
