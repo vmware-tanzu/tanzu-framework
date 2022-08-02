@@ -6,16 +6,20 @@ package tkgs
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"io"
 	"os"
+	"path/filepath"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	cniv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cni/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/test/framework"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/test/tkgctl/shared"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgctl"
+
 	"sigs.k8s.io/cluster-api/util"
 )
 
@@ -169,25 +173,18 @@ var _ = Describe("TKGS - Create workload cluster use cases", func() {
 				tkgctlClient, err = tkgctl.New(tkgctlOptions)
 				Expect(err).To(BeNil())
 			})
-			FIt("should return success or error based on the ClusterClass feature-gate status on the Supervisor", func() {
+			It("should return success or error based on the ClusterClass feature-gate status on the Supervisor", func() {
 
 				createClusterClassBasedCluster(tkgctlClient, true, clusterName, namespace)
-				/* Note: Currently not able to use CheckClusterCB function becuase the management cluster details required are not available
 
-				var clusterResources []shared.ClusterResource
+				clusterClient := framework.GetClusterclient(e2eConfig.TKGSKubeconfigPath, e2eConfig.TKGSKubeconfigContext)
+				config := &cniv1alpha1.AntreaConfig{}
+				err := clusterClient.GetResource(config, clusterName, namespace, nil, nil)
+				Expect(err).NotTo(BeNil())
+				Expect(config.Spec.Antrea.AntreaConfigDataValue.FeatureGates.AntreaTraceflow).Should(Equal(false))
 
-				By(fmt.Sprintf("Get k8s client for management cluster %q", clusterName))
-				mngkubeConfigFileName := clusterName + ".kubeconfig"
-				mngTempFilePath := filepath.Join(os.TempDir(), mngkubeConfigFileName)
-				err = tkgctlClient.GetCredentials(tkgctl.GetWorkloadClusterCredentialsOptions{
-					ClusterName: clusterName,
-					Namespace:   namespace,
-					ExportFile:  mngTempFilePath,
-				})
-				Expect(err).To(BeNil())
-
-				By(fmt.Sprintf("Get k8s client for management cluster %q", clusterName))
-				mngClient, mngDynamicClient, mngAggregatedAPIResourcesClient, mngDiscoveryClient, err := shared.GetClients(context.Background(), mngTempFilePath)
+				By(fmt.Sprintf("Get k8s client for management cluster"))
+				mngClient, _, _, _, err := shared.GetClients(context.Background(), e2eConfig.TKGSKubeconfigPath)
 				Expect(err).NotTo(HaveOccurred())
 
 				By(fmt.Sprintf("Generating credentials for workload cluster %q", e2eConfig.WorkloadClusterOptions.ClusterName))
@@ -204,7 +201,7 @@ var _ = Describe("TKGS - Create workload cluster use cases", func() {
 				wlcClient, _, _, _, err := shared.GetClients(context.Background(), wlcTempFilePath)
 				Expect(err).NotTo(HaveOccurred())
 
-				By(fmt.Sprintf("Verify addon packages on management cluster %q matches clusterBootstrap info on management cluster %q", clusterName, clusterName))
+				By(fmt.Sprintf("Verify addon packages on management cluster matches clusterBootstrap info on management cluster"))
 				err = shared.CheckClusterCB(context.Background(), mngClient, wlcClient, clusterName, namespace, "", "", e2eConfig.InfrastructureName, true)
 				Expect(err).To(BeNil())
 
@@ -212,26 +209,13 @@ var _ = Describe("TKGS - Create workload cluster use cases", func() {
 				err = shared.CheckClusterCB(context.Background(), mngClient, wlcClient, clusterName, namespace, clusterName, namespace, e2eConfig.InfrastructureName, false)
 				Expect(err).To(BeNil())
 
-				By(fmt.Sprintf("Get management cluster resources created by addons-manager for workload cluster %q on management cluster %q", e2eConfig.WorkloadClusterOptions.ClusterName, clusterName))
-				clusterResources, err = shared.GetManagementClusterResources(context.Background(), mngClient, mngDynamicClient, mngAggregatedAPIResourcesClient, mngDiscoveryClient, namespace, clusterName, e2eConfig.InfrastructureName)
-				Expect(err).NotTo(HaveOccurred())
-				Expect(clusterResources).ToNot(BeEmpty())
-				*/
-
-				clusterClient := framework.GetClusterclient(e2eConfig.TKGSKubeconfigPath, e2eConfig.TKGSKubeconfigContext)
-				config := &cniv1alpha1.AntreaConfig{}
-				err := clusterClient.GetResource(config, clusterName, namespace, nil, nil)
-				Expect(err).NotTo(BeNil())
-				Expect(config.Spec.Antrea.AntreaConfigDataValue.FeatureGates.AntreaTraceflow).Should(Equal(false))
-
 				deleteClusterClassBasedCluster(tkgctlClient, deleteClusterOptions, clusterName, namespace)
-
 			})
 		})
 	})
 })
 
-// createClusterClassBasedClusterTest creates and deletes (if created successfully) workload cluster
+// createClusterClassBasedCluster creates and deletes (if created successfully) workload cluster
 func createClusterClassBasedCluster(tkgctlClient tkgctl.TKGClient, cliFlag bool, clusterName, namespace string) {
 	if isClusterClassFeatureActivated {
 		By(fmt.Sprintf("creating Cluster class based workload cluster, ClusterClass feature-gate is activated and cli feature flag set %v", cliFlag))

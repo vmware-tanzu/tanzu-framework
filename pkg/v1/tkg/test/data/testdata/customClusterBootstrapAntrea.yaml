@@ -1,8 +1,8 @@
 apiVersion: cni.tanzu.vmware.com/v1alpha1
 kind: AntreaConfig
 metadata:
-  name: cc20
-  namespace: shivaani-ns
+  name: cc20-antrea-package
+  namespace: customcb-ns
 spec:
   antrea:
     config:
@@ -24,7 +24,7 @@ metadata:
   annotations:
     tkg.tanzu.vmware.com/add-missing-fields-from-tkr: v1.23.5---vmware.1-tkg.1-zshippable
   name: cc20
-  namespace: shivaani-ns
+  namespace: customcb-ns
 spec:
   additionalPackages:
     - refName: metrics-server*
@@ -36,7 +36,7 @@ spec:
       providerRef:
         apiGroup: cni.tanzu.vmware.com
         kind: AntreaConfig
-        name: cc20
+        name: cc20-antrea-package
   kapp:
     refName: kapp-controller*
 ---
@@ -44,7 +44,7 @@ apiVersion: cluster.x-k8s.io/v1beta1
 kind: Cluster
 metadata:
   name: cc20
-  namespace: shivaani-ns
+  namespace: customcb-ns
 spec:
   clusterNetwork:
     pods:

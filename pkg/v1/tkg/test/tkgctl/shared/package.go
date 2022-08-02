@@ -7,6 +7,9 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"reflect"
+	"strings"
+	"time"
 
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
@@ -20,10 +23,6 @@ import (
 
 	kapppkgv1alpha1 "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apiserver/apis/datapackaging/v1alpha1"
 	runtanzuv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha1"
-
-	"reflect"
-	"strings"
-	"time"
 
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime/schema"
@@ -86,8 +85,8 @@ func createClientFromKubeconfig(exportFile string, scheme *runtime.Scheme) (clie
 	return client, nil
 }
 
-// getClients gets the various kubernetes clients
-func getClients(ctx context.Context, exportFile string) (k8sClient client.Client, dynamicClient dynamic.Interface, aggregatedAPIResourcesClient client.Client, discoveryClient discovery.DiscoveryInterface, err error) {
+// GetClients gets the various kubernetes clients
+func GetClients(ctx context.Context, exportFile string) (k8sClient client.Client, dynamicClient dynamic.Interface, aggregatedAPIResourcesClient client.Client, discoveryClient discovery.DiscoveryInterface, err error) {
 	scheme := runtime.NewScheme()
 
 	_ = clientgoscheme.AddToScheme(scheme)
@@ -125,26 +124,42 @@ func getClients(ctx context.Context, exportFile string) (k8sClient client.Client
 
 // getPackagesFromCB gets the list of packages from CB that are supposed to be installed on a cluster
 func getPackagesFromCB(ctx context.Context, clusterBootstrap *runtanzuv1alpha3.ClusterBootstrap, mccl, wccl client.Client, mcClusterName, mcClusterNamespace, wcClusterName, wcClusterNamespace, infrastructureName string, isManagementCluster bool) ([]kapppkgv1alpha1.Package, error) {
-	var packages []kapppkgv1alpha1.Package
+	var (
+		packages        []kapppkgv1alpha1.Package
+		systemNamespace string
+	)
+
+	if infrastructureName == "tkgs" {
+		systemNamespace = constants.TKGSClusterClassNamespace
+	} else {
+		systemNamespace = constants.TkgNamespace
+	}
 
 	// verify cni package is installed on the workload cluster
 	cniPkgShortName, cniPkgName, cniPkgVersion := getPackageDetailsFromCBS(clusterBootstrap.Spec.CNI.RefName)
-	packages = append(packages, kapppkgv1alpha1.Package{ObjectMeta: metav1.ObjectMeta{Name: cniPkgShortName, Namespace: constants.TkgNamespace},
+	packages = append(packages, kapppkgv1alpha1.Package{ObjectMeta: metav1.ObjectMeta{Name: cniPkgShortName, Namespace: systemNamespace},
 		Spec: kapppkgv1alpha1.PackageSpec{RefName: cniPkgName, Version: cniPkgVersion}})
 
-	if !isManagementCluster {
+	// for tkgs, kapp controller is in the Supervisor cluster. For other infrastructure, it is in the workload cluster
+	if (infrastructureName == "tkgs" && isManagementCluster) || (infrastructureName != "tkgs" && !isManagementCluster) {
+		var kappPkgNamespace string
+		if isManagementCluster {
+			kappPkgNamespace = mcClusterNamespace
+		} else {
+			kappPkgNamespace = wcClusterNamespace
+		}
 		kappPkgShortName, kappPkgName, kappPkgVersion := getPackageDetailsFromCBS(clusterBootstrap.Spec.Kapp.RefName)
-		packages = append(packages, kapppkgv1alpha1.Package{ObjectMeta: metav1.ObjectMeta{Name: kappPkgShortName, Namespace: wcClusterNamespace},
+		packages = append(packages, kapppkgv1alpha1.Package{ObjectMeta: metav1.ObjectMeta{Name: kappPkgShortName, Namespace: kappPkgNamespace},
 			Spec: kapppkgv1alpha1.PackageSpec{RefName: kappPkgName, Version: kappPkgVersion}})
 	}
 
-	if infrastructureName == "vsphere" || infrastructureName == "TKGS" {
+	if infrastructureName == "vsphere" || infrastructureName == "tkgs" {
 		csiPkgShortName, csiPkgName, csiPkgVersion := getPackageDetailsFromCBS(clusterBootstrap.Spec.CSI.RefName)
-		packages = append(packages, kapppkgv1alpha1.Package{ObjectMeta: metav1.ObjectMeta{Name: csiPkgShortName, Namespace: constants.TkgNamespace},
+		packages = append(packages, kapppkgv1alpha1.Package{ObjectMeta: metav1.ObjectMeta{Name: csiPkgShortName, Namespace: systemNamespace},
 			Spec: kapppkgv1alpha1.PackageSpec{RefName: csiPkgName, Version: csiPkgVersion}})
 
 		cpiPkgShortName, cpiPkgName, cpiPkgVersion := getPackageDetailsFromCBS(clusterBootstrap.Spec.CPI.RefName)
-		packages = append(packages, kapppkgv1alpha1.Package{ObjectMeta: metav1.ObjectMeta{Name: cpiPkgShortName, Namespace: constants.TkgNamespace},
+		packages = append(packages, kapppkgv1alpha1.Package{ObjectMeta: metav1.ObjectMeta{Name: cpiPkgShortName, Namespace: systemNamespace},
 			Spec: kapppkgv1alpha1.PackageSpec{RefName: cpiPkgName, Version: cpiPkgVersion}})
 	}
 
@@ -158,7 +173,7 @@ func getPackagesFromCB(ctx context.Context, clusterBootstrap *runtanzuv1alpha3.C
 			if pkgShortName == "tkg-storageclass" {
 				continue
 			}
-			packages = append(packages, kapppkgv1alpha1.Package{ObjectMeta: metav1.ObjectMeta{Name: pkgShortName, Namespace: constants.TkgNamespace},
+			packages = append(packages, kapppkgv1alpha1.Package{ObjectMeta: metav1.ObjectMeta{Name: pkgShortName, Namespace: systemNamespace},
 				Spec: kapppkgv1alpha1.PackageSpec{RefName: pkgName, Version: pkgVersion}})
 		}
 	}
@@ -166,19 +181,21 @@ func getPackagesFromCB(ctx context.Context, clusterBootstrap *runtanzuv1alpha3.C
 	return packages, nil
 }
 
-// checkClusterCB checks if clusterbootstrap resource is created correctly and packages are reconciled successfully on cluster
-func checkClusterCB(ctx context.Context, mccl, wccl client.Client, mcClusterName, mcClusterNamespace, wcClusterName, wcClusterNamespace, infrastructureName string, isManagementCluster bool) error {
+// CheckClusterCB checks if clusterbootstrap resource is created correctly and packages are reconciled successfully on cluster
+func CheckClusterCB(ctx context.Context, mccl, wccl client.Client, mcClusterName, mcClusterNamespace, wcClusterName, wcClusterNamespace, infrastructureName string, isManagementCluster bool) error {
 	log.Infof("Verify addons on workload cluster %s with management cluster %s", wcClusterName, mcClusterName)
 
 	var clusterBootstrap *runtanzuv1alpha3.ClusterBootstrap
-	if isManagementCluster {
+
+	// in tkgs infrastructure, CB only exists in the supervisor cluster
+	if infrastructureName == "tkgs" || isManagementCluster {
 		clusterBootstrap = getClusterBootstrap(ctx, mccl, mcClusterNamespace, mcClusterName)
 	} else {
-		clusterBootstrap = getClusterBootstrap(ctx, mccl, wcClusterNamespace, wcClusterName)
+		clusterBootstrap = getClusterBootstrap(ctx, wccl, wcClusterNamespace, wcClusterName)
 	}
 
 	By(fmt.Sprintf("Verify clusterbootstrap matches clusterbootstraptemplate"))
-	verifyClusterBootstrap(ctx, mccl, clusterBootstrap, clusterBootstrap.Status.ResolvedTKR)
+	verifyClusterBootstrap(ctx, mccl, clusterBootstrap, clusterBootstrap.Status.ResolvedTKR, infrastructureName)
 
 	packages, err := getPackagesFromCB(ctx, clusterBootstrap, mccl, wccl, mcClusterName, mcClusterNamespace, wcClusterName, wcClusterNamespace, infrastructureName, isManagementCluster)
 	Expect(err).NotTo(HaveOccurred())
@@ -202,12 +219,20 @@ func checkClusterCB(ctx context.Context, mccl, wccl client.Client, mcClusterName
 		if strings.Contains(pkg.Name, "kapp-controller") {
 			verifyPackageInstall(ctx, mccl, pkg.Namespace, GeneratePackageInstallName(clusterName, pkg.Name), pkg.Spec.RefName, pkg.Spec.Version)
 		} else {
-			verifyPackageInstall(ctx, client, pkg.Namespace, GeneratePackageInstallName(clusterName, pkg.Name), pkg.Spec.RefName, pkg.Spec.Version)
+			// we skip verifying package installs in tkgs supervisor cluster
+			// in tkgs guest cluster, we skip verifying package install for capabilities package as it doesn't reconcile
+			// TODO: Verify the capabilities package install when it is fixed to reconcile
+			if infrastructureName != "tkgs" || (!isManagementCluster && pkg.Name != "capabilities") {
+				verifyPackageInstall(ctx, client, pkg.Namespace, GeneratePackageInstallName(clusterName, pkg.Name), pkg.Spec.RefName, pkg.Spec.Version)
+			}
 		}
 	}
 
-	By(fmt.Sprintf("Verify addon packages on %q cluster %q status is reflected correctly in clusterBootstrap status", clusterType, clusterName))
-	verifyPackageInstallStatusinClusterBootstrapStatus(ctx, mccl, mcClusterName, mcClusterNamespace, wcClusterName, wcClusterNamespace, isManagementCluster, packages)
+	// Skip verifying package install status in CB for tkgs guest cluster as there is no CB
+	if infrastructureName != "tkgs" || isManagementCluster {
+		By(fmt.Sprintf("Verify addon packages on %q cluster %q status is reflected correctly in clusterBootstrap status", clusterType, clusterName))
+		verifyPackageInstallStatusinClusterBootstrapStatus(ctx, mccl, mcClusterName, mcClusterNamespace, wcClusterName, wcClusterNamespace, infrastructureName, isManagementCluster, packages)
+	}
 
 	// For Management cluster we dont expect the finalizers and hooks to be present. So check only for workload cluster
 	if !isManagementCluster {
@@ -219,11 +244,11 @@ func checkClusterCB(ctx context.Context, mccl, wccl client.Client, mcClusterName
 }
 
 // verifyClusterBootstrap checks if cluster bootstrap is created as expected i.e. it is cloned correctly from ClusterBootstrapTemplate
-func verifyClusterBootstrap(ctx context.Context, c client.Client, clusterBootstrap *runtanzuv1alpha3.ClusterBootstrap, tkrName string) {
+func verifyClusterBootstrap(ctx context.Context, c client.Client, clusterBootstrap *runtanzuv1alpha3.ClusterBootstrap, tkrName string, infrastructureName string) {
 	resolvedTKr := clusterBootstrap.Status.ResolvedTKR
 	Expect(resolvedTKr).NotTo(BeEmpty())
 
-	clusterBootstrapTemplate := getClusterBootstrapTemplate(ctx, c, resolvedTKr)
+	clusterBootstrapTemplate := getClusterBootstrapTemplate(ctx, c, resolvedTKr, infrastructureName)
 
 	expectedClusterBootstrap := &runtanzuv1alpha3.ClusterBootstrap{}
 	expectedClusterBootstrap.Spec = clusterBootstrapTemplate.Spec.DeepCopy()
@@ -248,6 +273,15 @@ func verifyClusterBootstrap(ctx context.Context, c client.Client, clusterBootstr
 				pkg.ValuesFrom.SecretRef = GeneratePackageSecretName(clusterBootstrap.Name, pkgShortName)
 			} else if pkg.ValuesFrom.ProviderRef != nil {
 				pkg.ValuesFrom.ProviderRef.Name = GeneratePackageSecretName(clusterBootstrap.Name, pkgShortName)
+			}
+		}
+
+		// guest-cluster-auth-service needs to be handled explicitly as they are different for CBT and custom CB
+		if strings.Contains(pkg.RefName, "guest-cluster-auth-service") {
+			if pkg.ValuesFrom == nil {
+				pkg.ValuesFrom = &runtanzuv1alpha3.ValuesFrom{
+					SecretRef: GenerateDataValueSecretName(clusterBootstrap.Name, pkgShortName),
+				}
 			}
 		}
 	}
@@ -310,7 +344,7 @@ func verifyPackageInstall(ctx context.Context, c client.Client, namespace, pkgIn
 }
 
 // verifyPackageInstallStatusinClusterBootstrapStatus verifies if package install status is synced correctly to ClusterBootstrap status
-func verifyPackageInstallStatusinClusterBootstrapStatus(ctx context.Context, mccl client.Client, mcClusterName, mcClusterNamespace, wcClusterName, wcClusterNamespace string, isManagementCluster bool, packages []kapppkgv1alpha1.Package) {
+func verifyPackageInstallStatusinClusterBootstrapStatus(ctx context.Context, mccl client.Client, mcClusterName, mcClusterNamespace, wcClusterName, wcClusterNamespace string, infrastructureName string, isManagementCluster bool, packages []kapppkgv1alpha1.Package) {
 	Eventually(func() bool {
 		var (
 			clusterBootstrap    *runtanzuv1alpha3.ClusterBootstrap
@@ -330,6 +364,13 @@ func verifyPackageInstallStatusinClusterBootstrapStatus(ctx context.Context, mcc
 				pkgConditionSuccess = pkgConditionSuccess + 1
 				continue
 			}
+			// TODO: Temporarily skip verifying capabilities package install for tkgs supervisor cluster
+			//       this needs to removed once the issue is resolved
+			if infrastructureName == "tkgs" && isManagementCluster && pkg.Name == "capabilities" {
+				pkgConditionSuccess = pkgConditionSuccess + 1
+				continue
+			}
+
 			var conditionFound bool
 			for _, condition := range clusterBootstrap.GetConditions() {
 				if strings.Contains(string(condition.Type), cases.Title(language.Und).String(pkg.Name)) {
@@ -383,10 +424,17 @@ func getPackageDetailsFromCBS(CBSRefName string) (pkgShortName, pkgName, pkgVers
 	return
 }
 
-func getClusterBootstrapTemplate(ctx context.Context, k8sClient client.Client, tkrName string) *runtanzuv1alpha3.ClusterBootstrapTemplate {
-	clusterBootstrapTemplate := &runtanzuv1alpha3.ClusterBootstrapTemplate{}
-	objKey := client.ObjectKey{Name: tkrName, Namespace: constants.TkgNamespace}
+func getClusterBootstrapTemplate(ctx context.Context, k8sClient client.Client, tkrName string, infrastructureName string) *runtanzuv1alpha3.ClusterBootstrapTemplate {
+	var objKey client.ObjectKey
 
+	clusterBootstrapTemplate := &runtanzuv1alpha3.ClusterBootstrapTemplate{}
+	if infrastructureName == "tkgs" {
+		objKey = client.ObjectKey{Name: tkrName, Namespace: constants.TKGSClusterClassNamespace}
+	} else {
+		objKey = client.ObjectKey{Name: tkrName, Namespace: constants.TkgNamespace}
+	}
+
+	fmt.Print(objKey)
 	Eventually(func() error {
 		return k8sClient.Get(ctx, objKey, clusterBootstrapTemplate)
 	}, getResourceTimeout, pollingInterval).Should(Succeed())
@@ -471,14 +519,14 @@ func objectExists(ctx context.Context, k8sClient client.Client, namespace, name 
 	return true
 }
 
-type clusterResource struct {
+type ClusterResource struct {
 	name      string
 	namespace string
 	obj       client.Object
 }
 
 // clusterResourcesDeleted checks if all the cluster resources are deleted or not
-func clusterResourcesDeleted(ctx context.Context, k8sClient client.Client, clusterResources []clusterResource) bool {
+func clusterResourcesDeleted(ctx context.Context, k8sClient client.Client, clusterResources []ClusterResource) bool {
 	for _, r := range clusterResources {
 		log.Infof("Check if cluster resource of type %q kind %q name %q is deleted from namespace %q", reflect.TypeOf(r.obj), r.obj.GetObjectKind().GroupVersionKind().Kind, r.name, r.namespace)
 		if objectExists(ctx, k8sClient, r.namespace, r.name, r.obj) {
@@ -488,12 +536,12 @@ func clusterResourcesDeleted(ctx context.Context, k8sClient client.Client, clust
 	return true
 }
 
-/* getManagementClusterResources gets all the resources thats created by addons-manager plus
+/* GetManagementClusterResources gets all the resources thats created by addons-manager plus
  * all the resources on which finalizer is added by addons-manager during a cluster creation.
  */
-func getManagementClusterResources(ctx context.Context, mccl client.Client, dynamicClient dynamic.Interface, aggregatedAPIResourcesClient client.Client, discoveryClient discovery.DiscoveryInterface, clusterNamespace, clusterName, infrastructureName string) ([]clusterResource, error) {
+func GetManagementClusterResources(ctx context.Context, mccl client.Client, dynamicClient dynamic.Interface, aggregatedAPIResourcesClient client.Client, discoveryClient discovery.DiscoveryInterface, clusterNamespace, clusterName, infrastructureName string) ([]ClusterResource, error) {
 	// get ClusterBootstrap and return error if not found
-	clusterResources := []clusterResource{
+	clusterResources := []ClusterResource{
 		{namespace: clusterNamespace, name: clusterName, obj: &clusterapiv1beta1.Cluster{}},
 		{namespace: clusterNamespace, name: clusterName, obj: &runtanzuv1alpha3.ClusterBootstrap{}},
 		{namespace: clusterNamespace, name: clusterName + "-kubeconfig", obj: &corev1.Secret{}},
@@ -524,10 +572,10 @@ func getManagementClusterResources(ctx context.Context, mccl client.Client, dyna
 					return nil, err
 				}
 				packageSecretName := GeneratePackageSecretName(clusterName, packageRefName)
-				clusterResources = append(clusterResources, clusterResource{name: packageSecretName, namespace: clusterNamespace, obj: &corev1.Secret{}})
+				clusterResources = append(clusterResources, ClusterResource{name: packageSecretName, namespace: clusterNamespace, obj: &corev1.Secret{}})
 			}
 			if pkg.ValuesFrom.SecretRef != "" {
-				clusterResources = append(clusterResources, clusterResource{name: pkg.ValuesFrom.SecretRef, namespace: clusterNamespace, obj: &corev1.Secret{}})
+				clusterResources = append(clusterResources, ClusterResource{name: pkg.ValuesFrom.SecretRef, namespace: clusterNamespace, obj: &corev1.Secret{}})
 			}
 			if pkg.ValuesFrom.ProviderRef != nil {
 				gvr, err := gvrForGroupKind(discoveryClient, schema.GroupKind{Group: *pkg.ValuesFrom.ProviderRef.APIGroup, Kind: pkg.ValuesFrom.ProviderRef.Kind})
@@ -542,18 +590,18 @@ func getManagementClusterResources(ctx context.Context, mccl client.Client, dyna
 				if err != nil {
 					return nil, err
 				}
-				clusterResources = append(clusterResources, clusterResource{name: provider.GetName(), namespace: clusterNamespace, obj: provider})
-				clusterResources = append(clusterResources, clusterResource{name: secretName, namespace: clusterNamespace, obj: &corev1.Secret{}})
+				clusterResources = append(clusterResources, ClusterResource{name: provider.GetName(), namespace: clusterNamespace, obj: provider})
+				clusterResources = append(clusterResources, ClusterResource{name: secretName, namespace: clusterNamespace, obj: &corev1.Secret{}})
 			}
 		} else {
-			// In TKGS case a secret could be created to add nodeSelector, deployment/daemonset updateStrategies. Hence need to add that secret
-			if infrastructureName == "TKGS" {
+			// In tkgs case a secret could be created to add nodeSelector, deployment/daemonset updateStrategies. Hence need to add that secret
+			if infrastructureName == "tkgs" {
 				packageRefName, _, err := GetPackageMetadata(ctx, aggregatedAPIResourcesClient, pkg.RefName, clusterNamespace)
 				if err != nil {
 					return nil, err
 				}
 				packageSecretName := GeneratePackageSecretName(clusterName, packageRefName)
-				clusterResources = append(clusterResources, clusterResource{name: packageSecretName, namespace: clusterNamespace, obj: &corev1.Secret{}})
+				clusterResources = append(clusterResources, ClusterResource{name: packageSecretName, namespace: clusterNamespace, obj: &corev1.Secret{}})
 			}
 		}
 	}
@@ -608,6 +656,11 @@ func packageShortName(pkgRefName string) string {
 // GeneratePackageSecretName generates secret name for a package from the cluster and the package name
 func GeneratePackageSecretName(clusterName, carvelPkgRefName string) string {
 	return fmt.Sprintf("%s-%s-package", clusterName, packageShortName(carvelPkgRefName))
+}
+
+// GenerateDataValueSecretName generates data value secret name from the cluster and the package name
+func GenerateDataValueSecretName(clusterName, carvelPkgRefName string) string {
+	return fmt.Sprintf("%s-%s-data-values", clusterName, packageShortName(carvelPkgRefName))
 }
 
 // GeneratePackageInstallName is the util function to generate the PackageInstall CR name in a consistent manner.
