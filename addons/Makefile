@@ -42,7 +42,7 @@ all: test manager ## Tests and builds the binaries
 .PHONY: test
 test: fmt vet template-tests ## Run Tests
 	$(MAKE) kubebuilder -C $(TOOLS_DIR)
-	KUBEBUILDER_ASSETS=$(KUBEBUILDER_BIN_DIR) go test ./... -timeout 60m -coverprofile coverage.txt -v 2
+	KUBEBUILDER_ASSETS=$(KUBEBUILDER_BIN_DIR) go test ./... -timeout 60m -race -coverprofile coverage.txt -v 2
 
 .PHONY: test-verbose
 test-verbose: ## Verbose tests with streaming output for debugging

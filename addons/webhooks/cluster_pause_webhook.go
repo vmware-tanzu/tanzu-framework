@@ -39,10 +39,7 @@ func (wh *ClusterPause) SetupWebhookWithManager(mgr ctrl.Manager) error {
 }
 
 var (
-	_              webhook.CustomDefaulter = &ClusterPause{}
-	cluster                                = &clusterv1.Cluster{}
-	currentCluster                         = &clusterv1.Cluster{}
-	currentTKR                             = &runtanzuv1alpha3.TanzuKubernetesRelease{}
+	_ webhook.CustomDefaulter = &ClusterPause{}
 )
 
 // Default satisfies the defaulting webhook interface.
@@ -50,7 +47,7 @@ func (wh *ClusterPause) Default(ctx context.Context, obj runtime.Object) error {
 	var tkrVersion, currentTkrVersion string
 	var tkrLabelFound, ok bool
 
-	cluster, ok = obj.(*clusterv1.Cluster)
+	cluster, ok := obj.(*clusterv1.Cluster)
 	if !ok {
 		return apierrors.NewBadRequest(fmt.Sprintf("expected a Cluster but got a %T", obj))
 	}
@@ -63,6 +60,7 @@ func (wh *ClusterPause) Default(ctx context.Context, obj runtime.Object) error {
 		return nil
 	}
 
+	currentCluster := &clusterv1.Cluster{}
 	// Try to get the current cluster CR, so we can compare the version
 	key := client.ObjectKey{Name: cluster.Name, Namespace: cluster.Namespace}
 	if err := wh.Client.Get(ctx, key, currentCluster); err != nil {
@@ -78,6 +76,7 @@ func (wh *ClusterPause) Default(ctx context.Context, obj runtime.Object) error {
 
 	// want to verify the current TKR object (before upgrade) is not a legacy one
 	if tkrLabelFound && currentTkrVersion != "" {
+		currentTKR := &runtanzuv1alpha3.TanzuKubernetesRelease{}
 		if err := wh.Client.Get(ctx, client.ObjectKey{Name: currentTkrVersion}, currentTKR); err != nil {
 			if apierrors.IsNotFound(err) {
 				return nil
