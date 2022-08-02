@@ -3,6 +3,7 @@
 #! Any changes affecting this helper functions need to be done at both the places
 
 load("@ytt:data", "data")
+load("@ytt:regexp", "regexp")
 
 def tkg_image_repo_customized():
     return data.values.TKG_CUSTOM_IMAGE_REPOSITORY != ""
@@ -24,14 +25,19 @@ def get_no_proxy():
   if data.values.TKG_HTTP_PROXY != "":
     full_no_proxy_list = []
     if data.values.TKG_NO_PROXY != "":
-      full_no_proxy_list = data.values.TKG_NO_PROXY.split(",")
+      # trim space in the no_proxy list
+      full_no_proxy_list = regexp.replace(" ", data.values.TKG_NO_PROXY, "").split(",")
     end
     if data.values.PROVIDER_TYPE == "aws":
-      full_no_proxy_list.append(data.values.AWS_VPC_CIDR)
+      if data.values.AWS_VPC_CIDR != "":
+        full_no_proxy_list.append(data.values.AWS_VPC_CIDR)
+      end
       full_no_proxy_list.append("169.254.0.0/16")
     end
     if data.values.PROVIDER_TYPE == "azure":
-      full_no_proxy_list.append(data.values.AZURE_VNET_CIDR)
+      if data.values.AZURE_VNET_CIDR != "":
+        full_no_proxy_list.append(data.values.AZURE_VNET_CIDR)
+      end
       full_no_proxy_list.append("169.254.0.0/16")
       full_no_proxy_list.append("168.63.129.16")
     end

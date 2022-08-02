@@ -290,14 +290,19 @@ def get_no_proxy():
   if data.values.TKG_HTTP_PROXY != "":
     full_no_proxy_list = []
     if data.values.TKG_NO_PROXY != "":
-      full_no_proxy_list = data.values.TKG_NO_PROXY.split(",")
+      # trim space in the no_proxy list
+      full_no_proxy_list = regexp.replace(" ", data.values.TKG_NO_PROXY, "").split(",")
     end
     if data.values.PROVIDER_TYPE == "aws":
-      full_no_proxy_list.append(data.values.AWS_VPC_CIDR)
+      if data.values.AWS_VPC_CIDR != "":
+        full_no_proxy_list.append(data.values.AWS_VPC_CIDR)
+      end
       full_no_proxy_list.append("169.254.0.0/16")
     end
     if data.values.PROVIDER_TYPE == "azure":
-      full_no_proxy_list.append(data.values.AZURE_VNET_CIDR)
+      if data.values.AZURE_VNET_CIDR != "":
+        full_no_proxy_list.append(data.values.AZURE_VNET_CIDR)
+      end
       full_no_proxy_list.append("169.254.0.0/16")
       full_no_proxy_list.append("168.63.129.16")
     end
@@ -310,7 +315,7 @@ def get_no_proxy():
     end
     full_no_proxy_list.append(".svc")
     full_no_proxy_list.append(".svc.cluster.local")
-    populated_no_proxy = ",".join(sorted(list(set(full_no_proxy_list))))
+    populated_no_proxy = ",".join(list(set(full_no_proxy_list)))
     return populated_no_proxy
   end
   return ""
@@ -331,7 +336,7 @@ end
 # get_labels_map_from_string constructs a map from given string of the format "key1=label1,key2=label2"
 def get_labels_map_from_string(labelString):
    labelMap = {}
-   for val in labelString.split(','):
+   for val in regexp.replace(" ", labelString, "").split(','):
     kv = val.split('=')
     if len(kv) != 2:
       assert.fail("given labels string \""+labelString+"\" must be in the  \"key1=label1,key2=label2\" format ")
