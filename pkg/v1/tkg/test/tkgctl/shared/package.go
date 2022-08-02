@@ -667,9 +667,8 @@ func GeneratePackageInstallName(clusterName, addonName string) string {
 	return fmt.Sprintf("%s-%s", clusterName, strings.Split(addonName, ".")[0])
 }
 
-func CheckTKGSAddons(ctx context.Context, tkgctlClient tkgctl.TKGClient, TKGSKubeconfigContext, clusterName, namespace, KubeconfigPath, InfrastructureName string) error {
-	managementClusterName := TKGSKubeconfigContext
-	By(fmt.Sprintf("Get k8s client for management cluster %q", managementClusterName))
+func CheckTKGSAddons(ctx context.Context, tkgctlClient tkgctl.TKGClient, svClusterName, clusterName, namespace, KubeconfigPath, InfrastructureName string) error {
+	By(fmt.Sprintf("Get k8s client for supervisor cluster %q", svClusterName))
 	mngclient, _, _, _, err := getClients(ctx, KubeconfigPath)
 	Expect(err).NotTo(HaveOccurred())
 
@@ -687,12 +686,12 @@ func CheckTKGSAddons(ctx context.Context, tkgctlClient tkgctl.TKGClient, TKGSKub
 	wlcClient, _, _, _, err := getClients(ctx, tempFilePath)
 	Expect(err).NotTo(HaveOccurred())
 
-	By(fmt.Sprintf("Verify addon packages on workload cluster %q matches clusterBootstrap info on management cluster %q", clusterName, managementClusterName))
-	err = checkClusterCB(ctx, mngclient, wlcClient, managementClusterName, constants.TkgNamespace, clusterName, namespace, InfrastructureName, false)
+	By(fmt.Sprintf("Verify addon packages on workload cluster %q matches clusterBootstrap info on supervisor cluster %q", clusterName, svClusterName))
+	err = checkClusterCB(ctx, mngclient, wlcClient, svClusterName, constants.TkgNamespace, clusterName, namespace, InfrastructureName, false)
 	Expect(err).To(BeNil())
 
-	By(fmt.Sprintf("Verify addon packages on workload cluster %q matches clusterBootstrap info on management cluster %q", clusterName, managementClusterName))
-	err = checkClusterCB(ctx, mngclient, wlcClient, managementClusterName, constants.TkgNamespace, clusterName, namespace, InfrastructureName, false)
+	By(fmt.Sprintf("Verify addon packages on workload cluster %q matches clusterBootstrap info on supervisor cluster %q", clusterName, svClusterName))
+	err = checkClusterCB(ctx, mngclient, wlcClient, svClusterName, constants.TkgNamespace, clusterName, namespace, InfrastructureName, false)
 	Expect(err).To(BeNil())
 
 	return nil
