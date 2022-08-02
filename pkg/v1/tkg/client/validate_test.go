@@ -370,6 +370,32 @@ var _ = Describe("Validate", func() {
 							Expect(validationError.Error()).To(ContainSubstring("invalid TKG_HTTPS_PROXY \"http://[::1]\", expected to be an address of type \"ipv4\" (TKG_IP_FAMILY)"))
 						})
 					})
+					DescribeTable("NO_PROXY validate", func(httpProxy, httpsProxy, noProxy string, hasError bool) {
+						tkgConfigReaderWriter.Set(constants.TKGHTTPProxy, httpProxy)
+						tkgConfigReaderWriter.Set(constants.TKGHTTPSProxy, httpsProxy)
+						tkgConfigReaderWriter.Set(constants.TKGHTTPProxyEnabled, "true")
+						tkgConfigReaderWriter.Set(constants.TKGNoProxy, noProxy)
+
+						validationError := tkgClient.ConfigureAndValidateManagementClusterConfiguration(initRegionOptions, true)
+						if hasError {
+							Expect(validationError).To(HaveOccurred())
+							return
+						}
+
+						Expect(validationError).NotTo(HaveOccurred())
+						v, err := tkgConfigReaderWriter.Get(constants.TKGNoProxy)
+						Expect(err).NotTo(HaveOccurred())
+						Expect(v).NotTo(ContainSubstring(" "))
+						Expect(v).NotTo(ContainSubstring("	"))
+						Expect(v).NotTo(ContainSubstring(`
+						`))
+					},
+						Entry("No proxy has new line, trim new line", "http://1.2.3.4", "http://1.2.3.4", `10.2.1.3/23,
+                			10.1.3.3`, false),
+						Entry("No Proxy has space, trim space", "http://1.2.3.4", "http://1.2.3.4", "example.com, svc.c", false),
+						Entry("No Proxy has *", "http://1.2.3.4", "http://1.2.3.4", "example.com, svc.c,*.vmware.com", true),
+						Entry("No Proxy", "http://1.2.3.4", "http://1.2.3.4", "10.0.0.0/24", false),
+					)
 				})
 			})
 
