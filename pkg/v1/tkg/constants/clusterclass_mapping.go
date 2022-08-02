@@ -279,7 +279,8 @@ const (
 
 	SPEC = "spec"
 
-	TopologyClassIncorrectValueErrMsg = "input cluster class file, attribute spec.topology.class has no value or incorrect value or not following correct naming convension"
+	TopologyClassIncorrectValueErrMsg                = "input cluster class file, attribute spec.topology.class has no value or incorrect value or not following correct naming convention"
+	ClusterResourceWithoutTopologyNotSupportedErrMsg = "input file contains Cluster resource which doesn't have ClusterClass specified. Passing Cluster resource without ClusterClass specification is not supported"
 )
 
 // InfrastructureSpecificVariableMappingMap has, infra name to variable mapping map, which makes easy to get infra specific mapping map

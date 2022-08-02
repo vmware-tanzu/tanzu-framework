@@ -179,6 +179,7 @@ func CheckIfInputFileIsClusterClassBased(clusterConfigFile string) (bool, unstru
 	if err != nil {
 		return isInputFileClusterClassBased, clusterObj, errors.Wrap(err, fmt.Sprintf("Unable to read input file: %v ", clusterConfigFile))
 	}
+
 	yamlObjects, err := utilyaml.ToUnstructured(content)
 	if err != nil {
 		return isInputFileClusterClassBased, clusterObj, errors.Wrap(err, fmt.Sprintf("Input file content is not yaml formatted, file path: %v", clusterConfigFile))
@@ -187,8 +188,13 @@ func CheckIfInputFileIsClusterClassBased(clusterConfigFile string) (bool, unstru
 	for i := range yamlObjects {
 		obj := yamlObjects[i]
 		if obj.GetKind() == constants.KindCluster {
-			isInputFileClusterClassBased = true
 			clusterObj = obj
+			class, exists, _ := unstructured.NestedString((&clusterObj).UnstructuredContent(), "spec", "topology", "class")
+			if exists && class != "" {
+				isInputFileClusterClassBased = true
+			} else {
+				return isInputFileClusterClassBased, clusterObj, errors.New(constants.ClusterResourceWithoutTopologyNotSupportedErrMsg)
+			}
 			break
 		}
 	}

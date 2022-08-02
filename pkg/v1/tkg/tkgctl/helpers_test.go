@@ -11,6 +11,7 @@ import (
 	. "github.com/onsi/gomega"
 
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/utils"
 )
 
 var _ = Describe("Cluster Class - IP Family Validation related test cases: ", func() {
@@ -207,6 +208,69 @@ var _ = Describe("Cluster Class - IP Family Validation related test cases: ", fu
 				_, err := getProviderNameFromTopologyClassName(cidr)
 				Expect(err).To(HaveOccurred())
 				Expect(err.Error()).To(ContainSubstring(constants.TopologyClassIncorrectValueErrMsg))
+			})
+		})
+	})
+})
+
+var _ = Describe("Test cases for CheckIfInputFileIsClusterClassBased", func() {
+	Context("Test cases for CheckIfInputFileIsClusterClassBased", func() {
+		var (
+			configFile          string
+			configFileContent   string
+			isClusterClassBased bool
+			err                 error
+		)
+
+		JustBeforeEach(func() {
+			configFile, err = utils.CreateTempFile("", "")
+			Expect(err).To(BeNil())
+			err = utils.SaveFile(configFile, []byte(configFileContent))
+			Expect(err).To(BeNil())
+			isClusterClassBased, _, err = CheckIfInputFileIsClusterClassBased(configFile)
+		})
+		When("File contains cluster resource with clusterclass defined", func() {
+			BeforeEach(func() {
+				configFileContent = `apiVersion: cluster.x-k8s.io/v1beta1
+kind: Cluster
+metadata:
+  name: aws-workload-cluster1
+  namespace: default
+spec:
+  topology:
+    class: tkg-aws-default`
+			})
+			It("should return true and error should be nil", func() {
+				Expect(isClusterClassBased).To(BeTrue())
+				Expect(err).NotTo(HaveOccurred())
+			})
+		})
+		When("File contains cluster resource without clusterclass defined", func() {
+			BeforeEach(func() {
+				configFileContent = `apiVersion: cluster.x-k8s.io/v1beta1
+kind: Cluster
+metadata:
+  name: aws-workload-cluster1
+  namespace: default
+spec:
+  clusterNetwork:
+    pods:
+      cidrBlocks: []
+`
+			})
+			It("should return false with error", func() {
+				Expect(isClusterClassBased).To(BeFalse())
+				Expect(err).To(HaveOccurred())
+				Expect(err.Error()).To(ContainSubstring(constants.ClusterResourceWithoutTopologyNotSupportedErrMsg))
+			})
+		})
+		When("File doesn't contain cluster resource", func() {
+			BeforeEach(func() {
+				configFileContent = ``
+			})
+			It("should return false without error", func() {
+				Expect(isClusterClassBased).To(Equal(false))
+				Expect(err).NotTo(HaveOccurred())
 			})
 		})
 	})
