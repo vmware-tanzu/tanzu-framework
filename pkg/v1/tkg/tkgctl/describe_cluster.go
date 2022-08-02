@@ -4,6 +4,8 @@
 package tkgctl
 
 import (
+	"context"
+	"fmt"
 	"strings"
 
 	"github.com/pkg/errors"
@@ -50,9 +52,23 @@ func (t *tkgctl) DescribeCluster(options DescribeTKGClustersOptions) (DescribeCl
 
 	results := DescribeClusterResult{}
 
+	isPacific, err := t.tkgClient.IsPacificManagementCluster()
+	if err != nil {
+		return results, errors.Wrap(err, "unable to determine if management cluster is on vSphere with Tanzu")
+	}
+
+	var isTKGSClusterClassFeatureActivated bool
+	if isPacific {
+		isTKGSClusterClassFeatureActivated, err = t.featureGateHelper.FeatureActivatedInNamespace(context.Background(), constants.ClusterClassFeature, constants.TKGSClusterClassNamespace)
+		if err != nil {
+			return results, errors.Wrap(err, fmt.Sprintf(constants.ErrorMsgFeatureGateStatus, constants.ClusterClassFeature, constants.TKGSClusterClassNamespace))
+		}
+	}
+
 	listTKGClustersOptions := client.ListTKGClustersOptions{
-		Namespace: options.Namespace,
-		IncludeMC: true,
+		Namespace:                          options.Namespace,
+		IncludeMC:                          true,
+		IsTKGSClusterClassFeatureActivated: isTKGSClusterClassFeatureActivated,
 	}
 
 	clusters, err := t.tkgClient.ListTKGClusters(listTKGClustersOptions)
@@ -85,11 +101,6 @@ func (t *tkgctl) DescribeCluster(options DescribeTKGClustersOptions) (DescribeCl
 				}
 			}
 		}
-	}
-
-	isPacific, err := t.IsPacificRegionalCluster()
-	if err != nil {
-		return results, errors.Wrap(err, "error determining 'Tanzu Kubernetes Cluster service for vSphere' management cluster")
 	}
 
 	// TODO: Can be removed when TKGS and TKGm converge to the same CAPI version.
