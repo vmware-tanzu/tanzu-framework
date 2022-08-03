@@ -6,6 +6,7 @@ package webhooks
 import (
 	"context"
 	"fmt"
+	"sync"
 	"time"
 
 	"github.com/pkg/errors"
@@ -47,6 +48,8 @@ type ClusterBootstrap struct {
 	aggregatedAPIResourcesClient client.Client
 	// cache for resolved api-resources so that look up is fast (cleared periodically)
 	providerGVR map[schema.GroupKind]*schema.GroupVersionResource
+	// mutex for GVR lookup and clearing
+	lock sync.Mutex
 }
 
 // SetupWebhookWithManager performs the setup actions for an ClusterBootstrap webhook, using the passed in mgr.
@@ -267,6 +270,8 @@ func (wh *ClusterBootstrap) validateValuesFrom(ctx context.Context, valuesFrom *
 // TODO: Consider to use provider_util.go#GetGVRForGroupKind()
 // getGVR returns a GroupVersionResource for a GroupKind
 func (wh *ClusterBootstrap) getGVR(gk schema.GroupKind) (*schema.GroupVersionResource, error) {
+	wh.lock.Lock()
+	defer wh.lock.Unlock()
 	if gvr, ok := wh.providerGVR[gk]; ok {
 		return gvr, nil
 	}
@@ -300,8 +305,10 @@ func (wh *ClusterBootstrap) periodicGVRCachesClean(ctx context.Context) {
 			ticker.Stop()
 			return
 		case <-ticker.C:
+			wh.lock.Lock()
 			wh.cachedDiscoveryClient.Invalidate()
 			wh.providerGVR = make(map[schema.GroupKind]*schema.GroupVersionResource)
+			wh.lock.Unlock()
 		}
 	}
 }
