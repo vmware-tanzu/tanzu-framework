@@ -385,7 +385,7 @@ spec:
               type: object
             type: array
           current:
-            description: 'CurrentServer in use. Deprecated: Shall be removed in a
+            description: 'CurrentServer in use. Note: Shall be deprecated in a
               future version. Superseded by CurrentContext.'
             type: string
           currentContext:
@@ -401,10 +401,10 @@ spec:
           metadata:
             type: object
           servers:
-            description: 'KnownServers available. Deprecated: Shall be removed in
+            description: 'KnownServers available. Note: Shall be deprecated in
               a future version. Superseded by KnownContexts.'
             items:
-              description: 'Server connection. Deprecated: Shall be removed in a future
+              description: 'Server connection. Note: Shall be deprecated in a future
                 version. Superseded by Context.'
               properties:
                 discoverySources:

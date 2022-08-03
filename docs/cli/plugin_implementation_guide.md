@@ -70,7 +70,7 @@ If a plugin wants to access the context it should use the [provided libraries](/
 ctx, err := config.GetCurrentContext(v1alpha1.CtxTypeK8s)
 ```
 
-**Note:** Until version `v1.0.0`, the Tanzu CLI will ensure backwards compatibility between `Server` and `Context`.
+**Note:** The Tanzu CLI ensures backwards compatibility between `Server` and `Context`.
 
 ### Plugin Discovery Source
 

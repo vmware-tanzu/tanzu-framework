@@ -11,7 +11,7 @@ import (
 // NOTE: json tags are required.  Any new fields you add must have json tags for the fields to be serialized.
 
 // ServerType is the type of server.
-// Deprecated: Shall be removed in a future version. Superseded by ContextType.
+// Note: Shall be deprecated in a future version. Superseded by ContextType.
 type ServerType string
 
 // ContextType is the type of the context (control plane).
@@ -19,11 +19,11 @@ type ContextType string
 
 const (
 	// ManagementClusterServerType is a management cluster server.
-	// Deprecated: Shall be removed in a future version. Superseded by CtxTypeK8s.
+	// Note: Shall be deprecated in a future version. Superseded by CtxTypeK8s.
 	ManagementClusterServerType ServerType = "managementcluster"
 
 	// GlobalServerType is a global control plane server.
-	// Deprecated: Shall be removed in a future version. Superseded by CtxTypeTMC.
+	// Note: Shall be deprecated in a future version. Superseded by CtxTypeTMC.
 	GlobalServerType ServerType = "global"
 
 	// CtxTypeK8s is a kubernetes cluster API server.
@@ -34,7 +34,7 @@ const (
 )
 
 // Server connection.
-// Deprecated: Shall be removed in a future version. Superseded by Context.
+// Note: Shall be deprecated in a future version. Superseded by Context.
 type Server struct {
 	// Name of the server.
 	Name string `json:"name,omitempty" yaml:"name"`
@@ -75,7 +75,7 @@ type Context struct {
 }
 
 // ManagementClusterServer is the configuration for a management cluster kubeconfig.
-// Deprecated: Shall be removed in a future version. Superseded by ClusterServer.
+// Note: Shall be deprecated in a future version. Superseded by ClusterServer.
 type ManagementClusterServer struct {
 	// Endpoint for the login.
 	Endpoint string `json:"endpoint,omitempty" yaml:"endpoint"`
@@ -274,11 +274,11 @@ type ClientConfig struct {
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
 	// KnownServers available.
-	// Deprecated: Shall be removed in a future version. Superseded by KnownContexts.
+	// Note: Shall be deprecated in a future version. Superseded by KnownContexts.
 	KnownServers []*Server `json:"servers,omitempty" yaml:"servers"`
 
 	// CurrentServer in use.
-	// Deprecated: Shall be removed in a future version. Superseded by CurrentContext.
+	// Note: Shall be deprecated in a future version. Superseded by CurrentContext.
 	CurrentServer string `json:"current,omitempty" yaml:"current"`
 
 	// KnownContexts available.

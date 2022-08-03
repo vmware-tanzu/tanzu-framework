@@ -60,9 +60,13 @@ func NewRootCmd() (*cobra.Command, error) {
 		versionCmd,
 		completionCmd,
 		configCmd,
-		contextCmd,
 		genAllDocsCmd,
 	)
+
+	// If the context-command feature is enabled add it under root.
+	if config.IsFeatureActivated(config.FeatureContextCommand) {
+		RootCmd.AddCommand(contextCmd)
+	}
 
 	plugins, err := getAvailablePlugins()
 	if err != nil {

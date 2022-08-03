@@ -24,14 +24,13 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/auth/csp"
 	tkgauth "github.com/vmware-tanzu/tanzu-framework/pkg/v1/auth/tkg"
 	wcpauth "github.com/vmware-tanzu/tanzu-framework/pkg/v1/auth/wcp"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/command/plugin"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/component"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/pluginmanager"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/config"
 )
 
-// Deprecated: Shall be removed in a future version. Superseded by 'tanzu context' command.
+// Note: Shall be deprecated in a future version. Superseded by 'tanzu context' command.
 var descriptor = cliv1alpha1.PluginDescriptor{
 	Name:        "login",
 	Description: "Login to the platform",
@@ -85,7 +84,6 @@ func main() {
 	$KUBECONFIG env variable would be used and, if $KUBECONFIG env is also unset default 
 	kubeconfig($HOME/.kube/config) would be used
 	`
-	cli.DeprecateCommandWithAlternative(p.Cmd, "v1.0.0", "tanzu context")
 
 	if err := p.Execute(); err != nil {
 		os.Exit(1)
