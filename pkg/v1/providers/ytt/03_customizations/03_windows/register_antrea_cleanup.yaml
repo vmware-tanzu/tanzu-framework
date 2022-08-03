@@ -1,13 +1,13 @@
 #@ load("@ytt:overlay", "overlay")
 #@ load("@ytt:data", "data")
-#! TODO: This should be moved into a windows-compatible cluster class template
-#@ if data.values.IS_WINDOWS_WORKLOAD_CLUSTER:
-#@ if data.values.CNI == "antrea":
+
+#@ if data.values.IS_WINDOWS_WORKLOAD_CLUSTER and data.values.CNI == "antrea":
 #@overlay/match by=overlay.subset({"kind":"KubeadmConfigTemplate"}), expects="1+"
 ---
 spec:
   template:
     spec:
+      #@overlay/match missing_ok=True
       files:
       #@overlay/append
       - path: C:\k\antrea_cleanup.ps1
@@ -57,8 +57,8 @@ spec:
                   New-ItemProperty -path "$item" -name ExecTime -propertyType Binary -value ([byte[]]$ExecTime) -force
               }
           }
+      #@overlay/match missing_ok=True
       postKubeadmCommands:
       #@overlay/append
       - powershell C:/k/register_antrea_cleanup.ps1 -ExecutionPolicy Bypass
-#@ end
 #@ end

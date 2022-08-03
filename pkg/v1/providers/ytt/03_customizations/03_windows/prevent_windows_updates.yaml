@@ -1,18 +1,19 @@
 #@ load("@ytt:overlay", "overlay")
 #@ load("@ytt:data", "data")
 
-#! TODO: This should be moved into a windows-compatible cluster class template
 #@ if data.values.IS_WINDOWS_WORKLOAD_CLUSTER:
 #@overlay/match by=overlay.subset({"kind":"KubeadmConfigTemplate"}), expects="1+"
 ---
 spec:
   template:
     spec:
+      #@overlay/match missing_ok=True
       files:
       #@overlay/append
       - path: c:\k\prevent_windows_updates.ps1
         content: |
           Set-Service -Name "wuauserv" -StartupType Disabled -Status Stopped
+      #@overlay/match missing_ok=True
       postKubeadmCommands:
       #@overlay/append
       - powershell c:/k/prevent_windows_updates.ps1 -ExecutionPolicy Bypass

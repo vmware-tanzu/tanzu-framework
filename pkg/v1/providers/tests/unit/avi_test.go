@@ -4,9 +4,7 @@
 package unit
 
 import (
-	"io"
 	"path/filepath"
-	"strings"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -14,38 +12,6 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/test/pkg/matchers"
 	"github.com/vmware-tanzu/tanzu-framework/test/pkg/ytt"
 )
-
-type yttValues map[string]interface{}
-
-func (v yttValues) toReader() io.Reader {
-	return strings.NewReader(createDataValues(v))
-}
-
-func (v yttValues) Set(key string, value interface{}) {
-	v[key] = value
-}
-
-func (v yttValues) Delete(key string) {
-	delete(v, key)
-}
-
-func (v yttValues) DeepCopy() yttValues {
-	other := make(yttValues)
-	for key, value := range v {
-		other[key] = value
-	}
-	return other
-}
-
-func assertNotFound(docs []string, err error) {
-	Expect(err).NotTo(HaveOccurred())
-	Expect(docs).To(HaveLen(0))
-}
-
-func assertFoundOne(docs []string, err error) {
-	Expect(err).NotTo(HaveOccurred())
-	Expect(docs).To(HaveLen(1))
-}
 
 const (
 	AviUsername            = "admin"

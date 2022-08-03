@@ -1,13 +1,22 @@
 #@ load("@ytt:overlay", "overlay")
 #@ load("@ytt:data", "data")
+#@ load("@ytt:assert", "assert")
 
 #@ load("lib/helpers.star", "get_bom_data_for_tkr_name", "get_default_tkg_bom_data", "kubeadm_image_repo", "get_image_repo_for_component", "get_vsphere_thumbprint")
 #@ load("lib/validate.star", "validate_configuration")
+
 #@ load("@ytt:yaml", "yaml")
 #@ validate_configuration("vsphere")
 
-#@ bomDataForK8sVersion = get_bom_data_for_tkr_name()
+#@ def is_valid_cni(cni_value):
+#@   help_error = "Invalid CNI value for Windows clusters."
+#@   if cni_value not in ["antrea", "none"]:
+#@     assert.fail(help_error)
+#@   end
+#@   return True
+#@ end
 
+#@ bomDataForK8sVersion = get_bom_data_for_tkr_name()
 #@ bomData = get_default_tkg_bom_data()
 
 #@ if data.values.IS_WINDOWS_WORKLOAD_CLUSTER:
@@ -304,6 +313,7 @@ spec:
             cloud-provider: external
             register-with-taints: os=windows:NoSchedule
           name: '{{ ds.meta_data.hostname }}'
+      #@ if is_valid_cni(data.values.CNI) and data.values.CNI == 'antrea':
       files:
       - path: 'C:\Temp\antrea.ps1'
         content: |
@@ -386,10 +396,10 @@ spec:
           # TODO:
           #   Install-AntreaAgent is too heavy, since Kubernetes and Antrea binaries have already been pre-installed, we don't
           #   depend on Install-AntreaAgent to downloading them, KubernetesVersion and AntreaVersion are not used anymore, will
-          #   refine the invoke of Install-AntreaAgent in the future. Keep AntreaVersion for 1.2.3, guessing latest from the script
+          #   refine the invoke of Install-AntreaAgent in the future. Keep AntreaVersion for 1.5.3, guessing latest from the script
           #   on this version is breaking the installation.
           Import-Module C:\k\antrea\helper.psm1
-          & Install-AntreaAgent -KubernetesHome "C:\k" -KubeConfig "C:\etc\kubernetes\kubelet.conf" -AntreaHome "C:\k\antrea" -AntreaVersion "v1.2.3"
+          & Install-AntreaAgent -KubernetesHome "C:\k" -KubeConfig "C:\etc\kubernetes\kubelet.conf" -AntreaHome "C:\k\antrea" -AntreaVersion "v1.5.3"
           New-KubeProxyServiceInterface
           & C:\k\antrea\Install-OVS.ps1 -ImportCertificate $false -LocalFile C:\k\antrea\ovs-win64.zip
           Set-NetFirewallProfile -Profile Domain,Public,Private -Enabled False
@@ -408,6 +418,7 @@ spec:
           start-service antrea-agent
       postKubeadmCommands:
       - powershell C:/Temp/antrea.ps1 -ExecutionPolicy Bypass
+      #@ end
       users:
       #@overlay/match by=overlay.index(0)
       #@overlay/replace

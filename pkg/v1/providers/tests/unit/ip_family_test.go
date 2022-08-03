@@ -10,7 +10,6 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
 	. "github.com/onsi/gomega"
-	"gopkg.in/yaml.v3"
 
 	. "github.com/vmware-tanzu/tanzu-framework/test/pkg/matchers"
 	"github.com/vmware-tanzu/tanzu-framework/test/pkg/ytt"
@@ -873,15 +872,3 @@ var _ = Describe("TKG_IP_FAMILY Ytt Templating", func() {
 		})
 	})
 })
-
-func createDataValues(values map[string]interface{}) string {
-	dataValues := "#@data/values\n---\n"
-	bytes, err := yaml.Marshal(values)
-	if err != nil {
-		return ""
-	}
-	valuesStr := string(bytes)
-	valuesStr = strings.ReplaceAll(valuesStr, "\"true\"", "true")
-	valuesStr = strings.ReplaceAll(valuesStr, "\"false\"", "false")
-	return dataValues + valuesStr
-}
