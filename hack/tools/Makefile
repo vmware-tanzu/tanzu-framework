@@ -29,7 +29,6 @@ YTT_VERSION=v0.40.0
 KBLD_VERSION=v0.31.0
 KAPP_VERSION=v0.42.0
 VENDIR_VERSION=v0.23.0
-KUBEVAL_VERSION=0.15.0
 VALE_VERSION=2.17.0
 K8S_VERSION=1.23.5
 
@@ -43,7 +42,6 @@ GINKGO             := $(BIN_DIR)/ginkgo
 GOLANGCI_LINT      := $(BIN_DIR)/golangci-lint
 GOIMPORTS          := $(BIN_DIR)/goimports
 KUBEBUILDER        := $(BIN_DIR)/kubebuilder
-KUBEVAL            := $(BIN_DIR)/kubeval
 KUSTOMIZE := $(BIN_DIR)/kustomize
 GOBINDATA          := $(BIN_DIR)/gobindata
 VALE               := $(BIN_DIR)/vale
@@ -97,13 +95,6 @@ $(KUBEBUILDER):
 kustomize: $(KUSTOMIZE)
 $(KUSTOMIZE): $(BIN_DIR) go.mod go.sum # Build kustomize from tools folder.
 	CGO_ENABLED=0 go build -tags=tools -o $@ sigs.k8s.io/kustomize/kustomize/v4
-
-kubeval: $(KUBEVAL) ## Install kubeval
-$(KUBEVAL):
-	mkdir -p $(BIN_DIR)
-	curl -sL https://github.com/instrumenta/kubeval/releases/download/$(KUBEVAL_VERSION)/kubeval-$(HOST_OS)-$(HOST_ARCH).tar.gz | tar -xz -C /tmp/
-	mv /tmp/kubeval $(@)
-	chmod a+x $(@)
 
 gobindata: $(GOBINDATA)
 $(GOBINDATA): go.mod go.sum # Build go-bindata

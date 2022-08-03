@@ -82,12 +82,11 @@ KBLD               := $(TOOLS_BIN_DIR)/kbld
 VENDIR             := $(TOOLS_BIN_DIR)/vendir
 IMGPKG             := $(TOOLS_BIN_DIR)/imgpkg
 KAPP               := $(TOOLS_BIN_DIR)/kapp
-KUBEVAL            := $(TOOLS_BIN_DIR)/kubeval
 GINKGO             := $(TOOLS_BIN_DIR)/ginkgo
 VALE               := $(TOOLS_BIN_DIR)/vale
 YQ                 := $(TOOLS_BIN_DIR)/yq
 CONVERSION_GEN     := $(TOOLS_BIN_DIR)/conversion-gen
-TOOLING_BINARIES   := $(CONTROLLER_GEN) $(GOLANGCI_LINT) $(YTT) $(KBLD) $(VENDIR) $(IMGPKG) $(KAPP) $(KUBEVAL) $(KUSTOMIZE) $(GOIMPORTS) $(GOBINDATA) $(GINKGO) $(VALE) $(YQ) $(CONVERSION_GEN)
+TOOLING_BINARIES   := $(CONTROLLER_GEN) $(GOLANGCI_LINT) $(YTT) $(KBLD) $(VENDIR) $(IMGPKG) $(KAPP) $(KUSTOMIZE) $(GOIMPORTS) $(GOBINDATA) $(GINKGO) $(VALE) $(YQ) $(CONVERSION_GEN)
 
 ## --------------------------------------
 ##@ API/controller building and generation
