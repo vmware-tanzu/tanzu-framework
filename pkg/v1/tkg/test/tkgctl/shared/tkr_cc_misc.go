@@ -24,6 +24,7 @@ import (
 	kappcontrollerv1alpha1 "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apiserver/apis/datapackaging/v1alpha1"
 	runv1 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/test/framework"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkr/pkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkr/pkg/registry"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v2/tkr/controller/tkr-source/compatibility"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v2/tkr/util/sets"
@@ -146,7 +147,7 @@ func ValidateTKRsRelatedObjectsAvailability(ctx context.Context, mcProxy *framew
 		tkr := &runv1.TanzuKubernetesRelease{}
 		err := crClient.Get(ctx, client.ObjectKey{Name: expectedTKRs[i]}, tkr)
 		Expect(err).To(BeNil(), fmt.Sprintf("failed to get TKR :%s", expectedTKRs[i]))
-		cbt := getClusterBootstrapTemplate(ctx, crClient, tkr.Name)
+		cbt := getClusterBootstrapTemplate(ctx, crClient, tkr.Name, constants.TKGNamespace)
 		Expect(cbt).ToNot(BeNil(), fmt.Sprintf("failed to get CBT :%s", expectedTKRs[i]))
 		ValidateOSImagesOfTKR(ctx, mcProxy, tkr)
 		ValidatePackagesOfTKR(ctx, mcProxy, tkr, resourceNS)

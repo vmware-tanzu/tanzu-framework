@@ -5,12 +5,18 @@ package tkgs_cc
 
 import (
 	"bytes"
+	"context"
+	"fmt"
 	"io"
 	"os"
+	"path/filepath"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
+	cniv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cni/v1alpha1"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/test/framework"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/test/tkgctl/shared"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgctl"
 )
 
@@ -81,6 +87,58 @@ var _ = Describe("TKGS ClusterClass based workload cluster tests", func() {
 
 		It("should successfully create a cluster", func() {
 			Expect(err).ToNot(HaveOccurred())
+		})
+	})
+
+	Context("when input file is cluster class based with custom Cluster Bootstrap", func() {
+		BeforeEach(func() {
+			clusterName, namespace = ValidateClusterClassConfigFile(e2eConfig.WorkloadClusterOptions.ClusterClassCBFilePath)
+			e2eConfig.WorkloadClusterOptions.Namespace = namespace
+			e2eConfig.WorkloadClusterOptions.ClusterName = clusterName
+			deleteClusterOptions = getDeleteClustersOptions(e2eConfig)
+			clusterOptions.ClusterName = e2eConfig.WorkloadClusterOptions.ClusterName
+			clusterOptions.Namespace = e2eConfig.WorkloadClusterOptions.Namespace
+
+			// use a custom cluster class config file with custom ClusterBootstrap and Antrea resources to
+			// verify addons are successfully installed
+			clusterOptions.ClusterConfigFile = e2eConfig.WorkloadClusterOptions.ClusterClassCBFilePath
+		})
+
+		AfterEach(func() {
+			err = tkgctlClient.DeleteCluster(deleteClusterOptions)
+			clusterOptions.ClusterConfigFile = e2eConfig.WorkloadClusterOptions.ClusterClassFilePath
+		})
+
+		It("should successfully create a cluster with custom CB and verify addons", func() {
+			Expect(err).ToNot(HaveOccurred())
+
+			clusterClient := framework.GetClusterclient(e2eConfig.TKGSKubeconfigPath, e2eConfig.TKGSKubeconfigContext)
+			config := &cniv1alpha1.AntreaConfig{}
+			err := clusterClient.GetResource(config, clusterName, namespace, nil, nil)
+			Expect(err).NotTo(BeNil())
+			Expect(config.Spec.Antrea.AntreaConfigDataValue.FeatureGates.AntreaTraceflow).Should(Equal(false))
+
+			By(fmt.Sprintf("Get k8s client for management cluster"))
+			mngClient, _, _, _, err := shared.GetClients(context.Background(), e2eConfig.TKGSKubeconfigPath)
+			Expect(err).NotTo(HaveOccurred())
+
+			By(fmt.Sprintf("Generating credentials for workload cluster %q", e2eConfig.WorkloadClusterOptions.ClusterName))
+			wlcKubeConfigFileName := e2eConfig.WorkloadClusterOptions.ClusterName + ".kubeconfig"
+			wlcTempFilePath := filepath.Join(os.TempDir(), wlcKubeConfigFileName)
+			err = tkgctlClient.GetCredentials(tkgctl.GetWorkloadClusterCredentialsOptions{
+				ClusterName: clusterName,
+				Namespace:   namespace,
+				ExportFile:  wlcTempFilePath,
+			})
+			Expect(err).To(BeNil())
+
+			By(fmt.Sprintf("Get k8s client for workload cluster %q", clusterName))
+			wlcClient, _, _, _, err := shared.GetClients(context.Background(), wlcTempFilePath)
+			Expect(err).NotTo(HaveOccurred())
+
+			By(fmt.Sprintf("Verify addon packages on workload cluster %q matches clusterBootstrap info on management cluster %q", e2eConfig.WorkloadClusterOptions.ClusterName, clusterName))
+			err = shared.CheckClusterCB(context.Background(), mngClient, wlcClient, clusterName, namespace, clusterName, namespace, e2eConfig.InfrastructureName, false)
+			Expect(err).To(BeNil())
 		})
 	})
 

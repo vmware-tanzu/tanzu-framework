@@ -154,7 +154,7 @@ func E2ECommonSpec(ctx context.Context, inputGetter func() E2ECommonSpecInput) {
 
 		var (
 			mngClient        client.Client
-			clusterResources []clusterResource
+			clusterResources []ClusterResource
 		)
 
 		// verify addons are deployed successfully in clusterclass mode
@@ -180,24 +180,24 @@ func E2ECommonSpec(ctx context.Context, inputGetter func() E2ECommonSpecInput) {
 				Expect(err).To(BeNil())
 
 				By(fmt.Sprintf("Get k8s client for management cluster %q", clusterName))
-				mngclient, mngDynamicClient, mngAggregatedAPIResourcesClient, mngDiscoveryClient, err := getClients(ctx, mngtempFilePath)
+				mngclient, mngDynamicClient, mngAggregatedAPIResourcesClient, mngDiscoveryClient, err := GetClients(ctx, mngtempFilePath)
 				Expect(err).NotTo(HaveOccurred())
 				mngClient = mngclient
 
 				By(fmt.Sprintf("Get k8s client for workload cluster %q", clusterName))
-				wlcClient, _, _, _, err := getClients(ctx, tempFilePath)
+				wlcClient, _, _, _, err := GetClients(ctx, tempFilePath)
 				Expect(err).NotTo(HaveOccurred())
 
 				By(fmt.Sprintf("Verify addon packages on management cluster %q matches clusterBootstrap info on management cluster %q", input.E2EConfig.ManagementClusterName, input.E2EConfig.ManagementClusterName))
-				err = checkClusterCB(ctx, mngclient, wlcClient, input.E2EConfig.ManagementClusterName, constants.TkgNamespace, "", "", infrastructureName, true)
+				err = CheckClusterCB(ctx, mngclient, wlcClient, input.E2EConfig.ManagementClusterName, constants.TkgNamespace, "", "", infrastructureName, true)
 				Expect(err).To(BeNil())
 
 				By(fmt.Sprintf("Verify addon packages on workload cluster %q matches clusterBootstrap info on management cluster %q", clusterName, input.E2EConfig.ManagementClusterName))
-				err = checkClusterCB(ctx, mngclient, wlcClient, input.E2EConfig.ManagementClusterName, constants.TkgNamespace, clusterName, namespace, infrastructureName, false)
+				err = CheckClusterCB(ctx, mngclient, wlcClient, input.E2EConfig.ManagementClusterName, constants.TkgNamespace, clusterName, namespace, infrastructureName, false)
 				Expect(err).To(BeNil())
 
 				By(fmt.Sprintf("Get management cluster resources created by addons-manager for workload cluster %q on management cluster %q", clusterName, input.E2EConfig.ManagementClusterName))
-				clusterResources, err = getManagementClusterResources(ctx, mngclient, mngDynamicClient, mngAggregatedAPIResourcesClient, mngDiscoveryClient, namespace, clusterName, infrastructureName)
+				clusterResources, err = GetManagementClusterResources(ctx, mngclient, mngDynamicClient, mngAggregatedAPIResourcesClient, mngDiscoveryClient, namespace, clusterName, infrastructureName)
 				Expect(err).NotTo(HaveOccurred())
 			}
 		}
