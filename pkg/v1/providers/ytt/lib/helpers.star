@@ -361,3 +361,7 @@ def enable_csi_driver():
   end
   return False
 end
+
+def map(f, list):
+    return [f(x) for x in list]
+end
