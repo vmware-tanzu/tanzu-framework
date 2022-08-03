@@ -135,15 +135,15 @@ VSPHERE_STORAGE_POLICY_ID: ""
 
 #! Device and vendor ids for GPU PCI passthrough support
 #! VSPHERE_WORKER_PCI_DEVICES, if set will configure PCI passthrough on all worker machines
-#! VSPHERE_WORKER_PCI_DEVICES must be specified in the format <vendor_id>:<device_id>
-#! e.g. VSPHERE_WORKER_PCI_DEVICES: "10DE:1EB8"
+#! VSPHERE_WORKER_PCI_DEVICES must be specified in the format 0x<vendor_id>:0x<device_id>
+#! e.g. VSPHERE_WORKER_PCI_DEVICES: "0x10DE:0x1EB8"
 VSPHERE_WORKER_PCI_DEVICES:
 #! VSPHERE_CONTROL_PLANE_PCI_DEVICES, if set will configure PCI passthrough on all control plane machines
 #! VSPHERE_CONTROL_PLANE_PCI_DEVICES must be specified in the format <vendor_id>:<device_id>
-#! e.g. VSPHERE_CONTROL_PLANE_PCI_DEVICES: "10DE:1EB8"
+#! e.g. VSPHERE_CONTROL_PLANE_PCI_DEVICES: "0x10DE:0x1EB8"
 VSPHERE_CONTROL_PLANE_PCI_DEVICES:
 #! VSPHERE_IGNORE_PCI_DEVICES_ALLOW_LIST, if set to true will allow other PCI devices to be passed through
-#! other than NVIDIA T4 (i.e. "10DE:1EB8")
+#! other than NVIDIA T4 (i.e. "0x10DE:0x1EB8")
 VSPHERE_IGNORE_PCI_DEVICES_ALLOW_LIST:
 #! VSPHERE_CONTROL_PLANE_CUSTOM_VMX_KEYS, if set will set custom VMX keys on all control plane machines
 #! Keys must be set in the form <Key1>=<Value1>,<Key2>=<Value2>
