@@ -94,7 +94,7 @@ type VSphereConfig struct {
 	VSphereWorkerPCIDevices                        string `yaml:"VSPHERE_WORKER_PCI_DEVICES"`
 	VSphereControlPlanePCIDevices                  string `yaml:"VSPHERE_CONTROL_PLANE_PCI_DEVICES"`
 	WorkerRolloutStrategy                          string `yaml:"WORKER_ROLLOUT_STRATEGY"`
-	VSphereControlPlaneCustomVMXKeys               string `yaml:"VSPHERE_CONTROL_PLANE_CUSTOM_VMX_KEYS""`
+	VSphereControlPlaneCustomVMXKeys               string `yaml:"VSPHERE_CONTROL_PLANE_CUSTOM_VMX_KEYS"`
 	VSphereWorkerCustomVMXKeys                     string `yaml:"VSPHERE_WORKER_CUSTOM_VMX_KEYS"`
 	VSphereIgnorePCIDevicesAllowList               string `yaml:"VSPHERE_IGNORE_PCI_DEVICES_ALLOW_LIST"`
 	IDPConfig                                      `yaml:",inline"`
