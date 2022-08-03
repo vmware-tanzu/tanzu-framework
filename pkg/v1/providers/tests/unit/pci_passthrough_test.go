@@ -74,9 +74,16 @@ var _ = Describe("PCI Passthrough", func() {
 			Expect(err).To(HaveOccurred())
 		})
 
+		It("throws error when the vendor is NVidia but an invalid device", func() {
+			value.Set("VSPHERE_WORKER_PCI_DEVICES", "0x10DE:0x1EC8")
+			value.Set("VSPHERE CONTROL_PLANE_PCI_DEVICES", "c:d")
+			_, err := ytt.RenderYTTTemplate(ytt.CommandOptions{}, paths, value.toReader())
+			Expect(err).To(HaveOccurred())
+		})
+
 		It("succeeds when the vendor devices are valid", func() {
-			value.Set("VSPHERE_WORKER_PCI_DEVICES", "10DE:1EB8")
-			value.Set("VSPHERE_CONTROL_PLANE_PCI_DEVICES", "10DE:1EB8")
+			value.Set("VSPHERE_WORKER_PCI_DEVICES", "0x10DE:0x1EB8")
+			value.Set("VSPHERE_CONTROL_PLANE_PCI_DEVICES", "0x10de:0x1eb8")
 
 			output, err := ytt.RenderYTTTemplate(ytt.CommandOptions{}, paths, value.toReader())
 			Expect(err).NotTo(HaveOccurred())
@@ -92,16 +99,16 @@ var _ = Describe("PCI Passthrough", func() {
 				Expect(len(vsphereMachineTemplates)).NotTo(Equal(0))
 
 				for _, vsphereMachineTemplate := range vsphereMachineTemplates {
-					Expect(vsphereMachineTemplate).To(matchers.HaveYAMLPathWithValue("$.spec.template.spec.pciDevices[0].vendorID", "10DE"))
-					Expect(vsphereMachineTemplate).To(matchers.HaveYAMLPathWithValue("$.spec.template.spec.pciDevices[0].deviceID", "1EB8"))
+					Expect(vsphereMachineTemplate).To(matchers.HaveYAMLPathWithValue("$.spec.template.spec.pciDevices[0].vendorId", "4318"))
+					Expect(vsphereMachineTemplate).To(matchers.HaveYAMLPathWithValue("$.spec.template.spec.pciDevices[0].deviceId", "7864"))
 				}
 			}
 		})
 
 		When("VSPHERE_IGNORE_PCI_DEVICES_ALLOW_LIST is true", func() {
 			It("succeeds even when the vendor devices are not valid", func() {
-				value.Set("VSPHERE_WORKER_PCI_DEVICES", "a:b,c:d")
-				value.Set("VSPHERE_CONTROL_PLANE_PCI_DEVICES", "e:f,g:h")
+				value.Set("VSPHERE_WORKER_PCI_DEVICES", "0xa:0xb,0xc:0xd")
+				value.Set("VSPHERE_CONTROL_PLANE_PCI_DEVICES", "0xe:0xf,0xa:0xb")
 				value.Set("VSPHERE_IGNORE_PCI_DEVICES_ALLOW_LIST", true)
 				output, err := ytt.RenderYTTTemplate(ytt.CommandOptions{}, paths, value.toReader())
 				Expect(err).NotTo(HaveOccurred())
@@ -115,10 +122,10 @@ var _ = Describe("PCI Passthrough", func() {
 				Expect(len(vsphereMachineTemplates)).NotTo(Equal(0))
 
 				for _, vsphereMachineTemplate := range vsphereMachineTemplates {
-					Expect(vsphereMachineTemplate).To(matchers.HaveYAMLPathWithValue("$.spec.template.spec.pciDevices[0].vendorID", "a"))
-					Expect(vsphereMachineTemplate).To(matchers.HaveYAMLPathWithValue("$.spec.template.spec.pciDevices[0].deviceID", "b"))
-					Expect(vsphereMachineTemplate).To(matchers.HaveYAMLPathWithValue("$.spec.template.spec.pciDevices[1].vendorID", "c"))
-					Expect(vsphereMachineTemplate).To(matchers.HaveYAMLPathWithValue("$.spec.template.spec.pciDevices[1].deviceID", "d"))
+					Expect(vsphereMachineTemplate).To(matchers.HaveYAMLPathWithValue("$.spec.template.spec.pciDevices[0].vendorId", "10"))
+					Expect(vsphereMachineTemplate).To(matchers.HaveYAMLPathWithValue("$.spec.template.spec.pciDevices[0].deviceId", "11"))
+					Expect(vsphereMachineTemplate).To(matchers.HaveYAMLPathWithValue("$.spec.template.spec.pciDevices[1].vendorId", "12"))
+					Expect(vsphereMachineTemplate).To(matchers.HaveYAMLPathWithValue("$.spec.template.spec.pciDevices[1].deviceId", "13"))
 				}
 
 				vsphereMachineTemplates, err = matchers.FindDocsMatchingYAMLPath(output, map[string]string{
@@ -130,10 +137,10 @@ var _ = Describe("PCI Passthrough", func() {
 				Expect(len(vsphereMachineTemplates)).NotTo(Equal(0))
 
 				for _, vsphereMachineTemplate := range vsphereMachineTemplates {
-					Expect(vsphereMachineTemplate).To(matchers.HaveYAMLPathWithValue("$.spec.template.spec.pciDevices[0].vendorID", "e"))
-					Expect(vsphereMachineTemplate).To(matchers.HaveYAMLPathWithValue("$.spec.template.spec.pciDevices[0].deviceID", "f"))
-					Expect(vsphereMachineTemplate).To(matchers.HaveYAMLPathWithValue("$.spec.template.spec.pciDevices[1].vendorID", "g"))
-					Expect(vsphereMachineTemplate).To(matchers.HaveYAMLPathWithValue("$.spec.template.spec.pciDevices[1].deviceID", "h"))
+					Expect(vsphereMachineTemplate).To(matchers.HaveYAMLPathWithValue("$.spec.template.spec.pciDevices[0].vendorId", "14"))
+					Expect(vsphereMachineTemplate).To(matchers.HaveYAMLPathWithValue("$.spec.template.spec.pciDevices[0].deviceId", "15"))
+					Expect(vsphereMachineTemplate).To(matchers.HaveYAMLPathWithValue("$.spec.template.spec.pciDevices[1].vendorId", "10"))
+					Expect(vsphereMachineTemplate).To(matchers.HaveYAMLPathWithValue("$.spec.template.spec.pciDevices[1].deviceId", "11"))
 				}
 			})
 		})
