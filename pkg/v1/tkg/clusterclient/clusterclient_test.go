@@ -2851,6 +2851,91 @@ prod.repo.com: prod.custom.repo.com`
 		})
 	})
 
+	Describe("Unit tests for PatchClusterObjectAnnotations", func() {
+		var (
+			fakeClientSet crtclient.Client
+			resources     []runtime.Object
+			key, value    string
+		)
+		fakecluster1 := &capi.Cluster{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      "fake-cluster-1",
+				Namespace: "fake-namespace",
+				Annotations: map[string]string{
+					"key-foo": "value-foo",
+					"key-bar": "value-bar",
+				},
+			},
+		}
+
+		JustBeforeEach(func() {
+			reInitialize()
+
+			fakeClientSet = fake.NewClientBuilder().WithScheme(scheme).WithRuntimeObjects(resources...).Build()
+			crtClientFactory.NewClientReturns(fakeClientSet, nil)
+
+			clusterClientOptions = NewOptions(poller, crtClientFactory, discoveryClientFactory, nil)
+			kubeConfigPath := getConfigFilePath("config1.yaml")
+			clstClient, err = NewClient(kubeConfigPath, "", clusterClientOptions)
+			Expect(err).NotTo(HaveOccurred())
+
+			err = clstClient.PatchClusterObjectAnnotations("fake-cluster-1", "fake-namespace", key, value)
+		})
+
+		Context("When matching cluster not found", func() {
+			BeforeEach(func() {
+				resources = []runtime.Object{}
+			})
+			It("should return error", func() {
+				Expect(err).To(HaveOccurred())
+				Expect(err.Error()).To(ContainSubstring("unable to patch the cluster object with"))
+			})
+		})
+
+		Context("When cluster object is found and matching annotation doesn't exists", func() {
+			BeforeEach(func() {
+				resources = []runtime.Object{fakecluster1}
+				key = "key-fake"
+				value = "value-fake"
+			})
+			It("should not return error", func() {
+				Expect(err).NotTo(HaveOccurred())
+			})
+			It("should add new annotation", func() {
+				cluster := &capi.Cluster{}
+				err = clstClient.GetResource(cluster, "fake-cluster-1", "fake-namespace", nil, nil)
+				Expect(err).NotTo(HaveOccurred())
+				annotations := cluster.GetAnnotations()
+				Expect(annotations).To(HaveKey("key-bar"))
+				Expect(annotations).To(HaveKey("key-foo"))
+				Expect(annotations).To(HaveKey("key-fake"))
+				Expect(annotations["key-bar"]).To(Equal("value-bar"))
+				Expect(annotations["key-foo"]).To(Equal("value-foo"))
+				Expect(annotations["key-fake"]).To(Equal("value-fake"))
+			})
+		})
+
+		Context("When cluster object is found and matching annotation exists", func() {
+			BeforeEach(func() {
+				resources = []runtime.Object{fakecluster1}
+				key = "key-bar"
+				value = "value-bar-updated"
+			})
+			It("should not return error", func() {
+				Expect(err).NotTo(HaveOccurred())
+			})
+			It("should update existing annotation", func() {
+				cluster := &capi.Cluster{}
+				err = clstClient.GetResource(cluster, "fake-cluster-1", "fake-namespace", nil, nil)
+				Expect(err).NotTo(HaveOccurred())
+				annotations := cluster.GetAnnotations()
+				Expect(annotations).To(HaveKey("key-bar"))
+				Expect(annotations).To(HaveKey("key-foo"))
+				Expect(annotations["key-bar"]).To(Equal("value-bar-updated"))
+				Expect(annotations["key-foo"]).To(Equal("value-foo"))
+			})
+		})
+	})
 })
 
 func createTempDirectory() {

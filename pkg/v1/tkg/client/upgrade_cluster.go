@@ -81,6 +81,7 @@ type ComponentInfo struct {
 	CAPDImageRepo                      string
 	AwsRegionToAMIMap                  map[string][]tkgconfigbom.AMIInfo
 	AzureImage                         tkgconfigbom.AzureInfo
+	OsInfo                             tkgconfigbom.OSInfo
 }
 
 type upgradeStatus string
@@ -327,6 +328,13 @@ func (c *TkgClient) DoClusterUpgrade(regionalClusterClient clusterclient.Client,
 		return err
 	}
 
+	// osInfo annotation format: "ubuntu,20.04,amd64"
+	osInfoString := fmt.Sprintf("%s,%s,%s", upgradeClusterConfig.UpgradeComponentInfo.OsInfo.Name, upgradeClusterConfig.UpgradeComponentInfo.OsInfo.Version, upgradeClusterConfig.UpgradeComponentInfo.OsInfo.Arch)
+	err = regionalClusterClient.PatchClusterObjectAnnotations(upgradeClusterConfig.ClusterName, upgradeClusterConfig.ClusterNamespace, "osInfo", osInfoString)
+	if err != nil {
+		return errors.Wrap(err, "error while patching osInfo to the cluster resource")
+	}
+
 	return nil
 }
 
@@ -527,6 +535,7 @@ func (c *TkgClient) getUpgradeClusterConfig(options *UpgradeClusterOptions) (*Cl
 	if err == nil && azureVMImage != nil {
 		// TODO: what if error is returned or azureVMImage is nil, handle that case
 		upgradeInfo.UpgradeComponentInfo.AzureImage = *azureVMImage
+		upgradeInfo.UpgradeComponentInfo.OsInfo = azureVMImage.OSInfo
 	}
 
 	// We are hard-coding the assumption that during upgrade imageConfig.ImageRepository should take precedence
@@ -1074,6 +1083,12 @@ func (c *TkgClient) createVsphereInfrastructureTemplateForUpgrade(regionalCluste
 		return errors.Wrap(err, "unable to get/verify vsphere template")
 	}
 
+	clusterUpgradeConfig.UpgradeComponentInfo.OsInfo = tkgconfigbom.OSInfo{
+		Name:    vSphereVM.DistroName,
+		Version: vSphereVM.DistroVersion,
+		Arch:    vSphereVM.DistroArch,
+	}
+
 	clusterUpgradeConfig.UpgradeComponentInfo.VSphereVMTemplateName = vSphereVM.Name
 	clusterUpgradeConfig.UpgradeComponentInfo.VSphereVMTemplateMOID = vSphereVM.Moid
 
@@ -1308,6 +1323,7 @@ func (c *TkgClient) getAWSAMIIDForK8sVersion(regionalClusterClient clusterclient
 			return errors.Errorf("unable to find the AMI ID for AWSTemplate for region %s and kubernetes version %s, with the provided os option", awsClusterObject.Spec.Region, upgradeInfo.UpgradeComponentInfo.KubernetesVersion)
 		}
 		upgradeInfo.UpgradeComponentInfo.AwsAMIID = selectedAMI.ID
+		upgradeInfo.UpgradeComponentInfo.OsInfo = selectedAMI.OSInfo
 	}
 
 	if upgradeInfo.UpgradeComponentInfo.AwsAMIID == "" {
