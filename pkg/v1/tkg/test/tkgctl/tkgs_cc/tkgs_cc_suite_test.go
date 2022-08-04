@@ -133,7 +133,7 @@ func ValidateClusterClassConfigFile(clusterclassConfigFilePath string) (string, 
 	cclusterFile, err := os.ReadFile(clusterclassConfigFilePath)
 	Expect(err).ToNot(HaveOccurred(), fmt.Sprintf("failed to read the input cluster class based config file from: %v", clusterclassConfigFilePath))
 	Expect(cclusterFile).ToNot(BeEmpty(), fmt.Sprintf("the input cluster class based config file should not be empty, file path: %v", clusterclassConfigFilePath))
-	isCC, ccObject, err := tkgctl.CheckIfInputFileIsClusterClassBased(e2eConfig.WorkloadClusterOptions.ClusterClassFilePath)
+	isCC, ccObject, err := tkgctl.CheckIfInputFileIsClusterClassBased(clusterclassConfigFilePath)
 	Expect(err).ShouldNot(HaveOccurred(), fmt.Sprintf("failed to process cluster class input config file, reason: %v", err))
 	Expect(isCC).To(Equal(true), fmt.Sprintf("input cluster class based config file is not cluster class based, does not have Cluster object."))
 	return ccObject.GetName(), ccObject.GetNamespace()

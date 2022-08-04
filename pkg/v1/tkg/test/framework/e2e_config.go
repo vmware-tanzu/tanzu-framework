@@ -62,6 +62,7 @@ type WorkloadClusterOptions struct {
 	WorkerVMClass            string `json:"WORKER_VM_CLASS,omitempty"`
 	NodePoolName             string `json:"NODE_POOL_0_NAME,omitempty"`
 	ClusterClassFilePath     string `json:"CLUSTER_CLASS_FILE_PATH,omitempty"`
+	ClusterClassCBFilePath   string `json:"CLUSTER_CLASS_CB_FILE_PATH,omitempty"`
 }
 
 // E2EConfig represents the configuration for the e2e tests
