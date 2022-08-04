@@ -39,6 +39,7 @@ var _ = Describe("TKGS ClusterClass based workload cluster tests", func() {
 	)
 
 	BeforeEach(func() {
+		ctx = context.TODO()
 		tkgctlClient, err = tkgctl.New(tkgctlOptions)
 		Expect(err).To(BeNil())
 		svClusterName, err = tkgutils.GetClusterNameFromKubeconfigAndContext(e2eConfig.TKGSKubeconfigPath, "")

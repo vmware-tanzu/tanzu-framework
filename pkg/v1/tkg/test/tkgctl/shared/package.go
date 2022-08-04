@@ -669,7 +669,7 @@ func GeneratePackageInstallName(clusterName, addonName string) string {
 
 func CheckTKGSAddons(ctx context.Context, tkgctlClient tkgctl.TKGClient, svClusterName, clusterName, namespace, KubeconfigPath, InfrastructureName string) error {
 	By(fmt.Sprintf("Get k8s client for supervisor cluster %q", svClusterName))
-	mngclient, _, _, _, err := getClients(ctx, KubeconfigPath)
+	mngclient, _, _, _, err := GetClients(ctx, KubeconfigPath)
 	Expect(err).NotTo(HaveOccurred())
 
 	By(fmt.Sprintf("Generating credentials for workload cluster %q", clusterName))
@@ -683,15 +683,11 @@ func CheckTKGSAddons(ctx context.Context, tkgctlClient tkgctl.TKGClient, svClust
 	Expect(err).To(BeNil())
 
 	By(fmt.Sprintf("Get k8s client for workload cluster %q", clusterName))
-	wlcClient, _, _, _, err := getClients(ctx, tempFilePath)
+	wlcClient, _, _, _, err := GetClients(ctx, tempFilePath)
 	Expect(err).NotTo(HaveOccurred())
 
 	By(fmt.Sprintf("Verify addon packages on workload cluster %q matches clusterBootstrap info on supervisor cluster %q", clusterName, svClusterName))
-	err = checkClusterCB(ctx, mngclient, wlcClient, svClusterName, constants.TkgNamespace, clusterName, namespace, InfrastructureName, false)
-	Expect(err).To(BeNil())
-
-	By(fmt.Sprintf("Verify addon packages on workload cluster %q matches clusterBootstrap info on supervisor cluster %q", clusterName, svClusterName))
-	err = checkClusterCB(ctx, mngclient, wlcClient, svClusterName, constants.TkgNamespace, clusterName, namespace, InfrastructureName, false)
+	err = CheckClusterCB(ctx, mngclient, wlcClient, svClusterName, namespace, clusterName, namespace, InfrastructureName, false)
 	Expect(err).To(BeNil())
 
 	return nil
