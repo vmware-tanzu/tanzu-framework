@@ -1,7 +1,7 @@
 apiVersion: cni.tanzu.vmware.com/v1alpha1
 kind: AntreaConfig
 metadata:
-  name: cc-cb-antrea-package
+  name: cc-cb
   namespace: customcb-ns
 spec:
   antrea:
@@ -36,7 +36,7 @@ spec:
       providerRef:
         apiGroup: cni.tanzu.vmware.com
         kind: AntreaConfig
-        name: cc-cb-antrea-package
+        name: cc-cb
   kapp:
     refName: kapp-controller*
 ---

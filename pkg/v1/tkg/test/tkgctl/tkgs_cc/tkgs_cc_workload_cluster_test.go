@@ -10,11 +10,12 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"strings"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	corev1 "k8s.io/api/core/v1"
 
-	cniv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cni/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/test/framework"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/test/tkgctl/shared"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgctl"
@@ -113,10 +114,12 @@ var _ = Describe("TKGS ClusterClass based workload cluster tests", func() {
 			Expect(err).ToNot(HaveOccurred())
 
 			clusterClient := framework.GetClusterclient(e2eConfig.TKGSKubeconfigPath, e2eConfig.TKGSKubeconfigContext)
-			config := &cniv1alpha1.AntreaConfig{}
-			err := clusterClient.GetResource(config, clusterName, namespace, nil, nil)
-			Expect(err).NotTo(BeNil())
-			Expect(config.Spec.Antrea.AntreaConfigDataValue.FeatureGates.AntreaTraceflow).Should(Equal(false))
+			secret := &corev1.Secret{}
+			err := clusterClient.GetResource(secret, fmt.Sprintf("%s-antrea-data-values", clusterName), namespace, nil, nil)
+			Expect(err).To(BeNil())
+			secretData := secret.Data["values.yaml"]
+			secretDataString := string(secretData)
+			Expect(strings.Contains(secretDataString, "AntreaTraceflow: false")).Should(BeTrue())
 
 			By(fmt.Sprintf("Get k8s client for management cluster"))
 			mngClient, _, _, _, err := shared.GetClients(context.Background(), e2eConfig.TKGSKubeconfigPath)
