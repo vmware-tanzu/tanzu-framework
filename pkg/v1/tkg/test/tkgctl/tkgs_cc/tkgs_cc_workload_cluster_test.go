@@ -16,8 +16,8 @@ import (
 	. "github.com/onsi/gomega"
 	corev1 "k8s.io/api/core/v1"
 
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/test/framework"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/test/framework"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/test/tkgctl/shared"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgctl"
 	tkgutils "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/utils"
@@ -66,7 +66,7 @@ var _ = Describe("TKGS ClusterClass based workload cluster tests", func() {
 			err = tkgctlClient.DeleteCluster(deleteClusterOptions)
 		})
 
-		It("should successfully create a cluster and verify addons information", func() {
+		It("should successfully create a cluster and verify successful addons reconciliation", func() {
 			shared.CheckTKGSAddons(ctx, tkgctlClient, svClusterName, clusterName, namespace, e2eConfig.TKGSKubeconfigPath, constants.InfrastructureProviderTkgs)
 			Expect(err).ToNot(HaveOccurred())
 		})
@@ -94,7 +94,7 @@ var _ = Describe("TKGS ClusterClass based workload cluster tests", func() {
 			clusterOptions.ClusterConfigFile = e2eConfig.WorkloadClusterOptions.ClusterClassFilePath
 		})
 
-		It("should successfully create a cluster and verify addons information", func() {
+		It("should successfully create a cluster and verify successful addons reconciliation", func() {
 			shared.CheckTKGSAddons(ctx, tkgctlClient, svClusterName, clusterName, namespace, e2eConfig.TKGSKubeconfigPath, constants.InfrastructureProviderTkgs)
 			Expect(err).ToNot(HaveOccurred())
 		})
