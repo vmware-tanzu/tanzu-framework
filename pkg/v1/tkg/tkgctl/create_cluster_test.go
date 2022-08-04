@@ -359,7 +359,7 @@ var _ = Describe("Unit tests for (AWS)  cluster_aws.yaml as input file for 'tanz
 			// most of cluster.yaml attributes are mapped to legacy variable for more look this - constants.clusterToLegacyVariablesMapAws
 			options.ClusterConfigFile = inputFileAwsEmptyClass
 			_, err := ctl.processWorkloadClusterInputFile(&options, isTKGSCluster)
-			Expect(fmt.Sprint(err)).To(Equal(constants.TopologyClassIncorrectValueErrMsg))
+			Expect(fmt.Sprint(err)).To(Equal(constants.ClusterResourceWithoutTopologyNotSupportedErrMsg))
 		})
 
 		It("When Input file is aws clusterclass.yaml file, but in-correct spec.topology.class name:", func() {
