@@ -67,13 +67,14 @@ var _ = Describe("TKGS ClusterClass based workload cluster tests", func() {
 		})
 
 		It("should successfully create a cluster and verify successful addons reconciliation", func() {
-			shared.CheckTKGSAddons(ctx, tkgctlClient, svClusterName, clusterName, namespace, e2eConfig.TKGSKubeconfigPath, constants.InfrastructureProviderTkgs, false)
 			Expect(err).ToNot(HaveOccurred())
+			shared.CheckTKGSAddons(ctx, tkgctlClient, svClusterName, clusterName, namespace, e2eConfig.TKGSKubeconfigPath, constants.InfrastructureProviderTkgs, false)
 		})
 
 		It("should successfully upgrade a cluster", func() {
 			Expect(err).ToNot(HaveOccurred())
 			shared.TestClusterUpgrade(tkgctlClient, clusterName, namespace)
+			shared.CheckTKGSAddons(ctx, tkgctlClient, svClusterName, clusterName, namespace, e2eConfig.TKGSKubeconfigPath, constants.InfrastructureProviderTkgs, false)
 		})
 	})
 
@@ -100,12 +101,13 @@ var _ = Describe("TKGS ClusterClass based workload cluster tests", func() {
 		})
 
 		It("should successfully create a cluster and verify successful addons reconciliation", func() {
-			shared.CheckTKGSAddons(ctx, tkgctlClient, svClusterName, clusterName, namespace, e2eConfig.TKGSKubeconfigPath, constants.InfrastructureProviderTkgs, false)
 			Expect(err).ToNot(HaveOccurred())
+			shared.CheckTKGSAddons(ctx, tkgctlClient, svClusterName, clusterName, namespace, e2eConfig.TKGSKubeconfigPath, constants.InfrastructureProviderTkgs, false)
 		})
 		It("should successfully upgrade a cluster", func() {
 			Expect(err).ToNot(HaveOccurred())
 			shared.TestClusterUpgrade(tkgctlClient, clusterName, namespace)
+			shared.CheckTKGSAddons(ctx, tkgctlClient, svClusterName, clusterName, namespace, e2eConfig.TKGSKubeconfigPath, constants.InfrastructureProviderTkgs, false)
 		})
 	})
 
@@ -160,6 +162,13 @@ var _ = Describe("TKGS ClusterClass based workload cluster tests", func() {
 			By(fmt.Sprintf("Verify addon packages on workload cluster %q matches clusterBootstrap info on management cluster %q", e2eConfig.WorkloadClusterOptions.ClusterName, clusterName))
 			err = shared.CheckClusterCB(context.Background(), mngClient, wlcClient, clusterName, namespace, clusterName, namespace, e2eConfig.InfrastructureName, false, true)
 			Expect(err).To(BeNil())
+		})
+
+		It("should successfully upgrade a cluster with custom CB and verify addons", func() {
+			Expect(err).ToNot(HaveOccurred())
+			shared.CheckTKGSAddons(context.TODO(), tkgctlClient, svClusterName, clusterName, namespace, e2eConfig.TKGSKubeconfigPath, e2eConfig.InfrastructureName, true)
+			shared.TestClusterUpgrade(tkgctlClient, clusterName, namespace)
+			shared.CheckTKGSAddons(context.TODO(), tkgctlClient, svClusterName, clusterName, namespace, e2eConfig.TKGSKubeconfigPath, e2eConfig.InfrastructureName, true)
 		})
 	})
 
