@@ -389,7 +389,8 @@ export class SharedLoadBalancerStepComponent extends StepFormDirective implement
 
         this.registerOnValueChange(LoadBalancerField.NETWORK_NAME, this.onSelectVipNetwork.bind(this));
         this.registerOnValueChange(LoadBalancerField.NETWORK_CIDR, this.onSelectVipCIDR.bind(this));
-        this.registerOnValueChange(LoadBalancerField.SERVICE_ENGINE_GROUP_NAME, this.onSelectWorkloadClusterServiceEngineGroupName.bind(this));
+        this.registerOnValueChange(LoadBalancerField.SERVICE_ENGINE_GROUP_NAME,
+            this.onSelectWorkloadClusterServiceEngineGroupName.bind(this));
         this.registerOnValueChange(LoadBalancerField.MANAGEMENT_CLUSTER_NETWORK_NAME, this.onSelectManagementNetwork.bind(this));
         this.registerOnIpFamilyChange(LoadBalancerField.NETWORK_CIDR, [], []);
         this.registerOnIpFamilyChange(LoadBalancerField.MANAGEMENT_CLUSTER_NETWORK_CIDR, [
