@@ -177,14 +177,14 @@ func WaitForManagementPackages(clusterClient clusterclient.Client, packageInstal
 
 	for _, packageName := range packageInstallNames {
 		pn := packageName
-		log.V(3).Warningf("Waiting for package: %s", pn)
+		log.V(3).Warningf("waiting for package: %s", pn)
 		group.Go(
 			func() error {
 				err := clusterClient.WaitForPackageInstall(pn, constants.TkgNamespace, packageInstallTimeout)
 				if err != nil {
-					log.V(3).Warningf("Error while waiting for package '%s'", pn)
+					log.V(3).Warningf("error while waiting for package '%s'", pn)
 				} else {
-					log.V(3).Infof("Successfully reconciled package: %s", pn)
+					log.V(3).Infof("successfully reconciled package: %s", pn)
 				}
 				return err
 			})
