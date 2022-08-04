@@ -18,6 +18,7 @@ import (
 	"gopkg.in/yaml.v2"
 	"sigs.k8s.io/cluster-api/util"
 
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/config"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/test/framework"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgctl"
 )
@@ -52,13 +53,15 @@ func E2ECCMiscSpec(context context.Context, inputGetter func() E2ECommonSpecInpu
 	})
 
 	It("should test misc clusterclass operations", func() {
-		By("Running cluster create dry-run ")
+		By("Running cluster create with auto-apply disabled")
+		err := framework.SetCliConfigFlag(config.FeatureFlagAutoApplyGeneratedClusterClassBasedConfiguration, "false")
+		Expect(err).ToNot(HaveOccurred())
+
 		options := framework.CreateClusterOptions{
-			ClusterName:  clusterName,
-			Namespace:    namespace,
-			Plan:         "devcc",
-			CniType:      input.Cni,
-			GenerateOnly: true,
+			ClusterName: clusterName,
+			Namespace:   namespace,
+			Plan:        "devcc",
+			CniType:     input.Cni,
 		}
 
 		if input.E2EConfig.InfrastructureName == "vsphere" {
@@ -71,14 +74,13 @@ func E2ECCMiscSpec(context context.Context, inputGetter func() E2ECommonSpecInpu
 		Expect(err).To(BeNil())
 		defer os.Remove(clusterConfigFile)
 
-		old := os.Stdout
+		old := os.Stderr
 		r, w, _ := os.Pipe()
-		os.Stdout = w
+		os.Stderr = w
 
 		err = tkgCtlClient.CreateCluster(tkgctl.CreateClusterOptions{
 			ClusterConfigFile: clusterConfigFile,
 			Edition:           "tkg",
-			GenerateOnly:      true,
 		})
 		Expect(err).To(BeNil())
 
@@ -90,9 +92,37 @@ func E2ECCMiscSpec(context context.Context, inputGetter func() E2ECommonSpecInpu
 		}()
 
 		w.Close()
-		os.Stdout = old
+		os.Stderr = old
 
 		out := <-outChan
+
+		err = framework.SetCliConfigFlag(config.FeatureFlagAutoApplyGeneratedClusterClassBasedConfiguration, "true")
+		Expect(err).ToNot(HaveOccurred())
+		Expect(out).To(ContainSubstring("To create a cluster with it, use"))
+
+		By("Running cluster create dry-run ")
+		old = os.Stdout
+		r, w, _ = os.Pipe()
+		os.Stdout = w
+
+		err = tkgCtlClient.CreateCluster(tkgctl.CreateClusterOptions{
+			ClusterConfigFile: clusterConfigFile,
+			Edition:           "tkg",
+			GenerateOnly:      true,
+		})
+		Expect(err).To(BeNil())
+
+		outChan = make(chan string)
+		go func() {
+			var buf bytes.Buffer
+			io.Copy(&buf, r)
+			outChan <- buf.String()
+		}()
+
+		w.Close()
+		os.Stdout = old
+
+		out = <-outChan
 
 		var obj map[string]interface{}
 		err = yaml.NewDecoder(bytes.NewBufferString(out)).Decode(&obj)
