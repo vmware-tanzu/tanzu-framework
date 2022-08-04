@@ -67,7 +67,7 @@ var _ = Describe("TKGS ClusterClass based workload cluster tests", func() {
 		})
 
 		It("should successfully create a cluster and verify successful addons reconciliation", func() {
-			shared.CheckTKGSAddons(ctx, tkgctlClient, svClusterName, clusterName, namespace, e2eConfig.TKGSKubeconfigPath, constants.InfrastructureProviderTkgs)
+			shared.CheckTKGSAddons(ctx, tkgctlClient, svClusterName, clusterName, namespace, e2eConfig.TKGSKubeconfigPath, constants.InfrastructureProviderTkgs, false)
 			Expect(err).ToNot(HaveOccurred())
 		})
 	})
@@ -95,7 +95,7 @@ var _ = Describe("TKGS ClusterClass based workload cluster tests", func() {
 		})
 
 		It("should successfully create a cluster and verify successful addons reconciliation", func() {
-			shared.CheckTKGSAddons(ctx, tkgctlClient, svClusterName, clusterName, namespace, e2eConfig.TKGSKubeconfigPath, constants.InfrastructureProviderTkgs)
+			shared.CheckTKGSAddons(ctx, tkgctlClient, svClusterName, clusterName, namespace, e2eConfig.TKGSKubeconfigPath, constants.InfrastructureProviderTkgs, false)
 			Expect(err).ToNot(HaveOccurred())
 		})
 	})
@@ -149,7 +149,7 @@ var _ = Describe("TKGS ClusterClass based workload cluster tests", func() {
 			Expect(err).NotTo(HaveOccurred())
 
 			By(fmt.Sprintf("Verify addon packages on workload cluster %q matches clusterBootstrap info on management cluster %q", e2eConfig.WorkloadClusterOptions.ClusterName, clusterName))
-			err = shared.CheckClusterCB(context.Background(), mngClient, wlcClient, clusterName, namespace, clusterName, namespace, e2eConfig.InfrastructureName, false)
+			err = shared.CheckClusterCB(context.Background(), mngClient, wlcClient, clusterName, namespace, clusterName, namespace, e2eConfig.InfrastructureName, false, true)
 			Expect(err).To(BeNil())
 		})
 	})

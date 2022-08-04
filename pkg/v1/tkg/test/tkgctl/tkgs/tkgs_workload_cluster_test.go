@@ -73,7 +73,7 @@ var _ = Describe("TKGS - Create TKC based workload cluster tests", func() {
 					err = tkgctlClient.DeleteCluster(deleteClusterOptions)
 				})
 				It("should create TKC Workload Cluster, verify successful addons reconciliation and delete it", func() {
-					shared.CheckTKGSAddons(ctx, tkgctlClient, svClusterName, e2eConfig.WorkloadClusterOptions.ClusterName, e2eConfig.WorkloadClusterOptions.Namespace, e2eConfig.TKGSKubeconfigPath, constants.InfrastructureProviderTkgs)
+					shared.CheckTKGSAddons(ctx, tkgctlClient, svClusterName, e2eConfig.WorkloadClusterOptions.ClusterName, e2eConfig.WorkloadClusterOptions.Namespace, e2eConfig.TKGSKubeconfigPath, constants.InfrastructureProviderTkgs, false)
 					Expect(err).To(BeNil())
 				})
 			})
@@ -87,7 +87,7 @@ var _ = Describe("TKGS - Create TKC based workload cluster tests", func() {
 					clusterOptions.CniType = cniAntrea
 				})
 				It("should create TKC Workload Cluster, verify successful addons reconciliation and delete it", func() {
-					shared.CheckTKGSAddons(ctx, tkgctlClient, svClusterName, e2eConfig.WorkloadClusterOptions.ClusterName, e2eConfig.WorkloadClusterOptions.Namespace, e2eConfig.TKGSKubeconfigPath, constants.InfrastructureProviderTkgs)
+					shared.CheckTKGSAddons(ctx, tkgctlClient, svClusterName, e2eConfig.WorkloadClusterOptions.ClusterName, e2eConfig.WorkloadClusterOptions.Namespace, e2eConfig.TKGSKubeconfigPath, constants.InfrastructureProviderTkgs, false)
 					Expect(err).To(BeNil())
 				})
 			})
@@ -130,7 +130,7 @@ var _ = Describe("TKGS - Create TKC based workload cluster tests", func() {
 					err = tkgctlClient.DeleteCluster(deleteClusterOptions)
 				})
 				It("should create TKC Workload Cluster, verify successful addons reconciliation and delete it", func() {
-					shared.CheckTKGSAddons(ctx, tkgctlClient, svClusterName, e2eConfig.WorkloadClusterOptions.ClusterName, e2eConfig.WorkloadClusterOptions.Namespace, e2eConfig.TKGSKubeconfigPath, constants.InfrastructureProviderTkgs)
+					shared.CheckTKGSAddons(ctx, tkgctlClient, svClusterName, e2eConfig.WorkloadClusterOptions.ClusterName, e2eConfig.WorkloadClusterOptions.Namespace, e2eConfig.TKGSKubeconfigPath, constants.InfrastructureProviderTkgs, false)
 					Expect(err).To(BeNil())
 				})
 			})
@@ -144,7 +144,7 @@ var _ = Describe("TKGS - Create TKC based workload cluster tests", func() {
 					clusterOptions.CniType = cniAntrea
 				})
 				It("should create TKC Workload Cluster, verify successful addons reconciliation and delete it", func() {
-					shared.CheckTKGSAddons(ctx, tkgctlClient, svClusterName, e2eConfig.WorkloadClusterOptions.ClusterName, e2eConfig.WorkloadClusterOptions.Namespace, e2eConfig.TKGSKubeconfigPath, constants.InfrastructureProviderTkgs)
+					shared.CheckTKGSAddons(ctx, tkgctlClient, svClusterName, e2eConfig.WorkloadClusterOptions.ClusterName, e2eConfig.WorkloadClusterOptions.Namespace, e2eConfig.TKGSKubeconfigPath, constants.InfrastructureProviderTkgs, false)
 					Expect(err).To(BeNil())
 				})
 			})
