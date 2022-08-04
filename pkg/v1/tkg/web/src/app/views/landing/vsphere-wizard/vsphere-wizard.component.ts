@@ -145,7 +145,7 @@ export class VSphereWizardComponent extends WizardBaseDirective implements OnIni
             payload.aviConfig['controlPlaneHaProvider'] = true;
         }
 
-        payload.aviConfig['managementClusterServiceEngineGroupName'] =
+        payload.aviConfig['management_cluster_service_engine'] =
             this.getFieldValue(WizardForm.LOADBALANCER, LoadBalancerField.MANAGEMENT_CLUSTER_SERVICE_ENGINE_GROUP_NAME);
         payload.aviConfig['managementClusterControlPlaneVipNetworkName'] =
             this.getFieldValue(WizardForm.LOADBALANCER, LoadBalancerField.MANAGEMENT_CLUSTER_CONTROL_PLANE_VIP_NETWORK_NAME) ??
