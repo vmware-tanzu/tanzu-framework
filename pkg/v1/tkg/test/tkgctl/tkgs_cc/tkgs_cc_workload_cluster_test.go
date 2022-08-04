@@ -62,6 +62,11 @@ var _ = Describe("TKGS ClusterClass based workload cluster tests", func() {
 		It("should successfully create a cluster", func() {
 			Expect(err).ToNot(HaveOccurred())
 		})
+
+		It("should successfully upgrade a cluster", func() {
+			Expect(err).ToNot(HaveOccurred())
+			shared.TestClusterUpgrade(tkgctlClient, clusterName, namespace)
+		})
 	})
 
 	Context("when input file is cluster class based with CNI Calico", func() {
@@ -88,6 +93,10 @@ var _ = Describe("TKGS ClusterClass based workload cluster tests", func() {
 
 		It("should successfully create a cluster", func() {
 			Expect(err).ToNot(HaveOccurred())
+		})
+		It("should successfully upgrade a cluster", func() {
+			Expect(err).ToNot(HaveOccurred())
+			shared.TestClusterUpgrade(tkgctlClient, clusterName, namespace)
 		})
 	})
 
