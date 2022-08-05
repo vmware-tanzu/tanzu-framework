@@ -25,7 +25,7 @@ type ListTKGClustersOptions struct {
 func (t *tkgctl) GetClusters(options ListTKGClustersOptions) ([]client.ClusterInfo, error) {
 	isPacific, err := t.tkgClient.IsPacificManagementCluster()
 	if err != nil {
-		return nil, errors.Wrap(err, "unable to determine if management cluster is on vSphere with Tanzu")
+		return nil, err
 	}
 	var isTKGSClusterClassFeatureActivated bool
 	if isPacific {
