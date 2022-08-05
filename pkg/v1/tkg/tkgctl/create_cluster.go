@@ -57,7 +57,7 @@ type CreateClusterOptions struct {
 func (t *tkgctl) CreateCluster(cc CreateClusterOptions) error {
 	isTKGSCluster, err := t.tkgClient.IsPacificManagementCluster()
 	if err != nil {
-		return errors.Wrap(err, "unable to determine if management cluster is on vSphere with Tanzu")
+		return errors.Wrap(err, constants.ErrorMsgIsTKGSCluster)
 	}
 	isInputFileClusterClassBased, err := t.processWorkloadClusterInputFile(&cc, isTKGSCluster)
 	if err != nil {

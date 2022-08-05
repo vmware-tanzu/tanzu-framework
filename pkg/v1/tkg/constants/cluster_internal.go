@@ -6,19 +6,22 @@ package constants
 
 // cluster related constants used internally
 const (
-	KindCluster                = "Cluster"
-	KindTanzuKubernetesCluster = "TanzuKubernetesCluster"
-	KindClusterClass           = "ClusterClass"
-	ClusterClassFeature        = "vmware-system-tkg-clusterclass"
-	TKCAPIFeature              = "vmware-system-tkg-tkc-api"
-	TKGSClusterClassNamespace  = "vmware-system-tkg"
-	TKGSTKCAPINamespace        = "vmware-system-tkg"
-	TKGStkcapiNamespace        = "vmware-system-tkg"
+	KindCluster                 = "Cluster"
+	KindTanzuKubernetesCluster  = "TanzuKubernetesCluster"
+	KindClusterClass            = "ClusterClass"
+	ClusterClassFeature         = "vmware-system-tkg-clusterclass"
+	TKCAPIFeature               = "vmware-system-tkg-tkc-api"
+	TKGSClusterClassNamespace   = "vmware-system-tkg"
+	TKGSTKCAPINamespace         = "vmware-system-tkg"
+	TKGStkcapiNamespace         = "vmware-system-tkg"
+	CorePackagesNamespaceInTKGS = "vmware-system-tkg"
+	CorePackagesNamespaceInTKGM = "tkg-system"
 
 	ErrorMsgFeatureGateNotActivated = "vSphere with Tanzu environment detected, however, the feature '%v' is not activated in '%v' namespace"
 	ErrorMsgFeatureGateStatus       = "error while checking feature '%v' status in namespace '%v'"
 	ErrorMsgClusterExistsAlready    = "cluster with name %s already exists, please specify another name"
 	ErrorMsgClusterListError        = "unable to get list of workload clusters managed by current management cluster"
+	ErrorMsgIsTKGSCluster           = "unable to determine if management cluster is on vSphere with Tanzu"
 
 	ErrorMsgCClassInputFeatureFlagDisabled = "Input file is cluster class based but CLI feature flag '%v' is disabled, make sure its enabled to create cluster class based cluster"
 

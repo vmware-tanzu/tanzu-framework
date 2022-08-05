@@ -196,6 +196,6 @@ func deleteCRSObjectsIfPresent(clusterClient clusterclient.Client, clusterName, 
 		return kerrors.NewAggregate(errorList)
 	}
 
-	log.V(3).Infof("Successfully deleted ClusterResourceSet objects associated with cluster '%s'", clusterName)
+	log.V(3).Infof("successfully deleted ClusterResourceSet objects associated with cluster '%s'", clusterName)
 	return nil
 }
