@@ -80,6 +80,7 @@ type InitRegionOptions struct {
 	LaunchUI                     bool
 	CeipOptIn                    bool
 	UseExistingCluster           bool
+	BootstrapClusterOnly         bool
 	IsInputFileClusterClassBased bool
 }
 

@@ -233,6 +233,11 @@ func (c *TkgClient) InitRegion(options *InitRegionOptions) error { //nolint:funl
 
 	isStartedRegionalClusterCreation = true
 
+	if options.BootstrapClusterOnly {
+		log.Infof("\nPause before setting up management cluster, since --boostrap-cluster-only is specified...\n")
+		return nil
+	}
+
 	targetClusterNamespace := defaultTkgNamespace
 	if options.Namespace != "" {
 		targetClusterNamespace = options.Namespace

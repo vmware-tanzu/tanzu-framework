@@ -42,6 +42,7 @@ type InitRegionOptions struct {
 	Timeout                     time.Duration
 	UI                          bool
 	UseExistingCluster          bool
+	BootstrapClusterOnly        bool
 	EnableTKGSOnVsphere7        bool
 	DeployTKGonVsphere7         bool
 	SkipPrompt                  bool
@@ -344,6 +345,7 @@ func (t *tkgctl) populateClientInitRegionOptions(options *InitRegionOptions, nod
 		LaunchUI:                    options.UI,
 		ClusterName:                 options.ClusterName,
 		UseExistingCluster:          options.UseExistingCluster,
+		BootstrapClusterOnly:        options.BootstrapClusterOnly,
 		InfrastructureProvider:      options.InfrastructureProvider,
 		ControlPlaneProvider:        options.ControlPlaneProvider,
 		BootstrapProvider:           options.BootstrapProvider,

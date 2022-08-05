@@ -20,6 +20,7 @@ import (
 type initRegionOptions struct {
 	ui                          bool
 	useExistingCluster          bool
+	bootstrapClusterOnly        bool
 	enableTKGSOnVsphere7        bool
 	deployTKGonVsphere7         bool
 	unattended                  bool
@@ -84,6 +85,9 @@ func init() {
 	createCmd.Flags().BoolVarP(&iro.unattended, "yes", "y", false, "Create management cluster without asking for confirmation")
 
 	createCmd.Flags().BoolVarP(&iro.useExistingCluster, "use-existing-bootstrap-cluster", "e", false, "Use an existing bootstrap cluster to deploy the management cluster")
+
+	createCmd.Flags().BoolVarP(&iro.bootstrapClusterOnly, "bootstrap-cluster-only", "", false, "Only create the bootstrap cluster and pause before creating the management cluster")
+
 	createCmd.Flags().DurationVarP(&iro.timeout, "timeout", "t", constants.DefaultLongRunningOperationTimeout, "Time duration to wait for an operation before timeout. Timeout duration in hours(h)/minutes(m)/seconds(s) units or as some combination of them (e.g. 2h, 30m, 2h30m10s)")
 
 	createCmd.Flags().StringVarP(&iro.infrastructureProvider, "infrastructure", "i", "", "Infrastructure to deploy the management cluster on ['aws', 'vsphere', 'azure']")
@@ -162,6 +166,7 @@ func runInit() error {
 		UI:                          iro.ui,
 		ClusterName:                 iro.clusterName,
 		UseExistingCluster:          iro.useExistingCluster,
+		BootstrapClusterOnly:        iro.bootstrapClusterOnly,
 		CoreProvider:                iro.coreProvider,
 		BootstrapProvider:           iro.bootstrapProvider,
 		InfrastructureProvider:      iro.infrastructureProvider,
