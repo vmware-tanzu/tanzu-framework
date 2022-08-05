@@ -12,19 +12,389 @@ import (
 	certmanagerv1 "github.com/jetstack/cert-manager/pkg/apis/certmanager/v1"
 	certmanagerfake "github.com/jetstack/cert-manager/pkg/client/clientset/versioned/fake"
 	"github.com/stretchr/testify/require"
-	authv1alpha1 "go.pinniped.dev/generated/1.20/apis/concierge/authentication/v1alpha1"
-	configv1alpha1 "go.pinniped.dev/generated/1.20/apis/supervisor/config/v1alpha1"
-	pinnipedconciergefake "go.pinniped.dev/generated/1.20/client/concierge/clientset/versioned/fake"
-	pinnipedsupervisorfake "go.pinniped.dev/generated/1.20/client/supervisor/clientset/versioned/fake"
 	"go.uber.org/zap"
+	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	kubefake "k8s.io/client-go/kubernetes/fake"
 	kubetesting "k8s.io/client-go/testing"
+	"k8s.io/utils/pointer"
 
+	authv1alpha1 "go.pinniped.dev/generated/1.20/apis/concierge/authentication/v1alpha1"
+	configv1alpha1 "go.pinniped.dev/generated/1.20/apis/supervisor/config/v1alpha1"
+	idpv1alpha1 "go.pinniped.dev/generated/1.20/apis/supervisor/idp/v1alpha1"
+	supervisoridpv1alpha1 "go.pinniped.dev/generated/1.20/apis/supervisor/idp/v1alpha1"
+	pinnipedconciergefake "go.pinniped.dev/generated/1.20/client/concierge/clientset/versioned/fake"
+	pinnipedsupervisorfake "go.pinniped.dev/generated/1.20/client/supervisor/clientset/versioned/fake"
+
+	"github.com/vmware-tanzu/tanzu-framework/addons/pinniped/post-deploy/pkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pinniped/post-deploy/pkg/inspect"
+	"github.com/vmware-tanzu/tanzu-framework/addons/pinniped/post-deploy/pkg/vars"
 )
+
+func TestTKGAuthentication(t *testing.T) {
+
+	const (
+		supervisorNamespace = "pinniped-supervisor" // vars.SupervisorNamespace default
+	)
+
+	enableLogging() // Comment me out for less verbose test logs
+
+	supervisorCertificateSecret := &corev1.Secret{
+		ObjectMeta: metav1.ObjectMeta{
+			Namespace: supervisorNamespace,
+			Name:      "some-supervisor-certificate-secret-name",
+		},
+		Type: corev1.SecretTypeTLS,
+		Data: map[string][]byte{
+			"ca.crt": []byte("some-ca-bundle-data"),
+		},
+	}
+
+	supervisorService := &corev1.Service{
+		ObjectMeta: metav1.ObjectMeta{
+			Namespace: supervisorNamespace,
+			// This is set via flag on post-deploy job, the default value is empty string. This simplifies the test.
+			Name: "",
+		},
+		Spec: corev1.ServiceSpec{
+			Type:  corev1.ServiceTypeLoadBalancer,
+			Ports: []corev1.ServicePort{{Port: 12345}},
+		},
+		Status: corev1.ServiceStatus{
+			LoadBalancer: corev1.LoadBalancerStatus{
+				Ingress: []corev1.LoadBalancerIngress{{IP: "1.2.3.4"}},
+			},
+		},
+	}
+
+	supervisorCertificate := &certmanagerv1.Certificate{
+		ObjectMeta: metav1.ObjectMeta{
+			Namespace: supervisorNamespace,
+			// This is set via flag on post-deploy job, the default value is empty string. This simplifies the test.
+			Name: "",
+		},
+		Spec: certmanagerv1.CertificateSpec{
+			SecretName: supervisorCertificateSecret.Name,
+			IPAddresses: []string{
+				supervisorService.Status.LoadBalancer.Ingress[0].IP,
+			},
+		},
+	}
+
+	federationDomainGVR := configv1alpha1.SchemeGroupVersion.WithResource("federationdomains")
+	federationDomain := &configv1alpha1.FederationDomain{
+		ObjectMeta: metav1.ObjectMeta{
+			Namespace: supervisorNamespace,
+			Name:      "my-federation-domain",
+		},
+		Spec: configv1alpha1.FederationDomainSpec{
+			Issuer: serviceHTTPSEndpoint(supervisorService),
+		},
+	}
+
+	jwtAuthenticatorGVR := authv1alpha1.SchemeGroupVersion.WithResource("jwtauthenticators")
+	jwtAuthenticator := func(audience string) *authv1alpha1.JWTAuthenticator {
+		return &authv1alpha1.JWTAuthenticator{
+			ObjectMeta: metav1.ObjectMeta{
+				Name: "my-cool-authenticator",
+			},
+			Spec: authv1alpha1.JWTAuthenticatorSpec{
+				Issuer:   federationDomain.Spec.Issuer,
+				Audience: audience,
+				TLS: &authv1alpha1.TLSSpec{
+					CertificateAuthorityData: base64.StdEncoding.EncodeToString(supervisorCertificateSecret.Data["ca.crt"]),
+				},
+			},
+		}
+	}
+
+	tkgMetadataConfigmapManagementCluster := &corev1.ConfigMap{
+		ObjectMeta: metav1.ObjectMeta{
+			Namespace: constants.TKGSystemPublicNamespace,
+			Name:      constants.TKGMetaConfigMapName,
+		},
+		Data: map[string]string{
+			"metadata.yaml": `cluster:
+  name: tkg-mgmt-vc
+  type: management
+  plan: dev
+  kubernetesProvider: VMware Tanzu Kubernetes Grid
+  tkgVersion: v1.6.0-zshippable
+  edition: tkg`,
+		},
+	}
+	tkgMetadataConfigmapWorkloadCluster := &corev1.ConfigMap{
+		ObjectMeta: metav1.ObjectMeta{
+			Namespace: constants.TKGSystemPublicNamespace,
+			Name:      constants.TKGMetaConfigMapName,
+		},
+		Data: map[string]string{
+			"metadata.yaml": `cluster:
+  name: some-workload-cluster
+  type: workload
+  plan: dev
+  kubernetesProvider: VMware Tanzu Kubernetes Grid
+  tkgVersion: v1.6.0-zshippable
+  edition: tkg`,
+		},
+	}
+
+	conciergeDeployment := &appsv1.Deployment{
+		ObjectMeta: metav1.ObjectMeta{
+			Namespace: "pinniped-concierge",
+			Name:      "pinniped-concierge",
+		},
+		Spec: appsv1.DeploymentSpec{
+			Replicas: pointer.Int32Ptr(1),
+		},
+		Status: appsv1.DeploymentStatus{
+			Replicas:      int32(1),
+			ReadyReplicas: int32(1),
+		},
+	}
+	supervisorDeployment := &appsv1.Deployment{
+		ObjectMeta: metav1.ObjectMeta{
+			Namespace: "pinniped-supervisor",
+			Name:      "pinniped-supervisor",
+		},
+		Spec: appsv1.DeploymentSpec{
+			Replicas: pointer.Int32Ptr(1),
+		},
+		Status: appsv1.DeploymentStatus{
+			Replicas:      int32(1),
+			ReadyReplicas: int32(1),
+		},
+	}
+
+	oidcIdentityProviderGVR := idpv1alpha1.SchemeGroupVersion.WithResource("oidcidentityproviders")
+	upstreamIdentityProvider := &supervisoridpv1alpha1.OIDCIdentityProvider{
+		ObjectMeta: metav1.ObjectMeta{
+			Namespace: "pinniped-supervisor",
+			Name:      "upstream-oidc-identity-provider",
+		},
+		Spec: supervisoridpv1alpha1.OIDCIdentityProviderSpec{
+			Issuer: "https://identityforall.com",
+			Claims: supervisoridpv1alpha1.OIDCClaims{
+				Username: "email",
+			},
+			Client: supervisoridpv1alpha1.OIDCClient{
+				SecretName: "some-upstream-oidc-client",
+			},
+		},
+		Status: supervisoridpv1alpha1.OIDCIdentityProviderStatus{
+			Phase: supervisoridpv1alpha1.PhaseReady,
+		},
+	}
+
+	// NOTE: these tests exercise what is essentially glue code between TKGs & TKGm to make uTKG functional for the Pinniped Package.
+	// There is a combination of flags, defaulting values and querying a configmap on cluster that can ultimately lead to a functioning
+	// pinniped installation.  These tests are valuable as this is difficult to reason about without knowledge if the external factors.
+	tests := []struct {
+		name                        string
+		newKubeClient               func() *kubefake.Clientset
+		newCertManagerClient        func() *certmanagerfake.Clientset
+		newSupervisorClient         func() *pinnipedsupervisorfake.Clientset
+		newConciergeClient          func() *pinnipedconciergefake.Clientset
+		finalSetup                  func()
+		cleanup                     func()
+		wantError                   string
+		wantConciergeClientActions  []kubetesting.Action
+		wantSupervisorClientActions []kubetesting.Action
+	}{
+		{
+			name: "TKGm Management Cluster Case: The JWTAuthenticator audience is set to the Supervisor Service Endpoint value and the cluster.type is derived from tkg-metadata configmap and the pinniped supervisor will be deployed",
+			newKubeClient: func() *kubefake.Clientset {
+				c := kubefake.NewSimpleClientset(
+					tkgMetadataConfigmapManagementCluster,
+					conciergeDeployment,
+					supervisorDeployment,
+					supervisorService,
+					supervisorCertificateSecret,
+				)
+				c.PrependReactor("delete", "secrets", func(action kubetesting.Action) (bool, runtime.Object, error) {
+					// When we delete the secret in the implementation, we expect the cert-manager controller
+					// to recreate it. Since there is no cert-manager controller running, let's just tell the
+					// fake kube client to not delete it (i.e., that we "handled" the delete ourselves).
+					return actionIsOnObject(action, supervisorCertificateSecret), nil, nil
+				})
+				return c
+			},
+			newCertManagerClient: func() *certmanagerfake.Clientset {
+				return certmanagerfake.NewSimpleClientset(supervisorCertificate)
+			},
+			newSupervisorClient: func() *pinnipedsupervisorfake.Clientset {
+				return pinnipedsupervisorfake.NewSimpleClientset(
+					upstreamIdentityProvider,
+					federationDomain,
+				)
+			},
+			newConciergeClient: func() *pinnipedconciergefake.Clientset {
+				defaultJWTAuthenticator := jwtAuthenticator("initial-incorrect-audience")
+				return pinnipedconciergefake.NewSimpleClientset(defaultJWTAuthenticator)
+			},
+			// In the TKGm use case on a Management Cluster, the Audience is set to the supervisor service endpoint value.
+			// This is probably a little weird, it is definitely unexpected.
+			// But it is likely a unique value amongst the fleet of clusters and therefore seems to work today.
+			// If this is ever changed (in production code) to be a more expected audience (e.g. cluster.name-cluster.uid)
+			// it would invalidate existing deployed kubeconfigs.  Proceed with caution!
+			wantConciergeClientActions: []kubetesting.Action{
+				kubetesting.NewRootGetAction(jwtAuthenticatorGVR, jwtAuthenticator("").Name),
+				kubetesting.NewRootUpdateAction(jwtAuthenticatorGVR, jwtAuthenticator("https://1.2.3.4:12345")),
+			},
+			wantSupervisorClientActions: []kubetesting.Action{
+				kubetesting.NewGetAction(oidcIdentityProviderGVR, upstreamIdentityProvider.Namespace, upstreamIdentityProvider.Name),
+				kubetesting.NewGetAction(federationDomainGVR, federationDomain.Namespace, federationDomain.Name),
+				kubetesting.NewUpdateAction(federationDomainGVR, federationDomain.Namespace, &configv1alpha1.FederationDomain{
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      "my-federation-domain",
+						Namespace: "pinniped-supervisor",
+					},
+					Spec: configv1alpha1.FederationDomainSpec{
+						Issuer: "https://1.2.3.4:12345",
+						TLS:    nil, // when nil, Pinniped will use trusted CA's compiled into the container image
+					},
+				}),
+			},
+		},
+		{
+			name: "TKGm Workload Cluster Case: When the tkg-metadata configmap is found, the cluster.name and cluster.type is used from the configmap to configure pinniped and set the concierge jwtauthenticator audience and supervisor will not be deployed",
+			newKubeClient: func() *kubefake.Clientset {
+				c := kubefake.NewSimpleClientset(
+					tkgMetadataConfigmapWorkloadCluster,
+					conciergeDeployment,
+					supervisorDeployment,
+					supervisorService,
+					supervisorCertificateSecret,
+				)
+				c.PrependReactor("delete", "secrets", func(action kubetesting.Action) (bool, runtime.Object, error) {
+					// When we delete the secret in the implementation, we expect the cert-manager controller
+					// to recreate it. Since there is no cert-manager controller running, let's just tell the
+					// fake kube client to not delete it (i.e., that we "handled" the delete ourselves).
+					return actionIsOnObject(action, supervisorCertificateSecret), nil, nil
+				})
+				return c
+			},
+			newCertManagerClient: func() *certmanagerfake.Clientset {
+				return certmanagerfake.NewSimpleClientset(supervisorCertificate)
+			},
+			newSupervisorClient: func() *pinnipedsupervisorfake.Clientset {
+				return pinnipedsupervisorfake.NewSimpleClientset(
+					upstreamIdentityProvider,
+				)
+			},
+			newConciergeClient: func() *pinnipedconciergefake.Clientset {
+				defaultJWTAuthenticator := jwtAuthenticator("initial-incorrect-audience")
+				return pinnipedconciergefake.NewSimpleClientset(defaultJWTAuthenticator)
+			},
+			wantConciergeClientActions: []kubetesting.Action{
+				kubetesting.NewRootGetAction(jwtAuthenticatorGVR, jwtAuthenticator("").Name),
+				kubetesting.NewRootUpdateAction(jwtAuthenticatorGVR, jwtAuthenticator("some-workload-cluster")),
+			},
+			// this is not a mgmt cluster, so no supervisor actions should take place
+			wantSupervisorClientActions: []kubetesting.Action{},
+			finalSetup: func() {
+				vars.SupervisorSvcEndpoint = "https://1.2.3.4:12345" // mgmt cluster figures this out by itself, but workload does not.
+			},
+			cleanup: func() {
+				vars.SupervisorSvcEndpoint = ""
+			},
+		},
+		{
+			name: "TKGs Workload Cluster Case: When the --jwtauthenticator-audience flag is provided then its value becomes the jwtauthenticator audience and the cluster.type is assumed to be workload which means supervisor will not be deployed",
+			newKubeClient: func() *kubefake.Clientset {
+				c := kubefake.NewSimpleClientset(
+					conciergeDeployment,
+					supervisorDeployment,
+					supervisorService,
+					supervisorCertificateSecret,
+				)
+				c.PrependReactor("delete", "secrets", func(action kubetesting.Action) (bool, runtime.Object, error) {
+					// When we delete the secret in the implementation, we expect the cert-manager controller
+					// to recreate it. Since there is no cert-manager controller running, let's just tell the
+					// fake kube client to not delete it (i.e., that we "handled" the delete ourselves).
+					return actionIsOnObject(action, supervisorCertificateSecret), nil, nil
+				})
+				return c
+			},
+			newCertManagerClient: func() *certmanagerfake.Clientset {
+				return certmanagerfake.NewSimpleClientset(supervisorCertificate)
+			},
+			newSupervisorClient: func() *pinnipedsupervisorfake.Clientset {
+				// return a fake idp when requsted
+				return pinnipedsupervisorfake.NewSimpleClientset(
+					upstreamIdentityProvider,
+				)
+			},
+			newConciergeClient: func() *pinnipedconciergefake.Clientset {
+				defaultJWTAuthenticator := jwtAuthenticator("initial-incorrect-audience")
+				return pinnipedconciergefake.NewSimpleClientset(defaultJWTAuthenticator)
+			},
+			finalSetup: func() {
+				// this var emulate the set flag --jwtauthenticator-audience=amazing.cluster-1234567890
+				// therefore:
+				// - audience=amazing.cluster-1234567890 is set as Audience
+				// - Cluster.Type is inferred to be "workload"
+				vars.JWTAuthenticatorAudience = "amazing.cluster-1234567890"
+				vars.SupervisorSvcEndpoint = "https://1.2.3.4:12345" // mgmt cluster figures this out by itself, but workload does not.
+			},
+			cleanup: func() {
+				vars.JWTAuthenticatorAudience = ""
+				vars.SupervisorSvcEndpoint = ""
+			},
+			wantConciergeClientActions: []kubetesting.Action{
+				kubetesting.NewRootGetAction(jwtAuthenticatorGVR, jwtAuthenticator("").Name),
+				kubetesting.NewRootUpdateAction(jwtAuthenticatorGVR, jwtAuthenticator("amazing.cluster-1234567890")),
+			},
+			// this is not a mgmt cluster, so no supervisor actions should take place
+			wantSupervisorClientActions: []kubetesting.Action{},
+		},
+	}
+
+	for _, test := range tests {
+		test := test
+		t.Run(test.name, func(t *testing.T) {
+			vars.JWTAuthenticatorName = "my-cool-authenticator"
+			vars.FederationDomainName = "my-federation-domain"
+			vars.SupervisorCABundleData = base64.StdEncoding.EncodeToString([]byte("some-ca-bundle-data"))
+			t.Cleanup(func() {
+				vars.JWTAuthenticatorName = ""
+				vars.FederationDomainName = ""
+				vars.SupervisorCABundleData = ""
+			})
+			fakeKubeClient := test.newKubeClient()
+			fakeCertManagerClient := test.newCertManagerClient()
+			supervisorClientset := test.newSupervisorClient()
+			conciergeClientset := test.newConciergeClient()
+			clients := Clients{
+				K8SClientset:         fakeKubeClient,
+				CertmanagerClientset: fakeCertManagerClient,
+				SupervisorClientset:  supervisorClientset,
+				ConciergeClientset:   conciergeClientset,
+			}
+
+			if test.finalSetup != nil {
+				test.finalSetup()
+			}
+			t.Cleanup(func() {
+				if test.cleanup != nil {
+					test.cleanup()
+				}
+			})
+			err := TKGAuthentication(clients)
+
+			require.Equal(t, test.wantSupervisorClientActions, supervisorClientset.Actions())
+			require.Equal(t, test.wantConciergeClientActions, conciergeClientset.Actions())
+
+			if test.wantError != "" {
+				require.EqualError(t, err, test.wantError)
+			} else {
+				require.NoError(t, err)
+			}
+		})
+	}
+}
 
 func TestPinniped(t *testing.T) {
 	const (

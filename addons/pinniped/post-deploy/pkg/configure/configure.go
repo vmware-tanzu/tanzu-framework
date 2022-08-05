@@ -178,20 +178,21 @@ func TKGAuthentication(c Clients) error {
 	ctx := context.Background()
 
 	inspector := inspect.Inspector{K8sClientset: c.K8SClientset, Context: ctx}
-	var tkgMetadata *inspect.TKGMetadata
-	if tkgMetadata, err = inspector.GetTKGMetadata(); err != nil {
-		zap.S().Error(err)
+
+	clusterName, clusterType, err := getClusterNameAndType(inspector)
+	if err != nil {
 		return err
 	}
+
 	// ensure the required resources are up and running before going to configure them
-	ready, err := ensureResources(ctx, c, tkgMetadata.Cluster.Type == "management")
+	ready, err := ensureResources(ctx, c, clusterType == "management")
 	if !ready {
 		return err
 	}
 
 	if err := Pinniped(ctx, c, inspector, &Parameters{
-		ClusterName:              tkgMetadata.Cluster.Name,
-		ClusterType:              tkgMetadata.Cluster.Type,
+		ClusterName:              clusterName,
+		ClusterType:              clusterType, // TODO: when tkg-metadata disappears, we will error here
 		SupervisorSvcName:        vars.SupervisorSvcName,
 		SupervisorSvcNamespace:   vars.SupervisorNamespace,
 		SupervisorSvcEndpoint:    vars.SupervisorSvcEndpoint,
@@ -214,8 +215,8 @@ func TKGAuthentication(c Clients) error {
 
 	if vars.IsDexRequired {
 		if err := Dex(ctx, c, inspector, &Parameters{
-			ClusterName:             tkgMetadata.Cluster.Name,
-			ClusterType:             tkgMetadata.Cluster.Type,
+			ClusterName:             clusterName,
+			ClusterType:             clusterType, // TODO: when tkg-metadata disappears, we will error here
 			SupervisorSvcName:       vars.SupervisorSvcName,
 			SupervisorSvcNamespace:  vars.SupervisorNamespace,
 			SupervisorSvcEndpoint:   vars.SupervisorSvcEndpoint,
@@ -517,4 +518,58 @@ func updateCertSubjectAltNames(ctx context.Context, c Clients, certNamespace, ce
 	zap.S().Infof("Updated the Certificate %s/%s with host: %s", certNamespace, certName, host)
 
 	return updatedCert, nil
+}
+
+// getClusterNameAndType handles obtaining cluster name & type to correctly configure the JWTAuthenticator
+// correctly for the given cluster.
+func getClusterNameAndType(inspector inspect.Inspector) (clusterName, clusterType string, err error) {
+	foundMetadata, err := inspector.GetTKGMetadata()
+	if err != nil {
+		// all errors are unexpected errors as GetTKGMetadata() will not return a 404
+		return "", "", err
+	}
+	if foundMetadata != nil {
+		return foundMetadata.Cluster.Name, foundMetadata.Cluster.Type, nil
+	}
+	// tkg-metadata was not found. in a TKGs scenerio we may still be able to recover.
+	if len(vars.JWTAuthenticatorAudience) != 0 {
+		// This is a TKGs workload cluster fallback use case.
+		// TKGs will pass audience via the flag --jwtauthenticator-audience=<cluster.name>-<cluster.id>
+		// If so, it will be used as an override to cluster.name (and we know the cluster.type is workload)
+		// NOTE: if anyone besides TKGs is using this flag, they may still run into unexpected behaviour not
+		// knowing that this inference is made.
+		return "", constants.TKGWorkloadClusterType, nil
+	}
+
+	return "", "", fmt.Errorf("tkg-metadata configmap not found, nor was --jwtauthenticator-audience flag present, jwtauthenticator audience cannot be configured: %w", err)
+	// // FUTURE
+	// // TKGm workload||management future use case
+	// // if we don't have tkg-metadata available, we need to attempt to infer cluster.name and cluster.type from other resources.
+	// nodeList, err := c.K8SClientset.CoreV1().Nodes().List(ctx, metav1.ListOptions{})
+	// if err != nil {
+	// 	zap.S().Errorf("%s, jwtauthenticator audience cannot be configured", err)
+	// 	// if we can't list nodes, we don't have an alternative course of action at this point.
+	// 	// fail hard. this is an unexpected fail state. we could look into alternatives such as:
+	// 	// - get the kube-system namespace for the cluster and use its UID
+	// 	// - simply generate another random string
+	// 	return "", "", fmt.Errorf("%s, jwtauthenticator audience cannot be configured", err)
+	// }
+	// if len(nodeList.Items) == 0 {
+	// 	zap.S().Error("no nodes available to read cluster-name annotation, jwtauthenticator audience cannot be configured")
+	// 	return "", "", stdliberrors.New("no nodes available to read cluster-name annotation, jwtauthenticator audience cannot be configured")
+	// }
+	//
+	// zap.S().Info("Successfully listed Nodes")
+	// // cluster-api provides cluster-name annotation on nodes
+	// for _, node := range nodeList.Items {
+	// 	if len(node.Annotations["cluster.x-k8s.io/cluster-name"]) != 0 {
+	// 		clusterName = node.Annotations["cluster.x-k8s.io/cluster-name"]
+	// 		break
+	// 	}
+	// }
+	// if clusterName == "" {
+	// 	return "", "", stdliberrors.New("nodes not annotated with cluster-name annotation, jwtauthenticator audience cannot be configured")
+	// }
+	//
+	// return clusterName, "", stdliberrors.New("cluster name inferred from nodes, but cluster type is unknown, jwtauthenticator audience cannot be configured")
 }
