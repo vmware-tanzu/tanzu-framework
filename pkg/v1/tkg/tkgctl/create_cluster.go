@@ -174,10 +174,13 @@ func (t *tkgctl) processWorkloadClusterInputFile(cc *CreateClusterOptions, isTKG
 	if err != nil {
 		return isInputFileClusterClassBased, err
 	}
+
+	// If TKGm and user is passing Cluster resource as an input throw error if feature-flag is disabled
+	if !isTKGSCluster && !t.tkgClient.IsFeatureActivated(config.FeatureFlagPackageBasedLCM) && clusterobj.GetKind() == constants.KindCluster {
+		return isInputFileClusterClassBased, errors.New(constants.ClusterResourceAsInputFileNotSupportedErrMsg)
+	}
+
 	if isInputFileClusterClassBased {
-		if !isTKGSCluster && !t.tkgClient.IsFeatureActivated(config.FeatureFlagPackageBasedLCM) {
-			return isInputFileClusterClassBased, fmt.Errorf(constants.ErrorMsgCClassInputFeatureFlagDisabled, config.FeatureFlagPackageBasedLCM)
-		}
 		if isTKGSCluster {
 			t.TKGConfigReaderWriter().Set(constants.ConfigVariableClusterName, clusterobj.GetName())
 			t.TKGConfigReaderWriter().Set(constants.ConfigVariableNamespace, clusterobj.GetNamespace())
@@ -189,6 +192,7 @@ func (t *tkgctl) processWorkloadClusterInputFile(cc *CreateClusterOptions, isTKG
 		}
 		t.overrideClusterOptionsWithLatestEnvironmentConfigurationValues(cc)
 	}
+
 	if isTKGSCluster {
 		err = t.validateTKGSFeatureGateStatus(isInputFileClusterClassBased)
 		if err != nil {

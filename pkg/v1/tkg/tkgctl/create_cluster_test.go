@@ -327,6 +327,7 @@ var _ = Describe("Unit tests for (AWS)  cluster_aws.yaml as input file for 'tanz
 			mappedVal, _ = ctl.TKGConfigReaderWriter().Get(constants.ConfigVariableNodeMachineType2)
 			Expect("worker2").To(Equal(fmt.Sprintf("%v", mappedVal)))
 		})
+
 		It("When Input file is cluster type with multiple objects, Environment should be updated with legacy variables and CreateClusterOptions also updated with Cluster attribute values:", func() {
 
 			// Process input cluster yaml file, this should process input cluster yaml file
@@ -350,6 +351,18 @@ var _ = Describe("Unit tests for (AWS)  cluster_aws.yaml as input file for 'tanz
 			// checking manually for some variables mapping values
 			mappedVal, _ := ctl.TKGConfigReaderWriter().Get(constants.ConfigVariableClusterName)
 			Expect("aws-workload-cluster1").To(Equal(fmt.Sprintf("%v", mappedVal)))
+		})
+
+		It("When Input file is cluster type with multiple objects but feature-flag (FeatureFlagPackageBasedLCM) is false, should return an error", func() {
+			tkgClient.IsFeatureActivatedReturns(false)
+			// Process input cluster yaml file, this should process input cluster yaml file
+			// and update the environment with legacy name and values
+			// most of cluster yaml attributes are mapped to legacy variable for more look this - constants.ClusterToLegacyVariablesMapAws
+			options.ClusterConfigFile = inputFileMultipleObjectsAws
+			IsInputFileClusterClassBased, err := ctl.processWorkloadClusterInputFile(&options, isTKGSCluster)
+			Expect(IsInputFileClusterClassBased).Should(BeTrue())
+			Expect(err).To(HaveOccurred())
+			Expect(err.Error()).To(ContainSubstring(constants.ClusterResourceAsInputFileNotSupportedErrMsg))
 		})
 
 		It("When Input file is cluster type does not have value for spec.topology.class, return an error", func() {
