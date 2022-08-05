@@ -16,6 +16,7 @@ import (
 
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/client"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/log"
 )
 
 // DescribeTKGClustersOptions options that can be passed while requesting to describe a cluster
@@ -103,14 +104,14 @@ func (t *tkgctl) DescribeCluster(options DescribeTKGClustersOptions) (DescribeCl
 		}
 	}
 
-	// TODO: Can be removed when TKGS and TKGm converge to the same CAPI version.
-	// https://github.com/vmware-tanzu/tanzu-framework/issues/1063
-	if isPacific {
-		return results, nil
-	}
-
 	objs, cluster, installedProviders, err := t.tkgClient.DescribeCluster(DescribeTKGClustersOptions)
 	if err != nil {
+		// If it is pacific(TKGS), it would be the best effort to return the objectTree and cluster, so if there is an error
+		// fetching these objects, return empty objects without error.
+		if isPacific {
+			log.V(5).Infof("Failed to get cluster ObjectTree/cluster objects(so detailed(tree) view of cluster resources may be affected), reason: %v", err)
+			return results, nil
+		}
 		return results, err
 	}
 	results.Objs = objs
