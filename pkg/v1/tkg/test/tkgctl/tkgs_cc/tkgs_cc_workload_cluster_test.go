@@ -16,9 +16,11 @@ import (
 	. "github.com/onsi/gomega"
 	corev1 "k8s.io/api/core/v1"
 
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/test/framework"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/test/tkgctl/shared"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgctl"
+	tkgutils "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/utils"
 )
 
 const (
@@ -29,13 +31,18 @@ const (
 
 var _ = Describe("TKGS ClusterClass based workload cluster tests", func() {
 	var (
-		clusterName string
-		namespace   string
-		err         error
+		clusterName   string
+		namespace     string
+		svClusterName string
+		err           error
+		ctx           context.Context
 	)
 
 	BeforeEach(func() {
+		ctx = context.TODO()
 		tkgctlClient, err = tkgctl.New(tkgctlOptions)
+		Expect(err).To(BeNil())
+		svClusterName, err = tkgutils.GetClusterNameFromKubeconfigAndContext(e2eConfig.TKGSKubeconfigPath, "")
 		Expect(err).To(BeNil())
 	})
 
@@ -59,7 +66,8 @@ var _ = Describe("TKGS ClusterClass based workload cluster tests", func() {
 			err = tkgctlClient.DeleteCluster(deleteClusterOptions)
 		})
 
-		It("should successfully create a cluster", func() {
+		It("should successfully create a cluster and verify successful addons reconciliation", func() {
+			shared.CheckTKGSAddons(ctx, tkgctlClient, svClusterName, clusterName, namespace, e2eConfig.TKGSKubeconfigPath, constants.InfrastructureProviderTkgs, false)
 			Expect(err).ToNot(HaveOccurred())
 		})
 
@@ -91,7 +99,8 @@ var _ = Describe("TKGS ClusterClass based workload cluster tests", func() {
 			clusterOptions.ClusterConfigFile = e2eConfig.WorkloadClusterOptions.ClusterClassFilePath
 		})
 
-		It("should successfully create a cluster", func() {
+		It("should successfully create a cluster and verify successful addons reconciliation", func() {
+			shared.CheckTKGSAddons(ctx, tkgctlClient, svClusterName, clusterName, namespace, e2eConfig.TKGSKubeconfigPath, constants.InfrastructureProviderTkgs, false)
 			Expect(err).ToNot(HaveOccurred())
 		})
 		It("should successfully upgrade a cluster", func() {
@@ -149,7 +158,7 @@ var _ = Describe("TKGS ClusterClass based workload cluster tests", func() {
 			Expect(err).NotTo(HaveOccurred())
 
 			By(fmt.Sprintf("Verify addon packages on workload cluster %q matches clusterBootstrap info on management cluster %q", e2eConfig.WorkloadClusterOptions.ClusterName, clusterName))
-			err = shared.CheckClusterCB(context.Background(), mngClient, wlcClient, clusterName, namespace, clusterName, namespace, e2eConfig.InfrastructureName, false)
+			err = shared.CheckClusterCB(context.Background(), mngClient, wlcClient, clusterName, namespace, clusterName, namespace, e2eConfig.InfrastructureName, false, true)
 			Expect(err).To(BeNil())
 		})
 	})

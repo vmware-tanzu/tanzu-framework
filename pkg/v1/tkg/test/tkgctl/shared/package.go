@@ -7,6 +7,8 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"os"
+	"path/filepath"
 	"reflect"
 	"strings"
 	"time"
@@ -48,6 +50,7 @@ import (
 	runtanzuv1alpha3 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/log"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgctl"
 )
 
 const (
@@ -171,7 +174,7 @@ func getPackagesFromCB(ctx context.Context, clusterBootstrap *runtanzuv1alpha3.C
 }
 
 // CheckClusterCB checks if clusterbootstrap resource is created correctly and packages are reconciled successfully on cluster
-func CheckClusterCB(ctx context.Context, mccl, wccl client.Client, mcClusterName, mcClusterNamespace, wcClusterName, wcClusterNamespace, infrastructureName string, isManagementCluster bool) error {
+func CheckClusterCB(ctx context.Context, mccl, wccl client.Client, mcClusterName, mcClusterNamespace, wcClusterName, wcClusterNamespace, infrastructureName string, isManagementCluster, isCustomCB bool) error {
 	log.Infof("Verify addons on workload cluster %s with management cluster %s", wcClusterName, mcClusterName)
 
 	var clusterBootstrap *runtanzuv1alpha3.ClusterBootstrap
@@ -188,7 +191,7 @@ func CheckClusterCB(ctx context.Context, mccl, wccl client.Client, mcClusterName
 	}
 
 	By(fmt.Sprintf("Verify clusterbootstrap matches clusterbootstraptemplate"))
-	verifyClusterBootstrap(ctx, mccl, clusterBootstrap, clusterBootstrap.Status.ResolvedTKR, systemNamespace)
+	verifyClusterBootstrap(ctx, mccl, clusterBootstrap, clusterBootstrap.Status.ResolvedTKR, systemNamespace, isCustomCB)
 
 	packages, err := getPackagesFromCB(ctx, clusterBootstrap, mccl, wccl, mcClusterName, mcClusterNamespace, wcClusterName, wcClusterNamespace, infrastructureName, isManagementCluster)
 	Expect(err).NotTo(HaveOccurred())
@@ -232,7 +235,7 @@ func CheckClusterCB(ctx context.Context, mccl, wccl client.Client, mcClusterName
 }
 
 // verifyClusterBootstrap checks if cluster bootstrap is created as expected i.e. it is cloned correctly from ClusterBootstrapTemplate
-func verifyClusterBootstrap(ctx context.Context, c client.Client, clusterBootstrap *runtanzuv1alpha3.ClusterBootstrap, tkrName string, systemNamespace string) {
+func verifyClusterBootstrap(ctx context.Context, c client.Client, clusterBootstrap *runtanzuv1alpha3.ClusterBootstrap, tkrName string, systemNamespace string, isCustomCB bool) {
 	resolvedTKr := clusterBootstrap.Status.ResolvedTKR
 	Expect(resolvedTKr).NotTo(BeEmpty())
 
@@ -276,7 +279,7 @@ func verifyClusterBootstrap(ctx context.Context, c client.Client, clusterBootstr
 		// custom CB needs to have package names the same as the cluster name, so this will not match the expected providerRef name
 		// any package specified in the custom CB manifest will have to be special-cased
 		// so, handling this currently for antrea for the custom CB test case
-		if strings.Contains(pkg.RefName, "antrea") {
+		if isCustomCB && strings.Contains(pkg.RefName, "antrea") {
 			pkg.ValuesFrom.ProviderRef.Name = clusterBootstrap.Name
 		}
 	}
@@ -662,4 +665,30 @@ func GenerateDataValueSecretName(clusterName, carvelPkgRefName string) string {
 // addonName is the short name of a Tanzu addon with which the PackageInstall CR is associated.
 func GeneratePackageInstallName(clusterName, addonName string) string {
 	return fmt.Sprintf("%s-%s", clusterName, strings.Split(addonName, ".")[0])
+}
+
+func CheckTKGSAddons(ctx context.Context, tkgctlClient tkgctl.TKGClient, svClusterName, clusterName, namespace, KubeconfigPath, InfrastructureName string, isCustomeCB bool) error {
+	By(fmt.Sprintf("Get k8s client for supervisor cluster %q", svClusterName))
+	mngclient, _, _, _, err := GetClients(ctx, KubeconfigPath)
+	Expect(err).NotTo(HaveOccurred())
+
+	By(fmt.Sprintf("Generating credentials for workload cluster %q", clusterName))
+	kubeConfigFileName := clusterName + ".kubeconfig"
+	tempFilePath := filepath.Join(os.TempDir(), kubeConfigFileName)
+	err = tkgctlClient.GetCredentials(tkgctl.GetWorkloadClusterCredentialsOptions{
+		ClusterName: clusterName,
+		Namespace:   namespace,
+		ExportFile:  tempFilePath,
+	})
+	Expect(err).To(BeNil())
+
+	By(fmt.Sprintf("Get k8s client for workload cluster %q", clusterName))
+	wlcClient, _, _, _, err := GetClients(ctx, tempFilePath)
+	Expect(err).NotTo(HaveOccurred())
+
+	By(fmt.Sprintf("Verify addon packages on workload cluster %q matches clusterBootstrap info on supervisor cluster %q", clusterName, svClusterName))
+	err = CheckClusterCB(ctx, mngclient, wlcClient, svClusterName, namespace, clusterName, namespace, InfrastructureName, false, isCustomeCB)
+	Expect(err).To(BeNil())
+
+	return nil
 }
