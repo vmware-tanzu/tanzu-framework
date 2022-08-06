@@ -2,6 +2,7 @@
 use-existing-cluster: false
 mc-cluster-name: ""
 wlc-cluster-name: ""
+wlc-cluster-namespace: default
 mc-kubeconfig-Path: ""
 wlc-kubeconfig-Path: ""
 namespace: "test-ns"
