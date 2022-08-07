@@ -55,6 +55,7 @@ type PackagePluginConfig struct {
 	RepositoryPrivateTag      string `json:"repository-private-tag"`
 	ClusterNameMC             string `json:"mc-cluster-name"`
 	ClusterNameWLC            string `json:"wlc-cluster-name"`
+	ClusterNamespaceWLC       string `json:"wlc-cluster-namespace"`
 	KubeConfigPathMC          string `json:"mc-kubeconfig-Path"`
 	KubeConfigPathWLC         string `json:"wlc-kubeconfig-Path"`
 	WithValueFile             bool   `json:"with-value-file"`
@@ -158,6 +159,10 @@ var _ = Describe("Package plugin integration test", func() {
 
 		if config.ClusterNameWLC == "" {
 			config.ClusterNameWLC = fmt.Sprintf(framework.TkgDefaultClusterPrefix + "wlc-test-pkg-plugin")
+		}
+
+		if config.ClusterNamespaceWLC == "" {
+			config.ClusterNamespaceWLC = "default"
 		}
 
 		if config.KubeConfigPathMC == "" {
@@ -370,8 +375,14 @@ var _ = Describe("Package plugin integration test", func() {
 			packagePlugin = packagelib.NewPackagePlugin(config.KubeConfigPathWLC, pollInterval, pollTimeout, "json", "", 0)
 			secretPlugin = secretlib.NewSecretPlugin(config.KubeConfigPathWLC, pollInterval, pollTimeout, "json", 0)
 		})
+		AfterEach(func() {
+			paused := false
+			pauseKappControllerPackage(config.ClusterNameWLC, config.ClusterNamespaceWLC, config.KubeConfigPathMC, config.ClusterNameMC, paused)
+		})
 		It("should pass all checks on workload cluster", func() {
 			cleanup()
+			paused := true
+			pauseKappControllerPackage(config.ClusterNameWLC, config.ClusterNamespaceWLC, config.KubeConfigPathMC, config.ClusterNameMC, paused)
 			setUpPrivateRegistry(config.KubeConfigPathWLC, config.ClusterNameWLC)
 			testHelper()
 			log.Info("Successfully finished package plugin integration tests on workload cluster")
@@ -417,12 +428,26 @@ func setUpPrivateRegistry(kubeconfigPath, clusterName string) {
 	err = command.RunAndRedirectOutput(context.Background())
 	Expect(err).ToNot(HaveOccurred())
 
-	command = exec.NewCommand(
-		exec.WithCommand("kubectl"),
-		exec.WithArgs("apply", "-f", "config/assets/registry-contents.yml", "--context", kubeCtx, "--kubeconfig", kubeconfigPath),
-		exec.WithStdout(GinkgoWriter),
-	)
-	err = command.RunAndRedirectOutput(context.Background())
+	backOff := wait.Backoff{
+		Steps:    10,
+		Duration: 15 * time.Second,
+		Factor:   1.0,
+		Jitter:   0.1,
+	}
+
+	err = retry.OnError(
+		backOff,
+		func(err error) bool {
+			return err != nil
+		},
+		func() error {
+			command = exec.NewCommand(
+				exec.WithCommand("kubectl"),
+				exec.WithArgs("apply", "-f", "config/assets/registry-contents.yml", "--context", kubeCtx, "--kubeconfig", kubeconfigPath),
+				exec.WithStdout(GinkgoWriter),
+			)
+			return command.RunAndRedirectOutput(context.Background())
+		})
 	Expect(err).ToNot(HaveOccurred())
 
 	command = exec.NewCommand(
@@ -467,13 +492,6 @@ func setUpPrivateRegistry(kubeconfigPath, clusterName string) {
 	}
 
 	By("make sure package API is available after kapp-controller restart")
-	backOff := wait.Backoff{
-		Steps:    4,
-		Duration: 15 * time.Second,
-		Factor:   1.0,
-		Jitter:   0.1,
-	}
-
 	err = retry.OnError(
 		backOff,
 		func(err error) bool {
@@ -507,6 +525,19 @@ func setUpPrivateRegistry(kubeconfigPath, clusterName string) {
 			}
 			return nil
 		})
+	Expect(err).ToNot(HaveOccurred())
+}
+
+func pauseKappControllerPackage(clusterName, clusterNamespace, mgmtClusterKubeconfigPath, mgmtClusterName string, pause bool) {
+	By("pausing kapp controller app")
+	mgmtClusterKubeCtx := mgmtClusterName + "-admin@" + mgmtClusterName
+
+	command := exec.NewCommand(
+		exec.WithCommand("kubectl"),
+		exec.WithArgs("patch", "app", fmt.Sprintf("%s-kapp-controller", clusterName), "-n", clusterNamespace, "--type", "merge", "-p", fmt.Sprintf("{\"spec\":{\"paused\":%t}}", pause), "--context", mgmtClusterKubeCtx, "--kubeconfig", mgmtClusterKubeconfigPath),
+		exec.WithStdout(GinkgoWriter),
+	)
+	err := command.RunAndRedirectOutput(context.Background())
 	Expect(err).ToNot(HaveOccurred())
 }
 
