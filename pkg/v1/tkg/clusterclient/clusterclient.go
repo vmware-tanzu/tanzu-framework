@@ -242,6 +242,8 @@ type Client interface {
 	PatchClusterWithOperationStartedStatus(clusterName, namespace, operationType string, timeout time.Duration) error
 	// PatchClusterObjectWithTKGVersion applies patch to cluster objects based on given tkgVersion string
 	PatchClusterObjectWithTKGVersion(clusterName, clusterNamespace, tkgVersion string) error
+	// PatchClusterObjectAnnotations applies patch to cluster objects to update annotation with specified key:value
+	PatchClusterObjectAnnotations(clusterName, namespace, key, value string) error
 	// GetManagementClusterTKGVersion returns the TKG version of a management cluster based on the
 	// annotation value present in cluster object
 	GetManagementClusterTKGVersion(mgmtClusterName, clusterNamespace string) (string, error)
@@ -1049,6 +1051,15 @@ func (c *client) PatchClusterObjectWithTKGVersion(clusterName, namespace, tkgVer
 	err := c.PatchClusterObject(clusterName, namespace, patchAnnotations)
 	if err != nil {
 		return errors.Wrap(err, "unable to patch the management cluster object with TKG version")
+	}
+	return nil
+}
+
+func (c *client) PatchClusterObjectAnnotations(clusterName, namespace, key, value string) error {
+	patchAnnotations := fmt.Sprintf(annotationPatchFormat, key, value)
+	err := c.PatchClusterObject(clusterName, namespace, patchAnnotations)
+	if err != nil {
+		return errors.Wrapf(err, "unable to patch the cluster object with %v", patchAnnotations)
 	}
 	return nil
 }
