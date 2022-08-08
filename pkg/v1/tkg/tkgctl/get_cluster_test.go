@@ -39,7 +39,7 @@ var _ = Describe("Unit test for get clusters", func() {
 		})
 		It("should return an error", func() {
 			Expect(err).To(HaveOccurred())
-			Expect(err.Error()).To(ContainSubstring("unable to determine if management cluster is on vSphere with Tanzu"))
+			Expect(err.Error()).To(ContainSubstring("fake-error"))
 		})
 	})
 	Context("when the management cluster is not Pacific(TKGS) supervisor cluster and is able to list clusters", func() {

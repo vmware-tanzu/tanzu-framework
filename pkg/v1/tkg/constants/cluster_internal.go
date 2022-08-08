@@ -21,7 +21,6 @@ const (
 	ErrorMsgFeatureGateStatus       = "error while checking feature '%v' status in namespace '%v'"
 	ErrorMsgClusterExistsAlready    = "cluster with name %s already exists, please specify another name"
 	ErrorMsgClusterListError        = "unable to get list of workload clusters managed by current management cluster"
-	ErrorMsgIsTKGSCluster           = "unable to determine if management cluster is on vSphere with Tanzu"
 
 	ErrorMsgCClassInputFeatureFlagDisabled = "Input file is cluster class based but CLI feature flag '%v' is disabled, make sure its enabled to create cluster class based cluster"
 
