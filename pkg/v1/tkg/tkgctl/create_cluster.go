@@ -57,7 +57,7 @@ type CreateClusterOptions struct {
 func (t *tkgctl) CreateCluster(cc CreateClusterOptions) error {
 	isTKGSCluster, err := t.tkgClient.IsPacificManagementCluster()
 	if err != nil {
-		return errors.Wrap(err, constants.ErrorMsgIsTKGSCluster)
+		return err
 	}
 	isInputFileClusterClassBased, err := t.processWorkloadClusterInputFile(&cc, isTKGSCluster)
 	if err != nil {

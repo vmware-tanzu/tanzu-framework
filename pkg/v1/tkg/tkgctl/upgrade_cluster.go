@@ -53,7 +53,7 @@ func (t *tkgctl) UpgradeCluster(options UpgradeClusterOptions) error {
 
 	isPacific, err := t.tkgClient.IsPacificManagementCluster()
 	if err != nil {
-		return errors.Wrap(err, "unable to determine if management cluster is on vSphere with Tanzu")
+		return err
 	}
 
 	if isPacific {

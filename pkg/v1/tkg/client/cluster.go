@@ -248,7 +248,7 @@ func (c *TkgClient) waitForClusterCreation(regionalClusterClient clusterclient.C
 	}
 	isTKGSCluster, err := regionalClusterClient.IsPacificRegionalCluster()
 	if err != nil {
-		return errors.Wrap(err, constants.ErrorMsgIsTKGSCluster)
+		return err
 	}
 	if isClusterClassBased {
 		log.Info("waiting for addons core packages installation...")
@@ -760,12 +760,12 @@ func (c *TkgClient) IsPacificManagementCluster() (bool, error) {
 
 	regionalClusterClient, err := clusterclient.NewClient(currentRegion.SourceFilePath, currentRegion.ContextName, clusterclientOptions)
 	if err != nil {
-		return false, errors.Wrap(err, "unable to get cluster client")
+		return false, errors.Wrap(err, "unable to get management cluster client")
 	}
 
 	isPacific, err := regionalClusterClient.IsPacificRegionalCluster()
 	if err != nil {
-		return false, errors.Wrap(err, "error determining Tanzu Kubernetes Cluster service for vSphere management cluster ")
+		return false, errors.Wrap(err, "error while determining infrastructure provider type")
 	}
 	return isPacific, nil
 }
