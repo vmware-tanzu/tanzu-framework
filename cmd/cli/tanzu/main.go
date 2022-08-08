@@ -4,7 +4,8 @@
 package main
 
 import (
-	"fmt"
+	"os"
+	"os/exec"
 
 	"github.com/aunum/log"
 
@@ -13,7 +14,14 @@ import (
 
 func main() {
 	if err := core.Execute(); err != nil {
-		fmt.Println("")
-		log.Fatal(err)
+		if errStr, ok := err.(*exec.ExitError); ok {
+			// If a plugin exited with an error, we don't want to print its
+			// exit status as a string, but want to use it as our own exit code.
+			os.Exit(errStr.ExitCode())
+		} else {
+			// We got an error other than a plugin exiting with an error, let's
+			// print the error message.
+			log.Fatal(err)
+		}
 	}
 }

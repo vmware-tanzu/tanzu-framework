@@ -23,6 +23,9 @@ import (
 // RootCmd is the core root Tanzu command
 var RootCmd = &cobra.Command{
 	Use: "tanzu",
+	// Don't have Cobra print the error message, the CLI will
+	// print it itself in a nicer format.
+	SilenceErrors: true,
 }
 
 var (
