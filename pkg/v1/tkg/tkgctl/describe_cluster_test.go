@@ -21,7 +21,8 @@ var _ = Describe("Unit test for describe cluster", func() {
 			ClusterName: "my-cluster",
 			Namespace:   "",
 		}
-		err error
+		err    error
+		result DescribeClusterResult
 	)
 
 	JustBeforeEach(func() {
@@ -31,7 +32,7 @@ var _ = Describe("Unit test for describe cluster", func() {
 			kubeconfig:        "./kube",
 			featureGateHelper: featureGateHelper,
 		}
-		_, err = ctl.DescribeCluster(ops)
+		result, err = ctl.DescribeCluster(ops)
 	})
 
 	Context("when failed to determine the management cluster is Pacific(TKGS) supervisor cluster ", func() {
@@ -98,6 +99,18 @@ var _ = Describe("Unit test for describe cluster", func() {
 			Expect(err).ToNot(HaveOccurred())
 			options := tkgClient.ListTKGClustersArgsForCall(3)
 			Expect(options.IsTKGSClusterClassFeatureActivated).To(BeTrue())
+		})
+	})
+	Context("when the management cluster is Pacific(TKGS) supervisor cluster and when tkgClient failed to describe the cluster", func() {
+		BeforeEach(func() {
+			tkgClient.IsPacificManagementClusterReturns(true, nil)
+			tkgClient.ListTKGClustersReturns([]client.ClusterInfo{{Name: "my-cluster", Roles: []string{"<none>"}}}, nil)
+			tkgClient.DescribeClusterReturns(nil, nil, nil, errors.New("failed to describe cluster"))
+		})
+		It("should not return an error but ObjectTree and cluster objects should be nil", func() {
+			Expect(err).ToNot(HaveOccurred())
+			Expect(result.Objs).To(BeNil())
+			Expect(result.Cluster).To(BeNil())
 		})
 	})
 })
