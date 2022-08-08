@@ -764,6 +764,20 @@ type ClusterClient struct {
 	patchClusterObjectReturnsOnCall map[int]struct {
 		result1 error
 	}
+	PatchClusterObjectAnnotationsStub        func(string, string, string, string) error
+	patchClusterObjectAnnotationsMutex       sync.RWMutex
+	patchClusterObjectAnnotationsArgsForCall []struct {
+		arg1 string
+		arg2 string
+		arg3 string
+		arg4 string
+	}
+	patchClusterObjectAnnotationsReturns struct {
+		result1 error
+	}
+	patchClusterObjectAnnotationsReturnsOnCall map[int]struct {
+		result1 error
+	}
 	PatchClusterObjectWithOptionalMetadataStub        func(string, string, string, map[string]string) (string, error)
 	patchClusterObjectWithOptionalMetadataMutex       sync.RWMutex
 	patchClusterObjectWithOptionalMetadataArgsForCall []struct {
@@ -4744,6 +4758,70 @@ func (fake *ClusterClient) PatchClusterObjectReturnsOnCall(i int, result1 error)
 	}{result1}
 }
 
+func (fake *ClusterClient) PatchClusterObjectAnnotations(arg1 string, arg2 string, arg3 string, arg4 string) error {
+	fake.patchClusterObjectAnnotationsMutex.Lock()
+	ret, specificReturn := fake.patchClusterObjectAnnotationsReturnsOnCall[len(fake.patchClusterObjectAnnotationsArgsForCall)]
+	fake.patchClusterObjectAnnotationsArgsForCall = append(fake.patchClusterObjectAnnotationsArgsForCall, struct {
+		arg1 string
+		arg2 string
+		arg3 string
+		arg4 string
+	}{arg1, arg2, arg3, arg4})
+	stub := fake.PatchClusterObjectAnnotationsStub
+	fakeReturns := fake.patchClusterObjectAnnotationsReturns
+	fake.recordInvocation("PatchClusterObjectAnnotations", []interface{}{arg1, arg2, arg3, arg4})
+	fake.patchClusterObjectAnnotationsMutex.Unlock()
+	if stub != nil {
+		return stub(arg1, arg2, arg3, arg4)
+	}
+	if specificReturn {
+		return ret.result1
+	}
+	return fakeReturns.result1
+}
+
+func (fake *ClusterClient) PatchClusterObjectAnnotationsCallCount() int {
+	fake.patchClusterObjectAnnotationsMutex.RLock()
+	defer fake.patchClusterObjectAnnotationsMutex.RUnlock()
+	return len(fake.patchClusterObjectAnnotationsArgsForCall)
+}
+
+func (fake *ClusterClient) PatchClusterObjectAnnotationsCalls(stub func(string, string, string, string) error) {
+	fake.patchClusterObjectAnnotationsMutex.Lock()
+	defer fake.patchClusterObjectAnnotationsMutex.Unlock()
+	fake.PatchClusterObjectAnnotationsStub = stub
+}
+
+func (fake *ClusterClient) PatchClusterObjectAnnotationsArgsForCall(i int) (string, string, string, string) {
+	fake.patchClusterObjectAnnotationsMutex.RLock()
+	defer fake.patchClusterObjectAnnotationsMutex.RUnlock()
+	argsForCall := fake.patchClusterObjectAnnotationsArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3, argsForCall.arg4
+}
+
+func (fake *ClusterClient) PatchClusterObjectAnnotationsReturns(result1 error) {
+	fake.patchClusterObjectAnnotationsMutex.Lock()
+	defer fake.patchClusterObjectAnnotationsMutex.Unlock()
+	fake.PatchClusterObjectAnnotationsStub = nil
+	fake.patchClusterObjectAnnotationsReturns = struct {
+		result1 error
+	}{result1}
+}
+
+func (fake *ClusterClient) PatchClusterObjectAnnotationsReturnsOnCall(i int, result1 error) {
+	fake.patchClusterObjectAnnotationsMutex.Lock()
+	defer fake.patchClusterObjectAnnotationsMutex.Unlock()
+	fake.PatchClusterObjectAnnotationsStub = nil
+	if fake.patchClusterObjectAnnotationsReturnsOnCall == nil {
+		fake.patchClusterObjectAnnotationsReturnsOnCall = make(map[int]struct {
+			result1 error
+		})
+	}
+	fake.patchClusterObjectAnnotationsReturnsOnCall[i] = struct {
+		result1 error
+	}{result1}
+}
+
 func (fake *ClusterClient) PatchClusterObjectWithOptionalMetadata(arg1 string, arg2 string, arg3 string, arg4 map[string]string) (string, error) {
 	fake.patchClusterObjectWithOptionalMetadataMutex.Lock()
 	ret, specificReturn := fake.patchClusterObjectWithOptionalMetadataReturnsOnCall[len(fake.patchClusterObjectWithOptionalMetadataArgsForCall)]
@@ -6939,6 +7017,8 @@ func (fake *ClusterClient) Invocations() map[string][][]interface{} {
 	defer fake.patchClusterAPIAWSControllersToUseEC2CredentialsMutex.RUnlock()
 	fake.patchClusterObjectMutex.RLock()
 	defer fake.patchClusterObjectMutex.RUnlock()
+	fake.patchClusterObjectAnnotationsMutex.RLock()
+	defer fake.patchClusterObjectAnnotationsMutex.RUnlock()
 	fake.patchClusterObjectWithOptionalMetadataMutex.RLock()
 	defer fake.patchClusterObjectWithOptionalMetadataMutex.RUnlock()
 	fake.patchClusterObjectWithPollOptionsMutex.RLock()
