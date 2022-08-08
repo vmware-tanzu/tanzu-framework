@@ -66,8 +66,12 @@ type LoggerImpl interface {
 	// SetThreshold implements a New Option that allows to set the threshold level for a logger.
 	// The logger will write only log messages with a level/V(x) equal or higher to the threshold.
 	SetThreshold(threshold *int32)
-
+	// Clone creates cloned copy of the logger
+	Clone() LoggerImpl
+	// CloneWithLevel creates cloned copy of the logger with updated log level
 	CloneWithLevel(level int) LoggerImpl
+	// WithCallDepth implements a New Option that allows to set the callDepth level for a logger.
+	WithCallDepth(callDepth int) LoggerImpl
 }
 
 var l = NewLogger()
@@ -124,11 +128,6 @@ func WithName(name string) LoggerImpl {
 // WithValues adds some key-value pairs of context to a logger.
 func WithValues(kvList ...interface{}) LoggerImpl {
 	return l.WithValues(kvList...)
-}
-
-// GetLogr logs a warning messages with the given message format with format specifier and arguments.
-func GetLogr() LoggerImpl {
-	return l
 }
 
 var logWriter = NewWriter()
