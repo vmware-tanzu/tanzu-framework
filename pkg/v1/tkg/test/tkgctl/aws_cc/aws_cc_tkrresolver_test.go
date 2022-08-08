@@ -12,7 +12,7 @@ import (
 	. "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/test/tkgctl/shared"
 )
 
-var _ = Describe("Functional tests for aws - TKRResolver", func() {
+var _ = Describe("Functional tests for aws - TKRResolver and cluster upgrade", func() {
 	E2ETKRResolverValidationForClusterCRUDSpec(context.TODO(), func() E2ETKRResolverValidationForClusterCRUDSpecInput {
 		return E2ETKRResolverValidationForClusterCRUDSpecInput{
 			E2EConfig:       e2eConfig,
@@ -20,6 +20,7 @@ var _ = Describe("Functional tests for aws - TKRResolver", func() {
 			Cni:             "antrea",
 			Plan:            "devcc",
 			Namespace:       "tkg-system",
+			OtherConfigs:    map[string]string{"clusterclass": "true"},
 		}
 	})
 })

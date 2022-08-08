@@ -77,7 +77,7 @@ func getPackage(clusterClient clusterclient.Client, packageRefName, packagesName
 	}
 	pkgName := GeneratePackageInstallName(clusterName, pkgFromCluster.Spec.RefName)
 	pkg = &kapppkgv1alpha1.Package{ObjectMeta: metav1.ObjectMeta{Name: pkgName, Namespace: packagesNamespace}}
-	return pkg, err
+	return pkg, nil
 }
 
 // GeneratePackageInstallName is the util function to generate the PackageInstall CR name in a consistent manner.
