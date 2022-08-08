@@ -70,7 +70,7 @@ var _ = SynchronizedBeforeSuite(func() []byte {
 	Expect(e2eConfigPath).ToNot(BeNil(), "Failed to load e2e config from %s", e2eConfigPath)
 
 	hackCmd := exec.NewCommand(
-		exec.WithCommand("../../scripts/enable_pblcm_hack.sh"),
+		exec.WithCommand("../../scripts/cc_hack.sh"),
 		exec.WithStdout(GinkgoWriter),
 	)
 
