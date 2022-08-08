@@ -15,9 +15,12 @@ import (
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	"k8s.io/client-go/discovery"
+	"k8s.io/client-go/dynamic"
 	clusterv1 "sigs.k8s.io/cluster-api/api/v1beta1"
 	"sigs.k8s.io/cluster-api/util"
 	"sigs.k8s.io/cluster-api/util/conditions"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	runv1 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
@@ -44,18 +47,25 @@ type E2ETKRResolverValidationForClusterCRUDSpecInput struct {
 
 func E2ETKRResolverValidationForClusterCRUDSpec(context context.Context, inputGetter func() E2ETKRResolverValidationForClusterCRUDSpecInput) { //nolint:funlen
 	var (
-		err               error
-		input             E2ETKRResolverValidationForClusterCRUDSpecInput
-		tkgCtlClient      tkgctl.TKGClient
-		logsDir           string
-		clusterName       string
-		namespace         string
-		mcProxy           *framework.ClusterProxy
-		mcContextName     string
-		timeout           time.Duration
-		options           framework.CreateClusterOptions
-		clusterConfigFile string
-		tkrs              []*runv1.TanzuKubernetesRelease
+		err                             error
+		input                           E2ETKRResolverValidationForClusterCRUDSpecInput
+		tkgCtlClient                    tkgctl.TKGClient
+		logsDir                         string
+		clusterName                     string
+		namespace                       string
+		mcProxy                         *framework.ClusterProxy
+		mcContextName                   string
+		timeout                         time.Duration
+		options                         framework.CreateClusterOptions
+		clusterConfigFile               string
+		tkrs                            []*runv1.TanzuKubernetesRelease
+		mngClient                       client.Client
+		clusterResources                []ClusterResource
+		infrastructureName              string
+		mngDynamicClient                dynamic.Interface
+		mngAggregatedAPIResourcesClient client.Client
+		mngDiscoveryClient              discovery.DiscoveryInterface
+		wlcClient                       client.Client
 	)
 	const (
 		waitTimeout     = time.Minute * 15
@@ -116,6 +126,32 @@ func E2ETKRResolverValidationForClusterCRUDSpec(context context.Context, inputGe
 		clusterConfigFile, err = framework.GetTempClusterConfigFile(input.E2EConfig.TkgClusterConfigPath, &options)
 		Expect(err).To(BeNil())
 
+		if input.OtherConfigs != nil {
+			if isClusterClass, ok := input.OtherConfigs["clusterclass"]; ok && isClusterClass == "true" {
+				pacificCluster, err := tkgCtlClient.IsPacificRegionalCluster()
+				Expect(err).NotTo(HaveOccurred())
+				if pacificCluster {
+					infrastructureName = "TKGS"
+				} else {
+					infrastructureName = input.E2EConfig.InfrastructureName
+				}
+
+				By(fmt.Sprintf("Get k8s client for management cluster %q", input.E2EConfig.ManagementClusterName))
+				mngkubeConfigFileName := input.E2EConfig.ManagementClusterName + ".kubeconfig"
+				mngtempFilePath := filepath.Join(os.TempDir(), mngkubeConfigFileName)
+				err = tkgCtlClient.GetCredentials(tkgctl.GetWorkloadClusterCredentialsOptions{
+					ClusterName: input.E2EConfig.ManagementClusterName,
+					Namespace:   "tkg-system",
+					ExportFile:  mngtempFilePath,
+				})
+				Expect(err).To(BeNil())
+
+				By(fmt.Sprintf("Get k8s client for management cluster %q", clusterName))
+				mngClient, mngDynamicClient, mngAggregatedAPIResourcesClient, mngDiscoveryClient, err = GetClients(context, mngtempFilePath)
+				Expect(err).NotTo(HaveOccurred())
+			}
+		}
+
 	})
 	AfterEach(func() {
 		os.Remove(clusterConfigFile)
@@ -126,6 +162,16 @@ func E2ETKRResolverValidationForClusterCRUDSpec(context context.Context, inputGe
 			SkipPrompt:  true,
 		})
 		Expect(err).To(BeNil())
+
+		// verify addon resources are deleted successfully in clusterclass mode
+		if input.OtherConfigs != nil {
+			if isClusterClass, ok := input.OtherConfigs["clusterclass"]; ok && isClusterClass == "true" {
+				By(fmt.Sprintf("Verify workload cluster %q resources have been deleted", clusterName))
+				Eventually(func() bool {
+					return clusterResourcesDeleted(context, mngClient, clusterResources)
+				}, waitTimeout, pollingInterval).Should(BeTrue())
+			}
+		}
 	})
 
 	It("Should create workload cluster with default kubernetes version and verify infra machine images are resolved correctly", func() {
@@ -167,9 +213,13 @@ func E2ETKRResolverValidationForClusterCRUDSpec(context context.Context, inputGe
 		})
 		Expect(err).To(BeNil())
 
+		By(fmt.Sprintf("Generating credentials for workload cluster %q", clusterName))
+		kubeConfigFileName := clusterName + ".kubeconfig"
+		tempFilePath := filepath.Join(os.TempDir(), kubeConfigFileName)
 		err = tkgCtlClient.GetCredentials(tkgctl.GetWorkloadClusterCredentialsOptions{
 			ClusterName: clusterName,
 			Namespace:   namespace,
+			ExportFile:  tempFilePath,
 		})
 		Expect(err).To(BeNil())
 
@@ -182,6 +232,30 @@ func E2ETKRResolverValidationForClusterCRUDSpec(context context.Context, inputGe
 
 		By(fmt.Sprintf("Validating the 'updatesAvailable' condition is true and lists upgradable TKR version"))
 		validateUpdatesAvailableCondition(context, mcProxy, options.ClusterName, options.Namespace, tkrVersions)
+
+		By(fmt.Sprintf("Waiting for workload cluster %q nodes to be up and running", clusterName))
+		framework.WaitForNodes(framework.NewClusterProxy(clusterName, tempFilePath, ""), 2)
+
+		By(fmt.Sprintf("Get k8s client for workload cluster %q", clusterName))
+		wlcClient, _, _, _, err = GetClients(context, tempFilePath)
+		Expect(err).NotTo(HaveOccurred())
+
+		// verify addons are deployed successfully in clusterclass mode
+		if input.OtherConfigs != nil {
+			if isClusterClass, ok := input.OtherConfigs["clusterclass"]; ok && isClusterClass == "true" {
+				By(fmt.Sprintf("Verify addon packages on management cluster %q matches clusterBootstrap info on management cluster %q", input.E2EConfig.ManagementClusterName, input.E2EConfig.ManagementClusterName))
+				err = CheckClusterCB(context, mngClient, wlcClient, input.E2EConfig.ManagementClusterName, constants.TkgNamespace, "", "", infrastructureName, true, false)
+				Expect(err).To(BeNil())
+
+				By(fmt.Sprintf("Verify addon packages on workload cluster %q matches clusterBootstrap info on management cluster %q", clusterName, input.E2EConfig.ManagementClusterName))
+				err = CheckClusterCB(context, mngClient, wlcClient, input.E2EConfig.ManagementClusterName, constants.TkgNamespace, clusterName, namespace, infrastructureName, false, false)
+				Expect(err).To(BeNil())
+
+				By(fmt.Sprintf("Get management cluster resources created by addons-manager for workload cluster %q on management cluster %q", clusterName, input.E2EConfig.ManagementClusterName))
+				clusterResources, err = GetManagementClusterResources(context, mngClient, mngDynamicClient, mngAggregatedAPIResourcesClient, mngDiscoveryClient, namespace, clusterName, infrastructureName)
+				Expect(err).NotTo(HaveOccurred())
+			}
+		}
 
 		input.E2EConfig.TkrVersion = defaultTKR.Spec.Version
 		Expect(input.E2EConfig.TkrVersion).ToNot(BeEmpty(), "config variable 'kubernetes_version' not set")
@@ -200,6 +274,23 @@ func E2ETKRResolverValidationForClusterCRUDSpec(context context.Context, inputGe
 
 		By(fmt.Sprintf("Validating the TKR data after cluster %q is upgraded", clusterName))
 		verifyTKRData(context, mcProxy, options.ClusterName, options.Namespace)
+
+		// verify addons are deployed successfully in clusterclass mode
+		if input.OtherConfigs != nil {
+			if isClusterClass, ok := input.OtherConfigs["clusterclass"]; ok && isClusterClass == "true" {
+				By(fmt.Sprintf("Verify addon packages on management cluster %q matches clusterBootstrap info on management cluster %q", input.E2EConfig.ManagementClusterName, input.E2EConfig.ManagementClusterName))
+				err = CheckClusterCB(context, mngClient, wlcClient, input.E2EConfig.ManagementClusterName, constants.TkgNamespace, "", "", infrastructureName, true, false)
+				Expect(err).To(BeNil())
+
+				By(fmt.Sprintf("Verify addon packages on workload cluster %q matches clusterBootstrap info on management cluster %q", clusterName, input.E2EConfig.ManagementClusterName))
+				err = CheckClusterCB(context, mngClient, wlcClient, input.E2EConfig.ManagementClusterName, constants.TkgNamespace, clusterName, namespace, infrastructureName, false, false)
+				Expect(err).To(BeNil())
+
+				By(fmt.Sprintf("Get management cluster resources created by addons-manager for workload cluster %q on management cluster %q", clusterName, input.E2EConfig.ManagementClusterName))
+				clusterResources, err = GetManagementClusterResources(context, mngClient, mngDynamicClient, mngAggregatedAPIResourcesClient, mngDiscoveryClient, namespace, clusterName, infrastructureName)
+				Expect(err).NotTo(HaveOccurred())
+			}
+		}
 
 		By("Test successful !")
 	})
@@ -323,7 +414,7 @@ func differByOneMinorVersion(v1, v2 *version.Version) bool {
 func getSortedCompatibleTKRs(tkrs []*runv1.TanzuKubernetesRelease) []*runv1.TanzuKubernetesRelease {
 	compatibleTKRs := filterCompatibleTKRs(tkrs)
 	sort.Sort(byTKRVersion(compatibleTKRs))
-	return tkrs
+	return compatibleTKRs
 }
 
 func filterCompatibleTKRs(tkrs []*runv1.TanzuKubernetesRelease) []*runv1.TanzuKubernetesRelease {

@@ -71,7 +71,7 @@ var _ = SynchronizedBeforeSuite(func() []byte {
 
 	By(fmt.Sprintf("Loading the e2e test configuration from %q", e2eConfigPath))
 	e2eConfig = framework.LoadE2EConfig(context.TODO(), framework.E2EConfigInput{ConfigPath: e2eConfigPath})
-	Expect(e2eConfigPath).ToNot(BeNil(), "Failed to load e2e config from %s", e2eConfigPath)
+	Expect(e2eConfig).ToNot(BeNil(), "Failed to load e2e config from %s", e2eConfigPath)
 
 	logLocation := filepath.Join(artifactsFolder, "logs")
 
