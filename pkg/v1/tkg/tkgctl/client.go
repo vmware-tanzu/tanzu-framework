@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/pkg/errors"
+	clusterctllogger "sigs.k8s.io/cluster-api/cmd/clusterctl/log"
 
 	providergetterclient "github.com/vmware-tanzu/tanzu-framework/pkg/v1/providers/client"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/client"
@@ -241,6 +242,8 @@ func configureLogging(logOptions LoggingOptions) {
 	}
 	log.QuietMode(logOptions.Quietly)
 	log.SetVerbosity(logOptions.Verbosity)
+
+	clusterctllogger.SetLogger(log.GetLogr())
 }
 
 func getDefaultProviderGetter() providerinterface.ProviderInterface {
