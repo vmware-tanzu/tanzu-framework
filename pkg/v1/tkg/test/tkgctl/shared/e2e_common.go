@@ -136,11 +136,24 @@ func E2ECommonSpec(ctx context.Context, inputGetter func() E2ECommonSpecInput) {
 		Expect(err).To(BeNil())
 
 		defer os.Remove(clusterConfigFile)
-		err = tkgCtlClient.CreateCluster(tkgctl.CreateClusterOptions{
-			ClusterConfigFile: clusterConfigFile,
-			Edition:           "tkg",
-			Namespace:         namespace,
-		})
+		if e2eConfig.WorkloadClusterOptions.ClusterClassCBFilePath != "" {
+			clusterName, namespace = ValidateClusterClassConfigFile(e2eConfig.WorkloadClusterOptions.ClusterClassCBFilePath)
+			e2eConfig.WorkloadClusterOptions.Namespace = namespace
+			e2eConfig.WorkloadClusterOptions.ClusterName = clusterName
+			deleteClusterOptions = getDeleteClustersOptions(e2eConfig)
+			err = tkgCtlClient.CreateCluster(tkgctl.CreateClusterOptions{
+				ClusterConfigFile: e2eConfig.WorkloadClusterOptions.ClusterClassCBFilePath,
+				Edition:           "tkg",
+				Namespace:         e2eConfig.WorkloadClusterOptions.Namespace,
+				ClusterName:       e2eConfig.WorkloadClusterOptions.ClusterName,
+			})
+		} else {
+			err = tkgCtlClient.CreateCluster(tkgctl.CreateClusterOptions{
+				ClusterConfigFile: clusterConfigFile,
+				Edition:           "tkg",
+				Namespace:         namespace,
+			})
+		}
 		Expect(err).To(BeNil())
 
 		By(fmt.Sprintf("Generating credentials for workload cluster %q", clusterName))
