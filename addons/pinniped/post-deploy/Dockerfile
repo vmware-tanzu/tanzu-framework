@@ -24,8 +24,16 @@ COPY post-deploy/Makefile post-deploy/Makefile
 
 RUN make native -C post-deploy
 
+# Support older deployment YAMLs by providing symlink for the historic job name without -job.
+# The subdirectory here is to ensure that the docker COPY command does not follow the symlink
+# itself and simply duplicate the binary again and bloat the container image.
+RUN mkdir -p /tmp/links
+RUN ln -s /tkg-pinniped-post-deploy-job /tmp/links/tkg-pinniped-post-deploy
+
 FROM gcr.io/distroless/static:nonroot
 WORKDIR /
+# Make sure to copy the symlink.
+COPY --from=builder /tmp/links/ .
 COPY --from=builder /workspace/post-deploy/tkg-pinniped-post-deploy-job .
 COPY --from=builder /workspace/post-deploy/tkg-pinniped-post-deploy-controller .
 CMD ["/tkg-pinniped-post-deploy-job"]
