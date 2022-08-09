@@ -99,7 +99,7 @@ jobs:
 
   integ-tests-azure:
     name: TKG Integration Tests CAPZ
-    runs-on: tkg
+    runs-on: ubuntu-latest
     env:
       azure_client_id: ${{secrets.AZURE_CLIENT_ID_SAIB}}
     steps:
