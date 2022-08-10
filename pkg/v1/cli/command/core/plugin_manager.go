@@ -255,7 +255,11 @@ var installPluginCmd = &cobra.Command{
 				if err != nil {
 					return err
 				}
-				log.Successf("successfully installed '%s' plugin", pluginName)
+				if pluginName == cli.AllPlugins {
+					log.Successf("successfully installed all plugins")
+				} else {
+					log.Successf("successfully installed '%s' plugin", pluginName)
+				}
 				return nil
 			}
 
