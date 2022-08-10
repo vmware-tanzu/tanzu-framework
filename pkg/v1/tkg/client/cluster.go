@@ -440,7 +440,10 @@ func (c *TkgClient) WaitForAddonsCorePackagesInstallation(options waitForAddonsO
 	} else {
 		corePackagesNamespace = constants.CorePackagesNamespaceInTKGM
 	}
-	packages := GetCorePackagesFromClusterBootstrap(clusterBootstrap, corePackagesNamespace)
+	packages, err := GetCorePackagesFromClusterBootstrap(options.regionalClusterClient, options.workloadClusterClient, clusterBootstrap, corePackagesNamespace, options.clusterName)
+	if err != nil {
+		return err
+	}
 	return MonitorAddonsCorePackageInstallation(options.regionalClusterClient, options.workloadClusterClient, packages, c.getPackageInstallTimeoutFromConfig())
 }
 
