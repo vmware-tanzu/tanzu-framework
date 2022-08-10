@@ -199,6 +199,9 @@ func (c *TkgClient) getClusterConfigurationBytes(options *ClusterConfigOptions, 
 		options.ProviderRepositorySource.Flavor = plan
 	}
 
+	log.Infof("INFRAPROVIDER %s", infraProviderName)
+	log.Infof("MC PLAN %s", options.ProviderRepositorySource.Flavor)
+
 	// Get the cluster configuration yaml bytes
 	return c.getClusterConfiguration(options, isManagementCluster, infraProviderName, isWindowsWorkloadCluster)
 }

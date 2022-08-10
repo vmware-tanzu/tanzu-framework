@@ -110,6 +110,22 @@ tkr-package:
 		})
 	})
 
+	Context("When provider type is Docker", func() {
+		BeforeEach(func() {
+			managementPackageVersion = "v0.21.0"
+			providerType = "docker"
+			outputFile = "test/output_docker.yaml"
+		})
+		It("should not return error", func() {
+			Expect(err).NotTo(HaveOccurred())
+			f1, err := os.ReadFile(valuesFile)
+			Expect(err).NotTo(HaveOccurred())
+			f2, err := os.ReadFile(outputFile)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(string(f1)).To(Equal(string(f2)))
+		})
+	})
+
 	Context("When provider type is not provided", func() {
 		BeforeEach(func() {
 			managementPackageVersion = "v0.21.0"
