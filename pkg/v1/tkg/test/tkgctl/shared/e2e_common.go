@@ -136,16 +136,15 @@ func E2ECommonSpec(ctx context.Context, inputGetter func() E2ECommonSpecInput) {
 		Expect(err).To(BeNil())
 
 		defer os.Remove(clusterConfigFile)
-		if e2eConfig.WorkloadClusterOptions.ClusterClassCBFilePath != "" {
-			clusterName, namespace = ValidateClusterClassConfigFile(e2eConfig.WorkloadClusterOptions.ClusterClassCBFilePath)
-			e2eConfig.WorkloadClusterOptions.Namespace = namespace
-			e2eConfig.WorkloadClusterOptions.ClusterName = clusterName
-			deleteClusterOptions = getDeleteClustersOptions(e2eConfig)
+		if input.E2EConfig.WorkloadClusterOptions.ClusterClassCBFilePath != "" {
+			clusterName, namespace = ValidateClusterClassConfigFile(input.E2EConfig.WorkloadClusterOptions.ClusterClassCBFilePath)
+			input.E2EConfig.WorkloadClusterOptions.Namespace = namespace
+			input.E2EConfig.WorkloadClusterOptions.ClusterName = clusterName
 			err = tkgCtlClient.CreateCluster(tkgctl.CreateClusterOptions{
-				ClusterConfigFile: e2eConfig.WorkloadClusterOptions.ClusterClassCBFilePath,
+				ClusterConfigFile: input.E2EConfig.WorkloadClusterOptions.ClusterClassCBFilePath,
 				Edition:           "tkg",
-				Namespace:         e2eConfig.WorkloadClusterOptions.Namespace,
-				ClusterName:       e2eConfig.WorkloadClusterOptions.ClusterName,
+				Namespace:         input.E2EConfig.WorkloadClusterOptions.Namespace,
+				ClusterName:       input.E2EConfig.WorkloadClusterOptions.ClusterName,
 			})
 		} else {
 			err = tkgCtlClient.CreateCluster(tkgctl.CreateClusterOptions{
