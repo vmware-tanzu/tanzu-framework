@@ -63,6 +63,7 @@ import (
 
 	kappipkg "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/packaging/v1alpha1"
 
+	kapppkgv1alpha1 "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apiserver/apis/datapackaging/v1alpha1"
 	cliv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
 	configv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/config/v1alpha1"
 	runv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha1"
@@ -87,6 +88,7 @@ const (
 	// DefaultKappControllerHostPort is the default kapp-controller port for it's extension apiserver
 	DefaultKappControllerHostPort           = 10100
 	waitPeriodBeforePollingForUpgradeStatus = 60 * time.Second
+	ErrUnableToGetPackage                   = "unable to get the package: '%s' in namespace: '%s'"
 )
 
 var (
@@ -132,6 +134,8 @@ type Client interface {
 	WaitK8sVersionUpdateForWorkerNodes(clusterName, namespace, kubernetesVersion string, workloadClusterClient Client) error
 	// GetKubeConfigForCluster returns the admin kube config for accessing the cluster
 	GetKubeConfigForCluster(clusterName string, namespace string, pollOptions *PollOptions) ([]byte, error)
+	// GetPackage returns the package for given package name in a given namespace
+	GetPackage(carvelPkgName, carvelPkgNamespace string) (*kapppkgv1alpha1.Package, error)
 	// GetSecretValue returns the value for a given key in a Secret
 	GetSecretValue(secretName, key, namespace string, pollOptions *PollOptions) ([]byte, error)
 	// GetCurrentNamespace returns the namespace from the current context in the kubeconfig file
@@ -449,6 +453,7 @@ func init() {
 	_ = kappipkg.AddToScheme(scheme)
 	_ = cliv1alpha1.AddToScheme(scheme)
 	_ = configv1alpha1.AddToScheme(scheme)
+	_ = kapppkgv1alpha1.AddToScheme(scheme)
 }
 
 // ClusterStatusInfo defines the cluster status involving all main components
@@ -1336,6 +1341,17 @@ func (c *client) kubectlGetResource(resource string, args ...string) ([]byte, er
 		return nil, errors.Wrapf(err, "kubectl get failed, output: %s", string(out))
 	}
 	return out, nil
+}
+
+// GetPackage returns the package for given package name in a given namespace
+func (c *client) GetPackage(carvelPkgName, carvelPkgNamespace string) (*kapppkgv1alpha1.Package, error) {
+	pkg := &kapppkgv1alpha1.Package{}
+	log.V(9).Infof("getting package:%s in namespace:%s", carvelPkgName, carvelPkgNamespace)
+	err := c.GetResource(pkg, carvelPkgName, carvelPkgNamespace, nil, nil)
+	if err != nil {
+		return pkg, errors.Wrapf(err, ErrUnableToGetPackage, carvelPkgName, carvelPkgNamespace)
+	}
+	return pkg, nil
 }
 
 func (c *client) GetSecretValue(secretName, key, namespace string, pollOptions *PollOptions) ([]byte, error) {
