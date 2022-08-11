@@ -33,6 +33,7 @@ type E2ECommonSpecInput struct {
 	Cni             string
 	Plan            string
 	Namespace       string
+	IsCCB           bool
 	OtherConfigs    map[string]string
 }
 
@@ -136,7 +137,7 @@ func E2ECommonSpec(ctx context.Context, inputGetter func() E2ECommonSpecInput) {
 		Expect(err).To(BeNil())
 
 		defer os.Remove(clusterConfigFile)
-		if input.E2EConfig.WorkloadClusterOptions.ClusterClassCBFilePath != "" {
+		if input.IsCCB {
 			clusterName, namespace = ValidateClusterClassConfigFile(input.E2EConfig.WorkloadClusterOptions.ClusterClassCBFilePath)
 			input.E2EConfig.WorkloadClusterOptions.Namespace = namespace
 			input.E2EConfig.WorkloadClusterOptions.ClusterName = clusterName
