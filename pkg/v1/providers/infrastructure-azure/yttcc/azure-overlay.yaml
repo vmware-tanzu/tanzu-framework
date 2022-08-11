@@ -153,6 +153,7 @@
 #!        permissions: "0644"
 #!      joinConfiguration:
 #!        nodeRegistration:
+#!          criSocket: /var/run/containerd/containerd.sock
 #!          kubeletExtraArgs:
 #!            cloud-config: /etc/kubernetes/azure.json
 #!            cloud-provider: azure
@@ -198,6 +199,7 @@
 #!        permissions: "0644"
 #!      joinConfiguration:
 #!        nodeRegistration:
+#!          criSocket: /var/run/containerd/containerd.sock
 #!          kubeletExtraArgs:
 #!            cloud-config: /etc/kubernetes/azure.json
 #!            cloud-provider: azure

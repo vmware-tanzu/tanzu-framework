@@ -98,6 +98,7 @@ spec:
   kubeadmConfigSpec:
     initConfiguration:
       nodeRegistration:
+        criSocket: /var/run/containerd/containerd.sock
         name: '{{ ds.meta_data.local_hostname }}'
         kubeletExtraArgs:
           cloud-provider: aws
@@ -127,6 +128,7 @@ spec:
         imageTag: #@ bomDataForK8sVersion.kubeadmConfigSpec.dns.imageTag
     joinConfiguration:
       nodeRegistration:
+        criSocket: /var/run/containerd/containerd.sock
         name: '{{ ds.meta_data.local_hostname }}'
         kubeletExtraArgs:
           cloud-provider: aws
@@ -174,6 +176,7 @@ spec:
     spec:
       joinConfiguration:
         nodeRegistration:
+          criSocket: /var/run/containerd/containerd.sock
           name: '{{ ds.meta_data.local_hostname }}'
           kubeletExtraArgs:
             cloud-provider: aws
