@@ -122,12 +122,12 @@ func V(level int) LoggerImpl {
 
 // WithName adds a new element to the logger's name.
 func WithName(name string) LoggerImpl {
-	return l.WithName(name)
+	return l.Clone().WithName(name)
 }
 
 // WithValues adds some key-value pairs of context to a logger.
 func WithValues(kvList ...interface{}) LoggerImpl {
-	return l.WithValues(kvList...)
+	return l.Clone().WithValues(kvList...)
 }
 
 var logWriter = NewWriter()
