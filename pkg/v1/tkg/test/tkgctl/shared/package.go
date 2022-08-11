@@ -54,10 +54,11 @@ import (
 )
 
 const (
-	getResourceTimeout  = time.Minute * 1
-	waitForReadyTimeout = time.Minute * 10
-	waitTimeout         = time.Minute * 10
-	pollingInterval     = time.Second * 30
+	getResourceTimeout          = time.Minute * 1
+	waitForReadyTimeout         = time.Minute * 10
+	waitTimeout                 = time.Minute * 10
+	resourceDeletionWaitTimeout = time.Minute * 20
+	pollingInterval             = time.Second * 30
 
 	AddonFinalizer                     = "tkg.tanzu.vmware.com/addon"
 	PreTerminateAddonsAnnotationPrefix = clusterapiv1beta1.PreTerminateDeleteHookAnnotationPrefix + "/tkg.tanzu.vmware.com"
