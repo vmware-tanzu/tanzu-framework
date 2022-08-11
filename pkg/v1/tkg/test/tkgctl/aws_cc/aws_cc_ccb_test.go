@@ -20,6 +20,7 @@ var _ = Describe("Functional tests to create AWS cluster with custom ClusterBoot
 			Cni:             "antrea",
 			Plan:            "dev",
 			Namespace:       "tkg-system",
+			IsCCB:           true,
 			OtherConfigs:    map[string]string{"clusterclass": "true"},
 		}
 	})
