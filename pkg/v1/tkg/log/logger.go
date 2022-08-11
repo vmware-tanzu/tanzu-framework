@@ -39,6 +39,7 @@ type logger struct {
 	level     int32
 	prefix    string
 	values    []interface{}
+	callDepth int
 }
 
 var _ LoggerImpl = &logger{}
@@ -47,6 +48,13 @@ var _ LoggerImpl = &logger{}
 // The logger will write only log messages with a level/V(x) equal or higher to the threshold.
 func (l *logger) SetThreshold(threshold *int32) {
 	l.threshold = threshold
+}
+
+// WithCallDepth implements a New Option that allows to set the callDepth level for a logger.
+func (l *logger) WithCallDepth(callDepth int) LoggerImpl {
+	nl := l.clone()
+	nl.callDepth = callDepth
+	return nl
 }
 
 // Enabled tests whether this Logger is enabled.
@@ -126,7 +134,12 @@ func (l *logger) clone() *logger {
 		level:     l.level,
 		prefix:    l.prefix,
 		values:    copySlice(l.values),
+		callDepth: l.callDepth,
 	}
+}
+
+func (l *logger) Clone() LoggerImpl {
+	return l.clone()
 }
 
 func (l *logger) CloneWithLevel(level int) LoggerImpl {
@@ -135,6 +148,7 @@ func (l *logger) CloneWithLevel(level int) LoggerImpl {
 		level:     int32(level),
 		prefix:    l.prefix,
 		values:    copySlice(l.values),
+		callDepth: l.callDepth,
 	}
 }
 
@@ -145,7 +159,7 @@ func (l *logger) Print(msg string, err error, logType string, kvs ...interface{}
 	if err != nil {
 		values = append(values, "error", err)
 	}
-	header := []byte(l.header(logType, 0))
+	header := []byte(l.header(logType, l.callDepth))
 	_, _ = logWriter.Write(header, []byte(l.getLogString(values)), l.Enabled(), l.level, logType)
 }
 
