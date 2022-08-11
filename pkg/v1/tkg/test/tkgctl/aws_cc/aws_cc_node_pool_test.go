@@ -12,7 +12,7 @@ import (
 	. "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/test/tkgctl/shared"
 )
 
-var _ = Describe("Functional tests for aws - Antrea", func() {
+var _ = Describe("Functional tests for node pools on AWS", func() {
 	E2ENodePoolSpec(context.TODO(), func() E2ENodePoolSpecInput {
 		return E2ENodePoolSpecInput{
 			E2ECommonSpecInput: E2ECommonSpecInput{
@@ -20,7 +20,7 @@ var _ = Describe("Functional tests for aws - Antrea", func() {
 				ArtifactsFolder: artifactsFolder,
 				Cni:             "antrea",
 				Plan:            "prodcc",
-				Namespace:       "tkg-system",
+				Namespace:       "default",
 			},
 			NodePool: client.NodePool{
 				Name:        "np-1",
