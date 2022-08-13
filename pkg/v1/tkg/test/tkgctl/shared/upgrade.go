@@ -66,7 +66,7 @@ func E2EUpgradeSpec(context context.Context, inputGetter func() E2EUpgradeSpecIn
 			By(fmt.Sprintf("Creating management cluster %q", managementClusterName))
 
 			Expect(input.E2EConfig.KubernetesVersionOld).ToNot(BeEmpty(), "config variable 'kubernetes_version_old' not set")
-			validateKubernetesVersion(managementClusterName, input.E2EConfig.KubernetesVersionOld)
+			validateKubernetesVersion(managementClusterName, input.E2EConfig.KubernetesVersionOld, "")
 
 			Expect(input.E2EConfig.ClusterAPIVersionOld).ToNot(BeEmpty(), "config variable 'capi_version_old' not set")
 			Expect(input.E2EConfig.InfrastructureVersionOld).ToNot(BeEmpty(), "config variable 'infrastructure_version_old' not set")
@@ -100,7 +100,7 @@ func E2EUpgradeSpec(context context.Context, inputGetter func() E2EUpgradeSpecIn
 		}
 
 		// validate k8s version of workload cluster
-		validateKubernetesVersion(clusterName, input.E2EConfig.KubernetesVersionOld)
+		validateKubernetesVersion(clusterName, input.E2EConfig.KubernetesVersionOld, "")
 
 		// upgrade management cluster
 		if input.E2EConfig.UpgradeManagementCluster {
@@ -113,7 +113,7 @@ func E2EUpgradeSpec(context context.Context, inputGetter func() E2EUpgradeSpecIn
 			Expect(err).To(BeNil())
 
 			Expect(input.E2EConfig.TkrVersion).ToNot(BeEmpty(), "config variable 'kubernetes_version' not set")
-			validateKubernetesVersion(managementClusterName, input.E2EConfig.TkrVersion)
+			validateKubernetesVersion(managementClusterName, input.E2EConfig.TkrVersion, "")
 
 			Expect(input.E2EConfig.ClusterAPIVersion).ToNot(BeEmpty(), "config variable 'capi_version' not set")
 			Expect(input.E2EConfig.InfrastructureVersion).ToNot(BeEmpty(), "config variable 'infrastructure_version' not set")
@@ -175,11 +175,11 @@ func E2EUpgradeSpec(context context.Context, inputGetter func() E2EUpgradeSpecIn
 	})
 }
 
-func validateKubernetesVersion(clusterName string, expectedK8sVersion string) { // nolint:unused
+func validateKubernetesVersion(clusterName, expectedK8sVersion, kubeconfigPath string) { // nolint:unused
 	By(fmt.Sprintf("Validating k8s version for cluster %q", clusterName))
 
 	kubeContext := clusterName + "-admin@" + clusterName
-	mcProxy := framework.NewClusterProxy(clusterName, "", kubeContext)
+	mcProxy := framework.NewClusterProxy(clusterName, kubeconfigPath, kubeContext)
 
 	actualK8sVersion := mcProxy.GetKubernetesVersion()
 	Expect(actualK8sVersion).To(Equal(expectedK8sVersion), fmt.Sprintf("k8s version validation failed. Expected %q, found %q", expectedK8sVersion, actualK8sVersion))
