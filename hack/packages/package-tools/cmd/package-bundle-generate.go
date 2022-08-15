@@ -128,10 +128,12 @@ func generateSingleImgpkgLockOutput(toolsBinDir, packagePath string, envArray ..
 	kbldCmd.Stderr = &kbldCmdErrBytes
 	yttCmd.Stderr = &yttCmdErrBytes
 
+	fmt.Println("Running command: ", yttCmd.String())
 	if err := yttCmd.Start(); err != nil {
 		return fmt.Errorf("couldn't run ytt command: %w", err)
 	}
 
+	fmt.Println("Running command: ", kbldCmd.String())
 	if err := kbldCmd.Run(); err != nil {
 		return fmt.Errorf("couldn't run kbld command to generate imgpkg lock output file: %s", kbldCmdErrBytes.String())
 	}
@@ -168,7 +170,6 @@ func generatePackageBundle(pkg *Package, projectRootDir, toolsBinDir, packageNam
 		var cmdErr bytes.Buffer
 
 		packageURL := fmt.Sprintf("%s/%s:%s", registry, packageName, imagePackageVersion)
-		packageURL := fmt.Sprintf("%s/%s:%s", constants.LocalRegistryURL, packageName, imagePackageVersion)
 		imgpkgPushCmd := exec.Command(
 			filepath.Join(toolsBinDir, "imgpkg"),
 			"push",
@@ -176,6 +177,7 @@ func generatePackageBundle(pkg *Package, projectRootDir, toolsBinDir, packageNam
 			"--file", filepath.Join(packagePath, "bundle"),
 		) // #nosec G204
 		imgpkgPushCmd.Stderr = &cmdErr
+		fmt.Println("Running command: ", imgpkgPushCmd.String())
 		if err := imgpkgPushCmd.Run(); err != nil {
 			fmt.Println("cmd:", imgpkgPushCmd.String())
 			fmt.Println("err:", err)
@@ -190,6 +192,7 @@ func generatePackageBundle(pkg *Package, projectRootDir, toolsBinDir, packageNam
 			"--to-tar", filepath.Join(tarBallPath, tarBallFileName),
 		) // #nosec G204
 		imgpkgCopyCmd.Stderr = &cmdErr
+		fmt.Println("Running command: ", imgpkgCopyCmd.String())
 		if err := imgpkgCopyCmd.Run(); err != nil {
 			return fmt.Errorf("generating thick tarball: %s", cmdErr.String())
 		}
@@ -231,13 +234,13 @@ func generatePackageBundles(projectRootDir, toolsBinDir string) error {
 			imgpkgCmd := exec.Command(
 				filepath.Join(toolsBinDir, "imgpkg"),
 				"push", "-b", registry+"/"+pkgVals.Repositories[repo].Packages[i].Name+":"+imagePackageVersion,
-				"push", "-b", constants.LocalRegistryURL+"/"+pkgVals.Repositories[repo].Packages[i].Name+":"+imagePackageVersion,
 				"--file", filepath.Join(packagePath, "bundle"),
 				"--lock-output", lockOutputFile,
 			) // #nosec G204
 
 			var imgpkgCmdErrBytes bytes.Buffer
 			imgpkgCmd.Stderr = &imgpkgCmdErrBytes
+			fmt.Println("Running command: ", imgpkgCmd.String())
 			if err := imgpkgCmd.Run(); err != nil {
 				return fmt.Errorf("couldn't push the imgpkg bundle: %s", imgpkgCmdErrBytes.String())
 			}
@@ -257,7 +260,6 @@ func generatePackageBundles(projectRootDir, toolsBinDir string) error {
 			pkgVals.Repositories[repo].Packages[i].Sha256 = utils.AfterString(
 				bundleLock.Bundle.Image,
 				registry+"/"+pkgVals.Repositories[repo].Packages[i].Name+"@sha256:",
-				constants.LocalRegistryURL+"/"+pkgVals.Repositories[repo].Packages[i].Name+"@sha256:",
 			)
 			yamlData, err := yaml.Marshal(&pkgVals)
 			if err != nil {
