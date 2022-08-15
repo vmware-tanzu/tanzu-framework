@@ -1,0 +1,65 @@
+#@ load("@ytt:overlay", "overlay")
+#@ load("@ytt:data", "data")
+#@ load("lib/helpers.star", "get_bom_data_for_tkr_name", "kubeadm_image_repo", "get_default_tkg_bom_data")
+#@ load("lib/validate.star", "validate_configuration")
+#@ load("/lib/config_variable_association.star", "config_variable_association", "get_cluster_variables")
+
+#@ bomDataForK8sVersion = get_bom_data_for_tkr_name()
+
+#@ def get_k8s_version_from_tkr(tkr_version):
+#@ return tkr_version.split('+')[0]
+#@ end
+
+#@ bomData = get_default_tkg_bom_data()
+
+#@overlay/match by=overlay.subset({"kind":"Cluster"})
+---
+apiVersion: cluster.x-k8s.io/v1beta1
+kind: Cluster
+metadata:
+  name: #@ data.values.CLUSTER_NAME
+  labels:
+    tkg.tanzu.vmware.com/cluster-name: #@ data.values.CLUSTER_NAME
+    run.tanzu.vmware.com/tkr: v1.23.8---vmware.2-tkg.1-zshippable
+spec:
+  topology:
+    class: #@ data.values.CLUSTER_CLASS
+    #! VVV TODO(vui) compute
+    version: #@ "{}-tkg.1-zshippable".format(data.values.KUBERNETES_VERSION)
+    #@overlay/match missing_ok=True
+    controlPlane:
+      replicas: #@ data.values.CONTROL_PLANE_MACHINE_COUNT
+      metadata:
+        annotations:
+          #! VVV TODO(vui) os-name handling
+          run.tanzu.vmware.com/resolve-os-image: os-name=ubuntu
+    workers:
+      machineDeployments:
+      #@overlay/match by=overlay.index(0)
+      - class: default-worker
+        name: md-0
+        replicas: #@ data.values.WORKER_MACHINE_COUNT_0
+        metadata:
+          annotations:
+            #! VVV TODO(tenczar) os-version handling (also handle empty values?)
+            run.tanzu.vmware.com/resolve-os-image: os-name=ubuntu
+    variables:
+    #@overlay/append
+    - name: TKR_DATA
+      value:
+        v1.23.8+vmware.2: #! this comes from the clusterclt for testing
+          kubernetesSpec:
+            version: v1.23.8+vmware.2
+            coredns:
+              imageTag: v1.8.6_vmware.7
+            etcd:
+              imageTag: v3.5.4_vmware.6
+            imageRepository: projects-stg.registry.vmware.com/tkg
+            pause:
+              imageTag: "3.6"
+          labels:
+            os-name: ubuntu
+            os-type: linux
+            os-arch: amd64
+            os-version: "2004"
+            run.tanzu.vmware.com/tkr: v1.23.8---vmware.2-tkg.1-zshippable

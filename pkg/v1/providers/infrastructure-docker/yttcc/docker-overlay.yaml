@@ -1,0 +1,6 @@
+#! Please add any overlays specific to Docker provider under this file.
+#@ load("@ytt:overlay", "overlay")
+#@ load("@ytt:data", "data")
+#@ load("lib/helpers.star", "get_bom_data_for_tkr_name", "kubeadm_image_repo", "get_az_from_region")
+
+#@ bomData = get_bom_data_for_tkr_name()
