@@ -12,8 +12,9 @@ import (
 	"sigs.k8s.io/cluster-api/controlplane/kubeadm/api/v1beta1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
-	v1alpha1a "github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
-	"github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha1"
+	"github.com/vmware-tanzu/carvel-kapp-controller/pkg/apiserver/apis/datapackaging/v1alpha1"
+	v1alpha1b "github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
+	v1alpha1a "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha2"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/azure"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/clusterclient"
@@ -419,6 +420,20 @@ type ClusterClient struct {
 		result1 []string
 		result2 error
 	}
+	GetPackageStub        func(string, string) (*v1alpha1.Package, error)
+	getPackageMutex       sync.RWMutex
+	getPackageArgsForCall []struct {
+		arg1 string
+		arg2 string
+	}
+	getPackageReturns struct {
+		result1 *v1alpha1.Package
+		result2 error
+	}
+	getPackageReturnsOnCall map[int]struct {
+		result1 *v1alpha1.Package
+		result2 error
+	}
 	GetPinnipedIssuerURLAndCAStub        func() (string, string, error)
 	getPinnipedIssuerURLAndCAMutex       sync.RWMutex
 	getPinnipedIssuerURLAndCAArgsForCall []struct {
@@ -492,17 +507,17 @@ type ClusterClient struct {
 		result1 []byte
 		result2 error
 	}
-	GetTanzuKubernetesReleasesStub        func(string) ([]v1alpha1.TanzuKubernetesRelease, error)
+	GetTanzuKubernetesReleasesStub        func(string) ([]v1alpha1a.TanzuKubernetesRelease, error)
 	getTanzuKubernetesReleasesMutex       sync.RWMutex
 	getTanzuKubernetesReleasesArgsForCall []struct {
 		arg1 string
 	}
 	getTanzuKubernetesReleasesReturns struct {
-		result1 []v1alpha1.TanzuKubernetesRelease
+		result1 []v1alpha1a.TanzuKubernetesRelease
 		result2 error
 	}
 	getTanzuKubernetesReleasesReturnsOnCall map[int]struct {
-		result1 []v1alpha1.TanzuKubernetesRelease
+		result1 []v1alpha1a.TanzuKubernetesRelease
 		result2 error
 	}
 	GetVCClientAndDataCenterStub        func(string, string, string) (vc.Client, string, error)
@@ -626,16 +641,16 @@ type ClusterClient struct {
 	isRegionalClusterReturnsOnCall map[int]struct {
 		result1 error
 	}
-	ListCLIPluginResourcesStub        func() ([]v1alpha1a.CLIPlugin, error)
+	ListCLIPluginResourcesStub        func() ([]v1alpha1b.CLIPlugin, error)
 	listCLIPluginResourcesMutex       sync.RWMutex
 	listCLIPluginResourcesArgsForCall []struct {
 	}
 	listCLIPluginResourcesReturns struct {
-		result1 []v1alpha1a.CLIPlugin
+		result1 []v1alpha1b.CLIPlugin
 		result2 error
 	}
 	listCLIPluginResourcesReturnsOnCall map[int]struct {
-		result1 []v1alpha1a.CLIPlugin
+		result1 []v1alpha1b.CLIPlugin
 		result2 error
 	}
 	ListClustersStub        func(string) ([]v1beta1a.Cluster, error)
@@ -3137,6 +3152,71 @@ func (fake *ClusterClient) GetPacificTanzuKubernetesReleasesReturnsOnCall(i int,
 	}{result1, result2}
 }
 
+func (fake *ClusterClient) GetPackage(arg1 string, arg2 string) (*v1alpha1.Package, error) {
+	fake.getPackageMutex.Lock()
+	ret, specificReturn := fake.getPackageReturnsOnCall[len(fake.getPackageArgsForCall)]
+	fake.getPackageArgsForCall = append(fake.getPackageArgsForCall, struct {
+		arg1 string
+		arg2 string
+	}{arg1, arg2})
+	stub := fake.GetPackageStub
+	fakeReturns := fake.getPackageReturns
+	fake.recordInvocation("GetPackage", []interface{}{arg1, arg2})
+	fake.getPackageMutex.Unlock()
+	if stub != nil {
+		return stub(arg1, arg2)
+	}
+	if specificReturn {
+		return ret.result1, ret.result2
+	}
+	return fakeReturns.result1, fakeReturns.result2
+}
+
+func (fake *ClusterClient) GetPackageCallCount() int {
+	fake.getPackageMutex.RLock()
+	defer fake.getPackageMutex.RUnlock()
+	return len(fake.getPackageArgsForCall)
+}
+
+func (fake *ClusterClient) GetPackageCalls(stub func(string, string) (*v1alpha1.Package, error)) {
+	fake.getPackageMutex.Lock()
+	defer fake.getPackageMutex.Unlock()
+	fake.GetPackageStub = stub
+}
+
+func (fake *ClusterClient) GetPackageArgsForCall(i int) (string, string) {
+	fake.getPackageMutex.RLock()
+	defer fake.getPackageMutex.RUnlock()
+	argsForCall := fake.getPackageArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2
+}
+
+func (fake *ClusterClient) GetPackageReturns(result1 *v1alpha1.Package, result2 error) {
+	fake.getPackageMutex.Lock()
+	defer fake.getPackageMutex.Unlock()
+	fake.GetPackageStub = nil
+	fake.getPackageReturns = struct {
+		result1 *v1alpha1.Package
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *ClusterClient) GetPackageReturnsOnCall(i int, result1 *v1alpha1.Package, result2 error) {
+	fake.getPackageMutex.Lock()
+	defer fake.getPackageMutex.Unlock()
+	fake.GetPackageStub = nil
+	if fake.getPackageReturnsOnCall == nil {
+		fake.getPackageReturnsOnCall = make(map[int]struct {
+			result1 *v1alpha1.Package
+			result2 error
+		})
+	}
+	fake.getPackageReturnsOnCall[i] = struct {
+		result1 *v1alpha1.Package
+		result2 error
+	}{result1, result2}
+}
+
 func (fake *ClusterClient) GetPinnipedIssuerURLAndCA() (string, string, error) {
 	fake.getPinnipedIssuerURLAndCAMutex.Lock()
 	ret, specificReturn := fake.getPinnipedIssuerURLAndCAReturnsOnCall[len(fake.getPinnipedIssuerURLAndCAArgsForCall)]
@@ -3457,7 +3537,7 @@ func (fake *ClusterClient) GetSecretValueReturnsOnCall(i int, result1 []byte, re
 	}{result1, result2}
 }
 
-func (fake *ClusterClient) GetTanzuKubernetesReleases(arg1 string) ([]v1alpha1.TanzuKubernetesRelease, error) {
+func (fake *ClusterClient) GetTanzuKubernetesReleases(arg1 string) ([]v1alpha1a.TanzuKubernetesRelease, error) {
 	fake.getTanzuKubernetesReleasesMutex.Lock()
 	ret, specificReturn := fake.getTanzuKubernetesReleasesReturnsOnCall[len(fake.getTanzuKubernetesReleasesArgsForCall)]
 	fake.getTanzuKubernetesReleasesArgsForCall = append(fake.getTanzuKubernetesReleasesArgsForCall, struct {
@@ -3482,7 +3562,7 @@ func (fake *ClusterClient) GetTanzuKubernetesReleasesCallCount() int {
 	return len(fake.getTanzuKubernetesReleasesArgsForCall)
 }
 
-func (fake *ClusterClient) GetTanzuKubernetesReleasesCalls(stub func(string) ([]v1alpha1.TanzuKubernetesRelease, error)) {
+func (fake *ClusterClient) GetTanzuKubernetesReleasesCalls(stub func(string) ([]v1alpha1a.TanzuKubernetesRelease, error)) {
 	fake.getTanzuKubernetesReleasesMutex.Lock()
 	defer fake.getTanzuKubernetesReleasesMutex.Unlock()
 	fake.GetTanzuKubernetesReleasesStub = stub
@@ -3495,28 +3575,28 @@ func (fake *ClusterClient) GetTanzuKubernetesReleasesArgsForCall(i int) string {
 	return argsForCall.arg1
 }
 
-func (fake *ClusterClient) GetTanzuKubernetesReleasesReturns(result1 []v1alpha1.TanzuKubernetesRelease, result2 error) {
+func (fake *ClusterClient) GetTanzuKubernetesReleasesReturns(result1 []v1alpha1a.TanzuKubernetesRelease, result2 error) {
 	fake.getTanzuKubernetesReleasesMutex.Lock()
 	defer fake.getTanzuKubernetesReleasesMutex.Unlock()
 	fake.GetTanzuKubernetesReleasesStub = nil
 	fake.getTanzuKubernetesReleasesReturns = struct {
-		result1 []v1alpha1.TanzuKubernetesRelease
+		result1 []v1alpha1a.TanzuKubernetesRelease
 		result2 error
 	}{result1, result2}
 }
 
-func (fake *ClusterClient) GetTanzuKubernetesReleasesReturnsOnCall(i int, result1 []v1alpha1.TanzuKubernetesRelease, result2 error) {
+func (fake *ClusterClient) GetTanzuKubernetesReleasesReturnsOnCall(i int, result1 []v1alpha1a.TanzuKubernetesRelease, result2 error) {
 	fake.getTanzuKubernetesReleasesMutex.Lock()
 	defer fake.getTanzuKubernetesReleasesMutex.Unlock()
 	fake.GetTanzuKubernetesReleasesStub = nil
 	if fake.getTanzuKubernetesReleasesReturnsOnCall == nil {
 		fake.getTanzuKubernetesReleasesReturnsOnCall = make(map[int]struct {
-			result1 []v1alpha1.TanzuKubernetesRelease
+			result1 []v1alpha1a.TanzuKubernetesRelease
 			result2 error
 		})
 	}
 	fake.getTanzuKubernetesReleasesReturnsOnCall[i] = struct {
-		result1 []v1alpha1.TanzuKubernetesRelease
+		result1 []v1alpha1a.TanzuKubernetesRelease
 		result2 error
 	}{result1, result2}
 }
@@ -4075,7 +4155,7 @@ func (fake *ClusterClient) IsRegionalClusterReturnsOnCall(i int, result1 error) 
 	}{result1}
 }
 
-func (fake *ClusterClient) ListCLIPluginResources() ([]v1alpha1a.CLIPlugin, error) {
+func (fake *ClusterClient) ListCLIPluginResources() ([]v1alpha1b.CLIPlugin, error) {
 	fake.listCLIPluginResourcesMutex.Lock()
 	ret, specificReturn := fake.listCLIPluginResourcesReturnsOnCall[len(fake.listCLIPluginResourcesArgsForCall)]
 	fake.listCLIPluginResourcesArgsForCall = append(fake.listCLIPluginResourcesArgsForCall, struct {
@@ -4099,34 +4179,34 @@ func (fake *ClusterClient) ListCLIPluginResourcesCallCount() int {
 	return len(fake.listCLIPluginResourcesArgsForCall)
 }
 
-func (fake *ClusterClient) ListCLIPluginResourcesCalls(stub func() ([]v1alpha1a.CLIPlugin, error)) {
+func (fake *ClusterClient) ListCLIPluginResourcesCalls(stub func() ([]v1alpha1b.CLIPlugin, error)) {
 	fake.listCLIPluginResourcesMutex.Lock()
 	defer fake.listCLIPluginResourcesMutex.Unlock()
 	fake.ListCLIPluginResourcesStub = stub
 }
 
-func (fake *ClusterClient) ListCLIPluginResourcesReturns(result1 []v1alpha1a.CLIPlugin, result2 error) {
+func (fake *ClusterClient) ListCLIPluginResourcesReturns(result1 []v1alpha1b.CLIPlugin, result2 error) {
 	fake.listCLIPluginResourcesMutex.Lock()
 	defer fake.listCLIPluginResourcesMutex.Unlock()
 	fake.ListCLIPluginResourcesStub = nil
 	fake.listCLIPluginResourcesReturns = struct {
-		result1 []v1alpha1a.CLIPlugin
+		result1 []v1alpha1b.CLIPlugin
 		result2 error
 	}{result1, result2}
 }
 
-func (fake *ClusterClient) ListCLIPluginResourcesReturnsOnCall(i int, result1 []v1alpha1a.CLIPlugin, result2 error) {
+func (fake *ClusterClient) ListCLIPluginResourcesReturnsOnCall(i int, result1 []v1alpha1b.CLIPlugin, result2 error) {
 	fake.listCLIPluginResourcesMutex.Lock()
 	defer fake.listCLIPluginResourcesMutex.Unlock()
 	fake.ListCLIPluginResourcesStub = nil
 	if fake.listCLIPluginResourcesReturnsOnCall == nil {
 		fake.listCLIPluginResourcesReturnsOnCall = make(map[int]struct {
-			result1 []v1alpha1a.CLIPlugin
+			result1 []v1alpha1b.CLIPlugin
 			result2 error
 		})
 	}
 	fake.listCLIPluginResourcesReturnsOnCall[i] = struct {
-		result1 []v1alpha1a.CLIPlugin
+		result1 []v1alpha1b.CLIPlugin
 		result2 error
 	}{result1, result2}
 }
@@ -6965,6 +7045,8 @@ func (fake *ClusterClient) Invocations() map[string][][]interface{} {
 	defer fake.getPacificTKCAPIVersionMutex.RUnlock()
 	fake.getPacificTanzuKubernetesReleasesMutex.RLock()
 	defer fake.getPacificTanzuKubernetesReleasesMutex.RUnlock()
+	fake.getPackageMutex.RLock()
+	defer fake.getPackageMutex.RUnlock()
 	fake.getPinnipedIssuerURLAndCAMutex.RLock()
 	defer fake.getPinnipedIssuerURLAndCAMutex.RUnlock()
 	fake.getRegionalClusterDefaultProviderNameMutex.RLock()
