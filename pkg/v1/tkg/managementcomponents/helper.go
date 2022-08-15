@@ -37,6 +37,10 @@ func GetTKGPackageConfigValuesFileFromUserConfig(managementPackageVersion string
 		tkrRepoImagePath = fmt.Sprintf("%s/%s", tkgBomConfig.ImageConfig.ImageRepository, tkgBomConfig.TKRPackageRepo.AWS)
 	case constants.InfrastructureProviderAzure:
 		tkrRepoImagePath = fmt.Sprintf("%s/%s", tkgBomConfig.ImageConfig.ImageRepository, tkgBomConfig.TKRPackageRepo.Azure)
+	// Using vSphere's TKR components because there are no TKR components for CAPD yet
+	// The issue https://github.com/vmware-tanzu/tanzu-framework/issues/3215 has been filed to add TKR components for CAPD
+	case constants.InfrastructureProviderDocker:
+		tkrRepoImagePath = fmt.Sprintf("%s/%s", tkgBomConfig.ImageConfig.ImageRepository, tkgBomConfig.TKRPackageRepo.VSphereNonparavirt)
 	default:
 		return "", errors.Errorf("unknown provider type %q", providerType)
 	}
