@@ -51,11 +51,11 @@ var hasTKRLabel = predicate.NewPredicateFuncs(func(o client.Object) bool {
 	return ls.Has(runv1.LabelTKR) || ls.Has(LegacyClusterTKRLabel)
 })
 
-const indexCanUpdateToVersion = ".index.canUpdateToVersion"
+const indexCanUpdateToVersionLabels = ".index.canUpdateToVersionLabels"
 
 func (r *Reconciler) SetupWithManager(mgr ctrl.Manager) error {
 	if err := mgr.GetFieldIndexer().IndexField(
-		r.Context, &clusterv1.Cluster{}, indexCanUpdateToVersion, versionsClusterCanUpdateTo,
+		r.Context, &clusterv1.Cluster{}, indexCanUpdateToVersionLabels, r.versionLabelsClusterCanUpdateTo,
 	); err != nil {
 		return err
 	}
@@ -65,36 +65,54 @@ func (r *Reconciler) SetupWithManager(mgr ctrl.Manager) error {
 		For(&clusterv1.Cluster{}, builder.WithPredicates(hasTKRLabel, predicate.LabelChangedPredicate{})).
 		Watches(
 			&source.Kind{Type: &runv1.TanzuKubernetesRelease{}},
-			handler.EnqueueRequestsFromMapFunc(r.clustersUpdatingToTKR),
+			handler.EnqueueRequestsFromMapFunc(r.clustersUpdatingToTKRK8sVersion),
+			builder.WithPredicates(predicate.ResourceVersionChangedPredicate{})).
+		Watches(
+			&source.Kind{Type: &runv1.OSImage{}},
+			handler.EnqueueRequestsFromMapFunc(r.clustersUpdatingToOSImageK8sVersion),
 			builder.WithPredicates(predicate.ResourceVersionChangedPredicate{})).
 		Complete(r)
 }
 
-func versionsClusterCanUpdateTo(o client.Object) []string {
+func (r *Reconciler) versionLabelsClusterCanUpdateTo(o client.Object) []string {
 	cluster := o.(*clusterv1.Cluster)
-	if !conditions.IsTrue(cluster, runv1.ConditionUpdatesAvailable) {
+	tkrName, ok := cluster.Labels[runv1.LabelTKR]
+	if !ok {
+		tkrName = cluster.Labels[LegacyClusterTKRLabel]
+	}
+	if tkrName == "" {
+		r.Log.Error(errors.New("empty TKR ref"), "empty TKR ref",
+			"cluster", fmt.Sprintf("%s/%s", cluster.Namespace, cluster.Name))
 		return nil
 	}
-	message := conditions.GetMessage(cluster, runv1.ConditionUpdatesAvailable)
-	return strings.Split(strings.TrimSuffix(strings.TrimPrefix(message, "["), "]"), " ")
+	tkrVersion, _ := version.ParseSemantic(version.FromLabel(tkrName))
+	major, minor := tkrVersion.Major(), tkrVersion.Minor()
+	return []string{vLabelMinor(major, minor), vLabelMinor(major, minor+1)}
 }
 
-// clustersUpdatingToTKR, for any given tkr, returns requests for clusters that have tkr.Spec.Kubernetes.Version
-// or tkr.Spec.Version in their UpdatesAvailable condition message.
-func (r *Reconciler) clustersUpdatingToTKR(o client.Object) []ctrl.Request {
+func (r *Reconciler) clustersUpdatingToTKRK8sVersion(o client.Object) []ctrl.Request {
 	tkr := o.(*runv1.TanzuKubernetesRelease)
-	var result []ctrl.Request
-	for _, v := range []string{tkr.Spec.Kubernetes.Version, tkr.Spec.Version} {
-		result = append(result, r.clustersUpdatingToVersion(v)...)
-	}
-	return result
+	vPrefix := vMinorPrefix(tkr.Spec.Kubernetes.Version)
+	return r.clustersUpdatingToVersion(vPrefix)
+}
+
+func (r *Reconciler) clustersUpdatingToOSImageK8sVersion(o client.Object) []ctrl.Request {
+	osImage := o.(*runv1.OSImage)
+	vPrefix := vMinorPrefix(osImage.Spec.KubernetesVersion)
+	return r.clustersUpdatingToVersion(vPrefix)
+}
+
+func vMinorPrefix(v string) string {
+	fs := strings.SplitN(v, ".", 3)
+	vPrefix := strings.Join(fs[:2], ".")
+	return vPrefix
 }
 
 // clustersUpdatingToVersion produces requests for clusters that have the given version in their UpdatesAvailable condition message.
 func (r *Reconciler) clustersUpdatingToVersion(v string) []ctrl.Request {
 	clusterList := &clusterv1.ClusterList{}
 	if err := r.Client.List(r.Context, clusterList, &client.ListOptions{
-		FieldSelector: fields.OneTermEqualSelector(indexCanUpdateToVersion, v),
+		FieldSelector: fields.OneTermEqualSelector(indexCanUpdateToVersionLabels, v),
 	}); err != nil {
 		r.Log.Error(err, "error listing clusters updating to", "version", v)
 		return nil
@@ -133,6 +151,7 @@ func (r *Reconciler) Reconcile(ctx context.Context, req ctrl.Request) (result ct
 
 	ps.Add(cluster)
 
+	r.Log.Info("calculating updates available", "cluster", req)
 	return ctrl.Result{}, r.calculateAndSetUpdatesAvailable(ctx, cluster)
 }
 
@@ -155,6 +174,8 @@ func (r *Reconciler) calculateAndSetUpdatesAvailable(ctx context.Context, cluste
 	if err != nil {
 		return err
 	}
+	r.Log.Info("setting updates available", "cluster", fmt.Sprintf("%s/%s", cluster.Namespace, cluster.Name),
+		"updates", fmt.Sprintf("%v", updates))
 	setUpdatesAvailable(cluster, updates)
 	return nil
 }
