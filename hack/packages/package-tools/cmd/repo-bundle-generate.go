@@ -65,6 +65,7 @@ func runRepoBundleGenerate(cmd *cobra.Command, args []string) error {
 	}
 
 	if packageValuesFile == "" {
+		if err := generatePackageBundlesSha256(projectRootDir, registry); err != nil {
 		if err := generatePackageBundlesSha256(projectRootDir, constants.LocalRegistryURL); err != nil {
 			return fmt.Errorf("couldn't generate package-values-sha256.yaml: %w", err)
 		}
