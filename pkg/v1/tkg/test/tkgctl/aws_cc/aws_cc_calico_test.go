@@ -12,7 +12,7 @@ import (
 	. "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/test/tkgctl/shared"
 )
 
-var _ = Describe("Functional tests for aws (clusterclass) - Calico", func() {
+var _ = FDescribe("Functional tests for aws (clusterclass) - Calico", func() {
 	E2ECommonSpec(context.TODO(), func() E2ECommonSpecInput {
 		return E2ECommonSpecInput{
 			E2EConfig:       e2eConfig,

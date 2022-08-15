@@ -338,6 +338,7 @@ func verifyPackageInstall(ctx context.Context, c client.Client, namespace, pkgIn
 		if pkgInstall.Spec.PackageRef.VersionSelection.Constraints != pkgVersion {
 			return false
 		}
+		log.Infof("Show the contents of PackageInstall %s for package %s of version %s: %+v", pkgInstallName, pkgName, pkgVersion, *pkgInstall)
 		return true
 	}, waitForReadyTimeout, pollingInterval).Should(BeTrue(), "Package %s is not deployed successfully", pkgName)
 }
@@ -524,6 +525,7 @@ func clusterResourcesDeleted(ctx context.Context, k8sClient client.Client, clust
 	for _, r := range clusterResources {
 		log.Infof("Check if cluster resource of type %q kind %q name %q is deleted from namespace %q", reflect.TypeOf(r.obj), r.obj.GetObjectKind().GroupVersionKind().Kind, r.name, r.namespace)
 		if objectExists(ctx, k8sClient, r.namespace, r.name, r.obj) {
+			log.Infof("Cluster resource of type %q kind %q name %q has not deleted from namespace %q", reflect.TypeOf(r.obj), r.obj.GetObjectKind().GroupVersionKind().Kind, r.name, r.namespace)
 			return false
 		}
 	}
@@ -580,12 +582,18 @@ func GetManagementClusterResources(ctx context.Context, mccl client.Client, dyna
 				if err != nil {
 					return nil, err
 				}
-				secretName, _, err := unstructured.NestedString(provider.UnstructuredContent(), "status", "secretRef")
+				secretName, found, err := unstructured.NestedString(provider.UnstructuredContent(), "status", "secretRef")
 				if err != nil {
 					return nil, err
 				}
+
+				if !found {
+					return nil, fmt.Errorf("%s/%s/%s has empty secretRef in status", gvr.Group, gvr.Version, gvr.Resource)
+				}
+
 				clusterResources = append(clusterResources, ClusterResource{name: provider.GetName(), namespace: clusterNamespace, obj: provider})
 				clusterResources = append(clusterResources, ClusterResource{name: secretName, namespace: clusterNamespace, obj: &corev1.Secret{}})
+
 			}
 		} else {
 			// In tkgs case a secret could be created to add nodeSelector, deployment/daemonset updateStrategies. Hence need to add that secret

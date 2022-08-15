@@ -201,7 +201,10 @@ func E2ECommonSpec(ctx context.Context, inputGetter func() E2ECommonSpecInput) {
 				Expect(err).To(BeNil())
 
 				By(fmt.Sprintf("Get management cluster resources created by addons-manager for workload cluster %q on management cluster %q", clusterName, input.E2EConfig.ManagementClusterName))
-				clusterResources, err = GetManagementClusterResources(ctx, mngclient, mngDynamicClient, mngAggregatedAPIResourcesClient, mngDiscoveryClient, namespace, clusterName, infrastructureName)
+				Eventually(func() error {
+					clusterResources, err = GetManagementClusterResources(ctx, mngclient, mngDynamicClient, mngAggregatedAPIResourcesClient, mngDiscoveryClient, namespace, clusterName, infrastructureName)
+					return err
+				}, resourceDeletionWaitTimeout, pollingInterval).Should(Succeed())
 				Expect(err).NotTo(HaveOccurred())
 			}
 		}
