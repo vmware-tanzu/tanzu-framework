@@ -6,7 +6,7 @@
 set -euo pipefail
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
-PROVIDERS_DIR=${SCRIPT_DIR}/../../../pkg/v1/providers
+PROVIDERS_DIR=${SCRIPT_DIR}/../../../providers
 PKGS_DIR=${SCRIPT_DIR}/../..
 BINNAME="$( basename "${BASH_SOURCE[0]}" )"
 
