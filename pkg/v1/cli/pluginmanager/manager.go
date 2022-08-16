@@ -50,13 +50,6 @@ type DeletePluginOptions struct {
 	ForceDelete bool
 }
 
-var okResponsesMap = map[string]struct{}{
-	"y":   {},
-	"Y":   {},
-	"yes": {},
-	"Yes": {},
-}
-
 // ValidatePlugin validates the plugin descriptor.
 func ValidatePlugin(p *cliv1alpha1.PluginDescriptor) (err error) {
 	// skip builder plugin for bootstrapping
@@ -479,7 +472,7 @@ func DeletePlugin(options DeletePluginOptions) error {
 	}
 
 	if !options.ForceDelete {
-		if err := Confirm(fmt.Sprintf("Deleting Plugin '%s'. Are you sure?", options.PluginName)); err != nil {
+		if err := cli.AskForConfirmation(fmt.Sprintf("Deleting Plugin '%s'. Are you sure?", options.PluginName)); err != nil {
 			return err
 		}
 	}
@@ -490,20 +483,6 @@ func DeletePlugin(options DeletePluginOptions) error {
 
 	// TODO: delete the plugin binary if it is not used by any server
 
-	return nil
-}
-
-func Confirm(message string) error {
-	var response string
-	msg := message + " [y/N]: "
-	log.ForceWriteToStdErr([]byte(msg))
-	_, err := fmt.Scanln(&response)
-	if err != nil {
-		return errors.New("aborted")
-	}
-	if _, exit := okResponsesMap[response]; !exit {
-		return errors.New("aborted")
-	}
 	return nil
 }
 
