@@ -10,7 +10,7 @@ GOOS ?= $(shell go env GOOS)
 GOARCH ?= $(shell go env GOARCH)
 PROJECT_ROOT = $(shell pwd)
 
-CLI_REPO ?= ${PROJECT_ROOT}/../../..
+CLI_REPO ?= ${PROJECT_ROOT}/..
 TOOLS_DIR ?= ${PROJECT_ROOT}/../../../hack/tools
 TOOLS_BIN_DIR ?= ${TOOLS_DIR}/bin
 GOBINDATA := $(TOOLS_BIN_DIR)/gobindata
