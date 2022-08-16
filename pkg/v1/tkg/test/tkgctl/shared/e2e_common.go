@@ -137,14 +137,14 @@ func E2ECommonSpec(ctx context.Context, inputGetter func() E2ECommonSpecInput) {
 		Expect(err).To(BeNil())
 
 		defer os.Remove(clusterConfigFile)
+
 		if input.IsCCB {
-			clusterName, namespace = ValidateClusterClassConfigFile(input.E2EConfig.WorkloadClusterOptions.ClusterClassCBFilePath)
-			input.E2EConfig.WorkloadClusterOptions.Namespace = namespace
+			clusterName, _ = ValidateClusterClassConfigFile(input.E2EConfig.WorkloadClusterOptions.ClusterClassCBFilePath)
 			input.E2EConfig.WorkloadClusterOptions.ClusterName = clusterName
 			err = tkgCtlClient.CreateCluster(tkgctl.CreateClusterOptions{
 				ClusterConfigFile: input.E2EConfig.WorkloadClusterOptions.ClusterClassCBFilePath,
 				Edition:           "tkg",
-				Namespace:         input.E2EConfig.WorkloadClusterOptions.Namespace,
+				Namespace:         namespace,
 				ClusterName:       input.E2EConfig.WorkloadClusterOptions.ClusterName,
 			})
 		} else {
@@ -220,6 +220,7 @@ func E2ECommonSpec(ctx context.Context, inputGetter func() E2ECommonSpecInput) {
 		}
 
 		By(fmt.Sprintf("Deleting workload cluster %q", clusterName))
+
 		err = tkgCtlClient.DeleteCluster(tkgctl.DeleteClustersOptions{
 			ClusterName: clusterName,
 			Namespace:   namespace,
