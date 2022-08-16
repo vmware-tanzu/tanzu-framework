@@ -5,6 +5,7 @@ package client
 
 import (
 	"context"
+	"fmt"
 	"strings"
 	"time"
 
@@ -18,7 +19,7 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/log"
 )
 
-// GetClusterBootstrap returns ClusterBootstrap object for the given clustername in the management cluster
+// GetClusterBootstrap returns ClusterBootstrap object for the given clusterName in the management cluster
 func GetClusterBootstrap(managementClusterClient clusterclient.Client, clusterName, namespace string) (*runtanzuv1alpha3.ClusterBootstrap, error) {
 	log.V(3).Infof("getting ClusterBootstrap object for cluster: %v", clusterName)
 	clusterBootstrap := &runtanzuv1alpha3.ClusterBootstrap{}
@@ -26,29 +27,68 @@ func GetClusterBootstrap(managementClusterClient clusterclient.Client, clusterNa
 	return clusterBootstrap, err
 }
 
-// GetCorePackagesFromClusterBootstrap returns addon's core packages details from the given ClsuterBootstrap object
-func GetCorePackagesFromClusterBootstrap(clusterBootstrap *runtanzuv1alpha3.ClusterBootstrap, corePackagesNamespace string) []kapppkgv1alpha1.Package {
+// GetCorePackagesFromClusterBootstrap returns addon's core packages details from the given ClusterBootstrap object
+func GetCorePackagesFromClusterBootstrap(regionalClusterClient clusterclient.Client, workloadClusterClient clusterclient.Client, clusterBootstrap *runtanzuv1alpha3.ClusterBootstrap, corePackagesNamespace, clusterName string) ([]kapppkgv1alpha1.Package, error) {
 	var packages []kapppkgv1alpha1.Package
-	suffixStr := "-package"
-	// kapp package is installed in namespace in which workload cluster created
-	if clusterBootstrap.Spec.Kapp != nil && clusterBootstrap.Spec.Kapp.ValuesFrom != nil && clusterBootstrap.Spec.Kapp.ValuesFrom.ProviderRef != nil {
-		name := strings.TrimSuffix(clusterBootstrap.Spec.Kapp.ValuesFrom.ProviderRef.Name, suffixStr)
-		packages = append(packages, kapppkgv1alpha1.Package{ObjectMeta: metav1.ObjectMeta{Name: name, Namespace: clusterBootstrap.ObjectMeta.Namespace}})
+	// kapp package is installed in management cluster, in namespace in which workload cluster created
+	if isPackageExists(clusterBootstrap.Spec.Kapp) {
+		pkg, err := getPackage(regionalClusterClient, clusterBootstrap.Spec.Kapp.RefName, clusterBootstrap.Namespace, clusterName)
+		if err != nil {
+			return packages, err
+		}
+		packages = append(packages, *pkg)
 	}
-	// Core packages CNI, CSI and CPI (other than Kapp) installed in tkg-system namespace in case of tkgm, and in case of tkgs installed in vmware-system-tkg namespace
-	if clusterBootstrap.Spec.CNI != nil && clusterBootstrap.Spec.CNI.ValuesFrom != nil && clusterBootstrap.Spec.CNI.ValuesFrom.ProviderRef != nil {
-		name := strings.TrimSuffix(clusterBootstrap.Spec.CNI.ValuesFrom.ProviderRef.Name, suffixStr)
-		packages = append(packages, kapppkgv1alpha1.Package{ObjectMeta: metav1.ObjectMeta{Name: name, Namespace: corePackagesNamespace}})
+
+	// Core packages CNI, CSI and CPI (other than Kapp) installed in workload cluster
+	if isPackageExists(clusterBootstrap.Spec.CNI) {
+		pkg, err := getPackage(workloadClusterClient, clusterBootstrap.Spec.CNI.RefName, corePackagesNamespace, clusterName)
+		if err != nil {
+			return packages, err
+		}
+		packages = append(packages, *pkg)
 	}
-	if clusterBootstrap.Spec.CSI != nil && clusterBootstrap.Spec.CSI.ValuesFrom != nil && clusterBootstrap.Spec.CSI.ValuesFrom.ProviderRef != nil {
-		name := strings.TrimSuffix(clusterBootstrap.Spec.CSI.ValuesFrom.ProviderRef.Name, suffixStr)
-		packages = append(packages, kapppkgv1alpha1.Package{ObjectMeta: metav1.ObjectMeta{Name: name, Namespace: corePackagesNamespace}})
+	if isPackageExists(clusterBootstrap.Spec.CSI) {
+		pkg, err := getPackage(workloadClusterClient, clusterBootstrap.Spec.CSI.RefName, corePackagesNamespace, clusterName)
+		if err != nil {
+			return packages, err
+		}
+		packages = append(packages, *pkg)
 	}
-	if clusterBootstrap.Spec.CPI != nil && clusterBootstrap.Spec.CPI.ValuesFrom != nil && clusterBootstrap.Spec.CPI.ValuesFrom.ProviderRef != nil {
-		name := strings.TrimSuffix(clusterBootstrap.Spec.CPI.ValuesFrom.ProviderRef.Name, suffixStr)
-		packages = append(packages, kapppkgv1alpha1.Package{ObjectMeta: metav1.ObjectMeta{Name: name, Namespace: corePackagesNamespace}})
+	if isPackageExists(clusterBootstrap.Spec.CPI) {
+		pkg, err := getPackage(workloadClusterClient, clusterBootstrap.Spec.CPI.RefName, corePackagesNamespace, clusterName)
+		if err != nil {
+			return packages, err
+		}
+		packages = append(packages, *pkg)
 	}
-	return packages
+	return packages, nil
+}
+
+func isPackageExists(cbPackage *runtanzuv1alpha3.ClusterBootstrapPackage) bool {
+	return cbPackage != nil && cbPackage.ValuesFrom != nil && cbPackage.ValuesFrom.ProviderRef != nil
+}
+
+// getPackage takes clusterclient, package name, namespace and cluster name, queries for package details and give package object (which has package name and namespace details)
+func getPackage(clusterClient clusterclient.Client, packageRefName, packagesNamespace, clusterName string) (*kapppkgv1alpha1.Package, error) {
+	pkg := &kapppkgv1alpha1.Package{}
+	pkgFromCluster, err := clusterClient.GetPackage(packageRefName, packagesNamespace)
+	if err != nil {
+		return pkg, err
+	}
+	pkgName := GeneratePackageInstallName(clusterName, pkgFromCluster.Spec.RefName)
+	pkg = &kapppkgv1alpha1.Package{ObjectMeta: metav1.ObjectMeta{Name: pkgName, Namespace: packagesNamespace}}
+	return pkg, err
+}
+
+// GeneratePackageInstallName is the util function to generate the PackageInstall CR name in a consistent manner.
+// clusterName is the name of cluster within which all resources associated with this PackageInstall CR is installed.
+// It does not necessarily
+// mean the PackageInstall CR will be installed in that cluster. I.e., the kapp-controller PackageInstall CR is installed
+// in the management cluster but is named after "<workload-cluster-name>-kapp-controller". It indicates that this kapp-controller
+// PackageInstall is for reconciling resources in a cluster named "<workload-cluster-name>".
+// addonName is the short name of a Tanzu addon with which the PackageInstall CR is associated.
+func GeneratePackageInstallName(clusterName, addonName string) string {
+	return fmt.Sprintf("%s-%s", clusterName, strings.Split(addonName, ".")[0])
 }
 
 // MonitorAddonsCorePackageInstallation monitors addon's core packages (kapp, cni, csi and cpi) and returns error if any while monitoring packages or any packages are not installed successfully. First it monitors kapp package in management cluster then it monitors other core packages in workload cluster.
