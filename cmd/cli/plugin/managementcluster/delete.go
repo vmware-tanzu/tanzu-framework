@@ -9,6 +9,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/log"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgctl"
 
 	"github.com/vmware-tanzu/tanzu-framework/apis/config/v1alpha1"
@@ -45,6 +46,11 @@ func init() {
 }
 
 func runDeleteRegion(server *v1alpha1.Server) error {
+	err := tkgctl.SetCompatibilityFileBasedOnEdition()
+	if err != nil {
+		log.V(3).Infof("%v", err.Error())
+	}
+
 	forceUpdateTKGCompatibilityImage := false
 	tkgClient, err := newTKGCtlClient(forceUpdateTKGCompatibilityImage)
 	if err != nil {

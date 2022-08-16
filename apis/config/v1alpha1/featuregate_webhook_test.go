@@ -15,8 +15,6 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client/fake"
-
-	stringcmp "github.com/vmware-tanzu/tanzu-framework/pkg/v1/test/cmp/strings"
 )
 
 func TestValidateFeatureImmutability(t *testing.T) {
@@ -81,7 +79,7 @@ func TestValidateFeatureImmutability(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.description, func(t *testing.T) {
 			got := computeChangedImmutableFeatures(tc.featureGateSpec, tc.currentFeatures, tc.oldObj)
-			if diff := stringcmp.SliceDiffIgnoreOrder(got, tc.want); diff != "" {
+			if diff := sliceDiffIgnoreOrder(got, tc.want); diff != "" {
 				t.Errorf("got immutable features %v, want %v, diff: %s", got, tc.want, diff)
 			}
 		})
@@ -330,4 +328,18 @@ func TestNamespaceConflicts(t *testing.T) {
 			}
 		})
 	}
+}
+
+// sliceDiffIgnoreOrder returns a human-readable diff of two string slices.
+// Two slices are considered equal when they have the same length and same elements. The order of the elements is
+// ignored while comparing. Nil and empty slices are considered equal.
+//
+// This function is intended to be used in tests for comparing expected and actual values, and printing the diff for
+// users to debug:
+//
+//   if diff := sliceDiffIgnoreOrder(got, want); diff != "" {
+//       t.Errorf("got: %v, want: %v, diff: %s", got, want, diff)
+//   }
+func sliceDiffIgnoreOrder(a, b []string) string {
+	return cmp.Diff(a, b, cmpopts.EquateEmpty(), cmpopts.SortSlices(func(x, y string) bool { return x < y }))
 }
