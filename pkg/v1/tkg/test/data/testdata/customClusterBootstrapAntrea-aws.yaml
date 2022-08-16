@@ -2,7 +2,7 @@ apiVersion: cni.tanzu.vmware.com/v1alpha1
 kind: AntreaConfig
 metadata:
   name: cc-cb
-  namespace: customcb-ns
+  namespace: tkg-system
 spec:
   antrea:
     config:
@@ -22,9 +22,9 @@ apiVersion: run.tanzu.vmware.com/v1alpha3
 kind: ClusterBootstrap
 metadata:
   annotations:
-    tkg.tanzu.vmware.com/add-missing-fields-from-tkr: v1.23.5---vmware.1-tkg.1-zshippable
+    tkg.tanzu.vmware.com/add-missing-fields-from-tkr: v1.23.8---vmware.2-tkg.1-zshippable
   name: cc-cb
-  namespace: customcb-ns
+  namespace: tkg-system
 spec:
   additionalPackages:
     - refName: metrics-server*
@@ -46,9 +46,9 @@ metadata:
   annotations:
     run.tanzu.vmware.com/resolve-tkr: ""
   labels:
-    tkg.tanzu.vmware.com/cluster-name: aws-cc-wc
-  name: aws-cc-wc
-  namespace: default
+    tkg.tanzu.vmware.com/cluster-name: aws-cc-wc-test
+  name: aws-cc-wc-test
+  namespace: tkg-system
 spec:
   clusterNetwork:
     pods:
@@ -81,11 +81,11 @@ spec:
           subnets:
             - az: us-west-2a
               private:
-                id: subnet-0b0f28c172c229261
+                id: subnet-00ad3a16aff223eae
               public:
-                id: subnet-017721635d6fd36bc
+                id: subnet-0f8ab2a59ca4a9eaa
           vpc:
-            existingID: vpc-03eabce14a3931ec2
+            existingID: vpc-0646fa3e162e25d7c
       - name: identityRef
         value: {}
       - name: worker
@@ -98,7 +98,7 @@ spec:
           instanceType: t2.xlarge
           rootVolume:
             sizeGiB: 80
-    version: v1.23.8+vmware.2
+    version: v1.23.8---vmware.2-tkg.1-zshippable
     workers:
       machineDeployments:
         - class: tkg-worker
