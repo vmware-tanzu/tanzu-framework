@@ -67,4 +67,4 @@ require (
 	sigs.k8s.io/yaml v1.3.0 // indirect
 )
 
-replace github.com/vmware-tanzu/tanzu-framework/test/pkg => ../../../../test/pkg
+replace github.com/vmware-tanzu/tanzu-framework/test/pkg => ../../test/pkg
