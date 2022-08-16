@@ -368,6 +368,8 @@ func (h *Helper) HandleExistingClusterBootstrap(clusterBootstrap *runtanzuv1alph
 					}
 				}
 			}
+			h.Logger.Info("Updating packagesToBeCloned with additional packages")
+			packagesToBeCloned = append(packagesToBeCloned, clusterBootstrap.Spec.AdditionalPackages...)
 			packages = packagesToBeCloned
 		}
 	}
