@@ -170,6 +170,41 @@ var _ = Describe("TKGS ClusterClass based workload cluster tests", func() {
 			shared.TestClusterUpgrade(tkgctlClient, clusterName, namespace)
 			shared.CheckTKGSAddons(context.TODO(), tkgctlClient, svClusterName, clusterName, namespace, e2eConfig.TKGSKubeconfigPath, e2eConfig.InfrastructureName, true)
 		})
+
+		It("should return success or error based on the ClusterClass with inline package", func() {
+			Expect(err).ToNot(HaveOccurred())
+
+			clusterClient := framework.GetClusterclient(e2eConfig.TKGSKubeconfigPath, e2eConfig.TKGSKubeconfigContext)
+			secret := &corev1.Secret{}
+			err := clusterClient.GetResource(secret, fmt.Sprintf("%s-metrics-server-data-values", clusterName), namespace, nil, nil)
+			Expect(err).To(BeNil())
+			secretData := secret.Data["values.yaml"]
+			secretDataString := string(secretData)
+			Expect(strings.Contains(secretDataString, "periodSeconds: 10")).Should(BeTrue())
+
+			By(fmt.Sprintf("Get k8s client for management cluster"))
+			mngClient, _, _, _, err := shared.GetClients(context.Background(), e2eConfig.TKGSKubeconfigPath)
+			Expect(err).NotTo(HaveOccurred())
+
+			By(fmt.Sprintf("Generating credentials for workload cluster %q", e2eConfig.WorkloadClusterOptions.ClusterName))
+			wlcKubeConfigFileName := e2eConfig.WorkloadClusterOptions.ClusterName + ".kubeconfig"
+			wlcTempFilePath := filepath.Join(os.TempDir(), wlcKubeConfigFileName)
+			err = tkgctlClient.GetCredentials(tkgctl.GetWorkloadClusterCredentialsOptions{
+				ClusterName: clusterName,
+				Namespace:   namespace,
+				ExportFile:  wlcTempFilePath,
+			})
+			Expect(err).To(BeNil())
+
+			By(fmt.Sprintf("Get k8s client for workload cluster %q", clusterName))
+			wlcClient, _, _, _, err := shared.GetClients(context.Background(), wlcTempFilePath)
+			Expect(err).NotTo(HaveOccurred())
+
+			By(fmt.Sprintf("Verify addon packages on workload cluster %q matches clusterBootstrap info on management cluster %q", e2eConfig.WorkloadClusterOptions.ClusterName, clusterName))
+			err = shared.CheckClusterCB(context.Background(), mngClient, wlcClient, clusterName, namespace, clusterName, namespace, e2eConfig.InfrastructureName, false, true)
+			Expect(err).To(BeNil())
+
+		})
 	})
 
 	Context("when input file is legacy cluster based", func() {
