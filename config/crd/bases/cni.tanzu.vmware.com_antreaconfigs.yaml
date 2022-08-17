@@ -153,6 +153,18 @@ spec:
                             description: Flag to enable/disable service external IP
                             type: boolean
                         type: object
+                      flowExporter:
+                        description: Specifies FlowExporter related configuration.
+                        properties:
+                          activeFlowTimeout:
+                            type: string
+                          collectorAddress:
+                            type: string
+                          idleFlowTimeout:
+                            type: string
+                          pollInterval:
+                            type: string
+                        type: object
                       kubeAPIServerOverride:
                         default: encap
                         description: The traffic encapsulation mode. One of the following
