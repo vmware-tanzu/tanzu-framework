@@ -8,7 +8,9 @@ import (
 	"fmt"
 	"reflect"
 
+	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/util/sets"
 	"k8s.io/apimachinery/pkg/util/validation/field"
@@ -18,8 +20,6 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client/config"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/webhook"
-
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/sdk/features/util"
 )
 
 // log is for logging in this package.
@@ -143,7 +143,7 @@ func (r *FeatureGate) computeConflictingNamespaces(ctx context.Context, c client
 		return nil, err
 	}
 
-	namespacesInSpec, err := util.NamespacesMatchingSelector(ctx, c, &r.Spec.NamespaceSelector)
+	namespacesInSpec, err := namespacesMatchingSelector(ctx, c, &r.Spec.NamespaceSelector)
 	if err != nil {
 		return nil, err
 	}
@@ -219,4 +219,26 @@ func computeChangedImmutableFeatures(spec FeatureGateSpec, currentFeatures []Fea
 func (r *FeatureGate) ValidateDelete() error {
 	featuregatelog.Info("validate delete", "name", r.Name)
 	return nil
+}
+
+// namespacesMatchingSelector returns the list of namespaces after applying the NamespaceSelector filter.
+// Note that a nil selector selects nothing, while an empty selector selects everything.
+// Callers using this function in feature gates context should be sending a pointer to an empty selector instead of nil.
+func namespacesMatchingSelector(ctx context.Context, c client.Client, selector *metav1.LabelSelector) ([]string, error) {
+	s, err := metav1.LabelSelectorAsSelector(selector)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get namespaces from NamespaceSelector: %w", err)
+	}
+
+	nsList := &corev1.NamespaceList{}
+	err = c.List(ctx, nsList, client.MatchingLabelsSelector{Selector: s})
+	if err != nil {
+		return nil, fmt.Errorf("failed to get namespaces from NamespaceSelector: %w", err)
+	}
+
+	var namespaces []string
+	for i := range nsList.Items {
+		namespaces = append(namespaces, nsList.Items[i].Name)
+	}
+	return namespaces, nil
 }
