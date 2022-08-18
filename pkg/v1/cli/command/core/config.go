@@ -256,11 +256,13 @@ var initConfigCmd = &cobra.Command{
 	},
 }
 
+// Note: Shall be deprecated in a future version. Superseded by 'tanzu context' command.
 var serversCmd = &cobra.Command{
 	Use:   "server",
 	Short: "Configured servers",
 }
 
+// Note: Shall be deprecated in a future version. Superseded by 'tanzu context list' command.
 var listServersCmd = &cobra.Command{
 	Use:   "list",
 	Short: "List servers",
@@ -287,6 +289,7 @@ var listServersCmd = &cobra.Command{
 	},
 }
 
+// Note: Shall be deprecated in a future version. Superseded by 'tanzu context delete' command.
 var deleteServersCmd = &cobra.Command{
 	Use:   "delete SERVER_NAME",
 	Short: "Delete a server from the config",

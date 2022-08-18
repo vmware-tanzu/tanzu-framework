@@ -11,17 +11,30 @@ import (
 // NOTE: json tags are required.  Any new fields you add must have json tags for the fields to be serialized.
 
 // ServerType is the type of server.
+// Note: Shall be deprecated in a future version. Superseded by ContextType.
 type ServerType string
+
+// ContextType is the type of the context (control plane).
+type ContextType string
 
 const (
 	// ManagementClusterServerType is a management cluster server.
+	// Note: Shall be deprecated in a future version. Superseded by CtxTypeK8s.
 	ManagementClusterServerType ServerType = "managementcluster"
 
 	// GlobalServerType is a global control plane server.
+	// Note: Shall be deprecated in a future version. Superseded by CtxTypeTMC.
 	GlobalServerType ServerType = "global"
+
+	// CtxTypeK8s is a kubernetes cluster API server.
+	CtxTypeK8s ContextType = "k8s"
+
+	// CtxTypeTMC is a Tanzu Mission Control server.
+	CtxTypeTMC ContextType = "tmc"
 )
 
 // Server connection.
+// Note: Shall be deprecated in a future version. Superseded by Context.
 type Server struct {
 	// Name of the server.
 	Name string `json:"name,omitempty" yaml:"name"`
@@ -40,7 +53,29 @@ type Server struct {
 	DiscoverySources []PluginDiscovery `json:"discoverySources,omitempty" yaml:"discoverySources"`
 }
 
+// Context configuration for a control plane. This can one of the following,
+// 1. Kubernetes Cluster
+// 2. Tanzu Mission Control endpoint
+type Context struct {
+	// Name of the context.
+	Name string `json:"name,omitempty" yaml:"name"`
+
+	// Type of the context.
+	Type ContextType `json:"type,omitempty" yaml:"type"`
+
+	// GlobalOpts if the context is a global control plane (e.g., TMC).
+	GlobalOpts *GlobalServer `json:"globalOpts,omitempty" yaml:"globalOpts"`
+
+	// ClusterOpts if the context is a kubernetes cluster.
+	ClusterOpts *ClusterServer `json:"clusterOpts,omitempty" yaml:"clusterOpts"`
+
+	// DiscoverySources determines from where to discover plugins
+	// associated with this context.
+	DiscoverySources []PluginDiscovery `json:"discoverySources,omitempty" yaml:"discoverySources"`
+}
+
 // ManagementClusterServer is the configuration for a management cluster kubeconfig.
+// Note: Shall be deprecated in a future version. Superseded by ClusterServer.
 type ManagementClusterServer struct {
 	// Endpoint for the login.
 	Endpoint string `json:"endpoint,omitempty" yaml:"endpoint"`
@@ -50,6 +85,21 @@ type ManagementClusterServer struct {
 
 	// The context to use (if required), defaults to current.
 	Context string `json:"context,omitempty" yaml:"context"`
+}
+
+// ClusterServer contains the configuration for a kubernetes cluster (kubeconfig).
+type ClusterServer struct {
+	// Endpoint for the login.
+	Endpoint string `json:"endpoint,omitempty" yaml:"endpoint"`
+
+	// Path to the kubeconfig.
+	Path string `json:"path,omitempty" yaml:"path"`
+
+	// The kubernetes context to use (if required), defaults to current.
+	Context string `json:"context,omitempty" yaml:"context"`
+
+	// Denotes whether this server is a management cluster or not (workload cluster).
+	IsManagementCluster bool `json:"isManagementCluster,omitempty" yaml:"isManagementCluster"`
 }
 
 // GlobalServer is the configuration for a global server.
@@ -224,10 +274,18 @@ type ClientConfig struct {
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
 	// KnownServers available.
+	// Note: Shall be deprecated in a future version. Superseded by KnownContexts.
 	KnownServers []*Server `json:"servers,omitempty" yaml:"servers"`
 
 	// CurrentServer in use.
+	// Note: Shall be deprecated in a future version. Superseded by CurrentContext.
 	CurrentServer string `json:"current,omitempty" yaml:"current"`
+
+	// KnownContexts available.
+	KnownContexts []*Context `json:"contexts,omitempty" yaml:"contexts"`
+
+	// CurrentContext for every type.
+	CurrentContext map[ContextType]string `json:"currentContext,omitempty" yaml:"currentContext"`
 
 	// ClientOptions are client specific options.
 	ClientOptions *ClientOptions `json:"clientOptions,omitempty" yaml:"clientOptions"`
