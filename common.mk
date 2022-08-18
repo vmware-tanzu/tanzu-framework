@@ -66,9 +66,10 @@ endif
 
 
 # Directories
-TOOLS_DIR := $(abspath $(ROOT_DIR)/hack/tools)
+TOOLS_DIR_RELATIVE := hack/tools
+TOOLS_DIR := $(abspath $(ROOT_DIR)/$(TOOLS_DIR_RELATIVE))
 TOOLS_BIN_DIR := $(TOOLS_DIR)/bin
-
+TOOLS_DIR_DEPS := $(TOOLS_DIR)/go.sum $(TOOLS_DIR)/go.mod $(TOOLS_DIR)/Makefile
 
 # Add tooling binaries here and in hack/tools/Makefile
 CONTROLLER_GEN     := $(TOOLS_BIN_DIR)/controller-gen
@@ -86,7 +87,8 @@ GINKGO             := $(TOOLS_BIN_DIR)/ginkgo
 VALE               := $(TOOLS_BIN_DIR)/vale
 YQ                 := $(TOOLS_BIN_DIR)/yq
 CONVERSION_GEN     := $(TOOLS_BIN_DIR)/conversion-gen
-TOOLING_BINARIES   := $(CONTROLLER_GEN) $(GOLANGCI_LINT) $(YTT) $(KBLD) $(VENDIR) $(IMGPKG) $(KAPP) $(KUSTOMIZE) $(GOIMPORTS) $(GOBINDATA) $(GINKGO) $(VALE) $(YQ) $(CONVERSION_GEN)
+COUNTERFEITER      := $(TOOLS_BIN_DIR)/counterfeiter
+TOOLING_BINARIES   := $(CONTROLLER_GEN) $(GOLANGCI_LINT) $(YTT) $(KBLD) $(VENDIR) $(IMGPKG) $(KAPP) $(KUSTOMIZE) $(GOIMPORTS) $(GOBINDATA) $(GINKGO) $(VALE) $(YQ) $(CONVERSION_GEN) $(COUNTERFEITER)
 
 ## --------------------------------------
 ##@ API/controller building and generation
@@ -114,3 +116,6 @@ generate-manifests:
 
 fmt: $(GOIMPORTS) ## Run goimports
 	$(GOIMPORTS) -w -local github.com/vmware-tanzu ./
+
+$(TOOLS_DIR_RELATIVE)/bin/%: $(TOOLS_DIR_DEPS)
+	make -C $(TOOLS_DIR) $(subst $(TOOLS_DIR_RELATIVE)/,,$@)
