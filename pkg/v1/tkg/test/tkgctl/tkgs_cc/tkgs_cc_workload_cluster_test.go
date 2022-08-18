@@ -52,7 +52,7 @@ var _ = Describe("TKGS ClusterClass based workload cluster tests", func() {
 
 	Context("when input file is cluster class based with CNI Antrea", func() {
 		BeforeEach(func() {
-			clusterName, namespace = ValidateClusterClassConfigFile(e2eConfig.WorkloadClusterOptions.ClusterClassFilePath)
+			clusterName, namespace = shared.ValidateClusterClassConfigFile(e2eConfig.WorkloadClusterOptions.ClusterClassFilePath)
 			e2eConfig.WorkloadClusterOptions.Namespace = namespace
 			e2eConfig.WorkloadClusterOptions.ClusterName = clusterName
 			deleteClusterOptions = getDeleteClustersOptions(e2eConfig)
@@ -80,7 +80,7 @@ var _ = Describe("TKGS ClusterClass based workload cluster tests", func() {
 
 	Context("when input file is cluster class based with CNI Calico", func() {
 		BeforeEach(func() {
-			clusterName, namespace = ValidateClusterClassConfigFile(e2eConfig.WorkloadClusterOptions.ClusterClassFilePath)
+			clusterName, namespace = shared.ValidateClusterClassConfigFile(e2eConfig.WorkloadClusterOptions.ClusterClassFilePath)
 			e2eConfig.WorkloadClusterOptions.Namespace = namespace
 			e2eConfig.WorkloadClusterOptions.ClusterName = clusterName
 			deleteClusterOptions = getDeleteClustersOptions(e2eConfig)
@@ -113,7 +113,7 @@ var _ = Describe("TKGS ClusterClass based workload cluster tests", func() {
 
 	Context("when input file is cluster class based with custom Cluster Bootstrap", func() {
 		BeforeEach(func() {
-			clusterName, namespace = ValidateClusterClassConfigFile(e2eConfig.WorkloadClusterOptions.ClusterClassCBFilePath)
+			clusterName, namespace = shared.ValidateClusterClassConfigFile(e2eConfig.WorkloadClusterOptions.ClusterClassCBFilePath)
 			e2eConfig.WorkloadClusterOptions.Namespace = namespace
 			e2eConfig.WorkloadClusterOptions.ClusterName = clusterName
 			deleteClusterOptions = getDeleteClustersOptions(e2eConfig)

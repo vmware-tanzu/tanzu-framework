@@ -20,4 +20,4 @@ tkg_config_variables:
 management_cluster_options:
   plan: dev
 workload_cluster_options:
-  CLUSTER_CLASS_CB_FILE_PATH: ../../../test/data/testdata/customClusterBootstrapAntrea-aws.yaml
+  CLUSTER_CLASS_CB_FILE_PATH: .../../data/testdata/customClusterBootstrapAntrea-aws.yaml
