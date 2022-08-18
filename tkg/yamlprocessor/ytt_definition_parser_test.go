@@ -8,11 +8,7 @@ import (
 	"os"
 	"path/filepath"
 
-	. "github.com/onsi/ginkgo"
-	. "github.com/onsi/ginkgo/extensions/table"
-	. "github.com/onsi/gomega"
-
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/yamlprocessor"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/yamlprocessor"
 )
 
 var _ = Describe("YttDefinitionParser", func() {
