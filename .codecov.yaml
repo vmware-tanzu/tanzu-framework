@@ -23,3 +23,4 @@ ignore:
   - "provider-bundle"
   - "providers.zip"
   - "providers.tar.gz"
+  - "**/zz_generated.deepcopy.go"

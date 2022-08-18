@@ -6,6 +6,8 @@ This document aims to provide a general overview of the Tanzu CLI architecture.
 
 _Plugin_ - The CLI consists of plugins, each being a cmd developed in Go and conforming to Cobra CLI standard.
 
+_Context_ - An isolated scope of relevant client-side configurations for a combination of user identity and server identity.
+
 _Repository_ - Represents a group of plugin artifacts that are installable by the Tanzu CLI.
 
 _DiscoverySource_ - Represents a group of plugin artifacts and their distribution details that are installable by the Tanzu CLI.
@@ -82,6 +84,52 @@ tanzu plugin delete <plugin-name>
 ```
 
 This will list all versions of the plugin along with its description.
+
+## Context
+
+Context is an isolated scope of relevant client-side configurations for a combination of user identity and server identity. There can be multiple contexts for the same combination of `(user, server)`. Previously, this was referred to as `Server` in the Tanzu CLI. Going forward we shall refer to them as `Context` to be explicit. Also, the context can be managed at one place using the `tanzu context` command. Earlier, this was distributed between the `tanzu login` command and `tanzu config server` command.
+
+Note: This is currently behind a feature flag. To enable the flag please run `tanzu config set features.global.context-target true`
+
+Create a new context:
+
+```sh
+# Deprecated: Login to TKG management cluster by using kubeconfig path and context for the management cluster
+tanzu login --kubeconfig path/to/kubeconfig --context path/to/context --name mgmt-cluster
+
+# New Command
+tanzu context create --management-cluster --kubeconfig path/to/kubeconfig --context path/to/context --name mgmt-cluster
+```
+
+List known contexts:
+
+```sh
+# Deprecated
+tanzu config server list
+
+# New Command
+tanzu context list
+```
+
+Delete a context:
+
+```sh
+# Deprecated
+tanzu config server delete demo-cluster
+
+# New Command
+tanzu context delete demo-cluster
+```
+
+Use a context:
+
+```sh
+# Deprecated
+tanzu login mgmt-cluster
+
+# New Command
+tanzu context use mgmt-cluster
+```
 
 ## Plugin Discovery Sources
 
