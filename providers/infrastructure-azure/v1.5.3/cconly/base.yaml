@@ -447,16 +447,16 @@ spec:
         path: /spec/template/spec/location
         valueFrom:
           variable: location
-      - op: replace
-        path: /spec/template/spec/networkSpec/vnet
-        valueFrom:
-          template: |
-            name: {{ if .network.vnet.name }} {{- .network.vnet.name }} {{- else }} {{- .builtin.cluster.name -}} -vnet {{- end }}
-            resourceGroup: {{ if .network.vnet.resourceGroup }} {{- .network.vnet.resourceGroup }} {{- else if .resourceGroup }} {{- .resourceGroup }} {{- else }} {{- .builtin.cluster.name }} {{- end }}
-            cidrBlocks:
-              {{ range .network.vnet.cidrBlocks -}}
-                - {{ . }}
-              {{- end }}
+      # - op: replace
+      #   path: /spec/template/spec/networkSpec/vnet
+      #   valueFrom:
+      #     template: |
+      #       name: {{ if .network.vnet.name }} {{- .network.vnet.name }} {{- else }} {{- .builtin.cluster.name -}} -vnet {{- end }}
+      #       resourceGroup: {{ if .network.vnet.resourceGroup }} {{- .network.vnet.resourceGroup }} {{- else if .resourceGroup }} {{- .resourceGroup }} {{- else }} {{- .builtin.cluster.name }} {{- end }}
+      #       cidrBlocks:
+      #         {{ range .network.vnet.cidrBlocks -}}
+      #           - {{ . }}
+      #         {{- end }}
       - op: add
         path: /spec/template/spec/resourceGroup
         valueFrom:
