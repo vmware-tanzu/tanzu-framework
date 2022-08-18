@@ -7,6 +7,8 @@ replace (
 	github.com/vmware-tanzu/tanzu-framework/apis/cni => ./apis/cni
 	github.com/vmware-tanzu/tanzu-framework/apis/config => ./apis/config
 	github.com/vmware-tanzu/tanzu-framework/apis/cpi => ./apis/cpi
+	github.com/vmware-tanzu/tanzu-framework/apis/cpi => ./apis/cpi
+	github.com/vmware-tanzu/tanzu-framework/tkg/yamlprocessor => ./tkg/yamlprocessor
 	sigs.k8s.io/cluster-api => sigs.k8s.io/cluster-api v1.1.5
 	sigs.k8s.io/kind => sigs.k8s.io/kind v0.11.1
 )
