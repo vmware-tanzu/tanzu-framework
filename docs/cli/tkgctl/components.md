@@ -21,7 +21,7 @@ Library uses clusterctl library to perform many core tasks like
 reference:
 [https://pkg.go.dev/sigs.k8s.io/cluster-api/cmd/clusterctl/](https://pkg.go.dev/sigs.k8s.io/cluster-api/cmd/clusterctl/)
 
-## [ytt processor](/pkg/v1/tkg/yamlprocessor)
+## [ytt processor](tkg/yamlprocessor)
 
 * Library has this YTT processor package
 * Implements YAML processor interface that is used with clusterctl when creation cluster templates. [https://pkg.go.dev/sigs.k8s.io/cluster-api/cmd/clusterctl/client/yamlprocessor#Processor](https://pkg.go.dev/sigs.k8s.io/cluster-api/cmd/clusterctl/client/yamlprocessor#Processor)
