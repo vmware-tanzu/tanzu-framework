@@ -13,7 +13,7 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/command/plugin"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/config"
 
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgctl"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/tkgctl"
 )
 
 var descriptor = cliv1alpha1.PluginDescriptor{

@@ -14,7 +14,7 @@ import (
 	clusterapiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
-	tkgconstants "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
+	tkgconstants "github.com/vmware-tanzu/tanzu-framework/tkg/constants"
 )
 
 const testPinnipedLabel = "pinniped.tanzu.vmware.com.1.2.3--vmware.1-tkg.1"

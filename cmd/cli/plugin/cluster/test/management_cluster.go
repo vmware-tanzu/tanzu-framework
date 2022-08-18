@@ -11,7 +11,7 @@ import (
 	"sigs.k8s.io/yaml"
 
 	clitest "github.com/vmware-tanzu/tanzu-framework/pkg/v1/test/cli"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/constants"
 )
 
 var (

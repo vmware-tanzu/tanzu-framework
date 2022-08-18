@@ -24,7 +24,7 @@ import (
 	vspherecpiv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cpi/v1alpha1"
 	vspherecsiv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/csi/v1alpha1"
 	runtanzuv1alpha3 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
-	tkgconstants "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
+	tkgconstants "github.com/vmware-tanzu/tanzu-framework/tkg/constants"
 
 	corev1 "k8s.io/api/core/v1"
 	rbacv1 "k8s.io/api/rbac/v1"
