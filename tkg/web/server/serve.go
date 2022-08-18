@@ -106,7 +106,7 @@ func FileServerMiddleware(handler http.Handler) http.Handler {
 				w.Header().Add("Content-Type", "text/css")
 			}
 
-			fs := &assetfs.AssetFS{Asset: servermanifest.Asset, AssetDir: servermanifest.AssetDir, AssetInfo: servermanifest.AssetInfo, Prefix: "pkg/v1/tkg/web/dist/tkg-kickstart-ui", Fallback: "index.html"}
+			fs := &assetfs.AssetFS{Asset: servermanifest.Asset, AssetDir: servermanifest.AssetDir, AssetInfo: servermanifest.AssetInfo, Prefix: "tkg/web/dist/tkg-kickstart-ui", Fallback: "index.html"}
 			http.FileServer(fs).ServeHTTP(w, r)
 		}
 	})
