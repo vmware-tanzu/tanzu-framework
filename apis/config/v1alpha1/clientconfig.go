@@ -36,16 +36,19 @@ type EditionSelector string
 type VersionSelectorLevel string
 
 // IsGlobal tells if the server is global.
+// Note: Shall be deprecated in a future version. Use Context.Type instead.
 func (s *Server) IsGlobal() bool {
 	return s.Type == GlobalServerType
 }
 
 // IsManagementCluster tells if the server is a management cluster.
+// Note: Shall be deprecated in a future version. Use Context.Type instead.
 func (s *Server) IsManagementCluster() bool {
 	return s.Type == ManagementClusterServerType
 }
 
-// GetCurrentServer returns the current server/
+// GetCurrentServer returns the current server.
+// Note: Shall be deprecated in a future version. Use GetCurrentContext() instead.
 func (c *ClientConfig) GetCurrentServer() (*Server, error) {
 	for _, server := range c.KnownServers {
 		if server.Name == c.CurrentServer {
@@ -53,6 +56,66 @@ func (c *ClientConfig) GetCurrentServer() (*Server, error) {
 		}
 	}
 	return nil, fmt.Errorf("current server %q not found", c.CurrentServer)
+}
+
+// HasServer tells whether the Server by the given name exists.
+func (c *ClientConfig) HasServer(name string) bool {
+	for _, s := range c.KnownServers {
+		if s.Name == name {
+			return true
+		}
+	}
+	return false
+}
+
+// GetContext by name.
+func (c *ClientConfig) GetContext(name string) (*Context, error) {
+	for _, ctx := range c.KnownContexts {
+		if ctx.Name == name {
+			return ctx, nil
+		}
+	}
+	return nil, fmt.Errorf("could not find context %q", name)
+}
+
+// HasContext tells whether the Context by the given name exists.
+func (c *ClientConfig) HasContext(name string) bool {
+	_, err := c.GetContext(name)
+	return err == nil
+}
+
+// GetCurrentContext returns the current context for the given type.
+func (c *ClientConfig) GetCurrentContext(ctxType ContextType) (*Context, error) {
+	ctxName := c.CurrentContext[ctxType]
+	if ctxName == "" {
+		return nil, fmt.Errorf("no current context set for type %q", ctxType)
+	}
+	ctx, err := c.GetContext(ctxName)
+	if err != nil {
+		return nil, fmt.Errorf("unable to get current context: %s", err.Error())
+	}
+	return ctx, nil
+}
+
+// SetCurrentContext sets the current context for the given type.
+func (c *ClientConfig) SetCurrentContext(ctxType ContextType, ctxName string) error {
+	if c.CurrentContext == nil {
+		c.CurrentContext = make(map[ContextType]string)
+	}
+	c.CurrentContext[ctxType] = ctxName
+	ctx, err := c.GetContext(ctxName)
+	if err != nil {
+		return err
+	}
+	if ctx.IsManagementCluster() {
+		c.CurrentServer = ctxName
+	}
+	return nil
+}
+
+// IsManagementCluster tells if the context is for a management cluster.
+func (c *Context) IsManagementCluster() bool {
+	return c != nil && c.Type == CtxTypeK8s && c.ClusterOpts != nil && c.ClusterOpts.IsManagementCluster
 }
 
 // SetUnstableVersionSelector will help determine the unstable versions supported

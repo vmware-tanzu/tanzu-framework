@@ -17,7 +17,7 @@ func DeprecateCommand(cmd *cobra.Command, removalVersion string) {
 
 // DeprecateCommandWithAlternative marks the commands as deprecated and adds deprecation message with an alternative.
 func DeprecateCommandWithAlternative(cmd *cobra.Command, removalVersion, alternative string) {
-	msg := fmt.Sprintf("will be removed in version %q. Use %q instead", removalVersion, alternative)
+	msg := fmt.Sprintf("will be removed in version %q. Use %q instead.", removalVersion, alternative)
 	cmd.Deprecated = msg
 }
 
