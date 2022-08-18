@@ -24,7 +24,7 @@ BIN_DIR := bin
 ADDONS_DIR := addons
 YTT_TESTS_DIR := pkg/v1/providers/tests
 PACKAGES_SCRIPTS_DIR := $(abspath hack/packages/scripts)
-UI_DIR := pkg/v1/tkg/web
+UI_DIR := tkg/web
 GO_MODULES=$(shell find . -path "*/go.mod" | grep -v "^./pinniped" | xargs -I _ dirname _)
 
 PINNIPED_GIT_REPOSITORY = https://github.com/vmware-tanzu/pinniped.git
@@ -579,7 +579,7 @@ generate-fakes: ## Generate fakes for writing unit tests
 
 .PHONY: generate-ui-bindata
 generate-ui-bindata: $(GOBINDATA) ## Generate go-bindata for ui files
-	$(GOBINDATA) -mode=420 -modtime=1 -o=pkg/v1/tkg/manifest/server/zz_generated.bindata.go -pkg=server $(UI_DIR)/dist/...
+	$(GOBINDATA) -mode=420 -modtime=1 -o=tkg/manifest/server/zz_generated.bindata.go -pkg=server $(UI_DIR)/dist/...
 	$(MAKE) fmt
 
 .PHONY: generate-telemetry-bindata
