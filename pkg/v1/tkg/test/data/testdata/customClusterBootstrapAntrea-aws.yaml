@@ -46,8 +46,8 @@ metadata:
   annotations:
     run.tanzu.vmware.com/resolve-tkr: ""
   labels:
-    tkg.tanzu.vmware.com/cluster-name: aws-cc-wc-test
-  name: aws-cc-wc-test
+    tkg.tanzu.vmware.com/cluster-name: cc-cb
+  name: cc-cb
   namespace: tkg-system
 spec:
   clusterNetwork:
