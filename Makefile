@@ -460,7 +460,7 @@ test: generate manifests build-cli-mocks ## Run tests
 	cd ./pkg/v1/providers/tests/unit && PATH=$(abspath hack/tools/bin):"$(PATH)" $(GO) test -coverprofile coverage1.txt -v -timeout 120s ./
 	echo "... ytt cluster template verification complete!"
 
-	 echo "Verifying package tests..."
+	echo "Verifying package tests..."
 	find ./packages/ -name "test" -type d | \
 		xargs -n1  -I {} bash -c 'cd {} && PATH=$(abspath hack/tools/bin):"$(PATH)" $(GO) test -coverprofile coverage2.txt -v -timeout 120s ./...' \;
 	echo "... package tests complete!"
