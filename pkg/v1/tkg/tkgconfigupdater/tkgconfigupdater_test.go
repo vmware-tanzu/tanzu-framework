@@ -21,7 +21,7 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/providerinterface"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfigpaths"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfigreaderwriter"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/utils"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/utils"
 )
 
 const (

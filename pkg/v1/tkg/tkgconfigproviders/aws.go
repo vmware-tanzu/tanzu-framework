@@ -12,8 +12,8 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
-	utils "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/utils"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/web/server/models"
+	utils "github.com/vmware-tanzu/tanzu-framework/tkg/utils"
 )
 
 const (
