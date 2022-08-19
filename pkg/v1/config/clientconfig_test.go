@@ -17,7 +17,7 @@ import (
 
 	configv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/config/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/log"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/log"
 )
 
 func cleanupDir(dir string) {

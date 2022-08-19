@@ -12,7 +12,7 @@ import (
 
 	"github.com/gorilla/websocket"
 
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/log"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/log"
 )
 
 var upgrader = websocket.Upgrader{}

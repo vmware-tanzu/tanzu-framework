@@ -12,8 +12,8 @@ import (
 
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/clusterclient"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/log"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/region"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/log"
 )
 
 // ClusterCeipInfo is the cmd object for outputting the CEIP status of a clsuter

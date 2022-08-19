@@ -20,7 +20,7 @@ import (
 	tkgsv1alpha2 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha2"
 
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/clusterclient"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/log"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/log"
 )
 
 const (
