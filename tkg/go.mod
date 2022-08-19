@@ -15,6 +15,7 @@ require (
 	github.com/Masterminds/semver v1.5.0
 	github.com/apparentlymart/go-cidr v1.1.0
 	github.com/docker/docker v20.10.16+incompatible
+	github.com/go-logr/logr v1.2.2
 	github.com/juju/fslock v0.0.0-20160525022230-4d5c94c67b4b
 	github.com/onsi/ginkgo v1.16.5
 	github.com/onsi/gomega v1.19.0
@@ -73,7 +74,6 @@ require (
 	github.com/evanphx/json-patch v5.6.0+incompatible // indirect
 	github.com/evanphx/json-patch/v5 v5.6.0 // indirect
 	github.com/fsnotify/fsnotify v1.5.1 // indirect
-	github.com/go-logr/logr v1.2.2 // indirect
 	github.com/go-openapi/analysis v0.19.5 // indirect
 	github.com/go-openapi/errors v0.19.2 // indirect
 	github.com/go-openapi/jsonpointer v0.19.5 // indirect
