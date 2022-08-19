@@ -15,6 +15,7 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	corev1 "k8s.io/api/core/v1"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/test/framework"
@@ -171,20 +172,17 @@ var _ = Describe("TKGS ClusterClass based workload cluster tests", func() {
 			shared.CheckTKGSAddons(context.TODO(), tkgctlClient, svClusterName, clusterName, namespace, e2eConfig.TKGSKubeconfigPath, e2eConfig.InfrastructureName, true)
 		})
 
-		It("should return success or error based on the ClusterClass with inline package", func() {
+		It("should create the data value secret in supervisor and guest cluster for a package with inline config", func() {
 			Expect(err).ToNot(HaveOccurred())
 
 			clusterClient := framework.GetClusterclient(e2eConfig.TKGSKubeconfigPath, e2eConfig.TKGSKubeconfigContext)
 			secret := &corev1.Secret{}
-			err := clusterClient.GetResource(secret, fmt.Sprintf("%s-metrics-server-data-values", clusterName), namespace, nil, nil)
+			err := clusterClient.GetResource(secret, fmt.Sprintf("%s-metrics-server-package", clusterName), namespace, nil, nil)
 			Expect(err).To(BeNil())
+			// check data value secret contents in supervisor cluster
 			secretData := secret.Data["values.yaml"]
 			secretDataString := string(secretData)
-			Expect(strings.Contains(secretDataString, "periodSeconds: 10")).Should(BeTrue())
-
-			By(fmt.Sprintf("Get k8s client for management cluster"))
-			mngClient, _, _, _, err := shared.GetClients(context.Background(), e2eConfig.TKGSKubeconfigPath)
-			Expect(err).NotTo(HaveOccurred())
+			Expect(strings.Contains(secretDataString, "periodSeconds: 15")).Should(BeTrue())
 
 			By(fmt.Sprintf("Generating credentials for workload cluster %q", e2eConfig.WorkloadClusterOptions.ClusterName))
 			wlcKubeConfigFileName := e2eConfig.WorkloadClusterOptions.ClusterName + ".kubeconfig"
@@ -200,10 +198,17 @@ var _ = Describe("TKGS ClusterClass based workload cluster tests", func() {
 			wlcClient, _, _, _, err := shared.GetClients(context.Background(), wlcTempFilePath)
 			Expect(err).NotTo(HaveOccurred())
 
-			By(fmt.Sprintf("Verify addon packages on workload cluster %q matches clusterBootstrap info on management cluster %q", e2eConfig.WorkloadClusterOptions.ClusterName, clusterName))
-			err = shared.CheckClusterCB(context.Background(), mngClient, wlcClient, clusterName, namespace, clusterName, namespace, e2eConfig.InfrastructureName, false, true)
+			secretKey := client.ObjectKey{
+				Namespace: "vmware-system-tkg",
+				Name:      clusterName + "-metrics-server-data-values",
+			}
+			wc_secret := &corev1.Secret{}
+			err = wlcClient.Get(ctx, secretKey, wc_secret)
 			Expect(err).To(BeNil())
-
+			// check data value secret contents in workload cluster
+			wc_secretData := wc_secret.Data["values.yaml"]
+			wc_secretDataString := string(wc_secretData)
+			Expect(strings.Contains(wc_secretDataString, "periodSeconds: 15")).Should(BeTrue())
 		})
 	})
 
