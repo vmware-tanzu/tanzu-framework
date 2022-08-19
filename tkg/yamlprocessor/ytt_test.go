@@ -12,7 +12,7 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/vmware-tanzu/tanzu-framework/apis/providers/v1alpha1"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/yamlprocessor"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/yamlprocessor"
 )
 
 var _ = Describe("YttProcessor", func() {
