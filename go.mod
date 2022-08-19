@@ -8,6 +8,7 @@ replace (
 	github.com/vmware-tanzu/tanzu-framework/apis/config => ./apis/config
 	github.com/vmware-tanzu/tanzu-framework/apis/cpi => ./apis/cpi
 	github.com/vmware-tanzu/tanzu-framework/apis/run => ./apis/run
+	github.com/vmware-tanzu/tanzu-framework/tkg => ./tkg
 	sigs.k8s.io/cluster-api => sigs.k8s.io/cluster-api v1.1.5
 	sigs.k8s.io/kind => sigs.k8s.io/kind v0.11.1
 )
@@ -25,7 +26,6 @@ require (
 	github.com/MakeNowJust/heredoc v1.0.0
 	github.com/Masterminds/semver v1.5.0
 	github.com/adrg/xdg v0.2.1
-	github.com/apparentlymart/go-cidr v1.1.0
 	github.com/aunum/log v0.0.0-20200821225356-38d2e2c8b489
 	github.com/avinetworks/sdk v0.0.0-20201123134013-c157ef55b6f7
 	github.com/aws/aws-sdk-go v1.40.56
@@ -94,6 +94,7 @@ require (
 	github.com/vmware-tanzu/tanzu-framework/apis/cli v0.0.0-00010101000000-000000000000
 	github.com/vmware-tanzu/tanzu-framework/apis/config v0.0.0-00010101000000-000000000000
 	github.com/vmware-tanzu/tanzu-framework/apis/run v0.0.0-00010101000000-000000000000
+	github.com/vmware-tanzu/tanzu-framework/tkg v0.0.0-00010101000000-000000000000
 	github.com/vmware/govmomi v0.27.1
 	github.com/yalp/jsonpath v0.0.0-20180802001716-5cc68e5049a0
 	go.uber.org/multierr v1.6.0
@@ -148,6 +149,7 @@ require (
 	github.com/PuerkitoBio/urlesc v0.0.0-20170810143723-de5bf2ad4578 // indirect
 	github.com/alessio/shellescape v1.4.1 // indirect
 	github.com/antlr/antlr4/runtime/Go/antlr v0.0.0-20220209173558-ad29539cd2e9 // indirect
+	github.com/apparentlymart/go-cidr v1.1.0 // indirect
 	github.com/asaskevich/govalidator v0.0.0-20210307081110-f21760c49a8d // indirect
 	github.com/aws/amazon-vpc-cni-k8s v1.10.1 // indirect
 	github.com/benbjohnson/clock v1.3.0 // indirect
