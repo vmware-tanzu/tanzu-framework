@@ -11,7 +11,7 @@ import (
 	"github.com/juju/fslock"
 
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/utils"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/utils"
 )
 
 var tanzuConfigLockFile string
