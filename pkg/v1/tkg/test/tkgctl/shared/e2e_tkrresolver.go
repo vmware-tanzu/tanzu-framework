@@ -27,7 +27,6 @@ import (
 	runv1 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/test/framework"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfigbom"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgctl"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v2/tkr/resolver"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v2/tkr/resolver/data"
@@ -57,7 +56,9 @@ func E2ETKRResolverValidationForClusterCRUDSpec(context context.Context, inputGe
 		mcContextName                   string
 		options                         framework.CreateClusterOptions
 		clusterConfigFile               string
-		tkrs                            []*runv1.TanzuKubernetesRelease
+		tkrVersionsSet                  sets.StringSet
+		oldTKR                          *runv1.TanzuKubernetesRelease
+		defaultTKR                      *runv1.TanzuKubernetesRelease
 		mngClient                       client.Client
 		clusterResources                []ClusterResource
 		infrastructureName              string
@@ -187,18 +188,8 @@ func E2ETKRResolverValidationForClusterCRUDSpec(context context.Context, inputGe
 	It("Should upgrade the cluster and verify infra machine images are resolved correctly", func() {
 		By(fmt.Sprintf("Creating a workload cluster %q", clusterName))
 
-		tkgBOMConfigClient := tkgconfigbom.New(input.E2EConfig.TkgConfigDir, nil)
-		defaultTKRVersion, err := tkgBOMConfigClient.GetDefaultTKRVersion()
+		tkrVersionsSet, oldTKR, defaultTKR = getAvailableTKRs(context, mcProxy, input.E2EConfig.TkgConfigDir)
 
-		Expect(err).ToNot(HaveOccurred(), "failed to get the default TKR version")
-
-		var defaultTKR, oldTKR *runv1.TanzuKubernetesRelease
-		Eventually(func() bool {
-			tkrs = mcProxy.GetTKRs(context)
-			defaultTKR, oldTKR = getTKRsForUpgrade(defaultTKRVersion, tkrs)
-			return defaultTKR != nil && oldTKR != nil
-		}, waitTimeout, pollingInterval).Should(BeTrue(), "failed to get at least 2 TKRs(upgradable) to perform upgrade tests")
-		tkrVersions := getTKRVersions(tkrs)
 		err = tkgCtlClient.CreateCluster(tkgctl.CreateClusterOptions{
 			ClusterConfigFile: clusterConfigFile,
 			Edition:           "tkg",
@@ -225,7 +216,7 @@ func E2ETKRResolverValidationForClusterCRUDSpec(context context.Context, inputGe
 		verifyTKRData(context, mcProxy, options.ClusterName, options.Namespace)
 
 		By(fmt.Sprintf("Validating the 'updatesAvailable' condition is true and lists upgradable TKR version"))
-		validateUpdatesAvailableCondition(context, mcProxy, options.ClusterName, options.Namespace, tkrVersions)
+		validateUpdatesAvailableCondition(context, mcProxy, options.ClusterName, options.Namespace, tkrVersionsSet)
 
 		By(fmt.Sprintf("Waiting for workload cluster %q nodes to be up and running", clusterName))
 		framework.WaitForNodes(framework.NewClusterProxy(clusterName, tempKubeConfigFilePath, ""), 2)
@@ -236,10 +227,6 @@ func E2ETKRResolverValidationForClusterCRUDSpec(context context.Context, inputGe
 
 		// verify addons are deployed successfully in clusterclass mode
 		if isClusterClass, ok := input.OtherConfigs["clusterclass"]; ok && isClusterClass == "true" {
-			By(fmt.Sprintf("Verify addon packages on management cluster %q matches clusterBootstrap info on management cluster %q", input.E2EConfig.ManagementClusterName, input.E2EConfig.ManagementClusterName))
-			err = CheckClusterCB(context, mngClient, wlcClient, input.E2EConfig.ManagementClusterName, constants.TkgNamespace, "", "", infrastructureName, true, false)
-			Expect(err).To(BeNil())
-
 			By(fmt.Sprintf("Verify addon packages on workload cluster %q matches clusterBootstrap info on management cluster %q", clusterName, input.E2EConfig.ManagementClusterName))
 			err = CheckClusterCB(context, mngClient, wlcClient, input.E2EConfig.ManagementClusterName, constants.TkgNamespace, clusterName, namespace, infrastructureName, false, false)
 			Expect(err).To(BeNil())
@@ -266,13 +253,9 @@ func E2ETKRResolverValidationForClusterCRUDSpec(context context.Context, inputGe
 		By(fmt.Sprintf("Validating the TKR data after cluster %q is upgraded", clusterName))
 		verifyTKRData(context, mcProxy, options.ClusterName, options.Namespace)
 
-		// verify addons are deployed successfully in clusterclass mode
+		// verify addons are deployed successfully in clusterclass mode after cluster upgrade
 		if isClusterClass, ok := input.OtherConfigs["clusterclass"]; ok && isClusterClass == "true" {
-			By(fmt.Sprintf("Verify addon packages on management cluster %q matches clusterBootstrap info on management cluster %q", input.E2EConfig.ManagementClusterName, input.E2EConfig.ManagementClusterName))
-			err = CheckClusterCB(context, mngClient, wlcClient, input.E2EConfig.ManagementClusterName, constants.TkgNamespace, "", "", infrastructureName, true, false)
-			Expect(err).To(BeNil())
-
-			By(fmt.Sprintf("Verify addon packages on workload cluster %q matches clusterBootstrap info on management cluster %q", clusterName, input.E2EConfig.ManagementClusterName))
+			By(fmt.Sprintf("Verify addon packages on workload cluster %q match clusterBootstrap info on management cluster %q after cluster upgrade", clusterName, input.E2EConfig.ManagementClusterName))
 			err = CheckClusterCB(context, mngClient, wlcClient, input.E2EConfig.ManagementClusterName, constants.TkgNamespace, clusterName, namespace, infrastructureName, false, false)
 			Expect(err).To(BeNil())
 
