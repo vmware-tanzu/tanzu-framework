@@ -12,8 +12,8 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/command/plugin"
 	capdiscovery "github.com/vmware-tanzu/tanzu-framework/pkg/v1/sdk/capabilities/discovery"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/kappclient"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/log"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgpackagedatamodel"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/log"
 )
 
 var descriptor = cliv1alpha1.PluginDescriptor{
