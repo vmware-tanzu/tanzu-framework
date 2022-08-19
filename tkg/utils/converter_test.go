@@ -7,7 +7,7 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
-	. "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/utils"
+	. "github.com/vmware-tanzu/tanzu-framework/tkg/utils"
 )
 
 var _ = Describe("Test Converter function Tests", func() {

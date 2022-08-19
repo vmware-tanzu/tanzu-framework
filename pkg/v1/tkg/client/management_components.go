@@ -15,11 +15,11 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/carvelhelpers"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/clusterclient"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/log"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/managementcomponents"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfigreaderwriter"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgpackagedatamodel"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/utils"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/log"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/utils"
 )
 
 func (c *TkgClient) InstallOrUpgradeKappController(kubeconfig, kubecontext string) error {
