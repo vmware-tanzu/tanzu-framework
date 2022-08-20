@@ -342,6 +342,13 @@ func (h *Helper) HandleExistingClusterBootstrap(clusterBootstrap *runtanzuv1alph
 				}
 			}
 
+			var nonEmptyInlinePackages []*runtanzuv1alpha3.ClusterBootstrapPackage
+			for _, cbPackage := range packages {
+				if cbPackage != nil && cbPackage.ValuesFrom != nil && cbPackage.ValuesFrom.Inline != nil {
+					nonEmptyInlinePackages = append(nonEmptyInlinePackages, cbPackage)
+				}
+			}
+
 			if err := h.AddMissingSpecFieldsFromTemplate(clusterBootstrapTemplate, clusterBootstrap, nil); err != nil {
 				h.Logger.Error(err, fmt.Sprintf("unable to add missing spec fields of ClusterBootstrap %s/%s from ClusterBootstrapTemplate %s/%s",
 					clusterBootstrap.Namespace, clusterBootstrap.Name, clusterBootstrapTemplate.Namespace, clusterBootstrapTemplate.Name))
@@ -368,6 +375,8 @@ func (h *Helper) HandleExistingClusterBootstrap(clusterBootstrap *runtanzuv1alph
 					}
 				}
 			}
+			h.Logger.Info("Updating packagesToBeCloned with inline packages")
+			packagesToBeCloned = append(packagesToBeCloned, nonEmptyInlinePackages...)
 			packages = packagesToBeCloned
 		}
 	}
