@@ -29,7 +29,6 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkr/pkg/types"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/util/patchset"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v2/tkr/util/sets"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v2/tkr/util/version"
 )
 
 const LabelAdditionalTKRs = "run.tanzu.vmware.com/additional-compatible-tkrs"
@@ -37,7 +36,7 @@ const LabelAdditionalTKRs = "run.tanzu.vmware.com/additional-compatible-tkrs"
 const fieldTKRVersions = "tkrVersions"
 
 type Reconciler struct {
-	version.Compatibility
+	sets.Compatibility
 
 	Ctx    context.Context
 	Log    logr.Logger

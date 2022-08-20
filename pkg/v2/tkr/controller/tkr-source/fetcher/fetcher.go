@@ -31,7 +31,6 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v2/tkr/controller/tkr-source/pkgcr"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v2/tkr/controller/tkr-source/registry"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v2/tkr/util/sets"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v2/tkr/util/version"
 )
 
 type Fetcher struct {
@@ -41,7 +40,7 @@ type Fetcher struct {
 
 	Registry registry.Registry
 
-	Compatibility version.Compatibility
+	Compatibility sets.Compatibility
 }
 
 // Config contains the controller manager context.

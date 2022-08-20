@@ -6,7 +6,7 @@ package v1alpha3
 import (
 	fuzz "github.com/google/gofuzz"
 
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v2/tkr/util/version"
+	"github.com/vmware-tanzu/tanzu-framework/apis/run/util/version"
 )
 
 // FuzzTKRSpec fuzzes the passed TanzuKubernetesReleaseSpec.
