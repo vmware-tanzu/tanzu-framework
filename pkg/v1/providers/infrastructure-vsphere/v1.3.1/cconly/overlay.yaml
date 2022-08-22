@@ -14,17 +14,6 @@ spec:
     machineInfrastructure:
       ref:
         name: tkg-vsphere-control-plane
-    machineHealthCheck:
-      #@ if data.values.ENABLE_MHC or data.values.ENABLE_MHC_CONTROL_PLANE:
-      nodeStartupTimeout: #@ data.values.NODE_STARTUP_TIMEOUT
-      unhealthyConditions:
-      - type: Ready
-        status: Unknown
-        timeout: #@ data.values.MHC_UNKNOWN_STATUS_TIMEOUT
-      - type: Ready
-        status: "False"
-        timeout: #@ data.values.MHC_FALSE_STATUS_TIMEOUT
-      #@ end
   infrastructure:
     ref:
       name: tkg-vsphere-infrastructure
@@ -33,17 +22,6 @@ spec:
     machineDeployments:
     #@overlay/match by="class"
     - class: tkg-worker
-      machineHealthCheck:
-        #@ if data.values.ENABLE_MHC or data.values.ENABLE_MHC_WORKER_NODE:
-        nodeStartupTimeout: #@ data.values.NODE_STARTUP_TIMEOUT
-        unhealthyConditions:
-        - type: Ready
-          status: Unknown
-          timeout: #@ data.values.MHC_UNKNOWN_STATUS_TIMEOUT
-        - type: Ready
-          status: "False"
-          timeout: #@ data.values.MHC_FALSE_STATUS_TIMEOUT
-        #@ end
       template:
         bootstrap:
           ref:
@@ -56,17 +34,6 @@ spec:
 
     #@overlay/match by="class", missing_ok=True
     - class: tkg-worker-windows
-      machineHealthCheck:
-        #@ if data.values.ENABLE_MHC or data.values.ENABLE_MHC_WORKER_NODE:
-        nodeStartupTimeout: #@ data.values.NODE_STARTUP_TIMEOUT
-        unhealthyConditions:
-        - type: Ready
-          status: Unknown
-          timeout: #@ data.values.MHC_UNKNOWN_STATUS_TIMEOUT
-        - type: Ready
-          status: "False"
-          timeout: #@ data.values.MHC_FALSE_STATUS_TIMEOUT
-        #@ end
       template:
         bootstrap:
           ref:

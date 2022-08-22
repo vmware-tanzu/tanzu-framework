@@ -75,11 +75,6 @@ metadata:
 spec:
   template:
     spec:
-      machineTemplate:
-        infrastructureRef:
-          apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
-          kind: VSphereMachineTemplate
-          name: 'tkg-vsphere-control-plane'
       kubeadmConfigSpec:
         useExperimentalRetryJoin: true
         clusterConfiguration:
@@ -202,7 +197,6 @@ spec:
         kind: VSphereMachineTemplate
         apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
         name: 'tkg-vsphere-control-plane'
-    machineHealthCheck:
   infrastructure:
     ref:
       apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
@@ -212,7 +206,6 @@ spec:
   workers:
     machineDeployments:
     - class: tkg-worker
-      machineHealthCheck:
       template:
         bootstrap:
           ref:
@@ -227,7 +220,6 @@ spec:
             name: 'tkg-vsphere-worker'
             namespace: #@ data.values.NAMESPACE
     - class: tkg-worker-windows
-      machineHealthCheck:
       template:
         bootstrap:
           ref:
@@ -712,7 +704,7 @@ spec:
                     value: "20"
                   - name: vip_retryperiod
                     value: "4"
-                  image: {{(index .TKR_DATA .builtin.controlPlane.version).kubernetesSpec.imageRepository}}/kube-vip:{{(index (index .TKR_DATA .builtin.controlPlane.version).kubernetesSpec "kube-vip").imageTag}}
+                  image: {{(index (index .TKR_DATA .builtin.controlPlane.version).kubernetesSpec "kube-vip").imageRepository}}/kube-vip:{{(index (index .TKR_DATA .builtin.controlPlane.version).kubernetesSpec "kube-vip").imageTag}}
                   imagePullPolicy: IfNotPresent
                   name: kube-vip
                   resources: {}
