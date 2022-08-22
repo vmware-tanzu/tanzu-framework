@@ -2,18 +2,13 @@
 # since it depends on service name and namespace that are out of this kustomize package.
 # It should be run by config/default
 resources:
-- bases/run.tanzu.vmware.com_tanzukubernetesreleases.yaml
 - bases/cli.tanzu.vmware.com_catalogs.yaml
 - bases/config.tanzu.vmware.com_features.yaml
-- bases/run.tanzu.vmware.com_capabilities.yaml
 - bases/config.tanzu.vmware.com_featuregates.yaml
 - bases/cni.tanzu.vmware.com_calicoconfigs.yaml
 - bases/cni.tanzu.vmware.com_antreaconfigs.yaml
-- bases/run.tanzu.vmware.com_kappcontrollerconfigs.yaml
 - bases/cpi.tanzu.vmware.com_cpiconfigs.yaml
 - bases/csi.tanzu.vmware.com_vspherecsiconfigs.yaml
-- bases/run.tanzu.vmware.com_clusterbootstraps.yaml
-- bases/run.tanzu.vmware.com_clusterbootstraptemplates.yaml
 # +kubebuilder:scaffold:crdkustomizeresource
 
 patchesStrategicMerge:
