@@ -219,12 +219,12 @@ func createNewServer() (server *configv1alpha1.Server, err error) {
 		ServerEndpoint  = "Server endpoint"
 		LocalKubeConfig = "Local kubeconfig"
 	)
+	options := []survey.AskOpt{cli.SurveyOptions(), cli.WithStdioOptions()}
 
 	prompt := &survey.Select{
 		Message: "Select login type:",
 		Options: []string{ServerEndpoint, LocalKubeConfig},
 	}
-	options := []survey.AskOpt{cli.SurveyOptions(), cli.WithStdioOptions()}
 	err = survey.AskOne(prompt, &loginType, options...)
 
 	if err != nil {

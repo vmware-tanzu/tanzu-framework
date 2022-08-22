@@ -7,6 +7,7 @@ import (
 	"crypto/tls"
 	"errors"
 	"fmt"
+	"github.com/AlecAivazis/survey/v2"
 	"net/http"
 	"net/url"
 	"os"
@@ -142,15 +143,6 @@ func isGlobalContext(endpoint string) bool {
 	return false
 }
 
-func getPromptOpts() []component.PromptOpt {
-	var promptOpts []component.PromptOpt
-	if stderrOnly {
-		// This uses stderr because it needs to work inside the kubectl exec plugin flow where stdout is reserved.
-		promptOpts = append(promptOpts, component.WithStdio(os.Stdin, os.Stderr, os.Stderr))
-	}
-	return promptOpts
-}
-
 func createNewContext() (context *configv1alpha1.Context, err error) {
 	// user provided command line options to create a context using kubeconfig[optional] and context
 	if kubeContext != "" {
@@ -160,19 +152,21 @@ func createNewContext() (context *configv1alpha1.Context, err error) {
 	if endpoint != "" {
 		return createContextWithEndpoint()
 	}
-	promptOpts := getPromptOpts()
 
+	options := []survey.AskOpt{cli.SurveyOptions(), cli.WithStdioOptions()}
 	var ctxCreationType string
-
-	err = component.Prompt(
-		&component.PromptConfig{
-			Message: "Select context creation type",
-			Options: []string{"Control plane endpoint", "Local kubeconfig"},
-			Default: "Control plane endpoint",
-		},
-		&ctxCreationType,
-		promptOpts...,
+	const (
+		ControlPlaneEndpoint = "Control plane endpoint"
+		LocalKubeConfig      = "Local kubeconfig"
 	)
+
+	prompt := &survey.Select{
+		Message: "Select context creation type",
+		Options: []string{ControlPlaneEndpoint, LocalKubeConfig},
+		Default: ControlPlaneEndpoint,
+	}
+	err = survey.AskOne(prompt, &ctxCreationType, options...)
+
 	if err != nil {
 		return context, err
 	}
@@ -185,15 +179,12 @@ func createNewContext() (context *configv1alpha1.Context, err error) {
 }
 
 func createContextWithKubeconfig() (context *configv1alpha1.Context, err error) {
-	promptOpts := getPromptOpts()
+	options := []survey.AskOpt{cli.SurveyOptions(), cli.WithStdioOptions()}
 	if kubeConfig == "" && kubeContext == "" {
-		err = component.Prompt(
-			&component.PromptConfig{
-				Message: "Enter path to kubeconfig (if any)",
-			},
-			&kubeConfig,
-			promptOpts...,
-		)
+		prompt := &survey.Input{
+			Message: "Enter path to kubeconfig (if any)",
+		}
+		err = survey.AskOne(prompt, &kubeConfig, options...)
 		if err != nil {
 			return
 		}
@@ -202,26 +193,20 @@ func createContextWithKubeconfig() (context *configv1alpha1.Context, err error) 
 	}
 
 	if kubeConfig != "" && kubeContext == "" {
-		err = component.Prompt(
-			&component.PromptConfig{
-				Message: "Enter kube context to use",
-			},
-			&kubeContext,
-			promptOpts...,
-		)
+		prompt := &survey.Input{
+			Message: "Enter kube context to use",
+		}
+		err = survey.AskOne(prompt, &kubeContext, options...)
 		if err != nil {
 			return
 		}
 	}
 
 	if ctxName == "" {
-		err = component.Prompt(
-			&component.PromptConfig{
-				Message: "Give the context a name",
-			},
-			&ctxName,
-			promptOpts...,
-		)
+		prompt := &survey.Input{
+			Message: "Give the context a name",
+		}
+		err = survey.AskOne(prompt, &ctxName, options...)
 		if err != nil {
 			return
 		}
@@ -249,28 +234,23 @@ func createContextWithKubeconfig() (context *configv1alpha1.Context, err error) 
 }
 
 func createContextWithEndpoint() (context *configv1alpha1.Context, err error) {
-	promptOpts := getPromptOpts()
+	options := []survey.AskOpt{cli.SurveyOptions(), cli.WithStdioOptions()}
 	if endpoint == "" {
-		err = component.Prompt(
-			&component.PromptConfig{
-				Message: "Enter control plane endpoint",
-			},
-			&endpoint,
-			promptOpts...,
-		)
+		prompt := &survey.Input{
+			Message: "Enter control plane endpoint",
+		}
+		err = survey.AskOne(prompt, &endpoint, options...)
 		if err != nil {
 			return
 		}
 	}
 
 	if ctxName == "" {
-		err = component.Prompt(
-			&component.PromptConfig{
-				Message: "Give the context a name",
-			},
-			&ctxName,
-			promptOpts...,
-		)
+		prompt := &survey.Input{
+			Message: "Give the context a name",
+		}
+		err = survey.AskOne(prompt, &ctxName, options...)
+
 		if err != nil {
 			return
 		}
@@ -390,18 +370,14 @@ func promptAPIToken() (apiToken string, err error) {
 		"If you don't have an API token, visit the VMware Cloud Services console, select your organization, and create an API token with the TMC service roles:\n  %s\n",
 		consoleURL.String(),
 	)
-	promptOpts := getPromptOpts()
-
+	options := []survey.AskOpt{cli.SurveyOptions(), cli.WithStdioOptions()}
 	// format
 	fmt.Println()
-	err = component.Prompt(
-		&component.PromptConfig{
-			Message:   "API Token",
-			Sensitive: true,
-		},
-		&apiToken,
-		promptOpts...,
-	)
+
+	prompt := &survey.Password{
+		Message: "API Token",
+	}
+	err = survey.AskOne(prompt, &apiToken, options...)
 	return
 }
 
@@ -535,7 +511,7 @@ func promptCtx() (*configv1alpha1.Context, error) {
 		return nil, errors.New("no contexts found")
 	}
 
-	promptOpts := getPromptOpts()
+	options := []survey.AskOpt{cli.SurveyOptions(), cli.WithStdioOptions()}
 	contexts := make(map[string]*configv1alpha1.Context)
 	for _, ctx := range cfg.KnownContexts {
 		info, err := config.EndpointFromContext(ctx)
@@ -553,15 +529,12 @@ func promptCtx() (*configv1alpha1.Context, error) {
 
 	ctxKeys := getKeys(contexts)
 	ctxKey := ctxKeys[0]
-	err = component.Prompt(
-		&component.PromptConfig{
-			Message: "Select a context",
-			Options: ctxKeys,
-			Default: ctxKey,
-		},
-		&ctxKey,
-		promptOpts...,
-	)
+	prompt := &survey.Select{
+		Message: "Select a context",
+		Options: ctxKeys,
+		Default: ctxKey,
+	}
+	err = survey.AskOne(prompt, &ctxKey, options...)
 	if err != nil {
 		return nil, err
 	}
