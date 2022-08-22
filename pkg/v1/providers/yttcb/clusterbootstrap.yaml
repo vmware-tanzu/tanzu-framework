@@ -95,7 +95,7 @@ kind: Secret
 metadata:
   name: #@ data.values.CLUSTER_NAME + "-vsphere-credential"
   namespace: #@ data.values.NAMESPACE
-data:
+stringData:
   password: #@ data.values.VSPHERE_USERNAME
   username: #@ data.values.VSPHERE_PASSWORD
 ---
@@ -104,7 +104,7 @@ kind: Secret
 metadata:
   name: #@ data.values.CLUSTER_NAME + "-nsxt-credential"
   namespace: #@ data.values.NAMESPACE
-data:
+stringData:
   password: #@ data.values.NSXT_USERNAME
   username: #@ data.values.NSXT_PASSWORD
 ---
@@ -181,6 +181,7 @@ metadata:
   annotations:
     tkg.tanzu.vmware.com/add-missing-fields-from-tkr: #@ data.values.KUBERNETES_RELEASE
 spec:
+  ## if data.values.CNI != "antrea" or antrea_configs_exist():
   cni:
     #@ if data.values.CNI == "antrea":
     refName: antrea*
@@ -197,6 +198,7 @@ spec:
         kind: CalicoConfig
         name: #@ data.values.CLUSTER_NAME
     #@ end
+  #@ end
   #@ if vspherecpi_configs_exist() and not data.values.IS_WINDOWS_WORKLOAD_CLUSTER:
   cpi:
     refName: vsphere-cpi*
