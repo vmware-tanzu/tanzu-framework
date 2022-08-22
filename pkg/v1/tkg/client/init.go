@@ -221,7 +221,7 @@ func (c *TkgClient) InitRegion(options *InitRegionOptions) error { //nolint:funl
 	if regionalConfigBytes, options.ClusterName, configFilePath, err = c.BuildRegionalClusterConfiguration(options); err != nil {
 		return errors.Wrap(err, "unable to build management cluster configuration")
 	}
-	log.Infof("ClusterClass based management cluster config file has been generated and stored at: '%v'", configFilePath)
+	log.Infof("Management cluster config file has been generated and stored at: '%v'", configFilePath)
 
 	isStartedRegionalClusterCreation = true
 
