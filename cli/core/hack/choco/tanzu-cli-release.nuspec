@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Do not remove this test for UTF-8: if “Ω” doesn’t appear as greek uppercase omega letter enclosed in quotation marks, you should use an editor that supports UTF-8, not this one. -->
+<package xmlns="http://schemas.microsoft.com/packaging/2015/06/nuspec.xsd">
+  <metadata>
+    <id>tanzu-cli</id>
+    <version>$cliVersion$</version>
+    <owners>VMware</owners>
+    <title>Tanzu CLI</title>
+    <authors>VMware Tanzu</authors>
+    <projectUrl>https://github.com/vmware-tanzu/tanzu-framework</projectUrl>
+    <packageSourceUrl>https://github.com/vmware-tanzu/tanzu-framework/blob/main/cli/core/hack/choco</packageSourceUrl>
+    <!-- TODO:
+    <iconUrl></iconUrl>
+    -->
+    <licenseUrl>https://github.com/vmware-tanzu/tanzu-framework/blob/main/LICENSE</licenseUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <projectSourceUrl>https://github.com/vmware-tanzu/tanzu-framework</projectSourceUrl>
+    <docsUrl>https://github.com/vmware-tanzu/tanzu-framework/blob/main/README.md</docsUrl>
+    <bugTrackerUrl>https://github.com/vmware-tanzu/tanzu-framework/issues</bugTrackerUrl>
+    <tags>tanzu cli kubernetes</tags>
+    <summary>CLI tool to create and manage Tanzu Kubernetes clusters</summary>
+    <description>The Tanzu CLI is the starting point to create and manage Tanzu Kubernetes clusters.</description>
+    <releaseNotes>Release notes are available at https://github.com/vmware-tanzu/tanzu-framework/releases</releaseNotes>
+  </metadata>
+  <files>
+    <file src="_output/choco/chocolateyInstall.ps1" target="scripts" />
+  </files>
+</package>
