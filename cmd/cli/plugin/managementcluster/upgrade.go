@@ -75,6 +75,11 @@ func init() {
 }
 
 func runUpgradeRegion(server *v1alpha1.Server) error {
+	err := tkgctl.SetCompatibilityFileBasedOnEdition()
+	if err != nil {
+		log.V(3).Infof("%v", err.Error())
+	}
+
 	forceUpdateTKGCompatibilityImage := false
 	tkgClient, err := newTKGCtlClient(forceUpdateTKGCompatibilityImage)
 	if err != nil {

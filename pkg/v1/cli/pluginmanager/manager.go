@@ -44,6 +44,12 @@ const (
 
 var execCommand = exec.Command
 
+type DeletePluginOptions struct {
+	ServerName  string
+	PluginName  string
+	ForceDelete bool
+}
+
 // ValidatePlugin validates the plugin descriptor.
 func ValidatePlugin(p *cliv1alpha1.PluginDescriptor) (err error) {
 	// skip builder plugin for bootstrapping
@@ -455,19 +461,24 @@ func installOrUpgradePlugin(serverName string, p *plugin.Discovered, version str
 
 // DeletePlugin deletes a plugin.
 // If serverName is empty(""), only consider standalone plugins
-func DeletePlugin(serverName, pluginName string) error {
-	c, err := catalog.NewContextCatalog(serverName)
+func DeletePlugin(options DeletePluginOptions) error {
+	c, err := catalog.NewContextCatalog(options.ServerName)
 	if err != nil {
 		return err
 	}
-	_, ok := c.Get(pluginName)
+	_, ok := c.Get(options.PluginName)
 	if !ok {
-		return fmt.Errorf("could not get plugin path for plugin %q", pluginName)
+		return fmt.Errorf("could not get plugin path for plugin %q", options.PluginName)
 	}
 
-	err = c.Delete(pluginName)
+	if !options.ForceDelete {
+		if err := cli.AskForConfirmation(fmt.Sprintf("Deleting Plugin '%s'. Are you sure?", options.PluginName)); err != nil {
+			return err
+		}
+	}
+	err = c.Delete(options.PluginName)
 	if err != nil {
-		return fmt.Errorf("plugin %q could not be deleted from cache", pluginName)
+		return fmt.Errorf("plugin %q could not be deleted from cache", options.PluginName)
 	}
 
 	// TODO: delete the plugin binary if it is not used by any server

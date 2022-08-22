@@ -11,5 +11,7 @@ directories:
     path: rolebinding.yaml
   - manual: {}
     path: serviceaccount.yaml
+  - manual: {}
+    path: values.yaml
   path: bundle/config
 kind: LockConfig

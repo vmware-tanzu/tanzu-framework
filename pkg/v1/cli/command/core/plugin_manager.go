@@ -25,8 +25,9 @@ import (
 )
 
 var (
-	local   string
-	version string
+	local       string
+	version     string
+	forceDelete bool
 )
 
 func init() {
@@ -46,6 +47,7 @@ func init() {
 	listPluginCmd.Flags().StringVarP(&local, "local", "l", "", "path to local discovery/distribution source")
 	installPluginCmd.Flags().StringVarP(&local, "local", "l", "", "path to local discovery/distribution source")
 	installPluginCmd.Flags().StringVarP(&version, "version", "v", cli.VersionLatest, "version of the plugin")
+	deletePluginCmd.Flags().BoolVarP(&forceDelete, "yes", "y", false, "delete the plugin without asking for confirmation")
 
 	cli.DeprecateCommand(repoCmd, "")
 }
@@ -383,7 +385,13 @@ var deletePluginCmd = &cobra.Command{
 				serverName = server.Name
 			}
 
-			err = pluginmanager.DeletePlugin(serverName, pluginName)
+			deletePluginOptions := pluginmanager.DeletePluginOptions{
+				PluginName:  pluginName,
+				ServerName:  serverName,
+				ForceDelete: forceDelete,
+			}
+
+			err = pluginmanager.DeletePlugin(deletePluginOptions)
 			if err != nil {
 				return err
 			}

@@ -1,50 +1,10 @@
 apiVersion: vendir.k14s.io/v1alpha1
 directories:
 - contents:
+  - directory: {}
+    path: crds
   - manual: {}
     path: addons-manager.yaml
-  - git:
-      commitTitle: Update SkipCNIBinaries param to CalicoConfig (#2416)
-      sha: 59a1bc05c28c912054b03043a7009c4aa45243a9
-      tags:
-      - v0.22.0-dev-67-g59a1bc05
-    path: cni.tanzu.vmware.com_antreaconfigs.yaml
-  - git:
-      commitTitle: Update SkipCNIBinaries param to CalicoConfig (#2416)
-      sha: 59a1bc05c28c912054b03043a7009c4aa45243a9
-      tags:
-      - v0.22.0-dev-67-g59a1bc05
-    path: cni.tanzu.vmware.com_calicoconfigs.yaml
-  - git:
-      commitTitle: Update SkipCNIBinaries param to CalicoConfig (#2416)
-      sha: 59a1bc05c28c912054b03043a7009c4aa45243a9
-      tags:
-      - v0.22.0-dev-67-g59a1bc05
-    path: run.tanzu.vmware.com_clusterbootstraps.yaml
-  - git:
-      commitTitle: Update SkipCNIBinaries param to CalicoConfig (#2416)
-      sha: 59a1bc05c28c912054b03043a7009c4aa45243a9
-      tags:
-      - v0.22.0-dev-67-g59a1bc05
-    path: run.tanzu.vmware.com_clusterbootstraptemplates.yaml
-  - git:
-      commitTitle: Update SkipCNIBinaries param to CalicoConfig (#2416)
-      sha: 59a1bc05c28c912054b03043a7009c4aa45243a9
-      tags:
-      - v0.22.0-dev-67-g59a1bc05
-    path: run.tanzu.vmware.com_kappcontrollerconfigs.yaml
-  - git:
-      commitTitle: Rewrite GetExternalCRDPaths test helper to use go tools package...
-      sha: 79a847c7454c6d64737e92c7e8dc062f3171f52b
-      tags:
-      - v0.25.0-dev-32-g79a847c7
-    path: cpi.tanzu.vmware.com_vspherecpiconfigs.yaml
-  - git:
-      commitTitle: Update SkipCNIBinaries param to CalicoConfig (#2416)
-      sha: 59a1bc05c28c912054b03043a7009c4aa45243a9
-      tags:
-      - v0.22.0-dev-67-g59a1bc05
-    path: csi.tanzu.vmware.com_vspherecsiconfigs.yaml
   - manual: {}
     path: webhook-manifests.lib.yaml
   path: bundle/config/upstream

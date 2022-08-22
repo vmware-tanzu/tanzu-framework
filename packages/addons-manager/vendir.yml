@@ -4,57 +4,19 @@ minimumRequiredVersion: 0.12.0
 directories:
   - path: bundle/config/upstream
     contents:
+      - path: crds
+        directory:
+          path: ../../config/crd/bases/
+        includePaths:
+          - cni.tanzu.vmware.com_antreaconfigs.yaml
+          - cni.tanzu.vmware.com_calicoconfigs.yaml
+          - run.tanzu.vmware.com_clusterbootstraps.yaml
+          - run.tanzu.vmware.com_clusterbootstraptemplates.yaml
+          - run.tanzu.vmware.com_kappcontrollerconfigs.yaml
+          - cpi.tanzu.vmware.com_vspherecpiconfigs.yaml
+          - csi.tanzu.vmware.com_vspherecsiconfigs.yaml
       - path: addons-manager.yaml
         manual: {}
-      - path: cni.tanzu.vmware.com_antreaconfigs.yaml
-        git:
-          url: git@github.com:vmware-tanzu/tanzu-framework.git
-          ref: 59a1bc05c28c912054b03043a7009c4aa45243a9
-        newRootPath: config/crd/bases/cni.tanzu.vmware.com_antreaconfigs.yaml
-        includePaths:
-          - config/crd/bases/cni.tanzu.vmware.com_antreaconfigs.yaml
-      - path: cni.tanzu.vmware.com_calicoconfigs.yaml
-        git:
-          url: git@github.com:vmware-tanzu/tanzu-framework.git
-          ref: 59a1bc05c28c912054b03043a7009c4aa45243a9
-        newRootPath: config/crd/bases/cni.tanzu.vmware.com_calicoconfigs.yaml
-        includePaths:
-          - config/crd/bases/cni.tanzu.vmware.com_calicoconfigs.yaml
-      - path: run.tanzu.vmware.com_clusterbootstraps.yaml
-        git:
-          url: git@github.com:vmware-tanzu/tanzu-framework.git
-          ref: 59a1bc05c28c912054b03043a7009c4aa45243a9
-        newRootPath: config/crd/bases/run.tanzu.vmware.com_clusterbootstraps.yaml
-        includePaths:
-          - config/crd/bases/run.tanzu.vmware.com_clusterbootstraps.yaml
-      - path: run.tanzu.vmware.com_clusterbootstraptemplates.yaml
-        git:
-          url: git@github.com:vmware-tanzu/tanzu-framework.git
-          ref: 59a1bc05c28c912054b03043a7009c4aa45243a9
-        newRootPath: config/crd/bases/run.tanzu.vmware.com_clusterbootstraptemplates.yaml
-        includePaths:
-          - config/crd/bases/run.tanzu.vmware.com_clusterbootstraptemplates.yaml
-      - path: run.tanzu.vmware.com_kappcontrollerconfigs.yaml
-        git:
-          url: git@github.com:vmware-tanzu/tanzu-framework.git
-          ref: 59a1bc05c28c912054b03043a7009c4aa45243a9
-        newRootPath: config/crd/bases/run.tanzu.vmware.com_kappcontrollerconfigs.yaml
-        includePaths:
-          - config/crd/bases/run.tanzu.vmware.com_kappcontrollerconfigs.yaml
-      - path: cpi.tanzu.vmware.com_vspherecpiconfigs.yaml
-        git:
-          url: git@github.com:vmware-tanzu/tanzu-framework.git
-          ref: 79a847c7454c6d64737e92c7e8dc062f3171f52b
-        newRootPath: config/crd/bases/cpi.tanzu.vmware.com_vspherecpiconfigs.yaml
-        includePaths:
-          - config/crd/bases/cpi.tanzu.vmware.com_vspherecpiconfigs.yaml
-      - path: csi.tanzu.vmware.com_vspherecsiconfigs.yaml
-        git:
-          url: git@github.com:vmware-tanzu/tanzu-framework.git
-          ref: 59a1bc05c28c912054b03043a7009c4aa45243a9
-        newRootPath: config/crd/bases/csi.tanzu.vmware.com_vspherecsiconfigs.yaml
-        includePaths:
-          - config/crd/bases/csi.tanzu.vmware.com_vspherecsiconfigs.yaml
       - path: webhook-manifests.lib.yaml
         manual: {}
   - path: bundle/config/overlays
