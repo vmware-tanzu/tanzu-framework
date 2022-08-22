@@ -4,10 +4,10 @@
 package main
 
 import (
+	"github.com/AlecAivazis/survey/v2"
 	"github.com/spf13/cobra"
-
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/builder/command"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/component"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli"
 )
 
 const desc = `Initialize a new plugin repository with scaffolding for:
@@ -47,14 +47,14 @@ func NewInitCmd() *cobra.Command {
 }
 
 func selectCIProvider() (selection string, err error) {
-	cfg := &component.SelectConfig{
+	prompt := &survey.Select{
 		Message: "choose a repository type",
 		Options: []string{
 			"GitHub",
 			"GitLab",
 		},
 	}
-	err = component.Select(cfg, &selection)
+	err = survey.AskOne(prompt, &selection, cli.SurveyOptions())
 	if err != nil {
 		return
 	}

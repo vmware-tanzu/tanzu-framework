@@ -4,11 +4,10 @@
 package main
 
 import (
+	"github.com/AlecAivazis/survey/v2"
 	"github.com/spf13/cobra"
-
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/builder/command"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/component"
 )
 
 var (
@@ -88,10 +87,10 @@ func newAddPluginCmd() *cobra.Command {
 }
 
 func askDescription() (answer string, err error) {
-	questioncfg := &component.QuestionConfig{
+	prompt := &survey.Input{
 		Message: "provide a description",
 	}
-	err = component.Ask(questioncfg, &answer)
+	err = survey.AskOne(prompt, &answer, cli.SurveyOptions())
 	if err != nil {
 		return
 	}

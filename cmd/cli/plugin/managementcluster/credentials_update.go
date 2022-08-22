@@ -4,11 +4,10 @@
 package main
 
 import (
+	"github.com/AlecAivazis/survey/v2"
 	"github.com/spf13/cobra"
-
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/component"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/config"
-
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgctl"
 )
 
@@ -55,8 +54,6 @@ func updateClusterCredentials(clusterName string) error {
 		clusterName = server.Name
 	}
 
-	var promptOpts []component.PromptOpt
-
 	forceUpdateTKGCompatibilityImage := false
 	tkgctlClient, err := newTKGCtlClient(forceUpdateTKGCompatibilityImage)
 	if err != nil {
@@ -64,27 +61,20 @@ func updateClusterCredentials(clusterName string) error {
 	}
 
 	if updateCredentialsOpts.vSphereUser == "" {
-		err = component.Prompt(
-			&component.PromptConfig{
-				Message: "Enter vSphere username",
-			},
-			&updateCredentialsOpts.vSphereUser,
-			promptOpts...,
-		)
+		prompt := &survey.Input{
+			Message: "Enter vSphere username:",
+		}
+		err := survey.AskOne(prompt, &updateCredentialsOpts.vSphereUser, cli.SurveyOptions())
 		if err != nil {
 			return err
 		}
 	}
 
 	if updateCredentialsOpts.vSpherePassword == "" {
-		err = component.Prompt(
-			&component.PromptConfig{
-				Message:   "Enter vSphere password",
-				Sensitive: true,
-			},
-			&updateCredentialsOpts.vSpherePassword,
-			promptOpts...,
-		)
+		prompt := &survey.Password{
+			Message: "Enter vSphere password:",
+		}
+		err := survey.AskOne(prompt, &updateCredentialsOpts.vSpherePassword, cli.SurveyOptions())
 		if err != nil {
 			return err
 		}

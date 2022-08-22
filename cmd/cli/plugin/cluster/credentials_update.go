@@ -5,13 +5,11 @@ package main
 
 import (
 	"errors"
-
+	"github.com/AlecAivazis/survey/v2"
 	"github.com/spf13/cobra"
-
 	"github.com/vmware-tanzu/tanzu-framework/apis/config/v1alpha1"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/component"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/config"
-
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgctl"
 )
 
@@ -52,49 +50,37 @@ func updateCredentials(cmd *cobra.Command, args []string) error {
 }
 
 func updateClusterCredentials(clusterName string, server *v1alpha1.Server) error {
-	var promptOpts []component.PromptOpt
-
 	tkgctlClient, err := createTKGClient(server.ManagementClusterOpts.Path, server.ManagementClusterOpts.Context)
 	if err != nil {
 		return err
 	}
 
 	if updateCredentialsOpts.namespace == "" {
-		err = component.Prompt(
-			&component.PromptConfig{
-				Message: "Enter namespace of the cluster",
-				Default: "default",
-			},
-			&updateCredentialsOpts.namespace,
-			promptOpts...,
-		)
+		prompt := &survey.Input{
+			Message: "Enter namespace of the cluster:",
+			Default: "default",
+		}
+		err = survey.AskOne(prompt, &updateCredentialsOpts.namespace, cli.SurveyOptions())
 		if err != nil {
 			return err
 		}
 	}
 
 	if updateCredentialsOpts.vSphereUser == "" {
-		err = component.Prompt(
-			&component.PromptConfig{
-				Message: "Enter vSphere username",
-			},
-			&updateCredentialsOpts.vSphereUser,
-			promptOpts...,
-		)
+		prompt := &survey.Input{
+			Message: "Enter vSphere username:",
+		}
+		err = survey.AskOne(prompt, &updateCredentialsOpts.vSphereUser, cli.SurveyOptions())
 		if err != nil {
 			return err
 		}
 	}
 
 	if updateCredentialsOpts.vSpherePassword == "" {
-		err = component.Prompt(
-			&component.PromptConfig{
-				Message:   "Enter vSphere password",
-				Sensitive: true,
-			},
-			&updateCredentialsOpts.vSpherePassword,
-			promptOpts...,
-		)
+		prompt := &survey.Password{
+			Message: "Enter vSphere password:",
+		}
+		err = survey.AskOne(prompt, &updateCredentialsOpts.vSpherePassword, cli.SurveyOptions())
 		if err != nil {
 			return err
 		}
