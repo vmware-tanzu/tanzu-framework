@@ -52,7 +52,7 @@ build-cli:
 
 .PHONY: lint
 lint: ## Run YAML linter
-	yamllint ${CLI_REPO}/pkg/v1/providers -c .yamllint
+	yamllint ${PROJECT_ROOT} -c .yamllint
 
 ## --------------------------------------
 ## Generate provider templates
