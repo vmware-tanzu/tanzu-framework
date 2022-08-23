@@ -1,6 +1,7 @@
 #@ load("@ytt:overlay", "overlay")
 #@ load("@ytt:data", "data")
 #@ load("@ytt:regexp", "regexp")
+#@ load("@ytt:base64", "base64")
 
 apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
 kind: VSphereClusterTemplate
@@ -176,7 +177,7 @@ metadata:
   namespace: #@ data.values.NAMESPACE
 stringData:
   username: #@ data.values.VSPHERE_USERNAME
-  password: #@ data.values.VSPHERE_PASSWORD
+  password: #@ base64.encode(data.values.VSPHERE_PASSWORD)
 ---
 apiVersion: cluster.x-k8s.io/v1beta1
 kind: ClusterClass
