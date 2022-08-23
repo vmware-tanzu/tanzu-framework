@@ -19,5 +19,3 @@ tkg_config_variables:
   AWS_PRIVATE_SUBNET_ID_2: subnet-016eb6a45203c010e
 management_cluster_options:
   plan: dev
-workload_cluster_options:
-  CLUSTER_CLASS_CB_FILE_PATH: ../../data/testdata/customClusterBootstrapAntrea-aws.yaml
