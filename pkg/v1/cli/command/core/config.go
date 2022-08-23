@@ -88,7 +88,7 @@ var setConfigCmd = &cobra.Command{
 		config.AcquireTanzuConfigLock()
 		defer config.ReleaseTanzuConfigLock()
 
-		cfg, err := config.GetClientConfig()
+		cfg, err := config.GetClientConfigNoLock()
 		if err != nil {
 			return err
 		}
@@ -210,7 +210,7 @@ var initConfigCmd = &cobra.Command{
 		config.AcquireTanzuConfigLock()
 		defer config.ReleaseTanzuConfigLock()
 
-		cfg, err := config.GetClientConfig()
+		cfg, err := config.GetClientConfigNoLock()
 		if err != nil {
 			return err
 		}
@@ -342,7 +342,7 @@ var unsetConfigCmd = &cobra.Command{
 		config.AcquireTanzuConfigLock()
 		defer config.ReleaseTanzuConfigLock()
 
-		cfg, err := config.GetClientConfig()
+		cfg, err := config.GetClientConfigNoLock()
 		if err != nil {
 			return err
 		}

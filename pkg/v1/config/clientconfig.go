@@ -27,7 +27,7 @@ func init() {
 	AcquireTanzuConfigLock()
 	defer ReleaseTanzuConfigLock()
 
-	c, err := GetClientConfig()
+	c, err := GetClientConfigNoLock()
 	if err != nil {
 		log.Warningf("unable to get client config: %v", err)
 	}
@@ -306,8 +306,16 @@ func CopyLegacyConfigDir() error {
 	return nil
 }
 
-// GetClientConfig retrieves the config from the local directory.
+// GetClientConfig retrieves the config from the local directory with file lock
 func GetClientConfig() (cfg *configv1alpha1.ClientConfig, err error) {
+	// Acquire tanzu config lock
+	AcquireTanzuConfigLock()
+	defer ReleaseTanzuConfigLock()
+	return GetClientConfigNoLock()
+}
+
+// GetClientConfigNoLock retrieves the config from the local directory without acquiring the lock
+func GetClientConfigNoLock() (cfg *configv1alpha1.ClientConfig, err error) {
 	cfgPath, err := ClientConfigPath()
 	if err != nil {
 		return nil, err
@@ -519,7 +527,7 @@ func AddServer(s *configv1alpha1.Server, setCurrent bool) error {
 	AcquireTanzuConfigLock()
 	defer ReleaseTanzuConfigLock()
 
-	cfg, err := GetClientConfig()
+	cfg, err := GetClientConfigNoLock()
 	if err != nil {
 		return err
 	}
@@ -550,7 +558,7 @@ func PutServer(s *configv1alpha1.Server, setCurrent bool) error {
 	AcquireTanzuConfigLock()
 	defer ReleaseTanzuConfigLock()
 
-	cfg, err := GetClientConfig()
+	cfg, err := GetClientConfigNoLock()
 	if err != nil {
 		return err
 	}
@@ -590,7 +598,7 @@ func RemoveServer(name string) error {
 	AcquireTanzuConfigLock()
 	defer ReleaseTanzuConfigLock()
 
-	cfg, err := GetClientConfig()
+	cfg, err := GetClientConfigNoLock()
 	if err != nil {
 		return err
 	}
@@ -635,7 +643,7 @@ func SetCurrentServer(name string) error {
 	AcquireTanzuConfigLock()
 	defer ReleaseTanzuConfigLock()
 
-	cfg, err := GetClientConfig()
+	cfg, err := GetClientConfigNoLock()
 	if err != nil {
 		return err
 	}

@@ -35,7 +35,7 @@ func AddContext(c *configv1alpha1.Context, setCurrent bool) error {
 	AcquireTanzuConfigLock()
 	defer ReleaseTanzuConfigLock()
 
-	cfg, err := GetClientConfig()
+	cfg, err := GetClientConfigNoLock()
 	if err != nil {
 		return err
 	}
@@ -62,7 +62,7 @@ func RemoveContext(name string) error {
 	AcquireTanzuConfigLock()
 	defer ReleaseTanzuConfigLock()
 
-	cfg, err := GetClientConfig()
+	cfg, err := GetClientConfigNoLock()
 	if err != nil {
 		return err
 	}
@@ -106,7 +106,7 @@ func SetCurrentContext(name string) error {
 	AcquireTanzuConfigLock()
 	defer ReleaseTanzuConfigLock()
 
-	cfg, err := GetClientConfig()
+	cfg, err := GetClientConfigNoLock()
 	if err != nil {
 		return err
 	}
