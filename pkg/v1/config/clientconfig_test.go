@@ -586,7 +586,6 @@ func configureTestDefaultStandaloneDiscoveryLocal() {
 }
 
 func TestClientConfigUpdateInParallel(t *testing.T) {
-	t.Skip("skip failing test to be fixed with https://github.com/vmware-tanzu/tanzu-framework/issues/3175")
 	assert := assert.New(t)
 	addServer := func(mcName string) error {
 		_, err := GetClientConfig()
