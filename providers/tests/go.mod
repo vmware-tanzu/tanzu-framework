@@ -1,4 +1,4 @@
-module github.com/vmware-tanzu/tanzu-framework/pkg/v1/providers/tests
+module github.com/vmware-tanzu/tanzu-framework/providers/tests
 
 go 1.17
 
