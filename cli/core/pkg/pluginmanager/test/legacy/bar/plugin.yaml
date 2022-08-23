@@ -1,0 +1,4 @@
+name: bar
+description: Bar plugin
+version: v0.10.0
+buildSHA: dummysha
