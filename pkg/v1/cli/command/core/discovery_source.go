@@ -108,7 +108,7 @@ var addDiscoverySourceCmd = &cobra.Command{
 		config.AcquireTanzuConfigLock()
 		defer config.ReleaseTanzuConfigLock()
 
-		cfg, err := config.GetClientConfig()
+		cfg, err := config.GetClientConfigNoLock()
 		if err != nil {
 			return err
 		}
@@ -152,7 +152,7 @@ var updateDiscoverySourceCmd = &cobra.Command{
 		config.AcquireTanzuConfigLock()
 		defer config.ReleaseTanzuConfigLock()
 
-		cfg, err := config.GetClientConfig()
+		cfg, err := config.GetClientConfigNoLock()
 		if err != nil {
 			return err
 		}
@@ -193,7 +193,7 @@ var deleteDiscoverySourceCmd = &cobra.Command{
 		config.AcquireTanzuConfigLock()
 		defer config.ReleaseTanzuConfigLock()
 
-		cfg, err := config.GetClientConfig()
+		cfg, err := config.GetClientConfigNoLock()
 		if err != nil {
 			return err
 		}
