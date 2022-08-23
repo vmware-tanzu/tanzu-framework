@@ -22,6 +22,7 @@ import (
 	"sigs.k8s.io/cluster-api/util/conditions"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
+	"github.com/vmware-tanzu/tanzu-framework/apis/run/util/sets"
 	"github.com/vmware-tanzu/tanzu-framework/apis/run/util/version"
 	runv1 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
@@ -31,7 +32,6 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v2/tkr/resolver"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v2/tkr/resolver/data"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v2/tkr/util/resolution"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v2/tkr/util/sets"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v2/tkr/util/topology"
 	clusterdata "github.com/vmware-tanzu/tanzu-framework/pkg/v2/tkr/webhook/cluster/tkr-resolver/cluster"
 )
