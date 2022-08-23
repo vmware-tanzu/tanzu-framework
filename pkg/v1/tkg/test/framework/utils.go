@@ -185,7 +185,7 @@ func SetCliConfigFlag(flagName string, value string) error {
 	config.AcquireTanzuConfigLock()
 	defer config.ReleaseTanzuConfigLock()
 
-	cfg, err := config.GetClientConfig()
+	cfg, err := config.GetClientConfigNoLock()
 	if err != nil {
 		return err
 	}

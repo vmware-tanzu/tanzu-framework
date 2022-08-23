@@ -22,7 +22,7 @@ func SetCompatibilityFileBasedOnEdition() error {
 	config.AcquireTanzuConfigLock()
 	defer config.ReleaseTanzuConfigLock()
 
-	clientConfig, err := config.GetClientConfig()
+	clientConfig, err := config.GetClientConfigNoLock()
 	if err != nil {
 		return err
 	}
