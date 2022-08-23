@@ -2,6 +2,8 @@ apiVersion: vendir.k14s.io/v1alpha1
 directories:
 - contents:
   - directory: {}
+    path: runcrds
+  - directory: {}
     path: crds
   - manual: {}
     path: addons-manager.yaml
