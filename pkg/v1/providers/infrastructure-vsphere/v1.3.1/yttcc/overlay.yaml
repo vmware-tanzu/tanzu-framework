@@ -1,7 +1,6 @@
 #@ load("@ytt:overlay", "overlay")
 #@ load("@ytt:data", "data")
-#@ load("@ytt:data", "data")
-
+#@ load("@ytt:base64", "base64")
 
 #@ load("lib/helpers.star", "get_bom_data_for_tkr_name", "get_default_tkg_bom_data", "kubeadm_image_repo", "get_image_repo_for_component", "get_vsphere_thumbprint")
 
@@ -46,7 +45,7 @@ spec:
     #! VVV TODO(vui) compute
     #! version: #@ data.values.KUBERNETES_VERSION
     #! hack to match up tkr
-    version: #@ "{}-zshippable".format(data.values.KUBERNETES_VERSION)
+    version: #@ "{}-tkg.1-zshippable".format(data.values.KUBERNETES_VERSION)
     controlPlane:
       replicas: #@ data.values.CONTROL_PLANE_MACHINE_COUNT
       #@overlay/match missing_ok=True
@@ -102,30 +101,32 @@ spec:
         #@overlay/match missing_ok=True
         metadata:
           annotations:
-            run.tanzu.vmware.com/resolve-os-image: image-type=ova,os-name=photon
+            #! VVV TODO(tenczar) os-name handling
+            run.tanzu.vmware.com/resolve-os-image: image-type=ova,os-name=windows
       #@ if data.values.CLUSTER_PLAN == "prodcc":
       #@overlay/append
       - class: tkg-worker-windows
         name: md-1
         replicas: #@ data.values.WORKER_MACHINE_COUNT_1
-        #@overlay/match missing_ok=True
-        metadata:
-          annotations:
-            run.tanzu.vmware.com/resolve-os-image: image-type=ova,os-name=photon
         #@ if data.values.VSPHERE_AZ_1:
         failureDomain: #@ data.values.VSPHERE_AZ_1
         #@ end
+        #@overlay/match missing_ok=True
+        metadata:
+          annotations:
+            #! VVV TODO(tenczar) os-name handling
+            run.tanzu.vmware.com/resolve-os-image: image-type=ova,os-name=windows
       #@overlay/append
       - class: tkg-worker-windows
         name: md-2
         replicas: #@ data.values.WORKER_MACHINE_COUNT_2
-        #@overlay/match missing_ok=True
-        metadata:
-          annotations:
-            run.tanzu.vmware.com/resolve-os-image: image-type=ova,os-name=photon
         #@ if data.values.VSPHERE_AZ_2:
         failureDomain: #@ data.values.VSPHERE_AZ_2
         #@ end
+        metadata:
+          annotations:
+            #! VVV TODO(tenczar) os-name handling
+            run.tanzu.vmware.com/resolve-os-image: image-type=ova,os-name=windows
       #@ end
       #@ end
     #@overlay/match missing_ok=True
@@ -137,6 +138,26 @@ spec:
       value: #@ vars[configVariable]
     #@ end
     #@ end
+    #@overlay/append
+    - name: TKR_DATA
+      value:
+        #@ "{}:".format(data.values.KUBERNETES_VERSION)
+          kubernetesSpec:
+            version: #@ data.values.KUBERNETES_VERSION
+            imageRepository: #@ bomDataForK8sVersion.kubeadmConfigSpec.imageRepository
+            etcd:
+              imageTag: #@ bomDataForK8sVersion.kubeadmConfigSpec.etcd.local.imageTag
+            coredns:
+              imageTag: #@ bomDataForK8sVersion.kubeadmConfigSpec.dns.imageTag
+            kube-vip:
+              imageTag: #@ bomData.components["kube-vip"][0].images.kubeVipImage.tag
+          labels:
+            os-name: ubuntu
+            os-type: linux
+            os-arch: amd64
+          osImageRef:
+            template: #@ data.values.VSPHERE_TEMPLATE
+          
 
 ---
 apiVersion: v1
@@ -145,4 +166,4 @@ metadata:
   name: #@ data.values.CLUSTER_NAME
 stringData:
   username: #@ data.values.VSPHERE_USERNAME
-  password: #@ data.values.VSPHERE_PASSWORD
+  password: #@ base64.encode(data.values.VSPHERE_PASSWORD)
