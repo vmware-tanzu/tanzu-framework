@@ -95,7 +95,7 @@ var updateCmd = &cobra.Command{
 		if !yesUpdate {
 			input := &survey.Input{Message: "would you like to continue? [y/n]"}
 			var resp string
-			err := survey.AskOne(input, &resp, cli.SurveyOptions())
+			err := survey.AskOne(input, &resp)
 			if err != nil {
 				return err
 			}

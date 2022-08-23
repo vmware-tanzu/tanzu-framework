@@ -6,8 +6,6 @@ package main
 import (
 	"crypto/tls"
 	"fmt"
-	"github.com/AlecAivazis/survey/v2"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli"
 	"net/http"
 	"net/url"
 	"os"
@@ -27,6 +25,7 @@ import (
 	tkgauth "github.com/vmware-tanzu/tanzu-framework/pkg/v1/auth/tkg"
 	wcpauth "github.com/vmware-tanzu/tanzu-framework/pkg/v1/auth/wcp"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/command/plugin"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/component"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/pluginmanager"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/config"
 )
@@ -144,6 +143,7 @@ func login(cmd *cobra.Command, args []string) (err error) {
 }
 
 func getServerTarget(cfg *configv1alpha1.ClientConfig, newServerSelector string) (*configv1alpha1.Server, error) {
+	promptOpts := getPromptOpts()
 	servers := map[string]*configv1alpha1.Server{}
 	for _, server := range cfg.KnownServers {
 		ep, err := config.EndpointFromServer(server)
@@ -165,15 +165,15 @@ func getServerTarget(cfg *configv1alpha1.ClientConfig, newServerSelector string)
 	serverKeys := getKeys(servers)
 	serverKeys = append(serverKeys, newServerSelector)
 	servers[newServerSelector] = &configv1alpha1.Server{}
-
-	prompt := &survey.Select{
-		Message: "Select a server:",
-		Options: serverKeys,
-		Default: serverKeys[0],
-	}
-	options := []survey.AskOpt{cli.SurveyOptions(), cli.WithStdioOptions()}
-	err := survey.AskOne(prompt, &server, options...)
-
+	err := component.Prompt(
+		&component.PromptConfig{
+			Message: "Select a server",
+			Options: serverKeys,
+			Default: serverKeys[0],
+		},
+		&server,
+		promptOpts...,
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -204,6 +204,15 @@ func rpad(s string, padding int) string {
 	return fmt.Sprintf(template, s)
 }
 
+func getPromptOpts() []component.PromptOpt {
+	var promptOpts []component.PromptOpt
+	if stderrOnly {
+		// This uses stderr because it needs to work inside the kubectl exec plugin flow where stdout is reserved.
+		promptOpts = append(promptOpts, component.WithStdio(os.Stdin, os.Stderr, os.Stderr))
+	}
+	return promptOpts
+}
+
 func createNewServer() (server *configv1alpha1.Server, err error) {
 	// user provided command line options to create a server using kubeconfig[optional] and context
 	if kubecontext != "" {
@@ -213,25 +222,24 @@ func createNewServer() (server *configv1alpha1.Server, err error) {
 	if endpoint != "" {
 		return createServerWithEndpoint()
 	}
+	promptOpts := getPromptOpts()
+
 	var loginType string
 
-	const (
-		ServerEndpoint  = "Server endpoint"
-		LocalKubeConfig = "Local kubeconfig"
+	err = component.Prompt(
+		&component.PromptConfig{
+			Message: "Select login type",
+			Options: []string{"Server endpoint", "Local kubeconfig"},
+			Default: "Server endpoint",
+		},
+		&loginType,
+		promptOpts...,
 	)
-	options := []survey.AskOpt{cli.SurveyOptions(), cli.WithStdioOptions()}
-
-	prompt := &survey.Select{
-		Message: "Select login type:",
-		Options: []string{ServerEndpoint, LocalKubeConfig},
-	}
-	err = survey.AskOne(prompt, &loginType, options...)
-
 	if err != nil {
 		return server, err
 	}
 
-	if loginType == ServerEndpoint {
+	if loginType == "Server endpoint" {
 		return createServerWithEndpoint()
 	}
 
@@ -239,12 +247,15 @@ func createNewServer() (server *configv1alpha1.Server, err error) {
 }
 
 func createServerWithKubeconfig() (server *configv1alpha1.Server, err error) {
-	options := []survey.AskOpt{cli.SurveyOptions(), cli.WithStdioOptions()}
+	promptOpts := getPromptOpts()
 	if kubeConfig == "" && kubecontext == "" {
-		prompt := &survey.Input{
-			Message: "Enter path to kubeconfig (if any):",
-		}
-		err = survey.AskOne(prompt, &kubeConfig, options...)
+		err = component.Prompt(
+			&component.PromptConfig{
+				Message: "Enter path to kubeconfig (if any)",
+			},
+			&kubeConfig,
+			promptOpts...,
+		)
 		if err != nil {
 			return
 		}
@@ -254,20 +265,25 @@ func createServerWithKubeconfig() (server *configv1alpha1.Server, err error) {
 	}
 
 	if kubeConfig != "" && kubecontext == "" {
-		prompt := &survey.Input{
-			Message: "Enter kube context to use:",
-		}
-		err = survey.AskOne(prompt, &kubecontext, options...)
-
+		err = component.Prompt(
+			&component.PromptConfig{
+				Message: "Enter kube context to use",
+			},
+			&kubecontext,
+			promptOpts...,
+		)
 		if err != nil {
 			return
 		}
 	}
 	if name == "" {
-		prompt := &survey.Input{
-			Message: "Give the server a name:",
-		}
-		err = survey.AskOne(prompt, &name, options...)
+		err = component.Prompt(
+			&component.PromptConfig{
+				Message: "Give the server a name",
+			},
+			&name,
+			promptOpts...,
+		)
 		if err != nil {
 			return
 		}
@@ -295,21 +311,27 @@ func createServerWithKubeconfig() (server *configv1alpha1.Server, err error) {
 }
 
 func createServerWithEndpoint() (server *configv1alpha1.Server, err error) {
-	options := []survey.AskOpt{cli.SurveyOptions(), cli.WithStdioOptions()}
+	promptOpts := getPromptOpts()
 	if endpoint == "" {
-		prompt := &survey.Input{
-			Message: "Enter server endpoint:",
-		}
-		err = survey.AskOne(prompt, &endpoint, options...)
+		err = component.Prompt(
+			&component.PromptConfig{
+				Message: "Enter server endpoint",
+			},
+			&endpoint,
+			promptOpts...,
+		)
 		if err != nil {
 			return
 		}
 	}
 	if name == "" {
-		prompt := &survey.Input{
-			Message: "Give the server a name:",
-		}
-		err = survey.AskOne(prompt, &name, options...)
+		err = component.Prompt(
+			&component.PromptConfig{
+				Message: "Give the server a name",
+			},
+			&name,
+			promptOpts...,
+		)
 		if err != nil {
 			return
 		}
@@ -434,15 +456,18 @@ func promptAPIToken() (apiToken string, err error) {
 		consoleURL.String(),
 	)
 
-	options := []survey.AskOpt{cli.SurveyOptions(), cli.WithStdioOptions()}
+	promptOpts := getPromptOpts()
 
 	// format
 	fmt.Println()
-
-	prompt := &survey.Password{
-		Message: "API Token:",
-	}
-	err = survey.AskOne(prompt, &apiToken, options...)
+	err = component.Prompt(
+		&component.PromptConfig{
+			Message:   "API Token",
+			Sensitive: true,
+		},
+		&apiToken,
+		promptOpts...,
+	)
 	return
 }
 
