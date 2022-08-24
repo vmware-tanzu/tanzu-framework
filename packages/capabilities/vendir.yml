@@ -6,7 +6,7 @@ directories:
     contents:
       - path: crds
         directory:
-          path: ../../config/crd/bases/
+          path: ../../apis/run/config/crd/bases/
         includePaths:
           - run.tanzu.vmware.com_capabilities.yaml
       - path: rbac.yaml

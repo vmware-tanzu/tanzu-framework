@@ -26,12 +26,12 @@ import (
 	"sigs.k8s.io/yaml"
 
 	kapppkgv1 "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apiserver/apis/datapackaging/v1alpha1"
+	"github.com/vmware-tanzu/tanzu-framework/apis/run/util/sets"
+	"github.com/vmware-tanzu/tanzu-framework/apis/run/util/version"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkr/pkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkr/pkg/types"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v2/tkr/controller/tkr-source/pkgcr"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v2/tkr/controller/tkr-source/registry"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v2/tkr/util/sets"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v2/tkr/util/version"
 )
 
 type Fetcher struct {

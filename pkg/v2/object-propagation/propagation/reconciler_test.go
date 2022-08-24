@@ -26,9 +26,9 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/client/fake"
 
+	"github.com/vmware-tanzu/tanzu-framework/apis/run/util/sets"
 	runv1 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v2/object-propagation/config"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v2/tkr/util/sets"
 )
 
 func TestPropagationReconciler(t *testing.T) {

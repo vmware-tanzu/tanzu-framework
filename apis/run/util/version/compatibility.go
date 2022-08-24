@@ -6,7 +6,7 @@ package version
 import (
 	"context"
 
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v2/tkr/util/sets"
+	"github.com/vmware-tanzu/tanzu-framework/apis/run/util/sets"
 )
 
 type Compatibility interface {

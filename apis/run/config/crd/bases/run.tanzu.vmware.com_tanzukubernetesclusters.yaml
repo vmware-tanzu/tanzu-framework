@@ -583,6 +583,7 @@ spec:
                               to deconflict is important.
                             type: string
                         required:
+                        - lastTransitionTime
                         - status
                         - type
                         type: object
@@ -658,6 +659,7 @@ spec:
                         important.
                       type: string
                   required:
+                  - lastTransitionTime
                   - status
                   - type
                   type: object
