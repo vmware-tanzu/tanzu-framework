@@ -1,0 +1,7 @@
+#!/bin/bash
+
+# Copyright 2021 VMware, Inc. All Rights Reserved.
+# SPDX-License-Identifier: Apache-2.0
+
+tanzu config set features.global.package-based-lcm-beta true
+tanzu config get

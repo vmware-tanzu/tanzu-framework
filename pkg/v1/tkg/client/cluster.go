@@ -191,13 +191,16 @@ func (c *TkgClient) getClusterConfigurationBytes(options *ClusterConfigOptions, 
 	}
 
 	// If ClusterClass based cluster creation is feasible update the plan to use ClusterClass based plan
-	if deployClusterClassBasedCluster {
+	if deployClusterClassBasedCluster && !strings.Contains(infraProviderName, constants.InfrastructureProviderDocker) {
 		plan, err := getCCPlanFromLegacyPlan(options.ProviderRepositorySource.Flavor)
 		if err != nil {
 			return nil, err
 		}
 		options.ProviderRepositorySource.Flavor = plan
 	}
+
+	log.Infof("INFRAPROVIDER %s", infraProviderName)
+	log.Infof("MC PLAN %s", options.ProviderRepositorySource.Flavor)
 
 	// Get the cluster configuration yaml bytes
 	return c.getClusterConfiguration(options, isManagementCluster, infraProviderName, isWindowsWorkloadCluster)
