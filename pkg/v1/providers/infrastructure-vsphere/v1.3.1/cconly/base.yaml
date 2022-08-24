@@ -534,7 +534,7 @@ spec:
       - op: replace
         path: /spec/template/spec/template
         valueFrom:
-          template: '{{ (index .TKR_DATA .builtin.controlPlane.version).osImageRef.template }}'
+          template: '/dc0/vm/photon-3-kube- {{- (index .TKR_DATA .builtin.controlPlane.version).osImageRef.version }}'
   - name: workerMachineTemplate
     definitions:
     - selector:
@@ -598,7 +598,7 @@ spec:
       - op: replace
         path: /spec/template/spec/template
         valueFrom:
-          template: '{{ (index .TKR_DATA .builtin.machineDeployment.version).osImageRef.template }}'
+          template: '/dc0/vm/photon-3-kube- {{- (index .TKR_DATA .builtin.machineDeployment.version).osImageRef.version }}'
   - name: kubeadmControlPlaneTemplate
     definitions:
     - selector:
