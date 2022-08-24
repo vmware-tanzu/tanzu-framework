@@ -72,7 +72,7 @@ var addRepoCmd = &cobra.Command{
 		config.AcquireTanzuConfigLock()
 		defer config.ReleaseTanzuConfigLock()
 
-		cfg, err := config.GetClientConfig()
+		cfg, err := config.GetClientConfigNoLock()
 		if err != nil {
 			return err
 		}
@@ -119,7 +119,7 @@ var updateRepoCmd = &cobra.Command{
 		config.AcquireTanzuConfigLock()
 		defer config.ReleaseTanzuConfigLock()
 
-		cfg, err := config.GetClientConfig()
+		cfg, err := config.GetClientConfigNoLock()
 		if err != nil {
 			return err
 		}
@@ -167,7 +167,7 @@ var deleteRepoCmd = &cobra.Command{
 		config.AcquireTanzuConfigLock()
 		defer config.ReleaseTanzuConfigLock()
 
-		cfg, err := config.GetClientConfig()
+		cfg, err := config.GetClientConfigNoLock()
 		if err != nil {
 			return err
 		}

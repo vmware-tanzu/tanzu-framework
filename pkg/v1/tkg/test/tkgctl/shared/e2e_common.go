@@ -23,6 +23,7 @@ import (
 	runv1alpha3 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/test/framework"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/test/framework/exec"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgctl"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/utils"
 )
@@ -33,17 +34,20 @@ type E2ECommonSpecInput struct {
 	Cni             string
 	Plan            string
 	Namespace       string
+	IsCCB           bool
 	OtherConfigs    map[string]string
 }
 
 func E2ECommonSpec(ctx context.Context, inputGetter func() E2ECommonSpecInput) { //nolint:funlen
 	var (
-		err          error
-		input        E2ECommonSpecInput
-		tkgCtlClient tkgctl.TKGClient
-		logsDir      string
-		clusterName  string
-		namespace    string
+		err                   error
+		input                 E2ECommonSpecInput
+		tkgCtlClient          tkgctl.TKGClient
+		logsDir               string
+		clusterName           string
+		namespace             string
+		mngKubeConfigFileName string
+		mngKubeConfigFile     string
 	)
 
 	BeforeEach(func() { //nolint:dupl
@@ -66,6 +70,16 @@ func E2ECommonSpec(ctx context.Context, inputGetter func() E2ECommonSpecInput) {
 			},
 		})
 
+		Expect(err).To(BeNil())
+
+		mngKubeConfigFileName = input.E2EConfig.ManagementClusterName + ".kubeconfig"
+		mngKubeConfigFile = filepath.Join(os.TempDir(), mngKubeConfigFileName)
+
+		err = tkgCtlClient.GetCredentials(tkgctl.GetWorkloadClusterCredentialsOptions{
+			ClusterName: input.E2EConfig.ManagementClusterName,
+			Namespace:   "tkg-system",
+			ExportFile:  mngKubeConfigFile,
+		})
 		Expect(err).To(BeNil())
 	})
 
@@ -134,8 +148,13 @@ func E2ECommonSpec(ctx context.Context, inputGetter func() E2ECommonSpecInput) {
 
 		clusterConfigFile, err = framework.GetTempClusterConfigFile(input.E2EConfig.TkgClusterConfigPath, &options)
 		Expect(err).To(BeNil())
-
 		defer os.Remove(clusterConfigFile)
+
+		if input.IsCCB {
+			err = exec.KubectlApplyWithArgs(ctx, mngKubeConfigFile, getCustomCBResourceFile(clusterName, namespace))
+			Expect(err).To(BeNil())
+		}
+
 		err = tkgCtlClient.CreateCluster(tkgctl.CreateClusterOptions{
 			ClusterConfigFile: clusterConfigFile,
 			Edition:           "tkg",
@@ -174,17 +193,7 @@ func E2ECommonSpec(ctx context.Context, inputGetter func() E2ECommonSpecInput) {
 				}
 
 				By(fmt.Sprintf("Get k8s client for management cluster %q", input.E2EConfig.ManagementClusterName))
-				mngkubeConfigFileName := input.E2EConfig.ManagementClusterName + ".kubeconfig"
-				mngtempFilePath := filepath.Join(os.TempDir(), mngkubeConfigFileName)
-				err = tkgCtlClient.GetCredentials(tkgctl.GetWorkloadClusterCredentialsOptions{
-					ClusterName: input.E2EConfig.ManagementClusterName,
-					Namespace:   "tkg-system",
-					ExportFile:  mngtempFilePath,
-				})
-				Expect(err).To(BeNil())
-
-				By(fmt.Sprintf("Get k8s client for management cluster %q", clusterName))
-				mngclient, mngDynamicClient, mngAggregatedAPIResourcesClient, mngDiscoveryClient, err := GetClients(ctx, mngtempFilePath)
+				mngclient, mngDynamicClient, mngAggregatedAPIResourcesClient, mngDiscoveryClient, err := GetClients(ctx, mngKubeConfigFile)
 				Expect(err).NotTo(HaveOccurred())
 				mngClient = mngclient
 
@@ -192,12 +201,8 @@ func E2ECommonSpec(ctx context.Context, inputGetter func() E2ECommonSpecInput) {
 				wlcClient, _, _, _, err := GetClients(ctx, tempFilePath)
 				Expect(err).NotTo(HaveOccurred())
 
-				By(fmt.Sprintf("Verify addon packages on management cluster %q matches clusterBootstrap info on management cluster %q", input.E2EConfig.ManagementClusterName, input.E2EConfig.ManagementClusterName))
-				err = CheckClusterCB(ctx, mngclient, wlcClient, input.E2EConfig.ManagementClusterName, constants.TkgNamespace, "", "", infrastructureName, true, false)
-				Expect(err).To(BeNil())
-
 				By(fmt.Sprintf("Verify addon packages on workload cluster %q matches clusterBootstrap info on management cluster %q", clusterName, input.E2EConfig.ManagementClusterName))
-				err = CheckClusterCB(ctx, mngclient, wlcClient, input.E2EConfig.ManagementClusterName, constants.TkgNamespace, clusterName, namespace, infrastructureName, false, false)
+				err = CheckClusterCB(ctx, mngclient, wlcClient, input.E2EConfig.ManagementClusterName, constants.TkgNamespace, clusterName, namespace, infrastructureName, false, input.IsCCB)
 				Expect(err).To(BeNil())
 
 				By(fmt.Sprintf("Get management cluster resources created by addons-manager for workload cluster %q on management cluster %q", clusterName, input.E2EConfig.ManagementClusterName))
@@ -207,6 +212,7 @@ func E2ECommonSpec(ctx context.Context, inputGetter func() E2ECommonSpecInput) {
 		}
 
 		By(fmt.Sprintf("Deleting workload cluster %q", clusterName))
+
 		err = tkgCtlClient.DeleteCluster(tkgctl.DeleteClustersOptions{
 			ClusterName: clusterName,
 			Namespace:   namespace,
@@ -223,6 +229,8 @@ func E2ECommonSpec(ctx context.Context, inputGetter func() E2ECommonSpecInput) {
 				}, resourceDeletionWaitTimeout, pollingInterval).Should(BeTrue())
 			}
 		}
+
+		os.Remove(mngKubeConfigFile)
 
 		By("Test successful !")
 	})
@@ -335,4 +343,9 @@ func TestClusterUpgrade(tkgctlClient tkgctl.TKGClient, clusterName, namespace st
 	})
 	Expect(err).ToNot(HaveOccurred())
 
+}
+
+// getCustomCBResourceFile return a manifest containing custom ClusterBootstrap and AntreaConfig
+func getCustomCBResourceFile(clusterName, namespace string) []byte {
+	return []byte(fmt.Sprintf(customAntreaConfigAndCBResource, clusterName, namespace, clusterName, namespace, clusterName))
 }
