@@ -137,10 +137,10 @@ var _ = BeforeSuite(func(done Done) {
 	err = setupLocalCRDDirectory(localCRDPath)
 	Expect(err).NotTo(HaveOccurred())
 
-	copyCRDs := func(files []os.DirEntry) {
+	copyCRDs := func(files []os.DirEntry, path string) {
 		for _, f := range files {
 			if !strings.Contains(f.Name(), "tanzukubernetesreleases") {
-				data, err := os.ReadFile(filepath.Join(configCRDBasesPath, f.Name()))
+				data, err := os.ReadFile(filepath.Join(path, f.Name()))
 				Expect(err).ToNot(HaveOccurred())
 
 				destFilePath := filepath.Join(localCRDPath, f.Name())
@@ -156,11 +156,11 @@ var _ = BeforeSuite(func(done Done) {
 
 	files, err := os.ReadDir(configCRDBasesPath)
 	Expect(err).ToNot(HaveOccurred())
-	copyCRDs(files)
+	copyCRDs(files, configCRDBasesPath)
 
 	files, err = os.ReadDir(runCRDPath)
 	Expect(err).ToNot(HaveOccurred())
-	copyCRDs(files)
+	copyCRDs(files, runCRDPath)
 
 	// If it is not possible to include the parent repo that contains the CRD yaml file, manually add the CRD definition file into testdata/dependency/crd
 	// For example, virtualmachines CRD is in repo vm-operator, but introducing vm-operator would cause dependency conflict in go.mod, therefore the CRD file is manually ported in
