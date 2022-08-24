@@ -97,7 +97,7 @@ metadata:
   name: #@ data.values.CLUSTER_NAME + "-vsphere-credential"
   namespace: #@ data.values.NAMESPACE
 data:
-  username: #@ data.values.VSPHERE_USERNAME
+  username: #@ base64.encode(data.values.VSPHERE_USERNAME)
   password: #@ base64.encode(data.values.VSPHERE_PASSWORD)
 ---
 apiVersion: v1
@@ -105,8 +105,8 @@ kind: Secret
 metadata:
   name: #@ data.values.CLUSTER_NAME + "-nsxt-credential"
   namespace: #@ data.values.NAMESPACE
-stringData:
-  password: #@ data.values.NSXT_USERNAME
+data:
+  password: #@ base64.encode(data.values.NSXT_USERNAME)
   username: #@ base64.encode(data.values.NSXT_PASSWORD)
 ---
 apiVersion: cpi.tanzu.vmware.com/v1alpha1
