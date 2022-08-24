@@ -530,7 +530,7 @@ func (h *Helper) cloneReferencedObjectsFromCBPackage(
 	}
 
 	if clusterBootstrapPkg.ValuesFrom.Inline != nil {
-		secret, err := h.createSecretFromInline(cluster, clusterBootstrapPkg, carvelPkgRefName)
+		secret, err := h.CreateSecretFromInline(cluster, clusterBootstrapPkg, carvelPkgRefName)
 		if err != nil {
 			return nil, nil, err
 		}
@@ -555,8 +555,8 @@ func (h *Helper) cloneReferencedObjectsFromCBPackage(
 	return nil, nil, nil
 }
 
-// createSecretFromInline is an internal function creates a Secret resource from ClusterBootstrapPackage.ValuesFrom.Inline into the cluster namespace
-func (h *Helper) createSecretFromInline(
+// CreateSecretFromInline is an internal function creates a Secret resource from ClusterBootstrapPackage.ValuesFrom.Inline into the cluster namespace
+func (h *Helper) CreateSecretFromInline(
 	cluster *clusterapiv1beta1.Cluster,
 	cbPkg *runtanzuv1alpha3.ClusterBootstrapPackage,
 	carvelPkgRefName string) (*corev1.Secret, error) {
