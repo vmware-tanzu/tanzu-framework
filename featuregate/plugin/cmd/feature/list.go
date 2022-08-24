@@ -13,7 +13,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/component"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/sdk/features/client"
+	"github.com/vmware-tanzu/tanzu-framework/featuregate/client/pkg/featuregateclient"
 )
 
 var featuregate, outputFormat string
@@ -52,7 +52,7 @@ type FeatureInfo struct {
 }
 
 func featureList(cmd *cobra.Command, _ []string) error {
-	featureGateClient, err := client.NewFeatureGateClient()
+	featureGateClient, err := featuregateclient.NewFeatureGateClient()
 	if err != nil {
 		return fmt.Errorf("couldn't get featureGateRunner: %w", err)
 	}
@@ -174,7 +174,7 @@ func listBasic(cmd *cobra.Command, features []*FeatureInfo) error {
 }
 
 // joinFeatures retrieves additional information of a Feature and merges it with existing information.
-func joinFeatures(ctx context.Context, featureGateClient *client.FeatureGateClient, features []*FeatureInfo) error {
+func joinFeatures(ctx context.Context, featureGateClient *featuregateclient.FeatureGateClient, features []*FeatureInfo) error {
 	for _, info := range features {
 		feature, err := featureGateClient.GetFeature(ctx, info.Name)
 		if err != nil {

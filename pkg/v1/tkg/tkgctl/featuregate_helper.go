@@ -10,7 +10,7 @@ import (
 
 	"github.com/vmware-tanzu/tanzu-framework/apis/config/v1alpha1"
 	configv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/config/v1alpha1"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/sdk/features/featuregate"
+	"github.com/vmware-tanzu/tanzu-framework/featuregate/client/pkg/util"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/clusterclient"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/constants"
 )
@@ -59,7 +59,7 @@ func (fg *featureGateHelper) FeatureActivatedInNamespace(reqContext context.Cont
 		}
 	}
 
-	return featuregate.FeatureActivatedInNamespace(reqContext, clusterClient.GetClientSet(), namespace, feature)
+	return util.FeatureActivatedInNamespace(reqContext, clusterClient.GetClientSet(), namespace, feature)
 }
 
 // isClusterClassFeatureActivated is decided based on the FeatureGate CRD is present or not

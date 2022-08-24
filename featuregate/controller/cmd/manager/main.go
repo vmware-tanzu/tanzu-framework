@@ -17,8 +17,8 @@ import (
 	// +kubebuilder:scaffold:imports
 
 	configv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/config/v1alpha1"
+	"github.com/vmware-tanzu/tanzu-framework/featuregate/controller/pkg/featuregate"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/buildinfo"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/sdk/features/controllers"
 )
 
 var (
@@ -53,7 +53,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	if err = (&controllers.FeatureGateReconciler{
+	if err = (&featuregate.FeatureGateReconciler{
 		Client: mgr.GetClient(),
 		Log:    ctrl.Log.WithName("controllers").WithName("FeatureGate"),
 		Scheme: mgr.GetScheme(),

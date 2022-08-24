@@ -2,4 +2,4 @@
 // SPDX-License-Identifier: Apache-2.0
 
 // Package controllers has the controller for feature gates.
-package controllers
+package featuregate

@@ -1,7 +1,7 @@
 // Copyright 2021 VMware, Inc. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-package controllers
+package featuregate
 
 import (
 	"context"
@@ -18,8 +18,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/source"
 
 	configv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/config/v1alpha1"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/sdk/features/featuregate"
-	featureutil "github.com/vmware-tanzu/tanzu-framework/pkg/v1/sdk/features/util"
+	"github.com/vmware-tanzu/tanzu-framework/featuregate/client/pkg/util"
 )
 
 const contextTimeout = 30 * time.Second
@@ -54,14 +53,14 @@ func (r *FeatureGateReconciler) Reconcile(ctx context.Context, req ctrl.Request)
 	}
 
 	// Get namespaces from NamespaceSelector.
-	namespaces, err := featureutil.NamespacesMatchingSelector(ctxCancel, r.Client, &featureGate.Spec.NamespaceSelector)
+	namespaces, err := util.NamespacesMatchingSelector(ctxCancel, r.Client, &featureGate.Spec.NamespaceSelector)
 	if err != nil {
 		return ctrl.Result{}, err
 	}
 	featureGate.Status.Namespaces = namespaces
 
 	// Compute feature states.
-	activated, deactivated, unavailable := featuregate.ComputeFeatureStates(featureGate.Spec, features.Items)
+	activated, deactivated, unavailable := util.ComputeFeatureStates(featureGate.Spec, features.Items)
 	featureGate.Status.ActivatedFeatures = activated
 	featureGate.Status.DeactivatedFeatures = deactivated
 	featureGate.Status.UnavailableFeatures = unavailable
