@@ -14,7 +14,7 @@ import (
 
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/config"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
-	fakehelper "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/fakes/helper"
+	fakehelper "github.com/vmware-tanzu/tanzu-framework/tkg/fakes/helper"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/utils"
 )
 

@@ -26,7 +26,7 @@ import (
 	. "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/client"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/clusterclient"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/fakes"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/fakes"
 )
 
 var _ = Describe("GetMachineDeployments", func() {
