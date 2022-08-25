@@ -9,7 +9,7 @@ import (
 
 	. "github.com/onsi/ginkgo"
 
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/client"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/client"
 	. "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/test/tkgctl/shared"
 )
 
