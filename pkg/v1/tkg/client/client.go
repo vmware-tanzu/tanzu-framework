@@ -22,7 +22,7 @@ import (
 
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/clusterclient"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/features"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/kind"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/kind"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/region"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfigbom"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfigpaths"
