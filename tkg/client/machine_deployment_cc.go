@@ -12,7 +12,7 @@ import (
 	v1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
 	capi "sigs.k8s.io/cluster-api/api/v1beta1"
 
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/clusterclient"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/clusterclient"
 )
 
 func DoSetMachineDeploymentCC(clusterClient clusterclient.Client, cluster *capi.Cluster, options *SetMachineDeploymentOptions) error {
