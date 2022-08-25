@@ -11,51 +11,52 @@ import (
 	kappipkg "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/packaging/v1alpha1"
 
 	"github.com/vmware-tanzu/tanzu-framework/tkg/fakes"
-	. "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgpackageclient"
+	. "github.com/vmware-tanzu/tanzu-framework/tkg/tkgpackageclient"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgpackagedatamodel"
 )
 
-var _ = Describe("Get Repository", func() {
+var _ = Describe("Get Installed Package", func() {
 	var (
 		ctl     TKGPackageClient
 		kappCtl *fakes.KappClient
 		err     error
-		opts    = tkgpackagedatamodel.RepositoryOptions{
-			RepositoryName: testRepoName,
-			Namespace:      testNamespaceName,
+		opts    = tkgpackagedatamodel.PackageOptions{
+			PackageName: testPkgName,
+			Namespace:   testNamespaceName,
 		}
 		options    = opts
-		repository *kappipkg.PackageRepository
+		pkgInstall *kappipkg.PackageInstall
 	)
 
 	JustBeforeEach(func() {
 		ctl, err = NewTKGPackageClientWithKappClient(kappCtl)
 		Expect(err).NotTo(HaveOccurred())
-		repository, err = ctl.GetRepository(&options)
+
+		pkgInstall, err = ctl.GetPackageInstall(&options)
 	})
 
-	Context("failure in getting package repository due to GetPackageRepository API error", func() {
+	Context("failure in getting installed packages due to GetPackageInstall API error", func() {
 		BeforeEach(func() {
 			kappCtl = &fakes.KappClient{}
-			kappCtl.GetPackageRepositoryReturns(nil, errors.New("failure in GetPackageRepository"))
+			kappCtl.GetPackageInstallReturns(nil, errors.New("failure in GetPackageInstall"))
 		})
 		It(testFailureMsg, func() {
 			Expect(err).To(HaveOccurred())
-			Expect(err.Error()).To(ContainSubstring("failure in GetPackageRepository"))
-			Expect(repository).To(BeNil())
+			Expect(err.Error()).To(ContainSubstring("failure in GetPackageInstall"))
+			Expect(pkgInstall).To(BeNil())
 		})
 		AfterEach(func() { options = opts })
 	})
 
-	Context("success in getting package repository", func() {
+	Context("success in getting installed packages", func() {
 		BeforeEach(func() {
 			kappCtl = &fakes.KappClient{}
-			kappCtl.GetPackageRepositoryReturns(testRepository, nil)
+			kappCtl.GetPackageInstallReturns(testPkgInstall, nil)
 		})
 		It(testSuccessMsg, func() {
 			Expect(err).NotTo(HaveOccurred())
-			Expect(repository).NotTo(BeNil())
-			Expect(repository).To(Equal(testRepository))
+			Expect(pkgInstall).NotTo(BeNil())
+			Expect(pkgInstall).To(Equal(testPkgInstall))
 		})
 		AfterEach(func() { options = opts })
 	})
