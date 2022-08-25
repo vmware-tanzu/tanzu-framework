@@ -15,10 +15,10 @@ import (
 	"k8s.io/apimachinery/pkg/util/rand"
 	"sigs.k8s.io/cluster-api/util/conditions"
 
+	"github.com/vmware-tanzu/tanzu-framework/apis/run/util/version"
 	runv1 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v2/tkr/resolver/data"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v2/tkr/util/testdata"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v2/tkr/util/version"
 )
 
 func TestResolver(t *testing.T) {

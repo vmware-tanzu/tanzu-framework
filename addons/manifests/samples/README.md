@@ -13,7 +13,7 @@ Simple App addon
 1. Create TKr CRD
 
    ```shell
-   kubectl apply -f ../../../config/crd/bases/run.tanzu.vmware.com_tanzukubernetesreleases.yaml
+   kubectl apply -f ../../../apis/run/config/crd/bases/run.tanzu.vmware.com_tanzukubernetesreleases.yaml
    ```
 
 2. Deploy Addon controller

@@ -162,9 +162,9 @@ func constructCRDPaths() []string {
 		filepath.Join("..", "..", "config", "crd", "bases", "cni.tanzu.vmware.com_calicoconfigs.yaml"),
 		filepath.Join("..", "..", "config", "crd", "bases", "cpi.tanzu.vmware.com_vspherecpiconfigs.yaml"),
 		filepath.Join("..", "..", "config", "crd", "bases", "csi.tanzu.vmware.com_vspherecsiconfigs.yaml"),
-		filepath.Join("..", "..", "config", "crd", "bases", "run.tanzu.vmware.com_kappcontrollerconfigs.yaml"),
-		filepath.Join("..", "..", "config", "crd", "bases", "run.tanzu.vmware.com_clusterbootstraps.yaml"),
-		filepath.Join("..", "..", "config", "crd", "bases", "run.tanzu.vmware.com_clusterbootstraptemplates.yaml"),
+		filepath.Join("..", "..", "apis", "run", "config", "crd", "bases", "run.tanzu.vmware.com_kappcontrollerconfigs.yaml"),
+		filepath.Join("..", "..", "apis", "run", "config", "crd", "bases", "run.tanzu.vmware.com_clusterbootstraps.yaml"),
+		filepath.Join("..", "..", "apis", "run", "config", "crd", "bases", "run.tanzu.vmware.com_clusterbootstraptemplates.yaml"),
 		filepath.Join("testdata", "crds"),
 	}
 }

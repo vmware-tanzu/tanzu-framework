@@ -24,12 +24,12 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/source"
 	"sigs.k8s.io/yaml"
 
+	"github.com/vmware-tanzu/tanzu-framework/apis/run/util/sets"
+	"github.com/vmware-tanzu/tanzu-framework/apis/run/util/version"
 	runv1 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkr/pkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkr/pkg/types"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/util/patchset"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v2/tkr/util/sets"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v2/tkr/util/version"
 )
 
 const LabelAdditionalTKRs = "run.tanzu.vmware.com/additional-compatible-tkrs"

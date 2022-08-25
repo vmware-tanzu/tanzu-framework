@@ -15,9 +15,9 @@ import (
 	"k8s.io/kubectl/pkg/scheme"
 	v1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
 
+	utilconversion "github.com/vmware-tanzu/tanzu-framework/apis/run/util/conversion"
+	"github.com/vmware-tanzu/tanzu-framework/apis/run/util/version"
 	"github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v2/tkr/util/version"
-	utilconversion "github.com/vmware-tanzu/tanzu-framework/util/conversion"
 )
 
 func TestConversion(t *testing.T) {

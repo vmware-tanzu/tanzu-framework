@@ -18,8 +18,8 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/client/fake"
 
+	"github.com/vmware-tanzu/tanzu-framework/apis/run/util/sets"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkr/pkg/constants"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v2/tkr/util/sets"
 )
 
 func TestCompatibility(t *testing.T) {

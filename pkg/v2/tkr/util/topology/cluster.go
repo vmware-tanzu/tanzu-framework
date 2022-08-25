@@ -14,8 +14,8 @@ import (
 	clusterv1 "sigs.k8s.io/cluster-api/api/v1beta1"
 	"sigs.k8s.io/cluster-api/util/conditions"
 
+	"github.com/vmware-tanzu/tanzu-framework/apis/run/util/sets"
 	runv1 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v2/tkr/util/sets"
 )
 
 // SetVariable sets the cluster variable, to the given value.
