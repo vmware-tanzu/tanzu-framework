@@ -2,11 +2,11 @@
 
  This library includes coresponding [providers](/pkg/v1/providers) to provide the templates and ytt overlays required to generate cluster configuration YAML documents.
 
-## [tkgctl library](/pkg/v1/tkg/tkgctl)
+## [tkgctl library](/tkg/tkgctl)
 
 This library provides an interface that can be used to invoke TKG related functionalities. This interface is currently used by the cluster and management-cluster plugin in tanzu cli to perform TKG related operations. TMC also consumes this library interface to do lifecycle operations on TKG clusters.
 
-For more details about the client and interface: [/pkg/v1/tkg/tkgctl/client.go](/pkg/v1/tkg/tkgctl/client.go)
+For more details about the client and interface: [/tkg/tkgctl/client.go](/tkg/tkgctl/client.go)
 
 ## clusterctl library
 
