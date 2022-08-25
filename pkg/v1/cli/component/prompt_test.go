@@ -66,3 +66,17 @@ func Test_translatePromptConfig_Input(t *testing.T) {
 	_, ok := prompt.(*survey.Input)
 	assert.True(ok)
 }
+
+func Test_PromptOptions(t *testing.T) {
+	assert := assert.New(t)
+
+	options := defaultPromptOptions()
+	opts := translatePromptOpts(options)
+
+	assert.NotNil(options)
+	assert.NotNil(opts)
+	assert.Equal("?", options.Icons.Question.Text)
+	assert.Equal("cyan+b", options.Icons.Question.Format)
+	assert.Equal(2, len(opts))
+
+}
