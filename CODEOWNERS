@@ -15,7 +15,7 @@
 /pkg/v1/providers/ytt/02_addons/avi @vmware-tanzu/tanzu-framework-reviewers @vmware-tanzu/ako-owners
 /pkg/v1/providers/ytt/03_customizations/02_avi @vmware-tanzu/tanzu-framework-reviewers @vmware-tanzu/ako-owners
 /pkg/v1/tkg @vmware-tanzu/tanzu-framework-reviewers @vmware-tanzu/tanzu-framework-lcm-reviewers
-/pkg/v1/tkg/kappclient @vmware-tanzu/tanzu-framework-reviewers @vmware-tanzu/tkg-addons-owners
+/tkg/kappclient @vmware-tanzu/tanzu-framework-reviewers @vmware-tanzu/tkg-addons-owners
 /pkg/v1/tkg/test/tkgpackageclient @vmware-tanzu/tanzu-framework-reviewers @vmware-tanzu/tkg-addons-owners
 /pkg/v1/tkg/tkgconfigpaths @vmware-tanzu/tanzu-framework-reviewers @vmware-tanzu/tanzu-framework-release-team
 /pkg/v1/tkg/tkgpackageclient @vmware-tanzu/tanzu-framework-reviewers @vmware-tanzu/tkg-addons-owners
