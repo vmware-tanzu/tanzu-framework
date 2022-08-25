@@ -32,8 +32,8 @@ import (
 	aviClient "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/avi"
 	awsclient "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/aws"
 	azureclient "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/azure"
-	ldapClient "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/ldap"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/web/server/ws"
+	ldapClient "github.com/vmware-tanzu/tanzu-framework/tkg/ldap"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/log"
 )
 

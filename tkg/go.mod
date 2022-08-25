@@ -16,6 +16,7 @@ require (
 	github.com/Masterminds/semver v1.5.0
 	github.com/apparentlymart/go-cidr v1.1.0
 	github.com/docker/docker v20.10.16+incompatible
+	github.com/go-ldap/ldap/v3 v3.3.0
 	github.com/go-logr/logr v1.2.2
 	github.com/juju/fslock v0.0.0-20160525022230-4d5c94c67b4b
 	github.com/onsi/ginkgo v1.16.5
@@ -44,6 +45,7 @@ require (
 	github.com/Azure/go-autorest/autorest/validation v0.3.1 // indirect
 	github.com/Azure/go-autorest/logger v0.2.1 // indirect
 	github.com/Azure/go-autorest/tracing v0.6.0 // indirect
+	github.com/Azure/go-ntlmssp v0.0.0-20200615164410-66371956d46c // indirect
 	github.com/BurntSushi/toml v1.0.0 // indirect
 	github.com/MakeNowJust/heredoc v1.0.0 // indirect
 	github.com/Masterminds/goutils v1.1.1 // indirect
@@ -75,6 +77,7 @@ require (
 	github.com/evanphx/json-patch v5.6.0+incompatible // indirect
 	github.com/evanphx/json-patch/v5 v5.6.0 // indirect
 	github.com/fsnotify/fsnotify v1.5.1 // indirect
+	github.com/go-asn1-ber/asn1-ber v1.5.1 // indirect
 	github.com/go-openapi/analysis v0.19.5 // indirect
 	github.com/go-openapi/errors v0.19.2 // indirect
 	github.com/go-openapi/jsonpointer v0.19.5 // indirect
