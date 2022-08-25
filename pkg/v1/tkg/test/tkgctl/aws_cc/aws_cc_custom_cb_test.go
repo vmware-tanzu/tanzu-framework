@@ -12,16 +12,16 @@ import (
 	. "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/test/tkgctl/shared"
 )
 
-var _ = Describe("Functional tests to create AWS cluster with custom ClusterBootstrap", func() {
-	E2ECommonSpec(context.TODO(), func() E2ECommonSpecInput {
-		return E2ECommonSpecInput{
+var _ = Describe("Functional tests to create & upgrade AWS cluster with custom ClusterBootstrap", func() {
+	E2ECommonCCSpec(context.TODO(), func() E2ECommonCCSpecInput {
+		return E2ECommonCCSpecInput{
 			E2EConfig:       e2eConfig,
 			ArtifactsFolder: artifactsFolder,
 			Cni:             "antrea",
 			Plan:            "dev",
 			Namespace:       "tkg-system",
-			IsCCB:           true,
-			OtherConfigs:    map[string]string{"clusterclass": "true"},
+			IsCustomCB:      true,
+			DoUpgrade:       true,
 		}
 	})
 })
