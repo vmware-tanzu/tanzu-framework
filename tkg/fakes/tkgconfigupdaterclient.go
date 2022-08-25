@@ -6,7 +6,7 @@ import (
 
 	yaml "gopkg.in/yaml.v3"
 
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfigupdater"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/tkgconfigupdater"
 )
 
 type TKGConfigUpdaterClient struct {

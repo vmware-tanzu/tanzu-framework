@@ -17,7 +17,7 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/region"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfigbom"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfigreaderwriter"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfigupdater"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/tkgconfigupdater"
 )
 
 const fakeTKRVersion = "1.19.0+vmware.1-tkg.1"
