@@ -7,7 +7,7 @@ import (
 	capiv1alpha3 "sigs.k8s.io/cluster-api/api/v1alpha3"
 	capi "sigs.k8s.io/cluster-api/api/v1beta1"
 
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/client"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/client"
 )
 
 func (c *tkgctl) GetMachineDeployments(options client.GetMachineDeploymentOptions) ([]capi.MachineDeployment, error) {
