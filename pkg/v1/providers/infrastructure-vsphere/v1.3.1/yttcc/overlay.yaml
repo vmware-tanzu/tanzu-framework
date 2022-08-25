@@ -137,26 +137,6 @@ spec:
       value: #@ vars[configVariable]
     #@ end
     #@ end
-    #@overlay/append
-    - name: TKR_DATA
-      value:
-        #@ "{}:".format(data.values.KUBERNETES_VERSION)
-          kubernetesSpec:
-            version: #@ data.values.KUBERNETES_VERSION
-            imageRepository: #@ bomDataForK8sVersion.kubeadmConfigSpec.imageRepository
-            etcd:
-              imageTag: #@ bomDataForK8sVersion.kubeadmConfigSpec.etcd.local.imageTag
-            coredns:
-              imageTag: #@ bomDataForK8sVersion.kubeadmConfigSpec.dns.imageTag
-            kube-vip:
-              imageTag: #@ bomData.components["kube-vip"][0].images.kubeVipImage.tag
-          labels:
-            os-name: ubuntu
-            os-type: linux
-            os-arch: amd64
-          osImageRef:
-            template: #@ data.values.VSPHERE_TEMPLATE
-          
 
 ---
 apiVersion: v1

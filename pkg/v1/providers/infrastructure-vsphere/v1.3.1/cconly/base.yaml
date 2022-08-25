@@ -747,6 +747,7 @@ spec:
             - {{ . }}
               {{- end }}
             {{- end }}
+              dhcp4: true
             {{ if list "IPv4" "DualStack" | has .builtin.cluster.network.ipFamily -}} dhcp4: true {{- end }}
             {{ if list "IPv6" "DualStack" | has .builtin.cluster.network.ipFamily -}} dhcp6: true {{- end }}
     - selector:
@@ -770,6 +771,7 @@ spec:
             - {{ . }}
               {{- end }}
             {{- end }}
+              dhcp4: true
             {{ if list "IPv4" "DualStack" | has .builtin.cluster.network.ipFamily -}} dhcp4: true {{- end }}
             {{ if list "IPv6" "DualStack" | has .builtin.cluster.network.ipFamily -}} dhcp6: true {{- end }}
   - name: clusterApiServerPort
