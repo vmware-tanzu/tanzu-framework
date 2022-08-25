@@ -1,7 +1,6 @@
 #@ load("@ytt:assert", "assert")
 #@ load("@ytt:data", "data")
 #@ load("@ytt:ip", "ip")
-#@ load("@ytt:base64", "base64")
 #@ load("lib/helpers.star", "get_tkr_version_from_tkr_name")
 
 #@ vsphereControlPlaneEndpointAsCidr = ""
@@ -96,18 +95,18 @@ kind: Secret
 metadata:
   name: #@ data.values.CLUSTER_NAME + "-vsphere-credential"
   namespace: #@ data.values.NAMESPACE
-data:
-  username: #@ base64.encode(data.values.VSPHERE_USERNAME)
-  password: #@ base64.encode(data.values.VSPHERE_PASSWORD)
+stringData:
+  username: #@ data.values.VSPHERE_USERNAME
+  password: #@ data.values.VSPHERE_PASSWORD
 ---
 apiVersion: v1
 kind: Secret
 metadata:
   name: #@ data.values.CLUSTER_NAME + "-nsxt-credential"
   namespace: #@ data.values.NAMESPACE
-data:
-  password: #@ base64.encode(data.values.NSXT_USERNAME)
-  username: #@ base64.encode(data.values.NSXT_PASSWORD)
+stringData:
+  username: #@ data.values.NSXT_USERNAME
+  password: #@ data.values.NSXT_PASSWORD
 ---
 apiVersion: cpi.tanzu.vmware.com/v1alpha1
 kind: VSphereCPIConfig
