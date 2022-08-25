@@ -52,7 +52,6 @@ require (
 	github.com/google/go-cmp v0.5.8
 	github.com/google/go-containerregistry v0.7.0
 	github.com/google/uuid v1.3.0
-	github.com/googleapis/gnostic v0.5.5
 	github.com/gorilla/mux v1.8.0
 	github.com/gorilla/websocket v1.5.0
 	github.com/gosuri/uitable v0.0.4
@@ -119,7 +118,6 @@ require (
 	sigs.k8s.io/cluster-api/test v1.1.5
 	sigs.k8s.io/controller-runtime v0.11.2
 	sigs.k8s.io/controller-tools v0.7.0
-	sigs.k8s.io/kind v0.14.0
 	sigs.k8s.io/yaml v1.3.0
 )
 
@@ -193,6 +191,7 @@ require (
 	github.com/google/go-querystring v1.1.0 // indirect
 	github.com/google/gofuzz v1.2.0 // indirect
 	github.com/googleapis/gax-go/v2 v2.1.1 // indirect
+	github.com/googleapis/gnostic v0.5.5 // indirect
 	github.com/hashicorp/go-version v1.4.0 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/hinshun/vt10x v0.0.0-20180809195222-d55458df857c // indirect
@@ -267,5 +266,6 @@ require (
 	k8s.io/kube-openapi v0.0.0-20220124234850-424119656bbf // indirect
 	k8s.io/kubectl v0.23.4 // indirect
 	sigs.k8s.io/json v0.0.0-20211208200746-9f7c6b3444d2 // indirect
+	sigs.k8s.io/kind v0.14.0 // indirect
 	sigs.k8s.io/structured-merge-diff/v4 v4.2.1 // indirect
 )

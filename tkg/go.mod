@@ -18,6 +18,7 @@ require (
 	github.com/docker/docker v20.10.16+incompatible
 	github.com/go-ldap/ldap/v3 v3.3.0
 	github.com/go-logr/logr v1.2.2
+	github.com/googleapis/gnostic v0.5.5
 	github.com/juju/fslock v0.0.0-20160525022230-4d5c94c67b4b
 	github.com/onsi/ginkgo v1.16.5
 	github.com/onsi/gomega v1.19.0
@@ -28,6 +29,8 @@ require (
 	github.com/vmware-tanzu/carvel-secretgen-controller v0.5.0
 	github.com/vmware-tanzu/carvel-ytt v0.40.0
 	github.com/vmware-tanzu/tanzu-framework v0.25.0
+	github.com/vmware-tanzu/tanzu-framework/apis/cli v0.0.0-00010101000000-000000000000
+	github.com/vmware-tanzu/tanzu-framework/apis/run v0.0.0-00010101000000-000000000000
 	gopkg.in/yaml.v2 v2.4.0
 	gopkg.in/yaml.v3 v3.0.1
 	k8s.io/api v0.23.5
@@ -35,6 +38,9 @@ require (
 	k8s.io/client-go v0.23.5
 	k8s.io/kubectl v0.23.4
 	sigs.k8s.io/cluster-api v1.1.5
+	sigs.k8s.io/cluster-api-provider-aws v1.1.0
+	sigs.k8s.io/cluster-api-provider-azure v1.4.0
+	sigs.k8s.io/cluster-api-provider-vsphere v1.3.1
 	sigs.k8s.io/controller-runtime v0.11.2
 	sigs.k8s.io/kind v0.14.0
 )
@@ -127,7 +133,6 @@ require (
 	github.com/google/gofuzz v1.2.0 // indirect
 	github.com/google/uuid v1.3.0 // indirect
 	github.com/googleapis/gax-go/v2 v2.1.1 // indirect
-	github.com/googleapis/gnostic v0.5.5 // indirect
 	github.com/hashicorp/go-version v1.4.0 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/huandu/xstrings v1.3.2 // indirect
@@ -181,9 +186,7 @@ require (
 	github.com/vito/go-interact v0.0.0-20171111012221-fa338ed9e9ec // indirect
 	github.com/vmware-tanzu/carvel-imgpkg v0.23.1 // indirect
 	github.com/vmware-tanzu/carvel-vendir v0.26.0 // indirect
-	github.com/vmware-tanzu/tanzu-framework/apis/cli v0.0.0-00010101000000-000000000000 // indirect
 	github.com/vmware-tanzu/tanzu-framework/apis/config v0.0.0-00010101000000-000000000000 // indirect
-	github.com/vmware-tanzu/tanzu-framework/apis/run v0.0.0-00010101000000-000000000000 // indirect
 	github.com/vmware/govmomi v0.27.1 // indirect
 	github.com/yalp/jsonpath v0.0.0-20180802001716-5cc68e5049a0 // indirect
 	go.mongodb.org/mongo-driver v1.1.2 // indirect
@@ -216,9 +219,6 @@ require (
 	k8s.io/klog/v2 v2.60.1 // indirect
 	k8s.io/kube-openapi v0.0.0-20220124234850-424119656bbf // indirect
 	k8s.io/utils v0.0.0-20220210201930-3a6ce19ff2f9 // indirect
-	sigs.k8s.io/cluster-api-provider-aws v1.1.0 // indirect
-	sigs.k8s.io/cluster-api-provider-azure v1.4.0 // indirect
-	sigs.k8s.io/cluster-api-provider-vsphere v1.3.1 // indirect
 	sigs.k8s.io/cluster-api/test v1.1.5 // indirect
 	sigs.k8s.io/json v0.0.0-20211208200746-9f7c6b3444d2 // indirect
 	sigs.k8s.io/structured-merge-diff/v4 v4.2.1 // indirect
