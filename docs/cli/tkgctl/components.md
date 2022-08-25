@@ -39,7 +39,7 @@ reference:
 * It internally uses viper implementation to read this configuration
 * This client is passed to many other clients that need to rely on tkg settings or user-provided configuration
 
-## [tkgconfigupdater](/pkg/v1/tkg/tkgconfigupdater)
+## [tkgconfigupdater](/tkg/tkgconfigupdater)
 
 * The main responsibility of this package is to ensure all the necessary configurations are present on the user's local file system or not, which includes
   * extracting and/or updating providers bundle to `$HOME/.config/tanzu/tkg/providers`
