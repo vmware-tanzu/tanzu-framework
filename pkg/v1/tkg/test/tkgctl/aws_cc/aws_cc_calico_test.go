@@ -20,7 +20,6 @@ var _ = Describe("Functional tests for aws (clusterclass) - Calico", func() {
 			Cni:             "calico",
 			Plan:            "dev",
 			Namespace:       "tkg-system",
-			OtherConfigs:    map[string]string{"clusterclass": "true"},
 		}
 	})
 })

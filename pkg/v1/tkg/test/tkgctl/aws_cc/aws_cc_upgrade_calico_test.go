@@ -21,7 +21,6 @@ var _ = Describe("Functional tests for aws - cluster upgrade with CNI Calico", f
 			Plan:            "devcc",
 			Namespace:       "tkg-system",
 			DoUpgrade:       true,
-			OtherConfigs:    map[string]string{"clusterclass": "true"},
 		}
 	})
 })

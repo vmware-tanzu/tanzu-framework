@@ -22,7 +22,6 @@ var _ = Describe("Functional tests to create & upgrade AWS cluster with custom C
 			Namespace:       "tkg-system",
 			IsCustomCB:      true,
 			DoUpgrade:       true,
-			OtherConfigs:    map[string]string{"clusterclass": "true"},
 		}
 	})
 })

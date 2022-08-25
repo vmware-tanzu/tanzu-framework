@@ -19,13 +19,13 @@ import (
 	"sigs.k8s.io/cluster-api/util"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
+	"github.com/vmware-tanzu/tanzu-framework/apis/run/util/sets"
 	runv1alpha3 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/test/framework"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/test/framework/exec"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfigbom"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgctl"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v2/tkr/util/sets"
 )
 
 type E2ECommonCCSpecInput struct {
@@ -36,7 +36,6 @@ type E2ECommonCCSpecInput struct {
 	Namespace       string
 	IsCustomCB      bool
 	DoUpgrade       bool
-	OtherConfigs    map[string]string
 }
 
 func E2ECommonCCSpec(ctx context.Context, inputGetter func() E2ECommonCCSpecInput) { //nolint:funlen
@@ -99,11 +98,10 @@ func E2ECommonCCSpec(ctx context.Context, inputGetter func() E2ECommonCCSpecInpu
 		Expect(err).To(BeNil())
 
 		options = framework.CreateClusterOptions{
-			ClusterName:  clusterName,
-			Namespace:    namespace,
-			Plan:         "dev",
-			CniType:      input.Cni,
-			OtherConfigs: input.OtherConfigs,
+			ClusterName: clusterName,
+			Namespace:   namespace,
+			Plan:        "dev",
+			CniType:     input.Cni,
 		}
 
 		if input.Plan != "" {
@@ -147,13 +145,11 @@ func E2ECommonCCSpec(ctx context.Context, inputGetter func() E2ECommonCCSpecInpu
 		})
 		Expect(err).To(BeNil())
 
-		// verify addon resources are deleted successfully in clusterclass mode
-		if isClusterClass, ok := input.OtherConfigs["clusterclass"]; ok && isClusterClass == "true" {
-			By(fmt.Sprintf("Verify workload cluster %q resources have been deleted", clusterName))
-			Eventually(func() bool {
-				return clusterResourcesDeleted(ctx, mngClient, clusterResources)
-			}, resourceDeletionWaitTimeout, pollingInterval).Should(BeTrue())
-		}
+		// verify addon resources are deleted successfully
+		By(fmt.Sprintf("Verify workload cluster %q resources have been deleted", clusterName))
+		Eventually(func() bool {
+			return clusterResourcesDeleted(ctx, mngClient, clusterResources)
+		}, resourceDeletionWaitTimeout, pollingInterval).Should(BeTrue())
 
 		os.Remove(clusterConfigFile)
 		os.Remove(mngKubeConfigFile)
@@ -204,16 +200,18 @@ func E2ECommonCCSpec(ctx context.Context, inputGetter func() E2ECommonCCSpecInpu
 		wlcClient, _, _, _, err = GetClients(ctx, wlcKubeConfigFile)
 		Expect(err).NotTo(HaveOccurred())
 
-		// verify addons are deployed successfully in clusterclass mode
-		if isClusterClass, ok := input.OtherConfigs["clusterclass"]; ok && isClusterClass == "true" {
-			By(fmt.Sprintf("Verify addon packages on workload cluster %q match clusterBootstrap info on management cluster %q", clusterName, input.E2EConfig.ManagementClusterName))
-			err = CheckClusterCB(ctx, mngClient, wlcClient, input.E2EConfig.ManagementClusterName, constants.TkgNamespace, clusterName, namespace, infrastructureName, false, input.IsCustomCB)
-			Expect(err).To(BeNil())
+		// verify addons are deployed successfully
+		By(fmt.Sprintf("Verify addon packages on management cluster %q matches clusterBootstrap info on management cluster %q", input.E2EConfig.ManagementClusterName, input.E2EConfig.ManagementClusterName))
+		err = CheckClusterCB(ctx, mngClient, wlcClient, input.E2EConfig.ManagementClusterName, constants.TkgNamespace, "", "", infrastructureName, true, input.IsCustomCB)
+		Expect(err).To(BeNil())
 
-			By(fmt.Sprintf("Get management cluster resources created by addons-manager for workload cluster %q on management cluster %q", clusterName, input.E2EConfig.ManagementClusterName))
-			clusterResources, err = GetManagementClusterResources(ctx, mngClient, mngDynamicClient, mngAggregatedAPIResourcesClient, mngDiscoveryClient, namespace, clusterName, infrastructureName)
-			Expect(err).NotTo(HaveOccurred())
-		}
+		By(fmt.Sprintf("Verify addon packages on workload cluster %q match clusterBootstrap info on management cluster %q", clusterName, input.E2EConfig.ManagementClusterName))
+		err = CheckClusterCB(ctx, mngClient, wlcClient, input.E2EConfig.ManagementClusterName, constants.TkgNamespace, clusterName, namespace, infrastructureName, false, input.IsCustomCB)
+		Expect(err).To(BeNil())
+
+		By(fmt.Sprintf("Get management cluster resources created by addons-manager for workload cluster %q on management cluster %q", clusterName, input.E2EConfig.ManagementClusterName))
+		clusterResources, err = GetManagementClusterResources(ctx, mngClient, mngDynamicClient, mngAggregatedAPIResourcesClient, mngDiscoveryClient, namespace, clusterName, infrastructureName)
+		Expect(err).NotTo(HaveOccurred())
 
 		By(fmt.Sprintf("Validating the kubernetes version after cluster %q is created", clusterName))
 		validateKubernetesVersion(clusterName, oldTKR.Spec.Kubernetes.Version, wlcKubeConfigFile)
@@ -240,16 +238,14 @@ func E2ECommonCCSpec(ctx context.Context, inputGetter func() E2ECommonCCSpecInpu
 			By(fmt.Sprintf("Validating the TKR data after cluster %q is upgraded", clusterName))
 			verifyTKRData(ctx, mngProxy, options.ClusterName, options.Namespace)
 
-			// verify addons are deployed successfully in clusterclass mode after cluster upgrade
-			if isClusterClass, ok := input.OtherConfigs["clusterclass"]; ok && isClusterClass == "true" {
-				By(fmt.Sprintf("Verify addon packages on workload cluster %q match clusterBootstrap info on management cluster %q after cluster upgrade", clusterName, input.E2EConfig.ManagementClusterName))
-				err = CheckClusterCB(ctx, mngClient, wlcClient, input.E2EConfig.ManagementClusterName, constants.TkgNamespace, clusterName, namespace, infrastructureName, false, input.IsCustomCB)
-				Expect(err).To(BeNil())
+			// verify addons are deployed successfully after cluster upgrade
+			By(fmt.Sprintf("Verify addon packages on workload cluster %q match clusterBootstrap info on management cluster %q after cluster upgrade", clusterName, input.E2EConfig.ManagementClusterName))
+			err = CheckClusterCB(ctx, mngClient, wlcClient, input.E2EConfig.ManagementClusterName, constants.TkgNamespace, clusterName, namespace, infrastructureName, false, input.IsCustomCB)
+			Expect(err).To(BeNil())
 
-				By(fmt.Sprintf("Get management cluster resources created by addons-manager for workload cluster %q on management cluster %q", clusterName, input.E2EConfig.ManagementClusterName))
-				clusterResources, err = GetManagementClusterResources(ctx, mngClient, mngDynamicClient, mngAggregatedAPIResourcesClient, mngDiscoveryClient, namespace, clusterName, infrastructureName)
-				Expect(err).NotTo(HaveOccurred())
-			}
+			By(fmt.Sprintf("Get management cluster resources created by addons-manager for workload cluster %q on management cluster %q", clusterName, input.E2EConfig.ManagementClusterName))
+			clusterResources, err = GetManagementClusterResources(ctx, mngClient, mngDynamicClient, mngAggregatedAPIResourcesClient, mngDiscoveryClient, namespace, clusterName, infrastructureName)
+			Expect(err).NotTo(HaveOccurred())
 		}
 	})
 }

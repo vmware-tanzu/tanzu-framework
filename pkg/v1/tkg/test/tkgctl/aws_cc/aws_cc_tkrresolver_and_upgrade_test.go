@@ -20,7 +20,6 @@ var _ = Describe("Functional tests for aws - TKRResolver and cluster upgrade wit
 			Cni:             "antrea",
 			Plan:            "devcc",
 			Namespace:       "tkg-system",
-			OtherConfigs:    map[string]string{"clusterclass": "true"},
 		}
 	})
 })
