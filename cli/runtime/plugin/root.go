@@ -7,7 +7,6 @@ import (
 	"github.com/spf13/cobra"
 
 	cliv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli"
 )
 
 func newRootCmd(descriptor *cliv1alpha1.PluginDescriptor) *cobra.Command {
@@ -16,7 +15,7 @@ func newRootCmd(descriptor *cliv1alpha1.PluginDescriptor) *cobra.Command {
 		Short:   descriptor.Description,
 		Aliases: descriptor.Aliases,
 	}
-	cobra.AddTemplateFuncs(cli.TemplateFuncs)
+	cobra.AddTemplateFuncs(TemplateFuncs)
 	cmd.SetUsageTemplate(CmdTemplate)
 
 	cmd.AddCommand(

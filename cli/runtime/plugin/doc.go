@@ -10,16 +10,17 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/cobra/doc"
-
-	core "github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/command/core"
 )
 
 var (
 	docsDir string
 )
 
+// DefaultDocsDir is the base docs directory
+const DefaultDocsDir = "docs/cli/commands"
+
 func init() {
-	genDocsCmd.Flags().StringVarP(&docsDir, "docs-dir", "d", core.DefaultDocsDir, "destination for docss output")
+	genDocsCmd.Flags().StringVarP(&docsDir, "docs-dir", "d", DefaultDocsDir, "destination for docss output")
 }
 
 var genDocsCmd = &cobra.Command{
@@ -35,8 +36,11 @@ var genDocsCmd = &cobra.Command{
 		}
 		emptyStr := func(s string) string { return "" }
 
+		tanzuCmd := cobra.Command{
+			Use: "tanzu",
+		}
 		// Necessary to generate correct output
-		core.RootCmd.AddCommand(cmd.Parent())
+		tanzuCmd.AddCommand(cmd.Parent())
 		if err := doc.GenMarkdownTreeCustom(cmd.Parent(), docsDir, emptyStr, identity); err != nil {
 			return fmt.Errorf("error generating docs %q", err)
 		}
