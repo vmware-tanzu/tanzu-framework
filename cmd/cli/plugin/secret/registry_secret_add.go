@@ -17,10 +17,10 @@ import (
 
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/component"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgpackageclient"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgpackagedatamodel"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/kappclient"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/log"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/tkgpackageclient"
 )
 
 const errInvalidPasswordFlags = "exactly one of --password, --password-file, --password-env-var flags should be provided"
