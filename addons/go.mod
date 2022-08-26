@@ -26,6 +26,7 @@ require (
 	github.com/vmware-tanzu/tanzu-framework/apis/cni v0.0.0-00010101000000-000000000000
 	github.com/vmware-tanzu/tanzu-framework/apis/cpi v0.0.0-00010101000000-000000000000
 	github.com/vmware-tanzu/tanzu-framework/apis/run v0.0.0-00010101000000-000000000000
+	github.com/vmware-tanzu/tanzu-framework/tkg v0.0.0-00010101000000-000000000000
 	github.com/vmware-tanzu/vm-operator-api v0.1.4-0.20211202185235-43eb44c09ecd
 	github.com/vmware-tanzu/vm-operator/external/tanzu-topology v0.0.0-20211209213435-0f4ab286f64f
 	golang.org/x/text v0.3.7
@@ -194,7 +195,6 @@ require (
 	github.com/vmware-tanzu/carvel-ytt v0.40.0 // indirect
 	github.com/vmware-tanzu/tanzu-framework/apis/cli v0.0.0-00010101000000-000000000000 // indirect
 	github.com/vmware-tanzu/tanzu-framework/apis/config v0.0.0-00010101000000-000000000000 // indirect
-	github.com/vmware-tanzu/tanzu-framework/tkg v0.0.0-00010101000000-000000000000 // indirect
 	github.com/vmware/govmomi v0.27.1 // indirect
 	github.com/yalp/jsonpath v0.0.0-20180802001716-5cc68e5049a0 // indirect
 	go.mongodb.org/mongo-driver v1.1.2 // indirect
