@@ -14,9 +14,6 @@ import (
 	"k8s.io/apimachinery/pkg/runtime/serializer/json"
 
 	configv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/config/v1alpha1"
-
-	"k8s.io/client-go/rest"
-	"k8s.io/client-go/tools/clientcmd"
 )
 
 const (
@@ -559,28 +556,6 @@ func GetEdition() (string, error) {
 		return string(cfg.ClientOptions.CLI.Edition), nil
 	}
 	return "", nil
-}
-
-// GetCurrentClusterConfig gets the config of current logged in cluster
-func GetCurrentClusterConfig() (*rest.Config, error) {
-	server, err := GetCurrentServer()
-	if err != nil {
-		return nil, err
-	}
-	restConfig, err := getRestConfigWithContext(server.ManagementClusterOpts.Context, server.ManagementClusterOpts.Path)
-	if err != nil {
-		return nil, fmt.Errorf("couldn't get rest config: %w", err)
-	}
-	return restConfig, nil
-}
-
-// getRestConfigWithContext returns config using the passed context
-func getRestConfigWithContext(context, kubeconfigPath string) (*rest.Config, error) {
-	return clientcmd.NewNonInteractiveDeferredLoadingClientConfig(
-		&clientcmd.ClientConfigLoadingRules{ExplicitPath: kubeconfigPath},
-		&clientcmd.ConfigOverrides{
-			CurrentContext: context,
-		}).ClientConfig()
 }
 
 // GetDefaultRepo returns the bomRepo set in the client configuration. If it
