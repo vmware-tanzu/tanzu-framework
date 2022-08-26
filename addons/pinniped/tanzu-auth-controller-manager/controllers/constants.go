@@ -100,4 +100,24 @@ const (
 #@overlay/match-child-defaults missing_ok=True
 ---
 `
+	// infrastructureRefVSphere is the VSphere Infrastructure Ref
+	infrastructureRefVSphere = "VSphereCluster"
+
+	// infrastructureProviderVSphere is the VSphere Infrastructure
+	infrastructureProviderVSphere = "vsphere"
+
+	// infrastructureRefAWS is the AWS infrastructure
+	infrastructureRefAWS = "AWSCluster"
+
+	// infrastructureRefAzure is the Azure infrastructure
+	infrastructureRefAzure = "AzureCluster"
+
+	// infrastructureProviderAWS is tge AWS infrastructure provider
+	infrastructureProviderAWS = "aws"
+
+	// infrastructureProviderAzure is tge Azure infrastructure provider
+	infrastructureProviderAzure = "azure"
+
+	// infrastructureProviderDocker is tge Docker infrastructure provider
+	infrastructureProviderDocker = "docker"
 )
