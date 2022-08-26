@@ -73,13 +73,13 @@ import (
 	azureclient "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/azure"
 	telemetrymanifests "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/manifest/telemetry"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfigbom"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/vc"
 	tkrconstants "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkr/pkg/constants"
 	tmcv1alpha1 "github.com/vmware-tanzu/tanzu-framework/tkg/api/tmc/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/docker"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/log"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/utils"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/vc"
 )
 
 const (
