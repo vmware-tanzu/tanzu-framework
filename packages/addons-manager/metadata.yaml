@@ -3,6 +3,26 @@ kind: PackageMetadata
 metadata:
   name: addons-manager.tanzu.vmware.com
   namespace: addons-manager
+
+  # The packaging.carvel.dev/revision annotation is added to help Kapp-controller
+  # decide which version of the file to select as source of truth in the case that
+  # a package is defined in multiple repositories.
+  # See here for more details: https://carvel.dev/kapp-controller/docs/develop/packaging/#combinations-and-special-cases
+  #
+  # The  string "2.0" was chosen because it was during the creation of tkg 2.0 that we introduced the annotation.
+  # The string in this file should never require changing. It is not tied to a release or required to be tied to a
+  # release or any other "version" number. See cited documentation for string format requirements.
+  #
+  # The string "2.0" was used in this file because it was during tkg 2.0 that the annotation was first introduced. Because
+  # it was the first time it was used in this package, the string could have been chosen to be anything.
+  # If at any other time, a new package-bundle with the same name, addons-manager.tanzu.vmware.com, is defined in a DIFFERENT
+  # repository. It is in those new files that the revision should be made "higher" or "lower" than "2.0" depending on the
+  # use case being addressed.
+  # Simply choosing the number based on the release will likely result in unforeseen issues. We
+  # were able to do this here, because it was the first time. Any subsequent change needs to use this file as reference,
+  # thus the reason to never change the version here without through thought and consideration.
+  annotations:
+    packaging.carvel.dev/revision: "2.0"
 spec:
   displayName: "tanzu-addons-manager"
   longDescription: "This package provides TKG addons lifecycle management capabilities."
