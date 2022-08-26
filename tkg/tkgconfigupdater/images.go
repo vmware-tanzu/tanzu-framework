@@ -10,8 +10,8 @@ import (
 	"gopkg.in/yaml.v3"
 
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
-	"github.com/vmware-tanzu/tanzu-framework/tkg/tkgconfigbom"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/log"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/tkgconfigbom"
 )
 
 type imageForConfigFile struct {

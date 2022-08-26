@@ -6,9 +6,9 @@ package tkgconfigproviders
 import (
 	"github.com/pkg/errors"
 
-	"github.com/vmware-tanzu/tanzu-framework/tkg/tkgconfigbom"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfighelper"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/log"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/tkgconfigbom"
 )
 
 func (c *client) GetAzureVMImageInfo(tkrVersion string) (*tkgconfigbom.AzureInfo, error) {

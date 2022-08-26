@@ -10,9 +10,9 @@ import (
 
 	kappipkg "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/packaging/v1alpha1"
 
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgpackagedatamodel"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/fakes"
 	. "github.com/vmware-tanzu/tanzu-framework/tkg/tkgpackageclient"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgpackagedatamodel"
 )
 
 var _ = Describe("Get Installed Package", func() {

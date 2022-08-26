@@ -14,8 +14,8 @@ import (
 
 	"sigs.k8s.io/cluster-api-provider-aws/cmd/clusterawsadm/credentials"
 
-	. "github.com/vmware-tanzu/tanzu-framework/tkg/client"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
+	. "github.com/vmware-tanzu/tanzu-framework/tkg/client"
 )
 
 var err error

@@ -20,9 +20,9 @@ import (
 	addonsv1 "sigs.k8s.io/cluster-api/exp/addons/api/v1beta1"
 
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/config"
-	"github.com/vmware-tanzu/tanzu-framework/tkg/clusterclient"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfighelper"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/clusterclient"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/log"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/utils"
 )

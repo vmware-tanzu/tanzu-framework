@@ -14,9 +14,9 @@ import (
 
 	awsclient "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/aws"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
-	"github.com/vmware-tanzu/tanzu-framework/tkg/tkgconfigbom"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/web/server/models"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/web/server/restapi/operations/aws"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/tkgconfigbom"
 )
 
 // SetAWSEndPoint verify and sets AWS account

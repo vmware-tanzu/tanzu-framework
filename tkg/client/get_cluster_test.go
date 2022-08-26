@@ -16,9 +16,9 @@ import (
 	crtclient "sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/client/fake" // nolint:staticcheck,nolintlint
 
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
 	. "github.com/vmware-tanzu/tanzu-framework/tkg/client"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/clusterclient"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/fakes"
 	fakehelper "github.com/vmware-tanzu/tanzu-framework/tkg/fakes/helper"
 )
