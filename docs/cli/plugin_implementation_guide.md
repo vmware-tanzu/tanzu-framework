@@ -206,9 +206,6 @@ which will now show your plugin.
 
 The next steps are to write the plugin code to implement what the plugin is meant to do.
 
-Note that if your plugin needs to talk to a Tanzu cluster, a helper function `GetCurrentClusterConfig()` defined in the
-[config](../../pkg/v1/config) package can be used to get the logged in Tanzu cluster's config.
-
 Plugins are installed into `$XDG_DATA_HOME`, (read more about the XDG Base Directory Specification [here.](https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html)
 
 The CLI can be updated to the latest version of all plugins using:
