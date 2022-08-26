@@ -44,6 +44,7 @@ func Prompt(p *PromptConfig, response interface{}, opts ...PromptOpt) error {
 			return err
 		}
 	}
+
 	surveyOpts := translatePromptOpts(options)
 	return survey.AskOne(prompt, response, surveyOpts...)
 }
@@ -77,6 +78,32 @@ func defaultPromptOptions() *PromptOptions {
 			Out: os.Stdout,
 			Err: os.Stderr,
 		},
+		Icons: survey.IconSet{
+			Error: survey.Icon{
+				Text:   "X",
+				Format: "red",
+			},
+			Help: survey.Icon{
+				Text:   "?",
+				Format: "cyan",
+			},
+			Question: survey.Icon{
+				Text:   "?",
+				Format: "cyan+b",
+			},
+			MarkedOption: survey.Icon{
+				Text:   "[x]",
+				Format: "green",
+			},
+			UnmarkedOption: survey.Icon{
+				Text:   "[ ]",
+				Format: "default+hb",
+			},
+			SelectFocus: survey.Icon{
+				Text:   ">",
+				Format: "cyan+b",
+			},
+		},
 	}
 }
 
@@ -84,6 +111,7 @@ func defaultPromptOptions() *PromptOptions {
 type PromptOptions struct {
 	// Standard in/out/error
 	Stdio terminal.Stdio
+	Icons survey.IconSet
 }
 
 // PromptOpt is an option for prompts
@@ -91,6 +119,14 @@ type PromptOpt func(*PromptOptions) error
 
 func translatePromptOpts(options *PromptOptions) (surveyOpts []survey.AskOpt) {
 	surveyOpts = append(surveyOpts, survey.WithStdio(options.Stdio.In, options.Stdio.Out, options.Stdio.Err))
+	surveyOpts = append(surveyOpts, survey.WithIcons(func(icons *survey.IconSet) {
+		icons.Error = options.Icons.Error
+		icons.Question = options.Icons.Question
+		icons.Help = options.Icons.Help
+		icons.MarkedOption = options.Icons.MarkedOption
+		icons.UnmarkedOption = options.Icons.UnmarkedOption
+		icons.SelectFocus = options.Icons.SelectFocus
+	}))
 	return
 }
 
