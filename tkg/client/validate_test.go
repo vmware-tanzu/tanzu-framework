@@ -18,7 +18,7 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/tkg/client"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/fakes"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfigbom"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/tkgconfigbom"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfigreaderwriter"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/web/server/models"
 
