@@ -34,7 +34,7 @@ var _ = Describe("Controller", func() {
 			},
 			Spec: clusterapiv1beta1.ClusterSpec{
 				InfrastructureRef: &corev1.ObjectReference{
-					Kind: tkgconstants.InfrastructureRefVSphere,
+					Kind: infrastructureRefVSphere,
 					Name: "some-name",
 				},
 			},
