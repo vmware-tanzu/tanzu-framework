@@ -13,8 +13,8 @@ import (
 	kappipkg "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/packaging/v1alpha1"
 	versions "github.com/vmware-tanzu/carvel-vendir/pkg/vendir/versions/v1alpha1"
 
-	. "github.com/vmware-tanzu/tanzu-framework/tkg/tkgpackageclient"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgpackagedatamodel"
+	. "github.com/vmware-tanzu/tanzu-framework/tkg/tkgpackageclient"
 )
 
 var _ = Describe("Test image utils", func() {

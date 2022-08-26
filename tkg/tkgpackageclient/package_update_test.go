@@ -20,8 +20,8 @@ import (
 	versions "github.com/vmware-tanzu/carvel-vendir/pkg/vendir/versions/v1alpha1"
 
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/fakes"
-	. "github.com/vmware-tanzu/tanzu-framework/tkg/tkgpackageclient"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgpackagedatamodel"
+	. "github.com/vmware-tanzu/tanzu-framework/tkg/tkgpackageclient"
 )
 
 var _ = Describe("Update Package", func() {
