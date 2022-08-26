@@ -7,11 +7,11 @@ import (
 	configv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/config/v1alpha1"
 )
 
-// populateContexts converts the known servers that are missing in contexts.
+// PopulateContexts converts the known servers that are missing in contexts.
 // This is needed when reading the config file persisted by an older core or plugin,
 // so that it is forwards compatible with a new core plugin.
 // Returns true if there was any delta.
-func populateContexts(cfg *configv1alpha1.ClientConfig) bool {
+func PopulateContexts(cfg *configv1alpha1.ClientConfig) bool {
 	if cfg == nil || len(cfg.KnownServers) == 0 {
 		return false
 	}

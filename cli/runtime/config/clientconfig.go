@@ -8,117 +8,15 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"strconv"
 
 	"github.com/aunum/log"
 	"github.com/pkg/errors"
 	"k8s.io/apimachinery/pkg/runtime/serializer/json"
 
 	configv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/config/v1alpha1"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/common"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfigpaths"
 
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
-)
-
-func init() {
-	// Acquire tanzu config lock
-	AcquireTanzuConfigLock()
-	defer ReleaseTanzuConfigLock()
-
-	c, err := GetClientConfigNoLock()
-	if err != nil {
-		log.Warningf("unable to get client config: %v", err)
-	}
-
-	addedDefaultDiscovery := populateDefaultStandaloneDiscovery(c)
-	addedFeatureFlags := addDefaultFeatureFlagsIfMissing(c, DefaultCliFeatureFlags)
-	addedEdition := addDefaultEditionIfMissing(c)
-	addedBomRepo := addBomRepoIfMissing(c)
-	addedCompatabilityFile := addCompatibilityFileIfMissing(c)
-	// contexts could be lost when older plugins edit the config, so populate them from servers
-	addedContexts := populateContexts(c)
-
-	if addedFeatureFlags || addedDefaultDiscovery || addedEdition || addedCompatabilityFile || addedBomRepo || addedContexts {
-		_ = StoreClientConfig(c)
-	}
-}
-
-// This block is for global feature constants, to allow them to be used more broadly
-const (
-	// FeatureContextAwareCLIForPlugins determines whether to use legacy way of discovering plugins or
-	// to use the new context-aware Plugin API based plugin discovery mechanism
-	// Users can set this featureflag so that we can have context-aware plugin discovery be opt-in for now.
-	FeatureContextAwareCLIForPlugins = "features.global.context-aware-cli-for-plugins"
-	// FeatureContextCommand determines whether to surface the context command. This is disabled by default.
-	FeatureContextCommand = "features.global.context-target"
-	// DualStack feature flags determine whether it is permitted to create
-	// clusters with a dualstack TKG_IP_FAMILY.  There are separate flags for
-	// each primary, "ipv4,ipv6" vs "ipv6,ipv4", and flags for management vs
-	// workload cluster plugins.
-	FeatureFlagManagementClusterDualStackIPv4Primary = "features.management-cluster.dual-stack-ipv4-primary"
-	FeatureFlagManagementClusterDualStackIPv6Primary = "features.management-cluster.dual-stack-ipv6-primary"
-	FeatureFlagClusterDualStackIPv4Primary           = "features.cluster.dual-stack-ipv4-primary"
-	FeatureFlagClusterDualStackIPv6Primary           = "features.cluster.dual-stack-ipv6-primary"
-	// Custom Nameserver feature flags determine whether it is permitted to
-	// provide the CONTROL_PLANE_NODE_NAMESERVERS and WORKER_NODE_NAMESERVERS
-	// when creating a cluster.
-	FeatureFlagManagementClusterCustomNameservers = "features.management-cluster.custom-nameservers"
-	FeatureFlagClusterCustomNameservers           = "features.cluster.custom-nameservers"
-	// AWS Instance Types Exclude ARM feature flags determine whether instance types with processor architecture
-	// support of ARM should be included when discovering available AWS instance types. Setting feature flag to true
-	// filters out ARM supporting instance types; false allows ARM instance types to be included in results.
-	FeatureFlagAwsInstanceTypesExcludeArm = "features.management-cluster.aws-instance-types-exclude-arm"
-	// PackageBasedLCM feature flag determines whether to use package based lifecycle management of management component
-	// or legacy way of managing management components. This is also used for clusterclass based management and workload
-	// cluster provisioning
-	FeatureFlagPackageBasedLCM = "features.global.package-based-lcm-beta"
-	// TKR version v1alpha3 feature flag determines whether to use Tanzu Kubernetes Release API version v1alpha3. Setting
-	// feature flag to true will allow to use the TKR version v1alpha3; false allows to use legacy TKR version v1alpha1
-	FeatureFlagTKRVersionV1Alpha3 = "features.global.tkr-version-v1alpha3-beta"
-	// Package Plugin Kctrl Command Tree determines whether to use the command tree from kctrl. Setting feature flag to
-	// true will allow to use the package command tree from kctrl for package plugin
-	FeatureFlagPackagePluginKctrlCommandTree = "features.package.kctrl-package-command-tree"
-	// FeatureFlagAutoApplyGeneratedClusterClassBasedConfiguration feature flag determines whether to auto-apply the generated ClusterClass
-	// based configuration after converting legacy configration to ClusterClass based config or not
-	// Note: This is a hidden feature-flag that doesn't get persisted to config.yaml by default
-	FeatureFlagAutoApplyGeneratedClusterClassBasedConfiguration = "features.cluster.auto-apply-generated-clusterclass-based-configuration"
-	// FeatureFlagForceDeployClusterWithClusterClass if this feature flag is set CLI will try to deploy ClusterClass
-	// based cluster even if user has done any customization to the provider templates
-	// Note: This is a hidden feature-flag that doesn't get persisted to config.yaml by default
-	FeatureFlagForceDeployClusterWithClusterClass = "features.cluster.force-deploy-cluster-with-clusterclass"
-)
-
-// DefaultCliFeatureFlags is used to populate an initially empty config file with default values for feature flags.
-// The keys MUST be in the format "features.<plugin>.<feature>" or initialization
-// will fail. Note that "global" is a special value for <plugin> to be used for CLI-wide features.
-//
-// If a developer expects that their feature will be ready to release, they should create an entry here with a true
-// value.
-// If a developer has a beta feature they want to expose, but leave turned off by default, they should create
-// an entry here with a false value. WE HIGHLY RECOMMEND the use of a SEPARATE flag for beta use; one that ends in "-beta".
-// Thus, if you plan to eventually release a feature with a flag named "features.cluster.foo-bar", you should consider
-// releasing the beta version with "features.cluster.foo-bar-beta". This will make it much easier when it comes time for
-// mainstreaming the feature (with a default true value) under the flag name "features.cluster.foo-bar", as there will be
-// no conflict with previous installs (that have a false value for the entry "features.cluster.foo-bar-beta").
-var (
-	DefaultCliFeatureFlags = map[string]bool{
-		FeatureContextAwareCLIForPlugins:                      common.ContextAwareDiscoveryEnabled(),
-		FeatureContextCommand:                                 false,
-		"features.management-cluster.import":                  false,
-		"features.management-cluster.export-from-confirm":     true,
-		"features.management-cluster.standalone-cluster-mode": false,
-		FeatureFlagManagementClusterDualStackIPv4Primary:      false,
-		FeatureFlagManagementClusterDualStackIPv6Primary:      false,
-		FeatureFlagClusterDualStackIPv4Primary:                false,
-		FeatureFlagClusterDualStackIPv6Primary:                false,
-		FeatureFlagManagementClusterCustomNameservers:         false,
-		FeatureFlagClusterCustomNameservers:                   false,
-		FeatureFlagAwsInstanceTypesExcludeArm:                 true,
-		FeatureFlagTKRVersionV1Alpha3:                         false,
-		FeatureFlagPackagePluginKctrlCommandTree:              false,
-	}
 )
 
 const (
@@ -193,15 +91,9 @@ func configPath(localDirGetter func() (string, error)) (path string, err error) 
 func NewClientConfig() (*configv1alpha1.ClientConfig, error) {
 	c := &configv1alpha1.ClientConfig{
 		ClientOptions: &configv1alpha1.ClientOptions{
-			CLI: &configv1alpha1.CLIOptions{
-				Repositories:            DefaultRepositories,
-				UnstableVersionSelector: DefaultVersionSelector,
-				Edition:                 DefaultEdition,
-			},
+			CLI: &configv1alpha1.CLIOptions{},
 		},
 	}
-
-	_ = populateDefaultStandaloneDiscovery(c)
 
 	// Check if the lock is acquired by the current process or not
 	// If not try to acquire the lock before Storing the client config
@@ -216,65 +108,7 @@ func NewClientConfig() (*configv1alpha1.ClientConfig, error) {
 		return nil, err
 	}
 
-	err = populateDefaultCliFeatureValues(c, DefaultCliFeatureFlags)
-	if err != nil {
-		return nil, err
-	}
 	return c, nil
-}
-
-func populateDefaultCliFeatureValues(c *configv1alpha1.ClientConfig, defaultCliFeatureFlags map[string]bool) error {
-	for featureName, flagValue := range defaultCliFeatureFlags {
-		plugin, flag, err := c.SplitFeaturePath(featureName)
-		if err != nil {
-			return err
-		}
-		addFeatureFlag(c, plugin, flag, flagValue)
-	}
-	return nil
-}
-
-func addFeatureFlag(c *configv1alpha1.ClientConfig, plugin, flag string, flagValue bool) {
-	if c.ClientOptions == nil {
-		c.ClientOptions = &configv1alpha1.ClientOptions{}
-	}
-	if c.ClientOptions.Features == nil {
-		c.ClientOptions.Features = make(map[string]configv1alpha1.FeatureMap)
-	}
-	if c.ClientOptions.Features[plugin] == nil {
-		c.ClientOptions.Features[plugin] = make(map[string]string)
-	}
-	c.ClientOptions.Features[plugin][flag] = strconv.FormatBool(flagValue)
-}
-
-func addEdition(c *configv1alpha1.ClientConfig, edition configv1alpha1.EditionSelector) {
-	if c.ClientOptions == nil {
-		c.ClientOptions = &configv1alpha1.ClientOptions{}
-	}
-	if c.ClientOptions.CLI == nil {
-		c.ClientOptions.CLI = &configv1alpha1.CLIOptions{}
-	}
-	c.ClientOptions.CLI.Edition = edition
-}
-
-func addCompatabilityFile(c *configv1alpha1.ClientConfig, compatibilityFilePath string) {
-	if c.ClientOptions == nil {
-		c.ClientOptions = &configv1alpha1.ClientOptions{}
-	}
-	if c.ClientOptions.CLI == nil {
-		c.ClientOptions.CLI = &configv1alpha1.CLIOptions{}
-	}
-	c.ClientOptions.CLI.CompatibilityFilePath = compatibilityFilePath
-}
-
-func addBomRepo(c *configv1alpha1.ClientConfig, repo string) {
-	if c.ClientOptions == nil {
-		c.ClientOptions = &configv1alpha1.ClientOptions{}
-	}
-	if c.ClientOptions.CLI == nil {
-		c.ClientOptions.CLI = &configv1alpha1.CLIOptions{}
-	}
-	c.ClientOptions.CLI.BOMRepo = repo
 }
 
 // CopyLegacyConfigDir copies configuration files from legacy config dir to the new location. This is a no-op if the legacy dir
@@ -345,55 +179,6 @@ func GetClientConfigNoLock() (cfg *configv1alpha1.ClientConfig, err error) {
 	return &c, nil
 }
 
-// addCompatibilityFileIfMissing adds the compatibility file to the client configuration to ensure it can be downloaded
-func addCompatibilityFileIfMissing(config *configv1alpha1.ClientConfig) bool {
-	if config.ClientOptions == nil || config.ClientOptions.CLI == nil || config.ClientOptions.CLI.CompatibilityFilePath == "" {
-		addCompatabilityFile(config, tkgconfigpaths.TKGDefaultCompatibilityImagePath)
-		return true
-	}
-	return false
-}
-
-// addBomRepoIfMissing adds the bomRepository to the client configuration if it is not already present
-func addBomRepoIfMissing(config *configv1alpha1.ClientConfig) bool {
-	if config.ClientOptions == nil || config.ClientOptions.CLI == nil || config.ClientOptions.CLI.BOMRepo == "" {
-		addBomRepo(config, tkgconfigpaths.TKGDefaultImageRepo)
-		return true
-	}
-	return false
-}
-
-// addDefaultEditionIfMissing returns true if the default edition was added to the configuration (because there was no edition)
-func addDefaultEditionIfMissing(config *configv1alpha1.ClientConfig) bool {
-	if config.ClientOptions == nil || config.ClientOptions.CLI == nil || config.ClientOptions.CLI.Edition == "" {
-		addEdition(config, DefaultEdition)
-		return true
-	}
-	return false
-}
-
-// addDefaultFeatureFlagsIfMissing augments the given configuration object with any default feature flags that do not already have a value
-// and returns TRUE if any were added (so the config can be written out to disk, if the caller wants to)
-func addDefaultFeatureFlagsIfMissing(config *configv1alpha1.ClientConfig, defaultFeatureFlags map[string]bool) bool {
-	added := false
-
-	for featurePath, activated := range defaultFeatureFlags {
-		plugin, feature, err := config.SplitFeaturePath(featurePath)
-		if err == nil && !containsFeatureFlag(config, plugin, feature) {
-			addFeatureFlag(config, plugin, feature, activated)
-			added = true
-		}
-	}
-
-	return added
-}
-
-// containsFeatureFlag returns true if the features section in the configuration object contains any value for the plugin.feature combination
-func containsFeatureFlag(config *configv1alpha1.ClientConfig, plugin, feature string) bool {
-	return config.ClientOptions != nil && config.ClientOptions.Features != nil && config.ClientOptions.Features[plugin] != nil &&
-		config.ClientOptions.Features[plugin][feature] != ""
-}
-
 // storeConfigToLegacyDir stores configuration to legacy dir and logs warning in case of errors.
 func storeConfigToLegacyDir(data []byte) {
 	var (
@@ -433,7 +218,7 @@ func StoreClientConfig(cfg *configv1alpha1.ClientConfig) error {
 	// new plugins would be setting only contexts, so populate servers for backwards compatibility
 	populateServers(cfg)
 	// old plugins would be setting only servers, so populate contexts for forwards compatibility
-	populateContexts(cfg)
+	PopulateContexts(cfg)
 
 	cfgPath, err := ClientConfigPath()
 	if err != nil {
@@ -764,22 +549,6 @@ func GetEnvConfigurations() map[string]string {
 	return cfg.GetEnvConfigurations()
 }
 
-// ConfigureEnvVariables reads and configures provided environment variables
-// as part of tanzu configuration file
-func ConfigureEnvVariables() {
-	envMap := GetEnvConfigurations()
-	if envMap == nil {
-		return
-	}
-	for variable, value := range envMap {
-		// If environment variable is not already set
-		// set the environment variable
-		if os.Getenv(variable) == "" {
-			os.Setenv(variable, value)
-		}
-	}
-}
-
 // GetEdition returns the edition from the local configuration file
 func GetEdition() (string, error) {
 	cfg, err := GetClientConfig()
@@ -819,22 +588,21 @@ func getRestConfigWithContext(context, kubeconfigPath string) (*rest.Config, err
 // with an error describing why the bomRepo could not be resolved from the
 // client configuration.
 func GetDefaultRepo() (string, error) {
-	defaultRepo := tkgconfigpaths.TKGDefaultImageRepo
 	cfg, err := GetClientConfig()
 	if err != nil {
-		return defaultRepo, err
+		return "", err
 	}
 	if cfg == nil {
-		return defaultRepo, fmt.Errorf("client configuration is empty")
+		return "", fmt.Errorf("client configuration is empty")
 	}
 	if cfg.ClientOptions == nil {
-		return defaultRepo, fmt.Errorf("client options missing from client configuration")
+		return "", fmt.Errorf("client options missing from client configuration")
 	}
 	if cfg.ClientOptions.CLI == nil {
-		return defaultRepo, fmt.Errorf("CLI settings are missing from client options in client configuration")
+		return "", fmt.Errorf("CLI settings are missing from client options in client configuration")
 	}
 	if cfg.ClientOptions.CLI.BOMRepo == "" {
-		return defaultRepo, fmt.Errorf("bom repo is missing from CLI settings in the client configuration")
+		return "", fmt.Errorf("bom repo is missing from CLI settings in the client configuration")
 	}
 	return cfg.ClientOptions.CLI.BOMRepo, nil
 }
@@ -844,22 +612,21 @@ func GetDefaultRepo() (string, error) {
 // is returned along with an error describing why the path could not be
 // resolved from the client configuration.
 func GetCompatibilityFilePath() (string, error) {
-	defaultCompatImagePath := tkgconfigpaths.TKGDefaultCompatibilityImagePath
 	cfg, err := GetClientConfig()
 	if err != nil {
-		return defaultCompatImagePath, err
+		return "", err
 	}
 	if cfg == nil {
-		return defaultCompatImagePath, fmt.Errorf("client configuration is empty")
+		return "", fmt.Errorf("client configuration is empty")
 	}
 	if cfg.ClientOptions == nil {
-		return defaultCompatImagePath, fmt.Errorf("client options missing from client configuration")
+		return "", fmt.Errorf("client options missing from client configuration")
 	}
 	if cfg.ClientOptions.CLI == nil {
-		return defaultCompatImagePath, fmt.Errorf("CLI settings are missing from client options in client configuration")
+		return "", fmt.Errorf("CLI settings are missing from client options in client configuration")
 	}
 	if cfg.ClientOptions.CLI.CompatibilityFilePath == "" {
-		return defaultCompatImagePath, fmt.Errorf("compatibility file is missing from CLI settings in the client configuration")
+		return "", fmt.Errorf("compatibility file is missing from CLI settings in the client configuration")
 	}
 	return cfg.ClientOptions.CLI.CompatibilityFilePath, nil
 }
