@@ -8,8 +8,8 @@ import (
 	"context"
 
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfigreaderwriter"
-	tkgtypes "github.com/vmware-tanzu/tanzu-framework/tkg/types"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/web/server/models"
+	tkgtypes "github.com/vmware-tanzu/tanzu-framework/tkg/types"
 )
 
 // vCenter Managed Object Type Names
