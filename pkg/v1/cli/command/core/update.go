@@ -13,9 +13,9 @@ import (
 	"github.com/spf13/cobra"
 
 	cliv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
+	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/config"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/buildinfo"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/config"
 )
 
 var yesUpdate bool

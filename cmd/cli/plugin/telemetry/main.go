@@ -12,17 +12,18 @@ import (
 
 	"github.com/aunum/log"
 
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/component"
+	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/component"
 
 	cliv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/command/plugin"
+	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/plugin"
 )
 
 var descriptor = cliv1alpha1.PluginDescriptor{
 	Name:        "telemetry",
 	Description: "configure cluster-wide settings for vmware tanzu telemetry",
-	Version:     buildinfo.Version,
 	Group:       cliv1alpha1.RunCmdGroup,
+	Version:     buildinfo.Version,
+	BuildSHA:    buildinfo.SHA,
 }
 
 func main() {

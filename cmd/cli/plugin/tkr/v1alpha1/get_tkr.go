@@ -11,8 +11,8 @@ import (
 	"github.com/spf13/cobra"
 
 	runv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha1"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/component"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/config"
+	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/component"
+	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/config"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/clusterclient"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkr/pkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkr/pkg/utils"

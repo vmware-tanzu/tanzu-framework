@@ -9,7 +9,8 @@ import (
 	_ "k8s.io/client-go/plugin/pkg/client/auth"
 
 	cliv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/command/plugin"
+	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/plugin"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/buildinfo"
 	capdiscovery "github.com/vmware-tanzu/tanzu-framework/pkg/v1/sdk/capabilities/discovery"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/kappclient"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/log"
@@ -20,6 +21,8 @@ var descriptor = cliv1alpha1.PluginDescriptor{
 	Name:        "secret",
 	Description: "Tanzu secret management",
 	Group:       cliv1alpha1.RunCmdGroup,
+	Version:     buildinfo.Version,
+	BuildSHA:    buildinfo.SHA,
 }
 
 var (

@@ -12,7 +12,7 @@ import (
 	uitable "github.com/cppforlife/go-cli-ui/ui/table"
 	"github.com/spf13/cobra"
 
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/component"
+	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/component"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/log"
 )
 

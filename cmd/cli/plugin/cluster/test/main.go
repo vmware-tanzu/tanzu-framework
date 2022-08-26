@@ -10,8 +10,8 @@ import (
 	"github.com/spf13/cobra"
 	"sigs.k8s.io/yaml"
 
+	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/plugin"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/command/plugin"
 	clitest "github.com/vmware-tanzu/tanzu-framework/pkg/v1/test/cli"
 )
 

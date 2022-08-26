@@ -4,7 +4,7 @@ package fakes
 import (
 	"sync"
 
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/component"
+	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/component"
 )
 
 type FakeOutputWriter struct {

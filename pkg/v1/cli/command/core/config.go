@@ -15,8 +15,9 @@ import (
 
 	cliv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
 	configv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/config/v1alpha1"
+	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/component"
+	configlib "github.com/vmware-tanzu/tanzu-framework/cli/runtime/config"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/component"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/config"
 )
 
@@ -59,7 +60,7 @@ var getConfigCmd = &cobra.Command{
 	Use:   "get",
 	Short: "Get the current configuration",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		cfgPath, err := config.ClientConfigPath()
+		cfgPath, err := configlib.ClientConfigPath()
 		if err != nil {
 			return err
 		}
@@ -85,10 +86,10 @@ var setConfigCmd = &cobra.Command{
 		}
 
 		// Acquire tanzu config lock
-		config.AcquireTanzuConfigLock()
-		defer config.ReleaseTanzuConfigLock()
+		configlib.AcquireTanzuConfigLock()
+		defer configlib.ReleaseTanzuConfigLock()
 
-		cfg, err := config.GetClientConfigNoLock()
+		cfg, err := configlib.GetClientConfigNoLock()
 		if err != nil {
 			return err
 		}
@@ -98,7 +99,7 @@ var setConfigCmd = &cobra.Command{
 			return err
 		}
 
-		return config.StoreClientConfig(cfg)
+		return configlib.StoreClientConfig(cfg)
 	},
 }
 
@@ -201,10 +202,10 @@ var initConfigCmd = &cobra.Command{
 	Short: "Initialize config with defaults",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		// Acquire tanzu config lock
-		config.AcquireTanzuConfigLock()
-		defer config.ReleaseTanzuConfigLock()
+		configlib.AcquireTanzuConfigLock()
+		defer configlib.ReleaseTanzuConfigLock()
 
-		cfg, err := config.GetClientConfigNoLock()
+		cfg, err := configlib.GetClientConfigNoLock()
 		if err != nil {
 			return err
 		}
@@ -230,7 +231,7 @@ var initConfigCmd = &cobra.Command{
 		}
 		cfg.ClientOptions.CLI.Repositories = finalRepos
 
-		err = config.StoreClientConfig(cfg)
+		err = configlib.StoreClientConfig(cfg)
 		if err != nil {
 			return err
 		}
@@ -261,7 +262,7 @@ var listServersCmd = &cobra.Command{
 	Use:   "list",
 	Short: "List servers",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		cfg, err := config.GetClientConfig()
+		cfg, err := configlib.GetClientConfig()
 		if err != nil {
 			return err
 		}
@@ -301,13 +302,13 @@ var deleteServersCmd = &cobra.Command{
 
 		if isAborted == nil {
 			log.Infof("Deleting entry for cluster %s", args[0])
-			serverExists, err := config.ServerExists(args[0])
+			serverExists, err := configlib.ServerExists(args[0])
 			if err != nil {
 				return err
 			}
 
 			if serverExists {
-				err := config.RemoveServer(args[0])
+				err := configlib.RemoveServer(args[0])
 				if err != nil {
 					return err
 				}
@@ -333,10 +334,10 @@ var unsetConfigCmd = &cobra.Command{
 		}
 
 		// Acquire tanzu config lock
-		config.AcquireTanzuConfigLock()
-		defer config.ReleaseTanzuConfigLock()
+		configlib.AcquireTanzuConfigLock()
+		defer configlib.ReleaseTanzuConfigLock()
 
-		cfg, err := config.GetClientConfigNoLock()
+		cfg, err := configlib.GetClientConfigNoLock()
 		if err != nil {
 			return err
 		}
@@ -346,7 +347,7 @@ var unsetConfigCmd = &cobra.Command{
 			return err
 		}
 
-		return config.StoreClientConfig(cfg)
+		return configlib.StoreClientConfig(cfg)
 	},
 }
 

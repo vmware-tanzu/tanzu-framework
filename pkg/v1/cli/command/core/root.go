@@ -15,9 +15,10 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
+	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/config"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/pluginmanager"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/config"
+	cliconfig "github.com/vmware-tanzu/tanzu-framework/pkg/v1/config"
 )
 
 // RootCmd is the core root Tanzu command
@@ -48,7 +49,7 @@ func NewRootCmd() (*cobra.Command, error) {
 	}
 
 	// configure defined environment variables under tanzu config file
-	config.ConfigureEnvVariables()
+	cliconfig.ConfigureEnvVariables()
 
 	au := aurora.NewAurora(color)
 	RootCmd.Short = au.Bold(`Tanzu CLI`).String()

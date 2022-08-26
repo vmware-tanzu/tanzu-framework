@@ -22,7 +22,7 @@ import (
 	tkr "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkr/controllers/source"
 	tkrutils "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkr/pkg/utils"
 
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/config"
+	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/config"
 )
 
 // Note: We can remove all this additional options at the time when

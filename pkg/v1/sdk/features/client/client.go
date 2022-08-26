@@ -7,7 +7,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/config"
+	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/config"
 
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/runtime"
