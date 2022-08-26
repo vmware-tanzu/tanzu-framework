@@ -16,7 +16,7 @@ import (
 	. "github.com/onsi/gomega"
 	corev1 "k8s.io/api/core/v1"
 
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/test/framework"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/test/framework"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/tkgctl"
 )
 

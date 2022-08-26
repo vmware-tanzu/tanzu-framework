@@ -8,7 +8,7 @@ import (
 
 	. "github.com/onsi/ginkgo"
 
-	. "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/test/tkgctl/shared"
+	. "github.com/vmware-tanzu/tanzu-framework/tkg/test/tkgctl/shared"
 )
 
 var _ = Describe("Functional tests for aws - TKR Compatibility tests", func() {

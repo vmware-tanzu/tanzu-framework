@@ -21,7 +21,7 @@ import (
 	"k8s.io/apimachinery/pkg/util/wait"
 	"k8s.io/client-go/util/retry"
 
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/test/framework/exec"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/test/framework/exec"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -30,7 +30,7 @@ import (
 	packagelib "github.com/vmware-tanzu/tanzu-framework/cmd/cli/plugin/package/test/lib"
 	secretlib "github.com/vmware-tanzu/tanzu-framework/cmd/cli/plugin/secret/test/lib"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/test/framework"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/test/framework"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/tkgctl"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgpackagedatamodel"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/log"
