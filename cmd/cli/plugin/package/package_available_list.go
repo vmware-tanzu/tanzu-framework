@@ -10,7 +10,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/component"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/kappclient"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/kappclient"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/log"
 
 	"go.uber.org/multierr"

@@ -6,7 +6,7 @@ on:
     paths:
       - '.github/workflows/tkgpackage_integration_test.yaml'
       - 'pkg/v1/tkg/tkgpackage*/*'
-      - 'pkg/v1/tkg/kappclient/*'
+      - 'tkg/kappclient/*'
       - 'pkg/v1/tkg/test/tkgpackageclient/**'
       - 'cmd/cli/plugin/package/**'
       - 'pkg/v1/tkg/tkgctl'
