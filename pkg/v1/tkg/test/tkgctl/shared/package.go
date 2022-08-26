@@ -192,7 +192,7 @@ func CheckClusterCB(ctx context.Context, mccl, wccl client.Client, mcClusterName
 	}
 
 	By(fmt.Sprintf("Verify clusterbootstrap matches clusterbootstraptemplate"))
-	verifyClusterBootstrap(ctx, mccl, clusterBootstrap, clusterBootstrap.Status.ResolvedTKR, systemNamespace, isCustomCB)
+	verifyClusterBootstrap(ctx, mccl, clusterBootstrap, clusterBootstrap.Status.ResolvedTKR, systemNamespace, isManagementCluster, isCustomCB)
 
 	packages, err := getPackagesFromCB(ctx, clusterBootstrap, mccl, wccl, mcClusterName, mcClusterNamespace, wcClusterName, wcClusterNamespace, infrastructureName, isManagementCluster)
 	Expect(err).NotTo(HaveOccurred())
@@ -236,7 +236,7 @@ func CheckClusterCB(ctx context.Context, mccl, wccl client.Client, mcClusterName
 }
 
 // verifyClusterBootstrap checks if cluster bootstrap is created as expected i.e. it is cloned correctly from ClusterBootstrapTemplate
-func verifyClusterBootstrap(ctx context.Context, c client.Client, clusterBootstrap *runtanzuv1alpha3.ClusterBootstrap, tkrName string, systemNamespace string, isCustomCB bool) {
+func verifyClusterBootstrap(ctx context.Context, c client.Client, clusterBootstrap *runtanzuv1alpha3.ClusterBootstrap, tkrName string, systemNamespace string, isManagementCluster, isCustomCB bool) {
 	resolvedTKr := clusterBootstrap.Status.ResolvedTKR
 	Expect(resolvedTKr).NotTo(BeEmpty())
 
@@ -280,7 +280,7 @@ func verifyClusterBootstrap(ctx context.Context, c client.Client, clusterBootstr
 		// custom CB needs to have package names the same as the cluster name, so this will not match the expected providerRef name
 		// any package specified in the custom CB manifest will have to be special-cased
 		// so, handling this currently for antrea for the custom CB test case
-		if isCustomCB && strings.Contains(pkg.RefName, "antrea") {
+		if !isManagementCluster && isCustomCB && strings.Contains(pkg.RefName, "antrea") {
 			pkg.ValuesFrom.ProviderRef.Name = clusterBootstrap.Name
 		}
 	}

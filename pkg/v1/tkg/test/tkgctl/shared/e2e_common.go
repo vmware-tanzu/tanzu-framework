@@ -13,17 +13,15 @@ import (
 	"strings"
 	"time"
 
-	"sigs.k8s.io/cluster-api/util"
-	"sigs.k8s.io/controller-runtime/pkg/client"
-
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	"sigs.k8s.io/cluster-api/util"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha1"
 	runv1alpha3 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/test/framework"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/test/framework/exec"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/tkgctl"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/utils"
 )
@@ -34,7 +32,6 @@ type E2ECommonSpecInput struct {
 	Cni             string
 	Plan            string
 	Namespace       string
-	IsCCB           bool
 	OtherConfigs    map[string]string
 }
 
@@ -150,11 +147,6 @@ func E2ECommonSpec(ctx context.Context, inputGetter func() E2ECommonSpecInput) {
 		Expect(err).To(BeNil())
 		defer os.Remove(clusterConfigFile)
 
-		if input.IsCCB {
-			err = exec.KubectlApplyWithArgs(ctx, mngKubeConfigFile, getCustomCBResourceFile(clusterName, namespace))
-			Expect(err).To(BeNil())
-		}
-
 		err = tkgCtlClient.CreateCluster(tkgctl.CreateClusterOptions{
 			ClusterConfigFile: clusterConfigFile,
 			Edition:           "tkg",
@@ -201,8 +193,12 @@ func E2ECommonSpec(ctx context.Context, inputGetter func() E2ECommonSpecInput) {
 				wlcClient, _, _, _, err := GetClients(ctx, tempFilePath)
 				Expect(err).NotTo(HaveOccurred())
 
+				By(fmt.Sprintf("Verify addon packages on management cluster %q matches clusterBootstrap info on management cluster %q", input.E2EConfig.ManagementClusterName, input.E2EConfig.ManagementClusterName))
+				err = CheckClusterCB(ctx, mngclient, wlcClient, input.E2EConfig.ManagementClusterName, constants.TkgNamespace, "", "", infrastructureName, true, false)
+				Expect(err).To(BeNil())
+
 				By(fmt.Sprintf("Verify addon packages on workload cluster %q matches clusterBootstrap info on management cluster %q", clusterName, input.E2EConfig.ManagementClusterName))
-				err = CheckClusterCB(ctx, mngclient, wlcClient, input.E2EConfig.ManagementClusterName, constants.TkgNamespace, clusterName, namespace, infrastructureName, false, input.IsCCB)
+				err = CheckClusterCB(ctx, mngclient, wlcClient, input.E2EConfig.ManagementClusterName, constants.TkgNamespace, clusterName, namespace, infrastructureName, false, false)
 				Expect(err).To(BeNil())
 
 				By(fmt.Sprintf("Get management cluster resources created by addons-manager for workload cluster %q on management cluster %q", clusterName, input.E2EConfig.ManagementClusterName))
@@ -343,9 +339,4 @@ func TestClusterUpgrade(tkgctlClient tkgctl.TKGClient, clusterName, namespace st
 	})
 	Expect(err).ToNot(HaveOccurred())
 
-}
-
-// getCustomCBResourceFile return a manifest containing custom ClusterBootstrap and AntreaConfig
-func getCustomCBResourceFile(clusterName, namespace string) []byte {
-	return []byte(fmt.Sprintf(customAntreaConfigAndCBResource, clusterName, namespace, clusterName, namespace, clusterName))
 }
