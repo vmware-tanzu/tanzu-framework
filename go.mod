@@ -27,8 +27,6 @@ require (
 	github.com/Masterminds/semver v1.5.0
 	github.com/adrg/xdg v0.2.1
 	github.com/aunum/log v0.0.0-20200821225356-38d2e2c8b489
-	github.com/aws/aws-sdk-go v1.40.56
-	github.com/awslabs/goformation/v4 v4.19.5
 	github.com/briandowns/spinner v1.18.0
 	github.com/cppforlife/go-cli-ui v0.0.0-20200716203538-1e47f820817f
 	github.com/docker/docker v20.10.16+incompatible
@@ -74,7 +72,6 @@ require (
 	github.com/otiai10/copy v1.4.2
 	github.com/pkg/errors v0.9.1
 	github.com/sanathkr/go-yaml v0.0.0-20170819195128-ed9d249f429b
-	github.com/sergi/go-diff v1.2.0
 	github.com/skratchdot/open-golang v0.0.0-20200116055534-eef842397966
 	github.com/spf13/afero v1.6.0
 	github.com/spf13/cobra v1.4.0
@@ -147,6 +144,8 @@ require (
 	github.com/asaskevich/govalidator v0.0.0-20210307081110-f21760c49a8d // indirect
 	github.com/avinetworks/sdk v0.0.0-20201123134013-c157ef55b6f7 // indirect
 	github.com/aws/amazon-vpc-cni-k8s v1.10.1 // indirect
+	github.com/aws/aws-sdk-go v1.40.56 // indirect
+	github.com/awslabs/goformation/v4 v4.19.5 // indirect
 	github.com/benbjohnson/clock v1.3.0 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/blang/semver v3.5.1+incompatible // indirect
