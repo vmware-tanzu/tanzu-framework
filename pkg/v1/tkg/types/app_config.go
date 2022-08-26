@@ -5,8 +5,8 @@
 package types
 
 import (
-	"github.com/vmware-tanzu/tanzu-framework/tkg/providerinterface"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/region"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/providerinterface"
 )
 
 // AppConfig stores configuration related to running app
