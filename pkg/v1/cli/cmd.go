@@ -162,16 +162,3 @@ func TestCmd(p *cliv1alpha1.PluginDescriptor) *cobra.Command {
 	}
 	return cmd
 }
-
-// ApplyDefaultConfig applies default configurations to plugin descriptor.
-func ApplyDefaultConfig(p *cliv1alpha1.PluginDescriptor) {
-	p.BuildSHA = buildinfo.SHA
-	if p.Version == "" {
-		p.Version = BuildVersion
-	}
-	if p.PostInstallHook == nil {
-		p.PostInstallHook = func() error {
-			return nil
-		}
-	}
-}
