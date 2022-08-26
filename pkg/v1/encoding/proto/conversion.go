@@ -13,7 +13,7 @@ import (
 	"github.com/golang/protobuf/jsonpb" // nolint
 	"github.com/golang/protobuf/proto"  // nolint
 
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/component"
+	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/component"
 )
 
 // InputFileToProto reads a json/yaml/stdin and converts it to protobuf format.

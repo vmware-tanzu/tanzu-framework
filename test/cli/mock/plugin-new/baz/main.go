@@ -9,7 +9,7 @@ import (
 	"github.com/aunum/log"
 
 	cliv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/command/plugin"
+	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/plugin"
 )
 
 var descriptor = cliv1alpha1.PluginDescriptor{

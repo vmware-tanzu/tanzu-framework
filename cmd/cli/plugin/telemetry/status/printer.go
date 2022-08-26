@@ -16,8 +16,8 @@ import (
 	runtimeschema "k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/client-go/dynamic"
 
+	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/component"
 	"github.com/vmware-tanzu/tanzu-framework/cmd/cli/plugin/telemetry/kubernetes"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/component"
 )
 
 type Printer struct {

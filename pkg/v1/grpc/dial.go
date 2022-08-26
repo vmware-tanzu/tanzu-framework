@@ -16,7 +16,7 @@ import (
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/keepalive"
 
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/config"
+	configlib "github.com/vmware-tanzu/tanzu-framework/cli/runtime/config"
 )
 
 const (
@@ -49,7 +49,7 @@ type ContextOpts func(context.Context) context.Context
 // ConnectToEndpoint attempts to connect to the provided endpoint. If endpoint is empty, it picks up the endpoint
 // from the current auth ctx.
 func ConnectToEndpoint(ctxopts ...ContextOpts) (*grpc.ClientConn, error) {
-	cfg, err := config.GetClientConfig()
+	cfg, err := configlib.GetClientConfig()
 	if err != nil {
 		log.Errorf("Could not get current auth context with error: %v", err)
 		return nil, err

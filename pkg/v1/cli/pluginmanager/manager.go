@@ -23,6 +23,7 @@ import (
 
 	cliv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/apis/config/v1alpha1"
+	configlib "github.com/vmware-tanzu/tanzu-framework/cli/runtime/config"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/artifact"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/catalog"
@@ -94,7 +95,7 @@ func discoverPlugins(pd []v1alpha1.PluginDiscovery) ([]plugin.Discovered, error)
 
 // DiscoverStandalonePlugins returns the available standalone plugins
 func DiscoverStandalonePlugins() (plugins []plugin.Discovered, err error) {
-	cfg, e := config.GetClientConfig()
+	cfg, e := configlib.GetClientConfig()
 	if e != nil {
 		err = errors.Wrapf(e, "unable to get client configuration")
 		return
@@ -126,7 +127,7 @@ func DiscoverServerPlugins(serverName string) ([]plugin.Discovered, error) {
 		return plugins, nil
 	}
 
-	discoverySources := config.GetDiscoverySources(serverName)
+	discoverySources := configlib.GetDiscoverySources(serverName)
 	plugins, err := discoverPlugins(discoverySources)
 	if err != nil {
 		return plugins, err

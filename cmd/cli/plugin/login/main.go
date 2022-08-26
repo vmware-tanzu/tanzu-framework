@@ -21,13 +21,14 @@ import (
 
 	cliv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
 	configv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/config/v1alpha1"
+	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/component"
+	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/config"
+	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/plugin"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/auth/csp"
 	tkgauth "github.com/vmware-tanzu/tanzu-framework/pkg/v1/auth/tkg"
 	wcpauth "github.com/vmware-tanzu/tanzu-framework/pkg/v1/auth/wcp"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/command/plugin"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/component"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/buildinfo"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/pluginmanager"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/config"
 )
 
 // Note: Shall be deprecated in a future version. Superseded by 'tanzu context' command.
@@ -36,6 +37,8 @@ var descriptor = cliv1alpha1.PluginDescriptor{
 	Description: "Login to the platform",
 	Group:       cliv1alpha1.SystemCmdGroup,
 	Aliases:     []string{"lo", "logins"},
+	Version:     buildinfo.Version,
+	BuildSHA:    buildinfo.SHA,
 }
 
 var (

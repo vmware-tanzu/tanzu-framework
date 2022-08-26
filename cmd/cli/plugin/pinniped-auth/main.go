@@ -9,7 +9,8 @@ import (
 	"github.com/aunum/log"
 
 	cliv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/command/plugin"
+	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/plugin"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/buildinfo"
 )
 
 var descriptor = cliv1alpha1.PluginDescriptor{
@@ -18,6 +19,8 @@ var descriptor = cliv1alpha1.PluginDescriptor{
 	Group:       cliv1alpha1.RunCmdGroup,
 	Hidden:      true,
 	Aliases:     []string{"pa", "pinniped-auths"},
+	Version:     buildinfo.Version,
+	BuildSHA:    buildinfo.SHA,
 }
 
 func main() {

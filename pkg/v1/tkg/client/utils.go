@@ -23,7 +23,7 @@ import (
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
 	capi "sigs.k8s.io/cluster-api/api/v1alpha3"
 
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/config"
+	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/config"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/log"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/utils"

@@ -9,7 +9,7 @@ import (
 
 	kctrlcmd "github.com/vmware-tanzu/carvel-kapp-controller/cli/pkg/kctrl/cmd"
 	kctrlcmdcore "github.com/vmware-tanzu/carvel-kapp-controller/cli/pkg/kctrl/cmd/core"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/command/plugin"
+	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/plugin"
 )
 
 func Invoke(p *plugin.Plugin) error {
