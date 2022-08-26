@@ -16,10 +16,10 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/apis/config/v1alpha1"
 	runv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/clusterclient"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgctl"
 	tkr "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkr/controllers/source"
 	tkrutils "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkr/pkg/utils"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/log"
 
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/config"

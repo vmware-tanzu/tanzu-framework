@@ -14,8 +14,8 @@ import (
 	tkrv1alpha3 "github.com/vmware-tanzu/tanzu-framework/cmd/cli/plugin/tkr/v1alpha3"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/config"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/clusterclient"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgctl"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/constants"
 
 	"github.com/aunum/log"
 

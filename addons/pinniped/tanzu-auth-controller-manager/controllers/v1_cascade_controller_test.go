@@ -16,7 +16,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	clusterapiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
 
-	tkgconstants "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
+	tkgconstants "github.com/vmware-tanzu/tanzu-framework/tkg/constants"
 )
 
 const testTKRLabel = "v1.22.3"
