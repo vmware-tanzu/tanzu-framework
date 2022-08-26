@@ -58,7 +58,7 @@ reference:
 * Implements methods that convert UI provided configuration to config variables that can be saved to cluster-config files
 * Also implements image getter functions for all providers
 
-## [tkgconfigbom](/pkg/v1/tkg/tkgconfigbom)
+## [tkgconfigbom](/tkg/tkgconfigbom)
 
 * Implements TKG and TKR BoM file loader methods
 * Also implements methods to get default or specific TKR BoM file based on the TKR version
