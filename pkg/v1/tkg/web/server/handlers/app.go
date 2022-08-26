@@ -29,10 +29,10 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/tkg/utils"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/vc"
 
-	azureclient "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/azure"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/web/server/ws"
 	aviClient "github.com/vmware-tanzu/tanzu-framework/tkg/avi"
 	awsclient "github.com/vmware-tanzu/tanzu-framework/tkg/aws"
+	azureclient "github.com/vmware-tanzu/tanzu-framework/tkg/azure"
 	ldapClient "github.com/vmware-tanzu/tanzu-framework/tkg/ldap"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/log"
 )
