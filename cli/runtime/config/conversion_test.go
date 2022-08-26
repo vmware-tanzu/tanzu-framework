@@ -201,7 +201,7 @@ func TestPopulateContexts(t *testing.T) {
 
 	for _, tc := range tcs {
 		t.Run(tc.name, func(t *testing.T) {
-			delta := populateContexts(tc.ip)
+			delta := PopulateContexts(tc.ip)
 			assert.Equal(t, tc.delta, delta)
 			// ensure that the servers are not lost
 			assert.Equal(t, len(tc.op.KnownServers), len(tc.ip.KnownServers))

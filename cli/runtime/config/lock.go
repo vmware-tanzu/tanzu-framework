@@ -5,13 +5,19 @@ package config
 
 import (
 	"fmt"
+	"os"
 	"path/filepath"
 	"sync"
+	"time"
 
 	"github.com/juju/fslock"
+	"github.com/pkg/errors"
+)
 
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/utils"
+const (
+	LocalTanzuFileLock = ".tanzu.lock"
+	// DefaultLockTimeout is the default time waiting on the filelock
+	DefaultLockTimeout = 10 * time.Minute
 )
 
 var tanzuConfigLockFile string
@@ -33,11 +39,11 @@ func AcquireTanzuConfigLock() {
 		if err != nil {
 			panic(fmt.Sprintf("cannot get config path while acquiring lock on tanzu config file, reason: %v", err))
 		}
-		tanzuConfigLockFile = filepath.Join(filepath.Dir(path), constants.LocalTanzuFileLock)
+		tanzuConfigLockFile = filepath.Join(filepath.Dir(path), LocalTanzuFileLock)
 	}
 
 	// using fslock to handle interprocess locking
-	lock, err := utils.GetFileLockWithTimeOut(tanzuConfigLockFile, utils.DefaultLockTimeout)
+	lock, err := getFileLockWithTimeOut(tanzuConfigLockFile, DefaultLockTimeout)
 	if err != nil {
 		panic(fmt.Sprintf("cannot acquire lock for tanzu config file, reason: %v", err))
 	}
@@ -67,4 +73,22 @@ func ReleaseTanzuConfigLock() {
 // false otherwise
 func IsTanzuConfigLockAcquired() bool {
 	return tanzuConfigLock != nil
+}
+
+// getFileLockWithTimeOut returns a file lock with timeout
+func getFileLockWithTimeOut(lockPath string, lockDuration time.Duration) (*fslock.Lock, error) {
+	dir := filepath.Dir(lockPath)
+
+	if _, err := os.Stat(dir); os.IsNotExist(err) {
+		if err := os.MkdirAll(dir, 0o700); err != nil {
+			return nil, err
+		}
+	}
+
+	lock := fslock.New(lockPath)
+
+	if err := lock.LockWithTimeout(lockDuration); err != nil {
+		return &fslock.Lock{}, errors.Wrap(err, "failed to acquire a lock with timeout")
+	}
+	return lock, nil
 }
