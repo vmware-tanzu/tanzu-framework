@@ -349,7 +349,7 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Wiz
      * @param arrObj of type [ {key: 'a', value: '1}, {key : 'b, value:'2}]
      * @param params.key<Function> To Identify the ObjectKey
      * @param params.value<Function> To Identify the ObjectValue
-     * @return Object {'a': 1 , 'b': '1'}
+     * @return Object {'a': 1 , 'b': '1'} and drops values with empty string on key
      */
     arrayOfObjectsToObject<T>(arrObj: T[], params: Params<T>): KeyValueObject {
         if (!arrObj || !(arrObj instanceof Array)) {
