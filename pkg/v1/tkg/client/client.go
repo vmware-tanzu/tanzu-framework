@@ -26,7 +26,7 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfigproviders"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfigreaderwriter"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfigupdater"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/types"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/types"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/features"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/kind"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/region"

@@ -8,7 +8,7 @@ import (
 	"context"
 
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfigreaderwriter"
-	tkgtypes "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/types"
+	tkgtypes "github.com/vmware-tanzu/tanzu-framework/tkg/types"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/web/server/models"
 )
 
