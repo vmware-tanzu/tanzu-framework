@@ -8,8 +8,8 @@ import (
 
 	. "github.com/onsi/ginkgo"
 
-	"github.com/vmware-tanzu/tanzu-framework/tkg/client"
 	. "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/test/tkgctl/shared"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/client"
 )
 
 var _ = Describe("Node pool tests for tkgs - ClusterClass", func() {
