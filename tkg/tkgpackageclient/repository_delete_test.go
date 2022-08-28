@@ -12,8 +12,8 @@ import (
 	"k8s.io/apimachinery/pkg/runtime/schema"
 
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/fakes"
-	"github.com/vmware-tanzu/tanzu-framework/tkg/tkgpackagedatamodel"
 	. "github.com/vmware-tanzu/tanzu-framework/tkg/tkgpackageclient"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/tkgpackagedatamodel"
 )
 
 var _ = Describe("Delete Repository", func() {
