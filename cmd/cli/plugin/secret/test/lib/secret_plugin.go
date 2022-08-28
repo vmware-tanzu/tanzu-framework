@@ -6,7 +6,7 @@ import (
 	"time"
 
 	clitest "github.com/vmware-tanzu/tanzu-framework/pkg/v1/test/cli"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgpackagedatamodel"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/tkgpackagedatamodel"
 )
 
 type SecretPluginBase interface {

@@ -9,7 +9,7 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/fakes"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgpackagedatamodel"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/tkgpackagedatamodel"
 	. "github.com/vmware-tanzu/tanzu-framework/tkg/tkgpackageclient"
 )
 

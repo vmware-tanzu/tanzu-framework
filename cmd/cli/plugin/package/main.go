@@ -15,7 +15,7 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/component"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/config"
 	capdiscovery "github.com/vmware-tanzu/tanzu-framework/pkg/v1/sdk/capabilities/discovery"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgpackagedatamodel"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/tkgpackagedatamodel"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/kappclient"
 )
 

@@ -12,7 +12,7 @@ import (
 
 	kappipkg "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/packaging/v1alpha1"
 
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgpackagedatamodel"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/tkgpackagedatamodel"
 )
 
 // ParseRegistryImageURL parses the registry image URL to get repository and tag, tag is empty if not specified
