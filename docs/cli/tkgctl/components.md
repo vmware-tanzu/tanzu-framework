@@ -29,7 +29,7 @@ reference:
   * reads ytt overlay files based on the template-definition-file provided and processes the overlay using the provided config variable generating cluster templates.
   * [https://github.com/vmware-tanzu/tkg-cli/tree/master/pkg/yamlprocessor](https://github.com/vmware-tanzu/tkg-cli/tree/master/pkg/yamlprocessor)
 
-## [tkgconfigreaderwriter](/pkg/v1/tkg/tkgconfigreaderwriter)
+## [tkgconfigreaderwriter](/tkg/tkgconfigreaderwriter)
 
 * This is also a very core package under the tkg library
 * It is responsible for reading user inputs for config variables from different sources (descending order of precedence)
