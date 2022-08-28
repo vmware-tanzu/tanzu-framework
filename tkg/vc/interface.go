@@ -7,8 +7,8 @@ package vc
 import (
 	"context"
 
-	"github.com/vmware-tanzu/tanzu-framework/tkg/tkgconfigreaderwriter"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/web/server/models"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/tkgconfigreaderwriter"
 	tkgtypes "github.com/vmware-tanzu/tanzu-framework/tkg/types"
 )
 
