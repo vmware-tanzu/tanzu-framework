@@ -13,8 +13,8 @@ import (
 
 	"os"
 
-	"github.com/vmware-tanzu/tanzu-framework/tkg/tkgconfigreaderwriter"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/tkgconfigbom"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/tkgconfigreaderwriter"
 )
 
 var _ = Describe("Validate", func() {
