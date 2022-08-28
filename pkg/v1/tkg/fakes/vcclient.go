@@ -5,7 +5,7 @@ import (
 	"context"
 	"sync"
 
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfigreaderwriter"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/tkgconfigreaderwriter"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/types"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/web/server/models"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/vc"

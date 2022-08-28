@@ -14,7 +14,7 @@ import (
 	. "github.com/onsi/gomega"
 
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/clientconfighelpers"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfigreaderwriter"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/tkgconfigreaderwriter"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkr/fakes"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkr/pkg/registry"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/constants"
