@@ -14,7 +14,7 @@ import (
 	tkgauth "github.com/vmware-tanzu/tanzu-framework/pkg/v1/auth/tkg"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/config"
 
-	tkgclient "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/client"
+	tkgclient "github.com/vmware-tanzu/tanzu-framework/tkg/client"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/tkgctl"
 )
 
