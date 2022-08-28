@@ -13,6 +13,12 @@ import (
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
 
+	"github.com/vmware-tanzu/tanzu-framework/tkg/client"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/constants"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/tkgconfigreaderwriter"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/types"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/utils"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/vc"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/web/server/restapi/operations"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/web/server/restapi/operations/avi"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/web/server/restapi/operations/aws"
@@ -22,19 +28,13 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/tkg/web/server/restapi/operations/ldap"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/web/server/restapi/operations/provider"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/web/server/restapi/operations/vsphere"
-	"github.com/vmware-tanzu/tanzu-framework/tkg/client"
-	"github.com/vmware-tanzu/tanzu-framework/tkg/constants"
-	"github.com/vmware-tanzu/tanzu-framework/tkg/tkgconfigreaderwriter"
-	"github.com/vmware-tanzu/tanzu-framework/tkg/types"
-	"github.com/vmware-tanzu/tanzu-framework/tkg/utils"
-	"github.com/vmware-tanzu/tanzu-framework/tkg/vc"
 
 	azureclient "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/azure"
-	"github.com/vmware-tanzu/tanzu-framework/tkg/web/server/ws"
 	aviClient "github.com/vmware-tanzu/tanzu-framework/tkg/avi"
 	awsclient "github.com/vmware-tanzu/tanzu-framework/tkg/aws"
 	ldapClient "github.com/vmware-tanzu/tanzu-framework/tkg/ldap"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/log"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/web/server/ws"
 )
 
 // App application structs consisting init options and clients

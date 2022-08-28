@@ -7,8 +7,8 @@ import (
 	"encoding/base64"
 	"strconv"
 
-	"github.com/vmware-tanzu/tanzu-framework/tkg/web/server/models"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/constants"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/web/server/models"
 )
 
 // AzureConfig is the tkg config for Azure

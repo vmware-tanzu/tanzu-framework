@@ -13,7 +13,6 @@ import (
 	"time"
 
 	azure "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/azure/mocks"
-	"github.com/vmware-tanzu/tanzu-framework/tkg/web/server/models"
 	. "github.com/vmware-tanzu/tanzu-framework/tkg/client"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/clientcreator"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/constants"
@@ -25,6 +24,7 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/tkg/tkgconfigupdater"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/types"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/utils"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/web/server/models"
 
 	"github.com/golang/mock/gomock"
 	. "github.com/onsi/ginkgo"
