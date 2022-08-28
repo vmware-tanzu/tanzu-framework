@@ -49,7 +49,7 @@ reference:
     * adding/updating images map based on BoM file's image repository or based on `TKG_CUSTOM_IMAGE_REPOSITORY` config variable
   * creating default(empty) cluster-config.yaml if it does not exist at `$HOME/.config/tanzu/tkg/cluster-config.yaml`
 
-## [tkgconfigpaths](/pkg/v1/tkg/tkgconfigpaths)
+## [tkgconfigpaths](/tkg/tkgconfigpaths)
 
 * Implemented functions to get different file and directory paths for TKG library
 
@@ -58,7 +58,7 @@ reference:
 * Implements methods that convert UI provided configuration to config variables that can be saved to cluster-config files
 * Also implements image getter functions for all providers
 
-## [tkgconfigbom](/pkg/v1/tkg/tkgconfigbom)
+## [tkgconfigbom](/tkg/tkgconfigbom)
 
 * Implements TKG and TKR BoM file loader methods
 * Also implements methods to get default or specific TKR BoM file based on the TKR version
