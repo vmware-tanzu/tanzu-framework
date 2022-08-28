@@ -13,11 +13,11 @@ import (
 
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/client"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/fakes"
-	"github.com/vmware-tanzu/tanzu-framework/tkg/tkgconfigreaderwriter"
-	"github.com/vmware-tanzu/tanzu-framework/tkg/tkgconfigupdater"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/region"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/tkgconfigbom"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/tkgconfigreaderwriter"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/tkgconfigupdater"
 )
 
 const fakeTKRVersion = "1.19.0+vmware.1-tkg.1"
