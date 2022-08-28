@@ -19,11 +19,11 @@ import (
 	assetfs "github.com/elazarl/go-bindata-assetfs"
 
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/client"
-	servermanifest "github.com/vmware-tanzu/tanzu-framework/tkg/manifest/server"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/web/server/handlers"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/web/server/restapi"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/web/server/restapi/operations"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/web/server/ws"
+	servermanifest "github.com/vmware-tanzu/tanzu-framework/tkg/manifest/server"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/tkgconfigreaderwriter"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/types"
 )
