@@ -9,7 +9,7 @@ import (
 	"k8s.io/apimachinery/pkg/version"
 	"k8s.io/client-go/rest"
 
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/clusterclient"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/clusterclient"
 )
 
 type DiscoveryClient struct {
