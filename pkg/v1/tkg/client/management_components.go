@@ -14,9 +14,9 @@ import (
 
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/carvelhelpers"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/clusterclient"
-	"github.com/vmware-tanzu/tanzu-framework/tkg/managementcomponents"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/log"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/managementcomponents"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/tkgconfigreaderwriter"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/tkgpackagedatamodel"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/utils"
