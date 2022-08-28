@@ -24,7 +24,7 @@ BIN_DIR := bin
 ADDONS_DIR := addons
 YTT_TESTS_DIR := pkg/v1/providers/tests
 PACKAGES_SCRIPTS_DIR := $(abspath hack/packages/scripts)
-UI_DIR := pkg/v1/tkg/web
+UI_DIR := tkg/web
 GO_MODULES=$(shell find . -path "*/go.mod" | grep -v "^./pinniped" | xargs -I _ dirname _)
 
 PINNIPED_GIT_REPOSITORY = https://github.com/vmware-tanzu/pinniped.git

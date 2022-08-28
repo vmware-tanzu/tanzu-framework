@@ -11,7 +11,7 @@ import (
 
 	"github.com/go-openapi/strfmt"
 
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/web/server/models"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/web/server/models"
 )
 
 func createIdentityManagementConfig(config interface{}) *models.IdentityManagementConfig {
