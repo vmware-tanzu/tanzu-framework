@@ -22,8 +22,8 @@ import (
 	"sigs.k8s.io/cluster-api/util/patch"
 	crtclient "sigs.k8s.io/controller-runtime/pkg/client"
 
-	"github.com/vmware-tanzu/tanzu-framework/tkg/test/framework"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/constants"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/test/framework"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/tkgctl"
 )
 
