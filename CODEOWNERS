@@ -17,7 +17,7 @@
 /pkg/v1/tkg @vmware-tanzu/tanzu-framework-reviewers @vmware-tanzu/tanzu-framework-lcm-reviewers
 /tkg/kappclient @vmware-tanzu/tanzu-framework-reviewers @vmware-tanzu/tkg-addons-owners
 /pkg/v1/tkg/test/tkgpackageclient @vmware-tanzu/tanzu-framework-reviewers @vmware-tanzu/tkg-addons-owners
-/pkg/v1/tkg/tkgconfigpaths @vmware-tanzu/tanzu-framework-reviewers @vmware-tanzu/tanzu-framework-release-team
+/tkg/tkgconfigpaths @vmware-tanzu/tanzu-framework-reviewers @vmware-tanzu/tanzu-framework-release-team
 /tkg/tkgpackageclient @vmware-tanzu/tanzu-framework-reviewers @vmware-tanzu/tkg-addons-owners
 /pkg/v1/tkg/tkgpackagedatamodel @vmware-tanzu/tanzu-framework-reviewers @vmware-tanzu/tkg-addons-owners
 /pkg/v1/tkg/web @vmware-tanzu/tanzu-framework-reviewers @vmware-tanzu/tanzu-framework-ui-reviewers
