@@ -21,7 +21,7 @@ import (
 	"sigs.k8s.io/cluster-api/cmd/clusterctl/client/repository"
 
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/clusterclient"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfigpaths"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/tkgconfigpaths"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfigreaderwriter"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/features"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/kind"

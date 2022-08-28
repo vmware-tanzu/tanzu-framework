@@ -14,7 +14,7 @@ import (
 
 	azure "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/azure/mocks"
 	. "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/client"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfigpaths"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/tkgconfigpaths"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfigreaderwriter"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/web/server/models"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/clientcreator"
