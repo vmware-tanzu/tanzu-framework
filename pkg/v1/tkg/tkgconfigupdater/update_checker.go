@@ -10,8 +10,8 @@ import (
 
 	"github.com/pkg/errors"
 
-	"github.com/vmware-tanzu/tanzu-framework/tkg/tkgconfigbom"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/constants"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/tkgconfigbom"
 )
 
 // CheckProviderTemplatesNeedUpdate checks if .tkg/providers/config.yaml is up-to-date.
