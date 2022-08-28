@@ -21,16 +21,24 @@ require (
 	github.com/awslabs/goformation/v4 v4.19.5
 	github.com/briandowns/spinner v1.18.0
 	github.com/docker/docker v20.10.16+incompatible
+	github.com/elazarl/go-bindata-assetfs v1.0.1
 	github.com/getkin/kin-openapi v0.94.0
 	github.com/go-ldap/ldap/v3 v3.3.0
 	github.com/go-logr/logr v1.2.2
+	github.com/go-openapi/errors v0.19.2
+	github.com/go-openapi/loads v0.19.4
+	github.com/go-openapi/runtime v0.19.4
+	github.com/go-openapi/spec v0.19.5
 	github.com/go-openapi/strfmt v0.19.5
 	github.com/go-openapi/swag v0.21.1
+	github.com/go-openapi/validate v0.19.8
 	github.com/golang/mock v1.6.0
 	github.com/google/go-containerregistry v0.7.0
 	github.com/google/uuid v1.3.0
 	github.com/googleapis/gnostic v0.5.5
+	github.com/gorilla/websocket v1.5.0
 	github.com/imdario/mergo v0.3.12
+	github.com/jessevdk/go-flags v1.4.0
 	github.com/jinzhu/copier v0.3.5
 	github.com/juju/fslock v0.0.0-20160525022230-4d5c94c67b4b
 	github.com/k14s/imgpkg v0.17.0
@@ -57,6 +65,7 @@ require (
 	github.com/vmware/govmomi v0.27.1
 	github.com/yalp/jsonpath v0.0.0-20180802001716-5cc68e5049a0
 	golang.org/x/mod v0.6.0-dev.0.20220106191415-9b9b3d81d5e3
+	golang.org/x/net v0.0.0-20220225172249-27dd8689420f
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
 	golang.org/x/text v0.3.7
 	gopkg.in/yaml.v2 v2.4.0
@@ -126,7 +135,6 @@ require (
 	github.com/docker/go-connections v0.4.0 // indirect
 	github.com/docker/go-units v0.4.0 // indirect
 	github.com/drone/envsubst/v2 v2.0.0-20210730161058-179042472c46 // indirect
-	github.com/elazarl/go-bindata-assetfs v1.0.1 // indirect
 	github.com/envoyproxy/go-control-plane v0.10.1 // indirect
 	github.com/envoyproxy/protoc-gen-validate v0.6.2 // indirect
 	github.com/evanphx/json-patch v5.6.0+incompatible // indirect
@@ -136,13 +144,8 @@ require (
 	github.com/ghodss/yaml v1.0.0 // indirect
 	github.com/go-asn1-ber/asn1-ber v1.5.1 // indirect
 	github.com/go-openapi/analysis v0.19.5 // indirect
-	github.com/go-openapi/errors v0.19.2 // indirect
 	github.com/go-openapi/jsonpointer v0.19.5 // indirect
 	github.com/go-openapi/jsonreference v0.19.6 // indirect
-	github.com/go-openapi/loads v0.19.4 // indirect
-	github.com/go-openapi/runtime v0.19.4 // indirect
-	github.com/go-openapi/spec v0.19.5 // indirect
-	github.com/go-openapi/validate v0.19.8 // indirect
 	github.com/go-stack/stack v1.8.0 // indirect
 	github.com/gobuffalo/flect v0.2.4 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
@@ -156,12 +159,10 @@ require (
 	github.com/google/go-querystring v1.1.0 // indirect
 	github.com/google/gofuzz v1.2.0 // indirect
 	github.com/googleapis/gax-go/v2 v2.1.1 // indirect
-	github.com/gorilla/websocket v1.5.0 // indirect
 	github.com/hashicorp/go-version v1.4.0 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/huandu/xstrings v1.3.2 // indirect
 	github.com/inconshreveable/mousetrap v1.0.0 // indirect
-	github.com/jessevdk/go-flags v1.4.0 // indirect
 	github.com/jmespath/go-jmespath v0.4.0 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
@@ -211,7 +212,6 @@ require (
 	go.uber.org/atomic v1.9.0 // indirect
 	go.uber.org/multierr v1.6.0 // indirect
 	golang.org/x/crypto v0.0.0-20220411220226-7b82a4e95df4 // indirect
-	golang.org/x/net v0.0.0-20220225172249-27dd8689420f // indirect
 	golang.org/x/oauth2 v0.0.0-20220309155454-6242fa91716a // indirect
 	golang.org/x/sys v0.0.0-20220319134239-a9b59b0215f8 // indirect
 	golang.org/x/term v0.0.0-20210927222741-03fcf44c2211 // indirect
