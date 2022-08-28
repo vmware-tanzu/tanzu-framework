@@ -20,7 +20,7 @@ import (
 
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/fakes"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/fakes"
 	tkgconstants "github.com/vmware-tanzu/tanzu-framework/tkg/constants"
 )
 

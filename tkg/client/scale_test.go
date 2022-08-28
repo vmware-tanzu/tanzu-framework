@@ -15,8 +15,8 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	tkgsv1alpha2 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha2"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/fakes"
-	fakehelper "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/fakes/helper"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/fakes"
+	fakehelper "github.com/vmware-tanzu/tanzu-framework/tkg/fakes/helper"
 	. "github.com/vmware-tanzu/tanzu-framework/tkg/client"
 )
 
