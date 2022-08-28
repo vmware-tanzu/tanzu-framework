@@ -70,7 +70,6 @@ require (
 	github.com/onsi/gomega v1.19.0
 	github.com/otiai10/copy v1.4.2
 	github.com/pkg/errors v0.9.1
-	github.com/sanathkr/go-yaml v0.0.0-20170819195128-ed9d249f429b
 	github.com/skratchdot/open-golang v0.0.0-20200116055534-eef842397966
 	github.com/spf13/afero v1.6.0
 	github.com/spf13/cobra v1.4.0
@@ -231,6 +230,7 @@ require (
 	github.com/rs/xid v1.2.1 // indirect
 	github.com/russross/blackfriday v1.6.0 // indirect
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
+	github.com/sanathkr/go-yaml v0.0.0-20170819195128-ed9d249f429b // indirect
 	github.com/sanathkr/yaml v0.0.0-20170819201035-0056894fa522 // indirect
 	github.com/shopspring/decimal v1.2.0 // indirect
 	github.com/sirupsen/logrus v1.8.1 // indirect
