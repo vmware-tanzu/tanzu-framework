@@ -53,7 +53,7 @@ reference:
 
 * Implemented functions to get different file and directory paths for TKG library
 
-## [tkgconfigproviders](/pkg/v1/tkg/tkgconfigproviders)
+## [tkgconfigproviders](/tkg/tkgconfigproviders)
 
 * Implements methods that convert UI provided configuration to config variables that can be saved to cluster-config files
 * Also implements image getter functions for all providers
