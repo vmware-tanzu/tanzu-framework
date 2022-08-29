@@ -10,11 +10,11 @@ import (
 	"github.com/pkg/errors"
 	apimachineryjson "k8s.io/apimachinery/pkg/runtime/serializer/json"
 
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/common"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/distribution"
+	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/common"
+	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/distribution"
 
 	cliv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/plugin"
+	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/plugin"
 )
 
 // LocalDiscovery is an artifact discovery endpoint utilizing a local host os.

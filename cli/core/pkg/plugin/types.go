@@ -5,7 +5,7 @@
 package plugin
 
 import (
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/distribution"
+	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/distribution"
 )
 
 // Discovered defines discovered plugin resource

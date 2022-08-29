@@ -10,7 +10,7 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	configv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/config/v1alpha1"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/common"
+	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/common"
 )
 
 func Test_CheckDiscoveryName(t *testing.T) {

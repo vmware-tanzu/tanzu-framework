@@ -11,10 +11,10 @@ import (
 	ctlimg "github.com/k14s/imgpkg/pkg/imgpkg/registry"
 	"github.com/pkg/errors"
 
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/clientconfighelpers"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfigpaths"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkr/pkg/registry"
+	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/clientconfighelpers"
+	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/configpaths"
+	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/constants"
+	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/registry"
 )
 
 // GetFilesMapFromImage returns map of files metadata
@@ -71,7 +71,7 @@ func newRegistry() (registry.Registry, error) {
 
 	caCertBytes, err := clientconfighelpers.GetCustomRepositoryCaCertificateForClient(nil)
 	if err == nil && len(caCertBytes) != 0 {
-		filePath, err := tkgconfigpaths.GetRegistryCertFile()
+		filePath, err := configpaths.GetRegistryCertFile()
 		if err != nil {
 			return nil, err
 		}

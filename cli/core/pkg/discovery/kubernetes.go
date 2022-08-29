@@ -4,17 +4,15 @@
 package discovery
 
 import (
-	"strings"
-	"time"
-
 	"github.com/aunum/log"
 	"github.com/pkg/errors"
+	"strings"
 
 	cliv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/common"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/distribution"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/plugin"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/clusterclient"
+	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/cluster"
+	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/common"
+	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/distribution"
+	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/plugin"
 )
 
 // KubernetesDiscovery is an artifact discovery utilizing CLIPlugin API in kubernetes cluster
@@ -63,8 +61,7 @@ func (k *KubernetesDiscovery) Name() string {
 // Manifest returns the manifest for a kubernetes repository.
 func (k *KubernetesDiscovery) Manifest() ([]plugin.Discovered, error) {
 	// Create cluster client
-	clusterClientOptions := clusterclient.Options{GetClientInterval: 2 * time.Second, GetClientTimeout: 5 * time.Second}
-	clusterClient, err := clusterclient.NewClient(k.kubeconfigPath, k.kubecontext, clusterClientOptions)
+	clusterClient, err := cluster.NewClient(k.kubeconfigPath, k.kubecontext, cluster.Options{})
 	if err != nil {
 		return nil, err
 	}
@@ -73,7 +70,7 @@ func (k *KubernetesDiscovery) Manifest() ([]plugin.Discovered, error) {
 }
 
 // GetDiscoveredPlugins returns the list of discovered plugin from a kubernetes cluster
-func (k *KubernetesDiscovery) GetDiscoveredPlugins(clusterClient clusterclient.Client) ([]plugin.Discovered, error) {
+func (k *KubernetesDiscovery) GetDiscoveredPlugins(clusterClient cluster.Client) ([]plugin.Discovered, error) {
 	plugins := make([]plugin.Discovered, 0)
 
 	exists, err := clusterClient.VerifyCLIPluginCRD()

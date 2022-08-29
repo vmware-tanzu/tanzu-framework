@@ -4,8 +4,8 @@
 package discovery
 
 import (
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/common"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/plugin"
+	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/common"
+	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/plugin"
 )
 
 // GCPDiscovery is an artifact discovery endpoing utilizing a GCP bucket.
