@@ -13,7 +13,7 @@ import (
 	"k8s.io/client-go/tools/clientcmd"
 
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/config"
-	fakehelper "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/fakes/helper"
+	fakehelper "github.com/vmware-tanzu/tanzu-framework/tkg/fakes/helper"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/utils"
 )
