@@ -9,10 +9,10 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/fakes"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/fakes"
 
-	fakehelper "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/fakes/helper"
 	. "github.com/vmware-tanzu/tanzu-framework/tkg/client"
+	fakehelper "github.com/vmware-tanzu/tanzu-framework/tkg/fakes/helper"
 )
 
 var _ = Describe("", func() {
