@@ -43,7 +43,6 @@ require (
 	github.com/google/go-cmp v0.5.8
 	github.com/google/go-containerregistry v0.7.0
 	github.com/google/uuid v1.3.0
-	github.com/googleapis/gnostic v0.5.5
 	github.com/gorilla/mux v1.8.0
 	github.com/gorilla/websocket v1.5.0
 	github.com/gosuri/uitable v0.0.4
@@ -72,7 +71,6 @@ require (
 	github.com/tj/assert v0.0.0-20171129193455-018094318fb0
 	github.com/vmware-tanzu/carvel-kapp-controller v0.35.0
 	github.com/vmware-tanzu/carvel-kapp-controller/cli v0.0.0-20220617205641-1d376ccc7312
-	github.com/vmware-tanzu/carvel-secretgen-controller v0.5.0
 	github.com/vmware-tanzu/carvel-ytt v0.40.0
 	github.com/vmware-tanzu/tanzu-framework/apis/cli v0.0.0-00010101000000-000000000000
 	github.com/vmware-tanzu/tanzu-framework/apis/config v0.0.0-00010101000000-000000000000
@@ -98,11 +96,9 @@ require (
 	knative.dev/pkg v0.0.0-20220302134643-d2cdc682d974
 	sigs.k8s.io/cluster-api v1.1.5
 	sigs.k8s.io/cluster-api-provider-aws v1.1.0
-	sigs.k8s.io/cluster-api-provider-azure v1.4.0
 	sigs.k8s.io/cluster-api-provider-vsphere v1.3.1
 	sigs.k8s.io/controller-runtime v0.11.2
 	sigs.k8s.io/controller-tools v0.7.0
-	sigs.k8s.io/kind v0.14.0
 	sigs.k8s.io/yaml v1.3.0
 )
 
@@ -184,6 +180,7 @@ require (
 	github.com/google/go-querystring v1.1.0 // indirect
 	github.com/google/gofuzz v1.2.0 // indirect
 	github.com/googleapis/gax-go/v2 v2.1.1 // indirect
+	github.com/googleapis/gnostic v0.5.5 // indirect
 	github.com/hashicorp/go-version v1.4.0 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/hinshun/vt10x v0.0.0-20180809195222-d55458df857c // indirect
@@ -239,6 +236,7 @@ require (
 	github.com/vbatts/tar-split v0.11.2 // indirect
 	github.com/vito/go-interact v0.0.0-20171111012221-fa338ed9e9ec // indirect
 	github.com/vmware-tanzu/carvel-imgpkg v0.23.1 // indirect
+	github.com/vmware-tanzu/carvel-secretgen-controller v0.5.0 // indirect
 	github.com/vmware-tanzu/carvel-vendir v0.26.0 // indirect
 	github.com/vmware/govmomi v0.27.1 // indirect
 	github.com/yalp/jsonpath v0.0.0-20180802001716-5cc68e5049a0 // indirect
@@ -263,7 +261,9 @@ require (
 	k8s.io/klog/v2 v2.60.1 // indirect
 	k8s.io/kube-openapi v0.0.0-20220124234850-424119656bbf // indirect
 	k8s.io/kubectl v0.23.4 // indirect
+	sigs.k8s.io/cluster-api-provider-azure v1.4.0 // indirect
 	sigs.k8s.io/cluster-api/test v1.1.5 // indirect
 	sigs.k8s.io/json v0.0.0-20211208200746-9f7c6b3444d2 // indirect
+	sigs.k8s.io/kind v0.14.0 // indirect
 	sigs.k8s.io/structured-merge-diff/v4 v4.2.1 // indirect
 )
