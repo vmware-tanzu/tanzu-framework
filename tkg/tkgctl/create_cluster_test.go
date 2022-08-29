@@ -12,8 +12,8 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/client"
-	"github.com/vmware-tanzu/tanzu-framework/tkg/fakes"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/constants"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/fakes"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/region"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/tkgconfigbom"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/tkgconfigreaderwriter"
