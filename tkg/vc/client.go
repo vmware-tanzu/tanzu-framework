@@ -26,8 +26,8 @@ import (
 	"github.com/vmware/govmomi/vim25/soap"
 	"github.com/vmware/govmomi/vim25/types"
 
-	tkgtypes "github.com/vmware-tanzu/tanzu-framework/tkg/types"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/web/server/models"
+	tkgtypes "github.com/vmware-tanzu/tanzu-framework/tkg/types"
 )
 
 // VSphere resource tags for tkg resource

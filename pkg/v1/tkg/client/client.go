@@ -20,7 +20,6 @@ import (
 	clusterctlconfig "sigs.k8s.io/cluster-api/cmd/clusterctl/client/config"
 	"sigs.k8s.io/cluster-api/cmd/clusterctl/client/repository"
 
-	"github.com/vmware-tanzu/tanzu-framework/tkg/types"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/clusterclient"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/features"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/kind"
@@ -30,6 +29,7 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/tkg/tkgconfigproviders"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/tkgconfigreaderwriter"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/tkgconfigupdater"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/types"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/vc"
 )
 
