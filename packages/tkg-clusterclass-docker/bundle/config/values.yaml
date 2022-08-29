@@ -4,3 +4,4 @@
 ---
 
 #! User configurable values for tkg-clusterclass-docker
+NAMESPACE: tkg-system

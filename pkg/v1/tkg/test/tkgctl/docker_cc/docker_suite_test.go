@@ -136,10 +136,8 @@ var _ = SynchronizedBeforeSuite(func() []byte {
 var _ = SynchronizedAfterSuite(func() {
 }, func() {
 	// After all parallel nodes
-
 	timeout, err := time.ParseDuration(e2eConfig.DefaultTimeout)
 	Expect(err).To(BeNil())
-	
 	logLocation := filepath.Join(artifactsFolder, "logs")
 	cli, err := tkgctl.New(tkgctl.Options{
 		ConfigDir: e2eConfig.TkgConfigDir,

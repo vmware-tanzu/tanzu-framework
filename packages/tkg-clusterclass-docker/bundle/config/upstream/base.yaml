@@ -1,0 +1,342 @@
+#@ load("@ytt:overlay", "overlay")
+#@ load("@ytt:yaml", "yaml")
+#@ load("@ytt:data", "data")
+
+apiVersion: cluster.x-k8s.io/v1beta1
+kind: ClusterClass
+metadata:
+  annotations:
+    run.tanzu.vmware.com/resolve-tkr: ""
+  name: tkg-docker-default
+  namespace: #@ data.values.NAMESPACE
+spec:
+  controlPlane:
+    ref:
+      apiVersion: controlplane.cluster.x-k8s.io/v1beta1
+      kind: KubeadmControlPlaneTemplate
+      name: quick-start-control-plane
+    machineInfrastructure:
+      ref:
+        kind: DockerMachineTemplate
+        apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+        name: quick-start-control-plane
+  infrastructure:
+    ref:
+      apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+      kind: DockerClusterTemplate
+      name: quick-start-cluster
+  workers:
+    machineDeployments:
+      - class: default-worker
+        template:
+          bootstrap:
+            ref:
+              apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
+              kind: KubeadmConfigTemplate
+              name: quick-start-default-worker-bootstraptemplate
+          infrastructure:
+            ref:
+              apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+              kind: DockerMachineTemplate
+              name: quick-start-default-worker-machinetemplate
+  variables:
+    - name: TKR_DATA
+      required: false
+      schema:
+        openAPIV3Schema:
+          type: object
+          properties: { }
+    - name: cni
+      required: true
+      schema:
+        openAPIV3Schema:
+          type: string
+          default: antrea
+    - name: imageRepository
+      required: true
+      schema:
+        openAPIV3Schema:
+          type: string
+          default: projects-stg.registry.vmware.com/tkg
+          example: "k8s.gcr.io"
+          description: "imageRepository sets the container registry to pull images from. If empty, `k8s.gcr.io` will be used by default."
+    - name: podSecurityStandard
+      required: false
+      schema:
+        openAPIV3Schema:
+          type: object
+          properties:
+            enabled:
+              type: boolean
+              default: true
+              description: "enabled enables the patches to enable Pod Security Standard via AdmissionConfiguration."
+            enforce:
+              type: string
+              default: "baseline"
+              description: "enforce sets the level for the enforce PodSecurityConfiguration mode. One of privileged, baseline, restricted."
+            audit:
+              type: string
+              default: "restricted"
+              description: "audit sets the level for the audit PodSecurityConfiguration mode. One of privileged, baseline, restricted."
+            warn:
+              type: string
+              default: "restricted"
+              description: "warn sets the level for the warn PodSecurityConfiguration mode. One of privileged, baseline, restricted."
+  patches:
+    - name: KCPT_ControlPlane_Main
+      definitions:
+        - selector:
+          apiVersion: controlplane.cluster.x-k8s.io/v1beta1
+          kind: KubeadmControlPlaneTemplate
+          matchResources:
+            controlPlane: true
+          jsonPatches:
+            - op: replace
+              path: /spec/template/spec/kubeadmConfigSpec/clusterConfiguration/imageRepository
+              valueFrom:
+                template: '{{(index .TKR_DATA .builtin.controlPlane.version).kubernetesSpec.imageRepository}}'
+            - op: replace
+              path: /spec/template/spec/kubeadmConfigSpec/clusterConfiguration/etcd/local/imageRepository
+              valueFrom:
+                template: '{{(index .TKR_DATA .builtin.controlPlane.version).kubernetesSpec.imageRepository}}'
+            - op: replace
+              path: /spec/template/spec/kubeadmConfigSpec/clusterConfiguration/etcd/local/imageTag
+              valueFrom:
+                template: '{{(index .TKR_DATA .builtin.controlPlane.version).kubernetesSpec.etcd.imageTag}}'
+            - op: replace
+              path: /spec/template/spec/kubeadmConfigSpec/clusterConfiguration/dns/imageRepository
+              valueFrom:
+                template: '{{(index .TKR_DATA .builtin.controlPlane.version).kubernetesSpec.imageRepository}}'
+            - op: replace
+              path: /spec/template/spec/kubeadmConfigSpec/clusterConfiguration/dns/imageTag
+              valueFrom:
+                template: '{{(index .TKR_DATA .builtin.controlPlane.version).kubernetesSpec.coredns.imageTag}}'
+            - op: add
+              path: /spec/template/spec/kubeadmConfigSpec/preKubeadmCommands/-
+              value: curl https://get.docker.com/builds/Linux/x86_64/docker-1.12.0.tgz | tar zxOf - docker/docker > /usr/local/bin/docker;chmod +x /usr/local/bin/docker
+            - op: add
+              path: /spec/template/spec/kubeadmConfigSpec/preKubeadmCommands/-
+              value: peerIdx=$(ip link | grep eth0 | awk -F[@:] '{ print $3 }' | cut -c 3-);peerName=$(docker run --rm --net=host --entrypoint=/bin/ip projects-stg.registry.vmware.com/tkg/kind/node:v1.23.8_vmware.2-tkg.1_v0.11.1 link | grep ^"$peerIdx":| awk -F[:@] '{ print $2 }' | cut -c 2-);docker run --rm --net=host --privileged --entrypoint=/usr/sbin/ethtool projects-stg.registry.vmware.com/tkg/kind/node:v1.23.8_vmware.2-tkg.1_v0.11.1 -K "$peerName" tx off
+            - op: add
+              path: /spec/template/spec/kubeadmConfigSpec/preKubeadmCommands/-
+              value: sysctl -w net.ipv4.tcp_retries2=4
+    - name: imageRepository
+      description: "Sets the imageRepository used for the KubeadmControlPlane."
+      definitions:
+        - selector:
+            apiVersion: controlplane.cluster.x-k8s.io/v1beta1
+            kind: KubeadmControlPlaneTemplate
+            matchResources:
+              controlPlane: true
+          jsonPatches:
+            - op: add
+              path: "/spec/template/spec/kubeadmConfigSpec/clusterConfiguration/imageRepository"
+              valueFrom:
+                variable: imageRepository
+    - name: cgroupDriver-controlPlane
+      description: |
+        Sets the cgroupDriver to cgroupfs if a Kubernetes version < v1.24 is referenced.
+        This is required because kind and the node images do not support the default
+        systemd cgroupDriver for kubernetes < v1.24.
+      enabledIf: '{{ semverCompare "<= v1.23" .builtin.controlPlane.version }}'
+      definitions:
+        - selector:
+            apiVersion: controlplane.cluster.x-k8s.io/v1beta1
+            kind: KubeadmControlPlaneTemplate
+            matchResources:
+              controlPlane: true
+          jsonPatches:
+            - op: add
+              path: "/spec/template/spec/kubeadmConfigSpec/initConfiguration/nodeRegistration/kubeletExtraArgs/cgroup-driver"
+              value: cgroupfs
+            - op: add
+              path: "/spec/template/spec/kubeadmConfigSpec/joinConfiguration/nodeRegistration/kubeletExtraArgs/cgroup-driver"
+              value: cgroupfs
+    - name: antrea-prekubeadm
+      definitions:
+        - selector:
+            apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
+            kind: KubeadmConfigTemplate
+            matchResources:
+              machineDeploymentClass:
+                names:
+                  - default-worker
+          jsonPatches:
+            - op: add
+              path: /spec/template/spec/preKubeadmCommands/-
+              value: curl https://get.docker.com/builds/Linux/x86_64/docker-1.12.0.tgz | tar zxOf - docker/docker > /usr/local/bin/docker;chmod +x /usr/local/bin/docker
+            - op: add
+              path: /spec/template/spec/preKubeadmCommands/-
+              value: peerIdx=$(ip link | grep eth0 | awk -F[@:] '{ print $3 }' | cut -c 3-);peerName=$(docker run --rm --net=host --entrypoint=/bin/ip projects-stg.registry.vmware.com/tkg/kind/node:v1.23.8_vmware.2-tkg.1_v0.11.1 link | grep ^"$peerIdx":| awk -F[:@] '{ print $2 }' | cut -c 2-);docker run --rm --net=host --privileged --entrypoint=/usr/sbin/ethtool projects-stg.registry.vmware.com/tkg/kind/node:v1.23.8_vmware.2-tkg.1_v0.11.1 -K "$peerName" tx off
+            - op: add
+              path: /spec/template/spec/preKubeadmCommands/-
+              value: sysctl -w net.ipv4.tcp_retries2=4
+    - name: cgroupDriver-machineDeployment
+      description: |
+        Sets the cgroupDriver to cgroupfs if a Kubernetes version < v1.24 is referenced.
+        This is required because kind and the node images do not support the default
+        systemd cgroupDriver for kubernetes < v1.24.
+      enabledIf: '{{ semverCompare "<= v1.23" .builtin.machineDeployment.version }}'
+      definitions:
+        - selector:
+            apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
+            kind: KubeadmConfigTemplate
+            matchResources:
+              machineDeploymentClass:
+                names:
+                  - default-worker
+          jsonPatches:
+            - op: add
+              path: "/spec/template/spec/joinConfiguration/nodeRegistration/kubeletExtraArgs/cgroup-driver"
+              value: cgroupfs
+    - name: customImage
+      description: "Sets the container image that is used for running dockerMachines for the controlPlane and default-worker machineDeployments."
+      definitions:
+        - selector:
+            apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+            kind: DockerMachineTemplate
+            matchResources:
+              machineDeploymentClass:
+                names:
+                  - default-worker
+          jsonPatches:
+            - op: add
+              path: "/spec/template/spec/customImage"
+              value: projects-stg.registry.vmware.com/tkg/kind/node:v1.23.8_vmware.2-tkg.1_v0.11.1
+        - selector:
+            apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+            kind: DockerMachineTemplate
+            matchResources:
+              controlPlane: true
+          jsonPatches:
+            - op: add
+              path: "/spec/template/spec/customImage"
+              value: projects-stg.registry.vmware.com/tkg/kind/node:v1.23.8_vmware.2-tkg.1_v0.11.1
+    - name: podSecurityStandard
+      description: "Adds an admission configuration for PodSecurity to the kube-apiserver."
+      definitions:
+        - selector:
+            apiVersion: controlplane.cluster.x-k8s.io/v1beta1
+            kind: KubeadmControlPlaneTemplate
+            matchResources:
+              controlPlane: true
+          jsonPatches:
+            - op: add
+              path: "/spec/template/spec/kubeadmConfigSpec/clusterConfiguration/apiServer/extraArgs"
+              value:
+                admission-control-config-file: "/etc/kubernetes/kube-apiserver-admission-pss.yaml"
+            - op: add
+              path: "/spec/template/spec/kubeadmConfigSpec/clusterConfiguration/apiServer/extraVolumes"
+              value:
+                - name: admission-pss
+                  hostPath: /etc/kubernetes/kube-apiserver-admission-pss.yaml
+                  mountPath: /etc/kubernetes/kube-apiserver-admission-pss.yaml
+                  readOnly: true
+                  pathType: "File"
+            - op: add
+              path: "/spec/template/spec/kubeadmConfigSpec/files"
+              valueFrom:
+                template: |
+                  - content: |
+                      apiVersion: apiserver.config.k8s.io/v1
+                      kind: AdmissionConfiguration
+                      plugins:
+                      - name: PodSecurity
+                        configuration:
+                          apiVersion: pod-security.admission.config.k8s.io/v1beta1
+                          kind: PodSecurityConfiguration
+                          defaults:
+                            enforce: "{{ .podSecurityStandard.enforce }}"
+                            enforce-version: "latest"
+                            audit: "{{ .podSecurityStandard.audit }}"
+                            audit-version: "latest"
+                            warn: "{{ .podSecurityStandard.warn }}"
+                            warn-version: "latest"
+                          exemptions:
+                            usernames: []
+                            runtimeClasses: []
+                            namespaces: [kube-system]
+                    path: /etc/kubernetes/kube-apiserver-admission-pss.yaml
+      enabledIf: "{{ .podSecurityStandard.enabled }}"
+---
+apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+kind: DockerClusterTemplate
+metadata:
+  name: quick-start-cluster
+spec:
+  template:
+    spec: {}
+---
+kind: KubeadmControlPlaneTemplate
+apiVersion: controlplane.cluster.x-k8s.io/v1beta1
+metadata:
+  name: quick-start-control-plane
+spec:
+  template:
+    spec:
+      kubeadmConfigSpec:
+        preKubeadmCommands:
+          - echo "running preKubeadmCommands…"
+        clusterConfiguration:
+          controllerManager:
+            extraArgs: { enable-hostpath-provisioner: 'true' }
+          apiServer:
+            certSANs: [localhost, 127.0.0.1, 0.0.0.0, host.docker.internal]
+          dns:
+            imageRepository: dummy.registry.vmware.com
+            imageTag: 1.8.4_dummy.5
+          etcd:
+            local:
+              dataDir: /var/lib/etcd
+              imageRepository: dummy.registry.vmware.com
+              imageTag: 1.8.4_dummy.5
+              extraArgs:
+                cipher-suites: TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
+          imageRepository: dummy.registry.vmware.com
+        initConfiguration:
+          nodeRegistration:
+            criSocket: unix:///var/run/containerd/containerd.sock
+            kubeletExtraArgs:
+              eviction-hard: 'nodefs.available<0%,nodefs.inodesFree<0%,imagefs.available<0%'
+        joinConfiguration:
+          nodeRegistration:
+            criSocket: unix:///var/run/containerd/containerd.sock
+            kubeletExtraArgs:
+              eviction-hard: 'nodefs.available<0%,nodefs.inodesFree<0%,imagefs.available<0%'
+---
+apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+kind: DockerMachineTemplate
+metadata:
+  name: quick-start-control-plane
+spec:
+  template:
+    spec:
+      extraMounts:
+        - containerPath: "/var/run/docker.sock"
+          hostPath: "/var/run/docker.sock"
+---
+apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+kind: DockerMachineTemplate
+metadata:
+  name: quick-start-default-worker-machinetemplate
+spec:
+  template:
+    spec:
+      extraMounts:
+        - containerPath: "/var/run/docker.sock"
+          hostPath: "/var/run/docker.sock"
+---
+apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
+kind: KubeadmConfigTemplate
+metadata:
+  name: quick-start-default-worker-bootstraptemplate
+spec:
+  template:
+    spec:
+      preKubeadmCommands:
+        - echo "running preKubeadmCommands…"
+      joinConfiguration:
+        nodeRegistration:
+          criSocket: unix:///var/run/containerd/containerd.sock
+          kubeletExtraArgs:
+            eviction-hard: 'nodefs.available<0%,nodefs.inodesFree<0%,imagefs.available<0%'
