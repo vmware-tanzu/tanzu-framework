@@ -12,11 +12,11 @@ import (
 	"testing"
 	"time"
 
-	azure "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/azure/mocks"
 	. "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/client"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/types"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/web/server/models"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/clientcreator"
+	azure "github.com/vmware-tanzu/tanzu-framework/tkg/azure/mocks"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/log"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/region"
