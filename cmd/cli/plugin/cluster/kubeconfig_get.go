@@ -15,7 +15,7 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/config"
 
 	tkgclient "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/client"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgctl"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/tkgctl"
 )
 
 type getClusterKubeconfigOptions struct {
