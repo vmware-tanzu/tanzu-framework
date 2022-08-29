@@ -13,12 +13,12 @@ import (
 	"github.com/otiai10/copy"
 	"github.com/stretchr/testify/assert"
 
+	"github.com/aunum/log"
 	cliv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/common"
+	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/common"
+	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/plugin"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/config"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/log"
 )
 
 const (

@@ -13,8 +13,8 @@ import (
 
 	"github.com/pkg/errors"
 
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfigpaths"
+	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/configpaths"
+	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfigreaderwriter"
 )
 
@@ -60,7 +60,7 @@ func GetCustomRepositoryCaCertificateForClient(tkgconfigReaderWriter tkgconfigre
 
 // AddRegistryTrustedRootCertsFileForWindows adds CA certificate to registry options for windows environments
 func AddRegistryTrustedRootCertsFileForWindows(registryOpts *ctlimg.Opts) error {
-	filePath, err := tkgconfigpaths.GetRegistryTrustedCACertFileForWindows()
+	filePath, err := configpaths.GetRegistryTrustedCACertFileForWindows()
 	if err != nil {
 		return err
 	}

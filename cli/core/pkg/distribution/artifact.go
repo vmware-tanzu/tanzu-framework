@@ -7,7 +7,7 @@ import (
 	"github.com/pkg/errors"
 
 	cliv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/artifact"
+	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/artifact"
 )
 
 // Artifact points to an individual plugin binary specific to a version and

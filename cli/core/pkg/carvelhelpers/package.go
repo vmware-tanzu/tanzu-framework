@@ -9,7 +9,7 @@ import (
 
 	"github.com/pkg/errors"
 
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/utils"
+	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/utils"
 )
 
 // ProcessCarvelPackage processes a carvel package and returns a configuration YAML

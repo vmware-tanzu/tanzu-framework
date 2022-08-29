@@ -9,7 +9,7 @@ import (
 	"github.com/Masterminds/semver"
 
 	configv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/config/v1alpha1"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/common"
+	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/common"
 )
 
 // CheckDiscoveryName returns true if discovery name exists else return false
