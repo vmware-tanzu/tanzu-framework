@@ -4,7 +4,7 @@ directories:
   - directory: {}
     path: runcrds
   - directory: {}
-    path: crds
+    path: addonconfigscrds
   - manual: {}
     path: addons-manager.yaml
   - manual: {}

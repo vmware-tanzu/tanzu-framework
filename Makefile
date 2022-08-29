@@ -150,8 +150,6 @@ deploy: manifests tools ## Deploy controller in the configured Kubernetes cluste
 
 manifests: ## Generate manifests e.g. CRD, RBAC etc.
 	$(MAKE) generate-manifests CONTROLLER_GEN_SRC=./apis/...
-	$(MAKE) -C apis/cpi generate-manifests CONTROLLER_GEN_SRC=./...
-	$(MAKE) -C apis/cni generate-manifests CONTROLLER_GEN_SRC=./...
 	$(MAKE) -C apis/cli generate-manifests CONTROLLER_GEN_SRC=./...
 	$(MAKE) -C apis/config generate-manifests CONTROLLER_GEN_SRC=./...
 
@@ -160,8 +158,6 @@ generate-go: $(COUNTERFEITER) ## Generate code via go generate.
 
 generate: tools ## Generate code (legacy)
 	$(MAKE) generate-controller-code
-	$(MAKE) -C apis/cpi generate-controller-code
-	$(MAKE) -C apis/cni generate-controller-code
 	$(MAKE) -C apis/cli generate-controller-code
 	$(MAKE) -C apis/config generate-controller-code
 

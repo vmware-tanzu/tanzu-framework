@@ -20,9 +20,9 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/util"
 	"github.com/vmware-tanzu/tanzu-framework/addons/test/builder"
 	"github.com/vmware-tanzu/tanzu-framework/addons/test/testutil"
-	antreaconfigv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cni/v1alpha1"
-	vspherecpiv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cpi/v1alpha1"
-	vspherecsiv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/csi/v1alpha1"
+	antreaconfigv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/addonconfigs/cni/v1alpha1"
+	vspherecpiv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/addonconfigs/cpi/v1alpha1"
+	vspherecsiv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/addonconfigs/csi/v1alpha1"
 	runtanzuv1alpha3 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
 	tkgconstants "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
 

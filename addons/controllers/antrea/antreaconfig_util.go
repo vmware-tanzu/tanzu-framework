@@ -8,7 +8,7 @@ import (
 	clusterapiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
 
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/util"
-	cniv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cni/v1alpha1"
+	cniv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/addonconfigs/cni/v1alpha1"
 )
 
 // AntreaConfigSpec defines the desired state of AntreaConfig

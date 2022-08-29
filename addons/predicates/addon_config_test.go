@@ -11,7 +11,7 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
-	cniv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cni/v1alpha1"
+	cniv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/addonconfigs/cni/v1alpha1"
 )
 
 var _ = Describe("Addon config annotation predicate", func() {
