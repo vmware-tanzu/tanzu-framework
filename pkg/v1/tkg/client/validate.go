@@ -33,7 +33,7 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/tkg/clusterclient"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/tkgconfigbom"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/tkgconfighelper"
-	"github.com/vmware-tanzu/tanzu-framework/tkgconfigproviders"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/tkgconfigproviders"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/avi"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/aws"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/azure"
