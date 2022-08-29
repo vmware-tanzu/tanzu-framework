@@ -17,7 +17,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/test/framework"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgctl"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/tkgctl"
 )
 
 func E2EMhcCCSpec(context context.Context, inputGetter func() E2ECommonSpecInput) { //nolint:funlen
