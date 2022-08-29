@@ -21,3 +21,5 @@ workload_cluster_options:
   NODE_POOL_0_NAME: "workers-name-overwrite"
   CLUSTER_CLASS_FILE_PATH: /Users/clusterClass.yaml
   CLUSTER_CLASS_CB_FILE_PATH: ../test/data/testdata/customClusterBootstrapAntrea.yaml
+  E2E_CONFIG: ../test/config/docker.yaml
+
