@@ -18,8 +18,8 @@ import (
 	"github.com/vmware/govmomi/vim25/types"
 
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/fakes"
-	tkgtypes "github.com/vmware-tanzu/tanzu-framework/tkg/types"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/web/server/models"
+	tkgtypes "github.com/vmware-tanzu/tanzu-framework/tkg/types"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/vc"
 )
 
