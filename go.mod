@@ -39,7 +39,6 @@ require (
 	github.com/go-openapi/validate v0.19.8
 	github.com/gobwas/glob v0.2.3
 	github.com/golang-jwt/jwt v3.2.2+incompatible
-	github.com/golang/mock v1.6.0
 	github.com/golang/protobuf v1.5.2
 	github.com/google/go-cmp v0.5.8
 	github.com/google/go-containerregistry v0.7.0
@@ -52,7 +51,6 @@ require (
 	github.com/imdario/mergo v0.3.12
 	github.com/jeremywohl/flatten v1.0.1
 	github.com/jessevdk/go-flags v1.4.0
-	github.com/jinzhu/copier v0.3.5
 	github.com/juju/fslock v0.0.0-20160525022230-4d5c94c67b4b
 	github.com/k14s/imgpkg v0.17.0
 	github.com/k14s/kbld v0.32.0
@@ -102,7 +100,6 @@ require (
 	sigs.k8s.io/cluster-api-provider-aws v1.1.0
 	sigs.k8s.io/cluster-api-provider-azure v1.4.0
 	sigs.k8s.io/cluster-api-provider-vsphere v1.3.1
-	sigs.k8s.io/cluster-api/test v1.1.5
 	sigs.k8s.io/controller-runtime v0.11.2
 	sigs.k8s.io/controller-tools v0.7.0
 	sigs.k8s.io/kind v0.14.0
@@ -192,6 +189,7 @@ require (
 	github.com/hinshun/vt10x v0.0.0-20180809195222-d55458df857c // indirect
 	github.com/huandu/xstrings v1.3.2 // indirect
 	github.com/inconshreveable/mousetrap v1.0.0 // indirect
+	github.com/jinzhu/copier v0.3.5 // indirect
 	github.com/jmespath/go-jmespath v0.4.0 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
@@ -265,6 +263,7 @@ require (
 	k8s.io/klog/v2 v2.60.1 // indirect
 	k8s.io/kube-openapi v0.0.0-20220124234850-424119656bbf // indirect
 	k8s.io/kubectl v0.23.4 // indirect
+	sigs.k8s.io/cluster-api/test v1.1.5 // indirect
 	sigs.k8s.io/json v0.0.0-20211208200746-9f7c6b3444d2 // indirect
 	sigs.k8s.io/structured-merge-diff/v4 v4.2.1 // indirect
 )

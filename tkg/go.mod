@@ -18,6 +18,7 @@ require (
 	github.com/Azure/go-autorest/autorest/azure/auth v0.5.10
 	github.com/Masterminds/semver v1.5.0
 	github.com/apparentlymart/go-cidr v1.1.0
+	github.com/aunum/log v0.0.0-20200821225356-38d2e2c8b489
 	github.com/avinetworks/sdk v0.0.0-20201123134013-c157ef55b6f7
 	github.com/aws/aws-sdk-go v1.40.56
 	github.com/awslabs/goformation/v4 v4.19.5
@@ -31,6 +32,7 @@ require (
 	github.com/golang/mock v1.6.0
 	github.com/google/go-containerregistry v0.7.0
 	github.com/imdario/mergo v0.3.12
+	github.com/jinzhu/copier v0.3.5
 	github.com/juju/fslock v0.0.0-20160525022230-4d5c94c67b4b
 	github.com/k14s/imgpkg v0.17.0
 	github.com/mattn/go-isatty v0.0.14
@@ -53,6 +55,7 @@ require (
 	github.com/vmware-tanzu/tanzu-framework/apis/run v0.0.0-00010101000000-000000000000
 	github.com/vmware/govmomi v0.27.1
 	github.com/yalp/jsonpath v0.0.0-20180802001716-5cc68e5049a0
+	golang.org/x/mod v0.6.0-dev.0.20220106191415-9b9b3d81d5e3
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
 	gopkg.in/yaml.v2 v2.4.0
 	gopkg.in/yaml.v3 v3.0.1
@@ -96,7 +99,6 @@ require (
 	github.com/alessio/shellescape v1.4.1 // indirect
 	github.com/antlr/antlr4/runtime/Go/antlr v0.0.0-20220209173558-ad29539cd2e9 // indirect
 	github.com/asaskevich/govalidator v0.0.0-20210307081110-f21760c49a8d // indirect
-	github.com/aunum/log v0.0.0-20200821225356-38d2e2c8b489 // indirect
 	github.com/aws/amazon-vpc-cni-k8s v1.10.1 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/blang/semver v3.5.1+incompatible // indirect
@@ -154,7 +156,6 @@ require (
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/huandu/xstrings v1.3.2 // indirect
 	github.com/inconshreveable/mousetrap v1.0.0 // indirect
-	github.com/jinzhu/copier v0.3.5 // indirect
 	github.com/jmespath/go-jmespath v0.4.0 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
@@ -202,7 +203,6 @@ require (
 	go.uber.org/atomic v1.9.0 // indirect
 	go.uber.org/multierr v1.6.0 // indirect
 	golang.org/x/crypto v0.0.0-20220411220226-7b82a4e95df4 // indirect
-	golang.org/x/mod v0.6.0-dev.0.20220106191415-9b9b3d81d5e3 // indirect
 	golang.org/x/net v0.0.0-20220225172249-27dd8689420f // indirect
 	golang.org/x/oauth2 v0.0.0-20220309155454-6242fa91716a // indirect
 	golang.org/x/sys v0.0.0-20220319134239-a9b59b0215f8 // indirect
