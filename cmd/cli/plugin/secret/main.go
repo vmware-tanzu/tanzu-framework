@@ -6,15 +6,15 @@ package main
 import (
 	"os"
 
+	"github.com/aunum/log"
 	_ "k8s.io/client-go/plugin/pkg/client/auth"
 
 	cliv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/plugin"
+	"github.com/vmware-tanzu/tanzu-framework/packageclients/pkg/kappclient"
+	"github.com/vmware-tanzu/tanzu-framework/packageclients/pkg/packagedatamodel"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/buildinfo"
 	capdiscovery "github.com/vmware-tanzu/tanzu-framework/pkg/v1/sdk/capabilities/discovery"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/kappclient"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgpackagedatamodel"
-	"github.com/vmware-tanzu/tanzu-framework/tkg/log"
 )
 
 var descriptor = cliv1alpha1.PluginDescriptor{
@@ -59,6 +59,6 @@ func isSecretGenAPIAvailable(kubeCfgPath string) (bool, error) {
 		return false, err
 	}
 
-	apiGroup := capdiscovery.Group("secretGenAPIQuery", tkgpackagedatamodel.SecretGenAPIName).WithVersions(tkgpackagedatamodel.SecretGenAPIVersion).WithResource("secretexports")
+	apiGroup := capdiscovery.Group("secretGenAPIQuery", packagedatamodel.SecretGenAPIName).WithVersions(packagedatamodel.SecretGenAPIVersion).WithResource("secretexports")
 	return clusterQueryClient.Query(apiGroup).Execute()
 }

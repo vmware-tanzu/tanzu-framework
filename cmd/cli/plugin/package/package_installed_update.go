@@ -7,8 +7,8 @@ import (
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgpackageclient"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgpackagedatamodel"
+	"github.com/vmware-tanzu/tanzu-framework/packageclients/pkg/packageclient"
+	"github.com/vmware-tanzu/tanzu-framework/packageclients/pkg/packagedatamodel"
 )
 
 var packageInstalledUpdateCmd = &cobra.Command{
@@ -29,8 +29,8 @@ func init() {
 	packageInstalledUpdateCmd.Flags().StringVarP(&packageInstalledOp.PackageName, "package-name", "p", "", "The public name for the package, optional")
 	packageInstalledUpdateCmd.Flags().StringVarP(&packageInstalledOp.Namespace, "namespace", "n", "default", "The namespace to locate the installed package which needs to be updated")
 	packageInstalledUpdateCmd.Flags().BoolVarP(&packageInstalledOp.Wait, "wait", "", true, "Wait for the package reconciliation to complete, optional. To disable wait, specify --wait=false")
-	packageInstalledUpdateCmd.Flags().DurationVarP(&packageInstalledOp.PollInterval, "poll-interval", "", tkgpackagedatamodel.DefaultPollInterval, "Time interval between subsequent polls of package reconciliation status, optional")
-	packageInstalledUpdateCmd.Flags().DurationVarP(&packageInstalledOp.PollTimeout, "poll-timeout", "", tkgpackagedatamodel.DefaultPollTimeout, "Timeout value for polls of package reconciliation status, optional")
+	packageInstalledUpdateCmd.Flags().DurationVarP(&packageInstalledOp.PollInterval, "poll-interval", "", packagedatamodel.DefaultPollInterval, "Time interval between subsequent polls of package reconciliation status, optional")
+	packageInstalledUpdateCmd.Flags().DurationVarP(&packageInstalledOp.PollTimeout, "poll-timeout", "", packagedatamodel.DefaultPollTimeout, "Timeout value for polls of package reconciliation status, optional")
 	packageInstalledCmd.AddCommand(packageInstalledUpdateCmd)
 }
 
@@ -50,10 +50,10 @@ func packageUpdate(cmd *cobra.Command, args []string) error {
 		}
 	}
 
-	pkgClient, err := tkgpackageclient.NewTKGPackageClient(kubeConfig)
+	pkgClient, err := packageclient.NewPackageClient(kubeConfig)
 	if err != nil {
 		return err
 	}
 
-	return pkgClient.UpdatePackageSync(packageInstalledOp, tkgpackagedatamodel.OperationTypeUpdate)
+	return pkgClient.UpdatePackageSync(packageInstalledOp, packagedatamodel.OperationTypeUpdate)
 }

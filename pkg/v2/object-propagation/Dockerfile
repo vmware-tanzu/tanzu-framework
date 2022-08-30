@@ -15,6 +15,7 @@ COPY go.mod go.mod
 COPY go.sum go.sum
 COPY apis/ apis/
 COPY cli/runtime cli/runtime
+COPY packageclients/ packageclients/
 COPY tkg/ tkg/
 
 RUN  go mod download

@@ -15,10 +15,9 @@ import (
 	crtclient "sigs.k8s.io/controller-runtime/pkg/client"
 
 	kappipkg "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/packaging/v1alpha1"
-
+	"github.com/vmware-tanzu/tanzu-framework/packageclients/pkg/packageclient"
+	"github.com/vmware-tanzu/tanzu-framework/packageclients/pkg/packagedatamodel"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/clusterclient"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgpackageclient"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgpackagedatamodel"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/log"
 )
@@ -57,7 +56,7 @@ func InstallManagementComponents(mcip *ManagementComponentsInstallOptions) error
 	}
 
 	// create package client
-	pkgClient, err := tkgpackageclient.NewTKGPackageClientForContext(mcip.ClusterOptions.Kubeconfig, mcip.ClusterOptions.Kubecontext)
+	pkgClient, err := packageclient.NewPackageClientForContext(mcip.ClusterOptions.Kubeconfig, mcip.ClusterOptions.Kubecontext)
 	if err != nil {
 		return err
 	}
@@ -103,7 +102,7 @@ func InstallKappController(clusterClient clusterclient.Client, kappControllerOpt
 }
 
 // InstallManagementPackages installs TKG management packages to the cluster
-func InstallManagementPackages(pkgClient tkgpackageclient.TKGPackageClient, mpro ManagementPackageRepositoryOptions) error {
+func InstallManagementPackages(pkgClient packageclient.PackageClient, mpro ManagementPackageRepositoryOptions) error {
 	// install management package repository
 	err := installManagementPackageRepository(pkgClient, mpro)
 	if err != nil {
@@ -119,8 +118,8 @@ func InstallManagementPackages(pkgClient tkgpackageclient.TKGPackageClient, mpro
 	return nil
 }
 
-func installManagementPackageRepository(pkgClient tkgpackageclient.TKGPackageClient, mpro ManagementPackageRepositoryOptions) error {
-	repositoryOptions := tkgpackagedatamodel.NewRepositoryOptions()
+func installManagementPackageRepository(pkgClient packageclient.PackageClient, mpro ManagementPackageRepositoryOptions) error {
+	repositoryOptions := packagedatamodel.NewRepositoryOptions()
 	repositoryOptions.RepositoryName = constants.TKGManagementPackageRepositoryName
 	repositoryOptions.RepositoryURL = mpro.ManagementPackageRepoImage
 	repositoryOptions.Namespace = constants.TkgNamespace
@@ -129,11 +128,11 @@ func installManagementPackageRepository(pkgClient tkgpackageclient.TKGPackageCli
 	repositoryOptions.PollInterval = packagePollInterval
 	repositoryOptions.PollTimeout = packagePollTimeout
 
-	return pkgClient.UpdateRepositorySync(repositoryOptions, tkgpackagedatamodel.OperationTypeUpdate)
+	return pkgClient.UpdateRepositorySync(repositoryOptions, packagedatamodel.OperationTypeUpdate)
 }
 
-func installTKGManagementPackage(pkgClient tkgpackageclient.TKGPackageClient, mpro ManagementPackageRepositoryOptions) error {
-	packageOptions := tkgpackagedatamodel.NewPackageOptions()
+func installTKGManagementPackage(pkgClient packageclient.PackageClient, mpro ManagementPackageRepositoryOptions) error {
+	packageOptions := packagedatamodel.NewPackageOptions()
 	packageOptions.PackageName = constants.TKGManagementPackageName
 	packageOptions.PkgInstallName = constants.TKGManagementPackageInstallName
 	packageOptions.Namespace = constants.TkgNamespace
@@ -144,7 +143,7 @@ func installTKGManagementPackage(pkgClient tkgpackageclient.TKGPackageClient, mp
 	packageOptions.ValuesFile = mpro.TKGPackageValuesFile
 	packageOptions.Version = mpro.PackageVersion
 	packageOptions.Labels = map[string]string{constants.PackageTypeLabel: constants.PackageTypeManagement}
-	return pkgClient.InstallPackageSync(packageOptions, tkgpackagedatamodel.OperationTypeInstall)
+	return pkgClient.InstallPackageSync(packageOptions, packagedatamodel.OperationTypeInstall)
 }
 
 func WaitForManagementPackages(clusterClient clusterclient.Client, packageInstallTimeout time.Duration) error {

@@ -9,10 +9,10 @@ import (
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgpackagedatamodel"
+	"github.com/vmware-tanzu/tanzu-framework/packageclients/pkg/packagedatamodel"
 )
 
-var packageAvailableOp = tkgpackagedatamodel.NewPackageAvailableOptions()
+var packageAvailableOp = packagedatamodel.NewPackageAvailableOptions()
 
 var packageAvailableCmd = &cobra.Command{
 	Use:               "available",
@@ -30,10 +30,10 @@ func init() {
 func packagingAvailabilityCheck(_ *cobra.Command, _ []string) error {
 	found, err := isPackagingAPIAvailable(kubeConfig)
 	if err != nil {
-		return errors.Wrap(err, fmt.Sprintf("failed to check for the availability of '%s' API", tkgpackagedatamodel.PackagingAPIName))
+		return errors.Wrap(err, fmt.Sprintf("failed to check for the availability of '%s' API", packagedatamodel.PackagingAPIName))
 	}
 	if !found {
-		return fmt.Errorf(tkgpackagedatamodel.PackagingAPINotAvailable, tkgpackagedatamodel.PackagingAPIName, tkgpackagedatamodel.PackagingAPIVersion)
+		return fmt.Errorf(packagedatamodel.PackagingAPINotAvailable, packagedatamodel.PackagingAPIName, packagedatamodel.PackagingAPIVersion)
 	}
 
 	return nil

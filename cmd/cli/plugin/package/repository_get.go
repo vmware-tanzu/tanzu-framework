@@ -10,7 +10,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/component"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgpackageclient"
+	"github.com/vmware-tanzu/tanzu-framework/packageclients/pkg/packageclient"
 )
 
 var repositoryGetCmd = &cobra.Command{
@@ -36,7 +36,7 @@ func repositoryGet(cmd *cobra.Command, args []string) error {
 		return errors.New("incorrect number of input parameters. Usage: tanzu package repository get REPOSITORY_NAME [FLAGS]")
 	}
 
-	pkgClient, err := tkgpackageclient.NewTKGPackageClient(kubeConfig)
+	pkgClient, err := packageclient.NewPackageClient(kubeConfig)
 	if err != nil {
 		return err
 	}
@@ -52,7 +52,7 @@ func repositoryGet(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	repository, tag, err := tkgpackageclient.GetCurrentRepositoryAndTagInUse(packageRepository)
+	repository, tag, err := packageclient.GetCurrentRepositoryAndTagInUse(packageRepository)
 	if err != nil {
 		t.StopSpinner()
 		return err

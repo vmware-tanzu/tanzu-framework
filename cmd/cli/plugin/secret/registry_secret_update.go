@@ -6,12 +6,12 @@ package main
 import (
 	"fmt"
 
+	"github.com/aunum/log"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/component"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgpackageclient"
-	"github.com/vmware-tanzu/tanzu-framework/tkg/log"
+	"github.com/vmware-tanzu/tanzu-framework/packageclients/pkg/packageclient"
 )
 
 var registrySecretUpdateCmd = &cobra.Command{
@@ -70,7 +70,7 @@ func registrySecretUpdate(cmd *cobra.Command, args []string) error {
 		log.Info("\n")
 	}
 
-	pkgClient, err := tkgpackageclient.NewTKGPackageClient(kubeConfig)
+	pkgClient, err := packageclient.NewPackageClient(kubeConfig)
 	if err != nil {
 		return err
 	}

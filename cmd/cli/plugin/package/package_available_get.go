@@ -10,16 +10,16 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/aunum/log"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 
 	kapppkg "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apiserver/apis/datapackaging/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/component"
+	"github.com/vmware-tanzu/tanzu-framework/packageclients/pkg/kappclient"
+	"github.com/vmware-tanzu/tanzu-framework/packageclients/pkg/packageclient"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/openapischema"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/kappclient"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgpackageclient"
-	"github.com/vmware-tanzu/tanzu-framework/tkg/log"
 )
 
 var packageAvailableGetCmd = &cobra.Command{
@@ -153,7 +153,7 @@ func getValuesSchemaForPackage(namespace, name, version string, kc kappclient.Cl
 		log.Warningf("package '%s/%s' does not have any user configurable values in the '%s' namespace", pkgName, pkgVersion, packageAvailableOp.Namespace)
 		return nil
 	}
-	dataValuesSchemaParser, parseErr := tkgpackageclient.NewValuesSchemaParser(pkg.Spec.ValuesSchema)
+	dataValuesSchemaParser, parseErr := packageclient.NewValuesSchemaParser(pkg.Spec.ValuesSchema)
 	if parseErr != nil {
 		return parseErr
 	}

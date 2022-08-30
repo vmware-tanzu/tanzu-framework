@@ -18,7 +18,7 @@ import (
 	. "github.com/onsi/gomega"
 
 	kapppkg "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apiserver/apis/datapackaging/v1alpha1"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/fakes"
+	"github.com/vmware-tanzu/tanzu-framework/packageclients/pkg/fakes"
 )
 
 // This is a dummy package schema copied from external-dns

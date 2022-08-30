@@ -6,14 +6,14 @@ import (
 	"time"
 
 	clitest "github.com/vmware-tanzu/tanzu-framework/cli/runtime/test"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgpackagedatamodel"
+	"github.com/vmware-tanzu/tanzu-framework/packageclients/pkg/packagedatamodel"
 )
 
 type SecretPluginBase interface {
-	AddRegistrySecret(o *tkgpackagedatamodel.RegistrySecretOptions) SecretPluginResult
-	UpdateRegistrySecret(o *tkgpackagedatamodel.RegistrySecretOptions) SecretPluginResult
-	DeleteRegistrySecret(o *tkgpackagedatamodel.RegistrySecretOptions) SecretPluginResult
-	ListRegistrySecret(o *tkgpackagedatamodel.RegistrySecretOptions) SecretPluginResult
+	AddRegistrySecret(o *packagedatamodel.RegistrySecretOptions) SecretPluginResult
+	UpdateRegistrySecret(o *packagedatamodel.RegistrySecretOptions) SecretPluginResult
+	DeleteRegistrySecret(o *packagedatamodel.RegistrySecretOptions) SecretPluginResult
+	ListRegistrySecret(o *packagedatamodel.RegistrySecretOptions) SecretPluginResult
 }
 
 type SecretPlugin interface {
@@ -77,7 +77,7 @@ func (p *secretPlugin) addVerbose(cmd string) string {
 	return cmd
 }
 
-func (p *secretPlugin) AddRegistrySecret(o *tkgpackagedatamodel.RegistrySecretOptions) SecretPluginResult {
+func (p *secretPlugin) AddRegistrySecret(o *packagedatamodel.RegistrySecretOptions) SecretPluginResult {
 	var result SecretPluginResult
 	cmd := fmt.Sprintf("tanzu secret registry add %s --server %s --username %s", o.SecretName, o.Server, o.Username)
 	if o.Namespace != "" {
@@ -105,7 +105,7 @@ func (p *secretPlugin) AddRegistrySecret(o *tkgpackagedatamodel.RegistrySecretOp
 	return result
 }
 
-func (p *secretPlugin) DeleteRegistrySecret(o *tkgpackagedatamodel.RegistrySecretOptions) SecretPluginResult {
+func (p *secretPlugin) DeleteRegistrySecret(o *packagedatamodel.RegistrySecretOptions) SecretPluginResult {
 	var result SecretPluginResult
 	cmd := fmt.Sprintf("tanzu secret registry delete %s", o.SecretName)
 	if o.Namespace != "" {
@@ -121,7 +121,7 @@ func (p *secretPlugin) DeleteRegistrySecret(o *tkgpackagedatamodel.RegistrySecre
 	return result
 }
 
-func (p *secretPlugin) ListRegistrySecret(o *tkgpackagedatamodel.RegistrySecretOptions) SecretPluginResult {
+func (p *secretPlugin) ListRegistrySecret(o *packagedatamodel.RegistrySecretOptions) SecretPluginResult {
 	var result SecretPluginResult
 	cmd := fmt.Sprintf("tanzu secret registry list")
 	if o.AllNamespaces {
@@ -138,7 +138,7 @@ func (p *secretPlugin) ListRegistrySecret(o *tkgpackagedatamodel.RegistrySecretO
 	return result
 }
 
-func (p *secretPlugin) UpdateRegistrySecret(o *tkgpackagedatamodel.RegistrySecretOptions) SecretPluginResult {
+func (p *secretPlugin) UpdateRegistrySecret(o *packagedatamodel.RegistrySecretOptions) SecretPluginResult {
 	var result SecretPluginResult
 	cmd := fmt.Sprintf("tanzu secret registry update %s", o.SecretName)
 	if o.Namespace != "" {

@@ -7,7 +7,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/component"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/kappclient"
+	"github.com/vmware-tanzu/tanzu-framework/packageclients/pkg/kappclient"
 )
 
 var packageInstalledListCmd = &cobra.Command{

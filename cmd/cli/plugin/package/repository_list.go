@@ -9,8 +9,8 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/component"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgpackageclient"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgpackagedatamodel"
+	"github.com/vmware-tanzu/tanzu-framework/packageclients/pkg/packageclient"
+	"github.com/vmware-tanzu/tanzu-framework/packageclients/pkg/packagedatamodel"
 )
 
 var repositoryListCmd = &cobra.Command{
@@ -34,7 +34,7 @@ func init() {
 }
 
 func repositoryList(cmd *cobra.Command, _ []string) error {
-	pkgClient, err := tkgpackageclient.NewTKGPackageClient(kubeConfig)
+	pkgClient, err := packageclient.NewPackageClient(kubeConfig)
 	if err != nil {
 		return err
 	}
@@ -65,12 +65,12 @@ func repositoryList(cmd *cobra.Command, _ []string) error {
 		packageRepository := packageRepositoryList.Items[i]
 		status := packageRepository.Status.FriendlyDescription
 		details := packageRepository.Status.UsefulErrorMessage
-		imageRepository, tag, _ := tkgpackageclient.GetCurrentRepositoryAndTagInUse(&packageRepository)
-		if len(status) > tkgpackagedatamodel.ShortDescriptionMaxLength {
-			status = fmt.Sprintf("%s...", status[:tkgpackagedatamodel.ShortDescriptionMaxLength])
+		imageRepository, tag, _ := packageclient.GetCurrentRepositoryAndTagInUse(&packageRepository)
+		if len(status) > packagedatamodel.ShortDescriptionMaxLength {
+			status = fmt.Sprintf("%s...", status[:packagedatamodel.ShortDescriptionMaxLength])
 		}
-		if len(details) > tkgpackagedatamodel.ShortDescriptionMaxLength {
-			details = fmt.Sprintf("%s...", details[:tkgpackagedatamodel.ShortDescriptionMaxLength])
+		if len(details) > packagedatamodel.ShortDescriptionMaxLength {
+			details = fmt.Sprintf("%s...", details[:packagedatamodel.ShortDescriptionMaxLength])
 		}
 
 		if repoOp.AllNamespaces {

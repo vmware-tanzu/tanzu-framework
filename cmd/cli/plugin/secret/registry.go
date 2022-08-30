@@ -9,10 +9,10 @@ import (
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgpackagedatamodel"
+	"github.com/vmware-tanzu/tanzu-framework/packageclients/pkg/packagedatamodel"
 )
 
-var registrySecretOp = tkgpackagedatamodel.NewRegistrySecretOptions()
+var registrySecretOp = packagedatamodel.NewRegistrySecretOptions()
 
 var registrySecretCmd = &cobra.Command{
 	Use:               "registry",
@@ -30,10 +30,10 @@ func init() {
 func secretGenAvailabilityCheck(_ *cobra.Command, _ []string) error {
 	found, err := isSecretGenAPIAvailable(kubeConfig)
 	if err != nil {
-		return errors.Wrap(err, fmt.Sprintf("failed to check for the availability of '%s' API", tkgpackagedatamodel.SecretGenAPIName))
+		return errors.Wrap(err, fmt.Sprintf("failed to check for the availability of '%s' API", packagedatamodel.SecretGenAPIName))
 	}
 	if !found {
-		return fmt.Errorf(tkgpackagedatamodel.SecretGenAPINotAvailable, tkgpackagedatamodel.SecretGenAPIName, tkgpackagedatamodel.SecretGenAPIVersion)
+		return fmt.Errorf(packagedatamodel.SecretGenAPINotAvailable, packagedatamodel.SecretGenAPIName, packagedatamodel.SecretGenAPIVersion)
 	}
 
 	return nil

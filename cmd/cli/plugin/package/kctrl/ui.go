@@ -8,12 +8,12 @@ import (
 	"io"
 	"strings"
 
+	"github.com/aunum/log"
 	"github.com/cppforlife/go-cli-ui/ui"
 	uitable "github.com/cppforlife/go-cli-ui/ui/table"
 	"github.com/spf13/cobra"
 
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/component"
-	"github.com/vmware-tanzu/tanzu-framework/tkg/log"
 )
 
 type AdapterUI struct {
