@@ -96,7 +96,7 @@ jobs:
         make configure-bom
         make generate-embedproviders
         cd tkg
-        E2E_CONFIG=$PWD/tkg/test/config/docker.yaml ../hack/tools/bin/ginkgo -nodes=3 -v -trace -tags embedproviders tkg/test/tkgctl/docker
+        E2E_CONFIG=$PWD/test/config/docker.yaml ../hack/tools/bin/ginkgo -nodes=3 -v -trace -tags embedproviders test/tkgctl/docker
 
   integ-tests-azure:
     name: TKG Integration Tests CAPZ
