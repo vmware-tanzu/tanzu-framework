@@ -7,7 +7,7 @@ on:
       - '.github/workflows/tkgpackage_integration_test.yaml'
       - 'pkg/v1/tkg/tkgpackage*/*'
       - 'tkg/kappclient/*'
-      - 'pkg/v1/tkg/test/tkgpackageclient/**'
+      - 'tkg/test/tkgpackageclient/**'
       - 'cmd/cli/plugin/package/**'
       - 'pkg/v1/tkg/tkgctl'
       - 'pkg/v1/cli/component'
@@ -99,4 +99,6 @@ jobs:
           make build-cli-local
           make install-cli
           make install-cli-plugins
-          E2E_CONFIG=$PWD/tkg/test/tkgpackageclient/config/package_plugin_config.yaml hack/tools/bin/ginkgo -v -trace -tags embedproviders tkg/test/tkgpackageclient
+          pushd tkg
+          E2E_CONFIG=$PWD/test/tkgpackageclient/config/package_plugin_config.yaml ../hack/tools/bin/ginkgo -v -trace -tags embedproviders test/tkgpackageclient
+          popd

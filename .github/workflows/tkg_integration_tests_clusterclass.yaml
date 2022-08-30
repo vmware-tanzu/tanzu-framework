@@ -14,7 +14,7 @@ on:
       - 'packages/**'
       - '!pkg/v1/tkg/tkgpackage*/*'
       - '!tkg/kappclient/*'
-      - '!pkg/v1/tkg/test/tkgpackageclient/**'
+      - '!tkg/test/tkgpackageclient/**'
       - 'pkg/v1/providers/**'
       - '.github/workflows/tkg_integration_tests*.yaml'
 
@@ -31,7 +31,7 @@ on:
     - 'packages/**'
     - '!pkg/v1/tkg/tkgpackage*/*'
     - '!tkg/kappclient/*'
-    - '!pkg/v1/tkg/test/tkgpackageclient/**'
+    - '!tkg/test/tkgpackageclient/**'
     - 'pkg/v1/providers/**'
     - '.github/workflows/tkg_integration_tests*.yaml'
 
@@ -169,7 +169,7 @@ jobs:
           IMG_VERSION_OVERRIDE: latest
         run: |
           make docker-publish
-          cp pkg/v1/tkg/test/config/packages/core-management-plugins/kbld-config_test.yaml packages/core-management-plugins/kbld-config.yaml
+          cp tkg/test/config/packages/core-management-plugins/kbld-config_test.yaml packages/core-management-plugins/kbld-config.yaml
           make kbld-image-replace
           make package-push-bundles-repo PACKAGE_REPOSITORY=management
           make clean-registry
@@ -192,14 +192,14 @@ jobs:
       - uses: microsoft/variable-substitution@v1
         if: ${{ env.aws_client_id != '' }}
         with:
-          files: 'pkg/v1/tkg/test/config/aws.yaml'
+          files: 'tkg/test/config/aws.yaml'
         env:
           tkg_config_variables.AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           tkg_config_variables.AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           tkg_config_variables.AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
           cluster_prefix: ${{ env.CLUSTER_PREFIX }}
       - run: |
-          cat pkg/v1/tkg/test/config/aws.yaml
+          cat tkg/test/config/aws.yaml
 
       - name: Run TKG integration tests
         if: ${{ env.aws_client_id != '' }}
@@ -209,7 +209,9 @@ jobs:
           fi
           make configure-bom
           make generate-embedproviders
-          E2E_CONFIG=$PWD/tkg/test/config/aws.yaml hack/tools/bin/ginkgo -nodes=3 -v -trace -tags embedproviders tkg/test/tkgctl/aws_cc
+          pushd tkg
+          E2E_CONFIG=$PWD/test/config/aws.yaml ../hack/tools/bin/ginkgo -nodes=3 -v -trace -tags embedproviders test/tkgctl/aws_cc
+          popd
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -222,6 +224,6 @@ jobs:
       - name: Cleanup AWS resources
         if: ${{ always() }}
         run: |
-          pkg/v1/tkg/test/scripts/aws_cleanup.sh ${{ secrets.AWS_ACCESS_KEY_ID }} ${{ secrets.AWS_SECRET_ACCESS_KEY }} "" "us-west-2" ${{ env.CLUSTER_PREFIX }}
+          tkg/test/scripts/aws_cleanup.sh ${{ secrets.AWS_ACCESS_KEY_ID }} ${{ secrets.AWS_SECRET_ACCESS_KEY }} "" "us-west-2" ${{ env.CLUSTER_PREFIX }}
         env:
           cluster_prefix: ${{ env.CLUSTER_PREFIX }}
