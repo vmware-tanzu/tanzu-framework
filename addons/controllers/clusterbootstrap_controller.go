@@ -67,7 +67,6 @@ type ClusterBootstrapReconciler struct {
 	aggregatedAPIResourcesClient client.Client
 	// helper for looking up api-resources and getting preferred versions
 	gvrHelper util.GVRHelper
-	cbHelper  *clusterbootstrapclone.Helper
 }
 
 // NewClusterBootstrapReconciler returns a reconciler for ClusterBootstrap
@@ -382,25 +381,25 @@ func (r *ClusterBootstrapReconciler) createOrPatchClusterBootstrapFromTemplate(c
 		return clusterBootstrap, nil
 	}
 
-	r.cbHelper = clusterbootstrapclone.NewHelper(
+	clusterBootstrapHelper := clusterbootstrapclone.NewHelper(
 		r.context, r.Client, r.aggregatedAPIResourcesClient, r.dynamicClient, r.gvrHelper, r.Log)
 	if clusterBootstrap.UID == "" {
 		// When ClusterBootstrap.UID is empty, that means this is the ClusterBootstrap CR about to be created by clusterbootstrap_controller.
 		// And clusterBootstrap.Status.ResolvedTKR will be updated accordingly.
 		log.Info(fmt.Sprintf("ClusterBootstrap for cluster %s/%s does not exist, creating from template %s/%s",
 			cluster.Namespace, cluster.Name, clusterBootstrapTemplate.Namespace, clusterBootstrapTemplate.Name))
-		return r.cbHelper.CreateClusterBootstrapFromTemplate(clusterBootstrapTemplate, cluster, tkrName)
+		return clusterBootstrapHelper.CreateClusterBootstrapFromTemplate(clusterBootstrapTemplate, cluster, tkrName)
 	} else if clusterBootstrap.Status.ResolvedTKR == "" {
 		// Possible cases fall into this block:
 		// 1. ClusterBootstrap CR has been created by clusterbootstrap_controller in first reconciliation but errored out before clusterBootstrap.Status was set. The clusterbootstrap_controller reconciles again.
 		// 2. ClusterBootstrap CR is created by third party(e.g. Tanzu CLI). The clusterbootstrap_controller catches the event and reconciles.
 		log.Info(fmt.Sprintf("Handling existing ClusterBootstrap %s/%s", clusterBootstrap.Namespace, clusterBootstrap.Name))
-		return r.cbHelper.HandleExistingClusterBootstrap(clusterBootstrap, cluster, tkrName, r.Config.SystemNamespace)
+		return clusterBootstrapHelper.HandleExistingClusterBootstrap(clusterBootstrap, cluster, tkrName, r.Config.SystemNamespace)
 	}
 	// Handle ClusterBootstrap update when TKR version of the cluster is upgraded
 	if tkrName != clusterBootstrap.Status.ResolvedTKR {
 		log.Info(fmt.Sprintf("Upgrading ClusterBootstrap from TKR %s to TKR %s", clusterBootstrap.Status.ResolvedTKR, tkrName))
-		return r.patchClusterBootstrapFromTemplate(cluster, clusterBootstrap, clusterBootstrapTemplate, r.cbHelper, tkrName, log)
+		return r.patchClusterBootstrapFromTemplate(cluster, clusterBootstrap, clusterBootstrapTemplate, clusterBootstrapHelper, tkrName, log)
 	}
 	return nil, errors.New("should not happen")
 }
@@ -1143,6 +1142,8 @@ func (r *ClusterBootstrapReconciler) GetDataValueSecretNameFromBootstrapPackage(
 	}
 
 	if cbPkg.ValuesFrom != nil {
+		clusterBootstrapHelper := clusterbootstrapclone.NewHelper(
+			r.context, r.Client, r.aggregatedAPIResourcesClient, r.dynamicClient, r.gvrHelper, r.Log)
 		if cbPkg.ValuesFrom.Inline != nil {
 			packageSecretName := util.GeneratePackageSecretName(cluster.Name, packageRefName)
 			secret := &corev1.Secret{}
@@ -1150,7 +1151,7 @@ func (r *ClusterBootstrapReconciler) GetDataValueSecretNameFromBootstrapPackage(
 			if err = r.Get(r.context, key, secret); err != nil {
 				if apierrors.IsNotFound(err) {
 					// secret for package with inline does not exist, we should create one
-					_, err := r.cbHelper.CreateSecretFromInline(cluster, cbPkg, packageRefName)
+					_, err := clusterBootstrapHelper.CreateSecretFromInline(cluster, cbPkg, packageRefName)
 					if err != nil {
 						return "", err
 					}
@@ -1159,7 +1160,7 @@ func (r *ClusterBootstrapReconciler) GetDataValueSecretNameFromBootstrapPackage(
 					return "", err
 				}
 			} else {
-				_, err = r.cbHelper.CreateOrPatchInlineSecret(cluster, cbPkg, secret)
+				_, err = clusterBootstrapHelper.CreateOrPatchInlineSecret(cluster, cbPkg, secret)
 				if err != nil {
 					return "", err
 				}
