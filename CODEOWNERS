@@ -1,6 +1,7 @@
 * @vmware-tanzu/tanzu-framework-reviewers
 /addons @vmware-tanzu/tanzu-framework-reviewers @vmware-tanzu/tkg-addons-owners
 /addons/pinniped @vmware-tanzu/tanzu-framework-reviewers @vmware-tanzu/tkg-iam-owners
+/pinniped-components @vmware-tanzu/tanzu-framework-reviewers @vmware-tanzu/tkg-iam-owners
 /cmd/cli @vmware-tanzu/tanzu-framework-reviewers
 /cmd/cli/plugin/package @vmware-tanzu/tanzu-framework-reviewers @vmware-tanzu/tkg-addons-owners
 /cmd/cli/plugin/package/kctrl @vmware-tanzu/carvel-writers

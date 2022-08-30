@@ -25,6 +25,7 @@ addons/artifacts
 addons/controllers/testdata/internal-crds
 pinniped/
 !addons/pinniped/
+!pinniped-components/
 
 # providers/clustergen-related files
 provider-bundle
