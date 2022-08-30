@@ -37,13 +37,6 @@ require (
 	github.com/go-openapi/validate v0.19.8
 	github.com/golang/mock v1.6.0
 	github.com/google/go-containerregistry v0.7.0
-<<<<<<< HEAD
-	github.com/gorilla/websocket v1.5.0
-=======
-	github.com/google/uuid v1.3.0
-	github.com/googleapis/gnostic v0.5.5
-	github.com/gosuri/uitable v0.0.4
->>>>>>> sathya/test4
 	github.com/imdario/mergo v0.3.12
 	github.com/jessevdk/go-flags v1.4.0
 	github.com/jinzhu/copier v0.3.5
