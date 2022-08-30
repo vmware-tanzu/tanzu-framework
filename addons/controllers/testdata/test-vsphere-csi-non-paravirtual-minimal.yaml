@@ -63,6 +63,8 @@ data:
 apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
 kind: VSphereCluster
 metadata:
+  labels:
+    cluster.x-k8s.io/cluster-name: test-cluster-csi-minimal
   name: test-cluster-csi-minimal
   namespace: default
 spec:

@@ -11,8 +11,11 @@ import (
 	"github.com/pkg/errors"
 	v1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
+	"k8s.io/apimachinery/pkg/labels"
+	"k8s.io/apimachinery/pkg/selection"
 	"k8s.io/apimachinery/pkg/types"
 	capvv1beta1 "sigs.k8s.io/cluster-api-provider-vsphere/apis/v1beta1"
+	capvvmwarev1beta1 "sigs.k8s.io/cluster-api-provider-vsphere/apis/vmware/v1beta1"
 	clusterapiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/log"
@@ -20,19 +23,44 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/util"
 )
 
-// GetVSphereCluster gets the VSphereCluster CR for the cluster object
-func GetVSphereCluster(ctx context.Context, clt client.Client, cluster *clusterapiv1beta1.Cluster) (*capvv1beta1.VSphereCluster, error) {
-	vsphereCluster := &capvv1beta1.VSphereCluster{}
-	if err := clt.Get(ctx, types.NamespacedName{
-		Namespace: cluster.Namespace,
-		Name:      cluster.Name,
-	}, vsphereCluster); err != nil {
-		if apierrors.IsNotFound(err) {
-			return nil, errors.Errorf("VSphereCluster %s/%s not found", cluster.Namespace, cluster.Name)
-		}
-		return nil, errors.Errorf("VSphereCluster %s/%s could not be fetched, error %v", cluster.Namespace, cluster.Name, err)
+// GetVSphereClusterParavirtual gets the VSphereCluster CR for the cluster object in paravirtual mode
+func GetVSphereClusterParavirtual(ctx context.Context, clt client.Client, cluster *clusterapiv1beta1.Cluster) (*capvvmwarev1beta1.VSphereCluster, error) {
+
+	vsphereClusters := &capvvmwarev1beta1.VSphereClusterList{}
+	labelMatch, err := labels.NewRequirement(clusterapiv1beta1.ClusterLabelName, selection.Equals, []string{cluster.Name})
+	if err != nil {
+		return nil, err
 	}
-	return vsphereCluster, nil
+	labelSelector := labels.NewSelector()
+	labelSelector = labelSelector.Add(*labelMatch)
+	if err := clt.List(ctx, vsphereClusters, &client.ListOptions{LabelSelector: labelSelector, Namespace: cluster.Namespace}); err != nil {
+		return nil, err
+	}
+	if len(vsphereClusters.Items) != 1 {
+		return nil, fmt.Errorf("expected to find 1 VSphereCluster object for label key %s and value %s but found %d",
+			clusterapiv1beta1.ClusterLabelName, cluster.Name, len(vsphereClusters.Items))
+	}
+	return &vsphereClusters.Items[0], nil
+}
+
+// GetVSphereClusterNonParavirtual gets the VSphereCluster CR for the cluster object in non-paravirtual mode
+func GetVSphereClusterNonParavirtual(ctx context.Context, clt client.Client, cluster *clusterapiv1beta1.Cluster) (*capvv1beta1.VSphereCluster, error) {
+
+	vsphereClusters := &capvv1beta1.VSphereClusterList{}
+	labelMatch, err := labels.NewRequirement(clusterapiv1beta1.ClusterLabelName, selection.Equals, []string{cluster.Name})
+	if err != nil {
+		return nil, err
+	}
+	labelSelector := labels.NewSelector()
+	labelSelector = labelSelector.Add(*labelMatch)
+	if err := clt.List(ctx, vsphereClusters, &client.ListOptions{LabelSelector: labelSelector, Namespace: cluster.Namespace}); err != nil {
+		return nil, err
+	}
+	if len(vsphereClusters.Items) != 1 {
+		return nil, fmt.Errorf("expected to find 1 VSphereCluster object for label key %s and value %s but found %d",
+			clusterapiv1beta1.ClusterLabelName, cluster.Name, len(vsphereClusters.Items))
+	}
+	return &vsphereClusters.Items[0], nil
 }
 
 // ControlPlaneName returns the control plane name for a cluster name

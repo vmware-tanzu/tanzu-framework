@@ -91,7 +91,7 @@ func (r *VSphereCSIConfigReconciler) mapVSphereCSIConfigToDataValuesNonParavirtu
 	dvs.VSphereCSI = &DataValuesVSphereCSI{}
 	dvs.VSphereCSI.ClusterName = cluster.Name
 
-	vsphereCluster, err := cutil.GetVSphereCluster(ctx, r.Client, cluster)
+	vsphereCluster, err := cutil.GetVSphereClusterNonParavirtual(ctx, r.Client, cluster)
 	if err != nil {
 		return nil, err
 	}
