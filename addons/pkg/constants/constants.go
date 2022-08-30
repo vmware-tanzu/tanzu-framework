@@ -262,6 +262,9 @@ const (
 	// InfrastructureRefVSphere is the vSphere infrastructure
 	InfrastructureRefVSphere = "VSphereCluster"
 
+	// InfrastructureRefVSphereMachineTemplate is the vSphere infrastructure
+	InfrastructureRefVSphereMachineTemplate = "VSphereMachineTemplate"
+
 	// InfrastructureRefAWS is the AWS infrastructure
 	InfrastructureRefAWS = "AWSCluster"
 
