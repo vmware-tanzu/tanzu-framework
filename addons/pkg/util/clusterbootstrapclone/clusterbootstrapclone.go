@@ -565,8 +565,17 @@ func (h *Helper) CreateSecretFromInline(
 	inlineSecret.Name = util.GeneratePackageSecretName(cluster.Name, carvelPkgRefName)
 	// The secret will be created or patched under tkg-system namespace on remote cluster
 	inlineSecret.Namespace = cluster.Namespace
-	inlineSecret.Type = corev1.SecretTypeOpaque
 
+	return h.CreateOrPatchInlineSecret(cluster, cbPkg, inlineSecret)
+}
+
+// CreateOrPatchInlineSecret is a function that creates or patches a Secret resource from ClusterBootstrapPackage.ValuesFrom.Inline into the cluster namespace
+func (h *Helper) CreateOrPatchInlineSecret(
+	cluster *clusterapiv1beta1.Cluster,
+	cbPkg *runtanzuv1alpha3.ClusterBootstrapPackage,
+	inlineSecret *corev1.Secret) (*corev1.Secret, error) {
+
+	inlineSecret.Type = corev1.SecretTypeOpaque
 	opResult, createOrPatchErr := controllerutil.CreateOrPatch(h.Ctx, h.K8sClient, inlineSecret, func() error {
 		inlineSecret.OwnerReferences = []metav1.OwnerReference{
 			{
@@ -576,8 +585,9 @@ func (h *Helper) CreateSecretFromInline(
 				UID:        cluster.UID,
 			},
 		}
-
-		inlineSecret.StringData = make(map[string]string)
+		if inlineSecret.StringData == nil {
+			inlineSecret.StringData = make(map[string]string)
+		}
 		inlineConfigYamlBytes, err := yaml.Marshal(cbPkg.ValuesFrom.Inline)
 		if err != nil {
 			h.Logger.Error(err, "unable to marshal inline ValuesFrom")
@@ -586,7 +596,9 @@ func (h *Helper) CreateSecretFromInline(
 		inlineSecret.StringData[constants.TKGDataValueFileName] = string(inlineConfigYamlBytes)
 
 		// Add cluster and package labels to cloned secrets
-		inlineSecret.Labels = map[string]string{}
+		if inlineSecret.Labels == nil {
+			inlineSecret.Labels = make(map[string]string)
+		}
 		inlineSecret.Labels[addontypes.PackageNameLabel] = util.ParseStringForLabel(cbPkg.RefName)
 		inlineSecret.Labels[addontypes.ClusterNameLabel] = cluster.Name
 		// Set secret.Type to ClusterBootstrapManagedSecret to enable us to Watch these secrets
@@ -596,7 +608,7 @@ func (h *Helper) CreateSecretFromInline(
 	if createOrPatchErr != nil {
 		return nil, createOrPatchErr
 	}
-	h.Logger.Info(fmt.Sprintf("Secret %s/%s for inline ValuseFrom %s", inlineSecret.Namespace, inlineSecret.Name, opResult))
+	h.Logger.Info(fmt.Sprintf("Secret %s/%s for inline ValuesFrom %s", inlineSecret.Namespace, inlineSecret.Name, opResult))
 	return inlineSecret, nil
 }
 

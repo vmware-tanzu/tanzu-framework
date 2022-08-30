@@ -1148,11 +1148,18 @@ func (r *ClusterBootstrapReconciler) GetDataValueSecretNameFromBootstrapPackage(
 			secret := &corev1.Secret{}
 			key := client.ObjectKey{Namespace: cluster.Namespace, Name: packageSecretName}
 			if err = r.Get(r.context, key, secret); err != nil {
-				r.Log.Error(err, "unable to fetch secret for package with inline config", "objectkey", key)
-				return "", err
+				if apierrors.IsNotFound(err) {
+					// secret for package with inline does not exist, we should create one
+					_, err := r.cbHelper.CreateSecretFromInline(cluster, cbPkg, packageRefName)
+					if err != nil {
+						return "", err
+					}
+				} else {
+					r.Log.Error(err, "unable to fetch secret for package with inline config", "objectkey", key)
+					return "", err
+				}
 			} else {
-				// secret for package with inline does not exist, we should create one
-				_, err := r.cbHelper.CreateSecretFromInline(cluster, cbPkg, packageRefName)
+				_, err = r.cbHelper.CreateOrPatchInlineSecret(cluster, cbPkg, secret)
 				if err != nil {
 					return "", err
 				}
