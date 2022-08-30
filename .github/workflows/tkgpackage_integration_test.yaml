@@ -99,4 +99,4 @@ jobs:
           make build-cli-local
           make install-cli
           make install-cli-plugins
-          E2E_CONFIG=$PWD/pkg/v1/tkg/test/tkgpackageclient/config/package_plugin_config.yaml hack/tools/bin/ginkgo -v -trace -tags embedproviders pkg/v1/tkg/test/tkgpackageclient
+          E2E_CONFIG=$PWD/tkg/test/tkgpackageclient/config/package_plugin_config.yaml hack/tools/bin/ginkgo -v -trace -tags embedproviders tkg/test/tkgpackageclient
