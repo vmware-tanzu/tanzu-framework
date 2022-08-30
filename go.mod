@@ -29,7 +29,6 @@ require (
 	github.com/fatih/color v1.13.0
 	github.com/ghodss/yaml v1.0.0
 	github.com/go-logr/logr v1.2.2
-	github.com/go-openapi/swag v0.21.1
 	github.com/gobwas/glob v0.2.3
 	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/golang/protobuf v1.5.2
@@ -54,7 +53,6 @@ require (
 	github.com/onsi/gomega v1.19.0
 	github.com/otiai10/copy v1.4.2
 	github.com/pkg/errors v0.9.1
-	github.com/skratchdot/open-golang v0.0.0-20200116055534-eef842397966
 	github.com/spf13/afero v1.6.0
 	github.com/spf13/cobra v1.4.0
 	github.com/spf13/pflag v1.0.5
@@ -85,7 +83,6 @@ require (
 	k8s.io/utils v0.0.0-20220210201930-3a6ce19ff2f9
 	knative.dev/pkg v0.0.0-20220302134643-d2cdc682d974
 	sigs.k8s.io/cluster-api v1.1.5
-	sigs.k8s.io/cluster-api-provider-aws v1.1.0
 	sigs.k8s.io/cluster-api-provider-vsphere v1.3.1
 	sigs.k8s.io/controller-runtime v0.11.2
 	sigs.k8s.io/controller-tools v0.7.0
@@ -165,6 +162,7 @@ require (
 	github.com/go-openapi/runtime v0.19.4 // indirect
 	github.com/go-openapi/spec v0.19.5 // indirect
 	github.com/go-openapi/strfmt v0.19.5 // indirect
+	github.com/go-openapi/swag v0.21.1 // indirect
 	github.com/go-openapi/validate v0.19.8 // indirect
 	github.com/go-stack/stack v1.8.0 // indirect
 	github.com/gobuffalo/flect v0.2.4 // indirect
@@ -177,6 +175,8 @@ require (
 	github.com/google/go-querystring v1.1.0 // indirect
 	github.com/google/gofuzz v1.2.0 // indirect
 	github.com/googleapis/gax-go/v2 v2.1.1 // indirect
+	github.com/googleapis/gnostic v0.5.5 // indirect
+	github.com/gorilla/websocket v1.5.0 // indirect
 	github.com/hashicorp/go-version v1.4.0 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/hinshun/vt10x v0.0.0-20180809195222-d55458df857c // indirect
@@ -224,6 +224,7 @@ require (
 	github.com/sanathkr/yaml v0.0.0-20170819201035-0056894fa522 // indirect
 	github.com/shopspring/decimal v1.2.0 // indirect
 	github.com/sirupsen/logrus v1.8.1 // indirect
+	github.com/skratchdot/open-golang v0.0.0-20200116055534-eef842397966 // indirect
 	github.com/spf13/cast v1.4.1 // indirect
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
 	github.com/spf13/viper v1.10.1 // indirect
@@ -259,6 +260,7 @@ require (
 	k8s.io/klog/v2 v2.60.1 // indirect
 	k8s.io/kube-openapi v0.0.0-20220124234850-424119656bbf // indirect
 	k8s.io/kubectl v0.23.4 // indirect
+	sigs.k8s.io/cluster-api-provider-aws v1.1.0 // indirect
 	sigs.k8s.io/cluster-api-provider-azure v1.4.0 // indirect
 	sigs.k8s.io/cluster-api/test v1.1.5 // indirect
 	sigs.k8s.io/json v0.0.0-20211208200746-9f7c6b3444d2 // indirect
