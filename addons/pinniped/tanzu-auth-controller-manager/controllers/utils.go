@@ -17,8 +17,6 @@ import (
 	"k8s.io/apimachinery/pkg/types"
 	clusterapiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
-
-	tkgconstants "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
 )
 
 // secretIsType returns true if the secret type matches the given expectedType
@@ -80,14 +78,14 @@ func getInfraProvider(cluster *clusterapiv1beta1.Cluster) (string, error) {
 	}
 
 	switch infrastructureRef.Kind {
-	case tkgconstants.InfrastructureRefVSphere:
-		infraProvider = tkgconstants.InfrastructureProviderVSphere
-	case tkgconstants.InfrastructureRefAWS:
-		infraProvider = tkgconstants.InfrastructureProviderAWS
-	case tkgconstants.InfrastructureRefAzure:
-		infraProvider = tkgconstants.InfrastructureProviderAzure
+	case infrastructureRefVSphere:
+		infraProvider = infrastructureProviderVSphere
+	case infrastructureRefAWS:
+		infraProvider = infrastructureProviderAWS
+	case infrastructureRefAzure:
+		infraProvider = infrastructureProviderAzure
 	case infrastructureRefDocker:
-		infraProvider = tkgconstants.InfrastructureProviderDocker
+		infraProvider = infrastructureProviderDocker
 	default:
 		return "", fmt.Errorf("unknown cluster.Spec.InfrastructureRef.Kind is set for cluster '%s", cluster.Name)
 	}
@@ -216,7 +214,7 @@ func getMutateFn(secret *corev1.Secret, pinnipedInfoCM *corev1.ConfigMap, cluste
 				infraProvider = pinnipedDataValues.Infrastructure
 			} else {
 				log.Error(err, "unable to get infrastructure_provider, setting to vSphere")
-				infraProvider = tkgconstants.InfrastructureProviderVSphere
+				infraProvider = infrastructureProviderVSphere
 			}
 		}
 		pinnipedDataValues.Infrastructure = infraProvider

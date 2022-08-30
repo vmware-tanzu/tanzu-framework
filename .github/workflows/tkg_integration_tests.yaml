@@ -6,8 +6,8 @@ on:
     paths:
     - 'pkg/v1/tkg/**'
     - '!pkg/v1/tkg/tkgpackage*/*'
-    - '!pkg/v1/tkg/kappclient/*'
-    - '!pkg/v1/tkg/test/tkgpackageclient/**'
+    - '!tkg/kappclient/*'
+    - '!tkg/test/tkgpackageclient/**'
     - 'pkg/v1/providers/**'
     - '.github/workflows/tkg_integration_tests.yaml'
 
@@ -95,7 +95,9 @@ jobs:
         fi
         make configure-bom
         make generate-embedproviders
-        E2E_CONFIG=$PWD/pkg/v1/tkg/test/config/docker.yaml hack/tools/bin/ginkgo -nodes=3 -v -trace -tags embedproviders pkg/v1/tkg/test/tkgctl/docker
+        pushd tkg
+        E2E_CONFIG=$PWD/test/config/docker.yaml ../hack/tools/bin/ginkgo -nodes=3 -v -trace -tags embedproviders test/tkgctl/docker
+        popd
 
   integ-tests-azure:
     name: TKG Integration Tests CAPZ
@@ -179,7 +181,7 @@ jobs:
     - uses: microsoft/variable-substitution@v1
       if: ${{ env.azure_client_id != '' }}
       with:
-        files: 'pkg/v1/tkg/test/config/azure.yaml'
+        files: 'tkg/test/config/azure.yaml'
       env:
         tkg_config_variables.AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID_SAIB }}
         tkg_config_variables.AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID_SAIB }}
@@ -187,7 +189,7 @@ jobs:
         tkg_config_variables.AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET_SAIB }}
         cluster_prefix: ${{ env.CLUSTER_PREFIX }}
     - run: |
-        cat pkg/v1/tkg/test/config/azure.yaml
+        cat tkg/test/config/azure.yaml
     - name: Run TKG integration tests
       if: ${{ env.azure_client_id != '' }}
       run: |
@@ -196,7 +198,9 @@ jobs:
         fi
         make configure-bom
         make generate-embedproviders
-        E2E_CONFIG=$PWD/pkg/v1/tkg/test/config/azure.yaml hack/tools/bin/ginkgo -nodes=3 -v -trace -tags embedproviders pkg/v1/tkg/test/tkgctl/azure
+        pushd tkg
+        E2E_CONFIG=$PWD/test/config/azure.yaml ../hack/tools/bin/ginkgo -nodes=3 -v -trace -tags embedproviders test/tkgctl/azure
+        popd
 
     - uses: Azure/login@v1.1
       if: ${{ always() && env.azure_client_id != '' }}
