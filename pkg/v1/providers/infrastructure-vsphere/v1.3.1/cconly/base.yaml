@@ -156,7 +156,8 @@ spec:
       - echo "127.0.0.1   localhost" >>/etc/hosts
       - echo "127.0.0.1   {{ ds.meta_data.hostname }}" >>/etc/hosts
       - echo "{{ ds.meta_data.hostname }}" >/etc/hostname
-      postKubeadmCommands: []
+      postKubeadmCommands:
+      - echo "running postKubeadmCommands…"
       files:
       - path: /tmp/empty.txt
         owner: "root:root"
@@ -741,15 +742,14 @@ spec:
           template: |
             devices:
             - networkName: {{ .vcenter.network }}
-            {{ if .controlPlane.network.nameservers -}}
-              nameservers:
-              {{- range .controlPlane.network.nameservers }}
-            - {{ . }}
+              {{ if .controlPlane.network.nameservers -}}
+                nameservers:
+                {{- range .controlPlane.network.nameservers }}
+              - {{ . }}
+                {{- end }}
               {{- end }}
-            {{- end }}
-              dhcp4: true
-            {{ if list "IPv4" "DualStack" | has .builtin.cluster.network.ipFamily -}} dhcp4: true {{- end }}
-            {{ if list "IPv6" "DualStack" | has .builtin.cluster.network.ipFamily -}} dhcp6: true {{- end }}
+              {{ if list "IPv4" "DualStack" | has .builtin.cluster.network.ipFamily -}} dhcp4: true {{- end }}
+              {{ if list "IPv6" "DualStack" | has .builtin.cluster.network.ipFamily -}} dhcp6: true {{- end }}
     - selector:
         apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
         kind: VSphereMachineTemplate
@@ -765,15 +765,14 @@ spec:
           template: |
             devices:
             - networkName: {{ .vcenter.network }}
-            {{ if .worker.network.nameservers -}}
-              nameservers:
-              {{- range .worker.network.nameservers }}
-            - {{ . }}
+              {{ if .worker.network.nameservers -}}
+                nameservers:
+                {{- range .worker.network.nameservers }}
+              - {{ . }}
+                {{- end }}
               {{- end }}
-            {{- end }}
-              dhcp4: true
-            {{ if list "IPv4" "DualStack" | has .builtin.cluster.network.ipFamily -}} dhcp4: true {{- end }}
-            {{ if list "IPv6" "DualStack" | has .builtin.cluster.network.ipFamily -}} dhcp6: true {{- end }}
+              {{ if list "IPv4" "DualStack" | has .builtin.cluster.network.ipFamily -}} dhcp4: true {{- end }}
+              {{ if list "IPv6" "DualStack" | has .builtin.cluster.network.ipFamily -}} dhcp6: true {{- end }}
   - name: clusterApiServerPort
     enabledIf: '{{ not (empty .apiServerPort) }}'
     definitions:
@@ -892,7 +891,7 @@ spec:
               ,
             {{- end }}
             {{- $key -}} = {{- $val }}
-            {{- end}}
+            {{- end }}
     - selector:
         apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
         kind: KubeadmConfigTemplate

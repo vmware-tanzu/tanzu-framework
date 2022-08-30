@@ -29,8 +29,6 @@ metadata:
     cluster-role.tkg.tanzu.vmware.com/(@= data.values.TKG_CLUSTER_ROLE @): ""
     #@ end
     tkg.tanzu.vmware.com/cluster-name: #@ data.values.CLUSTER_NAME
-    #@overlay/match missing_ok=True
-    tanzuKubernetesRelease: #@ data.values.KUBERNETES_RELEASE
 spec:
   clusterNetwork:
     pods:
