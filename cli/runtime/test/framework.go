@@ -20,8 +20,24 @@ import (
 	"github.com/spf13/pflag"
 	"gopkg.in/yaml.v2"
 
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli"
+	cliv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
 )
+
+const (
+	CLIName = "tanzu"
+)
+
+// NewTestFor creates a plugin descriptor for a test plugin.
+func NewTestFor(pluginName string) *cliv1alpha1.PluginDescriptor {
+	return &cliv1alpha1.PluginDescriptor{
+		Name:        fmt.Sprintf("%s-test", pluginName),
+		Description: fmt.Sprintf("test for %s", pluginName),
+		Version:     "v0.0.1",
+		BuildSHA:    "",
+		Group:       cliv1alpha1.TestCmdGroup,
+		Aliases:     []string{fmt.Sprintf("%s-alias", pluginName)},
+	}
+}
 
 // Main holds state for multiple command tests.
 type Main struct {
@@ -323,7 +339,7 @@ func (t *Test) StdErr() *bytes.Buffer {
 // Exec the command, exit on error
 func Exec(command string) (stdOut, stdErr *bytes.Buffer, err error) {
 	c := cleanCommand(command)
-	cmd := exec.Command(cli.Name, c...)
+	cmd := exec.Command(CLIName, c...)
 
 	var stdOutBytes, stdErrBytes []byte
 	var errStdout, errStderr error
@@ -390,7 +406,7 @@ func copyAndCapture(w io.Writer, r io.Reader) ([]byte, error) {
 // cleanCommand will remove the CLIName from the command if exists as first argument.
 func cleanCommand(command string) []string {
 	c := strings.Split(command, " ")
-	if c[0] == cli.Name {
+	if c[0] == CLIName {
 		c = c[1:]
 	}
 	return c
