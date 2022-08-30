@@ -197,7 +197,8 @@ jobs:
         fi
         make configure-bom
         make generate-embedproviders
-        E2E_CONFIG=$PWD/tkg/test/config/azure.yaml hack/tools/bin/ginkgo -nodes=3 -v -trace -tags embedproviders tkg/test/tkgctl/azure
+        cd tkg
+        E2E_CONFIG=$PWD/test/config/azure.yaml ../hack/tools/bin/ginkgo -nodes=3 -v -trace -tags embedproviders test/tkgctl/azure
 
     - uses: Azure/login@v1.1
       if: ${{ always() && env.azure_client_id != '' }}
