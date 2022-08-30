@@ -10,19 +10,15 @@ import (
 	"time"
 
 	"github.com/golang/mock/gomock"
-	. "github.com/onsi/ginkgo"
-	. "github.com/onsi/ginkgo/extensions/table"
-	. "github.com/onsi/gomega"
+	clusterctl "sigs.k8s.io/cluster-api/cmd/clusterctl/client"
 
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/web/server/models"
 	aviMock "github.com/vmware-tanzu/tanzu-framework/tkg/avi/mocks"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/client"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/fakes"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/tkgconfigbom"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/tkgconfigreaderwriter"
-
-	clusterctl "sigs.k8s.io/cluster-api/cmd/clusterctl/client"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/web/server/models"
 )
 
 var _ = Describe("Validate", func() {

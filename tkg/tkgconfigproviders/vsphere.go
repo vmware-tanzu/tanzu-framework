@@ -14,8 +14,8 @@ import (
 	"github.com/pkg/errors"
 	"github.com/sanathkr/go-yaml"
 
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/web/server/models"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/constants"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/web/server/models"
 )
 
 type nodeType struct {
