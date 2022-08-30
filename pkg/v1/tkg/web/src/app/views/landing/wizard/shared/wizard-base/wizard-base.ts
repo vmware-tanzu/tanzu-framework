@@ -1,43 +1,43 @@
 // Angular imports
-import { Directive, ElementRef, OnInit, Type, ViewChild } from '@angular/core';
-import { FormBuilder, FormGroup } from '@angular/forms';
-import { Router } from '@angular/router';
-import { Title } from '@angular/platform-browser';
+import {Directive, ElementRef, OnInit, Type, ViewChild} from '@angular/core';
+import {FormBuilder, FormGroup} from '@angular/forms';
+import {Router} from '@angular/router';
+import {Title} from '@angular/platform-browser';
 // Third party imports
-import { takeUntil } from 'rxjs/operators';
-import { Observable } from 'rxjs';
+import {takeUntil} from 'rxjs/operators';
+import {Observable} from 'rxjs';
 // App imports
-import { APP_ROUTES, Routes } from 'src/app/shared/constants/routes.constants';
+import {APP_ROUTES, Routes} from 'src/app/shared/constants/routes.constants';
 import AppServices from '../../../../../shared/service/appServices';
-import { BasicSubscriber } from 'src/app/shared/abstracts/basic-subscriber';
-import { CeipField } from '../components/steps/ceip-step/ceip-step.fieldmapping';
-import { ClusterType, IdentityManagementType, WizardForm } from "../constants/wizard.constants";
-import { ConfigFileInfo } from '../../../../../swagger/models/config-file-info.model';
-import { EditionData } from '../../../../../shared/service/branding.service';
-import { FieldMapping } from '../field-mapping/FieldMapping';
-import { FormDataForHTML, FormUtility } from '../components/steps/form-utility';
-import { IdentityField } from '../components/steps/identity-step/identity-step.fieldmapping';
+import {BasicSubscriber} from 'src/app/shared/abstracts/basic-subscriber';
+import {CeipField} from '../components/steps/ceip-step/ceip-step.fieldmapping';
+import {ClusterType, IdentityManagementType, WizardForm} from "../constants/wizard.constants";
+import {ConfigFileInfo} from '../../../../../swagger/models/config-file-info.model';
+import {EditionData} from '../../../../../shared/service/branding.service';
+import {FieldMapping} from '../field-mapping/FieldMapping';
+import {FormDataForHTML, FormUtility} from '../components/steps/form-utility';
+import {IdentityField} from '../components/steps/identity-step/identity-step.fieldmapping';
 import {
     LoadBalancerField,
     LoadBalancerStepMapping
 } from '../components/steps/load-balancer/load-balancer-step.fieldmapping';
-import { MetadataField, MetadataStepMapping } from '../components/steps/metadata-step/metadata-step.fieldmapping';
-import { MetadataStepComponent } from '../components/steps/metadata-step/metadata-step.component';
-import { NetworkField } from '../components/steps/network-step/network-step.fieldmapping';
-import { OsImageField } from '../components/steps/os-image-step/os-image-step.fieldmapping';
-import { Providers, PROVIDERS } from 'src/app/shared/constants/app.constants';
-import { SharedCeipStepComponent } from '../components/steps/ceip-step/ceip-step.component';
-import { SharedIdentityStepComponent } from '../components/steps/identity-step/identity-step.component';
-import { SharedNetworkStepComponent } from '../components/steps/network-step/network-step.component';
-import { StepFormDirective } from '../step-form/step-form';
+import {MetadataField, MetadataStepMapping} from '../components/steps/metadata-step/metadata-step.fieldmapping';
+import {MetadataStepComponent} from '../components/steps/metadata-step/metadata-step.component';
+import {NetworkField} from '../components/steps/network-step/network-step.fieldmapping';
+import {OsImageField} from '../components/steps/os-image-step/os-image-step.fieldmapping';
+import {Providers, PROVIDERS} from 'src/app/shared/constants/app.constants';
+import {SharedCeipStepComponent} from '../components/steps/ceip-step/ceip-step.component';
+import {SharedIdentityStepComponent} from '../components/steps/identity-step/identity-step.component';
+import {SharedNetworkStepComponent} from '../components/steps/network-step/network-step.component';
+import {StepFormDirective} from '../step-form/step-form';
 import {
     StepCompletedPayload,
     StepDescriptionChangePayload,
     StepStartedPayload,
     TanzuEventType
 } from './../../../../../shared/service/Messenger';
-import { StepWrapperSetComponent } from '../step-wrapper/step-wrapper-set.component';
-import { NodeSettingField } from '../components/steps/node-setting-step/node-setting-step.fieldmapping';
+import {StepWrapperSetComponent} from '../step-wrapper/step-wrapper-set.component';
+import {NodeSettingField} from '../components/steps/node-setting-step/node-setting-step.fieldmapping';
 
 // This interface describes a wizard that can register a step component
 export interface WizardStepRegistrar {
@@ -62,6 +62,10 @@ export interface Params<T> {
 export interface Label {
     key: string,
     value: string
+}
+
+export interface KeyValueObject {
+    [key: string]: string
 }
 
 @Directive()
@@ -343,14 +347,23 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Wiz
 
     /**
      * @param arrObj of type [ {key: 'a', value: '1}, {key : 'b, value:'2}]
-     * @param key To Identify the ObjectKey
-     * @param value To Identify the ObjectValue
-     * @return Object {'a': 1 , 'b': '1'}
+     * @param params.key<Function> To Identify the ObjectKey
+     * @param params.value<Function> To Identify the ObjectValue
+     * @return Object {'a': 1 , 'b': '1'} and drops values with empty string on key
      */
-    arrayOfObjectsToObject<T>(arrObj: T[], params: Params<T>): { [key: string]: string; } {
-        return arrObj && arrObj instanceof Array
-            ? arrObj.reduce((obj, item) => ((obj[params.key(item)] = params.value(item)), obj), {})
-            : {};
+    arrayOfObjectsToObject<T>(arrObj: T[], params: Params<T>): KeyValueObject {
+        if (!arrObj || !(arrObj instanceof Array)) {
+            return {};
+        }
+
+        return arrObj.reduce<KeyValueObject>(
+            (accum, item) => {
+                const itemKey = params.key(item);
+                if (itemKey) {
+                    accum[itemKey] = params.value(item);
+                }
+                return accum;
+            }, {});
     }
 
     /**
@@ -537,6 +550,7 @@ export abstract class WizardBaseDirective extends BasicSubscriber implements Wiz
                 'name': this.getFieldValue(WizardForm.LOADBALANCER, LoadBalancerField.WORKLOAD_CLUSTER_CONTROL_PLANE_VIP_NETWORK_NAME),
                 'cidr': this.getFieldValue(WizardForm.LOADBALANCER, LoadBalancerField.WORKLOAD_CLUSTER_CONTROL_PLANE_VIP_NETWORK_CIDR)
             },
+            // thinking should cleanse formarray data in payload here, maybe an additional utility or add to arrayOfObjectsToObject
             'labels': this.arrayOfObjectsToObject<{ key: string, value: string }>(
                 loadBalancerLabels,
                 {
