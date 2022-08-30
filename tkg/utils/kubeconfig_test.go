@@ -15,7 +15,7 @@ import (
 	"github.com/onsi/gomega/ghttp"
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
 
-	fakehelper "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/fakes/helper"
+	fakehelper "github.com/vmware-tanzu/tanzu-framework/tkg/fakes/helper"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/utils"
 )
 
