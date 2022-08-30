@@ -25,7 +25,7 @@ metadata:
   labels:
     cluster.x-k8s.io/cluster-name: test-cluster-cpi-paravirtual-same-name
     topology.cluster.x-k8s.io/owned: ""
-  name: test-cluster-cpi-paravirtual-same-name
+  name: test-cluster-cpi-paravirtual-same-name-j2sne
   namespace: default
 spec:
   controlPlaneEndpoint:
@@ -43,7 +43,7 @@ metadata:
   labels:
     cluster.x-k8s.io/cluster-name: test-cluster-cpi-paravirtual-same-name
     topology.cluster.x-k8s.io/owned: ""
-  name: test-cluster-cpi-paravirtual-same-name
+  name: test-cluster-cpi-paravirtual-same-name-j2sne
   namespace: another-ns
 spec:
   controlPlaneEndpoint:

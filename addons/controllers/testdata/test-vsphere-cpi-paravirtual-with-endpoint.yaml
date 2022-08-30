@@ -26,7 +26,7 @@ metadata:
   labels:
     cluster.x-k8s.io/cluster-name: test-cluster-cpi-paravirtual-with-endpoint
     topology.cluster.x-k8s.io/owned: ""
-  name: test-cluster-cpi-paravirtual-with-endpoint
+  name: test-cluster-cpi-paravirtual-with-endpoint-aiwnw
   namespace: default
 spec:
   controlPlaneEndpoint:

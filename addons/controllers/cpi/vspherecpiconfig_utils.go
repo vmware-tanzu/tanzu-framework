@@ -21,6 +21,7 @@ import (
 	capvvmwarev1beta1 "sigs.k8s.io/cluster-api-provider-vsphere/apis/vmware/v1beta1"
 	clusterapiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
 
+	cutil "github.com/vmware-tanzu/tanzu-framework/addons/controllers/utils"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
 	pkgtypes "github.com/vmware-tanzu/tanzu-framework/addons/pkg/types"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/util"
@@ -37,7 +38,7 @@ func (r *VSphereCPIConfigReconciler) mapCPIConfigToDataValuesNonParavirtual( // 
 	d.Mode = VsphereCPINonParavirtualMode
 
 	// get the vsphere cluster object
-	vsphereCluster, err := r.getVSphereCluster(ctx, cluster)
+	vsphereCluster, err := cutil.GetVSphereClusterNonParavirtual(ctx, r.Client, cluster)
 	if err != nil {
 		return nil, err
 	}
@@ -375,22 +376,6 @@ func (r *VSphereCPIConfigReconciler) getOwnerCluster(ctx context.Context, cpiCon
 	}
 	r.Log.Info(fmt.Sprintf("Cluster resource '%s/%s' is successfully found", cpiConfig.Namespace, clusterName))
 	return cluster, nil
-}
-
-// TODO: make these functions accessible to other controllers (for example csi) https://github.com/vmware-tanzu/tanzu-framework/issues/2086
-// getVSphereCluster gets the VSphereCluster CR for the cluster object
-func (r *VSphereCPIConfigReconciler) getVSphereCluster(ctx context.Context, cluster *clusterapiv1beta1.Cluster) (*capvv1beta1.VSphereCluster, error) {
-	vsphereCluster := &capvv1beta1.VSphereCluster{}
-	if err := r.Client.Get(ctx, types.NamespacedName{
-		Namespace: cluster.Namespace,
-		Name:      cluster.Name,
-	}, vsphereCluster); err != nil {
-		if apierrors.IsNotFound(err) {
-			return nil, errors.Errorf("VSphereCluster %s/%s not found", cluster.Namespace, cluster.Name)
-		}
-		return nil, errors.Errorf("VSphereCluster %s/%s could not be fetched, error %v", cluster.Namespace, cluster.Name, err)
-	}
-	return vsphereCluster, nil
 }
 
 // getSecret gets the secret object given its name and namespace

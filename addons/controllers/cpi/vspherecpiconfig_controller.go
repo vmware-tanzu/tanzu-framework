@@ -13,9 +13,7 @@ import (
 	rbacv1 "k8s.io/api/rbac/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/runtime"
-	"k8s.io/apimachinery/pkg/selection"
 	capvvmwarev1beta1 "sigs.k8s.io/cluster-api-provider-vsphere/apis/vmware/v1beta1"
 	clusterapiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
 	clusterapiutil "sigs.k8s.io/cluster-api/util"
@@ -25,6 +23,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/controller"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 
+	cutil "github.com/vmware-tanzu/tanzu-framework/addons/controllers/utils"
 	addonconfig "github.com/vmware-tanzu/tanzu-framework/addons/pkg/config"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/util"
@@ -200,32 +199,19 @@ func (r *VSphereCPIConfigReconciler) reconcileVSphereCPIConfigNormal(ctx context
 			return err
 		}
 
-		vsphereClusters := &capvvmwarev1beta1.VSphereClusterList{}
-		labelMatch, err := labels.NewRequirement(clusterapiv1beta1.ClusterLabelName, selection.Equals, []string{cluster.Name})
+		vsphereCluster, err := cutil.GetVSphereClusterParavirtual(ctx, r.Client, cluster)
 		if err != nil {
-			r.Log.Error(err, "Error creating label")
 			return err
 		}
-		labelSelector := labels.NewSelector()
-		labelSelector = labelSelector.Add(*labelMatch)
-		if err := r.Client.List(ctx, vsphereClusters, &client.ListOptions{LabelSelector: labelSelector, Namespace: cluster.Namespace}); err != nil {
-			r.Log.Error(err, "error retrieving clusters")
-			return err
-		}
-		if len(vsphereClusters.Items) != 1 {
-			return fmt.Errorf("expected to find 1 VSphereCluster object for label key %s and value %s but found %d",
-				clusterapiv1beta1.ClusterLabelName, cluster.Name, len(vsphereClusters.Items))
-		}
-		vsphereCluster := vsphereClusters.Items[0]
 		serviceAccount := &capvvmwarev1beta1.ProviderServiceAccount{
 			ObjectMeta: metav1.ObjectMeta{
-				Name:      getCCMName(&vsphereCluster),
+				Name:      getCCMName(vsphereCluster),
 				Namespace: vsphereCluster.Namespace,
 			},
 		}
 		_, err = controllerutil.CreateOrUpdate(ctx, r.Client, serviceAccount, func() error {
-			serviceAccount.Spec = r.mapCPIConfigToProviderServiceAccountSpec(&vsphereCluster)
-			return controllerutil.SetControllerReference(&vsphereCluster, serviceAccount, r.Scheme)
+			serviceAccount.Spec = r.mapCPIConfigToProviderServiceAccountSpec(vsphereCluster)
+			return controllerutil.SetControllerReference(vsphereCluster, serviceAccount, r.Scheme)
 		})
 		if err != nil {
 			r.Log.Error(err, "Error creating or updating ProviderServiceAccount for VSphere CPI")
