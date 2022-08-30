@@ -13,7 +13,7 @@ import (
 	"k8s.io/apimachinery/pkg/util/duration"
 
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/component"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgpackageclient"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/tkgpackageclient"
 )
 
 var registrySecretListCmd = &cobra.Command{
