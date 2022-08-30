@@ -10,10 +10,10 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/plugin"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli"
+	clitest "github.com/vmware-tanzu/tanzu-framework/cli/runtime/test"
 )
 
-var descriptor = cli.NewTestFor("test")
+var descriptor = clitest.NewTestFor("test")
 
 func main() {
 	defer Cleanup()
