@@ -8,7 +8,7 @@ import (
 
 	"k8s.io/apimachinery/pkg/util/wait"
 
-	clitest "github.com/vmware-tanzu/tanzu-framework/pkg/v1/test/cli"
+	clitest "github.com/vmware-tanzu/tanzu-framework/cli/runtime/test"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgpackagedatamodel"
 )
 

@@ -10,12 +10,12 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/plugin"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli"
+	clitest "github.com/vmware-tanzu/tanzu-framework/cli/runtime/test"
 )
 
 var pluginName = "telemetry"
 
-var descriptor = cli.NewTestFor(pluginName)
+var descriptor = clitest.NewTestFor(pluginName)
 
 func main() {
 	p, err := plugin.NewPlugin(descriptor)

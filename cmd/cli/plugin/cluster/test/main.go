@@ -11,8 +11,7 @@ import (
 	"sigs.k8s.io/yaml"
 
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/plugin"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli"
-	clitest "github.com/vmware-tanzu/tanzu-framework/pkg/v1/test/cli"
+	clitest "github.com/vmware-tanzu/tanzu-framework/cli/runtime/test"
 )
 
 const (
@@ -29,7 +28,7 @@ type testConfig struct {
 }
 
 var tconf *testConfig
-var descriptor = cli.NewTestFor("cluster")
+var descriptor = clitest.NewTestFor("cluster")
 
 var _ = func() error {
 	tconf = &testConfig{}

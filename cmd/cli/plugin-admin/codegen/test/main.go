@@ -14,11 +14,10 @@ import (
 
 	configv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/config/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/plugin"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli"
-	clitest "github.com/vmware-tanzu/tanzu-framework/pkg/v1/test/cli"
+	clitest "github.com/vmware-tanzu/tanzu-framework/cli/runtime/test"
 )
 
-var descriptor = cli.NewTestFor("codegen")
+var descriptor = clitest.NewTestFor("codegen")
 
 var featureGenerationTest *clitest.Test
 
