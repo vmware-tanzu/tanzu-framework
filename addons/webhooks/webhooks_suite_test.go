@@ -158,10 +158,10 @@ var _ = AfterSuite(func() {
 func constructCRDPaths() []string {
 	// We do not need all CRDs under config/crd/bases, only load the required ones
 	return []string{
-		filepath.Join("..", "..", "config", "crd", "bases", "cni.tanzu.vmware.com_antreaconfigs.yaml"),
-		filepath.Join("..", "..", "config", "crd", "bases", "cni.tanzu.vmware.com_calicoconfigs.yaml"),
-		filepath.Join("..", "..", "config", "crd", "bases", "cpi.tanzu.vmware.com_vspherecpiconfigs.yaml"),
-		filepath.Join("..", "..", "config", "crd", "bases", "csi.tanzu.vmware.com_vspherecsiconfigs.yaml"),
+		filepath.Join("..", "..", "apis", "addonconfigs", "config", "crd", "bases", "cni.tanzu.vmware.com_antreaconfigs.yaml"),
+		filepath.Join("..", "..", "apis", "addonconfigs", "config", "crd", "bases", "cni.tanzu.vmware.com_calicoconfigs.yaml"),
+		filepath.Join("..", "..", "apis", "addonconfigs", "config", "crd", "bases", "cpi.tanzu.vmware.com_vspherecpiconfigs.yaml"),
+		filepath.Join("..", "..", "apis", "addonconfigs", "config", "crd", "bases", "csi.tanzu.vmware.com_vspherecsiconfigs.yaml"),
 		filepath.Join("..", "..", "apis", "run", "config", "crd", "bases", "run.tanzu.vmware.com_kappcontrollerconfigs.yaml"),
 		filepath.Join("..", "..", "apis", "run", "config", "crd", "bases", "run.tanzu.vmware.com_clusterbootstraps.yaml"),
 		filepath.Join("..", "..", "apis", "run", "config", "crd", "bases", "run.tanzu.vmware.com_clusterbootstraptemplates.yaml"),

@@ -83,23 +83,23 @@ const (
 )
 
 var (
-	cfg                   *rest.Config
-	k8sClient             client.Client
-	k8sConfig             *rest.Config
-	testEnv               *envtest.Environment
-	ctx                   = ctrl.SetupSignalHandler()
-	scheme                = runtime.NewScheme()
-	mgr                   manager.Manager
-	dynamicClient         dynamic.Interface
-	cancel                context.CancelFunc
-	certPath              string
-	keyPath               string
-	tmpDir                string
-	webhookCertDetails    testutil.WebhookCertificatesDetails
-	webhookSelectorString string
-	configCRDBasesPath    = filepath.Join("..", "..", "config", "crd", "bases")
-	runCRDPath            = filepath.Join("..", "..", "apis", "run", "config", "crd", "bases")
-	localCRDPath          = filepath.Join("testdata", "internal-crds")
+	cfg                     *rest.Config
+	k8sClient               client.Client
+	k8sConfig               *rest.Config
+	testEnv                 *envtest.Environment
+	ctx                     = ctrl.SetupSignalHandler()
+	scheme                  = runtime.NewScheme()
+	mgr                     manager.Manager
+	dynamicClient           dynamic.Interface
+	cancel                  context.CancelFunc
+	certPath                string
+	keyPath                 string
+	tmpDir                  string
+	webhookCertDetails      testutil.WebhookCertificatesDetails
+	webhookSelectorString   string
+	addonConfigCRDBasesPath = filepath.Join("..", "..", "apis", "addonconfigs", "config", "crd", "bases")
+	runCRDPath              = filepath.Join("..", "..", "apis", "run", "config", "crd", "bases")
+	localCRDPath            = filepath.Join("testdata", "internal-crds")
 )
 
 func TestAddonController(t *testing.T) {
@@ -133,7 +133,7 @@ var _ = BeforeSuite(func(done Done) {
 	Expect(externalCRDPaths).ToNot(BeEmpty())
 	testEnv.CRDDirectoryPaths = externalCRDPaths
 
-	// copy "../..config/crd/bases" into a local directory "testdata/internal-crds", while excluding "tanzukubernetesreleases" CRD file, which its v1alpha3 version is already included in "testdata/dependency/crd" directory
+	// copy crds into a local directory "testdata/internal-crds", while excluding "tanzukubernetesreleases" CRD file, which its v1alpha3 version is already included in "testdata/dependency/crd" directory
 	err = setupLocalCRDDirectory(localCRDPath)
 	Expect(err).NotTo(HaveOccurred())
 
@@ -154,9 +154,9 @@ var _ = BeforeSuite(func(done Done) {
 		}
 	}
 
-	files, err := os.ReadDir(configCRDBasesPath)
+	files, err := os.ReadDir(addonConfigCRDBasesPath)
 	Expect(err).ToNot(HaveOccurred())
-	copyCRDs(files, configCRDBasesPath)
+	copyCRDs(files, addonConfigCRDBasesPath)
 
 	files, err = os.ReadDir(runCRDPath)
 	Expect(err).ToNot(HaveOccurred())
