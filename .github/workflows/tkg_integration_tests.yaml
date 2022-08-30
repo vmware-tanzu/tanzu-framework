@@ -95,6 +95,7 @@ jobs:
         fi
         make configure-bom
         make generate-embedproviders
+        cd tkg
         E2E_CONFIG=$PWD/tkg/test/config/docker.yaml ../hack/tools/bin/ginkgo -nodes=3 -v -trace -tags embedproviders tkg/test/tkgctl/docker
 
   integ-tests-azure:
@@ -196,7 +197,7 @@ jobs:
         fi
         make configure-bom
         make generate-embedproviders
-        E2E_CONFIG=$PWD/tkg/test/config/azure.yaml ../hack/tools/bin/ginkgo -nodes=3 -v -trace -tags embedproviders tkg/test/tkgctl/azure
+        E2E_CONFIG=$PWD/tkg/test/config/azure.yaml hack/tools/bin/ginkgo -nodes=3 -v -trace -tags embedproviders tkg/test/tkgctl/azure
 
     - uses: Azure/login@v1.1
       if: ${{ always() && env.azure_client_id != '' }}
