@@ -10,8 +10,6 @@ import (
 	"time"
 
 	"github.com/golang/mock/gomock"
-	clusterctl "sigs.k8s.io/cluster-api/cmd/clusterctl/client"
-	
 	aviMock "github.com/vmware-tanzu/tanzu-framework/tkg/avi/mocks"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/client"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/constants"
@@ -19,6 +17,7 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/tkg/tkgconfigbom"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/tkgconfigreaderwriter"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/web/server/models"
+	clusterctl "sigs.k8s.io/cluster-api/cmd/clusterctl/client"
 )
 
 var _ = Describe("Validate", func() {
