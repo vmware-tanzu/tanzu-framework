@@ -5,6 +5,7 @@ package managementcomponents
 
 import (
 	"context"
+	"fmt"
 	"os"
 	"time"
 
@@ -12,6 +13,7 @@ import (
 	"golang.org/x/sync/errgroup"
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/selection"
+	"k8s.io/apimachinery/pkg/types"
 	crtclient "sigs.k8s.io/controller-runtime/pkg/client"
 
 	kappipkg "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/packaging/v1alpha1"
@@ -194,5 +196,32 @@ func WaitForManagementPackages(clusterClient clusterclient.Client, packageInstal
 	if err != nil {
 		return errors.Wrap(err, "error while waiting for management packages to be installed")
 	}
+	return nil
+}
+
+// DeletePackageInstall deletes the PackageInstall CR
+func noopDeletePackageInstall(ctx context.Context, clusterClient clusterclient.Client, pkgClient tkgpackageclient.TKGPackageClient, pkgiName, pkgiNamespace string) error {
+	pkgi := &kappipkg.PackageInstall{}
+	err := clusterClient.GetResource(pkgi, pkgiName, pkgiNamespace, nil, nil)
+	if err != nil {
+		return errors.Wrapf(err, "unable to get PackageInstall resource %s", pkgiName)
+	}
+
+	patchPkgiSpec := fmt.Sprintf("{\"spec\":{ \"noopDelete\": %t}}", true)
+	err = clusterClient.PatchResource(pkgi, pkgiName, pkgiNamespace, patchPkgiSpec, types.MergePatchType, nil)
+	if err != nil {
+		return errors.Wrapf(err, "failed to patch PackageInstall resource %s", pkgiName)
+	}
+
+	packageInstalledOp := &tkgpackagedatamodel.PackageOptions{
+		PkgInstallName: pkgiName,
+		Namespace:      pkgiNamespace,
+	}
+	err = pkgClient.UninstallPackageSync(packageInstalledOp)
+	//err = clusterClient.DeleteResource(pkgi)
+	if err != nil {
+		return errors.Wrapf(err, "failed to delete PackageInstall resource %s", pkgiName)
+	}
+
 	return nil
 }

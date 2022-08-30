@@ -14,11 +14,8 @@ import (
 	"gopkg.in/yaml.v2"
 	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	clusterapiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
-
-	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 
 	kappctrl "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/kappctrl/v1alpha1"
 	pkgiv1alpha1 "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/packaging/v1alpha1"
@@ -218,27 +215,6 @@ func GetPackageInstallFromAddonSecret(ctx context.Context,
 	}
 
 	return pkgi, nil
-}
-
-// DeletePackageInstall deletes the PackageInstall CR
-func DeletePackageInstall(ctx context.Context, c client.Client, pkgiName, pkgiNamespace string) error {
-	pkgi := &pkgiv1alpha1.PackageInstall{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:      pkgiName,
-			Namespace: pkgiNamespace,
-		},
-	}
-	pkgi.Spec.NoopDelete = true
-
-	if _, err := controllerutil.CreateOrPatch(ctx, c, pkgi, nil); err != nil {
-		return errors.Errorf("failed to patch PackageInstall resource %s/%s", pkgiNamespace, pkgiName)
-	}
-
-	if err = c.Delete(ctx, pkgi); err != nil {
-		return errors.Errorf("failed to delete PackageInstall resource %s/%s", pkgiNamespace, pkgiName)
-	}
-
-	return nil
 }
 
 // IsAppPresent returns true if app is present on the cluster
