@@ -10,7 +10,6 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/component"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/log"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgpackageclient"
 )
@@ -41,7 +40,7 @@ func registrySecretDelete(cmd *cobra.Command, args []string) error {
 	}
 
 	if !registrySecretOp.SkipPrompt {
-		if err := cli.AskForConfirmation(fmt.Sprintf("Deleting registry secret '%s' from namespace '%s'. Are you sure?",
+		if err := component.AskForConfirmation(fmt.Sprintf("Deleting registry secret '%s' from namespace '%s'. Are you sure?",
 			registrySecretOp.SecretName, registrySecretOp.Namespace)); err != nil {
 			return errors.New("deletion of the secret got aborted")
 		}

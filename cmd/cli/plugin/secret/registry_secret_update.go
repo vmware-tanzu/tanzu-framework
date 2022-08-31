@@ -10,7 +10,6 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/component"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/log"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgpackageclient"
 )
@@ -64,7 +63,7 @@ func registrySecretUpdate(cmd *cobra.Command, args []string) error {
 			log.Warning("Warning: By specifying --export-to-all-namespaces as false, the secret contents will get unexported from ALL namespaces in which it was previously available to.\n")
 		}
 		if !registrySecretOp.SkipPrompt {
-			if err := cli.AskForConfirmation("Are you sure you want to proceed?"); err != nil {
+			if err := component.AskForConfirmation("Are you sure you want to proceed?"); err != nil {
 				return errors.New("update of the secret got aborted")
 			}
 		}

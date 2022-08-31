@@ -20,7 +20,7 @@ import (
 	clusterctltree "sigs.k8s.io/cluster-api/cmd/clusterctl/client/tree"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli"
+	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/command"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/log"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgctl"
 
@@ -95,11 +95,11 @@ func init() {
 	getClusterCmd.Flags().StringVar(&cd.showOtherConditions, "show-all-conditions", "", "List of comma separated kind or kind/name for which we should show all the object's conditions (all to show conditions for all the objects)")
 
 	getClusterCmd.Flags().BoolVar(&cd.disableNoEcho, "disable-no-echo", false, "Disable hiding of a MachineInfrastructure and BootstrapConfig when ready condition is true or it has the Status, Severity and Reason of the machine's object")
-	cli.DeprecateFlagWithAlternative(getClusterCmd, "disable-no-echo", "1.6.0", "--show-details")
+	command.DeprecateFlagWithAlternative(getClusterCmd, "disable-no-echo", "1.6.0", "--show-details")
 	getClusterCmd.Flags().BoolVar(&cd.showDetails, "show-details", false, "Show details of MachineInfrastructure and BootstrapConfig when ready condition is true or it has the Status, Severity and Reason of the machine's object")
 
 	getClusterCmd.Flags().BoolVar(&cd.disableGroupObjects, "disable-grouping", false, "Disable grouping machines when ready condition has the same Status, Severity and Reason")
-	cli.DeprecateFlagWithAlternative(getClusterCmd, "disable-grouping", "1.6.0", "--show-group-members")
+	command.DeprecateFlagWithAlternative(getClusterCmd, "disable-grouping", "1.6.0", "--show-group-members")
 	getClusterCmd.Flags().BoolVar(&cd.showGroupMembers, "show-group-members", false, "Expand machine groups whose ready condition has the same Status, Severity and Reason")
 }
 
