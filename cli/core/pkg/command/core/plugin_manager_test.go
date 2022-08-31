@@ -8,7 +8,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/plugin"
+	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/plugin"
 )
 
 func Test_getInstalledElseAvailablePluginVersion(t *testing.T) {

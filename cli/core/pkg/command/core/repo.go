@@ -9,8 +9,8 @@ import (
 	"github.com/spf13/cobra"
 
 	configv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/config/v1alpha1"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/component"
+	cli "github.com/vmware-tanzu/tanzu-framework/cli/core/pkg"
+	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/component"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/config"
 )
 
