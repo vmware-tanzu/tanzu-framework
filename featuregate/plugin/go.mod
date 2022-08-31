@@ -3,9 +3,9 @@ module github.com/vmware-tanzu/tanzu-framework/featuregate/plugin
 go 1.17
 
 replace (
-	github.com/vmware-tanzu/tanzu-framework => ../../
 	github.com/vmware-tanzu/tanzu-framework/apis/cli => ../../apis/cli
 	github.com/vmware-tanzu/tanzu-framework/apis/config => ../../apis/config
+	github.com/vmware-tanzu/tanzu-framework/apis/run => ../../apis/run
 	github.com/vmware-tanzu/tanzu-framework/featuregate/client => ../client
 	sigs.k8s.io/cluster-api => sigs.k8s.io/cluster-api v1.1.5
 )
@@ -13,7 +13,7 @@ replace (
 require (
 	github.com/aunum/log v0.0.0-20200821225356-38d2e2c8b489
 	github.com/spf13/cobra v1.4.0
-	github.com/vmware-tanzu/tanzu-framework v0.25.0
+	github.com/vmware-tanzu/tanzu-framework v0.26.0-dev.0.20220824221239-af5a644ffef7
 	github.com/vmware-tanzu/tanzu-framework/apis/cli v0.0.0-00010101000000-000000000000
 	github.com/vmware-tanzu/tanzu-framework/apis/config v0.0.0-20220820022318-db127cf83a25
 	github.com/vmware-tanzu/tanzu-framework/featuregate/client v0.0.0-00010101000000-000000000000
@@ -179,6 +179,7 @@ require (
 	github.com/vmware-tanzu/carvel-secretgen-controller v0.5.0 // indirect
 	github.com/vmware-tanzu/carvel-vendir v0.26.0 // indirect
 	github.com/vmware-tanzu/carvel-ytt v0.40.0 // indirect
+	github.com/vmware-tanzu/tanzu-framework/apis/run v0.0.0-00010101000000-000000000000 // indirect
 	github.com/vmware/govmomi v0.27.1 // indirect
 	github.com/yalp/jsonpath v0.0.0-20180802001716-5cc68e5049a0 // indirect
 	go.mongodb.org/mongo-driver v1.1.2 // indirect

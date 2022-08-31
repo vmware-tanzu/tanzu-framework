@@ -3,9 +3,9 @@ module github.com/vmware-tanzu/tanzu-framework/featuregate/controller
 go 1.17
 
 replace (
-	github.com/vmware-tanzu/tanzu-framework => ../../
 	github.com/vmware-tanzu/tanzu-framework/apis/cli => ../../apis/cli
 	github.com/vmware-tanzu/tanzu-framework/apis/config => ../../apis/config
+	github.com/vmware-tanzu/tanzu-framework/apis/run => ../../apis/run
 	github.com/vmware-tanzu/tanzu-framework/featuregate/client => ../client
 	sigs.k8s.io/cluster-api => sigs.k8s.io/cluster-api v1.1.5
 )
@@ -14,7 +14,7 @@ require (
 	github.com/go-logr/logr v1.2.2
 	github.com/onsi/ginkgo v1.16.5
 	github.com/onsi/gomega v1.19.0
-	github.com/vmware-tanzu/tanzu-framework v0.25.0
+	github.com/vmware-tanzu/tanzu-framework v0.26.0-dev.0.20220824221239-af5a644ffef7
 	github.com/vmware-tanzu/tanzu-framework/apis/config v0.0.0-20220820022318-db127cf83a25
 	github.com/vmware-tanzu/tanzu-framework/featuregate/client v0.0.0-00010101000000-000000000000
 	k8s.io/api v0.23.5

@@ -1,7 +1,7 @@
 # Copyright 2021 VMware, Inc. All Rights Reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-include ../../../../common.mk
+include ../common.mk
 
 IMG_DEFAULT_NAME := featuregates-controller-manager
 IMG_DEFAULT_TAG := latest
@@ -25,19 +25,11 @@ test: fmt vet manifests
 
 # Build manager binary
 manager: fmt vet
-	go build -ldflags "$(LD_FLAGS)" -o bin/manager ../../../../cmd/managers/featuregate/main.go
+	go build -ldflags "$(LD_FLAGS)" -o bin/manager ./controller/main.go
 
 # Run against the configured Kubernetes cluster in ~/.kube/config
-run: fmt vet
-	go run -ldflags "$(LD_FLAGS)" ../../../../cmd/managers/featuregate/main.go
-
-# Run go fmt against code
-fmt:
-	go fmt ./...
-
-# Run go vet against code
-vet:
-	go vet ./...
+run:
+	cd controller && go run -ldflags "$(LD_FLAGS)" ./main.go
 
 # Generate deployment manifest for the tkr manager
 deployment: manifests
@@ -47,27 +39,12 @@ deployment: manifests
 manifests: controller-gen ## Generate manifests e.g. CRD, RBAC etc.
 	$(CONTROLLER_GEN) \
 		$(CRD_OPTIONS) \
-		paths=../apis/... \
-		output:crd:artifacts:config=../../../config/crd/bases
-
-controller-gen: ## Download controller-gen
-ifeq (, $(shell which controller-gen))
-	@{ \
-	set -e ;\
-	CONTROLLER_GEN_TMP_DIR=$$(mktemp -d) ;\
-	cd $$CONTROLLER_GEN_TMP_DIR ;\
-	$(GO) mod init tmp ;\
-	$(GO) get sigs.k8s.io/controller-tools/cmd/controller-gen@v0.2.5 ;\
-	rm -rf $$CONTROLLER_GEN_TMP_DIR ;\
-	}
-CONTROLLER_GEN=$(GOBIN)/controller-gen
-else
-CONTROLLER_GEN=$(shell which controller-gen)
-endif
+		paths=../apis/config/... \
+		output:crd:artifacts:config=./config/crds
 
 .PHONY: docker-build
 docker-build: ## Build docker image
-	cd ../../../../ && docker build -t $(IMG) -f pkg/v1/sdk/features/Dockerfile --build-arg LD_FLAGS="$(LD_FLAGS)" .
+	cd ../ && docker build -t $(IMG) -f featuregate/controller/Dockerfile --build-arg LD_FLAGS="$(LD_FLAGS)" .
 
 .PHONY: docker-publish
 docker-publish: ## Publish docker image
@@ -75,7 +52,7 @@ docker-publish: ## Publish docker image
 
 .PHONY: kbld-image-replace
 kbld-image-replace: ## Add newImage in kbld-config.yaml
-	cd ../../../../hack/packages/kbld-image-replace && \
+	cd ../hack/packages/kbld-image-replace && \
 		go run main.go -kbld-config ../../../packages/featuregates/kbld-config.yaml $(IMG_DEFAULT_NAME_TAG) $(IMG)
 
 .PHONY: docker-image-names
