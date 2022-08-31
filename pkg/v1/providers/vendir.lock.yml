@@ -2,10 +2,11 @@ apiVersion: vendir.k14s.io/v1alpha1
 directories:
 - contents:
   - git:
-      commitTitle: Add new flags insecure and remoteAuthEnabled (#3152)...
-      sha: 0fa3055c5cddf67f8c23edea420575cb4eb7d5d8
+      commitTitle: Udate AKO 1.7.2 and CPI 1.23.1's tolerations and nodeselector responding
+        to k8s 1.24 new label and tolerations...
+      sha: ca8a74feea6243e1778d8b4fc9c475b1de132ab7
       tags:
-      - v0.10.0-120-g0fa3055c
+      - v0.13.0-dev.2-325-gca8a74fe
     path: .
   path: ytt/vendir/vsphere_cpi/_ytt_lib
 - contents:

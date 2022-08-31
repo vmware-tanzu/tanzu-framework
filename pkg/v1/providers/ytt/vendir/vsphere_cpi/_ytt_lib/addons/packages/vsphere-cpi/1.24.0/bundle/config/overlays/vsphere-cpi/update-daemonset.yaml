@@ -4,6 +4,8 @@
 #@ load("@ytt:yaml", "yaml")
 #@ load("@ytt:sha256", "sha256")
 
+#@ if values.vsphereCPI.mode == "vsphereCPI" or not values.vsphereCPI.mode:
+
 #@overlay/match by=overlay.subset({"kind": "DaemonSet", "metadata": {"name": "vsphere-cloud-controller-manager"}})
 ---
 metadata:
@@ -19,9 +21,6 @@ spec:
       annotations:
         vsphere-cpi/data-values-hash: #@ "h-{}".format(sha256.sum(yaml.encode(values))[:7])
     spec:
-      #@overlay/match missing_ok=True
-      nodeSelector:
-        node-role.kubernetes.io/master: ""
       containers:
       #@overlay/match by=overlay.subset({"name": "vsphere-cloud-controller-manager"})
       - args:
@@ -65,3 +64,5 @@ spec:
             secretName: nsxt-tls-certificates
           name: nsxt-certificates-volume
       #@ end
+
+#@ end
