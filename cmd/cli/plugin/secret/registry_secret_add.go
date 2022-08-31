@@ -16,7 +16,6 @@ import (
 	crtclient "sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/component"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/kappclient"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/log"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgpackageclient"
@@ -263,7 +262,7 @@ func checkSecretExists(kc kappclient.Client) (bool, error) {
 func issueWarningAndPromptUser(msg string) error {
 	log.Warning(msg)
 	if !registrySecretOp.SkipPrompt {
-		if err := cli.AskForConfirmation("Are you sure you want to proceed?"); err != nil {
+		if err := component.AskForConfirmation("Are you sure you want to proceed?"); err != nil {
 			return errors.New("creation of the secret got aborted")
 		}
 	}

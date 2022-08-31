@@ -8,7 +8,7 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli"
+	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/component"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgpackageclient"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgpackagedatamodel"
 )
@@ -37,7 +37,7 @@ func packageUninstall(cmd *cobra.Command, args []string) error {
 	packageInstalledOp.PkgInstallName = args[0]
 
 	if !packageInstalledOp.SkipPrompt {
-		if err := cli.AskForConfirmation(fmt.Sprintf("Deleting installed package '%s' in namespace '%s'. Are you sure?",
+		if err := component.AskForConfirmation(fmt.Sprintf("Deleting installed package '%s' in namespace '%s'. Are you sure?",
 			packageInstalledOp.PkgInstallName, packageInstalledOp.Namespace)); err != nil {
 			return err
 		}

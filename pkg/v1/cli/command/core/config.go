@@ -296,7 +296,7 @@ var deleteServersCmd = &cobra.Command{
 
 		var isAborted error
 		if !unattended {
-			isAborted = cli.AskForConfirmation("Deleting the server entry from the config will remove it from the list of tracked servers. " +
+			isAborted = component.AskForConfirmation("Deleting the server entry from the config will remove it from the list of tracked servers. " +
 				"You will need to use tanzu login to track this server again. Are you sure you want to continue?")
 		}
 

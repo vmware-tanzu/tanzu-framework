@@ -6,7 +6,7 @@ package main
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli"
+	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/command"
 )
 
 const (
@@ -27,7 +27,7 @@ func init() {
 	machineHealthCheckCmd.AddCommand(machineHealthCheckControlPlaneCmd)
 	machineHealthCheckCmd.AddCommand(machineHealthCheckNodeCmd)
 
-	cli.DeprecateCommandWithAlternative(deleteMachineHealthCheckCmd, "1.5.0", "tanzu cluster machinehealthcheck node delete or tanzu cluster machinehealthcheck control-plane delete")
-	cli.DeprecateCommandWithAlternative(getMachineHealthCheckCmd, "1.5.0", "tanzu cluster machinehealthcheck node get or tanzu cluster machinehealthcheck control-plane get")
-	cli.DeprecateCommandWithAlternative(setMachineHealthCheckCmd, "1.5.0", "tanzu cluster machinehealthcheck node set or tanzu cluster machinehealthcheck control-plane set")
+	command.DeprecateCommandWithAlternative(deleteMachineHealthCheckCmd, "1.5.0", "tanzu cluster machinehealthcheck node delete or tanzu cluster machinehealthcheck control-plane delete")
+	command.DeprecateCommandWithAlternative(getMachineHealthCheckCmd, "1.5.0", "tanzu cluster machinehealthcheck node get or tanzu cluster machinehealthcheck control-plane get")
+	command.DeprecateCommandWithAlternative(setMachineHealthCheckCmd, "1.5.0", "tanzu cluster machinehealthcheck node set or tanzu cluster machinehealthcheck control-plane set")
 }

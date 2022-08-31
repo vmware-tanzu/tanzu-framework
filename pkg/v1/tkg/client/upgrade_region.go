@@ -23,8 +23,8 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	kapppkgv1alpha1 "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apiserver/apis/datapackaging/v1alpha1"
+	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/component"
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/config"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/clusterclient"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/log"
@@ -464,7 +464,7 @@ func (c *TkgClient) ValidateManagementClusterUpgradeVersionCompatibility(options
 	if warningMsg != "" {
 		if !options.SkipPrompt {
 			log.Warning(warningMsg)
-			if err := cli.AskForConfirmation("Do you want to continue with the upgrade?"); err != nil {
+			if err := component.AskForConfirmation("Do you want to continue with the upgrade?"); err != nil {
 				return err
 			}
 		} else {
@@ -523,7 +523,7 @@ func (c *TkgClient) validateCompatibilityWithTMC(regionalClusterClient clustercl
 		if !skipPrompt {
 			log.Infof("error occurred while validating compatibility with Tanzu Mission Control, %v", err)
 			log.Warning("Unable to validate compatibility of new version with Tanzu Mission Control. See https://via.vmw.com/tkg-14-tmc-compat for more information.")
-			if err := cli.AskForConfirmation("Do you want to continue with the upgrade?"); err != nil {
+			if err := component.AskForConfirmation("Do you want to continue with the upgrade?"); err != nil {
 				return err
 			}
 		} else {

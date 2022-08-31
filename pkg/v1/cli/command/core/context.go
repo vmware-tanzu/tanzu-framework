@@ -601,7 +601,7 @@ func deleteCtx(_ *cobra.Command, args []string) error {
 	}
 
 	if !unattended {
-		isAborted := cli.AskForConfirmation("Deleting the context entry from the config will remove it from the list of tracked contexts. " +
+		isAborted := component.AskForConfirmation("Deleting the context entry from the config will remove it from the list of tracked contexts. " +
 			"You will need to use `tanzu context create` to re-create this context. Are you sure you want to continue?")
 		if isAborted != nil {
 			return nil
