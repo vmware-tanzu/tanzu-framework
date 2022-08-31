@@ -3,7 +3,6 @@
 
 ROOT_DIR := $(shell git rev-parse --show-toplevel)
 
-
 # Golang specific variables
 GOOS ?= $(shell go env GOOS)
 GOARCH ?= $(shell go env GOARCH)
@@ -23,6 +22,13 @@ TOOLS_BIN_DIR := $(TOOLS_DIR)/bin
 
 # Add tooling binaries here and in hack/tools/Makefile
 GOIMPORTS     := $(TOOLS_BIN_DIR)/goimports
+
+## --------------------------------------
+## Help
+## --------------------------------------
+
+help: ## Display this help (default)
+	@awk 'BEGIN {FS = ":.*##"; printf "\nUsage:\n  make \033[36m<target>\033[0m\n"} /^[0-9a-zA-Z_-]+:.*?##/ { printf "  \033[36m%-28s\033[0m %s\n", $$1, $$2 } /^##@/ { printf "\n\033[1m\033[32m%s\033[0m\n", substr($$0, 5) } ' $(MAKEFILE_LIST)
 
 ## --------------------------------------
 ## All
@@ -45,10 +51,5 @@ vet: ## Vet codebase
 
 fmt: $(GOIMPORTS) ## Run goimports
 	$(GOIMPORTS) -w -local github.com/vmware-tanzu ./
+	${GO} fmt ./...
 
-## --------------------------------------
-## Help
-## --------------------------------------
-
-help: ## Display this help (default)
-	@awk 'BEGIN {FS = ":.*##"; printf "\nUsage:\n  make \033[36m<target>\033[0m\n"} /^[0-9a-zA-Z_-]+:.*?##/ { printf "  \033[36m%-28s\033[0m %s\n", $$1, $$2 } /^##@/ { printf "\n\033[1m\033[32m%s\033[0m\n", substr($$0, 5) } ' $(MAKEFILE_LIST)
