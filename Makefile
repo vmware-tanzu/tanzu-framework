@@ -467,9 +467,9 @@ test: generate manifests build-cli-mocks ## Run tests
 	KUBEBUILDER_ASSETS=$(ROOT_DIR)/$(KUBEBUILDER)/bin $(MAKE) test -C addons
 
 	# pinniped post-deploy
-	$(MAKE) test -C addons/pinniped/post-deploy
+	$(MAKE) test -C pinniped-components/post-deploy
 	# pinniped tanzu-auth-controller-manager
-	addons/pinniped/tanzu-auth-controller-manager/hack/test.sh
+	pinniped-components/tanzu-auth-controller-manager/hack/test.sh
 
 .PHONY: test-cli
 test-cli: build-cli-mocks ## Run tests
@@ -635,7 +635,7 @@ generate-package-secret: ## Generate the default package values secret. Usage: m
 	fi
 
 	@if [ $(PACKAGE) == 'pinniped' ]; then \
-	  ./addons/pinniped/tanzu-auth-controller-manager/hack/generate-package-secret.sh -v tkr=${tkr} -v infrastructure_provider=${iaas} ;\
+	  ./pinniped-components/tanzu-auth-controller-manager/hack/generate-package-secret.sh -v tkr=${tkr} -v infrastructure_provider=${iaas} ;\
 	elif [ $(PACKAGE) == 'capabilities' ]; then \
 	  ./pkg/v1/sdk/capabilities/hack/generate-package-secret.sh -v tkr=${tkr} --data-value-yaml 'rbac.podSecurityPolicyNames=[${psp}]';\
 	else \
@@ -699,7 +699,7 @@ COMPONENTS ?=  \
   pkg/v1/sdk/capabilities \
   pkg/v2/tkr/webhook/tkr-conversion \
   pkg/v2/tkr/webhook/cluster/tkr-resolver \
-  addons/pinniped/tanzu-auth-controller-manager \
+  pinniped-components/tanzu-auth-controller-manager \
   pkg/v2/object-propagation
 
 .PHONY: docker-build

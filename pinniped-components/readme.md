@@ -1,8 +1,5 @@
 # Pinniped integration for TKG
 
-**IMPORTANT**: This directory is under deprecation. All code has been moved to `pinniped-components` under the project root.
-Any changes under this directory needs to be duplicated to `pinniped-components` until this directory is fully deprecated.
-
 ## Introduction
 
 The goal of integrating with Pinniped is to provide user authentication feature for TKG clusters. Pinniped allows cluster

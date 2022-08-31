@@ -13,7 +13,7 @@ updates:
       interval: "daily"
 
   - package-ecosystem: "gomod"
-    directory: "addons/pinniped/post-deploy/"
+    directory: "pinniped-components/post-deploy/"
     schedule:
       interval: "daily"
 
