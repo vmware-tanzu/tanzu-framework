@@ -11,9 +11,9 @@ directories:
           - run.tanzu.vmware.com_clusterbootstraps.yaml
           - run.tanzu.vmware.com_clusterbootstraptemplates.yaml
           - run.tanzu.vmware.com_kappcontrollerconfigs.yaml
-      - path: crds
+      - path: addonconfigscrds
         directory:
-          path: ../../config/crd/bases/
+          path: ../../apis/addonconfigs/config/crd/bases/
         includePaths:
           - cni.tanzu.vmware.com_antreaconfigs.yaml
           - cni.tanzu.vmware.com_calicoconfigs.yaml

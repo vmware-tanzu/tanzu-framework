@@ -438,6 +438,6 @@ flowchart TD
 As long as the API satisfies the contract(see above), the controller code and CRD can live anywhere. See the following for
 examples.
 
-![vsphere-csi-config API](../apis/csi/v1alpha1/vspherecsiconfig_types.go)
+![vsphere-csi-config API](../apis/addonconfigs/csi/v1alpha1/vspherecsiconfig_types.go)
 
 ![vsphere-csi-config Controller](controllers/csi/vspherecsiconfig_controller.go)

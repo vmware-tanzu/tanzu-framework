@@ -24,7 +24,7 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
 	pkgtypes "github.com/vmware-tanzu/tanzu-framework/addons/pkg/types"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/util"
-	cpiv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cpi/v1alpha1"
+	cpiv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/addonconfigs/cpi/v1alpha1"
 )
 
 // mapCPIConfigToDataValuesNonParavirtual generates CPI data values for non-paravirtual modes
