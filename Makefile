@@ -1,4 +1,4 @@
-# Copyright 2021 VMware, Inc. All Rights Reserved.
+# Copyright 2022 VMware, Inc. All Rights Reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 include ./common.mk
@@ -223,7 +223,7 @@ build-cli-with-oci-discovery: ${CLI_ADMIN_JOBS_OCI_DISCOVERY} ${CLI_JOBS_OCI_DIS
 build-cli-with-local-discovery: ${CLI_ADMIN_JOBS_LOCAL_DISCOVERY} ${CLI_JOBS_LOCAL_DISCOVERY} publish-plugins-all-local publish-admin-plugins-all-local ## Build Tanzu CLI with Local standalone discovery
 	@rm -rf pinniped
 
-.PHONY: build-plugin-admin-with-oci-discovery
+.PHONY: f
 build-plugin-admin-with-oci-discovery: ${CLI_ADMIN_JOBS_OCI_DISCOVERY} publish-admin-plugins-all-oci ## Build Tanzu CLI admin plugins with OCI standalone discovery
 
 .PHONY: build-plugin-admin-with-local-discovery

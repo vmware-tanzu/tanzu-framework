@@ -3,8 +3,9 @@
 
 include ../../common.mk
 
-# Active module mode, as we use go modules to manage dependencies
-export GO111MODULE := on
+LD_FLAGS += -X 'github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/buildinfo.Date=$(BUILD_DATE)'
+LD_FLAGS += -X 'github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/buildinfo.SHA=$(BUILD_SHA)'
+LD_FLAGS += -X 'github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/buildinfo.Version=$(BUILD_VERSION)'
 
 ifndef ENABLE_CONTEXT_AWARE_PLUGIN_DISCOVERY
 ENABLE_CONTEXT_AWARE_PLUGIN_DISCOVERY = "true"
@@ -58,16 +59,27 @@ endif
 
 
 BUILD_TAGS ?=
-
+ARTIFACTS_DIR ?= ./artifacts
 
 
 .PHONY: all
-all: build-tanzu-core install-tanzu-core test ## Tests the library
+all: build-tanzu-core-local install-tanzu-core test ## Tests the library
 
-.PHONY: build-tanzu-core
-build-tanzu-core: ##Build the tanzu core image
-	$(GO) build -tags "${BUILD_TAGS}" --ldflags "$(LD_FLAGS)"  ./cmd/cli/tanzu/main.go -o $(ARTIFACTS_DIR)/$(GOHOSTOS)/$(GOHOSTARCH)/cli/core/$(BUILD_VERSION)/tanz-core-$(GOHOSTOS)_$(GOHOSTARCH)
+.PHONY: build-tanzu-core-local
+build-tanzu-core-local: ##Build the tanzu core image
+	mkdir -p ../../$(ARTIFACTS_DIR)/$(GOHOSTOS)/$(GOHOSTARCH)/cli/core/$(BUILD_VERSION)
+	echo "$(ARTIFACTS_DIR)/$(GOHOSTOS)/$(GOHOSTARCH)/cli/core/$(BUILD_VERSION)/tanz-core-$(GOHOSTOS)_$(GOHOSTARCH)"
+	$(GO) build -tags "${BUILD_TAGS}" --ldflags "$(LD_FLAGS)"  -o "../../$(ARTIFACTS_DIR)/$(GOHOSTOS)/$(GOHOSTARCH)/cli/core/$(BUILD_VERSION)/tanz-core-$(GOHOSTOS)_$(GOHOSTARCH)" ./cmd/tanzu/main.go
 
+.PHONY: install-tanzu-core
+install-tanzu-core: install-tanzu-core-local ## Install Tanzu CLI with local discovery
+
+.PHONY: install-tanzu-core-%
+install-tanzu-core-%: ## Install Tanzu Core CLI
+	$(eval DISCOVERY_TYPE = $(word 1,$(subst -, ,$*)))
+	echo "$(DISCOVERY_TYPE)"
+	echo
+	$(GO) install -ldflags "$(LD_FLAGS) -X 'github.com/vmware-tanzu/tanzu-framework/pkg/v1/config.DefaultStandaloneDiscoveryType=${DISCOVERY_TYPE}'" ./cmd/tanzu
 
 
 ## --------------------------------------
