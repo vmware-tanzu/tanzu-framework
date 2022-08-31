@@ -872,26 +872,8 @@ spec:
         path: /spec/template/spec/kubeadmConfigSpec/postKubeadmCommands/-
         value: sed -i '/listen-client-urls/ s/$/,https:\/\/127.0.0.1:2379/' /etc/kubernetes/manifests/etcd.yaml
   - name: nodeLabels
+    enabledIf: '{{ empty .nodePoolLabels | not }}'
     definitions:
-    - selector:
-        apiVersion: controlplane.cluster.x-k8s.io/v1beta1
-        kind: KubeadmControlPlaneTemplate
-        matchResources:
-          controlPlane: true
-      jsonPatches:
-      - op: add
-        path: /spec/template/spec/kubeadmConfigSpec/joinConfiguration/nodeRegistration/kubeletExtraArgs/node-labels
-        valueFrom:
-          template: |
-            {{ $first := true }}
-            {{- range $key, $val := (index .TKR_DATA .builtin.controlPlane.version).labels }}
-            {{- if $first }}
-              {{- $first = false }}
-            {{- else -}}
-              ,
-            {{- end }}
-            {{- $key -}} = {{- $val }}
-            {{- end }}
     - selector:
         apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
         kind: KubeadmConfigTemplate
@@ -905,15 +887,6 @@ spec:
         path: /spec/template/spec/joinConfiguration/nodeRegistration/kubeletExtraArgs/node-labels
         valueFrom:
           template: |
-            {{ $first := true }}
-            {{- range $key, $val := (index .TKR_DATA .builtin.machineDeployment.version).labels }}
-            {{- if $first }}
-              {{- $first = false }}
-            {{- else -}}
-              ,
-            {{- end }}
-            {{- $key -}} = {{- $val }}
-            {{- end}}
             {{- if .nodePoolLabels -}}
               ,
               {{- $first := true }}
