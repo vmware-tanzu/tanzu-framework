@@ -1151,7 +1151,7 @@ func (r *ClusterBootstrapReconciler) GetDataValueSecretNameFromBootstrapPackage(
 			if err = r.Get(r.context, key, secret); err != nil {
 				if apierrors.IsNotFound(err) {
 					// secret for package with inline does not exist, we should create one
-					_, err := clusterBootstrapHelper.CreateSecretFromInline(cluster, cbPkg, packageRefName)
+					secret, err = clusterBootstrapHelper.CreateSecretFromInline(cluster, cbPkg, packageRefName)
 					if err != nil {
 						return "", err
 					}
@@ -1160,10 +1160,32 @@ func (r *ClusterBootstrapReconciler) GetDataValueSecretNameFromBootstrapPackage(
 					return "", err
 				}
 			} else {
-				_, err = clusterBootstrapHelper.CreateOrPatchInlineSecret(cluster, cbPkg, secret)
+				secret, err = clusterBootstrapHelper.CreateOrPatchInlineSecret(cluster, cbPkg, secret)
 				if err != nil {
 					return "", err
 				}
+			}
+			// ensure the secret has an ownerref to cluster bootstrap
+			clusterBootstrap := &runtanzuv1alpha3.ClusterBootstrap{}
+			if err := r.Client.Get(r.context, client.ObjectKeyFromObject(cluster), clusterBootstrap); err != nil {
+				return "", err
+			}
+			ownerRef := metav1.OwnerReference{
+				APIVersion:         runtanzuv1alpha3.GroupVersion.String(),
+				Kind:               "ClusterBootstrap", // kind is empty after create
+				Name:               clusterBootstrap.Name,
+				UID:                clusterBootstrap.UID,
+				Controller:         pointer.BoolPtr(true),
+				BlockOwnerDeletion: pointer.BoolPtr(true),
+			}
+			ownerRefsMutateFn := func() error {
+				secret.OwnerReferences = clusterapiutil.EnsureOwnerRef(secret.OwnerReferences, ownerRef)
+				return nil
+			}
+			_, err := controllerutil.CreateOrPatch(clusterBootstrapHelper.Ctx, clusterBootstrapHelper.K8sClient, secret, ownerRefsMutateFn)
+			if err != nil {
+				r.Log.Error(err, fmt.Sprintf("unable to patch the secret %s/%s with CB ownerRef", secret.Namespace, secret.Name))
+				return "", err
 			}
 			return packageSecretName, nil
 		}
