@@ -1,11 +1,10 @@
 // Copyright 2021 VMware, Inc. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-package pkg
+package cli
 
 import (
 	"context"
-	"fmt"
 	"os"
 	"strconv"
 	"strings"
@@ -14,20 +13,7 @@ import (
 	"github.com/spf13/cobra"
 
 	cliv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/buildinfo"
 )
-
-// NewTestFor creates a plugin descriptor for a test plugin.
-func NewTestFor(pluginName string) *cliv1alpha1.PluginDescriptor {
-	return &cliv1alpha1.PluginDescriptor{
-		Name:        fmt.Sprintf("%s-test", pluginName),
-		Description: fmt.Sprintf("test for %s", pluginName),
-		Version:     "v0.0.1",
-		BuildSHA:    buildinfo.SHA,
-		Group:       cliv1alpha1.TestCmdGroup,
-		Aliases:     []string{fmt.Sprintf("%s-alias", pluginName)},
-	}
-}
 
 // GetCmd returns a cobra command for the plugin.
 func GetCmd(p *cliv1alpha1.PluginDescriptor) *cobra.Command {
@@ -161,17 +147,4 @@ func TestCmd(p *cliv1alpha1.PluginDescriptor) *cobra.Command {
 		DisableFlagParsing: true,
 	}
 	return cmd
-}
-
-// ApplyDefaultConfig applies default configurations to plugin descriptor.
-func ApplyDefaultConfig(p *cliv1alpha1.PluginDescriptor) {
-	p.BuildSHA = buildinfo.SHA
-	if p.Version == "" {
-		p.Version = BuildVersion
-	}
-	if p.PostInstallHook == nil {
-		p.PostInstallHook = func() error {
-			return nil
-		}
-	}
 }

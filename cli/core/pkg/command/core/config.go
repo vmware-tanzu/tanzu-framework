@@ -15,8 +15,8 @@ import (
 
 	cliv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
 	configv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/config/v1alpha1"
-	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/component"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli"
+	cli "github.com/vmware-tanzu/tanzu-framework/cli/core/pkg"
+	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/component"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/config"
 )
 
@@ -298,7 +298,7 @@ var deleteServersCmd = &cobra.Command{
 
 		var isAborted error
 		if !unattended {
-			isAborted = cli.AskForConfirmation("Deleting the server entry from the config will remove it from the list of tracked servers. " +
+			isAborted = component.AskForConfirmation("Deleting the server entry from the config will remove it from the list of tracked servers. " +
 				"You will need to use tanzu login to track this server again. Are you sure you want to continue?")
 		}
 

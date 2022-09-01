@@ -17,7 +17,8 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
 	cli "github.com/vmware-tanzu/tanzu-framework/cli/core/pkg"
 	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/pluginmanager"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/config"
+	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/config"
+	cliconfig "github.com/vmware-tanzu/tanzu-framework/pkg/v1/config"
 )
 
 // RootCmd is the core root Tanzu command
@@ -48,7 +49,7 @@ func NewRootCmd() (*cobra.Command, error) {
 	}
 
 	// configure defined environment variables under tanzu config file
-	config.ConfigureEnvVariables()
+	cliconfig.ConfigureEnvVariables()
 
 	au := aurora.NewAurora(color)
 	RootCmd.Short = au.Bold(`Tanzu CLI`).String()
@@ -65,6 +66,11 @@ func NewRootCmd() (*cobra.Command, error) {
 		configCmd,
 		genAllDocsCmd,
 	)
+
+	// If the context-command feature is enabled add it under root.
+	if config.IsFeatureActivated(config.FeatureContextCommand) {
+		RootCmd.AddCommand(contextCmd)
+	}
 
 	plugins, err := getAvailablePlugins()
 	if err != nil {

@@ -231,7 +231,12 @@ func Test_DeletePlugin(t *testing.T) {
 	defer setupLocalDistoForTesting()()
 
 	// Try delete plugin when plugin is not installed
-	err := DeletePlugin("", "login")
+	loginPlugin := DeletePluginOptions{
+		PluginName:  "login",
+		ServerName:  "",
+		ForceDelete: true,
+	}
+	err := DeletePlugin(loginPlugin)
 	assert.NotNil(err)
 	assert.Contains(err.Error(), "could not get plugin path for plugin \"login\"")
 
@@ -239,7 +244,12 @@ func Test_DeletePlugin(t *testing.T) {
 	mockInstallPlugin(assert, "", "login", "v0.2.0")
 
 	// Try delete plugin when plugin is installed
-	err = DeletePlugin("mgmt", "cluster")
+	clusterPlugin := DeletePluginOptions{
+		PluginName:  "cluster",
+		ServerName:  "mgmt",
+		ForceDelete: true,
+	}
+	err = DeletePlugin(clusterPlugin)
 	assert.NotNil(err)
 	assert.Contains(err.Error(), "could not get plugin path for plugin \"cluster\"")
 
@@ -247,7 +257,7 @@ func Test_DeletePlugin(t *testing.T) {
 	mockInstallPlugin(assert, "mgmt", "cluster", "v0.2.0")
 
 	// Try describe plugin when plugin after installing plugin
-	err = DeletePlugin("mgmt", "cluster")
+	err = DeletePlugin(clusterPlugin)
 	assert.Nil(err)
 }
 

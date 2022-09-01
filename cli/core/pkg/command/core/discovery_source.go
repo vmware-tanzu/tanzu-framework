@@ -14,9 +14,10 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/common"
 
 	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/discovery"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/component"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/config"
+
+	cli "github.com/vmware-tanzu/tanzu-framework/cli/core/pkg"
+	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/component"
+	configlib "github.com/vmware-tanzu/tanzu-framework/cli/runtime/config"
 )
 
 var (
@@ -56,7 +57,7 @@ var listDiscoverySourceCmd = &cobra.Command{
 	Use:   "list",
 	Short: "List available discovery sources",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		cfg, err := config.GetClientConfig()
+		cfg, err := configlib.GetClientConfig()
 		if err != nil {
 			return err
 		}
@@ -69,11 +70,11 @@ var listDiscoverySourceCmd = &cobra.Command{
 		}
 
 		// Get context scoped discoveries
-		server, err := config.GetCurrentServer()
+		server, err := configlib.GetCurrentServer()
 		if err == nil && server != nil {
 			var serverDiscoverySources []configv1alpha1.PluginDiscovery
 			if server.DiscoverySources == nil {
-				serverDiscoverySources = config.GetDiscoverySources(server.Name)
+				serverDiscoverySources = configlib.GetDiscoverySources(server.Name)
 			} else {
 				serverDiscoverySources = server.DiscoverySources
 			}
@@ -106,10 +107,10 @@ var addDiscoverySourceCmd = &cobra.Command{
 
 	RunE: func(cmd *cobra.Command, args []string) error {
 		// Acquire tanzu config lock
-		config.AcquireTanzuConfigLock()
-		defer config.ReleaseTanzuConfigLock()
+		configlib.AcquireTanzuConfigLock()
+		defer configlib.ReleaseTanzuConfigLock()
 
-		cfg, err := config.GetClientConfig()
+		cfg, err := configlib.GetClientConfigNoLock()
 		if err != nil {
 			return err
 		}
@@ -126,7 +127,7 @@ var addDiscoverySourceCmd = &cobra.Command{
 		}
 
 		cfg.ClientOptions.CLI.DiscoverySources = discoverySources
-		err = config.StoreClientConfig(cfg)
+		err = configlib.StoreClientConfig(cfg)
 		if err != nil {
 			return err
 		}
@@ -150,10 +151,10 @@ var updateDiscoverySourceCmd = &cobra.Command{
 		discoveryName := args[0]
 
 		// Acquire tanzu config lock
-		config.AcquireTanzuConfigLock()
-		defer config.ReleaseTanzuConfigLock()
+		configlib.AcquireTanzuConfigLock()
+		defer configlib.ReleaseTanzuConfigLock()
 
-		cfg, err := config.GetClientConfig()
+		cfg, err := configlib.GetClientConfigNoLock()
 		if err != nil {
 			return err
 		}
@@ -172,7 +173,7 @@ var updateDiscoverySourceCmd = &cobra.Command{
 		}
 
 		cfg.ClientOptions.CLI.DiscoverySources = newDiscoverySources
-		err = config.StoreClientConfig(cfg)
+		err = configlib.StoreClientConfig(cfg)
 		if err != nil {
 			return err
 		}
@@ -191,10 +192,10 @@ var deleteDiscoverySourceCmd = &cobra.Command{
 		discoveryName := args[0]
 
 		// Acquire tanzu config lock
-		config.AcquireTanzuConfigLock()
-		defer config.ReleaseTanzuConfigLock()
+		configlib.AcquireTanzuConfigLock()
+		defer configlib.ReleaseTanzuConfigLock()
 
-		cfg, err := config.GetClientConfig()
+		cfg, err := configlib.GetClientConfigNoLock()
 		if err != nil {
 			return err
 		}
@@ -208,7 +209,7 @@ var deleteDiscoverySourceCmd = &cobra.Command{
 		}
 
 		cfg.ClientOptions.CLI.DiscoverySources = newDiscoverySources
-		err = config.StoreClientConfig(cfg)
+		err = configlib.StoreClientConfig(cfg)
 		if err != nil {
 			return err
 		}

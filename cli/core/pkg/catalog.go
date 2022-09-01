@@ -1,7 +1,7 @@
 // Copyright 2021 VMware, Inc. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-package pkg
+package cli
 
 import (
 	"bytes"
@@ -16,7 +16,6 @@ import (
 
 	"github.com/aunum/log"
 	"github.com/pkg/errors"
-	"go.uber.org/multierr"
 	"golang.org/x/mod/semver"
 	apimachineryjson "k8s.io/apimachinery/pkg/runtime/serializer/json"
 
@@ -47,30 +46,6 @@ func getCatalogCacheDir() (path string, err error) {
 		return path, errors.Wrap(err, "could not locate user home directory")
 	}
 	path = filepath.Join(home, catalogCacheDirName)
-	return
-}
-
-// ValidatePlugin validates the plugin descriptor.
-func ValidatePlugin(p *cliv1alpha1.PluginDescriptor) (err error) {
-	// skip builder plugin for bootstrapping
-	if p.Name == "builder" {
-		return nil
-	}
-	if p.Name == "" {
-		err = multierr.Append(err, fmt.Errorf("plugin %q name cannot be empty", p.Name))
-	}
-	if p.Version == "" {
-		err = multierr.Append(err, fmt.Errorf("plugin %q version cannot be empty", p.Name))
-	}
-	if !semver.IsValid(p.Version) && p.Version != "dev" {
-		err = multierr.Append(err, fmt.Errorf("version %q %q is not a valid semantic version", p.Name, p.Version))
-	}
-	if p.Description == "" {
-		err = multierr.Append(err, fmt.Errorf("plugin %q description cannot be empty", p.Name))
-	}
-	if p.Group == "" {
-		err = multierr.Append(err, fmt.Errorf("plugin %q group cannot be empty", p.Name))
-	}
 	return
 }
 
@@ -115,21 +90,6 @@ func HasPluginUpdate(repo Repository, versionSelector VersionSelector, p *cliv1a
 		return true, latest, nil
 	}
 	return false, version, nil
-}
-
-// ParsePluginDescriptor parses a plugin descriptor in yaml.
-func ParsePluginDescriptor(path string) (desc cliv1alpha1.PluginDescriptor, err error) {
-	b, err := os.ReadFile(path)
-	if err != nil {
-		return desc, errors.Wrap(err, "could not read plugin descriptor")
-	}
-
-	err = json.Unmarshal(b, &desc)
-	if err != nil {
-		return desc, errors.Wrap(err, "could not unmarshal plugin descriptor")
-	}
-
-	return
 }
 
 // IsDistributionSatisfied tells if a distribution is satisfied by the plugin list.

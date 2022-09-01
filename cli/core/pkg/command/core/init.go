@@ -12,9 +12,9 @@ import (
 	"github.com/spf13/cobra"
 
 	cliv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
+	cli "github.com/vmware-tanzu/tanzu-framework/cli/core/pkg"
 	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/pluginmanager"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/config"
+	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/config"
 )
 
 var (
