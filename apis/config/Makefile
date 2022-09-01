@@ -1,6 +1,10 @@
 # Copyright 2022 VMware, Inc. All Rights Reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-RELATIVE_ROOT=../..
+include ../../common.mk
 
-include $(RELATIVE_ROOT)/common.mk
+RELATIVE_ROOT=.
+
+.PHONY: manifests
+manifests: ## Generate manifests e.g. CRD, RBAC etc.
+	$(MAKE) generate-manifests CONTROLLER_GEN_SRC=./...

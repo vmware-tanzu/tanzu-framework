@@ -6,7 +6,7 @@ directories:
     contents:
       - path: crds
         directory:
-          path: ../../config/crd/bases/
+          path: ../../apis/config/config/crd/bases/
         includePaths:
           - config.tanzu.vmware.com_features.yaml
           - config.tanzu.vmware.com_featuregates.yaml
