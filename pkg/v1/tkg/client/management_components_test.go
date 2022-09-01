@@ -99,7 +99,7 @@ Test4:
 var _ = Describe("Unit tests for GetKappControllerConfigValuesFile", func() {
 	var (
 		err                               error
-		kappControllerValuesYttDir        = "../../providers/kapp-controller-values"
+		kappControllerValuesYttDir        = "../../../../providers/kapp-controller-values"
 		inputDataValuesFile               string
 		processedKappControllerValuesFile string
 		outputKappControllerValuesFile    string

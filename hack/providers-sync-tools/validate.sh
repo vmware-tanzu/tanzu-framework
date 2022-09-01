@@ -16,11 +16,11 @@ function validate_rendered_files() {
 	local rendered_files="$(find "${rendered_dir}/upstream" -type f)"
 	set +e
 	for rendered_file in ${rendered_files}; do
-	  diff -s "../../pkg/v1/providers/${provider_name}/${version}/$(basename ${rendered_file})" "${rendered_file}"
+	  diff -s "../../providers/${provider_name}/${version}/$(basename ${rendered_file})" "${rendered_file}"
 	  local exit_code="${?}"
 	  if [[ ${exit_code} -ne 0 ]]; then
-		echo "[Error] Files ${rendered_file} and ../../pkg/v1/providers/${provider_name}/${version}/$(basename ${rendered_file}) are different."
-	    echo "[Error] pkg/v1/providers is out of sync with packages/cluster-api*. See 'hack/providers-sync-tools/README.md'."
+		echo "[Error] Files ${rendered_file} and ../../providers/${provider_name}/${version}/$(basename ${rendered_file}) are different."
+	    echo "[Error] providers is out of sync with packages/cluster-api*. See 'hack/providers-sync-tools/README.md'."
 	    exit ${exit_code}
 	  fi
 	done

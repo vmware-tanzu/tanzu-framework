@@ -10,7 +10,6 @@ import (
 	"github.com/pkg/errors"
 	clusterctllogger "sigs.k8s.io/cluster-api/cmd/clusterctl/log"
 
-	providergetterclient "github.com/vmware-tanzu/tanzu-framework/pkg/v1/providers/client"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/client"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/clientcreator"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/clusterclient"
@@ -25,6 +24,7 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfigupdater"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/types"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/utils"
+	providergetterclient "github.com/vmware-tanzu/tanzu-framework/providers/client"
 )
 
 type tkgctl struct {
