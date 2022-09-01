@@ -17,9 +17,9 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/webhook/admission"
 	"sigs.k8s.io/kind/pkg/errors"
 
+	"github.com/vmware-tanzu/tanzu-framework/apis/run/util/version"
 	"github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
 	util_topology "github.com/vmware-tanzu/tanzu-framework/pkg/v2/tkr/util/topology"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v2/tkr/util/version"
 	resolver_cluster "github.com/vmware-tanzu/tanzu-framework/pkg/v2/tkr/webhook/cluster/tkr-resolver/cluster"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v2/tkr/webhook/cluster/vsphere-template-resolver/templateresolver"
 )
@@ -45,7 +45,7 @@ func (cw *Webhook) InjectDecoder(decoder *admission.Decoder) error {
 }
 
 func (cw *Webhook) Handle(ctx context.Context, req admission.Request) admission.Response { // nolint:gocritic // suppress linter error: hugeParam: req is heavy (400 bytes); consider passing by pointer (gocritic)
-	//TODO: Check if this Cluster is  CC cluster and then get the variables from Cluster and resolve the template -- Is this necessary?
+	// TODO: Check if this Cluster is  CC cluster and then get the variables from Cluster and resolve the template -- Is this necessary?
 	// Decode the request into cluster
 	cluster := &clusterv1.Cluster{}
 	if err := cw.decoder.Decode(req, cluster); err != nil {

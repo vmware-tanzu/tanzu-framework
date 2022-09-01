@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/go-logr/logr"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	jsonpatch "gomodules.xyz/jsonpatch/v2"
@@ -22,7 +23,6 @@ import (
 	"k8s.io/kubectl/pkg/scheme"
 	clusterv1 "sigs.k8s.io/cluster-api/api/v1beta1"
 	crtclient "sigs.k8s.io/controller-runtime/pkg/client"
-	ctrllog "sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/webhook/admission"
 
 	"github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
@@ -58,7 +58,7 @@ var _ = Describe("Webhook", func() {
 		)
 		BeforeEach(func() {
 			clusterObj = nil
-			log := ctrllog.Log
+			log := logr.Discard()
 			cw = Webhook{
 				Log:      log,
 				Client:   nil,
@@ -267,7 +267,7 @@ var _ = Describe("Webhook", func() {
 		)
 		BeforeEach(func() {
 			cw = Webhook{
-				Log:    ctrllog.Log,
+				Log:    logr.Discard(),
 				Client: nil,
 			}
 			// Setup default cluster.
@@ -593,7 +593,7 @@ var _ = Describe("Webhook", func() {
 		)
 		BeforeEach(func() {
 			cw = Webhook{
-				Log:    ctrllog.Log,
+				Log:    logr.Discard(),
 				Client: nil,
 			}
 			clusterTopologyVersion = "v1.22.3+vmware.1"
@@ -752,7 +752,7 @@ var _ = Describe("Webhook", func() {
 			}
 
 			cw = Webhook{
-				Log:    ctrllog.Log,
+				Log:    logr.Discard(),
 				Client: nil,
 			}
 			fakeClient = &fakes.CRTClusterClient{}

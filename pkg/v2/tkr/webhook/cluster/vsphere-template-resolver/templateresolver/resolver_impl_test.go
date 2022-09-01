@@ -8,10 +8,10 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/go-logr/logr"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/vmware/govmomi/simulator"
-	ctrllog "sigs.k8s.io/controller-runtime/pkg/log"
 
 	"github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/fakes"
@@ -105,7 +105,7 @@ var _ = Describe("Resolver", func() {
 				},
 			}, nil)
 
-			resolver = New(ctrllog.Log)
+			resolver = New(logr.Discard())
 
 			query = Query{}
 			dcInContext = "vc-datacenter"
