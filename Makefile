@@ -202,7 +202,7 @@ endif
 
 # Dynamically generate the OS-ARCH targets to allow for parallel execution
 CLI_JOBS_OCI_DISCOVERY := $(addprefix build-cli-oci-,${ENVS})
-CLI_ADMIN_JOBS_OCI_DISCOVERY := $(addprefix build-plugin-oci-,${ENVS})
+CLI_ADMIN_JOBS_OCI_DISCOVERY := $(addprefix build-plugin-admin-oci-,${ENVS})
 
 CLI_JOBS_LOCAL_DISCOVERY := $(addprefix build-cli-local-,${ENVS})
 CLI_ADMIN_JOBS_LOCAL_DISCOVERY := $(addprefix build-plugin-admin-local-,${ENVS})
