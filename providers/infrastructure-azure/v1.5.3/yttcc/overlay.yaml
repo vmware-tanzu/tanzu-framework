@@ -63,8 +63,6 @@ metadata:
     cluster-role.tkg.tanzu.vmware.com/(@= data.values.TKG_CLUSTER_ROLE @): ""
     #@ end
     tkg.tanzu.vmware.com/cluster-name: #@ data.values.CLUSTER_NAME
-    #@overlay/match missing_ok=True
-    tanzuKubernetesRelease: #@ data.values.KUBERNETES_RELEASE
 spec:
   clusterNetwork:
     #@ if data.values.CLUSTER_API_SERVER_PORT:
@@ -82,7 +80,7 @@ spec:
   topology:
     class: #@ data.values.CLUSTER_CLASS
     #! VVV TODO(vui) compute
-    version: #@ data.values.KUBERNETES_VERSION
+    version: #@ "{}-tkg.1-zshippable".format(data.values.KUBERNETES_VERSION)
     controlPlane:
       replicas: #@ data.values.CONTROL_PLANE_MACHINE_COUNT
       #@overlay/match missing_ok=True
