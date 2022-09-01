@@ -86,10 +86,10 @@ spec:
     - name: KCPT_ControlPlane_Main
       definitions:
         - selector:
-          apiVersion: controlplane.cluster.x-k8s.io/v1beta1
-          kind: KubeadmControlPlaneTemplate
-          matchResources:
-            controlPlane: true
+            apiVersion: controlplane.cluster.x-k8s.io/v1beta1
+            kind: KubeadmControlPlaneTemplate
+            matchResources:
+              controlPlane: true
           jsonPatches:
             - op: replace
               path: /spec/template/spec/kubeadmConfigSpec/clusterConfiguration/imageRepository
