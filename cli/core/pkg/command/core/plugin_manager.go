@@ -18,15 +18,17 @@ import (
 
 	cliv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
 	cli "github.com/vmware-tanzu/tanzu-framework/cli/core/pkg"
-	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/component"
 	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/plugin"
 	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/pluginmanager"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/config"
+	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/command"
+	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/component"
+	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/config"
 )
 
 var (
-	local   string
-	version string
+	local       string
+	version     string
+	forceDelete bool
 )
 
 func init() {
@@ -46,8 +48,9 @@ func init() {
 	listPluginCmd.Flags().StringVarP(&local, "local", "l", "", "path to local discovery/distribution source")
 	installPluginCmd.Flags().StringVarP(&local, "local", "l", "", "path to local discovery/distribution source")
 	installPluginCmd.Flags().StringVarP(&version, "version", "v", cli.VersionLatest, "version of the plugin")
+	deletePluginCmd.Flags().BoolVarP(&forceDelete, "yes", "y", false, "delete the plugin without asking for confirmation")
 
-	cli.DeprecateCommand(repoCmd, "")
+	command.DeprecateCommand(repoCmd, "")
 }
 
 var pluginCmd = &cobra.Command{
@@ -383,7 +386,13 @@ var deletePluginCmd = &cobra.Command{
 				serverName = server.Name
 			}
 
-			err = pluginmanager.DeletePlugin(serverName, pluginName)
+			deletePluginOptions := pluginmanager.DeletePluginOptions{
+				PluginName:  pluginName,
+				ServerName:  serverName,
+				ForceDelete: forceDelete,
+			}
+
+			err = pluginmanager.DeletePlugin(deletePluginOptions)
 			if err != nil {
 				return err
 			}

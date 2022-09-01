@@ -30,6 +30,8 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/common"
 	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/discovery"
 	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/plugin"
+	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/component"
+	configlib "github.com/vmware-tanzu/tanzu-framework/cli/runtime/config"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/config"
 )
 
@@ -43,6 +45,12 @@ const (
 )
 
 var execCommand = exec.Command
+
+type DeletePluginOptions struct {
+	ServerName  string
+	PluginName  string
+	ForceDelete bool
+}
 
 // ValidatePlugin validates the plugin descriptor.
 func ValidatePlugin(p *cliv1alpha1.PluginDescriptor) (err error) {
@@ -88,7 +96,7 @@ func discoverPlugins(pd []v1alpha1.PluginDiscovery) ([]plugin.Discovered, error)
 
 // DiscoverStandalonePlugins returns the available standalone plugins
 func DiscoverStandalonePlugins() (plugins []plugin.Discovered, err error) {
-	cfg, e := config.GetClientConfig()
+	cfg, e := configlib.GetClientConfig()
 	if e != nil {
 		err = errors.Wrapf(e, "unable to get client configuration")
 		return
@@ -120,7 +128,7 @@ func DiscoverServerPlugins(serverName string) ([]plugin.Discovered, error) {
 		return plugins, nil
 	}
 
-	discoverySources := config.GetDiscoverySources(serverName)
+	discoverySources := configlib.GetDiscoverySources(serverName)
 	plugins, err := discoverPlugins(discoverySources)
 	if err != nil {
 		return plugins, err
@@ -455,19 +463,24 @@ func installOrUpgradePlugin(serverName string, p *plugin.Discovered, version str
 
 // DeletePlugin deletes a plugin.
 // If serverName is empty(""), only consider standalone plugins
-func DeletePlugin(serverName, pluginName string) error {
-	c, err := catalog.NewContextCatalog(serverName)
+func DeletePlugin(options DeletePluginOptions) error {
+	c, err := catalog.NewContextCatalog(options.ServerName)
 	if err != nil {
 		return err
 	}
-	_, ok := c.Get(pluginName)
+	_, ok := c.Get(options.PluginName)
 	if !ok {
-		return fmt.Errorf("could not get plugin path for plugin %q", pluginName)
+		return fmt.Errorf("could not get plugin path for plugin %q", options.PluginName)
 	}
 
-	err = c.Delete(pluginName)
+	if !options.ForceDelete {
+		if err := component.AskForConfirmation(fmt.Sprintf("Deleting Plugin '%s'. Are you sure?", options.PluginName)); err != nil {
+			return err
+		}
+	}
+	err = c.Delete(options.PluginName)
 	if err != nil {
-		return fmt.Errorf("plugin %q could not be deleted from cache", pluginName)
+		return fmt.Errorf("plugin %q could not be deleted from cache", options.PluginName)
 	}
 
 	// TODO: delete the plugin binary if it is not used by any server

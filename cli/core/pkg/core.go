@@ -1,7 +1,7 @@
 // Copyright 2021 VMware, Inc. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-package pkg
+package cli
 
 import (
 	"bytes"
@@ -13,7 +13,7 @@ import (
 	"golang.org/x/mod/semver"
 
 	cliv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/buildinfo"
+	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/buildinfo"
 )
 
 // CoreName is the name of the core binary.

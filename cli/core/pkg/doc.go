@@ -2,4 +2,4 @@
 // SPDX-License-Identifier: Apache-2.0
 
 // Package cli provides libraries for building CLI commands and plugins.
-package pkg
+package cli
