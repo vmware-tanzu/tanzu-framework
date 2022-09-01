@@ -6,6 +6,7 @@ package main
 import (
 	"fmt"
 
+	"github.com/blang/semver"
 	"github.com/spf13/cobra"
 
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/component"

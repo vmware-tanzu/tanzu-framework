@@ -15,10 +15,6 @@ import (
 
 	configv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/config/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/common"
-	"github.com/vmware-tanzu/tanzu-framework/tkg/tkgconfigpaths"
-
-	"k8s.io/client-go/rest"
-	"k8s.io/client-go/tools/clientcmd"
 )
 
 func init() {
@@ -118,7 +114,6 @@ var (
 		FeatureFlagTKRVersionV1Alpha3:                         false,
 		FeatureFlagPackagePluginKctrlCommandTree:              false,
 	}
->>>>>>> e60ec549 (Moving pkg/v1/tkg as a top level module):pkg/v1/config/clientconfig.go
 )
 
 const (

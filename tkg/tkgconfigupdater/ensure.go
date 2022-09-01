@@ -12,6 +12,8 @@ import (
 	"time"
 
 	"github.com/pkg/errors"
+	"gopkg.in/yaml.v3"
+
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/config"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/log"
