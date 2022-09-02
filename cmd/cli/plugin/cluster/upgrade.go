@@ -21,11 +21,11 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/config"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/clusterclient"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/log"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgctl"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/utils"
 	tkrutils "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkr/pkg/utils"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v2/tkr/util/topology"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/log"
 )
 
 type upgradeClustersOptions struct {

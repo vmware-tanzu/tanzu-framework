@@ -13,8 +13,8 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/config"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/pluginmanager"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/log"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgctl"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/log"
 )
 
 type initRegionOptions struct {

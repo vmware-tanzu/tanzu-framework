@@ -13,8 +13,8 @@ import (
 
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/component"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/kappclient"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/log"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgpackagedatamodel"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/log"
 )
 
 var packageInstalledGetCmd = &cobra.Command{

@@ -19,8 +19,8 @@ import (
 
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/config"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/log"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfigreaderwriter"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/log"
 )
 
 var vsphereVersionMinimumRequirement = []int{6, 7, 0}

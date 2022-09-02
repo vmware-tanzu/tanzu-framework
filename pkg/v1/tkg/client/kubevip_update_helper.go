@@ -14,7 +14,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	capikubeadmv1beta1 "sigs.k8s.io/cluster-api/controlplane/kubeadm/api/v1beta1"
 
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/log"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/log"
 )
 
 const (

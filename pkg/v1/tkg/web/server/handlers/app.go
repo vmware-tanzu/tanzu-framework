@@ -33,8 +33,8 @@ import (
 	awsclient "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/aws"
 	azureclient "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/azure"
 	ldapClient "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/ldap"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/log"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/web/server/ws"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/log"
 )
 
 // App application structs consisting init options and clients

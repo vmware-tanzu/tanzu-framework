@@ -14,8 +14,8 @@ import (
 
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/client"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/log"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/web/server"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/log"
 )
 
 // InitRegionOptions init region options
