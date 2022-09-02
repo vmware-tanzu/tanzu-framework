@@ -17,8 +17,8 @@ import (
 	// +kubebuilder:scaffold:imports
 
 	runv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha1"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/buildinfo"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/sdk/capabilities/controllers"
+	capctrl "github.com/vmware-tanzu/tanzu-framework/capabilities/controller/pkg/capabilities"
+	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/buildinfo"
 )
 
 var (
@@ -50,7 +50,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	if err = (&controllers.CapabilityReconciler{
+	if err = (&capctrl.CapabilityReconciler{
 		Client: mgr.GetClient(),
 		Log:    ctrl.Log.WithName("controllers").WithName("Capability"),
 		Scheme: mgr.GetScheme(),
