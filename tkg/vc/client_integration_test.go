@@ -12,8 +12,8 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
-	"github.com/vmware-tanzu/tanzu-framework/tkg/vc"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/constants"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/vc"
 )
 
 var _ = Describe("VC Client Integration Test", func() {
