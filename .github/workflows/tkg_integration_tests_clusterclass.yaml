@@ -41,7 +41,7 @@ concurrency:
 
 jobs:
   integ-tests-docker-cc:
-    name: TKG Integration Tests CAPD CC
+    name: TKG Integration Tests CAPD (ClusterClass)
     runs-on: tkg
     steps:
       - name: Free disk space and clean up installed plugins on runner
@@ -108,6 +108,39 @@ jobs:
           export BOMCOMMENT=$(echo -e "${{ steps.findcomment.outputs.comment-body }}" | tr -d "[:space:]")
           echo "##[set-output name=bompath;]$(echo "$BOMCOMMENT" | awk -F : '{print $2}')"
         id: extract_bom
+
+      - name: Login to GCR
+        if: ${{ env.gcp_bucket_sa != '' }}
+        uses: docker/login-action@v2
+        with:
+          registry: gcr.io
+          username: _json_key
+          password: ${{ secrets.GCP_BUCKET_SA }}
+
+      - name: Build management packages
+        env:
+          NUM: ${{ github.run_id }}
+          OCI_REGISTRY: ${{ steps.set_registry.outputs.registry }}/tanzu_framework/github-actions/${{ steps.extract_reg_dir.outputs.regdir }}
+          COMPONENTS: "pkg/v2/tkr/controller/tkr-source pkg/v2/tkr/controller/tkr-status pkg/v1/sdk/features addons pkg/v2/tkr/webhook/infra-machine pkg/v1/sdk/capabilities pkg/v2/tkr/webhook/tkr-conversion pkg/v2/tkr/webhook/cluster/tkr-resolver pinniped-components/tanzu-auth-controller-manager pkg/v2/object-propagation"
+          BUILD_VERSION: "v0.21.0"
+          IMG_VERSION_OVERRIDE: latest
+        run: |
+          make local-registry
+          make docker-build
+
+      - name: Publish management packages
+        env:
+          NUM: ${{ github.run_number }}
+          OCI_REGISTRY: ${{ steps.set_registry.outputs.registry }}/tanzu_framework/github-actions/${{ steps.extract_reg_dir.outputs.regdir }}
+          COMPONENTS: "pkg/v2/tkr/controller/tkr-source pkg/v2/tkr/controller/tkr-status pkg/v1/sdk/features addons pkg/v2/tkr/webhook/infra-machine pkg/v1/sdk/capabilities pkg/v2/tkr/webhook/tkr-conversion pkg/v2/tkr/webhook/cluster/tkr-resolver pinniped-components/tanzu-auth-controller-manager pkg/v2/object-propagation"
+          BUILD_VERSION: "v0.21.0"
+          IMG_VERSION_OVERRIDE: latest
+        run: |
+          make docker-publish
+          cp pkg/v1/tkg/test/config/packages/core-management-plugins/kbld-config_test.yaml packages/core-management-plugins/kbld-config.yaml
+          make kbld-image-replace
+          make package-push-bundles-repo PACKAGE_REPOSITORY=management
+          make clean-registry
 
       - name: Cleanup
         run: rm -rf ~/.tanzu ~/.tkg ~/.config; docker kill $(docker ps -q) | true; docker system prune -a --volumes -f
