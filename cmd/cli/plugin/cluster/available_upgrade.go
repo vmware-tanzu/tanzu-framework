@@ -19,10 +19,10 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/component"
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/config"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/client"
-	"github.com/vmware-tanzu/tanzu-framework/tkg/clusterclient"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgctl"
 	tkrutils "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkr/pkg/utils"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v2/tkr/util/topology"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/clusterclient"
 )
 
 var availableUpgradesCmd = &cobra.Command{
