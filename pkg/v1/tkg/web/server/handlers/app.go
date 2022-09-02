@@ -29,7 +29,7 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/web/server/restapi/operations/provider"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/web/server/restapi/operations/vsphere"
 
-	aviClient "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/avi"
+	aviClient "github.com/vmware-tanzu/tanzu-framework/tkg/avi"
 	awsclient "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/aws"
 	azureclient "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/azure"
 	ldapClient "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/ldap"
