@@ -5,14 +5,21 @@ package managementcomponents
 
 import (
 	"context"
+	"encoding/json"
+	"fmt"
 	"os"
 	"time"
 
 	"github.com/pkg/errors"
 	"golang.org/x/sync/errgroup"
+	corev1 "k8s.io/api/core/v1"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/selection"
+	"k8s.io/apimachinery/pkg/types"
+	"k8s.io/client-go/util/retry"
 	crtclient "sigs.k8s.io/controller-runtime/pkg/client"
+	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 
 	kappipkg "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/packaging/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/packageclients/pkg/packageclient"
@@ -20,6 +27,11 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/tkg/clusterclient"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/log"
+)
+
+const (
+	addonsManagerName = "addons-manager"
+	addonFinalizer    = "tkg.tanzu.vmware.com/addon"
 )
 
 // ClusterOptions specifies cluster configuration
@@ -48,11 +60,194 @@ type ManagementComponentsInstallOptions struct {
 	ManagementPackageRepositoryOptions ManagementPackageRepositoryOptions
 }
 
+func generateAddonSecretName(clusterName, addonName string) string {
+	return fmt.Sprintf("%s-tanzu-%s-addon", clusterName, addonName)
+}
+
+func pauseAddonSecretReconciliation(clusterClient clusterclient.Client, addonSecreteName, namespace string) error {
+	log.Infof("Pausing reconciliation for %s/%s secret", namespace, addonSecreteName)
+	secret := &corev1.Secret{}
+	jsonPatch := []map[string]interface{}{
+		{
+			"op":    "add",
+			"path":  fmt.Sprintf("/metadata/annotations/tkg.tanzu.vmware.com~1addon-paused"),
+			"value": "",
+		},
+	}
+	payloadBytes, err := json.Marshal(jsonPatch)
+	if err != nil {
+		return errors.Wrap(err, "unable to generate json patch")
+	}
+
+	err = clusterClient.PatchResource(secret, addonSecreteName, namespace, string(payloadBytes), types.JSONPatchType, nil)
+	if apierrors.IsNotFound(err) {
+		return nil
+	}
+	if err != nil {
+		return errors.Wrapf(err, "failed to pause %s secret reconciliation", addonSecreteName)
+	}
+	return nil
+}
+
+func pausePackageInstallReconciliation(clusterClient clusterclient.Client, pkgiName, namespace string) error {
+	log.Infof("Pausing reconciliation for %s/%s packageinstall", namespace, pkgiName)
+	pkgi := &kappipkg.PackageInstall{}
+	jsonPatch := []map[string]interface{}{
+		{
+			"op":    "add",
+			"path":  "/spec/paused",
+			"value": true,
+		},
+	}
+	payloadBytes, err := json.Marshal(jsonPatch)
+	if err != nil {
+		return errors.Wrap(err, "unable to generate json patch")
+	}
+	err = clusterClient.PatchResource(pkgi, pkgiName, namespace, string(payloadBytes), types.JSONPatchType, nil)
+	if apierrors.IsNotFound(err) {
+		return nil
+	}
+	if err != nil {
+		return errors.Wrapf(err, "failed to pause %s packageinstall reconciliation", pkgiName)
+	}
+	return nil
+}
+
+// PausedAddonLifecycleManagement pauses/unpauses the lifecycle management of addon package with given name and namespace
+func PauseAddonLifecycleManagement(clusterClient clusterclient.Client, clusterName, addonName, namespace string) error {
+	log.Infof("Pausing lifecycle management for %s", addonName)
+	pkgiName := fmt.Sprintf("tanzu-%s", addonsManagerName)
+	addonSecretName := generateAddonSecretName(clusterName, addonsManagerName)
+
+	err := pauseAddonSecretReconciliation(clusterClient, addonSecretName, namespace)
+	if err != nil {
+		return err
+	}
+
+	err = pausePackageInstallReconciliation(clusterClient, pkgiName, namespace)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// NoopDeletePackageInstall sets spec.noopdelete = true before deleting the package install
+func NoopDeletePackageInstall(clusterClient clusterclient.Client, addonName, namespace string) error {
+	log.Infof("Deleting %s/%s packageinstall with noopdelete", namespace, addonName)
+	pkgiName := fmt.Sprintf("tanzu-%s", addonName)
+
+	jsonPatch := []map[string]interface{}{
+		{
+			"op":    "add",
+			"path":  "/spec/noopDelete",
+			"value": true,
+		},
+	}
+	payloadBytes, err := json.Marshal(jsonPatch)
+	if err != nil {
+		return errors.Wrap(err, "unable to generate json patch")
+	}
+	pkgi := &kappipkg.PackageInstall{}
+	err = clusterClient.PatchResource(pkgi, pkgiName, namespace, string(payloadBytes), types.JSONPatchType, nil)
+	if apierrors.IsNotFound(err) {
+		return nil
+	}
+	if err != nil {
+		return errors.Wrapf(err, "failed to patch %s packageinstall", pkgiName)
+	}
+
+	pkgi.Name = pkgiName
+	pkgi.Namespace = namespace
+	err = clusterClient.DeleteResource(pkgi)
+	if err != nil && !apierrors.IsNotFound(err) {
+		return errors.Wrapf(err, "failed to delete PackageInstall resource %s", pkgiName)
+	}
+	return nil
+}
+
+// DeleteAddonSecret deletes the secrete associated with the addon if present. Return no error if secret not found.
+func DeleteAddonSecret(clusterClient clusterclient.Client, clusterName, addonName, namespace string) error {
+	addonSecret := &corev1.Secret{}
+	addonSecret.Name = generateAddonSecretName(clusterName, addonName)
+	addonSecret.Namespace = constants.TkgNamespace
+	log.Infof("Deleting %s/%s secret", addonSecret.Namespace, addonSecret.Name)
+	err := clusterClient.GetResource(addonSecret, addonSecret.Name, addonSecret.Namespace, nil, nil)
+	if apierrors.IsNotFound(err) {
+		return nil
+	}
+	if err != nil {
+		return err
+	}
+
+	if controllerutil.ContainsFinalizer(addonSecret, addonFinalizer) {
+		controllerutil.RemoveFinalizer(addonSecret, addonFinalizer)
+	}
+
+	err = retry.RetryOnConflict(retry.DefaultRetry, func() error {
+		return clusterClient.UpdateResource(addonSecret, addonSecret.Name, addonSecret.Namespace)
+	})
+
+	if apierrors.IsNotFound(err) {
+		return nil
+	}
+	if err != nil {
+		return err
+	}
+
+	err = clusterClient.DeleteResource(addonSecret)
+	if apierrors.IsNotFound(err) {
+		return nil
+	}
+	if err != nil {
+		return errors.Wrapf(err, "failed to delete addon addonSecret %s", addonSecret)
+	}
+	return nil
+}
+
+// AddonSecretExists returns true if given addon is present and was installed from core repository.
+func AddonSecretExists(clusterClient clusterclient.Client, clusterName, addonName, namespace string) (bool, error) {
+	addonSecret := &corev1.Secret{}
+	addonSecret.Name = generateAddonSecretName(clusterName, addonName)
+	addonSecret.Namespace = constants.TkgNamespace
+
+	err := clusterClient.GetResource(addonSecret, addonSecret.Name, addonSecret.Namespace, nil, nil)
+	if apierrors.IsNotFound(err) {
+		return false, nil
+	}
+	if err != nil {
+		return false, err
+	}
+	return true, nil
+}
+
 // InstallManagementComponents installs the management component to cluster
 func InstallManagementComponents(mcip *ManagementComponentsInstallOptions) error {
 	clusterClient, err := clusterclient.NewClient(mcip.ClusterOptions.Kubeconfig, mcip.ClusterOptions.Kubecontext, clusterclient.Options{})
 	if err != nil {
 		return errors.Wrap(err, "unable to get cluster client")
+	}
+	clusterName, err := clusterClient.GetCurrentClusterName(mcip.ClusterOptions.Kubecontext)
+	if err != nil {
+		return errors.Wrap(err, "unable to get cluster name")
+	}
+
+	// If the addons-manager is moving from core repository to management repository, its lifecycle management
+	// needs to be paused.
+	previousAddonsManagerIsFromCoreRepo, err := AddonSecretExists(clusterClient, clusterName, addonsManagerName, constants.TkgNamespace)
+	if err != nil {
+		return err
+	}
+	if previousAddonsManagerIsFromCoreRepo {
+		err = PauseAddonLifecycleManagement(clusterClient, clusterName, addonsManagerName, constants.TkgNamespace)
+		if err != nil {
+			return err
+		}
+
+		err = NoopDeletePackageInstall(clusterClient, addonsManagerName, constants.TkgNamespace)
+		if err != nil {
+			return err
+		}
 	}
 
 	// create package client
@@ -78,6 +273,13 @@ func InstallManagementComponents(mcip *ManagementComponentsInstallOptions) error
 	if resouceFile != "" {
 		log.Infof("Appling additional management component configuration from %q", resouceFile)
 		err := clusterClient.ApplyFile(resouceFile)
+		if err != nil {
+			return err
+		}
+	}
+
+	if previousAddonsManagerIsFromCoreRepo {
+		err = DeleteAddonSecret(clusterClient, clusterName, addonsManagerName, constants.TkgNamespace)
 		if err != nil {
 			return err
 		}
