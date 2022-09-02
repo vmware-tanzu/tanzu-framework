@@ -89,6 +89,27 @@ const (
 	// infrastructureRefDocker is the Docker infrastructure
 	infrastructureRefDocker = "DockerCluster"
 
+	// InfrastructureRefVSphere is the vSphere infrastructure
+	InfrastructureRefVSphere = "VSphereCluster"
+
+	// InfrastructureProviderVSphere is the vSphere infrastructure provider
+	InfrastructureProviderVSphere = "vsphere"
+
+	// InfrastructureRefAWS is the AWS infrastructure
+	InfrastructureRefAWS = "AWSCluster"
+
+	// InfrastructureRefAzure is the Azure infrastructure
+	InfrastructureRefAzure = "AzureCluster"
+
+	// InfrastructureProviderAWS is the AWS infrastructure provider
+	InfrastructureProviderAWS = "aws"
+
+	// InfrastructureProviderAzure is the Azure infrastructure provider
+	InfrastructureProviderAzure = "azure"
+
+	// InfrastructureProviderDocker is the Docker infrastructure provider
+	InfrastructureProviderDocker = "docker"
+
 	// oidc is the string for oidc value for identity_management_type field in the Pinniped ClusterBootstrap secret
 	oidc = "oidc"
 

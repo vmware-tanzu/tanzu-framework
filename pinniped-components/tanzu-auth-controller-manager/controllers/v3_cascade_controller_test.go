@@ -13,11 +13,11 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	clusterapiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
-
-	tkgconstants "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
 )
 
-const testPinnipedLabel = "pinniped.tanzu.vmware.com.1.2.3--vmware.1-tkg.1"
+const (
+	testPinnipedLabel = "pinniped.tanzu.vmware.com.1.2.3--vmware.1-tkg.1"
+)
 
 var _ = Describe("Controller", func() {
 	var (
@@ -36,7 +36,7 @@ var _ = Describe("Controller", func() {
 			},
 			Spec: clusterapiv1beta1.ClusterSpec{
 				InfrastructureRef: &corev1.ObjectReference{
-					Kind: tkgconstants.InfrastructureRefVSphere,
+					Kind: InfrastructureRefVSphere,
 					Name: "some-name",
 				},
 			},
@@ -248,7 +248,7 @@ var _ = Describe("Controller", func() {
 				},
 				Spec: clusterapiv1beta1.ClusterSpec{
 					InfrastructureRef: &corev1.ObjectReference{
-						Kind: tkgconstants.InfrastructureRefVSphere,
+						Kind: InfrastructureRefVSphere,
 						Name: "another-name",
 					},
 				},

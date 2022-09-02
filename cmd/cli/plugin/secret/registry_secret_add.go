@@ -16,10 +16,10 @@ import (
 	crtclient "sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/component"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/kappclient"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/log"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgpackageclient"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgpackagedatamodel"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/kappclient"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/log"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/tkgpackageclient"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/tkgpackagedatamodel"
 )
 
 const errInvalidPasswordFlags = "exactly one of --password, --password-file, --password-env-var flags should be provided"
