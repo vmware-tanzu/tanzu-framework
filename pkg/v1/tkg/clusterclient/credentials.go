@@ -15,8 +15,8 @@ import (
 	capvv1beta1 "sigs.k8s.io/cluster-api-provider-vsphere/apis/v1beta1"
 	crtclient "sigs.k8s.io/controller-runtime/pkg/client"
 
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
 	azureclient "github.com/vmware-tanzu/tanzu-framework/tkg/azure"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/log"
 )
 

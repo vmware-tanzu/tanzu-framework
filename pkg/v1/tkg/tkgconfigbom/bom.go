@@ -19,8 +19,8 @@ import (
 	"gopkg.in/yaml.v3"
 
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/clientconfighelpers"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkr/pkg/registry"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/log"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/tkgconfigpaths"
 )
