@@ -670,7 +670,11 @@ func TestVerifyArtifactLocation(t *testing.T) {
 		{
 			name:   "untrusted location",
 			uri:    "https://storage.googleapis.com/tanzu-cli-advanced-plugins-artifacts/latest/tanzu-foo-darwin-amd64",
-			errStr: "untrusted artifact location detected with URI \"https://storage.googleapis.com/tanzu-cli-advanced-plugins-artifacts/latest/tanzu-foo-darwin-amd64\". Allowed locations are [https://storage.googleapis.com/tanzu-cli-advanced-plugins/]",
+			errStr: "untrusted artifact location detected with URI \"https://storage.googleapis.com/tanzu-cli-advanced-plugins-artifacts/latest/tanzu-foo-darwin-amd64\". Allowed locations are [https://storage.googleapis.com/tanzu-cli-advanced-plugins/ https://tmc-cli.s3-us-west-2.amazonaws.com/plugins/artifacts]",
+		},
+		{
+			name: "trusted location",
+			uri:  "https://tmc-cli.s3-us-west-2.amazonaws.com/plugins/artifacts",
 		},
 	}
 

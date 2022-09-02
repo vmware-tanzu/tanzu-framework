@@ -6,6 +6,8 @@ package config
 import (
 	"bytes"
 	"fmt"
+	"strings"
+
 	"os"
 	"path/filepath"
 	"strconv"
@@ -750,7 +752,29 @@ func GetDiscoverySources(serverName string) []configv1alpha1.PluginDiscovery {
 		}
 		discoverySources = append(discoverySources, defaultClusterK8sDiscovery)
 	}
+
+	// If the current server type is global, then add the default REST endpoint
+	// for the discovery service
+	if server.Type == configv1alpha1.GlobalServerType && server.GlobalOpts != nil {
+		defaultRestDiscovery := configv1alpha1.PluginDiscovery{
+			REST: &configv1alpha1.GenericRESTDiscovery{
+				Name:     fmt.Sprintf("default-%s", serverName),
+				Endpoint: appendURLScheme(server.GlobalOpts.Endpoint),
+				BasePath: "v1alpha1/system/binaries/plugins",
+			},
+		}
+		discoverySources = append(discoverySources, defaultRestDiscovery)
+	}
+
 	return discoverySources
+}
+
+func appendURLScheme(endpoint string) string {
+	e := strings.Split(endpoint, ":")[0]
+	if !strings.Contains(e, "https") {
+		return fmt.Sprintf("https://%s", e)
+	}
+	return e
 }
 
 // GetEnvConfigurations returns a map of configured environment variables

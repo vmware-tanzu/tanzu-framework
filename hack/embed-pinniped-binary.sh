@@ -26,7 +26,9 @@ while (( "$#" )); do
   echo "embed-pinniped-binary.sh: building pinniped version '$pinniped_version' to '$pinniped_binary'"
 
   pushd pinniped >/dev/null
+    git checkout -- .
     git checkout "$pinniped_version"
+    go get -u golang.org/x/sys
     GOARCH=${GOARCH} GOOS=${GOOS} ${GO} build -o "../${pinniped_binary}" ./cmd/pinniped
   popd >/dev/null
 
