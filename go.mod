@@ -71,7 +71,6 @@ require (
 	github.com/spf13/afero v1.6.0
 	github.com/spf13/cobra v1.5.0
 	github.com/spf13/pflag v1.0.5
-	github.com/spf13/viper v1.10.1
 	github.com/stretchr/testify v1.8.0
 	github.com/tj/assert v0.0.3
 	github.com/vmware-tanzu/carvel-kapp-controller v0.35.0
@@ -236,6 +235,7 @@ require (
 	github.com/sirupsen/logrus v1.8.1 // indirect
 	github.com/spf13/cast v1.4.1 // indirect
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
+	github.com/spf13/viper v1.10.1 // indirect
 	github.com/stoewer/go-strcase v1.2.0 // indirect
 	github.com/subosito/gotenv v1.2.0 // indirect
 	github.com/valyala/fastjson v1.6.3 // indirect
