@@ -18,7 +18,7 @@ import (
 	clusterapiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
-	tkgconstants "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
+	tkgconstants "github.com/vmware-tanzu/tanzu-framework/tkg/constants"
 )
 
 // secretIsType returns true if the secret type matches the given expectedType
