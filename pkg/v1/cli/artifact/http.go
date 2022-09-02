@@ -6,16 +6,16 @@ package artifact
 import (
 	"context"
 	"fmt"
+	"io"
 	"net/http"
 	"time"
-
-	"github.com/pkg/errors"
 )
 
 const (
 	uriSchemeHTTP  = "http"
 	uriSchemeHTTPS = "https"
-	defaultTimeout = 5 * time.Second
+	defaultTimeout = 120 * time.Second
+	bufferSize     = 4068
 )
 
 // HTTPArtifact defines HTTP artifact location.
@@ -53,10 +53,22 @@ func (g *HTTPArtifact) Fetch() ([]byte, error) {
 		return nil, fmt.Errorf("error while downloading the artifact: %s; received status code: %d instead of 200", req.URL, res.StatusCode)
 	}
 
-	var b []byte
-	if _, err = res.Body.Read(b); err != nil {
-		return nil, errors.Wrapf(err, "error while downloading the artifact: %s", req.URL)
+	buf := make([]byte, bufferSize)
+	out := []byte{}
+
+	for {
+		// read a chunk of response body
+		n, err := res.Body.Read(buf)
+		if err != nil && err != io.EOF {
+			return nil, err
+		}
+		if n == 0 {
+			break
+		}
+
+		// append chunk by chunk
+		out = append(out, buf[:n]...)
 	}
 
-	return b, nil
+	return out, nil
 }

@@ -54,6 +54,9 @@ var AdvancedGCPBucketRepository = configv1alpha1.GCPPluginRepository{
 	Name:       AdvancedRepositoryName,
 }
 
+// DefaultTMCPluginsArtifactRepository is the S3 bucket repository for TMC plugins.
+const DefaultTMCPluginsArtifactRepository = "https://tmc-cli.s3-us-west-2.amazonaws.com/plugins/artifacts"
+
 // DefaultRepositories are the default repositories for the CLI.
 var DefaultRepositories []configv1alpha1.PluginRepository = []configv1alpha1.PluginRepository{
 	{
@@ -138,6 +141,7 @@ func getHTTPURIForGCPPluginRepository(repo configv1alpha1.GCPPluginRepository) s
 func GetTrustedArtifactLocations() []string {
 	trustedLocations := []string{
 		getHTTPURIForGCPPluginRepository(AdvancedGCPBucketRepository),
+		DefaultTMCPluginsArtifactRepository,
 	}
 
 	return trustedLocations
