@@ -30,6 +30,7 @@ require (
 	github.com/gosuri/uitable v0.0.4
 	github.com/imdario/mergo v0.3.12
 	github.com/juju/fslock v0.0.0-20160525022230-4d5c94c67b4b
+	github.com/k14s/imgpkg v0.17.0
 	github.com/onsi/ginkgo v1.16.5
 	github.com/onsi/gomega v1.20.2
 	github.com/otiai10/copy v1.4.2
@@ -160,7 +161,6 @@ require (
 	github.com/jmespath/go-jmespath v0.4.0 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
-	github.com/k14s/imgpkg v0.17.0 // indirect
 	github.com/k14s/kbld v0.32.0 // indirect
 	github.com/k14s/semver/v4 v4.0.1-0.20210701191048-266d47ac6115 // indirect
 	github.com/k14s/starlark-go v0.0.0-20200720175618-3a5c849cc368 // indirect
