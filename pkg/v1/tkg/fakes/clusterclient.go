@@ -17,7 +17,7 @@ import (
 	v1alpha1b "github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
 	v1alpha1a "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha2"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/azure"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/azure"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/clusterclient"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfigbom"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/vc"

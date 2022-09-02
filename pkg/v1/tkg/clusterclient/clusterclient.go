@@ -71,7 +71,7 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/buildinfo"
 	capdiscovery "github.com/vmware-tanzu/tanzu-framework/pkg/v1/sdk/capabilities/discovery"
 	tmcv1alpha1 "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/api/tmc/v1alpha1"
-	azureclient "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/azure"
+	azureclient "github.com/vmware-tanzu/tanzu-framework/tkg/azure"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
 	telemetrymanifests "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/manifest/telemetry"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfigbom"
