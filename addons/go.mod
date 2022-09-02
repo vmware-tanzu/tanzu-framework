@@ -4,7 +4,10 @@ go 1.17
 
 replace (
 	github.com/vmware-tanzu/tanzu-framework/apis/addonconfigs => ./../apis/addonconfigs
+	github.com/vmware-tanzu/tanzu-framework/apis/cli => ../apis/cli
 	github.com/vmware-tanzu/tanzu-framework/apis/run => ../apis/run
+	github.com/vmware-tanzu/tanzu-framework/cli/runtime => ../cli/runtime
+	github.com/vmware-tanzu/tanzu-framework/packageclients => ../packageclients
 	sigs.k8s.io/cluster-api => sigs.k8s.io/cluster-api v1.1.5
 )
 
@@ -83,7 +86,7 @@ require (
 	github.com/prometheus/common v0.32.1 // indirect
 	github.com/prometheus/procfs v0.7.3 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
-	github.com/stretchr/testify v1.7.1-0.20210427113832-6241f9ab9942 // indirect
+	github.com/stretchr/testify v1.8.0 // indirect
 	go.uber.org/atomic v1.9.0 // indirect
 	go.uber.org/multierr v1.6.0 // indirect
 	go.uber.org/zap v1.19.1 // indirect
