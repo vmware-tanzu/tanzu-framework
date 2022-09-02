@@ -1,0 +1,19 @@
+#@data/values-schema
+---
+tkr: ""
+namespace: tkg-system
+deployment:
+  hostNetwork: false
+  #@schema/type any=True
+  nodeSelector: {}
+  tolerations:
+    - effect: NoSchedule
+      key: node-role.kubernetes.io/master
+      value: ""
+      operator: ""
+      #@schema/nullable
+      tolerationSeconds: 0
+rbac:
+  #! PSP resource names capabilities controller should use in its ClusterRole rules.
+  podSecurityPolicyNames:
+    - ""
