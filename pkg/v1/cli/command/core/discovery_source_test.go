@@ -44,6 +44,28 @@ func Test_createDiscoverySource(t *testing.T) {
 	assert.NotNil(pd.OCI)
 	assert.Equal(pd.OCI.Name, "fake-oci-discovery-name")
 	assert.Equal(pd.OCI.Image, "test.registry.com/test-image:v1.0.0")
+
+	// When discovery source is gcp
+	_, err = createDiscoverySource("gcp", "fake-discovery-name", "fake/path")
+	assert.NotNil(err)
+	assert.Contains(err.Error(), "not yet supported")
+
+	// When discovery source is kubernetes
+	_, err = createDiscoverySource("kubernetes", "fake-discovery-name", "fake/path")
+	assert.NotNil(err)
+	assert.Contains(err.Error(), "not yet supported")
+
+	// When discovery source is rest
+	pd, err = createDiscoverySource("rest", "fake-discovery-name", "fake/path")
+	assert.Nil(err)
+	assert.NotNil(pd.REST)
+	assert.Equal(pd.REST.Name, "fake-discovery-name")
+	assert.Equal(pd.REST.Endpoint, "fake/path")
+
+	// When discovery source is an unknown value
+	_, err = createDiscoverySource("unexpectedValue", "fake-discovery-name", "fake/path")
+	assert.NotNil(err)
+	assert.Contains(err.Error(), "unknown discovery source type 'unexpectedValue'")
 }
 
 func Test_addDiscoverySource(t *testing.T) {
