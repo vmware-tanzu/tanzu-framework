@@ -3,6 +3,23 @@
 
 package controllers
 
+// infrastructure provider name constants
+const (
+	InfrastructureProviderVSphere = "vsphere"
+	InfrastructureProviderAWS     = "aws"
+	InfrastructureProviderAzure   = "azure"
+	InfrastructureProviderDocker  = "docker"
+)
+
+const (
+	// InfrastructureRefVSphere is the vSphere infrastructure
+	InfrastructureRefVSphere = "VSphereCluster"
+	// InfrastructureRefAWS is the AWS infrastructure
+	InfrastructureRefAWS = "AWSCluster"
+	// InfrastructureRefAzure is the Azure infrastructure
+	InfrastructureRefAzure = "AzureCluster"
+)
+
 const (
 	CascadeControllerV1alpha1Name = "v1alpha1 tanzu auth cascade controller"
 	CascadeControllerV1alpha3Name = "v1alpha3 tanzu auth cascade controller"
