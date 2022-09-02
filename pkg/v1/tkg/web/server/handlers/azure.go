@@ -10,7 +10,7 @@ import (
 
 	"github.com/go-openapi/runtime/middleware"
 
-	azureclient "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/azure"
+	azureclient "github.com/vmware-tanzu/tanzu-framework/tkg/azure"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfigbom"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/web/server/models"

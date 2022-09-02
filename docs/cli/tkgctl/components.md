@@ -75,7 +75,7 @@ reference:
 
 * Implements AWS specific API using AWS SDK that can be used for some verification purpose as well as serves as resource retriever for the kick-start UI
 
-## [azure](/pkg/v1/tkg/azure)
+## [azure](/tkg/azure)
 
 * Implements Azure specific API using Azure SDK that can be used for some verification purpose as well as serves as resource retriever for the kick-start UI
 
