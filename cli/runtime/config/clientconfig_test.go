@@ -217,6 +217,34 @@ servers:
 	assert.Equal(pds[0].Kubernetes.Name, "default-mgmt")
 	assert.Equal(pds[0].Kubernetes.Path, "config")
 	assert.Equal(pds[0].Kubernetes.Context, "mgmt-admin@mgmt")
+
+	// Test tmc global server
+	tanzuConfigBytes = `apiVersion: config.tanzu.vmware.com/v1alpha1
+clientOptions:
+  cli:
+    useContextAwareDiscovery: true
+current: tmc-test
+kind: ClientConfig
+metadata:
+  creationTimestamp: null
+servers:
+- globalOpts:
+    endpoint: test.cloud.vmware.com:443
+  name: tmc-test
+  type: global
+`
+	tf, err := os.CreateTemp("", "tanzu_tmc_config")
+	assert.Nil(err)
+	err = os.WriteFile(tf.Name(), []byte(tanzuConfigBytes), 0644)
+	assert.Nil(err)
+	defer os.Remove(tf.Name())
+	os.Setenv("TANZU_CONFIG", tf.Name())
+
+	pds = GetDiscoverySources("tmc-test")
+	assert.Equal(1, len(pds))
+	assert.Equal(pds[0].REST.Endpoint, "https://test.cloud.vmware.com")
+	assert.Equal(pds[0].REST.BasePath, "v1alpha1/system/binaries/plugins")
+	assert.Equal(pds[0].REST.Name, "default-tmc-test")
 }
 
 func TestClientConfigUpdateInParallel(t *testing.T) {
