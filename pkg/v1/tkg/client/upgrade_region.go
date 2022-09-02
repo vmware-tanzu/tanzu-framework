@@ -26,12 +26,12 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/component"
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/config"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/clusterclient"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/log"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/providersupgradeclient"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/region"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfigbom"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/utils"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/constants"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/log"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/region"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/utils"
 )
 
 // ErrorBlockUpgradeTMCIncompatible defines the error message to display during upgrade when cluster is registred to TMC and TMC does not support latest version of TKG

@@ -7,8 +7,8 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/aws"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/aws"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/constants"
 )
 
 var _ = Describe("ListCredentialProfiles", func() {

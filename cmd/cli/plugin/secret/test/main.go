@@ -10,7 +10,7 @@ import (
 
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/plugin"
 	clitest "github.com/vmware-tanzu/tanzu-framework/cli/runtime/test"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/log"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/log"
 )
 
 var descriptor = clitest.NewTestFor("secret")
