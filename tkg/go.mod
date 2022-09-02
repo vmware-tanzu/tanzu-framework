@@ -13,23 +13,32 @@ replace (
 require (
 	github.com/Masterminds/semver v1.5.0
 	github.com/apparentlymart/go-cidr v1.1.0
+	github.com/avinetworks/sdk v0.0.0-20201123134013-c157ef55b6f7
+	github.com/aws/aws-sdk-go v1.40.56
+	github.com/awslabs/goformation/v4 v4.19.5
 	github.com/docker/docker v20.10.16+incompatible
 	github.com/go-logr/logr v1.2.3
+	github.com/golang/mock v1.6.0
 	github.com/juju/fslock v0.0.0-20160525022230-4d5c94c67b4b
 	github.com/onsi/ginkgo v1.16.5
 	github.com/onsi/gomega v1.20.2
 	github.com/pelletier/go-toml/v2 v2.0.5
 	github.com/pkg/errors v0.9.1
 	github.com/rs/xid v1.4.0
+	github.com/sergi/go-diff v1.2.0
 	github.com/vmware-tanzu/tanzu-framework v0.26.0
+	github.com/vmware-tanzu/tanzu-framework/cli/runtime v0.0.0-00010101000000-000000000000
 	gopkg.in/yaml.v2 v2.4.0
 	gopkg.in/yaml.v3 v3.0.1
 	k8s.io/api v0.23.5
 	k8s.io/apimachinery v0.23.5
 	k8s.io/client-go v0.23.5
+	k8s.io/utils v0.0.0-20220210201930-3a6ce19ff2f9
 	sigs.k8s.io/cluster-api v1.1.5
+	sigs.k8s.io/cluster-api-provider-aws v1.1.0
 	sigs.k8s.io/controller-runtime v0.11.2
 	sigs.k8s.io/kind v0.15.0
+	sigs.k8s.io/yaml v1.3.0
 )
 
 require (
@@ -57,10 +66,7 @@ require (
 	github.com/antlr/antlr4/runtime/Go/antlr v0.0.0-20220209173558-ad29539cd2e9 // indirect
 	github.com/asaskevich/govalidator v0.0.0-20210307081110-f21760c49a8d // indirect
 	github.com/aunum/log v0.0.0-20200821225356-38d2e2c8b489 // indirect
-	github.com/avinetworks/sdk v0.0.0-20201123134013-c157ef55b6f7 // indirect
 	github.com/aws/amazon-vpc-cni-k8s v1.10.1 // indirect
-	github.com/aws/aws-sdk-go v1.40.56 // indirect
-	github.com/awslabs/goformation/v4 v4.19.5 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/blang/semver v3.5.1+incompatible // indirect
 	github.com/briandowns/spinner v1.19.0 // indirect
@@ -172,7 +178,6 @@ require (
 	github.com/vmware-tanzu/tanzu-framework/apis/cli v0.0.0-00010101000000-000000000000 // indirect
 	github.com/vmware-tanzu/tanzu-framework/apis/config v0.0.0-00010101000000-000000000000 // indirect
 	github.com/vmware-tanzu/tanzu-framework/apis/run v0.0.0-00010101000000-000000000000 // indirect
-	github.com/vmware-tanzu/tanzu-framework/cli/runtime v0.0.0-00010101000000-000000000000 // indirect
 	github.com/vmware/govmomi v0.27.1 // indirect
 	github.com/yalp/jsonpath v0.0.0-20180802001716-5cc68e5049a0 // indirect
 	go.mongodb.org/mongo-driver v1.1.2 // indirect
@@ -199,12 +204,9 @@ require (
 	k8s.io/klog/v2 v2.60.1 // indirect
 	k8s.io/kube-openapi v0.0.0-20220124234850-424119656bbf // indirect
 	k8s.io/kubectl v0.23.4 // indirect
-	k8s.io/utils v0.0.0-20220210201930-3a6ce19ff2f9 // indirect
-	sigs.k8s.io/cluster-api-provider-aws v1.1.0 // indirect
 	sigs.k8s.io/cluster-api-provider-azure v1.4.0 // indirect
 	sigs.k8s.io/cluster-api-provider-vsphere v1.3.1 // indirect
 	sigs.k8s.io/cluster-api/test v1.1.5 // indirect
 	sigs.k8s.io/json v0.0.0-20211208200746-9f7c6b3444d2 // indirect
 	sigs.k8s.io/structured-merge-diff/v4 v4.2.1 // indirect
-	sigs.k8s.io/yaml v1.3.0 // indirect
 )

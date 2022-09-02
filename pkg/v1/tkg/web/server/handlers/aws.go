@@ -12,7 +12,7 @@ import (
 	"github.com/pkg/errors"
 	"sigs.k8s.io/cluster-api-provider-aws/cmd/clusterawsadm/credentials"
 
-	awsclient "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/aws"
+	awsclient "github.com/vmware-tanzu/tanzu-framework/tkg/aws"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfigbom"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/web/server/models"
