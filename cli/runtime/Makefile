@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 ROOT_DIR := $(shell git rev-parse --show-toplevel)
+MODULE_ROOT_DIR := $(ROOT_DIR)/cli/runtime
 
 # Golang specific variables
 GOOS ?= $(shell go env GOOS)
@@ -17,11 +18,12 @@ endif
 GO := go
 
 # Directories
-TOOLS_DIR := $(abspath $(ROOT_DIR)/hack/tools)
+TOOLS_DIR := $(abspath $(MODULE_ROOT_DIR)/hack/tools)
 TOOLS_BIN_DIR := $(TOOLS_DIR)/bin
 
 # Add tooling binaries here and in hack/tools/Makefile
-GOIMPORTS     := $(TOOLS_BIN_DIR)/goimports
+GOIMPORTS        := $(TOOLS_BIN_DIR)/goimports
+TOOLING_BINARIES := $(GOIMPORTS)
 
 ## --------------------------------------
 ## Help
@@ -51,5 +53,13 @@ vet: ## Vet codebase
 
 fmt: $(GOIMPORTS) ## Run goimports
 	$(GOIMPORTS) -w -local github.com/vmware-tanzu ./
-	${GO} fmt ./...
+
+## --------------------------------------
+## Tooling Binaries
+## --------------------------------------
+
+tools: $(TOOLING_BINARIES) ## Build tooling binaries
+.PHONY: $(TOOLING_BINARIES)
+$(TOOLING_BINARIES):
+	make -C $(TOOLS_DIR) $(@F)
 
