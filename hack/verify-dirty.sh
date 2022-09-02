@@ -9,9 +9,9 @@ echo "Verify uncommitted files..."
 echo "#############################"
 
 # Option to ignore changes to compatibility image path in
-# pkg/v1/tkg/tkgconfigpaths/zz_bundled_default_bom_files_configdata.go. This is to support `usebom` directive
+# tkg/tkgconfigpaths/zz_bundled_default_bom_files_configdata.go. This is to support `usebom` directive
 # in tests.
-ignore_file=':!pkg/v1/tkg/tkgconfigpaths/zz_bundled_default_bom_files_configdata.go'
+ignore_file=':!tkg/tkgconfigpaths/zz_bundled_default_bom_files_configdata.go'
 # Temporarily excluding UI generated bindata file from verify (zz_generated.bindata.go). Currently running into issues
 # blocking the CI main build. CI generated bindata is different from bindata file generated on local
 # developer machines, causing this failure. Need to root cause and then remove this exclusion.

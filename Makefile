@@ -592,7 +592,7 @@ configure-bom: ## Configure bill of materials
 	# Update default BoM Filename variable in tkgconfig pkg
 	sed "s+TKG_DEFAULT_IMAGE_REPOSITORY+${TKG_DEFAULT_IMAGE_REPOSITORY}+g"  hack/update-bundled-bom-filename/update-bundled-default-bom-files-configdata.txt | \
 	sed "s+TKG_DEFAULT_COMPATIBILITY_IMAGE_PATH+${TKG_DEFAULT_COMPATIBILITY_IMAGE_PATH}+g" | \
-	sed "s+TKG_MANAGEMENT_CLUSTER_PLUGIN_VERSION+${BUILD_VERSION}+g"  > pkg/v1/tkg/tkgconfigpaths/zz_bundled_default_bom_files_configdata.go
+	sed "s+TKG_MANAGEMENT_CLUSTER_PLUGIN_VERSION+${BUILD_VERSION}+g"  > tkg/tkgconfigpaths/zz_bundled_default_bom_files_configdata.go
 
 .PHONY: generate-ui-swagger-api
 generate-ui-swagger-api: ## Generate swagger files for UI backend
