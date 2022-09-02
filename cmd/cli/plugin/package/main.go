@@ -10,6 +10,7 @@ import (
 	_ "k8s.io/client-go/plugin/pkg/client/auth"
 
 	cliv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
+	capdiscovery "github.com/vmware-tanzu/tanzu-framework/capabilities/discovery"
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/component"
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/config"
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/plugin"
@@ -17,7 +18,6 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/packageclients/pkg/kappclient"
 	"github.com/vmware-tanzu/tanzu-framework/packageclients/pkg/packagedatamodel"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/buildinfo"
-	capdiscovery "github.com/vmware-tanzu/tanzu-framework/pkg/v1/sdk/capabilities/discovery"
 )
 
 var descriptor = cliv1alpha1.PluginDescriptor{

@@ -6,6 +6,7 @@ replace (
 	github.com/vmware-tanzu/tanzu-framework/apis/cli => ./apis/cli
 	github.com/vmware-tanzu/tanzu-framework/apis/config => ./apis/config
 	github.com/vmware-tanzu/tanzu-framework/apis/run => ./apis/run
+	github.com/vmware-tanzu/tanzu-framework/capabilities/discovery => ./capabilities/discovery
 	github.com/vmware-tanzu/tanzu-framework/cli/runtime => ./cli/runtime
 	github.com/vmware-tanzu/tanzu-framework/packageclients => ./packageclients
 	github.com/vmware-tanzu/tanzu-framework/tkg => ./tkg
@@ -79,6 +80,7 @@ require (
 	github.com/vmware-tanzu/tanzu-framework/apis/cli v0.0.0-00010101000000-000000000000
 	github.com/vmware-tanzu/tanzu-framework/apis/config v0.0.0-00010101000000-000000000000
 	github.com/vmware-tanzu/tanzu-framework/apis/run v0.0.0-00010101000000-000000000000
+	github.com/vmware-tanzu/tanzu-framework/capabilities/discovery v0.0.0-00010101000000-000000000000
 	github.com/vmware-tanzu/tanzu-framework/cli/runtime v0.0.0-00010101000000-000000000000
 	github.com/vmware-tanzu/tanzu-framework/packageclients v0.0.0-00010101000000-000000000000
 	github.com/vmware-tanzu/tanzu-framework/tkg v0.0.0-00010101000000-000000000000
