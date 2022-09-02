@@ -11,7 +11,7 @@ import (
 	. "github.com/onsi/gomega"
 
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
-	. "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/region"
+	. "github.com/vmware-tanzu/tanzu-framework/tkg/region"
 )
 
 func TestClusterClient(t *testing.T) {
