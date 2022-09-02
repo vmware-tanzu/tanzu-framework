@@ -7,8 +7,8 @@ import (
 	"os"
 	"strings"
 
-	"github.com/vmware-tanzu/tanzu-framework/tkg/aws"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/aws"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/log"
 
 	"github.com/pkg/errors"
