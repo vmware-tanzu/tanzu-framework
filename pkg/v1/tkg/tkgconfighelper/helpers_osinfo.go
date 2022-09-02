@@ -146,7 +146,7 @@ func filterVMTemplatesByAllOsOptions(vms []*types.VSphereVirtualMachine, osOptio
 
 // SelectAzureImageBasedonOSOptions selects template among all for azure images
 func SelectAzureImageBasedonOSOptions(azureImages []tkgconfigbom.AzureInfo, tkgConfigReaderWriter tkgconfigreaderwriter.TKGConfigReaderWriter) *tkgconfigbom.AzureInfo { // nolint:dupl
-	if len(azureImages) == 0 {                                                                                                                                           // no image provided skipping selection
+	if len(azureImages) == 0 { // no image provided skipping selection
 		return nil
 	}
 
@@ -220,7 +220,7 @@ func filterAzureImagesByAllOsOptions(azureImages []tkgconfigbom.AzureInfo, osOpt
 
 // SelectAWSImageBasedonOSOptions selects template among all for azure images
 func SelectAWSImageBasedonOSOptions(amis []tkgconfigbom.AMIInfo, tkgConfigReaderWriter tkgconfigreaderwriter.TKGConfigReaderWriter) *tkgconfigbom.AMIInfo { //nolint:dupl
-	if len(amis) == 0 {                                                                                                                                     // no image provided skipping selection
+	if len(amis) == 0 { // no image provided skipping selection
 		return nil
 	}
 
