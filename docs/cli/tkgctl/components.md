@@ -67,7 +67,7 @@ reference:
 
 * tkgctl interface implements functions that use CAPA's cloud-formation library to create a cloud-formation stack on AWS
 
-## [kind](/pkg/v1/tkg/kind)
+## [kind](/tkg/kind)
 
 * Implements methods to create and delete kind clusters that get used to create and delete management cluster
 
