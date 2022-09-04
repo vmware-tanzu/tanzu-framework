@@ -7,8 +7,6 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/config"
-
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/client-go/rest"
@@ -16,6 +14,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	configv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/config/v1alpha1"
+	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/config"
 )
 
 // FeatureGateClient defines methods to interact with FeatureGate resources

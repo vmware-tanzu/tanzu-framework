@@ -14,7 +14,6 @@ replace (
 require (
 	github.com/aunum/log v0.0.0-20200821225356-38d2e2c8b489
 	github.com/spf13/cobra v1.5.0
-	github.com/vmware-tanzu/tanzu-framework v0.26.0-dev.0.20220824221239-af5a644ffef7
 	github.com/vmware-tanzu/tanzu-framework/apis/cli v0.0.0-00010101000000-000000000000
 	github.com/vmware-tanzu/tanzu-framework/apis/config v0.0.0-20220820022318-db127cf83a25
 	github.com/vmware-tanzu/tanzu-framework/cli/runtime v0.0.0-20220901171806-254f018f3ce4
@@ -58,6 +57,7 @@ require (
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.2 // indirect
 	github.com/olekukonko/tablewriter v0.0.5 // indirect
+	github.com/onsi/gomega v1.19.0 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/prometheus/client_golang v1.12.1 // indirect
 	github.com/prometheus/client_model v0.2.0 // indirect
