@@ -66,12 +66,19 @@ type registrySecretOutput struct {
 	Namespace string `json:"namespace"`
 }
 
-type repositoryOutput struct {
+type repositoryOutputKctrlDisabled struct {
 	Name       string `json:"name"`
 	Repository string `json:"repository"`
 	Tag        string `json:"tag"`
 	Status     string `json:"status"`
 	Namespace  string `json:"namespace"`
+}
+
+type repositoryOutput struct {
+	Name      string `json:"name"`
+	Source    string `json:"source"`
+	Status    string `json:"status"`
+	Namespace string `json:"namespace"`
 }
 
 type packageInstalledOutput struct {
@@ -86,47 +93,51 @@ type packageAvailableOutput struct {
 }
 
 var (
-	config                      = &PackagePluginConfig{}
-	configPath                  string
-	tkgCfgDir                   string
-	err                         error
-	packagePlugin               packagelib.PackagePlugin
-	secretPlugin                secretlib.SecretPlugin
-	result                      packagelib.PackagePluginResult
-	resultImgPullSecret         secretlib.SecretPluginResult
-	clusterCreationTimeout      = 30 * time.Minute
-	pollInterval                = 20 * time.Second
-	pollTimeout                 = 10 * time.Minute
-	testImgPullSecretName       = "test-secret"
-	testNamespace               = "test-ns"
-	privateTestRegistry         = "registry-svc.registry.svc.cluster.local:443"
-	privateTestRegistryUsername = "testuser"
-	privateTestRegistryPassword = "testpassword"
-	testRepoName                = "carvel-test"
-	testRepoURL                 = "projects-stg.registry.vmware.com/tkg/test-packages/test-repo:v1.0.0"
-	testRepoURLNoTag            = "projects-stg.registry.vmware.com/tkg/test-packages/test-repo"
-	testRepoURLPrivate          = "registry-svc.registry.svc.cluster.local:443/secret-test/test-repo@sha256:e07483e2140fa427d9875aee9055d72efc49a732f3a3fb2c9651d9f39159315a"
-	testRepoURLPrivateNoTag     = "registry-svc.registry.svc.cluster.local:443/secret-test/test-repo"
-	testRepoOriginalTag         = "v1.0.0"
-	testRepoLatestTag           = "v1.1.0"
-	testRepoPrivateTag          = "sha256:e07483e2140fa427d9875aee9055d72efc49a732f3a3fb2c9651d9f39159315a"
-	testPkgInstallName          = "test-pkg"
-	testPkgName                 = "pkg.test.carvel.dev"
-	testPkgVersion              = "2.0.0"
-	testPkgVersionUpdate        = "3.0.0-rc.1"
-	imgPullSecretOptions        packagedatamodel.RegistrySecretOptions
-	pkgAvailableOptions         packagedatamodel.PackageAvailableOptions
-	pkgOptions                  packagedatamodel.PackageOptions
-	repoOptions                 packagedatamodel.RepositoryOptions
-	expectedPkgOutput           packageInstalledOutput
-	expectedPkgOutputUpdate     packageInstalledOutput
-	expectedRepoOutput          repositoryOutput
-	expectedRepoOutputLatestTag repositoryOutput
-	expectedRepoOutputPrivate   repositoryOutput
-	imgPullSecretOutput         []registrySecretOutput
-	pkgOutput                   []packageInstalledOutput
-	pkgAvailableOutput          []packageAvailableOutput
-	repoOutput                  []repositoryOutput
+	config                         = &PackagePluginConfig{}
+	configPath                     string
+	tkgCfgDir                      string
+	err                            error
+	packagePlugin                  packagelib.PackagePlugin
+	secretPlugin                   secretlib.SecretPlugin
+	result                         packagelib.PackagePluginResult
+	resultImgPullSecret            secretlib.SecretPluginResult
+	clusterCreationTimeout         = 30 * time.Minute
+	pollInterval                   = 20 * time.Second
+	pollTimeout                    = 10 * time.Minute
+	testImgPullSecretName          = "test-secret"
+	testNamespace                  = "test-ns"
+	privateTestRegistry            = "registry-svc.registry.svc.cluster.local:443"
+	privateTestRegistryUsername    = "testuser"
+	privateTestRegistryPassword    = "testpassword"
+	testRepoName                   = "carvel-test"
+	testRepoURL                    = "projects-stg.registry.vmware.com/tkg/test-packages/test-repo:v1.0.0"
+	testRepoURLNoTag               = "projects-stg.registry.vmware.com/tkg/test-packages/test-repo"
+	testRepoURLPrivate             = "registry-svc.registry.svc.cluster.local:443/secret-test/test-repo@sha256:e07483e2140fa427d9875aee9055d72efc49a732f3a3fb2c9651d9f39159315a"
+	testRepoURLPrivateNoTag        = "registry-svc.registry.svc.cluster.local:443/secret-test/test-repo"
+	testRepoOriginalTag            = "v1.0.0"
+	testRepoLatestTag              = "v1.1.0"
+	testRepoPrivateTag             = "sha256:e07483e2140fa427d9875aee9055d72efc49a732f3a3fb2c9651d9f39159315a"
+	testPkgInstallName             = "test-pkg"
+	testPkgName                    = "pkg.test.carvel.dev"
+	testPkgVersion                 = "2.0.0"
+	testPkgVersionUpdate           = "3.0.0-rc.1"
+	imgPullSecretOptions           packagedatamodel.RegistrySecretOptions
+	pkgAvailableOptions            packagedatamodel.PackageAvailableOptions
+	pkgOptions                     packagedatamodel.PackageOptions
+	repoOptions                    packagedatamodel.RepositoryOptions
+	expectedPkgOutput              packageInstalledOutput
+	expectedPkgOutputUpdate        packageInstalledOutput
+	expectedRepoOutput             repositoryOutput
+	expectedRepoOutputNoTag        repositoryOutput
+	expectedRepoOutputPrivate      repositoryOutput
+	expectedRepoOutputOld          repositoryOutputKctrlDisabled
+	expectedRepoOutputLatestTagOld repositoryOutputKctrlDisabled
+	expectedRepoOutputPrivateOld   repositoryOutputKctrlDisabled
+	imgPullSecretOutput            []registrySecretOutput
+	pkgOutput                      []packageInstalledOutput
+	pkgAvailableOutput             []packageAvailableOutput
+	repoOutput                     []repositoryOutput
+	repoOutputOld                  []repositoryOutputKctrlDisabled
 )
 
 var _ = Describe("Package plugin integration test", func() {
@@ -316,6 +327,27 @@ var _ = Describe("Package plugin integration test", func() {
 		}
 
 		expectedRepoOutput = repositoryOutput{
+			Name:      config.RepositoryName,
+			Source:    fmt.Sprintf("(imgpkg) %s:%s", config.RepositoryURLNoTag, config.RepositoryOriginalTag),
+			Status:    "Reconcile succeeded",
+			Namespace: config.Namespace,
+		}
+
+		expectedRepoOutputNoTag = repositoryOutput{
+			Name:      config.RepositoryName,
+			Source:    fmt.Sprintf("(imgpkg) %s", config.RepositoryURLNoTag),
+			Status:    "Reconcile succeeded",
+			Namespace: config.Namespace,
+		}
+
+		expectedRepoOutputPrivate = repositoryOutput{
+			Name:      config.RepositoryName,
+			Source:    fmt.Sprintf("(imgpkg) %s@%s", config.RepositoryURLPrivateNoTag, config.RepositoryPrivateTag),
+			Status:    "Reconcile succeeded",
+			Namespace: config.Namespace,
+		}
+
+		expectedRepoOutputOld = repositoryOutputKctrlDisabled{
 			Name:       config.RepositoryName,
 			Repository: config.RepositoryURLNoTag,
 			Tag:        config.RepositoryOriginalTag,
@@ -323,7 +355,7 @@ var _ = Describe("Package plugin integration test", func() {
 			Namespace:  config.Namespace,
 		}
 
-		expectedRepoOutputLatestTag = repositoryOutput{
+		expectedRepoOutputLatestTagOld = repositoryOutputKctrlDisabled{
 			Name:       config.RepositoryName,
 			Repository: config.RepositoryURLNoTag,
 			Tag:        "(>0.0.0)",
@@ -331,7 +363,7 @@ var _ = Describe("Package plugin integration test", func() {
 			Namespace:  config.Namespace,
 		}
 
-		expectedRepoOutputPrivate = repositoryOutput{
+		expectedRepoOutputPrivateOld = repositoryOutputKctrlDisabled{
 			Name:       config.RepositoryName,
 			Repository: config.RepositoryURLPrivateNoTag,
 			Tag:        config.RepositoryPrivateTag,
@@ -356,12 +388,13 @@ var _ = Describe("Package plugin integration test", func() {
 
 	Context("testing package plugin on management cluster", func() {
 		BeforeEach(func() {
-			packagePlugin = packagelib.NewPackagePlugin(config.KubeConfigPathMC, pollInterval, pollTimeout, "json", "", 0)
+			packagePlugin = packagelib.NewPackagePluginKctrl(config.KubeConfigPathMC, pollInterval, pollTimeout, "json", "", 0)
 			secretPlugin = secretlib.NewSecretPlugin(config.KubeConfigPathMC, pollInterval, pollTimeout, "json", 0)
 		})
 		It("should pass all checks on management cluster", func() {
 			cleanup()
 			setUpPrivateRegistry(config.KubeConfigPathMC, config.ClusterNameMC)
+			createTestNamespace(config.KubeConfigPathMC, config.ClusterNameMC, config.Namespace)
 			testHelper()
 			log.Info("Successfully finished package plugin integration tests on management cluster")
 		})
@@ -369,7 +402,7 @@ var _ = Describe("Package plugin integration test", func() {
 
 	Context("testing package plugin on workload cluster", func() {
 		BeforeEach(func() {
-			packagePlugin = packagelib.NewPackagePlugin(config.KubeConfigPathWLC, pollInterval, pollTimeout, "json", "", 0)
+			packagePlugin = packagelib.NewPackagePluginKctrl(config.KubeConfigPathWLC, pollInterval, pollTimeout, "json", "", 0)
 			secretPlugin = secretlib.NewSecretPlugin(config.KubeConfigPathWLC, pollInterval, pollTimeout, "json", 0)
 		})
 		AfterEach(func() {
@@ -381,7 +414,42 @@ var _ = Describe("Package plugin integration test", func() {
 			paused := true
 			pauseKappControllerPackage(config.ClusterNameWLC, config.ClusterNamespaceWLC, config.KubeConfigPathMC, config.ClusterNameMC, paused)
 			setUpPrivateRegistry(config.KubeConfigPathWLC, config.ClusterNameWLC)
+			createTestNamespace(config.KubeConfigPathWLC, config.ClusterNameWLC, config.Namespace)
 			testHelper()
+			log.Info("Successfully finished package plugin integration tests on workload cluster")
+		})
+	})
+
+	Context("testing package plugin on management cluster with kctrl disabled", func() {
+		BeforeEach(func() {
+			packagePlugin = packagelib.NewPackagePlugin(config.KubeConfigPathMC, pollInterval, pollTimeout, "json", "", 0)
+			secretPlugin = secretlib.NewSecretPlugin(config.KubeConfigPathMC, pollInterval, pollTimeout, "json", 0)
+		})
+		It("should pass all checks on management cluster", func() {
+			disableKctrlCommandTree()
+			cleanup()
+			setUpPrivateRegistry(config.KubeConfigPathMC, config.ClusterNameMC)
+			testHelperKctrlDisabled()
+			log.Info("Successfully finished package plugin integration tests on management cluster")
+		})
+	})
+
+	Context("testing package plugin on workload cluster with kctrl disabled", func() {
+		BeforeEach(func() {
+			packagePlugin = packagelib.NewPackagePlugin(config.KubeConfigPathWLC, pollInterval, pollTimeout, "json", "", 0)
+			secretPlugin = secretlib.NewSecretPlugin(config.KubeConfigPathWLC, pollInterval, pollTimeout, "json", 0)
+		})
+		AfterEach(func() {
+			paused := false
+			pauseKappControllerPackage(config.ClusterNameWLC, config.ClusterNamespaceWLC, config.KubeConfigPathMC, config.ClusterNameMC, paused)
+		})
+		It("should pass all checks on workload cluster", func() {
+			disableKctrlCommandTree()
+			cleanup()
+			paused := true
+			pauseKappControllerPackage(config.ClusterNameWLC, config.ClusterNamespaceWLC, config.KubeConfigPathMC, config.ClusterNameMC, paused)
+			setUpPrivateRegistry(config.KubeConfigPathWLC, config.ClusterNameWLC)
+			testHelperKctrlDisabled()
 			log.Info("Successfully finished package plugin integration tests on workload cluster")
 		})
 	})
@@ -393,7 +461,7 @@ func cleanup() {
 	Expect(result.Error).ToNot(HaveOccurred())
 
 	By("cleanup previous package repository installation")
-	result = packagePlugin.DeleteRepository(&repoOptions)
+	result = packagePlugin.CheckAndDeleteRepository(&repoOptions)
 	Expect(result.Error).ToNot(HaveOccurred())
 
 	By("cleanup previous secret installation")
@@ -525,6 +593,19 @@ func setUpPrivateRegistry(kubeconfigPath, clusterName string) {
 	Expect(err).ToNot(HaveOccurred())
 }
 
+func createTestNamespace(kubeconfigPath, clusterName, testNamespace string) {
+	By("create test namespace in cluster")
+	kubeCtx := clusterName + "-admin@" + clusterName
+
+	command := exec.NewCommand(
+		exec.WithCommand("kubectl"),
+		exec.WithArgs("create", "ns", testNamespace, "--context", kubeCtx, "--kubeconfig", kubeconfigPath),
+		exec.WithStdout(GinkgoWriter),
+	)
+	err = command.RunAndRedirectOutput(context.Background())
+	Expect(err).ToNot(HaveOccurred())
+}
+
 func pauseKappControllerPackage(clusterName, clusterNamespace, mgmtClusterKubeconfigPath, mgmtClusterName string, pause bool) {
 	By("pausing kapp controller app")
 	mgmtClusterKubeCtx := mgmtClusterName + "-admin@" + mgmtClusterName
@@ -538,7 +619,185 @@ func pauseKappControllerPackage(clusterName, clusterNamespace, mgmtClusterKubeco
 	Expect(err).ToNot(HaveOccurred())
 }
 
+func disableKctrlCommandTree() {
+	By("disable kctrl command tree")
+	command := exec.NewCommand(
+		exec.WithCommand("tanzu"),
+		exec.WithArgs("config", "set", "features.package.kctrl-package-command-tree", "false"),
+		exec.WithStdout(GinkgoWriter),
+	)
+	err = command.RunAndRedirectOutput(context.Background())
+	Expect(err).ToNot(HaveOccurred())
+}
+
 func testHelper() {
+	By("trying to create package repository with a private URL")
+	repoOptions.RepositoryURL = config.RepositoryURLPrivate
+	repoOptions.PollTimeout = 30 * time.Second
+	result = packagePlugin.AddRepository(&repoOptions)
+	Expect(result.Error).To(HaveOccurred())
+
+	By("add registry secret")
+	imgPullSecretOptions.Username = privateTestRegistryUsername
+	imgPullSecretOptions.PasswordInput = privateTestRegistryPassword
+	imgPullSecretOptions.Server = privateTestRegistry
+	resultImgPullSecret = secretPlugin.AddRegistrySecret(&imgPullSecretOptions)
+	Expect(resultImgPullSecret.Error).ToNot(HaveOccurred())
+
+	By("update registry secret to export the secret from default namespace to all namespaces")
+	t := true
+	imgPullSecretOptions.Export = packagedatamodel.TypeBoolPtr{ExportToAllNamespaces: &t}
+	resultImgPullSecret = secretPlugin.UpdateRegistrySecret(&imgPullSecretOptions)
+	Expect(resultImgPullSecret.Error).ToNot(HaveOccurred())
+
+	By("list registry secret")
+	resultImgPullSecret = secretPlugin.ListRegistrySecret(&imgPullSecretOptions)
+	Expect(resultImgPullSecret.Error).ToNot(HaveOccurred())
+	err = json.Unmarshal(resultImgPullSecret.Stdout.Bytes(), &imgPullSecretOutput)
+	Expect(err).ToNot(HaveOccurred())
+	Expect(len(imgPullSecretOutput)).To(BeNumerically(">=", 1))
+
+	By("wait for the private package repository reconciliation")
+	repoOptions.RepositoryURL = config.RepositoryURLPrivate
+	repoOptions.PollInterval = pollInterval
+	repoOptions.PollTimeout = pollTimeout
+	result = packagePlugin.CheckRepositoryAvailable(&repoOptions)
+	Expect(result.Error).ToNot(HaveOccurred())
+
+	By("list package repository")
+	repoOptions.AllNamespaces = true
+	result = packagePlugin.ListRepository(&repoOptions)
+	Expect(result.Error).ToNot(HaveOccurred())
+	err = json.Unmarshal(result.Stdout.Bytes(), &repoOutput)
+	Expect(err).ToNot(HaveOccurred())
+
+	By("get package repository")
+	repoOutput = []repositoryOutput{{Namespace: testNamespace}}
+	result = packagePlugin.GetRepository(&repoOptions)
+	Expect(result.Error).ToNot(HaveOccurred())
+	err = json.Unmarshal(result.Stdout.Bytes(), &repoOutput)
+	Expect(err).ToNot(HaveOccurred())
+	Expect(len(repoOutput)).To(BeNumerically("==", 1))
+	Expect(repoOutput[0]).To(Equal(expectedRepoOutputPrivate))
+
+	By("update package repository with a new URL without tag")
+	repoOptions.RepositoryURL = config.RepositoryURLNoTag
+	repoOptions.PollInterval = pollInterval
+	repoOptions.PollTimeout = pollTimeout
+	result = packagePlugin.UpdateRepository(&repoOptions)
+	Expect(result.Error).ToNot(HaveOccurred())
+
+	By("get package repository")
+	repoOutput = []repositoryOutput{{Namespace: testNamespace}}
+	result = packagePlugin.GetRepository(&repoOptions)
+	Expect(result.Error).ToNot(HaveOccurred())
+	err = json.Unmarshal(result.Stdout.Bytes(), &repoOutput)
+	Expect(err).ToNot(HaveOccurred())
+	Expect(len(repoOutput)).To(BeNumerically("==", 1))
+	Expect(repoOutput[0]).To(Equal(expectedRepoOutputNoTag))
+
+	By("update package repository with a new URL")
+	repoOptions.RepositoryURL = config.RepositoryURL
+	result = packagePlugin.UpdateRepository(&repoOptions)
+	Expect(result.Error).ToNot(HaveOccurred())
+
+	By("get package repository")
+	repoOutput = []repositoryOutput{{Namespace: testNamespace}}
+	result = packagePlugin.GetRepository(&repoOptions)
+	Expect(result.Error).ToNot(HaveOccurred())
+	err = json.Unmarshal(result.Stdout.Bytes(), &repoOutput)
+	Expect(err).ToNot(HaveOccurred())
+	Expect(len(repoOutput)).To(BeNumerically("==", 1))
+	Expect(repoOutput[0]).To(Equal(expectedRepoOutput))
+
+	By("list package available without packagename argument")
+	pkgAvailableOptions.AllNamespaces = true
+	result = packagePlugin.ListAvailablePackage("", &pkgAvailableOptions)
+	Expect(result.Error).ToNot(HaveOccurred())
+	err = json.Unmarshal(result.Stdout.Bytes(), &pkgAvailableOutput)
+	Expect(err).ToNot(HaveOccurred())
+	Expect(len(pkgAvailableOutput)).To(BeNumerically(">=", 1))
+	Expect(pkgAvailableOutput).To(ContainElement(packageAvailableOutput{Name: config.PackageName}))
+
+	By("list package available with packagename argument")
+	pkgAvailableOptions.AllNamespaces = true
+	result = packagePlugin.ListAvailablePackage(config.PackageName, &pkgAvailableOptions)
+	Expect(result.Error).ToNot(HaveOccurred())
+	err = json.Unmarshal(result.Stdout.Bytes(), &pkgAvailableOutput)
+	Expect(err).ToNot(HaveOccurred())
+	Expect(pkgAvailableOutput).To(ContainElement(packageAvailableOutput{Name: config.PackageName}))
+
+	By("get package available packagename format")
+	pkgAvailableOptions.AllNamespaces = false
+	result = packagePlugin.GetAvailablePackage(config.PackageName, &pkgAvailableOptions)
+	Expect(result.Error).ToNot(HaveOccurred())
+	err = json.Unmarshal(result.Stdout.Bytes(), &pkgAvailableOutput)
+	Expect(err).ToNot(HaveOccurred())
+	Expect(len(pkgAvailableOutput)).To(BeNumerically("==", 1))
+	Expect(pkgAvailableOutput[0].Name).To(Equal(config.PackageName))
+
+	By("get package available packagename/packageversion format")
+	result = packagePlugin.GetAvailablePackage(config.PackageName+"/"+config.PackageVersion, &pkgAvailableOptions)
+	Expect(result.Error).ToNot(HaveOccurred())
+	err = json.Unmarshal(result.Stdout.Bytes(), &pkgAvailableOutput)
+	Expect(err).ToNot(HaveOccurred())
+	Expect(len(pkgAvailableOutput)).To(BeNumerically("==", 1))
+	Expect(pkgAvailableOutput[0].Name).To(Equal(config.PackageName))
+
+	By("create package install")
+	pkgOptions.PollInterval = pollInterval
+	pkgOptions.PollTimeout = pollTimeout
+	pkgOptions.Version = config.PackageVersion
+	if config.WithValueFile {
+		pkgOptions.ValuesFile = "config/values.yaml"
+	}
+	result = packagePlugin.CreateInstalledPackage(&pkgOptions)
+	Expect(result.Error).ToNot(HaveOccurred())
+
+	By("list package install")
+	pkgOptions.AllNamespaces = true
+	result = packagePlugin.ListInstalledPackage(&pkgOptions)
+	Expect(result.Error).ToNot(HaveOccurred())
+	err = json.Unmarshal(result.Stdout.Bytes(), &pkgOutput)
+	Expect(err).ToNot(HaveOccurred())
+	Expect(len(pkgOutput)).To(BeNumerically(">=", 1))
+	Expect(pkgOutput).To(ContainElement(expectedPkgOutput))
+
+	By("update package install")
+	pkgOptions.Version = config.PackageVersionUpdate
+	if config.WithValueFile {
+		pkgOptions.ValuesFile = "config/values_update.yaml"
+	}
+	result = packagePlugin.UpdateInstalledPackage(&pkgOptions)
+	Expect(result.Error).ToNot(HaveOccurred())
+
+	By("get package install")
+	result = packagePlugin.GetInstalledPackage(&pkgOptions)
+	Expect(result.Error).ToNot(HaveOccurred())
+	err = json.Unmarshal(result.Stdout.Bytes(), &pkgOutput)
+	Expect(err).ToNot(HaveOccurred())
+	Expect(len(pkgOutput)).To(BeNumerically("==", 1))
+	Expect(pkgOutput[0]).To(Equal(expectedPkgOutputUpdate))
+
+	By("delete package install")
+	result = packagePlugin.DeleteInstalledPackage(&pkgOptions)
+	Expect(result.Error).ToNot(HaveOccurred())
+
+	By("delete package repository")
+	repoOptions.PollInterval = pollInterval
+	result = packagePlugin.DeleteRepository(&repoOptions)
+	Expect(result.Error).ToNot(HaveOccurred())
+
+	By("check package repository deletion")
+	result = packagePlugin.GetRepository(&repoOptions)
+	Expect(result.Error).To(HaveOccurred())
+
+	By("delete registry secret")
+	resultImgPullSecret = secretPlugin.DeleteRegistrySecret(&imgPullSecretOptions)
+	Expect(resultImgPullSecret.Error).ToNot(HaveOccurred())
+}
+
+func testHelperKctrlDisabled() {
 	By("trying to update package repository with a private URL")
 	repoOptions.RepositoryURL = config.RepositoryURLPrivate
 	repoOptions.CreateRepository = true
@@ -578,17 +837,17 @@ func testHelper() {
 	repoOptions.AllNamespaces = true
 	result = packagePlugin.ListRepository(&repoOptions)
 	Expect(result.Error).ToNot(HaveOccurred())
-	err = json.Unmarshal(result.Stdout.Bytes(), &repoOutput)
+	err = json.Unmarshal(result.Stdout.Bytes(), &repoOutputOld)
 	Expect(err).ToNot(HaveOccurred())
 
 	By("get package repository")
-	repoOutput = []repositoryOutput{{Namespace: testNamespace}}
+	repoOutputOld = []repositoryOutputKctrlDisabled{{Namespace: testNamespace}}
 	result = packagePlugin.GetRepository(&repoOptions)
 	Expect(result.Error).ToNot(HaveOccurred())
-	err = json.Unmarshal(result.Stdout.Bytes(), &repoOutput)
+	err = json.Unmarshal(result.Stdout.Bytes(), &repoOutputOld)
 	Expect(err).ToNot(HaveOccurred())
-	Expect(len(repoOutput)).To(BeNumerically("==", 1))
-	Expect(repoOutput[0]).To(Equal(expectedRepoOutputPrivate))
+	Expect(len(repoOutputOld)).To(BeNumerically("==", 1))
+	Expect(repoOutputOld[0]).To(Equal(expectedRepoOutputPrivateOld))
 
 	By("update package repository with a new URL without tag")
 	repoOptions.RepositoryURL = config.RepositoryURLNoTag
@@ -604,13 +863,13 @@ func testHelper() {
 	Expect(result.Error).ToNot(HaveOccurred())
 
 	By("get package repository")
-	repoOutput = []repositoryOutput{{Namespace: testNamespace}}
+	repoOutputOld = []repositoryOutputKctrlDisabled{{Namespace: testNamespace}}
 	result = packagePlugin.GetRepository(&repoOptions)
 	Expect(result.Error).ToNot(HaveOccurred())
-	err = json.Unmarshal(result.Stdout.Bytes(), &repoOutput)
+	err = json.Unmarshal(result.Stdout.Bytes(), &repoOutputOld)
 	Expect(err).ToNot(HaveOccurred())
-	Expect(len(repoOutput)).To(BeNumerically("==", 1))
-	Expect(repoOutput[0]).To(Equal(expectedRepoOutputLatestTag))
+	Expect(len(repoOutputOld)).To(BeNumerically("==", 1))
+	Expect(repoOutputOld[0]).To(Equal(expectedRepoOutputLatestTagOld))
 
 	By("update package repository with a new URL")
 	repoOptions.RepositoryURL = config.RepositoryURL
@@ -622,13 +881,13 @@ func testHelper() {
 	Expect(result.Error).ToNot(HaveOccurred())
 
 	By("get package repository")
-	repoOutput = []repositoryOutput{{Namespace: testNamespace}}
+	repoOutputOld = []repositoryOutputKctrlDisabled{{Namespace: testNamespace}}
 	result = packagePlugin.GetRepository(&repoOptions)
 	Expect(result.Error).ToNot(HaveOccurred())
-	err = json.Unmarshal(result.Stdout.Bytes(), &repoOutput)
+	err = json.Unmarshal(result.Stdout.Bytes(), &repoOutputOld)
 	Expect(err).ToNot(HaveOccurred())
-	Expect(len(repoOutput)).To(BeNumerically("==", 1))
-	Expect(repoOutput[0]).To(Equal(expectedRepoOutput))
+	Expect(len(repoOutputOld)).To(BeNumerically("==", 1))
+	Expect(repoOutputOld[0]).To(Equal(expectedRepoOutputOld))
 
 	By("list package available without packagename argument")
 	pkgAvailableOptions.AllNamespaces = true
