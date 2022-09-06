@@ -90,6 +90,40 @@ func Test_InstallPlugin_InstalledPlugins(t *testing.T) {
 	assert.Equal("cluster", installedServerPlugins[0].Name)
 }
 
+func Test_InstalledPluginsDescriptors(t *testing.T) {
+	assert := assert.New(t)
+
+	defer setupLocalDistoForTesting()()
+	execCommand = fakeExecCommand
+	defer func() { execCommand = exec.Command }()
+
+	// Install login (standalone) plugin
+	err := InstallPlugin("", "login", "v0.2.0")
+	assert.Nil(err)
+	// Install management-cluster (standalone) plugin
+	err = InstallPlugin("", "management-cluster", "v0.2.0")
+	assert.Nil(err)
+	// Install cluster (server) plugin
+	err = InstallPlugin("mgmt", "cluster", "v0.2.0")
+	assert.Nil(err)
+
+	pluginDescriptors, err := InstalledPluginsDescriptors()
+	assert.Nil(err)
+	assert.Equal(3, len(pluginDescriptors))
+	descriptionMap := map[string]bool{"Login to the platform": true, "Management cluster operations": true, "Kubernetes cluster operations": true}
+	pluginMap := map[string]bool{"login": true, "management-cluster": true, "cluster": true}
+
+	for _, desc := range pluginDescriptors {
+		_, ok := descriptionMap[desc.Description]
+		assert.True(ok)
+		delete(descriptionMap, desc.Description)
+
+		_, ok = pluginMap[desc.Name]
+		assert.True(ok)
+		delete(pluginMap, desc.Name)
+	}
+}
+
 func Test_AvailablePlugins(t *testing.T) {
 	assert := assert.New(t)
 
