@@ -14,6 +14,7 @@ import (
 	"runtime"
 	"strings"
 
+	"github.com/aunum/log"
 	"github.com/pkg/errors"
 	"go.uber.org/multierr"
 	"golang.org/x/mod/semver"
@@ -21,7 +22,6 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	kerrors "k8s.io/apimachinery/pkg/util/errors"
 
-	"github.com/aunum/log"
 	cliv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/apis/config/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/artifact"

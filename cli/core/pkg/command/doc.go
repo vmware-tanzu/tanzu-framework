@@ -7,7 +7,6 @@ package command
 import (
 	"context"
 	"fmt"
-	coreTemplates "github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/command/templates"
 	"os"
 	"text/template"
 
@@ -16,6 +15,7 @@ import (
 
 	cliv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/cli"
+	coreTemplates "github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/command/templates"
 )
 
 // DefaultDocsDir is the base docs directory

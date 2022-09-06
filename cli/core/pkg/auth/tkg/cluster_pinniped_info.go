@@ -12,9 +12,10 @@ import (
 	"time"
 
 	"github.com/pkg/errors"
-	netutil "github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/auth/utils/net"
 	"k8s.io/client-go/tools/clientcmd"
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
+
+	netutil "github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/auth/utils/net"
 )
 
 const (
