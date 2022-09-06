@@ -1717,6 +1717,10 @@ github.com/vmware-tanzu/carvel-ytt v0.40.0/go.mod h1:crDcKbS1GM4Q34puoVxdrajWOXr
 github.com/vmware-tanzu/net-operator-api v0.0.0-20210401185409-b0dc6c297707/go.mod h1:pDB0pUiFYufuP3lUkQX9fZ67PYnKvqBpDcJN3mSrw5U=
 github.com/vmware-tanzu/tanzu-framework v0.25.0 h1:/BNC3tFqi2Ve4TEwNq43pK2UqDmol3JB5mVC9vW3mB0=
 github.com/vmware-tanzu/tanzu-framework v0.25.0/go.mod h1:UpyqFRKmsLJEQ5EgIAJAsuEMZ3Sq1qYWaSyNX9Goi38=
+github.com/vmware-tanzu/tanzu-framework v0.26.0 h1:lLuM21acqdj6r01qSneoEmrM1UG7PrsRnhuHDTG6Bx8=
+github.com/vmware-tanzu/tanzu-framework v0.26.0/go.mod h1:ZtzfKNt9mqE5NfH/2ofUrqiKdTq2/Xo9XxrUWT1NT1c=
+github.com/vmware-tanzu/tanzu-framework v0.27.0-dev h1:Ek4wiQrfexkB7clfXvGTgxn1SwS+1Ie6KMgU1yLyrYI=
+github.com/vmware-tanzu/tanzu-framework v0.27.0-dev/go.mod h1:ZtzfKNt9mqE5NfH/2ofUrqiKdTq2/Xo9XxrUWT1NT1c=
 github.com/vmware-tanzu/vm-operator-api v0.1.4-0.20211029224930-6ec913d11bff/go.mod h1:mubK0QMyaA2TbeAmGsu2GVfiqDFppNUAUqoMPoKFgzM=
 github.com/vmware-tanzu/vm-operator/external/ncp v0.0.0-20211209213435-0f4ab286f64f/go.mod h1:5rqRJ9zGR+KnKbkGx373WgN8xJpvAj99kHnfoDYRO5I=
 github.com/vmware-tanzu/vm-operator/external/tanzu-topology v0.0.0-20211209213435-0f4ab286f64f/go.mod h1:dfYrWS8DMRN+XZfhu8M4LVHmeGvYB29Ipd7j4uIq+mU=

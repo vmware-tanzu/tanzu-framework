@@ -69,7 +69,7 @@ func newRegistry() (registry.Registry, error) {
 		}
 	}
 
-	caCertBytes, err := clientconfighelpers.GetCustomRepositoryCaCertificateForClient(nil)
+	caCertBytes, err := clientconfighelpers.GetCustomRepositoryCaCertificateForClient()
 	if err == nil && len(caCertBytes) != 0 {
 		filePath, err := configpaths.GetRegistryCertFile()
 		if err != nil {

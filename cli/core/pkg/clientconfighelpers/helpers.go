@@ -15,7 +15,6 @@ import (
 
 	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/configpaths"
 	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/constants"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfigreaderwriter"
 )
 
 // GetCustomRepositoryCaCertificateForClient returns CA certificate to use with cli client
@@ -23,22 +22,15 @@ import (
 // 1. PROXY_CA_CERT
 // 2. TKG_PROXY_CA_CERT
 // 3. TKG_CUSTOM_IMAGE_REPOSITORY_CA_CERTIFICATE
-func GetCustomRepositoryCaCertificateForClient(tkgconfigReaderWriter tkgconfigreaderwriter.TKGConfigReaderWriter) ([]byte, error) {
+func GetCustomRepositoryCaCertificateForClient() ([]byte, error) {
 	caCert := ""
 	var errProxyCACert, errTkgProxyCACertValue, errCustomImageRepoCACert error
 	var proxyCACertValue, tkgProxyCACertValue, customImageRepoCACert string
 
-	// Get the proxy configuration from tkgconfigreaderwriter if not nil
-	// otherwise get the same proxy configuration from os environment variable
-	if tkgconfigReaderWriter != nil {
-		proxyCACertValue, errProxyCACert = tkgconfigReaderWriter.Get(constants.ProxyCACert)
-		tkgProxyCACertValue, errTkgProxyCACertValue = tkgconfigReaderWriter.Get(constants.TKGProxyCACert)
-		customImageRepoCACert, errCustomImageRepoCACert = tkgconfigReaderWriter.Get(constants.ConfigVariableCustomImageRepositoryCaCertificate)
-	} else {
-		proxyCACertValue = os.Getenv(constants.ProxyCACert)
-		tkgProxyCACertValue = os.Getenv(constants.TKGProxyCACert)
-		customImageRepoCACert = os.Getenv(constants.ConfigVariableCustomImageRepositoryCaCertificate)
-	}
+	// Get the proxy configuration from os environment variable
+	proxyCACertValue = os.Getenv(constants.ProxyCACert)
+	tkgProxyCACertValue = os.Getenv(constants.TKGProxyCACert)
+	customImageRepoCACert = os.Getenv(constants.ConfigVariableCustomImageRepositoryCaCertificate)
 
 	if errProxyCACert == nil && proxyCACertValue != "" {
 		caCert = proxyCACertValue

@@ -28,11 +28,11 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/artifact"
 	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/catalog"
 	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/common"
+	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/config"
 	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/discovery"
 	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/plugin"
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/component"
 	configlib "github.com/vmware-tanzu/tanzu-framework/cli/runtime/config"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/config"
 )
 
 const (

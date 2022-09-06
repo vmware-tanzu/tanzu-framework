@@ -5,11 +5,66 @@
 package helper
 
 import (
+	"crypto/x509"
+	"encoding/base64"
+	"encoding/json"
+	"encoding/pem"
+	"fmt"
 	"github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 // ###################### Fake CAPI objects creation helper ######################
+
+// GetFakeClusterInfo returns the cluster-info configmap
+func GetFakeClusterInfo(server string, cert *x509.Certificate) string {
+	clusterInfoJSON := `
+	{
+		"kind": "ConfigMap",
+		"apiVersion": "v1",
+    	"data": {
+        "kubeconfig": "apiVersion: v1\nclusters:\n- cluster:\n    certificate-authority-data: %s\n    server: %s\n  name: \"\"\ncontexts: null\ncurrent-context: \"\"\nkind: Config\npreferences: {}\nusers: null\n"
+    	},
+		"metadata": {
+		  "name": "cluster-info",
+		  "namespace": "kube-public"
+		}
+	}`
+	certBytes := pem.EncodeToMemory(&pem.Block{Type: "CERTIFICATE", Bytes: cert.Raw})
+	clusterInfoJSON = fmt.Sprintf(clusterInfoJSON, base64.StdEncoding.EncodeToString(certBytes), server)
+
+	return clusterInfoJSON
+}
+
+// PinnipedInfo contains settings for the supervisor.
+type PinnipedInfo struct {
+	ClusterName              string `json:"cluster_name"`
+	ConciergeEndpoint        string `json:"concierge_endpoint"`
+	Issuer                   string `json:"issuer"`
+	IssuerCABundleData       string `json:"issuer_ca_bundle_data"`
+	ConciergeIsClusterScoped bool   `json:"concierge_is_cluster_scoped,string"`
+}
+
+// GetFakePinnipedInfo returns the pinniped-info configmap
+func GetFakePinnipedInfo(pinnipedInfo PinnipedInfo) string {
+	data, err := json.Marshal(pinnipedInfo)
+	if err != nil {
+		err = fmt.Errorf("could not marshal Pinniped info into JSON: %w", err)
+	}
+
+	pinnipedInfoJSON := `
+	{
+		"kind": "ConfigMap",
+		"apiVersion": "v1",
+		"metadata": {
+	  	  "name": "pinniped-info",
+	  	  "namespace": "kube-public"
+		},
+		"data": %s
+	}`
+	pinnipedInfoJSON = fmt.Sprintf(pinnipedInfoJSON, string(data))
+	return pinnipedInfoJSON
+}
 
 // NewCLIPlugin returns new NewCLIPlugin object
 func NewCLIPlugin(options TestCLIPluginOption) v1alpha1.CLIPlugin {
