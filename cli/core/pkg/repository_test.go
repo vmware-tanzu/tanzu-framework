@@ -9,7 +9,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	configv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/config/v1alpha1"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/config"
+	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/config"
 )
 
 func TestGCPRepository(t *testing.T) {

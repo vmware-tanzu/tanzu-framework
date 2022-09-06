@@ -16,9 +16,9 @@ import (
 	"github.com/aunum/log"
 	cliv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/common"
+	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/config"
 	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/plugin"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/config"
 )
 
 const (

@@ -14,7 +14,7 @@ import (
 	"github.com/spf13/cobra/doc"
 
 	cliv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
-	cli "github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/cli"
+	cli "github.com/vmware-tanzu/tanzu-framework/cli/core/pkg"
 	coreTemplates "github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/command/core/templates"
 )
 

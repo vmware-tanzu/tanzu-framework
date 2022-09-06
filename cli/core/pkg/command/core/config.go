@@ -16,8 +16,9 @@ import (
 	cliv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
 	configv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/config/v1alpha1"
 	cli "github.com/vmware-tanzu/tanzu-framework/cli/core/pkg"
+	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/config"
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/component"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/config"
+	configlib "github.com/vmware-tanzu/tanzu-framework/cli/runtime/config"
 )
 
 // ConfigLiterals used with set/unset commands
@@ -59,7 +60,7 @@ var getConfigCmd = &cobra.Command{
 	Use:   "get",
 	Short: "Get the current configuration",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		cfgPath, err := config.ClientConfigPath()
+		cfgPath, err := configlib.ClientConfigPath()
 		if err != nil {
 			return err
 		}
@@ -85,10 +86,10 @@ var setConfigCmd = &cobra.Command{
 		}
 
 		// Acquire tanzu config lock
-		config.AcquireTanzuConfigLock()
-		defer config.ReleaseTanzuConfigLock()
+		configlib.AcquireTanzuConfigLock()
+		defer configlib.ReleaseTanzuConfigLock()
 
-		cfg, err := config.GetClientConfig()
+		cfg, err := configlib.GetClientConfigNoLock()
 		if err != nil {
 			return err
 		}
@@ -98,7 +99,7 @@ var setConfigCmd = &cobra.Command{
 			return err
 		}
 
-		return config.StoreClientConfig(cfg)
+		return configlib.StoreClientConfig(cfg)
 	},
 }
 
@@ -190,12 +191,6 @@ func setEdition(cfg *configv1alpha1.ClientConfig, edition string) error {
 	switch editionOption {
 	case configv1alpha1.EditionCommunity, configv1alpha1.EditionStandard:
 		cfg.SetEditionSelector(editionOption)
-		// when community edition is set, configure the compatibility file to use
-		// community edition's.
-		err := cfg.SetCompatibilityFile(editionOption)
-		if err != nil {
-			return err
-		}
 	default:
 		return fmt.Errorf("unknown edition: %s; should be one of [%s, %s]", editionOption, configv1alpha1.EditionStandard, configv1alpha1.EditionCommunity)
 	}
@@ -207,10 +202,10 @@ var initConfigCmd = &cobra.Command{
 	Short: "Initialize config with defaults",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		// Acquire tanzu config lock
-		config.AcquireTanzuConfigLock()
-		defer config.ReleaseTanzuConfigLock()
+		configlib.AcquireTanzuConfigLock()
+		defer configlib.ReleaseTanzuConfigLock()
 
-		cfg, err := config.GetClientConfig()
+		cfg, err := configlib.GetClientConfigNoLock()
 		if err != nil {
 			return err
 		}
@@ -236,7 +231,7 @@ var initConfigCmd = &cobra.Command{
 		}
 		cfg.ClientOptions.CLI.Repositories = finalRepos
 
-		err = config.StoreClientConfig(cfg)
+		err = configlib.StoreClientConfig(cfg)
 		if err != nil {
 			return err
 		}
@@ -256,16 +251,18 @@ var initConfigCmd = &cobra.Command{
 	},
 }
 
+// Note: Shall be deprecated in a future version. Superseded by 'tanzu context' command.
 var serversCmd = &cobra.Command{
 	Use:   "server",
 	Short: "Configured servers",
 }
 
+// Note: Shall be deprecated in a future version. Superseded by 'tanzu context list' command.
 var listServersCmd = &cobra.Command{
 	Use:   "list",
 	Short: "List servers",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		cfg, err := config.GetClientConfig()
+		cfg, err := configlib.GetClientConfig()
 		if err != nil {
 			return err
 		}
@@ -287,6 +284,7 @@ var listServersCmd = &cobra.Command{
 	},
 }
 
+// Note: Shall be deprecated in a future version. Superseded by 'tanzu context delete' command.
 var deleteServersCmd = &cobra.Command{
 	Use:   "delete SERVER_NAME",
 	Short: "Delete a server from the config",
@@ -304,13 +302,13 @@ var deleteServersCmd = &cobra.Command{
 
 		if isAborted == nil {
 			log.Infof("Deleting entry for cluster %s", args[0])
-			serverExists, err := config.ServerExists(args[0])
+			serverExists, err := configlib.ServerExists(args[0])
 			if err != nil {
 				return err
 			}
 
 			if serverExists {
-				err := config.RemoveServer(args[0])
+				err := configlib.RemoveServer(args[0])
 				if err != nil {
 					return err
 				}
@@ -336,10 +334,10 @@ var unsetConfigCmd = &cobra.Command{
 		}
 
 		// Acquire tanzu config lock
-		config.AcquireTanzuConfigLock()
-		defer config.ReleaseTanzuConfigLock()
+		configlib.AcquireTanzuConfigLock()
+		defer configlib.ReleaseTanzuConfigLock()
 
-		cfg, err := config.GetClientConfig()
+		cfg, err := configlib.GetClientConfigNoLock()
 		if err != nil {
 			return err
 		}
@@ -349,7 +347,7 @@ var unsetConfigCmd = &cobra.Command{
 			return err
 		}
 
-		return config.StoreClientConfig(cfg)
+		return configlib.StoreClientConfig(cfg)
 	},
 }
 
