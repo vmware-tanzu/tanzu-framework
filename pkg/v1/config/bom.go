@@ -5,7 +5,15 @@ package config
 
 import (
 	configv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/config/v1alpha1"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfigpaths"
+)
+
+// Deprecated: This configuration variables are defined to support older plugins that are relying on
+// this configuration to be set in the tanzu configuration file.
+// This is pointing to the production registry to make sure existing plugins continue to work with
+// newer version of the Tanzu CLI
+const (
+	tkgDefaultImageRepo              = "projects.registry.vmware.com/tkg"
+	tkgDefaultCompatibilityImagePath = "tkg-compatibility"
 )
 
 func addCompatabilityFile(c *configv1alpha1.ClientConfig, compatibilityFilePath string) {
@@ -31,7 +39,7 @@ func addBomRepo(c *configv1alpha1.ClientConfig, repo string) {
 // addCompatibilityFileIfMissing adds the compatibility file to the client configuration to ensure it can be downloaded
 func addCompatibilityFileIfMissing(config *configv1alpha1.ClientConfig) bool {
 	if config.ClientOptions == nil || config.ClientOptions.CLI == nil || config.ClientOptions.CLI.CompatibilityFilePath == "" {
-		addCompatabilityFile(config, tkgconfigpaths.TKGDefaultCompatibilityImagePath)
+		addCompatabilityFile(config, tkgDefaultCompatibilityImagePath)
 		return true
 	}
 	return false
@@ -40,7 +48,7 @@ func addCompatibilityFileIfMissing(config *configv1alpha1.ClientConfig) bool {
 // addBomRepoIfMissing adds the bomRepository to the client configuration if it is not already present
 func addBomRepoIfMissing(config *configv1alpha1.ClientConfig) bool {
 	if config.ClientOptions == nil || config.ClientOptions.CLI == nil || config.ClientOptions.CLI.BOMRepo == "" {
-		addBomRepo(config, tkgconfigpaths.TKGDefaultImageRepo)
+		addBomRepo(config, tkgDefaultImageRepo)
 		return true
 	}
 	return false
