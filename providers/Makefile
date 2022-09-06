@@ -6,23 +6,21 @@
 # Set language for consistent sorting across operating systems
 export LC_ALL := C
 
-ROOT_DIR := $(shell git rev-parse --show-toplevel)
-
 GOOS ?= $(shell go env GOOS)
 GOARCH ?= $(shell go env GOARCH)
 PROJECT_ROOT = $(shell pwd)
 
-CLI_REPO ?= ${ROOT_DIR}
-TOOLS_DIR ?= ${ROOT_DIR}/hack/tools
+CLI_REPO ?= ${PROJECT_ROOT}/..
+TOOLS_DIR ?= ${PROJECT_ROOT}/../hack/tools
 TOOLS_BIN_DIR ?= ${TOOLS_DIR}/bin
 GOBINDATA := $(TOOLS_BIN_DIR)/gobindata
 VENDIR := $(TOOLS_BIN_DIR)/vendir
 VENDIR_VERSION = v0.17.0
 CLUSTERGEN_OUTPUT_DIR ?= generated
 CLUSTERGEN_BASE ?= origin/main
-PROVIDER_DIR_NAME = ${ROOT_DIR}/providers
-PROVIDER_BUNDLE_DIR = ${PROVIDER_DIR_NAME}/provider-bundle/providers
-PROVIDER_BUNDLE_ZIP = ${PROVIDER_DIR_NAME}/client/manifest/providers.zip
+PROVIDER_DIR_NAME = providers
+PROVIDER_BUNDLE_DIR = provider-bundle/${PROVIDER_DIR_NAME}
+PROVIDER_BUNDLE_ZIP = ${PROJECT_ROOT}/client/manifest/providers.zip
 
 # Image URL to use building/pushing provider image
 PROVIDER_TEMPLATE_IMG_NAME ?= provider-templates
@@ -54,7 +52,7 @@ build-cli:
 
 .PHONY: lint
 lint: ## Run YAML linter
-	yamllint ${PROVIDER_DIR_NAME} -c ${PROVIDER_DIR_NAME}/.yamllint
+	yamllint ${CLI_REPO}/pkg/v1/providers -c .yamllint
 
 ## --------------------------------------
 ## Generate provider templates
@@ -73,18 +71,18 @@ setup-provider-for-generation: clean-providers
 
 .PHONY: generate-provider-bundle-zip
 generate-provider-bundle-zip: setup-provider-for-generation ## generates provider zip bundle
-	cd ${PROVIDER_BUNDLE_DIR} && zip -r ${PROVIDER_BUNDLE_ZIP} ${PROVIDER_DIR_NAME} 
+	cd ${PROVIDER_BUNDLE_DIR} && zip -r ${PROVIDER_BUNDLE_ZIP} .
 
 ## --------------------------------------
 ## build save and push Provider templates
 ## --------------------------------------
 
 build-provider-template-image: setup-provider-for-generation ## Build provider template image
-	cd ${PROVIDER_BUNDLE_DIR} && docker build -t $(IMAGE_REPO)/${PROVIDER_TEMPLATE_IMG_NAME}:${PROVIDER_TEMPLATE_IMG_TAG} -f ../../hack/Dockerfile.templates ${PROVIDER_DIR_NAME} 
+	cd ${PROVIDER_BUNDLE_DIR} && docker build -t $(IMAGE_REPO)/${PROVIDER_TEMPLATE_IMG_NAME}:${PROVIDER_TEMPLATE_IMG_TAG} -f ../../hack/Dockerfile.templates .
 
 save-provider-template-image: ## Save provider template image
-	mkdir -p "${PROVIDER_DIR_NAME}/artifacts"
-	docker save $(IMAGE_REPO)/${PROVIDER_TEMPLATE_IMG_NAME}:${PROVIDER_TEMPLATE_IMG_TAG} | gzip -c > "${PROVIDER_DIR_NAME}/artifacts/${PROVIDER_TEMPLATE_IMG_NAME}-${PROVIDER_TEMPLATE_IMG_TAG}.tar.gz"
+	mkdir -p "${PROJECT_ROOT}/artifacts"
+	docker save $(IMAGE_REPO)/${PROVIDER_TEMPLATE_IMG_NAME}:${PROVIDER_TEMPLATE_IMG_TAG} | gzip -c > "${PROJECT_ROOT}/artifacts/${PROVIDER_TEMPLATE_IMG_NAME}-${PROVIDER_TEMPLATE_IMG_TAG}.tar.gz"
 
 push-provider-template-image: ## Push provider template image
 	docker push $(IMAGE_REPO)/${PROVIDER_TEMPLATE_IMG_NAME}:${PROVIDER_TEMPLATE_IMG_TAG}
@@ -99,7 +97,7 @@ rename-test-outputs: ## show commands to rename the expected output files to mat
 
 .PHONY: generate-testcases
 generate-testcases: ## Regenerates test cases based on parameter model files. Requires PICT to be available.
-	cd ${PROVIDER_DIR_NAME}/tests/clustergen && ./gen_testcases.sh
+	cd tests/clustergen && ./gen_testcases.sh
 
 .PHONY: cluster-generation-tests
 cluster-generation-tests: build-cli ## Run cluster compliance test against cluster generation dataset
@@ -126,5 +124,5 @@ $(VENDIR):
 
 .PHONY: vendir-sync
 vendir-sync: vendir  ## Run vendir sync
-	${TOOLS_BIN_DIR}/vendir sync --file ${PROVIDER_DIR_NAME}/vendir.yml
+	${TOOLS_BIN_DIR}/vendir sync
 # end of Makefile
