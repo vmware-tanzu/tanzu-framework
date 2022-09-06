@@ -43,6 +43,8 @@ jobs:
   build-and-publish-packages:
     name: Build and Publish Carvel Packages
     runs-on: tkg
+    env:
+      gcp_bucket_sa: ${{ secrets.GCP_BUCKET_SA }}
     steps:
     - name: Free disk space and clean up installed plugins on runner
       run: |
@@ -174,6 +176,8 @@ jobs:
     name: TKG Integration Tests CAPD (ClusterClass)
     runs-on: tkg
     needs: build-and-publish-packages
+    env:
+      gcp_bucket_sa: ${{ secrets.GCP_BUCKET_SA }}
     steps:
       - name: Free disk space and clean up installed plugins on runner
         run: |
