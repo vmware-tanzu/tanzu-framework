@@ -9,7 +9,7 @@ import (
 	"google.golang.org/grpc/metadata"
 
 	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/buildinfo"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/config"
+	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/config"
 )
 
 const (
