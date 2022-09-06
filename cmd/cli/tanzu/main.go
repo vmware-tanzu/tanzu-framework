@@ -9,7 +9,7 @@ import (
 
 	"github.com/aunum/log"
 
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/command/core"
+	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/command/core"
 )
 
 func main() {

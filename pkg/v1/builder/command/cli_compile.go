@@ -21,7 +21,7 @@ import (
 	"gopkg.in/yaml.v2"
 
 	cliv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli"
+	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/cli"
 )
 
 var (
