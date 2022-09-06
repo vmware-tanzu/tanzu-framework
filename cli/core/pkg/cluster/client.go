@@ -2,10 +2,8 @@ package cluster
 
 import (
 	"context"
+
 	"github.com/pkg/errors"
-	cliv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
-	capdiscovery "github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/cluster/discovery"
-	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/constants"
 	"gopkg.in/yaml.v3"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
@@ -18,6 +16,10 @@ import (
 	"k8s.io/client-go/tools/clientcmd"
 	crtclient "sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/client/apiutil"
+
+	cliv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
+	capdiscovery "github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/cluster/discovery"
+	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/constants"
 )
 
 var (

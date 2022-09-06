@@ -10,8 +10,10 @@ import (
 	"encoding/json"
 	"encoding/pem"
 	"fmt"
-	"github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
+
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+
+	"github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
 )
 
 // ###################### Fake CAPI objects creation helper ######################
