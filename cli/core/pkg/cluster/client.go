@@ -4,8 +4,8 @@ import (
 	"context"
 	"github.com/pkg/errors"
 	cliv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
+	capdiscovery "github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/cluster/discovery"
 	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/constants"
-	capdiscovery "github.com/vmware-tanzu/tanzu-framework/pkg/v1/sdk/capabilities/discovery"
 	"gopkg.in/yaml.v3"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
@@ -21,7 +21,6 @@ import (
 )
 
 var (
-	ctx    = context.Background()
 	scheme = runtime.NewScheme()
 )
 
