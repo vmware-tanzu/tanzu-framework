@@ -58,6 +58,8 @@ spec:
 apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
 kind: VSphereMachineTemplate
 metadata:
+  labels:
+    cluster.x-k8s.io/cluster-name: test-cluster-cpi
   name: test-cluster-csi-control-plane
   namespace: default
 spec:

@@ -63,6 +63,20 @@ func GetVSphereClusterNonParavirtual(ctx context.Context, clt client.Client, clu
 	return &vsphereClusters.Items[0], nil
 }
 
+// GetVSphereMachineTemplateNonParavirtual gets the vSphereMachineTemplate CR in non-paravirtual mode
+func GetVSphereMachineTemplateNonParavirtual(ctx context.Context, clt client.Client, cluster *clusterapiv1beta1.Cluster) (*capvv1beta1.VSphereMachineTemplate, error) {
+	vSphereMachineTemplateList := &capvv1beta1.VSphereMachineTemplateList{}
+	labelSelector := labels.SelectorFromSet(map[string]string{clusterapiv1beta1.ClusterLabelName: cluster.Name})
+	if err := clt.List(ctx, vSphereMachineTemplateList, &client.ListOptions{LabelSelector: labelSelector, Namespace: cluster.Namespace}); err != nil {
+		return nil, err
+	}
+	if len(vSphereMachineTemplateList.Items) == 0 {
+		return nil, fmt.Errorf("vSphereMachineTemplate with label %s=%s not found",
+			clusterapiv1beta1.ClusterLabelName, cluster.Name)
+	}
+	return &vSphereMachineTemplateList.Items[0], nil
+}
+
 // ControlPlaneName returns the control plane name for a cluster name
 func ControlPlaneName(clusterName string) string {
 	return fmt.Sprintf("%s-control-plane", clusterName)

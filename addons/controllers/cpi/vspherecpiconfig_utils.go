@@ -17,7 +17,6 @@ import (
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/tools/clientcmd"
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
-	capvv1beta1 "sigs.k8s.io/cluster-api-provider-vsphere/apis/v1beta1"
 	capvvmwarev1beta1 "sigs.k8s.io/cluster-api-provider-vsphere/apis/vmware/v1beta1"
 	clusterapiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
 
@@ -57,20 +56,10 @@ func (r *VSphereCPIConfigReconciler) mapCPIConfigToDataValuesNonParavirtual( // 
 		return nil, err
 	}
 
-	// get the control plane machine template
-	cpMachineTemplate := &capvv1beta1.VSphereMachineTemplate{}
-	if err := r.Client.Get(ctx, types.NamespacedName{
-		Namespace: cluster.Namespace,
-		Name:      controlPlaneName(cluster.Name),
-	}, cpMachineTemplate); err != nil {
-		if apierrors.IsNotFound(err) {
-			return nil, errors.Errorf("VSphereMachineTemplate %s/%s not found", cluster.Namespace, controlPlaneName(cluster.Name))
-		}
-		return nil, errors.Errorf("VSphereMachineTemplate %s/%s could not be fetched, error %v", cluster.Namespace, controlPlaneName(cluster.Name), err)
+	// derive data center information from machine template
+	if vSphereMachineTemplate, err := cutil.GetVSphereMachineTemplateNonParavirtual(ctx, r.Client, cluster); err != nil {
+		d.Datacenter = vSphereMachineTemplate.Spec.Template.Spec.Datacenter
 	}
-
-	// derive data center information from control plane machine template, if not provided
-	d.Datacenter = cpMachineTemplate.Spec.Template.Spec.Datacenter
 
 	// derive ClusterCidr from cluster.spec.clusterNetwork
 	if cluster.Spec.ClusterNetwork != nil && cluster.Spec.ClusterNetwork.Pods != nil && len(cluster.Spec.ClusterNetwork.Pods.CIDRBlocks) > 0 {
