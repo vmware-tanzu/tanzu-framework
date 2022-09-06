@@ -6,6 +6,7 @@ package main
 import (
 	_ "embed"
 	"fmt"
+	"github.com/adrg/xdg"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -18,7 +19,11 @@ import (
 
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/config"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/buildinfo"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli"
+)
+
+var (
+	// DefaultPluginRoot is the default plugin root.
+	DefaultPluginRoot = filepath.Join(xdg.DataHome, "tanzu-cli")
 )
 
 type loginOIDCOptions struct {
@@ -106,7 +111,7 @@ func loginOIDCCommand(
 			oidcLoginArgs = append(oidcLoginArgs, fmt.Sprintf("--credential-cache=%s", loginOptions.credentialCachePath))
 		}
 
-		pinnipedCliCmd, err := getPinnipedCLICmdFunc(oidcLoginArgs, loginOptions, cli.DefaultPluginRoot, buildinfo.Version, buildinfo.SHA)
+		pinnipedCliCmd, err := getPinnipedCLICmdFunc(oidcLoginArgs, loginOptions, DefaultPluginRoot, buildinfo.Version, buildinfo.SHA)
 		if err != nil {
 			return fmt.Errorf("cannot construct pinniped cli command: %w", err)
 		}

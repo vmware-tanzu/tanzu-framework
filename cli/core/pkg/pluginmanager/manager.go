@@ -300,6 +300,47 @@ func InstalledPlugins(serverName string, exclude ...string) (serverPlugins, stan
 	return
 }
 
+// InstalledPluginsDescriptors fetches installed plugins (server and standalone) and returns all installed plugins descriptions
+func InstalledPluginsDescriptors() (pluginDescriptions []*cliv1alpha1.PluginDescriptor, err error) {
+	serverName := ""
+	server, err := configlib.GetCurrentServer()
+	if err == nil && server != nil {
+		serverName = server.Name
+	}
+
+	serverPlugins, standalonePlugins, err := InstalledPlugins(serverName)
+	if err != nil {
+		return nil, fmt.Errorf("error while getting installed plugin: %q", err)
+	}
+	availablePlugins := append(standalonePlugins, serverPlugins...)
+
+	for _, info := range availablePlugins {
+		descriptor, err := DescribePluginFromInstallationPath(info.Name, info.InstallationPath)
+		if err != nil {
+			return nil, err
+		}
+		pluginDescriptions = append(pluginDescriptions, descriptor)
+	}
+	return pluginDescriptions, nil
+}
+
+// DescribePluginFromInstallationPath describes a plugin from a given installation path.
+func DescribePluginFromInstallationPath(name, pluginPath string) (desc *cliv1alpha1.PluginDescriptor, err error) {
+	b, err := execCommand(pluginPath, "info").Output()
+	if err != nil {
+		err = fmt.Errorf("could not describe plugin %q", name)
+		return
+	}
+
+	var descriptor cliv1alpha1.PluginDescriptor
+	err = json.Unmarshal(b, &descriptor)
+	if err != nil {
+		err = fmt.Errorf("could not unmarshal plugin %q description", name)
+	}
+	descriptor.InstallationPath = pluginPath
+	return &descriptor, err
+}
+
 // DescribePlugin describes a plugin.
 // If serverName is empty(""), only consider standalone plugins
 func DescribePlugin(serverName, pluginName string) (desc *cliv1alpha1.PluginDescriptor, err error) {

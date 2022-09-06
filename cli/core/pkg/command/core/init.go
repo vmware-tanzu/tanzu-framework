@@ -12,6 +12,7 @@ import (
 	"github.com/spf13/cobra"
 
 	cliv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
+	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/catalog"
 	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/cli"
 	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/pluginmanager"
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/config"
@@ -67,6 +68,10 @@ var initCmd = &cobra.Command{
 }
 
 func initPluginsWithContextAwareCLI() error {
+	if err := catalog.UpdateCatalogCache(); err != nil {
+		return err
+	}
+
 	serverName := ""
 	server, err := config.GetCurrentServer()
 	if err == nil && server != nil {

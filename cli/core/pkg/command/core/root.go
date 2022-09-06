@@ -15,6 +15,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
+	configv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/config/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/cli"
 	cliconfig "github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/config"
 	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/pluginmanager"
@@ -37,8 +38,10 @@ var (
 
 // NewRootCmd creates a root command.
 func NewRootCmd() (*cobra.Command, error) {
-	u := cli.NewMainUsage()
-	RootCmd.SetUsageFunc(u.Func())
+	uFunc := cli.NewMainUsage().Func()
+	RootCmd.SetUsageFunc(uFunc)
+	k8sCmd.SetUsageFunc(uFunc)
+	tmcCmd.SetUsageFunc(uFunc)
 
 	ni := os.Getenv("TANZU_CLI_NO_INIT")
 	if ni != "" || strings.EqualFold(forceNoInit, "true") {
@@ -67,9 +70,19 @@ func NewRootCmd() (*cobra.Command, error) {
 		genAllDocsCmd,
 	)
 
-	// If the context-command feature is enabled add it under root.
+	// If the context and target feature is enabled, add the corresponding commands under root.
 	if config.IsFeatureActivated(config.FeatureContextCommand) {
-		RootCmd.AddCommand(contextCmd)
+		RootCmd.AddCommand(
+			contextCmd,
+			k8sCmd,
+			tmcCmd,
+		)
+		if err := addCtxPlugins(k8sCmd, configv1alpha1.CtxTypeK8s); err != nil {
+			return nil, err
+		}
+		if err := addCtxPlugins(tmcCmd, configv1alpha1.CtxTypeTMC); err != nil {
+			return nil, err
+		}
 	}
 
 	plugins, err := getAvailablePlugins()
@@ -100,6 +113,52 @@ func NewRootCmd() (*cobra.Command, error) {
 	RootCmd.DisableFlagParsing = true
 
 	return RootCmd, nil
+}
+
+var k8sCmd = &cobra.Command{
+	Use:     "kubernetes",
+	Short:   "Tanzu CLI plugins that target a Kubernetes cluster",
+	Aliases: []string{"k8s"},
+	Annotations: map[string]string{
+		"group": string(v1alpha1.TargetCmdGroup),
+	},
+}
+
+var tmcCmd = &cobra.Command{
+	Use:     "mission-control",
+	Short:   "Tanzu CLI plugins that target a Tanzu Mission Control endpoint",
+	Aliases: []string{"tmc"},
+	Annotations: map[string]string{
+		"group": string(v1alpha1.TargetCmdGroup),
+	},
+}
+
+func addCtxPlugins(cmd *cobra.Command, ctxType configv1alpha1.ContextType) error {
+	var ctxName string
+	if ctx, _ := config.GetCurrentContext(ctxType); ctx != nil {
+		ctxName = ctx.Name
+	}
+
+	ctxPlugins, standalonePlugins, err := pluginmanager.InstalledPlugins(ctxName)
+	if err != nil {
+		return fmt.Errorf("unable to find installed plugins: %w", err)
+	}
+
+	if ctxType == configv1alpha1.CtxTypeK8s {
+		// Standalone plugins exist only for K8s context type.
+		for i := range standalonePlugins {
+			if standalonePlugins[i].Group == v1alpha1.SystemCmdGroup {
+				// Do not include plugins from the system command group.
+				continue
+			}
+			cmd.AddCommand(cli.GetCmd(&standalonePlugins[i]))
+		}
+	}
+
+	for i := range ctxPlugins {
+		cmd.AddCommand(cli.GetCmd(&ctxPlugins[i]))
+	}
+	return nil
 }
 
 func getAvailablePlugins() ([]*v1alpha1.PluginDescriptor, error) {

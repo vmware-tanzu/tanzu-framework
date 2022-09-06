@@ -186,6 +186,8 @@ func saveCatalogCache(catalog *cliv1alpha1.Catalog) error {
 }
 
 // ListPlugins returns the available plugins.
+//
+// Deprecated: Use pluginmanager.AvailablePluginsFromLocalSource or pluginmanager.AvailablePlugins instead
 func ListPlugins(exclude ...string) (list []*cliv1alpha1.PluginDescriptor, err error) {
 	pluginDescriptors, err := getPluginsFromCatalogCache()
 	if err != nil {

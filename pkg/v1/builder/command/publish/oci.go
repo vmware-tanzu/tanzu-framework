@@ -12,7 +12,7 @@ import (
 	"github.com/aunum/log"
 	"github.com/pkg/errors"
 
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/common"
+	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/common"
 )
 
 // OCIPublisher defines OCI publisher configuration
