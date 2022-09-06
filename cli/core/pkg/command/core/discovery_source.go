@@ -11,11 +11,9 @@ import (
 	"github.com/spf13/cobra"
 
 	configv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/config/v1alpha1"
+	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/cli"
 	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/common"
-
 	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/discovery"
-
-	cli "github.com/vmware-tanzu/tanzu-framework/cli/core/pkg"
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/component"
 	configlib "github.com/vmware-tanzu/tanzu-framework/cli/runtime/config"
 )
@@ -231,7 +229,9 @@ func createDiscoverySource(dsType, dsName, uri string) (configv1alpha1.PluginDis
 		pluginDiscoverySource.Local = createLocalDiscoverySource(dsName, uri)
 	case common.DiscoveryTypeOCI:
 		pluginDiscoverySource.OCI = createOCIDiscoverySource(dsName, uri)
-	case common.DiscoveryTypeGCP, common.DiscoveryTypeKubernetes, common.DiscoveryTypeREST:
+	case common.DiscoveryTypeREST:
+		pluginDiscoverySource.REST = createRESTDiscoverySource(dsName, uri)
+	case common.DiscoveryTypeGCP, common.DiscoveryTypeKubernetes:
 		return pluginDiscoverySource, errors.Errorf("discovery source type '%s' is not yet supported", dsType)
 	default:
 		return pluginDiscoverySource, errors.Errorf("unknown discovery source type '%s'", dsType)
@@ -250,6 +250,13 @@ func createOCIDiscoverySource(discoveryName, uri string) *configv1alpha1.OCIDisc
 	return &configv1alpha1.OCIDiscovery{
 		Name:  discoveryName,
 		Image: uri,
+	}
+}
+
+func createRESTDiscoverySource(discoveryName, uri string) *configv1alpha1.GenericRESTDiscovery {
+	return &configv1alpha1.GenericRESTDiscovery{
+		Name:     discoveryName,
+		Endpoint: uri,
 	}
 }
 
