@@ -56,9 +56,11 @@ func Test_createDiscoverySource(t *testing.T) {
 	assert.Contains(err.Error(), "not yet supported")
 
 	// When discovery source is rest
-	_, err = createDiscoverySource("rest", "fake-discovery-name", "fake/path")
-	assert.NotNil(err)
-	assert.Contains(err.Error(), "not yet supported")
+	pd, err = createDiscoverySource("rest", "fake-discovery-name", "fake/path")
+	assert.Nil(err)
+	assert.NotNil(pd.REST)
+	assert.Equal(pd.REST.Name, "fake-discovery-name")
+	assert.Equal(pd.REST.Endpoint, "fake/path")
 
 	// When discovery source is an unknown value
 	_, err = createDiscoverySource("unexpectedValue", "fake-discovery-name", "fake/path")
