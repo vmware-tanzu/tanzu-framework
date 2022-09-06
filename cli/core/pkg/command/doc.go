@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 // Package core creates and initializes the tanzu CLI.
-package core
+package command
 
 import (
 	"context"
@@ -16,7 +16,7 @@ import (
 
 	cliv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/cli"
-	coreTemplates "github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/command/core/templates"
+	coreTemplates "github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/command/templates"
 	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/pluginmanager"
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/config"
 )
