@@ -2,11 +2,12 @@
 // SPDX-License-Identifier: Apache-2.0
 
 // Package core creates and initializes the tanzu CLI.
-package core
+package command
 
 import (
 	"context"
 	"fmt"
+	coreTemplates "github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/command/templates"
 	"os"
 	"text/template"
 
@@ -15,7 +16,6 @@ import (
 
 	cliv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/cli"
-	coreTemplates "github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/command/core/templates"
 )
 
 // DefaultDocsDir is the base docs directory
