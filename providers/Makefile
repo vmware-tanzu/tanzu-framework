@@ -10,8 +10,11 @@ GOOS ?= $(shell go env GOOS)
 GOARCH ?= $(shell go env GOARCH)
 PROJECT_ROOT = $(shell pwd)
 
-CLI_REPO ?= ${PROJECT_ROOT}/..
-TOOLS_DIR ?= ${PROJECT_ROOT}/../hack/tools
+ROOT_DIR := $(shell git rev-parse --show-toplevel)
+PROVIDER_DIR := ${ROOT_DIR}/providers
+
+CLI_REPO ?= ${PROVIDER_DIR}/..
+TOOLS_DIR ?= ${PROVIDER_DIR}/../hack/tools
 TOOLS_BIN_DIR ?= ${TOOLS_DIR}/bin
 GOBINDATA := $(TOOLS_BIN_DIR)/gobindata
 VENDIR := $(TOOLS_BIN_DIR)/vendir
@@ -20,7 +23,7 @@ CLUSTERGEN_OUTPUT_DIR ?= generated
 CLUSTERGEN_BASE ?= origin/main
 PROVIDER_DIR_NAME = providers
 PROVIDER_BUNDLE_DIR = provider-bundle/${PROVIDER_DIR_NAME}
-PROVIDER_BUNDLE_ZIP = ${PROJECT_ROOT}/client/manifest/providers.zip
+PROVIDER_BUNDLE_ZIP = ${PROVIDER_DIR}/client/manifest/providers.zip
 
 # Image URL to use building/pushing provider image
 PROVIDER_TEMPLATE_IMG_NAME ?= provider-templates
@@ -44,7 +47,7 @@ all: lint ## run all target
 
 .PHONY: build-cli ## build tkg cli with existing provider changes
 build-cli:
-	CLI_REPO=${CLI_REPO} ${CLI_REPO}/hack/clustergen/rebuild-cli.sh ${PWD}
+	CLI_REPO=${ROOT_DIR} ${ROOT_DIR}/hack/clustergen/rebuild-cli.sh ${PROVIDER_DIR}
 
 ## --------------------------------------
 ## Linting
@@ -52,7 +55,7 @@ build-cli:
 
 .PHONY: lint
 lint: ## Run YAML linter
-	yamllint ${CLI_REPO}/pkg/v1/providers -c .yamllint
+	yamllint ${PROVIDER_DIR} -c ${PROVIDER_DIR}/.yamllint
 
 ## --------------------------------------
 ## Generate provider templates
@@ -61,28 +64,28 @@ lint: ## Run YAML linter
 .PHONY: clean-providers
 clean-providers: ## cleans provider-bundle
 	# cleanup old provider bundles
-	@rm -rf client/manifest/providers.zip
-	@rm -rf provider-bundle || true
-	@mkdir -p ${PROVIDER_BUNDLE_DIR}
+	@rm -rf ${PROVIDER_DIR}/client/manifest/providers.zip
+	@rm -rf ${PROVIDER_DIR}/provider-bundle || true
+	@mkdir -p ${PROVIDER_DIR}/${PROVIDER_BUNDLE_DIR}
 
 setup-provider-for-generation: clean-providers
 	# using temporary directory to extract all files which needs to bundle
-	find . -type f | grep -v "${FILES_TO_IGNORE_REGEX}" | xargs tar cf - -T - | tar -C ${PROVIDER_BUNDLE_DIR} -x
+	find . -type f | grep -v "${FILES_TO_IGNORE_REGEX}" | xargs tar cf - -T - | tar -C ${PROVIDER_DIR}/${PROVIDER_BUNDLE_DIR} -x
 
 .PHONY: generate-provider-bundle-zip
 generate-provider-bundle-zip: setup-provider-for-generation ## generates provider zip bundle
-	cd ${PROVIDER_BUNDLE_DIR} && zip -r ${PROVIDER_BUNDLE_ZIP} .
+	cd ${PROVIDER_DIR}/${PROVIDER_BUNDLE_DIR} && zip -r ${PROVIDER_BUNDLE_ZIP} ${PROVIDER_DIR} 
 
 ## --------------------------------------
 ## build save and push Provider templates
 ## --------------------------------------
 
 build-provider-template-image: setup-provider-for-generation ## Build provider template image
-	cd ${PROVIDER_BUNDLE_DIR} && docker build -t $(IMAGE_REPO)/${PROVIDER_TEMPLATE_IMG_NAME}:${PROVIDER_TEMPLATE_IMG_TAG} -f ../../hack/Dockerfile.templates .
+	cd ${PROVIDER_DIR}/${PROVIDER_BUNDLE_DIR} && docker build -t $(IMAGE_REPO)/${PROVIDER_TEMPLATE_IMG_NAME}:${PROVIDER_TEMPLATE_IMG_TAG} -f ${PROVIDER_DIR}/hack/Dockerfile.templates ${PROVIDER_DIR} 
 
 save-provider-template-image: ## Save provider template image
-	mkdir -p "${PROJECT_ROOT}/artifacts"
-	docker save $(IMAGE_REPO)/${PROVIDER_TEMPLATE_IMG_NAME}:${PROVIDER_TEMPLATE_IMG_TAG} | gzip -c > "${PROJECT_ROOT}/artifacts/${PROVIDER_TEMPLATE_IMG_NAME}-${PROVIDER_TEMPLATE_IMG_TAG}.tar.gz"
+	mkdir -p "${PROVIDER_DIR}/artifacts"
+	docker save $(IMAGE_REPO)/${PROVIDER_TEMPLATE_IMG_NAME}:${PROVIDER_TEMPLATE_IMG_TAG} | gzip -c > "${PROVIDER_DIR}/artifacts/${PROVIDER_TEMPLATE_IMG_NAME}-${PROVIDER_TEMPLATE_IMG_TAG}.tar.gz"
 
 push-provider-template-image: ## Push provider template image
 	docker push $(IMAGE_REPO)/${PROVIDER_TEMPLATE_IMG_NAME}:${PROVIDER_TEMPLATE_IMG_TAG}
@@ -97,7 +100,7 @@ rename-test-outputs: ## show commands to rename the expected output files to mat
 
 .PHONY: generate-testcases
 generate-testcases: ## Regenerates test cases based on parameter model files. Requires PICT to be available.
-	cd tests/clustergen && ./gen_testcases.sh
+	cd ${PROVIDER_DIR}/tests/clustergen && ${PROVIDER_DIR}/tests/clustergen/gen_testcases.sh
 
 .PHONY: cluster-generation-tests
 cluster-generation-tests: build-cli ## Run cluster compliance test against cluster generation dataset
@@ -124,5 +127,5 @@ $(VENDIR):
 
 .PHONY: vendir-sync
 vendir-sync: vendir  ## Run vendir sync
-	${TOOLS_BIN_DIR}/vendir sync
+	${TOOLS_BIN_DIR}/vendir sync --file ${PROVIDER_DIR}/vendir.yml
 # end of Makefile
