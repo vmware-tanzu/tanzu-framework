@@ -16,6 +16,7 @@ COPY featuregates/controller/go.sum featuregates/controller/go.sum
 COPY featuregates/client featuregates/client
 COPY apis/ apis/
 COPY cli/runtime cli/runtime
+COPY capabilities/discovery capabilities/discovery
 
 WORKDIR featuregates/controller
 RUN  go mod download
