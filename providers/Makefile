@@ -74,7 +74,7 @@ setup-provider-for-generation: clean-providers
 
 .PHONY: generate-provider-bundle-zip
 generate-provider-bundle-zip: setup-provider-for-generation ## generates provider zip bundle
-	cd ${PROVIDER_DIR}/${PROVIDER_BUNDLE_DIR} && zip -r ${PROVIDER_BUNDLE_ZIP} ${PROVIDER_DIR} 
+	cd ${PROVIDER_DIR}/${PROVIDER_BUNDLE_DIR} && zip -r ${PROVIDER_BUNDLE_ZIP} . 
 
 ## --------------------------------------
 ## build save and push Provider templates
