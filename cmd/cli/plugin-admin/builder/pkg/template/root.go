@@ -3,7 +3,7 @@
 
 package template
 
-import "github.com/vmware-tanzu/tanzu-framework/pkg/v1/builder/template/plugintemplates"
+import "github.com/vmware-tanzu/tanzu-framework/plugin-admin/builder/pkg/template/plugintemplates"
 
 const gitignore = `artifacts
 tools/bin`

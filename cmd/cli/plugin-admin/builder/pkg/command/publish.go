@@ -10,7 +10,7 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/common"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/builder/command/publish"
+	"github.com/vmware-tanzu/tanzu-framework/plugin-admin/builder/pkg/command/publish"
 )
 
 type PublishArgs struct {

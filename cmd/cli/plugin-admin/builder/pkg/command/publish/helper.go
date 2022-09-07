@@ -4,6 +4,10 @@
 package publish
 
 import (
+	"crypto/sha256"
+	"encoding/hex"
+	"io"
+	"os"
 	"path/filepath"
 	"strings"
 
@@ -13,7 +17,6 @@ import (
 
 	"github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/common"
-	"github.com/vmware-tanzu/tanzu-framework/tkg/utils"
 
 	apimachineryjson "k8s.io/apimachinery/pkg/runtime/serializer/json"
 )
@@ -134,12 +137,30 @@ func newArtifactObject(osType, arch, artifactType, digest, uri string) v1alpha1.
 	return artifact
 }
 
+// TODO remove this
+// getSHA256FromFile returns SHA256 sum of a file
+func getSHA256FromFile(filePath string) (string, error) {
+	f, err := os.Open(filePath)
+	if err != nil {
+		return "", err
+	}
+	defer f.Close()
+
+	h := sha256.New()
+	if _, err := io.Copy(h, f); err != nil {
+		return "", err
+	}
+	b := h.Sum(nil)
+
+	return hex.EncodeToString(b), nil
+}
+
 func getPluginPathAndDigestFromMetadata(artifactDir, plugin, version, osType, arch string) (string, string, error) {
 	sourcePath := filepath.Join(artifactDir, osType, arch, "cli", plugin, version, "tanzu-"+plugin+"-"+osType+"_"+arch)
 	if osType == osTypeWindows {
 		sourcePath += fileExtensionWindows
 	}
-	digest, err := utils.SHA256FromFile(sourcePath)
+	digest, err := getSHA256FromFile(sourcePath)
 	if err != nil {
 		return "", "", errors.Wrap(err, "error while calculating sha256")
 	}
