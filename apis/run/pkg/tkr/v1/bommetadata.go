@@ -1,7 +1,7 @@
 // Copyright 2021 VMware, Inc. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-package types
+package v1
 
 // ManagementClusterVersion contains kubernetes versions that are supported by the management cluster with a certain TKG version.
 type ManagementClusterVersion struct {

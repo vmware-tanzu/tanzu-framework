@@ -13,7 +13,7 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/webhooks"
+	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/webhooks"
 )
 
 const (

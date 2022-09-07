@@ -36,7 +36,6 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/util"
 	"github.com/vmware-tanzu/tanzu-framework/addons/predicates"
 	runtanzuv1alpha3 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
-	tkrconstants "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkr/pkg/constants"
 )
 
 const kappCtrlPkgPrefix = "kapp-controller"
@@ -160,7 +159,7 @@ func (r *PackageInstallStatusReconciler) Reconcile(_ context.Context, req reconc
 	}
 
 	// determine cluster role
-	_, isManagementCluster := clusterLabels[tkrconstants.ManagementClusterRoleLabel]
+	_, isManagementCluster := clusterLabels[constants.ManagementClusterRoleLabel]
 
 	if isManagementCluster {
 		// the cluster is a management cluster

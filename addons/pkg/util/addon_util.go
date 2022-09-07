@@ -22,7 +22,7 @@ import (
 	kapppkgv1alpha1 "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apiserver/apis/datapackaging/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
 	addontypes "github.com/vmware-tanzu/tanzu-framework/addons/pkg/types"
-	bomtypes "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkr/pkg/types"
+	tkrv1 "github.com/vmware-tanzu/tanzu-framework/apis/run/pkg/tkr/v1"
 )
 
 // GetAddonSecretsForCluster gets the addon secrets belonging to the cluster
@@ -145,7 +145,7 @@ func GetClientFromAddonSecret(addonSecret *corev1.Secret, localClient, remoteCli
 }
 
 // GetImageInfo gets the image Info of an addon
-func GetImageInfo(addonConfig *bomtypes.Addon, imageRepository, imagePullPolicy string, bom *bomtypes.Bom) ([]byte, error) {
+func GetImageInfo(addonConfig *tkrv1.Addon, imageRepository, imagePullPolicy string, bom *tkrv1.Bom) ([]byte, error) {
 	componentRefs := addonConfig.AddonContainerImages
 
 	addonImageInfo := &addontypes.AddonImageInfo{Info: addontypes.ImageInfo{ImageRepository: imageRepository, ImagePullPolicy: imagePullPolicy, Images: map[string]addontypes.Image{}}}

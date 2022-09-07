@@ -236,6 +236,43 @@ const (
 
 	// PackageInstallStatusControllerRateLimitMaxDelay is the maximum delay for rate limiting error requeues in PackageInstallStatusController
 	PackageInstallStatusControllerRateLimitMaxDelay = time.Minute * 30
+
+	// ClusterPauseLabel is the label on the Cluster Object to indicate the cluster is paused by TKG
+	ClusterPauseLabel = "tkg.tanzu.vmware.com/paused"
+
+	// ManagementClusterRoleLabel is the management cluster role label
+	// It indicates the cluster object represents a mgmt cluster
+	ManagementClusterRoleLabel = "cluster-role.tkg.tanzu.vmware.com/management"
+
+	// InfrastructureProviderVSphere is the key for vsphere infrastructure
+	InfrastructureProviderVSphere = "vsphere"
+
+	// InfrastructureProviderTkgs is the key for vsphere infrastructure with supervisor
+	InfrastructureProviderTkgs = "tkgs"
+
+	// InfrastructureProviderAWS is the key for aws infrastructure
+	InfrastructureProviderAWS = "aws"
+
+	// InfrastructureProviderAzure is the key for azure infrastructure
+	InfrastructureProviderAzure = "azure"
+
+	// InfrastructureProviderDocker is the key for docker infrastructure
+	InfrastructureProviderDocker = "docker"
+
+	// InfrastructureRefVSphere is the vSphere infrastructure
+	InfrastructureRefVSphere = "VSphereCluster"
+
+	// InfrastructureRefAWS is the AWS infrastructure
+	InfrastructureRefAWS = "AWSCluster"
+
+	// InfrastructureRefAzure is the Azure infrastructure
+	InfrastructureRefAzure = "AzureCluster"
+
+	// InfrastructureRefDocker is the docker infrastructure
+	InfrastructureRefDocker = "DockerCluster"
+
+	// CAPVClusterSelectorKey is the selector key used by capv
+	CAPVClusterSelectorKey = "capv.vmware.com/cluster.name"
 )
 
 var (

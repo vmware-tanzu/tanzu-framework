@@ -17,7 +17,7 @@ import (
 
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/util"
-	bomtypes "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkr/pkg/types"
+	tkrv1 "github.com/vmware-tanzu/tanzu-framework/apis/run/pkg/tkr/v1"
 )
 
 // AddonKappResourceReconciler is the interface for Kapp related reconcilers
@@ -26,9 +26,9 @@ type AddonKappResourceReconciler interface {
 		remoteApp bool,
 		remoteCluster *clusterapiv1beta1.Cluster,
 		addonSecret *corev1.Secret,
-		addonConfig *bomtypes.Addon,
+		addonConfig *tkrv1.Addon,
 		imageRepository string,
-		bom *bomtypes.Bom) error
+		bom *tkrv1.Bom) error
 
 	ReconcileAddonKappResourceDelete(
 		addonSecret *corev1.Secret) error
@@ -178,9 +178,9 @@ func (r *AddonReconciler) ReconcileAddonDataValuesSecretNormal(
 	log logr.Logger,
 	clusterClient client.Client,
 	addonSecret *corev1.Secret,
-	addonConfig *bomtypes.Addon,
+	addonConfig *tkrv1.Addon,
 	imageRepository string,
-	bom *bomtypes.Bom) error {
+	bom *tkrv1.Bom) error {
 
 	addonDataValuesSecret := &corev1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
@@ -272,9 +272,9 @@ func (r *AddonReconciler) reconcileAddonNormal(
 	remoteCluster *clusterapiv1beta1.Cluster,
 	remoteClusterClient client.Client,
 	addonSecret *corev1.Secret,
-	addonConfig *bomtypes.Addon,
+	addonConfig *tkrv1.Addon,
 	imageRepository string,
-	bom *bomtypes.Bom) error {
+	bom *tkrv1.Bom) error {
 
 	addonName := util.GetAddonNameFromAddonSecret(addonSecret)
 

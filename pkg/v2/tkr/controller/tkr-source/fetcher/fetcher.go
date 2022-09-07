@@ -8,6 +8,7 @@ package fetcher
 import (
 	"context"
 	"fmt"
+
 	"sort"
 	"strconv"
 	"strings"
@@ -26,10 +27,10 @@ import (
 	"sigs.k8s.io/yaml"
 
 	kapppkgv1 "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apiserver/apis/datapackaging/v1alpha1"
+	tkrv1 "github.com/vmware-tanzu/tanzu-framework/apis/run/pkg/tkr/v1"
 	"github.com/vmware-tanzu/tanzu-framework/apis/run/util/sets"
 	"github.com/vmware-tanzu/tanzu-framework/apis/run/util/version"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkr/pkg/constants"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkr/pkg/types"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v2/tkr/controller/tkr-source/pkgcr"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v2/tkr/controller/tkr-source/registry"
 )
@@ -162,7 +163,7 @@ func (f *Fetcher) fetchTKRCompatibilityCM(ctx context.Context) error {
 	return errors.Wrap(err, "error creating or updating BOM metadata ConfigMap")
 }
 
-func (f *Fetcher) fetchCompatibilityMetadata() (*types.CompatibilityMetadata, error) {
+func (f *Fetcher) fetchCompatibilityMetadata() (*tkrv1.CompatibilityMetadata, error) {
 	f.Log.Info("Listing BOM metadata image tags", "image", f.Config.BOMMetadataImagePath)
 	tags, err := f.Registry.ListImageTags(f.Config.BOMMetadataImagePath)
 	if err != nil {
@@ -183,7 +184,7 @@ func (f *Fetcher) fetchCompatibilityMetadata() (*types.CompatibilityMetadata, er
 	sort.Ints(tagNum)
 
 	var metadataContent []byte
-	var metadata types.CompatibilityMetadata
+	var metadata tkrv1.CompatibilityMetadata
 
 	for i := len(tagNum) - 1; i >= 0; i-- {
 		tagName := fmt.Sprintf("v%d", tagNum[i])
@@ -260,7 +261,7 @@ func (f *Fetcher) createBOMConfigMap(ctx context.Context, tag string) error {
 		return errors.Wrapf(err, "failed to get the BOM file from image %s:%s", f.Config.BOMImagePath, tag)
 	}
 
-	bom, err := types.NewBom(bomContent)
+	bom, err := tkrv1.NewBom(bomContent)
 	if err != nil {
 		return errors.Wrapf(err, "failed to parse content from image %s:%s", f.Config.BOMImagePath, tag)
 	}

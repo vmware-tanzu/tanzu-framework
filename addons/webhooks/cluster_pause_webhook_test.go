@@ -19,9 +19,8 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
+	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/fakeclusterclient"
 	"github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/fakes"
-	tkgconstants "github.com/vmware-tanzu/tanzu-framework/tkg/constants"
 )
 
 const (
@@ -41,12 +40,12 @@ var _ = Describe("ClusterPause Webhook", func() {
 			err    error
 			wh     *ClusterPause
 			input  runtime.Object
-			crtCtl *fakes.CRTClusterClient
+			crtCtl *fakeclusterclient.CRTClusterClient
 		)
 		BeforeEach(func() {
 			currentCluster = &clusterv1.Cluster{}
 			currentTKR = &v1alpha3.TanzuKubernetesRelease{}
-			crtCtl = &fakes.CRTClusterClient{}
+			crtCtl = &fakeclusterclient.CRTClusterClient{}
 			crtCtl.GetStub = getStub
 			wh = &ClusterPause{Client: crtCtl}
 		})
@@ -124,7 +123,7 @@ var _ = Describe("ClusterPause Webhook", func() {
 				}
 				err = wh.Default(ctx, input)
 				Expect(err).ShouldNot(HaveOccurred())
-				Expect(getCluster(input).GetAnnotations()).To(HaveKey(tkgconstants.ClusterPauseLabel))
+				Expect(getCluster(input).GetAnnotations()).To(HaveKey(constants.ClusterPauseLabel))
 				Expect(getCluster(input).GetAnnotations()).To(ContainElements("1.21.2"))
 				Expect(getCluster(input).Spec.Paused).To(BeTrue())
 			})
@@ -143,7 +142,7 @@ var _ = Describe("ClusterPause Webhook", func() {
 				}
 				err = wh.Default(ctx, input)
 				Expect(err).ShouldNot(HaveOccurred())
-				Expect(getCluster(input).GetAnnotations()).To(HaveKey(tkgconstants.ClusterPauseLabel))
+				Expect(getCluster(input).GetAnnotations()).To(HaveKey(constants.ClusterPauseLabel))
 				Expect(getCluster(input).GetAnnotations()).To(ContainElements("1.21.2"))
 				Expect(getCluster(input).Spec.Paused).To(BeTrue())
 			})
@@ -162,7 +161,7 @@ var _ = Describe("ClusterPause Webhook", func() {
 				}
 				err = wh.Default(ctx, input)
 				Expect(err).ShouldNot(HaveOccurred())
-				Expect(getCluster(input).GetAnnotations()).To(HaveKey(tkgconstants.ClusterPauseLabel))
+				Expect(getCluster(input).GetAnnotations()).To(HaveKey(constants.ClusterPauseLabel))
 				Expect(getCluster(input).GetAnnotations()).To(ContainElements("1.21.2"))
 				Expect(getCluster(input).Spec.Paused).To(BeTrue())
 			})
@@ -181,7 +180,7 @@ var _ = Describe("ClusterPause Webhook", func() {
 				}
 				err = wh.Default(ctx, input)
 				Expect(err).ShouldNot(HaveOccurred())
-				Expect(getCluster(input).GetAnnotations()).To(HaveKey(tkgconstants.ClusterPauseLabel))
+				Expect(getCluster(input).GetAnnotations()).To(HaveKey(constants.ClusterPauseLabel))
 				Expect(getCluster(input).GetAnnotations()).To(ContainElements("1.23.5"))
 				Expect(getCluster(input).Spec.Paused).To(BeTrue())
 			})
@@ -204,7 +203,7 @@ var _ = Describe("ClusterPause Webhook", func() {
 				}
 				err = wh.Default(ctx, input)
 				Expect(err).ShouldNot(HaveOccurred())
-				Expect(getCluster(input).GetAnnotations()).To(HaveKey(tkgconstants.ClusterPauseLabel))
+				Expect(getCluster(input).GetAnnotations()).To(HaveKey(constants.ClusterPauseLabel))
 				Expect(getCluster(input).GetAnnotations()).To(ContainElements("1.23.5"))
 				Expect(getCluster(input).Spec.Paused).To(BeTrue())
 			})
@@ -227,7 +226,7 @@ var _ = Describe("ClusterPause Webhook", func() {
 				}
 				err = wh.Default(ctx, input)
 				Expect(err).ShouldNot(HaveOccurred())
-				Expect(getCluster(input).GetAnnotations()).To(HaveKey(tkgconstants.ClusterPauseLabel))
+				Expect(getCluster(input).GetAnnotations()).To(HaveKey(constants.ClusterPauseLabel))
 				Expect(getCluster(input).GetAnnotations()).To(ContainElements("1.23.5"))
 				Expect(getCluster(input).Spec.Paused).To(BeTrue())
 			})
@@ -251,7 +250,7 @@ var _ = Describe("ClusterPause Webhook", func() {
 				err = wh.Default(ctx, input)
 
 				Expect(err).ShouldNot(HaveOccurred())
-				Expect(getCluster(input).GetAnnotations()).NotTo(HaveKey(tkgconstants.ClusterPauseLabel))
+				Expect(getCluster(input).GetAnnotations()).NotTo(HaveKey(constants.ClusterPauseLabel))
 				Expect(getCluster(input).GetAnnotations()).NotTo(ContainElements("1.23.5"))
 				Expect(getCluster(input).Spec.Paused).To(BeFalse())
 			})
@@ -275,7 +274,7 @@ var _ = Describe("ClusterPause Webhook", func() {
 				err = wh.Default(ctx, input)
 
 				Expect(err).ShouldNot(HaveOccurred())
-				Expect(getCluster(input).GetAnnotations()).NotTo(HaveKey(tkgconstants.ClusterPauseLabel))
+				Expect(getCluster(input).GetAnnotations()).NotTo(HaveKey(constants.ClusterPauseLabel))
 				Expect(getCluster(input).GetAnnotations()).NotTo(ContainElements("1.23.5"))
 				Expect(getCluster(input).Spec.Paused).To(BeFalse())
 			})
@@ -290,13 +289,13 @@ var _ = Describe("ClusterPause Webhook", func() {
 				}
 				currentTKR.Labels = map[string]string{constants.TKRLabelLegacyClusters: ""}
 				currentTKR.Name = testTKRName
-				crtCtl = &fakes.CRTClusterClient{}
+				crtCtl = &fakeclusterclient.CRTClusterClient{}
 				crtCtl.GetReturns(fmt.Errorf("some error"))
 				wh = &ClusterPause{Client: crtCtl}
 				err = wh.Default(ctx, input)
 				Expect(err).Should(HaveOccurred())
 				Expect(err.Error()).To(ContainSubstring("some error"))
-				Expect(getCluster(input).GetAnnotations()).NotTo(HaveKey(tkgconstants.ClusterPauseLabel))
+				Expect(getCluster(input).GetAnnotations()).NotTo(HaveKey(constants.ClusterPauseLabel))
 				Expect(getCluster(input).GetAnnotations()).NotTo(ContainElements("1.23.5"))
 				Expect(getCluster(input).Spec.Paused).To(BeFalse())
 			})
