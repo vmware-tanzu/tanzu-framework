@@ -301,15 +301,16 @@ func (fake *PackageClient) AddRegistrySecret(arg1 *packagedatamodel.RegistrySecr
 	fake.addRegistrySecretArgsForCall = append(fake.addRegistrySecretArgsForCall, struct {
 		arg1 *packagedatamodel.RegistrySecretOptions
 	}{arg1})
+	stub := fake.AddRegistrySecretStub
+	fakeReturns := fake.addRegistrySecretReturns
 	fake.recordInvocation("AddRegistrySecret", []interface{}{arg1})
 	fake.addRegistrySecretMutex.Unlock()
-	if fake.AddRegistrySecretStub != nil {
-		return fake.AddRegistrySecretStub(arg1)
+	if stub != nil {
+		return stub(arg1)
 	}
 	if specificReturn {
 		return ret.result1
 	}
-	fakeReturns := fake.addRegistrySecretReturns
 	return fakeReturns.result1
 }
 
@@ -362,9 +363,10 @@ func (fake *PackageClient) AddRepository(arg1 *packagedatamodel.RepositoryOption
 		arg2 *packagedatamodel.PackageProgress
 		arg3 packagedatamodel.OperationType
 	}{arg1, arg2, arg3})
+	stub := fake.AddRepositoryStub
 	fake.recordInvocation("AddRepository", []interface{}{arg1, arg2, arg3})
 	fake.addRepositoryMutex.Unlock()
-	if fake.AddRepositoryStub != nil {
+	if stub != nil {
 		fake.AddRepositoryStub(arg1, arg2, arg3)
 	}
 }
@@ -395,15 +397,16 @@ func (fake *PackageClient) AddRepositorySync(arg1 *packagedatamodel.RepositoryOp
 		arg1 *packagedatamodel.RepositoryOptions
 		arg2 packagedatamodel.OperationType
 	}{arg1, arg2})
+	stub := fake.AddRepositorySyncStub
+	fakeReturns := fake.addRepositorySyncReturns
 	fake.recordInvocation("AddRepositorySync", []interface{}{arg1, arg2})
 	fake.addRepositorySyncMutex.Unlock()
-	if fake.AddRepositorySyncStub != nil {
-		return fake.AddRepositorySyncStub(arg1, arg2)
+	if stub != nil {
+		return stub(arg1, arg2)
 	}
 	if specificReturn {
 		return ret.result1
 	}
-	fakeReturns := fake.addRepositorySyncReturns
 	return fakeReturns.result1
 }
 
@@ -455,15 +458,16 @@ func (fake *PackageClient) DeleteRegistrySecret(arg1 *packagedatamodel.RegistryS
 	fake.deleteRegistrySecretArgsForCall = append(fake.deleteRegistrySecretArgsForCall, struct {
 		arg1 *packagedatamodel.RegistrySecretOptions
 	}{arg1})
+	stub := fake.DeleteRegistrySecretStub
+	fakeReturns := fake.deleteRegistrySecretReturns
 	fake.recordInvocation("DeleteRegistrySecret", []interface{}{arg1})
 	fake.deleteRegistrySecretMutex.Unlock()
-	if fake.DeleteRegistrySecretStub != nil {
-		return fake.DeleteRegistrySecretStub(arg1)
+	if stub != nil {
+		return stub(arg1)
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
-	fakeReturns := fake.deleteRegistrySecretReturns
 	return fakeReturns.result1, fakeReturns.result2
 }
 
@@ -518,9 +522,10 @@ func (fake *PackageClient) DeleteRepository(arg1 *packagedatamodel.RepositoryOpt
 		arg1 *packagedatamodel.RepositoryOptions
 		arg2 *packagedatamodel.PackageProgress
 	}{arg1, arg2})
+	stub := fake.DeleteRepositoryStub
 	fake.recordInvocation("DeleteRepository", []interface{}{arg1, arg2})
 	fake.deleteRepositoryMutex.Unlock()
-	if fake.DeleteRepositoryStub != nil {
+	if stub != nil {
 		fake.DeleteRepositoryStub(arg1, arg2)
 	}
 }
@@ -550,15 +555,16 @@ func (fake *PackageClient) DeleteRepositorySync(arg1 *packagedatamodel.Repositor
 	fake.deleteRepositorySyncArgsForCall = append(fake.deleteRepositorySyncArgsForCall, struct {
 		arg1 *packagedatamodel.RepositoryOptions
 	}{arg1})
+	stub := fake.DeleteRepositorySyncStub
+	fakeReturns := fake.deleteRepositorySyncReturns
 	fake.recordInvocation("DeleteRepositorySync", []interface{}{arg1})
 	fake.deleteRepositorySyncMutex.Unlock()
-	if fake.DeleteRepositorySyncStub != nil {
-		return fake.DeleteRepositorySyncStub(arg1)
+	if stub != nil {
+		return stub(arg1)
 	}
 	if specificReturn {
 		return ret.result1
 	}
-	fakeReturns := fake.deleteRepositorySyncReturns
 	return fakeReturns.result1
 }
 
@@ -610,15 +616,16 @@ func (fake *PackageClient) GetPackage(arg1 *packagedatamodel.PackageOptions) (*v
 	fake.getPackageArgsForCall = append(fake.getPackageArgsForCall, struct {
 		arg1 *packagedatamodel.PackageOptions
 	}{arg1})
+	stub := fake.GetPackageStub
+	fakeReturns := fake.getPackageReturns
 	fake.recordInvocation("GetPackage", []interface{}{arg1})
 	fake.getPackageMutex.Unlock()
-	if fake.GetPackageStub != nil {
-		return fake.GetPackageStub(arg1)
+	if stub != nil {
+		return stub(arg1)
 	}
 	if specificReturn {
 		return ret.result1, ret.result2, ret.result3
 	}
-	fakeReturns := fake.getPackageReturns
 	return fakeReturns.result1, fakeReturns.result2, fakeReturns.result3
 }
 
@@ -676,15 +683,16 @@ func (fake *PackageClient) GetPackageInstall(arg1 *packagedatamodel.PackageOptio
 	fake.getPackageInstallArgsForCall = append(fake.getPackageInstallArgsForCall, struct {
 		arg1 *packagedatamodel.PackageOptions
 	}{arg1})
+	stub := fake.GetPackageInstallStub
+	fakeReturns := fake.getPackageInstallReturns
 	fake.recordInvocation("GetPackageInstall", []interface{}{arg1})
 	fake.getPackageInstallMutex.Unlock()
-	if fake.GetPackageInstallStub != nil {
-		return fake.GetPackageInstallStub(arg1)
+	if stub != nil {
+		return stub(arg1)
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
-	fakeReturns := fake.getPackageInstallReturns
 	return fakeReturns.result1, fakeReturns.result2
 }
 
@@ -739,15 +747,16 @@ func (fake *PackageClient) GetRepository(arg1 *packagedatamodel.RepositoryOption
 	fake.getRepositoryArgsForCall = append(fake.getRepositoryArgsForCall, struct {
 		arg1 *packagedatamodel.RepositoryOptions
 	}{arg1})
+	stub := fake.GetRepositoryStub
+	fakeReturns := fake.getRepositoryReturns
 	fake.recordInvocation("GetRepository", []interface{}{arg1})
 	fake.getRepositoryMutex.Unlock()
-	if fake.GetRepositoryStub != nil {
-		return fake.GetRepositoryStub(arg1)
+	if stub != nil {
+		return stub(arg1)
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
-	fakeReturns := fake.getRepositoryReturns
 	return fakeReturns.result1, fakeReturns.result2
 }
 
@@ -802,15 +811,16 @@ func (fake *PackageClient) GetSecretExport(arg1 *packagedatamodel.RegistrySecret
 	fake.getSecretExportArgsForCall = append(fake.getSecretExportArgsForCall, struct {
 		arg1 *packagedatamodel.RegistrySecretOptions
 	}{arg1})
+	stub := fake.GetSecretExportStub
+	fakeReturns := fake.getSecretExportReturns
 	fake.recordInvocation("GetSecretExport", []interface{}{arg1})
 	fake.getSecretExportMutex.Unlock()
-	if fake.GetSecretExportStub != nil {
-		return fake.GetSecretExportStub(arg1)
+	if stub != nil {
+		return stub(arg1)
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
-	fakeReturns := fake.getSecretExportReturns
 	return fakeReturns.result1, fakeReturns.result2
 }
 
@@ -866,9 +876,10 @@ func (fake *PackageClient) InstallPackage(arg1 *packagedatamodel.PackageOptions,
 		arg2 *packagedatamodel.PackageProgress
 		arg3 packagedatamodel.OperationType
 	}{arg1, arg2, arg3})
+	stub := fake.InstallPackageStub
 	fake.recordInvocation("InstallPackage", []interface{}{arg1, arg2, arg3})
 	fake.installPackageMutex.Unlock()
-	if fake.InstallPackageStub != nil {
+	if stub != nil {
 		fake.InstallPackageStub(arg1, arg2, arg3)
 	}
 }
@@ -899,15 +910,16 @@ func (fake *PackageClient) InstallPackageSync(arg1 *packagedatamodel.PackageOpti
 		arg1 *packagedatamodel.PackageOptions
 		arg2 packagedatamodel.OperationType
 	}{arg1, arg2})
+	stub := fake.InstallPackageSyncStub
+	fakeReturns := fake.installPackageSyncReturns
 	fake.recordInvocation("InstallPackageSync", []interface{}{arg1, arg2})
 	fake.installPackageSyncMutex.Unlock()
-	if fake.InstallPackageSyncStub != nil {
-		return fake.InstallPackageSyncStub(arg1, arg2)
+	if stub != nil {
+		return stub(arg1, arg2)
 	}
 	if specificReturn {
 		return ret.result1
 	}
-	fakeReturns := fake.installPackageSyncReturns
 	return fakeReturns.result1
 }
 
@@ -959,15 +971,16 @@ func (fake *PackageClient) ListPackageInstalls(arg1 *packagedatamodel.PackageOpt
 	fake.listPackageInstallsArgsForCall = append(fake.listPackageInstallsArgsForCall, struct {
 		arg1 *packagedatamodel.PackageOptions
 	}{arg1})
+	stub := fake.ListPackageInstallsStub
+	fakeReturns := fake.listPackageInstallsReturns
 	fake.recordInvocation("ListPackageInstalls", []interface{}{arg1})
 	fake.listPackageInstallsMutex.Unlock()
-	if fake.ListPackageInstallsStub != nil {
-		return fake.ListPackageInstallsStub(arg1)
+	if stub != nil {
+		return stub(arg1)
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
-	fakeReturns := fake.listPackageInstallsReturns
 	return fakeReturns.result1, fakeReturns.result2
 }
 
@@ -1022,15 +1035,16 @@ func (fake *PackageClient) ListPackageMetadata(arg1 *packagedatamodel.PackageAva
 	fake.listPackageMetadataArgsForCall = append(fake.listPackageMetadataArgsForCall, struct {
 		arg1 *packagedatamodel.PackageAvailableOptions
 	}{arg1})
+	stub := fake.ListPackageMetadataStub
+	fakeReturns := fake.listPackageMetadataReturns
 	fake.recordInvocation("ListPackageMetadata", []interface{}{arg1})
 	fake.listPackageMetadataMutex.Unlock()
-	if fake.ListPackageMetadataStub != nil {
-		return fake.ListPackageMetadataStub(arg1)
+	if stub != nil {
+		return stub(arg1)
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
-	fakeReturns := fake.listPackageMetadataReturns
 	return fakeReturns.result1, fakeReturns.result2
 }
 
@@ -1085,15 +1099,16 @@ func (fake *PackageClient) ListPackages(arg1 *packagedatamodel.PackageAvailableO
 	fake.listPackagesArgsForCall = append(fake.listPackagesArgsForCall, struct {
 		arg1 *packagedatamodel.PackageAvailableOptions
 	}{arg1})
+	stub := fake.ListPackagesStub
+	fakeReturns := fake.listPackagesReturns
 	fake.recordInvocation("ListPackages", []interface{}{arg1})
 	fake.listPackagesMutex.Unlock()
-	if fake.ListPackagesStub != nil {
-		return fake.ListPackagesStub(arg1)
+	if stub != nil {
+		return stub(arg1)
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
-	fakeReturns := fake.listPackagesReturns
 	return fakeReturns.result1, fakeReturns.result2
 }
 
@@ -1148,15 +1163,16 @@ func (fake *PackageClient) ListRegistrySecrets(arg1 *packagedatamodel.RegistrySe
 	fake.listRegistrySecretsArgsForCall = append(fake.listRegistrySecretsArgsForCall, struct {
 		arg1 *packagedatamodel.RegistrySecretOptions
 	}{arg1})
+	stub := fake.ListRegistrySecretsStub
+	fakeReturns := fake.listRegistrySecretsReturns
 	fake.recordInvocation("ListRegistrySecrets", []interface{}{arg1})
 	fake.listRegistrySecretsMutex.Unlock()
-	if fake.ListRegistrySecretsStub != nil {
-		return fake.ListRegistrySecretsStub(arg1)
+	if stub != nil {
+		return stub(arg1)
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
-	fakeReturns := fake.listRegistrySecretsReturns
 	return fakeReturns.result1, fakeReturns.result2
 }
 
@@ -1211,15 +1227,16 @@ func (fake *PackageClient) ListRepositories(arg1 *packagedatamodel.RepositoryOpt
 	fake.listRepositoriesArgsForCall = append(fake.listRepositoriesArgsForCall, struct {
 		arg1 *packagedatamodel.RepositoryOptions
 	}{arg1})
+	stub := fake.ListRepositoriesStub
+	fakeReturns := fake.listRepositoriesReturns
 	fake.recordInvocation("ListRepositories", []interface{}{arg1})
 	fake.listRepositoriesMutex.Unlock()
-	if fake.ListRepositoriesStub != nil {
-		return fake.ListRepositoriesStub(arg1)
+	if stub != nil {
+		return stub(arg1)
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
-	fakeReturns := fake.listRepositoriesReturns
 	return fakeReturns.result1, fakeReturns.result2
 }
 
@@ -1274,15 +1291,16 @@ func (fake *PackageClient) ListSecretExports(arg1 *packagedatamodel.RegistrySecr
 	fake.listSecretExportsArgsForCall = append(fake.listSecretExportsArgsForCall, struct {
 		arg1 *packagedatamodel.RegistrySecretOptions
 	}{arg1})
+	stub := fake.ListSecretExportsStub
+	fakeReturns := fake.listSecretExportsReturns
 	fake.recordInvocation("ListSecretExports", []interface{}{arg1})
 	fake.listSecretExportsMutex.Unlock()
-	if fake.ListSecretExportsStub != nil {
-		return fake.ListSecretExportsStub(arg1)
+	if stub != nil {
+		return stub(arg1)
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
-	fakeReturns := fake.listSecretExportsReturns
 	return fakeReturns.result1, fakeReturns.result2
 }
 
@@ -1337,9 +1355,10 @@ func (fake *PackageClient) UninstallPackage(arg1 *packagedatamodel.PackageOption
 		arg1 *packagedatamodel.PackageOptions
 		arg2 *packagedatamodel.PackageProgress
 	}{arg1, arg2})
+	stub := fake.UninstallPackageStub
 	fake.recordInvocation("UninstallPackage", []interface{}{arg1, arg2})
 	fake.uninstallPackageMutex.Unlock()
-	if fake.UninstallPackageStub != nil {
+	if stub != nil {
 		fake.UninstallPackageStub(arg1, arg2)
 	}
 }
@@ -1369,15 +1388,16 @@ func (fake *PackageClient) UninstallPackageSync(arg1 *packagedatamodel.PackageOp
 	fake.uninstallPackageSyncArgsForCall = append(fake.uninstallPackageSyncArgsForCall, struct {
 		arg1 *packagedatamodel.PackageOptions
 	}{arg1})
+	stub := fake.UninstallPackageSyncStub
+	fakeReturns := fake.uninstallPackageSyncReturns
 	fake.recordInvocation("UninstallPackageSync", []interface{}{arg1})
 	fake.uninstallPackageSyncMutex.Unlock()
-	if fake.UninstallPackageSyncStub != nil {
-		return fake.UninstallPackageSyncStub(arg1)
+	if stub != nil {
+		return stub(arg1)
 	}
 	if specificReturn {
 		return ret.result1
 	}
-	fakeReturns := fake.uninstallPackageSyncReturns
 	return fakeReturns.result1
 }
 
@@ -1430,9 +1450,10 @@ func (fake *PackageClient) UpdatePackage(arg1 *packagedatamodel.PackageOptions, 
 		arg2 *packagedatamodel.PackageProgress
 		arg3 packagedatamodel.OperationType
 	}{arg1, arg2, arg3})
+	stub := fake.UpdatePackageStub
 	fake.recordInvocation("UpdatePackage", []interface{}{arg1, arg2, arg3})
 	fake.updatePackageMutex.Unlock()
-	if fake.UpdatePackageStub != nil {
+	if stub != nil {
 		fake.UpdatePackageStub(arg1, arg2, arg3)
 	}
 }
@@ -1463,15 +1484,16 @@ func (fake *PackageClient) UpdatePackageSync(arg1 *packagedatamodel.PackageOptio
 		arg1 *packagedatamodel.PackageOptions
 		arg2 packagedatamodel.OperationType
 	}{arg1, arg2})
+	stub := fake.UpdatePackageSyncStub
+	fakeReturns := fake.updatePackageSyncReturns
 	fake.recordInvocation("UpdatePackageSync", []interface{}{arg1, arg2})
 	fake.updatePackageSyncMutex.Unlock()
-	if fake.UpdatePackageSyncStub != nil {
-		return fake.UpdatePackageSyncStub(arg1, arg2)
+	if stub != nil {
+		return stub(arg1, arg2)
 	}
 	if specificReturn {
 		return ret.result1
 	}
-	fakeReturns := fake.updatePackageSyncReturns
 	return fakeReturns.result1
 }
 
@@ -1523,15 +1545,16 @@ func (fake *PackageClient) UpdateRegistrySecret(arg1 *packagedatamodel.RegistryS
 	fake.updateRegistrySecretArgsForCall = append(fake.updateRegistrySecretArgsForCall, struct {
 		arg1 *packagedatamodel.RegistrySecretOptions
 	}{arg1})
+	stub := fake.UpdateRegistrySecretStub
+	fakeReturns := fake.updateRegistrySecretReturns
 	fake.recordInvocation("UpdateRegistrySecret", []interface{}{arg1})
 	fake.updateRegistrySecretMutex.Unlock()
-	if fake.UpdateRegistrySecretStub != nil {
-		return fake.UpdateRegistrySecretStub(arg1)
+	if stub != nil {
+		return stub(arg1)
 	}
 	if specificReturn {
 		return ret.result1
 	}
-	fakeReturns := fake.updateRegistrySecretReturns
 	return fakeReturns.result1
 }
 
@@ -1584,9 +1607,10 @@ func (fake *PackageClient) UpdateRepository(arg1 *packagedatamodel.RepositoryOpt
 		arg2 *packagedatamodel.PackageProgress
 		arg3 packagedatamodel.OperationType
 	}{arg1, arg2, arg3})
+	stub := fake.UpdateRepositoryStub
 	fake.recordInvocation("UpdateRepository", []interface{}{arg1, arg2, arg3})
 	fake.updateRepositoryMutex.Unlock()
-	if fake.UpdateRepositoryStub != nil {
+	if stub != nil {
 		fake.UpdateRepositoryStub(arg1, arg2, arg3)
 	}
 }
@@ -1617,15 +1641,16 @@ func (fake *PackageClient) UpdateRepositorySync(arg1 *packagedatamodel.Repositor
 		arg1 *packagedatamodel.RepositoryOptions
 		arg2 packagedatamodel.OperationType
 	}{arg1, arg2})
+	stub := fake.UpdateRepositorySyncStub
+	fakeReturns := fake.updateRepositorySyncReturns
 	fake.recordInvocation("UpdateRepositorySync", []interface{}{arg1, arg2})
 	fake.updateRepositorySyncMutex.Unlock()
-	if fake.UpdateRepositorySyncStub != nil {
-		return fake.UpdateRepositorySyncStub(arg1, arg2)
+	if stub != nil {
+		return stub(arg1, arg2)
 	}
 	if specificReturn {
 		return ret.result1
 	}
-	fakeReturns := fake.updateRepositorySyncReturns
 	return fakeReturns.result1
 }
 

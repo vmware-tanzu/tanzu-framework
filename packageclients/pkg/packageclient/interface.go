@@ -14,10 +14,10 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/packageclients/pkg/packagedatamodel"
 )
 
-//go:generate counterfeiter -o ../fakes/packageclient.go --fake-name PackageClient . PackageClient
-//go:generate counterfeiter -o ../fakes/crtclient.go --fake-name CrtClient . CrtClient
+//go:generate counterfeiter -o ../fakes -generate
 
 // PackageClient is the TKG package client interface
+//counterfeiter:generate -o ../fakes/packageclient.go --fake-name PackageClient . PackageClient
 type PackageClient interface {
 	AddRegistrySecret(o *packagedatamodel.RegistrySecretOptions) error
 	AddRepository(o *packagedatamodel.RepositoryOptions, packageProgress *packagedatamodel.PackageProgress, operationType packagedatamodel.OperationType)
@@ -47,6 +47,7 @@ type PackageClient interface {
 }
 
 // CrtClient clientset interface
+//counterfeiter:generate -o ../fakes/crtclient.go --fake-name CrtClient . CrtClient
 type CrtClient interface {
 	crtclient.Client
 }

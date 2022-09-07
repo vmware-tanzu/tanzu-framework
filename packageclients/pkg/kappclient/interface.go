@@ -15,9 +15,10 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/packageclients/pkg/packagedatamodel"
 )
 
-//go:generate counterfeiter -o ../fakes/kappclient.go --fake-name KappClient . Client
+//go:generate counterfeiter -o ../fakes -generate
 
 // Client is the kapp client interface
+//counterfeiter:generate -o ../fakes/kappclient.go --fake-name KappClient . Client
 type Client interface {
 	CreatePackageInstall(packageInstall *kappipkg.PackageInstall, pkgPluginResourceCreationStatus *packagedatamodel.PkgPluginResourceCreationStatus) error
 	CreatePackageRepository(repository *kappipkg.PackageRepository) error
