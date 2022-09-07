@@ -21,4 +21,9 @@ spec:
         os: windows
         arch: amd64
         type: local
+      - uri: v0.2.0/tanzu-management-cluster-darwin_arm64
+        digest: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+        os: darwin
+        arch: arm64
+        type: local
   recommendedVersion: v0.2.0
