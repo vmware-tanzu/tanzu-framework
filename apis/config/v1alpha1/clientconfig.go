@@ -107,7 +107,7 @@ func (c *ClientConfig) SetCurrentContext(ctxType ContextType, ctxName string) er
 	if err != nil {
 		return err
 	}
-	if ctx.IsManagementCluster() {
+	if ctx.IsManagementCluster() || ctx.Type == CtxTypeTMC {
 		c.CurrentServer = ctxName
 	}
 	return nil

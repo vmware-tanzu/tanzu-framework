@@ -106,9 +106,9 @@ func populateServers(cfg *configv1alpha1.ClientConfig) {
 		s := convertContextToServer(c)
 		cfg.KnownServers = append(cfg.KnownServers, s)
 
-		if c.IsManagementCluster() && c.Name == cfg.CurrentContext[c.Type] {
+		if cfg.CurrentServer == "" && (c.IsManagementCluster() || c.Type == configv1alpha1.CtxTypeTMC) && c.Name == cfg.CurrentContext[c.Type] {
 			// This is lossy because only one server can be active at a time in the older CLI.
-			// Using the K8s context for a management cluster, since it is the only one
+			// Using the K8s context for a management cluster or TMC, since these are the two
 			// available publicly at the time of deprecation.
 			cfg.CurrentServer = cfg.CurrentContext[configv1alpha1.CtxTypeK8s]
 		}
