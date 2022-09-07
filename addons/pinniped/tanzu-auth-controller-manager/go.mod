@@ -9,7 +9,6 @@ require (
 	github.com/go-logr/logr v1.2.2
 	github.com/onsi/ginkgo v1.16.5
 	github.com/onsi/gomega v1.18.1
-	github.com/vmware-tanzu/tanzu-framework v0.18.0
 	golang.org/x/tools v0.1.6-0.20210820212750-d4cc65f0b2ff
 	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b
 	k8s.io/api v0.23.5
@@ -47,6 +46,7 @@ require (
 	github.com/prometheus/common v0.32.1 // indirect
 	github.com/prometheus/procfs v0.7.3 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
+	github.com/stretchr/testify v1.7.1-0.20210427113832-6241f9ab9942 // indirect
 	go.uber.org/atomic v1.9.0 // indirect
 	go.uber.org/multierr v1.7.0 // indirect
 	go.uber.org/zap v1.21.0 // indirect

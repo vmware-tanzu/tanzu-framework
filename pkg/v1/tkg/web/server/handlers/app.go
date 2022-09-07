@@ -14,10 +14,8 @@ import (
 	"github.com/go-openapi/runtime/middleware"
 
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/client"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfigreaderwriter"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/types"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/utils"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/vc"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/web/server/restapi/operations"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/web/server/restapi/operations/avi"
@@ -28,13 +26,15 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/web/server/restapi/operations/ldap"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/web/server/restapi/operations/provider"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/web/server/restapi/operations/vsphere"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/constants"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/utils"
 
-	aviClient "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/avi"
-	awsclient "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/aws"
-	azureclient "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/azure"
-	ldapClient "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/ldap"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/log"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/web/server/ws"
+	aviClient "github.com/vmware-tanzu/tanzu-framework/tkg/avi"
+	awsclient "github.com/vmware-tanzu/tanzu-framework/tkg/aws"
+	azureclient "github.com/vmware-tanzu/tanzu-framework/tkg/azure"
+	ldapClient "github.com/vmware-tanzu/tanzu-framework/tkg/ldap"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/log"
 )
 
 // App application structs consisting init options and clients

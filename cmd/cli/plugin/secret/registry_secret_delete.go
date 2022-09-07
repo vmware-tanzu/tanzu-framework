@@ -10,8 +10,8 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/component"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/log"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgpackageclient"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/log"
 )
 
 var registrySecretDeleteCmd = &cobra.Command{

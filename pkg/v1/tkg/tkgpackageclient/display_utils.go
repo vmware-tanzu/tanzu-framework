@@ -11,8 +11,8 @@ import (
 	"github.com/briandowns/spinner"
 	"github.com/mattn/go-isatty"
 
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/log"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgpackagedatamodel"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/log"
 )
 
 // DisplayProgress creates an spinner instance; keeps receiving the progress messages in the channel and displays those using the spinner until an error occurs

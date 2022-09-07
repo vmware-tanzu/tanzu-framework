@@ -10,8 +10,8 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/utils"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/constants"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/utils"
 )
 
 var _ = Describe("Cluster Class - IP Family Validation related test cases: ", func() {
