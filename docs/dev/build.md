@@ -20,7 +20,7 @@ To build the APIs in Framework, the following commands exist:
 API controllers that exist in the Framework repo
 
 * [Addons](https://github.com/vmware-tanzu/tanzu-framework/tree/main/addons)
-* [Capabilities](https://github.com/vmware-tanzu/tanzu-framework/tree/main/pkg/v1/sdk/capabilities)
+* [Capabilities](https://github.com/vmware-tanzu/tanzu-framework/tree/main/capabilities)
 * [FeatureGates](https://github.com/vmware-tanzu/tanzu-framework/tree/main/pkg/v1/sdk/features)
 * [TKR](https://github.com/vmware-tanzu/tanzu-framework/tree/main/pkg/v1/tkr)
 
@@ -67,7 +67,7 @@ for more details on how to write plugins for Tanzu CLI.
 ### Capabilities
 
 Framework provides Capability discovery
-[GO package](https://github.com/vmware-tanzu/tanzu-framework/tree/main/pkg/v1/sdk/capabilities/discovery)
+[Go package](https://github.com/vmware-tanzu/tanzu-framework/tree/main/capabilities/discovery)
 and Capability API to query a cluster's capabilities. It can be used to understand the API surface area and query for
 objects in the cluster.
 
