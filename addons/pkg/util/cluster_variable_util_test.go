@@ -155,6 +155,42 @@ var _ = Describe("Parse Cluster Variable", func() {
 				Expect(err).NotTo(HaveOccurred())
 			})
 		})
+		When("cluster variable vcenter exists and match the input variable name", func() {
+			var (
+				vcenterValues *vCenterValues
+				vcenter       = `{
+  "cloneMode": "fullClone",
+  "datacenter": "/dc0",
+  "datastore": "/dc0/datastore/sharedVmfs-0",
+  "folder": "/dc0/vm",
+  "network": "/dc0/network/VM Network",
+  "resourcePool": "/dc0/host/cluster0/Resources",
+  "server": "10.187.96.70",
+  "storagePolicyID": "",
+  "template": "/dc0/vm/photon-3-kube-v1.23.8+vmware.2-tkg.2-81d1a7892ad39f017fbaf59f9907cbe7",
+  "tlsThumbprint": "1E:BB:09:45:FD:02:10:17:FD:55:8D:D1:05:8B:3F:A8:91:DD:29:0E"
+}`
+			)
+			BeforeEach(func() {
+				clusterObj.Spec.Topology.Variables = []clusterapiv1beta1.ClusterVariable{
+					{Name: vCenterVariableName, Value: apiextensionsv1.JSON{Raw: []byte(vcenter)}},
+				}
+				vcenterValues, err = ParseVCenterValues(clusterObj)
+			})
+			It("should return cluster variable value", func() {
+				Expect(vcenterValues.CloneMode).To(Equal("fullClone"))
+				Expect(vcenterValues.Datacenter).To(Equal("/dc0"))
+				Expect(vcenterValues.Datastore).To(Equal("/dc0/datastore/sharedVmfs-0"))
+				Expect(vcenterValues.Folder).To(Equal("/dc0/vm"))
+				Expect(vcenterValues.Network).To(Equal("/dc0/network/VM Network"))
+				Expect(vcenterValues.ResourcePool).To(Equal("/dc0/host/cluster0/Resources"))
+				Expect(vcenterValues.Server).To(Equal("10.187.96.70"))
+				Expect(vcenterValues.StoragePolicyID).To(Equal(""))
+				Expect(vcenterValues.Template).To(Equal("/dc0/vm/photon-3-kube-v1.23.8+vmware.2-tkg.2-81d1a7892ad39f017fbaf59f9907cbe7"))
+				Expect(vcenterValues.TlsThumbprint).To(Equal("1E:BB:09:45:FD:02:10:17:FD:55:8D:D1:05:8B:3F:A8:91:DD:29:0E"))
+				Expect(err).NotTo(HaveOccurred())
+			})
+		})
 		When("cluster variable interface exists and match the input variable name", func() {
 			BeforeEach(func() {
 				clusterObj.Spec.Topology.Variables = []clusterapiv1beta1.ClusterVariable{

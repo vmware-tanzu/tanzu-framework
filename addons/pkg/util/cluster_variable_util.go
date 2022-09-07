@@ -12,6 +12,21 @@ import (
 	clusterapiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
 )
 
+const vCenterVariableName = "vcenter"
+
+type vCenterValues struct {
+	CloneMode       string `json:"cloneMode,omitempty"`
+	Network         string `json:"network,omitempty"`
+	Datacenter      string `json:"datacenter,omitempty"`
+	Datastore       string `json:"datastore,omitempty"`
+	Folder          string `json:"folder,omitempty"`
+	ResourcePool    string `json:"resourcePool,omitempty"`
+	StoragePolicyID string `json:"storagePolicyID,omitempty"`
+	Server          string `json:"server,omitempty"`
+	TlsThumbprint   string `json:"tlsThumbprint,omitempty"`
+	Template        string `json:"template,omitempty"`
+}
+
 func ParseClusterVariableBool(cluster *clusterapiv1beta1.Cluster, variableName string) (bool, error) {
 	var result interface{}
 	result, err := parseClusterVariable(cluster, variableName)
@@ -120,4 +135,34 @@ func parseClusterVariable(cluster *clusterapiv1beta1.Cluster, variableName strin
 		}
 	}
 	return result, nil
+}
+
+func parseClusterVariableToStruct(cluster *clusterapiv1beta1.Cluster, variableName string, result interface{}) error {
+	if cluster == nil {
+		return errors.New("cluster resource is nil")
+	}
+	if cluster.Spec.Topology == nil || variableName == "" {
+		return errors.New("cluster is not managed by clusterclass")
+	}
+	if variableName == "" {
+		return errors.New("variable name can not be empty")
+	}
+	clusterVariables := cluster.Spec.Topology.Variables
+	for _, clusterVariable := range clusterVariables {
+		if clusterVariable.Name == variableName {
+			if err := json.Unmarshal(clusterVariable.Value.Raw, result); err != nil {
+				return fmt.Errorf("failed in json unmarshal of cluster variable value for '%s'", variableName)
+			}
+			break
+		}
+	}
+	return nil
+}
+
+func ParseVCenterValues(cluster *clusterapiv1beta1.Cluster) (*vCenterValues, error) {
+	values := &vCenterValues{}
+	if err := parseClusterVariableToStruct(cluster, vCenterVariableName, values); err != nil {
+		return nil, err
+	}
+	return values, nil
 }
