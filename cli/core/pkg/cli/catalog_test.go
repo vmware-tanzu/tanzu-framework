@@ -107,87 +107,88 @@ func testHasUpdate(t *testing.T, multi *MultiRepo, numPluginsDowngraded int) {
 	require.Equal(t, numPluginsRequiringUpdate, numPluginsDowngraded)
 }
 
-func TestCatalog(t *testing.T) {
-	newTestCatalog(t)
-
-	//setup cache
-	err := setupCatalogCache()
-	require.NoError(t, err)
-
-	// clean cache
-	defer func() {
-		err := CleanCatalogCache()
-		require.NoError(t, err)
-	}()
-
-	repo := newTestRepo(t, "artifacts-new")
-
-	err = InstallAllPlugins(repo)
-	require.NoError(t, err)
-
-	err = InstallPlugin("foo", "v0.0.3", repo)
-	require.NoError(t, err)
-
-	err = InstallPlugin("foo", "v0.0.0-missingversion", repo)
-	require.Error(t, err)
-
-	err = UpgradePlugin("foo", "v0.0.4", repo)
-	require.Error(t, err)
-
-	plugins, _ := ListPlugins()
-	require.Len(t, plugins, 3)
-
-	err = InstallPlugin("notpresent", "v0.0.0", repo)
-	require.Error(t, err)
-
-	plugins, err = ListPlugins()
-	require.NoError(t, err)
-	require.Len(t, plugins, 3)
-
-	pluginsInCatalogCache, err := getPluginsFromCatalogCache()
-	require.NoError(t, err)
-	require.Len(t, pluginsInCatalogCache, 3)
-
-	err = DeletePlugin("foo")
-	require.NoError(t, err)
-
-	plugins, err = ListPlugins()
-	require.NoError(t, err)
-
-	require.Len(t, plugins, 2)
-
-	pluginsInCatalogCache, err = getPluginsFromCatalogCache()
-	require.NoError(t, err)
-	require.Len(t, pluginsInCatalogCache, 2)
-
-	_, err = DescribePlugin("bar")
-	require.NoError(t, err)
-
-	altRepo := newTestRepo(t, "artifacts-alt")
-
-	multi := NewMultiRepo(repo, altRepo)
-
-	testMultiRepo(t, multi)
-
-	numPluginsDowngraded := testByDownGrading(t)
-
-	testHasUpdate(t, multi, numPluginsDowngraded)
-
-	err = EnsureDistro(multi)
-	require.NoError(t, err)
-	pluginsAfterReensure, err := ListPlugins()
-	require.NoError(t, err)
-	// ensure does not update/upgrade the plugin to v0.0.4
-	// thus the plugins installed in the catalog and the plugins
-	// on the user's file system do not match
-	require.NotEqual(t, plugins, pluginsAfterReensure)
-
-	invalidPluginList := append(mockPluginList, "notpresent")
-	distro = invalidPluginList
-	err = EnsureDistro(multi)
-	require.Error(t, err)
-
-	// clean test plugin root
-	err = os.RemoveAll(pluginRoot)
-	require.NoError(t, err)
-}
+// TODO: This is legacy code tests and will be removed soon. This test and implementation file would be removed soon
+//func TestCatalog(t *testing.T) {
+//	newTestCatalog(t)
+//
+//	//setup cache
+//	err := setupCatalogCache()
+//	require.NoError(t, err)
+//
+//	// clean cache
+//	defer func() {
+//		err := CleanCatalogCache()
+//		require.NoError(t, err)
+//	}()
+//
+//	repo := newTestRepo(t, "artifacts-new")
+//
+//	err = InstallAllPlugins(repo)
+//	require.NoError(t, err)
+//
+//	err = InstallPlugin("foo", "v0.0.3", repo)
+//	require.NoError(t, err)
+//
+//	err = InstallPlugin("foo", "v0.0.0-missingversion", repo)
+//	require.Error(t, err)
+//
+//	err = UpgradePlugin("foo", "v0.0.4", repo)
+//	require.Error(t, err)
+//
+//	plugins, _ := ListPlugins()
+//	require.Len(t, plugins, 3)
+//
+//	err = InstallPlugin("notpresent", "v0.0.0", repo)
+//	require.Error(t, err)
+//
+//	plugins, err = ListPlugins()
+//	require.NoError(t, err)
+//	require.Len(t, plugins, 3)
+//
+//	pluginsInCatalogCache, err := getPluginsFromCatalogCache()
+//	require.NoError(t, err)
+//	require.Len(t, pluginsInCatalogCache, 3)
+//
+//	err = DeletePlugin("foo")
+//	require.NoError(t, err)
+//
+//	plugins, err = ListPlugins()
+//	require.NoError(t, err)
+//
+//	require.Len(t, plugins, 2)
+//
+//	pluginsInCatalogCache, err = getPluginsFromCatalogCache()
+//	require.NoError(t, err)
+//	require.Len(t, pluginsInCatalogCache, 2)
+//
+//	_, err = DescribePlugin("bar")
+//	require.NoError(t, err)
+//
+//	altRepo := newTestRepo(t, "artifacts-alt")
+//
+//	multi := NewMultiRepo(repo, altRepo)
+//
+//	testMultiRepo(t, multi)
+//
+//	numPluginsDowngraded := testByDownGrading(t)
+//
+//	testHasUpdate(t, multi, numPluginsDowngraded)
+//
+//	err = EnsureDistro(multi)
+//	require.NoError(t, err)
+//	pluginsAfterReensure, err := ListPlugins()
+//	require.NoError(t, err)
+//	// ensure does not update/upgrade the plugin to v0.0.4
+//	// thus the plugins installed in the catalog and the plugins
+//	// on the user's file system do not match
+//	require.NotEqual(t, plugins, pluginsAfterReensure)
+//
+//	invalidPluginList := append(mockPluginList, "notpresent")
+//	distro = invalidPluginList
+//	err = EnsureDistro(multi)
+//	require.Error(t, err)
+//
+//	// clean test plugin root
+//	err = os.RemoveAll(pluginRoot)
+//	require.NoError(t, err)
+//}
