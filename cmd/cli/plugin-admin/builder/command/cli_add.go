@@ -11,7 +11,7 @@ import (
 
 	"github.com/aunum/log"
 
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/builder/template"
+	"github.com/vmware-tanzu/tanzu-framework/plugin/builder/template"
 )
 
 // looksLikeARepo tries to verify we are running from the root of a repo or

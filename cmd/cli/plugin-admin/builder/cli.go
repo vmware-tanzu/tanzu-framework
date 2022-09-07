@@ -8,7 +8,7 @@ import (
 
 	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/cli"
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/component"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/builder/command"
+	"github.com/vmware-tanzu/tanzu-framework/plugin/builder/command"
 )
 
 var (
