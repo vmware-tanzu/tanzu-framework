@@ -82,11 +82,6 @@ jobs:
           echo "##[set-output name=bompath;]$(echo "$BOMCOMMENT" | awk -F : '{print $2}')"
         id: extract_bom
 
-      # Using `ENABLE_CONTEXT_AWARE_PLUGIN_DISCOVERY=false` to build and install cli and plugins because
-      # currently, context-aware-plugin-discovery does not support test plugins
-      # Issue: https://github.com/vmware-tanzu/tanzu-framework/issues/1164
-      # above issue need to be addressed and as part of the change we can use context-aware way of plugin
-      # tests as part of this test workflow.
       - name: Build
         run: |
           if [[ ! -z "${{ steps.extract_bom.outputs.bompath }}" ]]; then
@@ -94,17 +89,20 @@ jobs:
           fi
           env | sort
           make configure-bom
-          make build-cli-local ENABLE_CONTEXT_AWARE_PLUGIN_DISCOVERY=false
-
-      - name: Install Tanzu CLI
-        run: |
-          make install-cli ENABLE_CONTEXT_AWARE_PLUGIN_DISCOVERY=false
-
-      - name: Install CLI plugins
-        run: make install-cli-plugins ENABLE_CONTEXT_AWARE_PLUGIN_DISCOVERY=false
+          make build-cli-local
 
       - name: Cleanup
         run: rm -rf ~/.tanzu ~/.tkg ~/.config ~/.cache/tanzu; docker kill $(docker ps -q) | true; docker system prune -a --volumes -f
+
+      - name: Install Tanzu CLI
+        run: |
+          make install-cli
+          tanzu config set features.global.context-aware-cli-for-plugins true
+
+      - name: Install CLI plugins
+        run: |
+          tanzu plugin install all --local artifacts/linux/amd64/cli/
+          tanzu plugin install all --local artifacts-admin/linux/amd64/cli/
 
       - name: Run cluster test plugin
         run: tanzu test plugin cluster

@@ -488,6 +488,16 @@ func installOrUpgradePlugin(serverName string, p *plugin.Discovered, version str
 	descriptor.Discovery = p.Source
 	descriptor.DiscoveredRecommendedVersion = p.RecommendedVersion
 
+	b, err = p.Distribution.FetchTest(version, runtime.GOOS, runtime.GOARCH)
+	if err == nil {
+		testpluginPath := filepath.Join(common.DefaultPluginRoot, pluginName, fmt.Sprintf("test-%s", version))
+		err = os.WriteFile(testpluginPath, b, 0755)
+		if err != nil {
+			return errors.Wrap(err, "error while saving test plugin binary")
+		}
+		descriptor.TestPluginInstallationPath = testpluginPath
+	}
+
 	c, err := catalog.NewContextCatalog(serverName)
 	if err != nil {
 		return err

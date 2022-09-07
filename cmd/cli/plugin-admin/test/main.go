@@ -4,15 +4,13 @@
 package main
 
 import (
-	"path/filepath"
-
 	"github.com/aunum/log"
 	"github.com/spf13/cobra"
 
 	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/cli"
+	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/pluginmanager"
 	cliapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/cli/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/buildinfo"
-	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/config"
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/plugin"
 )
 
@@ -24,10 +22,11 @@ var descriptor = cliapi.PluginDescriptor{
 	BuildSHA:    buildinfo.SHA,
 }
 
-var local []string
+var local string
 
 func init() {
-	fetchCmd.PersistentFlags().StringSliceVarP(&local, "local", "l", []string{}, "paths to local repository")
+	fetchCmd.PersistentFlags().StringVarP(&local, "local", "l", "", "path to local repository")
+	_ = fetchCmd.MarkFlagRequired("local")
 }
 
 func main() {
@@ -35,17 +34,22 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+
 	p.AddCommands(
 		fetchCmd,
 		pluginsCmd,
 	)
-	descs, err := cli.ListPlugins("test")
+
+	_, standalonePlugins, err := pluginmanager.InstalledPlugins("")
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	for _, d := range descs {
-		pluginsCmd.AddCommand(cli.TestCmd(d))
+	for _, d := range standalonePlugins {
+		if d.TestPluginInstallationPath == "" {
+			continue
+		}
+		pluginsCmd.AddCommand(cli.TestCmd(d.DeepCopy()))
 	}
 
 	if err := p.Execute(); err != nil {
@@ -53,37 +57,15 @@ func main() {
 	}
 }
 
-var fetchCmd = &cobra.Command{
-	Use:   "fetch",
-	Short: "Fetch the plugin tests",
-	RunE: func(cmd *cobra.Command, args []string) error {
-		repos := getRepositories()
-		err := cli.EnsureTests(repos, "test")
-		if err != nil {
-			log.Fatal(err)
-		}
-		return nil
-	},
-}
-
 var pluginsCmd = &cobra.Command{
 	Use:   "plugin",
 	Short: "Plugin tests",
 }
 
-func getRepositories() *cli.MultiRepo {
-	if len(local) != 0 {
-		m := cli.NewMultiRepo()
-		for _, l := range local {
-			n := filepath.Base(l)
-			r := cli.NewLocalRepository(n, l)
-			m.AddRepository(r)
-		}
-		return m
-	}
-	cfg, err := config.GetClientConfig()
-	if err != nil {
-		log.Fatal(err)
-	}
-	return cli.NewMultiRepo(cli.LoadRepositories(cfg)...)
+var fetchCmd = &cobra.Command{
+	Use:   "fetch",
+	Short: "Fetch the plugin tests",
+	RunE: func(cmd *cobra.Command, args []string) error {
+		return pluginmanager.InstallPluginsFromLocalSource("all", "", local)
+	},
 }
