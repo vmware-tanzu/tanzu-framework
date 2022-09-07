@@ -43,7 +43,6 @@ type Client interface {
 }
 
 //go:generate counterfeiter -o ../fakes/crtclusterclient.go --fake-name CRTClusterClient . CrtClient
-//go:generate counterfeiter -o ../fakes/clusterclient.go --fake-name ClusterClient . Client
 //go:generate counterfeiter -o ../fakes/discoveryclusterclient.go --fake-name DiscoveryClient . DiscoveryClient
 
 // CrtClient clientset interface
