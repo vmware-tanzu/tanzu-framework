@@ -16,7 +16,7 @@ import (
 
 	"github.com/vmware-tanzu/tanzu-framework/addons/test/testutil"
 	"github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/constants"
 )
 
 var _ = Describe("when cluster paused state is managed by webhook", func() {

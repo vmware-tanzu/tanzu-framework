@@ -21,7 +21,7 @@ Library uses clusterctl library to perform many core tasks like
 reference:
 [https://pkg.go.dev/sigs.k8s.io/cluster-api/cmd/clusterctl/](https://pkg.go.dev/sigs.k8s.io/cluster-api/cmd/clusterctl/)
 
-## [ytt processor](/pkg/v1/tkg/yamlprocessor)
+## [ytt processor](/tkg/yamlprocessor)
 
 * Library has this YTT processor package
 * Implements YAML processor interface that is used with clusterctl when creation cluster templates. [https://pkg.go.dev/sigs.k8s.io/cluster-api/cmd/clusterctl/client/yamlprocessor#Processor](https://pkg.go.dev/sigs.k8s.io/cluster-api/cmd/clusterctl/client/yamlprocessor#Processor)
@@ -67,15 +67,15 @@ reference:
 
 * tkgctl interface implements functions that use CAPA's cloud-formation library to create a cloud-formation stack on AWS
 
-## [kind](/pkg/v1/tkg/kind)
+## [kind](/tkg/kind)
 
 * Implements methods to create and delete kind clusters that get used to create and delete management cluster
 
-## [aws](/pkg/v1/tkg/aws)
+## [aws](/tkg/aws)
 
 * Implements AWS specific API using AWS SDK that can be used for some verification purpose as well as serves as resource retriever for the kick-start UI
 
-## [azure](/pkg/v1/tkg/azure)
+## [azure](/tkg/azure)
 
 * Implements Azure specific API using Azure SDK that can be used for some verification purpose as well as serves as resource retriever for the kick-start UI
 

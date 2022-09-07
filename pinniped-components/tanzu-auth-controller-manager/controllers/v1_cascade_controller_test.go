@@ -15,8 +15,6 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	clusterapiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
-
-	tkgconstants "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
 )
 
 const testTKRLabel = "v1.22.3"
@@ -40,7 +38,7 @@ var _ = Describe("Controller", func() {
 			},
 			Spec: clusterapiv1beta1.ClusterSpec{
 				InfrastructureRef: &corev1.ObjectReference{
-					Kind: tkgconstants.InfrastructureRefVSphere,
+					Kind: InfrastructureRefVSphere,
 					Name: "some-name",
 				},
 			},
@@ -386,7 +384,7 @@ var _ = Describe("Controller", func() {
 				},
 				Spec: clusterapiv1beta1.ClusterSpec{
 					InfrastructureRef: &corev1.ObjectReference{
-						Kind: tkgconstants.InfrastructureRefVSphere,
+						Kind: InfrastructureRefVSphere,
 						Name: "another-name",
 					},
 				},
