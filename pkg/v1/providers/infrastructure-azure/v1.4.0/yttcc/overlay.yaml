@@ -44,6 +44,10 @@
 #@ return tkr_version.split('+')[0]
 #@ end
 
+#@ def get_azure_os_version(version):
+#@ return "1804" if version == 18.04 else "2004"
+#@ end
+
 #@ bomData = get_default_tkg_bom_data()
 
 #@overlay/match by=overlay.subset({"kind":"Cluster"})
@@ -81,6 +85,10 @@ spec:
     version: #@ data.values.KUBERNETES_VERSION
     controlPlane:
       replicas: #@ data.values.CONTROL_PLANE_MACHINE_COUNT
+      #@overlay/match missing_ok=True
+      metadata:
+        annotations:
+          run.tanzu.vmware.com/resolve-os-image: #@ "os-name={},os-version={}".format(data.values.OS_NAME, get_azure_os_version(data.values.OS_VERSION))
     workers:
       machineDeployments:
       #@overlay/match by=overlay.index(0)
@@ -89,6 +97,10 @@ spec:
         replicas: #@ data.values.WORKER_MACHINE_COUNT_0
         #@overlay/match missing_ok=True
         failureDomain: #@ str(data.values.AZURE_NODE_AZ) or "1"
+        #@overlay/match missing_ok=True
+        metadata:
+          annotations:
+            run.tanzu.vmware.com/resolve-os-image: #@ "os-name={},os-version={}".format(data.values.OS_NAME, get_azure_os_version(data.values.OS_VERSION))
       #@ if data.values.CLUSTER_PLAN == "prodcc":
       #@overlay/append
       - class: tkg-worker
