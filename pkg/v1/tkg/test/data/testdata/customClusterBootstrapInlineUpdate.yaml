@@ -1,0 +1,61 @@
+apiVersion: run.tanzu.vmware.com/v1alpha3
+kind: ClusterBootstrap
+metadata:
+  annotations:
+    tkg.tanzu.vmware.com/add-missing-fields-from-tkr: v1.23.5---vmware.1-tkg.1-zshippable
+  name: cc-inline
+  namespace: customcb-ns
+spec:
+  additionalPackages:
+    - refName: secretgen-controller.tanzu.vmware.com.0.9.1+vmware.1-tkg.1-zshippable
+    - refName: pinniped.tanzu.vmware.com.0.12.1+vmware.1-tkg.1-zshippable
+    - refName: guest-cluster-auth-service.tanzu.vmware.com.1.0.0+tkg.1-zshippable
+    - refName: capabilities.tanzu.vmware.com.0.25.0-dev-12-g9305a725+vmware.1
+    - refName: metrics-server.tanzu.vmware.com.0.6.1+vmware.1-tkg.1-zshippable
+      valuesFrom:
+        inline:
+          metricsServer:
+            config:
+              probe:
+                periodSeconds: 20
+  cni:
+    refName: antrea.tanzu.vmware.com.1.5.2+vmware.3-tkg.1-advanced-zshippable
+  kapp:
+    refName: kapp-controller.tanzu.vmware.com.0.38.4+vmware.1-tkg.1-zshippable
+---
+apiVersion: cluster.x-k8s.io/v1beta1
+kind: Cluster
+metadata:
+  name: cc-inline
+  namespace: customcb-ns
+spec:
+  clusterNetwork:
+    pods:
+      cidrBlocks:
+        - 192.0.2.0/16
+    serviceDomain: cluster.local
+    services:
+      cidrBlocks:
+        - 198.51.100.0/12
+  topology:
+    class: tanzukubernetescluster
+    controlPlane:
+      metadata: {}
+      replicas: 1
+    variables:
+      - name: storageClasses
+        value:
+          - wcpglobalstorageprofile
+      - name: ntp
+        value: time1.vmware.com
+      - name: vmClass
+        value: best-effort-small
+      - name: storageClass
+        value: wcpglobalstorageprofile
+    version: v1.23.5+vmware.1-tkg.1-zshippable
+    workers:
+      machineDeployments:
+        - class: node-pool
+          metadata: {}
+          name: np-2
+          replicas: 1

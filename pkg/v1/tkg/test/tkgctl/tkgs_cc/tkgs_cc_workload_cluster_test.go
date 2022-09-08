@@ -11,6 +11,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -25,9 +26,11 @@ import (
 )
 
 const (
-	TKC_KIND  = "kind: TanzuKubernetesCluster"
-	cniAntrea = "antrea"
-	cniCalico = "calico"
+	TKC_KIND        = "kind: TanzuKubernetesCluster"
+	cniAntrea       = "antrea"
+	cniCalico       = "calico"
+	pollingInterval = time.Second * 2
+	waitTimeout     = time.Second * 90
 )
 
 var _ = Describe("TKGS ClusterClass based workload cluster tests", func() {
@@ -209,6 +212,21 @@ var _ = Describe("TKGS ClusterClass based workload cluster tests", func() {
 			wc_secretData := wc_secret.Data["values.yaml"]
 			wc_secretDataString := string(wc_secretData)
 			Expect(strings.Contains(wc_secretDataString, "periodSeconds: 15")).Should(BeTrue())
+
+			// Update inline config for metrics server package
+			By(fmt.Sprintf("Update inline config for attribute periodSeconds for metrics server package for %q", clusterName))
+			err = clusterClient.ApplyFile("../../data/testdata/customClusterBootstrapInlineUpdate.yaml")
+			Expect(err).To(BeNil())
+
+			Eventually(func() bool {
+				err1 := clusterClient.GetResource(secret, fmt.Sprintf("%s-metrics-server-package", clusterName), namespace, nil, nil)
+				Expect(err1).To(BeNil())
+
+				// check updated data value secret contents in supervisor cluster
+				updatedSecretData := secret.Data["values.yaml"]
+				updatedSecretDataString := string(updatedSecretData)
+				return strings.Contains(updatedSecretDataString, "periodSeconds: 20")
+			}, waitTimeout, pollingInterval).Should(BeTrue())
 		})
 	})
 
