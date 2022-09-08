@@ -9,6 +9,7 @@ metadata:
   namespace: #@ data.values.NAMESPACE
   annotations:
     identifier.cc.vmware.com: tanzu-azure-default-0.0.1
+    run.tanzu.vmware.com/resolve-tkr: ""
 spec:
   controlPlane:
     ref:
@@ -393,7 +394,7 @@ spec:
               {{ range .network.vnet.cidrBlocks -}}
                 - {{ . }}
               {{- end }}
-      - op: replace
+      - op: add
         path: /spec/template/spec/resourceGroup
         valueFrom:
           template: |
@@ -451,7 +452,7 @@ spec:
             diskSizeGB: {{ .controlPlane.osDisk.sizeGiB }}
             managedDisk:
               storageAccountType: {{ .controlPlane.osDisk.storageAccountType }}
-      - op: replace
+      - op: add
         path: /spec/template/spec/image
         valueFrom:
           template: |
@@ -487,27 +488,27 @@ spec:
             contentFrom:
               secret:
                 key: control-plane-azure.json
-                name: {{ .builtin.cluster.name -}} -control-plane-azure-json
+                name: {{ .builtin.controlPlane.machineTemplate.infrastructureRef.name -}} -azure-json
             owner: root:root
             path: /etc/kubernetes/azure.json
             permissions: "0644"
-      - op: replace
+      - op: add
         path: /spec/template/spec/kubeadmConfigSpec/clusterConfiguration/imageRepository
         valueFrom:
           template: '{{ (index .TKR_DATA .builtin.controlPlane.version).kubernetesSpec.imageRepository }}'
-      - op: replace
+      - op: add
         path: /spec/template/spec/kubeadmConfigSpec/clusterConfiguration/etcd/local/imageRepository
         valueFrom:
           template: '{{ (index .TKR_DATA .builtin.controlPlane.version).kubernetesSpec.imageRepository }}'
-      - op: replace
+      - op: add
         path: /spec/template/spec/kubeadmConfigSpec/clusterConfiguration/etcd/local/imageTag
         valueFrom:
           template: '{{ (index .TKR_DATA .builtin.controlPlane.version).kubernetesSpec.etcd.imageTag }}'
-      - op: replace
+      - op: add
         path: /spec/template/spec/kubeadmConfigSpec/clusterConfiguration/dns/imageRepository
         valueFrom:
           template: '{{ (index .TKR_DATA .builtin.controlPlane.version).kubernetesSpec.imageRepository }}'
-      - op: replace
+      - op: add
         path: /spec/template/spec/kubeadmConfigSpec/clusterConfiguration/dns/imageTag
         valueFrom:
           template: '{{ (index .TKR_DATA .builtin.controlPlane.version).kubernetesSpec.coredns.imageTag }}'
@@ -568,7 +569,7 @@ spec:
             diskSizeGB: {{ .worker.osDisk.sizeGiB }}
             managedDisk:
               storageAccountType: {{ .worker.osDisk.storageAccountType }}
-      - op: replace
+      - op: add
         path: /spec/template/spec/image
         valueFrom:
           template: |
@@ -606,7 +607,7 @@ spec:
             contentFrom:
               secret:
                 key: worker-node-azure.json
-                name: {{ .builtin.cluster.name -}} - {{- .builtin.machineDeployment.topologyName -}} -azure-json
+                name: {{ .builtin.machineDeployment.infrastructureRef.name -}} -azure-json
             owner: root:root
             path: /etc/kubernetes/azure.json
             permissions: "0644"
@@ -1259,8 +1260,6 @@ spec:
       location: ${AZURE_LOCATION}
       networkSpec:
         vnet:
-          name: "${AZURE_VNET_NAME:=${CLUSTER_NAME}-vnet}"
-          resourceGroup: ${AZURE_VNET_RESOURCE_GROUP:=${CLUSTER_NAME}}
           cidrBlock: ${AZURE_VNET_CIDR}
         subnets:
         - name: ${AZURE_CONTROL_PLANE_SUBNET_NAME}
@@ -1269,7 +1268,6 @@ spec:
         - name: ${AZURE_NODE_SUBNET_NAME}
           role: node
           cidrBlock: ${AZURE_NODE_SUBNET_CIDR}
-      resourceGroup: ${AZURE_RESOURCE_GROUP:=${CLUSTER_NAME}}
       subscriptionID: ${AZURE_SUBSCRIPTION_ID}
 ---
 apiVersion: controlplane.cluster.x-k8s.io/v1beta1
@@ -1332,7 +1330,12 @@ spec:
             layout: true
             overwrite: false
             tableType: gpt
-        files: []
+        files:
+        - path: /tmp/empty.txt
+          owner: "root:root"
+          permissions: "0600"
+          content: |
+            default file
         initConfiguration:
           nodeRegistration:
             criSocket: /var/run/containerd/containerd.sock
@@ -1353,7 +1356,8 @@ spec:
         - - LABEL=etcd_disk
           - /var/lib/etcddisk
         useExperimentalRetryJoin: true
-        postKubeadmCommands: []
+        postKubeadmCommands:
+        - echo "running postKubeadmCommands…"
         preKubeadmCommands:
         #! Ensure a non-empty preKubeadmCommands array is present to facilitate patching
         - echo "running preKubeadmCommands…"
@@ -1378,14 +1382,12 @@ spec:
       - diskSizeGB: 256
         lun: 0
         nameSuffix: etcddisk
-      image:
-        marketplace:
       osDisk:
         diskSizeGB: 128
         managedDisk:
           storageAccountType: Premium_LRS
         osType: Linux
-      sshPublicKey: ${AZURE_SSH_PUBLIC_KEY_B64:=""}
+      sshPublicKey: c3NoLXJzYSBBQUFBQjNOemFDMXljMkVBQUFBQkl3QUFBUUVBdXR2WGhHWFhzN0t5cFV3c1F1dmc3MCtHclVJUXg1YS9QOFBROGhPbWVzZFAwb1hFMElSKzNuN0NGRzhpK0IwV08rdkhCYnc2b3VkSnR6bmNLaE5hU2N3ZFllT1JVbFVLcVN1QXJtU0NjQnpaZDFTTlVSY2NPRWlocjBEUVg5NXk0YjFUS3QxNjl3eVlzZ0JQeDNHcmprc2xJalRDblZKZmdoWlZOZFdKWWJrRVNuck9ySW05KzFsL3JLT09UOWpsR1NER3M1RW5mM2sxTEY3WThTUVVwdXVOZlNKTU9GRlVHTlVxNjY5L0Fod1FJSDJJYjhPQjY5cmV4ajdwQmdCWjFpd3l6eFlWUGZ3aUZSWXR0eFNDRVJiNk82alh4U21KS3FhTkdNcS9QdlJrTVUzTndxNDV1anN1M3l2NmVFSTVLZGpIV0pFdGd3ZWhXa0ZGL2NGcWd3PT0gd2p1bkB2bXdhcmUuY29t
       vmSize: ${AZURE_CONTROL_PLANE_MACHINE_TYPE}
 ---
 apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
@@ -1401,9 +1403,7 @@ spec:
         managedDisk:
           storageAccountType: Premium_LRS
         osType: Linux
-      image:
-        marketplace:
-      sshPublicKey: ${AZURE_SSH_PUBLIC_KEY_B64:=""}
+      sshPublicKey: c3NoLXJzYSBBQUFBQjNOemFDMXljMkVBQUFBQkl3QUFBUUVBdXR2WGhHWFhzN0t5cFV3c1F1dmc3MCtHclVJUXg1YS9QOFBROGhPbWVzZFAwb1hFMElSKzNuN0NGRzhpK0IwV08rdkhCYnc2b3VkSnR6bmNLaE5hU2N3ZFllT1JVbFVLcVN1QXJtU0NjQnpaZDFTTlVSY2NPRWlocjBEUVg5NXk0YjFUS3QxNjl3eVlzZ0JQeDNHcmprc2xJalRDblZKZmdoWlZOZFdKWWJrRVNuck9ySW05KzFsL3JLT09UOWpsR1NER3M1RW5mM2sxTEY3WThTUVVwdXVOZlNKTU9GRlVHTlVxNjY5L0Fod1FJSDJJYjhPQjY5cmV4ajdwQmdCWjFpd3l6eFlWUGZ3aUZSWXR0eFNDRVJiNk82alh4U21KS3FhTkdNcS9QdlJrTVUzTndxNDV1anN1M3l2NmVFSTVLZGpIV0pFdGd3ZWhXa0ZGL2NGcWd3PT0gd2p1bkB2bXdhcmUuY29t
       vmSize: ${AZURE_NODE_MACHINE_TYPE}
 
 ---
@@ -1415,7 +1415,12 @@ metadata:
 spec:
   template:
     spec:
-      files: []
+      files:
+      - path: /tmp/empty.txt
+        owner: "root:root"
+        permissions: "0600"
+        content: |
+          default file
       joinConfiguration:
         nodeRegistration:
           criSocket: /var/run/containerd/containerd.sock
@@ -1425,4 +1430,5 @@ spec:
             cloud-provider: azure
           name: '{{ ds.meta_data["local_hostname"] }}'
       useExperimentalRetryJoin: true
-      preKubeadmCommands: []
+      preKubeadmCommands:
+      - echo "running preKubeadmCommands…"
