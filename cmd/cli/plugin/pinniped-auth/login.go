@@ -6,13 +6,14 @@ package main
 import (
 	_ "embed"
 	"fmt"
-	"github.com/adrg/xdg"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"runtime"
 	"strconv"
 	"strings"
+
+	"github.com/adrg/xdg"
 
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
