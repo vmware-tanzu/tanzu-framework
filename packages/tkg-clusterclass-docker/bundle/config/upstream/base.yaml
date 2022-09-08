@@ -86,10 +86,10 @@ spec:
     - name: KCPT_ControlPlane_Main
       definitions:
         - selector:
-          apiVersion: controlplane.cluster.x-k8s.io/v1beta1
-          kind: KubeadmControlPlaneTemplate
-          matchResources:
-            controlPlane: true
+            apiVersion: controlplane.cluster.x-k8s.io/v1beta1
+            kind: KubeadmControlPlaneTemplate
+            matchResources:
+              controlPlane: true
           jsonPatches:
             - op: replace
               path: /spec/template/spec/kubeadmConfigSpec/clusterConfiguration/imageRepository
@@ -263,6 +263,7 @@ apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
 kind: DockerClusterTemplate
 metadata:
   name: quick-start-cluster
+  namespace: #@ data.values.NAMESPACE
 spec:
   template:
     spec: {}
@@ -271,6 +272,7 @@ kind: KubeadmControlPlaneTemplate
 apiVersion: controlplane.cluster.x-k8s.io/v1beta1
 metadata:
   name: quick-start-control-plane
+  namespace: #@ data.values.NAMESPACE
 spec:
   template:
     spec:
@@ -308,6 +310,7 @@ apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
 kind: DockerMachineTemplate
 metadata:
   name: quick-start-control-plane
+  namespace: #@ data.values.NAMESPACE
 spec:
   template:
     spec:
@@ -319,6 +322,7 @@ apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
 kind: DockerMachineTemplate
 metadata:
   name: quick-start-default-worker-machinetemplate
+  namespace: #@ data.values.NAMESPACE
 spec:
   template:
     spec:
@@ -330,6 +334,7 @@ apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
 kind: KubeadmConfigTemplate
 metadata:
   name: quick-start-default-worker-bootstraptemplate
+  namespace: #@ data.values.NAMESPACE
 spec:
   template:
     spec:

@@ -38,9 +38,225 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  build-and-publish-packages:
+    name: Build and Publish Carvel Packages
+    runs-on: tkg
+    env:
+      gcp_bucket_sa: ${{ secrets.GCP_BUCKET_SA }}
+    outputs:
+      bompath: ${{ steps.extract_bom.outputs.bompath }}
+      registry: ${{ steps.set_registry.outputs.registry }}
+      regdir: ${{ steps.extract_reg_dir.outputs.regdir }}
+    steps:
+    - name: Free disk space and clean up installed plugins on runner
+      run: |
+        sudo rm -rf /usr/share/dotnet
+        sudo rm -rf /home/tanzu/.cache
+        sudo rm -rf /home/tanzu/.kube
+        sudo rm -rf /home/tanzu/.local/share/tanzu-cli/*
+        sudo sh -c 'find /tmp -type d -name "go-build*" -mtime +3 | xargs rm -rf'
+
+    - name: show environment
+      uses: hmarr/debug-action@v2
+
+    - name: Extract PR Number
+      uses: Dovyski/payload-info-action@master
+      id: get_pr_num
+      with:
+        # when event is a pull request, obtaining the PR number is obvious
+        filter_pull_request: '.number'
+        # when event is a push (merge of PR), since we require linear history,
+        # we are not even generating a merge commit that can help identify the
+        # PR number, so don't even try. Instead we just hard-code to a dummy
+        # value.
+        filter_push: 1009
+
+    - name: Determine registry directory
+      uses: Dovyski/payload-info-action@master
+      id: get_registry_dir
+      with:
+        # when event is a pull request, use the PR number as the registry dir
+        filter_pull_request: '.number'
+        # when event is a push, use branch name instead
+        filter_push: '.ref | sub("^refs/heads/"; "")'
+
+    - name: Extract registry directory
+      shell: bash
+      run: |
+        export REGDIR=$(echo ${{ steps.get_registry_dir.outputs.value }} | tr -d '"')
+        echo "##[set-output name=regdir;]$(echo $REGDIR)"
+      id: extract_reg_dir
+
+    - name: Set registry
+      id: set_registry
+      shell: bash
+      run: |
+        if [ -z "${gcp_bucket_sa}" ]; then
+          echo "##[set-output name=registry;]localhost:5001"
+        else
+          echo "##[set-output name=registry;]gcr.io/eminent-nation-87317"
+        fi
+
+    - name: Find Comment
+      uses: peter-evans/find-comment@v1
+      id: findcomment
+      with:
+        issue-number: ${{ steps.get_pr_num.outputs.value }}
+        body-includes: //usebom
+        direction: last
+
+    - name: Extract Alternate BOM
+      shell: bash
+      run: |
+        export BOMCOMMENT=$(echo -e "${{ steps.findcomment.outputs.comment-body }}" | tr -d "[:space:]")
+        echo "##[set-output name=bompath;]$(echo "$BOMCOMMENT" | awk -F : '{print $2}')"
+      id: extract_bom
+
+    - name: Free disk space and clean up installed plugins on runner
+      run: |
+        sudo rm -rf /usr/share/dotnet
+        sudo rm -rf /home/tanzu/.cache
+        sudo rm -rf /home/tanzu/.kube
+        sudo rm -rf /home/tanzu/.local/share/tanzu-cli/*
+
+    - name: Set up Go 1.x
+      uses: actions/setup-go@v2
+      with:
+        go-version: '1.17'
+      id: go
+
+    - name: Check out code into the Go module directory
+      uses: actions/checkout@v1
+
+    - name: go cache
+      uses: actions/cache@v3
+      with:
+        path: |
+          ~/.cache/go-build
+          ~/go/pkg/mod
+        key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+        restore-keys: |
+          ${{ runner.os }}-go-
+
+    - name: Build Tools
+      run: make tools
+
+    - name: Login to GCR
+      if: ${{ env.gcp_bucket_sa != '' }}
+      uses: docker/login-action@v2
+      with:
+        registry: gcr.io
+        username: _json_key
+        password: ${{ secrets.GCP_BUCKET_SA }}
+
+    - name: Build management packages
+      env:
+        NUM: ${{ github.run_id }}
+        OCI_REGISTRY: ${{ steps.set_registry.outputs.registry }}/tanzu_framework/github-actions/${{ steps.extract_reg_dir.outputs.regdir }}
+        COMPONENTS: "pkg/v2/tkr/controller/tkr-source pkg/v2/tkr/controller/tkr-status pkg/v1/sdk/features addons pkg/v2/tkr/webhook/infra-machine pkg/v1/sdk/capabilities pkg/v2/tkr/webhook/tkr-conversion pkg/v2/tkr/webhook/cluster/tkr-resolver pinniped-components/tanzu-auth-controller-manager pkg/v2/object-propagation"
+        BUILD_VERSION: "v0.21.0"
+        IMG_VERSION_OVERRIDE: latest
+      run: |
+        make local-registry
+        make docker-build
+
+    - name: Publish management packages
+      env:
+        NUM: ${{ github.run_number }}
+        OCI_REGISTRY: ${{ steps.set_registry.outputs.registry }}/tanzu_framework/github-actions/${{ steps.extract_reg_dir.outputs.regdir }}
+        COMPONENTS: "pkg/v2/tkr/controller/tkr-source pkg/v2/tkr/controller/tkr-status pkg/v1/sdk/features addons pkg/v2/tkr/webhook/infra-machine pkg/v1/sdk/capabilities pkg/v2/tkr/webhook/tkr-conversion pkg/v2/tkr/webhook/cluster/tkr-resolver pinniped-components/tanzu-auth-controller-manager pkg/v2/object-propagation"
+        BUILD_VERSION: "v0.21.0"
+        IMG_VERSION_OVERRIDE: latest
+      run: |
+        make docker-publish
+        cp pkg/v1/tkg/test/config/packages/core-management-plugins/kbld-config_test.yaml packages/core-management-plugins/kbld-config.yaml
+        make kbld-image-replace
+        make package-push-bundles-repo PACKAGE_REPOSITORY=management
+        make clean-registry
+
+  integ-tests-docker-cc:
+    name: TKG Integration Tests CAPD (ClusterClass)
+    runs-on: tkg
+    needs: build-and-publish-packages
+    env:
+      gcp_bucket_sa: ${{ secrets.GCP_BUCKET_SA }}
+    steps:
+      - name: Free disk space and clean up installed plugins on runner
+        run: |
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /home/tanzu/.cache
+          sudo rm -rf /home/tanzu/.kube
+          sudo rm -rf /home/tanzu/.local/share/tanzu-cli/*
+          sudo sh -c 'find /tmp -type d -name "go-build*" -mtime +3 | xargs rm -rf'
+
+      - name: show environment
+        uses: hmarr/debug-action@v2
+
+      - name: Extract Alternate BOM
+        shell: bash
+        run: |
+          export BOMCOMMENT=$(echo -e "${{ needs.build-and-publish-packages.steps.findcomment.outputs.comment-body }}" | tr -d "[:space:]")
+          echo "##[set-output name=bompath;]$(echo "$BOMCOMMENT" | awk -F : '{print $2}')"
+        id: extract_bom
+
+      - name: Free disk space and clean up installed plugins on runner
+        run: |
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /home/tanzu/.cache
+          sudo rm -rf /home/tanzu/.kube
+          sudo rm -rf /home/tanzu/.local/share/tanzu-cli/*
+
+      - name: Set up Go 1.x
+        uses: actions/setup-go@v3
+        with:
+          go-version: '1.17'
+        id: go
+
+      - name: Check out code into the Go module directory
+        uses: actions/checkout@v1
+
+      - name: go cache
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cache/go-build
+            ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+
+      - name: Build Tools
+        run: make tools
+
+      - name: Login to GCR
+        if: ${{ env.gcp_bucket_sa != '' }}
+        uses: docker/login-action@v2
+        with:
+          registry: gcr.io
+          username: _json_key
+          password: ${{ secrets.GCP_BUCKET_SA }}
+
+      - name: Cleanup
+        run: rm -rf ~/.tanzu ~/.tkg ~/.config; docker kill $(docker ps -q) | true; docker system prune -a --volumes -f
+
+      - name: Run TKG integration tests
+        run: |
+          if [[ ! -z "${{ needs.build-and-publish-packages.outputs.bompath }}" ]]; then
+            export TKG_DEFAULT_COMPATIBILITY_IMAGE_PATH=${{ needs.build-and-publish-packages.outputs.bompath }}
+          fi
+          make configure-bom
+          make generate-embedproviders
+          E2E_CONFIG=$PWD/pkg/v1/tkg/test/config/cc/docker/docker.yaml hack/tools/bin/ginkgo -nodes=3 -v -trace -tags embedproviders pkg/v1/tkg/test/tkgctl/docker_cc
+        env:
+          _MANAGEMENT_PACKAGE_REPO_IMAGE: ${{ needs.build-and-publish-packages.outputs.registry }}/tanzu_framework/github-actions/${{ needs.build-and-publish-packages.outputs.regdir }}/management:v0.21.0
+          _MANAGEMENT_PACKAGE_VERSION: "0.21.0"
+          TKG_CUSTOM_IMAGE_REPOSITORY: "projects-stg.registry.vmware.com/tkg"
+
+
   integ-tests-aws-cc:
     name: TKG Integration Tests CAPA (ClusterClass)
     runs-on: ubuntu-latest
+    needs: build-and-publish-packages
     env:
       aws_client_id: ${{secrets.AWS_ACCESS_KEY_ID}}
       gcp_bucket_sa: ${{ secrets.GCP_BUCKET_SA }}
@@ -55,59 +271,6 @@ jobs:
 
       - name: show environment
         uses: hmarr/debug-action@v2
-
-      - name: Extract PR Number
-        uses: Dovyski/payload-info-action@master
-        id: get_pr_num
-        with:
-          # when event is a pull request, obtaining the PR number is obvious
-          filter_pull_request: '.number'
-          # when event is a push (merge of PR), since we require linear history,
-          # we are not even generating a merge commit that can help identify the
-          # PR number, so don't even try. Instead we just hard-code to a dummy
-          # value.
-          filter_push: 1009
-
-      - name: Determine registry directory
-        uses: Dovyski/payload-info-action@master
-        id: get_registry_dir
-        with:
-          # when event is a pull request, use the PR number as the registry dir
-          filter_pull_request: '.number'
-          # when event is a push, use branch name instead
-          filter_push: '.ref | sub("^refs/heads/"; "")'
-
-      - name: Extract registry directory
-        shell: bash
-        run: |
-          export REGDIR=$(echo ${{ steps.get_registry_dir.outputs.value }} | tr -d '"')
-          echo "##[set-output name=regdir;]$(echo $REGDIR)"
-        id: extract_reg_dir
-
-      - name: Set registry
-        id: set_registry
-        shell: bash
-        run: |
-          if [ -z "${gcp_bucket_sa}" ]; then
-            echo "##[set-output name=registry;]localhost:5001"
-          else
-            echo "##[set-output name=registry;]gcr.io/eminent-nation-87317"
-          fi
-
-      - name: Find Comment
-        uses: peter-evans/find-comment@v1
-        id: findcomment
-        with:
-          issue-number: ${{ steps.get_pr_num.outputs.value }}
-          body-includes: //usebom
-          direction: last
-
-      - name: Extract Alternate BOM
-        shell: bash
-        run: |
-          export BOMCOMMENT=$(echo -e "${{ steps.findcomment.outputs.comment-body }}" | tr -d "[:space:]")
-          echo "##[set-output name=bompath;]$(echo "$BOMCOMMENT" | awk -F : '{print $2}')"
-        id: extract_bom
 
       - name: Free disk space and clean up installed plugins on runner
         run: |
@@ -137,40 +300,6 @@ jobs:
 
       - name: Build Tools
         run: make tools
-
-
-      - name: Login to GCR
-        if: ${{ env.gcp_bucket_sa != '' }}
-        uses: docker/login-action@v2
-        with:
-          registry: gcr.io
-          username: _json_key
-          password: ${{ secrets.GCP_BUCKET_SA }}
-
-      - name: Build management packages
-        env:
-          NUM: ${{ github.run_id }}
-          OCI_REGISTRY: ${{ steps.set_registry.outputs.registry }}/tanzu_framework/github-actions/${{ steps.extract_reg_dir.outputs.regdir }}
-          COMPONENTS: "pkg/v2/tkr/controller/tkr-source pkg/v2/tkr/controller/tkr-status pkg/v1/sdk/features addons pkg/v2/tkr/webhook/infra-machine pkg/v1/sdk/capabilities pkg/v2/tkr/webhook/tkr-conversion pkg/v2/tkr/webhook/cluster/tkr-resolver pinniped-components/tanzu-auth-controller-manager pkg/v2/object-propagation"
-          BUILD_VERSION: "v0.21.0"
-          IMG_VERSION_OVERRIDE: latest
-        run: |
-          make local-registry
-          make docker-build
-
-      - name: Publish management packages
-        env:
-          NUM: ${{ github.run_number }}
-          OCI_REGISTRY: ${{ steps.set_registry.outputs.registry }}/tanzu_framework/github-actions/${{ steps.extract_reg_dir.outputs.regdir }}
-          COMPONENTS: "pkg/v2/tkr/controller/tkr-source pkg/v2/tkr/controller/tkr-status pkg/v1/sdk/features addons pkg/v2/tkr/webhook/infra-machine pkg/v1/sdk/capabilities pkg/v2/tkr/webhook/tkr-conversion pkg/v2/tkr/webhook/cluster/tkr-resolver pinniped-components/tanzu-auth-controller-manager pkg/v2/object-propagation"
-          BUILD_VERSION: "v0.21.0"
-          IMG_VERSION_OVERRIDE: latest
-        run: |
-          make docker-publish
-          cp pkg/v1/tkg/test/config/packages/core-management-plugins/kbld-config_test.yaml packages/core-management-plugins/kbld-config.yaml
-          make kbld-image-replace
-          make package-push-bundles-repo PACKAGE_REPOSITORY=management
-          make clean-registry
 
       - name: Cleanup
         run: rm -rf ~/.tanzu ~/.tkg ~/.config; docker kill $(docker ps -q) | true; docker system prune -a --volumes -f
@@ -202,8 +331,8 @@ jobs:
       - name: Run TKG integration tests
         if: ${{ env.aws_client_id != '' }}
         run: |
-          if [[ ! -z "${{ steps.extract_bom.outputs.bompath }}" ]]; then
-            export TKG_DEFAULT_COMPATIBILITY_IMAGE_PATH=${{ steps.extract_bom.outputs.bompath }}
+          if [[ ! -z "${{ needs.build-and-publish-packages.outputs.bompath }}" ]]; then
+            export TKG_DEFAULT_COMPATIBILITY_IMAGE_PATH=${{ needs.build-and-publish-packages.outputs.bompath }}
           fi
           make configure-bom
           make generate-embedproviders
@@ -213,7 +342,7 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
           AWS_REGION: "us-west-2"
-          _MANAGEMENT_PACKAGE_REPO_IMAGE: ${{ steps.set_registry.outputs.registry }}/tanzu_framework/github-actions/${{ steps.extract_reg_dir.outputs.regdir }}/management:v0.21.0
+          _MANAGEMENT_PACKAGE_REPO_IMAGE: ${{ needs.build-and-publish-packages.outputs.registry }}/tanzu_framework/github-actions/${{ needs.build-and-publish-packages.outputs.regdir }}/management:v0.21.0
           _MANAGEMENT_PACKAGE_VERSION: "0.21.0"
           TKG_CUSTOM_IMAGE_REPOSITORY: "projects-stg.registry.vmware.com/tkg"
 

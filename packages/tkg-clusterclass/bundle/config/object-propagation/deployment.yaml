@@ -29,6 +29,26 @@
     namespaceLabelSelector: '!cluster.x-k8s.io/provider'
     detectAndReplaceSourceNSRef: true
 
+#@ if data.values.clusterclassInfraPackageValues.infraProvider == "docker":
+#! Docker infra specific resources
+- source:
+    apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+    kind: DockerClusterTemplate
+    namespace: #@ data.values.namespaceForPackageInstallation
+    labelSelector: ''
+  target:
+    namespaceLabelSelector: '!cluster.x-k8s.io/provider'
+    detectAndReplaceSourceNSRef: true
+- source:
+    apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+    kind: DockerMachineTemplate
+    namespace: #@ data.values.namespaceForPackageInstallation
+    labelSelector: '!topology.cluster.x-k8s.io/owned'
+  target:
+    namespaceLabelSelector: '!cluster.x-k8s.io/provider'
+    detectAndReplaceSourceNSRef: true
+#@ end
+
 #@ if data.values.clusterclassInfraPackageValues.infraProvider == "aws":
 #! AWS infra specific resources
 - source:
