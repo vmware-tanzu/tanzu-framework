@@ -189,7 +189,7 @@ var _ = Describe("ClusterbootstrapClone", func() {
 			antreaClusterbootstrapPackage = constructFakeClusterBootstrapPackageWithInlineRef()
 		})
 		It("", func() {
-			createdSecret, err := helper.createSecretFromInline(cluster, antreaClusterbootstrapPackage, fakeAntreaCarvelPkgRefName)
+			createdSecret, err := helper.CreateSecretFromInline(cluster, antreaClusterbootstrapPackage, fakeAntreaCarvelPkgRefName)
 			Expect(err).NotTo(HaveOccurred())
 			Expect(createdSecret).NotTo(BeNil())
 			Expect(createdSecret.Namespace).To(Equal(cluster.Namespace))
@@ -717,7 +717,7 @@ spec:
 }
 
 func convertToUnstructured(obj runtime.Object) *unstructured.Unstructured {
-	//convert the runtime.Object to unstructured.Unstructured
+	// convert the runtime.Object to unstructured.Unstructured
 	unstructuredObj, err := runtime.DefaultUnstructuredConverter.ToUnstructured(obj)
 	Expect(err).NotTo(HaveOccurred())
 	return &unstructured.Unstructured{

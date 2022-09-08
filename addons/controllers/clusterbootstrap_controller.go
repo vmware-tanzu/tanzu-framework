@@ -474,7 +474,7 @@ func (r *ClusterBootstrapReconciler) mergeClusterBootstrapPackagesWithTemplate(
 		updatedClusterBootstrap.Spec.CNI = clusterBootstrapTemplate.Spec.CNI.DeepCopy()
 	} else {
 		// We don't allow change to the CNI selection once it starts running, however we allow version bump
-		//TODO: check correctness of the following statement, as we still allow version bump
+		// TODO: check correctness of the following statement, as we still allow version bump
 		// ClusterBootstrap webhook will make sure the package RefName always match the original CNI
 		updatedCNI, cniNamePrefix, err := util.GetBootstrapPackageNameFromTKR(r.context, r.Client, updatedClusterBootstrap.Spec.CNI.RefName, cluster)
 		if err != nil {
@@ -999,7 +999,7 @@ func (r *ClusterBootstrapReconciler) createOrPatchPackageInstallSecretForKapp(cl
 	if err != nil {
 		return nil, err
 	}
-	//controller hasn't finished reconciling
+	// controller hasn't finished reconciling
 	if localSecret == nil {
 		return nil, nil
 	}
@@ -1142,12 +1142,49 @@ func (r *ClusterBootstrapReconciler) GetDataValueSecretNameFromBootstrapPackage(
 	}
 
 	if cbPkg.ValuesFrom != nil {
+		clusterBootstrapHelper := clusterbootstrapclone.NewHelper(
+			r.context, r.Client, r.aggregatedAPIResourcesClient, r.dynamicClient, r.gvrHelper, r.Log)
 		if cbPkg.ValuesFrom.Inline != nil {
 			packageSecretName := util.GeneratePackageSecretName(cluster.Name, packageRefName)
 			secret := &corev1.Secret{}
 			key := client.ObjectKey{Namespace: cluster.Namespace, Name: packageSecretName}
 			if err = r.Get(r.context, key, secret); err != nil {
-				r.Log.Error(err, "unable to fetch secret for package with inline config", "objectkey", key)
+				if apierrors.IsNotFound(err) {
+					// secret for package with inline does not exist, we should create one
+					secret, err = clusterBootstrapHelper.CreateSecretFromInline(cluster, cbPkg, packageRefName)
+					if err != nil {
+						return "", err
+					}
+				} else {
+					r.Log.Error(err, "unable to fetch secret for package with inline config", "objectkey", key)
+					return "", err
+				}
+			} else {
+				secret, err = clusterBootstrapHelper.CreateOrPatchInlineSecret(cluster, cbPkg, secret)
+				if err != nil {
+					return "", err
+				}
+			}
+			// ensure the secret has an ownerref to cluster bootstrap
+			clusterBootstrap := &runtanzuv1alpha3.ClusterBootstrap{}
+			if err := r.Client.Get(r.context, client.ObjectKeyFromObject(cluster), clusterBootstrap); err != nil {
+				return "", err
+			}
+			ownerRef := metav1.OwnerReference{
+				APIVersion:         runtanzuv1alpha3.GroupVersion.String(),
+				Kind:               "ClusterBootstrap", // kind is empty after create
+				Name:               clusterBootstrap.Name,
+				UID:                clusterBootstrap.UID,
+				Controller:         pointer.BoolPtr(true),
+				BlockOwnerDeletion: pointer.BoolPtr(true),
+			}
+			ownerRefsMutateFn := func() error {
+				secret.OwnerReferences = clusterapiutil.EnsureOwnerRef(secret.OwnerReferences, ownerRef)
+				return nil
+			}
+			_, err := controllerutil.CreateOrPatch(clusterBootstrapHelper.Ctx, clusterBootstrapHelper.K8sClient, secret, ownerRefsMutateFn)
+			if err != nil {
+				r.Log.Error(err, fmt.Sprintf("unable to patch the secret %s/%s with CB ownerRef", secret.Namespace, secret.Name))
 				return "", err
 			}
 			return packageSecretName, nil
