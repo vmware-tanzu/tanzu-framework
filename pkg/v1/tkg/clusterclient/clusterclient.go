@@ -78,6 +78,7 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/tkg/log"
 	telemetrymanifests "github.com/vmware-tanzu/tanzu-framework/tkg/manifest/telemetry"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/vc"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/utils"
 )
 
 const (
