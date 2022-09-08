@@ -11,6 +11,7 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
+	packageclientfakes "github.com/vmware-tanzu/tanzu-framework/packageclients/pkg/fakes"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/fakes"
 	. "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/managementcomponents"
 )
@@ -22,13 +23,13 @@ func Test(t *testing.T) {
 
 var _ = Describe("Test InstallManagementPackages", func() {
 	var (
-		fakePkgClient *fakes.TKGPackageClient
+		fakePkgClient *packageclientfakes.PackageClient
 		mprOptions    ManagementPackageRepositoryOptions
 		err           error
 	)
 
 	BeforeEach(func() {
-		fakePkgClient = &fakes.TKGPackageClient{}
+		fakePkgClient = &packageclientfakes.PackageClient{}
 		mprOptions = ManagementPackageRepositoryOptions{ManagementPackageRepoImage: "", TKGPackageValuesFile: ""}
 	})
 

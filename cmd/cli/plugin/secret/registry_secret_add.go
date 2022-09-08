@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/aunum/log"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 	"golang.org/x/term"
@@ -16,10 +17,9 @@ import (
 	crtclient "sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/component"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/kappclient"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgpackageclient"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgpackagedatamodel"
-	"github.com/vmware-tanzu/tanzu-framework/tkg/log"
+	"github.com/vmware-tanzu/tanzu-framework/packageclients/pkg/kappclient"
+	"github.com/vmware-tanzu/tanzu-framework/packageclients/pkg/packageclient"
+	"github.com/vmware-tanzu/tanzu-framework/packageclients/pkg/packagedatamodel"
 )
 
 const errInvalidPasswordFlags = "exactly one of --password, --password-file, --password-env-var flags should be provided"
@@ -61,7 +61,7 @@ func registrySecretAdd(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	pkgClient, err := tkgpackageclient.NewTKGPackageClient(kubeConfig)
+	pkgClient, err := packageclient.NewPackageClient(kubeConfig)
 	if err != nil {
 		return err
 	}
@@ -115,10 +115,10 @@ func registrySecretAdd(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
-func updateSecret(cmd *cobra.Command, pkgClient tkgpackageclient.TKGPackageClient) error {
+func updateSecret(cmd *cobra.Command, pkgClient packageclient.PackageClient) error {
 	if registrySecretOp.ExportToAllNamespaces {
 		t := true
-		registrySecretOp.Export = tkgpackagedatamodel.TypeBoolPtr{ExportToAllNamespaces: &t}
+		registrySecretOp.Export = packagedatamodel.TypeBoolPtr{ExportToAllNamespaces: &t}
 	}
 
 	if _, err := component.NewOutputWriterWithSpinner(cmd.OutOrStdout(), outputFormat, fmt.Sprintf("Updating registry secret '%s'...", registrySecretOp.SecretName), true); err != nil {
@@ -212,7 +212,7 @@ func checkNamespaceList(kc kappclient.Client) error {
 	return nil
 }
 
-func checkSecretExportExists(pkgClient tkgpackageclient.TKGPackageClient, kc kappclient.Client) error {
+func checkSecretExportExists(pkgClient packageclient.PackageClient, kc kappclient.Client) error {
 	export := ""
 	secretExport, err := pkgClient.GetSecretExport(registrySecretOp)
 

@@ -6,8 +6,8 @@ package main
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgpackageclient"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgpackagedatamodel"
+	"github.com/vmware-tanzu/tanzu-framework/packageclients/pkg/packageclient"
+	"github.com/vmware-tanzu/tanzu-framework/packageclients/pkg/packagedatamodel"
 )
 
 var repositoryAddCmd = &cobra.Command{
@@ -25,8 +25,8 @@ func init() {
 	repositoryAddCmd.Flags().StringVarP(&repoOp.RepositoryURL, "url", "", "", "OCI registry url for package repository bundle")
 	repositoryAddCmd.Flags().BoolVarP(&repoOp.CreateNamespace, "create-namespace", "", false, "Create namespace if the target namespace does not exist, optional")
 	repositoryAddCmd.Flags().BoolVarP(&repoOp.Wait, "wait", "", true, "Wait for the package repository reconciliation to complete, optional. To disable wait, specify --wait=false")
-	repositoryAddCmd.Flags().DurationVarP(&repoOp.PollInterval, "poll-interval", "", tkgpackagedatamodel.DefaultPollInterval, "Time interval between subsequent polls of package repository reconciliation status, optional")
-	repositoryAddCmd.Flags().DurationVarP(&repoOp.PollTimeout, "poll-timeout", "", tkgpackagedatamodel.DefaultPollTimeout, "Timeout value for polls of package repository reconciliation status, optional")
+	repositoryAddCmd.Flags().DurationVarP(&repoOp.PollInterval, "poll-interval", "", packagedatamodel.DefaultPollInterval, "Time interval between subsequent polls of package repository reconciliation status, optional")
+	repositoryAddCmd.Flags().DurationVarP(&repoOp.PollTimeout, "poll-timeout", "", packagedatamodel.DefaultPollTimeout, "Timeout value for polls of package repository reconciliation status, optional")
 	repositoryAddCmd.MarkFlagRequired("url") //nolint
 	repositoryCmd.AddCommand(repositoryAddCmd)
 }
@@ -34,10 +34,10 @@ func init() {
 func repositoryAdd(_ *cobra.Command, args []string) error {
 	repoOp.RepositoryName = args[0]
 
-	pkgClient, err := tkgpackageclient.NewTKGPackageClient(kubeConfig)
+	pkgClient, err := packageclient.NewPackageClient(kubeConfig)
 	if err != nil {
 		return err
 	}
 
-	return pkgClient.AddRepositorySync(repoOp, tkgpackagedatamodel.OperationTypeInstall)
+	return pkgClient.AddRepositorySync(repoOp, packagedatamodel.OperationTypeInstall)
 }

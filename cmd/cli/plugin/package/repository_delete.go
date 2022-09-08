@@ -10,8 +10,8 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/component"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgpackageclient"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgpackagedatamodel"
+	"github.com/vmware-tanzu/tanzu-framework/packageclients/pkg/packageclient"
+	"github.com/vmware-tanzu/tanzu-framework/packageclients/pkg/packagedatamodel"
 )
 
 var repositoryDeleteCmd = &cobra.Command{
@@ -28,8 +28,8 @@ var repositoryDeleteCmd = &cobra.Command{
 func init() {
 	repositoryDeleteCmd.Flags().BoolVarP(&repoOp.IsForceDelete, "force", "f", false, "Force deletion of the package repository, optional")
 	repositoryDeleteCmd.Flags().BoolVarP(&repoOp.Wait, "wait", "", true, "Wait for the package repository reconciliation to complete, optional. To disable wait, specify --wait=false")
-	repositoryDeleteCmd.Flags().DurationVarP(&repoOp.PollInterval, "poll-interval", "", tkgpackagedatamodel.DefaultPollInterval, "Time interval between subsequent polls of package repository reconciliation status, optional")
-	repositoryDeleteCmd.Flags().DurationVarP(&repoOp.PollTimeout, "poll-timeout", "", tkgpackagedatamodel.DefaultPollTimeout, "Timeout value for polls of package repository reconciliation status, optional")
+	repositoryDeleteCmd.Flags().DurationVarP(&repoOp.PollInterval, "poll-interval", "", packagedatamodel.DefaultPollInterval, "Time interval between subsequent polls of package repository reconciliation status, optional")
+	repositoryDeleteCmd.Flags().DurationVarP(&repoOp.PollTimeout, "poll-timeout", "", packagedatamodel.DefaultPollTimeout, "Timeout value for polls of package repository reconciliation status, optional")
 	repositoryDeleteCmd.Flags().BoolVarP(&repoOp.SkipPrompt, "yes", "y", false, "Delete package repository without asking for confirmation, optional")
 	repositoryCmd.AddCommand(repositoryDeleteCmd)
 }
@@ -48,7 +48,7 @@ func repositoryDelete(cmd *cobra.Command, args []string) error {
 		}
 	}
 
-	pkgClient, err := tkgpackageclient.NewTKGPackageClient(kubeConfig)
+	pkgClient, err := packageclient.NewPackageClient(kubeConfig)
 	if err != nil {
 		return err
 	}

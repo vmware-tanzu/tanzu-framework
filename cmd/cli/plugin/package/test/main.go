@@ -4,9 +4,9 @@
 package main
 
 import (
-	"log"
 	"os"
 
+	"github.com/aunum/log"
 	"github.com/spf13/cobra"
 
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/plugin"

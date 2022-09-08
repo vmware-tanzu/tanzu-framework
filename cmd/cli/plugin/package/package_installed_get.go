@@ -8,13 +8,13 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/aunum/log"
 	"github.com/spf13/cobra"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/component"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/kappclient"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgpackagedatamodel"
-	"github.com/vmware-tanzu/tanzu-framework/tkg/log"
+	"github.com/vmware-tanzu/tanzu-framework/packageclients/pkg/kappclient"
+	"github.com/vmware-tanzu/tanzu-framework/packageclients/pkg/packagedatamodel"
 )
 
 var packageInstalledGetCmd = &cobra.Command{
@@ -60,7 +60,7 @@ func packageInstalledGet(cmd *cobra.Command, args []string) error {
 	}
 
 	if packageInstalledOp.ValuesFile != "" {
-		packageInstalledOp.SecretName = fmt.Sprintf(tkgpackagedatamodel.SecretName, packageInstalledOp.PkgInstallName, packageInstalledOp.Namespace)
+		packageInstalledOp.SecretName = fmt.Sprintf(packagedatamodel.SecretName, packageInstalledOp.PkgInstallName, packageInstalledOp.Namespace)
 		f, err := os.Create(packageInstalledOp.ValuesFile)
 		if err != nil {
 			return err
@@ -80,11 +80,11 @@ func packageInstalledGet(cmd *cobra.Command, args []string) error {
 
 			stringValue := string(s)
 			if len(stringValue) < 3 {
-				dataValue += tkgpackagedatamodel.YamlSeparator
+				dataValue += packagedatamodel.YamlSeparator
 				dataValue += "\n"
 			}
-			if len(stringValue) >= 3 && stringValue[:3] != tkgpackagedatamodel.YamlSeparator {
-				dataValue += tkgpackagedatamodel.YamlSeparator
+			if len(stringValue) >= 3 && stringValue[:3] != packagedatamodel.YamlSeparator {
+				dataValue += packagedatamodel.YamlSeparator
 				dataValue += "\n"
 			}
 			dataValue += string(s)

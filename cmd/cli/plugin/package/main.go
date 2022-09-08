@@ -14,10 +14,10 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/config"
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/plugin"
 	"github.com/vmware-tanzu/tanzu-framework/cmd/cli/plugin/package/kctrl"
+	"github.com/vmware-tanzu/tanzu-framework/packageclients/pkg/kappclient"
+	"github.com/vmware-tanzu/tanzu-framework/packageclients/pkg/packagedatamodel"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/buildinfo"
 	capdiscovery "github.com/vmware-tanzu/tanzu-framework/pkg/v1/sdk/capabilities/discovery"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/kappclient"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgpackagedatamodel"
 )
 
 var descriptor = cliv1alpha1.PluginDescriptor{
@@ -81,10 +81,10 @@ func isPackagingAPIAvailable(kubeCfgPath string) (bool, error) {
 		return false, err
 	}
 
-	apiGroup1 := capdiscovery.Group("packageMetadateAPIQuery", tkgpackagedatamodel.DataPackagingAPIName).WithVersions(tkgpackagedatamodel.PackagingAPIVersion).WithResource("packagemetadatas")
-	apiGroup2 := capdiscovery.Group("packageAPIQuery", tkgpackagedatamodel.DataPackagingAPIName).WithVersions(tkgpackagedatamodel.PackagingAPIVersion).WithResource("packages")
-	apiGroup3 := capdiscovery.Group("packageRepositoryAPIQuery", tkgpackagedatamodel.PackagingAPIName).WithVersions(tkgpackagedatamodel.PackagingAPIVersion).WithResource("packagerepositories")
-	apiGroup4 := capdiscovery.Group("packageInstallAPIQuery", tkgpackagedatamodel.PackagingAPIName).WithVersions(tkgpackagedatamodel.PackagingAPIVersion).WithResource("packageinstalls")
+	apiGroup1 := capdiscovery.Group("packageMetadateAPIQuery", packagedatamodel.DataPackagingAPIName).WithVersions(packagedatamodel.PackagingAPIVersion).WithResource("packagemetadatas")
+	apiGroup2 := capdiscovery.Group("packageAPIQuery", packagedatamodel.DataPackagingAPIName).WithVersions(packagedatamodel.PackagingAPIVersion).WithResource("packages")
+	apiGroup3 := capdiscovery.Group("packageRepositoryAPIQuery", packagedatamodel.PackagingAPIName).WithVersions(packagedatamodel.PackagingAPIVersion).WithResource("packagerepositories")
+	apiGroup4 := capdiscovery.Group("packageInstallAPIQuery", packagedatamodel.PackagingAPIName).WithVersions(packagedatamodel.PackagingAPIVersion).WithResource("packageinstalls")
 
 	return clusterQueryClient.Query(apiGroup1, apiGroup2, apiGroup3, apiGroup4).Execute()
 }

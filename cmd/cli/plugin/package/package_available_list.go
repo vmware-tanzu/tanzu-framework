@@ -6,14 +6,13 @@ package main
 import (
 	"fmt"
 
+	"github.com/aunum/log"
 	"github.com/k14s/semver/v4"
 	"github.com/spf13/cobra"
+	"go.uber.org/multierr"
 
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/component"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/kappclient"
-	"github.com/vmware-tanzu/tanzu-framework/tkg/log"
-
-	"go.uber.org/multierr"
+	"github.com/vmware-tanzu/tanzu-framework/packageclients/pkg/kappclient"
 )
 
 var packageAvailableListCmd = &cobra.Command{

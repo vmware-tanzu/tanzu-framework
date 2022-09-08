@@ -13,7 +13,7 @@ import (
 	"k8s.io/apimachinery/pkg/util/duration"
 
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/component"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgpackageclient"
+	"github.com/vmware-tanzu/tanzu-framework/packageclients/pkg/packageclient"
 )
 
 var registrySecretListCmd = &cobra.Command{
@@ -45,7 +45,7 @@ func registrySecretList(cmd *cobra.Command, _ []string) error {
 	var exported string
 	var registry string
 
-	pkgClient, err := tkgpackageclient.NewTKGPackageClient(kubeConfig)
+	pkgClient, err := packageclient.NewPackageClient(kubeConfig)
 	if err != nil {
 		return err
 	}
@@ -129,7 +129,7 @@ func findInList(slice []string, val string) bool {
 func getRegistryValue(secret *corev1.Secret) (string, error) {
 	registry := ""
 
-	var dataMap tkgpackageclient.DockerConfigJSON
+	var dataMap packageclient.DockerConfigJSON
 	if err := json.Unmarshal(secret.Data[corev1.DockerConfigJsonKey], &dataMap); err != nil {
 		return registry, err
 	}

@@ -12,9 +12,8 @@ on:
       - 'pkg/v2/object-propagation/**'
       - 'addons/**'
       - 'packages/**'
-      - '!pkg/v1/tkg/tkgpackage*/*'
-      - '!pkg/v1/tkg/kappclient/*'
-      - '!pkg/v1/tkg/test/tkgpackageclient/**'
+      - '!packageclients/**'
+      - '!cmd/cli/plugin/package/test/**'
       - 'pkg/v1/providers/**'
       - '.github/workflows/tkg_integration_tests*.yaml'
 
@@ -29,9 +28,8 @@ on:
     - 'pkg/v2/object-propagation/**'
     - 'addons/**'
     - 'packages/**'
-    - '!pkg/v1/tkg/tkgpackage*/*'
-    - '!pkg/v1/tkg/kappclient/*'
-    - '!pkg/v1/tkg/test/tkgpackageclient/**'
+    - '!packageclients/**'
+    - '!cmd/cli/plugin/package/test/**'
     - 'pkg/v1/providers/**'
     - '.github/workflows/tkg_integration_tests*.yaml'
 

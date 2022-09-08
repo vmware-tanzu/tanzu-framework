@@ -9,36 +9,36 @@ import (
 	"k8s.io/apimachinery/pkg/util/wait"
 
 	clitest "github.com/vmware-tanzu/tanzu-framework/cli/runtime/test"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgpackagedatamodel"
+	"github.com/vmware-tanzu/tanzu-framework/packageclients/pkg/packagedatamodel"
 )
 
 type PackagePluginBase interface {
-	AddRepository(o *tkgpackagedatamodel.RepositoryOptions) PackagePluginResult
-	GetRepository(o *tkgpackagedatamodel.RepositoryOptions) PackagePluginResult
-	UpdateRepository(o *tkgpackagedatamodel.RepositoryOptions) PackagePluginResult
-	DeleteRepository(o *tkgpackagedatamodel.RepositoryOptions) PackagePluginResult
-	ListRepository(o *tkgpackagedatamodel.RepositoryOptions) PackagePluginResult
+	AddRepository(o *packagedatamodel.RepositoryOptions) PackagePluginResult
+	GetRepository(o *packagedatamodel.RepositoryOptions) PackagePluginResult
+	UpdateRepository(o *packagedatamodel.RepositoryOptions) PackagePluginResult
+	DeleteRepository(o *packagedatamodel.RepositoryOptions) PackagePluginResult
+	ListRepository(o *packagedatamodel.RepositoryOptions) PackagePluginResult
 
-	GetAvailablePackage(packageName string, o *tkgpackagedatamodel.PackageAvailableOptions) PackagePluginResult
-	ListAvailablePackage(packageName string, o *tkgpackagedatamodel.PackageAvailableOptions) PackagePluginResult
+	GetAvailablePackage(packageName string, o *packagedatamodel.PackageAvailableOptions) PackagePluginResult
+	ListAvailablePackage(packageName string, o *packagedatamodel.PackageAvailableOptions) PackagePluginResult
 
-	CreateInstalledPackage(o *tkgpackagedatamodel.PackageOptions) PackagePluginResult
-	GetInstalledPackage(o *tkgpackagedatamodel.PackageOptions) PackagePluginResult
-	UpdateInstalledPackage(o *tkgpackagedatamodel.PackageOptions) PackagePluginResult
-	DeleteInstalledPackage(o *tkgpackagedatamodel.PackageOptions) PackagePluginResult
-	ListInstalledPackage(o *tkgpackagedatamodel.PackageOptions) PackagePluginResult
+	CreateInstalledPackage(o *packagedatamodel.PackageOptions) PackagePluginResult
+	GetInstalledPackage(o *packagedatamodel.PackageOptions) PackagePluginResult
+	UpdateInstalledPackage(o *packagedatamodel.PackageOptions) PackagePluginResult
+	DeleteInstalledPackage(o *packagedatamodel.PackageOptions) PackagePluginResult
+	ListInstalledPackage(o *packagedatamodel.PackageOptions) PackagePluginResult
 }
 
 type PackagePluginHelpers interface {
-	AddOrUpdateRepository(o *tkgpackagedatamodel.RepositoryOptions) PackagePluginResult
-	CheckRepositoryAvailable(o *tkgpackagedatamodel.RepositoryOptions) PackagePluginResult
-	CheckAndDeleteRepository(o *tkgpackagedatamodel.RepositoryOptions) PackagePluginResult
-	CheckRepositoryDeleted(o *tkgpackagedatamodel.RepositoryOptions) PackagePluginResult
-	CheckPackageAvailable(packageName string, o *tkgpackagedatamodel.PackageAvailableOptions) PackagePluginResult
-	CheckAndInstallPackage(o *tkgpackagedatamodel.PackageOptions) PackagePluginResult
-	CheckPackageInstalled(o *tkgpackagedatamodel.PackageOptions) PackagePluginResult
-	CheckAndUninstallPackage(o *tkgpackagedatamodel.PackageOptions) PackagePluginResult
-	CheckPackageDeleted(o *tkgpackagedatamodel.PackageOptions) PackagePluginResult
+	AddOrUpdateRepository(o *packagedatamodel.RepositoryOptions) PackagePluginResult
+	CheckRepositoryAvailable(o *packagedatamodel.RepositoryOptions) PackagePluginResult
+	CheckAndDeleteRepository(o *packagedatamodel.RepositoryOptions) PackagePluginResult
+	CheckRepositoryDeleted(o *packagedatamodel.RepositoryOptions) PackagePluginResult
+	CheckPackageAvailable(packageName string, o *packagedatamodel.PackageAvailableOptions) PackagePluginResult
+	CheckAndInstallPackage(o *packagedatamodel.PackageOptions) PackagePluginResult
+	CheckPackageInstalled(o *packagedatamodel.PackageOptions) PackagePluginResult
+	CheckAndUninstallPackage(o *packagedatamodel.PackageOptions) PackagePluginResult
+	CheckPackageDeleted(o *packagedatamodel.PackageOptions) PackagePluginResult
 }
 
 type PackagePlugin interface {
@@ -114,7 +114,7 @@ func (p *packagePlugin) addGlobalOptions(cmd string) string {
 	return cmd
 }
 
-func (p *packagePlugin) AddRepository(o *tkgpackagedatamodel.RepositoryOptions) PackagePluginResult {
+func (p *packagePlugin) AddRepository(o *packagedatamodel.RepositoryOptions) PackagePluginResult {
 	var result PackagePluginResult
 	cmd := fmt.Sprintf("tanzu package repository add %s --url %s", o.RepositoryName, o.RepositoryURL)
 	if o.Namespace != "" {
@@ -138,7 +138,7 @@ func (p *packagePlugin) AddRepository(o *tkgpackagedatamodel.RepositoryOptions) 
 	return result
 }
 
-func (p *packagePlugin) GetRepository(o *tkgpackagedatamodel.RepositoryOptions) PackagePluginResult {
+func (p *packagePlugin) GetRepository(o *packagedatamodel.RepositoryOptions) PackagePluginResult {
 	var result PackagePluginResult
 	cmd := fmt.Sprintf("tanzu package repository get %s", o.RepositoryName)
 	if o.Namespace != "" {
@@ -151,7 +151,7 @@ func (p *packagePlugin) GetRepository(o *tkgpackagedatamodel.RepositoryOptions) 
 	return result
 }
 
-func (p *packagePlugin) UpdateRepository(o *tkgpackagedatamodel.RepositoryOptions) PackagePluginResult {
+func (p *packagePlugin) UpdateRepository(o *packagedatamodel.RepositoryOptions) PackagePluginResult {
 	var result PackagePluginResult
 	cmd := fmt.Sprintf("tanzu package repository update %s --url %s", o.RepositoryName, o.RepositoryURL)
 	if o.Namespace != "" {
@@ -178,7 +178,7 @@ func (p *packagePlugin) UpdateRepository(o *tkgpackagedatamodel.RepositoryOption
 	return result
 }
 
-func (p *packagePlugin) DeleteRepository(o *tkgpackagedatamodel.RepositoryOptions) PackagePluginResult {
+func (p *packagePlugin) DeleteRepository(o *packagedatamodel.RepositoryOptions) PackagePluginResult {
 	var result PackagePluginResult
 	cmd := fmt.Sprintf("tanzu package repository delete %s", o.RepositoryName)
 	if o.Namespace != "" {
@@ -205,7 +205,7 @@ func (p *packagePlugin) DeleteRepository(o *tkgpackagedatamodel.RepositoryOption
 	return result
 }
 
-func (p *packagePlugin) ListRepository(o *tkgpackagedatamodel.RepositoryOptions) PackagePluginResult {
+func (p *packagePlugin) ListRepository(o *packagedatamodel.RepositoryOptions) PackagePluginResult {
 	var result PackagePluginResult
 	cmd := fmt.Sprintf("tanzu package repository list")
 	if o.AllNamespaces {
@@ -221,7 +221,7 @@ func (p *packagePlugin) ListRepository(o *tkgpackagedatamodel.RepositoryOptions)
 	return result
 }
 
-func (p *packagePlugin) GetAvailablePackage(packageName string, o *tkgpackagedatamodel.PackageAvailableOptions) PackagePluginResult {
+func (p *packagePlugin) GetAvailablePackage(packageName string, o *packagedatamodel.PackageAvailableOptions) PackagePluginResult {
 	var result PackagePluginResult
 	cmd := fmt.Sprintf("tanzu package available get %s", packageName)
 
@@ -241,7 +241,7 @@ func (p *packagePlugin) GetAvailablePackage(packageName string, o *tkgpackagedat
 	return result
 }
 
-func (p *packagePlugin) ListAvailablePackage(packageName string, o *tkgpackagedatamodel.PackageAvailableOptions) PackagePluginResult {
+func (p *packagePlugin) ListAvailablePackage(packageName string, o *packagedatamodel.PackageAvailableOptions) PackagePluginResult {
 	var (
 		cmd    string
 		result PackagePluginResult
@@ -264,7 +264,7 @@ func (p *packagePlugin) ListAvailablePackage(packageName string, o *tkgpackageda
 	return result
 }
 
-func (p *packagePlugin) CreateInstalledPackage(o *tkgpackagedatamodel.PackageOptions) PackagePluginResult {
+func (p *packagePlugin) CreateInstalledPackage(o *packagedatamodel.PackageOptions) PackagePluginResult {
 	var result PackagePluginResult
 	cmd := fmt.Sprintf("tanzu package installed create %s --package-name %s", o.PkgInstallName, o.PackageName)
 	if o.Version != "" {
@@ -297,7 +297,7 @@ func (p *packagePlugin) CreateInstalledPackage(o *tkgpackagedatamodel.PackageOpt
 	return result
 }
 
-func (p *packagePlugin) GetInstalledPackage(o *tkgpackagedatamodel.PackageOptions) PackagePluginResult {
+func (p *packagePlugin) GetInstalledPackage(o *packagedatamodel.PackageOptions) PackagePluginResult {
 	var result PackagePluginResult
 	cmd := fmt.Sprintf("tanzu package installed get %s", o.PkgInstallName)
 	if o.Namespace != "" {
@@ -310,7 +310,7 @@ func (p *packagePlugin) GetInstalledPackage(o *tkgpackagedatamodel.PackageOption
 	return result
 }
 
-func (p *packagePlugin) UpdateInstalledPackage(o *tkgpackagedatamodel.PackageOptions) PackagePluginResult {
+func (p *packagePlugin) UpdateInstalledPackage(o *packagedatamodel.PackageOptions) PackagePluginResult {
 	var result PackagePluginResult
 	cmd := fmt.Sprintf("tanzu package installed update %s --package-name %s", o.PkgInstallName, o.PackageName)
 	if o.Version != "" {
@@ -340,7 +340,7 @@ func (p *packagePlugin) UpdateInstalledPackage(o *tkgpackagedatamodel.PackageOpt
 	return result
 }
 
-func (p *packagePlugin) DeleteInstalledPackage(o *tkgpackagedatamodel.PackageOptions) PackagePluginResult {
+func (p *packagePlugin) DeleteInstalledPackage(o *packagedatamodel.PackageOptions) PackagePluginResult {
 	var result PackagePluginResult
 	cmd := fmt.Sprintf("tanzu package installed delete %s", o.PkgInstallName)
 	if o.Namespace != "" {
@@ -361,7 +361,7 @@ func (p *packagePlugin) DeleteInstalledPackage(o *tkgpackagedatamodel.PackageOpt
 	return result
 }
 
-func (p *packagePlugin) ListInstalledPackage(o *tkgpackagedatamodel.PackageOptions) PackagePluginResult {
+func (p *packagePlugin) ListInstalledPackage(o *packagedatamodel.PackageOptions) PackagePluginResult {
 	var result PackagePluginResult
 	cmd := fmt.Sprintf("tanzu package installed list")
 	if o.Namespace != "" {
@@ -377,9 +377,9 @@ func (p *packagePlugin) ListInstalledPackage(o *tkgpackagedatamodel.PackageOptio
 	return result
 }
 
-func (p *packagePlugin) AddOrUpdateRepository(o *tkgpackagedatamodel.RepositoryOptions) PackagePluginResult {
+func (p *packagePlugin) AddOrUpdateRepository(o *packagedatamodel.RepositoryOptions) PackagePluginResult {
 	var result PackagePluginResult
-	getResult := p.GetRepository(&tkgpackagedatamodel.RepositoryOptions{
+	getResult := p.GetRepository(&packagedatamodel.RepositoryOptions{
 		RepositoryName: o.RepositoryName,
 		Namespace:      o.Namespace,
 	})
@@ -393,10 +393,10 @@ func (p *packagePlugin) AddOrUpdateRepository(o *tkgpackagedatamodel.RepositoryO
 	return result
 }
 
-func (p *packagePlugin) CheckRepositoryAvailable(o *tkgpackagedatamodel.RepositoryOptions) PackagePluginResult {
+func (p *packagePlugin) CheckRepositoryAvailable(o *packagedatamodel.RepositoryOptions) PackagePluginResult {
 	var result PackagePluginResult
 	if err := wait.PollImmediate(p.interval, p.timeout, func() (done bool, err error) {
-		result := p.GetRepository(&tkgpackagedatamodel.RepositoryOptions{
+		result := p.GetRepository(&packagedatamodel.RepositoryOptions{
 			RepositoryName: o.RepositoryName,
 			Namespace:      o.Namespace,
 		})
@@ -416,9 +416,9 @@ func (p *packagePlugin) CheckRepositoryAvailable(o *tkgpackagedatamodel.Reposito
 	return result
 }
 
-func (p *packagePlugin) CheckAndDeleteRepository(o *tkgpackagedatamodel.RepositoryOptions) PackagePluginResult {
+func (p *packagePlugin) CheckAndDeleteRepository(o *packagedatamodel.RepositoryOptions) PackagePluginResult {
 	var result PackagePluginResult
-	getResult := p.GetRepository(&tkgpackagedatamodel.RepositoryOptions{
+	getResult := p.GetRepository(&packagedatamodel.RepositoryOptions{
 		RepositoryName: o.RepositoryName,
 		Namespace:      o.Namespace,
 	})
@@ -428,14 +428,15 @@ func (p *packagePlugin) CheckAndDeleteRepository(o *tkgpackagedatamodel.Reposito
 	return result
 }
 
-func (p *packagePlugin) CheckRepositoryDeleted(o *tkgpackagedatamodel.RepositoryOptions) PackagePluginResult {
+func (p *packagePlugin) CheckRepositoryDeleted(o *packagedatamodel.RepositoryOptions) PackagePluginResult {
 	var result PackagePluginResult
 	if err := wait.PollImmediate(p.interval, p.timeout, func() (done bool, err error) {
-		result := p.GetRepository(&tkgpackagedatamodel.RepositoryOptions{
+		result := p.GetRepository(&packagedatamodel.RepositoryOptions{
 			RepositoryName: o.RepositoryName,
 			Namespace:      o.Namespace,
 		})
-		if result.Stderr != nil && strings.Contains(result.Stderr.String(), "does not exist") {
+		if result.Stderr != nil && strings.Contains(result.Stderr.String(), "does not exist") ||
+			result.Stdout != nil && strings.Contains(result.Stdout.String(), "does not exist") {
 			if result.Error != nil {
 				// Setting result error to nil since there will be error on get after repository is deleted
 				result.Error = nil
@@ -452,7 +453,7 @@ func (p *packagePlugin) CheckRepositoryDeleted(o *tkgpackagedatamodel.Repository
 	return result
 }
 
-func (p *packagePlugin) CheckPackageAvailable(packageName string, o *tkgpackagedatamodel.PackageAvailableOptions) PackagePluginResult {
+func (p *packagePlugin) CheckPackageAvailable(packageName string, o *packagedatamodel.PackageAvailableOptions) PackagePluginResult {
 	var result PackagePluginResult
 	if err := wait.PollImmediate(p.interval, p.timeout, func() (done bool, err error) {
 		result = p.GetAvailablePackage(packageName, o)
@@ -469,9 +470,9 @@ func (p *packagePlugin) CheckPackageAvailable(packageName string, o *tkgpackaged
 	return result
 }
 
-func (p *packagePlugin) CheckAndInstallPackage(o *tkgpackagedatamodel.PackageOptions) PackagePluginResult {
+func (p *packagePlugin) CheckAndInstallPackage(o *packagedatamodel.PackageOptions) PackagePluginResult {
 	var result PackagePluginResult
-	getResult := p.GetInstalledPackage(&tkgpackagedatamodel.PackageOptions{
+	getResult := p.GetInstalledPackage(&packagedatamodel.PackageOptions{
 		PkgInstallName: o.PkgInstallName,
 		Namespace:      o.Namespace,
 	})
@@ -481,10 +482,10 @@ func (p *packagePlugin) CheckAndInstallPackage(o *tkgpackagedatamodel.PackageOpt
 	return result
 }
 
-func (p *packagePlugin) CheckPackageInstalled(o *tkgpackagedatamodel.PackageOptions) PackagePluginResult {
+func (p *packagePlugin) CheckPackageInstalled(o *packagedatamodel.PackageOptions) PackagePluginResult {
 	var result PackagePluginResult
 	if err := wait.PollImmediate(p.interval, p.timeout, func() (done bool, err error) {
-		result = p.GetInstalledPackage(&tkgpackagedatamodel.PackageOptions{
+		result = p.GetInstalledPackage(&packagedatamodel.PackageOptions{
 			PkgInstallName: o.PkgInstallName,
 			Namespace:      o.Namespace,
 		})
@@ -504,9 +505,9 @@ func (p *packagePlugin) CheckPackageInstalled(o *tkgpackagedatamodel.PackageOpti
 	return result
 }
 
-func (p *packagePlugin) CheckAndUninstallPackage(o *tkgpackagedatamodel.PackageOptions) PackagePluginResult {
+func (p *packagePlugin) CheckAndUninstallPackage(o *packagedatamodel.PackageOptions) PackagePluginResult {
 	var result PackagePluginResult
-	getResult := p.GetInstalledPackage(&tkgpackagedatamodel.PackageOptions{
+	getResult := p.GetInstalledPackage(&packagedatamodel.PackageOptions{
 		PkgInstallName: o.PkgInstallName,
 		Namespace:      o.Namespace,
 	})
@@ -516,10 +517,10 @@ func (p *packagePlugin) CheckAndUninstallPackage(o *tkgpackagedatamodel.PackageO
 	return result
 }
 
-func (p *packagePlugin) CheckPackageDeleted(o *tkgpackagedatamodel.PackageOptions) PackagePluginResult {
+func (p *packagePlugin) CheckPackageDeleted(o *packagedatamodel.PackageOptions) PackagePluginResult {
 	var result PackagePluginResult
 	if err := wait.PollImmediate(p.interval, p.timeout, func() (done bool, err error) {
-		result = p.GetInstalledPackage(&tkgpackagedatamodel.PackageOptions{
+		result = p.GetInstalledPackage(&packagedatamodel.PackageOptions{
 			PkgInstallName: o.PkgInstallName,
 			Namespace:      o.Namespace,
 		})

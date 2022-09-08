@@ -6,11 +6,11 @@ package main
 import (
 	"os"
 
+	"github.com/aunum/log"
 	"github.com/spf13/cobra"
 
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/plugin"
 	clitest "github.com/vmware-tanzu/tanzu-framework/cli/runtime/test"
-	"github.com/vmware-tanzu/tanzu-framework/tkg/log"
 )
 
 var descriptor = clitest.NewTestFor("secret")

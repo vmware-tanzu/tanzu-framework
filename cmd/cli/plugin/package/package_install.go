@@ -6,11 +6,11 @@ package main
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgpackageclient"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgpackagedatamodel"
+	"github.com/vmware-tanzu/tanzu-framework/packageclients/pkg/packageclient"
+	"github.com/vmware-tanzu/tanzu-framework/packageclients/pkg/packagedatamodel"
 )
 
-var packageInstallOp = tkgpackagedatamodel.NewPackageOptions()
+var packageInstallOp = packagedatamodel.NewPackageOptions()
 
 var packageInstallCmd = &cobra.Command{
 	Use:   "install INSTALLED_PACKAGE_NAME --package-name PACKAGE_NAME --version VERSION",
@@ -35,8 +35,8 @@ func init() {
 	packageInstallCmd.Flags().StringVarP(&packageInstallOp.ServiceAccountName, "service-account-name", "", "", "Name of an existing service account used to install underlying package contents, optional")
 	packageInstallCmd.Flags().StringVarP(&packageInstallOp.ValuesFile, "values-file", "f", "", "The path to the configuration values file, optional")
 	packageInstallCmd.Flags().BoolVarP(&packageInstallOp.Wait, "wait", "", true, "Wait for the package reconciliation to complete, optional. To disable wait, specify --wait=false")
-	packageInstallCmd.Flags().DurationVarP(&packageInstallOp.PollInterval, "poll-interval", "", tkgpackagedatamodel.DefaultPollInterval, "Time interval between subsequent polls of package reconciliation status, optional")
-	packageInstallCmd.Flags().DurationVarP(&packageInstallOp.PollTimeout, "poll-timeout", "", tkgpackagedatamodel.DefaultPollTimeout, "Timeout value for polls of package reconciliation status, optional")
+	packageInstallCmd.Flags().DurationVarP(&packageInstallOp.PollInterval, "poll-interval", "", packagedatamodel.DefaultPollInterval, "Time interval between subsequent polls of package reconciliation status, optional")
+	packageInstallCmd.Flags().DurationVarP(&packageInstallOp.PollTimeout, "poll-timeout", "", packagedatamodel.DefaultPollTimeout, "Timeout value for polls of package reconciliation status, optional")
 	packageInstallCmd.MarkFlagRequired("package-name") //nolint
 	packageInstallCmd.MarkFlagRequired("version")      //nolint
 }
@@ -44,10 +44,10 @@ func init() {
 func packageInstall(cmd *cobra.Command, args []string) error {
 	packageInstallOp.PkgInstallName = args[0]
 
-	pkgClient, err := tkgpackageclient.NewTKGPackageClient(kubeConfig)
+	pkgClient, err := packageclient.NewPackageClient(kubeConfig)
 	if err != nil {
 		return err
 	}
 
-	return pkgClient.InstallPackageSync(packageInstallOp, tkgpackagedatamodel.OperationTypeInstall)
+	return pkgClient.InstallPackageSync(packageInstallOp, packagedatamodel.OperationTypeInstall)
 }

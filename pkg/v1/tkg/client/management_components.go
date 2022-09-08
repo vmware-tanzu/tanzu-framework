@@ -12,11 +12,11 @@ import (
 	"github.com/pkg/errors"
 	"gopkg.in/yaml.v3"
 
+	"github.com/vmware-tanzu/tanzu-framework/packageclients/pkg/packagedatamodel"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/carvelhelpers"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/clusterclient"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/managementcomponents"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfigreaderwriter"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgpackagedatamodel"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/log"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/utils"
@@ -148,7 +148,7 @@ func (c *TkgClient) getUserConfigVariableValueMapForUpgrade(kubeconfig, kubecont
 	// Handle the upgrade from legacy (non-package-based-lcm) management cluster as
 	// legacy (non-package-based-lcm) management cluster will not have this secret defined
 	// on the cluster. Github issue: https://github.com/vmware-tanzu/tanzu-framework/issues/2147
-	bytes, err := clusterClient.GetSecretValue(fmt.Sprintf(tkgpackagedatamodel.SecretName, constants.TKGManagementPackageInstallName, constants.TkgNamespace), constants.TKGPackageValuesFile, constants.TkgNamespace, nil)
+	bytes, err := clusterClient.GetSecretValue(fmt.Sprintf(packagedatamodel.SecretName, constants.TKGManagementPackageInstallName, constants.TkgNamespace), constants.TKGPackageValuesFile, constants.TkgNamespace, nil)
 	if err != nil {
 		return nil, errors.Wrap(err, "unable to get cluster client")
 	}
