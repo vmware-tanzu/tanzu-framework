@@ -16,13 +16,11 @@ import (
 
 	ctlimg "github.com/k14s/imgpkg/pkg/imgpkg/registry"
 	"github.com/pkg/errors"
-	"gopkg.in/yaml.v3"
-
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/clientconfighelpers"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfigpaths"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkr/pkg/registry"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/log"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/tkgconfigpaths"
 )
 
 // BomNotPresent is an error type to return when BOM is not present locally

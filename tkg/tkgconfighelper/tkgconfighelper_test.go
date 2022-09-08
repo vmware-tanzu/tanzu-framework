@@ -6,14 +6,11 @@ package tkgconfighelper_test
 import (
 	"testing"
 
-	. "github.com/onsi/ginkgo"
-	. "github.com/onsi/gomega"
-
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/fakes"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfigbom"
-	. "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfighelper"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/types"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/constants"
+	. "github.com/vmware-tanzu/tanzu-framework/tkg/tkgconfighelper"
 )
 
 const (

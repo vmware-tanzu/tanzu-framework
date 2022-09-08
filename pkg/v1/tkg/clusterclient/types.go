@@ -3,7 +3,7 @@
 
 package clusterclient
 
-import "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/vc"
+import "github.com/vmware-tanzu/tanzu-framework/tkg/vc"
 
 // constants related to tkg operation info that are used for adding
 // annotations to the clusters

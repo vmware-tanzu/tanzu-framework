@@ -557,7 +557,7 @@ ui-build-and-test: ui-dependencies ## Compile client UI for production and run t
 
 .PHONY: verify-ui-bindata
 verify-ui-bindata: ## Run verification for UI bindata
-	git diff --exit-code pkg/v1/tkg/manifest/server/zz_generated.bindata.go
+	git diff --exit-code tkg/manifest/server/zz_generated.bindata.go
 
 ## --------------------------------------
 ##@ Generate files
@@ -575,12 +575,12 @@ generate-fakes: ## Generate fakes for writing unit tests
 
 .PHONY: generate-ui-bindata
 generate-ui-bindata: $(GOBINDATA) ## Generate go-bindata for ui files
-	$(GOBINDATA) -mode=420 -modtime=1 -o=pkg/v1/tkg/manifest/server/zz_generated.bindata.go -pkg=server $(UI_DIR)/dist/...
+	$(GOBINDATA) -mode=420 -modtime=1 -o=tkg/manifest/server/zz_generated.bindata.go -pkg=server $(UI_DIR)/dist/...
 	$(MAKE) fmt
 
 .PHONY: generate-telemetry-bindata
 generate-telemetry-bindata: $(GOBINDATA) ## Generate telemetry bindata
-	$(GOBINDATA) -mode=420 -modtime=1 -o=pkg/v1/tkg/manifest/telemetry/zz_generated.bindata.go -pkg=telemetry pkg/v1/tkg/manifest/telemetry/...
+	$(GOBINDATA) -mode=420 -modtime=1 -o=tkg/manifest/telemetry/zz_generated.bindata.go -pkg=telemetry tkg/manifest/telemetry/...
 	$(MAKE) fmt
 
  # TODO: Remove bindata dependency and use go embed
@@ -592,7 +592,7 @@ configure-bom: ## Configure bill of materials
 	# Update default BoM Filename variable in tkgconfig pkg
 	sed "s+TKG_DEFAULT_IMAGE_REPOSITORY+${TKG_DEFAULT_IMAGE_REPOSITORY}+g"  hack/update-bundled-bom-filename/update-bundled-default-bom-files-configdata.txt | \
 	sed "s+TKG_DEFAULT_COMPATIBILITY_IMAGE_PATH+${TKG_DEFAULT_COMPATIBILITY_IMAGE_PATH}+g" | \
-	sed "s+TKG_MANAGEMENT_CLUSTER_PLUGIN_VERSION+${BUILD_VERSION}+g"  > pkg/v1/tkg/tkgconfigpaths/zz_bundled_default_bom_files_configdata.go
+	sed "s+TKG_MANAGEMENT_CLUSTER_PLUGIN_VERSION+${BUILD_VERSION}+g"  > tkg/tkgconfigpaths/zz_bundled_default_bom_files_configdata.go
 
 .PHONY: generate-ui-swagger-api
 generate-ui-swagger-api: ## Generate swagger files for UI backend
