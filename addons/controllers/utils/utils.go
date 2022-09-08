@@ -63,6 +63,31 @@ func GetVSphereClusterNonParavirtual(ctx context.Context, clt client.Client, clu
 	return &vsphereClusters.Items[0], nil
 }
 
+// GetControlPlaneVsphereMachineTemplate gets the VsphereMachineTemplate CR of control plane
+func GetControlPlaneVsphereMachineTemplate(ctx context.Context, clt client.Client, cluster *clusterapiv1beta1.Cluster) (*capvv1beta1.VSphereMachineTemplate, error) {
+
+	vSphereMachineTemplates := &capvv1beta1.VSphereMachineTemplateList{}
+	labelMatch, err := labels.NewRequirement(clusterapiv1beta1.ClusterLabelName, selection.Equals, []string{cluster.Name})
+	if err != nil {
+		return nil, err
+	}
+	labelNotMatch, err := labels.NewRequirement(clusterapiv1beta1.ClusterTopologyMachineDeploymentLabelName, selection.DoesNotExist, nil)
+	if err != nil {
+		return nil, err
+	}
+	labelSelector := labels.NewSelector()
+	labelSelector = labelSelector.Add(*labelMatch, *labelNotMatch)
+	log.Log.Info(fmt.Sprintf("Requirements: %s", labelSelector))
+	if err := clt.List(ctx, vSphereMachineTemplates, &client.ListOptions{LabelSelector: labelSelector, Namespace: cluster.Namespace}); err != nil {
+		return nil, err
+	}
+	if len(vSphereMachineTemplates.Items) != 1 {
+		return nil, fmt.Errorf("expected to find 1 vSphereMachineTemplate object with requirements %s in namespace %s but found %d",
+			labelSelector, cluster.Namespace, len(vSphereMachineTemplates.Items))
+	}
+	return &vSphereMachineTemplates.Items[0], nil
+}
+
 // ControlPlaneName returns the control plane name for a cluster name
 func ControlPlaneName(clusterName string) string {
 	return fmt.Sprintf("%s-control-plane", clusterName)
