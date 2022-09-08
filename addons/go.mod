@@ -21,7 +21,7 @@ require (
 	github.com/onsi/gomega v1.20.2
 	github.com/pkg/errors v0.9.1
 	github.com/vmware-tanzu/carvel-kapp-controller v0.35.0
-	github.com/vmware-tanzu/carvel-secretgen-controller v0.5.0
+	github.com/vmware-tanzu/carvel-secretgen-controller v0.10.3
 	github.com/vmware-tanzu/carvel-vendir v0.26.0
 	github.com/vmware-tanzu/tanzu-framework v0.26.0
 	github.com/vmware-tanzu/tanzu-framework/apis/addonconfigs v0.0.0-00010101000000-000000000000
