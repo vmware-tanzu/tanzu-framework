@@ -6,6 +6,8 @@ package command
 import (
 	"fmt"
 
+	"github.com/aunum/log"
+
 	"github.com/spf13/cobra"
 
 	configv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/config/v1alpha1"
@@ -104,6 +106,7 @@ var addRepoCmd = &cobra.Command{
 		if err != nil {
 			return err
 		}
+		log.Successf("successfully added repository %s", pluginRepo.GCPPluginRepository.Name)
 		return nil
 	},
 }
@@ -152,6 +155,7 @@ var updateRepoCmd = &cobra.Command{
 		if err != nil {
 			return err
 		}
+		log.Successf("successfully updated repository configuration for %s", repoName)
 		return nil
 	},
 }
@@ -191,6 +195,7 @@ var deleteRepoCmd = &cobra.Command{
 		if err != nil {
 			return err
 		}
+		log.Successf("successfully deleted repository %s", repoName)
 		return nil
 	},
 }
