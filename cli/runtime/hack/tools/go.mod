@@ -1,4 +1,4 @@
-module github.com/vmware-tanzu/hack/tools
+module github.com/vmware-tanzu/cli/runtime/hack/tools
 
 go 1.17
 
