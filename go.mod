@@ -8,7 +8,6 @@ replace (
 	github.com/vmware-tanzu/tanzu-framework/apis/run => ./apis/run
 	github.com/vmware-tanzu/tanzu-framework/cli/core => ./cli/core
 	github.com/vmware-tanzu/tanzu-framework/cli/runtime => ./cli/runtime
-	github.com/vmware-tanzu/tanzu-framework/cmd/cli/plugin-admin/builder => ./cmd/cli/plugin-admin/builder
 	github.com/vmware-tanzu/tanzu-framework/packageclients => ./packageclients
 	github.com/vmware-tanzu/tanzu-framework/tkg => ./tkg
 	sigs.k8s.io/cluster-api => sigs.k8s.io/cluster-api v1.1.5
