@@ -14,7 +14,7 @@ import (
 func Test_viperReader_Get(t *testing.T) {
 	os.Setenv("FOO", "foo")
 
-	tkgConfigFile := "../fakes/config/config.yaml"
+	tkgConfigFile := "../../../../tkg/fakes/config/config.yaml"
 
 	type args struct {
 		key string
@@ -137,11 +137,11 @@ func Test_viperReader_Set(t *testing.T) {
 
 func Test_MergeInConfig_Success(t *testing.T) {
 	configReaderWriter := newTKGConfigReaderWriter()
-	err := configReaderWriter.Init("../fakes/config/config.yaml")
+	err := configReaderWriter.Init("../../../../tkg/fakes/config/config.yaml")
 	if err != nil {
 		t.Errorf("Expected init success, instead got error: %s", err.Error())
 	}
-	err = configReaderWriter.MergeInConfig("../fakes/config/config2.yaml")
+	err = configReaderWriter.MergeInConfig("../../../../tkg/fakes/config/config2.yaml")
 
 	if err != nil {
 		t.Errorf("Failed merging in config with error %s", err.Error())
@@ -150,11 +150,11 @@ func Test_MergeInConfig_Success(t *testing.T) {
 
 func Test_MergeInConfig_MissingFile(t *testing.T) {
 	configReaderWriter := newTKGConfigReaderWriter()
-	err := configReaderWriter.Init("../fakes/config/config.yaml")
+	err := configReaderWriter.Init("../../../../tkg/fakes/config/config.yaml")
 	if err != nil {
 		t.Errorf("Expected init success, instead got error: %s", err.Error())
 	}
-	err = configReaderWriter.MergeInConfig("../fakes/config/config1.yaml")
+	err = configReaderWriter.MergeInConfig("../../../../tkg/fakes/config/config1.yaml")
 
 	if err == nil {
 		t.Error("Expected error retrieving fakes/config/config1.yaml")

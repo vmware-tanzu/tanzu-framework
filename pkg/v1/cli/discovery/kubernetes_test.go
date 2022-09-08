@@ -13,8 +13,8 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/discovery"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/plugin"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/fakes"
-	fakehelper "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/fakes/helper"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/fakes"
+	fakehelper "github.com/vmware-tanzu/tanzu-framework/tkg/fakes/helper"
 )
 
 func TestClient(t *testing.T) {

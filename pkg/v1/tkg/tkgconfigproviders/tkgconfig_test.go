@@ -15,12 +15,12 @@ import (
 
 	"github.com/otiai10/copy"
 
-	fakehelper "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/fakes/helper"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfigbom"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfigpaths"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfigreaderwriter"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/web/server/models"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/constants"
+	fakehelper "github.com/vmware-tanzu/tanzu-framework/tkg/fakes/helper"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/tkgconfigbom"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/utils"
 )
 
@@ -35,7 +35,7 @@ const (
 var (
 	testingDir         string
 	err                error
-	defaultBoMFilepath = "../fakes/config/bom/tkg-bom-v1.3.1.yaml"
+	defaultBoMFilepath = "../../../../tkg/fakes/config/bom/tkg-bom-v1.3.1.yaml"
 	defaultBoMFileName = "tkg-bom-v1.3.1.yaml"
 )
 
@@ -98,7 +98,7 @@ var _ = Describe("Azure VM Images", func() {
 	//})
 
 	Context("when Azure marketplace image config is present in tkg config", func() {
-		tkgConfigPath = "../fakes/config/config3.yaml"
+		tkgConfigPath = "../../../../tkg/fakes/config/config3.yaml"
 		azureVMImage, err = newForTesting(tkgConfigPath, testingDir, defaultBoMFilepath).GetAzureVMImageInfo("v1.18.0+vmware.1-tkg.2")
 		Expect(err).ToNot(HaveOccurred())
 		Expect(azureVMImage).NotTo(BeNil())
@@ -146,7 +146,7 @@ var _ = Describe("Test AWS AMIID", func() {
 				OidcSkipVerifyCert: true,
 			},
 		}
-		setupBomFile("../fakes/config/bom/tkr-bom-v1.18.0+vmware.1-tkg.2.yaml", testingDir)
+		setupBomFile("../../../../tkg/fakes/config/bom/tkr-bom-v1.18.0+vmware.1-tkg.2.yaml", testingDir)
 
 		bomConfiguration = &tkgconfigbom.BOMConfiguration{
 			Release: &tkgconfigbom.ReleaseInfo{
@@ -233,9 +233,9 @@ var _ = Describe("EnsureNewVPCAWSConfig", func() {
 				OidcSkipVerifyCert: true,
 			},
 		}
-		setupBomFile("../fakes/config/bom/tkr-bom-v1.18.0+vmware.1-tkg.2.yaml", testingDir)
+		setupBomFile("../../../../tkg/fakes/config/bom/tkr-bom-v1.18.0+vmware.1-tkg.2.yaml", testingDir)
 
-		client = newForTesting("../fakes/config/config.yaml", testingDir, defaultBoMFilepath)
+		client = newForTesting("../../../../tkg/fakes/config/config.yaml", testingDir, defaultBoMFilepath)
 		config, err = client.NewAWSConfig(params, "abc")
 	})
 
@@ -470,8 +470,8 @@ var _ = Describe("EnsureExistingVPCAWSConfig", func() {
 			KubernetesVersion: "v1.18.0+vmware.1",
 		}
 
-		setupBomFile("../fakes/config/bom/tkr-bom-v1.18.0+vmware.1-tkg.2.yaml", testingDir)
-		config, err = newForTesting("../fakes/config/config.yaml", testingDir, defaultBoMFilepath).NewAWSConfig(params, "abc")
+		setupBomFile("../../../../tkg/fakes/config/bom/tkr-bom-v1.18.0+vmware.1-tkg.2.yaml", testingDir)
+		config, err = newForTesting("../../../../tkg/fakes/config/config.yaml", testingDir, defaultBoMFilepath).NewAWSConfig(params, "abc")
 	})
 
 	Context("when dev config is used", func() {
@@ -674,9 +674,9 @@ var _ = Describe("GetAWSAMIInfo", func() {
 
 	Context("When ami not found for region", func() {
 		BeforeEach(func() {
-			setupBomFile("../fakes/config/bom/tkr-bom-v1.18.0+vmware.1-tkg.2.yaml", testingDir)
+			setupBomFile("../../../../tkg/fakes/config/bom/tkr-bom-v1.18.0+vmware.1-tkg.2.yaml", testingDir)
 			os.Setenv("OS_NAME", "ubuntu")
-			client = newForTesting("../fakes/config/config.yaml", testingDir, defaultBoMFilepath)
+			client = newForTesting("../../../../tkg/fakes/config/config.yaml", testingDir, defaultBoMFilepath)
 			region = "us-middle-2"
 		})
 		It("should return an error", func() {
@@ -687,9 +687,9 @@ var _ = Describe("GetAWSAMIInfo", func() {
 	Context("When ami not found for provided OS Options", func() {
 		BeforeEach(func() {
 			region = fakeRegion
-			setupBomFile("../fakes/config/bom/tkr-bom-v1.18.0+vmware.1-tkg.2.yaml", testingDir)
+			setupBomFile("../../../../tkg/fakes/config/bom/tkr-bom-v1.18.0+vmware.1-tkg.2.yaml", testingDir)
 			os.Setenv("OS_NAME", "ubuntu")
-			client = newForTesting("../fakes/config/config.yaml", testingDir, defaultBoMFilepath)
+			client = newForTesting("../../../../tkg/fakes/config/config.yaml", testingDir, defaultBoMFilepath)
 		})
 		It("should return an error", func() {
 			Expect(err).To(HaveOccurred())
@@ -699,9 +699,9 @@ var _ = Describe("GetAWSAMIInfo", func() {
 	Context("When ami can be found", func() {
 		BeforeEach(func() {
 			region = fakeRegion
-			setupBomFile("../fakes/config/bom/tkr-bom-v1.18.0+vmware.1-tkg.2.yaml", testingDir)
+			setupBomFile("../../../../tkg/fakes/config/bom/tkr-bom-v1.18.0+vmware.1-tkg.2.yaml", testingDir)
 			os.Setenv("OS_NAME", "amazon")
-			client = newForTesting("../fakes/config/config.yaml", testingDir, defaultBoMFilepath)
+			client = newForTesting("../../../../tkg/fakes/config/config.yaml", testingDir, defaultBoMFilepath)
 		})
 		It("should not return an error", func() {
 			Expect(err).ToNot(HaveOccurred())
@@ -755,9 +755,9 @@ var _ = Describe("NewAzureConfig", func() {
 
 	Context("When generating azure cluster config", func() {
 		It("should not return an error", func() {
-			setupBomFile("../fakes/config/bom/tkr-bom-v1.18.0+vmware.1-tkg.2.yaml", testingDir)
+			setupBomFile("../../../../tkg/fakes/config/bom/tkr-bom-v1.18.0+vmware.1-tkg.2.yaml", testingDir)
 
-			client = newForTesting("../fakes/config/config.yaml", testingDir, defaultBoMFilepath)
+			client = newForTesting("../../../../tkg/fakes/config/config.yaml", testingDir, defaultBoMFilepath)
 			_, err = client.NewAzureConfig(params)
 			Expect(err).ToNot(HaveOccurred())
 		})
@@ -827,16 +827,16 @@ var _ = Describe("NewVsphereConfig", func() {
 
 	Context("When generating vsphere cluster config", func() {
 		It("should not return an error", func() {
-			setupBomFile("../fakes/config/bom/tkr-bom-v1.18.0+vmware.1-tkg.2.yaml", testingDir)
+			setupBomFile("../../../../tkg/fakes/config/bom/tkr-bom-v1.18.0+vmware.1-tkg.2.yaml", testingDir)
 
-			client = newForTesting("../fakes/config/config.yaml", testingDir, defaultBoMFilepath)
+			client = newForTesting("../../../../tkg/fakes/config/config.yaml", testingDir, defaultBoMFilepath)
 			_, err = client.NewVSphereConfig(params)
 			Expect(err).ToNot(HaveOccurred())
 		})
 		It("should have correct values", func() {
-			setupBomFile("../fakes/config/bom/tkr-bom-v1.18.0+vmware.1-tkg.2.yaml", testingDir)
+			setupBomFile("../../../../tkg/fakes/config/bom/tkr-bom-v1.18.0+vmware.1-tkg.2.yaml", testingDir)
 
-			client = newForTesting("../fakes/config/config.yaml", testingDir, defaultBoMFilepath)
+			client = newForTesting("../../../../tkg/fakes/config/config.yaml", testingDir, defaultBoMFilepath)
 			config, _ := client.NewVSphereConfig(params)
 			Expect(config.AviServiceEngine).To(Equal("service-engine"))
 			Expect(config.AviDataNetwork).To(Equal("avi-network-name"))
@@ -890,9 +890,9 @@ var _ = Describe("NewDockerConfig", func() {
 
 	Context("When generating docker cluster config", func() {
 		It("should not return an error", func() {
-			setupBomFile("../fakes/config/bom/tkr-bom-v1.18.0+vmware.1-tkg.2.yaml", testingDir)
+			setupBomFile("../../../../tkg/fakes/config/bom/tkr-bom-v1.18.0+vmware.1-tkg.2.yaml", testingDir)
 
-			client = newForTesting("../fakes/config/config.yaml", testingDir, defaultBoMFilepath)
+			client = newForTesting("../../../../tkg/fakes/config/config.yaml", testingDir, defaultBoMFilepath)
 			_, err = client.NewDockerConfig(params)
 			Expect(err).ToNot(HaveOccurred())
 		})

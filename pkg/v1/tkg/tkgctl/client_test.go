@@ -10,10 +10,10 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
-	fakeproviders "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/fakes/providers"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/providerinterface"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfigreaderwriter"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfigupdater"
+	fakeproviders "github.com/vmware-tanzu/tanzu-framework/tkg/fakes/providers"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/tkgconfigupdater"
 )
 
 type configProvider struct {
@@ -36,7 +36,7 @@ var _ = Describe("ensureBoMandProvidersPrerequisite", func() {
 		Expect(err).ToNot(HaveOccurred())
 		prepareConfiDir(testingDir)
 		providerGetter = fakeproviders.FakeProviderGetter()
-		tkgConfigReaderWriter, err = tkgconfigreaderwriter.NewReaderWriterFromConfigFile("../fakes/config/config.yaml", "../fakes/config/config.yaml")
+		tkgConfigReaderWriter, err = tkgconfigreaderwriter.NewReaderWriterFromConfigFile("../../../../tkg/fakes/config/config.yaml", "../../../../tkg/fakes/config/config.yaml")
 		Expect(err).ToNot(HaveOccurred())
 		tkgConfigUpdaterClient = tkgconfigupdater.New(testingDir, providerGetter, tkgConfigReaderWriter)
 	})

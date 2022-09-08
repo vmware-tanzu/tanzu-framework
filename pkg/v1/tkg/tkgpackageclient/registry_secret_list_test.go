@@ -15,9 +15,9 @@ import (
 
 	secretgenctrl "github.com/vmware-tanzu/carvel-secretgen-controller/pkg/apis/secretgen2/v1alpha1"
 
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/fakes"
 	. "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgpackageclient"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgpackagedatamodel"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/fakes"
 )
 
 const testSecretExportName = "test-secret"

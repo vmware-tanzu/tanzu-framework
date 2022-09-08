@@ -11,27 +11,27 @@ import (
 	. "github.com/onsi/gomega"
 	"github.com/pkg/errors"
 
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/client"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/fakes"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfigbom"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfigreaderwriter"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfigupdater"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/client"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/constants"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/fakes"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/region"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/tkgconfigbom"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/tkgconfigupdater"
 )
 
 const fakeTKRVersion = "1.19.0+vmware.1-tkg.1"
-const configFilePath = "../fakes/config/config.yaml"
+const configFilePath = "../../../../tkg/fakes/config/config.yaml"
 
-const inputFileAws = "../fakes/config/cluster_aws.yaml"
-const inputFileAwsIncorrectClass = "../fakes/config/cluster_aws_incorrectClass.yaml"
-const inputFileAwsEmptyClass = "../fakes/config/cluster_aws_emptyClass.yaml"
-const inputFileMultipleObjectsAws = "../fakes/config/cluster_aws_multipleObjects.yaml"
-const inputFileAzure = "../fakes/config/cluster_azure.yaml"
-const inputFileVsphere = "../fakes/config/cluster_vsphere.yaml"
-const inputFileTKGS_ClusterClass = "../fakes/config/cluster_tkgs.yaml"
-const inputFileTKGS_TKC = "../fakes/config/cluster_tkgs_tkc.yaml"
-const inputFileLegacy = "../fakes/config/cluster1_config.yaml"
+const inputFileAws = "../../../../tkg/fakes/config/cluster_aws.yaml"
+const inputFileAwsIncorrectClass = "../../../../tkg/fakes/config/cluster_aws_incorrectClass.yaml"
+const inputFileAwsEmptyClass = "../../../../tkg/fakes/config/cluster_aws_emptyClass.yaml"
+const inputFileMultipleObjectsAws = "../../../../tkg/fakes/config/cluster_aws_multipleObjects.yaml"
+const inputFileAzure = "../../../../tkg/fakes/config/cluster_azure.yaml"
+const inputFileVsphere = "../../../../tkg/fakes/config/cluster_vsphere.yaml"
+const inputFileTKGS_ClusterClass = "../../../../tkg/fakes/config/cluster_tkgs.yaml"
+const inputFileTKGS_TKC = "../../../../tkg/fakes/config/cluster_tkgs_tkc.yaml"
+const inputFileLegacy = "../../../../tkg/fakes/config/cluster1_config.yaml"
 
 var testingDir string
 
@@ -921,7 +921,7 @@ func updateLowerPrecedenceVariablesWithHigherPrecedenceVariablesValues(inputVari
 
 func getConfigFilePath() string {
 	filename := "config1.yaml"
-	filePath := "../fakes/config/kubeconfig/" + filename
+	filePath := "../../../../tkg/fakes/config/kubeconfig/" + filename
 	f, _ := os.CreateTemp(testingDir, "kube")
 	copyFile(filePath, f.Name())
 	return f.Name()

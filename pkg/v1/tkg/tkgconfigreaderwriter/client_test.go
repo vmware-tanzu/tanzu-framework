@@ -9,7 +9,7 @@ import (
 )
 
 func Test_New_Success(t *testing.T) {
-	client, err := tkgconfigreaderwriter.New("../fakes/config/config.yaml")
+	client, err := tkgconfigreaderwriter.New("../../../../tkg/fakes/config/config.yaml")
 	if err != nil {
 		t.Errorf("Expected success instead got error:%s", err.Error())
 	}
@@ -20,7 +20,7 @@ func Test_New_Success(t *testing.T) {
 }
 
 func Test_NewReaderWriterFromConfigFile_Success(t *testing.T) {
-	readerWriter, err := tkgconfigreaderwriter.NewReaderWriterFromConfigFile("../fakes/config/kubeconfig/config1.yaml", "../fakes/config/config.yaml")
+	readerWriter, err := tkgconfigreaderwriter.NewReaderWriterFromConfigFile("../../../../tkg/fakes/config/kubeconfig/config1.yaml", "../../../../tkg/fakes/config/config.yaml")
 	if err != nil {
 		t.Errorf("Expected success, got error: %s", err.Error())
 	}

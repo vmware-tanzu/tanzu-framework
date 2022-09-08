@@ -19,7 +19,7 @@ var _ = Describe("Unit tests for ceip", func() {
 	)
 
 	BeforeEach(func() {
-		tkgConfigReaderWriter, err := tkgconfigreaderwriter.NewReaderWriterFromConfigFile("../fakes/config/config.yaml", "../fakes/config/config.yaml")
+		tkgConfigReaderWriter, err := tkgconfigreaderwriter.NewReaderWriterFromConfigFile("../../../../tkg/fakes/config/config.yaml", "../../../../tkg/fakes/config/config.yaml")
 		Expect(err).ToNot(HaveOccurred())
 		tkgctlClient = &tkgctl{
 			tkgConfigReaderWriter: tkgConfigReaderWriter,

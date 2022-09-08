@@ -12,16 +12,16 @@ import (
 	. "github.com/onsi/gomega"
 	"github.com/pkg/errors"
 
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/fakes"
-	fakeproviders "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/fakes/providers"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfigpaths"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/constants"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/fakes"
+	fakeproviders "github.com/vmware-tanzu/tanzu-framework/tkg/fakes/providers"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/utils"
 )
 
 const (
-	defaultTKGBomFileForTesting = "../fakes/config/bom/tkg-bom-v1.3.1.yaml"
-	defaultTKRBomFileForTesting = "../fakes/config/bom/tkr-bom-v1.18.0+vmware.1-tkg.2.yaml"
+	defaultTKGBomFileForTesting = "../../../../tkg/fakes/config/bom/tkg-bom-v1.3.1.yaml"
+	defaultTKRBomFileForTesting = "../../../../tkg/fakes/config/bom/tkr-bom-v1.18.0+vmware.1-tkg.2.yaml"
 )
 
 var _ = Describe("Unit tests for config cluster", func() {

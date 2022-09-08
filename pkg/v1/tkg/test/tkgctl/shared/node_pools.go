@@ -13,9 +13,9 @@ import (
 	. "github.com/onsi/gomega"
 	"sigs.k8s.io/cluster-api/util"
 
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/client"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/test/framework"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgctl"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/client"
 )
 
 type E2ENodePoolSpecInput struct {
