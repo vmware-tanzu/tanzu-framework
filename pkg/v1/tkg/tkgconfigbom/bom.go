@@ -12,6 +12,7 @@ import (
 	"strconv"
 	"strings"
 
+	"gopkg.in/yaml.v3"
 	"k8s.io/apimachinery/pkg/util/version"
 
 	ctlimg "github.com/k14s/imgpkg/pkg/imgpkg/registry"
