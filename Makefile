@@ -259,6 +259,7 @@ build-cli-%: prep-build-cli
 	fi
 
 	./hack/embed-pinniped-binary.sh go ${OS} ${ARCH} ${PINNIPED_VERSIONS}
+	$(GO) run ./cmd/cli/plugin-admin/builder cli compile --version $(BUILD_VERSION) --ldflags "$(LD_FLAGS) -X 'github.com/vmware-tanzu/tanzu-framework/pkg/v1/config.DefaultStandaloneDiscoveryType=${DISCOVERY_TYPE}'" --tags "${BUILD_TAGS}" --path "cmd/cli/plugin" --artifacts artifacts/${OS}/${ARCH}/cli --target  ${OS}_${ARCH}
 	$(MAKE) build-tanzu-core-cli-$(DISCOVERY_TYPE)-$(OS)-$(ARCH) -C cli/core
 
 ## --------------------------------------
@@ -372,33 +373,33 @@ install-cli-plugins: ## Install Tanzu CLI plugins
 
 .PHONY: install-cli-plugins-without-discovery
 install-cli-plugins-without-discovery: set-unstable-versions set-context-aware-cli-for-plugins ## Install Tanzu CLI plugins when context-aware discovery is disabled
-	TANZU_CLI_NO_INIT=true $(GO) run -ldflags "$(LD_FLAGS)" ./cmd/cli/tanzu/main.go \
+	cd ./cli/core && TANZU_CLI_NO_INIT=true $(GO) run -ldflags "$(LD_FLAGS)" ./cmd/tanzu/main.go \
 		plugin install all --local $(ARTIFACTS_DIR)/$(GOHOSTOS)/$(GOHOSTARCH)/cli
-	TANZU_CLI_NO_INIT=true $(GO) run -ldflags "$(LD_FLAGS)" ./cmd/cli/tanzu/main.go \
+	cd ./cli/core && TANZU_CLI_NO_INIT=true $(GO) run -ldflags "$(LD_FLAGS)" ./cmd/tanzu/main.go \
 		plugin install all --local $(ARTIFACTS_DIR)-admin/$(GOHOSTOS)/$(GOHOSTARCH)/cli
-	TANZU_CLI_NO_INIT=true $(GO) run -ldflags "$(LD_FLAGS)" ./cmd/cli/tanzu/main.go \
+	cd ./cli/core && TANZU_CLI_NO_INIT=true $(GO) run -ldflags "$(LD_FLAGS)" ../cmd/tanzu/main.go \
 		test fetch --local $(ARTIFACTS_DIR)/$(GOHOSTOS)/$(GOHOSTARCH)/cli --local $(ARTIFACTS_DIR)-admin/$(GOHOSTOS)/$(GOHOSTARCH)/cli
 
 .PHONY: install-cli-plugins-from-local-discovery
 install-cli-plugins-from-local-discovery: clean-catalog-cache clean-cli-plugins set-context-aware-cli-for-plugins configure-admin-plugins-discovery-source-local ## Install Tanzu CLI plugins from local discovery
-	TANZU_CLI_NO_INIT=true $(GO) run -ldflags "$(LD_FLAGS) -X 'github.com/vmware-tanzu/tanzu-framework/pkg/v1/config.DefaultStandaloneDiscoveryType=local'" ./cmd/cli/tanzu/main.go plugin sync
+	cd ./cli/core && TANZU_CLI_NO_INIT=true $(GO) run -ldflags "$(LD_FLAGS) -X 'github.com/vmware-tanzu/tanzu-framework/pkg/v1/config.DefaultStandaloneDiscoveryType=local'" ./cmd/tanzu/main.go plugin sync
 
 .PHONY: install-cli-plugins-from-oci-discovery
 install-cli-plugins-from-oci-discovery: clean-catalog-cache clean-cli-plugins set-context-aware-cli-for-plugins ## Install Tanzu CLI plugins from OCI discovery
-	TANZU_CLI_NO_INIT=true $(GO) run -ldflags "$(LD_FLAGS) -X 'github.com/vmware-tanzu/tanzu-framework/pkg/v1/config.DefaultStandaloneDiscoveryType=oci'" ./cmd/cli/tanzu/main.go plugin sync
+	cd ./cli/core && TANZU_CLI_NO_INIT=true $(GO) run -ldflags "$(LD_FLAGS) -X 'github.com/vmware-tanzu/tanzu-framework/pkg/v1/config.DefaultStandaloneDiscoveryType=oci'" ./cmd/tanzu/main.go plugin sync
 
 .PHONY: set-unstable-versions
 set-unstable-versions: ## Configures the unstable versions
-	TANZU_CLI_NO_INIT=true $(GO) run -ldflags "$(LD_FLAGS)" ./cmd/cli/tanzu/main.go config set unstable-versions $(TANZU_PLUGIN_UNSTABLE_VERSIONS)
+	cd ./cli/core && TANZU_CLI_NO_INIT=true $(GO) run -ldflags "$(LD_FLAGS)" ./cmd/tanzu/main.go config set unstable-versions $(TANZU_PLUGIN_UNSTABLE_VERSIONS)
 
 .PHONY: set-context-aware-cli-for-plugins
 set-context-aware-cli-for-plugins: ## Configures the context-aware-cli-for-plugins-beta feature flag
-	TANZU_CLI_NO_INIT=true $(GO) run -ldflags "$(LD_FLAGS)" ./cmd/cli/tanzu/main.go config set features.global.context-aware-cli-for-plugins $(ENABLE_CONTEXT_AWARE_PLUGIN_DISCOVERY)
+	cd ./cli/core && TANZU_CLI_NO_INIT=true $(GO) run -ldflags "$(LD_FLAGS)" ./cmd/tanzu/main.go config set features.global.context-aware-cli-for-plugins $(ENABLE_CONTEXT_AWARE_PLUGIN_DISCOVERY)
 
 .PHONY: configure-admin-plugins-discovery-source-local
 configure-admin-plugins-discovery-source-local: ## Configures the admin plugins discovery source
-	TANZU_CLI_NO_INIT=true $(GO) run -ldflags "$(LD_FLAGS)" ./cmd/cli/tanzu/main.go plugin source add --name admin-local --type local --uri admin || true
-	TANZU_CLI_NO_INIT=true $(GO) run -ldflags "$(LD_FLAGS)" ./cmd/cli/tanzu/main.go plugin source update admin-local --type local --uri admin || true
+	cd ./cli/core && TANZU_CLI_NO_INIT=true $(GO) run -ldflags "$(LD_FLAGS)" ./cmd/tanzu/main.go plugin source add --name admin-local --type local --uri admin || true
+	cd ./cli/core && TANZU_CLI_NO_INIT=true $(GO) run -ldflags "$(LD_FLAGS)" ./cmd/tanzu/main.go plugin source update admin-local --type local --uri admin || true
 
 .PHONY: build-install-cli-all ## Build and install the CLI plugins
 build-install-cli-all: build-install-cli-all-with-local-discovery ## Build and install Tanzu CLI plugins
@@ -435,6 +436,7 @@ release-%: ## Create release for a platform
 
 	$(GO) run ./cmd/cli/plugin-admin/builder cli compile --version $(BUILD_VERSION) --ldflags "$(LD_FLAGS) -X 'github.com/vmware-tanzu/tanzu-framework/pkg/v1/config.DefaultStandaloneDiscoveryType=oci'" --tags "${BUILD_TAGS}" --path ./cmd/cli/plugin-admin --artifacts artifacts-admin/${OS}/${ARCH}/cli --target ${OS}_${ARCH}
 	./hack/embed-pinniped-binary.sh go ${OS} ${ARCH} ${PINNIPED_VERSIONS}
+	$(GO) run ./cmd/cli/plugin-admin/builder cli compile --version $(BUILD_VERSION) --ldflags "$(LD_FLAGS) -X 'github.com/vmware-tanzu/tanzu-framework/pkg/v1/config.DefaultStandaloneDiscoveryType=${DISCOVERY_TYPE}'" --tags "${BUILD_TAGS}" --path "cmd/cli/plugin" --artifacts artifacts/${OS}/${ARCH}/cli --target  ${OS}_${ARCH}
 	$(MAKE) build-tanzu-core-cli-oci-$(OS)-$(ARCH) -C cli/core
 
 ## --------------------------------------
