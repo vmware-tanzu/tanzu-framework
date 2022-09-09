@@ -30,7 +30,6 @@ import (
 	netutils "k8s.io/utils/net"
 
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/config"
-	"github.com/vmware-tanzu/tanzu-framework/tkg/tkgconfighelper"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/vc"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/avi"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/aws"
@@ -39,6 +38,7 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/tkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/log"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/tkgconfigbom"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/tkgconfighelper"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/tkgconfigproviders"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/utils"
 )
