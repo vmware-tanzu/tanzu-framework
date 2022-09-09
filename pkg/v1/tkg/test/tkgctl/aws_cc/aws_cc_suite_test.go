@@ -18,7 +18,7 @@ import (
 	"github.com/onsi/ginkgo/reporters"
 	. "github.com/onsi/gomega"
 
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/managementcomponents"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/managementcomponents"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/clusterclient"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/tkgctl"
 
