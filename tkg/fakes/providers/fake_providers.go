@@ -7,7 +7,7 @@ package providers
 import (
 	_ "embed"
 
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/providerinterface"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/providerinterface"
 )
 
 //go:embed providers.zip
