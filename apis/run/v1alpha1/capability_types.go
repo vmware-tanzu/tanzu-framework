@@ -149,6 +149,7 @@ type Result struct {
 
 //+kubebuilder:object:root=true
 //+kubebuilder:subresource:status
+//+kubebuilder:deprecatedversion:warning="Capabilities API in run API group is deprecated, use Capabilities API in discovery API group"
 
 // Capability is the Schema for the capabilities API
 type Capability struct {

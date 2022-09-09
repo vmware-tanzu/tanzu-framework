@@ -15,7 +15,10 @@ spec:
     singular: capability
   scope: Namespaced
   versions:
-  - name: v1alpha1
+  - deprecated: true
+    deprecationWarning: Capabilities API in run API group is deprecated, use Capabilities
+      API in discovery API group
+    name: v1alpha1
     schema:
       openAPIV3Schema:
         description: Capability is the Schema for the capabilities API
