@@ -15,7 +15,7 @@ import (
 
 	"github.com/vmware-tanzu/tanzu-framework/tkg/clusterclient"
 
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfighelper"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/tkgconfighelper"
 
 	"github.com/imdario/mergo"
 	"github.com/pkg/errors"
