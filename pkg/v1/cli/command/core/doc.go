@@ -10,23 +10,27 @@ import (
 	"os"
 	"text/template"
 
+	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 	"github.com/spf13/cobra/doc"
 
 	cliv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
+	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/config"
 	cli "github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli"
 	coreTemplates "github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/command/core/templates"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/pluginmanager"
 )
 
 // DefaultDocsDir is the base docs directory
 const DefaultDocsDir = "docs/cli/commands"
+const ErrorDocsOutputFolderNotExists = "error reading docs output directory '%v', make sure directory exists or provide docs output directory as input value to '--docs-dir' flag"
 
 var (
 	docsDir string
 )
 
 func init() {
-	genAllDocsCmd.Flags().StringVarP(&docsDir, "docs-dir", "d", DefaultDocsDir, "destination for docss output")
+	genAllDocsCmd.Flags().StringVarP(&docsDir, "docs-dir", "d", DefaultDocsDir, "destination for docs output")
 }
 
 var genAllDocsCmd = &cobra.Command{
@@ -34,22 +38,34 @@ var genAllDocsCmd = &cobra.Command{
 	Short:  "Generate Cobra CLI docs for all plugins installed",
 	Hidden: true,
 	RunE: func(cmd *cobra.Command, args []string) error {
+
+		if docsDir == "" {
+			docsDir = DefaultDocsDir
+		}
+		if dir, err := os.Stat(docsDir); err != nil || !dir.IsDir() {
+			return errors.Wrap(err, fmt.Sprintf(ErrorDocsOutputFolderNotExists, docsDir))
+		}
 		// Generate standard tanzu.md command file
 		if err := genCoreCMD(cmd); err != nil {
 			return fmt.Errorf("error generate core tanzu cmd markdown %q", err)
 		}
 
-		plugins, err := cli.ListPlugins()
+		var pluginDescriptions []*cliv1alpha1.PluginDescriptor
+		var err error
+		if config.IsFeatureActivated(config.FeatureContextAwareCLIForPlugins) {
+			pluginDescriptions, err = pluginmanager.InstalledPluginsDescriptors()
+		} else {
+			pluginDescriptions, err = cli.ListPlugins()
+		}
 		if err != nil {
-			return err
+			return fmt.Errorf("error while getting installed plugins descriptors: %q", err)
 		}
 
-		// Generate README TOC
-		if err := genREADME(plugins); err != nil {
+		if err := genREADME(pluginDescriptions); err != nil {
 			return fmt.Errorf("error generate core tanzu README markdown %q", err)
 		}
 
-		if err := genMarkdownTreePlugins(plugins); err != nil {
+		if err := genMarkdownTreePlugins(pluginDescriptions); err != nil {
 			return fmt.Errorf("error generating plugin docs %q", err)
 		}
 
@@ -58,7 +74,7 @@ var genAllDocsCmd = &cobra.Command{
 }
 
 func genCoreCMD(cmd *cobra.Command) error {
-	tanzuMD := fmt.Sprintf("%s/%s", DefaultDocsDir, "tanzu.md")
+	tanzuMD := fmt.Sprintf("%s/%s", docsDir, "tanzu.md")
 	t, err := os.OpenFile(tanzuMD, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
 	if err != nil {
 		return fmt.Errorf("error opening tanzu.md %q", err)
@@ -71,7 +87,7 @@ func genCoreCMD(cmd *cobra.Command) error {
 }
 
 func genREADME(plugins []*cliv1alpha1.PluginDescriptor) error {
-	readmeFilename := fmt.Sprintf("%s/%s", DefaultDocsDir, "README.md")
+	readmeFilename := fmt.Sprintf("%s/%s", docsDir, "README.md")
 	readme, err := os.OpenFile(readmeFilename, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
 	if err != nil {
 		return fmt.Errorf("error opening readme %q", err)
@@ -87,7 +103,7 @@ func genREADME(plugins []*cliv1alpha1.PluginDescriptor) error {
 }
 
 func genMarkdownTreePlugins(plugins []*cliv1alpha1.PluginDescriptor) error {
-	args := []string{"generate-docs"}
+	args := []string{"generate-docs", "--docs-dir", docsDir}
 	for _, p := range plugins {
 		runner := cli.NewRunner(p.Name, p.InstallationPath, args)
 		ctx := context.Background()
