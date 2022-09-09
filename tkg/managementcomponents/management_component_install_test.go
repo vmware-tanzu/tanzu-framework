@@ -12,8 +12,8 @@ import (
 	. "github.com/onsi/gomega"
 
 	packageclientfakes "github.com/vmware-tanzu/tanzu-framework/packageclients/pkg/fakes"
-	. "github.com/vmware-tanzu/tanzu-framework/tkg/managementcomponents"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/fakes"
+	. "github.com/vmware-tanzu/tanzu-framework/tkg/managementcomponents"
 )
 
 func Test(t *testing.T) {
