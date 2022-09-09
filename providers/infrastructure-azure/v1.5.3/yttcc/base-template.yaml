@@ -2,6 +2,8 @@ apiVersion: cluster.x-k8s.io/v1beta1
 kind: Cluster
 metadata:
   name: ${CLUSTER_NAME}
+  annotations:
+    run.tanzu.vmware.com/resolve-tkr: ""
   labels:
     tkg.tanzu.vmware.com/cluster-name: '${ CLUSTER_NAME }'
 spec:
