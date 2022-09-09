@@ -10,8 +10,8 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
-	"github.com/vmware-tanzu/tanzu-framework/tkg/providerinterface"
 	fakeproviders "github.com/vmware-tanzu/tanzu-framework/tkg/fakes/providers"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/providerinterface"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/tkgconfigreaderwriter"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/tkgconfigupdater"
 )
