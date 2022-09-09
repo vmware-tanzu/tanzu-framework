@@ -96,8 +96,16 @@ func (r *VSphereCPIConfigReconciler) mapCPIConfigToDataValuesNonParavirtual( // 
 
 	d.Region = tryParseString(d.Region, c.Region)
 	d.Zone = tryParseString(d.Zone, c.Zone)
+
+	d.InsecureFlag = d.TLSThumbprint == ""
 	if c.Insecure != nil {
 		d.InsecureFlag = *c.Insecure
+	}
+	if !d.InsecureFlag && d.TLSThumbprint == "" {
+		return nil, errors.New("empty thumbprint is provided while TLS peer verification is enabled")
+	}
+	if d.InsecureFlag && d.TLSThumbprint != "" {
+		r.Log.Info("ignore thumbprint while TLS peer verification is disabled")
 	}
 
 	if c.VMNetwork != nil {
