@@ -70,7 +70,7 @@ import (
 	runv1alpha3 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/buildinfo"
 	capdiscovery "github.com/vmware-tanzu/tanzu-framework/pkg/v1/sdk/capabilities/discovery"
-	telemetrymanifests "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/manifest/telemetry"
+	telemetrymanifests "github.com/vmware-tanzu/tanzu-framework/tkg/manifest/telemetry"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/vc"
 	tkrconstants "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkr/pkg/constants"
 	tmcv1alpha1 "github.com/vmware-tanzu/tanzu-framework/tkg/api/tmc/v1alpha1"
@@ -403,7 +403,7 @@ const (
 	PackageInstallTimeout             = 10 * time.Minute
 	kubeConfigSecretSuffix            = "kubeconfig"
 	kubeConfigDataField               = "value"
-	embeddedTelemetryConfigYamlPrefix = "pkg/v1/tkg/manifest/telemetry/config-"
+	embeddedTelemetryConfigYamlPrefix = "tkg/manifest/telemetry/config-"
 	telemetryBomImagesMapKey          = "tkgTelemetryImage"
 	prodTelemetryPath                 = "https://scapi.vmware.com/sc/api/collectors/tkg-telemetry.v1.5.0/batch"
 	stageTelemetryPath                = "https://scapi-stg.vmware.com/sc/api/collectors/tkg-telemetry.v1.5.0/batch"
