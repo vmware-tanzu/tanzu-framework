@@ -49,6 +49,10 @@ spec:
                       description: PluginDiscovery contains a specific distribution
                         mechanism. Only one of the configs must be set.
                       properties:
+                        contextType:
+                          description: ContextType the discovery source is associated
+                            with (applicable only for stand-alone plugins).
+                          type: string
                         gcp:
                           description: GCPStorage is set if the plugins are to be
                             discovered via Google Cloud Storage.
@@ -223,6 +227,10 @@ spec:
                     description: PluginDiscovery contains a specific distribution
                       mechanism. Only one of the configs must be set.
                     properties:
+                      contextType:
+                        description: ContextType the discovery source is associated
+                          with (applicable only for stand-alone plugins).
+                        type: string
                       gcp:
                         description: GCPStorage is set if the plugins are to be discovered
                           via Google Cloud Storage.
@@ -414,6 +422,10 @@ spec:
                     description: PluginDiscovery contains a specific distribution
                       mechanism. Only one of the configs must be set.
                     properties:
+                      contextType:
+                        description: ContextType the discovery source is associated
+                          with (applicable only for stand-alone plugins).
+                        type: string
                       gcp:
                         description: GCPStorage is set if the plugins are to be discovered
                           via Google Cloud Storage.

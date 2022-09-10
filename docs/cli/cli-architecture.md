@@ -8,6 +8,8 @@ _Plugin_ - The CLI consists of plugins, each being a cmd developed in Go and con
 
 _Context_ - An isolated scope of relevant client-side configurations for a combination of user identity and server identity.
 
+_Target_ - Target is a top level entity used to make the control plane or the context type, that a user is interacting against, more explicit in command invocations.
+
 _Repository_ - Represents a group of plugin artifacts that are installable by the Tanzu CLI.
 
 _DiscoverySource_ - Represents a group of plugin artifacts and their distribution details that are installable by the Tanzu CLI.
@@ -129,6 +131,30 @@ tanzu login mgmt-cluster
 
 # New Command
 tanzu context use mgmt-cluster
+```
+
+## Target
+
+The Tanzu CLI supports two targets (context types): `kubernetes`, `mission-control`. This is currently backwards compatible, i.e., the plugins are still available at the root level. In addition to that, we also have contextual plugins grouped under the target.
+
+List TKG workload clusters:
+
+```sh
+# Without target grouping (a TKG management cluster is set as the current active server)
+tanzu cluster list
+
+# With target grouping
+tanzu kubernetes cluster list
+```
+
+List TMC workload clusters:
+
+```sh
+# Without target grouping (a TMC server is set as the current active server)
+tanzu cluster list
+
+# With target grouping
+tanzu mission-control cluster list
 ```
 
 ## Plugin Discovery Sources
