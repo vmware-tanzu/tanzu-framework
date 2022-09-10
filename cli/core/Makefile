@@ -140,7 +140,7 @@ build-tanzu-core-cli-%: ##Build the Tanzu Core CLI image for a platform
 		GOOS=$(OS) GOARCH=$(ARCH) $(GO) build -tags "${BUILD_TAGS}" --ldflags "$(LD_FLAGS) -X 'github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/config.DefaultStandaloneDiscoveryType=${DISCOVERY_TYPE}'"  -o "$(ARTIFACTS_DIR)/$(OS)/$(ARCH)/cli/core/$(BUILD_VERSION)/tanzu-core-$(OS)_$(ARCH)" ./cmd/tanzu/main.go;\
 	fi
 
-.PHONY: install-tanzu-core-cli-local ## Install Tanzu Core CLI with local discovery
+.PHONY: install-tanzu-core-cli ## Install Tanzu Core CLI with local discovery
 install-tanzu-core-cli: install-tanzu-core-cli-local ## Install Tanzu CLI with local discovery
 
 .PHONY: install-tanzu-core-cli-%

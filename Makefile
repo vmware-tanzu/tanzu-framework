@@ -117,8 +117,8 @@ endif
 
 BUILD_TAGS ?=
 
-ARTIFACTS_DIR ?= ./artifacts
-ARTIFACTS_ADMIN_DIR ?= ./artifacts-admin
+ARTIFACTS_DIR ?= $(ROOT_DIR)/artifacts
+ARTIFACTS_ADMIN_DIR ?= $(ROOT_DIR)/artifacts-admin
 
 XDG_CACHE_HOME := ${HOME}/.cache
 XDG_CONFIG_HOME := ${HOME}/.config
@@ -377,7 +377,7 @@ install-cli-plugins-without-discovery: set-unstable-versions set-context-aware-c
 		plugin install all --local $(ARTIFACTS_DIR)/$(GOHOSTOS)/$(GOHOSTARCH)/cli
 	cd ./cli/core && TANZU_CLI_NO_INIT=true $(GO) run -ldflags "$(LD_FLAGS)" ./cmd/tanzu/main.go \
 		plugin install all --local $(ARTIFACTS_DIR)-admin/$(GOHOSTOS)/$(GOHOSTARCH)/cli
-	cd ./cli/core && TANZU_CLI_NO_INIT=true $(GO) run -ldflags "$(LD_FLAGS)" ../cmd/tanzu/main.go \
+	cd ./cli/core && TANZU_CLI_NO_INIT=true $(GO) run -ldflags "$(LD_FLAGS)" ./cmd/tanzu/main.go \
 		test fetch --local $(ARTIFACTS_DIR)/$(GOHOSTOS)/$(GOHOSTARCH)/cli --local $(ARTIFACTS_DIR)-admin/$(GOHOSTOS)/$(GOHOSTARCH)/cli
 
 .PHONY: install-cli-plugins-from-local-discovery
