@@ -2,7 +2,9 @@ apiVersion: vendir.k14s.io/v1alpha1
 directories:
 - contents:
   - directory: {}
-    path: crds
+    path: crds/run
+  - directory: {}
+    path: crds/discovery
   - manual: {}
     path: rbac.yaml
   - manual: {}

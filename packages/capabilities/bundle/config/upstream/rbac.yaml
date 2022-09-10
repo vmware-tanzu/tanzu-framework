@@ -90,3 +90,11 @@ subjects:
   - kind: ServiceAccount
     name: tanzu-capabilities-manager-sa
     namespace: #@ data.values.namespace
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  labels:
+    app: tanzu-capabilities-manager
+  name: tanzu-capabilities-manager-default-sa
+  namespace: #@ data.values.namespace
