@@ -185,6 +185,8 @@ type PluginDiscovery struct {
 	Kubernetes *KubernetesDiscovery `json:"k8s,omitempty"`
 	// LocalDiscovery is set if the plugins are to be discovered via Local Manifest fast.
 	Local *LocalDiscovery `json:"local,omitempty"`
+	// ContextType the discovery source is associated with (applicable only for stand-alone plugins).
+	ContextType ContextType `json:"contextType,omitempty"`
 }
 
 // GCPDiscovery provides a plugin discovery mechanism via a Google Cloud Storage

@@ -11,6 +11,8 @@ import (
 	"github.com/pkg/errors"
 	apimachineryjson "k8s.io/apimachinery/pkg/runtime/serializer/json"
 
+	"github.com/vmware-tanzu/tanzu-framework/apis/config/v1alpha1"
+
 	cliv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/common"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/utils"
@@ -120,7 +122,11 @@ func newSharedCatalog() (*cliv1alpha1.Catalog, error) {
 		IndexByPath:       map[string]cliv1alpha1.PluginDescriptor{},
 		IndexByName:       map[string][]string{},
 		StandAlonePlugins: map[string]string{},
-		ServerPlugins:     map[string]cliv1alpha1.PluginAssociation{},
+		StandAlonePluginsByContextType: map[v1alpha1.ContextType]cliv1alpha1.PluginAssociation{
+			v1alpha1.CtxTypeK8s: map[string]string{},
+			v1alpha1.CtxTypeTMC: map[string]string{},
+		},
+		ServerPlugins: map[string]cliv1alpha1.PluginAssociation{},
 	}
 
 	err := ensureRoot()
@@ -161,6 +167,15 @@ func getCatalogCache() (catalog *cliv1alpha1.Catalog, err error) {
 	if c.StandAlonePlugins == nil {
 		c.StandAlonePlugins = map[string]string{}
 	}
+	if c.StandAlonePluginsByContextType == nil {
+		c.StandAlonePluginsByContextType = map[v1alpha1.ContextType]cliv1alpha1.PluginAssociation{}
+	}
+	if _, ok := c.StandAlonePluginsByContextType[v1alpha1.CtxTypeK8s]; !ok {
+		c.StandAlonePluginsByContextType[v1alpha1.CtxTypeK8s] = map[string]string{}
+	}
+	if _, ok := c.StandAlonePluginsByContextType[v1alpha1.CtxTypeTMC]; !ok {
+		c.StandAlonePluginsByContextType[v1alpha1.CtxTypeTMC] = map[string]string{}
+	}
 	if c.ServerPlugins == nil {
 		c.ServerPlugins = map[string]cliv1alpha1.PluginAssociation{}
 	}
@@ -170,6 +185,9 @@ func getCatalogCache() (catalog *cliv1alpha1.Catalog, err error) {
 
 // saveCatalogCache saves the catalog in the local directory.
 func saveCatalogCache(catalog *cliv1alpha1.Catalog) error {
+	// Using the K8s context type since it is the only one available publicly.
+	catalog.StandAlonePluginsByContextType[v1alpha1.CtxTypeK8s] = catalog.StandAlonePlugins
+
 	catalogCachePath := getCatalogCachePath()
 	_, err := os.Stat(catalogCachePath)
 	if os.IsNotExist(err) {
@@ -225,4 +243,15 @@ func ensureRoot() error {
 // Returns the test path relative to the plugin root
 func testPath() string {
 	return filepath.Join(pluginRoot, "test")
+}
+
+// UpdateCatalogCache when updating the core CLI from v0.x.x to v1.x.x. This is
+// needed to group the standalone plugins by context type.
+func UpdateCatalogCache() error {
+	c, err := getCatalogCache()
+	if err != nil {
+		return err
+	}
+
+	return saveCatalogCache(c)
 }

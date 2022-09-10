@@ -67,6 +67,7 @@ func getDefaultStandaloneDiscoverySource(dsType string) *configv1alpha1.PluginDi
 
 func getDefaultStandaloneDiscoverySourceOCI() *configv1alpha1.PluginDiscovery {
 	return &configv1alpha1.PluginDiscovery{
+		ContextType: configv1alpha1.CtxTypeK8s,
 		OCI: &configv1alpha1.OCIDiscovery{
 			Name:  DefaultStandaloneDiscoveryName,
 			Image: GetDefaultStandaloneDiscoveryImage(),
@@ -76,6 +77,7 @@ func getDefaultStandaloneDiscoverySourceOCI() *configv1alpha1.PluginDiscovery {
 
 func getDefaultStandaloneDiscoverySourceLocal() *configv1alpha1.PluginDiscovery {
 	return &configv1alpha1.PluginDiscovery{
+		ContextType: configv1alpha1.CtxTypeK8s,
 		Local: &configv1alpha1.LocalDiscovery{
 			Name: DefaultStandaloneDiscoveryNameLocal,
 			Path: GetDefaultStandaloneDiscoveryLocalPath(),
