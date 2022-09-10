@@ -328,9 +328,10 @@ func TestSetCurrentContext(t *testing.T) {
 				assert.Error(t, err)
 			}
 			currSrv, err := GetCurrentServer()
-			assert.NoError(t, err)
-			// server is updated only for K8s Ctx Type, so test-mc remains the current server
-			assert.Equal(t, "test-mc", currSrv.Name)
+			if tc.errStr == "" {
+				assert.NoError(t, err)
+				assert.Equal(t, tc.ctxName, currSrv.Name)
+			}
 		})
 	}
 }

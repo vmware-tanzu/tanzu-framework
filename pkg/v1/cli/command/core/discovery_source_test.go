@@ -65,7 +65,7 @@ func Test_createDiscoverySource(t *testing.T) {
 	// When discovery source is an unknown value
 	_, err = createDiscoverySource("unexpectedValue", "fake-discovery-name", "fake/path")
 	assert.NotNil(err)
-	assert.Contains(err.Error(), "unknown discovery source type 'unexpectedValue'")
+	assert.Contains(err.Error(), "discovery source type 'unexpectedValue' is not yet supported")
 }
 
 func Test_addDiscoverySource(t *testing.T) {

@@ -225,7 +225,18 @@ spec:
           standAlonePlugins:
             additionalProperties:
               type: string
-            description: StandAlonePlugins is a set of stand-alone plugin installations.
+            description: 'StandAlonePlugins is a set of stand-alone plugin installations.
+              Note: Shall be superseded by StandAlonePluginsByContextType'
+            type: object
+          standAlonePluginsByContextType:
+            additionalProperties:
+              additionalProperties:
+                type: string
+              description: PluginAssociation is a set of plugin names and their associated
+                installation paths.
+              type: object
+            description: StandAlonePluginsByContextType is a set of stand-alone plugin
+              installations grouped by the context type.
             type: object
         type: object
     served: true
