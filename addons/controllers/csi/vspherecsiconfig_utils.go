@@ -176,8 +176,8 @@ func (r *VSphereCSIConfigReconciler) getOwnerCluster(ctx context.Context,
 	}
 	if err := r.Client.Get(ctx, types.NamespacedName{Namespace: vcsiConfig.Namespace, Name: clusterName}, cluster); err != nil {
 		if apierrors.IsNotFound(err) {
-			logger.Info(fmt.Sprintf("Cluster resource '%s/%s' not found", vcsiConfig.Namespace, clusterName))
-			return nil, nil
+			logger.Error(err, fmt.Sprintf("Cluster resource '%s/%s' not found", vcsiConfig.Namespace, clusterName))
+			return nil, err
 		}
 		logger.Error(err, fmt.Sprintf("Unable to fetch cluster '%s/%s'", vcsiConfig.Namespace, clusterName))
 		return nil, err
