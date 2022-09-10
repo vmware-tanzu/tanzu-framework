@@ -29,6 +29,7 @@ var (
 func init() {
 	_ = corev1.AddToScheme(scheme)
 	_ = appsv1.AddToScheme(scheme)
+	_ = cliv1alpha1.AddToScheme(scheme)
 }
 
 // Client provides various aspects of interaction with a Kubernetes cluster provisioned by TKG
