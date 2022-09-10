@@ -9,6 +9,7 @@ resources:
 - bases/cni.tanzu.vmware.com_antreaconfigs.yaml
 - bases/cpi.tanzu.vmware.com_cpiconfigs.yaml
 - bases/csi.tanzu.vmware.com_vspherecsiconfigs.yaml
+- bases/discovery.tanzu.vmware.com_capabilities.yaml
 # +kubebuilder:scaffold:crdkustomizeresource
 
 patchesStrategicMerge:
