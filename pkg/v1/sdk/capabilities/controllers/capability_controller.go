@@ -152,3 +152,4 @@ func (r *CapabilityReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		For(&runv1alpha1.Capability{}).
 		Complete(r)
 }
+
