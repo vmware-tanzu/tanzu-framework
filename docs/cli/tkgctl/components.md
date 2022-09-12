@@ -79,7 +79,7 @@ reference:
 
 * Implements Azure specific API using Azure SDK that can be used for some verification purpose as well as serves as resource retriever for the kick-start UI
 
-## [vc](/pkg/v1/tkg/vc)
+## [vc](/tkg/vc)
 
 * Implements vCenter specific API using govmomi library that can be used for some verification purpose as well as serves as resource retriever for the kick-start UI
 
