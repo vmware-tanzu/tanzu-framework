@@ -25,12 +25,14 @@ require (
 	github.com/adrg/xdg v0.2.1
 	github.com/apparentlymart/go-cidr v1.1.0
 	github.com/aunum/log v0.0.0-20200821225356-38d2e2c8b489
+	github.com/avinetworks/sdk v0.0.0-20201123134013-c157ef55b6f7
 	github.com/briandowns/spinner v1.19.0
 	github.com/cppforlife/go-cli-ui v0.0.0-20200716203538-1e47f820817f
 	github.com/docker/docker v20.10.16+incompatible
 	github.com/elazarl/go-bindata-assetfs v1.0.1
 	github.com/fatih/color v1.13.0
 	github.com/ghodss/yaml v1.0.0
+	github.com/go-ldap/ldap/v3 v3.3.0
 	github.com/go-logr/logr v1.2.3
 	github.com/go-openapi/errors v0.19.2
 	github.com/go-openapi/loads v0.19.4
@@ -140,7 +142,6 @@ require (
 	github.com/alessio/shellescape v1.4.1 // indirect
 	github.com/antlr/antlr4/runtime/Go/antlr v0.0.0-20220209173558-ad29539cd2e9 // indirect
 	github.com/asaskevich/govalidator v0.0.0-20210307081110-f21760c49a8d // indirect
-	github.com/avinetworks/sdk v0.0.0-20201123134013-c157ef55b6f7 // indirect
 	github.com/aws/amazon-vpc-cni-k8s v1.10.1 // indirect
 	github.com/aws/aws-sdk-go v1.40.56 // indirect
 	github.com/awslabs/goformation/v4 v4.19.5 // indirect
@@ -174,7 +175,6 @@ require (
 	github.com/fsnotify/fsnotify v1.5.1 // indirect
 	github.com/getkin/kin-openapi v0.94.0 // indirect
 	github.com/go-asn1-ber/asn1-ber v1.5.1 // indirect
-	github.com/go-ldap/ldap/v3 v3.3.0 // indirect
 	github.com/go-logr/zapr v1.2.0 // indirect
 	github.com/go-openapi/analysis v0.19.5 // indirect
 	github.com/go-openapi/jsonpointer v0.19.5 // indirect
