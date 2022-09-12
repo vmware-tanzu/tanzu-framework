@@ -11,7 +11,7 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/fakes"
-	"github.com/vmware-tanzu/tanzu-framework/tkg/region"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/region"
 )
 
 var _ = Describe("Unit tests for add region", func() {

@@ -21,8 +21,8 @@ import (
 	capvv1beta1 "sigs.k8s.io/cluster-api-provider-vsphere/apis/v1beta1"
 	clusterctlclient "sigs.k8s.io/cluster-api/cmd/clusterctl/client"
 
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/region"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/web/server/models"
-	"github.com/vmware-tanzu/tanzu-framework/tkg/region"
 
 	"github.com/pkg/errors"
 	corev1 "k8s.io/api/core/v1"

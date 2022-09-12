@@ -16,7 +16,7 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/clusterclient"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfigreaderwriter"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/vc"
-	"github.com/vmware-tanzu/tanzu-framework/tkg/region"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/region"
 )
 
 type Client struct {
