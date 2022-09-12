@@ -17,10 +17,10 @@ import (
 	"github.com/vmware/govmomi/simulator"
 	"github.com/vmware/govmomi/vim25/types"
 
-	"github.com/vmware-tanzu/tanzu-framework/tkg/web/server/models"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/fakes"
 	tkgtypes "github.com/vmware-tanzu/tanzu-framework/tkg/types"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/vc"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/web/server/models"
 )
 
 func TestKind(t *testing.T) {

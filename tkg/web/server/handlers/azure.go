@@ -10,11 +10,11 @@ import (
 
 	"github.com/go-openapi/runtime/middleware"
 
-	"github.com/vmware-tanzu/tanzu-framework/tkg/web/server/models"
-	"github.com/vmware-tanzu/tanzu-framework/tkg/web/server/restapi/operations/azure"
 	azureclient "github.com/vmware-tanzu/tanzu-framework/tkg/azure"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/tkgconfigbom"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/web/server/models"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/web/server/restapi/operations/azure"
 )
 
 // GetAzureEndpoint gets azure account info set in environment variables

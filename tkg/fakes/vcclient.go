@@ -5,10 +5,10 @@ import (
 	"context"
 	"sync"
 
-	"github.com/vmware-tanzu/tanzu-framework/tkg/web/server/models"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/tkgconfigreaderwriter"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/types"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/vc"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/web/server/models"
 )
 
 type VCClient struct {
