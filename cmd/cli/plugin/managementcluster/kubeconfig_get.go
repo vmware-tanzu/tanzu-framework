@@ -10,9 +10,9 @@ import (
 	"github.com/spf13/cobra"
 
 	tkgclient "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/client"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/log"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgctl"
 	tkgutils "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/utils"
-	"github.com/vmware-tanzu/tanzu-framework/tkg/log"
 
 	"github.com/vmware-tanzu/tanzu-framework/apis/config/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/config"

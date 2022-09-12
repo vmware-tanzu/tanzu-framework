@@ -14,6 +14,7 @@ import (
 
 	. "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/client"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/clientcreator"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/log"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/region"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfigpaths"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfigproviders"
@@ -24,7 +25,6 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/web/server/models"
 	azure "github.com/vmware-tanzu/tanzu-framework/tkg/azure/mocks"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/constants"
-	"github.com/vmware-tanzu/tanzu-framework/tkg/log"
 
 	"github.com/golang/mock/gomock"
 	. "github.com/onsi/ginkgo"

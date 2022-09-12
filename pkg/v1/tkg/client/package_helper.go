@@ -16,7 +16,7 @@ import (
 	kapppkgv1alpha1 "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apiserver/apis/datapackaging/v1alpha1"
 	runtanzuv1alpha3 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/clusterclient"
-	"github.com/vmware-tanzu/tanzu-framework/tkg/log"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/log"
 )
 
 // GetClusterBootstrap returns ClusterBootstrap object for the given clusterName in the management cluster
