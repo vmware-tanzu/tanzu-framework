@@ -16,8 +16,8 @@ import (
 	. "github.com/onsi/gomega"
 	"sigs.k8s.io/cluster-api/util"
 
-	"github.com/vmware-tanzu/tanzu-framework/tkg/test/framework"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/constants"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/test/framework"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/tkgctl"
 )
 
