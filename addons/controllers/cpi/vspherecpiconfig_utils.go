@@ -19,13 +19,59 @@ import (
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
 	capvvmwarev1beta1 "sigs.k8s.io/cluster-api-provider-vsphere/apis/vmware/v1beta1"
 	clusterapiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
+	clusterapiutil "sigs.k8s.io/cluster-api/util"
+	ctrl "sigs.k8s.io/controller-runtime"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	cutil "github.com/vmware-tanzu/tanzu-framework/addons/controllers/utils"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
 	pkgtypes "github.com/vmware-tanzu/tanzu-framework/addons/pkg/types"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/util"
 	cpiv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/addonconfigs/cpi/v1alpha1"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/log"
 )
+
+// ClustersToVSphereCPIConfig returns a list of Requests with VSphereCPIConfig ObjectKey based on Cluster events
+func (r *VSphereCPIConfigReconciler) ClustersToVSphereCPIConfig(o client.Object) []ctrl.Request {
+	r.Log.V(4).Info("Clusters to VSphereCPIConfig handler")
+
+	cluster, ok := o.(*clusterapiv1beta1.Cluster)
+	if !ok {
+		r.Log.Error(errors.New("invalid type"),
+			"Expected to receive Cluster resource",
+			"actualType", fmt.Sprintf("%T", o))
+		return nil
+	}
+
+	log.V(4).Info("Mapping Cluster to VSphereCPIConfig")
+
+	cs := &cpiv1alpha1.VSphereCPIConfigList{}
+	_ = r.List(context.Background(), cs)
+
+	requests := []ctrl.Request{}
+	for i := 0; i < len(cs.Items); i++ {
+		config := &cs.Items[i]
+		if config.Namespace == cluster.Namespace {
+			// corresponding vsphereCPIConfig should have following ownerRef
+			ownerReference := metav1.OwnerReference{
+				APIVersion: clusterapiv1beta1.GroupVersion.String(),
+				Kind:       cluster.Kind,
+				Name:       cluster.Name,
+				UID:        cluster.UID,
+			}
+			if clusterapiutil.HasOwnerRef(config.OwnerReferences, ownerReference) || config.Name == cluster.Name {
+				log.V(4).Info("Adding VSphereCPIConfig for reconciliation",
+					constants.NamespaceLogKey, config.Namespace, constants.NameLogKey, config.Name)
+
+				requests = append(requests, ctrl.Request{
+					NamespacedName: clusterapiutil.ObjectKey(config),
+				})
+			}
+		}
+	}
+
+	return requests
+}
 
 // mapCPIConfigToDataValuesNonParavirtual generates CPI data values for non-paravirtual modes
 func (r *VSphereCPIConfigReconciler) mapCPIConfigToDataValuesNonParavirtual( // nolint
