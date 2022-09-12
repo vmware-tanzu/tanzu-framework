@@ -13,9 +13,9 @@ import (
 	"k8s.io/client-go/tools/clientcmd"
 
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/config"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
 	fakehelper "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/fakes/helper"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/utils"
-	"github.com/vmware-tanzu/tanzu-framework/tkg/constants"
 )
 
 type MockFeatureFlagClient struct {

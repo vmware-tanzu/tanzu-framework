@@ -15,8 +15,8 @@ import (
 	clusterctltree "sigs.k8s.io/cluster-api/cmd/clusterctl/client/tree"
 
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/client"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/log"
-	"github.com/vmware-tanzu/tanzu-framework/tkg/constants"
 )
 
 // DescribeTKGClustersOptions options that can be passed while requesting to describe a cluster

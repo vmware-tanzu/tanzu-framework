@@ -30,7 +30,7 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
 	tkgsv1alpha2 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha2"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/clusterclient"
-	"github.com/vmware-tanzu/tanzu-framework/tkg/constants"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
 )
 
 // ###################### Fake CAPI objects creation helper ######################

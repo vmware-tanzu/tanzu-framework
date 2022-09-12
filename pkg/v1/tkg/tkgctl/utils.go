@@ -3,7 +3,7 @@
 
 package tkgctl
 
-import "github.com/vmware-tanzu/tanzu-framework/tkg/constants"
+import "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
 
 func (t *tkgctl) setCEIPOptinBasedOnConfigAndBuildEdition(edition string) string {
 	ceipOptIn, err := t.TKGConfigReaderWriter().Get(constants.ConfigVariableEnableCEIPParticipation)

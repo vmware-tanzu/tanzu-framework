@@ -15,10 +15,10 @@ import (
 	. "github.com/onsi/gomega"
 	"sigs.k8s.io/cluster-api/util"
 
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/test/tkgctl/shared"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgctl"
 	tkgutils "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/utils"
-	"github.com/vmware-tanzu/tanzu-framework/tkg/constants"
 )
 
 const (

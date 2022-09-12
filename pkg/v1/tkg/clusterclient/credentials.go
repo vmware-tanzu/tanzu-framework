@@ -16,8 +16,8 @@ import (
 	crtclient "sigs.k8s.io/controller-runtime/pkg/client"
 
 	azureclient "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/azure"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/log"
-	"github.com/vmware-tanzu/tanzu-framework/tkg/constants"
 )
 
 // constants related to credentials

@@ -7,8 +7,8 @@ import (
 	"encoding/base64"
 	"strconv"
 
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/web/server/models"
-	"github.com/vmware-tanzu/tanzu-framework/tkg/constants"
 )
 
 // DockerConfig is the tkg config file for docker provider

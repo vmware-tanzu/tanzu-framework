@@ -8,8 +8,8 @@ import (
 	"strings"
 
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/aws"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/log"
-	"github.com/vmware-tanzu/tanzu-framework/tkg/constants"
 
 	"github.com/pkg/errors"
 
