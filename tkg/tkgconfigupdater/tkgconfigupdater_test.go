@@ -16,7 +16,7 @@ import (
 	"gopkg.in/yaml.v3"
 
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/providerinterface"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfigpaths"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/tkgconfigpaths"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/constants"
 	fakehelper "github.com/vmware-tanzu/tanzu-framework/tkg/fakes/helper"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/log"
