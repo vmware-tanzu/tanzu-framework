@@ -83,7 +83,7 @@ reference:
 
 * Implements vCenter specific API using govmomi library that can be used for some verification purpose as well as serves as resource retriever for the kick-start UI
 
-## [Web UI and Server](/pkg/v1/tkg/web)
+## [Web UI and Server](/tkg/web)
 
 * It implements web server which serves kick-start UI for management cluster creation purpose. (tanzu management-cluster create --ui)
 * This uses bundled go-bindata file which contains kick-start UI bits

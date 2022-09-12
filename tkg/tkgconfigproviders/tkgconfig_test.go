@@ -15,7 +15,7 @@ import (
 
 	"github.com/otiai10/copy"
 
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/web/server/models"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/web/server/models"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/constants"
 	fakehelper "github.com/vmware-tanzu/tanzu-framework/tkg/fakes/helper"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/tkgconfigbom"
