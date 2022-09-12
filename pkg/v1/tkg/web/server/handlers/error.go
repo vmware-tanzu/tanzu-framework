@@ -4,7 +4,7 @@
 package handlers
 
 import (
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/web/server/models"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/web/server/models"
 )
 
 // Err Define the error message

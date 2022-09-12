@@ -7,9 +7,9 @@ import (
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/pkg/errors"
 
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/web/server/models"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/web/server/restapi/operations/avi"
 	aviclient "github.com/vmware-tanzu/tanzu-framework/tkg/avi"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/web/server/models"
 )
 
 // VerifyAccount validates avi credentials and sets the avi client into web app

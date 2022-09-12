@@ -8,8 +8,8 @@ import (
 
 	configlib "github.com/vmware-tanzu/tanzu-framework/cli/runtime/config"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgctl"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/utils"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/log"
-	"github.com/vmware-tanzu/tanzu-framework/tkg/utils"
 )
 
 var configClusterCmd = &cobra.Command{

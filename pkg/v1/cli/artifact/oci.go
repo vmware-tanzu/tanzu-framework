@@ -10,7 +10,7 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/carvelhelpers"
-	"github.com/vmware-tanzu/tanzu-framework/tkg/utils"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/utils"
 )
 
 // A file map getter takes an OCI image name and returns a map representing the

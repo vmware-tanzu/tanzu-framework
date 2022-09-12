@@ -13,10 +13,10 @@ import (
 	"sigs.k8s.io/cluster-api-provider-aws/cmd/clusterawsadm/credentials"
 
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfigbom"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/web/server/models"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/web/server/restapi/operations/aws"
 	awsclient "github.com/vmware-tanzu/tanzu-framework/tkg/aws"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/constants"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/web/server/models"
 )
 
 // SetAWSEndPoint verify and sets AWS account
