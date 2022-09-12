@@ -135,7 +135,13 @@ func newArtifactObject(osType, arch, artifactType, digest, uri string) v1alpha1.
 }
 
 func getPluginPathAndDigestFromMetadata(artifactDir, plugin, version, osType, arch string) (string, string, error) {
-	sourcePath := filepath.Join(artifactDir, osType, arch, "cli", plugin, version, "tanzu-"+plugin+"-"+osType+"_"+arch)
+	var sourcePath string
+	if version == "test" {
+		sourcePath = filepath.Join(artifactDir, osType, arch, "cli", plugin, version, "tanzu-"+plugin+"-test"+"-"+osType+"_"+arch)
+	} else {
+		sourcePath = filepath.Join(artifactDir, osType, arch, "cli", plugin, version, "tanzu-"+plugin+"-"+osType+"_"+arch)
+	}
+
 	if osType == osTypeWindows {
 		sourcePath += fileExtensionWindows
 	}
