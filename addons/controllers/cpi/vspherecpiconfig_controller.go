@@ -24,6 +24,8 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
+	"sigs.k8s.io/controller-runtime/pkg/handler"
+	"sigs.k8s.io/controller-runtime/pkg/source"
 
 	addonconfig "github.com/vmware-tanzu/tanzu-framework/addons/pkg/config"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
@@ -79,18 +81,18 @@ var vsphereCPIProviderServiceAccountAggregatedClusterRole = &rbacv1.ClusterRole{
 
 // Reconcile the VSphereCPIConfig CRD
 func (r *VSphereCPIConfigReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	r.Log = r.Log.WithValues("VSphereCPIConfig", req.NamespacedName)
+	log := r.Log.WithValues("VSphereCPIConfig", req.NamespacedName)
 
-	r.Log.Info("Start reconciliation for VSphereCPIConfig")
+	log.Info("Start reconciliation for VSphereCPIConfig")
 
 	// fetch VSphereCPIConfig resource
 	cpiConfig := &cpiv1alpha1.VSphereCPIConfig{}
 	if err := r.Client.Get(ctx, req.NamespacedName, cpiConfig); err != nil {
 		if apierrors.IsNotFound(err) {
-			r.Log.Info("VSphereCPIConfig resource not found")
+			log.Info("VSphereCPIConfig resource not found")
 			return ctrl.Result{}, nil
 		}
-		r.Log.Error(err, "Unable to fetch VSphereCPIConfig resource")
+		log.Error(err, "Unable to fetch VSphereCPIConfig resource")
 		return ctrl.Result{}, err
 	}
 
@@ -102,11 +104,11 @@ func (r *VSphereCPIConfigReconciler) Reconcile(ctx context.Context, req ctrl.Req
 		return ctrl.Result{}, err // no need to requeue if cluster is not found
 	}
 	if cpiConfig.Spec.VSphereCPI.Mode == nil {
-		r.Log.Info("VSphere CPI mode is not provided.")
+		log.Info("VSphere CPI mode is not provided.")
 		return ctrl.Result{}, nil // no need to requeue if CPI mode is not provided
 	}
 	if res, err := r.reconcileVSphereCPIConfig(ctx, cpiConfig, cluster); err != nil {
-		r.Log.Error(err, "Failed to reconcile VSphereCPIConfig")
+		log.Error(err, "Failed to reconcile VSphereCPIConfig")
 		return res, err
 	}
 	return ctrl.Result{}, nil
@@ -244,5 +246,9 @@ func (r *VSphereCPIConfigReconciler) SetupWithManager(_ context.Context, mgr ctr
 		For(&cpiv1alpha1.VSphereCPIConfig{}).
 		WithOptions(options).
 		WithEventFilter(predicates.ConfigOfKindWithoutAnnotation(constants.TKGAnnotationTemplateConfig, constants.VSphereCPIConfigKind, r.Config.SystemNamespace, r.Log)).
+		Watches(
+			&source.Kind{Type: &capvvmwarev1beta1.VSphereCluster{}},
+			handler.EnqueueRequestsFromMapFunc(r.VSphereClusterToVSphereCPIConfig),
+		).
 		Complete(r)
 }
