@@ -11,7 +11,7 @@ import (
 
 	"github.com/onsi/gomega"
 
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/types"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/types"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/clientcreator"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/region"

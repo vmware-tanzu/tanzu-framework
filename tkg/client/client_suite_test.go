@@ -12,7 +12,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/types"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/types"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/web/server/models"
 	azure "github.com/vmware-tanzu/tanzu-framework/tkg/azure/mocks"
 	. "github.com/vmware-tanzu/tanzu-framework/tkg/client"
