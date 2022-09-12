@@ -1,6 +1,6 @@
 // Copyright 2022 VMware, Inc. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
-package wcp_test
+package wcp
 
 import (
 	"crypto/tls"

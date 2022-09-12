@@ -46,6 +46,10 @@ LD_FLAGS = -s -w
 GC_FLAGS =
 endif
 
+LD_FLAGS += -X 'github.com/vmware-tanzu/tanzu-framework/cli/runtime/buildinfo.Date=$(BUILD_DATE)'
+LD_FLAGS += -X 'github.com/vmware-tanzu/tanzu-framework/cli/runtime/buildinfo.SHA=$(BUILD_SHA)'
+LD_FLAGS += -X 'github.com/vmware-tanzu/tanzu-framework/cli/runtime/buildinfo.Version=$(BUILD_VERSION)'
+
 LD_FLAGS += -X 'github.com/vmware-tanzu/tanzu-framework/pkg/v1/buildinfo.Date=$(BUILD_DATE)'
 LD_FLAGS += -X 'github.com/vmware-tanzu/tanzu-framework/pkg/v1/buildinfo.SHA=$(BUILD_SHA)'
 LD_FLAGS += -X 'github.com/vmware-tanzu/tanzu-framework/pkg/v1/buildinfo.Version=$(BUILD_VERSION)'

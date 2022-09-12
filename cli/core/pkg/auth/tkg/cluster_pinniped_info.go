@@ -1,4 +1,4 @@
-package tkgauth
+package tkg
 
 import (
 	"crypto/tls"
