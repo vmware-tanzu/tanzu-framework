@@ -21,7 +21,7 @@ type client struct {
 	featureFlagConfigPath string
 }
 
-// New creates new features client, defaults config file path to ~/.tkg/features.yaml
+// New creates new features client, defaults config file path to ~/.pkg/v1/tkg/features.yaml
 func New(featureFlagsConfigFolder, featureFlagsConfigFile string) (Client, error) {
 	if featureFlagsConfigFile == "" {
 		featureFlagsConfigFile = defaultConfigFile

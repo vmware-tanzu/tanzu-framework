@@ -4,7 +4,7 @@ package fakes
 import (
 	"sync"
 
-	"github.com/vmware-tanzu/tanzu-framework/tkg/features"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/features"
 )
 
 type FeaturesClient struct {

@@ -10,6 +10,7 @@ import (
 
 	configv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/config/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/config"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/features"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/region"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfigbom"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfigpaths"
@@ -17,7 +18,6 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfigreaderwriter"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfigupdater"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/types"
-	"github.com/vmware-tanzu/tanzu-framework/tkg/features"
 )
 
 // Clients is a combination structure of clients
@@ -73,7 +73,7 @@ func CreateAllClients(appConfig types.AppConfig, tkgConfigReaderWriter tkgconfig
 		return Clients{}, errors.Wrap(err, "unable to initialize management cluster manager with config path")
 	}
 
-	// create new features client, defaults config file path to ~/.tkg/features.yaml
+	// create new features client, defaults config file path to ~/.pkg/v1/tkg/features.yaml
 	// This client is used to activate/deactivate features based on this features.yaml file
 	featuresClient, err := features.New(appConfig.TKGConfigDir, "")
 	if err != nil {

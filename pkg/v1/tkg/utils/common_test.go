@@ -19,7 +19,7 @@ var (
 	k8sv11731Fips1     = "v1.17.3+vmware.1-fips.1"
 	k8sv11732Fips1     = "v1.17.3+vmware.2-fips.1"
 	vABC               = "vA.B.C"
-	fakePathABC        = "gcr.io/fakepath/tkg/kind/node:vA.B.C"
+	fakePathABC        = "gcr.io/fakepath/pkg/v1/tkg/kind/node:vA.B.C"
 	tkrNameSample      = "tkr---version"
 	tkrVersionSample   = "tkrversion"
 	expectedTKRVersion = "tkr+version"
@@ -40,7 +40,7 @@ func Test_ReplaceVersionInDockerImage(t *testing.T) {
 }
 
 func Test_ReplaceVersionInDockerImageLongPath(t *testing.T) {
-	preimage := "gcr.io/fakepath/tkg/kind/node:vX.Y.Z"
+	preimage := "gcr.io/fakepath/pkg/v1/tkg/kind/node:vX.Y.Z"
 	newVersion := vABC
 	expected := fakePathABC
 	actual, err := ReplaceVersionInDockerImage(preimage, newVersion)
@@ -54,9 +54,9 @@ func Test_ReplaceVersionInDockerImageLongPath(t *testing.T) {
 }
 
 func Test_ReplaceVersionInDockerImageTwoColons(t *testing.T) {
-	preimage := "gcr.io:port/fakepath/tkg/kind/node:vX.Y.Z"
+	preimage := "gcr.io:port/fakepath/pkg/v1/tkg/kind/node:vX.Y.Z"
 	newVersion := vABC
-	expected := "gcr.io:port/fakepath/tkg/kind/node:vA.B.C"
+	expected := "gcr.io:port/fakepath/pkg/v1/tkg/kind/node:vA.B.C"
 	actual, err := ReplaceVersionInDockerImage(preimage, newVersion)
 	if err != nil {
 		t.Fatalf("Error replacing version in valid docker image: %s", err)
@@ -68,7 +68,7 @@ func Test_ReplaceVersionInDockerImageTwoColons(t *testing.T) {
 }
 
 func Test_ReplaceVersionInDockerImageNoTag(t *testing.T) {
-	preimage := "gcr.io/fakepath/tkg/kind/node"
+	preimage := "gcr.io/fakepath/pkg/v1/tkg/kind/node"
 	newVersion := vABC
 	actual, err := ReplaceVersionInDockerImage(preimage, newVersion)
 	expected := fakePathABC

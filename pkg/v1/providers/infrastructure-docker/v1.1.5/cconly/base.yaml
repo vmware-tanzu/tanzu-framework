@@ -116,7 +116,7 @@ spec:
               value: curl https://get.docker.com/builds/Linux/x86_64/docker-1.12.0.tgz | tar zxOf - docker/docker > /usr/local/bin/docker;chmod +x /usr/local/bin/docker
             - op: add
               path: /spec/template/spec/kubeadmConfigSpec/preKubeadmCommands/-
-              value: peerIdx=$(ip link | grep eth0 | awk -F[@:] '{ print $3 }' | cut -c 3-);peerName=$(docker run --rm --net=host --entrypoint=/bin/ip projects-stg.registry.vmware.com/tkg/kind/node:v1.23.8_vmware.2-tkg.1_v0.11.1 link | grep ^"$peerIdx":| awk -F[:@] '{ print $2 }' | cut -c 2-);docker run --rm --net=host --privileged --entrypoint=/usr/sbin/ethtool projects-stg.registry.vmware.com/tkg/kind/node:v1.23.8_vmware.2-tkg.1_v0.11.1 -K "$peerName" tx off
+              value: peerIdx=$(ip link | grep eth0 | awk -F[@:] '{ print $3 }' | cut -c 3-);peerName=$(docker run --rm --net=host --entrypoint=/bin/ip projects-stg.registry.vmware.com/pkg/v1/tkg/kind/node:v1.23.8_vmware.2-tkg.1_v0.11.1 link | grep ^"$peerIdx":| awk -F[:@] '{ print $2 }' | cut -c 2-);docker run --rm --net=host --privileged --entrypoint=/usr/sbin/ethtool projects-stg.registry.vmware.com/pkg/v1/tkg/kind/node:v1.23.8_vmware.2-tkg.1_v0.11.1 -K "$peerName" tx off
             - op: add
               path: /spec/template/spec/kubeadmConfigSpec/preKubeadmCommands/-
               value: sysctl -w net.ipv4.tcp_retries2=4
@@ -167,7 +167,7 @@ spec:
               value: curl https://get.docker.com/builds/Linux/x86_64/docker-1.12.0.tgz | tar zxOf - docker/docker > /usr/local/bin/docker;chmod +x /usr/local/bin/docker
             - op: add
               path: /spec/template/spec/preKubeadmCommands/-
-              value: peerIdx=$(ip link | grep eth0 | awk -F[@:] '{ print $3 }' | cut -c 3-);peerName=$(docker run --rm --net=host --entrypoint=/bin/ip projects-stg.registry.vmware.com/tkg/kind/node:v1.23.8_vmware.2-tkg.1_v0.11.1 link | grep ^"$peerIdx":| awk -F[:@] '{ print $2 }' | cut -c 2-);docker run --rm --net=host --privileged --entrypoint=/usr/sbin/ethtool projects-stg.registry.vmware.com/tkg/kind/node:v1.23.8_vmware.2-tkg.1_v0.11.1 -K "$peerName" tx off
+              value: peerIdx=$(ip link | grep eth0 | awk -F[@:] '{ print $3 }' | cut -c 3-);peerName=$(docker run --rm --net=host --entrypoint=/bin/ip projects-stg.registry.vmware.com/pkg/v1/tkg/kind/node:v1.23.8_vmware.2-tkg.1_v0.11.1 link | grep ^"$peerIdx":| awk -F[:@] '{ print $2 }' | cut -c 2-);docker run --rm --net=host --privileged --entrypoint=/usr/sbin/ethtool projects-stg.registry.vmware.com/pkg/v1/tkg/kind/node:v1.23.8_vmware.2-tkg.1_v0.11.1 -K "$peerName" tx off
             - op: add
               path: /spec/template/spec/preKubeadmCommands/-
               value: sysctl -w net.ipv4.tcp_retries2=4
@@ -202,7 +202,7 @@ spec:
           jsonPatches:
             - op: add
               path: "/spec/template/spec/customImage"
-              value: projects-stg.registry.vmware.com/tkg/kind/node:v1.23.8_vmware.2-tkg.1_v0.11.1
+              value: projects-stg.registry.vmware.com/pkg/v1/tkg/kind/node:v1.23.8_vmware.2-tkg.1_v0.11.1
         - selector:
             apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
             kind: DockerMachineTemplate
@@ -211,7 +211,7 @@ spec:
           jsonPatches:
             - op: add
               path: "/spec/template/spec/customImage"
-              value: projects-stg.registry.vmware.com/tkg/kind/node:v1.23.8_vmware.2-tkg.1_v0.11.1
+              value: projects-stg.registry.vmware.com/pkg/v1/tkg/kind/node:v1.23.8_vmware.2-tkg.1_v0.11.1
     - name: podSecurityStandard
       description: "Adds an admission configuration for PodSecurity to the kube-apiserver."
       definitions:
