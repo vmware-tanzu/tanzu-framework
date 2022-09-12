@@ -71,11 +71,11 @@ reference:
 
 * Implements methods to create and delete kind clusters that get used to create and delete management cluster
 
-## [aws](/tkg/aws)
+## [aws](/pkg/v1/tkg/aws)
 
 * Implements AWS specific API using AWS SDK that can be used for some verification purpose as well as serves as resource retriever for the kick-start UI
 
-## [azure](/tkg/azure)
+## [azure](/pkg/v1/tkg/azure)
 
 * Implements Azure specific API using Azure SDK that can be used for some verification purpose as well as serves as resource retriever for the kick-start UI
 
