@@ -28,7 +28,6 @@ import (
 	pkgtypes "github.com/vmware-tanzu/tanzu-framework/addons/pkg/types"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/util"
 	cpiv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/addonconfigs/cpi/v1alpha1"
-	"github.com/vmware-tanzu/tanzu-framework/tkg/log"
 )
 
 // ClustersToVSphereCPIConfig returns a list of Requests with VSphereCPIConfig ObjectKey based on Cluster events
@@ -43,7 +42,7 @@ func (r *VSphereCPIConfigReconciler) ClustersToVSphereCPIConfig(o client.Object)
 		return nil
 	}
 
-	log.V(4).Info("Mapping Cluster to VSphereCPIConfig")
+	r.Log.V(4).Info("Mapping Cluster to VSphereCPIConfig")
 
 	cs := &cpiv1alpha1.VSphereCPIConfigList{}
 	_ = r.List(context.Background(), cs)
@@ -60,7 +59,7 @@ func (r *VSphereCPIConfigReconciler) ClustersToVSphereCPIConfig(o client.Object)
 				UID:        cluster.UID,
 			}
 			if clusterapiutil.HasOwnerRef(config.OwnerReferences, ownerReference) || config.Name == cluster.Name {
-				log.V(4).Info("Adding VSphereCPIConfig for reconciliation",
+				r.Log.V(4).Info("Adding VSphereCPIConfig for reconciliation",
 					constants.NamespaceLogKey, config.Namespace, constants.NameLogKey, config.Name)
 
 				requests = append(requests, ctrl.Request{
