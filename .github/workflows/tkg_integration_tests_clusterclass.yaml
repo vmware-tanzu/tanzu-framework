@@ -240,6 +240,7 @@ jobs:
         run: rm -rf ~/.tanzu ~/.tkg ~/.config; docker kill $(docker ps -q) | true; docker system prune -a --volumes -f
 
       - name: Run TKG integration tests
+        if: ${{ env.gcp_bucket_sa != '' }}
         run: |
           if [[ ! -z "${{ needs.build-and-publish-packages.outputs.bompath }}" ]]; then
             export TKG_DEFAULT_COMPATIBILITY_IMAGE_PATH=${{ needs.build-and-publish-packages.outputs.bompath }}
