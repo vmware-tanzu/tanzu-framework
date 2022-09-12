@@ -18,14 +18,14 @@ import (
 
 	assetfs "github.com/elazarl/go-bindata-assetfs"
 
-	servermanifest "github.com/vmware-tanzu/tanzu-framework/tkg/manifest/server"
-	"github.com/vmware-tanzu/tanzu-framework/tkg/types"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/web/server/handlers"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/web/server/restapi"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/web/server/restapi/operations"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/web/server/ws"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/client"
+	servermanifest "github.com/vmware-tanzu/tanzu-framework/tkg/manifest/server"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/tkgconfigreaderwriter"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/types"
 )
 
 // Serve serve the kickstart UI
