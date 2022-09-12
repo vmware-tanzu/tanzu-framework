@@ -397,8 +397,8 @@ func (r *VSphereCPIConfigReconciler) getOwnerCluster(ctx context.Context, cpiCon
 	}
 	if err := r.Client.Get(ctx, types.NamespacedName{Namespace: cpiConfig.Namespace, Name: clusterName}, cluster); err != nil {
 		if apierrors.IsNotFound(err) {
-			r.Log.Info(fmt.Sprintf("Cluster resource '%s/%s' not found", cpiConfig.Namespace, clusterName))
-			return nil, nil
+			r.Log.Error(err, fmt.Sprintf("Cluster resource '%s/%s' not found", cpiConfig.Namespace, clusterName))
+			return nil, err
 		}
 		r.Log.Error(err, fmt.Sprintf("Unable to fetch cluster '%s/%s'", cpiConfig.Namespace, clusterName))
 		return nil, err
