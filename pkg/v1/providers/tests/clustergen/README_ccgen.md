@@ -33,7 +33,6 @@ e.g. this picks the first 10 cases using the azure infra
 export CASES=$(for i in `grep azure:v1. testdata/*.case | \
     cut -d: -f1 | uniq | cut -d/ -f7 | head -10`; do echo -n "$i "; done; echo)
 
-
 ## Details on dry-run generation of ClusterClass-based configuration
 
 Since the clustergen tests are expected to generate configuration entirely
