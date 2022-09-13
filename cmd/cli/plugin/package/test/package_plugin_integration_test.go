@@ -488,21 +488,6 @@ func setUpPrivateRegistry(kubeconfigPath, clusterName string) {
 		}
 	}
 
-	By("make sure package API is available after kapp-controller restart")
-	err = retry.OnError(
-		backOff,
-		func(err error) bool {
-			return err != nil
-		},
-		func() error {
-			result = packagePlugin.ListRepository(&repoOptions)
-			if result.Error != nil {
-				return result.Error
-			}
-			return nil
-		})
-	Expect(err).ToNot(HaveOccurred())
-
 	By("make sure registry pod is running")
 	err = retry.OnError(
 		backOff,
@@ -519,6 +504,21 @@ func setUpPrivateRegistry(kubeconfigPath, clusterName string) {
 				if pod.Status.Phase != corev1.PodRunning {
 					return errors.New("registry pod is not running")
 				}
+			}
+			return nil
+		})
+	Expect(err).ToNot(HaveOccurred())
+
+	By("make sure package API is available after kapp-controller restart")
+	err = retry.OnError(
+		backOff,
+		func(err error) bool {
+			return err != nil
+		},
+		func() error {
+			result = packagePlugin.ListRepository(&repoOptions)
+			if result.Error != nil {
+				return result.Error
 			}
 			return nil
 		})
