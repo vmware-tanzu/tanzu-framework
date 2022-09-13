@@ -47,7 +47,7 @@ func NewRootCmd() (*cobra.Command, error) {
 	if ni != "" || strings.EqualFold(forceNoInit, "true") {
 		noInit = true
 	}
-	if os.Getenv("TANZU_CLI_NO_COLOR") != "" {
+	if os.Getenv("TANZU_CLI_NO_COLOR") != "" || os.Getenv("NO_COLOR") != "" {
 		color = false
 	}
 
