@@ -58,6 +58,9 @@ func E2EAutoscalerSpec(context context.Context, inputGetter func() E2EAutoscaler
 	})
 
 	It("autoscaler should scale up/down the workers", func() {
+		if input.E2EConfig.InfrastructureName == "docker" {
+			Skip("Skipping docker autoscaler tests")
+		}
 		By(fmt.Sprintf("Creating a workload cluster %q", clusterName))
 		options := framework.CreateClusterOptions{
 			ClusterName:          clusterName,
