@@ -1,0 +1,6 @@
+apiVersion: csi.tanzu.vmware.com/v1alpha1
+kind: AwsEbsCSIConfig
+metadata:
+  name: awsebscsiconfig-sample
+spec:
+  # TODO(user): Add fields here

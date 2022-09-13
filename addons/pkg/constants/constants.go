@@ -35,6 +35,9 @@ const (
 	// CSIAddonName is name of the vsphere-csi addon
 	CSIAddonName = "vsphere-csi"
 
+	// AwsEbsCSIAddonName is name of the vsphere-csi addon
+	AwsEbsCSIAddonName = "aws-ebs-csi"
+
 	// TKGBomNamespace is the TKG add on BOM namespace.
 	TKGBomNamespace = "tkr-system"
 
@@ -293,4 +296,7 @@ var (
 
 	// KappControllerConfigKind is the Kind for KappControllerConfig object
 	KappControllerConfigKind = reflect.TypeOf(runv1alpha3.KappControllerConfig{}).Name()
+
+	// VSphereCSIConfigKind is the Kind for csi AwsEbsCSIConfig object
+	AwsEbsCSIConfigKind = reflect.TypeOf(csiv1alpha1.AwsEbsCSIConfig{}).Name()
 )
