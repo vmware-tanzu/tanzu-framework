@@ -472,9 +472,14 @@ test: generate manifests build-cli-mocks ## Run tests
 	# pinniped tanzu-auth-controller-manager
 	pinniped-components/tanzu-auth-controller-manager/hack/test.sh
 
+	#Test core cli
+	$(MAKE) test -C cli/core
+
 .PHONY: test-cli
 test-cli: build-cli-mocks ## Run tests
-	$(GO) test .cli/core/pkg/cli/... ./pkg/v1/auth/... ./pkg/v1/builder/... ./cli/core/pkg/config/... ./pkg/v1/encoding/... ./pkg/v1/grpc/...
+	$(GO) test  ./pkg/v1/auth/... ./pkg/v1/builder/...  ./pkg/v1/encoding/... ./pkg/v1/grpc/...
+	#Test core cli
+	$(MAKE) test -C cli/core
 
 lint: tools go-lint doc-lint misspell yamllint ## Run linting and misspell checks
 	# Check licenses in shell scripts and Makefiles

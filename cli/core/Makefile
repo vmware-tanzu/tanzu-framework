@@ -30,8 +30,6 @@ ifeq ($(strip $(BUILD_VERSION)),)
 BUILD_VERSION = dev
 endif
 
-
-
 # Directories
 TOOLS_DIR := $(abspath $(MODULE_ROOT_DIR)/hack/tools)
 TOOLS_BIN_DIR := $(TOOLS_DIR)/bin
