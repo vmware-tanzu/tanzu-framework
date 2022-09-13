@@ -50,6 +50,11 @@ LD_FLAGS += -X 'github.com/vmware-tanzu/tanzu-framework/pkg/v1/buildinfo.Date=$(
 LD_FLAGS += -X 'github.com/vmware-tanzu/tanzu-framework/pkg/v1/buildinfo.SHA=$(BUILD_SHA)'
 LD_FLAGS += -X 'github.com/vmware-tanzu/tanzu-framework/pkg/v1/buildinfo.Version=$(BUILD_VERSION)'
 
+# Set buildinfo for plugins
+LD_FLAGS += -X 'github.com/vmware-tanzu/tanzu-framework/cli/runtime/buildinfo.Date=$(BUILD_DATE)'
+LD_FLAGS += -X 'github.com/vmware-tanzu/tanzu-framework/cli/runtime/buildinfo.SHA=$(BUILD_SHA)'
+LD_FLAGS += -X 'github.com/vmware-tanzu/tanzu-framework/cli/runtime/buildinfo.Version=$(BUILD_VERSION)'
+
 # Add supported OS-ARCHITECTURE combinations here
 ENVS ?= linux-amd64 windows-amd64 darwin-amd64
 STANDALONE_PLUGINS ?= login management-cluster package pinniped-auth secret telemetry
