@@ -40,9 +40,11 @@ issue backlog during their scheduled week.
 
 The point person will monitor:
 
-* New issues labeled with `needs-triage`.
-* Currently, open issues labeled as `investigating` and `triage/needs-info`.
-* Open issues labeled as `severity-1`.
+* New issues labeled with [`needs-triage`](https://github.com/vmware-tanzu/tanzu-framework/labels/needs-triage).
+* Currently, open issues labeled as [`investigating` and `triage/needs-info`](https://github.com/vmware-tanzu/tanzu-framework/issues?q=label%3Atriage%2Fneeds-info%2Cinvestigating+is%3Aopen).
+* Open issues labeled as [`severity-1`](https://github.com/vmware-tanzu/tanzu-framework/labels/severity-1).
+
+These issues can also be viewed [with a single aggregating query](https://github.com/vmware-tanzu/tanzu-framework/issues?q=label%3Atriage%2Fneeds-info%2Cinvestigating%2Cseverity-1%2Cneeds-triage+is%3Aopen).
 
 ### GitHub issue flow
 
