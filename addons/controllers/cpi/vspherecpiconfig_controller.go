@@ -234,7 +234,7 @@ func (r *VSphereCPIConfigReconciler) SetupWithManager(_ context.Context, mgr ctr
 		WithEventFilter(predicates.ConfigOfKindWithoutAnnotation(constants.TKGAnnotationTemplateConfig, constants.VSphereCPIConfigKind, r.Config.SystemNamespace, r.Log)).
 		Watches(
 			&source.Kind{Type: &clusterapiv1beta1.Cluster{}},
-			handler.EnqueueRequestsFromMapFunc(r.ClustersToVSphereCPIConfig),
+			handler.EnqueueRequestsFromMapFunc(r.ClusterToVSphereCPIConfig),
 		).
 		Complete(r)
 }

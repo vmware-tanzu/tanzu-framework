@@ -30,8 +30,8 @@ import (
 	cpiv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/addonconfigs/cpi/v1alpha1"
 )
 
-// ClustersToVSphereCPIConfig returns a list of Requests with VSphereCPIConfig ObjectKey based on Cluster events
-func (r *VSphereCPIConfigReconciler) ClustersToVSphereCPIConfig(o client.Object) []ctrl.Request {
+// ClusterToVSphereCPIConfig returns a list of Requests with VSphereCPIConfig ObjectKey based on Cluster events
+func (r *VSphereCPIConfigReconciler) ClusterToVSphereCPIConfig(o client.Object) []ctrl.Request {
 	r.Log.V(4).Info("Clusters to VSphereCPIConfig handler")
 
 	cluster, ok := o.(*clusterapiv1beta1.Cluster)
