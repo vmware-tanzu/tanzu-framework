@@ -95,7 +95,7 @@ type AntreaConfigDataValue struct {
 
 	// The names of the interfaces on Nodes that are used to forward multicast traffic.
 	// +kubebuilder:validation:Optional
-	MulticastInterface string `json:"multicastInterface,omitempty"`
+	MulticastInterfaces []string `json:"multicastInterfaces,omitempty"`
 
 	// The traffic encapsulation mode. One of the following options => encap, noEncap, hybrid, networkPolicyOnly
 	// +kubebuilder:validation:Optional

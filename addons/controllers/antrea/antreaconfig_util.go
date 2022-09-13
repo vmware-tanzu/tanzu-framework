@@ -56,7 +56,7 @@ type antreaConfigDataValue struct {
 	WireGuard               antreaWireGuard     `yaml:"wireGuard,omitempty"`
 	transportInterface      string              `yaml:"transportInterface,omitempty"`
 	transportInterfaceCIDRs []string            `yaml:"transportInterfaceCIDRs,omitempty"`
-	multicastInterface      string              `yaml:"multicastInterface,omitempty"`
+	multicastInterfaces     []string            `yaml:"multicastInterfaces,omitempty"`
 	ServiceCIDR             string              `yaml:"serviceCIDR,omitempty"`
 	ServiceCIDRv6           string              `yaml:"serviceCIDRv6,omitempty"`
 	TrafficEncapMode        string              `yaml:"trafficEncapMode,omitempty"`
@@ -116,7 +116,7 @@ func mapAntreaConfigSpec(cluster *clusterapiv1beta1.Cluster, config *cniv1alpha1
 	configSpec.Antrea.AntreaConfigDataValue.WireGuard.Port = config.Spec.Antrea.AntreaConfigDataValue.WireGuard.Port
 	configSpec.Antrea.AntreaConfigDataValue.transportInterface = config.Spec.Antrea.AntreaConfigDataValue.TransportInterface
 	configSpec.Antrea.AntreaConfigDataValue.transportInterfaceCIDRs = config.Spec.Antrea.AntreaConfigDataValue.TransportInterfaceCIDRs
-	configSpec.Antrea.AntreaConfigDataValue.multicastInterface = config.Spec.Antrea.AntreaConfigDataValue.MulticastInterface
+	configSpec.Antrea.AntreaConfigDataValue.multicastInterfaces = config.Spec.Antrea.AntreaConfigDataValue.MulticastInterfaces
 	configSpec.Antrea.AntreaConfigDataValue.TrafficEncapMode = config.Spec.Antrea.AntreaConfigDataValue.TrafficEncapMode
 	configSpec.Antrea.AntreaConfigDataValue.NoSNAT = config.Spec.Antrea.AntreaConfigDataValue.NoSNAT
 	configSpec.Antrea.AntreaConfigDataValue.DisableUDPTunnelOffload = config.Spec.Antrea.AntreaConfigDataValue.DisableUDPTunnelOffload

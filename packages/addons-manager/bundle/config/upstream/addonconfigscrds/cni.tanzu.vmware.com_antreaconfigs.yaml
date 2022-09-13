@@ -175,10 +175,12 @@ spec:
                         - hybrid
                         - networkPolicyOnly
                         type: string
-                      multicastInterface:
+                      multicastInterfaces:
                         description: The names of the interfaces on Nodes that are
                           used to forward multicast traffic.
-                        type: string
+                        items:
+                          type: string
+                        type: array
                       noSNAT:
                         default: false
                         description: Flag to enable/disable SNAT for the egress traffic

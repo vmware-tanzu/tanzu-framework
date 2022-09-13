@@ -68,6 +68,11 @@ func (in *AntreaConfigDataValue) DeepCopyInto(out *AntreaConfigDataValue) {
 		*out = make([]string, len(*in))
 		copy(*out, *in)
 	}
+	if in.MulticastInterfaces != nil {
+		in, out := &in.MulticastInterfaces, &out.MulticastInterfaces
+		*out = make([]string, len(*in))
+		copy(*out, *in)
+	}
 	out.FeatureGates = in.FeatureGates
 }
 
