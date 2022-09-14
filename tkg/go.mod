@@ -40,6 +40,7 @@ require (
 	github.com/go-openapi/swag v0.21.1
 	github.com/go-openapi/validate v0.19.8
 	github.com/golang/mock v1.6.0
+	github.com/google/go-cmp v0.5.8
 	github.com/google/go-containerregistry v0.7.0
 	github.com/google/uuid v1.3.0
 	github.com/googleapis/gnostic v0.5.5
@@ -163,7 +164,6 @@ require (
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/google/cel-go v0.10.0 // indirect
-	github.com/google/go-cmp v0.5.8 // indirect
 	github.com/google/go-github/v33 v33.0.0 // indirect
 	github.com/google/go-querystring v1.1.0 // indirect
 	github.com/google/gofuzz v1.2.0 // indirect
