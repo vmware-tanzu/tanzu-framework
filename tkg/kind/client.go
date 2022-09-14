@@ -109,7 +109,7 @@ var _ Client = &KindClusterProxy{}
 func New(options *KindClusterOptions) Client {
 	// create provider is nil
 	if options.Provider == nil {
-		options.Provider = cluster.NewProvider(cluster.ProviderWithLogger(NewLogger(3)))
+		options.Provider = cluster.NewProvider(cluster.ProviderWithLogger(NewLogger(5)))
 	}
 	return &KindClusterProxy{
 		options: options,
