@@ -16,6 +16,33 @@
 #@   end
 #@ end
 
+#! skipping data.values.CERT_DURATION and data.values.CERT_RENEW_BEFORE as I don't recall if these are exclusive to Pinniped, but they certainly are not significant enough config on their own
+#@ def pinniped_configs_exist():
+#@  return (data.values.OIDC_IDENTITY_PROVIDER_CLIENT_ID or
+#@          data.values.OIDC_IDENTITY_PROVIDER_CLIENT_SECRET or
+#@          data.values.OIDC_IDENTITY_PROVIDER_GROUPS_CLAIM or
+#@          data.values.OIDC_IDENTITY_PROVIDER_ISSUER_URL or
+#@          data.values.OIDC_IDENTITY_PROVIDER_SCOPES or
+#@          data.values.OIDC_IDENTITY_PROVIDER_USERNAME_CLAIM or
+#@          data.values.SUPERVISOR_ISSUER_URL or
+#@          data.values.SUPERVISOR_ISSUER_CA_BUNDLE_DATA_B64 or
+#@          data.values.LDAP_BIND_DN or
+#@          data.values.LDAP_BIND_PASSWORD or
+#@          data.values.LDAP_GROUP_SEARCH_BASE_DN or
+#@          data.values.LDAP_GROUP_SEARCH_FILTER or
+#@          data.values.LDAP_GROUP_SEARCH_GROUP_ATTRIBUTE or
+#@          data.values.LDAP_GROUP_SEARCH_NAME_ATTRIBUTE or
+#@          data.values.LDAP_GROUP_SEARCH_USER_ATTRIBUTE or
+#@          data.values.LDAP_HOST or
+#@          data.values.LDAP_ROOT_CA_DATA_B64 or
+#@          data.values.LDAP_USER_SEARCH_BASE_DN or
+#@          data.values.LDAP_USER_SEARCH_EMAIL_ATTRIBUTE or
+#@          data.values.LDAP_USER_SEARCH_FILTER or
+#@          data.values.LDAP_USER_SEARCH_ID_ATTRIBUTE or
+#@          data.values.LDAP_USER_SEARCH_NAME_ATTRIBUTE or
+#@          data.values.LDAP_USER_SEARCH_USERNAME)
+#@ end
+
 #@ def antrea_configs_exist():
 #@   return (data.values.NSXT_POD_ROUTING_ENABLED or
 #@           data.values.ANTREA_NO_SNAT or
@@ -40,9 +67,13 @@
 #@ end
 
 #@ def should_create_clusterbootstrap():
-#@   return data.values.CNI != "antrea" or antrea_configs_exist() or vspherecsi_configs_exist() or vspherecpi_configs_exist()
+#@   return data.values.CNI != "antrea" or antrea_configs_exist() or vspherecsi_configs_exist() or vspherecpi_configs_exist() or pinniped_configs_exist()
 #@ end
 
+#@ if pinniped_configs_exist():
+---
+#@ TODO: put the pinniped config here. 
+#@ end
 #@ if antrea_configs_exist():
 ---
 apiVersion: cni.tanzu.vmware.com/v1alpha1
@@ -222,4 +253,3 @@ spec:
     - refName: secretgen-controller*
     - refName: pinniped*
 #@ end
-
