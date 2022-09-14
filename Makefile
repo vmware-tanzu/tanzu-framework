@@ -571,8 +571,9 @@ verify-ui-bindata: ## Run verification for UI bindata
 
 .PHONY: cobra-docs
 cobra-docs:
-	TANZU_CLI_NO_INIT=true TANZU_CLI_NO_COLOR=true $(GO) run ./cmd/cli/tanzu generate-all-docs
+	cd cli/core && TANZU_CLI_NO_INIT=true TANZU_CLI_NO_COLOR=true $(GO) run ./cmd/tanzu generate-all-docs --docs-dir "$(ROOT_DIR)/docs/cli/commands"
 	sed -i.bak -E 's/\/[A-Za-z]*\/([a-z]*)\/.config\/tanzu\/pinniped\/sessions.yaml/~\/.config\/tanzu\/pinniped\/sessions.yaml/g' docs/cli/commands/tanzu_pinniped-auth_login.md
+
 
 .PHONY: generate-fakes
 generate-fakes: ## Generate fakes for writing unit tests
