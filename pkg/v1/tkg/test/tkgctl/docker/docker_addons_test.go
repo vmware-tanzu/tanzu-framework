@@ -12,7 +12,7 @@ import (
 	. "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/test/tkgctl/shared"
 )
 
-var _ = Describe("Addon tests for capd clusters", func() {
+var _ = Describe("Addon tests for capd clusters ", func() {
 	E2EAddonSpec(context.TODO(), func() E2EAddonSpecInput {
 		return E2EAddonSpecInput{
 			E2EConfig:       e2eConfig,
