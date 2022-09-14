@@ -58,21 +58,25 @@ func (t *tkgctl) Init(options InitRegionOptions) error {
 	var err error
 	options.ClusterConfigFile, err = t.ensureClusterConfigFile(options.ClusterConfigFile)
 	if err != nil {
+		fmt.Println("qwerty1")
 		return err
 	}
 
 	err = ensureConfigImages(t.configDir, t.tkgConfigUpdaterClient)
 	if err != nil {
+		fmt.Println("qwerty2")
 		return err
 	}
 
 	err = t.configureInitManagementClusterOptionsFromConfigFile(&options)
 	if err != nil {
+		fmt.Println("qwerty3")
 		return err
 	}
 
 	ceipOptIn, err := strconv.ParseBool(options.CeipOptIn)
 	if err != nil {
+		fmt.Println("qwerty4")
 		if options.Edition == TCEBuildEdition {
 			ceipOptIn = false
 		} else {
@@ -86,6 +90,7 @@ func (t *tkgctl) Init(options InitRegionOptions) error {
 
 	options.CoreProvider, options.BootstrapProvider, options.ControlPlaneProvider, err = t.tkgBomClient.GetDefaultClusterAPIProviders()
 	if err != nil {
+		fmt.Println("qwerty5")
 		return err
 	}
 
@@ -106,6 +111,7 @@ func (t *tkgctl) Init(options InitRegionOptions) error {
 	}
 
 	if err := t.tkgClient.ValidatePrerequisites(!options.UseExistingCluster, true); err != nil {
+		fmt.Println("qwerty6")
 		return err
 	}
 
@@ -124,6 +130,7 @@ func (t *tkgctl) Init(options InitRegionOptions) error {
 	// save the feature flags to the config file before launching UI
 	err = t.tkgClient.SaveFeatureFlags(optionsIR.FeatureFlags)
 	if err != nil {
+		fmt.Println("qwerty7")
 		log.Error(err, "Failed to save feature flag options.")
 	}
 
@@ -135,19 +142,23 @@ func (t *tkgctl) Init(options InitRegionOptions) error {
 	} else {
 		providerName, _, err := client.ParseProviderName(optionsIR.InfrastructureProvider)
 		if err != nil {
+			fmt.Println("qwerty8")
 			return errors.Wrap(err, "unable to parse provider name")
 		}
 		if providerName == "vsphere" {
 			err := t.verifyThumbprint(options.SkipPrompt)
 			if err != nil {
+				fmt.Println("qwerty9")
 				return err
 			}
 			vcClient, err := t.tkgClient.GetVSphereEndpoint(nil)
 			if err != nil {
+				fmt.Println("qwerty10")
 				return errors.Wrap(err, "unable to verify vSphere credentials")
 			}
 			validateErr := client.ValidateVSphereVersion(vcClient)
 			if validateErr != nil {
+				fmt.Println("qwerty11")
 				switch validateErr.Code {
 				case client.PacificInVC7ErrorCode:
 					shouldContinueDeployment, err := t.validationActionForVSphereVersion(true, &options)
@@ -180,6 +191,7 @@ func (t *tkgctl) Init(options InitRegionOptions) error {
 			log.Infof("\nSetting up management cluster...\n")
 			err = t.tkgClient.InitRegion(&optionsIR)
 			if err != nil {
+				fmt.Println("qwerty12")
 				return errors.Wrap(err, "unable to set up management cluster")
 			}
 			logManagementCreationSuccess()

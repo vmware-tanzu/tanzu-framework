@@ -28,7 +28,7 @@ import (
 // Kind cluster related constants
 const (
 	kindClusterNamePrefix       = "tkg-kind-"
-	kindClusterWaitForReadyTime = 2 * time.Minute
+	kindClusterWaitForReadyTime = 10 * time.Minute
 	kindRegistryCAPath          = "/etc/containerd/tkg-registry-ca.crt"
 )
 
@@ -145,6 +145,7 @@ func (k *KindClusterProxy) CreateKindCluster() (string, error) {
 		cluster.CreateWithDisplaySalutation(false),
 		cluster.CreateWithV1Alpha4Config(config),
 	); err != nil {
+		fmt.Println("qwerty", err.Error())
 		return "", errors.Wrapf(err, "failed to create kind cluster %s", k.options.ClusterName)
 	}
 
