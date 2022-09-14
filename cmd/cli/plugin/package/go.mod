@@ -3,13 +3,13 @@ module github.com/vmware-tanzu/tanzu-framework/cmd/cli/plugin/package
 go 1.17
 
 replace (
-	github.com/vmware-tanzu/tanzu-framework => ../../../../
 	github.com/vmware-tanzu/tanzu-framework/apis/cli => ../../../../apis/cli
 	github.com/vmware-tanzu/tanzu-framework/apis/config => ../../../../apis/config
 	github.com/vmware-tanzu/tanzu-framework/apis/run => ../../../../apis/run
 	github.com/vmware-tanzu/tanzu-framework/capabilities/client => ../../../../capabilities/client
 	github.com/vmware-tanzu/tanzu-framework/cli/core => ../../../../cli/core
 	github.com/vmware-tanzu/tanzu-framework/cli/runtime => ../../../../cli/runtime
+	github.com/vmware-tanzu/tanzu-framework/cmd/cli/plugin/secret => ../../../../cmd/cli/plugin/secret
 	github.com/vmware-tanzu/tanzu-framework/packageclients => ../../../../packageclients
 	github.com/vmware-tanzu/tanzu-framework/tkg => ../../../../tkg
 	sigs.k8s.io/cluster-api => sigs.k8s.io/cluster-api v1.1.5
@@ -27,10 +27,10 @@ require (
 	github.com/stretchr/testify v1.8.0
 	github.com/vmware-tanzu/carvel-kapp-controller v0.35.0
 	github.com/vmware-tanzu/carvel-kapp-controller/cli v0.0.0-20220617205641-1d376ccc7312
-	github.com/vmware-tanzu/tanzu-framework v0.0.0-00010101000000-000000000000
 	github.com/vmware-tanzu/tanzu-framework/capabilities/client v0.0.0-00010101000000-000000000000
 	github.com/vmware-tanzu/tanzu-framework/cli/runtime v0.0.0-00010101000000-000000000000
-	github.com/vmware-tanzu/tanzu-framework/packageclients v0.0.0-20220908202723-7a1ddb97efab
+	github.com/vmware-tanzu/tanzu-framework/cmd/cli/plugin/secret v0.0.0-00010101000000-000000000000
+	github.com/vmware-tanzu/tanzu-framework/packageclients v0.0.0-00010101000000-000000000000
 	github.com/vmware-tanzu/tanzu-framework/tkg v0.0.0-00010101000000-000000000000
 	go.uber.org/multierr v1.6.0
 	gopkg.in/yaml.v3 v3.0.1
