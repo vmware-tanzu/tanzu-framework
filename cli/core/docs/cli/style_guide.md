@@ -193,7 +193,7 @@ $ tanzu apps workload delete <name> --wait-timeout 10m
 
 Available for plugins written in golang.
 
-CLI commands should utilize the plugin component library in [pkg/cli/component](https://github.com/vmware-tanzu/tanzu-framework/tree/main/pkg/v1/cli/component) for interactive features like prompts or table printing.
+CLI commands should utilize the plugin component library in [cli/runtime/component](https://github.com/vmware-tanzu/tanzu-framework/tree/main/cli/runtime/component) for interactive features like prompts or table printing.
 
 Available input components:
 
@@ -522,7 +522,7 @@ Make it easy to submit bug reports and feedback
 
 ### Plugins
 
-For information about developing plugins, see the [Plugin Guide](https://github.com/vmware-tanzu/tanzu-framework/blob/main/docs/cli/plugin_implementation_guide.md)
+For information about developing plugins, see the [Plugin Guide](https://github.com/vmware-tanzu/tanzu-framework/blob/main/cli/core/docs/cli/plugin_implementation_guide.md)
 
 ### Contributions to the Style Guide
 

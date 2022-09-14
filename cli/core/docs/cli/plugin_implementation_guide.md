@@ -5,7 +5,7 @@
 The Tanzu CLI was built to be extensible across teams and be cohesive across SKUs. To this end, the Tanzu CLI provides
 tools to make creating and compiling new plugins straightforward.
 
-The [Tanzu CLI Styleguide](/docs/cli/style_guide.md) describes the user interaction patterns to be followed,
+The [Tanzu CLI Styleguide](style_guide.md) describes the user interaction patterns to be followed,
 and general guidance, for CLI contribution.
 
 ------------------------------
@@ -26,7 +26,7 @@ Current implementations:
 
 #### Installing Admin Plugins
 
-With the [context-aware plugin discovery](/docs/design/context-aware-plugin-discovery-design.md) enabled (now the default and recommended approach), Tanzu CLI admin plugins should be installed from local source as follows:
+With the [context-aware plugin discovery](../design/context-aware-plugin-discovery-design.md) enabled (now the default and recommended approach), Tanzu CLI admin plugins should be installed from local source as follows:
 
 1. Download the latest admin plugin tarball or zip file from [release](https://github.com/vmware-tanzu/tanzu-framework/releases/latest) page (`tanzu-framework-plugins-admin-linux-amd64.tar.gz` or `tanzu-framework-plugins-admin-darwin-amd64.tar.gz` or `tanzu-framework-plugins-admin-windows-amd64.zip`) and extract it (using `linux` as the example OS for next steps)
 1. Run `tanzu plugin list --local /path/to/extracted/admin-plugins` to list the available admin plugins
@@ -122,7 +122,7 @@ To install the builder plugin use `tanzu plugin install builder`
 
 ### Repository (Legacy method)
 
-NOTE: This is not applicable if [context-aware plugin discovery](/docs/design/context-aware-plugin-discovery-design.md) is enabled within Tanzu CLI.
+NOTE: This is not applicable if [context-aware plugin discovery](../design/context-aware-plugin-discovery-design.md) is enabled within Tanzu CLI.
 
 A plugin repository represents a group of plugin artifacts that are installable by the Tanzu CLI. A repository is
 defined as an interface.
@@ -137,7 +137,7 @@ filesystem repository in the creation and testing of their feature.
 
 #### Adding Admin Repository (Legacy method)
 
-NOTE: This is not applicable if [context-aware plugin discovery](/docs/design/context-aware-plugin-discovery-design.md) is enabled within Tanzu CLI.
+NOTE: This is not applicable if [context-aware plugin discovery](../design/context-aware-plugin-discovery-design.md) is enabled within Tanzu CLI.
 
 The admin repository contains the Builder plugin - a plugin which helps scaffold and compile plugins.
 
@@ -306,4 +306,4 @@ TBD
 
 ## CLI Design
 
-Please see the [Tanzu CLI Styleguide](/docs/cli/style_guide.md)
+Please see the [Tanzu CLI Styleguide](style_guide.md)
