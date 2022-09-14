@@ -26,8 +26,8 @@ var _ = Describe("Region manager", func() {
 		tkgConfigPath string
 	)
 	const (
-		fakeConfigYAMLFilePath       = "../fakes/config/config.yaml"
-		fakeConfig2YAMLFilePath      = "../fakes/config/config2.yaml"
+		fakeConfigYAMLFilePath       = "../../pkg/v1/tkg/fakes/config/config.yaml"
+		fakeConfig2YAMLFilePath      = "../../pkg/v1/tkg/fakes/config/config2.yaml"
 		RegionalCluster2             = "regional-cluster-2"
 		User1RegionalCluster2Context = "user1@regional-cluster-2-context"
 	)
@@ -267,7 +267,7 @@ var _ = Describe("Region manager", func() {
 
 		Context("When current-region-context key has no value", func() {
 			BeforeEach(func() {
-				tkgConfigPath = "../fakes/config/config3.yaml"
+				tkgConfigPath = "../../pkg/v1/tkg/fakes/config/config3.yaml"
 				clusterName = RegionalCluster2
 				contextName = User1RegionalCluster2Context
 			})
@@ -282,7 +282,7 @@ var _ = Describe("Region manager", func() {
 
 		Context("When current-region-context key does not exist", func() {
 			BeforeEach(func() {
-				tkgConfigPath = "../fakes/config/config8.yaml"
+				tkgConfigPath = "../../pkg/v1/tkg/fakes/config/config8.yaml"
 				clusterName = "regional-cluster-2"
 				contextName = "user1@regional-cluster-2-context"
 			})

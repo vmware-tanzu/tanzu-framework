@@ -28,10 +28,10 @@ var _ = Describe("Feature flag client", func() {
 	)
 
 	const (
-		validFeaturesJSONFilePath     = "../fakes/config/features/features_valid.json"
-		invalidFeaturesJSONFilePath   = "../fakes/config/features/features_invalid.json"
-		duplicateFeaturesJSONFilePath = "../fakes/config/features/features_duplicate.json"
-		featuresWritesJSONFilePath    = "../fakes/config/features/features_write.json"
+		validFeaturesJSONFilePath     = "../../pkg/v1/tkg/fakes/config/features/features_valid.json"
+		invalidFeaturesJSONFilePath   = "../../pkg/v1/tkg/fakes/config/features/features_invalid.json"
+		duplicateFeaturesJSONFilePath = "../../pkg/v1/tkg/fakes/config/features/features_duplicate.json"
+		featuresWritesJSONFilePath    = "../../pkg/v1/tkg/fakes/config/features/features_write.json"
 		featureOne                    = "feature1"
 		featureTwo                    = "feature2"
 	)
@@ -207,7 +207,7 @@ var _ = Describe("Feature flag client", func() {
 		})
 		Context("with data already in file", func() {
 			BeforeEach(func() {
-				filePath = "../fakes/config/features/features_overwrite.json"
+				filePath = "../../pkg/v1/tkg/fakes/config/features/features_overwrite.json"
 				flags = map[string]string{
 					featureOne: "true",
 					featureTwo: "false",
@@ -223,7 +223,7 @@ var _ = Describe("Feature flag client", func() {
 		})
 		Context("when file doesn't exist", func() {
 			BeforeEach(func() {
-				filePath = "../fakes/config/features/features_new.json"
+				filePath = "../../pkg/v1/tkg/fakes/config/features/features_new.json"
 				flags = map[string]string{
 					featureOne: "true",
 					featureTwo: "false",
@@ -236,7 +236,7 @@ var _ = Describe("Feature flag client", func() {
 				Expect(len(featureFlags)).To(Equal(2))
 			})
 			AfterEach(func() {
-				os.Remove("../fakes/config/features/features_new.json")
+				os.Remove("../../pkg/v1/tkg/fakes/config/features/features_new.json")
 			})
 		})
 	})

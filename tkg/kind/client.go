@@ -76,7 +76,7 @@ type Client interface {
 	GetKindNodeImageAndConfig() (string, *kindv1.Cluster, error)
 }
 
-//go:generate counterfeiter -o ../fakes/kindprovider.go --fake-name KindProvider . KindClusterProvider
+//go:generate counterfeiter -o ../../pkg/v1/tkg/fakes/kindprovider.go --fake-name KindProvider . KindClusterProvider
 
 // KindClusterProvider is interface for creating/deleting kind cluster
 type KindClusterProvider interface {

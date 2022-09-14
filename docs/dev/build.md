@@ -7,6 +7,8 @@ Framework is meant to be extended, and these docs will help outline the availabl
 There are Make targets provided to help establish a good workflow for local development.
 With these workflows you can iterate on changes to APIs, Framework CLI or CLI Plugins.
 
+Note: Go v1.17 or greater is required to build Framework components.
+
 ### Building APIs
 
 To build the APIs in Framework, the following commands exist:

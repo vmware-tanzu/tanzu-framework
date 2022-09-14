@@ -5,6 +5,7 @@ GOOS ?= $(shell go env GOOS)
 GOARCH ?= $(shell go env GOARCH)
 GOHOSTOS ?= $(shell go env GOHOSTOS)
 GOHOSTARCH ?= $(shell go env GOHOSTARCH)
+GOVERSION ?= 1.17
 
 ROOT_DIR := $(shell git rev-parse --show-toplevel)
 RELATIVE_ROOT ?= .
