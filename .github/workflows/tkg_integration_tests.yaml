@@ -4,7 +4,7 @@ on:
   pull_request:
     branches: [ main, release-* ]
     paths:
-    - 'pkg/v1/tkg/**'
+    - 'tkg/**'
     - '!packageclients/**'
     - '!cmd/cli/plugin/package/test/**'
     - 'pkg/v1/providers/**'
@@ -94,7 +94,7 @@ jobs:
         fi
         make configure-bom
         make generate-embedproviders
-        E2E_CONFIG=$PWD/pkg/v1/tkg/test/config/docker.yaml hack/tools/bin/ginkgo -nodes=3 -v -trace -tags embedproviders pkg/v1/tkg/test/tkgctl/docker
+        E2E_CONFIG=$PWD/tkg/test/config/docker.yaml hack/tools/bin/ginkgo -nodes=3 -v -trace -tags embedproviders tkg/test/tkgctl/docker
 
   integ-tests-azure:
     name: TKG Integration Tests CAPZ
@@ -178,7 +178,7 @@ jobs:
     - uses: microsoft/variable-substitution@v1
       if: ${{ env.azure_client_id != '' }}
       with:
-        files: 'pkg/v1/tkg/test/config/azure.yaml'
+        files: 'tkg/test/config/azure.yaml'
       env:
         tkg_config_variables.AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID_SAIB }}
         tkg_config_variables.AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID_SAIB }}
@@ -186,7 +186,7 @@ jobs:
         tkg_config_variables.AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET_SAIB }}
         cluster_prefix: ${{ env.CLUSTER_PREFIX }}
     - run: |
-        cat pkg/v1/tkg/test/config/azure.yaml
+        cat tkg/test/config/azure.yaml
     - name: Run TKG integration tests
       if: ${{ env.azure_client_id != '' }}
       run: |
@@ -195,7 +195,7 @@ jobs:
         fi
         make configure-bom
         make generate-embedproviders
-        E2E_CONFIG=$PWD/pkg/v1/tkg/test/config/azure.yaml hack/tools/bin/ginkgo -nodes=3 -v -trace -tags embedproviders pkg/v1/tkg/test/tkgctl/azure
+        E2E_CONFIG=$PWD/tkg/test/config/azure.yaml hack/tools/bin/ginkgo -nodes=3 -v -trace -tags embedproviders tkg/test/tkgctl/azure
 
     - uses: Azure/login@v1.1
       if: ${{ always() && env.azure_client_id != '' }}

@@ -225,8 +225,9 @@ spec:
           standAlonePlugins:
             additionalProperties:
               type: string
-            description: 'StandAlonePlugins is a set of stand-alone plugin installations.
-              Note: Shall be superseded by StandAlonePluginsByContextType'
+            description: 'StandAlonePlugins is a set of stand-alone plugin installations
+              aggregated across all context types. Note: Shall be reduced to only
+              those stand-alone plugins that are common to all context types.'
             type: object
           standAlonePluginsByContextType:
             additionalProperties:

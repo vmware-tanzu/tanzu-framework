@@ -16,7 +16,7 @@ pushd ${CLI_REPO}
 #cat go.mod
 #
 # Build tkg cli
-mkdir -p ${CLI_REPO}/pkg/v1/tkg/web/dist # Add web/dist directory if missing for building cli
+mkdir -p ${CLI_REPO}/tkg/web/dist # Add web/dist directory if missing for building cli
 make tkg-cli
 
 # revert updated go.mod file of tkg-cli repo which was updated before building cli
