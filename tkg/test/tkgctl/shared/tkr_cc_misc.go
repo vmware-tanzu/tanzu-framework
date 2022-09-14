@@ -25,9 +25,10 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/apis/run/util/sets"
 	"github.com/vmware-tanzu/tanzu-framework/apis/run/util/version"
 	runv1 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkr/pkg/constants"
+
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkr/pkg/registry"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v2/tkr/controller/tkr-source/compatibility"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/test/framework"
 )
 
