@@ -134,6 +134,7 @@ func (k *KindClusterProxy) CreateKindCluster() (string, error) {
 
 	// setup proxy envvars for kind clusrer if being configured in TKG
 	k.setupProxyConfigurationForKindCluster()
+	fmt.Println("qwerty", *config)
 
 	// create kind cluster with kind provider interface
 	if err := k.options.Provider.Create(
@@ -193,6 +194,7 @@ func (k *KindClusterProxy) GetKindNodeImageAndConfig() (string, *kindv1.Cluster,
 	kindConfigData := []byte(strings.Join(bomConfiguration.KindKubeadmConfigSpec, "\n"))
 	kindConfig := &kindv1.Cluster{}
 	err = yaml.Unmarshal(kindConfigData, kindConfig)
+	fmt.Println("qwerty kindConfigData", string(kindConfigData))
 	if err != nil {
 		return "", nil, errors.Wrap(err, "unable to parse kind configuration")
 	}
