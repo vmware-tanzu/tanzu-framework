@@ -15,7 +15,6 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/fakes"
 	fakehelper "github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/fakes/helper"
 	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/plugin"
-	"github.com/vmware-tanzu/tanzu-framework/tkg/fakes"
 )
 
 func TestClient(t *testing.T) {
