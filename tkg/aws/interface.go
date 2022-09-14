@@ -10,7 +10,7 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/web/server/models"
 )
 
-//go:generate counterfeiter -o ../fakes/awsclient.go --fake-name AWSClient . Client
+//go:generate counterfeiter -o ../../pkg/v1/tkg/fakes/awsclient.go --fake-name AWSClient . Client
 
 // Client defines methods to access AWS inventory
 type Client interface {

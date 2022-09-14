@@ -25,16 +25,16 @@ import (
 
 var (
 	testingDir                            string
-	defaultBoMFileForTesting              = "../fakes/config/bom/tkg-bom-v1.3.1.yaml"
-	configPath                            = "../fakes/config/config6.yaml"
-	configPathCustomRegistrySkipTLSVerify = "../fakes/config/config_custom_registry_skip_tls_verify.yaml"
-	configPathCustomRegistryCaCert        = "../fakes/config/config_custom_registry_ca_cert.yaml"
-	configPathIPv6                        = "../fakes/config/config_ipv6.yaml"
-	configPathIPv4                        = "../fakes/config/config_ipv4.yaml"
-	configPathIPv4IPv6                    = "../fakes/config/config_ipv4_ipv6.yaml"
-	configPathIPv6IPv4                    = "../fakes/config/config_ipv6_ipv4.yaml"
-	configPathIPv6IPv4WithCIDRS           = "../fakes/config/config_ipv6_ipv4_with_cidrs.yaml"
-	configPathCIDR                        = "../fakes/config/config_cluster_service_cidr.yaml"
+	defaultBoMFileForTesting              = "../../pkg/v1/tkg/fakes/config/bom/tkg-bom-v1.3.1.yaml"
+	configPath                            = "../../pkg/v1/tkg/fakes/config/config6.yaml"
+	configPathCustomRegistrySkipTLSVerify = "../../pkg/v1/tkg/fakes/config/config_custom_registry_skip_tls_verify.yaml"
+	configPathCustomRegistryCaCert        = "../../pkg/v1/tkg/fakes/config/config_custom_registry_ca_cert.yaml"
+	configPathIPv6                        = "../../pkg/v1/tkg/fakes/config/config_ipv6.yaml"
+	configPathIPv4                        = "../../pkg/v1/tkg/fakes/config/config_ipv4.yaml"
+	configPathIPv4IPv6                    = "../../pkg/v1/tkg/fakes/config/config_ipv4_ipv6.yaml"
+	configPathIPv6IPv4                    = "../../pkg/v1/tkg/fakes/config/config_ipv6_ipv4.yaml"
+	configPathIPv6IPv4WithCIDRS           = "../../pkg/v1/tkg/fakes/config/config_ipv6_ipv4_with_cidrs.yaml"
+	configPathCIDR                        = "../../pkg/v1/tkg/fakes/config/config_cluster_service_cidr.yaml"
 	registryHostname                      = "registry.mydomain.com"
 )
 

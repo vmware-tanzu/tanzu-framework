@@ -4,7 +4,7 @@
 // Package features provides TKG related feature enablement functionalities
 package features
 
-//go:generate counterfeiter -o ../fakes/featuresclient.go --fake-name FeaturesClient . Client
+//go:generate counterfeiter -o ../../pkg/v1/tkg/fakes/featuresclient.go --fake-name FeaturesClient . Client
 
 // Client defines methods to access feature flags
 type Client interface {
