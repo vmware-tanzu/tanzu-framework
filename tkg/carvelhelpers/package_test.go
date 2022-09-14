@@ -10,7 +10,7 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
-	. "github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/carvelhelpers"
+	. "github.com/vmware-tanzu/tanzu-framework/tkg/carvelhelpers"
 )
 
 func TestClient(t *testing.T) {
