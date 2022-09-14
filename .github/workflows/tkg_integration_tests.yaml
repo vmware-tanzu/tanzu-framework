@@ -94,7 +94,9 @@ jobs:
         fi
         make configure-bom
         make generate-embedproviders
-        E2E_CONFIG=$PWD/tkg/test/config/docker.yaml hack/tools/bin/ginkgo -nodes=3 -v -trace -tags embedproviders tkg/test/tkgctl/docker
+        pushd tkg
+        E2E_CONFIG=$PWD/test/config/docker.yaml ../hack/tools/bin/ginkgo -nodes=3 -v -trace -tags embedproviders test/tkgctl/docker
+        popd
 
   integ-tests-azure:
     name: TKG Integration Tests CAPZ
@@ -195,7 +197,9 @@ jobs:
         fi
         make configure-bom
         make generate-embedproviders
-        E2E_CONFIG=$PWD/tkg/test/config/azure.yaml hack/tools/bin/ginkgo -nodes=3 -v -trace -tags embedproviders tkg/test/tkgctl/azure
+        pushd tkg
+        E2E_CONFIG=$PWD/test/config/azure.yaml ../hack/tools/bin/ginkgo -nodes=3 -v -trace -tags embedproviders test/tkgctl/azure
+        popd
 
     - uses: Azure/login@v1.1
       if: ${{ always() && env.azure_client_id != '' }}
