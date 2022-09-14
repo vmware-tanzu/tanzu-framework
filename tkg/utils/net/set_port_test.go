@@ -8,7 +8,7 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
-	netutil "github.com/vmware-tanzu/tanzu-framework/pkg/v1/util/net"
+	netutil "github.com/vmware-tanzu/tanzu-framework/tkg/utils/net"
 )
 
 func TestNetUtil(t *testing.T) {
