@@ -14,6 +14,7 @@ import (
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	"github.com/otiai10/copy"
 	"sigs.k8s.io/cluster-api/util"
 
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/test/framework"
@@ -32,13 +33,14 @@ type E2ELegacyFallbackSpecInput struct {
 
 func E2ELegacyFallbackSpec(context context.Context, inputGetter func() E2ELegacyFallbackSpecInput) { //nolint:funlen
 	var (
-		err            error
-		input          E2ELegacyFallbackSpecInput
-		tkgCtlClient   tkgctl.TKGClient
-		logsDir        string
-		clusterName    string
-		namespace      string
-		suppressUpdate string
+		err              error
+		input            E2ELegacyFallbackSpecInput
+		tkgCtlClient     tkgctl.TKGClient
+		logsDir          string
+		clusterName      string
+		namespace        string
+		suppressUpdate   string
+		testTkgConfigDir string
 	)
 	const (
 		SuppressUpdateEnvVar = "SUPPRESS_PROVIDER_UPDATE"
@@ -46,7 +48,7 @@ func E2ELegacyFallbackSpec(context context.Context, inputGetter func() E2ELegacy
 
 	Context("When there are modifications in the provider overlays", func() {
 		BeforeEach(func() { //nolint:dupl
-			if os.Getenv("RUN_FULL_INTEG_TEST") != "1" {
+			if os.Getenv("RUN_FULL_INTEGRATION_TESTS") != "1" {
 				Skip("Skip legacy fallback creation tests")
 			}
 
@@ -56,13 +58,18 @@ func E2ELegacyFallbackSpec(context context.Context, inputGetter func() E2ELegacy
 				namespace = input.Namespace
 			}
 
+			testTkgConfigDir, err = os.MkdirTemp("/tmp", "legacy_fallback_tkgdir_*")
+			Expect(err).To(BeNil())
+			err = copy.Copy(input.E2EConfig.TkgConfigDir, testTkgConfigDir)
+			Expect(err).To(BeNil())
+
 			logsDir = filepath.Join(input.ArtifactsFolder, "logs")
 
 			rand.Seed(time.Now().UnixNano())
 			clusterName = input.E2EConfig.ClusterPrefix + "wc-" + util.RandomString(4) // nolint:gomnd
 
 			tkgCtlClient, err = tkgctl.New(tkgctl.Options{
-				ConfigDir: input.E2EConfig.TkgConfigDir,
+				ConfigDir: testTkgConfigDir,
 				LogOptions: tkgctl.LoggingOptions{
 					File:      filepath.Join(logsDir, clusterName+".log"),
 					Verbosity: input.E2EConfig.TkgCliLogLevel,
@@ -81,7 +88,7 @@ func E2ELegacyFallbackSpec(context context.Context, inputGetter func() E2ELegacy
 ---
 `
 			// simulate modifications in provider overlays
-			dummyDataValueFilePath := filepath.Join(input.E2EConfig.TkgConfigDir, "providers", "ytt", "dummy.yaml")
+			dummyDataValueFilePath := filepath.Join(testTkgConfigDir, "providers", "ytt", "dummy.yaml")
 			defer os.Remove(dummyDataValueFilePath)
 			err = os.WriteFile(dummyDataValueFilePath, []byte(fileContent), 0644)
 			Expect(err).To(BeNil())
@@ -161,6 +168,7 @@ func E2ELegacyFallbackSpec(context context.Context, inputGetter func() E2ELegacy
 
 		AfterEach(func() {
 			os.Setenv(SuppressUpdateEnvVar, suppressUpdate)
+			os.Remove(testTkgConfigDir)
 		})
 	})
 }

@@ -342,6 +342,7 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
+          RUN_FULL_INTEGRATION_TESTS: "1"
           AWS_REGION: "us-west-2"
           _MANAGEMENT_PACKAGE_REPO_IMAGE: ${{ needs.build-and-publish-packages.outputs.registry }}/tanzu_framework/github-actions/${{ needs.build-and-publish-packages.outputs.regdir }}/management:v0.21.0
           _MANAGEMENT_PACKAGE_VERSION: "0.21.0"
