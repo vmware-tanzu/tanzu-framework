@@ -8,6 +8,7 @@ replace (
 	github.com/vmware-tanzu/tanzu-framework/apis/cli => ../apis/cli
 	github.com/vmware-tanzu/tanzu-framework/apis/config => ../apis/config
 	github.com/vmware-tanzu/tanzu-framework/apis/run => ../apis/run
+	github.com/vmware-tanzu/tanzu-framework/cli/core => ../cli/core
 	github.com/vmware-tanzu/tanzu-framework/cli/runtime => ../cli/runtime
 	github.com/vmware-tanzu/tanzu-framework/packageclients => ../packageclients
 	github.com/vmware-tanzu/tanzu-framework/tkg => ../tkg
@@ -60,7 +61,7 @@ require (
 	github.com/Azure/go-autorest/autorest/validation v0.3.1 // indirect
 	github.com/Azure/go-autorest/logger v0.2.1 // indirect
 	github.com/Azure/go-autorest/tracing v0.6.0 // indirect
-	github.com/BurntSushi/toml v1.0.0 // indirect
+	github.com/BurntSushi/toml v1.1.0 // indirect
 	github.com/MakeNowJust/heredoc v1.0.0 // indirect
 	github.com/Masterminds/goutils v1.1.1 // indirect
 	github.com/Masterminds/semver v1.5.0 // indirect
