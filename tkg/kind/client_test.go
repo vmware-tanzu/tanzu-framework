@@ -10,6 +10,8 @@ import (
 	"path/filepath"
 	"testing"
 
+	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/gomega"
 	kindv1 "sigs.k8s.io/kind/pkg/apis/config/v1alpha4"
 
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/fakes"
