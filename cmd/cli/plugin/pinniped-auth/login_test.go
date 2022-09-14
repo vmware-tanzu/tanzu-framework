@@ -19,7 +19,6 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/buildinfo"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli"
 )
 
 const (
@@ -250,7 +249,7 @@ func TestLoginOIDCCommand(t *testing.T) {
 			cmd := loginOIDCCommand(func(args []string, loginOptions *loginOIDCOptions, pluginRoot, buildVersion, buildSHA string) (*exec.Cmd, error) {
 				gotArgs = args
 
-				require.Equal(t, cli.DefaultPluginRoot, pluginRoot)
+				require.Equal(t, DefaultPluginRoot, pluginRoot)
 				require.Equal(t, buildinfo.Version, buildVersion)
 				require.Equal(t, buildinfo.SHA, buildSHA)
 

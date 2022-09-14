@@ -9,7 +9,7 @@ import (
 	"github.com/otiai10/copy"
 	"github.com/pkg/errors"
 
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/common"
+	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/common"
 )
 
 // LocalPublisher defines local publisher configuration
