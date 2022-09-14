@@ -14,7 +14,6 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/common"
 	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/distribution"
 	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/plugin"
-	"github.com/vmware-tanzu/tanzu-framework/tkg/clusterclient"
 )
 
 // KubernetesDiscovery is an artifact discovery utilizing CLIPlugin API in kubernetes cluster
