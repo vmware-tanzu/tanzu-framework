@@ -16,9 +16,9 @@ import (
 	clusterapiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
 
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
+	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/fakeclusterclient"
 	runtanzuv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha1"
 	runtanzuv1alpha3 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/fakes"
 )
 
 const (
@@ -31,7 +31,7 @@ var _ = Describe("TKR utils", func() {
 		var (
 			tkrName     string
 			ctx         context.Context
-			crtCtl      *fakes.CRTClusterClient
+			crtCtl      *fakeclusterclient.CRTClusterClient
 			err         error
 			tkrV1Alpha1 *runtanzuv1alpha1.TanzuKubernetesRelease
 			tkrV1Alpha3 *runtanzuv1alpha3.TanzuKubernetesRelease
@@ -39,7 +39,7 @@ var _ = Describe("TKR utils", func() {
 
 		When("tkrName is empty for the call to GetTKRByNameV1Alpha1()", func() {
 			BeforeEach(func() {
-				crtCtl = &fakes.CRTClusterClient{}
+				crtCtl = &fakeclusterclient.CRTClusterClient{}
 				tkrName = ""
 				tkrV1Alpha1, err = GetTKRByNameV1Alpha1(ctx, crtCtl, tkrName)
 			})
@@ -52,7 +52,7 @@ var _ = Describe("TKR utils", func() {
 
 		When("tkrName is empty for the call to GetTKRByNameV1Alpha3()", func() {
 			BeforeEach(func() {
-				crtCtl = &fakes.CRTClusterClient{}
+				crtCtl = &fakeclusterclient.CRTClusterClient{}
 				tkrName = ""
 				tkrV1Alpha3, err = GetTKRByNameV1Alpha3(ctx, crtCtl, tkrName)
 			})
@@ -65,7 +65,7 @@ var _ = Describe("TKR utils", func() {
 
 		When("tkr object is not found for the call to GetTKRByNameV1Alpha1()", func() {
 			BeforeEach(func() {
-				crtCtl = &fakes.CRTClusterClient{}
+				crtCtl = &fakeclusterclient.CRTClusterClient{}
 				tkrName = testTKR
 				crtCtl.GetReturns(apierrors.NewNotFound(schema.GroupResource{Resource: "TanzuKubernetesRelease"}, testTKR))
 				tkrV1Alpha1, err = GetTKRByNameV1Alpha1(ctx, crtCtl, tkrName)
@@ -79,7 +79,7 @@ var _ = Describe("TKR utils", func() {
 
 		When("tkr object is not found for the call to GetTKRByNameV1Alpha3()", func() {
 			BeforeEach(func() {
-				crtCtl = &fakes.CRTClusterClient{}
+				crtCtl = &fakeclusterclient.CRTClusterClient{}
 				tkrName = testTKR
 				crtCtl.GetReturns(apierrors.NewNotFound(schema.GroupResource{Resource: "TanzuKubernetesRelease"}, testTKR))
 				tkrV1Alpha3, err = GetTKRByNameV1Alpha3(ctx, crtCtl, tkrName)
@@ -93,7 +93,7 @@ var _ = Describe("TKR utils", func() {
 
 		When("there is some error for the call to GetTKRByNameV1Alpha1()", func() {
 			BeforeEach(func() {
-				crtCtl = &fakes.CRTClusterClient{}
+				crtCtl = &fakeclusterclient.CRTClusterClient{}
 				tkrName = testTKR
 				crtCtl.GetReturns(errors.New("some error"))
 				tkrV1Alpha1, err = GetTKRByNameV1Alpha1(ctx, crtCtl, tkrName)
@@ -108,7 +108,7 @@ var _ = Describe("TKR utils", func() {
 
 		When("there is some error for the call to GetTKRByNameV1Alpha3()", func() {
 			BeforeEach(func() {
-				crtCtl = &fakes.CRTClusterClient{}
+				crtCtl = &fakeclusterclient.CRTClusterClient{}
 				tkrName = testTKR
 				crtCtl.GetReturns(errors.New("some error"))
 				tkrV1Alpha3, err = GetTKRByNameV1Alpha3(ctx, crtCtl, tkrName)
@@ -123,7 +123,7 @@ var _ = Describe("TKR utils", func() {
 
 		When("there is no error for the call to GetTKRByNameV1Alpha1()", func() {
 			BeforeEach(func() {
-				crtCtl = &fakes.CRTClusterClient{}
+				crtCtl = &fakeclusterclient.CRTClusterClient{}
 				tkrName = testTKR
 				tkrV1Alpha1, err = GetTKRByNameV1Alpha1(ctx, crtCtl, tkrName)
 			})
@@ -136,7 +136,7 @@ var _ = Describe("TKR utils", func() {
 
 		When("there is no error for the call to GetTKRByNameV1Alpha3()", func() {
 			BeforeEach(func() {
-				crtCtl = &fakes.CRTClusterClient{}
+				crtCtl = &fakeclusterclient.CRTClusterClient{}
 				tkrName = testTKR
 				tkrV1Alpha3, err = GetTKRByNameV1Alpha3(ctx, crtCtl, tkrName)
 			})
@@ -151,7 +151,7 @@ var _ = Describe("TKR utils", func() {
 	Context("GetBootstrapPackageNameFromTKR()", func() {
 		var (
 			ctx        context.Context
-			crtCtl     *fakes.CRTClusterClient
+			crtCtl     *fakeclusterclient.CRTClusterClient
 			err        error
 			pkgRefName string
 			cluster    *clusterapiv1beta1.Cluster
@@ -167,7 +167,7 @@ var _ = Describe("TKR utils", func() {
 					},
 					ObjectMeta: metav1.ObjectMeta{Name: testClusterName, Namespace: testNamespace, Labels: map[string]string{}},
 				}
-				crtCtl = &fakes.CRTClusterClient{}
+				crtCtl = &fakeclusterclient.CRTClusterClient{}
 				_, _, err = GetBootstrapPackageNameFromTKR(ctx, crtCtl, pkgRefName, cluster)
 			})
 
@@ -187,7 +187,7 @@ var _ = Describe("TKR utils", func() {
 					},
 					ObjectMeta: metav1.ObjectMeta{Name: testClusterName, Namespace: testNamespace, Labels: map[string]string{constants.TKRLabelClassyClusters: testTKR}},
 				}
-				crtCtl = &fakes.CRTClusterClient{}
+				crtCtl = &fakeclusterclient.CRTClusterClient{}
 				crtCtl.GetReturns(errors.New("some error"))
 				_, _, err = GetBootstrapPackageNameFromTKR(ctx, crtCtl, pkgRefName, cluster)
 			})
@@ -208,7 +208,7 @@ var _ = Describe("TKR utils", func() {
 					},
 					ObjectMeta: metav1.ObjectMeta{Name: testClusterName, Namespace: testNamespace, Labels: map[string]string{constants.TKRLabelClassyClusters: testTKR}},
 				}
-				crtCtl = &fakes.CRTClusterClient{}
+				crtCtl = &fakeclusterclient.CRTClusterClient{}
 				_, _, err = GetBootstrapPackageNameFromTKR(ctx, crtCtl, pkgRefName, cluster)
 			})
 

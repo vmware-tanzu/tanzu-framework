@@ -20,11 +20,11 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
 	addontypes "github.com/vmware-tanzu/tanzu-framework/addons/pkg/types"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/util"
-	bomtypes "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkr/pkg/types"
 
 	kappctrl "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/kappctrl/v1alpha1"
 	pkgiv1alpha1 "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/packaging/v1alpha1"
 	versions "github.com/vmware-tanzu/carvel-vendir/pkg/vendir/versions/v1alpha1"
+	tkrv1 "github.com/vmware-tanzu/tanzu-framework/apis/run/pkg/tkr/v1"
 )
 
 // PackageReconciler reconcile kapp Package related CRs
@@ -38,7 +38,7 @@ type PackageReconciler struct {
 // reconcileCorePackageRepository reconciles the core package repository in the cluster
 func (r *PackageReconciler) reconcileCorePackageRepository(
 	imageRepository string,
-	bom *bomtypes.Bom) error {
+	bom *tkrv1.Bom) error {
 
 	repositoryImage, err := util.GetCorePackageRepositoryImageFromBom(bom)
 	if err != nil {
@@ -82,9 +82,9 @@ func (r *PackageReconciler) ReconcileAddonKappResourceNormal( // nolint:funlen
 	remoteApp bool,
 	remoteCluster *clusterapiv1beta1.Cluster,
 	addonSecret *corev1.Secret,
-	addonConfig *bomtypes.Addon,
+	addonConfig *tkrv1.Addon,
 	imageRepository string,
-	bom *bomtypes.Bom) error {
+	bom *tkrv1.Bom) error {
 
 	addonName := util.GetAddonNameFromAddonSecret(addonSecret)
 

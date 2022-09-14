@@ -9,11 +9,11 @@ import (
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 
+	tkrv1 "github.com/vmware-tanzu/tanzu-framework/apis/run/pkg/tkr/v1"
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/component"
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/config"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/clusterclient"
 	tkrconstants "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkr/pkg/constants"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkr/pkg/types"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/constants"
 )
 
@@ -69,7 +69,7 @@ func getOS(cmd *cobra.Command, args []string) error {
 	if !ok {
 		return errors.Wrapf(err, "the ConfigMap %s does not contain BOM content", bomConfigMap.Name)
 	}
-	bom, err := types.NewBom(bomByte)
+	bom, err := tkrv1.NewBom(bomByte)
 	if err != nil {
 		return errors.Wrap(err, "failed to parse the BOM content")
 	}
@@ -79,7 +79,7 @@ func getOS(cmd *cobra.Command, args []string) error {
 		return errors.Wrap(err, "failed to get current management cluster infrastructure")
 	}
 
-	osMap := make(map[string]types.OSInfo)
+	osMap := make(map[string]tkrv1.OSInfo)
 
 	switch infra {
 	case constants.InfrastructureRefVSphere:

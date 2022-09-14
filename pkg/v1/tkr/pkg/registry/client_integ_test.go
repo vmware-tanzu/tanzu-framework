@@ -11,7 +11,7 @@ import (
 
 	ctlimg "github.com/k14s/imgpkg/pkg/imgpkg/registry"
 
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkr/pkg/types"
+	tkrv1 "github.com/vmware-tanzu/tanzu-framework/apis/run/pkg/tkr/v1"
 )
 
 func TestRegistryPullBOM(t *testing.T) {
@@ -51,7 +51,7 @@ func TestRegistryPullBOM(t *testing.T) {
 		t.Fatalf("error getting image content should not occurs %s", err.Error())
 	}
 
-	bom, err := types.NewBom(content)
+	bom, err := tkrv1.NewBom(content)
 	if err != nil {
 		t.Fatalf("error parsing bom content should not occurs %s", err.Error())
 	}

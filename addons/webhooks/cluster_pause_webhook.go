@@ -18,7 +18,6 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
 	runtanzuv1alpha3 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
-	tkgconstants "github.com/vmware-tanzu/tanzu-framework/tkg/constants"
 )
 
 var clusterpauselog = logf.Log.WithName("cluster-pause-webhook")
@@ -99,8 +98,8 @@ func (wh *ClusterPause) Default(ctx context.Context, obj runtime.Object) error {
 			cluster.Annotations = map[string]string{}
 		}
 		// Use the desired TKR version as label value, ClusterBootstrap will unset
-		cluster.Annotations[tkgconstants.ClusterPauseLabel] = tkrVersion
-		clusterpauselog.Info(fmt.Sprintf("set '%s' annotation to '%s' for cluster '%s'", tkgconstants.ClusterPauseLabel, tkrVersion, cluster.Name))
+		cluster.Annotations[constants.ClusterPauseLabel] = tkrVersion
+		clusterpauselog.Info(fmt.Sprintf("set '%s' annotation to '%s' for cluster '%s'", constants.ClusterPauseLabel, tkrVersion, cluster.Name))
 	}
 
 	return nil

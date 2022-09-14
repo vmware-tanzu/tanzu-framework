@@ -17,9 +17,9 @@ import (
 	clusterv1 "sigs.k8s.io/cluster-api/api/v1beta1"
 	utilconditions "sigs.k8s.io/cluster-api/util/conditions"
 
+	tkrv1 "github.com/vmware-tanzu/tanzu-framework/apis/run/pkg/tkr/v1"
 	runv1 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkr/pkg/constants"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkr/pkg/types"
 )
 
 const (
@@ -31,7 +31,7 @@ const (
 
 // NewTkrFromBom gets a new TKR matching tkrName from the BOM information in bomContent
 func NewTkrFromBom(tkrName string, bomContent []byte) (runv1.TanzuKubernetesRelease, error) {
-	bom, err := types.NewBom(bomContent)
+	bom, err := tkrv1.NewBom(bomContent)
 	if err != nil {
 		return runv1.TanzuKubernetesRelease{}, errors.Wrap(err, "failed to parse the BOM file content")
 	}

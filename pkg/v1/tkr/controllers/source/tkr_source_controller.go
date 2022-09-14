@@ -34,11 +34,11 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/source"
 	"sigs.k8s.io/yaml"
 
+	tkrv1 "github.com/vmware-tanzu/tanzu-framework/apis/run/pkg/tkr/v1"
 	runv1 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkr/pkg/constants"
 	mgrcontext "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkr/pkg/context"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkr/pkg/registry"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkr/pkg/types"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/util/patchset"
 )
 
@@ -220,7 +220,7 @@ func (r *reconciler) createBOMConfigMap(ctx context.Context, tag string) error {
 		return errors.Wrapf(err, "failed to get the BOM file from image %s:%s", r.bomImage, tag)
 	}
 
-	bom, err := types.NewBom(bomContent)
+	bom, err := tkrv1.NewBom(bomContent)
 	if err != nil {
 		return errors.Wrapf(err, "failed to parse content from image %s:%s", r.bomImage, tag)
 	}
@@ -398,7 +398,7 @@ func (r *reconciler) UpdateTKRCompatibleCondition(ctx context.Context, tkrs []ru
 	return nil
 }
 
-func (r *reconciler) fetchCompatibilityMetadata() (*types.CompatibilityMetadata, error) {
+func (r *reconciler) fetchCompatibilityMetadata() (*tkrv1.CompatibilityMetadata, error) {
 	r.log.Info("Listing BOM metadata image tags", "image", r.compatibilityMetadataImage)
 	tags, err := r.registry.ListImageTags(r.compatibilityMetadataImage)
 	if err != nil {
@@ -419,7 +419,7 @@ func (r *reconciler) fetchCompatibilityMetadata() (*types.CompatibilityMetadata,
 	sort.Ints(tagNum)
 
 	metadataContent := []byte{}
-	var metadata types.CompatibilityMetadata
+	var metadata tkrv1.CompatibilityMetadata
 
 	for i := len(tagNum) - 1; i >= 0; i-- {
 		tagName := fmt.Sprintf("v%d", tagNum[i])
@@ -442,7 +442,7 @@ func (r *reconciler) fetchCompatibilityMetadata() (*types.CompatibilityMetadata,
 	return &metadata, nil
 }
 
-func (r *reconciler) compatibilityMetadata(ctx context.Context) (*types.CompatibilityMetadata, error) {
+func (r *reconciler) compatibilityMetadata(ctx context.Context) (*tkrv1.CompatibilityMetadata, error) {
 	cm := &corev1.ConfigMap{}
 	cmObjectKey := client.ObjectKey{Namespace: constants.TKRNamespace, Name: constants.BOMMetadataConfigMapName}
 	if err := r.client.Get(ctx, cmObjectKey, cm); err != nil {
@@ -454,7 +454,7 @@ func (r *reconciler) compatibilityMetadata(ctx context.Context) (*types.Compatib
 		return nil, errors.New("compatibility key not found in bom-metadata ConfigMap")
 	}
 
-	var metadata types.CompatibilityMetadata
+	var metadata tkrv1.CompatibilityMetadata
 	if err := yaml.Unmarshal(metadataContent, &metadata); err != nil {
 		return nil, err
 	}

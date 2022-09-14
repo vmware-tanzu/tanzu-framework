@@ -119,3 +119,15 @@ kbld-image-replace: ## Add newImage in kbld-config.yaml
 .PHONY: clean ## Remove all generated files
 clean: docker-remove
 	rm -rf bin
+
+TOOLS_BIN_DIR := hack/tools/bin
+$(TOOLS_BIN_DIR):
+	mkdir -p $(TOOLS_BIN_DIR)
+
+COUNTERFEITER := $(TOOLS_BIN_DIR)/counterfeiter
+$(COUNTERFEITER): $(TOOLS_BIN_DIR) go.mod go.sum ## Build counterfeiter
+	cd hack/tools && $(GO) build -tags=tools -o bin/ github.com/maxbrunsfeld/counterfeiter/v6
+
+generate-fakes: $(COUNTERFEITER) ## Generate fakes for unit tests
+	PATH=$(PWD)/$(TOOLS_BIN_DIR):"$(PATH)" $(GO) generate ./...
+	$(MAKE) fmt

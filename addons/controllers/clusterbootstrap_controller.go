@@ -47,8 +47,6 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/util/clusterbootstrapclone"
 	"github.com/vmware-tanzu/tanzu-framework/addons/predicates"
 	runtanzuv1alpha3 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
-	tkrconstants "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkr/pkg/constants"
-	tkgconstants "github.com/vmware-tanzu/tanzu-framework/tkg/constants"
 )
 
 // ClusterBootstrapReconciler reconciles a ClusterBootstrap object
@@ -277,7 +275,7 @@ func (r *ClusterBootstrapReconciler) createOrPatchResourcesForAdditionalPackages
 		}
 	}
 	if len(clusterBootstrap.Spec.AdditionalPackages) > 0 { // If we reach this and there are at least one additional package, we need to add finalizer unless it is a management cluster
-		_, isManagmentCluster := cluster.Labels[tkrconstants.ManagementClusterRoleLabel]
+		_, isManagmentCluster := cluster.Labels[constants.ManagementClusterRoleLabel]
 		if !isManagmentCluster {
 			err := r.addFinalizersToClusterResources(cluster, log)
 			if err != nil {
@@ -337,9 +335,9 @@ func (r *ClusterBootstrapReconciler) addFinalizer(o client.Object, deepCopy clie
 // handleClusterUnpause unpauses the cluster if the cluster pause annotation is set by cluster pause webhook (cluster has "tkg.tanzu.vmware.com/paused" annotation)
 func (r *ClusterBootstrapReconciler) handleClusterUnpause(cluster *clusterapiv1beta1.Cluster, clusterBootstrap *runtanzuv1alpha3.ClusterBootstrap, log logr.Logger) error {
 	if cluster.Spec.Paused && cluster.Annotations != nil {
-		if value, ok := cluster.Annotations[tkgconstants.ClusterPauseLabel]; ok && value == clusterBootstrap.Status.ResolvedTKR {
+		if value, ok := cluster.Annotations[constants.ClusterPauseLabel]; ok && value == clusterBootstrap.Status.ResolvedTKR {
 			patchedCluster := cluster.DeepCopy()
-			delete(patchedCluster.Annotations, tkgconstants.ClusterPauseLabel)
+			delete(patchedCluster.Annotations, constants.ClusterPauseLabel)
 			patchedCluster.Spec.Paused = false
 			err := r.Client.Patch(r.context, patchedCluster, client.MergeFrom(cluster))
 			if err != nil {
@@ -554,7 +552,7 @@ func (r *ClusterBootstrapReconciler) mergeClusterBootstrapPackagesWithTemplate(
 // on remote workload cluster. This is required for a workload cluster and its corresponding package installations to be functional.
 func (r *ClusterBootstrapReconciler) createOrPatchKappPackageInstall(clusterBootstrap *runtanzuv1alpha3.ClusterBootstrap, cluster *clusterapiv1beta1.Cluster) error {
 	// Skip if the cluster object represents the management cluster
-	if _, exists := cluster.Labels[tkrconstants.ManagementClusterRoleLabel]; exists {
+	if _, exists := cluster.Labels[constants.ManagementClusterRoleLabel]; exists {
 		r.Log.Info(fmt.Sprintf("cluster %s/%s is management cluster, skip creating or patching the PackageInstall CR for kapp-controller", cluster.Namespace, cluster.Name))
 		return nil
 	}
@@ -919,7 +917,7 @@ func (r *ClusterBootstrapReconciler) patchSecretWithTKGSDataValues(cluster *clus
 	if err != nil {
 		return err
 	}
-	if infraRef == tkgconstants.InfrastructureProviderVSphere {
+	if infraRef == constants.InfrastructureProviderVSphere {
 		ok, err := util.IsTKGSCluster(r.context, r.dynamicClient, r.gvrHelper.GetDiscoveryClient(), cluster)
 		if err != nil {
 			return err
@@ -1224,7 +1222,7 @@ func (r *ClusterBootstrapReconciler) GetDataValueSecretNameFromBootstrapPackage(
 		if err != nil {
 			return "", err
 		}
-		if infraRef == tkgconstants.InfrastructureProviderVSphere {
+		if infraRef == constants.InfrastructureProviderVSphere {
 			ok, err := util.IsTKGSCluster(r.context, r.dynamicClient, r.gvrHelper.GetDiscoveryClient(), cluster)
 			if err != nil {
 				return "", err
