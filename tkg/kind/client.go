@@ -135,6 +135,12 @@ func (k *KindClusterProxy) CreateKindCluster() (string, error) {
 	// setup proxy envvars for kind clusrer if being configured in TKG
 	k.setupProxyConfigurationForKindCluster()
 
+	fmt.Println("============= KubeConfigPath ", k.options.KubeConfigPath)
+	fmt.Println("============= config start")
+	out, _ := yaml.Marshal(config)
+	fmt.Println(string(out))
+	fmt.Println("============= config end")
+
 	// create kind cluster with kind provider interface
 	if err := k.options.Provider.Create(
 		k.options.ClusterName,
