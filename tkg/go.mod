@@ -3,10 +3,14 @@ module github.com/vmware-tanzu/tanzu-framework/tkg
 go 1.17
 
 replace (
+	github.com/vmware-tanzu/tanzu-framework => ../
 	github.com/vmware-tanzu/tanzu-framework/apis/cli => ../apis/cli
 	github.com/vmware-tanzu/tanzu-framework/apis/config => ../apis/config
 	github.com/vmware-tanzu/tanzu-framework/apis/run => ../apis/run
+	github.com/vmware-tanzu/tanzu-framework/cli/core => ../cli/core
 	github.com/vmware-tanzu/tanzu-framework/cli/runtime => ../cli/runtime
+	github.com/vmware-tanzu/tanzu-framework/packageclients => ../packageclients
+	github.com/vmware-tanzu/tanzu-framework/tkg => ./
 	sigs.k8s.io/cluster-api => sigs.k8s.io/cluster-api v1.1.5
 )
 
@@ -58,7 +62,7 @@ require (
 	github.com/Azure/go-autorest/logger v0.2.1 // indirect
 	github.com/Azure/go-autorest/tracing v0.6.0 // indirect
 	github.com/Azure/go-ntlmssp v0.0.0-20200615164410-66371956d46c // indirect
-	github.com/BurntSushi/toml v1.0.0 // indirect
+	github.com/BurntSushi/toml v1.1.0 // indirect
 	github.com/MakeNowJust/heredoc v1.0.0 // indirect
 	github.com/Masterminds/goutils v1.1.1 // indirect
 	github.com/Masterminds/semver/v3 v3.1.1 // indirect
@@ -182,6 +186,7 @@ require (
 	github.com/vmware-tanzu/tanzu-framework/apis/cli v0.0.0-00010101000000-000000000000 // indirect
 	github.com/vmware-tanzu/tanzu-framework/apis/config v0.0.0-00010101000000-000000000000 // indirect
 	github.com/vmware-tanzu/tanzu-framework/apis/run v0.0.0-00010101000000-000000000000 // indirect
+	github.com/vmware-tanzu/tanzu-framework/packageclients v0.0.0-00010101000000-000000000000 // indirect
 	github.com/vmware/govmomi v0.27.1 // indirect
 	github.com/yalp/jsonpath v0.0.0-20180802001716-5cc68e5049a0 // indirect
 	go.mongodb.org/mongo-driver v1.1.2 // indirect

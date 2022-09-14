@@ -4,6 +4,7 @@ on:
   pull_request:
     branches: [ main, release-* ]
     paths:
+    - 'tkg/**'
     - 'pkg/v1/tkg/**'
     - '!packageclients/**'
     - '!cmd/cli/plugin/package/test/**'

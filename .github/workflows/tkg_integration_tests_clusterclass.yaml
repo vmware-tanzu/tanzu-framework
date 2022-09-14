@@ -4,6 +4,7 @@ on:
   pull_request:
     branches: [ main, release-* ]
     paths:
+      - 'tkg/**'
       - 'pkg/v1/tkg/**'
       - 'pkg/v1/tkr/**'
       - 'pkg/v2/tkr/**'
