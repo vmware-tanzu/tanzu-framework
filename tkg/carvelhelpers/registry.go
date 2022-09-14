@@ -11,7 +11,7 @@ import (
 	ctlimg "github.com/k14s/imgpkg/pkg/imgpkg/registry"
 	"github.com/pkg/errors"
 
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/clientconfighelpers"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/cli/clientconfighelpers"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/registry"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/tkgconfigpaths"
