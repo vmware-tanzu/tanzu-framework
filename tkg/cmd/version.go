@@ -9,7 +9,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/component"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/buildinfo"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/buildinfo"
 )
 
 type versionInfo struct {
