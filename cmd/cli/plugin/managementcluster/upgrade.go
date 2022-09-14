@@ -14,7 +14,6 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/tkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/log"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/tkgctl"
-
 )
 
 // upgradeRegionCmd represents the upgrade command
