@@ -472,6 +472,9 @@ test: generate manifests build-cli-mocks ## Run tests
 	# pinniped tanzu-auth-controller-manager
 	pinniped-components/tanzu-auth-controller-manager/hack/test.sh
 
+	#Test core cli runtime library
+	$(MAKE) test -C cli/runtime
+
 	#Test core cli
 	$(MAKE) test -C cli/core
 
