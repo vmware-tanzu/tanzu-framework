@@ -7,6 +7,7 @@ package azure
 import (
 	"context"
 	"fmt"
+	"gopkg.in/yaml.v3"
 	"os"
 	"path/filepath"
 	"strings"
@@ -78,6 +79,10 @@ var _ = SynchronizedBeforeSuite(func() []byte {
 	timeout, err := time.ParseDuration(e2eConfig.DefaultTimeout)
 	Expect(err).To(BeNil())
 
+	fmt.Println("============== start ===========")
+	out, _ := yaml.Marshal(e2eConfig)
+	fmt.Println(string(out))
+	fmt.Println("============== end   ===========")
 	cli, err := tkgctl.New(tkgctl.Options{
 		ConfigDir: e2eConfig.TkgConfigDir,
 		LogOptions: tkgctl.LoggingOptions{
