@@ -7,6 +7,8 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/aunum/log"
+
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 
@@ -129,6 +131,7 @@ var addDiscoverySourceCmd = &cobra.Command{
 		if err != nil {
 			return err
 		}
+		log.Successf("successfully added discovery source %s", discoverySourceName)
 		return nil
 	},
 }
@@ -175,6 +178,7 @@ var updateDiscoverySourceCmd = &cobra.Command{
 		if err != nil {
 			return err
 		}
+		log.Successf("updated discovery source %s", discoveryName)
 		return nil
 	},
 }
@@ -211,6 +215,7 @@ var deleteDiscoverySourceCmd = &cobra.Command{
 		if err != nil {
 			return err
 		}
+		log.Successf("deleted discovery source %s", discoveryName)
 		return nil
 	},
 }
