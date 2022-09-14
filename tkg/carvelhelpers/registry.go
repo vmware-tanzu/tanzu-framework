@@ -12,8 +12,8 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/clientconfighelpers"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkr/pkg/registry"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/constants"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/registry"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/tkgconfigpaths"
 )
 
