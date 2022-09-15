@@ -24,7 +24,7 @@ var _ = Describe("ListCredentialProfiles", func() {
 
 	Context("when the filename is specified", func() {
 		BeforeEach(func() {
-			fileName = "../../pkg/v1/tkg/fakes/config/aws_credentials"
+			fileName = "../fakes/config/aws_credentials"
 		})
 		It("should return the correct list of profile names", func() {
 			Expect(err).ToNot(HaveOccurred())
