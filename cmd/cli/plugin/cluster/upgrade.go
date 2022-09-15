@@ -19,12 +19,12 @@ import (
 	runv1 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
 	configapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/config/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/config"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/clusterclient"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgctl"
 	tkrutils "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkr/pkg/utils"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v2/tkr/util/topology"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/clusterclient"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/log"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/tkgctl"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/utils"
 )
 

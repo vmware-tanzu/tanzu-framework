@@ -13,7 +13,7 @@ import (
 	models "github.com/avinetworks/sdk/go/models"
 	gomock "github.com/golang/mock/gomock"
 
-	models0 "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/web/server/models"
+	models0 "github.com/vmware-tanzu/tanzu-framework/tkg/web/server/models"
 )
 
 // MockClient is a mock of Client interface
