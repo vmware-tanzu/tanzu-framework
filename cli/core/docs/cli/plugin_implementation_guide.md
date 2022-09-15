@@ -39,7 +39,7 @@ NOTE: We are working on enhancing this user experience by publishing admin artif
 
 Context is an isolated scope of relevant client-side configurations for a combination of user identity and server identity. There can be multiple contexts for the same combination of `(user, server)`. Previously, this was referred to as `Server` in the Tanzu CLI. Going forward we shall refer to them as `Context` to be explicit.
 
-If a plugin wants to access the context it should use the [provided libraries](/pkg/v1/config/context.go) for forwards compatibility. For example, to get the current active context use the below snippet:
+If a plugin wants to access the context it should use the [provided libraries](../../../runtime/config/context.go) for forwards compatibility. For example, to get the current active context use the below snippet:
 
 ```go
 ctx, err := config.GetCurrentContext(v1alpha1.CtxTypeK8s)
@@ -159,7 +159,7 @@ You should now adjust the newly created `main` package to implement the function
 
 You will notice in the generated `main.go` file, that CLI plugins have to instantiate a
 [Plugin descriptor](https://github.com/vmware-tanzu/tanzu-framework/blob/main/apis/cli/v1alpha1/catalog_types.go)
-for creating a new plugin, the code then allows you to add [sub-commands](https://github.com/vmware-tanzu/tanzu-framework/tree/main/pkg/v1/cli/command/plugin) to your plugin.
+for creating a new plugin, the code then allows you to add [sub-commands](https://github.com/vmware-tanzu/tanzu-framework/tree/main/cli/runtime/plugin) to your plugin.
 
 Plugins are pulled from registered repositories. On a merge to main, all the plugins in your new repo are built and pushed
 to a public repository (see the `.github` directory or `.gitlab-ci.yaml` file). It is useful to leverage a local repo while developing.

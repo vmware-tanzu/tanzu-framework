@@ -18,8 +18,8 @@ piece of functionality as well as enable external partners to integrate with
 the system. The Tanzu CLI also provides tools to make creating and compiling
 new plugins straightforward.
 
-Check out this [document](./cli/cli-architecture.md) to learn more about the
-Tanzu CLI architecture and this [document](./cli/plugin_implementation_guide.md)
+Check out this [document](../cli/core/docs/cli/cli-architecture.md) to learn more about the
+Tanzu CLI architecture and this [document](../cli/core/docs/cli/plugin_implementation_guide.md)
 to learn on how to bootstrap a new CLI plugin.
 
 ## Use Case #2 - Features and FeatureGates

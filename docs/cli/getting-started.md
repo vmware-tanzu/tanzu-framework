@@ -346,4 +346,4 @@ that by writing your CLI plugins.
 
 To bootstrap a new plugin, follow the `builder` plugin documentation [here](../../cmd/cli/plugin-admin/builder/README.md).
 
-Check out the [plugin implementation guide](../cli/plugin_implementation_guide.md) for more details.
+Check out the [plugin implementation guide](../../cli/core/docs/cli/plugin_implementation_guide.md) for more details.
