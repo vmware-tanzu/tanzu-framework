@@ -3,7 +3,7 @@
 
 package registry
 
-//go:generate counterfeiter -o ../../fakes/registy.go --fake-name Registry . Registry
+//go:generate counterfeiter -o ../fakes/registy.go --fake-name Registry . Registry
 
 // Registry defines the Registry interface
 type Registry interface {
