@@ -23,6 +23,7 @@ TOOLS_BIN_DIR := $(TOOLS_DIR)/bin
 
 # Add tooling binaries here and in hack/tools/Makefile
 GOIMPORTS        := $(TOOLS_BIN_DIR)/goimports
+CONTROLLER_GEN   := $(TOOLS_BIN_DIR)/controller-gen
 TOOLING_BINARIES := $(GOIMPORTS)
 
 ## --------------------------------------
@@ -63,3 +64,15 @@ tools: $(TOOLING_BINARIES) ## Build tooling binaries
 $(TOOLING_BINARIES):
 	make -C $(TOOLS_DIR) $(@F)
 
+## --------------------------------------
+## Generators
+## --------------------------------------
+
+CONTROLLER_GEN_SRC ?= "./..."
+
+generate-controller-code: $(CONTROLLER_GEN) $(GOIMPORTS) ## Generate code via controller-gen
+	$(CONTROLLER_GEN) $(GENERATOR) object:headerFile="$(MODULE_ROOT_DIR)/hack/boilerplate.go.txt",year=$(shell date +%Y) paths="$(CONTROLLER_GEN_SRC)" $(OPTIONS)
+	$(MAKE) fmt
+
+generate-manifests:
+	$(MAKE) generate-controller-code GENERATOR=crd OPTIONS="output:crd:artifacts:config=$(MODULE_ROOT_DIR)/generated/crd/bases" CONTROLLER_GEN_SRC=$(CONTROLLER_GEN_SRC)
