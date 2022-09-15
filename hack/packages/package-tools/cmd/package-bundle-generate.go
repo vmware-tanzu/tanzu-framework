@@ -31,7 +31,7 @@ var packageBundleGenerateCmd = &cobra.Command{
 func init() {
 	packageBundleCmd.AddCommand(packageBundleGenerateCmd)
 	packageBundleGenerateCmd.Flags().StringVar(&packageRepository, "repository", "", "Package repository of the package bundle being created")
-	packageBundleGenerateCmd.Flags().StringVar(&registry, "registry", constants.LocalRegistryURL, "OCI registry where the package bundle image needs to be stored")
+	packageBundleGenerateCmd.Flags().StringVar(&registry, "registry", "", "OCI registry where the package bundle image needs to be stored")
 	packageBundleGenerateCmd.Flags().StringVar(&version, "version", "", "Package bundle version")
 	packageBundleGenerateCmd.Flags().StringVar(&subVersion, "sub-version", "", "Package bundle subversion")
 	packageBundleGenerateCmd.Flags().BoolVar(&all, "all", false, "Generate all package bundles in a repository")
@@ -167,7 +167,6 @@ func generatePackageBundle(pkg *Package, projectRootDir, toolsBinDir, packageNam
 		fmt.Println("Including thick tarball...")
 		var cmdErr bytes.Buffer
 
-		packageURL := fmt.Sprintf("%s/%s:%s", registry, packageName, imagePackageVersion)
 		packageURL := fmt.Sprintf("%s/%s:%s", constants.LocalRegistryURL, packageName, imagePackageVersion)
 		imgpkgPushCmd := exec.Command(
 			filepath.Join(toolsBinDir, "imgpkg"),
@@ -230,7 +229,6 @@ func generatePackageBundles(projectRootDir, toolsBinDir string) error {
 			lockOutputFile := pkgVals.Repositories[repo].Packages[i].Name + "-" + imagePackageVersion + "-lock-output.yaml"
 			imgpkgCmd := exec.Command(
 				filepath.Join(toolsBinDir, "imgpkg"),
-				"push", "-b", registry+"/"+pkgVals.Repositories[repo].Packages[i].Name+":"+imagePackageVersion,
 				"push", "-b", constants.LocalRegistryURL+"/"+pkgVals.Repositories[repo].Packages[i].Name+":"+imagePackageVersion,
 				"--file", filepath.Join(packagePath, "bundle"),
 				"--lock-output", lockOutputFile,
@@ -256,7 +254,6 @@ func generatePackageBundles(projectRootDir, toolsBinDir string) error {
 			pkgVals.Repositories[repo].Packages[i].Version = formatVersion(&pkgVals.Repositories[repo].Packages[i], "_").version
 			pkgVals.Repositories[repo].Packages[i].Sha256 = utils.AfterString(
 				bundleLock.Bundle.Image,
-				registry+"/"+pkgVals.Repositories[repo].Packages[i].Name+"@sha256:",
 				constants.LocalRegistryURL+"/"+pkgVals.Repositories[repo].Packages[i].Name+"@sha256:",
 			)
 			yamlData, err := yaml.Marshal(&pkgVals)
