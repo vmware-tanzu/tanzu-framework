@@ -15,10 +15,10 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
-	configv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/config/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/cli"
 	cliconfig "github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/config"
 	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/pluginmanager"
+	configapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/config/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/config"
 )
 
@@ -77,10 +77,10 @@ func NewRootCmd() (*cobra.Command, error) {
 			k8sCmd,
 			tmcCmd,
 		)
-		if err := addCtxPlugins(k8sCmd, configv1alpha1.CtxTypeK8s); err != nil {
+		if err := addCtxPlugins(k8sCmd, configapi.CtxTypeK8s); err != nil {
 			return nil, err
 		}
-		if err := addCtxPlugins(tmcCmd, configv1alpha1.CtxTypeTMC); err != nil {
+		if err := addCtxPlugins(tmcCmd, configapi.CtxTypeTMC); err != nil {
 			return nil, err
 		}
 	}
@@ -133,7 +133,7 @@ var tmcCmd = &cobra.Command{
 	},
 }
 
-func addCtxPlugins(cmd *cobra.Command, ctxType configv1alpha1.ContextType) error {
+func addCtxPlugins(cmd *cobra.Command, ctxType configapi.ContextType) error {
 	var ctxName string
 	if ctx, _ := config.GetCurrentContext(ctxType); ctx != nil {
 		ctxName = ctx.Name
@@ -144,7 +144,7 @@ func addCtxPlugins(cmd *cobra.Command, ctxType configv1alpha1.ContextType) error
 		return fmt.Errorf("unable to find installed plugins: %w", err)
 	}
 
-	if ctxType == configv1alpha1.CtxTypeK8s {
+	if ctxType == configapi.CtxTypeK8s {
 		// Standalone plugins exist only for K8s context type.
 		for i := range standalonePlugins {
 			if standalonePlugins[i].Group == v1alpha1.SystemCmdGroup {

@@ -8,26 +8,26 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	configv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/config/v1alpha1"
+	configapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/config/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/config"
 )
 
 func TestGCPRepository(t *testing.T) {
-	modes := []configv1alpha1.VersionSelectorLevel{
-		configv1alpha1.AllUnstableVersions,
-		configv1alpha1.AlphaUnstableVersions,
-		configv1alpha1.ExperimentalUnstableVersions,
-		configv1alpha1.NoUnstableVersions}
+	modes := []configapi.VersionSelectorLevel{
+		configapi.AllUnstableVersions,
+		configapi.AlphaUnstableVersions,
+		configapi.ExperimentalUnstableVersions,
+		configapi.NoUnstableVersions}
 
 	for _, v := range modes {
 		testRepository(t, v)
 	}
 }
 
-func testRepository(t *testing.T, versionSelectorName configv1alpha1.VersionSelectorLevel) {
+func testRepository(t *testing.T, versionSelectorName configapi.VersionSelectorLevel) {
 	vs := LoadVersionSelector(versionSelectorName)
 
-	r := configv1alpha1.PluginRepository{GCPPluginRepository: &config.CoreGCPBucketRepository}
+	r := configapi.PluginRepository{GCPPluginRepository: &config.CoreGCPBucketRepository}
 	repo := loadRepository(r, vs)
 	list, err := repo.List()
 	require.NoError(t, err)

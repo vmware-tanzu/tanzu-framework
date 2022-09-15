@@ -24,7 +24,7 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgctl"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/log"
 
-	"github.com/vmware-tanzu/tanzu-framework/apis/config/v1alpha1"
+	configapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/config/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/component"
 )
 
@@ -103,7 +103,7 @@ func init() {
 	getClusterCmd.Flags().BoolVar(&cd.showGroupMembers, "show-group-members", false, "Expand machine groups whose ready condition has the same Status, Severity and Reason")
 }
 
-func getClusterDetails(currServ *v1alpha1.Server) error {
+func getClusterDetails(currServ *configapi.Server) error {
 	forceUpdateTKGCompatibilityImage := false
 	tkgClient, err := newTKGCtlClient(forceUpdateTKGCompatibilityImage)
 	if err != nil {

@@ -11,8 +11,8 @@ package discovery
 import (
 	"errors"
 
-	"github.com/vmware-tanzu/tanzu-framework/apis/config/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/plugin"
+	configapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/config/v1alpha1"
 )
 
 // Discovery is the interface to fetch the list of available plugins
@@ -31,7 +31,7 @@ type Discovery interface {
 }
 
 // CreateDiscoveryFromV1alpha1 creates discovery interface from v1alpha1 API
-func CreateDiscoveryFromV1alpha1(pd v1alpha1.PluginDiscovery) (Discovery, error) {
+func CreateDiscoveryFromV1alpha1(pd configapi.PluginDiscovery) (Discovery, error) {
 	switch {
 	case pd.GCP != nil:
 		return NewGCPDiscovery(pd.GCP.Bucket, pd.GCP.ManifestPath, pd.GCP.Name), nil

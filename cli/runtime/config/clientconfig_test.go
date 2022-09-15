@@ -15,7 +15,7 @@ import (
 	"github.com/tj/assert"
 	"golang.org/x/sync/errgroup"
 
-	configv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/config/v1alpha1"
+	configapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/config/v1alpha1"
 )
 
 func cleanupDir(dir string) {
@@ -29,15 +29,15 @@ func randString() string {
 
 func TestClientConfig(t *testing.T) {
 	LocalDirName = fmt.Sprintf(".tanzu-test-%s", randString())
-	server0 := &configv1alpha1.Server{
+	server0 := &configapi.Server{
 		Name: "test",
-		Type: configv1alpha1.ManagementClusterServerType,
-		ManagementClusterOpts: &configv1alpha1.ManagementClusterServer{
+		Type: configapi.ManagementClusterServerType,
+		ManagementClusterOpts: &configapi.ManagementClusterServer{
 			Path: "test",
 		},
 	}
-	testCtx := &configv1alpha1.ClientConfig{
-		KnownServers: []*configv1alpha1.Server{
+	testCtx := &configapi.ClientConfig{
+		KnownServers: []*configapi.Server{
 			server0,
 		},
 		CurrentServer: "test",
@@ -61,10 +61,10 @@ func TestClientConfig(t *testing.T) {
 	require.NoError(t, err)
 	require.True(t, e)
 
-	server1 := &configv1alpha1.Server{
+	server1 := &configapi.Server{
 		Name: "test1",
-		Type: configv1alpha1.ManagementClusterServerType,
-		ManagementClusterOpts: &configv1alpha1.ManagementClusterServer{
+		Type: configapi.ManagementClusterServerType,
+		ManagementClusterOpts: &configapi.ManagementClusterServer{
 			Path: "test1",
 		},
 	}
@@ -125,15 +125,15 @@ func TestConfigLegacyDir(t *testing.T) {
 	legacyCfgPath, err := legacyConfigPath()
 	require.NoError(t, err)
 
-	server0 := &configv1alpha1.Server{
+	server0 := &configapi.Server{
 		Name: "test",
-		Type: configv1alpha1.ManagementClusterServerType,
-		ManagementClusterOpts: &configv1alpha1.ManagementClusterServer{
+		Type: configapi.ManagementClusterServerType,
+		ManagementClusterOpts: &configapi.ManagementClusterServer{
 			Path: "test",
 		},
 	}
-	testCtx := &configv1alpha1.ClientConfig{
-		KnownServers: []*configv1alpha1.Server{
+	testCtx := &configapi.ClientConfig{
+		KnownServers: []*configapi.Server{
 			server0,
 		},
 		CurrentServer: "test",
@@ -151,10 +151,10 @@ func TestConfigLegacyDir(t *testing.T) {
 	_, err = GetClientConfig()
 	require.NoError(t, err)
 
-	server1 := &configv1alpha1.Server{
+	server1 := &configapi.Server{
 		Name: "test1",
-		Type: configv1alpha1.ManagementClusterServerType,
-		ManagementClusterOpts: &configv1alpha1.ManagementClusterServer{
+		Type: configapi.ManagementClusterServerType,
+		ManagementClusterOpts: &configapi.ManagementClusterServer{
 			Path: "test1",
 		},
 	}
@@ -255,10 +255,10 @@ func TestClientConfigUpdateInParallel(t *testing.T) {
 			return err
 		}
 
-		s := &configv1alpha1.Server{
+		s := &configapi.Server{
 			Name: mcName,
-			Type: configv1alpha1.ManagementClusterServerType,
-			ManagementClusterOpts: &configv1alpha1.ManagementClusterServer{
+			Type: configapi.ManagementClusterServerType,
+			ManagementClusterOpts: &configapi.ManagementClusterServer{
 				Context: "fake-context",
 				Path:    "fake-path",
 			},
@@ -311,16 +311,16 @@ func TestClientConfigUpdateInParallel(t *testing.T) {
 func TestEndpointFromContext(t *testing.T) {
 	tcs := []struct {
 		name     string
-		ctx      *configv1alpha1.Context
+		ctx      *configapi.Context
 		endpoint string
 		errStr   string
 	}{
 		{
 			name: "success k8s",
-			ctx: &configv1alpha1.Context{
+			ctx: &configapi.Context{
 				Name: "test-mc",
-				Type: configv1alpha1.CtxTypeK8s,
-				ClusterOpts: &configv1alpha1.ClusterServer{
+				Type: configapi.CtxTypeK8s,
+				ClusterOpts: &configapi.ClusterServer{
 					Endpoint:            "test-endpoint",
 					Path:                "test-path",
 					Context:             "test-context",
@@ -330,20 +330,20 @@ func TestEndpointFromContext(t *testing.T) {
 		},
 		{
 			name: "success tmc current",
-			ctx: &configv1alpha1.Context{
+			ctx: &configapi.Context{
 				Name: "test-tmc",
-				Type: configv1alpha1.CtxTypeTMC,
-				GlobalOpts: &configv1alpha1.GlobalServer{
+				Type: configapi.CtxTypeTMC,
+				GlobalOpts: &configapi.GlobalServer{
 					Endpoint: "test-endpoint",
 				},
 			},
 		},
 		{
 			name: "failure",
-			ctx: &configv1alpha1.Context{
+			ctx: &configapi.Context{
 				Name: "test-dummy",
 				Type: "dummy",
-				ClusterOpts: &configv1alpha1.ClusterServer{
+				ClusterOpts: &configapi.ClusterServer{
 					Endpoint:            "test-endpoint",
 					Path:                "test-path",
 					Context:             "test-context",

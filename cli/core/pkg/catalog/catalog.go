@@ -12,7 +12,7 @@ import (
 	apimachineryjson "k8s.io/apimachinery/pkg/runtime/serializer/json"
 
 	cliv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
-	"github.com/vmware-tanzu/tanzu-framework/apis/config/v1alpha1"
+	configapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/config/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/common"
 	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/utils"
 )
@@ -121,9 +121,9 @@ func newSharedCatalog() (*cliv1alpha1.Catalog, error) {
 		IndexByPath:       map[string]cliv1alpha1.PluginDescriptor{},
 		IndexByName:       map[string][]string{},
 		StandAlonePlugins: map[string]string{},
-		StandAlonePluginsByContextType: map[v1alpha1.ContextType]cliv1alpha1.PluginAssociation{
-			v1alpha1.CtxTypeK8s: map[string]string{},
-			v1alpha1.CtxTypeTMC: map[string]string{},
+		StandAlonePluginsByContextType: map[configapi.ContextType]cliv1alpha1.PluginAssociation{
+			configapi.CtxTypeK8s: map[string]string{},
+			configapi.CtxTypeTMC: map[string]string{},
 		},
 		ServerPlugins: map[string]cliv1alpha1.PluginAssociation{},
 	}
@@ -167,13 +167,13 @@ func getCatalogCache() (catalog *cliv1alpha1.Catalog, err error) {
 		c.StandAlonePlugins = map[string]string{}
 	}
 	if c.StandAlonePluginsByContextType == nil {
-		c.StandAlonePluginsByContextType = map[v1alpha1.ContextType]cliv1alpha1.PluginAssociation{}
+		c.StandAlonePluginsByContextType = map[configapi.ContextType]cliv1alpha1.PluginAssociation{}
 	}
-	if _, ok := c.StandAlonePluginsByContextType[v1alpha1.CtxTypeK8s]; !ok {
-		c.StandAlonePluginsByContextType[v1alpha1.CtxTypeK8s] = map[string]string{}
+	if _, ok := c.StandAlonePluginsByContextType[configapi.CtxTypeK8s]; !ok {
+		c.StandAlonePluginsByContextType[configapi.CtxTypeK8s] = map[string]string{}
 	}
-	if _, ok := c.StandAlonePluginsByContextType[v1alpha1.CtxTypeTMC]; !ok {
-		c.StandAlonePluginsByContextType[v1alpha1.CtxTypeTMC] = map[string]string{}
+	if _, ok := c.StandAlonePluginsByContextType[configapi.CtxTypeTMC]; !ok {
+		c.StandAlonePluginsByContextType[configapi.CtxTypeTMC] = map[string]string{}
 	}
 	if c.ServerPlugins == nil {
 		c.ServerPlugins = map[string]cliv1alpha1.PluginAssociation{}
@@ -185,7 +185,7 @@ func getCatalogCache() (catalog *cliv1alpha1.Catalog, err error) {
 // saveCatalogCache saves the catalog in the local directory.
 func saveCatalogCache(catalog *cliv1alpha1.Catalog) error {
 	// Using the K8s context type since it is the only one available publicly.
-	catalog.StandAlonePluginsByContextType[v1alpha1.CtxTypeK8s] = catalog.StandAlonePlugins
+	catalog.StandAlonePluginsByContextType[configapi.CtxTypeK8s] = catalog.StandAlonePlugins
 
 	catalogCachePath := getCatalogCachePath()
 	_, err := os.Stat(catalogCachePath)

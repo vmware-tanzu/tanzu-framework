@@ -23,7 +23,6 @@ import (
 	kerrors "k8s.io/apimachinery/pkg/util/errors"
 
 	cliv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
-	"github.com/vmware-tanzu/tanzu-framework/apis/config/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/artifact"
 	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/catalog"
 	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/cli"
@@ -31,6 +30,7 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/config"
 	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/discovery"
 	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/plugin"
+	configapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/config/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/component"
 	configlib "github.com/vmware-tanzu/tanzu-framework/cli/runtime/config"
 )
@@ -76,7 +76,7 @@ func ValidatePlugin(p *cliv1alpha1.PluginDescriptor) (err error) {
 	return
 }
 
-func discoverPlugins(pd []v1alpha1.PluginDiscovery) ([]plugin.Discovered, error) {
+func discoverPlugins(pd []configapi.PluginDiscovery) ([]plugin.Discovered, error) {
 	allPlugins := make([]plugin.Discovered, 0)
 	for _, d := range pd {
 		discObject, err := discovery.CreateDiscoveryFromV1alpha1(d)
@@ -624,7 +624,7 @@ func discoverPluginsFromLocalSource(localPath string) ([]plugin.Discovered, erro
 	// relative path is provided as part of CLIPlugin definition for local discovery
 	common.DefaultLocalPluginDistroDir = localPath
 
-	var pds []v1alpha1.PluginDiscovery
+	var pds []configapi.PluginDiscovery
 
 	items, err := os.ReadDir(filepath.Join(localPath, "discovery"))
 	if err != nil {
@@ -632,8 +632,8 @@ func discoverPluginsFromLocalSource(localPath string) ([]plugin.Discovered, erro
 	}
 	for _, item := range items {
 		if item.IsDir() {
-			pd := v1alpha1.PluginDiscovery{
-				Local: &v1alpha1.LocalDiscovery{
+			pd := configapi.PluginDiscovery{
+				Local: &configapi.LocalDiscovery{
 					Name: "",
 					Path: filepath.Join(localPath, "discovery", item.Name()),
 				},

@@ -15,7 +15,7 @@ import (
 	"github.com/pkg/errors"
 	"k8s.io/apimachinery/pkg/runtime/serializer/json"
 
-	configv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/config/v1alpha1"
+	configapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/config/v1alpha1"
 )
 
 const (
@@ -87,10 +87,10 @@ func configPath(localDirGetter func() (string, error)) (path string, err error) 
 }
 
 // NewClientConfig returns a new config.
-func NewClientConfig() (*configv1alpha1.ClientConfig, error) {
-	c := &configv1alpha1.ClientConfig{
-		ClientOptions: &configv1alpha1.ClientOptions{
-			CLI: &configv1alpha1.CLIOptions{},
+func NewClientConfig() (*configapi.ClientConfig, error) {
+	c := &configapi.ClientConfig{
+		ClientOptions: &configapi.ClientOptions{
+			CLI: &configapi.CLIOptions{},
 		},
 	}
 
@@ -140,7 +140,7 @@ func CopyLegacyConfigDir() error {
 }
 
 // GetClientConfig retrieves the config from the local directory with file lock
-func GetClientConfig() (cfg *configv1alpha1.ClientConfig, err error) {
+func GetClientConfig() (cfg *configapi.ClientConfig, err error) {
 	// Acquire tanzu config lock
 	AcquireTanzuConfigLock()
 	defer ReleaseTanzuConfigLock()
@@ -148,7 +148,7 @@ func GetClientConfig() (cfg *configv1alpha1.ClientConfig, err error) {
 }
 
 // GetClientConfigNoLock retrieves the config from the local directory without acquiring the lock
-func GetClientConfigNoLock() (cfg *configv1alpha1.ClientConfig, err error) {
+func GetClientConfigNoLock() (cfg *configapi.ClientConfig, err error) {
 	cfgPath, err := ClientConfigPath()
 	if err != nil {
 		return nil, err
@@ -163,13 +163,13 @@ func GetClientConfigNoLock() (cfg *configv1alpha1.ClientConfig, err error) {
 		return cfg, nil
 	}
 
-	scheme, err := configv1alpha1.SchemeBuilder.Build()
+	scheme, err := configapi.SchemeBuilder.Build()
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to create scheme")
 	}
 	s := json.NewSerializerWithOptions(json.DefaultMetaFactory, scheme, scheme,
 		json.SerializerOptions{Yaml: true, Pretty: false, Strict: false})
-	var c configv1alpha1.ClientConfig
+	var c configapi.ClientConfig
 	_, _, err = s.Decode(b, nil, &c)
 	if err != nil {
 		return nil, errors.Wrap(err, "could not decode config file")
@@ -213,7 +213,7 @@ func storeConfigToLegacyDir(data []byte) {
 // StoreClientConfig stores the config in the local directory.
 // Make sure to Acquire and Release tanzu lock when reading/writing to the
 // tanzu client configuration
-func StoreClientConfig(cfg *configv1alpha1.ClientConfig) error {
+func StoreClientConfig(cfg *configapi.ClientConfig) error {
 	// new plugins would be setting only contexts, so populate servers for backwards compatibility
 	populateServers(cfg)
 	// old plugins would be setting only servers, so populate contexts for forwards compatibility
@@ -238,7 +238,7 @@ func StoreClientConfig(cfg *configv1alpha1.ClientConfig) error {
 		}
 	}
 
-	scheme, err := configv1alpha1.SchemeBuilder.Build()
+	scheme, err := configapi.SchemeBuilder.Build()
 	if err != nil {
 		return errors.Wrap(err, "failed to create scheme")
 	}
@@ -246,7 +246,7 @@ func StoreClientConfig(cfg *configv1alpha1.ClientConfig) error {
 	s := json.NewSerializerWithOptions(json.DefaultMetaFactory, scheme, scheme,
 		json.SerializerOptions{Yaml: true, Pretty: false, Strict: false})
 	// Set GVK explicitly as encoder does not do it.
-	cfg.GetObjectKind().SetGroupVersionKind(configv1alpha1.GroupVersionKind)
+	cfg.GetObjectKind().SetGroupVersionKind(configapi.GroupVersionKind)
 	buf := new(bytes.Buffer)
 	if err := s.Encode(cfg, buf); err != nil {
 		return errors.Wrap(err, "failed to encode config file")
@@ -278,7 +278,7 @@ func DeleteClientConfig() error {
 }
 
 // GetServer by name.
-func GetServer(name string) (s *configv1alpha1.Server, err error) {
+func GetServer(name string) (s *configapi.Server, err error) {
 	cfg, err := GetClientConfig()
 	if err != nil {
 		return s, err
@@ -306,7 +306,7 @@ func ServerExists(name string) (bool, error) {
 }
 
 // AddServer adds a server to the config.
-func AddServer(s *configv1alpha1.Server, setCurrent bool) error {
+func AddServer(s *configapi.Server, setCurrent bool) error {
 	// Acquire tanzu config lock
 	AcquireTanzuConfigLock()
 	defer ReleaseTanzuConfigLock()
@@ -337,7 +337,7 @@ func AddServer(s *configv1alpha1.Server, setCurrent bool) error {
 }
 
 // PutServer adds or updates the server.
-func PutServer(s *configv1alpha1.Server, setCurrent bool) error {
+func PutServer(s *configapi.Server, setCurrent bool) error {
 	// Acquire tanzu config lock
 	AcquireTanzuConfigLock()
 	defer ReleaseTanzuConfigLock()
@@ -347,7 +347,7 @@ func PutServer(s *configv1alpha1.Server, setCurrent bool) error {
 		return err
 	}
 
-	newServers := []*configv1alpha1.Server{s}
+	newServers := []*configapi.Server{s}
 	for _, server := range cfg.KnownServers {
 		if server.Name == s.Name {
 			continue
@@ -357,7 +357,7 @@ func PutServer(s *configv1alpha1.Server, setCurrent bool) error {
 	cfg.KnownServers = newServers
 
 	c := convertServerToContext(s)
-	newContexts := []*configv1alpha1.Context{c}
+	newContexts := []*configapi.Context{c}
 	for _, ctx := range cfg.KnownContexts {
 		if ctx.Name == c.Name {
 			continue
@@ -387,7 +387,7 @@ func RemoveServer(name string) error {
 		return err
 	}
 
-	newServers := []*configv1alpha1.Server{}
+	newServers := []*configapi.Server{}
 	for _, server := range cfg.KnownServers {
 		if server.Name != name {
 			newServers = append(newServers, server)
@@ -395,8 +395,8 @@ func RemoveServer(name string) error {
 	}
 	cfg.KnownServers = newServers
 
-	var c *configv1alpha1.Context
-	newContexts := []*configv1alpha1.Context{}
+	var c *configapi.Context
+	newContexts := []*configapi.Context{}
 	for _, ctx := range cfg.KnownContexts {
 		if ctx.Name != name {
 			newContexts = append(newContexts, ctx)
@@ -459,7 +459,7 @@ func SetCurrentServer(name string) error {
 }
 
 // GetCurrentServer gets the current server.
-func GetCurrentServer() (s *configv1alpha1.Server, err error) {
+func GetCurrentServer() (s *configapi.Server, err error) {
 	cfg, err := GetClientConfig()
 	if err != nil {
 		return s, err
@@ -473,11 +473,11 @@ func GetCurrentServer() (s *configv1alpha1.Server, err error) {
 }
 
 // EndpointFromServer returns the endpoint from server.
-func EndpointFromServer(s *configv1alpha1.Server) (endpoint string, err error) {
+func EndpointFromServer(s *configapi.Server) (endpoint string, err error) {
 	switch s.Type {
-	case configv1alpha1.ManagementClusterServerType:
+	case configapi.ManagementClusterServerType:
 		return s.ManagementClusterOpts.Endpoint, nil
-	case configv1alpha1.GlobalServerType:
+	case configapi.GlobalServerType:
 		return s.GlobalOpts.Endpoint, nil
 	default:
 		return endpoint, fmt.Errorf("unknown server type %q", s.Type)
@@ -485,11 +485,11 @@ func EndpointFromServer(s *configv1alpha1.Server) (endpoint string, err error) {
 }
 
 // EndpointFromContext returns the endpoint from context.
-func EndpointFromContext(s *configv1alpha1.Context) (endpoint string, err error) {
+func EndpointFromContext(s *configapi.Context) (endpoint string, err error) {
 	switch s.Type {
-	case configv1alpha1.CtxTypeK8s:
+	case configapi.CtxTypeK8s:
 		return s.ClusterOpts.Endpoint, nil
-	case configv1alpha1.CtxTypeTMC:
+	case configapi.CtxTypeTMC:
 		return s.GlobalOpts.Endpoint, nil
 	default:
 		return endpoint, fmt.Errorf("unknown server type %q", s.Type)
@@ -513,20 +513,20 @@ func IsFeatureActivated(feature string) bool {
 // GetDiscoverySources returns all discovery sources
 // Includes standalone discovery sources and if server is available
 // it also includes context based discovery sources as well
-func GetDiscoverySources(serverName string) []configv1alpha1.PluginDiscovery {
+func GetDiscoverySources(serverName string) []configapi.PluginDiscovery {
 	server, err := GetServer(serverName)
 	if err != nil {
 		log.Warningf("unknown server '%s', Unable to get server based discovery sources: %s", serverName, err.Error())
-		return []configv1alpha1.PluginDiscovery{}
+		return []configapi.PluginDiscovery{}
 	}
 
 	discoverySources := server.DiscoverySources
 	// If current server type is management-cluster, then add
 	// the default kubernetes discovery endpoint pointing to the
 	// management-cluster kubeconfig
-	if server.Type == configv1alpha1.ManagementClusterServerType {
-		defaultClusterK8sDiscovery := configv1alpha1.PluginDiscovery{
-			Kubernetes: &configv1alpha1.KubernetesDiscovery{
+	if server.Type == configapi.ManagementClusterServerType {
+		defaultClusterK8sDiscovery := configapi.PluginDiscovery{
+			Kubernetes: &configapi.KubernetesDiscovery{
 				Name:    fmt.Sprintf("default-%s", serverName),
 				Path:    server.ManagementClusterOpts.Path,
 				Context: server.ManagementClusterOpts.Context,
@@ -537,9 +537,9 @@ func GetDiscoverySources(serverName string) []configv1alpha1.PluginDiscovery {
 
 	// If the current server type is global, then add the default REST endpoint
 	// for the discovery service
-	if server.Type == configv1alpha1.GlobalServerType && server.GlobalOpts != nil {
-		defaultRestDiscovery := configv1alpha1.PluginDiscovery{
-			REST: &configv1alpha1.GenericRESTDiscovery{
+	if server.Type == configapi.GlobalServerType && server.GlobalOpts != nil {
+		defaultRestDiscovery := configapi.PluginDiscovery{
+			REST: &configapi.GenericRESTDiscovery{
 				Name:     fmt.Sprintf("default-%s", serverName),
 				Endpoint: appendURLScheme(server.GlobalOpts.Endpoint),
 				BasePath: "v1alpha1/system/binaries/plugins",

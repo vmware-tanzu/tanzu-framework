@@ -10,7 +10,7 @@ import (
 
 	"github.com/vmware-tanzu/tanzu-framework/tkg/region"
 
-	"github.com/vmware-tanzu/tanzu-framework/apis/config/v1alpha1"
+	configapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/config/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/config"
 )
 
@@ -34,7 +34,7 @@ func (trm *tanzuRegionManager) ListRegionContexts() ([]region.RegionContext, err
 
 	var regionClusters []region.RegionContext
 	for _, server := range tanzuConfig.KnownServers {
-		if server.Type == v1alpha1.ManagementClusterServerType {
+		if server.Type == configapi.ManagementClusterServerType {
 			regionContext := convertServerToRegionContextFull(server,
 				server.Name == tanzuConfig.CurrentServer)
 
@@ -91,11 +91,11 @@ func (trmf *tanzuRegionManagerFactory) CreateManager(configFile string) (region.
 	return &tanzuRegionManager{}, nil
 }
 
-func convertServerToRegionContext(server *v1alpha1.Server) region.RegionContext {
+func convertServerToRegionContext(server *configapi.Server) region.RegionContext {
 	return convertServerToRegionContextFull(server, false)
 }
 
-func convertServerToRegionContextFull(server *v1alpha1.Server, isCurrentContext bool) region.RegionContext {
+func convertServerToRegionContextFull(server *configapi.Server, isCurrentContext bool) region.RegionContext {
 	return region.RegionContext{
 		ClusterName:      server.Name,
 		ContextName:      server.ManagementClusterOpts.Context,
@@ -104,11 +104,11 @@ func convertServerToRegionContextFull(server *v1alpha1.Server, isCurrentContext 
 	}
 }
 
-func convertRegionContextToServer(regionContext region.RegionContext) *v1alpha1.Server {
-	return &v1alpha1.Server{
+func convertRegionContextToServer(regionContext region.RegionContext) *configapi.Server {
+	return &configapi.Server{
 		Name: regionContext.ClusterName,
-		Type: v1alpha1.ManagementClusterServerType,
-		ManagementClusterOpts: &v1alpha1.ManagementClusterServer{
+		Type: configapi.ManagementClusterServerType,
+		ManagementClusterOpts: &configapi.ManagementClusterServer{
 			Path:    regionContext.SourceFilePath,
 			Context: regionContext.ContextName,
 		},

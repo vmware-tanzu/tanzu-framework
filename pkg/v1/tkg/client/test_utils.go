@@ -18,7 +18,7 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/tkg/region"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/utils"
 
-	configv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/config/v1alpha1"
+	configapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/config/v1alpha1"
 )
 
 var testTKGCompatibilityFileFmt = `
@@ -63,7 +63,7 @@ func createTKGClientOpts(clusterConfigFile, configDir, defaultBomFile string, ti
 		TKGBomClient:             allClients.TKGBomClient,
 		TKGConfigUpdater:         allClients.TKGConfigUpdaterClient,
 		TKGPathsClient:           allClients.TKGConfigPathsClient,
-		FeatureFlagClient:        &configv1alpha1.ClientConfig{},
+		FeatureFlagClient:        &configapi.ClientConfig{},
 	}))
 }
 

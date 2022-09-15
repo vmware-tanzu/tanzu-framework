@@ -8,7 +8,7 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/vmware-tanzu/tanzu-framework/apis/config/v1alpha1"
+	configapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/config/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/component"
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/config"
 
@@ -51,7 +51,7 @@ func updateCredentials(cmd *cobra.Command, args []string) error {
 	return updateClusterCredentials(args[0], server)
 }
 
-func updateClusterCredentials(clusterName string, server *v1alpha1.Server) error {
+func updateClusterCredentials(clusterName string, server *configapi.Server) error {
 	var promptOpts []component.PromptOpt
 
 	tkgctlClient, err := createTKGClient(server.ManagementClusterOpts.Path, server.ManagementClusterOpts.Context)

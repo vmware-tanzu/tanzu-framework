@@ -6,11 +6,11 @@ package config
 import (
 	"fmt"
 
-	configv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/config/v1alpha1"
+	configapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/config/v1alpha1"
 )
 
 // GetContext by name.
-func GetContext(name string) (*configv1alpha1.Context, error) {
+func GetContext(name string) (*configapi.Context, error) {
 	cfg, err := GetClientConfig()
 	if err != nil {
 		return nil, err
@@ -30,7 +30,7 @@ func ContextExists(name string) (bool, error) {
 }
 
 // AddContext adds a Context to the config.
-func AddContext(c *configv1alpha1.Context, setCurrent bool) error {
+func AddContext(c *configapi.Context, setCurrent bool) error {
 	// Acquire tanzu config lock
 	AcquireTanzuConfigLock()
 	defer ReleaseTanzuConfigLock()
@@ -67,8 +67,8 @@ func RemoveContext(name string) error {
 		return err
 	}
 
-	newContexts := make([]*configv1alpha1.Context, 0)
-	var ctx *configv1alpha1.Context
+	newContexts := make([]*configapi.Context, 0)
+	var ctx *configapi.Context
 	for _, c := range cfg.KnownContexts {
 		if c.Name == name {
 			ctx = c
@@ -82,7 +82,7 @@ func RemoveContext(name string) error {
 	}
 
 	cfg.KnownContexts = newContexts
-	newServers := []*configv1alpha1.Server{}
+	newServers := []*configapi.Server{}
 	for _, s := range cfg.KnownServers {
 		if s.Name != name {
 			newServers = append(newServers, s)
@@ -124,7 +124,7 @@ func SetCurrentContext(name string) error {
 }
 
 // GetCurrentContext gets the current context.
-func GetCurrentContext(ctxType configv1alpha1.ContextType) (c *configv1alpha1.Context, err error) {
+func GetCurrentContext(ctxType configapi.ContextType) (c *configapi.Context, err error) {
 	cfg, err := GetClientConfig()
 	if err != nil {
 		return nil, err

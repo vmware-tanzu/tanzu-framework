@@ -14,9 +14,9 @@ import (
 	kerrors "k8s.io/apimachinery/pkg/util/errors"
 
 	cliv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
-	configv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/config/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/cli"
 	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/config"
+	configapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/config/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/component"
 	configlib "github.com/vmware-tanzu/tanzu-framework/cli/runtime/config"
 )
@@ -104,7 +104,7 @@ var setConfigCmd = &cobra.Command{
 }
 
 // setConfiguration sets the key-value pair for the given path
-func setConfiguration(cfg *configv1alpha1.ClientConfig, pathParam, value string) error {
+func setConfiguration(cfg *configapi.ClientConfig, pathParam, value string) error {
 	// special cases:
 	// backward compatibility
 	if pathParam == "unstable-versions" || pathParam == "cli.unstable-versions" {
@@ -133,7 +133,7 @@ func setConfiguration(cfg *configv1alpha1.ClientConfig, pathParam, value string)
 	}
 }
 
-func setFeatures(cfg *configv1alpha1.ClientConfig, paramArray []string, value string) error {
+func setFeatures(cfg *configapi.ClientConfig, paramArray []string, value string) error {
 	if len(paramArray) != 3 {
 		return errors.New("unable to parse config path parameter into three parts [" + strings.Join(paramArray, ".") + "]  (was expecting 'features.<plugin>.<feature>'")
 	}
@@ -141,26 +141,26 @@ func setFeatures(cfg *configv1alpha1.ClientConfig, paramArray []string, value st
 	featureName := paramArray[2]
 
 	if cfg.ClientOptions == nil {
-		cfg.ClientOptions = &configv1alpha1.ClientOptions{}
+		cfg.ClientOptions = &configapi.ClientOptions{}
 	}
 	if cfg.ClientOptions.Features == nil {
-		cfg.ClientOptions.Features = make(map[string]configv1alpha1.FeatureMap)
+		cfg.ClientOptions.Features = make(map[string]configapi.FeatureMap)
 	}
 	if cfg.ClientOptions.Features[plugin] == nil {
-		cfg.ClientOptions.Features[plugin] = configv1alpha1.FeatureMap{}
+		cfg.ClientOptions.Features[plugin] = configapi.FeatureMap{}
 	}
 	cfg.ClientOptions.Features[plugin][featureName] = value
 	return nil
 }
 
-func setEnvs(cfg *configv1alpha1.ClientConfig, paramArray []string, value string) error {
+func setEnvs(cfg *configapi.ClientConfig, paramArray []string, value string) error {
 	if len(paramArray) != 2 {
 		return errors.New("unable to parse config path parameter into two parts [" + strings.Join(paramArray, ".") + "]  (was expecting 'env.<variable>'")
 	}
 	envVariable := paramArray[1]
 
 	if cfg.ClientOptions == nil {
-		cfg.ClientOptions = &configv1alpha1.ClientOptions{}
+		cfg.ClientOptions = &configapi.ClientOptions{}
 	}
 	if cfg.ClientOptions.Env == nil {
 		cfg.ClientOptions.Env = make(map[string]string)
@@ -170,14 +170,14 @@ func setEnvs(cfg *configv1alpha1.ClientConfig, paramArray []string, value string
 	return nil
 }
 
-func setUnstableVersions(cfg *configv1alpha1.ClientConfig, value string) error {
-	optionKey := configv1alpha1.VersionSelectorLevel(value)
+func setUnstableVersions(cfg *configapi.ClientConfig, value string) error {
+	optionKey := configapi.VersionSelectorLevel(value)
 
 	switch optionKey {
-	case configv1alpha1.AllUnstableVersions,
-		configv1alpha1.AlphaUnstableVersions,
-		configv1alpha1.ExperimentalUnstableVersions,
-		configv1alpha1.NoUnstableVersions:
+	case configapi.AllUnstableVersions,
+		configapi.AlphaUnstableVersions,
+		configapi.ExperimentalUnstableVersions,
+		configapi.NoUnstableVersions:
 		cfg.SetUnstableVersionSelector(optionKey)
 	default:
 		return fmt.Errorf("unknown unstable-versions setting: %s; should be one of [all, none, alpha, experimental]", optionKey)
@@ -185,14 +185,14 @@ func setUnstableVersions(cfg *configv1alpha1.ClientConfig, value string) error {
 	return nil
 }
 
-func setEdition(cfg *configv1alpha1.ClientConfig, edition string) error {
-	editionOption := configv1alpha1.EditionSelector(edition)
+func setEdition(cfg *configapi.ClientConfig, edition string) error {
+	editionOption := configapi.EditionSelector(edition)
 
 	switch editionOption {
-	case configv1alpha1.EditionCommunity, configv1alpha1.EditionStandard:
+	case configapi.EditionCommunity, configapi.EditionStandard:
 		cfg.SetEditionSelector(editionOption)
 	default:
-		return fmt.Errorf("unknown edition: %s; should be one of [%s, %s]", editionOption, configv1alpha1.EditionStandard, configv1alpha1.EditionCommunity)
+		return fmt.Errorf("unknown edition: %s; should be one of [%s, %s]", editionOption, configapi.EditionStandard, configapi.EditionCommunity)
 	}
 	return nil
 }
@@ -210,13 +210,13 @@ var initConfigCmd = &cobra.Command{
 			return err
 		}
 		if cfg.ClientOptions == nil {
-			cfg.ClientOptions = &configv1alpha1.ClientOptions{}
+			cfg.ClientOptions = &configapi.ClientOptions{}
 		}
 		if cfg.ClientOptions.CLI == nil {
-			cfg.ClientOptions.CLI = &configv1alpha1.CLIOptions{}
+			cfg.ClientOptions.CLI = &configapi.CLIOptions{}
 		}
 		repos := cfg.ClientOptions.CLI.Repositories
-		finalRepos := []configv1alpha1.PluginRepository{}
+		finalRepos := []configapi.PluginRepository{}
 		for _, repo := range config.DefaultRepositories {
 			var exists bool
 			for _, r := range repos {
@@ -352,7 +352,7 @@ var unsetConfigCmd = &cobra.Command{
 }
 
 // unsetConfiguration unsets the key-value pair for the given path and removes it
-func unsetConfiguration(cfg *configv1alpha1.ClientConfig, pathParam string) error {
+func unsetConfiguration(cfg *configapi.ClientConfig, pathParam string) error {
 	// parse the param
 	paramArray := strings.Split(pathParam, ".")
 	if len(paramArray) < 2 {
@@ -371,7 +371,7 @@ func unsetConfiguration(cfg *configv1alpha1.ClientConfig, pathParam string) erro
 	}
 }
 
-func unsetFeatures(cfg *configv1alpha1.ClientConfig, paramArray []string) error {
+func unsetFeatures(cfg *configapi.ClientConfig, paramArray []string) error {
 	if len(paramArray) != 3 {
 		return errors.New("unable to parse config path parameter into three parts [" + strings.Join(paramArray, ".") + "]  (was expecting 'features.<plugin>.<feature>'")
 	}
@@ -386,7 +386,7 @@ func unsetFeatures(cfg *configv1alpha1.ClientConfig, paramArray []string) error 
 	return nil
 }
 
-func unsetEnvs(cfg *configv1alpha1.ClientConfig, paramArray []string) error {
+func unsetEnvs(cfg *configapi.ClientConfig, paramArray []string) error {
 	if len(paramArray) != 2 {
 		return errors.New("unable to parse config path parameter into two parts [" + strings.Join(paramArray, ".") + "]  (was expecting 'env.<env_variable>'")
 	}

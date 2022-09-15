@@ -8,8 +8,8 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/vmware-tanzu/tanzu-framework/apis/config/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/pluginmanager"
+	configapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/config/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/config"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgctl"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/constants"
@@ -73,7 +73,7 @@ func init() {
 	upgradeRegionCmd.Flags().StringVar(&ur.osArch, "os-arch", "", "OS arch to use during management cluster upgrade. Discovered automatically if not provided (See [+])")
 }
 
-func runUpgradeRegion(server *v1alpha1.Server) error {
+func runUpgradeRegion(server *configapi.Server) error {
 	err := tkgctl.SetCompatibilityFileBasedOnEdition()
 	if err != nil {
 		log.V(3).Infof("%v", err.Error())

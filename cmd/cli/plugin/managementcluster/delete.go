@@ -12,7 +12,7 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/tkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/log"
 
-	"github.com/vmware-tanzu/tanzu-framework/apis/config/v1alpha1"
+	configapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/config/v1alpha1"
 )
 
 type deleteRegionOptions struct {
@@ -45,7 +45,7 @@ func init() {
 	deleteRegionCmd.Flags().DurationVarP(&dr.timeout, "timeout", "t", constants.DefaultLongRunningOperationTimeout, "Time duration to wait for an operation before timeout. Timeout duration in hours(h)/minutes(m)/seconds(s) units or as some combination of them (e.g. 2h, 30m, 2h30m10s)")
 }
 
-func runDeleteRegion(server *v1alpha1.Server) error {
+func runDeleteRegion(server *configapi.Server) error {
 	err := tkgctl.SetCompatibilityFileBasedOnEdition()
 	if err != nil {
 		log.V(3).Infof("%v", err.Error())

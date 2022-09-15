@@ -9,7 +9,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	configv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/config/v1alpha1"
+	configapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/config/v1alpha1"
 )
 
 // Test_config_MalformedPathArg validates functionality when an invalid argument is provided.
@@ -38,7 +38,7 @@ func TestConfigInvalidPathArg(t *testing.T) {
 
 // TestConfigUnstableVersions validates functionality when path argument unstable-versions is provided.
 func TestConfigUnstableVersions(t *testing.T) {
-	cfg := &configv1alpha1.ClientConfig{}
+	cfg := &configapi.ClientConfig{}
 	const path = "unstable-versions"
 	const value = "experimental"
 	err := setConfiguration(cfg, path, value)
@@ -53,7 +53,7 @@ func TestConfigUnstableVersions(t *testing.T) {
 
 // TestConfigUnstableVersions validates functionality when path argument cli.unstable-versions is provided.
 func TestConfigCliUnstableVersions(t *testing.T) {
-	cfg := &configv1alpha1.ClientConfig{}
+	cfg := &configapi.ClientConfig{}
 	const path = "cli.unstable-versions"
 	const value = "all"
 	err := setConfiguration(cfg, path, value)
@@ -68,7 +68,7 @@ func TestConfigCliUnstableVersions(t *testing.T) {
 
 // TestConfigInvalidUnstableVersions validates functionality when invalid unstable-versions is provided.
 func TestConfigInvalidUnstableVersions(t *testing.T) {
-	cfg := &configv1alpha1.ClientConfig{}
+	cfg := &configapi.ClientConfig{}
 	err := setConfiguration(cfg, "unstable-versions", "invalid-unstable-versions-value")
 	if err == nil {
 		t.Error("Invalid unstable-versions should have resulted in error")
@@ -81,7 +81,7 @@ func TestConfigInvalidUnstableVersions(t *testing.T) {
 
 // TestConfigGlobalFeature validates functionality when global feature path argument is provided.
 func TestConfigGlobalFeature(t *testing.T) {
-	cfg := &configv1alpha1.ClientConfig{}
+	cfg := &configapi.ClientConfig{}
 	value := "bar"
 	err := setConfiguration(cfg, "features.global.foo", value)
 	if err != nil {
@@ -95,7 +95,7 @@ func TestConfigGlobalFeature(t *testing.T) {
 
 // TestConfigFeature validates functionality when normal feature path argument is provided.
 func TestConfigFeature(t *testing.T) {
-	cfg := &configv1alpha1.ClientConfig{}
+	cfg := &configapi.ClientConfig{}
 	value := "barr"
 	err := setConfiguration(cfg, "features.any-plugin.foo", value)
 	if err != nil {
@@ -111,7 +111,7 @@ func TestConfigFeature(t *testing.T) {
 func TestConfigSetUnsetEnv(t *testing.T) {
 	assert := assert.New(t)
 
-	cfg := &configv1alpha1.ClientConfig{}
+	cfg := &configapi.ClientConfig{}
 	value := "baar"
 	err := setConfiguration(cfg, "env.foo", value)
 	assert.Nil(err)
@@ -126,7 +126,7 @@ func TestConfigSetUnsetEnv(t *testing.T) {
 func TestConfigIncorrectConfigLiteral(t *testing.T) {
 	assert := assert.New(t)
 
-	cfg := &configv1alpha1.ClientConfig{}
+	cfg := &configapi.ClientConfig{}
 	value := "b"
 	err := setConfiguration(cfg, "fake.any-plugin.foo", value)
 	assert.NotNil(err)
@@ -135,7 +135,7 @@ func TestConfigIncorrectConfigLiteral(t *testing.T) {
 
 // TestConfigEnv validates functionality when normal env path argument is provided.
 func TestConfigEnv(t *testing.T) {
-	cfg := &configv1alpha1.ClientConfig{}
+	cfg := &configapi.ClientConfig{}
 	value := "baarr"
 	err := setConfiguration(cfg, "env.any-plugin", value)
 	if err != nil {
@@ -148,33 +148,33 @@ func TestConfigEnv(t *testing.T) {
 }
 
 func TestConfigEditionCommunity(t *testing.T) {
-	cfg := &configv1alpha1.ClientConfig{}
-	value := configv1alpha1.EditionCommunity
+	cfg := &configapi.ClientConfig{}
+	value := configapi.EditionCommunity
 	err := setConfiguration(cfg, "cli.edition", value)
 	if err != nil {
 		t.Errorf("Unexpected error returned for cli.edition argument: %s", err.Error())
 	}
 
-	if cfg.ClientOptions.CLI.Edition != configv1alpha1.EditionCommunity {
+	if cfg.ClientOptions.CLI.Edition != configapi.EditionCommunity {
 		t.Error("cfg.ClientOptions.CLI.Edition was not assigned the value \"" + value + "\"")
 	}
 }
 
 func TestConfigEditionStandard(t *testing.T) {
-	cfg := &configv1alpha1.ClientConfig{}
-	value := configv1alpha1.EditionStandard
+	cfg := &configapi.ClientConfig{}
+	value := configapi.EditionStandard
 	err := setConfiguration(cfg, "cli.edition", value)
 	if err != nil {
 		t.Errorf("Unexpected error returned for cli.edition argument: %s", err.Error())
 	}
 
-	if cfg.ClientOptions.CLI.Edition != configv1alpha1.EditionStandard {
+	if cfg.ClientOptions.CLI.Edition != configapi.EditionStandard {
 		t.Error("cfg.ClientOptions.CLI.Edition was not assigned the value \"" + value + "\"")
 	}
 }
 
 func TestConfigEditionInvalid(t *testing.T) {
-	cfg := &configv1alpha1.ClientConfig{}
+	cfg := &configapi.ClientConfig{}
 	value := "invalidEdition"
 	err := setConfiguration(cfg, "cli.edition", value)
 	if err == nil {
