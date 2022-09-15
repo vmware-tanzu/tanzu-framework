@@ -1,4 +1,4 @@
-name: TKG Integration Tests ClusterClass
+name: TKG integration Tests ClusterClass
 
 on:
   pull_request:

@@ -1,4 +1,4 @@
-name: TKG Integration Tests
+name: TKG integration Tests
 
 on:
   pull_request:
