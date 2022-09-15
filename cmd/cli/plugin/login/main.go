@@ -361,10 +361,6 @@ func createServerWithEndpoint() (server *configv1alpha1.Server, err error) {
 		if err != nil {
 			log.Fatalf("Error creating kubeconfig with tanzu pinniped-auth login plugin: %v", err)
 			return nil, err
-			// IsSupervisorClusterIgnorePort only returns an error if the
-			// underlying HTTP GET returned one. Non-200 responses will return
-			// nil errors.
-			log.Warning("Unable to determine if endpoint was a vSphere Supervisor")
 		}
 		if isVSphereSupervisor {
 			log.Info("Detected a vSphere Supervisor being used")

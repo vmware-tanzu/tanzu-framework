@@ -332,7 +332,7 @@ func validateControlPlanceTKRDataFields(cluster *clusterv1.Cluster, result data.
 func validateMDTKRDataFields(cluster *clusterv1.Cluster, mdIndex int, result data.Result) {
 	var tkrData clusterdata.TKRData
 	err := topology.GetMDVariable(cluster, mdIndex, "TKR_DATA", &tkrData)
-	Expect(err).To(BeNil(), fmt.Sprintf("failed to get the TKR_DATA variable for MD[%s]", mdIndex))
+	Expect(err).To(BeNil(), fmt.Sprintf("failed to get the TKR_DATA variable for MD[%v]", mdIndex))
 
 	osImageResolved := tkrData[cluster.Spec.Topology.Version].Labels[runv1.LabelOSImage]
 	Expect(osImageResolved).ToNot(BeEmpty(), fmt.Sprintf("MD[%d]'s TKR_DATA[%s] is missing label:'%s' ", mdIndex, cluster.Spec.Topology.Version, runv1.LabelOSImage))
