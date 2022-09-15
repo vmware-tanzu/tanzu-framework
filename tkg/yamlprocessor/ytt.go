@@ -18,7 +18,7 @@ import (
 	"github.com/vmware-tanzu/carvel-ytt/pkg/workspace/datavalues"
 	"github.com/vmware-tanzu/carvel-ytt/pkg/yamlmeta"
 
-	"github.com/vmware-tanzu/tanzu-framework/apis/providers/v1alpha1"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/api/providers/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/carvelhelpers"
 )
 
