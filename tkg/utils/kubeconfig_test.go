@@ -37,7 +37,7 @@ var _ = Describe("Kubeconfig Tests", func() {
 		servCert                 *x509.Certificate
 	)
 
-	const kubeconfig1Path = "../../pkg/v1/tkg/fakes/config/kubeconfig/config1.yaml"
+	const kubeconfig1Path = "../fakes/config/kubeconfig/config1.yaml"
 	Describe("Get cluster-info from the cluster", func() {
 		BeforeEach(func() {
 			tlsserver = ghttp.NewTLSServer()
@@ -151,7 +151,7 @@ var _ = Describe("Kubeconfig Tests", func() {
 				})
 				It("Should return an error", func() {
 					Expect(err).To(HaveOccurred())
-					Expect(err.Error()).To(Equal("unable to find cluster name from kubeconfig file: \"../../pkg/v1/tkg/fakes/config/kubeconfig/config1.yaml\""))
+					Expect(err.Error()).To(Equal("unable to find cluster name from kubeconfig file: \"../fakes/config/kubeconfig/config1.yaml\""))
 				})
 			})
 		})

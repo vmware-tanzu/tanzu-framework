@@ -81,7 +81,7 @@ var _ = Describe("Common Utils", func() {
 })
 
 func getConfigFilePath(filename string) string {
-	filePath := "../../pkg/v1/tkg/fakes/config/kubeconfig/" + filename
+	filePath := "../fakes/config/kubeconfig/" + filename
 	f, _ := os.CreateTemp(testingDir, "kube")
 	copyFile(filePath, f.Name())
 	return f.Name()
