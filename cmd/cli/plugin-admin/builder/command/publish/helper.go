@@ -15,10 +15,11 @@ import (
 	"github.com/spf13/afero"
 	"gopkg.in/yaml.v2"
 
+	apimachineryjson "k8s.io/apimachinery/pkg/runtime/serializer/json"
+
 	"github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/common"
 	cliapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/cli/v1alpha1"
-	apimachineryjson "k8s.io/apimachinery/pkg/runtime/serializer/json"
 )
 
 const (

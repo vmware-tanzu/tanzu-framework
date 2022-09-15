@@ -8,8 +8,8 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	configapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/config/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/config"
+	configapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/config/v1alpha1"
 )
 
 func TestGCPRepository(t *testing.T) {

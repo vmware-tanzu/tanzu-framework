@@ -18,7 +18,7 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/config"
 	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/plugin"
-	cliv1alpha1 "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/cli/v1alpha1"
+	cliapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/cli/v1alpha1"
 )
 
 const (
