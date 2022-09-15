@@ -9,7 +9,7 @@ import (
 	"github.com/aunum/log"
 	_ "k8s.io/client-go/plugin/pkg/client/auth"
 
-	cliv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
+	cliapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/cli/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/component"
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/config"
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/plugin"
@@ -20,10 +20,10 @@ import (
 	capdiscovery "github.com/vmware-tanzu/tanzu-framework/pkg/v1/sdk/capabilities/discovery"
 )
 
-var descriptor = cliv1alpha1.PluginDescriptor{
+var descriptor = cliapi.PluginDescriptor{
 	Name:        "package",
 	Description: "Tanzu package management",
-	Group:       cliv1alpha1.RunCmdGroup,
+	Group:       cliapi.RunCmdGroup,
 	Version:     buildinfo.Version,
 	BuildSHA:    buildinfo.SHA,
 }

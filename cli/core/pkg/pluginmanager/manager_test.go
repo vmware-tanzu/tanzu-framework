@@ -14,11 +14,11 @@ import (
 	"github.com/otiai10/copy"
 	"github.com/stretchr/testify/assert"
 
-	cliv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/common"
 	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/config"
 	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/plugin"
+	cliv1alpha1 "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/cli/v1alpha1"
 )
 
 const (
@@ -298,7 +298,7 @@ func Test_DeletePlugin(t *testing.T) {
 func Test_ValidatePlugin(t *testing.T) {
 	assert := assert.New(t)
 
-	pd := cliv1alpha1.PluginDescriptor{}
+	pd := cliapi.PluginDescriptor{}
 	err := ValidatePlugin(&pd)
 	assert.Contains(err.Error(), "plugin name cannot be empty")
 
@@ -387,7 +387,7 @@ func Test_getInstalledButNotDiscoveredStandalonePlugins(t *testing.T) {
 	assert := assert.New(t)
 
 	availablePlugins := []plugin.Discovered{plugin.Discovered{Name: "fake1", DiscoveryType: "oci", RecommendedVersion: "v1.0.0", Status: common.PluginStatusInstalled}}
-	installedPluginDesc := []cliv1alpha1.PluginDescriptor{cliv1alpha1.PluginDescriptor{Name: "fake2", Version: "v2.0.0", Discovery: "local"}}
+	installedPluginDesc := []cliapi.PluginDescriptor{cliapi.PluginDescriptor{Name: "fake2", Version: "v2.0.0", Discovery: "local"}}
 
 	// If installed plugin is not part of available(discovered) plugins
 	plugins := getInstalledButNotDiscoveredStandalonePlugins(availablePlugins, installedPluginDesc)
@@ -397,7 +397,7 @@ func Test_getInstalledButNotDiscoveredStandalonePlugins(t *testing.T) {
 	assert.Equal(common.PluginStatusInstalled, plugins[0].Status)
 
 	// If installed plugin is part of available(discovered) plugins and provided available plugin is already marked as `installed`
-	installedPluginDesc = append(installedPluginDesc, cliv1alpha1.PluginDescriptor{Name: "fake1", Version: "v1.0.0", Discovery: "local"})
+	installedPluginDesc = append(installedPluginDesc, cliapi.PluginDescriptor{Name: "fake1", Version: "v1.0.0", Discovery: "local"})
 	plugins = getInstalledButNotDiscoveredStandalonePlugins(availablePlugins, installedPluginDesc)
 	assert.Equal(len(plugins), 1)
 	assert.Equal("fake2", plugins[0].Name)
@@ -429,7 +429,7 @@ func Test_setAvailablePluginsStatus(t *testing.T) {
 	assert := assert.New(t)
 
 	availablePlugins := []plugin.Discovered{plugin.Discovered{Name: "fake1", DiscoveryType: "oci", RecommendedVersion: "v1.0.0", Status: common.PluginStatusNotInstalled}}
-	installedPluginDesc := []cliv1alpha1.PluginDescriptor{cliv1alpha1.PluginDescriptor{Name: "fake2", Version: "v2.0.0", Discovery: "local", DiscoveredRecommendedVersion: "v2.0.0"}}
+	installedPluginDesc := []cliapi.PluginDescriptor{cliapi.PluginDescriptor{Name: "fake2", Version: "v2.0.0", Discovery: "local", DiscoveredRecommendedVersion: "v2.0.0"}}
 
 	// If installed plugin is not part of available(discovered) plugins then
 	// installed version == ""
@@ -442,7 +442,7 @@ func Test_setAvailablePluginsStatus(t *testing.T) {
 	assert.Equal(common.PluginStatusNotInstalled, availablePlugins[0].Status)
 
 	// If installed plugin is part of available(discovered) plugins and provided available plugin is already installed
-	installedPluginDesc = []cliv1alpha1.PluginDescriptor{cliv1alpha1.PluginDescriptor{Name: "fake1", Version: "v1.0.0", Discovery: "local", DiscoveredRecommendedVersion: "v1.0.0"}}
+	installedPluginDesc = []cliapi.PluginDescriptor{cliapi.PluginDescriptor{Name: "fake1", Version: "v1.0.0", Discovery: "local", DiscoveredRecommendedVersion: "v1.0.0"}}
 	setAvailablePluginsStatus(availablePlugins, installedPluginDesc)
 	assert.Equal(len(availablePlugins), 1)
 	assert.Equal("fake1", availablePlugins[0].Name)
@@ -453,7 +453,7 @@ func Test_setAvailablePluginsStatus(t *testing.T) {
 	// If installed plugin is part of available(discovered) plugins but recommended discovered version is different than the one installed
 	// then available plugin status should show 'update available'
 	availablePlugins = []plugin.Discovered{plugin.Discovered{Name: "fake1", DiscoveryType: "oci", RecommendedVersion: "v8.0.0-latest", Status: common.PluginStatusNotInstalled}}
-	installedPluginDesc = []cliv1alpha1.PluginDescriptor{cliv1alpha1.PluginDescriptor{Name: "fake1", Version: "v1.0.0", Discovery: "local", DiscoveredRecommendedVersion: "v1.0.0"}}
+	installedPluginDesc = []cliapi.PluginDescriptor{cliapi.PluginDescriptor{Name: "fake1", Version: "v1.0.0", Discovery: "local", DiscoveredRecommendedVersion: "v1.0.0"}}
 	setAvailablePluginsStatus(availablePlugins, installedPluginDesc)
 	assert.Equal(len(availablePlugins), 1)
 	assert.Equal("fake1", availablePlugins[0].Name)
@@ -464,7 +464,7 @@ func Test_setAvailablePluginsStatus(t *testing.T) {
 	// If installed plugin is part of available(discovered) plugins but recommended discovered version is same as the recommended discovered version
 	// for the installed plugin(stored as part of catalog cache) then available plugin status should show 'installed'
 	availablePlugins = []plugin.Discovered{plugin.Discovered{Name: "fake1", DiscoveryType: "oci", RecommendedVersion: "v8.0.0-latest", Status: common.PluginStatusNotInstalled}}
-	installedPluginDesc = []cliv1alpha1.PluginDescriptor{cliv1alpha1.PluginDescriptor{Name: "fake1", Version: "v1.0.0", Discovery: "local", DiscoveredRecommendedVersion: "v8.0.0-latest"}}
+	installedPluginDesc = []cliapi.PluginDescriptor{cliapi.PluginDescriptor{Name: "fake1", Version: "v1.0.0", Discovery: "local", DiscoveredRecommendedVersion: "v8.0.0-latest"}}
 	setAvailablePluginsStatus(availablePlugins, installedPluginDesc)
 	assert.Equal(len(availablePlugins), 1)
 	assert.Equal("fake1", availablePlugins[0].Name)

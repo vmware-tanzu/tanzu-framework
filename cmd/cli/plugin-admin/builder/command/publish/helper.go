@@ -17,7 +17,7 @@ import (
 
 	"github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/common"
-
+	cliapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/cli/v1alpha1"
 	apimachineryjson "k8s.io/apimachinery/pkg/runtime/serializer/json"
 )
 
@@ -102,7 +102,7 @@ func updatePluginInfoMapWithVersionOSArch(mapPluginInfo map[string]*pluginInfo, 
 func getDescriptionFromPluginYaml(pluginYaml string) string {
 	b, err := afero.ReadFile(fs, pluginYaml)
 	if err == nil {
-		pd := &v1alpha1.PluginDescriptor{}
+		pd := &cliapi.PluginDescriptor{}
 		err := yaml.Unmarshal(b, pd)
 		if err == nil {
 			return pd.Description

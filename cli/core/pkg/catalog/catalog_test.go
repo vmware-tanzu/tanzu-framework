@@ -10,8 +10,8 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	cliv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/common"
+	cliapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/cli/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/config"
 )
 
@@ -25,7 +25,7 @@ func Test_ContextCatalog_With_Empty_Context(t *testing.T) {
 	assert.Nil(err)
 	assert.NotNil(cc)
 
-	pd1 := cliv1alpha1.PluginDescriptor{
+	pd1 := cliapi.PluginDescriptor{
 		Name:             "fakeplugin1",
 		InstallationPath: "/path/to/plugin/fakeplugin1",
 		Version:          "1.0.0",
@@ -40,7 +40,7 @@ func Test_ContextCatalog_With_Empty_Context(t *testing.T) {
 	assert.Equal(pd.InstallationPath, "/path/to/plugin/fakeplugin1")
 	assert.Equal(pd.Version, "1.0.0")
 
-	pd2 := cliv1alpha1.PluginDescriptor{
+	pd2 := cliapi.PluginDescriptor{
 		Name:             "fakeplugin2",
 		InstallationPath: "/path/to/plugin/fakeplugin2",
 		Version:          "2.0.0",
@@ -97,7 +97,7 @@ func Test_ContextCatalog_With_Context(t *testing.T) {
 	assert.Nil(err)
 	assert.NotNil(cc)
 
-	pd1 := cliv1alpha1.PluginDescriptor{
+	pd1 := cliapi.PluginDescriptor{
 		Name:             "fakeplugin1",
 		InstallationPath: "/path/to/plugin/fakeplugin1",
 		Version:          "1.0.0",
@@ -112,7 +112,7 @@ func Test_ContextCatalog_With_Context(t *testing.T) {
 	assert.Equal(pd.InstallationPath, "/path/to/plugin/fakeplugin1")
 	assert.Equal(pd.Version, "1.0.0")
 
-	pd2 := cliv1alpha1.PluginDescriptor{
+	pd2 := cliapi.PluginDescriptor{
 		Name:             "fakeplugin2",
 		InstallationPath: "/path/to/plugin/fakeplugin2",
 		Version:          "2.0.0",

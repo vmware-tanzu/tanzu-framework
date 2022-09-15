@@ -8,15 +8,15 @@ import (
 
 	"github.com/aunum/log"
 
-	cliv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
+	cliapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/cli/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/plugin"
 )
 
-var descriptor = cliv1alpha1.PluginDescriptor{
+var descriptor = cliapi.PluginDescriptor{
 	Name:        "bar",
 	Description: "Bar commands",
 	Version:     "v0.0.2",
-	Group:       cliv1alpha1.BuildCmdGroup,
+	Group:       cliapi.BuildCmdGroup,
 }
 
 func main() {

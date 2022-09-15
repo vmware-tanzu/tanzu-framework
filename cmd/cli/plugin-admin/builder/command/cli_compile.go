@@ -20,8 +20,8 @@ import (
 	"github.com/gobwas/glob"
 	"gopkg.in/yaml.v2"
 
-	cliv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/cli"
+	cliapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/cli/v1alpha1"
 )
 
 var (
@@ -31,7 +31,7 @@ var (
 )
 
 type plugin struct {
-	cliv1alpha1.PluginDescriptor
+	cliapi.PluginDescriptor
 	path     string
 	testPath string
 	docPath  string
@@ -263,7 +263,7 @@ func buildPlugin(path string, arch cli.Arch, id string) (plugin, error) {
 		log.Errorf("%s - output: %v", id, string(b))
 		return plugin{}, err
 	}
-	var desc cliv1alpha1.PluginDescriptor
+	var desc cliapi.PluginDescriptor
 	err = json.Unmarshal(b, &desc)
 	if err != nil {
 		log.Errorf("%s - error unmarshalling plugin descriptor: %v", id, err)

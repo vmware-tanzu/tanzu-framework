@@ -14,10 +14,10 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/cobra/doc"
 
-	cliv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/cli"
 	coreTemplates "github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/command/templates"
 	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/pluginmanager"
+	cliapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/cli/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/config"
 )
 
@@ -50,7 +50,7 @@ var genAllDocsCmd = &cobra.Command{
 			return fmt.Errorf("error generate core tanzu cmd markdown %q", err)
 		}
 
-		var pluginDescriptions []*cliv1alpha1.PluginDescriptor
+		var pluginDescriptions []*cliapi.PluginDescriptor
 		var err error
 		if config.IsFeatureActivated(config.FeatureContextAwareCLIForPlugins) {
 			pluginDescriptions, err = pluginmanager.InstalledPluginsDescriptors()
@@ -86,7 +86,7 @@ func genCoreCMD(cmd *cobra.Command) error {
 	return nil
 }
 
-func genREADME(plugins []*cliv1alpha1.PluginDescriptor) error {
+func genREADME(plugins []*cliapi.PluginDescriptor) error {
 	readmeFilename := fmt.Sprintf("%s/%s", docsDir, "README.md")
 	readme, err := os.OpenFile(readmeFilename, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
 	if err != nil {
@@ -102,7 +102,7 @@ func genREADME(plugins []*cliv1alpha1.PluginDescriptor) error {
 	return nil
 }
 
-func genMarkdownTreePlugins(plugins []*cliv1alpha1.PluginDescriptor) error {
+func genMarkdownTreePlugins(plugins []*cliapi.PluginDescriptor) error {
 	args := []string{"generate-docs", "--docs-dir", docsDir}
 	for _, p := range plugins {
 		runner := cli.NewRunner(p.Name, p.InstallationPath, args)

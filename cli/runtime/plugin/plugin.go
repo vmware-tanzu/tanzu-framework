@@ -13,7 +13,7 @@ import (
 	"go.uber.org/multierr"
 	"golang.org/x/mod/semver"
 
-	cliv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
+	cliapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/cli/v1alpha1"
 )
 
 // Plugin is a Tanzu CLI plugin.
@@ -22,7 +22,7 @@ type Plugin struct {
 }
 
 // NewPlugin creates an instance of Plugin.
-func NewPlugin(descriptor *cliv1alpha1.PluginDescriptor) (*Plugin, error) {
+func NewPlugin(descriptor *cliapi.PluginDescriptor) (*Plugin, error) {
 	ApplyDefaultConfig(descriptor)
 	err := ValidatePlugin(descriptor)
 	if err != nil {
@@ -61,7 +61,7 @@ func (p *Plugin) Execute() error {
 }
 
 // parsePluginDescriptor parses a plugin descriptor in yaml.
-func parsePluginDescriptor(path string) (desc cliv1alpha1.PluginDescriptor, err error) {
+func parsePluginDescriptor(path string) (desc cliapi.PluginDescriptor, err error) {
 	b, err := os.ReadFile(path)
 	if err != nil {
 		return desc, errors.Wrap(err, "could not read plugin descriptor")
@@ -75,7 +75,7 @@ func parsePluginDescriptor(path string) (desc cliv1alpha1.PluginDescriptor, err 
 }
 
 // ApplyDefaultConfig applies default configurations to plugin descriptor.
-func ApplyDefaultConfig(p *cliv1alpha1.PluginDescriptor) {
+func ApplyDefaultConfig(p *cliapi.PluginDescriptor) {
 	if p.PostInstallHook == nil {
 		p.PostInstallHook = func() error {
 			return nil
@@ -84,7 +84,7 @@ func ApplyDefaultConfig(p *cliv1alpha1.PluginDescriptor) {
 }
 
 // ValidatePlugin validates the plugin descriptor.
-func ValidatePlugin(p *cliv1alpha1.PluginDescriptor) (err error) {
+func ValidatePlugin(p *cliapi.PluginDescriptor) (err error) {
 	// skip builder plugin for bootstrapping
 	if p.Name == "builder" {
 		return nil

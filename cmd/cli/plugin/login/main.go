@@ -25,6 +25,7 @@ import (
 	wcpauth "github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/auth/wcp"
 	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/pluginmanager"
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/buildinfo"
+	cliapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/cli/v1alpha1"
 	configapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/config/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/component"
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/config"
@@ -32,10 +33,10 @@ import (
 )
 
 // Note: Shall be deprecated in a future version. Superseded by 'tanzu context' command.
-var descriptor = cliv1alpha1.PluginDescriptor{
+var descriptor = cliapi.PluginDescriptor{
 	Name:        "login",
 	Description: "Login to the platform",
-	Group:       cliv1alpha1.SystemCmdGroup,
+	Group:       cliapi.SystemCmdGroup,
 	Aliases:     []string{"lo", "logins"},
 	Version:     buildinfo.Version,
 	BuildSHA:    buildinfo.SHA,
