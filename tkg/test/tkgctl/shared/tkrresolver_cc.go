@@ -28,11 +28,11 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v2/tkr/resolver"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v2/tkr/resolver/data"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v2/tkr/util/resolution"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v2/tkr/util/topology"
 	clusterdata "github.com/vmware-tanzu/tanzu-framework/pkg/v2/tkr/webhook/cluster/tkr-resolver/cluster"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/test/framework"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/tkgctl"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/tkr/util/topology"
 )
 
 type E2ETKRResolverValidationForClusterCRUDSpecInput struct {
