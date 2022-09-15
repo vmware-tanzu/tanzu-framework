@@ -40,7 +40,6 @@ func RunMakeTarget(path, target string, envArray ...string) error {
 	cmd.Stderr = &errBytes
 	cmd.Env = os.Environ()
 	cmd.Env = append(cmd.Env, envArray...)
-	fmt.Println("Running make target: ", cmd.String())
 	err := cmd.Run()
 	if err != nil {
 		return fmt.Errorf("couldn't run the make target %s: %s", target, errBytes.String())
