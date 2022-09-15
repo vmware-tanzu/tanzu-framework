@@ -6,7 +6,7 @@ on:
     paths:
       - "cmd/cli/plugin/cluster/**"
       - "cmd/cli/plugin/managementcluster/**"
-      - 'pkg/v1/tkg/**'
+      - 'tkg/**'
       - 'pkg/v1/providers/**'
       - '.github/workflows/plugin_tests.yaml'
 
