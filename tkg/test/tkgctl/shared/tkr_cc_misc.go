@@ -25,11 +25,10 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/apis/run/util/sets"
 	"github.com/vmware-tanzu/tanzu-framework/apis/run/util/version"
 	runv1 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
-
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v2/tkr/controller/tkr-source/compatibility"
-	"github.com/vmware-tanzu/tanzu-framework/tkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/registry"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/test/framework"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/tkr/controller/tkr-source/compatibility"
+	tkrconstants "github.com/vmware-tanzu/tanzu-framework/tkg/tkr/pkg/constants"
 )
 
 type TKRCompatibilityValidationSpecInput struct {
@@ -148,7 +147,7 @@ func ValidateTKRsRelatedObjectsAvailability(ctx context.Context, mcProxy *framew
 		tkr := &runv1.TanzuKubernetesRelease{}
 		err := crClient.Get(ctx, client.ObjectKey{Name: expectedTKRs[i]}, tkr)
 		Expect(err).To(BeNil(), fmt.Sprintf("failed to get TKR :%s", expectedTKRs[i]))
-		cbt := getClusterBootstrapTemplate(ctx, crClient, tkr.Name, constants.TKGNamespace)
+		cbt := getClusterBootstrapTemplate(ctx, crClient, tkr.Name, tkrconstants.TKGNamespace)
 		Expect(cbt).ToNot(BeNil(), fmt.Sprintf("failed to get CBT :%s", expectedTKRs[i]))
 		ValidateOSImagesOfTKR(ctx, mcProxy, tkr)
 		ValidatePackagesOfTKR(ctx, mcProxy, tkr, resourceNS)
