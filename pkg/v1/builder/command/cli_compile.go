@@ -245,11 +245,6 @@ func buildPlugin(path string, arch cli.Arch, id string) (plugin, error) {
 		modPath = path
 		cmd.Dir = modPath
 		cmd.Args = append(cmd.Args, "./.")
-		err := runUpdateGoDep(path, id)
-		if err != nil {
-			log.Errorf("%s - cannot update go dependencies in path: %s - error: %v", id, path, err)
-			return plugin{}, err
-		}
 	} else {
 		modPath = ""
 		cmd.Args = append(cmd.Args, fmt.Sprintf("./%s", path))
@@ -492,31 +487,6 @@ func buildTargets(targetPath, outPath, pluginName string, arch cli.Arch, id, mod
 		if err != nil {
 			return err
 		}
-	}
-	return nil
-}
-
-func runUpdateGoDep(targetPath, prefix string) error {
-	cmdgomoddownload := goCommand("mod", "download")
-	cmdgomoddownload.Dir = targetPath
-
-	log.Infof("%s$ %s", prefix, cmdgomoddownload.String())
-	output, err := cmdgomoddownload.CombinedOutput()
-	if err != nil {
-		log.Errorf("%serror: %v", prefix, err)
-		log.Errorf("%soutput: %v", prefix, string(output))
-		return err
-	}
-
-	cmdgomodtidy := goCommand("mod", "tidy")
-	cmdgomodtidy.Dir = targetPath
-
-	log.Infof("%s$ %s", prefix, cmdgomodtidy.String())
-	output, err = cmdgomodtidy.CombinedOutput()
-	if err != nil {
-		log.Errorf("%serror: %v", prefix, err)
-		log.Errorf("%soutput: %v", prefix, string(output))
-		return err
 	}
 	return nil
 }
