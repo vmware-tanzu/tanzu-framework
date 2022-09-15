@@ -77,6 +77,7 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/tkg/log"
 	telemetrymanifests "github.com/vmware-tanzu/tanzu-framework/tkg/manifest/telemetry"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/tkgconfigbom"
+	tkrconstants "github.com/vmware-tanzu/tanzu-framework/tkg/tkr/pkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/utils"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/vc"
 )
@@ -1111,8 +1112,8 @@ func (c *client) GetTanzuKubernetesReleases(tkrName string) ([]runv1alpha1.Tanzu
 // GetBomConfigMap gets the BOM ConfigMap
 func (c *client) GetBomConfigMap(tkrNameLabel string) (corev1.ConfigMap, error) {
 	selectors := []crtclient.ListOption{
-		crtclient.InNamespace(constants.TKRNamespace),
-		crtclient.MatchingLabels(map[string]string{constants.BomConfigMapTKRLabel: tkrNameLabel}),
+		crtclient.InNamespace(tkrconstants.TKRNamespace),
+		crtclient.MatchingLabels(map[string]string{tkrconstants.BomConfigMapTKRLabel: tkrNameLabel}),
 	}
 
 	cmList := &corev1.ConfigMapList{}
@@ -1132,7 +1133,7 @@ func (c *client) GetClusterInfrastructure() (string, error) {
 	clusters := &capi.ClusterList{}
 
 	selectors := []crtclient.ListOption{
-		crtclient.MatchingLabels(map[string]string{constants.ManagementClusterRoleLabel: ""}),
+		crtclient.MatchingLabels(map[string]string{tkrconstants.ManagementClusterRoleLabel: ""}),
 	}
 	err := c.clientSet.List(context.Background(), clusters, selectors...)
 	if err != nil || len(clusters.Items) != 1 {
@@ -1155,7 +1156,7 @@ func (c *client) DeactivateTanzuKubernetesReleases(tkrName string) error {
 		    }
 	    }
 	}`
-	patchStr := fmt.Sprintf(patchFormat, constants.TanzuKubernetesReleaseInactiveLabel)
+	patchStr := fmt.Sprintf(patchFormat, tkrconstants.TanzuKubernetesReleaseInactiveLabel)
 	pollOptions := &PollOptions{Interval: CheckResourceInterval, Timeout: deactivateTKRTimeout}
 	err := c.PatchResource(&tkr, tkrName, "", patchStr, types.MergePatchType, pollOptions)
 	if err != nil {
@@ -1178,7 +1179,7 @@ func (c *client) ActivateTanzuKubernetesReleases(tkrName string) error {
 		    }
 	    }
 	}`
-	patchStr := fmt.Sprintf(patchFormat, constants.TanzuKubernetesReleaseInactiveLabel)
+	patchStr := fmt.Sprintf(patchFormat, tkrconstants.TanzuKubernetesReleaseInactiveLabel)
 	pollOptions := &PollOptions{Interval: CheckResourceInterval, Timeout: activateTKRTimeout}
 	err := c.PatchResource(&tkr, tkrName, "", patchStr, types.MergePatchType, pollOptions)
 	if err != nil {

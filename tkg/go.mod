@@ -53,6 +53,7 @@ require (
 	github.com/k14s/imgpkg v0.17.0
 	github.com/k14s/kbld v0.32.0
 	github.com/onsi/ginkgo v1.16.5
+	github.com/onsi/ginkgo/v2 v2.1.6
 	github.com/onsi/gomega v1.20.2
 	github.com/otiai10/copy v1.7.0
 	github.com/pelletier/go-toml/v2 v2.0.5
