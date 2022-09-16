@@ -131,7 +131,7 @@ tanzu cluster create CLUSTER-NAME [flags]
 
 ### Flags
 
-* Use standard names for flags if there is one (flags used in the cli are documented [here](../../pkg/v1/cli/command/plugin/lint/cli-wordlist.yml))
+* Use standard names for flags if there is one (flags used in the cli are documented [here](../../../runtime/plugin/lint/cli-wordlist.yml))
 * When using flags to specify different aspects of the same object, including the object name in the flag can be helpful. `tanzu foo list --bar --bar-uid "..."` and `tanzu foo list --bar-name --bar-uid "..."` are both in use, choose whichever pattern makes more sense for your plugin.
 
 * Where possible, set reasonable defaults for flag-able options that align with expected workflows
@@ -193,7 +193,7 @@ $ tanzu apps workload delete <name> --wait-timeout 10m
 
 Available for plugins written in golang.
 
-CLI commands should utilize the plugin component library in [pkg/cli/component](https://github.com/vmware-tanzu/tanzu-framework/tree/main/pkg/v1/cli/component) for interactive features like prompts or table printing.
+CLI commands should utilize the plugin component library in [cli/runtime/component](https://github.com/vmware-tanzu/tanzu-framework/tree/main/cli/runtime/component) for interactive features like prompts or table printing.
 
 Available input components:
 
@@ -522,7 +522,7 @@ Make it easy to submit bug reports and feedback
 
 ### Plugins
 
-For information about developing plugins, see the [Plugin Guide](https://github.com/vmware-tanzu/tanzu-framework/blob/main/docs/cli/plugin_implementation_guide.md)
+For information about developing plugins, see the [Plugin Guide](https://github.com/vmware-tanzu/tanzu-framework/blob/main/cli/core/docs/cli/plugin_implementation_guide.md)
 
 ### Contributions to the Style Guide
 

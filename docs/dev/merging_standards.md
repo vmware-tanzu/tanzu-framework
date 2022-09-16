@@ -16,7 +16,7 @@ Alternatively, the list can always just [be referenced directly](https://github.
 
 ### Format
 
-The [CLI style-guide](docs/cli/style_guide.md) provides guidance on how CLI nouns and verbs should be structured, please make sure to consult this while evaluating CLI word changes.
+The [CLI style-guide](../../cli/core/docs/cli/style_guide.md) provides guidance on how CLI nouns and verbs should be structured, please make sure to consult this while evaluating CLI word changes.
 
 In short, words meet the following criteria:
 

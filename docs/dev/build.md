@@ -63,7 +63,7 @@ for your platform.
 
 `make build-cli-local`: Only builds the Tanzu CLI locally.
 
-Check out the [plugin implementation guide](../cli/plugin_implementation_guide.md)
+Check out the [plugin implementation guide](../../cli/core/docs/cli/plugin_implementation_guide.md)
 for more details on how to write plugins for Tanzu CLI.
 
 ### Capabilities
@@ -88,6 +88,6 @@ For more detailed information on these APIs check out this [doc](../api-machiner
 
 The Tanzu CLI is an amalgamation of all the Tanzu infrastructure elements under one unified core CLI experience. The core CLI supports a plugin model where the developers of different Tanzu services (bundled or SaaS) can distribute plugins that target functionalities of the services they own. When users switch between different services via the CLI context, we want to surface only the relevant plugins for the given context for a crisp user experience.
 
-This feature is gated by `features.global.context-aware-cli-for-plugins` CLI feature flag and can be turned on/off as described [here](../cli/config-features.md). When this feature is enabled, the CLI will not honor plugins installed prior to this feature being enabled, instead users will need to install plugins again with either `tanzu plugin install <plugin_name>` or `tanzu plugin sync`.
+This feature is gated by `features.global.context-aware-cli-for-plugins` CLI feature flag and can be turned on/off as described [here](../../cli/core/docs/cli/config-features.md). When this feature is enabled, the CLI will not honor plugins installed prior to this feature being enabled, instead users will need to install plugins again with either `tanzu plugin install <plugin_name>` or `tanzu plugin sync`.
 
-For more detailed information on these design check out this [doc](../design/context-aware-plugin-discovery.md)
+For more detailed information on these design check out this [doc](../../cli/core/docs/design/context-aware-plugin-discovery-design.md)

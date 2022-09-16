@@ -26,5 +26,5 @@ deprecation are as follows:
 Command "foo" is deprecated, will be removed in version "x.y.z". Use "bar"
 instead.
 
-This [file](../../pkg/v1/cli/deprecation.go) in the cli package has a utility
+This [file](../../../runtime/command/deprecation.go) in the cli package has a utility
 function that can be used to deprecate a command.

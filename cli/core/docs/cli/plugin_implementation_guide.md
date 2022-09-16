@@ -5,7 +5,7 @@
 The Tanzu CLI was built to be extensible across teams and be cohesive across SKUs. To this end, the Tanzu CLI provides
 tools to make creating and compiling new plugins straightforward.
 
-The [Tanzu CLI Styleguide](/docs/cli/style_guide.md) describes the user interaction patterns to be followed,
+The [Tanzu CLI Styleguide](style_guide.md) describes the user interaction patterns to be followed,
 and general guidance, for CLI contribution.
 
 ------------------------------
@@ -26,7 +26,7 @@ Current implementations:
 
 #### Installing Admin Plugins
 
-With the [context-aware plugin discovery](/docs/design/context-aware-plugin-discovery-design.md) enabled (now the default and recommended approach), Tanzu CLI admin plugins should be installed from local source as follows:
+With the [context-aware plugin discovery](../design/context-aware-plugin-discovery-design.md) enabled (now the default and recommended approach), Tanzu CLI admin plugins should be installed from local source as follows:
 
 1. Download the latest admin plugin tarball or zip file from [release](https://github.com/vmware-tanzu/tanzu-framework/releases/latest) page (`tanzu-framework-plugins-admin-linux-amd64.tar.gz` or `tanzu-framework-plugins-admin-darwin-amd64.tar.gz` or `tanzu-framework-plugins-admin-windows-amd64.zip`) and extract it (using `linux` as the example OS for next steps)
 1. Run `tanzu plugin list --local /path/to/extracted/admin-plugins` to list the available admin plugins
@@ -39,7 +39,7 @@ NOTE: We are working on enhancing this user experience by publishing admin artif
 
 Context is an isolated scope of relevant client-side configurations for a combination of user identity and server identity. There can be multiple contexts for the same combination of `(user, server)`. Previously, this was referred to as `Server` in the Tanzu CLI. Going forward we shall refer to them as `Context` to be explicit.
 
-If a plugin wants to access the context it should use the [provided libraries](/pkg/v1/config/context.go) for forwards compatibility. For example, to get the current active context use the below snippet:
+If a plugin wants to access the context it should use the [provided libraries](../../../runtime/config/context.go) for forwards compatibility. For example, to get the current active context use the below snippet:
 
 ```go
 ctx, err := config.GetCurrentContext(v1alpha1.CtxTypeK8s)
@@ -122,7 +122,7 @@ To install the builder plugin use `tanzu plugin install builder`
 
 ### Repository (Legacy method)
 
-NOTE: This is not applicable if [context-aware plugin discovery](/docs/design/context-aware-plugin-discovery-design.md) is enabled within Tanzu CLI.
+NOTE: This is not applicable if [context-aware plugin discovery](../design/context-aware-plugin-discovery-design.md) is enabled within Tanzu CLI.
 
 A plugin repository represents a group of plugin artifacts that are installable by the Tanzu CLI. A repository is
 defined as an interface.
@@ -137,7 +137,7 @@ filesystem repository in the creation and testing of their feature.
 
 #### Adding Admin Repository (Legacy method)
 
-NOTE: This is not applicable if [context-aware plugin discovery](/docs/design/context-aware-plugin-discovery-design.md) is enabled within Tanzu CLI.
+NOTE: This is not applicable if [context-aware plugin discovery](../design/context-aware-plugin-discovery-design.md) is enabled within Tanzu CLI.
 
 The admin repository contains the Builder plugin - a plugin which helps scaffold and compile plugins.
 
@@ -159,7 +159,7 @@ You should now adjust the newly created `main` package to implement the function
 
 You will notice in the generated `main.go` file, that CLI plugins have to instantiate a
 [Plugin descriptor](https://github.com/vmware-tanzu/tanzu-framework/blob/main/apis/cli/v1alpha1/catalog_types.go)
-for creating a new plugin, the code then allows you to add [sub-commands](https://github.com/vmware-tanzu/tanzu-framework/tree/main/pkg/v1/cli/command/plugin) to your plugin.
+for creating a new plugin, the code then allows you to add [sub-commands](https://github.com/vmware-tanzu/tanzu-framework/tree/main/cli/runtime/plugin) to your plugin.
 
 Plugins are pulled from registered repositories. On a merge to main, all the plugins in your new repo are built and pushed
 to a public repository (see the `.github` directory or `.gitlab-ci.yaml` file). It is useful to leverage a local repo while developing.
@@ -306,4 +306,4 @@ TBD
 
 ## CLI Design
 
-Please see the [Tanzu CLI Styleguide](/docs/cli/style_guide.md)
+Please see the [Tanzu CLI Styleguide](style_guide.md)
