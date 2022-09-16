@@ -18,7 +18,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/source"
 
 	configv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/config/v1alpha1"
-	"github.com/vmware-tanzu/tanzu-framework/featuregate/client/pkg/util"
+	"github.com/vmware-tanzu/tanzu-framework/featuregates/client/pkg/util"
 )
 
 const contextTimeout = 30 * time.Second

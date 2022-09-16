@@ -20,31 +20,20 @@ CRD_OPTIONS ?= "crd"
 all: manager
 
 # Run tests
-test: fmt vet manifests
+test: manifests
 	go test ./... -coverprofile cover.out
 
 # Build manager binary
-manager: fmt vet
+manager:
 	go build -ldflags "$(LD_FLAGS)" -o bin/manager ./controller/main.go
 
 # Run against the configured Kubernetes cluster in ~/.kube/config
 run:
 	cd controller && go run -ldflags "$(LD_FLAGS)" ./main.go
 
-# Generate deployment manifest for the tkr manager
-deployment: manifests
-	cd config/manager && kustomize edit set image controller=${IMG}
-	kustomize build config/default
-
-manifests: controller-gen ## Generate manifests e.g. CRD, RBAC etc.
-	$(CONTROLLER_GEN) \
-		$(CRD_OPTIONS) \
-		paths=../apis/config/... \
-		output:crd:artifacts:config=./config/crds
-
 .PHONY: docker-build
 docker-build: ## Build docker image
-	cd ../ && docker build -t $(IMG) -f featuregate/controller/Dockerfile --build-arg LD_FLAGS="$(LD_FLAGS)" .
+	cd ../ && docker build -t $(IMG) -f featuregates/controller/Dockerfile --build-arg LD_FLAGS="$(LD_FLAGS)" .
 
 .PHONY: docker-publish
 docker-publish: ## Publish docker image

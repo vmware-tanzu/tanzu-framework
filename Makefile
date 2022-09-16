@@ -706,7 +706,7 @@ e2e-packageclient-docker: $(GINKGO) generate-embedproviders ## Run ginkgo packag
 COMPONENTS ?=  \
   pkg/v2/tkr/controller/tkr-source \
   pkg/v2/tkr/controller/tkr-status \
-  featuregate \
+  featuregates \
   addons \
   cliplugins \
   pkg/v2/tkr/webhook/infra-machine \

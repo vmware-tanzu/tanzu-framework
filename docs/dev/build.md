@@ -23,7 +23,7 @@ API controllers that exist in the Framework repo
 
 * [Addons](https://github.com/vmware-tanzu/tanzu-framework/tree/main/addons)
 * [Capabilities](https://github.com/vmware-tanzu/tanzu-framework/tree/main/pkg/v1/sdk/capabilities)
-* [FeatureGates](https://github.com/vmware-tanzu/tanzu-framework/tree/main/pkg/v1/sdk/features)
+* [FeatureGates](https://github.com/vmware-tanzu/tanzu-framework/tree/main/featuregates)
 * [TKR](https://github.com/vmware-tanzu/tanzu-framework/tree/main/pkg/v1/tkr)
 
 Each controller directory has its own Dockerfile, Makefile and manifests needed to build the image and

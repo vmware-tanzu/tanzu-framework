@@ -9,7 +9,7 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/vmware-tanzu/tanzu-framework/featuregate/client/pkg/featuregateclient"
+	"github.com/vmware-tanzu/tanzu-framework/featuregates/client/pkg/featuregateclient"
 )
 
 // FeatureDeactivateCmd is for deactivating Features

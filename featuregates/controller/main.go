@@ -18,7 +18,7 @@ import (
 
 	configv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/config/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/buildinfo"
-	"github.com/vmware-tanzu/tanzu-framework/featuregate/controller/pkg/featuregate"
+	"github.com/vmware-tanzu/tanzu-framework/featuregates/controller/pkg/featuregate"
 )
 
 var (

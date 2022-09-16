@@ -11,20 +11,20 @@ FROM $BUILDER_BASE_IMAGE as builder
 WORKDIR /workspace
 
 # Copy the Go Modules manifests
-COPY featuregate/controller/go.mod featuregate/controller/go.mod
-COPY featuregate/controller/go.sum featuregate/controller/go.sum
-COPY featuregate/client featuregate/client
+COPY featuregates/controller/go.mod featuregates/controller/go.mod
+COPY featuregates/controller/go.sum featuregates/controller/go.sum
+COPY featuregates/client featuregates/client
 COPY apis/ apis/
 COPY cli/runtime cli/runtime
 
-WORKDIR featuregate/controller
+WORKDIR featuregates/controller
 RUN  go mod download
 # cache deps before building and copying source so that we don't need to re-download as much
 # and so that source changes don't invalidate our downloaded layer
 
 # Copy the go source
-COPY ./featuregate/controller/pkg ./pkg
-COPY ./featuregate/controller/main.go ./main.go
+COPY ./featuregates/controller/pkg ./pkg
+COPY ./featuregates/controller/main.go ./main.go
 
 # Build
 ARG LD_FLAGS
@@ -36,7 +36,7 @@ RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -ldflags "$LD_FLAGS" -o ma
 # Refer to https://github.com/GoogleContainerTools/distroless for more details
 FROM gcr.io/distroless/static:nonroot
 WORKDIR /
-COPY --from=builder /workspace/featuregate/controller/manager .
+COPY --from=builder /workspace/featuregates/controller/manager .
 USER nonroot:nonroot
 
 ENTRYPOINT ["/manager"]
