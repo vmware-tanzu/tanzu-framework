@@ -182,14 +182,17 @@ create their own TKr package that conforms to their majority use cases so that e
 #### Pre-create specific *Config CR
 
 Example Use case: Customize MTU for antrea
-Solution: Create custom AntreaConfig with same name as Cluster in the namespace as the Cluster object.
+Solution: Create custom AntreaConfig with same name format as {CLUSTER_NAME}-{package-short-name}-package in the namespace as the Cluster object.
 Ordering the resources is enforced by tools such as kubectl or tanzu CLI.
+
+Explanation: The controllers will attempt to create a config with above name in the namespace of the cluster. If one already exists then only the
+owner references of the existing resource are updated.
 
 ```yaml
 apiVersion: cni.tanzu.vmware.com/v1alpha1
 kind: AntreaConfig
 metadata:
-  name: my-cluster
+  name: {CLUSTER_NAME}-antrea-package
   namespace: my-ns
 spec:
   antrea:
