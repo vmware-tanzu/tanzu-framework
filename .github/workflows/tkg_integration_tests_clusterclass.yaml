@@ -7,7 +7,7 @@ on:
       - 'pkg/v1/tkg/**'
       - 'pkg/v1/tkr/**'
       - 'pkg/v2/tkr/**'
-      - 'featuregate/**'
+      - 'featuregates/**'
       - 'pkg/v1/sdk/capabilities/**'
       - 'pkg/v2/object-propagation/**'
       - 'addons/**'
@@ -23,7 +23,7 @@ on:
     - 'pkg/v1/tkg/**'
     - 'pkg/v1/tkr/**'
     - 'pkg/v2/tkr/**'
-    - 'featuregate/**'
+    - 'featuregates/**'
     - 'pkg/v1/sdk/capabilities/**'
     - 'pkg/v2/object-propagation/**'
     - 'addons/**'
@@ -153,7 +153,7 @@ jobs:
       env:
         NUM: ${{ github.run_id }}
         OCI_REGISTRY: ${{ steps.set_registry.outputs.registry }}/tanzu_framework/github-actions/${{ steps.extract_reg_dir.outputs.regdir }}
-        COMPONENTS: "pkg/v2/tkr/controller/tkr-source pkg/v2/tkr/controller/tkr-status featuregate addons pkg/v2/tkr/webhook/infra-machine pkg/v1/sdk/capabilities pkg/v2/tkr/webhook/tkr-conversion pkg/v2/tkr/webhook/cluster/tkr-resolver pinniped-components/tanzu-auth-controller-manager pkg/v2/object-propagation"
+        COMPONENTS: "pkg/v2/tkr/controller/tkr-source pkg/v2/tkr/controller/tkr-status featuregates addons pkg/v2/tkr/webhook/infra-machine pkg/v1/sdk/capabilities pkg/v2/tkr/webhook/tkr-conversion pkg/v2/tkr/webhook/cluster/tkr-resolver pinniped-components/tanzu-auth-controller-manager pkg/v2/object-propagation"
         BUILD_VERSION: "v0.21.0"
         IMG_VERSION_OVERRIDE: latest
       run: |
@@ -164,7 +164,7 @@ jobs:
       env:
         NUM: ${{ github.run_number }}
         OCI_REGISTRY: ${{ steps.set_registry.outputs.registry }}/tanzu_framework/github-actions/${{ steps.extract_reg_dir.outputs.regdir }}
-        COMPONENTS: "pkg/v2/tkr/controller/tkr-source pkg/v2/tkr/controller/tkr-status featuregate addons pkg/v2/tkr/webhook/infra-machine pkg/v1/sdk/capabilities pkg/v2/tkr/webhook/tkr-conversion pkg/v2/tkr/webhook/cluster/tkr-resolver pinniped-components/tanzu-auth-controller-manager pkg/v2/object-propagation"
+        COMPONENTS: "pkg/v2/tkr/controller/tkr-source pkg/v2/tkr/controller/tkr-status featuregates addons pkg/v2/tkr/webhook/infra-machine pkg/v1/sdk/capabilities pkg/v2/tkr/webhook/tkr-conversion pkg/v2/tkr/webhook/cluster/tkr-resolver pinniped-components/tanzu-auth-controller-manager pkg/v2/object-propagation"
         BUILD_VERSION: "v0.21.0"
         IMG_VERSION_OVERRIDE: latest
       run: |
