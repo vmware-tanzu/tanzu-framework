@@ -6,5 +6,5 @@ include ../../common.mk
 RELATIVE_ROOT=.
 
 .PHONY: manifests
-manifests: ## Generate manifests e.g. CRD, RBAC etc.
+manifests: ## Generate manifests, e.g. CRD, RBAC, etc.
 	$(MAKE) generate-manifests CONTROLLER_GEN_SRC=./...

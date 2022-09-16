@@ -482,6 +482,9 @@ test: generate manifests build-cli-mocks ## Run tests
 	#Test tkg module
 	$(MAKE) test -C tkg
 
+	# Test feature gates
+	$(MAKE) test -C featuregates
+
 .PHONY: test-cli
 test-cli: build-cli-mocks ## Run tests
 	$(GO) test  ./pkg/v1/auth/... ./pkg/v1/builder/...  ./pkg/v1/encoding/... ./pkg/v1/grpc/...

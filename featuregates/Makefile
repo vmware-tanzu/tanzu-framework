@@ -1,4 +1,4 @@
-# Copyright 2021 VMware, Inc. All Rights Reserved.
+# Copyright 2022 VMware, Inc. All Rights Reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 include ../common.mk
@@ -20,8 +20,9 @@ CRD_OPTIONS ?= "crd"
 all: manager
 
 # Run tests
-test: manifests
-	go test ./... -coverprofile cover.out
+test:
+	cd client && go test ./... -coverprofile cover.out
+	cd controller && go test ./... -coverprofile cover.out
 
 # Build manager binary
 manager:
