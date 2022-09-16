@@ -24,7 +24,7 @@ TOOLS_BIN_DIR := $(TOOLS_DIR)/bin
 # Add tooling binaries here and in hack/tools/Makefile
 GOIMPORTS        := $(TOOLS_BIN_DIR)/goimports
 CONTROLLER_GEN   := $(TOOLS_BIN_DIR)/controller-gen
-TOOLING_BINARIES := $(GOIMPORTS)
+TOOLING_BINARIES := $(GOIMPORTS) $(CONTROLLER_GEN)
 
 ## --------------------------------------
 ## Help

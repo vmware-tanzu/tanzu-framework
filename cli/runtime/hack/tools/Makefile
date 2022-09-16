@@ -21,7 +21,8 @@ BIN_DIR := bin
 SRCS := go.mod go.sum
 
 # Binaries.
-GOIMPORTS := $(BIN_DIR)/goimports
+GOIMPORTS      := $(BIN_DIR)/goimports
+CONTROLLER_GEN := $(BIN_DIR)/controller-gen
 
 ## --------------------------------------
 ## Help
@@ -37,6 +38,11 @@ help: ## Display this help
 goimports: $(GOIMPORTS) $(SRCS) ## Build goimports
 $(GOIMPORTS): go.mod go.sum
 	go build -tags=tools -o $@ golang.org/x/tools/cmd/goimports
+
+
+controller-gen: $(CONTROLLER_GEN)
+$(CONTROLLER_GEN): go.mod go.sum
+	go build -tags=tools -o $@ sigs.k8s.io/controller-tools/cmd/controller-gen
 
 ## --------------------------------------
 ## Cleanup
