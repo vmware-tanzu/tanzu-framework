@@ -26,6 +26,8 @@ YTT_TESTS_DIR := pkg/v1/providers/tests
 PACKAGES_SCRIPTS_DIR := $(abspath hack/packages/scripts)
 UI_DIR := tkg/web
 GO_MODULES=$(shell find . -path "*/go.mod" | grep -v "^./pinniped" | xargs -I _ dirname _)
+PROVIDER_BUNDLE_ZIP = pkg/v1/providers/client/manifest/providers.zip
+TKG_PROVIDER_BUNDLE_ZIP = tkg/tkgctl/client/manifest/providers.zip
 
 PINNIPED_GIT_REPOSITORY = https://github.com/vmware-tanzu/pinniped.git
 PINNIPED_VERSIONS = v0.4.4 v0.12.1
@@ -189,6 +191,7 @@ prep-build-cli: ensure-pinniped-repo  ## Prepare for building the CLI
 	EMBED_PROVIDERS_TAG=embedproviders
 ifeq "${BUILD_TAGS}" "${EMBED_PROVIDERS_TAG}"
 	make -C pkg/v1/providers -f Makefile generate-provider-bundle-zip
+	cp -f ${PROVIDER_BUNDLE_ZIP} $(TKG_PROVIDER_BUNDLE_ZIP)
 endif
 
 .PHONY: configure-buildtags-%
@@ -681,6 +684,7 @@ clustergen: ## Generate diff between 'before' and 'after' of cluster configurati
 .PHONY: generate-embedproviders
 generate-embedproviders: ## Generate provider bundle to be embedded for local testing
 	make -C pkg/v1/providers -f Makefile generate-provider-bundle-zip
+	cp -f ${PROVIDER_BUNDLE_ZIP} $(TKG_PROVIDER_BUNDLE_ZIP)
 
 ## --------------------------------------
 ##@ TKG integration tests
