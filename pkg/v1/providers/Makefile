@@ -21,6 +21,7 @@ CLUSTERGEN_BASE ?= origin/main
 PROVIDER_DIR_NAME = providers
 PROVIDER_BUNDLE_DIR = provider-bundle/${PROVIDER_DIR_NAME}
 PROVIDER_BUNDLE_ZIP = ${PROJECT_ROOT}/client/manifest/providers.zip
+TKG_PROVIDER_BUNDLE_ZIP = ${PROJECT_ROOT}/tkg/tkgctl/client/manifest/providers.zip
 
 # Image URL to use building/pushing provider image
 PROVIDER_TEMPLATE_IMG_NAME ?= provider-templates
