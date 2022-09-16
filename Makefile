@@ -212,6 +212,14 @@ LOCAL_PUBLISH_PLUGINS_JOBS := $(addprefix publish-plugins-local-,$(ENVS))
 
 RELEASE_JOBS := $(addprefix release-,${ENVS})
 
+BUILDER := $(ROOT_DIR)/bin/builder
+BUILDER_SRC := $(shell find cmd/cli/plugin-admin/builder -type f -print)
+$(BUILDER): $(BUILDER_SRC)
+	cd cmd/cli/plugin-admin/builder && $(GO) build -o $(BUILDER) .
+
+.PHONY: prepare-builder
+prepare-builder: $(BUILDER)
+
 .PHONY: build-cli
 build-cli: build-cli-with-local-discovery ## Build Tanzu CLI
 
@@ -230,7 +238,7 @@ build-plugin-admin-with-oci-discovery: ${CLI_ADMIN_JOBS_OCI_DISCOVERY} publish-a
 build-plugin-admin-with-local-discovery: ${CLI_ADMIN_JOBS_LOCAL_DISCOVERY} publish-admin-plugins-all-local ## Build Tanzu CLI admin plugins with Local standalone discovery
 
 .PHONY: build-plugin-admin-%
-build-plugin-admin-%:
+build-plugin-admin-%: prepare-builder
 	$(eval ARCH = $(word 3,$(subst -, ,$*)))
 	$(eval OS = $(word 2,$(subst -, ,$*)))
 	$(eval DISCOVERY_TYPE = $(word 1,$(subst -, ,$*)))
@@ -243,10 +251,10 @@ build-plugin-admin-%:
 	fi
 
 	@echo build version: $(BUILD_VERSION)
-	$(GO) run ./cmd/cli/plugin-admin/builder cli compile --version $(BUILD_VERSION) --ldflags "$(LD_FLAGS) -X 'github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/config.DefaultStandaloneDiscoveryType=${DISCOVERY_TYPE}'" --tags "${BUILD_TAGS}" --path ./cmd/cli/plugin-admin --artifacts artifacts-admin/${OS}/${ARCH}/cli --target ${OS}_${ARCH}
+	$(BUILDER) cli compile --version $(BUILD_VERSION) --ldflags "$(LD_FLAGS) -X 'github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/config.DefaultStandaloneDiscoveryType=${DISCOVERY_TYPE}'" --tags "${BUILD_TAGS}" --path ./cmd/cli/plugin-admin --artifacts artifacts-admin/${OS}/${ARCH}/cli --target ${OS}_${ARCH}
 
 .PHONY: build-cli-%
-build-cli-%: prep-build-cli
+build-cli-%: prepare-builder prep-build-cli
 	$(eval ARCH = $(word 3,$(subst -, ,$*)))
 	$(eval OS = $(word 2,$(subst -, ,$*)))
 	$(eval DISCOVERY_TYPE = $(word 1,$(subst -, ,$*)))
@@ -259,7 +267,7 @@ build-cli-%: prep-build-cli
 	fi
 
 	./hack/embed-pinniped-binary.sh go ${OS} ${ARCH} ${PINNIPED_VERSIONS}
-	$(GO) run ./cmd/cli/plugin-admin/builder cli compile --version $(BUILD_VERSION) --ldflags "$(LD_FLAGS) -X 'github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/config.DefaultStandaloneDiscoveryType=${DISCOVERY_TYPE}'" --tags "${BUILD_TAGS}" --path "cmd/cli/plugin" --artifacts artifacts/${OS}/${ARCH}/cli --target  ${OS}_${ARCH}
+	$(BUILDER) cli compile --version $(BUILD_VERSION) --ldflags "$(LD_FLAGS) -X 'github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/config.DefaultStandaloneDiscoveryType=${DISCOVERY_TYPE}'" --tags "${BUILD_TAGS}" --path "cmd/cli/plugin" --artifacts artifacts/${OS}/${ARCH}/cli --target  ${OS}_${ARCH}
 	$(MAKE) build-tanzu-core-cli-$(DISCOVERY_TYPE)-$(OS)-$(ARCH) -C cli/core
 
 ## --------------------------------------
@@ -277,8 +285,8 @@ build-cli-%: prep-build-cli
 #    Note: If any local builds want to skip embedding providers and want utilize providers from TKG BoM file,
 #    To skip provider embedding, pass `BUILD_TAGS=skipembedproviders` to make target (`make BUILD_TAGS=skipembedproviders build-cli-local)
 .PHONY: build-cli-local
-build-cli-local: configure-buildtags-embedproviders build-cli-local-${GOHOSTOS}-${GOHOSTARCH} publish-plugins-local ## Build Tanzu CLI with local standalone discovery. cluster and management-cluster plugins are built with embedded providers.
-	$(GO) run ./cmd/cli/plugin-admin/builder cli compile --version $(BUILD_VERSION) --ldflags "$(LD_FLAGS) -X 'github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/config.DefaultStandaloneDiscoveryType=local'" --tags "${BUILD_TAGS}" --path ./cmd/cli/plugin-admin --artifacts artifacts-admin/${GOHOSTOS}/${GOHOSTARCH}/cli --target local
+build-cli-local: prepare-builder configure-buildtags-embedproviders build-cli-local-${GOHOSTOS}-${GOHOSTARCH} publish-plugins-local ## Build Tanzu CLI with local standalone discovery. cluster and management-cluster plugins are built with embedded providers.
+	$(BUILDER) cli compile --version $(BUILD_VERSION) --ldflags "$(LD_FLAGS) -X 'github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/config.DefaultStandaloneDiscoveryType=local'" --tags "${BUILD_TAGS}" --path ./cmd/cli/plugin-admin --artifacts artifacts-admin/${GOHOSTOS}/${GOHOSTARCH}/cli --target local
 	$(MAKE) publish-admin-plugins-local
 .PHONY: build-install-cli-local
 build-install-cli-local: clean-catalog-cache clean-cli-plugins build-cli-local install-cli-plugins install-cli ## Local build and install the CLI plugins with local standalone discovery
@@ -288,48 +296,48 @@ build-install-cli-local: clean-catalog-cache clean-cli-plugins build-cli-local i
 ## --------------------------------------
 
 .PHONY: publish-plugins-all-local
-publish-plugins-all-local: ## Publish CLI plugins locally for all supported os-arch
-	$(GO) run ./cmd/cli/plugin-admin/builder publish --type local --plugins "$(PLUGINS)" --version $(BUILD_VERSION) --os-arch "${ENVS}" --local-output-discovery-dir "$(TANZU_PLUGIN_PUBLISH_PATH)/discovery/standalone" --local-output-distribution-dir "$(TANZU_PLUGIN_PUBLISH_PATH)/distribution" --input-artifact-dir $(ARTIFACTS_DIR)
+publish-plugins-all-local: prepare-builder ## Publish CLI plugins locally for all supported os-arch
+	$(BUILDER) publish --type local --plugins "$(PLUGINS)" --version $(BUILD_VERSION) --os-arch "${ENVS}" --local-output-discovery-dir "$(TANZU_PLUGIN_PUBLISH_PATH)/discovery/standalone" --local-output-distribution-dir "$(TANZU_PLUGIN_PUBLISH_PATH)/distribution" --input-artifact-dir $(ARTIFACTS_DIR)
 
 .PHONY: publish-admin-plugins-all-local
-publish-admin-plugins-all-local: ## Publish CLI admin plugins locally for all supported os-arch
-	$(GO) run ./cmd/cli/plugin-admin/builder publish --type local --plugins "$(ADMIN_PLUGINS)" --version $(BUILD_VERSION) --os-arch "${ENVS}" --local-output-discovery-dir "$(TANZU_PLUGIN_PUBLISH_PATH)/discovery/admin" --local-output-distribution-dir "$(TANZU_PLUGIN_PUBLISH_PATH)/distribution" --input-artifact-dir $(ARTIFACTS_ADMIN_DIR)
+publish-admin-plugins-all-local: prepare-builder ## Publish CLI admin plugins locally for all supported os-arch
+	$(BUILDER) publish --type local --plugins "$(ADMIN_PLUGINS)" --version $(BUILD_VERSION) --os-arch "${ENVS}" --local-output-discovery-dir "$(TANZU_PLUGIN_PUBLISH_PATH)/discovery/admin" --local-output-distribution-dir "$(TANZU_PLUGIN_PUBLISH_PATH)/distribution" --input-artifact-dir $(ARTIFACTS_ADMIN_DIR)
 
 .PHONY: publish-plugins-local
-publish-plugins-local: ## Publish CLI plugins locally for current host os-arch only
-	$(GO) run ./cmd/cli/plugin-admin/builder publish --type local --plugins "$(PLUGINS)" --version $(BUILD_VERSION) --os-arch "${GOHOSTOS}-${GOHOSTARCH}" --local-output-discovery-dir "$(TANZU_PLUGIN_PUBLISH_PATH)/discovery/standalone" --local-output-distribution-dir "$(TANZU_PLUGIN_PUBLISH_PATH)/distribution" --input-artifact-dir $(ARTIFACTS_DIR)
+publish-plugins-local: prepare-builder ## Publish CLI plugins locally for current host os-arch only
+	$(BUILDER) publish --type local --plugins "$(PLUGINS)" --version $(BUILD_VERSION) --os-arch "${GOHOSTOS}-${GOHOSTARCH}" --local-output-discovery-dir "$(TANZU_PLUGIN_PUBLISH_PATH)/discovery/standalone" --local-output-distribution-dir "$(TANZU_PLUGIN_PUBLISH_PATH)/distribution" --input-artifact-dir $(ARTIFACTS_DIR)
 
 .PHONY: publish-plugins-local-%
-publish-plugins-local-%: ## Publish CLI plugins to local directory that can be shared. Configure TANZU_PLUGIN_PUBLISH_PATH, PLUGINS, ARTIFACTS_DIR, DISCOVERY_NAME variables
+publish-plugins-local-%: prepare-builder ## Publish CLI plugins to local directory that can be shared. Configure TANZU_PLUGIN_PUBLISH_PATH, PLUGINS, ARTIFACTS_DIR, DISCOVERY_NAME variables
 	$(eval ARCH = $(word 2,$(subst -, ,$*)))
 	$(eval OS = $(word 1,$(subst -, ,$*)))
-	$(GO) run ./cmd/cli/plugin-admin/builder publish --type local --plugins "$(PLUGINS)" --version $(BUILD_VERSION) --os-arch "${OS}-${ARCH}" --local-output-discovery-dir "$(TANZU_PLUGIN_PUBLISH_PATH)/${OS}-${ARCH}-$(DISCOVERY_NAME)/discovery/$(DISCOVERY_NAME)" --local-output-distribution-dir "$(TANZU_PLUGIN_PUBLISH_PATH)/${OS}-${ARCH}-$(DISCOVERY_NAME)/distribution" --input-artifact-dir $(ARTIFACTS_DIR)
+	$(BUILDER) publish --type local --plugins "$(PLUGINS)" --version $(BUILD_VERSION) --os-arch "${OS}-${ARCH}" --local-output-discovery-dir "$(TANZU_PLUGIN_PUBLISH_PATH)/${OS}-${ARCH}-$(DISCOVERY_NAME)/discovery/$(DISCOVERY_NAME)" --local-output-distribution-dir "$(TANZU_PLUGIN_PUBLISH_PATH)/${OS}-${ARCH}-$(DISCOVERY_NAME)/distribution" --input-artifact-dir $(ARTIFACTS_DIR)
 
 .PHONY: publish-plugins-local-generic
 publish-plugins-local-generic: ${LOCAL_PUBLISH_PLUGINS_JOBS} ## Publish CLI plugins to local directory that can be shared. Configure TANZU_PLUGIN_PUBLISH_PATH, PLUGINS, ARTIFACTS_DIR, DISCOVERY_NAME variables
 
 .PHONY: publish-admin-plugins-local
-publish-admin-plugins-local: ## Publish CLI admin plugins locally for current host os-arch only
-	$(GO) run ./cmd/cli/plugin-admin/builder publish --type local --plugins "$(ADMIN_PLUGINS)" --version $(BUILD_VERSION) --os-arch "${GOHOSTOS}-${GOHOSTARCH}" --local-output-discovery-dir "$(TANZU_PLUGIN_PUBLISH_PATH)/discovery/admin" --local-output-distribution-dir "$(TANZU_PLUGIN_PUBLISH_PATH)/distribution" --input-artifact-dir $(ARTIFACTS_ADMIN_DIR)
+publish-admin-plugins-local: prepare-builder ## Publish CLI admin plugins locally for current host os-arch only
+	$(BUILDER) publish --type local --plugins "$(ADMIN_PLUGINS)" --version $(BUILD_VERSION) --os-arch "${GOHOSTOS}-${GOHOSTARCH}" --local-output-discovery-dir "$(TANZU_PLUGIN_PUBLISH_PATH)/discovery/admin" --local-output-distribution-dir "$(TANZU_PLUGIN_PUBLISH_PATH)/distribution" --input-artifact-dir $(ARTIFACTS_ADMIN_DIR)
 
 
 .PHONY: publish-plugins-all-oci
-publish-plugins-all-oci: ## Publish CLI plugins as OCI image for all supported os-arch
-	$(GO) run ./cmd/cli/plugin-admin/builder publish --type oci --plugins "$(STANDALONE_PLUGINS)" --version $(BUILD_VERSION) --os-arch "${ENVS}" --oci-discovery-image ${OCI_REGISTRY}/tanzu-plugins/discovery/standalone:${BUILD_VERSION} --oci-distribution-image-repository ${OCI_REGISTRY}/tanzu-plugins/distribution/ --input-artifact-dir $(ROOT_DIR)/$(ARTIFACTS_DIR)
-	$(GO) run ./cmd/cli/plugin-admin/builder publish --type oci --plugins "$(CONTEXTAWARE_PLUGINS)" --version $(BUILD_VERSION) --os-arch "${ENVS}" --oci-discovery-image ${OCI_REGISTRY}/tanzu-plugins/discovery/context:${BUILD_VERSION} --oci-distribution-image-repository ${OCI_REGISTRY}/tanzu-plugins/distribution/ --input-artifact-dir $(ROOT_DIR)/$(ARTIFACTS_DIR)
+publish-plugins-all-oci: prepare-builder ## Publish CLI plugins as OCI image for all supported os-arch
+	$(BUILDER) publish --type oci --plugins "$(STANDALONE_PLUGINS)" --version $(BUILD_VERSION) --os-arch "${ENVS}" --oci-discovery-image ${OCI_REGISTRY}/tanzu-plugins/discovery/standalone:${BUILD_VERSION} --oci-distribution-image-repository ${OCI_REGISTRY}/tanzu-plugins/distribution/ --input-artifact-dir $(ROOT_DIR)/$(ARTIFACTS_DIR)
+	$(BUILDER) publish --type oci --plugins "$(CONTEXTAWARE_PLUGINS)" --version $(BUILD_VERSION) --os-arch "${ENVS}" --oci-discovery-image ${OCI_REGISTRY}/tanzu-plugins/discovery/context:${BUILD_VERSION} --oci-distribution-image-repository ${OCI_REGISTRY}/tanzu-plugins/distribution/ --input-artifact-dir $(ROOT_DIR)/$(ARTIFACTS_DIR)
 
 .PHONY: publish-admin-plugins-all-oci
-publish-admin-plugins-all-oci: ## Publish CLI admin plugins as OCI image for all supported os-arch
-	$(GO) run ./cmd/cli/plugin-admin/builder publish --type oci --plugins "$(ADMIN_PLUGINS)" --version $(BUILD_VERSION) --os-arch "${ENVS}" --oci-discovery-image ${OCI_REGISTRY}/tanzu-plugins/discovery/admin:${BUILD_VERSION} --oci-distribution-image-repository ${OCI_REGISTRY}/tanzu-plugins/distribution/ --input-artifact-dir $(ROOT_DIR)/$(ARTIFACTS_ADMIN_DIR)
+publish-admin-plugins-all-oci: prepare-builder ## Publish CLI admin plugins as OCI image for all supported os-arch
+	$(BUILDER) publish --type oci --plugins "$(ADMIN_PLUGINS)" --version $(BUILD_VERSION) --os-arch "${ENVS}" --oci-discovery-image ${OCI_REGISTRY}/tanzu-plugins/discovery/admin:${BUILD_VERSION} --oci-distribution-image-repository ${OCI_REGISTRY}/tanzu-plugins/distribution/ --input-artifact-dir $(ROOT_DIR)/$(ARTIFACTS_ADMIN_DIR)
 
 .PHONY: publish-plugins-oci
-publish-plugins-oci: ## Publish CLI plugins as OCI image for current host os-arch only
-	$(GO) run ./cmd/cli/plugin-admin/builder publish --type oci --plugins "$(STANDALONE_PLUGINS)" --version $(BUILD_VERSION) --os-arch "${GOHOSTOS}-${GOHOSTARCH}" --oci-discovery-image ${OCI_REGISTRY}/tanzu-plugins/discovery/standalone:${BUILD_VERSION} --oci-distribution-image-repository ${OCI_REGISTRY}/tanzu-plugins/distribution/ --input-artifact-dir $(ROOT_DIR)/$(ARTIFACTS_DIR)
-	$(GO) run ./cmd/cli/plugin-admin/builder publish --type oci --plugins "$(CONTEXTAWARE_PLUGINS)" --version $(BUILD_VERSION) --os-arch "${GOHOSTOS}-${GOHOSTARCH}" --oci-discovery-image ${OCI_REGISTRY}/tanzu-plugins/discovery/context:${BUILD_VERSION} --oci-distribution-image-repository ${OCI_REGISTRY}/tanzu-plugins/distribution/ --input-artifact-dir $(ROOT_DIR)/$(ARTIFACTS_DIR)
+publish-plugins-oci: prepare-builder ## Publish CLI plugins as OCI image for current host os-arch only
+	$(BUILDER) publish --type oci --plugins "$(STANDALONE_PLUGINS)" --version $(BUILD_VERSION) --os-arch "${GOHOSTOS}-${GOHOSTARCH}" --oci-discovery-image ${OCI_REGISTRY}/tanzu-plugins/discovery/standalone:${BUILD_VERSION} --oci-distribution-image-repository ${OCI_REGISTRY}/tanzu-plugins/distribution/ --input-artifact-dir $(ROOT_DIR)/$(ARTIFACTS_DIR)
+	$(BUILDER) publish --type oci --plugins "$(CONTEXTAWARE_PLUGINS)" --version $(BUILD_VERSION) --os-arch "${GOHOSTOS}-${GOHOSTARCH}" --oci-discovery-image ${OCI_REGISTRY}/tanzu-plugins/discovery/context:${BUILD_VERSION} --oci-distribution-image-repository ${OCI_REGISTRY}/tanzu-plugins/distribution/ --input-artifact-dir $(ROOT_DIR)/$(ARTIFACTS_DIR)
 
 .PHONY: publish-admin-plugins-oci
-publish-admin-plugins-oci: ## Publish CLI admin plugins as OCI image for current host os-arch only
-	$(GO) run ./cmd/cli/plugin-admin/builder publish --type oci --plugins "$(ADMIN_PLUGINS)" --version $(BUILD_VERSION) --os-arch "${GOHOSTOS}-${GOHOSTARCH}" --oci-discovery-image ${OCI_REGISTRY}/tanzu-plugins/discovery/admin:${BUILD_VERSION} --oci-distribution-image-repository ${OCI_REGISTRY}/tanzu-plugins/distribution/ --input-artifact-dir $(ROOT_DIR)/$(ARTIFACTS_ADMIN_DIR)
+publish-admin-plugins-oci: prepare-builder ## Publish CLI admin plugins as OCI image for current host os-arch only
+	$(BUILDER) publish --type oci --plugins "$(ADMIN_PLUGINS)" --version $(BUILD_VERSION) --os-arch "${GOHOSTOS}-${GOHOSTARCH}" --oci-discovery-image ${OCI_REGISTRY}/tanzu-plugins/discovery/admin:${BUILD_VERSION} --oci-distribution-image-repository ${OCI_REGISTRY}/tanzu-plugins/distribution/ --input-artifact-dir $(ROOT_DIR)/$(ARTIFACTS_ADMIN_DIR)
 
 
 .PHONY: build-publish-plugins-all-local
@@ -346,10 +354,10 @@ build-publish-plugins-all-oci: clean-catalog-cache clean-cli-plugins build-cli p
 ## --------------------------------------
 
 .PHONY: build-cli-mocks
-build-cli-mocks: ## Build Tanzu CLI mocks
-	$(GO) run ./cmd/cli/plugin-admin/builder cli compile $(addprefix --target ,$(subst -,_,${ENVS})) --version 0.0.1 --ldflags "$(LD_FLAGS)" --tags "${BUILD_TAGS}" --path ./test/cli/mock/plugin-old --artifacts ./test/cli/mock/artifacts-old
-	$(GO) run ./cmd/cli/plugin-admin/builder cli compile $(addprefix --target ,$(subst -,_,${ENVS})) --version 0.0.2 --ldflags "$(LD_FLAGS)" --tags "${BUILD_TAGS}" --path ./test/cli/mock/plugin-new --artifacts ./test/cli/mock/artifacts-new
-	$(GO) run ./cmd/cli/plugin-admin/builder cli compile $(addprefix --target ,$(subst -,_,${ENVS})) --version 0.0.3 --ldflags "$(LD_FLAGS)" --tags "${BUILD_TAGS}" --path ./test/cli/mock/plugin-alt --artifacts ./test/cli/mock/artifacts-alt
+build-cli-mocks: prepare-builder ## Build Tanzu CLI mocks
+	$(BUILDER) cli compile $(addprefix --target ,$(subst -,_,${ENVS})) --version 0.0.1 --ldflags "$(LD_FLAGS)" --tags "${BUILD_TAGS}" --path ./test/cli/mock/plugin-old --artifacts ./test/cli/mock/artifacts-old
+	$(BUILDER) cli compile $(addprefix --target ,$(subst -,_,${ENVS})) --version 0.0.2 --ldflags "$(LD_FLAGS)" --tags "${BUILD_TAGS}" --path ./test/cli/mock/plugin-new --artifacts ./test/cli/mock/artifacts-new
+	$(BUILDER) cli compile $(addprefix --target ,$(subst -,_,${ENVS})) --version 0.0.3 --ldflags "$(LD_FLAGS)" --tags "${BUILD_TAGS}" --path ./test/cli/mock/plugin-alt --artifacts ./test/cli/mock/artifacts-alt
 
 ## --------------------------------------
 ##@ Install binaries and plugins
@@ -430,13 +438,13 @@ release: ensure-pinniped-repo ${RELEASE_JOBS} ## Create release binaries
 	@rm -rf pinniped
 
 .PHONY: release-%
-release-%: ## Create release for a platform
+release-%: prepare-builder ## Create release for a platform
 	$(eval ARCH = $(word 2,$(subst -, ,$*)))
 	$(eval OS = $(word 1,$(subst -, ,$*)))
 
-	$(GO) run ./cmd/cli/plugin-admin/builder cli compile --version $(BUILD_VERSION) --ldflags "$(LD_FLAGS) -X 'github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/config.DefaultStandaloneDiscoveryType=oci'" --tags "${BUILD_TAGS}" --path ./cmd/cli/plugin-admin --artifacts artifacts-admin/${OS}/${ARCH}/cli --target ${OS}_${ARCH}
+	$(BUILDER) cli compile --version $(BUILD_VERSION) --ldflags "$(LD_FLAGS) -X 'github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/config.DefaultStandaloneDiscoveryType=oci'" --tags "${BUILD_TAGS}" --path ./cmd/cli/plugin-admin --artifacts artifacts-admin/${OS}/${ARCH}/cli --target ${OS}_${ARCH}
 	./hack/embed-pinniped-binary.sh go ${OS} ${ARCH} ${PINNIPED_VERSIONS}
-	$(GO) run ./cmd/cli/plugin-admin/builder cli compile --version $(BUILD_VERSION) --ldflags "$(LD_FLAGS) -X 'github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/config.DefaultStandaloneDiscoveryType=oci'" --tags "${BUILD_TAGS}" --path "cmd/cli/plugin" --artifacts artifacts/${OS}/${ARCH}/cli --target  ${OS}_${ARCH}
+	$(BUILDER) cli compile --version $(BUILD_VERSION) --ldflags "$(LD_FLAGS) -X 'github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/config.DefaultStandaloneDiscoveryType=oci'" --tags "${BUILD_TAGS}" --path "cmd/cli/plugin" --artifacts artifacts/${OS}/${ARCH}/cli --target  ${OS}_${ARCH}
 	$(MAKE) build-tanzu-core-cli-oci-$(OS)-$(ARCH) -C cli/core
 
 ## --------------------------------------
