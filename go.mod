@@ -28,13 +28,13 @@ require (
 	github.com/fatih/color v1.13.0
 	github.com/ghodss/yaml v1.0.0
 	github.com/go-logr/logr v1.2.3
-	github.com/go-openapi/errors v0.19.2
-	github.com/go-openapi/loads v0.19.4
+	github.com/go-openapi/errors v0.19.9
+	github.com/go-openapi/loads v0.21.1
 	github.com/go-openapi/runtime v0.19.4
-	github.com/go-openapi/spec v0.19.5
-	github.com/go-openapi/strfmt v0.19.5
+	github.com/go-openapi/spec v0.20.4
+	github.com/go-openapi/strfmt v0.21.1
 	github.com/go-openapi/swag v0.21.1
-	github.com/go-openapi/validate v0.19.8
+	github.com/go-openapi/validate v0.22.0
 	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/golang/mock v1.6.0
 	github.com/golang/protobuf v1.5.2
@@ -168,7 +168,7 @@ require (
 	github.com/go-asn1-ber/asn1-ber v1.5.1 // indirect
 	github.com/go-ldap/ldap/v3 v3.3.0 // indirect
 	github.com/go-logr/zapr v1.2.0 // indirect
-	github.com/go-openapi/analysis v0.19.5 // indirect
+	github.com/go-openapi/analysis v0.21.2 // indirect
 	github.com/go-openapi/jsonpointer v0.19.5 // indirect
 	github.com/go-openapi/jsonreference v0.19.6 // indirect
 	github.com/go-stack/stack v1.8.0 // indirect
@@ -211,6 +211,7 @@ require (
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.2 // indirect
 	github.com/nxadm/tail v1.4.8 // indirect
+	github.com/oklog/ulid v1.3.1 // indirect
 	github.com/olekukonko/tablewriter v0.0.5 // indirect
 	github.com/opencontainers/go-digest v1.0.0 // indirect
 	github.com/opencontainers/image-spec v1.0.2 // indirect
@@ -239,7 +240,7 @@ require (
 	github.com/vmware-tanzu/carvel-imgpkg v0.23.1 // indirect
 	github.com/vmware-tanzu/carvel-secretgen-controller v0.5.0 // indirect
 	github.com/vmware-tanzu/carvel-vendir v0.26.0 // indirect
-	go.mongodb.org/mongo-driver v1.1.2 // indirect
+	go.mongodb.org/mongo-driver v1.7.5 // indirect
 	go.opencensus.io v0.23.0 // indirect
 	go.uber.org/atomic v1.9.0 // indirect
 	go.uber.org/zap v1.19.1 // indirect
