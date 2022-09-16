@@ -15,7 +15,11 @@ import (
 	"k8s.io/apimachinery/pkg/types"
 	capvvmwarev1beta1 "sigs.k8s.io/cluster-api-provider-vsphere/apis/vmware/v1beta1"
 	clusterapiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
+	clusterv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
 	capictrlpkubeadmv1beta1 "sigs.k8s.io/cluster-api/controlplane/kubeadm/api/v1beta1"
+	clusterapiutil "sigs.k8s.io/cluster-api/util"
+	ctrl "sigs.k8s.io/controller-runtime"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/log"
 
 	cutil "github.com/vmware-tanzu/tanzu-framework/addons/controllers/utils"
@@ -24,6 +28,56 @@ import (
 	csiv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/addonconfigs/csi/v1alpha1"
 	topologyv1alpha1 "github.com/vmware-tanzu/vm-operator/external/tanzu-topology/api/v1alpha1"
 )
+
+// ClusterToVSphereCSIConfig returns a list of Requests with VSphereCSIConfig ObjectKey
+func (r *VSphereCSIConfigReconciler) ClusterToVSphereCSIConfig(o client.Object) []ctrl.Request {
+	cluster, ok := o.(*clusterv1beta1.Cluster)
+	if !ok {
+		r.Log.Error(errors.New("invalid type"),
+			"Expected to receive Cluster resource",
+			"actualType", fmt.Sprintf("%T", o))
+		return nil
+	}
+
+	r.Log.V(4).Info("Mapping cluster to VSphereCSIConfig")
+
+	configs := &csiv1alpha1.VSphereCSIConfigList{}
+
+	if err := r.Client.List(context.Background(), configs); err != nil {
+		r.Log.Error(err, "Error listing VSphereCSIConfig")
+		return nil
+	}
+
+	var requests []ctrl.Request
+	for i := range configs.Items {
+		config := &configs.Items[i]
+		if config.Namespace == cluster.Namespace {
+			// avoid enqueuing reconcile requests for template VSphereCSIConfig CRs in event handler of Cluster CR
+			if _, ok := config.Annotations[constants.TKGAnnotationTemplateConfig]; ok && config.Namespace == r.Config.SystemNamespace {
+				continue
+			}
+
+			// corresponding VSphereCSIConfig should have following ownerRef
+			ownerReference := metav1.OwnerReference{
+				APIVersion: clusterv1beta1.GroupVersion.String(),
+				Kind:       cluster.Kind,
+				Name:       cluster.Name,
+				UID:        cluster.UID,
+			}
+
+			if clusterapiutil.HasOwnerRef(config.OwnerReferences, ownerReference) || config.Name == fmt.Sprintf("%s-%s-package", cluster.Name, constants.CSIAddonName) {
+				r.Log.V(4).Info("Adding VSphereCSIConfig for reconciliation",
+					constants.NamespaceLogKey, config.Namespace, constants.NameLogKey, config.Name)
+
+				requests = append(requests, ctrl.Request{
+					NamespacedName: clusterapiutil.ObjectKey(config),
+				})
+			}
+		}
+	}
+
+	return requests
+}
 
 // mapVSphereCSIConfigToDataValues maps VSphereCSIConfig CR to data values
 func (r *VSphereCSIConfigReconciler) mapVSphereCSIConfigToDataValues(ctx context.Context,

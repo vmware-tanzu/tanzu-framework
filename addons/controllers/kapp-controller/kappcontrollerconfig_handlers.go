@@ -43,6 +43,11 @@ func (r *KappControllerConfigReconciler) ClusterToKappControllerConfig(o client.
 	for i := range KappControllerConfigList.Items {
 		config := &KappControllerConfigList.Items[i]
 		if config.Namespace == cluster.Namespace {
+			// avoid enqueuing reconcile requests for template vSphereCSIConfig CRs in event handler of Cluster CR
+			if _, ok := config.Annotations[constants.TKGAnnotationTemplateConfig]; ok && config.Namespace == r.Config.SystemNamespace {
+				continue
+			}
+
 			// corresponding kappControllerConfig should have following ownerRef
 			ownerReference := metav1.OwnerReference{
 				APIVersion: clusterv1beta1.GroupVersion.String(),
@@ -51,7 +56,7 @@ func (r *KappControllerConfigReconciler) ClusterToKappControllerConfig(o client.
 				UID:        cluster.UID,
 			}
 
-			if clusterapiutil.HasOwnerRef(config.OwnerReferences, ownerReference) || config.Name == cluster.Name {
+			if clusterapiutil.HasOwnerRef(config.OwnerReferences, ownerReference) || config.Name == fmt.Sprintf("%s-%s-package", cluster.Name, constants.KappControllerAddonName) {
 				log.V(4).Info("Adding KappControllerConfig for reconciliation",
 					constants.NamespaceLogKey, config.Namespace, constants.NameLogKey, config.Name)
 

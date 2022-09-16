@@ -4,14 +4,21 @@
 package controllers
 
 import (
+	"context"
 	"fmt"
 	"net"
 	"strconv"
 	"strings"
 
 	"github.com/pkg/errors"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	clusterapiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
+	clusterv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
+	clusterapiutil "sigs.k8s.io/cluster-api/util"
+	ctrl "sigs.k8s.io/controller-runtime"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 
+	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/util"
 	cniv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/addonconfigs/cni/v1alpha1"
 )
@@ -31,6 +38,56 @@ type config struct {
 	VethMTU         string `yaml:"vethMTU,omitempty"`
 	ClusterCIDR     string `yaml:"clusterCIDR"`
 	SkipCNIBinaries bool   `yaml:"skipCNIBinaries"`
+}
+
+// ClusterToCalicoConfig returns a list of Requests with CalicoConfig ObjectKey
+func (r *CalicoConfigReconciler) ClusterToCalicoConfig(o client.Object) []ctrl.Request {
+	cluster, ok := o.(*clusterv1beta1.Cluster)
+	if !ok {
+		r.Log.Error(errors.New("invalid type"),
+			"Expected to receive Cluster resource",
+			"actualType", fmt.Sprintf("%T", o))
+		return nil
+	}
+
+	r.Log.V(4).Info("Mapping cluster to CalicoConfig")
+
+	configs := &cniv1alpha1.CalicoConfigList{}
+
+	if err := r.Client.List(context.Background(), configs); err != nil {
+		r.Log.Error(err, "Error listing CalicoConfig")
+		return nil
+	}
+
+	var requests []ctrl.Request
+	for i := range configs.Items {
+		config := &configs.Items[i]
+		if config.Namespace == cluster.Namespace {
+			// avoid enqueuing reconcile requests for template CalicoConfig CRs in event handler of Cluster CR
+			if _, ok := config.Annotations[constants.TKGAnnotationTemplateConfig]; ok && config.Namespace == r.Config.SystemNamespace {
+				continue
+			}
+
+			// corresponding CalicoConfig should have following ownerRef
+			ownerReference := metav1.OwnerReference{
+				APIVersion: clusterv1beta1.GroupVersion.String(),
+				Kind:       cluster.Kind,
+				Name:       cluster.Name,
+				UID:        cluster.UID,
+			}
+
+			if clusterapiutil.HasOwnerRef(config.OwnerReferences, ownerReference) || config.Name == fmt.Sprintf("%s-%s-package", cluster.Name, constants.CalicoAddonName) {
+				r.Log.V(4).Info("Adding CalicoConfig for reconciliation",
+					constants.NamespaceLogKey, config.Namespace, constants.NameLogKey, config.Name)
+
+				requests = append(requests, ctrl.Request{
+					NamespacedName: clusterapiutil.ObjectKey(config),
+				})
+			}
+		}
+	}
+
+	return requests
 }
 
 func mapCalicoConfigSpec(cluster *clusterapiv1beta1.Cluster, config *cniv1alpha1.CalicoConfig) (*calicoConfigSpec, error) {
