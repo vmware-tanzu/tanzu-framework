@@ -13,7 +13,6 @@ import (
 	"os/exec"
 	"path/filepath"
 	"runtime"
-	"strings"
 	"sync"
 	"time"
 
@@ -267,18 +266,8 @@ func buildPlugin(path string, arch cli.Arch, id string) (plugin, error) {
 	var desc cliv1alpha1.PluginDescriptor
 	err = json.Unmarshal(b, &desc)
 	if err != nil {
-		// try to identify if a json info is present in the command output
-		i := strings.Index(string(b), "{")
-		if i < 0 {
-			log.Errorf("%s - error unmarshalling plugin descriptor: %v", id, err)
-			return plugin{}, err
-		}
-		newB := string(b)[i:]
-		if berr := json.Unmarshal([]byte(newB), &desc); berr != nil {
-			// initial error is return due to backup flow fail as well
-			log.Errorf("%s - error unmarshalling plugin descriptor: %v", id, err)
-			return plugin{}, err
-		}
+		log.Errorf("%s - error unmarshalling plugin descriptor: %v", id, err)
+		return plugin{}, err
 	}
 
 	testPath := filepath.Join(path, "test")
