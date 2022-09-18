@@ -14,14 +14,14 @@ import (
 
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/component"
 
-	cliv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
+	cliapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/cli/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/plugin"
 )
 
-var descriptor = cliv1alpha1.PluginDescriptor{
+var descriptor = cliapi.PluginDescriptor{
 	Name:        "telemetry",
 	Description: "configure cluster-wide settings for vmware tanzu telemetry",
-	Group:       cliv1alpha1.RunCmdGroup,
+	Group:       cliapi.RunCmdGroup,
 	Version:     buildinfo.Version,
 	BuildSHA:    buildinfo.SHA,
 }

@@ -23,7 +23,6 @@ import (
 	kerrors "k8s.io/apimachinery/pkg/util/errors"
 
 	cliv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
-	"github.com/vmware-tanzu/tanzu-framework/apis/config/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/artifact"
 	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/catalog"
 	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/cli"
@@ -31,6 +30,8 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/config"
 	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/discovery"
 	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/plugin"
+	cliapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/cli/v1alpha1"
+	configapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/config/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/component"
 	configlib "github.com/vmware-tanzu/tanzu-framework/cli/runtime/config"
 )
@@ -53,7 +54,7 @@ type DeletePluginOptions struct {
 }
 
 // ValidatePlugin validates the plugin descriptor.
-func ValidatePlugin(p *cliv1alpha1.PluginDescriptor) (err error) {
+func ValidatePlugin(p *cliapi.PluginDescriptor) (err error) {
 	// skip builder plugin for bootstrapping
 	if p.Name == "builder" {
 		return nil
@@ -76,7 +77,7 @@ func ValidatePlugin(p *cliv1alpha1.PluginDescriptor) (err error) {
 	return
 }
 
-func discoverPlugins(pd []v1alpha1.PluginDiscovery) ([]plugin.Discovered, error) {
+func discoverPlugins(pd []configapi.PluginDiscovery) ([]plugin.Discovered, error) {
 	allPlugins := make([]plugin.Discovered, 0)
 	for _, d := range pd {
 		discObject, err := discovery.CreateDiscoveryFromV1alpha1(d)
@@ -190,7 +191,7 @@ func availablePlugins(serverName string, discoveredServerPlugins, discoveredStan
 	return availablePlugins, nil
 }
 
-func getInstalledButNotDiscoveredStandalonePlugins(availablePlugins []plugin.Discovered, installedPluginDesc []cliv1alpha1.PluginDescriptor) []plugin.Discovered {
+func getInstalledButNotDiscoveredStandalonePlugins(availablePlugins []plugin.Discovered, installedPluginDesc []cliapi.PluginDescriptor) []plugin.Discovered {
 	var newPlugins []plugin.Discovered
 	for i := range installedPluginDesc {
 		found := false
@@ -217,7 +218,7 @@ func getInstalledButNotDiscoveredStandalonePlugins(availablePlugins []plugin.Dis
 }
 
 // DiscoveredFromPluginDescriptor returns discovered plugin object from k8sV1alpha1
-func DiscoveredFromPluginDescriptor(p *cliv1alpha1.PluginDescriptor) plugin.Discovered {
+func DiscoveredFromPluginDescriptor(p *cliapi.PluginDescriptor) plugin.Discovered {
 	dp := plugin.Discovered{
 		Name:               p.Name,
 		Description:        p.Description,
@@ -228,7 +229,7 @@ func DiscoveredFromPluginDescriptor(p *cliv1alpha1.PluginDescriptor) plugin.Disc
 	return dp
 }
 
-func setAvailablePluginsStatus(availablePlugins []plugin.Discovered, installedPluginDesc []cliv1alpha1.PluginDescriptor) {
+func setAvailablePluginsStatus(availablePlugins []plugin.Discovered, installedPluginDesc []cliapi.PluginDescriptor) {
 	for i := range installedPluginDesc {
 		for j := range availablePlugins {
 			if installedPluginDesc[i].Name == availablePlugins[j].Name {
@@ -281,7 +282,7 @@ func pluginIndexForName(availablePlugins []plugin.Discovered, pluginName string)
 
 // InstalledPlugins returns the installed plugins.
 // If serverName is empty(""), return only installed standalone plugins
-func InstalledPlugins(serverName string, exclude ...string) (serverPlugins, standalonePlugins []cliv1alpha1.PluginDescriptor, err error) {
+func InstalledPlugins(serverName string, exclude ...string) (serverPlugins, standalonePlugins []cliapi.PluginDescriptor, err error) {
 	var serverCatalog, standAloneCatalog *catalog.ContextCatalog
 
 	if serverName != "" {
@@ -301,7 +302,7 @@ func InstalledPlugins(serverName string, exclude ...string) (serverPlugins, stan
 }
 
 // InstalledPluginsDescriptors fetches installed plugins (server and standalone) and returns all installed plugins descriptions
-func InstalledPluginsDescriptors() (pluginDescriptions []*cliv1alpha1.PluginDescriptor, err error) {
+func InstalledPluginsDescriptors() (pluginDescriptions []*cliapi.PluginDescriptor, err error) {
 	serverName := ""
 	server, err := configlib.GetCurrentServer()
 	if err == nil && server != nil {
@@ -325,14 +326,14 @@ func InstalledPluginsDescriptors() (pluginDescriptions []*cliv1alpha1.PluginDesc
 }
 
 // DescribePluginFromInstallationPath describes a plugin from a given installation path.
-func DescribePluginFromInstallationPath(name, pluginPath string) (desc *cliv1alpha1.PluginDescriptor, err error) {
+func DescribePluginFromInstallationPath(name, pluginPath string) (desc *cliapi.PluginDescriptor, err error) {
 	b, err := execCommand(pluginPath, "info").Output()
 	if err != nil {
 		err = fmt.Errorf("could not describe plugin %q", name)
 		return
 	}
 
-	var descriptor cliv1alpha1.PluginDescriptor
+	var descriptor cliapi.PluginDescriptor
 	err = json.Unmarshal(b, &descriptor)
 	if err != nil {
 		err = fmt.Errorf("could not unmarshal plugin %q description", name)
@@ -343,7 +344,7 @@ func DescribePluginFromInstallationPath(name, pluginPath string) (desc *cliv1alp
 
 // DescribePlugin describes a plugin.
 // If serverName is empty(""), only consider standalone plugins
-func DescribePlugin(serverName, pluginName string) (desc *cliv1alpha1.PluginDescriptor, err error) {
+func DescribePlugin(serverName, pluginName string) (desc *cliapi.PluginDescriptor, err error) {
 	c, err := catalog.NewContextCatalog(serverName)
 	if err != nil {
 		return nil, err
@@ -478,7 +479,7 @@ func installOrUpgradePlugin(serverName string, p *plugin.Discovered, version str
 	if err != nil {
 		return errors.Wrapf(err, "could not describe plugin %q", pluginName)
 	}
-	var descriptor cliv1alpha1.PluginDescriptor
+	var descriptor cliapi.PluginDescriptor
 	err = json.Unmarshal(b, &descriptor)
 	if err != nil {
 		return errors.Wrapf(err, "could not unmarshal plugin %q description", pluginName)
@@ -624,7 +625,7 @@ func discoverPluginsFromLocalSource(localPath string) ([]plugin.Discovered, erro
 	// relative path is provided as part of CLIPlugin definition for local discovery
 	common.DefaultLocalPluginDistroDir = localPath
 
-	var pds []v1alpha1.PluginDiscovery
+	var pds []configapi.PluginDiscovery
 
 	items, err := os.ReadDir(filepath.Join(localPath, "discovery"))
 	if err != nil {
@@ -632,8 +633,8 @@ func discoverPluginsFromLocalSource(localPath string) ([]plugin.Discovered, erro
 	}
 	for _, item := range items {
 		if item.IsDir() {
-			pd := v1alpha1.PluginDiscovery{
-				Local: &v1alpha1.LocalDiscovery{
+			pd := configapi.PluginDiscovery{
+				Local: &configapi.LocalDiscovery{
 					Name: "",
 					Path: filepath.Join(localPath, "discovery", item.Name()),
 				},
@@ -667,7 +668,7 @@ func Clean() error {
 // Note: This function generates cliv1alpha1.CLIPlugin which contains only single local distribution type artifact for
 // OS-ARCH where user is running the cli
 // This function is only used to create CLIPlugin resource for local plugin installation with legacy directory structure
-func getCLIPluginResourceWithLocalDistroFromPluginDescriptor(pd *cliv1alpha1.PluginDescriptor, pluginBinaryPath string) cliv1alpha1.CLIPlugin {
+func getCLIPluginResourceWithLocalDistroFromPluginDescriptor(pd *cliapi.PluginDescriptor, pluginBinaryPath string) cliv1alpha1.CLIPlugin {
 	return cliv1alpha1.CLIPlugin{
 		ObjectMeta: metav1.ObjectMeta{
 			Name: pd.Name,
@@ -765,14 +766,14 @@ func getPluginManifestResource(manifestFilePath string) (*cli.Manifest, error) {
 	return &manifest, nil
 }
 
-// getPluginDescriptorResource returns cliv1alpha1.PluginDescriptor resource by reading plugin file
-func getPluginDescriptorResource(pluginFilePath string) (*cliv1alpha1.PluginDescriptor, error) {
+// getPluginDescriptorResource returns cliapi.PluginDescriptor resource by reading plugin file
+func getPluginDescriptorResource(pluginFilePath string) (*cliapi.PluginDescriptor, error) {
 	b, err := os.ReadFile(pluginFilePath)
 	if err != nil {
 		return nil, fmt.Errorf("could not find %s file: %v", filepath.Base(pluginFilePath), err)
 	}
 
-	var pd cliv1alpha1.PluginDescriptor
+	var pd cliapi.PluginDescriptor
 	err = yaml.Unmarshal(b, &pd)
 	if err != nil {
 		return nil, fmt.Errorf("could not unmarshal %s: %v", filepath.Base(pluginFilePath), err)

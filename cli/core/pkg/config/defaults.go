@@ -8,9 +8,9 @@ import (
 	"os"
 	"strings"
 
-	configv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/config/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/common"
 	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/constants"
+	configapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/config/v1alpha1"
 )
 
 // Default Standalone Discovery configuration
@@ -34,13 +34,13 @@ const CoreRepositoryName = "core"
 var CoreBucketName = "tanzu-cli-framework"
 
 // DefaultVersionSelector is to only use stable versions of plugins
-const DefaultVersionSelector = configv1alpha1.NoUnstableVersions
+const DefaultVersionSelector = configapi.NoUnstableVersions
 
 // DefaultEdition is the edition assumed when there is no value in the local config file
 const DefaultEdition = "tkg"
 
 // CoreGCPBucketRepository is the default GCP bucket repository.
-var CoreGCPBucketRepository = configv1alpha1.GCPPluginRepository{
+var CoreGCPBucketRepository = configapi.GCPPluginRepository{
 	BucketName: CoreBucketName,
 	Name:       CoreRepositoryName,
 }
@@ -49,7 +49,7 @@ var CoreGCPBucketRepository = configv1alpha1.GCPPluginRepository{
 const AdvancedRepositoryName = "advanced"
 
 // AdvancedGCPBucketRepository is the GCP bucket repository for advanced plugins.
-var AdvancedGCPBucketRepository = configv1alpha1.GCPPluginRepository{
+var AdvancedGCPBucketRepository = configapi.GCPPluginRepository{
 	BucketName: "tanzu-cli-advanced-plugins",
 	Name:       AdvancedRepositoryName,
 }
@@ -58,7 +58,7 @@ var AdvancedGCPBucketRepository = configv1alpha1.GCPPluginRepository{
 const DefaultTMCPluginsArtifactRepository = "https://tmc-cli.s3-us-west-2.amazonaws.com/plugins/artifacts"
 
 // DefaultRepositories are the default repositories for the CLI.
-var DefaultRepositories []configv1alpha1.PluginRepository = []configv1alpha1.PluginRepository{
+var DefaultRepositories []configapi.PluginRepository = []configapi.PluginRepository{
 	{
 		GCPPluginRepository: &CoreGCPBucketRepository,
 	},
@@ -130,7 +130,7 @@ func GetTrustedRegistries() []string {
 	return trustedRegistries
 }
 
-func getHTTPURIForGCPPluginRepository(repo configv1alpha1.GCPPluginRepository) string {
+func getHTTPURIForGCPPluginRepository(repo configapi.GCPPluginRepository) string {
 	return fmt.Sprintf("https://storage.googleapis.com/%s/", repo.BucketName)
 }
 

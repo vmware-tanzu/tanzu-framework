@@ -6,7 +6,7 @@ package v1alpha1
 import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	cfgv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/config/v1alpha1"
+	configapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/config/v1alpha1"
 )
 
 // Distro is the Schema for the catalogs API
@@ -176,7 +176,7 @@ type Catalog struct {
 	// Note: Shall be reduced to only those stand-alone plugins that are common to all context types.
 	StandAlonePlugins PluginAssociation `json:"standAlonePlugins,omitempty"`
 	// StandAlonePluginsByContextType is a set of stand-alone plugin installations grouped by the context type.
-	StandAlonePluginsByContextType map[cfgv1alpha1.ContextType]PluginAssociation `json:"standAlonePluginsByContextType,omitempty"`
+	StandAlonePluginsByContextType map[configapi.ContextType]PluginAssociation `json:"standAlonePluginsByContextType,omitempty"`
 	// ServerPlugins links a server and a set of associated plugin installations.
 	ServerPlugins map[string]PluginAssociation `json:"serverPlugins,omitempty"`
 }

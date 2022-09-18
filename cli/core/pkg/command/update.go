@@ -12,9 +12,9 @@ import (
 	"github.com/aunum/log"
 	"github.com/spf13/cobra"
 
-	cliv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/buildinfo"
 	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/cli"
+	cliapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/cli/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/config"
 )
 
@@ -30,7 +30,7 @@ var updateCmd = &cobra.Command{
 	Use:   "update",
 	Short: "Update the CLI",
 	Annotations: map[string]string{
-		"group": string(cliv1alpha1.SystemCmdGroup),
+		"group": string(cliapi.SystemCmdGroup),
 	},
 	RunE: func(cmd *cobra.Command, args []string) error {
 		if config.IsFeatureActivated(config.FeatureContextAwareCLIForPlugins) {
@@ -57,7 +57,7 @@ var updateCmd = &cobra.Command{
 			repo    cli.Repository
 		}
 
-		updateMap := map[*cliv1alpha1.PluginDescriptor]updateInfo{}
+		updateMap := map[*cliapi.PluginDescriptor]updateInfo{}
 		for _, plugin := range plugins {
 			if plugin.Name == cli.CoreName {
 				continue

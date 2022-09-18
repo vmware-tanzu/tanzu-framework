@@ -8,15 +8,15 @@ import (
 
 	"github.com/aunum/log"
 
-	cliv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
+	cliapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/cli/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/plugin"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/buildinfo"
 )
 
-var descriptor = cliv1alpha1.PluginDescriptor{
+var descriptor = cliapi.PluginDescriptor{
 	Name:        "pinniped-auth",
 	Description: "Pinniped authentication operations (usually not directly invoked)",
-	Group:       cliv1alpha1.RunCmdGroup,
+	Group:       cliapi.RunCmdGroup,
 	Hidden:      true,
 	Aliases:     []string{"pa", "pinniped-auths"},
 	Version:     buildinfo.Version,

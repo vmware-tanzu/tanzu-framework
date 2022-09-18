@@ -14,7 +14,7 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/clusterclient"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/web/server/restapi/operations/docker"
 
-	configv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/config/v1alpha1"
+	configapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/config/v1alpha1"
 )
 
 // IsDockerDaemonAvailable validates docker daemon availability
@@ -26,7 +26,7 @@ func (app *App) IsDockerDaemonAvailable(params docker.CheckIfDockerDaemonAvailab
 
 	featureFlagClient, err := config.GetClientConfig()
 	if err != nil {
-		featureFlagClient = &configv1alpha1.ClientConfig{}
+		featureFlagClient = &configapi.ClientConfig{}
 	}
 
 	c, err := client.New(client.Options{

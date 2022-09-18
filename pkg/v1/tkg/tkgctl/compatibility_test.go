@@ -11,7 +11,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/tj/assert"
 
-	configv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/config/v1alpha1"
+	configapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/config/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/config"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfigpaths"
 )
@@ -22,15 +22,15 @@ func TestClientConfig(t *testing.T) {
 	config.LocalDirName = fmt.Sprintf(".tanzu-test-%s", uuid.NewString()[:5])
 	defer os.RemoveAll(config.LocalDirName)
 
-	testConfig := &configv1alpha1.ClientConfig{
-		ClientOptions: &configv1alpha1.ClientOptions{
-			CLI: &configv1alpha1.CLIOptions{},
+	testConfig := &configapi.ClientConfig{
+		ClientOptions: &configapi.ClientOptions{
+			CLI: &configapi.CLIOptions{},
 		},
 	}
 
 	// Test SetCompatibilityFileBasedOnEdition when the community edition is configure
 	config.AcquireTanzuConfigLock()
-	testConfig.ClientOptions.CLI.Edition = configv1alpha1.EditionCommunity
+	testConfig.ClientOptions.CLI.Edition = configapi.EditionCommunity
 	err := config.StoreClientConfig(testConfig)
 	assert.Nil(err)
 	config.ReleaseTanzuConfigLock()
@@ -45,7 +45,7 @@ func TestClientConfig(t *testing.T) {
 
 	// Test SetCompatibilityFileBasedOnEdition when the standard edition is configure
 	config.AcquireTanzuConfigLock()
-	testConfig.ClientOptions.CLI.Edition = configv1alpha1.EditionStandard
+	testConfig.ClientOptions.CLI.Edition = configapi.EditionStandard
 	err = config.StoreClientConfig(testConfig)
 	assert.Nil(err)
 	config.ReleaseTanzuConfigLock()

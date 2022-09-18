@@ -12,11 +12,11 @@ import (
 	"github.com/aunum/log"
 	"github.com/spf13/cobra"
 
-	cliv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
+	cliapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/cli/v1alpha1"
 )
 
 // GetCmd returns a cobra command for the plugin.
-func GetCmd(p *cliv1alpha1.PluginDescriptor) *cobra.Command {
+func GetCmd(p *cliapi.PluginDescriptor) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   p.Name,
 		Short: p.Description,
@@ -34,7 +34,7 @@ func GetCmd(p *cliv1alpha1.PluginDescriptor) *cobra.Command {
 	}
 
 	// Handle command line completion types.
-	if p.CompletionType == cliv1alpha1.NativePluginCompletion {
+	if p.CompletionType == cliapi.NativePluginCompletion {
 		cmd.ValidArgsFunction = func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 			// Parses the completion info provided by cobra.Command. This should be formatted similar to:
 			//   help	Help about any command
@@ -67,9 +67,9 @@ func GetCmd(p *cliv1alpha1.PluginDescriptor) *cobra.Command {
 
 			return []string{}, cobra.ShellCompDirectiveError
 		}
-	} else if p.CompletionType == cliv1alpha1.StaticPluginCompletion {
+	} else if p.CompletionType == cliapi.StaticPluginCompletion {
 		cmd.ValidArgs = p.CompletionArgs
-	} else if p.CompletionType == cliv1alpha1.DynamicPluginCompletion {
+	} else if p.CompletionType == cliapi.DynamicPluginCompletion {
 		cmd.ValidArgsFunction = func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 			// Pass along the full completion information. Trivial plugins may not support
 			// completion depth, but we can provide the information in case they do.
@@ -135,7 +135,7 @@ func getHelpArguments() []string {
 }
 
 // TestCmd returns a cobra command for the plugin.
-func TestCmd(p *cliv1alpha1.PluginDescriptor) *cobra.Command {
+func TestCmd(p *cliapi.PluginDescriptor) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   p.Name,
 		Short: p.Description,

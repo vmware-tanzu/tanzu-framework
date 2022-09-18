@@ -153,6 +153,7 @@ manifests: ## Generate manifests e.g. CRD, RBAC etc.
 	$(MAKE) generate-manifests CONTROLLER_GEN_SRC=./apis/...
 	$(MAKE) -C apis/cli generate-manifests CONTROLLER_GEN_SRC=./...
 	$(MAKE) -C apis/config generate-manifests CONTROLLER_GEN_SRC=./...
+	$(MAKE) -C cli/runtime generate-manifests
 
 generate-go: $(COUNTERFEITER) ## Generate code via go generate.
 	PATH=$(abspath hack/tools/bin):"$(PATH)" go generate ./...
@@ -161,6 +162,7 @@ generate: tools ## Generate code (legacy)
 	$(MAKE) generate-controller-code
 	$(MAKE) -C apis/cli generate-controller-code
 	$(MAKE) -C apis/config generate-controller-code
+	$(MAKE) -C cli/runtime generate-controller-code
 
 ## --------------------------------------
 ##@ Version

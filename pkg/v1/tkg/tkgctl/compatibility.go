@@ -4,7 +4,7 @@
 package tkgctl
 
 import (
-	configv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/config/v1alpha1"
+	configapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/config/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/config"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfigpaths"
 )
@@ -32,10 +32,10 @@ func SetCompatibilityFileBasedOnEdition() error {
 	}
 
 	switch clientConfig.ClientOptions.CLI.Edition {
-	case configv1alpha1.EditionCommunity:
+	case configapi.EditionCommunity:
 		clientConfig.ClientOptions.CLI.BOMRepo = DefaultTCEBomRepo
 		clientConfig.ClientOptions.CLI.CompatibilityFilePath = DefaultCompatibilityPath
-	case configv1alpha1.EditionStandard:
+	case configapi.EditionStandard:
 		clientConfig.ClientOptions.CLI.BOMRepo = tkgconfigpaths.TKGDefaultImageRepo
 		clientConfig.ClientOptions.CLI.CompatibilityFilePath = tkgconfigpaths.TKGDefaultCompatibilityImagePath
 	}

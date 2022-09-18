@@ -14,11 +14,11 @@ import (
 	"github.com/logrusorgru/aurora"
 	"github.com/spf13/cobra"
 
-	"github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
-	configv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/config/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/cli"
 	cliconfig "github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/config"
 	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/pluginmanager"
+	cliapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/cli/v1alpha1"
+	configapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/config/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/config"
 )
 
@@ -77,10 +77,10 @@ func NewRootCmd() (*cobra.Command, error) {
 			k8sCmd,
 			tmcCmd,
 		)
-		if err := addCtxPlugins(k8sCmd, configv1alpha1.CtxTypeK8s); err != nil {
+		if err := addCtxPlugins(k8sCmd, configapi.CtxTypeK8s); err != nil {
 			return nil, err
 		}
-		if err := addCtxPlugins(tmcCmd, configv1alpha1.CtxTypeTMC); err != nil {
+		if err := addCtxPlugins(tmcCmd, configapi.CtxTypeTMC); err != nil {
 			return nil, err
 		}
 	}
@@ -120,7 +120,7 @@ var k8sCmd = &cobra.Command{
 	Short:   "Tanzu CLI plugins that target a Kubernetes cluster",
 	Aliases: []string{"k8s"},
 	Annotations: map[string]string{
-		"group": string(v1alpha1.TargetCmdGroup),
+		"group": string(cliapi.TargetCmdGroup),
 	},
 }
 
@@ -129,11 +129,11 @@ var tmcCmd = &cobra.Command{
 	Short:   "Tanzu CLI plugins that target a Tanzu Mission Control endpoint",
 	Aliases: []string{"tmc"},
 	Annotations: map[string]string{
-		"group": string(v1alpha1.TargetCmdGroup),
+		"group": string(cliapi.TargetCmdGroup),
 	},
 }
 
-func addCtxPlugins(cmd *cobra.Command, ctxType configv1alpha1.ContextType) error {
+func addCtxPlugins(cmd *cobra.Command, ctxType configapi.ContextType) error {
 	var ctxName string
 	if ctx, _ := config.GetCurrentContext(ctxType); ctx != nil {
 		ctxName = ctx.Name
@@ -144,10 +144,10 @@ func addCtxPlugins(cmd *cobra.Command, ctxType configv1alpha1.ContextType) error
 		return fmt.Errorf("unable to find installed plugins: %w", err)
 	}
 
-	if ctxType == configv1alpha1.CtxTypeK8s {
+	if ctxType == configapi.CtxTypeK8s {
 		// Standalone plugins exist only for K8s context type.
 		for i := range standalonePlugins {
-			if standalonePlugins[i].Group == v1alpha1.SystemCmdGroup {
+			if standalonePlugins[i].Group == cliapi.SystemCmdGroup {
 				// Do not include plugins from the system command group.
 				continue
 			}
@@ -161,8 +161,8 @@ func addCtxPlugins(cmd *cobra.Command, ctxType configv1alpha1.ContextType) error
 	return nil
 }
 
-func getAvailablePlugins() ([]*v1alpha1.PluginDescriptor, error) {
-	plugins := make([]*v1alpha1.PluginDescriptor, 0)
+func getAvailablePlugins() ([]*cliapi.PluginDescriptor, error) {
+	plugins := make([]*cliapi.PluginDescriptor, 0)
 	var err error
 
 	if config.IsFeatureActivated(config.FeatureContextAwareCLIForPlugins) {
@@ -192,7 +192,7 @@ func getAvailablePlugins() ([]*v1alpha1.PluginDescriptor, error) {
 	return plugins, nil
 }
 
-func checkAndInstallMissingPlugins(plugins []*v1alpha1.PluginDescriptor) ([]*v1alpha1.PluginDescriptor, error) {
+func checkAndInstallMissingPlugins(plugins []*cliapi.PluginDescriptor) ([]*cliapi.PluginDescriptor, error) {
 	// check that all plugins in the core distro are installed or do so.
 	if !noInit && !cli.IsDistributionSatisfied(plugins) {
 		s := spinner.New(spinner.CharSets[9], 100*time.Millisecond)

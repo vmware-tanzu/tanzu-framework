@@ -21,9 +21,6 @@ var (
 	// AddToScheme adds the types in this group-version to the given scheme.
 	AddToScheme = SchemeBuilder.AddToScheme
 
-	// GroupVersionKindCatalog has information about group, version and kind of Catalog object.
-	GroupVersionKindCatalog = GroupVersion.WithKind("Catalog")
-
 	// GroupVersionKindCLIPlugin has information about group, version and kind of CLIPlugin object.
 	GroupVersionKindCLIPlugin = GroupVersion.WithKind("CLIPlugin")
 )

@@ -20,14 +20,14 @@ import (
 
 	"github.com/aunum/log"
 
-	cliv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
+	cliapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/cli/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/plugin"
 )
 
-var descriptor = cliv1alpha1.PluginDescriptor{
+var descriptor = cliapi.PluginDescriptor{
 	Name:        "kubernetes-release",
 	Description: "Kubernetes release operations",
-	Group:       cliv1alpha1.RunCmdGroup,
+	Group:       cliapi.RunCmdGroup,
 	Aliases:     []string{"kr", "kubernetes-releases"},
 	Version:     buildinfo.Version,
 	BuildSHA:    buildinfo.SHA,

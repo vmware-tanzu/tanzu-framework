@@ -6,10 +6,10 @@ package config
 import (
 	"strconv"
 
-	configv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/config/v1alpha1"
+	configapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/config/v1alpha1"
 )
 
-func populateDefaultCliFeatureValues(c *configv1alpha1.ClientConfig, defaultCliFeatureFlags map[string]bool) error {
+func populateDefaultCliFeatureValues(c *configapi.ClientConfig, defaultCliFeatureFlags map[string]bool) error {
 	for featureName, flagValue := range defaultCliFeatureFlags {
 		plugin, flag, err := c.SplitFeaturePath(featureName)
 		if err != nil {
@@ -20,12 +20,12 @@ func populateDefaultCliFeatureValues(c *configv1alpha1.ClientConfig, defaultCliF
 	return nil
 }
 
-func addFeatureFlag(c *configv1alpha1.ClientConfig, plugin, flag string, flagValue bool) {
+func addFeatureFlag(c *configapi.ClientConfig, plugin, flag string, flagValue bool) {
 	if c.ClientOptions == nil {
-		c.ClientOptions = &configv1alpha1.ClientOptions{}
+		c.ClientOptions = &configapi.ClientOptions{}
 	}
 	if c.ClientOptions.Features == nil {
-		c.ClientOptions.Features = make(map[string]configv1alpha1.FeatureMap)
+		c.ClientOptions.Features = make(map[string]configapi.FeatureMap)
 	}
 	if c.ClientOptions.Features[plugin] == nil {
 		c.ClientOptions.Features[plugin] = make(map[string]string)
@@ -35,7 +35,7 @@ func addFeatureFlag(c *configv1alpha1.ClientConfig, plugin, flag string, flagVal
 
 // addDefaultFeatureFlagsIfMissing augments the given configuration object with any default feature flags that do not already have a value
 // and returns TRUE if any were added (so the config can be written out to disk, if the caller wants to)
-func addDefaultFeatureFlagsIfMissing(config *configv1alpha1.ClientConfig, defaultFeatureFlags map[string]bool) bool {
+func addDefaultFeatureFlagsIfMissing(config *configapi.ClientConfig, defaultFeatureFlags map[string]bool) bool {
 	added := false
 
 	for featurePath, activated := range defaultFeatureFlags {
@@ -50,7 +50,7 @@ func addDefaultFeatureFlagsIfMissing(config *configv1alpha1.ClientConfig, defaul
 }
 
 // containsFeatureFlag returns true if the features section in the configuration object contains any value for the plugin.feature combination
-func containsFeatureFlag(config *configv1alpha1.ClientConfig, plugin, feature string) bool {
+func containsFeatureFlag(config *configapi.ClientConfig, plugin, feature string) bool {
 	return config.ClientOptions != nil && config.ClientOptions.Features != nil && config.ClientOptions.Features[plugin] != nil &&
 		config.ClientOptions.Features[plugin][feature] != ""
 }

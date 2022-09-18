@@ -11,7 +11,7 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgctl"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/types"
 
-	"github.com/vmware-tanzu/tanzu-framework/apis/config/v1alpha1"
+	configapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/config/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/config"
 )
 
@@ -40,7 +40,7 @@ func getTKGConfigDir() (string, error) {
 	return filepath.Join(tanzuConfigDir, "tkg"), nil
 }
 
-func runForCurrentMC(fn func(currServ *v1alpha1.Server) error) error {
+func runForCurrentMC(fn func(currServ *configapi.Server) error) error {
 	currServ, err := config.GetCurrentServer()
 	if err != nil {
 		return err
