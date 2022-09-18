@@ -84,6 +84,7 @@ OCI_REGISTRY ?= projects.registry.vmware.com/tanzu_framework
 
 .DEFAULT_GOAL:=help
 
+# TODO: Change package path to cli/runtime when this var is moved there.
 LD_FLAGS += -X 'github.com/vmware-tanzu/tanzu-framework/pkg/v1/buildinfo.IsOfficialBuild=$(IS_OFFICIAL_BUILD)'
 
 ifneq ($(strip $(TANZU_CORE_BUCKET)),)
@@ -489,6 +490,9 @@ test: generate manifests build-cli-mocks ## Run tests
 	#Test tkg module
 	$(MAKE) test -C tkg
 
+	# Test feature gates
+	$(MAKE) test -C featuregates
+
 .PHONY: test-cli
 test-cli: build-cli-mocks ## Run tests
 	$(GO) test  ./pkg/v1/auth/... ./pkg/v1/builder/...  ./pkg/v1/encoding/... ./pkg/v1/grpc/...
@@ -713,7 +717,7 @@ e2e-packageclient-docker: $(GINKGO) generate-embedproviders ## Run ginkgo packag
 COMPONENTS ?=  \
   pkg/v2/tkr/controller/tkr-source \
   pkg/v2/tkr/controller/tkr-status \
-  pkg/v1/sdk/features \
+  featuregates \
   addons \
   cliplugins \
   pkg/v2/tkr/webhook/infra-machine \

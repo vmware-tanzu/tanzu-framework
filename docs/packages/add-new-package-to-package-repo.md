@@ -60,7 +60,7 @@ Below are steps to illustrate how that can be done.
 
    If the component needs to have a docker image built is in this repo, append the `COMPONENTS` variable with directory
    path that contains a Makefile with `docker-build`, `docker-publish` and `kbld-image-replace` targets that can build
-   and push a docker image for that component. ([example Makefile](../../pkg/v1/sdk/features/Makefile))
+   and push a docker image for that component. ([example Makefile](../../featuregates/Makefile))
 
 5. Update package-values.yaml to add your package details
 

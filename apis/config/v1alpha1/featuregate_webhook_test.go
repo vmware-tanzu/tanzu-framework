@@ -337,9 +337,9 @@ func TestNamespaceConflicts(t *testing.T) {
 // This function is intended to be used in tests for comparing expected and actual values, and printing the diff for
 // users to debug:
 //
-//   if diff := sliceDiffIgnoreOrder(got, want); diff != "" {
-//       t.Errorf("got: %v, want: %v, diff: %s", got, want, diff)
-//   }
+//	if diff := sliceDiffIgnoreOrder(got, want); diff != "" {
+//	    t.Errorf("got: %v, want: %v, diff: %s", got, want, diff)
+//	}
 func sliceDiffIgnoreOrder(a, b []string) string {
 	return cmp.Diff(a, b, cmpopts.EquateEmpty(), cmpopts.SortSlices(func(x, y string) bool { return x < y }))
 }

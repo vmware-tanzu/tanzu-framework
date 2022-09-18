@@ -1,7 +1,7 @@
 // Copyright 2021 VMware, Inc. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-package featuregate
+package util
 
 import (
 	"context"
@@ -11,7 +11,6 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	configv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/config/v1alpha1"
-	featureutil "github.com/vmware-tanzu/tanzu-framework/pkg/v1/sdk/features/util"
 )
 
 const (
@@ -95,7 +94,7 @@ func FeatureActivatedInNamespace(ctx context.Context, c client.Client, namespace
 
 // FeaturesActivatedInNamespacesMatchingSelector returns true only if all the features specified are activated in every namespace matched by the selector.
 func FeaturesActivatedInNamespacesMatchingSelector(ctx context.Context, c client.Client, namespaceSelector metav1.LabelSelector, features []string) (bool, error) {
-	namespaces, err := featureutil.NamespacesMatchingSelector(ctx, c, &namespaceSelector)
+	namespaces, err := NamespacesMatchingSelector(ctx, c, &namespaceSelector)
 	if err != nil {
 		return false, err
 	}

@@ -9,7 +9,7 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/sdk/features/client"
+	"github.com/vmware-tanzu/tanzu-framework/featuregates/client/pkg/featuregateclient"
 )
 
 // FeatureActivateCmd is for activating Features
@@ -29,7 +29,7 @@ func init() {
 
 func featureActivate(cmd *cobra.Command, args []string) error {
 	featureName := args[0]
-	featureGateClient, err := client.NewFeatureGateClient()
+	featureGateClient, err := featuregateclient.NewFeatureGateClient()
 	if err != nil {
 		return fmt.Errorf("couldn't get featureGateRunner: %w", err)
 	}

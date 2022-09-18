@@ -11,8 +11,8 @@ import (
 	crclient "sigs.k8s.io/controller-runtime/pkg/client/fake"
 
 	configv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/config/v1alpha1"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/sdk/features/client"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/sdk/features/client/fake"
+	"github.com/vmware-tanzu/tanzu-framework/featuregates/client/pkg/featuregateclient"
+	"github.com/vmware-tanzu/tanzu-framework/featuregates/client/pkg/featuregateclient/fake"
 )
 
 func TestJoinFeatures(t *testing.T) {
@@ -25,7 +25,7 @@ func TestJoinFeatures(t *testing.T) {
 		t.Fatalf("Unable to add config scheme: (%v)", err)
 	}
 	cl := crclient.NewClientBuilder().WithRuntimeObjects(objs...).Build()
-	featureGateClient, err := client.NewFeatureGateClient(client.WithClient(cl))
+	featureGateClient, err := featuregateclient.NewFeatureGateClient(featuregateclient.WithClient(cl))
 
 	if err != nil {
 		t.Fatalf("Unable to get FeatureGateClient: (%v)", err)
