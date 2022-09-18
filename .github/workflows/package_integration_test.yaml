@@ -8,7 +8,7 @@ on:
       - 'packageclients/**'
       - 'cmd/cli/plugin/package/**'
       - 'cmd/cli/plugin/secret/**'
-      - 'pkg/v1/tkg/tkgctl'
+      - 'tkg/tkgctl'
 
 concurrency:
   group: ${{ format('package-plugin-integration-tests-{0}', github.head_ref) }}

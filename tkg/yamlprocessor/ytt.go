@@ -18,8 +18,8 @@ import (
 	"github.com/vmware-tanzu/carvel-ytt/pkg/workspace/datavalues"
 	"github.com/vmware-tanzu/carvel-ytt/pkg/yamlmeta"
 
-	"github.com/vmware-tanzu/tanzu-framework/apis/providers/v1alpha1"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/cli/carvelhelpers"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/api/providers/v1alpha1"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/carvelhelpers"
 )
 
 // DefinitionParser provides behavior to process template definition

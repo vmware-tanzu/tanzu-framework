@@ -2,11 +2,11 @@
 
  This library includes coresponding [providers](/pkg/v1/providers) to provide the templates and ytt overlays required to generate cluster configuration YAML documents.
 
-## [tkgctl library](/pkg/v1/tkg/tkgctl)
+## [tkgctl library](/tkg/tkgctl)
 
 This library provides an interface that can be used to invoke TKG related functionalities. This interface is currently used by the cluster and management-cluster plugin in tanzu cli to perform TKG related operations. TMC also consumes this library interface to do lifecycle operations on TKG clusters.
 
-For more details about the client and interface: [/pkg/v1/tkg/tkgctl/client.go](/pkg/v1/tkg/tkgctl/client.go)
+For more details about the client and interface: [/tkg/tkgctl/client.go](/tkg/tkgctl/client.go)
 
 ## clusterctl library
 
@@ -29,7 +29,7 @@ reference:
   * reads ytt overlay files based on the template-definition-file provided and processes the overlay using the provided config variable generating cluster templates.
   * [https://github.com/vmware-tanzu/tkg-cli/tree/master/pkg/yamlprocessor](https://github.com/vmware-tanzu/tkg-cli/tree/master/pkg/yamlprocessor)
 
-## [tkgconfigreaderwriter](/pkg/v1/tkg/tkgconfigreaderwriter)
+## [tkgconfigreaderwriter](/tkg/tkgconfigreaderwriter)
 
 * This is also a very core package under the tkg library
 * It is responsible for reading user inputs for config variables from different sources (descending order of precedence)
@@ -39,7 +39,7 @@ reference:
 * It internally uses viper implementation to read this configuration
 * This client is passed to many other clients that need to rely on tkg settings or user-provided configuration
 
-## [tkgconfigupdater](/pkg/v1/tkg/tkgconfigupdater)
+## [tkgconfigupdater](/tkg/tkgconfigupdater)
 
 * The main responsibility of this package is to ensure all the necessary configurations are present on the user's local file system or not, which includes
   * extracting and/or updating providers bundle to `$HOME/.config/tanzu/tkg/providers`
@@ -49,16 +49,16 @@ reference:
     * adding/updating images map based on BoM file's image repository or based on `TKG_CUSTOM_IMAGE_REPOSITORY` config variable
   * creating default(empty) cluster-config.yaml if it does not exist at `$HOME/.config/tanzu/tkg/cluster-config.yaml`
 
-## [tkgconfigpaths](/pkg/v1/tkg/tkgconfigpaths)
+## [tkgconfigpaths](/tkg/tkgconfigpaths)
 
 * Implemented functions to get different file and directory paths for TKG library
 
-## [tkgconfigproviders](/pkg/v1/tkg/tkgconfigproviders)
+## [tkgconfigproviders](/tkg/tkgconfigproviders)
 
 * Implements methods that convert UI provided configuration to config variables that can be saved to cluster-config files
 * Also implements image getter functions for all providers
 
-## [tkgconfigbom](/pkg/v1/tkg/tkgconfigbom)
+## [tkgconfigbom](/tkg/tkgconfigbom)
 
 * Implements TKG and TKR BoM file loader methods
 * Also implements methods to get default or specific TKR BoM file based on the TKR version
@@ -79,11 +79,11 @@ reference:
 
 * Implements Azure specific API using Azure SDK that can be used for some verification purpose as well as serves as resource retriever for the kick-start UI
 
-## [vc](/pkg/v1/tkg/vc)
+## [vc](/tkg/vc)
 
 * Implements vCenter specific API using govmomi library that can be used for some verification purpose as well as serves as resource retriever for the kick-start UI
 
-## [Web UI and Server](/pkg/v1/tkg/web)
+## [Web UI and Server](/tkg/web)
 
 * It implements web server which serves kick-start UI for management cluster creation purpose. (tanzu management-cluster create --ui)
 * This uses bundled go-bindata file which contains kick-start UI bits

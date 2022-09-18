@@ -24,8 +24,10 @@ BIN_DIR := bin
 ADDONS_DIR := addons
 YTT_TESTS_DIR := pkg/v1/providers/tests
 PACKAGES_SCRIPTS_DIR := $(abspath hack/packages/scripts)
-UI_DIR := pkg/v1/tkg/web
+UI_DIR := tkg/web
 GO_MODULES=$(shell find . -path "*/go.mod" | grep -v "^./pinniped" | xargs -I _ dirname _)
+PROVIDER_BUNDLE_ZIP = pkg/v1/providers/client/manifest/providers.zip
+TKG_PROVIDER_BUNDLE_ZIP = tkg/tkgctl/client/manifest/providers.zip
 
 PINNIPED_GIT_REPOSITORY = https://github.com/vmware-tanzu/pinniped.git
 PINNIPED_VERSIONS = v0.4.4 v0.12.1
@@ -187,6 +189,7 @@ prep-build-cli: ensure-pinniped-repo  ## Prepare for building the CLI
 	EMBED_PROVIDERS_TAG=embedproviders
 ifeq "${BUILD_TAGS}" "${EMBED_PROVIDERS_TAG}"
 	make -C pkg/v1/providers -f Makefile generate-provider-bundle-zip
+	cp -f ${PROVIDER_BUNDLE_ZIP} $(TKG_PROVIDER_BUNDLE_ZIP)
 endif
 
 .PHONY: configure-buildtags-%
@@ -471,7 +474,7 @@ test: generate manifests build-cli-mocks ## Run tests
 		xargs -n1  -I {} bash -c 'cd {} && PATH=$(abspath hack/tools/bin):"$(PATH)" $(GO) test -coverprofile coverage2.txt -v -timeout 120s ./...' \;
 	echo "... package tests complete!"
 
-	PATH=$(abspath hack/tools/bin):"$(PATH)" $(GO) test -coverprofile coverage3.txt -v `go list ./... | grep -Ev '(github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/test|github.com/vmware-tanzu/tanzu-framework/cmd/cli/plugin/package/test)'`
+	PATH=$(abspath hack/tools/bin):"$(PATH)" $(GO) test -coverprofile coverage3.txt -v `go list ./... | grep -Ev '(github.com/vmware-tanzu/tanzu-framework/tkg/test|github.com/vmware-tanzu/tanzu-framework/cmd/cli/plugin/package/test)'`
 
 	$(MAKE) kubebuilder -C $(TOOLS_DIR)
 	KUBEBUILDER_ASSETS=$(ROOT_DIR)/$(KUBEBUILDER)/bin $(MAKE) test -C addons
@@ -581,7 +584,7 @@ ui-build-and-test: ui-dependencies ## Compile client UI for production and run t
 
 .PHONY: verify-ui-bindata
 verify-ui-bindata: ## Run verification for UI bindata
-	git diff --exit-code pkg/v1/tkg/manifest/server/zz_generated.bindata.go
+	git diff --exit-code tkg/manifest/server/zz_generated.bindata.go
 
 ## --------------------------------------
 ##@ Generate files
@@ -600,12 +603,12 @@ generate-fakes: ## Generate fakes for writing unit tests
 
 .PHONY: generate-ui-bindata
 generate-ui-bindata: $(GOBINDATA) ## Generate go-bindata for ui files
-	$(GOBINDATA) -mode=420 -modtime=1 -o=pkg/v1/tkg/manifest/server/zz_generated.bindata.go -pkg=server $(UI_DIR)/dist/...
+	$(GOBINDATA) -mode=420 -modtime=1 -o=tkg/manifest/server/zz_generated.bindata.go -pkg=server $(UI_DIR)/dist/...
 	$(MAKE) fmt
 
 .PHONY: generate-telemetry-bindata
 generate-telemetry-bindata: $(GOBINDATA) ## Generate telemetry bindata
-	$(GOBINDATA) -mode=420 -modtime=1 -o=pkg/v1/tkg/manifest/telemetry/zz_generated.bindata.go -pkg=telemetry pkg/v1/tkg/manifest/telemetry/...
+	$(GOBINDATA) -mode=420 -modtime=1 -o=tkg/manifest/telemetry/zz_generated.bindata.go -pkg=telemetry tkg/manifest/telemetry/...
 	$(MAKE) fmt
 
  # TODO: Remove bindata dependency and use go embed
@@ -617,7 +620,7 @@ configure-bom: ## Configure bill of materials
 	# Update default BoM Filename variable in tkgconfig pkg
 	sed "s+TKG_DEFAULT_IMAGE_REPOSITORY+${TKG_DEFAULT_IMAGE_REPOSITORY}+g"  hack/update-bundled-bom-filename/update-bundled-default-bom-files-configdata.txt | \
 	sed "s+TKG_DEFAULT_COMPATIBILITY_IMAGE_PATH+${TKG_DEFAULT_COMPATIBILITY_IMAGE_PATH}+g" | \
-	sed "s+TKG_MANAGEMENT_CLUSTER_PLUGIN_VERSION+${BUILD_VERSION}+g"  > pkg/v1/tkg/tkgconfigpaths/zz_bundled_default_bom_files_configdata.go
+	sed "s+TKG_MANAGEMENT_CLUSTER_PLUGIN_VERSION+${BUILD_VERSION}+g"  > tkg/tkgconfigpaths/zz_bundled_default_bom_files_configdata.go
 
 .PHONY: generate-ui-swagger-api
 generate-ui-swagger-api: ## Generate swagger files for UI backend
@@ -679,6 +682,7 @@ clustergen: ## Generate diff between 'before' and 'after' of cluster configurati
 .PHONY: generate-embedproviders
 generate-embedproviders: ## Generate provider bundle to be embedded for local testing
 	make -C pkg/v1/providers -f Makefile generate-provider-bundle-zip
+	cp -f ${PROVIDER_BUNDLE_ZIP} $(TKG_PROVIDER_BUNDLE_ZIP)
 
 ## --------------------------------------
 ##@ TKG integration tests
@@ -689,19 +693,19 @@ GINKGO_NOCOLOR ?= false
 
 .PHONY: e2e-tkgctl-docker
 e2e-tkgctl-docker: $(GINKGO) generate-embedproviders ## Run ginkgo tkgctl E2E tests for Docker clusters
-	$(GINKGO) -v -trace -nodes=$(GINKGO_NODES) --noColor=$(GINKGO_NOCOLOR) $(GINKGO_ARGS) -tags embedproviders pkg/v1/tkg/test/tkgctl/docker
+	$(GINKGO) -v -trace -nodes=$(GINKGO_NODES) --noColor=$(GINKGO_NOCOLOR) $(GINKGO_ARGS) -tags embedproviders tkg/test/tkgctl/docker
 
 .PHONY: e2e-tkgctl-azure
 e2e-tkgctl-azure: $(GINKGO) generate-embedproviders ## Run ginkgo tkgctl E2E tests for Azure clusters
-	$(GINKGO) -v -trace -nodes=$(GINKGO_NODES) --noColor=$(GINKGO_NOCOLOR) $(GINKGO_ARGS) -tags embedproviders pkg/v1/tkg/test/tkgctl/azure
+	$(GINKGO) -v -trace -nodes=$(GINKGO_NODES) --noColor=$(GINKGO_NOCOLOR) $(GINKGO_ARGS) -tags embedproviders tkg/test/tkgctl/azure
 
 .PHONY: e2e-tkgctl-aws
 e2e-tkgctl-aws: $(GINKGO) generate-embedproviders ## Run ginkgo tkgctl E2E tests for AWS clusters
-	$(GINKGO) -v -trace -nodes=$(GINKGO_NODES) --noColor=$(GINKGO_NOCOLOR) $(GINKGO_ARGS) -tags embedproviders pkg/v1/tkg/test/tkgctl/aws
+	$(GINKGO) -v -trace -nodes=$(GINKGO_NODES) --noColor=$(GINKGO_NOCOLOR) $(GINKGO_ARGS) -tags embedproviders tkg/test/tkgctl/aws
 
 .PHONY: e2e-tkgctl-vc67
 e2e-tkgctl-vc67: $(GINKGO) generate-embedproviders ## Run ginkgo tkgctl E2E tests for Vsphere clusters
-	$(GINKGO) -v -trace -nodes=$(GINKGO_NODES) --noColor=$(GINKGO_NOCOLOR) $(GINKGO_ARGS) -tags embedproviders pkg/v1/tkg/test/tkgctl/vsphere67
+	$(GINKGO) -v -trace -nodes=$(GINKGO_NODES) --noColor=$(GINKGO_NOCOLOR) $(GINKGO_ARGS) -tags embedproviders tkg/test/tkgctl/vsphere67
 
 .PHONY: e2e-packageclient-docker
 e2e-packageclient-docker: $(GINKGO) generate-embedproviders ## Run ginkgo packageclient E2E tests for TKG client library
