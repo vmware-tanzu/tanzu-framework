@@ -73,3 +73,8 @@ type VSphereCPIConfigControllerConfig struct {
 type VSphereCSIConfigControllerConfig struct {
 	ConfigControllerConfig
 }
+
+// AzureFileCSIConfigControllerConfig contains configuration information of AzureFileCSIConfig controller
+type AwsEbsCSIConfigControllerConfig struct {
+	ConfigControllerConfig
+}
