@@ -75,7 +75,7 @@ func Test_runCompletion_Bash(t *testing.T) {
 	// Check for a snippet of the bash completion output
 	// TODO make this test less brittle
 	if !strings.Contains(out.String(), "if [[ -z \"${BASH_VERSION:-}\" || \"${BASH_VERSINFO[0]:-}\" -gt 3 ]]; then") {
-		t.Errorf("Unexpected error returned for invalid shell argument: %s", out.String())
+		t.Errorf("Unexpected output for the bash shell script: %s", out.String())
 	}
 }
 
@@ -90,6 +90,36 @@ func Test_runCompletion_Zsh(t *testing.T) {
 
 	// Check for a snippet of the zsh completion output
 	if !strings.Contains(out.String(), "# For zsh, when completing a flag with an = (e.g., completion -n=<TAB>)") {
-		t.Errorf("Unexpected error returned for invalid shell argument: %s", out.String())
+		t.Errorf("Unexpected output for the zsh shell script: %s", out.String())
+	}
+}
+
+// Test_runCompletion_Fish validates functionality for fish shell completion.
+func Test_runCompletion_Fish(t *testing.T) {
+	var out bytes.Buffer
+	args := []string{"fish"}
+	err := runCompletion(&out, completionCmd, args)
+	if err != nil {
+		t.Errorf("Unexpected error for valid shell: %v", err)
+	}
+
+	// Check for a snippet of the fish completion output
+	if !strings.Contains(out.String(), "# For Fish, when completing a flag with an = (e.g., <program> -n=<TAB>)") {
+		t.Errorf("Unexpected output for the fish shell script: %s", out.String())
+	}
+}
+
+// Test_runCompletion_Pwsh validates functionality for powershell completion.
+func Test_runCompletion_Pwsh(t *testing.T) {
+	var out bytes.Buffer
+	args := []string{"powershell"}
+	err := runCompletion(&out, completionCmd, args)
+	if err != nil {
+		t.Errorf("Unexpected error for valid shell: %v", err)
+	}
+
+	// Check for a snippet of the powershell completion output
+	if !strings.Contains(out.String(), "# PowerShell supports three different completion modes") {
+		t.Errorf("Unexpected output for the powershell script: %s", out.String())
 	}
 }
