@@ -21,7 +21,8 @@ all: manager
 
 # Run tests
 test: fmt vet manifests
-	go test ./... -coverprofile cover.out
+	cd discovery && go test ./... -coverprofile cover.out
+	cd controller && go test ./... -coverprofile cover.out
 
 # Build manager binary
 manager: fmt vet
