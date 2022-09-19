@@ -21,17 +21,12 @@ type VSphereContext struct {
 
 // Query sets constraints for resolution of vSphere OVA templates. Its structure reflects Cluster API cluster topology.
 type Query struct {
-	// ControlPlane specifies the Query for the control plane.
-	// Set to nil if we want to skip resolving the control plane part.
-	ControlPlane map[TemplateQuery]struct{}
-
-	// MachineDeployments specifies the OSImageQueries for worker machine deployments.
-	// An individual machine deployment query part may be set to nil if we want to skip resolving it.
-	MachineDeployments map[TemplateQuery]struct{}
+	// OVATemplateQueries carries the set of OVA template queries.
+	OVATemplateQueries map[TemplateQuery]struct{}
 }
 
 func (q Query) String() string {
-	return fmt.Sprintf("{controlPlane: %s, machineDeployments: %s}", q.ControlPlane, q.MachineDeployments)
+	return fmt.Sprintf("{ovaTemplateQueries: %s}", q.OVATemplateQueries)
 }
 
 // TemplateQuery sets constraints for resolution of vSphere OVA templates for the control plane or a machine deployment of a cluster.
@@ -53,22 +48,17 @@ func (q *TemplateQuery) String() string {
 
 // Result carries the results of vSphere OVA template resolution. Its structure reflects Cluster API cluster topology.
 type Result struct {
-	// ControlPlane carries the Result for the control plane.
+	// OVATemplates carries the mapping from TemplateQuery to TemplateResult.
 	// It is set to nil if resolving the control plane part was skipped.
 	// The key is the OVA version.
-	ControlPlane *OVATemplateResult
-
-	// MachineDeployments carries the Result for worker machine deployments.
-	// An individual machine deployment result is set to nil if resolving it was skipped.
-	// The key is the OVA version.
-	MachineDeployments *OVATemplateResult
+	OVATemplates OVATemplateResult
 
 	// UsefulErrorMessage carries the errors resulted in template resolution
 	UsefulErrorMessage string
 }
 
 func (r Result) String() string {
-	return fmt.Sprintf("{controlPlane: %s, machineDeployments: %s usefulErrorMessage:'%s'}", r.ControlPlane, r.MachineDeployments, r.UsefulErrorMessage)
+	return fmt.Sprintf("{ovaTemplates: %s, usefulErrorMessage:'%s'}", r.OVATemplates, r.UsefulErrorMessage)
 }
 
 // // KubernetesTemplateResult carries the template resolution result for all the OVAs for that kubernetes version.

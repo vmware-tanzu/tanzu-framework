@@ -19,16 +19,15 @@ var _ = Describe("Test all types", func() {
 					},
 				}
 				r := Result{
-					ControlPlane: &OVATemplateResult{
+					OVATemplates: OVATemplateResult{
 						t: &TemplateResult{
 							TemplatePath: "path",
 							TemplateMOID: "moid",
 						},
 					},
-					MachineDeployments: &OVATemplateResult{},
 					UsefulErrorMessage: "usefulMessage",
 				}
-				Expect(r.String()).To(ContainSubstring("{controlPlane: {OVATemplateResult: 'map[{ovaVersion { osName  }}:{TemplatePath: 'path', TemplateMOID: 'moid'}]'}, machineDeployments: {OVATemplateResult: 'map[]'} usefulErrorMessage:'usefulMessage'}"))
+				Expect(r.String()).To(ContainSubstring("{ovaTemplates: map[{ovaVersion { osName  }}:{TemplatePath: 'path', TemplateMOID: 'moid'}], usefulErrorMessage:'usefulMessage'}"))
 			})
 		})
 	})
@@ -36,14 +35,11 @@ var _ = Describe("Test all types", func() {
 		When("query is not empty", func() {
 			It("should print all data in Query", func() {
 				q := Query{
-					ControlPlane: map[TemplateQuery]struct{}{
+					OVATemplateQueries: map[TemplateQuery]struct{}{
 						{OVAVersion: "cpQuery"}: {},
 					},
-					MachineDeployments: map[TemplateQuery]struct{}{
-						{OVAVersion: "mdQuery"}: {},
-					},
 				}
-				Expect(q.String()).To(ContainSubstring("{controlPlane: map[{cpQuery {   }}:{}], machineDeployments: map[{mdQuery {   }}:{}]}"))
+				Expect(q.String()).To(ContainSubstring("{ovaTemplateQueries: map[{cpQuery {   }}:{}]}"))
 			})
 		})
 	})

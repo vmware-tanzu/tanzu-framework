@@ -10,8 +10,6 @@ directories:
   - manual: {}
     path: certificates.yaml
   - manual: {}
-    path: rbac.yaml
-  - manual: {}
     path: service.yaml
   - manual: {}
     path: tkr-vsphere-cluster-webhook-deployment.yaml

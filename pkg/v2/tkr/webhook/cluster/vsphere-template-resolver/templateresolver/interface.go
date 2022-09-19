@@ -4,6 +4,8 @@
 package templateresolver
 
 import (
+	"context"
+
 	"github.com/go-logr/logr"
 
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/vc"
@@ -14,7 +16,7 @@ import (
 // TemplateResolver resolves vSphere templates
 type TemplateResolver interface {
 	// Resolve returns VM template path and MOIDs satisfying query constraints.
-	Resolve(svrContext VSphereContext, query Query, vcClient vc.Client) Result
+	Resolve(ctx context.Context, svrContext VSphereContext, query Query, vcClient vc.Client) Result
 	GetVSphereEndpoint(svrContext VSphereContext) (vc.Client, error)
 }
 

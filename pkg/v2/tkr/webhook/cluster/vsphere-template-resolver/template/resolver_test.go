@@ -25,7 +25,7 @@ import (
 	crtclient "sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/webhook/admission"
 
-	"github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
+	runv1 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/fakes"
 	fakeresolver "github.com/vmware-tanzu/tanzu-framework/pkg/v2/tkr/util/fakes"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v2/tkr/util/topology"
@@ -47,6 +47,10 @@ func TestResolve(t *testing.T) {
 
 var _ = Describe("Webhook", func() {
 
+	const (
+		tkr_v1_22_3 = "v1.22.3---vmware.1-rest-does-not-matter"
+		tkr_v1_21_8 = "v1.21.8---vmware.1-rest-does-not-matter"
+	)
 	Context("Handle()", func() {
 		var (
 			req        admission.Request
@@ -104,7 +108,7 @@ var _ = Describe("Webhook", func() {
 			It("should return with admission allowed", func() {
 				Expect(len(resp.Patches)).To(Equal(0))
 				Expect(resp.AdmissionResponse.Allowed).To(BeTrue())
-				Expect(string(resp.Result.Reason)).To(Equal("topology not set, no-op"))
+				Expect(string(resp.Result.Reason)).To(Equal("skipping VM template resolution: topology not set"))
 				Expect(resp.Result.Message).To(Equal(""))
 			})
 		})
@@ -125,12 +129,22 @@ var _ = Describe("Webhook", func() {
 				// Build TKR_DATA in JSON format
 				validTKRData := resolver_cluster.TKRData{
 					"v1.22.3+vmware.1": &resolver_cluster.TKRDataValue{
-						OSImageRef: map[string]interface{}{keyOSImageVersion: "foo"},
-						Labels:     labels.Set{"os-name": "fooOSName", "os-version": "fooOSVersion", "os-arch": "fooOSArch"},
+						OSImageRef: map[string]interface{}{osImageRefVersion: "foo"},
+						Labels: labels.Set{
+							runv1.LabelTKR: tkr_v1_22_3,
+							"os-name":      "fooOSName",
+							"os-version":   "fooOSVersion",
+							"os-arch":      "fooOSArch",
+						},
 					},
 					"v1.21.8+vmware.1": &resolver_cluster.TKRDataValue{
-						OSImageRef: map[string]interface{}{keyOSImageVersion: "bar"},
-						Labels:     labels.Set{"os-name": "barOSName", "os-version": "barOSVersion", "os-arch": "barOSArch"},
+						OSImageRef: map[string]interface{}{osImageRefVersion: "bar"},
+						Labels: labels.Set{
+							runv1.LabelTKR: tkr_v1_21_8,
+							"os-name":      "barOSName",
+							"os-version":   "barOSVersion",
+							"os-arch":      "barOSArch",
+						},
 					},
 				}
 				result := &apiextensionsv1.JSON{}
@@ -158,7 +172,7 @@ var _ = Describe("Webhook", func() {
 						},
 						"metadata": map[string]interface{}{
 							"labels": map[string]interface{}{
-								v1alpha3.LabelTKR: "v1.22.3+vmware.1-rest-does-not-matter",
+								runv1.LabelTKR: tkr_v1_22_3,
 							},
 						},
 					},
@@ -193,7 +207,7 @@ var _ = Describe("Webhook", func() {
 
 				query := templateresolver.TemplateQuery{
 					OVAVersion: "foo",
-					OSInfo: v1alpha3.OSInfo{
+					OSInfo: runv1.OSInfo{
 						Name:    "fooOSName",
 						Version: "fooOSVersion",
 						Arch:    "fooOSArch",
@@ -201,7 +215,7 @@ var _ = Describe("Webhook", func() {
 				}
 
 				expectedResult = templateresolver.Result{
-					ControlPlane: &templateresolver.OVATemplateResult{
+					OVATemplates: templateresolver.OVATemplateResult{
 						query: &templateresolver.TemplateResult{
 							TemplatePath: "fooTemplate",
 							TemplateMOID: "fooMOID",
@@ -285,14 +299,14 @@ var _ = Describe("Webhook", func() {
 					Name:      "cluster",
 					Namespace: "clusterNamespace",
 					Labels: map[string]string{
-						v1alpha3.LabelTKR: "v1.22.3+vmware.1-rest-does-not-matter",
+						runv1.LabelTKR: tkr_v1_22_3,
 					},
 				},
 			}
 
 			cpQuery = templateresolver.TemplateQuery{
 				OVAVersion: "foo",
-				OSInfo: v1alpha3.OSInfo{
+				OSInfo: runv1.OSInfo{
 					Name:    "fooOSName",
 					Version: "fooOSVersion",
 					Arch:    "fooOSArch",
@@ -300,18 +314,28 @@ var _ = Describe("Webhook", func() {
 			}
 			validCPTKRData = resolver_cluster.TKRData{
 				"v1.22.3+vmware.1": &resolver_cluster.TKRDataValue{
-					OSImageRef: map[string]interface{}{keyOSImageVersion: "foo"},
-					Labels:     labels.Set{"os-name": "fooOSName", "os-version": "fooOSVersion", "os-arch": "fooOSArch"},
+					OSImageRef: map[string]interface{}{osImageRefVersion: "foo"},
+					Labels: labels.Set{
+						runv1.LabelTKR: tkr_v1_22_3,
+						"os-name":      "fooOSName",
+						"os-version":   "fooOSVersion",
+						"os-arch":      "fooOSArch",
+					},
 				},
 				"v1.21.8+vmware.1": &resolver_cluster.TKRDataValue{
-					OSImageRef: map[string]interface{}{keyOSImageVersion: "bar"},
-					Labels:     labels.Set{"os-name": "barOSName", "os-version": "barOSVersion", "os-arch": "barOSArch"},
+					OSImageRef: map[string]interface{}{osImageRefVersion: "bar"},
+					Labels: labels.Set{
+						runv1.LabelTKR: tkr_v1_21_8,
+						"os-name":      "barOSName",
+						"os-version":   "barOSVersion",
+						"os-arch":      "barOSArch",
+					},
 				},
 			}
 
 			mdQuery1 = templateresolver.TemplateQuery{
 				OVAVersion: "baz",
-				OSInfo: v1alpha3.OSInfo{
+				OSInfo: runv1.OSInfo{
 					Name:    "bazOSName",
 					Version: "bazOSVersion",
 					Arch:    "bazOSArch",
@@ -319,18 +343,28 @@ var _ = Describe("Webhook", func() {
 			}
 			validMDTKRData1 = resolver_cluster.TKRData{
 				"v1.22.3+vmware.1": &resolver_cluster.TKRDataValue{
-					OSImageRef: map[string]interface{}{keyOSImageVersion: "baz"},
-					Labels:     labels.Set{"os-name": "bazOSName", "os-version": "bazOSVersion", "os-arch": "bazOSArch"},
+					OSImageRef: map[string]interface{}{osImageRefVersion: "baz"},
+					Labels: labels.Set{
+						runv1.LabelTKR: tkr_v1_22_3,
+						"os-name":      "bazOSName",
+						"os-version":   "bazOSVersion",
+						"os-arch":      "bazOSArch",
+					},
 				},
 				"v1.21.8+vmware.1": &resolver_cluster.TKRDataValue{
-					OSImageRef: map[string]interface{}{keyOSImageVersion: "bar"},
-					Labels:     labels.Set{"os-name": "barOSName", "os-version": "barOSVersion", "os-arch": "barOSArch"},
+					OSImageRef: map[string]interface{}{osImageRefVersion: "bar"},
+					Labels: labels.Set{
+						runv1.LabelTKR: tkr_v1_21_8,
+						"os-name":      "barOSName",
+						"os-version":   "barOSVersion",
+						"os-arch":      "barOSArch",
+					},
 				},
 			}
 
 			mdQuery2 = templateresolver.TemplateQuery{
 				OVAVersion: "qux",
-				OSInfo: v1alpha3.OSInfo{
+				OSInfo: runv1.OSInfo{
 					Name:    "quxOSName",
 					Version: "quxOSVersion",
 					Arch:    "quxOSArch",
@@ -338,19 +372,22 @@ var _ = Describe("Webhook", func() {
 			}
 			validMDTKRData2 = resolver_cluster.TKRData{
 				"v1.22.3+vmware.1": &resolver_cluster.TKRDataValue{
-					OSImageRef: map[string]interface{}{keyOSImageVersion: "qux"},
-					Labels:     labels.Set{"os-name": "quxOSName", "os-version": "quxOSVersion", "os-arch": "quxOSArch"},
+					OSImageRef: map[string]interface{}{osImageRefVersion: "qux"},
+					Labels: labels.Set{
+						runv1.LabelTKR: tkr_v1_22_3,
+						"os-name":      "quxOSName",
+						"os-version":   "quxOSVersion",
+						"os-arch":      "quxOSArch",
+					},
 				},
 			}
 
 			fakeResolverOutput = templateresolver.Result{
-				ControlPlane: &templateresolver.OVATemplateResult{
+				OVATemplates: templateresolver.OVATemplateResult{
 					cpQuery: &templateresolver.TemplateResult{
 						TemplatePath: "fooTemplate",
 						TemplateMOID: "fooMOID",
 					},
-				},
-				MachineDeployments: &templateresolver.OVATemplateResult{
 					mdQuery1: &templateresolver.TemplateResult{
 						TemplatePath: "bazTemplate",
 						TemplateMOID: "bazMOID",
@@ -416,23 +453,23 @@ var _ = Describe("Webhook", func() {
 
 				var outputTKRData resolver_cluster.TKRData
 				Expect(topology.GetVariable(cluster, varTKRData, &outputTKRData)).To(Succeed())
-				Expect(outputTKRData["v1.22.3+vmware.1"].OSImageRef[keyOSImageTemplate]).To(Equal("fooTemplate"))
-				Expect(outputTKRData["v1.22.3+vmware.1"].OSImageRef[keyOSImageMOID]).To(Equal("fooMOID"))
+				Expect(outputTKRData["v1.22.3+vmware.1"].OSImageRef[osImageRefTemplate]).To(Equal("fooTemplate"))
+				Expect(outputTKRData["v1.22.3+vmware.1"].OSImageRef[osImageRefMOID]).To(Equal("fooMOID"))
 
 				Expect(topology.GetMDVariable(cluster, 0, varTKRData, &outputTKRData)).To(Succeed())
-				Expect(outputTKRData["v1.22.3+vmware.1"].OSImageRef[keyOSImageTemplate]).To(Equal("bazTemplate"))
-				Expect(outputTKRData["v1.22.3+vmware.1"].OSImageRef[keyOSImageMOID]).To(Equal("bazMOID"))
+				Expect(outputTKRData["v1.22.3+vmware.1"].OSImageRef[osImageRefTemplate]).To(Equal("bazTemplate"))
+				Expect(outputTKRData["v1.22.3+vmware.1"].OSImageRef[osImageRefMOID]).To(Equal("bazMOID"))
 
 				Expect(topology.GetMDVariable(cluster, 1, varTKRData, &outputTKRData)).To(Succeed())
-				Expect(outputTKRData["v1.22.3+vmware.1"].OSImageRef[keyOSImageTemplate]).To(Equal("quxTemplate"))
-				Expect(outputTKRData["v1.22.3+vmware.1"].OSImageRef[keyOSImageMOID]).To(Equal("quxMOID"))
+				Expect(outputTKRData["v1.22.3+vmware.1"].OSImageRef[osImageRefTemplate]).To(Equal("quxTemplate"))
+				Expect(outputTKRData["v1.22.3+vmware.1"].OSImageRef[osImageRefMOID]).To(Equal("quxMOID"))
 
 				Expect(fakeClient.GetCallCount()).To(Equal(1))
 				Expect(fakeResolver.GetVSphereEndpointCallCount()).To(Equal(1))
 				Expect(fakeResolver.ResolveCallCount()).To(Equal(1))
 			})
 		})
-		When("a cluster has TKR_DATA missing for control plane, and for some machine deployments", func() {
+		When("cluster TKR_DATA is used for for some machine deployments", func() {
 			BeforeEach(func() {
 				cluster.Spec.Topology.Workers.MachineDeployments = []clusterv1.MachineDeploymentTopology{
 					{Name: "md1"},
@@ -440,12 +477,16 @@ var _ = Describe("Webhook", func() {
 					{Name: "md3"},
 				}
 
+				Expect(topology.SetVariable(cluster, varTKRData, validCPTKRData)).To(Succeed())
 				Expect(topology.SetMDVariable(cluster, 0, varTKRData, validMDTKRData1)).To(Succeed())
 				Expect(topology.SetMDVariable(cluster, 2, varTKRData, validMDTKRData2)).To(Succeed())
 
 				fakeResolverOutput = templateresolver.Result{
-					ControlPlane: &templateresolver.OVATemplateResult{},
-					MachineDeployments: &templateresolver.OVATemplateResult{
+					OVATemplates: templateresolver.OVATemplateResult{
+						cpQuery: &templateresolver.TemplateResult{
+							TemplatePath: "fooTemplate",
+							TemplateMOID: "fooMOID",
+						},
 						mdQuery1: &templateresolver.TemplateResult{
 							TemplatePath: "bazTemplate",
 							TemplateMOID: "bazMOID",
@@ -459,21 +500,22 @@ var _ = Describe("Webhook", func() {
 				fakeResolver.ResolveReturns(fakeResolverOutput)
 
 			})
-			It("should update template and MOID for MD TKR_DATAs which are present", func() {
+			It("should resolve template and MOID for all MDs", func() {
 				Expect(err).To(BeNil())
 
 				var outputTKRData resolver_cluster.TKRData
 
 				Expect(topology.GetMDVariable(cluster, 0, varTKRData, &outputTKRData)).To(Succeed())
-				Expect(outputTKRData["v1.22.3+vmware.1"].OSImageRef[keyOSImageTemplate]).To(Equal("bazTemplate"))
-				Expect(outputTKRData["v1.22.3+vmware.1"].OSImageRef[keyOSImageMOID]).To(Equal("bazMOID"))
+				Expect(outputTKRData["v1.22.3+vmware.1"].OSImageRef[osImageRefTemplate]).To(Equal("bazTemplate"))
+				Expect(outputTKRData["v1.22.3+vmware.1"].OSImageRef[osImageRefMOID]).To(Equal("bazMOID"))
 
 				Expect(topology.GetMDVariable(cluster, 1, varTKRData, &outputTKRData)).To(Succeed())
-				Expect(outputTKRData).To(BeEmpty())
+				Expect(outputTKRData["v1.22.3+vmware.1"].OSImageRef[osImageRefTemplate]).To(Equal("fooTemplate"))
+				Expect(outputTKRData["v1.22.3+vmware.1"].OSImageRef[osImageRefMOID]).To(Equal("fooMOID"))
 
 				Expect(topology.GetMDVariable(cluster, 2, varTKRData, &outputTKRData)).To(Succeed())
-				Expect(outputTKRData["v1.22.3+vmware.1"].OSImageRef[keyOSImageTemplate]).To(Equal("quxTemplate"))
-				Expect(outputTKRData["v1.22.3+vmware.1"].OSImageRef[keyOSImageMOID]).To(Equal("quxMOID"))
+				Expect(outputTKRData["v1.22.3+vmware.1"].OSImageRef[osImageRefTemplate]).To(Equal("quxTemplate"))
+				Expect(outputTKRData["v1.22.3+vmware.1"].OSImageRef[osImageRefMOID]).To(Equal("quxMOID"))
 
 				Expect(fakeClient.GetCallCount()).To(Equal(1))
 				Expect(fakeResolver.GetVSphereEndpointCallCount()).To(Equal(1))
@@ -486,16 +528,16 @@ var _ = Describe("Webhook", func() {
 			})
 			It("should return a no-op admission allowed response because resolution was skipped.", func() {
 				Expect(err).To(BeNil())
-				Expect(successMsg).To(ContainSubstring("topology not set, no-op"))
+				Expect(successMsg).To(ContainSubstring("skipping VM template resolution: topology not set"))
 			})
 		})
 		When("there is no tkr label set in the cluster", func() {
 			BeforeEach(func() {
-				delete(cluster.Labels, v1alpha3.LabelTKR)
+				delete(cluster.Labels, runv1.LabelTKR)
 			})
 			It("should return a no-op admission allowed response because tkr-resolution has not yet happened.", func() {
 				Expect(err).To(BeNil())
-				Expect(successMsg).To(ContainSubstring("template resolution skipped because tkr resolution incomplete (label not set)"))
+				Expect(successMsg).To(ContainSubstring("skipping VM template resolution: TKR label is not set (yet)"))
 			})
 		})
 		When("the topology version does not match the version in tkr label", func() {
@@ -504,14 +546,14 @@ var _ = Describe("Webhook", func() {
 			})
 			It("should return a no-op admission allowed response because tkr-resolution has not yet happened", func() {
 				Expect(err).To(BeNil())
-				Expect(successMsg).To(ContainSubstring("template resolution skipped because tkr label v1.22.3+vmware.1-rest-does-not-matter does not match topology version foo, no-op"))
+				Expect(successMsg).To(ContainSubstring("skipping VM template resolution: TKR is not fully resolved"))
 			})
 		})
 		When("there are no ovas to resolve because there are no TKR_DATAs", func() {
 			// No further setup to be done as no TKR_DATAs are set by default
 			It("should return a no-op admission allowed response because there are ovas to resolve, and thus the queries are empty.", func() {
 				Expect(err).To(BeNil())
-				Expect(successMsg).To(ContainSubstring("no queries to resolve, no-op"))
+				Expect(successMsg).To(ContainSubstring("skipping VM template resolution: TKR is not fully resolved"))
 			})
 		})
 		When("there is an error Getting secret for VC Client", func() {
@@ -579,14 +621,14 @@ var _ = Describe("Webhook", func() {
 		})
 	})
 
-	Context("processResult()", func() {
+	Context("processAndSetResult()", func() {
 		var (
 			cw Webhook
 
 			cluster        *clusterv1.Cluster
 			resolverResult templateresolver.Result
-			cpData         map[*templateresolver.TemplateQuery]resolver_cluster.TKRData
-			mdDatas        map[int]*mdDataValue
+			cpData         *mdDataValue
+			mdDatas        []*mdDataValue
 
 			err                    error
 			clusterTopologyVersion string
@@ -609,16 +651,16 @@ var _ = Describe("Webhook", func() {
 				},
 				ObjectMeta: v1.ObjectMeta{Name: "cluster", Namespace: "clusterNamespace"},
 			}
-			cpData = map[*templateresolver.TemplateQuery]resolver_cluster.TKRData{}
+			cpData = nil
 		})
 		JustBeforeEach(func() {
-			err = cw.processResult(resolverResult, cluster, cpData, mdDatas)
+			err = cw.processAndSetResult(resolverResult, cluster, cpData, mdDatas)
 		})
 		When("There are no TKR_DATA values matching cluster topology version", func() {
 			var tkrDataValue *resolver_cluster.TKRDataValue
 			BeforeEach(func() {
 				tkrDataValue = &resolver_cluster.TKRDataValue{
-					OSImageRef: map[string]interface{}{keyOSImageVersion: "foo", keyOSImageTemplate: "irreleventTemplate", keyOSImageMOID: "irreleventMOID"},
+					OSImageRef: map[string]interface{}{osImageRefVersion: "foo", osImageRefTemplate: "irrelevantTemplate", osImageRefMOID: "irrelevantMOID"},
 				}
 				irrelevantTKRData := resolver_cluster.TKRData{
 					"does-not-match-topology": tkrDataValue,
@@ -633,51 +675,44 @@ var _ = Describe("Webhook", func() {
 				}
 				Expect(topology.SetMDVariable(cluster, 0, varTKRData, irrelevantTKRData)).To(Succeed())
 
-				query := &templateresolver.TemplateQuery{}
-
-				cpData = map[*templateresolver.TemplateQuery]resolver_cluster.TKRData{
-					query: irrelevantTKRData,
-				}
-				mdDatas = map[int]*mdDataValue{
-					0: {
-						TKRData:       &irrelevantTKRData,
-						TemplateQuery: query,
-					},
+				cpData = nil
+				mdDatas = []*mdDataValue{
+					nil,
 				}
 
 				resolverResult = templateresolver.Result{
-					ControlPlane:       &templateresolver.OVATemplateResult{},
-					MachineDeployments: &templateresolver.OVATemplateResult{},
+					OVATemplates: templateresolver.OVATemplateResult{},
 				}
 			})
 			It("should not update any values, and no error is returned.", func() {
 				Expect(err).ToNot(HaveOccurred())
-				Expect(tkrDataValue.OSImageRef[keyOSImageTemplate]).To(Equal("irreleventTemplate"))
-				Expect(tkrDataValue.OSImageRef[keyOSImageMOID]).To(Equal("irreleventMOID"))
+				Expect(tkrDataValue.OSImageRef[osImageRefTemplate]).To(Equal("irrelevantTemplate"))
+				Expect(tkrDataValue.OSImageRef[osImageRefMOID]).To(Equal("irrelevantMOID"))
 			})
 		})
 		When("TKR_DATA exists in control plane but result is empty", func() {
 			BeforeEach(func() {
-				query := &templateresolver.TemplateQuery{
+				query := templateresolver.TemplateQuery{
 					OVAVersion: "ovaVersionFoo",
 				}
 				tkrData := resolver_cluster.TKRData{
 					"v1.22.3+vmware.1": &resolver_cluster.TKRDataValue{
-						OSImageRef: map[string]interface{}{keyOSImageVersion: "ovaVersionFoo"},
+						OSImageRef: map[string]interface{}{osImageRefVersion: "ovaVersionFoo"},
 					},
 				}
 
-				cpData = map[*templateresolver.TemplateQuery]resolver_cluster.TKRData{
-					query: tkrData,
+				cpData = &mdDataValue{
+					TKRData:       tkrData,
+					TemplateQuery: query,
 				}
 				Expect(topology.SetVariable(cluster, varTKRData, tkrData)).To(Succeed())
 				resolverResult = templateresolver.Result{
-					ControlPlane: &templateresolver.OVATemplateResult{},
+					OVATemplates: templateresolver.OVATemplateResult{},
 				}
 			})
 			It("should return an error because every query should have an associated response", func() {
 				Expect(err).ToNot(BeNil())
-				Expect(err.Error()).To(ContainSubstring("no result found for control plane query "))
+				Expect(err.Error()).To(ContainSubstring("no result found for query"))
 			})
 		})
 	})
@@ -699,23 +734,23 @@ var _ = Describe("Webhook", func() {
 				populateTKRDataFromResult(tkrDataValue, templateResult)
 			})
 			It("should update the values in the tkr data value", func() {
-				Expect(tkrDataValue.OSImageRef[keyOSImageTemplate]).To(Equal(templateResult.TemplatePath))
-				Expect(tkrDataValue.OSImageRef[keyOSImageMOID]).To(Equal(templateResult.TemplateMOID))
+				Expect(tkrDataValue.OSImageRef[osImageRefTemplate]).To(Equal(templateResult.TemplatePath))
+				Expect(tkrDataValue.OSImageRef[osImageRefMOID]).To(Equal(templateResult.TemplateMOID))
 			})
 		})
 		When("template result does not contain template path and moid", func() {
 			BeforeEach(func() {
 				tkrDataValue = &resolver_cluster.TKRDataValue{
 					OSImageRef: map[string]interface{}{
-						keyOSImageTemplate: "existing-path",
-						keyOSImageMOID:     "existing-moid",
+						osImageRefTemplate: "existing-path",
+						osImageRefMOID:     "existing-moid",
 					},
 				}
 				populateTKRDataFromResult(tkrDataValue, nil)
 			})
 			It("should not update the existing values in the tkr data value", func() {
-				Expect(tkrDataValue.OSImageRef[keyOSImageTemplate]).To(Equal("existing-path"))
-				Expect(tkrDataValue.OSImageRef[keyOSImageMOID]).To(Equal("existing-moid"))
+				Expect(tkrDataValue.OSImageRef[osImageRefTemplate]).To(Equal("existing-path"))
+				Expect(tkrDataValue.OSImageRef[osImageRefMOID]).To(Equal("existing-moid"))
 			})
 		})
 	})
@@ -746,7 +781,7 @@ var _ = Describe("Webhook", func() {
 					Name:      "cluster",
 					Namespace: "clusterNamespace",
 					Labels: map[string]string{
-						v1alpha3.LabelTKR: "v1.22.3+vmware.1-rest-does-not-matter",
+						runv1.LabelTKR: tkr_v1_22_3,
 					},
 				},
 			}
@@ -812,7 +847,7 @@ var _ = Describe("Webhook", func() {
 		})
 	})
 
-	Context("getCPQueryAndData() and getMDQueryAndData()", func() {
+	Context("getCPData() and getMDDatas()", func() {
 		var (
 			cluster *clusterv1.Cluster
 			tkrData resolver_cluster.TKRData
@@ -832,7 +867,7 @@ var _ = Describe("Webhook", func() {
 					Name:      "cluster",
 					Namespace: "clusterNamespace",
 					Labels: map[string]string{
-						v1alpha3.LabelTKR: "v1.22.3+vmware.1-rest-does-not-matter",
+						runv1.LabelTKR: tkr_v1_22_3,
 					},
 				},
 			}
@@ -841,21 +876,20 @@ var _ = Describe("Webhook", func() {
 			BeforeEach(func() {
 				tkrData = resolver_cluster.TKRData{
 					"v1.22.3+vmware.1": &resolver_cluster.TKRDataValue{
-						OSImageRef: map[string]interface{}{keyOSImageVersion: "foo", keyOSImageTemplate: "already-resolved"},
+						OSImageRef: map[string]interface{}{osImageRefVersion: "foo", osImageRefTemplate: "already-resolved"},
 						Labels:     labels.Set{"os-name": "fooOSName", "os-version": "fooOSVersion", "os-arch": "fooOSArch"},
 					},
 					"v1.21.8+vmware.1": &resolver_cluster.TKRDataValue{
-						OSImageRef: map[string]interface{}{keyOSImageVersion: "bar"},
+						OSImageRef: map[string]interface{}{osImageRefVersion: "bar"},
 						Labels:     labels.Set{"os-name": "barOSName", "os-version": "barOSVersion", "os-arch": "barOSArch"},
 					},
 				}
 				Expect(topology.SetVariable(cluster, varTKRData, tkrData)).To(Succeed())
 			})
-			It("should return empty query and TKR_Data map", func() {
-				query, tkrDatas, err := getCPQueryAndData(cluster)
+			It("should return nil mdDataValue", func() {
+				cpDataValue, err := getCPData(tkrData, cluster.Spec.Topology.Version)
 				Expect(err).ToNot(HaveOccurred())
-				Expect(query).To(BeEmpty())
-				Expect(tkrDatas).To(BeEmpty())
+				Expect(cpDataValue).To(BeNil())
 			})
 		})
 		When("Template resolution is already complete for machine deployment", func() {
@@ -865,21 +899,23 @@ var _ = Describe("Webhook", func() {
 				}
 				tkrData = resolver_cluster.TKRData{
 					"v1.22.3+vmware.1": &resolver_cluster.TKRDataValue{
-						OSImageRef: map[string]interface{}{keyOSImageVersion: "foo", keyOSImageTemplate: "already-resolved"},
+						OSImageRef: map[string]interface{}{osImageRefVersion: "foo", osImageRefTemplate: "already-resolved"},
 						Labels:     labels.Set{"os-name": "fooOSName", "os-version": "fooOSVersion", "os-arch": "fooOSArch"},
 					},
 					"v1.21.8+vmware.1": &resolver_cluster.TKRDataValue{
-						OSImageRef: map[string]interface{}{keyOSImageVersion: "bar"},
+						OSImageRef: map[string]interface{}{osImageRefVersion: "bar"},
 						Labels:     labels.Set{"os-name": "barOSName", "os-version": "barOSVersion", "os-arch": "barOSArch"},
 					},
 				}
 				Expect(topology.SetMDVariable(cluster, 0, varTKRData, tkrData)).To(Succeed())
 			})
-			It("should return an appropriate error", func() {
-				query, tkrDatas, err := getMDQueryAndData(cluster)
+			It("should return nil mdDataValue for the machine deployment", func() {
+				mdDatas, err := getMDDatas(cluster)
 				Expect(err).ToNot(HaveOccurred())
-				Expect(query).To(BeEmpty())
-				Expect(tkrDatas).To(BeEmpty())
+				Expect(mdDatas).To(HaveLen(len(cluster.Spec.Topology.Workers.MachineDeployments)))
+				for _, mdDataValue := range mdDatas {
+					Expect(mdDataValue).To(BeNil())
+				}
 			})
 		})
 
@@ -893,11 +929,10 @@ var _ = Describe("Webhook", func() {
 				Expect(topology.SetVariable(cluster, varTKRData, tkrData)).To(Succeed())
 			})
 			It("should return an appropriate error", func() {
-				query, tkrDatas, err := getCPQueryAndData(cluster)
+				cpData, err := getCPData(tkrData, cluster.Spec.Topology.Version)
 				Expect(err).To(HaveOccurred())
-				Expect(err.Error()).To(ContainSubstring("error while building control plane query: ova version is invalid or not found for topology version v1.22.3+vmware.1"))
-				Expect(query).To(BeEmpty())
-				Expect(tkrDatas).To(BeEmpty())
+				Expect(err.Error()).To(ContainSubstring("ova version is invalid or not found"))
+				Expect(cpData).To(BeNil())
 			})
 		})
 		When("machine deployment TKR_DATA is invalid because it does not contain OVAVersion in OSImageRef", func() {
@@ -914,10 +949,9 @@ var _ = Describe("Webhook", func() {
 				Expect(topology.SetMDVariable(cluster, 0, varTKRData, tkrData)).To(Succeed())
 			})
 			It("should return an appropriate error", func() {
-				query, tkrDatas, err := getMDQueryAndData(cluster)
+				tkrDatas, err := getMDDatas(cluster)
 				Expect(err).To(HaveOccurred())
-				Expect(err.Error()).To(ContainSubstring("error while building machine deployment query for machine deployment md1: ova version is invalid or not found for topology version v1.22.3+vmware.1"))
-				Expect(query).To(BeEmpty())
+				Expect(err.Error()).To(ContainSubstring("error building VM template query for machine deployment 'md1', cluster 'clusterNamespace/cluster': ova version is invalid or not found"))
 				Expect(tkrDatas).To(BeEmpty())
 			})
 		})

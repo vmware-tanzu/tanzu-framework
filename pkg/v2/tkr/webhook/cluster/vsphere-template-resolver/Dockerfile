@@ -13,6 +13,10 @@ WORKDIR /workspace
 # Copy the Go Modules manifests
 COPY go.mod go.mod
 COPY go.sum go.sum
+COPY ./apis ./apis
+COPY ./cli ./cli
+COPY ./packageclients ./packageclients
+COPY ./tkg ./tkg
 RUN  go mod download
 # cache deps before building and copying source so that we don't need to re-download as much
 # and so that source changes don't invalidate our downloaded layer

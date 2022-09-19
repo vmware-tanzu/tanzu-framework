@@ -52,14 +52,14 @@ func (r *Resolver) GetVSphereEndpoint(svrContext VSphereContext) (vc.Client, err
 }
 
 // Resolve queries VC using the vcClient for template resolution of the OVAs from the input query.
-func (r *Resolver) Resolve(svrContext VSphereContext, query Query, vcClient vc.Client) Result {
-	if len(query.ControlPlane) == 0 && len(query.MachineDeployments) == 0 {
+func (r *Resolver) Resolve(ctx context.Context, svrContext VSphereContext, query Query, vcClient vc.Client) Result {
+	if len(query.OVATemplateQueries) == 0 {
 		return Result{}
 	}
 
 	// Query VC to get templates for OVAs.
 	// Only query if there are non-empty queries to resolve.
-	vcVMs, err := getVirtualMachineTemplateForOVAs(svrContext.DataCenter, vcClient)
+	vcVMs, err := getVirtualMachineTemplateForOVAs(ctx, svrContext.DataCenter, vcClient)
 	if err != nil {
 		r.Log.Error(err, "failed to get VSphereVirtualMachine images from VC client")
 		return Result{UsefulErrorMessage: err.Error()}
@@ -69,28 +69,16 @@ func (r *Resolver) Resolve(svrContext VSphereContext, query Query, vcClient vc.C
 	return updateTemplateDetailsInVMs(vcVMs, query)
 }
 
-// combine returns a new map containing a union of all pairs in the input maps.
-func combine(m1 map[TemplateQuery]struct{}, m2 map[TemplateQuery]struct{}) map[TemplateQuery]struct{} {
-	combined := map[TemplateQuery]struct{}{}
-	for k, v := range m1 {
-		combined[k] = v
-	}
-	for k, v := range m2 {
-		combined[k] = v
-	}
-	return combined
-}
-
 // getVirtualMachineTemplateForOVAs queries VC and retrieves all the `VSphereVirtualMachine` entries.
-func getVirtualMachineTemplateForOVAs(dc string, vcClient vc.Client) ([]*types.VSphereVirtualMachine, error) {
+func getVirtualMachineTemplateForOVAs(ctx context.Context, dc string, vcClient vc.Client) ([]*types.VSphereVirtualMachine, error) {
 	// We need DC MOID to query VMs.
-	dcMOID, err := vcClient.FindDataCenter(context.TODO(), dc) // TODO(imikushin): Use the ctx from handle func here.
+	dcMOID, err := vcClient.FindDataCenter(ctx, dc)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get the datacenter MOID")
 	}
 
 	// Get all vcVMs.
-	vcVMs, err := vcClient.GetVirtualMachineImages(context.TODO(), dcMOID)
+	vcVMs, err := vcClient.GetVirtualMachineImages(ctx, dcMOID)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get K8s VM templates")
 	}
@@ -101,30 +89,16 @@ func getVirtualMachineTemplateForOVAs(dc string, vcClient vc.Client) ([]*types.V
 // updateTemplateDetailsInVMs: iterates over the list of VSphereVirtualMachine and finds the matching query associated with it.
 // Returns a result containing the template path and MOID for each query.
 func updateTemplateDetailsInVMs(vcVMs []*types.VSphereVirtualMachine, query Query) Result {
-	cpQueries := query.ControlPlane
-	mdQueries := query.MachineDeployments
-
-	cpResult := OVATemplateResult{}
-	mdResult := OVATemplateResult{}
-
-	// Combining the CP and MD queries and results so it is easy to keep track of what is fulfilled and what is not.
-	combinedQueries := combine(cpQueries, mdQueries)
+	queries := query.OVATemplateQueries
+	ovaTemplates := OVATemplateResult{}
 
 	nonTemplateVMs := map[TemplateQuery][]string{}
 	for _, vm := range vcVMs {
-		query := TemplateQuery{
-			OVAVersion: vm.OVAVersion,
-			OSInfo: v1alpha3.OSInfo{
-				Arch:    vm.DistroArch,
-				Name:    vm.DistroName,
-				Version: vm.DistroVersion,
-			},
-		}
+		query := queryForVM(vm)
 
-		if _, ok := combinedQueries[query]; !ok {
+		if _, ok := queries[query]; !ok {
 			// No query that matches this, or query already fulfilled in previous iteration.
 			continue
-
 		}
 
 		if !vm.IsTemplate {
@@ -135,17 +109,9 @@ func updateTemplateDetailsInVMs(vcVMs []*types.VSphereVirtualMachine, query Quer
 		}
 
 		// Query exists, time to create a template result for it.
-		templateResult := &TemplateResult{
+		ovaTemplates[query] = &TemplateResult{
 			TemplatePath: vm.Name,
 			TemplateMOID: vm.Moid,
-		}
-
-		if _, ok := cpQueries[query]; ok {
-			cpResult[query] = templateResult
-		}
-
-		if _, ok := mdQueries[query]; ok {
-			mdResult[query] = templateResult
 		}
 
 		// Empty the map that collects info for useful error message since template VM is found.
@@ -153,11 +119,35 @@ func updateTemplateDetailsInVMs(vcVMs []*types.VSphereVirtualMachine, query Quer
 		// Now that we have found a template VM that matches the query, there is no need to have the entry in this map.
 		delete(nonTemplateVMs, query)
 		// Empty the entry from input so the missing values can be checked.
-		delete(combinedQueries, query)
+		delete(queries, query)
 	}
 
-	noMatches := []string{}
-	for unfulfilledQuery, _ := range combinedQueries {
+	if len(queries) != 0 {
+		return Result{
+			UsefulErrorMessage: buildUsefulErrorMessage(queries, nonTemplateVMs),
+		}
+	}
+
+	return Result{
+		OVATemplates: ovaTemplates,
+	}
+}
+
+func queryForVM(vm *types.VSphereVirtualMachine) TemplateQuery {
+	query := TemplateQuery{
+		OVAVersion: vm.OVAVersion,
+		OSInfo: v1alpha3.OSInfo{
+			Arch:    vm.DistroArch,
+			Name:    vm.DistroName,
+			Version: vm.DistroVersion,
+		},
+	}
+	return query
+}
+
+func buildUsefulErrorMessage(queries map[TemplateQuery]struct{}, nonTemplateVMs map[TemplateQuery][]string) string {
+	var noMatches []string
+	for unfulfilledQuery := range queries {
 		// No matching templates found for these queries. Time to build a useful error message for these.
 		var errMsg string
 		if len(nonTemplateVMs[unfulfilledQuery]) > 0 {
@@ -167,15 +157,6 @@ func updateTemplateDetailsInVMs(vcVMs []*types.VSphereVirtualMachine, query Quer
 		}
 		noMatches = append(noMatches, errMsg)
 	}
-
-	if len(noMatches) > 0 {
-		return Result{
-			UsefulErrorMessage: strings.Join(noMatches, "; "),
-		}
-	}
-
-	return Result{
-		ControlPlane:       &cpResult,
-		MachineDeployments: &mdResult,
-	}
+	usefulErrorMessage := strings.Join(noMatches, "; ")
+	return usefulErrorMessage
 }

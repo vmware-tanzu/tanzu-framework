@@ -2,6 +2,7 @@
 package fakes
 
 import (
+	"context"
 	"sync"
 
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/vc"
@@ -22,12 +23,13 @@ type TemplateResolver struct {
 		result1 vc.Client
 		result2 error
 	}
-	ResolveStub        func(templateresolver.VSphereContext, templateresolver.Query, vc.Client) templateresolver.Result
+	ResolveStub        func(context.Context, templateresolver.VSphereContext, templateresolver.Query, vc.Client) templateresolver.Result
 	resolveMutex       sync.RWMutex
 	resolveArgsForCall []struct {
-		arg1 templateresolver.VSphereContext
-		arg2 templateresolver.Query
-		arg3 vc.Client
+		arg1 context.Context
+		arg2 templateresolver.VSphereContext
+		arg3 templateresolver.Query
+		arg4 vc.Client
 	}
 	resolveReturns struct {
 		result1 templateresolver.Result
@@ -45,16 +47,15 @@ func (fake *TemplateResolver) GetVSphereEndpoint(arg1 templateresolver.VSphereCo
 	fake.getVSphereEndpointArgsForCall = append(fake.getVSphereEndpointArgsForCall, struct {
 		arg1 templateresolver.VSphereContext
 	}{arg1})
-	stub := fake.GetVSphereEndpointStub
-	fakeReturns := fake.getVSphereEndpointReturns
 	fake.recordInvocation("GetVSphereEndpoint", []interface{}{arg1})
 	fake.getVSphereEndpointMutex.Unlock()
-	if stub != nil {
-		return stub(arg1)
+	if fake.GetVSphereEndpointStub != nil {
+		return fake.GetVSphereEndpointStub(arg1)
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
+	fakeReturns := fake.getVSphereEndpointReturns
 	return fakeReturns.result1, fakeReturns.result2
 }
 
@@ -103,24 +104,24 @@ func (fake *TemplateResolver) GetVSphereEndpointReturnsOnCall(i int, result1 vc.
 	}{result1, result2}
 }
 
-func (fake *TemplateResolver) Resolve(arg1 templateresolver.VSphereContext, arg2 templateresolver.Query, arg3 vc.Client) templateresolver.Result {
+func (fake *TemplateResolver) Resolve(arg1 context.Context, arg2 templateresolver.VSphereContext, arg3 templateresolver.Query, arg4 vc.Client) templateresolver.Result {
 	fake.resolveMutex.Lock()
 	ret, specificReturn := fake.resolveReturnsOnCall[len(fake.resolveArgsForCall)]
 	fake.resolveArgsForCall = append(fake.resolveArgsForCall, struct {
-		arg1 templateresolver.VSphereContext
-		arg2 templateresolver.Query
-		arg3 vc.Client
-	}{arg1, arg2, arg3})
-	stub := fake.ResolveStub
-	fakeReturns := fake.resolveReturns
-	fake.recordInvocation("Resolve", []interface{}{arg1, arg2, arg3})
+		arg1 context.Context
+		arg2 templateresolver.VSphereContext
+		arg3 templateresolver.Query
+		arg4 vc.Client
+	}{arg1, arg2, arg3, arg4})
+	fake.recordInvocation("Resolve", []interface{}{arg1, arg2, arg3, arg4})
 	fake.resolveMutex.Unlock()
-	if stub != nil {
-		return stub(arg1, arg2, arg3)
+	if fake.ResolveStub != nil {
+		return fake.ResolveStub(arg1, arg2, arg3, arg4)
 	}
 	if specificReturn {
 		return ret.result1
 	}
+	fakeReturns := fake.resolveReturns
 	return fakeReturns.result1
 }
 
@@ -130,17 +131,17 @@ func (fake *TemplateResolver) ResolveCallCount() int {
 	return len(fake.resolveArgsForCall)
 }
 
-func (fake *TemplateResolver) ResolveCalls(stub func(templateresolver.VSphereContext, templateresolver.Query, vc.Client) templateresolver.Result) {
+func (fake *TemplateResolver) ResolveCalls(stub func(context.Context, templateresolver.VSphereContext, templateresolver.Query, vc.Client) templateresolver.Result) {
 	fake.resolveMutex.Lock()
 	defer fake.resolveMutex.Unlock()
 	fake.ResolveStub = stub
 }
 
-func (fake *TemplateResolver) ResolveArgsForCall(i int) (templateresolver.VSphereContext, templateresolver.Query, vc.Client) {
+func (fake *TemplateResolver) ResolveArgsForCall(i int) (context.Context, templateresolver.VSphereContext, templateresolver.Query, vc.Client) {
 	fake.resolveMutex.RLock()
 	defer fake.resolveMutex.RUnlock()
 	argsForCall := fake.resolveArgsForCall[i]
-	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3
+	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3, argsForCall.arg4
 }
 
 func (fake *TemplateResolver) ResolveReturns(result1 templateresolver.Result) {

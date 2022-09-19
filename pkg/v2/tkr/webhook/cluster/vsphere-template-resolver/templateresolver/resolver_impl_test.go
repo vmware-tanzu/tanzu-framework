@@ -4,6 +4,7 @@
 package templateresolver
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"testing"
@@ -26,6 +27,7 @@ func TestResolve(t *testing.T) {
 var _ = Describe("Resolver", func() {
 	var (
 		resolver       TemplateResolver
+		ctx            context.Context
 		vSphereContext VSphereContext
 		vcClient       *fakes.VCClient
 		dcMOIDMock     string
@@ -34,10 +36,11 @@ var _ = Describe("Resolver", func() {
 	Context("Resolve()", func() {
 		var (
 			query                     Query
-			expectedOvaTemplateResult *OVATemplateResult
+			expectedOvaTemplateResult OVATemplateResult
 		)
 
 		BeforeEach(func() {
+			ctx = context.Background()
 			vcClient = &fakes.VCClient{}
 			dcMOIDMock = "foo"
 			vcClient.FindDataCenterReturns(dcMOIDMock, nil)
@@ -115,9 +118,8 @@ var _ = Describe("Resolver", func() {
 		})
 		When("query is empty", func() {
 			It("should return an empty result.", func() {
-				result := resolver.Resolve(vSphereContext, query, vcClient)
-				Expect(result.ControlPlane).To(BeNil())
-				Expect(result.MachineDeployments).To(BeNil())
+				result := resolver.Resolve(ctx, vSphereContext, query, vcClient)
+				Expect(result.OVATemplates).To(BeNil())
 				Expect(result.UsefulErrorMessage).To(BeEmpty())
 			})
 		})
@@ -133,10 +135,10 @@ var _ = Describe("Resolver", func() {
 							Arch:    "fooArch",
 						},
 					}
-					query.ControlPlane = map[TemplateQuery]struct{}{
+					query.OVATemplateQueries = map[TemplateQuery]struct{}{
 						cpQuery: {},
 					}
-					expectedOvaTemplateResult = &OVATemplateResult{
+					expectedOvaTemplateResult = OVATemplateResult{
 						cpQuery: &TemplateResult{
 							TemplatePath: "fooTemplateName",
 							TemplateMOID: "fooTemplateMOID",
@@ -144,15 +146,14 @@ var _ = Describe("Resolver", func() {
 					}
 				})
 				It("should resolve the query and return only a filled controlPlane result.", func() {
-					result := resolver.Resolve(vSphereContext, query, vcClient)
-					Expect(result.ControlPlane).To(Not(BeNil()))
-					Expect(result.MachineDeployments).To(Equal((&OVATemplateResult{})))
-					Expect(result.ControlPlane).To(Equal(expectedOvaTemplateResult))
+					result := resolver.Resolve(ctx, vSphereContext, query, vcClient)
+					Expect(result.OVATemplates).To(Not(BeNil()))
+					Expect(result.OVATemplates).To(Equal(expectedOvaTemplateResult))
 				})
 			})
 			When("only MD query has exactly one ova defined", func() {
 				BeforeEach(func() {
-					mdQuery := TemplateQuery{
+					templateQuery := TemplateQuery{
 						OVAVersion: "fooOva",
 						OSInfo: v1alpha3.OSInfo{
 							Type:    "",
@@ -161,29 +162,25 @@ var _ = Describe("Resolver", func() {
 							Arch:    "fooArch",
 						},
 					}
-					query.MachineDeployments = map[TemplateQuery]struct{}{
-						mdQuery: {},
+					query.OVATemplateQueries = map[TemplateQuery]struct{}{
+						templateQuery: {},
 					}
 
-					expectedOvaTemplateResult = &OVATemplateResult{
-						mdQuery: &TemplateResult{
+					expectedOvaTemplateResult = OVATemplateResult{
+						templateQuery: &TemplateResult{
 							TemplatePath: "fooTemplateName",
 							TemplateMOID: "fooTemplateMOID",
 						},
 					}
 				})
 				It("should resolve the query and return only a filled machineDeployments result.", func() {
-					result := resolver.Resolve(vSphereContext, query, vcClient)
-					Expect(result.ControlPlane).To(Equal((&OVATemplateResult{})))
-					Expect(result.MachineDeployments).To(Not(BeNil()))
-					Expect(result.MachineDeployments).To(Equal(expectedOvaTemplateResult))
-
+					result := resolver.Resolve(ctx, vSphereContext, query, vcClient)
+					Expect(result.OVATemplates).To(Equal(expectedOvaTemplateResult))
 				})
 			})
 			When("both CP and MD query have OVAs defined", func() {
 				var (
-					expectedCP *OVATemplateResult
-					expectedMD *OVATemplateResult
+					expectedCP OVATemplateResult
 				)
 				BeforeEach(func() {
 					cpQuery1 := TemplateQuery{
@@ -204,11 +201,11 @@ var _ = Describe("Resolver", func() {
 							Arch:    "barArch",
 						},
 					}
-					query.ControlPlane = map[TemplateQuery]struct{}{
+					query.OVATemplateQueries = map[TemplateQuery]struct{}{
 						cpQuery1: {},
 						cpQuery2: {},
 					}
-					expectedCP = &OVATemplateResult{
+					expectedCP = OVATemplateResult{
 						cpQuery1: &TemplateResult{
 							TemplatePath: "fooTemplateName",
 							TemplateMOID: "fooTemplateMOID",
@@ -218,51 +215,15 @@ var _ = Describe("Resolver", func() {
 							TemplateMOID: "barTemplateMOID",
 						},
 					}
-
-					mdQuery1 := TemplateQuery{
-						OVAVersion: "quxOva",
-						OSInfo: v1alpha3.OSInfo{
-							Type:    "",
-							Name:    "quxName",
-							Version: "quxVersion",
-							Arch:    "quxArch",
-						},
-					}
-					mdQuery2 := TemplateQuery{
-						OVAVersion: "barOva",
-						OSInfo: v1alpha3.OSInfo{
-							Type:    "",
-							Name:    "barName",
-							Version: "barVersion",
-							Arch:    "barArch",
-						},
-					}
-
-					query.MachineDeployments = map[TemplateQuery]struct{}{
-						mdQuery1: {},
-						mdQuery2: {},
-					}
-
-					expectedMD = &OVATemplateResult{
-						mdQuery1: &TemplateResult{
-							TemplatePath: "quxTemplateName",
-							TemplateMOID: "quxTemplateMOID",
-						},
-						mdQuery2: &TemplateResult{
-							TemplatePath: "barTemplateName",
-							TemplateMOID: "barTemplateMOID",
-						},
-					}
 				})
 				It("should resolve the query and add template path and return the correct CP and MD results.", func() {
-					result := resolver.Resolve(vSphereContext, query, vcClient)
-					Expect(result.ControlPlane).To(Equal(expectedCP))
-					Expect(result.MachineDeployments).To(Equal(expectedMD))
+					result := resolver.Resolve(ctx, vSphereContext, query, vcClient)
+					Expect(result.OVATemplates).To(Equal(expectedCP))
 				})
 			})
 			When("all matching vms found are regular VM, not template VM", func() {
 				BeforeEach(func() {
-					query.ControlPlane = map[TemplateQuery]struct{}{
+					query.OVATemplateQueries = map[TemplateQuery]struct{}{
 						{
 
 							OVAVersion: "bazOva",
@@ -285,9 +246,8 @@ var _ = Describe("Resolver", func() {
 					}
 				})
 				It("should fail to resolve the query as no templates found, and return a useful error message", func() {
-					result := resolver.Resolve(vSphereContext, query, vcClient)
-					Expect(result.ControlPlane).To(BeNil())
-					Expect(result.MachineDeployments).To(BeNil())
+					result := resolver.Resolve(ctx, vSphereContext, query, vcClient)
+					Expect(result.OVATemplates).To(BeNil())
 					Expect(result.UsefulErrorMessage).ToNot(BeNil())
 					Expect(result.UsefulErrorMessage).To(Equal(
 						"unable to find VM Template associated with OVA Version bazOva, but found these VM(s) [bazTemplateName] that can be used once converted to a VM Template",
@@ -296,7 +256,7 @@ var _ = Describe("Resolver", func() {
 			})
 			When("no matching VM found", func() {
 				BeforeEach(func() {
-					query.ControlPlane = map[TemplateQuery]struct{}{
+					query.OVATemplateQueries = map[TemplateQuery]struct{}{
 						{
 							OVAVersion: "thisOvaDoesNotExist",
 							OSInfo: v1alpha3.OSInfo{
@@ -309,9 +269,8 @@ var _ = Describe("Resolver", func() {
 					}
 				})
 				It("should fail to resolve the query and return a useful error message", func() {
-					result := resolver.Resolve(vSphereContext, query, vcClient)
-					Expect(result.ControlPlane).To(BeNil())
-					Expect(result.MachineDeployments).To(BeNil())
+					result := resolver.Resolve(ctx, vSphereContext, query, vcClient)
+					Expect(result.OVATemplates).To(BeNil())
 					Expect(result.UsefulErrorMessage).ToNot(BeNil())
 					Expect(result.UsefulErrorMessage).To(Equal(
 						"unable to find VM Template associated with OVA Version thisOvaDoesNotExist. Please upload at least one VM Template to continue"))
@@ -319,7 +278,7 @@ var _ = Describe("Resolver", func() {
 			})
 			When("vm with matching ova found, but osinfo is different", func() {
 				BeforeEach(func() {
-					query.ControlPlane = map[TemplateQuery]struct{}{
+					query.OVATemplateQueries = map[TemplateQuery]struct{}{
 						{
 							OVAVersion: "fooOva",
 							OSInfo: v1alpha3.OSInfo{
@@ -332,9 +291,8 @@ var _ = Describe("Resolver", func() {
 					}
 				})
 				It("should fail to resolve the query and return a useful error message", func() {
-					result := resolver.Resolve(vSphereContext, query, vcClient)
-					Expect(result.ControlPlane).To(BeNil())
-					Expect(result.MachineDeployments).To(BeNil())
+					result := resolver.Resolve(ctx, vSphereContext, query, vcClient)
+					Expect(result.OVATemplates).To(BeNil())
 					Expect(result.UsefulErrorMessage).ToNot(BeNil())
 					Expect(result.UsefulErrorMessage).To(Equal(
 						"unable to find VM Template associated with OVA Version fooOva. Please upload at least one VM Template to continue"))
@@ -356,7 +314,7 @@ var _ = Describe("Resolver", func() {
 		When("datacenter call returns an error", func() {
 			BeforeEach(func() {
 				vcClient.FindDataCenterReturns("", errors.New("some error"))
-				query.ControlPlane = map[TemplateQuery]struct{}{
+				query.OVATemplateQueries = map[TemplateQuery]struct{}{
 					{ // Atleast one query is required to get to the VC client call.
 						OVAVersion: "fooOva",
 						OSInfo: v1alpha3.OSInfo{
@@ -369,17 +327,16 @@ var _ = Describe("Resolver", func() {
 				}
 			})
 			It("should return a useful error message", func() {
-				result := resolver.Resolve(vSphereContext, query, vcClient)
+				result := resolver.Resolve(ctx, vSphereContext, query, vcClient)
 				Expect(result.UsefulErrorMessage).To(Equal(("failed to get the datacenter MOID: some error")))
-				Expect(result.ControlPlane).To(BeNil())
-				Expect(result.MachineDeployments).To(BeNil())
+				Expect(result.OVATemplates).To(BeNil())
 			})
 		})
 		When("VM images call returns an error", func() {
 			BeforeEach(func() {
 				vcClient.GetVirtualMachineImagesReturns(nil, errors.New("some error"))
 				// Atleast one query is required to get to the VC client call.
-				query.ControlPlane = map[TemplateQuery]struct{}{
+				query.OVATemplateQueries = map[TemplateQuery]struct{}{
 					{
 						OVAVersion: "fooOva",
 						OSInfo: v1alpha3.OSInfo{
@@ -392,10 +349,9 @@ var _ = Describe("Resolver", func() {
 				}
 			})
 			It("should return a useful error message", func() {
-				result := resolver.Resolve(vSphereContext, query, vcClient)
+				result := resolver.Resolve(ctx, vSphereContext, query, vcClient)
 				Expect(result.UsefulErrorMessage).To(Equal(("failed to get K8s VM templates: some error")))
-				Expect(result.ControlPlane).To(BeNil())
-				Expect(result.MachineDeployments).To(BeNil())
+				Expect(result.OVATemplates).To(BeNil())
 			})
 		})
 	})
