@@ -1,0 +1,20 @@
+# permissions for end users to view azurefilecsiconfigs.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: azurefilecsiconfig-viewer-role
+rules:
+- apiGroups:
+  - csi.tanzu.vmware.com
+  resources:
+  - azurefilecsiconfigs
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - csi.tanzu.vmware.com
+  resources:
+  - azurefilecsiconfigs/status
+  verbs:
+  - get
