@@ -14,8 +14,11 @@ import (
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	"k8s.io/apimachinery/pkg/labels"
+	"k8s.io/apimachinery/pkg/selection"
 	"k8s.io/client-go/discovery"
 	"k8s.io/client-go/dynamic"
+	admissionregistrationv1 "k8s.io/client-go/kubernetes/typed/admissionregistration/v1"
 	"sigs.k8s.io/cluster-api/util"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
@@ -29,13 +32,14 @@ import (
 )
 
 type E2ECommonCCSpecInput struct {
-	E2EConfig       *framework.E2EConfig
-	ArtifactsFolder string
-	Cni             string
-	Plan            string
-	Namespace       string
-	IsCustomCB      bool
-	DoUpgrade       bool
+	E2EConfig             *framework.E2EConfig
+	ArtifactsFolder       string
+	Cni                   string
+	Plan                  string
+	Namespace             string
+	IsCustomCB            bool
+	DoUpgrade             bool
+	CheckAdmissionWebhook bool
 }
 
 func E2ECommonCCSpec(ctx context.Context, inputGetter func() E2ECommonCCSpecInput) { //nolint:funlen
@@ -60,6 +64,7 @@ func E2ECommonCCSpec(ctx context.Context, inputGetter func() E2ECommonCCSpecInpu
 		mngDynamicClient                dynamic.Interface
 		mngAggregatedAPIResourcesClient client.Client
 		mngDiscoveryClient              discovery.DiscoveryInterface
+		admissionRegistrationClient     admissionregistrationv1.AdmissionregistrationV1Interface
 		infrastructureName              string
 		wlcClient                       client.Client
 	)
@@ -132,7 +137,7 @@ func E2ECommonCCSpec(ctx context.Context, inputGetter func() E2ECommonCCSpecInpu
 		}
 
 		By(fmt.Sprintf("Get k8s client for management cluster %q", input.E2EConfig.ManagementClusterName))
-		mngClient, mngDynamicClient, mngAggregatedAPIResourcesClient, mngDiscoveryClient, err = GetClients(ctx, mngKubeConfigFile)
+		mngClient, mngDynamicClient, mngAggregatedAPIResourcesClient, mngDiscoveryClient, admissionRegistrationClient, err = GetClients(ctx, mngKubeConfigFile)
 		Expect(err).NotTo(HaveOccurred())
 	})
 
@@ -197,7 +202,7 @@ func E2ECommonCCSpec(ctx context.Context, inputGetter func() E2ECommonCCSpecInpu
 		framework.WaitForNodes(framework.NewClusterProxy(clusterName, wlcKubeConfigFile, ""), 2)
 
 		By(fmt.Sprintf("Get k8s client for workload cluster %q", clusterName))
-		wlcClient, _, _, _, err = GetClients(ctx, wlcKubeConfigFile)
+		wlcClient, _, _, _, _, err = GetClients(ctx, wlcKubeConfigFile)
 		Expect(err).NotTo(HaveOccurred())
 
 		// verify addons are deployed successfully
@@ -247,6 +252,10 @@ func E2ECommonCCSpec(ctx context.Context, inputGetter func() E2ECommonCCSpecInpu
 			clusterResources, err = GetManagementClusterResources(ctx, mngClient, mngDynamicClient, mngAggregatedAPIResourcesClient, mngDiscoveryClient, namespace, clusterName, infrastructureName)
 			Expect(err).NotTo(HaveOccurred())
 		}
+
+		if input.CheckAdmissionWebhook {
+			checkAdmissionWebhooks(ctx, mngClient, admissionRegistrationClient)
+		}
 	})
 }
 
@@ -273,4 +282,17 @@ func getAvailableTKRs(ctx context.Context, mcProxy *framework.ClusterProxy, tkgC
 	tkrVersions := getTKRVersions(tkrs)
 
 	return tkrVersions, oldTKR, defaultTKR
+}
+
+func checkAdmissionWebhooks(ctx context.Context, mngClient client.Client, admissionRegistrationClient admissionregistrationv1.AdmissionregistrationV1Interface) {
+	caCert, err := getWebhookCACert(ctx, mngClient, webhookScrtName, systemNamespace)
+	Expect(err).NotTo(HaveOccurred())
+
+	labelMatch, err := labels.NewRequirement(webhookLabelKey, selection.Equals, []string{webhookLabelValue})
+	Expect(err).ToNot(HaveOccurred())
+	webhookSelectorString := labels.NewSelector().Add(*labelMatch).String()
+
+	caCertExists, err := verifyCABundleInLabeledWebhooks(ctx, admissionRegistrationClient, webhookSelectorString, caCert)
+	Expect(err).ToNot(HaveOccurred())
+	Expect(caCertExists).To(BeTrue())
 }
