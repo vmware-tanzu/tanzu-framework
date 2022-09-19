@@ -17,9 +17,9 @@ import (
 
 	kapppkg "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apiserver/apis/datapackaging/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/component"
+	"github.com/vmware-tanzu/tanzu-framework/cmd/cli/plugin/package/openapischema"
 	"github.com/vmware-tanzu/tanzu-framework/packageclients/pkg/kappclient"
 	"github.com/vmware-tanzu/tanzu-framework/packageclients/pkg/packageclient"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/openapischema"
 )
 
 var packageAvailableGetCmd = &cobra.Command{
