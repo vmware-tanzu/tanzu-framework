@@ -21,7 +21,7 @@ go 1.17
 // should also depend on go.pinniped.dev/generated/1.24).
 
 require (
-	github.com/go-logr/logr v1.2.2
+	github.com/go-logr/logr v1.2.3
 	github.com/jetstack/cert-manager v1.1.0
 	github.com/stretchr/testify v1.7.1
 	github.com/vmware-tanzu/tanzu-framework/addons/pinniped/tanzu-auth-controller-manager v0.0.0-00010101000000-000000000000
