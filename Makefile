@@ -490,14 +490,17 @@ test: generate manifests build-cli-mocks ## Run tests
 	#Test core cli runtime library
 	$(MAKE) test -C cli/runtime
 
-	#Test core cli
+	# Test core cli
 	$(MAKE) test -C cli/core
 
-	#Test tkg module
+	# Test tkg module
 	$(MAKE) test -C tkg
 
 	# Test feature gates
 	$(MAKE) test -C featuregates
+
+	# Test capabilities
+	$(MAKE) test -C capabilities
 
 .PHONY: test-cli
 test-cli: build-cli-mocks ## Run tests
