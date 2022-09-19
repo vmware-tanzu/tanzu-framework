@@ -9,8 +9,8 @@ import (
 	"github.com/aunum/log"
 	_ "k8s.io/client-go/plugin/pkg/client/auth"
 
-	cliapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/cli/v1alpha1"
 	capdiscovery "github.com/vmware-tanzu/tanzu-framework/capabilities/discovery"
+	cliapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/cli/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/plugin"
 	"github.com/vmware-tanzu/tanzu-framework/packageclients/pkg/kappclient"
 	"github.com/vmware-tanzu/tanzu-framework/packageclients/pkg/packagedatamodel"

@@ -23,13 +23,8 @@ on:
     - 'tkg/**'
     - 'pkg/v1/tkr/**'
     - 'pkg/v2/tkr/**'
-<<<<<<< HEAD
     - 'featuregates/**'
-    - 'pkg/v1/sdk/capabilities/**'
-=======
-    - 'pkg/v1/sdk/features/**'
     - 'capabilities/**'
->>>>>>> df6e8f30 (update capabilities component references in integration tests)
     - 'pkg/v2/object-propagation/**'
     - 'addons/**'
     - 'packages/**'
@@ -158,11 +153,7 @@ jobs:
       env:
         NUM: ${{ github.run_id }}
         OCI_REGISTRY: ${{ steps.set_registry.outputs.registry }}/tanzu_framework/github-actions/${{ steps.extract_reg_dir.outputs.regdir }}
-<<<<<<< HEAD
-        COMPONENTS: "pkg/v2/tkr/controller/tkr-source pkg/v2/tkr/controller/tkr-status featuregates addons pkg/v2/tkr/webhook/infra-machine pkg/v1/sdk/capabilities pkg/v2/tkr/webhook/tkr-conversion pkg/v2/tkr/webhook/cluster/tkr-resolver pinniped-components/tanzu-auth-controller-manager pkg/v2/object-propagation"
-=======
-        COMPONENTS: "pkg/v2/tkr/controller/tkr-source pkg/v2/tkr/controller/tkr-status pkg/v1/sdk/features addons pkg/v2/tkr/webhook/infra-machine capabilities pkg/v2/tkr/webhook/tkr-conversion pkg/v2/tkr/webhook/cluster/tkr-resolver pinniped-components/tanzu-auth-controller-manager pkg/v2/object-propagation"
->>>>>>> df6e8f30 (update capabilities component references in integration tests)
+        COMPONENTS: "pkg/v2/tkr/controller/tkr-source pkg/v2/tkr/controller/tkr-status featuregates addons pkg/v2/tkr/webhook/infra-machine capabilities pkg/v2/tkr/webhook/tkr-conversion pkg/v2/tkr/webhook/cluster/tkr-resolver pinniped-components/tanzu-auth-controller-manager pkg/v2/object-propagation"
         BUILD_VERSION: "v0.21.0"
         IMG_VERSION_OVERRIDE: latest
       run: |
@@ -173,11 +164,7 @@ jobs:
       env:
         NUM: ${{ github.run_number }}
         OCI_REGISTRY: ${{ steps.set_registry.outputs.registry }}/tanzu_framework/github-actions/${{ steps.extract_reg_dir.outputs.regdir }}
-<<<<<<< HEAD
-        COMPONENTS: "pkg/v2/tkr/controller/tkr-source pkg/v2/tkr/controller/tkr-status featuregates addons pkg/v2/tkr/webhook/infra-machine pkg/v1/sdk/capabilities pkg/v2/tkr/webhook/tkr-conversion pkg/v2/tkr/webhook/cluster/tkr-resolver pinniped-components/tanzu-auth-controller-manager pkg/v2/object-propagation"
-=======
-        COMPONENTS: "pkg/v2/tkr/controller/tkr-source pkg/v2/tkr/controller/tkr-status pkg/v1/sdk/features addons pkg/v2/tkr/webhook/infra-machine capabilities pkg/v2/tkr/webhook/tkr-conversion pkg/v2/tkr/webhook/cluster/tkr-resolver pinniped-components/tanzu-auth-controller-manager pkg/v2/object-propagation"
->>>>>>> df6e8f30 (update capabilities component references in integration tests)
+        COMPONENTS: "pkg/v2/tkr/controller/tkr-source pkg/v2/tkr/controller/tkr-status featuregates addons pkg/v2/tkr/webhook/infra-machine capabilities pkg/v2/tkr/webhook/tkr-conversion pkg/v2/tkr/webhook/cluster/tkr-resolver pinniped-components/tanzu-auth-controller-manager pkg/v2/object-propagation"
         BUILD_VERSION: "v0.21.0"
         IMG_VERSION_OVERRIDE: latest
       run: |
