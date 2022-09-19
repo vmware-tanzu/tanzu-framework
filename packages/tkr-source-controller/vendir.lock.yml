@@ -7,14 +7,6 @@ directories:
     path: default-compatible-tkr.yaml
   - manual: {}
     path: tkr-source-controller-deployment.yaml
-  - manual: {}
-    path: certificates.yaml
-  - manual: {}
-    path: service.yaml
-  - manual: {}
-    path: tkr-vsphere-cluster-webhook-deployment.yaml
-  - manual: {}
-    path: webhook.yaml
   path: bundle/config/upstream
 - contents:
   - manual: {}
