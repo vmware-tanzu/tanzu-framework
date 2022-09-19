@@ -24,8 +24,6 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/tkg/web/server/restapi/operations/azure"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/web/server/restapi/operations/docker"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/web/server/restapi/operations/vsphere"
-
-	configv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/config/v1alpha1"
 )
 
 // infrastructure name constants
