@@ -5,7 +5,10 @@ package tkg
 
 import (
 	"context"
+	"fmt"
+	"strings"
 
+	"gopkg.in/yaml.v3"
 	corev1 "k8s.io/api/core/v1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
@@ -66,23 +69,22 @@ func clusterTypeFromMetadataConfigMap(ctx context.Context, c client.Client) (str
 		return "", err
 	}
 
-	//data, ok := cm.Data["metadata.yaml"]
-	//if !ok {
-	//	return "", fmt.Errorf("failed to get cluster type: metadata.yaml key not found in configmap %s", key.String())
-	//}
+	data, ok := cm.Data["metadata.yaml"]
+	if !ok {
+		return "", fmt.Errorf("failed to get cluster type: metadata.yaml key not found in configmap %s", key.String())
+	}
 
-	// ClusterMetadata is not defined in a common package, so re-use this.
-	//metadata := &shared.ClusterMetadata{}
-	//if err := yaml.Unmarshal([]byte(data), metadata); err != nil {
-	//	return "", fmt.Errorf("failed to get cluster type: %w", err)
-	//}
-	//switch strings.ToLower(metadata.Cluster.Type) {
-	//case clusterTypeManagement:
-	//	return clusterTypeManagement, nil
-	//case clusterTypeWorkload:
-	//	return clusterTypeWorkload, nil
-	//}
-	return "", nil
+	metadata := &ClusterMetadata{}
+	if err := yaml.Unmarshal([]byte(data), metadata); err != nil {
+		return "", fmt.Errorf("failed to get cluster type: %w", err)
+	}
+	switch strings.ToLower(metadata.Cluster.Type) {
+	case clusterTypeManagement:
+		return clusterTypeManagement, nil
+	case clusterTypeWorkload:
+		return clusterTypeWorkload, nil
+	}
+	return "", fmt.Errorf("unknown cluster type: %v", metadata.Cluster.Type)
 }
 
 // HasNSX indicates if a cluster has NSX capabilities.
