@@ -21,7 +21,7 @@ type RegionContext struct {
 	IsCurrentContext bool             `yaml:"isCurrentContext" json:"isCurrentContext"`
 }
 
-//go:generate counterfeiter -o ../../pkg/v1/tkg/fakes/regionmanager.go --fake-name RegionManager . Manager
+//go:generate counterfeiter -o ../fakes/regionmanager.go --fake-name RegionManager . Manager
 
 // Manager manages tkg regions
 type Manager interface {

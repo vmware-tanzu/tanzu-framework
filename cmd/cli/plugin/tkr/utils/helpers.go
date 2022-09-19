@@ -8,7 +8,7 @@ import (
 	"path/filepath"
 
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/config"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgctl"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/tkgctl"
 )
 
 func getConfigDir() (string, error) {

@@ -45,7 +45,7 @@ all: test ## Tests the library
 
 .PHONY: test
 test: fmt vet ## Run Tests
-	${GO} test ./... -timeout 60m -race -coverprofile coverage.txt -v
+	${GO} test -timeout 60m -coverprofile coverage.txt -v `go list ./... | grep -Ev '(github.com/vmware-tanzu/tanzu-framework/tkg/test/tkgctl)'`
 
 .PHONY: vet
 vet: ## Vet codebase
