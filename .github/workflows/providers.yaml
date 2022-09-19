@@ -7,7 +7,7 @@ on:
   pull_request:
     branches: [ main, release-* ]
     paths:
-    - 'pkg/v1/tkg/**'
+    - 'tkg/**'
     - 'pkg/v1/providers/**'
     - '.github/workflows/providers.yaml'
 

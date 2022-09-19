@@ -14,7 +14,7 @@ import (
 
 	runv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/sdk/capabilities/discovery"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/test/tkgctl/shared"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/test/tkgctl/shared"
 )
 
 const (

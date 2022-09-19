@@ -9,7 +9,7 @@ import (
 	"github.com/pkg/errors"
 	"k8s.io/apimachinery/pkg/types"
 
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/fakes"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/fakes"
 )
 
 var _ = Describe("deactivate/activate TKR", func() {

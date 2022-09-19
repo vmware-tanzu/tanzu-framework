@@ -18,7 +18,7 @@ import (
 	"k8s.io/client-go/tools/clientcmd"
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
 
-	netutil "github.com/vmware-tanzu/tanzu-framework/pkg/v1/util/net"
+	netutil "github.com/vmware-tanzu/tanzu-framework/tkg/utils/net"
 )
 
 const (
