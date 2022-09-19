@@ -78,7 +78,7 @@
     "protractor": "^7.0.0",
     "protractor-fail-fast": "^3.1.0",
     "protractor-jasmine2-screenshot-reporter": "^0.5.0",
-    "puppeteer": "^2.1.1",
+    "puppeteer": "^18.0.2",
     "remove-html-comments": "^1.0.2",
     "rimraf": "^3.0.2",
     "showdown": "^1.9.1",
