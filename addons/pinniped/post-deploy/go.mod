@@ -23,12 +23,12 @@ go 1.17
 require (
 	github.com/go-logr/logr v1.2.2
 	github.com/jetstack/cert-manager v1.1.0
-	github.com/stretchr/testify v1.7.1
+	github.com/stretchr/testify v1.8.0
 	github.com/vmware-tanzu/tanzu-framework/addons/pinniped/tanzu-auth-controller-manager v0.0.0-00010101000000-000000000000
 	go.pinniped.dev/generated/1.20/apis v0.0.0-00010101000000-000000000000
 	go.pinniped.dev/generated/1.20/client v0.0.0-20220209183828-4d6a2af89419 // Commit SHA 4d6a2af89419 is tag v0.12.1.
 	go.uber.org/zap v1.21.0
-	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b
+	gopkg.in/yaml.v3 v3.0.1
 	k8s.io/api v0.24.1
 	k8s.io/apimachinery v0.24.1
 	k8s.io/client-go v0.24.1
