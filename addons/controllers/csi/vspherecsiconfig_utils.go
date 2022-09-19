@@ -90,7 +90,7 @@ func (r *VSphereCSIConfigReconciler) mapVSphereCSIConfigToDataValuesNonParavirtu
 	dvs.VSphereCSI = &DataValuesVSphereCSI{}
 	dvs.VSphereCSI.ClusterName = cluster.Name
 
-	vsphereCluster, err := cutil.GetVSphereClusterNonParavirtual(ctx, r.Client, cluster)
+	vsphereCluster, err := cutil.VSphereClusterNonParavirtualForCluster(ctx, r.Client, cluster)
 	if err != nil {
 		return nil, err
 	}
@@ -98,7 +98,7 @@ func (r *VSphereCSIConfigReconciler) mapVSphereCSIConfigToDataValuesNonParavirtu
 	dvs.VSphereCSI.TLSThumbprint = vsphereCluster.Spec.Thumbprint
 
 	// get the control plane machine template
-	cpMachineTemplate, err := cutil.GetControlPlaneVsphereMachineTemplate(ctx, r.Client, cluster)
+	cpMachineTemplate, err := cutil.ControlPlaneVsphereMachineTemplateForCluster(ctx, r.Client, cluster)
 	if err != nil {
 		return nil, err
 	}

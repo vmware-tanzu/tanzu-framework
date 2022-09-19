@@ -201,7 +201,7 @@ func (r *VSphereCPIConfigReconciler) reconcileVSphereCPIConfigNormal(ctx context
 			return err
 		}
 
-		vsphereCluster, err := cutil.GetVSphereClusterParavirtual(ctx, r.Client, cluster)
+		vsphereCluster, err := cutil.VSphereClusterParavirtualForCAPICluster(ctx, r.Client, cluster)
 		if err != nil {
 			return err
 		}

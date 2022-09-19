@@ -23,8 +23,8 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/util"
 )
 
-// GetVSphereClusterParavirtual gets the VSphereCluster CR for the cluster object in paravirtual mode
-func GetVSphereClusterParavirtual(ctx context.Context, clt client.Client, cluster *clusterapiv1beta1.Cluster) (*capvvmwarev1beta1.VSphereCluster, error) {
+// VSphereClusterParavirtualForCAPICluster gets the VSphereCluster CR for the cluster object in paravirtual mode
+func VSphereClusterParavirtualForCAPICluster(ctx context.Context, clt client.Client, cluster *clusterapiv1beta1.Cluster) (*capvvmwarev1beta1.VSphereCluster, error) {
 
 	vsphereClusters := &capvvmwarev1beta1.VSphereClusterList{}
 	labelMatch, err := labels.NewRequirement(clusterapiv1beta1.ClusterLabelName, selection.Equals, []string{cluster.Name})
@@ -43,8 +43,8 @@ func GetVSphereClusterParavirtual(ctx context.Context, clt client.Client, cluste
 	return &vsphereClusters.Items[0], nil
 }
 
-// GetVSphereClusterNonParavirtual gets the VSphereCluster CR for the cluster object in non-paravirtual mode
-func GetVSphereClusterNonParavirtual(ctx context.Context, clt client.Client, cluster *clusterapiv1beta1.Cluster) (*capvv1beta1.VSphereCluster, error) {
+// VSphereClusterNonParavirtualForCluster gets the VSphereCluster CR for the cluster object in non-paravirtual mode
+func VSphereClusterNonParavirtualForCluster(ctx context.Context, clt client.Client, cluster *clusterapiv1beta1.Cluster) (*capvv1beta1.VSphereCluster, error) {
 
 	vsphereClusters := &capvv1beta1.VSphereClusterList{}
 	labelMatch, err := labels.NewRequirement(clusterapiv1beta1.ClusterLabelName, selection.Equals, []string{cluster.Name})
@@ -63,8 +63,8 @@ func GetVSphereClusterNonParavirtual(ctx context.Context, clt client.Client, clu
 	return &vsphereClusters.Items[0], nil
 }
 
-// GetControlPlaneVsphereMachineTemplate gets the VsphereMachineTemplate CR of control plane
-func GetControlPlaneVsphereMachineTemplate(ctx context.Context, clt client.Client, cluster *clusterapiv1beta1.Cluster) (*capvv1beta1.VSphereMachineTemplate, error) {
+// ControlPlaneVsphereMachineTemplateForCluster gets the VsphereMachineTemplate CR of control plane
+func ControlPlaneVsphereMachineTemplateForCluster(ctx context.Context, clt client.Client, cluster *clusterapiv1beta1.Cluster) (*capvv1beta1.VSphereMachineTemplate, error) {
 
 	vSphereMachineTemplates := &capvv1beta1.VSphereMachineTemplateList{}
 	labelMatch, err := labels.NewRequirement(clusterapiv1beta1.ClusterLabelName, selection.Equals, []string{cluster.Name})

@@ -277,7 +277,7 @@ func (r *VSphereCSIConfigReconciler) reconcileVSphereCSIConfigNormal(ctx context
 			return ctrl.Result{}, err
 		}
 
-		vsphereCluster, err := cutil.GetVSphereClusterParavirtual(ctx, r.Client, cluster)
+		vsphereCluster, err := cutil.VSphereClusterParavirtualForCAPICluster(ctx, r.Client, cluster)
 		if err != nil {
 			return ctrl.Result{}, err
 		}
