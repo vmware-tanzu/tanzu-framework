@@ -15,11 +15,12 @@ import (
 var _ = Describe("Functional tests for aws (clusterclass) - Antrea", func() {
 	E2ECommonCCSpec(context.TODO(), func() E2ECommonCCSpecInput {
 		return E2ECommonCCSpecInput{
-			E2EConfig:       e2eConfig,
-			ArtifactsFolder: artifactsFolder,
-			Cni:             "antrea",
-			Plan:            "dev",
-			Namespace:       "tkg-system",
+			E2EConfig:             e2eConfig,
+			ArtifactsFolder:       artifactsFolder,
+			Cni:                   "antrea",
+			Plan:                  "dev",
+			Namespace:             "tkg-system",
+			CheckAdmissionWebhook: true,
 		}
 	})
 })

@@ -18,6 +18,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/discovery"
 	clientgoscheme "k8s.io/client-go/kubernetes/scheme"
+	admissionregistrationv1 "k8s.io/client-go/kubernetes/typed/admissionregistration/v1"
 	capvv1beta1 "sigs.k8s.io/cluster-api-provider-vsphere/apis/v1beta1"
 	capvvmwarev1beta1 "sigs.k8s.io/cluster-api-provider-vsphere/apis/vmware/v1beta1"
 	controlplanev1beta1 "sigs.k8s.io/cluster-api/controlplane/kubeadm/api/v1beta1"
@@ -90,7 +91,7 @@ func createClientFromKubeconfig(exportFile string, scheme *runtime.Scheme) (clie
 }
 
 // GetClients gets the various kubernetes clients
-func GetClients(ctx context.Context, exportFile string) (k8sClient client.Client, dynamicClient dynamic.Interface, aggregatedAPIResourcesClient client.Client, discoveryClient discovery.DiscoveryInterface, err error) {
+func GetClients(ctx context.Context, exportFile string) (k8sClient client.Client, dynamicClient dynamic.Interface, aggregatedAPIResourcesClient client.Client, discoveryClient discovery.DiscoveryInterface, admissionRegistrationClient admissionregistrationv1.AdmissionregistrationV1Interface, err error) {
 	scheme := runtime.NewScheme()
 
 	_ = clientgoscheme.AddToScheme(scheme)
@@ -119,6 +120,7 @@ func GetClients(ctx context.Context, exportFile string) (k8sClient client.Client
 
 	clientset := kubernetes.NewForConfigOrDie(restConfig)
 	discoveryClient = clientset.DiscoveryClient
+	admissionRegistrationClient = clientset.AdmissionregistrationV1()
 
 	aggregatedAPIResourcesClient, err = client.New(restConfig, client.Options{Scheme: scheme})
 	Expect(err).NotTo(HaveOccurred())
@@ -670,7 +672,7 @@ func GeneratePackageInstallName(clusterName, addonName string) string {
 
 func CheckTKGSAddons(ctx context.Context, tkgctlClient tkgctl.TKGClient, svClusterName, clusterName, namespace, KubeconfigPath, InfrastructureName string, isCustomeCB bool) error {
 	By(fmt.Sprintf("Get k8s client for supervisor cluster %q", svClusterName))
-	mngclient, _, _, _, err := GetClients(ctx, KubeconfigPath)
+	mngclient, _, _, _, _, err := GetClients(ctx, KubeconfigPath)
 	Expect(err).NotTo(HaveOccurred())
 
 	By(fmt.Sprintf("Generating credentials for workload cluster %q", clusterName))
@@ -684,7 +686,7 @@ func CheckTKGSAddons(ctx context.Context, tkgctlClient tkgctl.TKGClient, svClust
 	Expect(err).To(BeNil())
 
 	By(fmt.Sprintf("Get k8s client for workload cluster %q", clusterName))
-	wlcClient, _, _, _, err := GetClients(ctx, tempFilePath)
+	wlcClient, _, _, _, _, err := GetClients(ctx, tempFilePath)
 	Expect(err).NotTo(HaveOccurred())
 
 	By(fmt.Sprintf("Verify addon packages on workload cluster %q matches clusterBootstrap info on supervisor cluster %q", clusterName, svClusterName))
