@@ -253,6 +253,12 @@ func (r *ClusterBootstrapReconciler) createOrPatchResourcesForCorePackages(clust
 				corePackage.RefName, cluster.Namespace, cluster.Name))
 			return ctrl.Result{}, err
 		}
+		// set watches on provider objects in core packages if not already set
+		if corePackage.ValuesFrom != nil && corePackage.ValuesFrom.ProviderRef != nil {
+			if err := r.watchProvider(corePackage.ValuesFrom.ProviderRef, cluster.Namespace, log); err != nil {
+				return ctrl.Result{}, err
+			}
+		}
 	}
 	return ctrl.Result{}, nil
 }
