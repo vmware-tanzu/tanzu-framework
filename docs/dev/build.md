@@ -69,7 +69,7 @@ for more details on how to write plugins for Tanzu CLI.
 ### Capabilities
 
 Framework provides Capability discovery
-[Go package](https://github.com/vmware-tanzu/tanzu-framework/tree/main/capabilities/discovery)
+[Go package](https://github.com/vmware-tanzu/tanzu-framework/tree/main/capabilities/client/pkg/discovery)
 and Capability API to query a cluster's capabilities. It can be used to understand the API surface area and query for
 objects in the cluster.
 

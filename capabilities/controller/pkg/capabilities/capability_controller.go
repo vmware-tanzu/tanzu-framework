@@ -13,9 +13,9 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	runv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha1"
+	"github.com/vmware-tanzu/tanzu-framework/capabilities/client/pkg/discovery"
 	"github.com/vmware-tanzu/tanzu-framework/capabilities/controller/pkg/config"
 	"github.com/vmware-tanzu/tanzu-framework/capabilities/controller/pkg/constants"
-	"github.com/vmware-tanzu/tanzu-framework/capabilities/discovery"
 )
 
 // CapabilityReconciler reconciles a Capability object.

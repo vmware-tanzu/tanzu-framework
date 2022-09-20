@@ -1,4 +1,4 @@
-module github.com/vmware-tanzu/tanzu-framework/capabilities/discovery
+module github.com/vmware-tanzu/tanzu-framework/capabilities/client
 
 go 1.17
 

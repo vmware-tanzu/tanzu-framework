@@ -6,7 +6,7 @@ replace (
 	github.com/vmware-tanzu/tanzu-framework/apis/cli => ./apis/cli
 	github.com/vmware-tanzu/tanzu-framework/apis/config => ./apis/config
 	github.com/vmware-tanzu/tanzu-framework/apis/run => ./apis/run
-	github.com/vmware-tanzu/tanzu-framework/capabilities/discovery => ./capabilities/discovery
+	github.com/vmware-tanzu/tanzu-framework/capabilities/client => ./capabilities/client
 	github.com/vmware-tanzu/tanzu-framework/cli/core => ./cli/core
 	github.com/vmware-tanzu/tanzu-framework/cli/runtime => ./cli/runtime
 	github.com/vmware-tanzu/tanzu-framework/packageclients => ./packageclients
@@ -43,7 +43,7 @@ require (
 	github.com/stretchr/testify v1.8.0
 	github.com/vmware-tanzu/carvel-kapp-controller v0.35.0
 	github.com/vmware-tanzu/tanzu-framework/apis/run v0.0.0-00010101000000-000000000000
-	github.com/vmware-tanzu/tanzu-framework/capabilities/discovery v0.0.0-00010101000000-000000000000
+	github.com/vmware-tanzu/tanzu-framework/capabilities/client v0.0.0-00010101000000-000000000000
 	github.com/vmware-tanzu/tanzu-framework/cli/core v0.0.0-20220914003300-5b2ed024556a
 	github.com/vmware-tanzu/tanzu-framework/cli/runtime v0.0.0-00010101000000-000000000000
 	github.com/vmware-tanzu/tanzu-framework/packageclients v0.0.0-20220908202723-7a1ddb97efab
