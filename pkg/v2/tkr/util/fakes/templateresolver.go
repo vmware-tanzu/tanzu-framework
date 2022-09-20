@@ -5,8 +5,8 @@ import (
 	"context"
 	"sync"
 
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/vc"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v2/tkr/webhook/cluster/vsphere-template-resolver/templateresolver"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/vc"
 )
 
 type TemplateResolver struct {
@@ -47,15 +47,16 @@ func (fake *TemplateResolver) GetVSphereEndpoint(arg1 templateresolver.VSphereCo
 	fake.getVSphereEndpointArgsForCall = append(fake.getVSphereEndpointArgsForCall, struct {
 		arg1 templateresolver.VSphereContext
 	}{arg1})
+	stub := fake.GetVSphereEndpointStub
+	fakeReturns := fake.getVSphereEndpointReturns
 	fake.recordInvocation("GetVSphereEndpoint", []interface{}{arg1})
 	fake.getVSphereEndpointMutex.Unlock()
-	if fake.GetVSphereEndpointStub != nil {
-		return fake.GetVSphereEndpointStub(arg1)
+	if stub != nil {
+		return stub(arg1)
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
-	fakeReturns := fake.getVSphereEndpointReturns
 	return fakeReturns.result1, fakeReturns.result2
 }
 
@@ -113,15 +114,16 @@ func (fake *TemplateResolver) Resolve(arg1 context.Context, arg2 templateresolve
 		arg3 templateresolver.Query
 		arg4 vc.Client
 	}{arg1, arg2, arg3, arg4})
+	stub := fake.ResolveStub
+	fakeReturns := fake.resolveReturns
 	fake.recordInvocation("Resolve", []interface{}{arg1, arg2, arg3, arg4})
 	fake.resolveMutex.Unlock()
-	if fake.ResolveStub != nil {
-		return fake.ResolveStub(arg1, arg2, arg3, arg4)
+	if stub != nil {
+		return stub(arg1, arg2, arg3, arg4)
 	}
 	if specificReturn {
 		return ret.result1
 	}
-	fakeReturns := fake.resolveReturns
 	return fakeReturns.result1
 }
 

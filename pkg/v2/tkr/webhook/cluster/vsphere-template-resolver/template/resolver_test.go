@@ -26,11 +26,11 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/webhook/admission"
 
 	runv1 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/fakes"
 	fakeresolver "github.com/vmware-tanzu/tanzu-framework/pkg/v2/tkr/util/fakes"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v2/tkr/util/topology"
 	resolver_cluster "github.com/vmware-tanzu/tanzu-framework/pkg/v2/tkr/webhook/cluster/tkr-resolver/cluster"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v2/tkr/webhook/cluster/vsphere-template-resolver/templateresolver"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/fakes"
 )
 
 const (

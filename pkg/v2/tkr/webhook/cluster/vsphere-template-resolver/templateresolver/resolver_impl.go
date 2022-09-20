@@ -13,8 +13,8 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/types"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/vc"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/types"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/vc"
 )
 
 type Resolver struct {
