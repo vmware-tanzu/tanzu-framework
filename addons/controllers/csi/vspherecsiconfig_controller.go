@@ -95,7 +95,7 @@ func (r *VSphereCSIConfigReconciler) SetupWithManager(_ context.Context, mgr ctr
 		For(&csiv1alpha1.VSphereCSIConfig{}).
 		WithOptions(options).
 		Watches(
-			&source.Kind{Type: &clusterapiv1beta1.Cluster{}},
+			&source.Kind{Type: &capvvmwarev1beta1.VSphereCluster{}},
 			handler.EnqueueRequestsFromMapFunc(r.ClusterToVSphereCSIConfig),
 		).
 		WithEventFilter(predicates.ConfigOfKindWithoutAnnotation(constants.TKGAnnotationTemplateConfig, constants.VSphereCSIConfigKind, r.Config.SystemNamespace, r.Log)).

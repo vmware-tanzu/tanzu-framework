@@ -31,7 +31,7 @@ import (
 
 // ClusterToVSphereCSIConfig returns a list of Requests with VSphereCSIConfig ObjectKey
 func (r *VSphereCSIConfigReconciler) ClusterToVSphereCSIConfig(o client.Object) []ctrl.Request {
-	cluster, ok := o.(*clusterv1beta1.Cluster)
+	cluster, ok := o.(*capvvmwarev1beta1.VSphereCluster)
 	if !ok {
 		r.Log.Error(errors.New("invalid type"),
 			"Expected to receive Cluster resource",

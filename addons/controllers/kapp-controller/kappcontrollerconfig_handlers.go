@@ -43,7 +43,7 @@ func (r *KappControllerConfigReconciler) ClusterToKappControllerConfig(o client.
 	for i := range KappControllerConfigList.Items {
 		config := &KappControllerConfigList.Items[i]
 		if config.Namespace == cluster.Namespace {
-			// avoid enqueuing reconcile requests for template vSphereCSIConfig CRs in event handler of Cluster CR
+			// avoid enqueuing reconcile requests for template KappControllerConfig CRs in event handler of Cluster CR
 			if _, ok := config.Annotations[constants.TKGAnnotationTemplateConfig]; ok && config.Namespace == r.Config.SystemNamespace {
 				continue
 			}
