@@ -11,7 +11,11 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
+	"k8s.io/apimachinery/pkg/runtime/schema"
+
 	packageclientfakes "github.com/vmware-tanzu/tanzu-framework/packageclients/pkg/fakes"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/fakes"
 	. "github.com/vmware-tanzu/tanzu-framework/tkg/managementcomponents"
 )
@@ -169,4 +173,264 @@ var _ = Describe("Test WaitForManagementPackages", func() {
 			Expect(err).NotTo(HaveOccurred())
 		})
 	})
+})
+
+var _ = Describe("Test PauseAddonLifecycleManagement", func() {
+
+	type fakeGroupResource struct {
+		Group    string
+		Resource string
+	}
+
+	var (
+		clusterClient *fakes.ClusterClient
+		err           error
+		clusterName   string
+		addonName     string
+		namespace     string
+		notFoundError = apierrors.NewNotFound(
+			schema.GroupResource{Group: "fakeGroup", Resource: "fakeGroupResource"},
+			"fakeGroupResource")
+	)
+
+	BeforeEach(func() {
+		clusterClient = &fakes.ClusterClient{}
+		clusterName = "mgmtCluster"
+		addonName = "addons-manager"
+	})
+
+	JustBeforeEach(func() {
+		err = PauseAddonLifecycleManagement(clusterClient, clusterName, addonName, namespace)
+	})
+
+	Context("Resource manipulation returns no errors", func() {
+		It("should return no error", func() {
+			Expect(err).NotTo(HaveOccurred())
+		})
+	})
+	Context("Patching resources returns unknown error", func() {
+		BeforeEach(func() {
+			clusterClient.PatchResourceReturns(errors.New("Unknown error"))
+		})
+		It("should return error", func() {
+			Expect(err).To(HaveOccurred())
+		})
+	})
+	Context("Patching resources returns not found", func() {
+		BeforeEach(func() {
+			clusterClient.PatchResourceReturns(notFoundError)
+		})
+		It("should return no error", func() {
+			Expect(err).NotTo(HaveOccurred())
+		})
+	})
+
+})
+
+var _ = Describe("Test NoopDeletePackageInstall", func() {
+	type fakeGroupResource struct {
+		Group    string
+		Resource string
+	}
+
+	var (
+		clusterClient *fakes.ClusterClient
+		err           error
+		addonName     string
+		namespace     string
+		notFoundError = apierrors.NewNotFound(
+			schema.GroupResource{Group: "fakeGroup", Resource: "fakeGroupResource"},
+			"fakeGroupResource")
+	)
+
+	BeforeEach(func() {
+		clusterClient = &fakes.ClusterClient{}
+		addonName = "addons-manager"
+		clusterClient.PatchResourceReturns(nil)
+		clusterClient.DeleteResourceReturns(nil)
+	})
+
+	JustBeforeEach(func() {
+		err = NoopDeletePackageInstall(clusterClient, namespace, addonName)
+	})
+
+	Context("Resource manipulation returns no errors", func() {
+		It("should return no error", func() {
+			Expect(err).NotTo(HaveOccurred())
+		})
+	})
+	Context("Patching resources returns unknown errors", func() {
+		BeforeEach(func() {
+			clusterClient.PatchResourceReturns(errors.New("Unknown error"))
+		})
+		It("should return error", func() {
+			Expect(err).To(HaveOccurred())
+		})
+	})
+	Context("Patch returns not found", func() {
+		BeforeEach(func() {
+			clusterClient.PatchResourceReturns(notFoundError)
+		})
+		It("should return no error", func() {
+			Expect(err).NotTo(HaveOccurred())
+		})
+	})
+	Context("Deleting resources returns  unknown errors", func() {
+		BeforeEach(func() {
+			clusterClient.DeleteResourceReturns(errors.New("Unknown error"))
+		})
+		It("should return error", func() {
+			Expect(err).To(HaveOccurred())
+		})
+	})
+	Context("Deleting resources returns not found", func() {
+		BeforeEach(func() {
+			clusterClient.DeleteResourceReturns(notFoundError)
+		})
+		It("should return no error", func() {
+			Expect(err).NotTo(HaveOccurred())
+		})
+	})
+
+})
+
+var _ = Describe("Test DeleteAddonSecret", func() {
+
+	type fakeGroupResource struct {
+		Group    string
+		Resource string
+	}
+
+	var (
+		clusterClient *fakes.ClusterClient
+		err           error
+		addonName     string
+		namespace     string
+		notFoundError = apierrors.NewNotFound(
+			schema.GroupResource{Group: "fakeGroup", Resource: "fakeGroupResource"},
+			"fakeGroupResource")
+	)
+
+	BeforeEach(func() {
+		clusterClient = &fakes.ClusterClient{}
+		addonName = "addons-manager"
+		clusterClient.GetResourceReturns(nil)
+		clusterClient.UpdateResourceReturns(nil)
+		clusterClient.PatchResourceReturns(nil)
+	})
+
+	JustBeforeEach(func() {
+		err = DeleteAddonSecret(clusterClient, "fake-cluster", addonName, namespace)
+	})
+	Context("Resource manipulation returns no errors", func() {
+		It("should return no error", func() {
+			Expect(err).NotTo(HaveOccurred())
+		})
+	})
+	Context("Getting resources returns unknown errors", func() {
+		BeforeEach(func() {
+			clusterClient.GetResourceReturns(errors.New("Unknown error"))
+		})
+		It("should return error", func() {
+			Expect(err).To(HaveOccurred())
+		})
+	})
+	Context("Getting resources returns not found", func() {
+		BeforeEach(func() {
+			clusterClient.GetResourceReturns(notFoundError)
+		})
+		It("should return no error", func() {
+			Expect(err).NotTo(HaveOccurred())
+		})
+	})
+
+	Context("Updating resources returns unknown errors", func() {
+		BeforeEach(func() {
+			clusterClient.UpdateResourceReturns(errors.New("Unknown error"))
+		})
+		It("should return error", func() {
+			Expect(err).To(HaveOccurred())
+		})
+	})
+	Context("Updating resources returns not found", func() {
+		BeforeEach(func() {
+			clusterClient.UpdateResourceReturns(notFoundError)
+		})
+		It("should return no error", func() {
+			Expect(err).NotTo(HaveOccurred())
+		})
+	})
+
+	Context("Deleting resources returns unknown errors", func() {
+		BeforeEach(func() {
+			clusterClient.DeleteResourceReturns(errors.New("Unknown error"))
+		})
+		It("should return error", func() {
+			Expect(err).To(HaveOccurred())
+		})
+	})
+	Context("Deleting resources returns not found", func() {
+		BeforeEach(func() {
+			clusterClient.DeleteResourceReturns(notFoundError)
+		})
+		It("should return no error", func() {
+			Expect(err).NotTo(HaveOccurred())
+		})
+	})
+
+})
+
+var _ = Describe("Test AddonSecretExists", func() {
+
+	type fakeGroupResource struct {
+		Group    string
+		Resource string
+	}
+
+	var (
+		clusterClient               *fakes.ClusterClient
+		err                         error
+		addonName                   string
+		pauseAddonsManagerLifecycle bool
+		notFoundError               = apierrors.NewNotFound(
+			schema.GroupResource{Group: "fakeGroup", Resource: "fakeGroupResource"},
+			"fakeGroupResource")
+	)
+
+	BeforeEach(func() {
+		clusterClient = &fakes.ClusterClient{}
+		addonName = "addons-manager"
+		clusterClient.GetResourceReturns(nil)
+		clusterClient.UpdateResourceReturns(nil)
+		clusterClient.PatchResourceReturns(nil)
+	})
+
+	JustBeforeEach(func() {
+		pauseAddonsManagerLifecycle, err = AddonSecretExists(clusterClient, "fake-cluster", addonName, constants.TkgNamespace)
+	})
+	Context("Getting resources returns no errors", func() {
+		It("should return true, and no error", func() {
+			Expect(err).NotTo(HaveOccurred())
+			Expect(pauseAddonsManagerLifecycle).To(BeTrue())
+		})
+	})
+	Context("Getting resources returns unknown errors", func() {
+		BeforeEach(func() {
+			clusterClient.GetResourceReturns(errors.New("Unknown error"))
+		})
+		It("should return false and error", func() {
+			Expect(err).To(HaveOccurred())
+			Expect(pauseAddonsManagerLifecycle).To(BeFalse())
+		})
+	})
+	Context("Getting resources returns not found", func() {
+		BeforeEach(func() {
+			clusterClient.GetResourceReturns(notFoundError)
+		})
+		It("should return false and no error", func() {
+			Expect(err).ToNot(HaveOccurred())
+			Expect(pauseAddonsManagerLifecycle).To(BeFalse())
+		})
+	})
+
 })
