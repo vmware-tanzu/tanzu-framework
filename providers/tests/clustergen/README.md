@@ -65,7 +65,7 @@ reviewing the outputs from ```make cluster-generation-tests``` directly.
 
 These changes can be:
 
-1. Updates to the cluster generation logic in tkg (these should be uncommon)
+1. Updates to the cluster generation logic in pkg/v1/tkg (these should be uncommon)
 1. Provider template additions/changes
 
 ### Dealing with cluster creation code and template changes
