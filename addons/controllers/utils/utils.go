@@ -11,80 +11,69 @@ import (
 	"github.com/pkg/errors"
 	v1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
-	"k8s.io/apimachinery/pkg/labels"
-	"k8s.io/apimachinery/pkg/selection"
 	"k8s.io/apimachinery/pkg/types"
 	capvv1beta1 "sigs.k8s.io/cluster-api-provider-vsphere/apis/v1beta1"
 	capvvmwarev1beta1 "sigs.k8s.io/cluster-api-provider-vsphere/apis/vmware/v1beta1"
 	clusterapiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
+	kubeadmv1beta1 "sigs.k8s.io/cluster-api/controlplane/kubeadm/api/v1beta1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/log"
 
+	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/util"
 )
 
 // VSphereClusterParavirtualForCAPICluster gets the VSphereCluster CR for the cluster object in paravirtual mode
 func VSphereClusterParavirtualForCAPICluster(ctx context.Context, clt client.Client, cluster *clusterapiv1beta1.Cluster) (*capvvmwarev1beta1.VSphereCluster, error) {
-
-	vsphereClusters := &capvvmwarev1beta1.VSphereClusterList{}
-	labelMatch, err := labels.NewRequirement(clusterapiv1beta1.ClusterLabelName, selection.Equals, []string{cluster.Name})
-	if err != nil {
+	vSphereClusterRef := cluster.Spec.InfrastructureRef
+	if vSphereClusterRef == nil {
+		return nil, fmt.Errorf("cluster %s 's infrastructure reference is not set yet", cluster.Name)
+	}
+	if vSphereClusterRef.Kind != constants.InfrastructureRefVSphere || vSphereClusterRef.APIVersion != capvvmwarev1beta1.GroupVersion.String() {
+		return nil, fmt.Errorf("cluster %s 's infrastructure reference is not a paravirt vSphereCluster: %v", cluster.Name, vSphereClusterRef)
+	}
+	vsphereCluster := &capvvmwarev1beta1.VSphereCluster{}
+	if err := clt.Get(ctx, types.NamespacedName{Namespace: vSphereClusterRef.Namespace, Name: vSphereClusterRef.Name}, vsphereCluster); err != nil {
 		return nil, err
 	}
-	labelSelector := labels.NewSelector()
-	labelSelector = labelSelector.Add(*labelMatch)
-	if err := clt.List(ctx, vsphereClusters, &client.ListOptions{LabelSelector: labelSelector, Namespace: cluster.Namespace}); err != nil {
-		return nil, err
-	}
-	if len(vsphereClusters.Items) != 1 {
-		return nil, fmt.Errorf("expected to find 1 VSphereCluster object for label key %s and value %s but found %d",
-			clusterapiv1beta1.ClusterLabelName, cluster.Name, len(vsphereClusters.Items))
-	}
-	return &vsphereClusters.Items[0], nil
+	return vsphereCluster, nil
 }
 
 // VSphereClusterNonParavirtualForCluster gets the VSphereCluster CR for the cluster object in non-paravirtual mode
 func VSphereClusterNonParavirtualForCluster(ctx context.Context, clt client.Client, cluster *clusterapiv1beta1.Cluster) (*capvv1beta1.VSphereCluster, error) {
-
-	vsphereClusters := &capvv1beta1.VSphereClusterList{}
-	labelMatch, err := labels.NewRequirement(clusterapiv1beta1.ClusterLabelName, selection.Equals, []string{cluster.Name})
-	if err != nil {
+	vSphereClusterRef := cluster.Spec.InfrastructureRef
+	if vSphereClusterRef == nil {
+		return nil, fmt.Errorf("cluster %s 's infrastructure reference is not set yet", cluster.Name)
+	}
+	vsphereCluster := &capvv1beta1.VSphereCluster{}
+	if vSphereClusterRef.Kind != constants.InfrastructureRefVSphere || vSphereClusterRef.APIVersion != capvv1beta1.GroupVersion.String() {
+		return nil, fmt.Errorf("cluster %s 's infrastructure reference is not a non-paravirt vSphereCluster: %v", cluster.Name, vSphereClusterRef)
+	}
+	if err := clt.Get(ctx, types.NamespacedName{Namespace: vSphereClusterRef.Namespace, Name: vSphereClusterRef.Name}, vsphereCluster); err != nil {
 		return nil, err
 	}
-	labelSelector := labels.NewSelector()
-	labelSelector = labelSelector.Add(*labelMatch)
-	if err := clt.List(ctx, vsphereClusters, &client.ListOptions{LabelSelector: labelSelector, Namespace: cluster.Namespace}); err != nil {
-		return nil, err
-	}
-	if len(vsphereClusters.Items) != 1 {
-		return nil, fmt.Errorf("expected to find 1 VSphereCluster object for label key %s and value %s but found %d",
-			clusterapiv1beta1.ClusterLabelName, cluster.Name, len(vsphereClusters.Items))
-	}
-	return &vsphereClusters.Items[0], nil
+	return vsphereCluster, nil
 }
 
-// ControlPlaneVsphereMachineTemplateForCluster gets the VsphereMachineTemplate CR of control plane
-func ControlPlaneVsphereMachineTemplateForCluster(ctx context.Context, clt client.Client, cluster *clusterapiv1beta1.Cluster) (*capvv1beta1.VSphereMachineTemplate, error) {
-
-	vSphereMachineTemplates := &capvv1beta1.VSphereMachineTemplateList{}
-	labelMatch, err := labels.NewRequirement(clusterapiv1beta1.ClusterLabelName, selection.Equals, []string{cluster.Name})
-	if err != nil {
+// ControlPlaneVsphereMachineTemplateNonParavirtualForCluster gets the VsphereMachineTemplate CR of control plane
+func ControlPlaneVsphereMachineTemplateNonParavirtualForCluster(ctx context.Context, clt client.Client, cluster *clusterapiv1beta1.Cluster) (*capvv1beta1.VSphereMachineTemplate, error) {
+	controlPlaneRef := cluster.Spec.ControlPlaneRef
+	if controlPlaneRef == nil {
+		return nil, fmt.Errorf("cluster %s 's controlplane reference is not set yet", cluster.Name)
+	}
+	controlPlane := &kubeadmv1beta1.KubeadmControlPlane{}
+	if err := clt.Get(ctx, types.NamespacedName{Namespace: controlPlaneRef.Namespace, Name: controlPlaneRef.Name}, controlPlane); err != nil {
 		return nil, err
 	}
-	labelNotMatch, err := labels.NewRequirement(clusterapiv1beta1.ClusterTopologyMachineDeploymentLabelName, selection.DoesNotExist, nil)
-	if err != nil {
+	vSphereMachineTemplateRef := controlPlane.Spec.MachineTemplate.InfrastructureRef
+	vSphereMachineTemplate := &capvv1beta1.VSphereMachineTemplate{}
+	if vSphereMachineTemplateRef.Kind != constants.InfrastructureRefVSphereMachineTemplate || vSphereMachineTemplateRef.APIVersion != capvv1beta1.GroupVersion.String() {
+		return nil, fmt.Errorf("cluster %s 's controlplane machinetemplate reference is not a non-paravirt vSphereMachineTemplate: %v", cluster.Name, vSphereMachineTemplateRef)
+	}
+	if err := clt.Get(ctx, types.NamespacedName{Namespace: vSphereMachineTemplateRef.Namespace, Name: vSphereMachineTemplateRef.Name}, vSphereMachineTemplate); err != nil {
 		return nil, err
 	}
-	labelSelector := labels.NewSelector()
-	labelSelector = labelSelector.Add(*labelMatch, *labelNotMatch)
-	if err := clt.List(ctx, vSphereMachineTemplates, &client.ListOptions{LabelSelector: labelSelector, Namespace: cluster.Namespace}); err != nil {
-		return nil, err
-	}
-	if len(vSphereMachineTemplates.Items) != 1 {
-		return nil, fmt.Errorf("expected to find 1 vSphereMachineTemplate object with requirements %s in namespace %s but found %d",
-			labelSelector, cluster.Namespace, len(vSphereMachineTemplates.Items))
-	}
-	return &vSphereMachineTemplates.Items[0], nil
+	return vSphereMachineTemplate, nil
 }
 
 // ControlPlaneName returns the control plane name for a cluster name

@@ -102,7 +102,7 @@ func (r *VSphereCPIConfigReconciler) mapCPIConfigToDataValuesNonParavirtual( // 
 	}
 
 	// get the control plane machine template
-	cpMachineTemplate, err := cutil.ControlPlaneVsphereMachineTemplateForCluster(ctx, r.Client, cluster)
+	cpMachineTemplate, err := cutil.ControlPlaneVsphereMachineTemplateNonParavirtualForCluster(ctx, r.Client, cluster)
 	if err != nil {
 		return nil, err
 	}
