@@ -11,7 +11,7 @@ FROM $BUILDER_BASE_IMAGE as builder
 WORKDIR /workspace
 
 # Copy the go source
-COPY capabilities/discovery capabilities/discovery
+COPY capabilities/client capabilities/client
 COPY capabilities/controller capabilities/controller
 COPY apis/ apis/
 COPY cli/runtime cli/runtime

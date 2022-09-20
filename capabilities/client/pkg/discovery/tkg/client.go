@@ -12,7 +12,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	runv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha1"
-	"github.com/vmware-tanzu/tanzu-framework/capabilities/discovery"
+	"github.com/vmware-tanzu/tanzu-framework/capabilities/client/pkg/discovery"
 )
 
 // Scheme is a scheme that knows about TKG resources that are used to determine capabilities.
