@@ -302,7 +302,7 @@ func InstalledPlugins(serverName string, exclude ...string) (serverPlugins, stan
 }
 
 // InstalledPluginsDescriptors fetches installed plugins (server and standalone) and returns all installed plugins descriptions
-func InstalledPluginsDescriptors() (pluginDescriptions []*cliapi.PluginDescriptor, err error) {
+func InstalledPluginsDescriptors() (pluginDescriptions []*cliapi.PluginDescriptor, err error) { // nolint:gocritic
 	serverName := ""
 	server, err := configlib.GetCurrentServer()
 	if err == nil && server != nil {

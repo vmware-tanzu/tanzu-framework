@@ -1,6 +1,7 @@
 // Copyright 2021 VMware, Inc. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
+// nolint: staticcheck
 // Package core creates and initializes the tanzu CLI.
 package command
 
@@ -55,6 +56,7 @@ var genAllDocsCmd = &cobra.Command{
 		if config.IsFeatureActivated(config.FeatureContextAwareCLIForPlugins) {
 			pluginDescriptions, err = pluginmanager.InstalledPluginsDescriptors()
 		} else {
+			// TODO: cli.ListPlugins is deprecated: Use pluginmanager.AvailablePluginsFromLocalSource or pluginmanager.AvailablePlugins instead
 			pluginDescriptions, err = cli.ListPlugins()
 		}
 		if err != nil {

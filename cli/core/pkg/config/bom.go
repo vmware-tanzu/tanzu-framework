@@ -23,6 +23,8 @@ func addCompatabilityFile(c *configapi.ClientConfig, compatibilityFilePath strin
 	if c.ClientOptions.CLI == nil {
 		c.ClientOptions.CLI = &configapi.CLIOptions{}
 	}
+	// CompatibilityFilePath has been deprecated and will be removed from future version
+	//nolint:staticcheck
 	c.ClientOptions.CLI.CompatibilityFilePath = compatibilityFilePath
 }
 
@@ -33,11 +35,15 @@ func addBomRepo(c *configapi.ClientConfig, repo string) {
 	if c.ClientOptions.CLI == nil {
 		c.ClientOptions.CLI = &configapi.CLIOptions{}
 	}
+	// BOMRepo has been deprecated and will be removed from future version
+	//nolint:staticcheck
 	c.ClientOptions.CLI.BOMRepo = repo
 }
 
 // addCompatibilityFileIfMissing adds the compatibility file to the client configuration to ensure it can be downloaded
 func addCompatibilityFileIfMissing(config *configapi.ClientConfig) bool {
+	// CompatibilityFilePath has been deprecated and will be removed from future version
+	//nolint:staticcheck
 	if config.ClientOptions == nil || config.ClientOptions.CLI == nil || config.ClientOptions.CLI.CompatibilityFilePath == "" {
 		addCompatabilityFile(config, tkgDefaultCompatibilityImagePath)
 		return true
@@ -47,6 +53,8 @@ func addCompatibilityFileIfMissing(config *configapi.ClientConfig) bool {
 
 // addBomRepoIfMissing adds the bomRepository to the client configuration if it is not already present
 func addBomRepoIfMissing(config *configapi.ClientConfig) bool {
+	// BOMRepo has been deprecated and will be removed from future version
+	//nolint:staticcheck
 	if config.ClientOptions == nil || config.ClientOptions.CLI == nil || config.ClientOptions.CLI.BOMRepo == "" {
 		addBomRepo(config, tkgDefaultImageRepo)
 		return true

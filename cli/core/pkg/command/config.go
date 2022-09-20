@@ -235,7 +235,8 @@ var initConfigCmd = &cobra.Command{
 		if err != nil {
 			return err
 		}
-
+		// TODO: cli.ListPlugins is deprecated: Use pluginmanager.AvailablePluginsFromLocalSource or pluginmanager.AvailablePlugins instead
+		//nolint:staticcheck
 		descriptors, err := cli.ListPlugins()
 		if err != nil {
 			return err
@@ -252,13 +253,13 @@ var initConfigCmd = &cobra.Command{
 }
 
 // Note: Shall be deprecated in a future version. Superseded by 'tanzu context' command.
-var serversCmd = &cobra.Command{
+var serversCmd = &cobra.Command{ // nolint:gocritic
 	Use:   "server",
 	Short: "Configured servers",
 }
 
 // Note: Shall be deprecated in a future version. Superseded by 'tanzu context list' command.
-var listServersCmd = &cobra.Command{
+var listServersCmd = &cobra.Command{ // nolint:gocritic
 	Use:   "list",
 	Short: "List servers",
 	RunE: func(cmd *cobra.Command, args []string) error {
@@ -285,7 +286,7 @@ var listServersCmd = &cobra.Command{
 }
 
 // Note: Shall be deprecated in a future version. Superseded by 'tanzu context delete' command.
-var deleteServersCmd = &cobra.Command{
+var deleteServersCmd = &cobra.Command{ // nolint:gocritic
 	Use:   "delete SERVER_NAME",
 	Short: "Delete a server from the config",
 

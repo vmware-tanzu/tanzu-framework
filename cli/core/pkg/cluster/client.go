@@ -1,3 +1,6 @@
+// Copyright 2022 VMware, Inc. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
+
 package cluster
 
 import (
@@ -131,7 +134,7 @@ func (c *client) ListCLIPluginResources() ([]cliv1alpha1.CLIPlugin, error) {
 }
 
 // GetCLIPluginImageRepositoryOverride returns map of image repository override
-func (c *client) GetCLIPluginImageRepositoryOverride() (map[string]string, error) {
+func (c *client) GetCLIPluginImageRepositoryOverride() (map[string]string, error) { // nolint:gocritic,ineffassign
 	cmList := &corev1.ConfigMapList{}
 
 	labelMatch, _ := labels.NewRequirement(constants.CLIPluginImageRepositoryOverrideLabel, selection.Exists, []string{})
@@ -159,7 +162,6 @@ func (c *client) GetCLIPluginImageRepositoryOverride() (map[string]string, error
 			imageRepoMap[k] = v
 		}
 	}
-
 	return imageRepoMap, nil
 }
 
