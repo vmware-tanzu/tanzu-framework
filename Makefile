@@ -740,17 +740,16 @@ e2e-packageclient-docker: $(GINKGO) generate-embedproviders ## Run ginkgo packag
 # This variable refers to directory paths that contain a Makefile with `docker-build`, `docker-publish` and
 # `kbld-image-replace` targets that can build and push a docker image for that component.
 COMPONENTS ?=  \
-  pkg/v2/tkr/controller/tkr-source \
-  pkg/v2/tkr/controller/tkr-status \
+  tkr/controller/tkr-source \
+  tkr/controller/tkr-status \
   featuregates \
   addons \
   cliplugins \
-  pkg/v2/tkr/webhook/infra-machine \
   capabilities \
-  pkg/v2/tkr/webhook/tkr-conversion \
-  pkg/v2/tkr/webhook/cluster/tkr-resolver \
+  tkr/webhook/tkr-conversion \
+  tkr/webhook/cluster/tkr-resolver \
   pinniped-components/tanzu-auth-controller-manager \
-  pkg/v2/object-propagation
+  object-propagation
 
 .PHONY: docker-build
 docker-build: TARGET=docker-build

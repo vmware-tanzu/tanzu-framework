@@ -77,9 +77,9 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/tkg/log"
 	telemetrymanifests "github.com/vmware-tanzu/tanzu-framework/tkg/manifest/telemetry"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/tkgconfigbom"
-	tkrconstants "github.com/vmware-tanzu/tanzu-framework/tkg/tkr/pkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/utils"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/vc"
+	tkrconstants "github.com/vmware-tanzu/tanzu-framework/tkr/controller/tkr-source/constants"
 )
 
 const (
@@ -820,7 +820,7 @@ func (c *client) PatchClusterWithOperationStartedStatus(clusterName, namespace, 
 	if err != nil {
 		return err
 	}
-	operationStatusString := strings.ReplaceAll((string(operationStatusBytes)), "\"", "\\\"")
+	operationStatusString := strings.ReplaceAll(string(operationStatusBytes), "\"", "\\\"")
 
 	patchFormat := `
 	{

@@ -7,7 +7,7 @@ import { AwsVpcStepMapping } from './vpc-step.fieldmapping';
 import { AwsField, VpcType } from "../aws-wizard.constants";
 import { StepFormDirective } from '../../wizard/shared/step-form/step-form';
 import { TanzuEventType } from '../../../../shared/service/Messenger';
-import { ValidationService } from './../../wizard/shared/validation/validation.service';
+import { ValidationService } from '../../wizard/shared/validation/validation.service';
 import { Vpc } from '../../../../swagger/models/vpc.model';
 
 @Component({

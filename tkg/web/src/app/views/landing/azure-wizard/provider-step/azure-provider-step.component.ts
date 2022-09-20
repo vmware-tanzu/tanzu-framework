@@ -9,7 +9,7 @@ import { APIClient } from '../../../../swagger/api-client.service';
 import AppServices from '../../../../shared/service/appServices';
 import { AzureClouds, AzureField, ResourceGroupOption } from '../azure-wizard.constants';
 import { AzureProviderStepMapping } from './azure-provider-step.fieldmapping';
-import { AzureResourceGroup } from './../../../../swagger/models/azure-resource-group.model';
+import { AzureResourceGroup } from '../../../../swagger/models/azure-resource-group.model';
 import { StepFormDirective } from '../../wizard/shared/step-form/step-form';
 import { TanzuEventType } from '../../../../shared/service/Messenger';
 import { ValidationService } from '../../wizard/shared/validation/validation.service';

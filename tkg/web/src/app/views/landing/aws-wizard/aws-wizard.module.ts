@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
-import { WizardSharedModule } from './../wizard/shared/wizard-shared.module';
+import { WizardSharedModule } from '../wizard/shared/wizard-shared.module';
 import { SharedModule } from '../../../shared/shared.module';
 import { LandingModule } from '../landing.module';
 import { AwsWizardRoutingModule } from './aws-wizard-routing.module';

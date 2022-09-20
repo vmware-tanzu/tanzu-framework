@@ -3,7 +3,7 @@ module github.com/vmware-tanzu/tanzu-framework/addons
 go 1.17
 
 replace (
-	github.com/vmware-tanzu/tanzu-framework/apis/addonconfigs => ./../apis/addonconfigs
+	github.com/vmware-tanzu/tanzu-framework/apis/addonconfigs => ../apis/addonconfigs
 	github.com/vmware-tanzu/tanzu-framework/apis/run => ../apis/run
 	sigs.k8s.io/cluster-api => sigs.k8s.io/cluster-api v1.1.5
 )

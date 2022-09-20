@@ -14,13 +14,13 @@ import (
 	capiv1 "sigs.k8s.io/cluster-api/api/v1beta1"
 	capiconditions "sigs.k8s.io/cluster-api/util/conditions"
 
+	"github.com/vmware-tanzu/tanzu-framework/apis/run/util/clusters"
 	"github.com/vmware-tanzu/tanzu-framework/apis/run/util/version"
 	runv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha1"
 	runv1 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
 	configapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/config/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/config"
 	tkrutils "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkr/pkg/utils"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v2/tkr/util/topology"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/clusterclient"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/log"
@@ -94,7 +94,7 @@ func init() {
 	upgradeClusterCmd.Flags().StringVar(&uc.osArch, "os-arch", "", "OS arch to use during cluster upgrade. Discovered automatically if not provided (See [+])")
 
 	upgradeClusterCmd.Flags().StringVarP(&uc.vSphereTemplateName, "vsphere-vm-template-name", "", "", "The vSphere VM template to be used with upgraded kubernetes version. Discovered automatically if not provided")
-	upgradeClusterCmd.Flags().MarkHidden("vsphere-vm-template-name") //nolint
+	upgradeClusterCmd.Flags().MarkHidden("vsphere-vm-template-name") // nolint
 }
 
 func upgrade(cmd *cobra.Command, args []string) error {
@@ -364,7 +364,7 @@ func getValidTKRVersionFromClusterForUpgrade(cluster *capiv1.Cluster, tkrName st
 		return tkrVersion, nil
 	}
 
-	updates := topology.AvailableUpgrades(cluster)
+	updates := clusters.AvailableUpgrades(cluster)
 	if len(updates) == 0 {
 		return "", errors.Errorf("no available upgrades for cluster '%s', namespace '%s'", cluster.Name, cluster.Namespace)
 	}

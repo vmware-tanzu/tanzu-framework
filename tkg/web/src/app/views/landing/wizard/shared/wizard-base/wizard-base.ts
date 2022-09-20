@@ -35,7 +35,7 @@ import {
     StepDescriptionChangePayload,
     StepStartedPayload,
     TanzuEventType
-} from './../../../../../shared/service/Messenger';
+} from '../../../../../shared/service/Messenger';
 import {StepWrapperSetComponent} from '../step-wrapper/step-wrapper-set.component';
 import {NodeSettingField} from '../components/steps/node-setting-step/node-setting-step.fieldmapping';
 

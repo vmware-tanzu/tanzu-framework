@@ -16,7 +16,7 @@ import { StepCompletedPayload, StepDescriptionChangePayload, TanzuEvent, TanzuEv
 import { StepMapping } from '../field-mapping/FieldMapping';
 import { StepRegistrantData } from '../wizard-base/wizard-base';
 import { UserDataIdentifier } from '../../../../../shared/service/user-data.service';
-import { ValidatorEnum } from './../constants/validation.constants';
+import { ValidatorEnum } from '../constants/validation.constants';
 
 export interface StepDescriptionTriggers {
     clusterTypeDescriptor?: boolean,

@@ -14,7 +14,7 @@ import { StepMapping } from '../../../field-mapping/FieldMapping';
 import { StepFormDirective } from "../../../step-form/step-form";
 import { ValidationService } from "../../../validation/validation.service";
 import { TKGLabelsConfig } from '../../widgets/tkg-labels/interfaces/tkg-labels.interface';
-import { AviVipNetwork } from './../../../../../../../swagger/models/avi-vip-network.model';
+import { AviVipNetwork } from '../../../../../../../swagger/models/avi-vip-network.model';
 import { LoadBalancerField, LoadBalancerStepMapping } from './load-balancer-step.fieldmapping';
 
 const SupervisedFields = [

@@ -10,7 +10,7 @@ import { LandingModule } from '../landing.module';
 
 import { NodeSettingStepComponent } from './node-setting-step/node-setting-step.component';
 import { VnetStepComponent } from './vnet-step/vnet-step.component';
-import { WizardSharedModule } from './../wizard/shared/wizard-shared.module';
+import { WizardSharedModule } from '../wizard/shared/wizard-shared.module';
 
 @NgModule({
     declarations: [

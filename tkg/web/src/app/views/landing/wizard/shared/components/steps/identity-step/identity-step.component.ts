@@ -9,7 +9,7 @@ import AppServices from '../../../../../../../shared/service/appServices';
 import { IdentityField, IdentityStepMapping } from './identity-step.fieldmapping';
 import { IdentityManagementType } from '../../../constants/wizard.constants';
 import { IpFamilyEnum } from 'src/app/shared/constants/app.constants';
-import { LdapParams } from './../../../../../../../swagger/models/ldap-params.model';
+import { LdapParams } from '../../../../../../../swagger/models/ldap-params.model';
 import { LdapTestResult } from 'src/app/swagger/models';
 import { StepFormDirective } from '../../../step-form/step-form';
 import { ValidationService } from '../../../validation/validation.service';
