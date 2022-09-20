@@ -12,14 +12,14 @@
 
 ------------------------
 
-The capability discovery Go package in `github.com/vmware-tanzu/tanzu-framework/capabilities/discovery` go module, along
+The capability discovery Go package in `github.com/vmware-tanzu/tanzu-framework/capabilities/client/pkg/discovery` go module, along
 with the `Capability` CRD offer the ability to query a cluster's capabilities. A "capability" is defined as anything a
 Kubernetes cluster can do or have, such as objects and the API surface area. Capability discovery can be used to answer
 questions such as `Is this a TKG cluster?`, `Does this cluster have a resource Foo?` etc.
 
 ## Discovery Go Package
 
-The [`capabilities/discovery`](https://github.com/vmware-tanzu/tanzu-framework/tree/main/capabilities/discovery)
+The [`capabilities/client/pkg/discovery`](https://github.com/vmware-tanzu/tanzu-framework/tree/main/capabilities/client/pkg/discovery)
 provides methods to query a Kubernetes cluster for the state of its API surface.
 
 `ClusterQueryClient` allows clients to build queries to inspect a cluster and evaluate results.
@@ -33,7 +33,7 @@ Use the constructor(s) from `discovery` package to get a query client.
 ```go
 import (
     "sigs.k8s.io/controller-runtime/pkg/client/config"
-    "github.com/vmware-tanzu/tanzu-framework/capabilities/discovery"
+    "github.com/vmware-tanzu/tanzu-framework/capabilities/client/pkg/discovery"
 )
 
 cfg := config.GetConfig()
@@ -49,7 +49,7 @@ if err != nil {
 Use `Group`, `Object` and `Schema` functions in the `discovery` package to build queries and execute them.
 
 ```go
-import "github.com/vmware-tanzu/tanzu-framework/capabilities/discovery"
+import "github.com/vmware-tanzu/tanzu-framework/capabilities/client/pkg/discovery"
 
 // Define objects to query.
 var pod = corev1.ObjectReference{
@@ -93,13 +93,13 @@ if result := c.Results().ForQuery("podResource"); result != nil {
 
 ## Executing Pre-defined TKG queries
 
-The `capabilities/discovery/tkg` package builds on top of the generic discovery package and exposes
+The `capabilities/client/pkg/discovery/tkg` package builds on top of the generic discovery package and exposes
 pre-defined queries to determine a TKG cluster's capabilities.
 
 Some examples are shown below.
 
 ```go
-import tkgdiscovery "github.com/vmware-tanzu/tanzu-framework/capabilities/discovery/tkg"
+import tkgdiscovery "github.com/vmware-tanzu/tanzu-framework/capabilities/client/pkg/discovery/tkg"
 
 c, err := tkgdiscovery.NewDiscoveryClientForConfig(cfg)
 if err != nil {
