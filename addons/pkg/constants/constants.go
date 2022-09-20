@@ -35,6 +35,9 @@ const (
 	// CSIAddonName is name of the vsphere-csi addon
 	CSIAddonName = "vsphere-csi"
 
+	// AzureFileCSIAddonName is name of the azurefile-csi addon
+	AzureFileCSIAddonName = "azurefile-csi"
+
 	// TKGBomNamespace is the TKG add on BOM namespace.
 	TKGBomNamespace = "tkr-system"
 
@@ -287,6 +290,9 @@ var (
 
 	// VSphereCSIConfigKind is the Kind for csi VSphereCSIConfig object
 	VSphereCSIConfigKind = reflect.TypeOf(csiv1alpha1.VSphereCSIConfig{}).Name()
+
+	// AzureFileCSIConfigKind is the Kind for csi AzureFileCSIConfig object
+	AzureFileCSIConfigKind = reflect.TypeOf(csiv1alpha1.AzureFileCSIConfig{}).Name()
 
 	// VSphereCPIConfigKind is the Kind for cpi VSphereCPIConfig object
 	VSphereCPIConfigKind = reflect.TypeOf(cpiv1alpha1.VSphereCPIConfig{}).Name()

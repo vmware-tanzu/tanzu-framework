@@ -43,6 +43,7 @@ import (
 	pkgiv1alpha1 "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apis/packaging/v1alpha1"
 	kapppkgv1alpha1 "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apiserver/apis/datapackaging/v1alpha1"
 	antrea "github.com/vmware-tanzu/tanzu-framework/addons/controllers/antrea"
+	azurefilecsi "github.com/vmware-tanzu/tanzu-framework/addons/controllers/azurefilecsi"
 	calico "github.com/vmware-tanzu/tanzu-framework/addons/controllers/calico"
 	cpi "github.com/vmware-tanzu/tanzu-framework/addons/controllers/cpi"
 	csi "github.com/vmware-tanzu/tanzu-framework/addons/controllers/csi"
@@ -305,7 +306,7 @@ var _ = BeforeSuite(func(done Done) {
 			ConfigControllerConfig: addonconfig.ConfigControllerConfig{SystemNamespace: constants.TKGSystemNS}},
 	}).SetupWithManager(ctx, mgr, controller.Options{MaxConcurrentReconciles: 1})).To(Succeed())
 
-	Expect((&csi.AzureFileCSIConfigReconciler{
+	Expect((&azurefilecsi.AzureFileCSIConfigReconciler{
 		Client: mgr.GetClient(),
 		Log:    ctrl.Log.WithName("controllers").WithName("AzureFileCSIConfig"),
 		Scheme: mgr.GetScheme(),

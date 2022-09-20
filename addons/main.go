@@ -35,6 +35,7 @@ import (
 	kappdatapkg "github.com/vmware-tanzu/carvel-kapp-controller/pkg/apiserver/apis/datapackaging/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/addons/controllers"
 	antreacontroller "github.com/vmware-tanzu/tanzu-framework/addons/controllers/antrea"
+	azurefilecsicontroller "github.com/vmware-tanzu/tanzu-framework/addons/controllers/azurefilecsi"
 	calicocontroller "github.com/vmware-tanzu/tanzu-framework/addons/controllers/calico"
 	cpicontroller "github.com/vmware-tanzu/tanzu-framework/addons/controllers/cpi"
 	csicontroller "github.com/vmware-tanzu/tanzu-framework/addons/controllers/csi"
@@ -315,9 +316,9 @@ func enableClusterBootstrapAndConfigControllers(ctx context.Context, mgr ctrl.Ma
 		os.Exit(1)
 	}
 
-	if err := (&csicontroller.AzureFileCSIConfigReconciler{
+	if err := (&azurefilecsicontroller.AzureFileCSIConfigReconciler{
 		Client: mgr.GetClient(),
-		Log:    ctrl.Log.WithName("VSphereCSIConfig"),
+		Log:    ctrl.Log.WithName("AzureFileCSIConfig"),
 		Scheme: mgr.GetScheme(),
 		Config: addonconfig.AzureFileCSIConfigControllerConfig{
 			ConfigControllerConfig: addonconfig.ConfigControllerConfig{SystemNamespace: flags.addonNamespace}},

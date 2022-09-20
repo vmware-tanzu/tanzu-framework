@@ -89,6 +89,7 @@ parameters:
   skuName: Premium_LRS
 #@ end
 
+
 #@ if data.values.TKG_CLUSTER_ROLE == "workload" and data.values.ENABLE_DEFAULT_STORAGE_CLASS and data.values.PROVIDER_TYPE != "tkg-service-vsphere" and data.values.PROVIDER_TYPE != "docker":
 ---
 apiVersion: addons.cluster.x-k8s.io/v1beta1
@@ -103,8 +104,9 @@ spec:
     matchLabels:
       tkg.tanzu.vmware.com/cluster-name: #@ data.values.CLUSTER_NAME
   resources:
-  - name: #@ "{}-default-storage-class".format(data.values.CLUSTER_NAME)
-    kind: Secret
+    - name: #@ "{}-default-storage-class".format(data.values.CLUSTER_NAME)
+      kind: Secret
+
 ---
 apiVersion: v1
 kind: Secret
@@ -123,5 +125,5 @@ stringData:
 #@ if data.values.PROVIDER_TYPE == "azure":
   value: #@ yaml.encode(azure_storage_class())
 #@ end
-
 #@ end
+

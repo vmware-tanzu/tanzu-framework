@@ -16,13 +16,14 @@ type AzureFileCSIConfigSpec struct {
 	// Important: Run "make" to regenerate code after modifying this file
 
 	// Foo is an example field of AzureFileCSIConfig. Edit azurefilecsiconfig_types.go to remove/update
-	Foo string `json:"foo,omitempty"`
+	AzureFileCSI AzureFileCSI `json:"azureFileCSIDriver"`
 }
 
 // AzureFileCSIConfigStatus defines the observed state of AzureFileCSIConfig
 type AzureFileCSIConfigStatus struct {
 	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
+	SecretRef *string `json:"secretRef,omitempty"`
 }
 
 //+kubebuilder:object:root=true

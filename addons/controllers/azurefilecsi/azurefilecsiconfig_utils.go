@@ -11,7 +11,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/log"
 
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
-	csiv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/csi/v1alpha1"
+	csiv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/addonconfigs/csi/v1alpha1"
 )
 
 // getOwnerCluster verifies that the VSphereCSIConfig has a cluster as its owner reference,
