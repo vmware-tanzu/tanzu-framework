@@ -53,15 +53,15 @@ linters-settings:
   whitespace:
     multi-func: true
 
+    # depguard
+    # dogsled
+    # dupl
+    # - errcheck
 linters:
   disable-all: true
   enable:
     - bodyclose
     - deadcode
-    - depguard
-    - dogsled
-    - dupl
-    - errcheck
     - funlen
     - goconst
     - gocritic
