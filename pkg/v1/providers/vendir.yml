@@ -23,6 +23,6 @@ directories:
   - path: .
     git:
       url: git@github.com:vmware-tanzu/community-edition.git
-      ref: 93347cfd85455c47fc7670d16abe652e1209dab9
+      ref: 9d01646e433d40356c58279a06ea61567049f2de
     includePaths:
-    - addons/packages/kapp-controller/0.38.4/bundle/config/**/*
+    - addons/packages/kapp-controller/0.41.2/bundle/config/**/*
