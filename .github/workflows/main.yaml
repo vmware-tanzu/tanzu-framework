@@ -24,7 +24,7 @@ jobs:
 
     - name: Run test step make verify
       run: |
-        make verify-test
+        make go-lint
 
 #    - name: go cache
 #      uses: actions/cache@v3

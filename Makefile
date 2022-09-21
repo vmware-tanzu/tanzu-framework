@@ -535,14 +535,14 @@ go-lint: tools ## Run linting of go source
 		popd; \
 	done
 
-	# Prevent use of deprecated ioutils module
-	@CHECK=$$(grep -r --include="*.go" --exclude-dir="pinniped" --exclude="zz_generated*" ioutil .); \
-	if [ -n "$${CHECK}" ]; then \
-		echo "ioutil is deprecated, use io or os replacements"; \
-		echo "https://go.dev/doc/go1.16#ioutil"; \
-		echo "$${CHECK}"; \
-		exit 1; \
-	fi
+#	# Prevent use of deprecated ioutils module
+#	@CHECK=$$(grep -r --include="*.go" --exclude-dir="pinniped" --exclude="zz_generated*" ioutil .); \
+#	if [ -n "$${CHECK}" ]; then \
+#		echo "ioutil is deprecated, use io or os replacements"; \
+#		echo "https://go.dev/doc/go1.16#ioutil"; \
+#		echo "$${CHECK}"; \
+#		exit 1; \
+#	fi
 
 doc-lint: tools ## Run linting checks for docs
 	$(VALE) --config=.vale/config.ini --glob='*.md' ./
