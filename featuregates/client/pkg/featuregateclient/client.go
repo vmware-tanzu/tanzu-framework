@@ -189,10 +189,10 @@ func getCurrentClusterConfig() (*rest.Config, error) {
 }
 
 // getRestConfigWithContext returns config using the passed context
-func getRestConfigWithContext(context, kubeconfigPath string) (*rest.Config, error) {
+func getRestConfigWithContext(ctx, kubeconfigPath string) (*rest.Config, error) {
 	return clientcmd.NewNonInteractiveDeferredLoadingClientConfig(
 		&clientcmd.ClientConfigLoadingRules{ExplicitPath: kubeconfigPath},
 		&clientcmd.ConfigOverrides{
-			CurrentContext: context,
+			CurrentContext: ctx,
 		}).ClientConfig()
 }
