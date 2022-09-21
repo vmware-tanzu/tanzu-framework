@@ -3,7 +3,7 @@ extends: relaxed
 
 ignore: |
   */tkg/web/node_modules/
-  */pkg/v1/providers/provider-bundle
+  */providers/provider-bundle
 
 rules:
   line-length: disable

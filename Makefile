@@ -22,11 +22,11 @@ TOOLS_DIR := $(abspath hack/tools)
 TOOLS_BIN_DIR := $(TOOLS_DIR)/bin
 BIN_DIR := bin
 ADDONS_DIR := addons
-YTT_TESTS_DIR := pkg/v1/providers/tests
+YTT_TESTS_DIR := providers/tests
 PACKAGES_SCRIPTS_DIR := $(abspath hack/packages/scripts)
 UI_DIR := tkg/web
 GO_MODULES=$(shell find . -path "*/go.mod" | grep -v "^./pinniped" | xargs -I _ dirname _)
-PROVIDER_BUNDLE_ZIP = pkg/v1/providers/client/manifest/providers.zip
+PROVIDER_BUNDLE_ZIP = providers/client/manifest/providers.zip
 TKG_PROVIDER_BUNDLE_ZIP = tkg/tkgctl/client/manifest/providers.zip
 
 PINNIPED_GIT_REPOSITORY = https://github.com/vmware-tanzu/pinniped.git
@@ -192,7 +192,7 @@ prep-build-cli: ensure-pinniped-repo  ## Prepare for building the CLI
 	$(GO) mod tidy -compat=${GOVERSION}
 	EMBED_PROVIDERS_TAG=embedproviders
 ifeq "${BUILD_TAGS}" "${EMBED_PROVIDERS_TAG}"
-	make -C pkg/v1/providers -f Makefile generate-provider-bundle-zip
+	make -C providers -f Makefile generate-provider-bundle-zip
 	cp -f ${PROVIDER_BUNDLE_ZIP} $(TKG_PROVIDER_BUNDLE_ZIP)
 endif
 
@@ -478,13 +478,13 @@ test: generate manifests build-cli-mocks ## Run tests
 	## Skip running TKG integration tests
 	$(MAKE) ytt -C $(TOOLS_DIR)
 
-	echo "Verifying cluster-api packages and pkg/v1/providers are in sync..."
+	echo "Verifying cluster-api packages and providers are in sync..."
 	make -C hack/providers-sync-tools validate
 	echo "... cluster-api packages are in sync"
 
 	## Test the YTT cluster templates
 	echo "Changing into the provider test directory to verify ytt cluster templates..."
-	cd ./pkg/v1/providers/tests/unit && PATH=$(abspath hack/tools/bin):"$(PATH)" $(GO) test -coverprofile coverage1.txt -v -timeout 120s ./
+	cd ./providers/tests/unit && PATH=$(abspath hack/tools/bin):"$(PATH)" $(GO) test -coverprofile coverage1.txt -v -timeout 120s ./
 	echo "... ytt cluster template verification complete!"
 
 	echo "Verifying package tests..."
@@ -695,11 +695,11 @@ generate-package-secret: ## Generate the default package values secret. Usage: m
 
 .PHONY: clustergen
 clustergen: ## Generate diff between 'before' and 'after' of cluster configuration outputs using clustergen
-	CLUSTERGEN_BASE=${CLUSTERGEN_BASE} make -C pkg/v1/providers -f Makefile cluster-generation-diffs
+	CLUSTERGEN_BASE=${CLUSTERGEN_BASE} make -C providers -f Makefile cluster-generation-diffs
 
 .PHONY: generate-embedproviders
 generate-embedproviders: ## Generate provider bundle to be embedded for local testing
-	make -C pkg/v1/providers -f Makefile generate-provider-bundle-zip
+	make -C providers -f Makefile generate-provider-bundle-zip
 	cp -f ${PROVIDER_BUNDLE_ZIP} $(TKG_PROVIDER_BUNDLE_ZIP)
 
 ## --------------------------------------

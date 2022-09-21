@@ -5,7 +5,7 @@
 package client
 
 import (
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/providers/client/manifest"
+	"github.com/vmware-tanzu/tanzu-framework/providers/client/manifest"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/providerinterface"
 )
 
