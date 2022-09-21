@@ -11,8 +11,8 @@ import (
 	. "github.com/onsi/gomega"
 
 	. "github.com/vmware-tanzu/tanzu-framework/tkg/client"
-	"github.com/vmware-tanzu/tanzu-framework/tkg/tkgconfigreaderwriter"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/log"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/tkgconfigreaderwriter"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/utils"
 )
 
