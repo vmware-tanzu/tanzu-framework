@@ -3,6 +3,7 @@
 
 package azure
 
+//nolint:staticcheck
 import (
 	"context"
 	"strings"

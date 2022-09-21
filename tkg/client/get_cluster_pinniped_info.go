@@ -76,7 +76,7 @@ func (c *TkgClient) GetWCClusterPinnipedInfo(regionalClusterClient clusterclient
 		return nil, errors.Wrap(err, "failed to get workload cluster information")
 	}
 
-	// The existing PinnipedInfoConfigMap struct is a marshalled form of a
+	// The existing PinnipedInfoConfigMap struct is a marshaled form of a
 	// ConfigMap. Marshal and unmarshal the raw CM into that struct so we can
 	// use it.
 	// TODO(mayankbh) This is a shorter term approach. The _right_ thing might
@@ -98,7 +98,7 @@ func (c *TkgClient) GetWCClusterPinnipedInfo(regionalClusterClient clusterclient
 	managementClusterPinnipedInfo := &utils.PinnipedConfigMapInfo{}
 
 	// Really, this should never fail unless we're doing something silly like
-	// marshalling a channel/function. Which we aren't.
+	// marshaling a channel/function. Which we aren't.
 	if err := json.Unmarshal(marshalledCM, managementClusterPinnipedInfo); err != nil {
 		return nil, errors.New("failed to unmarshal pinniped-info from management cluster")
 	}

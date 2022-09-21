@@ -14,6 +14,10 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/tkg/tkgconfigbom"
 )
 
+const (
+	verStr = "v0.21.0"
+)
+
 var _ = Describe("Test GetTKGPackageConfigValuesFileFromUserConfig", func() {
 	var (
 		managementPackageVersion string
@@ -64,7 +68,7 @@ tkr-package:
 
 	Context("When provider type is AWS", func() {
 		BeforeEach(func() {
-			managementPackageVersion = "v0.21.0"
+			managementPackageVersion = verStr
 			providerType = "aws"
 			outputFile = "test/output_aws.yaml"
 		})
@@ -80,7 +84,7 @@ tkr-package:
 
 	Context("When provider type is vSphere", func() {
 		BeforeEach(func() {
-			managementPackageVersion = "v0.21.0"
+			managementPackageVersion = verStr
 			providerType = "vsphere"
 			outputFile = "test/output_vsphere.yaml"
 		})
@@ -96,7 +100,7 @@ tkr-package:
 
 	Context("When provider type is Azure", func() {
 		BeforeEach(func() {
-			managementPackageVersion = "v0.21.0"
+			managementPackageVersion = verStr
 			providerType = "azure"
 			outputFile = "test/output_azure.yaml"
 		})
@@ -112,7 +116,7 @@ tkr-package:
 
 	Context("When provider type is Docker", func() {
 		BeforeEach(func() {
-			managementPackageVersion = "v0.21.0"
+			managementPackageVersion = verStr
 			providerType = "docker"
 			outputFile = "test/output_docker.yaml"
 		})
@@ -128,7 +132,7 @@ tkr-package:
 
 	Context("When provider type is not provided", func() {
 		BeforeEach(func() {
-			managementPackageVersion = "v0.21.0"
+			managementPackageVersion = verStr
 			providerType = ""
 		})
 		It("should not return error", func() {

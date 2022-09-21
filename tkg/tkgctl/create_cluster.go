@@ -52,8 +52,8 @@ type CreateClusterOptions struct {
 	Edition string
 }
 
-//nolint:gocritic
 // CreateCluster create tkg cluster
+//nolint:gocritic,gocyclo,revive
 func (t *tkgctl) CreateCluster(cc CreateClusterOptions) error {
 	isTKGSCluster, err := t.tkgClient.IsPacificManagementCluster()
 	if err != nil {
@@ -65,8 +65,8 @@ func (t *tkgctl) CreateCluster(cc CreateClusterOptions) error {
 	}
 	if cc.GenerateOnly && isInputFileClusterClassBased {
 		if config, err := os.ReadFile(cc.ClusterConfigFile); err == nil {
-			_, err = os.Stdout.Write(config)
-			return err
+			_, err1 := os.Stdout.Write(config)
+			return err1
 		} else {
 			return err
 		}
@@ -211,7 +211,7 @@ func (t *tkgctl) validateTKGSFeatureGateStatus(isInputFileClusterClassBased bool
 	} else {
 		isTKCFeatureActivated, err := t.featureGateHelper.FeatureActivatedInNamespace(context.Background(), constants.TKCAPIFeature, constants.TKGSTKCAPINamespace)
 		if err != nil {
-			//ignore the error, because the supervisor could be vSphere7 based (which does not support tkc-api featuregate)
+			// ignore the error, because the supervisor could be vSphere7 based (which does not support tkc-api featuregate)
 			return nil
 		}
 		if !isTKCFeatureActivated {

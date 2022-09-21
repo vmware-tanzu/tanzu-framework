@@ -13,8 +13,8 @@ import (
 	"k8s.io/apimachinery/pkg/util/sets"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
-	"github.com/vmware-tanzu/tanzu-framework/apis/config/v1alpha1"
 	configv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/config/v1alpha1"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/api/tmc/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/clusterclient"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/constants"
 )
@@ -145,7 +145,7 @@ func namespacesMatchingSelector(ctx context.Context, c client.Client, selector *
 // API to decide ClusterClass feature is supported or not.
 // Assumption is only vSphere8 based TKGS clusters will have this featuregate API as well as support for
 // ClusterClass feature
-func (fg *featureGateHelper) isClusterClassFeatureActivated(clusterClient clusterclient.Client, feature, namespace string) (bool, error) {
+func (fg *featureGateHelper) isClusterClassFeatureActivated(clusterClient clusterclient.Client, feature, namespace string) (bool, error) { //nolint:unparam
 	isFeaturegateCRDExists, err := clusterClient.VerifyExistenceOfCRD("featuregates", configv1alpha1.GroupVersion.Group)
 	if err != nil {
 		return false, err

@@ -763,7 +763,7 @@ func isNewAzureTemplateRequired(machineTemplate *capzv1beta1.AzureMachineTemplat
 		return true
 	}
 
-	if isSharedGalleryImage(&clusterUpgradeConfig.UpgradeComponentInfo.AzureImage) && // nolint:dupl
+	if isSharedGalleryImage(&clusterUpgradeConfig.UpgradeComponentInfo.AzureImage) && //nolint:dupl
 		(machineTemplate.Spec.Template.Spec.Image.SharedGallery == nil ||
 			machineTemplate.Spec.Template.Spec.Image.SharedGallery.ResourceGroup != clusterUpgradeConfig.UpgradeComponentInfo.AzureImage.ResourceGroup ||
 			machineTemplate.Spec.Template.Spec.Image.SharedGallery.Name != clusterUpgradeConfig.UpgradeComponentInfo.AzureImage.Name ||

@@ -28,7 +28,7 @@ func GetClusterBootstrap(managementClusterClient clusterclient.Client, clusterNa
 }
 
 // GetCorePackagesFromClusterBootstrap returns addon's core packages details from the given ClusterBootstrap object
-func GetCorePackagesFromClusterBootstrap(regionalClusterClient clusterclient.Client, workloadClusterClient clusterclient.Client, clusterBootstrap *runtanzuv1alpha3.ClusterBootstrap, corePackagesNamespace, clusterName string) ([]kapppkgv1alpha1.Package, error) {
+func GetCorePackagesFromClusterBootstrap(regionalClusterClient clusterclient.Client, workloadClusterClient clusterclient.Client, clusterBootstrap *runtanzuv1alpha3.ClusterBootstrap, corePackagesNamespace, clusterName string) ([]kapppkgv1alpha1.Package, error) { //nolint:gocritic
 	var packages []kapppkgv1alpha1.Package
 	// kapp package is installed in management cluster, in namespace in which workload cluster created
 	if isPackageExists(clusterBootstrap.Spec.Kapp) {
@@ -92,12 +92,12 @@ func GeneratePackageInstallName(clusterName, addonName string) string {
 }
 
 // MonitorAddonsCorePackageInstallation monitors addon's core packages (kapp, cni, csi and cpi) and returns error if any while monitoring packages or any packages are not installed successfully. First it monitors kapp package in management cluster then it monitors other core packages in workload cluster.
-func MonitorAddonsCorePackageInstallation(regionalClusterClient clusterclient.Client, workloadClusterClient clusterclient.Client, packages []kapppkgv1alpha1.Package, packageInstallTimeout time.Duration) error {
+func MonitorAddonsCorePackageInstallation(regionalClusterClient clusterclient.Client, workloadClusterClient clusterclient.Client, packages []kapppkgv1alpha1.Package, packageInstallTimeout time.Duration) error { //nolint:gocritic
 	if len(packages) == 0 {
 		return nil
 	}
 	var corePackagesOnWorkloadCluster, corePackagesOnManagementCluster []kapppkgv1alpha1.Package
-	for _, currentPackage := range packages {
+	for _, currentPackage := range packages { //nolint:gocritic
 		if strings.Contains(currentPackage.ObjectMeta.Name, "kapp-controller") {
 			corePackagesOnManagementCluster = append(corePackagesOnManagementCluster, currentPackage)
 		} else {
@@ -117,7 +117,7 @@ func WaitForPackagesInstallation(clusterClient clusterclient.Client, packages []
 	// we are using currentClusterClient which will point to correct cluster
 	group, _ := errgroup.WithContext(context.Background())
 
-	for _, currentPackage := range packages {
+	for _, currentPackage := range packages { //nolint:gocritic
 		pn := currentPackage.ObjectMeta.Name
 		ns := currentPackage.ObjectMeta.Namespace
 		log.V(3).Warningf("waiting for package: '%s'", pn)

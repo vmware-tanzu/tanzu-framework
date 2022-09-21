@@ -70,7 +70,7 @@ func pauseAddonSecretReconciliation(clusterClient clusterclient.Client, addonSec
 	jsonPatch := []map[string]interface{}{
 		{
 			"op":    "add",
-			"path":  fmt.Sprintf("/metadata/annotations/tkg.tanzu.vmware.com~1addon-paused"),
+			"path":  "/metadata/annotations/tkg.tanzu.vmware.com~1addon-paused",
 			"value": "",
 		},
 	}
@@ -113,7 +113,7 @@ func pausePackageInstallReconciliation(clusterClient clusterclient.Client, pkgiN
 	return nil
 }
 
-// PausedAddonLifecycleManagement pauses/unpauses the lifecycle management of addon package with given name and namespace
+// PauseAddonLifecycleManagement pauses/unpauses the lifecycle management of addon package with given name and namespace
 func PauseAddonLifecycleManagement(clusterClient clusterclient.Client, clusterName, addonName, namespace string) error {
 	log.Infof("Pausing lifecycle management for %s", addonName)
 	pkgiName := fmt.Sprintf("tanzu-%s", addonsManagerName)

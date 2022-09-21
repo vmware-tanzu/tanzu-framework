@@ -16,10 +16,13 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/tkg/fakes"
 )
 
+//nolint:goimports
 const (
-	md0Name     = "md-0"
-	md1Name     = "md-1"
-	unknownName = "unknown"
+	md0Name      = "md-0"
+	md1Name      = "md-1"
+	unknownName  = "unknown"
+	osNameUbuntu = "os-name=ubuntu"
+	tkgWorker    = "tkg-worker"
 )
 
 var _ = Describe("GetMachineDeploymentCC", func() {
@@ -441,7 +444,7 @@ var _ = Describe("SetMachineDeploymentCC", func() {
 								{
 									Name:     md0Name,
 									Replicas: func(i int32) *int32 { return &i }(1),
-									Class:    "tkg-worker",
+									Class:    tkgWorker,
 									Variables: &capi.MachineDeploymentVariables{
 										Overrides: []capi.ClusterVariable{
 											{
@@ -456,7 +459,7 @@ var _ = Describe("SetMachineDeploymentCC", func() {
 								{
 									Name:     md1Name,
 									Replicas: func(i int32) *int32 { return &i }(2),
-									Class:    "tkg-worker",
+									Class:    tkgWorker,
 									Variables: &capi.MachineDeploymentVariables{
 										Overrides: []capi.ClusterVariable{
 											{
@@ -507,8 +510,8 @@ var _ = Describe("SetMachineDeploymentCC", func() {
 		Context("without a base machine deployment", func() {
 			BeforeEach(func() {
 				options.NodeMachineType = "t3.large"
-				options.WorkerClass = "tkg-worker"
-				options.TKRResolver = "os-name=ubuntu"
+				options.WorkerClass = tkgWorker
+				options.TKRResolver = osNameUbuntu
 			})
 
 			It("should populate the machine deployment", func() {
@@ -565,8 +568,8 @@ var _ = Describe("SetMachineDeploymentCC", func() {
 				options.VSphere.StoragePolicyName = "policy"
 				options.VSphere.VCIP = "1.1.1.1"
 
-				options.WorkerClass = "tkg-worker"
-				options.TKRResolver = "os-name=ubuntu"
+				options.WorkerClass = tkgWorker
+				options.TKRResolver = osNameUbuntu
 			})
 
 			It("should populate the vsphere machine", func() {
@@ -621,12 +624,12 @@ var _ = Describe("SetMachineDeploymentCC", func() {
 								{
 									Name:     md0Name,
 									Replicas: func(i int32) *int32 { return &i }(1),
-									Class:    "tkg-worker",
+									Class:    tkgWorker,
 								},
 								{
 									Name:     md1Name,
 									Replicas: func(i int32) *int32 { return &i }(2),
-									Class:    "tkg-worker",
+									Class:    tkgWorker,
 								},
 							},
 						},
