@@ -45,7 +45,7 @@ func newCompileCmd() *cobra.Command {
 		},
 	}
 
-	cmd.Flags().StringVar(&compileArgs.Version, "version", "", "Version of the root cli (required)")
+	cmd.Flags().StringVar(&compileArgs.Version, "version", "", "Version of the core tanzu cli")
 	cmd.Flags().StringVar(&compileArgs.LDFlags, "ldflags", "", "ldflags to set on build")
 	cmd.Flags().StringVar(&compileArgs.Tags, "tags", "", "Tags to set on build")
 	cmd.Flags().StringVar(&compileArgs.Match, "match", compileArgs.Match, "Match a plugin name to build, supports globbing")
@@ -54,8 +54,6 @@ func newCompileCmd() *cobra.Command {
 	cmd.Flags().StringVar(&compileArgs.ArtifactsDir, "artifacts", compileArgs.ArtifactsDir, "Path to output artifacts")
 	cmd.Flags().StringVar(&compileArgs.CorePath, "corepath", "", "Path for core binary")
 	cmd.Flags().StringVar(&compileArgs.GoPrivate, "goprivate", "", "Comma-separated list of glob patterns of module path prefixes to set as GOPRIVATE on build")
-
-	_ = cmd.MarkFlagRequired("version")
 
 	return cmd
 }

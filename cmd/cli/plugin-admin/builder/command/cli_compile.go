@@ -131,10 +131,6 @@ type errInfo struct {
 // setGlobals initializes a set of global variables used throughout the compile
 // process, based on the arguments passed in.
 func setGlobals(compileArgs *PluginCompileArgs) {
-	if compileArgs.Version == "" {
-		log.Fatal("version value must be set")
-	}
-
 	version = compileArgs.Version
 	artifactsDir = compileArgs.ArtifactsDir
 	ldflags = compileArgs.LDFlags
