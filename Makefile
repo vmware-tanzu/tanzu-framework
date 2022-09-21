@@ -527,6 +527,11 @@ yamllint:
 
 #$(GOLANGCI_LINT) run -v --timeout=10m || exit 1; \
 
+go-lint2: tools ## Run linting of go source
+	@echo "-- Linting $$i --"; \
+	pushd $${i}; \
+	$(GOLANGCI_LINT) run -v --timeout=10m
+
 go-lint: tools ## Run linting of go source
 	@for i in $(GO_MODULES); do \
 		echo "-- Linting $$i --"; \
@@ -535,14 +540,14 @@ go-lint: tools ## Run linting of go source
 		popd; \
 	done
 
-#	# Prevent use of deprecated ioutils module
-#	@CHECK=$$(grep -r --include="*.go" --exclude-dir="pinniped" --exclude="zz_generated*" ioutil .); \
-#	if [ -n "$${CHECK}" ]; then \
-#		echo "ioutil is deprecated, use io or os replacements"; \
-#		echo "https://go.dev/doc/go1.16#ioutil"; \
-#		echo "$${CHECK}"; \
-#		exit 1; \
-#	fi
+	# Prevent use of deprecated ioutils module
+	@CHECK=$$(grep -r --include="*.go" --exclude-dir="pinniped" --exclude="zz_generated*" ioutil .); \
+	if [ -n "$${CHECK}" ]; then \
+		echo "ioutil is deprecated, use io or os replacements"; \
+		echo "https://go.dev/doc/go1.16#ioutil"; \
+		echo "$${CHECK}"; \
+		exit 1; \
+	fi
 
 doc-lint: tools ## Run linting checks for docs
 	$(VALE) --config=.vale/config.ini --glob='*.md' ./
