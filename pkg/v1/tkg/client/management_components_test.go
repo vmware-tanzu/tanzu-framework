@@ -10,9 +10,9 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
-	. "github.com/vmware-tanzu/tanzu-framework/tkg/client"
+	. "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/client"
+	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgconfigreaderwriter"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/log"
-	"github.com/vmware-tanzu/tanzu-framework/tkg/tkgconfigreaderwriter"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/utils"
 )
 
@@ -99,7 +99,7 @@ Test4:
 var _ = Describe("Unit tests for GetKappControllerConfigValuesFile", func() {
 	var (
 		err                               error
-		kappControllerValuesYttDir        = "../../providers/kapp-controller-values"
+		kappControllerValuesYttDir        = "../../../../providers/kapp-controller-values"
 		inputDataValuesFile               string
 		processedKappControllerValuesFile string
 		outputKappControllerValuesFile    string

@@ -1,7 +1,7 @@
 --CONTROLPLANE-MACHINE-COUNT: "NOTPROVIDED"
 --WORKER-MACHINE-COUNT:       "NOTPROVIDED"
 --CONTROLPLANE-SIZE:          "NOTPROVIDED"
---TKR:                        "NOTPROVIDED", "v1.23.8+vmware.2-tkg.1-zshippable"
+--TKR:                        "NOTPROVIDED", "v1.23.5+vmware.1-tkg.1-zshippable"
 --NAMESPACE:                  "NOTPROVIDED"
 --SIZE:                       "NOTPROVIDED"
 --WORKER-SIZE:                "NOTPROVIDED"

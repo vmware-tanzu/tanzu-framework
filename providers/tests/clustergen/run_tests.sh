@@ -42,7 +42,7 @@ generate_cluster_configurations() {
     exit 1
   fi
 
-  echo "# results" >${outputdir}/results_${infra}.txt
+  echo "# failed cases" >${outputdir}/failed.txt
   echo "Running $TKG config cluster ..."
   for t in $matched_cases; do
     cmdargs=()
@@ -52,7 +52,7 @@ generate_cluster_configurations() {
     $TKG --file /tmp/test_tkg_config --configdir ${TKG_CONFIG_DIR} --log_file /tmp/"$t".log config cluster "${cmdargs[@]}" 2>/tmp/err.txt 1>/tmp/expected.yaml
     RESULT=$?
     if [[ $RESULT -eq 0 ]]; then
-      echo "$t":POS >>${outputdir}/results_${infra}.txt
+      echo "$t":POS >>${outputdir}/failed.txt
       # normalize should not modify the yaml node trees, so doing so before saving to expected to
       # reduce the chance of generating diffs due to template formatting differences in the future.
       normalize /tmp/expected.yaml ${outputdir}/"$t".output
@@ -60,16 +60,13 @@ generate_cluster_configurations() {
         ${CLUSTERCTL} alpha generate-normalized-topology -r -f /tmp/expected.yaml > ${outputdircc}/"$t".norm.output
       fi
       echo -n "$t (POS) : "
-      # saves the TKR used for this test case to be used on to generated the
-      # CC-based output later
-      TKR_USED=$(grep tanzuKubernetesRelease: /tmp/expected.yaml | cut -d: -f2 | cut -b2- | perl -pe 's/---/+/')
     else
       # failure to generate a working configuration can be due to a variety of reasons. They are
       # represented as a NEGative test case. The output of the failed command is captured and is part
       # of the compliance dataset.
       cp "$t" /tmp/test_tkg_config
       $TKG --file /tmp/test_tkg_config --configdir ${TKG_CONFIG_DIR} --log_file /tmp/"$t".log config cluster "${cmdargs[@]}" &>${outputdir}/"$t".output
-      echo "$t":NEG >>${outputdir}/results_${infra}.txt
+      echo "$t":NEG >>${outputdir}/failed.txt
       echo -n "$t (NEG) : "
     fi
     echo "${cmdargs[@]}"
@@ -84,10 +81,9 @@ generate_cluster_configurations() {
         if [[ "${infra}" == "aws" ]]; then
           cat <<- EOF >> /tmp/test_tkg_config_cc
 TKR_DATA: |-
-  ${TKR_USED}:
   v1.23.5+vmware.1:
     kubernetesSpec:
-      version: ${TKR_USED}
+      version: v1.23.5+vmware.1
       imageRepository: projects-stg.registry.vmware.com
       etcd:
         imageTag: v1.0.0-test
@@ -107,9 +103,9 @@ EOF
         if [[ "${infra}" == "vsphere" ]]; then
           cat <<- EOF >> /tmp/test_tkg_config_cc
 TKR_DATA: |-
-  ${TKR_USED}:
+  v1.21.2:
     kubernetesSpec:
-      version: ${TKR_USED}
+      version: v1.21.2
       imageRepository: projects-stg.registry.vmware.com
       etcd:
         imageTag: v1.0.0-test
@@ -127,9 +123,9 @@ EOF
           if grep -q "AZURE_IMAGE_GALLERY" /tmp/test_tkg_config_cc; then
             cat <<- EOF >> /tmp/test_tkg_config_cc
 TKR_DATA: |-
-  ${TKR_USED}:
+  v1.23.5+vmware.1:
     kubernetesSpec:
-      version: ${TKR_USED}:
+      version: v1.23.5+vmware.1
       imageRepository: projects-stg.registry.vmware.com
       etcd:
         imageTag: v1.0.0-test
@@ -149,9 +145,9 @@ EOF
           else
             cat <<- EOF >> /tmp/test_tkg_config_cc
 TKR_DATA: |-
-  ${TKR_USED}:
+  v1.23.5+vmware.1:
     kubernetesSpec:
-      version: ${TKR_USED}:
+      version: v1.23.5+vmware.1
       imageRepository: projects-stg.registry.vmware.com
       etcd:
         imageTag: v1.0.0-test

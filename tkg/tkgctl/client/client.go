@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 // Package client provides access to the providers template data
-// Copied over from github.com/vmware-tanzu/tanzu-framework/pkg/v1/providers/client
+// Copied over from github.com/vmware-tanzu/tanzu-framework/providers/client
 package client
 
 import (

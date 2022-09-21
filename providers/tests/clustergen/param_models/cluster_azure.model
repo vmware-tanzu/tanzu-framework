@@ -1,7 +1,7 @@
 --CONTROLPLANE-MACHINE-COUNT: "NOTPROVIDED", "1","3","5"
 --WORKER-MACHINE-COUNT:       "NOTPROVIDED", "3"
 --CONTROLPLANE-SIZE:          "NOTPROVIDED", "i3.xlarge"
---TKR:                        "NOTPROVIDED", "v1.23.8+vmware.2-tkg.1-zshippable", "v0.0.0+no-azure-image", "v0.0.0+marketplace-image", "v0.0.0+marketplace-image-no-thirdpartyimage", "v0.0.0+shared-gallery-image"
+--TKR:                        "NOTPROVIDED", "v1.23.5+vmware.1-tkg.1-zshippable", "v0.0.0+no-azure-image", "v0.0.0+marketplace-image", "v0.0.0+marketplace-image-no-thirdpartyimage", "v0.0.0+shared-gallery-image"
 --NAMESPACE:                  "NOTPROVIDED", "default", "test"
 --SIZE:                       "NOTPROVIDED", "t3.medium"
 --WORKER-SIZE:                "NOTPROVIDED", "m5.xlarge"
