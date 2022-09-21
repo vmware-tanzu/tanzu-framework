@@ -32,6 +32,7 @@ func PopulateContexts(cfg *configapi.ClientConfig) bool {
 		cfg.KnownContexts = append(cfg.KnownContexts, c)
 
 		if s.Name == cfg.CurrentServer {
+			// nolint:errcheck
 			cfg.SetCurrentContext(c.Type, c.Name)
 		}
 	}

@@ -1,6 +1,7 @@
 // Copyright 2021 VMware, Inc. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
+// Package test provides a tanzu cli test framework
 package test
 
 import (
@@ -382,8 +383,9 @@ func Exec(command string) (stdOut, stdErr *bytes.Buffer, err error) {
 
 func copyAndCapture(w io.Writer, r io.Reader) ([]byte, error) {
 	var out []byte
-	buf := make([]byte, 1024, 1024)
+	buf := make([]byte, 1024)
 	for {
+		// nolint:gocritic
 		n, err := r.Read(buf[:])
 		if n > 0 {
 			d := buf[:n]
@@ -463,7 +465,7 @@ func (t *Test) ExecContainsErrorString(contains string) error {
 	return nil
 }
 
-// ExecContainsStdErrorString executes the command and checks if the StdError contains the given string.
+// ExecNotContainsStdErrorString executes the command and checks if the StdError contains the given string.
 func (t *Test) ExecNotContainsStdErrorString(contains string) error {
 	err := ExecNotContainsStdErrorString(t.Command, contains)
 	if err != nil {
@@ -483,7 +485,7 @@ func ExecContainsErrorString(command, contains string) error {
 	return ContainsString(stdErr, contains)
 }
 
-// ExecContainsStdErrorString checks that the given command stdErr output contains the string
+// ExecNotContainsStdErrorString checks that the given command stdErr output contains the string
 func ExecNotContainsStdErrorString(command, contains string) error {
 	_, stdErr, err := Exec(command)
 	if err != nil && stdErr == nil {
