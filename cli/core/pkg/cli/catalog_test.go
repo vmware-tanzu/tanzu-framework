@@ -1,7 +1,7 @@
 // Copyright 2021 VMware, Inc. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-// nolint:unused
+//nolint:deadcode,unused
 package cli
 
 import (

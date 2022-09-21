@@ -1,8 +1,8 @@
 // Copyright 2021 VMware, Inc. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-// nolint: staticcheck
-// Package core creates and initializes the tanzu CLI.
+// Package command creates and initializes the tanzu CLI.
+//nolint:staticcheck
 package command
 
 import (

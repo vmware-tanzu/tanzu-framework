@@ -1,6 +1,7 @@
 // Copyright 2021 VMware, Inc. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
+//nolint:gocritic
 package command
 
 import (
@@ -253,13 +254,13 @@ var initConfigCmd = &cobra.Command{
 }
 
 // Note: Shall be deprecated in a future version. Superseded by 'tanzu context' command.
-var serversCmd = &cobra.Command{ // nolint:gocritic
+var serversCmd = &cobra.Command{
 	Use:   "server",
 	Short: "Configured servers",
 }
 
 // Note: Shall be deprecated in a future version. Superseded by 'tanzu context list' command.
-var listServersCmd = &cobra.Command{ // nolint:gocritic
+var listServersCmd = &cobra.Command{
 	Use:   "list",
 	Short: "List servers",
 	RunE: func(cmd *cobra.Command, args []string) error {
@@ -286,7 +287,7 @@ var listServersCmd = &cobra.Command{ // nolint:gocritic
 }
 
 // Note: Shall be deprecated in a future version. Superseded by 'tanzu context delete' command.
-var deleteServersCmd = &cobra.Command{ // nolint:gocritic
+var deleteServersCmd = &cobra.Command{
 	Use:   "delete SERVER_NAME",
 	Short: "Delete a server from the config",
 
