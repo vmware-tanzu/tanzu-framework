@@ -10,7 +10,7 @@ spec:
     #@overlay/match missing_ok=True
     machineHealthCheck:
       #@ if data.values.ENABLE_MHC or data.values.ENABLE_MHC_CONTROL_PLANE:
-      nodeStartupTimeout: #@ data.values.NODE_STARTUP_TIMEOUT
+      nodeStartupTimeout: 90
       unhealthyConditions:
       - type: Ready
         status: Unknown

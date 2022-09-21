@@ -22,24 +22,28 @@ jobs:
         go-version: '1.17'
       id: go
 
-    - name: go cache
-      uses: actions/cache@v3
-      with:
-        path: |
-          ~/.cache/go-build
-          ~/go/pkg/mod
-        key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
-        restore-keys: |
-          ${{ runner.os }}-go-
-
-    - name: Cache linting
-      uses: actions/cache@v3
-      with:
-        path: ${{ runner.temp }}/lint_cache
-        key: ${{ runner.os }}-lint-cache-2
-
-    - name: Run lint checks
-      env:
-        GOLANGCI_LINT_CACHE: ${{ runner.temp }}/lint_cache
+    - name: Run test step make verify
       run: |
-        make lint
+        make verify
+
+#    - name: go cache
+#      uses: actions/cache@v3
+#      with:
+#        path: |
+#          ~/.cache/go-build
+#          ~/go/pkg/mod
+#        key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+#        restore-keys: |
+#          ${{ runner.os }}-go-
+#
+#    - name: Cache linting
+#      uses: actions/cache@v3
+#      with:
+#        path: ${{ runner.temp }}/lint_cache
+#        key: ${{ runner.os }}-lint-cache-2
+#
+#    - name: Run lint checks
+#      env:
+#        GOLANGCI_LINT_CACHE: ${{ runner.temp }}/lint_cache
+#      run: |
+#        make lint
