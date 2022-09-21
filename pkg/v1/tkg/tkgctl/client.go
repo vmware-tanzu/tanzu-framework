@@ -25,6 +25,7 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/tkg/tkgconfigupdater"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/types"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/utils"
+	providergetterclient "github.com/vmware-tanzu/tanzu-framework/providers/client"
 )
 
 type tkgctl struct {
