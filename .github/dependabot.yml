@@ -33,7 +33,7 @@ updates:
       interval: "daily"
 
   - package-ecosystem: "gomod"
-    directory: "pkg/v1/providers/tests/"
+    directory: "providers/tests/"
     schedule:
       interval: "daily"
 

@@ -7,7 +7,7 @@ on:
     - 'tkg/**'
     - '!packageclients/**'
     - '!cmd/cli/plugin/package/test/**'
-    - 'pkg/v1/providers/**'
+    - 'providers/**'
     - '.github/workflows/tkg_integration_tests.yaml'
 
 concurrency:
