@@ -567,8 +567,9 @@ verify: ## Run all verification scripts
 	./hack/verify-dirty.sh
 
 .PHONY: verify-test
-verify-test: verify
-	echo verify-test
+verify-test:
+	exit 1
+#	echo verify-test
 
 .PHONY: clean-catalog-cache
 clean-catalog-cache: ## Cleans catalog cache
