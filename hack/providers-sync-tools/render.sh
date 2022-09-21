@@ -33,5 +33,5 @@ render_upstream_package_file "cluster-api-provider-vsphere"
 
 # infrastructure-docker: The infrastructure-components.yaml is named
 # infrastructure-components-development.yaml upstream. Renaming it to
-# infrastructure-components.yaml here to match pkg/v1/providers naming.
+# infrastructure-components.yaml here to match providers naming.
 mv cluster-api-provider-docker/build/rendered/upstream/infrastructure-components{-development,}.yaml

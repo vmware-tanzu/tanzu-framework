@@ -1,6 +1,6 @@
 # Library components in tkgctl
 
- This library includes coresponding [providers](/pkg/v1/providers) to provide the templates and ytt overlays required to generate cluster configuration YAML documents.
+ This library includes coresponding [providers](/providers) to provide the templates and ytt overlays required to generate cluster configuration YAML documents.
 
 ## [tkgctl library](/tkg/tkgctl)
 
@@ -89,8 +89,8 @@ reference:
 * This uses bundled go-bindata file which contains kick-start UI bits
 * API is developed using swagger specification which gets used by UI as well as backend
 
-## [Providers](/pkg/v1/providers)
+## [Providers](/providers)
 
 * This package maintains a set of CAPI provider CRDs, cluster templates, and ytt overlays required by the library.
 * This allows cluster configuration generation to be customizable potentially without modifying a single line of golang code.
-* More information regarding providers are [here](/pkg/v1/providers)
+* More information regarding providers are [here](/providers)
