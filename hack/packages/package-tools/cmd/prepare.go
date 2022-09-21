@@ -5,6 +5,7 @@ package cmd
 
 import (
 	"bytes"
+	"context"
 	_ "embed" // required to embed file
 	"fmt"
 	"io"
@@ -77,7 +78,7 @@ func downloadCarvelBinaries() error {
 		fmt.Printf("Downloading %q binary, version: %q \n", tool.Name, tool.Version)
 
 		// resolve the url template and get the url
-		t, err := template.New("url").Parse(tool.Url)
+		t, err := template.New("url").Parse(tool.URL)
 		if err != nil {
 			return err
 		}
@@ -95,7 +96,12 @@ func downloadCarvelBinaries() error {
 			return err
 		}
 
-		resp, err := http.Get(url.String())
+		httpClient := &http.Client{}
+		req, err := http.NewRequestWithContext(context.Background(), http.MethodGet, url.String(), nil)
+		if err != nil {
+			return fmt.Errorf("couldn't download %s binary: %w", tool.Name, err)
+		}
+		resp, err := httpClient.Do(req)
 		if err != nil {
 			return fmt.Errorf("couldn't download %s binary: %w", tool.Name, err)
 		}
