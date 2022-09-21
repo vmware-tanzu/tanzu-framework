@@ -13,8 +13,8 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
+	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/webhooks"
 	"github.com/vmware-tanzu/tanzu-framework/addons/test/testutil"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/webhooks"
 )
 
 var _ = Describe("Webhook", func() {

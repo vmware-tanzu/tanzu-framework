@@ -24,11 +24,11 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/source"
 	"sigs.k8s.io/yaml"
 
+	tkrv1 "github.com/vmware-tanzu/tanzu-framework/apis/run/pkg/tkr/v1"
 	"github.com/vmware-tanzu/tanzu-framework/apis/run/util/sets"
 	"github.com/vmware-tanzu/tanzu-framework/apis/run/util/version"
 	runv1 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkr/pkg/constants"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkr/pkg/types"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/util/patchset"
 )
 
@@ -197,7 +197,7 @@ func (c *Compatibility) getManagementClusterVersion(ctx context.Context) (string
 	return "", nil
 }
 
-func (c *Compatibility) compatibilityMetadata(ctx context.Context) (*types.CompatibilityMetadata, error) {
+func (c *Compatibility) compatibilityMetadata(ctx context.Context) (*tkrv1.CompatibilityMetadata, error) {
 	cm := &corev1.ConfigMap{}
 	cmObjectKey := client.ObjectKey{Namespace: c.Config.TKRNamespace, Name: constants.BOMMetadataConfigMapName}
 	if err := c.Client.Get(ctx, cmObjectKey, cm); err != nil {
@@ -211,7 +211,7 @@ func (c *Compatibility) compatibilityMetadata(ctx context.Context) (*types.Compa
 		return nil, nil
 	}
 
-	var metadata types.CompatibilityMetadata
+	var metadata tkrv1.CompatibilityMetadata
 	if err := yaml.Unmarshal(metadataContent, &metadata); err != nil {
 		c.Log.Error(err, "Error parsing compatibility data", "ConfigMap", cmObjectKey,
 			"key", fmt.Sprintf("binaryData.%s", constants.BOMMetadataCompatibilityKey))

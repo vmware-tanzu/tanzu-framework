@@ -16,7 +16,7 @@ import (
 	"github.com/avinetworks/sdk/go/session"
 	"github.com/pkg/errors"
 
-	avi_models "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/web/server/models"
+	avi_models "github.com/vmware-tanzu/tanzu-framework/tkg/web/server/models"
 )
 
 // AviSessionTimeout is timeout for avi session

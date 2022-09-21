@@ -20,13 +20,13 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/tools/clientcmd"
 
-	cliv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
-	configv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/config/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/auth/csp"
 	tkgauth "github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/auth/tkg"
 	wcpauth "github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/auth/wcp"
 	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/cli"
 	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/pluginmanager"
+	cliapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/cli/v1alpha1"
+	configapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/config/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/component"
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/config"
 )
@@ -45,7 +45,7 @@ var contextCmd = &cobra.Command{
 	Short:   "Configure and manage contexts for the Tanzu CLI",
 	Aliases: []string{"ctx", "contexts"},
 	Annotations: map[string]string{
-		"group": string(cliv1alpha1.SystemCmdGroup),
+		"group": string(cliapi.SystemCmdGroup),
 	},
 }
 
@@ -112,7 +112,7 @@ func createCtx(_ *cobra.Command, _ []string) (err error) {
 	if err != nil {
 		return err
 	}
-	if ctx.Type == configv1alpha1.CtxTypeK8s {
+	if ctx.Type == configapi.CtxTypeK8s {
 		err = k8sLogin(ctx)
 	} else {
 		err = globalLogin(ctx)
@@ -151,7 +151,7 @@ func getPromptOpts() []component.PromptOpt {
 	return promptOpts
 }
 
-func createNewContext() (context *configv1alpha1.Context, err error) {
+func createNewContext() (context *configapi.Context, err error) {
 	// user provided command line options to create a context using kubeconfig[optional] and context
 	if kubeContext != "" {
 		return createContextWithKubeconfig()
@@ -184,7 +184,7 @@ func createNewContext() (context *configv1alpha1.Context, err error) {
 	return createContextWithKubeconfig()
 }
 
-func createContextWithKubeconfig() (context *configv1alpha1.Context, err error) {
+func createContextWithKubeconfig() (context *configapi.Context, err error) {
 	promptOpts := getPromptOpts()
 	if kubeConfig == "" && kubeContext == "" {
 		err = component.Prompt(
@@ -235,10 +235,10 @@ func createContextWithKubeconfig() (context *configv1alpha1.Context, err error) 
 		return
 	}
 
-	context = &configv1alpha1.Context{
+	context = &configapi.Context{
 		Name: ctxName,
-		Type: configv1alpha1.CtxTypeK8s,
-		ClusterOpts: &configv1alpha1.ClusterServer{
+		Type: configapi.CtxTypeK8s,
+		ClusterOpts: &configapi.ClusterServer{
 			Path:                kubeConfig,
 			Context:             kubeContext,
 			Endpoint:            endpoint,
@@ -248,7 +248,7 @@ func createContextWithKubeconfig() (context *configv1alpha1.Context, err error) 
 	return context, err
 }
 
-func createContextWithEndpoint() (context *configv1alpha1.Context, err error) {
+func createContextWithEndpoint() (context *configapi.Context, err error) {
 	promptOpts := getPromptOpts()
 	if endpoint == "" {
 		err = component.Prompt(
@@ -285,10 +285,10 @@ func createContextWithEndpoint() (context *configv1alpha1.Context, err error) {
 	}
 
 	if isGlobalContext(endpoint) {
-		context = &configv1alpha1.Context{
+		context = &configapi.Context{
 			Name:       ctxName,
-			Type:       configv1alpha1.CtxTypeTMC,
-			GlobalOpts: &configv1alpha1.GlobalServer{Endpoint: sanitizeEndpoint(endpoint)},
+			Type:       configapi.CtxTypeTMC,
+			GlobalOpts: &configapi.GlobalServer{Endpoint: sanitizeEndpoint(endpoint)},
 		}
 	} else {
 		// While this would add an extra HTTP round trip, it avoids the need to
@@ -314,10 +314,10 @@ func createContextWithEndpoint() (context *configv1alpha1.Context, err error) {
 			}
 		}
 
-		context = &configv1alpha1.Context{
+		context = &configapi.Context{
 			Name: ctxName,
-			Type: configv1alpha1.CtxTypeK8s,
-			ClusterOpts: &configv1alpha1.ClusterServer{
+			Type: configapi.CtxTypeK8s,
+			ClusterOpts: &configapi.ClusterServer{
 				Path:                kubeConfig,
 				Context:             kubeContext,
 				Endpoint:            endpoint,
@@ -328,7 +328,7 @@ func createContextWithEndpoint() (context *configv1alpha1.Context, err error) {
 	return context, err
 }
 
-func globalLogin(c *configv1alpha1.Context) (err error) {
+func globalLogin(c *configapi.Context) (err error) {
 	apiToken, apiTokenExists := os.LookupEnv(config.EnvAPITokenKey)
 
 	issuer := csp.ProdIssuer
@@ -352,7 +352,7 @@ func globalLogin(c *configv1alpha1.Context) (err error) {
 		return err
 	}
 
-	a := configv1alpha1.GlobalServerAuth{}
+	a := configapi.GlobalServerAuth{}
 	a.Issuer = issuer
 	a.UserName = claims.Username
 	a.Permissions = claims.Permissions
@@ -405,7 +405,7 @@ func promptAPIToken() (apiToken string, err error) {
 	return
 }
 
-func k8sLogin(c *configv1alpha1.Context) error {
+func k8sLogin(c *configapi.Context) error {
 	if c.ClusterOpts.Path != "" && c.ClusterOpts.Context != "" {
 		_, err := tkgauth.GetServerKubernetesVersion(c.ClusterOpts.Path, c.ClusterOpts.Context)
 		if err != nil {
@@ -476,7 +476,7 @@ func listCtx(cmd *cobra.Command, _ []string) error {
 
 	op := component.NewOutputWriter(cmd.OutOrStdout(), outputFormat, "Name", "Type", "IsManagementCluster", "IsCurrent", "Endpoint", "KubeConfigPath", "KubeContext")
 	for _, ctx := range cfg.KnownContexts {
-		if ctxType != "" && ctx.Type != configv1alpha1.ContextType(ctxType) {
+		if ctxType != "" && ctx.Type != configapi.ContextType(ctxType) {
 			continue
 		}
 		isMgmtCluster := ctx.IsManagementCluster()
@@ -487,7 +487,7 @@ func listCtx(cmd *cobra.Command, _ []string) error {
 
 		var endpoint, path, context string
 		switch ctx.Type {
-		case configv1alpha1.CtxTypeTMC:
+		case configapi.CtxTypeTMC:
 			endpoint = ctx.GlobalOpts.Endpoint
 		default:
 			endpoint = ctx.ClusterOpts.Endpoint
@@ -507,7 +507,7 @@ var getCtxCmd = &cobra.Command{
 }
 
 func getCtx(cmd *cobra.Command, args []string) error {
-	var ctx *configv1alpha1.Context
+	var ctx *configapi.Context
 	var err error
 	if len(args) == 0 {
 		ctx, err = promptCtx()
@@ -526,7 +526,7 @@ func getCtx(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
-func promptCtx() (*configv1alpha1.Context, error) {
+func promptCtx() (*configapi.Context, error) {
 	cfg, err := config.GetClientConfig()
 	if err != nil {
 		return nil, err
@@ -536,13 +536,13 @@ func promptCtx() (*configv1alpha1.Context, error) {
 	}
 
 	promptOpts := getPromptOpts()
-	contexts := make(map[string]*configv1alpha1.Context)
+	contexts := make(map[string]*configapi.Context)
 	for _, ctx := range cfg.KnownContexts {
 		info, err := config.EndpointFromContext(ctx)
 		if err != nil {
 			return nil, err
 		}
-		if info == "" && ctx.Type == configv1alpha1.CtxTypeK8s {
+		if info == "" && ctx.Type == configapi.CtxTypeK8s {
 			info = fmt.Sprintf("%s:%s", ctx.ClusterOpts.Path, ctx.ClusterOpts.Context)
 		}
 
@@ -573,7 +573,7 @@ func rpad(s string, padding int) string {
 	return fmt.Sprintf(template, s)
 }
 
-func getKeys(m map[string]*configv1alpha1.Context) []string {
+func getKeys(m map[string]*configapi.Context) []string {
 	keys := make([]string, 0, len(m))
 	for k := range m {
 		keys = append(keys, k)

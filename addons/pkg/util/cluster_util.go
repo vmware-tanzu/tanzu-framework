@@ -25,9 +25,8 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client/apiutil"
 
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
+	tkrv1 "github.com/vmware-tanzu/tanzu-framework/apis/run/pkg/tkr/v1"
 	runtanzuv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha1"
-	bomtypes "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkr/pkg/types"
-	tkgconstants "github.com/vmware-tanzu/tanzu-framework/tkg/constants"
 	vmoperatorv1alpha1 "github.com/vmware-tanzu/vm-operator-api/api/v1alpha1"
 )
 
@@ -112,7 +111,7 @@ func GetClusterClient(ctx context.Context, currentClusterClient client.Client, s
 }
 
 // GetBOMForCluster gets the bom associated with the legacy-style TKGm cluster
-func GetBOMForCluster(ctx context.Context, c client.Client, cluster *clusterv1beta1.Cluster) (*bomtypes.Bom, error) {
+func GetBOMForCluster(ctx context.Context, c client.Client, cluster *clusterv1beta1.Cluster) (*tkrv1.Bom, error) {
 	tkrName := cluster.Labels[constants.TKRLabel]
 
 	bom, err := GetBOMByTKRName(ctx, c, tkrName)
@@ -175,14 +174,14 @@ func GetInfraProvider(cluster *clusterv1beta1.Cluster) (string, error) {
 	if cluster.Spec.InfrastructureRef != nil {
 		infraProvider = cluster.Spec.InfrastructureRef.Kind
 		switch infraProvider {
-		case tkgconstants.InfrastructureRefVSphere:
-			return tkgconstants.InfrastructureProviderVSphere, nil
-		case tkgconstants.InfrastructureRefAWS:
-			return tkgconstants.InfrastructureProviderAWS, nil
-		case tkgconstants.InfrastructureRefAzure:
-			return tkgconstants.InfrastructureProviderAzure, nil
-		case tkgconstants.InfrastructureRefDocker:
-			return tkgconstants.InfrastructureProviderDocker, nil
+		case constants.InfrastructureRefVSphere:
+			return constants.InfrastructureProviderVSphere, nil
+		case constants.InfrastructureRefAWS:
+			return constants.InfrastructureProviderAWS, nil
+		case constants.InfrastructureRefAzure:
+			return constants.InfrastructureProviderAzure, nil
+		case constants.InfrastructureRefDocker:
+			return constants.InfrastructureProviderDocker, nil
 		}
 	}
 
@@ -219,7 +218,7 @@ func IsTKGSCluster(ctx context.Context, dynamicClient dynamic.Interface, discove
 	if exists {
 		// Verify TKGS cluster by checking if virtualmachine objects exist with the cluster label
 		listOptions := metav1.ListOptions{
-			LabelSelector: tkgconstants.CAPVClusterSelectorKey + "=" + cluster.Name,
+			LabelSelector: constants.CAPVClusterSelectorKey + "=" + cluster.Name,
 		}
 		virtualMachineList, err := dynamicClient.Resource(virtualMachineGVR).Namespace(cluster.Namespace).List(ctx, listOptions)
 		if err != nil {

@@ -11,10 +11,10 @@ import (
 	"github.com/pkg/errors"
 	apimachineryjson "k8s.io/apimachinery/pkg/runtime/serializer/json"
 
-	cliv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
-	"github.com/vmware-tanzu/tanzu-framework/apis/config/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/common"
 	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/utils"
+	cliapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/cli/v1alpha1"
+	configapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/config/v1alpha1"
 )
 
 const (
@@ -30,8 +30,8 @@ var (
 // ContextCatalog denotes a local plugin catalog for a given context or
 // stand-alone.
 type ContextCatalog struct {
-	sharedCatalog *cliv1alpha1.Catalog
-	plugins       cliv1alpha1.PluginAssociation
+	sharedCatalog *cliapi.Catalog
+	plugins       cliapi.PluginAssociation
 }
 
 // NewContextCatalog creates context-aware catalog
@@ -41,14 +41,14 @@ func NewContextCatalog(context string) (*ContextCatalog, error) {
 		return nil, err
 	}
 
-	var plugins cliv1alpha1.PluginAssociation
+	var plugins cliapi.PluginAssociation
 	if context == "" {
 		plugins = sc.StandAlonePlugins
 	} else {
 		var ok bool
 		plugins, ok = sc.ServerPlugins[context]
 		if !ok {
-			plugins = make(cliv1alpha1.PluginAssociation)
+			plugins = make(cliapi.PluginAssociation)
 			sc.ServerPlugins[context] = plugins
 		}
 	}
@@ -60,7 +60,7 @@ func NewContextCatalog(context string) (*ContextCatalog, error) {
 }
 
 // Upsert inserts/updates the given plugin.
-func (c *ContextCatalog) Upsert(plugin *cliv1alpha1.PluginDescriptor) error {
+func (c *ContextCatalog) Upsert(plugin *cliapi.PluginDescriptor) error {
 	c.plugins[plugin.Name] = plugin.InstallationPath
 	c.sharedCatalog.IndexByPath[plugin.InstallationPath] = *plugin
 
@@ -72,8 +72,8 @@ func (c *ContextCatalog) Upsert(plugin *cliv1alpha1.PluginDescriptor) error {
 }
 
 // Get looks up the descriptor of a plugin given its name.
-func (c *ContextCatalog) Get(plugin string) (cliv1alpha1.PluginDescriptor, bool) {
-	pd := cliv1alpha1.PluginDescriptor{}
+func (c *ContextCatalog) Get(plugin string) (cliapi.PluginDescriptor, bool) {
+	pd := cliapi.PluginDescriptor{}
 	path, ok := c.plugins[plugin]
 	if !ok {
 		return pd, false
@@ -90,8 +90,8 @@ func (c *ContextCatalog) Get(plugin string) (cliv1alpha1.PluginDescriptor, bool)
 // List returns the list of active plugins.
 // Active plugin means the plugin that are available to the user
 // based on the current logged-in server.
-func (c *ContextCatalog) List() []cliv1alpha1.PluginDescriptor {
-	pds := make([]cliv1alpha1.PluginDescriptor, 0)
+func (c *ContextCatalog) List() []cliapi.PluginDescriptor {
+	pds := make([]cliapi.PluginDescriptor, 0)
 	for _, installationPath := range c.plugins {
 		pd := c.sharedCatalog.IndexByPath[installationPath]
 		pds = append(pds, pd)
@@ -116,16 +116,16 @@ func getCatalogCacheDir() (path string) {
 }
 
 // newSharedCatalog creates an instance of the shared catalog file.
-func newSharedCatalog() (*cliv1alpha1.Catalog, error) {
-	c := &cliv1alpha1.Catalog{
-		IndexByPath:       map[string]cliv1alpha1.PluginDescriptor{},
+func newSharedCatalog() (*cliapi.Catalog, error) {
+	c := &cliapi.Catalog{
+		IndexByPath:       map[string]cliapi.PluginDescriptor{},
 		IndexByName:       map[string][]string{},
 		StandAlonePlugins: map[string]string{},
-		StandAlonePluginsByContextType: map[v1alpha1.ContextType]cliv1alpha1.PluginAssociation{
-			v1alpha1.CtxTypeK8s: map[string]string{},
-			v1alpha1.CtxTypeTMC: map[string]string{},
+		StandAlonePluginsByContextType: map[configapi.ContextType]cliapi.PluginAssociation{
+			configapi.CtxTypeK8s: map[string]string{},
+			configapi.CtxTypeTMC: map[string]string{},
 		},
-		ServerPlugins: map[string]cliv1alpha1.PluginAssociation{},
+		ServerPlugins: map[string]cliapi.PluginAssociation{},
 	}
 
 	err := ensureRoot()
@@ -136,7 +136,7 @@ func newSharedCatalog() (*cliv1alpha1.Catalog, error) {
 }
 
 // getCatalogCache retrieves the catalog from from the local directory.
-func getCatalogCache() (catalog *cliv1alpha1.Catalog, err error) {
+func getCatalogCache() (catalog *cliapi.Catalog, err error) {
 	b, err := os.ReadFile(getCatalogCachePath())
 	if err != nil {
 		catalog, err = newSharedCatalog()
@@ -145,20 +145,20 @@ func getCatalogCache() (catalog *cliv1alpha1.Catalog, err error) {
 		}
 		return catalog, nil
 	}
-	scheme, err := cliv1alpha1.SchemeBuilder.Build()
+	scheme, err := cliapi.SchemeBuilder.Build()
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to create scheme")
 	}
 	s := apimachineryjson.NewSerializerWithOptions(apimachineryjson.DefaultMetaFactory, scheme, scheme,
 		apimachineryjson.SerializerOptions{Yaml: true, Pretty: false, Strict: false})
-	var c cliv1alpha1.Catalog
+	var c cliapi.Catalog
 	_, _, err = s.Decode(b, nil, &c)
 	if err != nil {
 		return nil, errors.Wrap(err, "could not decode catalog file")
 	}
 
 	if c.IndexByPath == nil {
-		c.IndexByPath = map[string]cliv1alpha1.PluginDescriptor{}
+		c.IndexByPath = map[string]cliapi.PluginDescriptor{}
 	}
 	if c.IndexByName == nil {
 		c.IndexByName = map[string][]string{}
@@ -167,25 +167,25 @@ func getCatalogCache() (catalog *cliv1alpha1.Catalog, err error) {
 		c.StandAlonePlugins = map[string]string{}
 	}
 	if c.StandAlonePluginsByContextType == nil {
-		c.StandAlonePluginsByContextType = map[v1alpha1.ContextType]cliv1alpha1.PluginAssociation{}
+		c.StandAlonePluginsByContextType = map[configapi.ContextType]cliapi.PluginAssociation{}
 	}
-	if _, ok := c.StandAlonePluginsByContextType[v1alpha1.CtxTypeK8s]; !ok {
-		c.StandAlonePluginsByContextType[v1alpha1.CtxTypeK8s] = map[string]string{}
+	if _, ok := c.StandAlonePluginsByContextType[configapi.CtxTypeK8s]; !ok {
+		c.StandAlonePluginsByContextType[configapi.CtxTypeK8s] = map[string]string{}
 	}
-	if _, ok := c.StandAlonePluginsByContextType[v1alpha1.CtxTypeTMC]; !ok {
-		c.StandAlonePluginsByContextType[v1alpha1.CtxTypeTMC] = map[string]string{}
+	if _, ok := c.StandAlonePluginsByContextType[configapi.CtxTypeTMC]; !ok {
+		c.StandAlonePluginsByContextType[configapi.CtxTypeTMC] = map[string]string{}
 	}
 	if c.ServerPlugins == nil {
-		c.ServerPlugins = map[string]cliv1alpha1.PluginAssociation{}
+		c.ServerPlugins = map[string]cliapi.PluginAssociation{}
 	}
 
 	return &c, nil
 }
 
 // saveCatalogCache saves the catalog in the local directory.
-func saveCatalogCache(catalog *cliv1alpha1.Catalog) error {
+func saveCatalogCache(catalog *cliapi.Catalog) error {
 	// Using the K8s context type since it is the only one available publicly.
-	catalog.StandAlonePluginsByContextType[v1alpha1.CtxTypeK8s] = catalog.StandAlonePlugins
+	catalog.StandAlonePluginsByContextType[configapi.CtxTypeK8s] = catalog.StandAlonePlugins
 
 	catalogCachePath := getCatalogCachePath()
 	_, err := os.Stat(catalogCachePath)
@@ -198,14 +198,14 @@ func saveCatalogCache(catalog *cliv1alpha1.Catalog) error {
 		return errors.Wrap(err, "could not create catalog cache path")
 	}
 
-	scheme, err := cliv1alpha1.SchemeBuilder.Build()
+	scheme, err := cliapi.SchemeBuilder.Build()
 	if err != nil {
 		return errors.Wrap(err, "failed to create scheme")
 	}
 
 	s := apimachineryjson.NewSerializerWithOptions(apimachineryjson.DefaultMetaFactory, scheme, scheme,
 		apimachineryjson.SerializerOptions{Yaml: true, Pretty: false, Strict: false})
-	catalog.GetObjectKind().SetGroupVersionKind(cliv1alpha1.GroupVersionKindCatalog)
+	catalog.GetObjectKind().SetGroupVersionKind(cliapi.GroupVersionKindCatalog)
 	buf := new(bytes.Buffer)
 	if err := s.Encode(catalog, buf); err != nil {
 		return errors.Wrap(err, "failed to encode catalog cache file")

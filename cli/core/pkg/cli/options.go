@@ -8,7 +8,7 @@ import (
 
 	"github.com/adrg/xdg"
 
-	cliv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
+	cliapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/cli/v1alpha1"
 )
 
 // optionsConfig is where the options are configured.
@@ -26,7 +26,7 @@ type optionsConfig struct {
 	repoName string
 
 	// distro is the plugin distro to install with the CLI.
-	distro cliv1alpha1.Distro
+	distro cliapi.Distro
 
 	// VersionSelector is the means to find versions of plugins in a repository.
 	versionSelector VersionSelector
@@ -79,7 +79,7 @@ func WithGCPRootPath(path string) Option {
 }
 
 // WithDistro sets the distro that should be installed with the CLI
-func WithDistro(distro cliv1alpha1.Distro) Option {
+func WithDistro(distro cliapi.Distro) Option {
 	return func(o *optionsConfig) {
 		o.distro = distro
 	}

@@ -19,23 +19,23 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/tools/clientcmd"
 
-	cliv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
-	configv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/config/v1alpha1"
+	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/auth/csp"
+	tkgauth "github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/auth/tkg"
+	wcpauth "github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/auth/wcp"
 	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/pluginmanager"
+	cliapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/cli/v1alpha1"
+	configapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/config/v1alpha1"
+	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/buildinfo"
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/component"
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/config"
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/plugin"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/auth/csp"
-	tkgauth "github.com/vmware-tanzu/tanzu-framework/pkg/v1/auth/tkg"
-	wcpauth "github.com/vmware-tanzu/tanzu-framework/pkg/v1/auth/wcp"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/buildinfo"
 )
 
 // Note: Shall be deprecated in a future version. Superseded by 'tanzu context' command.
-var descriptor = cliv1alpha1.PluginDescriptor{
+var descriptor = cliapi.PluginDescriptor{
 	Name:        "login",
 	Description: "Login to the platform",
-	Group:       cliv1alpha1.SystemCmdGroup,
+	Group:       cliapi.SystemCmdGroup,
 	Aliases:     []string{"lo", "logins"},
 	Version:     buildinfo.Version,
 	BuildSHA:    buildinfo.SHA,
@@ -100,7 +100,7 @@ func login(cmd *cobra.Command, args []string) (err error) {
 	}
 
 	newServerSelector := "+ new server"
-	var serverTarget *configv1alpha1.Server
+	var serverTarget *configapi.Server
 	if name != "" {
 		serverTarget, err = createNewServer()
 		if err != nil {
@@ -125,7 +125,7 @@ func login(cmd *cobra.Command, args []string) (err error) {
 		}
 	}
 
-	if serverTarget.Type == configv1alpha1.GlobalServerType {
+	if serverTarget.Type == configapi.GlobalServerType {
 		err = globalLogin(serverTarget)
 	} else {
 		err = managementClusterLogin(serverTarget)
@@ -145,9 +145,9 @@ func login(cmd *cobra.Command, args []string) (err error) {
 	return nil
 }
 
-func getServerTarget(cfg *configv1alpha1.ClientConfig, newServerSelector string) (*configv1alpha1.Server, error) {
+func getServerTarget(cfg *configapi.ClientConfig, newServerSelector string) (*configapi.Server, error) {
 	promptOpts := getPromptOpts()
-	servers := map[string]*configv1alpha1.Server{}
+	servers := map[string]*configapi.Server{}
 	for _, server := range cfg.KnownServers {
 		ep, err := config.EndpointFromServer(server)
 		if err != nil {
@@ -167,7 +167,7 @@ func getServerTarget(cfg *configv1alpha1.ClientConfig, newServerSelector string)
 	}
 	serverKeys := getKeys(servers)
 	serverKeys = append(serverKeys, newServerSelector)
-	servers[newServerSelector] = &configv1alpha1.Server{}
+	servers[newServerSelector] = &configapi.Server{}
 	err := component.Prompt(
 		&component.PromptConfig{
 			Message: "Select a server",
@@ -183,7 +183,7 @@ func getServerTarget(cfg *configv1alpha1.ClientConfig, newServerSelector string)
 	return servers[server], nil
 }
 
-func getKeys(m map[string]*configv1alpha1.Server) []string {
+func getKeys(m map[string]*configapi.Server) []string {
 	keys := make([]string, 0, len(m))
 	for key := range m {
 		keys = append(keys, key)
@@ -216,7 +216,7 @@ func getPromptOpts() []component.PromptOpt {
 	return promptOpts
 }
 
-func createNewServer() (server *configv1alpha1.Server, err error) {
+func createNewServer() (server *configapi.Server, err error) {
 	// user provided command line options to create a server using kubeconfig[optional] and context
 	if kubecontext != "" {
 		return createServerWithKubeconfig()
@@ -249,7 +249,7 @@ func createNewServer() (server *configv1alpha1.Server, err error) {
 	return createServerWithKubeconfig()
 }
 
-func createServerWithKubeconfig() (server *configv1alpha1.Server, err error) {
+func createServerWithKubeconfig() (server *configapi.Server, err error) {
 	promptOpts := getPromptOpts()
 	if kubeConfig == "" && kubecontext == "" {
 		err = component.Prompt(
@@ -300,12 +300,12 @@ func createServerWithKubeconfig() (server *configv1alpha1.Server, err error) {
 		return
 	}
 
-	endpointType := configv1alpha1.ManagementClusterServerType
+	endpointType := configapi.ManagementClusterServerType
 
-	server = &configv1alpha1.Server{
+	server = &configapi.Server{
 		Name: name,
 		Type: endpointType,
-		ManagementClusterOpts: &configv1alpha1.ManagementClusterServer{
+		ManagementClusterOpts: &configapi.ManagementClusterServer{
 			Path:     kubeConfig,
 			Context:  kubecontext,
 			Endpoint: endpoint},
@@ -313,7 +313,7 @@ func createServerWithKubeconfig() (server *configv1alpha1.Server, err error) {
 	return server, err
 }
 
-func createServerWithEndpoint() (server *configv1alpha1.Server, err error) {
+func createServerWithEndpoint() (server *configapi.Server, err error) {
 	promptOpts := getPromptOpts()
 	if endpoint == "" {
 		err = component.Prompt(
@@ -348,10 +348,10 @@ func createServerWithEndpoint() (server *configv1alpha1.Server, err error) {
 		return
 	}
 	if isGlobalServer(endpoint) {
-		server = &configv1alpha1.Server{
+		server = &configapi.Server{
 			Name:       name,
-			Type:       configv1alpha1.GlobalServerType,
-			GlobalOpts: &configv1alpha1.GlobalServer{Endpoint: sanitizeEndpoint(endpoint)},
+			Type:       configapi.GlobalServerType,
+			GlobalOpts: &configapi.GlobalServer{Endpoint: sanitizeEndpoint(endpoint)},
 		}
 	} else {
 		// While this would add an extra HTTP round trip, it avoids the need to
@@ -361,10 +361,6 @@ func createServerWithEndpoint() (server *configv1alpha1.Server, err error) {
 		if err != nil {
 			log.Fatalf("Error creating kubeconfig with tanzu pinniped-auth login plugin: %v", err)
 			return nil, err
-			// IsSupervisorClusterIgnorePort only returns an error if the
-			// underlying HTTP GET returned one. Non-200 responses will return
-			// nil errors.
-			log.Warning("Unable to determine if endpoint was a vSphere Supervisor")
 		}
 		if isVSphereSupervisor {
 			log.Info("Detected a vSphere Supervisor being used")
@@ -381,10 +377,10 @@ func createServerWithEndpoint() (server *configv1alpha1.Server, err error) {
 			}
 		}
 
-		server = &configv1alpha1.Server{
+		server = &configapi.Server{
 			Name: name,
-			Type: configv1alpha1.ManagementClusterServerType,
-			ManagementClusterOpts: &configv1alpha1.ManagementClusterServer{
+			Type: configapi.ManagementClusterServerType,
+			ManagementClusterOpts: &configapi.ManagementClusterServer{
 				Path:     kubeConfig,
 				Context:  kubecontext,
 				Endpoint: endpoint},
@@ -393,8 +389,8 @@ func createServerWithEndpoint() (server *configv1alpha1.Server, err error) {
 	return server, err
 }
 
-func globalLogin(s *configv1alpha1.Server) (err error) {
-	a := configv1alpha1.GlobalServerAuth{}
+func globalLogin(s *configapi.Server) (err error) {
+	a := configapi.GlobalServerAuth{}
 	apiToken, apiTokenExists := os.LookupEnv(config.EnvAPITokenKey)
 
 	issuer := csp.ProdIssuer
@@ -474,7 +470,7 @@ func promptAPIToken() (apiToken string, err error) {
 	return
 }
 
-func managementClusterLogin(s *configv1alpha1.Server) error {
+func managementClusterLogin(s *configapi.Server) error {
 	if s.ManagementClusterOpts.Path != "" && s.ManagementClusterOpts.Context != "" {
 		_, err := tkgauth.GetServerKubernetesVersion(s.ManagementClusterOpts.Path, s.ManagementClusterOpts.Context)
 		if err != nil {

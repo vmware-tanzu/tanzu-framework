@@ -28,9 +28,9 @@ import (
 	packagelib "github.com/vmware-tanzu/tanzu-framework/cmd/cli/plugin/package/test/lib"
 	secretlib "github.com/vmware-tanzu/tanzu-framework/cmd/cli/plugin/secret/test/lib"
 	"github.com/vmware-tanzu/tanzu-framework/packageclients/pkg/packagedatamodel"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/test/framework"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/test/framework/exec"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgctl"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/test/framework"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/test/framework/exec"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/tkgctl"
 )
 
 type PackagePluginConfig struct {
@@ -488,21 +488,6 @@ func setUpPrivateRegistry(kubeconfigPath, clusterName string) {
 		}
 	}
 
-	By("make sure package API is available after kapp-controller restart")
-	err = retry.OnError(
-		backOff,
-		func(err error) bool {
-			return err != nil
-		},
-		func() error {
-			result = packagePlugin.ListRepository(&repoOptions)
-			if result.Error != nil {
-				return result.Error
-			}
-			return nil
-		})
-	Expect(err).ToNot(HaveOccurred())
-
 	By("make sure registry pod is running")
 	err = retry.OnError(
 		backOff,
@@ -519,6 +504,21 @@ func setUpPrivateRegistry(kubeconfigPath, clusterName string) {
 				if pod.Status.Phase != corev1.PodRunning {
 					return errors.New("registry pod is not running")
 				}
+			}
+			return nil
+		})
+	Expect(err).ToNot(HaveOccurred())
+
+	By("make sure package API is available after kapp-controller restart")
+	err = retry.OnError(
+		backOff,
+		func(err error) bool {
+			return err != nil
+		},
+		func() error {
+			result = packagePlugin.ListRepository(&repoOptions)
+			if result.Error != nil {
+				return result.Error
 			}
 			return nil
 		})

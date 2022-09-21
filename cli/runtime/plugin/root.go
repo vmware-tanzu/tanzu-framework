@@ -6,10 +6,10 @@ package plugin
 import (
 	"github.com/spf13/cobra"
 
-	cliv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
+	cliapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/cli/v1alpha1"
 )
 
-func newRootCmd(descriptor *cliv1alpha1.PluginDescriptor) *cobra.Command {
+func newRootCmd(descriptor *cliapi.PluginDescriptor) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     descriptor.Name,
 		Short:   descriptor.Description,

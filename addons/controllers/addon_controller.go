@@ -37,8 +37,8 @@ import (
 	addontypes "github.com/vmware-tanzu/tanzu-framework/addons/pkg/types"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/util"
 	addonpredicates "github.com/vmware-tanzu/tanzu-framework/addons/predicates"
+	tkrv1 "github.com/vmware-tanzu/tanzu-framework/apis/run/pkg/tkr/v1"
 	runtanzuv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha1"
-	bomtypes "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkr/pkg/types"
 )
 
 const (
@@ -315,7 +315,7 @@ func (r *AddonReconciler) reconcileAddonSecret(
 	clusterClient client.Client,
 	addonSecret *corev1.Secret,
 	imageRepository string,
-	bom *bomtypes.Bom) (_ ctrl.Result, retErr error) {
+	bom *tkrv1.Bom) (_ ctrl.Result, retErr error) {
 
 	var (
 		patchAddonSecret bool
@@ -413,7 +413,7 @@ func (r *AddonReconciler) reconcileAddonSecretNormal(
 	addonSecret *corev1.Secret,
 	patchAddonSecret *bool,
 	imageRepository string,
-	bom *bomtypes.Bom) (ctrl.Result, error) {
+	bom *tkrv1.Bom) (ctrl.Result, error) {
 
 	// get addon config from BOM
 	addonConfig, err := bom.GetAddon(addonName)

@@ -11,10 +11,10 @@ import (
 	"github.com/briandowns/spinner"
 	"github.com/spf13/cobra"
 
-	cliv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/catalog"
 	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/cli"
 	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/pluginmanager"
+	cliapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/cli/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/config"
 )
 
@@ -30,7 +30,7 @@ var initCmd = &cobra.Command{
 	Use:   "init",
 	Short: "Initialize the CLI",
 	Annotations: map[string]string{
-		"group": string(cliv1alpha1.SystemCmdGroup),
+		"group": string(cliapi.SystemCmdGroup),
 	},
 	SilenceErrors: true,
 	RunE: func(cmd *cobra.Command, args []string) error {

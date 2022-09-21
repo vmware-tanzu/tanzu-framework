@@ -15,19 +15,18 @@
 /pkg/v1/providers/ytt/02_addons/auth @vmware-tanzu/tanzu-framework-reviewers @vmware-tanzu/tkg-iam-owners
 /pkg/v1/providers/ytt/02_addons/avi @vmware-tanzu/tanzu-framework-reviewers @vmware-tanzu/ako-owners
 /pkg/v1/providers/ytt/03_customizations/02_avi @vmware-tanzu/tanzu-framework-reviewers @vmware-tanzu/ako-owners
-/pkg/v1/tkg @vmware-tanzu/tanzu-framework-reviewers @vmware-tanzu/tanzu-framework-lcm-reviewers
+/tkg @vmware-tanzu/tanzu-framework-reviewers @vmware-tanzu/tanzu-framework-lcm-reviewers
 /packageclients/pkg/kappclient @vmware-tanzu/tanzu-framework-reviewers @vmware-tanzu/tkg-addons-owners
-/pkg/v1/tkg/tkgconfigpaths @vmware-tanzu/tanzu-framework-reviewers @vmware-tanzu/tanzu-framework-release-team
+/tkg/tkgconfigpaths @vmware-tanzu/tanzu-framework-reviewers @vmware-tanzu/tanzu-framework-release-team
 /packageclients/pkg/packageclient @vmware-tanzu/tanzu-framework-reviewers @vmware-tanzu/tkg-addons-owners
 /packageclients/pkg/packagedatamodel @vmware-tanzu/tanzu-framework-reviewers @vmware-tanzu/tkg-addons-owners
-/pkg/v1/tkg/web @vmware-tanzu/tanzu-framework-reviewers @vmware-tanzu/tanzu-framework-ui-reviewers
+/tkg/web @vmware-tanzu/tanzu-framework-reviewers @vmware-tanzu/tanzu-framework-ui-reviewers
 /pkg/v1/tkr @vmware-tanzu/tanzu-framework-reviewers @prkalle
 # API Machinery related files
 /apis/config @vmware-tanzu/tanzu-framework-reviewers @vmware-tanzu/tanzu-framework-api-machinery-owners
 /apis/run @vmware-tanzu/tanzu-framework-reviewers @vmware-tanzu/tanzu-framework-api-machinery-owners
-/pkg/v1/sdk @vmware-tanzu/tanzu-framework-reviewers @vmware-tanzu/tanzu-framework-api-machinery-owners
+/featuregates @vmware-tanzu/tanzu-framework-reviewers @vmware-tanzu/tanzu-framework-api-machinery-owners
 /cmd/managers/capabilities @vmware-tanzu/tanzu-framework-reviewers @vmware-tanzu/tanzu-framework-api-machinery-owners
-/cmd/managers/featuregate @vmware-tanzu/tanzu-framework-reviewers @vmware-tanzu/tanzu-framework-api-machinery-owners
 /cmd/cli/plugin/feature @vmware-tanzu/tanzu-framework-reviewers @vmware-tanzu/tanzu-framework-api-machinery-owners
 /cmd/cli/plugin-admin/codegen @vmware-tanzu/tanzu-framework-reviewers @vmware-tanzu/tanzu-framework-api-machinery-owners
 /pkg/v1/codegen @vmware-tanzu/tanzu-framework-reviewers @vmware-tanzu/tanzu-framework-api-machinery-owners

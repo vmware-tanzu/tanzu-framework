@@ -10,17 +10,17 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/vmware-tanzu/tanzu-framework/apis/config/v1alpha1"
+	configapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/config/v1alpha1"
 )
 
 func setup(t *testing.T) {
 	LocalDirName = fmt.Sprintf(".tanzu-test-%s", randString())
-	cfg := &v1alpha1.ClientConfig{
-		KnownContexts: []*v1alpha1.Context{
+	cfg := &configapi.ClientConfig{
+		KnownContexts: []*configapi.Context{
 			{
 				Name: "test-mc",
-				Type: v1alpha1.CtxTypeK8s,
-				ClusterOpts: &v1alpha1.ClusterServer{
+				Type: configapi.CtxTypeK8s,
+				ClusterOpts: &configapi.ClusterServer{
 					Endpoint:            "test-endpoint",
 					Path:                "test-path",
 					Context:             "test-context",
@@ -29,15 +29,15 @@ func setup(t *testing.T) {
 			},
 			{
 				Name: "test-tmc",
-				Type: v1alpha1.CtxTypeTMC,
-				GlobalOpts: &v1alpha1.GlobalServer{
+				Type: configapi.CtxTypeTMC,
+				GlobalOpts: &configapi.GlobalServer{
 					Endpoint: "test-endpoint",
 				},
 			},
 		},
-		CurrentContext: map[v1alpha1.ContextType]string{
-			v1alpha1.CtxTypeK8s: "test-mc",
-			v1alpha1.CtxTypeTMC: "test-tmc",
+		CurrentContext: map[configapi.ContextType]string{
+			configapi.CtxTypeK8s: "test-mc",
+			configapi.CtxTypeTMC: "test-tmc",
 		},
 	}
 
@@ -128,16 +128,16 @@ func TestAddContext(t *testing.T) {
 
 	tcs := []struct {
 		name    string
-		ctx     *v1alpha1.Context
+		ctx     *configapi.Context
 		current bool
 		errStr  string
 	}{
 		{
 			name: "success k8s current",
-			ctx: &v1alpha1.Context{
+			ctx: &configapi.Context{
 				Name: "test-mc1",
-				Type: v1alpha1.CtxTypeK8s,
-				ClusterOpts: &v1alpha1.ClusterServer{
+				Type: configapi.CtxTypeK8s,
+				ClusterOpts: &configapi.ClusterServer{
 					Endpoint:            "test-endpoint",
 					Path:                "test-path",
 					Context:             "test-context",
@@ -148,10 +148,10 @@ func TestAddContext(t *testing.T) {
 		},
 		{
 			name: "success k8s not_current",
-			ctx: &v1alpha1.Context{
+			ctx: &configapi.Context{
 				Name: "test-mc2",
-				Type: v1alpha1.CtxTypeK8s,
-				ClusterOpts: &v1alpha1.ClusterServer{
+				Type: configapi.CtxTypeK8s,
+				ClusterOpts: &configapi.ClusterServer{
 					Endpoint:            "test-endpoint",
 					Path:                "test-path",
 					Context:             "test-context",
@@ -161,10 +161,10 @@ func TestAddContext(t *testing.T) {
 		},
 		{
 			name: "success tmc current",
-			ctx: &v1alpha1.Context{
+			ctx: &configapi.Context{
 				Name: "test-tmc1",
-				Type: v1alpha1.CtxTypeTMC,
-				GlobalOpts: &v1alpha1.GlobalServer{
+				Type: configapi.CtxTypeTMC,
+				GlobalOpts: &configapi.GlobalServer{
 					Endpoint: "test-endpoint",
 				},
 			},
@@ -172,20 +172,20 @@ func TestAddContext(t *testing.T) {
 		},
 		{
 			name: "success tmc not_current",
-			ctx: &v1alpha1.Context{
+			ctx: &configapi.Context{
 				Name: "test-tmc2",
-				Type: v1alpha1.CtxTypeTMC,
-				GlobalOpts: &v1alpha1.GlobalServer{
+				Type: configapi.CtxTypeTMC,
+				GlobalOpts: &configapi.GlobalServer{
 					Endpoint: "test-endpoint",
 				},
 			},
 		},
 		{
 			name: "failure k8s",
-			ctx: &v1alpha1.Context{
+			ctx: &configapi.Context{
 				Name: "test-mc",
-				Type: v1alpha1.CtxTypeK8s,
-				ClusterOpts: &v1alpha1.ClusterServer{
+				Type: configapi.CtxTypeK8s,
+				ClusterOpts: &configapi.ClusterServer{
 					Endpoint:            "test-endpoint",
 					Path:                "test-path",
 					Context:             "test-context",
@@ -196,10 +196,10 @@ func TestAddContext(t *testing.T) {
 		},
 		{
 			name: "failure tmc",
-			ctx: &v1alpha1.Context{
+			ctx: &configapi.Context{
 				Name: "test-tmc",
-				Type: v1alpha1.CtxTypeTMC,
-				GlobalOpts: &v1alpha1.GlobalServer{
+				Type: configapi.CtxTypeTMC,
+				GlobalOpts: &configapi.GlobalServer{
 					Endpoint: "test-endpoint",
 				},
 			},
@@ -239,18 +239,18 @@ func TestRemoveContext(t *testing.T) {
 	tcs := []struct {
 		name    string
 		ctxName string
-		ctxType v1alpha1.ContextType
+		ctxType configapi.ContextType
 		errStr  string
 	}{
 		{
 			name:    "success k8s",
 			ctxName: "test-mc",
-			ctxType: v1alpha1.CtxTypeK8s,
+			ctxType: configapi.CtxTypeK8s,
 		},
 		{
 			name:    "success tmc",
 			ctxName: "test-tmc",
-			ctxType: v1alpha1.CtxTypeTMC,
+			ctxType: configapi.CtxTypeTMC,
 		},
 		{
 			name:    "failure",
@@ -290,19 +290,19 @@ func TestSetCurrentContext(t *testing.T) {
 
 	tcs := []struct {
 		name    string
-		ctxType v1alpha1.ContextType
+		ctxType configapi.ContextType
 		ctxName string
 		errStr  string
 	}{
 		{
 			name:    "success k8s",
 			ctxName: "test-mc",
-			ctxType: v1alpha1.CtxTypeK8s,
+			ctxType: configapi.CtxTypeK8s,
 		},
 		{
 			name:    "success tmc",
 			ctxName: "test-tmc",
-			ctxType: v1alpha1.CtxTypeTMC,
+			ctxType: configapi.CtxTypeTMC,
 		},
 		{
 			name:    "failure",
@@ -329,8 +329,9 @@ func TestSetCurrentContext(t *testing.T) {
 			}
 			currSrv, err := GetCurrentServer()
 			assert.NoError(t, err)
-			// server is updated only for K8s Ctx Type, so test-mc remains the current server
-			assert.Equal(t, "test-mc", currSrv.Name)
+			if err != nil {
+				assert.Equal(t, tc.ctxName, currSrv.Name)
+			}
 		})
 	}
 }
@@ -341,29 +342,29 @@ func TestGetCurrentContext(t *testing.T) {
 
 	tcs := []struct {
 		name    string
-		ctxType v1alpha1.ContextType
+		ctxType configapi.ContextType
 		ctxName string
 		errStr  string
 	}{
 		{
 			name:    "success k8s",
-			ctxType: v1alpha1.CtxTypeK8s,
+			ctxType: configapi.CtxTypeK8s,
 			ctxName: "test-mc",
 		},
 		{
 			name:    "success tmc",
-			ctxType: v1alpha1.CtxTypeTMC,
+			ctxType: configapi.CtxTypeTMC,
 			ctxName: "test-tmc",
 		},
 		{
 			name:    "failure k8s",
-			ctxType: v1alpha1.CtxTypeK8s,
+			ctxType: configapi.CtxTypeK8s,
 			ctxName: "test-mc",
 			errStr:  "no current context set for type \"k8s\"",
 		},
 		{
 			name:    "failure tmc",
-			ctxType: v1alpha1.CtxTypeTMC,
+			ctxType: configapi.CtxTypeTMC,
 			ctxName: "test-tmc",
 			errStr:  "no current context set for type \"tmc\"",
 		},

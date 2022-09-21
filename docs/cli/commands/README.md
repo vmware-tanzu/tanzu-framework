@@ -9,13 +9,15 @@ The [root command](tanzu.md) is a good place to begin discovering the CLI comman
 ## Core Plugins
 
 
-- [cluster](tanzu_cluster.md)
-- [kubernetes-release](tanzu_kubernetes-release.md)
-- [login](tanzu_login.md)
+- [feature](tanzu_feature.md)
 - [management-cluster](tanzu_management-cluster.md)
 - [package](tanzu_package.md)
 - [pinniped-auth](tanzu_pinniped-auth.md)
 - [secret](tanzu_secret.md)
-- [test](tanzu_test.md)
+- [telemetry](tanzu_telemetry.md)
 - [builder](tanzu_builder.md)
+- [cluster](tanzu_cluster.md)
 - [codegen](tanzu_codegen.md)
+- [kubernetes-release](tanzu_kubernetes-release.md)
+- [login](tanzu_login.md)
+- [test](tanzu_test.md)

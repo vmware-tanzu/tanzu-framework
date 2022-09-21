@@ -40,7 +40,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client/apiutil"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/webhooks"
+	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/webhooks"
 )
 
 // CreateResources using unstructured objects from a yaml/json file provided by decoder

@@ -16,10 +16,10 @@ import (
 
 	"github.com/spf13/cobra"
 
-	cliv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/cli"
 	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/plugin"
 	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/pluginmanager"
+	cliapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/cli/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/command"
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/component"
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/config"
@@ -57,7 +57,7 @@ var pluginCmd = &cobra.Command{
 	Use:   "plugin",
 	Short: "Manage CLI plugins",
 	Annotations: map[string]string{
-		"group": string(cliv1alpha1.SystemCmdGroup),
+		"group": string(cliapi.SystemCmdGroup),
 	},
 }
 
@@ -366,7 +366,11 @@ var upgradePluginCmd = &cobra.Command{
 
 		versionSelector := repo.VersionSelector()
 		err = cli.UpgradePlugin(pluginName, plugin.FindVersion(versionSelector), repo)
-		return
+		if err != nil {
+			return err
+		}
+		log.Successf("successfully upgraded plugin %s", pluginName)
+		return nil
 	},
 }
 
@@ -402,8 +406,11 @@ var deletePluginCmd = &cobra.Command{
 		}
 
 		err = cli.DeletePlugin(pluginName)
-
-		return
+		if err != nil {
+			return err
+		}
+		log.Successf("successfully deleted plugin %s", pluginName)
+		return nil
 	},
 }
 
@@ -412,9 +419,20 @@ var cleanPluginCmd = &cobra.Command{
 	Short: "Clean the plugins",
 	RunE: func(cmd *cobra.Command, args []string) (err error) {
 		if config.IsFeatureActivated(config.FeatureContextAwareCLIForPlugins) {
-			return pluginmanager.Clean()
+			err = pluginmanager.Clean()
+			if err != nil {
+				return err
+			}
+			log.Success("successfully cleaned up all plugins")
+			return nil
 		}
-		return cli.Clean()
+
+		err = cli.Clean()
+		if err != nil {
+			return err
+		}
+		log.Success("successfully cleaned up all plugins")
+		return nil
 	},
 }
 

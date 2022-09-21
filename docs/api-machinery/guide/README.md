@@ -104,7 +104,7 @@ First add the import for the Framework Config API package and the SDK FeatureGat
 
 ```go
 configv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/config/v1alpha1"
-gate "github.com/vmware-tanzu/tanzu-framework/pkg/v1/sdk/features/featuregate"
+gate "github.com/vmware-tanzu/tanzu-framework/featuregates/client/pkg/featuregateclient"
 ```
 
 ### Update Manager

@@ -50,6 +50,7 @@ import (
 	addonconfig "github.com/vmware-tanzu/tanzu-framework/addons/pkg/config"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/crdwait"
+	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/webhooks"
 	"github.com/vmware-tanzu/tanzu-framework/addons/test/testutil"
 	addonwebhooks "github.com/vmware-tanzu/tanzu-framework/addons/webhooks"
 	cniv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/addonconfigs/cni/v1alpha1"
@@ -57,7 +58,6 @@ import (
 	csiv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/addonconfigs/csi/v1alpha1"
 	runtanzuv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha1"
 	runtanzuv1alpha3 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/webhooks"
 	vmoperatorv1alpha1 "github.com/vmware-tanzu/vm-operator-api/api/v1alpha1"
 	topologyv1alpha1 "github.com/vmware-tanzu/vm-operator/external/tanzu-topology/api/v1alpha1"
 )

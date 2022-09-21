@@ -53,7 +53,6 @@ func runPackageVendirSync(cmd *cobra.Command, args []string) error {
 
 	var g errgroup.Group
 
-outer:
 	for _, file := range files {
 		if !file.IsDir() {
 			continue
@@ -66,7 +65,7 @@ outer:
 				if _, err := os.Stat(filepath.Join(packagePath, "vendir.yml")); err != nil {
 					if os.IsNotExist(err) {
 						fmt.Printf("No vendir.yml found in package %q. Skipping vendir sync...\n", file.Name())
-						continue outer
+						break
 					} else {
 						return err
 					}

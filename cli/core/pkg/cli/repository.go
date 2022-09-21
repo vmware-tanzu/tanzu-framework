@@ -20,7 +20,7 @@ import (
 	"google.golang.org/api/option"
 	"gopkg.in/yaml.v2"
 
-	configv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/config/v1alpha1"
+	configapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/config/v1alpha1"
 )
 
 // Repository is a remote repository containing plugin artifacts.
@@ -150,13 +150,13 @@ type GCPBucketRepository struct {
 }
 
 // LoadRepositories loads the repositories from the config file along with the known repositories.
-func LoadRepositories(c *configv1alpha1.ClientConfig) []Repository {
+func LoadRepositories(c *configapi.ClientConfig) []Repository {
 	repos := []Repository{}
 	if c.ClientOptions == nil {
-		c.ClientOptions = &configv1alpha1.ClientOptions{}
+		c.ClientOptions = &configapi.ClientOptions{}
 	}
 	if c.ClientOptions.CLI == nil {
-		c.ClientOptions.CLI = &configv1alpha1.CLIOptions{}
+		c.ClientOptions.CLI = &configapi.CLIOptions{}
 	}
 
 	vs := LoadVersionSelector(c.ClientOptions.CLI.UnstableVersionSelector)
@@ -169,7 +169,7 @@ func LoadRepositories(c *configv1alpha1.ClientConfig) []Repository {
 	return repos
 }
 
-func loadRepository(repo configv1alpha1.PluginRepository, versionSelector VersionSelector) Repository {
+func loadRepository(repo configapi.PluginRepository, versionSelector VersionSelector) Repository {
 	opts := []Option{
 		WithGCPBucket(repo.GCPPluginRepository.BucketName),
 		WithName(repo.GCPPluginRepository.Name),
@@ -182,15 +182,15 @@ func loadRepository(repo configv1alpha1.PluginRepository, versionSelector Versio
 }
 
 // LoadVersionSelector will return the correct VersionSelector for a VersionSelectorLevel
-func LoadVersionSelector(selectorType configv1alpha1.VersionSelectorLevel) (versionSelector VersionSelector) {
+func LoadVersionSelector(selectorType configapi.VersionSelectorLevel) (versionSelector VersionSelector) {
 	switch selectorType {
-	case configv1alpha1.AllUnstableVersions:
+	case configapi.AllUnstableVersions:
 		versionSelector = SelectVersionAny
-	case configv1alpha1.AlphaUnstableVersions:
+	case configapi.AlphaUnstableVersions:
 		versionSelector = SelectVersionAlpha
-	case configv1alpha1.ExperimentalUnstableVersions:
+	case configapi.ExperimentalUnstableVersions:
 		versionSelector = SelectVersionExperimental
-	case configv1alpha1.NoUnstableVersions:
+	case configapi.NoUnstableVersions:
 		versionSelector = DefaultVersionSelector
 	default:
 		versionSelector = DefaultVersionSelector

@@ -13,14 +13,14 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 
-	"github.com/vmware-tanzu/tanzu-framework/apis/config/v1alpha1"
 	runv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha1"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/clusterclient"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgctl"
+	configapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/config/v1alpha1"
 	tkr "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkr/controllers/source"
 	tkrutils "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkr/pkg/utils"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/clusterclient"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/log"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/tkgctl"
 
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/config"
 )
@@ -109,9 +109,9 @@ func create(cmd *cobra.Command, args []string) error {
 		// Note: This is only used for testing purpose when management cluster
 		// does not exist and we want to test cluster template generation
 		if cc.generateOnly {
-			server = &v1alpha1.Server{
-				Type:                  v1alpha1.ManagementClusterServerType,
-				ManagementClusterOpts: &v1alpha1.ManagementClusterServer{},
+			server = &configapi.Server{
+				Type:                  configapi.ManagementClusterServerType,
+				ManagementClusterOpts: &configapi.ManagementClusterServer{},
 			}
 		} else {
 			return err
@@ -128,7 +128,7 @@ func create(cmd *cobra.Command, args []string) error {
 	return createCluster(clusterName, server)
 }
 
-func createCluster(clusterName string, server *v1alpha1.Server) error {
+func createCluster(clusterName string, server *configapi.Server) error {
 	err := tkgctl.SetCompatibilityFileBasedOnEdition()
 	if err != nil {
 		log.V(3).Infof("%v", err.Error())

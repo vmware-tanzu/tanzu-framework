@@ -8,7 +8,7 @@ on:
       - 'packageclients/**'
       - 'cmd/cli/plugin/package/**'
       - 'cmd/cli/plugin/secret/**'
-      - 'pkg/v1/tkg/tkgctl'
+      - 'tkg/tkgctl'
 
 concurrency:
   group: ${{ format('package-plugin-integration-tests-{0}', github.head_ref) }}
@@ -97,4 +97,7 @@ jobs:
           make build-cli-local
           make install-cli
           make install-cli-plugins
-          E2E_CONFIG=$PWD/cmd/cli/plugin/package/test/config/package_plugin_config.yaml hack/tools/bin/ginkgo -v -trace -tags embedproviders cmd/cli/plugin/package/test
+          export PROJ_ROOT=$PWD
+          cd cmd/cli/plugin/package/test/
+          E2E_CONFIG=$PROJ_ROOT/cmd/cli/plugin/package/test/config/package_plugin_config.yaml $PROJ_ROOT/hack/tools/bin/ginkgo -v -trace -tags embedproviders .
+          cd $PROJ_ROOT

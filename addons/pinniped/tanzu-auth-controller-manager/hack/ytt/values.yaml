@@ -1,5 +1,0 @@
-#@data/values
-#@overlay/match-child-defaults missing_ok=True
----
-tkr: v0.0.0 #! invalid tkr version, but defaulted here to make generating secret easier
-infrastructure_provider: vsphere

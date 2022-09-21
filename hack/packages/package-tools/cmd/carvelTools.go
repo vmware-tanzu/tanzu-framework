@@ -12,5 +12,5 @@ type CarvelTools struct {
 type Tool struct {
 	Name    string `yaml:"name"`
 	Version string `yaml:"version"`
-	Url     string `yaml:"url"`
+	URL     string `yaml:"url"`
 }

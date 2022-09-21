@@ -8,22 +8,22 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/vmware-tanzu/tanzu-framework/apis/config/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/common"
+	configapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/config/v1alpha1"
 )
 
 func Test_CreateDiscoveryFromV1alpha1(t *testing.T) {
 	assert := assert.New(t)
 
 	// When no discovery type is provided, it should throw error
-	pd := v1alpha1.PluginDiscovery{}
+	pd := configapi.PluginDiscovery{}
 	_, err := CreateDiscoveryFromV1alpha1(pd)
 	assert.NotNil(err)
 	assert.Contains(err.Error(), "unknown plugin discovery source")
 
 	// When OCI discovery is provided
-	pd = v1alpha1.PluginDiscovery{
-		OCI: &v1alpha1.OCIDiscovery{Name: "fake-oci", Image: "fake.repo.com/test:v1.0.0"},
+	pd = configapi.PluginDiscovery{
+		OCI: &configapi.OCIDiscovery{Name: "fake-oci", Image: "fake.repo.com/test:v1.0.0"},
 	}
 	discovery, err := CreateDiscoveryFromV1alpha1(pd)
 	assert.Nil(err)
@@ -31,8 +31,8 @@ func Test_CreateDiscoveryFromV1alpha1(t *testing.T) {
 	assert.Equal("fake-oci", discovery.Name())
 
 	// When Local discovery is provided
-	pd = v1alpha1.PluginDiscovery{
-		Local: &v1alpha1.LocalDiscovery{Name: "fake-local", Path: "test/path"},
+	pd = configapi.PluginDiscovery{
+		Local: &configapi.LocalDiscovery{Name: "fake-local", Path: "test/path"},
 	}
 	discovery, err = CreateDiscoveryFromV1alpha1(pd)
 	assert.Nil(err)
@@ -40,8 +40,8 @@ func Test_CreateDiscoveryFromV1alpha1(t *testing.T) {
 	assert.Equal("fake-local", discovery.Name())
 
 	// When GCP discovery is provided
-	pd = v1alpha1.PluginDiscovery{
-		GCP: &v1alpha1.GCPDiscovery{Name: "fake-gcp"},
+	pd = configapi.PluginDiscovery{
+		GCP: &configapi.GCPDiscovery{Name: "fake-gcp"},
 	}
 	discovery, err = CreateDiscoveryFromV1alpha1(pd)
 	assert.Nil(err)
@@ -49,8 +49,8 @@ func Test_CreateDiscoveryFromV1alpha1(t *testing.T) {
 	assert.Equal("fake-gcp", discovery.Name())
 
 	// When K8s discovery is provided
-	pd = v1alpha1.PluginDiscovery{
-		Kubernetes: &v1alpha1.KubernetesDiscovery{Name: "fake-k8s"},
+	pd = configapi.PluginDiscovery{
+		Kubernetes: &configapi.KubernetesDiscovery{Name: "fake-k8s"},
 	}
 	discovery, err = CreateDiscoveryFromV1alpha1(pd)
 	assert.Nil(err)
@@ -58,8 +58,8 @@ func Test_CreateDiscoveryFromV1alpha1(t *testing.T) {
 	assert.Equal("fake-k8s", discovery.Name())
 
 	// When REST discovery is provided
-	pd = v1alpha1.PluginDiscovery{
-		REST: &v1alpha1.GenericRESTDiscovery{Name: "fake-rest"},
+	pd = configapi.PluginDiscovery{
+		REST: &configapi.GenericRESTDiscovery{Name: "fake-rest"},
 	}
 	discovery, err = CreateDiscoveryFromV1alpha1(pd)
 	assert.Nil(err)

@@ -12,11 +12,11 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
-	bomtypes "github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkr/pkg/types"
+	tkrv1 "github.com/vmware-tanzu/tanzu-framework/apis/run/pkg/tkr/v1"
 )
 
 // GetBOMByTKRName returns the bom associated with the TKR
-func GetBOMByTKRName(ctx context.Context, c client.Client, tkrName string) (*bomtypes.Bom, error) {
+func GetBOMByTKRName(ctx context.Context, c client.Client, tkrName string) (*tkrv1.Bom, error) {
 	configMapList := &corev1.ConfigMapList{}
 	var bomConfigMap *corev1.ConfigMap
 	if err := c.List(ctx, configMapList, client.InNamespace(constants.TKGBomNamespace), client.MatchingLabels{constants.TKRLabel: tkrName}); err != nil {
@@ -37,7 +37,7 @@ func GetBOMByTKRName(ctx context.Context, c client.Client, tkrName string) (*bom
 		bomData = []byte(bomDataString)
 	}
 
-	bom, err := bomtypes.NewBom(bomData)
+	bom, err := tkrv1.NewBom(bomData)
 	if err != nil {
 		return nil, err
 	}
@@ -51,7 +51,7 @@ func GetTKRNameFromBOMConfigMap(bomConfigMap *corev1.ConfigMap) string {
 }
 
 // GetAddonImageRepository returns imageRepository from configMap `tkr-controller-config` in namespace `tkr-system` if exists else use BOM
-func GetAddonImageRepository(ctx context.Context, c client.Client, bom *bomtypes.Bom) (string, error) {
+func GetAddonImageRepository(ctx context.Context, c client.Client, bom *tkrv1.Bom) (string, error) {
 	bomConfigMap := &corev1.ConfigMap{}
 	err := c.Get(ctx, client.ObjectKey{
 		Namespace: constants.TKGBomNamespace,
@@ -72,7 +72,7 @@ func GetAddonImageRepository(ctx context.Context, c client.Client, bom *bomtypes
 }
 
 // GetCorePackageRepositoryImageFromBom generates the core PackageRepository Object
-func GetCorePackageRepositoryImageFromBom(bom *bomtypes.Bom) (*bomtypes.ImageInfo, error) {
+func GetCorePackageRepositoryImageFromBom(bom *tkrv1.Bom) (*tkrv1.ImageInfo, error) {
 	repositoryImage, err := bom.GetImageInfo(constants.TKGCorePackageRepositoryComponentName, "", constants.TKGCorePackageRepositoryImageName)
 	if err != nil {
 		return nil, err
@@ -86,7 +86,7 @@ func GetCorePackageRepositoryImageFromBom(bom *bomtypes.Bom) (*bomtypes.ImageInf
 // If packageName is not present, it will look for addonTemplatesImage
 // addonTemplatesImage should be present in a 1.3.1 cluster, and will be used to find images in tanzu_core_addons
 // If addonTemplatesImage is not present, it will fall back to using templatesImagePath and templatesImageTag to find template images
-func GetTemplateImageURLFromBom(addonConfig *bomtypes.Addon, imageRepository string, bom *bomtypes.Bom) (string, error) {
+func GetTemplateImageURLFromBom(addonConfig *tkrv1.Addon, imageRepository string, bom *tkrv1.Bom) (string, error) {
 	/*example addon section in BOM:
 	  kapp-controller:
 	    category: addons-management

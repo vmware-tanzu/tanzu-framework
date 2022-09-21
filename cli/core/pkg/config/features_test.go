@@ -8,21 +8,21 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	configv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/config/v1alpha1"
+	configapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/config/v1alpha1"
 )
 
 func TestConfigFeatures(t *testing.T) {
 	const pluginName = "management-cluster"
 	const featureName = "foo"
 	const featurePath = "features." + pluginName + "." + featureName
-	cliFeatureFlags := configv1alpha1.FeatureMap{
+	cliFeatureFlags := configapi.FeatureMap{
 		featureName: "true",
 	}
-	cliFeatureMap := make(map[string]configv1alpha1.FeatureMap)
+	cliFeatureMap := make(map[string]configapi.FeatureMap)
 	cliFeatureMap[pluginName] = cliFeatureFlags
-	cfg := &configv1alpha1.ClientConfig{
-		ClientOptions: &configv1alpha1.ClientOptions{
-			CLI: &configv1alpha1.CLIOptions{
+	cfg := &configapi.ClientConfig{
+		ClientOptions: &configapi.ClientOptions{
+			CLI: &configapi.CLIOptions{
 				Repositories:            DefaultRepositories,
 				UnstableVersionSelector: DefaultVersionSelector,
 			},
@@ -35,9 +35,9 @@ func TestConfigFeatures(t *testing.T) {
 }
 
 func TestConfigFeaturesDefault(t *testing.T) {
-	cfg := &configv1alpha1.ClientConfig{
-		ClientOptions: &configv1alpha1.ClientOptions{
-			CLI: &configv1alpha1.CLIOptions{
+	cfg := &configapi.ClientConfig{
+		ClientOptions: &configapi.ClientOptions{
+			CLI: &configapi.CLIOptions{
 				Repositories:            DefaultRepositories,
 				UnstableVersionSelector: DefaultVersionSelector,
 			},
@@ -69,9 +69,9 @@ func TestConfigFeaturesDefaultInvalid(t *testing.T) {
 	cliFeatureFlags := map[string]bool{
 		featureFoo: true,
 	}
-	cfg := &configv1alpha1.ClientConfig{
-		ClientOptions: &configv1alpha1.ClientOptions{
-			CLI: &configv1alpha1.CLIOptions{
+	cfg := &configapi.ClientConfig{
+		ClientOptions: &configapi.ClientOptions{
+			CLI: &configapi.CLIOptions{
 				Repositories:            DefaultRepositories,
 				UnstableVersionSelector: DefaultVersionSelector,
 			},
@@ -83,9 +83,9 @@ func TestConfigFeaturesDefaultInvalid(t *testing.T) {
 
 func TestConfigFeaturesInvalidName(t *testing.T) {
 	const featureFoo = "invalid.foo"
-	cfg := &configv1alpha1.ClientConfig{
-		ClientOptions: &configv1alpha1.ClientOptions{
-			CLI: &configv1alpha1.CLIOptions{
+	cfg := &configapi.ClientConfig{
+		ClientOptions: &configapi.ClientOptions{
+			CLI: &configapi.CLIOptions{
 				Repositories:            DefaultRepositories,
 				UnstableVersionSelector: DefaultVersionSelector,
 			},
@@ -98,14 +98,14 @@ func TestConfigFeaturesInvalidName(t *testing.T) {
 
 func TestConfigFeaturesInvalidValue(t *testing.T) {
 	const featureFoo = "features.management-cluster.foo"
-	cliFeatureFlags := configv1alpha1.FeatureMap{
+	cliFeatureFlags := configapi.FeatureMap{
 		"foo": "INVALID",
 	}
-	cliFeatureMap := make(map[string]configv1alpha1.FeatureMap)
+	cliFeatureMap := make(map[string]configapi.FeatureMap)
 	cliFeatureMap["management-cluster"] = cliFeatureFlags
-	cfg := &configv1alpha1.ClientConfig{
-		ClientOptions: &configv1alpha1.ClientOptions{
-			CLI: &configv1alpha1.CLIOptions{
+	cfg := &configapi.ClientConfig{
+		ClientOptions: &configapi.ClientOptions{
+			CLI: &configapi.CLIOptions{
 				Repositories:            DefaultRepositories,
 				UnstableVersionSelector: DefaultVersionSelector,
 			},
@@ -119,9 +119,9 @@ func TestConfigFeaturesInvalidValue(t *testing.T) {
 
 func TestConfigFeaturesSplitName(t *testing.T) {
 	const featureValid = "features.valid-plugin.foo"
-	cfg := &configv1alpha1.ClientConfig{
-		ClientOptions: &configv1alpha1.ClientOptions{
-			CLI: &configv1alpha1.CLIOptions{
+	cfg := &configapi.ClientConfig{
+		ClientOptions: &configapi.ClientOptions{
+			CLI: &configapi.CLIOptions{
 				Repositories:            DefaultRepositories,
 				UnstableVersionSelector: DefaultVersionSelector,
 			},
@@ -135,9 +135,9 @@ func TestConfigFeaturesSplitName(t *testing.T) {
 
 func TestConfigFeaturesSplitNameInvalid(t *testing.T) {
 	const featureInvalid = "invalid.foo"
-	cfg := &configv1alpha1.ClientConfig{
-		ClientOptions: &configv1alpha1.ClientOptions{
-			CLI: &configv1alpha1.CLIOptions{
+	cfg := &configapi.ClientConfig{
+		ClientOptions: &configapi.ClientOptions{
+			CLI: &configapi.CLIOptions{
 				Repositories:            DefaultRepositories,
 				UnstableVersionSelector: DefaultVersionSelector,
 			},
@@ -155,15 +155,15 @@ func TestConfigFeaturesDefaultsAdded(t *testing.T) {
 		"features.existing.falsey": false,
 	}
 	// NOTE: the existing values are OPPOSITE of the default and should stay that way:
-	cliFeatureFlags := configv1alpha1.FeatureMap{
+	cliFeatureFlags := configapi.FeatureMap{
 		"truthy": "false",
 		"falsey": "true",
 	}
-	cliFeatureMap := make(map[string]configv1alpha1.FeatureMap)
+	cliFeatureMap := make(map[string]configapi.FeatureMap)
 	cliFeatureMap["existing"] = cliFeatureFlags
-	cfg := &configv1alpha1.ClientConfig{
-		ClientOptions: &configv1alpha1.ClientOptions{
-			CLI: &configv1alpha1.CLIOptions{
+	cfg := &configapi.ClientConfig{
+		ClientOptions: &configapi.ClientOptions{
+			CLI: &configapi.CLIOptions{
 				Repositories:            DefaultRepositories,
 				UnstableVersionSelector: DefaultVersionSelector,
 			},
@@ -185,15 +185,15 @@ func TestConfigFeaturesDefaultsNoneAdded(t *testing.T) {
 		"features.existing.falsey": false,
 	}
 	// NOTE: the existing values are OPPOSITE of the default and should stay that way:
-	cliFeatureFlags := configv1alpha1.FeatureMap{
+	cliFeatureFlags := configapi.FeatureMap{
 		"truthy": "false",
 		"falsey": "true",
 	}
-	cliFeatureMap := make(map[string]configv1alpha1.FeatureMap)
+	cliFeatureMap := make(map[string]configapi.FeatureMap)
 	cliFeatureMap["existing"] = cliFeatureFlags
-	cfg := &configv1alpha1.ClientConfig{
-		ClientOptions: &configv1alpha1.ClientOptions{
-			CLI: &configv1alpha1.CLIOptions{
+	cfg := &configapi.ClientConfig{
+		ClientOptions: &configapi.ClientOptions{
+			CLI: &configapi.CLIOptions{
 				Repositories:            DefaultRepositories,
 				UnstableVersionSelector: DefaultVersionSelector,
 			},

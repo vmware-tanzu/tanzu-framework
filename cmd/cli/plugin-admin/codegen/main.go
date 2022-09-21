@@ -6,16 +6,15 @@ package main
 import (
 	"github.com/aunum/log"
 
-	cliv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
+	cliapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/cli/v1alpha1"
+	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/buildinfo"
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/plugin"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/buildinfo"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/codegen"
 )
 
-var descriptor = cliv1alpha1.PluginDescriptor{
+var descriptor = cliapi.PluginDescriptor{
 	Name:        "codegen",
 	Description: "Tanzu code generation tool",
-	Group:       cliv1alpha1.AdminCmdGroup,
+	Group:       cliapi.AdminCmdGroup,
 	Version:     buildinfo.Version,
 	BuildSHA:    buildinfo.SHA,
 }
@@ -27,7 +26,7 @@ func main() {
 	}
 
 	p.AddCommands(
-		codegen.GenerateCmd,
+		GenerateCmd,
 	)
 
 	if err := p.Execute(); err != nil {

@@ -2,8 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 // Package v1alpha1 contains API Schema definitions for the cpi v1alpha1 API group
-//+kubebuilder:object:generate=true
-//+groupName=cpi.tanzu.vmware.com
+// +kubebuilder:object:generate=true
+// +groupName=cpi.tanzu.vmware.com
 package v1alpha1
 
 import (

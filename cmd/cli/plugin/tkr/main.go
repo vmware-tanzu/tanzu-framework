@@ -14,20 +14,20 @@ import (
 	tkrv1alpha1 "github.com/vmware-tanzu/tanzu-framework/cmd/cli/plugin/tkr/v1alpha1"
 	tkrv1alpha3 "github.com/vmware-tanzu/tanzu-framework/cmd/cli/plugin/tkr/v1alpha3"
 	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/buildinfo"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/clusterclient"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/tkg/tkgctl"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/clusterclient"
 	"github.com/vmware-tanzu/tanzu-framework/tkg/constants"
+	"github.com/vmware-tanzu/tanzu-framework/tkg/tkgctl"
 
 	"github.com/aunum/log"
 
-	cliv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
+	cliapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/cli/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/plugin"
 )
 
-var descriptor = cliv1alpha1.PluginDescriptor{
+var descriptor = cliapi.PluginDescriptor{
 	Name:        "kubernetes-release",
 	Description: "Kubernetes release operations",
-	Group:       cliv1alpha1.RunCmdGroup,
+	Group:       cliapi.RunCmdGroup,
 	Aliases:     []string{"kr", "kubernetes-releases"},
 	Version:     buildinfo.Version,
 	BuildSHA:    buildinfo.SHA,
