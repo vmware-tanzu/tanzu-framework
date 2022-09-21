@@ -14,7 +14,7 @@ CLI_REPO=${CLI_REPO:-${PWD}/../..}
 GIT_BRANCH_PROVIDERS=$1
 GIT_BRANCH_PROVIDERS_BASE=$2
 
-cd pkg/v1/providers
+cd providers
 
 # TODO: As we are using providers as library, clustergen should not rely on building binary
 # each time with new providers, instead we should write some go testing tool  which runs

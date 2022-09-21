@@ -17,8 +17,8 @@ These tests run automatically for you in CI, changing many different types of pa
 The unit tests in this repository can be run like so:
 
 ```bash
-cd pkg/v1/providers/tests/
-go test -timeout 30s -run ^TestUnit$ github.com/vmware-tanzu/tanzu-framework/pkg/v1/providers/tests/unit/matchers
+cd providers/tests/
+go test -timeout 30s -run ^TestUnit$ github.com/vmware-tanzu/tanzu-framework/providers/tests/unit/matchers
 ```
 
 You can write an end to end unit test by:

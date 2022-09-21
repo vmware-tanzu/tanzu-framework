@@ -136,10 +136,10 @@ The prod plan: three control plane nodes and three worker nodes.
 ## Detailed Design
 
 1. Add the “**infrastructure-byoh**” folder which contains the YTT templates to generate the YAML files, so that CAPI can provision BYOH workload clusters using these YAML files.
-Update "pkg/v1/providers/config.yaml" and create new YTT under folder " pkg/v1/providers/infrastructure-byoh/v0.1.0/" to support BYOH as a new type of provider.
+Update "providers/config.yaml" and create new YTT under folder " providers/infrastructure-byoh/v0.1.0/" to support BYOH as a new type of provider.
 
 2. Add the configuration item to let users define control plane endpoint for BYOH workload cluster.
-Update "pkg/v1/providers/config_default.yaml" and tanzu-framework go code, so that new configurations can be read to create BYOH workload cluster.
+Update "providers/config_default.yaml" and tanzu-framework go code, so that new configurations can be read to create BYOH workload cluster.
 
 3. Configurations to provision BYOH workload clusters should be validated in case of invalid configuration input.
 
