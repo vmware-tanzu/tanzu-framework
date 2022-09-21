@@ -128,7 +128,6 @@ type NonParavirtualConfig struct {
 
 	// The flag that disables TLS peer verification
 	// +kubebuilder:validation:Optional
-	// +kubebuilder:default:=false
 	Insecure *bool `json:"insecure,omitempty"`
 
 	// The IP family configuration
