@@ -566,6 +566,10 @@ verify: ## Run all verification scripts
 	./packages/tkg-clusterclass/hack/sync-cc.sh
 	./hack/verify-dirty.sh
 
+.PHONY: verify-test
+verify-test: verify
+	echo verify-test
+
 .PHONY: clean-catalog-cache
 clean-catalog-cache: ## Cleans catalog cache
 	@rm -rf ${XDG_CACHE_HOME}/tanzu/*
