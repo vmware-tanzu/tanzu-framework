@@ -61,6 +61,35 @@ parameters:
 volumeBindingMode: WaitForFirstConsumer
 #@ end
 
+#@ def azurefile_storage_class():
+---
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: default
+  annotations:
+    storageclass.kubernetes.io/is-default-class: "true"
+  labels:
+    kubernetes.io/cluster-service: "true"
+#@ if enable_csi_driver():
+provisioner: file.csi.azure.com
+#@ else:
+provisioner: kubernetes.io/azure-file
+#@ end
+allowVolumeExpansion: true
+mountOptions:
+  - dir_mode=0777
+  - file_mode=0777
+  - uid=0
+  - gid=0
+  - mfsymlinks
+  - cache=strict
+  - actimeo=30
+parameters:
+  skuName: Premium_LRS
+#@ end
+
+
 #@ if data.values.TKG_CLUSTER_ROLE == "workload" and data.values.ENABLE_DEFAULT_STORAGE_CLASS and data.values.PROVIDER_TYPE != "tkg-service-vsphere" and data.values.PROVIDER_TYPE != "docker":
 ---
 apiVersion: addons.cluster.x-k8s.io/v1beta1
@@ -75,8 +104,9 @@ spec:
     matchLabels:
       tkg.tanzu.vmware.com/cluster-name: #@ data.values.CLUSTER_NAME
   resources:
-  - name: #@ "{}-default-storage-class".format(data.values.CLUSTER_NAME)
-    kind: Secret
+    - name: #@ "{}-default-storage-class".format(data.values.CLUSTER_NAME)
+      kind: Secret
+
 ---
 apiVersion: v1
 kind: Secret
@@ -95,5 +125,5 @@ stringData:
 #@ if data.values.PROVIDER_TYPE == "azure":
   value: #@ yaml.encode(azure_storage_class())
 #@ end
-
 #@ end
+
