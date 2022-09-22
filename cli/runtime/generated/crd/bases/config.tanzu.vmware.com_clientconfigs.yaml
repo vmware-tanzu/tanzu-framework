@@ -157,7 +157,8 @@ spec:
                       type: object
                     type: array
                   edition:
-                    description: Edition
+                    description: 'Deprecated: Edition has been deprecated and will
+                      be removed from future version Edition'
                     type: string
                   repositories:
                     description: Repositories are the plugin repositories.
@@ -395,8 +396,8 @@ spec:
               type: object
             type: array
           current:
-            description: 'CurrentServer in use. Note: Shall be deprecated in a future
-              version. Superseded by CurrentContext.'
+            description: CurrentServer in use. Deprecation targeted for a a future
+              version. Superseded by CurrentContext.
             type: string
           currentContext:
             additionalProperties:
@@ -411,11 +412,11 @@ spec:
           metadata:
             type: object
           servers:
-            description: 'KnownServers available. Note: Shall be deprecated in a future
-              version. Superseded by KnownContexts.'
+            description: KnownServers available. Deprecation targeted for a a future
+              version. Superseded by KnownContexts.
             items:
-              description: 'Server connection. Note: Shall be deprecated in a future
-                version. Superseded by Context.'
+              description: Server connection. Deprecation targeted for a a future
+                version. Superseded by Context.
               properties:
                 discoverySources:
                   description: DiscoverySources determines from where to discover

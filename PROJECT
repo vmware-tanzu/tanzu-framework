@@ -41,6 +41,9 @@ resources:
 - group: cpi
   kind: CPIConfig
   version: v1alpha1
+- group: csi
+  kind: AzureDiskCSIConfig
+  version: v1alpha1
 - group: core
   kind: Capabilities
 - group: csi

@@ -35,6 +35,9 @@ const (
 	// CSIAddonName is name of the vsphere-csi addon
 	CSIAddonName = "vsphere-csi"
 
+	// AzureDiskCSIAddonName is name of the vsphere-csi addon
+	AzureDiskCSIAddonName = "azure-disk-csi"
+
 	// AwsEbsCSIAddonName is name of the aws-ebs-csi addon
 	AwsEbsCSIAddonName = "aws-ebs-csi"
 
@@ -302,4 +305,7 @@ var (
 
 	// AwsEbsCSIConfigKind is the Kind for csi AwsEbsCSIConfig object
 	AwsEbsCSIConfigKind = reflect.TypeOf(csiv1alpha1.AwsEbsCSIConfig{}).Name()
+
+	// AzureDiskCSIConfigKind is the Kind for AzureDiskCSIConfig object
+	AzureDiskCSIConfigKind = reflect.TypeOf(csiv1alpha1.AzureDiskCSIConfig{}).Name()
 )

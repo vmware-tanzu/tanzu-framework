@@ -61,7 +61,7 @@ parameters:
 volumeBindingMode: WaitForFirstConsumer
 #@ end
 
-#@ if data.values.ENABLE_DEFAULT_STORAGE_CLASS and data.values.PROVIDER_TYPE != "tkg-service-vsphere" and data.values.PROVIDER_TYPE != "docker":
+#@ if data.values.TKG_CLUSTER_ROLE == "workload" and data.values.ENABLE_DEFAULT_STORAGE_CLASS and data.values.PROVIDER_TYPE != "tkg-service-vsphere" and data.values.PROVIDER_TYPE != "docker":
 ---
 apiVersion: addons.cluster.x-k8s.io/v1beta1
 kind: ClusterResourceSet

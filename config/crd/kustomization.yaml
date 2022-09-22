@@ -9,6 +9,7 @@ resources:
 - bases/cni.tanzu.vmware.com_antreaconfigs.yaml
 - bases/cpi.tanzu.vmware.com_vspherecpiconfigs.yaml
 - bases/csi.tanzu.vmware.com_vspherecsiconfigs.yaml
+- bases/csi.tanzu.vmware.com_azurediskcsiconfigs.yaml
 - bases/csi.tanzu.vmware.com_awsebscsiconfigs.yaml
 # +kubebuilder:scaffold:crdkustomizeresource
 
@@ -24,6 +25,7 @@ patchesStrategicMerge:
 #- patches/webhook_in_clusterbootstraps.yaml
 #- patches/webhook_in_clusterbootstraptemplates.yaml
 #- patches/webhook_in_awsebscsiconfigs.yaml
+#- patches/webhook_in_azurediskcsiconfigs.yaml
 # +kubebuilder:scaffold:crdkustomizewebhookpatch
 
 # [CERTMANAGER] To enable webhook, uncomment all the sections with [CERTMANAGER] prefix.
@@ -36,6 +38,7 @@ patchesStrategicMerge:
 #- patches/cainjection_in_cpiconfigs.yaml
 #- patches/cainjection_in_clusterbootstraps.yaml
 #- patches/cainjection_in_clusterbootstraptemplates.yaml
+#- patches/cainjection_in_azurediskcsiconfigs.yaml
 #- patches/cainjection_in_awsebscsiconfigs.yaml
 # +kubebuilder:scaffold:crdkustomizecainjectionpatch
 
