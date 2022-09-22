@@ -15,7 +15,10 @@ spec:
     singular: capability
   scope: Namespaced
   versions:
-  - name: v1alpha1
+  - deprecated: true
+    deprecationWarning: Capability API in run.tanzu.vmware.com is deprecated. Use
+      Capability API from core.tanzu.vmware.com instead
+    name: v1alpha1
     schema:
       openAPIV3Schema:
         description: Capability is the Schema for the capabilities API

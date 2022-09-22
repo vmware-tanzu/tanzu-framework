@@ -149,6 +149,7 @@ type Result struct {
 
 //+kubebuilder:object:root=true
 //+kubebuilder:subresource:status
+//+kubebuilder:deprecatedversion:warning="Capability API in run.tanzu.vmware.com is deprecated. Use Capability API from core.tanzu.vmware.com instead"
 
 // Capability is the Schema for the capabilities API
 type Capability struct {

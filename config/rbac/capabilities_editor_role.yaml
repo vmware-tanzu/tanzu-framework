@@ -1,0 +1,24 @@
+# permissions for end users to edit capabilities.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: capabilities-editor-role
+rules:
+- apiGroups:
+  - core.tanzu.vmware.com
+  resources:
+  - capabilities
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - core.tanzu.vmware.com
+  resources:
+  - capabilities/status
+  verbs:
+  - get
