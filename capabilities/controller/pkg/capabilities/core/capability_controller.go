@@ -1,7 +1,7 @@
-// Copyright 2021 VMware, Inc. All Rights Reserved.
+// Copyright 2022 VMware, Inc. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-package capabilities
+package core
 
 import (
 	"context"
@@ -12,7 +12,7 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
-	runv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha1"
+	corev1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/core/v1alpha1"
 	"github.com/vmware-tanzu/tanzu-framework/capabilities/client/pkg/discovery"
 	"github.com/vmware-tanzu/tanzu-framework/capabilities/controller/pkg/config"
 	"github.com/vmware-tanzu/tanzu-framework/capabilities/controller/pkg/constants"
@@ -37,7 +37,7 @@ func (r *CapabilityReconciler) Reconcile(ctx context.Context, req ctrl.Request) 
 	log := r.Log.WithValues("capability", req.NamespacedName)
 	log.Info("Starting reconcile")
 
-	capability := &runv1alpha1.Capability{}
+	capability := &corev1alpha1.Capability{}
 	if err := r.Get(ctxCancel, req.NamespacedName, capability); err != nil {
 		return ctrl.Result{}, client.IgnoreNotFound(err)
 	}
@@ -60,7 +60,7 @@ func (r *CapabilityReconciler) Reconcile(ctx context.Context, req ctrl.Request) 
 		return ctrl.Result{}, fmt.Errorf("unable to create ClusterQueryClient: %w", err)
 	}
 
-	capability.Status.Results = make([]runv1alpha1.Result, len(capability.Spec.Queries))
+	capability.Status.Results = make([]corev1alpha1.Result, len(capability.Spec.Queries))
 
 	for i, query := range capability.Spec.Queries {
 		l := log.WithValues("query", query.Name)
@@ -79,7 +79,7 @@ func (r *CapabilityReconciler) Reconcile(ctx context.Context, req ctrl.Request) 
 }
 
 // queryGVRs executes GVR queries and returns results.
-func (r *CapabilityReconciler) queryGVRs(log logr.Logger, clusterQueryClient *discovery.ClusterQueryClient, queries []runv1alpha1.QueryGVR) []runv1alpha1.QueryResult {
+func (r *CapabilityReconciler) queryGVRs(log logr.Logger, clusterQueryClient *discovery.ClusterQueryClient, queries []corev1alpha1.QueryGVR) []corev1alpha1.QueryResult {
 	return r.executeQueries(log.WithValues("queryType", "GVR"), clusterQueryClient, func() map[string]discovery.QueryTarget {
 		queryTargets := make(map[string]discovery.QueryTarget)
 		for i := range queries {
@@ -92,7 +92,7 @@ func (r *CapabilityReconciler) queryGVRs(log logr.Logger, clusterQueryClient *di
 }
 
 // queryObjects executes Object queries and returns results.
-func (r *CapabilityReconciler) queryObjects(log logr.Logger, clusterQueryClient *discovery.ClusterQueryClient, queries []runv1alpha1.QueryObject) []runv1alpha1.QueryResult {
+func (r *CapabilityReconciler) queryObjects(log logr.Logger, clusterQueryClient *discovery.ClusterQueryClient, queries []corev1alpha1.QueryObject) []corev1alpha1.QueryResult {
 	return r.executeQueries(log.WithValues("queryType", "Object"), clusterQueryClient, func() map[string]discovery.QueryTarget {
 		queryTargets := make(map[string]discovery.QueryTarget)
 		for i := range queries {
@@ -105,7 +105,7 @@ func (r *CapabilityReconciler) queryObjects(log logr.Logger, clusterQueryClient 
 }
 
 // queryPartialSchemas executes PartialSchema queries and returns results.
-func (r *CapabilityReconciler) queryPartialSchemas(log logr.Logger, clusterQueryClient *discovery.ClusterQueryClient, queries []runv1alpha1.QueryPartialSchema) []runv1alpha1.QueryResult {
+func (r *CapabilityReconciler) queryPartialSchemas(log logr.Logger, clusterQueryClient *discovery.ClusterQueryClient, queries []corev1alpha1.QueryPartialSchema) []corev1alpha1.QueryResult {
 	return r.executeQueries(log.WithValues("queryType", "PartialSchema"), clusterQueryClient, func() map[string]discovery.QueryTarget {
 		queryTargets := make(map[string]discovery.QueryTarget)
 		for i := range queries {
@@ -118,11 +118,11 @@ func (r *CapabilityReconciler) queryPartialSchemas(log logr.Logger, clusterQuery
 }
 
 // executeQueries executes queries using the discovery client and stores results.
-func (r *CapabilityReconciler) executeQueries(log logr.Logger, clusterQueryClient *discovery.ClusterQueryClient, specToQueryTargetFn func() map[string]discovery.QueryTarget) []runv1alpha1.QueryResult {
-	var results []runv1alpha1.QueryResult
+func (r *CapabilityReconciler) executeQueries(log logr.Logger, clusterQueryClient *discovery.ClusterQueryClient, specToQueryTargetFn func() map[string]discovery.QueryTarget) []corev1alpha1.QueryResult {
+	var results []corev1alpha1.QueryResult
 	queryTargetsMap := specToQueryTargetFn()
 	for name, queryTarget := range queryTargetsMap {
-		result := runv1alpha1.QueryResult{Name: name}
+		result := corev1alpha1.QueryResult{Name: name}
 		c := clusterQueryClient.Query(queryTarget)
 		found, err := c.Execute()
 		if err != nil {
@@ -144,6 +144,6 @@ func (r *CapabilityReconciler) executeQueries(log logr.Logger, clusterQueryClien
 // SetupWithManager sets up the controller with the Manager.
 func (r *CapabilityReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
-		For(&runv1alpha1.Capability{}).
+		For(&corev1alpha1.Capability{}).
 		Complete(r)
 }
