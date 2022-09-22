@@ -137,38 +137,6 @@ repositories:
         version: latest
         #! Gets replaced with imgpkg sha256 at build, this should be name:version
         sha256: "tkg-clusterclass-aws:latest"
-      - name: tkr-aws-machine-webhook
-        displayName: tkr-aws-machine-webhook
-        #! Relative path to package bundle
-        path: packages/tkr-aws-machine-webhook
-        domain: tanzu.vmware.com
-        version: latest
-        #! Gets replaced with imgpkg sha256 at build, this should be name:version
-        sha256: "tkr-aws-machine-webhook:latest"
-      - name: tkr-azure-machine-webhook
-        displayName: tkr-azure-machine-webhook
-        #! Relative path to package bundle
-        path: packages/tkr-azure-machine-webhook
-        domain: tanzu.vmware.com
-        version: latest
-        #! Gets replaced with imgpkg sha256 at build, this should be name:version
-        sha256: "tkr-azure-machine-webhook:latest"
-      - name: tkr-docker-machine-webhook
-        displayName: tkr-docker-machine-webhook
-        #! Relative path to package bundle
-        path: packages/tkr-docker-machine-webhook
-        domain: tanzu.vmware.com
-        version: latest
-        #! Gets replaced with imgpkg sha256 at build, this should be name:version
-        sha256: "tkr-docker-machine-webhook:latest"
-      - name: tkr-vsphere-machine-webhook
-        displayName: tkr-vsphere-machine-webhook
-        #! Relative path to package bundle
-        path: packages/tkr-vsphere-machine-webhook
-        domain: tanzu.vmware.com
-        version: latest
-        #! Gets replaced with imgpkg sha256 at build, this should be name:version
-        sha256: "tkr-vsphere-machine-webhook:latest"
       - name: tkr-service
         displayName: tkr-service
         #! Relative path to package bundle
