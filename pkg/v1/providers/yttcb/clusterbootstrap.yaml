@@ -39,6 +39,10 @@
 #@           data.values.USE_TOPOLOGY_CATEGORIES)
 #@ end
 
+#@ def azurefilecsi_configs_exist():
+#@   return data.values.PROVIDER_TYPE == "azure"
+#@ end
+
 #@ def should_create_clusterbootstrap():
 #@   return data.values.CNI != "antrea" or antrea_configs_exist() or vspherecsi_configs_exist() or vspherecpi_configs_exist()
 #@ end
@@ -214,6 +218,15 @@ spec:
       providerRef:
         apiGroup: csi.tanzu.vmware.com
         kind: VSphereCSIConfig
+        name: #@ data.values.CLUSTER_NAME
+  #@ end
+  #@ if azurefilecsi_configs_exist() and not data.values.IS_WINDOWS_WORKLOAD_CLUSTER:
+  csi:
+    refName: azurefile-csi*
+    valuesFrom:
+      providerRef:
+        apiGroup: csi.tanzu.vmware.com
+        kind: AzureFileCSIConfig
         name: #@ data.values.CLUSTER_NAME
   #@ end
   kapp:

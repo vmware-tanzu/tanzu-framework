@@ -1,0 +1,607 @@
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.9.2
+  creationTimestamp: null
+  name: clientconfigs.config.tanzu.vmware.com
+spec:
+  group: config.tanzu.vmware.com
+  names:
+    kind: ClientConfig
+    listKind: ClientConfigList
+    plural: clientconfigs
+    singular: clientconfig
+  scope: Namespaced
+  versions:
+  - name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        description: ClientConfig is the Schema for the configs API
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation
+              of an object. Servers should convert recognized schemas to the latest
+              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          clientOptions:
+            description: ClientOptions are client specific options.
+            properties:
+              cli:
+                description: CLI options specific to the CLI.
+                properties:
+                  bomRepo:
+                    description: 'Deprecated: BOMRepo has been deprecated and will
+                      be removed from future version BOMRepo is the root repository
+                      URL used to resolve the compatibiilty file and bill of materials.
+                      An example URL is projects.registry.vmware.com/tkg.'
+                    type: string
+                  compatibilityFilePath:
+                    description: 'Deprecated: CompatibilityFilePath has been deprecated
+                      and will be removed from future version CompatibilityFilePath
+                      is the path, from the BOM repo, to download and access the compatibility
+                      file. the compatibility file is used for resolving the bill
+                      of materials for creating clusters.'
+                    type: string
+                  discoverySources:
+                    description: DiscoverySources determines from where to discover
+                      stand-alone plugins
+                    items:
+                      description: PluginDiscovery contains a specific distribution
+                        mechanism. Only one of the configs must be set.
+                      properties:
+                        contextType:
+                          description: ContextType the discovery source is associated
+                            with (applicable only for stand-alone plugins).
+                          type: string
+                        gcp:
+                          description: GCPStorage is set if the plugins are to be
+                            discovered via Google Cloud Storage.
+                          properties:
+                            bucket:
+                              description: Bucket is a Google Cloud Storage bucket.
+                                E.g., tanzu-cli
+                              type: string
+                            manifestPath:
+                              description: BasePath is a URI path that is prefixed
+                                to the object name/path. E.g., plugins/cluster
+                              type: string
+                            name:
+                              description: Name is a name of the discovery
+                              type: string
+                          required:
+                          - bucket
+                          - manifestPath
+                          - name
+                          type: object
+                        k8s:
+                          description: KubernetesDiscovery is set if the plugins are
+                            to be discovered via the Kubernetes API server.
+                          properties:
+                            context:
+                              description: The context to use (if required), defaults
+                                to current.
+                              type: string
+                            name:
+                              description: Name is a name of the discovery
+                              type: string
+                            path:
+                              description: Path to the kubeconfig.
+                              type: string
+                            version:
+                              description: Version of the CLIPlugins API to query.
+                                E.g., v1alpha1
+                              type: string
+                          required:
+                          - context
+                          - name
+                          - path
+                          - version
+                          type: object
+                        local:
+                          description: LocalDiscovery is set if the plugins are to
+                            be discovered via Local Manifest fast.
+                          properties:
+                            name:
+                              description: Name is a name of the discovery
+                              type: string
+                            path:
+                              description: Path is a local path pointing to directory
+                                containing YAML files, each of which contains single
+                                CLIPlugin API resource.
+                              type: string
+                          required:
+                          - name
+                          - path
+                          type: object
+                        oci:
+                          description: OCIDiscovery is set if the plugins are to be
+                            discovered via an OCI Image Registry.
+                          properties:
+                            image:
+                              description: Image is an OCI compliant image. Which
+                                include DNS-compatible registry name, a valid URI
+                                path(MAY contain zero or more ‘/’) and a valid tag.
+                                E.g., harbor.my-domain.local/tanzu-cli/plugins-manifest:latest
+                                Contains a directory containing YAML files, each of
+                                which contains single CLIPlugin API resource.
+                              type: string
+                            name:
+                              description: Name is a name of the discovery
+                              type: string
+                          required:
+                          - image
+                          - name
+                          type: object
+                        rest:
+                          description: GenericRESTDiscovery is set if the plugins
+                            are to be discovered via a REST API endpoint.
+                          properties:
+                            basePath:
+                              description: BasePath is the base URL path of the plugin
+                                discovery API. E.g., /v1alpha1/cli/plugins
+                              type: string
+                            endpoint:
+                              description: Endpoint is the REST API server endpoint.
+                                E.g., api.my-domain.local
+                              type: string
+                            name:
+                              description: Name is a name of the discovery
+                              type: string
+                          required:
+                          - basePath
+                          - endpoint
+                          - name
+                          type: object
+                      type: object
+                    type: array
+                  edition:
+                    description: Edition
+                    type: string
+                  repositories:
+                    description: Repositories are the plugin repositories.
+                    items:
+                      description: PluginRepository is a CLI plugin repository
+                      properties:
+                        gcpPluginRepository:
+                          description: GCPPluginRepository is a plugin repository
+                            that utilizes GCP cloud storage.
+                          properties:
+                            bucketName:
+                              description: BucketName is the name of the bucket.
+                              type: string
+                            name:
+                              description: Name of the repository.
+                              type: string
+                            rootPath:
+                              description: RootPath within the bucket.
+                              type: string
+                          type: object
+                      type: object
+                    type: array
+                  unstableVersionSelector:
+                    description: UnstableVersionSelector determined which version
+                      tags are allowed
+                    type: string
+                type: object
+              env:
+                additionalProperties:
+                  type: string
+                type: object
+              features:
+                additionalProperties:
+                  additionalProperties:
+                    type: string
+                  description: FeatureMap is simply a hash table, but needs an explicit
+                    type to be an object in another hash map (cf ClientOptions.Features)
+                  type: object
+                type: object
+            type: object
+          contexts:
+            description: KnownContexts available.
+            items:
+              description: Context configuration for a control plane. This can one
+                of the following, 1. Kubernetes Cluster 2. Tanzu Mission Control endpoint
+              properties:
+                clusterOpts:
+                  description: ClusterOpts if the context is a kubernetes cluster.
+                  properties:
+                    context:
+                      description: The kubernetes context to use (if required), defaults
+                        to current.
+                      type: string
+                    endpoint:
+                      description: Endpoint for the login.
+                      type: string
+                    isManagementCluster:
+                      description: Denotes whether this server is a management cluster
+                        or not (workload cluster).
+                      type: boolean
+                    path:
+                      description: Path to the kubeconfig.
+                      type: string
+                  type: object
+                discoverySources:
+                  description: DiscoverySources determines from where to discover
+                    plugins associated with this context.
+                  items:
+                    description: PluginDiscovery contains a specific distribution
+                      mechanism. Only one of the configs must be set.
+                    properties:
+                      contextType:
+                        description: ContextType the discovery source is associated
+                          with (applicable only for stand-alone plugins).
+                        type: string
+                      gcp:
+                        description: GCPStorage is set if the plugins are to be discovered
+                          via Google Cloud Storage.
+                        properties:
+                          bucket:
+                            description: Bucket is a Google Cloud Storage bucket.
+                              E.g., tanzu-cli
+                            type: string
+                          manifestPath:
+                            description: BasePath is a URI path that is prefixed to
+                              the object name/path. E.g., plugins/cluster
+                            type: string
+                          name:
+                            description: Name is a name of the discovery
+                            type: string
+                        required:
+                        - bucket
+                        - manifestPath
+                        - name
+                        type: object
+                      k8s:
+                        description: KubernetesDiscovery is set if the plugins are
+                          to be discovered via the Kubernetes API server.
+                        properties:
+                          context:
+                            description: The context to use (if required), defaults
+                              to current.
+                            type: string
+                          name:
+                            description: Name is a name of the discovery
+                            type: string
+                          path:
+                            description: Path to the kubeconfig.
+                            type: string
+                          version:
+                            description: Version of the CLIPlugins API to query. E.g.,
+                              v1alpha1
+                            type: string
+                        required:
+                        - context
+                        - name
+                        - path
+                        - version
+                        type: object
+                      local:
+                        description: LocalDiscovery is set if the plugins are to be
+                          discovered via Local Manifest fast.
+                        properties:
+                          name:
+                            description: Name is a name of the discovery
+                            type: string
+                          path:
+                            description: Path is a local path pointing to directory
+                              containing YAML files, each of which contains single
+                              CLIPlugin API resource.
+                            type: string
+                        required:
+                        - name
+                        - path
+                        type: object
+                      oci:
+                        description: OCIDiscovery is set if the plugins are to be
+                          discovered via an OCI Image Registry.
+                        properties:
+                          image:
+                            description: Image is an OCI compliant image. Which include
+                              DNS-compatible registry name, a valid URI path(MAY contain
+                              zero or more ‘/’) and a valid tag. E.g., harbor.my-domain.local/tanzu-cli/plugins-manifest:latest
+                              Contains a directory containing YAML files, each of
+                              which contains single CLIPlugin API resource.
+                            type: string
+                          name:
+                            description: Name is a name of the discovery
+                            type: string
+                        required:
+                        - image
+                        - name
+                        type: object
+                      rest:
+                        description: GenericRESTDiscovery is set if the plugins are
+                          to be discovered via a REST API endpoint.
+                        properties:
+                          basePath:
+                            description: BasePath is the base URL path of the plugin
+                              discovery API. E.g., /v1alpha1/cli/plugins
+                            type: string
+                          endpoint:
+                            description: Endpoint is the REST API server endpoint.
+                              E.g., api.my-domain.local
+                            type: string
+                          name:
+                            description: Name is a name of the discovery
+                            type: string
+                        required:
+                        - basePath
+                        - endpoint
+                        - name
+                        type: object
+                    type: object
+                  type: array
+                globalOpts:
+                  description: GlobalOpts if the context is a global control plane
+                    (e.g., TMC).
+                  properties:
+                    auth:
+                      description: Auth for the global server.
+                      properties:
+                        IDToken:
+                          description: IDToken is the current id token based on the
+                            context scoped to the CLI.
+                          type: string
+                        accessToken:
+                          description: AccessToken is the current access token based
+                            on the context.
+                          type: string
+                        expiration:
+                          description: Expiration times of the token.
+                          format: date-time
+                          type: string
+                        issuer:
+                          description: Issuer url for IDP, compliant with OIDC Metadata
+                            Discovery.
+                          type: string
+                        permissions:
+                          description: Permissions are roles assigned to the user.
+                          items:
+                            type: string
+                          type: array
+                        refresh_token:
+                          description: RefreshToken will be stored only in case of
+                            api-token login flow.
+                          type: string
+                        type:
+                          description: Type of the token (user or client).
+                          type: string
+                        userName:
+                          description: UserName is the authorized user the token is
+                            assigned to.
+                          type: string
+                      required:
+                      - IDToken
+                      - accessToken
+                      - expiration
+                      - issuer
+                      - permissions
+                      - refresh_token
+                      - type
+                      - userName
+                      type: object
+                    endpoint:
+                      description: Endpoint for the server.
+                      type: string
+                  type: object
+                name:
+                  description: Name of the context.
+                  type: string
+                type:
+                  description: Type of the context.
+                  type: string
+              type: object
+            type: array
+          current:
+            description: 'CurrentServer in use. Note: Shall be deprecated in a future
+              version. Superseded by CurrentContext.'
+            type: string
+          currentContext:
+            additionalProperties:
+              type: string
+            description: CurrentContext for every type.
+            type: object
+          kind:
+            description: 'Kind is a string value representing the REST resource this
+              object represents. Servers may infer this from the endpoint the client
+              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          servers:
+            description: 'KnownServers available. Note: Shall be deprecated in a future
+              version. Superseded by KnownContexts.'
+            items:
+              description: 'Server connection. Note: Shall be deprecated in a future
+                version. Superseded by Context.'
+              properties:
+                discoverySources:
+                  description: DiscoverySources determines from where to discover
+                    plugins associated with this server
+                  items:
+                    description: PluginDiscovery contains a specific distribution
+                      mechanism. Only one of the configs must be set.
+                    properties:
+                      contextType:
+                        description: ContextType the discovery source is associated
+                          with (applicable only for stand-alone plugins).
+                        type: string
+                      gcp:
+                        description: GCPStorage is set if the plugins are to be discovered
+                          via Google Cloud Storage.
+                        properties:
+                          bucket:
+                            description: Bucket is a Google Cloud Storage bucket.
+                              E.g., tanzu-cli
+                            type: string
+                          manifestPath:
+                            description: BasePath is a URI path that is prefixed to
+                              the object name/path. E.g., plugins/cluster
+                            type: string
+                          name:
+                            description: Name is a name of the discovery
+                            type: string
+                        required:
+                        - bucket
+                        - manifestPath
+                        - name
+                        type: object
+                      k8s:
+                        description: KubernetesDiscovery is set if the plugins are
+                          to be discovered via the Kubernetes API server.
+                        properties:
+                          context:
+                            description: The context to use (if required), defaults
+                              to current.
+                            type: string
+                          name:
+                            description: Name is a name of the discovery
+                            type: string
+                          path:
+                            description: Path to the kubeconfig.
+                            type: string
+                          version:
+                            description: Version of the CLIPlugins API to query. E.g.,
+                              v1alpha1
+                            type: string
+                        required:
+                        - context
+                        - name
+                        - path
+                        - version
+                        type: object
+                      local:
+                        description: LocalDiscovery is set if the plugins are to be
+                          discovered via Local Manifest fast.
+                        properties:
+                          name:
+                            description: Name is a name of the discovery
+                            type: string
+                          path:
+                            description: Path is a local path pointing to directory
+                              containing YAML files, each of which contains single
+                              CLIPlugin API resource.
+                            type: string
+                        required:
+                        - name
+                        - path
+                        type: object
+                      oci:
+                        description: OCIDiscovery is set if the plugins are to be
+                          discovered via an OCI Image Registry.
+                        properties:
+                          image:
+                            description: Image is an OCI compliant image. Which include
+                              DNS-compatible registry name, a valid URI path(MAY contain
+                              zero or more ‘/’) and a valid tag. E.g., harbor.my-domain.local/tanzu-cli/plugins-manifest:latest
+                              Contains a directory containing YAML files, each of
+                              which contains single CLIPlugin API resource.
+                            type: string
+                          name:
+                            description: Name is a name of the discovery
+                            type: string
+                        required:
+                        - image
+                        - name
+                        type: object
+                      rest:
+                        description: GenericRESTDiscovery is set if the plugins are
+                          to be discovered via a REST API endpoint.
+                        properties:
+                          basePath:
+                            description: BasePath is the base URL path of the plugin
+                              discovery API. E.g., /v1alpha1/cli/plugins
+                            type: string
+                          endpoint:
+                            description: Endpoint is the REST API server endpoint.
+                              E.g., api.my-domain.local
+                            type: string
+                          name:
+                            description: Name is a name of the discovery
+                            type: string
+                        required:
+                        - basePath
+                        - endpoint
+                        - name
+                        type: object
+                    type: object
+                  type: array
+                globalOpts:
+                  description: GlobalOpts if the server is global.
+                  properties:
+                    auth:
+                      description: Auth for the global server.
+                      properties:
+                        IDToken:
+                          description: IDToken is the current id token based on the
+                            context scoped to the CLI.
+                          type: string
+                        accessToken:
+                          description: AccessToken is the current access token based
+                            on the context.
+                          type: string
+                        expiration:
+                          description: Expiration times of the token.
+                          format: date-time
+                          type: string
+                        issuer:
+                          description: Issuer url for IDP, compliant with OIDC Metadata
+                            Discovery.
+                          type: string
+                        permissions:
+                          description: Permissions are roles assigned to the user.
+                          items:
+                            type: string
+                          type: array
+                        refresh_token:
+                          description: RefreshToken will be stored only in case of
+                            api-token login flow.
+                          type: string
+                        type:
+                          description: Type of the token (user or client).
+                          type: string
+                        userName:
+                          description: UserName is the authorized user the token is
+                            assigned to.
+                          type: string
+                      required:
+                      - IDToken
+                      - accessToken
+                      - expiration
+                      - issuer
+                      - permissions
+                      - refresh_token
+                      - type
+                      - userName
+                      type: object
+                    endpoint:
+                      description: Endpoint for the server.
+                      type: string
+                  type: object
+                managementClusterOpts:
+                  description: ManagementClusterOpts if the server is a management
+                    cluster.
+                  properties:
+                    context:
+                      description: The context to use (if required), defaults to current.
+                      type: string
+                    endpoint:
+                      description: Endpoint for the login.
+                      type: string
+                    path:
+                      description: Path to the kubeconfig.
+                      type: string
+                  type: object
+                name:
+                  description: Name of the server.
+                  type: string
+                type:
+                  description: Type of the endpoint.
+                  type: string
+              type: object
+            type: array
+        type: object
+    served: true
+    storage: true
