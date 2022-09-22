@@ -18,8 +18,8 @@ import (
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 
+	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/buildinfo"
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/config"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/buildinfo"
 )
 
 var (
