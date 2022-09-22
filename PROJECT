@@ -46,4 +46,7 @@ resources:
 - group: csi
   kind: AwsEbsCSIConfig
   version: v1alpha1
+- group: csi
+  kind: AzureFileCSIConfig
+  version: v1alpha1
 version: "2"
