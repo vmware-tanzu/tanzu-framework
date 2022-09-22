@@ -74,6 +74,11 @@ type VSphereCSIConfigControllerConfig struct {
 	ConfigControllerConfig
 }
 
+// AzureDiskCSIConfigControllerConfig contains configuration information of AzureDiskCSIConfigControllerConfig controller
+type AzureDiskCSIConfigControllerConfig struct {
+	ConfigControllerConfig
+}
+
 // AwsEbsCSIConfigControllerConfig contains configuration information of VSphereCSIConfig controller
 type AwsEbsCSIConfigControllerConfig struct {
 	ConfigControllerConfig

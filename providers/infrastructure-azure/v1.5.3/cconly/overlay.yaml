@@ -7,9 +7,9 @@ apiVersion: cluster.x-k8s.io/v1beta1
 kind: ClusterClass
 spec:
   controlPlane:
-    #@ if data.values.ENABLE_MHC or data.values.ENABLE_MHC_CONTROL_PLANE:
     #@overlay/match missing_ok=True
     machineHealthCheck:
+      #@ if data.values.ENABLE_MHC or data.values.ENABLE_MHC_CONTROL_PLANE:
       nodeStartupTimeout: #@ data.values.NODE_STARTUP_TIMEOUT
       unhealthyConditions:
       - type: Ready
@@ -23,9 +23,9 @@ spec:
     machineDeployments:
     #@overlay/match by=overlay.index(0)
     - class: tkg-worker
-      #@ if data.values.ENABLE_MHC or data.values.ENABLE_MHC_WORKER_NODE:
       #@overlay/match missing_ok=True
       machineHealthCheck:
+        #@ if data.values.ENABLE_MHC or data.values.ENABLE_MHC_WORKER_NODE:
         nodeStartupTimeout: #@ data.values.NODE_STARTUP_TIMEOUT
         unhealthyConditions:
         - type: Ready
