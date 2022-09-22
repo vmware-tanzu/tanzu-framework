@@ -91,6 +91,7 @@ var (
 	scheme                  = runtime.NewScheme()
 	mgr                     manager.Manager
 	dynamicClient           dynamic.Interface
+	clientSet               *kubernetes.Clientset
 	cancel                  context.CancelFunc
 	certPath                string
 	keyPath                 string
@@ -242,6 +243,9 @@ var _ = BeforeSuite(func(done Done) {
 	mgr, err = ctrl.NewManager(testEnv.Config, options)
 	Expect(err).ToNot(HaveOccurred())
 	k8sConfig = mgr.GetConfig()
+
+	clientSet, err = kubernetes.NewForConfig(cfg)
+	Expect(err).ToNot(HaveOccurred())
 
 	setupLog := ctrl.Log.WithName("controllers").WithName("Addon")
 

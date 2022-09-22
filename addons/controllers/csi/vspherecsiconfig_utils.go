@@ -14,8 +14,6 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 	capvvmwarev1beta1 "sigs.k8s.io/cluster-api-provider-vsphere/apis/vmware/v1beta1"
-	capvidentity "sigs.k8s.io/cluster-api-provider-vsphere/pkg/identity"
-	capvmanager "sigs.k8s.io/cluster-api-provider-vsphere/pkg/manager"
 	clusterapiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
 	capictrlpkubeadmv1beta1 "sigs.k8s.io/cluster-api/controlplane/kubeadm/api/v1beta1"
 	"sigs.k8s.io/controller-runtime/pkg/log"
@@ -119,19 +117,6 @@ func (r *VSphereCSIConfigReconciler) mapVSphereCSIConfigToDataValuesNonParavirtu
 	if err != nil {
 		return nil, err
 	}
-
-	// derive vSphere username and password using CAPV util function
-	clusterCredentials, err := capvidentity.GetCredentials(ctx, r.Client, vsphereCluster, capvmanager.DefaultPodNamespace)
-	if err != nil {
-		return nil, errors.Wrapf(err, "could not fetch credentials for VSphereCluster %s/%s", vsphereCluster.Namespace, vsphereCluster.Name)
-	}
-	dvs.VSphereCSI.Username = clusterCredentials.Username
-	dvs.VSphereCSI.Password = clusterCredentials.Password
-
-	dvs.VSphereCSI.Region = cutil.TryParseClusterVariableString(ctx, cluster, VSphereRegionVarName)
-	dvs.VSphereCSI.Zone = cutil.TryParseClusterVariableString(ctx, cluster, VSphereZoneVarName)
-	dvs.VSphereCSI.VSphereVersion = cutil.TryParseClusterVariableString(ctx, cluster, VSphereVersionVarName)
-	dvs.VSphereCSI.WindowsSupport = cutil.TryParseClusterVariableBool(ctx, cluster, IsWindowsWorkloadClusterVarName)
 
 	if cluster.Annotations != nil {
 		dvs.VSphereCSI.HTTPProxy = cluster.Annotations[pkgtypes.HTTPProxyConfigAnnotation]
