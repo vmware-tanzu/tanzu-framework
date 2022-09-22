@@ -19,8 +19,6 @@ retract [v1.4.0-pre-alpha-1, v1.4.0-pre-alpha-2]
 
 require (
 	github.com/Jeffail/gabs v1.4.0
-	github.com/MakeNowJust/heredoc v1.0.0
-	github.com/adrg/xdg v0.4.0
 	github.com/aunum/log v0.0.0-20200821225356-38d2e2c8b489
 	github.com/cppforlife/go-cli-ui v0.0.0-20200716203538-1e47f820817f
 	github.com/fatih/color v1.13.0
@@ -85,6 +83,7 @@ require (
 	github.com/Azure/go-autorest/tracing v0.6.0 // indirect
 	github.com/Azure/go-ntlmssp v0.0.0-20200615164410-66371956d46c // indirect
 	github.com/BurntSushi/toml v1.1.0 // indirect
+	github.com/MakeNowJust/heredoc v1.0.0 // indirect
 	github.com/Masterminds/goutils v1.1.1 // indirect
 	github.com/Masterminds/semver v1.5.0 // indirect
 	github.com/Masterminds/semver/v3 v3.1.1 // indirect
@@ -92,6 +91,7 @@ require (
 	github.com/Microsoft/go-winio v0.5.1 // indirect
 	github.com/PuerkitoBio/purell v1.1.1 // indirect
 	github.com/PuerkitoBio/urlesc v0.0.0-20170810143723-de5bf2ad4578 // indirect
+	github.com/adrg/xdg v0.4.0 // indirect
 	github.com/alessio/shellescape v1.4.1 // indirect
 	github.com/antlr/antlr4/runtime/Go/antlr v0.0.0-20220209173558-ad29539cd2e9 // indirect
 	github.com/apparentlymart/go-cidr v1.1.0 // indirect
