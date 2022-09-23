@@ -20,6 +20,7 @@ import (
 	"golang.org/x/oauth2"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
+	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/common"
 	configapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/config/v1alpha1"
 )
 
@@ -55,7 +56,12 @@ var (
 			AuthStyle: oauth2.AuthStyleInHeader,
 		},
 	}
+	httpRestClient common.HTTPClient
 )
+
+func init() {
+	httpRestClient = &http.Client{}
+}
 
 // IDTokenFromTokenSource parses out the id token from extra info in tokensource if available, or returns empty string.
 func IDTokenFromTokenSource(token *oauth2.Token) (idTok string) {
@@ -95,8 +101,7 @@ func GetAccessTokenFromAPIToken(apiToken, issuer string) (*Token, error) {
 	req, _ := http.NewRequestWithContext(context.Background(), "POST", api, bytes.NewBufferString(data.Encode()))
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 
-	httpClient := &http.Client{}
-	resp, err := httpClient.Do(req)
+	resp, err := httpRestClient.Do(req)
 	if err != nil {
 		return nil, errors.WithMessage(err, "Failed to obtain access token. Please provide valid VMware Cloud Services API-token")
 	}

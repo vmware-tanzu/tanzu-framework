@@ -29,7 +29,6 @@ type FeatureGateHelper interface {
 	FeatureActivatedInNamespace(reqContext context.Context, feature, namespace string) (bool, error)
 }
 
-
 func NewFeatureGateHelper(options *clusterclient.Options, contextName, kubeconfig string) FeatureGateHelper {
 	return &featureGateHelper{
 		clusterClientOptions: *options,

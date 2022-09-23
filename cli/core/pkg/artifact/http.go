@@ -9,34 +9,30 @@ import (
 	"io"
 	"net/http"
 	"time"
+
+	common "github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/common"
 )
 
 const (
-	uriSchemeHTTP  = "http"
-	uriSchemeHTTPS = "https"
-	defaultTimeout = 120 * time.Second
-	bufferSize     = 4068
+	uriSchemeHTTP                = "http"
+	uriSchemeHTTPS               = "https"
+	defaultTimeout               = 120 * time.Second
+	bufferSize                   = 4068
+	ErrorMsgHttpArtifactDownload = "error while downloading the artifact: %s; received status code: %d instead of 200"
 )
-var httpClient HTTPClient
+
 // HTTPArtifact defines HTTP artifact location.
-// Sample URI: https://storage.googleapis.com/tanzu-cli/artifacts/cluster/latest/tanzu-cluster-mac_amd64
 type HTTPArtifact struct {
-	URL string
+	URL        string
+	HttpClient common.HTTPClient
 }
 
 // NewHTTPArtifact creates HTTP Artifact object
 func NewHTTPArtifact(url string) Artifact {
 	return &HTTPArtifact{
-		URL: url,
+		URL:        url,
+		HttpClient: &http.Client{},
 	}
-}
-
-func init(){
-	httpClient = &http.Client{}
-}
-
-type HTTPClient interface {
-	Do(req *http.Request) (*http.Response, error)
 }
 
 // Fetch an artifact.
@@ -51,8 +47,7 @@ func (g *HTTPArtifact) Fetch() ([]byte, error) {
 	req.Header.Set("Content-Type", "application/json; charset=utf-8")
 	req.Header.Set("Accept", "application/json; charset=utf-8")
 
-	res, err := httpClient.Do(req)
-	//res, err := http.DefaultClient.Do(req)
+	res, err := g.HttpClient.Do(req)
 
 	if err != nil {
 		return nil, err
@@ -60,7 +55,7 @@ func (g *HTTPArtifact) Fetch() ([]byte, error) {
 	defer res.Body.Close()
 
 	if res.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("error while downloading the artifact: %s; received status code: %d instead of 200", req.URL, res.StatusCode)
+		return nil, fmt.Errorf(ErrorMsgHttpArtifactDownload, req.URL, res.StatusCode)
 	}
 
 	buf := make([]byte, bufferSize)
