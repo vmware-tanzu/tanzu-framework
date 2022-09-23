@@ -171,7 +171,7 @@ var _ = Describe("VSphereCPIConfig Reconciler", func() {
 				}
 				if err := k8sClient.Get(ctx, client.ObjectKey{
 					Namespace: clusterNamespace,
-					Name:      clusterName + "-control-plane",
+					Name:      clusterName + "-control-plane-template",
 				}, cpMachineTemplate); err != nil {
 					return false
 				}
@@ -224,24 +224,6 @@ var _ = Describe("VSphereCPIConfig Reconciler", func() {
 				Expect(strings.Contains(secretData, "server: vsphere-server.local")).Should(BeTrue())
 				Expect(strings.Contains(secretData, "username: foo")).Should(BeTrue())
 				Expect(strings.Contains(secretData, "password: bar")).Should(BeTrue())
-
-				Expect(strings.Contains(secretData, "nsxt:")).Should(BeTrue())
-				Expect(strings.Contains(secretData, "podRoutingEnabled: true")).Should(BeTrue())
-				Expect(strings.Contains(secretData, "routes")).Should(BeTrue())
-				Expect(strings.Contains(secretData, "routerPath: test-route-path")).Should(BeTrue())
-				Expect(strings.Contains(secretData, "clusterCidr: 192.168.0.1/24")).Should(BeTrue())
-				Expect(strings.Contains(secretData, "username: test-nsxt-username")).Should(BeTrue())
-				Expect(strings.Contains(secretData, "password: test-nsxt-password")).Should(BeTrue())
-				Expect(strings.Contains(secretData, "host: test-nsxt-manager-host")).Should(BeTrue())
-				Expect(strings.Contains(secretData, "insecure: true")).Should(BeTrue())
-				Expect(strings.Contains(secretData, "remoteAuthEnabled: true")).Should(BeTrue())
-				Expect(strings.Contains(secretData, "vmcAccessToken: test-vmc-access-token")).Should(BeTrue())
-				Expect(strings.Contains(secretData, "vmcAuthHost: test-vmc-auth-host")).Should(BeTrue())
-				Expect(strings.Contains(secretData, "clientCertKeyData: test-client-cert-key-data")).Should(BeTrue())
-				Expect(strings.Contains(secretData, "clientCertData: test-client-cert-data")).Should(BeTrue())
-				Expect(strings.Contains(secretData, "rootCAData: test-root-ca-data-b64")).Should(BeTrue())
-				Expect(strings.Contains(secretData, "secretName: test-nsxt-secret-name")).Should(BeTrue())
-				Expect(strings.Contains(secretData, "secretNamespace: test-nsxt-secret-namespace")).Should(BeTrue())
 
 				Expect(strings.Contains(secretData, "http_proxy: foo.com")).Should(BeTrue())
 				Expect(strings.Contains(secretData, "https_proxy: bar.com")).Should(BeTrue())

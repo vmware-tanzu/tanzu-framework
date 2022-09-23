@@ -5,7 +5,6 @@ package controllers
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"github.com/go-logr/logr"
@@ -15,10 +14,7 @@ import (
 	rbacv1 "k8s.io/api/rbac/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/runtime"
-	"k8s.io/apimachinery/pkg/selection"
-	capvvmwarev1beta1 "sigs.k8s.io/cluster-api-provider-vsphere/apis/vmware/v1beta1"
 	clusterapiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
 	clusterapiutil "sigs.k8s.io/cluster-api/util"
 	clusterapipatchutil "sigs.k8s.io/cluster-api/util/patch"
@@ -32,6 +28,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/predicate"
 	"sigs.k8s.io/controller-runtime/pkg/source"
 
+	cutil "github.com/vmware-tanzu/tanzu-framework/addons/controllers/utils"
 	addonconfig "github.com/vmware-tanzu/tanzu-framework/addons/pkg/config"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/util"
@@ -280,7 +277,7 @@ func (r *VSphereCSIConfigReconciler) reconcileVSphereCSIConfigNormal(ctx context
 			return ctrl.Result{}, err
 		}
 
-		vsphereCluster, err := r.getVsphereCluster(ctx, cluster)
+		vsphereCluster, err := cutil.VSphereClusterParavirtualForCAPICluster(ctx, r.Client, cluster)
 		if err != nil {
 			return ctrl.Result{}, err
 		}
@@ -297,29 +294,6 @@ func (r *VSphereCSIConfigReconciler) reconcileVSphereCSIConfigNormal(ctx context
 	csiCfg.Status.SecretRef = &secret.Name
 
 	return ctrl.Result{}, nil
-}
-
-func (r *VSphereCSIConfigReconciler) getVsphereCluster(ctx context.Context,
-	cluster *clusterapiv1beta1.Cluster) (*capvvmwarev1beta1.VSphereCluster, error) {
-
-	vsphereClusters := &capvvmwarev1beta1.VSphereClusterList{}
-	labelMatch, err := labels.NewRequirement(clusterapiv1beta1.ClusterLabelName, selection.Equals, []string{cluster.Name})
-	if err != nil {
-		r.Log.Error(err, "Error creating label")
-		return nil, err
-	}
-	labelSelector := labels.NewSelector()
-	labelSelector = labelSelector.Add(*labelMatch)
-	if err := r.Client.List(ctx, vsphereClusters,
-		&client.ListOptions{LabelSelector: labelSelector, Namespace: cluster.Namespace}); err != nil {
-		r.Log.Error(err, "error retrieving clusters")
-		return nil, err
-	}
-	if len(vsphereClusters.Items) != 1 {
-		return nil, fmt.Errorf("expected to find 1 VSphereCluster object for label key %s and value %s but found %d",
-			clusterapiv1beta1.ClusterLabelName, cluster.Name, len(vsphereClusters.Items))
-	}
-	return &vsphereClusters.Items[0], nil
 }
 
 func (r *VSphereCSIConfigReconciler) ConfigMapToVSphereCSIConfig(o client.Object) []ctrl.Request {
