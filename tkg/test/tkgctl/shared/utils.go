@@ -3,6 +3,7 @@ package shared
 import (
 	"context"
 
+	"github.com/pkg/errors"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
@@ -26,7 +27,7 @@ func getWebhookCACert(ctx context.Context, k8sClient client.Client, secretName, 
 	if value, exists := secret.Data["ca-cert.pem"]; exists {
 		return string(value), nil
 	}
-	return "", nil
+	return "", errors.New("\"ca-cert.pem\" should exist and have non empty value")
 }
 
 // verifyCABundleInLabeledWebhooks verifies all validating/mutating webhooks which match the provided label selector have a caBundle field matching the value of the provided CA certificate

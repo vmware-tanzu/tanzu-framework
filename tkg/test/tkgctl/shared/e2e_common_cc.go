@@ -287,6 +287,7 @@ func getAvailableTKRs(ctx context.Context, mcProxy *framework.ClusterProxy, tkgC
 func checkAdmissionWebhooks(ctx context.Context, mngClient client.Client, admissionRegistrationClient admissionregistrationv1.AdmissionregistrationV1Interface) {
 	caCert, err := getWebhookCACert(ctx, mngClient, webhookScrtName, systemNamespace)
 	Expect(err).NotTo(HaveOccurred())
+	Expect(caCert).NotTo(BeEmpty())
 
 	labelMatch, err := labels.NewRequirement(webhookLabelKey, selection.Equals, []string{webhookLabelValue})
 	Expect(err).ToNot(HaveOccurred())
