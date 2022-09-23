@@ -1029,6 +1029,106 @@ var _ = Describe("ClusterBootstrap Reconciler", func() {
 			})
 		})
 	})
+
+	// This test case is for ensuring that controller is watching providerRef for core packages.
+	// 1. create antrea with foobar cr as provider, packageinstall gets generated with a given secret
+	// 2. replace secret in .status.secretRef of foobar cr provider
+	When("Cluster with external provider for CNI", func() {
+		BeforeEach(func() {
+			clusterName = "test-cluster-5"
+			clusterNamespace = "cluster-namespace-5"
+			clusterResourceFilePath = "testdata/test-cluster-bootstrap-5.yaml"
+			ns := &corev1.Namespace{
+				ObjectMeta: metav1.ObjectMeta{
+					Name: clusterNamespace,
+				},
+			}
+			Expect(k8sClient.Create(ctx, ns)).To(Succeed())
+		})
+		Context("When providerRef exists", func() {
+			It("Should create package install for antrea with package datavalues for secret and "+
+				"update package install for antrea with renamed secret as controller is watching for changes to providerRef", func() {
+
+				By("setting cluster phase to provisioned")
+				cluster := &clusterapiv1beta1.Cluster{}
+				Expect(k8sClient.Get(ctx, client.ObjectKey{Namespace: clusterNamespace, Name: clusterName}, cluster)).To(Succeed())
+				cluster.Status.Phase = string(clusterapiv1beta1.ClusterPhaseProvisioned)
+				Expect(k8sClient.Status().Update(ctx, cluster)).To(Succeed())
+
+				Eventually(func(g Gomega) {
+					providerName := fmt.Sprintf("%s-antrea-package", clusterName)
+					gvr := schema.GroupVersionResource{Group: "run.tanzu.vmware.com", Version: "v1alpha1", Resource: "foobars"}
+					provider, err := dynamicClient.Resource(gvr).Namespace(clusterNamespace).Get(ctx, providerName, metav1.GetOptions{})
+					g.Expect(err).ToNot(HaveOccurred())
+
+					s := &corev1.Secret{}
+					s.Name = util.GenerateDataValueSecretName(clusterName, "antrea.tanzu.vmware.com.1.10.5--vmware.1-tkg.2")
+					s.Namespace = clusterNamespace
+					s.StringData = map[string]string{}
+					s.StringData["values.yaml"] = foobar
+					err = k8sClient.Create(ctx, s)
+
+					if err != nil {
+						g.Expect(apierrors.IsAlreadyExists(err)).To(BeTrue())
+					}
+					g.Expect(unstructured.SetNestedField(provider.Object, s.Name, "status", "secretRef")).To(Succeed())
+
+					_, err = dynamicClient.Resource(gvr).Namespace(clusterNamespace).UpdateStatus(ctx, provider, metav1.UpdateOptions{})
+					g.Expect(err).ToNot(HaveOccurred())
+
+					pkgiName := util.GeneratePackageInstallName(clusterName, "antrea.tanzu.vmware.com.1.10.5--vmware.1-tkg.2")
+					pkgi := &kapppkgiv1alpha1.PackageInstall{}
+					g.Expect(k8sClient.Get(ctx, client.ObjectKey{Namespace: constants.TKGSystemNS, Name: pkgiName}, pkgi)).To(Succeed())
+
+					g.Expect(len(pkgi.Spec.Values) > 0).To(BeTrue())
+
+					dataValueSecret := pkgi.Spec.Values[0].SecretRef.Name
+					dataValuesGenerated := &corev1.Secret{}
+
+					g.Expect(k8sClient.Get(ctx, client.ObjectKey{Namespace: constants.TKGSystemNS, Name: dataValueSecret}, dataValuesGenerated)).To(Succeed())
+					g.Expect(string(dataValuesGenerated.Data["values.yaml"])).To(Equal(foobar))
+				}, waitTimeout, pollingInterval).Should(Succeed())
+
+				Eventually(func(g Gomega) {
+					providerName := fmt.Sprintf("%s-antrea-package", clusterName)
+					gvr := schema.GroupVersionResource{Group: "run.tanzu.vmware.com", Version: "v1alpha1", Resource: "foobars"}
+					provider, err := dynamicClient.Resource(gvr).Namespace(clusterNamespace).Get(ctx, providerName, metav1.GetOptions{})
+					g.Expect(err).ToNot(HaveOccurred())
+
+					// update the secret in provider
+					s := &corev1.Secret{}
+					s.Name = "updated-antrea-secret"
+					s.Namespace = clusterNamespace
+					s.StringData = map[string]string{}
+					s.StringData["values.yaml"] = "foobarbaz"
+					err = k8sClient.Create(ctx, s)
+
+					if err != nil {
+						g.Expect(apierrors.IsAlreadyExists(err)).To(BeTrue())
+					}
+
+					g.Expect(unstructured.SetNestedField(provider.Object, s.Name, "status", "secretRef")).To(Succeed())
+
+					_, err = dynamicClient.Resource(gvr).Namespace(clusterNamespace).UpdateStatus(ctx, provider, metav1.UpdateOptions{})
+					g.Expect(err).ToNot(HaveOccurred())
+
+					pkgiName := util.GeneratePackageInstallName(clusterName, "antrea.tanzu.vmware.com.1.10.5--vmware.1-tkg.2")
+					pkgi := &kapppkgiv1alpha1.PackageInstall{}
+					g.Expect(k8sClient.Get(ctx, client.ObjectKey{Namespace: constants.TKGSystemNS, Name: pkgiName}, pkgi)).To(Succeed())
+
+					g.Expect(len(pkgi.Spec.Values) > 0).To(BeTrue())
+
+					dataValueSecret := pkgi.Spec.Values[0].SecretRef.Name
+					dataValuesGenerated := &corev1.Secret{}
+					g.Expect(k8sClient.Get(ctx, client.ObjectKey{Namespace: constants.TKGSystemNS, Name: dataValueSecret}, dataValuesGenerated)).To(Succeed())
+
+					g.Expect(string(dataValuesGenerated.Data["values.yaml"])).To(Equal("foobarbaz"))
+
+				}, waitTimeout, pollingInterval).Should(Succeed())
+
+			})
+		})
+	})
 })
 
 func assertSecretContains(ctx context.Context, k8sClient client.Client, namespace, name string, secretContent map[string][]byte) {
