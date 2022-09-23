@@ -58,13 +58,13 @@ func (l *LocalArtifact) FetchTest() ([]byte, error) {
 		return nil, errors.Wrap(err, "unable to read test plugin directory")
 	}
 	if len(dirEntries) != 1 {
-		return nil, errors.Errorf("Expected only 1 file under the '%v' directory, but found %v files", testPluginDir, len(dirEntries))
+		return nil, errors.Errorf("expected only 1 file under the '%v' directory, but found %v files", testPluginDir, len(dirEntries))
 	}
 
 	// Assuming the file under the test directory is the test plugin binary
 	testPluginFile := dirEntries[0]
 	if testPluginFile.IsDir() {
-		return nil, errors.Errorf("Expected to find test plugin binary but found directory '%v'", testPluginFile)
+		return nil, errors.Errorf("expected to find test plugin binary but found directory %q", testPluginFile.Name())
 	}
 
 	testPluginPath := filepath.Join(testPluginDir, testPluginFile.Name())

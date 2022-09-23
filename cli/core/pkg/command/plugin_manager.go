@@ -254,7 +254,7 @@ var installPluginCmd = &cobra.Command{
 				if err != nil {
 					return err
 				}
-				err = pluginmanager.InstallPluginsFromLocalSource(pluginName, version, local)
+				err = pluginmanager.InstallPluginsFromLocalSource(pluginName, version, local, false)
 				if err != nil {
 					return err
 				}

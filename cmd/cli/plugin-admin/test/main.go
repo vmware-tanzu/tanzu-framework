@@ -70,6 +70,6 @@ var fetchCmd = &cobra.Command{
 	Use:   "fetch",
 	Short: "Fetch the plugin tests",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		return pluginmanager.InstallPluginsFromLocalSource("all", "", local)
+		return pluginmanager.InstallPluginsFromLocalSource("all", "", local, true)
 	},
 }

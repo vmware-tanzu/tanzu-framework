@@ -44,5 +44,5 @@ func TestLocalArtifactWhenArtifactDoesntExistsAndMultipleFilesUnderTest(t *testi
 	// When multiple files exists under test directory
 	_, err = artifact.FetchTest()
 	assert.Error(err)
-	assert.ErrorContains(err, "Expected only 1 file under the")
+	assert.ErrorContains(err, "expected only 1 file under the")
 }

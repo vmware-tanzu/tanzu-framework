@@ -196,12 +196,12 @@ func Test_InstallPlugin_InstalledPlugins_From_LocalSource(t *testing.T) {
 	localPluginSourceDir := filepath.Join(currentDirAbsPath, "test", "local")
 
 	// Try installing nonexistent plugin
-	err := InstallPluginsFromLocalSource("notexists", "v0.2.0", localPluginSourceDir)
+	err := InstallPluginsFromLocalSource("notexists", "v0.2.0", localPluginSourceDir, false)
 	assert.NotNil(err)
 	assert.Contains(err.Error(), "unable to find plugin 'notexists'")
 
 	// Install login from local source directory
-	err = InstallPluginsFromLocalSource("login", "v0.2.0", localPluginSourceDir)
+	err = InstallPluginsFromLocalSource("login", "v0.2.0", localPluginSourceDir, false)
 	assert.Nil(err)
 	// Verify installed plugin
 	installedServerPlugins, installedStandalonePlugins, err := InstalledPlugins("")
@@ -211,7 +211,7 @@ func Test_InstallPlugin_InstalledPlugins_From_LocalSource(t *testing.T) {
 	assert.Equal("login", installedStandalonePlugins[0].Name)
 
 	// Try installing cluster plugin from local source directory
-	err = InstallPluginsFromLocalSource("cluster", "v0.2.0", localPluginSourceDir)
+	err = InstallPluginsFromLocalSource("cluster", "v0.2.0", localPluginSourceDir, false)
 	assert.Nil(err)
 	installedServerPlugins, installedStandalonePlugins, err = InstalledPlugins("")
 	assert.Nil(err)
@@ -219,7 +219,7 @@ func Test_InstallPlugin_InstalledPlugins_From_LocalSource(t *testing.T) {
 	assert.Equal(2, len(installedStandalonePlugins))
 
 	// Try installing a plugin from incorrect local path
-	err = InstallPluginsFromLocalSource("cluster", "v0.2.0", "fakepath")
+	err = InstallPluginsFromLocalSource("cluster", "v0.2.0", "fakepath", false)
 	assert.NotNil(err)
 	assert.Contains(err.Error(), "no such file or directory")
 }
@@ -615,7 +615,7 @@ func Test_InstallPluginsFromLocalSourceWithLegacyDirectoryStructure(t *testing.T
 
 	// Using generic InstallPluginsFromLocalSource to test the legacy directory install
 	// When passing legacy directory structure which contains manifest.yaml file
-	err := InstallPluginsFromLocalSource("all", "", filepath.Join("test", "legacy"))
+	err := InstallPluginsFromLocalSource("all", "", filepath.Join("test", "legacy"), false)
 	assert.Nil(err)
 
 	// Verify installed plugin

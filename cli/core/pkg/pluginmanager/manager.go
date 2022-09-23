@@ -393,7 +393,7 @@ func InstallPlugin(serverName, pluginName, version string) error {
 			if availablePlugins[i].Scope == common.PluginScopeStandalone {
 				serverName = ""
 			}
-			return installOrUpgradePlugin(serverName, &availablePlugins[i], version)
+			return installOrUpgradePlugin(serverName, &availablePlugins[i], version, false)
 		}
 	}
 
@@ -412,7 +412,7 @@ func UpgradePlugin(serverName, pluginName, version string) error {
 			if availablePlugins[i].Scope == common.PluginScopeStandalone {
 				serverName = ""
 			}
-			return installOrUpgradePlugin(serverName, &availablePlugins[i], version)
+			return installOrUpgradePlugin(serverName, &availablePlugins[i], version, false)
 		}
 	}
 
@@ -434,7 +434,7 @@ func GetRecommendedVersionOfPlugin(serverName, pluginName string) (string, error
 	return "", errors.Errorf("unable to find plugin '%v'", pluginName)
 }
 
-func installOrUpgradePlugin(serverName string, p *plugin.Discovered, version string) error {
+func installOrUpgradePlugin(serverName string, p *plugin.Discovered, version string, installTestPlugin bool) error {
 	log.Infof("Installing plugin '%v:%v'", p.Name, version)
 
 	// verify plugin before download
@@ -488,8 +488,12 @@ func installOrUpgradePlugin(serverName string, p *plugin.Discovered, version str
 	descriptor.Discovery = p.Source
 	descriptor.DiscoveredRecommendedVersion = p.RecommendedVersion
 
-	b, err = p.Distribution.FetchTest(version, runtime.GOOS, runtime.GOARCH)
-	if err == nil {
+	if installTestPlugin {
+		log.Infof("Installing test plugin for '%v:%v'", p.Name, version)
+		b, err = p.Distribution.FetchTest(version, runtime.GOOS, runtime.GOARCH)
+		if err != nil {
+			return errors.Wrapf(err, "unable to install test plugin for '%v:%v'", p.Name, version)
+		}
 		testpluginPath := filepath.Join(common.DefaultPluginRoot, pluginName, fmt.Sprintf("test-%s", version))
 		err = os.WriteFile(testpluginPath, b, 0755)
 		if err != nil {
@@ -574,7 +578,7 @@ func SyncPlugins(serverName string) error {
 }
 
 // InstallPluginsFromLocalSource installs plugin from local source directory
-func InstallPluginsFromLocalSource(pluginName, version, localPath string) error {
+func InstallPluginsFromLocalSource(pluginName, version, localPath string, installTestPlugin bool) error {
 	// Set default local plugin distro to localpath as while installing the plugin
 	// from local source we should take t
 	common.DefaultLocalPluginDistroDir = localPath
@@ -590,7 +594,7 @@ func InstallPluginsFromLocalSource(pluginName, version, localPath string) error 
 	for idx := range plugins {
 		if pluginName == cli.AllPlugins || pluginName == plugins[idx].Name {
 			found = true
-			err := installOrUpgradePlugin("", &plugins[idx], plugins[idx].RecommendedVersion)
+			err := installOrUpgradePlugin("", &plugins[idx], plugins[idx].RecommendedVersion, installTestPlugin)
 			if err != nil {
 				errList = append(errList, err)
 			}
