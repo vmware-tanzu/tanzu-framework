@@ -405,6 +405,11 @@ spec:
                 items:
                   type: string
                 default: []
+              searchDomains:
+                type: array
+                items:
+                  type: string
+                default: []
   - name: worker
     required: true
     schema:
@@ -431,6 +436,11 @@ spec:
                 items:
                   type: string
                 default: []
+              searchDomains:
+                type: array
+                items:
+                  type: string
+                default: []
   - name: nodePoolLabels
     required: false
     schema:
@@ -443,6 +453,14 @@ spec:
               type: string
             value:
               type: string
+        default: []
+  - name: ntpServers
+    required: false
+    schema:
+      openAPIV3Schema:
+        type: array
+        items:
+          type: string
         default: []
   - name: TKR_DATA
     required: false
@@ -743,8 +761,14 @@ spec:
             devices:
             - networkName: {{ .vcenter.network }}
               {{ if .controlPlane.network.nameservers -}}
-                nameservers:
+              nameservers:
                 {{- range .controlPlane.network.nameservers }}
+              - {{ . }}
+                {{- end }}
+              {{- end }}
+              {{ if .controlPlane.network.searchDomains -}}
+              searchDomains:
+                {{- range .controlPlane.network.searchDomains }}
               - {{ . }}
                 {{- end }}
               {{- end }}
@@ -766,8 +790,14 @@ spec:
             devices:
             - networkName: {{ .vcenter.network }}
               {{ if .worker.network.nameservers -}}
-                nameservers:
+              nameservers:
                 {{- range .worker.network.nameservers }}
+              - {{ . }}
+                {{- end }}
+              {{- end }}
+              {{ if .controlPlane.network.searchDomains -}}
+              searchDomains:
+                {{- range .controlPlane.network.searchDomains }}
               - {{ . }}
                 {{- end }}
               {{- end }}
@@ -1547,3 +1577,38 @@ spec:
               - ' {{- . -}} '
               {{- end }}
               sudo: ALL=(ALL) NOPASSWD:ALL
+  - name: ntpServers
+    enabledIf: '{{ not (empty .ntpServers) }}'
+    definitions:
+    - selector:
+        apiVersion: controlplane.cluster.x-k8s.io/v1beta1
+        kind: KubeadmControlPlaneTemplate
+        matchResources:
+          controlPlane: true
+      jsonPatches:
+      - op: add
+        path: /spec/template/spec/kubeadmConfigSpec/ntp
+        valueFrom:
+          template: |
+            enabled: true
+            servers:
+              {{- range .ntpServers }}
+            - {{ . }}
+              {{- end }}
+    - selector:
+        apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
+        kind: KubeadmConfigTemplate
+        matchResources:
+          machineDeploymentClass:
+            names:
+            - tkg-worker
+      jsonPatches:
+      - op: add
+        path: /spec/template/spec/ntp
+        valueFrom:
+          template: |
+            enabled: true
+            servers:
+              {{- range .ntpServers }}
+            - {{ . }}
+              {{- end }}
