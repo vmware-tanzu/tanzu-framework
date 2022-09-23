@@ -10,7 +10,10 @@ metadata:
     tkg.tanzu.vmware.com/tkg-ip-family: "ipv6"
 spec:
   infrastructureRef:
+    apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
     kind: VSphereCluster
+    name: test-cluster-csi
+    namespace: default
   clusterNetwork:
     pods:
       cidrBlocks: [ "192.168.0.0/16","fd00:100:96::/48" ]
@@ -30,10 +33,14 @@ metadata:
   namespace: default
 spec:
   kubeadmConfigSpec: {}
-  machineTemplate:
-    infrastructureRef: {}
   replicas: 5
   version: v1.22.3
+  machineTemplate:
+    infrastructureRef:
+      apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+      kind: VSphereMachineTemplate
+      name: test-cluster-csi-control-plane-template
+      namespace: default
 ---
 apiVersion: v1
 kind: Secret
@@ -47,6 +54,8 @@ data:
 apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
 kind: VSphereCluster
 metadata:
+  labels:
+    cluster.x-k8s.io/cluster-name: test-cluster-csi
   name: test-cluster-csi
   namespace: default
 spec:
@@ -56,7 +65,9 @@ spec:
 apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
 kind: VSphereMachineTemplate
 metadata:
-  name: test-cluster-csi-control-plane
+  labels:
+    cluster.x-k8s.io/cluster-name: test-cluster-csi
+  name: test-cluster-csi-control-plane-template
   namespace: default
 spec:
   template:

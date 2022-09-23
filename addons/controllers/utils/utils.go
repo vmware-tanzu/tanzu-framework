@@ -13,26 +13,67 @@ import (
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/types"
 	capvv1beta1 "sigs.k8s.io/cluster-api-provider-vsphere/apis/v1beta1"
+	capvvmwarev1beta1 "sigs.k8s.io/cluster-api-provider-vsphere/apis/vmware/v1beta1"
 	clusterapiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
+	kubeadmv1beta1 "sigs.k8s.io/cluster-api/controlplane/kubeadm/api/v1beta1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/log"
 
+	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/constants"
 	"github.com/vmware-tanzu/tanzu-framework/addons/pkg/util"
 )
 
-// GetVSphereCluster gets the VSphereCluster CR for the cluster object
-func GetVSphereCluster(ctx context.Context, clt client.Client, cluster *clusterapiv1beta1.Cluster) (*capvv1beta1.VSphereCluster, error) {
-	vsphereCluster := &capvv1beta1.VSphereCluster{}
-	if err := clt.Get(ctx, types.NamespacedName{
-		Namespace: cluster.Namespace,
-		Name:      cluster.Name,
-	}, vsphereCluster); err != nil {
-		if apierrors.IsNotFound(err) {
-			return nil, errors.Errorf("VSphereCluster %s/%s not found", cluster.Namespace, cluster.Name)
-		}
-		return nil, errors.Errorf("VSphereCluster %s/%s could not be fetched, error %v", cluster.Namespace, cluster.Name, err)
+// VSphereClusterParavirtualForCAPICluster gets the VSphereCluster CR for the cluster object in paravirtual mode
+func VSphereClusterParavirtualForCAPICluster(ctx context.Context, clt client.Client, cluster *clusterapiv1beta1.Cluster) (*capvvmwarev1beta1.VSphereCluster, error) {
+	vSphereClusterRef := cluster.Spec.InfrastructureRef
+	if vSphereClusterRef == nil {
+		return nil, fmt.Errorf("cluster %s 's infrastructure reference is not set yet", cluster.Name)
+	}
+	if vSphereClusterRef.Kind != constants.InfrastructureRefVSphere || vSphereClusterRef.APIVersion != capvvmwarev1beta1.GroupVersion.String() {
+		return nil, fmt.Errorf("cluster %s 's infrastructure reference is not a paravirt vSphereCluster: %v", cluster.Name, vSphereClusterRef)
+	}
+	vsphereCluster := &capvvmwarev1beta1.VSphereCluster{}
+	if err := clt.Get(ctx, types.NamespacedName{Namespace: vSphereClusterRef.Namespace, Name: vSphereClusterRef.Name}, vsphereCluster); err != nil {
+		return nil, err
 	}
 	return vsphereCluster, nil
+}
+
+// VSphereClusterNonParavirtualForCluster gets the VSphereCluster CR for the cluster object in non-paravirtual mode
+func VSphereClusterNonParavirtualForCluster(ctx context.Context, clt client.Client, cluster *clusterapiv1beta1.Cluster) (*capvv1beta1.VSphereCluster, error) {
+	vSphereClusterRef := cluster.Spec.InfrastructureRef
+	if vSphereClusterRef == nil {
+		return nil, fmt.Errorf("cluster %s 's infrastructure reference is not set yet", cluster.Name)
+	}
+	vsphereCluster := &capvv1beta1.VSphereCluster{}
+	if vSphereClusterRef.Kind != constants.InfrastructureRefVSphere || vSphereClusterRef.APIVersion != capvv1beta1.GroupVersion.String() {
+		return nil, fmt.Errorf("cluster %s 's infrastructure reference is not a non-paravirt vSphereCluster: %v", cluster.Name, vSphereClusterRef)
+	}
+	if err := clt.Get(ctx, types.NamespacedName{Namespace: vSphereClusterRef.Namespace, Name: vSphereClusterRef.Name}, vsphereCluster); err != nil {
+		return nil, err
+	}
+	return vsphereCluster, nil
+}
+
+// ControlPlaneVsphereMachineTemplateNonParavirtualForCluster gets the VsphereMachineTemplate CR of control plane
+func ControlPlaneVsphereMachineTemplateNonParavirtualForCluster(ctx context.Context, clt client.Client, cluster *clusterapiv1beta1.Cluster) (*capvv1beta1.VSphereMachineTemplate, error) {
+	controlPlaneRef := cluster.Spec.ControlPlaneRef
+	if controlPlaneRef == nil {
+		return nil, fmt.Errorf("cluster %s 's controlplane reference is not set yet", cluster.Name)
+	}
+	controlPlane := &kubeadmv1beta1.KubeadmControlPlane{}
+	if err := clt.Get(ctx, types.NamespacedName{Namespace: controlPlaneRef.Namespace, Name: controlPlaneRef.Name}, controlPlane); err != nil {
+		return nil, err
+	}
+	vSphereMachineTemplateRef := controlPlane.Spec.MachineTemplate.InfrastructureRef
+	vSphereMachineTemplate := &capvv1beta1.VSphereMachineTemplate{}
+	if vSphereMachineTemplateRef.Kind != constants.InfrastructureRefVSphereMachineTemplate || vSphereMachineTemplateRef.APIVersion != capvv1beta1.GroupVersion.String() {
+		return nil, fmt.Errorf("cluster %s 's controlplane machinetemplate reference is not a non-paravirt vSphereMachineTemplate: %v", cluster.Name, vSphereMachineTemplateRef)
+	}
+	if err := clt.Get(ctx, types.NamespacedName{Namespace: vSphereMachineTemplateRef.Namespace, Name: vSphereMachineTemplateRef.Name}, vSphereMachineTemplate); err != nil {
+		return nil, err
+	}
+	return vSphereMachineTemplate, nil
 }
 
 // ControlPlaneName returns the control plane name for a cluster name
