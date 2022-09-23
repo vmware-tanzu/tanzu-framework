@@ -495,7 +495,6 @@ func installOrUpgradePlugin(serverName string, p *plugin.Discovered, version str
 		if err != nil {
 			return errors.Wrap(err, "error while saving test plugin binary")
 		}
-		descriptor.TestPluginInstallationPath = testpluginPath
 	}
 
 	c, err := catalog.NewContextCatalog(serverName)

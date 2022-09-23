@@ -4,6 +4,8 @@
 package main
 
 import (
+	"os"
+
 	"github.com/aunum/log"
 	"github.com/spf13/cobra"
 
@@ -25,7 +27,7 @@ var descriptor = cliapi.PluginDescriptor{
 var local string
 
 func init() {
-	fetchCmd.PersistentFlags().StringVarP(&local, "local", "l", "", "path to local repository")
+	fetchCmd.Flags().StringVarP(&local, "local", "l", "", "path to local repository")
 	_ = fetchCmd.MarkFlagRequired("local")
 }
 
@@ -46,7 +48,9 @@ func main() {
 	}
 
 	for _, d := range standalonePlugins {
-		if d.TestPluginInstallationPath == "" {
+		// Check if test plugin binary installed. If available add a plugin command
+		_, err := os.Stat(cli.TestPluginPathFromPluginPath(d.InstallationPath))
+		if err != nil {
 			continue
 		}
 		pluginsCmd.AddCommand(cli.TestCmd(d.DeepCopy()))

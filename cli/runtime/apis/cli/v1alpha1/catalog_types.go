@@ -141,10 +141,6 @@ type PluginDescriptor struct {
 	// E.g., cluster/v0.3.2@sha256:...
 	InstallationPath string `json:"installationPath"`
 
-	// TestPluginInstallationPath is a installation path for a test plugin binary.
-	// E.g., cluster/test-v0.3.2
-	TestPluginInstallationPath string `json:"testPluginInstallationPath"`
-
 	// Discovery is the name of the discovery from where
 	// this plugin is discovered.
 	Discovery string `json:"discovery"`

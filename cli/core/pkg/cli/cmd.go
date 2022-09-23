@@ -140,9 +140,9 @@ func TestCmd(p *cliapi.PluginDescriptor) *cobra.Command {
 		Use:   p.Name,
 		Short: p.Description,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			runner := NewRunner(p.Name, p.TestPluginInstallationPath, args)
+			runner := NewRunner(p.Name, p.InstallationPath, args)
 			ctx := context.Background()
-			return runner.Run(ctx)
+			return runner.RunTest(ctx)
 		},
 		DisableFlagParsing: true,
 	}
