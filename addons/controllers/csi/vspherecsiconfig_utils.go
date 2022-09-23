@@ -13,7 +13,6 @@ import (
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
-	capvv1beta1 "sigs.k8s.io/cluster-api-provider-vsphere/apis/v1beta1"
 	capvvmwarev1beta1 "sigs.k8s.io/cluster-api-provider-vsphere/apis/vmware/v1beta1"
 	clusterapiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
 	capictrlpkubeadmv1beta1 "sigs.k8s.io/cluster-api/controlplane/kubeadm/api/v1beta1"
@@ -91,26 +90,23 @@ func (r *VSphereCSIConfigReconciler) mapVSphereCSIConfigToDataValuesNonParavirtu
 	dvs.VSphereCSI = &DataValuesVSphereCSI{}
 	dvs.VSphereCSI.ClusterName = cluster.Name
 
-	vsphereCluster, err := cutil.GetVSphereCluster(ctx, r.Client, cluster)
+	vsphereCluster, err := cutil.VSphereClusterNonParavirtualForCluster(ctx, r.Client, cluster)
 	if err != nil {
 		return nil, err
 	}
 	dvs.VSphereCSI.Server = vsphereCluster.Spec.Server
 	dvs.VSphereCSI.TLSThumbprint = vsphereCluster.Spec.Thumbprint
 
-	cpMachineTemplate := &capvv1beta1.VSphereMachineTemplate{}
-	if err := r.Client.Get(ctx, types.NamespacedName{
-		Namespace: cluster.Namespace,
-		Name:      cutil.ControlPlaneName(cluster.Name),
-	}, cpMachineTemplate); err != nil {
-		if apierrors.IsNotFound(err) {
-			return nil, errors.Errorf("VSphereMachineTemplate %s/%s not found", cluster.Namespace, cutil.ControlPlaneName(cluster.Name))
-		}
-		return nil, errors.Errorf("VSphereMachineTemplate %s/%s could not be fetched, error %v", cluster.Namespace, cutil.ControlPlaneName(cluster.Name), err)
+	// get the control plane machine template
+	cpMachineTemplate, err := cutil.ControlPlaneVsphereMachineTemplateNonParavirtualForCluster(ctx, r.Client, cluster)
+	if err != nil {
+		return nil, err
 	}
 
 	dvs.VSphereCSI.Datacenter = cpMachineTemplate.Spec.Template.Spec.Datacenter
-	dvs.VSphereCSI.PublicNetwork = cutil.TryParseClusterVariableString(ctx, cluster, VSphereNetworkVarName)
+	if len(cpMachineTemplate.Spec.Template.Spec.Network.Devices) > 0 {
+		dvs.VSphereCSI.PublicNetwork = cpMachineTemplate.Spec.Template.Spec.Network.Devices[0].NetworkName
+	}
 
 	// derive vSphere username and password from the <cluster name> secret
 	clusterSecret, err := cutil.GetSecret(ctx, r.Client, cluster.Namespace, cluster.Name)
@@ -121,11 +117,6 @@ func (r *VSphereCSIConfigReconciler) mapVSphereCSIConfigToDataValuesNonParavirtu
 	if err != nil {
 		return nil, err
 	}
-
-	dvs.VSphereCSI.Region = cutil.TryParseClusterVariableString(ctx, cluster, VSphereRegionVarName)
-	dvs.VSphereCSI.Zone = cutil.TryParseClusterVariableString(ctx, cluster, VSphereZoneVarName)
-	dvs.VSphereCSI.VSphereVersion = cutil.TryParseClusterVariableString(ctx, cluster, VSphereVersionVarName)
-	dvs.VSphereCSI.WindowsSupport = cutil.TryParseClusterVariableBool(ctx, cluster, IsWindowsWorkloadClusterVarName)
 
 	if cluster.Annotations != nil {
 		dvs.VSphereCSI.HTTPProxy = cluster.Annotations[pkgtypes.HTTPProxyConfigAnnotation]

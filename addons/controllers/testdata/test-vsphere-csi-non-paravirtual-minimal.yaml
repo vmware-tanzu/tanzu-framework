@@ -10,7 +10,10 @@ metadata:
     tkg.tanzu.vmware.com/tkg-ip-family: "ipv6"
 spec:
   infrastructureRef:
+    apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
     kind: VSphereCluster
+    name: test-cluster-csi-minimal
+    namespace: default
   clusterNetwork:
     pods:
       cidrBlocks: [ "192.168.0.0/16","fd00:100:96::/48" ]
@@ -22,17 +25,6 @@ spec:
   topology:
     class: test-clusterclass-tcbt
     version: v1.22.3
-    variables:
-      - name: VSPHERE_NETWORK
-        value: "3.7.9.0/16"
-      - name: VSPHERE_REGION
-        value: mombasa
-      - name: VSPHERE_ZONE
-        value: kisauni
-      - name: VSPHERE_VERSION
-        value: "8.3.7-release"
-      - name: IS_WINDOWS_WORKLOAD_CLUSTER
-        value: true
 ---
 apiVersion: controlplane.cluster.x-k8s.io/v1beta1
 kind: KubeadmControlPlane
@@ -46,10 +38,14 @@ metadata:
       uid: ad834522-d9a5-4841-beac-991ff3798c00
 spec:
   kubeadmConfigSpec: {}
-  machineTemplate:
-    infrastructureRef: {}
   replicas: 2
   version: v1.22.3
+  machineTemplate:
+    infrastructureRef:
+      apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+      kind: VSphereMachineTemplate
+      name: test-cluster-csi-minimal-control-plane-template
+      namespace: default
 ---
 apiVersion: v1
 kind: Secret
@@ -63,6 +59,8 @@ data:
 apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
 kind: VSphereCluster
 metadata:
+  labels:
+    cluster.x-k8s.io/cluster-name: test-cluster-csi-minimal
   name: test-cluster-csi-minimal
   namespace: default
 spec:
@@ -72,7 +70,9 @@ spec:
 apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
 kind: VSphereMachineTemplate
 metadata:
-  name: test-cluster-csi-minimal-control-plane
+  labels:
+    cluster.x-k8s.io/cluster-name: test-cluster-csi-minimal
+  name: test-cluster-csi-minimal-control-plane-template
   namespace: default
 spec:
   template:
