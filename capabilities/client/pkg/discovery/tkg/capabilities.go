@@ -13,8 +13,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	runv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha1"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/sdk/capabilities/discovery"
-	"github.com/vmware-tanzu/tanzu-framework/tkg/test/tkgctl/shared"
+	"github.com/vmware-tanzu/tanzu-framework/capabilities/client/pkg/discovery"
 )
 
 const (
@@ -75,8 +74,7 @@ func clusterTypeFromMetadataConfigMap(ctx context.Context, c client.Client) (str
 		return "", fmt.Errorf("failed to get cluster type: metadata.yaml key not found in configmap %s", key.String())
 	}
 
-	// ClusterMetadata is not defined in a common package, so re-use this.
-	metadata := &shared.ClusterMetadata{}
+	metadata := &ClusterMetadata{}
 	if err := yaml.Unmarshal([]byte(data), metadata); err != nil {
 		return "", fmt.Errorf("failed to get cluster type: %w", err)
 	}

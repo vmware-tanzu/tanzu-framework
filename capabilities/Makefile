@@ -1,7 +1,7 @@
 # Copyright 2021 VMware, Inc. All Rights Reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-include ../../../../common.mk
+include ../common.mk
 
 IMG_DEFAULT_NAME := capabilities-controller-manager
 IMG_DEFAULT_TAG := latest
@@ -21,23 +21,24 @@ all: manager
 
 # Run tests
 test: fmt vet manifests
-	go test ./... -coverprofile cover.out
+	cd client && go test ./... -coverprofile cover.out
+	cd controller && go test ./... -coverprofile cover.out
 
 # Build manager binary
 manager: fmt vet
-	go build -ldflags "$(LD_FLAGS)" -o bin/manager ../../../../cmd/managers/capabilities/main.go
+	go build -ldflags "$(LD_FLAGS)" -o bin/manager ./controller/main.go
 
 # Run against the configured Kubernetes cluster in ~/.kube/config
 run: fmt vet
-	go run -ldflags "$(LD_FLAGS)" ../../../../cmd/managers/capabilities/main.go
+	cd controller && go run -ldflags "$(LD_FLAGS)" ./main.go
 
 # Run go fmt against code
 fmt:
-	go fmt ./...
+	cd controller && go fmt ./...
 
 # Run go vet against code
 vet:
-	go vet ./...
+	cd controller && go vet ./...
 
 # Generate deployment manifest for the tkr manager
 deployment: manifests
@@ -67,7 +68,7 @@ endif
 
 .PHONY: docker-build
 docker-build:
-	cd ../../../../ && docker build -t $(IMG) -f pkg/v1/sdk/capabilities/Dockerfile --build-arg LD_FLAGS="$(LD_FLAGS)" .
+	cd .. && docker build -t $(IMG) -f capabilities/controller/Dockerfile --build-arg LD_FLAGS="$(LD_FLAGS)" .
 
 .PHONY: docker-publish
 docker-publish: ## Publish docker image
@@ -75,7 +76,7 @@ docker-publish: ## Publish docker image
 
 .PHONY: kbld-image-replace
 kbld-image-replace: ## Add newImage in kbld-config.yaml
-	cd ../../../../hack/packages/kbld-image-replace && \
+	cd ../hack/packages/kbld-image-replace && \
 		go run main.go -kbld-config ../../../packages/capabilities/kbld-config.yaml $(IMG_DEFAULT_NAME_TAG) $(IMG)
 
 .PHONY: docker-image-names

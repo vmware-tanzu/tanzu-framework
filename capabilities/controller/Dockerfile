@@ -10,31 +10,25 @@ FROM $BUILDER_BASE_IMAGE as builder
 
 WORKDIR /workspace
 
-# Copy the Go Modules manifests
-COPY go.mod go.mod
-COPY go.sum go.sum
+# Copy the go source
+COPY capabilities/client capabilities/client
+COPY capabilities/controller capabilities/controller
 COPY apis/ apis/
 COPY cli/runtime cli/runtime
-COPY packageclients/ packageclients/
-COPY tkg/ tkg/
-COPY cli/core cli/core
-RUN  go mod download
-# cache deps before building and copying source so that we don't need to re-download as much
-# and so that source changes don't invalidate our downloaded layer
 
-# Copy the go source
-COPY ./ ./
+WORKDIR capabilities/controller
+RUN  go mod download
 
 # Build
 ARG LD_FLAGS
 ENV LD_FLAGS="$LD_FLAGS "'-extldflags "-static"'
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 GO111MODULE=on go build -a -ldflags "$LD_FLAGS" -o manager ./cmd/managers/capabilities/main.go
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 GO111MODULE=on go build -o manager main.go
 
 # Use distroless as minimal base image to package the manager binary
 # Refer to https://github.com/GoogleContainerTools/distroless for more details
 FROM gcr.io/distroless/static:nonroot
 WORKDIR /
-COPY --from=builder /workspace/manager .
+COPY --from=builder /workspace/capabilities/controller/manager .
 USER nonroot:nonroot
 
 ENTRYPOINT ["/manager"]

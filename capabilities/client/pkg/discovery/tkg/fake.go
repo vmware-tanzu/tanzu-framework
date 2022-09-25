@@ -11,7 +11,7 @@ import (
 	runv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha1"
 	runv1alpha2 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha2"
 	runv1alpha3 "github.com/vmware-tanzu/tanzu-framework/apis/run/v1alpha3"
-	"github.com/vmware-tanzu/tanzu-framework/pkg/v1/sdk/capabilities/discovery"
+	"github.com/vmware-tanzu/tanzu-framework/capabilities/client/pkg/discovery"
 )
 
 var (
