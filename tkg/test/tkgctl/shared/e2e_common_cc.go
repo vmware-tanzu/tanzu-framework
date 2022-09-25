@@ -263,8 +263,8 @@ func E2ECommonCCSpec(ctx context.Context, inputGetter func() E2ECommonCCSpecInpu
 }
 
 // getCustomCBResourceFile return a manifest containing custom ClusterBootstrap and AntreaConfig
-func getCustomCBResourceFile(clusterName, namespace, tkrName string) []byte {
-	return []byte(fmt.Sprintf(customAntreaConfigAndCBResource, clusterName, namespace, tkrName, clusterName, namespace, clusterName))
+func getCustomCBResourceFile(clusterName, namespace string, tkrName string) []byte {
+	return []byte(fmt.Sprintf(customAntreaConfigAndCBResource, clusterName, namespace, namespace, clusterName, namespace, tkrName, clusterName, namespace, clusterName, clusterName))
 }
 
 func getAvailableTKRs(ctx context.Context, mcProxy *framework.ClusterProxy, tkgConfigDir string) (sets.StringSet, *runv1alpha3.TanzuKubernetesRelease, *runv1alpha3.TanzuKubernetesRelease) {

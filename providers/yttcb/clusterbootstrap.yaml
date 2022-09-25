@@ -221,8 +221,8 @@ spec:
     httpProxy: #@ data.values.TKG_HTTP_PROXY
     httpsProxy: #@ data.values.TKG_HTTPS_PROXY
     noProxy: #@ data.values.TKG_NO_PROXY
----
 #@ end
+---
 #@ if should_create_clusterbootstrap():
 apiVersion: run.tanzu.vmware.com/v1alpha3
 kind: ClusterBootstrap

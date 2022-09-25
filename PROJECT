@@ -41,12 +41,9 @@ resources:
 - group: cpi
   kind: CPIConfig
   version: v1alpha1
-<<<<<<< HEAD
 - group: core
   kind: Capabilities
-=======
 - group: csi
   kind: AwsEbsCSIConfig
->>>>>>> 2d3951af (Add aws ebs csi api and controller for classy cluster)
   version: v1alpha1
 version: "2"

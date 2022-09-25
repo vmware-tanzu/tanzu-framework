@@ -14,17 +14,18 @@ import (
 	csiv1alpha1 "github.com/vmware-tanzu/tanzu-framework/apis/addonconfigs/csi/v1alpha1"
 )
 
-// getOwnerCluster verifies that the VSphereCSIConfig has a cluster as its owner reference,
-// and returns the cluster. It tries to read the cluster name from the VSphereCSIConfig's owner reference objects.
-// If not there, we assume the owner cluster and VSphereCSIConfig always has the same name.
+// getOwnerCluster verifies that the AwsEbsCSIConfig has a cluster as its owner reference,
+// and returns the cluster. It tries to read the cluster name from the AwsEbsCSIConfig's owner reference objects.
+// If not there, we assume the owner cluster and AwsEbsCSIConfig always has the same name.
 func (r *AwsEbsCSIConfigReconciler) getOwnerCluster(ctx context.Context,
 	awsebsCSIConfig *csiv1alpha1.AwsEbsCSIConfig) (*clusterapiv1beta1.Cluster, error) {
 
 	logger := log.FromContext(ctx)
 	cluster := &clusterapiv1beta1.Cluster{}
-	clusterName := awsebsCSIConfig.Name // usually the corresponding 'cluster' shares the same name
+	// TODO donot support using addon name as cluster name
+	clusterName := awsebsCSIConfig.Name
 
-	// retrieve the owner cluster for the VSphereCSIConfig object
+	// retrieve the owner cluster for the AwsEbsCSIConfig object
 	for _, ownerRef := range awsebsCSIConfig.GetOwnerReferences() {
 		if strings.EqualFold(ownerRef.Kind, constants.ClusterKind) {
 			clusterName = ownerRef.Name
@@ -43,7 +44,7 @@ func (r *AwsEbsCSIConfigReconciler) getOwnerCluster(ctx context.Context,
 	return cluster, nil
 }
 
-// mapVSphereCSIConfigToDataValues maps VSphereCSIConfig CR to data values
+// mapAwsEbsCSIConfigToDataValues maps AwsEbsCSIConfig CR to data values
 func (r *AwsEbsCSIConfigReconciler) mapAwsEbsCSIConfigToDataValues(ctx context.Context,
 	awsEbsCSIConfig *csiv1alpha1.AwsEbsCSIConfig,
 	cluster *clusterapiv1beta1.Cluster) (*DataValues, error) {

@@ -5,7 +5,6 @@ package controllers
 
 import (
 	"context"
-	"time"
 
 	"github.com/go-logr/logr"
 	"gopkg.in/yaml.v2"
@@ -39,13 +38,6 @@ type AwsEbsCSIConfigReconciler struct {
 
 //+kubebuilder:rbac:groups=csi.tanzu.vmware.com,resources=awsebscsiconfigs,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups=csi.tanzu.vmware.com,resources=awsebscsiconfigs/status,verbs=get;update;patch
-//+kubebuilder:rbac:groups=csi.tanzu.vmware.com,resources=vspherecsiconfigs/finalizers,verbs=update
-//+kubebuilder:rbac:groups="",resources=secrets,verbs=get;list;watch;create;update;patch;delete
-//+kubebuilder:rbac:groups="",resources=configmaps,verbs=get;list;watch
-//+kubebuilder:rbac:groups=cluster.x-k8s.io,resources=clusters,verbs=get;list;watch
-//+kubebuilder:rbac:groups=topology.tanzu.vmware.com,resources=availabilityzones,verbs=get;list
-//+kubebuilder:rbac:groups=controlplane.cluster.x-k8s.io,resources=kubeadmcontrolplanes,verbs=get
-//+kubebuilder:rbac:groups=vmware.infrastructure.cluster.x-k8s.io,resources=providerserviceaccounts,verbs=get;create;list;watch;update;patch
 
 // Reconcile is part of the main kubernetes reconciliation loop which aims to
 // move the current state of the cluster closer to the desired state.
@@ -71,7 +63,7 @@ func (r *AwsEbsCSIConfigReconciler) Reconcile(ctx context.Context, req ctrl.Requ
 	awsebsCSIConfig = awsebsCSIConfig.DeepCopy()
 	cluster, err := r.getOwnerCluster(ctx, awsebsCSIConfig)
 	if cluster == nil {
-		return ctrl.Result{RequeueAfter: 20 * time.Second}, err // retry until corresponding cluster is found
+		return ctrl.Result{}, err // no need to requeue if cluster is not found
 	}
 
 	return r.reconcileAwsEbsCSIConfig(ctx, awsebsCSIConfig, cluster)

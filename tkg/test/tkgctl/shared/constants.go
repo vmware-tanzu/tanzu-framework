@@ -4,7 +4,18 @@
 package shared
 
 // customAntreaConfigAndCBResource declares resources required to deploy a custom ClusterBootstrap and AntreaConfig objects; name and namespace values need to be substituted prior to usage
-const customAntreaConfigAndCBResource = `apiVersion: cni.tanzu.vmware.com/v1alpha1
+const customAntreaConfigAndCBResource = `
+apiVersion: csi.tanzu.vmware.com/v1alpha1
+kind: AwsEbsCSIConfig
+metadata:
+  name: %s
+  namespace: %s
+spec:
+  awsEBSCSIDriver:
+    namespace: %s
+    deploymentReplicas: 1
+---
+apiVersion: cni.tanzu.vmware.com/v1alpha1
 kind: AntreaConfig
 metadata:
   name: %s
@@ -28,7 +39,11 @@ apiVersion: run.tanzu.vmware.com/v1alpha3
 kind: ClusterBootstrap
 metadata:
   annotations:
+<<<<<<< HEAD
     tkg.tanzu.vmware.com/add-missing-fields-from-tkr: %s
+=======
+    tkg.tanzu.vmware.com/add-missing-fields-from-tkr: v1.23.8---vmware.2-tkg.2-zshippable
+>>>>>>> 3ac3c72c (CI & UT & Related codes fix)
   name: %s
   namespace: %s
 spec:
@@ -42,6 +57,13 @@ spec:
       providerRef:
         apiGroup: cni.tanzu.vmware.com
         kind: AntreaConfig
+        name: %s
+  csi:
+    refName: aws-ebs-csi*
+    valuesFrom:
+      providerRef:
+        apiGroup: csi.tanzu.vmware.com
+        kind: AwsEbsCSIConfig
         name: %s
   kapp:
     refName: kapp-controller*

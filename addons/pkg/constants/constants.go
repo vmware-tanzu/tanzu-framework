@@ -35,7 +35,7 @@ const (
 	// CSIAddonName is name of the vsphere-csi addon
 	CSIAddonName = "vsphere-csi"
 
-	// AwsEbsCSIAddonName is name of the vsphere-csi addon
+	// AwsEbsCSIAddonName is name of the aws-ebs-csi addon
 	AwsEbsCSIAddonName = "aws-ebs-csi"
 
 	// TKGBomNamespace is the TKG add on BOM namespace.
