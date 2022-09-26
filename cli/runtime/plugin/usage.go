@@ -12,6 +12,7 @@ import (
 
 	"github.com/logrusorgru/aurora"
 	"github.com/spf13/cobra"
+	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/component"
 )
 
 // UsageFunc is the usage func for a plugin.
@@ -21,6 +22,12 @@ var UsageFunc = func(c *cobra.Command) error {
 		return err
 	}
 	return t.Execute(os.Stdout, c)
+}
+
+var au aurora.Aurora
+
+func init() {
+	au = aurora.NewAurora(!component.IsTTYEnabled())
 }
 
 // CmdTemplate is the template for plugin commands.
@@ -66,11 +73,11 @@ func rpad(s string, padding int) string {
 }
 
 func underline(s string) string {
-	return aurora.Underline(s).String()
+	return au.Underline(s).String()
 }
 
 func bold(s string) string {
-	return aurora.Bold(s).String()
+	return au.Bold(s).String()
 }
 
 func trimRightSpace(s string) string {

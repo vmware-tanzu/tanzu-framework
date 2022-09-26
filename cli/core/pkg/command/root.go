@@ -19,6 +19,7 @@ import (
 	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/pluginmanager"
 	cliapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/cli/v1alpha1"
 	configapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/config/v1alpha1"
+	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/component"
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/config"
 )
 
@@ -47,7 +48,7 @@ func NewRootCmd() (*cobra.Command, error) {
 	if ni != "" || strings.EqualFold(forceNoInit, "true") {
 		noInit = true
 	}
-	if os.Getenv("TANZU_CLI_NO_COLOR") != "" || os.Getenv("NO_COLOR") != "" || strings.EqualFold(os.Getenv("TERM"), "DUMB") {
+	if component.IsTTYEnabled() {
 		color = false
 	}
 

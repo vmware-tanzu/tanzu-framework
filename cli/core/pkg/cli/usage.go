@@ -14,6 +14,7 @@ import (
 	"github.com/logrusorgru/aurora"
 	"github.com/spf13/cobra"
 
+	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/component"
 	"github.com/vmware-tanzu/tanzu-framework/cli/runtime/config"
 )
 
@@ -22,6 +23,12 @@ type CmdMap map[string][]*cobra.Command
 
 // MainUsage create the main usage display for tanzu cli.
 type MainUsage struct{}
+
+var au aurora.Aurora
+
+func init() {
+	au = aurora.NewAurora(!component.IsTTYEnabled())
+}
 
 // NewMainUsage creates an instance of Usage.
 func NewMainUsage() *MainUsage {
@@ -155,11 +162,11 @@ func rpad(s string, padding int) string {
 }
 
 func underline(s string) string {
-	return aurora.Underline(s).String()
+	return au.Underline(s).String()
 }
 
 func bold(s string) string {
-	return aurora.Bold(s).String()
+	return au.Bold(s).String()
 }
 
 func trimRightSpace(s string) string {
