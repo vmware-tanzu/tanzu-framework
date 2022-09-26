@@ -146,7 +146,7 @@ var _ = Describe("TKGS ClusterClass based workload cluster tests", func() {
 			Expect(strings.Contains(secretDataString, "AntreaTraceflow: false")).Should(BeTrue())
 
 			By(fmt.Sprintf("Get k8s client for management cluster"))
-			mngClient, _, _, _, err := shared.GetClients(context.Background(), e2eConfig.TKGSKubeconfigPath)
+			mngClient, _, _, _, _, err := shared.GetClients(context.Background(), e2eConfig.TKGSKubeconfigPath)
 			Expect(err).NotTo(HaveOccurred())
 
 			By(fmt.Sprintf("Generating credentials for workload cluster %q", e2eConfig.WorkloadClusterOptions.ClusterName))
@@ -160,7 +160,7 @@ var _ = Describe("TKGS ClusterClass based workload cluster tests", func() {
 			Expect(err).To(BeNil())
 
 			By(fmt.Sprintf("Get k8s client for workload cluster %q", clusterName))
-			wlcClient, _, _, _, err := shared.GetClients(context.Background(), wlcTempFilePath)
+			wlcClient, _, _, _, _, err := shared.GetClients(context.Background(), wlcTempFilePath)
 			Expect(err).NotTo(HaveOccurred())
 
 			By(fmt.Sprintf("Verify addon packages on workload cluster %q matches clusterBootstrap info on management cluster %q", e2eConfig.WorkloadClusterOptions.ClusterName, clusterName))
@@ -198,7 +198,7 @@ var _ = Describe("TKGS ClusterClass based workload cluster tests", func() {
 			Expect(err).To(BeNil())
 
 			By(fmt.Sprintf("Get k8s client for workload cluster %q", clusterName))
-			wlcClient, _, _, _, err := shared.GetClients(context.Background(), wlcTempFilePath)
+			wlcClient, _, _, _, _, err := shared.GetClients(context.Background(), wlcTempFilePath)
 			Expect(err).NotTo(HaveOccurred())
 
 			secretKey := client.ObjectKey{

@@ -77,7 +77,6 @@ const (
 	addonImagePullPolicy                = "IfNotPresent"
 	corePackageRepoName                 = "core"
 	webhookServiceName                  = "tanzu-addons-manager-webhook-service"
-	webhookScrtName                     = "webhook-tls"
 	cniWebhookManifestFile              = "testdata/webhooks/test-antrea-calico-webhook-manifests.yaml"
 	clusterbootstrapWebhookManifestFile = "testdata/webhooks/clusterbootstrap-webhook-manifests.yaml"
 )
@@ -378,7 +377,7 @@ var _ = BeforeSuite(func(done Done) {
 	webhookSelector := labels.NewSelector()
 	webhookSelector = webhookSelector.Add(*labelMatch)
 	webhookSelectorString = webhookSelector.String()
-	_, err = webhooks.InstallNewCertificates(ctx, k8sConfig, certPath, keyPath, webhookScrtName, addonNamespace, webhookServiceName, webhookSelectorString)
+	_, err = webhooks.InstallNewCertificates(ctx, k8sConfig, certPath, keyPath, constants.WebhookScrtName, addonNamespace, webhookServiceName, webhookSelectorString)
 	Expect(err).ToNot(HaveOccurred())
 
 	// Set up the webhooks in the manager
@@ -421,7 +420,7 @@ var _ = BeforeSuite(func(done Done) {
 	webhookCertDetails = testutil.WebhookCertificatesDetails{
 		CertPath:           certPath,
 		KeyPath:            keyPath,
-		WebhookScrtName:    webhookScrtName,
+		WebhookScrtName:    constants.WebhookScrtName,
 		AddonNamespace:     addonNamespace,
 		WebhookServiceName: webhookServiceName,
 		LabelSelector:      webhookSelector,
