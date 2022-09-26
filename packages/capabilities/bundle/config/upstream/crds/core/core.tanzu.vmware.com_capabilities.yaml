@@ -5,9 +5,9 @@ metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.8.0
   creationTimestamp: null
-  name: capabilities.run.tanzu.vmware.com
+  name: capabilities.core.tanzu.vmware.com
 spec:
-  group: run.tanzu.vmware.com
+  group: core.tanzu.vmware.com
   names:
     kind: Capability
     listKind: CapabilityList
@@ -15,10 +15,7 @@ spec:
     singular: capability
   scope: Namespaced
   versions:
-  - deprecated: true
-    deprecationWarning: Capability API in run.tanzu.vmware.com is deprecated. Use
-      Capability API from core.tanzu.vmware.com instead
-    name: v1alpha1
+  - name: v1alpha1
     schema:
       openAPIV3Schema:
         description: Capability is the Schema for the capabilities API

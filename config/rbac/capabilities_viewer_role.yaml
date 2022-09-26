@@ -1,0 +1,20 @@
+# permissions for end users to view capabilities.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: capabilities-viewer-role
+rules:
+- apiGroups:
+  - core.tanzu.vmware.com
+  resources:
+  - capabilities
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - core.tanzu.vmware.com
+  resources:
+  - capabilities/status
+  verbs:
+  - get
