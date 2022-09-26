@@ -4,6 +4,7 @@ package fakes
 import (
 	"sync"
 
+	"k8s.io/apimachinery/pkg/version"
 	"k8s.io/client-go/discovery"
 	"k8s.io/client-go/rest"
 
@@ -22,6 +23,19 @@ type DiscoveryClientFactory struct {
 	}
 	newDiscoveryClientForConfigReturnsOnCall map[int]struct {
 		result1 discovery.DiscoveryInterface
+		result2 error
+	}
+	ServerVersionStub        func(discovery.DiscoveryInterface) (*version.Info, error)
+	serverVersionMutex       sync.RWMutex
+	serverVersionArgsForCall []struct {
+		arg1 discovery.DiscoveryInterface
+	}
+	serverVersionReturns struct {
+		result1 *version.Info
+		result2 error
+	}
+	serverVersionReturnsOnCall map[int]struct {
+		result1 *version.Info
 		result2 error
 	}
 	invocations      map[string][][]interface{}
@@ -92,11 +106,77 @@ func (fake *DiscoveryClientFactory) NewDiscoveryClientForConfigReturnsOnCall(i i
 	}{result1, result2}
 }
 
+func (fake *DiscoveryClientFactory) ServerVersion(arg1 discovery.DiscoveryInterface) (*version.Info, error) {
+	fake.serverVersionMutex.Lock()
+	ret, specificReturn := fake.serverVersionReturnsOnCall[len(fake.serverVersionArgsForCall)]
+	fake.serverVersionArgsForCall = append(fake.serverVersionArgsForCall, struct {
+		arg1 discovery.DiscoveryInterface
+	}{arg1})
+	stub := fake.ServerVersionStub
+	fakeReturns := fake.serverVersionReturns
+	fake.recordInvocation("ServerVersion", []interface{}{arg1})
+	fake.serverVersionMutex.Unlock()
+	if stub != nil {
+		return stub(arg1)
+	}
+	if specificReturn {
+		return ret.result1, ret.result2
+	}
+	return fakeReturns.result1, fakeReturns.result2
+}
+
+func (fake *DiscoveryClientFactory) ServerVersionCallCount() int {
+	fake.serverVersionMutex.RLock()
+	defer fake.serverVersionMutex.RUnlock()
+	return len(fake.serverVersionArgsForCall)
+}
+
+func (fake *DiscoveryClientFactory) ServerVersionCalls(stub func(discovery.DiscoveryInterface) (*version.Info, error)) {
+	fake.serverVersionMutex.Lock()
+	defer fake.serverVersionMutex.Unlock()
+	fake.ServerVersionStub = stub
+}
+
+func (fake *DiscoveryClientFactory) ServerVersionArgsForCall(i int) discovery.DiscoveryInterface {
+	fake.serverVersionMutex.RLock()
+	defer fake.serverVersionMutex.RUnlock()
+	argsForCall := fake.serverVersionArgsForCall[i]
+	return argsForCall.arg1
+}
+
+func (fake *DiscoveryClientFactory) ServerVersionReturns(result1 *version.Info, result2 error) {
+	fake.serverVersionMutex.Lock()
+	defer fake.serverVersionMutex.Unlock()
+	fake.ServerVersionStub = nil
+	fake.serverVersionReturns = struct {
+		result1 *version.Info
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *DiscoveryClientFactory) ServerVersionReturnsOnCall(i int, result1 *version.Info, result2 error) {
+	fake.serverVersionMutex.Lock()
+	defer fake.serverVersionMutex.Unlock()
+	fake.ServerVersionStub = nil
+	if fake.serverVersionReturnsOnCall == nil {
+		fake.serverVersionReturnsOnCall = make(map[int]struct {
+			result1 *version.Info
+			result2 error
+		})
+	}
+	fake.serverVersionReturnsOnCall[i] = struct {
+		result1 *version.Info
+		result2 error
+	}{result1, result2}
+}
+
 func (fake *DiscoveryClientFactory) Invocations() map[string][][]interface{} {
 	fake.invocationsMutex.RLock()
 	defer fake.invocationsMutex.RUnlock()
 	fake.newDiscoveryClientForConfigMutex.RLock()
 	defer fake.newDiscoveryClientForConfigMutex.RUnlock()
+	fake.serverVersionMutex.RLock()
+	defer fake.serverVersionMutex.RUnlock()
 	copiedInvocations := map[string][][]interface{}{}
 	for key, value := range fake.invocations {
 		copiedInvocations[key] = value

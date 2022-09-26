@@ -7,6 +7,8 @@ import (
 	"path/filepath"
 	"testing"
 
+	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/gomega"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -46,3 +48,15 @@ func TestLocalArtifactWhenArtifactDoesntExistsAndMultipleFilesUnderTest(t *testi
 	assert.Error(err)
 	assert.ErrorContains(err, "expected only 1 file under the")
 }
+
+var _ = Describe("Unit tests for local artifact", func() {
+	Context("when input file not exists", func() {
+		It("should return current token", func() {
+			localArtifact := NewLocalArtifact("file://home/user/")
+			Expect(localArtifact).NotTo(BeNil())
+			bytes, err1 := localArtifact.Fetch()
+			Expect(bytes).To(BeNil())
+			Expect(err1.Error()).To(ContainSubstring("error while reading artifact"))
+		})
+	})
+})

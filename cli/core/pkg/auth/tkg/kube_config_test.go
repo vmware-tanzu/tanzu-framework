@@ -30,8 +30,10 @@ var testingDir string
 
 func TestTkgAuth(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "Tkg Auth Suite")
+	RunSpecs(t, "cli/core/pkg/auth/tkg Suite")
 }
+
+const kubeconfigPath = "../../fakes/config/kubeconfig_server_ver.yaml"
 
 var _ = Describe("Unit tests for tkg auth", func() {
 	var (
@@ -242,6 +244,23 @@ var _ = Describe("Unit tests for tkg auth", func() {
 			})
 		})
 
+	})
+})
+
+var _ = Describe("Unit tests for tkg auth - GetServerKubernetesVersion", func() {
+	Context("When valid kubeconfig path and context passed, but server not defined for context", func() {
+		It("should return error", func() {
+			_, err := tkgauth.GetServerKubernetesVersion(kubeconfigPath, "horse-cluster")
+			Expect(err).To(HaveOccurred())
+			Expect(err.Error()).Should(ContainSubstring("cluster has no server defined"))
+		})
+	})
+	Context("When empty kubeconfig path passed", func() {
+		It("should return error", func() {
+			_, err := tkgauth.GetServerKubernetesVersion("", "horse-cluster")
+			Expect(err).To(HaveOccurred())
+			Expect(err.Error()).Should(ContainSubstring("unable to read kubeconfig"))
+		})
 	})
 })
 

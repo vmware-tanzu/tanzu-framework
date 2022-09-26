@@ -4,13 +4,15 @@
 package csp
 
 import (
+	"bytes"
 	"crypto/hmac"
 	"crypto/sha256"
 	"encoding/base64"
 	"encoding/hex"
 	"fmt"
+	"io"
 	"net/http"
-	"net/http/httptest"
+
 	"testing"
 	"time"
 
@@ -18,26 +20,34 @@ import (
 	"golang.org/x/oauth2"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
+	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/fakes"
 	configapi "github.com/vmware-tanzu/tanzu-framework/cli/runtime/apis/config/v1alpha1"
 )
+
+const issuerUrl = "https://auth0.com/"
 
 var JWTHeader = `{"alg":"HS256","typ":"JWT"}`
 
 func TestGetAccessTokenFromAPIToken(t *testing.T) {
 	assert := assert.New(t)
-
-	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintln(w, `{
-			"id_token": "abc",
-			"token_type": "Test",
-			"expires_in": 86400,
-			"scope": "Test",
-			"access_token": "LetMeIn",
-			"refresh_token": "LetMeInAgain"}`)
-	}))
-	defer ts.Close()
-
-	token, err := GetAccessTokenFromAPIToken("asdas", ts.URL)
+	fakeHttpClient := &fakes.FakeHTTPClient{}
+	responseBody := io.NopCloser(bytes.NewReader([]byte(`{
+		"id_token": "abc",
+		"token_type": "Test",
+		"expires_in": 86400,
+		"scope": "Test",
+		"access_token": "LetMeIn",
+		"refresh_token": "LetMeInAgain"}`)))
+	fakeHttpClient.DoReturns(&http.Response{
+		StatusCode: 200,
+		Body:       responseBody,
+	}, nil)
+	httpRestClient = fakeHttpClient
+	token, err := GetAccessTokenFromAPIToken("asdas", issuerUrl)
+	if err != nil {
+		fmt.Println(err)
+		fmt.Println("Error...................................")
+	}
 	assert.Nil(err)
 	assert.Equal("LetMeIn", token.AccessToken)
 }
@@ -49,16 +59,16 @@ func TestGetAccessTokenFromAPIToken_Err(t *testing.T) {
 	assert.NotNil(err)
 	assert.Nil(token)
 }
-
 func TestGetAccessTokenFromAPIToken_FailStatus(t *testing.T) {
 	assert := assert.New(t)
-
-	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusForbidden)
-	}))
-	defer ts.Close()
-
-	token, err := GetAccessTokenFromAPIToken("asdas", ts.URL)
+	fakeHttpClient := &fakes.FakeHTTPClient{}
+	responseBody := io.NopCloser(bytes.NewReader([]byte(``)))
+	fakeHttpClient.DoReturns(&http.Response{
+		StatusCode: 403,
+		Body:       responseBody,
+	}, nil)
+	httpRestClient = fakeHttpClient
+	token, err := GetAccessTokenFromAPIToken("asdas", issuerUrl)
 	assert.NotNil(err)
 	assert.Contains(err.Error(), "obtain access token")
 	assert.Nil(token)
@@ -66,24 +76,25 @@ func TestGetAccessTokenFromAPIToken_FailStatus(t *testing.T) {
 
 func TestGetAccessTokenFromAPIToken_InvalidResponse(t *testing.T) {
 	assert := assert.New(t)
+	fakeHttpClient := &fakes.FakeHTTPClient{}
+	responseBody := io.NopCloser(bytes.NewReader([]byte(`[{
+		"id_token": "abc",
+		"token_type": "Test",
+		"expires_in": 86400,
+		"scope": "Test",
+		"access_token": "LetMeIn",
+		"refresh_token": "LetMeInAgain"}]`)))
+	fakeHttpClient.DoReturns(&http.Response{
+		StatusCode: 200,
+		Body:       responseBody,
+	}, nil)
+	httpRestClient = fakeHttpClient
 
-	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintln(w, `[{
-			"id_token": "abc",
-			"token_type": "Test",
-			"expires_in": 86400,
-			"scope": "Test",
-			"access_token": "LetMeIn",
-			"refresh_token": "LetMeInAgain"}]`)
-	}))
-	defer ts.Close()
-
-	token, err := GetAccessTokenFromAPIToken("asdas", ts.URL)
+	token, err := GetAccessTokenFromAPIToken("asdas", issuerUrl)
 	assert.NotNil(err)
 	assert.Contains(err.Error(), "could not unmarshal")
 	assert.Nil(token)
 }
-
 func TestIsExpired(t *testing.T) {
 	assert := assert.New(t)
 
@@ -127,6 +138,23 @@ func TestParseToken_ParseFailure(t *testing.T) {
 	assert.Nil(context)
 }
 
+func TestIDTokenFromTokenSource_getIDToken(t *testing.T) {
+	assert := assert.New(t)
+
+	// Pass in incorrectly formatted AccessToken
+	tkn := oauth2.Token{
+		AccessToken:  "LetMeIn",
+		TokenType:    "Bearer",
+		RefreshToken: "LetMeInAgain",
+		Expiry:       time.Now().Add(time.Minute * 30),
+	}
+	tknExt := tkn.WithExtra(map[string]interface{}{
+		"id_token": "idtoken",
+	})
+	idtoken := IDTokenFromTokenSource(tknExt)
+	assert.Contains(idtoken, "idtoken")
+}
+
 func TestParseToken_MissingUsername(t *testing.T) {
 	assert := assert.New(t)
 
@@ -146,7 +174,7 @@ func TestParseToken_MissingUsername(t *testing.T) {
 	assert.Nil(context)
 }
 
-func TestParseToken_MissingContextname(t *testing.T) {
+func TestParseToken_MissingContextName(t *testing.T) {
 	assert := assert.New(t)
 
 	accessToken := generateJWTToken(
@@ -187,7 +215,7 @@ func TestParseToken(t *testing.T) {
 	assert.Empty(claim.Permissions)
 }
 
-func TestGetToken(t *testing.T) {
+func TestGetToken_Valid_NotExpired(t *testing.T) {
 	assert := assert.New(t)
 
 	accessToken := generateJWTToken(
@@ -210,4 +238,43 @@ func TestGetToken(t *testing.T) {
 	assert.NotNil(tok)
 	assert.Equal(accessToken, tok.AccessToken)
 	assert.Equal(expireTime, tok.Expiry)
+}
+
+func TestGetToken_Expired(t *testing.T) {
+	assert := assert.New(t)
+
+	accessToken := generateJWTToken(
+		`{"sub":"1234567890","username":"joe","context_name":"1516239022"}`,
+	)
+	expireTime := time.Now().Add(-time.Minute * 30)
+
+	serverAuth := configapi.GlobalServerAuth{
+		Issuer:       "https://oidc.example.com",
+		UserName:     "jdoe",
+		AccessToken:  accessToken,
+		IDToken:      "xxyyzz",
+		RefreshToken: "sprite",
+		Expiration:   v1.NewTime(expireTime),
+		Type:         "client",
+	}
+
+	fakeHttpClient := &fakes.FakeHTTPClient{}
+	responseBody := io.NopCloser(bytes.NewReader([]byte(`{
+		"id_token": "abc",
+		"token_type": "Test",
+		"expires_in": 86400,
+		"scope": "Test",
+		"access_token": "LetMeIn",
+		"refresh_token": "LetMeInAgain"}`)))
+	fakeHttpClient.DoReturns(&http.Response{
+		StatusCode: 200,
+		Body:       responseBody,
+	}, nil)
+	httpRestClient = fakeHttpClient
+
+	tok, err := GetToken(&serverAuth)
+	assert.Nil(err)
+	assert.NotNil(tok)
+	assert.Equal(tok.AccessToken, "LetMeIn")
+	assert.Equal(tok.RefreshToken, "LetMeInAgain")
 }

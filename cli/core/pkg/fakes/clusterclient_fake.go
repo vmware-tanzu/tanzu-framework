@@ -5,10 +5,23 @@ import (
 	"sync"
 
 	"github.com/vmware-tanzu/tanzu-framework/apis/cli/v1alpha1"
+	"github.com/vmware-tanzu/tanzu-framework/capabilities/client/pkg/discovery"
 	"github.com/vmware-tanzu/tanzu-framework/cli/core/pkg/cluster"
 )
 
 type ClusterClient struct {
+	BuildClusterQueryStub        func() (*discovery.ClusterQuery, error)
+	buildClusterQueryMutex       sync.RWMutex
+	buildClusterQueryArgsForCall []struct {
+	}
+	buildClusterQueryReturns struct {
+		result1 *discovery.ClusterQuery
+		result2 error
+	}
+	buildClusterQueryReturnsOnCall map[int]struct {
+		result1 *discovery.ClusterQuery
+		result2 error
+	}
 	GetCLIPluginImageRepositoryOverrideStub        func() (map[string]string, error)
 	getCLIPluginImageRepositoryOverrideMutex       sync.RWMutex
 	getCLIPluginImageRepositoryOverrideArgsForCall []struct {
@@ -47,6 +60,62 @@ type ClusterClient struct {
 	}
 	invocations      map[string][][]interface{}
 	invocationsMutex sync.RWMutex
+}
+
+func (fake *ClusterClient) BuildClusterQuery() (*discovery.ClusterQuery, error) {
+	fake.buildClusterQueryMutex.Lock()
+	ret, specificReturn := fake.buildClusterQueryReturnsOnCall[len(fake.buildClusterQueryArgsForCall)]
+	fake.buildClusterQueryArgsForCall = append(fake.buildClusterQueryArgsForCall, struct {
+	}{})
+	stub := fake.BuildClusterQueryStub
+	fakeReturns := fake.buildClusterQueryReturns
+	fake.recordInvocation("BuildClusterQuery", []interface{}{})
+	fake.buildClusterQueryMutex.Unlock()
+	if stub != nil {
+		return stub()
+	}
+	if specificReturn {
+		return ret.result1, ret.result2
+	}
+	return fakeReturns.result1, fakeReturns.result2
+}
+
+func (fake *ClusterClient) BuildClusterQueryCallCount() int {
+	fake.buildClusterQueryMutex.RLock()
+	defer fake.buildClusterQueryMutex.RUnlock()
+	return len(fake.buildClusterQueryArgsForCall)
+}
+
+func (fake *ClusterClient) BuildClusterQueryCalls(stub func() (*discovery.ClusterQuery, error)) {
+	fake.buildClusterQueryMutex.Lock()
+	defer fake.buildClusterQueryMutex.Unlock()
+	fake.BuildClusterQueryStub = stub
+}
+
+func (fake *ClusterClient) BuildClusterQueryReturns(result1 *discovery.ClusterQuery, result2 error) {
+	fake.buildClusterQueryMutex.Lock()
+	defer fake.buildClusterQueryMutex.Unlock()
+	fake.BuildClusterQueryStub = nil
+	fake.buildClusterQueryReturns = struct {
+		result1 *discovery.ClusterQuery
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *ClusterClient) BuildClusterQueryReturnsOnCall(i int, result1 *discovery.ClusterQuery, result2 error) {
+	fake.buildClusterQueryMutex.Lock()
+	defer fake.buildClusterQueryMutex.Unlock()
+	fake.BuildClusterQueryStub = nil
+	if fake.buildClusterQueryReturnsOnCall == nil {
+		fake.buildClusterQueryReturnsOnCall = make(map[int]struct {
+			result1 *discovery.ClusterQuery
+			result2 error
+		})
+	}
+	fake.buildClusterQueryReturnsOnCall[i] = struct {
+		result1 *discovery.ClusterQuery
+		result2 error
+	}{result1, result2}
 }
 
 func (fake *ClusterClient) GetCLIPluginImageRepositoryOverride() (map[string]string, error) {
@@ -220,6 +289,8 @@ func (fake *ClusterClient) VerifyCLIPluginCRDReturnsOnCall(i int, result1 bool, 
 func (fake *ClusterClient) Invocations() map[string][][]interface{} {
 	fake.invocationsMutex.RLock()
 	defer fake.invocationsMutex.RUnlock()
+	fake.buildClusterQueryMutex.RLock()
+	defer fake.buildClusterQueryMutex.RUnlock()
 	fake.getCLIPluginImageRepositoryOverrideMutex.RLock()
 	defer fake.getCLIPluginImageRepositoryOverrideMutex.RUnlock()
 	fake.listCLIPluginResourcesMutex.RLock()
