@@ -5,9 +5,9 @@ metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.8.0
   creationTimestamp: null
-  name: capabilities.run.tanzu.vmware.com
+  name: capabilities.core.tanzu.vmware.com
 spec:
-  group: run.tanzu.vmware.com
+  group: core.tanzu.vmware.com
   names:
     kind: Capability
     listKind: CapabilityList
