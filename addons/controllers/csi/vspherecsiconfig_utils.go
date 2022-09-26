@@ -29,8 +29,8 @@ import (
 	topologyv1alpha1 "github.com/vmware-tanzu/vm-operator/external/tanzu-topology/api/v1alpha1"
 )
 
-// ClusterToVSphereCSIConfig returns a list of Requests with VSphereCSIConfig ObjectKey
-func (r *VSphereCSIConfigReconciler) ClusterToVSphereCSIConfig(o client.Object) []ctrl.Request {
+// VSphereClusterToVSphereCSIConfig returns a list of Requests with VSphereCSIConfig ObjectKey
+func (r *VSphereCSIConfigReconciler) VSphereClusterToVSphereCSIConfig(o client.Object) []ctrl.Request {
 	cluster, ok := o.(*capvvmwarev1beta1.VSphereCluster)
 	if !ok {
 		r.Log.Error(errors.New("invalid type"),
